@@ -35,12 +35,12 @@
 static void Debug_StickControl(GObj *self);
 static void Debug_WireString_Bird(float *pos, char *fmt, ...);
 
-inline float vector_angle_degree(void *a0, void *a1)
+inline float vector_angle_degree(void *a, void *b)
 {
     float v0[4];
     float v1[4];
-    sceVu0Normalize(v0, a0);
-    sceVu0Normalize(v1, a1);
+    sceVu0Normalize(v0, a);
+    sceVu0Normalize(v1, b);
     return radians_to_degrees(acosf(sceVu0InnerProduct(v0, v1)));
 }
 
@@ -70,14 +70,14 @@ static void interp_vector_sa(float *dst, float *a, float *b, float sa)
     sceVu0DivVector(dst, sum, GetTableSin((short)(ang * 10430.378f)));
 }
 
-void birdBeforeFunc(char *self)
+void birdBeforeFunc(GObj *self)
 {
     Act *act = GOBJ_ACT(self);
     BirdWork *w = GOBJ_SUB(self)->work;
     float there[4];
     float here[4];
     int i;
-    GObjMailQueue *q = (GObjMailQueue *)&((GObj *)self)->mailQueue;
+    GObjMailQueue *q = (GObjMailQueue *)&self->mailQueue;
 
     for (i = 0; i < q->num; i++) {
         GObjMailEntry *e = &q->e[i];
@@ -773,16 +773,16 @@ inline void subBirdCollision(void *volatile gobj)
     }
 }
 
-inline void actBirdStart(void *a0)
+inline void actBirdStart(void *gobj)
 {
     Act *act;
 
-    act = (Act *)actInitialize(a0);
+    act = (Act *)actInitialize(gobj);
     _ACTWait(1);
     actCreateSubThread(subBirdBrainMain, 20);
     actCreateSubThread(subBirdControl, 21);
     actCreateSubThread(subBirdCollision, 21);
-    act->motReq = SetMotionRequest(a0, 270, act->motOriReq);
+    act->motReq = SetMotionRequest(gobj, 270, act->motOriReq);
 }
 
 static void Debug_WireString_Bird(float *pos, char *fmt, ...)
@@ -847,26 +847,26 @@ void BirdDL(void *gobj)
     }
 }
 
-inline BirdWork *InitBirdGeo(char *a0, void *a1)
+inline BirdWork *InitBirdGeo(GObj *gobj, void *home)
 {
     BirdWork *w;
 
     w = iosMallocDebug(ios_partition_sugipon, sizeof(BirdWork), __FILE__, 978);
     memset(w, 0, sizeof(BirdWork));
-    CopyVector(w->home, a1);
+    CopyVector(w->home, home);
     w->scared = 0;
-    InitMotionOrient(a0, 2421, 2467, -1, -1, 1134);
+    InitMotionOrient(gobj, 2421, 2467, -1, -1, 1134);
 
-    GOBJ_SUB(a0)->word544 = 1;
-    GOBJ_SUB(a0)->word54C = 0;
-    GOBJ_SUB(a0)->word548 = 1;
-    GOBJ_SUB(a0)->catchBoy = 0;
+    GOBJ_SUB(gobj)->word544 = 1;
+    GOBJ_SUB(gobj)->word54C = 0;
+    GOBJ_SUB(gobj)->word548 = 1;
+    GOBJ_SUB(gobj)->catchBoy = 0;
     /* the animation frame at 0x4AC and the word after it start at the same
        random frame */
-    ((IntFloat *)((int)GOBJ_SUB(a0) + 0x4AC))->f = random_unit() * 100.0f;
-    ((IntFloat *)((int)GOBJ_SUB(a0) + 0x4B0))->f = ((IntFloat *)((int)GOBJ_SUB(a0) + 0x4AC))->f;
-    GOBJ_SUB(a0)->word4C4 = 0;
-    SetLodLevel(a0, 3);
+    ((IntFloat *)((int)GOBJ_SUB(gobj) + 0x4AC))->f = random_unit() * 100.0f;
+    ((IntFloat *)((int)GOBJ_SUB(gobj) + 0x4B0))->f = ((IntFloat *)((int)GOBJ_SUB(gobj) + 0x4AC))->f;
+    GOBJ_SUB(gobj)->word4C4 = 0;
+    SetLodLevel(gobj, 3);
     return w;
 }
 

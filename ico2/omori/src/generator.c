@@ -63,6 +63,8 @@ typedef struct GenWork {        /* field names derived */
     int timer;     /* 0x64 */
 } GenWork;
 
+/* the data-only members stage-all.o, obj-layout.o, read through this file's
+   views of their rows; no header declares them */
 extern StgPre stageData[];
 extern GVGeo2 objLayout[];
 
@@ -75,13 +77,13 @@ static int generatorPacket[2820]; /* derived name */
 #include "ios.h"
 #include "main.h"
 
-static char *IsNeedGeneratorHard(char *mother);
+static GObj *IsNeedGeneratorHard(GObj *mother);
 
 inline int SearchActiveGenerator(void)
 {
-    char *g;
+    GObj *g;
 
-    g = (char *)isysGObjSearchFromObjKindID_begin(33);
+    g = isysGObjSearchFromObjKindID_begin(33);
     while (g != 0) {
         GenWork *w = GOBJ_SUB(g)->work;
 
@@ -90,24 +92,24 @@ inline int SearchActiveGenerator(void)
                 return 1;
             }
         }
-        g = (char *)isysGObjSearchFromObjKindID_next(g);
+        g = isysGObjSearchFromObjKindID_next(g);
     }
     return 0;
 }
 
-int CheckGeneratorCollision(char *gobj, float *dir)
+int CheckGeneratorCollision(GObj *gobj, float *dir)
 {
     float pos[4];
     float tmp[4];
     float p[4];
-    char *g;
+    GObj *g;
 
-    g = (char *)isysGObjSearchFromObjKindID_begin(33);
+    g = isysGObjSearchFromObjKindID_begin(33);
     GetRootPosition(pos, gobj);
     sceVu0ScaleVector(tmp, dir, 100.0f);
     sceVu0AddVector(pos, pos, tmp);
 
-    for (; g != 0; g = (char *)isysGObjSearchFromObjKindID_next(g)) {
+    for (; g != 0; g = isysGObjSearchFromObjKindID_next(g)) {
         GenWork *w = GOBJ_SUB(g)->work;
 
         if (((GObj *)g)->active == 0) {
@@ -136,16 +138,18 @@ typedef struct SafePosOffset { /* field names derived */
     int kind;
 } SafePosOffset;
 
+/* the data-only member generator-sub-position.o, read through this file's view of its
+   rows; no header declares it */
 extern SafePosOffset generatorSubPosition[];
 
 /* whether no live enemy stands close to pos; GetGeneratorSafePosition uses it
    twice and reads the result as a byte */
 static inline unsigned char IsGeneratorSafePosition(float *pos) /* derived name */
 {
-    char *g;
+    GObj *g;
 
-    for (g = (char *)isysGObjSearchFromObjKindID_begin(17); g != 0;
-         g = (char *)isysGObjSearchFromObjKindID_next(g)) {
+    for (g = isysGObjSearchFromObjKindID_begin(17); g != 0;
+         g = isysGObjSearchFromObjKindID_next(g)) {
         float p[4];
 
         if (((GObj *)g)->active == 0) {
@@ -163,7 +167,7 @@ static inline unsigned char IsGeneratorSafePosition(float *pos) /* derived name 
     return 1;
 }
 
-void GetGeneratorSafePosition(float *dst, char *gobj)
+void GetGeneratorSafePosition(float *dst, GObj *gobj)
 {
     float pos[4];
     int i;
@@ -202,7 +206,7 @@ void GetGeneratorSafePosition(float *dst, char *gobj)
     }
 }
 
-static void switch_MainStatus(char *gobj, unsigned char st)
+static void switch_MainStatus(GObj *gobj, unsigned char st)
 {
     float pos[4];
     GenWork *w = GOBJ_SUB(gobj)->work;
@@ -237,11 +241,12 @@ static void switch_MainStatus(char *gobj, unsigned char st)
     }
 }
 
+/* newlib's assert hook; the game's include path carries no assert.h */
 extern void __assert(char *file, int line, char *expr);
 
 /* stop the current animation slot's manager (ResetCurrentBga) and start the
    manager of a slot (EntryBga), for endfunc_BGA and GeneratorGeo */
-static inline char *ResetCurrentBga(char *gobj) /* derived name */
+static inline char *ResetCurrentBga(GObj *gobj) /* derived name */
 {
     GenWork *w = GOBJ_SUB(gobj)->work;
 
@@ -252,7 +257,7 @@ static inline char *ResetCurrentBga(char *gobj) /* derived name */
     return (char *)w;
 }
 
-static inline void EntryBga(char *gobj, GenWork *w, int slot) /* derived name */
+static inline void EntryBga(GObj *gobj, GenWork *w, int slot) /* derived name */
 {
     float mtx[4];
 
@@ -261,7 +266,7 @@ static inline void EntryBga(char *gobj, GenWork *w, int slot) /* derived name */
     EntryMultiBgaManager(w->bga[slot].p, 0, -1, (void *)test_CURRENTROOT(gobj), mtx);
 }
 
-static void endfunc_BGA(char *gobj)
+static void endfunc_BGA(GObj *gobj)
 {
     GenWork *w = GOBJ_SUB(gobj)->work;
 
@@ -296,17 +301,17 @@ static void endfunc_BGA(char *gobj)
     }
 }
 
-static char *IsNeedGeneratorHard(char *mother)
+static GObj *IsNeedGeneratorHard(GObj *mother)
 {
     GenWork *w = GOBJ_SUB(mother)->work;
-    char *g;
+    GObj *g;
     int count = 0;
     int isCalling = (w->status == 1);
 
     if (mother != 0 && ((GObj *)mother)->labelId == 3758) {
         int found = 0;
 
-        g = (char *)isysGObjSearchFromObjLayoutID(3757);
+        g = isysGObjSearchFromObjLayoutID(3757);
         if (g != 0) {
             GVGeo2 *gv = &objLayout[((GObj *)g)->labelId];
 
@@ -320,8 +325,8 @@ static char *IsNeedGeneratorHard(char *mother)
         return found ? g : 0;
     }
 
-    for (g = (char *)isysGObjSearchFromObjKindID_begin(4); g != 0;
-         g = (char *)isysGObjSearchFromObjKindID_next(g)) {
+    for (g = isysGObjSearchFromObjKindID_begin(4); g != 0;
+         g = isysGObjSearchFromObjKindID_next(g)) {
         Act *p = GOBJ_ACT(g);
 
         if ((unsigned int)(p->flags18.ll >> 34) & 1) {
@@ -341,18 +346,18 @@ static char *IsNeedGeneratorHard(char *mother)
         }
     }
 
-    for (g = (char *)isysGObjSearchFromObjKindID_begin(33); g != 0;
-         g = (char *)isysGObjSearchFromObjKindID_next(g)) {}
+    for (g = isysGObjSearchFromObjKindID_begin(33); g != 0;
+         g = isysGObjSearchFromObjKindID_next(g)) {}
 
-    for (g = (char *)isysGObjSearchFromObjKindID_begin(62); g != 0;
-         g = (char *)isysGObjSearchFromObjKindID_next(g)) {
+    for (g = isysGObjSearchFromObjKindID_begin(62); g != 0;
+         g = isysGObjSearchFromObjKindID_next(g)) {
         Act *p = GOBJ_ACT(g);
 
         count += (int)(p->flags18.ll >> 32) & 1;
     }
 
-    for (g = (char *)isysGObjSearchFromObjKindID_begin(4); g != 0;
-         g = (char *)isysGObjSearchFromObjKindID_next(g)) {
+    for (g = isysGObjSearchFromObjKindID_begin(4); g != 0;
+         g = isysGObjSearchFromObjKindID_next(g)) {
         Act *p = GOBJ_ACT(g);
         GVGeo2 *gv = &objLayout[((GObj *)g)->labelId];
 
@@ -381,7 +386,7 @@ static char *IsNeedGeneratorHard(char *mother)
                 return g;
             }
             {
-                char *m = GetMotherGeneratorGObjAskEnemy(g);
+                GObj *m = GetMotherGeneratorGObjAskEnemy(g);
 
                 if (m != 0 && IsOpenGenerator(m)) {
                     return g;
@@ -392,10 +397,10 @@ static char *IsNeedGeneratorHard(char *mother)
     return 0;
 }
 
-inline int IsEnableCallEnemyByTargetGObj(void *a0)
+inline int IsEnableCallEnemyByTargetGObj(void *gobj)
 {
-    GVGeo2 *g = &objLayout[((GObj *)a0)->labelId];
-    Act *p = GOBJ_ACT(a0);
+    GVGeo2 *g = &objLayout[((GObj *)gobj)->labelId];
+    Act *p = GOBJ_ACT(gobj);
     if (g->motherLabel != 0) {
         return 0;
     }
@@ -408,12 +413,12 @@ inline int IsEnableCallEnemyByTargetGObj(void *a0)
     return 0;
 }
 
-inline void *IsEnableCallEnemy(char *self)
+inline void *IsEnableCallEnemy(GObj *self)
 {
-    char *g;
+    GObj *g;
 
-    for (g = (char *)isysGObjSearchFromObjKindID_begin(4); g != 0;
-         g = (char *)isysGObjSearchFromObjKindID_next(g)) {
+    for (g = isysGObjSearchFromObjKindID_begin(4); g != 0;
+         g = isysGObjSearchFromObjKindID_next(g)) {
         Act *p = GOBJ_ACT(g);
         int no = ((GObj *)g)->labelId;
         GVGeo2 *gg = &objLayout[no];
@@ -438,7 +443,7 @@ inline void *IsEnableCallEnemy(char *self)
     return 0;
 }
 
-inline char *DirectCallEnemy(char *gobj, char *mother, float *pos, float *dir, int a4)
+inline GObj *DirectCallEnemy(GObj *gobj, GObj *mother, float *pos, float *dir, int kind)
 {
     GVGeo2 *gg = &objLayout[((GObj *)gobj)->labelId];
 
@@ -453,17 +458,17 @@ inline char *DirectCallEnemy(char *gobj, char *mother, float *pos, float *dir, i
     if (gg->reviveCount != -1) {
         gg->reviveCount--;
     }
-    actEnemyRestart(gobj, pos, dir, a4, mother);
+    actEnemyRestart(gobj, pos, dir, kind, mother);
     ACTGame_SaveActorInformation(gobj);
     return gobj;
 }
 
-char *CallEnemy(char *mother, float *pos, float *dir, int a4)
+GObj *CallEnemy(GObj *mother, float *pos, float *dir, int kind)
 {
-    char *gobj = (char *)IsEnableCallEnemy(mother);
+    GObj *gobj = IsEnableCallEnemy(mother);
 
     if (gobj != 0) {
-        return DirectCallEnemy(gobj, mother, pos, dir, a4);
+        return DirectCallEnemy(gobj, mother, pos, dir, kind);
     }
     return 0;
 }
@@ -476,16 +481,16 @@ inline void LockEnemyGenerate(int *self)
     p->flags18.ll = p->flags18.ll | 0x400000000LL;
 }
 
-inline void UnlockEnemyGenerate(void *a0)
+inline void UnlockEnemyGenerate(void *gobj)
 {
-    Act *p = GOBJ_ACT(a0);
-    GVGeo2 *g = &objLayout[((GObj *)a0)->labelId];
-    debug_StdPrintfDummy("unlock! = %d\n", ((GObj *)a0)->labelId);
+    Act *p = GOBJ_ACT(gobj);
+    GVGeo2 *g = &objLayout[((GObj *)gobj)->labelId];
+    debug_StdPrintfDummy("unlock! = %d\n", ((GObj *)gobj)->labelId);
     p->flags18.ll &= ~((unsigned long)0x8000 << 19);
     g->flags = (g->flags | 0x200000) & 0xFFFBFFFF;
 }
 
-inline void RestoreReviveCount(char *gobj)
+inline void RestoreReviveCount(GObj *gobj)
 {
     GVGeo2 *g = (GVGeo2 *)((char *)objLayout + ((GObj *)gobj)->labelId * 76);
     if (g->reviveCount != -1) {
@@ -499,7 +504,7 @@ inline void RestoreReviveCount(char *gobj)
     }
 }
 
-void Generator_QuickCall(char *gobj)
+void Generator_QuickCall(GObj *gobj)
 {
     GenWork *w = GOBJ_SUB(gobj)->work;
 
@@ -508,37 +513,37 @@ void Generator_QuickCall(char *gobj)
     iosOmSendMail(gobj, 1, gobj);
 }
 
-inline void Generator_Call(char *a0)
+inline void Generator_Call(GObj *gobj)
 {
-    GenWork *w = GOBJ_SUB(a0)->work;
+    GenWork *w = GOBJ_SUB(gobj)->work;
 
     w->callRequests += 1;
 }
 
-inline void Generator_ResetCount(char *a0)
+inline void Generator_ResetCount(GObj *gobj)
 {
-    GenWork *w = GOBJ_SUB(a0)->work;
+    GenWork *w = GOBJ_SUB(gobj)->work;
 
     w->resetRequest = 1;
 }
 
-inline void Generator_Mask(char *a0)
+inline void Generator_Mask(GObj *gobj)
 {
-    GenWork *w = GOBJ_SUB(a0)->work;
+    GenWork *w = GOBJ_SUB(gobj)->work;
 
     w->masked = 1;
 }
 
-inline void Generator_MaskOff(char *a0)
+inline void Generator_MaskOff(GObj *gobj)
 {
-    GenWork *w = GOBJ_SUB(a0)->work;
+    GenWork *w = GOBJ_SUB(gobj)->work;
 
     w->masked = 0;
 }
 
-void Generator_Delete(void *a0)
+void Generator_Delete(void *gobj)
 {
-    switch_MainStatus(a0, 0);
+    switch_MainStatus(gobj, 0);
 }
 
 int GetMotherGenerator(int label)
@@ -636,9 +641,9 @@ inline void Generator_Init(void)
     }
 }
 
-inline void ReturnEnemyToGenerator(int a0)
+inline void ReturnEnemyToGenerator(int label)
 {
-    GVGeo2 *g = &objLayout[a0];
+    GVGeo2 *g = &objLayout[label];
     unsigned int x = g->flags & 0xFFDFFFFF;
     unsigned int y = x & 0xFFFBFFFF;
     y |= ((x >> 19) & 1) << 18;
@@ -707,9 +712,9 @@ void MakeGeneratorPacket(void)
     }
 }
 
-inline void ResetReviveCountEnemy(int a0)
+inline void ResetReviveCountEnemy(int gobj)
 {
-    objLayout[((GObj *)a0)->labelId].reviveCount = 0;
+    objLayout[((GObj *)gobj)->labelId].reviveCount = 0;
 }
 
 inline void SetInfoSpKidnapEnemy(short *work)
@@ -720,10 +725,10 @@ inline void SetInfoSpKidnapEnemy(short *work)
     info->reviveCount = 0;
 }
 
-inline void SetInfoSpKidnapGenerator(short *a0)
+inline void SetInfoSpKidnapGenerator(short *info)
 {
-    a0[0] = 1;
-    a0[1] = 1;
+    info[0] = 1;
+    info[1] = 1;
 }
 
 inline int RestoreGeneratorGeo(float *dst, float *src)
@@ -734,23 +739,23 @@ inline int RestoreGeneratorGeo(float *dst, float *src)
     return 1;
 }
 
-inline int RestoreGeneratorExtGeo(char *a0, short *a1)
+inline int RestoreGeneratorExtGeo(GObj *gobj, short *info)
 {
-    GenWork *p = GOBJ_SUB(a0)->work;
-    p->status = a1[24];
-    p->callRequests = a1[25];
-    if (a1[24] == 1) {
+    GenWork *p = GOBJ_SUB(gobj)->work;
+    p->status = info[24];
+    p->callRequests = info[25];
+    if (info[24] == 1) {
         p->callState = 2;
-        iosOmSendMail(a0, 1, a0);
+        iosOmSendMail(gobj, 1, gobj);
     }
     return 1;
 }
 
-inline int MemoryGenerator(short *a0, char *a1)
+inline int MemoryGenerator(short *info, GObj *gobj)
 {
-    GenWork *p = GOBJ_SUB(a1)->work;
-    a0[0] = p->status;
-    a0[1] = p->callRequests;
+    GenWork *p = GOBJ_SUB(gobj)->work;
+    info[0] = p->status;
+    info[1] = p->callRequests;
     return 1;
 }
 
@@ -766,7 +771,7 @@ typedef struct GenReq { /* field names derived */
     int count;
 } GenReq;
 
-void generatorBeforeFunc(char *gobj)
+void generatorBeforeFunc(GObj *gobj)
 {
     GenWork *w = GOBJ_SUB(gobj)->work;
     GenReq *q = (GenReq *)&((GObj *)gobj)->mailQueue;
@@ -802,7 +807,7 @@ void generatorBeforeFunc(char *gobj)
     q->count = 0;
 }
 
-inline GenWork *InitGeneratorGeo(char *gobj, GVGeo2 *src)
+inline GenWork *InitGeneratorGeo(GObj *gobj, GVGeo2 *src)
 {
     GenWork *p = iosMallocDebug(ios_partition_sugipon, 112, __FILE__, 1230);
     int i;
@@ -840,7 +845,7 @@ inline GenWork *InitGeneratorGeo(char *gobj, GVGeo2 *src)
 
 /* for GeneratorGeo: the generator's forward axis, the direction it sends
    enemies off in */
-static inline void SetGeneratorAimVector(char *gobj) /* derived name */
+static inline void SetGeneratorAimVector(GObj *gobj) /* derived name */
 {
     GenWork *w = GOBJ_SUB(gobj)->work;
     float m[16];
@@ -856,7 +861,7 @@ static inline void SetGeneratorAimVector(char *gobj) /* derived name */
 }
 
 /* for GeneratorGeo: reset the current slot and start slot 2 */
-static inline void EntryGeneratorBga2(char *gobj) /* derived name */
+static inline void EntryGeneratorBga2(GObj *gobj) /* derived name */
 {
     GenWork *cur = (GenWork *)ResetCurrentBga(gobj);
 
@@ -868,9 +873,9 @@ static inline void EntryGeneratorBga2(char *gobj) /* derived name */
    reads the result as a byte */
 static inline unsigned char IsGeneratorCalling(void) /* derived name */
 {
-    char *g;
+    GObj *g;
 
-    g = (char *)isysGObjSearchFromObjKindID_begin(33);
+    g = isysGObjSearchFromObjKindID_begin(33);
     while (g != 0) {
         GenWork *w = GOBJ_SUB(g)->work;
 
@@ -881,14 +886,14 @@ static inline unsigned char IsGeneratorCalling(void) /* derived name */
                 }
             }
         }
-        g = (char *)isysGObjSearchFromObjKindID_next(g);
+        g = isysGObjSearchFromObjKindID_next(g);
     }
     return 0;
 }
 
 /* call an enemy out of the generator and start its call animation, for
    GeneratorGeo */
-static inline void CallEnemyFromGenerator(char *gobj, float *pos, float *dir) /* derived name */
+static inline void CallEnemyFromGenerator(GObj *gobj, float *pos, float *dir) /* derived name */
 {
     GenWork *w = GOBJ_SUB(gobj)->work;
 
@@ -901,7 +906,7 @@ static inline void CallEnemyFromGenerator(char *gobj, float *pos, float *dir) /*
     }
 }
 
-void GeneratorGeo(char *gobj)
+void GeneratorGeo(GObj *gobj)
 {
     GenWork *w = GOBJ_SUB(gobj)->work;
     int hard = 0;
@@ -1018,7 +1023,7 @@ void GeneratorGeo(char *gobj)
 }
 
 /* for GeneratorDL: put the animation managers at the generator's root */
-static inline void SetGeneratorBgaRootPosition(char *gobj, GenBga *tbl) /* derived name */
+static inline void SetGeneratorBgaRootPosition(GObj *gobj, GenBga *tbl) /* derived name */
 {
     float pos[3];
     int i;
@@ -1036,7 +1041,7 @@ static inline void SetGeneratorBgaRootPosition(char *gobj, GenBga *tbl) /* deriv
     }
 }
 
-void GeneratorDL(char *gobj)
+void GeneratorDL(GObj *gobj)
 {
     GenWork *w = GOBJ_SUB(gobj)->work;
     GenBga *tbl = w->bga;
@@ -1063,12 +1068,13 @@ void GeneratorDL(char *gobj)
     }
 }
 
-inline int GeneratorWorkEnd(char *a0)
+inline int GeneratorWorkEnd(GObj *gobj)
 {
-    return *(int *)((char *)GOBJ_SUB(a0)->work + 8) == 0;
+    GenWork *w = GOBJ_SUB(gobj)->work;
+    return w->callRequests == 0;
 }
 
-inline int IsOpenGenerator(char *gobj)
+inline int IsOpenGenerator(GObj *gobj)
 {
     GenWork *w = GOBJ_SUB(gobj)->work;
     int ret = 0;

@@ -100,7 +100,7 @@ motion-limit-def rodata MotOriLimit ico2/sugipon/include/motionOrientManager.h 4
 motion-se-condition-def rodata SECondEntry ico2/sugipon/include/frameDependSequence.h 211 motSECondKind@0
 motion-se-random-def rodata SERandEntry ico2/sugipon/include/frameDependSequence.h 1151 randomSEKind@0
 obj-trigger-def rodata int config/data_schema.pal.h 11 objTriggerDef@0
-obj-trigger rodata ObjActMailEnt config/data_schema.pal.h 33 objTrigger@0
+obj-trigger rodata ObjActMailEnt ico2/omori/include/objact.h 33 objTrigger@0
 parallel-motion-orient rodata MotOriParallelEnt ico2/sugipon/include/motionOrientManager.h 54 parallelMotionOrient@0
 particle-effect rodata ParticleEffectFile ico2/sugipon/include/particleEffect.h 61 particleEffectFile@0
 spider-def rodata SpiderKindRec ico2/sugipon/include/spider.h 6 spiderDef@0

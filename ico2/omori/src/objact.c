@@ -4,13 +4,15 @@
 #include "typedef.h"
 #include "act2.h"
 
+/* the data-only members obj-layout.o, obj-action.o, read through this file's
+   views of their rows; no header declares them */
 extern OaRecA objLayout[];
 extern OaRecB objAction[];
 
 /* the object's action record, or none */
-static inline OaRecB *objActionRecord(int a0) /* derived name */
+static inline OaRecB *objActionRecord(int label) /* derived name */
 {
-    int e = objLayout[a0].action;
+    int e = objLayout[label].action;
     if (e != 0) {
         return &objAction[e];
     }
@@ -40,28 +42,28 @@ static inline void objActionCorrectMode(OaRecB *p) /* derived name */
     }
 }
 
-inline void ObjAction_CorrectGeo(int a0, int a1)
+inline void ObjAction_CorrectGeo(int label, int unused)
 {
     OaRecB *p;
-    if (a0 < 0)
+    if (label < 0)
         return;
-    p = objActionRecord(a0);
+    p = objActionRecord(label);
     if (p == 0)
         return;
     objActionCorrectFlag(p);
     objActionCorrectMode(p);
 }
 
-inline void ObjAction_Mail(void *a0, int a1)
+inline void ObjAction_Mail(void *data, int mail)
 {
     void *p = isysGObjGetExist_begin();
     while (p != 0) {
-        iosOmSendMail(p, a1, a0);
+        iosOmSendMail(p, mail, data);
         p = isysGObjGetExist_next(p);
     }
 }
 
-inline void ObjAction_MailCenter(void *a0, int a1)
+inline void ObjAction_MailCenter(void *gobj, int step)
 {
     int i;
     const ObjActMailEnt *e;
@@ -69,15 +71,15 @@ inline void ObjAction_MailCenter(void *a0, int a1)
 
     for (i = 0; i < 33; i++) {
         e = &objTrigger[i];
-        if (((GObj *)a0)->labelId != e->id)
+        if (((GObj *)gobj)->labelId != e->labelId)
             continue;
-        n = e->idx;
-        if (a1 > 0) {
+        n = e->triggerNo;
+        if (step > 0) {
             if (n < 5)
                 continue;
-            n += a1;
+            n += step;
         }
-        ObjAction_Mail(a0, objTriggerDef[n]);
+        ObjAction_Mail(gobj, objTriggerDef[n]);
     }
 }
 

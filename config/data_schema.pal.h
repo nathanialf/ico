@@ -183,12 +183,5 @@ typedef struct { /* field names derived */
     float float64;     /* 0x64 */
 } LayoutClothDef; /* derived name */
 
-/* obj-trigger: one object mail trigger, 8 bytes. Reader: ico2/omori/src/
- * objact.c (ObjActMailEnt, declared in objact.h). Owner:
- * ico2/omori/include/objact.h (ObjActMailEnt). */
-typedef struct { /* field names derived */
-    int id;  /* 0x00, the object's GObj+8 */
-    int idx; /* 0x04, the objTriggerDef row */
-} ObjActMailEnt; /* derived name */
 
 #endif /* DATA_SCHEMA_PAL_H */

@@ -23,7 +23,7 @@ typedef struct EBSlot { /* field names derived */
 } EBSlot;
 
 void eBrainInit(void);
-int eBrainStatusSet(void *a0, int a1);
+int eBrainStatusSet(void *gop, int status);
 void eBrainSendMes(void *gop, int mes);
 int GetStageFromLabel(int label);
 int eBrainGetTargetGeneratorFromLabelStage(int label, int stage);

@@ -19,11 +19,11 @@ typedef struct BirdWork { /* field names derived */
     char pad34[12];       /* 0x34 */
 } BirdWork;
 
-float vector_angle_degree(void *a0, void *a1);
+float vector_angle_degree(void *a, void *b);
 void subBirdControl(void *volatile gobj);
 void subBirdCollision(void *volatile gobj);
-void actBirdStart(void *a0);
-BirdWork *InitBirdGeo(char *a0, void *a1);
+void actBirdStart(void *gobj);
+BirdWork *InitBirdGeo(struct GObj *gobj, void *home);
 void BirdAI(void);
 void _ACTSendMailToBirdAll(int mail, void *data);
 void _ACTSendMailToBird(void *obj, int mail, void *data);

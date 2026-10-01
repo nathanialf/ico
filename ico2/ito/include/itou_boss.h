@@ -10,8 +10,8 @@
 
 /* the functions itou_boss.c defines `inline` */
 int InqCapsuleGhostBossStage(void);
-void actBossCtrlStart(void *a0);
-int InitBossCtrlGeo(void *a0);
+void actBossCtrlStart(void *gobj);
+int InitBossCtrlGeo(void *gobj);
 void CapsuleGhostBossStart(void);
 int InqCapsuleGhostBossEnd(void);
 void BossCtrlGeo(void *self);

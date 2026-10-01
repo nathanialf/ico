@@ -36,9 +36,11 @@ void GetMatrixDirectionToZ(float *out, float *dir)
     MatrixDrive_PopMatrix();
 }
 
-/* as gv.h declares them; this file does not include gv.h */
-extern int _RotyGV(float *a0, float *a1);
-extern void _ApplyRyGV(float *a0, float a1);
+/* defined below; gv.h is not included, because its declarations of the
+   inline functions at the end of this file change the order the compiler
+   emits them in */
+int _RotyGV(float *dir, float *base);
+void _ApplyRyGV(float *vec, float ang);
 
 int _InterRotGV(float *dst, float *cur, float *tgt, int step)
 {
@@ -68,56 +70,56 @@ int _InterRotGV(float *dst, float *cur, float *tgt, int step)
     return hit;
 }
 
-float _DistxzSqGV(void *a0, void *a1)
+float _DistxzSqGV(void *a, void *b)
 {
     char buf[16];
-    sceVu0SubVector(buf, a0, a1);
+    sceVu0SubVector(buf, a, b);
     *(int *)(buf + 4) = 0;
     return sceVu0InnerProduct(buf, buf);
 }
 
-float _DistSqGV(void *a0, void *a1)
+float _DistSqGV(void *a, void *b)
 {
     char buf[16];
-    sceVu0SubVector(buf, a0, a1);
+    sceVu0SubVector(buf, a, b);
     return sceVu0InnerProduct(buf, buf);
 }
 
-float _DistGV(void *a0, void *a1)
+float _DistGV(void *a, void *b)
 {
     char buf[16];
-    sceVu0SubVector(buf, a0, a1);
+    sceVu0SubVector(buf, a, b);
     return FSqrt(sceVu0InnerProduct(buf, buf));
 }
 
-float _DistxzGV(void *a0, void *a1)
+float _DistxzGV(void *a, void *b)
 {
     char buf[16];
-    sceVu0SubVector(buf, a0, a1);
+    sceVu0SubVector(buf, a, b);
     *(int *)(buf + 4) = 0;
     return FSqrt(sceVu0InnerProduct(buf, buf));
 }
 
-float _MoveGV(float *a0, float *a1, float *a2, float a3)
+float _MoveGV(float *dst, float *from, float *to, float step)
 {
     float buf[4];
     float ang;
-    sceVu0SubVector(buf, a2, a1);
+    sceVu0SubVector(buf, to, from);
     ang = FSqrt(buf[0] * buf[0] + buf[1] * buf[1] + buf[2] * buf[2]);
-    if (ang < a3) {
-        a0[0] = a2[0];
-        a0[1] = a2[1];
-        a0[2] = a2[2];
+    if (ang < step) {
+        dst[0] = to[0];
+        dst[1] = to[1];
+        dst[2] = to[2];
     } else {
-        _InterGV(a0, a1, a2, a3, ang - a3);
+        _InterGV(dst, from, to, step, ang - step);
     }
     return ang;
 }
 
-int _RotyGV(float *a0, float *a1)
+int _RotyGV(float *dir, float *base)
 {
-    float a = atan2f(a0[0], a0[2]);
-    float b = atan2f(a1[0], a1[2]);
+    float a = atan2f(dir[0], dir[2]);
+    float b = atan2f(base[0], base[2]);
     int d = (int)((a - b) * 180.0f / 3.1415927f);
 
     if (d > 180)
@@ -127,54 +129,54 @@ int _RotyGV(float *a0, float *a1)
     return d;
 }
 
-int _AbsRotyGV(void *a0, void *a1)
+int _AbsRotyGV(void *dir, void *base)
 {
-    int d = _RotyGV(a0, a1);
+    int d = _RotyGV(dir, base);
 
     return (d < 0) ? -d : d;
 }
 
-void _ApplyRyGV(float *a0, float a1)
+void _ApplyRyGV(float *vec, float ang)
 {
     float m0[16];
     float m1[16];
     float v[4];
     sceVu0UnitMatrix(m0);
-    sceVu0RotMatrixY(m1, m0, a1);
-    sceVu0ApplyMatrix(v, m1, a0);
-    a0[0] = v[0];
-    a0[1] = v[1];
-    a0[2] = v[2];
+    sceVu0RotMatrixY(m1, m0, ang);
+    sceVu0ApplyMatrix(v, m1, vec);
+    vec[0] = v[0];
+    vec[1] = v[1];
+    vec[2] = v[2];
 }
 
-float _GetDirection(float *a0)
+float _GetDirection(float *dir)
 {
     float buf[4];
     buf[1] = 0;
-    buf[0] = a0[0];
-    buf[2] = a0[2];
+    buf[0] = dir[0];
+    buf[2] = dir[2];
     sceVu0Normalize(buf, buf);
     return atan2f(buf[0], buf[2]);
 }
 
-inline int _RotGV(float *a0, float *a1)
+inline int _RotGV(float *a, float *b)
 {
     float buf[4];
     float buf2[4];
-    buf[0] = a0[0];
-    buf[1] = a0[1];
-    buf[2] = a0[2];
-    buf2[0] = a1[0];
-    buf2[1] = a1[1];
-    buf2[2] = a1[2];
+    buf[0] = a[0];
+    buf[1] = a[1];
+    buf[2] = a[2];
+    buf2[0] = b[0];
+    buf2[1] = b[1];
+    buf2[2] = b[2];
     sceVu0Normalize(buf, buf);
     sceVu0Normalize(buf2, buf2);
     return GetTableArcCos(sceVu0InnerProduct(buf, buf2)) * 180 / 32768;
 }
 
-inline float _RotGVF(float *a0, float *a1)
+inline float _RotGVF(float *a, float *b)
 {
-    return _RotGV(a0, a1) * 3.1415927f / 180.0f;
+    return _RotGV(a, b) * 3.1415927f / 180.0f;
 }
 
 inline void _OrientXZGV(float *dst, float *a, float *b)
@@ -192,13 +194,13 @@ inline void _OrientGV(float *dst, float *a, float *b)
     sceVu0Normalize(dst, buf);
 }
 
-inline int _FrontGV(float *a0, float *a1, float *dir, int deg)
+inline int _FrontGV(float *target, float *pos, float *dir, int deg)
 {
     float *p;
     float buf[8];
     int r;
     p = &buf[4];
-    sceVu0SubVector(p, a0, a1);
+    sceVu0SubVector(p, target, pos);
     p = &buf[0];
     buf[5] = 0.0f;
     sceVu0Normalize(p, &buf[4]);
@@ -220,38 +222,38 @@ inline void SwapGV(float *a, float *b)
     b[2] = tmp[2];
 }
 
-inline float GetCorrectDistance(int a0, float a1)
+inline float GetCorrectDistance(int deg, float dist)
 {
-    float r = GetTableCos((short)((a0 << 15) / 180));
+    float r = GetTableCos((short)((deg << 15) / 180));
     if (r == 0.0f)
         return 3.40282347e+38f; /* FLT_MAX */
-    return a1 / r;
+    return dist / r;
 }
 
-inline int RoundDegGV(int a0)
+inline int RoundDegGV(int deg)
 {
-    if (a0 > 0) {
-        a0 = a0 % 360;
+    if (deg > 0) {
+        deg = deg % 360;
     } else {
-        int a = a0 < 0 ? -a0 : a0;
-        a0 = (a / 360 + 1) * 360 + a0;
+        int a = deg < 0 ? -deg : deg;
+        deg = (a / 360 + 1) * 360 + deg;
     }
-    return (a0 < 181) ? a0 : a0 - 360;
+    return (deg < 181) ? deg : deg - 360;
 }
 
-inline int AlignDegGV(int a0)
+inline int AlignDegGV(int deg)
 {
-    if (a0 < -135)
-        a0 = 180;
-    else if (a0 < -45)
-        a0 = -90;
-    else if (a0 < 45)
-        a0 = 0;
+    if (deg < -135)
+        deg = 180;
+    else if (deg < -45)
+        deg = -90;
+    else if (deg < 45)
+        deg = 0;
     else {
-        int v = a0;
-        a0 = 180;
+        int v = deg;
+        deg = 180;
         if (v <= 134)
-            a0 = 90;
+            deg = 90;
     }
-    return a0;
+    return deg;
 }

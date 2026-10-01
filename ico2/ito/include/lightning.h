@@ -32,12 +32,12 @@ typedef struct {      /* field names derived */
 
 void apply_m34(void *out, void *m, void *in);
 
-void DrawLightning(void *p0, void *p1, void *a2, float f0, float f1, float f2, float f3, float f4,
-                   float f5, float f6, float f7, float f8, float f9, int a3);
+void DrawLightning(void *from, void *to, void *col, float stepMin, float stepMax, float swayStepMin, float swayStepMax, float turnMin,
+                   float turnMax, float swayLimit, float width, float texLen, float seed, int c);
 
 void lightning_test(void);
 
-void DrawLightning2(int num, LightningVtx *v, LightningColor *col, float f0, float f1, float f2, float f3,
-                    float f4, float f5, float f6, float f7, float f8, float f9, int c);
+void DrawLightning2(int num, LightningVtx *v, LightningColor *col, float stepMin, float stepMax, float swayStepMin, float swayStepMax,
+                    float turnMin, float turnMax, float swayLimit, float width, float texLen, float seed, int c);
 
 #endif /* LIGHTNING_H */

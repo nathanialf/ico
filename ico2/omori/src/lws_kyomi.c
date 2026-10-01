@@ -35,11 +35,16 @@ static struct {
     float timer[28]; /* 0x08 */
 } hintWork;          /* derived name */
 
-/* brain.h's, which this file does not include: it passes brainSetLevelGop
-   and brainStatusDefaultSet other argument types (brain.h declares
-   brainStatusDefaultSet (Brain *, int, int)) */
+/* brain.c's, declared here and not through brain.h: this file hands them
+   the GObj pointer where brain.h takes an int, and puts brainSetLevelGop's
+   level second where brain.c's definition has it last.  The level travels
+   in $f12 in either order; the ROM's call loads it before the two flags,
+   which is the order this declaration gives (brain.h's order moves .text
+   at 0x608). */
 extern Brain brainGirl;
-extern void brainStatusDefaultSet(void *b, int gobj, int idx);
+extern void brainStatusDefaultSet(Brain *b, int gobj, int idx);
+extern void brainSubLevelGop(void *gobj, float lv);
+extern void brainSetLevelGop(void *gobj, float lv, int lookOnly, int alwaysSeen);
 
 /* the record a new hint GObj starts from: no stage, no hint, no time, no
    flags */
@@ -74,9 +79,6 @@ char *CreateKyomiGObj(int no)
 
 /* the hint timers, a window onto the per-hint elapsed-time array */
 static float *hintTimers; /* derived name */
-
-/* brain.h declares it (int, float) */
-extern void brainSubLevelGop(void *gobj, float lv);
 
 void LwsKyomiGeo(void *gobj)
 {
@@ -169,9 +171,6 @@ void ReadHintSaveInfo(void)
     READ_HINT_SAVE_BITS(hintWork.save, 0);
     READ_HINT_SAVE_BITS(hintWork.save + 4, 1);
 }
-
-/* brain.h declares it (int, int, int, float) */
-extern void brainSetLevelGop(void *gobj, float lv, int a1, int a2);
 
 void SetParamKyomiGObj(void *gobj, float *root, float *param)
 {

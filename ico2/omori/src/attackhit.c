@@ -17,7 +17,7 @@ typedef struct AttackPack { /* field names derived */
     /* 0x01 */ unsigned char down; /* the hit knocks the target down */
     /* 0x02 */ char pad02[2];
     /* 0x04 */ void *actor;
-    /* 0x08 */ char *spare; /* an object the attack never hits */
+    /* 0x08 */ GObj *spare; /* an object the attack never hits */
     /* 0x0C */ int group;
     /* 0x10 */ int group2;
     /* 0x14 */ char pad14[12];
@@ -37,6 +37,7 @@ typedef struct AttackPack { /* field names derived */
 /* the zeroed template every pack starts from; group and group2 start at -1 */
 static const AttackPack attackPackInit = {0, 0, {0, 0}, 0, 0, -1, -1}; /* derived name */
 
+/* newlib's assert hook; the game's include path carries no assert.h */
 extern void __assert(char *file, int line, char *expr);
 
 #include "attackhit.h"
@@ -126,6 +127,8 @@ typedef struct { /* field names derived */
     unsigned int padBits : 27;
 } AttackKindEntry;
 
+/* the data-only member attack-def.o, read through this file's view of its
+   rows; no header declares it */
 extern const AttackKindEntry attackData[];
 
 typedef struct { /* field names derived */
@@ -136,6 +139,8 @@ typedef struct { /* field names derived */
     /* 0x20 */ unsigned int flags; /* bit 0 unguardable, bit 1 the swing sweeps */
 } WeaponKindEntry;
 
+/* the data-only member weapon-def.o, read through this file's view of its
+   rows; no header declares it */
 extern WeaponKindEntry weaponKind[];
 
 /* the 0x5C word as a float or an int, written through this view at one site */
@@ -159,7 +164,7 @@ static inline int GetAttackKindIndex(Sub15C *p) /* derived name */
     return 0;
 }
 
-static inline void GetFocusNodePos(char *gobj, int node, float *out) /* derived name */
+static inline void GetFocusNodePos(GObj *gobj, int node, float *out) /* derived name */
 {
     int idx = GetSkeltonFocusNode(gobj, node);
     float *m = (float *)((idx << 6) + GOBJ_SUB(gobj)->nodeMtx);
@@ -169,7 +174,7 @@ static inline void GetFocusNodePos(char *gobj, int node, float *out) /* derived 
     out[2] = m[14];
 }
 
-static void MakeAttackPack_Actor(AttackPack *pack, char *gobj, void *weapon)
+static void MakeAttackPack_Actor(AttackPack *pack, GObj *gobj, void *weapon)
 {
     float v0[4];
     float v1[4];
@@ -250,7 +255,7 @@ static void MakeAttackPack_Actor(AttackPack *pack, char *gobj, void *weapon)
 }
 
 /* shared by _AttackCenter and AttackCenter_WithDir */
-static inline void SetupAttackPack(AttackPack *pack, char *gop, int group, float *pos, float *ofs,
+static inline void SetupAttackPack(AttackPack *pack, GObj *gop, int group, float *pos, float *ofs,
                                    float radius) /* derived name */
 {
     *pack = attackPackInit;
@@ -301,7 +306,7 @@ static const AttackGroupTable attackGroupTable = {
     /* derived name */
     {{1, 0}, {4, 1}, {47, 1}, {54, 1}, {53, 1}, {53, 1}, {62, 1}, {2, 3}, {63, 1}, {-1, 0}}};
 
-static int AttackCheckSameGroup(char *self, char *other, char *third)
+static int AttackCheckSameGroup(GObj *self, GObj *other, GObj *third)
 {
     AttackGroupTable tbl = attackGroupTable;
     unsigned int g0 = 2;
@@ -335,7 +340,7 @@ static int AttackCheckSameGroup(char *self, char *other, char *third)
     return g1 == g0;
 }
 
-static void AttackMail(char *self, AttackPack *pack)
+static void AttackMail(GObj *self, AttackPack *pack)
 {
     float v0[4];
     float v1[4];
@@ -407,7 +412,7 @@ static void AttackMail(char *self, AttackPack *pack)
    calls the ACTChkAttackIgnore_ functions with the actor as well */
 extern float _ACTGame_GetParamF(int idx);
 
-static int AttackCheckHit(AttackPack *pack, char *gobj, short *out)
+static int AttackCheckHit(AttackPack *pack, GObj *gobj, short *out)
 {
     float w[4];
     unsigned char flags[112];
@@ -534,14 +539,14 @@ static int AttackCheckHit(AttackPack *pack, char *gobj, short *out)
 
 /* act-game.h declares these with the object alone (and the girl's with an
    int pointer); this file passes the actor as well */
-extern int ACTChkAttackIgnore_BOY(char *gobj, void *actor);
-extern int ACTChkAttackIgnore_GIRL(char *gobj, void *actor);
-extern int ACTChkAttackIgnore_ENEMY(char *gobj, void *actor);
+extern int ACTChkAttackIgnore_BOY(GObj *gobj, void *actor);
+extern int ACTChkAttackIgnore_GIRL(GObj *gobj, void *actor);
+extern int ACTChkAttackIgnore_ENEMY(GObj *gobj, void *actor);
 
 static int AttackGenerate(AttackPack *pack)
 {
-    char *g;
-    char *hit;
+    GObj *g;
+    GObj *hit;
     int arg;
 
     hit = 0;
@@ -606,14 +611,14 @@ static int AttackGenerate(AttackPack *pack)
     return (int)hit;
 }
 
-inline void CommonAttackCenter(char *a0)
+inline void CommonAttackCenter(GObj *gobj)
 {
     AttackPack pack;
-    MakeAttackPack_Actor(&pack, a0, (void *)GOBJ_ACT(a0)->weapon);
+    MakeAttackPack_Actor(&pack, gobj, (void *)GOBJ_ACT(gobj)->weapon);
     AttackGenerate(&pack);
 }
 
-inline int _AttackCenter(char *gop, int group, float *pos, float *ofs, float radius, char *spare)
+inline int _AttackCenter(GObj *gop, int group, float *pos, float *ofs, float radius, GObj *spare)
 {
     AttackPack pack;
 
@@ -626,7 +631,7 @@ inline int _AttackCenter(char *gop, int group, float *pos, float *ofs, float rad
     return AttackGenerate(&pack);
 }
 
-inline void AttackCenter_WithDir(char *gop, int group, float *pos, float *dir, float radius)
+inline void AttackCenter_WithDir(GObj *gop, int group, float *pos, float *dir, float radius)
 {
     AttackPack pack;
 
@@ -644,6 +649,6 @@ inline void AttackCenter_WithDir(char *gop, int group, float *pos, float *dir, f
     AttackGenerate(&pack);
 }
 
-void EnemyAttackCenter(char *gobj) {}
+void EnemyAttackCenter(GObj *gobj) {}
 
-void BoyAttackCenter(char *gobj) {}
+void BoyAttackCenter(GObj *gobj) {}

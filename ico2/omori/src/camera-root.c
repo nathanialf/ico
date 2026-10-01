@@ -135,9 +135,9 @@ static int zoomBase; /* derived name */
 
 void ConvertCameraSet(CameraSet2 *dst, union CameraSetIn *src);
 
-void SetWSMatrix(void *a0)
+void SetWSMatrix(void *src)
 {
-    ConvertCameraSet(&cameraSet, a0);
+    ConvertCameraSet(&cameraSet, src);
     MakeCameraMatrix(&cameraSet);
 }
 
@@ -762,14 +762,14 @@ void Camctrl_ExitEveRock(void)
     }
 }
 
-void Camctrl_SetTarget(int a0, int a1, int a2)
+void Camctrl_SetTarget(int gobj, int subGObj, int pri)
 {
-    if (a2 < camctrl.pri) {
+    if (pri < camctrl.pri) {
         return;
     }
-    camctrl.gobj = a0;
-    camctrl.subGObj = a1;
-    camctrl.pri = a2;
+    camctrl.gobj = gobj;
+    camctrl.subGObj = subGObj;
+    camctrl.pri = pri;
 }
 
 /* the object the camera follows by default: the stage's camera target, or
@@ -792,7 +792,7 @@ void CameraSetTargetGObj(int a, int b)
     cameraTargetSubGObj = b;
 }
 
-void CameraChangeTargetParallel(int a0, int a1)
+void CameraChangeTargetParallel(int oldTarget, int newTarget)
 {
     struct {           /* field names derived */
         float move[4]; /* the step from the old target to the new one */
@@ -800,13 +800,13 @@ void CameraChangeTargetParallel(int a0, int a1)
         float to[4];   /* the new target's root */
     } buf;
 
-    if (a0 == 0) {
+    if (oldTarget == 0) {
         buf.move[0] = 0.0f;
         buf.move[1] = 0.0f;
         buf.move[2] = 0.0f;
     } else {
-        GetRootPosition(buf.from, a0);
-        GetRootPosition(buf.to, a1);
+        GetRootPosition(buf.from, oldTarget);
+        GetRootPosition(buf.to, newTarget);
         sceVu0SubVector(buf.move, buf.to, buf.from);
     }
     *(CamTgt *)&targetCameraSet = *(CamTgt *)&cameraSet;
@@ -820,10 +820,10 @@ int CameraGetTarget(void)
     return cameraTargetGObj;
 }
 
-void CameraGetTargets(int *a0, int *a1)
+void CameraGetTargets(int *gobj, int *subGObj)
 {
-    *a0 = cameraTargetGObj;
-    *a1 = cameraTargetSubGObj;
+    *gobj = cameraTargetGObj;
+    *subGObj = cameraTargetSubGObj;
 }
 
 void CameraSetMode(int x)
@@ -944,10 +944,10 @@ void SetCameraFlag_GamecamCutBack(void)
     gamecamCutBack = 1;
 }
 
-void SetHandCameraLimitInDemo(int a0, int a1)
+void SetHandCameraLimitInDemo(int limitP, int limitV)
 {
-    handCameraLimitP = a0;
-    handCameraLimitV = a1;
+    handCameraLimitP = limitP;
+    handCameraLimitV = limitV;
 }
 
 void ResetHandCameraLimitInDemo(void)
@@ -956,9 +956,9 @@ void ResetHandCameraLimitInDemo(void)
     handCameraLimitV = GlobalStageSetting.handCameraLimitV;
 }
 
-void SetZoomMaxValInDemo(int a0)
+void SetZoomMaxValInDemo(int zoom)
 {
-    zoomMaxInDemo = a0;
+    zoomMaxInDemo = zoom;
 }
 
 void ResetZoomMaxValInDemo(void)

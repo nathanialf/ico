@@ -36,20 +36,20 @@ typedef struct MvDispEnv { /* field names derived */
 
 extern MvDispEnv display;
 void dispDelete(MvDispEnv *self);
-void loadImage(int a0);
+void loadImage(int addr);
 int handler_endimage(int channel);
-void startDisplay(int a0);
+void startDisplay(int field);
 void endDisplay(void);
-inline void *setDMAscTag(void *a0, int a1, unsigned int a2, int a3, int p4, int p5, int p6);
-inline void *setGIFtag(int *a0, long long a1, int a2, int a3, int p4, int p5, int p6, int p7);
-void *setGIFad(int *a0, int a1, long long a2);
-inline void *setTEXFLUSH(int *a0);
-inline void *setTEX1_1(int *a0, int a1, int a2, int a3, int p4, int p5, int p6, int p7);
+inline void *setDMAscTag(void *p, int spr, unsigned int addr, int irq, int id, int pce, int qwc);
+inline void *setGIFtag(int *p, long long regs, int nreg, int flg, int prim, int pre, int eop, int nloop);
+void *setGIFad(int *p, int addr, long long data);
+inline void *setTEXFLUSH(int *p);
+inline void *setTEX1_1(int *p, int lcm, int mxl, int mmag, int mmin, int mtba, int l, int k);
 void dispClear(MvDispEnv *self, unsigned int col);
-void dispCreate(MvDispEnv *self, int a1, int a2, int a3, int a4);
+void dispCreate(MvDispEnv *self, int imageW, int imageH, int dbx, int dby);
 
-void dispSetTags(MvDispEnv *self, int src, int a2, int a3, int p4, int p5, int p6, int p7, int p8,
-                 int p9);
+void dispSetTags(MvDispEnv *self, int src, int image, int field, int x, int y, int w, int h, int texW,
+                 int texH);
 
 int vblankHandler(int cause);
 

@@ -34,11 +34,11 @@ void after_DrawPolygon(void)
     gif_EndPacket();
 }
 
-inline void DrawPolygon(void *a0, void *a1, void *a2, void *a3, unsigned char *a4, void *a5)
+inline void DrawPolygon(void *a, void *b, void *c, void *d, unsigned char *col, void *mtx)
 {
     _InitCurrentMatrix();
-    _SetCurrentMatrix(a5);
-    gif_DrawPolyF4(a0, a1, a2, a3, a4[0], a4[1], a4[2], a4[3], 1);
+    _SetCurrentMatrix(mtx);
+    gif_DrawPolyF4(a, b, c, d, col[0], col[1], col[2], col[3], 1);
 }
 
 static float _IsInScreen2(int *p)
@@ -85,14 +85,14 @@ static float _IsInScreen2(int *p)
     return ry;
 }
 
-inline float IsPointIsInScreen(void *a0, void *a1)
+inline float IsPointIsInScreen(void *out, void *pos)
 {
     float buf[16];
     sceVu0UnitMatrix(buf);
     sceVu0MulMatrix(buf, matrixptr + 0x80, buf);
     sceVu0MulMatrix(buf, matrixptr + 0xC0, buf);
-    sceVu0RotTransPers(a0, buf, a1, 1);
-    return _IsInScreen2(a0);
+    sceVu0RotTransPers(out, buf, pos, 1);
+    return _IsInScreen2(out);
 }
 
 void before_DrawLine(void *m)
@@ -106,15 +106,15 @@ void after_DrawLine(void)
     gif_EndPacket();
 }
 
-inline void do_DrawLine(void *p0, void *p1, unsigned int *c, int a3)
+inline void do_DrawLine(void *from, void *to, unsigned int *c, int unused)
 {
     unsigned char col[4] = {c[0], c[1], c[2], c[3]};
     int v0[4];
     int v1[4];
 
-    if (DrawLineTrans(v0, p0) == 0)
+    if (DrawLineTrans(v0, from) == 0)
         return;
-    if (DrawLineTrans(v1, p1) == 0)
+    if (DrawLineTrans(v1, to) == 0)
         return;
 
     DrawLineOffset(v0);

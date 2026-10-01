@@ -35,6 +35,8 @@ typedef struct CamSetHdr { /* field names derived */
     CamSetItem groups[1]; /* 0x10 */
 } CamSetHdr;
 
+/* the data-only member stage-all.o, read through this file's view of its
+   rows; no header declares it */
 extern const StgPre stageData[];
 /* boyact.h is not included: this file passes GetBoyRootPositionForCamera
    more arguments than boyact.h declares */
@@ -126,6 +128,7 @@ extern PadConf iosPadConfDefault;
 
 static float zoomOffsetRatio = 1.0f; /* derived name */
 
+/* newlib's assert hook; the game's include path carries no assert.h */
 extern void __assert(char *file, int line, char *expr);
 
 /* the camera-set binary: a sixteen byte header, `count` group records of 0x4C
@@ -187,28 +190,28 @@ void CameraSetCameraSet_Default(void)
     CameraSetCameraSet(stageData[stage_no].camSetId);
 }
 
-static void GetRootPositionForCamera(float *a0, int a1)
+static void GetRootPositionForCamera(float *out, int gobj)
 
 {
-    if (a1 == boyGObj) {
-        GetBoyRootPositionForCamera(a0, a1);
+    if (gobj == boyGObj) {
+        GetBoyRootPositionForCamera(out, gobj);
     } else {
-        GetRootPosition(a0, a1);
+        GetRootPosition(out, gobj);
     }
 }
 
-inline void SetCameraTargetPosition(void *a0, void *a1, float a2)
+inline void SetCameraTargetPosition(void *target, void *eye, float fov)
 {
-    sceVu0ScaleVector((&monitorCamera.work), a1, -1.0f);
-    sceVu0ScaleVector(&monitorCamera.work.at, a0, -1.0f);
-    sceVu0ScaleVector(targetAPrev, a0, -1.0f);
-    sceVu0ScaleVector(targetBPrev, a0, -1.0f);
-    monitorCamera.work.ext.f[0] = a2;
+    sceVu0ScaleVector((&monitorCamera.work), eye, -1.0f);
+    sceVu0ScaleVector(&monitorCamera.work.at, target, -1.0f);
+    sceVu0ScaleVector(targetAPrev, target, -1.0f);
+    sceVu0ScaleVector(targetBPrev, target, -1.0f);
+    monitorCamera.work.ext.f[0] = fov;
 }
 
-static void ico2camera_GetTargetPos(int a0)
+static void ico2camera_GetTargetPos(int reset)
 {
-    unsigned char flag = a0;
+    unsigned char flag = reset;
     int p1;
     int p2;
     float v0[4];
@@ -256,15 +259,15 @@ static void ico2camera_GetTargetPos(int a0)
         groupProbePos[2] = v2[2];
     }
     if (flag != 0) {
-        float a0 = v0[0];
-        float a1 = v0[1];
-        float a2 = v0[2];
-        targetAStart[0] = a0;
-        targetAStart[1] = a1;
-        targetAStart[2] = a2;
-        targetAPrev[0] = a0;
-        targetAPrev[1] = a1;
-        targetAPrev[2] = a2;
+        float x = v0[0];
+        float y = v0[1];
+        float z = v0[2];
+        targetAStart[0] = x;
+        targetAStart[1] = y;
+        targetAStart[2] = z;
+        targetAPrev[0] = x;
+        targetAPrev[1] = y;
+        targetAPrev[2] = z;
         targetBPrev[0] = v1[0];
         targetBPrev[1] = v1[1];
         targetBPrev[2] = v1[2];
@@ -492,7 +495,7 @@ static void monitorMonitorCamera(CamWork *cam, CamWork *out)
     monitorCamera.dbgA[2] = vDbg[2];
 }
 
-static void ChaseCamera(float *a0, float *a1)
+static void ChaseCamera(float *pos, float *cam)
 {
     Mat4 v0;
     Mat4 v1;
@@ -504,22 +507,22 @@ static void ChaseCamera(float *a0, float *a1)
     float t;
     t = _GetDirection(test_CURRENTORIENT(default_cameratarget_gobj));
     _ApplyRyGV(mat.f, (float)(int)(t / 3.1415927f * 180.0f) * 3.1415927f / 180.0f);
-    sceVu0AddVector(&v0, a0, &mat);
-    sceVu0SubVector(&v3, a1, a0);
+    sceVu0AddVector(&v0, pos, &mat);
+    sceVu0SubVector(&v3, cam, pos);
     v3.f[1] = 0.0f;
     FSqrt(v3.f[0] * v3.f[0] + v3.f[1] + v3.f[2] * v3.f[2]);
     sceVu0Normalize(&v3, &v3);
     sceVu0ScaleVector(&v3, &v3, -500.0f);
-    sceVu0AddVector(&v1, &v3, a0);
-    v1.f[1] = a0[1] + 200.0f;
-    _InterGV(a1, v0.f, v1.f, 4.0f, 5.0f);
-    a1[0] = v0.f[0];
-    a1[1] = v0.f[1];
-    a1[2] = v0.f[2];
-    a1[4] = a0[0];
-    a1[5] = a0[1];
-    a1[6] = a0[2];
-    a1[8] = 50.0f;
+    sceVu0AddVector(&v1, &v3, pos);
+    v1.f[1] = pos[1] + 200.0f;
+    _InterGV(cam, v0.f, v1.f, 4.0f, 5.0f);
+    cam[0] = v0.f[0];
+    cam[1] = v0.f[1];
+    cam[2] = v0.f[2];
+    cam[4] = pos[0];
+    cam[5] = pos[1];
+    cam[6] = pos[2];
+    cam[8] = 50.0f;
 }
 
 /* Scale the two hand-camera correction rates by the frame budget and report

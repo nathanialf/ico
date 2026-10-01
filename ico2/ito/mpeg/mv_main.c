@@ -185,7 +185,8 @@ term:
     return abort;
 }
 
-static int initAll(char *a0, int a1, int a2, int a3, int p4, int p5, int p6, int p7)
+static int initAll(char *name, int imageW, int imageH, int dbx, int dby, int mono, int volume,
+                   int clearCol)
 {
     struct ThreadParam th;
     int ret = 0;
@@ -195,16 +196,16 @@ static int initAll(char *a0, int a1, int a2, int a3, int p4, int p5, int p6, int
     videoDec.dmacHandler = -1;
     decThreadStarted = 0;
 
-    dispCreate(&display, a1, a2, a3, p4);
-    dispClear(&display, p7);
+    dispCreate(&display, imageW, imageH, dbx, dby);
+    dispClear(&display, clearCol);
 
     savedDmaCtrl = *D_CTRL;
     debug_StdPrintfDummy("D_CTRL %x\n", *D_CTRL);
     *D_CTRL |= 3;
     *D_STAT = 4;
 
-    debug_StdPrintfDummy("open movie file %s\n", a0);
-    if (strFileOpen(mpegStrFile, a0) == 0) {
+    debug_StdPrintfDummy("open movie file %s\n", name);
+    if (strFileOpen(mpegStrFile, name) == 0) {
         return -1;
     }
     if (readBufCreate(&mpegReadBuf) != 0) {
@@ -215,7 +216,7 @@ static int initAll(char *a0, int a1, int a2, int a3, int p4, int p5, int p6, int
         return -1;
     }
     if (movieHasAudio != 0) {
-        if (audioDecCreate(&audioDec, p5, p6) != 0) {
+        if (audioDecCreate(&audioDec, mono, volume) != 0) {
             return -1;
         }
     }
@@ -309,7 +310,7 @@ static inline int vu0Stat(void) /* derived name */
     return r;
 }
 
-int movie_init(char *a0, int a1, int a2, int a3, int p4, int p5, int p6)
+int movie_init(char *name, int imageW, int imageH, int dbx, int dby, int mono, int clearCol)
 {
     struct ThreadParam st;
     unsigned int i;
@@ -336,7 +337,7 @@ int movie_init(char *a0, int a1, int a2, int a3, int p4, int p5, int p6)
     EIntr();
 
     movieHasAudio = 1;
-    if (initAll(a0, a1, a2, a3, p4, p5, 0x3FFF, p6) != 0) {
+    if (initAll(name, imageW, imageH, dbx, dby, mono, 0x3FFF, clearCol) != 0) {
         debug_StdPrintfDummy("movie init failed\n");
         movie_end();
         return -1;

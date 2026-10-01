@@ -30,18 +30,18 @@ void EnemyCtrlBeforeFunc(void)
     enemyReqNum = 0;
 }
 
-inline int IsSelectID_EnemyCtrl(int a0)
+inline int IsSelectID_EnemyCtrl(int id)
 {
     if (enemyPicked < 0)
         goto init;
-    if (a0 != enemyPicked)
+    if (id != enemyPicked)
         goto append;
     return 1;
 init:
-    enemyPicked = a0;
+    enemyPicked = id;
     return 1;
 append:
-    enemyReqIds[enemyReqNum] = a0;
+    enemyReqIds[enemyReqNum] = id;
     enemyReqNum++;
     return 0;
 }

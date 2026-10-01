@@ -2,6 +2,8 @@
 #include <stdio.h>
 #include "access.h"
 
+/* the data-only member stage-all.o, read through this file's view of its
+   rows; no header declares it */
 extern StgPre stageData[];
 
 /* the path sprintf builds and this file hands back */

@@ -8,9 +8,9 @@
 #ifndef POLY_FLAT_H
 #define POLY_FLAT_H
 
-void DrawPolygon(void *a0, void *a1, void *a2, void *a3, unsigned char *a4, void *a5);
-void do_DrawLine(void *p0, void *p1, unsigned int *c, int a3);
-float IsPointIsInScreen(void *a0, void *a1);
+void DrawPolygon(void *a, void *b, void *c, void *d, unsigned char *col, void *mtx);
+void do_DrawLine(void *from, void *to, unsigned int *c, int unused);
+float IsPointIsInScreen(void *out, void *pos);
 void after_DrawLine(void);
 void after_DrawPolygon(void);
 void before_DrawLine(void *m);

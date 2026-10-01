@@ -88,6 +88,7 @@ static void fightSoundProcessMain(void)
     }
 }
 
+/* newlib's assert hook; the game's include path carries no assert.h */
 extern void __assert(char *file, int line, char *expr);
 
 void fightSoundProcess(void)

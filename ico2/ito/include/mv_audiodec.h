@@ -52,8 +52,8 @@ int audioDecIsPreset(AudioDec *self);
 void audioDecStart(AudioDec *self);
 int audioDecPause(AudioDec *self);
 void audioDecResume(AudioDec *self);
-int audioDecCreate(AudioDec *self, int a1, int a2);
+int audioDecCreate(AudioDec *self, int mono, int volume);
 int audioDecSendToIOP(AudioDec *self);
-int pcmCallback(int a0, MvCbStr *pkt, MvCbArg *arg);
+int pcmCallback(int mp, MvCbStr *pkt, MvCbArg *arg);
 
 #endif /* MV_AUDIODEC_H */

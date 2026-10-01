@@ -9,7 +9,7 @@
 #define MV_STRFILE_H
 
 int strFileClose(char *self);
-int strFileOpen(char *a0, char *name);
+int strFileOpen(char *self, char *name);
 int strFileRead(char *self, void *buf, int n, int *eof);
 
 #endif /* MV_STRFILE_H */

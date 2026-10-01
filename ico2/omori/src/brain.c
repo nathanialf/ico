@@ -7,6 +7,8 @@
 #include "main.h"
 #include "gv.h"
 
+/* the data-only member obj-kind-data.o, read through this file's view of its
+   rows; no header declares it */
 extern ObjKindEnt objKindData[];
 
 static inline void brainSetTargetTimer(BrainTarget *t) /* derived name */
@@ -55,7 +57,7 @@ void brainInit(void)
     eBrainInit();
 }
 
-void OverrideBrainStatusByGObj(Brain *b, int gobj, float f8, float f10, float fC)
+void OverrideBrainStatusByGObj(Brain *b, int gobj, float levelCap, float rate, float capStep)
 {
     BrainTarget *t;
     int i;
@@ -63,9 +65,9 @@ void OverrideBrainStatusByGObj(Brain *b, int gobj, float f8, float f10, float fC
     for (i = 0; i < 40; i++) {
         if (b->tgt[i].gobj == gobj) {
             t = &b->tgt[i];
-            t->levelCap = f8;
-            t->capStep = fC;
-            t->rate = f10;
+            t->levelCap = levelCap;
+            t->capStep = capStep;
+            t->rate = rate;
             t->level = 0.0f;
             return;
         }
@@ -84,6 +86,8 @@ typedef struct { /* field names derived */
     unsigned int flags;
 } BrainDefEnt;
 
+/* the data-only member obj-layout.o, read through this file's view of its
+   rows; no header declares it */
 extern BrainDefEnt objLayout[];
 
 static inline void brainSetTargetSub(Brain *b, int gobj, float lvl, int k) /* derived name */
@@ -341,22 +345,22 @@ void brainClsTargetLevel(Brain *b)
     brainSetTargetTimer(t);
 }
 
-void brainInitGirlSet(void *a0, int a1)
+void brainInitGirlSet(void *girl, int cur)
 {
     int *base = (int *)&brainGirl;
     int *p = (int *)((char *)base + 0x28);
     int key;
     int t;
-    brainGirl.girl = (int)a0;
+    brainGirl.girl = (int)girl;
     key = *p;
     if (key == 0) {
         return;
     }
     do {
-        if (key == a1) {
+        if (key == cur) {
             base[1] = (int)p;
         }
-        ACTGameView_Add(a0, *p);
+        ACTGameView_Add(girl, *p);
         p = (int *)((char *)p + 0x1C);
         t = *p;
         key = t;
@@ -411,7 +415,7 @@ void brainSubLevelGop(int gobj, float lv)
     }
 }
 
-void brainSetLevelGop(int gobj, int a1, int a2, float lv)
+void brainSetLevelGop(int gobj, int lookOnly, int alwaysSeen, float lv)
 {
     int brain = (int)&brainGirl;
     int tgt = brain + 0x28;
@@ -419,8 +423,8 @@ void brainSetLevelGop(int gobj, int a1, int a2, float lv)
 
     for (i = 0; i < 40; i++) {
         if (((BrainTarget *)tgt)[i].gobj == gobj) {
-            ((BrainTarget *)tgt)[i].byte18 = a1;
-            ((BrainTarget *)tgt)[i].alwaysSeen = a2;
+            ((BrainTarget *)tgt)[i].byte18 = lookOnly;
+            ((BrainTarget *)tgt)[i].alwaysSeen = alwaysSeen;
             brainSetLevel((int *)brain, &((BrainTarget *)tgt)[i], lv);
         }
     }
@@ -516,10 +520,10 @@ static void brainSetLevel(int *b, BrainTarget *t, float lv)
     }
 }
 
-int brainCheckView(int *a0, int *a1)
+int brainCheckView(Brain *b, BrainTarget *t)
 {
-    if (((unsigned char *)a1)[0x19] != 0) {
+    if (t->alwaysSeen != 0) {
         return 1;
     }
-    return ACTGameView_Check(*a0, a1[0]) != 0;
+    return ACTGameView_Check(b->girl, t->gobj) != 0;
 }

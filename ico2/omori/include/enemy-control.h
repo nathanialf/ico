@@ -9,7 +9,7 @@
 #define ENEMY_CONTROL_H
 
 int InitEnemyCtrlGeo(void);
-int IsSelectID_EnemyCtrl(int a0);
+int IsSelectID_EnemyCtrl(int id);
 
 
 #endif /* ENEMY_CONTROL_H */

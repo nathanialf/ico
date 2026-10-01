@@ -8,16 +8,18 @@
 #ifndef OBJACT_H
 #define OBJACT_H
 
-inline void ObjAction_CorrectGeo(int a0, int a1);
-void ObjAction_Mail(void *a0, int a1);
-void ObjAction_MailCenter(void *a0, int a1);
+inline void ObjAction_CorrectGeo(int label, int unused);
+void ObjAction_Mail(void *data, int mail);
+void ObjAction_MailCenter(void *gobj, int step);
 void ObjAction_Init(void);
 
 
-typedef struct { /* field names derived */
-    int id;
-    int idx;
-} ObjActMailEnt;
+/* One row of obj-trigger: the object a trigger belongs to and the row of
+   objTriggerDef that holds its first mail id. */
+typedef struct {     /* field names derived */
+    int labelId;     /* 0x00, the object's GObj labelId */
+    int triggerNo;   /* 0x04, the objTriggerDef row */
+} ObjActMailEnt;     /* derived name */
 
 /* The data-only members obj-trigger-def.o and obj-trigger.o: the mail ids
    ObjAction_MailCenter sends, and the object-id to index table it walks. */

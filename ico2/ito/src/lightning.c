@@ -217,13 +217,14 @@ static LightningMtx catmullRom = {
     {0.0f, 1.0f, 0.0f, 0.0f},
 };
 
-void DrawLightning2(int num, LightningVtx *v, LightningColor *col, float f0, float f1, float f2,
-                    float f3, float f4, float f5, float f6, float f7, float f8, float f9, int c)
+void DrawLightning2(int num, LightningVtx *v, LightningColor *col, float stepMin, float stepMax,
+                    float swayStepMin, float swayStepMax, float turnMin, float turnMax,
+                    float swayLimit, float width, float texLen, float seed, int c)
 {
     LightningMtx m[num - 1];
     float half = 0.5f;
-    float wa = f7 * half;
-    float wb = f7 - wa;
+    float wa = width * half;
+    float wb = width - wa;
     float one = 1.0f;
     float two = 2.0f;
     LightningVtx ccol;
@@ -299,21 +300,21 @@ void DrawLightning2(int num, LightningVtx *v, LightningColor *col, float f0, flo
     stripOn = 0;
     stripTag = 0;
     vtxCount = 0;
-    if (f9 != 0.0f) {
-        f9 = __builtin_fabsf(f9);
-        f9 = f9 - (int)f9 + one;
-        if (f9 == one) {
-            f9 = 1.5f;
+    if (seed != 0.0f) {
+        seed = __builtin_fabsf(seed);
+        seed = seed - (int)seed + one;
+        if (seed == one) {
+            seed = 1.5f;
         }
         __asm__ __volatile__("ctc2.ni %0, $vi20\n\t"
                              "vnop\n\t"
                              "vnop\n\t"
                              "vnop"
                              :
-                             : "r"(f9));
+                             : "r"(seed));
     }
-    if (f0 < 15.0f) {
-        f0 = 15.0f;
+    if (stepMin < 15.0f) {
+        stepMin = 15.0f;
     }
     sceVu0SubVector(&dir, &v[1], &v[0]);
     sceVu0Normalize(&dir, &dir);
@@ -365,7 +366,7 @@ void DrawLightning2(int num, LightningVtx *v, LightningColor *col, float f0, flo
         sceVu0SubVector(&a, &a, &tmp);
         sceVu0Normalize(&a, &a);
         sceVu0OuterProduct(&b, &dir, &a);
-        s += random_range(f0, f1) / _GetLength(&v[seg + 1], &v[seg]);
+        s += random_range(stepMin, stepMax) / _GetLength(&v[seg + 1], &v[seg]);
         seg = (int)s;
         f = s - (float)seg;
         lim = (float)(num - 1) - half;
@@ -382,13 +383,14 @@ void DrawLightning2(int num, LightningVtx *v, LightningColor *col, float f0, flo
         } else {
             basis = (LightningVtx){{f * f * f, f * f, f, 1.0f}};
             sceVu0ApplyMatrix(&pos, m[seg], &basis);
-            d = random_sign(random_range(f2, f3));
-            if (__builtin_fabsf(sway + d) > f6) {
+            d = random_sign(random_range(swayStepMin, swayStepMax));
+            if (__builtin_fabsf(sway + d) > swayLimit) {
                 d = -d;
             }
             sway += d;
             amp = sway * sc;
-            ang += random_sign(random_range(degrees_to_radians(f4), degrees_to_radians(f5)));
+            ang +=
+                random_sign(random_range(degrees_to_radians(turnMin), degrees_to_radians(turnMax)));
             sceVu0ScaleVectorXYZ(&sa, &a, GetTableCos((short)(ang * 10430.378f)) * amp);
             sceVu0ScaleVectorXYZ(&sb, &b, GetTableSin((short)(ang * 10430.378f)) * amp);
             sceVu0AddVector(&q, &pos, &sa);
@@ -407,7 +409,7 @@ void DrawLightning2(int num, LightningVtx *v, LightningColor *col, float f0, flo
         sceVu0FTOI0Vector(&icol, &ccol2);
         wd = (sc * wb + wa) * (1.0f - _GetRandom() * half);
         set_vertex(&out, &cur, u, icol.i, wd);
-        nu = u + _GetNorm(&delta) / f8;
+        nu = u + _GetNorm(&delta) / texLen;
         if (2048.0f <= nu * 32.0f) {
             ui = (int)u;
             ni = (int)nu;
@@ -450,10 +452,11 @@ end:
     }
 }
 
-static int cmpr(LightningNode *self, LightningNode *other);
+static inline int cmpr(LightningNode *self, LightningNode *other);
 
-void DrawLightningN(int num, LightningNode *v, void *col, float f0, float f1, float f2, float f3,
-                    float f4, float f5, float f6, float f7, float f8, float f9, int c)
+void DrawLightningN(int num, LightningNode *v, void *col, float stepMin, float stepMax,
+                    float swayStepMin, float swayStepMax, float turnMin, float turnMax,
+                    float swayLimit, float width, float texLen, float seed, int c)
 {
     LightningVtx buf[num];
     int i;
@@ -464,7 +467,8 @@ void DrawLightningN(int num, LightningNode *v, void *col, float f0, float f1, fl
     for (i = 0; i < num; i++) {
         sceVu0CopyVector(&buf[i], &v[i]);
     }
-    DrawLightning2(num, buf, col, f0, f1, f2, f3, f4, f5, f6, f7, f8, f9, c);
+    DrawLightning2(num, buf, col, stepMin, stepMax, swayStepMin, swayStepMax, turnMin, turnMax,
+                   swayLimit, width, texLen, seed, c);
 }
 
 static inline int cmpr(LightningNode *self, LightningNode *other)
@@ -472,13 +476,15 @@ static inline int cmpr(LightningNode *self, LightningNode *other)
     return self->key - other->key;
 }
 
-inline void DrawLightning(void *p0, void *p1, void *a2, float f0, float f1, float f2, float f3,
-                          float f4, float f5, float f6, float f7, float f8, float f9, int a3)
+inline void DrawLightning(void *from, void *to, void *col, float stepMin, float stepMax,
+                          float swayStepMin, float swayStepMax, float turnMin, float turnMax,
+                          float swayLimit, float width, float texLen, float seed, int c)
 {
     LightningVtx buf[2];
-    sceVu0CopyVector(&buf[0], p0);
-    sceVu0CopyVector(&buf[1], p1);
-    DrawLightning2(2, buf, a2, f0, f1, f2, f3, f4, f5, f6, f7, f8, f9, a3);
+    sceVu0CopyVector(&buf[0], from);
+    sceVu0CopyVector(&buf[1], to);
+    DrawLightning2(2, buf, col, stepMin, stepMax, swayStepMin, swayStepMax, turnMin, turnMax,
+                   swayLimit, width, texLen, seed, c);
 }
 
 inline void lightning_test(void)

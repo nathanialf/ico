@@ -13,26 +13,26 @@
 /* libmpeg's calls, declared here because sceMpegDelete is handed the
    decoder, where libmpeg.h declares it (void) */
 extern int sceMpegCreate(void *self, void *buf, int size);
-extern int sceMpegAddCallback(void *a0, int a1, int a2, int a3);
+extern int sceMpegAddCallback(void *mp, int type, int callback, int anyData);
 extern int sceMpegAddStrCallback();
 extern int sceMpegDelete();
-extern int sceMpegGetPicture(int *a0, unsigned int a1, int a2);
-extern int sceMpegIsEnd(int **a0);
-extern int sceMpegIsRefBuffEmpty(void *a0);
-extern void sceMpegReset(int *a0);
+extern int sceMpegGetPicture(int *mp, unsigned int rgb32, int mbcount);
+extern int sceMpegIsEnd(int **mp);
+extern int sceMpegIsRefBuffEmpty(void *mp);
+extern void sceMpegReset(int *mp);
 
 #include <string.h>
 
 static void Free(int addr);
 
 /* the MPEG library's callbacks, which videoDecCreate registers */
-static inline int mpegError(int a0, MvCbErr *cb)
+static inline int mpegError(int mp, MvCbErr *cb)
 {
     debug_StdPrintfDummy("%s\n", cb->message);
     return 1;
 }
 
-static inline int mpegNodata(int a0, int a1, VideoDec *dec)
+static inline int mpegNodata(int mp, int cbdata, VideoDec *dec)
 {
     switchThread();
     viBufAddDMA(&dec->vibuf);
@@ -119,7 +119,7 @@ int videoDecFlush(VideoDec *self)
     return 1;
 }
 
-int videoCallback(int a0, MvCbStr *pkt, MvCbArg *arg)
+int videoCallback(int mp, MvCbStr *pkt, MvCbArg *arg)
 {
     ViTs ts;
     void *p0;

@@ -6,7 +6,7 @@
 #include <sifrpc.h>
 #include <sound.h>
 
-int audioDecCreate(AudioDec *self, int a1, int a2)
+int audioDecCreate(AudioDec *self, int mono, int volume)
 {
     int pcm[4];
     int p;
@@ -41,8 +41,8 @@ int audioDecCreate(AudioDec *self, int a1, int a2)
     }
     debug_StdPrintfDummy("Allocate IOP memory 0x%08x\n", self->iopBuf);
 
-    self->mono = a1;
-    self->volume = a2;
+    self->mono = mono;
+    self->volume = volume;
     SgStPcmInit();
     self->pcmInited = 1;
 
@@ -173,7 +173,8 @@ static inline void sendToIOP(char *src, char *dst, int n) /* derived name */
     }
 }
 
-static int sendToIOP2area(char *p0, int n0, char *p1, int n1, char *q0, int m0, char *q1, int m1)
+static int sendToIOP2area(char *dst0, int n0, char *dst1, int n1, char *src0, int m0, char *src1,
+                          int m1)
 {
     int total = m0 + m1;
 
@@ -191,16 +192,16 @@ static int sendToIOP2area(char *p0, int n0, char *p1, int n1, char *q0, int m0, 
     }
 
     if (m0 >= n0) {
-        sendToIOP(q0, p0, n0);
-        sendToIOP(q0 + n0, p1, m0 - n0);
-        sendToIOP(q1, p1 + m0 - n0, m1);
+        sendToIOP(src0, dst0, n0);
+        sendToIOP(src0 + n0, dst1, m0 - n0);
+        sendToIOP(src1, dst1 + m0 - n0, m1);
     } else if (m1 >= n0 - m0) {
-        sendToIOP(q0, p0, m0);
-        sendToIOP(q1, p0 + m0, n0 - m0);
-        sendToIOP(q1 + n0 - m0, p1, m1 - (n0 - m0));
+        sendToIOP(src0, dst0, m0);
+        sendToIOP(src1, dst0 + m0, n0 - m0);
+        sendToIOP(src1 + n0 - m0, dst1, m1 - (n0 - m0));
     } else {
-        sendToIOP(q0, p0, m0);
-        sendToIOP(q1, p0 + m0, m1);
+        sendToIOP(src0, dst0, m0);
+        sendToIOP(src1, dst0 + m0, m1);
     }
     return total;
 }
@@ -291,7 +292,7 @@ inline void audioDecResume(AudioDec *self)
     audioDecStart(self);
 }
 
-int pcmCallback(int a0, MvCbStr *pkt, MvCbArg *arg)
+int pcmCallback(int mp, MvCbStr *pkt, MvCbArg *arg)
 {
     char *p0;
     int n0;

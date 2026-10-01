@@ -30,11 +30,11 @@ inline int GatherEffect_Set(int no, void *pos, void *quat, void *goal, float spe
     return id;
 }
 
-void GatherEffect_SetGoal(int a0, void *a1)
+void GatherEffect_SetGoal(int id, void *goal)
 {
-    if (a0 >= 0) {
-        struct GGeo *geo = (struct GGeo *)GetParticleEffectData(a0);
-        sceVu0CopyVector(geo->goal, a1);
+    if (id >= 0) {
+        struct GGeo *geo = (struct GGeo *)GetParticleEffectData(id);
+        sceVu0CopyVector(geo->goal, goal);
     }
 }
 
@@ -121,11 +121,11 @@ int GatherEffect_Proc(struct GGeo *geo)
     return i;
 }
 
-inline int GatherEffect_InqEnd(int a0)
+inline int GatherEffect_InqEnd(int id)
 {
     int acc = 0;
-    if (a0 >= 0) {
-        struct GGeo *geo = (struct GGeo *)GetParticleEffectData(a0);
+    if (id >= 0) {
+        struct GGeo *geo = (struct GGeo *)GetParticleEffectData(id);
         if (geo == 0) {
             return 1;
         }

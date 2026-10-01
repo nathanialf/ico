@@ -53,7 +53,8 @@ typedef struct { /* field names derived */
     float limitP;         /* 0x40, the hand camera's angle limits */
     float limitV;         /* 0x44 */
     float handCameraRate; /* 0x48 */
-    float float4C;        /* 0x4C */
+    float handCameraAtRate; /* 0x4C, 10.0 in the default, the look-at rate
+                               setHandCameraRates pairs with handCameraRate */
     float ofsB[3];        /* 0x50, the look-at offset added as it is */
 } PinRec;
 
@@ -76,18 +77,18 @@ inline void debug_Marker(float *pos, int r, int g, int b, float size, float puls
 inline void debug_Arrow(float len, void *from, void *to, int r, int g, int b);
 inline void InitCameraEditor(void);
 inline int debug_CameraEditor(void);
-inline void CameraEdit_reset_box(int a0);
-inline void CameraEdit_reset_pin(int a0, int a1);
-inline void CameraEdit_reflect_box(int a0);
-inline void CameraEdit_reflect_pin(int a0, int a1);
+inline void CameraEdit_reset_box(int box);
+inline void CameraEdit_reset_pin(int box, int pin);
+inline void CameraEdit_reflect_box(int box);
+inline void CameraEdit_reflect_pin(int box, int pin);
 inline int CameraEdit_BOX_NUMBER(void);
-inline int CameraEdit_PIN_NUMBER(int a0);
-inline int CameraEdit_PIN_NUMBER_ALL(int *a0, int a1);
-inline int CameraEdit_BOX(int a0);
-inline PinRec *CameraEdit_PIN(int a0, int a1);
+inline int CameraEdit_PIN_NUMBER(int box);
+inline int CameraEdit_PIN_NUMBER_ALL(int *box, int n);
+inline int CameraEdit_BOX(int box);
+inline PinRec *CameraEdit_PIN(int box, int pin);
 inline void CameraEdit_DispPin(int box, int pin);
 inline void ConvertCameraSetBuffer(int n, S4C *item, char *groups);
-inline void StickToTrans(int a0, int a1, int a2, int a3, float *out, int a5);
+inline void StickToTrans(int stickV, int stickH, int vertical, int heading, float *out, int speed);
 inline void menu_2(MenuThread *m);
 inline void group_select(MenuThread *m);
 /* compiled in place */

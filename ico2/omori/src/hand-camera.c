@@ -68,7 +68,7 @@ static void RotateAccordingToStick_PatternThree(float *a, float *b, float x, flo
     *b += db;
 }
 
-static void SetCurrentInfo(void *a0, void *a1)
+static void SetCurrentInfo(void *eye, void *at)
 {
     float *p = handCameraWork;
     float v[4];
@@ -78,7 +78,7 @@ static void SetCurrentInfo(void *a0, void *a1)
     float mx;
     float mn;
 
-    sceVu0SubVector(v, a1, a0);
+    sceVu0SubVector(v, at, eye);
     w[0] = v[0];
     w[1] = 0.0f;
     w[2] = v[2];
@@ -103,7 +103,7 @@ static void SetCurrentInfo(void *a0, void *a1)
     }
 }
 
-static void HandyCamera_TargetMoveType(void *a0, void *a1)
+static void HandyCamera_TargetMoveType(void *eye, void *at)
 {
     float *p = handCameraWork;
     float q[4];
@@ -115,7 +115,7 @@ static void HandyCamera_TargetMoveType(void *a0, void *a1)
     float n[4];
     float q3[4];
 
-    sceVu0SubVector(d, a1, a0);
+    sceVu0SubVector(d, at, eye);
 
     SetIdentityQuaternion(q);
 
@@ -138,11 +138,11 @@ static void HandyCamera_TargetMoveType(void *a0, void *a1)
     SetQuaternionByAxisRotate(q3, -(p[0] * 32768.0f / 3.1415927f), n[0], n[1], n[2]);
     MultiQuaternion(q, q, q3);
 
-    GetMatrixFromQuaternionPos(m, q, a0);
+    GetMatrixFromQuaternionPos(m, q, eye);
 
     d[3] = 0.0f;
     sceVu0ApplyMatrix(d, m, d);
-    sceVu0AddVector(a1, a0, d);
+    sceVu0AddVector(at, eye, d);
 }
 
 inline void ClearHandCameraCorrect(void)
@@ -173,22 +173,22 @@ inline void InitHandCameraCorrect(void)
     handCameraRate = 60.0f / (float)q;
 }
 
-inline void SetLimitHandCameraCorrect(float a0, float a1)
+inline void SetLimitHandCameraCorrect(float limitP, float limitV)
 {
-    handCameraWork[5] = a0;
-    handCameraWork[6] = a1;
+    handCameraWork[5] = limitP;
+    handCameraWork[6] = limitV;
 }
 
-void HandCameraCorrect(void *a0, void *a1, int a2, float f12, float f13, float f14)
+void HandCameraCorrect(void *eye, void *at, int mode, float stickX, float stickZ, float rate)
 {
     float *p = handCameraWork;
 
-    handCameraRate = f14;
-    handCameraMode = a2;
+    handCameraRate = rate;
+    handCameraMode = mode;
 
-    SetCurrentInfo(a0, a1);
+    SetCurrentInfo(eye, at);
 
-    RotateAccordingToStick_PatternThree(p, p + 1, f12, -f13);
+    RotateAccordingToStick_PatternThree(p, p + 1, stickX, -stickZ);
 
-    HandyCamera_TargetMoveType(a0, a1);
+    HandyCamera_TargetMoveType(eye, at);
 }

@@ -122,6 +122,7 @@ static int UpdateRootPosition(char *gobj)
     return moved;
 }
 
+/* newlib's assert hook; the game's include path carries no assert.h */
 extern void __assert(char *file, int line, char *expr);
 void _GetCorrectOrientOfChain(float *out, char *gobj, float *dir);
 
@@ -833,6 +834,8 @@ typedef struct { /* field names derived */
     char pad190[4];
 } ChainParaRow;
 
+/* the data-only member motion-def.o, read through this file's view of its
+   rows; no header declares it */
 extern ChainParaRow motionKind[];
 static void TestChainUpDown(char *gobj, char *boy);
 
@@ -1465,77 +1468,77 @@ void SetChainRootUpdateMode(char *gobj, int mode, float *pos)
     }
 }
 
-void HoldChain(char *a0, char *owner, float *pos)
+void HoldChain(char *chain, char *owner, float *pos)
 {
-    ChainRecord *p = GOBJ_SUB(a0)->work;
-    StartPendulum(a0, owner, pos);
+    ChainRecord *p = GOBJ_SUB(chain)->work;
+    StartPendulum(chain, owner, pos);
     p->hold = 1;
 }
 
-void ReleaseChain(char *a0, char *owner)
+void ReleaseChain(char *chain, char *owner)
 {
-    ChainRecord *cw = GOBJ_SUB(a0)->work;
+    ChainRecord *cw = GOBJ_SUB(chain)->work;
 
     cw->hold = 0;
 }
 
-void GetChainPendulum(char *a0, float *a, float *b, float *c)
+void GetChainPendulum(char *chain, float *angle, float *amp, float *cycle)
 {
-    ChainRecord *p = GOBJ_SUB(a0)->work;
-    *a = p->pdl.angle;
-    *b = p->pdl.amp;
+    ChainRecord *p = GOBJ_SUB(chain)->work;
+    *angle = p->pdl.angle;
+    *amp = p->pdl.amp;
     if (p->pdl.ampLimit < p->pdl.amp) {
-        *b = p->pdl.ampLimit;
+        *amp = p->pdl.ampLimit;
     }
-    *c = p->pdl.cycle;
+    *cycle = p->pdl.cycle;
 }
 
-void IncreasePdlChain(char *a0)
+void IncreasePdlChain(char *chain)
 {
-    ChainRecord *cw = GOBJ_SUB(a0)->work;
+    ChainRecord *cw = GOBJ_SUB(chain)->work;
 
     cw->pdl.ampSpeed = 0.1f;
 }
 
-void DecreasePdlChain(char *a0)
+void DecreasePdlChain(char *chain)
 {
-    ChainRecord *cw = GOBJ_SUB(a0)->work;
+    ChainRecord *cw = GOBJ_SUB(chain)->work;
 
     cw->pdl.ampSpeed = (float)debug_chain_slow_speed * 0.5f * -0.1f;
 }
 
-void PlumbOrientUpdateChain(char *a0, float *src)
+void PlumbOrientUpdateChain(char *chain, float *src)
 {
-    ChainRecord *p = GOBJ_SUB(a0)->work;
+    ChainRecord *p = GOBJ_SUB(chain)->work;
     p->pdl.orient[0] = src[0];
     p->pdl.orient[1] = src[1];
     p->pdl.orient[2] = src[2];
 }
 
-int isBottomOfChain(char *a0)
+int isBottomOfChain(char *chain)
 {
-    ChainRecord *p = GOBJ_SUB(a0)->work;
+    ChainRecord *p = GOBJ_SUB(chain)->work;
     return p->holdNode == p->nodes - 1;
 }
 
-int isStopChain(char *a0)
+int isStopChain(char *chain)
 {
-    ChainRecord *cw = GOBJ_SUB(a0)->work;
+    ChainRecord *cw = GOBJ_SUB(chain)->work;
 
     return cw->stopped;
 }
 
-void GetChainClimbOrient(float *dst, char *a0)
+void GetChainClimbOrient(float *dst, char *chain)
 {
-    ChainRecord *p = GOBJ_SUB(a0)->work;
+    ChainRecord *p = GOBJ_SUB(chain)->work;
     dst[0] = p->wallOrient[0];
     dst[1] = p->wallOrient[1];
     dst[2] = p->wallOrient[2];
 }
 
-int CheckChainClimbablePos(char *a0)
+int CheckChainClimbablePos(char *chain)
 {
-    ChainRecord *p = GOBJ_SUB(a0)->work;
+    ChainRecord *p = GOBJ_SUB(chain)->work;
 
     if (p->wallHit != 0 && p->holdNode < 3)
         return 1;
@@ -1547,43 +1550,43 @@ typedef struct ClimbCol { /* field names derived */
     int wall;             /* the wall hit */
 } ClimbCol;
 
-void GetChainClimbCollision(ClimbCol *dst, char *a0)
+void GetChainClimbCollision(ClimbCol *dst, char *chain)
 {
-    *dst = *(ClimbCol *)((ChainRecord *)GOBJ_SUB(a0)->work)->wallPos;
+    *dst = *(ClimbCol *)((ChainRecord *)GOBJ_SUB(chain)->work)->wallPos;
 }
 
-void SetChainParentGObj(char *a0, void *a1)
+void SetChainParentGObj(char *chain, void *parent)
 {
-    ((ChainRecord *)GOBJ_SUB(a0)->work)->root = a1;
+    ((ChainRecord *)GOBJ_SUB(chain)->work)->root = parent;
 }
 
 /* the chain's direction correction in degrees, and whether it has one;
  * getChainDirCorrectVal below is the same body, for _GetCorrectOrientOfChain */
-int GetChainDirCorrectVal(char *a0, int *a1)
+int GetChainDirCorrectVal(char *chain, int *deg)
 {
-    ChainRecord *p = GOBJ_SUB(a0)->work;
-    *a1 = (int)(p->dirCorrect * 180.0f / 3.1415927f);
+    ChainRecord *p = GOBJ_SUB(chain)->work;
+    *deg = (int)(p->dirCorrect * 180.0f / 3.1415927f);
     return p->hasDirCorrect;
 }
 
-static inline int getChainDirCorrectVal(char *a0, int *a1) /* derived name */
+static inline int getChainDirCorrectVal(char *chain, int *deg) /* derived name */
 {
-    ChainRecord *p = GOBJ_SUB(a0)->work;
-    *a1 = (int)(p->dirCorrect * 180.0f / 3.1415927f);
+    ChainRecord *p = GOBJ_SUB(chain)->work;
+    *deg = (int)(p->dirCorrect * 180.0f / 3.1415927f);
     return p->hasDirCorrect;
 }
 
-void GetRootPositionHandExtra(void *a0, float *a1)
+void GetRootPositionHandExtra(void *gobj, float *out)
 {
-    a1[0] = test_CURRENTROOT(a0)[0];
-    a1[1] = test_CURRENTROOT(a0)[1];
-    a1[2] = test_CURRENTROOT(a0)[2];
-    a1[1] -= 50.0f;
+    out[0] = test_CURRENTROOT(gobj)[0];
+    out[1] = test_CURRENTROOT(gobj)[1];
+    out[2] = test_CURRENTROOT(gobj)[2];
+    out[1] -= 50.0f;
 }
 
-void InitPendulum(char *a0)
+void InitPendulum(char *chain)
 {
-    ChainRecord *cw = GOBJ_SUB(a0)->work;
+    ChainRecord *cw = GOBJ_SUB(chain)->work;
     float a = (float)debug_chain_cycle_speed * -0.2f + 2.0f;
     float y;
 
@@ -1599,62 +1602,62 @@ void InitPendulum(char *a0)
     cw->pdl.swing = 1;
 }
 
-void LockChainGeo(char *a0)
+void LockChainGeo(char *chain)
 {
-    ChainRecord *cw = GOBJ_SUB(a0)->work;
+    ChainRecord *cw = GOBJ_SUB(chain)->work;
 
     cw->locked = 1;
 }
 
-void UnLockChainGeo(char *a0)
+void UnLockChainGeo(char *chain)
 {
-    ChainRecord *cw = GOBJ_SUB(a0)->work;
+    ChainRecord *cw = GOBJ_SUB(chain)->work;
 
     cw->locked = 0;
 }
 
-float GetChainHangRange(char *a0)
+float GetChainHangRange(char *chain)
 {
-    ChainRecord *cw = GOBJ_SUB(a0)->work;
+    ChainRecord *cw = GOBJ_SUB(chain)->work;
 
     return cw->hangRange;
 }
 
-float GetChainLength(char *a0)
+float GetChainLength(char *chain)
 {
-    ChainRecord *cw = GOBJ_SUB(a0)->work;
+    ChainRecord *cw = GOBJ_SUB(chain)->work;
 
     return (float)(cw->nodes - 1) * 50.0f;
 }
 
-void EnableChainHang(char *a0)
+void EnableChainHang(char *chain)
 {
-    ChainRecord *cw = GOBJ_SUB(a0)->work;
+    ChainRecord *cw = GOBJ_SUB(chain)->work;
 
     cw->hangable = 1;
 }
 
-void UnableChainHang(char *a0)
+void UnableChainHang(char *chain)
 {
-    ChainRecord *cw = GOBJ_SUB(a0)->work;
+    ChainRecord *cw = GOBJ_SUB(chain)->work;
 
     cw->hangable = 0;
 }
 
-int IsAbleChainHang(char *a0)
+int IsAbleChainHang(char *chain)
 {
-    ChainRecord *cw = GOBJ_SUB(a0)->work;
+    ChainRecord *cw = GOBJ_SUB(chain)->work;
 
     return cw->hangable;
 }
 
-void ChainPositionReset(char *a0)
+void ChainPositionReset(char *chain)
 {
     float pos[4];
-    ChainRecord *cw = GOBJ_SUB(a0)->work;
+    ChainRecord *cw = GOBJ_SUB(chain)->work;
 
-    UpdateRootMatrix(a0);
-    GetRootPosition(pos, a0);
+    UpdateRootMatrix(chain);
+    GetRootPosition(pos, chain);
     ResetChainNodes(cw, pos);
 }
 

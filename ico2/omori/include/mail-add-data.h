@@ -13,6 +13,6 @@ void *GetMailAdditionalData(char *gop, int mail);
 inline void ClearMailAdditionalData(char *gop);
 
 struct MailAdditionalData;
-void InitMailAdditionalData(char *a0, struct MailAdditionalData *table);
+void InitMailAdditionalData(char *gop, struct MailAdditionalData *table);
 
 #endif /* MAIL_ADD_DATA_H */

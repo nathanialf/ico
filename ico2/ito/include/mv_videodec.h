@@ -53,7 +53,7 @@ typedef struct MvThreadArg { /* field names derived */
     char reserved[64 - 12];
 } MvThreadArg;
 
-int videoCallback(int a0, MvCbStr *pkt, MvCbArg *arg);
+int videoCallback(int mp, MvCbStr *pkt, MvCbArg *arg);
 void videoDecAbort(VideoDec *self);
 int videoDecCreate(VideoDec *self);
 int videoDecDelete(VideoDec *self);

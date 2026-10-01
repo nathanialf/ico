@@ -28,6 +28,9 @@ static int enemiesWait; /* derived name */
 
 static EBSlot ebrainSlots[32]; /* derived name */
 
+/* newlib's assert hook (no assert.h on the game's include path) and the
+   data-only members stage-all.o, obj-layout.o, read through this
+   file's views of their rows; no header declares them */
 extern StgPre stageData[];
 extern void __assert(char *file, int line, char *expr);
 extern GenGeo objLayout[];
@@ -83,11 +86,11 @@ inline void eBrainInit(void)
     }
 }
 
-inline int eBrainStatusSet(void *a0, int a1)
+inline int eBrainStatusSet(void *gop, int status)
 {
     EBSlot *slot;
     int i;
-    if (a1 != 4)
+    if (status != 4)
         return 0;
     for (i = 0; i < 32; i++) {
         if (ebrainSlots[i].owner == 0)
@@ -101,7 +104,7 @@ inline int eBrainStatusSet(void *a0, int a1)
         debug_StdPrintfDummy("eBrainStatusSet: ebrain area over\n");
         return 0;
     }
-    slot->owner = a0;
+    slot->owner = gop;
     slot->status = 0;
     slot->message = 0;
     return (int)slot;
@@ -435,7 +438,7 @@ EBSlot *eBrainGetTarget(void *gop)
             break;
         case 4:
             p->target = isysGObjSearchFromObjLayoutID(
-                eBrainGetTargetGeneratorFromLabel(*(int *)((char *)gop + 8)));
+                eBrainGetTargetGeneratorFromLabel(((GObj *)gop)->labelId));
             break;
         case 6:
             p->target = 0;

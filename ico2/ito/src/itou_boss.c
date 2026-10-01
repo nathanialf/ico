@@ -274,7 +274,7 @@ static void effect_end_func(int id)
     }
 }
 
-void bossCtrlBeforeFunc(char *self)
+void bossCtrlBeforeFunc(GObj *self)
 {
     int buf[53];
     float pos[4];
@@ -287,7 +287,7 @@ void bossCtrlBeforeFunc(char *self)
     int cnt;
     int r;
 
-    q = (GObjMailQueue *)&((GObj *)self)->mailQueue;
+    q = (GObjMailQueue *)&self->mailQueue;
     for (i = 0; i < q->num; i++) {
         e = &q->e[i];
         if (e->mail == 18) {
@@ -310,7 +310,7 @@ void bossCtrlBeforeFunc(char *self)
                     }
                 }
             }
-            ExecuteSEPackage((int)self, 100);
+            ExecuteSEPackage(self, 100);
         }
     }
     q->num = 0;
@@ -356,7 +356,7 @@ static int geneCount; /* derived name */
 static int geneReleasing; /* derived name */
 
 /* send an enemy off-world and clear its live flag */
-static inline void sendEnemyAway(char *o) /* derived name */
+static inline void sendEnemyAway(GObj *o) /* derived name */
 {
     float pos[4];
     pos[2] = pos[1] = pos[0] = 4294967296.0f;
@@ -366,7 +366,7 @@ static inline void sendEnemyAway(char *o) /* derived name */
 }
 
 /* drop an enemy at a position and mark its actor live */
-static inline void putEnemyAt(char *o, float *pos) /* derived name */
+static inline void putEnemyAt(GObj *o, float *pos) /* derived name */
 {
     SetRootPosition(o, pos);
     GOBJ_SUB(o)->disp = 1;
@@ -383,15 +383,15 @@ extern int geneDebugNoEffect; /* derived name */
 #define GENE_DEBUG_NO_EFFECT 0
 #endif
 
-static void gene_eff_end_func(int id);
+static inline void gene_eff_end_func(int id);
 
 /* this file's own gene_enemy; queen.c defines a global of the same name */
-static void gene_enemy(volatile int a0)
+static void gene_enemy(volatile int gobj)
 {
     int no = geneCount;
     volatile int *flag = &geneDone[geneCount++];
     CapsuleRec *buf[53];
-    char *o;
+    GObj *o;
     void *c;
     CapsuleRec *p;
     int i;
@@ -404,8 +404,8 @@ static void gene_enemy(volatile int a0)
     _ACTWait(1);
 
     i = 0;
-    for (o = (char *)isysGObjSearchFromObjKindID_begin(33); o != 0;
-         o = (char *)isysGObjSearchFromObjKindID_next(o), i++) {
+    for (o = isysGObjSearchFromObjKindID_begin(33); o != 0;
+         o = isysGObjSearchFromObjKindID_next(o), i++) {
         if (i == no) {
             break;
         }
@@ -468,7 +468,7 @@ static void gene_enemy(volatile int a0)
                 if (r >= 0) {
                     ((struct GGeo *)GetParticleEffectData(r))->user.done = flag;
                     SetParticleEffectClipEnableFlag(r, 0);
-                    ExecuteSEPackage(a0, 99);
+                    ExecuteSEPackage((GObj *)gobj, 99);
                     while (*flag == 0) {
                         _ACTWait(1);
                     }
@@ -511,27 +511,27 @@ void BossCtrlGeo(void *self)
 }
 
 /* the boss controller's actor start */
-static inline void bossCtrlInit(void *a0) /* derived name */
+static inline void bossCtrlInit(void *gobj) /* derived name */
 {
-    actInitialize(a0);
+    actInitialize(gobj);
     _ACTWait(1);
     geneReleasing = 0;
 }
 
-inline void actBossCtrlStart(void *a0)
+inline void actBossCtrlStart(void *gobj)
 {
     int no;
-    char *o;
+    GObj *o;
     int i;
 
     no = 0;
-    bossCtrlInit(a0);
+    bossCtrlInit(gobj);
     geneCount = 0;
-    o = (char *)isysGObjSearchFromObjKindID_begin(33);
+    o = isysGObjSearchFromObjKindID_begin(33);
     while (o != 0) {
         sendEnemyAway(o);
         no++;
-        o = (char *)isysGObjSearchFromObjKindID_next(o);
+        o = isysGObjSearchFromObjKindID_next(o);
     }
     debug_StdPrintfDummy("n generator %d\n", no);
     for (i = 0; i < no; i++) {
@@ -539,7 +539,7 @@ inline void actBossCtrlStart(void *a0)
     }
 }
 
-inline int InitBossCtrlGeo(void *a0)
+inline int InitBossCtrlGeo(void *gobj)
 {
     int ret;
     unsigned int k;
@@ -551,8 +551,8 @@ inline int InitBossCtrlGeo(void *a0)
     char *r;
 
     ret = (int)iosMallocDebug(ios_partition_sugipon, 0, __FILE__, 350);
-    actInitialize(a0);
-    actInitialize_ext_charcter(a0);
+    actInitialize(gobj);
+    actInitialize_ext_charcter(gobj);
     debug_StdPrintfDummy("N_CAPSULE %d\n", 53);
 
     base = capsule;

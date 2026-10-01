@@ -43,10 +43,10 @@ typedef struct { /* field names derived */
 } GifCol;
 
 /* gif_SetGsReg's body: one GS register write, data then address */
-static inline void setGsReg(long long a0, long long a1) /* derived name */
+static inline void setGsReg(long long addr, long long data) /* derived name */
 {
-    *PacketBufferStruct.ptr.d++ = a1;
-    *PacketBufferStruct.ptr.d++ = a0;
+    *PacketBufferStruct.ptr.d++ = data;
+    *PacketBufferStruct.ptr.d++ = addr;
 }
 
 static void MakeRefractTexture(int frame)
@@ -161,7 +161,7 @@ static __inline__ void updateBarrierColor(void) /* derived name */
     barrierMesh->col = packBarrierColor(c.f[0], c.f[1], c.f[2]);
 }
 
-void queen_barrier_disp_proc(char *g, float k)
+void queen_barrier_disp_proc(GObj *g, float k)
 {
     int vram;
 

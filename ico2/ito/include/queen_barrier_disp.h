@@ -12,7 +12,7 @@ void queen_barrier_anim(void);
 
 
 void queen_barrier_disp_init(void);
-void queen_barrier_disp_proc(char *g, float k);
+void queen_barrier_disp_proc(struct GObj *g, float k);
 void queen_barrier_set_damage(void);
 
 /* a quadword read as four floats or as two doublewords */

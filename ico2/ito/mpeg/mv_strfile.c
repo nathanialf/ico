@@ -2,10 +2,10 @@
 #include "mv_strfile.h"
 #include "cdvd.h"
 
-int strFileOpen(char *a0, char *name)
+int strFileOpen(char *self, char *name)
 {
-    strcpy(a0 + 0x38, name);
-    iosCdvdDirectStOpen((struct IosCdvdHandle *)a0);
+    strcpy(self + 0x38, name);
+    iosCdvdDirectStOpen((struct IosCdvdHandle *)self);
     return 1;
 }
 

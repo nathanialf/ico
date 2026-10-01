@@ -44,8 +44,8 @@ struct GGeo {                   /* field names derived */
 };
 
 int GatherEffect_Set(int no, void *pos, void *quat, void *goal, float speed, void (*endFunc)(int));
-int GatherEffect_InqEnd(int a0);
-void GatherEffect_SetGoal(int a0, void *a1);
+int GatherEffect_InqEnd(int id);
+void GatherEffect_SetGoal(int id, void *goal);
 int GatherEffect_Proc(struct GGeo *geo);
 
 #endif /* GATHER_EFFECT_H */

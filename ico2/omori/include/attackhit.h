@@ -8,10 +8,10 @@
 #ifndef ATTACKHIT_H
 #define ATTACKHIT_H
 
-void CommonAttackCenter(char *a0);
-int _AttackCenter(char *gop, int group, float *pos, float *ofs, float radius, char *spare);
-void AttackCenter_WithDir(char *gop, int group, float *pos, float *dir, float radius);
+void CommonAttackCenter(struct GObj *gobj);
+int _AttackCenter(struct GObj *gop, int group, float *pos, float *ofs, float radius, struct GObj *spare);
+void AttackCenter_WithDir(struct GObj *gop, int group, float *pos, float *dir, float radius);
 
-void EnemyAttackCenter(char *gobj);
+void EnemyAttackCenter(struct GObj *gobj);
 
 #endif /* ATTACKHIT_H */
