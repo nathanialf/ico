@@ -1041,7 +1041,7 @@ void actE3St01bInit(void)
     stage_SetAnimation(183, 0, -1);
 }
 
-void actE3St09aBrgDown(GObj *volatile a0)
+static void actE3St09aBrgDown(GObj *volatile a0)
 {
     lt_switch_layout(55);
     gflagOn(86);

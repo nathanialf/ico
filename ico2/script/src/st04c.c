@@ -14,6 +14,8 @@
 #include "script.h"
 #include "main.h"
 
+static void actSt04cIntroChkSub(GObj *volatile a0);
+
 void actSt04cEnd(void)
 {
     if (girlGObj != 0) {
@@ -326,7 +328,7 @@ void actSt04cDoorDownEffect(GObj *volatile a0)
             b1[1] = doorDownEffectPos.d[1];
             scpEffectStart((int *)b1, 0);
             break;
-        case 0x1E:
+        case 30:
             b2[0] = v0b;
             b2[1] = doorDownEffect2Pos.d[1];
             scpEffectStart((int *)b2, 0);
@@ -353,7 +355,7 @@ void actSt04cEneChk(GObj *volatile a0)
     gflagOn(164);
 }
 
-void actSt04cIntroChkSub(GObj *volatile a0)
+static void actSt04cIntroChkSub(GObj *volatile a0)
 {
     while (stage_CheckAnimationFinish(352) == 0) {
         _ACTWait(1);

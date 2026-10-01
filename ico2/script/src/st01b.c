@@ -93,7 +93,7 @@ static int seHandle; /* derived name */
 
 static const ConstVec floorChkSubPos = {{-101.0f, -381.0f, -398.0f, 0.0f}}; /* derived name */
 
-void actSt01bFloorChkSub(GObj *volatile a0)
+static void actSt01bFloorChkSub(GObj *volatile a0)
 {
     ConstVec pos;
 

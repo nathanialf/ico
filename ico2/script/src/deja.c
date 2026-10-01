@@ -78,7 +78,7 @@ void actDejaChk(GObj *volatile a0)
     }
     if (demoEnd == 0 && deja != 0) {
         shadow_DispCancel(74, 0);
-        scpAdpcmFadeCloseFunc(&deja, 0x80);
+        scpAdpcmFadeCloseFunc(&deja, 128);
         deja = 0;
     }
     RequestStageChange(1, boyGObj, 0, 0.025f, 1.0f);
@@ -218,7 +218,7 @@ void actDejaAfterChk(GObj *volatile a0)
     lt_switch_layout(54);
     _ACTWait(60);
     if (deja != 0) {
-        scpAdpcmFadeCloseFunc(&deja, 0x50);
+        scpAdpcmFadeCloseFunc(&deja, 80);
     }
     deja = 0;
     _ACTWait(0);

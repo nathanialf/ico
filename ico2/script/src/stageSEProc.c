@@ -13,17 +13,12 @@
 #include "stageSEProc.h"
 #include "main.h"
 
+/* where a stage sound plays from, the three floats SEObj.pos points at */
 typedef struct { /* field names derived */
-    float f0;
-    float f4;
-    float f8;
-} AudFrame; /* derived name */
-
-typedef struct { /* field names derived */
-    float f0;
-    float f4;
-    float f8;
-} LoadImg; /* derived name */
+    float x;
+    float y;
+    float z;
+} SEPos; /* derived name */
 
 typedef union { /* field names derived */
     float f[4];
@@ -601,11 +596,11 @@ int stageSE08ataimatsu(int a0)
 
 int stageSE08bcrane(SEObj *a0)
 {
-    AudFrame *p = (AudFrame *)a0->pos;
+    SEPos *p = (SEPos *)a0->pos;
     float f;
-    p->f0 = 1148.0f;
-    p->f4 = -4521.0f;
-    p->f8 = 1514.0f;
+    p->x = 1148.0f;
+    p->y = -4521.0f;
+    p->z = 1514.0f;
     if (windCacheFrame == frame_count) {
         f = windCache;
     } else {
@@ -620,11 +615,11 @@ int stageSE08bcrane(SEObj *a0)
 
 int stageSE08brail(SEObj *a0)
 {
-    AudFrame *p = (AudFrame *)a0->pos;
+    SEPos *p = (SEPos *)a0->pos;
     float f;
-    p->f0 = -114.0f;
-    p->f4 = -3679.0f;
-    p->f8 = 6186.0f;
+    p->x = -114.0f;
+    p->y = -3679.0f;
+    p->z = 6186.0f;
     if (windCacheFrame == frame_count) {
         f = windCache;
     } else {
@@ -639,10 +634,10 @@ int stageSE08brail(SEObj *a0)
 
 int stageSE09asea(SEObj *a0)
 {
-    AudFrame *p = (AudFrame *)a0->pos;
-    p->f0 = 1800.0f;
-    p->f4 = 585.0f;
-    p->f8 = -5000.0f;
+    SEPos *p = (SEPos *)a0->pos;
+    p->x = 1800.0f;
+    p->y = 585.0f;
+    p->z = -5000.0f;
     a0->vol.f = 1.0f;
     return 1;
 }
@@ -966,9 +961,9 @@ int stageSE24astrong(SEObj *a0)
 
 unsigned int stageSE24arain(SEObj *a0)
 {
-    LoadImg *p = (LoadImg *)a0->pos;
-    p->f0 = 1771.0f;
-    p->f8 = -4949.0f;
+    SEPos *p = (SEPos *)a0->pos;
+    p->x = 1771.0f;
+    p->z = -4949.0f;
     a0->pitch.f = 0.5f;
     return 1;
 }

@@ -19,6 +19,13 @@
 #include "main.h"
 #include "script.h"
 
+static void actSt08aDoorUpSub(GObj *volatile a0);
+static void actSt08aGirlPosChk(GObj *volatile a0);
+static void actSt08aHasiMain(GObj *volatile a0);
+static void actSt08aHasiSwitch(GObj *volatile a0);
+static void actSt08aHint1Chk(GObj *volatile a0);
+static void actSt08aTorchOffChk(GObj *volatile a0);
+
 static ActMail ene1_mes[2] = {{430}, {429}}; /* derived name */
 
 static ActMail ene2_mes[2] = {{430}, {429}}; /* derived name */
@@ -189,7 +196,7 @@ void actSt08aDoorUp(GObj *volatile a0)
 /* .sdata: the scene's stream handle. */
 static char *st08a_adpcm = 0; /* derived name */
 
-void actSt08aHasiUpSub(GObj *volatile a0)
+static void actSt08aHasiUpSub(GObj *volatile a0)
 {
     _ACTWait(60);
 
@@ -222,7 +229,7 @@ void actSt08aHasiUpSub(GObj *volatile a0)
     _ACTWait(0);
 }
 
-void actSt08aHasiUp(GObj *volatile a0)
+static void actSt08aHasiUp(GObj *volatile a0)
 {
     GProc *th;
 
@@ -264,7 +271,7 @@ void actSt08aHasiUp(GObj *volatile a0)
     lt_switch_layout(54);
 }
 
-void actSt08aTorchOnChk(GObj *volatile a0)
+static void actSt08aTorchOnChk(GObj *volatile a0)
 {
     Act *self = GOBJ_ACT(a0);
 
@@ -292,7 +299,7 @@ void actSt08aTorchOnChk(GObj *volatile a0)
     _ACTWait(0);
 }
 
-void actSt08aTorchOffChk(GObj *volatile a0)
+static void actSt08aTorchOffChk(GObj *volatile a0)
 {
     Act *self = GOBJ_ACT(a0);
 
@@ -575,7 +582,7 @@ void actSt08aDoorSwitch(GObj *volatile a0)
     _ACTWait(0);
 }
 
-void actSt08aDoorUpSub(GObj *volatile a0)
+static void actSt08aDoorUpSub(GObj *volatile a0)
 {
     _ACTWait(60);
 
@@ -616,7 +623,7 @@ void actSt08aIntroChk(GObj *volatile a0)
     scpBoyControlReadDisable = 0;
 }
 
-void actSt08aGirlPosChk(GObj *volatile a0)
+static void actSt08aGirlPosChk(GObj *volatile a0)
 {
     while (girlGObj == 0 || scpTriggerBall(a0, girlGObj, 200.0f) == 0) {
         _ACTWait(1);
@@ -626,7 +633,7 @@ void actSt08aGirlPosChk(GObj *volatile a0)
     WakeupHint(2);
 }
 
-void actSt08aHint1Chk(GObj *volatile a0)
+static void actSt08aHint1Chk(GObj *volatile a0)
 {
     while (gflagChk(80) == 0) {
         _ACTWait(1);
@@ -638,7 +645,7 @@ void actSt08aHint1Chk(GObj *volatile a0)
     FinishHint(2);
 }
 
-void actSt08aHasiMain(GObj *volatile a0)
+static void actSt08aHasiMain(GObj *volatile a0)
 {
     Act *sub = GOBJ_ACT(a0);
 
@@ -650,7 +657,7 @@ void actSt08aHasiMain(GObj *volatile a0)
     }
 }
 
-void actSt08aHasiSwitch(GObj *volatile a0)
+static void actSt08aHasiSwitch(GObj *volatile a0)
 {
     Act *sub = GOBJ_ACT(a0);
 

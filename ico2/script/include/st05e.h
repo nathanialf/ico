@@ -16,7 +16,6 @@ void actSt05eSolarChk(GObj *volatile a0);
 void actSt05eWaterFlagOn(GObj *volatile a0);
 void actSt05eWaterMain(GObj *volatile a0);
 void actSt05eWaterStop(GObj *volatile a0);
-void actSt05eWaterStopSub(GObj *volatile a0);
 void actSt05eWaterSwitch(GObj *volatile a0);
 
 #endif /* ST05E_H */

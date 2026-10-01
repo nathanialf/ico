@@ -28,6 +28,8 @@
 #include "script.h"
 #include "main.h"
 
+static void actSt04eSolarBeamChkSub(GObj *volatile a0);
+
 /* .sbss: the four arguments turnBall hands to the ball-turn actor through file
    scope, the demo's own end flag, the crest-2 animation the room selects, and
    the flag the stair subthread raises once it is past its setup. */
@@ -247,7 +249,7 @@ void actSt04eInit(void)
     }
 }
 
-void actSt04lBallTurnCommonSub(GObj *volatile a0)
+static void actSt04lBallTurnCommonSub(GObj *volatile a0)
 {
     _ACTWait(60);
 
@@ -270,7 +272,7 @@ void actSt04lBallTurnCommonSub(GObj *volatile a0)
     _ACTWait(0);
 }
 
-void actSt04lBallTurnCommon(GObj *volatile a0)
+static void actSt04lBallTurnCommon(GObj *volatile a0)
 {
     GProc *h;
 
@@ -471,7 +473,7 @@ void actSt04lCrest02(GObj *volatile a0)
     }
 }
 
-void actSt04lCrestSub(GObj *volatile a0)
+static void actSt04lCrestSub(GObj *volatile a0)
 {
     stage_SetAnimation(252, 1, 0);
     stage_SetAnimation(199, 1, 0);
@@ -563,7 +565,7 @@ void actSt04lCrestMain(GObj *volatile a0)
     RequestStageChange(3, boyGObj, 0, 2.0f, 8.0f);
 }
 
-void actSt04lCrest2Sub(GObj *volatile a0)
+static void actSt04lCrest2Sub(GObj *volatile a0)
 {
     stage_SetAnimation(crest2Anim, 1, 0);
 
@@ -670,7 +672,7 @@ void actSt04lCrest2Main(GObj *volatile a0)
     scpWakeupEnemyAll();
 }
 
-void actSt04lCrest3Sub(GObj *volatile a0)
+static void actSt04lCrest3Sub(GObj *volatile a0)
 {
     while (stage_CheckAnimationFrame(203, 30, 0) == 0) {
         _ACTWait(1);
@@ -802,7 +804,7 @@ void actSt04eSolarBeamChk(GObj *volatile a0)
     RequestStageChange(7, boyGObj, 0, 2.0f, 8.0f);
 }
 
-void actSt04lStairSub(GObj *volatile a0)
+static void actSt04lStairSub(GObj *volatile a0)
 {
     long long ofs[2];
     float dir[4];
@@ -1574,7 +1576,7 @@ void actSt04lMonyou07Chk(GObj *volatile a0)
     scpBoyControlReadDisable = 0;
 }
 
-void actSt04lOriSub(GObj *volatile a0)
+static void actSt04lOriSub(GObj *volatile a0)
 {
     _ACTWait(60);
 
@@ -1771,7 +1773,7 @@ void actSt04lOri2(GObj *volatile a0)
     }
 }
 
-void actSt04lOri2Sub(GObj *volatile a0)
+static void actSt04lOri2Sub(GObj *volatile a0)
 {
     iosPadActRequest(boyPad, 17);
     _ACTWait(30);
@@ -2817,7 +2819,7 @@ void actSt04lC3BallTurn(GObj *volatile a0)
     _ACTWait(0);
 }
 
-void actSt04eSolarBeamChkSub(GObj *volatile a0)
+static void actSt04eSolarBeamChkSub(GObj *volatile a0)
 {
     stage_SetAnimation(292, 1, 0);
 

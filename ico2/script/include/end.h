@@ -45,7 +45,6 @@ void actEndDemo12Chk(GObj *volatile a0);
 void actEndDemo13Chk(GObj *volatile a0);
 void actEndDemo14Chk(GObj *volatile a0);
 void actEndLogoChk(GObj *volatile a0);
-void actEndingSave(GObj *volatile a0);
 void actSt27aEndChk(GObj *volatile a0);
 void actSt27aEndDemo(GObj *volatile a0);
 void actStaff1Chk(GObj *volatile a0);

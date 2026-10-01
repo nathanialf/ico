@@ -21,7 +21,6 @@ void actSt02aDoorUpEffect(GObj *volatile a0);
 void actSt02aEneChk(GObj *volatile a0);
 void actSt02aFenceMain(GObj *volatile a0);
 void actSt02aFenceOpen(GObj *volatile a0);
-void actSt02aFenceOpenSub(GObj *volatile a0);
 void actSt02aGondolaDown(GObj *volatile a0);
 void actSt02aGondolaMain(GObj *volatile a0);
 void actSt02aGondolaUp(GObj *volatile a0);

@@ -131,7 +131,7 @@ void actSt00aEneChk(GObj *volatile a0)
    which the wait loop below spins for. */
 static int demoEnd;
 
-void actSt00aStairChkSub(GObj *volatile a0);
+static void actSt00aStairChkSub(GObj *volatile a0);
 
 void actSt00aStairChk(GObj *volatile a0)
 {
@@ -504,7 +504,7 @@ void actSt00aAtr2Chk(GObj *volatile a0)
     gflagOn(42);
 }
 
-void actSt00aStairChkSub(GObj *volatile a0)
+static void actSt00aStairChkSub(GObj *volatile a0)
 {
     _ACTWait(90);
     iosPadActRequest(boyPad, 17);

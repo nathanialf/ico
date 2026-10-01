@@ -23,6 +23,16 @@
 #include "script.h"
 #include "main.h"
 
+static void actSt06aBoxSub(GObj *volatile a0);
+static void actSt06aExitGirlChk(GObj *volatile a0);
+static void actSt06aJumpMain(GObj *volatile a0);
+static void actSt06aJumpSub(GObj *volatile a0);
+static void actSt06aJumpSwitch(GObj *volatile a0);
+static void actSt06aKyomiOffChk(GObj *volatile a0);
+static void actSt06aPistonRideOnChk(GObj *volatile a0);
+static void actSt06aShutterOpenSub(GObj *volatile a0);
+static void actSt06aSuimonSub(GObj *volatile a0);
+
 /* A 16-byte constant vector template: the float view carries the values,
    the long long view is the one the copies read. */
 
@@ -617,7 +627,7 @@ void actSt06aHeadChk(GObj *volatile a0)
     lt_switch_layout(54);
 }
 
-void actSt06aJumpMove(GObj *volatile a0)
+static void actSt06aJumpMove(GObj *volatile a0)
 {
     GProc *h;
 
@@ -679,7 +689,7 @@ inline void actSt06aPistonRideOffChk(GObj *volatile a0)
     _ACTWait(0);
 }
 
-void actSt06aPistonFlagOnChk(GObj *volatile a0)
+static void actSt06aPistonFlagOnChk(GObj *volatile a0)
 {
     Act *sub = GOBJ_ACT(a0);
 
@@ -1094,7 +1104,7 @@ void actSt06aSuimonFlagOn(GObj *volatile a0)
     gflagOn(106);
 }
 
-void actSt06aSuimonSub(GObj *volatile a0)
+static void actSt06aSuimonSub(GObj *volatile a0)
 {
     stage_SetAnimation(107, 1, 0);
     stage_SetAnimation(109, 1, 0);
@@ -1188,7 +1198,7 @@ void actSt06aShutterSwitch(GObj *volatile a0)
     _ACTWait(0);
 }
 
-void actSt06aShutterOpenSub(GObj *volatile a0)
+static void actSt06aShutterOpenSub(GObj *volatile a0)
 {
     _ACTWait(60);
 
@@ -1219,7 +1229,7 @@ void actSt06aExitChk(GObj *volatile a0)
     RequestStageChange(3, boyGObj, 0, 16.0f, 16.0f);
 }
 
-void actSt06aExitGirlChk(GObj *volatile a0)
+static void actSt06aExitGirlChk(GObj *volatile a0)
 {
     long long buf1[2];
     long long buf2[2];
@@ -1243,7 +1253,7 @@ void actSt06aExitGirlChk(GObj *volatile a0)
     ScpCallCameraSetTarget(-800.0f, -500.0f, 2200.0f);
 }
 
-void actSt06aBoxSub(GObj *volatile a0)
+static void actSt06aBoxSub(GObj *volatile a0)
 {
     _ACTWait(60);
 
@@ -1446,7 +1456,7 @@ void actSt06aTreeChk(GObj *volatile a0)
     ReviveAllCarryableItems();
 }
 
-void actSt06aKyomiOnChk(GObj *volatile a0)
+static void actSt06aKyomiOnChk(GObj *volatile a0)
 {
     Act *sub = GOBJ_ACT(a0);
 
@@ -1470,7 +1480,7 @@ void actSt06aKyomiOnChk(GObj *volatile a0)
     _ACTWait(0);
 }
 
-void actSt06aKyomiOffChk(GObj *volatile a0)
+static void actSt06aKyomiOffChk(GObj *volatile a0)
 {
     Act *sub = GOBJ_ACT(a0);
 
@@ -1494,7 +1504,7 @@ void actSt06aKyomiOffChk(GObj *volatile a0)
     _ACTWait(0);
 }
 
-void actSt06aJumpMain(GObj *volatile a0)
+static void actSt06aJumpMain(GObj *volatile a0)
 {
     Act *sub = GOBJ_ACT(a0);
 
@@ -1507,7 +1517,7 @@ void actSt06aJumpMain(GObj *volatile a0)
     }
 }
 
-void actSt06aJumpSwitch(GObj *volatile a0)
+static void actSt06aJumpSwitch(GObj *volatile a0)
 {
     Act *sub = GOBJ_ACT(a0);
 
@@ -1521,7 +1531,7 @@ void actSt06aJumpSwitch(GObj *volatile a0)
     _ACTWait(0);
 }
 
-void actSt06aJumpSub(GObj *volatile a0)
+static void actSt06aJumpSub(GObj *volatile a0)
 {
     stage_SetAnimation(114, 1, 0);
 
@@ -1544,7 +1554,7 @@ void actSt06aJumpSub(GObj *volatile a0)
     _ACTWait(1);
 }
 
-void actSt06aPistonRideOnChk(GObj *volatile a0)
+static void actSt06aPistonRideOnChk(GObj *volatile a0)
 {
     Act *sub = GOBJ_ACT(a0);
 

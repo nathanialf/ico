@@ -20,6 +20,7 @@
 #include "main.h"
 #include "script.h"
 
+static void actSt02aFenceOpenSub(GObj *volatile a0);
 /* .data: one mail record per posting site. Word 0 of each entry is the mail id
  * the entry answers (430 the actor post, 429 the trailing entry); .func is
  * filled in at run time before the post, except in the two main-mail records,
@@ -690,7 +691,7 @@ void actSt02aFenceSwitch(GObj *volatile a0)
     _ACTWait(0);
 }
 
-void actSt02aFenceOpenSub(GObj *volatile a0)
+static void actSt02aFenceOpenSub(GObj *volatile a0)
 {
     while (st02a_fence == 0) {
         _ACTWait(1);

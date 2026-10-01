@@ -332,7 +332,7 @@ void actSt04bGirlWay(GObj *volatile a0)
 
     way[0] = girlWay2Pos.d[0];
     way[1] = girlWay2Pos.d[1];
-    RequestStageChangeDirect(girlGObj, 0x13, way, 0xB4);
+    RequestStageChangeDirect(girlGObj, 19, way, 180);
 
     brainUnlockGirl();
 }

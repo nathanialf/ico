@@ -15,6 +15,10 @@
 #include "script.h"
 #include "main.h"
 
+static void actSt04rDoor2Sub(GObj *volatile a0);
+static void actSt04rDoorSub(GObj *volatile a0);
+static void actSt05cCrestHintChk(GObj *volatile a0);
+
 /* .sbss: the demo's own end flag, raised by the subthreads the wait loops
    below spin for. */
 static int demoEnd;
@@ -339,7 +343,7 @@ void actSt05cDoorDownEffect(GObj *volatile a0)
             a = doorDownEffectPos;
             scpEffectStart(&a, 0);
             break;
-        case 0x1E:
+        case 30:
             b = doorDownEffect2Pos;
             scpEffectStart(&b, 0);
             c = doorDownEffect3Pos;
@@ -365,7 +369,7 @@ void actSt05cEneChk(GObj *volatile a0)
     gflagOn(168);
 }
 
-void actSt04rDoorSub(GObj *volatile a0)
+static void actSt04rDoorSub(GObj *volatile a0)
 {
     int h;
 
@@ -377,7 +381,7 @@ void actSt04rDoorSub(GObj *volatile a0)
     _ACTWait(0);
 }
 
-void actSt04rDoor2Sub(GObj *volatile a0)
+static void actSt04rDoor2Sub(GObj *volatile a0)
 {
     int h;
 
@@ -389,7 +393,7 @@ void actSt04rDoor2Sub(GObj *volatile a0)
     _ACTWait(0);
 }
 
-void actSt05cCrestHintChk(GObj *volatile a0)
+static void actSt05cCrestHintChk(GObj *volatile a0)
 {
     while (gflagChk(243) == 0 || gflagChk(244) == 0 || gflagChk(245) == 0 || gflagChk(232) != 0) {
         _ACTWait(1);

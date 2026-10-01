@@ -35,6 +35,13 @@
 #include "jimaku.h"
 #include "main.h"
 
+static void actConte09_3_demoCancel(GObj *volatile a0);
+static void actSt04aGateLSub(GObj *volatile a0);
+static void actSt04aGateRSub(GObj *volatile a0);
+static void actSt04aModelOffChk(GObj *volatile a0);
+static void actSt04aModelOnChk(GObj *volatile a0);
+static void finishCallBackFunc(struct GObj *a0);
+
 /* this file's own view of Act (the shared one is in typedef.h) */
 typedef struct ActSt04A { /* field names derived */
     char pad0[32];        /* 0x00 */
@@ -1800,7 +1807,7 @@ void actSt04aTorchAllFlagfChk(GObj *volatile a0)
     scpWakeupEnemyAll();
 }
 
-void actSt04aTorchHintChk(GObj *volatile a0)
+static void actSt04aTorchHintChk(GObj *volatile a0)
 {
     while (gflagChk(155) == 0) {
         _ACTWait(1);
@@ -2029,14 +2036,14 @@ typedef struct { /* field names derived */
     float m[4];
 } Vec4St04A; /* derived name */
 
-void finishCallBackFunc(GObj *a0)
+static void finishCallBackFunc(GObj *a0)
 {
     Vec4St04A v;
     int i;
 
     _ApplyMatrix(&v, GOBJ_SUB(a0)->nodeMtx, YUnitVector);
     v.m[1] = 0.0f;
-    _NormalizeVector((int)GOBJ_SUB(a0) + 1312, &v);
+    _NormalizeVector(GOBJ_SUB(a0)->ctrl.dir, &v);
 
     for (i = 0; i < GOBJ_SUB(a0)->skelNodeNum; i++) {
         *(Mtx44 *)(GOBJ_SUB(a0)->nodeRotElem + i * 64) = jointMtxInit;
@@ -2121,14 +2128,14 @@ void actConte09_3Jimaku(GObj *volatile a0)
     } while (t < 3000.0f);
 }
 
-void actConte09_3_demoCancel(GObj *volatile a0)
+static void actConte09_3_demoCancel(GObj *volatile a0)
 {
     while (1) {
         _ACTWait(1);
     }
 }
 
-void actSt04aGateLSub(GObj *volatile a0)
+static void actSt04aGateLSub(GObj *volatile a0)
 {
     stage_SetAnimation(293, 1, 0);
     while (stage_CheckAnimationFinish(293) == 0) {
@@ -2139,7 +2146,7 @@ void actSt04aGateLSub(GObj *volatile a0)
     _ACTWait(0);
 }
 
-void actSt04aGateRSub(GObj *volatile a0)
+static void actSt04aGateRSub(GObj *volatile a0)
 {
     stage_SetAnimation(295, 1, 0);
     while (stage_CheckAnimationFinish(295) == 0) {
@@ -2179,7 +2186,7 @@ void actSt04aGirlSitChk(GObj *volatile a0)
    Named for the thread that owns and posts it. */
 static ActMail model_on[2] = {{430}, {429}}; /* derived name */
 
-void actSt04aModelOnChk(GObj *volatile a0)
+static void actSt04aModelOnChk(GObj *volatile a0)
 {
     ActSt04A *sub = ((PObjGObjSt04A *)a0)->act;
 
@@ -2198,7 +2205,7 @@ void actSt04aModelOnChk(GObj *volatile a0)
 /* The model-off watcher's own mail record (installs actSt04aModelOnChk). */
 static ActMail model_off[2] = {{430}, {429}}; /* derived name */
 
-void actSt04aModelOffChk(GObj *volatile a0)
+static void actSt04aModelOffChk(GObj *volatile a0)
 {
     ActSt04A *sub = ((PObjGObjSt04A *)a0)->act;
 

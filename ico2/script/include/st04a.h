@@ -27,7 +27,6 @@ void actConte09Jimaku(GObj *volatile a0);
 void actConte09_2(GObj *volatile a0);
 void actConte09_3(GObj *volatile a0);
 void actConte09_3Jimaku(GObj *volatile a0);
-void actConte09_3_demoCancel(GObj *volatile a0);
 void actSt04aConte06(GObj *volatile a0);
 void actSt04aConte06Jimaku(GObj *volatile a0);
 void actSt04aEnvSe(GObj *volatile a0);
@@ -35,19 +34,13 @@ void actSt04aEnvSeWakare1(GObj *volatile a0);
 void actSt04aEnvSeWakare2(GObj *volatile a0);
 void actSt04aGateChk(GObj *volatile a0);
 void actSt04aGateLChk(GObj *volatile a0);
-void actSt04aGateLSub(GObj *volatile a0);
 void actSt04aGateOpen2Chk(GObj *volatile a0);
 void actSt04aGateOpen2ReadyChk(GObj *volatile a0);
 void actSt04aGateOpen3Chk(GObj *volatile a0);
 void actSt04aGateOpenChk(GObj *volatile a0);
 void actSt04aGateRChk(GObj *volatile a0);
-void actSt04aGateRSub(GObj *volatile a0);
 void actSt04aGirlSitChk(GObj *volatile a0);
-void actSt04aModelOffChk(GObj *volatile a0);
-void actSt04aModelOnChk(GObj *volatile a0);
 void actSt04aTorch1Chk(GObj *volatile a0);
 void actSt04aTorchAllFlagfChk(GObj *volatile a0);
-void actSt04aTorchHintChk(GObj *volatile a0);
-void finishCallBackFunc(struct GObj *a0);
 
 #endif /* ST04A_H */

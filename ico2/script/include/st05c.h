@@ -11,10 +11,7 @@
 #include "typedef.h"
 
 void actSt04rDoor2Chk(GObj *volatile a0);
-void actSt04rDoor2Sub(GObj *volatile a0);
 void actSt04rDoorChk(GObj *volatile a0);
-void actSt04rDoorSub(GObj *volatile a0);
-void actSt05cCrestHintChk(GObj *volatile a0);
 void actSt05cDoorDownChk(GObj *volatile a0);
 void actSt05cDoorDownEffect(GObj *volatile a0);
 void actSt05cEneChk(GObj *volatile a0);

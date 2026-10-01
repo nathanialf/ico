@@ -23,6 +23,8 @@
 #include "script.h"
 #include "staffroll.h"
 
+static void actEndingSave(GObj *volatile a0);
+
 /* .sdata: the ending scenes' stream handles (ed5 and happy_end unused), then
    the staff roll's, the fourteenth demo's and the st27a ending's. */
 char *ed1 = 0;
@@ -1696,7 +1698,7 @@ void actEndDemo14Chk(GObj *volatile a0)
     actCreateSubThread(actConte14_14, 21);
 }
 
-void actEndingSave(GObj *volatile a0)
+static void actEndingSave(GObj *volatile a0)
 {
     if (gFlagGameClear == 0) {
         int save;

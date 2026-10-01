@@ -13,17 +13,8 @@
 void actSt08aDoorMain(GObj *volatile a0);
 void actSt08aDoorSwitch(GObj *volatile a0);
 void actSt08aDoorUp(GObj *volatile a0);
-void actSt08aDoorUpSub(GObj *volatile a0);
 void actSt08aEne1Chk(GObj *volatile a0);
 void actSt08aEne2Chk(GObj *volatile a0);
-void actSt08aGirlPosChk(GObj *volatile a0);
-void actSt08aHasiMain(GObj *volatile a0);
-void actSt08aHasiSwitch(GObj *volatile a0);
-void actSt08aHasiUp(GObj *volatile a0);
-void actSt08aHasiUpSub(GObj *volatile a0);
-void actSt08aHint1Chk(GObj *volatile a0);
 void actSt08aIntroChk(GObj *volatile a0);
-void actSt08aTorchOffChk(GObj *volatile a0);
-void actSt08aTorchOnChk(GObj *volatile a0);
 
 #endif /* ST08A_H */

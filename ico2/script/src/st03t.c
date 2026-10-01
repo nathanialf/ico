@@ -17,6 +17,10 @@
 #include "main.h"
 #include "script.h"
 
+static void actSt03tGirlPosChk(GObj *volatile a0);
+static void actSt03tGirlUpChk(GObj *volatile a0);
+static void actSt03tHint1OffChk(GObj *volatile a0);
+
 static ActMail switchL_mes[2] = {{430}, {429}}; /* derived name */
 
 static ActMail switchLUp_mes[2] = {{430}, {429}}; /* derived name */
@@ -611,7 +615,7 @@ void actSt03tWayOffChk(GObj *volatile a0)
     _ACTWait(0);
 }
 
-void actSt03tGirlPosChk(GObj *volatile a0)
+static void actSt03tGirlPosChk(GObj *volatile a0)
 {
     while (girlGObj == 0 || scpTriggerFloorAttr(girlGObj, 0x5000000) == 0) {
         _ACTWait(1);
@@ -621,7 +625,7 @@ void actSt03tGirlPosChk(GObj *volatile a0)
     WakeupHint(12);
 }
 
-void actSt03tGirlUpChk(GObj *volatile a0)
+static void actSt03tGirlUpChk(GObj *volatile a0)
 {
     while (girlGObj == 0 || scpTriggerFloorAttr(girlGObj, 0x4000000) == 0) {
         _ACTWait(1);
@@ -632,7 +636,7 @@ void actSt03tGirlUpChk(GObj *volatile a0)
     FinishHint(12);
 }
 
-void actSt03tHint1OnChk(GObj *volatile a0)
+static void actSt03tHint1OnChk(GObj *volatile a0)
 {
     Act *sub = GOBJ_ACT(a0);
 
@@ -645,7 +649,7 @@ void actSt03tHint1OnChk(GObj *volatile a0)
     _ACTWait(0);
 }
 
-void actSt03tHint1OffChk(GObj *volatile a0)
+static void actSt03tHint1OffChk(GObj *volatile a0)
 {
     Act *sub = GOBJ_ACT(a0);
 

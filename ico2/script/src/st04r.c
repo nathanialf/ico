@@ -24,6 +24,9 @@
 #include "script.h"
 #include "main.h"
 
+static void actSt04rBrg1Sub(GObj *volatile a0);
+static void openGate(struct GObj *a0);
+
 static ActMail c1_ball_main_mes[2] = {{406, actSt04rC1BallSwitch}, {429}}; /* derived name */
 
 static ActMail c1_ball_mes[2] = {{430}, {429}}; /* derived name */
@@ -374,7 +377,7 @@ void actSt04rCrest02(GObj *volatile a0)
     }
 }
 
-void openGateSub(GObj *volatile a0)
+static void openGateSub(GObj *volatile a0)
 {
     stage_SetAnimation(gateAnim, 1, 0);
 
@@ -403,7 +406,7 @@ void openGateSub(GObj *volatile a0)
     _ACTWait(0);
 }
 
-void openGate(GObj *a0)
+static void openGate(GObj *a0)
 {
     GProc *th;
 
@@ -621,7 +624,7 @@ void actSt04rSolarBeamChk(GObj *volatile a0)
     RequestStageChange(15, boyGObj, 0, 2.0f, 8.0f);
 }
 
-void actSt04rStairSub(GObj *volatile a0)
+static void actSt04rStairSub(GObj *volatile a0)
 {
     long long buf[2];
     float dir[4];
@@ -2425,7 +2428,7 @@ void actSt04rBrg1Chk(GObj *volatile a0)
     _ACTWait(0);
 }
 
-void actSt04rBrg1Sub(GObj *volatile a0)
+static void actSt04rBrg1Sub(GObj *volatile a0)
 {
     _ACTWait(60);
 

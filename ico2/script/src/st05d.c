@@ -24,7 +24,7 @@ static const ConstVec door2UpEffect2Pos = {{-704.0f, -1955.0f, -5679.0f, 1.0f}};
 void actSt05dDoor2UpEffect(GObj *volatile a0);
 void actSt05dDoor2DownEffect(GObj *volatile a0);
 void actSt05dEneChk(GObj *volatile a0);
-void actSt05dCrestHintChk(GObj *volatile a0);
+static void actSt05dCrestHintChk(GObj *volatile a0);
 
 static ActMail door2Down_mes[2] = {{430}, {429}}; /* derived name */
 
@@ -145,7 +145,7 @@ void actSt05dEne(GObj *volatile a0)
     _ACTWait(1);
 
     g = scpSearchGobj(1458);
-    rot = scpGetRotObjectCurrentRot(0x614);
+    rot = scpGetRotObjectCurrentRot(1556);
 
     GetRootQuaternion(GetCurrentQuaternion(), g);
     RotQuaternionY(GetCurrentQuaternion(), rot);
@@ -232,7 +232,7 @@ void actSt05dDoor2UpEffect(GObj *volatile a0)
             b1[1] = door2UpEffectPos.d[1];
             scpEffectStart((int *)b1, 0);
             break;
-        case 0x1E:
+        case 30:
             b2[0] = v0b;
             b2[1] = door2UpEffect2Pos.d[1];
             scpEffectStart((int *)b2, 0);
@@ -256,7 +256,7 @@ void actSt05dDoor2DownEffect(GObj *volatile a0)
             b1[1] = door2UpEffect2Pos.d[1];
             scpEffectStart((int *)b1, 0);
             break;
-        case 0x1E:
+        case 30:
             b2[0] = v0b;
             b2[1] = door2UpEffectPos.d[1];
             scpEffectStart((int *)b2, 0);
@@ -279,7 +279,7 @@ void actSt05dEneChk(GObj *volatile a0)
     gflagOn(172);
 }
 
-void actSt05dCrestHintChk(GObj *volatile a0)
+static void actSt05dCrestHintChk(GObj *volatile a0)
 {
     while (gflagChk(243) == 0 || gflagChk(244) == 0 || gflagChk(245) == 0 || gflagChk(232) != 0) {
         _ACTWait(1);

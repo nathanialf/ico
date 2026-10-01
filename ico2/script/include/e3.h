@@ -36,7 +36,6 @@ void actE3GateChk(GObj *volatile a0);
 void actE3GateDemo(GObj *volatile a0);
 void actE3GateJimaku(GObj *volatile a0);
 void actE3Inst1Chk(GObj *volatile a0);
-void actE3St09aBrgDown(GObj *volatile a0);
 void actE3St09aSekizoChk(GObj *volatile a0);
 void actE3TitleChk(GObj *volatile a0);
 void actE3TitleFrameChk(GObj *volatile a0);

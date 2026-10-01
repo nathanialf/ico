@@ -75,8 +75,8 @@ void actSt05bSekizoChk(GObj *volatile a0)
     stage_SetAnimation(192, 1, 0);
     ReviveAllCarryableItemsWithNonSleepFrame(250);
     sekizo_5b = iosPadActRequest(boyPad, 9);
-    sekizo_5b_vol = 0x80;
-    iosPadActVolumeSet(sekizo_5b, 0x80);
+    sekizo_5b_vol = 128;
+    iosPadActVolumeSet(sekizo_5b, 128);
     h = soundSeDefPlay(1217, 0, 0, 1);
     scpPlayStart(boyGObj);
     scpPlayStart(girlGObj);
@@ -215,6 +215,6 @@ void actSt05bGirlWay(GObj *volatile a0)
 
     way[0] = girlWay2Pos.d[0];
     way[1] = girlWay2Pos.d[1];
-    RequestStageChangeDirect(girlGObj, 0x1C, way, 0xB4);
+    RequestStageChangeDirect(girlGObj, 28, way, 180);
     brainUnlockGirl();
 }

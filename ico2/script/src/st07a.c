@@ -26,6 +26,9 @@
 #include "e3.h"
 #include "main.h"
 
+static void actSt07aChanChainChk(GObj *volatile a0);
+static void actSt07aChanReadyChk(GObj *volatile a0);
+
 void actSt07aInit(void)
 {
     if (gflagChk(126) != 0) {
@@ -877,7 +880,7 @@ void actSt07aGene2_3(GObj *volatile a0)
     Generator_MaskOff(a0);
 }
 
-void actSt07aChanReadyChk(GObj *volatile a0)
+static void actSt07aChanReadyChk(GObj *volatile a0)
 {
     GObj *x = a0;
     actInitialize(a0);
@@ -888,7 +891,7 @@ void actSt07aChanReadyChk(GObj *volatile a0)
     scpAdpcmPlayRequestFunc(59, &bridge, 1, 1, 0);
 }
 
-void actSt07aChanChainChk(GObj *volatile a0)
+static void actSt07aChanChainChk(GObj *volatile a0)
 {
     GObj *x = a0;
     actInitialize(a0);

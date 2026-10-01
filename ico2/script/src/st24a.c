@@ -14,6 +14,8 @@
 #include "script.h"
 #include "main.h"
 
+static void actSt24aSwordSub(GObj *volatile a0);
+
 static ActMail sword_mes[2] = {{430}, {429}}; /* derived name */
 
 static ActMail demoCam_mes[2] = {{430}, {429}}; /* derived name */
@@ -53,7 +55,7 @@ void actSt24aSwordChk(GObj *volatile self)
         while (sword == 0) {
             _ACTWait(1);
         }
-        scpAdpcmFadeCloseFunc(&sword, 0x200);
+        scpAdpcmFadeCloseFunc(&sword, 512);
         while (scpFadeChk() != 0) {
             _ACTWait(1);
         }
@@ -75,7 +77,7 @@ void actSt24aSwordChk(GObj *volatile self)
     scpBoyControlReadDisable = 0;
 }
 
-void actSt24aDemoCamChk(GObj *volatile a0)
+static void actSt24aDemoCamChk(GObj *volatile a0)
 {
     while (scpTriggerBall(a0, boyGObj, 700.0f) == 0) {
         _ACTWait(1);
@@ -145,7 +147,7 @@ void actSt24aDemoCam(GObj *volatile a0)
     }
 }
 
-void actSt24aSwordSub(GObj *volatile a0)
+static void actSt24aSwordSub(GObj *volatile a0)
 {
     while (sword == 0) {
         _ACTWait(1);

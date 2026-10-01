@@ -35,7 +35,7 @@ void gflagInit(void)
     Generator_Init();
     warpGirlInit();
     systemStatus[3] = 0;
-    memset(IosMcPreviewInfo, 0, 0x14);
+    memset(IosMcPreviewInfo, 0, 20);
     gamesysVersionDiff = 0;
     itouGFlagInit();
 }

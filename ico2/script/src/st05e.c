@@ -14,6 +14,8 @@
 #include "script.h"
 #include "main.h"
 
+static void actSt05eWaterStopSub(GObj *volatile a0);
+
 /* .data: four 0x20-byte actor mail packets, one per thread hand-off. */
 
 static ActMail waterMain_mes[2] = {{406, actSt05eWaterSwitch}, {429}}; /* derived name */
@@ -79,7 +81,7 @@ char *solar = 0;
 
 void actSt05eSolarChk(GObj *volatile a0)
 {
-    while (scpIsRotObjectZPlusDirInclude(1556, 0x10D, 0x10F) == 0) {
+    while (scpIsRotObjectZPlusDirInclude(1556, 269, 271) == 0) {
         _ACTWait(1);
     }
 
@@ -201,7 +203,7 @@ void actSt05eWaterSwitch(GObj *volatile a0)
 
 void actSt05eWaterFlagOn(GObj *volatile a0)
 {
-    int i = (0x3C - systemStatus[0] * 0xA) / systemStatus[1] * 6.0;
+    int i = (60 - systemStatus[0] * 10) / systemStatus[1] * 6.0;
 
     riverFadeSpeed = 0.005f;
 
@@ -215,7 +217,7 @@ void actSt05eWaterFlagOn(GObj *volatile a0)
     gflagOn(231);
 }
 
-void actSt05eWaterStopSub(GObj *volatile a0)
+static void actSt05eWaterStopSub(GObj *volatile a0)
 {
     _ACTWait(60);
 

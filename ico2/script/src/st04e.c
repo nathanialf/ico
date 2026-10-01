@@ -17,6 +17,14 @@
 #include "main.h"
 #include "script.h"
 
+static void actSt04eFuchi1Chk(GObj *volatile a0);
+static void actSt04eFuchi2Chk(GObj *volatile a0);
+static void actSt04eFuchi3Chk(GObj *volatile a0);
+static void actSt04eHint1Chk(GObj *volatile a0);
+static void actSt04eHint1WakeUpChk(GObj *volatile a0);
+static void actSt04eSeChk(GObj *volatile a0);
+static void actSt04eWaterStopSub(GObj *volatile a0);
+
 /* .sbss: the demo's own end flag, raised by the subthread the wait loop below
    spins for, and its complement, true when the player skipped the demo with
    START. */
@@ -123,7 +131,7 @@ void actSt04eHint1WakeUp(GObj *volatile a0)
     }
 }
 
-void actSt04eFuchi1(GObj *volatile a0)
+static void actSt04eFuchi1(GObj *volatile a0)
 {
     GObj *x = a0;
     Act *self = actInitialize(a0);
@@ -140,7 +148,7 @@ void actSt04eFuchi1(GObj *volatile a0)
     }
 }
 
-void actSt04eFuchi2(GObj *volatile a0)
+static void actSt04eFuchi2(GObj *volatile a0)
 {
     GObj *x = a0;
     Act *self = actInitialize(a0);
@@ -157,7 +165,7 @@ void actSt04eFuchi2(GObj *volatile a0)
     }
 }
 
-void actSt04eFuchi3(GObj *volatile a0)
+static void actSt04eFuchi3(GObj *volatile a0)
 {
     GObj *x = a0;
     Act *self = actInitialize(a0);
@@ -247,7 +255,7 @@ void actSt04eWaterFlagOn(GObj *volatile a0)
     gflagOn(230);
 }
 
-void actSt04eWaterStopSub(GObj *volatile a0)
+static void actSt04eWaterStopSub(GObj *volatile a0)
 {
     _ACTWait(60);
 
@@ -263,7 +271,7 @@ void actSt04eWaterStopSub(GObj *volatile a0)
     _ACTWait(0);
 }
 
-void actSt04eHint1Chk(GObj *volatile a0)
+static void actSt04eHint1Chk(GObj *volatile a0)
 {
     while (scpTriggerBall(a0, boyGObj, 1000.0f) == 0 ||
            ForMotionViewer_GetCurrentMotion(boyGObj) != 145) {
@@ -275,7 +283,7 @@ void actSt04eHint1Chk(GObj *volatile a0)
     FinishHint(18);
 }
 
-void actSt04eFuchi1Chk(GObj *volatile a0)
+static void actSt04eFuchi1Chk(GObj *volatile a0)
 {
     while (scpTriggerBall(a0, boyGObj, 100.0f) == 0) {
         _ACTWait(1);
@@ -293,7 +301,7 @@ void actSt04eFuchi1Chk(GObj *volatile a0)
     _ACTWait(1);
 }
 
-void actSt04eFuchi2Chk(GObj *volatile a0)
+static void actSt04eFuchi2Chk(GObj *volatile a0)
 {
     while (scpTriggerBall(a0, boyGObj, 100.0f) == 0) {
         _ACTWait(1);
@@ -311,7 +319,7 @@ void actSt04eFuchi2Chk(GObj *volatile a0)
     _ACTWait(1);
 }
 
-void actSt04eFuchi3Chk(GObj *volatile a0)
+static void actSt04eFuchi3Chk(GObj *volatile a0)
 {
     while (scpTriggerBall(a0, boyGObj, 100.0f) == 0) {
         _ACTWait(1);
@@ -329,7 +337,7 @@ void actSt04eFuchi3Chk(GObj *volatile a0)
     _ACTWait(1);
 }
 
-void actSt04eSeChk(GObj *volatile a0)
+static void actSt04eSeChk(GObj *volatile a0)
 {
     int h;
 
@@ -349,7 +357,7 @@ void actSt04eSeChk(GObj *volatile a0)
     }
 }
 
-void actSt04eHint1WakeUpChk(GObj *volatile a0)
+static void actSt04eHint1WakeUpChk(GObj *volatile a0)
 {
     while (scpTriggerFloorAttr(boyGObj, 0x3000000) == 0) {
         _ACTWait(1);

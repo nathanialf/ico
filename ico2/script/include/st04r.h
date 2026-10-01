@@ -25,7 +25,6 @@ extern int st04r_yure;
 extern unsigned char st04r_yure_vol;
 extern int sekizo_4r;
 void actSt04rBrg1Chk(GObj *volatile a0);
-void actSt04rBrg1Sub(GObj *volatile a0);
 void actSt04rBrg1WayChk(GObj *volatile a0);
 void actSt04rBrg2Chk(GObj *volatile a0);
 void actSt04rBrg2WayChk(GObj *volatile a0);
@@ -52,6 +51,5 @@ void actSt04rTorch2_2Chk(GObj *volatile a0);
 void actSt04rTorch2_2XLChk(GObj *volatile a0);
 void actSt04rTorch3_1Chk(GObj *volatile a0);
 void actSt04rTorch3_2Chk(GObj *volatile a0);
-void openGate(struct GObj *a0);
 
 #endif /* ST04R_H */
