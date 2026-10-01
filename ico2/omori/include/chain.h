@@ -8,27 +8,29 @@
 #ifndef CHAIN_H
 #define CHAIN_H
 
-void ChainGeo(char *gobj);
-void ChainPositionReset(char *chain);
-int CheckChainClimbablePos(char *chain);
-void EnableChainHang(char *chain);
+struct GObj;
+
+void ChainGeo(struct GObj *gobj);
+void ChainPositionReset(struct GObj *chain);
+int CheckChainClimbablePos(struct GObj *chain);
+void EnableChainHang(struct GObj *chain);
 struct ClimbCol;
 struct ChainNode;
 struct ChainPendulum;
-void GetChainClimbCollision(struct ClimbCol *dst, char *chain);
-void GetChainClimbOrient(float *dst, char *chain);
-int GetChainDirCorrectVal(char *chain, int *deg);
-float GetChainHangRange(char *chain);
-float GetChainLength(char *chain);
-void GetChainPendulum(char *chain, float *angle, float *amp, float *cycle);
+void GetChainClimbCollision(struct ClimbCol *dst, struct GObj *chain);
+void GetChainClimbOrient(float *dst, struct GObj *chain);
+int GetChainDirCorrectVal(struct GObj *chain, int *deg);
+float GetChainHangRange(struct GObj *chain);
+float GetChainLength(struct GObj *chain);
+void GetChainPendulum(struct GObj *chain, float *angle, float *amp, float *cycle);
 void GetRootPositionHandExtra(void *gobj, float *out);
-void HoldChain(char *chain, char *owner, float *pos);
-void LockChainGeo(char *chain);
-void PlumbOrientUpdateChain(char *chain, float *src);
-void ReleaseChain(char *chain, char *owner);
-void SetChainParentGObj(char *chain, void *parent);
-void SetChainRootUpdateMode(char *gobj, int mode, float *pos);
-void UnLockChainGeo(char *chain);
-void UnableChainHang(char *chain);
+void HoldChain(struct GObj *chain, struct GObj *owner, float *pos);
+void LockChainGeo(struct GObj *chain);
+void PlumbOrientUpdateChain(struct GObj *chain, float *src);
+void ReleaseChain(struct GObj *chain, struct GObj *owner);
+void SetChainParentGObj(struct GObj *chain, void *parent);
+void SetChainRootUpdateMode(struct GObj *gobj, int mode, float *pos);
+void UnLockChainGeo(struct GObj *chain);
+void UnableChainHang(struct GObj *chain);
 
 #endif /* CHAIN_H */

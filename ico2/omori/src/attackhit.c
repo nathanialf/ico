@@ -237,12 +237,12 @@ static void MakeAttackPack_Actor(AttackPack *pack, GObj *gobj, void *weapon)
         pack->radius1 = attackData[k].radius;
         pack->power = attackData[k].power;
         pack->active = 1;
-        if (((GObj *)gobj)->kind == 4) {
+        if (gobj->kind == 4) {
             if (actEnemy_isLargeEnemy(gobj) != 0) {
                 pack->radius0 = pack->radius0 * 4.0f;
                 pack->radius1 = pack->radius1 * 4.0f;
             }
-            if (((GObj *)gobj)->kind == 4) {
+            if (gobj->kind == 4) {
                 if ((GOBJ_ACT(gobj)->enemy->flags.w.bits & 1) != 0) {
                     pack->down = 1;
                 }
@@ -278,7 +278,7 @@ static inline void SetupAttackPack(AttackPack *pack, GObj *gop, int group, float
 
     pack->radius1 = pack->radius0 = radius;
 
-    if (gop != 0 && ((GObj *)gop)->kind == 53) {
+    if (gop != 0 && gop->kind == 53) {
         pack->thickness = pack->radius1 - GetQueenBallThickness();
         if (pack->thickness < 0.0f) {
             pack->thickness = 0.0f;
@@ -315,12 +315,12 @@ static int AttackCheckSameGroup(GObj *self, GObj *other, GObj *third)
     if (other == self || other == third) {
         return 1;
     }
-    k = ((GObj *)other)->kind;
+    k = other->kind;
     if (k == 19) {
         return 0;
     }
     for (i = 0; tbl.p[i].kind >= 0; i++) {
-        if (((GObj *)self)->kind == tbl.p[i].kind) {
+        if (self->kind == tbl.p[i].kind) {
             g0 = tbl.p[i].cls;
         }
     }
@@ -372,7 +372,7 @@ static void AttackMail(GObj *self, AttackPack *pack)
     }
     iosOmSendMail(self, 13, attacker);
 
-    if (((GObj *)self)->kind == 19) {
+    if (self->kind == 19) {
         if (pack->hasDir != 0) {
             sceVu0ScaleVector(v0, pack->dir, -1.0f);
         } else {
@@ -430,7 +430,7 @@ static int AttackCheckHit(AttackPack *pack, GObj *gobj, short *out)
     if (n == 0) {
         n = 1;
     }
-    switch (((GObj *)gobj)->kind) {
+    switch (gobj->kind) {
     case 53:
         rad = QueenBallRadius(gobj);
         rad = rad + _ACTGame_GetParamF(31);
@@ -553,7 +553,7 @@ static int AttackGenerate(AttackPack *pack)
     }
     debug_StdPrintfDummy("flag ok\n");
     for (g = isysGObjGetExist_begin(); g != 0; g = isysGObjGetExist_next(g)) {
-        if (((GObj *)g)->active == 0) {
+        if (g->active == 0) {
             continue;
         }
         if (AttackCheckSameGroup(pack->actor, g, pack->spare) != 0) {
@@ -561,7 +561,7 @@ static int AttackGenerate(AttackPack *pack)
         }
         debug_StdPrintfDummy("group ok\n");
         if (!((GOBJ_ACT(g) != 0 && &GOBJ_ACT(g)->attacker != 0 && GOBJ_ACT(g)->enemy != 0) ||
-              ((GObj *)g)->kind == 19)) {
+              g->kind == 19)) {
             continue;
         }
         if (GOBJ_ACT(g) != 0 && &GOBJ_ACT(g)->attacker != 0 && GOBJ_ACT(g)->enemy != 0 &&
@@ -575,7 +575,7 @@ static int AttackGenerate(AttackPack *pack)
         if (g == girlGObj && ACTChkAttackIgnore_GIRL(g, pack->actor) != 0) {
             continue;
         }
-        if (((GObj *)g)->kind == 4 && ACTChkAttackIgnore_ENEMY(g, pack->actor) != 0) {
+        if (g->kind == 4 && ACTChkAttackIgnore_ENEMY(g, pack->actor) != 0) {
             continue;
         }
         arg = 0;
@@ -594,14 +594,14 @@ static int AttackGenerate(AttackPack *pack)
             debug_StdPrintfDummy("id equal error\n");
             continue;
         }
-        if (debug_one_hit_only != 0 && pack->actor == boyGObj && ((GObj *)g)->kind == 4 &&
+        if (debug_one_hit_only != 0 && pack->actor == boyGObj && g->kind == 4 &&
             ((int)(GOBJ_ACT(pack->actor)->flags20.ll >> 32) & 1) == 0) {
             continue;
         }
         AttackMail(g, pack);
         hit = g;
         debug_StdPrintfDummy("mail send ok [%d]\n", pack->group2);
-        if (GOBJ_ACT(hit) != 0 && GOBJ_ACT(hit)->attacker != 0 && ((GObj *)hit)->kind == 4) {
+        if (GOBJ_ACT(hit) != 0 && GOBJ_ACT(hit)->attacker != 0 && hit->kind == 4) {
             /* the enemy work's hit direction at +0xE0, inside EnemyBattleWork's padding */
             _OrientGV((float *)((int)GOBJ_ACT(hit)->enemy + 0xE0), pack->center, pack->from);
         }

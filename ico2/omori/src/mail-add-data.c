@@ -21,27 +21,27 @@ typedef struct MailAdditionalData { /* field names derived */
     /* 0x04 */ MailAddEntry e[MAIL_ADDITIONAL_DATA_MAX];
 } MailAdditionalData;
 
-static inline int sendMailAndGetIndex(char *gop, int msg, void *sender) /* derived name */
+static inline int sendMailAndGetIndex(GObj *gop, int msg, void *sender) /* derived name */
 {
     if (iosOmSendMail(gop, msg, sender) < 0) {
         return -1;
     }
-    return ((GObj *)gop)->mailNum - 1;
+    return gop->mailNum - 1;
 }
 
-static inline MailAdditionalData *getMailAdditionalDataTable(char *gop) /* derived name */
+static inline MailAdditionalData *getMailAdditionalDataTable(GObj *gop) /* derived name */
 {
-    if (((GObj *)gop)->act == 0) {
+    if (gop->act == 0) {
         debug_assert("src/mail-add-data.c", 71);
         __assert("src/mail-add-data.c", 71, "GOBJ_VAL(gop)");
     }
     /* Act's 0x684 holds this table's address, an int in typedef.h's Act */
-    return (MailAdditionalData *)GOBJ_ACT(gop)->mailAddData;
+    return GOBJ_ACT(gop)->mailAddData;
 }
 
 #include "mail-add-data.h"
 
-inline int ActSendMail_WithAdditionalData(char *gop, int msg, void *sender, void *data)
+inline int ActSendMail_WithAdditionalData(GObj *gop, int msg, void *sender, void *data)
 {
     int idx;
     MailAdditionalData *mad_all;
@@ -61,7 +61,7 @@ inline int ActSendMail_WithAdditionalData(char *gop, int msg, void *sender, void
     return 0;
 }
 
-inline void *GetMailAdditionalData(char *gop, int mail)
+inline void *GetMailAdditionalData(GObj *gop, int mail)
 {
     MailAdditionalData *p;
     int i;
@@ -76,13 +76,13 @@ inline void *GetMailAdditionalData(char *gop, int mail)
     return 0;
 }
 
-void InitMailAdditionalData(char *gop, struct MailAdditionalData *table)
+void InitMailAdditionalData(GObj *gop, struct MailAdditionalData *table)
 {
     GOBJ_ACT(gop)->mailAddData = table;
     ClearMailAdditionalData(gop);
 }
 
-inline void ClearMailAdditionalData(char *gop)
+inline void ClearMailAdditionalData(GObj *gop)
 {
     MailAdditionalData *p;
 

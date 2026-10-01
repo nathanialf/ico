@@ -1487,13 +1487,13 @@ void QueenBarrierGeo(GObj *g)
     }
     found = i;
     for (i = 0; i < 1; i++) {
-        if (((GObj *)g)->labelId == tbl[i]) {
+        if (g->labelId == tbl[i]) {
             mine = i;
             break;
         }
     }
     GetRootPosition(rootPos.f, queen);
-    if (w->active == 0 || ((GObj *)queen)->active == 0 || (qw->st.all & 0xFF0000FF) != 0 ||
+    if (w->active == 0 || queen->active == 0 || (qw->st.all & 0xFF0000FF) != 0 ||
         qw->st.f.attack == 0) {
         GetRootMatrix(&m1, g);
         sceVu0CopyVector(&m1.w, &pos);

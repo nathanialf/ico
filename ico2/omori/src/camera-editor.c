@@ -227,7 +227,7 @@ static inline void dispPinRange(int box, int from, int to) /* derived name */
                       CameraEdit_PIN(box, i)->pos[2]};
         float b[3] = {CameraEdit_PIN(box, i)->look[0], CameraEdit_PIN(box, i)->look[1],
                       CameraEdit_PIN(box, i)->look[2]};
-        DrawLine(a, b, (int)col, -1);
+        DrawLine(a, b, col, -1);
     }
     gif_EndPacket();
 }
@@ -1251,7 +1251,7 @@ void wakeup_cameraedit(void)
 
 void test_camedit(void)
 {
-    EnterMenu((void *)menuGroupSelect, 0, 0);
+    EnterMenu(menuGroupSelect, 0, 0);
 }
 
 inline int _CameraEdit_BOX(int *set, int box)

@@ -123,7 +123,7 @@ static int readMpeg(VideoDec *dec, ReadBuf *rb, char *strf, int (*poll)(void))
             debug_StdPrintfDummy("movie pause\n");
             moviePauseCount = 30;
         }
-        if (dec->frameCount >= 11) {
+        if (dec->mpeg.frameCount >= 11) {
             if (moviePauseCount == 1) {
                 startDisplay(1);
                 if (movieHasAudio != 0) {
@@ -236,7 +236,7 @@ static int initAll(char *name, int imageW, int imageH, int dbx, int dby, int mon
     debug_StdPrintfDummy("create video decode thread\n");
 
     th.entry = videoDecMain;
-    th.stack = (void *)decThreadStack;
+    th.stack = decThreadStack;
     th.stackSize = 32768;
     th.initPriority = decThreadPri;
     th.gpReg = &_gp;

@@ -26,7 +26,7 @@
 static void chain_sub_pendulum(struct ChainNode *base, int n, float *pos);
 
 /* the sixth parameter is passed by both callers (always 0) and never read */
-static void chain_sub_simulate(char *gobj, struct ChainNode *nd, int from, int to,
+static void chain_sub_simulate(GObj *gobj, struct ChainNode *nd, int from, int to,
                                unsigned char flag, int flag2, float grav, float len, float damp);
 
 static void pendulum_Process(struct ChainPendulum *pdl, int flag);
@@ -65,13 +65,13 @@ typedef struct ChainPendulum { /* field names derived */
 
 /* The head of a chain record, 0xE0 bytes, the node array following it. */
 typedef struct {             /* field names derived */
-    /* 0x00 */ char *root;   /* the object the chain hangs from, or 0 */
+    /* 0x00 */ GObj *root;   /* the object the chain hangs from, or 0 */
     /* 0x04 */ int rootNode; /* the node of that object it hangs from */
 
     /* 0x10 */ sceVu0FVECTOR rootPos;
     /* 0x20 */ ChainPendulum pdl;
     /* 0x60 */ unsigned char hold;
-    /* 0x64 */ char *owner;
+    /* 0x64 */ GObj *owner;
     /* 0x68 */ int holdNode;
     /* 0x6C */ unsigned char hasDirCorrect;
     /* 0x70 */ float dirCorrect;
@@ -91,7 +91,7 @@ typedef struct {             /* field names derived */
     /* 0xD0 */ ChainNode *node;
 } ChainRecord;
 
-static int UpdateRootPosition(char *gobj)
+static int UpdateRootPosition(GObj *gobj)
 {
     float pos[4];
     ChainRecord *cw = GOBJ_SUB(gobj)->work;
@@ -123,10 +123,10 @@ static int UpdateRootPosition(char *gobj)
     return moved;
 }
 
-void _GetCorrectOrientOfChain(float *out, char *gobj, float *dir);
+void _GetCorrectOrientOfChain(float *out, GObj *gobj, float *dir);
 
 /* InitPendulum's body, for StartPendulum above its definition */
-static inline void initPendulum(char *gobj) /* derived name */
+static inline void initPendulum(GObj *gobj) /* derived name */
 {
     ChainRecord *cw = GOBJ_SUB(gobj)->work;
     float a = (float)debug_chain_cycle_speed * -0.2f + 2.0f;
@@ -146,7 +146,7 @@ static inline void initPendulum(char *gobj) /* derived name */
 
 /* the hold starts the swing: the holder and its hand position fix the hold
    node and the swing plane */
-static void StartPendulum(char *gobj, char *owner, float *pos)
+static void StartPendulum(GObj *gobj, GObj *owner, float *pos)
 {
     float d[4];
     ChainRecord *cw = GOBJ_SUB(gobj)->work;
@@ -174,7 +174,7 @@ static void StartPendulum(char *gobj, char *owner, float *pos)
     cw->holdNode =
         cw->holdNode < 2 ? 2 : (cw->nodes - 1 < cw->holdNode ? cw->nodes - 1 : cw->holdNode);
 
-    _GetCorrectOrientOfChain((float *)cw->pdl.orient, gobj, (float *)test_CURRENTORIENT(owner));
+    _GetCorrectOrientOfChain((float *)cw->pdl.orient, gobj, test_CURRENTORIENT(owner));
 
     ((ChainVal *)&cw->pdl.length)->f = (float)cw->holdNode * 50.0f;
 
@@ -198,7 +198,7 @@ typedef struct { /* field names derived */
     /* 0x8C */ char pad8C[52];
 } ChainClipWork;
 
-static int collisionCheck(char *gobj)
+static int collisionCheck(GObj *gobj)
 {
     ChainClipWork w;
     float v[4];
@@ -251,7 +251,7 @@ static inline void ChainPendulumSwing(float *dst, ChainRecord *cw, float *orient
     sceVu0ApplyMatrix(dst, m1, v);
 }
 
-static void chain_simulate_term_simple(char *gobj)
+static void chain_simulate_term_simple(GObj *gobj)
 {
     float pos[4];
     ChainRecord *cw = GOBJ_SUB(gobj)->work;
@@ -263,7 +263,7 @@ static void chain_simulate_term_simple(char *gobj)
     chain_sub_simulate(gobj, cw->node, cw->holdNode, cw->nodes, 1, 0, 20.0f, 50.0f, 0.6f);
 }
 
-static void chain_simulate_term_ropeturn(char *gobj)
+static void chain_simulate_term_ropeturn(GObj *gobj)
 {
     ChainRecord *cw = GOBJ_SUB(gobj)->work;
 
@@ -275,7 +275,7 @@ static void chain_simulate_term_ropeturn(char *gobj)
     chain_simulate_term_simple(gobj);
 }
 
-static void chain_simulate_term_loop(char *gobj)
+static void chain_simulate_term_loop(GObj *gobj)
 {
     ChainRecord *cw = GOBJ_SUB(gobj)->work;
 
@@ -293,7 +293,7 @@ static void chain_simulate_term_loop(char *gobj)
     chain_simulate_term_simple(gobj);
 }
 
-static void chain_simulate_term_swingready(char *gobj)
+static void chain_simulate_term_swingready(GObj *gobj)
 {
     ChainRecord *cw = GOBJ_SUB(gobj)->work;
 
@@ -311,7 +311,7 @@ static void chain_simulate_term_swingready(char *gobj)
     chain_simulate_term_simple(gobj);
 }
 
-static void chain_simulate_term_swingstart(char *gobj)
+static void chain_simulate_term_swingstart(GObj *gobj)
 {
     ChainRecord *cw = GOBJ_SUB(gobj)->work;
     float h;
@@ -347,7 +347,7 @@ static void chain_simulate_term_swingstart(char *gobj)
     chain_simulate_term_simple(gobj);
 }
 
-static void chain_simulate_term_moveup(char *gobj)
+static void chain_simulate_term_moveup(GObj *gobj)
 {
     float w[4];
     float v[4];
@@ -378,7 +378,7 @@ static void chain_simulate_term_moveup(char *gobj)
     chain_sub_pendulum(cw->node, cw->holdNode, w);
 }
 
-static void chain_simulate_term_free(char *gobj)
+static void chain_simulate_term_free(GObj *gobj)
 {
     ChainRecord *cw = GOBJ_SUB(gobj)->work;
 
@@ -396,7 +396,7 @@ static void chain_simulate_term_free(char *gobj)
     chain_simulate_term_simple(gobj);
 }
 
-static void chain_simulate_term_down(char *gobj)
+static void chain_simulate_term_down(GObj *gobj)
 {
     float w[4];
     float v[4];
@@ -436,7 +436,7 @@ static void chain_simulate_term_down(char *gobj)
     }
 }
 
-static void chain_simulate_hangstart(char *gobj)
+static void chain_simulate_hangstart(GObj *gobj)
 {
     ChainRecord *cw = GOBJ_SUB(gobj)->work;
 
@@ -448,7 +448,7 @@ static void chain_simulate_hangstart(char *gobj)
     chain_simulate_term_simple(gobj);
 }
 
-static void chain_simulate_term(char *gobj)
+static void chain_simulate_term(GObj *gobj)
 {
     if (debug_font_flag & 1) {
         chainDebugY = chainDebugY + 10;
@@ -473,7 +473,7 @@ static inline void ResetChainNodes(ChainRecord *cw, float *pos) /* derived name 
     }
 }
 
-static void chain_simulate_stop(char *gobj)
+static void chain_simulate_stop(GObj *gobj)
 {
     ChainRecord *cw = GOBJ_SUB(gobj)->work;
 
@@ -484,7 +484,7 @@ static void chain_simulate_stop(char *gobj)
     }
 }
 
-static void chain_simulate_free(char *gobj)
+static void chain_simulate_free(GObj *gobj)
 {
     ChainRecord *cw = GOBJ_SUB(gobj)->work;
     int i;
@@ -678,7 +678,7 @@ typedef union { /* field names derived */
     int i[2];
 } ChainDObjFlags;
 
-ChainRecord *InitChainGeo(char *gobj, ChainGeoReq *req)
+ChainRecord *InitChainGeo(GObj *gobj, ChainGeoReq *req)
 {
     ChainRecord *cw;
     int n;
@@ -693,7 +693,7 @@ ChainRecord *InitChainGeo(char *gobj, ChainGeoReq *req)
         __assert(__FILE__, 1178, "0");
     }
 
-    cw = iosMallocDebug((void *)ios_partition_sugipon, (n << 5) + 0xE0, __FILE__, 1181);
+    cw = iosMallocDebug(ios_partition_sugipon, (n << 5) + 0xE0, __FILE__, 1181);
 
     *(ChainRecTemplate *)cw = *(ChainRecTemplate *)&chainRecordDefault;
 
@@ -747,50 +747,50 @@ ChainRecord *InitChainGeo(char *gobj, ChainGeoReq *req)
         cw->dirCorrect = req->dirCorrect;
     }
 
-    if (((ChainExtPtr *)(gobj + 0x15C))->sub->nodeMtx != 0) {
-        iosFree((void *)(((ChainExtPtr *)(gobj + 0x15C))->sub->nodeMtx & 0x0FFFFFFF));
+    if (((ChainExtPtr *)&gobj->dobj)->sub->nodeMtx != 0) {
+        iosFree((void *)(((ChainExtPtr *)&gobj->dobj)->sub->nodeMtx & 0x0FFFFFFF));
     }
-    if (((ChainExtPtr *)(gobj + 0x15C))->sub->nodeQuat != 0) {
-        iosFree((void *)(((ChainExtPtr *)(gobj + 0x15C))->sub->nodeQuat & 0x0FFFFFFF));
+    if (((ChainExtPtr *)&gobj->dobj)->sub->nodeQuat != 0) {
+        iosFree((void *)(((ChainExtPtr *)&gobj->dobj)->sub->nodeQuat & 0x0FFFFFFF));
     }
     /* the node matrix and quaternion buffers are stored here as the pointers
        iosMallocDebug returns; typedef.h's Sub15C holds them as words */
-    *(char **)&((ChainExtPtr *)(gobj + 0x15C))->sub->nodeMtx = 0;
+    *(char **)&((ChainExtPtr *)&gobj->dobj)->sub->nodeMtx = 0;
 
-    *(char **)&((ChainExtPtr *)(gobj + 0x15C))->sub->nodeQuat = 0;
-    *(char **)&((ChainExtPtr *)(gobj + 0x15C))->sub->nodeMtx =
-        (char *)iosMallocDebug((void *)ios_partition_seki, (cw->nodes - 1) << 6, __FILE__, 1245);
-    *(char **)&((ChainExtPtr *)(gobj + 0x15C))->sub->nodeQuat =
-        (char *)iosMallocDebug((void *)ios_partition_seki, (cw->nodes - 1) << 4, __FILE__, 1245);
-    ((ChainExtPtr *)(gobj + 0x15C))->sub->nodeNum = cw->nodes - 1;
-    if (((ChainExtPtr *)(gobj + 0x15C))->sub->nodes != 0) {
-        iosFree((void *)((int)((ChainExtPtr *)(gobj + 0x15C))->sub->nodes & 0x0FFFFFFF));
+    *(char **)&((ChainExtPtr *)&gobj->dobj)->sub->nodeQuat = 0;
+    *(char **)&((ChainExtPtr *)&gobj->dobj)->sub->nodeMtx =
+        (char *)iosMallocDebug(ios_partition_seki, (cw->nodes - 1) << 6, __FILE__, 1245);
+    *(char **)&((ChainExtPtr *)&gobj->dobj)->sub->nodeQuat =
+        (char *)iosMallocDebug(ios_partition_seki, (cw->nodes - 1) << 4, __FILE__, 1245);
+    ((ChainExtPtr *)&gobj->dobj)->sub->nodeNum = cw->nodes - 1;
+    if (((ChainExtPtr *)&gobj->dobj)->sub->nodes != 0) {
+        iosFree((void *)((int)((ChainExtPtr *)&gobj->dobj)->sub->nodes & 0x0FFFFFFF));
     }
-    ((ChainExtPtr *)(gobj + 0x15C))->sub->nodes =
-        iosMallocDebug((void *)ios_partition_seki, (cw->nodes - 1) * 80, __FILE__, 1245);
+    ((ChainExtPtr *)&gobj->dobj)->sub->nodes =
+        iosMallocDebug(ios_partition_seki, (cw->nodes - 1) * 80, __FILE__, 1245);
 
     for (i = 0; i < cw->nodes - 1; i++) {
-        ((ChainExtPtr *)(gobj + 0x15C))->sub->nodes[i].flags.ll &= ~1;
-        ((ChainExtPtr *)(gobj + 0x15C))->sub->nodes[i].flags.ll &= ~2;
-        ((ChainExtPtr *)(gobj + 0x15C))->sub->nodes[i].pos[0] = 0.0f;
-        ((ChainExtPtr *)(gobj + 0x15C))->sub->nodes[i].pos[1] = 0.0f;
-        ((ChainExtPtr *)(gobj + 0x15C))->sub->nodes[i].pos[2] = 0.0f;
-        ((ChainExtPtr *)(gobj + 0x15C))->sub->nodes[i].pos[3] = 1.0f;
-        ((ChainExtPtr *)(gobj + 0x15C))->sub->nodes[i].flags.ll &= ~4;
-        ((ChainExtPtr *)(gobj + 0x15C))->sub->nodes[i].fade = 0.0f;
-        ((ChainExtPtr *)(gobj + 0x15C))->sub->nodes[i].alpha = 1.0f;
-        ((short *)&((ChainExtPtr *)(gobj + 0x15C))->sub->nodes[i].flags)[1] = 0;
-        ((ChainExtPtr *)(gobj + 0x15C))->sub->nodes[i].scale[0] = 1.0f;
-        ((ChainExtPtr *)(gobj + 0x15C))->sub->nodes[i].scale[1] = 1.0f;
-        ((ChainExtPtr *)(gobj + 0x15C))->sub->nodes[i].scale[2] = 1.0f;
+        ((ChainExtPtr *)&gobj->dobj)->sub->nodes[i].flags.ll &= ~1;
+        ((ChainExtPtr *)&gobj->dobj)->sub->nodes[i].flags.ll &= ~2;
+        ((ChainExtPtr *)&gobj->dobj)->sub->nodes[i].pos[0] = 0.0f;
+        ((ChainExtPtr *)&gobj->dobj)->sub->nodes[i].pos[1] = 0.0f;
+        ((ChainExtPtr *)&gobj->dobj)->sub->nodes[i].pos[2] = 0.0f;
+        ((ChainExtPtr *)&gobj->dobj)->sub->nodes[i].pos[3] = 1.0f;
+        ((ChainExtPtr *)&gobj->dobj)->sub->nodes[i].flags.ll &= ~4;
+        ((ChainExtPtr *)&gobj->dobj)->sub->nodes[i].fade = 0.0f;
+        ((ChainExtPtr *)&gobj->dobj)->sub->nodes[i].alpha = 1.0f;
+        ((short *)&((ChainExtPtr *)&gobj->dobj)->sub->nodes[i].flags)[1] = 0;
+        ((ChainExtPtr *)&gobj->dobj)->sub->nodes[i].scale[0] = 1.0f;
+        ((ChainExtPtr *)&gobj->dobj)->sub->nodes[i].scale[1] = 1.0f;
+        ((ChainExtPtr *)&gobj->dobj)->sub->nodes[i].scale[2] = 1.0f;
     }
 
-    ((ChainExtPtr *)(gobj + 0x15C))->sub->dispType = 2;
+    ((ChainExtPtr *)&gobj->dobj)->sub->dispType = 2;
 
     return cw;
 }
 
-static void chain_set_charachara(char *gobj, float amp)
+static void chain_set_charachara(GObj *gobj, float amp)
 {
     float v[4];
     ChainRecord *cw = GOBJ_SUB(gobj)->work;
@@ -836,16 +836,16 @@ typedef struct { /* field names derived */
 /* the data-only member motion-def.o, read through this file's view of its
    rows; no header declares it */
 extern ChainParaRow motionKind[];
-static void TestChainUpDown(char *gobj, char *boy);
+static void TestChainUpDown(GObj *gobj, GObj *boy);
 
 /* the simulation mode the boy's motion selects, for ChainGeo */
-static inline int GetChainSimulateMode(char *gobj) /* derived name */
+static inline int GetChainSimulateMode(GObj *gobj) /* derived name */
 {
     ChainRecord *cw = GOBJ_SUB(gobj)->work;
     int mode = 1;
 
     if (cw->hold != 0) {
-        char *holder = cw->owner;
+        GObj *holder = cw->owner;
         int st = GOBJ_ACT(holder)->actMode;
 
         mode = 6;
@@ -890,7 +890,7 @@ static inline int GetChainSimulateMode(char *gobj) /* derived name */
 
 /* the hand-proximity probe down the chain, for ChainGeo; the caller reads the
  * result as one byte */
-static inline unsigned char isChainHitByHand(char *gobj, float *p, float *v, float *o,
+static inline unsigned char isChainHitByHand(GObj *gobj, float *p, float *v, float *o,
                                              float lim) /* derived name */
 {
     ChainRecord *cw = GOBJ_SUB(gobj)->work;
@@ -922,7 +922,7 @@ static inline unsigned char isChainHitByHand(char *gobj, float *p, float *v, flo
     return 0;
 }
 
-void ChainGeo(char *gobj)
+void ChainGeo(GObj *gobj)
 {
     float p[4];
     float v[4];
@@ -952,11 +952,11 @@ void ChainGeo(char *gobj)
         }
 
         GetRootPositionHandExtra(boyGObj, p);
-        if (isChainHitByHand(gobj, p, v, (float *)test_CURRENTORIENT(boyGObj), lim)) {
-            iosOmSendMail((char *)boyGObj, 21, (int)gobj);
+        if (isChainHitByHand(gobj, p, v, test_CURRENTORIENT(boyGObj), lim)) {
+            iosOmSendMail(boyGObj, 21, (int)gobj);
         }
         if (_DistSqGV(p, cw->rootPos) < 900.0f) {
-            iosOmSendMail((char *)boyGObj, 166, (int)gobj);
+            iosOmSendMail(boyGObj, 166, (int)gobj);
         }
     }
 
@@ -978,8 +978,7 @@ void ChainGeo(char *gobj)
         debug_Printf(10, chainDebugY += 10, 0x0FFFFFFF, "%d\n", mode);
     }
     if (debug_font_flag & 1) {
-        debug_Printf(10, chainDebugY += 10, 0x0FFFFFFF, "plumb = %d\n",
-                     ((ChainRecord *)cw)->holdNode);
+        debug_Printf(10, chainDebugY += 10, 0x0FFFFFFF, "plumb = %d\n", cw->holdNode);
     }
 
     switch (mode) {
@@ -1025,53 +1024,53 @@ void ChainGeo(char *gobj)
 
     if (cw->hold != 0) {
         sub = (char *)GOBJ_ACT(boyGObj);
-        ((ChainExtPtr *)((char *)boyGObj + 0x15C))->sub->ropeState = 0;
+        ((ChainExtPtr *)&boyGObj->dobj)->sub->ropeState = 0;
         TestChainUpDown(gobj, cw->owner);
 
         /* 0x130..0x138 of the extension is a float vector (cleared here and in
          * case 2 beside the float stores at 0x410..0x418) */
         switch (mode) {
         case 8:
-            ((ChainExtPtr *)((char *)boyGObj + 0x15C))->sub->moveX = 0.0f;
-            ((ChainExtPtr *)((char *)boyGObj + 0x15C))->sub->moveY = 0.0f;
-            ((ChainExtPtr *)((char *)boyGObj + 0x15C))->sub->moveZ = 0.0f;
-            SetChainRootUpdateMode((char *)boyGObj, 2, &cw->node[cw->holdNode].x);
+            ((ChainExtPtr *)&boyGObj->dobj)->sub->moveX = 0.0f;
+            ((ChainExtPtr *)&boyGObj->dobj)->sub->moveY = 0.0f;
+            ((ChainExtPtr *)&boyGObj->dobj)->sub->moveZ = 0.0f;
+            SetChainRootUpdateMode(boyGObj, 2, &cw->node[cw->holdNode].x);
             break;
         case 7:
         case 10:
-            SetChainRootUpdateMode((char *)boyGObj, 2, &cw->node[cw->holdNode].x);
+            SetChainRootUpdateMode(boyGObj, 2, &cw->node[cw->holdNode].x);
             break;
         case 3:
         case 9:
-            SetChainRootUpdateMode((char *)boyGObj, 3, &cw->node[cw->holdNode].x);
+            SetChainRootUpdateMode(boyGObj, 3, &cw->node[cw->holdNode].x);
             break;
         case 2:
             if (sub != 0) {
                 float *nd = (float *)((cw->holdNode << 5) + (int)cw->node);
                 float h;
 
-                ((ChainExtPtr *)((char *)boyGObj + 0x15C))->sub->moveX = 0.0f;
-                ((ChainExtPtr *)((char *)boyGObj + 0x15C))->sub->moveY = 0.0f;
-                ((ChainExtPtr *)((char *)boyGObj + 0x15C))->sub->moveZ = 0.0f;
-                ((ChainExtPtr *)((char *)boyGObj + 0x15C))->sub->ropeBaseX = nd[0];
-                ((ChainExtPtr *)((char *)boyGObj + 0x15C))->sub->ropeBaseY = nd[1];
-                ((ChainExtPtr *)((char *)boyGObj + 0x15C))->sub->ropeBaseZ = nd[2];
-                h = ((ChainExtPtr *)((char *)boyGObj + 0x15C))->sub->animFrame;
+                ((ChainExtPtr *)&boyGObj->dobj)->sub->moveX = 0.0f;
+                ((ChainExtPtr *)&boyGObj->dobj)->sub->moveY = 0.0f;
+                ((ChainExtPtr *)&boyGObj->dobj)->sub->moveZ = 0.0f;
+                ((ChainExtPtr *)&boyGObj->dobj)->sub->ropeBaseX = nd[0];
+                ((ChainExtPtr *)&boyGObj->dobj)->sub->ropeBaseY = nd[1];
+                ((ChainExtPtr *)&boyGObj->dobj)->sub->ropeBaseZ = nd[2];
+                h = ((ChainExtPtr *)&boyGObj->dobj)->sub->animFrame;
                 if (h < 3.0f) {
-                    ((ChainExtPtr *)((char *)boyGObj + 0x15C))->sub->ropeState = -1;
+                    ((ChainExtPtr *)&boyGObj->dobj)->sub->ropeState = -1;
                     ropeInterRate = 0.5f;
                 } else if (h < 10.0f) {
-                    ((ChainExtPtr *)((char *)boyGObj + 0x15C))->sub->ropeState = -1;
+                    ((ChainExtPtr *)&boyGObj->dobj)->sub->ropeState = -1;
                     ropeInterRate = 1.0f;
                 } else {
-                    ((ChainExtPtr *)((char *)boyGObj + 0x15C))->sub->ropeState = 1;
+                    ((ChainExtPtr *)&boyGObj->dobj)->sub->ropeState = 1;
                 }
             }
             break;
         default:
             if (sub != 0) {
                 CopyVector(&GOBJ_SUB(boyGObj)->ropeBaseX, &cw->node[cw->holdNode]);
-                ((ChainExtPtr *)((char *)boyGObj + 0x15C))->sub->ropeState = 1;
+                ((ChainExtPtr *)&boyGObj->dobj)->sub->ropeState = 1;
             }
             break;
         }
@@ -1107,7 +1106,7 @@ void ChainGeo(char *gobj)
     }
 }
 
-void ChainDL(char *gobj)
+void ChainDL(GObj *gobj)
 {
     char q[16];
     char up[16];
@@ -1147,7 +1146,7 @@ static inline void ChainNodeSpan(ChainRecord *cw, float *pos, int *i0, int *i1) 
     *i1 = *i1 < 2 ? 2 : (cw->nodes - 1 < *i1 ? cw->nodes - 1 : *i1);
 }
 
-static void GetPositionOnTheChain(float *out, char *gobj, float *pos)
+static void GetPositionOnTheChain(float *out, GObj *gobj, float *pos)
 {
     float a[4];
     float b[4];
@@ -1178,11 +1177,11 @@ static void GetPositionOnTheChain(float *out, char *gobj, float *pos)
     }
 }
 
-static void PlumbPointUpdateChain(char *gobj, float *pos)
+static void PlumbPointUpdateChain(GObj *gobj, float *pos)
 {
     float d[4];
     ChainRecord *cw = GOBJ_SUB(gobj)->work;
-    char *owner;
+    GObj *owner;
     int nearestNode = -1;
     float min = 3.40282347e+38f; /* FLT_MAX */
     int i;
@@ -1208,7 +1207,7 @@ static void PlumbPointUpdateChain(char *gobj, float *pos)
     cw->holdNode =
         cw->holdNode < 2 ? 2 : (cw->nodes - 1 < cw->holdNode ? cw->nodes - 1 : cw->holdNode);
 
-    _GetCorrectOrientOfChain((float *)cw->pdl.orient, gobj, (float *)test_CURRENTORIENT(owner));
+    _GetCorrectOrientOfChain((float *)cw->pdl.orient, gobj, test_CURRENTORIENT(owner));
 
     ((ChainVal *)&cw->pdl.length)->f = (float)cw->holdNode * 50.0f;
 }
@@ -1241,13 +1240,13 @@ static int chainClimb[12] = {/* derived name */ 0,
 
 /* the two climb helpers and TestChainUpDown */
 /* clang-format off */
-static inline void SetChainClimbNodePoint(char *obj, ChainClimbWork *rec) /* derived name */
+static inline void SetChainClimbNodePoint(GObj *obj, ChainClimbWork *rec) /* derived name */
 {
     int n = GetSkeltonFocusNode(obj, 35);
-    rec->node[0] = *(float *)(n * 64 + ((ChainExtPtr *)(obj + 0x15C))->sub->nodeMtx + 48); rec->node[1] = *(float *)(n * 64 + ((ChainExtPtr *)(obj + 0x15C))->sub->nodeMtx + 52); rec->node[2] = *(float *)(n * 64 + ((ChainExtPtr *)(obj + 0x15C))->sub->nodeMtx + 56);
+    rec->node[0] = *(float *)(n * 64 + ((ChainExtPtr *)&obj->dobj)->sub->nodeMtx + 48); rec->node[1] = *(float *)(n * 64 + ((ChainExtPtr *)&obj->dobj)->sub->nodeMtx + 52); rec->node[2] = *(float *)(n * 64 + ((ChainExtPtr *)&obj->dobj)->sub->nodeMtx + 56);
 }
 
-static inline float *PushChainClimbRoot(char *obj, float *pos, float *out, float *ofs, float fwd, float side) /* derived name */
+static inline float *PushChainClimbRoot(GObj *obj, float *pos, float *out, float *ofs, float fwd, float side) /* derived name */
 {
     /* pushes the root out from the chain point (fwd along the orientation, side
      * across it) and returns the pushed point, which no caller reads.  Both
@@ -1289,7 +1288,7 @@ static inline float *PushChainClimbRoot(char *obj, float *pos, float *out, float
  *
  *
  */
-static void TestChainUpDown(char *gobj, char *boy)
+static void TestChainUpDown(GObj *gobj, GObj *boy)
 {
     inline int GetChainClimbMode(int motion) /* derived name */
     {
@@ -1345,7 +1344,7 @@ static void TestChainUpDown(char *gobj, char *boy)
 
         rec = (ChainClimbWork *)chainClimb; if (rec->prev != mode) {
             rec->phase = 0.0f;
-            rec->frames = (int)(float)*motionTable[((ChainExtPtr *)(boy + 0x15C))->sub->motion];
+            rec->frames = (int)(float)*motionTable[((ChainExtPtr *)&boy->dobj)->sub->motion];
             SetChainClimbNodePoint(boy, rec);
             rec->target[0] = rec->node[0]; rec->target[2] = rec->node[2];
             rec->target[1] = rec->node[1] - 100.0f;
@@ -1364,7 +1363,7 @@ static void TestChainUpDown(char *gobj, char *boy)
 
 
         w[0] = test_CURRENTROOT(boyGObj)[0]; w[1] = test_CURRENTROOT(boyGObj)[1]; w[2] = test_CURRENTROOT(boyGObj)[2];
-        w[1] = org[1] + *(float *)(((ChainExtPtr *)((char *)boyGObj + 0x15C))->i + 0x144);
+        w[1] = org[1] + *(float *)(((ChainExtPtr *)&boyGObj->dobj)->i + 0x144);
         SetDirectRootPositionNoFitting(boyGObj, w);
 
 
@@ -1381,7 +1380,7 @@ static void TestChainUpDown(char *gobj, char *boy)
 
         rec = (ChainClimbWork *)chainClimb; if (rec->prev != mode) {
             rec->phase = 0.0f;
-            rec->frames = (int)(float)*motionTable[((ChainExtPtr *)(boy + 0x15C))->sub->motion];
+            rec->frames = (int)(float)*motionTable[((ChainExtPtr *)&boy->dobj)->sub->motion];
             SetChainClimbNodePoint(boy, rec);
             rec->target[0] = rec->node[0]; rec->target[2] = rec->node[2];
             rec->target[1] = rec->node[1] - 100.0f;
@@ -1400,7 +1399,7 @@ static void TestChainUpDown(char *gobj, char *boy)
 
 
         w[0] = test_CURRENTROOT(boyGObj)[0]; w[1] = test_CURRENTROOT(boyGObj)[1]; w[2] = test_CURRENTROOT(boyGObj)[2];
-        w[1] = org[1] + *(float *)(((ChainExtPtr *)((char *)boyGObj + 0x15C))->i + 0x144);
+        w[1] = org[1] + *(float *)(((ChainExtPtr *)&boyGObj->dobj)->i + 0x144);
         w[1] = w[1] < cw->rootPos[1] + 150.0f ? cw->rootPos[1] + 150.0f : (cw->endPos[1] < w[1] ? cw->endPos[1] : w[1]);
         SetDirectRootPosition(boyGObj, w);
 
@@ -1413,7 +1412,7 @@ static void TestChainUpDown(char *gobj, char *boy)
         ChainClimbWork *rec;
         rec = (ChainClimbWork *)chainClimb; if (rec->prev != mode) {
             rec->phase = 0.0f;
-            rec->frames = (int)(float)*motionTable[((ChainExtPtr *)(boy + 0x15C))->sub->motion];
+            rec->frames = (int)(float)*motionTable[((ChainExtPtr *)&boy->dobj)->sub->motion];
             SetChainClimbNodePoint(boy, rec);
             rec->target[0] = rec->node[0]; rec->target[2] = rec->node[2];
             rec->target[1] = rec->node[1] + 200.0f;
@@ -1434,19 +1433,19 @@ static void TestChainUpDown(char *gobj, char *boy)
         rec = (ChainClimbWork *)chainClimb; if ((unsigned int)rec->prev < 2) {
 
             int n = GetSkeltonFocusNode(boyGObj, 22);
-            v[0] = *(float *)(n * 64 + ((ChainExtPtr *)((char *)boyGObj + 0x15C))->sub->nodeMtx + 48); v[1] = *(float *)(n * 64 + ((ChainExtPtr *)((char *)boyGObj + 0x15C))->sub->nodeMtx + 52); v[2] = *(float *)(n * 64 + ((ChainExtPtr *)((char *)boyGObj + 0x15C))->sub->nodeMtx + 56);
-            PlumbPointUpdateChain((char *)sub->chain, v);
+            v[0] = *(float *)(n * 64 + ((ChainExtPtr *)&boyGObj->dobj)->sub->nodeMtx + 48); v[1] = *(float *)(n * 64 + ((ChainExtPtr *)&boyGObj->dobj)->sub->nodeMtx + 52); v[2] = *(float *)(n * 64 + ((ChainExtPtr *)&boyGObj->dobj)->sub->nodeMtx + 56);
+            PlumbPointUpdateChain((GObj *)sub->chain, v);
         }
         if ((unsigned int)(rec->prev - 2) < 2) {
 
             int n = GetSkeltonFocusNode(boyGObj, 22);
-            v[0] = *(float *)(n * 64 + ((ChainExtPtr *)((char *)boyGObj + 0x15C))->sub->nodeMtx + 48); v[1] = *(float *)(n * 64 + ((ChainExtPtr *)((char *)boyGObj + 0x15C))->sub->nodeMtx + 52); v[2] = *(float *)(n * 64 + ((ChainExtPtr *)((char *)boyGObj + 0x15C))->sub->nodeMtx + 56);
-            PlumbPointUpdateChain((char *)sub->chain, v);
+            v[0] = *(float *)(n * 64 + ((ChainExtPtr *)&boyGObj->dobj)->sub->nodeMtx + 48); v[1] = *(float *)(n * 64 + ((ChainExtPtr *)&boyGObj->dobj)->sub->nodeMtx + 52); v[2] = *(float *)(n * 64 + ((ChainExtPtr *)&boyGObj->dobj)->sub->nodeMtx + 56);
+            PlumbPointUpdateChain((GObj *)sub->chain, v);
         }
 
         if (sub->actMode != 59) {
 
-            _GetCorrectOrientOfChain((float *)cw->pdl.orient, gobj, (float *)test_CURRENTORIENT(boy));
+            _GetCorrectOrientOfChain((float *)cw->pdl.orient, gobj, test_CURRENTORIENT(boy));
         }
     } break;
     }
@@ -1456,7 +1455,7 @@ static void TestChainUpDown(char *gobj, char *boy)
 
 /* clang-format on */
 
-void SetChainRootUpdateMode(char *gobj, int mode, float *pos)
+void SetChainRootUpdateMode(GObj *gobj, int mode, float *pos)
 {
     GOBJ_SUB(gobj)->ropeState = mode;
     ((ChainVal *)&GOBJ_SUB(gobj)->ropeBaseX)->f = pos[0];
@@ -1467,21 +1466,21 @@ void SetChainRootUpdateMode(char *gobj, int mode, float *pos)
     }
 }
 
-void HoldChain(char *chain, char *owner, float *pos)
+void HoldChain(GObj *chain, GObj *owner, float *pos)
 {
     ChainRecord *p = GOBJ_SUB(chain)->work;
     StartPendulum(chain, owner, pos);
     p->hold = 1;
 }
 
-void ReleaseChain(char *chain, char *owner)
+void ReleaseChain(GObj *chain, GObj *owner)
 {
     ChainRecord *cw = GOBJ_SUB(chain)->work;
 
     cw->hold = 0;
 }
 
-void GetChainPendulum(char *chain, float *angle, float *amp, float *cycle)
+void GetChainPendulum(GObj *chain, float *angle, float *amp, float *cycle)
 {
     ChainRecord *p = GOBJ_SUB(chain)->work;
     *angle = p->pdl.angle;
@@ -1492,21 +1491,21 @@ void GetChainPendulum(char *chain, float *angle, float *amp, float *cycle)
     *cycle = p->pdl.cycle;
 }
 
-void IncreasePdlChain(char *chain)
+void IncreasePdlChain(GObj *chain)
 {
     ChainRecord *cw = GOBJ_SUB(chain)->work;
 
     cw->pdl.ampSpeed = 0.1f;
 }
 
-void DecreasePdlChain(char *chain)
+void DecreasePdlChain(GObj *chain)
 {
     ChainRecord *cw = GOBJ_SUB(chain)->work;
 
     cw->pdl.ampSpeed = (float)debug_chain_slow_speed * 0.5f * -0.1f;
 }
 
-void PlumbOrientUpdateChain(char *chain, float *src)
+void PlumbOrientUpdateChain(GObj *chain, float *src)
 {
     ChainRecord *p = GOBJ_SUB(chain)->work;
     p->pdl.orient[0] = src[0];
@@ -1514,20 +1513,20 @@ void PlumbOrientUpdateChain(char *chain, float *src)
     p->pdl.orient[2] = src[2];
 }
 
-int isBottomOfChain(char *chain)
+int isBottomOfChain(GObj *chain)
 {
     ChainRecord *p = GOBJ_SUB(chain)->work;
     return p->holdNode == p->nodes - 1;
 }
 
-int isStopChain(char *chain)
+int isStopChain(GObj *chain)
 {
     ChainRecord *cw = GOBJ_SUB(chain)->work;
 
     return cw->stopped;
 }
 
-void GetChainClimbOrient(float *dst, char *chain)
+void GetChainClimbOrient(float *dst, GObj *chain)
 {
     ChainRecord *p = GOBJ_SUB(chain)->work;
     dst[0] = p->wallOrient[0];
@@ -1535,7 +1534,7 @@ void GetChainClimbOrient(float *dst, char *chain)
     dst[2] = p->wallOrient[2];
 }
 
-int CheckChainClimbablePos(char *chain)
+int CheckChainClimbablePos(GObj *chain)
 {
     ChainRecord *p = GOBJ_SUB(chain)->work;
 
@@ -1549,26 +1548,26 @@ typedef struct ClimbCol { /* field names derived */
     int wall;             /* the wall hit */
 } ClimbCol;
 
-void GetChainClimbCollision(ClimbCol *dst, char *chain)
+void GetChainClimbCollision(ClimbCol *dst, GObj *chain)
 {
     *dst = *(ClimbCol *)((ChainRecord *)GOBJ_SUB(chain)->work)->wallPos;
 }
 
-void SetChainParentGObj(char *chain, void *parent)
+void SetChainParentGObj(GObj *chain, void *parent)
 {
     ((ChainRecord *)GOBJ_SUB(chain)->work)->root = parent;
 }
 
 /* the chain's direction correction in degrees, and whether it has one;
  * getChainDirCorrectVal below is the same body, for _GetCorrectOrientOfChain */
-int GetChainDirCorrectVal(char *chain, int *deg)
+int GetChainDirCorrectVal(GObj *chain, int *deg)
 {
     ChainRecord *p = GOBJ_SUB(chain)->work;
     *deg = (int)(p->dirCorrect * 180.0f / 3.1415927f);
     return p->hasDirCorrect;
 }
 
-static inline int getChainDirCorrectVal(char *chain, int *deg) /* derived name */
+static inline int getChainDirCorrectVal(GObj *chain, int *deg) /* derived name */
 {
     ChainRecord *p = GOBJ_SUB(chain)->work;
     *deg = (int)(p->dirCorrect * 180.0f / 3.1415927f);
@@ -1583,7 +1582,7 @@ void GetRootPositionHandExtra(void *gobj, float *out)
     out[1] -= 50.0f;
 }
 
-void InitPendulum(char *chain)
+void InitPendulum(GObj *chain)
 {
     ChainRecord *cw = GOBJ_SUB(chain)->work;
     float a = (float)debug_chain_cycle_speed * -0.2f + 2.0f;
@@ -1601,56 +1600,56 @@ void InitPendulum(char *chain)
     cw->pdl.swing = 1;
 }
 
-void LockChainGeo(char *chain)
+void LockChainGeo(GObj *chain)
 {
     ChainRecord *cw = GOBJ_SUB(chain)->work;
 
     cw->locked = 1;
 }
 
-void UnLockChainGeo(char *chain)
+void UnLockChainGeo(GObj *chain)
 {
     ChainRecord *cw = GOBJ_SUB(chain)->work;
 
     cw->locked = 0;
 }
 
-float GetChainHangRange(char *chain)
+float GetChainHangRange(GObj *chain)
 {
     ChainRecord *cw = GOBJ_SUB(chain)->work;
 
     return cw->hangRange;
 }
 
-float GetChainLength(char *chain)
+float GetChainLength(GObj *chain)
 {
     ChainRecord *cw = GOBJ_SUB(chain)->work;
 
     return (float)(cw->nodes - 1) * 50.0f;
 }
 
-void EnableChainHang(char *chain)
+void EnableChainHang(GObj *chain)
 {
     ChainRecord *cw = GOBJ_SUB(chain)->work;
 
     cw->hangable = 1;
 }
 
-void UnableChainHang(char *chain)
+void UnableChainHang(GObj *chain)
 {
     ChainRecord *cw = GOBJ_SUB(chain)->work;
 
     cw->hangable = 0;
 }
 
-int IsAbleChainHang(char *chain)
+int IsAbleChainHang(GObj *chain)
 {
     ChainRecord *cw = GOBJ_SUB(chain)->work;
 
     return cw->hangable;
 }
 
-void ChainPositionReset(char *chain)
+void ChainPositionReset(GObj *chain)
 {
     float pos[4];
     ChainRecord *cw = GOBJ_SUB(chain)->work;
@@ -1660,7 +1659,7 @@ void ChainPositionReset(char *chain)
     ResetChainNodes(cw, pos);
 }
 
-void _GetCorrectOrientOfChain(float *out, char *gobj, float *dir)
+void _GetCorrectOrientOfChain(float *out, GObj *gobj, float *dir)
 {
     float v[4];
     int deg;
@@ -1686,7 +1685,7 @@ void _GetCorrectOrientOfChain(float *out, char *gobj, float *dir)
     }
 }
 
-static void chain_sub_simulate(char *gobj, ChainNode *nd, int from, int to, unsigned char flag,
+static void chain_sub_simulate(GObj *gobj, ChainNode *nd, int from, int to, unsigned char flag,
                                int flag2, float grav, float len, float damp)
 {
     float d[4];
@@ -1741,7 +1740,7 @@ static void chain_sub_pendulum(ChainNode *base, int n, float *pos)
     } while (i <= n);
 }
 
-int GetChainNearestNodePosition(float *out, char *gobj, float *p)
+int GetChainNearestNodePosition(float *out, GObj *gobj, float *p)
 {
     ChainRecord *cw = GOBJ_SUB(gobj)->work;
 

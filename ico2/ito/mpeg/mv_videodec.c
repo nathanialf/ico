@@ -171,11 +171,11 @@ static int decBitStrm0(VideoDec *dec, MvDispEnv *disp, VoBuf *vo)
             ret = -1;
             break;
         }
-        if (dec->frameCount == 0) {
-            debug_StdPrintfDummy("movie %d x %d\n", dec->width, dec->height);
-            w = dec->width;
+        if (dec->mpeg.frameCount == 0) {
+            debug_StdPrintfDummy("movie %d x %d\n", dec->mpeg.width, dec->mpeg.height);
+            w = dec->mpeg.width;
             ox = (disp->imageWidth - w) >> 1;
-            h = dec->height;
+            h = dec->mpeg.height;
             oy = (disp->imageHeight - h) >> 2;
             hh = h >> 1;
             for (i = 0; i < vo->max; i++) {
@@ -203,7 +203,7 @@ static void Free(int addr)
 int videoDecDelete(VideoDec *self)
 {
     viBufDelete(&self->vibuf);
-    sceMpegDelete(self);
+    sceMpegDelete(&self->mpeg);
     free_buf(self);
     return 1;
 }

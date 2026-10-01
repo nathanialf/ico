@@ -9,6 +9,7 @@
  * a comment that changes is rewritten in place, keeping its line count.
  */
 #include <stdio.h>
+#include <assert.h>
 #include <libscf.h>
 #include <sifdev.h>
 
@@ -80,11 +81,10 @@ typedef struct {
  * their line arguments (0x119 for the first, 0x1C7 for the last) fix this
  * file's line layout. */
 
-/* newlib <assert.h> and <stddef.h>, written out here: this tree has no
- * libc include directory for the SDK archives.  NDEBUG is not defined in
- * this archive: the calls are in the shipped code.  The two defines stay
- * together. */
-#define assert(e) ((e) ? (void)0 : __assert(__FILE__, __LINE__, #e))
+/* NDEBUG is not defined in this archive: the asserts are in the shipped
+ * code, with newlib's macro from <assert.h> (sce/libc).  This tree has no
+ * <stddef.h> for the SDK archives, so the one definition the member takes
+ * from it is written out here. */
 /* <stddef.h> */
 #define NULL 0
 
@@ -100,9 +100,9 @@ typedef struct {
     unsigned char year;
 } sceCdCLOCK;
 
-/* newlib's <assert.h> declaration, written out with the macro above (no
-   assert.h on this archive's include path); assert.c defines it */
-extern void __assert(const char *file, int line, const char *failedexpr);
+/* The member's own functions, declared ahead of their definitions so that
+ * every call below has its prototype; the two kernel syscall wrappers
+ * follow them. */
 void AdjustTime(sceCdCLOCK *prtc, int diff);
 void convertfrombcd(sceCdCLOCK *prtc);
 void converttobcd(sceCdCLOCK *prtc);

@@ -194,7 +194,7 @@ void SetParamKyomiGObj(void *gobj, float *root, float *param)
         }
     }
     SetDirectRootPosition(gobj, root);
-    UpdateRootMatrix((int)gobj);
+    UpdateRootMatrix(gobj);
     GetRootPosition(pos, gobj);
     brainSetLevelGop(gobj, lv, on1, on2);
 }

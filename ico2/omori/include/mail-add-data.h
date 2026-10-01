@@ -8,11 +8,12 @@
 #ifndef MAIL_ADD_DATA_H
 #define MAIL_ADD_DATA_H
 
-int ActSendMail_WithAdditionalData(char *gop, int msg, void *sender, void *data);
-void *GetMailAdditionalData(char *gop, int mail);
-inline void ClearMailAdditionalData(char *gop);
+struct GObj;
+int ActSendMail_WithAdditionalData(struct GObj *gop, int msg, void *sender, void *data);
+void *GetMailAdditionalData(struct GObj *gop, int mail);
+inline void ClearMailAdditionalData(struct GObj *gop);
 
 struct MailAdditionalData;
-void InitMailAdditionalData(char *gop, struct MailAdditionalData *table);
+void InitMailAdditionalData(struct GObj *gop, struct MailAdditionalData *table);
 
 #endif /* MAIL_ADD_DATA_H */

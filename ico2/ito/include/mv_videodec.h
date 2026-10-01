@@ -8,6 +8,7 @@
 #ifndef MV_VIDEODEC_H
 #define MV_VIDEODEC_H
 
+#include <libmpeg.h>
 #include "mv_vibuf.h"
 #include "mv_vobuf.h"
 #include "mv_disp.h"
@@ -16,10 +17,7 @@
 /* The video decoder: libmpeg's decoder record, its work area and the
    video-input ring the demuxer fills. */
 typedef struct VideoDec { /* field names derived */
-    int width;            /* 0x00, libmpeg's decoder record: the picture size */
-    int height;           /* 0x04 */
-    int frameCount;       /* 0x08, the pictures decoded */
-    char pad0C[60];       /* 0x0C, the rest of libmpeg's record */
+    sceMpeg mpeg;         /* 0x00, libmpeg's decoder record */
     int buf;              /* 0x48, the decoder's work area */
     ViBuf vibuf;          /* 0x50 */
     int state;            /* 0xB8: 0 decoding, 1 aborted, 2 flushed, 3 ended */

@@ -447,7 +447,7 @@ end:
     PacketBufferStruct.ptr.c = p + 0x10;
     if (n > 0) {
         dl_SetDLPriority(dl_GetPri());
-        dl_OpenDma(5, (int)PacketBufferStruct.dma.c, 0);
+        dl_OpenDma(5, PacketBufferStruct.dma.c, 0);
         dl_CloseDma();
     }
 }

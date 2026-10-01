@@ -795,7 +795,7 @@ void InitIco2Camera(void)
    whenever the actor asks for no offset */
 static float lastTargetOffset[3] = {0.0f, 0.0f, 0.0f}; /* derived name */
 
-static void GetTargetOffset(char *gobj, float *v, unsigned char flag)
+static void GetTargetOffset(GObj *gobj, float *v, unsigned char flag)
 {
     float ofs[4];
     float w[4];
@@ -804,7 +804,7 @@ static void GetTargetOffset(char *gobj, float *v, unsigned char flag)
     int need;
 
     if ((int)gobj == default_cameratarget_gobj && gobj != 0) {
-        n = (int)(_GetDirection(test_CURRENTORIENT((int)gobj)) / 3.1415927f * 180.0f);
+        n = (int)(_GetDirection(test_CURRENTORIENT(gobj)) / 3.1415927f * 180.0f);
         ofs[0] = v[0];
         ofs[1] = v[1];
         ofs[2] = -v[2];
@@ -920,7 +920,7 @@ void SetCameraMatrix_Ico2(int flag)
         cw.at.f[1] = targetASmooth[1];
         cw.at.f[2] = targetASmooth[2];
         memset(vA, 0, 16);
-        GetTargetOffset((char *)default_cameratarget_gobj, vA, 0);
+        GetTargetOffset((GObj *)default_cameratarget_gobj, vA, 0);
         sceVu0ScaleVector(vA, vA, zoomOffsetRatio);
         sceVu0AddVector(cw.at.f, cw.at.f, vA);
     } else {
@@ -936,7 +936,7 @@ void SetCameraMatrix_Ico2(int flag)
         cw.at.f[0] = targetASmooth[0];
         cw.at.f[1] = targetASmooth[1];
         cw.at.f[2] = targetASmooth[2];
-        GetTargetOffset((char *)default_cameratarget_gobj, vA, f8);
+        GetTargetOffset((GObj *)default_cameratarget_gobj, vA, f8);
         sceVu0ScaleVector(vA, vA, zoomOffsetRatio);
         sceVu0ScaleVector(vB, vB, zoomOffsetRatio);
         sceVu0AddVector(cw.at.f, cw.at.f, vA);
