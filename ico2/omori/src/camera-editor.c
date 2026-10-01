@@ -238,11 +238,7 @@ static inline void dispPinRange(int box, int from, int to) /* derived name */
    aligned vectors */
 typedef struct { /* field names derived */
     float x, y, z, w;
-} BoxVtx __attribute__((aligned(16)));
-
-typedef struct { /* field names derived */
-    float x, y, z;
-} BoxVec; /* derived name */
+} BoxVtx __attribute__((aligned(16))); /* derived name */
 
 /* the box's two index tables and its line colour, initialised as whole
    objects here and in DispCameraGroup */
@@ -263,20 +259,20 @@ typedef union { /* field names derived */
     unsigned long long w[2];
 } BoxCol4; /* derived name */
 
-void DebugDispBox(BoxVec *c, BoxVec *s)
+void DebugDispBox(float *c, float *s)
 {
     int n;
     int j;
     int k;
     int i;
-    BoxVtx v[8] = {{c->x - s->x, c->y - s->y, c->z - s->z, 1.0f},
-                   {c->x - s->x, c->y - s->y, c->z + s->z, 1.0f},
-                   {c->x + s->x, c->y - s->y, c->z - s->z, 1.0f},
-                   {c->x + s->x, c->y - s->y, c->z + s->z, 1.0f},
-                   {c->x - s->x, c->y + s->y, c->z - s->z, 1.0f},
-                   {c->x - s->x, c->y + s->y, c->z + s->z, 1.0f},
-                   {c->x + s->x, c->y + s->y, c->z - s->z, 1.0f},
-                   {c->x + s->x, c->y + s->y, c->z + s->z, 1.0f}};
+    BoxVtx v[8] = {{c[0] - s[0], c[1] - s[1], c[2] - s[2], 1.0f},
+                   {c[0] - s[0], c[1] - s[1], c[2] + s[2], 1.0f},
+                   {c[0] + s[0], c[1] - s[1], c[2] - s[2], 1.0f},
+                   {c[0] + s[0], c[1] - s[1], c[2] + s[2], 1.0f},
+                   {c[0] - s[0], c[1] + s[1], c[2] - s[2], 1.0f},
+                   {c[0] - s[0], c[1] + s[1], c[2] + s[2], 1.0f},
+                   {c[0] + s[0], c[1] + s[1], c[2] - s[2], 1.0f},
+                   {c[0] + s[0], c[1] + s[1], c[2] + s[2], 1.0f}};
     BoxIdx6 idx6 = {
         {{0, 1, 2, 3}, {1, 3, 5, 7}, {2, 3, 6, 7}, {0, 2, 4, 6}, {5, 4, 7, 6}, {1, 0, 5, 4}}};
     BoxCol col;

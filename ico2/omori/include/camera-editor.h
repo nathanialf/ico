@@ -84,6 +84,7 @@ inline void menu_2(MenuThread *m);
 inline void group_select(MenuThread *m);
 /* compiled in place */
 int CameraEdit_add_pin(int box, char *src);
+void DebugDispBox(float *c, float *s);
 void dispCameraGroupType2(int box, unsigned char sel);
 void menuGroupEdit(MenuThread *m);
 void menuGroupSelect(MenuThread *m);

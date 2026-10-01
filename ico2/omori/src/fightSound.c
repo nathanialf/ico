@@ -12,7 +12,7 @@ static int fightSoundPause = 0; /* derived name */
 
 /* the fight loop's ADPCM handle, its volume and the open request */
 static struct { /* field names derived */
-    int handle;
+    SqEntry *handle;
     int volume;
     AdpcmOpenReq req;
 } fightSnd; /* derived name */
@@ -94,7 +94,7 @@ static void fightSoundProcessMain(void)
 
 void fightSoundProcess(void)
 {
-    int *h;
+    SqEntry *h;
 
     switch (fightSoundState) {
     case 0:
@@ -102,10 +102,10 @@ void fightSoundProcess(void)
         break;
     case 1:
         h = soundDataOpenSync(&fightSnd.req);
-        fightSnd.handle = (int)h;
-        if (h != (int *)-1) {
+        fightSnd.handle = h;
+        if (h != (SqEntry *)-1) {
             if (h != 0) {
-                AdpcmPlay(h[0x2C / 4]);
+                AdpcmPlay(h->stream);
             }
             fightSoundState = 0;
         }
@@ -146,7 +146,7 @@ int fightSoundProcessRequestStatus(void)
     return fightSoundPause;
 }
 
-int fightSoundPlayChk(void)
+SqEntry *fightSoundPlayChk(void)
 {
     return fightSnd.handle;
 }

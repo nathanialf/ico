@@ -8,8 +8,10 @@
 #ifndef FIGHTSOUND_H
 #define FIGHTSOUND_H
 
+struct SqEntry;
+
 void fightSoundClose(void);
-int fightSoundPlayChk(void);
+struct SqEntry *fightSoundPlayChk(void);
 void fightSoundProcessRequestPause(void);
 void fightSoundProcessRequestStart(void);
 void fightSoundProcess(void);

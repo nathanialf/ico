@@ -49,6 +49,8 @@ void _GetCorrectOrientOfChain(float *out, struct GObj *gobj, float *dir);
 void correct_vector(float *out, float *v);
 void ChainDL(struct GObj *gobj);
 int isStopChain(struct GObj *chain);
+int isBottomOfChain(struct GObj *chain);
+int GetChainNearestNodePosition(float *out, struct GObj *gobj, float *p);
 void InitPendulum(struct GObj *chain);
 
 #endif /* CHAIN_H */

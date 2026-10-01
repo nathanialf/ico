@@ -59,8 +59,6 @@ static int moviePauseCount = 0; /* derived name */
 /* the debug frame counter */
 static int movieFrameNo = 0; /* derived name */
 
-void movie_end(void);
-
 /* The stream file the movie is read through, the read buffer, the video and
    audio decoder objects, the argument block the decode thread is started
    with, its 32 KB stack, and the DMA and interrupt enables saved per

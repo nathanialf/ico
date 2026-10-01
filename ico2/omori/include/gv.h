@@ -9,6 +9,7 @@
 #define GV_H
 
 int AlignDegGV(int deg);
+float GetCorrectDistance(int deg, float dist);
 void GetMatrixDirectionToZ(float *out, float *dir);
 int RoundDegGV(int deg);
 void SwapGV(float *a, float *b);
@@ -18,6 +19,7 @@ float _DistGV(void *a, void *b);
 float _DistSqGV(void *a, void *b);
 float _DistxzGV(void *a, void *b);
 float _DistxzSqGV(void *a, void *b);
+int _FrontGV(float *target, float *pos, float *dir, int deg);
 float _GetDirection(float *dir);
 void _InterGV(float *dst, float *a, float *b, float ta, float tb);
 int _InterRotGV(float *dst, float *cur, float *tgt, int step);

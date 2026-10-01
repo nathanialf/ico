@@ -40,6 +40,7 @@ int sceCdStInit(int bufmax, int bankmax, void *buf);               /* definition
 int sceCdStRead(int sectors, void *buf, int mode, int *err);       /* definition in sce/ */
 int sceCdStStart(int lsn, CdRMode *mode);                          /* definition in sce/ */
 int sceCdStStat(void);                                             /* definition in sce/ */
+int sceCdStStop(void);                                             /* definition in sce/ */
 int sceCdStatus(void);
 int sceCdStream(int lsn, int sectors, void *buf, int cmd, CdRMode *mode); /* definition in sce/ */
 int sceCdSync(int mode);                                                  /* definition in sce/ */
