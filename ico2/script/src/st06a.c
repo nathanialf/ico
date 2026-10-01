@@ -212,7 +212,7 @@ void actSt06aSuimonChk(GObj *volatile a0)
     GProc *he;
     GProc *hs;
 
-    while ((scpGetRotObjectRotCount(0x6EE) < -2.0f) == 0) {
+    while ((scpGetRotObjectRotCount(1774) < -2.0f) == 0) {
         _ACTWait(1);
     }
 
@@ -257,7 +257,7 @@ void actSt06aSuimonChk(GObj *volatile a0)
     if (demoEnd == 0) {
         scpFadeOut(16.0f, 0, 0, 0);
 
-        scpAdpcmFadeCloseFunc(&suimon, 0x200);
+        scpAdpcmFadeCloseFunc(&suimon, 512);
 
         while (scpFadeChk() != 0) {
             _ACTWait(1);
@@ -404,7 +404,7 @@ void actSt06aShutterOpen(GObj *volatile a0)
             _ACTWait(1);
         }
 
-        scpAdpcmFadeCloseFunc(&shutter, 0x200);
+        scpAdpcmFadeCloseFunc(&shutter, 512);
 
         while (scpFadeChk() != 0) {
             _ACTWait(1);
@@ -609,7 +609,7 @@ void actSt06aHeadChk(GObj *volatile a0)
     scpSearchGobj(1770)->active = 0;
 
     if (toge != 0) {
-        scpAdpcmFadeCloseFunc(&toge, 0x50);
+        scpAdpcmFadeCloseFunc(&toge, 80);
     }
 
     scpWakeupEnemyAll();
@@ -1064,7 +1064,7 @@ void actSt06aSuimonEffect(GObj *volatile a0)
             b1[1] = doorUpEffectPos.d[1];
             scpEffectStart((int *)b1, 0);
             break;
-        case 0x1E:
+        case 30:
             b2[0] = v0b;
             b2[1] = doorUpEffect2Pos.d[1];
             scpEffectStart((int *)b2, 0);
@@ -1080,7 +1080,7 @@ void actSt06aSuimonEffect(GObj *volatile a0)
 
 void actSt06aSuimonFlagOn(GObj *volatile a0)
 {
-    int i = (0x3C - systemStatus[0] * 0xA) / systemStatus[1] * 7.0;
+    int i = (60 - systemStatus[0] * 10) / systemStatus[1] * 7.0;
 
     riverFadeSpeed = 0.005f;
 
@@ -1127,7 +1127,7 @@ void actSt06aDoorUpEffect(GObj *volatile a0)
             b1[1] = jumpPos.d[1];
             scpEffectStart((int *)b1, 0);
             break;
-        case 0x1E:
+        case 30:
             b2[0] = v0b;
             b2[1] = jumpPos2.d[1];
             scpEffectStart((int *)b2, 0);
@@ -1151,7 +1151,7 @@ void actSt06aDoorDownEffect(GObj *volatile a0)
             b1[1] = jumpPos2.d[1];
             scpEffectStart((int *)b1, 0);
             break;
-        case 0x1E:
+        case 30:
             b2[0] = v0b;
             b2[1] = jumpPos.d[1];
             scpEffectStart((int *)b2, 0);
@@ -1234,7 +1234,7 @@ void actSt06aExitGirlChk(GObj *volatile a0)
 
     buf1[0] = kyomiPos.d[0];
     buf1[1] = kyomiPos.d[1];
-    RequestStageChangeDirect(girlGObj, 0x16, buf1, 0xB4);
+    RequestStageChangeDirect(girlGObj, 22, buf1, 180);
 
     buf2[0] = farPos.d[0];
     buf2[1] = farPos.d[1];
@@ -1256,7 +1256,7 @@ void actSt06aBoxSub(GObj *volatile a0)
     }
     _ACTWait(1);
 
-    _ACTWait((0x3C - systemStatus[0] * 0xA) / systemStatus[1] * 7);
+    _ACTWait((60 - systemStatus[0] * 10) / systemStatus[1] * 7);
 
     demoEnd = 1;
     _ACTWait(0);
@@ -1364,7 +1364,7 @@ void actSt06aWallWayOnChk(GObj *volatile a0)
 {
     Act *sub = GOBJ_ACT(a0);
 
-    while (scpIsRotObjectZPlusDirInclude(1775, 0xF0, 0x12C) == 0) {
+    while (scpIsRotObjectZPlusDirInclude(1775, 240, 300) == 0) {
         _ACTWait(1);
     }
 
@@ -1382,7 +1382,7 @@ void actSt06aWallWayOffChk(GObj *volatile a0)
 {
     Act *sub = GOBJ_ACT(a0);
 
-    while (scpIsRotObjectZPlusDirInclude(1775, 0xF0, 0x12C) != 0) {
+    while (scpIsRotObjectZPlusDirInclude(1775, 240, 300) != 0) {
         _ACTWait(1);
     }
 
@@ -1400,7 +1400,7 @@ void actSt06aWallWay2OnChk(GObj *volatile a0)
 {
     Act *sub = GOBJ_ACT(a0);
 
-    while (scpIsRotObjectZPlusDirInclude(1775, 0x3C, 0x78) == 0) {
+    while (scpIsRotObjectZPlusDirInclude(1775, 60, 120) == 0) {
         _ACTWait(1);
     }
 
@@ -1418,7 +1418,7 @@ void actSt06aWallWay2OffChk(GObj *volatile a0)
 {
     Act *sub = GOBJ_ACT(a0);
 
-    while (scpIsRotObjectZPlusDirInclude(1775, 0x3C, 0x78) != 0) {
+    while (scpIsRotObjectZPlusDirInclude(1775, 60, 120) != 0) {
         _ACTWait(1);
     }
 
@@ -1435,10 +1435,10 @@ void actSt06aWallWay2OffChk(GObj *volatile a0)
 void actSt06aTreeChk(GObj *volatile a0)
 {
     while (scpTriggerBall(a0, boyGObj, 150.0f) == 0 ||
-           (ForMotionViewer_GetCurrentMotion(boyGObj) != 0x2F &&
-            ForMotionViewer_GetCurrentMotion(boyGObj) != 0x30 &&
-            ForMotionViewer_GetCurrentMotion(boyGObj) != 0x31 &&
-            ForMotionViewer_GetCurrentMotion(boyGObj) != 0x3E)) {
+           (ForMotionViewer_GetCurrentMotion(boyGObj) != 47 &&
+            ForMotionViewer_GetCurrentMotion(boyGObj) != 48 &&
+            ForMotionViewer_GetCurrentMotion(boyGObj) != 49 &&
+            ForMotionViewer_GetCurrentMotion(boyGObj) != 62)) {
         _ACTWait(1);
     }
 

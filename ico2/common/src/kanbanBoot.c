@@ -33,32 +33,8 @@ inline void kanbanBootInit(void)
     bootStarted = 0;
 }
 
-/* the memory-card manager block ios/mcard.c runs requests on (its McMgr);
-   only the words this file touches are named. */
-typedef struct { /* field names derived */
-
-    /* the iosMc flag word.  This file clears a bit in it as one 64-bit
-       quantity while ios/mcard.c takes the same block a word at a time, so
-       the field carries both views. */
-    union {
-        long long ll;
-        int w[2];
-    } flags; /* 0x00 */
-
-    int port;      /* 0x08 */
-    int slot;      /* 0x0C */
-    int result;    /* 0x10, the last sceMcSync result */
-    int type;      /* 0x14, sceMcGetInfo's card type */
-    int free;      /* 0x18, sceMcGetInfo's free clusters */
-    int cardState; /* 0x1C */
-    int format;    /* 0x20, sceMcGetInfo's format flag */
-    /* the rest of the block, where iosMcLoadProductBlock works */
-    char block[2560 - 36];
-} McReq; /* derived name */
-
-/* .bss: the boot-time memory-card request block, on the 64-byte alignment
-   of a DMA transfer buffer */
-static McReq bootMcReq __attribute__((aligned(64))); /* derived name */
+/* .bss: the boot-time memory-card request block */
+static McMgr bootMcReq; /* derived name */
 
 /* .sbss */
 static Kanban *bootKanban; /* derived name */ /* the sign the boot sequence is showing */
@@ -81,7 +57,7 @@ extern void iosMcLoadProductBlock(void *a0);
 
 int kanbanBootMcCheck(void)
 {
-    McReq *mc = &bootMcReq;
+    McMgr *mc = &bootMcReq;
     McProductFile *r;
     int *lp;
     int lang;

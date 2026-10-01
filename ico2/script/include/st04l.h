@@ -76,5 +76,6 @@ void actSt04lTorch2_2XLChk(GObj *volatile a0);
 void actSt04lTorch3_1Chk(GObj *volatile a0);
 void actSt04lTorch3_2Chk(GObj *volatile a0);
 void actSt04lTuriChk(GObj *volatile a0);
+void turnBall(GObj *a0, int a1, int a2, int a3, int a4);
 
 #endif /* ST04L_H */

@@ -151,10 +151,8 @@ static int keyConfigCode[8] = {16, 128, 32, 64, 8, 2, 1, 4}; /* derived name */
 
 static int keyConfigSlot[8] = {1, 2, 3, 4, 5, 0, 0, 0}; /* derived name */
 
-/* the memory-card request block the layout actions drive, on a 64-byte
-   boundary, the alignment common/src/kanbanBoot.c's own request block
-   carries */
-int mc[640] __attribute__((aligned(64))) = {0};
+/* the memory-card request block the layout actions drive */
+McMgr mc = {{0}};
 
 /* mcard.c's request entry points; they return iosMsgSend's result, which
    this TU reads only from iosMcSync: it declares the others void, which its
@@ -210,32 +208,8 @@ int _la_mcard_error_check(void *a0)
     }
 }
 
-/* the product-block file-name field, six bytes; every writer copies the
-   TU's one "game." literal into it */
-typedef struct {
-    char b[6];
-} McName;
-
-/* the memory-card work area the layout actions pass around */
-typedef struct {
-    char _0[8];
-    int _8;
-    int _C;
-    int _10;
-    int _14;
-    int _18;
-    char pad1C[4];
-    int _20;
-    char pad24[32];
-    int _44;
-    char pad48[1076];
-    McName _47C;
-    char pad482[1342];
-    long long _9C0;
-} McWork;
-
 /* file-local: nothing outside this TU calls it */
-int _la_memory_card_check(McWork *p, int a1);
+int _la_memory_card_check(McMgr *p, int a1);
 
 /* .sdata: these ten statics and the three globals after them, then each
    function's own statics before it */
@@ -265,22 +239,22 @@ int layout_boot_flag = 0;
 
 int enable_game_pause = 1;
 
-int _la_memory_card_check(McWork *p, int a1)
+int _la_memory_card_check(McMgr *p, int a1)
 {
     int r;
     int i;
 
-    curPortInfo = &mcPortInfo[p->_8];
+    curPortInfo = &mcPortInfo[p->port];
     switch (a1) {
     case 0:
         curPortInfo->fileMask = 0;
-        p->_C = 0;
-        memset(&mcPortInfo[p->_8], 0, 8);
-        p->_10 = 0;
+        p->slot = 0;
+        memset(&mcPortInfo[p->port], 0, 8);
+        p->result = 0;
         iosMcGetInfo(p);
         mcLastResult = 0;
-        (IosMcProductFile + p->_8)->serial = 0;
-        (IosMcProductFile + p->_8)->fileNo = 0;
+        (IosMcProductFile + p->port)->serial = 0;
+        (IosMcProductFile + p->port)->fileNo = 0;
         a1++;
         break;
     case 10:
@@ -305,11 +279,11 @@ int _la_memory_card_check(McWork *p, int a1)
         if (r > 0) {
             a1++;
         }
-        switch (p->_10) {
+        switch (p->result) {
         case -16:
         case -15:
         case -4:
-            p->_10 = -14;
+            p->result = -14;
             a1 = 99;
             r = 0;
             break;
@@ -317,8 +291,8 @@ int _la_memory_card_check(McWork *p, int a1)
         if (r >= 0) {
             return a1;
         }
-        mcLastResult = p->_10;
-        if (p->_10 == -9 || r == -2) {
+        mcLastResult = p->result;
+        if (p->result == -9 || r == -2) {
             curPortInfo->flags.w = (int)curPortInfo->flags.w & ~0x20;
             curPortInfo->flags.w = (int)curPortInfo->flags.w & ~2;
             curPortInfo->flags.w = (int)curPortInfo->flags.w & ~1;
@@ -328,7 +302,7 @@ int _la_memory_card_check(McWork *p, int a1)
         a1++;
         break;
     case 3:
-        switch (p->_14) {
+        switch (p->type) {
         case 0:
             return 99;
         case 1:
@@ -339,14 +313,14 @@ int _la_memory_card_check(McWork *p, int a1)
             curPortInfo->flags.w |= 3;
             break;
         }
-        switch (p->_20) {
+        switch (p->format) {
         case 0:
             return 99;
         case 1:
             curPortInfo->flags.w |= 8;
             break;
         }
-        if (p->_18 >= 360) {
+        if (p->free >= 360) {
             curPortInfo->flags.w |= 0x10;
         } else {
             curPortInfo->flags.w = (int)curPortInfo->flags.w & ~0x10;
@@ -357,12 +331,12 @@ int _la_memory_card_check(McWork *p, int a1)
         a1 = 20;
         break;
     case 23:
-        if (p->_44 >= 11) {
+        if (p->dirCount >= 11) {
             debug_StdPrintfDummy(
                 "debug_mcLoadMainBlock:既に設定された数以上のデータを保存してる\n");
         }
         for (i = 0; i < 10; i++) {
-            if ((1 << i) & p->_9C0) {
+            if ((1 << i) & p->mask) {
                 break;
             }
         }
@@ -371,14 +345,14 @@ int _la_memory_card_check(McWork *p, int a1)
             break;
         }
         for (i = 0; i < 10; i++) {
-            if (IosMcProductFile[p->_8].file[i].stage != 0xFFFFFFFF) {
+            if (IosMcProductFile[p->port].file[i].stage != 0xFFFFFFFF) {
                 break;
             }
         }
         if (i < 10) {
-            if (p->_44 == 10) {
+            if (p->dirCount == 10) {
                 curPortInfo->flags.w |= 0x20;
-                curPortInfo->fileMask = p->_9C0;
+                curPortInfo->fileMask = p->mask;
             }
         }
         break;
@@ -567,7 +541,7 @@ static int portNewStep = 0; /* derived name */
 
 static int portNewRestart = 1; /* derived name */
 
-int _la_set_current_port_new(McWork *p, int a1)
+int _la_set_current_port_new(McMgr *p, int a1)
 {
     int r = 0;
     int v;
@@ -624,7 +598,7 @@ int _la_set_current_port_new(McWork *p, int a1)
             }
             r = -1;
         }
-        p->_8 = curPort;
+        p->port = curPort;
         curPortInfo = &mcPortInfo[curPort];
         break;
     }
@@ -771,7 +745,7 @@ int la_title_continue_or_new(int a0)
             return 9;
         }
     }
-    switch (_la_set_current_port_2(mc, a0)) {
+    switch (_la_set_current_port_2(&mc, a0)) {
     case 0:
         break;
     case 1:
@@ -824,7 +798,7 @@ int la_title_new_game_only(int a0)
         actionStarted = 0;
         return 9;
     }
-    switch (_la_set_current_port_2(mc, a0)) {
+    switch (_la_set_current_port_2(&mc, a0)) {
     case 0:
         break;
     case -1:
@@ -1074,7 +1048,7 @@ int la_load_game_memory_card_check(int a0)
     mcLoadMode = 1;
     lt_mask_property(0xB0, 1);
     lt_mask_property(0xB1, 1);
-    switch (_la_set_current_port_2(mc, a0)) {
+    switch (_la_set_current_port_2(&mc, a0)) {
     case 0:
         if (mcLastResult == 0 || mcLastResult == -14) {
             return -1;
@@ -1178,7 +1152,7 @@ int la_mc_load_file_select(int a0, int a1)
         }
     }
 
-    r = _la_set_current_port_lock_2(mc, a0);
+    r = _la_set_current_port_lock_2(&mc, a0);
     switch (r) {
     case -1:
         if (((curPortInfo->flags.w >> 1) & 1) == 0) {
@@ -1240,7 +1214,7 @@ int la_load_confirm_no_memory_card(int a0)
         actionStarted = 0;
         return 0xD;
     }
-    switch (_la_set_current_port_lock_2(mc, a0)) {
+    switch (_la_set_current_port_lock_2(&mc, a0)) {
     case 0:
         break;
     case -1:
@@ -1283,7 +1257,7 @@ int la_load_confirm_no_data(int a0)
         actionStarted = 0;
         return 0xD;
     }
-    switch (_la_set_current_port_lock_2(mc, a0)) {
+    switch (_la_set_current_port_lock_2(&mc, a0)) {
     case 0:
         break;
     case -1:
@@ -1307,7 +1281,7 @@ int la_load_confirm_no_data(int a0)
 
 int la_load_start_check(int a0)
 {
-    switch (_la_set_current_port_lock_2(mc, a0)) {
+    switch (_la_set_current_port_lock_2(&mc, a0)) {
     case 0:
         fileMask = 0x3FF;
         if (mcLastResult == 0 || mcLastResult == -14) {
@@ -1396,16 +1370,16 @@ int la_load_processing(int a0)
 
     switch (loadStep) {
     case 0:
-        strcpy((char *)mc + 0x47C, "game.");
-        mc[16] = selectFile;
-        mc[2] = curPort;
-        mc[3] = 0;
-        iosMcGetBlockSaveInfo(mc);
+        strcpy(mc.path, "game.");
+        mc.fileNo = selectFile;
+        mc.port = curPort;
+        mc.slot = 0;
+        iosMcGetBlockSaveInfo(&mc);
         loadStep++;
         break;
     case 1:
     case 3:
-        if (iosMcSync((unsigned long *)mc) != 0) {
+        if (iosMcSync((unsigned long *)&mc) != 0) {
             loadStep++;
         }
         break;
@@ -1415,7 +1389,7 @@ int la_load_processing(int a0)
     case 6:
     case 9:
         debug_StdPrintfDummy("case %d\n", loadStep);
-        err = _la_mcard_error_check(mc);
+        err = _la_mcard_error_check(&mc);
         if (err > 0) {
             loadStep++;
             debug_StdPrintfDummy("McLoad phase:%d  %x\n", loadStep, err);
@@ -1429,24 +1403,24 @@ int la_load_processing(int a0)
         return 46;
     case 4:
         debug_StdPrintfDummy("case 4\n");
-        if (((1 << mc[16]) & ((McWork *)mc)->_9C0) == 0) {
+        if (((1 << mc.fileNo) & mc.mask) == 0) {
             loadStep = 20;
         } else {
-            iosMcLoadProductBlock(mc);
+            iosMcLoadProductBlock(&mc);
             loadStep++;
         }
         break;
     case 5:
     case 8:
         debug_StdPrintfDummy("case %d\n", loadStep);
-        if (iosMcSync((unsigned long *)mc) != 0) {
+        if (iosMcSync((unsigned long *)&mc) != 0) {
             loadStep++;
         }
         break;
     case 7:
         debug_StdPrintfDummy("case %d\n", loadStep);
         debug_StdPrintfDummy("=== LoadGameBlock ===\n");
-        iosMcLoadGameBlock(mc, gameSysMainSaveBuff);
+        iosMcLoadGameBlock(&mc, gameSysMainSaveBuff);
         loadStep++;
         break;
     case 10:
@@ -1459,9 +1433,9 @@ int la_load_processing(int a0)
         debug_StdPrintfDummy("case 10\n");
         loadStep = 0;
         *(struct McPreview *)IosMcPreviewInfo =
-            *(struct McPreview *)&IosMcProductFile[mc[2]].file[mc[16]];
+            *(struct McPreview *)&IosMcProductFile[mc.port].file[mc.fileNo];
         playTime((struct McPreview *)IosMcPreviewInfo, &hour, &min, &sec);
-        loadSerial = mcSetFileNo(mc[2], mc[16]);
+        loadSerial = mcSetFileNo(mc.port, mc.fileNo);
         debug_StdPrintfDummy("stage no %d\n", gFlagSaveStage);
         seEnvForceClose = 1;
         if (titleAdpcm != 0) {
@@ -1613,7 +1587,7 @@ int la_save_game_memory_card_check(int a0)
     lt_mask_property(0xB0, 1);
     lt_mask_property(0xB1, 1);
     debug_StdPrintfDummy("save game check port %d\n", curPort);
-    switch (_la_set_current_port_new(mc, a0)) {
+    switch (_la_set_current_port_new(&mc, a0)) {
     case 0:
         break;
     case -1:
@@ -1792,7 +1766,7 @@ int la_mc_save_file_select(int a0, int a1)
         return 34;
     }
 
-    r = _la_set_current_port_lock_2(mc, a0);
+    r = _la_set_current_port_lock_2(&mc, a0);
     switch (r) {
     case -1:
         if (((curPortInfo->flags.w >> 1) & 1) == 0) {
@@ -1853,7 +1827,7 @@ inline int la_save_confirm_no_memory_card(int a0)
         actionStarted = 0;
         return 0x1C;
     }
-    switch (_la_set_current_port_lock_2(mc, a0)) {
+    switch (_la_set_current_port_lock_2(&mc, a0)) {
     case 0:
         break;
     case -1:
@@ -1883,7 +1857,7 @@ inline int la_save_confirm_no_free_area(int a0)
         actionStarted = 0;
         return 0x1C;
     }
-    switch (_la_set_current_port_lock_2(mc, a0)) {
+    switch (_la_set_current_port_lock_2(&mc, a0)) {
     case 0:
         break;
     case -1:
@@ -1907,7 +1881,7 @@ inline int la_save_confirm_no_free_area(int a0)
 
 int la_save_start_check(int a0)
 {
-    switch (_la_set_current_port_lock_2(mc, a0)) {
+    switch (_la_set_current_port_lock_2(&mc, a0)) {
     case 0:
         break;
     case -1:
@@ -1978,7 +1952,7 @@ int la_save_confirm_overwrite(int a0, int a1)
         actionStarted = 0;
         return 0x21;
     }
-    switch (_la_set_current_port_lock_2(mc, a0)) {
+    switch (_la_set_current_port_lock_2(&mc, a0)) {
     case 0:
         break;
     case -1:
@@ -2033,7 +2007,7 @@ int la_format_confirm(int a0, int a1)
         actionStarted = 0;
         return 0x21;
     }
-    switch (_la_set_current_port_lock_2(mc, a0)) {
+    switch (_la_set_current_port_lock_2(&mc, a0)) {
     case 0:
         break;
     case -1:
@@ -2072,20 +2046,20 @@ inline int la_format_processing(int a0)
     }
     switch (formatStep) {
     case 0:
-        mc[2] = curPort;
-        mc[3] = 0;
-        iosMcFormat(mc);
+        mc.port = curPort;
+        mc.slot = 0;
+        iosMcFormat(&mc);
         formatStep++;
         break;
     case 1:
     case 3:
-        if (iosMcSync((unsigned long *)mc) == 0) {
+        if (iosMcSync((unsigned long *)&mc) == 0) {
             break;
         }
         formatStep++;
         break;
     case 2:
-        if (_la_mcard_error_check(mc) > 0) {
+        if (_la_mcard_error_check(&mc) > 0) {
             formatStep++;
             break;
         }
@@ -2138,7 +2112,7 @@ int la_system_save_processing(int a0)
     int min;
     int sec;
 
-    curPortInfo = &mcPortInfo[mc[2]];
+    curPortInfo = &mcPortInfo[mc.port];
     if (a0) {
         systemSaveStep = 0;
         systemSaveRetry = 0;
@@ -2149,22 +2123,22 @@ int la_system_save_processing(int a0)
 
     switch (systemSaveStep) {
     case 0:
-        strcpy((char *)mc + 0x47C, "game.");
-        mc[16] = systemSaveRetry;
-        mc[2] = curPort;
-        mc[3] = 0;
-        iosMcGetBlockSaveInfo(mc);
+        strcpy(mc.path, "game.");
+        mc.fileNo = systemSaveRetry;
+        mc.port = curPort;
+        mc.slot = 0;
+        iosMcGetBlockSaveInfo(&mc);
         systemSaveStep++;
         curPortInfo->flags.w = (int)curPortInfo->flags.w & ~0x80;
         barStep++;
         break;
     case 2:
-        iosMcSaveIconBlock(mc);
+        iosMcSaveIconBlock(&mc);
         systemSaveStep++;
         break;
     case 6:
     case 9:
-        err = _la_mcard_error_check(mc);
+        err = _la_mcard_error_check(&mc);
         if (err > 0) {
             systemSaveStep++;
             debug_StdPrintfDummy("McSave phase:%d  %x\n", systemSaveStep, err);
@@ -2176,12 +2150,12 @@ int la_system_save_processing(int a0)
         return 44;
     case 4:
         for (i = 0; i < 10; i++) {
-            IosMcProductFile[mc[2]].file[i].stage = 0xFFFFFFFF;
+            IosMcProductFile[mc.port].file[i].stage = 0xFFFFFFFF;
         }
-        while ((IosMcProductFile[mc[2]].serial = mcMakeSerial()) == 0)
+        while ((IosMcProductFile[mc.port].serial = mcMakeSerial()) == 0)
             ;
         playTime((struct McPreview *)IosMcPreviewInfo, &hour, &min, &sec);
-        iosMcSaveProductBlock(mc);
+        iosMcSaveProductBlock(&mc);
         systemSaveStep++;
         barStep++;
         break;
@@ -2189,19 +2163,19 @@ int la_system_save_processing(int a0)
     case 3:
     case 5:
     case 8:
-        if (iosMcSync((unsigned long *)mc) != 0) {
+        if (iosMcSync((unsigned long *)&mc) != 0) {
             systemSaveStep++;
         }
         break;
     case 7:
-        iosMcSaveGameBlock(mc, gameSysMainSaveBuff);
+        iosMcSaveGameBlock(&mc, gameSysMainSaveBuff);
         systemSaveStep++;
         barStep++;
         break;
     case 10:
         systemSaveStep = 7;
         systemSaveRetry++;
-        mc[16] = systemSaveRetry;
+        mc.fileNo = systemSaveRetry;
         if (systemSaveRetry >= 10) {
             lt_set_item_select_func(0);
             actionStarted = 0;
@@ -2216,7 +2190,7 @@ int la_system_save_processing(int a0)
    current one; inlined into la_save_processing */
 static inline void mcSetSavedFile(void) /* derived name */
 {
-    int serial = mcSetFileNo(mc[2], mc[16]);
+    int serial = mcSetFileNo(mc.port, mc.fileNo);
 
     loadSerial = serial;
     saveSerial = serial;
@@ -2231,7 +2205,7 @@ int la_save_processing(int a0)
     int min;
     int sec;
 
-    curPortInfo = &mcPortInfo[mc[2]];
+    curPortInfo = &mcPortInfo[mc.port];
     if (a0) {
         fileMask = 0;
         saveStep = 0;
@@ -2241,26 +2215,26 @@ int la_save_processing(int a0)
 
     switch (saveStep) {
     case 0:
-        strcpy((char *)mc + 0x47C, "game.");
-        mc[16] = selectFile;
-        mc[2] = curPort;
-        mc[3] = 0;
-        iosMcGetBlockSaveInfo(mc);
+        strcpy(mc.path, "game.");
+        mc.fileNo = selectFile;
+        mc.port = curPort;
+        mc.slot = 0;
+        iosMcGetBlockSaveInfo(&mc);
         saveStep++;
         curPortInfo->flags.w = (int)curPortInfo->flags.w & ~0x80;
         break;
     case 1:
-        if (iosMcSync((unsigned long *)mc) != 0) {
+        if (iosMcSync((unsigned long *)&mc) != 0) {
             saveStep = 4;
         }
         break;
     case 2:
-        iosMcSaveIconBlock(mc);
+        iosMcSaveIconBlock(&mc);
         saveStep++;
         break;
     case 6:
     case 9:
-        err = _la_mcard_error_check(mc);
+        err = _la_mcard_error_check(&mc);
         if (err > 0) {
             saveStep++;
             debug_StdPrintfDummy("McSave phase:%d  %x\n", saveStep, err);
@@ -2275,32 +2249,32 @@ int la_save_processing(int a0)
         IosMcPreviewInfo[0] = stage_no;
         IosMcPreviewInfo[3] = GetSaveSofaLayoutID();
         IosMcPreviewInfo[1] = gFlagGameClear;
-        *(struct McPreview *)&IosMcProductFile[mc[2]].file[mc[16]] =
+        *(struct McPreview *)&IosMcProductFile[mc.port].file[mc.fileNo] =
             *(struct McPreview *)IosMcPreviewInfo;
         playTime((struct McPreview *)IosMcPreviewInfo, &hour, &min, &sec);
-        (IosMcProductFile + mc[2])->fileNo = mc[16];
-        if ((IosMcProductFile + mc[2])->serial == (IosMcProductFile + (mc[2] ^ 1))->serial) {
+        (IosMcProductFile + mc.port)->fileNo = mc.fileNo;
+        if ((IosMcProductFile + mc.port)->serial == (IosMcProductFile + (mc.port ^ 1))->serial) {
             do {
-                while ((IosMcProductFile[mc[2]].serial = mcMakeSerial()) == 0)
+                while ((IosMcProductFile[mc.port].serial = mcMakeSerial()) == 0)
                     ;
-            } while ((IosMcProductFile + mc[2])->serial ==
-                     (IosMcProductFile + (mc[2] ^ 1))->serial);
+            } while ((IosMcProductFile + mc.port)->serial ==
+                     (IosMcProductFile + (mc.port ^ 1))->serial);
         }
         mcSetSavedFile();
-        iosMcSaveProductBlock(mc);
+        iosMcSaveProductBlock(&mc);
         saveStep++;
         break;
     case 3:
     case 5:
     case 8:
-        if (iosMcSync((unsigned long *)mc) != 0) {
+        if (iosMcSync((unsigned long *)&mc) != 0) {
             saveStep++;
             barStep++;
         }
         break;
     case 7:
         CheckPoint();
-        iosMcSaveGameBlock(mc, gameSysMainSaveBuff);
+        iosMcSaveGameBlock(&mc, gameSysMainSaveBuff);
         saveStep++;
         break;
     case 10:
@@ -2408,7 +2382,7 @@ inline int la_format_confirm_fail(void)
 
 inline int la_delete_start_check(int a0)
 {
-    switch (_la_set_current_port_2(mc, a0)) {
+    switch (_la_set_current_port_2(&mc, a0)) {
     case 0:
         break;
     case -1:
@@ -2448,23 +2422,23 @@ static int deleteStep = 0; /* derived name */
 int la_delete_processing(int a0)
 {
     if (a0) {
-        mc[16] = selectFile;
+        mc.fileNo = selectFile;
         deleteStep = 2;
     }
     switch (deleteStep) {
     case 2:
-        strcpy((char *)mc + 0x47C, (char *)mc + 0x4E0 + (mc[16] << 6));
-        iosMcDelete(mc);
+        strcpy(mc.path, mc.dir[mc.fileNo].EntryName);
+        iosMcDelete(&mc);
         deleteStep++;
         break;
     case 3:
-        if (iosMcSync((unsigned long *)mc) == 0) {
+        if (iosMcSync((unsigned long *)&mc) == 0) {
             break;
         }
         deleteStep++;
         break;
     case 4:
-        if (_la_mcard_error_check(mc) == 0) {
+        if (_la_mcard_error_check(&mc) == 0) {
             break;
         }
         deleteStep++;

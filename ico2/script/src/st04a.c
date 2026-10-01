@@ -40,24 +40,24 @@ typedef struct ActSt04A { /* field names derived */
     char pad0[32];        /* 0x00 */
     ActStatus flags20;    /* 0x20 */
     char pad28[12];       /* 0x28 */
-    int unk34;            /* 0x34 */
-    char unk38[152];      /* 0x38 */
+    int actMode;          /* 0x34, the current action mode */
+    char pad38[152];      /* 0x38 */
     ActMail *mainMail;    /* 0xD0 */
     ActMail *mail;        /* 0xD4 */
     char padD8[920];      /* 0xD8 */
-    int unk470;           /* 0x470 */
-    void *unk474;         /* 0x474 */
-    int unk478;           /* 0x478 */
+    int torchAnim;        /* 0x470, the stage animation the lit torch plays */
+    GObj *torchObj;       /* 0x474, the torch the ball must reach */
+    int torchFlag;        /* 0x478, the game flag raised once it is lit */
 } ActSt04A;               /* derived name */
 
 /* this file's own view of GObj (the shared one is in typedef.h) */
 typedef struct PObjGObjSt04A { /* field names derived */
     char pad00[348];           /* 0x000 */
-    char *f15C;                /* 0x15C */
+    Sub15C *dobj;              /* 0x15C */
     char pad160[4];            /* 0x160 */
     ActSt04A *act;             /* 0x164 */
     char pad168[4];            /* 0x168 */
-    int f16C;                  /* 0x16C */
+    int active;                /* 0x16C */
 } PObjGObjSt04A;               /* derived name */
 
 /* .data, ahead of model_on and model_off: each action's mail pair, the check
@@ -167,7 +167,7 @@ void actSt04aGateChk(GObj *volatile a0)
 
     scpPlayStart(boyGObj);
 
-    scpDispOffAllWithKind(0x13);
+    scpDispOffAllWithKind(19);
 
     scpPlayMot(boyGObj, 0);
 
@@ -211,7 +211,7 @@ void actSt04aGateChk(GObj *volatile a0)
 
     scpFadeIn(6.0f);
 
-    _ACTWait((int)((0x3C - systemStatus[0] * 0xA) / systemStatus[1] * 2.5));
+    _ACTWait((int)((60 - systemStatus[0] * 10) / systemStatus[1] * 2.5));
 
     demoEnd = 0;
     while (demoEnd == 0 && ((pad[0].flags & 0x800) == 0 || scpAdpcmPlayRequestNum() != 0)) {
@@ -221,7 +221,7 @@ void actSt04aGateChk(GObj *volatile a0)
     n = demoEnd ^ 1;
 
     if (n != 0) {
-        scpAdpcmFadeCloseFunc(&gate1st, 0xC0);
+        scpAdpcmFadeCloseFunc(&gate1st, 192);
 
         scpFadeOut(16.0f, 0, 0, 0);
         while (scpFadeChk() != 0) {
@@ -302,9 +302,9 @@ void actSt04aGateChk(GObj *volatile a0)
         scpPlayMot(girlGObj, 532);
 
         GOBJ_SUB(boyGObj)->ctrl.blendFrames =
-            (int)((float)((0x3C - systemStatus[0] * 0xA) / systemStatus[1]) / 60.0f * 0.0f);
+            (int)((float)((60 - systemStatus[0] * 10) / systemStatus[1]) / 60.0f * 0.0f);
         GOBJ_SUB(girlGObj)->ctrl.blendFrames =
-            (int)((float)((0x3C - systemStatus[0] * 0xA) / systemStatus[1]) / 60.0f * 0.0f);
+            (int)((float)((60 - systemStatus[0] * 10) / systemStatus[1]) / 60.0f * 0.0f);
 
         sceVu0SubVector(dir, test_CURRENTROOT(girlGObj), test_CURRENTROOT(boyGObj));
         scpPlayMotDir(boyGObj, dir);
@@ -318,7 +318,7 @@ void actSt04aGateChk(GObj *volatile a0)
 
     _ACTWait(1);
 
-    iosOmSendMail(girlGObj, 0x3F, boyGObj);
+    iosOmSendMail(girlGObj, 63, boyGObj);
 
     scpBoyControlReadDisable = 0;
 
@@ -350,8 +350,8 @@ void actSt04aConte06(GObj *volatile a0)
     _ACTWait(240);
 
     gate_yure_low = iosPadActRequest(boyPad, 9);
-    gate_yure_low_vol = 0x40;
-    iosPadActVolumeSet(gate_yure_low, 0x40);
+    gate_yure_low_vol = 64;
+    iosPadActVolumeSet(gate_yure_low, 64);
 
     while (stage_ContinueAnimation(651, 652) == 0) {
         _ACTWait(1);
@@ -374,9 +374,9 @@ void actSt04aConte06(GObj *volatile a0)
 
     stage_SetAnimation(475, 1, 0);
 
-    iosPadActRequest(boyPad, 0xF);
+    iosPadActRequest(boyPad, 15);
 
-    scpLinkBGAtoKindTargetSkeltonWithLocalRotationFlag(0x30, 0, 0x22B, 0);
+    scpLinkBGAtoKindTargetSkeltonWithLocalRotationFlag(48, 0, 555, 0);
 
     stage_SetLoopFlag(555, 1);
     stage_SetAnimation(555, 1, 0);
@@ -440,7 +440,7 @@ void actSt04aConte06(GObj *volatile a0)
 
     stage_SetAnimation(477, 1, 0);
 
-    iosPadActRequest(boyPad, 0xF);
+    iosPadActRequest(boyPad, 15);
 
     while (stage_ContinueAnimation(668, 669) == 0) {
         _ACTWait(1);
@@ -514,80 +514,80 @@ void actSt04aConte06Jimaku(GObj *volatile a0)
         case 1:
             jimakuBegin(&jimaku_msg);
             break;
-        case 0xFA:
-            jimaku_msg.sub.block = 0x19;
+        case 250:
+            jimaku_msg.sub.block = 25;
             jimaku_msg.sub.jump = -1;
             jimakuOn = 1;
             jimakuJump(&jimaku_msg);
             break;
-        case 0x564:
-            jimaku_msg.sub.block = 0x1A;
-            jimaku_msg.sub.jump = 0x3C;
+        case 1380:
+            jimaku_msg.sub.block = 26;
+            jimaku_msg.sub.jump = 60;
             jimakuOn = 1;
             jimakuJump(&jimaku_msg);
             break;
-        case 0x94C:
-            jimaku_msg.sub.block = 0x1F;
+        case 2380:
+            jimaku_msg.sub.block = 31;
             jimaku_msg.sub.jump = -1;
             jimakuOn = 1;
             jimakuJump(&jimaku_msg);
             break;
-        case 0xB2D:
-            jimaku_msg.sub.block = 0x22;
-            jimaku_msg.sub.jump = 0x96;
+        case 2861:
+            jimaku_msg.sub.block = 34;
+            jimaku_msg.sub.jump = 150;
             jimakuOn = 1;
             jimakuJump(&jimaku_msg);
             break;
-        case 0xC58:
-            jimaku_msg.sub.block = 0x23;
+        case 3160:
+            jimaku_msg.sub.block = 35;
             jimaku_msg.sub.jump = -1;
             jimakuOn = 1;
             jimakuJump(&jimaku_msg);
             break;
-        case 0xD84:
-            jimaku_msg.sub.block = 0x24;
+        case 3460:
+            jimaku_msg.sub.block = 36;
             jimaku_msg.sub.jump = -1;
             jimakuOn = 1;
             jimakuJump(&jimaku_msg);
             break;
-        case 0xEB0:
-            jimaku_msg.sub.block = 0x25;
-            jimaku_msg.sub.jump = 0xAE;
+        case 3760:
+            jimaku_msg.sub.block = 37;
+            jimaku_msg.sub.jump = 174;
             jimakuOn = 1;
             jimakuJump(&jimaku_msg);
             break;
-        case 0x1054:
-            jimaku_msg.sub.block = 0x26;
-            jimaku_msg.sub.jump = 0xAE;
+        case 4180:
+            jimaku_msg.sub.block = 38;
+            jimaku_msg.sub.jump = 174;
             jimakuOn = 1;
             jimakuJump(&jimaku_msg);
             break;
-        case 0x12C0:
-            jimaku_msg.sub.block = 0x2B;
+        case 4800:
+            jimaku_msg.sub.block = 43;
             jimaku_msg.sub.jump = -1;
             jimakuOn = 1;
             jimakuJump(&jimaku_msg);
             break;
-        case 0x15CC:
-            jimaku_msg.sub.block = 0x1B;
+        case 5580:
+            jimaku_msg.sub.block = 27;
             jimaku_msg.sub.jump = -1;
             jimakuOn = 1;
             jimakuJump(&jimaku_msg);
             break;
-        case 0x17A2:
-            jimaku_msg.sub.block = 0x1D;
+        case 6050:
+            jimaku_msg.sub.block = 29;
             jimaku_msg.sub.jump = -1;
             jimakuOn = 1;
             jimakuJump(&jimaku_msg);
             break;
-        case 0x1A54:
-            jimaku_msg.sub.block = 0x30;
+        case 6740:
+            jimaku_msg.sub.block = 48;
             jimaku_msg.sub.jump = -1;
             jimakuOn = 1;
             jimakuJump(&jimaku_msg);
             break;
-        case 0x1B44:
-            jimaku_msg.sub.block = 0x31;
+        case 6980:
+            jimaku_msg.sub.block = 49;
             jimaku_msg.sub.jump = -1;
             jimakuOn = 1;
             jimakuJump(&jimaku_msg);
@@ -595,7 +595,7 @@ void actSt04aConte06Jimaku(GObj *volatile a0)
         }
 
         n = (int)t;
-        tn = t + (float)((0x3C - systemStatus[0] * 0xA) / systemStatus[1]) / 60.0f;
+        tn = t + (float)((60 - systemStatus[0] * 10) / systemStatus[1]) / 60.0f;
         if (n != (int)tn) {
             _ACTWait(1);
             t = tn;
@@ -640,11 +640,9 @@ typedef struct AnimList { /* field names derived */
     int v[13];
 } AnimList; /* derived name */
 
-/* .rodata, used here and by actConte09_2: the two lift offsets, declared
-   ahead and defined after actSt04aGateOpenChk. */
+/* .rodata, used here and by actConte09_2: the first lift offset, declared
+   ahead and defined with the second after actSt04aGateOpenChk. */
 static const ConstVec liftOfs1;
-
-static const ConstVec liftOfs2;
 
 void actSt04aGateOpenChk(GObj *volatile a0)
 {
@@ -659,12 +657,10 @@ void actSt04aGateOpenChk(GObj *volatile a0)
     }
 
     while (1) {
-        if ((((PObjGObjSt04A *)girlGObj)->act->unk34 != 0x6F &&
-             scpTriggerBall(a0, boyGObj, 200.0f) != 0 &&
+        if ((GOBJ_ACT(girlGObj)->actMode != 111 && scpTriggerBall(a0, boyGObj, 200.0f) != 0 &&
              scpTriggerBall(a0, girlGObj, 200.0f) != 0 && gflagChk(174) != 0 &&
              gflagChk(243) != 0) ||
-            (((PObjGObjSt04A *)girlGObj)->act->unk34 != 0x6F &&
-             scpTriggerBall(a0, boyGObj, 200.0f) != 0 &&
+            (GOBJ_ACT(girlGObj)->actMode != 111 && scpTriggerBall(a0, boyGObj, 200.0f) != 0 &&
              scpTriggerBall(a0, girlGObj, 200.0f) != 0)) {
             break;
         }
@@ -700,7 +696,7 @@ void actSt04aGateOpenChk(GObj *volatile a0)
         _ACTWait(1);
     }
 
-    scpDisActivateAllWithKind(0x13);
+    scpDisActivateAllWithKind(19);
 
     th1 = actCreateSubThread(actConte09, 21);
     th2 = actCreateSubThread(actSt04aEnvSeWakare1, 21);
@@ -714,7 +710,7 @@ void actSt04aGateOpenChk(GObj *volatile a0)
     n = demoEnd ^ 1;
 
     if (n != 0) {
-        scpAdpcmFadeCloseFunc(&gate_open, 0xC0);
+        scpAdpcmFadeCloseFunc(&gate_open, 192);
 
         scpFadeOut(16.0f, 0, 0, 0);
         while (scpFadeChk() != 0) {
@@ -755,7 +751,7 @@ void actSt04aGateOpenChk(GObj *volatile a0)
 
         scpKillEnemyAll();
 
-        scpDispOnAllWithKind(0x13);
+        scpDispOnAllWithKind(19);
 
         gflagOn(140);
 
@@ -853,7 +849,7 @@ void actConte09(GObj *volatile a0)
     }
     _ACTWait(1);
 
-    iosPadActRequest(boyPad, 0xF);
+    iosPadActRequest(boyPad, 15);
 
     scpKillEnemyAll();
 
@@ -865,7 +861,7 @@ void actConte09(GObj *volatile a0)
     }
     _ACTWait(1);
 
-    iosPadActRequest(boyPad, 0x10);
+    iosPadActRequest(boyPad, 16);
 
     while (stage_ContinueAnimation(715, 716) == 0) {
         _ACTWait(1);
@@ -896,9 +892,9 @@ void actConte09(GObj *volatile a0)
 
     _ACTWait(120);
 
-    yure1 = iosPadActRequest(boyPad, 0xA);
-    vol1 = 0x80;
-    iosPadActVolumeSet(yure1, 0x80);
+    yure1 = iosPadActRequest(boyPad, 10);
+    vol1 = 128;
+    iosPadActVolumeSet(yure1, 128);
 
     while (stage_ContinueAnimation(719, 720) == 0) {
         _ACTWait(1);
@@ -919,7 +915,7 @@ void actConte09(GObj *volatile a0)
         _ACTWait(1);
     }
 
-    scpDispOnAllWithKind(0x13);
+    scpDispOnAllWithKind(19);
 
     gflagOn(140);
 
@@ -932,9 +928,9 @@ void actConte09(GObj *volatile a0)
     _ACTWait(1);
 
     GOBJ_SUB(boyGObj)->ctrl.blendFrames =
-        (int)((float)((0x3C - systemStatus[0] * 0xA) / systemStatus[1]) / 60.0f * 0.0f);
+        (int)((float)((60 - systemStatus[0] * 10) / systemStatus[1]) / 60.0f * 0.0f);
     GOBJ_SUB(girlGObj)->ctrl.blendFrames =
-        (int)((float)((0x3C - systemStatus[0] * 0xA) / systemStatus[1]) / 60.0f * 0.0f);
+        (int)((float)((60 - systemStatus[0] * 10) / systemStatus[1]) / 60.0f * 0.0f);
 
     demoEnd = 1;
 
@@ -953,14 +949,14 @@ void actConte09Jimaku(GObj *volatile a0)
         case 1:
             jimakuBegin(&jimaku_msg);
             break;
-        case 0x871:
-            jimaku_msg.sub.block = 0x58;
+        case 2161:
+            jimaku_msg.sub.block = 88;
             jimaku_msg.sub.jump = -1;
             jimakuOn = 1;
             jimakuJump(&jimaku_msg);
             break;
-        case 0x97E:
-            jimaku_msg.sub.block = 0x56;
+        case 2430:
+            jimaku_msg.sub.block = 86;
             jimaku_msg.sub.jump = -1;
             jimakuOn = 1;
             jimakuJump(&jimaku_msg);
@@ -968,7 +964,7 @@ void actConte09Jimaku(GObj *volatile a0)
         }
 
         n = (int)t;
-        tn = t + (float)((0x3C - systemStatus[0] * 0xA) / systemStatus[1]) / 60.0f;
+        tn = t + (float)((60 - systemStatus[0] * 10) / systemStatus[1]) / 60.0f;
         if (n != (int)tn) {
             _ACTWait(1);
             t = tn;
@@ -992,8 +988,8 @@ void actSt04aGateOpen2Chk(GObj *volatile a0)
         _ACTWait(1);
     }
 
-    ((PObjGObjSt04A *)girlGObj)->act->flags20.ll &= ~0x10000;
-    scpPlayMotReq(girlGObj, 0x13B);
+    GOBJ_ACT(girlGObj)->flags20.ll &= ~0x10000;
+    scpPlayMotReq(girlGObj, 315);
 
     scpPlayMot(boyGObj, 0);
 
@@ -1008,7 +1004,7 @@ void actSt04aGateOpen2Chk(GObj *volatile a0)
     scpPlayStart(boyGObj);
     scpPlayStart(girlGObj);
 
-    scpDisActivateAllWithKind(0x13);
+    scpDisActivateAllWithKind(19);
 
     while (gate_open2 == 0) {
         _ACTWait(1);
@@ -1041,7 +1037,7 @@ void actConte09_2(GObj *volatile a0)
     }
     _ACTWait(1);
 
-    iosPadActRequest(boyPad, 0xF);
+    iosPadActRequest(boyPad, 15);
 
     while (stage_ContinueAnimation(729, 730) == 0) {
         _ACTWait(1);
@@ -1051,7 +1047,7 @@ void actConte09_2(GObj *volatile a0)
     }
     _ACTWait(1);
 
-    iosPadActRequest(boyPad, 0x10);
+    iosPadActRequest(boyPad, 16);
 
     while (stage_ContinueAnimation(730, 731) == 0) {
         _ACTWait(1);
@@ -1072,9 +1068,9 @@ void actConte09_2(GObj *volatile a0)
         _ACTWait(1);
     }
 
-    yure2 = iosPadActRequest(boyPad, 0xA);
-    vol2 = 0x80;
-    iosPadActVolumeSet(yure2, 0x80);
+    yure2 = iosPadActRequest(boyPad, 10);
+    vol2 = 128;
+    iosPadActVolumeSet(yure2, 128);
 
     stage_SetAnimation(273, 1, 0);
 
@@ -1096,7 +1092,7 @@ void actConte09_2(GObj *volatile a0)
 
     ClearStreamMotionEntry(girlGObj);
 
-    scpPlayMotReq(girlGObj, 0x13B);
+    scpPlayMotReq(girlGObj, 315);
 
     scpPlayPosSet(girlGObj, 14.8948f, 210.136f, 4858.48f);
 
@@ -1184,7 +1180,7 @@ void actSt04aGateOpen3Chk(GObj *volatile a0)
     scpPlayStart(girlGObj);
 
     if (gate_open2 != 0) {
-        scpAdpcmFadeCloseFunc(&gate_open2, 0x50);
+        scpAdpcmFadeCloseFunc(&gate_open2, 80);
     }
 
     while (conte09_2 == 0) {
@@ -1260,7 +1256,7 @@ void actConte09_3(GObj *volatile a0)
 
     _ACTWait(1);
 
-    stage_SetAnimation(273, 1, 0x1F6);
+    stage_SetAnimation(273, 1, 502);
 
     while (stage_ContinueAnimation(742, 743) == 0) {
         _ACTWait(1);
@@ -1303,7 +1299,7 @@ void actConte09_3(GObj *volatile a0)
         _ACTWait(1);
     }
 
-    stage_SetAnimation(273, 1, 0x371);
+    stage_SetAnimation(273, 1, 881);
 
     while (stage_ContinueAnimation(748, 749) == 0) {
         _ACTWait(1);
@@ -1318,15 +1314,15 @@ void actConte09_3(GObj *volatile a0)
         _ACTWait(1);
     }
 
-    stage_SetAnimation(273, 1, 0x4D9);
+    stage_SetAnimation(273, 1, 1241);
 
-    shadow_SetLength((int)((PObjGObjSt04A *)girlGObj)->f15C, 20.0f);
+    shadow_SetLength(GOBJ_SUB(girlGObj), 20.0f);
 
     while (stage_ContinueAnimation(751, 752) == 0) {
         _ACTWait(1);
     }
 
-    stage_SetAnimation(273, 1, 0x835);
+    stage_SetAnimation(273, 1, 2101);
     stage_SetAnimation(725, -1, -2);
     stage_SetAnimation(726, 1, 0);
 
@@ -1334,11 +1330,11 @@ void actConte09_3(GObj *volatile a0)
         _ACTWait(1);
     }
 
-    stage_SetAnimation(273, 1, 0x8AD);
+    stage_SetAnimation(273, 1, 2221);
 
     shadow_DispCancel(71, 1);
 
-    scpLinkBGAtoKindTargetSkeltonWithLocalRotationFlag(0x30, 0, 0x22B, 0);
+    scpLinkBGAtoKindTargetSkeltonWithLocalRotationFlag(48, 0, 555, 0);
 
     stage_SetLoopFlag(555, 1);
     stage_SetAnimation(555, 1, 0);
@@ -1377,7 +1373,7 @@ void actConte09_3(GObj *volatile a0)
         _ACTWait(1);
     }
 
-    shadow_SetLength((int)((PObjGObjSt04A *)girlGObj)->f15C, 0.0f);
+    shadow_SetLength(GOBJ_SUB(girlGObj), 0.0f);
 
     while (stage_ContinueAnimation(755, 756) == 0) {
         _ACTWait(1);
@@ -1475,7 +1471,7 @@ void actSt04aGateLChk(GObj *volatile a0)
     if (demoEnd == 0) {
         scpFadeOut(16.0f, 0, 0, 0);
 
-        scpAdpcmFadeCloseFunc(&gate_ready_l, 0x100);
+        scpAdpcmFadeCloseFunc(&gate_ready_l, 256);
 
         while (scpFadeChk() != 0) {
             _ACTWait(1);
@@ -1552,7 +1548,7 @@ void actSt04aGateRChk(GObj *volatile a0)
     if (demoEnd == 0) {
         scpFadeOut(16.0f, 0, 0, 0);
 
-        scpAdpcmFadeCloseFunc(&gate_ready_r, 0x100);
+        scpAdpcmFadeCloseFunc(&gate_ready_r, 256);
 
         while (scpFadeChk() != 0) {
             _ACTWait(1);
@@ -1663,70 +1659,70 @@ void actSt04aTorch1Chk(GObj *volatile a0)
     _ACTWait(1);
 
     switch (a0->labelId) {
-    case 0x22B:
-        self->unk478 = 0x91;
-        self->unk474 = scpSearchGobj(563);
-        self->unk470 = 0x11B;
+    case 555:
+        self->torchFlag = 145;
+        self->torchObj = scpSearchGobj(563);
+        self->torchAnim = 283;
         actCreateSubThread(actSt04aTorchAllFlagfChk, 21);
         break;
-    case 0x22C:
-        self->unk478 = 0x92;
-        self->unk474 = scpSearchGobj(564);
-        self->unk470 = 0x11C;
+    case 556:
+        self->torchFlag = 146;
+        self->torchObj = scpSearchGobj(564);
+        self->torchAnim = 284;
         break;
-    case 0x22D:
-        self->unk478 = 0x93;
-        self->unk474 = scpSearchGobj(565);
-        self->unk470 = 0x11D;
+    case 557:
+        self->torchFlag = 147;
+        self->torchObj = scpSearchGobj(565);
+        self->torchAnim = 285;
         break;
-    case 0x22E:
-        self->unk478 = 0x94;
-        self->unk474 = scpSearchGobj(566);
-        self->unk470 = 0x11E;
+    case 558:
+        self->torchFlag = 148;
+        self->torchObj = scpSearchGobj(566);
+        self->torchAnim = 286;
         break;
-    case 0x22F:
-        self->unk478 = 0x95;
-        self->unk474 = scpSearchGobj(567);
-        self->unk470 = 0x11F;
+    case 559:
+        self->torchFlag = 149;
+        self->torchObj = scpSearchGobj(567);
+        self->torchAnim = 287;
         break;
-    case 0x230:
-        self->unk478 = 0x96;
-        self->unk474 = scpSearchGobj(568);
-        self->unk470 = 0x120;
+    case 560:
+        self->torchFlag = 150;
+        self->torchObj = scpSearchGobj(568);
+        self->torchAnim = 288;
         break;
-    case 0x231:
-        self->unk478 = 0x97;
-        self->unk474 = scpSearchGobj(569);
-        self->unk470 = 0x121;
+    case 561:
+        self->torchFlag = 151;
+        self->torchObj = scpSearchGobj(569);
+        self->torchAnim = 289;
         break;
-    case 0x232:
-        self->unk478 = 0x98;
-        self->unk474 = scpSearchGobj(570);
-        self->unk470 = 0x122;
+    case 562:
+        self->torchFlag = 152;
+        self->torchObj = scpSearchGobj(570);
+        self->torchAnim = 290;
         break;
     }
 
     while (1) {
-        if (scpTriggerBall(a0, self->unk474, 5.0f) != 0) {
+        if (scpTriggerBall(a0, self->torchObj, 5.0f) != 0) {
             scpBoyControlReadDisable = 1;
 
-            ((PObjGObjSt04A *)self->unk474)->f16C = 0;
+            self->torchObj->active = 0;
 
-            stage_SetAnimation(self->unk470, 1, 0);
+            stage_SetAnimation(self->torchAnim, 1, 0);
 
-            while (stage_CheckAnimationFrame(self->unk470, 2, 0) == 0) {
+            while (stage_CheckAnimationFrame(self->torchAnim, 2, 0) == 0) {
                 _ACTWait(1);
             }
             _ACTWait(1);
 
             soundSeDefPlay(1363, 0, 0, 1);
 
-            while (stage_CheckAnimationFinish(self->unk470) == 0) {
+            while (stage_CheckAnimationFinish(self->torchAnim) == 0) {
                 _ACTWait(1);
             }
             _ACTWait(1);
 
-            gflagOn(self->unk478);
+            gflagOn(self->torchFlag);
 
             scpBoyControlReadDisable = 0;
             break;
@@ -1790,7 +1786,7 @@ void actSt04aTorchAllFlagfChk(GObj *volatile a0)
     }
 
     if (skip != 0) {
-        scpAdpcmFadeCloseFunc(&torch, 0xC0);
+        scpAdpcmFadeCloseFunc(&torch, 192);
         scpFadeOut(16.0f, 0, 0, 0);
         while (scpFadeChk() != 0) {
             _ACTWait(1);
@@ -1821,7 +1817,7 @@ void actSt04aTorchHintChk(GObj *volatile a0)
     OverrideBrainStatusByGObj(&brainGirl, scpSearchGobj(591), 1.0f, 0.001f, 1.0f);
 
     if (gflagChk(156) == 0) {
-        _ACTWait((0x3C - systemStatus[0] * 0xA) / systemStatus[1] * 0x14);
+        _ACTWait((60 - systemStatus[0] * 10) / systemStatus[1] * 20);
     }
 
     OverrideBrainStatusByGObj(&brainGirl, scpSearchGobj(563), 10.0f, 0.01f, 1.0f);
@@ -1986,7 +1982,7 @@ void actSt04aEnvSe(GObj *volatile a0)
     scpSeEnvMasterVolRate = 0.0f;
 
     for (;;) {
-        float nf = f + (float)((0x3C - systemStatus[0] * 0xA) / systemStatus[1]) / 60.0f;
+        float nf = f + (float)((60 - systemStatus[0] * 10) / systemStatus[1]) / 60.0f;
         if ((int)f != (int)nf) {
             _ACTWait(1);
             f = nf;
@@ -2011,7 +2007,7 @@ void actSt04aEnvSeWakare1(GObj *volatile a0)
     scpSeEnvMasterVolRate = 0.0f;
 
     for (;;) {
-        float nf = f + (float)((0x3C - systemStatus[0] * 0xA) / systemStatus[1]) / 60.0f;
+        float nf = f + (float)((60 - systemStatus[0] * 10) / systemStatus[1]) / 60.0f;
         if ((int)f != (int)nf) {
             _ACTWait(1);
             f = nf;
@@ -2040,7 +2036,7 @@ void finishCallBackFunc(GObj *a0)
 
     _ApplyMatrix(&v, GOBJ_SUB(a0)->nodeMtx, YUnitVector);
     v.m[1] = 0.0f;
-    _NormalizeVector((int)GOBJ_SUB(a0) + 0x520, &v);
+    _NormalizeVector((int)GOBJ_SUB(a0) + 1312, &v);
 
     for (i = 0; i < GOBJ_SUB(a0)->skelNodeNum; i++) {
         *(Mtx44 *)(GOBJ_SUB(a0)->nodeRotElem + i * 64) = jointMtxInit;
@@ -2076,7 +2072,7 @@ void actSt04aEnvSeWakare2(GObj *volatile a0)
     float f = 0.0f;
 
     for (;;) {
-        float nf = f + (float)((0x3C - systemStatus[0] * 0xA) / systemStatus[1]) / 60.0f;
+        float nf = f + (float)((60 - systemStatus[0] * 10) / systemStatus[1]) / 60.0f;
         if ((int)f != (int)nf) {
             _ACTWait(1);
             f = nf;
@@ -2115,7 +2111,7 @@ void actConte09_3Jimaku(GObj *volatile a0)
         }
 
         n = (int)t;
-        tn = t + (float)((0x3C - systemStatus[0] * 0xA) / systemStatus[1]) / 60.0f;
+        tn = t + (float)((60 - systemStatus[0] * 10) / systemStatus[1]) / 60.0f;
         if (n != (int)tn) {
             _ACTWait(1);
             t = tn;
@@ -2169,8 +2165,8 @@ void actSt04aGirlSitChk(GObj *volatile a0)
         } else {
             n = 0;
         }
-        if (((0x3C - systemStatus[0] * 0xA) / systemStatus[1]) * 3 < n) {
-            iosOmSendMail(girlGObj, 0x6D, girlGObj);
+        if (((60 - systemStatus[0] * 10) / systemStatus[1]) * 3 < n) {
+            iosOmSendMail(girlGObj, 109, girlGObj);
             n = 0;
         }
         _ACTWait(1);

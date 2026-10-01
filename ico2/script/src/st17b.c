@@ -2,6 +2,7 @@
 #include "act.h"
 #include "commonact.h"
 #include "gflag.h"
+#include "StageManager.h"
 #include "script.h"
 #include "typedef.h"
 

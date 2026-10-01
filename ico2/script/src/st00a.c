@@ -168,7 +168,7 @@ void actSt00aStairChk(GObj *volatile a0)
     }
     fade = demoEnd ^ 1;
     if (fade) {
-        scpAdpcmFadeCloseFunc(&proto, 0x100);
+        scpAdpcmFadeCloseFunc(&proto, 256);
         scpFadeOut(16.0f, 0, 0, 0);
         while (scpFadeChk() != 0) {
             _ACTWait(1);
@@ -412,8 +412,6 @@ void actSt00aDoor1DownChk(GObj *volatile a0)
     _ACTWait(0);
 }
 
-void actSt00aEneChk(GObj *a0);
-
 void actSt00aEne(GObj *volatile a0)
 {
     GObj *x = a0;
@@ -462,8 +460,6 @@ void actSt00aEnemy2(GObj *volatile a0)
     Generator_Call(a0);
 }
 
-void actSt00aStairChk(GObj *a0);
-
 void actSt00aStair(GObj *volatile a0)
 {
     GObj *x = a0;
@@ -511,7 +507,7 @@ void actSt00aAtr2Chk(GObj *volatile a0)
 void actSt00aStairChkSub(GObj *volatile a0)
 {
     _ACTWait(90);
-    iosPadActRequest(boyPad, 0x11);
+    iosPadActRequest(boyPad, 17);
     while (stage_CheckAnimationFinish(87) == 0) {
         _ACTWait(1);
     }
@@ -519,8 +515,8 @@ void actSt00aStairChkSub(GObj *volatile a0)
     stage_SetAnimation(89, 1, 0);
     stage_SetAnimation(90, 1, 0);
     proto_yure = iosPadActRequest(boyPad, 9);
-    proto_yure_vol = 0x80;
-    iosPadActVolumeSet(proto_yure, 0x80);
+    proto_yure_vol = 128;
+    iosPadActVolumeSet(proto_yure, 128);
     _ACTWait(500);
     demoEnd = 1;
     _ACTWait(0);
@@ -545,7 +541,7 @@ void actSt00aDoor2UpEffect(GObj *volatile a0)
             b1[1] = door2UpEffectPos.d[1];
             scpEffectStart((int *)b1, 0);
             break;
-        case 0x1E:
+        case 30:
             b2[0] = v0b;
             b2[1] = door2UpEffect2Pos.d[1];
             scpEffectStart((int *)b2, 0);
@@ -569,7 +565,7 @@ void actSt00aDoor2DownEffect(GObj *volatile a0)
             b1[1] = door2UpEffect2Pos.d[1];
             scpEffectStart((int *)b1, 0);
             break;
-        case 0x1E:
+        case 30:
             b2[0] = v0b;
             b2[1] = door2UpEffectPos.d[1];
             scpEffectStart((int *)b2, 0);
@@ -598,7 +594,7 @@ void actSt00aDoor1UpEffect(GObj *volatile a0)
             b1[1] = door1UpEffectPos.d[1];
             scpEffectStart((int *)b1, 0);
             break;
-        case 0x1E:
+        case 30:
             b2[0] = v0b;
             b2[1] = door1UpEffect2Pos.d[1];
             scpEffectStart((int *)b2, 0);
@@ -622,7 +618,7 @@ void actSt00aDoor1DownEffect(GObj *volatile a0)
             b1[1] = door1UpEffect2Pos.d[1];
             scpEffectStart((int *)b1, 0);
             break;
-        case 0x1E:
+        case 30:
             b2[0] = v0b;
             b2[1] = door1UpEffectPos.d[1];
             scpEffectStart((int *)b2, 0);

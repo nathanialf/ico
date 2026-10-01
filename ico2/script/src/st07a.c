@@ -46,7 +46,7 @@ void actSt07aInit(void)
             stage_SetAnimation(356, 0, -1);
         }
     } else {
-        scpLinkBGAtoLayoutedTarget(0x18D, 0x168);
+        scpLinkBGAtoLayoutedTarget(397, 360);
 
         SetWayGroupActive(13, 0);
         SetWayGroupActive(14, 0);
@@ -177,7 +177,7 @@ void actSt07aChanChk(GObj *volatile a0)
     }
 
     if (demoEnd == 0) {
-        scpAdpcmFadeCloseFunc(&bridge, 0xC0);
+        scpAdpcmFadeCloseFunc(&bridge, 192);
         scpFadeOut(16.0f, 0, 0, 0);
         while (scpFadeChk() != 0) {
             _ACTWait(1);
@@ -255,7 +255,7 @@ void actSt07aChanEffect(GObj *volatile a0)
         }
 
         n = (int)t;
-        tn = t + (float)((0x3C - systemStatus[0] * 0xA) / systemStatus[1]) / 60.0f;
+        tn = t + (float)((60 - systemStatus[0] * 10) / systemStatus[1]) / 60.0f;
         if (n != (int)tn) {
             _ACTWait(1);
             t = tn;
@@ -310,7 +310,7 @@ void actSt07aTsuroChk(GObj *volatile a0)
     wk = demoEnd ^ 1;
 
     if (wk != 0) {
-        scpAdpcmFadeCloseFunc(&sekizo7a, 0xC0);
+        scpAdpcmFadeCloseFunc(&sekizo7a, 192);
         scpFadeOut(16.0f, 0, 0, 0);
         while (scpFadeChk() != 0) {
             _ACTWait(1);
@@ -426,7 +426,7 @@ void actSt07aTsuroEffect(GObj *volatile a0)
         }
 
         n = (int)t;
-        tn = t + (float)((0x3C - systemStatus[0] * 0xA) / systemStatus[1]) / 60.0f;
+        tn = t + (float)((60 - systemStatus[0] * 10) / systemStatus[1]) / 60.0f;
         if (n != (int)tn) {
             _ACTWait(1);
             t = tn;
@@ -478,8 +478,8 @@ void actSt07aSekizoChk(GObj *volatile a0)
     ReviveAllCarryableItemsWithNonSleepFrame(250);
 
     sekizo_7a_vol = iosPadActRequest(boyPad, 9);
-    st07a_yure_vol = 0x80;
-    iosPadActVolumeSet(sekizo_7a_vol, 0x80);
+    st07a_yure_vol = 128;
+    iosPadActVolumeSet(sekizo_7a_vol, 128);
 
     se = soundSeDefPlay(1217, 0, 0, 1);
 
@@ -607,7 +607,7 @@ void actSt07aEneChk(GObj *volatile a0)
     SetStaticBlur(0);
 
     scpSleepEnemyOne(400);
-    scpSleepSpiderGroupOne(0x195);
+    scpSleepSpiderGroupOne(405);
 
     while (stage_CheckAnimationFinish(359) == 0) {
         _ACTWait(1);
@@ -627,7 +627,7 @@ void actSt07aEneChk(GObj *volatile a0)
 
     scpWakeupEnemyOne(3757);
     scpWakeupEnemyOne(400);
-    scpWakeupSpiderGroupOne(0x195);
+    scpWakeupSpiderGroupOne(405);
 }
 
 void actSt07aGene1(GObj *volatile a0)

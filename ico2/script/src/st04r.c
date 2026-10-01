@@ -1,4 +1,5 @@
 #include "st04r.h"
+#include "st04l.h"
 #include "layout_texture.h"
 #include "pad.h"
 #include "thread.h"
@@ -318,7 +319,7 @@ void actSt05dInit(void)
     }
 
     if (gflagChk(282) != 0) {
-        stage_SetAnimation(229, 0, 0xC8);
+        stage_SetAnimation(229, 0, 200);
     } else {
         stage_SetAnimation(229, 0, 0);
     }
@@ -352,7 +353,7 @@ void actSt04rCrest02(GObj *volatile a0)
     _ACTWait(1);
 
     if (gflagChk(244) == 0) {
-        if (current_stage_no == 0x1C) {
+        if (current_stage_no == 28) {
             stage_SetAnimation(311, 0, 0);
         } else {
             stage_SetAnimation(312, 0, 0);
@@ -363,7 +364,7 @@ void actSt04rCrest02(GObj *volatile a0)
         ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     } else {
-        if (current_stage_no == 0x1C) {
+        if (current_stage_no == 28) {
             stage_SetAnimation(311, 0, -1);
         } else {
             stage_SetAnimation(312, 0, -1);
@@ -382,9 +383,9 @@ void openGateSub(GObj *volatile a0)
     }
     _ACTWait(1);
 
-    padAct = iosPadActRequest(boyPad, 0xA);
-    st05d_hasi = 0x80;
-    iosPadActVolumeSet(padAct, 0x80);
+    padAct = iosPadActRequest(boyPad, 10);
+    st05d_hasi = 128;
+    iosPadActVolumeSet(padAct, 128);
 
     while (stage_CheckAnimationFrame(gateAnim, 190, 0) == 0) {
         _ACTWait(1);
@@ -431,7 +432,7 @@ void openGate(GObj *a0)
     if (demoEnd == 0) {
         scpFadeOut(16.0f, 0, 0, 0);
 
-        scpAdpcmFadeCloseFunc(&crest1_4r, 0x100);
+        scpAdpcmFadeCloseFunc(&crest1_4r, 256);
 
         if (padAct >= 0) {
             iosPadActStop(padAct);
@@ -460,8 +461,8 @@ void actSt04rCrest2Main(GObj *volatile a0)
 {
     int anim;
 
-    if (current_stage_no == 0x1C) {
-        anim = 0x137;
+    if (current_stage_no == 28) {
+        anim = 311;
         while (scpIsTorchLightOn(1408) == 0 || scpIsTorchLightOn(1409) == 0 || gflagChk(251) == 0) {
             _ACTWait(1);
         }
@@ -469,8 +470,8 @@ void actSt04rCrest2Main(GObj *volatile a0)
         gateAnim = anim;
     }
 
-    if (current_stage_no == 0x1D) {
-        anim = 0x138;
+    if (current_stage_no == 29) {
+        anim = 312;
 
         while (scpIsTorchLightOn(1487) == 0 || scpIsTorchLightOn(1488) == 0 || gflagChk(251) == 0) {
             _ACTWait(1);
@@ -479,10 +480,10 @@ void actSt04rCrest2Main(GObj *volatile a0)
         gateAnim = anim;
     }
 
-    gateAdpcm = 0x19;
+    gateAdpcm = 25;
     openGate(a0);
 
-    if (current_stage_no == 0x1C) {
+    if (current_stage_no == 28) {
         gflagOn(248);
     } else {
         gflagOn(247);
@@ -512,8 +513,8 @@ void actSt04rCrest3Main(GObj *volatile a0)
         _ACTWait(1);
     }
 
-    gateAnim = 0x139;
-    gateAdpcm = 0x18;
+    gateAnim = 313;
+    gateAdpcm = 24;
     openGate(a0);
 
     scpWakeupEnemyOne(3757);
@@ -586,7 +587,7 @@ void actSt04rSolarBeamChk(GObj *volatile a0)
 
     AdpcmPlay(((AdpcmObj *)solar4r)->stream);
 
-    preload(0xF);
+    preload(15);
 
     stage_SetAnimation(346, 1, 0);
     stage_SetAnimation(294, 1, 0);
@@ -595,7 +596,7 @@ void actSt04rSolarBeamChk(GObj *volatile a0)
         if ((pad[0].flags & 0x800) != 0 && scpAdpcmPlayRequestNum() == 0) {
             scpFadeOut(16.0f, 0, 0, 0);
 
-            scpAdpcmFadeCloseFunc(&solar4r, 0x100);
+            scpAdpcmFadeCloseFunc(&solar4r, 256);
 
             while (scpFadeChk() != 0) {
                 _ACTWait(1);
@@ -617,7 +618,7 @@ void actSt04rSolarBeamChk(GObj *volatile a0)
 
     scpWakeupEnemyAll();
 
-    RequestStageChange(0xF, boyGObj, 0, 2.0f, 8.0f);
+    RequestStageChange(15, boyGObj, 0, 2.0f, 8.0f);
 }
 
 void actSt04rStairSub(GObj *volatile a0)
@@ -661,7 +662,7 @@ void actSt04rStairSub(GObj *volatile a0)
     }
     _ACTWait(1);
 
-    iosPadActRequest(boyPad, 0x11);
+    iosPadActRequest(boyPad, 17);
 
     stage_SetAnimation(330, 1, 0);
 
@@ -671,8 +672,8 @@ void actSt04rStairSub(GObj *volatile a0)
     _ACTWait(1);
 
     padAct = iosPadActRequest(boyPad, 9);
-    st05d_hasi = 0x80;
-    iosPadActVolumeSet(padAct, 0x80);
+    st05d_hasi = 128;
+    iosPadActVolumeSet(padAct, 128);
 
     while (stage_CheckAnimationFinish(330) == 0) {
         _ACTWait(1);
@@ -728,7 +729,7 @@ void actSt04rStairChk(GObj *volatile a0)
             _ACTWait(1);
         }
 
-        scpAdpcmFadeCloseFunc(&crest3_4r, 0x200);
+        scpAdpcmFadeCloseFunc(&crest3_4r, 512);
 
         while (subStarted == 0) {
             _ACTWait(1);
@@ -755,7 +756,7 @@ void actSt04rStairChk(GObj *volatile a0)
 
         _ACTWait(1);
 
-        iosOmSendMail(girlGObj, 0x3E, boyGObj);
+        iosOmSendMail(girlGObj, 62, boyGObj);
 
         scpFadeIn(3.0f);
     } else {
@@ -811,8 +812,8 @@ void actSt04rSekizoChk(GObj *volatile a0)
     stage_SetAnimation(331, 1, 0);
 
     st04r_yure = iosPadActRequest(boyPad, 9);
-    st04r_yure_vol = 0x80;
-    iosPadActVolumeSet(st04r_yure, 0x80);
+    st04r_yure_vol = 128;
+    iosPadActVolumeSet(st04r_yure, 128);
 
     scpPlayStart(boyGObj);
     scpPlayStart(girlGObj);
@@ -858,7 +859,7 @@ void actSt04rSekizoChk(GObj *volatile a0)
     scpPlayEnd(boyGObj);
     _ACTWait(1);
 
-    iosOmSendMail(girlGObj, 0x3F, boyGObj);
+    iosOmSendMail(girlGObj, 63, boyGObj);
 
     lt_switch_layout(54);
 
@@ -959,7 +960,7 @@ void actSt04rBrgCommon(GObj *volatile a0)
     if (demoEnd == 0) {
         scpFadeOut(16.0f, 0, 0, 0);
 
-        scpAdpcmFadeCloseFunc(&sekizo5c, 0x100);
+        scpAdpcmFadeCloseFunc(&sekizo5c, 256);
 
         while (scpFadeChk() != 0) {
             _ACTWait(1);
@@ -1096,7 +1097,7 @@ void actSt04rMonyou01Chk(GObj *volatile a0)
     _ACTWait(1);
 
     if (ACTGame_FLAG_TETSUNAGI() != 0) {
-        iosOmSendMail(girlGObj, 0x3F, boyGObj);
+        iosOmSendMail(girlGObj, 63, boyGObj);
     }
 
     scpBoyControlReadDisable = 0;
@@ -1148,7 +1149,7 @@ void actSt04rMonyou02Chk(GObj *volatile a0)
     _ACTWait(1);
 
     if (ACTGame_FLAG_TETSUNAGI() != 0) {
-        iosOmSendMail(girlGObj, 0x3F, boyGObj);
+        iosOmSendMail(girlGObj, 63, boyGObj);
     }
 
     scpBoyControlReadDisable = 0;
@@ -1200,7 +1201,7 @@ void actSt04rMonyou03Chk(GObj *volatile a0)
     _ACTWait(1);
 
     if (ACTGame_FLAG_TETSUNAGI() != 0) {
-        iosOmSendMail(girlGObj, 0x3F, boyGObj);
+        iosOmSendMail(girlGObj, 63, boyGObj);
     }
 
     scpBoyControlReadDisable = 0;
@@ -1252,7 +1253,7 @@ void actSt04rMonyou04Chk(GObj *volatile a0)
     _ACTWait(1);
 
     if (ACTGame_FLAG_TETSUNAGI() != 0) {
-        iosOmSendMail(girlGObj, 0x3F, boyGObj);
+        iosOmSendMail(girlGObj, 63, boyGObj);
     }
 
     scpBoyControlReadDisable = 0;
@@ -1304,7 +1305,7 @@ void actSt04rMonyou05Chk(GObj *volatile a0)
     _ACTWait(1);
 
     if (ACTGame_FLAG_TETSUNAGI() != 0) {
-        iosOmSendMail(girlGObj, 0x3F, boyGObj);
+        iosOmSendMail(girlGObj, 63, boyGObj);
     }
 
     scpBoyControlReadDisable = 0;
@@ -1356,7 +1357,7 @@ void actSt04rMonyou06Chk(GObj *volatile a0)
     _ACTWait(1);
 
     if (ACTGame_FLAG_TETSUNAGI() != 0) {
-        iosOmSendMail(girlGObj, 0x3F, boyGObj);
+        iosOmSendMail(girlGObj, 63, boyGObj);
     }
 
     scpBoyControlReadDisable = 0;
@@ -1408,7 +1409,7 @@ void actSt04rMonyou07Chk(GObj *volatile a0)
     _ACTWait(1);
 
     if (ACTGame_FLAG_TETSUNAGI() != 0) {
-        iosOmSendMail(girlGObj, 0x3F, boyGObj);
+        iosOmSendMail(girlGObj, 63, boyGObj);
     }
 
     scpBoyControlReadDisable = 0;
@@ -1452,7 +1453,7 @@ void actSt04rBarricadeChk(GObj *volatile a0)
         _ACTWait(1);
     }
 
-    _ACTWait((0x3C - systemStatus[0] * 0xA) / systemStatus[1] * 3);
+    _ACTWait((60 - systemStatus[0] * 10) / systemStatus[1] * 3);
 
     scpWakeupEnemyAll();
 
@@ -1477,7 +1478,7 @@ void actSt04rGondolaChk(GObj *volatile a0)
     _ACTWait(15);
 
     if (gflagChk(282) != 0) {
-        stage_SetAnimation(229, 1, 0xC8);
+        stage_SetAnimation(229, 1, 200);
 
         scpWakeupItemWithBoundary(-675.0f, -150.0f, -1600.0f, 200.0f);
 
@@ -1881,7 +1882,7 @@ void actSt04rGondola(GObj *volatile a0)
     _ACTWait(1);
 
     if (gflagChk(282) != 0) {
-        stage_SetAnimation(229, 0, 0xC8);
+        stage_SetAnimation(229, 0, 200);
 
         gondola_mes[0].func = actSt04rGondolaChk;
         self->mail = gondola_mes;
@@ -2297,7 +2298,7 @@ void actSt04rC1BallSwitch(GObj *volatile a0)
 
 void actSt04rC1BallTurn(GObj *volatile a0)
 {
-    turnBall(a0, 0xFA, 0x13D, 0x57C, 0x57D);
+    turnBall(a0, 250, 317, 1404, 1405);
 }
 
 void actSt04rC2BallMain(GObj *volatile a0)
@@ -2326,7 +2327,7 @@ void actSt04rC2BallSwitch(GObj *volatile a0)
 
 void actSt04rC2BallTurn(GObj *volatile a0)
 {
-    turnBall(a0, 0xFB, 0x13E, 0x5CF, 0x5D0);
+    turnBall(a0, 251, 318, 1487, 1488);
 }
 
 void actSt04rC3BallMain(GObj *volatile a0)
@@ -2355,7 +2356,7 @@ void actSt04rC3BallSwitch(GObj *volatile a0)
 
 void actSt04rC3BallTurn(GObj *volatile a0)
 {
-    turnBall(a0, 0xFC, 0x13F, 0x5D1, 0x5D2);
+    turnBall(a0, 252, 319, 1489, 1490);
 }
 
 void actSt04rCrestMain(GObj *volatile a0)
@@ -2364,8 +2365,8 @@ void actSt04rCrestMain(GObj *volatile a0)
         _ACTWait(1);
     }
 
-    gateAnim = 0x135;
-    gateAdpcm = 0x1B;
+    gateAnim = 309;
+    gateAdpcm = 27;
     openGate(a0);
     _ACTWait(1);
 
@@ -2416,7 +2417,7 @@ void actSt04rBrg1Chk(GObj *volatile a0)
 
     gflagOn(259);
 
-    sekizo_4r = 0x148;
+    sekizo_4r = 328;
 
     brg1_chk_mes[0].func = actSt04rBrgCommon;
     sub->mail = brg1_chk_mes;
@@ -2441,7 +2442,7 @@ void actSt04rBrg1Sub(GObj *volatile a0)
     }
     _ACTWait(1);
 
-    iosPadActRequest(boyPad, 0x10);
+    iosPadActRequest(boyPad, 16);
 
     while (stage_CheckAnimationFinish(sekizo_4r) == 0) {
         _ACTWait(1);
@@ -2477,7 +2478,7 @@ void actSt04rBrg2Chk(GObj *volatile a0)
 
     gflagOn(260);
 
-    sekizo_4r = 0x149;
+    sekizo_4r = 329;
 
     brg2_chk_mes[0].func = actSt04rBrgCommon;
     sub->mail = brg2_chk_mes;

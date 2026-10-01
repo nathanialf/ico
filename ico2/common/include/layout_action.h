@@ -8,6 +8,8 @@
 #ifndef LAYOUT_ACTION_H
 #define LAYOUT_ACTION_H
 
+#include "typedef.h"
+
 /* layout_action.o's globals: the frame count main keeps from a
    stage's start (the game loop's start button needs 11), the boot flag, the
    pause enable, the title demo toggle, the game loop's pause-request count,
@@ -21,16 +23,14 @@ extern int title_demo_mode;
 extern int laoutActionPauseRequest;
 extern unsigned int stage_after_skipping_demo;
 extern int layoutActPushStartNew;
-/* mc, the memory-card request block, is declared by each
-   user in its own view of the block: common/src/debug.c's McReq record,
-   layout_action.c's word array. */
-
+/* the memory-card request block the layout actions and the debug menu
+   drive */
+extern McMgr mc;
 void _la_mask_preview_info(void);
 int _la_mcard_error_check(void *a0);
 int _la_set_current_port_2(void *p, int a1);
 int _la_set_current_port_lock_2(void *p, int a1);
 void _la_set_preview_info();
-
 /* The layout actions the texture layout's tables call, each an `inline`
    definition, in the order of their out-of-line copies at the end of the
    object (first-declaration order). */

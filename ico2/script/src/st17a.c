@@ -1,6 +1,9 @@
 #include "st17a.h"
 #include "layout_texture.h"
 #include "pad.h"
+#include "debug.h"
+#include "obj_manager.h"
+#include "lws_kyomi.h"
 #include "s_init.h"
 #include "act-game.h"
 #include "commonact.h"
@@ -170,10 +173,10 @@ void actSt17aHasiChk(GObj *volatile a0)
     }
 
     while (1) {
-        if ((GOBJ_ACT(girlGObj)->actMode != 0x6F && (void *)girlGObj != 0 &&
+        if ((GOBJ_ACT(girlGObj)->actMode != 111 && (void *)girlGObj != 0 &&
              scpTriggerFloorAttr((void *)girlGObj, 0x1000000) != 0 &&
              scpTriggerFloorAttr(boyGObj, 0x2000000) != 0) ||
-            (GOBJ_ACT(girlGObj)->actMode != 0x6F && (void *)girlGObj != 0 &&
+            (GOBJ_ACT(girlGObj)->actMode != 111 && (void *)girlGObj != 0 &&
              scpTriggerFloorAttr((void *)girlGObj, 0x4000000) != 0 &&
              scpTriggerFloorAttr(boyGObj, 0x2000000) != 0)) {
             break;
@@ -183,7 +186,7 @@ void actSt17aHasiChk(GObj *volatile a0)
 
     gflagOn(33);
 
-    iosPadActRequest(boyPad, 0xF);
+    iosPadActRequest(boyPad, 15);
     SetWayGroupActive(3, 0);
 
     scpSearchGobj(243)->active = 0;
@@ -210,7 +213,7 @@ void actSt17aHasiChk(GObj *volatile a0)
 
         scpPlayMot((void *)girlGObj, 532);
         GOBJ_SUB(girlGObj)->ctrl.blendFrames =
-            (int)((float)((0x3C - systemStatus[0] * 0xA) / systemStatus[1]) / 60.0f * 0.0f);
+            (int)((float)((60 - systemStatus[0] * 10) / systemStatus[1]) / 60.0f * 0.0f);
 
         scpPlayEnd((void *)girlGObj);
 
@@ -237,7 +240,7 @@ void actSt17aHasiChk(GObj *volatile a0)
         scpPlayMot(boyGObj, 0);
         scpPlayMot((void *)girlGObj, 532);
         GOBJ_SUB(girlGObj)->ctrl.blendFrames =
-            (int)((float)((0x3C - systemStatus[0] * 0xA) / systemStatus[1]) / 60.0f * 0.0f);
+            (int)((float)((60 - systemStatus[0] * 10) / systemStatus[1]) / 60.0f * 0.0f);
     }
 
     while (stage_CheckAnimationFinish(132) == 0) {
@@ -289,7 +292,7 @@ void actSt17aHasiEffect(GObj *volatile a0)
             break;
         }
         n = (int)t;
-        t += (float)((0x3C - systemStatus[0] * 0xA) / systemStatus[1]) / 60.0f;
+        t += (float)((60 - systemStatus[0] * 10) / systemStatus[1]) / 60.0f;
         if (n != (int)t) {
             _ACTWait(1);
         } else {
@@ -353,7 +356,7 @@ void actSt17aSekizo(GObj *volatile a0)
     actInitialize(a0);
     _ACTWait(1);
 
-    scpSekizou(a0, 0x20, 0x52, 0x82, 0x12, 6450.0f, -2100.0f, 1000.0f, 6450.0f, -2100.0f, 1100.0f);
+    scpSekizou(a0, 32, 82, 130, 18, 6450.0f, -2100.0f, 1000.0f, 6450.0f, -2100.0f, 1100.0f);
 }
 
 void actSt17aHasi(GObj *volatile a0)
@@ -427,8 +430,8 @@ void actSt17aSekizoEvent(int x)
 
 void actLinkTestChk(GObj *volatile a0)
 {
-    *(int *)(((int *)boyGObj)[0x57] + 0x4E8) = 1;
-    *(int *)(((int *)boyGObj)[0x57] + 0x4E8) = 0;
+    *(int *)(((int *)boyGObj)[87] + 1256) = 1;
+    *(int *)(((int *)boyGObj)[87] + 1256) = 0;
     scpGetWallCollision(0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 100.0f);
     _ACTWait(60);
 }
@@ -452,7 +455,7 @@ void actSt17aDoorUpEffect(GObj *volatile a0)
             b1[1] = doorUpEffectPos.d[1];
             scpEffectStart((int *)b1, 0);
             break;
-        case 0x1E:
+        case 30:
             b2[0] = v0b;
             b2[1] = doorDownEffectPos.d[1];
             scpEffectStart((int *)b2, 0);
@@ -476,7 +479,7 @@ void actSt17aDoorDownEffect(GObj *volatile a0)
             b1[1] = doorDownEffectPos.d[1];
             scpEffectStart((int *)b1, 0);
             break;
-        case 0x1E:
+        case 30:
             b2[0] = v0b;
             b2[1] = doorDownEffect2Pos.d[1];
             scpEffectStart((int *)b2, 0);
@@ -539,5 +542,5 @@ void actSt17aFallChk(GObj *volatile a0)
 
     debug_StdPrintfDummy("FAAAAALL!\n");
 
-    iosOmSendMail(boyGObj, 0xE2, boyGObj);
+    iosOmSendMail(boyGObj, 226, boyGObj);
 }

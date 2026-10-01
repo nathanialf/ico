@@ -76,7 +76,7 @@ void actSt47aSekizo1Chk(GObj *volatile a0)
     }
 
     while (scpTriggerBall(a0, boyGObj, 200.0f) == 0 || scpTriggerBall(a0, girlGObj, 200.0f) == 0 ||
-           ForMotionViewer_GetCurrentMotion(boyGObj) == 0x4B) {
+           ForMotionViewer_GetCurrentMotion(boyGObj) == 75) {
         _ACTWait(1);
     }
 
@@ -229,7 +229,7 @@ void actSt47aHane1Down(GObj *volatile a0)
         if ((pad[0].flags & 0x800) != 0 && scpAdpcmPlayRequestNum() == 0) {
             scpFadeOut(16.0f, 0, 0, 0);
 
-            scpAdpcmFadeCloseFunc(&hane1down, 0x200);
+            scpAdpcmFadeCloseFunc(&hane1down, 512);
 
             while (scpFadeChk() != 0) {
                 _ACTWait(1);
@@ -288,7 +288,7 @@ void actSt47aHane1Up(GObj *volatile a0)
         if ((pad[0].flags & 0x800) != 0 && scpAdpcmPlayRequestNum() == 0) {
             scpFadeOut(16.0f, 0, 0, 0);
 
-            scpAdpcmFadeCloseFunc(&hane1up, 0x200);
+            scpAdpcmFadeCloseFunc(&hane1up, 512);
 
             while (scpFadeChk() != 0) {
                 _ACTWait(1);
@@ -338,7 +338,7 @@ void actSt47aHane2Down(GObj *volatile a0)
         if ((pad[0].flags & 0x800) != 0 && scpAdpcmPlayRequestNum() == 0) {
             scpFadeOut(16.0f, 0, 0, 0);
 
-            scpAdpcmFadeCloseFunc(&hane2down, 0x200);
+            scpAdpcmFadeCloseFunc(&hane2down, 512);
 
             while (scpFadeChk() != 0) {
                 _ACTWait(1);
@@ -392,7 +392,7 @@ void actSt47aHane2Up(GObj *volatile a0)
         if ((pad[0].flags & 0x800) != 0 && scpAdpcmPlayRequestNum() == 0) {
             scpFadeOut(16.0f, 0, 0, 0);
 
-            scpAdpcmFadeCloseFunc(&hane2up, 0x200);
+            scpAdpcmFadeCloseFunc(&hane2up, 512);
 
             while (scpFadeChk() != 0) {
                 _ACTWait(1);
@@ -538,7 +538,7 @@ void actSt47aBarricadeChk(GObj *volatile a0)
     }
     _ACTWait(1);
 
-    _ACTWait((0x3C - systemStatus[0] * 0xA) / systemStatus[1] * 3);
+    _ACTWait((60 - systemStatus[0] * 10) / systemStatus[1] * 3);
 
     scpBoyControlReadDisable = 0;
     lt_switch_layout(54);
@@ -627,7 +627,7 @@ void actSt47aSekizo2(GObj *volatile a0)
     actInitialize(a0);
     _ACTWait(1);
 
-    scpSekizou(a0, 0x2C, 0xA4, 0, 0x12, -2450.0f, -1372.0f, -1150.0f, -2450.0f, -1372.0f, -1250.0f);
+    scpSekizou(a0, 44, 164, 0, 18, -2450.0f, -1372.0f, -1150.0f, -2450.0f, -1372.0f, -1250.0f);
 }
 
 void actSt47aHane1(GObj *volatile a0)
@@ -823,8 +823,8 @@ void actSt47aGirlWay(GObj *volatile a0)
     buf[1] = girlWayPos.d[1];
     _SCPMoveCharactorByWay(girlGObj, 0, (float *)buf, 100.0f, 0);
 
-    memset(way, 0, 0x10);
-    RequestStageChangeDirect(girlGObj, 0xB, way, 0xB4);
+    memset(way, 0, 16);
+    RequestStageChangeDirect(girlGObj, 11, way, 180);
     brainUnlockGirl();
 }
 

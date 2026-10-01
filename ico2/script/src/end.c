@@ -153,7 +153,7 @@ void actConte14_1(GObj *volatile a0)
 
     scpSearchGobj(2516)->active = 1;
 
-    scpLinkBGAtoLayoutedTargetSkeltonWithLocalRotationFlag(0x9D4, 0, 0x22A, 0);
+    scpLinkBGAtoLayoutedTargetSkeltonWithLocalRotationFlag(2516, 0, 554, 0);
 
     stage_SetLoopFlag(554, 1);
 
@@ -199,7 +199,7 @@ void actEndDemo02(GObj *volatile a0)
     lt_switch_layout(55);
     scpBoyControlReadDisable = 1;
     scpFadeOut(255.0f, 0, 0, 0);
-    scpLinkBGAtoKindTargetSkeltonWithLocalRotationFlag(3, 0, 0x22A, 0);
+    scpLinkBGAtoKindTargetSkeltonWithLocalRotationFlag(3, 0, 554, 0);
     stage_SetLoopFlag(554, 1);
     stage_SetAnimation(554, 1, 0);
     stage_SetAnimation(825, 0, 0);
@@ -298,7 +298,7 @@ void actEndDemo06(GObj *volatile a0)
         lt_switch_layout(55);
         scpBoyControlReadDisable = 1;
         scpFadeOut(255.0f, 0, 0, 0);
-        scpLinkBGAtoLayoutedTargetSkeltonWithLocalRotationFlag(0x9D4, 0, 0x22A, 0);
+        scpLinkBGAtoLayoutedTargetSkeltonWithLocalRotationFlag(2516, 0, 554, 0);
         stage_SetLoopFlag(554, 1);
         stage_SetAnimation(554, 1, 0);
         stage_SetAnimation(840, 0, 0);
@@ -361,7 +361,7 @@ void actEndDemo07(GObj *volatile a0)
     lt_switch_layout(55);
     scpBoyControlReadDisable = 1;
     scpFadeOut(255.0f, 0, 0, 0);
-    scpLinkBGAtoKindTargetSkeltonWithLocalRotationFlag(3, 0, 0x22A, 0);
+    scpLinkBGAtoKindTargetSkeltonWithLocalRotationFlag(3, 0, 554, 0);
     stage_SetAnimation(173, 0, 0);
     stage_SetLoopFlag(554, 1);
     stage_SetAnimation(554, 1, 0);
@@ -395,7 +395,7 @@ void actConte14_7(GObj *volatile a0)
 
     stage_SetAnimation(842, 1, 0);
 
-    stage_SetAnimation(173, 1, 0x1D7);
+    stage_SetAnimation(173, 1, 471);
 
     _ACTWait(1);
 
@@ -415,7 +415,7 @@ void actConte14_7(GObj *volatile a0)
     sceVu0SubVector(dir, ofs, test_CURRENTROOT(scpSearchGobj(2388)));
     scpPlayMotDir(scpSearchGobj(2388), dir);
 
-    scpPlayMotNode(boyGObj, 0x1C0, scpSearchGobj(2388), 0x2C);
+    scpPlayMotNode(boyGObj, 448, scpSearchGobj(2388), 44);
 
     scpPlayMot(scpSearchGobj(2388), 822);
 
@@ -439,8 +439,8 @@ void actEndDemo10(GObj *volatile a0)
     lt_switch_layout(55);
     scpBoyControlReadDisable = 1;
     scpFadeOut(255.0f, 0, 0, 0);
-    scpLinkBGAtoKindTargetSkeltonWithLocalRotationFlag(3, 0, 0x22A, 0);
-    scpLinkBGAtoKindTargetSkeltonWithLocalRotationFlag(3, 0x34, 0x3A, 0);
+    scpLinkBGAtoKindTargetSkeltonWithLocalRotationFlag(3, 0, 554, 0);
+    scpLinkBGAtoKindTargetSkeltonWithLocalRotationFlag(3, 52, 58, 0);
     stage_SetLoopFlag(554, 1);
     stage_SetAnimation(554, 1, 0);
     SelectBoyCrown(boyGObj, 2);
@@ -613,7 +613,7 @@ void actStaff1Demo(GObj *volatile a0)
 {
     preload(1);
 
-    staffRollStart(1.0f, 0xFF);
+    staffRollStart(1.0f, 255);
 
     stage_SetAnimation(870, 1, 0);
 
@@ -661,7 +661,7 @@ void actStaff1Demo(GObj *volatile a0)
 
     _ACTWait(1);
 
-    stage_SetAnimation(32, 1, 0xD0);
+    stage_SetAnimation(32, 1, 208);
 
     while (stage_ContinueAnimation(878, 879) == 0) {
         _ACTWait(1);
@@ -919,7 +919,7 @@ void actEndDemo14(GObj *volatile a0)
     lt_switch_layout(55);
     scpBoyControlReadDisable = 1;
     fbKeep = 1;
-    scpFadeOut(3.0f, 0xFF, 0xFF, 0xFF);
+    scpFadeOut(3.0f, 255, 255, 255);
 
     while (scpFadeChk() != 0) {
         _ACTWait(1);
@@ -1060,7 +1060,7 @@ void actSt27aEndChk(GObj *volatile a0)
     }
 
     if (endDemo14 != 0) {
-        scpAdpcmFadeCloseFunc(&endDemo14, 0x1B);
+        scpAdpcmFadeCloseFunc(&endDemo14, 27);
     }
     scpAdpcmPlayRequestFunc(51, &st27aEnd, 0, 1, 1);
     while (st27aEnd == 0) {
@@ -1111,9 +1111,9 @@ void actSt27aEndDemo(GObj *volatile a0)
         _ACTWait(1);
     }
 
-    SetHandCameraLimitInDemo(0xA, 0xA);
+    SetHandCameraLimitInDemo(10, 10);
 
-    SetZoomMaxValInDemo(0x1E);
+    SetZoomMaxValInDemo(30);
 
     if (gflagChk(354) == 0) {
         scpPlayMot(boyGObj, 469);
@@ -1136,7 +1136,7 @@ void actSt27aEndDemo(GObj *volatile a0)
         RequestStageChange(1, boyGObj, girlGObj, 1.0f, 8.0f);
     } else {
         if (st27aEnd != 0) {
-            scpAdpcmFadeCloseFunc(&st27aEnd, 0x50);
+            scpAdpcmFadeCloseFunc(&st27aEnd, 80);
         }
 
         while (stage_CheckAnimationFrame(868, 390, 0) == 0) {
@@ -1154,7 +1154,7 @@ void actSt27aEndDemo(GObj *volatile a0)
             _ACTWait(1);
         }
 
-        scpDisActivateAllWithKind(0x13);
+        scpDisActivateAllWithKind(19);
 
         scpFadeIn(1.5f);
 
@@ -1191,7 +1191,7 @@ void actEndLogoChk(GObj *volatile a0)
 {
     GObj *x = a0;
     Act *self = actInitialize(a0);
-    int id = 0x3C;
+    int id = 60;
 
     _ACTWait(1);
 
@@ -1200,16 +1200,16 @@ void actEndLogoChk(GObj *volatile a0)
 
     switch (NonLinearCameraMove) {
     case 3:
-        id = 0x3D;
+        id = 61;
         break;
     case 4:
-        id = 0x3E;
+        id = 62;
         break;
     case 6:
-        id = 0x40;
+        id = 64;
         break;
     case 5:
-        id = 0x3F;
+        id = 63;
         break;
     }
 
@@ -1223,7 +1223,7 @@ void actEndLogoChk(GObj *volatile a0)
 
     preload(1);
 
-    _ACTWait((0x3C - systemStatus[0] * 0xA) / systemStatus[1] * 0x1E);
+    _ACTWait((60 - systemStatus[0] * 10) / systemStatus[1] * 30);
 
     scpFadeOut(6.0f, 0, 0, 0);
 
@@ -1340,7 +1340,7 @@ void actEndDemo13(GObj *volatile a0)
 
     lt_switch_layout(55);
     scpBoyControlReadDisable = 1;
-    scpFadeOut(255.0f, 0xFF, 0xFF, 0xFF);
+    scpFadeOut(255.0f, 255, 255, 255);
     SelectBoyCrown(boyGObj, 2);
     demo13_mes[0].func = actEndDemo13Chk;
     self->mail = demo13_mes;
@@ -1576,7 +1576,7 @@ void actConte14_10_Jimaku(GObj *volatile a0)
             jimakuBegin(&jimaku_msg);
             break;
         case 1500:
-            jimaku_msg.sub.block = 0x70;
+            jimaku_msg.sub.block = 112;
             jimaku_msg.sub.jump = -1;
             jimakuOn = 1;
             jimakuJump(&jimaku_msg);
@@ -1584,7 +1584,7 @@ void actConte14_10_Jimaku(GObj *volatile a0)
         }
 
         n = (int)t;
-        tn = t + (float)((0x3C - systemStatus[0] * 0xA) / systemStatus[1]) / 60.0f;
+        tn = t + (float)((60 - systemStatus[0] * 10) / systemStatus[1]) / 60.0f;
         if (n != (int)tn) {
             _ACTWait(1);
             t = tn;
@@ -1635,7 +1635,7 @@ void actConte14_12(GObj *volatile a0)
     }
     _ACTWait(1);
 
-    RequestStageChangeWithColor(4, boyGObj, girlGObj, 16.0f, 16.0f, 0xFF, 0xFF, 0xFF);
+    RequestStageChangeWithColor(4, boyGObj, girlGObj, 16.0f, 16.0f, 255, 255, 255);
 }
 
 void actEndDemo13Chk(GObj *volatile a0)
@@ -1683,7 +1683,7 @@ void actStaff3RollChk(GObj *volatile a0)
     }
 
     if (ed6 != 0) {
-        scpAdpcmFadeCloseFunc(&ed6, 0x50);
+        scpAdpcmFadeCloseFunc(&ed6, 80);
     }
 
     RequestStageChange(1, boyGObj, 0, 16.0f, 0.001f);
@@ -1709,7 +1709,7 @@ void actEndingSave(GObj *volatile a0)
         lt_switch_layout(28);
         _ACTWait(60);
 
-        while (current_layout_id != 0x36) {
+        while (current_layout_id != 54) {
             _ACTWait(1);
         }
         gFlagGameClear = 0;

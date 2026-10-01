@@ -75,7 +75,7 @@ void actSt03tSwitchL(GObj *volatile a0)
         ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     } else {
-        stage_SetAnimation(364, 0, 0x2D);
+        stage_SetAnimation(364, 0, 45);
         stage_SetAnimation(366, 0, -1);
 
         switchLUp_mes[0].func = actSt03tSwitchLUpChk;
@@ -91,7 +91,7 @@ void actSt03tSwitchLChk(GObj *volatile a0)
     int i;
 
     i = 0;
-    while (i < (0x3C - systemStatus[0] * 0xA) / systemStatus[1]) {
+    while (i < (60 - systemStatus[0] * 10) / systemStatus[1]) {
         if (scpTriggerFloorAttrTargetMan(a0, 0x1000000) != 0) {
             i++;
         } else {
@@ -157,7 +157,7 @@ void actSt03tSwitchLUpChk(GObj *volatile a0)
 
     gflagOff(89);
 
-    stage_SetAnimation(364, 1, 0x2E);
+    stage_SetAnimation(364, 1, 46);
     soundSeDefPlay(1220, 0, 0, 1);
 
     while (stage_CheckAnimationFrame(364, 90, 1) == 0) {
@@ -210,7 +210,7 @@ void actSt03tSwitchR(GObj *volatile a0)
         ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     } else {
-        stage_SetAnimation(365, 0, 0x2D);
+        stage_SetAnimation(365, 0, 45);
         stage_SetAnimation(368, 0, -1);
 
         switchRUp_mes[0].func = actSt03tSwitchRUpChk;
@@ -226,7 +226,7 @@ void actSt03tSwitchRChk(GObj *volatile a0)
     int i;
 
     i = 0;
-    while (i < (0x3C - systemStatus[0] * 0xA) / systemStatus[1]) {
+    while (i < (60 - systemStatus[0] * 10) / systemStatus[1]) {
         if (scpTriggerFloorAttrTargetMan(a0, 0x2000000) != 0) {
             i++;
         } else {
@@ -276,11 +276,11 @@ void actSt03tSwitchRUpChk(GObj *volatile a0)
         _ACTWait(1);
     }
 
-    _ACTWait(((0x3C - systemStatus[0] * 0xA) / systemStatus[1]) * 0xA);
+    _ACTWait(((60 - systemStatus[0] * 10) / systemStatus[1]) * 10);
 
     gflagOff(90);
 
-    stage_SetAnimation(365, 1, 0x2E);
+    stage_SetAnimation(365, 1, 46);
     soundSeDefPlay(1220, 0, 0, 1);
 
     while (stage_CheckAnimationFrame(365, 90, 1) == 0) {
@@ -427,7 +427,7 @@ void actSt03tSekizo(GObj *volatile a0)
     actInitialize(a0);
     _ACTWait(1);
 
-    scpSekizou(a0, 0x5F, 0x50, 0, 0x12, -913.0f, -400.0f, 605.0f, -1000.0f, -400.0f, 550.0f);
+    scpSekizou(a0, 95, 80, 0, 18, -913.0f, -400.0f, 605.0f, -1000.0f, -400.0f, 550.0f);
 }
 
 void actSt03tWay(GObj *volatile a0)
@@ -505,14 +505,14 @@ void actSt03tGirlCamStartChk(GObj *volatile a0)
     Act *sub = GOBJ_ACT(a0);
 
     while (scpTriggerBall(a0, boyGObj, 100.0f) == 0 ||
-           ForMotionViewer_GetCurrentMotion(boyGObj) != 0xCA) {
+           ForMotionViewer_GetCurrentMotion(boyGObj) != 202) {
         _ACTWait(1);
     }
 
     CameraGetTarget();
     Camctrl_SetTarget(girlGObj, 0, 3);
     _ACTWait(15);
-    CameraSetCameraSet(0x30);
+    CameraSetCameraSet(48);
 
     girlCamStartChk_mes[0].func = actSt03tGirlCamEndChk;
     sub->mail = girlCamStartChk_mes;
@@ -525,7 +525,7 @@ void actSt03tGirlCamEndChk(GObj *volatile a0)
     Act *sub = GOBJ_ACT(a0);
 
     while (scpTriggerBall(a0, boyGObj, 100.0f) == 0 ||
-           ForMotionViewer_GetCurrentMotion(boyGObj) == 0xCA) {
+           ForMotionViewer_GetCurrentMotion(boyGObj) == 202) {
         _ACTWait(1);
     }
 
@@ -636,7 +636,7 @@ void actSt03tHint1OnChk(GObj *volatile a0)
 {
     Act *sub = GOBJ_ACT(a0);
 
-    _ACTWait((0x3C - systemStatus[0] * 0xA) / systemStatus[1] * 0x3C);
+    _ACTWait((60 - systemStatus[0] * 10) / systemStatus[1] * 60);
     WakeupHint(12);
 
     hint1OnChk_mes[0].func = actSt03tHint1OffChk;

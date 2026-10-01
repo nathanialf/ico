@@ -10,6 +10,7 @@
 #include "jimaku.h"
 #include "way_llf.h"
 #include "brain.h"
+#include "generator.h"
 #include "camera-root.h"
 #include "fightSound.h"
 #include "gflag.h"
@@ -38,10 +39,10 @@ void actE3WarningChk(GObj *volatile a0)
     actInitialize(a0);
     _ACTWait(1);
 
-    stgmgrNextStagePreLoadForceStageSet(0x5F);
+    stgmgrNextStagePreLoadForceStageSet(95);
 
     i = 0;
-    while (i++ < (0x3C - systemStatus[0] * 0xA) / systemStatus[1] * 5) {
+    while (i++ < (60 - systemStatus[0] * 10) / systemStatus[1] * 5) {
         _ACTWait(1);
     }
 
@@ -50,7 +51,7 @@ void actE3WarningChk(GObj *volatile a0)
         _ACTWait(1);
     }
 
-    _ACTWait((int)(float)((0x3C - systemStatus[0] * 0xA) / systemStatus[1]));
+    _ACTWait((int)(float)((60 - systemStatus[0] * 10) / systemStatus[1]));
 
     RequestStageChange(1, boyGObj, 0, 255.0f, 0.0f);
 }
@@ -182,25 +183,25 @@ void actE3TitleChk(GObj *volatile a0)
 
 void actE3TitleFrameChk(GObj *volatile a0)
 {
-    int intro = 0x3AF;
-    int loop = 0x3AA;
-    int outro = 0x3B4;
+    int intro = 943;
+    int loop = 938;
+    int outro = 948;
     int i;
 
     stage_SetAnimation(935, 1, 0);
 
     switch (NonLinearCameraMove) {
     case 3:
-        intro = 0x3B0;
+        intro = 944;
         break;
     case 4:
-        intro = 0x3B1;
+        intro = 945;
         break;
     case 6:
-        intro = 0x3B3;
+        intro = 947;
         break;
     case 5:
-        intro = 0x3B2;
+        intro = 946;
         break;
     }
     stage_SetAnimation(intro, 1, 0);
@@ -213,23 +214,23 @@ void actE3TitleFrameChk(GObj *volatile a0)
 
     switch (NonLinearCameraMove) {
     case 3:
-        loop = 0x3AB;
+        loop = 939;
         break;
     case 4:
-        loop = 0x3AC;
+        loop = 940;
         break;
     case 6:
-        loop = 0x3AE;
+        loop = 942;
         break;
     case 5:
-        loop = 0x3AD;
+        loop = 941;
         break;
     }
     stage_SetLoopFlag(loop, 1);
     stage_SetAnimation(loop, 1, 0);
 
     i = 0;
-    while (i++ < (0x3C - systemStatus[0] * 0xA) / systemStatus[1] * 0x2D) {
+    while (i++ < (60 - systemStatus[0] * 10) / systemStatus[1] * 45) {
         _ACTWait(1);
     }
 
@@ -237,16 +238,16 @@ void actE3TitleFrameChk(GObj *volatile a0)
 
     switch (NonLinearCameraMove) {
     case 3:
-        outro = 0x3B5;
+        outro = 949;
         break;
     case 4:
-        outro = 0x3B6;
+        outro = 950;
         break;
     case 6:
-        outro = 0x3B8;
+        outro = 952;
         break;
     case 5:
-        outro = 0x3B7;
+        outro = 951;
         break;
     }
     stage_SetAnimation(outro, 1, 0);
@@ -265,10 +266,10 @@ void actE3TitleFrameChk(GObj *volatile a0)
             scpAdpcmCloseFunc(&e3title);
         }
 
-        mpegPlayReturnStage = 0x5F;
-        stage_after_skipping_demo = 0x5F;
+        mpegPlayReturnStage = 95;
+        stage_after_skipping_demo = 95;
 
-        stgmgrForceSwitchWithFade(0x67, 4.0f, 4.0f);
+        stgmgrForceSwitchWithFade(103, 4.0f, 4.0f);
     }
 }
 
@@ -281,19 +282,19 @@ void actE3Inst1Chk(GObj *volatile a0)
     actInitialize(a0);
     _ACTWait(1);
 
-    anim = 0x3C0;
+    anim = 960;
     switch (NonLinearCameraMove) {
     case 3:
-        anim = 0x3C1;
+        anim = 961;
         break;
     case 4:
-        anim = 0x3C2;
+        anim = 962;
         break;
     case 6:
-        anim = 0x3C4;
+        anim = 964;
         break;
     case 5:
-        anim = 0x3C3;
+        anim = 963;
         break;
     }
 
@@ -301,7 +302,7 @@ void actE3Inst1Chk(GObj *volatile a0)
     stage_SetAnimation(anim, 1, 0);
 
     i = 0;
-    while (i++ < (0x3C - systemStatus[0] * 0xA) / systemStatus[1] * 0xA &&
+    while (i++ < (60 - systemStatus[0] * 10) / systemStatus[1] * 10 &&
            (pad[0].flags & 0x840) == 0) {
         _ACTWait(1);
     }
@@ -424,7 +425,7 @@ void actE3CapsuleDemo(GObj *volatile a0)
 
     _ACTWait(1);
 
-    stage_SetAnimation(32, 1, 0xD0);
+    stage_SetAnimation(32, 1, 208);
 
     while (stage_ContinueAnimation(602, 603) == 0) {
         _ACTWait(1);
@@ -630,7 +631,7 @@ void actE3CageFallDemo(GObj *volatile a0)
         GObj *self = girlGObj;
 
         GOBJ_SUB(self)->ctrl.blendFrames =
-            (int)((float)((0x3C - systemStatus[0] * 0xA) / systemStatus[1]) / 60.0f * 30.0f);
+            (int)((float)((60 - systemStatus[0] * 10) / systemStatus[1]) / 60.0f * 30.0f);
 
         scpPlayEnd(self);
     }
@@ -684,8 +685,8 @@ void actE3CageFallEffect(GObj *volatile a0)
         case 0:
             gflagOn(22);
             break;
-        case 0x40:
-            iosPadActRequest(boyPad, 0x11);
+        case 64:
+            iosPadActRequest(boyPad, 17);
             {
                 EffectArg b1 = {{-88.0f, -50.0f, -1.0f, 1.0f}};
                 scpEffectStart(&b1, 0);
@@ -695,7 +696,7 @@ void actE3CageFallEffect(GObj *volatile a0)
                 scpEffectStart(&b2, 0);
             }
             break;
-        case 0x44: {
+        case 68: {
             EffectArg b3 = {{72.0f, -50.0f, 8.0f, 1.0f}};
             scpEffectStart(&b3, 0);
         }
@@ -704,7 +705,7 @@ void actE3CageFallEffect(GObj *volatile a0)
                 scpEffectStart(&b4, 0);
             }
             break;
-        case 0x60: {
+        case 96: {
             EffectArg b5 = {{-27.0f, -50.0f, 100.0f, 1.0f}};
             scpEffectStart(&b5, 0);
         }
@@ -717,10 +718,10 @@ void actE3CageFallEffect(GObj *volatile a0)
                 scpEffectStart(&b7, 0);
             }
             break;
-        case 0xB4:
-            iosPadActRequest(boyPad, 0xF);
+        case 180:
+            iosPadActRequest(boyPad, 15);
             break;
-        case 0x12C: {
+        case 300: {
             EffectArg b8 = {{-10.0f, 0.0f, 466.0f, 1.0f}};
             scpEffectStart(&b8, 0);
         }
@@ -729,13 +730,13 @@ void actE3CageFallEffect(GObj *volatile a0)
                 scpEffectStart(&b9, 0);
             }
             break;
-        case 0x17C:
-            iosPadActRequest(boyPad, 0x10);
+        case 380:
+            iosPadActRequest(boyPad, 16);
             break;
         }
 
         n = (int)t;
-        tn = t + (float)((0x3C - systemStatus[0] * 0xA) / systemStatus[1]) / 60.0f;
+        tn = t + (float)((60 - systemStatus[0] * 10) / systemStatus[1]) / 60.0f;
         if (n != (int)tn) {
             _ACTWait(1);
             t = tn;
@@ -776,8 +777,8 @@ inline void actE3St09aGirlWay(GObj *volatile a0)
 
     _SCPMoveCharactorByWay(girlGObj, 0, buf.f, 100.0f, 0);
 
-    memset(way, 0, 0x10);
-    RequestStageChangeDirect(girlGObj, 0x66, way, 0xB4);
+    memset(way, 0, 16);
+    RequestStageChangeDirect(girlGObj, 102, way, 180);
 
     lt_switch_layout(54);
 
@@ -794,7 +795,7 @@ void actE3St09aSekizoChk(GObj *volatile a0)
     }
 
     while (scpTriggerBall(a0, boyGObj, 200.0f) == 0 || scpTriggerBall(a0, girlGObj, 200.0f) == 0 ||
-           ForMotionViewer_GetCurrentMotion(boyGObj) == 0x4B) {
+           ForMotionViewer_GetCurrentMotion(boyGObj) == 75) {
         _ACTWait(1);
     }
 
@@ -817,8 +818,8 @@ void actE3St09aSekizoChk(GObj *volatile a0)
     stage_SetAnimation(376, 1, 0);
 
     sekizo_e3_vol = iosPadActRequest(boyPad, 9);
-    e3sekizo_yure_vol = 0x80;
-    iosPadActVolumeSet(sekizo_e3_vol, 0x80);
+    e3sekizo_yure_vol = 128;
+    iosPadActVolumeSet(sekizo_e3_vol, 128);
 
     scpPlayStart(boyGObj);
     scpPlayStart(girlGObj);
@@ -964,7 +965,7 @@ void actE3GateDemo(GObj *volatile a0)
 
     stage_SetAnimation(475, 1, 0);
 
-    iosPadActRequest(boyPad, 0xF);
+    iosPadActRequest(boyPad, 15);
 
     soundSeDefPlay(1425, 0, 0, 0);
 
@@ -974,7 +975,7 @@ void actE3GateDemo(GObj *volatile a0)
     _ACTWait(1);
 
     if (e3gate1st != 0) {
-        scpAdpcmFadeCloseFunc(&e3gate1st, 0x50);
+        scpAdpcmFadeCloseFunc(&e3gate1st, 80);
     }
 
     ReinitWindManager();
@@ -983,7 +984,7 @@ void actE3GateDemo(GObj *volatile a0)
 
     enable_game_pause = 0;
 
-    scpFadeOut(4.0f, 0xFF, 0xFF, 0xFF);
+    scpFadeOut(4.0f, 255, 255, 255);
     while (scpFadeChk() != 0) {
         _ACTWait(1);
     }
@@ -993,9 +994,9 @@ void actE3GateDemo(GObj *volatile a0)
         _ACTWait(1);
     }
 
-    mpegPlayReturnStage = 0x5F;
+    mpegPlayReturnStage = 95;
 
-    stgmgrForceSwitchWithFadeColor(0x68, 255.0f, 4.0f, 0, 0, 0);
+    stgmgrForceSwitchWithFadeColor(104, 255.0f, 4.0f, 0, 0, 0);
 }
 
 void actE3GateJimaku(GObj *volatile a0)
@@ -1010,22 +1011,22 @@ void actE3GateJimaku(GObj *volatile a0)
         case 1:
             jimakuBegin(&jimaku_msg);
             break;
-        case 0x12C:
-            jimaku_msg.sub.block = 0x19;
+        case 300:
+            jimaku_msg.sub.block = 25;
             jimaku_msg.sub.jump = -1;
             jimakuOn = 1;
             jimakuJump(&jimaku_msg);
             break;
-        case 0x58C:
-            jimaku_msg.sub.block = 0x1A;
-            jimaku_msg.sub.jump = 0x1E;
+        case 1420:
+            jimaku_msg.sub.block = 26;
+            jimaku_msg.sub.jump = 30;
             jimakuOn = 1;
             jimakuJump(&jimaku_msg);
             break;
         }
 
         n = (int)t;
-        tn = t + (float)((0x3C - systemStatus[0] * 0xA) / systemStatus[1]) / 60.0f;
+        tn = t + (float)((60 - systemStatus[0] * 10) / systemStatus[1]) / 60.0f;
         if (n != (int)tn) {
             _ACTWait(1);
             t = tn;
@@ -1057,14 +1058,14 @@ void actE3St09aBrgDown(GObj *volatile a0)
     }
     _ACTWait(1);
 
-    iosPadActRequest(boyPad, 0x11);
+    iosPadActRequest(boyPad, 17);
 
     while (stage_CheckAnimationFrame(378, 165, 0) == 0) {
         _ACTWait(1);
     }
     _ACTWait(1);
 
-    iosPadActRequest(boyPad, 0x10);
+    iosPadActRequest(boyPad, 16);
 
     while (stage_CheckAnimationFinish(378) == 0) {
         _ACTWait(1);

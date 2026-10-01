@@ -66,14 +66,14 @@ void actSt19aOriUp(GObj *volatile a0)
         if ((pad[0].flags & 0x800) && scpAdpcmPlayRequestNum() == 0) {
             skip = 1;
             scpFadeOut(16.0f, 0, 0, 0);
-            scpAdpcmFadeCloseFunc(&fence_up_19a, 0x200);
+            scpAdpcmFadeCloseFunc(&fence_up_19a, 512);
             while (scpFadeChk() != 0) {
                 _ACTWait(1);
             }
             while (lt_fade_status() != 2) {
                 _ACTWait(1);
             }
-            stage_SetAnimation(142, 0, 0x59);
+            stage_SetAnimation(142, 0, 89);
             scpFadeIn(3.0f);
             break;
         }
@@ -85,7 +85,7 @@ void actSt19aOriUp(GObj *volatile a0)
         }
     }
     if (skip == 0) {
-        scpAdpcmFadeCloseFunc(&fence_up_19a, 0x100);
+        scpAdpcmFadeCloseFunc(&fence_up_19a, 256);
     }
     scpBoyControlReadDisable = 0;
     lt_switch_layout(54);
@@ -165,7 +165,7 @@ void actSt19aHagurumaChk(GObj *volatile a0)
     while (stage_CheckAnimationFinish(141) == 0) {
         if (((pad[0].flags & 0x800) && scpAdpcmPlayRequestNum() == 0) || skip != 0) {
             scpFadeOut(16.0f, 0, 0, 0);
-            scpAdpcmFadeCloseFunc(&fence_down_19a, 0x200);
+            scpAdpcmFadeCloseFunc(&fence_down_19a, 512);
             while (scpFadeChk() != 0) {
                 _ACTWait(1);
             }
@@ -207,7 +207,7 @@ void actSt19aPipeChk(GObj *volatile a0)
     for (i = 300; i-- > 0;) {
         if ((pad[0].flags & 0x800) && scpAdpcmPlayRequestNum() == 0) {
             scpFadeOut(16.0f, 0, 0, 0);
-            scpAdpcmFadeCloseFunc(&hgrm_19a, 0x200);
+            scpAdpcmFadeCloseFunc(&hgrm_19a, 512);
             while (scpFadeChk() != 0) {
                 _ACTWait(1);
             }
@@ -255,9 +255,9 @@ void actSt19aChainDown(GObj *volatile a0)
         scpFadeIn(3.0f);
     }
     scpSearchGobj(1963)->active = 1;
-    stage_SetAnimation(144, 0, 0x169);
+    stage_SetAnimation(144, 0, 361);
     if (pipe19a != 0) {
-        scpAdpcmFadeCloseFunc(&pipe19a, 0x100);
+        scpAdpcmFadeCloseFunc(&pipe19a, 256);
     }
     scpBoyControlReadDisable = 0;
     lt_switch_layout(54);
@@ -314,7 +314,7 @@ void actSt19aOri(GObj *volatile a0)
         ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     } else {
-        stage_SetAnimation(142, 0, 0x59);
+        stage_SetAnimation(142, 0, 89);
     }
 }
 

@@ -23,19 +23,6 @@
 #include "main.h"
 #include "script.h"
 
-/* this file's own view of GObj (the shared one is in typedef.h) */
-typedef struct PObjGObjSt10R { /* field names derived */
-    char pad00[8];             /* 0x000 */
-    int f08;                   /* 0x008 */
-    int f0C;                   /* 0x00C */
-    char pad10[332];           /* 0x010 */
-    char *f15C;                /* 0x15C */
-    char pad160[4];            /* 0x160 */
-    Act *act;                  /* 0x164 */
-    char pad168[4];            /* 0x168 */
-    int f16C;                  /* 0x16C */
-} PObjGObjSt10R;               /* derived name */
-
 static ActMail floor_mes[2] = {{430}, {429}}; /* derived name */
 
 static ActMail floor_hit_mes[2] = {{430}, {429}}; /* derived name */
@@ -132,7 +119,7 @@ void actSt10rFloorChk(GObj *volatile a0)
         _ACTWait(1);
     }
 
-    iosPadActRequest(boyPad, 0x10);
+    iosPadActRequest(boyPad, 16);
 
     lt_switch_layout(55);
     scpBoyControlReadDisable = 1;
@@ -156,7 +143,7 @@ void actSt10rFloorChk(GObj *volatile a0)
 
     if (demoEnd == 0) {
         scpFadeOut(16.0f, 0, 0, 0);
-        scpAdpcmFadeCloseFunc(&st10r_floor, 0x200);
+        scpAdpcmFadeCloseFunc(&st10r_floor, 512);
         while (scpFadeChk() != 0) {
             _ACTWait(1);
         }
@@ -177,10 +164,10 @@ void actSt10rFloorHitChk(GObj *volatile a0)
 {
     for (;;) {
         while (scpTriggerBall(a0, boyGObj, 100.0f) == 0 || gflagChk(300) != 0 ||
-               (ForMotionViewer_GetCurrentMotion(boyGObj) != 0x2F &&
-                ForMotionViewer_GetCurrentMotion(boyGObj) != 0x30 &&
-                ForMotionViewer_GetCurrentMotion(boyGObj) != 0x31 &&
-                ForMotionViewer_GetCurrentMotion(boyGObj) != 0x3E)) {
+               (ForMotionViewer_GetCurrentMotion(boyGObj) != 47 &&
+                ForMotionViewer_GetCurrentMotion(boyGObj) != 48 &&
+                ForMotionViewer_GetCurrentMotion(boyGObj) != 49 &&
+                ForMotionViewer_GetCurrentMotion(boyGObj) != 62)) {
             _ACTWait(1);
         }
 
@@ -205,7 +192,7 @@ void actSt10rCageMain(GObj *volatile a0)
 {
     GProc *th;
 
-    while (!(scpGetRotObjectRotCount(0x645) < -2.0f)) {
+    while (!(scpGetRotObjectRotCount(1605) < -2.0f)) {
         _ACTWait(1);
     }
 
@@ -236,7 +223,7 @@ void actSt10rCageMain(GObj *volatile a0)
             _ACTWait(1);
         }
 
-        scpAdpcmFadeCloseFunc(&cage10r, 0x200);
+        scpAdpcmFadeCloseFunc(&cage10r, 512);
 
         while (scpFadeChk() != 0) {
             _ACTWait(1);
@@ -302,7 +289,7 @@ void actSt10rTowerChk(GObj *volatile a0)
     f = demoEnd ^ 1;
 
     if (f) {
-        scpAdpcmFadeCloseFunc(&st10r_adpcm, 0xC0);
+        scpAdpcmFadeCloseFunc(&st10r_adpcm, 192);
         scpFadeOut(16.0f, 0, 0, 0);
         while (scpFadeChk() != 0) {
             _ACTWait(1);
@@ -353,32 +340,32 @@ void actSt10rTowerConte(GObj *volatile a0)
         _ACTWait(1);
     }
     _ACTWait(1);
-    iosPadActRequest(boyPad, 0xF);
+    iosPadActRequest(boyPad, 15);
 
     while (stage_CheckAnimationFrame(389, 270, 0) == 0) {
         _ACTWait(1);
     }
     _ACTWait(1);
-    iosPadActRequest(boyPad, 0x11);
+    iosPadActRequest(boyPad, 17);
 
     while (stage_CheckAnimationFrame(389, 280, 0) == 0) {
         _ACTWait(1);
     }
     _ACTWait(1);
-    iosPadActRequest(boyPad, 0xF);
+    iosPadActRequest(boyPad, 15);
 
     while (stage_CheckAnimationFrame(389, 300, 0) == 0) {
         _ACTWait(1);
     }
     _ACTWait(1);
-    iosPadActRequest(boyPad, 0x10);
+    iosPadActRequest(boyPad, 16);
 
     while (stage_CheckAnimationFinish(389) == 0) {
         _ACTWait(1);
     }
     _ACTWait(1);
 
-    _ACTWait((0x3C - systemStatus[0] * 0xA) / systemStatus[1] * 6);
+    _ACTWait((60 - systemStatus[0] * 10) / systemStatus[1] * 6);
 
     demoEnd = 1;
     _ACTWait(0);
@@ -415,7 +402,7 @@ void actSt10rChainMove(GObj *volatile a0)
             _ACTWait(1);
         }
 
-        scpAdpcmFadeCloseFunc(&chain10r, 0x200);
+        scpAdpcmFadeCloseFunc(&chain10r, 512);
 
         while (scpFadeChk() != 0) {
             _ACTWait(1);
@@ -431,7 +418,7 @@ void actSt10rChainMove(GObj *volatile a0)
 
     soundSeDefPlay(1288, 0, 0, 1);
 
-    iosPadActRequest(boyPad, 0x11);
+    iosPadActRequest(boyPad, 17);
 
     scpWakeupEnemyAll();
 
@@ -459,9 +446,9 @@ void actSt10rFence(GObj *volatile a0)
         scpSearchGobj(1641)->active = 0;
         scpSearchGobj(1642)->active = 0;
 
-        scpLinkBGAtoLayoutedTarget(0x661, 0x95);
+        scpLinkBGAtoLayoutedTarget(1633, 149);
 
-        stage_SetAnimation(149, 0, 0x1E);
+        stage_SetAnimation(149, 0, 30);
 
         SetWayGroupActive(37, 1);
         SetWayGroupActive(38, 1);
@@ -480,7 +467,7 @@ void actSt10rFence(GObj *volatile a0)
 
         gflagOff(317);
 
-        scpLinkBGAtoLayoutedTarget(0x65F, 0x95);
+        scpLinkBGAtoLayoutedTarget(1631, 149);
 
         stage_SetAnimation(149, 0, 0);
 
@@ -497,7 +484,7 @@ void actSt10rFence(GObj *volatile a0)
 
 void actSt10rFenceDownChk(GObj *volatile a0)
 {
-    Act *sub = ((PObjGObjSt10R *)a0)->act;
+    Act *sub = GOBJ_ACT(a0);
 
     while (scpTriggerBall(a0, scpSearchGobj(1633), 5.0f) == 0) {
         _ACTWait(1);
@@ -535,7 +522,7 @@ void actSt10rFenceDownChk(GObj *volatile a0)
 
 void actSt10rFenceUpChk(GObj *volatile a0)
 {
-    Act *sub = ((PObjGObjSt10R *)a0)->act;
+    Act *sub = GOBJ_ACT(a0);
 
     while (scpTriggerBall(a0, scpSearchGobj(1633), 5.0f) != 0) {
         _ACTWait(1);
@@ -546,7 +533,7 @@ void actSt10rFenceUpChk(GObj *volatile a0)
     scpSearchGobj(1641)->active = 1;
     scpSearchGobj(1642)->active = 1;
 
-    stage_SetAnimation(149, 1, 0x1F);
+    stage_SetAnimation(149, 1, 31);
 
     while (stage_CheckAnimationFrame(149, 40, 0) == 0) {
         _ACTWait(1);
@@ -573,7 +560,7 @@ void actSt10rFenceUpChk(GObj *volatile a0)
 
 void actSt10rFenceDownChk2(GObj *volatile a0)
 {
-    Act *sub = ((PObjGObjSt10R *)a0)->act;
+    Act *sub = GOBJ_ACT(a0);
 
     while (scpTriggerBall(a0, scpSearchGobj(1631), 5.0f) == 0) {
         _ACTWait(1);
@@ -611,7 +598,7 @@ void actSt10rFenceDownChk2(GObj *volatile a0)
 
 void actSt10rFenceUpChk2(GObj *volatile a0)
 {
-    Act *sub = ((PObjGObjSt10R *)a0)->act;
+    Act *sub = GOBJ_ACT(a0);
 
     while (scpTriggerBall(a0, scpSearchGobj(1631), 5.0f) != 0) {
         _ACTWait(1);
@@ -622,7 +609,7 @@ void actSt10rFenceUpChk2(GObj *volatile a0)
     scpSearchGobj(1637)->active = 1;
     scpSearchGobj(1638)->active = 1;
 
-    stage_SetAnimation(149, 1, 0x1F);
+    stage_SetAnimation(149, 1, 31);
 
     while (stage_CheckAnimationFrame(149, 40, 0) == 0) {
         _ACTWait(1);
@@ -683,7 +670,7 @@ void actSt10rCage(GObj *volatile a0)
     Act *self = actInitialize(a0);
     _ACTWait(1);
 
-    scpSetCageVelocityFriction(0x65B, 0.95f);
+    scpSetCageVelocityFriction(1627, 0.95f);
 
     if (gflagChk(301) == 0) {
         cage_mes[0].func = actSt10rCageMain;
@@ -761,7 +748,7 @@ void actSt10rSekizo(GObj *volatile a0)
     actInitialize(a0);
     _ACTWait(1);
 
-    scpSekizou(a0, 0x131, 0x186, 0, 0x12, 0.0f, 327.0f, 4649.0f, -75.0f, 327.0f, 4649.0f);
+    scpSekizou(a0, 305, 390, 0, 18, 0.0f, 327.0f, 4649.0f, -75.0f, 327.0f, 4649.0f);
 }
 
 void actSt10rEne(GObj *volatile a0)
@@ -867,13 +854,13 @@ void actSt10rFloorSub(GObj *volatile a0)
         _ACTWait(1);
     }
     _ACTWait(1);
-    iosPadActRequest(boyPad, 0x10);
+    iosPadActRequest(boyPad, 16);
 
     while (stage_CheckAnimationFrame(385, 80, 0) == 0) {
         _ACTWait(1);
     }
     _ACTWait(1);
-    iosPadActRequest(boyPad, 0x11);
+    iosPadActRequest(boyPad, 17);
 
     while (stage_CheckAnimationFinish(385) == 0) {
         _ACTWait(1);
@@ -901,7 +888,7 @@ void actSt10rCageSub(GObj *volatile a0)
     }
     _ACTWait(1);
 
-    iosPadActRequest(boyPad, 0x11);
+    iosPadActRequest(boyPad, 17);
 
     demoEnd = 1;
     _ACTWait(0);
@@ -945,7 +932,7 @@ void actSt10rChainMain(GObj *volatile a0)
 
 void actSt10rChainSwitch(GObj *volatile a0)
 {
-    Act *self = ((PObjGObjSt10R *)a0)->act;
+    Act *self = GOBJ_ACT(a0);
 
     scpBoyControlReadDisable = 1;
     self->mainMail = 0;
@@ -1002,7 +989,7 @@ void actSt10rEneChk(GObj *volatile a0)
 
 void actSt10rWayOnChk(GObj *volatile a0)
 {
-    Act *sub = ((PObjGObjSt10R *)a0)->act;
+    Act *sub = GOBJ_ACT(a0);
 
     if (girlGObj == 0) {
         _ACTWait(0);
@@ -1021,7 +1008,7 @@ void actSt10rWayOnChk(GObj *volatile a0)
 
 void actSt10rWayOffChk(GObj *volatile a0)
 {
-    Act *sub = ((PObjGObjSt10R *)a0)->act;
+    Act *sub = GOBJ_ACT(a0);
 
     if (girlGObj == 0) {
         _ACTWait(0);
@@ -1041,8 +1028,8 @@ void actSt10rWayOffChk(GObj *volatile a0)
 void actSt10rTowerResqueChk(GObj *volatile a0)
 {
     while (gflagChk(303) != 0 || gflagChk(302) == 0 || scpTriggerBall(a0, boyGObj, 500.0f) == 0 ||
-           (ForMotionViewer_GetCurrentMotion(boyGObj) != 0x54 &&
-            ForMotionViewer_GetCurrentMotion(boyGObj) != 0x55)) {
+           (ForMotionViewer_GetCurrentMotion(boyGObj) != 84 &&
+            ForMotionViewer_GetCurrentMotion(boyGObj) != 85)) {
         _ACTWait(1);
     }
 

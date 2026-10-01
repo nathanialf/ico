@@ -1,5 +1,6 @@
 #include "st20a.h"
 #include "gamesys.h"
+#include "debug.h"
 #include "layout_texture.h"
 #include "pad.h"
 #include "thread.h"
@@ -119,7 +120,7 @@ void actSt20aBridgeDown(GObj *volatile a0)
         while (brg20a == 0) {
             _ACTWait(1);
         }
-        scpAdpcmFadeCloseFunc(&brg20a, 0x200);
+        scpAdpcmFadeCloseFunc(&brg20a, 512);
         while (scpFadeChk() != 0) {
             _ACTWait(1);
         }
@@ -151,14 +152,14 @@ void actSt20aGondolaDown(GObj *volatile a0)
         _ACTWait(1);
     }
     _ACTWait(1);
-    iosPadActRequest(boyPad, 0x11);
+    iosPadActRequest(boyPad, 17);
     while (stage_CheckAnimationFrame(147, 500, 1) == 0) {
         _ACTWait(1);
     }
     _ACTWait(1);
-    iosPadActRequest(boyPad, 0x10);
+    iosPadActRequest(boyPad, 16);
     if (gondola_down != 0) {
-        scpAdpcmFadeCloseFunc(&gondola_down, 0x100);
+        scpAdpcmFadeCloseFunc(&gondola_down, 256);
     }
     while (scpAdpcmCloseChkFunc(&gondola_down) != 0) {
         _ACTWait(1);
@@ -178,20 +179,20 @@ void actSt20aGondolaUp(GObj *volatile a0)
     while (gondola_up == 0) {
         _ACTWait(1);
     }
-    stage_SetAnimation(147, 1, 0x1F4);
+    stage_SetAnimation(147, 1, 500);
     gflagOff(316);
     while (stage_CheckAnimationFrame(147, 820, 0) == 0) {
         _ACTWait(1);
     }
     _ACTWait(1);
-    iosPadActRequest(boyPad, 0x11);
+    iosPadActRequest(boyPad, 17);
     while (stage_CheckAnimationFrame(147, 1000, 1) == 0) {
         _ACTWait(1);
     }
     _ACTWait(1);
-    iosPadActRequest(boyPad, 0x10);
+    iosPadActRequest(boyPad, 16);
     if (gondola_up != 0) {
-        scpAdpcmFadeCloseFunc(&gondola_up, 0x100);
+        scpAdpcmFadeCloseFunc(&gondola_up, 256);
     }
     while (scpAdpcmCloseChkFunc(&gondola_up) != 0) {
         _ACTWait(1);
@@ -224,8 +225,8 @@ void actSt20aFence(GObj *volatile a0)
         scpSearchGobj(2028)->active = 0;
         scpSearchGobj(2029)->active = 0;
 
-        scpLinkBGAtoLayoutedTarget(0x7E6, 0x95);
-        stage_SetAnimation(149, 0, 0x1E);
+        scpLinkBGAtoLayoutedTarget(2022, 149);
+        stage_SetAnimation(149, 0, 30);
 
         fence_mes[0].func = actSt20aFenceUpChk;
         sub->mail = fence_mes;
@@ -244,7 +245,7 @@ void actSt20aFence(GObj *volatile a0)
 
         gflagOff(309);
 
-        scpLinkBGAtoLayoutedTarget(0x7E8, 0x95);
+        scpLinkBGAtoLayoutedTarget(2024, 149);
         stage_SetAnimation(149, 0, 0);
 
         if (girlGObj != 0 && scpTriggerFloorAttr(girlGObj, 0x2000000) != 0) {
@@ -295,7 +296,7 @@ void actSt20aFenceUpChk(GObj *volatile a0)
         _ACTWait(1);
     }
     SetWayGroupActive(19, 0);
-    stage_SetAnimation(149, 1, 0x1F);
+    stage_SetAnimation(149, 1, 31);
     while (stage_CheckAnimationFrame(149, 40, 0) == 0) {
         _ACTWait(1);
     }
@@ -353,7 +354,7 @@ void actSt20aFenceUpChk2(GObj *volatile a0)
         _ACTWait(1);
     }
     SetWayGroupActive(19, 0);
-    stage_SetAnimation(149, 1, 0x1F);
+    stage_SetAnimation(149, 1, 31);
     while (stage_CheckAnimationFrame(149, 40, 0) == 0) {
         _ACTWait(1);
     }
@@ -397,7 +398,7 @@ void actSt20aGondola(GObj *volatile a0)
     if (gflagChk(316) != 0) {
         stage_SetAnimation(147, 0, 0);
         _ACTWait(10);
-        stage_SetAnimation(147, 0, 0x1F4);
+        stage_SetAnimation(147, 0, 500);
     } else {
         stage_SetAnimation(147, 0, 0);
     }
@@ -563,8 +564,8 @@ void actSt20aBridgeDownSub(GObj *volatile a0)
     AdpcmPlay(((AdpcmObj *)brg20a)->stream);
     stage_SetAnimation(148, 1, 0);
     st20a_yure = iosPadActRequest(boyPad, 9);
-    st20a_yure_vol = 0x80;
-    iosPadActVolumeSet(st20a_yure, 0x80);
+    st20a_yure_vol = 128;
+    iosPadActVolumeSet(st20a_yure, 128);
     while (stage_CheckAnimationFinish(148) == 0) {
         _ACTWait(1);
     }

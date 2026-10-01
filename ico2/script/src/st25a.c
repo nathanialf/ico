@@ -127,7 +127,7 @@ void actSt25aQueenAppearChk(GObj *volatile a0)
     }
     AdpcmPlay(((AdpcmObj *)conte11)->stream);
     scpBoyControlReadDisable = 1;
-    _ACTWait((0x3C - systemStatus[0] * 0xA) / systemStatus[1] * 3);
+    _ACTWait((60 - systemStatus[0] * 10) / systemStatus[1] * 3);
     actCreateSubThread(actConte11, 21);
 }
 
@@ -148,7 +148,7 @@ void actConte11(GObj *volatile a0)
     _ACTWait(1);
     stage_SetAnimation(156, 1, 0);
 
-    scpLinkBGAtoKindTargetSkeltonWithLocalRotationFlag(0x2F, 0, 0x22B, 0);
+    scpLinkBGAtoKindTargetSkeltonWithLocalRotationFlag(47, 0, 555, 0);
 
     stage_SetLoopFlag(555, 1);
     stage_SetAnimation(555, 1, 0);
@@ -256,7 +256,7 @@ void actSt25aQueenTalkChk(GObj *volatile a0)
     cancel = demoEnd ^ 1;
 
     if (cancel != 0) {
-        scpAdpcmFadeCloseFunc(&conte12, 0x100);
+        scpAdpcmFadeCloseFunc(&conte12, 256);
 
         scpFadeOut(16.0f, 0, 0, 0);
         while (scpFadeChk() != 0) {
@@ -278,7 +278,7 @@ void actSt25aQueenTalkChk(GObj *volatile a0)
 
         ScpCallCameraTargetOff();
         DeleteBoyWeapon();
-        scpLinkBGAtoLayoutedTarget(0x86E, 0x1E7);
+        scpLinkBGAtoLayoutedTarget(2158, 487);
 
         scpSearchGobj(2158)->active = 1;
         stage_SetAnimation(157, -1, -2);
@@ -320,7 +320,7 @@ void actSt25aQueenTalkChk(GObj *volatile a0)
     scpBoyControlReadDisable = 0;
     lt_switch_layout(54);
 
-    CameraSetCameraSet(0x33);
+    CameraSetCameraSet(51);
 
     while (fightSoundPlayChk() != 0) {
         _ACTWait(1);
@@ -391,7 +391,7 @@ void actConte12(GObj *volatile a0)
     stage_SetAnimation(157, 1, 0);
     stage_SetAnimation(556, 1, 0);
 
-    scpLinkBGAtoLayoutedTarget(0x868, 0x1E7);
+    scpLinkBGAtoLayoutedTarget(2152, 487);
 
     iosPadActRequest(boyPad, 15);
     while (stage_CheckAnimationFrame(796, 15, 0) == 0) {
@@ -425,7 +425,7 @@ void actConte12(GObj *volatile a0)
         _ACTWait(1);
     }
 
-    scpLinkBGAtoLayoutedTarget(0x86E, 0x1E7);
+    scpLinkBGAtoLayoutedTarget(2158, 487);
 
     scpSearchGobj(2158)->active = 1;
 
@@ -529,7 +529,7 @@ void actConte12Jimaku(GObj *volatile a0)
         }
 
         n = (int)t;
-        tn = t + (float)((0x3C - systemStatus[0] * 0xA) / systemStatus[1]) / 60.0f;
+        tn = t + (float)((60 - systemStatus[0] * 10) / systemStatus[1]) / 60.0f;
         if (n != (int)tn) {
             _ACTWait(1);
             t = tn;
@@ -554,7 +554,7 @@ void actSt25aQueenDeadChk(GObj *volatile a0)
     scpPlayStart(scpSearchGobj(2149));
 
     if (sd2 != 0) {
-        scpAdpcmFadeCloseFunc(&sd2, 0x100);
+        scpAdpcmFadeCloseFunc(&sd2, 256);
     }
 
     scpKillEnemyAll();
@@ -683,7 +683,7 @@ void actConte13Jimaku(GObj *volatile a0)
         }
 
         n = (int)t;
-        tn = t + (float)((0x3C - systemStatus[0] * 0xA) / systemStatus[1]) / 60.0f;
+        tn = t + (float)((60 - systemStatus[0] * 10) / systemStatus[1]) / 60.0f;
         if (n != (int)tn) {
             _ACTWait(1);
             t = tn;
@@ -712,7 +712,7 @@ void actSt25aElevChk(GObj *volatile a0)
         while (elevFirst == 0) {
             _ACTWait(1);
         }
-        _ACTWait((0x3C - systemStatus[0] * 0xA) / systemStatus[1]);
+        _ACTWait((60 - systemStatus[0] * 10) / systemStatus[1]);
         stage_SetAnimation(161, 1, 0);
         while (stage_CheckAnimationFrame(161, 50, 0) == 0) {
             _ACTWait(1);
@@ -729,7 +729,7 @@ void actSt25aElevChk(GObj *volatile a0)
         while (elevAgain == 0) {
             _ACTWait(1);
         }
-        _ACTWait((int)((0x3C - systemStatus[0] * 0xA) / systemStatus[1] * 0.15));
+        _ACTWait((int)((60 - systemStatus[0] * 10) / systemStatus[1] * 0.15));
         stage_SetAnimation(162, 1, 0);
         while (stage_CheckAnimationFinish(162) == 0) {
             _ACTWait(1);
@@ -854,7 +854,7 @@ void actSwordEff(GObj *volatile a0)
     actInitialize(a0);
     _ACTWait(1);
 
-    scpLinkBGAtoLayoutedTarget(0x832, 0x1E7);
+    scpLinkBGAtoLayoutedTarget(2098, 487);
 }
 
 void actSwordEffXL(GObj *volatile a0)
@@ -865,7 +865,7 @@ void actSwordEffXL(GObj *volatile a0)
     _ACTWait(1);
 
     if (scpGameStat_BoyWeaponkind() == 5) {
-        scpLinkBGAtoLayoutedTarget(0x832, 0x1E7);
+        scpLinkBGAtoLayoutedTarget(2098, 487);
     } else {
         stage_SetAnimation(487, -1, -2);
     }
@@ -894,7 +894,7 @@ void actConte11Jimaku(GObj *volatile a0)
         case 1:
             break;
         case 10:
-            jimaku_msg.sub.block = 0x5D;
+            jimaku_msg.sub.block = 93;
             jimaku_msg.sub.jump = -1;
             jimakuOn = 1;
             jimakuJump(&jimaku_msg);
@@ -902,7 +902,7 @@ void actConte11Jimaku(GObj *volatile a0)
         }
 
         n = (int)t;
-        tn = t + (float)((0x3C - systemStatus[0] * 0xA) / systemStatus[1]) / 60.0f;
+        tn = t + (float)((60 - systemStatus[0] * 10) / systemStatus[1]) / 60.0f;
         if (n != (int)tn) {
             _ACTWait(1);
             t = tn;
@@ -938,7 +938,7 @@ void actSt25aQueenDeadEvent(int x)
 void actItouQueenAttackChk(GObj *volatile a0)
 {
     while (1) {
-        while (ForMotionViewer_GetCurrentMotion(scpSearchGobj(3526)) != 0x436) {
+        while (ForMotionViewer_GetCurrentMotion(scpSearchGobj(3526)) != 1078) {
             _ACTWait(1);
         }
         tex_SetUVScroll(queenBallScrTexture, 0.0f, 0.0f, 0.001f, 0.01f, 0.99f, 0.99f, 1);

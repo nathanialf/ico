@@ -16,23 +16,6 @@
 #include "script.h"
 #include "main.h"
 
-/* this file's own view of Act (the shared one is in typedef.h) */
-typedef struct ActSt10L { /* field names derived */
-    char pad0[52];        /* 0x00 */
-    int f34;              /* 0x34 */
-    char pad38[152];      /* 0x38 */
-    ActMail *mainMail;    /* 0xD0 */
-    ActMail *mail;        /* 0xD4 */
-} ActSt10L;               /* derived name */
-
-/* this file's own view of GObj (the shared one is in typedef.h) */
-typedef struct PObjGObjSt10L { /* field names derived */
-    char pad00[356];           /* 0x000 */
-    ActSt10L *act;             /* 0x164 */
-    char pad168[4];            /* 0x168 */
-    int f16C;                  /* 0x16C */
-} PObjGObjSt10L;               /* derived name */
-
 /* .rodata: the girl's way-point packet for actSt10lEneCam3Chk, a 16-byte
    constant vector template whose long long view the copy reads */
 
@@ -98,7 +81,7 @@ void actSt10lInit(void)
     if (gflagChk(289) != 0) {
         SetWayGroupActive(22, 1);
         SetWayGroupActive(23, 1);
-        stage_SetAnimation(379, 0, 0x59);
+        stage_SetAnimation(379, 0, 89);
     } else {
         SetWayGroupActive(20, 1);
         SetWayGroupActive(21, 1);
@@ -108,7 +91,7 @@ void actSt10lInit(void)
 
 void actSt10lFloorLeft(GObj *volatile a0)
 {
-    ActSt10L *sub = ((PObjGObjSt10L *)a0)->act;
+    Act *sub = GOBJ_ACT(a0);
 
     if (gflagChk(290) == 0 && girlGObj != 0 && scpTriggerFloorAttr(girlGObj, 0x3000000) != 0) {
         gflagOn(290);
@@ -149,7 +132,7 @@ void actSt10lFloorLeft(GObj *volatile a0)
         gflagOn(296);
     }
 
-    _ACTWait((0x3C - systemStatus[0] * 0xA) / systemStatus[1] * 0xA);
+    _ACTWait((60 - systemStatus[0] * 10) / systemStatus[1] * 10);
 
     if (gflagChk(295) == 0) {
         scpBoyControlReadDisable = 0;
@@ -169,7 +152,7 @@ void actSt10lFloorLeft(GObj *volatile a0)
 
 void actSt10lFloorRight(GObj *volatile a0)
 {
-    ActSt10L *sub = ((PObjGObjSt10L *)a0)->act;
+    Act *sub = GOBJ_ACT(a0);
 
     if (gflagChk(290) != 0 && girlGObj != 0 && scpTriggerFloorAttr(girlGObj, 0x3000000) != 0) {
         scpPlayPosSet(girlGObj, -196.0f, -72.0f, 62.0f);
@@ -183,7 +166,7 @@ void actSt10lFloorRight(GObj *volatile a0)
         _ACTWait(1);
     }
 
-    stage_SetAnimation(379, 1, 0x5A);
+    stage_SetAnimation(379, 1, 90);
 
     SetWayGroupActive(20, 1);
     SetWayGroupActive(21, 1);
@@ -197,7 +180,7 @@ void actSt10lFloorRight(GObj *volatile a0)
     }
     _ACTWait(1);
 
-    _ACTWait((0x3C - systemStatus[0] * 0xA) / systemStatus[1] * 0xB);
+    _ACTWait((60 - systemStatus[0] * 10) / systemStatus[1] * 11);
 
     scpBoyControlReadDisable = 0;
     lt_switch_layout(54);
@@ -215,7 +198,7 @@ void actSt10lFloorRight(GObj *volatile a0)
 
 void actSt10lGondolaUp(GObj *volatile a0)
 {
-    ActSt10L *sub = ((PObjGObjSt10L *)a0)->act;
+    Act *sub = GOBJ_ACT(a0);
 
     scpAdpcmPlayRequestFunc(88, &st10l_gondola_up, 1, 1, 1);
 
@@ -230,7 +213,7 @@ void actSt10lGondolaUp(GObj *volatile a0)
     }
     _ACTWait(1);
 
-    iosPadActRequest(boyPad, 0x10);
+    iosPadActRequest(boyPad, 16);
 
     while (stage_CheckAnimationFrame(380, 179, 1) == 0) {
         _ACTWait(1);
@@ -240,7 +223,7 @@ void actSt10lGondolaUp(GObj *volatile a0)
     gflagOn(291);
 
     if (st10l_gondola_up != 0) {
-        scpAdpcmFadeCloseFunc(&st10l_gondola_up, 0x100);
+        scpAdpcmFadeCloseFunc(&st10l_gondola_up, 256);
     }
 
     while (scpAdpcmCloseChkFunc(&st10l_gondola_up) != 0) {
@@ -259,7 +242,7 @@ void actSt10lGondolaUp(GObj *volatile a0)
 
 void actSt10lGondolaDown(GObj *volatile a0)
 {
-    ActSt10L *sub = ((PObjGObjSt10L *)a0)->act;
+    Act *sub = GOBJ_ACT(a0);
 
     SetGirlDangerGObj(boyGObj);
 
@@ -269,14 +252,14 @@ void actSt10lGondolaDown(GObj *volatile a0)
         _ACTWait(1);
     }
 
-    stage_SetAnimation(380, 1, 0xB4);
+    stage_SetAnimation(380, 1, 180);
 
     while (stage_CheckAnimationFrame(380, 340, 0) == 0) {
         _ACTWait(1);
     }
     _ACTWait(1);
 
-    iosPadActRequest(boyPad, 0x11);
+    iosPadActRequest(boyPad, 17);
 
     while (stage_CheckAnimationFrame(380, 360, 1) == 0) {
         _ACTWait(1);
@@ -286,7 +269,7 @@ void actSt10lGondolaDown(GObj *volatile a0)
     gflagOff(291);
 
     if (st10l_gondola_down != 0) {
-        scpAdpcmFadeCloseFunc(&st10l_gondola_down, 0x100);
+        scpAdpcmFadeCloseFunc(&st10l_gondola_down, 256);
     }
 
     while (scpAdpcmCloseChkFunc(&st10l_gondola_down) != 0) {
@@ -310,7 +293,7 @@ void actSt10lEneCam2Chk(GObj *volatile a0)
     int save;
 
     while (girlGObj == 0 || scpTriggerFloorAttr(boyGObj, 0x4000000) == 0 || gflagChk(287) == 0 ||
-           ((PObjGObjSt10L *)girlGObj)->act->f34 == 0x6F) {
+           GOBJ_ACT(girlGObj)->actMode == 111) {
         _ACTWait(1);
     }
 
@@ -326,7 +309,7 @@ void actSt10lEneCam2Chk(GObj *volatile a0)
     scpSleepEnemyOne(3757);
     scpSleepEnemyOne(991);
     scpSleepEnemyOne(1006);
-    scpSleepSpiderGroupOne(0x3EF);
+    scpSleepSpiderGroupOne(1007);
 
     _ACTWait(30);
 
@@ -341,7 +324,7 @@ void actSt10lEneCam2Chk(GObj *volatile a0)
     }
     _ACTWait(1);
 
-    _ACTWait((0x3C - systemStatus[0] * 0xA) / systemStatus[1] * 0x3);
+    _ACTWait((60 - systemStatus[0] * 10) / systemStatus[1] * 3);
 
     lt_switch_layout(54);
     scpBoyControlReadDisable = 0;
@@ -349,10 +332,10 @@ void actSt10lEneCam2Chk(GObj *volatile a0)
     scpWakeupEnemyOne(3757);
     scpWakeupEnemyOne(992);
     scpWakeupEnemyOne(993);
-    scpWakeupSpiderGroupOne(0x3E2);
+    scpWakeupSpiderGroupOne(994);
     scpWakeupEnemyOne(991);
     scpWakeupEnemyOne(1006);
-    scpWakeupSpiderGroupOne(0x3EF);
+    scpWakeupSpiderGroupOne(1007);
 }
 
 void actSt10lEneCam3Chk(GObj *volatile a0)
@@ -379,7 +362,7 @@ void actSt10lEneCam3Chk(GObj *volatile a0)
 
     gflagOff(295);
 
-    _ACTWait((0x3C - systemStatus[0] * 0xA) / systemStatus[1] * 0x3);
+    _ACTWait((60 - systemStatus[0] * 10) / systemStatus[1] * 3);
 
     lt_switch_layout(54);
     scpBoyControlReadDisable = 0;
@@ -408,7 +391,7 @@ void actSt10lChainMove(GObj *volatile a0)
     while (stage_CheckAnimationFrame(384, 240, 0) == 0) {
         if ((pad[0].flags & 0x800) && scpAdpcmPlayRequestNum() == 0) {
             scpFadeOut(16.0f, 0, 0, 0);
-            scpAdpcmFadeCloseFunc(&chain10l, 0x200);
+            scpAdpcmFadeCloseFunc(&chain10l, 512);
 
             while (scpFadeChk() != 0) {
                 _ACTWait(1);
@@ -417,7 +400,7 @@ void actSt10lChainMove(GObj *volatile a0)
                 _ACTWait(1);
             }
 
-            stage_SetAnimation(384, 1, 0xEF);
+            stage_SetAnimation(384, 1, 239);
             scpFadeIn(3.0f);
             break;
         }
@@ -428,7 +411,7 @@ void actSt10lChainMove(GObj *volatile a0)
     scpBoyControlReadDisable = 0;
     lt_switch_layout(54);
 
-    _ACTWait((0x3C - systemStatus[0] * 0xA) / systemStatus[1]);
+    _ACTWait((60 - systemStatus[0] * 10) / systemStatus[1]);
 
     stage_SetAnimation(384, 0, 0);
 
@@ -480,7 +463,7 @@ void actSt10lGondola(GObj *volatile a0)
     if (gflagChk(291) != 0) {
         stage_SetAnimation(380, 0, 0);
         _ACTWait(10);
-        stage_SetAnimation(380, 0, 0xB3);
+        stage_SetAnimation(380, 0, 179);
     } else {
         stage_SetAnimation(380, 0, 0);
     }
@@ -498,7 +481,7 @@ void actSt10lSekizo(GObj *volatile a0)
     actInitialize(a0);
     _ACTWait(1);
 
-    scpSekizou(a0, 0x120, 0x17F, 0, 0x13, 0.0f, -72.0f, 1274.0f, 76.0f, -72.0f, 1274.0f);
+    scpSekizou(a0, 288, 383, 0, 19, 0.0f, -72.0f, 1274.0f, 76.0f, -72.0f, 1274.0f);
 }
 
 void actSt10lBox(GObj *volatile a0)
@@ -761,7 +744,7 @@ void actSt10lGateXL(GObj *volatile a0)
 
 void actSt10lFloorMain(GObj *volatile a0)
 {
-    ActSt10L *sub = ((PObjGObjSt10L *)a0)->act;
+    Act *sub = GOBJ_ACT(a0);
 
     sub->mainMail = floorMain_mes;
     while (1) {
@@ -771,7 +754,7 @@ void actSt10lFloorMain(GObj *volatile a0)
 
 void actSt10lFloorSwitch(GObj *volatile a0)
 {
-    ActSt10L *sub = ((PObjGObjSt10L *)a0)->act;
+    Act *sub = GOBJ_ACT(a0);
 
     sub->mainMail = 0;
     lt_switch_layout(55);
@@ -793,7 +776,7 @@ void actSt10lFloorSwitch(GObj *volatile a0)
 
 void actSt10lGondolaMain(GObj *volatile a0)
 {
-    ActSt10L *sub = ((PObjGObjSt10L *)a0)->act;
+    Act *sub = GOBJ_ACT(a0);
 
     sub->mainMail = gondolaMain_mes;
     while (1) {
@@ -803,7 +786,7 @@ void actSt10lGondolaMain(GObj *volatile a0)
 
 void actSt10lGondolaSwitch(GObj *volatile a0)
 {
-    ActSt10L *sub = ((PObjGObjSt10L *)a0)->act;
+    Act *sub = GOBJ_ACT(a0);
 
     sub->mainMail = 0;
     lt_switch_layout(55);
@@ -882,7 +865,7 @@ void actSt10lBoxBChk(GObj *volatile a0)
 
 void actSt10lChainMain(GObj *volatile a0)
 {
-    ActSt10L *sub = ((PObjGObjSt10L *)a0)->act;
+    Act *sub = GOBJ_ACT(a0);
 
     sub->mainMail = chainMain_mes;
     while (1) {
@@ -892,7 +875,7 @@ void actSt10lChainMain(GObj *volatile a0)
 
 void actSt10lChainSwitch(GObj *volatile a0)
 {
-    ActSt10L *sub = ((PObjGObjSt10L *)a0)->act;
+    Act *sub = GOBJ_ACT(a0);
 
     sub->mainMail = 0;
     scpBoyControlReadDisable = 1;

@@ -232,7 +232,7 @@ void actSt04eWaterSwitch(GObj *volatile a0)
 
 void actSt04eWaterFlagOn(GObj *volatile a0)
 {
-    int t = (0x3C - systemStatus[0] * 10) / systemStatus[1] * 6.0;
+    int t = (60 - systemStatus[0] * 10) / systemStatus[1] * 6.0;
 
     riverFadeSpeed = 0.005f;
 
@@ -266,7 +266,7 @@ void actSt04eWaterStopSub(GObj *volatile a0)
 void actSt04eHint1Chk(GObj *volatile a0)
 {
     while (scpTriggerBall(a0, boyGObj, 1000.0f) == 0 ||
-           ForMotionViewer_GetCurrentMotion(boyGObj) != 0x91) {
+           ForMotionViewer_GetCurrentMotion(boyGObj) != 145) {
         _ACTWait(1);
     }
 
@@ -282,7 +282,7 @@ void actSt04eFuchi1Chk(GObj *volatile a0)
     }
 
     gflagOn(227);
-    _ACTWait((0x3C - systemStatus[0] * 10) / systemStatus[1]);
+    _ACTWait((60 - systemStatus[0] * 10) / systemStatus[1]);
     stage_SetAnimation(263, 1, 0);
     soundSeDefPlay(1342, 0, 0, 1);
 
@@ -300,7 +300,7 @@ void actSt04eFuchi2Chk(GObj *volatile a0)
     }
 
     gflagOn(228);
-    _ACTWait((0x3C - systemStatus[0] * 10) / systemStatus[1]);
+    _ACTWait((60 - systemStatus[0] * 10) / systemStatus[1]);
     stage_SetAnimation(264, 1, 0);
     soundSeDefPlay(1342, 0, 0, 1);
 
@@ -318,7 +318,7 @@ void actSt04eFuchi3Chk(GObj *volatile a0)
     }
 
     gflagOn(229);
-    _ACTWait((0x3C - systemStatus[0] * 10) / systemStatus[1]);
+    _ACTWait((60 - systemStatus[0] * 10) / systemStatus[1]);
     stage_SetAnimation(265, 1, 0);
     soundSeDefPlay(1342, 0, 0, 1);
 
@@ -334,13 +334,13 @@ void actSt04eSeChk(GObj *volatile a0)
     int h;
 
     while (1) {
-        while (ForMotionViewer_GetCurrentMotion(boyGObj) != 0xAD &&
-               ForMotionViewer_GetCurrentMotion(boyGObj) != 0xB1) {
+        while (ForMotionViewer_GetCurrentMotion(boyGObj) != 173 &&
+               ForMotionViewer_GetCurrentMotion(boyGObj) != 177) {
             _ACTWait(1);
         }
 
         h = soundSeDefPlay(1340, 0, seChkPos, 1);
-        _ACTWait((0x3C - systemStatus[0] * 10) / systemStatus[1] * 0.5);
+        _ACTWait((60 - systemStatus[0] * 10) / systemStatus[1] * 0.5);
         soundSeDefStop(h);
 
         soundSeDefPlay(1341, 0, seChkPos, 1);

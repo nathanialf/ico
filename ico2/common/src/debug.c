@@ -698,36 +698,6 @@ extern float dptofp(double v);
 
 /* clang-format on */
 
-/* memory-card request block */
-/* one sceMcTblGetDir record: the file name sits at +0x20 in a 0x40-byte entry
-   (debug_selectFile forms the table base as mc+0x4C0 and the name as
-   mc + i*0x40 + 0x4E0). */
-
-typedef struct {
-    long long f0; /* 0x00 -- iosMc flag word, 64-bit */
-    int f8;       /* 0x08 */
-    int fC;       /* 0x0C */
-    int ret;      /* 0x10 */
-    int f14;      /* 0x14 */
-    int f18;      /* 0x18 */
-    int f1C;      /* 0x1C */
-    char pad20[4];
-    int f24; /* 0x24 */
-    char pad28[24];
-    int sel; /* 0x40 */
-    int num; /* 0x44 -- entries filled in by iosMcGetDir */
-    int _48;
-    int f4C; /* 0x4C */
-    int f50; /* 0x50 */
-    char pad54[1024];
-    char name454[40]; /* 0x454 */
-    char name47C[36]; /* 0x47C */
-    char pad4A0[32];  /* 0x4A0 */
-    McDirEnt dir[8];  /* 0x4C0 -- sceMcTblGetDir records, 0x40 each */
-    char pad6C0[768];
-    long long blockFlags; /* 0x9C0 -- one bit per save block, set where a block holds data */
-} McReq;
-
 /* the "*" wildcard pattern "*" is copied into the request block's name
    field as a 2-byte object, not by strcpy */
 typedef struct {
@@ -757,8 +727,8 @@ typedef struct {
     char c[6];
 } McName6;
 
-/* forward declaration: defined below, on this TU's McReq view */
-extern int debug_selectFile(McReq *mc);
+/* forward declaration: defined below */
+extern int debug_selectFile(McMgr *mc);
 
 /* one line of the memory-card menu: the label debug_SelectCsvWindow prints and
    the state machine it hands control to */
@@ -774,8 +744,6 @@ typedef struct {
     char *msg;
 } McTypeMsg;
 
-/* layout_action.c's request block, read here through McReq */
-extern McReq mc;
 /* the generated sedef member's rows; s_init.h declares no seDef, since s_init.c
    writes procRan into them */
 extern const SeDef seDef[];
@@ -2743,36 +2711,36 @@ inline int debug_mcUnformat(int port)
     return 0;
 }
 
-int debug_mcRetErrCheck(McReq *mc)
+int debug_mcRetErrCheck(McMgr *mc)
 {
     char buf[64];
     int r;
-    if (mc->ret >= 0) {
+    if (mc->result >= 0) {
         return 1;
     }
-    switch (mc->ret) {
+    switch (mc->result) {
     case 0:
         r = 1;
         break;
     case -9:
     case -2:
-        sprintf(buf, "not insert memory card or unformatted %d", mc->ret);
+        sprintf(buf, "not insert memory card or unformatted %d", mc->result);
         r = debug_mcAsk(buf) ? -1 : 0;
         break;
     case -4:
-        sprintf(buf, "%s file not found", mc->name47C);
+        sprintf(buf, "%s file not found", mc->path);
         r = debug_mcAsk(buf) ? -1 : 0;
         break;
     case -14:
-        sprintf(buf, "%s Directory not found", mc->name454);
+        sprintf(buf, "%s Directory not found", mc->dirName);
         r = debug_mcAsk(buf) ? -1 : 0;
         break;
     case -16:
-        sprintf(buf, "segID %d check sum err rom:%d != load:%d", mc->f24, mc->f50, mc->f4C);
+        sprintf(buf, "segID %d check sum err rom:%d != load:%d", mc->segment, mc->readSum, mc->sum);
         r = debug_mcAsk(buf) ? -1 : 0;
         break;
     case -15:
-        sprintf(buf, "%s handler func ret err code", mc->name47C);
+        sprintf(buf, "%s handler func ret err code", mc->path);
         r = debug_mcAsk(buf) ? -1 : 0;
         break;
     case -10:
@@ -2780,7 +2748,7 @@ int debug_mcRetErrCheck(McReq *mc)
         r = debug_mcAsk(buf) ? -1 : 0;
         break;
     default:
-        sprintf(buf, "memory card another err %d", mc->ret);
+        sprintf(buf, "memory card another err %d", mc->result);
         r = debug_mcAsk(buf) ? -1 : 0;
         break;
     }
@@ -2789,7 +2757,7 @@ int debug_mcRetErrCheck(McReq *mc)
 
 static int selectFileState = 0; /* derived name */
 
-int debug_selectFile(McReq *mc)
+int debug_selectFile(McMgr *mc)
 {
     int i;
     int r = 0;
@@ -2797,7 +2765,7 @@ int debug_selectFile(McReq *mc)
 
     switch (selectFileState) {
     case 0:
-        mc->f0 &= ~2;
+        mc->flags.ll &= ~2;
         iosMcChdirProduct(mc);
         selectFileState++;
         break;
@@ -2814,20 +2782,20 @@ int debug_selectFile(McReq *mc)
         }
         break;
     case 3:
-        *(McPat *)mc->name47C = *(McPat *)"*";
+        *(McPat *)mc->path = *(McPat *)"*";
         iosMcGetDir(mc);
         selectFileState++;
         break;
     case 6:
-        for (i = 0; i < mc->num; i++) {
-            debug_StdPrintfDummy("%s %d bytes\n", mc->dir[i].name,
+        for (i = 0; i < mc->dirCount; i++) {
+            debug_StdPrintfDummy("%s %d bytes\n", mc->dir[i].EntryName,
                                  ((McDirEnt *)((char *)mc + (i << 6) + 0x4C0))->size);
         }
         selectFileState++;
         break;
     default:
-        debug_SelectCsvWindow("FILE LIST", 0x50, 0x46, 0xA, mc->dir, 0x40, 0x20, 0, mc->num,
-                              &mc->sel);
+        debug_SelectCsvWindow("FILE LIST", 0x50, 0x46, 0xA, mc->dir, 0x40, 0x20, 0, mc->dirCount,
+                              &mc->fileNo);
         if (pad[0].flags & 0x20) {
             r = 1;
         }
@@ -2847,7 +2815,7 @@ int debug_selectFile(McReq *mc)
 
 inline void *debug_saveNumFunc(int a0, void *a1)
 {
-    if ((1 << a0) & ((McReq *)a1)->blockFlags) {
+    if ((1 << a0) & ((McMgr *)a1)->mask) {
         return "SAVED";
     }
     return "NEW";
@@ -2855,14 +2823,14 @@ inline void *debug_saveNumFunc(int a0, void *a1)
 
 static int saveState = 0; /* derived name */
 
-int debug_mcSaveMainBlock(McReq *mc)
+int debug_mcSaveMainBlock(McMgr *mc)
 {
     int r = 0;
     int ret = 0;
 
     switch (saveState) {
     case 0:
-        *(McName6 *)mc->name47C = *(McName6 *)"game.";
+        *(McName6 *)mc->path = *(McName6 *)"game.";
         iosMcGetBlockSaveInfo(mc);
         saveState++;
         break;
@@ -2879,10 +2847,10 @@ int debug_mcSaveMainBlock(McReq *mc)
         }
         break;
     case 3:
-        if (mc->num >= 11) {
+        if (mc->dirCount >= 11) {
             debug_StdPrintfDummy("debug_mcSaveMainBlock:既に設定された数以上のデータを保存してる\n");
         }
-        r = debug_SelectCsvWindowVal((int)"SAVE NO.", 0x50, 0x46, 0xA, 0xA, (int)&mc->sel,
+        r = debug_SelectCsvWindowVal((int)"SAVE NO.", 0x50, 0x46, 0xA, 0xA, (int)&mc->fileNo,
                                      (int (*)(int, int))debug_saveNumFunc, (int)mc);
         if (r > 0) {
             r = 0;
@@ -2900,7 +2868,7 @@ int debug_mcSaveMainBlock(McReq *mc)
     case 5:
     case 7:
     case 12:
-        debug_PrintfDummy(120, 70, 0xFFFFFF00u, "save %s", mc->name47C);
+        debug_PrintfDummy(120, 70, 0xFFFFFF00u, "save %s", mc->path);
         if (iosMcSync(mc)) {
             saveState++;
         }
@@ -2925,14 +2893,14 @@ int debug_mcSaveMainBlock(McReq *mc)
 
 static int loadState = 0; /* derived name */
 
-int debug_mcLoadMainBlock(McReq *mc)
+int debug_mcLoadMainBlock(McMgr *mc)
 {
     int r = 0;
     int ret = 0;
 
     switch (loadState) {
     case 0:
-        *(McName6 *)mc->name47C = *(McName6 *)"game.";
+        *(McName6 *)mc->path = *(McName6 *)"game.";
         iosMcGetBlockSaveInfo(mc);
         loadState++;
         break;
@@ -2949,10 +2917,10 @@ int debug_mcLoadMainBlock(McReq *mc)
         }
         break;
     case 3:
-        if (mc->num >= 11) {
+        if (mc->dirCount >= 11) {
             debug_StdPrintfDummy("debug_mcLoadMainBlock:既に設定された数以上のデータを保存してる\n");
         }
-        r = debug_SelectCsvWindowVal((int)"SAVE NO.", 0x50, 0x46, 0xA, 0xA, (int)&mc->sel,
+        r = debug_SelectCsvWindowVal((int)"SAVE NO.", 0x50, 0x46, 0xA, 0xA, (int)&mc->fileNo,
                                      (int (*)(int, int))debug_saveNumFunc, (int)mc);
         if (r > 0) {
             r = 0;
@@ -2960,7 +2928,7 @@ int debug_mcLoadMainBlock(McReq *mc)
         }
         break;
     case 4:
-        if (((1 << mc->sel) & mc->blockFlags) == 0) {
+        if (((1 << mc->fileNo) & mc->mask) == 0) {
             loadState = 99;
             break;
         }
@@ -2969,7 +2937,7 @@ int debug_mcLoadMainBlock(McReq *mc)
         break;
     case 5:
     case 8:
-        debug_PrintfDummy(120, 70, 0xFFFFFF00u, "load %s", mc->name47C);
+        debug_PrintfDummy(120, 70, 0xFFFFFF00u, "load %s", mc->path);
         if (iosMcSync(mc)) {
             loadState++;
         }
@@ -3003,7 +2971,7 @@ int debug_mcLoadMainBlock(McReq *mc)
 
 static int deleteState = 0; /* derived name */
 
-int debug_mcDeleteFile(McReq *mc)
+int debug_mcDeleteFile(McMgr *mc)
 {
     char buf[32];
     int ret = 0;
@@ -3020,7 +2988,7 @@ int debug_mcDeleteFile(McReq *mc)
         }
         break;
     case 1:
-        sprintf(buf, "delete %s file", mc->dir[mc->sel].name);
+        sprintf(buf, "delete %s file", mc->dir[mc->fileNo].EntryName);
         r = debug_mcConfirm(buf);
         if (r > 0) {
             deleteState++;
@@ -3029,12 +2997,12 @@ int debug_mcDeleteFile(McReq *mc)
         }
         break;
     case 2:
-        strcpy(mc->name47C, mc->dir[mc->sel].name);
+        strcpy(mc->path, mc->dir[mc->fileNo].EntryName);
         iosMcDelete(mc);
         deleteState++;
         break;
     case 3:
-        debug_PrintfDummy(120, 70, 0xFFFFFF00u, "delete %s", mc->name47C);
+        debug_PrintfDummy(120, 70, 0xFFFFFF00u, "delete %s", mc->path);
         if (iosMcSync(mc)) {
             deleteState++;
         }
@@ -3082,8 +3050,8 @@ int debug_MemoryCard(void)
 
     switch (mcState) {
     case 0:
-        mc.fC = 0;
-        mc.f8 = 0;
+        mc.slot = 0;
+        mc.port = 0;
         iosMcGetInfo(&mc);
         mcState++;
         break;
@@ -3094,15 +3062,15 @@ int debug_MemoryCard(void)
         break;
     case 2:
         p = tm;
-        while (mc.f1C != p->type && p->type != 0) {
+        while (mc.cardState != p->type && p->type != 0) {
             p++;
         }
-        if (mc.f14 != 2) {
+        if (mc.type != 2) {
             p = &tm[2];
         }
         debug_PrintfDummy(10, 60, p->col, "Memory card port 0: %s free:%d Kbytes", p->msg,
-                          mc.f18);
-        if (mc.ret >= -2) {
+                          mc.free);
+        if (mc.result >= -2) {
             r = debug_SelectCsvWindow("MENU", 0xA, 0x44, 0xA, menu, 8, 0, 1, 6, &mcMenuSelect);
             if (r == 1) {
                 mcState++;

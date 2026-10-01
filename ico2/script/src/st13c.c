@@ -30,9 +30,9 @@
 #include "main.h"
 #include "jimaku.h"
 
-/* scpEffectStart's argument block: a 16-byte spawn position, copied as a
-   pair of doublewords and written as four floats. */
-
+/* the stage-animation number sets the contes play; two functions keep one
+   in their frame as the scratch vector they hand scpPlayMotDir or
+   DirectCallEnemy. */
 typedef struct AnimSet { /* field names derived */
     int anim[5];         /* 0x00 */
 } AnimSet;               /* derived name */
@@ -40,21 +40,6 @@ typedef struct AnimSet { /* field names derived */
 typedef struct AnimSet16 { /* field names derived */
     int anim[16];          /* 0x00 */
 } AnimSet16;               /* derived name */
-
-typedef struct MotObj { /* field names derived */
-    char pad00[1300];   /* 0x000 */
-    int unk514;         /* 0x514 */
-} MotObj;               /* derived name */
-
-/* this file's own view of GObj (the shared one is in typedef.h) */
-typedef struct PObjGObjSt13c { /* field names derived */
-    char pad00[348];           /* 0x000 */
-    int unk15C;                /* 0x15C */
-    int unk160;                /* 0x160 */
-    int act;                   /* 0x164 (Act * handle) */
-    int unk168;                /* 0x168 */
-    int unk16C;                /* 0x16C */
-} PObjGObjSt13c;               /* derived name */
 
 /* .sbss: the flag each demo raises when it is over, and the generator the boss
    fight calls through. */
@@ -178,7 +163,7 @@ void actSt13cBmg1(GObj *volatile a0)
         return;
     }
 
-    ((Act *)((PObjGObjSt13c *)boyGObj)->act)->flags |= 0x100000;
+    GOBJ_ACT(boyGObj)->flags |= 0x100000;
 
     if (gflagChk(20) != 0) {
         scpPlayPosSet(girlGObj, -30.0f, -436.0f, -1.0f);
@@ -235,7 +220,7 @@ void actSt13cBmg1Chk(GObj *volatile a0)
     }
 
     if (demoEnd == 0) {
-        scpAdpcmFadeCloseFunc(&bmg, 0x100);
+        scpAdpcmFadeCloseFunc(&bmg, 256);
 
         scpFadeOut(16.0f, 0, 0, 0);
         while (scpFadeChk() != 0) {
@@ -318,19 +303,19 @@ void actSt13cConte04Jimaku(GObj *volatile a0)
         case 1:
             jimakuBegin(&jimaku_msg);
             break;
-        case 0x122:
+        case 290:
             jimaku_msg.sub.block = 2;
             jimaku_msg.sub.jump = -1;
             jimakuOn = 1;
             jimakuJump(&jimaku_msg);
             break;
-        case 0x320:
+        case 800:
             jimaku_msg.sub.block = 4;
             jimaku_msg.sub.jump = -1;
             jimakuOn = 1;
             jimakuJump(&jimaku_msg);
             break;
-        case 0x42E:
+        case 1070:
             jimaku_msg.sub.block = 5;
             jimaku_msg.sub.jump = -1;
             jimakuOn = 1;
@@ -339,7 +324,7 @@ void actSt13cConte04Jimaku(GObj *volatile a0)
         }
 
         n = (int)t;
-        tn = t + (float)((0x3C - systemStatus[0] * 0xA) / systemStatus[1]) / 60.0f;
+        tn = t + (float)((60 - systemStatus[0] * 10) / systemStatus[1]) / 60.0f;
         if (n != (int)tn) {
             _ACTWait(1);
             t = tn;
@@ -391,13 +376,13 @@ void actSt13cCage1stDownDemoCancel(GObj *volatile a0)
 
     scpPlayMot(boyGObj, 0);
 
-    memset(ofs, 0, 0x10);
+    memset(ofs, 0, 16);
     ofs[3] = 1.0f;
     sceVu0SubVector(dir, ofs, test_CURRENTROOT(boyGObj));
     scpPlayMotDir(boyGObj, dir);
     scpPlayEnd(boyGObj);
 
-    CameraSetCameraSet(0x25);
+    CameraSetCameraSet(37);
     scpBoyControlReadDisable = 0;
     lt_switch_layout(54);
 }
@@ -427,7 +412,7 @@ void actSt13cCage1stDown(GObj *volatile a0)
     }
     _ACTWait(1);
 
-    scpPlayMotReq(girlGObj, 0x11E);
+    scpPlayMotReq(girlGObj, 286);
 
     while (stage_CheckAnimationFrame(72, 45, 0) == 0) {
         _ACTWait(1);
@@ -459,7 +444,7 @@ void actSt13cCageFall(GObj *volatile a0)
     if (gflagChk(20) == 0) {
         stage_SetAnimation(72, -1, -2);
 
-        ((PObjGObjSt13c *)scpSearchGobj(128))->unk16C = 0;
+        scpSearchGobj(128)->active = 0;
         SetWeaponTorchChainReactionFlagAll(1);
 
         cageFall_mes[0].func = actSt13cCageFallChk;
@@ -468,7 +453,7 @@ void actSt13cCageFall(GObj *volatile a0)
         _ACTWait(0);
     } else {
         if (gflagChk(22) == 0) {
-            ((PObjGObjSt13c *)scpSearchGobj(128))->unk16C = 0;
+            scpSearchGobj(128)->active = 0;
             SetWeaponTorchChainReactionFlagAll(1);
 
             stage_SetAnimation(72, 0, -1);
@@ -480,7 +465,7 @@ void actSt13cCageFall(GObj *volatile a0)
             _ACTWait(0);
         }
 
-        ((PObjGObjSt13c *)scpSearchGobj(144))->unk16C = 0;
+        scpSearchGobj(144)->active = 0;
 
         stage_SetAnimation(76, 0, -1);
         stage_SetAnimation(74, 0, -1);
@@ -545,7 +530,7 @@ void actSt13cCageFallChk(GObj *volatile a0)
     cancel = demoEnd ^ 1;
 
     if (cancel) {
-        scpAdpcmFadeCloseFunc(&st13c_adpcm2, 0x100);
+        scpAdpcmFadeCloseFunc(&st13c_adpcm2, 256);
 
         scpFadeOut(16.0f, 0, 0, 0);
         while (scpFadeChk() != 0) {
@@ -566,10 +551,10 @@ void actSt13cCageFallChk(GObj *volatile a0)
 
         jimakuUndisp(&jimaku_msg);
 
-        ((PObjGObjSt13c *)scpSearchGobj(128))->unk16C = 1;
-        ((PObjGObjSt13c *)scpSearchGobj(129))->unk16C = 1;
-        ((PObjGObjSt13c *)scpSearchGobj(130))->unk16C = 1;
-        ((PObjGObjSt13c *)scpSearchGobj(54))->unk16C = 1;
+        scpSearchGobj(128)->active = 1;
+        scpSearchGobj(129)->active = 1;
+        scpSearchGobj(130)->active = 1;
+        scpSearchGobj(54)->active = 1;
 
         scpTorchLightOn(144);
         ResetHandCameraLimitInDemo();
@@ -580,9 +565,9 @@ void actSt13cCageFallChk(GObj *volatile a0)
         Generator_MaskOff(bossGenerator);
 
         if (isEnemyActive(scpSearchGobj(150)) == 0) {
-            memset(&w, 0, 0x10);
+            memset(&w, 0, 16);
             DirectCallEnemy(scpSearchGobj(150), bossGenerator, &w, &w, 0);
-            iosOmSendMail(scpSearchGobj(150), 0x102, scpSearchGobj(150));
+            iosOmSendMail(scpSearchGobj(150), 258, scpSearchGobj(150));
             _ACTWait(1);
         }
 
@@ -634,12 +619,12 @@ void actSt13cCageFallChk(GObj *volatile a0)
     ACTEnemyForceSwitchToCarry(scpSearchGobj(150));
     scpTorchLightOff(144);
 
-    ((PObjGObjSt13c *)scpSearchGobj(144))->unk16C = 0;
+    scpSearchGobj(144)->active = 0;
 
     scpPlayEnd(boyGObj);
     scpPlayEnd(girlGObj);
 
-    ((Act *)((PObjGObjSt13c *)scpSearchGobj(150))->act)->flags20.ll |= 0x20000;
+    GOBJ_ACT(scpSearchGobj(150))->flags20.ll |= 0x20000;
 
     scpBoyControlReadDisable = 0;
     lt_switch_layout(54);
@@ -648,7 +633,7 @@ void actSt13cCageFallChk(GObj *volatile a0)
     gflagOn(25);
     SetWeaponTorchChainReactionFlagAll(0);
 
-    ((Act *)((PObjGObjSt13c *)boyGObj)->act)->flags &= ~0x100000;
+    GOBJ_ACT(boyGObj)->flags &= ~0x100000;
 }
 
 void actSt13cConte05(GObj *volatile a0)
@@ -703,10 +688,10 @@ void actSt13cConte05(GObj *volatile a0)
     scpPlayMot(girlGObj, 728);
     _ACTWait(1);
 
-    ((PObjGObjSt13c *)scpSearchGobj(128))->unk16C = 1;
-    ((PObjGObjSt13c *)scpSearchGobj(129))->unk16C = 0;
-    ((PObjGObjSt13c *)scpSearchGobj(130))->unk16C = 0;
-    ((PObjGObjSt13c *)scpSearchGobj(54))->unk16C = 0;
+    scpSearchGobj(128)->active = 1;
+    scpSearchGobj(129)->active = 0;
+    scpSearchGobj(130)->active = 0;
+    scpSearchGobj(54)->active = 0;
 
     scpTorchLightOn(144);
 
@@ -722,7 +707,7 @@ void actSt13cConte05(GObj *volatile a0)
 
     SetHandCameraLimitInDemo(5, 5);
 
-    ((PObjGObjSt13c *)scpSearchGobj(54))->unk16C = 1;
+    scpSearchGobj(54)->active = 1;
 
     scpPlayMot(boyGObj, 318);
     scpPlayMot(girlGObj, 730);
@@ -736,8 +721,8 @@ void actSt13cConte05(GObj *volatile a0)
     scpPlayMot(boyGObj, 319);
     scpPlayMot(girlGObj, 731);
 
-    ((PObjGObjSt13c *)scpSearchGobj(129))->unk16C = 1;
-    ((PObjGObjSt13c *)scpSearchGobj(130))->unk16C = 1;
+    scpSearchGobj(129)->active = 1;
+    scpSearchGobj(130)->active = 1;
 
     _ACTWait(300);
     gflagOn(23);
@@ -811,25 +796,25 @@ void actSt13cConte05Jimaku(GObj *volatile a0)
         case 1:
             jimakuBegin(&jimaku_msg);
             break;
-        case 0x65E:
+        case 1630:
             jimakuOn = 1;
             jimaku_msg.sub.block = 9;
             jimaku_msg.sub.jump = -1;
             jimakuJump(&jimaku_msg);
             break;
-        case 0x9BC:
+        case 2492:
             jimaku_msg.sub.block = 6;
             jimaku_msg.sub.jump = -1;
             jimakuOn = 1;
             jimakuJump(&jimaku_msg);
             break;
-        case 0xAC8:
+        case 2760:
             jimaku_msg.sub.block = 7;
             jimaku_msg.sub.jump = -1;
             jimakuOn = 1;
             jimakuJump(&jimaku_msg);
             break;
-        case 0xE80:
+        case 3712:
             jimaku_msg.sub.block = 8;
             jimaku_msg.sub.jump = -1;
             jimakuOn = 1;
@@ -838,7 +823,7 @@ void actSt13cConte05Jimaku(GObj *volatile a0)
         }
 
         n = (int)t;
-        tn = t + (float)((0x3C - systemStatus[0] * 0xA) / systemStatus[1]) / 60.0f;
+        tn = t + (float)((60 - systemStatus[0] * 10) / systemStatus[1]) / 60.0f;
         if (n != (int)tn) {
             _ACTWait(1);
             t = tn;
@@ -870,20 +855,20 @@ void actSt13cCageFallEffect(GObj *volatile a0)
         case 0:
             gflagOn(22);
             break;
-        case 0x40:
-            iosPadActRequest(boyPad, 0x11);
+        case 64:
+            iosPadActRequest(boyPad, 17);
             b1 = cageFallEffect1;
             scpEffectStart(&b1, 0);
             b2 = cageFallEffect2;
             scpEffectStart(&b2, 0);
             break;
-        case 0x44:
+        case 68:
             b3 = cageFallEffect3;
             scpEffectStart(&b3, 0);
             b4 = cageFallEffect4;
             scpEffectStart(&b4, 0);
             break;
-        case 0x60:
+        case 96:
             b5 = cageFallEffect5;
             scpEffectStart(&b5, 0);
             b6 = cageFallEffect6;
@@ -891,22 +876,22 @@ void actSt13cCageFallEffect(GObj *volatile a0)
             b7 = cageFallEffect7;
             scpEffectStart(&b7, 0);
             break;
-        case 0xB4:
-            iosPadActRequest(boyPad, 0xF);
+        case 180:
+            iosPadActRequest(boyPad, 15);
             break;
-        case 0x12C:
+        case 300:
             b8 = cageFallEffect8;
             scpEffectStart(&b8, 0);
             b9 = cageFallEffect9;
             scpEffectStart(&b9, 0);
             break;
-        case 0x17C:
-            iosPadActRequest(boyPad, 0x10);
+        case 380:
+            iosPadActRequest(boyPad, 16);
             break;
         }
 
         n = (int)t;
-        tn = t + (float)((0x3C - systemStatus[0] * 0xA) / systemStatus[1]) / 60.0f;
+        tn = t + (float)((60 - systemStatus[0] * 10) / systemStatus[1]) / 60.0f;
         if (n != (int)tn) {
             _ACTWait(1);
             t = tn;
@@ -948,8 +933,8 @@ void actSt13cSekizoChk(GObj *volatile a0)
     stage_SetAnimation(77, 1, 0);
 
     st13c_yure = iosPadActRequest(boyPad, 9);
-    st13c_yure_vol = 0x80;
-    iosPadActVolumeSet(st13c_yure, 0x80);
+    st13c_yure_vol = 128;
+    iosPadActVolumeSet(st13c_yure, 128);
 
     scpPlayStart(boyGObj);
     scpPlayStart(girlGObj);
@@ -999,14 +984,14 @@ void actSt13cSekizoChk(GObj *volatile a0)
 
 void actSt13cGirlCarryChk(GObj *volatile a0)
 {
-    Act *self = (Act *)((PObjGObjSt13c *)a0)->act;
+    Act *self = GOBJ_ACT(a0);
 
     if (girlGObj == 0) {
         _ACTWait(0);
     }
 
-    while (gflagChk(25) == 0 || ((Act *)((PObjGObjSt13c *)girlGObj)->act)->actMode == 0x6F ||
-           ((Act *)((PObjGObjSt13c *)girlGObj)->act)->actMode == 0x6E || gflagChk(29) != 0) {
+    while (gflagChk(25) == 0 || GOBJ_ACT(girlGObj)->actMode == 111 ||
+           GOBJ_ACT(girlGObj)->actMode == 110 || gflagChk(29) != 0) {
         _ACTWait(1);
     }
 
@@ -1017,7 +1002,7 @@ void actSt13cGirlCarryChk(GObj *volatile a0)
     scpPlayWaitMotEnd(girlGObj);
     scpPlayMot(girlGObj, 596);
 
-    ((MotObj *)((PObjGObjSt13c *)girlGObj)->unk15C)->unk514 =
+    GOBJ_SUB(girlGObj)->ctrl.blendFrames =
         (int)((float)((60 - systemStatus[0] * 10) / systemStatus[1]) / 60.0f * 30.0f);
 
     gflagOn(26);
@@ -1046,8 +1031,7 @@ void actSt13cHandChk(GObj *volatile a0)
             scpTriggerFloorAttr(boyGObj, 0x1000000) == 0 &&
             scpTriggerFloorAttr(boyGObj, 0x3000000) != 0 && gflagChk(26) != 0 &&
             scpTriggerBall(girlGObj, boyGObj, 550.0f) != 0 &&
-            (((Act *)((PObjGObjSt13c *)boyGObj)->act)->padTrg & 8) != 0 &&
-            ((Act *)((PObjGObjSt13c *)girlGObj)->act)->actMode != 0x6E) {
+            (GOBJ_ACT(boyGObj)->padTrg & 8) != 0 && GOBJ_ACT(girlGObj)->actMode != 110) {
             break;
         }
         if (gflagChk(30) != 0) {
@@ -1060,7 +1044,7 @@ void actSt13cHandChk(GObj *volatile a0)
     scpBoyControlReadDisable = 1;
     scpSleepEnemyAll();
 
-    ((Act *)((PObjGObjSt13c *)scpSearchGobj(150))->act)->flags20.ll &= ~0x20000;
+    GOBJ_ACT(scpSearchGobj(150))->flags20.ll &= ~0x20000;
 
     fightSoundProcessRequestPause();
 
@@ -1111,7 +1095,7 @@ void actSt13cHandChk(GObj *volatile a0)
     iosThreadSetPri(&((GProc *)th1)->thread, 34);
 
     if (demoEnd == 0) {
-        scpAdpcmFadeCloseFunc(&st13c_reserved, 0x200);
+        scpAdpcmFadeCloseFunc(&st13c_reserved, 512);
 
         scpFadeOut(16.0f, 0, 0, 0);
         while (scpFadeChk() != 0) {
@@ -1131,18 +1115,18 @@ void actSt13cHandChk(GObj *volatile a0)
     gsb_SetZoom(1.0f, 1000.0f);
     lt_switch_layout(54);
 
-    t = (0x3C - systemStatus[0] * 0xA) / systemStatus[1];
+    t = (60 - systemStatus[0] * 10) / systemStatus[1];
     _ACTWait(t * 3);
 
     scpPlayEnd(boyGObj);
     scpPlayEnd(girlGObj);
 
-    ((MotObj *)((PObjGObjSt13c *)boyGObj)->unk15C)->unk514 =
-        (int)((float)((0x3C - systemStatus[0] * 0xA) / systemStatus[1]) / 60.0f * 30.0f);
+    GOBJ_SUB(boyGObj)->ctrl.blendFrames =
+        (int)((float)((60 - systemStatus[0] * 10) / systemStatus[1]) / 60.0f * 30.0f);
 
     _ACTWait(1);
 
-    iosOmSendMail(girlGObj, 0x3F, boyGObj);
+    iosOmSendMail(girlGObj, 63, boyGObj);
 
     scpBoyControlReadDisable = 0;
     scpWakeupEnemyAll();
@@ -1162,20 +1146,20 @@ void actSt13cHandJimaku(GObj *volatile a0)
         case 1:
             jimakuBegin(&jimaku_msg);
             break;
-        case 0x6E:
-            jimaku_msg.sub.block = 0xB;
+        case 110:
+            jimaku_msg.sub.block = 11;
             jimaku_msg.sub.jump = -1;
             jimakuOn = 1;
             jimakuJump(&jimaku_msg);
             break;
-        case 0x154:
-            jimaku_msg.sub.block = 0xC;
+        case 340:
+            jimaku_msg.sub.block = 12;
             jimaku_msg.sub.jump = -1;
             jimakuOn = 1;
             jimakuJump(&jimaku_msg);
             break;
-        case 0x244:
-            jimaku_msg.sub.block = 0xD;
+        case 580:
+            jimaku_msg.sub.block = 13;
             jimaku_msg.sub.jump = -1;
             jimakuOn = 1;
             jimakuJump(&jimaku_msg);
@@ -1183,7 +1167,7 @@ void actSt13cHandJimaku(GObj *volatile a0)
         }
 
         n = (int)t;
-        tn = t + (float)((0x3C - systemStatus[0] * 0xA) / systemStatus[1]) / 60.0f;
+        tn = t + (float)((60 - systemStatus[0] * 10) / systemStatus[1]) / 60.0f;
         if (n != (int)tn) {
             _ACTWait(1);
             t = tn;
@@ -1226,7 +1210,7 @@ void actSt13cCageDown(GObj *volatile a0)
     }
 
     if (gflagChk(20) != 0) {
-        CameraSetCameraSet(0x25);
+        CameraSetCameraSet(37);
     }
 }
 
@@ -1386,7 +1370,7 @@ void actE3St13cSekizo(GObj *volatile a0)
     actInitialize(a0);
     _ACTWait(1);
 
-    scpSekizou(a0, 0x1F, 0x4D, 0, 0x11, -300.0f, -100.0f, 100.0f, -300.0f, -100.0f, 0.0f);
+    scpSekizou(a0, 31, 77, 0, 17, -300.0f, -100.0f, 100.0f, -300.0f, -100.0f, 0.0f);
 
     if (gflagChk(31) == 0) {
         SetWayGroupActive(2, 0);
@@ -1426,12 +1410,12 @@ void actSt13cSleepChk(GObj *volatile a0)
     sceVu0SubVector(dir, ofs, test_CURRENTROOT(girlGObj));
     scpPlayMotDir(girlGObj, dir);
 
-    scpPlayMotReq(girlGObj, 0x11D);
+    scpPlayMotReq(girlGObj, 285);
 }
 
 void actSt13cCageDownMain(GObj *volatile a0)
 {
-    Act *sub = (Act *)((PObjGObjSt13c *)a0)->act;
+    Act *sub = GOBJ_ACT(a0);
 
     sub->mainMail = cageDownMain_mes;
     while (1) {
@@ -1441,7 +1425,7 @@ void actSt13cCageDownMain(GObj *volatile a0)
 
 void actSt13cCageDownSwitch(GObj *volatile a0)
 {
-    Act *sub = (Act *)((PObjGObjSt13c *)a0)->act;
+    Act *sub = GOBJ_ACT(a0);
 
     sub->mainMail = 0;
     scpBoyControlReadDisable = 1;
@@ -1517,8 +1501,8 @@ void actSt13cSekizoJimakuEff(GObj *volatile a0)
         case 1:
             jimakuBegin(&jimaku_msg);
             break;
-        case 0x2D:
-            jimaku_msg.sub.block = 0x13;
+        case 45:
+            jimaku_msg.sub.block = 19;
             jimaku_msg.sub.jump = -1;
             jimakuOn = 1;
             jimakuJump(&jimaku_msg);
@@ -1526,7 +1510,7 @@ void actSt13cSekizoJimakuEff(GObj *volatile a0)
         }
 
         n = (int)t;
-        tn = t + (float)((0x3C - systemStatus[0] * 0xA) / systemStatus[1]) / 60.0f;
+        tn = t + (float)((60 - systemStatus[0] * 10) / systemStatus[1]) / 60.0f;
         if (n != (int)tn) {
             _ACTWait(1);
             t = tn;
@@ -1538,13 +1522,13 @@ void actSt13cSekizoJimakuEff(GObj *volatile a0)
 
 void actSt13cGirlCarryAgainChk(GObj *volatile a0)
 {
-    Act *self = (Act *)((PObjGObjSt13c *)a0)->act;
+    Act *self = GOBJ_ACT(a0);
 
     if (girlGObj == 0) {
         _ACTWait(0);
     }
 
-    while (((Act *)((PObjGObjSt13c *)girlGObj)->act)->actMode != 0x6F) {
+    while (GOBJ_ACT(girlGObj)->actMode != 111) {
         _ACTWait(1);
     }
 
@@ -1572,7 +1556,7 @@ void actSt13cRescueChk(GObj *volatile a0)
         _ACTWait(0);
     }
 
-    while (((Act *)((PObjGObjSt13c *)girlGObj)->act)->actMode != 0x6E) {
+    while (GOBJ_ACT(girlGObj)->actMode != 110) {
         _ACTWait(1);
     }
 
@@ -1594,7 +1578,7 @@ void actSt13cBukiEvent(int x)
 
 void actSt13cBukiChk(GObj *volatile a0)
 {
-    while (ForMotionViewer_GetCurrentMotion(boyGObj) != 0xE7) {
+    while (ForMotionViewer_GetCurrentMotion(boyGObj) != 231) {
         _ACTWait(1);
     }
     stage_SetAnimation(76, -1, -2);

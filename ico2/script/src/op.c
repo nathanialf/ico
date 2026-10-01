@@ -249,7 +249,7 @@ void actTitleShortCut(GObj *volatile a0)
     if (titleAdpcm == 0) {
         scpAdpcmPlayRequestFunc(56, &titleAdpcm, 0, 0, 1);
     }
-    stage_SetAnimation(571, 1, 0x547);
+    stage_SetAnimation(571, 1, 1351);
 
     SetHandCameraLimitInDemo(0, 0);
     SetZoomMaxValInDemo(0);
@@ -285,7 +285,7 @@ static ActMail opDemo03_mes[2] = {{430}, {429}}; /* derived name */
 
 inline void actSubMpegReturnPreload(GObj *volatile a0)
 {
-    _ACTWait((int)((float)((0x3C - systemStatus[0] * 0xA) / systemStatus[1]) * 5.0f));
+    _ACTWait((int)((float)((60 - systemStatus[0] * 10) / systemStatus[1]) * 5.0f));
     stgmgrNextStagePreLoadForceStageSet(1);
     stgmgrNextStagePreLoadForceNoCancel(1);
 }
@@ -529,7 +529,7 @@ void actOpDemo01_2(GObj *volatile a0)
     }
 
     if (adpcm_conte01_sea != 0) {
-        scpAdpcmFadeCloseFunc(&adpcm_conte01_sea, 0x80);
+        scpAdpcmFadeCloseFunc(&adpcm_conte01_sea, 128);
     }
 
     RequestStageChangeWithColor(1, boyGObj, 0, 1.0f, 4.0f, 255, 255, 255);
@@ -660,10 +660,10 @@ inline void actOpDemo02Chk(GObj *volatile a0)
 
     if (demoSubEnd == 0) {
         if (demoAdpcm != 0) {
-            scpAdpcmFadeCloseFunc(&demoAdpcm, 0x200);
+            scpAdpcmFadeCloseFunc(&demoAdpcm, 512);
         }
         if (op2 != 0) {
-            scpAdpcmFadeCloseFunc(&op2, 0x40);
+            scpAdpcmFadeCloseFunc(&op2, 64);
         }
     }
 
@@ -733,7 +733,7 @@ void actSt24aConte01_2(GObj *volatile a0)
 
     stage_SetAnimation(14, 1, 0);
 
-    _ACTWait((0x3C - systemStatus[0] * 0xA) / systemStatus[1] * 0xA);
+    _ACTWait((60 - systemStatus[0] * 10) / systemStatus[1] * 10);
 
     scpFadeOut(6.0f, 0, 0, 0);
     while (scpFadeChk() != 0) {
@@ -780,7 +780,7 @@ inline void actSt24aConte01_2_Jimaku(GObj *volatile a0)
         }
 
         n = (int)t;
-        tn = t + (float)((0x3C - systemStatus[0] * 0xA) / systemStatus[1]) / 60.0f;
+        tn = t + (float)((60 - systemStatus[0] * 10) / systemStatus[1]) / 60.0f;
         if (n != (int)tn) {
             _ACTWait(1);
             t = tn;
@@ -834,7 +834,7 @@ void actOpDemo03Chk(GObj *volatile a0)
 
     if (demoSubEnd == 0) {
         if (op2 != 0) {
-            scpAdpcmFadeCloseFunc(&op2, 0x80);
+            scpAdpcmFadeCloseFunc(&op2, 128);
             t = 16.0f;
         }
     }
@@ -916,7 +916,7 @@ void actSt13aConte01_3(GObj *volatile a0)
     _ACTWait(1);
     stage_SetAnimation(20, 1, 0);
 
-    _ACTWait((0x3C - systemStatus[0] * 0xA) / systemStatus[1] * 8);
+    _ACTWait((60 - systemStatus[0] * 10) / systemStatus[1] * 8);
 
     demoSubEnd = 1;
     _ACTWait(0);

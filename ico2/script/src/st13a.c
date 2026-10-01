@@ -77,21 +77,21 @@ void actSt13aElevUpSub(GObj *volatile a0)
         _ACTWait(1);
     }
     _ACTWait(1);
-    iosPadActRequest(boyPad, 0x11);
+    iosPadActRequest(boyPad, 17);
 
     while (stage_CheckAnimationFrame(173, 140, 0) == 0) {
         _ACTWait(1);
     }
     _ACTWait(1);
     st13a_yure = iosPadActRequest(boyPad, 9);
-    st13a_yure_vol = 0x80;
-    iosPadActVolumeSet(st13a_yure, 0x80);
+    st13a_yure_vol = 128;
+    iosPadActVolumeSet(st13a_yure, 128);
 
     while (stage_CheckAnimationFrame(173, 200, 0) == 0) {
         _ACTWait(1);
     }
     _ACTWait(1);
-    st13a_yure_vol = 0x40;
+    st13a_yure_vol = 64;
 
     while (stage_CheckAnimationFrame(173, 380, 0) == 0) {
         _ACTWait(1);
@@ -111,7 +111,7 @@ void actSt13aElevUp(GObj *volatile a0)
         _ACTWait(1);
     }
 
-    preload(0xF);
+    preload(15);
 
     st13a_yure = -1;
     th = actCreateSubThread(actSt13aElevUpSub, 21);
@@ -125,7 +125,7 @@ void actSt13aElevUp(GObj *volatile a0)
 
     if (demoEnd == 0) {
         scpFadeOut(16.0f, 0, 0, 0);
-        scpAdpcmFadeCloseFunc(&st13a_up, 0x200);
+        scpAdpcmFadeCloseFunc(&st13a_up, 512);
         while (scpFadeChk() != 0) {
             _ACTWait(1);
         }
@@ -136,7 +136,7 @@ void actSt13aElevUp(GObj *volatile a0)
 
     iosPadActStop(st13a_yure);
     gflagOn(325);
-    RequestStageChange(0xF, boyGObj, 0, 0.025f, 8.0f);
+    RequestStageChange(15, boyGObj, 0, 0.025f, 8.0f);
 }
 
 void actSt13aElevDown(GObj *volatile a0)
@@ -154,7 +154,7 @@ void actSt13aElevDown(GObj *volatile a0)
         scpPlayStart(boyGObj);
         scpAdpcmPlayRequestFunc(80, &st13a_down, 1, 1, 0);
         _ACTWait(10);
-        stage_SetAnimation(173, 0, 0x1C3);
+        stage_SetAnimation(173, 0, 451);
 
         elevDown_mes[0].func = actSt13aElevDownChk;
         self->mail = elevDown_mes;
@@ -165,20 +165,20 @@ void actSt13aElevDown(GObj *volatile a0)
 
 void actSt13aElevDownSub(GObj *volatile a0)
 {
-    stage_SetAnimation(173, 1, 0x1C3);
+    stage_SetAnimation(173, 1, 451);
     stage_SetAnimation(175, 1, 0);
 
     scpPlayPosSet(boyGObj, -4871.0f, -2800.0f, 2699.0f);
 
     st13a_yure = iosPadActRequest(boyPad, 9);
-    st13a_yure_vol = 0x80;
-    iosPadActVolumeSet(st13a_yure, 0x80);
+    st13a_yure_vol = 128;
+    iosPadActVolumeSet(st13a_yure, 128);
 
     while (stage_CheckAnimationFrame(173, 850, 0) == 0) {
         _ACTWait(1);
     }
     _ACTWait(1);
-    iosPadActRequest(boyPad, 0x11);
+    iosPadActRequest(boyPad, 17);
     iosPadActStop(st13a_yure);
     st13a_yure = -1;
 
@@ -214,7 +214,7 @@ void actSt13aElevDownChk(GObj *volatile a0)
 
     if (demoEnd == 0) {
         scpFadeOut(16.0f, 0, 0, 0);
-        scpAdpcmFadeCloseFunc(&st13a_down, 0x200);
+        scpAdpcmFadeCloseFunc(&st13a_down, 512);
         while (scpFadeChk() != 0) {
             _ACTWait(1);
         }
@@ -256,8 +256,8 @@ void actSt13aSekizoChk(GObj *volatile a0)
     stage_SetAnimation(176, 1, 0);
 
     sekizo_13a = iosPadActRequest(boyPad, 9);
-    sekizo_13a_vol = 0x80;
-    iosPadActVolumeSet(sekizo_13a, 0x80);
+    sekizo_13a_vol = 128;
+    iosPadActVolumeSet(sekizo_13a, 128);
 
     scpPlayStart(boyGObj);
     scpPlayPosSet(boyGObj, -3688.0f, 3527.0f, 2502.0f);

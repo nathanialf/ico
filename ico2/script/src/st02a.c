@@ -228,7 +228,7 @@ void actSt02aFenceOpen(GObj *volatile a0)
         while (st02a_fence == 0) {
             _ACTWait(1);
         }
-        scpAdpcmFadeCloseFunc(&st02a_fence, 0x200);
+        scpAdpcmFadeCloseFunc(&st02a_fence, 512);
         while (scpFadeChk() != 0) {
             _ACTWait(1);
         }
@@ -261,15 +261,15 @@ void actSt02WaterFallBoySplashCheck(GObj *volatile a0)
     buf[1].d[0] = boySplashPos[1].d[0];
     buf[1].d[1] = boySplashPos[1].d[1];
     for (;;) {
-        idx = GetSkeltonFocusNode(boyGObj, 0x23);
-        CopyVector(buf2.f, (float *)(GOBJ_SUB(boyGObj)->nodeMtx + (idx << 6) + 0x30));
+        idx = GetSkeltonFocusNode(boyGObj, 35);
+        CopyVector(buf2.f, (float *)(GOBJ_SUB(boyGObj)->nodeMtx + (idx << 6) + 48));
         if (scpTriggerPosBall(buf[0].f, buf2.f, 100.0f))
-            scpEffectStart(buf2.f, 0x2F);
+            scpEffectStart(buf2.f, 47);
         _ACTWait(10);
-        idx = GetSkeltonFocusNode(boyGObj, 0x23);
-        CopyVector(buf2.f, (float *)(GOBJ_SUB(boyGObj)->nodeMtx + (idx << 6) + 0x30));
+        idx = GetSkeltonFocusNode(boyGObj, 35);
+        CopyVector(buf2.f, (float *)(GOBJ_SUB(boyGObj)->nodeMtx + (idx << 6) + 48));
         if (scpTriggerPosBall(buf[1].f, buf2.f, 100.0f))
-            scpEffectStart(buf2.f, 0x2F);
+            scpEffectStart(buf2.f, 47);
         _ACTWait(10);
     }
 }
@@ -335,7 +335,7 @@ void actSt02aGondolaUp(GObj *volatile a0)
     }
     _ACTWait(1);
 
-    iosPadActRequest(boyPad, 0x10);
+    iosPadActRequest(boyPad, 16);
 
     while (stage_CheckAnimationFrame(101, 149, 1) == 0) {
         _ACTWait(1);
@@ -369,7 +369,7 @@ void actSt02aGondolaDown(GObj *volatile a0)
         _ACTWait(1);
     }
 
-    stage_SetAnimation(101, 1, 0x96);
+    stage_SetAnimation(101, 1, 150);
     gflagOff(119);
 
     while (stage_CheckAnimationFrame(101, 295, 0) == 0) {
@@ -377,7 +377,7 @@ void actSt02aGondolaDown(GObj *volatile a0)
     }
     _ACTWait(1);
 
-    iosPadActRequest(boyPad, 0x10);
+    iosPadActRequest(boyPad, 16);
 
     while (stage_CheckAnimationFrame(101, 300, 1) == 0) {
         _ACTWait(1);
@@ -435,9 +435,9 @@ void actSt02aGondola(GObj *volatile a0)
     if (gflagChk(119) != 0) {
         stage_SetAnimation(101, 0, 0);
         _ACTWait(10);
-        stage_SetAnimation(101, 0, 0x95);
+        stage_SetAnimation(101, 0, 149);
     } else {
-        stage_SetAnimation(101, 0, 0x12C);
+        stage_SetAnimation(101, 0, 300);
     }
 
     gondola_mail[0].func = actSt02aGondolaMain;
@@ -560,7 +560,7 @@ void actSt02aSekizo(GObj *volatile a0)
     actInitialize(a0);
     _ACTWait(1);
 
-    scpSekizou(a0, 0x7B, 0x66, 0, 0x12, 900.0f, 1828.0f, 1150.0f, 800.0f, 1828.0f, 1150.0f);
+    scpSekizou(a0, 123, 102, 0, 18, 900.0f, 1828.0f, 1150.0f, 800.0f, 1828.0f, 1150.0f);
 }
 
 void actSt02aWay(GObj *volatile a0)
@@ -632,7 +632,7 @@ void actSt02aDoorUpEffect(GObj *volatile a0)
             b1[1] = doorUpEffectPos.d[1];
             scpEffectStart(b1, 0);
             break;
-        case 0x1E:
+        case 30:
             b2[0] = v0b;
             b2[1] = doorUpEffect2Pos.d[1];
             scpEffectStart(b2, 0);
@@ -656,7 +656,7 @@ void actSt02aDoorDownEffect(GObj *volatile a0)
             b1[1] = doorUpEffect2Pos.d[1];
             scpEffectStart(b1, 0);
             break;
-        case 0x1E:
+        case 30:
             b2[0] = v0b;
             b2[1] = doorUpEffectPos.d[1];
             scpEffectStart(b2, 0);

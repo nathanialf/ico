@@ -8,6 +8,8 @@
 #ifndef SCRIPT_H
 #define SCRIPT_H
 
+#include "typedef.h"
+
 struct GObj;
 
 /* script.o's .sdata globals: the boy-control read lock the
@@ -32,10 +34,10 @@ void scpLinkBGAtoLayoutedTarget(int a0, int a1);
 void scpLinkBGAtoLayoutedTargetSkelton(int a0, int a1, int a2);
 void scpLinkBGAtoLayoutedTargetSkeltonWithLocalRotationFlag(int a0, int a1, int a2, int a3);
 inline void scpLinkBGAtoKindTargetSkeltonWithLocalRotationFlag(int a0, int a1, int a2, int a3);
-struct WallCol *scpGetWallCollision(float x0, float y0, float z0, float x1, float y1, float z1);
+WallCfg *scpGetWallCollision(float x0, float y0, float z0, float x1, float y1, float z1);
 void scpDoorTypeUp(struct GObj *volatile a0);
 inline void scpDoorTypeUpSwitch(struct GObj *volatile a0);
-void scpAdpcmPlayRequestFunc(int kind, char **id, int a2, int a3, int a4);
+void scpAdpcmPlayRequestFunc(int kind, char **id, int ch, int loopNum, int play);
 int scpAdpcmPlayRequestNum(void);
 int scpAdpcmFadeCloseFunc(char **h, short fade);
 int scpAdpcmCloseChkFunc(char **h);

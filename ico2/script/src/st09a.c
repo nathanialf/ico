@@ -115,7 +115,7 @@ void actSt09aBrgDown(GObj *volatile a0)
 
     if (demoEnd == 0) {
         scpFadeOut(16.0f, 0, 0, 0);
-        scpAdpcmFadeCloseFunc(&st09a_brg, 0x100);
+        scpAdpcmFadeCloseFunc(&st09a_brg, 256);
 
         while (scpFadeChk() != 0) {
             _ACTWait(1);
@@ -144,7 +144,7 @@ void actSt09aElv(GObj *volatile a0)
     _ACTWait(1);
 
     if (gflagChk(83) != 0) {
-        stage_SetAnimation(375, 0, 0xD2);
+        stage_SetAnimation(375, 0, 210);
     } else {
         stage_SetAnimation(375, 0, 0);
     }
@@ -166,7 +166,7 @@ void actSt09aSekizo(GObj *volatile a0)
     soundSeDefPlay(1347, 0, sekizoPos, 1);
     soundSeDefPlay(1348, 0, sekizoPos, 1);
 
-    scpSekizou(a0, 0x54, 0x178, 0, 0x12, -1350.0f, -100.0f, 1515.0f, -1450.0f, -100.0f, 1515.0f);
+    scpSekizou(a0, 84, 376, 0, 18, -1350.0f, -100.0f, 1515.0f, -1450.0f, -100.0f, 1515.0f);
 }
 
 void actSt09aIntro(GObj *volatile a0)
@@ -276,7 +276,7 @@ void actSt09aElvUp(GObj *volatile a0)
 
     lt_switch_layout(55);
 
-    stage_SetAnimation(375, 1, 0xD3);
+    stage_SetAnimation(375, 1, 211);
 
     se = soundSeDefPlay(1217, 0, 0, 1);
 
@@ -356,14 +356,14 @@ void actSt09aBrgDownSub(GObj *volatile a0)
     }
     _ACTWait(1);
 
-    iosPadActRequest(boyPad, 0x11);
+    iosPadActRequest(boyPad, 17);
 
     while (stage_CheckAnimationFrame(378, 165, 0) == 0) {
         _ACTWait(1);
     }
     _ACTWait(1);
 
-    iosPadActRequest(boyPad, 0x10);
+    iosPadActRequest(boyPad, 16);
 
     while (stage_CheckAnimationFinish(378) == 0) {
         _ACTWait(1);

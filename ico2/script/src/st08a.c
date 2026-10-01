@@ -211,7 +211,7 @@ void actSt08aHasiUpSub(GObj *volatile a0)
     }
 
     _ACTWait(1);
-    iosPadActRequest(boyPad, 0x11);
+    iosPadActRequest(boyPad, 17);
 
     while (stage_CheckAnimationFinish(106) == 0) {
         _ACTWait(1);
@@ -247,7 +247,7 @@ void actSt08aHasiUp(GObj *volatile a0)
         while (st08a_adpcm == 0) {
             _ACTWait(1);
         }
-        scpAdpcmFadeCloseFunc(&st08a_adpcm, 0x200);
+        scpAdpcmFadeCloseFunc(&st08a_adpcm, 512);
         while (scpFadeChk() != 0) {
             _ACTWait(1);
         }
@@ -274,17 +274,17 @@ void actSt08aTorchOnChk(GObj *volatile a0)
         _ACTWait(1);
     }
 
-    ((unsigned int *)scpSearchGobj(350))[0x50 / 4] = 0xFFFFFFFF;
-    ((unsigned int *)scpSearchGobj(351))[0x50 / 4] = 0xFFFFFFFF;
-    ((unsigned int *)scpSearchGobj(352))[0x50 / 4] = 0xFFFFFFFF;
-    ((unsigned int *)scpSearchGobj(353))[0x50 / 4] = 0xFFFFFFFF;
-    ((unsigned int *)scpSearchGobj(354))[0x50 / 4] = 0xFFFFFFFF;
-    ((unsigned int *)scpSearchGobj(355))[0x50 / 4] = 0xFFFFFFFF;
-    ((unsigned int *)scpSearchGobj(356))[0x50 / 4] = 0xFFFFFFFF;
-    ((unsigned int *)scpSearchGobj(357))[0x50 / 4] = 0xFFFFFFFF;
-    ((unsigned int *)scpSearchGobj(358))[0x50 / 4] = 0xFFFFFFFF;
-    ((unsigned int *)scpSearchGobj(359))[0x50 / 4] = 0xFFFFFFFF;
-    ((unsigned int *)scpSearchGobj(348))[0x50 / 4] = 0xFFFFFFFF;
+    ((unsigned int *)scpSearchGobj(350))[80 / 4] = 0xFFFFFFFF;
+    ((unsigned int *)scpSearchGobj(351))[80 / 4] = 0xFFFFFFFF;
+    ((unsigned int *)scpSearchGobj(352))[80 / 4] = 0xFFFFFFFF;
+    ((unsigned int *)scpSearchGobj(353))[80 / 4] = 0xFFFFFFFF;
+    ((unsigned int *)scpSearchGobj(354))[80 / 4] = 0xFFFFFFFF;
+    ((unsigned int *)scpSearchGobj(355))[80 / 4] = 0xFFFFFFFF;
+    ((unsigned int *)scpSearchGobj(356))[80 / 4] = 0xFFFFFFFF;
+    ((unsigned int *)scpSearchGobj(357))[80 / 4] = 0xFFFFFFFF;
+    ((unsigned int *)scpSearchGobj(358))[80 / 4] = 0xFFFFFFFF;
+    ((unsigned int *)scpSearchGobj(359))[80 / 4] = 0xFFFFFFFF;
+    ((unsigned int *)scpSearchGobj(348))[80 / 4] = 0xFFFFFFFF;
 
     torch_on_mes[0].func = actSt08aTorchOffChk;
     self->mail = torch_on_mes;
@@ -302,17 +302,17 @@ void actSt08aTorchOffChk(GObj *volatile a0)
         _ACTWait(1);
     }
 
-    ((int *)scpSearchGobj(350))[0x50 / 4] = 0;
-    ((int *)scpSearchGobj(351))[0x50 / 4] = 0;
-    ((int *)scpSearchGobj(352))[0x50 / 4] = 0;
-    ((int *)scpSearchGobj(353))[0x50 / 4] = 0;
-    ((int *)scpSearchGobj(354))[0x50 / 4] = 0;
-    ((int *)scpSearchGobj(355))[0x50 / 4] = 0;
-    ((int *)scpSearchGobj(356))[0x50 / 4] = 0;
-    ((int *)scpSearchGobj(357))[0x50 / 4] = 0;
-    ((int *)scpSearchGobj(358))[0x50 / 4] = 0;
-    ((int *)scpSearchGobj(359))[0x50 / 4] = 0;
-    ((int *)scpSearchGobj(348))[0x50 / 4] = 0;
+    ((int *)scpSearchGobj(350))[80 / 4] = 0;
+    ((int *)scpSearchGobj(351))[80 / 4] = 0;
+    ((int *)scpSearchGobj(352))[80 / 4] = 0;
+    ((int *)scpSearchGobj(353))[80 / 4] = 0;
+    ((int *)scpSearchGobj(354))[80 / 4] = 0;
+    ((int *)scpSearchGobj(355))[80 / 4] = 0;
+    ((int *)scpSearchGobj(356))[80 / 4] = 0;
+    ((int *)scpSearchGobj(357))[80 / 4] = 0;
+    ((int *)scpSearchGobj(358))[80 / 4] = 0;
+    ((int *)scpSearchGobj(359))[80 / 4] = 0;
+    ((int *)scpSearchGobj(348))[80 / 4] = 0;
 
     torch_off_mes[0].func = actSt08aTorchOnChk;
     self->mail = torch_off_mes;
@@ -538,11 +538,11 @@ void actSt08aInit(void)
 {
     float f = 0.95f;
 
-    scpSetCageVelocityFriction(0x16D, f);
-    scpSetCageVelocityFriction(0x16C, f);
+    scpSetCageVelocityFriction(365, f);
+    scpSetCageVelocityFriction(364, f);
 
     if (gflagChk(80) != 0) {
-        stage_SetAnimation(370, 0, 0x1FE);
+        stage_SetAnimation(370, 0, 510);
         scpSearchGobj(365)->active = 0;
     } else {
         stage_SetAnimation(370, 0, 0);

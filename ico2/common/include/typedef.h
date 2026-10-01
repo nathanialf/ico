@@ -1349,14 +1349,14 @@ typedef struct Act { /* field names derived */
     int infoPos;       /* 0x444, the object info position the enemy is saved at */
     int brainStatus;   /* 0x448, the brain status the actor starts with */
     char pad44C[4];
-    int attackGroup; /* 0x450, the actor's attack group */
-    int doorFlag;    /* 0x454, the game flag of the door script */
-    float doorDist;  /* 0x458, the door's travel */
-    float doorStep;  /* 0x45C, the door's step */
-    int doorMail;    /* 0x460, the door's main mail list */
-    int doorCamWait; /* 0x464, frames to wait after the camera move */
-    int doorEndWait; /* 0x468, frames to wait after the move */
-    int doorCamera;  /* 0x46C, the camera target of the door move, 0 for none */
+    int attackGroup;  /* 0x450, the actor's attack group */
+    int doorFlag;     /* 0x454, the game flag of the door script */
+    float doorDist;   /* 0x458, the door's travel */
+    float doorStep;   /* 0x45C, the door's step */
+    int doorMail;     /* 0x460, the door's main mail list */
+    int doorCamWait;  /* 0x464, frames to wait after the camera move */
+    int doorEndWait;  /* 0x468, frames to wait after the move */
+    GObj *doorCamera; /* 0x46C, the camera target of the door move, 0 for none */
     char pad470[8];
     ActWishWord wish0; /* 0x478 */
     ActWishWord wish1; /* 0x480 */
@@ -1471,5 +1471,51 @@ typedef struct {                              /* field names derived */
 
 /* mcard.c's two product files, one per port */
 extern McProductFile IosMcProductFile[];
+
+#include <libmc.h> /* sceMcTblGetDir, which McMgr carries at 0x4C0 */
+
+/* the manager's status word: flag bits in the low word, the command
+   iosMcManager runs in the high word */
+typedef union { /* field names derived */
+    long long ll;
+
+    struct {
+        int bits;
+        int command;
+    } w;
+} McFlags; /* derived name */
+
+/* RECONSTRUCTION, names ours: the memory-card manager block iosMcManager
+ * runs a request on, on the 64-byte alignment of a DMA transfer buffer
+ * (0xA00 bytes with its padding).  mcard.c works on the one it is handed;
+ * kanbanBoot.c owns one for the boot check. */
+typedef struct {             /* field names derived */
+    McFlags flags;           /* 0x00 -- bit 0 idle, bit 1 saving; the command in the high word */
+    int port;                /* 0x08 */
+    int slot;                /* 0x0C */
+    int result;              /* 0x10 -- the last sceMcSync result */
+    int type;                /* 0x14 -- sceMcGetInfo's card type */
+    int free;                /* 0x18 -- sceMcGetInfo's free clusters */
+    int cardState;           /* 0x1C -- the last card-state result, -1 formatted, -2 unformatted */
+    int format;              /* 0x20 -- sceMcGetInfo's format flag */
+    int segment;             /* 0x24 -- the save segment (iOSMcSaveSeg) being read or written */
+    int fd;                  /* 0x28 */
+    int openMode;            /* 0x2C */
+    int word30;              /* 0x30 */
+    int size;                /* 0x34 */
+    int pos;                 /* 0x38 */
+    int end;                 /* 0x3C */
+    int fileNo;              /* 0x40 -- the number in the save file's name */
+    int dirCount;            /* 0x44 -- entries filled in by sceMcGetDir */
+    int segArg;              /* 0x48 -- what the segment's save and load handlers are given */
+    int sum;                 /* 0x4C */
+    int readSum;             /* 0x50 -- the checksum read back from the card */
+    unsigned char buf[1024]; /* 0x54 -- the one-sector staging cache */
+    char dirName[20];        /* 0x454 */
+    char pwd[20];            /* 0x468 */
+    char path[68];           /* 0x47C */
+    sceMcTblGetDir dir[20];  /* 0x4C0 */
+    long long mask;          /* 0x9C0 */
+} __attribute__((aligned(64))) McMgr; /* derived name */
 
 #endif /* TYPEDEF_H */

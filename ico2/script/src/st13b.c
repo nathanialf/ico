@@ -120,7 +120,7 @@ void actSt13bFloor(GObj *volatile a0)
         stage_SetAnimation(34, 0, 0);
         stage_SetAnimation(36, 0, 0);
         stage_SetAnimation(38, 0, 0);
-        stage_SetAnimation(40, 0, 0xEB);
+        stage_SetAnimation(40, 0, 235);
         stage_SetAnimation(43, 0, 0);
         stage_SetAnimation(35, 0, 0);
 
@@ -138,7 +138,7 @@ void actSt13bFloor(GObj *volatile a0)
 
 void actSt13bFloorChk(GObj *volatile a0)
 {
-    int v = 0x20;
+    int v = 32;
 
     gflagOn(5);
     actCreateSubThread(actSt13bConte02, 21);
@@ -156,7 +156,7 @@ void actSt13bFloorChk(GObj *volatile a0)
     }
 
     if (conte02End == 0) {
-        v = 0x40;
+        v = 64;
     }
 
     if (st13b_adpcm != 0) {
@@ -194,10 +194,10 @@ void actSt13bConte02(GObj *volatile a0)
     stage_SetAnimation(34, 1, 0);
     stage_SetAnimation(21, 1, 0);
 
-    _ACTWait((0x3C - systemStatus[0] * 10) / systemStatus[1] * 0.15);
+    _ACTWait((60 - systemStatus[0] * 10) / systemStatus[1] * 0.15);
 
     if (systemStatus[0] != 0) {
-        _ACTWait((0x3C - systemStatus[0] * 10) / systemStatus[1] * 1.0);
+        _ACTWait((60 - systemStatus[0] * 10) / systemStatus[1] * 1.0);
     }
 
     AdpcmPlay(((AdpcmObj *)st13b_adpcm)->stream);
@@ -307,8 +307,8 @@ void actSt13bConte02(GObj *volatile a0)
     _ACTWait(60);
 
     padAct = iosPadActRequest(boyPad, 9);
-    padActVolume = 0x80;
-    iosPadActVolumeSet(padAct, 0x80);
+    padActVolume = 128;
+    iosPadActVolumeSet(padAct, 128);
 
     while (stage_ContinueAnimation(595, 596) == 0) {
         _ACTWait(1);
@@ -353,14 +353,14 @@ void actSt13bConte02(GObj *volatile a0)
     scpPlayMot((void *)boyGObj, 292);
     _ACTWait(1);
 
-    stage_SetAnimation(32, 1, 0xD0);
+    stage_SetAnimation(32, 1, 208);
 
     while (stage_ContinueAnimation(602, 603) == 0) {
         _ACTWait(1);
     }
 
     scpPlayMot((void *)boyGObj, 293);
-    iosPadActRequest(boyPad, 0x10);
+    iosPadActRequest(boyPad, 16);
 
     while (stage_ContinueAnimation(603, 604) == 0) {
         _ACTWait(1);
@@ -369,15 +369,15 @@ void actSt13bConte02(GObj *volatile a0)
     scpPlayMot((void *)boyGObj, 294);
 
     _ACTWait(30);
-    iosPadActRequest(boyPad, 0xF);
+    iosPadActRequest(boyPad, 15);
     _ACTWait(30);
-    iosPadActRequest(boyPad, 0x11);
+    iosPadActRequest(boyPad, 17);
     _ACTWait(15);
-    iosPadActRequest(boyPad, 0x11);
+    iosPadActRequest(boyPad, 17);
     _ACTWait(5);
-    iosPadActRequest(boyPad, 0x10);
+    iosPadActRequest(boyPad, 16);
     _ACTWait(15);
-    iosPadActRequest(boyPad, 0x11);
+    iosPadActRequest(boyPad, 17);
 
     while (stage_ContinueAnimation(604, 605) == 0) {
         _ACTWait(1);
@@ -410,7 +410,7 @@ void actSt13bSekizoChk(GObj *volatile a0)
     float dir[4];
 
     while (scpTriggerBall(a0, boyGObj, 200.0f) == 0 || scpGameStat_BoyWeaponkind() != 5 ||
-           ForMotionViewer_GetCurrentMotion(boyGObj) == 0x4B) {
+           ForMotionViewer_GetCurrentMotion(boyGObj) == 75) {
         _ACTWait(1);
     }
 
@@ -425,8 +425,8 @@ void actSt13bSekizoChk(GObj *volatile a0)
     stage_SetAnimation(33, 1, 0);
 
     st13b_yure = iosPadActRequest(boyPad, 9);
-    st13b_yure_vol = 0x80;
-    iosPadActVolumeSet(st13b_yure, 0x80);
+    st13b_yure_vol = 128;
+    iosPadActVolumeSet(st13b_yure, 128);
 
     scpPlayStart(boyGObj);
     scpPlayPosSet((void *)boyGObj, 3085.0f, -1338.0f, 0.0f);
@@ -462,7 +462,7 @@ void actSt13bSekizo2Chk(GObj *volatile a0)
     float dir[4];
 
     while (scpTriggerBall(a0, boyGObj, 200.0f) == 0 || scpGameStat_BoyWeaponkind() != 5 ||
-           ForMotionViewer_GetCurrentMotion(boyGObj) == 0x4B) {
+           ForMotionViewer_GetCurrentMotion(boyGObj) == 75) {
         _ACTWait(1);
     }
 
@@ -477,8 +477,8 @@ void actSt13bSekizo2Chk(GObj *volatile a0)
     stage_SetAnimation(34, 1, 0);
 
     st13b_yure = iosPadActRequest(boyPad, 9);
-    st13b_yure_vol = 0x80;
-    iosPadActVolumeSet(st13b_yure, 0x80);
+    st13b_yure_vol = 128;
+    iosPadActVolumeSet(st13b_yure, 128);
 
     scpPlayStart(boyGObj);
     scpPlayPosSet((void *)boyGObj, -1563.0f, 527.0f, 0.0f);
@@ -616,7 +616,7 @@ void actSt13bMeetAgainChk(GObj *volatile a0)
     scpPlayEnd(boyGObj);
     scpBoyControlReadDisable = 0;
     lt_switch_layout(54);
-    scpAdpcmFadeCloseFunc(&meets_again, 0x80);
+    scpAdpcmFadeCloseFunc(&meets_again, 128);
 }
 
 void actSt13bBoss(GObj *volatile a0)
@@ -672,7 +672,7 @@ void actSt13bBossChk(GObj *volatile a0)
 
     CapsuleGhostBossStart();
 
-    _ACTWait((0x3C - systemStatus[0] * 10) / systemStatus[1] * 6);
+    _ACTWait((60 - systemStatus[0] * 10) / systemStatus[1] * 6);
 
     while (boss == 0) {
         _ACTWait(1);
@@ -692,7 +692,7 @@ void actSt13bBossAfterChk(GObj *volatile a0)
     lt_switch_layout(55);
     scpBoyControlReadDisable = 1;
     gflagOn(14);
-    scpAdpcmFadeCloseFunc(&boss, 0x80);
+    scpAdpcmFadeCloseFunc(&boss, 128);
 
     while (scpAdpcmCloseChkFunc(&boss) != 0) {
         _ACTWait(1);
@@ -715,7 +715,7 @@ void actSt13bBossAfterChk(GObj *volatile a0)
 
     if (demoEnd == 0) {
         scpFadeOut(16.0f, 0, 0, 0);
-        scpAdpcmFadeCloseFunc(&boss_dead, 0x200);
+        scpAdpcmFadeCloseFunc(&boss_dead, 512);
 
         while (scpFadeChk() != 0) {
             _ACTWait(1);
@@ -738,21 +738,21 @@ void actSt13bBossAfterChk(GObj *volatile a0)
 
 void actSt13bElevDownSub(GObj *volatile a0)
 {
-    stage_SetAnimation(40, 1, 0xEB);
+    stage_SetAnimation(40, 1, 235);
 
     while (stage_CheckAnimationFrame(40, 321, 0) == 0) {
         _ACTWait(1);
     }
     _ACTWait(1);
-    iosPadActRequest(boyPad, 0x11);
+    iosPadActRequest(boyPad, 17);
 
     while (stage_CheckAnimationFrame(40, 350, 0) == 0) {
         _ACTWait(1);
     }
     _ACTWait(1);
     st13b_boss_yure = iosPadActRequest(boyPad, 9);
-    st13b_boss_yure_vol = 0x80;
-    iosPadActVolumeSet(st13b_boss_yure, 0x80);
+    st13b_boss_yure_vol = 128;
+    iosPadActVolumeSet(st13b_boss_yure, 128);
 
     while (stage_CheckAnimationFrame(40, 450, 0) == 0) {
         _ACTWait(1);
@@ -787,7 +787,7 @@ void actSt13bElevDown(GObj *volatile a0)
 
     if (demoEnd == 0) {
         scpFadeOut(16.0f, 0, 0, 0);
-        scpAdpcmFadeCloseFunc(&st13b_down, 0x200);
+        scpAdpcmFadeCloseFunc(&st13b_down, 512);
 
         while (scpFadeChk() != 0) {
             _ACTWait(1);
@@ -817,7 +817,7 @@ void actSt13bElevUp(GObj *volatile a0)
         lt_switch_layout(55);
         scpBoyControlReadDisable = 1;
         scpFadeOut(255.0f, 0, 0, 0);
-        stage_SetAnimation(40, 0, 0xEB);
+        stage_SetAnimation(40, 0, 235);
         _ACTWait(10);
         scpBoyControlReadDisable = 1;
         stage_SetAnimation(40, 0, 0);
@@ -826,7 +826,7 @@ void actSt13bElevUp(GObj *volatile a0)
         ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     } else {
-        stage_SetAnimation(40, 0, 0xEB);
+        stage_SetAnimation(40, 0, 235);
     }
 }
 
@@ -854,7 +854,7 @@ void actSt13bElevUpChk(GObj *volatile a0)
 
     if (demoEnd == 0) {
         scpFadeOut(16.0f, 0, 0, 0);
-        scpAdpcmFadeCloseFunc(&st13b_up, 0x200);
+        scpAdpcmFadeCloseFunc(&st13b_up, 512);
 
         while (scpFadeChk() != 0) {
             _ACTWait(1);
@@ -864,7 +864,7 @@ void actSt13bElevUpChk(GObj *volatile a0)
             _ACTWait(1);
         }
 
-        stage_SetAnimation(40, 0, 0xEB);
+        stage_SetAnimation(40, 0, 235);
         _ACTWait(2);
         scpPlayPosSet((void *)boyGObj, -772.0f, 527.0f, -226.0f);
 
@@ -938,7 +938,7 @@ void actSt13bElev2Chk(GObj *volatile a0)
             _ACTWait(1);
         }
 
-        _ACTWait((0x3C - systemStatus[0] * 10) / systemStatus[1]);
+        _ACTWait((60 - systemStatus[0] * 10) / systemStatus[1]);
         stage_SetAnimation(42, 1, 0);
 
         while (stage_CheckAnimationFrame(42, 50, 0) == 0) {
@@ -946,7 +946,7 @@ void actSt13bElev2Chk(GObj *volatile a0)
         }
 
         _ACTWait(1);
-        iosPadActRequest(boyPad, 0x10);
+        iosPadActRequest(boyPad, 16);
 
         while (stage_CheckAnimationFinish(42) == 0) {
             _ACTWait(1);
@@ -962,7 +962,7 @@ void actSt13bElev2Chk(GObj *volatile a0)
             _ACTWait(1);
         }
 
-        _ACTWait((0x3C - systemStatus[0] * 10) / systemStatus[1] * 0.15);
+        _ACTWait((60 - systemStatus[0] * 10) / systemStatus[1] * 0.15);
         stage_SetAnimation(41, 1, 0);
 
         while (stage_CheckAnimationFinish(41) == 0) {
@@ -1047,7 +1047,7 @@ void actSt13bStoneGirl(GObj *volatile a0)
     actInitialize(a0);
     _ACTWait(1);
 
-    if (current_stage_no == 0x2E) {
+    if (current_stage_no == 46) {
         scpPlayMot(scpSearchGobj(2462), 808);
         scpSearchGobj(2462)->active = 1;
     }
@@ -1144,7 +1144,7 @@ void actSt13bConte02Jimaku(GObj *volatile a0)
         }
 
         n = (int)t;
-        tn = t + (float)((0x3C - systemStatus[0] * 0xA) / systemStatus[1]) / 60.0f;
+        tn = t + (float)((60 - systemStatus[0] * 10) / systemStatus[1]) / 60.0f;
         if (n != (int)tn) {
             _ACTWait(1);
             t = tn;
@@ -1208,13 +1208,13 @@ void actSt13bElevUpSub(GObj *volatile a0)
 {
     stage_SetAnimation(40, 1, 0);
     st13b_boss_yure = iosPadActRequest(boyPad, 9);
-    st13b_boss_yure_vol = 0x80;
-    iosPadActVolumeSet(st13b_boss_yure, 0x80);
+    st13b_boss_yure_vol = 128;
+    iosPadActVolumeSet(st13b_boss_yure, 128);
     while (stage_CheckAnimationFrame(40, 200, 0) == 0) {
         _ACTWait(1);
     }
     _ACTWait(1);
-    iosPadActRequest(boyPad, 0x11);
+    iosPadActRequest(boyPad, 17);
     iosPadActStop(st13b_boss_yure);
     while (stage_CheckAnimationFrame(40, 234, 1) == 0) {
         _ACTWait(1);

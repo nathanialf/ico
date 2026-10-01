@@ -89,7 +89,7 @@ void actDevilLightning(GObj *volatile a0)
     actInitialize(a0);
     _ACTWait(1);
 
-    scpLinkBGAtoLayoutedTargetSkeltonWithLocalRotationFlag(0xDB9, 0, 0x22A, 0);
+    scpLinkBGAtoLayoutedTargetSkeltonWithLocalRotationFlag(3513, 0, 554, 0);
 }
 
 void actQueenLightning(GObj *volatile a0)
@@ -98,7 +98,7 @@ void actQueenLightning(GObj *volatile a0)
     actInitialize(a0);
     _ACTWait(1);
 
-    scpLinkBGAtoLayoutedTargetSkeltonWithLocalRotationFlag(0xDB8, 0, 0x22B, 0);
+    scpLinkBGAtoLayoutedTargetSkeltonWithLocalRotationFlag(3512, 0, 555, 0);
 }
 
 void actSt17aTest(GObj *volatile a0)
@@ -134,7 +134,7 @@ void actExplodeChk(GObj *volatile a0)
     scpGetWallCollision(0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 100.0f);
     _ACTWait(60);
     stage_SetAnimation(511, 1, 0);
-    scpLinkBGAtoLayoutedTarget(0xBC6, 0x1FF);
+    scpLinkBGAtoLayoutedTarget(3014, 511);
     while (stage_CheckAnimationFinish(511) == 0) {
         _ACTWait(1);
     }
@@ -148,7 +148,7 @@ void actSplash1Chk(GObj *volatile a0)
     scpGetWallCollision(0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 100.0f);
     _ACTWait(60);
     stage_SetAnimation(498, 1, 0);
-    scpLinkBGAtoLayoutedTarget(0xBC7, 0x1F2);
+    scpLinkBGAtoLayoutedTarget(3015, 498);
     while (stage_CheckAnimationFinish(498) == 0) {
         _ACTWait(1);
     }
@@ -162,7 +162,7 @@ void actSplash2Chk(GObj *volatile a0)
     scpGetWallCollision(0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 100.0f);
     _ACTWait(60);
     stage_SetAnimation(499, 1, 0);
-    scpLinkBGAtoLayoutedTarget(0xBC8, 0x1F3);
+    scpLinkBGAtoLayoutedTarget(3016, 499);
     while (stage_CheckAnimationFinish(499) == 0) {
         _ACTWait(1);
     }

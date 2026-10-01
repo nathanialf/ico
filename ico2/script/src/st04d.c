@@ -97,7 +97,7 @@ inline void actSt04dDoor1UpEffect(GObj *volatile a0)
             b1[1] = door1UpEffectPos.d[1];
             scpEffectStart((int *)b1, 0);
             break;
-        case 0x1E:
+        case 30:
             b2[0] = v0b;
             b2[1] = door1DownEffectPos.d[1];
             scpEffectStart((int *)b2, 0);
@@ -121,7 +121,7 @@ inline void actSt04dDoor1DownEffect(GObj *volatile a0)
             b1[1] = door1DownEffectPos.d[1];
             scpEffectStart((int *)b1, 0);
             break;
-        case 0x1E:
+        case 30:
             b2[0] = v0b;
             b2[1] = door1UpEffectPos.d[1];
             scpEffectStart((int *)b2, 0);
@@ -256,7 +256,7 @@ inline void actSt04dDoor2UpEffect(GObj *volatile a0)
             b1[1] = door2UpEffectPos.d[1];
             scpEffectStart((int *)b1, 0);
             break;
-        case 0x1E:
+        case 30:
             b2[0] = v0b;
             b2[1] = door2DownEffectPos.d[1];
             scpEffectStart((int *)b2, 0);
@@ -280,7 +280,7 @@ inline void actSt04dDoor2DownEffect(GObj *volatile a0)
             b1[1] = door2DownEffectPos.d[1];
             scpEffectStart((int *)b1, 0);
             break;
-        case 0x1E:
+        case 30:
             b2[0] = v0b;
             b2[1] = door2UpEffectPos.d[1];
             scpEffectStart((int *)b2, 0);

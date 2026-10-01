@@ -104,7 +104,7 @@ int stageSEtaimatsu(SEObj *self)
     Blk16 v;
     Blk16 d;
     GObj *g = isysGObjSearchFromObjKindID_begin(10);
-    int *best = 0;
+    GObj *best = 0;
     GObj *torch = 0;
     float bd = 3.40282347e+38f; /* FLT_MAX */
     int rv = 1;
@@ -135,9 +135,9 @@ int stageSEtaimatsu(SEObj *self)
         }
         id = *self->mail;
         if ((i & 1) == 0) {
-            id -= 0x1AA;
+            id -= 426;
         } else {
-            id -= 0x1AC;
+            id -= 428;
         }
         if ((unsigned int)id >= 2) {
             continue;
@@ -151,7 +151,8 @@ int stageSEtaimatsu(SEObj *self)
         }
     }
     if (best != 0) {
-        sceVu0CopyVector(self->pos, (char *)((int *)best[87])[3] + 0x30);
+        /* the translation row of the torch's first node matrix */
+        sceVu0CopyVector(self->pos, (float *)GOBJ_SUB(best)->nodeMtx + 12);
     } else {
         rv = 0;
     }
@@ -188,7 +189,7 @@ int stageSE04eriver(SEObj *a0)
     float z = p[2];
     float r;
 
-    if (stage_no == 0x15) {
+    if (stage_no == 21) {
         if (gflagChk(230)) {
             return SEFadeOut(a0, &river04eLevelA);
         }
@@ -458,7 +459,7 @@ int stageSE04eriverDown(SEObj *a0)
 {
     float x = ((float *)GetCameraPos(a0))[2];
     float f;
-    if (stage_no == 0x15) {
+    if (stage_no == 21) {
         if (gflagChk(230)) {
             return 0;
         }

@@ -112,14 +112,14 @@ void actSt08bKurenSwitch(GObj *volatile a0)
             _ACTWait(1);
         }
         thread = actCreateSubThread(actSt08bKurenRight, 21);
-        frame = 0x3FC;
+        frame = 1020;
     } else {
         scpAdpcmPlayRequestFunc(57, &h, 1, 1, 1);
         while (h == 0) {
             _ACTWait(1);
         }
         thread = actCreateSubThread(actSt08bKurenLeft, 21);
-        frame = 0x1FE;
+        frame = 510;
     }
 
     _ACTWait(3);
@@ -135,12 +135,12 @@ void actSt08bKurenSwitch(GObj *volatile a0)
     }
 
     if (demoEnd == 0) {
-        scpAdpcmFadeCloseFunc(&h, 0x80);
+        scpAdpcmFadeCloseFunc(&h, 128);
         scpFadeOut(16.0f, 0, 0, 0);
         while (scpFadeChk() != 0) {
             _ACTWait(1);
         }
-        stage_SetAnimation(370, 1, frame - 0x3C);
+        stage_SetAnimation(370, 1, frame - 60);
         _ACTWait(1);
         HotInitCageGeo(scpSearchGobj(365));
         HotInitCageGeo(scpSearchGobj(364));
@@ -201,19 +201,19 @@ void actSt08bKurenLeft(GObj *volatile a0)
         _ACTWait(1);
     }
     _ACTWait(1);
-    iosPadActRequest(boyPad, 0x10);
+    iosPadActRequest(boyPad, 16);
 
     while (stage_CheckAnimationFrame(370, 215, 0) == 0) {
         _ACTWait(1);
     }
     _ACTWait(1);
-    iosPadActRequest(boyPad, 0x11);
+    iosPadActRequest(boyPad, 17);
 
     while (stage_CheckAnimationFrame(370, 465, 0) == 0) {
         _ACTWait(1);
     }
     _ACTWait(1);
-    iosPadActRequest(boyPad, 0x11);
+    iosPadActRequest(boyPad, 17);
 
     demoEnd = 1;
     _ACTWait(0);
@@ -223,25 +223,25 @@ void actSt08bKurenRight(GObj *volatile a0)
 {
     ReviveAllCarryableItemsWithNonSleepFrame(300);
 
-    stage_SetAnimation(370, 1, 0x1FF);
+    stage_SetAnimation(370, 1, 511);
 
     while (stage_CheckAnimationFrame(370, 732, 0) == 0) {
         _ACTWait(1);
     }
     _ACTWait(1);
-    iosPadActRequest(boyPad, 0x11);
+    iosPadActRequest(boyPad, 17);
 
     while (stage_CheckAnimationFrame(370, 822, 0) == 0) {
         _ACTWait(1);
     }
     _ACTWait(1);
-    iosPadActRequest(boyPad, 0x11);
+    iosPadActRequest(boyPad, 17);
 
     while (stage_CheckAnimationFrame(370, 995, 0) == 0) {
         _ACTWait(1);
     }
     _ACTWait(1);
-    iosPadActRequest(boyPad, 0x11);
+    iosPadActRequest(boyPad, 17);
 
     demoEnd = 1;
     _ACTWait(0);
@@ -335,7 +335,7 @@ inline void actSt08bDoorUpEffect(GObj *volatile a0)
             b1[1] = doorUpEffectPos.d[1];
             scpEffectStart((int *)b1, 0);
             break;
-        case 0x1E:
+        case 30:
             b2[0] = v0b;
             b2[1] = doorUpEffect2Pos.d[1];
             scpEffectStart((int *)b2, 0);
@@ -359,7 +359,7 @@ inline void actSt08bDoorDownEffect(GObj *volatile a0)
             b1[1] = doorUpEffect2Pos.d[1];
             scpEffectStart((int *)b1, 0);
             break;
-        case 0x1E:
+        case 30:
             b2[0] = v0b;
             b2[1] = doorUpEffectPos.d[1];
             scpEffectStart((int *)b2, 0);

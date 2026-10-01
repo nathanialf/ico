@@ -111,8 +111,8 @@ void actSt01bFloorChkSub(GObj *volatile a0)
     soundSeDefPlay(1288, 0, 0, 1);
     stage_SetAnimation(183, 1, 0);
     st01b_yure = iosPadActRequest(boyPad, 9);
-    st01b_yure_vol = 0x80;
-    iosPadActVolumeSet(st01b_yure, 0x80);
+    st01b_yure_vol = 128;
+    iosPadActVolumeSet(st01b_yure, 128);
     while (stage_CheckAnimationFrame(183, 180, 0) == 0) {
         _ACTWait(1);
     }
@@ -126,7 +126,7 @@ void actSt01bFloorChk(GObj *volatile a0)
     GProc *th;
     int notdone;
 
-    while (scpIsHangChainOptional(boyGObj, 0x325) == 0) {
+    while (scpIsHangChainOptional(boyGObj, 805) == 0) {
         _ACTWait(1);
     }
     lt_switch_layout(55);
@@ -154,7 +154,7 @@ void actSt01bFloorChk(GObj *volatile a0)
         while (st01b_floor == 0) {
             _ACTWait(1);
         }
-        scpAdpcmFadeCloseFunc(&st01b_floor, 0x100);
+        scpAdpcmFadeCloseFunc(&st01b_floor, 256);
         scpFadeOut(16.0f, 0, 0, 0);
         while (lt_fade_status() != 2) {
             _ACTWait(1);
@@ -169,7 +169,7 @@ void actSt01bFloorChk(GObj *volatile a0)
     if (notdone) {
         stage_SetAnimation(181, 1, -1);
         stage_SetAnimation(180, 1, -1);
-        stage_SetAnimation(183, 0, 0xB4);
+        stage_SetAnimation(183, 0, 180);
         if (seHandle >= 0) {
             soundSeDefStop(seHandle);
             soundSeDefPlay(1288, 0, 0, 1);
@@ -193,7 +193,7 @@ void actSt01bSekizo(GObj *volatile a0)
     actInitialize(a0);
     _ACTWait(1);
 
-    scpSekizou(a0, 0x41, 0xB2, 0, 0x12, 1000.0f, 528.0f, -150.0f, 1000.0f, 528.0f, -100.0f);
+    scpSekizou(a0, 65, 178, 0, 18, 1000.0f, 528.0f, -150.0f, 1000.0f, 528.0f, -100.0f);
 }
 
 void actSt01bEne(GObj *volatile a0)

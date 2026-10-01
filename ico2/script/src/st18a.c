@@ -99,7 +99,7 @@ void actSt18aSwitchLChk(GObj *volatile a0)
     int i;
 
     i = 0;
-    while (i < (0x3C - systemStatus[0] * 0xA) / systemStatus[1]) {
+    while (i < (60 - systemStatus[0] * 10) / systemStatus[1]) {
         if (scpTriggerFloorAttr(scpSearchGobj(773), 0x1000000) != 0 ||
             scpTriggerFloorAttr(scpSearchGobj(774), 0x1000000) != 0 ||
             scpTriggerFloorAttr(boyGObj, 0x1000000) != 0 ||
@@ -145,7 +145,7 @@ void actSt18aSwitchLUpChk(GObj *volatile a0)
     _ACTWait(15);
     gflagOff(58);
 
-    stage_SetAnimation(121, 1, 0x2E);
+    stage_SetAnimation(121, 1, 46);
     soundSeDefPlay(1220, 0, 0, 1);
 
     while (stage_CheckAnimationFrame(121, 50, 0) == 0) {
@@ -172,7 +172,7 @@ void actSt18aSwitchRChk(GObj *volatile a0)
     int i;
 
     i = 0;
-    while (i < (0x3C - systemStatus[0] * 0xA) / systemStatus[1]) {
+    while (i < (60 - systemStatus[0] * 10) / systemStatus[1]) {
         if (scpTriggerFloorAttr(scpSearchGobj(773), 0x2000000) != 0 ||
             scpTriggerFloorAttr(scpSearchGobj(774), 0x2000000) != 0 ||
             scpTriggerFloorAttr(boyGObj, 0x2000000) != 0 ||
@@ -218,7 +218,7 @@ void actSt18aSwitchRUpChk(GObj *volatile a0)
     _ACTWait(15);
     gflagOff(59);
 
-    stage_SetAnimation(122, 1, 0x2E);
+    stage_SetAnimation(122, 1, 46);
     soundSeDefPlay(1220, 0, 0, 1);
 
     while (stage_CheckAnimationFrame(122, 50, 0) == 0) {
@@ -437,7 +437,7 @@ void actSt18aSwitchL(GObj *volatile a0)
         ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     } else {
-        stage_SetAnimation(121, 0, 0x2D);
+        stage_SetAnimation(121, 0, 45);
 
         switchLUp_mes[0].func = actSt18aSwitchLUpChk;
         self->mail = switchLUp_mes;
@@ -461,7 +461,7 @@ void actSt18aSwitchR(GObj *volatile a0)
         ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     } else {
-        stage_SetAnimation(122, 0, 0x2D);
+        stage_SetAnimation(122, 0, 45);
 
         switchRUp_mes[0].func = actSt18aSwitchRUpChk;
         self->mail = switchRUp_mes;
