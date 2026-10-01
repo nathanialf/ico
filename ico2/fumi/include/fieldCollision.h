@@ -14,6 +14,7 @@
 
 
 struct GObj;
+struct ClipWork;
 /* The collision hit record a character starts from (the object, the node
    and the attribute of the last hit), and the empty one it is reset to. */
 typedef struct {
@@ -76,8 +77,8 @@ void DrawCollision(int a0);
 int ClipPlane(int a0);
 void GetOrientOfWall(void *a0, void *a1, int *a2);
 void SetSimplePlane(float *self, float a, float b, float c, float d);
-int GetWallAttribute(int a0);
-int GetFloorAttribute(int a0);
+int GetWallAttribute(struct ClipWork *w);
+int GetFloorAttribute(struct ClipWork *w);
 int CompareAttribute(unsigned int a, unsigned int b);
 void GetWallGlobalInfo(char *pts, void *nrm, char *w, void *m);
 inline float GetDistanceFromPlane(void *a0, void *a1);

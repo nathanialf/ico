@@ -12,6 +12,8 @@
 #ifndef S_INIT_H
 #define S_INIT_H
 
+struct GObj;
+
 /* s_init.c defines these `inline`, and ee-gcc 2.9 emits a file's inline
    functions after all of its other functions, in the order their names were
    first declared. That order is the ROM's (Ee2Iop at 0x145EB8 through
@@ -29,7 +31,7 @@ char *soundDataAreaGet(int a0, int a1, int a2, int a3);
 char *soundHDDataSet(int a0, int a1, int a2, int a3, int a4);
 char *soundSQDataSet(int a0, int a1, int a2, int a3, int a4);
 int soundSeDefPlay(int a0, unsigned int a1, float *pos, int a3);
-int soundSeDefPlayWithVolumeRate(int a0, int a1, int a2, int a3);
+int soundSeDefPlayWithVolumeRate(int a0, unsigned int a1, float *pos, int a3, float rate);
 float soundSeDefVolumeRateGet(int a0);
 void soundSeDefVolumeRateSet(int a0, float f);
 void soundSeGroupStop(int arg);
@@ -47,13 +49,13 @@ void soundDataClose(char *obj);
 void soundDataOpen(int *work, int mode, int a2, int a3, int a4);
 int *soundDataOpenSync(int *work);
 void soundDataSegAllClose(int a0, int a1);
-void soundDataSegNextStageNotUseClose();
+void soundDataSegNextStageNotUseClose(int a0, int a1);
 int soundInit(void);
 void soundOutputModeSet(int a0);
 void soundReverbDepthSet(int a0);
 void soundSeDefStop(int a0);
 void soundSeDefStopNoRelease(int a0);
-void soundSeEnvNotUseClose();
+void soundSeEnvNotUseClose(int a, int b);
 /* s_init.o's .sdata globals (MAIN.MAP) */
 extern float soundSeEnvMasterVolRate;
 extern int seEnvForceClose;
@@ -70,8 +72,8 @@ typedef struct {                                   /* field names derived */
     int kind;                                      /* 0x20, the seKind row */
     float volume;                                  /* 0x24 */
     int mail;                                      /* 0x28 */
-    int (*check)(int target, int self, void *rec); /* 0x2C */
-    int word30;                                    /* 0x30 */
+    int (*check)(struct GObj *target, struct GObj *self, void *rec); /* 0x2C */
+    int range;                                     /* 0x30, how near seMailTargetDistCheck wants a target */
     unsigned short mailArg;                        /* 0x34, ACTGame_SendSoundMail's argument */
     unsigned short half36;                         /* 0x36 */
     unsigned int flags;                            /* 0x38 */

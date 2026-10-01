@@ -2206,7 +2206,7 @@ void subBoyCollision(GObj *volatile a0)
                 looking = hold != 0;
             }
             if (girlGObj != 0 && (looking || ((int)(GOBJ_ACT(girlGObj)->flags20.ll >> 26) & 1))) {
-                _ACTLookTarget_Set((void *)a0, (int)girlGObj, 0, 4, 2);
+                _ACTLookTarget_Set((void *)a0, girlGObj, 0, 4, 2);
                 if (girlLookInScreen == 0 && ((int)(sub->flags20.ll >> 23) & 1)) {
                     if (((int)(sub->flags20.ll >> 24) & 3) != 0) {
                         void *lo = isysGObjSearchFromObjLayoutID(0x4);
@@ -4117,7 +4117,7 @@ inline void SetBoyInfo(int *a0, int *a1)
     }
 }
 
-inline void GetBoyRootPositionForCamera(float *out)
+inline void GetBoyRootPositionForCamera(float *out, GObj *gobj)
 {
     float buf[4];
     char *g = (char *)boyGObj;

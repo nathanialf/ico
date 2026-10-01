@@ -17,7 +17,7 @@
  * first-declaration order, so this is the order soundManager.c's inline tail has. */
 void sndManager(void);
 
-void sndBgmReadyNextStage(int *a, int *b);
+void sndBgmReadyNextStage(int a, int b);
 
 /* MAIN.MAP global, soundManager.o's whole .sdata */
 extern int sndInitBgmCancelFlag;

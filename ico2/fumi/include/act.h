@@ -25,7 +25,7 @@ void actInitialize_geo(void *self);
 int ACTReserveTarget(struct GObj *self, void *a1, int a2);
 void _ACTRun(int n);
 void _ACTWait(int a0);
-void actCreateSubThreadGOppArg(void (*fn)(), int pri);
+struct GProc *actCreateSubThreadGOppArg(void (*fn)(), int pri);
 void actSetInterrupt(char *self, int val);
 void ConvertStickToAbsCoord(void *a0, float *a1);
 void ActSetStartBrainStatus(struct GObj *self, int status);
@@ -41,7 +41,7 @@ void actChangeActMain(struct GObj *self, void (*fn)(), struct GProc **slot);
 void actCreateMotionThread(void (*fn)(), int pri, struct GProc **slot);
 struct GProc *actCreateSubThread(void (*fn)(), int pri);
 struct Act *actInitialize(struct GObj *self);
-void actInitialize_ext_charcter(char *self);
+void actInitialize_ext_charcter(struct GObj *self);
 void actInitialize_only_charcter(char *self);
 
 /* act-mode-def: one act mode, 0x50 bytes, indexed by Act+0x34. Readers:

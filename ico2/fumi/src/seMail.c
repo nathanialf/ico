@@ -4,8 +4,9 @@
 #include "geometryManager.h"
 #include <libvu0.h>
 #include "main.h"
+#include "s_init.h"
 
-void setMailTarget(GObj *a0, int *a1, int *a2)
+void setMailTarget(GObj *a0, GObj **a1, int *a2)
 {
     int v = *a2;
     if (v >= 0x10) {
@@ -16,26 +17,14 @@ void setMailTarget(GObj *a0, int *a1, int *a2)
     a1[v] = a0;
 }
 
-/* One 60-byte sound-mail record: the mail id, an optional per-target filter,
-   and a flag word whose low nibble selects the target set. */
-typedef struct SeRec {
-    char pad0[40];
-    int mail;                                              /* 0x28 */
-    int (*check)(int target, int self, struct SeRec *rec); /* 0x2C */
-    char pad30[4];
-    unsigned short x34; /* 0x34 */
-    char pad36[2];
-    unsigned int flags; /* 0x38 */
-} SeRec;
-
-extern SeRec seDef[];
-void setMailTarget(GObj *a0, int *a1, int *a2);
+/* kept local: s_init.c reads the table as bytes */
+extern SeDef seDef[];
 
 void seMail(GObj *self, int id)
 {
-    SeRec *rec = &seDef[id];
+    SeDef *rec = &seDef[id];
     int flags = rec->flags & 0xF;
-    int targets[16];
+    GObj *targets[16];
     int n = 0;
     int i;
     void *o;
@@ -73,20 +62,20 @@ void seMail(GObj *self, int id)
                 r = 1;
             }
             if (r != 0) {
-                ACTGame_SendSoundMail((char *)targets[i], rec->mail, self, rec->x34,
+                ACTGame_SendSoundMail(targets[i], rec->mail, self, rec->mailArg,
                                       (rec->flags >> 9) & 1);
             }
         }
     }
 }
 
-int seMailTargetDistCheck(void *a0, void *a1, void *a2)
+int seMailTargetDistCheck(void *a0, void *a1, SeDef *rec)
 {
     float buf0[4];
     float buf1[4];
     float buf2[4];
     float threshold;
-    threshold = (float)(*(int *)((char *)a2 + 0x30) * *(int *)((char *)a2 + 0x30));
+    threshold = (float)(rec->range * rec->range);
     if (a0 == 0 || a1 == 0) {
         return 0;
     }

@@ -39,7 +39,7 @@ inline void sndManager(void)
     }
 }
 
-void sndBgmReadyNextStage(int *a, int *b)
+void sndBgmReadyNextStage(int a, int b)
 {
     soundDataSegNextStageNotUseClose(1, a);
     soundDataSegNextStageNotUseClose(2, a);

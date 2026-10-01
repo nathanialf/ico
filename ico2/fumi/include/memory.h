@@ -47,7 +47,7 @@ typedef struct IosMemNode {       /* field names derived */
  * gcc 2.9 emits the deferred out-of-line copy of a plain-inline function in
  * first-declaration order, so this is the order memory.c's inline tail has. */
 IosMemPart *iosMallocInitPartition(unsigned int start, unsigned int end);
-void *iosMallocDebug(IosMemPart *part, int size, char *file, int line);
+void *iosMallocDebug(IosMemPart *part, int size, const char *file, int line);
 void *_iosMallocDebug();
 void *iosFree(void *ptr);
 void iosMallocCheckLeak(IosMemPart *part);

@@ -164,7 +164,8 @@ struct GObj {   /* field names derived */
     unsigned char linkId; /* 0x18, which of the eight run lists */
     char pad19[3];
     unsigned int key;       /* 0x1C, the run list's sort key */
-    char pad20[8];          /* 0x20 .. 0x27 */
+    char pad20[4];
+    int word24;             /* 0x24, cleared by StageAnimation.c once its object's display list is linked; nothing reads it */
     void (*fn)(GObj *);     /* 0x28, the object's per-frame function */
     struct GProc *procHead; /* 0x2C, head of the object's process list */
     struct GProc *procTail; /* 0x30, tail of the same list */
@@ -201,7 +202,8 @@ struct Sub15C { /* field names derived */
     int matrix; /* 0x20, the object's own matrix starts here (initMatrixDObj) */
     char pad24[48];
     float matrixTy; /* 0x54, the translation height in that matrix */
-    char pad58[24];
+    char pad58[8];
+    float quat[4]; /* 0x60, the object's turn: weapon.c copies the root's into it, SetParticleEffect takes it */
     int colData;   /* 0x70, the collision data; its wall list hangs at 0x10 */
     int disp;      /* 0x74, nonzero while the stage animation draws the object */
     int colRotate; /* 0x78, nonzero when the collision follows the node's rotation */
@@ -357,14 +359,15 @@ struct Sub15C { /* field names derived */
     int streamScale; /* 0x660, nonzero to scale the stream motion by the node scale */
     char pad664[12];
     float streamOfs[3]; /* 0x670, the stream motion offset */
-    char pad67C[312];
+    char pad67C[196];
+    char fdsFlags[116]; /* 0x740, the frame-depend sequence's fired-slot flags (frameDependSequence.c's FDSFlags) */
     void *motionBuf; /* 0x7B4, the current motion's rotation elements, 32 bytes a skeleton node */
     char pad7B8[8];
     float motionPos[4]; /* 0x7C0, the position GetMatrixOfMotion places the root at */
     void *blendBuf;     /* 0x7D0, the blend source's rotation elements */
     char pad7D4[12];
     float localPos[4]; /* 0x7E0, the position relative to the object at 0x800 */
-    char pad7F0[16];
+    float localMove[4]; /* 0x7F0, the root movement the local position steps by while no object holds it */
     void *localObj;    /* 0x800, the object the position at 0x7E0 is relative to, 0 for none */
     int localNode;     /* 0x804, the node of that object */
     float localHeight; /* 0x808, the height added to the local position */
@@ -768,7 +771,7 @@ typedef struct {        /* field names derived */
     void (*start)();                 /* 0x40, the actor's start process (actBoyStart) */
     int layouted;           /* 0x44, nonzero when the kind is created from the stage layout */
     void (*dl)();           /* 0x48, the display function (BoyDL) */
-    int afterGeo;           /* 0x4C, the process CreateGObjByFuncSet adds after the geometry one */
+    void (*afterGeo)();     /* 0x4C, the process CreateGObjByFuncSet adds after the geometry one */
     void (*geo)();          /* 0x50, the geometry process (BoyGeo) */
     void (*hotInit)(int *); /* 0x54, sceneManager's hot-init hook */
     int (*create)(char *, int); /* 0x58, the kind's GObj constructor */
@@ -858,7 +861,7 @@ typedef union { /* field names derived */
 } Vec4;
 
 /* RECONSTRUCTION, PLACED BY INCLUDE PATTERN: one record for 5 TUs that carried 4 divergent local copies; this body is the one the ROM's bytes accept in the most of them. */
-typedef struct {  /* field names derived */
+typedef struct ClipWork { /* field names derived */
     float a[4];   /* 0x00 start point   */
     float b[4];   /* 0x10 end point     */
     float pos[4]; /* 0x20 clipped point */
@@ -871,7 +874,8 @@ typedef struct {  /* field names derived */
     struct FcWallEnt *wallHit; /* 0x88, fieldCollision.h's wall record */
     int floorSrc[2];           /* 0x8C the same pair for the floor the search hit */
     int floorHit;              /* 0x94 */
-    char pad98[8];
+    int attr;                  /* 0x98, the attribute of the element hit */
+    char pad9C[4];
     float normal[4]; /* 0xA0 */
     int slideCount;  /* 0xB0, times clip_wall_1 ran the ray along a wall's end */
     char padB4[12];
@@ -1012,9 +1016,9 @@ typedef struct PadConf { /* field names derived */
 
 typedef struct Act { /* field names derived */
     char pad0[4];
-    void *actProc; /* 0x4, the actor's action process (actInitialize, actChangeActMain) */
-    int motProc;   /* 0x8, the motion thread an interrupt's first function runs in */
-    int motProc2;  /* 0xC, the motion thread of its second function */
+    struct GProc *actProc;  /* 0x4, the actor's action process (actInitialize, actChangeActMain) */
+    struct GProc *motProc;  /* 0x8, the motion thread an interrupt's first function runs in */
+    struct GProc *motProc2; /* 0xC, the motion thread of its second function */
     int frame;     /* 0x10, the actor's frame count */
     void *after;   /* 0x14, the actor's after function (enemy_act.c's name) */
 
@@ -1054,7 +1058,7 @@ typedef struct Act { /* field names derived */
     long long paraStatus;              /* 0x90, the parallel status bits ACTParaStatus sets */
     unsigned long long lastParaStatus; /* 0x98, the parallel status bits as last seen */
     long long flags;                   /* 0xA0 */
-    int lookTarget; /* 0xA8, the object the actor looks at, 0 for the position at 0xC0 */
+    GObj *lookTarget; /* 0xA8, the object the actor looks at, 0 for the position at 0xC0 */
     int lookPri;    /* 0xAC, the priority of the current look request */
     int lookMode;   /* 0xB0, the look mode passed to the display object */
     char padB4[12];
@@ -1065,7 +1069,7 @@ typedef struct Act { /* field names derived */
     ActMail *mainMail; /* 0xD0 */
     ActMail *mail;     /* 0xD4 */
     int intrKind;      /* 0xD8, the kind of the mail that last interrupted */
-    char padDC[4];
+    int attack;     /* 0xDC, nonzero when the actor's kind attacks (act_a_p_1.c copies spiderDef's attack) */
     int readyFlags; /* 0xE0, the hand-in-hand handshake bits: 1 ready begin, 2 ready end, 8 exec end, 0x10 error */
     char padE4[44];
     float camRootX; /* 0x110, the root position the camera follows, x */

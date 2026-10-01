@@ -1218,7 +1218,7 @@ inline void ACTLookTarget_Init(GObj *a0)
     s->lookPri = 0;
 }
 
-inline int _ACTLookTarget_Set(GObj *a0, int a1, float *a2, int a3, int a4)
+inline int _ACTLookTarget_Set(GObj *a0, GObj *a1, float *a2, int a3, int a4)
 {
     Act *s = GOBJ_ACT(a0);
     int ret = 0;
@@ -3307,7 +3307,7 @@ inline void _ACTSetEnemyDisappearSpeed(GObj *a0, float f)
     GOBJ_WORK(a0)->disappearSpeed = f;
 }
 
-inline int ACTChkAttackIgnore_BOY(GObj *a0)
+inline int ACTChkAttackIgnore_BOY(GObj *a0, GObj *actor)
 {
     Act *s = GOBJ_ACT(a0);
     if (s->actMode == 0x35 ||
@@ -3318,7 +3318,7 @@ inline int ACTChkAttackIgnore_BOY(GObj *a0)
     return 0;
 }
 
-inline int ACTChkAttackIgnore_GIRL(GObj *a0, int *a1)
+inline int ACTChkAttackIgnore_GIRL(GObj *a0, GObj *actor)
 {
     Act *s = GOBJ_ACT(a0);
     switch (s->actMode) {
@@ -3326,7 +3326,7 @@ inline int ACTChkAttackIgnore_GIRL(GObj *a0, int *a1)
         return 1;
 
     case 5:
-        if (a1 != 0 && a1[3] == 0x11) {
+        if (actor != 0 && actor->kind == 17) {
             return 1;
         }
         break;
@@ -3334,7 +3334,7 @@ inline int ACTChkAttackIgnore_GIRL(GObj *a0, int *a1)
     return 0;
 }
 
-inline int ACTChkAttackIgnore_ENEMY(GObj *a0)
+inline int ACTChkAttackIgnore_ENEMY(GObj *a0, GObj *actor)
 {
     Act *s = GOBJ_ACT(a0);
 

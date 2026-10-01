@@ -117,9 +117,12 @@ GProc *actCreateSubThread(void (*a0)(), int a1)
     return p;
 }
 
-inline void actCreateSubThreadGOppArg(void (*a0)(), int a1)
+inline GProc *actCreateSubThreadGOppArg(void (*a0)(), int a1)
 {
-    isysGObjProcAddGOppArg(isysCurrentGObj, a0, 0, a1)->thread.sleeping = 1;
+    GProc *p = isysGObjProcAddGOppArg(isysCurrentGObj, a0, 0, a1);
+
+    p->thread.sleeping = 1;
+    return p;
 }
 
 inline void actSetInterrupt(char *self, int val)
@@ -217,7 +220,7 @@ inline void actInitialize_geo(void *self) {}
    declare it as a char array */
 extern PadConf iosPadConfDefault;
 
-void actInitialize_ext_charcter(char *self)
+void actInitialize_ext_charcter(GObj *self)
 {
     Act *g = GOBJ_ACT(self);
     char *p = (char *)iosMallocDebug(ios_partition_seki, 0x400, __FILE__, 885);
@@ -620,14 +623,14 @@ void BeforeFunc(GObj *self)
                             ((unsigned long long)actModeTbl[intr->mode].bit12 << 50);
             w->flags20.ll &= ~(1LL << 11);
             *(IntrMail **)((char *)w + 0xD4) = &actIntrList[actModeTbl[w->actMode].intrList];
-            actChangeActMain(isysCurrentGObj, act, (void **)((char *)w + 4));
+            actChangeActMain(isysCurrentGObj, act, &w->actProc);
         }
         if (intr->motion != 0) {
-            *(int *)((char *)w + 0x38) = 0;
-            actCreateMotionThread(intr->motion, 21, ((char *)w + 8));
+            w->pushDir = 0;
+            actCreateMotionThread(intr->motion, 21, &w->motProc);
         }
         if (intr->extra != 0) {
-            actCreateMotionThread(intr->extra, 22, ((char *)w + 0xC));
+            actCreateMotionThread(intr->extra, 22, &w->motProc2);
         }
         if (intr->accept != 0) {
             intr->accept(self, ent->id, ent->f4);

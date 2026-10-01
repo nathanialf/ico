@@ -1766,18 +1766,18 @@ inline int CompareAttribute(unsigned int a, unsigned int b)
     return 0;
 }
 
-inline int GetWallAttribute(int a0)
+inline int GetWallAttribute(ClipWork *w)
 {
-    if (*(int *)(a0 + 0x88) == 0)
+    if (w->wallHit == 0)
         return 0;
-    return *(int *)(a0 + 0x98);
+    return w->attr;
 }
 
-inline int GetFloorAttribute(int a0)
+inline int GetFloorAttribute(ClipWork *w)
 {
-    if (*(int *)(a0 + 0x94) == 0)
+    if (w->floorHit == 0)
         return 0;
-    return *(int *)(a0 + 0x98);
+    return w->attr;
 }
 
 void MakeExitAttributeIndex(void)

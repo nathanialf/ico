@@ -9,7 +9,7 @@
 
 /* kept local: the TUs that call iosMallocDebugNoAssert declare it themselves; it
    passes its four arguments straight through to _iosMallocDebug. */
-void *iosMallocDebugNoAssert(IosMemPart *part, int size, char *file, int line);
+void *iosMallocDebugNoAssert(IosMemPart *part, int size, const char *file, int line);
 
 typedef struct IosMemTag {
     char c[16];
@@ -199,7 +199,7 @@ static char *mallocFile;
 
 static int mallocLine;
 
-void *_iosMallocDebug(IosMemPart *part, int size, char *file, int line)
+void *_iosMallocDebug(IosMemPart *part, int size, const char *file, int line)
 {
     char buf[1024];
     /* read only by the DEBUG build's free-list trace at the loop's end, in
@@ -331,7 +331,7 @@ void *_iosMallocDebug(IosMemPart *part, int size, char *file, int line)
     return 0;
 }
 
-inline void *iosMallocDebug(IosMemPart *part, int size, char *file, int line)
+inline void *iosMallocDebug(IosMemPart *part, int size, const char *file, int line)
 {
     char buf[1024];
     void *ptr;
@@ -350,12 +350,12 @@ inline void *iosMallocDebug(IosMemPart *part, int size, char *file, int line)
     return ptr;
 }
 
-inline void *iosMallocDebugNoAssert(IosMemPart *part, int size, char *file, int line)
+inline void *iosMallocDebugNoAssert(IosMemPart *part, int size, const char *file, int line)
 {
     return _iosMallocDebug(part, size, file, line);
 }
 
-void *iosMallocAlignDebug(IosMemPart *part, int size, int align, char *file, int line)
+void *iosMallocAlignDebug(IosMemPart *part, int size, int align, const char *file, int line)
 {
     unsigned int ptr;
     int ofs;

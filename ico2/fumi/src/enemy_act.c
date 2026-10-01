@@ -655,7 +655,7 @@ void subEnemyCollision(GObj *volatile a0)
     }
     while (1) {
         float *dir = (float *)((char *)sub + 0x120);
-        if (actEnemyFlagCheckActive((int *)a0) != 0) {
+        if (actEnemyFlagCheckActive(a0) != 0) {
             *(long long *)((char *)sub + 0x18) = (long long)sub->flags18.ll | (1LL << 32);
         } else {
             *(long long *)((char *)sub + 0x18) = (long long)sub->flags18.ll & ~(1LL << 32);
@@ -694,7 +694,7 @@ void subEnemyCollision(GObj *volatile a0)
                                                  ? motionKind[GOBJ_SUB(a0)->motion].f182
                                                  : motionKind[GOBJ_SUB(a0)->motion].f186));
         }
-        if (actEnemyFlagCheckDead((int *)a0) == 0) {
+        if (actEnemyFlagCheckDead(a0) == 0) {
             ACTGame_SaveActorInformation((char *)a0);
         }
         if (sub->actMode != 0x70) {
@@ -728,7 +728,7 @@ void subEnemyCollision(GObj *volatile a0)
             _ACTParaStatus_Set(a0, idx + 0x1C);
         }
         ACTParaStatus_Exec((void *)a0);
-        if (isEnemyActive((int *)a0) == 0 && isEnemyCarriedByGirl(a0)) {
+        if (isEnemyActive(a0) == 0 && isEnemyCarriedByGirl(a0)) {
             afterCommonCarry(a0);
         }
         _ACTWait(1);
@@ -845,7 +845,7 @@ inline void funcEnemyAiGetGirl(GObj *a0)
     }
 }
 
-inline void actEnemyHyde(int *self)
+inline void actEnemyHyde(GObj *self)
 {
     sceVu0FVECTOR hide = {0.0f, 0.0f, -1000000.0f};
     SetDirectRootPositionNoFitting(self, hide);
@@ -853,42 +853,42 @@ inline void actEnemyHyde(int *self)
     actEnemyFlagOnFree(self);
 }
 
-inline int isEnemyHyde(int *a0)
+inline int isEnemyHyde(GObj *a0)
 {
-    GenGeo *g = &objLayout[a0[2]];
+    GenGeo *g = &objLayout[a0->labelId];
     return ((g->flags >> 21) & 1) ^ 1;
 }
 
-inline void actEnemyFlagOnFree(int *a0)
+inline void actEnemyFlagOnFree(GObj *a0)
 {
-    GenGeo *g = &objLayout[a0[2]];
+    GenGeo *g = &objLayout[a0->labelId];
     g->flags &= ~0x200000;
 }
 
-inline void actEnemyFlagOnDead(int *a0)
+inline void actEnemyFlagOnDead(GObj *a0)
 {
-    GenGeo *g = &objLayout[a0[2]];
+    GenGeo *g = &objLayout[a0->labelId];
     g->flags |= 0x40000;
 }
 
-inline int actEnemyFlagCheckDead(int *a0)
+inline int actEnemyFlagCheckDead(GObj *a0)
 {
-    GenGeo *g = &objLayout[a0[2]];
+    GenGeo *g = &objLayout[a0->labelId];
     return (g->flags >> 18) & 1;
 }
 
-inline int isEnemyActive(int *self)
+inline int isEnemyActive(GObj *self)
 {
-    if (self == 0 || *(int *)((char *)self + 0xC) != 4) {
+    if (self == 0 || self->kind != 4) {
         debug_assert("src/enemy_act.c", 0x827);
         __assert("src/enemy_act.c", 0x827, "ASSERTMSG__GOP_IS_NOT_ENEMY(gop)");
     }
     return actEnemyFlagCheckActive(self);
 }
 
-inline int actEnemyFlagCheckActive(int *a0)
+inline int actEnemyFlagCheckActive(GObj *a0)
 {
-    GenGeo *g = &objLayout[a0[2]];
+    GenGeo *g = &objLayout[a0->labelId];
     unsigned int field = g->flags;
     unsigned int v0 = (field >> 18) & 1;
     if (v0 != 0)
@@ -1104,7 +1104,7 @@ inline void actEnemyNest(GObj *volatile a0)
     *(int *)((char *)sub + 0x148) = 0;
     RestoreReviveCount(x);
     actChangeActBrain(isysCurrentGObj, (void *)subEnemyBrain_Idle, (char *)sub);
-    actEnemyHyde((int *)a0);
+    actEnemyHyde(a0);
     eBrainSendMes(a0, 0xA);
     stg = stage_no;
     *(int *)((char *)sub + 0x440) = 0;
@@ -1597,7 +1597,7 @@ void CheckEnemyBrainMode(char *self, int *outMode, int *outData)
         *outMode = -1;
         return;
     }
-    if (actEnemyFlagCheckActive((int *)self) == 0) {
+    if (actEnemyFlagCheckActive((GObj *)self) == 0) {
         *outMode = -1;
         return;
     }
@@ -2641,7 +2641,7 @@ int flyMailCore(void *self)
         flyHigh = 1;
         break;
     }
-    if (isEnemyActive((int *)self) == 0) {
+    if (isEnemyActive(self) == 0) {
         goto end;
     }
     if (IsEnemyBrainToGenerator((char *)self, &gen)) {
@@ -2823,7 +2823,7 @@ inline int _ApproachTarget(GObj *self, void *tgt, void *pos, void *fn, float ran
     }
 }
 
-inline int isEnemyKidnapEnable(int *self)
+inline int isEnemyKidnapEnable(GObj *self)
 {
     if (GOBJ_ACT(self)->enemy->liftKind == 0) {
         return 0;
@@ -2846,7 +2846,7 @@ inline int GetMotherGeneratorLabelAskEnemy(GObj *a0)
     return GOBJ_WORK(a0)->motherLabel;
 }
 
-inline int GetMotherGeneratorGObjAskEnemy(GObj *a0)
+inline GObj *GetMotherGeneratorGObjAskEnemy(GObj *a0)
 {
     return GOBJ_WORK(a0)->motherGObj;
 }
@@ -2910,7 +2910,7 @@ void actEnemyStart(GObj *self)
     GOBJ_ACT(self)->enemy->battleType = debug_enemy_battle_type;
     setBattleStatus(self);
     alive = 0;
-    if (actEnemyFlagCheckDead((int *)self) != 0) {
+    if (actEnemyFlagCheckDead(self) != 0) {
         alive = 1;
     }
     if (alive != 0) {
@@ -2939,7 +2939,7 @@ void actEnemyStart(GObj *self)
     *(int *)(act + 0x350) = 0;
     ACTSendMailCorrect(self, 199);
     if (alive != 0) {
-        actEnemyHyde((int *)self);
+        actEnemyHyde(self);
     }
     _ACTWait(0);
 }

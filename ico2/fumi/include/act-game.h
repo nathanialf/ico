@@ -83,7 +83,7 @@ typedef struct ActWork { /* field names derived */
     char pad458[8];
     char *genTarget; /* 0x460 */
     int motherLabel; /* 0x464 */
-    int motherGObj;  /* 0x468 */
+    struct GObj *motherGObj; /* 0x468, the generator object motherLabel names */
     char pad46C[52];
     float pinchPosX; /* 0x4A0 */
     float pinchPosY; /* 0x4A4 */
@@ -173,7 +173,7 @@ unsigned char ACTGame_NoWeapon(struct GObj *a0);
 inline int ACTGame_isWeaponCombustible(void);
 int *ACTGame_GetNearestGObj(struct GObj *a0, int a1);
 void ACTLookTarget_Init(struct GObj *a0);
-int _ACTLookTarget_Set(struct GObj *a0, int a1, float *a2, int a3, int a4);
+int _ACTLookTarget_Set(struct GObj *a0, struct GObj *a1, float *a2, int a3, int a4);
 void ACTParaStatus_Init(struct GObj *a0);
 inline void _ACTParaStatus_Set(struct GObj *a0, int bit);
 unsigned long long _ACTParaStatus_Check(struct GObj *a0, int bit);
@@ -193,9 +193,9 @@ inline void ActGame_GetOrientQ(void *q, void *v, int deg);
 void _GetRootObjectOrient(void *a0, char *a1);
 void ACTItemForceDrop(struct GObj *a0);
 inline void GetOtherStageGirlOrient(float *a0, float *a1);
-int ACTChkAttackIgnore_BOY(struct GObj *a0);
-int ACTChkAttackIgnore_GIRL(struct GObj *a0, int *a1);
-int ACTChkAttackIgnore_ENEMY(struct GObj *a0);
+int ACTChkAttackIgnore_BOY(struct GObj *a0, struct GObj *actor);
+int ACTChkAttackIgnore_GIRL(struct GObj *a0, struct GObj *actor);
+int ACTChkAttackIgnore_ENEMY(struct GObj *a0, struct GObj *actor);
 unsigned char ACTCheckCollis_VIEW(float f, void *p0, void *p1, void *actor);
 int ACTCheckViewClDetail(struct GObj *self, void *a1, void *a2, int range, float f);
 void ACTGame_SetMotionPlaySpeedRatio_Clear(struct GObj *a0);

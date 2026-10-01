@@ -1217,9 +1217,9 @@ inline int soundSeDefPlay(int a0, unsigned int a1, float *pos, int a3)
     return idx;
 }
 
-inline int soundSeDefPlayWithVolumeRate(int a0, int a1, int a2, int a3)
+inline int soundSeDefPlayWithVolumeRate(int a0, unsigned int a1, float *pos, int a3, float rate)
 {
-    int idx = ((int (*)(int, int, int, int, int, int))_soundSeDefPlay)(a0, a1, a2, a3, 0, 0);
+    int idx = _soundSeDefPlay(a0, a1, pos, a3, 0, 0, rate);
     if (idx >= 0) {
         sound3DParamSet(&seSlotTbl[idx & 0xFF]);
     }

@@ -4462,7 +4462,7 @@ inline void actGirlBecall(GObj *volatile a0)
     int i;
 
     for (i = 0; i < (60 - systemStatus[0] * 10) / systemStatus[1] * 2; i++) {
-        _ACTLookTarget_Set((void *)a0, ((int *)boyGObj), 0, 5, 1);
+        _ACTLookTarget_Set((void *)a0, boyGObj, 0, 5, 1);
         _ACTWait(1);
     }
     ACTSendMailCorrect((void *)a0, 252);
