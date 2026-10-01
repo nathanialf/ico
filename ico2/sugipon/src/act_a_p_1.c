@@ -416,9 +416,10 @@ typedef struct AP1MailEntry { /* field names derived */
     /* 0x4 */ void *data;
 } AP1MailEntry; /* derived name */
 
-/* The GObj's pending-mail box at +0x54: a count and a run of 8-byte slots. */
+/* The GObj's pending-mail box at +0x54 (typedef.h's IosMailBox): a word
+   nothing reads, a count and a run of 8-byte slots. */
 typedef struct AP1MailQueue { /* field names derived */
-    /* 0x00 */ int unk0;
+    /* 0x00 */ int queue;
     /* 0x04 */ int num;
     /* 0x08 */ AP1MailEntry e[1];
 } AP1MailQueue; /* derived name */

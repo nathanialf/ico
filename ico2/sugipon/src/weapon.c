@@ -312,8 +312,7 @@ static const CollWork collWorkInit = /* derived name */
 /* the offset the wall test pushes the blade tip along, its z set per test */
 static float hitOfs[4] = {0.0f, 0.0f, 1.0f, 1.0f}; /* derived name */
 
-/* calcDynamicGeometry's TTY trace, built only when DEBUG is defined; the
-   retail build leaves the helper without a body */
+/* calcDynamicGeometry's TTY trace, built only when DEBUG is defined */
 static __inline__ void dynGeoDebugHook(void) /* derived name */
 {
 #ifdef DEBUG
@@ -468,12 +467,11 @@ void calcDynamicGeometry(GObj *g)
     }
 }
 
-/* a file-static copy of SetWeaponOffsetMode, which getGeometry and
-   InitWeaponGeo inline; the work pointer is read as Sub15C's int field
-   f_830 */
+/* the body of SetWeaponOffsetMode, which getGeometry and InitWeaponGeo
+   inline and SetWeaponOffsetMode calls */
 static inline void setWeaponOffsetMode(GObj *g, int v) /* derived name */
 {
-    *(int *)(GOBJ_SUB(g)->work + 0xC0) = v;
+    ((WeaponWork *)GOBJ_SUB(g)->work)->offsetMode = v;
 }
 
 void getGeometry(GObj *g)
@@ -1150,5 +1148,5 @@ void ExecDemoQueensSword(GObj *a0)
 
 void SetWeaponOffsetMode(GObj *a0, int a1)
 {
-    *(int *)(GOBJ_SUB(a0)->work + 0xC0) = a1;
+    setWeaponOffsetMode(a0, a1);
 }

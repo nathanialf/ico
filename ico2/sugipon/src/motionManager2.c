@@ -1323,7 +1323,8 @@ typedef struct { /* field names derived */
     unsigned short a, b, c;
 } MotElemS; /* derived name */
 
-/* a file-static copy of _getMotRotElem, which _getMotion inlines */
+/* the body of _getMotRotElem, which _getMotion inlines and _getMotRotElem
+   calls */
 static inline void getMotRotElem(char *dst, char *src) /* derived name */
 {
     float sum;
@@ -1397,8 +1398,8 @@ void _getMotion(void *dst, void *m, int node, int frame)
     }
 }
 
-/* a file-static copy of the root-position helper GetMotionRootPos and
-   GetStreamMotion both expand */
+/* the root-position copy GetMotionRootPos and GetStreamMotion both
+   expand */
 static inline void getRootPos(float *dst, float *src) /* derived name */
 {
     dst[0] = src[0];
@@ -1470,8 +1471,8 @@ void CopyMotionWithNodeHrc(struct Pack32 *dst, struct Pack32 *src, char *hrc, in
     }
 }
 
-/* file-static copies of GetMotionRootPos and GetBlendedMotionRootPos, which
-   their callers inline */
+/* the bodies of GetMotionRootPos and GetBlendedMotionRootPos, which their
+   callers inline and the two exported functions call */
 static inline void getMotionRootPos(float *dst, void *a1, int idx) /* derived name */
 {
     float *src = (float *)(*(int *)((char *)a1 + 4) + idx * 0xC);
@@ -1487,8 +1488,8 @@ static inline void getBlendedMotionRootPos(float *dst, float *a, float *b,
     dst[2] = a[2] * t + b[2] * u;
 }
 
-/* file-static copies of GetMotion (five sites) and GetBlendedMotion (one),
-   which GetFloatingMotion inlines */
+/* the bodies of GetMotion (five sites) and GetBlendedMotion (one), which
+   GetFloatingMotion inlines and the two exported functions call */
 static inline void getMotion(char *dst, float *root, void *motion, int idx, unsigned char *mask,
                              int count, char *hrc) /* derived name */
 {
@@ -1611,8 +1612,8 @@ int MakeMirrorMotion(StreamElem *a, StreamNode *b)
     }
 }
 
-/* a file-static copy of GetShapeMotion, which GetFloatingShapeMotion
-   inlines */
+/* the body of GetShapeMotion, which GetFloatingShapeMotion inlines and
+   GetShapeMotion calls */
 static inline void getShapeMotion(float *dst, char *a1, int idx, int count) /* derived name */
 {
     int i = 0;
@@ -1715,8 +1716,8 @@ int CheckFieldContact(ClipBuf *info, GObj *self, float *pos, float lim)
     return 0;
 }
 
-/* a file-static copy of DebugDisp1CollisionWithColor, which this caller
-   inlines */
+/* the body of DebugDisp1CollisionWithColor, which the next function
+   inlines and DebugDisp1CollisionWithColor calls */
 static inline void debugDisp1CollisionWithColor(int *cfg, void *color) /* derived name */
 {
     float pts[5][4];
@@ -1745,27 +1746,12 @@ void DebugDisp1Collision(int *cfg)
 
 void DebugDisp1CollisionWithColor(int *cfg, void *color)
 {
-    float pts[5][4];
-    int i;
-    int *obj = (int *)cfg[0];
-    int sh = cfg[1] << 6;
-    int *p15c = (int *)((GObj *)(obj))->dobj;
-    int v_c = p15c[0xC / 4];
-
-    GetWallGlobalInfo(pts, pts[4], cfg[2], v_c + sh);
-    gif_StartPacketPri(11);
-    gif_SetAlpha(1, 5, 0x80);
-    MatrixDrive_PushMatrix();
-    sceVu0UnitMatrix(MatrixDrive_GetMatrix());
-    for (i = 0; i < 4; i++) {
-        DrawLineG(pts[wallLineCorner[i]], color, pts[wallLineCorner[i + 1]], color, -1);
-    }
-    MatrixDrive_PopMatrix();
-    gif_EndPacket();
+    debugDisp1CollisionWithColor(cfg, color);
 }
 
-/* a file-static copy of GetSkeltonFocusNode, which SetMotionBlendlessNode,
-   the two GetDifferenceFromWall*Plane and the node fix mode setter inline */
+/* the body of GetSkeltonFocusNode, which SetMotionBlendlessNode, the two
+   GetDifferenceFromWall*Plane and the node fix mode setter inline and
+   GetSkeltonFocusNode calls */
 static inline int getSkeltonFocusNode(GObj *a0, int a1) /* derived name */
 {
     return GOBJ_SUB(a0)->focusNodes[a1];
@@ -1808,7 +1794,7 @@ void InitMotionStateInfo(MotionStateInfo *self)
 
 int GetSkeltonFocusNode(GObj *a0, int a1)
 {
-    return GOBJ_SUB(a0)->focusNodes[a1];
+    return getSkeltonFocusNode(a0, a1);
 }
 
 int AdjustMotionHeightToNearestField(GObj *self)
@@ -2066,66 +2052,19 @@ void CopyMotion(struct Pack32 *dst, struct Pack32 *src, int n)
 
 void GetMotionRootPos(float *dst, void *a1, int idx)
 {
-    float *src = (float *)(*(int *)((char *)a1 + 4) + idx * 0xC);
-    getRootPos(dst, src);
+    getMotionRootPos(dst, a1, idx);
 }
 
 void GetMotion(char *dst, float *root, void *motion, int idx, unsigned char *mask, int count,
                char *hrc)
 {
-    int i;
-
-    if (mask != 0) {
-        for (i = 0; i < count; i++) {
-            if (mask[i] == 0) {
-                _getMotion(dst + i * 0x20, motion, i, idx);
-            }
-        }
-    } else {
-        for (i = 0; i < count; i++) {
-            _getMotion(dst + i * 0x20, motion, i, idx);
-        }
-    }
-
-    if (hrc != 0) {
-        i = 0;
-        do {
-            MultiQuaternion(dst + i * 0x20 + 0x10, nodeFlipQuaternion, dst + i * 0x20 + 0x10);
-            i = *(int *)(hrc + i * 0x40 + 0x34);
-        } while (i != -1);
-    } else {
-        for (i = 0; i < count; i++) {
-            MultiQuaternion(dst + i * 0x20 + 0x10, nodeFlipQuaternion, dst + i * 0x20 + 0x10);
-        }
-    }
-    if (root != 0) {
-        getMotionRootPos(root, motion, idx);
-    }
+    getMotion(dst, root, motion, idx, mask, count, hrc);
 }
 
 void GetBlendedMotion(StreamElem *dst, float *root, StreamElem *a, float *rootA, StreamElem *b,
                       float *rootB, unsigned char *mask, int count, float t)
 {
-    int i;
-    float u = 1.0f - t;
-
-    if (mask != 0) {
-        for (i = 0; i < count; i++) {
-            if (mask[i] != 0) {
-                dst[i] = a[i];
-            } else {
-                *(int *)&dst[i] = (float)*(int *)&a[i] * t + (float)*(int *)&b[i] * u;
-                GetSlerpQuaternionNoRegularize(dst[i].q, a[i].q, b[i].q, t);
-            }
-        }
-    } else {
-        for (i = 0; i < count; i++) {
-            dst[i] = a[i];
-        }
-    }
-    if (root != 0) {
-        getBlendedMotionRootPos(root, rootA, rootB, t);
-    }
+    getBlendedMotion(dst, root, a, rootA, b, rootB, mask, count, t);
 }
 
 void GetFloatingMotionRootPos(float *dst, void *m, float t)
@@ -2146,18 +2085,7 @@ void GetFloatingMotionRootPos(float *dst, void *m, float t)
 
 void GetShapeMotion(float *dst, char *a1, int idx, int count)
 {
-    int i = 0;
-    int m = *(int *)a1 - 1;
-    idx = idx - m * (idx / m);
-    for (; i < count; i++) {
-        char *t = *(char **)(a1 + 0x10);
-        int *elem = *(int **)(*(char **)(t + 4) + i * 4);
-        if (elem != 0) {
-            dst[i] = ((float *)elem)[idx];
-        } else {
-            dst[i] = 0;
-        }
-    }
+    getShapeMotion(dst, a1, idx, count);
 }
 
 /* the release bodies are empty; every call site passes the actor's GObj */
@@ -2208,26 +2136,10 @@ void fitYToPlane(long long *src, int *dest)
 void GetBlendedMotionRootPos(float *dst, float *a, float *b,
                              float t) /* same note as GetMotionRootPos */
 {
-    float u = 1.0f - t;
-    dst[0] = a[0] * t + b[0] * u;
-    dst[1] = a[1] * t + b[1] * u;
-    dst[2] = a[2] * t + b[2] * u;
+    getBlendedMotionRootPos(dst, a, b, t);
 }
 
 void _getMotRotElem(char *dst, char *src)
 {
-    float sum;
-
-    sum = *(float *)(src + 0x4) * *(float *)(src + 0x4) +
-          *(float *)(src + 0x8) * *(float *)(src + 0x8) +
-          *(float *)(src + 0xC) * *(float *)(src + 0xC);
-    sum = (sum > 1.0f) ? 1.0f : sum;
-    *(int *)dst = *(unsigned char *)src;
-    *(float *)(dst + 0x1C) = FSqrt(1.0f - sum);
-    *(float *)(dst + 0x10) = *(float *)(src + 0x4);
-    *(float *)(dst + 0x14) = *(float *)(src + 0x8);
-    *(float *)(dst + 0x18) = *(float *)(src + 0xC);
-    if (*(signed char *)(src + 1) < 0) {
-        *(float *)(dst + 0x1C) = -*(float *)(dst + 0x1C);
-    }
+    getMotRotElem(dst, src);
 }

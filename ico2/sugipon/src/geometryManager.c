@@ -112,14 +112,9 @@ void SetRootMatrixRotOffset(GObj *obj, void *q)
     SetRootMatrixRotOffsetByDObj(obj->dobj, q);
 }
 
-/* file-static copies of GetRootPosition and SetDirectRootPositionNoFitting,
- * which the two WithNodePoint functions inline; the originals are defined
- * further down */
-typedef union { /* field names derived */
-    float f[4];
-    long long ll[2];
-} SdrpVec4i; /* derived name */
-
+/* the bodies of GetRootPositionByDObj, GetRootPosition, SetRootPosition and
+ * SetDirectRootPositionNoFitting, which the functions below inline and the
+ * exported functions further down call */
 static __inline__ void GetRootPositionByDObj_i(float *pos, Sub15C *src) /* derived name */
 {
     struct MotRoot *root = &src->root;
@@ -140,10 +135,10 @@ static __inline__ void GetRootPosition_i(float *pos, GObj *obj) /* derived name 
     GetRootPositionByDObj_i(pos, obj->dobj);
 }
 
-static __inline__ void SetRootPosition_ii(GObj *obj, void *pos) /* derived name */
+static __inline__ void SetRootPosition_i(GObj *obj, void *pos) /* derived name */
 {
     float buf[16];
-    SdrpVec4i *p = (SdrpVec4i *)obj->dobj->root.pos;
+    Vec4 *p = (Vec4 *)obj->dobj->root.pos;
     CopyVector(p, pos);
     p->f[1] = p->f[1] - *(float *)((char *)p + 0xC0);
     p->f[3] = 1.0f;
@@ -167,7 +162,7 @@ static __inline__ void SetDirectRootPositionNoFitting_i(GObj *self, void *v) /* 
 
     CopyVector(pos, v);
     CopyVector(tmp, p);
-    SetRootPosition_ii(self, pos);
+    SetRootPosition_i(self, pos);
     CopyVector(sub->root.last, p);
     CopyVector(sub->root.savePos, p);
     self->dobj->ctrl.posReserve = 0;
@@ -216,8 +211,8 @@ void SetDirectRootPositionWithNodePoint(GObj *gobj, int node, float *pos, float 
 
 #define SUBOF(o) (((SubHandle *)&((GObj *)(o))->dobj)->sub) /* derived name */
 
-/* a file-static copy of LocalizeDirectionOrient, which LocalizeGeometry
- * inlines; the original is defined further down */
+/* the body of LocalizeDirectionOrient, which LocalizeGeometry inlines and
+ * LocalizeDirectionOrient calls */
 static __inline__ void LocalizeDirectionOrient_i(GObj *self, int *link) /* derived name */
 {
     float buf[16];
@@ -436,66 +431,6 @@ void MakeCharGObjList(void)
     charGObjList[charGObjCount] = 0;
 }
 
-static __inline__ void GetRootPosition_cc(float *pos, GObj *obj) /* derived name */
-{
-    Sub15C *src = obj->dobj;
-    struct MotRoot *root = &src->root;
-    float f0;
-    GObj *g = src->parent.obj;
-    if (g) {
-        sceVu0ApplyMatrix(pos, (char *)g->dobj->nodeMtx + (src->parent.node << 6), root->pos);
-    } else {
-        CopyVector(pos, root->pos);
-    }
-    f0 = root->height;
-    pos[1] += f0;
-    pos[3] = 1.0f;
-}
-
-/* file-static copies of SetRootPosition and SetDirectRootPositionNoFitting,
- * which cylinderCollisionCheck inlines; the originals are defined further
- * down */
-typedef union { /* field names derived */
-    float f[4];
-    long long ll[2];
-} CylVec4; /* derived name */
-
-static __inline__ void SetRootPosition_c(GObj *obj, void *pos) /* derived name */
-{
-    float buf[16];
-    CylVec4 *p = (CylVec4 *)obj->dobj->root.pos;
-    CopyVector(p, pos);
-    p->f[1] = p->f[1] - *(float *)((char *)p + 0xC0);
-    p->f[3] = 1.0f;
-    {
-        Sub15C *sub = obj->dobj;
-        GObj *q = sub->parent.obj;
-        if (q != 0) {
-            MatrixDrive_SetTransposeMatrix(buf,
-                                           (float *)(q->dobj->nodeMtx + (sub->parent.node << 6)));
-            sceVu0ApplyMatrix(p, buf, p);
-        }
-    }
-}
-
-static __inline__ void SetDirectRootPositionNoFitting_c(GObj *self, void *v) /* derived name */
-{
-    Sub15C *sub = self->dobj;
-    float *p = sub->root.pos;
-    float pos[4];
-    float tmp[4];
-
-    CopyVector(pos, v);
-    CopyVector(tmp, p);
-    SetRootPosition_c(self, pos);
-    CopyVector(sub->root.last, p);
-    CopyVector(sub->root.savePos, p);
-    self->dobj->ctrl.posReserve = 0;
-    CopyVector(sub->root.clipFrom, v);
-    CopyVector(sub->root.move, ZeroVector);
-    CopyVector(sub->root.delta, ZeroVector);
-}
-
 int cylinderCollisionCheck(GObj *self, float *ppos, GObj *target, float r, float rr, float h,
                            float s, float t, int ctrl, int exceptOwn)
 {
@@ -512,7 +447,7 @@ int cylinderCollisionCheck(GObj *self, float *ppos, GObj *target, float r, float
     float b;
     float c;
 
-    GetRootPosition_cc(pos, target);
+    GetRootPosition_i(pos, target);
     dy = pos[1] - ppos[1];
     if (!((dy < 0.0f ? -dy : dy) < h)) {
         goto fail;
@@ -572,7 +507,7 @@ moved:
             b = SUBOF(self)->root.last[1];
             c = SUBOF(self)->root.clipFrom[1];
             a = SUBOF(self)->root.move[1];
-            SetDirectRootPositionNoFitting_c(self, d2);
+            SetDirectRootPositionNoFitting_i(self, d2);
             SUBOF(self)->root.move[1] = a;
             SUBOF(self)->root.last[1] = b;
             SUBOF(self)->root.clipFrom[1] = c;
@@ -580,15 +515,15 @@ moved:
         b = SUBOF(target)->root.last[1];
         c = SUBOF(target)->root.clipFrom[1];
         a = SUBOF(target)->root.move[1];
-        SetDirectRootPositionNoFitting_c(target, d3);
+        SetDirectRootPositionNoFitting_i(target, d3);
         SUBOF(target)->root.move[1] = a;
         SUBOF(target)->root.last[1] = b;
         SUBOF(target)->root.clipFrom[1] = c;
     } else {
         if (self != 0) {
-            SetRootPosition_c(self, d2);
+            SetRootPosition_i(self, d2);
         }
-        SetRootPosition_c(target, d3);
+        SetRootPosition_i(target, d3);
     }
     return 1;
 fail:
@@ -597,33 +532,7 @@ fail:
 
 void LocalizeDirectionOrient(GObj *self, int *link)
 {
-    float buf[16];
-    GObj *obj = (GObj *)link[0];
-    Sub15C *ctx = obj->dobj;
-    CopyMatrix(buf, (void *)(ctx->nodeMtx + (link[1] << 6)));
-    MatrixDrive_SetTransposeMatrix(buf, buf);
-    sceVu0ApplyMatrix(self->dobj->ctrl.dir, buf, self->dobj->ctrl.dir);
-    sceVu0Normalize(self->dobj->ctrl.dir, self->dobj->ctrl.dir);
-    self->dobj->ctrl.dir[3] = 0;
-}
-
-/* file-static copies of GetRootPosition, which both cylinder-collision
- * walkers inline, and of CylinderCollisionWithControlDynamics, which
- * CylinderCollision inlines */
-static __inline__ void GetRootPosition_ic(float *pos, GObj *obj) /* derived name */
-{
-    Sub15C *src = obj->dobj;
-    struct MotRoot *root = &src->root;
-    float f0;
-    GObj *g = src->parent.obj;
-    if (g) {
-        sceVu0ApplyMatrix(pos, (char *)g->dobj->nodeMtx + (src->parent.node << 6), root->pos);
-    } else {
-        CopyVector(pos, root->pos);
-    }
-    f0 = root->height;
-    pos[1] += f0;
-    pos[3] = 1.0f;
+    LocalizeDirectionOrient_i(self, link);
 }
 
 /* defined in girl_act.c; girl_act.h does not declare it */
@@ -634,7 +543,7 @@ int GetCylinderCollision(GObj *self, GObj *target, float r, float h, float s, in
 {
     float pos[4];
 
-    GetRootPosition_ic(pos, self);
+    GetRootPosition_i(pos, self);
     return cylinderCollisionCheck(self, pos, target, r, r * r, h, s, 1.0f - s, ctrl, 0);
 }
 
@@ -643,10 +552,12 @@ int GetCylinderCollisionWithExceptOwnCollision(GObj *self, GObj *target, float r
 {
     float pos[4];
 
-    GetRootPosition_ic(pos, self);
+    GetRootPosition_i(pos, self);
     return cylinderCollisionCheck(self, pos, target, r, r * r, h, s, t, ctrl, 1);
 }
 
+/* the body of CylinderCollisionWithControlDynamics, which CylinderCollision
+ * inlines and CylinderCollisionWithControlDynamics calls */
 static __inline__ int CylinderCollisionWithControlDynamics_i(GObj *self, int group, int ctrl,
                                                              float r, float h,
                                                              float s) /* derived name */
@@ -662,7 +573,7 @@ static __inline__ int CylinderCollisionWithControlDynamics_i(GObj *self, int gro
     if (sub->cylinderOn == 0 || sub->root.cylinder == 0) {
         return 0;
     }
-    GetRootPosition_ic(pos, self);
+    GetRootPosition_i(pos, self);
     rr = r * r;
     for (i = 0, o = charGObjList[0]; i < charGObjCount; i++, o = charGObjList[i]) {
         if (o->kind != group)
@@ -688,34 +599,7 @@ int CylinderCollision(GObj *self, int group, float r, float h, float s)
 
 int CylinderCollisionWithControlDynamics(GObj *self, int group, int ctrl, float r, float h, float s)
 {
-    float pos[4];
-    int hit = 0;
-    int i;
-    GObj *o;
-    Sub15C *sub;
-    float rr;
-
-    sub = GOBJ_SUB(self);
-    if (sub->cylinderOn == 0 || sub->root.cylinder == 0) {
-        return 0;
-    }
-    GetRootPosition_ic(pos, self);
-    rr = r * r;
-    for (i = 0, o = charGObjList[0]; i < charGObjCount; i++, o = charGObjList[i]) {
-        if (o->kind != group)
-            continue;
-        if (o == self)
-            continue;
-        {
-            Sub15C *osub = GOBJ_SUB(o);
-            if (osub->cylinderOn == 0 || osub->root.cylinder == 0) {
-                if (isMustCheckCylinder(self, o) == 0)
-                    continue;
-            }
-        }
-        hit = cylinderCollisionCheck(self, pos, o, r, rr, h, s, 1.0f - s, ctrl, 0);
-    }
-    return hit;
+    return CylinderCollisionWithControlDynamics_i(self, group, ctrl, r, h, s);
 }
 
 void GetRootMatrixByDObj(float *m, Sub15C *src)
@@ -748,43 +632,7 @@ void GetRootMatrix(void *mtx, GObj *obj)
 
 void GetRootPositionByDObj(void *dst, Sub15C *src)
 {
-    float *pos = dst;
-    struct MotRoot *root = &src->root;
-    float f0;
-    GObj *g = src->parent.obj;
-    if (g) {
-        sceVu0ApplyMatrix(pos, (char *)g->dobj->nodeMtx + (src->parent.node << 6), root->pos);
-    } else {
-        CopyVector(pos, root->pos);
-    }
-    f0 = root->height;
-    pos[1] += f0;
-    pos[3] = 1.0f;
-}
-
-/* a file-static copy of SetRootPosition, which this function and
- * SetDirectRootPositionNoFitting inline */
-typedef union { /* field names derived */
-    float f[4];
-    long long ll[2];
-} SdrpVec4; /* derived name */
-
-static __inline__ void SetRootPosition_i(GObj *obj, void *pos) /* derived name */
-{
-    float buf[16];
-    SdrpVec4 *p = (SdrpVec4 *)obj->dobj->root.pos;
-    CopyVector(p, pos);
-    p->f[1] = p->f[1] - *(float *)((char *)p + 0xC0);
-    p->f[3] = 1.0f;
-    {
-        Sub15C *sub = obj->dobj;
-        GObj *q = sub->parent.obj;
-        if (q != 0) {
-            MatrixDrive_SetTransposeMatrix(buf,
-                                           (float *)(q->dobj->nodeMtx + (sub->parent.node << 6)));
-            sceVu0ApplyMatrix(p, buf, p);
-        }
-    }
+    GetRootPositionByDObj_i(dst, src);
 }
 
 void SetDirectRootPosition(GObj *self, void *v)
@@ -808,20 +656,7 @@ void SetDirectRootPosition(GObj *self, void *v)
 
 void SetDirectRootPositionNoFitting(GObj *self, void *v)
 {
-    Sub15C *sub = self->dobj;
-    float *p = sub->root.pos;
-    float pos[4];
-    float tmp[4];
-
-    CopyVector(pos, v);
-    CopyVector(tmp, p);
-    SetRootPosition_i(self, pos);
-    CopyVector(sub->root.last, p);
-    CopyVector(sub->root.savePos, p);
-    self->dobj->ctrl.posReserve = 0;
-    CopyVector(sub->root.clipFrom, v);
-    CopyVector(sub->root.move, ZeroVector);
-    CopyVector(sub->root.delta, ZeroVector);
+    SetDirectRootPositionNoFitting_i(self, v);
 }
 
 /* The root position at (char *)sub+0xA0 is a 4-lane vector the engine also moves as
@@ -829,37 +664,12 @@ void SetDirectRootPositionNoFitting(GObj *self, void *v)
 
 void SetRootPosition(GObj *obj, void *pos)
 {
-    float buf[16];
-    Vec4 *p = (Vec4 *)obj->dobj->root.pos;
-    CopyVector(p, pos);
-    p->f[1] = p->f[1] - *(float *)((char *)p + 0xC0);
-    p->f[3] = 1.0f;
-    {
-        Sub15C *sub = obj->dobj;
-        GObj *q = sub->parent.obj;
-        if (q != 0) {
-            MatrixDrive_SetTransposeMatrix(buf,
-                                           (float *)(q->dobj->nodeMtx + (sub->parent.node << 6)));
-            sceVu0ApplyMatrix(p, buf, p);
-        }
-    }
+    SetRootPosition_i(obj, pos);
 }
 
 void GetRootPosition(void *dst, GObj *obj)
 {
-    float *pos = dst;
-    Sub15C *src = obj->dobj;
-    struct MotRoot *root = &src->root;
-    float f0;
-    GObj *g = src->parent.obj;
-    if (g) {
-        sceVu0ApplyMatrix(pos, (char *)g->dobj->nodeMtx + (src->parent.node << 6), root->pos);
-    } else {
-        CopyVector(pos, root->pos);
-    }
-    f0 = root->height;
-    pos[1] += f0;
-    pos[3] = 1.0f;
+    GetRootPosition_i(dst, obj);
 }
 
 void GetRootOrient(char *a0, GObj *a1)

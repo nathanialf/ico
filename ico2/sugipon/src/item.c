@@ -786,10 +786,13 @@ void ItemDL(GObj *gobj)
     p2o_DispVU1(gobj);
 }
 
-/* a file-static copy of GetItemKind, which BreakItemFromOutside inlines */
-static inline int GetItemKindInline(GObj *gobj) /* derived name */
+/* the body of GetItemKind, which BreakItemFromOutside inlines and
+   GetItemKind calls */
+static inline int GetItemKindInline(GObj *a0) /* derived name */
 {
-    return ((ItemWork *)*(int *)(*(int *)&gobj->dobj + 0x830))->kind;
+    ItemWork *p = GOBJ_SUB(a0)->work;
+
+    return p->kind;
 }
 
 int BreakItemFromOutside(GObj *gobj)
@@ -811,7 +814,9 @@ int BreakItemFromOutside(GObj *gobj)
     return 0;
 }
 
-int CheckCarryableItem(GObj *a0)
+/* the body of CheckCarryableItem, which the four Revive walkers inline and
+   CheckCarryableItem calls */
+static inline int CheckCarryableItemInline(GObj *a0) /* derived name */
 {
     int r = 0;
     ItemWork *p = GOBJ_SUB(a0)->work;
@@ -825,11 +830,14 @@ int CheckCarryableItem(GObj *a0)
     return r;
 }
 
+int CheckCarryableItem(GObj *a0)
+{
+    return CheckCarryableItemInline(a0);
+}
+
 int GetItemKind(GObj *a0)
 {
-    ItemWork *p = GOBJ_SUB(a0)->work;
-
-    return p->kind;
+    return GetItemKindInline(a0);
 }
 
 int GetCharHeldItem(GObj *a0)
@@ -864,21 +872,6 @@ void *GetBombTorchGObj(GObj *a0)
         return p->fuse.torch;
     }
     return 0;
-}
-
-/* a file-static copy of CheckCarryableItem, which the four Revive walkers inline */
-static inline int CheckCarryableItemInline(GObj *a0) /* derived name */
-{
-    int r = 0;
-    ItemWork *p = GOBJ_SUB(a0)->work;
-    if (a0->active != 0) {
-        if (*(long long *)&p->released == 0) {
-            if (p->fuse.state < 2) {
-                r = 1;
-            }
-        }
-    }
-    return r;
 }
 
 int ReviveAllCarryableItems(void)

@@ -385,12 +385,19 @@ int GetAliveSpiders(GObj *gp)
     return -1;
 }
 
+/* the body of DeleteSpiderFromLayoutGroup, which DeleteAllSpidersOfLayoutGroup
+   inlines and DeleteSpiderFromLayoutGroup calls */
+static inline GObj *DeleteSpiderFromLayoutGroup_inl(GObj *gp, int idx) /* derived name */
+{
+    GObj **arr = ((SpiderWork *)GOBJ_SUB(gp)->work)->members;
+    GObj *r = arr[idx];
+    arr[idx] = 0;
+    return r;
+}
+
 GObj *DeleteSpiderFromLayoutGroup(GObj *a0, int a1)
 {
-    GObj **arr = ((SpiderWork *)GOBJ_SUB(a0)->work)->members;
-    GObj *r = arr[a1];
-    arr[a1] = 0;
-    return r;
+    return DeleteSpiderFromLayoutGroup_inl(a0, a1);
 }
 
 /* clear the dead members out of a spider group */
@@ -524,16 +531,6 @@ void WakeUpSpidersFromGenerator(GObj *gp)
     GetGeneratorSafePosition(pos, gen);
     SetLayoutedSpidersRootPosition(gp, pos);
     WakeUpLayoutedSpiders(gp);
-}
-
-/* a file-static copy of DeleteSpiderFromLayoutGroup, which the function
-   below inlines */
-static inline GObj *DeleteSpiderFromLayoutGroup_inl(GObj *gp, int idx) /* derived name */
-{
-    GObj **arr = ((SpiderWork *)GOBJ_SUB(gp)->work)->members;
-    GObj *r = arr[idx];
-    arr[idx] = 0;
-    return r;
 }
 
 void DeleteAllSpidersOfLayoutGroup(GObj *gp)

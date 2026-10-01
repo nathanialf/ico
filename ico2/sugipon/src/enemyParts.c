@@ -14,18 +14,13 @@
 #include "Matrix.h"
 #include "ios.h"
 
-/* the packed colour word: a four-byte record of chars, aligned to 1 */
-typedef struct Rgba { /* field names derived */
-    unsigned char r, g, b, a;
-} Rgba; /* derived name */
-
 typedef struct PointBlur { /* field names derived */
     /* 0x00 */ int pri;
     /* 0x04 */ int num;
     /* 0x08 */ void *screenPos;
     /* 0x0C */ void *strip;
-    /* 0x10 */ Rgba *stripCol;
-    /* 0x14 */ Rgba col;
+    /* 0x10 */ GifColor *stripCol;
+    /* 0x14 */ GifColor col;
     /* 0x18 */ long long _pad18; /* gives the record 8-byte alignment */
     /* 0x20 */ float pos[4];
     /* 0x30 */ int dirty;
@@ -42,13 +37,13 @@ typedef struct IVec { /* field names derived */
 static inline void resetPointBlurTrail(PointBlur *p) /* derived name */
 {
     int i;
-    Rgba *q;
+    GifColor *q;
 
     for (i = 1; i < p->num; i++) {
         _CopyVector(&((IVec *)p->screenPos)[i], p->screenPos);
         _CopyIVector(&((IVec *)p->strip)[i * 2], p->strip);
         _CopyIVector(&((IVec *)p->strip)[i * 2 + 1], &((IVec *)p->strip)[1]);
-        q = (Rgba *)(i * 8 + (int)p->stripCol);
+        q = (GifColor *)(i * 8 + (int)p->stripCol);
         q[1] = p->stripCol[0];
         q[0] = q[1];
     }
@@ -60,7 +55,7 @@ int UpdatePointBlur(PointBlur *p, void *mtx, void *a2, float f)
     float b[4];
     float c[4];
     float scale;
-    Rgba *t;
+    GifColor *t;
 
     if (currentScreenWidth != 0 || GlobalTimer != 0) {
         p->dirty = 1;
@@ -117,7 +112,8 @@ static EnemyFootPrintHead footPrintHeadTemplate = {0, 0, 0, 0}; /* derived name 
 
 static EnemyFootPrint footPrintVtxTemplate = {-1, 1.0f}; /* derived name */
 
-/* a file-static copy of InitPointBlur, which InitEnemyEye inlines */
+/* the body of InitPointBlur, which InitEnemyEye inlines and InitPointBlur
+   calls */
 static inline PointBlur *initPointBlurAt(int num, int a1, int *col, void *pos) /* derived name */
 {
     PointBlur *p = (PointBlur *)iosMallocDebug(ios_partition_sugipon, 0x40, "src/enemyParts.c", 16);
@@ -126,7 +122,8 @@ static inline PointBlur *initPointBlurAt(int num, int a1, int *col, void *pos) /
     p->pri = a1;
     p->strip = iosMallocDebug(ios_partition_sugipon, num << 5, "src/enemyParts.c", 20);
     p->screenPos = iosMallocDebug(ios_partition_sugipon, num << 4, "src/enemyParts.c", 21);
-    p->stripCol = (Rgba *)iosMallocDebug(ios_partition_sugipon, num << 3, "src/enemyParts.c", 22);
+    p->stripCol =
+        (GifColor *)iosMallocDebug(ios_partition_sugipon, num << 3, "src/enemyParts.c", 22);
     p->num = num;
     p->col.r = col[0];
     p->col.g = col[1];
@@ -290,20 +287,7 @@ int DispEnemyFootPrints(EnemyFootPrintHead *a0)
 
 PointBlur *InitPointBlur(int num, int a1, int *col, void *pos)
 {
-    PointBlur *p = (PointBlur *)iosMallocDebug(ios_partition_sugipon, 0x40, "src/enemyParts.c", 16);
-    *p = pointBlurTemplate;
-
-    p->pri = a1;
-    p->strip = iosMallocDebug(ios_partition_sugipon, num << 5, "src/enemyParts.c", 20);
-    p->screenPos = iosMallocDebug(ios_partition_sugipon, num << 4, "src/enemyParts.c", 21);
-    p->stripCol = (Rgba *)iosMallocDebug(ios_partition_sugipon, num << 3, "src/enemyParts.c", 22);
-    p->num = num;
-    p->col.r = col[0];
-    p->col.g = col[1];
-    p->col.b = col[2];
-    p->col.a = col[3];
-    _CopyVector(p->pos, pos);
-    return p;
+    return initPointBlurAt(num, a1, col, pos);
 }
 
 int DispPointBlur(PointBlur *self)

@@ -1729,10 +1729,10 @@ inline void SetGirlHairDispSwitch(GObj *a0, int a1)
 }
 
 typedef struct { /* field names derived */
-    int unk0;
-    int unk4;
-    int unk8;
-    int unkC;
+    int tightLevel;
+    int gravityLevel;
+    int bendAngle;
+    int collision;
 } GirlClothSetting; /* derived name */
 
 /* the two cloth parameter sets setGirlClothSetting switches between */
@@ -1743,10 +1743,10 @@ static GirlClothSetting girlClothGameParam = {20, 0, 256, 0}; /* derived name */
 /* copy a cloth setting into the hair debug levels */
 static inline void setGirlClothParam(GirlClothSetting *p) /* derived name */
 {
-    debug_hair_tight_level = p->unk0;
-    debug_hair_gravity_level = p->unk4;
-    debug_hair_bend_angle = p->unk8;
-    debug_hair_collision = p->unkC;
+    debug_hair_tight_level = p->tightLevel;
+    debug_hair_gravity_level = p->gravityLevel;
+    debug_hair_bend_angle = p->bendAngle;
+    debug_hair_collision = p->collision;
 }
 
 inline void setGirlClothSetting(int a0)

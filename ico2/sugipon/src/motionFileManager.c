@@ -43,10 +43,12 @@ inline void ResetStatic2MotionManager(int a0)
    stored offset in it is added to */
 static char *motionFileBase = 0; /* derived name */
 
-typedef struct { /* field names derived */
-    int f0;      /* 0x00 */
-    int f4;      /* 0x04 */
-} NodeRec;       /* derived name */
+/* a node of formats 3 and 6: the per-frame tables of its first and last
+   element, which _getMotion indexes by frame */
+typedef struct {   /* field names derived */
+    int nTable;    /* 0x00 */
+    int lastTable; /* 0x04 */
+} NodeRec;         /* derived name */
 
 void pursueNodeList(void **node, unsigned char *type)
 {
@@ -76,8 +78,8 @@ void pursueNodeList(void **node, unsigned char *type)
         case 3:
         case 6: {
             NodeRec *q = (NodeRec *)(motionFileBase + ofs);
-            q->f0 = (int)(motionFileBase + q->f0);
-            q->f4 = (int)(motionFileBase + q->f4);
+            q->nTable = (int)(motionFileBase + q->nTable);
+            q->lastTable = (int)(motionFileBase + q->lastTable);
             *node = (void *)q;
         } break;
         }
@@ -109,8 +111,8 @@ typedef struct { /* field names derived */
    facial block exists when typeList does not start right after the 16-byte
    header. */
 typedef struct {             /* field names derived */
-    int f0;                  /* 0x00 */
-    char *f4;                /* 0x04 */
+    int frames;              /* 0x00, the frame count */
+    char *rootPos;           /* 0x04, three floats of root position a frame */
     unsigned char *typeList; /* 0x08 */
     void **nodeList;         /* 0x0C */
     FacialRec *facial;       /* 0x10 */
@@ -136,7 +138,7 @@ static inline void relocFacialTable(FacialRec *p) /* derived name */
  * written through the typed header. */
 static inline int relocMotionFile(MotFileHdr *self) /* derived name */
 {
-    self->f4 = (char *)self + ((unsigned int *)self)[1];
+    self->rootPos = (char *)self + ((unsigned int *)self)[1];
     self->typeList = (unsigned char *)self + ((unsigned int *)self)[2];
     self->nodeList = (void **)((char *)self + ((unsigned int *)self)[3]);
     FlushCache(0);

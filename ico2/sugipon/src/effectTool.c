@@ -488,15 +488,15 @@ extern PadConf iosPadConfDefault;
 
 /* iosPadGetStick's output block (camera-ico2.c's IosPadStick, extended): the
  * camera-coord helper reads the two floats at 0xC/0x10 as a1[3]/a1[4]. */
-typedef struct {   /* field names derived */
-    int x;         /* 0x00 */
-    int y;         /* 0x04 */
-    int unk08;     /* 0x08 */
-    float fx;      /* 0x0C */
-    float fz;      /* 0x10 */
-    float mag;     /* 0x14 */
-    char unk18[8]; /* 0x18 */
-} EffToolStick;    /* derived name */
+typedef struct { /* field names derived */
+    int x;       /* 0x00 */
+    int y;       /* 0x04 */
+    char pad08[4];
+    float fx;  /* 0x0C */
+    float fz;  /* 0x10 */
+    float mag; /* 0x14 */
+    char pad18[8];
+} EffToolStick; /* derived name */
 
 void moveEffectToolGeometry(int idx)
 {

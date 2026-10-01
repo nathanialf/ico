@@ -89,8 +89,8 @@ static float guardLines[12][4] = {
     {5.0f, -10.0f, 20.0f, 1.0f},   {-10000.0f, 0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f, 0.0f},
 }; /* derived name */
 
-/* a file-static copy of drawLines, which the function below inlines twice;
-   the original is defined further down */
+/* the body of drawLines, which the function below inlines twice and
+   drawLines further down calls */
 static inline void drawLinesInline(char *a0) /* derived name */
 {
     char *cur = a0;
@@ -271,13 +271,7 @@ void StopWindField(void)
 
 void drawLines(char *a0)
 {
-    char *cur = a0;
-    if (-1000.0f < *(float *)cur) {
-        do {
-            DrawLineG(cur, lineColor, cur + 0x10, lineColor, -1);
-            cur += 0x20;
-        } while (-1000.0f < *(float *)cur);
-    }
+    drawLinesInline(a0);
 }
 
 void drawSenpuukiHane(void)

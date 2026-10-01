@@ -201,8 +201,8 @@ void MatrixDrive_TransMatrix(float x, float y, float z)
     CopyVector(matrixStack[matrixStackIndex][3], m);
 }
 
-/* a file-static copy of MatrixDrive_GetTurnZAngleYX, for the callers above
-   its definition */
+/* the body of MatrixDrive_GetTurnZAngleYX, which the next function inlines and
+   MatrixDrive_GetTurnZAngleYX calls */
 static inline void GetTurnZAngleYX_i(short *a0, short *a1, float x, float y,
                                      float z) /* derived name */
 {
@@ -235,8 +235,8 @@ void MatrixDrive_TurnObjectMatrix(float x, float y, float z)
     MatrixDrive_RotMatrixX(ax);
 }
 
-/* a file-static copy of MatrixDrive_GetTurnXAngleZY, for the callers above
-   its definition */
+/* the body of MatrixDrive_GetTurnXAngleZY, which the next function inlines and
+   MatrixDrive_GetTurnXAngleZY calls */
 static inline void GetTurnXAngleZY_i(short *a0, short *a1, float x, float y,
                                      float z) /* derived name */
 {
@@ -265,8 +265,8 @@ void MatrixDrive_TurnXObjectMatrixZY(float x, float y, float z)
     MatrixDrive_RotMatrixY(ay);
 }
 
-/* a file-static copy of MatrixDrive_GetTurnXAngleYZ, for the callers above
-   its definition */
+/* the body of MatrixDrive_GetTurnXAngleYZ, which the next function inlines and
+   MatrixDrive_GetTurnXAngleYZ calls */
 static inline void GetTurnXAngleYZ_i(short *a0, short *a1, float x, float y,
                                      float z) /* derived name */
 {
@@ -295,8 +295,8 @@ void MatrixDrive_TurnXObjectMatrixYZ(float x, float y, float z)
     MatrixDrive_RotMatrixZ(az);
 }
 
-/* a file-static copy of MatrixDrive_GetTurnYAngleXZ, for the callers above
-   its definition */
+/* the body of MatrixDrive_GetTurnYAngleXZ, which the next function inlines and
+   MatrixDrive_GetTurnYAngleXZ calls */
 static inline void GetTurnYAngleXZ_i(short *a0, short *a1, float x, float y,
                                      float z) /* derived name */
 {
@@ -323,8 +323,8 @@ void MatrixDrive_TurnYObjectMatrixXZ(float x, float y, float z)
     MatrixDrive_RotMatrixZ(az);
 }
 
-/* a file-static copy of MatrixDrive_GetTurnZAngleXY, for the callers above
-   its definition */
+/* the body of MatrixDrive_GetTurnZAngleXY, which the next function inlines and
+   MatrixDrive_GetTurnZAngleXY calls */
 static inline void GetTurnZAngleXY_i(short *a0, short *a1, float x, float y,
                                      float z) /* derived name */
 {
@@ -353,51 +353,17 @@ void MatrixDrive_TurnZObjectMatrixXY(float x, float y, float z)
 
 void MatrixDrive_GetTurnXAngleZY(short *a0, short *a1, float x, float y, float z)
 {
-    float v0[4] = {x, y, z, 1.0f};
-    float v1[4] = {x, y, 0.0f, 1.0f};
-    float len;
-    float zz;
-
-    sceVu0Normalize(v0, v0);
-    if (0.01f < FSqrt(x * x + y * y)) {
-        sceVu0Normalize(v1, v1);
-        *a0 = GetTableArcTan2(v1[1], v1[0]);
-    }
-    len = FSqrt(v0[0] * v0[0] + v0[1] * v0[1]);
-    zz = v0[2];
-    *a1 = -GetTableArcTan2(zz, len);
+    GetTurnXAngleZY_i(a0, a1, x, y, z);
 }
 
 void MatrixDrive_GetTurnXAngleYZ(short *a0, short *a1, float x, float y, float z)
 {
-    float v0[4] = {x, y, z, 1.0f};
-    float v1[4] = {x, 0.0f, z, 1.0f};
-    float len;
-    float t;
-
-    sceVu0Normalize(v0, v0);
-    if (0.01f < FSqrt(x * x + z * z)) {
-        sceVu0Normalize(v1, v1);
-        *a0 = -GetTableArcTan2(v1[2], v1[0]);
-    }
-    len = FSqrt(v0[0] * v0[0] + v0[2] * v0[2]);
-    t = v0[1];
-    *a1 = GetTableArcTan2(t, len);
+    GetTurnXAngleYZ_i(a0, a1, x, y, z);
 }
 
 void MatrixDrive_GetTurnYAngleXZ(short *a0, short *a1, float x, float y, float z)
 {
-    float v0[4] = {x, y, z, 1.0f};
-    float v1[4] = {0.0f, y, z, 1.0f};
-    float len;
-
-    sceVu0Normalize(v0, v0);
-    if (0.01f < FSqrt(y * y + z * z)) {
-        sceVu0Normalize(v1, v1);
-        *a0 = -GetTableArcTan2(v1[2], v1[1]);
-    }
-    len = FSqrt(v0[1] * v0[1] + v0[2] * v0[2]);
-    *a1 = GetTableArcTan2(v0[0], len);
+    GetTurnYAngleXZ_i(a0, a1, x, y, z);
 }
 
 /* no caller; void, as sugipon's other output-parameter getters */
@@ -431,38 +397,12 @@ void MatrixDrive_GetTurnYEAngleXZ(float *a0, float *a1, float x, float y, float 
 
 void MatrixDrive_GetTurnZAngleXY(short *a0, short *a1, float x, float y, float z)
 {
-    float v0[4] = {x, y, z, 1.0f};
-    float v1[4] = {0.0f, y, z, 1.0f};
-    float len;
-
-    sceVu0Normalize(v0, v0);
-    if (0.01f < FSqrt(y * y + z * z)) {
-        sceVu0Normalize(v1, v1);
-        *a0 = -GetTableArcTan2(v1[1], v1[2]);
-    }
-    len = FSqrt(v0[1] * v0[1] + v0[2] * v0[2]);
-    *a1 = GetTableArcTan2(v0[0], len);
+    GetTurnZAngleXY_i(a0, a1, x, y, z);
 }
 
 void MatrixDrive_GetTurnZAngleYX(short *a0, short *a1, float x, float y, float z)
 {
-    float v0[4] = {x, y, -z, 1.0f};
-    float v1[4] = {x, 0.0f, -z, 1.0f};
-    float len;
-    float p;
-    float q;
-    float yy;
-
-    sceVu0Normalize(v0, v0);
-    if (0.01f < FSqrt(x * x + z * z)) {
-        sceVu0Normalize(v1, v1);
-        p = v1[2];
-        q = v1[0];
-        *a0 = GetTableArcTan2(-q, -p);
-    }
-    len = FSqrt(v0[0] * v0[0] + v0[2] * v0[2]);
-    yy = v0[1];
-    *a1 = -GetTableArcTan2(yy, len);
+    GetTurnZAngleYX_i(a0, a1, x, y, z);
 }
 
 void MatrixDrive_GetTurnMinusZAngleXY(short *a0, short *a1, float x, float y, float z)

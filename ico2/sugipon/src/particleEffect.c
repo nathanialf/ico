@@ -787,16 +787,16 @@ void SetParticleEffectPauseFlag(int a0, int a1)
     particleEffects[a0].pause = a1;
 }
 
-int SetParticleEffect(int no, void *pos, void *quat)
+/* the body of SetParticleEffect, which SetParticleEffectActiveSensing
+ * inlines and SetParticleEffect calls */
+static inline int SetParticleEffect_inl(int no, void *pos, void *quat) /* derived name */
 {
     return SetParticleEffectByPartition(no, pos, quat, ios_partition_oomori);
 }
 
-/* a file-static copy of SetParticleEffect, which
- * SetParticleEffectActiveSensing inlines */
-static inline int SetParticleEffect_inl(int no, void *pos, void *quat) /* derived name */
+int SetParticleEffect(int no, void *pos, void *quat)
 {
-    return SetParticleEffectByPartition(no, pos, quat, ios_partition_oomori);
+    return SetParticleEffect_inl(no, pos, quat);
 }
 
 int SetParticleEffectActiveSensing(int no, void *pos, void *quat)
@@ -812,25 +812,9 @@ int SetParticleEffectActiveSensing(int no, void *pos, void *quat)
     return id;
 }
 
-int *GetParticleEffectPackage(int idx)
-{
-    return (int *)((char *)particleParams + idx * 160);
-}
-
-void DeleteParticleEffectsByPackage(int *pkg)
-{
-    int i;
-
-    for (i = 0; i < 128; i++) {
-        if (particleEffects[i].used != 0 && particleEffects[i].geo->pkg == (PEPackage *)pkg) {
-            deleteParticleEffectGeo(i);
-            particleEffects[i].used = 0;
-        }
-    }
-}
-
-/* file-static copies of GetParticleEffectPackage and
- * DeleteParticleEffectsByPackage, which DeleteParticleEffectsByID inlines */
+/* the bodies of GetParticleEffectPackage and DeleteParticleEffectsByPackage,
+ * which DeleteParticleEffectsByID inlines and the two exported functions
+ * call */
 static inline int *GetParticleEffectPackage_inl(int idx) /* derived name */
 {
     return (int *)((char *)particleParams + idx * 160);
@@ -846,6 +830,16 @@ static inline void DeleteParticleEffectsByPackage_inl(int *pkg) /* derived name 
             particleEffects[i].used = 0;
         }
     }
+}
+
+int *GetParticleEffectPackage(int idx)
+{
+    return GetParticleEffectPackage_inl(idx);
+}
+
+void DeleteParticleEffectsByPackage(int *pkg)
+{
+    DeleteParticleEffectsByPackage_inl(pkg);
 }
 
 void DeleteParticleEffectsByID(int id)

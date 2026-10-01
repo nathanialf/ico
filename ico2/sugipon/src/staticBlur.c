@@ -1294,8 +1294,8 @@ void FullScreenEffectAfter(void)
 extern float ZeroPoint[4];
 extern void CopyVector();
 
-/* a file-static copy of _initStaticBlur, which InitStaticBlur inlines (as
-   GetSkeltonFocusNode in src/motionManager2.c) */
+/* a file-static copy of _initStaticBlur, which InitStaticBlur inlines;
+   _initStaticBlur keeps its own body, which holds 80.0f across both calls */
 static inline void initStaticBlur(void) /* derived name */
 {
     sunGlowFan = prim_InitFan2D(16, 80.0f, ZeroPoint, 0xFFFFFF80u, 0);

@@ -30,15 +30,15 @@ typedef struct { /* field names derived */
     float x, y, z, w;
 } __attribute__((aligned(16))) WormVec; /* derived name */
 
-typedef struct { /* field names derived */
-    int f00;     /* 0x00 */
-    float rate;  /* 0x04 */
-    int f08[2];  /* 0x08 */
-    float p[4];  /* 0x10 */
-    int f20[4];  /* 0x20 */
-    float f30;   /* 0x30 */
-    int f34[3];  /* 0x34 */
-} WormParam;     /* derived name */
+typedef struct {  /* field names derived */
+    int node;     /* 0x00, -1: the chain hangs from no skeleton node */
+    float rate;   /* 0x04, the length of one segment */
+    int pad08[2]; /* 0x08 */
+    float p[4];   /* 0x10, where the segment starts */
+    int pad20[4]; /* 0x20 */
+    float weight; /* 0x30, against the extended weights */
+    int pad34[3]; /* 0x34 */
+} WormParam;      /* derived name */
 
 typedef struct {  /* field names derived */
     int num;      /* 0x00 */
@@ -385,10 +385,10 @@ void *InitWormGeo(GObj *act, WormInit *ini)
                        ini->pos[2] + (_GetRandom() * 2.0f - 1.0f) * 50.0f, 1.0f};
 
         seg[i].num = num;
-        seg[i].pm.f00 = -1;
+        seg[i].pm.node = -1;
         CopyVector(seg[i].pm.p, &pos);
         seg[i].pm.rate = (int)ini->rate != 0 ? ini->rate : 20.0f;
-        seg[i].pm.f30 = 10.0f;
+        seg[i].pm.weight = 10.0f;
 
         w->src[i] = (WormVec *)iosMallocDebug(ios_partition_sugipon, 160, __FILE__, 350);
     }

@@ -283,8 +283,7 @@ void dl_OpenDma(int a0, int a1, int a2);
 void dl_CloseDma(void);
 void gif_EndPacket(void);
 
-/* the packet writer's cursor check, built only when DEBUG is defined; the
-   retail build leaves the helper without a body */
+/* the packet writer's cursor check, built only when DEBUG is defined */
 static __inline__ void dvCheckPacket(char *p) /* derived name */
 {
 #ifdef DEBUG

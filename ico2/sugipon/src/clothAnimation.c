@@ -21,24 +21,22 @@
 #include "Matrix.h"
 #include "windField.h"
 
-typedef struct {
+typedef struct { /* field names derived */
     float v[4];
     unsigned short a;
     unsigned short b;
-} ClothBuf;
+} ClothBuf; /* derived name */
 
-/* .rodata, first two objects of clothAnimation.o's run: the two line colours
-   the chain debug draw alternates between, as the quadword DrawLine takes.
-   They are `const`, which is what lets sched2 place the parameter home store
-   where the ROM has it, and quadword aligned, which is what makes the copy
-   into the two locals the ROM's lq/sq pair. */
-typedef struct {
+/* the two line colours the chain debug draw alternates between, as the
+   quadword DrawLine takes; constant and quadword aligned, so each copy into a
+   local is one quadword load and store */
+typedef struct { /* field names derived */
     int r, g, b, a;
-} __attribute__((aligned(16))) LineColor;
+} __attribute__((aligned(16))) LineColor; /* derived name */
 
-static const LineColor chainLineColor0 = {255, 255, 255, 128};
+static const LineColor chainLineColor0 = {255, 255, 255, 128}; /* derived name */
 
-static const LineColor chainLineColor1 = {255, 0, 0, 128};
+static const LineColor chainLineColor1 = {255, 0, 0, 128}; /* derived name */
 
 void TestDispChainAnimation(int *a0)
 {
@@ -77,44 +75,32 @@ void GetChainExWeightGlobalPos(float *pos, char *nodes, int idx)
     CopyVector(pos, nodes + idx * 0x50 + 0x30);
 }
 
-typedef struct {
+typedef struct { /* field names derived */
     float w;
     char pad[12];
     VECTOR v0;
     VECTOR v1;
     VECTOR v2;
     char pad2[16];
-} ExW;
+} ExW; /* derived name */
 
-typedef struct {
+typedef struct { /* field names derived */
     char *p0;
     char *p4;
     char *p8;
     int fC;
     ExW ex[5];
-} ChainNode;
+} ChainNode; /* derived name */
 
-typedef struct {
+typedef struct { /* field names derived */
     char *cfg;
     int num;
     ChainNode *nodes;
     int f3;
-} ChainSet;
+} ChainSet; /* derived name */
 
-/* The chain's debug draw of its previous segment, built only when DEBUG is
-   defined (the retail build does not define it, so the preprocessor leaves
-   the helper without a body): the Jan-2002 listing emits nothing for the dev's
-   clothAnimation.c:573-574 (calc2's next-to-last statement), which is what a
-   compiled-out display call looks like in a shipping build -- the TU carries the
-   live half of the same debug path in TestDispChainAnimation, whose red colour
-   and DrawLine call the body uses.  The body is ours.  Naming `old` here
-   is also what puts the parent's VLA into the frame at 0xCC: ee-gcc spills a
-   variable-sized object's address pseudo only for a DECL_NONLOCAL decl, i.e. one
-   a NESTED function names, and the parent's slot order (sys 0xB0 .. n 0xC8, then
-   old 0xCC, then the reload spills obj/pm/stack-save) proves the naming is the
-   LAST nested reference, after calc2's use of `n`.  Measured: at calc2's head the
-   slot lands at 0xBC instead. */
-static __inline__ void chainDebugOld(VECTOR *old)
+/* the chain's red debug segment, built only when DEBUG is defined */
+static __inline__ void chainDebugOld(VECTOR *old) /* derived name */
 {
 #ifdef DEBUG
     DrawLine((char *)old[0], (char *)old[1], (LineColor *)&chainLineColor1, 0);
@@ -152,21 +138,10 @@ void GetChainAnimation(ChainSet *sys, GObj *obj, char *mtx)
             no = 0;
         }
 
-        /* The DEBUG build draws the chain as it stands before this frame's
-           step, one red segment from the node drawn last (k) to each next one,
-           as TestDispChainAnimation draws it live; the draw is ours (DrawLine
-           and the red colour are the TU's own).  Retail keeps only `k = j`.
-           What the bytes pin: the listing (SRCFILE.TXT, clothAnimation.c:343)
-           emits an up-counting loop here whose body, rows 344-354, emits
-           nothing.  ee-gcc's check_dbra_loop reverses a counting loop whose
-           counter has no other use into a countdown (COOKBOOK 3.22); the
-           ROM's `addiu/slt/bnez` up-count needs a use of j in the body that
-           survives cse1 (its destination has other uses) and is gone by
-           final, which the assignment to k is (flow deletes it: the next two
-           loops reassign both j and k before any read).  Measured: an empty
-           body, and the TU's own `chainDebugOld(&old[j])` hook alone, both
-           reverse the loop (7 words differ).  What they cannot pin: the DEBUG
-           body's text. */
+        /* the DEBUG build draws the chain as it stands before this frame's
+           step, one red segment from the node drawn last (k) to each next
+           one, as TestDispChainAnimation draws it live; without DEBUG the
+           loop keeps only `k = j` */
         for (j = 0; j < n; j++) {
 #ifdef DEBUG
             if (j > 0) {
@@ -430,9 +405,8 @@ int SetChainExtendedWeight(int *a0, int idx, float w0, float w1)
     return -1;
 }
 
-/* clothAnimation.c:22-30 in the listing: push a point back to the inner side
-   of a wall plane.  Only ever inlined; its VECTOR temp is the caller's. */
-static __inline__ void pushInsidePlane(void *p, const void *plane)
+/* push a point back to the inner side of a wall plane */
+static __inline__ void pushInsidePlane(void *p, const void *plane) /* derived name */
 {
     VECTOR tv;
     float d = plane_distance(p, plane);
@@ -445,21 +419,19 @@ static __inline__ void pushInsidePlane(void *p, const void *plane)
 
 /* The cloth config record, the 0x1C-byte layout clothTest.c and flag.h carry
    (rows, spacing, columns, anchors, texture, weight). */
-typedef struct ClothCfg {
-    int num;         /* 0x00  rows, and -1 ends the array */
-    float segLength; /* 0x04  the spacing between rows */
-    int div;         /* 0x08  columns */
-    int wrap;        /* 0x0C  nonzero when the last column joins the first */
-    void *anchors;   /* 0x10 */
-    void *tex;       /* 0x14  null means the untextured mesh */
-    float weight;    /* 0x18  the fall added to each point a step */
-} ClothCfg;
+typedef struct ClothCfg { /* field names derived */
+    int num;              /* 0x00  rows, and -1 ends the array */
+    float segLength;      /* 0x04  the spacing between rows */
+    int div;              /* 0x08  columns */
+    int wrap;             /* 0x0C  nonzero when the last column joins the first */
+    void *anchors;        /* 0x10 */
+    void *tex;            /* 0x14  null means the untextured mesh */
+    float weight;         /* 0x18  the fall added to each point a step */
+} ClothCfg;               /* derived name */
 
 /* The sixth parameter is the wall count, which the function recomputes from
-   the wall owner before any use: the incoming value is dead (the ROM never
-   stores $t1) and its pseudo, the sixth parameter's, is what sits between a2's
-   and a6's spill slots.  a6, the wall owner, is an object handle passed as an
-   int, as a2 is. */
+   the wall owner before any use, so the value passed in is never read.  a6,
+   the wall owner, is an object handle passed as an int. */
 void GetClothAnimation(int a0, void *a1, GObj *a2, void *m, ClothCfg *cfg, int nwall, int a6,
                        int a7)
 {
@@ -515,17 +487,9 @@ void GetClothAnimation(int a0, void *a1, GObj *a2, void *m, ClothCfg *cfg, int n
         }
         for (j = 1; j < nx; j++) {
             char *p = ((char **)a0)[i] + j * 16;
-            /* VESTIGIAL, ROM-proven: besides the gravity add, the listing's
-               row 760 is this block's one instruction, `sw $zero,0x34($sp)`,
-               and rows 752-759 and 761-767 carry none, so the 2001 source
-               stored a zero into a block-scoped object here that nothing
-               reads.  The bytes pin a union-typed object (alias set 0: the
-               store follows the row's load and holds the gravity loads behind
-               it) at the block's first free slot, sp+0x10, covering at least
-               0x10-0x37, and one store into its word at +0x24; without the
-               store the function is two words short and every later row
-               moves.  Its type, its size past 0x38 and its purpose are not in
-               the bytes: the union quadword box.c uses for scratch stands in. */
+            /* a block-scoped work area with one word cleared that nothing
+               reads after the gravity add; its type is box.c's union
+               quadword */
             Vec4u work[3];
 
             work[2].f[1] = 0.0f;
@@ -577,10 +541,9 @@ void GetClothAnimation(int a0, void *a1, GObj *a2, void *m, ClothCfg *cfg, int n
             }
         }
     } else {
-        /* clothAnimation.c:810-816: the law of cosines on a triangle whose
-           sides are a, b and c, handed straight to the arc-cosine table.  A
-           nested inline, as the listing puts its rows inside this function. */
-        __inline__ int arcCosOfTriangle(float a, float b, float c)
+        /* the law of cosines on a triangle whose sides are a, b and c,
+           handed straight to the arc-cosine table */
+        __inline__ int arcCosOfTriangle(float a, float b, float c) /* derived name */
         {
             float aa = a * a;
             float bb = b * b;
@@ -608,13 +571,9 @@ void GetClothAnimation(int a0, void *a1, GObj *a2, void *m, ClothCfg *cfg, int n
                     AddVectorXYZ(((char **)a0)[i] + j * 16, ((char **)a0)[i] + (j * 16 - 16), &dv);
                 }
             }
-            /* The vectors of the row's rotation live in a block of their own
-               inside the row loop: that is what hands their slots back before
-               the wall and wind loops below, which the ROM's frame shows
-               reusing them (declared in the row loop's body or the else block
-               they would stay alive to the function's end, since taking their
-               addresses in a statement at their own level, the loop increment
-               included, moves them one level out). */
+            /* the vectors of the row's rotation, in a block of their own
+               inside the row loop, so the wall and wind loops below reuse
+               their stack */
             {
                 VECTOR va;
                 VECTOR vb;
@@ -622,15 +581,8 @@ void GetClothAnimation(int a0, void *a1, GObj *a2, void *m, ClothCfg *cfg, int n
                 VECTOR vd;
                 float qt[4];
                 float mx[16];
-                /* 48 bytes of this block's stack that no retail instruction
-                   touches.  The frame (0x1F0), pw's address (0xD0, an
-                   immediate the ROM carries twice) and every spill slot above
-                   them pin the allocation after mx; without it the frame is
-                   0x1C0 and 151 of the 754 words change.  The declarations sit
-                   on the code-free rows 833-838 and their reader is the DEBUG
-                   build's drawing of the row's axis after the correction loop,
-                   sugipon's DrawLine idiom (chainDebugOld, clothFixDebug);
-                   the drawing is ours. */
+                /* ve, vf and vg are read only by the DEBUG build's drawing
+                   of the row's axis after the correction loop */
                 VECTOR ve;
                 VECTOR vf;
                 VECTOR vg;
@@ -671,10 +623,8 @@ void GetClothAnimation(int a0, void *a1, GObj *a2, void *m, ClothCfg *cfg, int n
         }
     }
     for (n = 0; n < nwall; n++) {
-        /* The listing gives the sub-record read and the query one row (881);
-           the read comes first, and through the int handle its address has
-           no known base, so the query's build waits for it: the order the
-           ROM's registers here follow. */
+        /* the wall owner's sub-record, then the query for its n-th wall
+           plane */
         int sub = *(int *)(a6 + 0x15C),
             q[3] = {a6, 0, *(int *)(*(int *)(sub + 0x70) + 0x10) + n * 80};
         VECTOR pl;
@@ -706,30 +656,22 @@ void GetClothAnimation(int a0, void *a1, GObj *a2, void *m, ClothCfg *cfg, int n
 /* One entry of the four-corner anchor table the cloth is pinned to: the
    middle vector is the local-space anchor position _ApplyMatrix transforms
    into the corner point. */
-typedef struct {
+typedef struct { /* field names derived */
     VECTOR v0;
     VECTOR v1;
     VECTOR v2;
-} ClothFixPoint;
+} ClothFixPoint; /* derived name */
 
-typedef struct {
+typedef struct { /* field names derived */
     int nx;
-    int f04;
+    char pad04[4];
     int ny;
-    int f0C;
+    char pad0C[4];
     ClothFixPoint *fix;
-} ClothFixCfg;
+} ClothFixCfg; /* derived name */
 
-/* The cloth's debug draw of a fix point's anchor, built only when DEBUG is
-   defined, the same form as chainDebugOld above (the body is ours): naming
-   `fix` inside yTension is what puts GetClothAnimationFix4Points' own `q` into
-   its frame.  ee-gcc marks a parent local DECL_NONLOCAL at PARSE time, when a
-   nested function's body names it, and put_var_into_stack then allocates the
-   slots in that reference order -- so ROM's layout (the `pa` parm home at 0x10,
-   then q 0x14, ny 0x18, nx 0x1C) proves `q` is named after `pa` and before
-   yTension's first use of `ny`.  The hook inlines to nothing: no clothFixDebug
-   symbol is emitted and the argument is dead-code-eliminated. */
-static __inline__ void clothFixDebug(ClothFixPoint *fix)
+/* the debug draw of a fix point's anchor, built only when DEBUG is defined */
+static __inline__ void clothFixDebug(ClothFixPoint *fix) /* derived name */
 {
 #ifdef DEBUG
     DrawLine((char *)fix->v0, (char *)fix->v1, (LineColor *)&chainLineColor0, 0);
@@ -770,7 +712,7 @@ void GetClothAnimationFix4Points(VECTOR **pa, VECTOR **pv, ClothFixCfg *cfg, voi
     {
         void yTension(int y)
         {
-            __inline__ void interHalf(VECTOR * d, VECTOR * a, VECTOR * b)
+            __inline__ void interHalf(VECTOR * d, VECTOR * a, VECTOR * b) /* derived name */
             {
                 _InterVectorXYZ(d, a, b, 0.5f);
             }
@@ -794,7 +736,7 @@ void GetClothAnimationFix4Points(VECTOR **pa, VECTOR **pv, ClothFixCfg *cfg, voi
         }
         void xTension(int x)
         {
-            __inline__ void interHalf(VECTOR * d, VECTOR * a, VECTOR * b)
+            __inline__ void interHalf(VECTOR * d, VECTOR * a, VECTOR * b) /* derived name */
             {
                 _InterVectorXYZ(d, a, b, 0.5f);
             }
@@ -847,37 +789,28 @@ void GetClothAnimationFix4Points(VECTOR **pa, VECTOR **pv, ClothFixCfg *cfg, voi
     }
 }
 
-/* The TU's .data run (VMA 0x4E6ED0..0x4E7060, 0x190 B) as source, defined in
-   the ROM's order down to the getCloth4D data below.  The two cap planes of
-   the unit cylinder clipCylinderCollision clips against, each followed in the
-   ROM by sixteen zero bytes: whether the zero vector is the second element of
-   the plane's own object, as spelled here, or a separate unreferenced vector
-   the bytes cannot tell (RECONSTRUCTION).  clipPlaneLow is also reached by
-   the getCloth4D stub, so it stays non-static until that stub lands. */
+/* the two cap planes of the unit cylinder clipCylinderCollision clips
+   against, each with a zero vector after it */
 static sceVu0FVECTOR clipPlane[2][2] = {
     {{0.0f, -1.0f, 0.0f, -1.0f}, {0.0f, 0.0f, 0.0f, 0.0f}},
     {{0.0f, 1.0f, 0.0f, -1.0f}, {0.0f, 0.0f, 0.0f, 0.0f}},
-};
+}; /* derived name */
 
-/* the TU's .sdata opens with the squared radius of the cylinder the cloth is
-   clipped against (MAIN.MAP names nothing in the run) */
+/* the squared radius of the cylinder the cloth is clipped against */
 static float cylinderRadiusSq = 1.0f; /* derived name */
 
-/* INTERIM (same shape as GetSkeltonFocusNode in src/motionManager2.c): the
-   listing inlines checkOverThePlane (1085), checkFrontAcross (1126) and
-   getCrossPoint (1069) into clipCylinderCollision, so all three are `inline`
-   in the dev's TU; while this tail still has asm members a deferred inline
-   would land at the object end instead of at its own ROM slot, so each public
-   body stays a plain definition there and this caller uses these stand-ins.
-   Collapses to one `inline` definition per function at layout. */
-static __inline__ int checkOverThePlane_i(void *a0, void *a1)
+/* checkOverThePlane and getCrossPoint, which clipCylinderCollision and
+   getCloth4D inline and the exported functions further down call, and a
+   file-static copy of checkFrontAcross (a call of the inline would return
+   through a temporary) */
+static __inline__ int checkOverThePlane_i(void *a0, void *a1) /* derived name */
 {
     if (0.0f < plane_distance(a0, a1))
         return 1;
     return 0;
 }
 
-static __inline__ int checkFrontAcross_i(void *a0, void *a1)
+static __inline__ int checkFrontAcross_i(void *a0, void *a1) /* derived name */
 {
     if (0.0f <= plane_distance(a0, a1)) {
         if (plane_distance((char *)a0 + 0x10, a1) < 0.0f)
@@ -886,7 +819,7 @@ static __inline__ int checkFrontAcross_i(void *a0, void *a1)
     return 0;
 }
 
-static __inline__ void getCrossPoint_i(void *out, void *seg, void *plane)
+static __inline__ void getCrossPoint_i(void *out, void *seg, void *plane) /* derived name */
 {
     float v[4];
     float d0 = plane_distance(seg, plane);
@@ -897,15 +830,11 @@ static __inline__ void getCrossPoint_i(void *out, void *seg, void *plane)
     AddVectorXYZ(out, seg, v);
 }
 
-/* clothAnimation.c:78-80 in the listing: the squared XZ length, a second copy
-   of the getXZLengthSquare sequence that is only ever inlined. */
-static __inline__ float xzLengthSquare(const void *p)
+/* the squared XZ length, getXZLengthSquare's sequence */
+static __inline__ float xzLengthSquare(const void *p) /* derived name */
 {
     float d;
-    /* One asm block in plane_distance's style, no memory clobber: the
-       VU0_LSV_R macros' "memory" clobber kills every MEM expression in the
-       block for gcse, which costs the reload of the parm home that ROM
-       shares between this test and the AddVectorXYZ that follows it. */
+    /* one asm block in plane_distance's style, without a memory clobber */
     __asm__ __volatile__("lqc2 $vf4, 0x0(%1)\n\t"
                          "vmul.xz $vf4, $vf4, $vf4\n\t"
                          "vaddz.x $vf4, $vf4, $vf4z\n\t"
@@ -917,15 +846,11 @@ static __inline__ float xzLengthSquare(const void *p)
     return d;
 }
 
-/* `bothOverThePlane` is a nested function, and it must be declared BEFORE
-   `d`: the listing shows both plane tests sharing rows 1139/1141/1143 (one
-   inlined helper used twice, its `&&` materialised into $v0 as a return
-   value), and referencing `p` from a nested body is what makes the parameter
-   memory-resident with its home at frame offset 0, ahead of `d`@0x10 and
-   getCrossPoint's `v`@0x20, which is ROM's frame layout. */
+/* bothOverThePlane, nested before `d`, tests both ends of the segment p
+   against one plane */
 int clipCylinderCollision(char *p, void *pt)
 {
-    __inline__ int bothOverThePlane(const void *pl)
+    __inline__ int bothOverThePlane(const void *pl) /* derived name */
     {
         if (checkOverThePlane_i(p, pl) && checkOverThePlane_i(p + 0x10, pl))
             return 1;
@@ -996,13 +921,13 @@ ChainSet *InitChains(char *a0)
     return r;
 }
 
-typedef struct {
+typedef struct { /* field names derived */
     long long q[89];
-} TexBlob;
+} TexBlob; /* derived name */
 
 /* one cloth InitCloth4D builds: its owner, the mesh it draws and the point
    rows the cloth step walks */
-typedef struct Cloth4D {
+typedef struct Cloth4D { /* field names derived */
     int gobj;
     Mesh3D *mesh;
     Prim3DVec **p8;
@@ -1017,12 +942,12 @@ typedef struct Cloth4D {
     char *p2F0;
     int f2F4;
     int f2F8;
-} Cloth4D;
+} Cloth4D; /* derived name */
 
-typedef struct {
+typedef struct { /* field names derived */
     int num;
     int **rec;
-} ClothSet;
+} ClothSet; /* derived name */
 
 ClothSet *InitClothes(int cfg)
 {
@@ -1168,11 +1093,11 @@ void DispClothMesh(int *a0, void *a1, void *a2)
 /* the wire mesh's three line colours, one word per channel, RGBA: the cross
    links between rows, the general line, and the seam columns (i == 0 and the
    middle column) */
-static int wireCrossColor[4] = {0, 32, 128, 128};
+static int wireCrossColor[4] = {0, 32, 128, 128}; /* derived name */
 
-static int wireColor[4] = {128, 64, 0, 128};
+static int wireColor[4] = {128, 64, 0, 128}; /* derived name */
 
-static int wireSeamColor[4] = {0, 128, 0, 128};
+static int wireSeamColor[4] = {0, 128, 0, 128}; /* derived name */
 
 void DispMeshWire(Prim3DVec **rows, int nx, int ny)
 {
@@ -1255,13 +1180,10 @@ void DispCloth4DWithAdd(Cloth4D *c, void *a1, void *a2)
     }
 }
 
-/* The rest of the TU's .data run; MAIN.MAP names nothing in clothAnimation.o's
-   .data, so these are file statics and every name is ours.  windNoise is the ring of
-   eleven random wind vectors getCloth4D_preProcess fills and cycles through
-   (its wrap is `== 11`), explicitly zeroed so it lives in .data; the up and
-   down vectors are what getCloth4D applies the node matrix to; cylinderColor
-   is its debug wire cylinder's colour; procMatrix is the matrix the nested
-   proc applies (what it means is not read off the bytes: the name is ours). */
+/* windNoise is the ring of eleven random wind vectors getCloth4D_preProcess
+   fills and cycles through, explicitly zeroed; the up and down vectors are
+   what getCloth4D applies the node matrix to; cylinderColor is its debug wire
+   cylinder's colour; procMatrix is the matrix the nested proc applies */
 static sceVu0FVECTOR windNoise[11] = {{0.0f, 0.0f, 0.0f, 0.0f}}; /* derived name */
 
 static sceVu0FVECTOR clothUpVector = {0.0f, 1.0f, 0.0f, 0.0f}; /* derived name */
@@ -1271,16 +1193,14 @@ static sceVu0FVECTOR clothDownVector = {0.0f, -1.0f, 0.0f, 0.0f}; /* derived nam
 static int cylinderColor[4] = {32, 64, 128, 128}; /* derived name */
 
 static sceVu0FMATRIX procMatrix = {
-    /* derived name */
     {1.0f, 0.0f, 1.0f, 0.0f},
     {0.0f, 1.0f, 0.0f, 0.0f},
     {1.0f, 0.0f, 1.0f, 0.0f},
     {0.0f, 0.0f, 0.0f, 1.0f},
-};
+}; /* derived name */
 
-/* clothAnimation.c:1522-1528 and 1531-1536 in the listing: the two point
-   writers, only ever inlined, sharing one VECTOR temp at frame 0x50. */
-static __inline__ void clothAddPoint(void *dst, const void *src, float f)
+/* the two point writers: add, or set, a scaled transformed vector */
+static __inline__ void clothAddPoint(void *dst, const void *src, float f) /* derived name */
 {
     VECTOR tv;
 
@@ -1289,7 +1209,7 @@ static __inline__ void clothAddPoint(void *dst, const void *src, float f)
     _AddVectorXYZ(dst, dst, &tv);
 }
 
-static __inline__ void clothSetPoint(void *dst, const void *src, float f)
+static __inline__ void clothSetPoint(void *dst, const void *src, float f) /* derived name */
 {
     VECTOR tv;
 
@@ -1299,14 +1219,13 @@ static __inline__ void clothSetPoint(void *dst, const void *src, float f)
 
 /* One entry of the Cloth4DCfg point table (clothAnimation.h spells the same
    96 bytes with the two links as named fields): the column loop reads the
-   links by index, and the ROM forms their address as (table + i * 96) + j * 8,
-   an element reference into this record, not folded pointer arithmetic. */
-typedef struct {
+   links by index. */
+typedef struct { /* field names derived */
     int node;
     float weight;
-} Cloth4DLink;
+} Cloth4DLink; /* derived name */
 
-typedef struct {
+typedef struct { /* field names derived */
     float f00;
     char pad04[12];
     float pos[4];
@@ -1315,7 +1234,7 @@ typedef struct {
     float (*uv)[2];
     char pad44[12];
     float f50[4];
-} Cloth4DCol;
+} Cloth4DCol; /* derived name */
 
 void getCloth4D_preProcess(void *a0, float g, float damp, float z, float w, int tight, void *qa,
                            void *qb)
@@ -1413,8 +1332,7 @@ void getCloth4D_preProcess(void *a0, float g, float damp, float z, float w, int 
     }
 }
 
-/* the four procMatrix elements proc writes its Y rotation through, the rest of
-   the TU's .sdata */
+/* the four procMatrix elements proc writes its Y rotation through */
 static float *procCosXX = &procMatrix[0][0]; /* derived name */
 
 static float *procCosZZ = &procMatrix[2][2]; /* derived name */
@@ -1423,7 +1341,7 @@ static float *procSinXZ = &procMatrix[0][2]; /* derived name */
 
 static float *procSinZX = &procMatrix[2][0]; /* derived name */
 
-typedef struct {
+typedef struct { /* field names derived */
     float x;
     float y;
     float z;
@@ -1433,9 +1351,9 @@ typedef struct {
     float f30;
     float f34;
     char pad38[8];
-} ClothPoint;
+} ClothPoint; /* derived name */
 
-static __inline__ float fSqrtInv_i(float x)
+static __inline__ float fSqrtInv_i(float x) /* derived name */
 {
     float r;
 
@@ -1451,7 +1369,7 @@ static __inline__ float fSqrtInv_i(float x)
     return r;
 }
 
-static __inline__ float xzInvLength_i(const void *v)
+static __inline__ float xzInvLength_i(const void *v) /* derived name */
 {
     float r;
 
@@ -1468,7 +1386,7 @@ static __inline__ float xzInvLength_i(const void *v)
     return r;
 }
 
-static __inline__ void scaleVectorXZ_i(void *d, const void *s, float k)
+static __inline__ void scaleVectorXZ_i(void *d, const void *s, float k) /* derived name */
 {
     __asm__ __volatile__("lqc2 $vf4, 0x0(%1)\n\t"
                          "mfc1 $8, %2\n\t"
@@ -1480,7 +1398,8 @@ static __inline__ void scaleVectorXZ_i(void *d, const void *s, float k)
                          : "$8");
 }
 
-static __inline__ float subAndGetInvLength_i(void *d, const void *a, const void *b)
+static __inline__ float subAndGetInvLength_i(void *d, const void *a,
+                                             const void *b) /* derived name */
 {
     float inv;
 
@@ -1501,7 +1420,8 @@ static __inline__ float subAndGetInvLength_i(void *d, const void *a, const void 
     return inv;
 }
 
-static __inline__ void scaleAndAddVectorXYZ_i(void *d, const void *a, const void *b, float k)
+static __inline__ void scaleAndAddVectorXYZ_i(void *d, const void *a, const void *b,
+                                              float k) /* derived name */
 {
     __asm__ __volatile__("lqc2 $vf4, 0x0(%1)\n\t"
                          "lqc2 $vf5, 0x0(%2)\n\t"
@@ -1515,7 +1435,8 @@ static __inline__ void scaleAndAddVectorXYZ_i(void *d, const void *a, const void
                          : "$8");
 }
 
-static __inline__ void tensionMove_i(void *out, const void *a, const void *b, float k, float lim)
+static __inline__ void tensionMove_i(void *out, const void *a, const void *b, float k,
+                                     float lim) /* derived name */
 {
     VECTOR buf;
     float inv = subAndGetInvLength_i(&buf, a, b);
@@ -1525,9 +1446,9 @@ static __inline__ void tensionMove_i(void *out, const void *a, const void *b, fl
     }
 }
 
-/* clothAnimation.c:1102-1108 in the listing: the cylinder's two cap planes
-   and squared radius set from one collision point, only ever inlined. */
-static __inline__ void setClipCylinder(ClothPoint *pt)
+/* the cylinder's two cap planes and squared radius, set from one collision
+   point */
+static __inline__ void setClipCylinder(ClothPoint *pt) /* derived name */
 {
     clipPlane[0][0][3] = pt->y;
     clipPlane[1][0][3] = -pt->z;
@@ -1561,16 +1482,8 @@ void getCloth4D(void *a0, int **rows)
     sceVu0FMATRIX *pE;
     sceVu0FMATRIX mtx;
     VECTOR clip[3];
-    /* 144 bytes of the outermost block's stack that no retail instruction
-       touches, in the retail ROM or in the Jan-2002 listing.  The frame
-       (0x290) and every slot above them pin the allocation after clip and
-       before the collision block's tbuf (0x100), which the tail's tensionMove
-       frames reuse by exact size, so it is held for the whole function;
-       without it the frame is 0x200 and 264 words of the object change.  The
-       declaration sits on the code-free rows 1712-1723 and its reader is the
-       DEBUG build's drawing of each cylinder's clip planes after the
-       collision pass (rows 1815-1833 carry no code), sugipon's DrawLine idiom
-       (clothFixDebug); the drawing is ours. */
+    /* read only by the DEBUG build's drawing of each cylinder's clip planes
+       after the collision pass */
     VECTOR work[9];
     float t1;
     float tk;
@@ -1659,14 +1572,11 @@ void getCloth4D(void *a0, int **rows)
     }
 #endif
     {
-        /* proc reads only p, q and k (its prologue homes $4, $5 and $f12 with
-           the static chain).  Each caller also passes the owner of q's point,
-           the value its test has just loaded: that sixth argument travels in
-           $8, where every one of the eight call sites keeps the loaded value
-           with no move, and it is why j * 16 takes $9 there; the name is ours. */
+        /* proc reads only p, q and k.  Each caller also passes own, the
+           owner of q's point that its test has just loaded. */
         int proc(VECTOR * p, VECTOR * q, VECTOR * qa, VECTOR * qb, float k, int own)
         {
-            __inline__ int hit(int i)
+            __inline__ int hit(int i) /* derived name */
             {
                 VECTOR a;
                 VECTOR b;
@@ -1945,7 +1855,7 @@ void getCloth4D_postProcess(int *a0, int **a1)
     }
 }
 
-/* kept local: motionOrientManager.h reaches ico2/fumi's TUs through
+/* declared here: motionOrientManager.h reaches ico2/fumi's files through
    typedef.h, and commonact.c declares the table char [] */
 extern const MotionDef motionKind[];
 
@@ -2006,33 +1916,28 @@ void GetCloth4DWithDetail(void *a0, float x, float y, float z, float w)
     _getCloth4D(a0, x, y, z, w, 0, IdentityQuaternion, IdentityQuaternion);
 }
 
-/* Parameter ORDER corrected 2026-09-09: the two pointers follow the four
- * floats, like _getCloth4D's own tail.  src/girl.c's execClothes proves it -
- * with `a2` declared third, gcc's load_register_parameters emits `daddu
- * a2,sp,zero` before the `mov.s $f15,$f13` that loads the last float, and ROM
- * has them the other way round (two sites).  Byte-neutral here: the incoming
- * registers are a0/a1/a2 + $f12-$f15 either way. */
+/* the two pointers follow the four floats, like _getCloth4D's own tail */
 void GetCloth4DWithTight(void *a0, float x, float y, float z, float w, void *a1, void *a2)
 {
     _getCloth4D(a0, x, y, z, w, 1, a1, a2);
 }
 
-typedef struct {
+typedef struct { /* field names derived */
     long long q[8];
-} Blob64;
+} Blob64; /* derived name */
 
-typedef struct {
+typedef struct { /* field names derived */
     int nx;
     int ny;
-    int f08;
-    int f0C;
-    int f10;
-    int f14;
-    int f18;
-    int f1C;
+    int word08; /* 0x08 */
+    int word0C; /* 0x0C */
+    int r;      /* 0x10, the colour prim_InitMesh3D is given */
+    int g;      /* 0x14 */
+    int b;      /* 0x18 */
+    int a;      /* 0x1C */
     void *tex;
     char *p24;
-} Cloth4DCfg;
+} Cloth4DCfg; /* derived name */
 
 Cloth4D *InitCloth4D(GObj *a0, Cloth4DCfg *cfg, int tbl)
 {
@@ -2369,20 +2274,12 @@ void tensionMove(void *a0, void *a1, void *a2, float f12, float f13)
 
 void getCrossPoint(void *out, void *seg, void *plane)
 {
-    float v[4];
-    float d0 = plane_distance(seg, plane);
-    float d1 = -plane_distance((char *)seg + 0x10, plane);
-
-    sceVu0SubVector(v, (char *)seg + 0x10, seg);
-    sceVu0ScaleVectorXYZ(v, v, d0 / (d0 + d1));
-    AddVectorXYZ(out, seg, v);
+    getCrossPoint_i(out, seg, plane);
 }
 
 int checkOverThePlane(void *a0, void *a1)
 {
-    if (0.0f < plane_distance(a0, a1))
-        return 1;
-    return 0;
+    return checkOverThePlane_i(a0, a1);
 }
 
 int checkFrontAcross(void *a0, void *a1)

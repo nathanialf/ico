@@ -25,9 +25,7 @@
 #include "main.h"
 #include <assert.h>
 #include "sceneManager.h"
-
-/* int (float, float, float, int, int, char *, int) here, int (int, int, int, int) in Primitive.h */
-extern int prim_InitParticle(float f12, float f13, float f14, int num, int a1, char *tag, int a3);
+#include "Primitive.h"
 
 typedef struct { /* field names derived */
     float x;
@@ -62,7 +60,7 @@ typedef struct {              /* field names derived */
     int ctr;                  /* 0x04, setEnemyObject's randomiser state */
     int def;                  /* 0x08, the enemyKind row */
     int padC;                 /* 0x0C */
-    int *particle;            /* 0x10 */
+    PrimParticle **particle;  /* 0x10 */
     int *broken;              /* 0x14 */
     EnemyEye *eye0;           /* 0x18 */
     int word1C;               /* 0x1C */
@@ -88,7 +86,7 @@ void setEnemyParticleObject(GObj *self, int pid)
     int n = sub->skelNodeNum;
     SkelNode *tbl = sub->skel;
     struct DObjNode *p = sub->nodes;
-    int *parts;
+    PrimParticle **parts;
     int *fl;
     float size;
     int i;
@@ -100,7 +98,7 @@ void setEnemyParticleObject(GObj *self, int pid)
     EnemyPosEntry *q;
 
     size = (p->scale[0] + p->scale[1] + p->scale[2]) * 32.0f * 0.33333f * 0.5f * 10.0f;
-    parts = (int *)iosMallocDebug(ios_partition_sugipon, n * 4, "src/enemy.c", 130);
+    parts = (PrimParticle **)iosMallocDebug(ios_partition_sugipon, n * 4, "src/enemy.c", 130);
     w->particle = parts;
     fl = (int *)iosMallocDebug(ios_partition_sugipon, n * 4, "src/enemy.c", 132);
     w->flag = fl;
@@ -123,7 +121,7 @@ void setEnemyParticleObject(GObj *self, int pid)
             num = 80;
         else
             num = cnt;
-        parts[i] = prim_InitParticle(size, 0.5f, 0.5f, num, 1, "enemy_sprite", 0);
+        parts[i] = prim_InitParticle(num, size, 0.5f, 0.5f, 1, "enemy_sprite", 0);
         if (parts[i] == 0) {
             /* EUC-JP: "cannot reserve the memory for the enemy soldier particles" */
             debug_StdPrintfDummy("敵兵のパーティクルのメモリを確保できません\n");
@@ -132,28 +130,28 @@ void setEnemyParticleObject(GObj *self, int pid)
         }
         for (cnt = 0; q->w > -1.0f && cnt < 80; cnt++, q++) {
             n4 = rand() % 4;
-            _CopyVector(*(char **)(parts[i] + 0x190) + cnt * 32, q);
-            _CopyVector(*(char **)(parts[i] + 0x194) + cnt * 32, q);
+            _CopyVector((char *)parts[i]->vtx + cnt * 32, q);
+            _CopyVector((char *)parts[i]->vtxNext + cnt * 32, q);
             type = tbl[i].kind;
             if (type >= 38)
                 goto spread;
             if (type < 36)
                 goto spread;
-            *(float *)(*(char **)(parts[i] + 0x190) + cnt * 32 + 0x10) =
-                *(float *)(*(char **)(parts[i] + 0x194) + cnt * 32 + 0x10) = 0.5f;
-            *(float *)(*(char **)(parts[i] + 0x190) + cnt * 32 + 0x14) =
-                *(float *)(*(char **)(parts[i] + 0x194) + cnt * 32 + 0x14) = 0.0f;
+            *(float *)((char *)parts[i]->vtx + cnt * 32 + 0x10) =
+                *(float *)((char *)parts[i]->vtxNext + cnt * 32 + 0x10) = 0.5f;
+            *(float *)((char *)parts[i]->vtx + cnt * 32 + 0x14) =
+                *(float *)((char *)parts[i]->vtxNext + cnt * 32 + 0x14) = 0.0f;
             goto done;
         spread:
-            *(float *)(*(char **)(parts[i] + 0x190) + cnt * 32 + 0x10) =
-                *(float *)(*(char **)(parts[i] + 0x194) + cnt * 32 + 0x10) = (n4 / 2) * 0.5f;
-            *(float *)(*(char **)(parts[i] + 0x190) + cnt * 32 + 0x14) =
-                *(float *)(*(char **)(parts[i] + 0x194) + cnt * 32 + 0x14) = (n4 % 2) * 0.5f;
+            *(float *)((char *)parts[i]->vtx + cnt * 32 + 0x10) =
+                *(float *)((char *)parts[i]->vtxNext + cnt * 32 + 0x10) = (n4 / 2) * 0.5f;
+            *(float *)((char *)parts[i]->vtx + cnt * 32 + 0x14) =
+                *(float *)((char *)parts[i]->vtxNext + cnt * 32 + 0x14) = (n4 % 2) * 0.5f;
         done:
-            *(float *)(*(char **)(parts[i] + 0x190) + cnt * 32 + 0x18) =
-                *(float *)(*(char **)(parts[i] + 0x194) + cnt * 32 + 0x18) = 128.0f;
-            *(float *)(*(char **)(parts[i] + 0x190) + cnt * 32 + 0x1C) =
-                *(float *)(*(char **)(parts[i] + 0x194) + cnt * 32 + 0x1C) = 64.0f;
+            *(float *)((char *)parts[i]->vtx + cnt * 32 + 0x18) =
+                *(float *)((char *)parts[i]->vtxNext + cnt * 32 + 0x18) = 128.0f;
+            *(float *)((char *)parts[i]->vtx + cnt * 32 + 0x1C) =
+                *(float *)((char *)parts[i]->vtxNext + cnt * 32 + 0x1C) = 64.0f;
         }
     }
 }
@@ -230,7 +228,7 @@ void dispEnemyObject(void *self)
     int n = GOBJ_SUB(self)->skelNodeNum;
     SkelNode *tbl = GOBJ_SUB(self)->skel;
     EnemyWork *w = GOBJ_SUB(self)->work;
-    int *pl = w->particle;
+    PrimParticle **pl = w->particle;
     EnemyDispEntry buf[n];
     EnemyDispEntry *ptr[n];
     _SetCurrentMatrix((char *)GOBJ_SUB(self)->nodeMtx);

@@ -22,7 +22,7 @@ typedef struct StormPackage { /* field names derived */
     /* 0x0C */ float (*vel)[4];
     /* 0x10 */ int (*disp)[4];
     /* 0x14 */ float *rate;
-    /* 0x18 */ int unk18;
+    char pad18[4];
 } StormPackage; /* derived name */
 
 static __inline__ void StormStoreI4(void *dst, void *src) /* derived name */

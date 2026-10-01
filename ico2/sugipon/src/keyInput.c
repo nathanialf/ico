@@ -29,12 +29,14 @@ void InitKeyInput(void)
     SignalSema(IosPadLock);
 }
 
+/* the pad context iosPadConnect fills and iosPadRead updates (pad.c's
+   IosPadCtx): the second copy of the held, triggered and released bits */
 typedef struct PadBuf { /* field names derived */
-    char _p0[24];
-    int f18; /* 0x18 */
-    int f1C; /* 0x1C */
-    int f20; /* 0x20 */
-    char _p24[60];
+    char pad0[24];
+    int now2; /* 0x18 */
+    int trg2; /* 0x1C */
+    int rel2; /* 0x20 */
+    char pad24[60];
 } PadBuf; /* derived name */
 
 extern PadConf iosPadConfDefault;
@@ -52,9 +54,9 @@ void ExecKeyInput(void)
         pad[i].old = pad[i].now;
         iosPadConnect(&buf, 7, i, &iosPadConfDefault);
         iosPadRead(&buf);
-        pad[i].now = buf.f18;
-        pad[i].flags = buf.f1C;
-        pad[i].rel = buf.f20;
+        pad[i].now = buf.now2;
+        pad[i].flags = buf.trg2;
+        pad[i].rel = buf.rel2;
         pad[i].rep = 0;
         iosPadGetStick(&buf, stL, 1, 127, 127, 0);
         pad[i].ana[0] = stL[0];

@@ -22,18 +22,15 @@ extern int InitChains(void *c);
    moves, so the record carries 8-byte alignment (its zero doubleword at
    0x18 is spelled as one, as particleEffect.c's staging record does). */
 typedef struct { /* field names derived */
-    int n;       /* 0x00 */
-    int _04[3];
-    int f10;       /* 0x10 */
-    float f14;     /* 0x14 */
-    long long _18; /* 0x18 */
-    float f20;     /* 0x20 */
-    float f24;     /* 0x24 */
-    float f28;     /* 0x28 */
-    float f2c;     /* 0x2C */
-    int _30[4];
-    float f40; /* 0x40 */
-    int _44[3];
+    int n;       /* 0x00, the node count */
+    int pad04[3];
+    int node;        /* 0x10, the skeleton node the chain hangs from, -1 for none */
+    float step;      /* 0x14, the length of one segment */
+    long long pad18; /* 0x18 */
+    float pos[4];    /* 0x20, where the chain starts */
+    int pad30[4];
+    float weight; /* 0x40, against the extended weights */
+    int pad44[3];
 } RopeTemplate; /* derived name */
 
 /* the zero vector HoldRope clears the holder's offset with, then the
@@ -42,7 +39,7 @@ static float ropeZeroVector[4] = {0.0f, 0.0f, 0.0f, 0.0f}; /* derived name */
 
 static RopeTemplate ropeChainInit[2] = {
     /* derived name */
-    {55, {0, 0, 0}, -1, 20.0f, 0, 0.0f, 0.0f, 0.0f, 1.0f, {0, 0, 0, 0}, 10.0f},
+    {55, {0, 0, 0}, -1, 20.0f, 0, {0.0f, 0.0f, 0.0f, 1.0f}, {0, 0, 0, 0}, 10.0f},
     {-1},
 }; /* derived name */
 
@@ -54,15 +51,13 @@ typedef struct { /* field names derived */
 /* The chain system record the rope allocates (0xA0 bytes, two template halves). */
 typedef struct { /* field names derived */
     /* 0x00 */ int n;
-    /* 0x04 */ int _04[4];
-    /* 0x14 */ float f14;
-    /* 0x18 */ int _18[2];
-    /* 0x20 */ float f20;
-    /* 0x24 */ float f24;
-    /* 0x28 */ float f28;
-    /* 0x2C */ int _2c[5];
-    /* 0x40 */ float f40;
-    /* 0x44 */ int _44[23];
+    /* 0x04 */ int pad04[4];
+    /* 0x14 */ float step;
+    /* 0x18 */ int pad18[2];
+    /* 0x20 */ float pos[4];
+    /* 0x30 */ int pad30[4];
+    /* 0x40 */ float weight;
+    /* 0x44 */ int pad44[23];
 } RopeChainSys; /* derived name */
 
 /* The wall-clip request, the same record ico2/omori/src/chain.c hands to
@@ -77,12 +72,12 @@ typedef struct { /* field names derived */
     /* 0x8C */ char _8c[0x34];
 } RopeClipWork; /* derived name */
 
-typedef struct { /* field names derived */
-    /* 0x00 */ int f0;
-    /* 0x04 */ int f4;
-    /* 0x08 */ RopePair f8;
-    /* 0x10 */ void *f10;
-} RopeGeoWork; /* derived name */
+typedef struct {                       /* field names derived */
+    /* 0x00 */ int chains;             /* InitChains' chain system */
+    /* 0x04 */ int upperWallClimbable; /* a wall was found above the rope */
+    /* 0x08 */ RopePair wallSrc;       /* that wall's slot pair */
+    /* 0x10 */ void *wall;             /* that wall */
+} RopeGeoWork;                         /* derived name */
 
 void *InitRopeGeo(GObj *o, const float *p)
 {
@@ -97,12 +92,12 @@ void *InitRopeGeo(GObj *o, const float *p)
 
     ((RopeTemplate *)c)[0] = ropeChainInit[0];
     ((RopeTemplate *)c)[1] = ropeChainInit[1];
-    c->f20 = p[0];
-    c->f24 = p[1];
-    c->f28 = p[2];
-    c->f14 = p[10];
-    c->f40 = p[8];
-    c->n = (int)(p[9] / c->f14);
+    c->pos[0] = p[0];
+    c->pos[1] = p[1];
+    c->pos[2] = p[2];
+    c->step = p[10];
+    c->weight = p[8];
+    c->n = (int)(p[9] / c->step);
     if (c->n == 0) {
         /* "The rope is too short. Change scale-y in the table." (EUC-JP) */
         debug_StdPrintfDummy("ロープの長さが短"
@@ -136,14 +131,14 @@ void *InitRopeGeo(GObj *o, const float *p)
             debug_assert(__FILE__, 69);
             __assert(__FILE__, 69, "0");
         }
-        w->f8 = cw.out;
-        w->f10 = cw.hit;
-        w->f4 = 1;
+        w->wallSrc = cw.out;
+        w->wall = cw.hit;
+        w->upperWallClimbable = 1;
     } else {
-        w->f8.a = 0;
-        w->f8.b = 0;
-        w->f10 = 0;
-        w->f4 = 0;
+        w->wallSrc.a = 0;
+        w->wallSrc.b = 0;
+        w->wall = 0;
+        w->upperWallClimbable = 0;
     }
 
     if (sub->nodeMtx != 0) {
@@ -220,7 +215,7 @@ void *InitRopeGeo(GObj *o, const float *p)
         }
     }
     sub->dispType = 2;
-    w->f0 = InitChains(c);
+    w->chains = InitChains(c);
     sub->nodes->scale[0] = sub->nodes->scale[1] = sub->nodes->scale[2] = 1.0f;
     sub->nodes->rot[0] = sub->nodes->rot[1] = sub->nodes->rot[2] = 0;
     return w;
