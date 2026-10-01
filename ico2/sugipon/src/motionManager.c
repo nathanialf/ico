@@ -930,28 +930,28 @@ inline void getGeometryOfMotion(ObjNode *out, int second)
 {
     ShiftBlk buf;
     Sub15C *p;
-    buf = *(ShiftBlk *)((char *)GOBJ_SUB(skelGObj) + 0x180);
+    buf = *(ShiftBlk *)&GOBJ_SUB(skelGObj)->root.wall;
     _getGeometryOfMotion(out, second);
     p = ((GObj *)skelGObj)->dobj;
     if (p->ctrl.keepWall != 0) {
-        *(ShiftBlk *)((char *)p + 0x180) = buf;
+        *(ShiftBlk *)&p->root.wall = buf;
     }
 }
 
 void execPositionReserver(GObj *self, ObjNode m)
 {
-    int ext;
+    Sub15C *ext;
     float buf[4];
     float buf2[4];
     int flg;
 
-    ext = (int)GOBJ_SUB(self);
-    if (*(int *)(ext + 0x4F0) == 1) {
-        if (*(int *)(ext + 0x4EC) == 0 || *(int *)(ext + 0x4EC) != *(int *)(ext + 0x4F0)) {
+    ext = GOBJ_SUB(self);
+    if (ext->ctrl.loopFlag == 1) {
+        if (ext->ctrl.posReserve == 0 || ext->ctrl.posReserve != ext->ctrl.loopFlag) {
             if (m.obj != 0) {
                 if (!(skelMotCtrl->slipOn != 0 && (skelMotCtrl->floorAttr & 0xF00000)) &&
                     !(*(long long *)&skelMotCtrl->ctrlFlags & ((long long)0x8008 << 30))) {
-                    *(int *)(ext + 0x4EC) = *(int *)(ext + 0x4F0);
+                    ext->ctrl.posReserve = ext->ctrl.loopFlag;
                     CopyVector(skelRoot->savePos, skelRoot->pos);
                     skelRoot->hitObj = m;
                     skelMotCtrl->reserveBlend = 0;
@@ -1006,8 +1006,6 @@ void execPositionReserver(GObj *self, ObjNode m)
 extern void dispPlane(void *plane, void *pos);
 void GetMatrixOfMotion(GObj *self, char *tbl, void *ofs);
 
-typedef struct MotNodeTag MotNode;
-
 typedef struct MotHdrTag MotHdr;
 
 /* RECONSTRUCTION, the type and macro names are ours (motionOrientManager.c
@@ -1033,12 +1031,11 @@ void GetGeometryOfMotion(void *self, void *m0, void *m1, float *v, float r, floa
     if ((char *)MOWORK(self)->localObj != 0) {
         MOWORK(self)->localPos[3] = 1.0f;
         CopyVector(v2, MOWORK(self)->localPos);
-        sceVu0ApplyMatrix((int *)v2,
-                          *(int *)(*(int *)((char *)MOWORK(self)->localObj + 0x15C) + 0xC) +
-                              MOWORK(self)->localNode * 0x40,
-                          (char *)v2);
+        sceVu0ApplyMatrix(
+            (int *)v2, GOBJ_SUB(MOWORK(self)->localObj)->nodeMtx + MOWORK(self)->localNode * 0x40,
+            (char *)v2);
     } else {
-        AddVectorXYZ(MOWORK(self)->localPos, MOWORK(self)->localPos, (char *)MOWORK(self) + 0x7F0);
+        AddVectorXYZ(MOWORK(self)->localPos, MOWORK(self)->localPos, MOWORK(self)->localMove);
         CopyVector(v2, MOWORK(self)->localPos);
     }
     v2[1] = v2[1] + MOWORK(self)->localHeight;
@@ -1057,7 +1054,7 @@ void GetGeometryOfMotion(void *self, void *m0, void *m1, float *v, float r, floa
         skelScale = MOWORK(self)->nodes->scale[0];
         skelRoot = &MOWORK(self)->root;
         skelMotCtrl = &MOWORK(self)->ctrl;
-        skelNode = (char *)*(MotNode **)((char *)MOWORK(self) + 0x8C);
+        skelNode = (char *)MOWORK(self)->skel;
         skelMotDef = &motionKind[skelMotCtrl->motion];
         CopyVector(rootMove, v);
         CopyVector(rootStep, step);
@@ -1095,7 +1092,7 @@ void GetGeometryOfMotion(void *self, void *m0, void *m1, float *v, float r, floa
     if (sh.obj != 0) {
         LinkParentOfDObj(self, &sh);
         if (GOBJ_SUB(sh.obj)->rideFunc != 0) {
-            (*(void (**)(ObjNode *, char *))(*(int *)&sh.obj->dobj + 0x81C))(&sh, self);
+            ((void (*)(ObjNode *, char *))GOBJ_SUB(sh.obj)->rideFunc)(&sh, self);
         }
     } else {
         MOWORK(self)->root.pos[1] = MOWORK(self)->root.pos[1] - MOWORK(self)->root.height;
@@ -1132,7 +1129,7 @@ void GetMatrixOfMotion(GObj *self, char *tbl, void *ofs)
        nine gp stores the way ROM does. */
     skelMotion = tbl;
     skelQuat = (char *)GOBJ_SUB(self)->nodeQuat;
-    skelNode = (char *)*(int *)((int)GOBJ_SUB(self) + 0x8C);
+    skelNode = (char *)GOBJ_SUB(self)->skel;
     skelScale = GOBJ_SUB(self)->nodes->scale[0];
     skelRoot = &GOBJ_SUB(self)->root;
     skelMotCtrl = &GOBJ_SUB(self)->ctrl;
@@ -1291,10 +1288,10 @@ void dispSkelton()
 
 void SkelTest(GObj *a0)
 {
-    int sub = (int)GOBJ_SUB(a0);
-    int v;
+    Sub15C *sub = GOBJ_SUB(a0);
+    SkelNode *v;
     skelGObj = (int)a0;
-    v = *(int *)(sub + 0x8C);
+    v = sub->skel;
     skelNode = (char *)v;
     if (v != 0) {
         p2o_DispVU1();
@@ -1306,22 +1303,22 @@ void SkelTest(GObj *a0)
 
 void SkelTestGeo(GObj *a0)
 {
-    int sub = (int)GOBJ_SUB(a0);
-    int v;
+    Sub15C *sub = GOBJ_SUB(a0);
+    SkelNode *v;
     int i;
     skelGObj = (int)a0;
-    v = *(int *)(sub + 0x8C);
+    v = sub->skel;
     skelNode = (char *)v;
     if (v != 0) {
-        int s2;
+        Sub15C *s2;
         sceVu0UnitMatrix(MatrixDrive_GetMatrix());
         MatrixDrive_RotMatrixX(-0x8000);
         getInitialMatrix((int)GOBJ_SUB(a0), 0);
-        s2 = (int)GOBJ_SUB(a0);
-        for (i = 0; i < *(int *)(s2 + 0x88); i++) {
-            int e = *(int *)(s2 + 0xC) + i * 0x40;
-            sceVu0MulMatrix(e, s2 + 0x20, e);
-            s2 = (int)GOBJ_SUB(a0);
+        s2 = GOBJ_SUB(a0);
+        for (i = 0; i < s2->skelNodeNum; i++) {
+            int e = s2->nodeMtx + i * 0x40;
+            sceVu0MulMatrix(e, &s2->matrix, e);
+            s2 = GOBJ_SUB(a0);
         }
         if (debug_skel_flag != 0) {
             dispSkelton(a0);

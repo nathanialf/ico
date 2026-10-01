@@ -29,7 +29,7 @@
 /* kept local: int (float, float, float, int, int, char *, int) here, int (int, int, int, int) in Primitive.h */
 extern int prim_InitParticle(float f12, float f13, float f14, int num, int a1, char *tag, int a3);
 
-typedef struct {
+typedef struct { /* field names derived */
     float x;
     float y;
     float z;
@@ -63,7 +63,7 @@ static float offsetMatrix[4][4] = {
    broken-part tables, the two eyes, the footprints, the per-node particle
    flags, the object-loaded flag, the wing and stone parameters and the
    scale. */
-typedef struct {
+typedef struct {              /* field names derived */
     int kind;                 /* 0x00 */
     int ctr;                  /* 0x04, setEnemyObject's randomiser state */
     int def;                  /* 0x08, the enemyKind row */
@@ -71,20 +71,20 @@ typedef struct {
     int *particle;            /* 0x10 */
     int *broken;              /* 0x14 */
     EnemyEye *eye0;           /* 0x18 */
-    int f_1C;                 /* 0x1C */
+    int word1C;               /* 0x1C */
     EnemyEye *eye1;           /* 0x20 */
-    int f_24;                 /* 0x24 */
+    int word24;               /* 0x24 */
     EnemyFootPrintHead *foot; /* 0x28 */
-    int f_2C;                 /* 0x2C */
-    int *flag;                /* 0x30 */
-    int pad34;                /* 0x34 */
-    int loaded;               /* 0x38 */
-    float f_3C;               /* 0x3C */
-    short f_40;               /* 0x40 */
-    float wing;               /* 0x44 */
-    float scale;              /* 0x48 */
-    int timer;                /* 0x4C */
-    float float50;            /* 0x50 */
+    int footSwitch; /* 0x2C, nonzero while the enemy leaves footprints (SetEnemyFootPrintSwitch) */
+    int *flag;      /* 0x30 */
+    int pad34;      /* 0x34 */
+    int loaded;     /* 0x38 */
+    float float3C;  /* 0x3C */
+    short short40;  /* 0x40 */
+    float wing;     /* 0x44 */
+    float scale;    /* 0x48 */
+    int timer;      /* 0x4C */
+    float flyXZAccel; /* 0x50, the fly XZ acceleration, from the enemyKind row */
 } EnemyWork;
 
 void setEnemyParticleObject(GObj *self, int pid)
@@ -93,7 +93,7 @@ void setEnemyParticleObject(GObj *self, int pid)
     EnemyWork *w = sub->work;
     int n = sub->skelNodeNum;
     char *tbl = *(char **)((char *)sub + 0x8C);
-    char *p = *(char **)((char *)sub + 0x870);
+    struct DObjNode *p = sub->nodes;
     int *parts;
     int *fl;
     float size;
@@ -105,8 +105,7 @@ void setEnemyParticleObject(GObj *self, int pid)
     EnemyPosEntry *v;
     EnemyPosEntry *q;
 
-    size = (*(float *)(p + 0x20) + *(float *)(p + 0x24) + *(float *)(p + 0x28)) * 32.0f * 0.33333f *
-           0.5f * 10.0f;
+    size = (p->scale[0] + p->scale[1] + p->scale[2]) * 32.0f * 0.33333f * 0.5f * 10.0f;
     parts = (int *)iosMallocDebug(ios_partition_sugipon, n * 4, "src/enemy.c", 130);
     w->particle = parts;
     fl = (int *)iosMallocDebug(ios_partition_sugipon, n * 4, "src/enemy.c", 132);
@@ -219,11 +218,13 @@ retry:
     return kind;
 }
 
-typedef struct {
+/* One part's projected position: the sqc2 stores the integer x, y, z and w,
+   and the part's index then takes the x word's place. */
+typedef struct { /* field names derived */
     int idx;
-    int _4;
+    int y;
     int z;
-    int _C;
+    int w;
 } EnemyDispEntry;
 
 /* dispEnemyObject sits on the January listing's lines (SRCFILE.TXT 295 to 373):
@@ -301,11 +302,11 @@ void dispEnemyObject(void *self)
 
         switch (*(int *)(tbl + i * 0x40 + 4)) {
         case 37:
-            if (*(float *)((char *)GOBJ_SUB(self)->nodes + 0x30) == 0.0f)
+            if (GOBJ_SUB(self)->nodes->fade == 0.0f)
                 DispEnemyEye(w->eye0);
             break;
         case 36:
-            if (*(float *)((char *)GOBJ_SUB(self)->nodes + 0x30) == 0.0f)
+            if (GOBJ_SUB(self)->nodes->fade == 0.0f)
                 DispEnemyEye(w->eye1);
             break;
         default:
@@ -334,12 +335,13 @@ void dispEnemyObject(void *self)
  * EnemyCheckHit's allocation after the call shows (chain 2 pass 8). */
 static inline int enemySetParticle(int kind, void *obj, float *dir)
 {
-    char buf[32];
-    MatrixDrive_GetTurnZAngleXY(buf + 0x10, buf + 0x12, dir[0], dir[1], -dir[2]);
-    SetIdentityQuaternion(buf);
-    RotQuaternionX(buf, (short)(-*(unsigned short *)(buf + 0x10)));
-    RotQuaternionY(buf, (short)(-*(unsigned short *)(buf + 0x12)));
-    return SetParticleEffect(kind, obj, buf);
+    float q[4];
+    unsigned short ax, ay;
+    MatrixDrive_GetTurnZAngleXY(&ax, &ay, dir[0], dir[1], -dir[2]);
+    SetIdentityQuaternion(q);
+    RotQuaternionX(q, (short)-ax);
+    RotQuaternionY(q, (short)-ay);
+    return SetParticleEffect(kind, obj, q);
 }
 
 int EnemyCheckHit(GObj *self, float *pos, float *dir)
@@ -504,22 +506,22 @@ void *InitEnemyGeo(GObj *self, SObjSimpleSetting *param)
 
     w = iosMallocDebug(ios_partition_sugipon, 0x54, "src/enemy.c", 641);
     *(EnemyWork **)(SUBOF(self) + 0x830) = w;
-    w->f_1C = 0;
+    w->word1C = 0;
     w->eye0 = InitEnemyEye(10, 0, 10);
-    w->f_24 = 0;
+    w->word24 = 0;
     w->eye1 = InitEnemyEye(10, 0, 10);
     w->foot = InitEnemyFootPrint(6);
-    w->f_2C = 1;
+    w->footSwitch = 1;
     w->particle = 0;
     w->loaded = 0;
-    w->f_3C = 0.0f;
-    w->f_40 = 0;
+    w->float3C = 0.0f;
+    w->short40 = 0;
     w->wing = 0.0f;
     w->timer = 0;
-    w->float50 = 1.0f;
+    w->flyXZAccel = 1.0f;
     kind = enemyInitPartsList(self, param);
     w->def = kind;
-    w->float50 = enemyKind[kind].float0C;
+    w->flyXZAccel = enemyKind[kind].float0C;
     InitMotionOrient(self, 0x84A, 0x967, 0x18, 0x24, 0x342);
     no = enemyVariation;
     *(int *)(SUBOF(self) + 0x558) = no;
@@ -531,10 +533,10 @@ void *InitEnemyGeo(GObj *self, SObjSimpleSetting *param)
 
 void EnemyGeo(GObj *self)
 {
-    int sub = (int)GOBJ_SUB(self);
+    Sub15C *sub = GOBJ_SUB(self);
     Act *node = GOBJ_ACT(self);
-    unsigned long long flag = *(unsigned long long *)((char *)node + 0x18);
-    EnemyWork *w = *(EnemyWork **)(sub + 0x830);
+    unsigned long long flag = node->flags18.ll;
+    EnemyWork *w = sub->work;
     float ratio;
     float buf[4];
 
@@ -556,14 +558,14 @@ void EnemyGeo(GObj *self)
 
     CylinderCollisionWithControlDynamics(self, 4, 0, w->scale * 70.0f, w->scale * 50.0f, 0.5f);
 
-    if (isEnemyActive((int *)self) != 0) {
+    if (isEnemyActive(self) != 0) {
         Sub15C *s = GOBJ_SUB(self);
-        if (*(int *)((char *)s + 0x63C) != 0) {
-            if (w->f_2C != 0) {
+        if (s->ctrl.word1CC != 0) {
+            if (w->footSwitch != 0) {
                 if (!(s->ctrl.motion == 0x3A1 || s->ctrl.motion == 0x3A2)) {
-                    GetProjectionOfPlane(buf, (float *)((char *)s + 0x1D0),
-                                         (float *)(*(char **)((char *)s + 0xC) +
-                                                   *(int *)((char *)s + 0x220) * 0x40 + 0x30));
+                    GetProjectionOfPlane(
+                        buf, s->root.plane.f,
+                        (float *)((char *)s->nodeMtx + s->root.standNode * 0x40 + 0x30));
                     EntryEnemyFootPrint(w->foot, buf);
                 }
             }
@@ -573,9 +575,8 @@ void EnemyGeo(GObj *self)
 
     GOBJ_SUB(self)->ctrl.wordE8 = (GOBJ_SUB(self)->ctrl.wordE8 + 1) % 10;
 
-    ratio = (*(float *)((char *)GOBJ_SUB(self)->nodes + 0x20) +
-             *(float *)((char *)GOBJ_SUB(self)->nodes + 0x24) +
-             *(float *)((char *)GOBJ_SUB(self)->nodes + 0x28)) /
+    ratio = (GOBJ_SUB(self)->nodes->scale[0] + GOBJ_SUB(self)->nodes->scale[1] +
+             GOBJ_SUB(self)->nodes->scale[2]) /
             3.0f;
 
     _MulMatrix(MatrixDrive_GetMatrix(),
@@ -594,7 +595,7 @@ void DisplayEnemy(GObj *self)
 
     if (w->loaded != 0) {
         reg_DispEnemy((char *)GOBJ_SUB(self));
-        if (*(float *)((char *)GOBJ_SUB(self)->nodes + 0x30) == 0.0f) {
+        if (GOBJ_SUB(self)->nodes->fade == 0.0f) {
             DispEnemyEye(w->eye0);
             DispEnemyEye(w->eye1);
         }
@@ -608,16 +609,16 @@ void DisplayEnemy(GObj *self)
 /* kept local: act_a_p_1.h does not compile in this TU (too few arguments to function `IsActCharDead') */
 extern int IsActCharDead();
 
-void EnemyDL(int *self)
+void EnemyDL(GObj *self)
 {
     Act *sub = GOBJ_ACT(self);
-    unsigned long long flag = *(unsigned long long *)((char *)sub + 0x18);
+    unsigned long long flag = sub->flags18.ll;
     if (((flag >> 33) & 1) == 0)
         return;
     IsActCharDead();
     if (isEnemyHyde(self) != 0)
         return;
-    DisplayEnemy((char *)self);
+    DisplayEnemy(self);
 }
 
 void DemoMotionGeo(GObj *self)
@@ -642,28 +643,36 @@ void SetEnemyDissolve(GObj *self, float ratio)
 
 void SetEnemyFlyXZAccel(GObj *a0, float f)
 {
-    *(float *)((char *)GOBJ_SUB(a0)->work + 0x50) = f;
+    EnemyWork *w = GOBJ_SUB(a0)->work;
+
+    w->flyXZAccel = f;
 }
 
 void SetEnemyFlyXZAccelAll(float accel)
 {
     GObj *g = isysGObjSearchFromObjKindID_begin(4);
     while (g != 0) {
-        *(float *)((char *)GOBJ_SUB(g)->work + 0x50) = accel;
+        EnemyWork *w = GOBJ_SUB(g)->work;
+
+        w->flyXZAccel = accel;
         g = isysGObjSearchFromObjKindID_next(g);
     }
 }
 
 float GetEnemyFlyXZAccel(GObj *a0)
 {
-    return *(float *)((char *)GOBJ_SUB(a0)->work + 0x50);
+    EnemyWork *w = GOBJ_SUB(a0)->work;
+
+    return w->flyXZAccel;
 }
 
 void EnemyAI(void) {}
 
 void SetEnemyFootPrintSwitch(GObj *a0, int a1)
 {
-    *(int *)((char *)GOBJ_SUB(a0)->work + 0x2C) = a1;
+    EnemyWork *w = GOBJ_SUB(a0)->work;
+
+    w->footSwitch = a1;
 }
 
 void EnemySetfAppearAll(GObj *self)
@@ -672,7 +681,7 @@ void EnemySetfAppearAll(GObj *self)
     int i;
 
     for (i = 0; i < n; i++)
-        ((int *)*(int *)(GOBJ_SUB(self)->work + 0x14))[i] = 0;
+        ((EnemyWork *)GOBJ_SUB(self)->work)->broken[i] = 0;
 }
 
 void EnemySetfDisappearAll(GObj *self)
@@ -681,7 +690,7 @@ void EnemySetfDisappearAll(GObj *self)
     int i;
 
     for (i = 0; i < n; i++)
-        ((int *)*(int *)(GOBJ_SUB(self)->work + 0x14))[i] = 1;
+        ((EnemyWork *)GOBJ_SUB(self)->work)->broken[i] = 1;
 }
 
 void EnemySetfDisappear(GObj *self, float *dir)
@@ -702,22 +711,27 @@ void EnemySetfDisappear(GObj *self, float *dir)
 
 void enemySetParticleDie(void *a0, float *a1)
 {
-    char buf[32];
-    MatrixDrive_GetTurnZAngleXY(buf + 0x10, buf + 0x12, a1[0], a1[1], -a1[2]);
-    SetIdentityQuaternion(buf);
-    RotQuaternionX(buf, (short)(-*(unsigned short *)(buf + 0x10)));
-    RotQuaternionY(buf, (short)(-*(unsigned short *)(buf + 0x12)));
-    SetParticleEffect(0xC, a0, buf);
+    float q[4];
+    unsigned short ax, ay;
+    MatrixDrive_GetTurnZAngleXY(&ax, &ay, a1[0], a1[1], -a1[2]);
+    SetIdentityQuaternion(q);
+    RotQuaternionX(q, (short)-ax);
+    RotQuaternionY(q, (short)-ay);
+    SetParticleEffect(0xC, a0, q);
 }
 
 void ReviveEnemyParticle(GObj *a0, int a1)
 {
-    (*(int **)((char *)GOBJ_SUB(a0)->work + 0x14))[a1] = 0;
+    EnemyWork *w = GOBJ_SUB(a0)->work;
+
+    w->broken[a1] = 0;
 }
 
 int isExistEnemyParticle(GObj *a0, int a1)
 {
-    return (*(int **)((char *)GOBJ_SUB(a0)->work + 0x14))[a1] == 0;
+    EnemyWork *w = GOBJ_SUB(a0)->work;
+
+    return w->broken[a1] == 0;
 }
 
 int EnemyGetNSafeParts(GObj *self)
@@ -728,7 +742,7 @@ int EnemyGetNSafeParts(GObj *self)
     int cnt = 0;
 
     for (i = 0; i < n; i++) {
-        p = *(int **)((char *)GOBJ_SUB(self)->work + 0x14);
+        p = ((EnemyWork *)GOBJ_SUB(self)->work)->broken;
         if (p[i] == 0)
             cnt++;
     }
@@ -743,20 +757,22 @@ void EnemyDeleteParticle(GObj *self, float *dir, short *list)
 
     n = 2;
     for (i = 0; list[i] >= 0 && n > 0; i++, n--) {
-        enemySetParticle(8, *(char **)((char *)sub + 0xC) + list[i] * 0x40 + 0x30, dir);
+        enemySetParticle(8, (char *)sub->nodeMtx + list[i] * 0x40 + 0x30, dir);
     }
 }
 
 void SetEnemyHitGeometryAction(GObj *a0, int a1)
 {
-    *(int *)((char *)GOBJ_SUB(a0)->work + 0x38) = a1;
+    EnemyWork *w = GOBJ_SUB(a0)->work;
+
+    w->loaded = a1;
 }
 
 int InitDemoMotionGeo(GObj *self)
 {
     InitMotionOrient(self, 0x84A, 0x967, -1, -1, 0x3D7);
     SetLodLevel(self, 0);
-    *(int *)(((char *)self) + 0x16C) = 0;
+    self->active = 0;
     return 0;
 }
 
@@ -764,12 +780,14 @@ void HotInitDemoMotionGeo(GObj *self)
 {
     InitMotionOrient(self, 0x84A, 0x967, -1, -1, 0x3D7);
     SetLodLevel(self, 0);
-    *(int *)(((char *)self) + 0x16C) = 0;
+    self->active = 0;
 }
 
-int GetEnemyHitNodeFlag(GObj *a0)
+int *GetEnemyHitNodeFlag(GObj *a0)
 {
-    return *(int *)((char *)GOBJ_SUB(a0)->work + 0x14);
+    EnemyWork *w = GOBJ_SUB(a0)->work;
+
+    return w->broken;
 }
 
 int RandomizeEnemy(GObj *self)
@@ -778,7 +796,7 @@ int RandomizeEnemy(GObj *self)
     EnemyWork *w = sub->work;
     int kind = w->kind;
 
-    *(int *)(*(char **)((char *)sub + 0x870) + 0x30) = 0;
+    sub->nodes->fade = 0.0f;
     return setEnemyObject(self, kind, &w->ctr);
 }
 

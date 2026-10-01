@@ -21,18 +21,18 @@ typedef struct Rgba {
     unsigned char r, g, b, a;
 } Rgba;
 
-typedef struct PointBlur {
-    /* 0x00 */ int f0;
+typedef struct PointBlur { /* field names derived */
+    /* 0x00 */ int pri;
     /* 0x04 */ int num;
-    /* 0x08 */ void *f8;
-    /* 0x0C */ void *fC;
-    /* 0x10 */ Rgba *f10;
+    /* 0x08 */ void *screenPos;
+    /* 0x0C */ void *strip;
+    /* 0x10 */ Rgba *stripCol;
     /* 0x14 */ Rgba col;
     /* 0x18 */ long long _pad18; /* ROM proves 8-byte struct alignment: the
                                      0x40-byte template copy is ld/sd, not lw/sw */
     /* 0x20 */ float pos[4];
     /* 0x30 */ int dirty;
-    /* 0x34 */ int f34;
+    /* 0x34 */ int alpha;
     /* 0x38 */ char _pad38[8];
 } PointBlur;
 
@@ -51,11 +51,11 @@ static inline void resetPointBlurTrail(PointBlur *p)
     Rgba *q;
 
     for (i = 1; i < p->num; i++) {
-        _CopyVector(&((IVec *)p->f8)[i], p->f8);
-        _CopyIVector(&((IVec *)p->fC)[i * 2], p->fC);
-        _CopyIVector(&((IVec *)p->fC)[i * 2 + 1], &((IVec *)p->fC)[1]);
-        q = (Rgba *)(i * 8 + (int)p->f10);
-        q[1] = p->f10[0];
+        _CopyVector(&((IVec *)p->screenPos)[i], p->screenPos);
+        _CopyIVector(&((IVec *)p->strip)[i * 2], p->strip);
+        _CopyIVector(&((IVec *)p->strip)[i * 2 + 1], &((IVec *)p->strip)[1]);
+        q = (Rgba *)(i * 8 + (int)p->stripCol);
+        q[1] = p->stripCol[0];
         q[0] = q[1];
     }
 }
@@ -76,21 +76,21 @@ int UpdatePointBlur(PointBlur *p, void *mtx, void *a2, float f)
     }
     _ApplyMatrix(a, matrixptr + 0x80, mtx);
     _SetCurrentMatrix(matrixptr + 0xC0);
-    _RotTransPersCurrentMatrix(p->f8, a);
+    _RotTransPersCurrentMatrix(p->screenPos, a);
     a[0] = a[0] + f;
     _RotTransPersCurrentMatrix(b, a);
-    scale = b[0] - *(float *)p->f8;
-    _SubVector(c, (char *)p->f8 + 0x10, p->f8);
+    scale = b[0] - *(float *)p->screenPos;
+    _SubVector(c, (char *)p->screenPos + 0x10, p->screenPos);
     c[2] = 0.0f;
     _OuterProduct(c, c, ZUnitVector);
     _NormalizeVector(c, c);
     _ScaleVector(c, c, scale);
     c[2] = 0.0f;
-    _AddVectorXYZ(b, p->f8, c);
-    _FTOI4Vector(p->fC, b);
-    _SubVectorXYZ(b, p->f8, c);
-    _FTOI4Vector((char *)p->fC + 0x10, b);
-    t = p->f10;
+    _AddVectorXYZ(b, p->screenPos, c);
+    _FTOI4Vector(p->strip, b);
+    _SubVectorXYZ(b, p->screenPos, c);
+    _FTOI4Vector((char *)p->strip + 0x10, b);
+    t = p->stripCol;
     t[1] = p->col;
     t[0] = t[1];
     if (p->dirty != 0) {
@@ -139,10 +139,10 @@ static inline PointBlur *initPointBlurAt(int num, int a1, int *col, void *pos)
     PointBlur *p = (PointBlur *)iosMallocDebug(ios_partition_sugipon, 0x40, "src/enemyParts.c", 16);
     *p = pointBlurTemplate;
 
-    p->f0 = a1;
-    p->fC = iosMallocDebug(ios_partition_sugipon, num << 5, "src/enemyParts.c", 20);
-    p->f8 = iosMallocDebug(ios_partition_sugipon, num << 4, "src/enemyParts.c", 21);
-    p->f10 = (Rgba *)iosMallocDebug(ios_partition_sugipon, num << 3, "src/enemyParts.c", 22);
+    p->pri = a1;
+    p->strip = iosMallocDebug(ios_partition_sugipon, num << 5, "src/enemyParts.c", 20);
+    p->screenPos = iosMallocDebug(ios_partition_sugipon, num << 4, "src/enemyParts.c", 21);
+    p->stripCol = (Rgba *)iosMallocDebug(ios_partition_sugipon, num << 3, "src/enemyParts.c", 22);
     p->num = num;
     p->col.r = col[0];
     p->col.g = col[1];
@@ -216,43 +216,41 @@ EnemyFootPrintHead *InitEnemyFootPrint(int num)
     }
     p->dobj->nodes = iosMallocDebug(ios_partition_seki, num * 0x50, "src/enemyParts.c", 232);
     for (i = 0; i < num; i++) {
-        ((struct DObjNode *)(i * 80 + (int)p->dobj->nodes))->flags.ll &= ~1;
-        ((struct DObjNode *)(i * 80 + (int)p->dobj->nodes))->flags.ll &= ~2;
-        ((struct DObjNode *)(i * 80 + (int)p->dobj->nodes))->pos[0] = 0.0f;
-        ((struct DObjNode *)(i * 80 + (int)p->dobj->nodes))->pos[1] = 0.0f;
-        ((struct DObjNode *)(i * 80 + (int)p->dobj->nodes))->pos[2] = 0.0f;
-        ((struct DObjNode *)(i * 80 + (int)p->dobj->nodes))->pos[3] = 1.0f;
-        ((struct DObjNode *)(i * 80 + (int)p->dobj->nodes))->flags.ll &= ~4;
-        ((struct DObjNode *)(i * 80 + (int)p->dobj->nodes))->fade = 0;
-        ((struct DObjNode *)(i * 80 + (int)p->dobj->nodes))->alpha = 1.0f;
+        p->dobj->nodes[i].flags.ll &= ~1;
+        p->dobj->nodes[i].flags.ll &= ~2;
+        p->dobj->nodes[i].pos[0] = 0.0f;
+        p->dobj->nodes[i].pos[1] = 0.0f;
+        p->dobj->nodes[i].pos[2] = 0.0f;
+        p->dobj->nodes[i].pos[3] = 1.0f;
+        p->dobj->nodes[i].flags.ll &= ~4;
+        p->dobj->nodes[i].fade = 0;
+        p->dobj->nodes[i].alpha = 1.0f;
         *(short *)(i * 0x50 + (int)*(char **)((char *)p->dobj + 0x870) + 0x3A) = 0;
-        ((struct DObjNode *)(i * 80 + (int)p->dobj->nodes))->scale[0] = 1.0f;
-        ((struct DObjNode *)(i * 80 + (int)p->dobj->nodes))->scale[1] = 1.0f;
-        ((struct DObjNode *)(i * 80 + (int)p->dobj->nodes))->scale[2] = 1.0f;
+        p->dobj->nodes[i].scale[0] = 1.0f;
+        p->dobj->nodes[i].scale[1] = 1.0f;
+        p->dobj->nodes[i].scale[2] = 1.0f;
     }
     p->dobj->dispType = 2;
     for (j = 0; j < num; j++) {
         p->buf[j] = footPrintVtxTemplate;
-        ((struct DObjNode *)(j * 80 + (int)p->dobj->nodes))->flags.ll |= 1;
-        ((struct DObjNode *)(j * 80 + (int)p->dobj->nodes))->fade = 1.0f;
-        ((struct DObjNode *)(j * 80 + (int)p->dobj->nodes))->flags.ll &= ~4;
-        ((struct DObjNode *)(j * 80 + (int)p->dobj->nodes))->scale[0] =
-            ((struct DObjNode *)(j * 80 + (int)p->dobj->nodes))->scale[1] =
-                ((struct DObjNode *)(j * 80 + (int)p->dobj->nodes))->scale[2] = 0.0f;
+        p->dobj->nodes[j].flags.ll |= 1;
+        p->dobj->nodes[j].fade = 1.0f;
+        p->dobj->nodes[j].flags.ll &= ~4;
+        p->dobj->nodes[j].scale[0] = p->dobj->nodes[j].scale[1] = p->dobj->nodes[j].scale[2] = 0.0f;
     }
     return p;
 }
 
 int ExecEnemyFootPrints(EnemyFootPrintHead *self)
 {
-    int q[4];
+    float q[4];
     int i;
     EnemyFootPrint *base;
 
     base = self->buf;
     for (i = 0; i < self->num; i++) {
         EnemyFootPrint *fp = &base[i];
-        char *dl;
+        struct DObjNode *dl; /* the node address as an int sum, as EntryEnemyFootPrint's slot */
         /* The free marker is a statement of its own, not a constant folded
            into the store below.  ROM materialises it as `addiu $21,$0,-1`
            in THIS block, above all three calls, which costs a callee-saved
@@ -268,18 +266,19 @@ int ExecEnemyFootPrints(EnemyFootPrintHead *self)
         if (fp->life < 0) {
             continue;
         }
-        dl = (char *)(i * 0x50 + (int)self->dobj->nodes);
-        *(float *)(dl + 0x30) = -(float)(fp->life + 1) / 30.0f;
-        *(float *)(dl + 0x20) = *(float *)(dl + 0x20) + fp->speed;
+        dl = (struct DObjNode *)(i * 80 + (int)self->dobj->nodes);
+        dl->fade = -(float)(fp->life + 1) / 30.0f;
+        dl->scale[0] = dl->scale[0] + fp->speed;
         fp->speed = fp->speed * 0.9f;
-        *(float *)(dl + 0x24) = *(float *)(dl + 0x28) = *(float *)(dl + 0x20);
+        dl->scale[1] = dl->scale[2] = dl->scale[0];
         dead = -1;
         SetQuaternionByAxisRotateVWithNoRegularize(q, rand(), YUnitVector);
-        GetMatrixFromQuaternionPos((char *)(self->dobj->nodeMtx + i * 0x40), (char *)q, fp->pos);
+        GetMatrixFromQuaternionPos((char *)(self->dobj->nodeMtx + i * 0x40), q, fp->pos);
         fp->life = fp->life + 1;
         if (fp->life == 30) {
             fp->life = dead;
-            *(float *)(*(char **)((char *)self->dobj + 0x870) + 0x80) = 1.0f;
+            /* node 1's fade, whichever footprint ran out (the ROM's fixed 0x80) */
+            self->dobj->nodes[1].fade = 1.0f;
         }
     }
     return 1;
@@ -291,15 +290,15 @@ int EntryEnemyFootPrint(EnemyFootPrintHead *self, void *pos)
     /* the slot address as an int sum, offset first: the ROM's addu takes the
        scaled index as its first operand, which the subscript does not give */
     EnemyFootPrint *fp = (EnemyFootPrint *)(i * 32 + (int)self->buf);
-    char *vt;
+    struct DObjNode *vt;
 
     fp->speed = 0.05f;
     fp->life = 0;
     _CopyVector(fp->pos, pos);
 
     self->buf[i].pos[1] += -5.0f;
-    vt = (char *)(i * 0x50 + (int)self->dobj->nodes);
-    *(float *)(vt + 0x20) = *(float *)(vt + 0x24) = *(float *)(vt + 0x28) = 0.0f;
+    vt = (struct DObjNode *)(i * 80 + (int)self->dobj->nodes);
+    vt->scale[0] = vt->scale[1] = vt->scale[2] = 0.0f;
 
     self->idx = self->idx + 1;
     if (self->idx == self->num) {
@@ -319,10 +318,10 @@ PointBlur *InitPointBlur(int num, int a1, int *col, void *pos)
     PointBlur *p = (PointBlur *)iosMallocDebug(ios_partition_sugipon, 0x40, "src/enemyParts.c", 16);
     *p = pointBlurTemplate;
 
-    p->f0 = a1;
-    p->fC = iosMallocDebug(ios_partition_sugipon, num << 5, "src/enemyParts.c", 20);
-    p->f8 = iosMallocDebug(ios_partition_sugipon, num << 4, "src/enemyParts.c", 21);
-    p->f10 = (Rgba *)iosMallocDebug(ios_partition_sugipon, num << 3, "src/enemyParts.c", 22);
+    p->pri = a1;
+    p->strip = iosMallocDebug(ios_partition_sugipon, num << 5, "src/enemyParts.c", 20);
+    p->screenPos = iosMallocDebug(ios_partition_sugipon, num << 4, "src/enemyParts.c", 21);
+    p->stripCol = (Rgba *)iosMallocDebug(ios_partition_sugipon, num << 3, "src/enemyParts.c", 22);
     p->num = num;
     p->col.r = col[0];
     p->col.g = col[1];
@@ -332,11 +331,11 @@ PointBlur *InitPointBlur(int num, int a1, int *col, void *pos)
     return p;
 }
 
-int DispPointBlur(int *self)
+int DispPointBlur(PointBlur *self)
 {
-    gif_StartPacketPri(self[0]);
-    gif_SetAlpha(1, self[0xD], 0x80);
-    gif_Draw2DStripG(self[3], self[4], self[1] * 2, 1);
+    gif_StartPacketPri(self->pri);
+    gif_SetAlpha(1, self->alpha, 0x80);
+    gif_Draw2DStripG(self->strip, self->stripCol, self->num * 2, 1);
     gif_EndPacket();
     return 1;
 }
@@ -355,10 +354,10 @@ int DispEnemyEye(EnemyEye *a0)
     _CopyMatrix(a0->dobj[0]->nodeMtx, a0->mtx);
     reg_DispMultiPri(a0->dobj[0], 10);
     if (a0->blurOn != 0) {
-        char *fobj = (char *)a0->blur;
-        gif_StartPacketPri(*(int *)fobj);
-        gif_SetAlpha(1, *(int *)(fobj + 0x34), 0x80);
-        gif_Draw2DStripG(*(int *)(fobj + 0xC), *(int *)(fobj + 0x10), *(int *)(fobj + 0x4) << 1, 1);
+        PointBlur *fobj = a0->blur;
+        gif_StartPacketPri(fobj->pri);
+        gif_SetAlpha(1, fobj->alpha, 0x80);
+        gif_Draw2DStripG(fobj->strip, fobj->stripCol, fobj->num << 1, 1);
         gif_EndPacket();
     }
     return 1;
@@ -366,15 +365,14 @@ int DispEnemyEye(EnemyEye *a0)
 
 int ResetEnemyEye(EnemyEye *self)
 {
-    char *p = (char *)self->blur;
-    *(int *)(p + 0x30) = 1;
+    self->blur->dirty = 1;
     return 1;
 }
 
-/* Two strip vertices per footprint: fC holds the IVec positions (2 x 0x10),
- * f10 the packed RGBA words (2 x 4). The alpha lives in byte 3 of the word,
+/* Two strip vertices per footprint: strip holds the IVec positions (2 x 0x10),
+ * stripCol the packed RGBA words (2 x 4). The alpha lives in byte 3 of the word,
  * so it is reached through a plain unsigned char * -- that char store is what
- * kills the cached p->f10 load for the last statement. */
+ * kills the cached p->stripCol load for the last statement. */
 
 void moveDataElements(PointBlur *p)
 {
@@ -386,14 +384,16 @@ void moveDataElements(PointBlur *p)
     step = 255.0f / p->num;
 
     for (i = p->num - 2; i >= 0; i--) {
-        _CopyIVector(&((IVec *)p->fC)[i * 2 + 2], &((IVec *)p->fC)[i * 2]);
-        _CopyIVector(&((IVec *)p->fC)[i * 2 + 3], &((IVec *)p->fC)[i * 2 + 1]);
+        _CopyIVector(&((IVec *)p->strip)[i * 2 + 2], &((IVec *)p->strip)[i * 2]);
+        _CopyIVector(&((IVec *)p->strip)[i * 2 + 3], &((IVec *)p->strip)[i * 2 + 1]);
 
-        n = (unsigned char *)((unsigned int *)(i * 8 + (int)p->f10) + 2);
-        ((unsigned int *)(i * 8 + (int)p->f10))[2] = ((unsigned int *)(i * 8 + (int)p->f10))[0];
-        a = (float)((unsigned char *)(i * 8 + (int)p->f10))[3] - step;
+        n = (unsigned char *)((unsigned int *)(i * 8 + (int)p->stripCol) + 2);
+        ((unsigned int *)(i * 8 + (int)p->stripCol))[2] =
+            ((unsigned int *)(i * 8 + (int)p->stripCol))[0];
+        a = (float)((unsigned char *)(i * 8 + (int)p->stripCol))[3] - step;
         n[3] = (a < 0.0f) ? 0 : (int)a;
-        ((unsigned int *)(i * 8 + (int)p->f10))[3] = ((unsigned int *)(i * 8 + (int)p->f10))[2];
+        ((unsigned int *)(i * 8 + (int)p->stripCol))[3] =
+            ((unsigned int *)(i * 8 + (int)p->stripCol))[2];
     }
-    _CopyVector((char *)p->f8 + 0x10, p->f8);
+    _CopyVector((char *)p->screenPos + 0x10, p->screenPos);
 }

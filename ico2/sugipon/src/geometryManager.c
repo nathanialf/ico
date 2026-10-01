@@ -5,6 +5,7 @@
 #include "gobj.h"
 #include "girl_act.h"
 #include "motionManager2.h"
+#include "motionManager.h"
 #include <libvu0.h>
 #include "Matrix.h"
 #include "matrixDrive.h"
@@ -71,12 +72,12 @@ void SetRootQuaternion(GObj *obj, void *quat)
     }
 }
 
-void SetRootMatrixWithTransOffsetByDObj(void *dobj, float x, float y, float z)
+void SetRootMatrixWithTransOffsetByDObj(Sub15C *dobj, float x, float y, float z)
 {
     MatrixDrive_PushMatrix();
-    CopyMatrix(MatrixDrive_GetMatrix(), (char *)dobj + 0x20);
+    CopyMatrix(MatrixDrive_GetMatrix(), &dobj->matrix);
     MatrixDrive_TransMatrix(x, y, z);
-    CopyMatrix(*(void **)((char *)dobj + 0xC), MatrixDrive_GetMatrix());
+    CopyMatrix((void *)dobj->nodeMtx, MatrixDrive_GetMatrix());
     MatrixDrive_PopMatrix();
 }
 
@@ -99,7 +100,7 @@ void GetRootMatrixRotOffset(void *q, GObj *obj)
 void SetRootMatrixRotOffsetByDObj(Sub15C *dobj, void *q)
 {
     MatrixDrive_PushMatrix();
-    CopyMatrix(MatrixDrive_GetMatrix(), (char *)dobj + 0x20);
+    CopyMatrix(MatrixDrive_GetMatrix(), &dobj->matrix);
     MultiMatrixByQuaternion(q);
     CopyMatrix((void *)dobj->nodeMtx, MatrixDrive_GetMatrix());
     MatrixDrive_PopMatrix();
@@ -413,13 +414,13 @@ static int charGObjCount = 0; /* derived name */
 
 /* listing lines 540-547: the kind test the list builder runs on every live
    object; inlined at its single call site. */
-static inline int isCharGObj(char *o)
+static inline int isCharGObj(GObj *o)
 {
     int i;
 
-    if (*(int *)(o + 0x4) == 1 && *(int *)(o + 0x16C) != 0) {
+    if (o->labelType == 1 && o->active != 0) {
         for (i = 0; charGObjKinds[i] != -1; i++) {
-            if (*(int *)(o + 0xC) == charGObjKinds[i]) {
+            if (o->kind == charGObjKinds[i]) {
                 return 1;
             }
         }
@@ -446,23 +447,6 @@ void MakeCharGObjList(void)
     }
     charGObjList[charGObjCount] = 0;
 }
-
-/* The wall-clip request handed to ClipWall / ClipWallE: the segment endpoints,
- * the clipped point at 0x20, the clip radius at 0x70, the owner to ignore at
- * 0x74 and the hit result at 0x88. */
-typedef struct {
-    /* 0x00 */ float from[4];
-    /* 0x10 */ float to[4];
-    /* 0x20 */ float out[4];
-    /* 0x30 */ char _30[0x40];
-    /* 0x70 */ float radius;
-    /* 0x74 */ void *owner;
-    /* 0x78 */ int _78;
-    /* 0x7C */ int _7C;
-    /* 0x80 */ char _80[8];
-    /* 0x88 */ int hit;
-    /* 0x8C */ char _8c[0x34];
-} CylClipWork;
 
 static __inline__ void GetRootPosition_cc(float *pos, GObj *obj)
 {
@@ -535,7 +519,7 @@ int cylinderCollisionCheck(GObj *self, float *ppos, GObj *target, float r, float
     float d1[4];
     float d2[4];
     float d3[4];
-    CylClipWork w;
+    ClipBuf w;
     float dy;
     float len;
     float over;
@@ -563,39 +547,39 @@ int cylinderCollisionCheck(GObj *self, float *ppos, GObj *target, float r, float
 
     if (self != 0) {
         if (exceptOwn != 0) {
-            w.owner = self;
-            w._78 = -1;
-            w._7C = 0;
-            w.radius = SUBOF(self)->root.radius;
-            CopyVector(w.from, ppos);
-            CopyVector(w.to, d2);
+            w.filter.o.obj = self;
+            w.filter.o.node = -1;
+            w.filter.n = 0;
+            w.rad = SUBOF(self)->root.radius;
+            CopyVector(w.pt[0], ppos);
+            CopyVector(w.pt[1], d2);
             ClipWallE(&w);
-            if (w.hit != 0) {
-                CopyVector(d2, w.out);
+            if (w.wall.n != 0) {
+                CopyVector(d2, w.pt[2]);
             }
-            w.radius = SUBOF(target)->root.radius;
-            CopyVector(w.from, pos);
-            CopyVector(w.to, d3);
+            w.rad = SUBOF(target)->root.radius;
+            CopyVector(w.pt[0], pos);
+            CopyVector(w.pt[1], d3);
             ClipWallE(&w);
-            if (w.hit != 0) {
-                CopyVector(d3, w.out);
+            if (w.wall.n != 0) {
+                CopyVector(d3, w.pt[2]);
             }
             goto moved;
         }
-        w.radius = SUBOF(self)->root.radius;
-        CopyVector(w.from, ppos);
-        CopyVector(w.to, d2);
+        w.rad = SUBOF(self)->root.radius;
+        CopyVector(w.pt[0], ppos);
+        CopyVector(w.pt[1], d2);
         ClipWall(&w);
-        if (w.hit != 0) {
-            CopyVector(d2, w.out);
+        if (w.wall.n != 0) {
+            CopyVector(d2, w.pt[2]);
         }
     }
-    w.radius = SUBOF(target)->root.radius;
-    CopyVector(w.from, pos);
-    CopyVector(w.to, d3);
+    w.rad = SUBOF(target)->root.radius;
+    CopyVector(w.pt[0], pos);
+    CopyVector(w.pt[1], d3);
     ClipWall(&w);
-    if (w.hit != 0) {
-        CopyVector(d3, w.out);
+    if (w.wall.n != 0) {
+        CopyVector(d3, w.pt[2]);
     }
 moved:
     if (ctrl != 0) {
@@ -897,7 +881,7 @@ void GetRootPosition(void *dst, GObj *obj)
 
 void GetRootOrient(char *a0, GObj *a1)
 {
-    char buf[64];
+    float buf[4][4];
     Sub15C *sub = GOBJ_SUB(a1);
     struct MotRoot *root = &sub->root;
     GetMatrixFromQuaternionPos(buf, root->quat, root->pos);
@@ -907,25 +891,25 @@ void GetRootOrient(char *a0, GObj *a1)
             sceVu0MulMatrix(buf, (char *)(GOBJ_SUB(q)->nodeMtx + (sub->parentNode << 6)), buf);
         }
     }
-    *(float *)(buf + 0x34) = *(float *)(buf + 0x34) + root->height;
+    buf[3][1] = buf[3][1] + root->height;
     sceVu0ApplyMatrix((int *)a0, buf, ZUnitVector);
     *(int *)(a0 + 4) = 0;
     sceVu0Normalize(a0, a0);
 }
 
-int LimitExistGeometry(float *pos, int *exist)
+int LimitExistGeometry(float *pos, float *move)
 {
     int ret = 0;
     int i;
 
-    for (i = 2; i >= 0; exist++, pos++, i--) {
+    for (i = 2; i >= 0; move++, pos++, i--) {
         if (*pos < -100000.0f) {
             *pos = -100000.0f;
-            *exist = 0;
+            *move = 0.0f;
             ret = 1;
         } else if (*pos > 100000.0f) {
             *pos = 100000.0f;
-            *exist = 0;
+            *move = 0.0f;
             ret = 1;
         }
     }
@@ -934,26 +918,26 @@ int LimitExistGeometry(float *pos, int *exist)
 
 void GetRootMatrixTransOffsetByDObj(float *dst, char *src)
 {
-    char tmp[64];
+    float tmp[4][4];
     MatrixDrive_SetTransposeMatrix(tmp, src + 0x20);
     sceVu0MulMatrix(tmp, tmp, *(int *)(src + 0xC));
-    CopyVector(dst, (tmp + 0x30));
+    CopyVector(dst, tmp[3]);
 }
 
 void GetRootMatrixTransOffset(float *dst, GObj *src)
 {
-    char tmp[64];
+    float tmp[4][4];
     Sub15C *p = GOBJ_SUB(src);
-    MatrixDrive_SetTransposeMatrix(tmp, (char *)p + 0x20);
+    MatrixDrive_SetTransposeMatrix(tmp, &p->matrix);
     sceVu0MulMatrix(tmp, tmp, p->nodeMtx);
-    CopyVector(dst, (tmp + 0x30));
+    CopyVector(dst, tmp[3]);
 }
 
 void GetRootMotionOrient(char *a0, GObj *a1)
 {
     char m[64];
-    char buf[64];
-    char *b = buf;
+    float buf[4][4];
+    float (*b)[4] = buf;
     Sub15C *sub = GOBJ_SUB(a1);
     struct MotRoot *root = &sub->root;
     GetMatrixFromQuaternionPos(b, root->quat, root->pos);
@@ -963,7 +947,7 @@ void GetRootMotionOrient(char *a0, GObj *a1)
             sceVu0MulMatrix(b, (char *)(GOBJ_SUB(q)->nodeMtx + (sub->parentNode << 6)), b);
         }
     }
-    *(float *)(b + 0x34) = *(float *)(b + 0x34) + root->height;
+    b[3][1] = b[3][1] + root->height;
     GetMatrixFromQuaternion(m, GOBJ_SUB(a1)->root.motionQuat);
     sceVu0MulMatrix(m, b, m);
     sceVu0ApplyMatrix((int *)a0, m, ZUnitVector);
@@ -971,7 +955,7 @@ void GetRootMotionOrient(char *a0, GObj *a1)
 
 void GetRootMotionMatrix(char *a0, GObj *a1)
 {
-    char buf[64];
+    float buf[4][4];
     Sub15C *sub = GOBJ_SUB(a1);
     struct MotRoot *root = &sub->root;
     GetMatrixFromQuaternionPos(buf, root->quat, root->pos);
@@ -981,7 +965,7 @@ void GetRootMotionMatrix(char *a0, GObj *a1)
             sceVu0MulMatrix(buf, (char *)(GOBJ_SUB(q)->nodeMtx + (sub->parentNode << 6)), buf);
         }
     }
-    *(float *)(buf + 0x34) = *(float *)(buf + 0x34) + root->height;
+    buf[3][1] = buf[3][1] + root->height;
     GetMatrixFromQuaternion(a0, GOBJ_SUB(a1)->root.motionQuat);
     sceVu0MulMatrix(a0, buf, a0);
 }

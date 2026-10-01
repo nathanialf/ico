@@ -48,7 +48,7 @@ void EnemySetfAppearAll(struct GObj *self);
 int GetEnemyBattleType(struct GObj *a0);
 float GetEnemyDefDodgeRange(struct GObj *a0);
 float GetEnemyDefLife(struct GObj *a0);
-int GetEnemyHitNodeFlag(struct GObj *a0);
+int *GetEnemyHitNodeFlag(struct GObj *a0);
 int RandomizeEnemy(struct GObj *self);
 void ResetEnemyPositionInfo(struct GObj *self);
 void ReviveEnemyParticle(struct GObj *a0, int a1);

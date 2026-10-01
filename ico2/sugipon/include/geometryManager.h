@@ -37,7 +37,7 @@ void GetRootPositionByDObj(void *pos, struct Sub15C *src);
 void GetRootQuaternion(void *q, struct GObj *obj);
 void GetRootQuaternionByDObj(void *q, struct Sub15C *dobj);
 void GlobalizeGeometry(struct GObj *gobj);
-int LimitExistGeometry(float *pos, int *exist);
+int LimitExistGeometry(float *pos, float *move);
 void LocalizeDirectionOrient(struct GObj *self, int *link);
 void LocalizeGeometry(struct GObj *gobj, int *dobj);
 void SetDirectRootPosition(struct GObj *self, void *v);

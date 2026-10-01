@@ -1061,9 +1061,9 @@ static inline void execBoxFall(GObj *self)
     ((IntFloat *)(*(char **)(((char *)self) + 0x15C) + 0x134))->f +=
         60.0f / (float)((60 - systemStatus[0] * 10) / systemStatus[1]) * 0.5f *
         (60.0f / (float)((60 - systemStatus[0] * 10) / systemStatus[1]));
-    AddVectorXYZ(v, v, *(char **)(((char *)self) + 0x15C) + 0x130);
+    AddVectorXYZ(v, v, GOBJ_SUB(self)->root.move);
     SetRootPosition(self, v);
-    if (LimitExistGeometry(v, *(char **)(((char *)self) + 0x15C) + 0x130) != 0) {
+    if (LimitExistGeometry(v, GOBJ_SUB(self)->root.move) != 0) {
         ((BoxWork *)GOBJ_SUB(self)->work)->mode = -1;
     }
 }

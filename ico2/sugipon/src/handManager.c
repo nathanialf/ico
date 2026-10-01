@@ -17,32 +17,29 @@ void connectToTarget(GObj *obj, char *hw, int na, int nb, int nc)
     /* getBone is a nested function in the ROM: connectToTarget passes it a
      * static chain in $2 (STATIC_CHAIN_REGNUM) and getBone's prologue spills
      * it to 0(sp). */
-    void getBone(float *out, char *o)
+    void getBone(float *out, GObj *o)
     {
-        int sub = (int)GOBJ_SUB(o);
-        float scale = ((Sub15C *)sub)->nodes->scale[0];
-        int nodes = *(int *)(sub + 0x8C);
+        Sub15C *sub = GOBJ_SUB(o);
+        float scale = sub->nodes->scale[0];
+        SkelNode *nodes = sub->skel;
         float a;
         float b;
         float c;
 
-        a = *(float *)((*(int *)((GetSkeltonFocusNode(o, 0x13) << 6) + nodes + 0x30) << 6) + nodes +
-                       0x10);
+        a = nodes[nodes[GetSkeltonFocusNode(o, 19)].child].pos[0];
         if (a < 0.0f) {
             a = -a;
         }
         a *= scale;
         out[0] = a;
 
-        a = *(float *)((*(int *)((GetSkeltonFocusNode(o, 0x14) << 6) + nodes + 0x30) << 6) + nodes +
-                       0x10);
+        a = nodes[nodes[GetSkeltonFocusNode(o, 20)].child].pos[0];
         if (a < 0.0f) {
             a = -a;
         }
         out[1] = a;
 
-        a = *(float *)((*(int *)((GetSkeltonFocusNode(o, 0x16) << 6) + nodes + 0x30) << 6) + nodes +
-                       0x10);
+        a = nodes[nodes[GetSkeltonFocusNode(o, 22)].child].pos[0];
         b = out[1];
         if (a < 0.0f) {
             c = b - a;
@@ -62,12 +59,12 @@ void connectToTarget(GObj *obj, char *hw, int na, int nb, int nc)
     float m[16];
     float v[4];
     float w[4];
-    char *tgt;
+    GObj *tgt;
     float sa;
     float sb;
     float len;
 
-    tgt = (char *)*(int *)(hw + 4);
+    tgt = (GObj *)*(int *)(hw + 4);
     getBone(b0, obj);
     getBone(b1, tgt);
     sa = b0[0] + b0[1];
