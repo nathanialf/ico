@@ -14,7 +14,8 @@ extern int D_0063B404;
 extern int *D_0063B408;
 extern int D_0063B40C;
 extern int D_0063B410;
-extern int D_00639EC0;
+/* kept local: main.c's global; this TU does not include main.h */
+extern int CurrentTargetGObj;
 
 /* .sbss, owned by debug_menu.o and reached only from this file (MAIN.MAP names
    no symbol in the run), in the ROM's run order.  init_debug_menu writes the
@@ -53,9 +54,9 @@ int debug_TargetGObj(int reset)
         D_0063B40C = D_0063B408[0x14];
     }
     D_0063B408 = (int *)GetGObjP(targetGObjIdx);
-    D_00639EC0 = (int)D_0063B408;
+    CurrentTargetGObj = (int)D_0063B408;
     Camctrl_SetTarget((int)D_0063B408, 0, 3);
-    debug_PrintfDummy(16, 16, 0xFFFFFFFF, "GObj address:%p", D_00639EC0);
+    debug_PrintfDummy(16, 16, 0xFFFFFFFF, "GObj address:%p", CurrentTargetGObj);
     if ((D_0063B410++ & 7) == 0) {
         D_0063B408[0x14] = ~D_0063B408[0x14];
     }
@@ -63,7 +64,7 @@ int debug_TargetGObj(int reset)
         D_0063B408[0x14] = D_0063B40C;
         if (ret < 0) {
             Camctrl_SetTarget(D_0063B404, 0, 3);
-            D_00639EC0 = D_0063B404;
+            CurrentTargetGObj = D_0063B404;
         }
     }
     return ret;
@@ -76,12 +77,12 @@ void init_debug_menu(void)
     targetGObjIdx = 0;
 }
 
-extern ObjKindEnt D_002C1270[];
+extern ObjKindEnt objKindData[];
 /* kept local: this TU's uses of GetGObjP do not fit the prototype in GobjProc.h */
 extern int GetGObjP();
 
 char *debug_TargetGObj_Func(void)
 {
     int idx = ((PObjGObj *)GetGObjP())->kind;
-    return ((ObjKindEnt *)((char *)D_002C1270 + idx * 0x64))->name;
+    return ((ObjKindEnt *)((char *)objKindData + idx * 0x64))->name;
 }

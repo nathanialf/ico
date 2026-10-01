@@ -490,7 +490,8 @@ void bga_ApplyDObject(BgaDObjEnt *p, void **objs, int n, int no)
     }
 }
 
-extern int D_0028F4C0[];
+/* kept local: main.c's global; this TU does not include main.h */
+extern int systemStatus[];
 
 static inline int bga_findKey(BgaKey *k, int n, float f)
 {
@@ -598,7 +599,7 @@ void bga_GetMotion(float *pos, int *rot, float *col, BgaPtMotion *m)
     int d;
 
     f = m->frame;
-    if (D_0028F4C0[0]) {
+    if (systemStatus[0]) {
         f *= 1.2075409f;
     }
 
@@ -734,7 +735,7 @@ void bga_GetMotionParticle(float *pos, int *rot, float *col, BgaPtMotion *m)
     float w[2][4];
 
     f = m->frame;
-    if (D_0028F4C0[0]) {
+    if (systemStatus[0]) {
         f *= 1.2075409f;
     }
 
@@ -882,7 +883,7 @@ void bga_GetMotionLightning(float *pos, int *rot, float *col, BgaPtMotion *m)
     int d;
 
     f = m->frame;
-    if (D_0028F4C0[0]) {
+    if (systemStatus[0]) {
         f *= 1.2075409f;
     }
 
@@ -1059,7 +1060,7 @@ float bga_GetExtMotion(BgaExtMotion *m)
     int d;
 
     f = m->frame;
-    if (D_0028F4C0[0]) {
+    if (systemStatus[0]) {
         f *= 1.2075409f;
     }
     if (m->n == 1) {
@@ -1130,7 +1131,7 @@ void bga_GetGizmoMotion(BgaMotion *m, float *dst)
     int d;
 
     f = m->frame;
-    if (D_0028F4C0[0]) {
+    if (systemStatus[0]) {
         f *= 1.2075409f;
     }
 
@@ -1255,7 +1256,7 @@ static int bgaPivotFlag = 0; /* derived name */
 
 static inline float bga_palFrame(float f)
 {
-    if (D_0028F4C0[0]) {
+    if (systemStatus[0]) {
         f *= 0.82812935f;
     }
     return f;
@@ -1286,7 +1287,7 @@ static inline void bga_stepEnvelope(BgaEnvEnt *e, float dt, int loop)
     BgaExtMotion *m = (BgaExtMotion *)e->data;
 
     m->frame += dt;
-    if ((float)m->len * (D_0028F4C0[0] ? 0.82812935f : 1.0f) < m->frame) {
+    if ((float)m->len * (systemStatus[0] ? 0.82812935f : 1.0f) < m->frame) {
         if (loop) {
             m->frame = 0.0f;
         } else {
@@ -1576,7 +1577,7 @@ static inline void bga_checkCameraDistance(void)
 static inline void bga_stepMotion(BgaExtMotion *m, float dt, int reset)
 {
     m->frame += dt;
-    if ((float)m->len * (D_0028F4C0[0] ? 0.82812935f : 1.0f) < m->frame) {
+    if ((float)m->len * (systemStatus[0] ? 0.82812935f : 1.0f) < m->frame) {
         if (reset) {
             m->frame = 0.0f;
         } else {
@@ -1606,11 +1607,13 @@ void bga_CalcObject(BgaDObjEnt *d, float dt, float f13, int a1, int a2, int a3)
 
     switch (d->type) {
     case 6:
-        d->u.obj = (D_0028F4C0[5] == 0) ? (void *)light_AddLight(0, 0, 2) : (void *)&bgaDummyLight;
+        d->u.obj =
+            (systemStatus[5] == 0) ? (void *)light_AddLight(0, 0, 2) : (void *)&bgaDummyLight;
         bga_initLightEnvelope(d);
         break;
     case 11:
-        d->u.obj = (D_0028F4C0[5] == 0) ? (void *)light_AddLight(0, 0, 3) : (void *)&bgaDummyLight;
+        d->u.obj =
+            (systemStatus[5] == 0) ? (void *)light_AddLight(0, 0, 3) : (void *)&bgaDummyLight;
         bga_initLightEnvelope(d);
         break;
     }
@@ -1676,12 +1679,12 @@ void bga_CalcObject(BgaDObjEnt *d, float dt, float f13, int a1, int a2, int a3)
             break;
         }
         _GetCurrentMatrixTrans(pos);
-        if (D_0028F4C0[5] != 0) {
+        if (systemStatus[5] != 0) {
             break;
         }
         CopyQuaternion(((BgaParticleEnt *)d->u.obj)->quat, GetCurrentQuaternion());
         _CopyVector(((BgaParticleEnt *)d->u.obj)->pos, pos);
-        if (D_0028F4C0[0] == 0) {
+        if (systemStatus[0] == 0) {
             if (0.0f < bgaScale[1]) {
                 ((BgaParticleEnt *)d->u.obj)->u.b.eff = SetParticleEffectActiveSensing(
                     ((BgaParticleEnt *)d->u.obj)->u.b.id, ((BgaParticleEnt *)d->u.obj)->pos,
@@ -1703,14 +1706,14 @@ void bga_CalcObject(BgaDObjEnt *d, float dt, float f13, int a1, int a2, int a3)
         break;
     case 14:
     case 15:
-        if (a2 != 0 && D_0028F4C0[5] == 0) {
+        if (a2 != 0 && systemStatus[5] == 0) {
             _GetCurrentMatrixTrans(bgaPos);
             bga_addLightning(d->type, d->u.obj, bgaPos, ((BgaObj *)d->u.obj)->id,
                              bgaScale[1] == 0.0f, bgaScale[0]);
         }
         break;
     case 16:
-        if (a2 != 0 && D_0028F4C0[5] == 0) {
+        if (a2 != 0 && systemStatus[5] == 0) {
             _GetCurrentMatrixTrans(bgaPos);
             bga_addLightning(d->type, d->u.obj, bgaPos, ((BgaObj *)d->u.obj)->id, 0, 0.0f);
         }
@@ -1784,11 +1787,11 @@ static inline void bga_clampCount(BgaCount *o, float f)
         float c = (float)o->f08;
         float r;
 
-        if (D_0028F4C0[0] ? c * 0.82812935f < f : c < f) {
+        if (systemStatus[0] ? c * 0.82812935f < f : c < f) {
             float t = (float)o->f08;
 
             r = t;
-            if (D_0028F4C0[0]) {
+            if (systemStatus[0]) {
                 r *= 0.82812935f;
             }
         } else {
@@ -1964,7 +1967,8 @@ void bga_CalcAnimation(char *p, int a1, int a2)
         float end = *(float *)(p + 0x18);
 
         *(float *)(p + 0x20) += *(float *)(p + 0x1C);
-        if (D_0028F4C0[0] ? end * 0.82812935f < *(float *)(p + 0x20) : end < *(float *)(p + 0x20)) {
+        if (systemStatus[0] ? end * 0.82812935f < *(float *)(p + 0x20)
+                            : end < *(float *)(p + 0x20)) {
             if (a1 == 0) {
                 *(float *)(p + 0x20) = bga_palFrame(*(float *)(p + 0x18));
                 p[0xA] = 0;
@@ -1991,7 +1995,7 @@ extern float GetTableCos(short a);
    bga_palFrame's 0.82812935f. */
 static inline float bga_ntscFrame(float f)
 {
-    if (D_0028F4C0[0]) {
+    if (systemStatus[0]) {
         f *= 1.2075409f;
     }
     return f;
@@ -2019,7 +2023,7 @@ void bga_CalcSdfCamera(char *data, int loop)
         return;
     }
     bgaCameraActive = 1;
-    if ((float)p->num * (D_0028F4C0[0] ? 0.82812935f : 1.0f) < p->frame) {
+    if ((float)p->num * (systemStatus[0] ? 0.82812935f : 1.0f) < p->frame) {
         if (loop == 0) {
             p->frame = bga_palFrame((float)p->num);
             p->mode = 0;
@@ -2028,7 +2032,7 @@ void bga_CalcSdfCamera(char *data, int loop)
         p->frame = 0.0f;
     }
 
-    bgaFrame = (int)(p->frame * (D_0028F4C0[0] ? 1.2075409f : 1.0f));
+    bgaFrame = (int)(p->frame * (systemStatus[0] ? 1.2075409f : 1.0f));
     _PushCurrentMatrix();
     fr = bga_ntscFrame(p->frame);
     i = (int)fr;
@@ -2278,7 +2282,7 @@ void bga_DispLightning(void)
             p = list[i++];
             i %= num;
             g = p->def;
-            if (D_0028F4C0[5] == 0) {
+            if (systemStatus[5] == 0) {
                 k = p->n;
                 if (k < 10) {
                     p->n = k + 1;
@@ -2314,7 +2318,7 @@ void bga_DispLightning(void)
             if (o == 0) {
                 continue;
             }
-            if (D_0028F4C0[5] == 0) {
+            if (systemStatus[5] == 0) {
                 k = p->n;
                 if (k < 10) {
                     p->n = k + 1;
@@ -2328,7 +2332,7 @@ void bga_DispLightning(void)
         case 2:
             for (o = isysGObjGetExist_begin(); o != 0; o = isysGObjGetExist_next(o)) {
                 if (D_002C2DF4[*(int *)((char *)o + 8)].kind == 71) {
-                    if (D_0028F4C0[5] == 0) {
+                    if (systemStatus[5] == 0) {
                         k = p->n;
                         if (k < 10) {
                             p->n = k + 1;
@@ -2345,7 +2349,7 @@ void bga_DispLightning(void)
         case 3:
             for (o = isysGObjGetExist_begin(); o != 0; o = isysGObjGetExist_next(o)) {
                 if (D_002C2DF4[*(int *)((char *)o + 8)].kind == 74) {
-                    if (D_0028F4C0[5] == 0) {
+                    if (systemStatus[5] == 0) {
                         k = p->n;
                         if (k < 10) {
                             p->n = k + 1;
@@ -2417,7 +2421,7 @@ inline int bga_CheckAnimationFinish(char *p)
     float t = *(float *)(p + 0x20);
     int r = 0;
 
-    if (D_0028F4C0[0]) {
+    if (systemStatus[0]) {
         if (f * 0.82812935f <= t || p[0xA] != 1) {
             r = 1;
         }
@@ -2435,7 +2439,7 @@ inline int bga_CheckAnimationFrame(char *p, int frame, int reset)
     float t = *(float *)(p + 0x20);
     int r = 0;
 
-    if (D_0028F4C0[0]) {
+    if (systemStatus[0]) {
         if (f * 0.82812935f <= t || p[0xA] != 1) {
             r = 1;
         }
@@ -2456,10 +2460,10 @@ inline int bga_CheckAnimationFrameIn(char *p, int in, int out)
     float t = *(float *)(p + 0x20);
     int r = 0;
 
-    if (D_0028F4C0[0] ? a * 0.82812935f <= t : a <= t) {
+    if (systemStatus[0] ? a * 0.82812935f <= t : a <= t) {
         float b = out;
 
-        if (D_0028F4C0[0] ? t < b * 0.82812935f : t < b) {
+        if (systemStatus[0] ? t < b * 0.82812935f : t < b) {
             r = p[0xA] == 1;
         }
     }
@@ -2472,7 +2476,7 @@ inline int bga_CheckSdfCameraFinish(char *data)
     float f = p->num;
     float t = p->frame;
 
-    if (D_0028F4C0[0]) {
+    if (systemStatus[0]) {
         return f * 0.82812935f <= t;
     }
     return f <= t;
@@ -2485,7 +2489,7 @@ inline int bga_CheckSdfCameraFrame(char *data, int frame, int reset)
     float t = p->frame;
     int r;
 
-    if (D_0028F4C0[0]) {
+    if (systemStatus[0]) {
         r = f * 0.82812935f <= t;
     } else {
         r = f <= t;
@@ -2503,10 +2507,10 @@ inline int bga_CheckSdfCameraFrameIn(char *data, int in, int out)
     float a = in;
     int r = 0;
 
-    if (D_0028F4C0[0] ? a * 0.82812935f <= t : a <= t) {
+    if (systemStatus[0] ? a * 0.82812935f <= t : a <= t) {
         float b = out;
 
-        if (D_0028F4C0[0] ? t < b * 0.82812935f : t < b) {
+        if (systemStatus[0] ? t < b * 0.82812935f : t < b) {
             r = 1;
         }
     }
@@ -2529,13 +2533,11 @@ inline void bga_SetUniqAnimationFlag(int val)
     bgaUniqAnimationFlag = val;
 }
 
-extern int D_0028F4D4[];
-
 inline void bga_ResetAnimation(void)
 {
     void *p;
     bgaCameraActive = 0;
-    if (D_0028F4D4[0] != 0) {
+    if (systemStatus[5] != 0) {
         return;
     }
     p = (void *)bgaLightningList;

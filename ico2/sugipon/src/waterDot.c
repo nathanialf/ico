@@ -98,7 +98,8 @@ inline void EntryWaterDot(WaterDotWork *w, VECTOR *pos, VECTOR *vel, float range
         w->cur = 0;
 }
 
-extern int D_0028F4C0[];
+/* kept local: main.c's global; this TU does not include main.h */
+extern int systemStatus[];
 /* kept local: this TU's uses of GetWindVector do not fit the prototype in windField.h */
 extern void *GetWindVector(int a0, void *pos);
 /* kept local: this TU's uses of _ScaleVectorXYZ do not fit the prototype in Matrix.h */
@@ -115,8 +116,8 @@ static inline int stepWaterDot(WaterDot *p)
            the identical term. cse collapses the second copy, but expanding it
            moves the p->scale argument load one issue slot later, which is the
            ROM's order. */
-        p->vel.y += 60.0f / (float)((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]) * 0.5f *
-                    (60.0f / (float)((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]));
+        p->vel.y += 60.0f / (float)((60 - systemStatus[0] * 10) / systemStatus[1]) * 0.5f *
+                    (60.0f / (float)((60 - systemStatus[0] * 10) / systemStatus[1]));
         _ScaleVectorXYZ(&p->vel, &p->vel, p->scale);
         _AddVectorXYZ(&p->pos, &p->pos, &p->vel);
 

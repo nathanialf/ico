@@ -805,7 +805,8 @@ float GetEnemyDefParaIndex(char *a0)
     return D_00624880[*(int *)(*(char **)((char *)GOBJ_SUB(a0) + 0x830) + 8)].paraIndex;
 }
 
-extern int D_0028F4C0[];
+/* kept local: main.c's global; this TU does not include main.h */
+extern int systemStatus[];
 
 void ResetEnemyPositionInfo(char *self)
 {
@@ -814,7 +815,7 @@ void ResetEnemyPositionInfo(char *self)
     ResetEnemyEye(*(char **)(w + 0x18));
     ResetEnemyEye(*(char **)(w + 0x20));
     GOBJ_SUB(self)->f_514 =
-        (int)((float)((0x3C - D_0028F4C0[0] * 0xA) / D_0028F4C0[1]) / 60.0f * 0.0f);
+        (int)((float)((0x3C - systemStatus[0] * 0xA) / systemStatus[1]) / 60.0f * 0.0f);
 }
 
 void SetEnemyStonizedVisual(int *self)

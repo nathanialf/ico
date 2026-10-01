@@ -1278,7 +1278,8 @@ segments:
       - [0x53C048, .sdata, ico2/script/src/st22a]  # the TU's whole .sdata run as source (finishing pass P1-8e), VMA 0x63C048..0x63C058, 0x10 B = MAIN.MAP
       - [0x53C058, .sdata, ico2/script/src/st24a]  # the TU's whole .sdata run as source (finishing pass P1-8e), VMA 0x63C058..0x63C05C, 4 B = MAIN.MAP
       - [0x53C05C, .sdata, ico2/script/src/st47a]  # the TU's whole .sdata run as source (finishing pass P1-8e), VMA 0x63C05C..0x63C075, 0x19 B = MAIN.MAP
-      - [0x53C078, sdata, cod/53C078]     # .sdata blob resume (stageSEProc onward)
+      - [0x53C078, .sdata, ico2/script/src/stageSEProc]  # the TU's .sdata as source (finishing pass P2-2), VMA 0x63C078..0x63C090, 0x18 B (MAIN.MAP 0x14): windCache, windCacheFrame, the FLT_MAX literals of stageSEtaimatsu and stageSE19ataki, the global riverFadeSpeed, stageSE02astrong's FLT_MAX literal
+      - [0x53C090, sdata, cod/53C090]     # .sdata blob resume (access onward)
       - [0x53C0D0, .sdata, ico2/common/src/GobjProc]  # the TU's .sdata: one anonymous string literal ("%d\n", 4 B), VMA 0x63C0D0..0x63C0D4; completeness pass 1
       - [0x53C0D8, .sdata, ico2/common/src/PObj]  # the TU's .sdata run as source (completeness pass 65; MAIN.MAP line 7565), VMA 0x63C0D8..0x63C0F6
       - { type: .sbss, vram: 0x0063C100, name: ico2/common/src/main, align: 0x100 }  # the TU's own .sbss, 0xC B: idleCount, idleLoop, bootThreadId at 0x63C100..0x63C10C (completeness pass 35; the section aligns to 0x100 as the original does)

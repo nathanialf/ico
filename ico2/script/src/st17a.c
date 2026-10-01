@@ -46,8 +46,10 @@ static const ConstVec doorDownEffect2Pos = {{6600.0f, -2000.0f, 1100.0f, 1.0f}};
 
 static const ConstVec hasiChkSePos = {{3587.0f, -2072.0f, 1124.0f, 0.0f}};
 
-extern int *D_00639EA4;
-extern void *D_00639EA8;
+/* kept local: main.c's global; this TU does not include main.h */
+extern int *boyGObj;
+/* kept local: main.c's global; this TU does not include main.h */
+extern void *girlGObj;
 /* kept local: this TU's uses of scpTriggerBall do not fit the prototype in script.h */
 extern int scpTriggerBall(int a0, void *a1, float radius);
 
@@ -65,8 +67,8 @@ void actSt17aDoor(volatile int a0)
         self->mail = doorInit_mes;
         ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
-    } else if (scpTriggerBall(a0, D_00639EA4, 200.0f) != 0 ||
-               (D_00639EA8 != 0 && scpTriggerBall(a0, D_00639EA8, 400.0f) != 0)) {
+    } else if (scpTriggerBall(a0, boyGObj, 200.0f) != 0 ||
+               (girlGObj != 0 && scpTriggerBall(a0, girlGObj, 400.0f) != 0)) {
         stage_SetLoopFlag(131, 1);
         stage_SetAnimation(131, 1, 0);
 
@@ -180,8 +182,10 @@ extern int scpTriggerFloorAttr(void *obj, int attr);
 extern int scpSearchGobj(int a0);
 /* kept local: script.h's prototypes do not fit this TU's calls */
 extern int scpBoyControlReadDisable;
-extern void *D_00639EAC;
-extern int D_0028F4C0[];
+/* kept local: main.c's global; this TU does not include main.h */
+extern void *boyPad;
+/* kept local: main.c's global; this TU does not include main.h */
+extern int systemStatus[];
 /* kept local: this TU's uses of scpPlayStart do not fit the prototype in script.h */
 extern void scpPlayStart(void *o);
 /* kept local: this TU's uses of scpPlayMot do not fit the prototype in script.h */
@@ -193,17 +197,17 @@ extern void scpPlayEnd(void *o);
 
 void actSt17aHasiChk(volatile int a0)
 {
-    if (D_00639EA8 == 0) {
+    if (girlGObj == 0) {
         _ACTWait(0);
     }
 
     while (1) {
-        if ((*(int *)(*(int *)((char *)D_00639EA8 + 0x164) + 0x34) != 0x6F && D_00639EA8 != 0 &&
-             scpTriggerFloorAttr(D_00639EA8, 0x1000000) != 0 &&
-             scpTriggerFloorAttr(D_00639EA4, 0x2000000) != 0) ||
-            (*(int *)(*(int *)((char *)D_00639EA8 + 0x164) + 0x34) != 0x6F && D_00639EA8 != 0 &&
-             scpTriggerFloorAttr(D_00639EA8, 0x4000000) != 0 &&
-             scpTriggerFloorAttr(D_00639EA4, 0x2000000) != 0)) {
+        if ((*(int *)(*(int *)((char *)girlGObj + 0x164) + 0x34) != 0x6F && girlGObj != 0 &&
+             scpTriggerFloorAttr(girlGObj, 0x1000000) != 0 &&
+             scpTriggerFloorAttr(boyGObj, 0x2000000) != 0) ||
+            (*(int *)(*(int *)((char *)girlGObj + 0x164) + 0x34) != 0x6F && girlGObj != 0 &&
+             scpTriggerFloorAttr(girlGObj, 0x4000000) != 0 &&
+             scpTriggerFloorAttr(boyGObj, 0x2000000) != 0)) {
             break;
         }
         _ACTWait(1);
@@ -211,7 +215,7 @@ void actSt17aHasiChk(volatile int a0)
 
     gflagOn(33);
 
-    iosPadActRequest(D_00639EAC, 0xF);
+    iosPadActRequest(boyPad, 0xF);
     SetWayGroupActive(3, 0);
 
     *(int *)(scpSearchGobj(243) + 0x16C) = 0;
@@ -225,7 +229,7 @@ void actSt17aHasiChk(volatile int a0)
     if (ACTGame_FLAG_TETSUNAGI() == 0) {
         long long buf[2];
 
-        scpPlayStart(D_00639EA8);
+        scpPlayStart(girlGObj);
 
         stage_SetAnimation(132, 1, 0);
 
@@ -233,21 +237,21 @@ void actSt17aHasiChk(volatile int a0)
         buf[1] = hasiChkSePos.d[1];
         soundSeDefPlay(1290, 0, (float *)buf, 1);
 
-        scpPlayMot(D_00639EA8, 723);
-        scpPlayWaitMotEnd(D_00639EA8);
+        scpPlayMot(girlGObj, 723);
+        scpPlayWaitMotEnd(girlGObj);
 
-        scpPlayMot(D_00639EA8, 532);
-        GOBJ_SUB(D_00639EA8)->f_514 =
-            (int)((float)((0x3C - D_0028F4C0[0] * 0xA) / D_0028F4C0[1]) / 60.0f * 0.0f);
+        scpPlayMot(girlGObj, 532);
+        GOBJ_SUB(girlGObj)->f_514 =
+            (int)((float)((0x3C - systemStatus[0] * 0xA) / systemStatus[1]) / 60.0f * 0.0f);
 
-        scpPlayEnd(D_00639EA8);
+        scpPlayEnd(girlGObj);
 
         scpBoyControlReadDisable = 0;
     } else {
         long long buf2[2];
 
-        scpPlayStart(D_00639EA4);
-        scpPlayStart(D_00639EA8);
+        scpPlayStart(boyGObj);
+        scpPlayStart(girlGObj);
 
         stage_SetAnimation(132, 1, 0);
 
@@ -255,17 +259,17 @@ void actSt17aHasiChk(volatile int a0)
         buf2[1] = hasiChkSePos.d[1];
         soundSeDefPlay(1290, 0, (float *)buf2, 1);
 
-        scpPlayMot(D_00639EA4, 262);
-        scpPlayMot(D_00639EA8, 722);
-        scpPlayWaitMotEnd(D_00639EA4);
+        scpPlayMot(boyGObj, 262);
+        scpPlayMot(girlGObj, 722);
+        scpPlayWaitMotEnd(boyGObj);
 
-        scpPlayEnd(D_00639EA4);
-        scpPlayEnd(D_00639EA8);
+        scpPlayEnd(boyGObj);
+        scpPlayEnd(girlGObj);
 
-        scpPlayMot(D_00639EA4, 0);
-        scpPlayMot(D_00639EA8, 532);
-        GOBJ_SUB(D_00639EA8)->f_514 =
-            (int)((float)((0x3C - D_0028F4C0[0] * 0xA) / D_0028F4C0[1]) / 60.0f * 0.0f);
+        scpPlayMot(boyGObj, 0);
+        scpPlayMot(girlGObj, 532);
+        GOBJ_SUB(girlGObj)->f_514 =
+            (int)((float)((0x3C - systemStatus[0] * 0xA) / systemStatus[1]) / 60.0f * 0.0f);
     }
 
     while (stage_CheckAnimationFinish(132) == 0) {
@@ -319,7 +323,7 @@ void actSt17aHasiEffect(volatile int a0)
             break;
         }
         n = (int)t;
-        t += (float)((0x3C - D_0028F4C0[0] * 0xA) / D_0028F4C0[1]) / 60.0f;
+        t += (float)((0x3C - systemStatus[0] * 0xA) / systemStatus[1]) / 60.0f;
         if (n != (int)t) {
             _ACTWait(1);
         } else {
@@ -328,7 +332,8 @@ void actSt17aHasiEffect(volatile int a0)
     } while (t < 1000.0f);
 }
 
-extern PadState D_0028F8F0[];
+/* kept local: main.c's global; this TU does not include main.h */
+extern PadState pad[];
 /* as script.h declares it; this TU does not include that header */
 extern int scpAdpcmPlayRequestNum(void);
 /* as script.h declares it; this TU does not include that header */
@@ -353,7 +358,7 @@ void actSt17aIntroCancel(volatile int a0)
         _ACTWait(1);
     }
 
-    while (demoEnd == 0 && ((D_0028F8F0[0].flags & 0x800) == 0 || scpAdpcmPlayRequestNum() != 0)) {
+    while (demoEnd == 0 && ((pad[0].flags & 0x800) == 0 || scpAdpcmPlayRequestNum() != 0)) {
         _ACTWait(1);
     }
 
@@ -475,8 +480,8 @@ extern void scpGetWallCollision(float a0, float a1, float a2, float a3, float a4
 
 void actLinkTestChk(volatile int a0)
 {
-    *(int *)(D_00639EA4[0x57] + 0x4E8) = 1;
-    *(int *)(D_00639EA4[0x57] + 0x4E8) = 0;
+    *(int *)(boyGObj[0x57] + 0x4E8) = 1;
+    *(int *)(boyGObj[0x57] + 0x4E8) = 0;
     scpGetWallCollision(0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 100.0f);
     _ACTWait(60);
 }
@@ -573,12 +578,12 @@ void actSt17aGirlWay(volatile int a0)
 {
     EffectArg buf = {{1547.0f, -2070.0f, 1495.0f, 0.0f}};
 
-    _SCPMoveCharactorByWay(D_00639EA8, 0, (int *)&buf, 2, 100.0f);
+    _SCPMoveCharactorByWay(girlGObj, 0, (int *)&buf, 2, 100.0f);
 }
 
 void actSt17aHint1Chk(volatile int a0)
 {
-    while (scpTriggerBall(a0, D_00639EA4, 200.0f) == 0) {
+    while (scpTriggerBall(a0, boyGObj, 200.0f) == 0) {
         _ACTWait(1);
     }
 
@@ -590,11 +595,11 @@ void actSt17aHint1Chk(volatile int a0)
 
 void actSt17aFallChk(volatile int a0)
 {
-    while (!(gflagChk(33) && scpTriggerBall(a0, D_00639EA4, 1800.0f))) {
+    while (!(gflagChk(33) && scpTriggerBall(a0, boyGObj, 1800.0f))) {
         _ACTWait(1);
     }
 
     debug_StdPrintfDummy("FAAAAALL!\n");
 
-    iosOmSendMail(D_00639EA4, 0xE2, D_00639EA4);
+    iosOmSendMail(boyGObj, 0xE2, boyGObj);
 }

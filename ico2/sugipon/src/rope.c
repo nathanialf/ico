@@ -8,7 +8,8 @@
 
 /* kept local: this TU's uses of GetChainCollision do not fit the prototype in clothAnimation.h */
 extern float GetChainCollision(void *a0, void *a1, float w);
-extern void *D_00639EA4;
+/* kept local: main.c's global; this TU does not include main.h */
+extern void *boyGObj;
 /* kept local: this TU's view of the ios partition handles (ios.h declares them int) */
 extern IosMemPart *ios_partition_sugipon;
 extern IosMemPart *ios_partition_seki;
@@ -311,7 +312,7 @@ void ropeGeo(void *a0)
 
 static inline void ropeChainCollision(void *a0)
 {
-    void *g = D_00639EA4;
+    void *g = boyGObj;
     void **obj = *(void ***)((char *)*(void **)((char *)a0 + 0x15C) + 0x830);
     float m[4];
     float w;

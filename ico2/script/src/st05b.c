@@ -47,9 +47,12 @@ void actSt05bCrest01XL(volatile int a0)
     }
 }
 
-extern int D_00639EA4;
-extern int D_00639EA8;
-extern int D_00639EAC;
+/* kept local: main.c's global; this TU does not include main.h */
+extern int boyGObj;
+/* kept local: main.c's global; this TU does not include main.h */
+extern int girlGObj;
+/* kept local: main.c's global; this TU does not include main.h */
+extern int boyPad;
 /* kept local: script.h's prototypes do not fit this TU's calls */
 extern int scpBoyControlReadDisable;
 /* kept local: this TU's uses of scpTriggerBall do not fit the prototype in script.h */
@@ -87,11 +90,10 @@ void actSt05bSekizoChk(volatile int a0)
     volatile int h;
     float d[4];
 
-    if (D_00639EA8 == 0) {
+    if (girlGObj == 0) {
         _ACTWait(0);
     }
-    while (scpTriggerBall(a0, D_00639EA4, 200.0f) == 0 ||
-           scpTriggerBall(a0, D_00639EA8, 200.0f) == 0) {
+    while (scpTriggerBall(a0, boyGObj, 200.0f) == 0 || scpTriggerBall(a0, girlGObj, 200.0f) == 0) {
         _ACTWait(1);
     }
     lt_switch_layout(55);
@@ -106,25 +108,25 @@ void actSt05bSekizoChk(volatile int a0)
     gflagOn(390);
     stage_SetAnimation(192, 1, 0);
     ReviveAllCarryableItemsWithNonSleepFrame(250);
-    sekizo_5b = iosPadActRequest(D_00639EAC, 9);
+    sekizo_5b = iosPadActRequest(boyPad, 9);
     sekizo_5b_vol = 0x80;
     iosPadActVolumeSet(sekizo_5b, 0x80);
     h = soundSeDefPlay(1217, 0, 0, 1);
-    scpPlayStart(D_00639EA4);
-    scpPlayStart(D_00639EA8);
-    scpPlayMot(D_00639EA4, 0);
-    scpPlayMot(D_00639EA8, 532);
-    scpPlayPosSet(D_00639EA8, 10350.0f, -2150.0f, 0.0f);
-    scpPlayPosSet(D_00639EA4, 10350.0f, -2150.0f, -100.0f);
+    scpPlayStart(boyGObj);
+    scpPlayStart(girlGObj);
+    scpPlayMot(boyGObj, 0);
+    scpPlayMot(girlGObj, 532);
+    scpPlayPosSet(girlGObj, 10350.0f, -2150.0f, 0.0f);
+    scpPlayPosSet(boyGObj, 10350.0f, -2150.0f, -100.0f);
     _ACTWait(1);
-    sceVu0SubVector(d, test_CURRENTROOT(a0), test_CURRENTROOT(D_00639EA8));
-    scpPlayMotDir(D_00639EA8, d);
+    sceVu0SubVector(d, test_CURRENTROOT(a0), test_CURRENTROOT(girlGObj));
+    scpPlayMotDir(girlGObj, d);
     scpBoyControlReadDisable = 1;
-    sceVu0SubVector(d, test_CURRENTROOT(D_00639EA8), test_CURRENTROOT(D_00639EA4));
-    scpPlayMotDir(D_00639EA4, d);
+    sceVu0SubVector(d, test_CURRENTROOT(girlGObj), test_CURRENTROOT(boyGObj));
+    scpPlayMotDir(boyGObj, d);
     scpSekizouCheckPoint();
-    scpPlayMot(D_00639EA8, 645);
-    scpPlayWaitMotEnd(D_00639EA8);
+    scpPlayMot(girlGObj, 645);
+    scpPlayWaitMotEnd(girlGObj);
     gflagOn(160);
     soundSeDefStop(h);
     while (stage_CheckAnimationFrame(192, 151, 0) == 0) {
@@ -132,14 +134,14 @@ void actSt05bSekizoChk(volatile int a0)
     }
     _ACTWait(1);
     iosPadActStop(sekizo_5b);
-    scpPlayMot(D_00639EA8, 532);
-    scpPlayEnd(D_00639EA8);
+    scpPlayMot(girlGObj, 532);
+    scpPlayEnd(girlGObj);
     actCreateSubThread(actSt05bGirlWay, 21);
     _ACTWait(30);
-    scpPlayMot(D_00639EA4, 252);
-    scpPlayWaitMotEnd(D_00639EA4);
-    scpPlayMot(D_00639EA4, 0);
-    scpPlayEnd(D_00639EA4);
+    scpPlayMot(boyGObj, 252);
+    scpPlayWaitMotEnd(boyGObj);
+    scpPlayMot(boyGObj, 0);
+    scpPlayEnd(boyGObj);
     ScpCallCameraSetTarget(-10793.0f, 2122.0f, 0.0f);
     while (stage_CheckAnimationFinish(192) == 0) {
         _ACTWait(1);
@@ -251,10 +253,10 @@ void actSt05bGirlWay(volatile int a0)
 
     buf[0] = girlWayPos.d[0];
     buf[1] = girlWayPos.d[1];
-    _SCPMoveCharactorByWay(D_00639EA8, 0, (int *)buf, 0, 100.0f);
+    _SCPMoveCharactorByWay(girlGObj, 0, (int *)buf, 0, 100.0f);
 
     way[0] = girlWay2Pos.d[0];
     way[1] = girlWay2Pos.d[1];
-    RequestStageChangeDirect(D_00639EA8, 0x1C, (int *)way, 0xB4);
+    RequestStageChangeDirect(girlGObj, 0x1C, (int *)way, 0xB4);
     brainUnlockGirl();
 }

@@ -9,7 +9,8 @@
  * this file for these functions and MAIN.MAP lists them under debug_exception.o; debug.c calls them as externs.
  * The three Vif1/GIF helpers are inline (they inline into drawSprite/PutFont and their out-of-line copies close the
  * object); the rest are ordinary functions emitted in this order. */
-extern int D_0028F4F0[];
+/* kept local: main.c's global; this TU does not include main.h */
+extern int db[];
 extern void sceVif1PkCloseDirectCode();
 extern void sceVif1PkCloseGifTag();
 extern void sceVif1PkEnd();
@@ -111,7 +112,8 @@ typedef struct {
     int btn;
 } DbgPad;
 
-extern DbgPad D_0028F8F0[];
+/* kept local: main.c's global; this TU does not include main.h */
+extern DbgPad pad[];
 
 /* The cursor blink's phase, stepped every frame. */
 static int blinkPhase = 0; /* derived name */
@@ -365,7 +367,7 @@ void resetGS(void)
        the jal delay slot a nop, so resetGS takes no argument and passes none
        on: sceVpu0Reset's own prototype is argument-less here. */
     sceVpu0Reset();
-    gsb_Init(D_0028F4F0);
+    gsb_Init(db);
 }
 
 static inline void scrollDbgScreen(void)
@@ -482,10 +484,10 @@ static inline void dispBase(void)
 
 void baseFunc(void)
 {
-    if (D_0028F8F0[0].btn & 0x8000)
+    if (pad[0].btn & 0x8000)
         if (--scrollTop < 0)
             scrollTop = 0;
-    if (D_0028F8F0[0].btn & 0x2000)
+    if (pad[0].btn & 0x2000)
         if (++scrollTop >= 50)
             scrollTop = 49;
     SetDrawEnvironment(1);
@@ -501,7 +503,7 @@ void syncGS(void)
     frame_count++;
     buffer_ID = frame_count & 1;
     gsb_Reduction();
-    sceGsSwapDBuff(D_0028F4F0, buffer_ID);
-    RestoreNormalDrawEnvironment(D_0028F4F0, buffer_ID, odd_even);
+    sceGsSwapDBuff(db, buffer_ID);
+    RestoreNormalDrawEnvironment(db, buffer_ID, odd_even);
     SetDrawEnvironment(1);
 }

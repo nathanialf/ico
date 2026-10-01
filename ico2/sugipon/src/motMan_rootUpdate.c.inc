@@ -30,7 +30,8 @@ extern void ClipWallE(void *a0);
 extern void CopyQuaternion(void *a0, void *a1);
 extern void GetRootQuaternion(void *q, void *obj);
 /* the two ints the demo timer keeps: the elapsed count and its divisor. */
-extern int D_0028F4C0[];
+/* kept local: main.c's global; this TU does not include main.h */
+extern int systemStatus[];
 extern int GetPureVerticalPlaneOfCurrentPosition(void *plane0, void *plane1, float *ptsIn, int *cfg,
                                                  int flip, char *self);
 extern void sceVu0OuterProduct(void *dst, void *a, void *b);
@@ -834,8 +835,9 @@ MotShift rootUpdateXZ(int kind, int no)
                 if (*(int *)(skelMotCtrl + 0x1BC) != 0 &&
                     (*(int *)(skelMotCtrl + 0x188) & 0xF00000) != 0) {
                     memset(&fall, 0, 16);
-                    fall.f[1] = 60.0f / (float)((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]) * 0.5f *
-                                (60.0f / (float)((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]));
+                    fall.f[1] = 60.0f / (float)((60 - systemStatus[0] * 10) / systemStatus[1]) *
+                                0.5f *
+                                (60.0f / (float)((60 - systemStatus[0] * 10) / systemStatus[1]));
                     pos = fall;
                     rate = 0.0f;
                     d = GetDistanceFromPlane(&pl, &pos);
@@ -929,9 +931,9 @@ MotShift rootUpdateXZ(int kind, int no)
 
         if (*(int *)(skelRoot + 0x30C) != 0) {
             *(float *)(skelRoot + 0x94) +=
-                60.0f / (float)((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]) * 0.5f *
-                (60.0f / (float)((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1])) *
-                (D_0028F4C0[0] != 0 ? 0.7f : 1.0f);
+                60.0f / (float)((60 - systemStatus[0] * 10) / systemStatus[1]) * 0.5f *
+                (60.0f / (float)((60 - systemStatus[0] * 10) / systemStatus[1])) *
+                (systemStatus[0] != 0 ? 0.7f : 1.0f);
             AddVectorXYZ(skelRoot, skelRoot, skelRoot + 0x90);
             WALL_COLLISION_AND_WAVE_FORCE();
         } else {
@@ -1014,12 +1016,12 @@ MotShift rootUpdateXZ_MotPos(int kind, int no)
         CopyVector(skelRoot + 0xD0, rootDelta);
     } else {
         if (*(int *)(skelMotCtrl + 0x58) != 0) {
-            if (D_0028F4C0[0] == 1) {
+            if (systemStatus[0] == 1) {
                 AddVectorXYZ(skelRoot, skelRoot, skelRoot + 0x90);
             }
         }
         if (*(int *)(skelMotCtrl + 0x30) == 21) {
-            lim = -(60.0f / (float)((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]) * 10.0f);
+            lim = -(60.0f / (float)((60 - systemStatus[0] * 10) / systemStatus[1]) * 10.0f);
             if (*(float *)(skelRoot + 0xD4) < lim) {
                 *(float *)(skelRoot + 0xD4) = lim;
                 /* retail links debug_StdPrintfDummy in place of the listing's printf. */
@@ -1417,8 +1419,9 @@ MotShift rootUpdateSwim(void)
     if (GetWaterReaction(0, 0, &w, skelRoot, skelRoot + 0x90, *(float *)(skelRoot + 4) - 80.0f,
                          *(float *)(skelRoot + 4) + *(float *)(nodePos + node * 0x10 + 4),
                          *(float *)(skelRoot + 4) + 80.0f, 0.9f,
-                         60.0f / (float)((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]) * -0.1f *
-                             (60.0f / (float)((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]))) != 0) {
+                         60.0f / (float)((60 - systemStatus[0] * 10) / systemStatus[1]) * -0.1f *
+                             (60.0f / (float)((60 - systemStatus[0] * 10) / systemStatus[1]))) !=
+        0) {
         /* listing row 1884 holds only the load of this constant; the
          * subtractions are on the rows that use it. */
         float depth = 10.0f;

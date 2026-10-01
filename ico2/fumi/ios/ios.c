@@ -57,7 +57,8 @@ extern int IosPadLock;
 extern int IosCdLock;
 extern int IosStgMgrLock;
 extern int IosSndLock;
-extern int D_00639ED8;
+/* kept local: main.c's global; this TU does not include main.h */
+extern int system_stage_func;
 extern int screen_offset_x;
 extern int screen_offset_y;
 /* kept local: this TU's uses of InitKeyInput do not fit the prototype in keyInput.h */
@@ -82,7 +83,7 @@ void ios_init_plus(void)
     stgMgrLockSemaParam.initCount = 1;
     stgMgrLockSemaParam.maxCount = 0;
     IosSndLock = CreateSema(&stgMgrLockSemaParam);
-    D_00639ED8 = 0;
+    system_stage_func = 0;
     InitKeyInput(0);
     debug_StdPrintfDummy("SgSndn2RemoteInit()\n");
     SgSndn2RemoteInit();

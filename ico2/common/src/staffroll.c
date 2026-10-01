@@ -42,7 +42,8 @@ static int rollStep; /* the roll's own sequence step */
    lines, 0x12C0 bytes of StaffRollEntry. */
 static StaffRollEntry rollLines[300];
 
-extern int D_0028F4C0[];
+/* kept local: main.c's global; this TU does not include main.h */
+extern int systemStatus[];
 
 /* staffroll.o's .sdata run (VMA 0x63B650..0x63B670, 0x20 B = MAIN.MAP), in
    the ROM's order: the three MAIN.MAP globals the roll's state starts with,
@@ -57,7 +58,7 @@ float staffRollCenterOffsetXDest = 0.0f;
 void staffRollStart(float t, int alpha)
 {
     staffRollStartFlag = 1;
-    rollSpeed = (t + t) * 30.0f / (float)((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]);
+    rollSpeed = (t + t) * 30.0f / (float)((60 - systemStatus[0] * 10) / systemStatus[1]);
     staffRollAlpha = alpha;
     rollNameIdx = 0;
     rollOffset = 0.0f;

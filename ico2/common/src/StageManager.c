@@ -58,7 +58,7 @@ StgSlot stageExitData[15] = {0};
 
 extern int stage_no;
 extern StgFile D_0055C53C[];
-extern const StgPre D_005F5D50[];
+extern const StgPre stageData[];
 extern int stagePreLoadStageNo;
 extern int stagePreLoadReadOffset;
 extern int stagePreLoad2ndReadOffset;
@@ -82,7 +82,8 @@ static int stageMgrMsgBuf;
 
 static int stagePreLoadForceStageNo;
 
-extern int D_0028F4C0[];
+/* kept local: main.c's global; this TU does not include main.h */
+extern int systemStatus[];
 
 typedef struct {
     int cmd;
@@ -95,10 +96,12 @@ typedef struct {
     unsigned char b;
 } StgMgrMsg;
 
-extern StgMgrMsg D_0028FE70;
+/* kept local: main.c's global; this TU does not include main.h */
+extern StgMgrMsg stageMgrMsg;
 extern int graphics_ready;
 extern unsigned int mpegPlayInitColor;
-extern int D_0028F4F0[];
+/* kept local: main.c's global; this TU does not include main.h */
+extern int db[];
 
 /* .bss, owned by StageManager.o (the retail run is 0x70, the size of thread.c's
    own IOSThread record; MAIN.MAP sizes its own link's 0x80 and names no symbol
@@ -108,7 +111,8 @@ static unsigned int initIcoMiscThread[28];
 
 /* kept local: this TU's view of the ios partition handles (ios.h declares them int) */
 extern void *ios_partition_root;
-extern int D_00639ED4;
+/* kept local: main.c's global; this TU does not include main.h */
+extern int current_stage_no;
 extern int mpegPlay;
 extern int mpegInitDone;
 extern int stageManagerFreeResourceFlag;
@@ -134,8 +138,10 @@ extern void *ios_partition_dmotion;
 extern void *ios_partition_seki;
 extern void *ios_partition_oomori;
 extern void *ios_partition_sound;
-extern void *D_00639EA4;
-extern void *D_00639EA8;
+/* kept local: main.c's global; this TU does not include main.h */
+extern void *boyGObj;
+/* kept local: main.c's global; this TU does not include main.h */
+extern void *girlGObj;
 extern int jimaku_msg[];
 extern char D_0063ACB0[];
 extern void EnableIntc(int ch);
@@ -159,16 +165,16 @@ void stop_free_resources(void)
     for (i = 0; i < 8; i++) {
         isysGObjActiveLink(i, 0);
     }
-    if (D_005F5D50[before_stage_no].endproc != 0) {
-        D_005F5D50[before_stage_no].endproc();
+    if (stageData[before_stage_no].endproc != 0) {
+        stageData[before_stage_no].endproc();
     }
     iosThreadCancelWakeup(0);
     isysGObjRemoveAll();
     sceGsSyncPath(0, 0);
     InitDelayFree();
-    if (D_0028F4C0[10] != 0) {
+    if (systemStatus[10] != 0) {
         jimakuEnd(jimaku_msg);
-        D_0028F4C0[10] = 0;
+        systemStatus[10] = 0;
     }
     if (sndInitBgmCancelFlag == 0) {
         debug_StdPrintfDummy("sound partition reset\n");
@@ -184,8 +190,8 @@ void stop_free_resources(void)
     ResetDynamicMotionManager();
     debug_StdPrintfDummy(D_0063ACB0);
     InitDelayFree();
-    D_00639EA8 = 0;
-    D_00639EA4 = 0;
+    girlGObj = 0;
+    boyGObj = 0;
 }
 
 /*SW-END*/
@@ -234,7 +240,7 @@ void start_stage_Load_thread(int stage)
 {
     before_stage_no = stage_no;
     stage_no = stage;
-    gsb_SetBGColor(D_0028F4F0, 1, 1, 1);
+    gsb_SetBGColor(db, 1, 1, 1);
     sceGsSyncPath(0, 0);
     stageManagerFreeResourceFlag = 1;
     stop_free_resources();
@@ -245,7 +251,7 @@ void start_stage_Load_thread(int stage)
         stageManagerFreeResourceFlag = 0;
         iosThreadCancelWakeup(0);
         gsb_SetMotionBlur();
-        D_00639ED4 = stage;
+        current_stage_no = stage;
         iosThreadCreateS(initIcoMiscThread, 1, InitIcoMisc, (int)&stage_no, ios_partition_root,
                          0x18000, 27);
         iosThreadStart(initIcoMiscThread);
@@ -259,10 +265,10 @@ void start_stage_Load_thread(int stage)
         sceVpu0Reset();
         sceDmaReset(1);
         mpegInitDone = 1;
-        ((MpegRec *)D_0028F4C0)->f14 = 0;
-        ((MpegRec *)D_0028F4C0)->f18 = 0;
-        D_00639EA8 = 0;
-        D_00639EA4 = 0;
+        ((MpegRec *)systemStatus)->f14 = 0;
+        ((MpegRec *)systemStatus)->f18 = 0;
+        girlGObj = 0;
+        boyGObj = 0;
         stageManagerFreeResourceFlag = 0;
     }
 }
@@ -317,10 +323,10 @@ int stgmgrNextStagePreLoad(CdvdBgReq *bg)
     case 0: {
         int best = -1;
 
-        if (D_00639EA4 == 0) {
+        if (boyGObj == 0) {
             return 0;
         }
-        GetRootPosition(root, D_00639EA4);
+        GetRootPosition(root, boyGObj);
         for (i = 0; i < stageExitDataCnt; i++) {
             StgSlot *e;
 
@@ -342,7 +348,7 @@ int stgmgrNextStagePreLoad(CdvdBgReq *bg)
         stage = stagePreLoadForceStageNo;
         break;
     }
-    if (stage != 0 && stage != stagePreLoadStageNo && D_005F5D50[stage].mpegNo == 0) {
+    if (stage != 0 && stage != stagePreLoadStageNo && stageData[stage].mpegNo == 0) {
         int readSize;
         int ret;
 
@@ -376,7 +382,7 @@ static inline void stgmgrNextStagePreLoadDiskNotReady(void)
 
 void stgmgrNextStagePreLoadEntry(int stage)
 {
-    const StgPre *pre = &D_005F5D50[stage];
+    const StgPre *pre = &stageData[stage];
     int i;
     int ret;
 
@@ -449,7 +455,7 @@ void StageManager(void)
             fadeColor[3] = 0;
             fadeContinue = 1;
             fbKeep = 1;
-            if (D_005F5D50[msg->stage].mpegNo != 0) {
+            if (stageData[msg->stage].mpegNo != 0) {
                 stgMgrWakeupRequest = 1;
                 mpegPlayFadeInSpeed = msg->fC;
                 do {
@@ -460,7 +466,7 @@ void StageManager(void)
         default:
             goto badCmd;
         }
-        if (D_005F5D50[msg->stage].mpegNo != 0) {
+        if (stageData[msg->stage].mpegNo != 0) {
             mpegInitDone = 0;
             fightSoundClose();
             soundDataSegAllClose(0, 2);
@@ -472,14 +478,14 @@ void StageManager(void)
         if (msg->stage <= 0xFFFF) {
             exit_stage((int *)msg->stage);
             lt_switch_layout(0x35);
-            D_0028F4C0[6] = 1;
-            D_0028F4C0[5] = 1;
+            systemStatus[6] = 1;
+            systemStatus[5] = 1;
             stgMgrWakeupRequest = 1;
             while (iosCdvdBackGroundMgrDeleteRequestGet() != 0) {
                 iosThreadSleep();
             }
             stgMgrWakeupRequest = 0;
-            mpegPlay = D_005F5D50[msg->stage].mpegNo;
+            mpegPlay = stageData[msg->stage].mpegNo;
             start_stage_Load_thread(msg->stage);
         } else {
             debug_StdPrintfDummy("out of stage %d\n", msg->stage);
@@ -487,7 +493,7 @@ void StageManager(void)
         if (msg->fC == 0.0f) {
             fadeStatus = 0;
             stgMgrWakeupRequest = 1;
-            while (D_0028F4C0[6] != 0) {
+            while (systemStatus[6] != 0) {
                 iosThreadSleep();
             }
             if (mpegPlay == 0) {
@@ -497,7 +503,7 @@ void StageManager(void)
             stgMgrWakeupRequest = 0;
         } else {
             stgMgrWakeupRequest = 1;
-            while (D_0028F4C0[6] != 0) {
+            while (systemStatus[6] != 0) {
                 iosThreadSleep();
             }
             if (mpegPlay == 0) {
@@ -521,19 +527,19 @@ void StageManager(void)
 
 inline void CheckPoint(void)
 {
-    if (D_0028F4C0[2]) {
+    if (systemStatus[2]) {
         gamesysMemorySave(gameSysMemoryFuncList, gameSysMainSaveBuff, 0);
-        D_0028F4C0[3] = 1;
+        systemStatus[3] = 1;
     }
 }
 
 void stgmgrForceSwitch(int stage)
 {
-    D_0028FE70.cmd = 0;
-    D_0028FE70.stage = stage;
+    stageMgrMsg.cmd = 0;
+    stageMgrMsg.stage = stage;
     graphics_ready = 1;
-    D_0028FE70.fC = 0;
-    iosMsgSend(stageMgrMsgQ, &D_0028FE70, 1);
+    stageMgrMsg.fC = 0;
+    iosMsgSend(stageMgrMsgQ, &stageMgrMsg, 1);
 }
 
 void stgmgrForceSwitchWithFade(int stage, float fadeIn, float fadeOut)
@@ -544,14 +550,14 @@ void stgmgrForceSwitchWithFade(int stage, float fadeIn, float fadeOut)
 void stgmgrForceSwitchWithFadeColor(int stage, float fadeIn, float fadeOut, unsigned char r,
                                     unsigned char g, unsigned char b)
 {
-    D_0028FE70.cmd = 1;
-    D_0028FE70.stage = stage;
-    D_0028FE70.fC = fadeOut;
-    D_0028FE70.f10 = fadeIn;
-    D_0028FE70.r = r;
-    D_0028FE70.g = g;
-    D_0028FE70.b = b;
+    stageMgrMsg.cmd = 1;
+    stageMgrMsg.stage = stage;
+    stageMgrMsg.fC = fadeOut;
+    stageMgrMsg.f10 = fadeIn;
+    stageMgrMsg.r = r;
+    stageMgrMsg.g = g;
+    stageMgrMsg.b = b;
     mpegPlayInitColor = 0x80000000 | (b << 16) | (g << 8) | r;
     graphics_ready = 1;
-    iosMsgSend(stageMgrMsgQ, &D_0028FE70, 1);
+    iosMsgSend(stageMgrMsgQ, &stageMgrMsg, 1);
 }

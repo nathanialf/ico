@@ -28,11 +28,14 @@ extern void scpFadeOut(float f, int a1, int a2, int a3);
 extern int scpFadeChk(void);
 /* kept local: this TU's uses of scpFadeIn do not fit the prototype in script.h */
 extern void scpFadeIn(float f);
-extern Pad D_0028F8F0[];
+/* kept local: main.c's global; this TU does not include main.h */
+extern Pad pad[];
 /* kept local: this TU's uses of scpEffectStart do not fit the prototype in script.h */
 extern int scpEffectStart(StVec *a0, int a1);
-extern int D_00639EA4;
-extern int D_00639EA8;
+/* kept local: main.c's global; this TU does not include main.h */
+extern int boyGObj;
+/* kept local: main.c's global; this TU does not include main.h */
+extern int girlGObj;
 /* kept local: script.h's prototypes do not fit this TU's calls */
 extern int scpBoyControlReadDisable;
 
@@ -63,7 +66,7 @@ void actSt05cDoorDownChk(volatile int a0)
 {
     StVec pos;
 
-    while (scpTriggerBall(a0, D_00639EA4, 200.0f) == 0) {
+    while (scpTriggerBall(a0, boyGObj, 200.0f) == 0) {
         _ACTWait(1);
     }
 
@@ -117,8 +120,7 @@ void actSt04rDoorChk(volatile int a0)
             demoEnd = 0;
             th = actCreateSubThread(actSt04rDoorSub, 21);
 
-            while (demoEnd == 0 &&
-                   ((D_0028F8F0[0].trg & 0x800) == 0 || scpAdpcmPlayRequestNum() != 0)) {
+            while (demoEnd == 0 && ((pad[0].trg & 0x800) == 0 || scpAdpcmPlayRequestNum() != 0)) {
                 _ACTWait(1);
             }
 
@@ -174,8 +176,7 @@ void actSt04rDoor2Chk(volatile int a0)
             demoEnd = 0;
             th = actCreateSubThread(actSt04rDoor2Sub, 21);
 
-            while (demoEnd == 0 &&
-                   ((D_0028F8F0[0].trg & 0x800) == 0 || scpAdpcmPlayRequestNum() != 0)) {
+            while (demoEnd == 0 && ((pad[0].trg & 0x800) == 0 || scpAdpcmPlayRequestNum() != 0)) {
                 _ACTWait(1);
             }
 
@@ -376,11 +377,11 @@ void actSt05cDoorDownEffect(volatile int a0)
 
 void actSt05cEneChk(volatile int a0)
 {
-    if (D_00639EA8 == 0) {
+    if (girlGObj == 0) {
         _ACTWait(0);
     }
 
-    while (D_00639EA8 == 0 || gflagChk(255) == 0) {
+    while (girlGObj == 0 || gflagChk(255) == 0) {
         _ACTWait(1);
     }
 

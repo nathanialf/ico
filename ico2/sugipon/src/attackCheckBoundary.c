@@ -146,7 +146,8 @@ inline void actAttackCheckBoundaryStart(int *self)
     *(long long *)((char *)p + 0x18) = v;
 }
 
-extern char *D_00639EA4;
+/* kept local: main.c's global; this TU does not include main.h */
+extern char *boyGObj;
 
 /* mail-add-data.c defines this returning int; declaring it void costs the
    $v1 allocation of the reloaded state pointer in the mail block below. */
@@ -159,7 +160,7 @@ void AttackCheckBoundaryBeforeFunc(char *self)
 
     for (i = 0; i < mgr[1]; i++, e += 2) {
         if (e[0] == 13) {
-            if (*(char **)&e[1] == D_00639EA4) {
+            if (*(char **)&e[1] == boyGObj) {
                 int *b = *(int **)(*(char **)(self + 0x15C) + 0x830);
                 void *g = GetBoyWeaponGObj();
 
@@ -179,7 +180,7 @@ void AttackCheckBoundaryBeforeFunc(char *self)
                     }
                 }
                 if (*(int *)b[0] <= 0) {
-                    ActSendMail_WithAdditionalData(D_00639EA4, 209, self, &b[2]);
+                    ActSendMail_WithAdditionalData(boyGObj, 209, self, &b[2]);
                     b[1] = 1;
                     *(int *)b[0] = 1;
                     /* " - cannot cut" */

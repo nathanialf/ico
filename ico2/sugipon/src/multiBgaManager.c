@@ -13,7 +13,8 @@ BgaAnimeState InitialBgaMultiAnimeState = {
     0,
 };
 
-extern int D_0028F4C0[];
+/* kept local: main.c's global; this TU does not include main.h */
+extern int systemStatus[];
 /* kept local: this TU's uses of _AddVector do not fit the prototype in Matrix.h */
 extern void _AddVector(void *a0, void *a1, void *a2);
 /* kept local: this TU's uses of stage_PlayBgAnimation do not fit the prototype in StageAnimation.h */
@@ -76,7 +77,7 @@ void DispMultiBgaManager(BgaDisp *base, int n)
             continue;
         }
         ri = (int)stage_PlayBgAnimation(e->obj, e->m10, e->m30, f);
-        if (D_0028F4C0[5] != 0) {
+        if (systemStatus[5] != 0) {
             continue;
         }
         e->f0 = (float)ri;
@@ -96,7 +97,7 @@ inline void DispMultiBgaManagerWithKind(int kind, BgaDisp *base, int n)
             continue;
         }
         ri = (int)stage_PlayBgAnimation(kind, e->m10, e->m30, f);
-        if (D_0028F4C0[5] != 0) {
+        if (systemStatus[5] != 0) {
             continue;
         }
         e->f0 = (float)ri;

@@ -15,7 +15,8 @@ typedef union PosBox {
 
 typedef struct Act Act;
 
-extern void *D_00639EA4;
+/* kept local: main.c's global; this TU does not include main.h */
+extern void *boyGObj;
 
 static const PosBox exitPos = {{854.0f, -156.0f, 0.0f, 0.0f}};
 
@@ -42,13 +43,13 @@ void actSt13dExit(volatile int a0)
     pos = exitPos;
     size = exit2Pos;
 
-    GetRootPosition(&p, D_00639EA4);
+    GetRootPosition(&p, boyGObj);
 
     while (scpTriggerPosBox((float *)&p, (float *)&pos, (float *)&size) == 0) {
         _ACTWait(1);
     }
 
-    RequestStageChange(2, D_00639EA4, 0, 16.0f, 16.0f);
+    RequestStageChange(2, boyGObj, 0, 16.0f, 16.0f);
 }
 
 void actSt13dExitR(volatile int a0)
@@ -64,13 +65,13 @@ void actSt13dExitR(volatile int a0)
     pos = exitRPos;
     size = exit2Pos;
 
-    GetRootPosition(&p, D_00639EA4);
+    GetRootPosition(&p, boyGObj);
 
     while (scpTriggerPosBox((float *)&p, (float *)&pos, (float *)&size) == 0) {
         _ACTWait(1);
     }
 
-    RequestStageChange(7, D_00639EA4, 0, 16.0f, 16.0f);
+    RequestStageChange(7, boyGObj, 0, 16.0f, 16.0f);
 }
 
 void actSt13dExitL(volatile int a0)
@@ -86,11 +87,11 @@ void actSt13dExitL(volatile int a0)
     pos = exitLPos;
     size = exit2Pos;
 
-    GetRootPosition(&p, D_00639EA4);
+    GetRootPosition(&p, boyGObj);
 
     while (scpTriggerPosBox((float *)&p, (float *)&pos, (float *)&size) == 0) {
         _ACTWait(1);
     }
 
-    RequestStageChange(8, D_00639EA4, 0, 16.0f, 16.0f);
+    RequestStageChange(8, boyGObj, 0, 16.0f, 16.0f);
 }

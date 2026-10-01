@@ -791,7 +791,8 @@ typedef struct {
     /* 0x194 */ int f194;
 } PrimParticle;
 
-extern int D_0028F4D4[];
+/* kept local: main.c's global; this TU does not include main.h */
+extern int systemStatus[];
 
 /* One 16-byte constant packet template, copied to the stack. */
 typedef struct {
@@ -914,7 +915,7 @@ void prim_DispParticle(PrimParticle *p, void *mtx)
             mc_SetMicroCode(3, 0, 0, 0, pri);
             dl_OpenDma(2, (int)p->objs[p->cur], p->f184);
             dl_CloseDma();
-            if (D_0028F4D4[0] == 0) {
+            if (systemStatus[5] == 0) {
                 p->cur ^= 1;
             }
             p->f190 = (int)(p->objs[p->cur] + 112);

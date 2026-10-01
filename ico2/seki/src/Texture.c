@@ -1448,7 +1448,8 @@ void tex_scrollClut(int a0, int a1, int a2, int a3, int a4, void *a5, int a6, vo
     }
 }
 
-extern int D_0028F4C0[];
+/* kept local: main.c's global; this TU does not include main.h */
+extern int systemStatus[];
 extern float GetTableSin(short angle);
 
 void tex_textureAnimation(void)
@@ -1462,10 +1463,10 @@ void tex_textureAnimation(void)
 
         if (e->x40 != 0) {
             if (e->file.f0C != 0.0f) {
-                uv->f10 =
-                    e->file.f0C *
-                    GetTableSin((short)(e->h50 * 3.1415927f * e->file.f04 /
-                                        ((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]) * 10430.378f));
+                uv->f10 = e->file.f0C *
+                          GetTableSin((short)(e->h50 * 3.1415927f * e->file.f04 /
+                                              ((60 - systemStatus[0] * 10) / systemStatus[1]) *
+                                              10430.378f));
             } else {
                 uv->f10 = uv->f10 + e->file.f04;
                 if (0.0f < e->file.f04) {
@@ -1488,10 +1489,10 @@ void tex_textureAnimation(void)
             }
 
             if (e->file.f10 != 0.0f) {
-                uv->f14 =
-                    e->file.f10 *
-                    GetTableSin((short)(e->h50 * 3.1415927f * e->file.f08 /
-                                        ((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]) * 10430.378f));
+                uv->f14 = e->file.f10 *
+                          GetTableSin((short)(e->h50 * 3.1415927f * e->file.f08 /
+                                              ((60 - systemStatus[0] * 10) / systemStatus[1]) *
+                                              10430.378f));
             } else {
                 uv->f14 = uv->f14 + e->file.f08;
                 if (0.0f < e->file.f08) {
@@ -1598,7 +1599,8 @@ static inline void resetVramPri(int pri)
     }
 }
 
-extern int D_0028F4C0[];
+/* kept local: main.c's global; this TU does not include main.h */
+extern int systemStatus[];
 extern void tex_textureAnimation(void);
 
 /* tex_Init's first-call flag: the table is marked free once, later calls
@@ -1614,7 +1616,7 @@ void tex_ResetVram(void)
         headTbp[i] = 0;
         resetVramPri(i);
     }
-    if (D_0028F4C0[5] == 0) {
+    if (systemStatus[5] == 0) {
         tex_textureAnimation();
     }
 }
@@ -1728,7 +1730,8 @@ static inline void toolMakeRegs(CdvdRec *t, int lv)
 /* the shared pad-state array (GsBase.c's GsbPad): holding the 0x10 button on
  * pad 0 drops alpha blending from the PRIM word. Declared as the array, so the
  * word is reached %hi/%lo as the ROM does, not gp-relative. */
-extern GsbPad D_0028F8F0[];
+/* kept local: main.c's global; this TU does not include main.h */
+extern GsbPad pad[];
 /* UNPROTOTYPED: the ROM passes seven arguments in $4 to $10 */
 extern void debug_PrintfDummy();
 
@@ -1762,7 +1765,7 @@ void tex_printTexture(int id)
         setGsReg(0x08, 0);
         setGsReg(0x47, 0x30000);
         setGsReg(0x4E, 0x1300000C0LL);
-        *PacketBufferStruct.ptr++ = (D_0028F8F0[0]._0 & 0x10) == 0 ? 0x56 : 0x16;
+        *PacketBufferStruct.ptr++ = (pad[0]._0 & 0x10) == 0 ? 0x56 : 0x16;
         *PacketBufferStruct.ptr++ = 0x00;
         /* Q is the bits of `one`, read unsigned the way gsb_filmNoise in
          * GsBase.c reads its scale. The ROM pins the unsigned read: cse2 folds
@@ -1881,11 +1884,11 @@ int tex_Tool(int *tno)
     case 0:
     case 2:
         if (m[toolRow].type == 0) {
-            if (D_0028F8F0[0].rep & 0x2000) {
+            if (pad[0].rep & 0x2000) {
                 *(int *)m[toolRow].var =
                     (int)((float)*(int *)m[toolRow].var + m[toolRow].step * stepScale);
                 chg = 1;
-            } else if (D_0028F8F0[0].rep & 0x8000) {
+            } else if (pad[0].rep & 0x8000) {
                 *(int *)m[toolRow].var =
                     (int)((float)*(int *)m[toolRow].var - m[toolRow].step * stepScale);
                 chg = -1;
@@ -1897,11 +1900,11 @@ int tex_Tool(int *tno)
                 *(int *)m[toolRow].var = (int)m[toolRow].max;
             }
         } else {
-            if (D_0028F8F0[0].rep & 0x2000) {
+            if (pad[0].rep & 0x2000) {
                 *(short *)m[toolRow].var =
                     (short)((float)*(short *)m[toolRow].var + m[toolRow].step * stepScale);
                 chg = 1;
-            } else if (D_0028F8F0[0].rep & 0x8000) {
+            } else if (pad[0].rep & 0x8000) {
                 *(short *)m[toolRow].var =
                     (short)((float)*(short *)m[toolRow].var - m[toolRow].step * stepScale);
                 chg = -1;
@@ -1946,13 +1949,13 @@ int tex_Tool(int *tno)
         toolMakeRegs(rec, texTable[*tno].rec.level);
         break;
     case 1:
-        if (D_0028F8F0[0].rep & 0x2000) {
+        if (pad[0].rep & 0x2000) {
             *(float *)m[toolRow].var = *(float *)m[toolRow].var + m[toolRow].step * stepScale;
         }
-        if (D_0028F8F0[0].rep & 0x8000) {
+        if (pad[0].rep & 0x8000) {
             *(float *)m[toolRow].var = *(float *)m[toolRow].var - m[toolRow].step * stepScale;
         }
-        if (D_0028F8F0[0].rep & 0x10) {
+        if (pad[0].rep & 0x10) {
             *(float *)m[toolRow].var = 0.0f;
         }
         if (m[toolRow].max < *(float *)m[toolRow].var) {
@@ -1977,12 +1980,12 @@ int tex_Tool(int *tno)
                 break;
             }
         }
-        ret = (D_0028F8F0[0].trg & 0x40) ? -1 : 0;
-        if (D_0028F8F0[0].rep & 0x1000) {
+        ret = (pad[0].trg & 0x40) ? -1 : 0;
+        if (pad[0].rep & 0x1000) {
             toolRow--;
             stepScale = 1;
         }
-        if (D_0028F8F0[0].rep & 0x4000) {
+        if (pad[0].rep & 0x4000) {
             toolRow++;
             stepScale = 1;
         }
@@ -1992,7 +1995,7 @@ int tex_Tool(int *tno)
         if (16 < toolRow) {
             toolRow = 0;
         }
-        if (D_0028F8F0[0].trg & 0x20) {
+        if (pad[0].trg & 0x20) {
             stepScale = stepScale * 10;
         }
         if (1000 < stepScale) {
@@ -2105,7 +2108,7 @@ int tex_ListTool(void)
 
     debug_PrintfDummy(10, row * 8 + 50, 0xFF800000, "   %17s %7d ", "TotalTextureSize", total);
 
-    if ((D_0028F8F0[0].trg & 0x80) != 0) {
+    if ((pad[0].trg & 0x80) != 0) {
         TexEntry *e = &texTable[listTexNo];
         CdvdRec *t = &e->rec;
 
@@ -2115,22 +2118,22 @@ int tex_ListTool(void)
         remakeSampling(t);
     }
 
-    if ((D_0028F8F0[0].rep & 0x4000) != 0) {
+    if ((pad[0].rep & 0x4000) != 0) {
         listTexNo = listTexNo + 1;
         if (texCount - 1 < listTexNo) {
             listTexNo = 0;
         }
     }
-    if ((D_0028F8F0[0].rep & 0x1000) != 0) {
+    if ((pad[0].rep & 0x1000) != 0) {
         listTexNo = listTexNo - 1;
         if (listTexNo < 0) {
             listTexNo = texCount - 1;
         }
     }
-    if ((D_0028F8F0[0].trg & 0x20) != 0) {
+    if ((pad[0].trg & 0x20) != 0) {
         listEditing = 1;
     }
-    if ((D_0028F8F0[0].trg & 0x40) != 0) {
+    if ((pad[0].trg & 0x40) != 0) {
         ret = -1;
     }
     if (ret != 0) {
@@ -2336,7 +2339,8 @@ void tex_Init(void)
     }
 }
 
-extern int D_0028F720[];
+/* kept local: main.c's global; this TU does not include main.h */
+extern int GlobalStageSetting[];
 
 int tex_RemakeRegistersSampleMin(void)
 {
@@ -2344,7 +2348,7 @@ int tex_RemakeRegistersSampleMin(void)
     int i;
     for (i = 0; i < count; i++) {
         CdvdRec *b = &texTable[i].rec;
-        int f5 = D_0028F720[57];
+        int f5 = GlobalStageSetting[57];
         int f8 = 1;
         if (b->x2A8 != 0) {
             f8 = b->ext.x28;

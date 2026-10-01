@@ -256,8 +256,8 @@ float _handManager(char *obj, char *hw, char *vec, char *ref, int node)
     return 1.0f;
 }
 
-extern char D_0055FE58[];
-extern char D_005D1208[];
+extern char motionKind[];
+extern char motionIKEffKind[];
 /* kept local: this TU's uses of XUnitVector do not fit the prototype in matrixDrive.h */
 extern char XUnitVector[];
 
@@ -277,12 +277,12 @@ void HandManager(char *obj)
         ResetHandTarget(obj, 0x310);
         ResetHandTarget(obj, 0x2B0);
         if (*(int *)((int)GOBJ_SUB(obj) + 0x400) != 0) {
-            char *rec = D_0055FE58 + GOBJ_SUB(obj)->f_4A0 * 0x194;
+            char *rec = motionKind + GOBJ_SUB(obj)->f_4A0 * 0x194;
             _handManager(obj, (char *)(int)GOBJ_SUB(obj) + 0x310,
-                         D_005D1208 + ((*(unsigned int *)(rec + 0x188) >> 8) & 0xF0), XUnitVector,
-                         GetSkeltonFocusNode(obj, 0x13));
+                         motionIKEffKind + ((*(unsigned int *)(rec + 0x188) >> 8) & 0xF0),
+                         XUnitVector, GetSkeltonFocusNode(obj, 0x13));
             t = _handManager(obj, (char *)(int)GOBJ_SUB(obj) + 0x2B0,
-                             D_005D1208 + ((*(unsigned int *)(rec + 0x188) >> 4) & 0xF0),
+                             motionIKEffKind + ((*(unsigned int *)(rec + 0x188) >> 4) & 0xF0),
                              XUnitVector, GetSkeltonFocusNode(obj, 3));
         }
         *(float *)((int)GOBJ_SUB(obj) + 0xF4) += (t - *(float *)((int)GOBJ_SUB(obj) + 0xF4)) * 0.1f;

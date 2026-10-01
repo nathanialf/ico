@@ -228,9 +228,12 @@ extern int graphics_ready;
 extern int kanbanCommonRead;
 extern int stage_no;
 extern int fall_death_active;
-extern char *D_00639EA4;
-extern char *D_00639EA8;
-extern int D_0028F4C0[];
+/* kept local: main.c's global; this TU does not include main.h */
+extern char *boyGObj;
+/* kept local: main.c's global; this TU does not include main.h */
+extern char *girlGObj;
+/* kept local: main.c's global; this TU does not include main.h */
+extern int systemStatus[];
 extern char jimaku_msg[];
 extern void disp_memory_partition(void);
 extern void disp_memory_partition_bar(void);
@@ -301,7 +304,7 @@ void ExecIcoMisc(void)
     if (graphics_ready != 0) {
         return;
     }
-    if (D_0028F4C0[5] == 0) {
+    if (systemStatus[5] == 0) {
         ExecParticleEffects();
         ExecStreamMotionManager();
         ExecWindManager();
@@ -319,7 +322,7 @@ void ExecIcoMisc(void)
             soundSeEnvMasterVolRate = 0.5f;
         }
     }
-    if (D_0028F4C0[6] == 0) {
+    if (systemStatus[6] == 0) {
         gamesysBackStageProcess();
         if (debug_wallcheck_flag == 1) {
             warpGirlOutStage(stage_no, 1);
@@ -339,13 +342,13 @@ void ExecIcoMisc(void)
     }
     eBrainProcess();
     if (fall_death_active != 0) {
-        if (D_00639EA4 != 0) {
-            if (*(float *)(*(char **)(D_00639EA4 + 0x15C) + 0x55C) > 1000.0f) {
+        if (boyGObj != 0) {
+            if (*(float *)(*(char **)(boyGObj + 0x15C) + 0x55C) > 1000.0f) {
                 lt_switch_layout(62);
             }
         }
-        if (D_00639EA8 != 0) {
-            if (*(float *)(*(char **)(D_00639EA8 + 0x15C) + 0x55C) > 1000.0f) {
+        if (girlGObj != 0) {
+            if (*(float *)(*(char **)(girlGObj + 0x15C) + 0x55C) > 1000.0f) {
                 lt_switch_layout(62);
             }
         }
@@ -374,13 +377,14 @@ typedef struct {
     unsigned int _21 : 31;
 } EffEnt;
 
-extern StgPre D_005F5D50[];
-extern const ScnPre D_0055FE58[];
+extern StgPre stageData[];
+extern const ScnPre motionKind[];
 /* the effect table is read-only here; the const frees its loads and is what the
    ROM's schedule shows (RTX_UNCHANGING_P, see the printf site in the scan loop) */
-extern const EffEnt D_00626278[];
-extern char D_0062A278[][0x50];
-extern int D_0028F4C0[];
+extern const EffEnt motionEffKind[];
+extern char particleEffectFile[][0x50];
+/* kept local: main.c's global; this TU does not include main.h */
+extern int systemStatus[];
 extern int debugMoveMode;
 extern int motionFrameUpdate;
 extern int thisIsYourStartStage;
@@ -454,10 +458,10 @@ void InitIcoMisc(int *arg)
     InitSpiderGroupManager();
     InitFlyManager();
 
-    if (D_0028F4C0[3] != 0 && D_0028F4C0[4] != 0) {
+    if (systemStatus[3] != 0 && systemStatus[4] != 0) {
         gamesysMemoryLoad(gameSysMemoryFuncList, gameSysMainSaveBuff, 0);
         scpBoyControlReadDisable = 0;
-        D_0028F4C0[4] = 0;
+        systemStatus[4] = 0;
     }
     if (thisIsYourStartStage != 1 && D_0063B44C != 0) {
         ACTGame_SetActors_Debug(stage, 0);
@@ -487,10 +491,10 @@ void InitIcoMisc(int *arg)
     if (stage_no == 1) {
         kanbanBootStart();
     }
-    if (D_0063B458 != D_005F5D50[stage].mot) {
+    if (D_0063B458 != stageData[stage].mot) {
         /* the listing's dispatch tests ==2, <3, ==3 in that order: case 1 shares
            the default arm, which is what puts a low-bound test in the tree */
-        switch (D_005F5D50[stage].mot) {
+        switch (stageData[stage].mot) {
         case 1:
         default:
             fname = GetDataFileName2(D_0063B460, pack);
@@ -510,7 +514,7 @@ void InitIcoMisc(int *arg)
         }
         iosMallocResetPartition(ios_partition_s2motion);
         iosCdvdLoadPackFile(pack, fname, 0);
-        D_0063B458 = D_005F5D50[stage].mot;
+        D_0063B458 = stageData[stage].mot;
     }
     debug_StdPrintfDummy("iosCdvdLoadPackFile\n");
     debugCdvdLoadInfoSegInit(1);
@@ -527,29 +531,29 @@ void InitIcoMisc(int *arg)
     debug_StdPrintfDummy("InitSceneObjects( %d )\n", stage);
     InitSceneObjects(stage);
     InitWindManager(stage);
-    debug_StdPrintfDummy(D_0063B478, D_005F5D50[stage_no].name);
+    debug_StdPrintfDummy(D_0063B478, stageData[stage_no].name);
     init_layout_texture(stage);
 
     found = 0;
     for (i = 0; i < 1145; i++) {
         for (j = 0; j < 12; j++) {
-            id = D_0055FE58[i].ent[j].id;
+            id = motionKind[i].ent[j].id;
             if (id > 0xFFFF) {
                 continue;
             }
-            if (D_00626278[id].done) {
+            if (motionEffKind[id].done) {
                 continue;
             }
             if (id == 24) {
                 continue;
             }
-            if (GetParticleEffectPackage(D_00626278[id].pkg)[1] != 1) {
+            if (GetParticleEffectPackage(motionEffKind[id].pkg)[1] != 1) {
                 continue;
             }
             /* "the particle %s that %s calls is emitted forever" */
             debug_StdPrintfDummy(
                 "\"\033[33m%s\033[m\"が呼ぶパーティクル\"\033[33m%s\033[m\"は永久発生です\n",
-                D_0055FE58[i].name, D_0062A278[D_00626278[id].pkg]);
+                motionKind[i].name, particleEffectFile[motionEffKind[id].pkg]);
             found = 1;
         }
     }
@@ -569,13 +573,13 @@ void InitIcoMisc(int *arg)
     debug_StdPrintfDummy("load time %f sec\n", load_time / 60.0f);
     sndInit(stage);
     iosPadActInit();
-    if (D_005F5D50[stage_no].initproc != 0) {
-        D_005F5D50[stage_no].initproc();
+    if (stageData[stage_no].initproc != 0) {
+        stageData[stage_no].initproc();
     }
     MakeCollisionDependGObjList();
     gamesysObjInfoStageInitPosSaveUnlock();
-    D_0028F4C0[5] = 0;
-    D_0028F4C0[6] = 0;
+    systemStatus[5] = 0;
+    systemStatus[6] = 0;
     iosThreadDestroy(0);
 }
 

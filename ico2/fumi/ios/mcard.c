@@ -200,17 +200,18 @@ extern McSaveRec IosMcProductFile[];
    (0xB0) */
 extern char iosPadConfCustom[];
 extern int optionControlType;
-extern int D_0028F4C0[];
+/* kept local: main.c's global; this TU does not include main.h */
+extern int systemStatus[];
 extern int NonLinearCameraMove;
 
 inline int product_write(int *self)
 {
-    (IosMcProductFile + self[2])->soundMode = D_0028F4C0[11];
+    (IosMcProductFile + self[2])->soundMode = systemStatus[11];
     (IosMcProductFile + self[2])->outputMode = soundOutputModeGet();
     (IosMcProductFile + self[2])->unk198 = iosPadActRequestEnable;
     (IosMcProductFile + self[2])->gobj = optionControlType;
     (IosMcProductFile + self[2])->cameraMove = NonLinearCameraMove;
-    (IosMcProductFile + self[2])->unk1EC = D_0028F4C0[0];
+    (IosMcProductFile + self[2])->unk1EC = systemStatus[0];
     *(McBlk *)(IosMcProductFile + self[2])->blk = *(McBlk *)(iosPadConfCustom + 0xB0);
     iosMcHandlerWrite((int)self, (int)(IosMcProductFile + self[2]), 0x1F0);
     return 0;
@@ -224,28 +225,27 @@ inline int product_read(int *self)
 }
 
 extern int optionScreenMode;
-extern int D_00639EA0;
+/* kept local: main.c's global; this TU does not include main.h */
+extern int girlControlMode;
 
 inline int gameblock_write(int self, void *buf)
 {
     iosMcHandlerWrite(self, buf, 0x63F4);
     iosMcHandlerWrite(self, &optionScreenMode, 4);
-    iosMcHandlerWrite(self, &D_00639EA0, 4);
+    iosMcHandlerWrite(self, &girlControlMode, 4);
     return 0;
 }
-
-extern int D_0028F4EC[];
 
 inline int gameblock_read(int *self, void *buf)
 {
     iosMcHandlerRead((int)self, (int)buf, 0x63F4);
-    D_0028F4EC[0] = (IosMcProductFile + self[2])->soundMode;
+    systemStatus[11] = (IosMcProductFile + self[2])->soundMode;
     soundOutputModeSet((IosMcProductFile + self[2])->outputMode);
     iosPadActRequestEnable = (IosMcProductFile + self[2])->unk198;
     optionControlType = (IosMcProductFile + self[2])->gobj;
     *(McBlk *)(iosPadConfCustom + 0xB0) = *(McBlk *)(IosMcProductFile + self[2])->blk;
     iosMcHandlerRead((int)self, (int)&optionScreenMode, 4);
-    iosMcHandlerRead((int)self, (int)&D_00639EA0, 4);
+    iosMcHandlerRead((int)self, (int)&girlControlMode, 4);
     return self[4];
 }
 

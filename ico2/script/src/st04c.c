@@ -11,11 +11,12 @@
 #include "typedef.h"
 #include "generator.h"
 
-extern char *D_00639EA8;
+/* kept local: main.c's global; this TU does not include main.h */
+extern char *girlGObj;
 
 void actSt04cEnd(void)
 {
-    if (D_00639EA8 != 0) {
+    if (girlGObj != 0) {
         if (gflagChk(163) == 0) {
             gflagOn(391);
         }
@@ -34,7 +35,8 @@ static const ConstVec doorDownEffect2Pos = {{-2.0f, 250.0f, -1450.0f, 1.0f}};
 
 static const ConstVec doorDownEffect3Pos = {{5.0f, 260.0f, -1450.0f, 1.0f}};
 
-extern int D_00639EA4;
+/* kept local: main.c's global; this TU does not include main.h */
+extern int boyGObj;
 /* kept local: the declaration in script.h changes this TU codegen */
 extern int scpTriggerBall(int a0, int gobj, float r);
 
@@ -43,7 +45,7 @@ void actSt04cDoorDownChk(volatile int a0)
 {
     StVec pos;
 
-    while (scpTriggerBall(a0, D_00639EA4, 200.0f) == 0) {
+    while (scpTriggerBall(a0, boyGObj, 200.0f) == 0) {
         _ACTWait(1);
     }
 
@@ -90,7 +92,7 @@ void actSt04cIntroChk(volatile int a0)
 {
     int th;
 
-    while (scpTriggerBall(a0, D_00639EA4, 1000.0f) == 0) {
+    while (scpTriggerBall(a0, boyGObj, 1000.0f) == 0) {
         _ACTWait(1);
     }
 
@@ -128,7 +130,8 @@ void actSt04cIntroChk(volatile int a0)
     scpBoyControlReadDisable = 0;
 }
 
-extern int D_0028F8F0[];
+/* kept local: main.c's global; this TU does not include main.h */
+extern int pad[];
 /* kept local: this TU's uses of scpSearchGobj do not fit the prototype in script.h */
 extern int scpSearchGobj(int a0);
 /* kept local: this TU's uses of scpSleepEnemyAll do not fit the prototype in script.h */
@@ -176,7 +179,7 @@ void actSt04lDoorChk(volatile int a0)
             h = soundSeDefPlay(1330, 0, 0, 1);
 
             for (i = 90; i-- > 0;) {
-                if ((D_0028F8F0[1] & 0x800) && scpAdpcmPlayRequestNum() == 0) {
+                if ((pad[1] & 0x800) && scpAdpcmPlayRequestNum() == 0) {
                     scpFadeOut(16.0f, 0, 0, 0);
                     while (scpFadeChk() != 0) {
                         _ACTWait(1);
@@ -374,10 +377,10 @@ void actSt04cDoorDownEffect(volatile int a0)
 
 void actSt04cEneChk(volatile int a0)
 {
-    if (D_00639EA8 == 0) {
+    if (girlGObj == 0) {
         _ACTWait(0);
     }
-    while (scpTriggerFloorAttr(D_00639EA8, 0xB000000) == 0) {
+    while (scpTriggerFloorAttr(girlGObj, 0xB000000) == 0) {
         _ACTWait(1);
     }
     gflagOff(391);

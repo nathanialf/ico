@@ -13,15 +13,18 @@
 #include <libvu0.h>
 #include "typedef.h"
 
-extern int D_00639EA4;
-extern int D_00639EAC;
+/* kept local: main.c's global; this TU does not include main.h */
+extern int boyGObj;
+/* kept local: main.c's global; this TU does not include main.h */
+extern int boyPad;
 
 /* .sbss, owned by st13a.o and reached only from this file (MAIN.MAP names no
    symbol in the run): the demo's own end flag, raised by the
    subthreads the wait loops below spin for. */
 static int demoEnd;
 
-extern PadState D_0028F8F0[];
+/* kept local: main.c's global; this TU does not include main.h */
+extern PadState pad[];
 /* st13a.o's own .sdata run; MAIN.MAP names all seven. */
 void actSt13aElevUpSub(volatile int a0);
 void actSt13aElevDownSub(volatile int a0);
@@ -81,13 +84,13 @@ void actSt13aElevUpSub(volatile int a0)
         _ACTWait(1);
     }
     _ACTWait(1);
-    iosPadActRequest(D_00639EAC, 0x11);
+    iosPadActRequest(boyPad, 0x11);
 
     while (stage_CheckAnimationFrame(173, 140, 0) == 0) {
         _ACTWait(1);
     }
     _ACTWait(1);
-    st13a_yure = iosPadActRequest(D_00639EAC, 9);
+    st13a_yure = iosPadActRequest(boyPad, 9);
     st13a_yure_vol = 0x80;
     iosPadActVolumeSet(st13a_yure, 0x80);
 
@@ -121,7 +124,7 @@ void actSt13aElevUp(volatile int a0)
     th = actCreateSubThread(actSt13aElevUpSub, 21);
     demoEnd = 0;
 
-    while (demoEnd == 0 && ((D_0028F8F0[0].flags & 0x800) == 0 || scpAdpcmPlayRequestNum() != 0)) {
+    while (demoEnd == 0 && ((pad[0].flags & 0x800) == 0 || scpAdpcmPlayRequestNum() != 0)) {
         _ACTWait(1);
     }
 
@@ -140,7 +143,7 @@ void actSt13aElevUp(volatile int a0)
 
     iosPadActStop(st13a_yure);
     gflagOn(325);
-    RequestStageChange(0xF, D_00639EA4, 0, 0.025f, 8.0f);
+    RequestStageChange(0xF, boyGObj, 0, 0.025f, 8.0f);
 }
 
 void actSt13aElevDown(volatile int a0)
@@ -155,7 +158,7 @@ void actSt13aElevDown(volatile int a0)
         stage_SetAnimation(173, 0, 0);
         lt_switch_layout(55);
         scpBoyControlReadDisable = 1;
-        scpPlayStart(D_00639EA4);
+        scpPlayStart(boyGObj);
         scpAdpcmPlayRequestFunc(80, &st13a_down, 1, 1, 0);
         _ACTWait(10);
         stage_SetAnimation(173, 0, 0x1C3);
@@ -172,9 +175,9 @@ void actSt13aElevDownSub(volatile int a0)
     stage_SetAnimation(173, 1, 0x1C3);
     stage_SetAnimation(175, 1, 0);
 
-    scpPlayPosSet(D_00639EA4, -4871.0f, -2800.0f, 2699.0f);
+    scpPlayPosSet(boyGObj, -4871.0f, -2800.0f, 2699.0f);
 
-    st13a_yure = iosPadActRequest(D_00639EAC, 9);
+    st13a_yure = iosPadActRequest(boyPad, 9);
     st13a_yure_vol = 0x80;
     iosPadActVolumeSet(st13a_yure, 0x80);
 
@@ -182,7 +185,7 @@ void actSt13aElevDownSub(volatile int a0)
         _ACTWait(1);
     }
     _ACTWait(1);
-    iosPadActRequest(D_00639EAC, 0x11);
+    iosPadActRequest(boyPad, 0x11);
     iosPadActStop(st13a_yure);
     st13a_yure = -1;
 
@@ -210,7 +213,7 @@ void actSt13aElevDownChk(volatile int a0)
     demoEnd = 0;
     st13a_yure = -1;
 
-    while (demoEnd == 0 && ((D_0028F8F0[0].flags & 0x800) == 0 || scpAdpcmPlayRequestNum() != 0)) {
+    while (demoEnd == 0 && ((pad[0].flags & 0x800) == 0 || scpAdpcmPlayRequestNum() != 0)) {
         _ACTWait(1);
     }
 
@@ -228,13 +231,13 @@ void actSt13aElevDownChk(volatile int a0)
         stage_SetAnimation(175, 0, -1);
         stage_SetAnimation(173, 0, -1);
         _ACTWait(2);
-        scpPlayPosSet(D_00639EA4, -4871.0f, 3527.0f, 2699.0f);
+        scpPlayPosSet(boyGObj, -4871.0f, 3527.0f, 2699.0f);
         iosPadActStop(st13a_yure);
         scpFadeIn(3.0f);
     }
 
-    scpPlayMot(D_00639EA4, 0);
-    scpPlayEnd(D_00639EA4);
+    scpPlayMot(boyGObj, 0);
+    scpPlayEnd(boyGObj);
     lt_switch_layout(54);
     scpBoyControlReadDisable = 0;
     gflagOff(15);
@@ -244,8 +247,8 @@ void actSt13aSekizoChk(volatile int a0)
 {
     float d[4];
 
-    while (scpTriggerBall(a0, D_00639EA4, 200.0f) == 0 || scpGameStat_BoyWeaponkind() != 5 ||
-           scpActStatusDeathFall(D_00639EA4) != 0) {
+    while (scpTriggerBall(a0, boyGObj, 200.0f) == 0 || scpGameStat_BoyWeaponkind() != 5 ||
+           scpActStatusDeathFall(boyGObj) != 0) {
         _ACTWait(1);
     }
 
@@ -259,24 +262,24 @@ void actSt13aSekizoChk(volatile int a0)
 
     stage_SetAnimation(176, 1, 0);
 
-    sekizo_13a = iosPadActRequest(D_00639EAC, 9);
+    sekizo_13a = iosPadActRequest(boyPad, 9);
     sekizo_13a_vol = 0x80;
     iosPadActVolumeSet(sekizo_13a, 0x80);
 
-    scpPlayStart(D_00639EA4);
-    scpPlayPosSet(D_00639EA4, -3688.0f, 3527.0f, 2502.0f);
-    scpPlayMot(D_00639EA4, 0);
+    scpPlayStart(boyGObj);
+    scpPlayPosSet(boyGObj, -3688.0f, 3527.0f, 2502.0f);
+    scpPlayMot(boyGObj, 0);
     _ACTWait(1);
 
-    sceVu0SubVector(d, test_CURRENTROOT(a0), test_CURRENTROOT(D_00639EA4));
-    scpPlayMotDir(D_00639EA4, d);
+    sceVu0SubVector(d, test_CURRENTROOT(a0), test_CURRENTROOT(boyGObj));
+    scpPlayMotDir(boyGObj, d);
 
     scpSekizouCheckPoint();
 
-    scpPlayMot(D_00639EA4, 251);
-    scpPlayWaitMotEnd(D_00639EA4);
-    scpPlayMot(D_00639EA4, 0);
-    scpPlayEnd(D_00639EA4);
+    scpPlayMot(boyGObj, 251);
+    scpPlayWaitMotEnd(boyGObj);
+    scpPlayMot(boyGObj, 0);
+    scpPlayEnd(boyGObj);
 
     gflagOn(326);
 

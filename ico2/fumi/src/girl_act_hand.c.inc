@@ -3,12 +3,12 @@ void HandMgr_GetDistHand(float *dist, float *height)
 {
     union GAIF g[4], b[4];
     int n, m;
-    n = GetSkeltonFocusNode(D_00639EA8, 0x12);
+    n = GetSkeltonFocusNode(girlGObj, 0x12);
 
-    g[0].f = *(float *)((n << 6) + *(int *)(*(int *)((char *)D_00639EA8 + 0x15C) + 0xC) + 0x30); g[1].f = *(float *)((n << 6) + *(int *)(*(int *)((char *)D_00639EA8 + 0x15C) + 0xC) + 0x34); g[2].f = *(float *)((n << 6) + *(int *)(*(int *)((char *)D_00639EA8 + 0x15C) + 0xC) + 0x38);
-    m = GetSkeltonFocusNode(D_00639EA4, 2);
+    g[0].f = *(float *)((n << 6) + *(int *)(*(int *)((char *)girlGObj + 0x15C) + 0xC) + 0x30); g[1].f = *(float *)((n << 6) + *(int *)(*(int *)((char *)girlGObj + 0x15C) + 0xC) + 0x34); g[2].f = *(float *)((n << 6) + *(int *)(*(int *)((char *)girlGObj + 0x15C) + 0xC) + 0x38);
+    m = GetSkeltonFocusNode(boyGObj, 2);
 
-    b[0].f = *(float *)((m << 6) + *(int *)(*(int *)((char *)D_00639EA4 + 0x15C) + 0xC) + 0x30); b[1].f = *(float *)((m << 6) + *(int *)(*(int *)((char *)D_00639EA4 + 0x15C) + 0xC) + 0x34); b[2].f = *(float *)((m << 6) + *(int *)(*(int *)((char *)D_00639EA4 + 0x15C) + 0xC) + 0x38);
+    b[0].f = *(float *)((m << 6) + *(int *)(*(int *)((char *)boyGObj + 0x15C) + 0xC) + 0x30); b[1].f = *(float *)((m << 6) + *(int *)(*(int *)((char *)boyGObj + 0x15C) + 0xC) + 0x34); b[2].f = *(float *)((m << 6) + *(int *)(*(int *)((char *)boyGObj + 0x15C) + 0xC) + 0x38);
 
 
     *dist = _DistGV(g, b);
@@ -16,14 +16,14 @@ void HandMgr_GetDistHand(float *dist, float *height)
                                                : g[1].f - (b[1].f - 40.0f);
 }
 
-__inline void HandMgr_Init(void) { GetRootPosition(handmgr.prev, D_00639EA8); }
+__inline void HandMgr_Init(void) { GetRootPosition(handmgr.prev, girlGObj); }
 
 void HandMgr_Update(void)
 {
-    GetRootPosition(handmgr.cur, D_00639EA8);
+    GetRootPosition(handmgr.cur, girlGObj);
     handmgr.f_20 = _DistGV(handmgr.cur, handmgr.prev);
-    handmgr.sub30[0] = ((float *)test_CURRENTORIENT(D_00639EA8))[0]; handmgr.sub30[1] = ((float *)test_CURRENTORIENT(D_00639EA8))[1]; handmgr.sub30[2] = ((float *)test_CURRENTORIENT(D_00639EA8))[2];
-    _OrientXZGV(handmgr.sub40, test_CURRENTROOT(D_00639EA4), handmgr.cur);
+    handmgr.sub30[0] = ((float *)test_CURRENTORIENT(girlGObj))[0]; handmgr.sub30[1] = ((float *)test_CURRENTORIENT(girlGObj))[1]; handmgr.sub30[2] = ((float *)test_CURRENTORIENT(girlGObj))[2];
+    _OrientXZGV(handmgr.sub40, test_CURRENTROOT(boyGObj), handmgr.cur);
     HandMgr_GetDistHand(&handmgr.f_50, &handmgr.f_54);
 
     handmgr.f_58 = 0;
@@ -94,7 +94,7 @@ void HandMgr_Speed(float f)
     f = f < 1.0f ? 1.0f : (lim < f ? lim : f);
     f = f < 1.0f ? 1.0f : (_ACTGame_GetParamF(8) < f ? _ACTGame_GetParamF(8) : f);
     ACTGame_SetMotionPlaySpeedRatio_Reserve((void *)a0, f, 2);
-    m = GOBJ_ACT(D_00639EA4)->unk34;
+    m = GOBJ_ACT(boyGObj)->unk34;
     if ((unsigned int)m < 4) {
         if (m != 0) {
             float one = 1.0f;
@@ -111,9 +111,9 @@ void HandMgr_Speed(float f)
     }
     if (90.0f < handmgr.f_50) {
         float r;
-        if (*(int *)((char *)GOBJ_ACT(D_00639EA4) + 0x154) != 0) {
+        if (*(int *)((char *)GOBJ_ACT(boyGObj) + 0x154) != 0) {
             r = 2.0f;
-        } else if (D_0028F4C0[0] == 1) {
+        } else if (systemStatus[0] == 1) {
             r = (handmgr.f_50 - 90.0f) / 120.0f + 1.1f;
             r = r < 1.0f ? 1.0f : (r > 1.4 ? 1.4f : r);
         } else {

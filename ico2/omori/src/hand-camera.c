@@ -7,7 +7,8 @@
 #include <string.h>
 #include <libvu0.h>
 
-extern int D_0028F4C0[];
+/* kept local: main.c's global; this TU does not include main.h */
+extern int systemStatus[];
 
 /* .sbss, owned by hand-camera.o (MAIN.MAP names no symbol in the run), in the ROM's run order: the
    correction rate scaled by the frame budget, and the correction mode
@@ -151,8 +152,8 @@ void HandyCamera_TargetMoveType(void *a0, void *a1)
 
 inline void ClearHandCameraCorrect(void)
 {
-    int a = D_0028F4C0[0];
-    int b = D_0028F4C0[1];
+    int a = systemStatus[0];
+    int b = systemStatus[1];
     int t = a * 10;
     int diff = 0x3C - t;
     int q;
@@ -164,8 +165,8 @@ inline void ClearHandCameraCorrect(void)
 
 inline void InitHandCameraCorrect(void)
 {
-    int a = D_0028F4C0[0];
-    int b = D_0028F4C0[1];
+    int a = systemStatus[0];
+    int b = systemStatus[1];
     int t = a * 10;
     int diff = 0x3C - t;
     int q;

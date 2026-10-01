@@ -15,7 +15,7 @@ extern void soundSePlayModeStop(int arg);
 extern void soundDataSegNextStageNotUseClose(int x, int *p);
 /* kept local: this TU's uses of soundSeEnvNotUseClose do not fit the prototype in s_init.h */
 extern void soundSeEnvNotUseClose(int *a, int *b);
-extern StgPre D_005F5D50[];
+extern StgPre stageData[];
 /* kept local: this TU's uses of soundReverbDepthSet do not fit the prototype in s_init.h */
 extern void soundReverbDepthSet(int a0);
 /* kept local: this TU's uses of soundSeKindBuild do not fit the prototype in s_init.h */
@@ -78,5 +78,5 @@ void sndInit(int idx)
     soundSeKindBuild(idx);
     adpcmPauseRequest(0);
     attrOff = 0x18C;
-    soundReverbDepthSet(*(unsigned short *)((char *)&D_005F5D50[idx] + attrOff));
+    soundReverbDepthSet(*(unsigned short *)((char *)&stageData[idx] + attrOff));
 }

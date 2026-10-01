@@ -105,8 +105,8 @@ typedef struct LtProperty {
     unsigned int f6C_b6 : 26;
 } LtProperty;
 
-extern LtProperty D_0030CFF8[];
-extern StgPre D_005F5D50[];
+extern LtProperty texProperty[];
+extern StgPre stageData[];
 extern int mpegPlayReturnStage;
 
 /* The 0x38-byte layout property records this TU shares with src/kanban. */
@@ -127,7 +127,7 @@ typedef struct LtProp {
     char pad34[0x38 - 0x34];
 } LtProp;
 
-extern LtProp D_00533FE8[];
+extern LtProp texLayout[];
 
 #include "layout_texture.h"
 
@@ -163,27 +163,27 @@ void display_texture_fade_cancel_chk(int from, int to)
     int n1 = 0;
     int n2 = 0;
 
-    for (i = from; i >= 0; i = D_00533FE8[i].link) {
-        for (j = D_00533FE8[i].first; j < D_00533FE8[i].last; j++) {
-            LtProperty *pr = &D_0030CFF8[j];
+    for (i = from; i >= 0; i = texLayout[i].link) {
+        for (j = texLayout[i].first; j < texLayout[i].last; j++) {
+            LtProperty *pr = &texProperty[j];
 
             pr->fade_cancel = 0;
             list1[n1++] = j;
         }
     }
-    for (i = to; i >= 0; i = D_00533FE8[i].link) {
-        for (j = D_00533FE8[i].first; j < D_00533FE8[i].last; j++) {
-            LtProperty *pr = &D_0030CFF8[j];
+    for (i = to; i >= 0; i = texLayout[i].link) {
+        for (j = texLayout[i].first; j < texLayout[i].last; j++) {
+            LtProperty *pr = &texProperty[j];
 
             pr->fade_cancel = 0;
             list2[n2++] = j;
         }
     }
     for (k = 0; k < n1; k++) {
-        LtProperty *p = &D_0030CFF8[list1[k]];
+        LtProperty *p = &texProperty[list1[k]];
 
         for (l = 0; l < n2; l++) {
-            LtProperty *q = &D_0030CFF8[list2[l]];
+            LtProperty *q = &texProperty[list2[l]];
 
             if (p->f58 == q->f58 && p->f5C == q->f5C && p->f68 == q->f68 && p->f64 == q->f64 &&
                 p->f60 == q->f60 && p->f54 == q->f54 && p->f50 == q->f50 && p->f4C == q->f4C &&
@@ -195,7 +195,7 @@ void display_texture_fade_cancel_chk(int from, int to)
     }
 }
 
-/* The pad record at D_0028F8F0: the button word at +0 and the trigger word at
+/* The pad record at pad: the button word at +0 and the trigger word at
    +4, with the two analog-stick axes as unsigned bytes at +0x56 and +0x57. */
 typedef struct LtPad {
     int button;  /* 0x00 */
@@ -205,35 +205,36 @@ typedef struct LtPad {
     unsigned char rx; /* 0x57 */
 } LtPad;
 
-extern LtPad D_0028F8F0;
+/* kept local: main.c's global; this TU does not include main.h */
+extern LtPad pad;
 
 void lt_analog2Pad(void)
 {
-    if (D_0028F8F0.rx < 20) {
-        D_0028F8F0.button |= 0x1000;
+    if (pad.rx < 20) {
+        pad.button |= 0x1000;
         if ((lastButton & 0x1000) == 0) {
-            D_0028F8F0.trigger |= 0x1000;
+            pad.trigger |= 0x1000;
         }
     }
-    if (D_0028F8F0.rx >= 236) {
-        D_0028F8F0.button |= 0x4000;
+    if (pad.rx >= 236) {
+        pad.button |= 0x4000;
         if ((lastButton & 0x4000) == 0) {
-            D_0028F8F0.trigger |= 0x4000;
+            pad.trigger |= 0x4000;
         }
     }
-    if (D_0028F8F0.ry < 20) {
-        D_0028F8F0.button |= 0x8000;
+    if (pad.ry < 20) {
+        pad.button |= 0x8000;
         if ((lastButton & 0x8000) == 0) {
-            D_0028F8F0.trigger |= 0x8000;
+            pad.trigger |= 0x8000;
         }
     }
-    if (D_0028F8F0.ry >= 236) {
-        D_0028F8F0.button |= 0x2000;
+    if (pad.ry >= 236) {
+        pad.button |= 0x2000;
         if ((lastButton & 0x2000) == 0) {
-            D_0028F8F0.trigger |= 0x2000;
+            pad.trigger |= 0x2000;
         }
     }
-    lastButton = D_0028F8F0.button;
+    lastButton = pad.button;
 }
 
 extern int frame_count;
@@ -260,19 +261,20 @@ static inline int lt_property_visible(int no)
 /* source lines 1066-1075 */
 static inline void lt_draw_layout(int no)
 {
-    int i = D_00533FE8[no].first;
-    int last = D_00533FE8[no].last;
+    int i = texLayout[no].first;
+    int last = texLayout[no].last;
 
     for (; i < last; i++) {
         if (lt_property_visible(i)) {
-            display_texture(no, &D_0030CFF8[i]);
+            display_texture(no, &texProperty[i]);
         }
     }
 }
 
 /* kept local: the declaration in s_init.h changes this TU codegen */
 extern int soundSeDefPlay(int se, unsigned int handle, float *pos, int a3);
-extern int D_0028F4C0[];
+/* kept local: main.c's global; this TU does not include main.h */
+extern int systemStatus[];
 
 /* Source lines 441-451.  lt_switch_layout is a real global at its own ROM slot
    and the PAL listing inlines its body into default_item_select twice, so the two
@@ -318,8 +320,8 @@ static inline void lt_switch_layout_3(int no)
 /* source lines 621-705 */
 void default_item_select(int no)
 {
-    LtProp *p = &D_00533FE8[no];
-    LtProperty *e = &D_0030CFF8[p->f2C];
+    LtProp *p = &texLayout[no];
+    LtProperty *e = &texProperty[p->f2C];
     int prev;
 
     if (p->f2C < 0) {
@@ -334,27 +336,27 @@ void default_item_select(int no)
     if (fadeCallback == 0) {
         lt_analog2Pad();
         prev = p->f2C;
-        if ((D_0028F8F0.trigger & 0x50) == 0) {
-            if ((D_0028F8F0.trigger & 0x1000) && e->f3C >= 0) {
+        if ((pad.trigger & 0x50) == 0) {
+            if ((pad.trigger & 0x1000) && e->f3C >= 0) {
                 p->f2C = e->f3C;
                 while (!lt_property_visible(p->f2C)) {
-                    p->f2C = D_0030CFF8[p->f2C].f3C;
+                    p->f2C = texProperty[p->f2C].f3C;
                 }
-            } else if ((D_0028F8F0.trigger & 0x4000) && e->f38 >= 0) {
+            } else if ((pad.trigger & 0x4000) && e->f38 >= 0) {
                 p->f2C = e->f38;
                 while (!lt_property_visible(p->f2C)) {
-                    p->f2C = D_0030CFF8[p->f2C].f38;
+                    p->f2C = texProperty[p->f2C].f38;
                 }
-            } else if ((D_0028F8F0.trigger & 0x8000) && e->f34 >= 0) {
+            } else if ((pad.trigger & 0x8000) && e->f34 >= 0) {
                 p->f2C = e->f34;
-            } else if ((D_0028F8F0.trigger & 0x2000) && e->f30 >= 0) {
+            } else if ((pad.trigger & 0x2000) && e->f30 >= 0) {
                 p->f2C = e->f30;
             }
         }
         if (p->f2C != prev) {
             soundSeDefPlay(411, 0xFFFFFFFE, 0, 0);
             glowOn = 1;
-            glowLength = (unsigned int)((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1] * 0.25f);
+            glowLength = (unsigned int)((60 - systemStatus[0] * 10) / systemStatus[1] * 0.25f);
             selectFrame = frame_count;
             glowCount = 0;
         }
@@ -363,8 +365,8 @@ void default_item_select(int no)
         fadeCallback = 0;
     }
 
-    e = &D_0030CFF8[p->f2C];
-    if (D_0028F8F0.trigger & 0x40) {
+    e = &texProperty[p->f2C];
+    if (pad.trigger & 0x40) {
         if (e->right >= 0) {
             if (fadeState == 2) {
                 soundSeDefPlay(412, 0xFFFFFFFE, 0, 0);
@@ -373,7 +375,7 @@ void default_item_select(int no)
             }
         }
     }
-    if (D_0028F8F0.trigger & 0x10) {
+    if (pad.trigger & 0x10) {
         if (e->left >= 0) {
             if (fadeState == 2) {
                 soundSeDefPlay(413, 0xFFFFFFFE, 0, 0);
@@ -385,11 +387,11 @@ void default_item_select(int no)
 
 static inline void lt_reset_property_chain(int no)
 {
-    LtProp *p = &D_00533FE8[no];
+    LtProp *p = &texLayout[no];
     int i = p->link;
 
     while (i >= 0) {
-        p = &D_00533FE8[i];
+        p = &texLayout[i];
         p->f2C = p->f28;
         p->f24 = 1;
         i = p->link;
@@ -436,7 +438,7 @@ void texture_fading(LtProp *p)
     switch (fadeState) {
     case 0:
         fadeState = 1;
-        ltBlinkLength = (int)(p->f8 * ((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]));
+        ltBlinkLength = (int)(p->f8 * ((60 - systemStatus[0] * 10) / systemStatus[1]));
         ltBlinkCount = ltBlinkLength;
         /* fall through */
     case 1:
@@ -451,7 +453,7 @@ void texture_fading(LtProp *p)
         break;
     case 7:
         fadeState = 8;
-        fadeLength = (unsigned int)((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1] * 0.25f);
+        fadeLength = (unsigned int)((60 - systemStatus[0] * 10) / systemStatus[1] * 0.25f);
         fadeCount = 0;
         /* fall through */
     case 8:
@@ -461,7 +463,7 @@ void texture_fading(LtProp *p)
         break;
     case 3:
         fadeState = 4;
-        ltBlinkLength = (int)(p->fC * ((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]));
+        ltBlinkLength = (int)(p->fC * ((60 - systemStatus[0] * 10) / systemStatus[1]));
         ltBlinkCount = ltBlinkLength;
         break;
     case 4:
@@ -476,11 +478,11 @@ void texture_fading(LtProp *p)
         /* fall through */
     case 6:
         current_layout_id = nextLayout;
-        cur = &D_00533FE8[current_layout_id].f2C;
-        *cur = D_00533FE8[current_layout_id].f28;
+        cur = &texLayout[current_layout_id].f2C;
+        *cur = texLayout[current_layout_id].f28;
         ltSelectFlag = 1;
         fadeState = 0;
-        if (D_00533FE8[current_layout_id].f8 == 0.0f) {
+        if (texLayout[current_layout_id].f8 == 0.0f) {
             lt_item_select_disable = 1;
             fadeState = 2;
         }
@@ -508,10 +510,11 @@ extern void gif_SpriteSensitive(void *rect, unsigned int z, void *uv, void *col,
 extern void gif_EndPacket(void);
 extern void texture_fading(LtProp *p);
 /* The census display_texture body below reads these:
-   ltHighlightColor is the second highlight colour, D_0028F720 the system record whose
+   ltHighlightColor is the second highlight colour, GlobalStageSetting the system record whose
    bytes at 0xD0/0xD4/0xD8 it inverts, and GetTableSin/gif_SpriteSensitiveOffset/
    gif_PointOffset/gif_SetGsReg/rand are its callees. */
-extern unsigned char D_0028F720[];
+/* kept local: main.c's global; this TU does not include main.h */
+extern unsigned char GlobalStageSetting[];
 extern float GetTableSin(int a);
 extern void gif_SpriteSensitiveOffset(void *rect, unsigned int z, void *ofs, void *col, int prim);
 extern void gif_PointOffset(void *pt, unsigned int z, void *col, int prim);
@@ -576,7 +579,7 @@ static void display_texture(int no, LtProperty *e)
     }
     box.y = (e->f50 - 113) * 16;
 
-    sel = (e == &D_0030CFF8[D_00533FE8[no].f2C]);
+    sel = (e == &texProperty[texLayout[no].f2C]);
     if (sel && lt_item_select_disable == 0 && fadeState == 2 && e->f6C_b3 == 0) {
         SprCol pcol;
 
@@ -615,9 +618,9 @@ static void display_texture(int no, LtProperty *e)
         } else {
             u.col = *(SprCol *)&ltHighlightColor;
         }
-        u.col.r = ~D_0028F720[0xD0];
-        u.col.g = ~D_0028F720[0xD4];
-        u.col.b = ~D_0028F720[0xD8];
+        u.col.r = ~GlobalStageSetting[0xD0];
+        u.col.g = ~GlobalStageSetting[0xD4];
+        u.col.b = ~GlobalStageSetting[0xD8];
         if (u.col.r < 120 || u.col.g < 120 || u.col.b < 120) {
             if (u.col.r >= 17) {
                 u.col.r = u.col.r - 16;
@@ -635,7 +638,7 @@ static void display_texture(int no, LtProperty *e)
                 u.col.b = 0;
             }
         }
-        if (D_00533FE8[no].f2C != e->f10) {
+        if (texLayout[no].f2C != e->f10) {
             if (e->f6C_b3 != 0 && sel == 0 && (flag != 0 || e->f10 >= 0)) {
                 u.col.r = u.col.r * 0.5f;
                 u.col.g = u.col.g * 0.5f;
@@ -676,7 +679,7 @@ static inline void lt_draw_primary_sprite(SprCol *col)
 void display_primary_texture_layout(int no, int sel)
 {
     SprCol col;
-    LtProp *p = &D_00533FE8[no];
+    LtProp *p = &texLayout[no];
     int m;
     int flag;
 
@@ -687,7 +690,7 @@ void display_primary_texture_layout(int no, int sel)
     lt_draw_primary_sprite(&col);
     if (p->f20 != 0 && (fadeState == 1 || fadeState == 2)) {
         if (p->f2C >= 0) {
-            int *e = (int *)((char *)D_0030CFF8 + p->f2C * 0x70);
+            int *e = (int *)((char *)texProperty + p->f2C * 0x70);
 
             m = e[0x1B] & 3;
         } else {
@@ -734,23 +737,23 @@ void exec_layout_texture(void)
     if (frame_count - selectFrame == 0 || frame_count - selectFrame == 1) {
         D_0028F8F4[0] = 0;
     }
-    p = &D_00533FE8[current_layout_id];
+    p = &texLayout[current_layout_id];
     for (;;) {
         for (j = p->first; j < p->last; j++) {
-            LtProperty *e = &D_0030CFF8[j];
+            LtProperty *e = &texProperty[j];
 
             e->f6C_b4 = e->f6C_b5;
         }
         if (p->link >= 0) {
             list[n++] = p->link;
-            p = &D_00533FE8[p->link];
+            p = &texLayout[p->link];
         } else {
             break;
         }
     }
     list[n] = -1;
     for (n--; n != -1; n--) {
-        p = &D_00533FE8[list[n]];
+        p = &texLayout[list[n]];
         v = p->f2C;
         ltCurrentItem = v;
         if (p->f20 != 0 && (fadeState == 1 || fadeState == 2)) {
@@ -764,7 +767,7 @@ void exec_layout_texture(void)
             default_item_select(list[n]);
         }
     }
-    p = &D_00533FE8[current_layout_id];
+    p = &texLayout[current_layout_id];
     ltCurrentItem = p->f2C;
     display_primary_texture_layout(current_layout_id, ret);
     if (p->f2C >= 0 && lt_item_select_disable == 0) {
@@ -779,7 +782,7 @@ void exec_layout_texture(void)
 /* census init_textures_of_specified_property, a file static; MAIN.MAP carries no
    global of that name, so ico2/common/src/kanban's twin is a static too and
    `static` here keeps this one's ELF symbol local */
-extern char D_00535168[][0x34];
+extern char texFile[][0x34];
 extern char D_0030D014[];
 extern char *strtok(char *s, const char *sep);
 extern char *strrchr(const char *s, int c);
@@ -818,8 +821,8 @@ static inline int lt_texture_no_of_property(int idx)
     char *name;
     int no;
 
-    n = D_0030CFF8[idx].f58;
-    src = D_00535168[n];
+    n = texProperty[idx].f58;
+    src = texFile[n];
     name = lt_texture_base_name(src);
 
     no = tex_GetTextureNo(name);
@@ -851,13 +854,13 @@ static void init_textures_of_specified_property(int first, int last)
 /* source lines 1322-1331 */
 static inline void lt_init_stage_textures(int stage)
 {
-    int i = D_005F5D50[stage].layoutFirst;
-    int last = D_005F5D50[stage].layoutLast;
+    int i = stageData[stage].layoutFirst;
+    int last = stageData[stage].layoutLast;
 
     for (; i < last; i++) {
-        init_textures_of_specified_property(D_00533FE8[i].first, D_00533FE8[i].last);
+        init_textures_of_specified_property(texLayout[i].first, texLayout[i].last);
     }
-    ltCurrentItem = D_00533FE8[current_layout_id].f28;
+    ltCurrentItem = texLayout[current_layout_id].f28;
 }
 
 void init_layout_texture(int stage)
@@ -885,7 +888,7 @@ void init_layout_texture(int stage)
         current_layout_id = 54;
     }
     lt_init_stage_textures(stage);
-    D_00533FE8[current_layout_id].f2C = D_00533FE8[current_layout_id].f28;
+    texLayout[current_layout_id].f2C = texLayout[current_layout_id].f28;
     ltSelectFlag = 1;
     fadeState = 0;
     lt_reset_property_chain(current_layout_id);
@@ -914,13 +917,13 @@ inline int lt_link_layout(int dir)
 {
     switch (dir) {
     case 0:
-        return D_0030CFF8[lt_current_property_item()].right;
+        return texProperty[lt_current_property_item()].right;
     case 1:
-        return D_0030CFF8[lt_current_property_item()].left;
+        return texProperty[lt_current_property_item()].left;
     case 2:
-        return D_0030CFF8[lt_current_property_item()].down;
+        return texProperty[lt_current_property_item()].down;
     case 3:
-        return D_0030CFF8[lt_current_property_item()].up;
+        return texProperty[lt_current_property_item()].up;
     }
     return -1;
 }
@@ -928,8 +931,8 @@ inline int lt_link_layout(int dir)
 inline int lt_prev_layout(int stage)
 {
     current_layout_id = current_layout_id - 1;
-    if (current_layout_id < D_005F5D50[stage].layoutFirst) {
-        current_layout_id = D_005F5D50[stage].layoutLast - 1;
+    if (current_layout_id < stageData[stage].layoutFirst) {
+        current_layout_id = stageData[stage].layoutLast - 1;
     }
     lt_switch_layout(current_layout_id);
     return current_layout_id;
@@ -938,8 +941,8 @@ inline int lt_prev_layout(int stage)
 inline int lt_next_layout(int stage)
 {
     current_layout_id = current_layout_id + 1;
-    if (current_layout_id >= D_005F5D50[stage].layoutLast) {
-        current_layout_id = D_005F5D50[stage].layoutFirst;
+    if (current_layout_id >= stageData[stage].layoutLast) {
+        current_layout_id = stageData[stage].layoutFirst;
     }
     lt_switch_layout(current_layout_id);
     return current_layout_id;
@@ -947,13 +950,13 @@ inline int lt_next_layout(int stage)
 
 inline void lt_mask_property(int idx, int flag)
 {
-    LtProperty *p = &D_0030CFF8[idx];
+    LtProperty *p = &texProperty[idx];
     p->f6C_b4 = flag & 1;
 }
 
 inline void lt_default_mask_property(int idx, int flag)
 {
-    LtProperty *p = &D_0030CFF8[idx];
+    LtProperty *p = &texProperty[idx];
     p->f6C_b5 = flag & 1;
 }
 

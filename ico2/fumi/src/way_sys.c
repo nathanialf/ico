@@ -296,7 +296,7 @@ typedef struct {
     char pad47[0x5];    /* 0x47 */
 } GenGeoKind;
 
-extern GenGeoKind D_002C2DC8[];
+extern GenGeoKind objLayout[];
 extern int CreateTempWayGroup(void);
 extern float _GetLength(void *a, void *b);
 
@@ -343,7 +343,7 @@ int avoid_obstacle2(float *pos, float *wp, WVTObj *w)
         return 0;
     }
     obj = cc.f80;
-    if (((GenGeoKind *)D_002C2DC8)[*(int *)(obj + 8)].kind != 0x11) {
+    if (((GenGeoKind *)objLayout)[*(int *)(obj + 8)].kind != 0x11) {
         return 0;
     }
 

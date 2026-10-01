@@ -32,7 +32,8 @@ static struct {
     float timer[28]; /* 0x08 */
 } hintWork;          /* derived name */
 
-extern int D_0028F4C0[];
+/* kept local: main.c's global; this TU does not include main.h */
+extern int systemStatus[];
 /* kept local: brain.h is not in this TU's include list (its prototypes do not fit this TU's uses) */
 extern Brain brainGirl;
 /* kept local: this TU's uses of brainStatusDefaultSet do not fit the prototype in brain.h */
@@ -63,7 +64,7 @@ char *CreateKyomiGObj(int no)
         if (hintTable[i]._0 == stage_no && hintTable[i].no == no) {
             hint->no = i;
             hint->time = (int)(hintTable[i].time * 60.0f * 60.0f *
-                               (float)((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]) / 60.0f);
+                               (float)((60 - systemStatus[0] * 10) / systemStatus[1]) / 60.0f);
         }
     }
     brainStatusDefaultSet(&brainGirl, (int)gobj, 1);

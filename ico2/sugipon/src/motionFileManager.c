@@ -17,7 +17,7 @@ typedef struct {
     char pad2[0x194 - 0x138];
 } MotFileRec;
 
-extern MotFileRec D_0055FE58[];
+extern MotFileRec motionKind[];
 
 /* every motion's loaded data, indexed by motion number (MAIN.MAP global);
    charFileManager fills the entries, the resets clear them */
@@ -27,7 +27,7 @@ inline void ResetDynamicMotionManager(void)
 {
     int i;
     for (i = 0; i <= 1146; i++) {
-        if (D_0055FE58[i].node_id == 4) {
+        if (motionKind[i].node_id == 4) {
             motionTable[i] = 0;
         }
     }
@@ -38,7 +38,7 @@ inline void ResetStatic2MotionManager(int a0)
 {
     int i;
     for (i = 0; i <= 1146; i++) {
-        if (D_0055FE58[i].node_id == a0) {
+        if (motionKind[i].node_id == a0) {
             motionTable[i] = 0;
         }
     }

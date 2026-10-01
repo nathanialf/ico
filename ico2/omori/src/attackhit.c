@@ -143,7 +143,7 @@ typedef struct {
     /* 0x20 */ unsigned int f20;
 } WeaponKindEntry;
 
-extern WeaponKindEntry D_00318EB8[];
+extern WeaponKindEntry weaponKind[];
 /* kept local: this TU's uses of test_CURRENTROOT do not fit the prototype in commonact.h */
 extern float *test_CURRENTROOT(void *gobj);
 /* kept local: this TU's uses of _OrientGV do not fit the prototype in gv.h */
@@ -209,11 +209,11 @@ void MakeAttackPack_Actor(AttackPack *pack, char *gobj, void *weapon)
         }
         wk = CheckWeaponKind(weapon);
         WeaponCurPos(weapon, pack->center, pack->from, pack->to);
-        pack->radius0 = (D_00318EB8 + wk)->f00;
+        pack->radius0 = (weaponKind + wk)->f00;
         pack->radius1 = 20.0f;
-        ((union PackPowerWord *)&pack->power)->f = attackData[k].f1C * D_00318EB8[wk].f08;
+        ((union PackPowerWord *)&pack->power)->f = attackData[k].f1C * weaponKind[wk].f08;
         pack->active = 1;
-        pack->f60 = ((D_00318EB8 + wk)->f20 >> 1) & 1;
+        pack->f60 = ((weaponKind + wk)->f20 >> 1) & 1;
         if (pack->f60 == 0) {
             return;
         }
@@ -347,7 +347,8 @@ int AttackCheckSameGroup(char *self, char *other, char *third)
     return g1 == g0;
 }
 
-extern char *D_00639EA4;
+/* kept local: main.c's global; this TU does not include main.h */
+extern char *boyGObj;
 
 void AttackMail(char *self, AttackPack *pack)
 {
@@ -378,8 +379,8 @@ void AttackMail(char *self, AttackPack *pack)
         power = attackData[group].f1C;
     } else {
         kind = CheckWeaponKind(weapon);
-        power = attackData[group].f1C * D_00318EB8[kind].f08;
-        hard = (D_00318EB8 + kind)->f20 & 1;
+        power = attackData[group].f1C * weaponKind[kind].f08;
+        hard = (weaponKind + kind)->f20 & 1;
     }
     iosOmSendMail(self, 13, attacker);
 
@@ -401,7 +402,7 @@ void AttackMail(char *self, AttackPack *pack)
         *(char *)(*(int *)(self + 0x164) + 0x1D8) = attackData[group].b1 || pack->f01;
         *(char *)(*(int *)(self + 0x164) + 0x1DB) = attackData[group].b2 || hard;
         *(char *)(*(int *)(self + 0x164) + 0x1D9) = attackData[group].b3;
-        if (attacker == D_00639EA4) {
+        if (attacker == boyGObj) {
             *(unsigned long long *)(aext + 0x20) &= ~0x100000000ULL;
         }
         GetRootPosition(v0, attacker);
@@ -549,7 +550,8 @@ int AttackCheckHit(AttackPack *pack, char *gobj, short *out)
     return j;
 }
 
-extern char *D_00639EA8;
+/* kept local: main.c's global; this TU does not include main.h */
+extern char *girlGObj;
 /* kept local: this TU's uses of ACTChkAttackIgnore_BOY do not fit the prototype in act-game.h */
 extern int ACTChkAttackIgnore_BOY(char *gobj, void *actor);
 /* kept local: this TU's uses of ACTChkAttackIgnore_GIRL do not fit the prototype in act-game.h */
@@ -588,10 +590,10 @@ int AttackGenerate(AttackPack *pack)
             continue;
         }
         debug_StdPrintfDummy("invincible ok\n");
-        if (g == D_00639EA4 && ACTChkAttackIgnore_BOY(g, pack->actor) != 0) {
+        if (g == boyGObj && ACTChkAttackIgnore_BOY(g, pack->actor) != 0) {
             continue;
         }
-        if (g == D_00639EA8 && ACTChkAttackIgnore_GIRL(g, pack->actor) != 0) {
+        if (g == girlGObj && ACTChkAttackIgnore_GIRL(g, pack->actor) != 0) {
             continue;
         }
         if (*(int *)(g + 0xC) == 4 && ACTChkAttackIgnore_ENEMY(g, pack->actor) != 0) {
@@ -612,7 +614,7 @@ int AttackGenerate(AttackPack *pack)
             debug_StdPrintfDummy("id equal error\n");
             continue;
         }
-        if (debug_one_hit_only != 0 && pack->actor == D_00639EA4 && *(int *)(g + 0xC) == 4 &&
+        if (debug_one_hit_only != 0 && pack->actor == boyGObj && *(int *)(g + 0xC) == 4 &&
             ((int)(*(unsigned long long *)(EXT((char *)pack->actor) + 0x20) >> 32) & 1) == 0) {
             continue;
         }

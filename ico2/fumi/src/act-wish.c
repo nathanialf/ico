@@ -26,11 +26,15 @@ typedef union {
    pointer alias set, gcc CSEs the three loads into one and hoists it into the
    line-586 branch delay slot -- two instructions short of ROM. */
 
-extern char *D_00639EA4;
-extern char *D_00639EA8;
-extern void *D_00639EA0;
+/* kept local: main.c's global; this TU does not include main.h */
+extern char *boyGObj;
+/* kept local: main.c's global; this TU does not include main.h */
+extern char *girlGObj;
+/* kept local: main.c's global; this TU does not include main.h */
+extern void *girlControlMode;
 extern int optionControlType;
-extern int D_0028F4C0[];
+/* kept local: main.c's global; this TU does not include main.h */
+extern int systemStatus[];
 /* kept local: this TU's uses of ACTSearchGObj do not fit the prototype in boyact.h */
 extern void ACTSearchGObj(char *a0, float a1, int a2, int a3, char **a4, float *a5);
 
@@ -94,11 +98,11 @@ void ACTGetWish_FromPad(char *a0, float *a1)
 
     WISH(s + 0x490) |= 1ULL << 34;
 
-    if (a0 == D_00639EA4) {
+    if (a0 == boyGObj) {
         if (0.1f < *(float *)(s + 0x34C) && ((int)(WISH(s + 0x480) >> 5) & 1) &&
             chkOrient(s, a1, u, 80.0f)) {
-            if (!(*(int *)(s + 0x2E0) & 8) || D_00639EA8 == 0 ||
-                *(int *)(*(char **)(*(char **)(D_00639EA8 + 0x164) + 0x688) + 0x3A0) == 0) {
+            if (!(*(int *)(s + 0x2E0) & 8) || girlGObj == 0 ||
+                *(int *)(*(char **)(*(char **)(girlGObj + 0x164) + 0x688) + 0x3A0) == 0) {
                 WISH(s + 0x490) |= 0x20;
             }
         }
@@ -158,7 +162,7 @@ void ACTGetWish_FromPad(char *a0, float *a1)
     }
 
     if (WISH(s + 0x480) & 0xC00000) {
-        if (a0 == D_00639EA4) {
+        if (a0 == boyGObj) {
             if (chkOrient(s, a1, u, 80.0f)) {
                 WISH(s + 0x490) |= 0x400000;
                 if (*(int *)(s + 0x2E0) & 0x10) {
@@ -180,7 +184,7 @@ void ACTGetWish_FromPad(char *a0, float *a1)
     }
 
     if (((int)(WISH(s + 0x478) >> 32) & 1) && chkOrient(s, a1, u, 80.0f)) {
-        if (a0 == D_00639EA4) {
+        if (a0 == boyGObj) {
             if (*(int *)(s + 0x2E0) & 0x10) {
                 WISH(s + 0x490) |= 0x80000;
 
@@ -191,7 +195,7 @@ void ACTGetWish_FromPad(char *a0, float *a1)
             WISH(s + 0x490) |= 0x8000000;
             WISH(s + 0x490) |= 0x10000000;
             WISH(s + 0x490) |= 0x20000000;
-            if (a0 == D_00639EA8 && D_00639EA0 == 0 &&
+            if (a0 == girlGObj && girlControlMode == 0 &&
                 (WISH(s + 0x20) & (0xC000ULL << 23)) == (0xC000ULL << 23)) {
                 WISH(s + 0x490) &= ~0x80000;
             }
@@ -202,7 +206,7 @@ void ACTGetWish_FromPad(char *a0, float *a1)
         WISH(s + 0x490) |= 0x100000;
     }
 
-    if (a0 == D_00639EA8 && D_00639EA0 != 0) {
+    if (a0 == girlGObj && girlControlMode != 0) {
         if (!(*(int *)(s + 0x2E0) & 0x10)) {
             WISH(s + 0x490) &= ~0x80000;
             WISH(s + 0x490) &= ~0x100000;
@@ -249,7 +253,7 @@ void ACTGetWish_FromPad(char *a0, float *a1)
         }
     }
 
-    if ((0x3C - D_0028F4C0[0] * 0xA) / D_0028F4C0[1] / 4 < *(int *)(s + 0x28) &&
+    if ((0x3C - systemStatus[0] * 0xA) / systemStatus[1] / 4 < *(int *)(s + 0x28) &&
         (*(int *)(s + 0x2E0) & 8)) {
         WISH(s + 0x18) |= 1ULL << 43;
     }
@@ -257,11 +261,11 @@ void ACTGetWish_FromPad(char *a0, float *a1)
     if (*(int *)(s + 0x2E0) & 8) {
         if (*(int *)(*(char **)(a0 + 0x15C) + 0x4A0) == 0xBA) {
             *(int *)(*(char **)(*(int *)(a0 + 0x164) + 0x688) + 0x38C) =
-                (0x3C - D_0028F4C0[0] * 0xA) / D_0028F4C0[1] / 6;
+                (0x3C - systemStatus[0] * 0xA) / systemStatus[1] / 6;
         }
         if (*(int *)(*(char **)(*(int *)(a0 + 0x164) + 0x688) + 0x390) == 0) {
             *(int *)(*(char **)(*(int *)(a0 + 0x164) + 0x688) + 0x390) =
-                (0x3C - D_0028F4C0[0] * 0xA) / D_0028F4C0[1] * 0x50 / 0x3C;
+                (0x3C - systemStatus[0] * 0xA) / systemStatus[1] * 0x50 / 0x3C;
         }
         WISH(s + 0x488) |= 1ULL << 46;
         WISH(s + 0x498) |= 0x80;
@@ -307,7 +311,7 @@ void ACTGetWish_FromPad(char *a0, float *a1)
         ACTSearchGObj(a0, 100.0f, 0x13, 0x2D, &o, u);
 
         if (o != 0 && CheckCarryableItem(o)) {
-            deg = a0 == D_00639EA4 ? 60.0f : 80.0f;
+            deg = a0 == boyGObj ? 60.0f : 80.0f;
             p[0] = ((float *)test_CURRENTROOT(o))[0];
             p[1] = ((float *)test_CURRENTROOT(o))[1];
             p[2] = ((float *)test_CURRENTROOT(o))[2];
@@ -328,7 +332,7 @@ void ACTGetWish_FromPad(char *a0, float *a1)
         WISH(s + 0x488) |= 1ULL << 49;
     }
 
-    if (a0 == D_00639EA4) {
+    if (a0 == boyGObj) {
         if (*(int *)(s + 0x2E4) & 0x40) {
             if (0.1f < *(float *)(s + 0x34C) &&
                 (*(int *)(s + 0x340) >= -45 && *(int *)(s + 0x340) <= 45)) {

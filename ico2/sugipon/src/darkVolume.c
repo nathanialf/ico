@@ -9,7 +9,8 @@
 #include "tableSin.h"
 #include <libvu0.h>
 
-extern int D_00639EA8;
+/* kept local: main.c's global; this TU does not include main.h */
+extern int girlGObj;
 
 /* The TU's .data, in ROM run order (names ours): the centre the game-over
    dark volume and its shock ring spread from, and the position of the
@@ -789,12 +790,12 @@ static inline void setGameOverEffect(int a0, float t)
 
 inline void StartGameOverEffect(int a0, float t)
 {
-    if (D_00639EA8 != 0) {
-        ExecuteSEPackage(D_00639EA8, 0x7A);
-        ExecuteSEPackage(D_00639EA8, 0x7B);
-        ExecuteSEPackage(D_00639EA8, 0x7C);
-        ExecuteSEPackage(D_00639EA8, 0x7D);
-        ExecuteSEPackage(D_00639EA8, 0x7E);
+    if (girlGObj != 0) {
+        ExecuteSEPackage(girlGObj, 0x7A);
+        ExecuteSEPackage(girlGObj, 0x7B);
+        ExecuteSEPackage(girlGObj, 0x7C);
+        ExecuteSEPackage(girlGObj, 0x7D);
+        ExecuteSEPackage(girlGObj, 0x7E);
     }
     setGameOverEffect(a0, t);
 }
@@ -818,8 +819,10 @@ void SetDarkVolumeEffect(int a0, float a1)
     CopyVector(darkVolumeCenter, (void *)a0);
 }
 
-extern int D_0028F4D4[];
-extern int D_00639EA4;
+/* kept local: main.c's global; this TU does not include main.h */
+extern int systemStatus[];
+/* kept local: main.c's global; this TU does not include main.h */
+extern int boyGObj;
 
 /* listing lines 566-568: the per-object hit test, inlined at all three sites */
 static inline void sendGameOverMail(void *gobj, float r2)
@@ -842,7 +845,7 @@ void DispGameOverEffect(void)
         if (gameOverRing != 0) {
             float r2 = gameOverRadius * gameOverRadius;
 
-            g = (void *)D_00639EA4;
+            g = (void *)boyGObj;
             if (g != 0) {
                 sendGameOverMail(g, r2);
             }
@@ -855,7 +858,7 @@ void DispGameOverEffect(void)
                 sendGameOverMail(g, r2);
             }
         }
-        if (gameOverRadius < 50000.0f && D_0028F4D4[0] == 0) {
+        if (gameOverRadius < 50000.0f && systemStatus[5] == 0) {
             gameOverRadius = gameOverRadius + gameOverSpeed;
         }
     } else {
@@ -863,7 +866,7 @@ void DispGameOverEffect(void)
             return;
         }
         darkVolume(darkVolumeCenter, darkVolumeRadius, 0.96f, 0.0f);
-        if (D_0028F4D4[0] != 0) {
+        if (systemStatus[5] != 0) {
             return;
         }
         darkVolumeRadius = darkVolumeRadius + (darkVolumeTarget - darkVolumeRadius) * 0.3f;

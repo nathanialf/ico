@@ -261,7 +261,7 @@ extern void UnitRotation(int m);
 extern float _Sqrt(float x);
 /* kept local: this TU's uses of DrawGObjWallCollision do not fit the prototype in fieldCollision.h */
 extern void DrawGObjWallCollision(int a0, int a1);
-extern unsigned char D_002C2DC8[];
+extern unsigned char objLayout[];
 /* kept local: this TU's uses of MatrixDrive_RotMatrixZ do not fit the prototype in matrixDrive.h */
 extern void MatrixDrive_RotMatrixZ(int a0);
 /* kept local: this TU's uses of AddVectorXYZ do not fit the prototype in matrixDrive.h */
@@ -280,7 +280,8 @@ typedef struct {
     int node;
 } ActPt;
 
-extern int D_00639EA4;
+/* kept local: main.c's global; this TU does not include main.h */
+extern int boyGObj;
 /* kept local: this TU's uses of _InterVectorXYZ do not fit the prototype in Matrix.h */
 extern void _InterVectorXYZ(void *dst, void *a, void *b, float t);
 
@@ -660,7 +661,7 @@ void checkCliffState(int a0)
 
     memset(buf, 0, 0xC0);
     p = buf;
-    k = (skelGObj == D_00639EA4) ? -20.0f : 0.0f;
+    k = (skelGObj == boyGObj) ? -20.0f : 0.0f;
     cliffCheckBase[2] = k;
     MatrixDrive_PushMatrix();
     MatrixDrive_TransMatrixV(cliffCheckBase);
@@ -818,7 +819,7 @@ void _checkCliffAndWall(void)
                 *(float *)(skelMotCtrl + 0x134) += 30.0f;
             }
         }
-        if (skelGObj == D_00639EA4 && *(int *)((int)GOBJ_SUB(skelGObj) + 0x568) == 0) {
+        if (skelGObj == boyGObj && *(int *)((int)GOBJ_SUB(skelGObj) + 0x568) == 0) {
             _SubVectorXYZ(v, skelRoot, skelRoot + 0x150);
             v[1] = 0.0f;
             d = VectorLengthSquare(v);
@@ -1117,7 +1118,7 @@ void execPositionReserver(char *self, MotShift m)
         }
     }
     if (debug_skel_flag != 0) {
-        if (skelGObj == D_00639EA4) {
+        if (skelGObj == boyGObj) {
             CopyVector(buf2, skelRoot + 0x70);
             _UnitMatrix(MatrixDrive_GetMatrix());
             if (m.a != 0) {
@@ -1141,7 +1142,7 @@ extern void LinkParentOfDObj(void *a0, MotShift *a1);
 extern void sceVu0SubVector(void *dst, void *a, void *b);
 extern void dispPlane(void *plane, void *pos);
 extern void gif_SetZTest(int a0);
-extern char D_0055FE58[];
+extern char motionKind[];
 void GetMatrixOfMotion(char *self, char *tbl, void *ofs);
 
 typedef enum { MOTIONNO_0 = 0 } MotionNo;
@@ -1197,7 +1198,7 @@ void GetGeometryOfMotion(void *self, void *m0, void *m1, float *v, float r, char
         skelRoot = MOWORK(self) + 0xA0;
         skelMotCtrl = MOWORK(self) + 0x470;
         skelNode = (char *)*(MotNode **)(MOWORK(self) + 0x8C);
-        skelMotDef = D_0055FE58 + *(MotionNo *)(skelMotCtrl + 0x30) * 404;
+        skelMotDef = motionKind + *(MotionNo *)(skelMotCtrl + 0x30) * 404;
         CopyVector(rootMove, v);
         CopyVector(rootStep, tbl);
         *(int *)(skelMotCtrl + 0x14) = 0;
@@ -1254,8 +1255,8 @@ void GetGeometryOfMotion(void *self, void *m0, void *m1, float *v, float r, char
     execPositionReserver(self, sh);
 }
 
-/* GObj+8 is the index into D_002C2DC8, the 0x4C-byte GenGeo table (ebrain.c
-   types that array `GenGeo D_002C2DC8[]`; enemy_act.c indexes it with the same
+/* GObj+8 is the index into objLayout, the 0x4C-byte GenGeo table (ebrain.c
+   types that array `GenGeo objLayout[]`; enemy_act.c indexes it with the same
    `obj[2]` field).  ROM proves the field is NOT read in the `int` alias set:
    the load is issued ABOVE the line-1484 `int` store to skelNodeNum, which an
    int-typed read cannot cross.  An enumerated kind is the type that both fits
@@ -1281,7 +1282,7 @@ void GetMatrixOfMotion(char *self, char *tbl, void *ofs)
     skelRoot = (char *)((int)GOBJ_SUB(self) + 0xA0);
     skelMotCtrl = (char *)((int)GOBJ_SUB(self) + 0x470);
     skelNodeNum = GOBJ_SUB(self)->f_88;
-    skelGeoType = D_002C2DC8[*(GenGeoKind *)(self + 8) * 0x4C + 0x46];
+    skelGeoType = objLayout[*(GenGeoKind *)(self + 8) * 0x4C + 0x46];
     skelGObj = (int)self;
     MatrixDrive_PushMatrix();
     PushQuaternion();
@@ -1391,7 +1392,8 @@ static void dispSkeltonHierarchy(int node)
    one's ELF symbol local.  No INCLUDE_ASM sibling in this TU calls it. */
 /* kept local: this TU's uses of MatrixDrive_RotMatrixY do not fit the prototype in matrixDrive.h */
 extern void MatrixDrive_RotMatrixY(int a0);
-extern unsigned char D_0028F8F0[];
+/* kept local: main.c's global; this TU does not include main.h */
+extern unsigned char pad[];
 
 static void getInitialMatrix(int obj, int idx)
 {
@@ -1406,8 +1408,8 @@ static void getInitialMatrix(int obj, int idx)
     case 19:
     case 20:
     case 22:
-        MatrixDrive_RotMatrixY((short)((D_0028F8F0[0x54] - 0x80) << 7));
-        MatrixDrive_RotMatrixZ((short)((D_0028F8F0[0x55] - 0x80) << 7));
+        MatrixDrive_RotMatrixY((short)((pad[0x54] - 0x80) << 7));
+        MatrixDrive_RotMatrixZ((short)((pad[0x55] - 0x80) << 7));
         break;
     }
     mtx = *(char **)(obj + 0xC) + idx * 0x40;

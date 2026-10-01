@@ -46,7 +46,8 @@ void weaponStickSE(int a0)
     ExecuteSEPackage(a0, 0x5D);
 }
 
-extern int D_0028F4C0[];
+/* kept local: main.c's global; this TU does not include main.h */
+extern int systemStatus[];
 /* kept local: this TU's uses of CopyVector do not fit the prototype in matrixDrive.h */
 extern void CopyVector(void *dst, void *src);
 
@@ -72,7 +73,7 @@ void ReleaseWeaponWithFumbleTargetPos(char *g, void *pos, void *quat, void *rot,
     if (rot != 0) {
         CopyQuaternion((char *)p + 0x150, rot);
     }
-    *(int *)(w + 0x60) = (int)((float)((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]) * t);
+    *(int *)(w + 0x60) = (int)((float)((60 - systemStatus[0] * 10) / systemStatus[1]) * t);
     *(int *)(w + 0x64) = 0;
     GetRootPosition(w + 0x70, g);
     CopyVector(w + 0x80, pos);
@@ -173,7 +174,7 @@ typedef struct {
     int w[7];  /* 0x08 */
 } WeaponDef;
 
-extern WeaponDef D_00318EB8[];
+extern WeaponDef weaponKind[];
 
 /* The work record InitWeaponGeo and InitDemoQueensSword allocate and the
    template they initialise it from: 224 bytes, 8-aligned (ROM copies it 32
@@ -285,7 +286,7 @@ int calcDynamicPathGeometry(char *g)
 {
     Sub15C *p = GOBJ_SUB(g);
     char *w = *(char **)((char *)p + 0x830);
-    float d = D_00318EB8[*(int *)w].f04;
+    float d = weaponKind[*(int *)w].f04;
     char *rp = (char *)p + 0xA0;
     float a;
     float b;
@@ -294,7 +295,7 @@ int calcDynamicPathGeometry(char *g)
     addWeaponPathOffset(p, rp, d);
     a = (float)*(int *)(w + 0x64);
     b = (float)*(int *)(w + 0x60);
-    t = a / (float)((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]);
+    t = a / (float)((60 - systemStatus[0] * 10) / systemStatus[1]);
     _InterVectorXYZ(rp, w + 128, w + 112, a / b);
     *(float *)(rp + 4) = *(float *)(w + 0x74) + *(float *)(w + 0x68) * t + t * 490.0f * t;
     MultiQuaternion((char *)p + 0xD0, (char *)p + 0xD0, (char *)p + 0x150);
@@ -376,8 +377,8 @@ void calcDynamicGeometry(char *g)
     char *p = *(char **)(g + 0x15C);
     char *w = *(char **)(p + 0x830);
     char *rp = p + 0xA0;
-    float d = D_00318EB8[*(int *)w].f04;
-    float r = D_00318EB8[*(int *)w].f00 - d;
+    float d = weaponKind[*(int *)w].f04;
+    float r = weaponKind[*(int *)w].f00 - d;
     CollWork cc = collWorkInit;
     int hitA;
     int hitB;
@@ -397,9 +398,10 @@ void calcDynamicGeometry(char *g)
         hitA = 0;
         hitB = 0;
         GetMatrixFromQuaternionPos(m1, (p + 0xD0), rp);
-        *(float *)(rp + 0x94) = *(float *)(rp + 0x94) +
-                                60.0f / (float)((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]) * 0.5f *
-                                    (60.0f / (float)((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]));
+        *(float *)(rp + 0x94) =
+            *(float *)(rp + 0x94) +
+            60.0f / (float)((60 - systemStatus[0] * 10) / systemStatus[1]) * 0.5f *
+                (60.0f / (float)((60 - systemStatus[0] * 10) / systemStatus[1]));
         _AddVectorXYZ(rp, rp, rp + 0x90);
         MultiQuaternion((p + 0xD0), rp + 0xB0, (p + 0xD0));
         GetMatrixFromQuaternionPos(m2, (p + 0xD0), rp);
@@ -681,7 +683,7 @@ void initializeQueenzSword(char *g, int index, QSwordLayout *lay)
     *(int **)(w + 0x54) = iosMallocDebug(ios_partition_sugipon, 1 * 4, __FILE__, 759);
 
     for (i = 0; i < 1; i++) {
-        queenSwordOfs[2] = D_00318EB8[*(int *)w].f00 * (float)i / 0.0f;
+        queenSwordOfs[2] = weaponKind[*(int *)w].f00 * (float)i / 0.0f;
         o = CreateLayoutedGObj(10, 75, -1, i == 0, &r, -1, 7, 0);
         LinkParentOfDObj(o, &lnk);
         CopyVector((char *)GOBJ_SUB(o) + 0xA0, queenSwordOfs);
@@ -725,7 +727,7 @@ void *InitWeaponGeo(char *g, QSwordLayout *lay)
 
         case 1: {
             QSwordLink lnk = {(int)g, i};
-            WeaponVec v = {0.0f, 0.0f, D_00318EB8[*(int *)w].f00, 1.0f};
+            WeaponVec v = {0.0f, 0.0f, weaponKind[*(int *)w].f00, 1.0f};
             char *o;
             QSwordLayout r = *lay;
 
@@ -733,8 +735,8 @@ void *InitWeaponGeo(char *g, QSwordLayout *lay)
             o = CreateLayoutedGObj(10, 75, -1, 1, &r, -1, 7, 1);
             LinkParentOfDObj(o, &lnk);
             CopyVector(*(char **)(o + 0x15C) + 0xA0, v);
-            SetTorchLife(o, (60 - D_0028F4C0[0] * 10) / D_0028F4C0[1] * 15,
-                         (60 - D_0028F4C0[0] * 10) / D_0028F4C0[1] * 3);
+            SetTorchLife(o, (60 - systemStatus[0] * 10) / systemStatus[1] * 15,
+                         (60 - systemStatus[0] * 10) / systemStatus[1] * 3);
             *(int *)(w + 0x50) = 1;
             *(char ***)(w + 0x54) = iosMallocDebug(ios_partition_sugipon, 1 * 4, __FILE__, 848);
             (*(char ***)(w + 0x54))[0] = o;
@@ -835,8 +837,8 @@ void dispBlur(char *g)
 {
     char *w = *(char **)((char *)GOBJ_SUB(g) + 0x830);
 
-    if (D_00318EB8[*(int *)w].w[3] != -1) {
-        char *e = (char *)D_00318EB8 + *(int *)w * 36;
+    if (weaponKind[*(int *)w].w[3] != -1) {
+        char *e = (char *)weaponKind + *(int *)w * 36;
         void *s = *(void **)(w + 0x58);
         GifColor c = {e[0x18], e[0x19], e[0x1A], e[0x1B]};
 
@@ -916,7 +918,7 @@ void calcBlur(char *g, float t)
     GetInverseQuaternion(q1, (char *)e + 0x150);
     MultiQuaternion(q1, (char *)e + 0xD0, q1);
     SubVectorXYZ(d, (char *)e + 0xA0, (char *)e + 0x130);
-    if (D_00318EB8[*(int *)w].w[3] == -1) {
+    if (weaponKind[*(int *)w].w[3] == -1) {
         return;
     }
     base = *(char **)(w + 0x58);
@@ -973,8 +975,8 @@ void calcBlur(char *g, float t)
     }
 }
 
-extern void *D_00639EA4;
-extern int D_0028F4D4[];
+/* kept local: main.c's global; this TU does not include main.h */
+extern void *boyGObj;
 /* kept local: this TU's uses of _Sqrt do not fit the prototype in Matrix.h */
 extern float _Sqrt(float x);
 
@@ -983,7 +985,7 @@ typedef struct {
     unsigned int f190; /* 0x190 */
 } WeaponEnemyPara;     /* 0x194 */
 
-extern WeaponEnemyPara D_0055FE58[];
+extern WeaponEnemyPara motionKind[];
 
 /* The MatrixDrive matrix, viewed as the union of float and int arrays this
    codebase uses for VU0 data.  The union member reference is what puts the
@@ -1013,25 +1015,25 @@ void WeaponGeo(char *g)
             (*(char **)(w + 0x8) != 0 &&
              ((((WeaponEnemyPara *)(*(int *)(*(char **)(*(char **)(w + 0x8) + 0x15C) + 0x4A0) *
                                         0x194 +
-                                    (char *)D_0055FE58))
+                                    (char *)motionKind))
                    ->f190 >>
                4) &
               1))) {
-            calcBlur(g, *(float *)((char *)D_00318EB8 + kind * 36));
+            calcBlur(g, *(float *)((char *)weaponKind + kind * 36));
             *(int *)(w + 0xA4) = 1;
         }
     } else {
-        *(float *)((char *)D_00318EB8 + kind * 36) = 40.0f;
+        *(float *)((char *)weaponKind + kind * 36) = 40.0f;
         for (i = 0; i < 2; i++) {
             ((float *)*(char **)(w + 0xB0))[i] = random_signed_b();
         }
         if (*(char **)(w + 0x8) != 0) {
-            if (*(char **)(w + 0x8) == D_00639EA4 && ACTGame_FLAG_TETSUNAGI_VISUAL()) {
-                *(float *)((char *)D_00318EB8 + *(int *)w * 36) = 270.0f;
+            if (*(char **)(w + 0x8) == boyGObj && ACTGame_FLAG_TETSUNAGI_VISUAL()) {
+                *(float *)((char *)weaponKind + *(int *)w * 36) = 270.0f;
             }
             if (*(float *)(w + 0xAC) >= 30.0f) {
                 *(float *)(w + 0xA8) +=
-                    (*(float *)((char *)D_00318EB8 + *(int *)w * 36) - *(float *)(w + 0xA8)) * 0.4f;
+                    (*(float *)((char *)weaponKind + *(int *)w * 36) - *(float *)(w + 0xA8)) * 0.4f;
             } else {
                 *(float *)(w + 0xAC) = *(float *)(w + 0xAC) + 1.0f;
                 if (*(float *)(w + 0xAC) == 29.0f) {
@@ -1050,7 +1052,7 @@ void WeaponGeo(char *g)
             n = (int)stage_PlayBgAnimation(473, (float)*(int *)(w + 0xBC),
                                            *(char **)((char *)GOBJ_SUB(g) + 0xC) + 0x30,
                                            IdentityQuaternion);
-            if (D_0028F4D4[0] == 0) {
+            if (systemStatus[5] == 0) {
                 *(int *)(w + 0xBC) = n;
             }
         } else {
@@ -1245,7 +1247,7 @@ int InitWeaponFumbleSequence(char *a0)
 
 float GetWeaponWeight(char *a0)
 {
-    return (float)D_00318EB8[*(int *)(*(char **)((char *)GOBJ_SUB(a0) + 0x830))].w[1];
+    return (float)weaponKind[*(int *)(*(char **)((char *)GOBJ_SUB(a0) + 0x830))].w[1];
 }
 
 void SetWeaponTorchChainReactionFlagAll(int a0)

@@ -407,7 +407,7 @@ extern void iosFree(void *p);
 /* kept local: this TU's view of ios.c's partition handle is a pointer, which
    initWheels' schedule needs (ios.h declares the handles int) */
 extern void *ios_partition_seki;
-extern GenGeo D_002C2DC8[];
+extern GenGeo objLayout[];
 
 /* box.c:546-565 in the listing.  Lines 558 to 560 are one call-site line in
    the listing, the same DObj-buffer setup ico2/omori/src/chain.c expands by
@@ -419,7 +419,7 @@ void initWheels(char *self, float *lay)
     char *w = (char *)GOBJ_SUB(self)->f_830;
     int i;
 
-    if (D_002C2DC8[((int *)self)[2]].f30 == 26 ||
+    if (objLayout[((int *)self)[2]].f30 == 26 ||
         D_002A79B8[*(int *)((char *)GOBJ_SUB(self) + 0x844)].dobj0 == 0x610) {
         *(int *)(w + 0x11C) = 0;
     } else {
@@ -1104,7 +1104,8 @@ int playAnimationCore(char *a0)
     return UpdateFrameCounter(a0);
 }
 
-extern int D_0028F4C0[];
+/* kept local: main.c's global; this TU does not include main.h */
+extern int systemStatus[];
 /* kept local: this TU's uses of LimitExistGeometry do not fit the prototype in geometryManager.h */
 extern int LimitExistGeometry(void *pos, void *vel);
 
@@ -1118,8 +1119,8 @@ static inline void execBoxFall(char *self)
 
     GetRootPosition(v, self);
     ((IntFloat *)(*(char **)(self + 0x15C) + 0x134))->f +=
-        60.0f / (float)((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]) * 0.5f *
-        (60.0f / (float)((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]));
+        60.0f / (float)((60 - systemStatus[0] * 10) / systemStatus[1]) * 0.5f *
+        (60.0f / (float)((60 - systemStatus[0] * 10) / systemStatus[1]));
     AddVectorXYZ(v, v, *(char **)(self + 0x15C) + 0x130);
     SetRootPosition(self, v);
     if (LimitExistGeometry(v, *(char **)(self + 0x15C) + 0x130) != 0) {
@@ -1316,8 +1317,10 @@ extern void GetMatrixFromQuaternion(void *m, void *q);
 extern void EntryStageMultiBgaManager(int kind, void *pos, void *rot);
 /* the two characters the floating box has to keep clear of, the boy and the
    girl, as sceneManager.c sets them */
-extern char *D_00639EA4;
-extern char *D_00639EA8;
+/* kept local: main.c's global; this TU does not include main.h */
+extern char *boyGObj;
+/* kept local: main.c's global; this TU does not include main.h */
+extern char *girlGObj;
 
 /* the world Y axis the box's tilt is measured around */
 static float floatTiltAxis[4] = {0.0f, 1.0f, 0.0f, 0.0f};
@@ -1344,17 +1347,17 @@ void execFloating(char *self)
     float len;
     float r;
 
-    if (D_00639EA4 != 0) {
+    if (boyGObj != 0) {
         if (*(int *)(w + 0x164) == 0) {
-            GetCylinderCollisionWithExceptOwnCollision(self, (int)D_00639EA4, 50.0f, 50.0f, 0.0f,
-                                                       1.0f, 1);
-            avoidCharGObj(self, D_00639EA4);
+            GetCylinderCollisionWithExceptOwnCollision(self, (int)boyGObj, 50.0f, 50.0f, 0.0f, 1.0f,
+                                                       1);
+            avoidCharGObj(self, boyGObj);
         }
     }
-    if (D_00639EA8 != 0) {
-        GetCylinderCollisionWithExceptOwnCollision(self, (int)D_00639EA8, 70.700005f, 50.0f, 0.0f,
+    if (girlGObj != 0) {
+        GetCylinderCollisionWithExceptOwnCollision(self, (int)girlGObj, 70.700005f, 50.0f, 0.0f,
                                                    1.0f, 1);
-        avoidCharGObj(self, D_00639EA8);
+        avoidCharGObj(self, girlGObj);
     }
     GetRootPosition(pos, self);
     GetLowerPlaneCollision(fw, pos);
@@ -1368,9 +1371,9 @@ void execFloating(char *self)
        for a written subtraction (line 1128 below is one). */
     if (GetWaterReaction(w + 0xB0, &hit, fw, pos, (char *)GOBJ_SUB(self) + 0x130, pos[1] + -50.0f,
                          pos[1] + -25.0f, pos[1] + 50.0f, 0.9f,
-                         60.0f / (float)((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]) * -0.1f *
-                             (60.0f / (float)((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1])) * 3.0f) !=
-        0) {
+                         60.0f / (float)((60 - systemStatus[0] * 10) / systemStatus[1]) * -0.1f *
+                             (60.0f / (float)((60 - systemStatus[0] * 10) / systemStatus[1])) *
+                             3.0f) != 0) {
         if (*(float *)(fw + 0x24) - 50.0f < pos[1]) {
             pos[1] = *(float *)(fw + 0x24) - 50.0f;
         }
@@ -2024,7 +2027,7 @@ int moveBoxAutoMatic(char *a0, int a1)
     float v[4];
     float v2[4];
     char *p = (char *)GOBJ_SUB(a0)->f_830;
-    float t = 30.0f / (float)((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]);
+    float t = 30.0f / (float)((60 - systemStatus[0] * 10) / systemStatus[1]);
     float w = t * t;
     int r;
 
@@ -2107,7 +2110,7 @@ int MoveBoxWithHoldPoint(char *a0, void *a1, char *a2, int a3, float *a4)
         ReviveCarryableItemsWithBoundary(pos, 100.0f);
     } else if (checkCharGObjs(a0, a2, a4) && checkBoxStopWall(a0, a4) &&
                CheckGeneratorCollision(a0, a4) && checkItemHit(a0, a4)) {
-        *(int *)(q + 0x30) = (0x3C - D_0028F4C0[0] * 0xA) / D_0028F4C0[1] *
+        *(int *)(q + 0x30) = (0x3C - systemStatus[0] * 0xA) / systemStatus[1] *
                              (GetNbMotionFrames(GOBJ_SUB(a2)->f_4A0) - 1) / 0x1E;
         _ScaleVectorXYZ(q + 0x40, a4, 100.0f / (float)*(int *)(q + 0x30));
 
@@ -2342,7 +2345,6 @@ void BoxGeo(char *a0)
 extern int p2o_SetDefaultEnviroment(int a0);
 /* kept local: this TU's uses of p2o_DispVU1 do not fit the prototype in DisplayP2O.h */
 extern void p2o_DispVU1(void *a0);
-extern int D_0028F4D4[];
 
 inline void BoxDL(char *a0)
 {
@@ -2352,7 +2354,7 @@ inline void BoxDL(char *a0)
     if (*(int *)(q + 0x58) != 0) {
         dispWheels(a0);
     }
-    if (D_0028F4D4[0] != 0) {
+    if (systemStatus[5] != 0) {
         StopSEPackageWithGroupVariation((int)a0, 1);
         *(int *)(*(char **)((char *)GOBJ_SUB(a0) + 0x830) + 0x138) = 0;
     }

@@ -252,9 +252,11 @@ extern void sceVu0CopyVector(void *dst, void *src);
 extern float _GetLength(void *a, void *b);
 extern void debug_StdPrintfDummy(const char *fmt, ...);
 extern int IdentityQuaternion[];
-extern int D_0028F4C0[];
+/* kept local: main.c's global; this TU does not include main.h */
+extern int systemStatus[];
 extern int matrixptr;
-extern char *D_00639EC0;
+/* kept local: main.c's global; this TU does not include main.h */
+extern char *CurrentTargetGObj;
 extern void Debug_WireString_Bird(float *pos, char *fmt, ...);
 
 /* rows 256-263: point the bird `ang` radians round from where it faces. */
@@ -469,7 +471,7 @@ void subBirdBrainMain(void *volatile gobj)
             }
 
         case 1134:
-            if ((char *)gobj == D_00639EC0) {
+            if ((char *)gobj == CurrentTargetGObj) {
                 Debug_WireString_Bird(pos, "STOP TGT");
                 break;
             }
@@ -795,8 +797,8 @@ void subBirdBrainMain(void *volatile gobj)
         }
 
         if (state == 1140 &&
-            (float)((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]) * 30.0f < (float)frames &&
-            (float)((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]) * 30.0f < (float)ticks) {
+            (float)((60 - systemStatus[0] * 10) / systemStatus[1]) * 30.0f < (float)frames &&
+            (float)((60 - systemStatus[0] * 10) / systemStatus[1]) * 30.0f < (float)ticks) {
             debug_StdPrintfDummy("bird reset\n");
             InitMotionOrient(gobj, 0x975, 0x9A3, -1, -1, 0x46E);
 
@@ -862,7 +864,8 @@ void Debug_WireString_Bird(float *pos, char *fmt, ...)
     MatrixDrive_PopMatrix();
 }
 
-extern char *D_00639ED0;
+/* kept local: main.c's global; this TU does not include main.h */
+extern char *CurrentTargetGObjSub;
 /* kept local: this TU's uses of CorrectStickInfo do not fit the prototype in boyact.h */
 extern int CorrectStickInfo(void *dir, void *stick);
 
@@ -871,7 +874,7 @@ void Debug_StickControl(char *self)
     float dir[4];
     Act *ext = GOBJ_ACT(self);
 
-    if (self == D_00639EC0) {
+    if (self == CurrentTargetGObj) {
         char *pad = (char *)ext + 0x2D8;
         char *stick = (char *)ext + 0x338;
 
@@ -883,7 +886,7 @@ void Debug_StickControl(char *self)
         if (*(float *)((char *)ext + 0x34C) > 0.001f) {
             ConvertStickToAbsCoord((char *)ext + 0x120, stick);
         }
-    } else if (self == D_00639ED0) {
+    } else if (self == CurrentTargetGObjSub) {
         iosPadConnect((char *)ext + 0x2D8, 0, 1, (char *)ext + 0x1E8);
     } else {
         iosPadConnect((char *)ext + 0x2D8, 0, 1, (char *)ext + 0x1E8);

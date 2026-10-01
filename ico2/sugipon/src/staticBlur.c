@@ -193,8 +193,8 @@ void auraInspireBefore(void)
     gif_EndPacket();
 }
 
-extern int D_0028F4C0[];
-extern int D_0028F4D4[];
+/* kept local: main.c's global; this TU does not include main.h */
+extern int systemStatus[];
 
 /* .bss, owned by staticBlur.o (0x30, the run): the twelve texture and
    rectangle coordinates the two blur sprites are built from. */
@@ -228,7 +228,8 @@ void auraInspireAfter(int mode)
     {
         int suv[4] = {blurUv[0] + 16, blurUv[1] + 16, ScreenWidth * 16 + blurUv[2],
                       ScreenHeight * 16 + blurUv[3]};
-        int srect[4] = {blurUv[4] - 2048, blurUv[5] - 1032, 4096, D_0028F4C0[0] == 0 ? 1792 : 2048};
+        int srect[4] = {blurUv[4] - 2048, blurUv[5] - 1032, 4096,
+                        systemStatus[0] == 0 ? 1792 : 2048};
 
         gif_SetGsReg(6, workBase[1] | ((long long)(ScreenWidth / 64) << 14) | 0x664000000LL);
 
@@ -253,7 +254,7 @@ void auraInspireAfter(int mode)
 
     inline void pasteFeedBackAreaToFB(void)
     {
-        int suv[4] = {8, 8, 2048, D_0028F4C0[0] ? 2048 : 1792};
+        int suv[4] = {8, 8, 2048, systemStatus[0] ? 2048 : 1792};
 
         gif_SetGsReg(6, 0x5DC00BF00LL);
 
@@ -265,7 +266,7 @@ void auraInspireAfter(int mode)
 
     void copyCurrentFBToFeedBackArea(void)
     {
-        if (D_0028F4C0[0] == 0) {
+        if (systemStatus[0] == 0) {
             SprUV a = {-1024, 768, 2048, 256};
 
             gif_SetDrawEnviroment(0x3F00, 0, 0x80, 0x80, 0, 0);
@@ -275,7 +276,7 @@ void auraInspireAfter(int mode)
         }
         {
             int suv[4] = {8, 8, ScreenWidth * 16, ScreenHeight * 16};
-            int srect[4] = {-1024, -1024, 2048, D_0028F4C0[0] ? 2048 : 1792};
+            int srect[4] = {-1024, -1024, 2048, systemStatus[0] ? 2048 : 1792};
 
             gif_SetGsReg(6, ((long long)(ScreenWidth / 64) << 14) | 0x664000800LL);
 
@@ -447,14 +448,14 @@ void auraInspireAfter(int mode)
         reduceCopyAlphaChannelOfWork1ToWork0();
         copyAlphaChannelOfWork0ToFeedBackArea();
         pasteFeedBackAreaToFB();
-        if (D_0028F4C0[5] == 0) {
+        if (systemStatus[5] == 0) {
             copyCurrentFBToFeedBackArea();
         }
         break;
     case 1:
         blurBlendFeedBackAreaToWork1();
         addWork1ToFB();
-        if (D_0028F4D4[0] == 0) {
+        if (systemStatus[5] == 0) {
             pasteWork0ToFeedBackArea();
         }
         break;
@@ -462,7 +463,7 @@ void auraInspireAfter(int mode)
         pasteWork1ToFB();
         blurBlendFeedBackAreaToWork1();
         addWork1ToFBWithZ();
-        if (D_0028F4D4[0] == 0) {
+        if (systemStatus[5] == 0) {
             pasteWork0ToFeedBackArea();
         }
         break;
@@ -924,7 +925,7 @@ void depthField(float depth, float alpha, float rate)
         {
             int rect[4] = {-ScreenWidth / 2 * 16 - 4, -ScreenHeight / 2 * 16 - 4, ScreenWidth * 16,
                            ScreenHeight * 16};
-            int uv[4] = {16, 16, 4096, D_0028F4C0[0] == 0 ? 1792 : 2048};
+            int uv[4] = {16, 16, 4096, systemStatus[0] == 0 ? 1792 : 2048};
             float v[4];
 
             pasteToFBPoint[2] = z;
@@ -1202,7 +1203,8 @@ void dispFeedInfo(void)
     }
 }
 
-extern struct D275 D_0028F720;
+/* kept local: main.c's global; this TU does not include main.h */
+extern struct D275 GlobalStageSetting;
 
 void FullScreenEffectBefore(void)
 {
@@ -1210,13 +1212,13 @@ void FullScreenEffectBefore(void)
         return;
     }
 
-    postModeRequest = D_0028F720.field_E8;
-    feedModeRequest = D_0028F720.field_104;
+    postModeRequest = GlobalStageSetting.field_E8;
+    feedModeRequest = GlobalStageSetting.field_104;
 
-    blurCol.f[0] = D_0028F720.field_110;
-    blurCol.f[1] = D_0028F720.field_114;
-    blurCol.f[2] = D_0028F720.field_118;
-    blurCol.f[3] = D_0028F720.field_11C;
+    blurCol.f[0] = GlobalStageSetting.field_110;
+    blurCol.f[1] = GlobalStageSetting.field_114;
+    blurCol.f[2] = GlobalStageSetting.field_118;
+    blurCol.f[3] = GlobalStageSetting.field_11C;
 
     if (postMode != postModeRequest) {
         postMode = postModeRequest;
@@ -1237,7 +1239,7 @@ void FullScreenEffectBefore(void)
     workBase[2] = 0x2E00;
     workBase[3] = 0x3000;
 
-    if (D_0028F4C0[0] == 1) {
+    if (systemStatus[0] == 1) {
         tex_LockHeadTBP(0x3A00, 8);
     } else {
         tex_LockHeadTBP(0x3800, 8);
@@ -1339,8 +1341,8 @@ void FullScreenEffectAfter(void)
         auraInspireAfter(feedMode);
     }
 
-    depthFadeDepth = D_0028F720.field_EC;
-    depthFadeAlpha = D_0028F720.field_F0;
+    depthFadeDepth = GlobalStageSetting.field_EC;
+    depthFadeAlpha = GlobalStageSetting.field_F0;
 
     tex_UnlockHeadTBP(7);
     tex_UnlockHeadTBP(8);
@@ -1390,9 +1392,9 @@ void SetStaticBlur(int x)
 
 void SetDepthFadeParam(float f12, float f13, int a0)
 {
-    D_0028F720.field_EC = (int)f12;
-    D_0028F720.field_F0 = (int)f13;
-    D_0028F720.field_F8 = a0;
+    GlobalStageSetting.field_EC = (int)f12;
+    GlobalStageSetting.field_F0 = (int)f13;
+    GlobalStageSetting.field_F8 = a0;
 }
 
 void SetAuraInspireParam(float a0)

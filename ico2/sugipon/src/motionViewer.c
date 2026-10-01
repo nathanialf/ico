@@ -61,8 +61,8 @@ static int rootUpdateMode = 0; /* derived name */
 
 static float motionSpeed = 1.0f; /* derived name */
 
-extern MotionOrientEntry D_002ADD60[];
-extern char D_005D1278[][0x20];
+extern MotionOrientEntry motionOrient[];
+extern char motionOriKind[][0x20];
 
 static inline int countMotionKinds(int id, int from, int to)
 {
@@ -70,7 +70,7 @@ static inline int countMotionKinds(int id, int from, int to)
     int i;
 
     for (i = from; i < to; i++) {
-        if (D_002ADD60[i].id == id || D_002ADD60[i].id == 0x47A) {
+        if (motionOrient[i].id == id || motionOrient[i].id == 0x47A) {
             n++;
         }
     }
@@ -89,11 +89,11 @@ static inline int makeMotionKindList(MvMenuEnt *ent, int base)
     if (n) {
         k = 0;
         for (i = from; i < to; i++) {
-            if (D_002ADD60[i].id == id || D_002ADD60[i].id == 0x47A) {
-                int kind = D_002ADD60[i].kind;
+            if (motionOrient[i].id == id || motionOrient[i].id == 0x47A) {
+                int kind = motionOrient[i].kind;
 
                 list[k].kind = kind;
-                list[k].name = D_005D1278[kind];
+                list[k].name = motionOriKind[kind];
                 k++;
             }
         }
@@ -135,7 +135,7 @@ typedef struct {
     char pad190[0x194 - 0x190];
 } MotRec;
 
-extern MotRec D_0055FE58[];
+extern MotRec motionKind[];
 /* kept local: this TU's uses of gif_StartPacketPri do not fit the prototype in GifPacket.h */
 extern void gif_StartPacketPri(int pri);
 /* kept local: this TU's uses of gif_SetZTest do not fit the prototype in GifPacket.h */
@@ -192,15 +192,15 @@ void dispMotFrameProgress(int obj, float cur)
     }
     BarCol colA = {52, 84, 192, 128};
     BarCol colB = {192, 84, 52, 128};
-    float f1 = D_0055FE58[obj].frameA;
-    float f2 = D_0055FE58[obj].frameB;
+    float f1 = motionKind[obj].frameA;
+    float f2 = motionKind[obj].frameB;
 
     if (f1 >= 0.0f && f2 >= 0.0f) {
         float sum = f1 + f2;
         int rev;
 
         dispProgressBar(0, f1, GetNbMotionFrames(obj) - 1, cur,
-                        (rev = (((D_0055FE58 + obj)->flags >> 19) & 1)) ? &colB : &colA);
+                        (rev = (((motionKind + obj)->flags >> 19) & 1)) ? &colB : &colA);
         dispProgressBar(f1, sum, GetNbMotionFrames(obj) - 1, cur, rev ? &colA : &colB);
         dispProgressBar(sum, GetNbMotionFrames(obj) - 1, GetNbMotionFrames(obj) - 1, cur,
                         rev ? &colB : &colA);
@@ -249,7 +249,8 @@ typedef struct MvObj {
     MvSub *sub; /* 0x15C */
 } MvObj;
 
-extern MvObj *D_00639EC0;
+/* kept local: main.c's global; this TU does not include main.h */
+extern MvObj *CurrentTargetGObj;
 
 static int lastObjSel = -1; /* derived name */
 
@@ -278,7 +279,7 @@ int objMenuProc(void)
             }
         }
         if (viewObj) {
-            D_00639EC0 = viewObj;
+            CurrentTargetGObj = viewObj;
             Camctrl_SetTarget(viewObj, 0, 3);
             savedMotTbl = viewObj->motTbl;
             viewObj->motTbl = 0;
@@ -298,8 +299,8 @@ int objMenuProc(void)
         }
     }
     if (ret == -1) {
-        D_00639EC0 = isysGObjSearchFromObjKindID_begin(1);
-        Camctrl_SetTarget(D_00639EC0, 0, 3);
+        CurrentTargetGObj = isysGObjSearchFromObjKindID_begin(1);
+        Camctrl_SetTarget(CurrentTargetGObj, 0, 3);
         if (viewObj) {
             viewObj->motTbl = savedMotTbl;
             viewObj->sub->select = 0;
@@ -323,7 +324,8 @@ typedef struct MvPad {
 
 /* motionOrientManager's table row (same object as src/motionOrientManager.c) */
 
-extern MvPad D_0028F8F0[];
+/* kept local: main.c's global; this TU does not include main.h */
+extern MvPad pad[];
 
 static int lastMotSel = -1; /* derived name */
 
@@ -349,11 +351,11 @@ int motKindMenuProc(void)
     int cur;
 
     dispMotFrameProgress(mot, ForMotionViewer_GetCurrentAnimationFrame(viewObj));
-    ret = debug_SelectCsvWindowWithLine(ent->name, 10, 0x46, 6, &D_0055FE58[ent->motFirst], 0x194,
+    ret = debug_SelectCsvWindowWithLine(ent->name, 10, 0x46, 6, &motionKind[ent->motFirst], 0x194,
                                         0xC0, 0, ent->motLast - ent->motFirst, &motSel, 0);
     base = motSel;
     cur = base + ent->motFirst;
-    if (D_0055FE58[cur].unk134 != 0 && D_0055FE58[cur].unk178 == 0x140 && motionTable[cur] == 0) {
+    if (motionKind[cur].unk134 != 0 && motionKind[cur].unk178 == 0x140 && motionTable[cur] == 0) {
         base = 0;
         if (((blinkCount >> 4) & 3) != 0) {
             debug_PrintfDummy(10, 60, 0x4080FF00, "NO MOTION IN THIS STAGE.");
@@ -373,7 +375,7 @@ int motKindMenuProc(void)
                          base + ent->motFirst);
         lastMotSel = motSel;
     }
-    if (D_0028F8F0[0].trg & 0x10) {
+    if (pad[0].trg & 0x10) {
         InitMotionOrient(viewObj, base + ent->oriFrom, base + ent->oriTo, -1, -1,
                          base + ent->motFirst);
     }
@@ -446,9 +448,9 @@ int motOriMenuProc(void)
         }
     } else {
         debug_PrintfDummy(10, 50, 0xFF000000, "NO ORIENT for \"%s\"", &D_0055FF18[cur * 404]);
-        ret = (D_0028F8F0[0].trg & 0x40) ? -1 : 0;
+        ret = (pad[0].trg & 0x40) ? -1 : 0;
     }
-    if (D_0028F8F0[0].trg & 0x10) {
+    if (pad[0].trg & 0x10) {
         initOrient();
     }
     if (ret == 1) {
@@ -487,7 +489,7 @@ void modeMessage(void)
        completeness pass 57), with the whole object byte-identical; an
        explicit fptodp call on the plain global reverses the pair. */
     debug_PrintfDummy(470, 74, 0xFFFFFF00, "\206\207: x%1.2f", motionSpeed);
-    if (D_0028F8F0[0].trg & 0x80) {
+    if (pad[0].trg & 0x80) {
         switch (rootUpdateMode) {
         case 0:
         default:
@@ -499,14 +501,14 @@ void modeMessage(void)
         }
         setRootUpdateMode();
     }
-    if (D_0028F8F0[0].rep & 0x8000) {
+    if (pad[0].rep & 0x8000) {
         motionSpeed -= 0.01f;
         if (motionSpeed < 0.0f) {
             motionSpeed = 0.0f;
         }
         setMotionSpeed(motionSpeed);
     }
-    if (D_0028F8F0[0].rep & 0x2000) {
+    if (pad[0].rep & 0x2000) {
         motionSpeed += 0.01f;
         if (motionSpeed > 2.0f) {
             motionSpeed = 2.0f;
@@ -514,18 +516,18 @@ void modeMessage(void)
         setMotionSpeed(motionSpeed);
     }
     scePadRead(0, 0, rdata);
-    if (D_0028F8F0[0].now & 0x8) {
+    if (pad[0].now & 0x8) {
         motionSpeed = 1.0f - rdata[17] / 255.0f;
         setMotionSpeed(motionSpeed);
     }
-    if (D_0028F8F0[0].now & 0x2) {
+    if (pad[0].now & 0x2) {
         viewObj->sub->speed = 1.0f - rdata[19] * 0.0078125f;
     } else {
         viewObj->sub->speed = 1.0f;
     }
-    if (D_0028F8F0[0].now & 0x8000) {
+    if (pad[0].now & 0x8000) {
         viewObj->sub->rot = rdata[9] / 255.0f * 8192.0f;
-    } else if (D_0028F8F0[0].now & 0x2000) {
+    } else if (pad[0].now & 0x2000) {
         viewObj->sub->rot = rdata[8] / 255.0f * -8192.0f;
     } else {
         viewObj->sub->rot = 0;
@@ -703,12 +705,12 @@ int MotionViewer(void)
 
     if (viewObj != 0) {
         memset(&dir, 0, sizeof(dir));
-        dir.x = (D_0028F8F0[1].stick[2] - 128) * 0.0078125f;
-        dir.z = (128 - D_0028F8F0[1].stick[3]) * 0.0078125f;
+        dir.x = (pad[1].stick[2] - 128) * 0.0078125f;
+        dir.z = (128 - pad[1].stick[3]) * 0.0078125f;
         v = dir;
         sceVu0TransposeMatrix(m, matrixptr + 128);
         sceVu0ApplyMatrix(&dir, m, &v);
-        if (FSqrt(sceVu0InnerProduct(&dir, &dir)) > 0.5f && (D_0028F8F0[1].now & 0x200) == 0) {
+        if (FSqrt(sceVu0InnerProduct(&dir, &dir)) > 0.5f && (pad[1].now & 0x200) == 0) {
             SetMotionDirection(viewObj, &dir);
         }
         gif_StartPacketPri(0xB);
@@ -724,7 +726,7 @@ int MotionViewer(void)
         p = q.v;
         dispPlane(&p, &pos);
 
-        if (D_0028F8F0[1].trg & 0x8) {
+        if (pad[1].trg & 0x8) {
             mode = testMode + 1;
             mode %= 3;
             viewObj->sub->testMode = testMode = mode;
@@ -735,8 +737,8 @@ int MotionViewer(void)
             break;
 
         case 1:
-            lookAtTest(&p, 50.0f, &testAxisColor, &testRingColor,
-                       (D_0028F8F0[1].stick[1] - 128) * 2.0f, -D_0028F8F0[1].stick[0] * 256);
+            lookAtTest(&p, 50.0f, &testAxisColor, &testRingColor, (pad[1].stick[1] - 128) * 2.0f,
+                       -pad[1].stick[0] * 256);
             CopyVector(viewObj->sub->testAt, &p);
             mode = testMode;
             break;
@@ -767,10 +769,10 @@ int MotionViewer(void)
         q.v = lookRingColor.v;
         memset(&col, 0, sizeof(col));
         col.a = 128;
-        if (D_0028F8F0[1].now & 0x200) {
-            lookRadius = D_0028F8F0[1].stick[2] * 100.0f / 255.0f;
+        if (pad[1].now & 0x200) {
+            lookRadius = pad[1].stick[2] * 100.0f / 255.0f;
         }
-        if (D_0028F8F0[1].trg & 0x2) {
+        if (pad[1].trg & 0x2) {
             switch (lookHeadStep) {
             default:
             case 0:
@@ -807,8 +809,8 @@ int MotionViewer(void)
         viewObj->sub->lookMode = lookMode;
         if (lookMode != 0) {
             int n;
-            lookAtTest(&look, lookRadius, &p, &q.v, (D_0028F8F0[1].stick[1] - 128) * 2.0f,
-                       -D_0028F8F0[1].stick[0] * 256);
+            lookAtTest(&look, lookRadius, &p, &q.v, (pad[1].stick[1] - 128) * 2.0f,
+                       -pad[1].stick[0] * 256);
             CopyVector(viewObj->sub->lookAt, &look);
             gif_StartPacketPri(0xB);
             n = GetSkeltonFocusNode(viewObj, 3);
@@ -819,8 +821,8 @@ int MotionViewer(void)
         viewObj->sub->headMode = headMode;
         if (headMode != 0) {
             int n;
-            lookAtTest(&head, lookRadius, &p, &q.v, (D_0028F8F0[1].stick[1] - 128) * 2.0f,
-                       -D_0028F8F0[1].stick[0] * 256);
+            lookAtTest(&head, lookRadius, &p, &q.v, (pad[1].stick[1] - 128) * 2.0f,
+                       -pad[1].stick[0] * 256);
             CopyVector(viewObj->sub->headAt, &head);
             gif_StartPacketPri(0xB);
             n = GetSkeltonFocusNode(viewObj, 0x13);

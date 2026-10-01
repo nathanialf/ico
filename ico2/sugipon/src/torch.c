@@ -289,8 +289,10 @@ inline void UpdateRealTimeGeometryValue(char *a0)
     CopyVector(sub + 0x1F0, buf);
 }
 
-extern char *D_00639EA4;
-extern char *D_00639EA8;
+/* kept local: main.c's global; this TU does not include main.h */
+extern char *boyGObj;
+/* kept local: main.c's global; this TU does not include main.h */
+extern char *girlGObj;
 
 /* static helper the listing places at torch.c lines 347-374; never emitted out
  * of line, so it has no MAIN.MAP symbol and this name is ours. */
@@ -303,8 +305,8 @@ static inline int chainReactionBlocked(char *gobj, char *other)
 
     b = *(int *)*(char **)(gobj + 0x15C);
     a = *(int *)*(char **)(other + 0x15C);
-    if (D_00639EA8 != 0) {
-        q = *(char **)(D_00639EA8 + 0x164);
+    if (girlGObj != 0) {
+        q = *(char **)(girlGObj + 0x164);
         if (b != 0 && b == *(int *)(q + 0x154)) {
             /* tried to light the heroine's bomb */
             debug_StdPrintfDummy("ヒロインの爆弾に点火しようとした\n");
@@ -312,8 +314,8 @@ static inline int chainReactionBlocked(char *gobj, char *other)
         }
     }
     if (b != 0 && a != 0) {
-        p = *(char **)(D_00639EA4 + 0x164);
-        if (ACTGame_NoWeapon(D_00639EA4) == 0 && a == *(int *)(p + 0x150) &&
+        p = *(char **)(boyGObj + 0x164);
+        if (ACTGame_NoWeapon(boyGObj) == 0 && a == *(int *)(p + 0x150) &&
             b == *(int *)(p + 0x154)) {
             /* an exception came up while lighting */
             debug_StdPrintfDummy("点火の例外処理発生\n");

@@ -118,7 +118,7 @@ extern void sceGsSyncV(int mode);
 extern int iosThreadCancelWakeup(void *th);
 /* kept local: this TU's uses of iosThreadWakeup do not fit the prototype in thread.h */
 extern int iosThreadWakeup(void *th);
-extern char D_005D3CE8[];
+extern char movieFile[];
 extern int mpegInitDone;
 extern int mpegPlayInitColor;
 extern int mpegPlayReturnStage;
@@ -215,7 +215,7 @@ void Main(void)
             ios_partition_mpeg = ios_partition_isys;
             AdpcmStreamFree();
             soundAllocIopFree();
-            movie_init(&D_005D3CE8[mpegPlay * 0x20], 720, systemStatus[0] ? 576 : 480, 36, 12,
+            movie_init(&movieFile[mpegPlay * 0x20], 720, systemStatus[0] ? 576 : 480, 36, 12,
                        soundOutputModeGet() == 1, mpegPlayInitColor);
             ret = movie_proc(movie_abort_check);
             sceGsSyncV(0);

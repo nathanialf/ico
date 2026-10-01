@@ -1817,7 +1817,8 @@ void *InitGirlGeo(char *gobj, char *csv)
     return w;
 }
 
-extern char *D_00639EA4;
+/* kept local: main.c's global; this TU does not include main.h */
+extern char *boyGObj;
 
 void GirlGeo(char *a0)
 {
@@ -1840,15 +1841,15 @@ void GirlGeo(char *a0)
     } else {
         w = (char *)GOBJ_SUB(a0);
         if (*(int *)(w + 0x310) == 4 && *(int *)(w + 0x7C) != 0 && *(int *)(w + 0x3C8) != 0) {
-            n0 = GetSkeltonFocusNode(D_00639EA4, 6);
+            n0 = GetSkeltonFocusNode(boyGObj, 6);
             n1 = GetSkeltonFocusNode(a0, 0x16);
-            sceVu0SubVector(v, *(char **)((char *)GOBJ_SUB(D_00639EA4) + 0xC) + n0 * 64 + 0x30,
+            sceVu0SubVector(v, *(char **)((char *)GOBJ_SUB(boyGObj) + 0xC) + n0 * 64 + 0x30,
                             *(char **)((char *)GOBJ_SUB(a0) + 0xC) + n1 * 64 + 0x30);
             len = FSqrt(sceVu0InnerProduct(v, v));
             if (10.0f < len) {
                 ratio = 1.0f - len / 50.0f;
                 ratio = ratio < 0.75f ? 0.75f : ratio;
-                SetMotionPlaySpeedRatio(D_00639EA4, ratio);
+                SetMotionPlaySpeedRatio(boyGObj, ratio);
             }
         }
     }

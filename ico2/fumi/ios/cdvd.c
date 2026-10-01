@@ -556,8 +556,9 @@ typedef struct PackKind {
     PackFunc func;  /* 0x20 */
 } PackKind;
 
-extern PackKind D_0055F828[];
-extern int D_0028F4C0[];
+extern PackKind initFunc[];
+/* kept local: main.c's global; this TU does not include main.h */
+extern int systemStatus[];
 extern int SgGetDmaTransferStatus(int ch);
 extern int lock_execIcoMisc;
 
@@ -568,9 +569,9 @@ static inline PackFunc findPackKind(char *ext, int *kind)
     int i;
 
     for (i = 0; i < 26; i++) {
-        if (strcmp(ext, D_0055F828[i].ext) == 0) {
+        if (strcmp(ext, initFunc[i].ext) == 0) {
             *kind = i;
-            return D_0055F828[i].func;
+            return initFunc[i].func;
         }
     }
     *kind = -1;
@@ -652,8 +653,8 @@ void iosCdvdMgrPackLoad(char *self)
             debug_StdPrintfDummy("------------------------------------------------files %d -----\n",
                                  *num);
         }
-        D_0028F4C0[7] = *num;
-        D_0028F4C0[8] = 0;
+        systemStatus[7] = *num;
+        systemStatus[8] = 0;
         size = *num * sizeof(PackEnt);
         ent = (PackEnt *)iosMallocDebug(ios_partition_seki, size, __FILE__, 1174);
         iosCdvdHandlerRead((int *)self, ent, size);
@@ -1102,7 +1103,7 @@ void cdWait(int *busy)
                 break;
             }
             bgDriveState = 1;
-            cdWaitParamSave = D_0028F4C0[0x14 / 4];
+            cdWaitParamSave = systemStatus[0x14 / 4];
         case 1:
             if (*(BgReadyFunc *)(self + 0x118) != 0) {
                 (*(BgReadyFunc *)(self + 0x118))(self, *(int *)(self + 0x120),
@@ -1111,7 +1112,7 @@ void cdWait(int *busy)
             }
             if (((*(unsigned int *)(self + 0x108) >> 4) & 1) == 0) {
                 iosPadDisable();
-                D_0028F4C0[0x14 / 4] = 1;
+                systemStatus[0x14 / 4] = 1;
                 cdWaitParamSet = 1;
             }
             strcpy(file, "SCES_507.60");
@@ -1126,7 +1127,7 @@ void cdWait(int *busy)
                 if (cdWaitParamSet != 0) {
                     iosPadEnable();
                     cdWaitParamSet = 0;
-                    D_0028F4C0[0x14 / 4] = cdWaitParamSave;
+                    systemStatus[0x14 / 4] = cdWaitParamSave;
                 }
             }
             break;

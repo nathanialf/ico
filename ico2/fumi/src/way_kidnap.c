@@ -542,7 +542,8 @@ inline int WayPointWithRangeFromGObj(void *obj, float f)
     return WayPointWithRangeFromPos(pos, 0, f);
 }
 
-extern void *D_00639EA8;
+/* kept local: main.c's global; this TU does not include main.h */
+extern void *girlGObj;
 
 void *NearestEnemyFromGirl(float *len)
 {
@@ -558,7 +559,7 @@ void *NearestEnemyFromGirl(float *len)
         obj = isysGObjSearchFromObjKindID_next(obj);
 
     while (obj != 0) {
-        d = WayLengthOfGObj_GObj(D_00639EA8, obj);
+        d = WayLengthOfGObj_GObj(girlGObj, obj);
 
         if (d >= 0.0f && d < min) {
             min = d;

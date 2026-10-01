@@ -15,7 +15,8 @@ static int stageBgaCount = 0; /* derived name */
 
 /* kept local: this TU's uses of _CopyVector do not fit the prototype in Matrix.h */
 extern void _CopyVector(void *dst, void *src);
-extern int D_0028F4C0[];
+/* kept local: main.c's global; this TU does not include main.h */
+extern int systemStatus[];
 /* kept local: this TU's uses of _AddVector do not fit the prototype in Matrix.h */
 extern void _AddVector(void *dst, void *a, void *b);
 extern void EntryMultiBgaManagerSensitive(MultiBga *bga, int no, int kind, void *pos, void *rot,
@@ -88,7 +89,7 @@ void DispStageMultiBgaManager(void)
                 continue;
             }
         }
-        if (D_0028F4C0[5] == 0) {
+        if (systemStatus[5] == 0) {
             _AddVector(stageBgaAnim[i] + 0x20, stageBgaAnim[i] + 0x20, &stageBga[i].w[4]);
         }
     }

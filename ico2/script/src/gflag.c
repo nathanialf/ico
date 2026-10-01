@@ -11,7 +11,8 @@
 /* the story flag bitmap, one bit per event flag; saved and restored whole */
 static unsigned char gflags[50] = {0};
 
-extern int D_0028F4CC[];
+/* kept local: main.c's global; this TU does not include main.h */
+extern int systemStatus[];
 
 /* gflag.o's .sdata run (VMA 0x63AA00..0x63AA08; MAIN.MAP's January object
    is the one word gFlagSaveStage): the game-clear state, saved and loaded
@@ -43,7 +44,7 @@ void gflagInit(void)
     gamesysObjInfoInit();
     Generator_Init();
     warpGirlInit();
-    D_0028F4CC[0] = 0;
+    systemStatus[3] = 0;
     memset(IosMcPreviewInfo, 0, 0x14);
     gamesysVersionDiff = 0;
     itouGFlagInit();

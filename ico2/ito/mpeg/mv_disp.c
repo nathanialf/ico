@@ -157,7 +157,8 @@ void sendDispEnv(void *a0)
 
 extern int D_0063C0C0;
 extern int D_0063C0C4;
-extern int D_0028F4C0[];
+/* kept local: main.c's global; this TU does not include main.h */
+extern int systemStatus[];
 extern void sceGsResetPath(void);
 
 void dispCreate(int *self, int a1, int a2, int a3, int a4)
@@ -171,7 +172,7 @@ void dispCreate(int *self, int a1, int a2, int a3, int a4)
     *(volatile int *)&D_0063C0C0 = 0;
     *(volatile int *)&D_0063C0C4 = 0;
     sceGsSyncV(0);
-    sceGsResetGraph(0, 1, D_0028F4C0[0] != 0 ? 3 : 2, 1);
+    sceGsResetGraph(0, 1, systemStatus[0] != 0 ? 3 : 2, 1);
     sceGsResetPath();
     setDispEnv(self, a1, a2, a3, a4);
     sendDispEnv(self);

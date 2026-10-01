@@ -14,13 +14,16 @@ static int fightSnd[8];
 /* the fight music's step: 1 once the open is requested, 2 after it */
 static int fightSoundState = 0; /* derived name */
 
-extern int D_0028F4C0[];
+/* kept local: main.c's global; this TU does not include main.h */
+extern int systemStatus[];
 
 /* set while the girl is held (status 9) or taken off the stage */
 static int fightSoundGirlTaken = 0; /* derived name */
 
-extern int D_00639EA4;
-extern int D_00639EA8;
+/* kept local: main.c's global; this TU does not include main.h */
+extern int boyGObj;
+/* kept local: main.c's global; this TU does not include main.h */
+extern int girlGObj;
 extern int gamesysAnotherStageTsuresari;
 
 void fightSoundProcessMain(void)
@@ -37,19 +40,19 @@ void fightSoundProcessMain(void)
             return;
         }
     }
-    if (D_0028F4C0[6] != 0) {
+    if (systemStatus[6] != 0) {
         return;
     }
-    if (D_0028F4C0[5] == 0 && fightSoundPause != 1) {
-        if (D_00639EA4 != 0) {
+    if (systemStatus[5] == 0 && fightSoundPause != 1) {
+        if (boyGObj != 0) {
             cond = 0;
-            if (_ACTCharStatus_Check(D_00639EA4, 17) != 0) {
+            if (_ACTCharStatus_Check(boyGObj, 17) != 0) {
                 cond = 1;
             }
         }
-        if (D_0028F4C0[6] == 0) {
+        if (systemStatus[6] == 0) {
             fightSoundGirlTaken = 0;
-            if ((D_00639EA8 != 0 && _ACTCharStatus_Check(D_00639EA8, 9) != 0) ||
+            if ((girlGObj != 0 && _ACTCharStatus_Check(girlGObj, 9) != 0) ||
                 gamesysAnotherStageTsuresari != 0) {
                 fightSoundGirlTaken = 1;
             }
@@ -60,7 +63,7 @@ void fightSoundProcessMain(void)
     }
     if (fightSnd[0] == 0) {
         if (cond != 0 || fightSoundGirlTaken != 0) {
-            if (D_0028F4C0[6] == 0) {
+            if (systemStatus[6] == 0) {
                 soundDataOpen(&fightSnd[2], 2, 1, 2, 0);
                 if (fightSnd[5] != 0) {
                     fightSoundState = 1;

@@ -14,7 +14,7 @@ typedef struct {
 } SePackage;
 
 extern SePackage D_005339C0[];
-extern GsysObjInfo D_005D6DB0[];
+extern GsysObjInfo seDef[];
 /* kept local: the declaration in s_init.h changes this TU codegen */
 extern int soundSeDefPlay(int se, unsigned int a1, int a2, int a3);
 
@@ -64,7 +64,7 @@ int playSE(int no)
                 if (debug_seslotdisp_flag != 0) {
                     /* EUC-JP: "SE \"%s\" is not loaded" */
                     debug_StdPrintfDummy("SE \033[36m\"%s\"\033[m はロードされていません\n",
-                                         &D_005D6DB0[no]);
+                                         &seDef[no]);
                 }
                 return 0;
             }
@@ -73,7 +73,7 @@ int playSE(int no)
             }
             if (debug_seslotdisp_flag != 0) {
                 debug_StdPrintfDummy("SE \033[33m\"%s\"\033[m CALLED with GROUP:\033[33m%d\033[m\n",
-                                     &D_005D6DB0[no], fdsGroup);
+                                     &seDef[no], fdsGroup);
             }
         }
     }
@@ -216,7 +216,7 @@ typedef struct EffEntry { /* 0x24 */
     unsigned int flags;   /* 0x20 */
 } EffEntry;
 
-extern EffEntry D_00626278[];
+extern EffEntry motionEffKind[];
 extern int stage_no;
 /* kept local: this TU's uses of GetSkeltonFocusNode do not fit the prototype in motionManager2.h */
 extern int GetSkeltonFocusNode(void *gobj, int node);
@@ -235,11 +235,11 @@ void playEff(int no)
     int node;
     unsigned int flags;
 
-    if (D_00626278[no].node == -1) {
+    if (motionEffKind[no].node == -1) {
         GetRootQuaternion(q, fdsGObj);
         GetRootMatrix(MatrixDrive_GetMatrix(), fdsGObj);
     } else {
-        node = GetSkeltonFocusNode(fdsGObj, D_00626278[no].node);
+        node = GetSkeltonFocusNode(fdsGObj, motionEffKind[no].node);
         if (no == -1) {
             GetRootQuaternion(q, fdsGObj);
             GetRootMatrix(MatrixDrive_GetMatrix(), fdsGObj);
@@ -252,26 +252,26 @@ void playEff(int no)
                        *(char **)((char *)GOBJ_SUB(fdsGObj) + 0xC) + (node << 6));
         }
     }
-    MatrixDrive_TransMatrix(-D_00626278[no].x, -D_00626278[no].y, -D_00626278[no].z);
+    MatrixDrive_TransMatrix(-motionEffKind[no].x, -motionEffKind[no].y, -motionEffKind[no].z);
     CopyVector(pos, (float *)(MatrixDrive_GetMatrix() + 0x30));
-    RotQuaternionY(q, D_00626278[no].ry * -32768.0f / 180.0f);
-    RotQuaternionX(q, D_00626278[no].rx * -32768.0f / 180.0f);
-    RotQuaternionZ(q, D_00626278[no].rz * -32768.0f / 180.0f);
+    RotQuaternionY(q, motionEffKind[no].ry * -32768.0f / 180.0f);
+    RotQuaternionX(q, motionEffKind[no].rx * -32768.0f / 180.0f);
+    RotQuaternionZ(q, motionEffKind[no].rz * -32768.0f / 180.0f);
     /* The record pointer is taken here, and gcc shares its `addu` with the
      * position read above: ROM keeps that one address in $16 across the six
      * calls and reads the flag word off it. */
-    p = &D_00626278[no];
+    p = &motionEffKind[no];
     flags = p->flags;
     if ((flags >> 1) & 1) {
         pos[1] = GOBJ_SUB(fdsGObj)->f_640;
     }
     if (flags & 1) {
-        EntryStageMultiBgaManager(D_00626278[no].eff, pos, q);
+        EntryStageMultiBgaManager(motionEffKind[no].eff, pos, q);
     } else {
         if (stage_no == 0x21 && pos[0] < -4500.0f) {
             return;
         }
-        SetParticleEffect(D_00626278[no].eff, pos, q);
+        SetParticleEffect(motionEffKind[no].eff, pos, q);
     }
 }
 
@@ -345,14 +345,16 @@ done:
     return 1;
 }
 
-extern void *D_00639EA0;
-extern int D_00639EB0;
+/* kept local: main.c's global; this TU does not include main.h */
+extern void *girlControlMode;
+/* kept local: main.c's global; this TU does not include main.h */
+extern int girlPad;
 /* kept local: the declaration in frameDependSequence.h changes this TU codegen */
 extern void StopFDSVibration(void *a0);
 
 void execVibCondition(int no, int *entry)
 {
-    if (D_00639EA0 != 0) {
+    if (girlControlMode != 0) {
         /* EUC-JP: "controller-2 vibration condition detect mode" */
         debug_StdPrintfDummy("2コン振動条件検知モード\n");
         if (D_00626010[no].kind != 0) {
@@ -360,7 +362,7 @@ void execVibCondition(int no, int *entry)
                 StopFDSVibration(fdsFlags);
             }
         } else {
-            *entry = iosPadActRequest(D_00639EB0, D_00626010[no].actId);
+            *entry = iosPadActRequest(girlPad, D_00626010[no].actId);
         }
     }
 }
@@ -387,7 +389,7 @@ typedef struct FDSFlags { /* 0x74 */
     int vibEntry[2];      /* 0x6C */
 } FDSFlags;
 
-extern char D_0055FE58[];
+extern char motionKind[];
 /* kept local: the declaration in frameDependSequence.h changes this TU codegen */
 extern int execVib(int a0, void *a1);
 /* kept local: the declaration in frameDependSequence.h changes this TU codegen */
@@ -418,7 +420,7 @@ void ExecFrameDependSequence(void *gobj)
     fdsLayout = p;
     fdsWork = w + 0xA0;
     fdsFlags = w + 0x740;
-    fdsRecord = D_0055FE58 + *(int *)(p + 0x30) * 0x194;
+    fdsRecord = motionKind + *(int *)(p + 0x30) * 0x194;
     fdsVolume = 1.0f;
 
     for (i = 0; i < 12; i++) {
@@ -483,7 +485,7 @@ static inline int setSEEnvironment(void *gobj, int id)
         p = w + 0x470;
         fdsWork = w + 0xA0;
         fdsFlags = w + 0x740;
-        fdsRecord = D_0055FE58 + *(int *)(p + 0x30) * 0x194;
+        fdsRecord = motionKind + *(int *)(p + 0x30) * 0x194;
         fdsGroup = *(int *)(w + (id << 2) + 0x61C);
         fdsLayout = p;
     } else {
@@ -521,7 +523,7 @@ void executeSEPackageWithNoGObj(int no)
             soundSeDefPlay(p[i], 0xFFFFFFFF, 0, 1);
             if (debug_seslotdisp_flag != 0) {
                 debug_StdPrintfDummy("SE \033[33m\"%s\"\033[m CALLED with GROUP:\033[33m%d\033[m\n",
-                                     &D_005D6DB0[p[i]], 0xFFFFFFFF);
+                                     &seDef[p[i]], 0xFFFFFFFF);
             }
         }
     }
@@ -642,13 +644,14 @@ inline int checkWeaponType(void *a0, int a1)
     return 0;
 }
 
-extern int D_00639EAC;
+/* kept local: main.c's global; this TU does not include main.h */
+extern int boyPad;
 
 inline int execVib(int a0, void *a1)
 {
     if (a0 <= 0xFFFF) {
         if (a0 > 0) {
-            iosPadActRequest(D_00639EAC, a0);
+            iosPadActRequest(boyPad, a0);
         }
     } else if (a0 > 0x1FFFF) {
         execVibCondition(a0 - 0x20000, a1);

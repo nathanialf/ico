@@ -244,7 +244,8 @@ void shadow_Reset(void)
 /* "S", the one character label this pass prints */
 /* kept local: this TU reads the stage setting record for its tint bytes only,
  * so it takes the byte view src/layout_texture.c also uses */
-extern unsigned char D_0028F720[];
+/* kept local: main.c's global; this TU does not include main.h */
+extern unsigned char GlobalStageSetting[];
 /* kept local: this TU's uses of these do not fit the prototypes in the headers */
 extern void tex_UnlockHeadTBP(int pri);
 
@@ -280,7 +281,7 @@ void shadow_Draw(void)
                           {4, 4, ScreenWidth * 2, ScreenHeight * 2}};
         int off[4] = {-(ScreenWidth >> 1) * 16, -(ScreenHeight >> 1) * 16, ScreenWidth * 16,
                       ScreenHeight * 16};
-        unsigned char col[4] = {128, 128, 128, D_0028F720[0xAC]};
+        unsigned char col[4] = {128, 128, 128, GlobalStageSetting[0xAC]};
         int dbg = 0; /* local debug switch, see the test in the upward loop */
         int i;
         char *c;
@@ -317,8 +318,8 @@ void shadow_Draw(void)
         setGsReg(0x47, 0x3400D);
 
         for (i = 3; i > 0; i--) {
-            unsigned char col2[4] = {D_0028F720[0xC0], D_0028F720[0xC4], D_0028F720[0xC8],
-                                     D_0028F720[0xB0 + i * 4]};
+            unsigned char col2[4] = {GlobalStageSetting[0xC0], GlobalStageSetting[0xC4],
+                                     GlobalStageSetting[0xC8], GlobalStageSetting[0xB0 + i * 4]};
 
             /* Local debug switch, off. What the bytes pin: the ROM's seven
                spill slots (ScreenHeight 0x80, ScreenWidth 0x84, the two window
@@ -1369,14 +1370,14 @@ typedef struct ShadowToolRow {
  * its colour and the four blend weights */
 static const ShadowToolRow shadowToolRows[] = {
     /* derived name */
-    {" Shadow Depth      ", (int *)(D_0028F720 + 0xAC), 0, 128},
-    {" Shadow Color R    ", (int *)(D_0028F720 + 0xC0), 0, 255},
-    {" Shadow Color G    ", (int *)(D_0028F720 + 0xC4), 0, 255},
-    {" Shadow Color B    ", (int *)(D_0028F720 + 0xC8), 0, 255},
-    {" Shadow Blend 1/1  ", (int *)(D_0028F720 + 0xB0), 0, 128},
-    {" Shadow Blend 1/4  ", (int *)(D_0028F720 + 0xB4), 0, 128},
-    {" Shadow Blend 1/16 ", (int *)(D_0028F720 + 0xB8), 0, 128},
-    {" Shadow Blend 1/64 ", (int *)(D_0028F720 + 0xBC), 0, 128},
+    {" Shadow Depth      ", (int *)(GlobalStageSetting + 0xAC), 0, 128},
+    {" Shadow Color R    ", (int *)(GlobalStageSetting + 0xC0), 0, 255},
+    {" Shadow Color G    ", (int *)(GlobalStageSetting + 0xC4), 0, 255},
+    {" Shadow Color B    ", (int *)(GlobalStageSetting + 0xC8), 0, 255},
+    {" Shadow Blend 1/1  ", (int *)(GlobalStageSetting + 0xB0), 0, 128},
+    {" Shadow Blend 1/4  ", (int *)(GlobalStageSetting + 0xB4), 0, 128},
+    {" Shadow Blend 1/16 ", (int *)(GlobalStageSetting + 0xB8), 0, 128},
+    {" Shadow Blend 1/64 ", (int *)(GlobalStageSetting + 0xBC), 0, 128},
 };
 
 /* the two menu colours, unselected then selected, ZFog's fogRowColor idiom:
@@ -1408,7 +1409,8 @@ typedef struct PadRec {
     char _10[0x48];
 } PadRec;
 
-extern PadRec D_0028F8F0[];
+/* kept local: main.c's global; this TU does not include main.h */
+extern PadRec pad[];
 
 int shadow_Tool(void)
 {
@@ -1426,29 +1428,29 @@ int shadow_Tool(void)
                               (int)shadowToolRows[i].name, *shadowToolRows[i].val);
         }
     }
-    if (D_0028F8F0[0].repeat & 0x4000) {
+    if (pad[0].repeat & 0x4000) {
         toolRow++;
         if (8 <= toolRow) {
             toolRow = 0;
         }
     }
-    if (D_0028F8F0[0].repeat & 0x1000) {
+    if (pad[0].repeat & 0x1000) {
         toolRow--;
         if (toolRow < 0) {
             toolRow = 7;
         }
     }
-    if (D_0028F8F0[0].repeat & 0x2000) {
+    if (pad[0].repeat & 0x2000) {
         if (++*shadowToolRows[toolRow].val > shadowToolRows[toolRow].max) {
             *shadowToolRows[toolRow].val = shadowToolRows[toolRow].min;
         }
     }
-    if (D_0028F8F0[0].repeat & 0x8000) {
+    if (pad[0].repeat & 0x8000) {
         if (--*shadowToolRows[toolRow].val < shadowToolRows[toolRow].min) {
             *shadowToolRows[toolRow].val = shadowToolRows[toolRow].max;
         }
     }
-    if (D_0028F8F0[0].flags & 0x20) {
+    if (pad[0].flags & 0x20) {
         for (i = 0; i < 8; i++) {
             if (shadowToolRows[i].min == 0 && shadowToolRows[i].max == 1) {
                 debug_StdPrintfDummy("Shadow %s => %s\n", shadowToolRows[i].name,
@@ -1460,7 +1462,7 @@ int shadow_Tool(void)
         }
         ret = 1;
     }
-    if (D_0028F8F0[0].flags & 0x40) {
+    if (pad[0].flags & 0x40) {
         ret = -1;
     }
     if (ret != 0) {

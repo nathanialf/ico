@@ -16,7 +16,8 @@ typedef struct Pad {
     unsigned char ry;      /* 0x57 */
 } Pad;
 
-extern Pad D_0028F8F0[];
+/* kept local: main.c's global; this TU does not include main.h */
+extern Pad pad[];
 
 /* the pad device descriptor InitKeyInput hands to iosPadDevInit */
 static int keyInputPadDev[6] = {7, 2, 0, 0, 0, 0};
@@ -34,12 +35,12 @@ void InitKeyInput(void)
     debug_StdPrintfDummy("PadInit\n");
     iosPadDevInit(keyInputPadDev);
     for (i = 0; i < 2; i++) {
-        D_0028F8F0[i].old = 0;
-        D_0028F8F0[i].f04 = 0;
-        D_0028F8F0[i].f08 = 0;
-        D_0028F8F0[i].trg = 0;
+        pad[i].old = 0;
+        pad[i].f04 = 0;
+        pad[i].f08 = 0;
+        pad[i].trg = 0;
         for (j = 15; j >= 0; j--) {
-            D_0028F8F0[i].hist[j] = 0;
+            pad[i].hist[j] = 0;
         }
     }
     debug_StdPrintfDummy("InitKeyInput2() out\n");
@@ -55,7 +56,8 @@ typedef struct PadBuf {
     char _p24[0x60 - 0x24];
 } PadBuf;
 
-extern int D_0028F4C0[];
+/* kept local: main.c's global; this TU does not include main.h */
+extern int systemStatus[];
 extern char iosPadConfDefault[];
 /* kept local: this TU's uses of iosPadDevRead do not fit the prototype in pad.h */
 extern void iosPadDevRead(void);
@@ -76,31 +78,31 @@ void ExecKeyInput(void)
 
     iosPadDevRead();
     for (i = 0; i < 2; i++) {
-        D_0028F8F0[i].old = D_0028F8F0[i].now;
+        pad[i].old = pad[i].now;
         iosPadConnect(&buf, 7, i, iosPadConfDefault);
         iosPadRead(&buf);
-        D_0028F8F0[i].now = buf.f18;
-        D_0028F8F0[i].f04 = buf.f1C;
-        D_0028F8F0[i].f08 = buf.f20;
-        D_0028F8F0[i].trg = 0;
+        pad[i].now = buf.f18;
+        pad[i].f04 = buf.f1C;
+        pad[i].f08 = buf.f20;
+        pad[i].trg = 0;
         iosPadGetStick(&buf, stL, 1, 127, 127, 0);
-        D_0028F8F0[i].lx = stL[0];
-        D_0028F8F0[i].ly = stL[4];
+        pad[i].lx = stL[0];
+        pad[i].ly = stL[4];
         iosPadGetStick(&buf, stR, 0, 127, 127, 0);
-        D_0028F8F0[i].rx = stR[0];
-        D_0028F8F0[i].ry = stR[4];
+        pad[i].rx = stR[0];
+        pad[i].ry = stR[4];
         for (j = 0; j < 16; j++) {
-            if ((D_0028F8F0[i].now >> j) & 1) {
-                D_0028F8F0[i].hist[j]++;
+            if ((pad[i].now >> j) & 1) {
+                pad[i].hist[j]++;
             } else {
-                D_0028F8F0[i].hist[j] = 0;
+                pad[i].hist[j] = 0;
             }
-            if (D_0028F8F0[i].hist[j] == 1 ||
-                (float)D_0028F8F0[i].hist[j] >
-                    (float)((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]) / 60.0f * 20.0f) {
-                D_0028F8F0[i].trg |= 1 << j;
+            if (pad[i].hist[j] == 1 ||
+                (float)pad[i].hist[j] >
+                    (float)((60 - systemStatus[0] * 10) / systemStatus[1]) / 60.0f * 20.0f) {
+                pad[i].trg |= 1 << j;
             } else {
-                D_0028F8F0[i].trg &= ~(1 << j);
+                pad[i].trg &= ~(1 << j);
             }
         }
     }

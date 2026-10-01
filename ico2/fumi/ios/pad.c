@@ -664,7 +664,7 @@ typedef struct {
     unsigned short life; /* 0x06 */
 } PadActDef;
 
-extern PadActDef D_005F5C70[];
+extern PadActDef shockList[];
 
 /* the pad device the request hangs off: only the shock box pointer at +0 is read */
 typedef struct {
@@ -696,8 +696,8 @@ go:
     if (port == 0 || iosPadActRequestEnable == 0 || entry == 0) {
         return 0;
     }
-    entry->player = D_005F5C70[id].player;
-    entry->life = D_005F5C70[id].life;
+    entry->player = shockList[id].player;
+    entry->life = shockList[id].life;
     entry->tick = 0;
     entry->box = (int)(((PadDev *)port)->box + 0x1A4);
     entry->prm.mode = entry->prm.b1 = 0;

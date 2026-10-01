@@ -171,8 +171,10 @@ static int demoEnd;
 
 static int demoSkipped;
 
-extern void *D_00639EA4;
-extern void *D_00639EA8;
+/* kept local: main.c's global; this TU does not include main.h */
+extern void *boyGObj;
+/* kept local: main.c's global; this TU does not include main.h */
+extern void *girlGObj;
 
 void actSt06aInit(void)
 {
@@ -218,7 +220,8 @@ void actSt06aSuimon(volatile int a0)
     }
 }
 
-extern Pad D_0028F8F0[];
+/* kept local: main.c's global; this TU does not include main.h */
+extern Pad pad[];
 /* kept local: this TU's uses of scpSleepEnemyAll do not fit the prototype in script.h */
 extern void scpSleepEnemyAll(void);
 /* kept local: this TU's uses of scpAdpcmPlayRequestFunc do not fit the prototype in script.h */
@@ -283,7 +286,7 @@ void actSt06aSuimonChk(volatile int a0)
     he = actCreateSubThread(actSt06aSuimonEffect, 21);
     hs = actCreateSubThread(actSt06aSuimonSub, 21);
 
-    while (demoEnd == 0 && ((D_0028F8F0[0].trg & 0x800) == 0 || scpAdpcmPlayRequestNum() != 0)) {
+    while (demoEnd == 0 && ((pad[0].trg & 0x800) == 0 || scpAdpcmPlayRequestNum() != 0)) {
         _ACTWait(1);
     }
 
@@ -327,8 +330,8 @@ void actSt06aDoor(volatile int a0)
 
     _ACTWait(1);
 
-    if (scpTriggerBall(a0, D_00639EA4, 200.0f) != 0 ||
-        (D_00639EA8 != 0 && scpTriggerBall(a0, D_00639EA8, 400.0f) != 0)) {
+    if (scpTriggerBall(a0, boyGObj, 200.0f) != 0 ||
+        (girlGObj != 0 && scpTriggerBall(a0, girlGObj, 400.0f) != 0)) {
         stage_SetAnimation(112, 0, 0);
         _ACTWait(60);
         door_down_mes[0].func = actSt06aDoorDownChk;
@@ -434,7 +437,7 @@ void actSt06aShutterOpen(volatile int a0)
 
     demoEnd = 0;
 
-    while (demoEnd == 0 && ((D_0028F8F0[0].trg & 0x800) == 0 || scpAdpcmPlayRequestNum() != 0)) {
+    while (demoEnd == 0 && ((pad[0].trg & 0x800) == 0 || scpAdpcmPlayRequestNum() != 0)) {
         _ACTWait(1);
     }
 
@@ -486,7 +489,7 @@ void actSt06aBoxChk(volatile int a0)
 
     demoEnd = 0;
 
-    while (demoEnd == 0 && ((D_0028F8F0[0].trg & 0x800) == 0 || scpAdpcmPlayRequestNum() != 0)) {
+    while (demoEnd == 0 && ((pad[0].trg & 0x800) == 0 || scpAdpcmPlayRequestNum() != 0)) {
         _ACTWait(1);
     }
 
@@ -521,12 +524,12 @@ void actSt06aStatueChk(volatile int a0)
 {
     int handle;
 
-    if (D_00639EA8 == 0) {
+    if (girlGObj == 0) {
         _ACTWait(0);
     }
 
-    while (scpTriggerFloorAttr(D_00639EA4, 0xB000000) == 0 ||
-           scpTriggerFloorAttr(D_00639EA8, 0xB000000) == 0) {
+    while (scpTriggerFloorAttr(boyGObj, 0xB000000) == 0 ||
+           scpTriggerFloorAttr(girlGObj, 0xB000000) == 0) {
         _ACTWait(1);
     }
 
@@ -595,8 +598,8 @@ void actSt06aHeadChk(volatile int a0)
     if (gFlagGameClear == 0) {
         stage_SetAnimation(119, 1, 0);
 
-        if (scpTriggerFloorAttr(D_00639EA4, 0x7000000) == 0 &&
-            scpTriggerFloorAttr(D_00639EA4, 0xB000000) == 0) {
+        if (scpTriggerFloorAttr(boyGObj, 0x7000000) == 0 &&
+            scpTriggerFloorAttr(boyGObj, 0xB000000) == 0) {
             SetCameraFlag_LwsCutBack();
         }
 
@@ -623,8 +626,8 @@ void actSt06aHeadChk(volatile int a0)
     if (gFlagGameClear != 0) {
         stage_SetAnimation(120, 1, 0);
 
-        if (scpTriggerFloorAttr(D_00639EA4, 0x7000000) == 0 &&
-            scpTriggerFloorAttr(D_00639EA4, 0xB000000) == 0) {
+        if (scpTriggerFloorAttr(boyGObj, 0x7000000) == 0 &&
+            scpTriggerFloorAttr(boyGObj, 0xB000000) == 0) {
             SetCameraFlag_LwsCutBack();
         }
 
@@ -648,8 +651,8 @@ void actSt06aHeadChk(volatile int a0)
         _ACTWait(1);
     }
 
-    if (GetCharHeldItem(D_00639EA4) == 6) {
-        scpPlayMot(D_00639EA4, 0);
+    if (GetCharHeldItem(boyGObj) == 6) {
+        scpPlayMot(boyGObj, 0);
     }
 
     scpSearchGobj(1770)->f16C = 0;
@@ -674,7 +677,7 @@ void actSt06aJumpMove(volatile int a0)
 
     demoEnd = 0;
 
-    while (demoEnd == 0 && ((D_0028F8F0[0].trg & 0x800) == 0 || scpAdpcmPlayRequestNum() != 0)) {
+    while (demoEnd == 0 && ((pad[0].trg & 0x800) == 0 || scpAdpcmPlayRequestNum() != 0)) {
         _ACTWait(1);
     }
 
@@ -711,10 +714,10 @@ inline void actSt06aPistonRideOffChk(volatile int a0)
 {
     Act *sub = (Act *)((PObjGObj *)a0)->act;
 
-    while (scpTriggerFloorAttr(D_00639EA4, 0x6000000) != 0) {
+    while (scpTriggerFloorAttr(boyGObj, 0x6000000) != 0) {
         if (gflagChk(117) != 0) {
             debug_StdPrintfDummy("FALLDOWN!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n");
-            iosOmSendMail(D_00639EA4, 7, D_00639EA4);
+            iosOmSendMail(boyGObj, 7, boyGObj);
         }
         _ACTWait(1);
     }
@@ -1127,18 +1130,20 @@ void actSt06aSuimonEffect(volatile int a0)
     _ACTWait(0);
 }
 
-extern int D_0028F4C0[];
-extern float D_0063C088;
+/* kept local: main.c's global; this TU does not include main.h */
+extern int systemStatus[];
+/* kept local: stageSEProc.c defines it and has no header */
+extern float riverFadeSpeed;
 
 void actSt06aSuimonFlagOn(volatile int a0)
 {
-    int i = (0x3C - D_0028F4C0[0] * 0xA) / D_0028F4C0[1] * 7.0;
+    int i = (0x3C - systemStatus[0] * 0xA) / systemStatus[1] * 7.0;
 
-    D_0063C088 = 0.005f;
+    riverFadeSpeed = 0.005f;
 
     while (i-- > 0) {
         if (demoSkipped != 0) {
-            D_0063C088 = 1000.0f;
+            riverFadeSpeed = 1000.0f;
             break;
         }
         _ACTWait(1);
@@ -1266,12 +1271,12 @@ extern int RequestStageChange(int a0, void *a1, int a2, float a3, float a4);
 
 void actSt06aExitChk(volatile int a0)
 {
-    while (gflagChk(106) != 0 || scpTriggerBall(a0, D_00639EA4, 400.0f) == 0) {
+    while (gflagChk(106) != 0 || scpTriggerBall(a0, boyGObj, 400.0f) == 0) {
         _ACTWait(1);
     }
 
     scpBoyControlReadDisable = 0;
-    RequestStageChange(3, D_00639EA4, 0, 16.0f, 16.0f);
+    RequestStageChange(3, boyGObj, 0, 16.0f, 16.0f);
 }
 
 /* kept local: this TU's uses of RequestStageChangeDirect do not fit the prototype in script.h */
@@ -1284,21 +1289,21 @@ void actSt06aExitGirlChk(volatile int a0)
     long long buf1[2];
     long long buf2[2];
 
-    if (D_00639EA8 == 0) {
+    if (girlGObj == 0) {
         _ACTWait(0);
     }
 
-    while (gflagChk(106) != 0 || scpTriggerBall(a0, D_00639EA8, 400.0f) == 0) {
+    while (gflagChk(106) != 0 || scpTriggerBall(a0, girlGObj, 400.0f) == 0) {
         _ACTWait(1);
     }
 
     buf1[0] = kyomiPos.d[0];
     buf1[1] = kyomiPos.d[1];
-    RequestStageChangeDirect(D_00639EA8, 0x16, buf1, 0xB4);
+    RequestStageChangeDirect(girlGObj, 0x16, buf1, 0xB4);
 
     buf2[0] = farPos.d[0];
     buf2[1] = farPos.d[1];
-    SetDirectRootPosition(D_00639EA8, buf2);
+    SetDirectRootPosition(girlGObj, buf2);
 
     ScpCallCameraSetTarget(-800.0f, -500.0f, 2200.0f);
 }
@@ -1316,7 +1321,7 @@ void actSt06aBoxSub(volatile int a0)
     }
     _ACTWait(1);
 
-    _ACTWait((0x3C - D_0028F4C0[0] * 0xA) / D_0028F4C0[1] * 7);
+    _ACTWait((0x3C - systemStatus[0] * 0xA) / systemStatus[1] * 7);
 
     demoEnd = 1;
     _ACTWait(0);
@@ -1387,11 +1392,11 @@ void actSt06aWayOnChk(volatile int a0)
 {
     Act *sub = (Act *)((PObjGObj *)a0)->act;
 
-    if (D_00639EA8 == 0) {
+    if (girlGObj == 0) {
         _ACTWait(0);
     }
 
-    while (scpCheckExistAliveEnemy() != 0 || scpTriggerFloorAttr(D_00639EA8, 0x4000000) == 0) {
+    while (scpCheckExistAliveEnemy() != 0 || scpTriggerFloorAttr(girlGObj, 0x4000000) == 0) {
         _ACTWait(1);
     }
 
@@ -1407,11 +1412,11 @@ void actSt06aWayOffChk(volatile int a0)
 {
     Act *sub = (Act *)((PObjGObj *)a0)->act;
 
-    if (D_00639EA8 == 0) {
+    if (girlGObj == 0) {
         _ACTWait(0);
     }
 
-    while (scpCheckExistAliveEnemy() == 0 && scpTriggerFloorAttr(D_00639EA8, 0x3000000) == 0) {
+    while (scpCheckExistAliveEnemy() == 0 && scpTriggerFloorAttr(girlGObj, 0x3000000) == 0) {
         _ACTWait(1);
     }
 
@@ -1505,11 +1510,11 @@ void actSt06aWallWay2OffChk(volatile int a0)
 
 void actSt06aTreeChk(volatile int a0)
 {
-    while (scpTriggerBall(a0, D_00639EA4, 150.0f) == 0 ||
-           (ForMotionViewer_GetCurrentMotion(D_00639EA4) != 0x2F &&
-            ForMotionViewer_GetCurrentMotion(D_00639EA4) != 0x30 &&
-            ForMotionViewer_GetCurrentMotion(D_00639EA4) != 0x31 &&
-            ForMotionViewer_GetCurrentMotion(D_00639EA4) != 0x3E)) {
+    while (scpTriggerBall(a0, boyGObj, 150.0f) == 0 ||
+           (ForMotionViewer_GetCurrentMotion(boyGObj) != 0x2F &&
+            ForMotionViewer_GetCurrentMotion(boyGObj) != 0x30 &&
+            ForMotionViewer_GetCurrentMotion(boyGObj) != 0x31 &&
+            ForMotionViewer_GetCurrentMotion(boyGObj) != 0x3E)) {
         _ACTWait(1);
     }
 
@@ -1521,12 +1526,12 @@ void actSt06aKyomiOnChk(volatile int a0)
 {
     Act *sub = (Act *)((PObjGObj *)a0)->act;
 
-    if (D_00639EA8 == 0) {
+    if (girlGObj == 0) {
         _ACTWait(0);
     }
 
-    while (scpTriggerFloorAttr(D_00639EA4, 0x5000000) == 0 ||
-           scpTriggerFloorAttr(D_00639EA8, 0x5000000) == 0) {
+    while (scpTriggerFloorAttr(boyGObj, 0x5000000) == 0 ||
+           scpTriggerFloorAttr(girlGObj, 0x5000000) == 0) {
         _ACTWait(1);
     }
 
@@ -1545,12 +1550,12 @@ void actSt06aKyomiOffChk(volatile int a0)
 {
     Act *sub = (Act *)((PObjGObj *)a0)->act;
 
-    if (D_00639EA8 == 0) {
+    if (girlGObj == 0) {
         _ACTWait(0);
     }
 
-    while (scpTriggerFloorAttr(D_00639EA4, 0x5000000) != 0 &&
-           scpTriggerFloorAttr(D_00639EA8, 0x5000000) != 0) {
+    while (scpTriggerFloorAttr(boyGObj, 0x5000000) != 0 &&
+           scpTriggerFloorAttr(girlGObj, 0x5000000) != 0) {
         _ACTWait(1);
     }
 
@@ -1625,7 +1630,7 @@ void actSt06aPistonRideOnChk(volatile int a0)
 {
     Act *sub = (Act *)((PObjGObj *)a0)->act;
 
-    while (gflagChk(116) == 0 || scpTriggerFloorAttr(D_00639EA4, 0x6000000) == 0) {
+    while (gflagChk(116) == 0 || scpTriggerFloorAttr(boyGObj, 0x6000000) == 0) {
         _ACTWait(1);
     }
 

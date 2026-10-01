@@ -652,7 +652,8 @@ typedef struct MotSyncPair { /* 0x08 */
 } MotSyncPair;
 
 extern MotSyncPair motSyncPairs[]; /* derived name */
-extern char *D_00639EA8;
+/* kept local: main.c's global; this TU does not include main.h */
+extern char *girlGObj;
 
 /* the two wire spheres the girl-to-boy position sync draws when the debug flag
    is on: blue for the girl, orange for the boy */
@@ -680,10 +681,10 @@ void synchronizeMotionOutputOriginForGirl(char *gobj)
     int okA = 0;
     int okB = 0;
 
-    if (D_00639EA8 != 0) {
+    if (girlGObj != 0) {
         p = motSyncPairs;
         for (i = 0; i < 5; i++) {
-            if (GOBJ_SUB(D_00639EA8)->f_4A0 == p->girl) {
+            if (GOBJ_SUB(girlGObj)->f_4A0 == p->girl) {
                 okA = 1;
             }
             if (GOBJ_SUB(gobj)->f_4A0 == p->boy) {
@@ -692,18 +693,18 @@ void synchronizeMotionOutputOriginForGirl(char *gobj)
             p++;
         }
         if (okA != 0 && okB != 0) {
-            _InterVectorXYZ(v, (char *)GOBJ_SUB(D_00639EA8) + 0x100, (char *)GOBJ_SUB(gobj) + 0x100,
+            _InterVectorXYZ(v, (char *)GOBJ_SUB(girlGObj) + 0x100, (char *)GOBJ_SUB(gobj) + 0x100,
                             0.9f);
-            _SubVectorXYZ(d, v, (char *)GOBJ_SUB(D_00639EA8) + 0x100);
+            _SubVectorXYZ(d, v, (char *)GOBJ_SUB(girlGObj) + 0x100);
             d[1] = 0.0f;
-            GetRootPosition(v, D_00639EA8);
+            GetRootPosition(v, girlGObj);
             _AddVectorXYZ(v, v, d);
-            SetDirectRootPositionNoFitting(D_00639EA8, v);
+            SetDirectRootPositionNoFitting(girlGObj, v);
             if (debug_wallhitcoldisp != 0) {
                 gif_StartPacketPri(0xB);
                 gif_SetAlpha(1, 5, 0x80);
                 _UnitMatrix(MatrixDrive_GetMatrix());
-                MatrixDrive_TransMatrixV((char *)GOBJ_SUB(D_00639EA8) + 0x100);
+                MatrixDrive_TransMatrixV((char *)GOBJ_SUB(girlGObj) + 0x100);
                 prim_DispWireSphere(10.0f, girlSyncMarkerColor, 16, 8);
                 _UnitMatrix(MatrixDrive_GetMatrix());
                 MatrixDrive_TransMatrixV((char *)GOBJ_SUB(gobj) + 0x100);
@@ -815,7 +816,8 @@ inline void SetBoyStonizedVisual(char *a0)
 }
 
 extern int stage_no;
-extern int D_0028F4D4[];
+/* kept local: main.c's global; this TU does not include main.h */
+extern int systemStatus[];
 /* kept local: this TU's uses of stage_PlayBgAnimation do not fit the prototype in StageAnimation.h */
 extern float stage_PlayBgAnimation(int obj, void *a1, void *a2, float f);
 void dispSubParts(char *gobj);
@@ -835,7 +837,7 @@ void BoyDL(char *gobj)
         GetRootQuaternion(quat, gobj);
         RotQuaternionY(quat, -0x8000);
         r = (int)stage_PlayBgAnimation(0x1E8, pos, quat, (float)*(int *)(w + 0x1C));
-        if (D_0028F4D4[0] == 0 && r != -1) {
+        if (systemStatus[5] == 0 && r != -1) {
             *(int *)(w + 0x1C) = r;
         }
     } else {

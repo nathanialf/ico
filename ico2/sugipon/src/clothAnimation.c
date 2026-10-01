@@ -105,7 +105,8 @@ typedef struct {
     int f3;
 } ChainSet;
 
-extern int D_0028F4C0[];
+/* kept local: main.c's global; this TU does not include main.h */
+extern int systemStatus[];
 /* kept local: this TU's uses of AddVectorXYZ do not fit the prototype in matrixDrive.h */
 extern void AddVectorXYZ(void *dst, void *a, void *b);
 /* kept local: this TU's uses of SubVectorXYZ do not fit the prototype in matrixDrive.h */
@@ -193,8 +194,8 @@ void GetChainAnimation(ChainSet *sys, int obj, char *mtx)
         for (j = 0; j < n; j++) {
             CopyVector(&dv, pts + j * 16);
             *(float *)(vel + j * 16 + 4) +=
-                60.0f / (float)((0x3C - D_0028F4C0[0] * 0xA) / D_0028F4C0[1]) * 0.5f *
-                (60.0f / (float)((0x3C - D_0028F4C0[0] * 0xA) / D_0028F4C0[1]));
+                60.0f / (float)((0x3C - systemStatus[0] * 0xA) / systemStatus[1]) * 0.5f *
+                (60.0f / (float)((0x3C - systemStatus[0] * 0xA) / systemStatus[1]));
             AddVectorXYZ(pts + j * 16, pts + j * 16, vel + j * 16);
             CopyVector(&old[j], pts + j * 16);
             sceVu0ScaleVector(vel + j * 16, &dv, -1.0f);
@@ -204,8 +205,8 @@ void GetChainAnimation(ChainSet *sys, int obj, char *mtx)
             if (0.0f <= (sys->nodes + i)->ex[k].w) {
                 CopyVector(&dv, (char *)&(sys->nodes + i)->ex[k] + 0x20);
                 (sys->nodes + i)->ex[k].v2.y +=
-                    60.0f / (float)((0x3C - D_0028F4C0[0] * 0xA) / D_0028F4C0[1]) * 0.5f *
-                    (60.0f / (float)((0x3C - D_0028F4C0[0] * 0xA) / D_0028F4C0[1]));
+                    60.0f / (float)((0x3C - systemStatus[0] * 0xA) / systemStatus[1]) * 0.5f *
+                    (60.0f / (float)((0x3C - systemStatus[0] * 0xA) / systemStatus[1]));
                 CopyVector(&ew[k], (char *)&(sys->nodes + i)->ex[k] + 0x30);
                 AddVectorXYZ((char *)&(sys->nodes + i)->ex[k] + 0x20,
                              (char *)&(sys->nodes + i)->ex[k] + 0x20,
@@ -2008,7 +2009,7 @@ void getCloth4D_postProcess(int *a0, int **a1)
 
 /* kept local: this TU's uses of getCloth4D do not fit the prototype in clothAnimation.h */
 extern void getCloth4D(void *a0, int **rows);
-extern char D_0055FE58[];
+extern char motionKind[];
 /* kept local: this TU's uses of _SubVectorXYZ do not fit the prototype in Matrix.h */
 extern void _SubVectorXYZ(void *dst, void *a, void *b);
 
@@ -2040,7 +2041,7 @@ void _getCloth4D(int *a0, float x, float y, float z, float w, int tight, void *a
     getCloth4D_preProcess(a0, x, y, z, w, tight, a6, a7);
     getCloth4D(a0, rows);
     obj = (int *)*(int *)((char *)a0[0] + 0x15C);
-    ent = D_0055FE58 + obj[296] * 0x194;
+    ent = motionKind + obj[296] * 0x194;
     if ((*(unsigned int *)(ent + 0x18C) >> 21) & 1) {
         plane = (char *)obj + 0x1D0;
         m = (int *)a0[184];

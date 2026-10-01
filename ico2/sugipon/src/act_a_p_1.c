@@ -343,7 +343,8 @@ static inline void AP1ToLocal(char *self, AP1Vec *v)
     _ApplyMatrix(v, &m, v);
 }
 
-extern int D_00639EA4;
+/* kept local: main.c's global; this TU does not include main.h */
+extern int boyGObj;
 /* kept local: this TU's uses of CopyVector do not fit the prototype in matrixDrive.h */
 extern void CopyVector(void *dst, void *src);
 /* kept local: this TU's uses of _NormalizeVector do not fit the prototype in Matrix.h */
@@ -372,7 +373,7 @@ void subAP1BrainMain(volatile int self)
     *(int *)(p + 0x4C) = 0;
 
     while (1) {
-        boyObj = (char *)D_00639EA4;
+        boyObj = (char *)boyGObj;
         GetRootPosition(&selfPos, (char *)self);
         GetRootPosition(&boy, boyObj);
         boy.y -= *(float *)(*(int *)(boyObj + 0x15C) + 0x160) - 10.0f;
@@ -472,7 +473,8 @@ void SetAP1DeadStatus(int *a0)
     AP1MotReqForce((int)a0, 5);
 }
 
-extern int D_00639EAC;
+/* kept local: main.c's global; this TU does not include main.h */
+extern int boyPad;
 
 typedef struct AP1MailEntry {
     /* 0x0 */ unsigned int mail;
@@ -591,7 +593,7 @@ void AP1BeforeFunc(char *self)
             hitProc((int)self);
             AP1DeadEffect(self);
             AP1DeadMode(self);
-            iosPadActRequest(D_00639EAC, 17);
+            iosPadActRequest(boyPad, 17);
             ExecuteSEPackage(self, 105);
             break;
 
@@ -620,7 +622,8 @@ typedef struct AP1Spec {
 } AP1Spec;
 
 extern AP1Spec D_0062B588[];
-extern void *D_00639EA8;
+/* kept local: main.c's global; this TU does not include main.h */
+extern void *girlGObj;
 void subAP1Control(int x);
 
 void actAP1Start(char *g)
@@ -639,7 +642,7 @@ void actAP1Start(char *g)
     *(int *)(s + 0xA8) = 0;
     *(char *)(*(int *)(g + 0x164) + 0x1DA) = 1;
 
-    ACTGameView_Add(D_00639EA8, g);
+    ACTGameView_Add(girlGObj, g);
 
     _ACTWait(1);
 

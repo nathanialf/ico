@@ -74,7 +74,6 @@ typedef struct {
     float rot[4];      /* 0x30 */
 } BgaPlayNode;
 
-extern int D_0028F4D4[];
 /* kept local: this TU's uses of bga_ResetAnimation do not fit the prototype in BgAnimation.h */
 extern void bga_ResetAnimation();
 /* kept local: this TU's uses of bga_SetCameraForceOff do not fit the prototype in BgAnimation.h */
@@ -102,7 +101,7 @@ extern int bga_CheckSdfCameraFrame(int a0, int a1, int a2);
 /* kept local: this TU's uses of bga_CalcSdfCamera do not fit the prototype in BgAnimation.h */
 extern void bga_CalcSdfCamera(char *p, int a1);
 extern char D_005F5E70[];
-extern char D_002C2DC8[];
+extern char objLayout[];
 extern char D_002BC6E0[];
 extern char D_00602FA0[];
 extern int stage_no;
@@ -115,7 +114,8 @@ extern void bga_SetFrame();
 /* kept local: this TU's uses of bga_SetCamFrame do not fit the prototype in BgAnimation.h */
 extern void bga_SetCamFrame();
 extern int graphics_ready;
-extern int D_0028F4C0[];
+/* kept local: main.c's global; this TU does not include main.h */
+extern int systemStatus[];
 /* kept local: this TU's uses of bga_SetUniqAnimationFlag do not fit the prototype in BgAnimation.h */
 extern void bga_SetUniqAnimationFlag(int val);
 /* kept local: this TU's uses of bga_CalcAnimation do not fit the prototype in BgAnimation.h */
@@ -202,7 +202,7 @@ void stage_ApplyData(char *name, char *data)
 
     for (m = 0; m < 2; m++) {
         for (i = ((int *)tbl[m])[0]; i < ((int *)tbl[m])[1]; i++) {
-            rec = D_002C2DC8 + i * 0x4C;
+            rec = objLayout + i * 0x4C;
             n = *(int *)(rec + 0x34);
             if (n != 0) {
                 ent = D_002BC6E0 + n * 0x14;
@@ -251,7 +251,7 @@ typedef struct {
 } StgBgaSet;
 
 extern StgObjDat D_00600498[];
-extern char D_002C1270[];
+extern char objKindData[];
 extern void bga_InitBGA(void);
 extern void bga_ResetCamera(void);
 extern void bga_ApplyDObject(char *a0, char **a1, int a2, int a3);
@@ -344,7 +344,7 @@ int stage_Init(void)
     for (m = 0; m < 2; m++) {
         stageAnimDebugHook();
         for (i = ((int *)tbl[m])[0]; i < ((int *)tbl[m])[1]; i++) {
-            rec = D_002C2DC8 + i * 0x4C;
+            rec = objLayout + i * 0x4C;
             n = *(int *)(rec + 0x34);
             if (n != 0) {
                 char *ent = D_002BC6E0 + n * 0x14;
@@ -503,7 +503,7 @@ int stage_Init(void)
 
                 g = e->objs[k];
                 arg = stageGObjArg;
-                tbl2 = D_002C1270 + *(int *)((char *)e->dats[k] + 4) * 100;
+                tbl2 = objKindData + *(int *)((char *)e->dats[k] + 4) * 100;
                 fn = *(int (**)(char *, StageGObjInit *))(tbl2 + 0x58);
                 if (fn != 0) {
                     *(int *)(STG_DAT(e->objs[k]) + 0x830) = fn(g, &arg);
@@ -683,7 +683,7 @@ inline int stage_CheckAnimationFrameIn(int a0, int a1, int a2)
 void stage_ResetAnimation(void)
 {
     bga_ResetAnimation();
-    if (D_0028F4D4[0] != 0)
+    if (systemStatus[5] != 0)
         return;
     light_KillAllFixLight();
 }
@@ -713,7 +713,7 @@ void stage_CalcAnimationNoParent(void)
                     continue;
                 }
             }
-            if (D_0028F4C0[0x14 / 4] != 0) {
+            if (systemStatus[0x14 / 4] != 0) {
                 continue;
             }
             switch (*(signed char *)(entry2 + 0xA)) {
@@ -747,7 +747,7 @@ void stage_CalcAnimationNoParent(void)
             break;
         }
         case 1:
-            if (D_0028F4C0[0x14 / 4] != 0) {
+            if (systemStatus[0x14 / 4] != 0) {
                 continue;
             }
             if (*(int *)(*(char **)(e + 0x288) + 0xC) != 1) {
@@ -786,7 +786,7 @@ void stage_CalcAnimationParent(void)
         if (*(int *)(*(char **)(entry2 + 0x24) + 0x20) == 0) {
             continue;
         }
-        if (D_0028F4C0[0x14 / 4] != 0) {
+        if (systemStatus[0x14 / 4] != 0) {
             continue;
         }
         switch (*(signed char *)(entry2 + 0xA)) {
@@ -1001,11 +1001,11 @@ float stage_PlayBgAnimation(int key, float t, void *v, void *q)
 
             *(int *)(*(int *)(*(char **)(objs + (k << 2)) + 0x15C) + 0x74) = 1;
         }
-        if (D_0028F4C0[0x14 / 4] != 0) {
+        if (systemStatus[0x14 / 4] != 0) {
             break;
         }
         f = *(float *)(*(char **)(e + 0x284) + 0x1C);
-        if (D_0028F4C0[0] != 0) {
+        if (systemStatus[0] != 0) {
             r = t + f * 1.2075409f;
         } else {
             r = t + f;
@@ -1065,11 +1065,11 @@ float stage_PlayBgAnimationDissolve(int key, void *v, void *q, float t, float dv
         for (k = 0; k < ((e->flags.i << 22) >> 22); k++) {
             *(int *)(*(char **)(e->obj[k] + 0x15C) + 0x74) = 1;
         }
-        if (D_0028F4C0[0x14 / 4] != 0) {
+        if (systemStatus[0x14 / 4] != 0) {
             break;
         }
         f = *(float *)((char *)e->entry2 + 0x1C);
-        if (D_0028F4C0[0] != 0) {
+        if (systemStatus[0] != 0) {
             r = t + f * 1.2075409f;
         } else {
             r = t + f;

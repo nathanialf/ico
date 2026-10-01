@@ -55,8 +55,8 @@ static int jimakuShownSema[13];
 static int jimakuFrameSema[13];
 
 extern void jimakuMgrNext(struct jArg *p);
-extern int D_0028F4E8[];
-extern int D_0028F4C0[];
+/* kept local: main.c's global; this TU does not include main.h */
+extern int systemStatus[];
 extern void jimakuMgrBegin(struct jArg *p);
 
 #include "jimaku.h"
@@ -107,7 +107,8 @@ static int jimakuDispOn = 0; /* derived name */
 
 int jimakuOn = 1;
 
-extern unsigned char D_0028F720[];
+/* kept local: main.c's global; this TU does not include main.h */
+extern unsigned char GlobalStageSetting[];
 /* kept local: this TU's uses of gif_StartPacketPri do not fit the prototype in GifPacket.h */
 extern void gif_StartPacketPri(int pri);
 /* kept local: this TU's uses of gif_SetAlpha do not fit the prototype in GifPacket.h */
@@ -151,9 +152,9 @@ void display_texture(JimTex *t)
     gif_SetGsReg(74, 0);
     gif_SetZWrite(0);
     gif_SetZTest(0);
-    col.r = ~D_0028F720[0xD0];
-    col.g = ~D_0028F720[0xD4];
-    col.b = ~D_0028F720[0xD8];
+    col.r = ~GlobalStageSetting[0xD0];
+    col.g = ~GlobalStageSetting[0xD4];
+    col.b = ~GlobalStageSetting[0xD8];
     gif_SpriteSensitiveOffset(dst, 0xFFFFFF9B, src, &col, 1);
     gif_SetZWrite(1);
     gif_SetZTest(1);
@@ -207,7 +208,7 @@ int jimakuHandler(int self, struct jArg *p)
         iosCdvdBackGroundMgrSeek(sub->field40, sub->field2C * 0x8800);
         sub->field34 = (sub->field34 + 1) % 4;
     }
-    if (D_0028F4C0[10] != 0) {
+    if (systemStatus[10] != 0) {
         iosSemaReferStatus(jimakuReadSema);
         if (jimakuReadSema[9] > 0) {
             iosSemaSignal(jimakuReadSema);
@@ -217,7 +218,7 @@ int jimakuHandler(int self, struct jArg *p)
 }
 
 extern int NonLinearCameraMove;
-extern char D_0055FBD0[][32];
+extern char jimakuFileName[][32];
 
 void jimakuMgrBegin(struct jArg *p)
 {
@@ -226,10 +227,10 @@ void jimakuMgrBegin(struct jArg *p)
     int i;
     struct jWayGroup *g;
 
-    if (D_0028F4C0[10] != 0) {
+    if (systemStatus[10] != 0) {
         return;
     }
-    D_0028F4C0[10] = 1;
+    systemStatus[10] = 1;
     iosSemaCreate(jimakuReadSema, 0, 1, 0);
     iosSemaCreate(jimakuShownSema, 0, 1, 0);
     iosSemaCreate(jimakuFrameSema, 0, 1, 0);
@@ -263,7 +264,8 @@ void jimakuMgrBegin(struct jArg *p)
     if (gFlagGameClear != 0) {
         st = st + 1;
     }
-    sub->field40 = (void *)iosCdvdBackGroundMgrAdd(D_0055FBD0[st], jimakuHandler, p, 0, 0, 0, 0, 0);
+    sub->field40 =
+        (void *)iosCdvdBackGroundMgrAdd(jimakuFileName[st], jimakuHandler, p, 0, 0, 0, 0, 0);
     {
         struct jSub *q = &p->sub;
         int m;
@@ -414,7 +416,7 @@ void jimakuBegin(int a0)
 
 void jimakuNext(int *p)
 {
-    if (D_0028F4E8[0] != 0) {
+    if (systemStatus[10] != 0) {
         *p = 1;
         iosMsgSend(jimakuMsgQ, p, 0);
     }
@@ -423,12 +425,12 @@ void jimakuNext(int *p)
 void jimakuJump(int a0)
 {
     int *w = (int *)(a0 + 0xC);
-    if (D_0028F4C0[10] == 0)
+    if (systemStatus[10] == 0)
         return;
     {
         int v = w[14];
         if (v == -1) {
-            jimakuDispTime = ((0x3C - D_0028F4C0[0] * 0xA) / D_0028F4C0[1]) << 2;
+            jimakuDispTime = ((0x3C - systemStatus[0] * 0xA) / systemStatus[1]) << 2;
         } else {
             jimakuDispTime = v;
         }
@@ -439,7 +441,7 @@ void jimakuJump(int a0)
 
 void jimakuEnd(void)
 {
-    D_0028F4E8[0] = 0;
+    systemStatus[10] = 0;
     jimakuMgrEnd();
 }
 
@@ -453,7 +455,7 @@ typedef struct {
     char _20[0x70 - 0x20];
 } JimakuLayout;
 
-extern JimakuLayout D_0030CFF8[];
+extern JimakuLayout texProperty[];
 extern char D_00318DD8[];
 extern char D_00318E48[];
 extern void display_texture(JimTex *t);
@@ -463,7 +465,7 @@ void jimakuDisp(char *self)
     struct jWayGroup *g = &jimakuRing[*(int *)(self + 0x3C)];
     int c;
 
-    if (D_0028F4C0[10] == 0) {
+    if (systemStatus[10] == 0) {
         return;
     }
     c = g->fC;
@@ -476,7 +478,7 @@ void jimakuDisp(char *self)
             iosSemaSignal(jimakuShownSema);
         }
     }
-    if (D_0028F4C0[10] != 0) {
+    if (systemStatus[10] != 0) {
         iosSemaReferStatus(jimakuFrameSema);
         if (jimakuFrameSema[9] > 0) {
             iosSemaSignal(jimakuFrameSema);
@@ -484,8 +486,8 @@ void jimakuDisp(char *self)
     }
     if (jimakuDispOn != 0) {
         int v = g->f8;
-        D_0030CFF8[435].f1C = v;
-        D_0030CFF8[434].f1C = v;
+        texProperty[435].f1C = v;
+        texProperty[434].f1C = v;
         if (v < 0) {
             return;
         }

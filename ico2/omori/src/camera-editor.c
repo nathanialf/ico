@@ -1315,7 +1315,7 @@ inline void group_select(char *m)
     }
 }
 
-extern StgPre D_005F5D50[];
+extern StgPre stageData[];
 extern int stage_no;
 /* kept local: this TU's uses of iosThreadWakeup do not fit the prototype in thread.h */
 extern void iosThreadWakeup(void *thread);
@@ -1326,7 +1326,7 @@ void wakeup_cameraedit(void)
     if (curmenu != 0) {
         iosThreadWakeup((void *)curmenu);
         if (D_0028F94C[0] & 0x400) {
-            saveEditedDataBinary((int)&D_002AD010[D_005F5D50[stage_no].camSetId * 0x20],
+            saveEditedDataBinary((int)&D_002AD010[stageData[stage_no].camSetId * 0x20],
                                  cameraSetEdit[1], cameraSetEdit[0]);
         }
     }
@@ -1658,7 +1658,7 @@ inline void ConvertCameraSetBuffer(int n, S4C *item, char *groups)
     int a;
     int b;
     char *f;
-    cameraPinDefault.handCameraRate = D_005F5D50[stage_no].handCameraRate;
+    cameraPinDefault.handCameraRate = stageData[stage_no].handCameraRate;
     m1 = (CamMgr *)cameraSetOrg;
     m1->items = (char *)m1 + 0x70;
     m1->pool = (char *)m1 + 0x1E20;

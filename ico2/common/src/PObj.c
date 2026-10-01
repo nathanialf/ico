@@ -54,7 +54,7 @@ typedef struct PObj {
     /* 0x2E and 0x2F, the sub-object count and a second byte, as one short's
        two bitfields rather than chars: a character type's alias set 0 would
        let every float store kill them, where the ROM keeps the count's lbu
-       live across MakeBoundingBox's loops and lets the D_004FBA80 float
+       live across MakeBoundingBox's loops and lets the modelData float
        load hoist past InitPObj's store to 0x2F */
     short f2E : 8;          /* 0x2E */
     unsigned short f2F : 8; /* 0x2F */
@@ -195,22 +195,22 @@ void MakeBoundingBox(PObj *self)
 /* The 0x8C-stride model table this member shares with charFileManager: only
    the three columns MakePacket reads are spelled out here. */
 
-extern PObjMdl D_004FBA80[];
+extern PObjMdl modelData[];
 
 void MakePacket(PObj *p, int n)
 {
     PObjPkt *q;
 
     p->tag.v.nloop = n;
-    p->tag.ll = (p->tag.ll & ~0x3C0000LL) | ((long long)D_004FBA80[n].b4 << 18);
-    p->tag.ll = (p->tag.ll & ~0x3C00000LL) | ((long long)D_004FBA80[n].b8 << 22);
-    p->tag.v.f34 = D_004FBA80[n].f7C;
-    p->f38 = D_004FBA80[n].f80;
+    p->tag.ll = (p->tag.ll & ~0x3C0000LL) | ((long long)modelData[n].b4 << 18);
+    p->tag.ll = (p->tag.ll & ~0x3C00000LL) | ((long long)modelData[n].b8 << 22);
+    p->tag.v.f34 = modelData[n].f7C;
+    p->f38 = modelData[n].f80;
 
     q = (PObjPkt *)mallocseki(0x880);
     p->pkt = q;
     q->f874 = (PktHdr *)mallocseki(0x100);
-    q->f874->kind = D_004FBA80[n].b0;
+    q->f874->kind = modelData[n].b0;
 
     q->owner = p;
     q->f870 = mallocseki(p->f2E * 80);
@@ -298,7 +298,7 @@ static __inline__ void InitPObjHeader(PObj *p, ObjHdr *h, int n)
     p->f2F = h->fC;
     p->tag.ll &= ~0x30000LL;
     p->tag.ll &= ~0x4000000LL;
-    p->f3C = D_004FBA80[n].f84;
+    p->f3C = modelData[n].f84;
 }
 
 PObj *AllocPObj(ObjHdr *h, char *name, int n)
@@ -389,7 +389,7 @@ PObj *InitPObj(int a0, int a1, int n)
     int j;
 
     p = AllocPObj((ObjHdr *)a0, (char *)a1, n);
-    SetPObjVector(v, D_004FBA80[n].f70, D_004FBA80[n].f74, D_004FBA80[n].f78);
+    SetPObjVector(v, modelData[n].f70, modelData[n].f74, modelData[n].f78);
     num = p->f2E;
     for (i = 0; i < num; i++) {
         PObjSub *g = &p->sub[i];

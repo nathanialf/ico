@@ -84,4 +84,8 @@ extern int test_rope_slope;
 extern float add_rope_val;
 extern void *gopp_subBoyControl;
 
+/* MAIN.MAP globals of boyact.o's .data, the run's last two quadwords. */
+extern float test_rope_velo[4];
+extern float add_rope_vec[4];
+
 #endif /* BOYACT_H */

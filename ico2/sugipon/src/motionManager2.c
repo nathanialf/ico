@@ -44,7 +44,8 @@ extern void sceVu0AddVector(float *dst, float *a, float *b);
 extern void AddVectorXYZ(float *dst, float *a, float *b);
 /* kept local: this TU's uses of CopyVector do not fit the prototype in matrixDrive.h */
 extern void CopyVector();
-extern int D_0028F4C0[];
+/* kept local: main.c's global; this TU does not include main.h */
+extern int systemStatus[];
 /* kept local: this TU's uses of ZeroVector do not fit the prototype in matrixDrive.h */
 extern char ZeroVector[];
 
@@ -77,15 +78,15 @@ int GetWaterReaction(float *outH, int *outFlag, char *info, float *pos, float *v
                 vel[1] = vel[1] + amp * (h1 - waterH) / (h1 - h0);
             } else if (waterH < h2) {
                 r = (waterH - h1) / (h2 - h1);
-                vel[1] =
-                    vel[1] + (60.0f / (float)((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]) * 0.5f *
-                                  (60.0f / (float)((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1])) +
-                              amp * (1.0f - r)) *
-                                 r;
+                vel[1] = vel[1] +
+                         (60.0f / (float)((60 - systemStatus[0] * 10) / systemStatus[1]) * 0.5f *
+                              (60.0f / (float)((60 - systemStatus[0] * 10) / systemStatus[1])) +
+                          amp * (1.0f - r)) *
+                             r;
             } else {
-                vel[1] = vel[1] + 60.0f / (float)((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]) *
-                                      0.5f *
-                                      (60.0f / (float)((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]));
+                vel[1] =
+                    vel[1] + 60.0f / (float)((60 - systemStatus[0] * 10) / systemStatus[1]) * 0.5f *
+                                 (60.0f / (float)((60 - systemStatus[0] * 10) / systemStatus[1]));
                 scale = 1.0f;
                 CopyVector(drain, ZeroVector);
             }
@@ -1036,7 +1037,7 @@ typedef struct {
     char pad16C[0x194 - 0x16C];
 } SlopeRec;
 
-extern SlopeRec D_0055FE58[];
+extern SlopeRec motionKind[];
 
 /* dev lines 1175-1196 and 1201-1218: two helpers with no out-of-line copy in
    the listing, so the names here are ours. */
@@ -1106,15 +1107,15 @@ void SlopeIKControl(GObj *self, char *arg, int a2, Vec4 *vel)
                 }
                 d = getSlopeDifference(self, arg, (char *)GOBJ_SUB(self));
                 rec = *(int *)(ik + 0x30);
-                r1 = getSlopeRatio(d, D_0055FE58[rec].rate0);
-                r0 = getSlopeRatio(d, D_0055FE58[rec].rate1);
+                r1 = getSlopeRatio(d, motionKind[rec].rate0);
+                r0 = getSlopeRatio(d, motionKind[rec].rate1);
             }
         }
     }
     *(float *)(sub + 0x3B8) =
         *(float *)(sub + 0x3B8) +
         (r1 - *(float *)(sub + 0x3B8)) *
-            (60.0f / (float)((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]) * 0.1f);
+            (60.0f / (float)((60 - systemStatus[0] * 10) / systemStatus[1]) * 0.1f);
     *(float *)(ik + 0x4C) = (r0 > 1.0f) ? 1.0f : r0;
 }
 

@@ -27,14 +27,16 @@ typedef struct SeRec {
     unsigned int flags; /* 0x38 */
 } SeRec;
 
-extern SeRec D_005D6DB0[];
-extern int D_00639EA4;
-extern int D_00639EA8;
+extern SeRec seDef[];
+/* kept local: main.c's global; this TU does not include main.h */
+extern int boyGObj;
+/* kept local: main.c's global; this TU does not include main.h */
+extern int girlGObj;
 void setMailTarget(int a0, int *a1, int *a2);
 
 void seMail(int self, int id)
 {
-    SeRec *rec = &D_005D6DB0[id];
+    SeRec *rec = &seDef[id];
     int flags = rec->flags & 0xF;
     int targets[16];
     int n = 0;
@@ -44,19 +46,19 @@ void seMail(int self, int id)
 
     if (flags != 0) {
         if (rec->flags & 8) {
-            if (self != D_00639EA4) {
+            if (self != boyGObj) {
                 flags |= 1;
             }
-            if (self != D_00639EA8) {
+            if (self != girlGObj) {
                 flags |= 2;
             }
             flags |= ~3;
         }
         if (flags & 1) {
-            setMailTarget(D_00639EA4, targets, &n);
+            setMailTarget(boyGObj, targets, &n);
         }
         if (flags & 2) {
-            setMailTarget(D_00639EA8, targets, &n);
+            setMailTarget(girlGObj, targets, &n);
         }
         if (flags & 4) {
             o = isysGObjSearchFromObjKindID_begin(4);

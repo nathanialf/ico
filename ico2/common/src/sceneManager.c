@@ -14,7 +14,7 @@
 #include "clipCollisionManager.h"
 #include "waySystemManager.h"
 
-extern ObjKindEnt D_002C1270[];
+extern ObjKindEnt objKindData[];
 /* kept local: this TU's uses of isysGObjGetExist_begin do not fit the prototype in gobj.h */
 extern int *isysGObjGetExist_begin(int a0);
 /* kept local: this TU's uses of isysGObjGetExist_next do not fit the prototype in gobj.h */
@@ -125,20 +125,20 @@ inline void MoveNextStage_Clear(void)
     nextStageNo = -1;
 }
 
-extern const StgPre D_005F5D50[];
+extern const StgPre stageData[];
 extern int GetEnemyType(float x, float y, float z);
 extern float _GetRandom(void);
 
 /* RECONSTRUCTION: the 0x28-byte enemy-model record; the two members named are the
-   first and one-past-last index into the model-id list D_00624F00. */
+   first and one-past-last index into the model-id list enemymodelTable. */
 typedef struct {
     unsigned char _0[0x20]; /* 0x00 */
     int first;              /* 0x20 */
     int last;               /* 0x24 */
 } EnemyMdlRec;
 
-extern EnemyMdlRec D_00624D70[];
-extern int D_00624F00[];
+extern EnemyMdlRec enemymodelGroup[];
+extern int enemymodelTable[];
 
 int GetRealModelId(int stageNo, char *gen)
 {
@@ -150,34 +150,34 @@ int GetRealModelId(int stageNo, char *gen)
     if (*(unsigned char *)(gen + 0x46) == 4) {
         switch (GetEnemyType(*(float *)gen, *(float *)(gen + 4), *(float *)(gen + 8))) {
         case 0:
-            mdl = D_005F5D50[stageNo].mdl[2];
+            mdl = stageData[stageNo].mdl[2];
             break;
         case 1:
-            mdl = D_005F5D50[stageNo].mdl[3];
+            mdl = stageData[stageNo].mdl[3];
             break;
         case 2:
-            mdl = D_005F5D50[stageNo].mdl[1];
+            mdl = stageData[stageNo].mdl[1];
             break;
         case 3:
-            mdl = D_005F5D50[stageNo].mdl[0];
+            mdl = stageData[stageNo].mdl[0];
             break;
         default:
             goto plain;
         }
-        count = D_00624D70[mdl].last - D_00624D70[mdl].first;
-        first = D_00624D70[mdl].first;
+        count = enemymodelGroup[mdl].last - enemymodelGroup[mdl].first;
+        first = enemymodelGroup[mdl].first;
         if (count != 0) {
             r = (int)(_GetRandom() * 10.0f);
-            return D_00624F00[first + r % count];
+            return enemymodelTable[first + r % count];
         }
     }
 plain:
     return *(int *)(gen + 0x2C);
 }
 
-/* sceneManager.c:213-313.  D_0028F720 is the StageSettingScenemanager record ico2/seki/src/GsBase.c
+/* sceneManager.c:213-313.  GlobalStageSetting is the StageSettingScenemanager record ico2/seki/src/GsBase.c
    already names; the fields this TU touches beyond that file's four are spelled by
-   offset.  The stage-preset record is read through the D_005F5D50[stage] subscript on
+   offset.  The stage-preset record is read through the stageData[stage] subscript on
    every line, which is what the listing's per-line pointer copies show. */
 /* kept local: this TU's bytes only come out with its own view of StageSettingScenemanager. */
 /* kept local: this TU's bytes only come out with its own view of StageSetting, so it
@@ -245,8 +245,10 @@ typedef struct StageSettingScenemanager {
     int subMotionBlur[4]; /* 0x1BC */
 } StageSettingScenemanager;
 
-extern StageSettingScenemanager D_0028F720;
-extern int D_0028F4F0[];
+/* kept local: main.c's global; this TU does not include main.h */
+extern StageSettingScenemanager GlobalStageSetting;
+/* kept local: main.c's global; this TU does not include main.h */
+extern int db[];
 /* kept local: this TU's uses of _NormalizeVector do not fit the prototype in Matrix.h */
 extern void _NormalizeVector(float *dst, float *src);
 /* kept local: this TU's uses of tex_RemakeRegistersSampleMin do not fit the prototype in Texture.h */
@@ -260,100 +262,100 @@ void InitStageLight(int stage)
     debug_StdPrintfDummy("ステージ情報にエクセルのデータを使用します.\n");
 
     for (i = 0; i < 3; i++) {
-        D_0028F720.flatLightDir[0][i] = -D_005F5D50[stage].flatLightDir[i];
+        GlobalStageSetting.flatLightDir[0][i] = -stageData[stage].flatLightDir[i];
 
-        D_0028F720.flatLightCol[0][i] = D_005F5D50[stage].flatLightCol[i] * 0.0078125f;
+        GlobalStageSetting.flatLightCol[0][i] = stageData[stage].flatLightCol[i] * 0.0078125f;
     }
 
-    _NormalizeVector(D_0028F720.flatLightDir[0], D_0028F720.flatLightDir[0]);
+    _NormalizeVector(GlobalStageSetting.flatLightDir[0], GlobalStageSetting.flatLightDir[0]);
 
     for (i = 0; i < 3; i++) {
-        D_0028F720.flatLightDir[1][i] = D_0028F720.flatLightDir[2][i] =
-            D_005F5D50[stage].flatLightDir[i];
+        GlobalStageSetting.flatLightDir[1][i] = GlobalStageSetting.flatLightDir[2][i] =
+            stageData[stage].flatLightDir[i];
 
-        D_0028F720.flatLightCol[1][i] = D_0028F720.flatLightCol[2][i] =
-            D_005F5D50[stage].flatLightCol[i] * 0.0078125f * 0.25f;
+        GlobalStageSetting.flatLightCol[1][i] = GlobalStageSetting.flatLightCol[2][i] =
+            stageData[stage].flatLightCol[i] * 0.0078125f * 0.25f;
     }
 
-    _NormalizeVector(D_0028F720.flatLightDir[1], D_0028F720.flatLightDir[1]);
+    _NormalizeVector(GlobalStageSetting.flatLightDir[1], GlobalStageSetting.flatLightDir[1]);
 
-    _NormalizeVector(D_0028F720.flatLightDir[2], D_0028F720.flatLightDir[2]);
+    _NormalizeVector(GlobalStageSetting.flatLightDir[2], GlobalStageSetting.flatLightDir[2]);
 
     for (i = 0; i < 3; i++) {
-        D_0028F720.ambientCol[i] = D_005F5D50[stage].ambientCol[i] * 0.0078125f;
+        GlobalStageSetting.ambientCol[i] = stageData[stage].ambientCol[i] * 0.0078125f;
 
-        D_0028F720.bgCol[i] = D_005F5D50[stage].bgCol[i];
+        GlobalStageSetting.bgCol[i] = stageData[stage].bgCol[i];
     }
-    D_0028F720.ambientCol[3] = D_0028F720.bgCol[3] = 1.0f;
+    GlobalStageSetting.ambientCol[3] = GlobalStageSetting.bgCol[3] = 1.0f;
 
     light_AddLight(0, 0, 0);
 
-    D_0028F720.f080 = (int)D_005F5D50[stage].f60[0];
-    D_0028F720.f090[0] = (int)D_005F5D50[stage].f60[1];
-    D_0028F720.f090[1] = (int)D_005F5D50[stage].f60[2];
-    D_0028F720.f090[2] = (int)D_005F5D50[stage].f60[3];
-    D_0028F720.f090[3] = (int)D_005F5D50[stage].f60[4];
-    D_0028F720.f0A0[0] = (int)D_005F5D50[stage].f60[5];
-    D_0028F720.f0A0[1] = (int)D_005F5D50[stage].f60[6];
-    D_0028F720.f0A0[2] = (int)D_005F5D50[stage].f60[7];
-    D_0028F720.f120 = 128;
+    GlobalStageSetting.f080 = (int)stageData[stage].f60[0];
+    GlobalStageSetting.f090[0] = (int)stageData[stage].f60[1];
+    GlobalStageSetting.f090[1] = (int)stageData[stage].f60[2];
+    GlobalStageSetting.f090[2] = (int)stageData[stage].f60[3];
+    GlobalStageSetting.f090[3] = (int)stageData[stage].f60[4];
+    GlobalStageSetting.f0A0[0] = (int)stageData[stage].f60[5];
+    GlobalStageSetting.f0A0[1] = (int)stageData[stage].f60[6];
+    GlobalStageSetting.f0A0[2] = (int)stageData[stage].f60[7];
+    GlobalStageSetting.f120 = 128;
 
-    gsb_SetBGColor(D_0028F4F0, (int)D_0028F720.bgCol[0], (int)D_0028F720.bgCol[1],
-                   (int)D_0028F720.bgCol[2]);
+    gsb_SetBGColor(db, (int)GlobalStageSetting.bgCol[0], (int)GlobalStageSetting.bgCol[1],
+                   (int)GlobalStageSetting.bgCol[2]);
 
-    D_0028F720.f0AC = D_005F5D50[stage].f188;
-    D_0028F720.f0B0 = 0;
-    D_0028F720.f0B4 = 40;
-    D_0028F720.f0B8 = 80;
-    D_0028F720.f0BC = 120;
-    D_0028F720.f0C0 = 0;
-    D_0028F720.f0C4 = 0;
-    D_0028F720.f0C8 = 0;
+    GlobalStageSetting.f0AC = stageData[stage].f188;
+    GlobalStageSetting.f0B0 = 0;
+    GlobalStageSetting.f0B4 = 40;
+    GlobalStageSetting.f0B8 = 80;
+    GlobalStageSetting.f0BC = 120;
+    GlobalStageSetting.f0C0 = 0;
+    GlobalStageSetting.f0C4 = 0;
+    GlobalStageSetting.f0C8 = 0;
 
-    D_0028F720.f0D0 = 128;
-    D_0028F720.f0D4 = 128;
-    D_0028F720.f0D8 = 128;
+    GlobalStageSetting.f0D0 = 128;
+    GlobalStageSetting.f0D4 = 128;
+    GlobalStageSetting.f0D8 = 128;
 
-    D_0028F720.f0E0 = 100;
+    GlobalStageSetting.f0E0 = 100;
 
-    D_0028F720.f0E8 = 0;
-    D_0028F720.f104 = 2;
-    D_0028F720.f0EC = 100;
-    D_0028F720.f0F0 = 500;
-    D_0028F720.motionBlur = 32;
+    GlobalStageSetting.f0E8 = 0;
+    GlobalStageSetting.f104 = 2;
+    GlobalStageSetting.f0EC = 100;
+    GlobalStageSetting.f0F0 = 500;
+    GlobalStageSetting.motionBlur = 32;
 
-    D_0028F720.f110 = 64;
-    D_0028F720.f114 = 64;
-    D_0028F720.f118 = 64;
-    D_0028F720.f11C = 128;
+    GlobalStageSetting.f110 = 64;
+    GlobalStageSetting.f114 = 64;
+    GlobalStageSetting.f118 = 64;
+    GlobalStageSetting.f11C = 128;
 
-    D_0028F720.f0FC = 24;
-    D_0028F720.f100 = 24;
+    GlobalStageSetting.f0FC = 24;
+    GlobalStageSetting.f100 = 24;
 
     for (i = 0; i < 4; i++) {
-        int *row = (int *)&D_0028F720 + i * 4;
+        int *row = (int *)&GlobalStageSetting + i * 4;
 
         row[0x130 / 4] = 128;
         row[0x134 / 4] = 128;
         row[0x138 / 4] = 128;
         row[0x13C / 4] = (i + 1) * 8;
-        D_0028F720.subMotionBlur[i] = 32;
-        D_0028F720.f19C[i].a = 0;
-        D_0028F720.f19C[i].b = 0;
+        GlobalStageSetting.subMotionBlur[i] = 32;
+        GlobalStageSetting.f19C[i].a = 0;
+        GlobalStageSetting.f19C[i].b = 0;
     }
 
-    D_0028F720.f170 = 3.0f;
+    GlobalStageSetting.f170 = 3.0f;
 
-    D_0028F720.f180 = 120;
-    D_0028F720.f184 = 80;
-    D_0028F720.f190 = 200;
+    GlobalStageSetting.f180 = 120;
+    GlobalStageSetting.f184 = 80;
+    GlobalStageSetting.f190 = 200;
 
     tex_RemakeRegistersSampleMin(0);
 }
 
 inline char *CreateLayoutedGObj(int id, int a1, int a2, int a3, int a4, int a5, int a6, int a7)
 {
-    ObjKindEnt *layout = (ObjKindEnt *)((char *)D_002C1270 + id * 0x64);
+    ObjKindEnt *layout = (ObjKindEnt *)((char *)objKindData + id * 0x64);
     char *gobj = CreateGObj(layout, id, a5, a6, a7);
     int dobj = CSVSYSTEM_InitDObj(a1, a4);
     int (*fn)(char *, int);
@@ -375,9 +377,10 @@ typedef union {
     GamesysObjInfo info;
 } GamesysObjInfoFlag;
 
-extern GenGeo D_002C2DC8[];
+extern GenGeo objLayout[];
 extern void *D_0063ACF0;
-extern void *D_00639EA4;
+/* kept local: main.c's global; this TU does not include main.h */
+extern void *boyGObj;
 
 /* RECONSTRUCTION: the 0x40-byte actor-init record CreateLayoutedGObj hands to the
    kind's constructor: position, angle and scale as VU0 vectors, then the
@@ -410,7 +413,8 @@ static inline void MoveNextStage_Get(ActInit *a, int kind)
 }
 
 extern int gamesysGirlStageGet(void);
-extern void *D_00639EA8;
+/* kept local: main.c's global; this TU does not include main.h */
+extern void *girlGObj;
 extern void MakeCollisionDependGObjList(void);
 /* kept local: this TU passes a 64-bit process priority where the prototype in
    gobj_process.h carries an int, and the ROM's `dsll $8, $2, 10` proves the
@@ -420,8 +424,8 @@ extern int isysGObjProcAddS(char *gobj, int fn, int a2, int a3, long long pri);
 void initSceneGObj(int stage, int no)
 {
     ActInit a;
-    GenGeo *gen = &D_002C2DC8[no];
-    ObjKindEnt *lay = (ObjKindEnt *)((char *)D_002C1270 + gen->kind * 0x64);
+    GenGeo *gen = &objLayout[no];
+    ObjKindEnt *lay = (ObjKindEnt *)((char *)objKindData + gen->kind * 0x64);
     GamesysObjInfo *info = gamesysObjInfoGet(gen->kind, no);
     int mdl = gen->mdl;
     int st;
@@ -439,7 +443,7 @@ void initSceneGObj(int stage, int no)
 
         ((GamesysObjInfoFlag *)info)->flag |= 1;
 
-        if (D_005F5D50[sno].flag1 == 1 && gamesysGirlStageGet() != sno) {
+        if (stageData[sno].flag1 == 1 && gamesysGirlStageGet() != sno) {
             switch (gen->kind) {
             case 4:
                 ReturnEnemyToGenerator(no);
@@ -507,10 +511,10 @@ void initSceneGObj(int stage, int no)
         }
 
         if (gen->kind == 1) {
-            D_00639EA4 = gobj;
+            boyGObj = gobj;
         }
         if (gen->kind == 2) {
-            D_00639EA8 = gobj;
+            girlGObj = gobj;
         }
 
         if (info != 0 && lay->f34 != 0) {
@@ -549,9 +553,9 @@ extern void __assert(char *file, int line, char *expr);
    row, 502 and 511, the line numbers it passes. */
 void initParentLink(int id)
 {
-    GenGeo *gen = &D_002C2DC8[id];
+    GenGeo *gen = &objLayout[id];
     int parentId = gen->parent;
-    ObjKindEnt *lay = &D_002C1270[gen->kind];
+    ObjKindEnt *lay = &objKindData[gen->kind];
     int self;
     int parent;
 
@@ -609,7 +613,7 @@ static inline void setEnemyGeneratorDispFlag(void)
 
     for (gobj = isysGObjSearchFromObjKindID_begin(4); gobj != 0;
          gobj = isysGObjSearchFromObjKindID_next(gobj)) {
-        GenGeo *gen = &D_002C2DC8[gobj[2]];
+        GenGeo *gen = &objLayout[gobj[2]];
 
         gen->f48 |= 0x200000;
     }
@@ -632,13 +636,20 @@ void initWayData(int stage)
     ExtractWayData(stage);
 }
 
-extern void *D_00639EA4;
-extern void *D_00639EA8;
-extern void *D_00639EAC;
-extern void *D_00639EB0;
-extern void *D_00639EB4;
-extern void *D_00639EB8;
-extern void *D_00639EBC;
+/* kept local: main.c's global; this TU does not include main.h */
+extern void *boyGObj;
+/* kept local: main.c's global; this TU does not include main.h */
+extern void *girlGObj;
+/* kept local: main.c's global; this TU does not include main.h */
+extern void *boyPad;
+/* kept local: main.c's global; this TU does not include main.h */
+extern void *girlPad;
+/* kept local: main.c's global; this TU does not include main.h */
+extern void *gameover_flag;
+/* kept local: main.c's global; this TU does not include main.h */
+extern void *gameover_layout_flag;
+/* kept local: main.c's global; this TU does not include main.h */
+extern void *itemWatchOff;
 /* kept local: this TU's uses of isysGObjMoveAfterGObj do not fit the prototype in gobj.h */
 extern void isysGObjMoveAfterGObj(void *gobj, int *after);
 
@@ -647,12 +658,12 @@ void InitSceneObjects(int stage)
     int *cam;
 
     ResetGObjProc();
-    D_00639EA4 = D_00639EA8 = 0;
-    D_00639EAC = 0;
-    D_00639EB0 = 0;
-    D_00639EB4 = 0;
-    D_00639EB8 = 0;
-    D_00639EBC = 0;
+    boyGObj = girlGObj = 0;
+    boyPad = 0;
+    girlPad = 0;
+    gameover_flag = 0;
+    gameover_layout_flag = 0;
+    itemWatchOff = 0;
 
     debug_StdPrintfDummy("[\033[42m scene %d \033[m ]\n", stage);
 
@@ -672,14 +683,14 @@ void InitSceneObjects(int stage)
     cam = InitCameraGObjs(stage, 0, 1);
 
     initSceneGObjRange(stage, 2, 6);
-    initSceneGObjRange(stage, D_005F5D50[stage].labelTop, D_005F5D50[stage].labelEnd);
+    initSceneGObjRange(stage, stageData[stage].labelTop, stageData[stage].labelEnd);
     initGamesysSceneGObjs(stage);
 
-    if (D_00639EA8 != 0) {
-        isysGObjMoveAfterGObj(D_00639EA8, cam);
+    if (girlGObj != 0) {
+        isysGObjMoveAfterGObj(girlGObj, cam);
     }
-    if (D_00639EA4 != 0) {
-        isysGObjMoveAfterGObj(D_00639EA4, cam);
+    if (boyGObj != 0) {
+        isysGObjMoveAfterGObj(boyGObj, cam);
     }
 
     setEnemyGeneratorDispFlag();
@@ -698,7 +709,7 @@ int HotInitSceneObjects(int a0)
         do {
             int idx = ((PObjGObj *)node)->kind;
             if (idx >= 0) {
-                ObjKindEnt *e = (ObjKindEnt *)((char *)D_002C1270 + idx * 0x64);
+                ObjKindEnt *e = (ObjKindEnt *)((char *)objKindData + idx * 0x64);
                 void (*fn)(int *);
                 if (e->f60 != 0) {
                     iosOmSendMail(node, 0x2F, node);

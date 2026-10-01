@@ -57,7 +57,8 @@ void actSt22aLightningVolime(volatile int a0)
     }
 }
 
-extern int D_00639EA4;
+/* kept local: main.c's global; this TU does not include main.h */
+extern int boyGObj;
 
 static ActMail intro_mes[2] = {{430}, {429}};
 
@@ -92,7 +93,7 @@ void actSt22aIntro(volatile int a0)
     if (gflagChk(324) != 0) {
         return;
     }
-    scpPlayPosSet(D_00639EA4, -808.0f, 148.0f, -1053.0f);
+    scpPlayPosSet(boyGObj, -808.0f, 148.0f, -1053.0f);
     if (gflagChk(323) == 0) {
         scpFadeOut(255.0f, 0, 0, 0);
         gamesysNObjInfoInit();
@@ -103,8 +104,8 @@ void actSt22aIntro(volatile int a0)
     } else {
         gflagOn(324);
         pos = introFacePos;
-        sceVu0SubVector(dir, &pos, test_CURRENTROOT(D_00639EA4));
-        scpPlayMotDir(D_00639EA4, dir);
+        sceVu0SubVector(dir, &pos, test_CURRENTROOT(boyGObj));
+        scpPlayMotDir(boyGObj, dir);
         _ACTWait(1);
         SetCameraFlag_GamecamCutBack();
     }
@@ -115,7 +116,8 @@ void actSt22aIntro(volatile int a0)
    subthread the wait loop below spins for. */
 static int demoEnd;
 
-extern int D_0028F4C0[];
+/* kept local: main.c's global; this TU does not include main.h */
+extern int systemStatus[];
 extern int D_0028F8F4[];
 
 typedef struct St22Anims {
@@ -135,10 +137,10 @@ void actSt22aIntroChk(volatile int a0)
     scpSekizouCheckPoint();
     lt_switch_layout(55);
     scpBoyControlReadDisable = 1;
-    scpPlayStart(D_00639EA4);
+    scpPlayStart(boyGObj);
     gflagOn(324);
     stage_SetAnimation(758, 1, 0);
-    _ACTWait((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1] * 10);
+    _ACTWait((60 - systemStatus[0] * 10) / systemStatus[1] * 10);
     scpFadeIn(6.0f);
     th = actCreateSubThread(actSt22aIntroSub, 21);
     demoEnd = 0;
@@ -161,11 +163,11 @@ void actSt22aIntroChk(volatile int a0)
         }
         stage_SetAnimation(759, 1, -1);
         StabilizeAllLayoutedCage();
-        scpPlayPosSet(D_00639EA4, -808.0f, 148.0f, -1053.0f);
+        scpPlayPosSet(boyGObj, -808.0f, 148.0f, -1053.0f);
         pos = introFacePos;
-        sceVu0SubVector(dir, &pos, test_CURRENTROOT(D_00639EA4));
-        scpPlayMotDir(D_00639EA4, dir);
-        scpPlayMot(D_00639EA4, 0);
+        sceVu0SubVector(dir, &pos, test_CURRENTROOT(boyGObj));
+        scpPlayMotDir(boyGObj, dir);
+        scpPlayMot(boyGObj, 0);
         _ACTWait(1);
         SetCameraFlag_GamecamCutBack();
         scpFadeIn(6.0f);
@@ -173,9 +175,9 @@ void actSt22aIntroChk(volatile int a0)
             _ACTWait(1);
         }
     } else {
-        scpPlayMot(D_00639EA4, 0);
+        scpPlayMot(boyGObj, 0);
     }
-    scpPlayEnd(D_00639EA4);
+    scpPlayEnd(boyGObj);
     lt_switch_layout(54);
     scpBoyControlReadDisable = 0;
 }
@@ -186,15 +188,15 @@ void actSt22aIntroSub(volatile int a0)
     float dir[4];
 
     stage_SetAnimation(758, 1, 0);
-    scpPlayMot(D_00639EA4, 397);
+    scpPlayMot(boyGObj, 397);
     while (stage_ContinueAnimation(758, 759) == 0) {
         _ACTWait(1);
     }
-    scpPlayPosSet(D_00639EA4, -707.0f, 148.0f, -1112.0f);
+    scpPlayPosSet(boyGObj, -707.0f, 148.0f, -1112.0f);
     pos = introFacePos;
-    sceVu0SubVector(dir, &pos, test_CURRENTROOT(D_00639EA4));
-    scpPlayMotDir(D_00639EA4, dir);
-    scpPlayMot(D_00639EA4, 398);
+    sceVu0SubVector(dir, &pos, test_CURRENTROOT(boyGObj));
+    scpPlayMotDir(boyGObj, dir);
+    scpPlayMot(boyGObj, 398);
     while (stage_CheckAnimationFinish(759) == 0) {
         _ACTWait(1);
     }

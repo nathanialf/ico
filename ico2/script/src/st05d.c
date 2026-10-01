@@ -11,8 +11,10 @@
 #include "quaternion.h"
 #include "typedef.h"
 
-extern void *D_00639EA4;
-extern char *D_00639EA8;
+/* kept local: main.c's global; this TU does not include main.h */
+extern void *boyGObj;
+/* kept local: main.c's global; this TU does not include main.h */
+extern char *girlGObj;
 
 /* A 16-byte constant vector template: the float view carries the values,
    the long long view is the one the copy reads, which is what makes gcc
@@ -51,8 +53,8 @@ void actSt05dDoor2(volatile int a0)
 
     _ACTWait(1);
 
-    if (scpTriggerBall(a0, D_00639EA4, 400.0f) != 0 ||
-        (D_00639EA8 != 0 && scpTriggerBall(a0, D_00639EA8, 400.0f) != 0)) {
+    if (scpTriggerBall(a0, boyGObj, 400.0f) != 0 ||
+        (girlGObj != 0 && scpTriggerBall(a0, girlGObj, 400.0f) != 0)) {
         stage_SetAnimation(349, 0, 0);
         _ACTWait(60);
         door2Down_mes[0].func = actSt05dDoor2DownChk;
@@ -271,10 +273,10 @@ void actSt05dDoor2DownEffect(volatile int a0)
 
 void actSt05dEneChk(volatile int a0)
 {
-    if (D_00639EA8 == 0) {
+    if (girlGObj == 0) {
         _ACTWait(0);
     }
-    while (D_00639EA8 == 0 || gflagChk(170) == 0) {
+    while (girlGObj == 0 || gflagChk(170) == 0) {
         _ACTWait(1);
     }
     _ACTWait(1);

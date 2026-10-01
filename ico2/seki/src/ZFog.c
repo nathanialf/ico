@@ -34,7 +34,8 @@ typedef struct FogStage {
     int fogStrength; /* 0x120 */
 } FogStage;
 
-extern FogStage D_0028F720;
+/* kept local: main.c's global; this TU does not include main.h */
+extern FogStage GlobalStageSetting;
 
 void fog_MakeFogClut(void)
 {
@@ -52,13 +53,13 @@ void fog_MakeFogClut(void)
     int a;
     float v;
 
-    near = D_0028F720.fogNear;
-    far = D_0028F720.fogFar;
+    near = GlobalStageSetting.fogNear;
+    far = GlobalStageSetting.fogFar;
 
-    r = D_0028F720.fogColR;
-    g = D_0028F720.fogColG;
-    b = D_0028F720.fogColB;
-    a = D_0028F720.fogColA;
+    r = GlobalStageSetting.fogColR;
+    g = GlobalStageSetting.fogColG;
+    b = GlobalStageSetting.fogColB;
+    a = GlobalStageSetting.fogColA;
 
     fogClutPacket.vif[0] = 0;
     fogClutPacket.vif[1] = 0;
@@ -254,10 +255,10 @@ void fog_DrawFog(void)
     int j;
     int dbg = 0; /* local debug switch, see the test after the loop below */
     int rc1[4] = {8, 8, ScreenWidth * 16, ScreenHeight * 16};
-    unsigned char cl[4] = {0x80, 0x80, 0x80, D_0028F720.fogStrength};
+    unsigned char cl[4] = {0x80, 0x80, 0x80, GlobalStageSetting.fogStrength};
 
     if (debug_fullscreen_effect == 0) return;
-    if (D_0028F720.fogOn == 0) return;
+    if (GlobalStageSetting.fogOn == 0) return;
 
     if (debug_font_flag & 1) debug_Printf(510, ScreenHeight / 2 - 8, 0xCCCCCC00, "Z");
 
@@ -314,8 +315,8 @@ void fog_DrawFog(void)
     FOG_SET_GSREG(20, 96);
 
 
-    if (D_0028F720.fogOffsetA > 0) {
-        unsigned char cl2[4] = {D_0028F720.fogColR, D_0028F720.fogColG, D_0028F720.fogColB, D_0028F720.fogOffsetA};
+    if (GlobalStageSetting.fogOffsetA > 0) {
+        unsigned char cl2[4] = {GlobalStageSetting.fogColR, GlobalStageSetting.fogColG, GlobalStageSetting.fogColB, GlobalStageSetting.fogOffsetA};
 
 
 
@@ -343,7 +344,8 @@ typedef struct FogToolItem {
     int max;    /* 0xC */
 } FogToolItem;
 
-extern GsbPad D_0028F8F0[];
+/* kept local: main.c's global; this TU does not include main.h */
+extern GsbPad pad[];
 
 /* the two labels the 0/1 row prints; the unspecified bound keeps the 8-byte
    pointer array out of small data under -G 8, which is where the ROM has it */
@@ -354,15 +356,15 @@ static char *fogOnOffText[] = {"Off", "On"};
    tool tests to decide between the text and the number format. */
 
 static const FogToolItem fogToolItems[9] = {
-    {" Fog On/Off   ", &D_0028F720.fogOn, 0, 1},
-    {" Fog Color R  ", &D_0028F720.fogColR, 0, 255},
-    {" Fog Color G  ", &D_0028F720.fogColG, 0, 255},
-    {" Fog Color B  ", &D_0028F720.fogColB, 0, 255},
-    {" Fog Color A  ", &D_0028F720.fogColA, 0, 255},
-    {" Fog Offset A ", &D_0028F720.fogOffsetA, 0, 255},
-    {" Fog Near     ", &D_0028F720.fogNear, 0, 255},
-    {" Fog Far      ", &D_0028F720.fogFar, 0, 255},
-    {" Fog Strength ", &D_0028F720.fogStrength, 0, 255},
+    {" Fog On/Off   ", &GlobalStageSetting.fogOn, 0, 1},
+    {" Fog Color R  ", &GlobalStageSetting.fogColR, 0, 255},
+    {" Fog Color G  ", &GlobalStageSetting.fogColG, 0, 255},
+    {" Fog Color B  ", &GlobalStageSetting.fogColB, 0, 255},
+    {" Fog Color A  ", &GlobalStageSetting.fogColA, 0, 255},
+    {" Fog Offset A ", &GlobalStageSetting.fogOffsetA, 0, 255},
+    {" Fog Near     ", &GlobalStageSetting.fogNear, 0, 255},
+    {" Fog Far      ", &GlobalStageSetting.fogFar, 0, 255},
+    {" Fog Strength ", &GlobalStageSetting.fogStrength, 0, 255},
 };
 
 /* the colour a row is drawn in: white when the cursor is elsewhere, black when
@@ -391,31 +393,31 @@ int fog_FogTool(void)
         }
     }
 
-    if (D_0028F8F0[0].rep & 0x4000) {
+    if (pad[0].rep & 0x4000) {
         toolRow++;
         if (toolRow >= 9) {
             toolRow = 0;
         }
     }
-    if (D_0028F8F0[0].rep & 0x1000) {
+    if (pad[0].rep & 0x1000) {
         toolRow--;
         if (toolRow < 0) {
             toolRow = 8;
         }
     }
-    if (D_0028F8F0[0].rep & 0x2000) {
+    if (pad[0].rep & 0x2000) {
         v = ++*fogToolItems[toolRow].val;
         if (fogToolItems[toolRow].max < v) {
             *fogToolItems[toolRow].val = fogToolItems[toolRow].min;
         }
     }
-    if (D_0028F8F0[0].rep & 0x8000) {
+    if (pad[0].rep & 0x8000) {
         v = --*fogToolItems[toolRow].val;
         if (v < fogToolItems[toolRow].min) {
             *fogToolItems[toolRow].val = fogToolItems[toolRow].max;
         }
     }
-    if (D_0028F8F0[0].trg & 0x20) {
+    if (pad[0].trg & 0x20) {
         for (i = 0; i < 9; i++) {
             if (fogToolItems[i].min == 0 && fogToolItems[i].max == 1) {
                 debug_StdPrintfDummy("Fog %s => %s\n", fogToolItems[i].name,
@@ -426,7 +428,7 @@ int fog_FogTool(void)
         }
         ret = 1;
     }
-    if (D_0028F8F0[0].trg & 0x40) {
+    if (pad[0].trg & 0x40) {
         ret = -1;
     }
     if (ret != 0) {

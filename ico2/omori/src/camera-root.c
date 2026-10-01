@@ -367,7 +367,8 @@ void GetCameraInfomationFromGlobalPosition(int a0, int a1, int a2, int a3, int a
     CameraGetOtherObjOffset(a0, a1, a2);
 }
 
-extern int *D_00639EA4;
+/* kept local: main.c's global; this TU does not include main.h */
+extern int *boyGObj;
 
 static inline int getCameraDefaultTargetGObj(void)
 {
@@ -378,7 +379,7 @@ static inline int getCameraDefaultTargetGObj(void)
             return gobj;
         }
     }
-    return D_00639EA4;
+    return boyGObj;
 }
 
 /* The listing shows these two bodies inlined (rows at camera-root.c:227-230
@@ -415,7 +416,8 @@ static inline void InsertCamera_Clear(void)
 
 /* kept local: this TU's uses of InitIco2Camera do not fit the prototype in camera-ico2.h */
 extern void InitIco2Camera(void);
-extern int D_0028F720[];
+/* kept local: main.c's global; this TU does not include main.h */
+extern int GlobalStageSetting[];
 
 int CameraCalclated_f;
 
@@ -448,9 +450,9 @@ void InitCamera(void)
     InsertCameraWorkingFlag = 0;
     monitorCameraHold = 0;
     debug_zoom_per = 100;
-    handCameraLimitP = D_0028F720[0x180 / 4];
-    handCameraLimitV = D_0028F720[0x184 / 4];
-    zoomMaxInDemo = D_0028F720[0x190 / 4];
+    handCameraLimitP = GlobalStageSetting[0x180 / 4];
+    handCameraLimitV = GlobalStageSetting[0x184 / 4];
+    zoomMaxInDemo = GlobalStageSetting[0x190 / 4];
 }
 
 /* camera-root.c lines 1051-1352.  The listing inlines five helpers into this
@@ -482,7 +484,8 @@ union CamWork {
     CamZoomTbl zoom;
 };
 
-extern int D_0028F4C0[];
+/* kept local: main.c's global; this TU does not include main.h */
+extern int systemStatus[];
 extern char *matrixptr;
 extern void BackToGameCamera(void);
 extern float IsPointIsInScreen();
@@ -504,7 +507,7 @@ static inline void Camctrl_Exec(void)
     }
     if ((last = camctrl.lastPri) == 1 && camctrl.pri == 0 && default_cameratarget_gobj != 0 &&
         IsPointIsInScreen(pos, test_CURRENTROOT((void *)default_cameratarget_gobj)) < 0.0f) {
-        insertCameraBlendTimer = (60 - D_0028F4C0[0] * 10) / D_0028F4C0[1];
+        insertCameraBlendTimer = (60 - systemStatus[0] * 10) / systemStatus[1];
         InsertCameraWorkingFlag = last;
     }
     CameraSetTargetGObj(camctrl.gobj, camctrl.subGObj);
@@ -707,7 +710,7 @@ void SetCameraMatrix(void)
                     debug_zoom_per = zoomBase;
                 }
                 HandCameraCorrect(&cameraSet, pos, 1, stickX, stickZ,
-                                  60.0f / (float)((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]));
+                                  60.0f / (float)((60 - systemStatus[0] * 10) / systemStatus[1]));
                 in.f[0] = cameraSet.pos[0];
                 in.f[1] = cameraSet.pos[1];
                 in.f[2] = cameraSet.pos[2];
@@ -775,7 +778,7 @@ void SetCameraMatrix(void)
             zoomBase = debug_zoom_per;
         }
         iosPadRead(padCtx);
-        ply = D_00639EA4;
+        ply = boyGObj;
         if (ply != 0 && useDemo == 0) {
             ply = *(int *)((char *)ply + 0x164);
             pad = (char *)ply + 0x2D8;
@@ -856,7 +859,7 @@ int GetCameraDefaultTargetGObj(void)
             return gobj;
         }
     }
-    return D_00639EA4;
+    return boyGObj;
 }
 
 void CameraSetTargetGObj(int a, int b)
@@ -1022,8 +1025,8 @@ void SetHandCameraLimitInDemo(int a0, int a1)
 
 void ResetHandCameraLimitInDemo(void)
 {
-    handCameraLimitP = D_0028F720[0x180 / 4];
-    handCameraLimitV = D_0028F720[0x184 / 4];
+    handCameraLimitP = GlobalStageSetting[0x180 / 4];
+    handCameraLimitV = GlobalStageSetting[0x184 / 4];
 }
 
 void SetZoomMaxValInDemo(int a0)

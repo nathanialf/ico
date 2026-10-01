@@ -27,7 +27,8 @@ static float wayWorkPos[4] = {0.0f, 0.0f, 0.0f, 1.0f};
 static int wayPointSel = -1; /* derived name */
 
 extern WayRec way_group[];
-extern int D_00639EA4;
+/* kept local: main.c's global; this TU does not include main.h */
+extern int boyGObj;
 
 /* .sbss, owned by way_tool.o (MAIN.MAP names no symbol in the run), in the ROM's run order: the way
    record the tool is showing, the group the selection window is on, the camera
@@ -89,7 +90,7 @@ int group_create(void)
         createState = 1;
         current_select_gid = g;
         selectedWay = &way_group[g];
-        debug_StdPrintfDummy("search:%p %p\n", isysGObjSearchFromObjKindID_begin(0), D_00639EA4);
+        debug_StdPrintfDummy("search:%p %p\n", isysGObjSearchFromObjKindID_begin(0), boyGObj);
         return 0;
     }
     if (createState != 1) {
@@ -475,7 +476,7 @@ typedef struct {
     float f[4];
 } __attribute__((aligned(8))) WayPos;
 
-extern StgPre D_005F5D50[];
+extern StgPre stageData[];
 extern WaySrcGrp wayGroupSheet[];
 extern WaySrcPt wayPointSheet[];
 extern WayNode way_point[];
@@ -497,8 +498,8 @@ void ExtractWayData(int stage_no)
     int g;
     int p;
 
-    start = D_005F5D50[stage_no].wayGroupStart;
-    end = D_005F5D50[stage_no].wayGroupEnd;
+    start = stageData[stage_no].wayGroupStart;
+    end = stageData[stage_no].wayGroupEnd;
 
     for (i = start; i < end; i++) {
         e = &wayGroupSheet[i];
@@ -736,8 +737,8 @@ void way_toolDL(int a0)
     }
     MatrixDrive_PopMatrix();
 
-    GetRootPosition(&blink, D_00639EA4);
-    GetRootProjectionPosOfGObj(&pp, D_00639EA4);
+    GetRootPosition(&blink, boyGObj);
+    GetRootProjectionPosOfGObj(&pp, boyGObj);
     w = visible_waypoint_of_all(&pp);
     if (w != 0) {
         ez_circle(w + 0x10, &blink, 0x80800080, 20.0f);
@@ -774,7 +775,8 @@ WayMenu debugWayMenu[9] = {{"group + create", group_create},  {"      + select",
                            {"quick save", quick_save_wpfile}, {"quick load", quick_load_wpfile},
                            {"save text", wp_print_out}};
 
-extern int D_00639EC0;
+/* kept local: main.c's global; this TU does not include main.h */
+extern int CurrentTargetGObj;
 extern char iosPadConfDefault[];
 /* kept local: the declaration in way_tool.h changes this TU codegen */
 extern void cursor_control(volatile int a0);
@@ -800,11 +802,11 @@ int debug_WayTool(void)
     }
 
     if (first_waytool == 1) {
-        savedCamTarget = D_00639EC0;
-        D_00639EC0 = (int)cursorGObj;
+        savedCamTarget = CurrentTargetGObj;
+        CurrentTargetGObj = (int)cursorGObj;
         GetRootPosition(pos, savedCamTarget);
-        SetDirectRootPosition((void *)D_00639EC0, pos);
-        Camctrl_SetTarget(D_00639EC0, 0, 3);
+        SetDirectRootPosition((void *)CurrentTargetGObj, pos);
+        Camctrl_SetTarget(CurrentTargetGObj, 0, 3);
         first_waytool = 2;
     }
 
@@ -821,8 +823,8 @@ int debug_WayTool(void)
         case -1:
             first_waytool = 1;
             menuState = 1;
-            D_00639EC0 = savedCamTarget;
-            Camctrl_SetTarget(D_00639EC0, 0, 3);
+            CurrentTargetGObj = savedCamTarget;
+            Camctrl_SetTarget(CurrentTargetGObj, 0, 3);
             return -1;
         default:
             first_waytool = 1;
@@ -854,7 +856,7 @@ inline void cursor_control(volatile int a0)
     while (1) {
         iosPadRead((char *)w + 0x2D8);
 
-        if (a0 == D_00639EC0 && (w->unk2E4 & 1)) {
+        if (a0 == CurrentTargetGObj && (w->unk2E4 & 1)) {
             ACTDebugMove(a0, 1);
         }
         _ACTWait(1);

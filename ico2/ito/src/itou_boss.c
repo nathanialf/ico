@@ -365,9 +365,12 @@ void BossEnemyFunc(void *self)
     }
 }
 
-extern int D_0028F8F0[];
-extern int D_0028F4C0[];
-extern char *D_00639EA4;
+/* kept local: main.c's global; this TU does not include main.h */
+extern int pad[];
+/* kept local: main.c's global; this TU does not include main.h */
+extern int systemStatus[];
+/* kept local: main.c's global; this TU does not include main.h */
+extern char *boyGObj;
 
 /* The TU's .sbss (VMA 0x63C2EC, 8 B, MAIN.MAP itou_boss.o .sbss 0x8): the
    number of gene_enemy threads started, which indexes their done flags, and
@@ -444,7 +447,7 @@ static void gene_enemy(volatile int a0)
         total = 0;
         alive = 0;
         if (stage_no == 0x56) {
-            if ((D_0028F8F0[1] & 0x40) != 0) {
+            if ((pad[1] & 0x40) != 0) {
                 gflag[0] = 1;
             }
         }
@@ -516,7 +519,7 @@ static void gene_enemy(volatile int a0)
                     }
                 }
                 putEnemyAt(o, pos);
-                GetRootPosition(pp, D_00639EA4);
+                GetRootPosition(pp, boyGObj);
                 sceVu0SubVector(dir, pp, pos);
                 sceVu0Normalize(dir, dir);
                 sceVu0UnitMatrix(m);
@@ -539,7 +542,7 @@ static void gene_enemy(volatile int a0)
                 }
                 geneReleasing--;
                 sel->busy = 0;
-                _ACTWait(((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]) * 5);
+                _ACTWait(((60 - systemStatus[0] * 10) / systemStatus[1]) * 5);
                 sendEnemyAway(o);
             }
         }

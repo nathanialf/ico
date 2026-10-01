@@ -34,7 +34,8 @@ typedef struct {
 /* kept local: this TU's uses of test_CURRENTROOT do not fit the prototype in commonact.h */
 extern float *test_CURRENTROOT();
 /* the two-word playback-rate pair the wait counters are scaled by */
-extern int D_0028F4C0[];
+/* kept local: main.c's global; this TU does not include main.h */
+extern int systemStatus[];
 
 /* the three detour angles DetourCheck sweeps, in degrees, zero-terminated */
 static int detourAngle[4] = {75, -75, 0, 0};
@@ -72,11 +73,11 @@ void DetourCheck(char *self, float *out)
     switch (*(int *)(act + 0x34)) {
     case 2:
         ok = 1;
-        wait = (60 - D_0028F4C0[0] * 10) / D_0028F4C0[1] * 40 / 60;
+        wait = (60 - systemStatus[0] * 10) / systemStatus[1] * 40 / 60;
         break;
     case 3:
         ok = 1;
-        wait = (60 - D_0028F4C0[0] * 10) / D_0028F4C0[1] * 40 / 60;
+        wait = (60 - systemStatus[0] * 10) / systemStatus[1] * 40 / 60;
         break;
     }
     /* listing line 139: the four tests are one statement */
@@ -115,7 +116,7 @@ typedef struct {
     char pad190[4];
 } EnemyParaRow;
 
-extern EnemyParaRow D_0055FE58[];
+extern EnemyParaRow motionKind[];
 extern void debug_NMarker(float *pos, int r, int g, int b, float size);
 extern float GetDifferenceFromLastField(char *self, int a1);
 
@@ -130,7 +131,7 @@ int checkPositionIllegal(char *self, float *pos)
         return 1;
     }
     if (*(int *)(act + 0x34) == 0x26 ||
-        ((((EnemyParaRow *)((char *)D_0055FE58 +
+        ((((EnemyParaRow *)((char *)motionKind +
                             *(int *)(*(char **)(self + 0x15C) + 0x4A0) * 0x194))
               ->flags18C >>
           12) &
@@ -179,7 +180,8 @@ inline unsigned char WayMove_CheckCollis(float *p0, float *p1, void *a2, void *a
 
 /* kept local: girl_act defines this and no header of its own declares it */
 extern void *FindGirlPullupFloorBoxGObj(void);
-extern void *D_00639EA8;
+/* kept local: main.c's global; this TU does not include main.h */
+extern void *girlGObj;
 
 /* .sbss, owned by act-way.o and reached only from these two helpers (MAIN.MAP
    names no symbol in the run), in the ROM's run order: the pull-up floor box's
@@ -233,11 +235,11 @@ static inline int RequestWayBegin(char *self, float *goal, float *from, WayWork 
         *way = *(WayWork *)(ws + 0x20);
         return w;
     }
-    if (self == (char *)D_00639EA8) {
+    if (self == (char *)girlGObj) {
         SuspendGirlPullupFloorBox();
     }
     w = GetWay_begin(from, (int)way, (int)goal);
-    if (self == (char *)D_00639EA8) {
+    if (self == (char *)girlGObj) {
         ResumeGirlPullupFloorBox();
     }
     return w;
@@ -322,7 +324,8 @@ static WayWork wayWorkClear = {{0}, 0, 0, {0}, 0, -1};
 
 static WayStep wayStepClear = {{0.0f, 0.0f, 0.0f, 0.0f}, 0, 3.4028235e38f, 3.4028235e38f};
 
-extern void *D_00639EA4;
+/* kept local: main.c's global; this TU does not include main.h */
+extern void *boyGObj;
 /* kept local: act-game.h's prototypes do not fit this TU's uses of its functions */
 extern void *wallGObj_ACTCheckCollis_WAY;
 extern int stage_no;
@@ -430,10 +433,10 @@ int ACTWayMove_NextDetail(char *self, float *node, float *goal, unsigned char d,
             }
             *(float *)(act + 0x34C) = 1.0f;
             ((WayState *)(act + 0x438))->st[1] = 0;
-            if (self == (char *)D_00639EA8 && goal[1] - *(float *)(act + 0x414) > 150.0f &&
+            if (self == (char *)girlGObj && goal[1] - *(float *)(act + 0x414) > 150.0f &&
                 pos[1] < goal[1]) {
                 if (((int)(((WayState *)(act + 0x438))->flags >> 17) & 0xF) == 0) {
-                    *(int *)(act + 0x430) = (60 - D_0028F4C0[0] * 10) / D_0028F4C0[1] * 90 / 60;
+                    *(int *)(act + 0x430) = (60 - systemStatus[0] * 10) / systemStatus[1] * 90 / 60;
                 }
                 ((WayState *)(act + 0x438))->flags =
                     (((WayState *)(act + 0x438))->flags & ~0x1E0000) | 0x40000;
@@ -467,7 +470,7 @@ int ACTWayMove_NextDetail(char *self, float *node, float *goal, unsigned char d,
     }
     switch (((WayState *)(act + 0x438))->st[1]) {
     case 0:
-        if (self == (char *)D_00639EA8) {
+        if (self == (char *)girlGObj) {
             SuspendGirlPullupFloorBox();
         }
         *(short *)(act + 0x3F0) = 1;
@@ -483,13 +486,13 @@ int ACTWayMove_NextDetail(char *self, float *node, float *goal, unsigned char d,
                 *(int *)(act + 0x400) = w;
             }
         }
-        if (self == (char *)D_00639EA8) {
+        if (self == (char *)girlGObj) {
             ResumeGirlPullupFloorBox();
         }
         *(float *)(act + 0x3E0) = *(float *)(act + 0x3B0);
         *(float *)(act + 0x3E4) = *(float *)(act + 0x3B4);
         *(float *)(act + 0x3E8) = *(float *)(act + 0x3B8);
-        if (self == (char *)D_00639EA4 || self == (char *)D_00639EA8) {
+        if (self == (char *)boyGObj || self == (char *)girlGObj) {
             DetourCheck(self, (float *)(act + 0x3E0));
         }
         if (*(int *)(act + 0x39C) == 0 &&
@@ -509,7 +512,7 @@ int ACTWayMove_NextDetail(char *self, float *node, float *goal, unsigned char d,
             chk = 0;
         }
         if (stage_no == 8 || chk != 0) {
-            if (self == (char *)D_00639EA8 && wallGObj_ACTCheckCollis_WAY != 0 &&
+            if (self == (char *)girlGObj && wallGObj_ACTCheckCollis_WAY != 0 &&
                 *(int *)((char *)wallGObj_ACTCheckCollis_WAY + 0xC) == 17 &&
                 IsThisBoxTruck((char *)wallGObj_ACTCheckCollis_WAY) != 7 &&
                 _DistSqGV(goal, test_CURRENTROOT(wallGObj_ACTCheckCollis_WAY)) < 40000.0f &&
@@ -542,7 +545,7 @@ int ACTWayMove_NextDetail(char *self, float *node, float *goal, unsigned char d,
             goto restart;
         }
         _OrientXZGV((float *)(act + 0x3E0), goal, pos);
-        if (self == (char *)D_00639EA4 || self == (char *)D_00639EA8) {
+        if (self == (char *)boyGObj || self == (char *)girlGObj) {
             DetourCheck(self, (float *)(act + 0x3E0));
         }
         *(float *)(act + 0x3F8) = _DistxzGV(goal, pos);

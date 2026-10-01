@@ -29,7 +29,8 @@ typedef struct ClipColWork {
     void (*func)(void *); /* 0xD4 */
 } ClipColWork;
 
-extern int D_0028F4C0[];
+/* kept local: main.c's global; this TU does not include main.h */
+extern int systemStatus[];
 /* kept local: this TU's uses of _InterVectorXYZ do not fit the prototype in Matrix.h */
 extern void _InterVectorXYZ(void *dst, void *a, void *b, float t);
 
@@ -52,7 +53,7 @@ void actClipCollisionCore(volatile unsigned int self)
     i = 0;
     w->hitFloor = 0;
     w->hitWall = 0;
-    if ((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1] * 5 < n) {
+    if ((60 - systemStatus[0] * 10) / systemStatus[1] * 5 < n) {
         /* an enemy in flight cast a RAY that costs too many frames, so it was
            dropped */
         debug_StdPrintfDummy(

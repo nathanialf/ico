@@ -47,7 +47,8 @@ extern int stage_no;
    no symbol in the run): set when a warp destination has been found. */
 static int warpFound;
 
-extern int D_00639EA8;
+/* kept local: main.c's global; this TU does not include main.h */
+extern int girlGObj;
 
 /* warpGirl.c:75-81 in the listing: the "this record wins" setter.  No MAIN.MAP
    symbol (the listing inlines it), so the name is ours. */
@@ -73,7 +74,7 @@ void warpGirlOutStage(int stage, int noSet)
     if (gameSysObjInfo[1].stage != stage) {
         return;
     }
-    if (D_00639EA8 == 0) {
+    if (girlGObj == 0) {
         int n = 10;
 
         debug_StdPrintfDummy("\x1b[36m");
@@ -123,7 +124,7 @@ void warpGirlOutStage(int stage, int noSet)
             rpos[1] = w->box0[1];
             rpos[2] = w->box0[0];
             *(Vec16 *)b1 = *(Vec16 *)rpos;
-            GetRootPosition(rpos, D_00639EA8);
+            GetRootPosition(rpos, girlGObj);
             if (scpTriggerPosBox(rpos, b0, b1) == 0) {
                 continue;
             }
@@ -171,6 +172,6 @@ void warpGirlInStage(int stageNo)
     rot[1] = ry;
     rot[2] = 0.0f;
     sceVu0ScaleVector(rot, rot, 0.017453292f);
-    debug_StdPrintfDummy("girl %p\n", D_00639EA8);
+    debug_StdPrintfDummy("girl %p\n", girlGObj);
     gamesysObjInfoPosNewStageSet(0x94, 2, stageNo, pos, rot);
 }

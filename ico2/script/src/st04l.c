@@ -33,7 +33,8 @@ extern int scpIsTorchLightOn(int a0);
 extern void scpTorchLightOn(int a0);
 /* kept local: script.h's prototypes do not fit this TU's calls */
 extern int scpBoyControlReadDisable;
-extern Pad D_0028F8F0[];
+/* kept local: main.c's global; this TU does not include main.h */
+extern Pad pad[];
 extern int D_0028F8F4[];
 /* as script.h declares it; this TU does not include that header */
 extern int scpGameStat_BoyWeaponkind(void);
@@ -57,7 +58,8 @@ typedef struct AdpcmReq {
     int unk2C;        /* 0x2C */
 } AdpcmReq;
 
-extern int D_00639EAC;
+/* kept local: main.c's global; this TU does not include main.h */
+extern int boyPad;
 
 /* .sbss, owned by st04l.o and reached only from this file (MAIN.MAP names no
    symbol in the run): the four arguments turnBall hands
@@ -78,19 +80,23 @@ static int crest2Anim;
 
 static int subStarted;
 
-extern int D_0028F4C0[];
+/* kept local: main.c's global; this TU does not include main.h */
+extern int systemStatus[];
 /* kept local: this TU's uses of scpAdpcmPlayRequestFunc do not fit the prototype in script.h */
 extern void scpAdpcmPlayRequestFunc(int a0, void *a1, int a2, int a3, int a4);
 extern float scpSeEnvMasterVolRate;
-extern int D_00639ED4;
+/* kept local: main.c's global; this TU does not include main.h */
+extern int current_stage_no;
 /* kept local: this TU's uses of scpTriggerBall do not fit the prototype in script.h */
 extern int scpTriggerBall(int a0, void *a1, float radius);
 /* kept local: this TU's uses of scpPlayMot do not fit the prototype in script.h */
 extern void scpPlayMot(void *a0, int mot);
 /* as script.h declares it; this TU does not include that header */
 extern void scpFadeOut(float t, int a1, int a2, int a3);
-extern void *D_00639EA4;
-extern void *D_00639EA8;
+/* kept local: main.c's global; this TU does not include main.h */
+extern void *boyGObj;
+/* kept local: main.c's global; this TU does not include main.h */
+extern void *girlGObj;
 /* kept local: this TU's uses of scpTriggerFloorAttr do not fit the prototype in script.h */
 extern int scpTriggerFloorAttr(void *obj, int attr);
 /* kept local: this TU's uses of scpPlayStart do not fit the prototype in script.h */
@@ -339,7 +345,7 @@ void actSt04lBallTurnCommonSub(volatile int a0)
     }
 
     _ACTWait(1);
-    _ACTWait((0x3C - D_0028F4C0[0] * 10) / D_0028F4C0[1] * 6);
+    _ACTWait((0x3C - systemStatus[0] * 10) / systemStatus[1] * 6);
 
     demoEnd = 1;
     _ACTWait(0);
@@ -529,7 +535,7 @@ void actSt04lCrest02(volatile int a0)
     _ACTWait(1);
 
     if (gflagChk(175) == 0) {
-        if (D_00639ED4 == 0x13) {
+        if (current_stage_no == 0x13) {
             stage_SetAnimation(201, 0, 0);
         } else {
             stage_SetAnimation(202, 0, 0);
@@ -540,7 +546,7 @@ void actSt04lCrest02(volatile int a0)
         ACTSendMailCorrect(a0, 430);
         _ACTWait(0);
     } else {
-        if (D_00639ED4 == 0x13) {
+        if (current_stage_no == 0x13) {
             stage_SetAnimation(201, 0, -1);
         } else {
             stage_SetAnimation(202, 0, -1);
@@ -559,7 +565,7 @@ void actSt04lCrestSub(volatile int a0)
 
     _ACTWait(1);
 
-    oriup4c = iosPadActRequest(D_00639EAC, 0xA);
+    oriup4c = iosPadActRequest(boyPad, 0xA);
     oridown4c = 0x80;
     iosPadActVolumeSet(oriup4c, 0x80);
 
@@ -637,7 +643,7 @@ void actSt04lCrestMain(volatile int a0)
     }
 
     scpWakeupEnemyAll();
-    RequestStageChange(3, D_00639EA4, 0, 2.0f, 8.0f);
+    RequestStageChange(3, boyGObj, 0, 2.0f, 8.0f);
 }
 
 void actSt04lCrest2Sub(volatile int a0)
@@ -650,7 +656,7 @@ void actSt04lCrest2Sub(volatile int a0)
 
     _ACTWait(1);
 
-    oriup4c = iosPadActRequest(D_00639EAC, 0xA);
+    oriup4c = iosPadActRequest(boyPad, 0xA);
     oridown4c = 0x80;
     iosPadActVolumeSet(oriup4c, 0x80);
 
@@ -668,7 +674,7 @@ void actSt04lCrest2Sub(volatile int a0)
 
     _ACTWait(1);
 
-    if (D_00639ED4 == 0x13) {
+    if (current_stage_no == 0x13) {
         scpSearchGobj(1122)->f16C = 1;
     }
 
@@ -680,7 +686,7 @@ void actSt04lCrest2Main(volatile int a0)
 {
     int h;
 
-    if (D_00639ED4 == 0x13) {
+    if (current_stage_no == 0x13) {
         crest2Anim = 0xC9;
 
         while (scpIsTorchLightOn(1118) == 0 || scpIsTorchLightOn(1119) == 0 || gflagChk(178) == 0) {
@@ -688,7 +694,7 @@ void actSt04lCrest2Main(volatile int a0)
         }
     }
 
-    if (D_00639ED4 == 0x14) {
+    if (current_stage_no == 0x14) {
         crest2Anim = 0xCA;
 
         while (scpIsTorchLightOn(1202) == 0 || scpIsTorchLightOn(1203) == 0 || gflagChk(178) == 0) {
@@ -734,7 +740,7 @@ void actSt04lCrest2Main(volatile int a0)
 
         stage_SetAnimation(crest2Anim, 0, -1);
 
-        if (D_00639ED4 == 0x13) {
+        if (current_stage_no == 0x13) {
             scpSearchGobj(1122)->f16C = 1;
         }
 
@@ -755,7 +761,7 @@ void actSt04lCrest3Sub(volatile int a0)
 
     _ACTWait(1);
 
-    oriup4c = iosPadActRequest(D_00639EAC, 0xA);
+    oriup4c = iosPadActRequest(boyPad, 0xA);
     oridown4c = 0x80;
     iosPadActVolumeSet(oriup4c, 0x80);
 
@@ -854,7 +860,7 @@ void actSt04eSolarBeamChk(volatile int a0)
         _ACTWait(1);
     }
 
-    while (demoEnd == 0 && ((D_0028F8F0[0].trg & 0x800) == 0 || scpAdpcmPlayRequestNum() != 0)) {
+    while (demoEnd == 0 && ((pad[0].trg & 0x800) == 0 || scpAdpcmPlayRequestNum() != 0)) {
         _ACTWait(1);
     }
 
@@ -876,7 +882,7 @@ void actSt04eSolarBeamChk(volatile int a0)
         scpFadeIn(3.0f);
     }
 
-    RequestStageChange(7, D_00639EA4, 0, 2.0f, 8.0f);
+    RequestStageChange(7, boyGObj, 0, 2.0f, 8.0f);
 }
 
 void actSt04lStairSub(volatile int a0)
@@ -894,22 +900,22 @@ void actSt04lStairSub(volatile int a0)
 
     stage_SetAnimation(258, 1, 0);
 
-    scpPlayStart(D_00639EA4);
-    scpPlayStart(D_00639EA8);
-    scpPlayMot(D_00639EA4, 0);
-    scpPlayMot(D_00639EA8, 532);
-    scpPlayPosSet(D_00639EA4, 55.0f, 28.0f, -3881.0f);
-    scpPlayPosSet(D_00639EA8, -58.0f, 28.0f, -3891.0f);
+    scpPlayStart(boyGObj);
+    scpPlayStart(girlGObj);
+    scpPlayMot(boyGObj, 0);
+    scpPlayMot(girlGObj, 532);
+    scpPlayPosSet(boyGObj, 55.0f, 28.0f, -3881.0f);
+    scpPlayPosSet(girlGObj, -58.0f, 28.0f, -3891.0f);
 
     ofs[0] = stairSubPos.d[0];
     ofs[1] = stairSubPos.d[1];
-    sceVu0SubVector(dir, ofs, test_CURRENTROOT(D_00639EA4));
-    scpPlayMotDir(D_00639EA4, dir);
+    sceVu0SubVector(dir, ofs, test_CURRENTROOT(boyGObj));
+    scpPlayMotDir(boyGObj, dir);
 
     ofs[0] = stairSubPos.d[0];
     ofs[1] = stairSubPos.d[1];
-    sceVu0SubVector(dir, ofs, test_CURRENTROOT(D_00639EA8));
-    scpPlayMotDir(D_00639EA8, dir);
+    sceVu0SubVector(dir, ofs, test_CURRENTROOT(girlGObj));
+    scpPlayMotDir(girlGObj, dir);
 
     subStarted = 1;
 
@@ -918,7 +924,7 @@ void actSt04lStairSub(volatile int a0)
     }
     _ACTWait(1);
 
-    iosPadActRequest(D_00639EAC, 0x11);
+    iosPadActRequest(boyPad, 0x11);
 
     stage_SetAnimation(227, 1, 0);
 
@@ -927,7 +933,7 @@ void actSt04lStairSub(volatile int a0)
     }
     _ACTWait(1);
 
-    oriup4c = iosPadActRequest(D_00639EAC, 9);
+    oriup4c = iosPadActRequest(boyPad, 9);
     oridown4c = 0x80;
     iosPadActVolumeSet(oriup4c, 0x80);
 
@@ -944,12 +950,12 @@ void actSt04lStairChk(volatile int a0)
 {
     int h;
 
-    if (D_00639EA8 == 0) {
+    if (girlGObj == 0) {
         _ACTWait(0);
     }
 
-    while (scpTriggerFloorAttr(D_00639EA4, 0xB000000) == 0 ||
-           scpTriggerFloorAttr(D_00639EA8, 0xB000000) == 0) {
+    while (scpTriggerFloorAttr(boyGObj, 0xB000000) == 0 ||
+           scpTriggerFloorAttr(girlGObj, 0xB000000) == 0) {
         _ACTWait(1);
     }
 
@@ -1002,13 +1008,13 @@ void actSt04lStairChk(volatile int a0)
 
         _ACTWait(1);
 
-        scpPlayMot(D_00639EA4, 0);
-        scpPlayMot(D_00639EA8, 532);
-        scpPlayPosSet(D_00639EA4, 55.0f, 234.0f, -3881.0f);
-        scpPlayPosSet(D_00639EA8, -58.0f, 234.0f, -3891.0f);
+        scpPlayMot(boyGObj, 0);
+        scpPlayMot(girlGObj, 532);
+        scpPlayPosSet(boyGObj, 55.0f, 234.0f, -3881.0f);
+        scpPlayPosSet(girlGObj, -58.0f, 234.0f, -3891.0f);
 
         _ACTWait(1);
-        iosOmSendMail(D_00639EA8, 0x3E, D_00639EA4);
+        iosOmSendMail(girlGObj, 0x3E, boyGObj);
 
         scpFadeIn(3.0f);
     } else {
@@ -1017,10 +1023,10 @@ void actSt04lStairChk(volatile int a0)
 
     iosPadActStop(oriup4c);
 
-    scpPlayMot(D_00639EA4, 0);
-    scpPlayMot(D_00639EA8, 532);
-    scpPlayEnd(D_00639EA4);
-    scpPlayEnd(D_00639EA8);
+    scpPlayMot(boyGObj, 0);
+    scpPlayMot(girlGObj, 532);
+    scpPlayEnd(boyGObj);
+    scpPlayEnd(girlGObj);
 
     scpBoyControlReadDisable = 0;
     lt_switch_layout(54);
@@ -1176,14 +1182,13 @@ void actSt04lSekizoChk(volatile int a0)
 {
     float dir[4];
 
-    if (D_00639EA8 == 0) {
+    if (girlGObj == 0) {
         _ACTWait(0);
     }
 
-    while (scpTriggerBall(a0, D_00639EA4, 200.0f) == 0 ||
-           scpTriggerBall(a0, D_00639EA8, 200.0f) == 0 ||
-           scpTriggerFloorAttr(D_00639EA4, 0x8000000) == 0 ||
-           scpTriggerFloorAttr(D_00639EA8, 0x8000000) == 0) {
+    while (scpTriggerBall(a0, boyGObj, 200.0f) == 0 || scpTriggerBall(a0, girlGObj, 200.0f) == 0 ||
+           scpTriggerFloorAttr(boyGObj, 0x8000000) == 0 ||
+           scpTriggerFloorAttr(girlGObj, 0x8000000) == 0) {
         _ACTWait(1);
     }
 
@@ -1202,31 +1207,31 @@ void actSt04lSekizoChk(volatile int a0)
 
     stage_SetAnimation(226, 1, 0);
 
-    st04l_yure = iosPadActRequest(D_00639EAC, 9);
+    st04l_yure = iosPadActRequest(boyPad, 9);
     st04l_yure_vol = 0x80;
     iosPadActVolumeSet(st04l_yure, 0x80);
 
-    scpPlayStart(D_00639EA4);
-    scpPlayStart(D_00639EA8);
-    scpPlayMot(D_00639EA4, 0);
-    scpPlayMot(D_00639EA8, 532);
-    scpPlayPosSet(D_00639EA8, 0.0f, -1300.0f, -1700.0f);
-    scpPlayPosSet(D_00639EA4, 20.0f, -1300.0f, -1700.0f);
+    scpPlayStart(boyGObj);
+    scpPlayStart(girlGObj);
+    scpPlayMot(boyGObj, 0);
+    scpPlayMot(girlGObj, 532);
+    scpPlayPosSet(girlGObj, 0.0f, -1300.0f, -1700.0f);
+    scpPlayPosSet(boyGObj, 20.0f, -1300.0f, -1700.0f);
 
     _ACTWait(1);
 
-    sceVu0SubVector(dir, test_CURRENTROOT((void *)a0), test_CURRENTROOT(D_00639EA8));
-    scpPlayMotDir(D_00639EA8, dir);
+    sceVu0SubVector(dir, test_CURRENTROOT((void *)a0), test_CURRENTROOT(girlGObj));
+    scpPlayMotDir(girlGObj, dir);
 
     scpBoyControlReadDisable = 1;
 
-    sceVu0SubVector(dir, test_CURRENTROOT(D_00639EA8), test_CURRENTROOT(D_00639EA4));
-    scpPlayMotDir(D_00639EA4, dir);
+    sceVu0SubVector(dir, test_CURRENTROOT(girlGObj), test_CURRENTROOT(boyGObj));
+    scpPlayMotDir(boyGObj, dir);
 
     scpSekizouCheckPoint();
 
-    scpPlayMot(D_00639EA8, 645);
-    scpPlayWaitMotEnd(D_00639EA8);
+    scpPlayMot(girlGObj, 645);
+    scpPlayWaitMotEnd(girlGObj);
 
     gflagOn(188);
 
@@ -1242,13 +1247,13 @@ void actSt04lSekizoChk(volatile int a0)
     }
     _ACTWait(1);
 
-    scpPlayMot(D_00639EA8, 532);
-    scpPlayEnd(D_00639EA8);
-    scpPlayMot(D_00639EA4, 0);
-    scpPlayEnd(D_00639EA4);
+    scpPlayMot(girlGObj, 532);
+    scpPlayEnd(girlGObj);
+    scpPlayMot(boyGObj, 0);
+    scpPlayEnd(boyGObj);
 
     _ACTWait(1);
-    iosOmSendMail(D_00639EA8, 0x3F, D_00639EA4);
+    iosOmSendMail(girlGObj, 0x3F, boyGObj);
 
     lt_switch_layout(54);
     scpBoyControlReadDisable = 0;
@@ -1258,7 +1263,7 @@ void actSt04lGondolaChk(volatile int a0)
 {
     Act *sub = ((PObjGObj *)a0)->act;
 
-    while (scpTriggerFloorAttr(D_00639EA4, 0xA000000) == 0) {
+    while (scpTriggerFloorAttr(boyGObj, 0xA000000) == 0) {
         _ACTWait(1);
     }
 
@@ -1302,7 +1307,7 @@ void actSt04lGondolaChk(volatile int a0)
         gflagOff(190);
     } else {
         stage_SetAnimation(228, 1, 0);
-        SetGirlDangerGObj(D_00639EA4);
+        SetGirlDangerGObj(boyGObj);
         soundSeDefPlay(1319, 0, 0, 1);
 
         while (stage_CheckAnimationFrame(228, 145, 0) == 0) {
@@ -1327,7 +1332,7 @@ void actSt04lGondolaChk(volatile int a0)
         gflagOn(190);
     }
 
-    if (D_00639EA8 != 0 && scpTriggerFloorAttr(D_00639EA8, 0xA000000) == 0) {
+    if (girlGObj != 0 && scpTriggerFloorAttr(girlGObj, 0xA000000) == 0) {
         gflagOn(194);
     } else {
         gflagOff(194);
@@ -1345,12 +1350,12 @@ void actSt04lGondolaChk(volatile int a0)
 
 void actSt04lMonyou01Chk(volatile int a0)
 {
-    if (D_00639EA8 == 0) {
+    if (girlGObj == 0) {
         _ACTWait(0);
     }
 
-    while (scpTriggerFloorAttr(D_00639EA4, 0x1000000) == 0 ||
-           scpTriggerFloorAttr(D_00639EA8, 0x1000000) == 0) {
+    while (scpTriggerFloorAttr(boyGObj, 0x1000000) == 0 ||
+           scpTriggerFloorAttr(girlGObj, 0x1000000) == 0) {
         _ACTWait(1);
     }
 
@@ -1360,10 +1365,10 @@ void actSt04lMonyou01Chk(volatile int a0)
     scpSleepEnemyAll();
 
     if (ACTGame_FLAG_TETSUNAGI() != 0) {
-        scpPlayStart(D_00639EA4);
-        scpPlayStart(D_00639EA8);
-        scpPlayMotReq(D_00639EA4, 1);
-        scpPlayMotReq(D_00639EA8, 1);
+        scpPlayStart(boyGObj);
+        scpPlayStart(girlGObj);
+        scpPlayMotReq(boyGObj, 1);
+        scpPlayMotReq(girlGObj, 1);
         _ACTWait(1);
         ACTGame_ConnectHand();
     }
@@ -1377,12 +1382,12 @@ void actSt04lMonyou01Chk(volatile int a0)
 
     _ACTWait(1);
     scpWakeupEnemyAll();
-    scpPlayEnd(D_00639EA4);
-    scpPlayEnd(D_00639EA8);
+    scpPlayEnd(boyGObj);
+    scpPlayEnd(girlGObj);
     _ACTWait(1);
 
     if (ACTGame_FLAG_TETSUNAGI() != 0) {
-        iosOmSendMail(D_00639EA8, 0x3F, D_00639EA4);
+        iosOmSendMail(girlGObj, 0x3F, boyGObj);
     }
 
     scpBoyControlReadDisable = 0;
@@ -1390,12 +1395,12 @@ void actSt04lMonyou01Chk(volatile int a0)
 
 void actSt04lMonyou02Chk(volatile int a0)
 {
-    if (D_00639EA8 == 0) {
+    if (girlGObj == 0) {
         _ACTWait(0);
     }
 
-    while (scpTriggerFloorAttr(D_00639EA4, 0x2000000) == 0 ||
-           scpTriggerFloorAttr(D_00639EA8, 0x2000000) == 0) {
+    while (scpTriggerFloorAttr(boyGObj, 0x2000000) == 0 ||
+           scpTriggerFloorAttr(girlGObj, 0x2000000) == 0) {
         _ACTWait(1);
     }
 
@@ -1404,10 +1409,10 @@ void actSt04lMonyou02Chk(volatile int a0)
     scpSleepEnemyAll();
 
     if (ACTGame_FLAG_TETSUNAGI() != 0) {
-        scpPlayStart(D_00639EA4);
-        scpPlayStart(D_00639EA8);
-        scpPlayMotReq(D_00639EA4, 1);
-        scpPlayMotReq(D_00639EA8, 1);
+        scpPlayStart(boyGObj);
+        scpPlayStart(girlGObj);
+        scpPlayMotReq(boyGObj, 1);
+        scpPlayMotReq(girlGObj, 1);
         _ACTWait(1);
         ACTGame_ConnectHand();
     }
@@ -1421,12 +1426,12 @@ void actSt04lMonyou02Chk(volatile int a0)
 
     _ACTWait(1);
     scpWakeupEnemyAll();
-    scpPlayEnd(D_00639EA4);
-    scpPlayEnd(D_00639EA8);
+    scpPlayEnd(boyGObj);
+    scpPlayEnd(girlGObj);
     _ACTWait(1);
 
     if (ACTGame_FLAG_TETSUNAGI() != 0) {
-        iosOmSendMail(D_00639EA8, 0x3F, D_00639EA4);
+        iosOmSendMail(girlGObj, 0x3F, boyGObj);
     }
 
     scpBoyControlReadDisable = 0;
@@ -1434,12 +1439,12 @@ void actSt04lMonyou02Chk(volatile int a0)
 
 void actSt04lMonyou03Chk(volatile int a0)
 {
-    if (D_00639EA8 == 0) {
+    if (girlGObj == 0) {
         _ACTWait(0);
     }
 
-    while (scpTriggerFloorAttr(D_00639EA4, 0x3000000) == 0 ||
-           scpTriggerFloorAttr(D_00639EA8, 0x3000000) == 0) {
+    while (scpTriggerFloorAttr(boyGObj, 0x3000000) == 0 ||
+           scpTriggerFloorAttr(girlGObj, 0x3000000) == 0) {
         _ACTWait(1);
     }
 
@@ -1448,10 +1453,10 @@ void actSt04lMonyou03Chk(volatile int a0)
     scpSleepEnemyAll();
 
     if (ACTGame_FLAG_TETSUNAGI() != 0) {
-        scpPlayStart(D_00639EA4);
-        scpPlayStart(D_00639EA8);
-        scpPlayMotReq(D_00639EA4, 1);
-        scpPlayMotReq(D_00639EA8, 1);
+        scpPlayStart(boyGObj);
+        scpPlayStart(girlGObj);
+        scpPlayMotReq(boyGObj, 1);
+        scpPlayMotReq(girlGObj, 1);
         _ACTWait(1);
         ACTGame_ConnectHand();
     }
@@ -1465,12 +1470,12 @@ void actSt04lMonyou03Chk(volatile int a0)
 
     _ACTWait(1);
     scpWakeupEnemyAll();
-    scpPlayEnd(D_00639EA4);
-    scpPlayEnd(D_00639EA8);
+    scpPlayEnd(boyGObj);
+    scpPlayEnd(girlGObj);
     _ACTWait(1);
 
     if (ACTGame_FLAG_TETSUNAGI() != 0) {
-        iosOmSendMail(D_00639EA8, 0x3F, D_00639EA4);
+        iosOmSendMail(girlGObj, 0x3F, boyGObj);
     }
 
     scpBoyControlReadDisable = 0;
@@ -1478,12 +1483,12 @@ void actSt04lMonyou03Chk(volatile int a0)
 
 void actSt04lMonyou04Chk(volatile int a0)
 {
-    if (D_00639EA8 == 0) {
+    if (girlGObj == 0) {
         _ACTWait(0);
     }
 
-    while (scpTriggerFloorAttr(D_00639EA4, 0x4000000) == 0 ||
-           scpTriggerFloorAttr(D_00639EA8, 0x4000000) == 0) {
+    while (scpTriggerFloorAttr(boyGObj, 0x4000000) == 0 ||
+           scpTriggerFloorAttr(girlGObj, 0x4000000) == 0) {
         _ACTWait(1);
     }
 
@@ -1492,10 +1497,10 @@ void actSt04lMonyou04Chk(volatile int a0)
     scpSleepEnemyAll();
 
     if (ACTGame_FLAG_TETSUNAGI() != 0) {
-        scpPlayStart(D_00639EA4);
-        scpPlayStart(D_00639EA8);
-        scpPlayMotReq(D_00639EA4, 1);
-        scpPlayMotReq(D_00639EA8, 1);
+        scpPlayStart(boyGObj);
+        scpPlayStart(girlGObj);
+        scpPlayMotReq(boyGObj, 1);
+        scpPlayMotReq(girlGObj, 1);
         _ACTWait(1);
         ACTGame_ConnectHand();
     }
@@ -1509,12 +1514,12 @@ void actSt04lMonyou04Chk(volatile int a0)
 
     _ACTWait(1);
     scpWakeupEnemyAll();
-    scpPlayEnd(D_00639EA4);
-    scpPlayEnd(D_00639EA8);
+    scpPlayEnd(boyGObj);
+    scpPlayEnd(girlGObj);
     _ACTWait(1);
 
     if (ACTGame_FLAG_TETSUNAGI() != 0) {
-        iosOmSendMail(D_00639EA8, 0x3F, D_00639EA4);
+        iosOmSendMail(girlGObj, 0x3F, boyGObj);
     }
 
     scpBoyControlReadDisable = 0;
@@ -1522,12 +1527,12 @@ void actSt04lMonyou04Chk(volatile int a0)
 
 void actSt04lMonyou05Chk(volatile int a0)
 {
-    if (D_00639EA8 == 0) {
+    if (girlGObj == 0) {
         _ACTWait(0);
     }
 
-    while (scpTriggerFloorAttr(D_00639EA4, 0x5000000) == 0 ||
-           scpTriggerFloorAttr(D_00639EA8, 0x5000000) == 0) {
+    while (scpTriggerFloorAttr(boyGObj, 0x5000000) == 0 ||
+           scpTriggerFloorAttr(girlGObj, 0x5000000) == 0) {
         _ACTWait(1);
     }
 
@@ -1536,10 +1541,10 @@ void actSt04lMonyou05Chk(volatile int a0)
     scpSleepEnemyAll();
 
     if (ACTGame_FLAG_TETSUNAGI() != 0) {
-        scpPlayStart(D_00639EA4);
-        scpPlayStart(D_00639EA8);
-        scpPlayMotReq(D_00639EA4, 1);
-        scpPlayMotReq(D_00639EA8, 1);
+        scpPlayStart(boyGObj);
+        scpPlayStart(girlGObj);
+        scpPlayMotReq(boyGObj, 1);
+        scpPlayMotReq(girlGObj, 1);
         _ACTWait(1);
         ACTGame_ConnectHand();
     }
@@ -1553,12 +1558,12 @@ void actSt04lMonyou05Chk(volatile int a0)
 
     _ACTWait(1);
     scpWakeupEnemyAll();
-    scpPlayEnd(D_00639EA4);
-    scpPlayEnd(D_00639EA8);
+    scpPlayEnd(boyGObj);
+    scpPlayEnd(girlGObj);
     _ACTWait(1);
 
     if (ACTGame_FLAG_TETSUNAGI() != 0) {
-        iosOmSendMail(D_00639EA8, 0x3F, D_00639EA4);
+        iosOmSendMail(girlGObj, 0x3F, boyGObj);
     }
 
     scpBoyControlReadDisable = 0;
@@ -1566,12 +1571,12 @@ void actSt04lMonyou05Chk(volatile int a0)
 
 void actSt04lMonyou06Chk(volatile int a0)
 {
-    if (D_00639EA8 == 0) {
+    if (girlGObj == 0) {
         _ACTWait(0);
     }
 
-    while (scpTriggerFloorAttr(D_00639EA4, 0x6000000) == 0 ||
-           scpTriggerFloorAttr(D_00639EA8, 0x6000000) == 0) {
+    while (scpTriggerFloorAttr(boyGObj, 0x6000000) == 0 ||
+           scpTriggerFloorAttr(girlGObj, 0x6000000) == 0) {
         _ACTWait(1);
     }
 
@@ -1580,10 +1585,10 @@ void actSt04lMonyou06Chk(volatile int a0)
     scpSleepEnemyAll();
 
     if (ACTGame_FLAG_TETSUNAGI() != 0) {
-        scpPlayStart(D_00639EA4);
-        scpPlayStart(D_00639EA8);
-        scpPlayMotReq(D_00639EA4, 1);
-        scpPlayMotReq(D_00639EA8, 1);
+        scpPlayStart(boyGObj);
+        scpPlayStart(girlGObj);
+        scpPlayMotReq(boyGObj, 1);
+        scpPlayMotReq(girlGObj, 1);
         _ACTWait(1);
         ACTGame_ConnectHand();
     }
@@ -1597,12 +1602,12 @@ void actSt04lMonyou06Chk(volatile int a0)
 
     _ACTWait(1);
     scpWakeupEnemyAll();
-    scpPlayEnd(D_00639EA4);
-    scpPlayEnd(D_00639EA8);
+    scpPlayEnd(boyGObj);
+    scpPlayEnd(girlGObj);
     _ACTWait(1);
 
     if (ACTGame_FLAG_TETSUNAGI() != 0) {
-        iosOmSendMail(D_00639EA8, 0x3F, D_00639EA4);
+        iosOmSendMail(girlGObj, 0x3F, boyGObj);
     }
 
     scpBoyControlReadDisable = 0;
@@ -1610,12 +1615,12 @@ void actSt04lMonyou06Chk(volatile int a0)
 
 void actSt04lMonyou07Chk(volatile int a0)
 {
-    if (D_00639EA8 == 0) {
+    if (girlGObj == 0) {
         _ACTWait(0);
     }
 
-    while (scpTriggerFloorAttr(D_00639EA4, 0x7000000) == 0 ||
-           scpTriggerFloorAttr(D_00639EA8, 0x7000000) == 0) {
+    while (scpTriggerFloorAttr(boyGObj, 0x7000000) == 0 ||
+           scpTriggerFloorAttr(girlGObj, 0x7000000) == 0) {
         _ACTWait(1);
     }
 
@@ -1624,10 +1629,10 @@ void actSt04lMonyou07Chk(volatile int a0)
     scpSleepEnemyAll();
 
     if (ACTGame_FLAG_TETSUNAGI() != 0) {
-        scpPlayStart(D_00639EA4);
-        scpPlayStart(D_00639EA8);
-        scpPlayMotReq(D_00639EA4, 1);
-        scpPlayMotReq(D_00639EA8, 1);
+        scpPlayStart(boyGObj);
+        scpPlayStart(girlGObj);
+        scpPlayMotReq(boyGObj, 1);
+        scpPlayMotReq(girlGObj, 1);
         _ACTWait(1);
         ACTGame_ConnectHand();
     }
@@ -1641,12 +1646,12 @@ void actSt04lMonyou07Chk(volatile int a0)
 
     _ACTWait(1);
     scpWakeupEnemyAll();
-    scpPlayEnd(D_00639EA4);
-    scpPlayEnd(D_00639EA8);
+    scpPlayEnd(boyGObj);
+    scpPlayEnd(girlGObj);
     _ACTWait(1);
 
     if (ACTGame_FLAG_TETSUNAGI() != 0) {
-        iosOmSendMail(D_00639EA8, 0x3F, D_00639EA4);
+        iosOmSendMail(girlGObj, 0x3F, boyGObj);
     }
 
     scpBoyControlReadDisable = 0;
@@ -1671,10 +1676,10 @@ void actSt04lOriSub(volatile int a0)
     }
 
     _ACTWait(1);
-    iosPadActRequest(D_00639EAC, 0xF);
+    iosPadActRequest(boyPad, 0xF);
 
-    if (D_00639EA8 != 0) {
-        scpPlayMotReq(D_00639EA8, 0xD8);
+    if (girlGObj != 0) {
+        scpPlayMotReq(girlGObj, 0xD8);
     }
 
     while (stage_CheckAnimationFinish(243) == 0) {
@@ -1691,7 +1696,7 @@ void actSt04lOriChk(volatile int a0)
     int h;
 
     while (gflagChk(175) == 0 || scpGameStat_BoyWeaponkind() != 4 ||
-           scpTriggerBall(a0, D_00639EA4, 1000.0f) == 0) {
+           scpTriggerBall(a0, boyGObj, 1000.0f) == 0) {
         _ACTWait(1);
     }
 
@@ -1699,10 +1704,10 @@ void actSt04lOriChk(volatile int a0)
     lt_switch_layout(55);
     scpBoyControlReadDisable = 1;
 
-    scpPlayMot(D_00639EA4, 0);
+    scpPlayMot(boyGObj, 0);
 
-    if (D_00639EA8 != 0) {
-        iosOmSendMail(D_00639EA8, 0x3E, D_00639EA4);
+    if (girlGObj != 0) {
+        iosOmSendMail(girlGObj, 0x3E, boyGObj);
     }
 
     gflagOn(200);
@@ -1756,13 +1761,13 @@ void actSt04lOriRopeCutRChk(volatile int a0)
     _ACTWait(1);
 
     while (1) {
-        if (scpGameStat_BoyWeaponkind() == 4 && scpTriggerBall(a0, D_00639EA4, 100.0f) != 0 &&
-            (ForMotionViewer_GetCurrentMotion(D_00639EA4) == 0x26 ||
-             ForMotionViewer_GetCurrentMotion(D_00639EA4) == 0x2B ||
-             ForMotionViewer_GetCurrentMotion(D_00639EA4) == 0x2D ||
-             ForMotionViewer_GetCurrentMotion(D_00639EA4) == 0x27 ||
-             ForMotionViewer_GetCurrentMotion(D_00639EA4) == 0x28 ||
-             ForMotionViewer_GetCurrentMotion(D_00639EA4) == 0x3C))
+        if (scpGameStat_BoyWeaponkind() == 4 && scpTriggerBall(a0, boyGObj, 100.0f) != 0 &&
+            (ForMotionViewer_GetCurrentMotion(boyGObj) == 0x26 ||
+             ForMotionViewer_GetCurrentMotion(boyGObj) == 0x2B ||
+             ForMotionViewer_GetCurrentMotion(boyGObj) == 0x2D ||
+             ForMotionViewer_GetCurrentMotion(boyGObj) == 0x27 ||
+             ForMotionViewer_GetCurrentMotion(boyGObj) == 0x28 ||
+             ForMotionViewer_GetCurrentMotion(boyGObj) == 0x3C))
             break;
         _ACTWait(1);
     }
@@ -1795,13 +1800,13 @@ void actSt04lOriRopeCutLChk(volatile int a0)
     _ACTWait(1);
 
     while (1) {
-        if (scpGameStat_BoyWeaponkind() == 4 && scpTriggerBall(a0, D_00639EA4, 100.0f) != 0 &&
-            (ForMotionViewer_GetCurrentMotion(D_00639EA4) == 0x26 ||
-             ForMotionViewer_GetCurrentMotion(D_00639EA4) == 0x2B ||
-             ForMotionViewer_GetCurrentMotion(D_00639EA4) == 0x2D ||
-             ForMotionViewer_GetCurrentMotion(D_00639EA4) == 0x27 ||
-             ForMotionViewer_GetCurrentMotion(D_00639EA4) == 0x28 ||
-             ForMotionViewer_GetCurrentMotion(D_00639EA4) == 0x3C))
+        if (scpGameStat_BoyWeaponkind() == 4 && scpTriggerBall(a0, boyGObj, 100.0f) != 0 &&
+            (ForMotionViewer_GetCurrentMotion(boyGObj) == 0x26 ||
+             ForMotionViewer_GetCurrentMotion(boyGObj) == 0x2B ||
+             ForMotionViewer_GetCurrentMotion(boyGObj) == 0x2D ||
+             ForMotionViewer_GetCurrentMotion(boyGObj) == 0x27 ||
+             ForMotionViewer_GetCurrentMotion(boyGObj) == 0x28 ||
+             ForMotionViewer_GetCurrentMotion(boyGObj) == 0x3C))
             break;
         _ACTWait(1);
     }
@@ -1851,7 +1856,7 @@ void actSt04lOri2(volatile int a0)
 
 void actSt04lOri2Sub(volatile int a0)
 {
-    iosPadActRequest(D_00639EAC, 0x11);
+    iosPadActRequest(boyPad, 0x11);
     _ACTWait(30);
 
     while (sekizo4c == 0) {
@@ -1867,10 +1872,10 @@ void actSt04lOri2Sub(volatile int a0)
     }
 
     _ACTWait(1);
-    iosPadActRequest(D_00639EAC, 0xF);
+    iosPadActRequest(boyPad, 0xF);
 
-    if (D_00639EA8 != 0) {
-        scpPlayMotReq(D_00639EA8, 0xD8);
+    if (girlGObj != 0) {
+        scpPlayMotReq(girlGObj, 0xD8);
     }
 
     while (stage_CheckAnimationFinish(248) == 0) {
@@ -2043,7 +2048,7 @@ void actSt04lStair(volatile int a0)
     _ACTWait(1);
 
     if (gflagChk(180) == 0) {
-        if (D_00639EA8 != 0) {
+        if (girlGObj != 0) {
             stair_mes[0].func = actSt04lStairChk;
             self->mail = stair_mes;
             ACTSendMailCorrect(a0, 430);
@@ -2221,7 +2226,7 @@ void actSt04lTuri(volatile int a0)
     if (gflagChk(189) == 0) {
         stage_SetAnimation(230, 0, 0);
 
-        if (D_00639EA8 != 0) {
+        if (girlGObj != 0) {
             turi_mes[0].func = actSt04lTuriChk;
             self->mail = turi_mes;
             ACTSendMailCorrect(a0, 430);
@@ -2752,10 +2757,10 @@ void actSt04eSolarBeam(volatile int a0)
     _ACTWait(1);
 
     if (gflagChk(224) != 0) {
-        if (D_00639EA4 != 0) {
-            scpPlayMot(D_00639EA4, 0);
+        if (boyGObj != 0) {
+            scpPlayMot(boyGObj, 0);
 
-            if (ACTGame_NoWeapon(D_00639EA4) == 0) {
+            if (ACTGame_NoWeapon(boyGObj) == 0) {
                 LightTorchOffOfWeapon(GetBoyWeaponGObj());
             }
         }
@@ -3006,11 +3011,11 @@ void actSt04lTuriEvent(int x)
 
 void actSt04lTuriChk(volatile int a0)
 {
-    if (D_00639EA8 == 0) {
+    if (girlGObj == 0) {
         _ACTWait(0);
     }
 
-    while (scpTriggerBall(a0, D_00639EA8, 200.0f) == 0) {
+    while (scpTriggerBall(a0, girlGObj, 200.0f) == 0) {
         _ACTWait(1);
     }
 
@@ -3035,8 +3040,8 @@ void actSt04lGondolaCharaChk(volatile int a0)
 {
     Act *sub = ((PObjGObj *)a0)->act;
 
-    while (scpTriggerFloorAttr(D_00639EA4, 0xA000000)) {
-        if (gflagChk(194) && scpTriggerFloorAttr(D_00639EA8, 0xA000000)) {
+    while (scpTriggerFloorAttr(boyGObj, 0xA000000)) {
+        if (gflagChk(194) && scpTriggerFloorAttr(girlGObj, 0xA000000)) {
             break;
         }
         _ACTWait(1);

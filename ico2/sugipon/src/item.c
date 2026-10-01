@@ -168,7 +168,8 @@ void ReleaseItem(char *gobj)
 
 /* kept local: this TU's uses of _ScaleVectorXYZ do not fit the prototype in Matrix.h */
 extern void _ScaleVectorXYZ(void *dst, void *src, float k);
-extern int D_0028F4C0[];
+/* kept local: main.c's global; this TU does not include main.h */
+extern int systemStatus[];
 
 void ThrowItem(char *gobj, void *vel)
 {
@@ -178,7 +179,7 @@ void ThrowItem(char *gobj, void *vel)
     *(int *)(p + 0xC) = 0;
     *(int *)(p + 0x10) = 1;
     _ScaleVectorXYZ(*(char **)(gobj + 0x15C) + 0x130, vel,
-                    30.0f / (float)((0x3C - D_0028F4C0[0] * 0xA) / D_0028F4C0[1]));
+                    30.0f / (float)((0x3C - systemStatus[0] * 0xA) / systemStatus[1]));
     SetIdentityQuaternion(*(char **)(gobj + 0x15C) + 0x150);
 }
 
@@ -232,7 +233,7 @@ char *InitItemGeo(char *gobj, ItemLayout *layout)
         CopyVector((char *)*(int *)(g + 0x15C) + 0xA0, itemDropOfs);
         *(char **)(rec + 0x40) = g;
         *(int *)(rec + 0x44) =
-            (int)((float)((0x3C - D_0028F4C0[0] * 0xA) / D_0028F4C0[1]) / 60.0f * 300.0f);
+            (int)((float)((0x3C - systemStatus[0] * 0xA) / systemStatus[1]) / 60.0f * 300.0f);
     }
     gamesysObjInfoCls(*(int *)(gobj + 0xC), *(int *)(gobj + 8));
     return p;
@@ -252,7 +253,8 @@ extern void MatrixDrive_GetTurnZAngleYX(unsigned short *y, unsigned short *x, fl
                                         float vz);
 /* kept local: this TU's uses of RotQuaternionX do not fit the prototype in quaternion.h */
 extern void RotQuaternionX(void *q, short ang);
-extern char *D_00639EA8;
+/* kept local: main.c's global; this TU does not include main.h */
+extern char *girlGObj;
 
 /* The holder's 0x15C sub-handle is read through the SubHandle union at every
    site in this function: the ROM keeps the three-load chain of line 511 below
@@ -272,7 +274,7 @@ void carriedItemGeo(char *gobj)
     char *rec = (char *)*(int *)(*(int *)(gobj + 0x15C) + 0x830);
 
     if (*(int *)((char *)((SubHandle *)(*(char **)(rec + 0x14) + 0x15C))->i + 0x604) != 0) {
-        int isPlayer = *(char **)(rec + 0x14) == D_00639EA8;
+        int isPlayer = *(char **)(rec + 0x14) == girlGObj;
         int node = isPlayer ? 6 : 22;
 
         if (isPlayer) {
@@ -379,9 +381,9 @@ static inline int entryBreakBgAnimation(int id, float *pos, float *dir, int arg)
    192-byte workspace ClipWall / ClipFloor / ClipWallWaveForce / CheckFieldContact
    fill in.  It is the same record avoidInsideOfWall drives through itemWork,
    whose +0x88 hit flag and +0x20 result position that function already names. */
-/* The per-frame step this TU derives from the frame-rate pair at D_0028F4C0;
+/* The per-frame step this TU derives from the frame-rate pair at systemStatus;
    ThrowItem and InitItemGeo spell the same integer quotient out. */
-#define ITEM_DT (60.0f / (float)((0x3C - D_0028F4C0[0] * 0xA) / D_0028F4C0[1]))
+#define ITEM_DT (60.0f / (float)((0x3C - systemStatus[0] * 0xA) / systemStatus[1]))
 
 typedef struct DObjLink {
     char *p_0;
@@ -739,8 +741,8 @@ void execBombGeo(char *gobj)
         CopyVector(v, itemDropOfs);
         v[1] = itemDropOfs[1] *
                (((float)*(int *)(q + 4) *
-                     (1.0f /
-                      ((float)((0x3C - D_0028F4C0[0] * 0xA) / D_0028F4C0[1]) / 60.0f * 300.0f)) +
+                     (1.0f / ((float)((0x3C - systemStatus[0] * 0xA) / systemStatus[1]) / 60.0f *
+                              300.0f)) +
                  1.0f) *
                 0.5f);
         CopyVector(((SubHandle *)(*(char **)q + 0x15C))->p + 0xA0, v);
@@ -808,8 +810,6 @@ void ItemGeo(char *gobj)
     }
 }
 
-extern int D_0028F4D4[];
-
 /* src/item.c:919-932 in the listing: a second static helper with no
    out-of-line copy, inlined only into ItemDL (rows 920, 922, 929, 931).
    The NAME is a reconstruction. */
@@ -844,7 +844,7 @@ void ItemDL(char *gobj)
             return;
         }
         if (mode == 1) {
-            if (D_0028F4D4[0] != 0) {
+            if (systemStatus[5] != 0) {
                 if (*(int *)(q + 0x24) != 0) {
                     StopSEPackage(gobj);
                     *(int *)(q + 0x24) = 0;

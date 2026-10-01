@@ -39,7 +39,8 @@ static int opDemoMode = 0; /* derived name */
 
 static int opDemoNextMode = 0; /* derived name */
 
-extern char *D_00639EA4;
+/* kept local: main.c's global; this TU does not include main.h */
+extern char *boyGObj;
 /* kept local: this TU's uses of scpPlayStart do not fit the prototype in script.h */
 extern void scpPlayStart(char *gobj);
 /* kept local: this TU's uses of scpSearchGobj do not fit the prototype in script.h */
@@ -97,10 +98,13 @@ void actTitleCamera2(volatile int a0)
     }
 }
 
-extern PadState D_0028F8F0[];
-extern int D_0028F4C0[];
+/* kept local: main.c's global; this TU does not include main.h */
+extern PadState pad[];
+/* kept local: main.c's global; this TU does not include main.h */
+extern int systemStatus[];
 extern int optionScreenMode;
-extern int D_00639EA0;
+/* kept local: main.c's global; this TU does not include main.h */
+extern int girlControlMode;
 /* kept local: script.h's prototypes do not fit this TU's calls */
 extern int scpBoyControlReadDisable;
 extern int mpegPlayReturnStage;
@@ -136,14 +140,14 @@ void actOpDemo01(volatile int a0)
 {
     int x = a0;
     int th;
-    int t = (60 - D_0028F4C0[0] * 10) / D_0028F4C0[1] * 10;
+    int t = (60 - systemStatus[0] * 10) / systemStatus[1] * 10;
 
     inline int tick(void)
     {
         if ((current_layout_id == 12 || current_layout_id == 13) && lt_continue_selected == 0) {
             t--;
         } else {
-            t = (60 - D_0028F4C0[0] * 10) / D_0028F4C0[1] * 10;
+            t = (60 - systemStatus[0] * 10) / systemStatus[1] * 10;
         }
         if (t < 0) {
             current_layout_id = 55;
@@ -157,7 +161,7 @@ void actOpDemo01(volatile int a0)
 
     gFlagGameClear = 0;
     optionScreenMode = 0;
-    D_00639EA0 = 0;
+    girlControlMode = 0;
     stgmgrNextStagePreLoadForceStageSet(0);
 
     actCreateSubThread(actSubMpegReturnPreload, 21);
@@ -200,7 +204,7 @@ void actOpDemo01(volatile int a0)
             titleSubAdpcm = 0;
             th = actCreateSubThread(actTitleReadTimeDemo0, 21);
 
-            t = (60 - D_0028F4C0[0] * 10) / D_0028F4C0[1] * 10;
+            t = (60 - systemStatus[0] * 10) / systemStatus[1] * 10;
             while (titleSubAdpcm == 0) {
                 _ACTWait(1);
             }
@@ -209,7 +213,7 @@ void actOpDemo01(volatile int a0)
             while (1) {
                 _ACTWait(1);
                 if (titleSubEnd == 0) {
-                    if (D_0028F8F0[0].flags & 0x800) {
+                    if (pad[0].flags & 0x800) {
                         opDemoMode = 1;
                         opDemoNextMode = 2;
                         break;
@@ -233,7 +237,7 @@ void actOpDemo01(volatile int a0)
             lt_switch_layout(12);
             th = actCreateSubThread(actTitleShortCut, 21);
 
-            t = (60 - D_0028F4C0[0] * 10) / D_0028F4C0[1] * 10;
+            t = (60 - systemStatus[0] * 10) / systemStatus[1] * 10;
 
             while (1) {
                 _ACTWait(1);
@@ -260,7 +264,7 @@ void actOpDemo01(volatile int a0)
             }
             titleAdpcm = 0;
             _ACTWait(1);
-            stgmgrForceSwitchWithFade(D_0028F4C0[0] != 0 ? 58 : 57, 256.0f, 4.0f);
+            stgmgrForceSwitchWithFade(systemStatus[0] != 0 ? 58 : 57, 256.0f, 4.0f);
             _ACTWait(0);
             break;
         }
@@ -286,8 +290,8 @@ void actTitleShortCut(volatile int a0)
     actInitialize(a0);
     _ACTWait(1);
 
-    if (D_00639EA4 != 0) {
-        scpPlayStart(D_00639EA4);
+    if (boyGObj != 0) {
+        scpPlayStart(boyGObj);
     }
     if (titleAdpcm == 0) {
         scpAdpcmPlayRequestFunc(56, &titleAdpcm, 0, 0, 1);
@@ -340,12 +344,12 @@ extern int stage_no;
    which in $a2. */
 
 /* Both tables live in the ELF's .rodata run, so `const` is what they are, and
-   on D_005F5D50 it is load-bearing: only a reference rooted at a const object
+   on stageData it is load-bearing: only a reference rooted at a const object
    makes the `ent` load unchanging, and only then is that load free of the
    `volatile int a0` parameter home's memory dependence, which is what lets the
    home store issue three slots later. */
-extern const StgPre D_005F5D50[];
-extern const ExitData D_0055C518[];
+extern const StgPre stageData[];
+extern const ExitData exitData[];
 /* kept local: this TU's uses of scpPlayMot do not fit the prototype in script.h */
 extern void scpPlayMot(char *self, int mot);
 /* kept local: this TU's uses of RequestStageChangeWithColor do not fit the prototype in script.h */
@@ -358,7 +362,7 @@ extern int jimakuOn;
 
 inline void actSubMpegReturnPreload(volatile int a0)
 {
-    _ACTWait((int)((float)((0x3C - D_0028F4C0[0] * 0xA) / D_0028F4C0[1]) * 5.0f));
+    _ACTWait((int)((float)((0x3C - systemStatus[0] * 0xA) / systemStatus[1]) * 5.0f));
     stgmgrNextStagePreLoadForceStageSet(1);
     stgmgrNextStagePreLoadForceNoCancel(1);
 }
@@ -413,9 +417,9 @@ void actTitleReadTimeDemo0(volatile int a0)
         _ACTWait(1);
     }
 
-    scpPlayStart(D_00639EA4);
+    scpPlayStart(boyGObj);
 
-    scpPlayMot(D_00639EA4, 263);
+    scpPlayMot(boyGObj, 263);
 
     scpPlayMot(scpSearchGobj(56), 983);
     *(int *)(scpSearchGobj(56) + 0x16C) = 1;
@@ -431,7 +435,7 @@ void actTitleReadTimeDemo0(volatile int a0)
         _ACTWait(1);
     }
 
-    scpPlayMot(D_00639EA4, 264);
+    scpPlayMot(boyGObj, 264);
     scpPlayMot(scpSearchGobj(56), 984);
     scpPlayMot(scpSearchGobj(57), 1006);
     scpPlayMot(scpSearchGobj(58), 1029);
@@ -454,7 +458,7 @@ void actTitleReadTimeDemo0(volatile int a0)
     *(int *)(scpSearchGobj(60) + 0x16C) = 1;
     *(int *)(scpSearchGobj(57) + 0x16C) = 1;
 
-    scpPlayMot(D_00639EA4, 265);
+    scpPlayMot(boyGObj, 265);
     scpPlayMot(scpSearchGobj(56), 985);
     scpPlayMot(scpSearchGobj(57), 1007);
     scpPlayMot(scpSearchGobj(58), 1030);
@@ -488,7 +492,7 @@ void actTitleReadTimeDemo0(volatile int a0)
         _ACTWait(1);
     }
 
-    scpPlayMot(D_00639EA4, 267);
+    scpPlayMot(boyGObj, 267);
     scpPlayMot(scpSearchGobj(56), 987);
     scpPlayMot(scpSearchGobj(57), 1009);
     scpPlayMot(scpSearchGobj(58), 1032);
@@ -518,7 +522,7 @@ void actTitleReadTimeDemo0(volatile int a0)
     SetHandCameraLimitInDemo(0, 0);
     SetZoomMaxValInDemo(0);
 
-    scpPlayMot(D_00639EA4, 268);
+    scpPlayMot(boyGObj, 268);
     scpPlayMot(scpSearchGobj(56), 988);
     scpPlayMot(scpSearchGobj(57), 1010);
     scpPlayMot(scpSearchGobj(58), 1033);
@@ -568,7 +572,7 @@ inline void actSt26aConte01_1_newgame(volatile int a0)
 
     gflagOn(2);
 
-    RequestStageChange(1, D_00639EA4, 0, 0.25f, 2.0f);
+    RequestStageChange(1, boyGObj, 0, 0.25f, 2.0f);
 }
 
 void actOpDemo01_2(volatile int a0)
@@ -595,7 +599,7 @@ void actOpDemo01_2(volatile int a0)
 
     demoSubEnd = 0;
     while (demoSubEnd == 0) {
-        if ((D_0028F8F0[0].flags & 0x800) && scpAdpcmPlayRequestNum() == 0) {
+        if ((pad[0].flags & 0x800) && scpAdpcmPlayRequestNum() == 0) {
             break;
         }
         _ACTWait(1);
@@ -605,22 +609,22 @@ void actOpDemo01_2(volatile int a0)
         scpAdpcmFadeCloseFunc(&adpcm_conte01_sea, 0x80);
     }
 
-    RequestStageChangeWithColor(1, D_00639EA4, 0, 1.0f, 4.0f, 255, 255, 255);
+    RequestStageChangeWithColor(1, boyGObj, 0, 1.0f, 4.0f, 255, 255, 255);
 }
 
 void actOpDemo01_2Chk(volatile int a0)
 {
     stgmgrNextStagePreLoadForceStageSet(0);
 
-    scpPlayStart(D_00639EA4);
+    scpPlayStart(boyGObj);
 
     stage_SetAnimation(572, 1, 0);
 
-    stgmgrNextStagePreLoadForceStageSet(D_0055C518[D_005F5D50[stage_no].ent[0]].f_24);
+    stgmgrNextStagePreLoadForceStageSet(exitData[stageData[stage_no].ent[0]].f_24);
 
     stage_SetAnimation(7, 1, 0);
 
-    scpPlayMot(D_00639EA4, 269);
+    scpPlayMot(boyGObj, 269);
     scpPlayMot(scpSearchGobj(2312), 989);
     *(int *)(scpSearchGobj(2312) + 0x16C) = 1;
     scpPlayMot(scpSearchGobj(2313), 1011);
@@ -632,7 +636,7 @@ void actOpDemo01_2Chk(volatile int a0)
         _ACTWait(1);
     }
 
-    scpPlayMot(D_00639EA4, 270);
+    scpPlayMot(boyGObj, 270);
     scpPlayMot(scpSearchGobj(2312), 990);
     scpPlayMot(scpSearchGobj(2313), 1012);
     scpPlayMot(scpSearchGobj(2314), 1035);
@@ -659,7 +663,7 @@ void actOpDemo01_2Chk(volatile int a0)
 
     stage_SetAnimation(9, 1, 0);
 
-    scpPlayMot(D_00639EA4, 271);
+    scpPlayMot(boyGObj, 271);
     scpPlayMot(scpSearchGobj(2312), 991);
     scpPlayMot(scpSearchGobj(2313), 1013);
     scpPlayMot(scpSearchGobj(2314), 1036);
@@ -668,7 +672,7 @@ void actOpDemo01_2Chk(volatile int a0)
         _ACTWait(1);
     }
 
-    scpPlayMot(D_00639EA4, 272);
+    scpPlayMot(boyGObj, 272);
     scpPlayMot(scpSearchGobj(2312), 992);
     scpPlayMot(scpSearchGobj(2313), 1014);
     scpPlayMot(scpSearchGobj(2314), 1037);
@@ -691,8 +695,8 @@ void actOpDemo02(volatile int a0)
     Act *self = actInitialize(a0);
     _ACTWait(1);
 
-    if (D_00639EA4 != 0) {
-        scpPlayMot(D_00639EA4, 0);
+    if (boyGObj != 0) {
+        scpPlayMot(boyGObj, 0);
     }
 
     lt_switch_layout(55);
@@ -725,7 +729,7 @@ inline void actOpDemo02Chk(volatile int a0)
 
     demoSubEnd = 0;
     while (demoSubEnd == 0) {
-        if ((D_0028F8F0[0].flags & 0x800) && scpAdpcmPlayRequestNum() == 0) {
+        if ((pad[0].flags & 0x800) && scpAdpcmPlayRequestNum() == 0) {
             break;
         }
         _ACTWait(1);
@@ -740,20 +744,20 @@ inline void actOpDemo02Chk(volatile int a0)
         }
     }
 
-    RequestStageChange(2, D_00639EA4, 0, 0.5f, 4.0f);
+    RequestStageChange(2, boyGObj, 0, 0.5f, 4.0f);
 }
 
 void actSt24aConte01_2(volatile int a0)
 {
-    stgmgrNextStagePreLoadForceStageSet(D_0055C518[D_005F5D50[stage_no].ent[1]].f_24);
+    stgmgrNextStagePreLoadForceStageSet(exitData[stageData[stage_no].ent[1]].f_24);
 
-    scpPlayStart(D_00639EA4);
+    scpPlayStart(boyGObj);
 
     stage_SetAnimation(576, 1, 0);
 
     stage_SetAnimation(11, 1, 0);
 
-    scpPlayMot(D_00639EA4, 273);
+    scpPlayMot(boyGObj, 273);
 
     scpPlayMot(scpSearchGobj(2336), 993);
     *(int *)(scpSearchGobj(2336) + 0x16C) = 1;
@@ -766,7 +770,7 @@ void actSt24aConte01_2(volatile int a0)
         _ACTWait(1);
     }
 
-    scpPlayMot(D_00639EA4, 274);
+    scpPlayMot(boyGObj, 274);
     scpPlayMot(scpSearchGobj(2336), 994);
     scpPlayMot(scpSearchGobj(2337), 1016);
 
@@ -784,7 +788,7 @@ void actSt24aConte01_2(volatile int a0)
         _ACTWait(1);
     }
 
-    scpPlayMot(D_00639EA4, 275);
+    scpPlayMot(boyGObj, 275);
     scpPlayMot(scpSearchGobj(2336), 995);
     scpPlayMot(scpSearchGobj(2337), 1017);
     scpPlayMot(scpSearchGobj(2338), 1039);
@@ -797,7 +801,7 @@ void actSt24aConte01_2(volatile int a0)
         _ACTWait(1);
     }
 
-    scpPlayMot(D_00639EA4, 276);
+    scpPlayMot(boyGObj, 276);
     scpPlayMot(scpSearchGobj(2336), 996);
     scpPlayMot(scpSearchGobj(2337), 1018);
     scpPlayMot(scpSearchGobj(2338), 1040);
@@ -806,7 +810,7 @@ void actSt24aConte01_2(volatile int a0)
 
     stage_SetAnimation(14, 1, 0);
 
-    _ACTWait((0x3C - D_0028F4C0[0] * 0xA) / D_0028F4C0[1] * 0xA);
+    _ACTWait((0x3C - systemStatus[0] * 0xA) / systemStatus[1] * 0xA);
 
     scpFadeOut(0, 0, 0, 6.0f);
     while (scpFadeChk() != 0) {
@@ -819,7 +823,7 @@ void actSt24aConte01_2(volatile int a0)
 
     stage_SetAnimation(15, 0, 0);
 
-    scpPlayMot(D_00639EA4, 277);
+    scpPlayMot(boyGObj, 277);
     scpPlayMot(scpSearchGobj(2336), 997);
     scpPlayMot(scpSearchGobj(2337), 1019);
     scpPlayMot(scpSearchGobj(2338), 1041);
@@ -853,7 +857,7 @@ inline void actSt24aConte01_2_Jimaku(volatile int a0)
         }
 
         n = (int)t;
-        tn = t + (float)((0x3C - D_0028F4C0[0] * 0xA) / D_0028F4C0[1]) / 60.0f;
+        tn = t + (float)((0x3C - systemStatus[0] * 0xA) / systemStatus[1]) / 60.0f;
         if (n != (int)tn) {
             _ACTWait(1);
             t = tn;
@@ -899,7 +903,7 @@ void actOpDemo03Chk(volatile int a0)
 
     demoSubEnd = 0;
     while (demoSubEnd == 0) {
-        if ((D_0028F8F0[0].flags & 0x800) && scpAdpcmPlayRequestNum() == 0) {
+        if ((pad[0].flags & 0x800) && scpAdpcmPlayRequestNum() == 0) {
             break;
         }
         _ACTWait(1);
@@ -917,18 +921,18 @@ void actOpDemo03Chk(volatile int a0)
         _ACTWait(1);
     }
 
-    RequestStageChange(4, D_00639EA4, 0, 255.0f, 2.0f);
+    RequestStageChange(4, boyGObj, 0, 255.0f, 2.0f);
 }
 
 void actSt13aConte01_3(volatile int a0)
 {
-    stgmgrNextStagePreLoadForceStageSet(D_0055C518[D_005F5D50[stage_no].ent[3]].f_24);
+    stgmgrNextStagePreLoadForceStageSet(exitData[stageData[stage_no].ent[3]].f_24);
 
-    scpPlayStart(D_00639EA4);
+    scpPlayStart(boyGObj);
 
     stage_SetAnimation(581, 1, 0);
 
-    scpPlayMot(D_00639EA4, 278);
+    scpPlayMot(boyGObj, 278);
     scpPlayMot(scpSearchGobj(2364), 998);
     *(int *)(scpSearchGobj(2364) + 0x16C) = 1;
     scpPlayMot(scpSearchGobj(2365), 1020);
@@ -955,7 +959,7 @@ void actSt13aConte01_3(volatile int a0)
         _ACTWait(1);
     }
 
-    scpPlayMot(D_00639EA4, 279);
+    scpPlayMot(boyGObj, 279);
     scpPlayMot(scpSearchGobj(2366), 1044);
 
     _ACTWait(1);
@@ -968,7 +972,7 @@ void actSt13aConte01_3(volatile int a0)
 
     scpFadeIn(3.0f);
 
-    scpPlayMot(D_00639EA4, 280);
+    scpPlayMot(boyGObj, 280);
     scpPlayMot(scpSearchGobj(2364), 999);
     scpPlayMot(scpSearchGobj(2365), 1021);
     scpPlayMot(scpSearchGobj(2366), 1045);
@@ -981,7 +985,7 @@ void actSt13aConte01_3(volatile int a0)
         _ACTWait(1);
     }
 
-    scpPlayMot(D_00639EA4, 281);
+    scpPlayMot(boyGObj, 281);
     scpPlayMot(scpSearchGobj(2364), 1000);
     scpPlayMot(scpSearchGobj(2365), 1022);
     scpPlayMot(scpSearchGobj(2366), 1046);
@@ -989,7 +993,7 @@ void actSt13aConte01_3(volatile int a0)
     _ACTWait(1);
     stage_SetAnimation(20, 1, 0);
 
-    _ACTWait((0x3C - D_0028F4C0[0] * 0xA) / D_0028F4C0[1] * 8);
+    _ACTWait((0x3C - systemStatus[0] * 0xA) / systemStatus[1] * 8);
 
     demoSubEnd = 1;
     _ACTWait(0);

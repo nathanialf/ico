@@ -632,7 +632,8 @@ extern int CheckWallAttribute(void *gobj, int mask);
 extern int CheckFloorAttribute(void *gobj, int mask);
 /* kept local: this TU's uses of CheckFieldContact do not fit the prototype in motionManager2.h */
 extern int CheckFieldContact(void *col, void *gobj, void *pos, float r);
-extern int D_0028F4C0[];
+/* kept local: main.c's global; this TU does not include main.h */
+extern int systemStatus[];
 /* kept local: this TU's uses of ZeroVector do not fit the prototype in matrixDrive.h */
 extern char ZeroVector[];
 
@@ -644,8 +645,8 @@ int rolling(char *a0)
         UnlinkParentOfDObj(a0);
     }
     ((AP1Val *)((char *)GOBJ_SUB(a0) + 0x134))->f +=
-        60.0f / (float)((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]) * 0.5f *
-        (60.0f / (float)((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]));
+        60.0f / (float)((60 - systemStatus[0] * 10) / systemStatus[1]) * 0.5f *
+        (60.0f / (float)((60 - systemStatus[0] * 10) / systemStatus[1]));
     _AddVectorXYZ((char *)GOBJ_SUB(a0) + 0xA0, (char *)GOBJ_SUB(a0) + 0xA0,
                   (char *)GOBJ_SUB(a0) + 0x130);
     {
@@ -1102,7 +1103,8 @@ int rollingMot(char *a0)
     return 2;
 }
 
-extern int D_00639EA4;
+/* kept local: main.c's global; this TU does not include main.h */
+extern int boyGObj;
 
 typedef struct {
     int state;     /* 0x00 */
@@ -1133,7 +1135,7 @@ void attackMotInit(char *a0)
     Vec4A_P_1 dir;
     char *p = *(char **)((char *)GOBJ_SUB(a0) + 0x830);
 
-    GetRootPosition(&pos, (void *)D_00639EA4);
+    GetRootPosition(&pos, (void *)boyGObj);
     MatrixDrive_SetTransposeMatrix(&mtx, p + 0x230);
     _ApplyMatrix((int)&dir, (int)&mtx, (int)&pos);
     setAP1MotCtrlVector((AP1MotCtrl *)(p + 0x10), &dir);

@@ -85,7 +85,8 @@ void actSt03tSwitchL(volatile int a0)
 
 /* kept local: this TU's uses of scpTriggerFloorAttrTargetMan do not fit the prototype in script.h */
 extern int scpTriggerFloorAttrTargetMan(int a0, int a1);
-extern int D_0028F4C0[];
+/* kept local: main.c's global; this TU does not include main.h */
+extern int systemStatus[];
 
 void actSt03tSwitchLChk(volatile int a0)
 {
@@ -93,7 +94,7 @@ void actSt03tSwitchLChk(volatile int a0)
     int i;
 
     i = 0;
-    while (i < (0x3C - D_0028F4C0[0] * 0xA) / D_0028F4C0[1]) {
+    while (i < (0x3C - systemStatus[0] * 0xA) / systemStatus[1]) {
         if (scpTriggerFloorAttrTargetMan(a0, 0x1000000) != 0) {
             i++;
         } else {
@@ -151,7 +152,8 @@ void actSt03tSwitchLChk(volatile int a0)
 extern void scpCheckDisconnectWallStart(char *a0);
 /* as script.h declares it; this TU does not include that header */
 extern void scpCheckDisconnectWallEnd(char *a0);
-extern int D_00639EA8;
+/* kept local: main.c's global; this TU does not include main.h */
+extern int girlGObj;
 
 void actSt03tSwitchLUpChk(volatile int a0)
 {
@@ -175,8 +177,8 @@ void actSt03tSwitchLUpChk(volatile int a0)
 
     stage_SetAnimation(367, 1, 0);
 
-    if (D_00639EA8 != 0) {
-        scpCheckDisconnectWallStart((char *)D_00639EA8);
+    if (girlGObj != 0) {
+        scpCheckDisconnectWallStart((char *)girlGObj);
     }
 
     SetWayGroupActive(7, 0);
@@ -192,8 +194,8 @@ void actSt03tSwitchLUpChk(volatile int a0)
     }
     _ACTWait(1);
 
-    if (D_00639EA8 != 0) {
-        scpCheckDisconnectWallEnd((char *)D_00639EA8);
+    if (girlGObj != 0) {
+        scpCheckDisconnectWallEnd((char *)girlGObj);
     }
 
     switchLUpChk_mes[0].func = actSt03tSwitchLChk;
@@ -234,7 +236,7 @@ void actSt03tSwitchRChk(volatile int a0)
     int i;
 
     i = 0;
-    while (i < (0x3C - D_0028F4C0[0] * 0xA) / D_0028F4C0[1]) {
+    while (i < (0x3C - systemStatus[0] * 0xA) / systemStatus[1]) {
         if (scpTriggerFloorAttrTargetMan(a0, 0x2000000) != 0) {
             i++;
         } else {
@@ -284,7 +286,7 @@ void actSt03tSwitchRUpChk(volatile int a0)
         _ACTWait(1);
     }
 
-    _ACTWait(((0x3C - D_0028F4C0[0] * 0xA) / D_0028F4C0[1]) * 0xA);
+    _ACTWait(((0x3C - systemStatus[0] * 0xA) / systemStatus[1]) * 0xA);
 
     gflagOff(90);
 
@@ -518,7 +520,8 @@ void actSt03tGirlCamEvent(int x)
     volatile int local = x;
 }
 
-extern int D_00639EA4;
+/* kept local: main.c's global; this TU does not include main.h */
+extern int boyGObj;
 /* kept local: this TU's uses of scpTriggerBall do not fit the prototype in script.h */
 extern int scpTriggerBall(int a0, int a1, float radius);
 
@@ -526,13 +529,13 @@ void actSt03tGirlCamStartChk(volatile int a0)
 {
     Act *sub = (Act *)((PObjGObj *)a0)->act;
 
-    while (scpTriggerBall(a0, D_00639EA4, 100.0f) == 0 ||
-           ForMotionViewer_GetCurrentMotion(D_00639EA4) != 0xCA) {
+    while (scpTriggerBall(a0, boyGObj, 100.0f) == 0 ||
+           ForMotionViewer_GetCurrentMotion(boyGObj) != 0xCA) {
         _ACTWait(1);
     }
 
     CameraGetTarget();
-    Camctrl_SetTarget(D_00639EA8, 0, 3);
+    Camctrl_SetTarget(girlGObj, 0, 3);
     _ACTWait(15);
     CameraSetCameraSet(0x30);
 
@@ -546,8 +549,8 @@ void actSt03tGirlCamEndChk(volatile int a0)
 {
     Act *sub = (Act *)((PObjGObj *)a0)->act;
 
-    while (scpTriggerBall(a0, D_00639EA4, 100.0f) == 0 ||
-           ForMotionViewer_GetCurrentMotion(D_00639EA4) == 0xCA) {
+    while (scpTriggerBall(a0, boyGObj, 100.0f) == 0 ||
+           ForMotionViewer_GetCurrentMotion(boyGObj) == 0xCA) {
         _ACTWait(1);
     }
 
@@ -576,10 +579,10 @@ extern void scpWakeupEnemyOne(int a0);
 
 void actSt03tEneChk(volatile int a0)
 {
-    if (D_00639EA8 == 0) {
+    if (girlGObj == 0) {
         _ACTWait(0);
     }
-    while (scpTriggerBall(a0, D_00639EA4, 100.0f) == 0) {
+    while (scpTriggerBall(a0, boyGObj, 100.0f) == 0) {
         _ACTWait(1);
     }
 
@@ -614,10 +617,10 @@ void actSt03tWayOnChk(volatile int a0)
 {
     Act *sub = (Act *)((PObjGObj *)a0)->act;
 
-    if (D_00639EA8 == 0) {
+    if (girlGObj == 0) {
         _ACTWait(0);
     }
-    while (scpCheckExistAliveEnemy() != 0 || scpTriggerFloorAttr(D_00639EA8, 0x3000000) == 0) {
+    while (scpCheckExistAliveEnemy() != 0 || scpTriggerFloorAttr(girlGObj, 0x3000000) == 0) {
         _ACTWait(1);
     }
 
@@ -636,10 +639,10 @@ void actSt03tWayOffChk(volatile int a0)
 {
     Act *sub = (Act *)((PObjGObj *)a0)->act;
 
-    if (D_00639EA8 == 0) {
+    if (girlGObj == 0) {
         _ACTWait(0);
     }
-    while (scpCheckExistAliveEnemy() == 0 && scpTriggerFloorAttr(D_00639EA8, 0x3000000) != 0) {
+    while (scpCheckExistAliveEnemy() == 0 && scpTriggerFloorAttr(girlGObj, 0x3000000) != 0) {
         _ACTWait(1);
     }
 
@@ -654,7 +657,7 @@ void actSt03tWayOffChk(volatile int a0)
 
 void actSt03tGirlPosChk(volatile int a0)
 {
-    while (D_00639EA8 == 0 || scpTriggerFloorAttr(D_00639EA8, 0x5000000) == 0) {
+    while (girlGObj == 0 || scpTriggerFloorAttr(girlGObj, 0x5000000) == 0) {
         _ACTWait(1);
     }
 
@@ -664,7 +667,7 @@ void actSt03tGirlPosChk(volatile int a0)
 
 void actSt03tGirlUpChk(volatile int a0)
 {
-    while (D_00639EA8 == 0 || scpTriggerFloorAttr(D_00639EA8, 0x4000000) == 0) {
+    while (girlGObj == 0 || scpTriggerFloorAttr(girlGObj, 0x4000000) == 0) {
         _ACTWait(1);
     }
 
@@ -677,7 +680,7 @@ void actSt03tHint1OnChk(volatile int a0)
 {
     Act *sub = (Act *)((PObjGObj *)a0)->act;
 
-    _ACTWait((0x3C - D_0028F4C0[0] * 0xA) / D_0028F4C0[1] * 0x3C);
+    _ACTWait((0x3C - systemStatus[0] * 0xA) / systemStatus[1] * 0x3C);
     WakeupHint(12);
 
     hint1OnChk_mes[0].func = actSt03tHint1OffChk;

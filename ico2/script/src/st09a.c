@@ -13,8 +13,10 @@
 #include "motionManager2.h"
 #include "typedef.h"
 
-extern int D_00639EA4;
-extern int D_00639EAC;
+/* kept local: main.c's global; this TU does not include main.h */
+extern int boyGObj;
+/* kept local: main.c's global; this TU does not include main.h */
+extern int boyPad;
 
 /* .sbss, owned by st09a.o and reached only from this file (MAIN.MAP names no
    symbol in the run): the demo's own end flag, raised by the
@@ -75,7 +77,7 @@ void actSt09aElvDown(volatile int a0)
     volatile int se;
 
     lt_switch_layout(55);
-    LockForceGroundParent(D_00639EA4);
+    LockForceGroundParent(boyGObj);
 
     stage_SetAnimation(375, 1, 0);
 
@@ -90,7 +92,7 @@ void actSt09aElvDown(volatile int a0)
 
     soundSeDefStop(se);
 
-    UnlockForceGroundParent(D_00639EA4);
+    UnlockForceGroundParent(boyGObj);
 
     lt_switch_layout(54);
 
@@ -364,14 +366,14 @@ void actSt09aBrgDownSub(volatile int a0)
     }
     _ACTWait(1);
 
-    iosPadActRequest(D_00639EAC, 0x11);
+    iosPadActRequest(boyPad, 0x11);
 
     while (stage_CheckAnimationFrame(378, 165, 0) == 0) {
         _ACTWait(1);
     }
     _ACTWait(1);
 
-    iosPadActRequest(D_00639EAC, 0x10);
+    iosPadActRequest(boyPad, 0x10);
 
     while (stage_CheckAnimationFinish(378) == 0) {
         _ACTWait(1);
@@ -384,7 +386,7 @@ void actSt09aBrgDownSub(volatile int a0)
 
 void actSt09aHint1Chk(volatile int a0)
 {
-    while (scpTriggerFloorAttr(D_00639EA4, 0x1000000) == 0) {
+    while (scpTriggerFloorAttr(boyGObj, 0x1000000) == 0) {
         _ACTWait(1);
     }
 
@@ -396,7 +398,7 @@ void actSt09aHint1Chk(volatile int a0)
 
 void actSt09aHint2Chk(volatile int a0)
 {
-    while (scpTriggerBall(a0, D_00639EA4, 400.0f) == 0) {
+    while (scpTriggerBall(a0, boyGObj, 400.0f) == 0) {
         _ACTWait(1);
     }
 

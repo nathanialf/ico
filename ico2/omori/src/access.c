@@ -1,7 +1,7 @@
 #include "typedef.h"
 #include <stdio.h>
 
-extern StgPre D_005F5D50[];
+extern StgPre stageData[];
 extern char D_0063C090[];
 /* kept local: this TU's uses of GetDataFileName2 do not fit the prototype in access.h */
 extern char *GetDataFileName2();
@@ -27,7 +27,7 @@ char *GetDataFileName(int no, int isDF)
     if (no == -1) {
         name = D_0063C090;
     } else {
-        name = D_005F5D50[no].dataFile;
+        name = stageData[no].dataFile;
     }
 #ifndef DEBUG
     return GetDataFileName2(name, isDF);

@@ -4,8 +4,10 @@
 #include "lineManager.h"
 #include "motionManager2.h"
 
-extern PadState D_0028F8F0[];
-extern int D_00639EA4;
+/* kept local: main.c's global; this TU does not include main.h */
+extern PadState pad[];
+/* kept local: main.c's global; this TU does not include main.h */
+extern int boyGObj;
 void GetWormCaptureVector(void *out, void *act, void *node, float scale);
 /* kept local: this TU's uses of VectorLengthSquare do not fit the prototype in matrixDrive.h */
 extern float VectorLengthSquare(void *v);
@@ -140,22 +142,21 @@ void outerProcess(int act)
     float p[4];
     int n;
 
-    if ((D_0028F8F0[1].flags & 0x20) != 0) {
-        n = GetSkeltonFocusNode(D_00639EA4, 22);
+    if ((pad[1].flags & 0x20) != 0) {
+        n = GetSkeltonFocusNode(boyGObj, 22);
         GetWormRoute(act,
-                     (WormVec *)(*(char **)((char *)GOBJ_SUB(D_00639EA4) + 0xC) + n * 0x40 + 0x30));
+                     (WormVec *)(*(char **)((char *)GOBJ_SUB(boyGObj) + 0xC) + n * 0x40 + 0x30));
         SetWormReduceRatio(act, 1.0f);
     }
 
-    if ((D_0028F8F0[1].unk00 & 0x40) != 0) {
-        n = GetSkeltonFocusNode(D_00639EA4, 22);
-        SetDirectWormTargetPos(act,
-                               *(char **)((char *)GOBJ_SUB(D_00639EA4) + 0xC) + n * 0x40 + 0x30);
-        GetWormCaptureVector(
-            v, (void *)act, *(char **)((char *)GOBJ_SUB(D_00639EA4) + 0xC) + n * 0x40 + 0x30, 5.0f);
-        GetRootPosition(p, D_00639EA4);
+    if ((pad[1].unk00 & 0x40) != 0) {
+        n = GetSkeltonFocusNode(boyGObj, 22);
+        SetDirectWormTargetPos(act, *(char **)((char *)GOBJ_SUB(boyGObj) + 0xC) + n * 0x40 + 0x30);
+        GetWormCaptureVector(v, (void *)act,
+                             *(char **)((char *)GOBJ_SUB(boyGObj) + 0xC) + n * 0x40 + 0x30, 5.0f);
+        GetRootPosition(p, boyGObj);
         sceVu0AddVector(p, p, v);
-        SetDirectRootPosition(D_00639EA4, p);
+        SetDirectRootPosition(boyGObj, p);
         SetWormReduceRatio(act, 0.0f);
     } else {
         SetWormReduceRatio(act, 1.0f);

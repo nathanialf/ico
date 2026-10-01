@@ -6,7 +6,8 @@
 #include "kanban.h"
 #include "GsBase.h"
 
-extern int D_0028F4EC[];
+/* kept local: main.c's global; this TU does not include main.h */
+extern int systemStatus[];
 
 /* kanbanBoot.o's .sdata run (VMA 0x63B4BC..0x63B4D4, 0x18 B; MAIN.MAP's
    January object is 0x10), in the ROM's order: the boot sequence's step, the
@@ -29,7 +30,7 @@ extern int fadeStatus;
 inline void kanbanBootInit(void)
 {
     bootStep = 0;
-    D_0028F4EC[0] = 0;
+    systemStatus[11] = 0;
     kanbanBootEnd = 0;
     fadeStatus = 0;
     bootStarted = 0;
@@ -79,8 +80,6 @@ static McReq bootMcReq __attribute__((aligned(64)));
 /* kept local: mcard.c's save records, read here as this file's view */
 extern KanbanStageRec IosMcProductFile[];
 extern int D_00534010[];
-extern int D_0028F4C0[];
-extern int D_0028F4D8[];
 
 /* .sbss, owned by kanbanBoot.o and reached only from this file (MAIN.MAP names
    no symbol in the run), in the ROM's run order. */
@@ -180,17 +179,17 @@ int kanbanBootMcCheck(void)
         mcCheckStep++;
         r = &IosMcProductFile[mc->f8];
         NonLinearCameraMove = r->f1E8;
-        D_0028F4C0[0] = r->f1EC;
+        systemStatus[0] = r->f1EC;
         gsResetFunc(0);
         break;
     case 97:
-        if (D_0028F4D8[0] != 0) {
+        if (systemStatus[6] != 0) {
             break;
         }
         mcCheckStep = 190;
         break;
     case 100:
-        if (D_0028F4D8[0] != 0) {
+        if (systemStatus[6] != 0) {
             break;
         }
         mcCheckStep = 101;
@@ -260,7 +259,7 @@ int kanbanBootMcCheck(void)
         mcCheckStep++;
         break;
     case 194:
-        if (D_0028F4D8[0] != 0) {
+        if (systemStatus[6] != 0) {
             break;
         }
         if (mcKanbanId != 0) {
@@ -272,20 +271,20 @@ int kanbanBootMcCheck(void)
         break;
     case 200:
         bootKanban = kanbanReqAdd(1, 2);
-        bootVideoMode = D_0028F4C0[0];
+        bootVideoMode = systemStatus[0];
         mcCheckStep++;
         break;
     case 201:
         switch (bootKanban->obj[11]) {
         case 33:
-            D_0028F4C0[0] = 1;
+            systemStatus[0] = 1;
             break;
         case 34:
-            D_0028F4C0[0] = 0;
+            systemStatus[0] = 0;
             break;
         }
-        if (bootVideoMode != D_0028F4C0[0]) {
-            bootVideoMode = D_0028F4C0[0];
+        if (bootVideoMode != systemStatus[0]) {
+            bootVideoMode = systemStatus[0];
             gsResetFunc(0);
         }
         if (bootKanban->f8 != 1) {
@@ -342,8 +341,6 @@ int kanbanBootMcCheck(void)
     return ret;
 }
 
-extern int D_0028F4D4[];
-
 static KanbanReq *waitKanban; /* the "please wait" sign */
 
 static int waitTimer; /* frames left on that sign */
@@ -353,7 +350,7 @@ void kanbanBootMain(void)
     switch (bootStep) {
     case 0:
         isysGObjActiveLink(0, 1);
-        D_0028F4D4[0] = 0;
+        systemStatus[5] = 0;
         mcCheckStep = 0;
         bootStep++;
         /* fallthrough */
@@ -371,7 +368,7 @@ void kanbanBootMain(void)
         bootStep++;
         break;
     case 3:
-        waitTimer = (60 - D_0028F4C0[0] * 10) / D_0028F4C0[1] * 5;
+        waitTimer = (60 - systemStatus[0] * 10) / systemStatus[1] * 5;
         bootStep++;
         /* fallthrough */
     case 4:
@@ -382,7 +379,7 @@ void kanbanBootMain(void)
         bootStep++;
         /* fallthrough */
     case 5:
-        if (D_0028F4D8[0] != 0) {
+        if (systemStatus[6] != 0) {
             return;
         }
         bootStep++;

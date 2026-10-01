@@ -47,8 +47,10 @@ static ActMail chainSwitch_mes[2] = {{430}, {429}};
 
 /* kept local: this TU's uses of scpTriggerBall do not fit the prototype in script.h */
 extern int scpTriggerBall(int a0, int a1, float r);
-extern PadState D_0028F8F0[];
-extern int D_00639EA4;
+/* kept local: main.c's global; this TU does not include main.h */
+extern PadState pad[];
+/* kept local: main.c's global; this TU does not include main.h */
+extern int boyGObj;
 /* kept local: this TU's uses of scpTriggerFloorAttr do not fit the prototype in script.h */
 extern int scpTriggerFloorAttr(int a0, int a1);
 /* kept local: this TU's uses of scpAdpcmPlayRequestNum do not fit the prototype in script.h */
@@ -87,7 +89,7 @@ void actSt19aOriUp(volatile int a0)
     stage_SetAnimation(142, 1, 0);
     gflagOn(310);
     while (stage_CheckAnimationFrame(142, 89, 1) == 0) {
-        if ((D_0028F8F0[0].flags & 0x800) && scpAdpcmPlayRequestNum() == 0) {
+        if ((pad[0].flags & 0x800) && scpAdpcmPlayRequestNum() == 0) {
             skip = 1;
             scpFadeOut(16.0f, 0, 0, 0);
             scpAdpcmFadeCloseFunc(&fence_up_19a, 0x200);
@@ -104,7 +106,7 @@ void actSt19aOriUp(volatile int a0)
         _ACTWait(1);
     }
     for (i = 120; i-- > 0 && skip == 0;) {
-        if ((D_0028F8F0[0].flags & 0x800) && scpAdpcmPlayRequestNum() == 0) {
+        if ((pad[0].flags & 0x800) && scpAdpcmPlayRequestNum() == 0) {
             skip = 1;
         }
     }
@@ -167,13 +169,13 @@ void actSt19aHagurumaChk(volatile int a0)
         _ACTWait(1);
     }
     for (i = 60; i-- > 0 && skip == 0;) {
-        if ((D_0028F8F0[0].flags & 0x800) && scpAdpcmPlayRequestNum() == 0) {
+        if ((pad[0].flags & 0x800) && scpAdpcmPlayRequestNum() == 0) {
             skip = 1;
         }
     }
     stage_SetAnimation(141, 1, 0);
     for (i = 90; i-- > 0 && skip == 0;) {
-        if ((D_0028F8F0[0].flags & 0x800) && scpAdpcmPlayRequestNum() == 0) {
+        if ((pad[0].flags & 0x800) && scpAdpcmPlayRequestNum() == 0) {
             skip = 1;
         }
     }
@@ -188,7 +190,7 @@ void actSt19aHagurumaChk(volatile int a0)
     soundSeDefPlay(1351, 0, haguruma2Pos, 1);
     soundSeDefPlay(1352, 0, haguruma2Pos, 1);
     while (stage_CheckAnimationFinish(141) == 0) {
-        if (((D_0028F8F0[0].flags & 0x800) && scpAdpcmPlayRequestNum() == 0) || skip != 0) {
+        if (((pad[0].flags & 0x800) && scpAdpcmPlayRequestNum() == 0) || skip != 0) {
             scpFadeOut(16.0f, 0, 0, 0);
             scpAdpcmFadeCloseFunc(&fence_down_19a, 0x200);
             while (scpFadeChk() != 0) {
@@ -222,12 +224,12 @@ void actSt19aPipeChk(volatile int a0)
 {
     int i;
 
-    while (scpTriggerBall(a0, D_00639EA4, 50.0f) == 0) {
+    while (scpTriggerBall(a0, boyGObj, 50.0f) == 0) {
         _ACTWait(1);
     }
     lt_switch_layout(55);
     scpBoyControlReadDisable = 1;
-    scpPlayStart(D_00639EA4);
+    scpPlayStart(boyGObj);
     gflagOn(312);
     scpSearchGobj(1958)->f16C = 0;
     _ACTWait(1);
@@ -236,10 +238,10 @@ void actSt19aPipeChk(volatile int a0)
         _ACTWait(1);
     }
     stage_SetAnimation(143, 1, 0);
-    FeedbackWallWorkInfoToBrainSystem(D_00639EA4);
-    scpPlayMot(D_00639EA4, 78);
+    FeedbackWallWorkInfoToBrainSystem(boyGObj);
+    scpPlayMot(boyGObj, 78);
     for (i = 300; i-- > 0;) {
-        if ((D_0028F8F0[0].flags & 0x800) && scpAdpcmPlayRequestNum() == 0) {
+        if ((pad[0].flags & 0x800) && scpAdpcmPlayRequestNum() == 0) {
             scpFadeOut(16.0f, 0, 0, 0);
             scpAdpcmFadeCloseFunc(&hgrm_19a, 0x200);
             while (scpFadeChk() != 0) {
@@ -249,7 +251,7 @@ void actSt19aPipeChk(volatile int a0)
                 _ACTWait(1);
             }
             stage_SetAnimation(143, 0, -1);
-            scpPlayPosSet(D_00639EA4, 336.0f, 3933.0f, -402.0f);
+            scpPlayPosSet(boyGObj, 336.0f, 3933.0f, -402.0f);
             _ACTWait(4);
             scpFadeIn(3.0f);
             break;
@@ -257,7 +259,7 @@ void actSt19aPipeChk(volatile int a0)
         _ACTWait(1);
     }
     scpSearchGobj(1959)->f16C = 1;
-    scpPlayEnd(D_00639EA4);
+    scpPlayEnd(boyGObj);
     scpBoyControlReadDisable = 0;
     lt_switch_layout(54);
 }
@@ -271,7 +273,7 @@ void actSt19aChainDown(volatile int a0)
     th = actCreateSubThread(actSt19aChainDownSub, 21);
     demoEnd = 0;
     while (demoEnd == 0) {
-        if ((D_0028F8F0[0].flags & 0x800) && scpAdpcmPlayRequestNum() == 0) {
+        if ((pad[0].flags & 0x800) && scpAdpcmPlayRequestNum() == 0) {
             break;
         }
         _ACTWait(1);
@@ -304,7 +306,7 @@ void actSt19bIntro(volatile int a0)
     actInitialize(a0);
     _ACTWait(1);
     if (gflagChk(314) == 0) {
-        while (scpTriggerFloorAttr(D_00639EA4, 0x1000000) == 0) {
+        while (scpTriggerFloorAttr(boyGObj, 0x1000000) == 0) {
             _ACTWait(1);
         }
         lt_switch_layout(55);
@@ -312,7 +314,7 @@ void actSt19bIntro(volatile int a0)
         gflagOn(314);
         stage_SetAnimation(137, 1, 0);
         while (stage_CheckAnimationFinish(137) == 0) {
-            if ((D_0028F8F0[0].flags & 0x800) && scpAdpcmPlayRequestNum() == 0) {
+            if ((pad[0].flags & 0x800) && scpAdpcmPlayRequestNum() == 0) {
                 scpFadeOut(16.0f, 0, 0, 0);
                 while (scpFadeChk() != 0) {
                     _ACTWait(1);

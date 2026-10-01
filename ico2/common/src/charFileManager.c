@@ -105,7 +105,8 @@ void ResetCharFileManager(void)
     InitCameraSetManager();
 }
 
-extern int D_0028F4C0[];
+/* kept local: main.c's global; this TU does not include main.h */
+extern int systemStatus[];
 /* kept local: this TU's view of the ios partition handles (ios.h declares them int) */
 extern void *ios_partition_seki;
 extern PObj *InitPObj(void *buf, int a1, int id);
@@ -116,7 +117,7 @@ void ReadModelFile(void *h, int a1, int size, int id, int a4, int a5, int part)
     char buf[0x100];
     char *p;
 
-    D_0028F4C0[8]++;
+    systemStatus[8]++;
     if (size == 0) {
         return;
     }
@@ -154,7 +155,7 @@ void ReadVolumeModelFile(void *h, int a1, int size, int id, int a4, int a5, int 
 {
     char *buf;
 
-    D_0028F4C0[8]++;
+    systemStatus[8]++;
     if (size == 0) {
         return;
     }
@@ -190,7 +191,7 @@ void ReadShadowModelFile(void *h, int a1, int size, int id, int a4, int a5, int 
 {
     char *buf;
 
-    D_0028F4C0[8]++;
+    systemStatus[8]++;
     if (size == 0) {
         return;
     }
@@ -225,7 +226,7 @@ typedef struct {
     int unk_30; /* 0x30 */
 } TexRec;       /* 0x34 */
 
-extern TexRec D_00535168[];
+extern TexRec texFile[];
 extern int NonLinearCameraMove;
 /* kept local: this TU's uses of tex_InitTexture do not fit the prototype in Texture.h */
 extern int tex_InitTexture(int id, void *buf);
@@ -236,7 +237,7 @@ void ReadTextureFile(void *h, int a1, int size, int a3, int a4, int a5, int a6)
     char *buf;
     int flag = 0;
 
-    D_0028F4C0[8]++;
+    systemStatus[8]++;
     if (a6 == 0) {
         malloc_SetPartition(0);
     } else {
@@ -249,8 +250,8 @@ void ReadTextureFile(void *h, int a1, int size, int a3, int a4, int a5, int a6)
         return;
     }
     iosCdvdHandlerRead(h, buf, size);
-    if (a4 == 55 && a6 == 1 && D_00535168[a3].unk_30 != 0) {
-        if (D_00535168[a3].unk_30 != NonLinearCameraMove) {
+    if (a4 == 55 && a6 == 1 && texFile[a3].unk_30 != 0) {
+        if (texFile[a3].unk_30 != NonLinearCameraMove) {
             flag = a6;
         }
     }
@@ -265,7 +266,7 @@ typedef struct {
     char name[0x8C];
 } SkelEnt; /* 0x8C */
 
-extern SkelEnt D_004FBA80[];
+extern SkelEnt modelData[];
 extern int strcmp(const char *a, const char *b);
 
 /* sugipon/include/sugiCommon.h: byte checksum helper, inlined at its call site */
@@ -286,7 +287,7 @@ void ReadSkeltonFile(void *h, char *name, int size, int a3, int a4, int a5, int 
     int sum = 0;
     int i;
 
-    D_0028F4C0[8]++;
+    systemStatus[8]++;
     if (size == 0) {
         return;
     }
@@ -296,7 +297,7 @@ void ReadSkeltonFile(void *h, char *name, int size, int a3, int a4, int a5, int 
         malloc_SetPartition(1);
     }
     for (i = 0; i < MAX_CHARS; i++) {
-        if (D_004FBA80[i].name != 0 && strcmp(D_004FBA80[i].name, name) == 0) {
+        if (modelData[i].name != 0 && strcmp(modelData[i].name, name) == 0) {
             if (p == 0) {
                 if (charFiles[i].pSkel != 0) {
                     debug_StdPrintfDummy("ReadSkeltonFile:Already loaded. %s\n", name);
@@ -344,7 +345,7 @@ void ReadCollisionFile(void *h, char *name, int size, int a3, int a4, int a5, in
     Coll *p;
     float *q;
 
-    D_0028F4C0[8]++;
+    systemStatus[8]++;
     if (size == 0) {
         return;
     }
@@ -410,7 +411,7 @@ void ReadStageAnimationFile(void *h, int a1, int size, int a3, int a4, int a5, i
 {
     char *buf;
 
-    D_0028F4C0[8]++;
+    systemStatus[8]++;
     if (size == 0) {
         return;
     }
@@ -433,18 +434,18 @@ typedef struct {
     char _138[0x5C];
 } MotEnt; /* 0x194 */
 
-extern MotEnt D_0055FE58[];
+extern MotEnt motionKind[];
 extern void *ios_partition_dmotion;
 extern void *ios_partition_smotion;
 extern void *ios_partition_s2motion;
 
 void ReadMotionFile(void *h, int a1, int size, int id, int a4, int a5, int a6)
 {
-    D_0028F4C0[8]++;
+    systemStatus[8]++;
     if (size == 0) {
         return;
     }
-    switch (D_0055FE58[id].unk_134) {
+    switch (motionKind[id].unk_134) {
     case 0:
         motionTable[id] = iosMallocDebug(ios_partition_smotion, size, __FILE__, 515);
         break;
@@ -479,7 +480,7 @@ extern void *ios_partition_sugipon;
 void ReadParticleEffectFile(void *h, int a1, int size, int a3)
 {
     char *buf = iosMallocDebug(ios_partition_sugipon, size, __FILE__, 0x228);
-    D_0028F4C0[8]++;
+    systemStatus[8]++;
     iosCdvdHandlerRead(h, buf, size);
     SetParticleEffectPackage(a3, buf, size);
     iosFree(buf);
@@ -490,13 +491,13 @@ typedef struct {
     unsigned int loaded : 1; /* 0x60 bit 0 */
 } SeRec;                     /* 0x64 */
 
-extern SeRec D_005EBBE8[];
+extern SeRec seFile[];
 
 void ReadSoundBdFile(void *h, int a1, int size, int a3, int kind, int a5, int a6)
 {
     char *buf;
 
-    D_0028F4C0[8]++;
+    systemStatus[8]++;
     if (size == 0) {
         return;
     }
@@ -506,7 +507,7 @@ void ReadSoundBdFile(void *h, int a1, int size, int a3, int kind, int a5, int a6
     case 11: {
         int ok = 1;
 
-        if (D_005EBBE8[a3].loaded == 1) {
+        if (seFile[a3].loaded == 1) {
             a6 = 2;
             if (soundSeSemiCommonLoadChk() == 1) {
                 ok = 0;
@@ -548,7 +549,7 @@ void ReadSoundHdFile(void *h, int a1, int size, int a3, int kind, int a5, int a6
     volatile HdInfo info;
     char *buf;
 
-    D_0028F4C0[8]++;
+    systemStatus[8]++;
     if (size == 0) {
         return;
     }
@@ -566,7 +567,7 @@ void ReadSoundHdFile(void *h, int a1, int size, int a3, int kind, int a5, int a6
         __assert(__FILE__, 642, "0");
     }
     if (info.bank == 0) {
-        if (D_005EBBE8[a3].loaded != 1) {
+        if (seFile[a3].loaded != 1) {
             if (a6 == 0) {
                 buf = iosMallocDebug(ios_partition_smotion, size, __FILE__, 650);
             } else {
@@ -614,7 +615,7 @@ inline void ReadSoundSqFile(void *h, int a1, int size, int a3, int kind, int a5,
     volatile SqInfo info;
     char *buf;
 
-    D_0028F4C0[8]++;
+    systemStatus[8]++;
     if (size == 0) {
         return;
     }
@@ -654,7 +655,7 @@ inline void ReadSoundAdpcmFile(void *h, int a1, int size, int a3, int a4, int a5
     char *p;
     char *q;
 
-    D_0028F4C0[8]++;
+    systemStatus[8]++;
     if (size > 0x5C000)
         size = 0x5C000;
     hi = a4 << 16;
@@ -675,7 +676,7 @@ void ReadShockFile(void *h, int a1, int size, int a3, int a4, int a5, int a6)
 {
     char *p;
 
-    D_0028F4C0[8]++;
+    systemStatus[8]++;
     if (a6 == 0) {
         malloc_SetPartition(0);
         if (size == 0) {
@@ -713,7 +714,7 @@ void ReadCamerasetFile(void *h, int a1, int size, int a3)
         debug_assert(__FILE__, 825);
         __assert(__FILE__, 825, "0");
     }
-    D_0028F4C0[8]++;
+    systemStatus[8]++;
     iosCdvdHandlerRead(h, buf, size);
     AddPluralCameraSet(a3, buf);
     iosFree(buf);
@@ -722,12 +723,13 @@ void ReadCamerasetFile(void *h, int a1, int size, int a3)
 void ReadEndCheckFile(void *h, int a1, int size)
 {
     char *buf = iosMallocDebug(ios_partition_oomori, size, __FILE__, 0x356);
-    D_0028F4C0[8]++;
+    systemStatus[8]++;
     iosCdvdHandlerRead(h, buf, size);
     iosFree(buf);
 }
 
-extern char D_0028F720[];
+/* kept local: main.c's global; this TU does not include main.h */
+extern char GlobalStageSetting[];
 extern void *memcpy(void *dst, const void *src, int n);
 /* kept local: this TU's uses of tex_RemakeRegistersSampleMin do not fit the prototype in Texture.h */
 extern void tex_RemakeRegistersSampleMin(int a);
@@ -736,10 +738,10 @@ void ReadStageSettingFile(void *h, int a1, int size)
 {
     char *buf;
 
-    D_0028F4C0[8]++;
+    systemStatus[8]++;
     buf = iosMallocDebug(ios_partition_seki, size, __FILE__, 905);
     iosCdvdHandlerRead(h, buf, size);
-    memcpy(D_0028F720, buf, size);
+    memcpy(GlobalStageSetting, buf, size);
     light_AddLight(0, 0, 0);
     tex_RemakeRegistersSampleMin(0);
 }

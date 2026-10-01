@@ -5,13 +5,13 @@
 
 /* kept local: this TU's uses of BeforeFunc2 do not fit the prototype in act2.h */
 extern void BeforeFunc2();
-extern OaRecA D_002C2DC8[];
+extern OaRecA objLayout[];
 extern OaRecB D_002BC6E0[];
 
 /* listing lines 30-34: the object's action record, or none */
 static inline OaRecB *objActionRecord(int a0)
 {
-    int e = D_002C2DC8[a0].x34;
+    int e = objLayout[a0].x34;
     if (e != 0) {
         return &D_002BC6E0[e];
     }

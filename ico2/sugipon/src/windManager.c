@@ -35,7 +35,8 @@ static float gustSpeed = 0; /* derived name */
 
 static int gustTimer = 0; /* derived name */
 
-extern int D_0028F4C0[];
+/* kept local: main.c's global; this TU does not include main.h */
+extern int systemStatus[];
 /* kept local: this TU's uses of InitWindField do not fit the prototype in windField.h */
 extern void InitWindField(int a0, float *a1, float *a2, float a3);
 /* kept local: this TU's uses of ExecWindField do not fit the prototype in windField.h */
@@ -89,7 +90,7 @@ inline float GetRegularizedWindSpeed(void *pos)
         return 1.0f;
     }
     GetWindVector(&s, pos);
-    return (s / (60.0f / (float)((0x3C - D_0028F4C0[0] * 0xA) / D_0028F4C0[1])) * windSpeedInv -
+    return (s / (60.0f / (float)((0x3C - systemStatus[0] * 0xA) / systemStatus[1])) * windSpeedInv -
             (1.0f - windVariance)) *
            0.5f * windVarianceInv;
 }

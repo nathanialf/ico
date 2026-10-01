@@ -31,12 +31,15 @@ extern void scpFadeOut(float f, int a1, int a2, int a3);
 extern int scpFadeChk(void);
 /* kept local: this TU's uses of scpFadeIn do not fit the prototype in script.h */
 extern void scpFadeIn(float f);
-extern int D_0028F4C0[];
+/* kept local: main.c's global; this TU does not include main.h */
+extern int systemStatus[];
 extern int D_0028F8F4[];
-extern int D_00639EA4;
+/* kept local: main.c's global; this TU does not include main.h */
+extern int boyGObj;
 /* kept local: script.h's prototypes do not fit this TU's calls */
 extern int scpBoyControlReadDisable;
-extern float D_0063C088;
+/* kept local: stageSEProc.c defines it and has no header */
+extern float riverFadeSpeed;
 
 /* .sbss, owned by st04e.o and reached only from this file (MAIN.MAP names no
    symbol in the run): the demo's own end flag, raised by the
@@ -254,13 +257,13 @@ void actSt04eWaterSwitch(volatile int a0)
 
 void actSt04eWaterFlagOn(volatile int a0)
 {
-    int t = (0x3C - D_0028F4C0[0] * 10) / D_0028F4C0[1] * 6.0;
+    int t = (0x3C - systemStatus[0] * 10) / systemStatus[1] * 6.0;
 
-    D_0063C088 = 0.005f;
+    riverFadeSpeed = 0.005f;
 
     while (t-- > 0) {
         if (demoSkipped != 0) {
-            D_0063C088 = 1000.0f;
+            riverFadeSpeed = 1000.0f;
             break;
         }
         _ACTWait(1);
@@ -287,8 +290,8 @@ void actSt04eWaterStopSub(volatile int a0)
 
 void actSt04eHint1Chk(volatile int a0)
 {
-    while (scpTriggerBall(a0, D_00639EA4, 1000.0f) == 0 ||
-           ForMotionViewer_GetCurrentMotion(D_00639EA4) != 0x91) {
+    while (scpTriggerBall(a0, boyGObj, 1000.0f) == 0 ||
+           ForMotionViewer_GetCurrentMotion(boyGObj) != 0x91) {
         _ACTWait(1);
     }
 
@@ -299,12 +302,12 @@ void actSt04eHint1Chk(volatile int a0)
 
 void actSt04eFuchi1Chk(volatile int a0)
 {
-    while (scpTriggerBall(a0, D_00639EA4, 100.0f) == 0) {
+    while (scpTriggerBall(a0, boyGObj, 100.0f) == 0) {
         _ACTWait(1);
     }
 
     gflagOn(227);
-    _ACTWait((0x3C - D_0028F4C0[0] * 10) / D_0028F4C0[1]);
+    _ACTWait((0x3C - systemStatus[0] * 10) / systemStatus[1]);
     stage_SetAnimation(263, 1, 0);
     soundSeDefPlay(1342, 0, 0, 1);
 
@@ -317,12 +320,12 @@ void actSt04eFuchi1Chk(volatile int a0)
 
 void actSt04eFuchi2Chk(volatile int a0)
 {
-    while (scpTriggerBall(a0, D_00639EA4, 100.0f) == 0) {
+    while (scpTriggerBall(a0, boyGObj, 100.0f) == 0) {
         _ACTWait(1);
     }
 
     gflagOn(228);
-    _ACTWait((0x3C - D_0028F4C0[0] * 10) / D_0028F4C0[1]);
+    _ACTWait((0x3C - systemStatus[0] * 10) / systemStatus[1]);
     stage_SetAnimation(264, 1, 0);
     soundSeDefPlay(1342, 0, 0, 1);
 
@@ -335,12 +338,12 @@ void actSt04eFuchi2Chk(volatile int a0)
 
 void actSt04eFuchi3Chk(volatile int a0)
 {
-    while (scpTriggerBall(a0, D_00639EA4, 100.0f) == 0) {
+    while (scpTriggerBall(a0, boyGObj, 100.0f) == 0) {
         _ACTWait(1);
     }
 
     gflagOn(229);
-    _ACTWait((0x3C - D_0028F4C0[0] * 10) / D_0028F4C0[1]);
+    _ACTWait((0x3C - systemStatus[0] * 10) / systemStatus[1]);
     stage_SetAnimation(265, 1, 0);
     soundSeDefPlay(1342, 0, 0, 1);
 
@@ -356,13 +359,13 @@ void actSt04eSeChk(volatile int a0)
     int h;
 
     while (1) {
-        while (ForMotionViewer_GetCurrentMotion(D_00639EA4) != 0xAD &&
-               ForMotionViewer_GetCurrentMotion(D_00639EA4) != 0xB1) {
+        while (ForMotionViewer_GetCurrentMotion(boyGObj) != 0xAD &&
+               ForMotionViewer_GetCurrentMotion(boyGObj) != 0xB1) {
             _ACTWait(1);
         }
 
         h = soundSeDefPlay(1340, 0, seChkPos, 1);
-        _ACTWait((0x3C - D_0028F4C0[0] * 10) / D_0028F4C0[1] * 0.5);
+        _ACTWait((0x3C - systemStatus[0] * 10) / systemStatus[1] * 0.5);
         soundSeDefStop(h);
 
         soundSeDefPlay(1341, 0, seChkPos, 1);
@@ -373,7 +376,7 @@ void actSt04eSeChk(volatile int a0)
 
 void actSt04eHint1WakeUpChk(volatile int a0)
 {
-    while (scpTriggerFloorAttr(D_00639EA4, 0x3000000) == 0) {
+    while (scpTriggerFloorAttr(boyGObj, 0x3000000) == 0) {
         _ACTWait(1);
     }
 

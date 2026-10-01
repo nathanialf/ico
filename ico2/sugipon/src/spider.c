@@ -99,8 +99,10 @@ void WakeUpLayoutedSpiders(void *self)
     ExecuteSEPackage((char *)self, 106);
 }
 
-extern void *D_00639EA4;
-extern void *D_00639EA8;
+/* kept local: main.c's global; this TU does not include main.h */
+extern void *boyGObj;
+/* kept local: main.c's global; this TU does not include main.h */
+extern void *girlGObj;
 
 /* listing lines 324-331 */
 static inline void setSpiderGroupHost(char *self, void *host)
@@ -141,16 +143,16 @@ static inline void setSpiderGroupPrior(char *self)
 /* listing lines 392-396 */
 static inline void callSpidersToGirl(char *self)
 {
-    if (D_00639EA4 != 0) {
-        setSpiderGroupHost(self, D_00639EA4);
+    if (boyGObj != 0) {
+        setSpiderGroupHost(self, boyGObj);
     }
 }
 
 /* listing lines 402-407 */
 static inline int callSpidersToBoy(char *self)
 {
-    if (D_00639EA8 != 0) {
-        setSpiderGroupHost(self, D_00639EA8);
+    if (girlGObj != 0) {
+        setSpiderGroupHost(self, girlGObj);
         return 1;
     }
     return 0;
@@ -163,7 +165,7 @@ int CallSpidersToReviveEnemy(char *self)
     w = *(char **)(*(char **)(self + 0x15C) + 0x830);
     if (*(int *)w == 1) {
         if (callSpidersToBoy(self)) {
-            EntryToSpiderGroupManagerForReviveMaster(self, D_00639EA8);
+            EntryToSpiderGroupManagerForReviveMaster(self, girlGObj);
             *(int *)w = 2;
             setSpiderGroupPrior(self);
         } else {

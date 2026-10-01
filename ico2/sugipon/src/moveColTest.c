@@ -40,7 +40,8 @@ typedef struct EditPad {
     unsigned char stick[4]; /* 0xAC */
 } EditPad;
 
-extern EditPad D_0028F8F0;
+/* kept local: main.c's global; this TU does not include main.h */
+extern EditPad pad;
 
 /* the TU's .sdata (MAIN.MAP moveColTest.o .sdata 0xC, no symbol): the blink
    counter and the test offset, then MoveColTestGeo's "%d\n" */
@@ -48,7 +49,8 @@ static unsigned char blinkCount = 0; /* derived name */
 
 static int testOffset = 0; /* derived name */
 
-extern int D_00639EA4;
+/* kept local: main.c's global; this TU does not include main.h */
+extern int boyGObj;
 
 void MoveColTestGeo(char *self)
 {
@@ -63,14 +65,14 @@ void MoveColTestGeo(char *self)
     CopyMatrix(*(void **)(*(char **)(self + 0x15C) + 0xC), MatrixDrive_GetMatrix());
     UpdateRootMatrix(self);
 
-    if (D_0028F8F0.mode & 4) {
-        if (D_0028F8F0.stick[1] >= 0x81) {
-            c = D_0028F8F0.stick[1];
+    if (pad.mode & 4) {
+        if (pad.stick[1] >= 0x81) {
+            c = pad.stick[1];
             if (c - 0x80 >= 0x15) {
                 w->angle += (c - 0x94) * 3;
             }
         } else {
-            c = D_0028F8F0.stick[1];
+            c = pad.stick[1];
             if (c - 0x80 < -0x14) {
                 w->angle += (c - 0x6C) * 3;
             }
@@ -80,14 +82,14 @@ void MoveColTestGeo(char *self)
         debug_PrintfDummy(10, 60, 0x4080FF00, "PUSH R3 TO BORN SPIDER.");
     }
 
-    GetRootPosition(pos, D_00639EA4);
+    GetRootPosition(pos, boyGObj);
     pos[1] += -500.0f;
-    if (D_0028F8F0.trg & 0x400) {
+    if (pad.trg & 0x400) {
         scpBornSpider(0xA, pos[0], pos[1], pos[2], 300.0f);
         testOffset += 0xA;
         debug_StdPrintfDummy("%d\n", testOffset);
     }
-    if (D_0028F8F0.trg & 0x200) {
+    if (pad.trg & 0x200) {
         scpBornSpider(1, pos[0], pos[1], pos[2], 300.0f);
         testOffset += 1;
         debug_StdPrintfDummy("%d\n", testOffset);

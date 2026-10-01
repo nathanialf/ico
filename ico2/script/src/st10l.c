@@ -37,16 +37,20 @@ typedef struct PObjGObjSt10L {
 /* the shared pad-state array (op.c's PadState, GsBase.c's GsbPad): 0x58 per
    pad, trg at 0x4. */
 
-extern Pad D_0028F8F0[];
+/* kept local: main.c's global; this TU does not include main.h */
+extern Pad pad[];
 /* kept local: this TU's uses of scpSearchGobj do not fit the prototype in script.h */
 extern PObjGObjSt10L *scpSearchGobj(int a0);
 /* kept local: this TU's uses of scpTriggerFloorAttr do not fit the prototype in script.h */
 extern int scpTriggerFloorAttr(int a0, int a1);
 /* kept local: script.h's prototypes do not fit this TU's calls */
 extern int scpBoyControlReadDisable;
-extern int D_00639EA4;
-extern int D_00639EA8;
-extern int D_00639EAC;
+/* kept local: main.c's global; this TU does not include main.h */
+extern int boyGObj;
+/* kept local: main.c's global; this TU does not include main.h */
+extern int girlGObj;
+/* kept local: main.c's global; this TU does not include main.h */
+extern int boyPad;
 /* kept local: this TU's uses of scpTriggerBall do not fit the prototype in script.h */
 extern int scpTriggerBall(int a0, int a1, float radius);
 /* as script.h declares it; this TU does not include that header */
@@ -59,7 +63,8 @@ extern void scpKillSpiderGroup(int a0);
 extern void scpWakeupEnemyAll(void);
 /* kept local: this TU's uses of _SCPMoveCharactorByWay do not fit the prototype in script.h */
 extern void _SCPMoveCharactorByWay(int a0, int a1, int *buf, int a3, float f);
-extern int D_0028F4C0[];
+/* kept local: main.c's global; this TU does not include main.h */
+extern int systemStatus[];
 /* kept local: this TU's uses of scpAdpcmPlayRequestFunc do not fit the prototype in script.h */
 extern void scpAdpcmPlayRequestFunc(int a0, int *a1, int a2, int a3, int a4);
 /* kept local: this TU's uses of scpAdpcmFadeCloseFunc do not fit the prototype in script.h */
@@ -175,19 +180,19 @@ void actSt10lFloorLeft(volatile int a0)
 {
     ActSt10L *sub = ((PObjGObjSt10L *)a0)->act;
 
-    if (gflagChk(290) == 0 && D_00639EA8 != 0 && scpTriggerFloorAttr(D_00639EA8, 0x3000000) != 0) {
+    if (gflagChk(290) == 0 && girlGObj != 0 && scpTriggerFloorAttr(girlGObj, 0x3000000) != 0) {
         gflagOn(290);
     }
 
-    if (D_00639EA8 != 0 && scpTriggerFloorAttr(D_00639EA8, 0x2000000) != 0) {
-        scpPlayStart(D_00639EA8);
-        scpPlayMot(D_00639EA8, 532);
+    if (girlGObj != 0 && scpTriggerFloorAttr(girlGObj, 0x2000000) != 0) {
+        scpPlayStart(girlGObj);
+        scpPlayMot(girlGObj, 532);
     }
 
-    if (gflagChk(290) != 0 && D_00639EA8 != 0 && scpTriggerFloorAttr(D_00639EA8, 0x3000000) != 0) {
-        scpPlayPosSet(D_00639EA8, -167.0f, -72.0f, -705.0f);
-        scpPlayStart(D_00639EA8);
-        scpPlayMot(D_00639EA8, 532);
+    if (gflagChk(290) != 0 && girlGObj != 0 && scpTriggerFloorAttr(girlGObj, 0x3000000) != 0) {
+        scpPlayPosSet(girlGObj, -167.0f, -72.0f, -705.0f);
+        scpPlayStart(girlGObj);
+        scpPlayMot(girlGObj, 532);
     }
 
     scpAdpcmPlayRequestFunc(91, &floor10l, 1, 1, 1);
@@ -214,15 +219,15 @@ void actSt10lFloorLeft(volatile int a0)
         gflagOn(296);
     }
 
-    _ACTWait((0x3C - D_0028F4C0[0] * 0xA) / D_0028F4C0[1] * 0xA);
+    _ACTWait((0x3C - systemStatus[0] * 0xA) / systemStatus[1] * 0xA);
 
     if (gflagChk(295) == 0) {
         scpBoyControlReadDisable = 0;
         lt_switch_layout(54);
         scpWakeupEnemyAll();
 
-        if (D_00639EA8 != 0) {
-            scpPlayEnd(D_00639EA8);
+        if (girlGObj != 0) {
+            scpPlayEnd(girlGObj);
         }
     }
 
@@ -237,10 +242,10 @@ void actSt10lFloorRight(volatile int a0)
 {
     ActSt10L *sub = ((PObjGObjSt10L *)a0)->act;
 
-    if (gflagChk(290) != 0 && D_00639EA8 != 0 && scpTriggerFloorAttr(D_00639EA8, 0x3000000) != 0) {
-        scpPlayPosSet(D_00639EA8, -196.0f, -72.0f, 62.0f);
-        scpPlayStart(D_00639EA8);
-        scpPlayMot(D_00639EA8, 532);
+    if (gflagChk(290) != 0 && girlGObj != 0 && scpTriggerFloorAttr(girlGObj, 0x3000000) != 0) {
+        scpPlayPosSet(girlGObj, -196.0f, -72.0f, 62.0f);
+        scpPlayStart(girlGObj);
+        scpPlayMot(girlGObj, 532);
     }
 
     scpAdpcmPlayRequestFunc(91, &floor10l, 1, 1, 1);
@@ -263,14 +268,14 @@ void actSt10lFloorRight(volatile int a0)
     }
     _ACTWait(1);
 
-    _ACTWait((0x3C - D_0028F4C0[0] * 0xA) / D_0028F4C0[1] * 0xB);
+    _ACTWait((0x3C - systemStatus[0] * 0xA) / systemStatus[1] * 0xB);
 
     scpBoyControlReadDisable = 0;
     lt_switch_layout(54);
     scpWakeupEnemyAll();
 
-    if (D_00639EA8 != 0) {
-        scpPlayEnd(D_00639EA8);
+    if (girlGObj != 0) {
+        scpPlayEnd(girlGObj);
     }
 
     floorRight_mes[0].func = actSt10lFloorMain;
@@ -296,7 +301,7 @@ void actSt10lGondolaUp(volatile int a0)
     }
     _ACTWait(1);
 
-    iosPadActRequest(D_00639EAC, 0x10);
+    iosPadActRequest(boyPad, 0x10);
 
     while (stage_CheckAnimationFrame(380, 179, 1) == 0) {
         _ACTWait(1);
@@ -327,7 +332,7 @@ void actSt10lGondolaDown(volatile int a0)
 {
     ActSt10L *sub = ((PObjGObjSt10L *)a0)->act;
 
-    SetGirlDangerGObj(D_00639EA4);
+    SetGirlDangerGObj(boyGObj);
 
     scpAdpcmPlayRequestFunc(89, &st10l_gondola_down, 1, 1, 1);
 
@@ -342,7 +347,7 @@ void actSt10lGondolaDown(volatile int a0)
     }
     _ACTWait(1);
 
-    iosPadActRequest(D_00639EAC, 0x11);
+    iosPadActRequest(boyPad, 0x11);
 
     while (stage_CheckAnimationFrame(380, 360, 1) == 0) {
         _ACTWait(1);
@@ -375,8 +380,8 @@ void actSt10lEneCam2Chk(volatile int a0)
 {
     int save;
 
-    while (D_00639EA8 == 0 || scpTriggerFloorAttr(D_00639EA4, 0x4000000) == 0 ||
-           gflagChk(287) == 0 || ((PObjGObjSt10L *)D_00639EA8)->act->f34 == 0x6F) {
+    while (girlGObj == 0 || scpTriggerFloorAttr(boyGObj, 0x4000000) == 0 || gflagChk(287) == 0 ||
+           ((PObjGObjSt10L *)girlGObj)->act->f34 == 0x6F) {
         _ACTWait(1);
     }
 
@@ -407,7 +412,7 @@ void actSt10lEneCam2Chk(volatile int a0)
     }
     _ACTWait(1);
 
-    _ACTWait((0x3C - D_0028F4C0[0] * 0xA) / D_0028F4C0[1] * 0x3);
+    _ACTWait((0x3C - systemStatus[0] * 0xA) / systemStatus[1] * 0x3);
 
     lt_switch_layout(54);
     scpBoyControlReadDisable = 0;
@@ -436,7 +441,7 @@ void actSt10lEneCam3Chk(volatile int a0)
 
     buf[0] = eneCam3ChkPos.d[0];
     buf[1] = eneCam3ChkPos.d[1];
-    _SCPMoveCharactorByWay(D_00639EA8, 0, (int *)buf, 0, 100.0f);
+    _SCPMoveCharactorByWay(girlGObj, 0, (int *)buf, 0, 100.0f);
 
     while (stage_CheckAnimationFinish(382) == 0) {
         _ACTWait(1);
@@ -445,7 +450,7 @@ void actSt10lEneCam3Chk(volatile int a0)
 
     gflagOff(295);
 
-    _ACTWait((0x3C - D_0028F4C0[0] * 0xA) / D_0028F4C0[1] * 0x3);
+    _ACTWait((0x3C - systemStatus[0] * 0xA) / systemStatus[1] * 0x3);
 
     lt_switch_layout(54);
     scpBoyControlReadDisable = 0;
@@ -472,7 +477,7 @@ void actSt10lChainMove(volatile int a0)
     SetCameraFlag_LwsCutBack();
 
     while (stage_CheckAnimationFrame(384, 240, 0) == 0) {
-        if ((D_0028F8F0[0].trg & 0x800) && scpAdpcmPlayRequestNum() == 0) {
+        if ((pad[0].trg & 0x800) && scpAdpcmPlayRequestNum() == 0) {
             scpFadeOut(16.0f, 0, 0, 0);
             scpAdpcmFadeCloseFunc(&chain10l, 0x200);
 
@@ -494,7 +499,7 @@ void actSt10lChainMove(volatile int a0)
     scpBoyControlReadDisable = 0;
     lt_switch_layout(54);
 
-    _ACTWait((0x3C - D_0028F4C0[0] * 0xA) / D_0028F4C0[1]);
+    _ACTWait((0x3C - systemStatus[0] * 0xA) / systemStatus[1]);
 
     stage_SetAnimation(384, 0, 0);
 
@@ -891,13 +896,13 @@ void actSt10lGondolaSwitch(volatile int a0)
 
 void actSt10lEneCam1Chk(volatile int a0)
 {
-    if (D_00639EA8 == 0) {
+    if (girlGObj == 0) {
         _ACTWait(0);
     }
 
-    while ((D_00639EA8 == 0 || gflagChk(292) == 0) &&
-           (scpTriggerFloorAttr(D_00639EA4, 0x2000000) == 0 ||
-            scpTriggerFloorAttr(D_00639EA8, 0x2000000) == 0)) {
+    while ((girlGObj == 0 || gflagChk(292) == 0) &&
+           (scpTriggerFloorAttr(boyGObj, 0x2000000) == 0 ||
+            scpTriggerFloorAttr(girlGObj, 0x2000000) == 0)) {
         _ACTWait(1);
     }
 
@@ -906,7 +911,7 @@ void actSt10lEneCam1Chk(volatile int a0)
 
 void actSt10lBoxChk(volatile int a0)
 {
-    if (D_00639EA8 == 0) {
+    if (girlGObj == 0) {
         _ACTWait(0);
     }
 
@@ -973,7 +978,7 @@ void actSt10lEneKillChk(volatile int a0)
 {
     int save;
 
-    while (scpTriggerBall(a0, (int)D_00639EA4, 500.0f) == 0) {
+    while (scpTriggerBall(a0, (int)boyGObj, 500.0f) == 0) {
         _ACTWait(1);
     }
 

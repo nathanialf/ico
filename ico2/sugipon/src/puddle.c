@@ -87,7 +87,8 @@ extern void *ios_partition_sugipon;
 extern char D_002A79B8[];
 extern char *matrixptr;
 extern int stage_no;
-extern int D_0028F4C0[];
+/* kept local: main.c's global; this TU does not include main.h */
+extern int systemStatus[];
 void PuddleGeo(char *a0);
 void EntryRippleToPuddle(char *a0, void *vec);
 int puddleRideFunc(char **a0, char *a1);
@@ -405,7 +406,7 @@ inline void PuddleGeo(char *a0)
     for (i = 0; i < 6; i++) {
         if (*(float *)(p + 0x20) < 200.0f) {
             *(float *)(p + 0x20) +=
-                60.0f / (float)((0x3C - D_0028F4C0[0] * 0xA) / D_0028F4C0[1]) * 2.0f;
+                60.0f / (float)((0x3C - systemStatus[0] * 0xA) / systemStatus[1]) * 2.0f;
         }
         p += 0x20;
     }

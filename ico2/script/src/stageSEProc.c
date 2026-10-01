@@ -90,8 +90,16 @@ typedef struct {
     int *mail;        /* 0x3C */
 } SEObj;
 
-extern float D_0063C080[]; /* .sdata FLT_MAX; %hi/%lo, so the declaration withheld its size */
-extern int D_00639EA4;
+/* kept local: main.c's global; this TU does not include main.h */
+extern int boyGObj;
+
+/* The wind-speed cache the strong-wind routines share: the last value of
+   GetRegularizedWindSpeed and the frame_count it was read on.  Both carry an
+   explicit 0 so they sit in .sdata ahead of stageSEtaimatsu's FLT_MAX literal,
+   the TU's .sdata order. */
+static float windCache = 0.0f; /* derived name */
+
+static int windCacheFrame = 0; /* derived name */
 
 int stageSEtaimatsu(SEObj *self)
 {
@@ -100,7 +108,7 @@ int stageSEtaimatsu(SEObj *self)
     int *g = isysGObjSearchFromObjKindID_begin(10);
     int *best = 0;
     int *torch = 0;
-    float bd = D_0063C080[0];
+    float bd = 3.40282347e+38f; /* FLT_MAX */
     int rv = 1;
     float *campos;
     int i;
@@ -110,7 +118,7 @@ int stageSEtaimatsu(SEObj *self)
     }
     campos = (float *)GetCameraPos();
     self->pitch.f = 0.5f;
-    if (D_00639EA4 != 0) {
+    if (boyGObj != 0) {
         int *w = GetBoyWeaponGObj();
 
         if (w != 0) {
@@ -163,14 +171,18 @@ static float river04eLevelB;
 
 static float river06aLevel;
 
-extern float D_0063C088;
+/* the per-frame fade step SEFadeOut subtracts; st04e, st05e and st06a set it
+   (0.005f, or 1000.0f to cut the river at once).  Defined after
+   stageSE19ataki, where its .sdata word follows that function's FLT_MAX
+   literal. */
+extern float riverFadeSpeed;
 
 /* the river fade-out the PAL listing places at stageSEProc.c lines 397-401 and
  * inlines into stageSE04eriver (twice) and stageSE06ariver; it is not emitted
  * out of line, so it has no MAIN.MAP symbol and this name is ours. */
 static inline int SEFadeOut(char *a0, float *lvl)
 {
-    float v = *lvl - D_0063C088;
+    float v = *lvl - riverFadeSpeed;
 
     *lvl = v;
     *(float *)(a0 + 0x18) = v;
@@ -254,8 +266,6 @@ int stageSE06ariver(SEObj *a0)
 }
 
 extern int frame_count;
-extern float D_0063C078;
-extern int D_0063C07C;
 
 int stageSE10lstrong2(char *a0)
 {
@@ -274,14 +284,14 @@ int stageSE10lstrong2(char *a0)
     if (f < 0.2f) {
         *(float *)(a0 + 0x18) = 0.2f;
     }
-    if (D_0063C07C == frame_count) {
-        w = D_0063C078;
+    if (windCacheFrame == frame_count) {
+        w = windCache;
     } else {
         float e;
-        D_0063C07C = frame_count;
+        windCacheFrame = frame_count;
         e = GetRegularizedWindSpeed((void *)GetCameraPos());
         e = e * 0.5f + 0.5f;
-        D_0063C078 = e;
+        windCache = e;
         w = e;
     }
     *(float *)(a0 + 0x18) = *(float *)(a0 + 0x18) * w;
@@ -291,9 +301,7 @@ int stageSE10lstrong2(char *a0)
     return -1;
 }
 
-extern float D_0063C08C[];
-
-static inline Blk16 *SENearestPoint(Blk16 *list, int n, float *limit)
+static inline Blk16 *SENearestPoint(Blk16 *list, int n)
 {
     Blk16 d;
     Blk16 *best;
@@ -302,7 +310,7 @@ static inline Blk16 *SENearestPoint(Blk16 *list, int n, float *limit)
     int i;
 
     best = 0;
-    bd = limit[0];
+    bd = 3.40282347e+38f; /* FLT_MAX */
     campos = (void *)GetCameraPos();
     for (i = n - 1; i != -1; i--) {
         float t;
@@ -324,8 +332,6 @@ typedef struct {
     float w;
 } __attribute__((aligned(16))) SEVec;
 
-extern float D_0063C084[];
-
 int stageSE19ataki(SEObj *self)
 {
     float *p = (float *)GetCameraPos();
@@ -336,9 +342,11 @@ int stageSE19ataki(SEObj *self)
 
     self->pitch.f = 0.8f;
     self->flags.i &= 0xEFFFFFFF;
-    sceVu0CopyVector(self->pos, SENearestPoint((Blk16 *)pts, 6, D_0063C084));
+    sceVu0CopyVector(self->pos, SENearestPoint((Blk16 *)pts, 6));
     return 1;
 }
+
+float riverFadeSpeed = 0.0f; /* derived name */
 
 int stageSE02astrong(char *a0)
 {
@@ -346,14 +354,14 @@ int stageSE02astrong(char *a0)
     float w;
 
     v = se02aPoints;
-    sceVu0CopyVector(*(void **)(a0 + 0x34), SENearestPoint((Blk16 *)&v, 2, D_0063C08C));
-    if (D_0063C07C == frame_count) {
-        w = D_0063C078;
+    sceVu0CopyVector(*(void **)(a0 + 0x34), SENearestPoint((Blk16 *)&v, 2));
+    if (windCacheFrame == frame_count) {
+        w = windCache;
     } else {
-        D_0063C07C = frame_count;
+        windCacheFrame = frame_count;
         w = GetRegularizedWindSpeed((void *)GetCameraPos());
         w = w * 0.5f + 0.5f;
-        D_0063C078 = w;
+        windCache = w;
     }
     *(float *)(a0 + 0x18) = w;
     return 1;
@@ -417,13 +425,13 @@ int stageSE04agate(char *a0)
     if (x < 750.0f) {
         ratio = (x - -1300.0f) / 2050.0f;
     }
-    if (D_0063C07C == frame_count) {
-        w = D_0063C078;
+    if (windCacheFrame == frame_count) {
+        w = windCache;
     } else {
-        D_0063C07C = frame_count;
+        windCacheFrame = frame_count;
         w = GetRegularizedWindSpeed((void *)GetCameraPos());
         w = w * 0.5f + 0.5f;
-        D_0063C078 = w;
+        windCache = w;
     }
     *(float *)(a0 + 0x18) = ratio * w;
     return -1;
@@ -432,12 +440,12 @@ int stageSE04agate(char *a0)
 int stageSE04bstrong(void *a0)
 {
     float v;
-    if (D_0063C07C == frame_count) {
-        v = D_0063C078;
+    if (windCacheFrame == frame_count) {
+        v = windCache;
     } else {
-        D_0063C07C = frame_count;
+        windCacheFrame = frame_count;
         v = GetRegularizedWindSpeed((void *)GetCameraPos()) * 0.5f + 0.5f;
-        D_0063C078 = v;
+        windCache = v;
     }
     *(float *)((char *)a0 + 0x18) = v;
     return -1;
@@ -545,14 +553,14 @@ int stageSE06ataimatsu(int *self)
 int stageSE08astrong(char *a0)
 {
     float f;
-    if (D_0063C07C == frame_count) {
-        f = D_0063C078;
+    if (windCacheFrame == frame_count) {
+        f = windCache;
     } else {
         float e;
-        D_0063C07C = frame_count;
+        windCacheFrame = frame_count;
         e = GetRegularizedWindSpeed((void *)GetCameraPos());
         e = e * 0.5f + 0.5f;
-        D_0063C078 = e;
+        windCache = e;
         f = e;
     }
     if (se08aInStrongBox() == 0) {
@@ -567,14 +575,14 @@ int stageSE08astrong2(char *a0)
 {
     float f;
     float w;
-    if (D_0063C07C == frame_count) {
-        w = D_0063C078;
+    if (windCacheFrame == frame_count) {
+        w = windCache;
     } else {
         float e;
-        D_0063C07C = frame_count;
+        windCacheFrame = frame_count;
         e = GetRegularizedWindSpeed((void *)GetCameraPos());
         e = e * 0.5f + 0.5f;
-        D_0063C078 = e;
+        windCache = e;
         w = e;
     }
     f = 1.0f - w;
@@ -611,13 +619,13 @@ int stageSE08bcrane(void *a0)
     p->f0 = 1148.0f;
     p->f4 = -4521.0f;
     p->f8 = 1514.0f;
-    if (D_0063C07C == frame_count) {
-        f = D_0063C078;
+    if (windCacheFrame == frame_count) {
+        f = windCache;
     } else {
-        D_0063C07C = frame_count;
+        windCacheFrame = frame_count;
         f = GetRegularizedWindSpeed((void *)GetCameraPos());
         f = f * 0.5f + 0.5f;
-        D_0063C078 = f;
+        windCache = f;
     }
     *(float *)((char *)a0 + 0x18) = f;
     return 1;
@@ -630,13 +638,13 @@ int stageSE08brail(void *a0)
     p->f0 = -114.0f;
     p->f4 = -3679.0f;
     p->f8 = 6186.0f;
-    if (D_0063C07C == frame_count) {
-        f = D_0063C078;
+    if (windCacheFrame == frame_count) {
+        f = windCache;
     } else {
-        D_0063C07C = frame_count;
+        windCacheFrame = frame_count;
         f = GetRegularizedWindSpeed((void *)GetCameraPos());
         f = f * 0.5f + 0.5f;
-        D_0063C078 = f;
+        windCache = f;
     }
     *(float *)((char *)a0 + 0x18) = f;
     return 1;
@@ -664,14 +672,14 @@ int stageSE10lstrong(char *a0)
     } else {
         f = (p[1] - 227.0f) / 773.0f;
     }
-    if (D_0063C07C == frame_count) {
-        w = D_0063C078;
+    if (windCacheFrame == frame_count) {
+        w = windCache;
     } else {
         float e;
-        D_0063C07C = frame_count;
+        windCacheFrame = frame_count;
         e = GetRegularizedWindSpeed((void *)GetCameraPos());
         e = e * 0.5f + 0.5f;
-        D_0063C078 = e;
+        windCache = e;
         w = e;
     }
     *(float *)(a0 + 0x18) = (1.0f - f) * w;
@@ -699,13 +707,13 @@ int stageSE10rstrong(char *a0)
 int stageSE10rstrong2(int self)
 {
     float f;
-    if (D_0063C07C == frame_count) {
-        f = D_0063C078;
+    if (windCacheFrame == frame_count) {
+        f = windCache;
     } else {
-        D_0063C07C = frame_count;
+        windCacheFrame = frame_count;
         f = GetRegularizedWindSpeed((void *)GetCameraPos());
         f = f * 0.5f + 0.5f;
-        D_0063C078 = f;
+        windCache = f;
     }
     *(float *)(self + 0x18) = f;
     return -1;
@@ -757,14 +765,14 @@ int stageSE13dstrong(char *a0)
 {
     int r = stageSE13dterrace_();
     float f;
-    if (D_0063C07C == frame_count) {
-        f = D_0063C078;
+    if (windCacheFrame == frame_count) {
+        f = windCache;
     } else {
         float e;
-        D_0063C07C = frame_count;
+        windCacheFrame = frame_count;
         e = GetRegularizedWindSpeed((void *)GetCameraPos());
         e = e * 0.5f + 0.5f;
-        D_0063C078 = e;
+        windCache = e;
         f = e;
     }
     *(float *)(a0 + 0x18) = 1.0f - f * 0.5f;
@@ -778,13 +786,13 @@ int stageSE17astrong(int self)
 {
     float f;
     GetCameraPos(self);
-    if (D_0063C07C == frame_count) {
-        f = D_0063C078;
+    if (windCacheFrame == frame_count) {
+        f = windCache;
     } else {
-        D_0063C07C = frame_count;
+        windCacheFrame = frame_count;
         f = GetRegularizedWindSpeed((void *)GetCameraPos());
         f = f * 0.5f + 0.5f;
-        D_0063C078 = f;
+        windCache = f;
     }
     *(float *)(self + 0x18) = f;
     return -1;
@@ -833,14 +841,14 @@ int stageSE17bstrong(char *a0)
         f = (x - -5500.0f) / 1700.0f;
     }
     *(float *)(a0 + 0x18) = 1.0f - f;
-    if (D_0063C07C == frame_count) {
-        w = D_0063C078;
+    if (windCacheFrame == frame_count) {
+        w = windCache;
     } else {
         float e;
-        D_0063C07C = frame_count;
+        windCacheFrame = frame_count;
         e = GetRegularizedWindSpeed((void *)GetCameraPos());
         e = e * 0.5f + 0.5f;
-        D_0063C078 = e;
+        windCache = e;
         w = e;
     }
     *(float *)(a0 + 0x18) = *(float *)(a0 + 0x18) * w;
@@ -864,13 +872,13 @@ int stageSE19astrong(void *a0)
     float f;
     p[0] = 1548.0f;
     p[2] = -3296.0f;
-    if (D_0063C07C == frame_count) {
-        f = D_0063C078;
+    if (windCacheFrame == frame_count) {
+        f = windCache;
     } else {
-        D_0063C07C = frame_count;
+        windCacheFrame = frame_count;
         f = GetRegularizedWindSpeed((void *)GetCameraPos());
         f = f * 0.5f + 0.5f;
-        D_0063C078 = f;
+        windCache = f;
     }
     *(float *)((char *)a0 + 0x18) = f;
     return 1;
@@ -896,13 +904,13 @@ int stageSE20astrong(void *a0)
     p[0] = a;
     p[1] = b;
     p[2] = -398.0f;
-    if (D_0063C07C == frame_count) {
-        f = D_0063C078;
+    if (windCacheFrame == frame_count) {
+        f = windCache;
     } else {
-        D_0063C07C = frame_count;
+        windCacheFrame = frame_count;
         f = GetRegularizedWindSpeed((void *)GetCameraPos());
         f = f * 0.5f + 0.5f;
-        D_0063C078 = f;
+        windCache = f;
     }
     *(float *)((char *)a0 + 0x18) = f;
     return 1;
@@ -911,13 +919,13 @@ int stageSE20astrong(void *a0)
 int stageSE20astrong2(void *a0)
 {
     float f;
-    if (D_0063C07C == frame_count) {
-        f = D_0063C078;
+    if (windCacheFrame == frame_count) {
+        f = windCache;
     } else {
-        D_0063C07C = frame_count;
+        windCacheFrame = frame_count;
         f = GetRegularizedWindSpeed((void *)GetCameraPos());
         f = f * 0.5f + 0.5f;
-        D_0063C078 = f;
+        windCache = f;
     }
     *(float *)((char *)a0 + 0x18) = f;
     return -1;
@@ -926,14 +934,14 @@ int stageSE20astrong2(void *a0)
 int stageSE22astrong(void *a0)
 {
     float f;
-    if (D_0063C07C == frame_count) {
-        f = D_0063C078;
+    if (windCacheFrame == frame_count) {
+        f = windCache;
     } else {
         float e;
-        D_0063C07C = frame_count;
+        windCacheFrame = frame_count;
         e = GetRegularizedWindSpeed((void *)GetCameraPos());
         e = e * 0.5f + 0.5f;
-        D_0063C078 = e;
+        windCache = e;
         f = e;
     }
     *(float *)((char *)a0 + 0x18) = 1.0f - f * 0.5f;
@@ -961,13 +969,13 @@ int stageSE22arain(char *a0)
 int stageSE24astrong(void *a0)
 {
     float f;
-    if (D_0063C07C == frame_count) {
-        f = D_0063C078;
+    if (windCacheFrame == frame_count) {
+        f = windCache;
     } else {
-        D_0063C07C = frame_count;
+        windCacheFrame = frame_count;
         f = GetRegularizedWindSpeed((void *)GetCameraPos());
         f = f * 0.5f + 0.5f;
-        D_0063C078 = f;
+        windCache = f;
     }
     *(float *)((char *)a0 + 0x18) = f;
     return -1;

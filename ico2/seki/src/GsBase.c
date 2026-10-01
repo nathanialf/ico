@@ -112,7 +112,8 @@ void gsb_SetFrame(int *db, int a1, int a2, int psm, short zbp)
     sceGsSetDefDispEnv(disp1, 0, w, h, 0, 0);
 }
 
-extern int D_0028F4C0[];
+/* kept local: main.c's global; this TU does not include main.h */
+extern int systemStatus[];
 extern int buffer_ID;
 extern void sceGsSyncV(int a0);
 extern void sceGsResetGraph(short mode, short inter, short omode, short ffmd);
@@ -133,7 +134,7 @@ void gsb_Init(void *db)
     sceGsSyncV(0);
     fbClear = 1;
     gsInitState = 0;
-    switch (D_0028F4C0[0]) {
+    switch (systemStatus[0]) {
     case 0:
         ScreenWidth = 0x200;
         ScreenHeight = 0x1C0;
@@ -144,7 +145,7 @@ void gsb_Init(void *db)
         omode = 3;
         break;
     }
-    sceGsResetGraph(0, D_0028F4C0[1] == 1, omode, 1);
+    sceGsResetGraph(0, systemStatus[1] == 1, omode, 1);
     sceGsSetDefDBuff(db, 0, ScreenWidth, ScreenHeight, 2, 0x30, fbClear);
     gsb_SetFrame(db, 0, 0, 0x30, 2);
     sceGsSyncV(0);
@@ -232,8 +233,10 @@ static int reductionGreen;
 static int reductionBlue;
 
 extern int optionScreenMode;
-extern StageSetting D_0028F720;
-extern GsbPad D_0028F8F0[];
+/* kept local: main.c's global; this TU does not include main.h */
+extern StageSetting GlobalStageSetting;
+/* kept local: main.c's global; this TU does not include main.h */
+extern GsbPad pad[];
 
 /* Reduce the frame into the feedback area: one 22 qword GIF packet, built on
  * the stack and sent down the GIF channel by hand, that first clears the
@@ -270,8 +273,9 @@ void gsb_Reduction(void)
             ((long long)(-ScreenHeight / 4 * 16 + 0x8000 + ScreenHeight / 2 * 16 - 4) << 16) |
             (-1LL << 32),
         5,
-        ((long long)(ScreenWidth - 3) << 16) | 2 | ((long long)(D_0028F4C0[0] == 0 ? 2 : 8) << 32) |
-            ((long long)(ScreenHeight / 2 - 1 - (D_0028F4C0[0] == 0 ? 2 : 8)) << 48),
+        ((long long)(ScreenWidth - 3) << 16) | 2 |
+            ((long long)(systemStatus[0] == 0 ? 2 : 8) << 32) |
+            ((long long)(ScreenHeight / 2 - 1 - (systemStatus[0] == 0 ? 2 : 8)) << 48),
         0x40,
         ((long long)(ScreenWidth / 64) << 14) | 0x664000800LL,
         6,
@@ -303,17 +307,17 @@ void gsb_Reduction(void)
     *D2_MADR = (int)pk & 0x0FFFFFFF;
     *D2_CHCR = 0x101;
     sceGsSyncPath(0, 0);
-    if (D_0028F8F0[0].trg & 0x20) {
+    if (pad[0].trg & 0x20) {
         debug_StdPrintfDummy("Film Noise:%d\n", optionScreenMode);
     }
     if (optionScreenMode) {
-        reductionRed = fbKeep ? 128 : D_0028F720.targetCol[optionScreenMode - 1][0];
-        reductionGreen = fbKeep ? 128 : D_0028F720.targetCol[optionScreenMode - 1][1];
-        reductionBlue = fbKeep ? 128 : D_0028F720.targetCol[optionScreenMode - 1][2];
+        reductionRed = fbKeep ? 128 : GlobalStageSetting.targetCol[optionScreenMode - 1][0];
+        reductionGreen = fbKeep ? 128 : GlobalStageSetting.targetCol[optionScreenMode - 1][1];
+        reductionBlue = fbKeep ? 128 : GlobalStageSetting.targetCol[optionScreenMode - 1][2];
     } else {
-        reductionRed = fbKeep ? 128 : D_0028F720.reductionCol[0];
-        reductionGreen = fbKeep ? 128 : D_0028F720.reductionCol[1];
-        reductionBlue = fbKeep ? 128 : D_0028F720.reductionCol[2];
+        reductionRed = fbKeep ? 128 : GlobalStageSetting.reductionCol[0];
+        reductionGreen = fbKeep ? 128 : GlobalStageSetting.reductionCol[1];
+        reductionBlue = fbKeep ? 128 : GlobalStageSetting.reductionCol[2];
     }
 }
 
@@ -492,16 +496,17 @@ clear:
 }
 
 extern int optionScreenMode;
-extern StageSetting D_0028F720;
+/* kept local: main.c's global; this TU does not include main.h */
+extern StageSetting GlobalStageSetting;
 
 void gsb_SetMotionBlur(void)
 {
     int i = optionScreenMode;
 
     if (i == 0) {
-        SetMotionBlur(D_0028F720.motionBlur);
+        SetMotionBlur(GlobalStageSetting.motionBlur);
     } else {
-        SetMotionBlur(D_0028F720.subMotionBlur[i - 1]);
+        SetMotionBlur(GlobalStageSetting.subMotionBlur[i - 1]);
     }
 }
 
@@ -572,11 +577,12 @@ void gsb_scissorOnDemo(void)
         }
         gif_EndPacketPath1();
     } else {
-        SetMotionBlur(D_0028F720.motionBlur);
+        SetMotionBlur(GlobalStageSetting.motionBlur);
     }
 }
 
-extern int D_0028F4C0[];
+/* kept local: main.c's global; this TU does not include main.h */
+extern int systemStatus[];
 /* kept local: this TU's uses of gif_SetGsReg do not fit the prototype in GifPacket.h */
 extern void gif_SetGsReg(int a0, long long a1);
 /* kept local: this TU's uses of gif_EndPacketPath1 do not fit the prototype in GifPacket.h */
@@ -594,13 +600,13 @@ extern void gif_MakeSpriteNoTexture(int x, int y, int w, int h, unsigned int z, 
  * 0 to 15 and skipped at 0. */
 void gsb_controlBrightness(void)
 {
-    int v = D_0028F4C0[0x2C / 4];
+    int v = systemStatus[0x2C / 4];
 
     if (v < 0) {
-        v = D_0028F4C0[0x2C / 4] = 0;
+        v = systemStatus[0x2C / 4] = 0;
     }
     if (v >= 0x10) {
-        v = D_0028F4C0[0x2C / 4] = 0xF;
+        v = systemStatus[0x2C / 4] = 0xF;
     }
     if (v != 0) {
         if (debug_font_flag & 1) {
@@ -608,7 +614,7 @@ void gsb_controlBrightness(void)
         }
         gif_StartPacketPri(0xB);
         {
-            unsigned char col[4] = {0xFF, 0xFF, 0xFF, D_0028F4C0[0x2C / 4]};
+            unsigned char col[4] = {0xFF, 0xFF, 0xFF, systemStatus[0x2C / 4]};
 
             gif_SetGsReg(0x47, 0x30000);
             gif_SetGsReg(0x4E, 0x1300000C0LL);
@@ -655,11 +661,11 @@ void gsb_antiAlias(void)
     int lv[2];
 
     if (optionScreenMode == 0) {
-        lv[0] = D_0028F720.f0FC;
-        lv[1] = D_0028F720.f100;
+        lv[0] = GlobalStageSetting.f0FC;
+        lv[1] = GlobalStageSetting.f100;
     } else {
-        lv[0] = D_0028F720.f19C[optionScreenMode].a;
-        lv[1] = D_0028F720.f19C[optionScreenMode].b;
+        lv[0] = GlobalStageSetting.f19C[optionScreenMode].a;
+        lv[1] = GlobalStageSetting.f19C[optionScreenMode].b;
     }
     if (lv[0] == 0 && lv[1] == 0) {
         return;
@@ -885,7 +891,7 @@ void gsb_filmNoise(void)
     if (n < 0) {
         return;
     }
-    scale = D_0028F720.grainScale;
+    scale = GlobalStageSetting.grainScale;
     tex_TransTexture(n, 0xA);
     gif_StartPacketPriPath1(dl_GetPri());
     gif_SetGsReg(8, 0);
@@ -894,7 +900,7 @@ void gsb_filmNoise(void)
     gif_SetGsReg(0x49, 0);
     gif_SetGsReg(0x42, 0x44);
     gif_SetGsReg(0, 0x56);
-    gif_SetGsReg(1, ((long long)D_0028F720.targetCol[optionScreenMode - 1][3] << 24) |
+    gif_SetGsReg(1, ((long long)GlobalStageSetting.targetCol[optionScreenMode - 1][3] << 24) |
                         0x3F80000000808080LL);
     gif_SetGsReg(2, 0);
     gif_SetGsReg(5, 0xFFFFFFFF70007000LL);
@@ -946,10 +952,10 @@ int gsb_PostEffect(void)
         debug_Printf(0xA, ScreenHeight / 2 - 8, 0xCCCCCC00, "LID:%3d / FADE%d:%3.0f(%d)",
                      current_layout_id, fadeStatus, fadeLevel, fadeColor[3]);
     }
-    if (D_0028F4C0[0x18 / 4] != 0 && (debug_font_flag & 1)) {
+    if (systemStatus[0x18 / 4] != 0 && (debug_font_flag & 1)) {
         debug_Printf(0x230, ScreenHeight / 2 - 8, 0xCCCCCC00, "L");
     }
-    if (D_0028F4C0[0x14 / 4] != 0 && (debug_font_flag & 1)) {
+    if (systemStatus[0x14 / 4] != 0 && (debug_font_flag & 1)) {
         debug_Printf(0x23A, ScreenHeight / 2 - 8, 0xCCCCCC00, "P");
     }
     FullScreenEffectAfter();
@@ -982,7 +988,8 @@ static int firstGsInit = 1; /* derived name */
 
 extern int screen_offset_y;
 extern int screen_offset_x;
-extern char D_0028F4F0[];
+/* kept local: main.c's global; this TU does not include main.h */
+extern char db[];
 extern void sceGsResetPath(void);
 extern void sceGsSyncV(int a0);
 /* kept local: the declaration in GsBase.h changes this TU codegen */
@@ -1005,7 +1012,7 @@ void gsb_InitGSSystem(void)
         tex_Init();
         debug_StdPrintfDummy("gs init\n");
         sceGsSyncV(0);
-        gsb_Init(D_0028F4F0);
+        gsb_Init(db);
         sceGsSyncV(0);
         dl_Init();
         firstGsInit = 0;
@@ -1096,11 +1103,11 @@ void gsb_UpdateGSSystem(int keep)
     frame_count++;
     buffer_ID = frame_count & 1;
     FlushCache(0);
-    sceGsSwapDBuff(D_0028F4F0, buffer_ID);
+    sceGsSwapDBuff(db, buffer_ID);
     if (buffer_ID != 0) {
-        draw = D_0028F4F0 + 0x150;
+        draw = db + 0x150;
     } else {
-        draw = D_0028F4F0 + 0x60;
+        draw = db + 0x60;
     }
     sceGsSetHalfOffset(draw, (short)((float)screen_offset_x + 2048.0f),
                        (short)((float)screen_offset_y + 2048.0f), odd_even == 0);
@@ -1119,7 +1126,8 @@ void gsb_UpdateGSSystem(int keep)
     light_ResetLight();
 }
 
-extern int D_0028F4C0[];
+/* kept local: main.c's global; this TU does not include main.h */
+extern int systemStatus[];
 /* kept local: this TU passes every argument of sceGsResetGraph as a short */
 extern void sceGsResetGraph(short mode, short inter, short omode, short ffmd);
 extern void sceGsSetHalfOffset(void *env, short x, short y, int field);
@@ -1134,16 +1142,16 @@ void gsb_ResetGSSystem(void)
     sceGsResetPath();
     sceVpu0Reset();
     dma_init();
-    sceGsResetGraph(0, D_0028F4C0[1] == 1, (unsigned short)D_0028F4C0[0] + 2, 1);
+    sceGsResetGraph(0, systemStatus[1] == 1, (unsigned short)systemStatus[0] + 2, 1);
     frame_count++;
     buffer_ID = frame_count & 1;
     odd_even = (*GS_CSR >> 13) & 1;
     FlushCache(0);
-    sceGsSwapDBuff(D_0028F4F0, buffer_ID);
+    sceGsSwapDBuff(db, buffer_ID);
     if (buffer_ID != 0) {
-        draw = D_0028F4F0 + 0x150;
+        draw = db + 0x150;
     } else {
-        draw = D_0028F4F0 + 0x60;
+        draw = db + 0x60;
     }
     sceGsSetHalfOffset(draw, (short)((float)screen_offset_x + 2048.0f),
                        (short)((float)screen_offset_y + 2048.0f), odd_even == 0);
@@ -1293,14 +1301,14 @@ void gsb_SetVSMatrix(int w, int h, float d)
     if (staffRollStartFlag != 0) {
         center_X = center_X - staffRollCenterOffsetX;
     }
-    zoom = (float)D_0028F720.viewScale * zoomCurrent * d * (float)debug_zoom_per *
+    zoom = (float)GlobalStageSetting.viewScale * zoomCurrent * d * (float)debug_zoom_per *
            (float)ScreenWidth / 640.0f / 100.0f / 100.0f;
     vsParam[0] = zoom;
     if (debug_snapshot_reserve != 0 || (D_0028F948[0] & 0x800) != 0) {
         vsParam[0] = zoom * (float)debug_snapshot_num / 100.0f;
     }
-    tex_UpdateMipMapLevel((float)D_0028F720.viewScale * zoomCurrent * (float)debug_zoom_per *
-                          (float)ScreenWidth / 640.0f / 100.0f);
+    tex_UpdateMipMapLevel((float)GlobalStageSetting.viewScale * zoomCurrent *
+                          (float)debug_zoom_per * (float)ScreenWidth / 640.0f / 100.0f);
     vsParam[3] = center_X;
     vsParam[4] = center_Y;
     vsParam[5] = 1.0f;
@@ -1408,7 +1416,7 @@ inline int gsb_LoadStageSettings(void)
         debug_StdPrintfDummy("gsb_LoadStageSettings: host file open error.\n");
     } else {
         debug_StdPrintfDummy("Load stage settings file. %s\n", buf);
-        sceRead(fd, &D_0028F720, 0x1D0);
+        sceRead(fd, &GlobalStageSetting, 0x1D0);
         debugSceClose(fd);
     }
     return -1;
@@ -1453,7 +1461,7 @@ inline int gsb_SaveStageSettings(void)
             debug_StdPrintfDummy("gsb_SaveStageSettings: host file open error.\n");
             return -1;
         }
-        sceWrite(fd, &D_0028F720, 0x1D0);
+        sceWrite(fd, &GlobalStageSetting, 0x1D0);
         debug_StdPrintfDummy("Save stage settings file. %s\n", buf);
         debugSceClose(fd);
         appendLogFile();
@@ -1481,40 +1489,60 @@ typedef struct GsbToolItem {
 static const GsbToolItem filmNoiseItems[4][7] = {
     /* derived name */
     {
-        {" HighLight Color R ", &D_0028F720.targetCol[0][0], 0, 0.0f, 255.0f, 128.0f, 1.0f, 0},
-        {" HighLight Color G ", &D_0028F720.targetCol[0][1], 0, 0.0f, 255.0f, 128.0f, 1.0f, 0},
-        {" HighLight Color B ", &D_0028F720.targetCol[0][2], 0, 0.0f, 255.0f, 128.0f, 1.0f, 0},
-        {" Noise Level       ", &D_0028F720.targetCol[0][3], 0, 0.0f, 255.0f, 8.0f, 1.0f, 0},
-        {" Motion Blur       ", &D_0028F720.subMotionBlur[0], 0, 0.0f, 127.0f, 32.0f, 1.0f, 0},
-        {" AntiLevel0        ", &D_0028F720.f19C[0].a, 0, 0.0f, 255.0f, 24.0f, 1.0f, 0},
-        {" AntiLevel1        ", &D_0028F720.f19C[0].b, 0, 0.0f, 255.0f, 24.0f, 1.0f, 0},
+        {" HighLight Color R ", &GlobalStageSetting.targetCol[0][0], 0, 0.0f, 255.0f, 128.0f, 1.0f,
+         0},
+        {" HighLight Color G ", &GlobalStageSetting.targetCol[0][1], 0, 0.0f, 255.0f, 128.0f, 1.0f,
+         0},
+        {" HighLight Color B ", &GlobalStageSetting.targetCol[0][2], 0, 0.0f, 255.0f, 128.0f, 1.0f,
+         0},
+        {" Noise Level       ", &GlobalStageSetting.targetCol[0][3], 0, 0.0f, 255.0f, 8.0f, 1.0f,
+         0},
+        {" Motion Blur       ", &GlobalStageSetting.subMotionBlur[0], 0, 0.0f, 127.0f, 32.0f, 1.0f,
+         0},
+        {" AntiLevel0        ", &GlobalStageSetting.f19C[0].a, 0, 0.0f, 255.0f, 24.0f, 1.0f, 0},
+        {" AntiLevel1        ", &GlobalStageSetting.f19C[0].b, 0, 0.0f, 255.0f, 24.0f, 1.0f, 0},
     },
     {
-        {" HighLight Color R ", &D_0028F720.targetCol[1][0], 0, 0.0f, 255.0f, 128.0f, 1.0f, 0},
-        {" HighLight Color G ", &D_0028F720.targetCol[1][1], 0, 0.0f, 255.0f, 128.0f, 1.0f, 0},
-        {" HighLight Color B ", &D_0028F720.targetCol[1][2], 0, 0.0f, 255.0f, 128.0f, 1.0f, 0},
-        {" Noise Level       ", &D_0028F720.targetCol[1][3], 0, 0.0f, 255.0f, 16.0f, 1.0f, 0},
-        {" Motion Blur       ", &D_0028F720.subMotionBlur[1], 0, 0.0f, 127.0f, 32.0f, 1.0f, 0},
-        {" AntiLevel0        ", &D_0028F720.f19C[1].a, 0, 0.0f, 255.0f, 24.0f, 1.0f, 0},
-        {" AntiLevel1        ", &D_0028F720.f19C[1].b, 0, 0.0f, 255.0f, 24.0f, 1.0f, 0},
+        {" HighLight Color R ", &GlobalStageSetting.targetCol[1][0], 0, 0.0f, 255.0f, 128.0f, 1.0f,
+         0},
+        {" HighLight Color G ", &GlobalStageSetting.targetCol[1][1], 0, 0.0f, 255.0f, 128.0f, 1.0f,
+         0},
+        {" HighLight Color B ", &GlobalStageSetting.targetCol[1][2], 0, 0.0f, 255.0f, 128.0f, 1.0f,
+         0},
+        {" Noise Level       ", &GlobalStageSetting.targetCol[1][3], 0, 0.0f, 255.0f, 16.0f, 1.0f,
+         0},
+        {" Motion Blur       ", &GlobalStageSetting.subMotionBlur[1], 0, 0.0f, 127.0f, 32.0f, 1.0f,
+         0},
+        {" AntiLevel0        ", &GlobalStageSetting.f19C[1].a, 0, 0.0f, 255.0f, 24.0f, 1.0f, 0},
+        {" AntiLevel1        ", &GlobalStageSetting.f19C[1].b, 0, 0.0f, 255.0f, 24.0f, 1.0f, 0},
     },
     {
-        {" HighLight Color R ", &D_0028F720.targetCol[2][0], 0, 0.0f, 255.0f, 128.0f, 1.0f, 0},
-        {" HighLight Color G ", &D_0028F720.targetCol[2][1], 0, 0.0f, 255.0f, 128.0f, 1.0f, 0},
-        {" HighLight Color B ", &D_0028F720.targetCol[2][2], 0, 0.0f, 255.0f, 128.0f, 1.0f, 0},
-        {" Noise Level       ", &D_0028F720.targetCol[2][3], 0, 0.0f, 255.0f, 24.0f, 1.0f, 0},
-        {" Motion Blur       ", &D_0028F720.subMotionBlur[2], 0, 0.0f, 127.0f, 32.0f, 1.0f, 0},
-        {" AntiLevel0        ", &D_0028F720.f19C[2].a, 0, 0.0f, 255.0f, 24.0f, 1.0f, 0},
-        {" AntiLevel1        ", &D_0028F720.f19C[2].b, 0, 0.0f, 255.0f, 24.0f, 1.0f, 0},
+        {" HighLight Color R ", &GlobalStageSetting.targetCol[2][0], 0, 0.0f, 255.0f, 128.0f, 1.0f,
+         0},
+        {" HighLight Color G ", &GlobalStageSetting.targetCol[2][1], 0, 0.0f, 255.0f, 128.0f, 1.0f,
+         0},
+        {" HighLight Color B ", &GlobalStageSetting.targetCol[2][2], 0, 0.0f, 255.0f, 128.0f, 1.0f,
+         0},
+        {" Noise Level       ", &GlobalStageSetting.targetCol[2][3], 0, 0.0f, 255.0f, 24.0f, 1.0f,
+         0},
+        {" Motion Blur       ", &GlobalStageSetting.subMotionBlur[2], 0, 0.0f, 127.0f, 32.0f, 1.0f,
+         0},
+        {" AntiLevel0        ", &GlobalStageSetting.f19C[2].a, 0, 0.0f, 255.0f, 24.0f, 1.0f, 0},
+        {" AntiLevel1        ", &GlobalStageSetting.f19C[2].b, 0, 0.0f, 255.0f, 24.0f, 1.0f, 0},
     },
     {
-        {" HighLight Color R ", &D_0028F720.targetCol[3][0], 0, 0.0f, 255.0f, 128.0f, 1.0f, 0},
-        {" HighLight Color G ", &D_0028F720.targetCol[3][1], 0, 0.0f, 255.0f, 128.0f, 1.0f, 0},
-        {" HighLight Color B ", &D_0028F720.targetCol[3][2], 0, 0.0f, 255.0f, 128.0f, 1.0f, 0},
-        {" Noise Level       ", &D_0028F720.targetCol[3][3], 0, 0.0f, 255.0f, 32.0f, 1.0f, 0},
-        {" Motion Blur       ", &D_0028F720.subMotionBlur[3], 0, 0.0f, 127.0f, 32.0f, 1.0f, 0},
-        {" AntiLevel0        ", &D_0028F720.f19C[3].a, 0, 0.0f, 255.0f, 24.0f, 1.0f, 0},
-        {" AntiLevel1        ", &D_0028F720.f19C[3].b, 0, 0.0f, 255.0f, 24.0f, 1.0f, 0},
+        {" HighLight Color R ", &GlobalStageSetting.targetCol[3][0], 0, 0.0f, 255.0f, 128.0f, 1.0f,
+         0},
+        {" HighLight Color G ", &GlobalStageSetting.targetCol[3][1], 0, 0.0f, 255.0f, 128.0f, 1.0f,
+         0},
+        {" HighLight Color B ", &GlobalStageSetting.targetCol[3][2], 0, 0.0f, 255.0f, 128.0f, 1.0f,
+         0},
+        {" Noise Level       ", &GlobalStageSetting.targetCol[3][3], 0, 0.0f, 255.0f, 32.0f, 1.0f,
+         0},
+        {" Motion Blur       ", &GlobalStageSetting.subMotionBlur[3], 0, 0.0f, 127.0f, 32.0f, 1.0f,
+         0},
+        {" AntiLevel0        ", &GlobalStageSetting.f19C[3].a, 0, 0.0f, 255.0f, 24.0f, 1.0f, 0},
+        {" AntiLevel1        ", &GlobalStageSetting.f19C[3].b, 0, 0.0f, 255.0f, 24.0f, 1.0f, 0},
     },
 };
 
@@ -1531,7 +1559,8 @@ static char *filmNoiseOnOffText[] = {"Off", "On"};
 
 static int filmNoiseRow = 0; /* derived name */ /* the highlighted row */
 
-extern GsbPad D_0028F8F0[];
+/* kept local: main.c's global; this TU does not include main.h */
+extern GsbPad pad[];
 
 /* The film noise page of the debug menu: seven editable words of the stage
  * record for the target this page names, the pad keys that walk and change
@@ -1562,17 +1591,17 @@ int gsb_FilmNoiseTool(int target)
         }
     }
 
-    if (D_0028F8F0[0].rep & 0x4000) {
+    if (pad[0].rep & 0x4000) {
         if (++filmNoiseRow >= 7) {
             filmNoiseRow = 0;
         }
     }
-    if (D_0028F8F0[0].rep & 0x1000) {
+    if (pad[0].rep & 0x1000) {
         if (--filmNoiseRow < 0) {
             filmNoiseRow = 6;
         }
     }
-    if (D_0028F8F0[0].rep & 0x2000) {
+    if (pad[0].rep & 0x2000) {
         if (filmNoiseItems[page][filmNoiseRow].isFloat == 0) {
             int v = (float)*(int *)filmNoiseItems[page][filmNoiseRow].val +
                     filmNoiseItems[page][filmNoiseRow].step;
@@ -1596,7 +1625,7 @@ int gsb_FilmNoiseTool(int target)
             filmNoiseItems[page][filmNoiseRow].fn(0);
         }
     }
-    if (D_0028F8F0[0].rep & 0x8000) {
+    if (pad[0].rep & 0x8000) {
         if (filmNoiseItems[page][filmNoiseRow].isFloat == 0) {
             int v = (float)*(int *)filmNoiseItems[page][filmNoiseRow].val -
                     filmNoiseItems[page][filmNoiseRow].step;
@@ -1620,7 +1649,7 @@ int gsb_FilmNoiseTool(int target)
             filmNoiseItems[page][filmNoiseRow].fn(0);
         }
     }
-    if (D_0028F8F0[0].trg & 0x10) {
+    if (pad[0].trg & 0x10) {
         if (filmNoiseItems[page][filmNoiseRow].isFloat == 0) {
             *(int *)filmNoiseItems[page][filmNoiseRow].val = filmNoiseItems[page][filmNoiseRow].def;
         } else {
@@ -1628,7 +1657,7 @@ int gsb_FilmNoiseTool(int target)
                 filmNoiseItems[page][filmNoiseRow].def;
         }
     }
-    if (D_0028F8F0[0].trg & 0x20) {
+    if (pad[0].trg & 0x20) {
         for (i = 0; i < 7; i++) {
             if (filmNoiseItems[page][i].min == 0.0f && filmNoiseItems[page][i].max == 1.0f &&
                 filmNoiseItems[page][i].isFloat == 0) {
@@ -1644,15 +1673,15 @@ int gsb_FilmNoiseTool(int target)
         }
         ret = 1;
     }
-    if (D_0028F8F0[0].trg & 0x80) {
-        D_0028F720.targetCol[target][0] = D_0028F720.reductionCol[0];
-        D_0028F720.targetCol[target][1] = D_0028F720.reductionCol[1];
-        D_0028F720.targetCol[target][2] = D_0028F720.reductionCol[2];
-        D_0028F720.subMotionBlur[target] = D_0028F720.motionBlur;
-        D_0028F720.f19C[target].a = D_0028F720.f0FC;
-        D_0028F720.f19C[target].b = D_0028F720.f100;
+    if (pad[0].trg & 0x80) {
+        GlobalStageSetting.targetCol[target][0] = GlobalStageSetting.reductionCol[0];
+        GlobalStageSetting.targetCol[target][1] = GlobalStageSetting.reductionCol[1];
+        GlobalStageSetting.targetCol[target][2] = GlobalStageSetting.reductionCol[2];
+        GlobalStageSetting.subMotionBlur[target] = GlobalStageSetting.motionBlur;
+        GlobalStageSetting.f19C[target].a = GlobalStageSetting.f0FC;
+        GlobalStageSetting.f19C[target].b = GlobalStageSetting.f100;
     }
-    if (D_0028F8F0[0].trg & 0x40) {
+    if (pad[0].trg & 0x40) {
         ret = -1;
     }
     if (ret != 0) {
@@ -1670,31 +1699,34 @@ extern int UpdateZoomMaxVallInDemo(void);
    are still padding in typedef.h's StageSetting) */
 static const GsbToolItem stageSettingItems[] = {
     /* derived name */
-    {" HighLight Color R   ", &D_0028F720.reductionCol[0], 0, 0.0f, 255.0f, 128.0f, 1.0f, 0},
-    {" HighLight Color G   ", &D_0028F720.reductionCol[1], 0, 0.0f, 255.0f, 128.0f, 1.0f, 0},
-    {" HighLight Color B   ", &D_0028F720.reductionCol[2], 0, 0.0f, 255.0f, 128.0f, 1.0f, 0},
-    {" Zoom Offset         ", &D_0028F720.viewScale, 0, 5e+01f, 4e+02f, 1e+02f, 1.0f, 0},
-    {" Def Tex Sample Mode ", &D_0028F720.pad0E4[0], 0, 0.0f, 5.0f, 5.0f, 1.0f,
+    {" HighLight Color R   ", &GlobalStageSetting.reductionCol[0], 0, 0.0f, 255.0f, 128.0f, 1.0f,
+     0},
+    {" HighLight Color G   ", &GlobalStageSetting.reductionCol[1], 0, 0.0f, 255.0f, 128.0f, 1.0f,
+     0},
+    {" HighLight Color B   ", &GlobalStageSetting.reductionCol[2], 0, 0.0f, 255.0f, 128.0f, 1.0f,
+     0},
+    {" Zoom Offset         ", &GlobalStageSetting.viewScale, 0, 5e+01f, 4e+02f, 1e+02f, 1.0f, 0},
+    {" Def Tex Sample Mode ", &GlobalStageSetting.pad0E4[0], 0, 0.0f, 5.0f, 5.0f, 1.0f,
      tex_RemakeRegistersSampleMin},
-    {" Post Effect         ", &D_0028F720.pad0E4[4], 0, 0.0f, 8.0f, 0.0f, 1.0f, 0},
-    {" Feedback Effect     ", &D_0028F720.pad104[0], 0, 0.0f, 3.0f, 0.0f, 1.0f, 0},
-    {" Feedback Effect R   ", &D_0028F720.pad104[12], 0, 0.0f, 255.0f, 0.0f, 1.0f, 0},
-    {" Feedback Effect G   ", &D_0028F720.pad104[16], 0, 0.0f, 255.0f, 0.0f, 1.0f, 0},
-    {" Feedback Effect B   ", &D_0028F720.pad104[20], 0, 0.0f, 255.0f, 0.0f, 1.0f, 0},
-    {" Feedback Effect A   ", &D_0028F720.pad104[24], 0, 0.0f, 255.0f, 0.0f, 1.0f, 0},
-    {" DepthField Level    ", &D_0028F720.pad0F8[0], 0, 0.0f, 1e+03f, 1e+02f, 1.0f, 0},
-    {" DepthField Start    ", &D_0028F720.pad0E4[8], 0, 0.0f, 2e+04f, 2e+03f, 2e+01f, 0},
-    {" DepthField Width    ", &D_0028F720.pad0E4[12], 0, 0.0f, 2e+04f, 1e+04f, 2e+01f, 0},
-    {" HandCamera Limit P  ", &D_0028F720.pad174[12], 0, 0.0f, 1.8e+02f, 1.2e+02f, 1.0f,
+    {" Post Effect         ", &GlobalStageSetting.pad0E4[4], 0, 0.0f, 8.0f, 0.0f, 1.0f, 0},
+    {" Feedback Effect     ", &GlobalStageSetting.pad104[0], 0, 0.0f, 3.0f, 0.0f, 1.0f, 0},
+    {" Feedback Effect R   ", &GlobalStageSetting.pad104[12], 0, 0.0f, 255.0f, 0.0f, 1.0f, 0},
+    {" Feedback Effect G   ", &GlobalStageSetting.pad104[16], 0, 0.0f, 255.0f, 0.0f, 1.0f, 0},
+    {" Feedback Effect B   ", &GlobalStageSetting.pad104[20], 0, 0.0f, 255.0f, 0.0f, 1.0f, 0},
+    {" Feedback Effect A   ", &GlobalStageSetting.pad104[24], 0, 0.0f, 255.0f, 0.0f, 1.0f, 0},
+    {" DepthField Level    ", &GlobalStageSetting.pad0F8[0], 0, 0.0f, 1e+03f, 1e+02f, 1.0f, 0},
+    {" DepthField Start    ", &GlobalStageSetting.pad0E4[8], 0, 0.0f, 2e+04f, 2e+03f, 2e+01f, 0},
+    {" DepthField Width    ", &GlobalStageSetting.pad0E4[12], 0, 0.0f, 2e+04f, 1e+04f, 2e+01f, 0},
+    {" HandCamera Limit P  ", &GlobalStageSetting.pad174[12], 0, 0.0f, 1.8e+02f, 1.2e+02f, 1.0f,
      UpdateHandCameraLimitP},
-    {" HandCamera Limit V  ", &D_0028F720.pad174[16], 0, 0.0f, 9e+01f, 8e+01f, 1.0f,
+    {" HandCamera Limit V  ", &GlobalStageSetting.pad174[16], 0, 0.0f, 9e+01f, 8e+01f, 1.0f,
      UpdateHandCameraLimitV},
-    {" ZOOM MAX IN DEMO    ", &D_0028F720.pad174[28], 0, 0.0f, 3e+02f, 2e+02f, 1.0f,
+    {" ZOOM MAX IN DEMO    ", &GlobalStageSetting.pad174[28], 0, 0.0f, 3e+02f, 2e+02f, 1.0f,
      UpdateZoomMaxVallInDemo},
-    {" Motion Blur         ", &D_0028F720.motionBlur, 0, 0.0f, 127.0f, 32.0f, 1.0f, 0},
-    {" AntiLevel0          ", &D_0028F720.f0FC, 0, 0.0f, 255.0f, 0.0f, 1.0f, 0},
-    {" AntiLevel1          ", &D_0028F720.f100, 0, 0.0f, 255.0f, 0.0f, 1.0f, 0},
-    {" Film Noise Tex Rep  ", &D_0028F720.grainScale, 1, 1.0f, 8.0f, 6.0f, 0.1f, 0},
+    {" Motion Blur         ", &GlobalStageSetting.motionBlur, 0, 0.0f, 127.0f, 32.0f, 1.0f, 0},
+    {" AntiLevel0          ", &GlobalStageSetting.f0FC, 0, 0.0f, 255.0f, 0.0f, 1.0f, 0},
+    {" AntiLevel1          ", &GlobalStageSetting.f100, 0, 0.0f, 255.0f, 0.0f, 1.0f, 0},
+    {" Film Noise Tex Rep  ", &GlobalStageSetting.grainScale, 1, 1.0f, 8.0f, 6.0f, 0.1f, 0},
 };
 
 /* the unselected and selected row colours, as filmNoiseRowColor */
@@ -1734,17 +1766,17 @@ int gsb_StageSettingTool(void)
         }
     }
 
-    if (D_0028F8F0[0].rep & 0x4000) {
+    if (pad[0].rep & 0x4000) {
         if (++stageSettingRow >= 21) {
             stageSettingRow = 0;
         }
     }
-    if (D_0028F8F0[0].rep & 0x1000) {
+    if (pad[0].rep & 0x1000) {
         if (--stageSettingRow < 0) {
             stageSettingRow = 20;
         }
     }
-    if (D_0028F8F0[0].rep & 0x2000) {
+    if (pad[0].rep & 0x2000) {
         if (stageSettingItems[stageSettingRow].isFloat == 0) {
             int v = (float)*(int *)stageSettingItems[stageSettingRow].val +
                     stageSettingItems[stageSettingRow].step;
@@ -1768,7 +1800,7 @@ int gsb_StageSettingTool(void)
             stageSettingItems[stageSettingRow].fn(0);
         }
     }
-    if (D_0028F8F0[0].rep & 0x8000) {
+    if (pad[0].rep & 0x8000) {
         if (stageSettingItems[stageSettingRow].isFloat == 0) {
             int v = (float)*(int *)stageSettingItems[stageSettingRow].val -
                     stageSettingItems[stageSettingRow].step;
@@ -1792,7 +1824,7 @@ int gsb_StageSettingTool(void)
             stageSettingItems[stageSettingRow].fn(0);
         }
     }
-    if (D_0028F8F0[0].trg & 0x10) {
+    if (pad[0].trg & 0x10) {
         if (stageSettingItems[stageSettingRow].isFloat == 0) {
             *(int *)stageSettingItems[stageSettingRow].val = stageSettingItems[stageSettingRow].def;
         } else {
@@ -1800,7 +1832,7 @@ int gsb_StageSettingTool(void)
                 stageSettingItems[stageSettingRow].def;
         }
     }
-    if (D_0028F8F0[0].trg & 0x20) {
+    if (pad[0].trg & 0x20) {
         for (i = 0; i < 21; i++) {
             if (stageSettingItems[i].min == 0.0f && stageSettingItems[i].max == 1.0f &&
                 stageSettingItems[i].isFloat == 0) {
@@ -1816,7 +1848,7 @@ int gsb_StageSettingTool(void)
         }
         ret = 1;
     }
-    if (D_0028F8F0[0].trg & 0x40) {
+    if (pad[0].trg & 0x40) {
         ret = -1;
     }
     if (ret != 0) {
@@ -2017,25 +2049,25 @@ int gsb_StageSetting(void)
             debug_PrintfDummy(18, (i + 1) * 8 + 0x1E, menuRowColor[(menuCursor == i) ? 1 : 0], "%s",
                               stageSettingMenu[i].name);
         }
-        if (D_0028F8F0[0].rep & 0x4000) {
+        if (pad[0].rep & 0x4000) {
             menuCursor++;
             if (menuCursor >= 11)
                 menuCursor = 0;
         }
-        if (D_0028F8F0[0].rep & 0x1000) {
+        if (pad[0].rep & 0x1000) {
             menuCursor--;
             if (menuCursor < 0)
                 menuCursor = 10;
         }
-        if (D_0028F8F0[0].trg & 0x20) {
+        if (pad[0].trg & 0x20) {
             menuSelected = menuCursor;
         }
     } else {
         debug_PrintfDummy(26, 22, 0xFFFFFFFF, "NO ONE EDITS THIS STAGE'S SETTING.");
         debug_PrintfDummy(18, 38, menuRowColor[1], "%s", lockedMenu[0].name);
-        if (D_0028F8F0[0].trg & 0x20) {
+        if (pad[0].trg & 0x20) {
             lockedMenu[0].fn(1);
         }
     }
-    return (D_0028F8F0[0].trg & 0x40) ? -1 : 0;
+    return (pad[0].trg & 0x40) ? -1 : 0;
 }

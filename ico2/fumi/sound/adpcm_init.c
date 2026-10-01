@@ -36,7 +36,7 @@ typedef struct {
 
 /* kept local: this TU's uses of iosCdvdDiskStatusGet do not fit the prototype in cdvd.h */
 extern int iosCdvdDiskStatusGet(void);
-extern const AdpcmDataRec D_00559D50[];
+extern const AdpcmDataRec adpcmFile[];
 extern int SgStAdpcmChannelPitch(long long mask, int pitch);
 extern int SgStAdpcmIopReadAddr(int addr);
 
@@ -50,7 +50,7 @@ void adpcmTickProc2(int *a0)
             char *ch = (char *)self->ch;
             int ofs = i * 4;
             int no = *(unsigned short *)a0;
-            SgStAdpcmChannelPitch(1LL << *(int *)(ch + ofs), D_00559D50[no].pitch);
+            SgStAdpcmChannelPitch(1LL << *(int *)(ch + ofs), adpcmFile[no].pitch);
         }
     } else {
         for (i = 0; i < self->n; i++) {
@@ -99,7 +99,7 @@ void adpcmTickProc2(int *a0)
 /* adpcm_init.o's .rodata run opens with these three named objects: the two
    messages are printed further down the file than the strings that follow
    them in the ROM run. */
-static const char adpcmFile[] = __FILE__;
+static const char adpcmSrcFile[] = __FILE__; /* derived name */
 
 static const char adpcmNoAllocMsg[] = "AdpcmIopBuffAlloc not alloc\n";
 
@@ -138,13 +138,13 @@ int *adpcmDataSet(int a0, int no, int bank, int a3, int size, int a5, int a6)
             goto found;
         }
     }
-    debug_assert(adpcmFile, 363);
-    __assert(adpcmFile, 363, "0");
+    debug_assert(adpcmSrcFile, 363);
+    __assert(adpcmSrcFile, 363, "0");
 found:
     p = (AdpcmStream *)((char *)adpcmStream + i * 0x58);
     p->used = 1;
     obj->stream = p;
-    p->n = D_00559D50[no].f3C;
+    p->n = adpcmFile[no].f3C;
     switch (p->n) {
     case 1:
         p->f38 = 0x10000;
@@ -156,8 +156,8 @@ found:
         p->f38 = 0x40000;
         break;
     default:
-        debug_assert(adpcmFile, 381);
-        __assert(adpcmFile, 381, "0");
+        debug_assert(adpcmSrcFile, 381);
+        __assert(adpcmSrcFile, 381, "0");
     }
     p->mask = 0;
     for (j = 0; j < p->n; j++) {
@@ -180,7 +180,7 @@ found:
         }
         p->f44 = 0;
         SgStAdpcmChannelVolume(1LL << p->ch[j], p->f3C[j], p->f40[j]);
-        SgStAdpcmChannelPitch(1LL << p->ch[j], D_00559D50[no].pitch);
+        SgStAdpcmChannelPitch(1LL << p->ch[j], adpcmFile[no].pitch);
         p->mask |= 1LL << p->ch[j];
     }
     if (size < 0x5C000) {
@@ -188,19 +188,19 @@ found:
     } else {
         p->f10 = 0;
     }
-    p->f14 = D_00559D50[no].pitch;
+    p->f14 = adpcmFile[no].pitch;
     p->f18 = a5;
     p->f1C = 0x5C000;
-    p->f24 = D_00559D50[no].f34 << 11;
-    p->f20 = D_00559D50[no].f30 << 11;
+    p->f24 = adpcmFile[no].f34 << 11;
+    p->f20 = adpcmFile[no].f30 << 11;
     p->f4C = 0;
-    p->f50 = D_00559D50[no].f34 << 11;
+    p->f50 = adpcmFile[no].f34 << 11;
     p->f46 = a6;
     p->f48 = 0;
     if (size != 0) {
         Ee2Iop(a0, a5, size);
     }
-    p->f28 = iosCdvdBackGroundMgrAdd((char *)&D_00559D50[no], adpcmTickProc, obj, adpcmDiskNotReady,
+    p->f28 = iosCdvdBackGroundMgrAdd((char *)&adpcmFile[no], adpcmTickProc, obj, adpcmDiskNotReady,
                                      (int)adpcmDiskReturnReady, obj, 0, 0);
     iosCdvdBackGroundMgrSeek(p->f28, size);
     return (int *)obj;
@@ -254,11 +254,11 @@ void AdpcmOpen(AdpcmOpenReq *self, int no, int a2, int a3)
     self->id = no;
     self->iopBuf = AdpcmIopBuffAlloc();
     if (self->iopBuf != 0) {
-        self->bg = iosCdvdBackGroundMgrAdd((char *)&D_00559D50[no], adpcmOpenProc, self,
+        self->bg = iosCdvdBackGroundMgrAdd((char *)&adpcmFile[no], adpcmOpenProc, self,
                                            adpcmOpenDiskNotReady, 0, self, 0, 0);
     } else {
         self->bg = 0;
-        debug_StdPrintfDummy("%s\n", (char *)&D_00559D50[no]);
+        debug_StdPrintfDummy("%s\n", (char *)&adpcmFile[no]);
     }
     self->f10 = a3;
 }
@@ -273,8 +273,8 @@ static inline void AdpcmIopBuffFree(AdpcmStream *self)
     int no = (adr - adpcmIopBase) / 0x5C000;
 
     if (no >= 3) {
-        debug_assert(adpcmFile, 143);
-        __assert(adpcmFile, 143, "0");
+        debug_assert(adpcmSrcFile, 143);
+        __assert(adpcmSrcFile, 143, "0");
     }
     adpcmIopBuffUsed[no] = 0;
 }
@@ -302,8 +302,8 @@ void AdpcmClose(int *a0)
                 goto found;
             }
         }
-        debug_assert(adpcmFile, 605);
-        __assert(adpcmFile, 605, "0");
+        debug_assert(adpcmSrcFile, 605);
+        __assert(adpcmSrcFile, 605, "0");
     found:
         *(int *)((char *)adpcmStream + j * 0x58) = 0;
         self->mask = 0;
@@ -372,7 +372,7 @@ inline void adpcmPauseRequest(int val)
 
 inline void AdpcmStreamHeap(void)
 {
-    int r = iosSifAllocIopHeapDebug(0xB8800, adpcmFile, 68);
+    int r = iosSifAllocIopHeapDebug(0xB8800, adpcmSrcFile, 68);
     adpcmIopHeap = r;
     if (r & 0x7FF) {
         adpcmIopBase = (r / 0x800 + 1) * 0x800;

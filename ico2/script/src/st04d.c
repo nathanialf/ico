@@ -6,8 +6,10 @@
 #include "StageAnimation.h"
 #include "typedef.h"
 
-extern void *D_00639EA4;
-extern void *D_00639EA8;
+/* kept local: main.c's global; this TU does not include main.h */
+extern void *boyGObj;
+/* kept local: main.c's global; this TU does not include main.h */
+extern void *girlGObj;
 
 /* A 16-byte constant vector template: the float view carries the values,
    the long long view is the one the copy reads, which is what makes gcc
@@ -30,8 +32,8 @@ void actSt04dDoor1(volatile int a0)
 
     _ACTWait(1);
 
-    if (scpTriggerBall(a0, D_00639EA4, 400.0f) != 0 ||
-        (D_00639EA8 != 0 && scpTriggerBall(a0, D_00639EA8, 400.0f) != 0)) {
+    if (scpTriggerBall(a0, boyGObj, 400.0f) != 0 ||
+        (girlGObj != 0 && scpTriggerBall(a0, girlGObj, 400.0f) != 0)) {
         stage_SetAnimation(255, 0, 0);
         _ACTWait(60);
         door1_down_mes[0].func = actSt04dDoor1DownChk;
@@ -189,8 +191,8 @@ void actSt04dDoor2(volatile int a0)
 
     _ACTWait(1);
 
-    if (scpTriggerBall(a0, D_00639EA4, 400.0f) != 0 ||
-        (D_00639EA8 != 0 && scpTriggerBall(a0, D_00639EA8, 400.0f) != 0)) {
+    if (scpTriggerBall(a0, boyGObj, 400.0f) != 0 ||
+        (girlGObj != 0 && scpTriggerBall(a0, girlGObj, 400.0f) != 0)) {
         stage_SetAnimation(257, 0, 0);
         _ACTWait(60);
         door2_down_mes[0].func = actSt04dDoor2DownChk;

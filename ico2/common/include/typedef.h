@@ -656,7 +656,7 @@ typedef union Vec16 {
 } __attribute__((aligned(16))) Vec16;
 
 /* RECONSTRUCTION, PLACED BY INCLUDE PATTERN: the 70-entry object-kind table at
- * D_002C1270, one 0x64-byte row per kind, indexed by the kind id a GObj carries
+ * objKindData, one 0x64-byte row per kind, indexed by the kind id a GObj carries
  * at +0xC.  The row's leading 0x24 bytes are the kind's name ("BOY", "GIRL",
  * "GIRLDEMOCTRL", ...), which debug.c and debug_menu.c hand straight to the
  * menu as a string.  Five translation units read this row through five
@@ -685,7 +685,7 @@ typedef struct {
 } ObjKindEnt;
 
 /* RECONSTRUCTION, PLACED BY INCLUDE PATTERN: the 0x194-byte per-stage preset
- * record at D_005F5D50.  Every offset any translation unit reads is named here:
+ * record at stageData.  Every offset any translation unit reads is named here:
  * the views that stayed local (sceneManager, deja, st25a, script, way_tool,
  * s_init, camera-editor, ebrain, layout_texture, commonact) each say in a
  * comment why their bytes need their own spelling, and this record is the

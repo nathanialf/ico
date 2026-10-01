@@ -27,9 +27,10 @@ typedef struct CamSetHdr {
 
 /* kept local: this TU's uses of ReflectCameraSetBinary do not fit the prototype in camera-ico2.h */
 extern void ReflectCameraSetBinary(S4C *src, int count);
-extern const StgPre D_005F5D50[];
+extern const StgPre stageData[];
 extern int stage_no;
-extern int *D_00639EA4;
+/* kept local: main.c's global; this TU does not include main.h */
+extern int *boyGObj;
 /* kept local: this TU's uses of GetBoyRootPositionForCamera do not fit the prototype in boyact.h */
 extern void GetBoyRootPositionForCamera();
 /* kept local: this TU's uses of CameraGetTargets do not fit the prototype in camera-root.h */
@@ -218,12 +219,12 @@ void CameraSetCameraSet(int id)
 
 void CameraSetCameraSet_Default(void)
 {
-    CameraSetCameraSet(D_005F5D50[stage_no].camSetId);
+    CameraSetCameraSet(stageData[stage_no].camSetId);
 }
 
 void GetRootPositionForCamera(int a0, int a1)
 {
-    if (a1 == D_00639EA4) {
+    if (a1 == boyGObj) {
         GetBoyRootPositionForCamera(a0, a1);
     } else {
         GetRootPosition(a0, a1);
@@ -366,7 +367,8 @@ void initMonitorCamera(unsigned char init)
 /* kept local: camera-root.h's prototypes do not fit this TU's uses */
 extern int monitorCameraHold;
 extern int insertCameraBlendTimer;
-extern int D_0028F4C0[];
+/* kept local: main.c's global; this TU does not include main.h */
+extern int systemStatus[];
 /* kept local: this TU's uses of _DistGV do not fit the prototype in gv.h */
 extern float _DistGV(void *a0, void *a1);
 
@@ -433,22 +435,23 @@ void monitorMonitorCamera(CamWork *cam, CamWork *out)
     vDiff[2] = cam->eye.f[2] - monitorCamera.work.eye.f[2];
     sceVu0SubVector(vEye, cam, &monitorCamera.work);
     len = FSqrt(vEye[0] * vEye[0] + vEye[1] * vEye[1] + vEye[2] * vEye[2]);
-    if (handCameraEyeRate * 30.0f / (float)((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]) * 11.0f <
+    if (handCameraEyeRate * 30.0f / (float)((60 - systemStatus[0] * 10) / systemStatus[1]) * 11.0f <
         len) {
-        if (handCameraEyeRate * 30.0f / (float)((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]) <
+        if (handCameraEyeRate * 30.0f / (float)((60 - systemStatus[0] * 10) / systemStatus[1]) <
             monitorCamera.moveDist) {
             monitorCamera.moveDist =
-                handCameraEyeRate * 30.0f / (float)((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]);
+                handCameraEyeRate * 30.0f / (float)((60 - systemStatus[0] * 10) / systemStatus[1]);
         }
         if (monitorCamera.moveDist < len) {
-            len = monitorCamera.moveDist + handCameraEyeRate * 30.0f /
-                                               (float)((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]) /
-                                               30.0f;
+            len = monitorCamera.moveDist +
+                  handCameraEyeRate * 30.0f /
+                      (float)((60 - systemStatus[0] * 10) / systemStatus[1]) / 30.0f;
             sceVu0Normalize(vEye, vEye);
             sceVu0ScaleVector(vEye, vEye, len);
             sceVu0AddVector(out, &monitorCamera.work, vEye);
         } else {
-            len = handCameraEyeRate * 30.0f / (float)((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]);
+            len =
+                handCameraEyeRate * 30.0f / (float)((60 - systemStatus[0] * 10) / systemStatus[1]);
             sceVu0Normalize(vEye, vEye);
             sceVu0ScaleVector(vEye, vEye, len);
             sceVu0AddVector(out, &monitorCamera.work, vEye);
@@ -465,7 +468,7 @@ void monitorMonitorCamera(CamWork *cam, CamWork *out)
     scePrintf("monitor camera move %f at %f %f %f\n", t, vSpare[0], vSpare[1], vSpare[2]);
 #endif
     held = 0;
-    d = handCameraAtRate * 30.0f / (float)((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]);
+    d = handCameraAtRate * 30.0f / (float)((60 - systemStatus[0] * 10) / systemStatus[1]);
     if (d < 0.0f) {
         d = -d;
     }
@@ -473,11 +476,11 @@ void monitorMonitorCamera(CamWork *cam, CamWork *out)
     len = FSqrt(vAt[0] * vAt[0] + vAt[1] * vAt[1] + vAt[2] * vAt[2]);
     sceVu0Normalize(vAt, vAt);
     CameraGetTargets(&p1, &p2);
-    if (p1 == D_00639EA4) {
+    if (p1 == boyGObj) {
         held = (p2 == 0);
     }
     if (held == 0 && 95.0f <= d) {
-        d = (float)(600 / ((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]));
+        d = (float)(600 / ((60 - systemStatus[0] * 10) / systemStatus[1]));
     }
     if (d * 9.0f < len) {
         monitorCamera.atRate = monitorCamera.atRate + 0.5f;
@@ -498,8 +501,8 @@ void monitorMonitorCamera(CamWork *cam, CamWork *out)
             }
         }
         _InterGV(&out->at, &cam->at, &monitorCamera.work.at,
-                 mode * (float)((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]) / 30.0f,
-                 30.0f / (float)((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]));
+                 mode * (float)((60 - systemStatus[0] * 10) / systemStatus[1]) / 30.0f,
+                 30.0f / (float)((60 - systemStatus[0] * 10) / systemStatus[1]));
         sceVu0SubVector(vAt, &out->at, &monitorCamera.work.at);
         len = FSqrt(vAt[0] * vAt[0] + vAt[1] * vAt[1] + vAt[2] * vAt[2]);
         if (d < len) {
@@ -523,8 +526,8 @@ void monitorMonitorCamera(CamWork *cam, CamWork *out)
         }
     }
     if (insertCameraBlendTimer != 0) {
-        r1 = (float)((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]) / 30.0;
-        r2 = 3.0 / (float)((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]);
+        r1 = (float)((60 - systemStatus[0] * 10) / systemStatus[1]) / 30.0;
+        r2 = 3.0 / (float)((60 - systemStatus[0] * 10) / systemStatus[1]);
         _InterGV(out, cam, &monitorCamera.work, r1, r2);
         _InterGV(&out->at, &cam->at, &monitorCamera.work.at, r1, r2);
         out->ext.f[0] = (cam->ext.f[0] * r2 + monitorCamera.work.ext.f[0] * r1) / (r1 + r2);
@@ -573,9 +576,9 @@ void ChaseCamera(float *a0, float *a1)
  * insns survive with no encoding of their own. */
 static inline int setHandCameraRates(float a, float b)
 {
-    handCameraEyeRate = a * 60.0f / (float)((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]);
-    handCameraAtRate = b * 60.0f / (float)((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]);
-    return (60 - D_0028F4C0[0] * 10) / D_0028F4C0[1];
+    handCameraEyeRate = a * 60.0f / (float)((60 - systemStatus[0] * 10) / systemStatus[1]);
+    handCameraAtRate = b * 60.0f / (float)((60 - systemStatus[0] * 10) / systemStatus[1]);
+    return (60 - systemStatus[0] * 10) / systemStatus[1];
 }
 
 typedef struct CamMoveItem { /* 0x5C */
@@ -849,7 +852,7 @@ void InitIco2Camera(void)
     initMonitorCamera(1);
     cameraGroupCurrent = -1;
     cameraGroupChanged = 1;
-    setHandCameraRates(D_005F5D50[stage_no].handCameraRate, 10.0f);
+    setHandCameraRates(stageData[stage_no].handCameraRate, 10.0f);
     InitHandCameraCorrect();
 }
 
@@ -1037,11 +1040,11 @@ void SetCameraMatrix_Ico2(int flag)
         float mag;
 
         GetHandCameraStickInfo(&sx, &sz, &mag);
-        if (D_0028F4C0[5] != 0 || IsAbleBoyControl() == 0 || mode == 0) {
+        if (systemStatus[5] != 0 || IsAbleBoyControl() == 0 || mode == 0) {
             ClearHandCameraCorrect();
         } else {
             HandCameraCorrect(&cw, cw.at.f, 0, sx, sz,
-                              60.0f / (float)((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]));
+                              60.0f / (float)((60 - systemStatus[0] * 10) / systemStatus[1]));
         }
     }
     SetWSMatrix(&cw);
@@ -1134,7 +1137,7 @@ void *ReadCameraSet(CamSetFile *f, int stage)
             *(CamItemV0 *)&ni[i] = ((CamItemV0 *)oi)[i];
         }
         for (i = 0; i < total; i++) {
-            ni[i].f38 = D_005F5D50[stage].handCameraRate;
+            ni[i].f38 = stageData[stage].handCameraRate;
             ni[i].f3C = 10.0f;
             ni[i].f40 = 120.0f;
             ni[i].f44 = 80.0f;

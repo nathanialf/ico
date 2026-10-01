@@ -335,15 +335,17 @@ char *InitPoolGeo(char *self, char *lay)
     return w;
 }
 
-extern int D_0028F4C0[];
+/* kept local: main.c's global; this TU does not include main.h */
+extern int systemStatus[];
 
 static inline void decayRipple(char *c)
 {
     if (*(float *)(c + 0x10) < 0.0f) {
         return;
     }
-    *(float *)(c + 0x14) += 60.0f / (float)((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]);
-    *(float *)(c + 0x10) -= 60.0f / (float)((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]) * 0.0005f;
+    *(float *)(c + 0x14) += 60.0f / (float)((60 - systemStatus[0] * 10) / systemStatus[1]);
+    *(float *)(c + 0x10) -=
+        60.0f / (float)((60 - systemStatus[0] * 10) / systemStatus[1]) * 0.0005f;
 }
 
 static inline void addRippleToGrid(char *w, char *c, float **grid)
@@ -507,7 +509,7 @@ void updatePoolGeo(char *self)
     _InitCurrentMatrix();
     _SetCurrentMatrix(matrixptr + 0x100);
 
-    if (D_0028F4C0[5] == 0) {
+    if (systemStatus[5] == 0) {
         for (k = 0; k < 5; k++) {
             decayRipple(w + k * 24 + 0x50);
         }
@@ -633,7 +635,6 @@ static float workLightNormal[4][4] = {
     {0.0f, 0.0f, 0.0f, 1.0f},
 };
 
-extern int D_0028F4D4[];
 extern int debug_skel_flag;
 extern int stage_no;
 /* kept local: this TU's uses of _MulMatrix do not fit the prototype in Matrix.h */
@@ -710,7 +711,7 @@ void dispPool(char *self)
 
         reg_RenderReflection(*(char **)(w + 0xD0), 4);
 
-        if (D_0028F4D4[0] == 0) {
+        if (systemStatus[5] == 0) {
             if (++*(int *)(w + 0xD4) > 1600) {
                 *(int *)(w + 0xD4) = 0;
             }
@@ -766,10 +767,10 @@ void PoolDL(char *self)
 
     DispMultiBgaManagerWithKind(0x1F2, *(int *)(w + 0x2C), 10);
     DispMultiBgaManagerWithKind(0x1F3, *(int *)(w + 0x24), 2);
-    if (D_0028F4C0[5] == 0) {
+    if (systemStatus[5] == 0) {
         *(short *)(w + 0xCC) =
             (short)((float)*(short *)(w + 0xCC) +
-                    60.0f / (float)((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]) * 2000.0f);
+                    60.0f / (float)((60 - systemStatus[0] * 10) / systemStatus[1]) * 2000.0f);
     }
     if (*(int *)(w + 0x30) != 0) {
         updatePoolGeo(self);
@@ -818,7 +819,7 @@ void SetLayoutedPoolReflactionMesh(char *a0)
     int i;
     int j;
 
-    if (D_0028F4D4[0] == 0) {
+    if (systemStatus[5] == 0) {
         for (i = 0; i < *(int *)(a0 + 0x0); i++) {
             (*(float ***)(a0 + 0x14))[i][0] -=
                 ((*(float ***)(a0 + 0x14))[i][0] - random_signed() * 0.1f) * 0.8f;
@@ -887,7 +888,7 @@ void SetLimitedPoolReflactionMesh(char *a0, char *a1, char *a2)
     int i;
     int j;
 
-    if (D_0028F4D4[0] == 0) {
+    if (systemStatus[5] == 0) {
         for (i = 0; i < *(int *)(a0 + 0x0); i++) {
             for (j = 0; j < *(int *)(a0 + 0x4); j++) {
                 (*(float ***)(a0 + 0x14))[i][j] -=

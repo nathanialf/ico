@@ -21,7 +21,7 @@
    TU's .sdata; MAIN.MAP's January link has neither the word nor its name. */
 float ropeInterRate = 0.0f; /* derived name */
 
-extern MotionOrientEntry D_002ADD60[];
+extern MotionOrientEntry motionOrient[];
 extern MotionOrientEntry D_002BC4A8;
 /* kept local: this declaration is identical to the motionManager2.h prototype, but the
  * TU cannot include that header while its GetStreamMotion, DispSkelton and
@@ -157,8 +157,7 @@ typedef struct MotOriWork {
 } MotOriWork;
 
 /* .rodata at 0x55FE58 in the ROM: the trigger definition table is read-only. */
-extern const MotOriTrigEnt D_0055FE58[];
-extern int D_0028F4D4[];
+extern const MotOriTrigEnt motionKind[];
 
 /* the seventeen fixed captions the orientation debug window prints, one per
    trigger kind, plus the window's own format at 0x6201C8 */
@@ -169,14 +168,14 @@ typedef struct MotOriName {
     char s[0x20];
 } MotOriName;
 
-extern MotOriName D_005D1278[];
+extern MotOriName motionOriKind[];
 
 void orientDebug(void *self, int idx, int y)
 {
     char buf[256];
     MotOriName name;
 
-    switch (D_0055FE58[*(int *)(MOWORK(self) + 0x4A0)].f118) {
+    switch (motionKind[*(int *)(MOWORK(self) + 0x4A0)].f118) {
     default:
     case 12:
     case 13:
@@ -235,9 +234,9 @@ void orientDebug(void *self, int idx, int y)
         break;
     }
     if (debug_window_flag != 0) {
-        name = D_005D1278[idx];
+        name = motionOriKind[idx];
         debug_PrintFontWindow(y, "%s \207 %s (%s)\n", &name,
-                              D_0055FE58[*(int *)(MOWORK(self) + 0x4A0)].name, buf);
+                              motionKind[*(int *)(MOWORK(self) + 0x4A0)].name, buf);
     }
 }
 
@@ -252,15 +251,15 @@ extern const MotOriSub blendMotionKind[];
 
 static inline void checkMotionKind(int i, int j)
 {
-    if (D_0055FE58[i].f178 != 0x140) {
+    if (motionKind[i].f178 != 0x140) {
         char buf[0x100];
 
         /* EUC-JP: "the node-blending motion (%s) uses a node-blending motion again" */
         debug_StdPrintfDummy(
             "ノードを混ぜるモーション(%s)が、\n再度ノードを混ぜるモーションを利用しています。\n",
-            D_0055FE58[j].name);
+            motionKind[j].name);
         sprintf(buf, "NODE BLEND MOTION \"%s\" REFERS\nNODE BLEND MOTION RECURSIVELY.\n",
-                D_0055FE58[j].name);
+                motionKind[j].name);
         debug_assertMessage(__FILE__, 152, buf);
         __assert(__FILE__, 152, "e");
     }
@@ -271,11 +270,11 @@ int GetNbMotionFrames(int id)
     int m;
     int n;
 
-    if (D_0055FE58[id].f178 == 0x140) {
+    if (motionKind[id].f178 == 0x140) {
         return *motionTable[id];
     }
-    m = blendMotionKind[D_0055FE58[id].f178].f0;
-    n = blendMotionKind[D_0055FE58[id].f178].fC;
+    m = blendMotionKind[motionKind[id].f178].f0;
+    n = blendMotionKind[motionKind[id].f178].fC;
     checkMotionKind(m, id);
     if (n != -1) {
         return n;
@@ -287,12 +286,12 @@ float GetMotionPlaySpeedRatio(int id)
 {
     int m;
 
-    if (D_0055FE58[id].f178 == 0x140) {
-        return D_0055FE58[id].f174;
+    if (motionKind[id].f178 == 0x140) {
+        return motionKind[id].f174;
     }
-    m = blendMotionKind[D_0055FE58[id].f178].f0;
+    m = blendMotionKind[motionKind[id].f178].f0;
     checkMotionKind(m, id);
-    return D_0055FE58[m].f174;
+    return motionKind[m].f174;
 }
 
 void execFrameTrigger(void *self)
@@ -300,7 +299,7 @@ void execFrameTrigger(void *self)
     char *w = MOWORK(self) + 0x470;
     float t;
 
-    t = (float)D_0055FE58[*(int *)(w + 0x30)].f144;
+    t = (float)motionKind[*(int *)(w + 0x30)].f144;
     if (0.0f <= t) {
         if (*(int *)(w + 0x19C) == 0) {
             if (t < *(float *)(w + 0x3C)) {
@@ -313,7 +312,7 @@ void execFrameTrigger(void *self)
             *(int *)(w + 0x198) = 0;
         }
     }
-    t = (float)D_0055FE58[*(int *)(w + 0x30)].f14C;
+    t = (float)motionKind[*(int *)(w + 0x30)].f14C;
     if (0.0f <= t) {
         if (*(int *)(w + 0x1A4) != 0) {
             *(int *)(w + 0x1A0) = 0;
@@ -341,7 +340,7 @@ static __inline__ void clearFrameTriggerState(void *self)
  * shiftMotionData and UpdateFrameCounter both inline them. */
 static __inline__ int checkFrameInRange(int mot, float t)
 {
-    if ((float)D_0055FE58[mot].f144 <= t && t <= (float)D_0055FE58[mot].f148) {
+    if ((float)motionKind[mot].f144 <= t && t <= (float)motionKind[mot].f148) {
         return 1;
     }
     return 0;
@@ -349,7 +348,7 @@ static __inline__ int checkFrameInRange(int mot, float t)
 
 static __inline__ int checkFrameInRange2(int mot, float t, float t2)
 {
-    if ((float)D_0055FE58[mot].f14C <= t2 && t <= (float)D_0055FE58[mot].f154) {
+    if ((float)motionKind[mot].f14C <= t2 && t <= (float)motionKind[mot].f154) {
         return 1;
     }
     return 0;
@@ -357,7 +356,7 @@ static __inline__ int checkFrameInRange2(int mot, float t, float t2)
 
 static __inline__ int checkMotionShiftRange(int mot, float t, float t2)
 {
-    MotOriTrigEnt *e = &D_0055FE58[mot];
+    MotOriTrigEnt *e = &motionKind[mot];
     float a = (float)e->f13C;
     float b = (float)e->f140;
     float ab = a + b;
@@ -377,7 +376,8 @@ static __inline__ int checkMotionShiftRange(int mot, float t, float t2)
     return 1;
 }
 
-extern int D_0028F4C0[];
+/* kept local: main.c's global; this TU does not include main.h */
+extern int systemStatus[];
 extern int motionFrameUpdate;
 
 int UpdateFrameCounter(void *self)
@@ -395,10 +395,10 @@ int UpdateFrameCounter(void *self)
     w->f5C = 0;
     w->f80 = 0;
     if (motionFrameUpdate == 1) {
-        t = w->f48 * D_0055FE58[w->f30].f174 * w->f4C *
-            (60.0f / (float)((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]) * 0.5f);
-        if (D_0028F4C0[0] != 0) {
-            t = t * D_0055FE58[w->f30].f15C;
+        t = w->f48 * motionKind[w->f30].f174 * w->f4C *
+            (60.0f / (float)((60 - systemStatus[0] * 10) / systemStatus[1]) * 0.5f);
+        if (systemStatus[0] != 0) {
+            t = t * motionKind[w->f30].f15C;
         }
         if (w->f54 != 0) {
             switch (w->f68) {
@@ -423,14 +423,14 @@ int UpdateFrameCounter(void *self)
         }
         w->f40 = w->f3C;
         w->f3C = w->f3C + t;
-        switch (D_0055FE58[w->f30].f150) {
+        switch (motionKind[w->f30].f150) {
         case 1:
             if ((float)(nf - 1) <= w->f3C) {
                 w->f3C = w->f3C - (float)(nf - 1);
-                w->f5C = D_0055FE58[w->f30].f150;
+                w->f5C = motionKind[w->f30].f150;
                 InitFrameDependSequence(m + 0x740);
                 clearFrameTriggerState(self);
-                if (D_0055FE58[w->f30].f18C_20 != 0) {
+                if (motionKind[w->f30].f18C_20 != 0) {
                     w->f80 = 1;
                 }
             }
@@ -447,8 +447,8 @@ int UpdateFrameCounter(void *self)
             }
             break;
         }
-        w->f44 =
-            w->f44 + w->f48 * (60.0f / (float)((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]) * 0.5f);
+        w->f44 = w->f44 +
+                 w->f48 * (60.0f / (float)((60 - systemStatus[0] * 10) / systemStatus[1]) * 0.5f);
         w->f8C = w->f8C + 1;
         if (!(w->fA4 < w->fA0)) {
             w->fA0 = w->fA0 + 1;
@@ -469,17 +469,17 @@ inline MotionOrientEntry *GetMotionOrient(int i, int n, int id, int kind)
     int found = -1;
 
     for (; i < n; i++) {
-        if (D_002ADD60[i].kind == kind) {
-            if (D_002ADD60[i].id == id) {
-                return &D_002ADD60[i];
+        if (motionOrient[i].kind == kind) {
+            if (motionOrient[i].id == id) {
+                return &motionOrient[i];
             }
-            if (D_002ADD60[i].id == 0x47A) {
+            if (motionOrient[i].id == 0x47A) {
                 found = i;
             }
         }
     }
     if (found != -1) {
-        return &D_002ADD60[found];
+        return &motionOrient[found];
     }
     return 0;
 }
@@ -659,36 +659,36 @@ void shiftMotionData(int a0, int a1, int a2, int a3)
     }
     w->f94 = w->f30;
     w->f9C = (int)w->f3C;
-    w->fA4 = (int)((float)a3 * ((float)((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]) / 60.0f));
+    w->fA4 = (int)((float)a3 * ((float)((60 - systemStatus[0] * 10) / systemStatus[1]) / 60.0f));
     *(int *)(mw + 0x180) = -1;
-    *(int *)(mw + 0x310) = D_0055FE58[mot].f10C;
-    *(int *)(mw + 0x308) = D_0055FE58[mot].f114;
-    *(int *)(mw + 0x30C) = D_0055FE58[mot].f110;
-    *(enum MotOriShiftMode *)(mw + 0x360) = D_0055FE58[mot].f188_26;
-    *(int *)(mw + 0x314) = D_0055FE58[mot].f18C_23;
+    *(int *)(mw + 0x310) = motionKind[mot].f10C;
+    *(int *)(mw + 0x308) = motionKind[mot].f114;
+    *(int *)(mw + 0x30C) = motionKind[mot].f110;
+    *(enum MotOriShiftMode *)(mw + 0x360) = motionKind[mot].f188_26;
+    *(int *)(mw + 0x314) = motionKind[mot].f18C_23;
     *(float *)(mw + 0x340) = *(float *)(mw + 0x338);
-    *(float *)(mw + 0x33C) = D_0055FE58[mot].f164 < 5.0f ? 5.0f : D_0055FE58[mot].f164;
-    *(int *)(mw + 0x318) = D_0055FE58[mot].f170;
-    *(int *)(mw + 0x31C) = D_0055FE58[mot].f17C;
-    *(int *)(mw + 0x324) = D_0055FE58[mot].f188_28;
-    *(int *)(mw + 0x320) = D_0055FE58[mot].f16C;
-    *(int *)(mw + 0x328) = D_0055FE58[mot].f104;
-    *(int *)(mw + 0x32C) = D_0055FE58[mot].f18C_22;
-    *(int *)(mw + 0x330) = D_0055FE58[mot].f190_9;
+    *(float *)(mw + 0x33C) = motionKind[mot].f164 < 5.0f ? 5.0f : motionKind[mot].f164;
+    *(int *)(mw + 0x318) = motionKind[mot].f170;
+    *(int *)(mw + 0x31C) = motionKind[mot].f17C;
+    *(int *)(mw + 0x324) = motionKind[mot].f188_28;
+    *(int *)(mw + 0x320) = motionKind[mot].f16C;
+    *(int *)(mw + 0x328) = motionKind[mot].f104;
+    *(int *)(mw + 0x32C) = motionKind[mot].f18C_22;
+    *(int *)(mw + 0x330) = motionKind[mot].f190_9;
     w->f64 = 0;
     if (w->f60 == 0) {
-        if (w->f68 != D_0055FE58[mot].f118) {
+        if (w->f68 != motionKind[mot].f118) {
             w->f64 = 1;
-            w->f68 = D_0055FE58[mot].f118;
+            w->f68 = motionKind[mot].f118;
         }
     }
     w->f6C = 0;
     if (w->f70 != 0) {
-        if (D_0055FE58[mot].f18C_17 == 0) {
+        if (motionKind[mot].f18C_17 == 0) {
             w->f6C = 1;
         }
     }
-    w->f70 = D_0055FE58[mot].f18C_17;
+    w->f70 = motionKind[mot].f18C_17;
     w->f30 = mot;
     w->f2C = a2;
     w->fA0 = 1;
@@ -703,9 +703,9 @@ void shiftMotionData(int a0, int a1, int a2, int a3)
     w->fC = 1;
     w->f5C = 0;
     w->f1DC = 0;
-    if (D_0055FE58[mot].f18C_20 != 0) {
+    if (motionKind[mot].f18C_20 != 0) {
         w->f80 = 1;
-        if (D_0055FE58[w->f94].f18C_20 == 0) {
+        if (motionKind[w->f94].f18C_20 == 0) {
             w->f7C = 0;
         }
     } else {
@@ -743,7 +743,7 @@ void shiftMotionOrientEndFunc(void *self)
         return;
     }
 ok:
-    if (D_0055FE58[*(int *)(w + 0x30)].f130 == 0) {
+    if (motionKind[*(int *)(w + 0x30)].f130 == 0) {
         return;
     }
     FeedbackWallWorkInfoToBrainSystem(self);
@@ -783,8 +783,8 @@ void shiftMotionOrientBeginFunc(void *self, int a1, int a2, int a3)
 
     debug_StdPrintfDummy(
         "Change \"\033[33m%s(%d)\033[m\"in \"\033[33m%s(%d)\033[m\" at control \"\033[33m%s\033[m\".\n",
-        D_005D1278[*(int *)(w + 0xD0)].s, *(int *)(w + 0xD0), D_0055FE58[*(int *)(w + 0x30)].name,
-        *(int *)(w + 0x30), "");
+        motionOriKind[*(int *)(w + 0xD0)].s, *(int *)(w + 0xD0),
+        motionKind[*(int *)(w + 0x30)].name, *(int *)(w + 0x30), "");
     shiftMotionData((int)self, a1, a2, a3);
     if (*(int *)(w + 0x6C) != 0) {
         GetOutOutsideOfWall(self, *(float *)(p + 0x338));
@@ -793,9 +793,9 @@ void shiftMotionOrientBeginFunc(void *self, int a1, int a2, int a3)
     ang = 0;
     v.f[2] = 1.0f;
     if (*(int *)(w + 0x68) != 0 && *(int *)(w + 0x68) != 6) {
-        int kind = D_0055FE58[*(int *)(w + 0x94)].f108;
+        int kind = motionKind[*(int *)(w + 0x94)].f108;
 
-        if (D_0055FE58[*(int *)(w + 0x30)].f18C_27 || kind != 0) {
+        if (motionKind[*(int *)(w + 0x30)].f18C_27 || kind != 0) {
             sceVu0UnitMatrix(MatrixDrive_GetMatrix());
             if (kind != 0 && kind != 1) {
                 ang = (short)(kind * 32768 / 180);
@@ -964,14 +964,17 @@ int parallelMotionShift(void *self)
     return 0;
 }
 
-extern void *D_00639EA4;
-extern void *D_00639EA8;
+/* kept local: main.c's global; this TU does not include main.h */
+extern void *boyGObj;
+/* kept local: main.c's global; this TU does not include main.h */
+extern void *girlGObj;
 
 /* The ignored-request report: how many times in a row, and for which
    motion. */
 static int ignoreCount = 0; /* derived name */
 
-extern int D_0028F8F0[];
+/* kept local: main.c's global; this TU does not include main.h */
+extern int pad[];
 
 static int ignoreMotion = 0; /* derived name */
 
@@ -1003,8 +1006,8 @@ char *SetMotionRequest(void *self, int mot, MotOriReq req)
             debug_StdPrintfDummy("\033[36mUpdate with collision info that act memorized.\033[m\n");
             break;
         }
-        if ((debug_mot_debug_target == 0 && self == D_00639EA4) ||
-            (debug_mot_debug_target == 1 && self == D_00639EA8) ||
+        if ((debug_mot_debug_target == 0 && self == boyGObj) ||
+            (debug_mot_debug_target == 1 && self == girlGObj) ||
             (debug_mot_debug_target == 2 && self == isysGObjSearchFromObjKindID_begin(32)) ||
             (debug_mot_debug_target == 3 && self == isysGObjSearchFromObjKindID_begin(4)) ||
             (debug_mot_debug_target == 4 && self == isysGObjSearchFromObjKindID_begin(47))) {
@@ -1016,9 +1019,9 @@ char *SetMotionRequest(void *self, int mot, MotOriReq req)
         }
     } else {
         *(int *)(w + 0xD0) = old;
-        if (D_0028F8F0[0] & 0x2) {
-            if ((debug_mot_debug_target == 0 && self == D_00639EA4) ||
-                (debug_mot_debug_target == 1 && self == D_00639EA8) ||
+        if (pad[0] & 0x2) {
+            if ((debug_mot_debug_target == 0 && self == boyGObj) ||
+                (debug_mot_debug_target == 1 && self == girlGObj) ||
                 (debug_mot_debug_target == 2 && self == isysGObjSearchFromObjKindID_begin(32)) ||
                 (debug_mot_debug_target == 3 && self == isysGObjSearchFromObjKindID_begin(4)) ||
                 (debug_mot_debug_target == 4 && self == isysGObjSearchFromObjKindID_begin(47))) {
@@ -1031,11 +1034,11 @@ char *SetMotionRequest(void *self, int mot, MotOriReq req)
                     }
                 }
                 if (debug_window_flag != 0) {
-                    MotOriName name = D_005D1278[mot];
+                    MotOriName name = motionOriKind[mot];
 
                     debug_PrintFontWindow(0x3080FF20, "%s %s at %s ignore %d times",
                                           spin.s[frame_count & 3], name.s,
-                                          D_0055FE58[*(int *)(w + 0x30)].name, ++ignoreCount);
+                                          motionKind[*(int *)(w + 0x30)].name, ++ignoreCount);
                 }
                 ignoreMotion = mot;
             }
@@ -1086,7 +1089,7 @@ void getNodeBlendedFloatingMotion(void *dst, float *root, int id, int n, int a4,
     int prev = -1;
     void *skel = *(void **)(MOWORK(self) + 0x8C);
 
-    for (i = 0, j = D_0055FE58[id].f178; blendMotionKind[j].f0 != 0x47B; i++, j++) {
+    for (i = 0, j = motionKind[id].f178; blendMotionKind[j].f0 != 0x47B; i++, j++) {
         int node = blendMotionKind[j].f0;
 
         checkMotionKind(node, id);
@@ -1110,7 +1113,7 @@ void getNodeBlendedFloatingMotion(void *dst, float *root, int id, int n, int a4,
     }
     if (i == 0) {
         /* EUC-JP: "(%s) the motion to blend is not defined" */
-        debug_StdPrintfDummy("(%s)混ぜるモーションが定義されていません。\n", D_0055FE58[id].name);
+        debug_StdPrintfDummy("(%s)混ぜるモーションが定義されていません。\n", motionKind[id].name);
         debug_assert(__FILE__, 1228);
         __assert(__FILE__, 1228, "0");
     }
@@ -1141,7 +1144,7 @@ extern int stage_no;
  * repo's spelling. */
 static inline void getMotionRootPos(char *w, float *v)
 {
-    int m = blendMotionKind[D_0055FE58[*(int *)(w + 0x30)].f178].f0;
+    int m = blendMotionKind[motionKind[*(int *)(w + 0x30)].f178].f0;
     float t = *(float *)(w + 0x40);
 
     checkMotionKind(m, *(int *)(w + 0x30));
@@ -1160,7 +1163,7 @@ static inline void assertMotionLoaded(char *w, int *md)
         char buf[1024];
 
         sprintf(buf, "THE MOTION \"%s\"(%d)\nDID NOT LOAD IN THIS STAGE\nOR IS INVALID ID.\n",
-                D_0055FE58[*(int *)(w + 0x30)].name, *(int *)(w + 0x30));
+                motionKind[*(int *)(w + 0x30)].name, *(int *)(w + 0x30));
         debug_assertMessage(__FILE__, 1275, buf);
         __assert(__FILE__, 1275, "e");
     }
@@ -1180,7 +1183,7 @@ static inline void assertMotionNodeCount(char *w, int *md, int n)
         sprintf(
             buf,
             "THE NUMBER OF NODE DATAS OF MOTION\n\"%s\"(%d SKELTONS) DOES NOT MATCH\nTHE NUMBER OF SKELTON NODES(%d SKELTONS)\n",
-            D_0055FE58[*(int *)(w + 0x30)].name, i - 1, n);
+            motionKind[*(int *)(w + 0x30)].name, i - 1, n);
         debug_assertMessage(__FILE__, 1287, buf);
         __assert(__FILE__, 1287, "e");
     }
@@ -1197,7 +1200,7 @@ void getMotionGeometry(void *self)
     float scale = *(float *)(*(char **)(MOWORK(self) + 0x870) + 0x20);
     int *md = motionTable[*(int *)(w + 0x30)];
 
-    if (D_0055FE58[*(int *)(w + 0x30)].f178 == 0x140) {
+    if (motionKind[*(int *)(w + 0x30)].f178 == 0x140) {
         assertMotionLoaded(w, md);
         assertMotionNodeCount(w, md, n);
     }
@@ -1207,7 +1210,7 @@ void getMotionGeometry(void *self)
         Vec16 v;
         Vec16 rv;
 
-        if (D_0055FE58[*(int *)(w + 0x30)].f178 == 0x140) {
+        if (motionKind[*(int *)(w + 0x30)].f178 == 0x140) {
             GetFloatingMotion(mot, *(float *)(w + 0x3C), v.f, md, n, tbl, p);
             GetFloatingMotionRootPos(rv.f, md, *(float *)(w + 0x40));
         } else {
@@ -1257,7 +1260,7 @@ void getMotionGeometry(void *self)
             }
 
             len = VectorLength(mo + 0x90) *
-                  ((float)((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]) / 60.0f);
+                  ((float)((60 - systemStatus[0] * 10) / systemStatus[1]) / 60.0f);
             CopyVector(&fv, w + 0xB0);
             CopyVector(&tv, w + 0xC0);
             if (*(void **)MOWORK(self) != 0) {
@@ -1276,7 +1279,7 @@ void getMotionGeometry(void *self)
             }
             c = d < -1.0f ? -1.0f : d;
             ang = acosf(c) *
-                  ((float)((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]) / 60.0f * 10430.378f);
+                  ((float)((60 - systemStatus[0] * 10) / systemStatus[1]) / 60.0f * 10430.378f);
             if (0.0f < tv.f[0] * fv.f[2] - tv.f[2] * fv.f[0]) {
                 ang = -ang;
             }
@@ -1288,7 +1291,7 @@ void getMotionGeometry(void *self)
                 r = -6144.0f;
             }
             if (debug_now_motion_viewer == 0) {
-                float t = 60.0f / (float)((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]) * 0.2f;
+                float t = 60.0f / (float)((60 - systemStatus[0] * 10) / systemStatus[1]) * 0.2f;
 
                 *(short *)(mo + 0x50) = (short)((float)*(short *)(mo + 0x50) * (1.0f - t)) + r * t;
             }
@@ -1314,7 +1317,7 @@ void getMotionGeometry(void *self)
             if (debug_motion_interporate != 0) {
                 flag = *(int *)(w + 0xA4) >= *(int *)(w + 0xA0);
             }
-            k = D_0055FE58[*(int *)(w + 0x30)].f11C;
+            k = motionKind[*(int *)(w + 0x30)].f11C;
             if (flag != 0) {
                 float s = (float)*(int *)(w + 0xA0) / (float)*(int *)(w + 0xA4);
 
@@ -1402,7 +1405,7 @@ void getShapeGeometry(void *self)
 {
     char *m = (char *)*(int *)((char *)self + 0x15C) + 0x470;
 
-    if (D_0055FE58[*(int *)(m + 0x30)].f178 == 0x140) {
+    if (motionKind[*(int *)(m + 0x30)].f178 == 0x140) {
         void *mot = motionTable[*(int *)(m + 0x30)];
 
         if (CheckMotionIncludeFacialData(mot) == 0) {
@@ -1637,8 +1640,8 @@ void ExecMotionOrient(void *self)
         } else {
             parallelMotionShift(self);
         }
-        if ((debug_mot_debug_target == 0 && self == D_00639EA4) ||
-            (debug_mot_debug_target == 1 && self == D_00639EA8) ||
+        if ((debug_mot_debug_target == 0 && self == boyGObj) ||
+            (debug_mot_debug_target == 1 && self == girlGObj) ||
             (debug_mot_debug_target == 2 && self == isysGObjSearchFromObjKindID_begin(32)) ||
             (debug_mot_debug_target == 3 && self == isysGObjSearchFromObjKindID_begin(4)) ||
             (debug_mot_debug_target == 4 && self == isysGObjSearchFromObjKindID_begin(47))) {
@@ -1735,7 +1738,7 @@ inline void InitMotionOrient(void *self, int a1, int a2, int a3, int a4, int a5)
 
 inline unsigned int GetCurrentMotionDirectionAdjustFlag(char *a0)
 {
-    char *rec = (char *)D_0055FE58 + *(int *)(*(char **)(a0 + 0x15C) + 0x4A0) * 0x194;
+    char *rec = (char *)motionKind + *(int *)(*(char **)(a0 + 0x15C) + 0x4A0) * 0x194;
     return *(unsigned int *)(rec + 0x188) >> 30;
 }
 
@@ -1762,7 +1765,7 @@ inline int ExecuteSlipProc(char *a0)
 
 inline int ExecutePauseSlipProc(char *a0)
 {
-    if (D_0028F4D4[0] != 0) {
+    if (systemStatus[5] != 0) {
         *(int *)(*(char **)(a0 + 0x15C) + 0x628) = 0;
         StopSEPackageWithGroupVariation(a0, 1);
     }

@@ -42,8 +42,10 @@ void actSt01bInit(void)
     return FinishHint(9);
 }
 
-extern int D_00639EA4;
-extern int D_00639EA8;
+/* kept local: main.c's global; this TU does not include main.h */
+extern int boyGObj;
+/* kept local: main.c's global; this TU does not include main.h */
+extern int girlGObj;
 /* kept local: script.h's prototypes do not fit this TU's calls */
 extern int scpBoyControlReadDisable;
 /* kept local: this TU's uses of scpTriggerFloorAttr do not fit the prototype in script.h */
@@ -55,12 +57,12 @@ extern void scpWakeupEnemyOne(int id);
 
 void actSt01bEneChk(volatile int a0)
 {
-    if (D_00639EA8 == 0) {
+    if (girlGObj == 0) {
         _ACTWait(0);
     }
-    while (gflagChk(70) == 0 || scpTriggerFloorAttr(D_00639EA4, 0x1000000) == 0 ||
-           (scpTriggerFloorAttr(D_00639EA8, 0x1000000) == 0 &&
-            scpTriggerFloorAttr(D_00639EA8, 0x2000000) == 0)) {
+    while (gflagChk(70) == 0 || scpTriggerFloorAttr(boyGObj, 0x1000000) == 0 ||
+           (scpTriggerFloorAttr(girlGObj, 0x1000000) == 0 &&
+            scpTriggerFloorAttr(girlGObj, 0x2000000) == 0)) {
         _ACTWait(1);
     }
     lt_switch_layout(55);
@@ -103,7 +105,8 @@ static int demoEnd;
 
 static int seHandle;
 
-extern int D_00639EAC;
+/* kept local: main.c's global; this TU does not include main.h */
+extern int boyPad;
 
 /* A 16-byte constant vector template: the float view carries the values,
    the long long view is the one the copy reads, which is what makes gcc
@@ -129,7 +132,7 @@ void actSt01bFloorChkSub(volatile int a0)
     seHandle = -1;
     soundSeDefPlay(1288, 0, 0, 1);
     stage_SetAnimation(183, 1, 0);
-    st01b_yure = iosPadActRequest(D_00639EAC, 9);
+    st01b_yure = iosPadActRequest(boyPad, 9);
     st01b_yure_vol = 0x80;
     iosPadActVolumeSet(st01b_yure, 0x80);
     while (stage_CheckAnimationFrame(183, 180, 0) == 0) {
@@ -169,7 +172,7 @@ void actSt01bFloorChk(volatile int a0)
     int th;
     int notdone;
 
-    while (scpIsHangChainOptional(D_00639EA4, 0x325) == 0) {
+    while (scpIsHangChainOptional(boyGObj, 0x325) == 0) {
         _ACTWait(1);
     }
     lt_switch_layout(55);
@@ -178,8 +181,8 @@ void actSt01bFloorChk(volatile int a0)
     gflagOn(70);
     FinishHint(9);
     SetWayGroupActive(2, 1);
-    if (D_00639EA8 != 0) {
-        scpPlayPosSet(D_00639EA8, -200.0f, 900.0f, -200.0f);
+    if (girlGObj != 0) {
+        scpPlayPosSet(girlGObj, -200.0f, 900.0f, -200.0f);
     }
     scpAdpcmPlayRequestFunc(81, &st01b_floor, 1, 1, 0);
     th = actCreateSubThread(actSt01bFloorChkSub, 21);
@@ -416,10 +419,10 @@ void actSt01bWayOnChk(volatile int a0)
 {
     Act *sub = (Act *)((PObjGObj *)a0)->act;
 
-    if (D_00639EA8 == 0) {
+    if (girlGObj == 0) {
         _ACTWait(0);
     }
-    while (scpTriggerFloorAttr(D_00639EA8, 0x1000000) == 0 || gflagChk(70) == 0) {
+    while (scpTriggerFloorAttr(girlGObj, 0x1000000) == 0 || gflagChk(70) == 0) {
         _ACTWait(1);
     }
 
@@ -435,10 +438,10 @@ void actSt01bWayOffChk(volatile int a0)
 {
     Act *sub = (Act *)((PObjGObj *)a0)->act;
 
-    if (D_00639EA8 == 0) {
+    if (girlGObj == 0) {
         _ACTWait(0);
     }
-    while (scpTriggerFloorAttr(D_00639EA8, 0x2000000) == 0 || gflagChk(70) == 0) {
+    while (scpTriggerFloorAttr(girlGObj, 0x2000000) == 0 || gflagChk(70) == 0) {
         _ACTWait(1);
     }
 

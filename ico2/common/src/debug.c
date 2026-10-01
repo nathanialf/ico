@@ -463,7 +463,6 @@ extern int atoi(char *s);
 extern int strcmp();
 extern int debug_bar_flag;
 extern int game_pause;
-extern int D_00639EA0;
 /* the areas debug_Load parcels its files into; the report prints how much of
    each one is in use once the file has been allocated out of it */
 /* kept local: this TU's view of the ios partition handles (ios.h declares them int) */
@@ -674,7 +673,6 @@ static int debugBarCount;
    starts from */
 /* kept local: DmaPacket.h's PacketBufferStruct record does not fit this TU's view of it */
 extern int used_dma_memory;
-extern int D_0028F4C0[];
 
 /* clang-format on */
 
@@ -747,9 +745,7 @@ extern DbgReverbPad D_0028F8F0[];
 
 /* clang-format on */
 
-extern int D_0028F4C4[];
-extern StgPre D_005F5D50[];
-extern int D_0028F4D8[];
+extern StgPre stageData[];
 extern int stage_no;
 extern int mpegPlayReturnStage;
 
@@ -843,9 +839,9 @@ extern McReq mc;
 /* kept local: this TU's uses of iosMcGetInfo do not fit the prototype in mcard.h */
 extern void iosMcGetInfo(McReq *mc);
 extern char *D_00639EA4;
-extern GsysObjInfo D_005D6DB0[];
+extern GsysObjInfo seDef[];
 extern int SgGetSlotStatus(int a0, int slot);
-extern char D_0055F828[];
+extern char initFunc[];
 
 /* src/debug.c:5364-5376 in the listing: the sibling of debug_ListPadControlGobj
    that lists the actor GObjs the debug menu can print (kinds 1, 2, 4 and 0x2F). */
@@ -854,7 +850,7 @@ typedef struct {
     void *obj;
 } DbgGobjEnt;
 
-extern ObjKindEnt D_002C1270[];
+extern ObjKindEnt objKindData[];
 
 /* one editable row of the debug box: its label and the value shown */
 typedef struct {
@@ -938,7 +934,6 @@ extern void DebugDisp1Collision(void *hit);
    hardware counter (and the ROM's 32-bit `lw` shows the read is not narrowed). */
 extern int sceOpen(void *a0, int a1);
 extern int sceClose();
-extern int D_0028F4F0[];
 /* kept local: this TU's uses of iosMcFormat do not fit the prototype in mcard.h */
 extern void iosMcFormat(int port);
 /* kept local: this TU's uses of iosMcSync do not fit the prototype in mcard.h */
@@ -949,15 +944,15 @@ extern void iosMcUnformat(int port);
 extern void iosMcTest(void);
 /* kept local: the declaration in staffroll.h changes this TU codegen */
 extern void staffRollStart(int a0, float a1);
-extern unsigned short D_0030C4E0[];
+extern unsigned short seKind[];
 /* pad state block: +0x4 held buttons, +0xC newly-pressed (trigger) buttons */
-extern char D_00559D50[];
+extern char adpcmFile[];
 extern void *D_00639ED0;
 
 inline void ChangeGirlControlMode(int a0)
 {
     if (a0 == 1) {
-        D_00639EA0 = a0;
+        girlControlMode = a0;
     }
 }
 
@@ -1818,7 +1813,7 @@ void debug_DrawBar(void)
 
 
     flip = 0;
-    scale = 1.0f / (270000.0f / (float)((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]));
+    scale = 1.0f / (270000.0f / (float)((60 - systemStatus[0] * 10) / systemStatus[1]));
 
 
 
@@ -2049,7 +2044,7 @@ void debug_DispBar(void)
     int va;
     int vb;
     int n;
-    inv = 1.0f / (270000.0f / (float)((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]));
+    inv = 1.0f / (270000.0f / (float)((60 - systemStatus[0] * 10) / systemStatus[1]));
     vb = (float)(debugBars[debugBarCount - 1].count * 100) * inv;
     va = (float)(drawTimerCount * 100) * inv;
 
@@ -2550,7 +2545,7 @@ inline void debug_DispVu1SReg(int no)
 
 inline int gsResetFunc(void)
 {
-    gsb_Init(D_0028F4F0);
+    gsb_Init(db);
     return 1;
 }
 
@@ -2721,7 +2716,7 @@ inline int _debug_SelectCsvWindow(char *title, int x, int y, int rows, int base,
             yy += 8;
         }
         if (csvScroll <= 0xFFFE) {
-            csvScroll += D_0028F4C4[0];
+            csvScroll += systemStatus[1];
         }
         *psel = sel;
         if (D_0028F8F0[0].hold & 0x20) {
@@ -2768,14 +2763,14 @@ int debug_SelectCsvWindow(char *title, int x, int y, int rows, void *base, int s
 
 int debug_SelectStageMain(int ret, int stage)
 {
-    if (D_0028F4D8[0] != 0) {
+    if (systemStatus[6] != 0) {
         return 0;
     }
     if (ret > 0) {
         debug_StdPrintfDummy("stage:%d\n", stage);
         if (stage != 0) {
             int on = 1;
-            if (strstr(D_005F5D50[stage].dataFile, "NOCD_") == 0) {
+            if (strstr(stageData[stage].dataFile, "NOCD_") == 0) {
                 mpegPlayReturnStage = stage_no;
                 soundDataSegAllClose(0, 2);
                 seEnvForceClose = on;
@@ -2794,7 +2789,7 @@ int debug_SelectStageMain(int ret, int stage)
 
 int debug_SelectStage(void)
 {
-    return debug_SelectStageMain(debug_SelectCsvWindowWithLine("stage select", 10, 80, 11, D_005F5D50,
+    return debug_SelectStageMain(debug_SelectCsvWindowWithLine("stage select", 10, 80, 11, stageData,
                                                                404, 0x20, 0, 106, &stageSelectNo),
                                  stageSelectNo);
 }
@@ -3279,7 +3274,7 @@ inline int debug_STAFFROLLTest(void)
 
 inline int debug_SETest_color(int idx)
 {
-    return D_0030C4E0[D_005D6DB0[idx].f_20] != 0 ? 0xFFFFFF00 : 0x80808000;
+    return seKind[seDef[idx].f_20] != 0 ? 0xFFFFFF00 : 0x80808000;
 }
 
 static int seSelect = 0; /* derived name */
@@ -3293,7 +3288,7 @@ int debug_SETest(int reset)
     if (reset != 0) {
         seHandle = -1;
     }
-    r = debug_SelectCsvWindowWithLineColor("SE LIST", 0xA, 0x3C, 0xA, D_005D6DB0, 0x3C, 0,
+    r = debug_SelectCsvWindowWithLineColor("SE LIST", 0xA, 0x3C, 0xA, seDef, 0x3C, 0,
                                                0, 0x592, &seSelect, debug_SETest_color);
     if (r > 0) {
         seHandle = soundSeDefPlay(seSelect, 0, GOBJ_SUB(D_00639EA4)->f_C + 0x30, 1);
@@ -3371,7 +3366,7 @@ inline int debug_AdpcmTest(int a0)
     if (a0 != 0) {
         adpcmHandle = -1;
     }
-    r = debug_SelectCsvWindow("ADPCM LIST", 10, 0x3C, 10, D_00559D50, 0x40, 0, 0, 0x69, &adpcmSelect);
+    r = debug_SelectCsvWindow("ADPCM LIST", 10, 0x3C, 10, adpcmFile, 0x40, 0, 0, 0x69, &adpcmSelect);
     if (r > 0) {
         if (adpcmSelect != 0) {
             scpAdpcmPlayRequestFunc(adpcmSelect, 0, 1, 1, 1);
@@ -3408,7 +3403,7 @@ char *debugCdvdLoadInfoSegDispFunc(int idx, int page)
     } else {
         sprintf(buf, " %6x", d);
     }
-    sprintf(loadInfoLine, "%3s %6x %6x %s", D_0055F828 + idx * 0x24,
+    sprintf(loadInfoLine, "%3s %6x %6x %s", initFunc + idx * 0x24,
             *(int *)((char *)loadInfoSeg + (page * 0xD0 + idx * 8)),
             *(int *)((char *)loadInfoSeg + (page * 0xD0 + idx * 8) + 4), buf);
     return loadInfoLine;
@@ -3485,7 +3480,7 @@ static inline int debug_ListActGobj(DbgGobjEnt *list)
         case 2:
         case 4:
         case 0x2F:
-            list[n].name = ((ObjKindEnt *)((char *)D_002C1270 + kind * 0x64))->name;
+            list[n].name = ((ObjKindEnt *)((char *)objKindData + kind * 0x64))->name;
             list[n].obj = g;
             n++;
         }
@@ -3503,7 +3498,7 @@ static inline int debug_ListPadControlGobj(DbgGobjEnt *list)
         int kind = ((PObjGObj *)g)->kind;
         if (kind == 2 || kind == 4) {
             list[n].obj = g;
-            list[n].name = ((ObjKindEnt *)((char *)D_002C1270 + kind * 0x64))->name;
+            list[n].name = ((ObjKindEnt *)((char *)objKindData + kind * 0x64))->name;
             n++;
         }
     }

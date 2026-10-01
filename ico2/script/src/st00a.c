@@ -91,18 +91,20 @@ void actSt00aInit(void)
     }
 }
 
-extern char *D_00639EA8;
+/* kept local: main.c's global; this TU does not include main.h */
+extern char *girlGObj;
 
 void actSt00aEnd(void)
 {
-    if (D_00639EA8 != 0) {
+    if (girlGObj != 0) {
         if (gflagChk(42) == 0) {
             gflagOn(391);
         }
     }
 }
 
-extern int D_0028F4C0[];
+/* kept local: main.c's global; this TU does not include main.h */
+extern int systemStatus[];
 /* kept local: script.h's prototypes do not fit this TU's calls */
 extern int scpBoyControlReadDisable;
 /* kept local: this TU's uses of scpSleepEnemyOne do not fit the prototype in script.h */
@@ -116,7 +118,7 @@ extern void scpWakeupEnemyAll(void);
 
 void actSt00aEneChk(volatile int a0)
 {
-    if (D_00639EA8 == 0) {
+    if (girlGObj == 0) {
         _ACTWait(0);
     }
     while (gflagChk(42) == 0 || gflagChk(38) != 0) {
@@ -141,7 +143,7 @@ void actSt00aEneChk(volatile int a0)
     scpBoyControlReadDisable = 0;
     scpWakeupEnemyOne(3757);
     scpWakeupEnemyAll();
-    _ACTWait((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]);
+    _ACTWait((60 - systemStatus[0] * 10) / systemStatus[1]);
     gflagOff(39);
 }
 
@@ -235,7 +237,8 @@ void actSt00aStairChk(volatile int a0)
     fightSoundProcessRequestStart();
 }
 
-extern int D_00639EA4;
+/* kept local: main.c's global; this TU does not include main.h */
+extern int boyGObj;
 void actSt00aDoor2DownChk(int a0);
 void actSt00aDoor2UpChk(int a0);
 
@@ -245,8 +248,8 @@ void actSt00aDoor2(volatile int a0)
     Act *self = actInitialize(a0);
     _ACTWait(1);
 
-    if (scpTriggerBall(a0, D_00639EA4, 200.0f) != 0 ||
-        (D_00639EA8 != 0 && scpTriggerBall(a0, (int)D_00639EA8, 400.0f) != 0)) {
+    if (scpTriggerBall(a0, boyGObj, 200.0f) != 0 ||
+        (girlGObj != 0 && scpTriggerBall(a0, (int)girlGObj, 400.0f) != 0)) {
         stage_SetAnimation(94, 0, 0);
         _ACTWait(60);
         door2Down_mes[0].func = actSt00aDoor2DownChk;
@@ -358,8 +361,8 @@ void actSt00aDoor1(volatile int a0)
     Act *self = actInitialize(a0);
     _ACTWait(1);
 
-    if (scpTriggerBall(a0, D_00639EA4, 200.0f) != 0 ||
-        (D_00639EA8 != 0 && scpTriggerBall(a0, (int)D_00639EA8, 400.0f) != 0)) {
+    if (scpTriggerBall(a0, boyGObj, 200.0f) != 0 ||
+        (girlGObj != 0 && scpTriggerBall(a0, (int)girlGObj, 400.0f) != 0)) {
         stage_SetAnimation(92, 0, 0);
         _ACTWait(60);
         door1Down_mes[0].func = actSt00aDoor1DownChk;
@@ -544,28 +547,29 @@ extern int scpTriggerFloorAttr(int a0, int a1);
 
 void actSt00aAtr2Chk(volatile int a0)
 {
-    if (D_00639EA8 == 0) {
+    if (girlGObj == 0) {
         _ACTWait(0);
     }
-    while (scpTriggerFloorAttr(D_00639EA8, 0x2000000) == 0) {
+    while (scpTriggerFloorAttr(girlGObj, 0x2000000) == 0) {
         _ACTWait(1);
     }
     gflagOn(42);
 }
 
-extern int D_00639EAC;
+/* kept local: main.c's global; this TU does not include main.h */
+extern int boyPad;
 
 void actSt00aStairChkSub(volatile int a0)
 {
     _ACTWait(90);
-    iosPadActRequest(D_00639EAC, 0x11);
+    iosPadActRequest(boyPad, 0x11);
     while (stage_CheckAnimationFinish(87) == 0) {
         _ACTWait(1);
     }
     _ACTWait(1);
     stage_SetAnimation(89, 1, 0);
     stage_SetAnimation(90, 1, 0);
-    proto_yure = iosPadActRequest(D_00639EAC, 9);
+    proto_yure = iosPadActRequest(boyPad, 9);
     proto_yure_vol = 0x80;
     iosPadActVolumeSet(proto_yure, 0x80);
     _ACTWait(500);

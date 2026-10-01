@@ -210,12 +210,13 @@ void actSt27aWave1(volatile int a0)
     }
 }
 
-extern int D_00639EA4;
+/* kept local: main.c's global; this TU does not include main.h */
+extern int boyGObj;
 
 void actSpiderChk(volatile int a0)
 {
     while (1) {
-        while ((*(int *)(*(int *)(D_00639EA4 + 0x164) + 0x2E4) & 0x400) == 0) {
+        while ((*(int *)(*(int *)(boyGObj + 0x164) + 0x2E4) & 0x400) == 0) {
             _ACTWait(1);
         }
         scpBornSpider(2, 0.0f, -500.0f, 0.0f, 500.0f);
@@ -223,12 +224,13 @@ void actSpiderChk(volatile int a0)
     }
 }
 
-extern PadState D_0028F8F0[];
+/* kept local: main.c's global; this TU does not include main.h */
+extern PadState pad[];
 
 void actSt17aTestChk(volatile int a0)
 {
     while (1) {
-        while ((D_0028F8F0[1].flags & 0x20) == 0) {
+        while ((pad[1].flags & 0x20) == 0) {
             _ACTWait(1);
         }
         stage_SetAnimation(84, 1, 0);

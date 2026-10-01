@@ -28,10 +28,10 @@ static int enemiesWait;
 
 static int ebrainSlots[224];
 
-extern StgPre D_005F5D50[];
+extern StgPre stageData[];
 extern void debug_assert(char *file, int line);
 extern void __assert(char *file, int line, char *expr);
-extern GenGeo D_002C2DC8[];
+extern GenGeo objLayout[];
 
 static inline void eBrainSetStatus(EBSlot *p, int newst)
 {
@@ -113,8 +113,10 @@ inline int eBrainStatusSet(void *a0, int a1)
     return (int)slot;
 }
 
-extern void *D_00639EA4;
-extern void *D_00639EA8;
+/* kept local: main.c's global; this TU does not include main.h */
+extern void *boyGObj;
+/* kept local: main.c's global; this TU does not include main.h */
+extern void *girlGObj;
 
 static EBSlot *boyTargets[32];
 
@@ -153,16 +155,16 @@ void eBrainProcess(void)
     girlTargetNum = 0;
     boyTargetNum = 0;
 
-    if (D_00639EA4 == 0) {
-        if (D_00639EA8 == 0)
+    if (boyGObj == 0) {
+        if (girlGObj == 0)
             return;
     } else {
         enemiesWait = IsBoyStatus_EnemyMustWait();
-        GetRootPosition(bpos, D_00639EA4);
+        GetRootPosition(bpos, boyGObj);
     }
 
-    if (D_00639EA8 != 0) {
-        GetRootPosition(gpos, D_00639EA8);
+    if (girlGObj != 0) {
+        GetRootPosition(gpos, girlGObj);
     }
 
     for (i = 0; i < 32; i++) {
@@ -177,11 +179,11 @@ void eBrainProcess(void)
         s->dist[1] = sceVu0InnerProduct(d, d);
 
         if (s->f0 == 0) {
-            if (D_00639EA4 != 0) {
+            if (boyGObj != 0) {
                 eBrainRegistTarget(boyTargets, boyTargetNum, s, 0);
                 boyTargetNum = boyTargetNum + 1;
             }
-            if (D_00639EA8 != 0) {
+            if (girlGObj != 0) {
                 eBrainRegistTarget(girlTargets, girlTargetNum, s, 1);
                 girlTargetNum = girlTargetNum + 1;
             }
@@ -197,7 +199,7 @@ inline int GetStageFromLabel(int label)
     int i;
 
     for (i = 0; i < 106; i++) {
-        if (label >= D_005F5D50[i].labelTop && label < D_005F5D50[i].labelEnd) {
+        if (label >= stageData[i].labelTop && label < stageData[i].labelEnd) {
             stage = i;
             break;
         }
@@ -223,8 +225,8 @@ inline int eBrainGetTargetGeneratorFromLabelStage(int label, int stage)
         return ret;
 
     st = stage;
-    for (i = D_005F5D50[st].labelTop; i < D_005F5D50[st].labelEnd; i++) {
-        GenGeo *g = &D_002C2DC8[i];
+    for (i = stageData[st].labelTop; i < stageData[st].labelEnd; i++) {
+        GenGeo *g = &objLayout[i];
         if (g->kind == 0x21) {
             f = g->f48 >> 17;
             f &= 1;
@@ -257,7 +259,7 @@ int eBrainGetTargetGeneratorFromLabel(int label)
 
     stage = -1;
     for (i = 0; i < 106; i++) {
-        if (label >= D_005F5D50[i].labelTop && label < D_005F5D50[i].labelEnd) {
+        if (label >= stageData[i].labelTop && label < stageData[i].labelEnd) {
             stage = i;
             break;
         }
@@ -268,8 +270,8 @@ int eBrainGetTargetGeneratorFromLabel(int label)
     }
 
     st = stage;
-    for (i = D_005F5D50[st].labelTop; i < D_005F5D50[st].labelEnd; i++) {
-        GenGeo *g = &D_002C2DC8[i];
+    for (i = stageData[st].labelTop; i < stageData[st].labelEnd; i++) {
+        GenGeo *g = &objLayout[i];
         if (g->kind == 0x21) {
             f = g->f48 >> 17;
             f &= 1;
@@ -322,7 +324,7 @@ EBSlot *eBrainGetTarget(void *gop)
         eBrainSetStatus(p, 0);
         break;
     case 6:
-        if (D_00639EA8 != 0) {
+        if (girlGObj != 0) {
             eBrainSetStatus(p, 3);
         }
         break;
@@ -397,12 +399,12 @@ EBSlot *eBrainGetTarget(void *gop)
                 }
                 for (; order[i] != 0; i++) {
                     if (order[i] == 1) {
-                        if (eBrainCanSeeTarget(gop, D_00639EA4)) {
+                        if (eBrainCanSeeTarget(gop, boyGObj)) {
                             eBrainSetStatus(p, 1);
                             break;
                         }
                     } else {
-                        if (eBrainCanSeeTarget(gop, D_00639EA8)) {
+                        if (eBrainCanSeeTarget(gop, girlGObj)) {
                             eBrainSetStatus(p, 2);
                             break;
                         }
@@ -416,10 +418,10 @@ EBSlot *eBrainGetTarget(void *gop)
             break;
         }
         case 1:
-            p->f04 = D_00639EA4;
+            p->f04 = boyGObj;
             if (p->f14 >= 181) {
                 if (p->dist[1] < p->dist[0] + 250000.0f) {
-                    if (eBrainCanSeeTarget(gop, D_00639EA8)) {
+                    if (eBrainCanSeeTarget(gop, girlGObj)) {
                         eBrainSetStatus(p, 2);
                         changed = 1;
                     }
@@ -427,12 +429,12 @@ EBSlot *eBrainGetTarget(void *gop)
             }
             break;
         case 2:
-            p->f04 = D_00639EA8;
+            p->f04 = girlGObj;
             break;
         case 5:
-            p->f04 = D_00639EA8;
+            p->f04 = girlGObj;
             if (p->dist[0] < 250000.0f) {
-                if (eBrainCanSeeTarget(gop, D_00639EA4)) {
+                if (eBrainCanSeeTarget(gop, boyGObj)) {
                     eBrainSetStatus(p, 1);
                     changed = 1;
                 }
@@ -450,13 +452,13 @@ EBSlot *eBrainGetTarget(void *gop)
             p->f04 = 0;
             break;
         case 3:
-            if (eBrainCanSeeTarget(gop, D_00639EA8)) {
+            if (eBrainCanSeeTarget(gop, girlGObj)) {
                 eBrainSetStatus(p, 2);
                 changed = 1;
             }
             break;
         case 8:
-            p->f04 = D_00639EA4;
+            p->f04 = boyGObj;
             if (enemiesWait == 0) {
                 eBrainSetStatus(p, 0);
             }

@@ -24,8 +24,10 @@ typedef struct EditPad {
     char _p8[0x58 - 0x8];
 } EditPad;
 
-extern void *D_00639EA4;
-extern EditPad D_0028F8F0;
+/* kept local: main.c's global; this TU does not include main.h */
+extern void *boyGObj;
+/* kept local: main.c's global; this TU does not include main.h */
+extern EditPad pad;
 /* kept local: script.h's prototypes do not fit this TU's calls */
 extern int scpBoyControlReadDisable;
 /* kept local: this TU's uses of scpFadeIn do not fit the prototype in script.h */
@@ -82,13 +84,13 @@ void actSt24aSwordChk(volatile int self)
     float dir[4];
     char *th;
 
-    while ((*(int *)(*(int *)((char *)D_00639EA4 + 0x164) + 0x2E4) & 0x20) == 0 ||
-           scpTriggerBall(self, D_00639EA4, 100.0f) == 0) {
+    while ((*(int *)(*(int *)((char *)boyGObj + 0x164) + 0x2E4) & 0x20) == 0 ||
+           scpTriggerBall(self, boyGObj, 100.0f) == 0) {
         _ACTWait(1);
     }
     lt_switch_layout(55);
     scpBoyControlReadDisable = 1;
-    scpPlayStart(D_00639EA4);
+    scpPlayStart(boyGObj);
     gflagOn(329);
     soundSeDefPlay(1343, 0, 0, 1);
     scpAdpcmPlayRequestFunc(34, &sword, 1, 1, 0);
@@ -111,23 +113,23 @@ void actSt24aSwordChk(volatile int self)
             _ACTWait(1);
         }
         stage_SetAnimation(153, 0, -1);
-        scpPlayPosSet(D_00639EA4, 1685.0f, -1080.0f, -550.0f);
+        scpPlayPosSet(boyGObj, 1685.0f, -1080.0f, -550.0f);
         *(Vec16 *)v = swordChkPos;
-        sceVu0SubVector(dir, v, test_CURRENTROOT(D_00639EA4));
-        scpPlayMotDir(D_00639EA4, dir);
+        sceVu0SubVector(dir, v, test_CURRENTROOT(boyGObj));
+        scpPlayMotDir(boyGObj, dir);
         SetCameraFlag_LwsCutBack();
         scpSetBoyWeaponGObj(scpSearchGobj(2098));
         scpFadeIn(3.0f);
     }
-    scpPlayMot(D_00639EA4, 0);
-    scpPlayEnd(D_00639EA4);
+    scpPlayMot(boyGObj, 0);
+    scpPlayEnd(boyGObj);
     lt_switch_layout(54);
     scpBoyControlReadDisable = 0;
 }
 
 void actSt24aDemoCamChk(volatile int a0)
 {
-    while (scpTriggerBall(a0, D_00639EA4, 700.0f) == 0) {
+    while (scpTriggerBall(a0, boyGObj, 700.0f) == 0) {
         _ACTWait(1);
     }
     lt_switch_layout(55);
@@ -136,7 +138,7 @@ void actSt24aDemoCamChk(volatile int a0)
     stage_SetAnimation(154, 1, 0);
     SetCameraFlag_LwsCutBack();
     while (stage_CheckAnimationFinish(154) == 0) {
-        if (D_0028F8F0.trg & 0x800) {
+        if (pad.trg & 0x800) {
             if (scpAdpcmPlayRequestNum() == 0) {
                 scpFadeOut(16.0f, 0, 0, 0);
                 while (scpFadeChk() != 0) {
@@ -207,7 +209,7 @@ void actSt24aSwordSub(volatile int a0)
 
     stage_SetAnimation(153, 1, 0);
 
-    scpPlayMot(D_00639EA4, 250);
+    scpPlayMot(boyGObj, 250);
 
     while (stage_CheckAnimationFrame(153, 21, 0) == 0) {
         _ACTWait(1);

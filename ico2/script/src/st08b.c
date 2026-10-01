@@ -29,7 +29,8 @@ static ActMail doorDownChk_mes[2] = {{430}, {429}};
 
 static ActMail ene_mes[2] = {{430}, {429}};
 
-extern int D_00639EA8;
+/* kept local: main.c's global; this TU does not include main.h */
+extern int girlGObj;
 /* kept local: script.h's prototypes do not fit this TU's calls */
 extern int scpBoyControlReadDisable;
 /* as script.h declares it; this TU does not include that header */
@@ -81,12 +82,14 @@ typedef union Pos {
     float f[4];
 } Pos;
 
-extern PadState D_0028F8F0[];
+/* kept local: main.c's global; this TU does not include main.h */
+extern PadState pad[];
 void actSt08bKurenLeft(volatile int a0);
 void actSt08bKurenRight(volatile int a0);
 /* as script.h declares it; this TU does not include that header */
 extern void scpWakeupItemWithBoundary(float a0, float a1, float a2, float a3);
-extern int D_00639EA4;
+/* kept local: main.c's global; this TU does not include main.h */
+extern int boyGObj;
 /* The door-boundary X/Z corners live in the -G8 gp float pool and are written
    by the stage's layout/script side, so their loads may not sink into the jal
    delay slot; ROM has a nop at both call sites. */
@@ -94,7 +97,8 @@ void actSt08bDoorUpChk(volatile int a0);
 void actSt08bDoorDownChk(volatile int a0);
 /* kept local: this TU's uses of scpSearchGobj do not fit the prototype in script.h */
 extern PObjGObj *scpSearchGobj(int a0);
-extern int D_00639EAC;
+/* kept local: main.c's global; this TU does not include main.h */
+extern int boyPad;
 
 /* .sbss, owned by st08b.o and reached only from this file (MAIN.MAP names no
    symbol in the run): the demo's own end flag, raised by the
@@ -118,8 +122,8 @@ inline void actSt08bKurenMain(volatile int a0)
     int sub = *(int *)(a0 + 0x164);
 
     scpBoyControlReadDisable = 0;
-    if (D_00639EA8 != 0) {
-        scpPlayEnd(D_00639EA8);
+    if (girlGObj != 0) {
+        scpPlayEnd(girlGObj);
     }
     *(int *)(sub + 0xD0) = (int)kurenMain_mes;
     while (1) {
@@ -140,8 +144,8 @@ void actSt08bKurenSwitch(volatile int a0)
     scpBoyControlReadDisable = 1;
     sub->mainMail = 0;
 
-    if (D_00639EA8 != 0) {
-        if (scpTriggerFloorAttr(D_00639EA8, 0x3000000) != 0) {
+    if (girlGObj != 0) {
+        if (scpTriggerFloorAttr(girlGObj, 0x3000000) != 0) {
             th = actCreateSubThread(actSt08aGirlYoro, 21);
         }
     }
@@ -167,7 +171,7 @@ void actSt08bKurenSwitch(volatile int a0)
     _ACTWait(3);
 
     demoEnd = 0;
-    while (demoEnd == 0 && ((D_0028F8F0[0].flags & 0x800) == 0 || scpAdpcmPlayRequestNum() != 0)) {
+    while (demoEnd == 0 && ((pad[0].flags & 0x800) == 0 || scpAdpcmPlayRequestNum() != 0)) {
         _ACTWait(1);
     }
 
@@ -188,24 +192,24 @@ void actSt08bKurenSwitch(volatile int a0)
         HotInitCageGeo(scpSearchGobj(364));
         _ACTWait(1);
         if (th != 0) {
-            scpPlayMot(D_00639EA8, 532);
+            scpPlayMot(girlGObj, 532);
             if (gflagChk(80) != 0) {
                 p1.ll[0] = kurenSwitchPos.d[0];
                 p1.ll[1] = kurenSwitchPos.d[1];
-                SetDirectRootPosition(D_00639EA8, &p1);
+                SetDirectRootPosition(girlGObj, &p1);
             } else {
                 p2.ll[0] = kurenSwitch2Pos.d[0];
                 p2.ll[1] = kurenSwitch2Pos.d[1];
-                p2.f[1] += *(float *)(*(int *)((int)GOBJ_SUB(D_00639EA8) + 0x8C) + 0x14);
-                SetDirectRootPosition(D_00639EA8, &p2);
+                p2.f[1] += *(float *)(*(int *)((int)GOBJ_SUB(girlGObj) + 0x8C) + 0x14);
+                SetDirectRootPosition(girlGObj, &p2);
             }
         }
         scpFadeIn(3.0f);
     }
 
-    if (D_00639EA8 != 0) {
-        GetRootPosition(&p1, D_00639EA8);
-        *(float *)((int)GOBJ_SUB(D_00639EA8) + 0x254) = p1.f[1];
+    if (girlGObj != 0) {
+        GetRootPosition(&p1, girlGObj);
+        *(float *)((int)GOBJ_SUB(girlGObj) + 0x254) = p1.f[1];
     }
 
     while (stage_CheckAnimationFrame(370, frame, 1) == 0) {
@@ -243,19 +247,19 @@ void actSt08bKurenLeft(volatile int a0)
         _ACTWait(1);
     }
     _ACTWait(1);
-    iosPadActRequest(D_00639EAC, 0x10);
+    iosPadActRequest(boyPad, 0x10);
 
     while (stage_CheckAnimationFrame(370, 215, 0) == 0) {
         _ACTWait(1);
     }
     _ACTWait(1);
-    iosPadActRequest(D_00639EAC, 0x11);
+    iosPadActRequest(boyPad, 0x11);
 
     while (stage_CheckAnimationFrame(370, 465, 0) == 0) {
         _ACTWait(1);
     }
     _ACTWait(1);
-    iosPadActRequest(D_00639EAC, 0x11);
+    iosPadActRequest(boyPad, 0x11);
 
     demoEnd = 1;
     _ACTWait(0);
@@ -271,19 +275,19 @@ void actSt08bKurenRight(volatile int a0)
         _ACTWait(1);
     }
     _ACTWait(1);
-    iosPadActRequest(D_00639EAC, 0x11);
+    iosPadActRequest(boyPad, 0x11);
 
     while (stage_CheckAnimationFrame(370, 822, 0) == 0) {
         _ACTWait(1);
     }
     _ACTWait(1);
-    iosPadActRequest(D_00639EAC, 0x11);
+    iosPadActRequest(boyPad, 0x11);
 
     while (stage_CheckAnimationFrame(370, 995, 0) == 0) {
         _ACTWait(1);
     }
     _ACTWait(1);
-    iosPadActRequest(D_00639EAC, 0x11);
+    iosPadActRequest(boyPad, 0x11);
 
     demoEnd = 1;
     _ACTWait(0);
@@ -291,11 +295,11 @@ void actSt08bKurenRight(volatile int a0)
 
 inline void actSt08aGirlYoro(volatile int a0)
 {
-    scpPlayStart(D_00639EA8);
-    scpPlayMot(D_00639EA8, 546);
-    scpPlayWaitMotEnd(D_00639EA8);
-    scpPlayMot(D_00639EA8, 595);
-    scpPlayWaitMotEnd(D_00639EA8);
+    scpPlayStart(girlGObj);
+    scpPlayMot(girlGObj, 546);
+    scpPlayWaitMotEnd(girlGObj);
+    scpPlayMot(girlGObj, 595);
+    scpPlayWaitMotEnd(girlGObj);
     _ACTWait(0);
 }
 
@@ -311,8 +315,8 @@ void actSt08bDoor(volatile int a0)
 
     _ACTWait(1);
 
-    if (scpTriggerBall(a0, D_00639EA4, 200.0f) != 0 ||
-        (D_00639EA8 != 0 && scpTriggerBall(a0, D_00639EA8, 400.0f) != 0)) {
+    if (scpTriggerBall(a0, boyGObj, 200.0f) != 0 ||
+        (girlGObj != 0 && scpTriggerBall(a0, girlGObj, 400.0f) != 0)) {
         stage_SetAnimation(372, 0, 0);
         _ACTWait(60);
         doorDown_mes[0].func = actSt08bDoorDownChk;
@@ -466,10 +470,10 @@ inline void actSt08bEne(volatile int a0)
 
 inline void actSt08bEneChk(volatile int a0)
 {
-    if (D_00639EA8 == 0) {
+    if (girlGObj == 0) {
         _ACTWait(0);
     }
-    while (scpTriggerFloorAttr(D_00639EA8, 0x2000000) == 0) {
+    while (scpTriggerFloorAttr(girlGObj, 0x2000000) == 0) {
         _ACTWait(1);
     }
     _ACTWait(1);

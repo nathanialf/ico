@@ -57,7 +57,7 @@ typedef struct {
     int work[4];          /* 0x30 */
 } GamesysObjInfoBackstage;
 
-/* the 0x194-byte per-stage record D_005F5D50; wayBits is a 9-bit field in the
+/* the 0x194-byte per-stage record stageData; wayBits is a 9-bit field in the
    bitfield word at 0x18C, which is why it is read with an lhu at 0x18E */
 typedef struct {
     char pad000[0x18C];
@@ -67,7 +67,7 @@ typedef struct {
     char pad190[0x194 - 0x190];
 } StageInfoRec;
 
-extern char D_005F5D50[];
+extern char stageData[];
 
 /* the actor work record a gobj carries at 0x164 (src/enemy_act.c reads the same
    0x444 member off the same 0x164 pointer) */
@@ -87,7 +87,7 @@ typedef struct {
    (gamesys.h declares them with the record backStage.h carries, and this TU
    does not include gamesys.h) */
 extern GamesysObjInfoBackstage gameSysObjInfo[];
-extern GenGeoRec D_002C2DC8[];
+extern GenGeoRec objLayout[];
 
 /* .bss, owned by backStage.o and reached only from this file: the nest position
    the carrier walks to. */
@@ -124,11 +124,13 @@ extern int NumOfWpPos(void);
 extern void CopyWpPos(float *out, int i, int j);
 /* kept local: this TU's uses of _InnerProduct do not fit the prototype in Matrix.h */
 extern float _InnerProduct(float *a, float *b);
-extern int D_0028F4C0[];
+/* kept local: main.c's global; this TU does not include main.h */
+extern int systemStatus[];
 /* kept local with gamesys.h's declaration, which this TU does not include */
 extern int gamesysStageExitTime[];
 extern unsigned int gamesysTimeCount;
-extern int D_00639EA8;
+/* kept local: main.c's global; this TU does not include main.h */
+extern int girlGObj;
 /* kept local: warpGirl.h is not in this TU's include list */
 extern int warpGirlInStageSet;
 extern char D_0063ACF8[];
@@ -195,7 +197,8 @@ void backStageProcessOutStage(void)
 
                 kidnapState = 1;
                 enemySec = enemyDist / 160.0f;
-                kidnapTime = (int)(enemySec * (float)((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]));
+                kidnapTime =
+                    (int)(enemySec * (float)((60 - systemStatus[0] * 10) / systemStatus[1]));
                 m = *(ActorWorkRec **)(e + 0x164);
                 kidnapObjIdx = (unsigned int)((char *)gamesysObjInfoPosSetStage((int *)e, m->objNo,
                                                                                 0, stage_no) -
@@ -213,22 +216,22 @@ void backStageProcessOutStage(void)
                 kidnapState = 0;
             } else {
                 GetRootPosition(a.f, p);
-                GetRootPosition(b.f, D_00639EA8);
+                GetRootPosition(b.f, girlGObj);
                 nestDist = WayLengthOfPos_Pos(a.f, b.f);
                 nestSec = nestDist / 100.0f;
-                carryTime = (int)(nestSec * (float)((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]));
+                carryTime = (int)(nestSec * (float)((60 - systemStatus[0] * 10) / systemStatus[1]));
             }
-        } else if (((StageInfoRec *)(D_005F5D50 + stage_no * 0x194))->wayBits != 0) {
-            GetRootProjectionPosOfGObj(a.f, D_00639EA8);
+        } else if (((StageInfoRec *)(stageData + stage_no * 0x194))->wayBits != 0) {
+            GetRootProjectionPosOfGObj(a.f, girlGObj);
             wayKidnap = 1;
             kidnapState = 1;
-            enemySec = (float)((StageInfoRec *)(D_005F5D50 + stage_no * 0x194))->wayBits;
-            kidnapTime = (int)(enemySec * (float)((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]));
-            if (WayPointWithRangeFromPos2(a.f, *(char **)(D_00639EA8 + 0x164) + 0x360, nestPos,
-                                          1) == 0) {
+            enemySec = (float)((StageInfoRec *)(stageData + stage_no * 0x194))->wayBits;
+            kidnapTime = (int)(enemySec * (float)((60 - systemStatus[0] * 10) / systemStatus[1]));
+            if (WayPointWithRangeFromPos2(a.f, *(char **)(girlGObj + 0x164) + 0x360, nestPos, 1) ==
+                0) {
                 /* no ACTIVE connection was found */
                 debug_StdPrintfDummy("繋がりACTIVEでみつからなかった");
-                if (WayPointWithRangeFromPos2(a.f, *(char **)(D_00639EA8 + 0x164) + 0x360, nestPos,
+                if (WayPointWithRangeFromPos2(a.f, *(char **)(girlGObj + 0x164) + 0x360, nestPos,
                                               0) == 0) {
                     /* no connection was found, so the nest is placed at the heroine */
                     debug_StdPrintfDummy("繋がりみつからなかったのでヒロインの位置に巣を配置");
@@ -237,13 +240,13 @@ void backStageProcessOutStage(void)
             }
             nestDist = WayLengthOfPos_Pos(nestPos, a.f);
             nestSec = nestDist / 100.0f;
-            carryTime = (int)(nestSec * (float)((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]));
-            if ((float)carryTime < (float)((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]) * 30.0f) {
-                carryTime = (int)((float)((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]) * 30.0f);
+            carryTime = (int)(nestSec * (float)((60 - systemStatus[0] * 10) / systemStatus[1]));
+            if ((float)carryTime < (float)((60 - systemStatus[0] * 10) / systemStatus[1]) * 30.0f) {
+                carryTime = (int)((float)((60 - systemStatus[0] * 10) / systemStatus[1]) * 30.0f);
             }
         }
-        if ((float)carryTime < (float)((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]) * 10.0f) {
-            carryTime = (int)((float)((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]) * 10.0f);
+        if ((float)carryTime < (float)((60 - systemStatus[0] * 10) / systemStatus[1]) * 10.0f) {
+            carryTime = (int)((float)((60 - systemStatus[0] * 10) / systemStatus[1]) * 10.0f);
         }
     } else {
         o = isysGObjSearchFromObjKindID_begin(4);
@@ -291,9 +294,9 @@ void backStageProcessMain(void)
                 s->work[0] = 4;
             } else {
                 memset(&tmp, 0, sizeof(tmp));
-                tmp.f[0] = D_002C2DC8[0xEAE].rot[0];
-                tmp.f[1] = D_002C2DC8[0xEAE].rot[1];
-                tmp.f[2] = D_002C2DC8[0xEAE].rot[2];
+                tmp.f[0] = objLayout[0xEAE].rot[0];
+                tmp.f[1] = objLayout[0xEAE].rot[1];
+                tmp.f[2] = objLayout[0xEAE].rot[2];
                 rot = tmp;
                 g1 = gamesysObjInfoPosNewStageSet(0xEAD, 4, gameSysObjInfo[1].stage,
                                                   gameSysObjInfo[1].pos.f, gameSysObjInfo[1].rot.f);
@@ -411,7 +414,7 @@ void backStageProcessInStage(float arg)
     int t;
 
     range = (float)((unsigned int)(gamesysTimeCount - gamesysStageExitTime[stage_no]) /
-                    ((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1])) *
+                    ((60 - systemStatus[0] * 10) / systemStatus[1])) *
             40.0f;
     if (arg != 0.0f) {
         range = arg;
@@ -433,7 +436,7 @@ void backStageProcessInStage(float arg)
         /* the heroine is not held, so the position is changed at random */
         debug_StdPrintfDummy("ヒロイン捕まっていないのでランダムで位置変更");
         if (gflagChk(391) == 0) {
-            kidnapWarpToWaypoint(D_00639EA8, range);
+            kidnapWarpToWaypoint(girlGObj, range);
         }
     }
     gobj = isysGObjSearchFromObjKindID_begin(4);
@@ -455,7 +458,7 @@ void backStageProcessInStage(float arg)
 
                     if (carryTime > 0) {
                         ratio = (float)carryTime /
-                                (float)((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]) * 100.0f;
+                                (float)((60 - systemStatus[0] * 10) / systemStatus[1]) * 100.0f;
                     } else {
                         ratio = 0.0f;
                     }
@@ -463,7 +466,7 @@ void backStageProcessInStage(float arg)
                     if (ratio <= nestDist) {
                         rest = nestDist - ratio;
                     }
-                    GetRootPosition(root.f, D_00639EA8);
+                    GetRootPosition(root.f, girlGObj);
                     SetDirectRootPosition(D_0063ACF0, root.f);
                     if (0.0f < nestDist) {
                         routeSetPos(D_0063ACF0, t, pos.f, rest / nestDist);

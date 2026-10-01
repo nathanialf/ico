@@ -234,7 +234,8 @@ typedef struct OmGObj {
     int pauseExempt; /* 0x170 */
 } OmGObj;
 
-extern int D_0028F4C0[];
+/* kept local: main.c's global; this TU does not include main.h */
+extern int systemStatus[];
 extern int active_gobj_link;
 extern OmProc *isysCurrentGObjProcess;
 
@@ -251,7 +252,7 @@ void _iosOmMain(int a0, int a1, int a2, int a3)
         if ((active_gobj_link >> k) & 1) {
             for (; g != 0; g = g->next) {
                 isysCurrentGObj = (char *)g;
-                if (D_0028F4C0[5] == 0 || g->pauseExempt != 0) {
+                if (systemStatus[5] == 0 || g->pauseExempt != 0) {
                     if (g->active != 0) {
                         if (g->fn != 0) {
                             g->fn(g);
@@ -266,7 +267,7 @@ void _iosOmMain(int a0, int a1, int a2, int a3)
         if ((active_gobj_link >> k) & 1) {
             for (; g2 != 0; g2 = g2->next) {
                 isysCurrentGObj = (char *)g2;
-                if (D_0028F4C0[5] == 0 || g2->pauseExempt != 0) {
+                if (systemStatus[5] == 0 || g2->pauseExempt != 0) {
                     if (g2->active != 0) {
                         for (pri = 0x13; pri < 27; pri++) {
                             p = g2->procs;

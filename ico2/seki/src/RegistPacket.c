@@ -1248,7 +1248,8 @@ void reg_dispCObj(char *o)
     }
 }
 
-extern int D_0028F4C0[];
+/* kept local: main.c's global; this TU does not include main.h */
+extern int systemStatus[];
 /* kept local: this TU's calls pass the two arguments the VU0 bodies read,
    where Matrix.h declares three */
 extern void _RotTransPersCurrentMatrix(void *dst, void *src);
@@ -1294,14 +1295,14 @@ void reg_dispPoint(char *node, float alpha, int idx, int flag)
         if (flag != 0) {
             _CopyIVector(iv2, iv);
         } else {
-            if (D_0028F4C0[5] == 0) {
+            if (systemStatus[5] == 0) {
                 v = *(Qw128 *)(node + 0x10);
             } else {
                 v = *(Qw128 *)(node + 0x20);
             }
             *(Qw128 *)iv2 = v;
         }
-        if (D_0028F4C0[5] == 0) {
+        if (systemStatus[5] == 0) {
             *(Qw128 *)(node + 0x20) = *(Qw128 *)(node + 0x10);
             *(Qw128 *)(node + 0x10) = *(Qw128 *)iv;
         }
@@ -1309,13 +1310,13 @@ void reg_dispPoint(char *node, float alpha, int idx, int flag)
         if (flag != 0) {
             _CopyIVector(iv2, iv);
         } else {
-            if (D_0028F4C0[5] == 0) {
+            if (systemStatus[5] == 0) {
                 _CopyIVector(iv2, node + (idx * 0x10 + 0x50));
             } else {
                 _CopyIVector(iv2, node + (idx * 0x10 + 0x80));
             }
         }
-        if (D_0028F4C0[5] == 0) {
+        if (systemStatus[5] == 0) {
             _CopyIVector(node + (idx * 0x10 + 0x80), node + (idx * 0x10 + 0x50));
             _CopyIVector(node + (idx * 0x10 + 0x50), iv);
         }

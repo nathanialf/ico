@@ -170,10 +170,11 @@ extern void RotQuaternionX(void *q, int angle);
 extern void SetParticleEffect(int kind, void *mat, void *q);
 extern void ObjAction_MailCenter(void *obj, int mail);
 /* the two frame-rate divisors, the pair box.c's own fall code reads */
-extern int D_0028F4C0[];
+/* kept local: main.c's global; this TU does not include main.h */
+extern int systemStatus[];
 
-/* switch.c:179-225 in the listing.  The frame divisor (60 - D_0028F4C0[0] *
-   10) / D_0028F4C0[1] is written twice, once for the limit test and once for
+/* switch.c:179-225 in the listing.  The frame divisor (60 - systemStatus[0] *
+   10) / systemStatus[1] is written twice, once for the limit test and once for
    the equality test, which is what the ROM's two divisions are; the parentize
    probe at switch.c:122-133 is the inlined initParentize above, and the
    quaternion the particle effect is given shares its frame slot with that
@@ -190,9 +191,9 @@ void FloorLeverGeo(char *a0)
     }
     if (*(int *)(p + 4) != 0) {
         *(int *)(p + 8) = *(int *)(p + 8) + 1;
-        if (*(int *)(p + 8) <= (60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]) {
+        if (*(int *)(p + 8) <= (60 - systemStatus[0] * 10) / systemStatus[1]) {
             *(short *)p = (short)(random_signed() * 128.0f);
-            if (*(int *)(p + 8) == (60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]) {
+            if (*(int *)(p + 8) == (60 - systemStatus[0] * 10) / systemStatus[1]) {
                 switchReleaseSE((int)a0);
             }
             if (*(int *)(p + 0x1C) != 0) {
@@ -331,9 +332,9 @@ void WallLeverGeo(char *a0)
     }
     if (*(int *)(p + 4) != 0) {
         *(int *)(p + 8) = *(int *)(p + 8) + 1;
-        if (*(int *)(p + 8) <= (60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]) {
+        if (*(int *)(p + 8) <= (60 - systemStatus[0] * 10) / systemStatus[1]) {
             *(short *)p = (short)(random_signed() * 128.0f);
-            if (*(int *)(p + 8) == (60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]) {
+            if (*(int *)(p + 8) == (60 - systemStatus[0] * 10) / systemStatus[1]) {
                 switchReleaseSE((int)a0);
             }
         } else if (*(short *)(p + 2) != 0) {

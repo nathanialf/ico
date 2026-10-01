@@ -122,7 +122,8 @@ typedef struct {
     char unk10[0x48]; /* 0x10 */
 } EffToolPad;
 
-extern EffToolPad D_0028F8F0[];
+/* kept local: main.c's global; this TU does not include main.h */
+extern EffToolPad pad[];
 
 typedef union {
     int i;
@@ -151,8 +152,8 @@ int editParam(int id, int sel)
     float step;
     int v;
 
-    if ((D_0028F8F0[0].unk00 & 0x8000) || (D_0028F8F0[1].unk00 & 0x8000) ||
-        (D_0028F8F0[0].unk00 & 0x2000) || (D_0028F8F0[1].unk00 & 0x2000)) {
+    if ((pad[0].unk00 & 0x8000) || (pad[1].unk00 & 0x8000) || (pad[0].unk00 & 0x2000) ||
+        (pad[1].unk00 & 0x2000)) {
         holdCount++;
     } else {
         holdCount = 0;
@@ -164,7 +165,7 @@ int editParam(int id, int sel)
     }
     switch (e->type) {
     case 1:
-        if ((D_0028F8F0[0].rep & 0x8000) || (D_0028F8F0[1].rep & 0x8000)) {
+        if ((pad[0].rep & 0x8000) || (pad[1].rep & 0x8000)) {
             p->f -= step * 0.01f;
             if (p->f < e->min) {
                 p->f = e->min;
@@ -172,7 +173,7 @@ int editParam(int id, int sel)
                 changed = 1;
             }
         }
-        if ((D_0028F8F0[0].rep & 0x2000) || (D_0028F8F0[1].rep & 0x2000)) {
+        if ((pad[0].rep & 0x2000) || (pad[1].rep & 0x2000)) {
             p->f += step * 0.01f;
             if (e->max < p->f) {
                 p->f = e->max;
@@ -182,7 +183,7 @@ int editParam(int id, int sel)
         }
         break;
     case 0:
-        if ((D_0028F8F0[0].rep & 0x8000) || (D_0028F8F0[1].rep & 0x8000)) {
+        if ((pad[0].rep & 0x8000) || (pad[1].rep & 0x8000)) {
             p->i = (float)p->i - step;
             if (p->i < e->min) {
                 p->i = e->min;
@@ -190,7 +191,7 @@ int editParam(int id, int sel)
                 changed = 1;
             }
         }
-        if ((D_0028F8F0[0].rep & 0x2000) || (D_0028F8F0[1].rep & 0x2000)) {
+        if ((pad[0].rep & 0x2000) || (pad[1].rep & 0x2000)) {
             p->i = (float)p->i + step;
             if (e->max < p->i) {
                 p->i = e->max;
@@ -200,7 +201,7 @@ int editParam(int id, int sel)
         }
         break;
     case 2:
-        if ((D_0028F8F0[0].rep & 0x8000) || (D_0028F8F0[1].rep & 0x8000)) {
+        if ((pad[0].rep & 0x8000) || (pad[1].rep & 0x8000)) {
             v = p->s;
             v = (float)v - step;
             if (v < e->min) {
@@ -210,7 +211,7 @@ int editParam(int id, int sel)
                 changed = 1;
             }
         }
-        if ((D_0028F8F0[0].rep & 0x2000) || (D_0028F8F0[1].rep & 0x2000)) {
+        if ((pad[0].rep & 0x2000) || (pad[1].rep & 0x2000)) {
             v = p->s;
             v = (float)v + step;
             if (e->max < v) {
@@ -222,7 +223,7 @@ int editParam(int id, int sel)
         }
         break;
     case 3:
-        if ((D_0028F8F0[0].rep & 0x8000) || (D_0028F8F0[1].rep & 0x8000)) {
+        if ((pad[0].rep & 0x8000) || (pad[1].rep & 0x8000)) {
             v = p->us;
             v = (float)v - step;
             if (v < e->min) {
@@ -232,7 +233,7 @@ int editParam(int id, int sel)
                 changed = 1;
             }
         }
-        if ((D_0028F8F0[0].rep & 0x2000) || (D_0028F8F0[1].rep & 0x2000)) {
+        if ((pad[0].rep & 0x2000) || (pad[1].rep & 0x2000)) {
             v = p->us;
             v = (float)v + step;
             if (e->max < v) {
@@ -249,7 +250,7 @@ int editParam(int id, int sel)
     if (changed) {
         effectToolDirty[id] |= 1;
     }
-    return (changed && e->step != 0) || (D_0028F8F0[0].trg & 0x20) || (D_0028F8F0[1].trg & 0x20);
+    return (changed && e->step != 0) || (pad[0].trg & 0x20) || (pad[1].trg & 0x20);
 }
 
 /* the tool's line colour (r=0, g=0xC0, b=0xFF, a=0x1C) and the dimmed copy the
@@ -469,19 +470,19 @@ int EditTarget(int id)
         effectHandle = SetParticleEffect(effectId, effectToolPos, q);
     }
     dispEffectParams(id, paramCursor);
-    if ((D_0028F8F0[0].rep & 0x1000) || (D_0028F8F0[1].rep & 0x1000)) {
+    if ((pad[0].rep & 0x1000) || (pad[1].rep & 0x1000)) {
         paramCursor--;
         if (paramCursor < 0) {
             paramCursor = n - 1;
         }
     }
-    if ((D_0028F8F0[0].rep & 0x4000) || (D_0028F8F0[1].rep & 0x4000)) {
+    if ((pad[0].rep & 0x4000) || (pad[1].rep & 0x4000)) {
         paramCursor++;
         if (paramCursor == n) {
             paramCursor = 0;
         }
     }
-    if ((D_0028F8F0[0].trg & 0x40) || (D_0028F8F0[1].trg & 0x40)) {
+    if ((pad[0].trg & 0x40) || (pad[1].trg & 0x40)) {
         return -1;
     }
     return 0;
@@ -512,7 +513,7 @@ static inline void initEffectTool(void)
 }
 
 /* particleEffect.c's effect table is 0x50 bytes per entry: char name[0x20]
-   then char file[0x30].  D_0062A298 is &tbl[0].file (D_0062A278 = &tbl[0].name). */
+   then char file[0x30].  D_0062A298 is &tbl[0].file (particleEffectFile = &tbl[0].name). */
 extern char D_0062A298[];
 /* kept local: this TU's uses of debug_closeLog do not fit the prototype in debug.h */
 extern void debug_closeLog(void);
@@ -596,7 +597,7 @@ void moveEffectToolGeometry(int idx)
     }
 }
 
-extern char D_0062A278[];
+extern char particleEffectFile[];
 /* kept local: this TU's uses of debug_SelectCsvWindow do not fit the prototype in debug.h */
 extern int debug_SelectCsvWindow(char *title, int a1, int a2, int a3, void *tbl, int stride, int a6,
                                  int a7, int count, int *cur);
@@ -610,7 +611,7 @@ int execEffectTool(void)
     default:
     case 0:
         r = debug_SelectCsvWindow("Effect Tools: PUSH 2-CON'\202' TO SAVE SELECTED DATA", 10, 0x32,
-                                  0xB, D_0062A278, 0x50, 0, 0, 0x3D, &effectId);
+                                  0xB, particleEffectFile, 0x50, 0, 0, 0x3D, &effectId);
         if (effectId != lastEffectId) {
             setQ(q);
             if (effectHandle != -1) {
@@ -620,19 +621,19 @@ int execEffectTool(void)
             lastEffectId = effectId;
             paramCursor = 0;
         }
-        if (D_0028F8F0[1].trg & 0x10) {
+        if (pad[1].trg & 0x10) {
             saveEffectData(effectId);
         }
-        if (D_0028F8F0[1].trg & 0x20) {
+        if (pad[1].trg & 0x20) {
             r = 1;
         }
-        if (D_0028F8F0[1].rep & 0x1000) {
+        if (pad[1].rep & 0x1000) {
             effectId--;
             if (effectId < 0) {
                 effectId = 0x3C;
             }
         }
-        if (D_0028F8F0[1].rep & 0x4000) {
+        if (pad[1].rep & 0x4000) {
             effectId++;
             if (effectId >= 0x3D) {
                 effectId = 0;
@@ -652,7 +653,7 @@ int execEffectTool(void)
         break;
     }
     moveEffectToolGeometry(effectId);
-    if ((D_0028F8F0[0].trg & 0x80) || (D_0028F8F0[1].trg & 0x80)) {
+    if ((pad[0].trg & 0x80) || (pad[1].trg & 0x80)) {
         fieldDisp = (fieldDisp == 0);
     }
     if (fieldDisp) {

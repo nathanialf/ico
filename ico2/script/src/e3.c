@@ -27,11 +27,14 @@
 #include "kanbanBoot.h"
 #include "layout_action.h"
 
-extern int D_00639EA4;
-extern int D_00639EA8;
+/* kept local: main.c's global; this TU does not include main.h */
+extern int boyGObj;
+/* kept local: main.c's global; this TU does not include main.h */
+extern int girlGObj;
 /* kept local: script.h's prototypes do not fit this TU's calls */
 extern int scpBoyControlReadDisable;
-extern int D_0028F4C0[];
+/* kept local: main.c's global; this TU does not include main.h */
+extern int systemStatus[];
 /* as script.h declares it; this TU does not include that header */
 extern void scpFadeOut(float t, int a1, int a2, int a3);
 /* as script.h declares it; this TU does not include that header */
@@ -50,7 +53,7 @@ void actE3WarningChk(volatile int a0)
     stgmgrNextStagePreLoadForceStageSet(0x5F);
 
     i = 0;
-    while (i++ < (0x3C - D_0028F4C0[0] * 0xA) / D_0028F4C0[1] * 5) {
+    while (i++ < (0x3C - systemStatus[0] * 0xA) / systemStatus[1] * 5) {
         _ACTWait(1);
     }
 
@@ -59,9 +62,9 @@ void actE3WarningChk(volatile int a0)
         _ACTWait(1);
     }
 
-    _ACTWait((int)(float)((0x3C - D_0028F4C0[0] * 0xA) / D_0028F4C0[1]));
+    _ACTWait((int)(float)((0x3C - systemStatus[0] * 0xA) / systemStatus[1]));
 
-    RequestStageChange(1, D_00639EA4, 0, 255.0f, 0.0f);
+    RequestStageChange(1, boyGObj, 0, 255.0f, 0.0f);
 }
 
 /* kept local: this TU's uses of scpAdpcmPlayRequestFunc do not fit the prototype in script.h */
@@ -142,7 +145,7 @@ void actE3Title(volatile int a0)
         _ACTWait(1);
     }
 
-    D_0028F4C0[0xB] = 7;
+    systemStatus[0xB] = 7;
 
     scpFadeOut(255.0f, 0, 0, 0);
 
@@ -152,8 +155,8 @@ void actE3Title(volatile int a0)
 
     scpFadeIn(6.0f);
 
-    if (D_00639EA4 != 0) {
-        scpPlayMot(D_00639EA4, 0);
+    if (boyGObj != 0) {
+        scpPlayMot(boyGObj, 0);
     }
 
     stage_SetAnimation(32, 0, 0);
@@ -170,7 +173,8 @@ void actE3Title(volatile int a0)
     _ACTWait(0);
 }
 
-extern PadState D_0028F8F0[];
+/* kept local: main.c's global; this TU does not include main.h */
+extern PadState pad[];
 
 void actE3TitleChk(volatile int a0)
 {
@@ -180,7 +184,7 @@ void actE3TitleChk(volatile int a0)
 
     actCreateSubThread(actE3TitleFrameChk, 21);
 
-    while (gflagChk(356) != 0 || (D_0028F8F0[0].flags & 0x840) == 0) {
+    while (gflagChk(356) != 0 || (pad[0].flags & 0x840) == 0) {
         _ACTWait(1);
     }
 
@@ -194,7 +198,7 @@ void actE3TitleChk(volatile int a0)
         _ACTWait(1);
     }
 
-    RequestStageChange(1, D_00639EA4, 0, 255.0f, 16.0f);
+    RequestStageChange(1, boyGObj, 0, 255.0f, 16.0f);
 }
 
 extern int NonLinearCameraMove;
@@ -251,7 +255,7 @@ void actE3TitleFrameChk(volatile int a0)
     stage_SetAnimation(loop, 1, 0);
 
     i = 0;
-    while (i++ < (0x3C - D_0028F4C0[0] * 0xA) / D_0028F4C0[1] * 0x2D) {
+    while (i++ < (0x3C - systemStatus[0] * 0xA) / systemStatus[1] * 0x2D) {
         _ACTWait(1);
     }
 
@@ -323,8 +327,8 @@ void actE3Inst1Chk(volatile int a0)
     stage_SetAnimation(anim, 1, 0);
 
     i = 0;
-    while (i++ < (0x3C - D_0028F4C0[0] * 0xA) / D_0028F4C0[1] * 0xA &&
-           (D_0028F8F0[0].flags & 0x840) == 0) {
+    while (i++ < (0x3C - systemStatus[0] * 0xA) / systemStatus[1] * 0xA &&
+           (pad[0].flags & 0x840) == 0) {
         _ACTWait(1);
     }
 
@@ -335,7 +339,7 @@ void actE3Inst1Chk(volatile int a0)
         _ACTWait(1);
     }
 
-    RequestStageChange(1, D_00639EA4, 0, 255.0f, 16.0f);
+    RequestStageChange(1, boyGObj, 0, 255.0f, 16.0f);
 }
 
 /* as script.h declares it; this TU does not include that header */
@@ -348,13 +352,13 @@ void actE3Capsule(volatile int a0)
 
     _ACTWait(1);
 
-    if (D_00639EA8 == 0) {
+    if (girlGObj == 0) {
         ScpCallCameraOff();
     }
 
     if (gflagChk(358) == 0) {
-        if (D_00639EA4 != 0) {
-            scpPlayMot(D_00639EA4, 0);
+        if (boyGObj != 0) {
+            scpPlayMot(boyGObj, 0);
         }
 
         scpFadeOut(255.0f, 0, 0, 0);
@@ -391,7 +395,7 @@ static int demoEnd;
 
 void actE3CapsuleDemoCancel(volatile int a0)
 {
-    while (demoEnd == 0 || (D_0028F8F0[0].flags & 0x800) == 0) {
+    while (demoEnd == 0 || (pad[0].flags & 0x800) == 0) {
         _ACTWait(1);
     }
 
@@ -427,7 +431,7 @@ extern void scpPlayStart(int a0);
 void actE3CapsuleDemo(volatile int a0)
 {
     scpBoyControlReadDisable = 1;
-    scpPlayStart(D_00639EA4);
+    scpPlayStart(boyGObj);
 
     demoEnd = 1;
     actCreateSubThread(actE3CapsuleDemoCancel, 21);
@@ -439,17 +443,17 @@ void actE3CapsuleDemo(volatile int a0)
     while (stage_ContinueAnimation(594, 599) == 0) {
         _ACTWait(1);
     }
-    scpPlayMot(D_00639EA4, 288);
+    scpPlayMot(boyGObj, 288);
 
     while (stage_ContinueAnimation(599, 601) == 0) {
         _ACTWait(1);
     }
-    scpPlayMot(D_00639EA4, 288);
+    scpPlayMot(boyGObj, 288);
 
     while (stage_ContinueAnimation(601, 602) == 0) {
         _ACTWait(1);
     }
-    scpPlayMot(D_00639EA4, 292);
+    scpPlayMot(boyGObj, 292);
 
     _ACTWait(1);
 
@@ -458,22 +462,22 @@ void actE3CapsuleDemo(volatile int a0)
     while (stage_ContinueAnimation(602, 603) == 0) {
         _ACTWait(1);
     }
-    scpPlayMot(D_00639EA4, 293);
+    scpPlayMot(boyGObj, 293);
 
     while (stage_ContinueAnimation(603, 604) == 0) {
         _ACTWait(1);
     }
-    scpPlayMot(D_00639EA4, 294);
+    scpPlayMot(boyGObj, 294);
 
     while (stage_ContinueAnimation(604, 605) == 0) {
         _ACTWait(1);
     }
-    scpPlayMot(D_00639EA4, 295);
+    scpPlayMot(boyGObj, 295);
 
     while (stage_ContinueAnimation(605, 606) == 0) {
         _ACTWait(1);
     }
-    scpPlayMot(D_00639EA4, 296);
+    scpPlayMot(boyGObj, 296);
 
     while (stage_ContinueAnimation(606, 624) == 0) {
         _ACTWait(1);
@@ -506,11 +510,11 @@ void actE3CageFall(volatile int a0)
         stage_SetAnimation(76, 0, 0);
         stage_SetAnimation(72, 0, -1);
 
-        if (D_00639EA8 == 0) {
+        if (girlGObj == 0) {
             _ACTWait(0);
         }
 
-        scpPlayPosSet(D_00639EA8, -30.0f, -436.0f, -1.0f);
+        scpPlayPosSet(girlGObj, -30.0f, -436.0f, -1.0f);
 
         cageFall_mes[0].func = actE3CageFallChk;
         sub->mail = cageFall_mes;
@@ -530,7 +534,7 @@ extern PObjGObj *scpSearchGobj(int id);
 
 void actE3CageFallChk(volatile int a0)
 {
-    while (scpTriggerBall(a0, D_00639EA4, 160.0f) == 0) {
+    while (scpTriggerBall(a0, boyGObj, 160.0f) == 0) {
         _ACTWait(1);
     }
 
@@ -583,12 +587,12 @@ void actE3CageFallDemo(volatile int a0)
 
     scpBoyControlReadDisable = 1;
 
-    scpPlayStart(D_00639EA4);
-    scpPlayStart(D_00639EA8);
+    scpPlayStart(boyGObj);
+    scpPlayStart(girlGObj);
 
     stage_SetAnimation(630, 1, 0);
 
-    scpPlayMot(D_00639EA4, 315);
+    scpPlayMot(boyGObj, 315);
 
     while (stage_ContinueAnimation(630, 631) == 0) {
         _ACTWait(1);
@@ -602,32 +606,32 @@ void actE3CageFallDemo(volatile int a0)
 
     ResetHandCameraLimitInDemo();
 
-    scpPlayMot(D_00639EA8, 726);
+    scpPlayMot(girlGObj, 726);
 
     while (stage_ContinueAnimation(632, 633) == 0) {
         _ACTWait(1);
     }
-    scpPlayMot(D_00639EA8, 727);
+    scpPlayMot(girlGObj, 727);
 
     while (stage_ContinueAnimation(633, 634) == 0) {
         _ACTWait(1);
     }
-    scpPlayMot(D_00639EA4, 316);
+    scpPlayMot(boyGObj, 316);
 
     while (stage_ContinueAnimation(634, 635) == 0) {
         _ACTWait(1);
     }
-    scpPlayMot(D_00639EA4, 325);
+    scpPlayMot(boyGObj, 325);
 
     while (stage_ContinueAnimation(635, 636) == 0) {
         _ACTWait(1);
     }
-    scpPlayMot(D_00639EA8, 728);
+    scpPlayMot(girlGObj, 728);
 
     while (stage_ContinueAnimation(636, 637) == 0) {
         _ACTWait(1);
     }
-    scpPlayMot(D_00639EA8, 729);
+    scpPlayMot(girlGObj, 729);
 
     _ACTWait(240);
 
@@ -638,49 +642,49 @@ void actE3CageFallDemo(volatile int a0)
     while (stage_ContinueAnimation(637, 955) == 0) {
         _ACTWait(1);
     }
-    scpPlayMot(D_00639EA4, 323);
+    scpPlayMot(boyGObj, 323);
 
     while (stage_ContinueAnimation(955, 956) == 0) {
         _ACTWait(1);
     }
-    scpPlayMot(D_00639EA8, 326);
+    scpPlayMot(girlGObj, 326);
 
     while (stage_CheckAnimationFrame(956, 150, 0) == 0) {
         _ACTWait(1);
     }
     _ACTWait(1);
 
-    scpPlayMot(D_00639EA4, 324);
+    scpPlayMot(boyGObj, 324);
 
     while (stage_CheckAnimationFinish(956) == 0) {
         _ACTWait(1);
     }
     _ACTWait(1);
 
-    scpPlayMot(D_00639EA4, 0);
+    scpPlayMot(boyGObj, 0);
 
-    sceVu0SubVector(dir, test_CURRENTROOT(D_00639EA8), test_CURRENTROOT(D_00639EA4));
-    scpPlayMotDir(D_00639EA4, dir);
+    sceVu0SubVector(dir, test_CURRENTROOT(girlGObj), test_CURRENTROOT(boyGObj));
+    scpPlayMotDir(boyGObj, dir);
 
-    scpPlayEnd(D_00639EA4);
+    scpPlayEnd(boyGObj);
 
     scpBoyControlReadDisable = 0;
 
     lt_switch_layout(54);
 
-    scpPlayMot(D_00639EA8, 532);
+    scpPlayMot(girlGObj, 532);
     {
-        int self = D_00639EA8;
+        int self = girlGObj;
 
         GOBJ_SUB(self)->f_514 =
-            (int)((float)((0x3C - D_0028F4C0[0] * 0xA) / D_0028F4C0[1]) / 60.0f * 30.0f);
+            (int)((float)((0x3C - systemStatus[0] * 0xA) / systemStatus[1]) / 60.0f * 30.0f);
 
         scpPlayEnd(self);
     }
 
     gflagOn(381);
 
-    gamesysObjInfoPosSetStage((int *)D_00639EA4, *(int *)(*(int *)(D_00639EA4 + 0x164) + 0x444), 0,
+    gamesysObjInfoPosSetStage((int *)boyGObj, *(int *)(*(int *)(boyGObj + 0x164) + 0x444), 0,
                               stage_no);
 
     CheckPoint();
@@ -693,30 +697,31 @@ void actE3CageFallDemo(volatile int a0)
    src/script.c is void. */
 /* as script.h declares it; this TU does not include that header */
 extern int scpEffectStart(void *a0, int a1);
-extern int D_00639EAC;
+/* kept local: main.c's global; this TU does not include main.h */
+extern int boyPad;
 /* kept local: this TU's uses of scpPlayMot do not fit the prototype in script.h */
 extern void scpPlayMot(int a0, int mot);
 
 inline void actE3CapsuleDemoEnd(volatile int a0)
 {
-    scpPlayMot(D_00639EA4, 307);
+    scpPlayMot(boyGObj, 307);
 
     while (stage_CheckAnimationFinish(624) == 0) {
         _ACTWait(1);
     }
     _ACTWait(1);
 
-    scpPlayMot(D_00639EA4, 0);
+    scpPlayMot(boyGObj, 0);
 
     {
         EffectArg ofs = {{-1000.0f, 0.0f, -2200.0f, 1.0f}};
         float dir[4];
 
-        sceVu0SubVector(dir, &ofs, test_CURRENTROOT(D_00639EA4));
-        scpPlayMotDir(D_00639EA4, dir);
+        sceVu0SubVector(dir, &ofs, test_CURRENTROOT(boyGObj));
+        scpPlayMotDir(boyGObj, dir);
     }
 
-    scpPlayEnd(D_00639EA4);
+    scpPlayEnd(boyGObj);
 
     scpBoyControlReadDisable = 0;
 
@@ -738,7 +743,7 @@ void actE3CageFallEffect(volatile int a0)
             gflagOn(22);
             break;
         case 0x40:
-            iosPadActRequest(D_00639EAC, 0x11);
+            iosPadActRequest(boyPad, 0x11);
             {
                 EffectArg b1 = {{-88.0f, -50.0f, -1.0f, 1.0f}};
                 scpEffectStart(&b1, 0);
@@ -771,7 +776,7 @@ void actE3CageFallEffect(volatile int a0)
             }
             break;
         case 0xB4:
-            iosPadActRequest(D_00639EAC, 0xF);
+            iosPadActRequest(boyPad, 0xF);
             break;
         case 0x12C: {
             EffectArg b8 = {{-10.0f, 0.0f, 466.0f, 1.0f}};
@@ -783,12 +788,12 @@ void actE3CageFallEffect(volatile int a0)
             }
             break;
         case 0x17C:
-            iosPadActRequest(D_00639EAC, 0x10);
+            iosPadActRequest(boyPad, 0x10);
             break;
         }
 
         n = (int)t;
-        tn = t + (float)((0x3C - D_0028F4C0[0] * 0xA) / D_0028F4C0[1]) / 60.0f;
+        tn = t + (float)((0x3C - systemStatus[0] * 0xA) / systemStatus[1]) / 60.0f;
         if (n != (int)tn) {
             _ACTWait(1);
             t = tn;
@@ -845,10 +850,10 @@ inline void actE3St09aGirlWay(volatile int a0)
     EffectArg buf = {{-1410.0f, -100.0f, 1950.0f, 0.0f}};
     long long way[2];
 
-    _SCPMoveCharactorByWay(D_00639EA8, 0, (int *)&buf, 0, 100.0f);
+    _SCPMoveCharactorByWay(girlGObj, 0, (int *)&buf, 0, 100.0f);
 
     memset(way, 0, 0x10);
-    RequestStageChangeDirect(D_00639EA8, 0x66, (int *)way, 0xB4);
+    RequestStageChangeDirect(girlGObj, 0x66, (int *)way, 0xB4);
 
     lt_switch_layout(54);
 
@@ -860,13 +865,12 @@ void actE3St09aSekizoChk(volatile int a0)
 {
     float dir[4];
 
-    if (D_00639EA8 == 0) {
+    if (girlGObj == 0) {
         _ACTWait(0);
     }
 
-    while (scpTriggerBall(a0, D_00639EA4, 200.0f) == 0 ||
-           scpTriggerBall(a0, D_00639EA8, 200.0f) == 0 ||
-           ForMotionViewer_GetCurrentMotion(D_00639EA4) == 0x4B) {
+    while (scpTriggerBall(a0, boyGObj, 200.0f) == 0 || scpTriggerBall(a0, girlGObj, 200.0f) == 0 ||
+           ForMotionViewer_GetCurrentMotion(boyGObj) == 0x4B) {
         _ACTWait(1);
     }
 
@@ -888,28 +892,28 @@ void actE3St09aSekizoChk(volatile int a0)
 
     stage_SetAnimation(376, 1, 0);
 
-    sekizo_e3_vol = iosPadActRequest(D_00639EAC, 9);
+    sekizo_e3_vol = iosPadActRequest(boyPad, 9);
     e3sekizo_yure_vol = 0x80;
     iosPadActVolumeSet(sekizo_e3_vol, 0x80);
 
-    scpPlayStart(D_00639EA4);
-    scpPlayStart(D_00639EA8);
+    scpPlayStart(boyGObj);
+    scpPlayStart(girlGObj);
 
-    scpPlayPosSet(D_00639EA8, -1410.0f, -100.0f, 1515.0f);
-    scpPlayPosSet(D_00639EA4, -1330.0f, -100.0f, 1515.0f);
+    scpPlayPosSet(girlGObj, -1410.0f, -100.0f, 1515.0f);
+    scpPlayPosSet(boyGObj, -1330.0f, -100.0f, 1515.0f);
 
     _ACTWait(1);
 
-    sceVu0SubVector(dir, test_CURRENTROOT(a0), test_CURRENTROOT(D_00639EA8));
-    scpPlayMotDir(D_00639EA8, dir);
+    sceVu0SubVector(dir, test_CURRENTROOT(a0), test_CURRENTROOT(girlGObj));
+    scpPlayMotDir(girlGObj, dir);
 
     scpBoyControlReadDisable = 1;
 
-    sceVu0SubVector(dir, test_CURRENTROOT(D_00639EA8), test_CURRENTROOT(D_00639EA4));
-    scpPlayMotDir(D_00639EA4, dir);
+    sceVu0SubVector(dir, test_CURRENTROOT(girlGObj), test_CURRENTROOT(boyGObj));
+    scpPlayMotDir(boyGObj, dir);
 
-    scpPlayMot(D_00639EA8, 645);
-    scpPlayWaitMotEnd(D_00639EA8);
+    scpPlayMot(girlGObj, 645);
+    scpPlayWaitMotEnd(girlGObj);
 
     while (stage_CheckAnimationFrame(376, 151, 0) == 0) {
         _ACTWait(1);
@@ -918,18 +922,18 @@ void actE3St09aSekizoChk(volatile int a0)
 
     iosPadActStop(sekizo_e3_vol);
 
-    scpPlayMot(D_00639EA8, 532);
-    scpPlayEnd(D_00639EA8);
+    scpPlayMot(girlGObj, 532);
+    scpPlayEnd(girlGObj);
 
     actCreateSubThread(actE3St09aGirlWay, 21);
 
     _ACTWait(30);
 
-    scpPlayMot(D_00639EA4, 252);
-    scpPlayWaitMotEnd(D_00639EA4);
+    scpPlayMot(boyGObj, 252);
+    scpPlayWaitMotEnd(boyGObj);
 
-    scpPlayMot(D_00639EA4, 0);
-    scpPlayEnd(D_00639EA4);
+    scpPlayMot(boyGObj, 0);
+    scpPlayEnd(boyGObj);
 
     ScpCallCameraSetTarget(1421.0f, 97.0f, -1885.0f);
 }
@@ -940,11 +944,11 @@ void actE3GateChk(volatile int a0)
 {
     int i;
 
-    if (D_00639EA8 == 0) {
+    if (girlGObj == 0) {
         _ACTWait(0);
     }
 
-    while (scpTriggerBall(a0, D_00639EA4, 3000.0f) == 0) {
+    while (scpTriggerBall(a0, boyGObj, 3000.0f) == 0) {
         _ACTWait(1);
     }
 
@@ -961,7 +965,7 @@ void actE3GateChk(volatile int a0)
 
     SetWindManager(0.0f, 0.0f, 0.0f, 0.0f, 0.0f, -1.0f, 5.0f, 0.0f);
 
-    scpPlayStart(D_00639EA8);
+    scpPlayStart(girlGObj);
 
     reg_SetScissorSw(1);
     SetStaticBlur(0);
@@ -988,8 +992,8 @@ void actE3GateDemo(volatile int a0)
 {
     scpSearchGobj(3382)->f16C = 1;
 
-    EntryStreamMotion(D_00639EA4);
-    EntryStreamMotion(D_00639EA8);
+    EntryStreamMotion(boyGObj);
+    EntryStreamMotion(girlGObj);
     EntryStreamMotion((int)scpSearchGobj(3382));
 
     PlayStreamMotion();
@@ -1038,7 +1042,7 @@ void actE3GateDemo(volatile int a0)
 
     stage_SetAnimation(475, 1, 0);
 
-    iosPadActRequest(D_00639EAC, 0xF);
+    iosPadActRequest(boyPad, 0xF);
 
     soundSeDefPlay(1425, 0, 0, 0);
 
@@ -1102,7 +1106,7 @@ void actE3GateJimaku(volatile int a0)
         }
 
         n = (int)t;
-        tn = t + (float)((0x3C - D_0028F4C0[0] * 0xA) / D_0028F4C0[1]) / 60.0f;
+        tn = t + (float)((0x3C - systemStatus[0] * 0xA) / systemStatus[1]) / 60.0f;
         if (n != (int)tn) {
             _ACTWait(1);
             t = tn;
@@ -1134,14 +1138,14 @@ void actE3St09aBrgDown(volatile int a0)
     }
     _ACTWait(1);
 
-    iosPadActRequest(D_00639EAC, 0x11);
+    iosPadActRequest(boyPad, 0x11);
 
     while (stage_CheckAnimationFrame(378, 165, 0) == 0) {
         _ACTWait(1);
     }
     _ACTWait(1);
 
-    iosPadActRequest(D_00639EAC, 0x10);
+    iosPadActRequest(boyPad, 0x10);
 
     while (stage_CheckAnimationFinish(378) == 0) {
         _ACTWait(1);
@@ -1167,11 +1171,11 @@ void actE3Warning(volatile int a0)
     scpBoyControlReadDisable = 1;
     InitStageLight(stage_no);
 
-    RequestStageChange(1, D_00639EA4, 0, 255.0f, 0.0f);
+    RequestStageChange(1, boyGObj, 0, 255.0f, 0.0f);
 }
 
-extern StgPre D_005F5D50[];
-extern int D_0055C518[][10];
+extern StgPre stageData[];
+extern int exitData[][10];
 
 void actE3Inst1(volatile int a0)
 {
@@ -1182,12 +1186,12 @@ void actE3Inst1(volatile int a0)
     _ACTWait(1);
 
     scpBoyControlReadDisable = 1;
-    if (D_00639EA4 != 0) {
-        scpPlayMot(D_00639EA4, 0);
+    if (boyGObj != 0) {
+        scpPlayMot(boyGObj, 0);
     }
 
-    pre = &D_005F5D50[stage_no];
-    stgmgrNextStagePreLoadForceStageSet(D_0055C518[pre->ent[0]][9]);
+    pre = &stageData[stage_no];
+    stgmgrNextStagePreLoadForceStageSet(exitData[pre->ent[0]][9]);
 
     inst1_mes[0].func = actE3Inst1Chk;
     sub->mail = inst1_mes;
@@ -1392,8 +1396,8 @@ void actE3Gate(volatile int a0)
     scpSearchGobj(3382)->f16C = 0;
 
     scpBoyControlReadDisable = 1;
-    scpPlayStart(D_00639EA4);
-    scpPlayMot(D_00639EA4, 0);
+    scpPlayStart(boyGObj);
+    scpPlayMot(boyGObj, 0);
 
     scpFadeOut(255.0f, 0, 0, 0);
 
@@ -1510,7 +1514,7 @@ inline void actE3CageFallReadyChk(volatile int a0)
     actInitialize(a0);
     e3cage = 0;
     _ACTWait(1);
-    while (scpTriggerFloorAttr(D_00639EA4, 0x2000000) == 0) {
+    while (scpTriggerFloorAttr(boyGObj, 0x2000000) == 0) {
         _ACTWait(1);
     }
     scpAdpcmPlayRequestFunc(3, &e3cage, 1, 1, 0);
@@ -1518,11 +1522,11 @@ inline void actE3CageFallReadyChk(volatile int a0)
 
 inline void actE3St01bEneChk(volatile int a0)
 {
-    if (D_00639EA8 == 0) {
+    if (girlGObj == 0) {
         _ACTWait(0);
     }
 
-    while (scpTriggerFloorAttr(D_00639EA8, 0x1000000) == 0) {
+    while (scpTriggerFloorAttr(girlGObj, 0x1000000) == 0) {
         _ACTWait(1);
     }
 

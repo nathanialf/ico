@@ -784,7 +784,8 @@ typedef struct DbgPad {
     int trg;
 } DbgPad;
 
-extern DbgPad D_0028F8F0[];
+/* kept local: main.c's global; this TU does not include main.h */
+extern DbgPad pad[];
 static inline void soundSeEnvDefaultSet(SeSlot *self);
 extern void gif_StartPacketPri(int pri);
 extern void gif_EndPacket(void);
@@ -827,13 +828,13 @@ static void debug_DispSEInfo(void)
     int dbg = 0; /* local debug switch, see the test after the solo toggle */
 
     cam = GetCameraPos();
-    if (D_0028F8F0[0].hold & 0x400) {
+    if (pad[0].hold & 0x400) {
         show ^= 1;
     }
     if (show == 0) {
         return;
     }
-    if (D_0028F8F0[0].trg & 0x20) {
+    if (pad[0].trg & 0x20) {
         page = page + 1;
     }
     for (i = page;; i++) {
@@ -847,7 +848,7 @@ static void debug_DispSEInfo(void)
     }
     self = &seSlotTbl[i];
     page = i;
-    if (D_0028F8F0[0].hold & 0x40) {
+    if (pad[0].hold & 0x40) {
         solo ^= 1;
     }
     if (dbg) {
@@ -864,7 +865,7 @@ static void debug_DispSEInfo(void)
             p->flag.bit.f29 = solo;
         }
     }
-    if (D_0028F8F0[0].hold & 0x80) {
+    if (pad[0].hold & 0x80) {
         soundSeEnvDefaultSet(self);
     }
     if (self->unk34 != 0) {
@@ -895,18 +896,18 @@ static void debug_DispSEInfo(void)
 
         num = 9;
 
-        if (D_0028F8F0[0].trg & 0x1000) {
+        if (pad[0].trg & 0x1000) {
             curRow = curRow - 1;
         }
-        if (D_0028F8F0[0].trg & 0x4000) {
+        if (pad[0].trg & 0x4000) {
             curRow = curRow + 1;
         }
         curRow = (curRow + num) % num;
         cur = &list[curRow];
-        if (D_0028F8F0[0].trg & 0x2000) {
+        if (pad[0].trg & 0x2000) {
             step = cur->v.step;
         }
-        if (D_0028F8F0[0].trg & 0x8000) {
+        if (pad[0].trg & 0x8000) {
             step = -cur->v.step;
         }
         debug_PrintfDummy(10, 70, 0xFFFFFF00u, (int)"req no %d %s %f\n", page, self->unk38, dist);
@@ -1070,10 +1071,11 @@ typedef struct SeKind {
     short idx;  /* 0x6 */
 } SeKind;
 
-extern unsigned short D_0030C4E0[];
-extern SeKind D_005EE488[];
-extern char D_005D6DB0[];
-extern int D_00639EAC;
+extern unsigned short seKind[];
+extern SeKind seList[];
+extern char seDef[];
+/* kept local: main.c's global; this TU does not include main.h */
+extern int boyPad;
 extern int stage_no;
 extern int memcmp(void *a, void *b, int n);
 extern int SgSePlay(int vab, int a1, int a2);
@@ -1183,8 +1185,8 @@ static int _soundSeDefPlay(int kind, unsigned int a1, float *a2, int a3, SeEnvDe
     int ch;
     int t;
 
-    src = (SeSrcDef *)&D_005D6DB0[kind * 60];
-    kp = &D_0030C4E0[src->unk20];
+    src = (SeSrcDef *)&seDef[kind * 60];
+    kp = &seKind[src->unk20];
     cb = 0;
     if (out != 0) {
         *out = 0;
@@ -1195,7 +1197,7 @@ static int _soundSeDefPlay(int kind, unsigned int a1, float *a2, int a3, SeEnvDe
     if (*kp == 0) {
         return -2;
     }
-    def = &D_005EE488[*kp];
+    def = &seList[*kp];
     if (kind == 0 || kind >= 1426) {
         return -2;
     }
@@ -1267,7 +1269,7 @@ static int _soundSeDefPlay(int kind, unsigned int a1, float *a2, int a3, SeEnvDe
         return -1;
     }
     if (src->unk36 != 0) {
-        slot->unkC = iosPadActRequest(D_00639EAC, src->unk36);
+        slot->unkC = iosPadActRequest(boyPad, src->unk36);
     } else {
         slot->unkC = 0;
     }
@@ -1302,7 +1304,7 @@ typedef struct SeInfo {
     short unk6; /* 0x6 */
 } SeInfo;
 
-extern SeInfo D_005F5C70[];
+extern SeInfo shockList[];
 
 void _soundSeDefStop(int a0, int a1)
 {
@@ -1324,7 +1326,7 @@ void _soundSeDefStop(int a0, int a1)
         SgSeStop(h | 0x8000);
     }
     src = *(SeSrcDef **)(self + 0x38);
-    if (src->b6 == 1 || (&D_005F5C70[src->unk36])->unk6 == 0) {
+    if (src->b6 == 1 || (&shockList[src->unk36])->unk6 == 0) {
         if (*(int *)(self + 0xC) != 0)
             iosPadActStop(*(int *)(self + 0xC));
     }
@@ -1385,11 +1387,12 @@ inline void soundSeDefVolumeRateSet(int a0, float f)
     }
 }
 
-extern char D_005D3F30[];
+extern char seEnv[];
 /* The stage table sits in .rodata, so it is declared const: its loads are then
    unchanging and do not order against soundSeEnvNotUseClose's `p = 0` store. */
-extern const StgPre D_005F5D50[];
-extern int D_0028F4C0[];
+extern const StgPre stageData[];
+/* kept local: main.c's global; this TU does not include main.h */
+extern int systemStatus[];
 extern int SgGetSlotStatus(int a0, int a1);
 
 inline void soundReqTickProc(void)
@@ -1403,7 +1406,7 @@ inline void soundReqTickProc(void)
                 soundSeDefStop(((int)*(unsigned short *)p << 8) | i);
             } else if (r & 2) {
                 if (debug_seslotdisp_flag == 0) {
-                    if (D_0028F4C0[5] != 0 && *(unsigned int *)(p + 8) != 0xFFFFFFFF &&
+                    if (systemStatus[5] != 0 && *(unsigned int *)(p + 8) != 0xFFFFFFFF &&
                         *(unsigned int *)(p + 8) != 0xFFFFFFFE) {
                         *(int *)(p + 4) |= 0x20000000;
                     } else {
@@ -1437,7 +1440,7 @@ inline void soundSeKindBuild(void)
     char *e;
 
     for (i = 1419; i >= 0; i--) {
-        D_0030C4E0[i] = 0;
+        seKind[i] = 0;
     }
 
     for (i = 0; i < 16; i++) {
@@ -1445,9 +1448,9 @@ inline void soundSeKindBuild(void)
         if (*(unsigned short *)(e + 2) == 11) {
             num = *(unsigned short *)e;
             for (j = 0; j < 3837; j++) {
-                SeKind *p = &D_005EE488[j];
+                SeKind *p = &seList[j];
                 if (p->num == num) {
-                    D_0030C4E0[p->idx] = j;
+                    seKind[p->idx] = j;
                 }
             }
         }
@@ -1494,8 +1497,8 @@ void soundSeEnvPlay(void)
     SeSlot *slot;
     int i;
 
-    for (i = D_005F5D50[stage_no].seEnvFirst; i < D_005F5D50[stage_no].seEnvLast; i++) {
-        SeEnvDef *e = (SeEnvDef *)&D_005D3F30[i * 0x1C];
+    for (i = stageData[stage_no].seEnvFirst; i < stageData[stage_no].seEnvLast; i++) {
+        SeEnvDef *e = (SeEnvDef *)&seEnv[i * 0x1C];
         _soundSeDefPlay(*(int *)e, 0xFFFFFFFF, 0, 0, (SeEnvDef *)e, &slot, -1.0f);
         if (slot != 0) {
             slot->unk3C = e;
@@ -1515,7 +1518,7 @@ typedef struct SeBank {
     unsigned int b1 : 31;
 } SeBank;
 
-extern SeBank D_005EBBE8[];
+extern SeBank seFile[];
 extern SeSrcDef D_005DCEF4[];
 extern char D_005F5E60[];
 
@@ -1536,17 +1539,17 @@ void soundSeEnvNotUseClose(int a, int b)
     SqEntry *req;
 
     ok = 1;
-    for (i = D_005F5D50[a].seSegFirst; i < D_005F5D50[a].seSegLast; i++) {
-        if (D_005EBBE8[i].b0 == 1) {
-            p = &D_005EBBE8[i];
+    for (i = stageData[a].seSegFirst; i < stageData[a].seSegLast; i++) {
+        if (seFile[i].b0 == 1) {
+            p = &seFile[i];
             break;
         }
     }
     n = i;
     if (p != 0) {
-        for (i = D_005F5D50[b].seSegFirst; i < D_005F5D50[b].seSegLast; i++) {
-            if (D_005EBBE8[i].b0 == 1) {
-                if (strcmp(p->name, D_005EBBE8[i].name) == 0) {
+        for (i = stageData[b].seSegFirst; i < stageData[b].seSegLast; i++) {
+            if (seFile[i].b0 == 1) {
+                if (strcmp(p->name, seFile[i].name) == 0) {
                     ok = 0;
                 }
                 break;
@@ -1577,14 +1580,13 @@ void soundSeEnvNotUseClose(int a, int b)
         first = (int *)&D_005F5E60[a * 404];
         if (req != 0 && req->unk4 == 0 && e->unk8 == 0xFFFFFFFF) {
             for (j = *first; j < *(int *)&D_005F5E60[a * 404 + 4]; j++) {
-                if (e->unk38 == (SeSrcDef *)&D_005D6DB0[*(int *)&D_005D3F30[j * 0x1C] * 60]) {
-                    if (ok == 0 ||
-                        D_005EBBE8[D_005EE488[D_0030C4E0[e->unk38->unk20]].num].b0 != 1) {
+                if (e->unk38 == (SeSrcDef *)&seDef[*(int *)&seEnv[j * 0x1C] * 60]) {
+                    if (ok == 0 || seFile[seList[seKind[e->unk38->unk20]].num].b0 != 1) {
                         goto next;
                     }
                 }
             }
-            if (ok != 0 && D_005EE488[D_0030C4E0[e->unk38->unk20]].num >= 7 && a != 10) {
+            if (ok != 0 && seList[seKind[e->unk38->unk20]].num >= 7 && a != 10) {
                 soundSeDefStopNoRelease((e->num << 8) | m);
             } else if (e->unk38 != D_005DCEF4 && e->unk38 != D_005DCEF4 - 1) {
                 soundSeDefStop((e->num << 8) | m);
@@ -1671,7 +1673,7 @@ inline int debug_req(void)
     do {
         if (*(int *)(e + 0x30) != 0) {
             debug_StdPrintfDummy("num %d %d\n", *(short *)(e + 0x10),
-                                 (unsigned int)(*(int *)(e + 0x38) - (int)D_005D6DB0) / sz);
+                                 (unsigned int)(*(int *)(e + 0x38) - (int)seDef) / sz);
         }
         e += 0x40;
         i--;

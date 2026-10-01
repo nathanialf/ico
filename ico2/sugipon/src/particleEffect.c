@@ -905,13 +905,13 @@ void DisableParticleEffectGeometryControl(int a0)
     particleEffects[a0].geoCtrl = 0;
 }
 
-extern char D_0062A278[];
+extern char particleEffectFile[];
 
 int GetParticleIDWithName(char *name)
 {
     int i;
     for (i = 0; i < 61; i++) {
-        if (strcmp(D_0062A278 + i * 0x50, name) == 0) {
+        if (strcmp(particleEffectFile + i * 0x50, name) == 0) {
             return i;
         }
     }

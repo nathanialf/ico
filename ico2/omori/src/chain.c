@@ -268,7 +268,8 @@ void chain_simulate_term_loop(int a0)
     chain_simulate_term_simple(a0);
 }
 
-extern int D_0028F4C0[];
+/* kept local: main.c's global; this TU does not include main.h */
+extern int systemStatus[];
 
 void chain_simulate_term_swingready(int a0)
 {
@@ -279,16 +280,18 @@ void chain_simulate_term_swingready(int a0)
         debug_Printf(10, chainDebugY, 0x0FFFFFFF, "chain_simulate_term_swingready\n");
     }
     if (*(float *)(cw + 0x34) < 0.5) {
-        *(float *)(cw + 0x44) = -0.29999998f / (float)((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]);
+        *(float *)(cw + 0x44) =
+            -0.29999998f / (float)((60 - systemStatus[0] * 10) / systemStatus[1]);
     } else if (*(float *)(cw + 0x34) < 1.0) {
-        *(float *)(cw + 0x44) = -1.5f / (float)((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]);
+        *(float *)(cw + 0x44) = -1.5f / (float)((60 - systemStatus[0] * 10) / systemStatus[1]);
     } else {
-        *(float *)(cw + 0x44) = -4.5f / (float)((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]);
+        *(float *)(cw + 0x44) = -4.5f / (float)((60 - systemStatus[0] * 10) / systemStatus[1]);
     }
     chain_simulate_term_simple(a0);
 }
 
-extern void *D_00639EA4;
+/* kept local: main.c's global; this TU does not include main.h */
+extern void *boyGObj;
 
 void chain_simulate_term_swingstart(int a0)
 {
@@ -300,16 +303,16 @@ void chain_simulate_term_swingstart(int a0)
         debug_Printf(10, chainDebugY, 0x0FFFFFFF, "chain_simulate_term_swingstart\n");
     }
 
-    h = GOBJ_SUB(D_00639EA4)->f_4AC;
+    h = GOBJ_SUB(boyGObj)->f_4AC;
 
     if (h < 20.0f) {
         if (*(float *)(cw + 0x34) < 0.3) {
             *(float *)(cw + 0x44) =
-                -0.29999998f / (float)((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]);
+                -0.29999998f / (float)((60 - systemStatus[0] * 10) / systemStatus[1]);
         } else if (*(float *)(cw + 0x34) < 1.0) {
-            *(float *)(cw + 0x44) = -6.0f / (float)((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]);
+            *(float *)(cw + 0x44) = -6.0f / (float)((60 - systemStatus[0] * 10) / systemStatus[1]);
         } else {
-            *(float *)(cw + 0x44) = -9.0f / (float)((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]);
+            *(float *)(cw + 0x44) = -9.0f / (float)((60 - systemStatus[0] * 10) / systemStatus[1]);
         }
     } else {
         if (h >= 20.0 && h < 21.5) {
@@ -321,7 +324,7 @@ void chain_simulate_term_swingstart(int a0)
 
         *(float *)(cw + 0x38) = *(float *)(cw + 0x38) - 1.0f +
                                 *(float *)(cw + 0x40) * 0.5f / 41.0f * 30.0f /
-                                    (float)((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]);
+                                    (float)((60 - systemStatus[0] * 10) / systemStatus[1]);
     }
     chain_simulate_term_simple(a0);
 }
@@ -349,7 +352,7 @@ void chain_simulate_term_moveup(int a0)
         *(float *)(cw + 0x44) = -0.15f;
     }
     chain_simulate_term_simple(a0);
-    h = GOBJ_SUB(D_00639EA4)->f_4AC;
+    h = GOBJ_SUB(boyGObj)->f_4AC;
     v[0] = *(float *)(cw + 0x20);
     v[1] = *(float *)(cw + 0x24);
     v[2] = *(float *)(cw + 0x28);
@@ -400,7 +403,7 @@ void chain_simulate_term_down(int a0)
         *(float *)(cw + 0x44) = -0.15f;
     }
     chain_simulate_term_simple(a0);
-    h = GOBJ_SUB(D_00639EA4)->f_4AC;
+    h = GOBJ_SUB(boyGObj)->f_4AC;
     v[0] = *(float *)(cw + 0x20);
     v[1] = *(float *)(cw + 0x24);
     v[2] = *(float *)(cw + 0x28);
@@ -426,7 +429,7 @@ void chain_simulate_hangstart(int a0)
         chainDebugY = chainDebugY + 10;
         debug_Printf(10, chainDebugY, 0x0FFFFFFF, "chain_simulate_hangstart\n");
     }
-    *(float *)(cw + 0x44) = -1.5f / (float)((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]);
+    *(float *)(cw + 0x44) = -1.5f / (float)((60 - systemStatus[0] * 10) / systemStatus[1]);
     chain_simulate_term_simple(a0);
 }
 
@@ -904,7 +907,7 @@ void chain_set_charachara(char *gobj, float amp)
 
     memset(v, 0, 16);
 
-    deg = (int)(_GetDirection(test_CURRENTORIENT(D_00639EA4)) / 3.1415927f * 180.0f);
+    deg = (int)(_GetDirection(test_CURRENTORIENT(boyGObj)) / 3.1415927f * 180.0f);
     idx = *(int *)(cw + 0x68) + 2;
 
     if (*(int *)(cw + 0x74) - 2 < idx) {
@@ -938,7 +941,7 @@ typedef struct {
     char pad190[4];
 } ChainParaRow;
 
-extern ChainParaRow D_0055FE58[];
+extern ChainParaRow motionKind[];
 void SetChainRootUpdateMode(char *gobj, int mode, float *pos);
 void TestChainUpDown(char *gobj, char *boy);
 
@@ -1046,23 +1049,22 @@ void ChainGeo(char *gobj)
 
     mode = GetChainSimulateMode(gobj);
 
-    if (D_00639EA4 != 0) {
+    if (boyGObj != 0) {
         float lim;
 
         lim = *(float *)(cw + 0xC8);
-        if (*(int *)(*(int *)((char *)D_00639EA4 + 0x164) + 0x34) == 5 ||
-            (((D_0055FE58 + *(int *)(*(int *)((char *)D_00639EA4 + 0x15C) + 0x4A0))->flags18C >>
-              11) &
+        if (*(int *)(*(int *)((char *)boyGObj + 0x164) + 0x34) == 5 ||
+            (((motionKind + *(int *)(*(int *)((char *)boyGObj + 0x15C) + 0x4A0))->flags18C >> 11) &
              1)) {
             lim = 70.0f;
         }
 
-        GetRootPositionHandExtra(D_00639EA4, p);
-        if (isChainHitByHand(gobj, p, v, (float *)test_CURRENTORIENT(D_00639EA4), lim)) {
-            iosOmSendMail(D_00639EA4, 21, gobj);
+        GetRootPositionHandExtra(boyGObj, p);
+        if (isChainHitByHand(gobj, p, v, (float *)test_CURRENTORIENT(boyGObj), lim)) {
+            iosOmSendMail(boyGObj, 21, gobj);
         }
         if (_DistSqGV(p, cw + 0x10) < 900.0f) {
-            iosOmSendMail(D_00639EA4, 166, gobj);
+            iosOmSendMail(boyGObj, 166, gobj);
         }
     }
 
@@ -1133,28 +1135,28 @@ void ChainGeo(char *gobj)
     }
 
     if (*(unsigned char *)(cw + 0x60) != 0) {
-        sub = *(char **)((char *)D_00639EA4 + 0x164);
-        *(int *)(((ChainExtPtr *)((char *)D_00639EA4 + 0x15C))->i + 0x420) = 0;
+        sub = *(char **)((char *)boyGObj + 0x164);
+        *(int *)(((ChainExtPtr *)((char *)boyGObj + 0x15C))->i + 0x420) = 0;
         TestChainUpDown(gobj, *(char **)(cw + 0x64));
 
         /* 0x130..0x138 of the extension is a float vector (cleared here and in
          * case 2 beside the float stores at 0x410..0x418) */
         switch (mode) {
         case 8:
-            *(float *)(((ChainExtPtr *)((char *)D_00639EA4 + 0x15C))->i + 0x130) = 0.0f;
-            *(float *)(((ChainExtPtr *)((char *)D_00639EA4 + 0x15C))->i + 0x134) = 0.0f;
-            *(float *)(((ChainExtPtr *)((char *)D_00639EA4 + 0x15C))->i + 0x138) = 0.0f;
-            SetChainRootUpdateMode((char *)D_00639EA4, 2,
+            *(float *)(((ChainExtPtr *)((char *)boyGObj + 0x15C))->i + 0x130) = 0.0f;
+            *(float *)(((ChainExtPtr *)((char *)boyGObj + 0x15C))->i + 0x134) = 0.0f;
+            *(float *)(((ChainExtPtr *)((char *)boyGObj + 0x15C))->i + 0x138) = 0.0f;
+            SetChainRootUpdateMode((char *)boyGObj, 2,
                                    (float *)(*(char **)(cw + 0xD0) + (*(int *)(cw + 0x68) << 5)));
             break;
         case 7:
         case 10:
-            SetChainRootUpdateMode((char *)D_00639EA4, 2,
+            SetChainRootUpdateMode((char *)boyGObj, 2,
                                    (float *)(*(char **)(cw + 0xD0) + (*(int *)(cw + 0x68) << 5)));
             break;
         case 3:
         case 9:
-            SetChainRootUpdateMode((char *)D_00639EA4, 3,
+            SetChainRootUpdateMode((char *)boyGObj, 3,
                                    (float *)(*(char **)(cw + 0xD0) + (*(int *)(cw + 0x68) << 5)));
             break;
         case 2:
@@ -1162,29 +1164,29 @@ void ChainGeo(char *gobj)
                 float *nd = (float *)((*(int *)(cw + 0x68) << 5) + *(int *)(cw + 0xD0));
                 float h;
 
-                *(float *)(((ChainExtPtr *)((char *)D_00639EA4 + 0x15C))->i + 0x130) = 0.0f;
-                *(float *)(((ChainExtPtr *)((char *)D_00639EA4 + 0x15C))->i + 0x134) = 0.0f;
-                *(float *)(((ChainExtPtr *)((char *)D_00639EA4 + 0x15C))->i + 0x138) = 0.0f;
-                *(float *)(((ChainExtPtr *)((char *)D_00639EA4 + 0x15C))->i + 0x410) = nd[0];
-                *(float *)(((ChainExtPtr *)((char *)D_00639EA4 + 0x15C))->i + 0x414) = nd[1];
-                *(float *)(((ChainExtPtr *)((char *)D_00639EA4 + 0x15C))->i + 0x418) = nd[2];
-                h = *(float *)(((ChainExtPtr *)((char *)D_00639EA4 + 0x15C))->i + 0x4AC);
+                *(float *)(((ChainExtPtr *)((char *)boyGObj + 0x15C))->i + 0x130) = 0.0f;
+                *(float *)(((ChainExtPtr *)((char *)boyGObj + 0x15C))->i + 0x134) = 0.0f;
+                *(float *)(((ChainExtPtr *)((char *)boyGObj + 0x15C))->i + 0x138) = 0.0f;
+                *(float *)(((ChainExtPtr *)((char *)boyGObj + 0x15C))->i + 0x410) = nd[0];
+                *(float *)(((ChainExtPtr *)((char *)boyGObj + 0x15C))->i + 0x414) = nd[1];
+                *(float *)(((ChainExtPtr *)((char *)boyGObj + 0x15C))->i + 0x418) = nd[2];
+                h = *(float *)(((ChainExtPtr *)((char *)boyGObj + 0x15C))->i + 0x4AC);
                 if (h < 3.0f) {
-                    *(int *)(((ChainExtPtr *)((char *)D_00639EA4 + 0x15C))->i + 0x420) = -1;
+                    *(int *)(((ChainExtPtr *)((char *)boyGObj + 0x15C))->i + 0x420) = -1;
                     ropeInterRate = 0.5f;
                 } else if (h < 10.0f) {
-                    *(int *)(((ChainExtPtr *)((char *)D_00639EA4 + 0x15C))->i + 0x420) = -1;
+                    *(int *)(((ChainExtPtr *)((char *)boyGObj + 0x15C))->i + 0x420) = -1;
                     ropeInterRate = 1.0f;
                 } else {
-                    *(int *)(((ChainExtPtr *)((char *)D_00639EA4 + 0x15C))->i + 0x420) = 1;
+                    *(int *)(((ChainExtPtr *)((char *)boyGObj + 0x15C))->i + 0x420) = 1;
                 }
             }
             break;
         default:
             if (sub != 0) {
-                CopyVector((char *)(((ChainExtPtr *)((char *)D_00639EA4 + 0x15C))->i + 0x410),
+                CopyVector((char *)(((ChainExtPtr *)((char *)boyGObj + 0x15C))->i + 0x410),
                            *(char **)(cw + 0xD0) + (*(int *)(cw + 0x68) << 5));
-                *(int *)(((ChainExtPtr *)((char *)D_00639EA4 + 0x15C))->i + 0x420) = 1;
+                *(int *)(((ChainExtPtr *)((char *)boyGObj + 0x15C))->i + 0x420) = 1;
             }
             break;
         }
@@ -1470,7 +1472,7 @@ void TestChainUpDown(char *gobj, char *boy)
         ChainClimbWork *rec;
 
 
-        org[0] = test_CURRENTROOT(D_00639EA4)[0]; org[1] = test_CURRENTROOT(D_00639EA4)[1]; org[2] = test_CURRENTROOT(D_00639EA4)[2];
+        org[0] = test_CURRENTROOT(boyGObj)[0]; org[1] = test_CURRENTROOT(boyGObj)[1]; org[2] = test_CURRENTROOT(boyGObj)[2];
 
         rec = (ChainClimbWork *)chainClimb; if (rec->prev != mode) {
             rec->phase = 0.0f;
@@ -1492,9 +1494,9 @@ void TestChainUpDown(char *gobj, char *boy)
 
 
 
-        w[0] = test_CURRENTROOT(D_00639EA4)[0]; w[1] = test_CURRENTROOT(D_00639EA4)[1]; w[2] = test_CURRENTROOT(D_00639EA4)[2];
-        w[1] = org[1] + *(float *)(((ChainExtPtr *)((char *)D_00639EA4 + 0x15C))->i + 0x144);
-        SetDirectRootPositionNoFitting(D_00639EA4, w);
+        w[0] = test_CURRENTROOT(boyGObj)[0]; w[1] = test_CURRENTROOT(boyGObj)[1]; w[2] = test_CURRENTROOT(boyGObj)[2];
+        w[1] = org[1] + *(float *)(((ChainExtPtr *)((char *)boyGObj + 0x15C))->i + 0x144);
+        SetDirectRootPositionNoFitting(boyGObj, w);
 
 
 
@@ -1506,7 +1508,7 @@ void TestChainUpDown(char *gobj, char *boy)
     case 1: {
         ChainClimbWork *rec;
 
-        org[0] = test_CURRENTROOT(D_00639EA4)[0]; org[1] = test_CURRENTROOT(D_00639EA4)[1]; org[2] = test_CURRENTROOT(D_00639EA4)[2];
+        org[0] = test_CURRENTROOT(boyGObj)[0]; org[1] = test_CURRENTROOT(boyGObj)[1]; org[2] = test_CURRENTROOT(boyGObj)[2];
 
         rec = (ChainClimbWork *)chainClimb; if (rec->prev != mode) {
             rec->phase = 0.0f;
@@ -1523,15 +1525,15 @@ void TestChainUpDown(char *gobj, char *boy)
 
         PushChainClimbRoot(boy, v, w, d, mode == 0 ? -15.0f : -10.0f, mode == 0 ? -3.0f : -10.0f);
 
-        ((ChainClimbWork *)chainClimb)->phase = ((ChainClimbWork *)chainClimb)->phase + 30.0f / (float)((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]);
+        ((ChainClimbWork *)chainClimb)->phase = ((ChainClimbWork *)chainClimb)->phase + 30.0f / (float)((60 - systemStatus[0] * 10) / systemStatus[1]);
 
 
 
 
-        w[0] = test_CURRENTROOT(D_00639EA4)[0]; w[1] = test_CURRENTROOT(D_00639EA4)[1]; w[2] = test_CURRENTROOT(D_00639EA4)[2];
-        w[1] = org[1] + *(float *)(((ChainExtPtr *)((char *)D_00639EA4 + 0x15C))->i + 0x144);
+        w[0] = test_CURRENTROOT(boyGObj)[0]; w[1] = test_CURRENTROOT(boyGObj)[1]; w[2] = test_CURRENTROOT(boyGObj)[2];
+        w[1] = org[1] + *(float *)(((ChainExtPtr *)((char *)boyGObj + 0x15C))->i + 0x144);
         w[1] = w[1] < *(float *)(cw + 0x14) + 150.0f ? *(float *)(cw + 0x14) + 150.0f : (*(float *)(cw + 0x94) < w[1] ? *(float *)(cw + 0x94) : w[1]);
-        SetDirectRootPosition(D_00639EA4, w);
+        SetDirectRootPosition(boyGObj, w);
 
 
 
@@ -1562,14 +1564,14 @@ void TestChainUpDown(char *gobj, char *boy)
     default: { ChainClimbWork *rec;
         rec = (ChainClimbWork *)chainClimb; if ((unsigned int)rec->prev < 2) {
 
-            int n = GetSkeltonFocusNode(D_00639EA4, 0x16);
-            v[0] = *(float *)(n * 64 + ((ChainExtPtr *)(((ChainExtPtr *)((char *)D_00639EA4 + 0x15C))->p + 0xC))->i + 0x30); v[1] = *(float *)(n * 64 + ((ChainExtPtr *)(((ChainExtPtr *)((char *)D_00639EA4 + 0x15C))->p + 0xC))->i + 0x34); v[2] = *(float *)(n * 64 + ((ChainExtPtr *)(((ChainExtPtr *)((char *)D_00639EA4 + 0x15C))->p + 0xC))->i + 0x38);
+            int n = GetSkeltonFocusNode(boyGObj, 0x16);
+            v[0] = *(float *)(n * 64 + ((ChainExtPtr *)(((ChainExtPtr *)((char *)boyGObj + 0x15C))->p + 0xC))->i + 0x30); v[1] = *(float *)(n * 64 + ((ChainExtPtr *)(((ChainExtPtr *)((char *)boyGObj + 0x15C))->p + 0xC))->i + 0x34); v[2] = *(float *)(n * 64 + ((ChainExtPtr *)(((ChainExtPtr *)((char *)boyGObj + 0x15C))->p + 0xC))->i + 0x38);
             PlumbPointUpdateChain(*(char **)(sub + 0x190), v);
         }
         if ((unsigned int)(rec->prev - 2) < 2) {
 
-            int n = GetSkeltonFocusNode(D_00639EA4, 0x16);
-            v[0] = *(float *)(n * 64 + ((ChainExtPtr *)(((ChainExtPtr *)((char *)D_00639EA4 + 0x15C))->p + 0xC))->i + 0x30); v[1] = *(float *)(n * 64 + ((ChainExtPtr *)(((ChainExtPtr *)((char *)D_00639EA4 + 0x15C))->p + 0xC))->i + 0x34); v[2] = *(float *)(n * 64 + ((ChainExtPtr *)(((ChainExtPtr *)((char *)D_00639EA4 + 0x15C))->p + 0xC))->i + 0x38);
+            int n = GetSkeltonFocusNode(boyGObj, 0x16);
+            v[0] = *(float *)(n * 64 + ((ChainExtPtr *)(((ChainExtPtr *)((char *)boyGObj + 0x15C))->p + 0xC))->i + 0x30); v[1] = *(float *)(n * 64 + ((ChainExtPtr *)(((ChainExtPtr *)((char *)boyGObj + 0x15C))->p + 0xC))->i + 0x34); v[2] = *(float *)(n * 64 + ((ChainExtPtr *)(((ChainExtPtr *)((char *)boyGObj + 0x15C))->p + 0xC))->i + 0x38);
             PlumbPointUpdateChain(*(char **)(sub + 0x190), v);
         }
 

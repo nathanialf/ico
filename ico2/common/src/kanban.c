@@ -67,8 +67,8 @@ struct KanbanProp {
     unsigned char pad30[0x08];
 };
 
-extern KanbanStage D_005F5D50[];
-extern KanbanProp D_00533FE8[];
+extern KanbanStage stageData[];
+extern KanbanProp texLayout[];
 
 /* kanban.o's .sdata run (VMA 0x63B498..0x63B4BC, 0x24 B = MAIN.MAP), in the
    ROM's order: kanbanCommonRead (MAIN.MAP global), the sign's initial colour,
@@ -79,7 +79,8 @@ int kanbanCommonRead = 0;
 /* the colour a new sign starts with */
 static Col4 kanbanStartCol = {{0x80, 0x80, 0x80, 0}}; /* derived name */
 
-extern int D_0028F4C0[];
+/* kept local: main.c's global; this TU does not include main.h */
+extern int systemStatus[];
 
 typedef struct {
     unsigned char pad00[0x18];
@@ -104,14 +105,14 @@ typedef struct {
     unsigned int f6C;
 } LayoutTex;
 
-extern LayoutTex D_0030CFF8[];
+extern LayoutTex texProperty[];
 extern char D_0030D014[];
 extern int D_0028F8F0[];
 /* census display_texture, a file static; MAIN.MAP carries no global of that
    name, so the twins in ico2/fumi/src/jimaku and ico2/common/src/layout_texture
    are statics too and `static` here keeps this one's ELF symbol local */
 static void display_texture(KanbanProp *pr, LayoutTex *e, Col4 *col);
-extern char D_00535168[][0x34];
+extern char texFile[][0x34];
 extern char *strtok(char *s, const char *sep);
 extern char *strrchr(const char *s, int c);
 extern void debug_assert(char *file, int line);
@@ -169,8 +170,8 @@ static inline int get_texture_no_of_property(int idx)
     char *name;
     int no;
 
-    n = D_0030CFF8[idx].f58;
-    src = D_00535168[n];
+    n = texProperty[idx].f58;
+    src = texFile[n];
     name = get_texture_base_name(src);
 
     no = tex_GetTextureNo(name);
@@ -189,14 +190,14 @@ static inline void init_textures_of_property_range(int first, int last)
     int i;
 
     for (i = first; i < last; i++) {
-        init_textures_of_specified_property(D_00533FE8[i].first, D_00533FE8[i].last);
+        init_textures_of_specified_property(texLayout[i].first, texLayout[i].last);
     }
 }
 
 static inline int kanban_layout_key(KanbanProp *pr)
 {
     int ret = 0;
-    LayoutTex *e = &D_0030CFF8[pr->f2C];
+    LayoutTex *e = &texProperty[pr->f2C];
 
     if ((D_0028F8F0[1] & 0x1000) && e->f3C > 0) {
         pr->f2C = e->f3C;
@@ -243,7 +244,7 @@ Node *kanbanReqAdd(int no, int pri)
     int i;
 
     p = (Node *)kanbanNodes;
-    pr = &D_00533FE8[no];
+    pr = &texLayout[no];
     for (i = 0; i < 30; i++, p++) {
         if (p->f0 == 0)
             goto found;
@@ -354,7 +355,7 @@ void init_textures_of_specified_property(int first, int last)
 void kanbanInit(int no)
 {
     if (no != 0) {
-        init_textures_of_property_range(D_005F5D50[no].texFirst, D_005F5D50[no].texLast);
+        init_textures_of_property_range(stageData[no].texFirst, stageData[no].texLast);
     } else {
         init_textures_of_property_range(0, 1);
         kanbanReqAllDel();
@@ -410,7 +411,7 @@ static void display_texture(KanbanProp *pr, LayoutTex *e, Col4 *col)
         gif_EndPacket();
     }
 
-    if (e == &D_0030CFF8[pr->f2C]) {
+    if (e == &texProperty[pr->f2C]) {
         /* its initialiser is the anonymous 4-byte template at the end of
            the TU's .sdata run, which the ROM reaches with %hi/%lo */
         Col4 col2 = {{0x80, 0x80, 0x80, 0x7F}};
@@ -439,7 +440,7 @@ int fade_exec(Node *p)
     float f;
 
     if ((p->fC & 1) == 0) {
-        f = 127.0f / (p->f0->f8 * (float)((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]));
+        f = 127.0f / (p->f0->f8 * (float)((60 - systemStatus[0] * 10) / systemStatus[1]));
         if (f == 0.0f) {
             f = 127.0f;
         }
@@ -450,7 +451,7 @@ int fade_exec(Node *p)
             ret = 1;
         }
     } else {
-        f = 127.0f / (p->f0->fC * (float)((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]));
+        f = 127.0f / (p->f0->fC * (float)((60 - systemStatus[0] * 10) / systemStatus[1]));
         if (f == 0.0f) {
             f = 127.0f;
         }
@@ -480,7 +481,7 @@ void display_layout(Node *k)
         kanbanReqDel((int *)k);
     } else {
         for (i = pr->first; i < pr->last; i++) {
-            display_texture(pr, &D_0030CFF8[i], &k->f14);
+            display_texture(pr, &texProperty[i], &k->f14);
         }
     }
 }

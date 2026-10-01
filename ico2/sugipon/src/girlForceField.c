@@ -48,12 +48,13 @@ inline GirlForceFieldWork *InitGirlForceFieldGeo(char *self, char *param)
 inline void GirlForceFieldGeo(void) {}
 
 /* The girl's GObj, or NULL before she is spawned. */
-extern void *D_00639EA8;
+/* kept local: main.c's global; this TU does not include main.h */
+extern void *girlGObj;
 
 /* The per-object-kind action record table (0x4C bytes/entry, indexed by the
    GObj's kind id at +8) and the animation-record table it selects into. */
 
-extern OaRecA D_002C2DC8[];
+extern OaRecA objLayout[];
 extern OaRecB D_002BC6E0[];
 /* kept local: this TU's uses of stage_PlayBgAnimationDissolve do not fit the prototype in StageAnimation.h */
 extern float stage_PlayBgAnimationDissolve(void *anim, float *pos, float *quat, float frame,
@@ -71,17 +72,17 @@ void GirlForceFieldDL(char *self)
     UpdateRootMatrix(self);
     GetRootPosition(pos, self);
 
-    if (D_00639EA8 != 0) {
-        GetRootPosition(gpos, D_00639EA8);
+    if (girlGObj != 0) {
+        GetRootPosition(gpos, girlGObj);
         d2 = distance_squared(gpos, pos);
         if (d2 < w->radius * w->radius) {
             ratio = 1.0f - FSqrt(d2) * w->invRadius;
             ratio = ratio < 0.0f ? 0.0f : ratio;
 
             GetRootQuaternion(quat, self);
-            w->frame = (int)stage_PlayBgAnimationDissolve(
-                D_002BC6E0[D_002C2DC8[*(int *)(self + 8)].x34].x0, pos, quat, (float)w->frame,
-                ratio);
+            w->frame =
+                (int)stage_PlayBgAnimationDissolve(D_002BC6E0[objLayout[*(int *)(self + 8)].x34].x0,
+                                                   pos, quat, (float)w->frame, ratio);
             return;
         }
     }

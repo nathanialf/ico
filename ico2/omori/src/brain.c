@@ -4,17 +4,18 @@
 #include "ebrain.h"
 #include "typedef.h"
 
-extern ObjKindEnt D_002C1270[];
-extern int D_0028F4C0[];
+extern ObjKindEnt objKindData[];
+/* kept local: main.c's global; this TU does not include main.h */
+extern int systemStatus[];
 
 static inline void brainSetTargetTimer(BrainTarget *t)
 {
     int n;
 
     if (t->gobj != 0) {
-        n = (int)D_002C1270[((PObjGObj *)t->gobj)->kind].targetTime;
+        n = (int)objKindData[((PObjGObj *)t->gobj)->kind].targetTime;
         if (n != -1) {
-            n = n * ((0x3C - D_0028F4C0[0] * 0xA) / D_0028F4C0[1]);
+            n = n * ((0x3C - systemStatus[0] * 0xA) / systemStatus[1]);
         }
     } else {
         n = -1;
@@ -79,12 +80,12 @@ typedef struct {
     unsigned int w48;
 } BrainDefEnt;
 
-extern BrainDefEnt D_002C2DC8[];
+extern BrainDefEnt objLayout[];
 
 static inline void brainSetTargetSub(Brain *b, int gobj, float lvl, int k)
 {
-    float fc = D_002C1270[k].f28;
-    float f10 = D_002C1270[k].f2C;
+    float fc = objKindData[k].f28;
+    float f10 = objKindData[k].f2C;
     BrainTarget *t;
     int i;
 
@@ -110,17 +111,18 @@ static inline void brainSetTargetSub(Brain *b, int gobj, float lvl, int k)
 
 void brainStatusDefaultSet(Brain *b, int gobj, int idx)
 {
-    BrainDefEnt *d = D_002C2DC8 + idx;
+    BrainDefEnt *d = objLayout + idx;
     int k = d->b46;
 
     if ((d->w48 >> 20) & 1) {
-        if (D_002C1270[k].f30 != 0) {
-            brainSetTargetSub(b, gobj, (float)D_002C1270[k].f30, k);
+        if (objKindData[k].f30 != 0) {
+            brainSetTargetSub(b, gobj, (float)objKindData[k].f30, k);
         }
     }
 }
 
-extern char *D_00639EA8;
+/* kept local: main.c's global; this TU does not include main.h */
+extern char *girlGObj;
 
 /* RECONSTRUCTION: listing brain.c:450-456 is a file-static helper the ROM only
  * ever expands; MAIN.MAP has no symbol for it, so the name is ours. */
@@ -175,8 +177,8 @@ void brainLevelProcess(Brain *b)
             t->level = 0.0f;
             continue;
         }
-        if (t != b->cur && t->level > 1.9 && D_00639EA8 != 0 &&
-            ((int)(*(long long *)(*(int *)(D_00639EA8 + 0x164) + 0x20) >> 27) & 1)) {
+        if (t != b->cur && t->level > 1.9 && girlGObj != 0 &&
+            ((int)(*(long long *)(*(int *)(girlGObj + 0x164) + 0x20) >> 27) & 1)) {
             float r;
             /* 3.40282347e+38f is FLT_MAX: outside mips_const_double_ok's li.s
                range, so each function that uses it gets its own constant-pool
@@ -253,9 +255,9 @@ void brainGetTarget(Brain *b)
             best = t;
             idx = i;
         } else if (best != 0 && brainGetLevel_INTERIM(b, t) == brainGetLevel_INTERIM(b, best)) {
-            if (D_00639EA8 != 0) {
-                if (_DistSqGV(test_CURRENTROOT((void *)t->gobj), test_CURRENTROOT(D_00639EA8)) <
-                    _DistSqGV(test_CURRENTROOT((void *)best->gobj), test_CURRENTROOT(D_00639EA8))) {
+            if (girlGObj != 0) {
+                if (_DistSqGV(test_CURRENTROOT((void *)t->gobj), test_CURRENTROOT(girlGObj)) <
+                    _DistSqGV(test_CURRENTROOT((void *)best->gobj), test_CURRENTROOT(girlGObj))) {
                     best = t;
                     idx = i;
                 }
@@ -270,17 +272,17 @@ void brainGetTarget(Brain *b)
         b->w10 = b->w10 - 1;
     }
     if (b->w10 >= 0) {
-        n = b->w10 > (0x3C - D_0028F4C0[0] * 0xA) / D_0028F4C0[1] / 3 +
-                         (0x3C - D_0028F4C0[0] * 0xA) / D_0028F4C0[1] / 12
-                ? (0x3C - D_0028F4C0[0] * 0xA) / D_0028F4C0[1] / 3 +
-                      (0x3C - D_0028F4C0[0] * 0xA) / D_0028F4C0[1] / 12
+        n = b->w10 > (0x3C - systemStatus[0] * 0xA) / systemStatus[1] / 3 +
+                         (0x3C - systemStatus[0] * 0xA) / systemStatus[1] / 12
+                ? (0x3C - systemStatus[0] * 0xA) / systemStatus[1] / 3 +
+                      (0x3C - systemStatus[0] * 0xA) / systemStatus[1] / 12
                 : b->w10;
     } else {
         n = 0;
     }
     b->w10 = n;
 
-    if ((0x3C - D_0028F4C0[0] * 0xA) / D_0028F4C0[1] / 3 < b->w10) {
+    if ((0x3C - systemStatus[0] * 0xA) / systemStatus[1] / 3 < b->w10) {
         best = b->cur;
         for (i = 0; i < 40; i++) {
             t = &b->tgt[i];

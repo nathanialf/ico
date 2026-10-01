@@ -176,7 +176,8 @@ int tryToRevive(void)
     return 0;
 }
 
-extern int D_0028F4C0[];
+/* kept local: main.c's global; this TU does not include main.h */
+extern int systemStatus[];
 
 void ExecSpiderGroupManager(void)
 {
@@ -203,11 +204,11 @@ void ExecSpiderGroupManager(void)
             reviveCounter = reviveCounter + 1;
             if (debug_brain_bar_flag != 0) {
                 debug_PrintfDummy(400, 120, 0xFFFFFFFF, "COUNTER %d/%d", reviveCounter,
-                                  (60 - D_0028F4C0[0] * 10) / D_0028F4C0[1] * 45);
+                                  (60 - systemStatus[0] * 10) / systemStatus[1] * 45);
             }
         }
 
-        if ((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1] * 45 < reviveCounter) {
+        if ((60 - systemStatus[0] * 10) / systemStatus[1] * 45 < reviveCounter) {
             for (i = 0; i < spiderGroupIdCount; i++) {
                 if (GetAliveSpiders(spiderGroupIds[i]) >= 0) {
                     DeadAllSpiders(spiderGroupIds[i]);

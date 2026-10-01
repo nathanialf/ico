@@ -61,8 +61,10 @@ static ActMail torch_off_mes[2] = {{430}, {429}};
 extern int scpBoyControlReadDisable;
 /* kept local: this TU's uses of scpTriggerBall do not fit the prototype in script.h */
 extern int scpTriggerBall(int a0, void *a1, float radius);
-extern void *D_00639EA4;
-extern void *D_00639EA8;
+/* kept local: main.c's global; this TU does not include main.h */
+extern void *boyGObj;
+/* kept local: main.c's global; this TU does not include main.h */
+extern void *girlGObj;
 
 /* .sbss, owned by st08a.o and reached only from this file (MAIN.MAP names no
    symbol in the run): the demo's own end flag, raised by the
@@ -79,7 +81,7 @@ extern void scpSetCageVelocityFriction(int id, float f);
 
 void actSt08aEnd(void)
 {
-    if (D_00639EA8 != 0) {
+    if (girlGObj != 0) {
         if (gflagChk(73) == 0) {
             gflagOn(391);
         }
@@ -95,12 +97,12 @@ extern void scpPlayMot(void *o, int mot);
 
 void actSt08aEne1Chk(volatile int a0)
 {
-    if (D_00639EA8 == 0) {
+    if (girlGObj == 0) {
         _ACTWait(0);
     }
 
-    while (gflagChk(71) == 0 || (scpTriggerFloorAttr(D_00639EA4, 0x6000000) == 0 &&
-                                 scpTriggerFloorAttr(D_00639EA8, 0x1000000) == 0)) {
+    while (gflagChk(71) == 0 || (scpTriggerFloorAttr(boyGObj, 0x6000000) == 0 &&
+                                 scpTriggerFloorAttr(girlGObj, 0x1000000) == 0)) {
         _ACTWait(1);
     }
 
@@ -111,8 +113,8 @@ void actSt08aEne1Chk(volatile int a0)
     gflagOn(74);
     stage_SetAnimation(103, 1, 0);
 
-    if (scpTriggerFloorAttr(D_00639EA4, 0x6000000) == 0 &&
-        scpTriggerFloorAttr(D_00639EA4, 0x1000000) == 0) {
+    if (scpTriggerFloorAttr(boyGObj, 0x6000000) == 0 &&
+        scpTriggerFloorAttr(boyGObj, 0x1000000) == 0) {
         SetCameraFlag_LwsCutBack();
     }
 
@@ -121,7 +123,7 @@ void actSt08aEne1Chk(volatile int a0)
     }
     _ACTWait(1);
 
-    scpPlayMot(D_00639EA4, 0);
+    scpPlayMot(boyGObj, 0);
     scpBoyControlReadDisable = 0;
     lt_switch_layout(54);
     scpWakeupEnemyOne(3757);
@@ -136,11 +138,11 @@ void actSt08aEne2Chk(volatile int a0)
 {
     int save;
 
-    if (D_00639EA8 == 0) {
+    if (girlGObj == 0) {
         _ACTWait(0);
     }
 
-    while (gflagChk(72) == 0 || scpTriggerFloorAttr(D_00639EA8, 0x5000000) == 0) {
+    while (gflagChk(72) == 0 || scpTriggerFloorAttr(girlGObj, 0x5000000) == 0) {
         _ACTWait(1);
     }
 
@@ -164,7 +166,7 @@ void actSt08aEne2Chk(volatile int a0)
 
     stage_SetAnimation(104, 1, 0);
 
-    if (scpTriggerFloorAttr(D_00639EA4, 0x5000000) == 0) {
+    if (scpTriggerFloorAttr(boyGObj, 0x5000000) == 0) {
         SetCameraFlag_LwsCutBack();
     }
 
@@ -174,7 +176,7 @@ void actSt08aEne2Chk(volatile int a0)
     _ACTWait(1);
 
     iosPadActRequestEnable = save;
-    scpPlayMot(D_00639EA4, 0);
+    scpPlayMot(boyGObj, 0);
     lt_switch_layout(54);
     scpBoyControlReadDisable = 0;
     scpWakeupEnemyOne(3757);
@@ -233,7 +235,8 @@ void actSt08aDoorUp(volatile int a0)
     lt_switch_layout(54);
 }
 
-extern int D_00639EAC;
+/* kept local: main.c's global; this TU does not include main.h */
+extern int boyPad;
 
 /* .sdata, owned by st08a.o, in the ROM's order: the scene's stream handle (MAIN.MAP has no .sdata for the January object). */
 static int *st08a_adpcm = 0; /* derived name */
@@ -260,7 +263,7 @@ void actSt08aHasiUpSub(volatile int a0)
     }
 
     _ACTWait(1);
-    iosPadActRequest(D_00639EAC, 0x11);
+    iosPadActRequest(boyPad, 0x11);
 
     while (stage_CheckAnimationFinish(106) == 0) {
         _ACTWait(1);
@@ -325,9 +328,9 @@ void actSt08aTorchOnChk(volatile int a0)
 {
     Act *self = ((PObjGObjSt08A *)a0)->act;
 
-    while (scpTriggerFloorAttr(D_00639EA4, 0x5000000) != 0 ||
-           scpTriggerFloorAttr(D_00639EA4, 0x7000000) != 0 ||
-           scpTriggerFloorAttr(D_00639EA4, 0xA000000) != 0) {
+    while (scpTriggerFloorAttr(boyGObj, 0x5000000) != 0 ||
+           scpTriggerFloorAttr(boyGObj, 0x7000000) != 0 ||
+           scpTriggerFloorAttr(boyGObj, 0xA000000) != 0) {
         _ACTWait(1);
     }
 
@@ -353,9 +356,9 @@ void actSt08aTorchOffChk(volatile int a0)
 {
     Act *self = ((PObjGObjSt08A *)a0)->act;
 
-    while (scpTriggerFloorAttr(D_00639EA4, 0x5000000) == 0 &&
-           scpTriggerFloorAttr(D_00639EA4, 0x7000000) == 0 &&
-           scpTriggerFloorAttr(D_00639EA4, 0xA000000) == 0) {
+    while (scpTriggerFloorAttr(boyGObj, 0x5000000) == 0 &&
+           scpTriggerFloorAttr(boyGObj, 0x7000000) == 0 &&
+           scpTriggerFloorAttr(boyGObj, 0xA000000) == 0) {
         _ACTWait(1);
     }
 
@@ -654,7 +657,7 @@ void actSt08aDoorUpSub(volatile int a0)
 
 void actSt08aIntroChk(volatile int a0)
 {
-    while (scpTriggerBall(a0, D_00639EA4, 100.0f) == 0) {
+    while (scpTriggerBall(a0, boyGObj, 100.0f) == 0) {
         _ACTWait(1);
     }
 
@@ -675,7 +678,7 @@ void actSt08aIntroChk(volatile int a0)
 
 void actSt08aGirlPosChk(volatile int a0)
 {
-    while (D_00639EA8 == 0 || scpTriggerBall(a0, D_00639EA8, 200.0f) == 0) {
+    while (girlGObj == 0 || scpTriggerBall(a0, girlGObj, 200.0f) == 0) {
         _ACTWait(1);
     }
 

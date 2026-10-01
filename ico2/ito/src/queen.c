@@ -799,13 +799,12 @@ static float queenSpawnPos[6][4] = {
     {600.0f, -900.0f, -200.0f, 0.0f},  {400.0f, -900.0f, 100.0f, 0.0f},
 };
 
-extern int D_0028F4D4[];
-
 /* .sbss, owned by queen.o (MAIN.MAP names no symbol in the run): the queen's own frame counter, the
    timestamp every wait in her state machine is measured against */
 static int queenFrame;
 
-extern char *D_00639EA4;
+/* kept local: main.c's global; this TU does not include main.h */
+extern char *boyGObj;
 /* kept local: this TU's uses of ACTDispLwsBoyStonize_InQueenStage do not fit the prototype in boyact.h */
 extern void ACTDispLwsBoyStonize_InQueenStage(char *g);
 extern void *memset(void *p, int c, int n);
@@ -842,7 +841,7 @@ void scale_m34(LVec *a0, void *a1, float f)
 static void effect_end_func(int no)
 {
     char *g = isysGObjSearchFromObjKindID_begin(47);
-    char *weapon = *(char **)(*(char **)(D_00639EA4 + 0x164) + 0x150);
+    char *weapon = *(char **)(*(char **)(boyGObj + 0x164) + 0x150);
 
     if (g != 0) {
         *(int *)(GOBJ_SUB(g)->f_830 + 4) += 1;
@@ -946,7 +945,7 @@ void queenBeforeFunc(char *g)
             }
             break;
         case 0x12: {
-            char *boy = *(char **)(*(char **)(D_00639EA4 + 0x164) + 0x150);
+            char *boy = *(char **)(*(char **)(boyGObj + 0x164) + 0x150);
 
             debug_StdPrintfDummy(enemyDeadMsg, boy);
             if (e->data != 0 && boy != 0) {
@@ -981,7 +980,8 @@ static const QueenGenTable genEnemyTable[2] = {
 
 static const char genEnemyStatFmt[] = "n_enemy_max:%d n_enemy:%d counter:%d";
 
-extern int D_0028F4C0[];
+/* kept local: main.c's global; this TU does not include main.h */
+extern int systemStatus[];
 extern float _GetRandom(void);
 /* kept local: this TU's uses of lw_pos_to_ico_pos do not fit the prototype in itou_sub.h */
 extern void lw_pos_to_ico_pos(float *dst, float *src);
@@ -1031,14 +1031,14 @@ void gene_enemy(volatile int g)
             }
             if (alive < total) {
                 if (timer > ((stage_no == 0x25) ? genWaitRateSt25 : genWaitRateDefault)[num] *
-                                ((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1])) {
+                                ((60 - systemStatus[0] * 10) / systemStatus[1])) {
                     if (stage_no == 0x25) {
                         obj = (char *)isysGObjSearchFromObjLayoutID(
                             tbl->list[(int)(_GetRandom() * tbl->n)]);
                         if (obj != 0) {
                             lw_pos_to_ico_pos(pos.f, queenSpawnPos[(int)(_GetRandom() * 6.0f)]);
                             SetRootPosition(obj, pos.f);
-                            wait = (int)(((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]) * 0.5f);
+                            wait = (int)(((60 - systemStatus[0] * 10) / systemStatus[1]) * 0.5f);
                             for (k = 0; k <= wait; k++) {
                                 _ACTWait(1);
                             }
@@ -1204,7 +1204,7 @@ void subQueenBrainMain(volatile int g)
     _ACTWait(1);
     if (stage_no != 0x25) {
         pos = queenStartPos;
-        SetDirectRootPosition(D_00639EA4, &pos);
+        SetDirectRootPosition(boyGObj, &pos);
         QueenStartAttack_inl(first);
     }
     QueenStatusRestart((char *)g, &st);
@@ -1241,7 +1241,7 @@ void subQueenBrainMain(volatile int g)
             case 0x430:
             case 0x435:
             case 0x436:
-                GetRootPosition(&target, D_00639EA4);
+                GetRootPosition(&target, boyGObj);
                 ((QueenLookAt *)((char *)GOBJ_SUB(g) + 0x380))->pos.f[0] = target.v[0];
                 ((QueenLookAt *)((char *)GOBJ_SUB(g) + 0x380))->pos.f[1] = target.v[1];
                 ((QueenLookAt *)((char *)GOBJ_SUB(g) + 0x380))->pos.f[2] = target.v[2];
@@ -1267,7 +1267,7 @@ void subQueenBrainMain(volatile int g)
                         wait = (int)(*((stage_no == 0x25)
                                            ? &ballWaitRateSt25[*(int *)(ballw + 0x18)]
                                            : &ballWaitRateDefault[*(int *)(ballw + 0x18)]) *
-                                     ((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]));
+                                     ((60 - systemStatus[0] * 10) / systemStatus[1]));
                     }
                     first = 0;
                 }
@@ -1301,7 +1301,7 @@ void subQueenBrainMain(volatile int g)
                     wait =
                         (int)(*((stage_no == 0x25) ? &ballWaitRateSt25[*(int *)(ballw + 0x18)]
                                                    : &ballWaitRateDefault[*(int *)(ballw + 0x18)]) *
-                              ((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]));
+                              ((60 - systemStatus[0] * 10) / systemStatus[1]));
                     tex_SetUVScroll(queenBallScrTexture, 1, uv->v[0], uv->v[1], uv->v[2], uv->v[3],
                                     uv->v[4], uv->v[5]);
                 }
@@ -1311,13 +1311,13 @@ void subQueenBrainMain(volatile int g)
                 startFrame = queenFrame;
                 wait = (int)(*((stage_no == 0x25) ? &ballHoldRateSt25[*(int *)(ballw + 0x18)]
                                                   : &ballHoldRateDefault[*(int *)(ballw + 0x18)]) *
-                             ((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]));
+                             ((60 - systemStatus[0] * 10) / systemStatus[1]));
                 ((QueenVal *)(ext + 0x130))->i =
                     SetMotionRequest((char *)g, 1, *(MotOriReq *)(ext + 0x620));
                 break;
             }
         }
-        boy = *(char **)(*(char **)(D_00639EA4 + 0x164) + 0x150);
+        boy = *(char **)(*(char **)(boyGObj + 0x164) + 0x150);
         if (boy != 0) {
             GetRootPosition(&target, boy);
             ParticleEffects_SetAllGoal(&target);
@@ -1327,8 +1327,10 @@ void subQueenBrainMain(volatile int g)
     }
 }
 
-extern char *D_00639EC0;
-extern char *D_00639ED0;
+/* kept local: main.c's global; this TU does not include main.h */
+extern char *CurrentTargetGObj;
+/* kept local: main.c's global; this TU does not include main.h */
+extern char *CurrentTargetGObjSub;
 /* kept local: this TU's uses of CorrectStickInfo do not fit the prototype in boyact.h */
 extern int CorrectStickInfo(void *dir, void *stick);
 
@@ -1358,7 +1360,7 @@ static void Debug_StickControl(char *self)
     QVec dir;
     Act *ext = GOBJ_ACT(self);
 
-    if (self == D_00639EC0) {
+    if (self == CurrentTargetGObj) {
         char *pad = (char *)ext + 0x2D8;
         char *stick = (char *)ext + 0x338;
 
@@ -1370,7 +1372,7 @@ static void Debug_StickControl(char *self)
         if (*(float *)((char *)ext + 0x34C) > 0.001f) {
             ConvertStickToAbsCoord((char *)ext + 0x120, stick);
         }
-    } else if (self == D_00639ED0) {
+    } else if (self == CurrentTargetGObjSub) {
         iosPadConnect((char *)ext + 0x2D8, 0, 1, (char *)ext + 0x1E8);
     } else {
         iosPadConnect((char *)ext + 0x2D8, 0, 1, (char *)ext + 0x1E8);
@@ -1403,7 +1405,7 @@ void QueenGeo(char *g)
 {
     char *w;
 
-    if (D_0028F4D4[0] == 0) {
+    if (systemStatus[5] == 0) {
         queenFrame++;
     }
     ExecMotionOrient(g);
@@ -1420,8 +1422,8 @@ void QueenDL(char *g)
 {
     char *w;
 
-    if (D_00639EA4 != 0) {
-        ACTDispLwsBoyStonize_InQueenStage(D_00639EA4);
+    if (boyGObj != 0) {
+        ACTDispLwsBoyStonize_InQueenStage(boyGObj);
     }
     p2o_SetDefaultEnviroment();
     p2o_DispVU1(g);
@@ -1523,7 +1525,7 @@ void QueenBarrierGeo(char *g)
         void *weapon;
 
         *(int *)(qw + 4) = 0;
-        weapon = (void *)*(int *)(*(int *)(D_00639EA4 + 0x164) + 0x150);
+        weapon = (void *)*(int *)(*(int *)(boyGObj + 0x164) + 0x150);
         if (weapon != 0) {
             LightTorchOffOfWeapon(weapon);
         }
@@ -1535,7 +1537,7 @@ void QueenBarrierGeo(char *g)
             sceVu0CopyVector(&m3.w, &pos);
             CopyMatrix(*(void **)((char *)GOBJ_SUB(g) + 0xC), &m3);
             *(char *)(w + 0x12) = 0;
-            ExecuteSEPackage((int)D_00639EA4, 0x62);
+            ExecuteSEPackage((int)boyGObj, 0x62);
         }
     }
     if (*(int *)(qw + 8) > 0) {
@@ -1674,11 +1676,11 @@ void QueenBallGeo(char *g)
     ball = isysGObjSearchFromObjKindID_begin(54);
     num = (ball != 0) ? *(int *)(*(char **)((char *)GOBJ_SUB(ball) + 0x830) + 0x18) : 0;
     r = *(float *)(w + 0x14) * 100.0f;
-    weapon = *(char **)(*(char **)(D_00639EA4 + 0x164) + 0x150);
+    weapon = *(char **)(*(char **)(boyGObj + 0x164) + 0x150);
     GetRootMatrix(m, g);
-    GetRootPosition(&queenPos, D_00639EA4);
+    GetRootPosition(&queenPos, boyGObj);
     i = 0;
-    act = *(char **)(D_00639EA4 + 0x164);
+    act = *(char **)(boyGObj + 0x164);
     hit = (*(int *)(act + 0x34) == 0x31);
     if (*(signed char *)(w + 0x11) != 0) {
         for (o = isysGObjSearchFromObjKindID_begin(17); o != 0;
@@ -1731,9 +1733,9 @@ void QueenBallGeo(char *g)
             _AttackCenter(g, 0x10, m[3], 0, r, 0) != 0) {
             *(char *)(w + 0x19) = 1;
             if (weapon != 0) {
-                ExecuteSEPackage((int)D_00639EA4, 0x61);
+                ExecuteSEPackage((int)boyGObj, 0x61);
             } else {
-                ExecuteSEPackage((int)D_00639EA4, 0x5B);
+                ExecuteSEPackage((int)boyGObj, 0x5B);
             }
         }
         if (r > 5000.0f) {
@@ -1795,7 +1797,7 @@ void QueenBallDL(char *g)
         }
     }
     GetRootPosition(&selfPos, g);
-    GetRootPosition(&queenPos, D_00639EA4);
+    GetRootPosition(&queenPos, boyGObj);
     q = queenBga;
     for (i = 0; i < 4; i++, q++) {
         if ((o = (char *)*q) != 0) {
@@ -1944,7 +1946,7 @@ void queenBallBeforeFunc(char *g)
         } else if (scpGameStat_BoyWeaponkind() == 5) {
             debug_StdPrintfDummy(queenBallAttackedMsg);
             *(char *)(w + 0x18) = 1;
-            iosOmSendMail(D_00639EA4, 0x1A9, g);
+            iosOmSendMail(boyGObj, 0x1A9, g);
         }
     }
     q->num = 0;

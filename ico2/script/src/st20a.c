@@ -61,8 +61,10 @@ static ActMail girlPos_mes[2] = {{430}, {429}};
 
 static ActMail hint1_mes[2] = {{430}, {429}};
 
-extern int D_00639EA8;
-extern int D_00639EA4;
+/* kept local: main.c's global; this TU does not include main.h */
+extern int girlGObj;
+/* kept local: main.c's global; this TU does not include main.h */
+extern int boyGObj;
 
 void actSt20aInit(void)
 {
@@ -77,14 +79,15 @@ void actSt20aInit(void)
 
 void actSt20aEnd(void)
 {
-    if (D_00639EA8 != 0 && gflagChk(315) != 0 && gflagChk(318) == 0) {
+    if (girlGObj != 0 && gflagChk(315) != 0 && gflagChk(318) == 0) {
         gflagOn(391);
     }
     gamesysObjInfoCls(*(int *)(scpSearchGobj(2025) + 0xC), *(int *)(scpSearchGobj(2025) + 8));
     gamesysObjInfoCls(*(int *)(scpSearchGobj(2023) + 0xC), *(int *)(scpSearchGobj(2023) + 8));
 }
 
-extern int D_00639EAC;
+/* kept local: main.c's global; this TU does not include main.h */
+extern int boyPad;
 
 /* .sbss, owned by st20a.o and reached only from this file (MAIN.MAP names no
    symbol in the run): the demo's own end flag, raised by the
@@ -146,7 +149,7 @@ void actSt20aGondolaDown(volatile int a0)
 {
     Act *sub = (Act *)*(int *)(a0 + 0x164);
 
-    SetGirlDangerGObj(D_00639EA4);
+    SetGirlDangerGObj(boyGObj);
     scpAdpcmPlayRequestFunc(69, &gondola_down, 1, 1, 1);
     while (gondola_down == 0) {
         _ACTWait(1);
@@ -157,12 +160,12 @@ void actSt20aGondolaDown(volatile int a0)
         _ACTWait(1);
     }
     _ACTWait(1);
-    iosPadActRequest(D_00639EAC, 0x11);
+    iosPadActRequest(boyPad, 0x11);
     while (stage_CheckAnimationFrame(147, 500, 1) == 0) {
         _ACTWait(1);
     }
     _ACTWait(1);
-    iosPadActRequest(D_00639EAC, 0x10);
+    iosPadActRequest(boyPad, 0x10);
     if (gondola_down != 0) {
         scpAdpcmFadeCloseFunc(&gondola_down, 0x100);
     }
@@ -190,12 +193,12 @@ void actSt20aGondolaUp(volatile int a0)
         _ACTWait(1);
     }
     _ACTWait(1);
-    iosPadActRequest(D_00639EAC, 0x11);
+    iosPadActRequest(boyPad, 0x11);
     while (stage_CheckAnimationFrame(147, 1000, 1) == 0) {
         _ACTWait(1);
     }
     _ACTWait(1);
-    iosPadActRequest(D_00639EAC, 0x10);
+    iosPadActRequest(boyPad, 0x10);
     if (gondola_up != 0) {
         scpAdpcmFadeCloseFunc(&gondola_up, 0x100);
     }
@@ -253,8 +256,8 @@ void actSt20aFence(volatile int a0)
         scpLinkBGAtoLayoutedTarget(0x7E8, 0x95);
         stage_SetAnimation(149, 0, 0);
 
-        if (D_00639EA8 != 0 && scpTriggerFloorAttr(D_00639EA8, 0x2000000) != 0) {
-            scpPlayPosSet(D_00639EA8, 3973.0f, -1100.0f, -1169.0f);
+        if (girlGObj != 0 && scpTriggerFloorAttr(girlGObj, 0x2000000) != 0) {
+            scpPlayPosSet(girlGObj, 3973.0f, -1100.0f, -1169.0f);
         }
 
         fence2_mes[0].func = actSt20aFenceDownChk2;
@@ -568,7 +571,7 @@ void actSt20aBridgeDownSub(volatile int a0)
     }
     AdpcmPlay(*(int *)(brg20a + 0x2C));
     stage_SetAnimation(148, 1, 0);
-    st20a_yure = iosPadActRequest(D_00639EAC, 9);
+    st20a_yure = iosPadActRequest(boyPad, 9);
     st20a_yure_vol = 0x80;
     iosPadActVolumeSet(st20a_yure, 0x80);
     while (stage_CheckAnimationFinish(148) == 0) {
@@ -614,25 +617,25 @@ void actSt20aGondolaSwitch(volatile int a0)
 
 void actSt20aExitChk(volatile int a0)
 {
-    while (scpTriggerBall(a0, D_00639EA4, 400.0f) == 0 ||
-           scpTriggerFloorAttr(D_00639EA4, 0x2000000) == 0) {
+    while (scpTriggerBall(a0, boyGObj, 400.0f) == 0 ||
+           scpTriggerFloorAttr(boyGObj, 0x2000000) == 0) {
         _ACTWait(1);
     }
     gflagOn(317);
     gflagOff(309);
-    if (D_00639EA8 != 0 && scpTriggerFloorAttr(D_00639EA8, 0x2000000) != 0) {
+    if (girlGObj != 0 && scpTriggerFloorAttr(girlGObj, 0x2000000) != 0) {
         OnGirlEscortFlag();
-        RequestStageChange(4, D_00639EA4, D_00639EA8, 2.0f, 8.0f);
+        RequestStageChange(4, boyGObj, girlGObj, 2.0f, 8.0f);
     }
-    RequestStageChange(4, D_00639EA4, 0, 2.0f, 8.0f);
+    RequestStageChange(4, boyGObj, 0, 2.0f, 8.0f);
 }
 
 void actSt20aEneChk(volatile int a0)
 {
-    if (D_00639EA8 == 0) {
+    if (girlGObj == 0) {
         _ACTWait(0);
     }
-    while (gflagChk(315) == 0 || scpTriggerFloorAttr(D_00639EA8, 0x3000000) == 0) {
+    while (gflagChk(315) == 0 || scpTriggerFloorAttr(girlGObj, 0x3000000) == 0) {
         _ACTWait(1);
     }
     _ACTWait(1);
@@ -642,7 +645,7 @@ void actSt20aEneChk(volatile int a0)
 
 void actSt20aGirlPosChk(volatile int a0)
 {
-    while (D_00639EA8 == 0 || scpTriggerBall(a0, D_00639EA8, 200.0f) == 0) {
+    while (girlGObj == 0 || scpTriggerBall(a0, girlGObj, 200.0f) == 0) {
         _ACTWait(1);
     }
     gflagOn(322);
@@ -651,8 +654,8 @@ void actSt20aGirlPosChk(volatile int a0)
 
 void actSt20aHint1Chk(volatile int a0)
 {
-    while (scpTriggerBall(a0, D_00639EA4, 100.0f) == 0 &&
-           scpTriggerFloorAttr(D_00639EA4, 0x4000000) == 0) {
+    while (scpTriggerBall(a0, boyGObj, 100.0f) == 0 &&
+           scpTriggerFloorAttr(boyGObj, 0x4000000) == 0) {
         _ACTWait(1);
     }
     debug_StdPrintfDummy("HINT1_FINISH!!!!!!!!!!!!!!!\n");

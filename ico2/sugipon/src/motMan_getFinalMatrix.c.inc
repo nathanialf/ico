@@ -322,7 +322,8 @@ extern void sceVu0TransposeMatrix(int dst, int src);
 extern void _AddVector(void *dst, void *a, void *b);
 extern char XUnitVector[];
 extern char ZeroPoint[];
-extern int D_0028F4C0[];
+/* kept local: main.c's global; this TU does not include main.h */
+extern int systemStatus[];
 
 /* The arm IK's angles: the shoulder's turns about Z and Y and the two
    joints' bends. */
@@ -334,7 +335,7 @@ static short ikBend0 = 0; /* derived name */
 
 static short ikBend1 = 0; /* derived name */
 
-extern char D_0055FE58[];
+extern char motionKind[];
 
 /* RECONSTRUCTION, names ours: members of the geo block (skelRoot).  The
  * two lifts at +0x208 are the arm-target height offsets cases 45 and 49 add;
@@ -352,7 +353,7 @@ typedef struct {
 } MotGeoTurn;
 
 /* RECONSTRUCTION, names ours: the 0x194-byte motion-table record of
- * D_0055FE58 (motionViewer.c's MotRec); only the flag word this file reads
+ * motionKind (motionViewer.c's MotRec); only the flag word this file reads
  * is named.  The ROM loads it with a 0x190 displacement from the record, the
  * shape of a structure member. */
 typedef struct {
@@ -362,7 +363,7 @@ typedef struct {
 
 /* The frame-rate factors every blend in _getFinalMatrix scales by: the
  * frame counter pair gives the frames per second of the current mode. */
-#define MOT_FPS ((float)((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]))
+#define MOT_FPS ((float)((60 - systemStatus[0] * 10) / systemStatus[1]))
 #define MOT_SPEED                                                                                  \
     (debug_now_motion_viewer != 0 ? (float)debug_face_rot_w_ratio * 0.01f                          \
                                   : *(float *)(skelMotDef + 0x158))
@@ -857,7 +858,7 @@ void _getFinalMatrix(int id)
             MultiQuaternion(q, q, r);
             APPLY_ROT(q);
             if (*(int *)(skelMotCtrl + 0x1C0) != 0 &&
-                !(((MotTblRec *)(D_0055FE58 + *(int *)(skelMotCtrl + 0x30) * 404))->flags >> 4 &
+                !(((MotTblRec *)(motionKind + *(int *)(skelMotCtrl + 0x30) * 404))->flags >> 4 &
                   1)) {
                 switch (*(int *)(skelMotCtrl + 0x68)) {
                 case 0:
@@ -1130,9 +1131,10 @@ void _getFinalMatrix(int id)
 /* kept local: this TU's uses of these do not fit the prototypes in debug.h. */
 extern void debug_Printf(int a, int b, unsigned int c, int x, ...);
 extern double fptodp(float v);
-extern unsigned char D_0028F8F0[];
+/* kept local: main.c's global; this TU does not include main.h */
+extern unsigned char pad[];
 
-/* RECONSTRUCTION: the pad snapshot at D_0028F8F0 as this TU reads it; only the
+/* RECONSTRUCTION: the pad snapshot at pad as this TU reads it; only the
  * two words the rotation-emphasis editor uses carry names. */
 typedef struct {
     int _00[0x17];
@@ -1155,7 +1157,7 @@ void EditRotEmphasys(void)
 {
     int sel;
 
-    if (((EditPad *)D_0028F8F0)->trg & 0x20) {
+    if (((EditPad *)pad)->trg & 0x20) {
         emphasysEdit = emphasysEdit == 0;
     }
     if (emphasysEdit != 0) {
@@ -1171,7 +1173,7 @@ void EditRotEmphasys(void)
                          (int)"                 %1.5f", emphasysVelocity);
         }
         sel = emphasysSelect;
-        if (((EditPad *)D_0028F8F0)->trg & 0xA000) {
+        if (((EditPad *)pad)->trg & 0xA000) {
             sel++;
             sel &= 1;
             emphasysSelect = sel;
@@ -1179,18 +1181,18 @@ void EditRotEmphasys(void)
         switch (sel) {
         default:
         case 0:
-            if (((EditPad *)D_0028F8F0)->hold & 0x1000) {
+            if (((EditPad *)pad)->hold & 0x1000) {
                 emphasysVelocity = emphasysVelocity + 0.01f;
             }
-            if (((EditPad *)D_0028F8F0)->hold & 0x4000) {
+            if (((EditPad *)pad)->hold & 0x4000) {
                 emphasysVelocity = emphasysVelocity - 0.01f;
             }
             break;
         case 1:
-            if (((EditPad *)D_0028F8F0)->hold & 0x1000) {
+            if (((EditPad *)pad)->hold & 0x1000) {
                 emphasysAccel = emphasysAccel + 0.01f;
             }
-            if (((EditPad *)D_0028F8F0)->hold & 0x4000) {
+            if (((EditPad *)pad)->hold & 0x4000) {
                 emphasysAccel = emphasysAccel - 0.01f;
             }
             break;

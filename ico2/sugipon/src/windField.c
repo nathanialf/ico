@@ -187,7 +187,8 @@ void drawSenpuuki(float scale)
     gif_EndPacket();
 }
 
-extern int D_0028F4C0[];
+/* kept local: main.c's global; this TU does not include main.h */
+extern int systemStatus[];
 
 /* The cell centre ExecWindField samples, rewritten per cell; w stays 1. */
 static float samplePos[4] = {0.0f, 0.0f, 0.0f, 1.0f};
@@ -213,11 +214,11 @@ void ExecWindField(float str)
                 sceVu0SubVector(d, samplePos, windCenter);
                 len = FSqrt(sceVu0InnerProduct(d, d));
                 n = (int)(len * 0.1f *
-                          ((float)((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]) / 60.0f));
+                          ((float)((60 - systemStatus[0] * 10) / systemStatus[1]) / 60.0f));
                 m = n < 256 ? n : 255;
                 (windCell[i] + j)->str = windStrength[m];
                 sceVu0ScaleVector(windCell[i][j].v, d,
-                                  60.0f / (float)((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]) *
+                                  60.0f / (float)((60 - systemStatus[0] * 10) / systemStatus[1]) *
                                       windStrength[m] / len);
             }
         }
@@ -255,9 +256,9 @@ float *getParallelWindVector(float *power, void *pos)
     if (d < 0.0f)
         d = -d;
 
-    n = (int)(d * 0.1f * ((float)((0x3C - D_0028F4C0[0] * 0xA) / D_0028F4C0[1]) / 60.0f));
+    n = (int)(d * 0.1f * ((float)((0x3C - systemStatus[0] * 0xA) / systemStatus[1]) / 60.0f));
     i = n < 256 ? n : 255;
-    s = windStrength[i] * (60.0f / (float)((0x3C - D_0028F4C0[0] * 0xA) / D_0028F4C0[1]));
+    s = windStrength[i] * (60.0f / (float)((0x3C - systemStatus[0] * 0xA) / systemStatus[1]));
     if (power)
         *power = s;
     sceVu0ScaleVector(windVector, windDir, s);

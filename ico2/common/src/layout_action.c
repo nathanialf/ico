@@ -123,11 +123,12 @@ void CUR_SE(void)
     soundSeDefPlay(411, 0xFFFFFFFE, 0, 0);
 }
 
-extern R58 D_0028F8F0[];
+/* kept local: main.c's global; this TU does not include main.h */
+extern R58 pad[];
 
 inline int PSH_POSITIVE_OR_NEGATIVE(int idx)
 {
-    int v = D_0028F8F0[idx].flags;
+    int v = pad[idx].flags;
     if ((v & 0x40) != 0)
         goto one;
     if ((v & 0x10) == 0)
@@ -165,7 +166,8 @@ int mc[640] __attribute__((aligned(64))) = {0};
 /* kept local: this TU's uses of iosMcSync do not fit the prototype in mcard.h */
 extern int iosMcSync(unsigned long *a0);
 extern int D_00534CC0[];
-extern int D_0028F4C0[];
+/* kept local: main.c's global; this TU does not include main.h */
+extern int systemStatus[];
 extern int D_0028F8F4[];
 
 typedef struct {
@@ -191,12 +193,10 @@ extern int IosMcPreviewInfo[];
 extern int D_005343C8[];
 extern void stgmgrForceSwitchWithFade(float a0, float a1, int a2);
 extern int lock_execIcoMisc;
-extern int D_0028F4D4[];
 extern int D_00534400[];
 /* the custom pad configuration ios/pad.c owns, reached here as its words
    (the sixteen button bits from word 44) */
 extern int iosPadConfCustom[];
-extern int D_0028F4D0[];
 extern void CheckPoint(void);
 extern int stage_no;
 
@@ -685,14 +685,12 @@ int _la_set_current_port_new(McWork *p, int a1)
     return r;
 }
 
-extern int D_0028F4EC[];
-
 inline int la_boot_memory_card_check(void)
 {
     if (kanbanBootEnd == 0) {
         return -1;
     }
-    D_0028F4EC[0] = 7;
+    systemStatus[11] = 7;
     layout_boot_flag = 1;
     lt_set_item_select_func(0);
     actionStarted = 0;
@@ -746,7 +744,7 @@ int la_vibe_select(void)
         titleAdpcm = 0;
         gflagInit();
         keyconfig_reset();
-        D_0028F4D0[0] = 0;
+        systemStatus[4] = 0;
         gflagOn(382);
         return -1;
     }
@@ -762,7 +760,6 @@ int la_vibe_select(void)
     return 0xC;
 }
 
-extern int D_0028F4D4[];
 /* kept local: this TU's uses of stgmgrNextStagePreLoadForceStageSet do not fit the prototype in StageManager.h */
 extern void stgmgrNextStagePreLoadForceStageSet(int val);
 
@@ -771,7 +768,7 @@ inline int la_scei_logo(int a0)
     if (a0) {
         stgmgrNextStagePreLoadForceStageSet(0);
         logoIcoMiscLock = lock_execIcoMisc;
-        D_0028F4D4[0] = 1;
+        systemStatus[5] = 1;
         iosPadEnable();
         isysGObjActiveLink(0, 0);
         gflagOff(386);
@@ -799,7 +796,7 @@ int la_title_continue_or_new(int a0)
         continueIcoMiscLock = lock_execIcoMisc;
         iosPadEnable();
         isysGObjActiveLink(0, 1);
-        D_0028F4D4[0] = 0;
+        systemStatus[5] = 0;
         gflagOff(382);
         if (gflagChk(385) == 0) {
             gflagOn(385);
@@ -862,7 +859,7 @@ int la_title_new_game_only(int a0)
         newGameIcoMiscLock = lock_execIcoMisc;
         iosPadEnable();
         isysGObjActiveLink(0, 1);
-        D_0028F4D4[0] = 0;
+        systemStatus[5] = 0;
         gflagOff(382);
         if (gflagChk(385) == 0) {
             gflagOn(385);
@@ -1017,7 +1014,7 @@ int la_mc_file_select(int a0)
 
     previewInfo = *(struct S14 *)&IosMcProductFile[filePort].f[curFile];
 
-    return (D_0028F8F0[0].flags & 0x50) ? curFile : -1;
+    return (pad[0].flags & 0x50) ? curFile : -1;
 }
 
 /* layout_action.c:1924-1942 in the listing. */
@@ -1051,7 +1048,7 @@ void _la_mask_preview_info(void)
 static inline void playTime(struct S14 *p, int *hour, int *min, int *sec)
 {
     int frames = p->w[2];
-    int fps = ((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]) * D_0028F4C0[1];
+    int fps = ((60 - systemStatus[0] * 10) / systemStatus[1]) * systemStatus[1];
 
     *sec = (frames / fps) % 60;
     *min = (frames / (fps * 60)) % 60;
@@ -1559,8 +1556,8 @@ int la_load_processing(int a0)
         gflagInit();
         gamesysMemoryLoad(gameSysMemoryFuncList, gameSysMainSaveBuff, 0);
         gflagRestoreState();
-        D_0028F4C0[3] = 1;
-        D_0028F4C0[4] = 1;
+        systemStatus[3] = 1;
+        systemStatus[4] = 1;
         debug_StdPrintfDummy("case 10\n");
         loadStep = 0;
         *(struct S14 *)IosMcPreviewInfo = *(struct S14 *)&IosMcProductFile[mc[2]].f[mc[16]];
@@ -1634,7 +1631,7 @@ int la_mc_confirm_save_file(int a0, int a1)
     lt_mask_property(0xB0, 1);
     lt_mask_property(0xB1, 1);
     if (a0) {
-        D_0028F4D4[0] = 1;
+        systemStatus[5] = 1;
         fightSoundProcessRequestPause();
         fightSoundStopped = 1;
         CheckPoint();
@@ -1697,7 +1694,7 @@ int la_mc_confirm_save_file(int a0, int a1)
                     return 0x1E;
                 case 215:
                     NEGATIVE_SE();
-                    D_0028F4D4[0] = 0;
+                    systemStatus[5] = 0;
                     lt_set_item_select_func(0);
                     actionStarted = 0;
                     return 0x36;
@@ -1842,10 +1839,10 @@ void progressive_bar(void)
     if (fbKeep != 0) {
         return;
     }
-    if (D_0028F4C0[7] <= 0) {
+    if (systemStatus[7] <= 0) {
         return;
     }
-    n = D_0028F4C0[8];
+    n = systemStatus[8];
     gif_StartPacketPri(12);
     gif_SetZWrite(0);
     gif_SetZTest(0);
@@ -2496,7 +2493,7 @@ inline int la_save_confirm_complete(int a0, int a1)
     }
     switch (a1) {
     case 0x108:
-        D_0028F4D4[0] = 0;
+        systemStatus[5] = 0;
         lt_set_item_select_func(0);
         actionStarted = 0;
         return 0x36;
@@ -2520,7 +2517,7 @@ int la_end_confirm(void)
 {
     int item;
 
-    if (lt_fade_status() == 2 && (D_0028F8F0[0].flags & 0x10)) {
+    if (lt_fade_status() == 2 && (pad[0].flags & 0x10)) {
         NEGATIVE_SE();
         item = lt_current_property_item();
         if (item >= 270) {
@@ -2538,7 +2535,7 @@ int la_end_confirm(void)
             }
         }
     }
-    if (D_0028F8F0[0].flags & 0x40) {
+    if (pad[0].flags & 0x40) {
         debug_StdPrintfDummy("%d\n", lt_current_property_item());
         switch (lt_current_property_item()) {
         case 270:
@@ -2679,19 +2676,17 @@ inline int la_delete_confirm_fail(void)
     return -1;
 }
 
-extern int D_0028F4D8[];
-
 inline int la_game_loading(int a0)
 {
     if (a0 != 0) {
-        D_0028F4D8[0] = 1;
+        systemStatus[6] = 1;
     }
     return -1;
 }
 
 inline void la_playtime_count(void)
 {
-    if (D_0028F4D4[0] == 0) {
+    if (systemStatus[5] == 0) {
         IosMcPreviewInfo[2]++;
     }
 }
@@ -2718,8 +2713,8 @@ int la_game_loop(int a0)
             fightSoundStopped = 0;
         }
         releaseGameLoopCursor();
-        D_0028F4C0[2] = 1;
-        D_0028F4C0[5] = 0;
+        systemStatus[2] = 1;
+        systemStatus[5] = 0;
         iosPadEnable();
         isysGObjActiveLink(0, 1);
         layoutActPushStartNew = 0;
@@ -2731,14 +2726,14 @@ int la_game_loop(int a0)
     }
     if ((startStagePauseDisableTimer >= 11 && (D_0028F8F4[0] & 0x800)) ||
         (float)laoutActionPauseRequest >
-            (float)((60 - D_0028F4C0[0] * 10) / D_0028F4C0[1]) * 0.5f) {
+            (float)((60 - systemStatus[0] * 10) / systemStatus[1]) * 0.5f) {
         if (enable_game_pause == 0) {
             return -1;
         }
         if (gflagChk(338) != 0) {
             return -1;
         }
-        D_0028F4D4[0] = 1;
+        systemStatus[5] = 1;
         layoutActPushStartNew = 0;
         adpcmPauseRequest(1);
         lt_set_item_select_func(0);
@@ -2751,7 +2746,7 @@ int la_game_loop(int a0)
 inline int la_game_demo_pause(int a0)
 {
     if (a0) {
-        D_0028F4D4[0] = 1;
+        systemStatus[5] = 1;
     }
     if ((D_0028F8F4[0] & 0x800) == 0) {
         return -1;
@@ -2789,15 +2784,14 @@ inline int la_game_demo(int a0)
 inline int la_game_pause(int a0)
 {
     if (a0) {
-        D_0028F4D4[0] = 1;
+        systemStatus[5] = 1;
         iosPadActStopAll();
         D_00534CC0[0] = 0x134;
     }
     if (lt_fade_status() != 2) {
         return -1;
     }
-    if (((D_0028F8F0[0].flags & 0x40) && lt_current_property_item() == 0x127) ||
-        (D_0028F8F0[0].flags & 0x810)) {
+    if (((pad[0].flags & 0x40) && lt_current_property_item() == 0x127) || (pad[0].flags & 0x810)) {
         NEGATIVE_SE(0);
         adpcmPauseRequest(0);
         lt_set_item_select_func(0);
@@ -2821,7 +2815,7 @@ int la_game_over_continue(int a0)
         enable_game_pause = 1;
         iosPadEnable();
         scpBoyControlReadDisable = 0;
-        D_0028F4D4[0] = 1;
+        systemStatus[5] = 1;
         AdpcmFadeCloseAll(0x200);
         AdpcmNotUseIopAreaFree();
         soundSePlayModeStop(1);
@@ -2849,7 +2843,7 @@ int la_game_over_continue(int a0)
                 return -1;
             }
             POSITIVE_SE();
-            D_0028F4D0[0] = 1;
+            systemStatus[4] = 1;
             nextStage = gFlagSaveStage;
             releaseGameLoopCursor();
             lt_set_item_select_func(0);
@@ -2953,8 +2947,8 @@ int la_key_config(int a0)
         }
     }
     if (sel >= 0 && sel < 6) {
-        m = D_0028F8F0[0].flags & keyConfigMask;
-        if (m != 0 && m == D_0028F8F0[0].flags) {
+        m = pad[0].flags & keyConfigMask;
+        if (m != 0 && m == pad[0].flags) {
             k = keyCodeIndex(m);
             POSITIVE_SE();
             if (k != -1) {
@@ -2971,7 +2965,7 @@ int la_key_config(int a0)
         lt_mask_property(i * 8 + 342 + keyConfigSlot[i], 0);
         lt_default_mask_property(i * 8 + 342 + keyConfigSlot[i], 0);
     }
-    if (D_0028F8F0[0].flags & 0x40) {
+    if (pad[0].flags & 0x40) {
         if (lt_current_property_item() == 391) {
             for (i = 7; i >= 0; i--) {
                 keyConfigSlot[i] = i;
@@ -3005,7 +2999,8 @@ int la_key_config(int a0)
 }
 
 extern int optionControlType;
-extern int D_00639EA0;
+/* kept local: main.c's global; this TU does not include main.h */
+extern int girlControlMode;
 
 /* the option screen's layout items: the five screen modes, the stage
    animation each mode plays (-1 for none), and the two choices of the control
@@ -3036,18 +3031,18 @@ int la_game_option(void)
 
     mode = soundOutputModeGet();
     lt_analog2Pad();
-    if ((D_0028F8F0[0]._0 & 0xA000) != 0) {
+    if ((pad[0]._0 & 0xA000) != 0) {
         cur = optionControlType;
         sel = optionScreenMode;
         switch (lt_current_property_item()) {
         case 300:
-            if ((D_0028F8F0[0].flags & 0x8000) != 0) {
+            if ((pad[0].flags & 0x8000) != 0) {
                 sel--;
                 if (sel < 0) {
                     sel = 4;
                 }
                 CUR_SE();
-            } else if ((D_0028F8F0[0].flags & 0x2000) != 0) {
+            } else if ((pad[0].flags & 0x2000) != 0) {
                 sel++;
                 if (sel >= 5) {
                     sel = 0;
@@ -3056,19 +3051,19 @@ int la_game_option(void)
             }
             break;
         case 318:
-            if ((D_0028F8F0[0].flags & 0xA000) != 0) {
+            if ((pad[0].flags & 0xA000) != 0) {
                 cur = cur == 0;
                 CUR_SE();
             }
             break;
         case 313:
-            if ((D_0028F8F0[0].flags & 0xA000) != 0) {
+            if ((pad[0].flags & 0xA000) != 0) {
                 iosPadActRequestEnable = iosPadActRequestEnable == 0;
                 CUR_SE();
             }
             break;
         case 308:
-            if ((D_0028F8F0[0].flags & 0xA000) != 0) {
+            if ((pad[0].flags & 0xA000) != 0) {
                 if (mode == 1) {
                     mode = 0;
                 } else {
@@ -3079,8 +3074,8 @@ int la_game_option(void)
             }
             break;
         case 325:
-            if ((D_0028F8F0[0].flags & 0xA000) != 0) {
-                D_00639EA0 = D_00639EA0 == 0;
+            if ((pad[0].flags & 0xA000) != 0) {
+                girlControlMode = girlControlMode == 0;
                 CUR_SE();
             }
             break;
@@ -3107,7 +3102,7 @@ int la_game_option(void)
         lt_default_mask_property(choiceItem[sel], 1);
     }
     lt_default_mask_property(choiceItem[optionControlType], 0);
-    if ((D_0028F8F0[0].flags & 0x40) != 0) {
+    if ((pad[0].flags & 0x40) != 0) {
         if (lt_current_property_item() == 330) {
             NEGATIVE_SE();
             lt_set_item_select_func(0);
@@ -3132,7 +3127,7 @@ int la_game_option(void)
     for (sel = 0; sel < 2; sel++) {
         lt_default_mask_property((choiceItem + 2)[sel], 1);
     }
-    lt_default_mask_property((choiceItem + 2)[D_00639EA0], 0);
+    lt_default_mask_property((choiceItem + 2)[girlControlMode], 0);
     return -1;
 }
 
@@ -3155,26 +3150,26 @@ int la_adjust_screen(void)
 
     D_00534CC0[0] = 324;
     lt_analog2Pad();
-    if (D_0028F8F0[0].flags & 0x8000) {
-        v = D_0028F4C0[11];
+    if (pad[0].flags & 0x8000) {
+        v = systemStatus[11];
         if (v > 0) {
             CUR_SE();
-            D_0028F4C0[11] = v - 1;
+            systemStatus[11] = v - 1;
         }
-    } else if (D_0028F8F0[0].flags & 0x2000) {
-        v = D_0028F4C0[11];
+    } else if (pad[0].flags & 0x2000) {
+        v = systemStatus[11];
         if (v < 14) {
             CUR_SE();
-            D_0028F4C0[11] = v + 1;
+            systemStatus[11] = v + 1;
         }
     }
-    if (D_0028F8F0[0].flags & 0x10) {
+    if (pad[0].flags & 0x10) {
         NEGATIVE_SE();
-        D_0028F4C0[11] = 7;
+        systemStatus[11] = 7;
     }
     clearAdjustScreenMarks();
-    lt_default_mask_property(D_0028F4C0[11] + 395, 0);
-    if (D_0028F8F0[0].flags & 0x40) {
+    lt_default_mask_property(systemStatus[11] + 395, 0);
+    if (pad[0].flags & 0x40) {
         POSITIVE_SE();
         lt_set_item_select_func(0);
         actionStarted = 0;

@@ -55,7 +55,8 @@ typedef struct {
    entries; MAIN.MAP's January member has 0xF0, ten entries of 0x18. */
 static SMotion streamEntry[10];
 
-extern int D_0028F4C0[];
+/* kept local: main.c's global; this TU does not include main.h */
+extern int systemStatus[];
 extern int frame_count;
 
 /* The ring is 0x28000 bytes; the check asks whether the write pointer has run
@@ -126,7 +127,7 @@ int _infoUpdate(void)
                 headerSize += streamEntry[i].w[2];
             }
             n = 0xE23;
-            if (D_0028F4C0[0] == 0) {
+            if (systemStatus[0] == 0) {
                 n = 0xBB5;
             }
             headerRead = 1;
@@ -192,7 +193,7 @@ int _infoUpdate(void)
         bgaStreamSync = 0;
     }
     framePlayed = frameTime;
-    frameTime += D_0028F4C0[0] == 0 ? 0xBB5 : 0xE23;
+    frameTime += systemStatus[0] == 0 ? 0xBB5 : 0xE23;
     return 0;
 }
 

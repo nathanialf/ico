@@ -25,8 +25,10 @@ static ActMail after_mes[2] = {{430}, {429}};
 
 /* --- su-b sweep decls --- */
 
-extern char *D_00639EA4;
-extern PadState D_0028F8F0[];
+/* kept local: main.c's global; this TU does not include main.h */
+extern char *boyGObj;
+/* kept local: main.c's global; this TU does not include main.h */
+extern PadState pad[];
 
 /* .sbss, owned by deja.o and reached only from this file (MAIN.MAP names no
    symbol in the run): the demo's own end flag, raised by the handler the wait
@@ -43,12 +45,12 @@ typedef struct {
 } StgEntry;
 
 /* Both tables are in the ELF's .rodata run (0x54D380..0x638A98), so `const`
-   is what they are.  It is also load-bearing on D_005F5D50: only a reference
+   is what they are.  It is also load-bearing on stageData: only a reference
    rooted at a const object makes the `nextStage` load unchanging, and only
    then is it free of the `volatile int a0` parameter home's memory
    dependence, which is what lets the home store issue two slots later. */
-extern const StgPre D_005F5D50[];
-extern const StgEntry D_0055C518[];
+extern const StgPre stageData[];
+extern const StgEntry exitData[];
 void actDejaAfterChk(volatile int a0);
 
 /* .sdata, owned by deja.o: the scene's stream handle (MAIN.MAP global) */
@@ -99,7 +101,7 @@ void actDejaChk(volatile int a0)
         _ACTWait(1);
     }
     demoEnd = 0;
-    while (demoEnd == 0 && ((D_0028F8F0[0].flags & 0x800) == 0 || scpAdpcmPlayRequestNum() != 0)) {
+    while (demoEnd == 0 && ((pad[0].flags & 0x800) == 0 || scpAdpcmPlayRequestNum() != 0)) {
         _ACTWait(1);
     }
     if (demoEnd == 0 && deja != 0) {
@@ -107,31 +109,31 @@ void actDejaChk(volatile int a0)
         scpAdpcmFadeCloseFunc(&deja, 0x80);
         deja = 0;
     }
-    RequestStageChange(1, D_00639EA4, 0, 0.025f, 1.0f);
+    RequestStageChange(1, boyGObj, 0, 0.025f, 1.0f);
 }
 
 void actDejaDemo(volatile int a0)
 {
-    stgmgrNextStagePreLoadForceStageSet(D_0055C518[D_005F5D50[stage_no].ent[0]].preload);
-    scpPlayStart((int)D_00639EA4);
+    stgmgrNextStagePreLoadForceStageSet(exitData[stageData[stage_no].ent[0]].preload);
+    scpPlayStart((int)boyGObj);
     stage_SetAnimation(608, 1, 0);
-    scpPlayMot(D_00639EA4, 298);
+    scpPlayMot(boyGObj, 298);
     while (stage_ContinueAnimation(608, 609) == 0) {
         _ACTWait(1);
     }
-    scpPlayMot(D_00639EA4, 299);
+    scpPlayMot(boyGObj, 299);
     while (stage_ContinueAnimation(609, 610) == 0) {
         _ACTWait(1);
     }
-    scpPlayMot(D_00639EA4, 300);
+    scpPlayMot(boyGObj, 300);
     while (stage_ContinueAnimation(610, 611) == 0) {
         _ACTWait(1);
     }
-    scpPlayMot(D_00639EA4, 301);
+    scpPlayMot(boyGObj, 301);
     while (stage_ContinueAnimation(611, 612) == 0) {
         _ACTWait(1);
     }
-    scpPlayMot(D_00639EA4, 302);
+    scpPlayMot(boyGObj, 302);
     _ACTWait(1);
     stage_SetAnimation(619, 1, 0);
     while (stage_CheckAnimationFrame(612, 120, 0) == 0) {
@@ -158,13 +160,13 @@ void actDejaDemo(volatile int a0)
         _ACTWait(1);
     }
     *(int *)(scpSearchGobj(54) + 0x16C) = 1;
-    scpPlayMot(D_00639EA4, 303);
+    scpPlayMot(boyGObj, 303);
     _ACTWait(1);
     stage_SetAnimation(621, -1, -2);
     while (stage_ContinueAnimation(615, 616) == 0) {
         _ACTWait(1);
     }
-    scpPlayMot(D_00639EA4, 304);
+    scpPlayMot(boyGObj, 304);
     scpPlayMot((char *)scpSearchGobj(2548), 725);
     _ACTWait(1);
     stage_SetAnimation(622, 1, 0);
@@ -172,7 +174,7 @@ void actDejaDemo(volatile int a0)
         _ACTWait(1);
     }
     *(int *)(scpSearchGobj(2549) + 0x16C) = 1;
-    scpPlayMot(D_00639EA4, 305);
+    scpPlayMot(boyGObj, 305);
     scpPlayStart(scpSearchGobj(2549));
     scpPlayMot((char *)scpSearchGobj(2549), 962);
     _ACTWait(1);
@@ -181,7 +183,7 @@ void actDejaDemo(volatile int a0)
     while (stage_ContinueAnimation(617, 618) == 0) {
         _ACTWait(1);
     }
-    scpPlayMot(D_00639EA4, 306);
+    scpPlayMot(boyGObj, 306);
     scpPlayMot((char *)scpSearchGobj(2549), 963);
     shadow_DispCancel(74, 0);
     while (stage_CheckAnimationFrame(618, 125, 0) == 0) {
@@ -228,18 +230,18 @@ void actDejaAfterChk(volatile int a0)
     gflagOn(7);
     lt_switch_layout(55);
     scpBoyControlReadDisable = 1;
-    scpPlayStart((int)D_00639EA4);
+    scpPlayStart((int)boyGObj);
     stage_SetAnimation(624, 1, 0);
-    scpPlayMot(D_00639EA4, 307);
+    scpPlayMot(boyGObj, 307);
     while (stage_CheckAnimationFinish(624) == 0) {
         _ACTWait(1);
     }
     _ACTWait(1);
-    scpPlayMot(D_00639EA4, 0);
+    scpPlayMot(boyGObj, 0);
     target = afterChkPos;
-    sceVu0SubVector(dir.f, target.f, test_CURRENTROOT(D_00639EA4));
-    scpPlayMotDir(D_00639EA4, dir.f);
-    scpPlayEnd((int)D_00639EA4);
+    sceVu0SubVector(dir.f, target.f, test_CURRENTROOT(boyGObj));
+    scpPlayMotDir(boyGObj, dir.f);
+    scpPlayEnd((int)boyGObj);
     scpBoyControlReadDisable = 0;
     lt_switch_layout(54);
     _ACTWait(60);

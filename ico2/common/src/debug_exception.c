@@ -593,7 +593,7 @@ static inline void dispBack(int page, int tex)
     } else {
         SetDrawnTextureEnvironment(0x3000);
     }
-    RestoreNormalDrawEnvironment(D_0028F4F0, buffer_ID, 0);
+    RestoreNormalDrawEnvironment(db, buffer_ID, 0);
     drawSprite(128, 128, 128, 128, -320, -112, 320, 112, tex);
 }
 
@@ -670,7 +670,7 @@ void debugEEExceptionMain(int arg0, unsigned int cause, unsigned int epc, unsign
        display call instead of filling its delay slot. */
     for (;;) {
         tex = 1;
-        if (D_0028F8F0[0]._4 & 0x20) {
+        if (pad[0]._4 & 0x20) {
             sel = page;
             if (sel >= 3) {
                 sel = 0;

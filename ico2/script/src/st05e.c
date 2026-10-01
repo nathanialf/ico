@@ -34,10 +34,13 @@ static int demoSkipped;
 
 /* kept local: this TU's uses of scpSearchGobj do not fit the prototype in script.h */
 extern PObjGObj *scpSearchGobj(int a0);
-extern int D_0028F4C0[];
-extern float D_0063C088;
+/* kept local: main.c's global; this TU does not include main.h */
+extern int systemStatus[];
+/* kept local: stageSEProc.c defines it and has no header */
+extern float riverFadeSpeed;
 extern int D_0028F8F4[];
-extern int D_0028F8F0[];
+/* kept local: main.c's global; this TU does not include main.h */
+extern int pad[];
 /* kept local: this TU's uses of scpSleepEnemyAll do not fit the prototype in script.h */
 extern void scpSleepEnemyAll(void);
 /* kept local: this TU's uses of scpWakeupEnemyAll do not fit the prototype in script.h */
@@ -129,7 +132,7 @@ void actSt05eSolarChk(volatile int a0)
         stage_SetAnimation(268, 1, 0);
 
         while (stage_CheckAnimationFinish(268) == 0) {
-            if ((D_0028F8F0[1] & 0x800) && scpAdpcmPlayRequestNum() == 0) {
+            if ((pad[1] & 0x800) && scpAdpcmPlayRequestNum() == 0) {
                 scpFadeOut(16.0f, 0, 0, 0);
                 while (scpFadeChk() != 0) {
                     _ACTWait(1);
@@ -230,13 +233,13 @@ void actSt05eWaterSwitch(volatile int a0)
 
 void actSt05eWaterFlagOn(volatile int a0)
 {
-    int i = (0x3C - D_0028F4C0[0] * 0xA) / D_0028F4C0[1] * 6.0;
+    int i = (0x3C - systemStatus[0] * 0xA) / systemStatus[1] * 6.0;
 
-    D_0063C088 = 0.005f;
+    riverFadeSpeed = 0.005f;
 
     while (i-- > 0) {
         if (demoSkipped != 0) {
-            D_0063C088 = 1000.0f;
+            riverFadeSpeed = 1000.0f;
             break;
         }
         _ACTWait(1);

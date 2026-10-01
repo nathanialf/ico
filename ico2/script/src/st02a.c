@@ -87,8 +87,10 @@ void actSt02aInit(void)
 
 /* kept local: this TU's uses of scpTriggerBall do not fit the prototype in script.h */
 extern int scpTriggerBall(int a0, int gobj, float r);
-extern char *D_00639EA4;
-extern int D_00639EA8;
+/* kept local: main.c's global; this TU does not include main.h */
+extern char *boyGObj;
+/* kept local: main.c's global; this TU does not include main.h */
+extern int girlGObj;
 
 void actSt02aDoor(volatile int a0)
 {
@@ -96,8 +98,8 @@ void actSt02aDoor(volatile int a0)
     Act *self = actInitialize(a0);
 
     _ACTWait(1);
-    if (scpTriggerBall(a0, (int)D_00639EA4, 200.0f) != 0 ||
-        (D_00639EA8 != 0 && scpTriggerBall(a0, D_00639EA8, 400.0f) != 0)) {
+    if (scpTriggerBall(a0, (int)boyGObj, 200.0f) != 0 ||
+        (girlGObj != 0 && scpTriggerBall(a0, girlGObj, 400.0f) != 0)) {
         stage_SetAnimation(98, 0, 0);
         _ACTWait(60);
         door_down_start_mail[0].func = actSt02aDoorDownChk;
@@ -297,20 +299,20 @@ void actSt02WaterFallBoySplashCheck(volatile int a0)
     long long buf[4];
     long long buf2[2];
     int idx;
-    if (D_00639EA4 == 0)
+    if (boyGObj == 0)
         return;
     buf[0] = boySplashPos[0].d[0];
     buf[1] = boySplashPos[0].d[1];
     buf[2] = boySplashPos[1].d[0];
     buf[3] = boySplashPos[1].d[1];
     for (;;) {
-        idx = GetSkeltonFocusNode(D_00639EA4, 0x23);
-        CopyVector(buf2, (float *)(GOBJ_SUB(D_00639EA4)->f_C + (idx << 6) + 0x30));
+        idx = GetSkeltonFocusNode(boyGObj, 0x23);
+        CopyVector(buf2, (float *)(GOBJ_SUB(boyGObj)->f_C + (idx << 6) + 0x30));
         if (scpTriggerPosBall(&buf[0], buf2, 100.0f))
             scpEffectStart(buf2, 0x2F);
         _ACTWait(10);
-        idx = GetSkeltonFocusNode(D_00639EA4, 0x23);
-        CopyVector(buf2, (float *)(GOBJ_SUB(D_00639EA4)->f_C + (idx << 6) + 0x30));
+        idx = GetSkeltonFocusNode(boyGObj, 0x23);
+        CopyVector(buf2, (float *)(GOBJ_SUB(boyGObj)->f_C + (idx << 6) + 0x30));
         if (scpTriggerPosBall(&buf[2], buf2, 100.0f))
             scpEffectStart(buf2, 0x2F);
         _ACTWait(10);
@@ -340,7 +342,7 @@ extern void scpTransGObj(void *a0, float x, float y, float z);
 
 void actSt02aWaterFallChk(volatile int a0)
 {
-    Act *act = ((PObjGObj *)D_00639EA4)->act;
+    Act *act = ((PObjGObj *)boyGObj)->act;
 
     *(long long *)((char *)act + 0x20) &= ~0x80000000000LL;
     scpSearchGobj(1713)->f16C = 1;
@@ -362,7 +364,8 @@ void actSt02aWaterFallChk(volatile int a0)
 
 int gondola = 0;
 
-extern int D_00639EAC;
+/* kept local: main.c's global; this TU does not include main.h */
+extern int boyPad;
 /* kept local: this TU's uses of scpAdpcmPlayRequestFunc do not fit the prototype in script.h */
 extern void scpAdpcmPlayRequestFunc(int a0, int *a1, int a2, int a3, int a4);
 /* kept local: this TU's uses of scpAdpcmCloseFunc do not fit the prototype in script.h */
@@ -389,7 +392,7 @@ void actSt02aGondolaUp(volatile int a0)
     }
     _ACTWait(1);
 
-    iosPadActRequest(D_00639EAC, 0x10);
+    iosPadActRequest(boyPad, 0x10);
 
     while (stage_CheckAnimationFrame(101, 149, 1) == 0) {
         _ACTWait(1);
@@ -431,7 +434,7 @@ void actSt02aGondolaDown(volatile int a0)
     }
     _ACTWait(1);
 
-    iosPadActRequest(D_00639EAC, 0x10);
+    iosPadActRequest(boyPad, 0x10);
 
     while (stage_CheckAnimationFrame(101, 300, 1) == 0) {
         _ACTWait(1);
@@ -801,10 +804,10 @@ extern int scpTriggerFloorAttr(int a0, int a1);
 
 void actSt02aEneChk(volatile int a0)
 {
-    if (D_00639EA8 == 0) {
+    if (girlGObj == 0) {
         _ACTWait(0);
     }
-    while (scpTriggerFloorAttr(D_00639EA8, 0x5000000) == 0) {
+    while (scpTriggerFloorAttr(girlGObj, 0x5000000) == 0) {
         _ACTWait(1);
     }
     _ACTWait(1);
@@ -825,10 +828,10 @@ void actSt02aWayOnChk(volatile int a0)
 {
     Act *sub = ((PObjGObj *)a0)->act;
 
-    if (D_00639EA8 == 0) {
+    if (girlGObj == 0) {
         _ACTWait(0);
     }
-    while (scpCheckExistAliveEnemy() != 0 || scpTriggerFloorAttr(D_00639EA8, 0x4000000) == 0) {
+    while (scpCheckExistAliveEnemy() != 0 || scpTriggerFloorAttr(girlGObj, 0x4000000) == 0) {
         _ACTWait(1);
     }
 
@@ -848,10 +851,10 @@ void actSt02aWayOffChk(volatile int a0)
 {
     Act *sub = ((PObjGObj *)a0)->act;
 
-    if (D_00639EA8 == 0) {
+    if (girlGObj == 0) {
         _ACTWait(0);
     }
-    while (scpCheckExistAliveEnemy() == 0 && scpTriggerFloorAttr(D_00639EA8, 0x3000000) == 0) {
+    while (scpCheckExistAliveEnemy() == 0 && scpTriggerFloorAttr(girlGObj, 0x3000000) == 0) {
         _ACTWait(1);
     }
 
@@ -871,10 +874,10 @@ void actSt02aTakiWayOnChk(volatile int a0)
 {
     Act *sub = ((PObjGObj *)a0)->act;
 
-    if (D_00639EA8 == 0) {
+    if (girlGObj == 0) {
         _ACTWait(0);
     }
-    while (scpCheckExistAliveEnemy() != 0 || scpTriggerFloorAttr(D_00639EA8, 0x6000000) == 0) {
+    while (scpCheckExistAliveEnemy() != 0 || scpTriggerFloorAttr(girlGObj, 0x6000000) == 0) {
         _ACTWait(1);
     }
 
@@ -891,10 +894,10 @@ void actSt02aTakiWayOffChk(volatile int a0)
 {
     Act *sub = ((PObjGObj *)a0)->act;
 
-    if (D_00639EA8 == 0) {
+    if (girlGObj == 0) {
         _ACTWait(0);
     }
-    while (scpCheckExistAliveEnemy() == 0 && scpTriggerFloorAttr(D_00639EA8, 0x5000000) == 0) {
+    while (scpCheckExistAliveEnemy() == 0 && scpTriggerFloorAttr(girlGObj, 0x5000000) == 0) {
         _ACTWait(1);
     }
 

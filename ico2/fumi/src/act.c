@@ -6,7 +6,7 @@
 #include "mail-add-data.h"
 #include "motionOrientManager.h"
 
-extern char D_002C2DC8[];
+extern char objLayout[];
 /* kept local: this TU's uses of isysGObjProcAdd do not fit the prototype in gobj_process.h */
 extern int isysGObjProcAdd(void *a0, void *a1, int a2, void *a3);
 /* kept local: this TU's uses of isysGObjProcAddS do not fit the prototype in gobj_process.h */
@@ -39,11 +39,12 @@ typedef struct {
     unsigned int _b13 : 19;
 } StatusAttrAct;
 
-extern const StatusAttrAct D_005577D0[];
+extern const StatusAttrAct actModeTbl[];
 extern char *isysCurrentGObj;
 /* kept local: this TU's uses of iosThreadSleep do not fit the prototype in thread.h */
 extern void iosThreadSleep(void);
-extern int D_0028F4C0[];
+/* kept local: main.c's global; this TU does not include main.h */
+extern int systemStatus[];
 /* kept local: this TU's uses of isysGObjProcAddGOppArg do not fit the prototype in gobj_process.h */
 extern int isysGObjProcAddGOppArg();
 extern int matrixptr;
@@ -78,7 +79,7 @@ void actChangeActBrain(int a0, int a1, int *a2)
 
 void actChangeActMain(void *a0, void *a1, void **a2)
 {
-    char *e = D_002C2DC8 + *(int *)((char *)a0 + 8) * 0x4C;
+    char *e = objLayout + *(int *)((char *)a0 + 8) * 0x4C;
     unsigned short fld = *(unsigned short *)(e + 0x40);
     void *old = *a2;
     int ret;
@@ -125,7 +126,7 @@ int actCreateSubThread(void *a0, void *a1)
             debug_StdPrintfDummy("    [%d]\n", lval->unk34);
         }
     }
-    e = D_002C2DC8 + *(int *)(isysCurrentGObj + 8) * 0x4C;
+    e = objLayout + *(int *)(isysCurrentGObj + 8) * 0x4C;
     fld = *(unsigned short *)(e + 0x40);
     if (((long long)fld << 10) == 0) {
         p = (char *)isysGObjProcAdd(isysCurrentGObj, a0, 0, a1);
@@ -169,7 +170,7 @@ inline void _ACTRun(int n)
 
 inline void _ACTWait(int a0)
 {
-    int count = (a0 * ((0x3C - D_0028F4C0[0] * 0xA) / D_0028F4C0[1])) / 0x3C;
+    int count = (a0 * ((0x3C - systemStatus[0] * 0xA) / systemStatus[1])) / 0x3C;
     if (a0 != 0) {
         if (count == 0) {
             count = 1;
@@ -183,7 +184,7 @@ inline void actWaitCondition(int a0, int a1)
     int t = a0 & a1;
     if (t == 0) {
         do {
-            int count = (0x3C - D_0028F4C0[0] * 0xA) / D_0028F4C0[1] / 0x3C;
+            int count = (0x3C - systemStatus[0] * 0xA) / systemStatus[1] / 0x3C;
             int n = 1;
             if (count != 0) {
                 n = count;
@@ -208,22 +209,22 @@ void after_func_exec(char *self, int oldst, int newst)
 {
     Act *g = GOBJ_ACT(self);
 
-    if (D_005577D0[oldst].ent[*(int *)((char *)g + 0x48)].f4 !=
-        D_005577D0[newst].ent[*(int *)((char *)g + 0x48)].f4) {
+    if (actModeTbl[oldst].ent[*(int *)((char *)g + 0x48)].f4 !=
+        actModeTbl[newst].ent[*(int *)((char *)g + 0x48)].f4) {
         if (g->f_14 != 0) {
             (*(void (**)(char *))((char *)g + 0x14))(self);
             g->f_14 = 0;
         }
     }
-    if (D_005577D0[oldst].b2 != D_005577D0[newst].b2) {
+    if (actModeTbl[oldst].b2 != actModeTbl[newst].b2) {
         if (g->f_14 != 0) {
             (*(void (**)(char *))((char *)g + 0x14))(self);
             g->f_14 = 0;
         }
     }
-    if (D_005577D0[oldst].ent[*(int *)((char *)g + 0x48)].f4 == 0 &&
-        D_005577D0[newst].ent[*(int *)((char *)g + 0x48)].f4 == 0 && D_005577D0[oldst].b2 == 0 &&
-        D_005577D0[newst].b2 == 0) {
+    if (actModeTbl[oldst].ent[*(int *)((char *)g + 0x48)].f4 == 0 &&
+        actModeTbl[newst].ent[*(int *)((char *)g + 0x48)].f4 == 0 && actModeTbl[oldst].b2 == 0 &&
+        actModeTbl[newst].b2 == 0) {
         if (g->f_14 != 0) {
             (*(void (**)(char *))((char *)g + 0x14))(self);
             g->f_14 = 0;
@@ -540,11 +541,12 @@ typedef struct {
     unsigned int f190;
 } ActMotionRec;
 
-extern ActMotionRec D_0055FE58[];
-extern IntrMail D_002A7E08[];
+extern ActMotionRec motionKind[];
+extern IntrMail actIntrList[];
 /* the boy object, typed as the work block object pointers it is compared and
    exchanged with (ActObjRefs below; void * as in boyact.c and chain.c) */
-extern void *D_00639EA4;
+/* kept local: main.c's global; this TU does not include main.h */
+extern void *boyGObj;
 
 /* one flag per mail list: a list whose flag is set is not checked for an
    interrupt while the status record's b11 is set */
@@ -554,9 +556,9 @@ typedef struct {
 
 /* The work block's object pointers: +0x2C takes a mail entry's object
    (act_check_mail), +0x80 and +0x84 are the targets src/act-game.c reads
-   beside D_00639EA4.  Reconstruction, rung: ROM bytes (BeforeFunc's clears
+   beside boyGObj.  Reconstruction, rung: ROM bytes (BeforeFunc's clears
    are record-field stores in the load's alias set: the sw 0x2C and sw 0x80
-   follow the D_00639EA4 load at sched2). */
+   follow the boyGObj load at sched2). */
 typedef struct {
     char _0[0x2C];
     void *f_2C;
@@ -604,7 +606,7 @@ void BeforeFunc(char *self)
     ((ActStatusWord *)(w + 0x20))->q &= ~(1LL << 35);
     ((ActObjRefs *)w)->f_80 = 0;
     ((ActObjRefs *)w)->f_84 = 0;
-    if (self == D_00639EA4) {
+    if (self == boyGObj) {
         char *p = *(char **)(*(char **)(self + 0x164) + 0x688);
 
         ((ActFloat *)(*(char **)(self + 0x15C) + 0x45C))->f = *(float *)(p + 0x320);
@@ -615,11 +617,11 @@ void BeforeFunc(char *self)
         *(int *)(w + 0x50) -= 1;
     }
     {
-        IntrMail *mails[5] = {&D_002A7E08[0], &D_002A7E08[3], *(IntrMail **)(w + 0xD4),
+        IntrMail *mails[5] = {&actIntrList[0], &actIntrList[3], *(IntrMail **)(w + 0xD4),
                               *(IntrMail **)(w + 0xD0), (IntrMail *)0xFFFFFFFF};
         IntrSkip skip = {{0, 1, 0, 1}};
 
-        ACTSendMailCorrect(self, D_005577D0[*(int *)(w + 0x34)].f48);
+        ACTSendMailCorrect(self, actModeTbl[*(int *)(w + 0x34)].f48);
         for (i = 0; i < *(int *)(mb + 4); i++) {
             ((IntrList *)mb)->ent[i].id =
                 _ACTCorrectMsg(self, *(int *)(mb + 8 + i * 8), *(void **)(mb + 0xC + i * 8));
@@ -630,7 +632,7 @@ void BeforeFunc(char *self)
         }
         intr = 0;
         for (i = 0; mails[i] != (IntrMail *)0xFFFFFFFF; i++) {
-            if (skip.w[i] == 0 || D_005577D0[*(int *)(w + 0x34)].b11 == 0) {
+            if (skip.w[i] == 0 || actModeTbl[*(int *)(w + 0x34)].b11 == 0) {
                 intr = act_check_intr_list(self, mails[i], (void **)&ent);
                 if (intr != 0) {
                     break;
@@ -640,14 +642,14 @@ void BeforeFunc(char *self)
     }
     g = *(char **)(self + 0x15C);
     *(char **)(w + 0x40) = *(char **)(g + 0x540);
-    if ((((&D_0055FE58[*(int *)(*(char **)(self + 0x15C) + 0x4A0)])->f18C >> 1) & 1) != 0 &&
+    if ((((&motionKind[*(int *)(*(char **)(self + 0x15C) + 0x4A0)])->f18C >> 1) & 1) != 0 &&
         *(float *)(*(char **)(self + 0x15C) + 0x4AC) < 3.0f) {
         ((ActStatusWord *)(w + 0x20))->q |= 1LL << 18;
     }
     if (intr != 0) {
         old = *(int *)(w + 0xD8);
         *(int *)(w + 0xD8) = (short)intr->kind;
-        act = (void *)D_005577D0[intr->f12].ent[*(int *)(w + 0x48)].f0;
+        act = (void *)actModeTbl[intr->f12].ent[*(int *)(w + 0x48)].f0;
         if (act != 0) {
             after_func_exec(self, *(int *)(w + 0x34), intr->f12);
             if (*(int *)(w + 0x18) != 0) {
@@ -669,12 +671,12 @@ void BeforeFunc(char *self)
             *(int *)(w + 0x34) = intr->f12;
             ((ActStatusWord *)(w + 0x18))->q =
                 (((ActStatusWord *)(w + 0x18))->q & ~(1LL << 39)) |
-                ((unsigned long long)D_005577D0[*(int *)(w + 0x34)].b10 << 39);
+                ((unsigned long long)actModeTbl[*(int *)(w + 0x34)].b10 << 39);
             ((ActStatusWord *)(w + 0x18))->q =
                 (((ActStatusWord *)(w + 0x18))->q & ~(1LL << 50)) |
-                ((unsigned long long)D_005577D0[intr->f12].b12 << 50);
+                ((unsigned long long)actModeTbl[intr->f12].b12 << 50);
             ((ActStatusWord *)(w + 0x20))->q &= ~(1LL << 11);
-            *(IntrMail **)(w + 0xD4) = &D_002A7E08[D_005577D0[*(int *)(w + 0x34)].ent[5].f8];
+            *(IntrMail **)(w + 0xD4) = &actIntrList[actModeTbl[*(int *)(w + 0x34)].ent[5].f8];
             actChangeActMain(isysCurrentGObj, act, (void **)(w + 4));
         }
         if (intr->f0 != 0) {
@@ -727,7 +729,8 @@ typedef struct {
     char _18[0x08];
 } ActPadStick;
 
-extern char *D_00639EC0;
+/* kept local: main.c's global; this TU does not include main.h */
+extern char *CurrentTargetGObj;
 extern void sceVu0CopyVector(void *dst, void *src);
 extern void sceVu0UnitMatrix(void *m);
 extern void GetRootPosition(void *out, char *self);
@@ -773,7 +776,7 @@ void ACTDebugMove(int a0, int a1)
     h = (p != 0) ? *(float *)(p + 0x14) : 0.0f;
     DisableChangeRootUpdateMode(self);
     SetRootUpdateMode(self, 0);
-    while (((*(int *)(ext + 0x2E0) & 1) != 0 || mode == 1) && self == D_00639EC0) {
+    while (((*(int *)(ext + 0x2E0) & 1) != 0 || mode == 1) && self == CurrentTargetGObj) {
         _ACTWait(1);
         iosPadRead(ext + 0x2D8);
         iosPadGetStick(ext + 0x2D8, ext + 0x338, 0, 2, 2, 0);

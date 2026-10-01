@@ -43,11 +43,12 @@ static ActMail ene_mes[2] = {{430}, {429}};
 
 static ActMail ene2_mes[2] = {{430}, {429}};
 
-extern char *D_00639EA8;
+/* kept local: main.c's global; this TU does not include main.h */
+extern char *girlGObj;
 
 void actSt18aEnd(void)
 {
-    if (D_00639EA8 != 0) {
+    if (girlGObj != 0) {
         if (gflagChk(61) == 0) {
             gflagOn(391);
         }
@@ -64,12 +65,14 @@ typedef struct PadStateSt18A {
     char unk08[0x50]; /* 0x08 */
 } PadStateSt18A;
 
-extern PadStateSt18A D_0028F8F0[];
-extern int D_00639EA4;
+/* kept local: main.c's global; this TU does not include main.h */
+extern PadStateSt18A pad[];
+/* kept local: main.c's global; this TU does not include main.h */
+extern int boyGObj;
 
 void actSt18aIntroChk(volatile int a0)
 {
-    while (scpTriggerBall(a0, D_00639EA4, 1000.0f) == 0) {
+    while (scpTriggerBall(a0, boyGObj, 1000.0f) == 0) {
         _ACTWait(1);
     }
 
@@ -84,7 +87,7 @@ void actSt18aIntroChk(volatile int a0)
     stage_SetAnimation(354, 1, 0);
 
     while (stage_CheckAnimationFinish(354) == 0) {
-        if ((D_0028F8F0[0].trg & 0x800) && scpAdpcmPlayRequestNum() == 0) {
+        if ((pad[0].trg & 0x800) && scpAdpcmPlayRequestNum() == 0) {
             scpFadeOut(16.0f, 0, 0, 0);
 
             while (scpFadeChk() != 0) {
@@ -106,7 +109,8 @@ void actSt18aIntroChk(volatile int a0)
     scpBoyControlReadDisable = 0;
 }
 
-extern int D_0028F4C0[];
+/* kept local: main.c's global; this TU does not include main.h */
+extern int systemStatus[];
 
 void actSt18aSwitchLChk(volatile int a0)
 {
@@ -114,11 +118,11 @@ void actSt18aSwitchLChk(volatile int a0)
     int i;
 
     i = 0;
-    while (i < (0x3C - D_0028F4C0[0] * 0xA) / D_0028F4C0[1]) {
+    while (i < (0x3C - systemStatus[0] * 0xA) / systemStatus[1]) {
         if (scpTriggerFloorAttr(scpSearchGobj(773), 0x1000000) != 0 ||
             scpTriggerFloorAttr(scpSearchGobj(774), 0x1000000) != 0 ||
-            scpTriggerFloorAttr(D_00639EA4, 0x1000000) != 0 ||
-            (D_00639EA8 != 0 && scpTriggerFloorAttr(D_00639EA8, 0x1000000) != 0)) {
+            scpTriggerFloorAttr(boyGObj, 0x1000000) != 0 ||
+            (girlGObj != 0 && scpTriggerFloorAttr(girlGObj, 0x1000000) != 0)) {
             i++;
         } else {
             i = 0;
@@ -137,8 +141,8 @@ void actSt18aSwitchLChk(volatile int a0)
 
     if (scpTriggerFloorAttr(scpSearchGobj(773), 0x1000000) != 0 ||
         scpTriggerFloorAttr(scpSearchGobj(774), 0x1000000) != 0 ||
-        scpTriggerFloorAttr(D_00639EA4, 0x1000000) != 0 ||
-        (D_00639EA8 != 0 && scpTriggerFloorAttr(D_00639EA8, 0x1000000) != 0)) {
+        scpTriggerFloorAttr(boyGObj, 0x1000000) != 0 ||
+        (girlGObj != 0 && scpTriggerFloorAttr(girlGObj, 0x1000000) != 0)) {
         gflagOn(58);
         FinishHint(7);
     }
@@ -189,11 +193,11 @@ void actSt18aSwitchRChk(volatile int a0)
     int i;
 
     i = 0;
-    while (i < (0x3C - D_0028F4C0[0] * 0xA) / D_0028F4C0[1]) {
+    while (i < (0x3C - systemStatus[0] * 0xA) / systemStatus[1]) {
         if (scpTriggerFloorAttr(scpSearchGobj(773), 0x2000000) != 0 ||
             scpTriggerFloorAttr(scpSearchGobj(774), 0x2000000) != 0 ||
-            scpTriggerFloorAttr(D_00639EA4, 0x2000000) != 0 ||
-            (D_00639EA8 != 0 && scpTriggerFloorAttr(D_00639EA8, 0x2000000) != 0)) {
+            scpTriggerFloorAttr(boyGObj, 0x2000000) != 0 ||
+            (girlGObj != 0 && scpTriggerFloorAttr(girlGObj, 0x2000000) != 0)) {
             i++;
         } else {
             i = 0;
@@ -212,8 +216,8 @@ void actSt18aSwitchRChk(volatile int a0)
 
     if (scpTriggerFloorAttr(scpSearchGobj(773), 0x2000000) != 0 ||
         scpTriggerFloorAttr(scpSearchGobj(774), 0x2000000) != 0 ||
-        scpTriggerFloorAttr(D_00639EA4, 0x2000000) != 0 ||
-        (D_00639EA8 != 0 && scpTriggerFloorAttr(D_00639EA8, 0x2000000) != 0)) {
+        scpTriggerFloorAttr(boyGObj, 0x2000000) != 0 ||
+        (girlGObj != 0 && scpTriggerFloorAttr(girlGObj, 0x2000000) != 0)) {
         gflagOn(59);
         FinishHint(7);
     }
@@ -283,7 +287,7 @@ void actSt18aDoorChk(volatile int a0)
     demoEnd = 0;
     doorChkDone = 0;
 
-    while (demoEnd == 0 && ((D_0028F8F0[0].trg & 0x800) == 0 || scpAdpcmPlayRequestNum() != 0)) {
+    while (demoEnd == 0 && ((pad[0].trg & 0x800) == 0 || scpAdpcmPlayRequestNum() != 0)) {
         _ACTWait(1);
     }
 
@@ -583,7 +587,7 @@ void actSt18aDoorChkSub(volatile int a0)
 
     stage_SetAnimation(123, 1, 0);
 
-    if (scpTriggerFloorAttr(D_00639EA4, 0x5000000) != 0) {
+    if (scpTriggerFloorAttr(boyGObj, 0x5000000) != 0) {
         SetCameraFlag_LwsCutBack();
     }
 
@@ -601,10 +605,10 @@ void actSt18aDoorChkSub(volatile int a0)
 
 void actSt18aEneChk(volatile int a0)
 {
-    if (D_00639EA8 == 0) {
+    if (girlGObj == 0) {
         _ACTWait(0);
     }
-    while (scpTriggerFloorAttr(D_00639EA8, 0x3000000) == 0) {
+    while (scpTriggerFloorAttr(girlGObj, 0x3000000) == 0) {
         _ACTWait(1);
     }
     _ACTWait(1);
@@ -615,10 +619,10 @@ void actSt18aEneChk(volatile int a0)
 
 void actSt18aEne2Chk(volatile int a0)
 {
-    if (D_00639EA8 == 0) {
+    if (girlGObj == 0) {
         _ACTWait(0);
     }
-    while (D_00639EA8 == 0 || scpTriggerFloorAttr(scpSearchGobj(774), 0x4000000) == 0) {
+    while (girlGObj == 0 || scpTriggerFloorAttr(scpSearchGobj(774), 0x4000000) == 0) {
         _ACTWait(1);
     }
     FinishHint(8);
