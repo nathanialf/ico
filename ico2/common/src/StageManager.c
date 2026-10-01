@@ -147,13 +147,13 @@ static void stage_initialize(void)
 
 /*SW-END*/
 
-static void exit_stage(int *self)
+static void exit_stage(int stage)
 {
     gamesysStageExitTimeSet(stage_no);
     warpGirlOutStage(stage_no, 0);
-    warpGirlInStage(self);
+    warpGirlInStage(stage);
     backStageProcessOutStage();
-    sndBgmReadyNextStage(self, stage_no);
+    sndBgmReadyNextStage(stage, stage_no);
     return DeleteStreamMotionManager();
 }
 
@@ -236,7 +236,7 @@ static int stagePreLoadMode = 0; /* derived name */
 
 static int stagePreLoadNoCancel = 0; /* derived name */
 
-static int stagePreLoadMgrEntry = 0; /* derived name */
+static CdvdBgReq *stagePreLoadMgrEntry = 0; /* derived name */
 
 int stagePreLoadLsn = 0;
 
@@ -419,7 +419,7 @@ void StageManager(void)
         }
         stagePreLoadMgrEntry = 0;
         if (msg->stage <= 0xFFFF) {
-            exit_stage((int *)msg->stage);
+            exit_stage(msg->stage);
             lt_switch_layout(0x35);
             systemStatus[6] = 1;
             systemStatus[5] = 1;

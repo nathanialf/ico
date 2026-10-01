@@ -516,7 +516,7 @@ static inline void cameraSetMode(int mode) /* derived name */
 /* set when the monitor camera must start over */
 static int monitorCameraInit = 0; /* derived name */
 
-void SetCameraMatrix(void)
+void SetCameraMatrix(GObj *self)
 {
     float m[16];
     GObj *gobj;

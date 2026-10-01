@@ -28,6 +28,19 @@ typedef struct IosPadCtx {      /* field names derived */
     int word24;                 /* 0x24 the copy of word14 */
 } IosPadCtx;                    /* derived name */
 
+/* The stick reading iosPadGetStick hands back: the raw pair, the stick's
+   angle to the facing direction the actor keeps beside it, and the
+   normalised direction and magnitude.  The actor record carries one at
+   0x338. */
+typedef struct IosPadStick { /* field names derived */
+    int x;                   /* 0x00 */
+    int y;                   /* 0x04 */
+    int angle;               /* 0x08 */
+    float dx;                /* 0x0C */
+    float dz;                /* 0x10 */
+    float mag;               /* 0x14 */
+} IosPadStick;               /* derived name */
+
 int iosPadActRequest(int pad, int id);
 void iosPadActStop(int key);
 void iosPadActStopAll(void);

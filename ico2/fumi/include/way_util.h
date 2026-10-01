@@ -9,6 +9,7 @@
 #define WAY_UTIL_H
 
 #include "way_llf.h"
+#include "typedef.h"
 
 /* way_util.o's global */
 extern int load_save_flag;
@@ -25,14 +26,6 @@ typedef struct WgAll { /* field names derived */
     int *dist;         /* 0x14 */
     int *dist2;        /* 0x18 */
 } WgAll; /* derived name */
-
-/* The three way points set_check_wp fills: the current one and the two ends
-   of the crossing between a group and a bridge. */
-typedef struct CheckWp { /* field names derived */
-    WayPoint *cur;
-    WayPoint *start;
-    WayPoint *cross;
-} CheckWp; /* derived name */
 
 /* way_util.c's `inline` functions, in the order of their definitions'
    out-of-line copies at the end of the object (first-declaration order). */

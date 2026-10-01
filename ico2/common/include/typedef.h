@@ -193,7 +193,7 @@ struct GObj {   /* field names derived */
                   game is paused (systemStatus[5]) */
 };
 
-/* RECONSTRUCTION, PLACED BY INCLUDE PATTERN: one record for 8 TUs that carried 6 divergent local copies; this body is the one the ROM's bytes accept in the most of them. */
+/* a float quadword with its doubleword view, 16-byte aligned */
 typedef union Vec16 { /* field names derived */
     float f[4];
     long long ll[2];
@@ -563,13 +563,8 @@ struct Sub15C { /* field names derived */
     struct LightMatrix *lightMtx; /* 0x874, the object's light matrices (Light.h) */
 };
 
-/* RECONSTRUCTION, PLACED BY INCLUDE PATTERN.  The 16-byte aligned float
- * quadword the VU0 entry points take and return.  Three TUs (ito/src/stage_orient,
- * sugipon/src/clothAnimation, sugipon/src/waterDot) carried character-for-character
- * the same local definition, which is what makes it one type rather than three;
- * the alignment is the ROM's, whose copies of these values are lq/sq quadword
- * moves.  The name is this repository's: no disc artefact names a type.
- */
+/* the 16-byte aligned float quadword the VU0 entry points take and return
+ * (its copies are lq/sq quadword moves) */
 typedef struct { /* field names derived */
     float x, y, z, w;
 } __attribute__((aligned(16))) VECTOR; /* derived name */
@@ -752,7 +747,7 @@ typedef int sceVu0IVECTOR[4] __attribute__((aligned(16)));
 #define VU0_NOREORDER_BEGIN() __asm__ __volatile__(".set noreorder")
 #define VU0_NOREORDER_END() __asm__ __volatile__(".set reorder")
 
-/* RECONSTRUCTION, PLACED BY INCLUDE PATTERN: one record for 3 TUs that carried 3 divergent local copies; this body is the one the ROM's bytes accept in the most of them. */
+/* the stage's display setting: the lights, fog, shadow, post effects and camera limits */
 typedef struct StageSetting { /* field names derived */
     float flatLightDir[3][4]; /* 0x000 */
     float flatLightCol[3][4]; /* 0x030 */
@@ -833,13 +828,13 @@ typedef struct StageSetting { /* field names derived */
     int subMotionBlur[5]; /* 0x1BC */
 } StageSetting; /* derived name */
 
-/* RECONSTRUCTION, PLACED BY INCLUDE PATTERN: one record for 3 TUs that carried 3 divergent local copies; this body is the one the ROM's bytes accept in the most of them. */
+/* an RGBA colour as four words, 16-byte aligned */
 typedef union { /* field names derived */
     int c[4];
     long long ll[2];
 } __attribute__((aligned(16))) Col4; /* derived name */
 
-/* RECONSTRUCTION, PLACED BY INCLUDE PATTERN: one record, previously repeated character for character in 2 TUs. */
+/* one target the girl's brain weighs: the object and its attention level */
 typedef struct { /* field names derived */
     GObj *gobj;
     float level;
@@ -853,7 +848,7 @@ typedef struct { /* field names derived */
     char pad1B[1];
 } BrainTarget; /* derived name */
 
-/* RECONSTRUCTION, PLACED BY INCLUDE PATTERN: one record, previously repeated character for character in 3 TUs. */
+/* the GIF packet builder's double buffer and its write pointers */
 typedef struct { /* field names derived */
     int cur;
     int *buf[2];
@@ -864,26 +859,25 @@ typedef struct { /* field names derived */
     char *end;
 } GifDpk; /* derived name */
 
-/* RECONSTRUCTION, PLACED BY INCLUDE PATTERN: one record, previously repeated character for character in 3 TUs. */
+/* a packet doubleword with its two word halves */
 typedef union { /* field names derived */
     long long d;
     int w[2];
 } GifPkWord; /* derived name */
 
-/* RECONSTRUCTION, PLACED BY INCLUDE PATTERN: one record, previously repeated character for character in 2 TUs. */
+/* a gamesys object-info record as debug.c reads it: the kind word */
 typedef struct { /* field names derived */
     char pad0[32];
     int kind; /* 0x20, debug.c's SE test reads it as the SE kind */
     char pad24[24];
 } GsysObjInfo; /* derived name */
 
-/* RECONSTRUCTION, PLACED BY INCLUDE PATTERN: one record, previously repeated character for character in 3 TUs. */
 typedef union { /* field names derived */
     int i;
     float f;
 } IntFloat; /* derived name */
 
-/* RECONSTRUCTION, PLACED BY INCLUDE PATTERN: one record, previously repeated character for character in 2 TUs. */
+/* one memory-card directory entry: the file size and name */
 typedef struct { /* field names derived */
     char pad0[16];
     int size; /* 0x10 */
@@ -891,13 +885,13 @@ typedef struct { /* field names derived */
     char name[32]; /* 0x20 */
 } McDirEnt; /* derived name */
 
-/* RECONSTRUCTION, PLACED BY INCLUDE PATTERN: one record, previously repeated character for character in 2 TUs. */
+/* a quadword as four floats or four words */
 typedef union { /* field names derived */
     float f[4];
     int i[4];
 } Vec4u; /* derived name */
 
-/* RECONSTRUCTION, PLACED BY INCLUDE PATTERN: one record for 12 TUs that carried 3 divergent local copies; this body is the one the ROM's bytes accept in the most of them. */
+/* one pad's per-frame state as keyInput.c keeps it */
 typedef struct PadState { /* field names derived */
     int now;               /* 0x00, the buttons held this frame */
     int flags;             /* 0x04, the trigger bits */
@@ -912,15 +906,11 @@ struct GamesysObjInfo;
 
 struct SObjSimpleSetting;
 
-/* RECONSTRUCTION, PLACED BY INCLUDE PATTERN: the 70-entry object-kind table at
- * objKindData, one 0x64-byte row per kind, indexed by the kind id a GObj carries
- * at +0xC.  The row's leading 0x24 bytes are the kind's name ("BOY", "GIRL",
- * "GIRLDEMOCTRL", ...), which debug.c and debug_menu.c hand straight to the
- * menu as a string.  Five translation units read this row through five
- * different local views (brain, gamesys, sceneManager, debug, debug_menu) and
- * this record is the merge of what all of them know; the offsets that hold a
- * text address in every row are spelled as function pointers.  Field names are
- * this repository's. */
+/* The 70-entry object-kind table at objKindData, one 0x64-byte row per kind,
+ * indexed by the kind id a GObj carries at +0xC.  The row's leading 0x24 bytes
+ * are the kind's name ("BOY", "GIRL", "GIRLDEMOCTRL", ...), which debug.c and
+ * debug_menu.c hand straight to the menu as a string; the offsets that hold a
+ * text address in every row are spelled as function pointers. */
 typedef struct {        /* field names derived */
     char name[36];      /* 0x00 */
     float targetTime;   /* 0x24, brain's target timer, -1.0 = none */
@@ -946,13 +936,7 @@ typedef struct {        /* field names derived */
                            the kind takes mail 47 */
 } ObjKindEnt; /* derived name */
 
-/* RECONSTRUCTION, PLACED BY INCLUDE PATTERN: the 0x194-byte per-stage preset
- * record at stageData.  Every offset any translation unit reads is named here:
- * the views that stayed local (sceneManager, deja, st25a, script, way_tool,
- * s_init, camera-editor, ebrain, layout_texture, commonact) each say in a
- * comment why their bytes need their own spelling, and this record is the
- * merge of what all of them know.  Field names are this repository's; no disc
- * artefact names a field of this table. */
+/* the 0x194-byte per-stage preset record at stageData */
 typedef struct {   /* field names derived */
     char key[32];  /* 0x00, the stage's short name ("gate"); no C reader */
     char name[32]; /* 0x20, the stage name icoMisc prints, "st04a (GATE_1ST)" */
@@ -1027,13 +1011,14 @@ typedef struct {   /* field names derived */
  * rely on that for their schedules) */
 extern const StgPre stageData[];
 
-/* RECONSTRUCTION, PLACED BY INCLUDE PATTERN: one record for 12 TUs that carried 6 divergent local copies; this body is the one the ROM's bytes accept in the most of them. */
+/* a float quadword with its doubleword view */
 typedef union { /* field names derived */
     float f[4];
     long long ll[2];
 } Vec4; /* derived name */
 
-/* RECONSTRUCTION, PLACED BY INCLUDE PATTERN: one record for 5 TUs that carried 4 divergent local copies; this body is the one the ROM's bytes accept in the most of them. */
+/* the collision query ClipWall, ClipFloor and ClipCollision take: the segment,
+   the clipped point and what the search hit */
 typedef struct ClipWork { /* field names derived */
     float a[4];           /* 0x00 start point   */
     float b[4];           /* 0x10 end point     */
@@ -1054,7 +1039,7 @@ typedef struct ClipWork { /* field names derived */
     char padB4[12];
 } ClipWork; /* derived name */
 
-/* RECONSTRUCTION, PLACED BY INCLUDE PATTERN: one record, previously repeated character for character in 2 TUs. */
+/* the girl's brain: the targets it weighs and the one it chose */
 typedef struct { /* field names derived */
     GObj *girl;
     BrainTarget *cur;
@@ -1071,13 +1056,13 @@ typedef struct { /* field names derived */
     BrainTarget tgt[40];
 } Brain; /* derived name */
 
-/* RECONSTRUCTION, PLACED BY INCLUDE PATTERN: one record, previously repeated character for character in 5 TUs. */
+/* a 64-bit actor status word with its two word halves */
 typedef union ActStatus { /* field names derived */
     unsigned long long ll;
     int i[2];
 } ActStatus; /* derived name */
 
-/* RECONSTRUCTION, PLACED BY INCLUDE PATTERN: one record, previously repeated character for character in 2 TUs. */
+/* one time stamp pair of the video stream and the data it covers */
 typedef struct ViTs { /* field names derived */
     long long pts;    /* 0x00 -1 when the pack carried none */
     long long dts;    /* 0x08 */
@@ -1085,7 +1070,7 @@ typedef struct ViTs { /* field names derived */
     int len;          /* 0x14 bytes the pair covers, 0 when the slot is free */
 } ViTs; /* derived name */
 
-/* RECONSTRUCTION, PLACED BY INCLUDE PATTERN: one record for 10 TUs that carried 4 divergent local copies; this body is the one the ROM's bytes accept in the most of them. */
+/* the head of a pad record: the held and triggered buttons and the analog bytes */
 typedef struct Pad {      /* field names derived */
     int now;              /* 0x00, the buttons held */
     int trg;              /* 0x04 */
@@ -1093,7 +1078,7 @@ typedef struct Pad {      /* field names derived */
     unsigned char ana[4]; /* 0x54 */
 } Pad; /* derived name */
 
-/* RECONSTRUCTION, PLACED BY INCLUDE PATTERN: one record for 4 TUs that carried 2 divergent local copies; this body is the one the ROM's bytes accept in the most of them. */
+/* one stage exit: its position and rotation and the stage it leads to */
 typedef struct { /* field names derived */
     float pos[3];
     float rot[3];
@@ -1105,7 +1090,6 @@ typedef struct { /* field names derived */
 
 extern const ExitData exitData[]; /* exit-data, in .rodata */
 
-/* RECONSTRUCTION, PLACED BY INCLUDE PATTERN: one record for 38 TUs that carried 2 divergent local copies; this body is the one the ROM's bytes accept in the most of them. */
 /* One row of an actor's mail table (Act.mail, Act.mainMail): the message id
    the actor listens for and the three entry points it starts.  429 ends a
    table.  act2.c's BeforeFunc2 walks it. */
@@ -1116,13 +1100,13 @@ typedef struct ActMail {        /* field names derived */
     void (*sub)();              /* 0x0C, the sub thread it starts */
 } ActMail; /* derived name */
 
-/* RECONSTRUCTION, PLACED BY INCLUDE PATTERN: one record for 17 TUs that carried 2 divergent local copies; this body is the one the ROM's bytes accept in the most of them. */
+/* a float quadword constant with its doubleword view, 16-byte aligned */
 typedef union { /* field names derived */
     float f[4];
     long long d[2];
 } __attribute__((aligned(16))) ConstVec; /* derived name */
 
-/* RECONSTRUCTION, PLACED BY INCLUDE PATTERN: one record for 30 TUs that carried 8 divergent local copies; this body is the one the ROM's bytes accept in the most of them. */
+/* the object record (GObj) as a view of plain words */
 typedef struct PObjGObj { /* field names derived */
     int self;             /* 0x000, the object itself while in use */
     int labelType;        /* 0x004, 1 for a stage layout object */
@@ -1157,7 +1141,6 @@ typedef struct PObjGObj { /* field names derived */
     int pauseExempt; /* 0x170 */
 } PObjGObj; /* derived name */
 
-/* RECONSTRUCTION, PLACED BY INCLUDE PATTERN: one record for 38 TUs that carried 6 divergent local copies; this body is the one the ROM's bytes accept in the most of them. */
 /* Act + 0x438: the way-state word, one 64-bit flag word whose low two bytes
    are also the way walker's two status bytes; bit 16 asks for the detailed
    way search (act-way.c, girl_act.c's attract state) */
@@ -1179,6 +1162,7 @@ typedef union { /* field names derived */
 } ActWishWord; /* derived name */
 
 #include "motionOrientManager.h" /* MotOriReq, which Act carries at 0x620 */
+#include "pad.h"                 /* IosPadStick, which Act carries at 0x338 */
 
 /* The pad configuration record iosPadConnect hands a pad (pad.c's
    iosPadConfDefault and iosPadConfCustom, and the copy each actor keeps), 60
@@ -1191,6 +1175,46 @@ typedef struct PadConf { /* field names derived */
     int repeat[16][2];
     int bit[16];
 } PadConf; /* derived name */
+
+struct WayPoint;
+
+/* The three way points set_check_wp fills: the current one and the two ends
+   of the crossing between a group and a bridge. */
+typedef struct CheckWp { /* field names derived */
+    struct WayPoint *cur;
+    struct WayPoint *start;
+    struct WayPoint *cross;
+} CheckWp; /* derived name */
+
+/* The guide-way work block way_sys.c allocates and threads through every
+ * member: 0x80 bytes (the actor record embeds one at +0x360 and
+ * waySystemManager's request one at +0x20), and only the words the TU reads
+ * or writes are named.  act-way.c copies the actor's with 64-bit moves, so the
+ * record is 8-byte aligned. */
+typedef struct WVTObj { /* field names derived */
+    char pad00[16];     /* 0x00 */
+    int pos[4];         /* 0x10 the current target position */
+    CheckWp chk;        /* 0x20 the way point being walked to (cur), the start
+                          of the walk (start) and the far end of a crossing (cross),
+                          the record set_check_wp fills */
+    struct WayPoint *nearWp; /* 0x2C */
+    int stampFrame;     /* 0x30 */
+    int direction;      /* 0x34 */
+    int avoiding;       /* 0x38 */
+    int flag3C;         /* 0x3C */
+    char pad40[4];
+    int reached;      /* 0x44 */
+    char pad48[8];    /* 0x48 */
+    float nrm[4];     /* 0x50 the unit direction to the current way point */
+    int group;        /* 0x60 */
+    int guideFirst;   /* 0x64 the first point of the guide way avoid_obstacle2
+                          lays round an obstacle, -1 when none */
+    int escapeFound;  /* 0x68 */
+    int flag6C;       /* 0x6C */
+    int pathKind;     /* 0x70 */
+    struct WayPoint *fromWp; /* 0x74 */
+    char pad78[8];    /* 0x78 */
+} __attribute__((aligned(8))) WVTObj; /* derived name */
 
 typedef struct Act { /* field names derived */
     char pad0[4];
@@ -1324,22 +1348,10 @@ typedef struct Act { /* field names derived */
     int padTrg; /* 0x2E4, the buttons pressed this frame */
     int padRel; /* 0x2E8, the buttons released this frame */
     char pad2EC[76];
-    int stickX;     /* 0x338, the stick record (pad.c's IosPadStick) starts here: the raw x */
-    int stickY;     /* 0x33C, the raw y */
-    int stickAngle; /* 0x340, the stick's angle to the facing direction */
-    char pad344[4];
-    float stickDz;  /* 0x348, the stick's normalised z */
-    float stickMag; /* 0x34C, the stick's magnitude */
+    IosPadStick stick; /* 0x338, the stick reading iosPadGetStick fills in */
     int wayMode;    /* 0x350, the way follow state: 0 none, 1 search, 2 follow */
-    char pad354[44];
-    char *wayPoint; /* 0x380, the way point being walked to (the guide-way block at 0x360) */
-    char *wayStart; /* 0x384, the start of the walk */
-    int wayCross;   /* 0x388, the far end of a crossing */
-    char pad38C[24];
-    int wayStep; /* 0x3A4, the walk's step */
-    char pad3A8[28];
-    int wayAvoid; /* 0x3C4, the first point of the guide way round an obstacle, -1 when none */
-    char pad3C8[24];
+    char pad354[12];
+    WVTObj way;     /* 0x360, the guide-way work block way_sys.c walks */
     float wayNodeX; /* 0x3E0, the next way node, x */
     float wayNodeY; /* 0x3E4, the next way node, y */
     float wayNodeZ; /* 0x3E8, the next way node, z */
@@ -1437,7 +1449,7 @@ typedef struct GenGeo { /* field names derived */
         flags; /* 0x48, display list in bits 14-16, dead bit 18, the generator display bit 21 */
 } GenGeo; /* derived name */
 
-/* RECONSTRUCTION, PLACED BY INCLUDE PATTERN: one record for 2 TUs that carried 2 divergent local copies; this body is the one the ROM's bytes accept in the most of them. */
+/* one stage-animation mode record: the base mode, the second animation and the held mode */
 typedef struct { /* field names derived */
     int baseMode; /* 0x00, the mode the record returns to, also its BG animation: the first stage-animation id */
     int anim2; /* 0x04, the second stage-animation id, 972 (no animation) in most rows */
@@ -1446,7 +1458,6 @@ typedef struct { /* field names derived */
     int flags; /* 0x10, bit 0 holds the mode at 972 */
 } OaRecB; /* derived name */
 
-/* RECONSTRUCTION, PLACED BY INCLUDE PATTERN: one record for 2 TUs that carried 2 divergent local copies; this body is the one the ROM's bytes accept in the most of them. */
 typedef struct { /* field names derived */
     float m[16];
 } Mtx44 __attribute__((aligned(16)));

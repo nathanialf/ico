@@ -813,11 +813,11 @@ static void Debug_StickControl(GObj *self)
     if (self == CurrentTargetGObj) {
         iosPadConnect(&ext->padDev, 0, 0, &ext->padConf);
         iosPadRead(&ext->padDev);
-        iosPadGetStick(&ext->padDev, &ext->stickX, 0, 2, 2, 0);
+        iosPadGetStick(&ext->padDev, &ext->stick, 0, 2, 2, 0);
         _GetMotionDirection(dir, self);
-        ext->stickAngle = CorrectStickInfo(dir, &ext->stickX);
-        if (ext->stickMag > 0.001f) {
-            ConvertStickToAbsCoord(ext->dir, &ext->stickX);
+        ext->stick.angle = CorrectStickInfo(dir, &ext->stick);
+        if (ext->stick.mag > 0.001f) {
+            ConvertStickToAbsCoord(ext->dir, &ext->stick);
         }
     } else if (self == CurrentTargetGObjSub) {
         iosPadConnect(&ext->padDev, 0, 1, &ext->padConf);

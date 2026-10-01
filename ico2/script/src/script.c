@@ -142,18 +142,6 @@ struct WoodBoxEnt { /* derived name */ /* field names derived */
     float b3;                          /* 0x2C */
 };
 
-/* the wall-collision result the ClipWall work area hands back at +0x80 */
-
-typedef struct {                     /* field names derived */
-    float p0[4];                     /* 0x00 */
-    float p1[4];                     /* 0x10 */
-    char pad20[80];                  /* 0x20 */
-    float radius;                    /* 0x70, the clip radius */
-    char pad74[12];                  /* 0x74 */
-    WallCfg res;                     /* 0x80 */
-    char pad8C[52];                  /* 0x8C */
-} ClipWorkScript; /* derived name */ /* 0xC0 */
-
 /* .data: the wood-bridge trigger table, one row per bridge object, walked by
    object id. */
 static struct WoodBoxEnt woodBoxTbl[11] = {
@@ -409,21 +397,21 @@ inline void scpLinkBGAtoLayoutedTargetSkelton(int id, int focus, int key)
 
 inline WallCfg *scpGetWallCollision(float x0, float y0, float z0, float x1, float y1, float z1)
 {
-    ClipWorkScript work;
+    ClipWork work;
 
-    work.p0[0] = x0;
-    work.p0[1] = y0;
-    work.p0[2] = z0;
-    work.p0[3] = 1.0f;
-    work.p1[0] = x1;
-    work.p1[1] = y1;
-    work.p1[2] = z1;
-    work.p1[3] = 1.0f;
+    work.a[0] = x0;
+    work.a[1] = y0;
+    work.a[2] = z0;
+    work.a[3] = 1.0f;
+    work.b[0] = x1;
+    work.b[1] = y1;
+    work.b[2] = z1;
+    work.b[3] = 1.0f;
     work.radius = 0.0f;
     ClipWall(&work);
-    wallColResult.n = work.res.n;
-    wallColResult.o = work.res.o;
-    if (work.res.n == 0) {
+    wallColResult.n = work.wallHit;
+    wallColResult.o = work.wallSrc;
+    if (work.wallHit == 0) {
         /* no wall collision found */
         debug_StdPrintfDummy(
             "scpGetWallCollision: (%4.3f, %4.3f, %4.3f) => (%4.3f, %4.3f, %4.3f)\n\t壁コリジョンが見つかりません。\n",
@@ -1518,8 +1506,8 @@ inline void _SCPCharacterStop(GObj *self)
     p->dir[0] = 0;
     p->dir[1] = 0;
     p->dir[2] = 0;
-    p->stickX = p->stickY = 127;
-    p->stickMag = 0;
+    p->stick.x = p->stick.y = 127;
+    p->stick.mag = 0;
 }
 
 inline int _SCPMoveByWay_ToChar(GObj *self, GObj *target, int deg, int flags, float scale,

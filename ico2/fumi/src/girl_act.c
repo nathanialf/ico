@@ -876,12 +876,6 @@ static inline unsigned char isHidePointTooHigh(float *p) /* derived name */
     return 0;
 }
 
-/* The 0x80-byte way-parameter block the boy's sub-object carries at +0x360,
-   copied by struct assignment; its member type is 8 bytes wide. */
-typedef struct { /* field names derived */
-    long long d[16];
-} GirlWayParam; /* derived name */
-
 /* One call site.  `r = 0;` is a statement after the struct copy, not an
    initialiser. */
 static inline int girlBrainHide_TryWay(float *pt, char *way, float *goal,
@@ -893,7 +887,7 @@ static inline int girlBrainHide_TryWay(float *pt, char *way, float *goal,
     void *self = girlGObj;
     Act *sub = GOBJ_ACT(self);
 
-    *(GirlWayParam *)way = *(GirlWayParam *)((char *)sub + 0x360);
+    *(WVTObj *)way = sub->way;
     if (GetWay_begin(pt, way, goal)) {
         r = 1;
         start[0] = pt[0];
@@ -1698,14 +1692,14 @@ void subGirlBrainMain(GObj *volatile self)
 inline void subGirlBrain_Idle(GObj *volatile self)
 {
     char *g = (char *)self;
-    GOBJ_ACT(g)->stickMag = 0;
+    GOBJ_ACT(g)->stick.mag = 0;
     _ACTWait(0);
 }
 
 inline void subGirlBrain_Becarry(GObj *volatile self)
 {
     char *g = (char *)self;
-    GOBJ_ACT(g)->stickMag = 0;
+    GOBJ_ACT(g)->stick.mag = 0;
     _ACTWait(0);
 }
 
@@ -1715,7 +1709,7 @@ inline void subGirlBrain_Busy(GObj *volatile self)
     GirlBrainWork *w = &brain_val;
     int i = 0;
 
-    sub->stickMag = 0;
+    sub->stick.mag = 0;
     while (1) {
         if (w->others.num) {
             _ACTCharStatus_Set((void *)self, 2, -1.0f, w->others.ent[0].obj);
@@ -1738,9 +1732,9 @@ static inline void girlBrainSetWalkRatio(GObj *g, float ratio) /* derived name *
     float walk = 0.5f;
 
     if (walk < ratio && ACTWay_IsMustWalkFromWay(g)) {
-        s->stickMag = walk;
+        s->stick.mag = walk;
     } else {
-        s->stickMag = ratio;
+        s->stick.mag = ratio;
     }
 }
 
@@ -1798,7 +1792,7 @@ void subGirlBrain_Pulledup(GObj *volatile self)
         hit = ACTWayMove_NextDetail((void *)self, (char *)sub + 0x120, boy_pos, 0, 0);
         debug_NMarker(boy_pos, 0xFF, 0, 0, 100.0f);
         if (!hit) {
-            sub->stickMag = 0;
+            sub->stick.mag = 0;
         } else {
             sub->dir[0] = sub->wayNodeX;
             sub->dir[1] = sub->wayNodeY;
@@ -1810,7 +1804,7 @@ void subGirlBrain_Pulledup(GObj *volatile self)
         dy = (dy < 0.0f) ? -dy : dy;
         lim = (GOBJ_ACT(((int *)boyGObj))->actMode == 0x58) ? 200.0f : 100.0f;
         if (d < 30.0f && dy < 200.0f) {
-            sub->stickMag = 0;
+            sub->stick.mag = 0;
             GetSkeltonOrient(sk, (void *)self, 0x2C);
             _OrientXZGV(oz, test_CURRENTROOT((boyGObj)), test_CURRENTROOT((void *)self));
             ry = _RotyGV(sk, oz);
@@ -1826,8 +1820,8 @@ void subGirlBrain_Pulledup(GObj *volatile self)
                 sub->flags18.ll |= 0x40000000000000;
             }
         } else if (d < lim) {
-            sub->stickMag =
-                (sub->stickMag < 0.0f) ? 0.0f : ((0.5f < sub->stickMag) ? 0.5f : sub->stickMag);
+            sub->stick.mag =
+                (sub->stick.mag < 0.0f) ? 0.0f : ((0.5f < sub->stick.mag) ? 0.5f : sub->stick.mag);
         }
         _ACTCharStatus_Set((void *)self, 0x1C, -1.0f, 0);
         GOBJ_WORK(self)->boyDist = _DistGV(test_CURRENTROOT((void *)self), boy_pos);
@@ -1936,7 +1930,7 @@ static inline void girlBrainSetMoveDir(float *d) /* derived name */
     Act *s;
 
     s = GOBJ_ACT(girlGObj);
-    s->stickMag = run;
+    s->stick.mag = run;
     s->dir[0] = d[0];
     s->dir[1] = d[1];
     s->dir[2] = d[2];
@@ -2017,7 +2011,7 @@ void subGirlBrain_Hide(GObj *volatile self)
         }
         if (_DistxzSqGV(hp, brain_val.f_5830) < 10000.0f || near) {
             g = (char *)self;
-            GOBJ_ACT(girlGObj)->stickMag = 0;
+            GOBJ_ACT(girlGObj)->stick.mag = 0;
             _ACTCharStatus_Set(g, 7, -1.0f, 0);
             if (_DistxzSqGV(hp, brain_val.f_5830) < 6400.0f || near) {
                 _OrientXZGV(dir, brain_val.f_5850, brain_val.f_5830);
@@ -2039,7 +2033,7 @@ inline void subGirlBrain_Hesitate(GObj *volatile self)
     int i = 1;
 
     for (;;) {
-        *(void **)((char *)s + 0x34C) = 0;
+        s->stick.mag = 0.0f;
         if (i % ((60 - systemStatus[0] * 10) / systemStatus[1] / 2) == 0) {
             brain_val.f_58F0 = 1;
         }
@@ -2143,7 +2137,7 @@ static int girlBrainRunawaySearchPoint(float *goal, float *out, float *p)
 
     g = girlGObj;
     sub = GOBJ_ACT(g);
-    n = GetNearNigePointN(runawayPointList, 10, (char *)sub + 0x360, p);
+    n = GetNearNigePointN(runawayPointList, 10, &sub->way, p);
     for (i = n - 1; i >= 0; i--) {
         float (*list)[4] = runawayPointList;
 
@@ -2151,7 +2145,7 @@ static int girlBrainRunawaySearchPoint(float *goal, float *out, float *p)
             p[0] = list[i][0];
             p[1] = list[i][1];
             p[2] = list[i][2];
-            n = GetNearNigePointN(list, 10, (char *)sub + 0x360, p);
+            n = GetNearNigePointN(list, 10, &sub->way, p);
             break;
         }
     }
@@ -2174,15 +2168,15 @@ static int girlBrainRunawaySearchPoint(float *goal, float *out, float *p)
             float pos[4];
             float *s;
 
-            GetWay_begin(runawayPointList[i], (char *)sub + 0x360, goal);
-            sub->wayStep = 0;
+            GetWay_begin(runawayPointList[i], &sub->way, goal);
+            sub->way.reached = 0;
             pos[0] = goal[0];
             pos[1] = goal[1];
             pos[2] = goal[2];
             pos[1] -= 50.0f;
             if (isNoWallBetween(pos, runawayPointList[i])) {
-                sub->wayStep = 1;
-                DeleteGuideWay((char *)sub + 0x360);
+                sub->way.reached = 1;
+                DeleteGuideWay(&sub->way);
             }
             s = runawayPointList[i];
             out[0] = s[0];
@@ -2207,27 +2201,27 @@ static int girlBrainRunawayMoveByWay(char *self, float *out, float *tgt)
     d[0] = tgt[0];
     d[1] = tgt[1];
     d[2] = tgt[2];
-    switch (sub->wayStep) {
+    switch (sub->way.reached) {
     case 0:
         done = 0;
         GetRootProjectionPosOfGObj(pos, self);
         pos[1] = pos[1] - 0.0f;
-        way = GetWay_next((char *)sub + 0x360, pos);
+        way = GetWay_next(&sub->way, pos);
         if (way == 0) {
-            sceVu0CopyVector(out, (char *)sub + 0x3B0);
+            sceVu0CopyVector(out, sub->way.nrm);
         } else {
-            sceVu0CopyVector(out, (char *)sub + 0x3B0);
+            sceVu0CopyVector(out, sub->way.nrm);
             if (brain_val.lastWay != way) {
                 if (brain_val.lastWay != 0) {
-                    done = sub->wayAvoid < 1;
+                    done = sub->way.guideFirst < 1;
                 }
                 brain_val.lastWay = way;
             }
         }
-        if (sub->wayCross == 0) {
+        if (sub->way.chk.cross == 0) {
             if (isNoWallBetween(pos, d)) {
-                sub->wayStep = 1;
-                DeleteGuideWay((char *)sub + 0x360);
+                sub->way.reached = 1;
+                DeleteGuideWay(&sub->way);
             }
         }
         if (done) {
@@ -2300,7 +2294,7 @@ void subGirlBrain_Escape(GObj *volatile self)
     sub = GOBJ_ACT(self);
     mode = 0;
     for (i = 0; i < (60 - systemStatus[0] * 10) / systemStatus[1] / 2; i++) {
-        sub->stickMag = 0;
+        sub->stick.mag = 0;
         _ACTWait(1);
     }
     for (;;) {
@@ -2320,7 +2314,7 @@ void subGirlBrain_Escape(GObj *volatile self)
             brain_val.f_5810[0] = rp[0];
             brain_val.f_5810[1] = rp[1];
             brain_val.f_5810[2] = rp[2];
-            sub->stickMag = 0;
+            sub->stick.mag = 0;
             break;
         case 1:
             mode = 2;
@@ -2330,7 +2324,7 @@ void subGirlBrain_Escape(GObj *volatile self)
                 mode = 3;
                 girlBrainDebugPrint();
             }
-            sub->stickMag = 0;
+            sub->stick.mag = 0;
             break;
         case 2:
             ret = girlBrainRunawayMoveByWay((char *)self, (float *)&sub->dir[0], brain_val.f_57F0);
@@ -2358,15 +2352,15 @@ void subGirlBrain_Escape(GObj *volatile self)
                 girlBrainSetWalkRatio((void *)self, 1.0f);
                 break;
             case 1:
-                *(float *)&sub->stickMag = 0.5f;
+                sub->stick.mag = 0.5f;
                 break;
             }
-            if (*(float *)&sub->stickMag != 0.0f) {
+            if (sub->stick.mag != 0.0f) {
                 sceVu0ScaleVector(v.f, (float *)&sub->dir[0], 300.0f);
                 sceVu0AddVector(v.f, brain_val.f_5830, v.f);
                 if (girlBrainHideCheckIntercept(brain_val.f_5830, v.f, (char *)brain_val.hide.ent,
                                                 brain_val.hide.num)) {
-                    *(float *)&sub->stickMag = 0.0f;
+                    sub->stick.mag = 0.0f;
                     brain_val.f_58F0 = 1;
                 }
             }
@@ -2375,7 +2369,7 @@ void subGirlBrain_Escape(GObj *volatile self)
             brain_val.f_58F4 = brain_val.f_58F4 + 5;
             break;
         case 3:
-            sub->stickMag = 0;
+            sub->stick.mag = 0;
             ACTSendMailCorrect((void *)self, 0xE5);
             brainGirl.minThreshold = 9.0f;
             if ((((int)(((ActStatus *)((char *)sub + 0x18))->ll >> 63)) & 1) ||
@@ -2384,7 +2378,7 @@ void subGirlBrain_Escape(GObj *volatile self)
             }
             break;
         case 4:
-            sub->stickMag = 0;
+            sub->stick.mag = 0;
             if (sub->actMode != 0x6F) {
                 mode = 0;
             }
@@ -2608,10 +2602,10 @@ retry:
                 sub->dir[0] = sub->wayNodeX;
                 sub->dir[1] = sub->wayNodeY;
                 sub->dir[2] = sub->wayNodeZ;
-                sub->stickMag = 1.0f;
+                sub->stick.mag = 1.0f;
             }
             if (turn) {
-                sub->stickMag = 0.0f;
+                sub->stick.mag = 0.0f;
                 _OrientXZGV(dir, obj, test_CURRENTROOT(self));
                 girlBrainHide_GoalTurn(dir, 1);
             }
@@ -2725,13 +2719,13 @@ retry:
                 sub->dir[0] = sub->wayNodeX;
                 sub->dir[1] = sub->wayNodeY;
                 sub->dir[2] = sub->wayNodeZ;
-                sub->stickMag = 1.0f;
+                sub->stick.mag = 1.0f;
             }
             if (debug_font_flag & 1) {
                 debug_Printf(10, 110, 0x0FFFFFFF, "goal[%d]\n", turn);
             }
             if (turn) {
-                sub->stickMag = 0.0f;
+                sub->stick.mag = 0.0f;
                 _OrientXZGV(dir, obj, test_CURRENTROOT(self));
                 girlBrainHide_GoalTurn(dir, 0);
             }
@@ -2906,10 +2900,10 @@ static void Danger_Box(GObj *self)
             sub->dir[0] = sub->wayNodeX;
             sub->dir[1] = sub->wayNodeY;
             sub->dir[2] = sub->wayNodeZ;
-            sub->stickMag = 1.0f;
+            sub->stick.mag = 1.0f;
         }
         if (turn) {
-            sub->stickMag = 0.0f;
+            sub->stick.mag = 0.0f;
             _OrientXZGV(dir, objp, test_CURRENTROOT(self));
             girlBrainHide_GoalTurn(dir, 0);
         }
@@ -2983,7 +2977,7 @@ static void Danger_Rotobject(GObj *self)
     if (!GetSafePosition(300.0f, goal, test_CURRENTROOT(obj), girl,
                          (int)test_CURRENTROOT((boyGObj)))) {
         while (1) {
-            sub->stickMag = 0.0f;
+            sub->stick.mag = 0.0f;
             _ACTWait(1);
         }
     }
@@ -2998,10 +2992,10 @@ static void Danger_Rotobject(GObj *self)
             turn = 1;
         } else {
             _OrientXZGV((char *)sub + 0x120, goal, girl);
-            sub->stickMag = 1.0f;
+            sub->stick.mag = 1.0f;
         }
         if (turn) {
-            sub->stickMag = 0.0f;
+            sub->stick.mag = 0.0f;
             _OrientXZGV(dir, objp, test_CURRENTROOT(self));
             girlBrainHide_GoalTurn(dir, 0);
         }
@@ -3029,7 +3023,7 @@ void subGirlBrain_HideAdvance(GObj *volatile self)
         if (!hit ||
             (sub->wayGoalDist < 100.0f &&
              (sub->wayGoalHeight < 0.0f ? -sub->wayGoalHeight : sub->wayGoalHeight) < 100.0f)) {
-            sub->stickMag = 0;
+            sub->stick.mag = 0;
             _ACTWait(1);
             continue;
         }
@@ -3162,9 +3156,9 @@ void WayTest(void)
         dispWayMarker((float *)((char *)s + 0x410));
     }
     if (s->wayGoalDist < 100.0f) {
-        s->stickMag = 0.0f;
+        s->stick.mag = 0.0f;
     } else {
-        s->stickMag = 1.0f;
+        s->stick.mag = 1.0f;
     }
     r = _RotyGV((char *)s + 0x3E0, (char *)s + 0x120);
     r = (r < 0) ? -r : r;
@@ -3179,8 +3173,8 @@ void WayTest(void)
         s->dir[2] = s->wayNodeZ;
         wayTurnFrames = 0;
     }
-    dispWayMarker((float *)(s->wayPoint + 0x10));
-    dispWayMarker((float *)(s->wayStart + 0x10));
+    dispWayMarker(s->way.chk.cur->pos);
+    dispWayMarker(s->way.chk.start->pos);
 }
 
 /* The attract-state names, defined here after WayTest. */
@@ -3490,7 +3484,7 @@ void subGirlCollision(GObj *volatile self)
         brainLevelProcess(&brainGirl);
         ACTLookTargetSystem_Exec((void *)self);
         ACTParaStatus_Exec((void *)self);
-        if (sub->stickMag != 0.0f) {
+        if (sub->stick.mag != 0.0f) {
             switch ((unsigned int)sub->actMode) {
             case 1:
                 ang = _ACTGame_GetParamF(35);

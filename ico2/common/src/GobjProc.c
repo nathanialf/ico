@@ -56,7 +56,7 @@ GObj *InitCameraGObjs(int stage, int from, int to)
     int i;
 
     for (i = from; i < to; i++) {
-        g = isysGObjAdd((int)SetCameraMatrix, 0, 0);
+        g = isysGObjAdd(SetCameraMatrix, 0, 0);
         g->act = 0;
         g->labelType = 0;
         g->labelId = -1;

@@ -2,23 +2,6 @@
 #include <libpad.h>
 #include "debug.h"
 
-/* A voice-set file as ReadShockFile loads it: this 16-byte record, then the
- * file image (charFileManager.c allocates size + 16 and reads to p + 16).  The
- * image's halfwords at +2, +6 and +10 are the word offsets of the shot, wave
- * and voice tables, and +8 is the voice count ShockDriver_GetShockVoice bounds
- * by.  The image start is a union of its word and halfword views. */
-struct ShockVoiceSet { /* field names derived */
-
-    /* 0x0 */ union {
-        int *word;
-        unsigned short *half;
-    } top;
-
-    /* 0x4 */ int *shot;
-    /* 0x8 */ int *wave;
-    /* 0xC */ int *voice;
-}; /* derived name */
-
 /* .data, all zero: the voice set manager record and the request pool.
    .sdata, all zero: the current manager, the common and stage voice sets
    charFileManager loads, the manager's two-slot voice set table and the

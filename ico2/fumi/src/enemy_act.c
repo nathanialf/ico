@@ -432,11 +432,11 @@ void subEnemyControl(GObj *volatile self)
                 if (self == (int)((char *)CurrentTargetGObj)) {
                     iosPadConnect((char *)sub + 0x2D8, 0, 0, &sub->padConf);
                     iosPadRead((char *)sub + 0x2D8);
-                    iosPadGetStick((char *)sub + 0x2D8, (char *)sub + 0x338, 0, 2, 2, 0);
+                    iosPadGetStick((char *)sub + 0x2D8, &sub->stick, 0, 2, 2, 0);
                     _GetMotionDirection(dir, self);
-                    sub->stickAngle = CorrectStickInfo(dir, (char *)sub + 0x338);
-                    if (0.001f < sub->stickMag) {
-                        ConvertStickToAbsCoord(pos, (char *)sub + 0x338);
+                    sub->stick.angle = CorrectStickInfo(dir, &sub->stick);
+                    if (0.001f < sub->stick.mag) {
+                        ConvertStickToAbsCoord(pos, &sub->stick);
                         sub->dir[0] = pos[0];
                         sub->dir[1] = pos[1];
                         sub->dir[2] = pos[2];
@@ -454,10 +454,10 @@ void subEnemyControl(GObj *volatile self)
         }
         /* the whole counter update */
         stopCnt++;
-        if (0.1f < sub->stickMag) {
+        if (0.1f < sub->stick.mag) {
             stopCnt = 0;
         }
-        if (0.1f < sub->stickMag && (sub->stickMag < 0.99f || (sub->padNow & 0x20))) {
+        if (0.1f < sub->stick.mag && (sub->stick.mag < 0.99f || (sub->padNow & 0x20))) {
             walkCnt++;
         } else {
             walkCnt = 0;
@@ -465,8 +465,8 @@ void subEnemyControl(GObj *volatile self)
         /* moving and not walking, with the walking predicate repeated whole
            inside the negation, as commonact.c's _ACTCommonMailTest writes
            it */
-        if (0.1f < sub->stickMag &&
-            !(0.1f < sub->stickMag && (sub->stickMag < 0.99f || (sub->padNow & 0x20)))) {
+        if (0.1f < sub->stick.mag &&
+            !(0.1f < sub->stick.mag && (sub->stick.mag < 0.99f || (sub->padNow & 0x20)))) {
             runCnt++;
         } else {
             runCnt = 0;
@@ -480,7 +480,7 @@ void subEnemyControl(GObj *volatile self)
             ACTSendMailCorrect((void *)self, 0xC7);
             break;
         case 2:
-            if (0.1f < sub->stickMag && (sub->stickMag < 0.99f || (sub->padNow & 0x20)) &&
+            if (0.1f < sub->stick.mag && (sub->stick.mag < 0.99f || (sub->padNow & 0x20)) &&
                 !(walkCnt < 4)) {
                 if (CheckFloorAttribute(self, 0x200)) {
                     ACTSendMailCorrect((void *)self, 0xB6);
@@ -497,9 +497,9 @@ void subEnemyControl(GObj *volatile self)
         case 4:
             break;
         case 38:
-            if (100 < sub->stickY - 128) {
+            if (100 < sub->stick.y - 128) {
                 ACTSendMailCorrect((void *)self, 0x14B);
-            } else if (sub->stickY - 128 < -100) {
+            } else if (sub->stick.y - 128 < -100) {
                 ACTSendMailCorrect((void *)self, 0x14A);
             } else {
                 ACTSendMailCorrect((void *)self, 0x150);
@@ -599,11 +599,11 @@ void subEnemyCollision(GObj *volatile self)
         if (sub->actMode == 5 && 400.0f < GOBJ_SUB(self)->ctrl.groundHeight) {
             FlyMail((void *)self);
         }
-        if (sub->stickMag != 0.0f) {
+        if (sub->stick.mag != 0.0f) {
             enemyCheckTurnAngle(self);
         }
         if ((stage_no == 19 || stage_no == 28) && sub->actMode == 6) {
-        } else if (0.1f < sub->stickMag && sub->actMode != 0x73) {
+        } else if (0.1f < sub->stick.mag && sub->actMode != 0x73) {
             SetMotionDirectionSmooze(
                 self, dir,
                 (float)((self == (int)((char *)girlGObj) && girlControlMode != 0)
@@ -624,10 +624,11 @@ void subEnemyCollision(GObj *volatile self)
         if (sub->actMode != 0x16) {
             if (0x16 < (unsigned int)sub->actMode) {
                 if (sub->actMode == 0x1C) {
-                    if (0.1f < sub->stickMag && (sub->stickAngle < -134 || 134 < sub->stickAngle)) {
+                    if (0.1f < sub->stick.mag &&
+                        (sub->stick.angle < -134 || 134 < sub->stick.angle)) {
                         ACTSendMailCorrect((void *)self, 0xE2);
-                    } else if (0.1f < sub->stickMag &&
-                               (-45 <= sub->stickAngle && sub->stickAngle <= 45)) {
+                    } else if (0.1f < sub->stick.mag &&
+                               (-45 <= sub->stick.angle && sub->stick.angle <= 45)) {
                         if ((pad[0].now & 4) == 0) {
                             ACTSendMailCorrect((void *)self, 0xC7);
                         }
@@ -1210,7 +1211,7 @@ void actEnemyKidnapBegin(GObj *volatile self)
     while (1) {
         if (GOBJ_SUB(self)->ctrl.motion == 0x3AA) {
             _OrientXZGV(dir, test_CURRENTROOT((girlGObj)), test_CURRENTROOT(self));
-            if (0.1f < sub->stickMag && sub->actMode != 0x73) {
+            if (0.1f < sub->stick.mag && sub->actMode != 0x73) {
                 SetMotionDirectionSmooze(
                     (void *)self, dir,
                     (float)((self == (int)((char *)girlGObj) && girlControlMode != 0)
@@ -1682,12 +1683,12 @@ void subEnemyBrainMain(GObj *volatile self)
                 SetEnemyStonizedVisual((void *)self);
             }
             *(long long *)((char *)sub + 0x20) |= 0x200000LL;
-            sub->stickMag = 0;
+            sub->stick.mag = 0;
             *(int *)((char *)sub + 0x120) = 0;
             *(int *)((char *)sub + 0x124) = 0;
             *(int *)((char *)sub + 0x128) = 0;
-            sub->stickY = 127;
-            sub->stickX = 127;
+            sub->stick.y = 127;
+            sub->stick.x = 127;
             isysGObjProcPause(g);
             while (1) {
                 _ACTWait(1);
@@ -1699,12 +1700,12 @@ void subEnemyBrainMain(GObj *volatile self)
 
             isysGObjProcPause(g);
             *(long long *)((char *)sub + 0x20) |= 0x200000LL;
-            sub->stickMag = 0;
+            sub->stick.mag = 0;
             *(int *)((char *)sub + 0x120) = 0;
             *(int *)((char *)sub + 0x124) = 0;
             *(int *)((char *)sub + 0x128) = 0;
-            sub->stickY = 127;
-            sub->stickX = 127;
+            sub->stick.y = 127;
+            sub->stick.x = 127;
             while (1) {
                 if ((char *)girlGObj == 0 || GOBJ_ACT(girlGObj)->actMode != 0x6F ||
                     GOBJ_ACT(girlGObj)->carrier != (int)self) {
@@ -1746,7 +1747,7 @@ inline void funcEnemyCarryFail(GObj *self)
 inline void subEnemyBrain_Idle(GObj *volatile self)
 {
     Act *sub = GOBJ_ACT(self);
-    sub->stickMag = 0;
+    sub->stick.mag = 0;
     *(int *)((char *)sub + 0x120) = 0;
     *(int *)((char *)sub + 0x124) = 0;
     *(int *)((char *)sub + 0x128) = 0;
@@ -1761,7 +1762,7 @@ inline void subEnemyBrain_Idle(GObj *volatile self)
 inline void subEnemyBrain_Await(GObj *volatile self)
 {
     Act *sub = GOBJ_ACT(self);
-    sub->stickMag = 0;
+    sub->stick.mag = 0;
     *(int *)((char *)sub + 0x120) = 0;
     *(int *)((char *)sub + 0x124) = 0;
     *(int *)((char *)sub + 0x128) = 0;
@@ -1769,7 +1770,7 @@ inline void subEnemyBrain_Await(GObj *volatile self)
         _ApproachTarget(self, (void *)boyGObj, (char *)sub + 0x120, 0,
                         (float)((int)(_GetRandom() * 10.0f) % 200 + 300), 0);
     }
-    sub->stickMag = 0;
+    sub->stick.mag = 0;
     *(int *)((char *)sub + 0x120) = 0;
     *(int *)((char *)sub + 0x124) = 0;
     *(int *)((char *)sub + 0x128) = 0;
@@ -1838,7 +1839,7 @@ void subEnemyBrain_ToGenerator(GObj *self)
                                        *(unsigned char *)((char *)GOBJ_ACT(gobj)->enemy + 0x224)) ==
         0) {
         debug_StdPrintfDummy("to generator way error!");
-        sub->stickMag = 0;
+        sub->stick.mag = 0;
         *(int *)((char *)sub + 0x120) = 0;
         *(int *)((char *)sub + 0x124) = 0;
         *(int *)((char *)sub + 0x128) = 0;
@@ -2303,7 +2304,7 @@ void subEnemyBrain_ToBoy(GObj *volatile self)
                 if (mode != 0) {
                     goto result;
                 }
-                sub->stickMag = 0.0f;
+                sub->stick.mag = 0.0f;
                 sub->dir[0] = 0.0f;
                 sub->dir[1] = 0.0f;
                 sub->dir[2] = 0.0f;
@@ -2352,7 +2353,7 @@ void subEnemyBrain_ToBoy(GObj *volatile self)
                 ChangeBrain_ToAttack();
             }
         }
-        sub->stickMag = 0.0f;
+        sub->stick.mag = 0.0f;
         sub->dir[0] = 0.0f;
         sub->dir[1] = 0.0f;
         sub->dir[2] = 0.0f;
@@ -2380,13 +2381,13 @@ inline void subEnemyBrain_BodyGuard(GObj *volatile self)
             _ACTWait(1);
         } else {
             if ((unsigned char)_ApproachTarget(self, (void *)tgt, pos, 0, 100.0f, 0) == 0) {
-                sub->stickMag = 0;
+                sub->stick.mag = 0;
                 *(int *)((char *)sub + 0x120) = 0;
                 *(int *)((char *)sub + 0x124) = 0;
                 *(int *)((char *)sub + 0x128) = 0;
                 _ACTWait(30);
             }
-            sub->stickMag = 0;
+            sub->stick.mag = 0;
             *(int *)((char *)sub + 0x120) = 0;
             *(int *)((char *)sub + 0x124) = 0;
             *(int *)((char *)sub + 0x128) = 0;
@@ -2427,7 +2428,7 @@ void subEnemyBrain_ToGirl(GObj *volatile self)
 
     GObj *girl = girlGObj;
 
-    sub->stickMag = 0.0f;
+    sub->stick.mag = 0.0f;
     sub->dir[0] = 0.0f;
     sub->dir[1] = 0.0f;
     sub->dir[2] = 0.0f;
@@ -2443,7 +2444,7 @@ void subEnemyBrain_ToGirl(GObj *volatile self)
         found = 0;
     }
     if (found == 0) {
-        sub->stickMag = 0.0f;
+        sub->stick.mag = 0.0f;
         sub->dir[0] = 0.0f;
         sub->dir[1] = 0.0f;
         sub->dir[2] = 0.0f;
@@ -2473,7 +2474,7 @@ static int _ApproachTarget_Boss(GObj *self, void *tgt, void *pos, void *fn, floa
             ((void (*)(char *, void *, float))fn)(
                 self, tgt, _DistGV(test_CURRENTROOT(self), test_CURRENTROOT(tgt)));
         }
-        sub->stickMag = 1.0f;
+        sub->stick.mag = 1.0f;
         _OrientXZGV((float *)pos, p0, p1);
         if (_DistxzSqGV(p0, p1) < 160000.0f && -50.0f < -(p0[1] - p1[1]) &&
             p1[1] - p0[1] < 500.0f && enemyCheckTurnAngle(self) == 0 && sub->actMode != 10) {
@@ -2643,11 +2644,11 @@ static int _ApproachTarget_Way(GObj *self, void *tgt, void *pos, void *fn, float
             return 1;
         }
         if (sub->wayGoalDist < 200.0f) {
-            sub->stickMag = 0.5f;
+            sub->stick.mag = 0.5f;
         } else if (ACTWay_IsMustWalkFromWay(self) != 0) {
-            sub->stickMag = 0.5f;
+            sub->stick.mag = 0.5f;
         } else {
-            sub->stickMag = 1.0f;
+            sub->stick.mag = 1.0f;
         }
         if (flag != 0) {
             SetMotionDirection(self, (float *)((char *)sub + 0x120));

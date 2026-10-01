@@ -141,12 +141,10 @@ void backStageProcessOutStage(void)
             kidnapState = 1;
             enemySec = (float)stageData[stage_no].kidnapSeconds;
             kidnapTime = (int)(enemySec * (float)((60 - systemStatus[0] * 10) / systemStatus[1]));
-            if (WayPointWithRangeFromPos2(a.f, (char *)GOBJ_ACT(girlGObj) + 0x360, nestPos, 1) ==
-                0) {
+            if (WayPointWithRangeFromPos2(a.f, &GOBJ_ACT(girlGObj)->way, nestPos, 1) == 0) {
                 /* no ACTIVE connection was found */
                 debug_StdPrintfDummy("繋がりACTIVEでみつからなかった");
-                if (WayPointWithRangeFromPos2(a.f, (char *)GOBJ_ACT(girlGObj) + 0x360, nestPos,
-                                              0) == 0) {
+                if (WayPointWithRangeFromPos2(a.f, &GOBJ_ACT(girlGObj)->way, nestPos, 0) == 0) {
                     /* no connection was found, so the nest is placed at the heroine */
                     debug_StdPrintfDummy("繋がりみつからなかったのでヒロインの位置に巣を配置");
                     sceVu0CopyVector(nestPos, a.f);

@@ -104,14 +104,6 @@ static unsigned char cameraGroupChanged; /* derived name */
 
 static int pluralCameraSetNum; /* derived name */
 
-typedef struct IosPadStick { /* field names derived */
-    int x;                   /* 0x00 */
-    int y;                   /* 0x04 */
-    char pad08[0x14 - 0x08];
-    float mag; /* 0x14 */
-    char pad18[0x20 - 0x18];
-} IosPadStick; /* derived name */
-
 static float zoomOffsetRatio = 1.0f; /* derived name */
 
 /* the camera-set binary: a sixteen byte header, `count` group records of 0x4C

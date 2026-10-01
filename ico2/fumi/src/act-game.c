@@ -2631,37 +2631,37 @@ void ACTGame_CommonLoop(GObj *self)
     }
 
     if (*(int *)(((char *)GOBJ_ACT(self)->enemy) + 0xC4) != 0) {
-        if (0.5f < s->stickMag) {
+        if (0.5f < s->stick.mag) {
             *(int *)(((char *)GOBJ_ACT(self)->enemy) + 0xC4) =
                 !*(int *)(((char *)GOBJ_ACT(self)->enemy) + 0xC4);
             (*(int *)(((char *)GOBJ_ACT(self)->enemy) + 0xCC))--;
             *(int *)(((char *)GOBJ_ACT(self)->enemy) + 0xD4) = third;
         }
     } else {
-        if (!(0.5f < s->stickMag)) {
+        if (!(0.5f < s->stick.mag)) {
             *(int *)(((char *)GOBJ_ACT(self)->enemy) + 0xC4) =
                 !*(int *)(((char *)GOBJ_ACT(self)->enemy) + 0xC4);
         }
     }
 
-    if (0.5f < s->stickMag) {
+    if (0.5f < s->stick.mag) {
         switch (*(int *)(((char *)GOBJ_ACT(self)->enemy) + 0xC8)) {
         case 0:
-            if (0.5f < s->stickDz) {
+            if (0.5f < s->stick.dz) {
                 *(int *)(((char *)GOBJ_ACT(self)->enemy) + 0xC8) = 1;
                 (*(int *)(((char *)GOBJ_ACT(self)->enemy) + 0xCC))--;
                 *(int *)(((char *)GOBJ_ACT(self)->enemy) + 0xD4) = half;
             }
             break;
         case 1:
-            if (!(0.5f < s->stickDz)) {
+            if (!(0.5f < s->stick.dz)) {
                 *(int *)(((char *)GOBJ_ACT(self)->enemy) + 0xC8) = 0;
                 (*(int *)(((char *)GOBJ_ACT(self)->enemy) + 0xCC))--;
                 *(int *)(((char *)GOBJ_ACT(self)->enemy) + 0xD4) = half;
             }
             break;
         case -1:
-            if (0.5f < s->stickDz) {
+            if (0.5f < s->stick.dz) {
                 *(int *)(((char *)GOBJ_ACT(self)->enemy) + 0xC8) = 1;
             } else {
                 *(int *)(((char *)GOBJ_ACT(self)->enemy) + 0xC8) = 0;

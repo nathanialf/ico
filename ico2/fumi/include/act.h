@@ -14,6 +14,8 @@ struct Act;
 
 struct GProc;
 
+struct IosPadStick;
+
 /* act.c's `inline` functions, in the order of their definitions'
  * out-of-line copies at the end of the object (first-declaration order). */
 void actInitialize_geo(void *self);
@@ -22,7 +24,7 @@ void _ACTRun(int n);
 void _ACTWait(int frames);
 struct GProc *actCreateSubThreadGOppArg(void (*fn)(), int pri);
 void actSetInterrupt(char *self, int val);
-void ConvertStickToAbsCoord(void *out, float *stick);
+void ConvertStickToAbsCoord(void *out, struct IosPadStick *stick);
 void ActSetStartBrainStatus(struct GObj *self, int status);
 void actWaitCondition(int value, int mask);
 

@@ -205,30 +205,12 @@ inline WayPoint *GetWay_begin(float *from, WVTObj *w, float *goal)
     return _FUNC_GetWay_begin(from, w, goal, 0);
 }
 
-/* The collision query ClipWall / ClipFloorR fill in: 192 bytes, 16-aligned. */
-/* this TU's own view of the record, named apart from typedef.h's ClipWork as
-   act.c names its ActClipWork */
-typedef struct {    /* field names derived */
-    float p0[4];    /* 0x00 segment start */
-    float p1[4];    /* 0x10 segment end */
-    float hit[4];   /* 0x20 the clipped point */
-    char pad30[64]; /* 0x30 */
-    float f70;      /* 0x70 */
-    char pad74[12]; /* 0x74 */
-    char *f80;      /* 0x80 */
-    int f84;        /* 0x84 */
-    int wall;       /* 0x88 */
-    char pad8C[8];  /* 0x8C */
-    int floor;      /* 0x94 */
-    char pad98[40]; /* 0x98 */
-} __attribute__((aligned(16))) WayClipWork;
-
 typedef float WayVec[4] __attribute__((aligned(16))); /* derived name */
 
 /* a wall probe between two points, both lifted 75 units */
-static inline int way_probe(float *a, float *b) /* derived name */
+static inline struct FcWallEnt *way_probe(float *a, float *b) /* derived name */
 {
-    WayClipWork cc;
+    ClipWork cc;
     WayVec off;
 
     off[0] = 0.0f;
@@ -236,22 +218,22 @@ static inline int way_probe(float *a, float *b) /* derived name */
     off[2] = 0.0f;
     off[3] = 0.0f;
 
-    cc.f70 = 0;
-    sceVu0AddVector(cc.p0, a, off);
-    sceVu0AddVector(cc.p1, b, off);
+    cc.radius = 0;
+    sceVu0AddVector(cc.a, a, off);
+    sceVu0AddVector(cc.b, b, off);
     ClipWall(&cc);
-    return cc.wall;
+    return cc.wallHit;
 }
 
 static int avoid_obstacle2(float *pos, float *wp, WVTObj *w)
 {
-    WayClipWork cc;
+    ClipWork cc;
     WayVec box[4];
     WayVec rp;
     WayVec off;
     int ids[3];
     int hold;
-    char *obj;
+    GObj *obj;
     int g;
     int i;
     int k;
@@ -260,15 +242,15 @@ static int avoid_obstacle2(float *pos, float *wp, WVTObj *w)
     float d;
 
     hold = 0;
-    sceVu0CopyVector(cc.p0, pos);
-    sceVu0CopyVector(cc.p1, w->chk.cur->pos);
-    cc.f70 = 20.0f;
+    sceVu0CopyVector(cc.a, pos);
+    sceVu0CopyVector(cc.b, w->chk.cur->pos);
+    cc.radius = 20.0f;
     ClipWall(&cc);
-    if (cc.wall == 0) {
+    if (cc.wallHit == 0) {
         return 0;
     }
-    obj = cc.f80;
-    if (objLayout[*(int *)(obj + 8)].kind != 17) {
+    obj = cc.wallSrc.obj;
+    if (objLayout[obj->labelId].kind != 17) {
         return 0;
     }
 
@@ -385,7 +367,7 @@ static int avoid_obstacle2(float *pos, float *wp, WVTObj *w)
 
 static void create_box_bridge(char *g)
 {
-    WayClipWork cc;
+    ClipWork cc;
     WayVec pos;
     WayVec start;
     WayVec end;
@@ -403,28 +385,28 @@ static void create_box_bridge(char *g)
         off[1] = 0.0f;
         sceVu0AddVector(end, pos, off);
 
-        sceVu0CopyVector(cc.p0, start);
-        sceVu0CopyVector(cc.p1, end);
-        cc.f70 = 0;
+        sceVu0CopyVector(cc.a, start);
+        sceVu0CopyVector(cc.b, end);
+        cc.radius = 0;
         ClipWall(&cc);
-        if (cc.wall == 0) {
+        if (cc.wallHit == 0) {
             continue;
         }
 
-        sceVu0CopyVector(cc.p0, cc.p1);
-        cc.p1[1] = cc.p1[1] - 175.0f;
+        sceVu0CopyVector(cc.a, cc.b);
+        cc.b[1] = cc.b[1] - 175.0f;
         ClipFloorR(&cc);
-        sceVu0CopyVector(wp[0], cc.hit);
-        if (cc.floor == 0) {
+        sceVu0CopyVector(wp[0], cc.pos);
+        if (cc.floorHit == 0) {
             continue;
         }
 
-        sceVu0CopyVector(cc.p0, start);
-        sceVu0SubVector(cc.p1, pos, off);
+        sceVu0CopyVector(cc.a, start);
+        sceVu0SubVector(cc.b, pos, off);
         ClipWall(&cc);
-        sceVu0CopyVector(wp[2], cc.hit);
+        sceVu0CopyVector(wp[2], cc.pos);
         wp[2][1] = pos[1] + 50.0f;
-        if (cc.wall != 0) {
+        if (cc.wallHit != 0) {
             continue;
         }
 
@@ -454,9 +436,9 @@ inline void BridgeBox(void) {}
 
 /* a wall probe between `pos` and a way point, both lifted 75 units, with a
    30-unit radius */
-static __inline__ int way_wall_between(float *pos, WayPoint *wp) /* derived name */
+static __inline__ struct FcWallEnt *way_wall_between(float *pos, WayPoint *wp) /* derived name */
 {
-    WayClipWork cc;
+    ClipWork cc;
     WayVec off;
     float *p = (float *)(wp->pos);
 
@@ -464,14 +446,14 @@ static __inline__ int way_wall_between(float *pos, WayPoint *wp) /* derived name
     off[1] = -75.0f;
     off[2] = 0.0f;
     off[3] = 0.0f;
-    cc.f70 = 30.0f;
-    sceVu0AddVector(cc.p0, pos, off);
-    sceVu0AddVector(cc.p1, p, off);
+    cc.radius = 30.0f;
+    sceVu0AddVector(cc.a, pos, off);
+    sceVu0AddVector(cc.b, p, off);
     ClipWall(&cc);
-    if (cc.wall == 0) {
+    if (cc.wallHit == 0) {
         ClipWallField(&cc);
     }
-    return cc.wall;
+    return cc.wallHit;
 }
 
 inline void DeleteGuideWay(WVTObj *o)

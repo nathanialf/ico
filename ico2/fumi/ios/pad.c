@@ -62,20 +62,6 @@ typedef struct IosPadDevRec { /* field names derived */
     unsigned long long flags; /* 0x1C0 */
 } IosPadDevRec;               /* derived name */
 
-/* The stick reading iosPadGetStick hands back: the raw pair at +0 and +4,
-   the stick's angle to the facing direction the actor keeps at +8, and the
-   normalised direction and magnitude the reader wants.  The actor record
-   carries one at 0x338. */
-typedef struct { /* field names derived */
-    int x;       /* 0x00 */
-    int y;       /* 0x04 */
-    int angle;   /* 0x08 */
-    float dx;    /* 0x0C */
-    float dz;    /* 0x10 */
-    float mag;   /* 0x14 */
-    char pad18[8];
-} IosPadStick; /* derived name */
-
 /* the terminal id the reconnect check compares against, which nothing in the
    retail build writes, and the enable flag iosPadEnable and iosPadDisable
    set */

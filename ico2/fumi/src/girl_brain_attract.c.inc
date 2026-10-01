@@ -403,7 +403,7 @@ restart:
         switch (sub->wayMode) {
         case 0:
             _ACTLookTarget_Set((void *)self, 0, 0, 6, 1);
-            sub->stickMag = 0.0f;
+            sub->stick.mag = 0.0f;
             setMode(6);
             break;
         case 1: {
@@ -436,7 +436,7 @@ restart:
             } else if (type == 1) {
                 if (tgt.obj != (void *)boyGObj && GOBJ_WORK(self)->sofaRestTimer != 0) {
                     setMode(8);
-                    sub->stickMag = 0.0f;
+                    sub->stick.mag = 0.0f;
                     break;
                 }
                 if (type == 1 && ((int)(sub->flags20.ll >> 12) & 1) &&
@@ -465,7 +465,7 @@ restart:
                 if (waterHit) {
                     if (sub->wayGoalDist < 50.0f && sub->wayGoalHeight < tgt.f_2C) {
                         setMode(4);
-                        sub->stickMag = 0.0f;
+                        sub->stick.mag = 0.0f;
                     } else if (sub->wayGoalDist < 300.0f) {
                         girlBrainSetWalkRatio((void *)self, 0.5f);
                     } else {
@@ -484,13 +484,13 @@ restart:
                         if (noTurn) {
                             setMode(4);
                         } else {
-                            sub->stickMag = 0.0f;
+                            sub->stick.mag = 0.0f;
                         }
                     } else {
                         ratio = far ? 1.0f : girlBrainGetTypeRatio(type2);
                         girlBrainSetWalkRatio((void *)self, ratio);
                         if (sub->wayGoalDist < tgt.f_54) {
-                            sub->stickMag = (0.5f < sub->stickMag) ? 0.5f : sub->stickMag;
+                            sub->stick.mag = (0.5f < sub->stick.mag) ? 0.5f : sub->stick.mag;
                         }
                     }
                 }
@@ -521,7 +521,7 @@ restart:
                 ((int)((unsigned long long)sub->wayFlags >> 18) & 1)) {
                 hintCnt = hintCnt + actModeTbl[GOBJ_ACT(self)->actMode].hintCount;
                 if ((60 - systemStatus[0] * 10) / systemStatus[1] * 4 < hintCnt) {
-                    sub->stickMag = 0.0f;
+                    sub->stick.mag = 0.0f;
                 }
                 if ((60 - systemStatus[0] * 10) / systemStatus[1] * 5 < hintCnt) {
                     setMode(2);
@@ -541,7 +541,7 @@ restart:
             if (cnt++ < fr3 + ((tgt.obj != 0 && IsTopHint(tgt.obj))
                                    ? (60 - systemStatus[0] * 10) / systemStatus[1] * 2
                                    : 0)) {
-                sub->stickMag = 0;
+                sub->stick.mag = 0;
                 _ACTLookTarget_Set((void *)self, tgt.obj, 0, 2, 1);
                 if (tgt.obj != 0 && IsTopHint(tgt.obj) && sub->wayMode == 2 &&
                     girlControlMode == 0) {
@@ -578,7 +578,7 @@ restart:
                             ((tgt.obj != 0 && IsTopHint(tgt.obj))
                                  ? (60 - systemStatus[0] * 10) / systemStatus[1] * 2
                                  : 0)) {
-                sub->stickMag = 0.0f;
+                sub->stick.mag = 0.0f;
                 if (tgt.obj != 0 && IsTopHint(tgt.obj) && girlControlMode == 0) {
                     girlAttractTurnMailL((void *)self, tgt.obj, tgt.pos, mypos);
                     if (actModeTbl[GOBJ_ACT(self)->actMode].attractWait) {

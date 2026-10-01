@@ -532,35 +532,6 @@ typedef struct {   /* field names derived */
     int line;      /* 0x18 */
 } DebugBar;        /* derived name */
 
-/* the wall record ClipCollision leaves at +0x80 of the ray: the polygon it hit,
-   the triangle within it and the hit flag, exactly the three words
-   DebugDisp1Collision reads back */
-typedef struct { /* field names derived */
-    void *poly;
-    int tri;
-} DbgWallRef; /* derived name */
-
-typedef struct { /* field names derived */
-    DbgWallRef ref;
-    int hit;
-} DbgWallHit; /* derived name */
-
-/* the ray debug_CollisionTest drives through ClipCollision: the two end points,
-   the hit point it fills in, and the wall and floor results it reports; the
-   whole 0xC0 work record ClipCollision takes (ClipWork in typedef.h) */
-typedef struct {     /* field names derived */
-    float src[4];    /* 0x00 */
-    float dst[4];    /* 0x10 */
-    float hit[4];    /* 0x20 */
-    char pad30[64];  /* 0x30 */
-    int radius;      /* 0x70, the clip radius */
-    char pad74[12];  /* 0x74 */
-    DbgWallHit wall; /* 0x80 */
-    char pad8C[8];   /* 0x8C */
-    int floorHit;    /* 0x94 */
-    char pad98[40];  /* 0x98 */
-} DbgRay;            /* derived name */
-
 /* .bss: debug_MakeBarString's string, debug_PrintFontf's line, the load
    info line, the debug box and ball, the collision ray, debugSceOpen's path,
    the font images and packets, the font window, the profiler ring and the
@@ -580,7 +551,7 @@ static sceVu0FVECTOR boxWidth; /* derived name */
 static sceVu0FVECTOR ballCentre; /* derived name */
 
 /* the ray the collision test drives */
-static DbgRay collisionRay; /* derived name */
+static ClipWork collisionRay; /* derived name */
 
 static char sceOpenPath[256]; /* derived name */
 
@@ -783,19 +754,6 @@ typedef struct { /* field names derived */
 
 /* the four-row initialiser template (centerX, centerY, centerZ, radius), blob-owned
    by address until the TU's plain .rodata run closes up */
-
-/* iosPadGetStick's output block: the raw pair at +0 and +4, the camera-space
-   pair at +0xC/+0x10 and the stick deflection at +0x14 (the same record
-   effectTool.c and camera-ico2.c read) */
-typedef struct {   /* field names derived */
-    int x;         /* 0x00 */
-    int y;         /* 0x04 */
-    int angle;     /* 0x08 */
-    float fx;      /* 0x0C */
-    float fz;      /* 0x10 */
-    float mag;     /* 0x14 */
-    char pad18[8]; /* 0x18 */
-} DbgPadStick;     /* derived name */
 
 /* The strings these tables point at stay blob-owned by address until the
    TU's plain .rodata and .sdata runs close up. */
@@ -3557,18 +3515,18 @@ static int debug_CollisionTest(int reset)
     float v[4];
     VECTOR mv;
     int padCtx[0x60 / 4];
-    DbgPadStick st0;
-    DbgPadStick st1;
-    DbgWallHit wall;
+    IosPadStick st0;
+    IosPadStick st1;
+    WallCfg wall;
     int r;
 
     r = debug_SelectCsvWindow("Collision Test", 10, 50, 11, collisionMoveName, 4, 0, 1, 3,
                               &collisionTestRow);
     if (reset != 0) {
-        GetRootPosition(collisionRay.src, boyGObj);
-        CopyVector(collisionRay.dst, collisionRay.src);
+        GetRootPosition(collisionRay.a, boyGObj);
+        CopyVector(collisionRay.b, collisionRay.a);
         collisionRay.radius = 0;
-        collisionRay.dst[2] += 100.0f;
+        collisionRay.b[2] += 100.0f;
     }
     memset(&mv, 0, sizeof(mv));
     iosPadConnect(padCtx, 0, 0, &iosPadConfDefault);
@@ -3578,7 +3536,7 @@ static int debug_CollisionTest(int reset)
     iosPadStickCameraCoord(v, (float *)&st1);
     if (padCtx[2] & 8) {
         if (st1.mag > 0.001f) {
-            mv.y = st1.fz * st1.mag * 16.0f;
+            mv.y = st1.dz * st1.mag * 16.0f;
         }
     } else {
         if (st1.mag > 0.001f) {
@@ -3588,33 +3546,33 @@ static int debug_CollisionTest(int reset)
     }
     switch (collisionTestRow) {
     case 1:
-        _AddVector(collisionRay.src, collisionRay.src, &mv);
+        _AddVector(collisionRay.a, collisionRay.a, &mv);
         break;
     case 2:
-        _AddVector(collisionRay.dst, collisionRay.dst, &mv);
+        _AddVector(collisionRay.b, collisionRay.b, &mv);
         break;
     case 0:
     default:
-        _AddVector(collisionRay.src, collisionRay.src, &mv);
-        _AddVector(collisionRay.dst, collisionRay.dst, &mv);
+        _AddVector(collisionRay.a, collisionRay.a, &mv);
+        _AddVector(collisionRay.b, collisionRay.b, &mv);
         break;
     }
     ClipCollision((int *)&collisionRay);
-    if (collisionRay.wall.hit != 0) {
-        wall.ref = collisionRay.wall.ref;
-        wall.hit = collisionRay.wall.hit;
-        *(DbgWallHit *)&mv = wall;
+    if (collisionRay.wallHit != 0) {
+        wall.o = collisionRay.wallSrc;
+        wall.n = collisionRay.wallHit;
+        *(WallCfg *)&mv = wall;
         gif_StartPacketPri(11);
         gif_SetZWrite(0);
         gif_SetZTest(0);
         gif_SetAlpha(1, 0, 0x80);
         sceVu0UnitMatrix(MatrixDrive_GetMatrix());
-        MatrixDrive_TransMatrixV(collisionRay.hit);
+        MatrixDrive_TransMatrixV(collisionRay.pos);
         prim_DispWireSphere(5.0f, (void *)&collisionWallCol, 8, 4);
         gif_EndPacket();
         DebugDisp1Collision(&mv);
-        debug_PrintfDummy(80, 180, 0xFFFFFF00u, "HIT: %p,%d", collisionRay.wall.ref.poly,
-                          collisionRay.wall.ref.tri);
+        debug_PrintfDummy(80, 180, 0xFFFFFF00u, "HIT: %p,%d", collisionRay.wallSrc.obj,
+                          collisionRay.wallSrc.node);
         debug_PrintfDummy(80, 190, 0xFFFFFF00u, "ATTR: %x",
                           GetWallAttribute((int)&collisionRay));
     }
@@ -3624,14 +3582,14 @@ static int debug_CollisionTest(int reset)
         gif_SetZTest(0);
         gif_SetAlpha(1, 0, 0x80);
         sceVu0UnitMatrix(MatrixDrive_GetMatrix());
-        MatrixDrive_TransMatrixV(collisionRay.hit);
+        MatrixDrive_TransMatrixV(collisionRay.pos);
         prim_DispWireSphere(5.0f, (void *)&collisionFloorCol, 8, 4);
         gif_EndPacket();
     }
-    debug_PrintfDummy(80, 160, 0xFFFFFF00u, "SRC: %f, %f, %f", collisionRay.src[0],
-                      collisionRay.src[1], collisionRay.src[2]);
-    debug_PrintfDummy(80, 170, 0xFFFFFF00u, "DST: %f, %f, %f", collisionRay.dst[0],
-                      collisionRay.dst[1], collisionRay.dst[2]);
+    debug_PrintfDummy(80, 160, 0xFFFFFF00u, "SRC: %f, %f, %f", collisionRay.a[0],
+                      collisionRay.a[1], collisionRay.a[2]);
+    debug_PrintfDummy(80, 170, 0xFFFFFF00u, "DST: %f, %f, %f", collisionRay.b[0],
+                      collisionRay.b[1], collisionRay.b[2]);
     CameraSetMode(1);
     DrawCollisionRay((char *)&collisionRay);
     DrawCollision(0);

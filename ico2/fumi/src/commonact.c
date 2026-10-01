@@ -1036,10 +1036,6 @@ void motCommonRopeTurnL(GObj *volatile self)
     }
 }
 
-typedef struct { /* field names derived */
-    float x, y, z;
-} ClimbVec3; /* derived name */
-
 typedef union { /* field names derived */
     float f[4];
     long long ll[2];
@@ -1048,7 +1044,7 @@ typedef union { /* field names derived */
 typedef struct { /* field names derived */
     sceVu0FVECTOR v0;
     float v1[4];
-    ClimbVec3 v2;
+    ClimbCol climbCol; /* the wall the climb held */
     int obj;
 } ClimbEndRec; /* derived name */
 
@@ -1134,7 +1130,7 @@ void actCommonRopeClimbEnd1(GObj *volatile self)
         if (isCage) {
             TestCageUpDown(c.obj, (void *)self);
         }
-        *(ClimbVec3 *)&GOBJ_ACT(self)->enemy->climbCol = c.v2;
+        GOBJ_ACT(self)->enemy->climbCol = c.climbCol;
         if (hand[1] - base[1] < 10.0f) {
             ACTSendMailCorrect(self, 0x9B);
         }
@@ -2184,7 +2180,7 @@ void actCommonJump(GObj *volatile self)
                 chk = 1;
                 break;
             case 0xBD:
-                if (0.1f < s->stickMag) {
+                if (0.1f < s->stick.mag) {
                     chk = 1;
                 }
                 break;
@@ -3374,43 +3370,45 @@ void _ACTCommonMailTest(GObj *self, int stopCnt, int walkCnt, int runCnt)
         ret = 1;
     }
     if (ret) {
-        if (0.1f < s->stickMag && (unsigned int)(s->stickAngle + 45) < 91) {
+        if (0.1f < s->stick.mag && (unsigned int)(s->stick.angle + 45) < 91) {
             ACTSendMailCorrect(self, 0x14C);
         }
-        if (0.1f < s->stickMag && !((unsigned int)(s->stickAngle + 134) < 269) &&
+        if (0.1f < s->stick.mag && !((unsigned int)(s->stick.angle + 134) < 269) &&
             !(s->actMode == 3 && ((int)(s->flags18.ll >> 44) & 1))) {
             ACTSendMailCorrect(self, 0x14D);
             if (((int)(s->flags20.ll >> 18) & 1) && !((int)(s->flags18.ll >> 44) & 1)) {
                 ACTSendMailCorrect(self, 0xBC);
             }
         }
-        if (0.1f < s->stickMag && (unsigned int)(s->stickAngle - 46) < 89) {
+        if (0.1f < s->stick.mag && (unsigned int)(s->stick.angle - 46) < 89) {
             ACTSendMailCorrect(self, 0x14E);
         }
-        if (0.1f < s->stickMag && !(s->stickAngle < -134) && s->stickAngle < -45) {
+        if (0.1f < s->stick.mag && !(s->stick.angle < -134) && s->stick.angle < -45) {
             ACTSendMailCorrect(self, 0x14F);
         }
-        if (0.1f < s->stickMag && (s->stickMag < 0.99f || (s->padNow & 0x20)) && !(walkCnt < 4)) {
+        if (0.1f < s->stick.mag && (s->stick.mag < 0.99f || (s->padNow & 0x20)) && !(walkCnt < 4)) {
             ACTSendMailCorrect(self, 0xB5);
         }
         /* the negated conjunct is the 0xB5 guard's whole predicate, repeated;
            it emits a real (dead) branch, so it is in the shipped code. */
-        if (0.1f < s->stickMag &&
-            !(0.1f < s->stickMag && (s->stickMag < 0.99f || (s->padNow & 0x20))) && !(runCnt < 4)) {
+        if (0.1f < s->stick.mag &&
+            !(0.1f < s->stick.mag && (s->stick.mag < 0.99f || (s->padNow & 0x20))) &&
+            !(runCnt < 4)) {
             ACTSendMailCorrect(self, 0xBA);
         }
-        if (!(0.1f < s->stickMag) && 0 < stopCnt) {
+        if (!(0.1f < s->stick.mag) && 0 < stopCnt) {
             ACTSendMailCorrect(self, 0xC7);
         }
     }
     if (s->actMode == 73) {
-        if (0.1f < s->stickMag && (s->stickMag < 0.99f || (s->padNow & 0x20)) && !(walkCnt < 4)) {
+        if (0.1f < s->stick.mag && (s->stick.mag < 0.99f || (s->padNow & 0x20)) && !(walkCnt < 4)) {
             ACTSendMailCorrect(self, 0xB5);
         }
         /* the negated conjunct is the 0xB5 guard's whole predicate, repeated;
            it emits a real (dead) branch, so it is in the shipped code. */
-        if (0.1f < s->stickMag &&
-            !(0.1f < s->stickMag && (s->stickMag < 0.99f || (s->padNow & 0x20))) && !(runCnt < 4)) {
+        if (0.1f < s->stick.mag &&
+            !(0.1f < s->stick.mag && (s->stick.mag < 0.99f || (s->padNow & 0x20))) &&
+            !(runCnt < 4)) {
             ACTSendMailCorrect(self, 0xBA);
         }
     }
@@ -3682,7 +3680,7 @@ void actCommonTurn(GObj *volatile self)
         if (self == girlGObj) {
             GetSkeltonOrient(o, self, 1);
             if (_AbsRotyGV(t, o) < 60) {
-                if (s->stickMag != 0.0f) {
+                if (s->stick.mag != 0.0f) {
                     ACTSendMailCorrect(self, 0xF0);
                 }
                 ACTSendMailCorrect(self, 0xF1);
@@ -4435,7 +4433,7 @@ inline void motCommonRopeTurnSpecialR(GObj *volatile self)
         _ApplyRyGV(dir, (float)RoundDegGV(base + deg) * 3.1415927f / 180.0f);
         debug_Arrow(200.0f, test_CURRENTROOT((void *)self), dir, 0xFF, 0, 0xFF);
         SetMotionDirection(self, dir);
-        if (i++ % wait == 0 && !(0.1f < s->stickMag)) {
+        if (i++ % wait == 0 && !(0.1f < s->stick.mag)) {
             ACTSendMailCorrect(self, 0xAC);
         }
         deg += 5;
@@ -4457,7 +4455,7 @@ inline void motCommonRopeTurnSpecialL(GObj *volatile self)
         _ApplyRyGV(dir, (float)RoundDegGV(base - deg) * 3.1415927f / 180.0f);
         debug_Arrow(200.0f, test_CURRENTROOT((void *)self), dir, 0xFF, 0, 0xFF);
         SetMotionDirection(self, dir);
-        if (i++ % wait == 0 && !(0.1f < s->stickMag)) {
+        if (i++ % wait == 0 && !(0.1f < s->stick.mag)) {
             ACTSendMailCorrect(self, 0xAC);
         }
         deg += 5;

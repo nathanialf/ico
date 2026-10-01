@@ -40,7 +40,7 @@ void ResetHandCameraLimitInDemo(void);
 void ResetZoomMaxValInDemo(void);
 void SetCameraFlag_GamecamCutBack(void);
 void SetCameraFlag_LwsCutBack(void);
-void SetCameraMatrix(void);
+void SetCameraMatrix(struct GObj *self);
 void SetHandCameraLimitInDemo(int limitP, int limitV);
 void SetMonitorCameraInitializeFlag(void);
 void SetWSMatrix(void *src);

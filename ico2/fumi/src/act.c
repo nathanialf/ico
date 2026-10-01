@@ -119,9 +119,9 @@ inline void actSetInterrupt(char *self, int val)
     *(int *)(self + 0x0) = val;
 }
 
-inline void ConvertStickToAbsCoord(void *out, float *stick)
+inline void ConvertStickToAbsCoord(void *out, IosPadStick *stick)
 {
-    Vec4 v = {{stick[3], 0.0f, -stick[4], 0.0f}};
+    Vec4 v = {{stick->dx, 0.0f, -stick->dz, 0.0f}};
     float m[16];
     sceVu0TransposeMatrix(m, (void *)((int)matrixptr + 0x80));
     sceVu0ApplyMatrix(out, m, &v);
@@ -615,36 +615,6 @@ void BeforeFunc(GObj *self)
     entesty = 100;
 }
 
-/* The floor/wall collision work block: the 0xC0-byte record src/act-env.c
-   and src/girl_act.c carry, with the attribute word at +0x98 that
-   CompareAttribute takes. */
-typedef struct {  /* field names derived */
-    float a[4];   /* 0x00 start point   */
-    float b[4];   /* 0x10 end point     */
-    float pos[4]; /* 0x20 clipped point */
-    char pad30[64];
-    float f_70;
-    char pad74[20];
-    int f_88;
-    char pad8C[8];
-    int f_94;
-    int f_98;
-    char pad9C[36];
-} ActClipWork; /* derived name */
-
-/* The stick reading iosPadGetStick fills in: the 0x20-byte record
-   omori/src/camera-ico2.c carries, read here through its two direction
-   words and its magnitude. */
-typedef struct { /* field names derived */
-    int x;       /* 0x00 */
-    int y;       /* 0x04 */
-    char pad8[4];
-    float dx;  /* 0x0C */
-    float dz;  /* 0x10 */
-    float mag; /* 0x14 */
-    char pad18[8];
-} ActPadStick; /* derived name */
-
 extern void GetLowerPlaneCollision(void *work, void *pos);
 
 /* this TU passes the packet priority that the prototype in
@@ -654,7 +624,7 @@ void ACTDebugMove(GObj *self, int a1)
 {
     float dir[4];
     float pos[4];
-    ActPadStick st;
+    IosPadStick st;
     Act *ext;
     SkelNode *p;
     float h;
@@ -669,27 +639,27 @@ void ACTDebugMove(GObj *self, int a1)
     while (((ext->padNow & 1) != 0 || mode == 1) && self == CurrentTargetGObj) {
         _ACTWait(1);
         iosPadRead((char *)ext + 0x2D8);
-        iosPadGetStick((char *)ext + 0x2D8, (char *)ext + 0x338, 0, 2, 2, 0);
+        iosPadGetStick((char *)ext + 0x2D8, &ext->stick, 0, 2, 2, 0);
         iosPadGetStick((char *)ext + 0x2D8, &st, 1, 2, 2, 0);
-        if (0.001f < ext->stickMag) {
-            ConvertStickToAbsCoord(dir, (float *)((char *)ext + 0x338));
+        if (0.001f < ext->stick.mag) {
+            ConvertStickToAbsCoord(dir, &ext->stick);
         }
         GetRootPosition(pos, self);
-        pos[0] += dir[0] * ext->stickMag * 32.0f;
-        pos[2] += dir[2] * ext->stickMag * 32.0f;
+        pos[0] += dir[0] * ext->stick.mag * 32.0f;
+        pos[2] += dir[2] * ext->stick.mag * 32.0f;
         if (0.001f < st.mag) {
             mode = 1;
         }
         switch (mode) {
         case 0: {
-            ActClipWork w;
+            ClipWork w;
 
             if ((ext->padTrg & 0x200) != 0) {
                 sceVu0CopyVector(w.a, pos);
                 sceVu0CopyVector(w.b, pos);
                 w.b[1] -= 10000.0f;
                 ClipFloorR(&w);
-                if (w.f_94 != 0) {
+                if (w.floorHit != 0) {
                     pos[1] = w.pos[1] - h;
                     break;
                 }
@@ -699,12 +669,12 @@ void ACTDebugMove(GObj *self, int a1)
             w.a[1] -= 10.0f;
             w.b[1] += 10000.0f;
             ClipFloor(&w);
-            if (w.f_94 == 0) {
+            if (w.floorHit == 0) {
                 sceVu0CopyVector(w.a, pos);
                 sceVu0CopyVector(w.b, pos);
                 w.b[1] -= 10000.0f;
                 ClipFloorR(&w);
-                if (w.f_94 == 0) {
+                if (w.floorHit == 0) {
                     break;
                 }
             }
@@ -722,18 +692,18 @@ void ACTDebugMove(GObj *self, int a1)
         }
         SetDirectRootPositionNoFitting(self, pos);
         {
-            ActClipWork w;
+            ClipWork w;
 
             GetLowerPlaneCollision(&w, pos);
-            if (w.f_94 != 0 && CompareAttribute(w.f_98, 0x800) == 0 &&
-                CompareAttribute(w.f_98, 0x900) == 0) {
-                ActClipWork w2;
+            if (w.floorHit != 0 && CompareAttribute(w.attr, 0x800) == 0 &&
+                CompareAttribute(w.attr, 0x900) == 0) {
+                ClipWork w2;
 
                 sceVu0CopyVector(w2.a, pos);
                 sceVu0CopyVector(w2.b, pos);
                 w2.b[1] += 10000.0f;
                 ClipFloor(&w2);
-                if (w2.f_94 != 0) {
+                if (w2.floorHit != 0) {
                     sceVu0IVECTOR col = {32, 32, 255, 128};
 
                     w2.a[1] += 200.0f;
@@ -758,7 +728,7 @@ void ACTDebugMove(GObj *self, int a1)
         debug_PrintfDummy(20, 195, 0xFFFFFF00u, "POS X:%8.2f Y:%8.2f Z:%8.2f", -pos[0], -pos[1],
                           -pos[2]);
         {
-            ActClipWork w3;
+            ClipWork w3;
 
             sceVu0CopyVector(w3.a, pos);
             sceVu0CopyVector(w3.b, pos);
@@ -794,7 +764,7 @@ void ACTDebugMove(GObj *self, int a1)
             gif_EndPacket();
             /* a local debug switch, off: draw the five clip lines in blue */
             if (dbg) {
-                ActClipWork w4;
+                ClipWork w4;
                 sceVu0IVECTOR col = {0, 64, 255, 128};
                 Vec4 pt[5];
                 int i;
@@ -806,15 +776,15 @@ void ACTDebugMove(GObj *self, int a1)
         }
     }
     {
-        ActClipWork w3;
+        ClipWork w3;
 
         sceVu0CopyVector(w3.a, pos);
         sceVu0CopyVector(w3.b, pos);
         w3.a[1] -= 10.0f;
         w3.b[1] += 10000.0f;
         ClipFloor(&w3);
-        if (w3.f_94 != 0 && CompareAttribute(w3.f_98, 0x800) == 0 &&
-            CompareAttribute(w3.f_98, 0x900) == 0) {
+        if (w3.floorHit != 0 && CompareAttribute(w3.attr, 0x800) == 0 &&
+            CompareAttribute(w3.attr, 0x900) == 0) {
             pos[1] = w3.pos[1] - h;
             SetDirectRootPositionNoFitting(self, pos);
             EnableChangeRootUpdateMode(self);

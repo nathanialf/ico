@@ -12,7 +12,7 @@
 
 /* boyact.c's `inline` functions, in the order of their definitions'
  * out-of-line copies at the end of the object (first-declaration order). */
-int CorrectStickInfo(void *dir, void *stick);
+int CorrectStickInfo(void *dir, IosPadStick *stick);
 void *GetBoyWeaponGObj(void);
 void actBoyStand(GObj *volatile self);
 void actBoyHang(GObj *volatile self);

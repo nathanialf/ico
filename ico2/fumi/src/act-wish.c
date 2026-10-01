@@ -69,7 +69,7 @@ void ACTGetWish_FromPad(GObj *self, float *dir)
     s->wish3.ll |= 1ULL << 34;
 
     if (self == boyGObj) {
-        if (0.1f < s->stickMag && ((int)(s->wish1.ll >> 5) & 1) &&
+        if (0.1f < s->stick.mag && ((int)(s->wish1.ll >> 5) & 1) &&
             chkOrient((char *)s, dir, u, 80.0f)) {
             if (!(s->padNow & 8) || girlGObj == 0 || GOBJ_WORK(girlGObj)->sofaTimer == 0) {
                 s->wish3.ll |= 0x20;
@@ -102,7 +102,7 @@ void ACTGetWish_FromPad(GObj *self, float *dir)
     s->wish3.ll |= 1ULL << 51;
     s->wish3.ll |= 1ULL << 49;
     s->wish3.ll |= 0x80;
-    if (0.1f < s->stickMag && (s->stickAngle >= -45 && s->stickAngle <= 45)) {
+    if (0.1f < s->stick.mag && (s->stick.angle >= -45 && s->stick.angle <= 45)) {
         s->wish3.ll |= 0x200;
         s->wish3.ll |= 0x100;
     }
@@ -188,14 +188,14 @@ void ACTGetWish_FromPad(GObj *self, float *dir)
         s->wish4.ll |= 8;
     }
 
-    if (0.1f < s->stickMag || ((int)(s->flags20.ll >> 3) & 1)) {
+    if (0.1f < s->stick.mag || ((int)(s->flags20.ll >> 3) & 1)) {
         s->wish2.ll |= 1ULL << 34;
         s->wish2.ll |= 1ULL << 35;
     }
 
     if (s->padTrg & 0x10) {
         s->wish2.ll |= 1ULL << 39;
-        if (0.1f < s->stickMag) {
+        if (0.1f < s->stick.mag) {
             s->wish2.ll |= 1ULL << 40;
 
             s->wish2.ll |= 1ULL << 41;
@@ -215,7 +215,7 @@ void ACTGetWish_FromPad(GObj *self, float *dir)
             s->wish2.ll |= 1ULL << 44;
         }
 
-        if (0.1f < s->stickMag) {
+        if (0.1f < s->stick.mag) {
             s->wish2.ll |= 1ULL << 45;
         }
     }
@@ -241,7 +241,7 @@ void ACTGetWish_FromPad(GObj *self, float *dir)
         s->wish2.ll |= 1ULL << 58;
         s->wish2.ll |= 1ULL << 57;
         s->wish4.ll |= 0x2000;
-        if (!(0.1f < s->stickMag)) {
+        if (!(0.1f < s->stick.mag)) {
             s->wish3.ll |= 4;
             s->wish3.ll |= 0x10;
         }
@@ -294,17 +294,17 @@ void ACTGetWish_FromPad(GObj *self, float *dir)
         s->wish3.ll |= 0x400;
     }
 
-    if (0.1f < s->stickMag) {
+    if (0.1f < s->stick.mag) {
         s->wish2.ll |= 1ULL << 49;
     }
 
     if (self == boyGObj) {
         if (s->padTrg & 0x40) {
-            if (0.1f < s->stickMag && (s->stickAngle >= -45 && s->stickAngle <= 45)) {
+            if (0.1f < s->stick.mag && (s->stick.angle >= -45 && s->stick.angle <= 45)) {
                 s->wish2.ll |= 1ULL << 50;
-            } else if (0.1f < s->stickMag && (s->stickAngle >= 46 && s->stickAngle <= 134)) {
+            } else if (0.1f < s->stick.mag && (s->stick.angle >= 46 && s->stick.angle <= 134)) {
                 s->wish2.ll |= 1ULL << 52;
-            } else if (0.1f < s->stickMag && s->stickAngle >= -134 && s->stickAngle <= -46) {
+            } else if (0.1f < s->stick.mag && s->stick.angle >= -134 && s->stick.angle <= -46) {
                 s->wish2.ll |= 1ULL << 53;
             }
             s->wish2.ll |= 1ULL << 51;
