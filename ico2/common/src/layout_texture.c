@@ -8,6 +8,7 @@
 #include "debug_exception.h"
 #include "tableSin.h"
 #include "s_init.h"
+#include <assert.h>
 
 typedef struct {
     unsigned char r;
@@ -729,8 +730,6 @@ extern char texFile[][52];
 extern char D_0030D014[];
 extern char *strtok(char *s, const char *sep);
 extern char *strrchr(const char *s, int c);
-/* kept local: agrees with mv_defs.h, which this TU does not include */
-extern void __assert(const char *file, int line, const char *expr);
 
 /* source lines 1249-1259 */
 static inline char *lt_texture_base_name(char *src)

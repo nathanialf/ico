@@ -11,6 +11,7 @@
 #include <string.h>
 #include "debug_exception.h"
 #include "fieldCollision.h"
+#include <assert.h>
 
 typedef struct {
     float a[4];
@@ -272,9 +273,6 @@ int short_direction_between_wp(WayPoint *from, WayPoint *to)
     }
     return dir;
 }
-
-/* kept local: agrees with mv_defs.h, which this TU does not include */
-extern void __assert(const char *file, int line, const char *expr);
 
 inline int direction_across_bridge(WayGroup *bridge, int a1)
 {

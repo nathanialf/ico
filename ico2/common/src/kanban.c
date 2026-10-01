@@ -3,6 +3,7 @@
 #include "Texture.h"
 #include "debug_exception.h"
 #include "layout_texture.h"
+#include <assert.h>
 
 typedef struct { /* field names derived */
     unsigned char b[4];
@@ -83,8 +84,6 @@ static void display_texture(KanbanProp *pr, LtProperty *e, KanbanCol *col);
 extern char texFile[][52];
 extern char *strtok(char *s, const char *sep);
 extern char *strrchr(const char *s, int c);
-/* kept local: agrees with mv_defs.h, which this TU does not include */
-extern void __assert(const char *file, int line, const char *expr);
 extern void display_layout(Node *a0);
 /* kept local: agrees with GifPacket.h, which this TU does not include (gif_SpriteSensitive, gif_SpriteSensitiveOffset differ) */
 extern void gif_EndPacket(void);

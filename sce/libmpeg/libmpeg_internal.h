@@ -10,28 +10,9 @@
 #ifndef SCE_LIBMPEG_LIBMPEG_INTERNAL_H
 #define SCE_LIBMPEG_LIBMPEG_INTERNAL_H
 
-/* one of the 8-byte time-stamp slots the decoder handle carries for each
- * field: _getPtsDtsFlags fills the pair as a 64-bit word and the display
- * record takes its low half back as an int */
-typedef union {
-    long long d;
-    int w[2];
-} MpegStamp;
-
-/* the decoder handle sceMpegCreate registers: the picture size and count,
- * the two fields' time stamps and flags, and its internal record */
-typedef struct {
-    int width, height, frameCount, pad0C;
-    MpegStamp pts, dts;       /* 0x10, 0x18 */
-    long long flags;          /* 0x20 */
-    MpegStamp pts2nd, dts2nd; /* 0x28, 0x30 */
-    long long flags2nd;       /* 0x38 */
-    struct MpegOut *sys;      /* 0x40 */
-} MpegHandle;                 /* derived name */
-
 void _ErrMessage(char *a0);
 void _Error(char *a0);
-void _Error1(int a0, int a1);
+void _Error1(char *fmt, int a1);
 int _alalcAlloc(unsigned int *a0, int a1, unsigned int a2);
 void _alalcFree(int *a0);
 void _alalcInit(int *a0, int a1, int a2);
@@ -257,7 +238,7 @@ int _sysbitMarker(int *self);
 int _sysbitNext(void *a0, int a1);
 int _sysbitPtr(int *a0, int a1);
 extern int _temporal_reference;
-extern MpegHandle *_theSceMpeg;
+extern sceMpeg *_theSceMpeg;
 extern int _time_code_hours;
 extern int _time_code_minutes;
 extern int _time_code_pictures;

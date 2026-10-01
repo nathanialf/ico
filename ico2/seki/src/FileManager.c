@@ -7,6 +7,7 @@
 #include "FileManager.h"
 #include "debug_exception.h"
 #include <libcdvd.h>
+#include <assert.h>
 
 /* kept local: agrees with sifrpc.h, which this TU does not include (sceSifLoadFileReset, sceSifLoadModule differ) */
 extern void sceSifInitRpc(int mode);
@@ -59,7 +60,6 @@ extern IosPartition *ios_partition_sound;
 /* kept local: IosPartition * here, int in ios.h */
 extern IosPartition *ios_partition_sound_semi;
 extern int sceCdSearchFile(sceCdlFILE *fp, const char *name);
-extern void __assert(char *file, int line, char *expr);
 
 /* SRCFILE puts this pair on seki/src/FileManager.c:184-185, above file_Init's
    def line 236, and inlines it at all seven wait sites. */

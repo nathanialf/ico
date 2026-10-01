@@ -44,7 +44,7 @@ int _sprtag = (int)sprTagBuf;
 
 int _refBlockp = 0x70003600;
 
-MpegHandle *_theSceMpeg = 0;
+sceMpeg *_theSceMpeg = 0;
 
 int _bsDatap = 0;
 
@@ -96,10 +96,10 @@ void _ErrMessage(char *a0)
     printf("[MPEG ERROR]%s\n", a0);
 }
 
-void _Error1(int a0, int a1)
+void _Error1(char *fmt, int a1)
 {
     char buf[0x100];
-    sprintf(buf, a0, a1);
+    sprintf(buf, fmt, a1);
     _Error(buf);
 }
 

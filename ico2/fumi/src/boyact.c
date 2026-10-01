@@ -38,6 +38,7 @@
 #include "commonact.h"
 #include "act.h"
 #include "gv.h"
+#include <assert.h>
 
 typedef struct {
     int a, b, c;
@@ -722,8 +723,6 @@ float add_rope_vec[4] = {0.0f, 0.0f, 0.0f, 0.0f};
 
 /* kept local: key is float here, int in StageAnimation.h; t is int here, float in StageAnimation.h */
 extern float stage_PlayBgAnimation(float frame, int id, void *v, void *q);
-/* kept local: agrees with mv_defs.h, which this TU does not include */
-extern void __assert(const char *file, int line, const char *expr);
 
 void BoyBgaManager(void *self, int id, void *dst)
 {

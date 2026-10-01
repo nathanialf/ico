@@ -4,6 +4,7 @@
 #include <string.h>
 #include "main.h"
 #include "debug_exception.h"
+#include <assert.h>
 
 /* staffroll.o's whole .data run: the roll's display area, centred on the
    origin, {x, y, width, height}.  Only the first word is read here, as the
@@ -116,8 +117,6 @@ int staffRollScroll(void)
 extern char *staffRollNameData[];
 /* staffroll_dat.o's entry count (MAIN.MAP; a data-only member) */
 extern int staffRollNameDataNum;
-/* kept local: agrees with mv_defs.h, which this TU does not include */
-extern void __assert(const char *file, int line, const char *expr);
 
 int staffRollNameOut(void)
 {

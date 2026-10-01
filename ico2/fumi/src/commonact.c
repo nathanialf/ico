@@ -1,6 +1,7 @@
 #include "enemy.h"
 #include "enemy_act.h"
 #include "isys.h"
+#include <assert.h>
 
 /* prototypes: their order is the inline tail's emission order (gcc emits every
    inline at the end of the object in first-declaration order). They precede
@@ -1788,8 +1789,6 @@ void actCommonDie(GObj *volatile a0)
    the callers pass them in this order */
 extern void SetMotionNodeFixModeParameter(char *self, char *obj, int mode, int node, void *quat,
                                           float x, float y, float z, float w);
-/* kept local: agrees with mv_defs.h, which this TU does not include */
-extern void __assert(const char *file, int line, const char *expr);
 extern ClingRec clingData[];
 
 typedef struct {

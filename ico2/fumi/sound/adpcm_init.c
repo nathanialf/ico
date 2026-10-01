@@ -5,6 +5,7 @@
 #include "s_init.h"
 #include "debug_exception.h"
 #include "cdvd.h"
+#include <assert.h>
 
 /* .sbss and .bss, owned by adpcm_init.o and reached only from this file
    (MAIN.MAP names no symbol in either run), in the ROM's run order: the
@@ -99,8 +100,6 @@ static const char adpcmNoAllocMsg[] = "AdpcmIopBuffAlloc not alloc\n";
 static const char adpcmFreeIopMsg[] =
     "IOP領域が確保されているのにもかかわらず,使われていなので解放します\n";
 
-/* kept local: agrees with mv_defs.h, which this TU does not include */
-extern void __assert(const char *file, int line, const char *expr);
 extern int SgStAdpcmOpen(AdpcmChReq *req);
 extern int SgStAdpcmChannelVolume(long long mask, int l, int r);
 

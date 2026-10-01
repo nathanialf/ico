@@ -15,6 +15,7 @@
 #include "gv.h"
 #include <libvu0.h>
 #include "camera-editor.h"
+#include <assert.h>
 
 typedef struct GVGeo2 { /* field names derived */
     char pad0[12];
@@ -240,9 +241,6 @@ static void switch_MainStatus(GObj *gobj, unsigned char st)
         break;
     }
 }
-
-/* newlib's assert hook; the game's include path carries no assert.h */
-extern void __assert(char *file, int line, char *expr);
 
 /* stop the current animation slot's manager (ResetCurrentBga) and start the
    manager of a slot (EntryBga), for endfunc_BGA and GeneratorGeo */

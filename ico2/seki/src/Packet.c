@@ -10,6 +10,7 @@
 #include <stdio.h>
 #include "debug_exception.h"
 #include "memory.h"
+#include <assert.h>
 
 /* .sdata, Packet.o's run (MAIN.MAP 0x57, no symbol named): the largest
    packet pac_MakePacket has built so far, then the dump formats, the assert
@@ -234,8 +235,6 @@ void pac_makeBoundingBox(float (*box)[4], int flag)
         _AddVectorXYZ(&sum, &sum, box[i]);
     }
 }
-
-extern void __assert(char *file, int line, char *expr);
 
 void pac_error(char *name, int type)
 {

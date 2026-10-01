@@ -35,6 +35,7 @@
 #include "multiBgaManager.h"
 #include "gv.h"
 #include "main.h"
+#include <assert.h>
 
 int entesty;
 
@@ -91,9 +92,6 @@ EnemyBrainMode brainModeTable[] = {
    slot after the table's names (4 bytes of pad) is gcc's alignment for a
    4-byte array. */
 static const int brainTargetNone[1] = {0}; /* derived name */
-
-/* kept local: agrees with mv_defs.h, which this TU does not include */
-extern void __assert(const char *file, int line, const char *expr);
 
 #define BOSS_START_WORK(self) ((int)GOBJ_ACT(self)->enemy)
 

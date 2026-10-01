@@ -5,6 +5,7 @@
  * .data under ee-gcc 2.9.  The default intra matrix is 64-byte aligned for
  * its DMA to the IPU. */
 #include <eeregs.h>
+#include <libmpeg.h>
 #include <libmpeg_internal.h>
 
 int *_forwFrame = _refFrame0;

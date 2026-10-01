@@ -17,6 +17,7 @@
 #include "GifPacket.h"
 #include "poly-flat.h"
 #include <libvu0.h>
+#include <assert.h>
 
 /* ios/thread.c's entry points as the menus call them, each with the menu's
    thread record (thread.h declares Sleep with no argument, so it is not
@@ -153,9 +154,6 @@ static int *cameraSetEdit = (int *)0x30E27E0; /* derived name */
 /* the line buffer every row of the dump is formatted into before it is
    written and echoed */
 static char dumpLine[2048]; /* derived name */
-
-/* newlib's assert hook; the game's include path carries no assert.h */
-extern void __assert(char *file, int line, char *expr);
 
 static void saveEditedData(int *range)
 {
@@ -1519,26 +1517,24 @@ inline void CameraEdit_DispPin(int box, int pin)
     dispPinRange(box, pin, pin + 1);
 }
 
-/* the pin a new pin starts from; ConvertCameraSetBuffer gives it the stage's
-   hand-camera rate */
-PinRec cameraPinDefault = {{0.0f, -500.0f, 0.0f},
-                           {0.0f, 300.0f, 300.0f},
-                           {300.0f},
-                           0,
-                           0.0f,
-                           0,
-                           0.0f,
+/* sixteen bytes before the pin default; nothing reads them */
+static float cameraEditVec[4] = {0.0f, -500.0f, 0.0f, 0.0f}; /* derived name */
+
+/* the pin a new pin starts from: at (300, 300, 300) looking at the origin,
+   on, a field of view of 60 and the hand camera's rates and angle limits;
+   ConvertCameraSetBuffer gives it the stage's hand-camera rate */
+PinRec cameraPinDefault = {{300.0f, 300.0f, 300.0f},
+                           {0.0f, 0.0f, 0.0f},
+                           {0.0f, 0.0f, 0.0f},
                            1,
                            60.0f,
+                           0,
                            0.0f,
-                           0.0f,
-                           0.0f,
+                           0,
                            10.0f,
                            10.0f,
-                           {120.0f, 80.0f}};
-
-/* sixteen zero bytes between the two defaults; nothing reads them */
-static float cameraEditVec[4] = {0.0f}; /* derived name */
+                           120.0f,
+                           80.0f};
 
 /* the group a new group starts from: named "0", a 100-unit box at the
    origin */
@@ -1564,7 +1560,7 @@ inline void ConvertCameraSetBuffer(int n, S4C *item, char *groups)
     int a;
     int b;
     char *f;
-    cameraPinDefault.handCameraRate = stageData[stage_no].handCameraRate;
+    cameraPinDefault.eyeRate = stageData[stage_no].handCameraRate;
     m1 = (CamMgr *)cameraSetOrg;
     m1->items = (char *)m1 + 0x70;
     m1->pool = (char *)m1 + 0x1E20;

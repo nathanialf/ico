@@ -35,6 +35,7 @@
 #include "obj_manager.h"
 #include "gv.h"
 #include "fieldCollision.h"
+#include <assert.h>
 
 typedef struct {
     char pad0[28];
@@ -210,8 +211,6 @@ extern float IsPointIsInScreen(void *a0, void *a1);
 /* kept local: f5 is int here, float in boyact.h; a7 is float here, unsigned char in boyact.h */
 extern void PrivInsCamSet(float *pos, float *tgt, int a2, int a3, int a4, int a5, float f6,
                           float f1);
-/* kept local: agrees with mv_defs.h, which this TU does not include */
-extern void __assert(const char *file, int line, const char *expr);
 
 /* The pending hand-mode command record: two ints at +0x314 (connect) and
    +0x31C (disconnect) of the actor's hand work block. */

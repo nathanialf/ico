@@ -15,12 +15,11 @@
 #include "GifPacket.h"
 #include "Matrix.h"
 #include "DmaPacket.h"
+#include <assert.h>
 
 /* .sdata, RegistPacket.o's run (MAIN.MAP 0xA): the scissor switch
    reg_SetScissorSw sets and reg_Init clears, then the assert text. */
 static int scissorSw = 0; /* derived name */
-
-extern void __assert(char *file, int line, char *expr);
 
 void reg_setShape(Sub15C *o, int idx, int flag, PacHeader *pkt, char *mat)
 {

@@ -14,6 +14,7 @@
 #include "GsBase.h"
 #include "main.h"
 #include <string.h>
+#include <assert.h>
 
 typedef union {
     int i;
@@ -103,7 +104,6 @@ static int *bgaPlayList;
 
 static StageAnim stageAnimTable[87];
 
-extern void __assert(char *file, int line, char *expr);
 extern char D_005F5E70[];
 extern char objLayout[];
 extern char D_002BC6E0[];

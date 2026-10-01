@@ -34,6 +34,7 @@
 #include "gv.h"
 #include "main.h"
 #include "fieldCollision.h"
+#include <assert.h>
 
 typedef struct GirlStand {
     sceVu0FVECTOR prev; /* 0x00 last frame's root position */
@@ -557,8 +558,6 @@ static inline void ATGoalTurnSendMail(GObj *self)
 
 /* kept local: agrees with motionManager2.h, which this TU does not include (SetMotionNodeFixModeParameter differs) */
 extern void GetRootProjectionPosOfGObj(int a0, int a1);
-/* kept local: agrees with mv_defs.h, which this TU does not include */
-extern void __assert(const char *file, int line, const char *expr);
 
 /* girl_brain_main.c.inc:279-293: the wire-string marker (colour, a
    MatrixDrive transform of the position, DispWireString, colour reset).

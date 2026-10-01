@@ -10,6 +10,7 @@
 #include "ios.h"
 #include "debug_exception.h"
 #include "Basic.h"
+#include <assert.h>
 
 #define DL_DEBUG 0 /* derived name */
 
@@ -39,8 +40,6 @@ static int dlPriority;
 static DlEntry dlEntries[13];
 
 static int dlBufferHead[2][13];
-
-extern void __assert(char *file, int line, char *expr);
 
 /* The depth of the priority stack below, the TU's first .sdata object. */
 static int dlStackDepth = 0; /* derived name */

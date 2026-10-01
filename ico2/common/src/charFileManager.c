@@ -17,9 +17,7 @@
 #include "tableSin.h"
 #include <string.h>
 #include "ios.h"
-
-/* kept local: agrees with mv_defs.h, which this TU does not include */
-extern void __assert(const char *file, int line, const char *expr);
+#include <assert.h>
 
 typedef struct {
     char pad0[32];

@@ -99,7 +99,7 @@ int sceMpegCreate(void *self, void *buf, int size)
     _alalcSetDynamic((int *)(p + 0x108));
 }
 
-int sceMpegDelete(void)
+int sceMpegDelete(sceMpeg *m)
 {
     return 1;
 }
@@ -346,7 +346,7 @@ int _getpic(int a0)
 
     p[0] = 0;
     if ((v & 0x3F) != 0) {
-        _Error1((int)"image buffer needs to be aligned to 64byte boundary(0x%08x)", v);
+        _Error1("image buffer needs to be aligned to 64byte boundary(0x%08x)", v);
         return -1;
     }
     _isOutputPicture = 0;

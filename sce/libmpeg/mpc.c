@@ -28,7 +28,7 @@ int _motionComp0(int a0, int a1, int a2, int a3, int *PMV, int *mv_field_sel, in
         int i;
 
         if ((unsigned int)(a3 - 1) >= 3) {
-            _Error1((int)"Invalid modion type -- ignored(%d)", a3);
+            _Error1("Invalid modion type -- ignored(%d)", a3);
             _isError = 1;
             return 0;
         }
@@ -91,7 +91,7 @@ void _getAllRefs(int x, int y, int mbflags, int motion_type, int *PMV, int *mv_f
                 _getRef0(_forwFrame, 1, 1, 0, 8, x, y, PMV[0], PMV[1] >> 1, fld, 0);
                 _getRef0(_forwFrame, 0, 1, 0, 8, x, y, DMV[2], DMV[3], fld, 1);
             } else {
-                _Error1((int)"(a) invalid motion_type(%d)-0", motion_type);
+                _Error1("(a) invalid motion_type(%d)-0", motion_type);
             }
         } else {
             int sel;
@@ -127,7 +127,7 @@ void _getAllRefs(int x, int y, int mbflags, int motion_type, int *PMV, int *mv_f
                 _getRef0(fields[0][fld], 0, 0, 0, 16, x, y, PMV[0], PMV[1], 0, 0);
                 _getRef0(fields[sel][fld ? 0 : 1], 0, 0, 0, 16, x, y, DMV[0], DMV[1], 0, 1);
             } else {
-                _Error1((int)"(b) invalid motion_type(%d)-1", motion_type);
+                _Error1("(b) invalid motion_type(%d)-1", motion_type);
             }
         }
         avg = 1;
@@ -155,7 +155,7 @@ void _getAllRefs(int x, int y, int mbflags, int motion_type, int *PMV, int *mv_f
             _getRef0(mv_field_sel[3] ? _backBot : _backTop, 0, 0, 8, 8, x, y, PMV[6], PMV[7], 0,
                      avg);
         } else {
-            _Error1((int)"(c) invalid motion_type(%d)-2", motion_type);
+            _Error1("(c) invalid motion_type(%d)-2", motion_type);
         }
     }
 }
@@ -1540,7 +1540,7 @@ int _mbAddressIncrement(void)
                 _flushBuf(0xB);
                 cont = 1;
             } else {
-                _Error1((int)"Invalid macroblock_address_increment code(0x%08x)", v);
+                _Error1("Invalid macroblock_address_increment code(0x%08x)", v);
                 _isError = 1;
                 return 1;
             }
@@ -1591,7 +1591,7 @@ int _sliceA0(int a0, int *a1, int *a2, int *a3)
     _nextStartCode();
     id = _peepBit(0x20);
     if ((unsigned int)(id - 0x101) >= 0xAF) {
-        _Error1((int)"slice_start_code(0x%08x) out of range", id);
+        _Error1("slice_start_code(0x%08x) out of range", id);
         return 2;
     }
     _flushBuf(0x20);
@@ -2479,7 +2479,7 @@ int _isOutSizeOK(int *p)
     }
     if (flag == 0) {
         char buf[0x100];
-        sprintf(buf, (int)"Too small buffer size for %dx%d picture\n", p[0x4 / 4], p[0x8 / 4]);
+        sprintf(buf, "Too small buffer size for %dx%d picture\n", p[0x4 / 4], p[0x8 / 4]);
         _Error(buf);
     }
     return flag;

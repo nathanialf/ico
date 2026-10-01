@@ -12,6 +12,7 @@
 #include "main.h"
 #include "DmaPacket.h"
 #include "FileManager.h"
+#include <assert.h>
 
 /* One mipmap level of a texture record: the ROM reads addr with lw at +0, dbw
  * and vramSize with lh at +4 and +6, and indexes a 13-entry short table at +8
@@ -280,7 +281,6 @@ extern void gif_StartPacketPri(int pri);
 extern void gif_SetGsReg(long long reg, long long val);
 /* kept local: agrees with GifPacket.h, which this TU does not include (gif_SpriteSensitiveOrg differs) */
 extern void gif_EndPacket(void);
-extern void __assert(char *file, int line, char *expr);
 
 /* "0" */
 
@@ -518,7 +518,6 @@ void tex_transRegister(CdvdRec *t)
 extern int tex_transVramDirectTex(Tim2Picture *pic, CdvdRec *t, int levels, int lv);
 extern int tex_transVramClutTex(Tim2Picture *pic, CdvdRec *t, int levels, int lv);
 extern void tex_setTexReg(Tim2Picture *pic, CdvdRec *t, int levels, int lv, int clut);
-extern void __assert(char *file, int line, char *expr);
 
 /* "FALSE" */
 
@@ -782,7 +781,6 @@ static inline void texInitMipLevels(Tim2Picture *pic, CdvdRec *t)
 }
 
 extern void tex_setRegisters(Tim2Picture *pic, CdvdRec *t);
-extern void __assert(char *file, int line, char *expr);
 
 /* "FALSE" */
 
@@ -868,7 +866,6 @@ extern void sceGsSetDefStoreImage(sceGsStoreImage *img, int sbp, int sbw, int sp
                                   int ssay, int rrw, int rrh);
 extern int sceGsExecLoadImage(sceGsLoadImage *img, void *src);
 extern int sceGsExecStoreImage(sceGsStoreImage *img, void *dst);
-extern void __assert(char *file, int line, char *expr);
 
 /* "FALSE" */
 
@@ -977,7 +974,6 @@ void tex_makeCopyImage(Tim2Picture *pic, CdvdRec *t, char *src, int convert)
 
 /* kept local: int (char *, const char *, ...) here, int (void *, int, ...) in stdio.h */
 extern int sprintf(char *buf, const char *fmt, ...);
-extern void __assert(char *file, int line, char *expr);
 
 /* "ICO" */
 /* "e" */
@@ -1203,7 +1199,6 @@ void *pkt;
 
 /* kept local: int (char *, const char *, ...) here, int (void *, int, ...) in stdio.h */
 extern int sprintf(char *buf, const char *fmt, ...);
-extern void __assert(char *file, int line, char *expr);
 
 /* "%s" */
 /* "%s.tm2" */
@@ -1227,8 +1222,6 @@ int tex_LoadTexturePart(void *name, int a1)
         return -1;
     }
 }
-
-extern void __assert(char *file, int line, char *expr);
 
 /* "FALSE" */
 

@@ -9,6 +9,7 @@
 #include "spiderGroupManager.h"
 #include "spider.h"
 #include "main.h"
+#include <assert.h>
 
 /* The TU's .sdata, in ROM order (MAIN.MAP names nothing in it): the manager's
    counters and the revive state, then EntrySpiderGroupManager's assert literal. */
@@ -91,8 +92,6 @@ inline int *getReviveEnemyGObj(int count)
     }
     return p;
 }
-
-extern void __assert(char *file, int line, char *expr);
 
 inline void EntryRevivedSpiderGroupManager(int a0)
 {

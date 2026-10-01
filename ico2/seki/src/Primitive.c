@@ -17,6 +17,7 @@
 #include "Primitive.h"
 #include "DmaPacket.h"
 #include "ios.h"
+#include <assert.h>
 
 Fan2D *prim_InitFan2D(int n, float r, float *pos, unsigned int cc, unsigned int rc)
 {
@@ -240,7 +241,6 @@ void prim_DispFan2D(Fan2D *f, int mode)
 }
 
 typedef int Qw128 __attribute__((mode(TI)));
-extern void __assert(char *file, int line, char *expr);
 
 /* The mesh strip's GIF tag template: NLOOP and PRIM are ORed in per strip.
    prim_makePacketMesh3D reads it by pointer dereference; the bytes pin that

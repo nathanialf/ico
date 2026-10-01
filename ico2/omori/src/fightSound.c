@@ -5,6 +5,7 @@
 #include "debug_exception.h"
 #include "main.h"
 #include "gamesys.h"
+#include <assert.h>
 
 /* set while the fight music is paused */
 static int fightSoundPause = 0; /* derived name */
@@ -87,9 +88,6 @@ static void fightSoundProcessMain(void)
         fightSoundState = 2;
     }
 }
-
-/* newlib's assert hook; the game's include path carries no assert.h */
-extern void __assert(char *file, int line, char *expr);
 
 void fightSoundProcess(void)
 {

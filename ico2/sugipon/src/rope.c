@@ -10,10 +10,10 @@
 #include "fieldCollision.h"
 #include "DisplayP2O.h"
 #include "ios.h"
+#include <assert.h>
 
 /* kept local: float (void *, void *, float) here, float (int *, void *, float) in clothAnimation.h */
 extern float GetChainCollision(void *a0, void *a1, float w);
-extern void __assert(char *file, int line, char *expr);
 /* kept local: int (void *) here, void * (char *) in clothAnimation.h */
 extern int InitChains(void *c);
 

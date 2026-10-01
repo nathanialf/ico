@@ -21,6 +21,7 @@
 #include "frameDependSequence.h"
 #include "attackhit.h"
 #include "spider.h"
+#include <assert.h>
 
 /* kept local: int (float) here, short (float) in tableSin.h: under the short return
    calcSubMission spills its frame addresses in another order */
@@ -213,8 +214,6 @@ static inline void applyPartOrients(GObj *g)
         _ApplyMatrix(&q->part[i].home, &m, (tbl + i * 0x10));
     }
 }
-
-extern void __assert(char *file, int line, char *expr);
 
 /* the name every iosMallocDebug and assert in this file reports itself under */
 static const char a_p_1File[] = "src/a_p_1.c";

@@ -17,6 +17,7 @@
 #include "Matrix.h"
 #include "motionManager.h"
 #include <libvu0.h>
+#include <assert.h>
 
 struct Pack32 {
     long long a, b, c, d;
@@ -1027,8 +1028,6 @@ void SlopeIKControl(GObj *self, char *arg, int a2, Vec4 *vel)
                           (60.0f / (float)((60 - systemStatus[0] * 10) / systemStatus[1]) * 0.1f);
     ik->playRate = (r0 > 1.0f) ? 1.0f : r0;
 }
-
-extern void __assert(char *file, int line, char *expr);
 
 /* The tail of motionManager2.o's .rodata run: four named objects, in the
    order the ROM has them, which is not the order their use sites come in. */

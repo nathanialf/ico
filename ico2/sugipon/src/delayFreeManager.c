@@ -1,6 +1,7 @@
 #include "debug.h"
 #include "memory.h"
 #include "debug_exception.h"
+#include <assert.h>
 
 /* .bss, owned by delayFreeManager.o and reached only from this file (MAIN.MAP
    names no symbol in the run): three frames of pointers queued for a delayed
@@ -12,8 +13,6 @@ static void *delayFreeBuffer[3][384];
 static int delayFreeNo = 0; /* derived name */
 
 static int delayFreeCount = 0; /* derived name */
-
-extern void __assert(char *file, int line, char *expr);
 
 #include "delayFreeManager.h"
 

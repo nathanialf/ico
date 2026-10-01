@@ -13,6 +13,7 @@
 #include <libpad.h>
 #include "gv.h"
 #include "main.h"
+#include <assert.h>
 
 /* One sampled pad buffer: the two button bytes the device leaves at +2 and
    +3, active low. */
@@ -182,8 +183,6 @@ extern int scePadEnterPressMode(int port, int slot);
 extern int scePadInfoAct(int port, int slot, int actno, int term);
 extern int scePadSetActAlign(int port, int slot, void *align);
 extern int scePadGetState(int port, int slot);
-/* kept local: agrees with mv_defs.h, which this TU does not include */
-extern void __assert(const char *file, int line, const char *expr);
 
 int controler_stable_check(void *a0)
 {

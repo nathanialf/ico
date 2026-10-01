@@ -15,6 +15,7 @@
 #include "Matrix.h"
 #include <libvu0.h>
 #include "GifPacket.h"
+#include <assert.h>
 
 typedef struct {
     char pad0[16];
@@ -35,8 +36,6 @@ typedef int (*FcFunc)(void *a0, int a1);
 extern void *isysGObjGetExist_begin(void);
 /* kept local: start is void here, struct GObj * in gobj.h */
 extern void *isysGObjGetExist_next(void);
-/* kept local: agrees with mv_defs.h, which this TU does not include */
-extern void __assert(const char *file, int line, const char *expr);
 
 /* fieldCollision.o's .sbss and .bss, each in the ROM's order (MAIN.MAP lines
    7593 and 7704 size the runs 0x38 and 0x5C0 and name no symbol in either, so

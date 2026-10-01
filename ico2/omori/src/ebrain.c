@@ -10,6 +10,7 @@
 #include "typedef.h"
 #include "debug_exception.h"
 #include "main.h"
+#include <assert.h>
 
 int eBrainBoyChaseCount;
 
@@ -28,11 +29,9 @@ static int enemiesWait; /* derived name */
 
 static EBSlot ebrainSlots[32]; /* derived name */
 
-/* newlib's assert hook (no assert.h on the game's include path) and the
-   data-only members stage-all.o, obj-layout.o, read through this
+/* the data-only members stage-all.o, obj-layout.o, read through this
    file's views of their rows; no header declares them */
 extern StgPre stageData[];
-extern void __assert(char *file, int line, char *expr);
 extern GenGeo objLayout[];
 
 static inline void eBrainSetStatus(EBSlot *p, int newst) /* derived name */

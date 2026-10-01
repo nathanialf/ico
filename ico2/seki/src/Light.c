@@ -18,6 +18,7 @@
 #include "main.h"
 #include "GifPacket.h"
 #include <stdio.h>
+#include <assert.h>
 
 /* one light on the list: where it is, the direction a flat light shines,
    its colour, the scale and range the stage gives it, the falloff and the
@@ -76,8 +77,6 @@ static int lightCount;
    clears; the assert text and the debug menu's labels follow as literals and
    the flat-light editor's cursor after the object menu. */
 static int flatLightNum = 0; /* derived name */
-
-extern void __assert(char *file, int line, char *expr);
 
 void light_killLinkLight(Light *p)
 {

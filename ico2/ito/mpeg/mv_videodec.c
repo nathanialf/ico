@@ -9,18 +9,7 @@
 #include "typedef.h"
 #include "ios.h"
 #include "mv_main.h"
-
-/* libmpeg's calls, declared here because sceMpegDelete is handed the
-   decoder, where libmpeg.h declares it (void) */
-extern int sceMpegCreate(void *self, void *buf, int size);
-extern int sceMpegAddCallback(void *mp, int type, int callback, int anyData);
-extern int sceMpegAddStrCallback();
-extern int sceMpegDelete();
-extern int sceMpegGetPicture(int *mp, unsigned int rgb32, int mbcount);
-extern int sceMpegIsEnd(int **mp);
-extern int sceMpegIsRefBuffEmpty(void *mp);
-extern void sceMpegReset(int *mp);
-
+#include <libmpeg.h>
 #include <string.h>
 
 static void Free(int addr);

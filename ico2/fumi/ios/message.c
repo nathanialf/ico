@@ -7,6 +7,7 @@
 #include "debug_exception.h"
 #include "main.h"
 #include "message.h"
+#include <assert.h>
 
 typedef struct IosMsg {
     char pad0[68];
@@ -24,9 +25,6 @@ typedef struct MsgEventThread { /* field names derived */
     int val;            /* 0x4094 */
     int intc;           /* 0x4098 */
 } MsgEventThread;
-
-/* kept local: agrees with mv_defs.h, which this TU does not include */
-extern void __assert(const char *file, int line, const char *expr);
 
 /* kept local with message.h's declaration (this TU does not include it): the
    signal thread's record, defined after the functions whose strings precede it */

@@ -10,6 +10,7 @@
 #include "matrixDrive.h"
 #include "quaternion.h"
 #include "fieldCollision.h"
+#include <assert.h>
 
 /* The root block (MotRoot, motionManager.h) sits at 0xA0 in the display
    object, with its position at 0xA0, its quaternion at 0xD0 and the root
@@ -212,8 +213,6 @@ void SetDirectRootPositionWithNodePoint(GObj *gobj, int node, float *pos, float 
     SetDirectRootPositionNoFittingWithNodePoint(gobj, node, pos, t);
     AdjustMotionHeightToNearestField(gobj);
 }
-
-extern void __assert(char *file, int line, char *expr);
 
 /* The 0x15C slot is the engine's sub-object HANDLE: the code stores an int and
  * reads it back as a pointer, so every read of it is a union view and any store

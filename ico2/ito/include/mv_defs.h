@@ -35,10 +35,10 @@ static __inline__ int phys_addr(int p) /* derived name */
 static __inline__ int uncached_accel_addr(int p) /* derived name */
 { return (p & 0x0FFFFFFF) | 0x20000000; }
 #include <string.h>
+#include <assert.h>
 #include "ios.h"
 void *iosMallocAlignDebug(struct IosMemPart *part, int size, int align, char *file, int line);
 void debug_assert(const char *file, int line);   /* assert reporter */
-void __assert(const char *file, int line, const char *expr);
 static __inline__ int alloc_zeroed(int size, int align) /* derived name */
 { int p = (int)iosMallocAlignDebug(ios_partition_mpeg, size, align, __FILE__, __LINE__);
   if (p == 0) { debug_assert(__FILE__, __LINE__); __assert(__FILE__, __LINE__, "p != NULL"); }

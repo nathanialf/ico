@@ -37,10 +37,10 @@ extern EnemyDef D_00624880[];
 #include <stdlib.h>
 #include "ios.h"
 #include "main.h"
+#include <assert.h>
 
 /* kept local: int (float, float, float, int, int, char *, int) here, int (int, int, int, int) in Primitive.h */
 extern int prim_InitParticle(float f12, float f13, float f14, int num, int a1, char *tag, int a3);
-extern void __assert(char *file, int line, char *mes);
 
 typedef struct {
     float x;

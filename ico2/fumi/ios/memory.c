@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <assert.h>
 
 /* kept local: the TUs that call iosMallocDebugNoAssert declare it themselves; it
    passes its four arguments straight through to _iosMallocDebug. */
@@ -13,9 +14,6 @@ void *iosMallocDebugNoAssert(IosMemPart *part, int size, char *file, int line);
 typedef struct IosMemTag {
     char c[16];
 } IosMemTag;
-
-/* kept local: agrees with mv_defs.h, which this TU does not include */
-extern void __assert(const char *file, int line, const char *expr);
 
 /* .bss, owned by memory.o (MAIN.MAP sizes the run 0x20 and names no
    symbol in it): the node name the heap walk copies out before printing it. */

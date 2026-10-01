@@ -17,6 +17,7 @@
 #include "gobj.h"
 #include "enemy_act.h"
 #include "gobj_process.h"
+#include <assert.h>
 
 extern ObjKindEnt objKindData[];
 
@@ -458,9 +459,6 @@ void initSceneGObj(int stage, int no)
 
     MakeCollisionDependGObjList();
 }
-
-/* kept local: agrees with mv_defs.h, which this TU does not include */
-extern void __assert(const char *file, int line, const char *expr);
 
 /* sceneManager.c:486-514 in the listing.  The parent id is read before the
    kind, so the kind load carries the record pointer's death: sched1 raises

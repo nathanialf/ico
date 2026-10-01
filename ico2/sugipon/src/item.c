@@ -28,6 +28,7 @@
 #include "main.h"
 #include "fieldCollision.h"
 #include "debug_exception.h"
+#include <assert.h>
 
 /* RECONSTRUCTION, read from the ROM.  A bomb's fuse: the torch object that
    lights it, the frames left to burn, the fuse state (0 unlit, 1 burning,
@@ -96,8 +97,6 @@ static inline int IsItemKindBomb(GObj *gobj)
     ItemWork *p = (ItemWork *)(char *)GOBJ_SUB(gobj)->work;
     return p->kind == 1;
 }
-
-extern void __assert(const char *file, int line, char *expr);
 
 void HoldItem(GObj *gobj, GObj *holder)
 {

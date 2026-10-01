@@ -17,6 +17,7 @@
 #include "GifPacket.h"
 #include "debug_exception.h"
 #include "main.h"
+#include <assert.h>
 
 typedef struct SqEntry {
     unsigned short num;        /* 0x0 */
@@ -245,8 +246,6 @@ void soundAllocIopFree(void)
     sceSifFreeIopHeap(soundIopHeapAddrs);
 }
 
-/* kept local: agrees with mv_defs.h, which this TU does not include */
-extern void __assert(const char *file, int line, const char *expr);
 /* kept local: agrees with sce/libsndn2/sound.h, which is not on the game's include path */
 extern int SgVabOpenFakeBody(int *a0, int a1);
 extern void SgSetSeMasterVol(int vab, int vol);

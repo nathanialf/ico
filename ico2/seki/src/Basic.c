@@ -1,5 +1,6 @@
 #include "debug.h"
 #include "Matrix.h"
+#include <assert.h>
 
 /* kept local: declaring it only through string.h moves this TU's bytes */
 extern void memcpy();
@@ -9,8 +10,6 @@ extern void memcpy();
 static int mallocPartition = -1; /* derived name */
 
 static int mallocTotal = 0; /* derived name */
-
-extern void __assert(const char *file, int line, char *expr);
 
 /* kept local: memory.h is not included, its iosFree and iosReallocDebug
    disagree with the calls below (see them); const char * here, char * there */

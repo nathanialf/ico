@@ -11,6 +11,7 @@
 #include "debug_exception.h"
 #include "gv.h"
 #include "commonact.h"
+#include <assert.h>
 
 typedef struct AttackPack { /* field names derived */
     /* 0x00 */ unsigned char active;
@@ -36,9 +37,6 @@ typedef struct AttackPack { /* field names derived */
 
 /* the zeroed template every pack starts from; group and group2 start at -1 */
 static const AttackPack attackPackInit = {0, 0, {0, 0}, 0, 0, -1, -1}; /* derived name */
-
-/* newlib's assert hook; the game's include path carries no assert.h */
-extern void __assert(char *file, int line, char *expr);
 
 #include "attackhit.h"
 #include <libvu0.h>

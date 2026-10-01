@@ -3,6 +3,7 @@
 #include "thread.h"
 #include "Texture.h"
 #include "main.h"
+#include <assert.h>
 
 struct jNode {
     char pad0[4];
@@ -257,9 +258,6 @@ void jimakuMgrBegin(JimakuArg *p)
         }
     }
 }
-
-/* kept local: agrees with mv_defs.h, which this TU does not include */
-extern void __assert(const char *file, int line, const char *expr);
 
 /* The DEBUG build's switch to print the way groups' states after each Next
    (name ours); retail builds it as 0. */

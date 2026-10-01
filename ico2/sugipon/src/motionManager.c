@@ -16,6 +16,7 @@
 #include "gv.h"
 #include "motionManager.h"
 #include <libvu0.h>
+#include <assert.h>
 
 typedef struct {
     char b[0x20];
@@ -177,7 +178,6 @@ extern float GetYProjectionOfPlane(float *plane, float *pos);
 extern void ClipWallFuchiHangWalkStop(void *a0);
 /* kept local: int (void *) here, int (int) in fieldCollision.h */
 extern int GetWallAttribute(void *a0);
-extern void __assert(char *file, int line, char *expr);
 extern ObjNode rootUpdateDirectPlayForStream(void);
 extern ObjNode rootUpdateXZ(int a0, int a1);
 extern ObjNode rootUpdateXZ_MotPos(int a0, int a1);

@@ -14,6 +14,7 @@
 #include <string.h>
 #include "thread.h"
 #include "ios.h"
+#include <assert.h>
 
 union U001325D8 {
     long long ll;
@@ -178,8 +179,6 @@ static int stReqRing[2];
 
 static int stAckRing[1];
 
-/* kept local: expr is char * here, const char * in mv_defs.h */
-extern void __assert(const char *file, int line, char *expr);
 /* kept local: int (int, int, void *, int *) here, int (int, int, void *, CdRMode *) in libcdvd.h */
 extern int sceCdRead(int lsn, int sectors, void *buf, int *mode);
 /* kept local: agrees with libcdvd.h, which this TU does not include (sceCdRead, sceFsReset differ) */
@@ -456,8 +455,6 @@ void iosCdvdMgrStStart(IosCdvdHandle *self)
 
 /* kept local: agrees with libcdvd.h, which this TU does not include (sceCdRead, sceFsReset differ) */
 extern int sceCdBreak(void);
-/* kept local: expr is char * here, const char * in mv_defs.h */
-extern void __assert(const char *file, int line, char *expr);
 
 void iosCdvdMgrStStop(IosCdvdHandle *self)
 {
@@ -1317,9 +1314,6 @@ int iosCdvdChgFileName(int a0)
     } while (*p != 0);
     return strcpy(a0, buf);
 }
-
-/* kept local: agrees with mv_defs.h, which this TU does not include (__assert differs) */
-extern void __assert();
 
 int iosCdvdGetFileLsn(char *name, int *size)
 {

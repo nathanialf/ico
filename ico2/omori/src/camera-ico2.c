@@ -17,6 +17,7 @@
 #include "debug_exception.h"
 #include "main.h"
 #include "gv.h"
+#include <assert.h>
 
 static void *ReadCameraSet(struct CamSetFile *f, int stage);
 
@@ -127,9 +128,6 @@ typedef struct IosPadStick { /* field names derived */
 extern PadConf iosPadConfDefault;
 
 static float zoomOffsetRatio = 1.0f; /* derived name */
-
-/* newlib's assert hook; the game's include path carries no assert.h */
-extern void __assert(char *file, int line, char *expr);
 
 /* the camera-set binary: a sixteen byte header, `count` group records of 0x4C
    and `total` item records whose stride is the file version's */

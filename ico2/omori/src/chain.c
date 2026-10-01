@@ -21,6 +21,7 @@
 #include "commonact.h"
 #include "obj_manager.h"
 #include "camera-editor.h"
+#include <assert.h>
 
 static void chain_sub_pendulum(struct ChainNode *base, int n, float *pos);
 
@@ -122,8 +123,6 @@ static int UpdateRootPosition(char *gobj)
     return moved;
 }
 
-/* newlib's assert hook; the game's include path carries no assert.h */
-extern void __assert(char *file, int line, char *expr);
 void _GetCorrectOrientOfChain(float *out, char *gobj, float *dir);
 
 /* InitPendulum's body, for StartPendulum above its definition */

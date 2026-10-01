@@ -1,12 +1,12 @@
 #include "typedef.h"
 #include "obj_manager.h"
 #include "debug_exception.h"
+#include <assert.h>
 
 /* Two static helpers, one sending the mail and returning its index or -1,
  * the other asserting the actor has a work block and returning its
  * additional-data table.  InitMailAdditionalData calls
  * ClearMailAdditionalData, which is defined after it. */
-extern void __assert(char *file, int line, char *expr);
 
 /* the entries a table holds; the name and current_count are the assert's */
 #define MAIL_ADDITIONAL_DATA_MAX 10

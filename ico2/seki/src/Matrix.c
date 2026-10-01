@@ -1,6 +1,7 @@
 #include "typedef.h"
 #include "tableSin.h"
 #include "debug_exception.h"
+#include <assert.h>
 
 /* Quadword copy of 64 bytes, parallel form: four lq into four distinct
    scratch GPRs, then four sq.  The latency-hiding shape the ROM uses in
@@ -427,8 +428,6 @@ static float vu0RegisterSaveWork[32][4]; /* derived name */
 /* .sdata, the VU0 register save depth the push and pop check, then the
    assert text: retail added both (MAIN.MAP gives Matrix.o no .sdata). */
 static int vu0PushDepth = 0; /* derived name */
-
-extern void __assert(char *file, int line, char *expr);
 
 void _PushVu0Registers(void)
 {

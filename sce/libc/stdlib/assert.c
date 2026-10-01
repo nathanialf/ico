@@ -1,4 +1,5 @@
 /* libc.a member assert.o */
+#include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <reent.h>

@@ -37,8 +37,8 @@ typedef struct { /* field names derived */
  * point, the on flag, the field of view, the radius inside which the pin damps
  * the other pins' weights, and the hand camera's eye and look-at rates and two
  * angle limits.  CameraMove (camera-ico2.c) blends the pins by distance; the
- * editor steps pos, look, on and fov, draws range, and writes the stage's
- * hand-camera rate into its default at 0x48, sixteen bytes past eyeRate. */
+ * editor steps pos, look, on and fov, draws range, and gives its default the
+ * stage's hand-camera rate as eyeRate. */
 typedef struct { /* field names derived */
     float pos[3];         /* 0x00, the camera position */
     float look[3];        /* 0x0C, the point the camera looks at */
@@ -52,9 +52,8 @@ typedef struct { /* field names derived */
     float atRate;         /* 0x3C, the hand camera's look-at rate */
     float limitP;         /* 0x40, the hand camera's angle limits */
     float limitV;         /* 0x44 */
-    float handCameraRate; /* 0x48 */
-    float handCameraAtRate; /* 0x4C, 10.0 in the default, the look-at rate
-                               setHandCameraRates pairs with handCameraRate */
+    float float48;        /* 0x48, in the version-2 file record; nothing reads it */
+    float float4C;        /* 0x4C, likewise */
     float ofsB[3];        /* 0x50, the look-at offset added as it is */
 } PinRec;
 
