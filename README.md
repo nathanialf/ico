@@ -2,7 +2,10 @@
 
 A source tree for the PlayStation 2 game **ICO** (Sony Computer Entertainment,
 2001) that rebuilds the boot ELF of the PAL retail disc, SCES-50760
-(`SCES_507.60`), byte for byte, with the toolchain the game was built with.
+(`SCES_507.60`), with the toolchain the game was built with. Every byte the
+console loads is identical to the disc's (the ROM image SHA-1 matches). The
+ELF file itself still differs in seven section-name strings of the VU
+assembler's non-loaded overlay metadata; that delta is recorded below.
 
 <!-- progress:begin -->
 ![.text progress](https://img.shields.io/badge/text-100.00%20%25-brightgreen.svg)
@@ -52,7 +55,11 @@ before it starts and the rebuilt ROM image at the end.
 
 The gate (`tools/check_elf.py --gate`) also compares every allocated section
 of `build/ico.elf` with the base ELF by address and checks that `.sbss` and
-`.bss` cover the base's ranges.
+`.bss` cover the base's ranges. The whole-file SHA-1 of `build/ico.elf` is
+reported but not gated: it differs from the disc's only in the names of seven
+`.DVP.overlay` sections (the DVP assembler hashes an include path into them
+that the disc does not record; the sections' contents, sizes and flags
+match). `tools/check_elf.py --full-diff` lists the delta.
 
 ## Progress badges
 
