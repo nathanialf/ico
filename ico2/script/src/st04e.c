@@ -17,13 +17,13 @@
 #include "main.h"
 #include "script.h"
 
-static void actSt04eFuchi1Chk(GObj *volatile a0);
-static void actSt04eFuchi2Chk(GObj *volatile a0);
-static void actSt04eFuchi3Chk(GObj *volatile a0);
-static void actSt04eHint1Chk(GObj *volatile a0);
-static void actSt04eHint1WakeUpChk(GObj *volatile a0);
-static void actSt04eSeChk(GObj *volatile a0);
-static void actSt04eWaterStopSub(GObj *volatile a0);
+static void actSt04eFuchi1Chk(GObj *volatile self);
+static void actSt04eFuchi2Chk(GObj *volatile self);
+static void actSt04eFuchi3Chk(GObj *volatile self);
+static void actSt04eHint1Chk(GObj *volatile self);
+static void actSt04eHint1WakeUpChk(GObj *volatile self);
+static void actSt04eSeChk(GObj *volatile self);
+static void actSt04eWaterStopSub(GObj *volatile self);
 
 /* .sbss: the demo's own end flag, raised by the subthread the wait loop below
    spins for, and its complement, true when the player skipped the demo with
@@ -52,7 +52,7 @@ static float seChkPos[4] = {0.0f, -171.0f, -8000.0f, 0.0f}; /* derived name */
 
 static ActMail hint1WakeUp_mes[2] = {{430}, {429}}; /* derived name */
 
-void actSt04eWaterStop(GObj *volatile a0)
+void actSt04eWaterStop(GObj *volatile self)
 {
     GProc *th;
 
@@ -100,104 +100,104 @@ void actSt04eWaterStop(GObj *volatile a0)
     SetWayGroupActive(5, 1);
 }
 
-void actSt04eHint1(GObj *volatile a0)
+void actSt04eHint1(GObj *volatile self)
 {
-    GObj *x = a0;
-    Act *self = actInitialize(a0);
+    GObj *x = self;
+    Act *act = actInitialize(self);
     _ACTWait(1);
 
     if (gflagChk(225) == 0) {
         hint1_mes[0].func = actSt04eHint1Chk;
-        self->mail = hint1_mes;
-        ACTSendMailCorrect(a0, 430);
+        act->mail = hint1_mes;
+        ACTSendMailCorrect(self, 430);
         _ACTWait(0);
     } else {
         FinishHint(18);
     }
 }
 
-void actSt04eHint1WakeUp(GObj *volatile a0)
+void actSt04eHint1WakeUp(GObj *volatile self)
 {
-    GObj *x = a0;
-    Act *self = actInitialize(a0);
+    GObj *x = self;
+    Act *act = actInitialize(self);
     _ACTWait(1);
 
     if (gflagChk(226) == 0) {
         SleepHint(18);
         hint1WakeUp_mes[0].func = actSt04eHint1WakeUpChk;
-        self->mail = hint1WakeUp_mes;
-        ACTSendMailCorrect(a0, 430);
+        act->mail = hint1WakeUp_mes;
+        ACTSendMailCorrect(self, 430);
         _ACTWait(0);
     }
 }
 
-static void actSt04eFuchi1(GObj *volatile a0)
+static void actSt04eFuchi1(GObj *volatile self)
 {
-    GObj *x = a0;
-    Act *self = actInitialize(a0);
+    GObj *x = self;
+    Act *act = actInitialize(self);
     _ACTWait(1);
 
     if (gflagChk(227) == 0) {
         stage_SetAnimation(263, 0, 0);
         fuchi1_mes[0].func = actSt04eFuchi1Chk;
-        self->mail = fuchi1_mes;
-        ACTSendMailCorrect(a0, 430);
+        act->mail = fuchi1_mes;
+        ACTSendMailCorrect(self, 430);
         _ACTWait(0);
     } else {
         stage_SetAnimation(263, 0, -1);
     }
 }
 
-static void actSt04eFuchi2(GObj *volatile a0)
+static void actSt04eFuchi2(GObj *volatile self)
 {
-    GObj *x = a0;
-    Act *self = actInitialize(a0);
+    GObj *x = self;
+    Act *act = actInitialize(self);
     _ACTWait(1);
 
     if (gflagChk(228) == 0) {
         stage_SetAnimation(264, 0, 0);
         fuchi2_mes[0].func = actSt04eFuchi2Chk;
-        self->mail = fuchi2_mes;
-        ACTSendMailCorrect(a0, 430);
+        act->mail = fuchi2_mes;
+        ACTSendMailCorrect(self, 430);
         _ACTWait(0);
     } else {
         stage_SetAnimation(264, 0, -1);
     }
 }
 
-static void actSt04eFuchi3(GObj *volatile a0)
+static void actSt04eFuchi3(GObj *volatile self)
 {
-    GObj *x = a0;
-    Act *self = actInitialize(a0);
+    GObj *x = self;
+    Act *act = actInitialize(self);
     _ACTWait(1);
 
     if (gflagChk(229) == 0) {
         stage_SetAnimation(265, 0, 0);
         fuchi3_mes[0].func = actSt04eFuchi3Chk;
-        self->mail = fuchi3_mes;
-        ACTSendMailCorrect(a0, 430);
+        act->mail = fuchi3_mes;
+        ACTSendMailCorrect(self, 430);
         _ACTWait(0);
     } else {
         stage_SetAnimation(265, 0, -1);
     }
 }
 
-void actSt04eSe(GObj *volatile a0)
+void actSt04eSe(GObj *volatile self)
 {
-    GObj *x = a0;
-    Act *self = actInitialize(a0);
+    GObj *x = self;
+    Act *act = actInitialize(self);
     _ACTWait(1);
 
     se_mes[0].func = actSt04eSeChk;
-    self->mail = se_mes;
-    ACTSendMailCorrect(a0, 430);
+    act->mail = se_mes;
+    ACTSendMailCorrect(self, 430);
     _ACTWait(0);
 }
 
-void actSt04eWater(GObj *volatile a0)
+void actSt04eWater(GObj *volatile self)
 {
-    GObj *x = a0;
-    Act *self = actInitialize(a0);
+    GObj *x = self;
+    Act *act = actInitialize(self);
     _ACTWait(1);
 
     SetRotObjectLockFlag(scpSearchGobj(1274), 1);
@@ -205,8 +205,8 @@ void actSt04eWater(GObj *volatile a0)
     if (gflagChk(230) == 0) {
         scpSearchGobj(1273)->active = 0;
         water_mes[0].func = actSt04eWaterMain;
-        self->mail = water_mes;
-        ACTSendMailCorrect(a0, 430);
+        act->mail = water_mes;
+        ACTSendMailCorrect(self, 430);
         _ACTWait(0);
     } else {
         scpSearchGobj(1272)->active = 0;
@@ -214,9 +214,9 @@ void actSt04eWater(GObj *volatile a0)
     }
 }
 
-void actSt04eWaterMain(GObj *volatile a0)
+void actSt04eWaterMain(GObj *volatile self)
 {
-    Act *sub = GOBJ_ACT(a0);
+    Act *sub = GOBJ_ACT(self);
 
     sub->mainMail = waterMain_mes;
     while (1) {
@@ -224,9 +224,9 @@ void actSt04eWaterMain(GObj *volatile a0)
     }
 }
 
-void actSt04eWaterSwitch(GObj *volatile a0)
+void actSt04eWaterSwitch(GObj *volatile self)
 {
-    Act *sub = GOBJ_ACT(a0);
+    Act *sub = GOBJ_ACT(self);
 
     scpBoyControlReadDisable = 1;
 
@@ -234,11 +234,11 @@ void actSt04eWaterSwitch(GObj *volatile a0)
 
     waterSwitch_mes[0].func = actSt04eWaterStop;
     sub->mail = waterSwitch_mes;
-    ACTSendMailCorrect(a0, 430);
+    ACTSendMailCorrect(self, 430);
     _ACTWait(0);
 }
 
-void actSt04eWaterFlagOn(GObj *volatile a0)
+void actSt04eWaterFlagOn(GObj *volatile self)
 {
     int t = (60 - systemStatus[0] * 10) / systemStatus[1] * 6.0;
 
@@ -255,7 +255,7 @@ void actSt04eWaterFlagOn(GObj *volatile a0)
     gflagOn(230);
 }
 
-static void actSt04eWaterStopSub(GObj *volatile a0)
+static void actSt04eWaterStopSub(GObj *volatile self)
 {
     _ACTWait(60);
 
@@ -271,9 +271,9 @@ static void actSt04eWaterStopSub(GObj *volatile a0)
     _ACTWait(0);
 }
 
-static void actSt04eHint1Chk(GObj *volatile a0)
+static void actSt04eHint1Chk(GObj *volatile self)
 {
-    while (scpTriggerBall(a0, boyGObj, 1000.0f) == 0 ||
+    while (scpTriggerBall(self, boyGObj, 1000.0f) == 0 ||
            ForMotionViewer_GetCurrentMotion(boyGObj) != 145) {
         _ACTWait(1);
     }
@@ -283,9 +283,9 @@ static void actSt04eHint1Chk(GObj *volatile a0)
     FinishHint(18);
 }
 
-static void actSt04eFuchi1Chk(GObj *volatile a0)
+static void actSt04eFuchi1Chk(GObj *volatile self)
 {
-    while (scpTriggerBall(a0, boyGObj, 100.0f) == 0) {
+    while (scpTriggerBall(self, boyGObj, 100.0f) == 0) {
         _ACTWait(1);
     }
 
@@ -301,9 +301,9 @@ static void actSt04eFuchi1Chk(GObj *volatile a0)
     _ACTWait(1);
 }
 
-static void actSt04eFuchi2Chk(GObj *volatile a0)
+static void actSt04eFuchi2Chk(GObj *volatile self)
 {
-    while (scpTriggerBall(a0, boyGObj, 100.0f) == 0) {
+    while (scpTriggerBall(self, boyGObj, 100.0f) == 0) {
         _ACTWait(1);
     }
 
@@ -319,9 +319,9 @@ static void actSt04eFuchi2Chk(GObj *volatile a0)
     _ACTWait(1);
 }
 
-static void actSt04eFuchi3Chk(GObj *volatile a0)
+static void actSt04eFuchi3Chk(GObj *volatile self)
 {
-    while (scpTriggerBall(a0, boyGObj, 100.0f) == 0) {
+    while (scpTriggerBall(self, boyGObj, 100.0f) == 0) {
         _ACTWait(1);
     }
 
@@ -337,7 +337,7 @@ static void actSt04eFuchi3Chk(GObj *volatile a0)
     _ACTWait(1);
 }
 
-static void actSt04eSeChk(GObj *volatile a0)
+static void actSt04eSeChk(GObj *volatile self)
 {
     int h;
 
@@ -357,7 +357,7 @@ static void actSt04eSeChk(GObj *volatile a0)
     }
 }
 
-static void actSt04eHint1WakeUpChk(GObj *volatile a0)
+static void actSt04eHint1WakeUpChk(GObj *volatile self)
 {
     while (scpTriggerFloorAttr(boyGObj, 0x3000000) == 0) {
         _ACTWait(1);

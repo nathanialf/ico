@@ -10,14 +10,14 @@
 
 #include "typedef.h"
 
-void actSt18aDoorChk(GObj *volatile a0);
-void actSt18aDoorDownChk(GObj *volatile a0);
-void actSt18aEne2Chk(GObj *volatile a0);
-void actSt18aEneChk(GObj *volatile a0);
-void actSt18aIntroChk(GObj *volatile a0);
-void actSt18aSwitchLChk(GObj *volatile a0);
-void actSt18aSwitchLUpChk(GObj *volatile a0);
-void actSt18aSwitchRChk(GObj *volatile a0);
-void actSt18aSwitchRUpChk(GObj *volatile a0);
+void actSt18aDoorChk(GObj *volatile self);
+void actSt18aDoorDownChk(GObj *volatile self);
+void actSt18aEne2Chk(GObj *volatile self);
+void actSt18aEneChk(GObj *volatile self);
+void actSt18aIntroChk(GObj *volatile self);
+void actSt18aSwitchLChk(GObj *volatile self);
+void actSt18aSwitchLUpChk(GObj *volatile self);
+void actSt18aSwitchRChk(GObj *volatile self);
+void actSt18aSwitchRUpChk(GObj *volatile self);
 
 #endif /* ST18A_H */

@@ -14,7 +14,7 @@
 #include "main.h"
 #include "script.h"
 
-static void actSt19aChainDownSub(GObj *volatile a0);
+static void actSt19aChainDownSub(GObj *volatile self);
 
 /* .sbss: the demo's own end flag, raised by the subthread the wait loop below
    spins for. */
@@ -51,7 +51,7 @@ char *hgrm_19a = 0;
 
 char *pipe19a = 0;
 
-void actSt19aOriUp(GObj *volatile a0)
+void actSt19aOriUp(GObj *volatile self)
 {
     int skip = 0;
     int i;
@@ -98,13 +98,13 @@ void actSt19aOriUp(GObj *volatile a0)
 
 static const ConstVec hagurumaPos = {{-642.0f, 2132.0f, -2861.0f, 0.0f}}; /* derived name */
 
-void actSt19aHaguruma(GObj *volatile a0)
+void actSt19aHaguruma(GObj *volatile self)
 {
     long long pos[2];
     Act *sub;
-    GObj *x = a0;
+    GObj *x = self;
 
-    sub = actInitialize(a0);
+    sub = actInitialize(self);
     _ACTWait(1);
     pos[0] = hagurumaPos.d[0];
     pos[1] = hagurumaPos.d[1];
@@ -115,7 +115,7 @@ void actSt19aHaguruma(GObj *volatile a0)
         stage_SetAnimation(140, -1, -2);
         haguruma_mes[0].func = actSt19aHagurumaChk;
         sub->mail = haguruma_mes;
-        ACTSendMailCorrect(a0, 430);
+        ACTSendMailCorrect(self, 430);
         _ACTWait(0);
     } else {
         soundSeDefPlay(1350, 0, haguruma2Pos, 1);
@@ -128,12 +128,12 @@ void actSt19aHaguruma(GObj *volatile a0)
     }
 }
 
-void actSt19aHagurumaChk(GObj *volatile a0)
+void actSt19aHagurumaChk(GObj *volatile self)
 {
     int skip = 0;
     int i;
 
-    while (scpTriggerBall(a0, scpSearchGobj(1961), 220.0f) == 0) {
+    while (scpTriggerBall(self, scpSearchGobj(1961), 220.0f) == 0) {
         _ACTWait(1);
     }
     lt_switch_layout(55);
@@ -186,11 +186,11 @@ done:
     lt_switch_layout(54);
 }
 
-void actSt19aPipeChk(GObj *volatile a0)
+void actSt19aPipeChk(GObj *volatile self)
 {
     int i;
 
-    while (scpTriggerBall(a0, boyGObj, 50.0f) == 0) {
+    while (scpTriggerBall(self, boyGObj, 50.0f) == 0) {
         _ACTWait(1);
     }
     lt_switch_layout(55);
@@ -230,7 +230,7 @@ void actSt19aPipeChk(GObj *volatile a0)
     lt_switch_layout(54);
 }
 
-void actSt19aChainDown(GObj *volatile a0)
+void actSt19aChainDown(GObj *volatile self)
 {
     GProc *th;
 
@@ -265,11 +265,11 @@ void actSt19aChainDown(GObj *volatile a0)
     lt_switch_layout(54);
 }
 
-void actSt19bIntro(GObj *volatile a0)
+void actSt19bIntro(GObj *volatile self)
 {
-    GObj *x = a0;
+    GObj *x = self;
 
-    actInitialize(a0);
+    actInitialize(self);
     _ACTWait(1);
     if (gflagChk(314) == 0) {
         while (scpTriggerFloorAttr(boyGObj, 0x1000000) == 0) {
@@ -299,10 +299,10 @@ void actSt19bIntro(GObj *volatile a0)
     }
 }
 
-void actSt19aOri(GObj *volatile a0)
+void actSt19aOri(GObj *volatile self)
 {
-    GObj *x = a0;
-    Act *self = actInitialize(a0);
+    GObj *x = self;
+    Act *act = actInitialize(self);
 
     _ACTWait(1);
 
@@ -312,19 +312,19 @@ void actSt19aOri(GObj *volatile a0)
         stage_SetAnimation(142, 0, 0);
 
         ori_mes[0].func = actSt19aOriMain;
-        self->mail = ori_mes;
-        ACTSendMailCorrect(a0, 430);
+        act->mail = ori_mes;
+        ACTSendMailCorrect(self, 430);
         _ACTWait(0);
     } else {
         stage_SetAnimation(142, 0, 89);
     }
 }
 
-void actSt19aOriXL(GObj *volatile a0)
+void actSt19aOriXL(GObj *volatile self)
 {
-    GObj *x = a0;
+    GObj *x = self;
 
-    actInitialize(a0);
+    actInitialize(self);
     _ACTWait(1);
 
     soundSeDefPlay(1349, 0, oriXLPos, 1);
@@ -332,11 +332,11 @@ void actSt19aOriXL(GObj *volatile a0)
     stage_SetAnimation(142, 0, 0);
 }
 
-void actSt19aPipe(GObj *volatile a0)
+void actSt19aPipe(GObj *volatile self)
 {
-    GObj *x = a0;
+    GObj *x = self;
 
-    Act *self = actInitialize(a0);
+    Act *act = actInitialize(self);
     _ACTWait(1);
 
     if (gflagChk(312) == 0) {
@@ -344,8 +344,8 @@ void actSt19aPipe(GObj *volatile a0)
         stage_SetAnimation(143, 0, 0);
 
         pipe_mes[0].func = actSt19aPipeChk;
-        self->mail = pipe_mes;
-        ACTSendMailCorrect(a0, 430);
+        act->mail = pipe_mes;
+        ACTSendMailCorrect(self, 430);
         _ACTWait(0);
 
     } else {
@@ -354,11 +354,11 @@ void actSt19aPipe(GObj *volatile a0)
     }
 }
 
-void actSt19aPipeXL(GObj *volatile a0)
+void actSt19aPipeXL(GObj *volatile self)
 {
-    GObj *x = a0;
+    GObj *x = self;
 
-    actInitialize(a0);
+    actInitialize(self);
     _ACTWait(1);
 
     if (gflagChk(312) == 0) {
@@ -368,10 +368,10 @@ void actSt19aPipeXL(GObj *volatile a0)
     }
 }
 
-void actSt19aChain(GObj *volatile a0)
+void actSt19aChain(GObj *volatile self)
 {
-    GObj *x = a0;
-    Act *self = actInitialize(a0);
+    GObj *x = self;
+    Act *act = actInitialize(self);
 
     _ACTWait(1);
 
@@ -381,15 +381,15 @@ void actSt19aChain(GObj *volatile a0)
         stage_SetAnimation(144, 0, 0);
 
         chain_mes[0].func = actSt19aChainMain;
-        self->mail = chain_mes;
-        ACTSendMailCorrect(a0, 430);
+        act->mail = chain_mes;
+        ACTSendMailCorrect(self, 430);
         _ACTWait(0);
     }
 }
 
-void actSt19aOriMain(GObj *volatile a0)
+void actSt19aOriMain(GObj *volatile self)
 {
-    Act *sub = GOBJ_ACT(a0);
+    Act *sub = GOBJ_ACT(self);
 
     scpBoyControlReadDisable = 0;
 
@@ -400,22 +400,22 @@ void actSt19aOriMain(GObj *volatile a0)
     }
 }
 
-void actSt19aOriSwitch(GObj *volatile a0)
+void actSt19aOriSwitch(GObj *volatile self)
 {
-    Act *sub = GOBJ_ACT(a0);
+    Act *sub = GOBJ_ACT(self);
 
     scpBoyControlReadDisable = 1;
 
     sub->mainMail = 0;
     oriSwitch_mes[0].func = actSt19aOriUp;
     sub->mail = oriSwitch_mes;
-    ACTSendMailCorrect(a0, 430);
+    ACTSendMailCorrect(self, 430);
     _ACTWait(0);
 }
 
-void actSt19aChainMain(GObj *volatile a0)
+void actSt19aChainMain(GObj *volatile self)
 {
-    Act *sub = GOBJ_ACT(a0);
+    Act *sub = GOBJ_ACT(self);
 
     scpBoyControlReadDisable = 0;
 
@@ -426,9 +426,9 @@ void actSt19aChainMain(GObj *volatile a0)
     }
 }
 
-void actSt19aChainSwitch(GObj *volatile a0)
+void actSt19aChainSwitch(GObj *volatile self)
 {
-    Act *sub = GOBJ_ACT(a0);
+    Act *sub = GOBJ_ACT(self);
 
     scpBoyControlReadDisable = 1;
 
@@ -437,12 +437,12 @@ void actSt19aChainSwitch(GObj *volatile a0)
     if (gflagChk(313) == 0) {
         chainSwitch_mes[0].func = actSt19aChainDown;
         sub->mail = chainSwitch_mes;
-        ACTSendMailCorrect(a0, 430);
+        ACTSendMailCorrect(self, 430);
         _ACTWait(0);
     }
 }
 
-static void actSt19aChainDownSub(GObj *volatile a0)
+static void actSt19aChainDownSub(GObj *volatile self)
 {
     _ACTWait(60);
 

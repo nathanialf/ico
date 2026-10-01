@@ -10,9 +10,9 @@
 
 #include "typedef.h"
 
-void actSt04dDoor1DownChk(GObj *volatile a0);
-void actSt04dDoor1UpChk(GObj *volatile a0);
-void actSt04dDoor2DownChk(GObj *volatile a0);
-void actSt04dDoor2UpChk(GObj *volatile a0);
+void actSt04dDoor1DownChk(GObj *volatile self);
+void actSt04dDoor1UpChk(GObj *volatile self);
+void actSt04dDoor2DownChk(GObj *volatile self);
+void actSt04dDoor2UpChk(GObj *volatile self);
 
 #endif /* ST04D_H */

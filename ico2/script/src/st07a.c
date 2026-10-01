@@ -26,8 +26,8 @@
 #include "e3.h"
 #include "main.h"
 
-static void actSt07aChanChainChk(GObj *volatile a0);
-static void actSt07aChanReadyChk(GObj *volatile a0);
+static void actSt07aChanChainChk(GObj *volatile self);
+static void actSt07aChanReadyChk(GObj *volatile self);
 
 void actSt07aInit(void)
 {
@@ -115,7 +115,7 @@ int sekizo_7a_vol = 0;
 
 static unsigned char st07a_yure_vol = 0; /* derived name */
 
-void actSt07aChanChk(GObj *volatile a0)
+void actSt07aChanChk(GObj *volatile self)
 {
     long long buf[2];
     float dir[4];
@@ -225,7 +225,7 @@ void actSt07aChanChk(GObj *volatile a0)
     scpWakeupEnemyAll();
 }
 
-void actSt07aChanEffect(GObj *volatile a0)
+void actSt07aChanEffect(GObj *volatile self)
 {
     float t;
     float tn;
@@ -269,7 +269,7 @@ void actSt07aChanEffect(GObj *volatile a0)
     _ACTWait(0);
 }
 
-void actSt07aTsuroChk(GObj *volatile a0)
+void actSt07aTsuroChk(GObj *volatile self)
 {
     long long buf[2];
     GObj *obj;
@@ -280,7 +280,7 @@ void actSt07aTsuroChk(GObj *volatile a0)
 
     hGirl = 0;
 
-    while ((obj = scpIsBombExplode(19)) == 0 || scpTriggerBall(a0, obj, 200.0f) == 0) {
+    while ((obj = scpIsBombExplode(19)) == 0 || scpTriggerBall(self, obj, 200.0f) == 0) {
         _ACTWait(1);
     }
 
@@ -367,7 +367,7 @@ void actSt07aTsuroChk(GObj *volatile a0)
     scpTorchLightOff(432);
 }
 
-void actSt07aTsuroEffect(GObj *volatile a0)
+void actSt07aTsuroEffect(GObj *volatile self)
 {
     EffectArg b1;
     EffectArg b2;
@@ -440,7 +440,7 @@ void actSt07aTsuroEffect(GObj *volatile a0)
     _ACTWait(0);
 }
 
-void actSt07aSekizoChk(GObj *volatile a0)
+void actSt07aSekizoChk(GObj *volatile self)
 {
     /* the SE handle, which the sound subsystem owns (st13c's
        actSt13cSekizoChk keeps one the same way) */
@@ -451,7 +451,8 @@ void actSt07aSekizoChk(GObj *volatile a0)
         _ACTWait(0);
     }
 
-    while (scpTriggerBall(a0, boyGObj, 200.0f) == 0 || scpTriggerBall(a0, girlGObj, 200.0f) == 0) {
+    while (scpTriggerBall(self, boyGObj, 200.0f) == 0 ||
+           scpTriggerBall(self, girlGObj, 200.0f) == 0) {
         _ACTWait(1);
     }
 
@@ -497,7 +498,7 @@ void actSt07aSekizoChk(GObj *volatile a0)
 
     _ACTWait(1);
 
-    sceVu0SubVector(dir, test_CURRENTROOT(a0), test_CURRENTROOT(girlGObj));
+    sceVu0SubVector(dir, test_CURRENTROOT(self), test_CURRENTROOT(girlGObj));
     scpPlayMotDir(girlGObj, dir);
 
     scpBoyControlReadDisable = 1;
@@ -553,10 +554,10 @@ static ActMail ene_mes[2] = {{430}, {429}}; /* derived name */
 
 static ActMail ene2_mes[2] = {{430}, {429}}; /* derived name */
 
-void actSt07aEne(GObj *volatile a0)
+void actSt07aEne(GObj *volatile self)
 {
-    GObj *x = a0;
-    Act *self = actInitialize(a0);
+    GObj *x = self;
+    Act *act = actInitialize(self);
 
     _ACTWait(1);
 
@@ -574,19 +575,19 @@ void actSt07aEne(GObj *volatile a0)
         ((GObj *)scpSearchGobj(416))->active = 0;
 
         ene_mes[0].func = actSt07aEneChk;
-        self->mail = ene_mes;
-        ACTSendMailCorrect(a0, 430);
+        act->mail = ene_mes;
+        ACTSendMailCorrect(self, 430);
         _ACTWait(0);
     }
 }
 
-void actSt07aEneChk(GObj *volatile a0)
+void actSt07aEneChk(GObj *volatile self)
 {
     if (girlGObj == 0) {
         _ACTWait(0);
     }
 
-    while (gflagChk(133) == 0 || scpTriggerBall(a0, girlGObj, 400.0f) == 0) {
+    while (gflagChk(133) == 0 || scpTriggerBall(self, girlGObj, 400.0f) == 0) {
         _ACTWait(1);
     }
 
@@ -633,13 +634,13 @@ void actSt07aEneChk(GObj *volatile a0)
     scpWakeupSpiderGroupOne(405);
 }
 
-void actSt07aGene1(GObj *volatile a0)
+void actSt07aGene1(GObj *volatile self)
 {
-    GObj *x = a0;
-    actInitialize(a0);
+    GObj *x = self;
+    actInitialize(self);
     _ACTWait(1);
 
-    Generator_Mask(a0);
+    Generator_Mask(self);
 
     Generator_Mask(scpSearchGobj(410));
 
@@ -649,22 +650,22 @@ void actSt07aGene1(GObj *volatile a0)
 
     _ACTWait(1);
 
-    Generator_MaskOff(a0);
+    Generator_MaskOff(self);
 
-    Generator_Call(a0);
+    Generator_Call(self);
     _ACTWait(60);
-    Generator_Call(a0);
+    Generator_Call(self);
     _ACTWait(60);
-    Generator_Call(a0);
+    Generator_Call(self);
     _ACTWait(60);
-    Generator_Call(a0);
+    Generator_Call(self);
     Generator_Call(scpSearchGobj(410));
 }
 
-void actSt07aChan(GObj *volatile a0)
+void actSt07aChan(GObj *volatile self)
 {
-    GObj *x = a0;
-    Act *self = actInitialize(a0);
+    GObj *x = self;
+    Act *act = actInitialize(self);
 
     _ACTWait(1);
 
@@ -678,212 +679,212 @@ void actSt07aChan(GObj *volatile a0)
         scpTorchLightOff(431);
         scpTorchLightOff(432);
         chan_mes[0].func = actSt07aChanChk;
-        self->mail = chan_mes;
-        ACTSendMailCorrect(a0, 430);
+        act->mail = chan_mes;
+        ACTSendMailCorrect(self, 430);
         _ACTWait(0);
     }
 }
 
-void actSt07aChanReady(GObj *volatile a0)
+void actSt07aChanReady(GObj *volatile self)
 {
-    GObj *x = a0;
-    Act *self = actInitialize(a0);
+    GObj *x = self;
+    Act *act = actInitialize(self);
 
     _ACTWait(1);
 
     if (gflagChk(126) == 0) {
         chanReady_mes[0].func = actSt07aChanReadyChk;
-        self->mail = chanReady_mes;
-        ACTSendMailCorrect(a0, 430);
+        act->mail = chanReady_mes;
+        ACTSendMailCorrect(self, 430);
         _ACTWait(0);
     }
 }
 
-void actSt07aChanChain(GObj *volatile a0)
+void actSt07aChanChain(GObj *volatile self)
 {
-    GObj *x = a0;
-    Act *self = actInitialize(a0);
+    GObj *x = self;
+    Act *act = actInitialize(self);
 
     _ACTWait(1);
 
     if (gflagChk(127) == 0) {
         chanChain_mes[0].func = actSt07aChanChainChk;
-        self->mail = chanChain_mes;
-        ACTSendMailCorrect(a0, 430);
+        act->mail = chanChain_mes;
+        ACTSendMailCorrect(self, 430);
         _ACTWait(0);
     } else {
         ((GObj *)scpSearchGobj(454))->active = 0;
     }
 }
 
-void actSt07aTsuro(GObj *volatile a0)
+void actSt07aTsuro(GObj *volatile self)
 {
-    GObj *x = a0;
-    Act *self = actInitialize(a0);
+    GObj *x = self;
+    Act *act = actInitialize(self);
 
     _ACTWait(1);
 
     if (gflagChk(128) == 0) {
         tsuro_mes[0].func = actSt07aTsuroChk;
-        self->mail = tsuro_mes;
-        ACTSendMailCorrect(a0, 430);
+        act->mail = tsuro_mes;
+        ACTSendMailCorrect(self, 430);
         _ACTWait(0);
     } else {
         gflagOn(133);
     }
 }
 
-void actSt07aIntro(GObj *volatile a0)
+void actSt07aIntro(GObj *volatile self)
 {
-    GObj *x = a0;
-    Act *self = actInitialize(a0);
+    GObj *x = self;
+    Act *act = actInitialize(self);
 
     _ACTWait(1);
 
     if (gflagChk(129) == 0) {
         intro_mes[0].func = actSt07aIntroChk;
-        self->mail = intro_mes;
-        ACTSendMailCorrect(a0, 430);
+        act->mail = intro_mes;
+        ACTSendMailCorrect(self, 430);
         _ACTWait(0);
     }
 }
 
-void actSt07aSekizo(GObj *volatile a0)
+void actSt07aSekizo(GObj *volatile self)
 {
-    GObj *x = a0;
-    Act *self = actInitialize(a0);
+    GObj *x = self;
+    Act *act = actInitialize(self);
 
     _ACTWait(1);
 
     if (gflagChk(130) == 0) {
         stage_SetAnimation(362, 0, 0);
         sekizo_mes[0].func = actSt07aSekizoChk;
-        self->mail = sekizo_mes;
-        ACTSendMailCorrect(a0, 430);
+        act->mail = sekizo_mes;
+        ACTSendMailCorrect(self, 430);
         _ACTWait(0);
     } else {
         stage_SetAnimation(362, 0, -1);
     }
 }
 
-void actSt07aGene2(GObj *volatile a0)
+void actSt07aGene2(GObj *volatile self)
 {
-    GObj *x = a0;
-    actInitialize(a0);
+    GObj *x = self;
+    actInitialize(self);
     _ACTWait(1);
-    Generator_Mask(a0);
+    Generator_Mask(self);
     while (gflagChk(132) == 0) {
         _ACTWait(1);
     }
     _ACTWait(1);
-    Generator_Call(a0);
+    Generator_Call(self);
     _ACTWait(60);
-    Generator_Call(a0);
+    Generator_Call(self);
     _ACTWait(60);
-    Generator_Call(a0);
+    Generator_Call(self);
     _ACTWait(60);
-    Generator_Call(a0);
+    Generator_Call(self);
     _ACTWait(60);
-    Generator_Call(a0);
-    Generator_MaskOff(a0);
+    Generator_Call(self);
+    Generator_MaskOff(self);
 }
 
-void actSt07aGene3(GObj *volatile a0)
+void actSt07aGene3(GObj *volatile self)
 {
-    GObj *x = a0;
-    actInitialize(a0);
+    GObj *x = self;
+    actInitialize(self);
     _ACTWait(1);
-    Generator_Mask(a0);
+    Generator_Mask(self);
     while (gflagChk(132) == 0) {
         _ACTWait(1);
     }
     _ACTWait(60);
-    Generator_Call(a0);
+    Generator_Call(self);
     _ACTWait(60);
-    Generator_Call(a0);
+    Generator_Call(self);
     _ACTWait(60);
-    Generator_Call(a0);
+    Generator_Call(self);
     _ACTWait(60);
-    Generator_Call(a0);
+    Generator_Call(self);
     _ACTWait(60);
-    Generator_Call(a0);
-    Generator_MaskOff(a0);
+    Generator_Call(self);
+    Generator_MaskOff(self);
 }
 
-void actSt07aEne2(GObj *volatile a0)
+void actSt07aEne2(GObj *volatile self)
 {
-    GObj *x = a0;
-    Act *self = actInitialize(a0);
+    GObj *x = self;
+    Act *act = actInitialize(self);
 
     _ACTWait(1);
 
     if (gflagChk(134) == 0) {
         ene2_mes[0].func = actSt07aEne2Chk;
-        self->mail = ene2_mes;
-        ACTSendMailCorrect(a0, 430);
+        act->mail = ene2_mes;
+        ACTSendMailCorrect(self, 430);
         _ACTWait(0);
     }
 }
 
-void actSt07aGene2_1(GObj *volatile a0)
+void actSt07aGene2_1(GObj *volatile self)
 {
-    GObj *x = a0;
-    actInitialize(a0);
+    GObj *x = self;
+    actInitialize(self);
     _ACTWait(1);
-    Generator_Mask(a0);
+    Generator_Mask(self);
     while (gflagChk(135) == 0) {
         _ACTWait(1);
     }
     _ACTWait(1);
-    Generator_MaskOff(a0);
-    Generator_Call(a0);
+    Generator_MaskOff(self);
+    Generator_Call(self);
     _ACTWait(60);
-    Generator_Call(a0);
+    Generator_Call(self);
     _ACTWait(60);
-    Generator_Call(a0);
+    Generator_Call(self);
     _ACTWait(60);
-    Generator_Call(a0);
+    Generator_Call(self);
 }
 
-void actSt07aGene2_2(GObj *volatile a0)
+void actSt07aGene2_2(GObj *volatile self)
 {
-    GObj *x = a0;
-    actInitialize(a0);
+    GObj *x = self;
+    actInitialize(self);
     _ACTWait(1);
-    Generator_Mask(a0);
+    Generator_Mask(self);
     while (gflagChk(135) == 0) {
         _ACTWait(1);
     }
     _ACTWait(1);
-    Generator_Call(a0);
+    Generator_Call(self);
     _ACTWait(60);
-    Generator_Call(a0);
+    Generator_Call(self);
     _ACTWait(60);
-    Generator_Call(a0);
+    Generator_Call(self);
     _ACTWait(60);
-    Generator_Call(a0);
+    Generator_Call(self);
     _ACTWait(60);
-    Generator_Call(a0);
-    Generator_MaskOff(a0);
+    Generator_Call(self);
+    Generator_MaskOff(self);
 }
 
-void actSt07aGene2_3(GObj *volatile a0)
+void actSt07aGene2_3(GObj *volatile self)
 {
-    GObj *x = a0;
-    actInitialize(a0);
+    GObj *x = self;
+    actInitialize(self);
     _ACTWait(1);
-    Generator_Mask(a0);
+    Generator_Mask(self);
     while (gflagChk(135) == 0) {
         _ACTWait(1);
     }
     _ACTWait(1);
-    Generator_MaskOff(a0);
+    Generator_MaskOff(self);
 }
 
-static void actSt07aChanReadyChk(GObj *volatile a0)
+static void actSt07aChanReadyChk(GObj *volatile self)
 {
-    GObj *x = a0;
-    actInitialize(a0);
+    GObj *x = self;
+    actInitialize(self);
     _ACTWait(1);
     while (scpTriggerFloorAttr(boyGObj, 0x1000000) == 0) {
         _ACTWait(1);
@@ -891,10 +892,10 @@ static void actSt07aChanReadyChk(GObj *volatile a0)
     scpAdpcmPlayRequestFunc(59, &bridge, 1, 1, 0);
 }
 
-static void actSt07aChanChainChk(GObj *volatile a0)
+static void actSt07aChanChainChk(GObj *volatile self)
 {
-    GObj *x = a0;
-    actInitialize(a0);
+    GObj *x = self;
+    actInitialize(self);
     _ACTWait(1);
 
     while (gflagChk(127) == 0) {
@@ -922,7 +923,7 @@ void actSt07ChanEvent(int x)
     volatile int local = x;
 }
 
-void actSt07aChanFall(GObj *volatile a0)
+void actSt07aChanFall(GObj *volatile self)
 {
     stage_SetAnimation(356, 1, 0);
     _ACTWait(5);
@@ -940,7 +941,7 @@ void actSt07aChanFall(GObj *volatile a0)
     _ACTWait(0);
 }
 
-void actSt07aChanMot(GObj *volatile a0)
+void actSt07aChanMot(GObj *volatile self)
 {
     scpPlayMot(boyGObj, 474);
     scpPlayWaitMotEnd(boyGObj);
@@ -951,7 +952,7 @@ void actSt07aChanMot(GObj *volatile a0)
     _ACTWait(0);
 }
 
-void actSt07aChanWay1(volatile unsigned int a0)
+void actSt07aChanWay1(volatile unsigned int self)
 {
     long long buf[2];
     buf[0] = chanWay1Pos.d[0];
@@ -960,7 +961,7 @@ void actSt07aChanWay1(volatile unsigned int a0)
     _ACTWait(0);
 }
 
-void actSt07aChanWay2(volatile unsigned int a0)
+void actSt07aChanWay2(volatile unsigned int self)
 {
     long long buf[2];
     buf[0] = chanWay2Pos.d[0];
@@ -974,7 +975,7 @@ void actSt07TsuroEvent(int x)
     volatile int local = x;
 }
 
-void actSt07aTsuroConte(GObj *volatile a0)
+void actSt07aTsuroConte(GObj *volatile self)
 {
     stage_SetAnimation(357, 1, 0);
     stage_SetAnimation(358, 1, 0);
@@ -991,7 +992,7 @@ void actSt07aTsuroConte(GObj *volatile a0)
     _ACTWait(0);
 }
 
-void actSt07aGirlWay(volatile unsigned int a0)
+void actSt07aGirlWay(volatile unsigned int self)
 {
     long long buf[2];
     buf[0] = tsuroChkPos.d[0];
@@ -1005,9 +1006,9 @@ void actSt07aCamera2(int x)
     volatile int local = x;
 }
 
-void actSt07aIntroChk(GObj *volatile a0)
+void actSt07aIntroChk(GObj *volatile self)
 {
-    while (scpTriggerBall(a0, boyGObj, 100.0f) == 0) {
+    while (scpTriggerBall(self, boyGObj, 100.0f) == 0) {
         _ACTWait(1);
     }
 
@@ -1032,7 +1033,7 @@ void actSt07aSekizoEvent(int x)
     volatile int local = x;
 }
 
-void actSt07aEne2Chk(GObj *volatile a0)
+void actSt07aEne2Chk(GObj *volatile self)
 {
     if (girlGObj == 0) {
         _ACTWait(0);

@@ -14,7 +14,7 @@
 #include "script.h"
 #include "main.h"
 
-static void actSt24aSwordSub(GObj *volatile a0);
+static void actSt24aSwordSub(GObj *volatile self);
 
 static ActMail sword_mes[2] = {{430}, {429}}; /* derived name */
 
@@ -77,9 +77,9 @@ void actSt24aSwordChk(GObj *volatile self)
     scpBoyControlReadDisable = 0;
 }
 
-static void actSt24aDemoCamChk(GObj *volatile a0)
+static void actSt24aDemoCamChk(GObj *volatile self)
 {
-    while (scpTriggerBall(a0, boyGObj, 700.0f) == 0) {
+    while (scpTriggerBall(self, boyGObj, 700.0f) == 0) {
         _ACTWait(1);
     }
     lt_switch_layout(55);
@@ -108,46 +108,46 @@ static void actSt24aDemoCamChk(GObj *volatile a0)
     scpBoyControlReadDisable = 0;
 }
 
-void actSt24aSword(GObj *volatile a0)
+void actSt24aSword(GObj *volatile self)
 {
-    GObj *x = a0;
-    Act *self = actInitialize(a0);
+    GObj *x = self;
+    Act *act = actInitialize(self);
     _ACTWait(1);
 
     ScpCallCameraSetTarget(363.0f, 1307.0f, -3297.0f);
 
     if (gflagChk(329) == 0) {
         sword_mes[0].func = actSt24aSwordChk;
-        self->mail = sword_mes;
-        ACTSendMailCorrect(a0, 430);
+        act->mail = sword_mes;
+        ACTSendMailCorrect(self, 430);
         _ACTWait(0);
     }
 }
 
-void actSt24aSaku(GObj *volatile a0)
+void actSt24aSaku(GObj *volatile self)
 {
-    GObj *x = a0;
-    actInitialize(a0);
+    GObj *x = self;
+    actInitialize(self);
     _ACTWait(1);
 
     stage_SetAnimation(151, 0, 0);
 }
 
-void actSt24aDemoCam(GObj *volatile a0)
+void actSt24aDemoCam(GObj *volatile self)
 {
-    GObj *x = a0;
-    Act *self = actInitialize(a0);
+    GObj *x = self;
+    Act *act = actInitialize(self);
     _ACTWait(1);
 
     if (gflagChk(330) == 0) {
         demoCam_mes[0].func = actSt24aDemoCamChk;
-        self->mail = demoCam_mes;
-        ACTSendMailCorrect(a0, 430);
+        act->mail = demoCam_mes;
+        ACTSendMailCorrect(self, 430);
         _ACTWait(0);
     }
 }
 
-static void actSt24aSwordSub(GObj *volatile a0)
+static void actSt24aSwordSub(GObj *volatile self)
 {
     while (sword == 0) {
         _ACTWait(1);

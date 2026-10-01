@@ -44,7 +44,7 @@ int sekizo_4b = 0;
 
 unsigned char sekizo_4b_vol = 0;
 
-void actSt04bSekizoChk(GObj *volatile a0)
+void actSt04bSekizoChk(GObj *volatile self)
 {
     /* soundSeDefPlay hands back a slot id the sound side keeps updating, so
        the handle is read again at the stop site */
@@ -56,7 +56,8 @@ void actSt04bSekizoChk(GObj *volatile a0)
         _ACTWait(0);
     }
 
-    while (scpTriggerBall(a0, boyGObj, 200.0f) == 0 || scpTriggerBall(a0, girlGObj, 200.0f) == 0) {
+    while (scpTriggerBall(self, boyGObj, 200.0f) == 0 ||
+           scpTriggerBall(self, girlGObj, 200.0f) == 0) {
         _ACTWait(1);
     }
 
@@ -93,7 +94,7 @@ void actSt04bSekizoChk(GObj *volatile a0)
     scpPlayPosSet(girlGObj, -10325.0f, -2150.0f, 0.0f);
     scpPlayPosSet(boyGObj, -10325.0f, -2150.0f, -100.0f);
     _ACTWait(1);
-    sceVu0SubVector(v, test_CURRENTROOT(a0), test_CURRENTROOT(girlGObj));
+    sceVu0SubVector(v, test_CURRENTROOT(self), test_CURRENTROOT(girlGObj));
     scpPlayMotDir(girlGObj, v);
     scpBoyControlReadDisable = 1;
     sceVu0SubVector(v, test_CURRENTROOT(girlGObj), test_CURRENTROOT(boyGObj));
@@ -138,7 +139,7 @@ void actSt04bSekizoChk(GObj *volatile a0)
     scpBoyControlReadDisable = 0;
 }
 
-void actSt04bEne1Chk(GObj *volatile a0)
+void actSt04bEne1Chk(GObj *volatile self)
 {
     if (girlGObj == 0) {
         _ACTWait(0);
@@ -174,11 +175,11 @@ void actSt04bEne1Chk(GObj *volatile a0)
     scpWakeupEnemyOne(3757);
 }
 
-void actSt04bCrest01XL(GObj *volatile a0)
+void actSt04bCrest01XL(GObj *volatile self)
 {
-    GObj *x = a0;
+    GObj *x = self;
 
-    actInitialize(a0);
+    actInitialize(self);
     _ACTWait(1);
 
     if (gflagChk(174) == 0) {
@@ -192,20 +193,20 @@ void actSt04bCrest01XL(GObj *volatile a0)
     }
 }
 
-void actSt04bDoorXL(GObj *volatile a0)
+void actSt04bDoorXL(GObj *volatile self)
 {
-    GObj *x = a0;
+    GObj *x = self;
 
-    actInitialize(a0);
+    actInitialize(self);
     _ACTWait(1);
     stage_SetAnimation(249, 0, 0);
 }
 
-void actSt04bMonyoDoorXL(GObj *volatile a0)
+void actSt04bMonyoDoorXL(GObj *volatile self)
 {
-    GObj *x = a0;
+    GObj *x = self;
 
-    actInitialize(a0);
+    actInitialize(self);
     _ACTWait(1);
 
     if (gflagChk(174) == 0) {
@@ -215,17 +216,17 @@ void actSt04bMonyoDoorXL(GObj *volatile a0)
     }
 }
 
-void actSt04bSekizo(GObj *volatile a0)
+void actSt04bSekizo(GObj *volatile self)
 {
-    GObj *x = a0;
-    Act *self = actInitialize(a0);
+    GObj *x = self;
+    Act *act = actInitialize(self);
     _ACTWait(1);
 
     if (gflagChk(159) == 0) {
         stage_SetAnimation(191, 0, 0);
         sekizo_mes[0].func = actSt04bSekizoChk;
-        self->mail = sekizo_mes;
-        ACTSendMailCorrect(a0, 430);
+        act->mail = sekizo_mes;
+        ACTSendMailCorrect(self, 430);
         _ACTWait(0);
     } else {
         stage_SetAnimation(191, 0, -1);
@@ -235,65 +236,65 @@ void actSt04bSekizo(GObj *volatile a0)
     }
 }
 
-void actSt04bEne1(GObj *volatile a0)
+void actSt04bEne1(GObj *volatile self)
 {
-    GObj *x = a0;
-    Act *self = actInitialize(a0);
+    GObj *x = self;
+    Act *act = actInitialize(self);
     _ACTWait(1);
 
     if (gflagChk(157) == 0) {
         ene1_mes[0].func = actSt04bEne1Chk;
-        self->mail = ene1_mes;
-        ACTSendMailCorrect(a0, 430);
+        act->mail = ene1_mes;
+        ACTSendMailCorrect(self, 430);
         _ACTWait(0);
     }
 }
 
-void actSt04bEnemy1(GObj *volatile a0)
+void actSt04bEnemy1(GObj *volatile self)
 {
-    GObj *x = a0;
+    GObj *x = self;
 
-    actInitialize(a0);
+    actInitialize(self);
     _ACTWait(1);
 
-    Generator_Mask(a0);
+    Generator_Mask(self);
     while (gflagChk(158) == 0) {
         _ACTWait(1);
     }
-    Generator_MaskOff(a0);
+    Generator_MaskOff(self);
 
-    Generator_Call(a0);
+    Generator_Call(self);
     _ACTWait(60);
-    Generator_Call(a0);
+    Generator_Call(self);
     _ACTWait(60);
-    Generator_Call(a0);
+    Generator_Call(self);
 }
 
-void actSt04bEnemy2(GObj *volatile a0)
+void actSt04bEnemy2(GObj *volatile self)
 {
-    GObj *x = a0;
+    GObj *x = self;
 
-    actInitialize(a0);
+    actInitialize(self);
     _ACTWait(1);
 
-    Generator_Mask(a0);
+    Generator_Mask(self);
     while (gflagChk(158) == 0) {
         _ACTWait(1);
     }
-    Generator_MaskOff(a0);
+    Generator_MaskOff(self);
 
-    Generator_Call(a0);
+    Generator_Call(self);
     _ACTWait(60);
-    Generator_Call(a0);
+    Generator_Call(self);
     _ACTWait(60);
-    Generator_Call(a0);
+    Generator_Call(self);
 }
 
-void actSt04bBallXL(GObj *volatile a0)
+void actSt04bBallXL(GObj *volatile self)
 {
-    GObj *x = a0;
+    GObj *x = self;
 
-    actInitialize(a0);
+    actInitialize(self);
     _ACTWait(1);
 
     if (gflagChk(138) == 0) {
@@ -303,11 +304,11 @@ void actSt04bBallXL(GObj *volatile a0)
     }
 }
 
-void actSt04bSolarXL(GObj *volatile a0)
+void actSt04bSolarXL(GObj *volatile self)
 {
-    GObj *x = a0;
+    GObj *x = self;
 
-    actInitialize(a0);
+    actInitialize(self);
     _ACTWait(1);
 
     if (gflagChk(138) == 0) {
@@ -321,7 +322,7 @@ void actSt04bSekizoEvent(int x)
     volatile int local = x;
 }
 
-void actSt04bGirlWay(GObj *volatile a0)
+void actSt04bGirlWay(GObj *volatile self)
 {
     long long buf[2];
     long long way[2];

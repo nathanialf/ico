@@ -26,7 +26,7 @@ int lightning = 0;
 
 static int lightningAnims[2] = {758, 759}; /* derived name */
 
-void actSt22aLightningVolime(GObj *volatile a0)
+void actSt22aLightningVolime(GObj *volatile self)
 {
     /* the lightning's volume for height y, nested in this function */
     inline float getVolume(float y) /* derived name */
@@ -63,12 +63,12 @@ static ActMail intro_mes[2] = {{430}, {429}}; /* derived name */
 static const StVec introFacePos = {{-2000.0f, 0.0f, -1129.0f, 1.0f}}; /* derived name */
 
 /* no header declares it; gamesys.c defines it */
-void actSt22aIntroChk(GObj *volatile a0);
+void actSt22aIntroChk(GObj *volatile self);
 
-void actSt22aIntro(GObj *volatile a0)
+void actSt22aIntro(GObj *volatile self)
 {
-    GObj *x = a0;
-    Act *self = actInitialize(a0);
+    GObj *x = self;
+    Act *act = actInitialize(self);
     StVec pos;
     float dir[4];
 
@@ -94,8 +94,8 @@ void actSt22aIntro(GObj *volatile a0)
         scpFadeOut(255.0f, 0, 0, 0);
         gamesysNObjInfoInit();
         intro_mes[0].func = actSt22aIntroChk;
-        self->mail = intro_mes;
-        ACTSendMailCorrect(a0, 430);
+        act->mail = intro_mes;
+        ACTSendMailCorrect(self, 430);
         _ACTWait(0);
     } else {
         gflagOn(324);
@@ -115,7 +115,7 @@ typedef struct St22Anims { /* field names derived */
     int id[2];
 } St22Anims; /* derived name */
 
-void actSt22aIntroChk(GObj *volatile a0)
+void actSt22aIntroChk(GObj *volatile self)
 {
     St22Anims anims;
     StVec pos;
@@ -173,7 +173,7 @@ void actSt22aIntroChk(GObj *volatile a0)
     scpBoyControlReadDisable = 0;
 }
 
-void actSt22aIntroSub(GObj *volatile a0)
+void actSt22aIntroSub(GObj *volatile self)
 {
     StVec pos;
     float dir[4];

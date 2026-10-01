@@ -22,14 +22,14 @@ static const PosBox exitRPos = {{854.0f, -156.0f, -400.0f, 0.0f}}; /* derived na
 
 static const PosBox exitLPos = {{854.0f, -156.0f, 400.0f, 0.0f}}; /* derived name */
 
-void actSt13dExit(GObj *volatile a0)
+void actSt13dExit(GObj *volatile self)
 {
-    GObj *x = a0;
+    GObj *x = self;
     PosBox pos;
     PosBox size;
     PosBox p;
 
-    actInitialize(a0);
+    actInitialize(self);
     _ACTWait(1);
 
     if (gflagChk(18) == 0) {
@@ -48,14 +48,14 @@ void actSt13dExit(GObj *volatile a0)
     RequestStageChange(2, boyGObj, 0, 16.0f, 16.0f);
 }
 
-void actSt13dExitR(GObj *volatile a0)
+void actSt13dExitR(GObj *volatile self)
 {
-    GObj *x = a0;
+    GObj *x = self;
     PosBox pos;
     PosBox size;
     PosBox p;
 
-    actInitialize(a0);
+    actInitialize(self);
     _ACTWait(1);
 
     pos = exitRPos;
@@ -70,14 +70,14 @@ void actSt13dExitR(GObj *volatile a0)
     RequestStageChange(7, boyGObj, 0, 16.0f, 16.0f);
 }
 
-void actSt13dExitL(GObj *volatile a0)
+void actSt13dExitL(GObj *volatile self)
 {
-    GObj *x = a0;
+    GObj *x = self;
     PosBox pos;
     PosBox size;
     PosBox p;
 
-    actInitialize(a0);
+    actInitialize(self);
     _ACTWait(1);
 
     pos = exitLPos;

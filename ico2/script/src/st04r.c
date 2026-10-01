@@ -24,8 +24,8 @@
 #include "script.h"
 #include "main.h"
 
-static void actSt04rBrg1Sub(GObj *volatile a0);
-static void openGate(struct GObj *a0);
+static void actSt04rBrg1Sub(GObj *volatile self);
+static void openGate(struct GObj *self);
 
 static ActMail c1_ball_main_mes[2] = {{406, actSt04rC1BallSwitch}, {429}}; /* derived name */
 
@@ -349,10 +349,10 @@ void actSt05eInit(void)
     }
 }
 
-void actSt04rCrest02(GObj *volatile a0)
+void actSt04rCrest02(GObj *volatile self)
 {
-    GObj *x = a0;
-    Act *self = actInitialize(a0);
+    GObj *x = self;
+    Act *act = actInitialize(self);
     _ACTWait(1);
 
     if (gflagChk(244) == 0) {
@@ -363,8 +363,8 @@ void actSt04rCrest02(GObj *volatile a0)
         }
 
         crest02_mes[0].func = actSt04rCrest2Main;
-        self->mail = crest02_mes;
-        ACTSendMailCorrect(a0, 430);
+        act->mail = crest02_mes;
+        ACTSendMailCorrect(self, 430);
         _ACTWait(0);
     } else {
         if (current_stage_no == 28) {
@@ -377,7 +377,7 @@ void actSt04rCrest02(GObj *volatile a0)
     }
 }
 
-static void openGateSub(GObj *volatile a0)
+static void openGateSub(GObj *volatile self)
 {
     stage_SetAnimation(gateAnim, 1, 0);
 
@@ -406,7 +406,7 @@ static void openGateSub(GObj *volatile a0)
     _ACTWait(0);
 }
 
-static void openGate(GObj *a0)
+static void openGate(GObj *self)
 {
     GProc *th;
 
@@ -460,7 +460,7 @@ static void openGate(GObj *a0)
     scpBoyControlReadDisable = 0;
 }
 
-void actSt04rCrest2Main(GObj *volatile a0)
+void actSt04rCrest2Main(GObj *volatile self)
 {
     int anim;
 
@@ -484,7 +484,7 @@ void actSt04rCrest2Main(GObj *volatile a0)
     }
 
     gateAdpcm = 25;
-    openGate(a0);
+    openGate(self);
 
     if (current_stage_no == 28) {
         gflagOn(248);
@@ -500,7 +500,7 @@ void actSt04rCrest2Main(GObj *volatile a0)
     gflagOff(233);
 }
 
-void actSt04rCrest3Main(GObj *volatile a0)
+void actSt04rCrest3Main(GObj *volatile self)
 {
     while (scpIsTorchLightOn(1489) == 0 || scpIsTorchLightOn(1490) == 0 || gflagChk(252) == 0) {
         _ACTWait(1);
@@ -518,7 +518,7 @@ void actSt04rCrest3Main(GObj *volatile a0)
 
     gateAnim = 313;
     gateAdpcm = 24;
-    openGate(a0);
+    openGate(self);
 
     scpWakeupEnemyOne(3757);
 
@@ -533,10 +533,10 @@ void actSt04rCrest3Main(GObj *volatile a0)
     gflagOff(233);
 }
 
-void actSt04rSolarBeam(GObj *volatile a0)
+void actSt04rSolarBeam(GObj *volatile self)
 {
-    GObj *x = a0;
-    Act *self = actInitialize(a0);
+    GObj *x = self;
+    Act *act = actInitialize(self);
     _ACTWait(1);
 
     solar4r = 0;
@@ -564,15 +564,15 @@ void actSt04rSolarBeam(GObj *volatile a0)
         }
 
         solar_beam_mes[0].func = actSt04rSolarBeamChk;
-        self->mail = solar_beam_mes;
-        ACTSendMailCorrect(a0, 430);
+        act->mail = solar_beam_mes;
+        ACTSendMailCorrect(self, 430);
         _ACTWait(0);
     } else {
         scpBoyControlReadDisable = 0;
     }
 }
 
-void actSt04rSolarBeamChk(GObj *volatile a0)
+void actSt04rSolarBeamChk(GObj *volatile self)
 {
     while (gflagChk(243) == 0 || gflagChk(244) == 0 || gflagChk(245) == 0 || gflagChk(232) == 0) {
         _ACTWait(1);
@@ -624,7 +624,7 @@ void actSt04rSolarBeamChk(GObj *volatile a0)
     RequestStageChange(15, boyGObj, 0, 2.0f, 8.0f);
 }
 
-static void actSt04rStairSub(GObj *volatile a0)
+static void actSt04rStairSub(GObj *volatile self)
 {
     long long buf[2];
     float dir[4];
@@ -687,7 +687,7 @@ static void actSt04rStairSub(GObj *volatile a0)
     _ACTWait(0);
 }
 
-void actSt04rStairChk(GObj *volatile a0)
+void actSt04rStairChk(GObj *volatile self)
 {
     GProc *th;
 
@@ -783,7 +783,7 @@ void actSt04rStairChk(GObj *volatile a0)
     lt_switch_layout(54);
 }
 
-void actSt04rSekizoChk(GObj *volatile a0)
+void actSt04rSekizoChk(GObj *volatile self)
 {
     float dir[4];
 
@@ -791,7 +791,8 @@ void actSt04rSekizoChk(GObj *volatile a0)
         _ACTWait(0);
     }
 
-    while (scpTriggerBall(a0, boyGObj, 200.0f) == 0 || scpTriggerBall(a0, girlGObj, 200.0f) == 0 ||
+    while (scpTriggerBall(self, boyGObj, 200.0f) == 0 ||
+           scpTriggerBall(self, girlGObj, 200.0f) == 0 ||
            scpTriggerFloorAttr(boyGObj, 0x8000000) == 0 ||
            scpTriggerFloorAttr(girlGObj, 0x8000000) == 0) {
         _ACTWait(1);
@@ -828,7 +829,7 @@ void actSt04rSekizoChk(GObj *volatile a0)
     scpPlayPosSet(boyGObj, 20.0f, -1300.0f, -1700.0f);
     _ACTWait(1);
 
-    sceVu0SubVector(dir, test_CURRENTROOT(a0), test_CURRENTROOT(girlGObj));
+    sceVu0SubVector(dir, test_CURRENTROOT(self), test_CURRENTROOT(girlGObj));
     scpPlayMotDir(girlGObj, dir);
 
     scpBoyControlReadDisable = 1;
@@ -869,10 +870,10 @@ void actSt04rSekizoChk(GObj *volatile a0)
     scpBoyControlReadDisable = 0;
 }
 
-void actSt04rRope1Chk(GObj *volatile a0)
+void actSt04rRope1Chk(GObj *volatile self)
 {
-    GObj *x = a0;
-    actInitialize(a0);
+    GObj *x = self;
+    actInitialize(self);
     _ACTWait(1);
 
     while (gflagChk(261) == 0) {
@@ -904,10 +905,10 @@ void actSt04rRope1Chk(GObj *volatile a0)
     }
 }
 
-void actSt04rRope2Chk(GObj *volatile a0)
+void actSt04rRope2Chk(GObj *volatile self)
 {
-    GObj *x = a0;
-    actInitialize(a0);
+    GObj *x = self;
+    actInitialize(self);
     _ACTWait(1);
 
     while (gflagChk(262) == 0) {
@@ -939,7 +940,7 @@ void actSt04rRope2Chk(GObj *volatile a0)
     }
 }
 
-void actSt04rBrgCommon(GObj *volatile a0)
+void actSt04rBrgCommon(GObj *volatile self)
 {
     GProc *th;
 
@@ -984,10 +985,10 @@ void actSt04rBrgCommon(GObj *volatile a0)
     lt_switch_layout(54);
 }
 
-void actSt04rRope3Chk(GObj *volatile a0)
+void actSt04rRope3Chk(GObj *volatile self)
 {
-    GObj *x = a0;
-    actInitialize(a0);
+    GObj *x = self;
+    actInitialize(self);
     _ACTWait(1);
 
     while (gflagChk(263) == 0) {
@@ -1019,10 +1020,10 @@ void actSt04rRope3Chk(GObj *volatile a0)
     }
 }
 
-void actSt04rRope4Chk(GObj *volatile a0)
+void actSt04rRope4Chk(GObj *volatile self)
 {
-    GObj *x = a0;
-    actInitialize(a0);
+    GObj *x = self;
+    actInitialize(self);
     _ACTWait(1);
 
     while (gflagChk(264) == 0) {
@@ -1054,7 +1055,7 @@ void actSt04rRope4Chk(GObj *volatile a0)
     }
 }
 
-void actSt04rMonyou01Chk(GObj *volatile a0)
+void actSt04rMonyou01Chk(GObj *volatile self)
 {
     if (girlGObj == 0) {
         _ACTWait(0);
@@ -1106,7 +1107,7 @@ void actSt04rMonyou01Chk(GObj *volatile a0)
     scpBoyControlReadDisable = 0;
 }
 
-void actSt04rMonyou02Chk(GObj *volatile a0)
+void actSt04rMonyou02Chk(GObj *volatile self)
 {
     if (girlGObj == 0) {
         _ACTWait(0);
@@ -1158,7 +1159,7 @@ void actSt04rMonyou02Chk(GObj *volatile a0)
     scpBoyControlReadDisable = 0;
 }
 
-void actSt04rMonyou03Chk(GObj *volatile a0)
+void actSt04rMonyou03Chk(GObj *volatile self)
 {
     if (girlGObj == 0) {
         _ACTWait(0);
@@ -1210,7 +1211,7 @@ void actSt04rMonyou03Chk(GObj *volatile a0)
     scpBoyControlReadDisable = 0;
 }
 
-void actSt04rMonyou04Chk(GObj *volatile a0)
+void actSt04rMonyou04Chk(GObj *volatile self)
 {
     if (girlGObj == 0) {
         _ACTWait(0);
@@ -1262,7 +1263,7 @@ void actSt04rMonyou04Chk(GObj *volatile a0)
     scpBoyControlReadDisable = 0;
 }
 
-void actSt04rMonyou05Chk(GObj *volatile a0)
+void actSt04rMonyou05Chk(GObj *volatile self)
 {
     if (girlGObj == 0) {
         _ACTWait(0);
@@ -1314,7 +1315,7 @@ void actSt04rMonyou05Chk(GObj *volatile a0)
     scpBoyControlReadDisable = 0;
 }
 
-void actSt04rMonyou06Chk(GObj *volatile a0)
+void actSt04rMonyou06Chk(GObj *volatile self)
 {
     if (girlGObj == 0) {
         _ACTWait(0);
@@ -1366,7 +1367,7 @@ void actSt04rMonyou06Chk(GObj *volatile a0)
     scpBoyControlReadDisable = 0;
 }
 
-void actSt04rMonyou07Chk(GObj *volatile a0)
+void actSt04rMonyou07Chk(GObj *volatile self)
 {
     if (girlGObj == 0) {
         _ACTWait(0);
@@ -1418,11 +1419,11 @@ void actSt04rMonyou07Chk(GObj *volatile a0)
     scpBoyControlReadDisable = 0;
 }
 
-void actSt04rBarricadeChk(GObj *volatile a0)
+void actSt04rBarricadeChk(GObj *volatile self)
 {
     GObj *n;
 
-    while ((n = scpIsBombExplode(19)) == 0 || scpTriggerBall(a0, n, 350.0f) == 0) {
+    while ((n = scpIsBombExplode(19)) == 0 || scpTriggerBall(self, n, 350.0f) == 0) {
         _ACTWait(1);
     }
 
@@ -1465,9 +1466,9 @@ void actSt04rBarricadeChk(GObj *volatile a0)
     lt_switch_layout(54);
 }
 
-void actSt04rGondolaChk(GObj *volatile a0)
+void actSt04rGondolaChk(GObj *volatile self)
 {
-    Act *sub = GOBJ_ACT(a0);
+    Act *sub = GOBJ_ACT(self);
 
     while (scpTriggerFloorAttr(boyGObj, 0xA000000) == 0) {
         _ACTWait(1);
@@ -1567,36 +1568,36 @@ void actSt04rGondolaChk(GObj *volatile a0)
 
     gondola_chk_mes[0].func = actSt04rGondolaCharaChk;
     sub->mail = gondola_chk_mes;
-    ACTSendMailCorrect(a0, 430);
+    ACTSendMailCorrect(self, 430);
     _ACTWait(0);
 }
 
-void actSt04rSolarStageChange(GObj *volatile a0)
+void actSt04rSolarStageChange(GObj *volatile self)
 {
-    GObj *x = a0;
-    Act *self = actInitialize(a0);
+    GObj *x = self;
+    Act *act = actInitialize(self);
     _ACTWait(1);
 
     if (gflagChk(234) == 0) {
         solar_stage_change_mes[0].func = actSt04rSolarStageChangeChk;
-        self->mail = solar_stage_change_mes;
-        ACTSendMailCorrect(a0, 430);
+        act->mail = solar_stage_change_mes;
+        ACTSendMailCorrect(self, 430);
         _ACTWait(0);
     }
 }
 
-void actSt04rCrest01(GObj *volatile a0)
+void actSt04rCrest01(GObj *volatile self)
 {
-    GObj *x = a0;
-    Act *self = actInitialize(a0);
+    GObj *x = self;
+    Act *act = actInitialize(self);
     _ACTWait(1);
 
     if (gflagChk(243) == 0) {
         stage_SetAnimation(309, 0, 0);
 
         crest01_mes[0].func = actSt04rCrestMain;
-        self->mail = crest01_mes;
-        ACTSendMailCorrect(a0, 430);
+        act->mail = crest01_mes;
+        ACTSendMailCorrect(self, 430);
         _ACTWait(0);
     } else {
         stage_SetAnimation(309, 0, -1);
@@ -1604,18 +1605,18 @@ void actSt04rCrest01(GObj *volatile a0)
     }
 }
 
-void actSt04rCrest03(GObj *volatile a0)
+void actSt04rCrest03(GObj *volatile self)
 {
-    GObj *x = a0;
-    Act *self = actInitialize(a0);
+    GObj *x = self;
+    Act *act = actInitialize(self);
     _ACTWait(1);
 
     if (gflagChk(245) == 0) {
         stage_SetAnimation(313, 0, 0);
 
         crest03_mes[0].func = actSt04rCrest3Main;
-        self->mail = crest03_mes;
-        ACTSendMailCorrect(a0, 430);
+        act->mail = crest03_mes;
+        ACTSendMailCorrect(self, 430);
         _ACTWait(0);
     } else {
         stage_SetAnimation(313, 0, -1);
@@ -1623,10 +1624,10 @@ void actSt04rCrest03(GObj *volatile a0)
     }
 }
 
-void actSt04rC1Ball(GObj *volatile a0)
+void actSt04rC1Ball(GObj *volatile self)
 {
-    GObj *x = a0;
-    Act *self = actInitialize(a0);
+    GObj *x = self;
+    Act *act = actInitialize(self);
     _ACTWait(1);
 
     if (gflagChk(250) == 0) {
@@ -1636,18 +1637,18 @@ void actSt04rC1Ball(GObj *volatile a0)
         stage_SetAnimation(317, 0, 0);
 
         c1_ball_mes[0].func = actSt04rC1BallMain;
-        self->mail = c1_ball_mes;
-        ACTSendMailCorrect(a0, 430);
+        act->mail = c1_ball_mes;
+        ACTSendMailCorrect(self, 430);
         _ACTWait(0);
     } else {
         stage_SetAnimation(317, 0, -1);
     }
 }
 
-void actSt04rC2Ball(GObj *volatile a0)
+void actSt04rC2Ball(GObj *volatile self)
 {
-    GObj *x = a0;
-    Act *self = actInitialize(a0);
+    GObj *x = self;
+    Act *act = actInitialize(self);
     _ACTWait(1);
 
     if (gflagChk(251) == 0) {
@@ -1657,18 +1658,18 @@ void actSt04rC2Ball(GObj *volatile a0)
         stage_SetAnimation(318, 0, 0);
 
         c2_ball_mes[0].func = actSt04rC2BallMain;
-        self->mail = c2_ball_mes;
-        ACTSendMailCorrect(a0, 430);
+        act->mail = c2_ball_mes;
+        ACTSendMailCorrect(self, 430);
         _ACTWait(0);
     } else {
         stage_SetAnimation(318, 0, -1);
     }
 }
 
-void actSt04rC3Ball(GObj *volatile a0)
+void actSt04rC3Ball(GObj *volatile self)
 {
-    GObj *x = a0;
-    Act *self = actInitialize(a0);
+    GObj *x = self;
+    Act *act = actInitialize(self);
     _ACTWait(1);
 
     if (gflagChk(252) == 0) {
@@ -1678,25 +1679,25 @@ void actSt04rC3Ball(GObj *volatile a0)
         stage_SetAnimation(319, 0, 0);
 
         c3_ball_mes[0].func = actSt04rC3BallMain;
-        self->mail = c3_ball_mes;
-        ACTSendMailCorrect(a0, 430);
+        act->mail = c3_ball_mes;
+        ACTSendMailCorrect(self, 430);
         _ACTWait(0);
     } else {
         stage_SetAnimation(319, 0, -1);
     }
 }
 
-void actSt04rStair(GObj *volatile a0)
+void actSt04rStair(GObj *volatile self)
 {
-    GObj *x = a0;
-    Act *self = actInitialize(a0);
+    GObj *x = self;
+    Act *act = actInitialize(self);
     _ACTWait(1);
 
     if (gflagChk(253) == 0) {
         if (girlGObj != 0) {
             stair_mes[0].func = actSt04rStairChk;
-            self->mail = stair_mes;
-            ACTSendMailCorrect(a0, 430);
+            act->mail = stair_mes;
+            ACTSendMailCorrect(self, 430);
             _ACTWait(0);
         }
     } else {
@@ -1706,74 +1707,74 @@ void actSt04rStair(GObj *volatile a0)
     }
 }
 
-void actSt04rBrg1(GObj *volatile a0)
+void actSt04rBrg1(GObj *volatile self)
 {
-    GObj *x = a0;
-    Act *self = actInitialize(a0);
+    GObj *x = self;
+    Act *act = actInitialize(self);
     _ACTWait(1);
 
     if (gflagChk(259) == 0) {
         brg1_mes[0].func = actSt04rBrg1Chk;
-        self->mail = brg1_mes;
-        ACTSendMailCorrect(a0, 430);
+        act->mail = brg1_mes;
+        ACTSendMailCorrect(self, 430);
         _ACTWait(0);
     }
 }
 
-void actSt04rBrg2(GObj *volatile a0)
+void actSt04rBrg2(GObj *volatile self)
 {
-    GObj *x = a0;
-    Act *self = actInitialize(a0);
+    GObj *x = self;
+    Act *act = actInitialize(self);
     _ACTWait(1);
 
     if (gflagChk(260) == 0) {
         brg2_mes[0].func = actSt04rBrg2Chk;
-        self->mail = brg2_mes;
-        ACTSendMailCorrect(a0, 430);
+        act->mail = brg2_mes;
+        ACTSendMailCorrect(self, 430);
         _ACTWait(0);
     }
 }
 
-void actSt04rBrg1Way(GObj *volatile a0)
+void actSt04rBrg1Way(GObj *volatile self)
 {
-    GObj *x = a0;
-    Act *self = actInitialize(a0);
+    GObj *x = self;
+    Act *act = actInitialize(self);
     _ACTWait(1);
 
     if (gflagChk(259) == 0) {
         brg1_way_mes[0].func = actSt04rBrg1WayChk;
-        self->mail = brg1_way_mes;
-        ACTSendMailCorrect(a0, 430);
+        act->mail = brg1_way_mes;
+        ACTSendMailCorrect(self, 430);
         _ACTWait(0);
     }
 }
 
-void actSt04rBrg2Way(GObj *volatile a0)
+void actSt04rBrg2Way(GObj *volatile self)
 {
-    GObj *x = a0;
-    Act *self = actInitialize(a0);
+    GObj *x = self;
+    Act *act = actInitialize(self);
     _ACTWait(1);
 
     if (gflagChk(260) == 0) {
         brg2_way_mes[0].func = actSt04rBrg2WayChk;
-        self->mail = brg2_way_mes;
-        ACTSendMailCorrect(a0, 430);
+        act->mail = brg2_way_mes;
+        ACTSendMailCorrect(self, 430);
         _ACTWait(0);
     }
 }
 
-void actSt04rRope1(GObj *volatile a0)
+void actSt04rRope1(GObj *volatile self)
 {
-    GObj *x = a0;
-    Act *self = actInitialize(a0);
+    GObj *x = self;
+    Act *act = actInitialize(self);
     _ACTWait(1);
 
     if (gflagChk(261) == 0) {
         stage_SetAnimation(320, 0, 0);
 
         rope1_mes[0].func = actSt04rRope1Chk;
-        self->mail = rope1_mes;
-        ACTSendMailCorrect(a0, 430);
+        act->mail = rope1_mes;
+        ACTSendMailCorrect(self, 430);
         _ACTWait(0);
     } else {
         stage_SetAnimation(320, 0, -1);
@@ -1782,18 +1783,18 @@ void actSt04rRope1(GObj *volatile a0)
     }
 }
 
-void actSt04rRope2(GObj *volatile a0)
+void actSt04rRope2(GObj *volatile self)
 {
-    GObj *x = a0;
-    Act *self = actInitialize(a0);
+    GObj *x = self;
+    Act *act = actInitialize(self);
     _ACTWait(1);
 
     if (gflagChk(262) == 0) {
         stage_SetAnimation(321, 0, 0);
 
         rope2_mes[0].func = actSt04rRope2Chk;
-        self->mail = rope2_mes;
-        ACTSendMailCorrect(a0, 430);
+        act->mail = rope2_mes;
+        ACTSendMailCorrect(self, 430);
         _ACTWait(0);
     } else {
         stage_SetAnimation(321, 0, -1);
@@ -1802,18 +1803,18 @@ void actSt04rRope2(GObj *volatile a0)
     }
 }
 
-void actSt04rRope3(GObj *volatile a0)
+void actSt04rRope3(GObj *volatile self)
 {
-    GObj *x = a0;
-    Act *self = actInitialize(a0);
+    GObj *x = self;
+    Act *act = actInitialize(self);
     _ACTWait(1);
 
     if (gflagChk(263) == 0) {
         stage_SetAnimation(322, 0, 0);
 
         rope3_mes[0].func = actSt04rRope3Chk;
-        self->mail = rope3_mes;
-        ACTSendMailCorrect(a0, 430);
+        act->mail = rope3_mes;
+        ACTSendMailCorrect(self, 430);
         _ACTWait(0);
     } else {
         stage_SetAnimation(322, 0, -1);
@@ -1822,18 +1823,18 @@ void actSt04rRope3(GObj *volatile a0)
     }
 }
 
-void actSt04rRope4(GObj *volatile a0)
+void actSt04rRope4(GObj *volatile self)
 {
-    GObj *x = a0;
-    Act *self = actInitialize(a0);
+    GObj *x = self;
+    Act *act = actInitialize(self);
     _ACTWait(1);
 
     if (gflagChk(264) == 0) {
         stage_SetAnimation(323, 0, 0);
 
         rope4_mes[0].func = actSt04rRope4Chk;
-        self->mail = rope4_mes;
-        ACTSendMailCorrect(a0, 430);
+        act->mail = rope4_mes;
+        ACTSendMailCorrect(self, 430);
         _ACTWait(0);
     } else {
         stage_SetAnimation(323, 0, -1);
@@ -1842,70 +1843,70 @@ void actSt04rRope4(GObj *volatile a0)
     }
 }
 
-void actSt04rSekizo(GObj *volatile a0)
+void actSt04rSekizo(GObj *volatile self)
 {
-    GObj *x = a0;
-    Act *self = actInitialize(a0);
+    GObj *x = self;
+    Act *act = actInitialize(self);
     _ACTWait(1);
 
     if (gflagChk(254) == 0) {
         stage_SetAnimation(331, 0, 0);
 
         sekizo_mes[0].func = actSt04rSekizoChk;
-        self->mail = sekizo_mes;
-        ACTSendMailCorrect(a0, 430);
+        act->mail = sekizo_mes;
+        ACTSendMailCorrect(self, 430);
         _ACTWait(0);
     } else {
         stage_SetAnimation(331, 0, -1);
     }
 }
 
-void actSt04rBarricade(GObj *volatile a0)
+void actSt04rBarricade(GObj *volatile self)
 {
-    GObj *x = a0;
-    Act *self = actInitialize(a0);
+    GObj *x = self;
+    Act *act = actInitialize(self);
     _ACTWait(1);
 
     if (gflagChk(265) == 0) {
         stage_SetAnimation(344, 0, 0);
 
         barricade_mes[0].func = actSt04rBarricadeChk;
-        self->mail = barricade_mes;
-        ACTSendMailCorrect(a0, 430);
+        act->mail = barricade_mes;
+        ACTSendMailCorrect(self, 430);
         _ACTWait(0);
     } else {
         stage_SetAnimation(344, 0, -1);
     }
 }
 
-void actSt04rGondola(GObj *volatile a0)
+void actSt04rGondola(GObj *volatile self)
 {
-    GObj *x = a0;
-    Act *self = actInitialize(a0);
+    GObj *x = self;
+    Act *act = actInitialize(self);
     _ACTWait(1);
 
     if (gflagChk(282) != 0) {
         stage_SetAnimation(229, 0, 200);
 
         gondola_mes[0].func = actSt04rGondolaChk;
-        self->mail = gondola_mes;
-        ACTSendMailCorrect(a0, 430);
+        act->mail = gondola_mes;
+        ACTSendMailCorrect(self, 430);
         _ACTWait(0);
     } else {
         stage_SetAnimation(229, 0, 0);
 
         gondola2_mes[0].func = actSt04rGondolaChk;
-        self->mail = gondola2_mes;
-        ACTSendMailCorrect(a0, 430);
+        act->mail = gondola2_mes;
+        ACTSendMailCorrect(self, 430);
         _ACTWait(0);
     }
 }
 
-void actSt04rCrest01XL(GObj *volatile a0)
+void actSt04rCrest01XL(GObj *volatile self)
 {
-    GObj *x = a0;
+    GObj *x = self;
 
-    actInitialize(a0);
+    actInitialize(self);
     _ACTWait(1);
 
     if (gflagChk(243) == 0) {
@@ -1915,11 +1916,11 @@ void actSt04rCrest01XL(GObj *volatile a0)
     }
 }
 
-void actSt04rCrest02XL(GObj *volatile a0)
+void actSt04rCrest02XL(GObj *volatile self)
 {
-    GObj *x = a0;
+    GObj *x = self;
 
-    actInitialize(a0);
+    actInitialize(self);
     _ACTWait(1);
 
     if (gflagChk(244) == 0) {
@@ -1929,11 +1930,11 @@ void actSt04rCrest02XL(GObj *volatile a0)
     }
 }
 
-void actSt04rCrest03XL(GObj *volatile a0)
+void actSt04rCrest03XL(GObj *volatile self)
 {
-    GObj *x = a0;
+    GObj *x = self;
 
-    actInitialize(a0);
+    actInitialize(self);
     _ACTWait(1);
 
     if (gflagChk(245) == 0) {
@@ -1943,11 +1944,11 @@ void actSt04rCrest03XL(GObj *volatile a0)
     }
 }
 
-void actSt04rC2BallXL(GObj *volatile a0)
+void actSt04rC2BallXL(GObj *volatile self)
 {
-    GObj *x = a0;
+    GObj *x = self;
 
-    actInitialize(a0);
+    actInitialize(self);
     _ACTWait(1);
 
     if (gflagChk(251) == 0) {
@@ -1960,11 +1961,11 @@ void actSt04rC2BallXL(GObj *volatile a0)
     }
 }
 
-void actSt04rC3BallXL(GObj *volatile a0)
+void actSt04rC3BallXL(GObj *volatile self)
 {
-    GObj *x = a0;
+    GObj *x = self;
 
-    actInitialize(a0);
+    actInitialize(self);
     _ACTWait(1);
 
     if (gflagChk(252) == 0) {
@@ -1977,16 +1978,16 @@ void actSt04rC3BallXL(GObj *volatile a0)
     }
 }
 
-void actSt04rTorch1_1(GObj *volatile a0)
+void actSt04rTorch1_1(GObj *volatile self)
 {
-    GObj *x = a0;
-    Act *self = actInitialize(a0);
+    GObj *x = self;
+    Act *act = actInitialize(self);
     _ACTWait(1);
 
     if (gflagChk(266) == 0) {
         torch1_1_mes[0].func = actSt04rTorch1_1Chk;
-        self->mail = torch1_1_mes;
-        ACTSendMailCorrect(a0, 430);
+        act->mail = torch1_1_mes;
+        ACTSendMailCorrect(self, 430);
         _ACTWait(0);
     } else {
         scpTorchLightOn(1404);
@@ -1994,16 +1995,16 @@ void actSt04rTorch1_1(GObj *volatile a0)
     }
 }
 
-void actSt04rTorch1_2(GObj *volatile a0)
+void actSt04rTorch1_2(GObj *volatile self)
 {
-    GObj *x = a0;
-    Act *self = actInitialize(a0);
+    GObj *x = self;
+    Act *act = actInitialize(self);
     _ACTWait(1);
 
     if (gflagChk(267) == 0) {
         torch1_2_mes[0].func = actSt04rTorch1_2Chk;
-        self->mail = torch1_2_mes;
-        ACTSendMailCorrect(a0, 430);
+        act->mail = torch1_2_mes;
+        ACTSendMailCorrect(self, 430);
         _ACTWait(0);
     } else {
         scpTorchLightOn(1405);
@@ -2011,74 +2012,74 @@ void actSt04rTorch1_2(GObj *volatile a0)
     }
 }
 
-void actSt04rTorch2_1(GObj *volatile a0)
+void actSt04rTorch2_1(GObj *volatile self)
 {
-    GObj *x = a0;
-    Act *self = actInitialize(a0);
+    GObj *x = self;
+    Act *act = actInitialize(self);
     _ACTWait(1);
 
     if (gflagChk(268) != 0 || gflagChk(270) != 0) {
         scpTorchLightOn(1487);
     } else {
         torch2_1_mes[0].func = actSt04rTorch2_1Chk;
-        self->mail = torch2_1_mes;
-        ACTSendMailCorrect(a0, 430);
+        act->mail = torch2_1_mes;
+        ACTSendMailCorrect(self, 430);
         _ACTWait(0);
     }
 }
 
-void actSt04rTorch2_2(GObj *volatile a0)
+void actSt04rTorch2_2(GObj *volatile self)
 {
-    GObj *x = a0;
-    Act *self = actInitialize(a0);
+    GObj *x = self;
+    Act *act = actInitialize(self);
     _ACTWait(1);
 
     if (gflagChk(269) != 0 || gflagChk(271) != 0) {
         scpTorchLightOn(1488);
     } else {
         torch2_2_mes[0].func = actSt04rTorch2_2Chk;
-        self->mail = torch2_2_mes;
-        ACTSendMailCorrect(a0, 430);
+        act->mail = torch2_2_mes;
+        ACTSendMailCorrect(self, 430);
         _ACTWait(0);
     }
 }
 
-void actSt04rTorch3_1(GObj *volatile a0)
+void actSt04rTorch3_1(GObj *volatile self)
 {
-    GObj *x = a0;
-    Act *self = actInitialize(a0);
+    GObj *x = self;
+    Act *act = actInitialize(self);
     _ACTWait(1);
 
     if (gflagChk(272) == 0) {
         torch3_1_mes[0].func = actSt04rTorch3_1Chk;
-        self->mail = torch3_1_mes;
-        ACTSendMailCorrect(a0, 430);
+        act->mail = torch3_1_mes;
+        ACTSendMailCorrect(self, 430);
         _ACTWait(0);
     } else {
         scpTorchLightOn(1489);
     }
 }
 
-void actSt04rTorch3_2(GObj *volatile a0)
+void actSt04rTorch3_2(GObj *volatile self)
 {
-    GObj *x = a0;
-    Act *self = actInitialize(a0);
+    GObj *x = self;
+    Act *act = actInitialize(self);
     _ACTWait(1);
 
     if (gflagChk(273) == 0) {
         torch3_2_mes[0].func = actSt04rTorch3_2Chk;
-        self->mail = torch3_2_mes;
-        ACTSendMailCorrect(a0, 430);
+        act->mail = torch3_2_mes;
+        ACTSendMailCorrect(self, 430);
         _ACTWait(0);
     } else {
         scpTorchLightOn(1490);
     }
 }
 
-void actSt04rTorch2_1XL(GObj *volatile a0)
+void actSt04rTorch2_1XL(GObj *volatile self)
 {
-    GObj *x = a0;
-    Act *self = actInitialize(a0);
+    GObj *x = self;
+    Act *act = actInitialize(self);
     _ACTWait(1);
 
     if (gflagChk(268) != 0 || gflagChk(270) != 0) {
@@ -2086,16 +2087,16 @@ void actSt04rTorch2_1XL(GObj *volatile a0)
         stage_SetAnimation(212, 0, -1);
     } else {
         torch2_1xl_mes[0].func = actSt04rTorch2_1XLChk;
-        self->mail = torch2_1xl_mes;
-        ACTSendMailCorrect(a0, 430);
+        act->mail = torch2_1xl_mes;
+        ACTSendMailCorrect(self, 430);
         _ACTWait(0);
     }
 }
 
-void actSt04rTorch2_2XL(GObj *volatile a0)
+void actSt04rTorch2_2XL(GObj *volatile self)
 {
-    GObj *x = a0;
-    Act *self = actInitialize(a0);
+    GObj *x = self;
+    Act *act = actInitialize(self);
     _ACTWait(1);
 
     if (gflagChk(269) != 0 || gflagChk(271) != 0) {
@@ -2103,17 +2104,17 @@ void actSt04rTorch2_2XL(GObj *volatile a0)
         stage_SetAnimation(213, 0, -1);
     } else {
         torch2_2xl_mes[0].func = actSt04rTorch2_2XLChk;
-        self->mail = torch2_2xl_mes;
-        ACTSendMailCorrect(a0, 430);
+        act->mail = torch2_2xl_mes;
+        ACTSendMailCorrect(self, 430);
         _ACTWait(0);
     }
 }
 
-void actSt04rTorch3_1XL(GObj *volatile a0)
+void actSt04rTorch3_1XL(GObj *volatile self)
 {
-    GObj *x = a0;
+    GObj *x = self;
 
-    actInitialize(a0);
+    actInitialize(self);
     _ACTWait(1);
 
     if (gflagChk(272) != 0) {
@@ -2121,11 +2122,11 @@ void actSt04rTorch3_1XL(GObj *volatile a0)
     }
 }
 
-void actSt04rTorch3_2XL(GObj *volatile a0)
+void actSt04rTorch3_2XL(GObj *volatile self)
 {
-    GObj *x = a0;
+    GObj *x = self;
 
-    actInitialize(a0);
+    actInitialize(self);
     _ACTWait(1);
 
     if (gflagChk(273) != 0) {
@@ -2133,137 +2134,137 @@ void actSt04rTorch3_2XL(GObj *volatile a0)
     }
 }
 
-void actSt04rMonyou01(GObj *volatile a0)
+void actSt04rMonyou01(GObj *volatile self)
 {
-    GObj *x = a0;
-    Act *self = actInitialize(a0);
+    GObj *x = self;
+    Act *act = actInitialize(self);
     _ACTWait(1);
 
     if (gflagChk(274) == 0) {
         stage_SetAnimation(337, 0, 0);
 
         monyou01_mes[0].func = actSt04rMonyou01Chk;
-        self->mail = monyou01_mes;
-        ACTSendMailCorrect(a0, 430);
+        act->mail = monyou01_mes;
+        ACTSendMailCorrect(self, 430);
         _ACTWait(0);
     } else {
         stage_SetAnimation(337, 0, -1);
     }
 }
 
-void actSt04rMonyou02(GObj *volatile a0)
+void actSt04rMonyou02(GObj *volatile self)
 {
-    GObj *x = a0;
-    Act *self = actInitialize(a0);
+    GObj *x = self;
+    Act *act = actInitialize(self);
     _ACTWait(1);
 
     if (gflagChk(275) == 0) {
         stage_SetAnimation(338, 0, 0);
 
         monyou02_mes[0].func = actSt04rMonyou02Chk;
-        self->mail = monyou02_mes;
-        ACTSendMailCorrect(a0, 430);
+        act->mail = monyou02_mes;
+        ACTSendMailCorrect(self, 430);
         _ACTWait(0);
     } else {
         stage_SetAnimation(338, 0, -1);
     }
 }
 
-void actSt04rMonyou03(GObj *volatile a0)
+void actSt04rMonyou03(GObj *volatile self)
 {
-    GObj *x = a0;
-    Act *self = actInitialize(a0);
+    GObj *x = self;
+    Act *act = actInitialize(self);
     _ACTWait(1);
 
     if (gflagChk(276) == 0) {
         stage_SetAnimation(339, 0, 0);
 
         monyou03_mes[0].func = actSt04rMonyou03Chk;
-        self->mail = monyou03_mes;
-        ACTSendMailCorrect(a0, 430);
+        act->mail = monyou03_mes;
+        ACTSendMailCorrect(self, 430);
         _ACTWait(0);
     } else {
         stage_SetAnimation(339, 0, -1);
     }
 }
 
-void actSt04rMonyou04(GObj *volatile a0)
+void actSt04rMonyou04(GObj *volatile self)
 {
-    GObj *x = a0;
-    Act *self = actInitialize(a0);
+    GObj *x = self;
+    Act *act = actInitialize(self);
     _ACTWait(1);
 
     if (gflagChk(277) == 0) {
         stage_SetAnimation(340, 0, 0);
 
         monyou04_mes[0].func = actSt04rMonyou04Chk;
-        self->mail = monyou04_mes;
-        ACTSendMailCorrect(a0, 430);
+        act->mail = monyou04_mes;
+        ACTSendMailCorrect(self, 430);
         _ACTWait(0);
     } else {
         stage_SetAnimation(340, 0, -1);
     }
 }
 
-void actSt04rMonyou05(GObj *volatile a0)
+void actSt04rMonyou05(GObj *volatile self)
 {
-    GObj *x = a0;
-    Act *self = actInitialize(a0);
+    GObj *x = self;
+    Act *act = actInitialize(self);
     _ACTWait(1);
 
     if (gflagChk(278) == 0) {
         stage_SetAnimation(341, 0, 0);
 
         monyou05_mes[0].func = actSt04rMonyou05Chk;
-        self->mail = monyou05_mes;
-        ACTSendMailCorrect(a0, 430);
+        act->mail = monyou05_mes;
+        ACTSendMailCorrect(self, 430);
         _ACTWait(0);
     } else {
         stage_SetAnimation(341, 0, -1);
     }
 }
 
-void actSt04rMonyou06(GObj *volatile a0)
+void actSt04rMonyou06(GObj *volatile self)
 {
-    GObj *x = a0;
-    Act *self = actInitialize(a0);
+    GObj *x = self;
+    Act *act = actInitialize(self);
     _ACTWait(1);
 
     if (gflagChk(279) == 0) {
         stage_SetAnimation(342, 0, 0);
 
         monyou06_mes[0].func = actSt04rMonyou06Chk;
-        self->mail = monyou06_mes;
-        ACTSendMailCorrect(a0, 430);
+        act->mail = monyou06_mes;
+        ACTSendMailCorrect(self, 430);
         _ACTWait(0);
     } else {
         stage_SetAnimation(342, 0, -1);
     }
 }
 
-void actSt04rMonyou07(GObj *volatile a0)
+void actSt04rMonyou07(GObj *volatile self)
 {
-    GObj *x = a0;
-    Act *self = actInitialize(a0);
+    GObj *x = self;
+    Act *act = actInitialize(self);
     _ACTWait(1);
 
     if (gflagChk(280) == 0) {
         stage_SetAnimation(343, 0, 0);
 
         monyou07_mes[0].func = actSt04rMonyou07Chk;
-        self->mail = monyou07_mes;
-        ACTSendMailCorrect(a0, 430);
+        act->mail = monyou07_mes;
+        ACTSendMailCorrect(self, 430);
         _ACTWait(0);
     } else {
         stage_SetAnimation(343, 0, -1);
     }
 }
 
-void actSt05cDoorInit(GObj *volatile a0)
+void actSt05cDoorInit(GObj *volatile self)
 {
-    GObj *x = a0;
+    GObj *x = self;
 
-    actInitialize(a0);
+    actInitialize(self);
     _ACTWait(1);
 
     if (gflagChk(165) != 0 && gflagChk(234) == 0) {
@@ -2275,9 +2276,9 @@ void actSt05cDoorInit(GObj *volatile a0)
     }
 }
 
-void actSt04rC1BallMain(GObj *volatile a0)
+void actSt04rC1BallMain(GObj *volatile self)
 {
-    Act *sub = GOBJ_ACT(a0);
+    Act *sub = GOBJ_ACT(self);
 
     sub->mainMail = c1_ball_main_mes;
     while (1) {
@@ -2285,9 +2286,9 @@ void actSt04rC1BallMain(GObj *volatile a0)
     }
 }
 
-void actSt04rC1BallSwitch(GObj *volatile a0)
+void actSt04rC1BallSwitch(GObj *volatile self)
 {
-    Act *sub = GOBJ_ACT(a0);
+    Act *sub = GOBJ_ACT(self);
 
     scpBoyControlReadDisable = 1;
 
@@ -2295,18 +2296,18 @@ void actSt04rC1BallSwitch(GObj *volatile a0)
 
     c1_ball_switch_mes[0].func = actSt04rC1BallTurn;
     sub->mail = c1_ball_switch_mes;
-    ACTSendMailCorrect(a0, 430);
+    ACTSendMailCorrect(self, 430);
     _ACTWait(0);
 }
 
-void actSt04rC1BallTurn(GObj *volatile a0)
+void actSt04rC1BallTurn(GObj *volatile self)
 {
-    turnBall(a0, 250, 317, 1404, 1405);
+    turnBall(self, 250, 317, 1404, 1405);
 }
 
-void actSt04rC2BallMain(GObj *volatile a0)
+void actSt04rC2BallMain(GObj *volatile self)
 {
-    Act *sub = GOBJ_ACT(a0);
+    Act *sub = GOBJ_ACT(self);
 
     sub->mainMail = c2_ball_main_mes;
     while (1) {
@@ -2314,9 +2315,9 @@ void actSt04rC2BallMain(GObj *volatile a0)
     }
 }
 
-void actSt04rC2BallSwitch(GObj *volatile a0)
+void actSt04rC2BallSwitch(GObj *volatile self)
 {
-    Act *sub = GOBJ_ACT(a0);
+    Act *sub = GOBJ_ACT(self);
 
     scpBoyControlReadDisable = 1;
 
@@ -2324,18 +2325,18 @@ void actSt04rC2BallSwitch(GObj *volatile a0)
 
     c2_ball_switch_mes[0].func = actSt04rC2BallTurn;
     sub->mail = c2_ball_switch_mes;
-    ACTSendMailCorrect(a0, 430);
+    ACTSendMailCorrect(self, 430);
     _ACTWait(0);
 }
 
-void actSt04rC2BallTurn(GObj *volatile a0)
+void actSt04rC2BallTurn(GObj *volatile self)
 {
-    turnBall(a0, 251, 318, 1487, 1488);
+    turnBall(self, 251, 318, 1487, 1488);
 }
 
-void actSt04rC3BallMain(GObj *volatile a0)
+void actSt04rC3BallMain(GObj *volatile self)
 {
-    Act *sub = GOBJ_ACT(a0);
+    Act *sub = GOBJ_ACT(self);
 
     sub->mainMail = c3_ball_main_mes;
     while (1) {
@@ -2343,9 +2344,9 @@ void actSt04rC3BallMain(GObj *volatile a0)
     }
 }
 
-void actSt04rC3BallSwitch(GObj *volatile a0)
+void actSt04rC3BallSwitch(GObj *volatile self)
 {
-    Act *sub = GOBJ_ACT(a0);
+    Act *sub = GOBJ_ACT(self);
 
     scpBoyControlReadDisable = 1;
 
@@ -2353,16 +2354,16 @@ void actSt04rC3BallSwitch(GObj *volatile a0)
 
     c3_ball_switch_mes[0].func = actSt04rC3BallTurn;
     sub->mail = c3_ball_switch_mes;
-    ACTSendMailCorrect(a0, 430);
+    ACTSendMailCorrect(self, 430);
     _ACTWait(0);
 }
 
-void actSt04rC3BallTurn(GObj *volatile a0)
+void actSt04rC3BallTurn(GObj *volatile self)
 {
-    turnBall(a0, 252, 319, 1489, 1490);
+    turnBall(self, 252, 319, 1489, 1490);
 }
 
-void actSt04rCrestMain(GObj *volatile a0)
+void actSt04rCrestMain(GObj *volatile self)
 {
     while (scpIsTorchLightOn(1404) == 0 || scpIsTorchLightOn(1405) == 0 || gflagChk(250) == 0) {
         _ACTWait(1);
@@ -2370,7 +2371,7 @@ void actSt04rCrestMain(GObj *volatile a0)
 
     gateAnim = 309;
     gateAdpcm = 27;
-    openGate(a0);
+    openGate(self);
     _ACTWait(1);
 
     gflagOn(243);
@@ -2381,7 +2382,7 @@ void actSt04rCrestMain(GObj *volatile a0)
     gflagOff(233);
 }
 
-void actSt04rSolarStageChangeChk(GObj *volatile a0)
+void actSt04rSolarStageChangeChk(GObj *volatile self)
 {
     while (gflagChk(243) == 0 || gflagChk(244) == 0 || gflagChk(245) == 0 || gflagChk(232) == 0) {
         _ACTWait(1);
@@ -2410,9 +2411,9 @@ void actSt04rBrg1Event(int x)
     volatile int local = x;
 }
 
-void actSt04rBrg1Chk(GObj *volatile a0)
+void actSt04rBrg1Chk(GObj *volatile self)
 {
-    Act *sub = GOBJ_ACT(a0);
+    Act *sub = GOBJ_ACT(self);
 
     while (gflagChk(261) == 0 || gflagChk(262) == 0) {
         _ACTWait(1);
@@ -2424,11 +2425,11 @@ void actSt04rBrg1Chk(GObj *volatile a0)
 
     brg1_chk_mes[0].func = actSt04rBrgCommon;
     sub->mail = brg1_chk_mes;
-    ACTSendMailCorrect(a0, 430);
+    ACTSendMailCorrect(self, 430);
     _ACTWait(0);
 }
 
-static void actSt04rBrg1Sub(GObj *volatile a0)
+static void actSt04rBrg1Sub(GObj *volatile self)
 {
     _ACTWait(60);
 
@@ -2471,9 +2472,9 @@ void actSt04rBrg2Event(int x)
     volatile int local = x;
 }
 
-void actSt04rBrg2Chk(GObj *volatile a0)
+void actSt04rBrg2Chk(GObj *volatile self)
 {
-    Act *sub = GOBJ_ACT(a0);
+    Act *sub = GOBJ_ACT(self);
 
     while (gflagChk(263) == 0 || gflagChk(264) == 0) {
         _ACTWait(1);
@@ -2485,11 +2486,11 @@ void actSt04rBrg2Chk(GObj *volatile a0)
 
     brg2_chk_mes[0].func = actSt04rBrgCommon;
     sub->mail = brg2_chk_mes;
-    ACTSendMailCorrect(a0, 430);
+    ACTSendMailCorrect(self, 430);
     _ACTWait(0);
 }
 
-void actSt04rBrg1WayChk(GObj *volatile a0)
+void actSt04rBrg1WayChk(GObj *volatile self)
 {
     while (gflagChk(259) == 0) {
         _ACTWait(1);
@@ -2498,7 +2499,7 @@ void actSt04rBrg1WayChk(GObj *volatile a0)
     SetWayGroupActive(3, 1);
 }
 
-void actSt04rBrg2WayChk(GObj *volatile a0)
+void actSt04rBrg2WayChk(GObj *volatile self)
 {
     while (gflagChk(259) == 0 || gflagChk(260) == 0) {
         _ACTWait(1);
@@ -2547,9 +2548,9 @@ void actSt04rBarricadeEvent(int x)
     volatile int local = x;
 }
 
-void actSt04rGondolaCharaChk(GObj *volatile a0)
+void actSt04rGondolaCharaChk(GObj *volatile self)
 {
-    Act *sub = GOBJ_ACT(a0);
+    Act *sub = GOBJ_ACT(self);
 
     while (scpTriggerFloorAttr(boyGObj, 0xA000000) != 0 &&
            (gflagChk(286) == 0 || scpTriggerFloorAttr(girlGObj, 0xA000000) == 0)) {
@@ -2558,11 +2559,11 @@ void actSt04rGondolaCharaChk(GObj *volatile a0)
 
     gondola_chara_chk_mes[0].func = actSt04rGondolaChk;
     sub->mail = gondola_chara_chk_mes;
-    ACTSendMailCorrect(a0, 430);
+    ACTSendMailCorrect(self, 430);
     _ACTWait(0);
 }
 
-void actSt04rTorch1_1Chk(GObj *volatile a0)
+void actSt04rTorch1_1Chk(GObj *volatile self)
 {
     while (scpIsTorchLightOn(1404) == 0) {
         _ACTWait(1);
@@ -2572,7 +2573,7 @@ void actSt04rTorch1_1Chk(GObj *volatile a0)
     stage_SetAnimation(210, 1, 0);
 }
 
-void actSt04rTorch1_2Chk(GObj *volatile a0)
+void actSt04rTorch1_2Chk(GObj *volatile self)
 {
     while (scpIsTorchLightOn(1405) == 0) {
         _ACTWait(1);
@@ -2582,7 +2583,7 @@ void actSt04rTorch1_2Chk(GObj *volatile a0)
     stage_SetAnimation(211, 1, 0);
 }
 
-void actSt04rTorch2_1Chk(GObj *volatile a0)
+void actSt04rTorch2_1Chk(GObj *volatile self)
 {
     while (scpIsTorchLightOn(1487) == 0) {
         _ACTWait(1);
@@ -2591,7 +2592,7 @@ void actSt04rTorch2_1Chk(GObj *volatile a0)
     gflagOn(268);
 }
 
-void actSt04rTorch2_2Chk(GObj *volatile a0)
+void actSt04rTorch2_2Chk(GObj *volatile self)
 {
     while (scpIsTorchLightOn(1488) == 0) {
         _ACTWait(1);
@@ -2600,7 +2601,7 @@ void actSt04rTorch2_2Chk(GObj *volatile a0)
     gflagOn(269);
 }
 
-void actSt04rTorch3_1Chk(GObj *volatile a0)
+void actSt04rTorch3_1Chk(GObj *volatile self)
 {
     while (scpIsTorchLightOn(1489) == 0) {
         _ACTWait(1);
@@ -2609,7 +2610,7 @@ void actSt04rTorch3_1Chk(GObj *volatile a0)
     gflagOn(272);
 }
 
-void actSt04rTorch3_2Chk(GObj *volatile a0)
+void actSt04rTorch3_2Chk(GObj *volatile self)
 {
     while (scpIsTorchLightOn(1490) == 0) {
         _ACTWait(1);
@@ -2618,7 +2619,7 @@ void actSt04rTorch3_2Chk(GObj *volatile a0)
     gflagOn(273);
 }
 
-void actSt04rTorch2_1XLChk(GObj *volatile a0)
+void actSt04rTorch2_1XLChk(GObj *volatile self)
 {
     while (scpIsTorchLightOn(1408) == 0) {
         _ACTWait(1);
@@ -2628,7 +2629,7 @@ void actSt04rTorch2_1XLChk(GObj *volatile a0)
     stage_SetAnimation(212, 1, 0);
 }
 
-void actSt04rTorch2_2XLChk(GObj *volatile a0)
+void actSt04rTorch2_2XLChk(GObj *volatile self)
 {
     while (scpIsTorchLightOn(1409) == 0) {
         _ACTWait(1);

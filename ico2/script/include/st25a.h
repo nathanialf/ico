@@ -10,12 +10,12 @@
 
 #include "typedef.h"
 
-void actConte12(GObj *volatile a0);
-void actConte12Jimaku(GObj *volatile a0);
-void actConte13Jimaku(GObj *volatile a0);
-void actSt25aQueenAppearChk(GObj *volatile a0);
-void actSt25aQueenDeadChk(GObj *volatile a0);
-void actSt25aQueenTalkChk(GObj *volatile a0);
+void actConte12(GObj *volatile self);
+void actConte12Jimaku(GObj *volatile self);
+void actConte13Jimaku(GObj *volatile self);
+void actSt25aQueenAppearChk(GObj *volatile self);
+void actSt25aQueenDeadChk(GObj *volatile self);
+void actSt25aQueenTalkChk(GObj *volatile self);
 extern const char faceShadowTex[];
 extern const char faceShadowTex00[];
 /* st25a.o's .sdata globals: ADPCM request slots */

@@ -15,11 +15,11 @@
 
 static ActMail sekizo_mes[2] = {{430}, {429}}; /* derived name */
 
-void actSt05bCrest01XL(GObj *volatile a0)
+void actSt05bCrest01XL(GObj *volatile self)
 {
-    GObj *x = a0;
+    GObj *x = self;
 
-    actInitialize(a0);
+    actInitialize(self);
     _ACTWait(1);
     if (gflagChk(243) == 0) {
         stage_SetAnimation(187, 0, 0);
@@ -51,7 +51,7 @@ int sekizo_5b = 0;
 
 unsigned char sekizo_5b_vol = 0;
 
-void actSt05bSekizoChk(GObj *volatile a0)
+void actSt05bSekizoChk(GObj *volatile self)
 {
     volatile int h;
     float d[4];
@@ -59,7 +59,8 @@ void actSt05bSekizoChk(GObj *volatile a0)
     if (girlGObj == 0) {
         _ACTWait(0);
     }
-    while (scpTriggerBall(a0, boyGObj, 200.0f) == 0 || scpTriggerBall(a0, girlGObj, 200.0f) == 0) {
+    while (scpTriggerBall(self, boyGObj, 200.0f) == 0 ||
+           scpTriggerBall(self, girlGObj, 200.0f) == 0) {
         _ACTWait(1);
     }
     lt_switch_layout(55);
@@ -85,7 +86,7 @@ void actSt05bSekizoChk(GObj *volatile a0)
     scpPlayPosSet(girlGObj, 10350.0f, -2150.0f, 0.0f);
     scpPlayPosSet(boyGObj, 10350.0f, -2150.0f, -100.0f);
     _ACTWait(1);
-    sceVu0SubVector(d, test_CURRENTROOT(a0), test_CURRENTROOT(girlGObj));
+    sceVu0SubVector(d, test_CURRENTROOT(self), test_CURRENTROOT(girlGObj));
     scpPlayMotDir(girlGObj, d);
     scpBoyControlReadDisable = 1;
     sceVu0SubVector(d, test_CURRENTROOT(girlGObj), test_CURRENTROOT(boyGObj));
@@ -117,11 +118,11 @@ void actSt05bSekizoChk(GObj *volatile a0)
     scpBoyControlReadDisable = 0;
 }
 
-void actSt05bDoorXL(GObj *volatile a0)
+void actSt05bDoorXL(GObj *volatile self)
 {
-    GObj *x = a0;
+    GObj *x = self;
 
-    actInitialize(a0);
+    actInitialize(self);
     _ACTWait(1);
 
     if (gflagChk(243) != 0 && gflagChk(139) == 0) {
@@ -131,11 +132,11 @@ void actSt05bDoorXL(GObj *volatile a0)
     }
 }
 
-void actSt05bMonyoDoorXL(GObj *volatile a0)
+void actSt05bMonyoDoorXL(GObj *volatile self)
 {
-    GObj *x = a0;
+    GObj *x = self;
 
-    actInitialize(a0);
+    actInitialize(self);
     _ACTWait(1);
 
     if (gflagChk(234) == 0) {
@@ -145,17 +146,17 @@ void actSt05bMonyoDoorXL(GObj *volatile a0)
     }
 }
 
-void actSt05bSekizo(GObj *volatile a0)
+void actSt05bSekizo(GObj *volatile self)
 {
-    GObj *x = a0;
-    Act *self = actInitialize(a0);
+    GObj *x = self;
+    Act *act = actInitialize(self);
     _ACTWait(1);
 
     if (gflagChk(160) == 0) {
         stage_SetAnimation(192, 0, 0);
         sekizo_mes[0].func = actSt05bSekizoChk;
-        self->mail = sekizo_mes;
-        ACTSendMailCorrect(a0, 430);
+        act->mail = sekizo_mes;
+        ACTSendMailCorrect(self, 430);
         _ACTWait(0);
     } else {
         stage_SetAnimation(192, 0, -1);
@@ -165,11 +166,11 @@ void actSt05bSekizo(GObj *volatile a0)
     }
 }
 
-void actSt05bBallXL(GObj *volatile a0)
+void actSt05bBallXL(GObj *volatile self)
 {
-    GObj *x = a0;
+    GObj *x = self;
 
-    actInitialize(a0);
+    actInitialize(self);
     _ACTWait(1);
 
     if (gflagChk(139) == 0) {
@@ -179,11 +180,11 @@ void actSt05bBallXL(GObj *volatile a0)
     }
 }
 
-void actSt05bSolarXL(GObj *volatile a0)
+void actSt05bSolarXL(GObj *volatile self)
 {
-    GObj *x = a0;
+    GObj *x = self;
 
-    actInitialize(a0);
+    actInitialize(self);
     _ACTWait(1);
 
     if (gflagChk(139) == 0) {
@@ -204,7 +205,7 @@ static const ConstVec girlWayPos = {{10750.0f, -2122.0f, 0.0f, 0.0f}}; /* derive
 
 static const ConstVec girlWay2Pos = {{139.0f, -177.0f, 1670.0f, 0.0f}}; /* derived name */
 
-void actSt05bGirlWay(GObj *volatile a0)
+void actSt05bGirlWay(GObj *volatile self)
 {
     long long buf[2];
     long long way[2];

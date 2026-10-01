@@ -14,8 +14,8 @@
 extern char *sekizo4b;
 extern int sekizo_4b;
 extern unsigned char sekizo_4b_vol;
-void actSt04bEne1Chk(GObj *volatile a0);
-void actSt04bGirlWay(GObj *volatile a0);
-void actSt04bSekizoChk(GObj *volatile a0);
+void actSt04bEne1Chk(GObj *volatile self);
+void actSt04bGirlWay(GObj *volatile self);
+void actSt04bSekizoChk(GObj *volatile self);
 
 #endif /* ST04B_H */

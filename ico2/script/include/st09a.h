@@ -12,13 +12,13 @@
 
 /* st09a.o's .sdata globals */
 extern char *st09a_brg;
-void actSt09aBrgDown(GObj *volatile a0);
-void actSt09aBrgMain(GObj *volatile a0);
-void actSt09aBrgSwitch(GObj *volatile a0);
-void actSt09aElvDown(GObj *volatile a0);
-void actSt09aElvMain(GObj *volatile a0);
-void actSt09aElvSwitch(GObj *volatile a0);
-void actSt09aElvUp(GObj *volatile a0);
-void actSt09aIntroChk(GObj *volatile a0);
+void actSt09aBrgDown(GObj *volatile self);
+void actSt09aBrgMain(GObj *volatile self);
+void actSt09aBrgSwitch(GObj *volatile self);
+void actSt09aElvDown(GObj *volatile self);
+void actSt09aElvMain(GObj *volatile self);
+void actSt09aElvSwitch(GObj *volatile self);
+void actSt09aElvUp(GObj *volatile self);
+void actSt09aIntroChk(GObj *volatile self);
 
 #endif /* ST09A_H */

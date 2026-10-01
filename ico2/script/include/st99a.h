@@ -10,13 +10,13 @@
 
 #include "typedef.h"
 
-void actExplodeChk(GObj *volatile a0);
-void actSpiderChk(GObj *volatile a0);
-void actSplash1Chk(GObj *volatile a0);
-void actSplash2Chk(GObj *volatile a0);
-void actSt27aWave1(GObj *volatile a0);
-void actSt27aWaveChk(GObj *volatile a0);
-void actWave1(GObj *volatile a0);
-void actWaveChk(GObj *volatile a0);
+void actExplodeChk(GObj *volatile self);
+void actSpiderChk(GObj *volatile self);
+void actSplash1Chk(GObj *volatile self);
+void actSplash2Chk(GObj *volatile self);
+void actSt27aWave1(GObj *volatile self);
+void actSt27aWaveChk(GObj *volatile self);
+void actWave1(GObj *volatile self);
+void actWaveChk(GObj *volatile self);
 
 #endif /* ST99A_H */

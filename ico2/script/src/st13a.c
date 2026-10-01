@@ -19,9 +19,9 @@
    below spin for. */
 static int demoEnd;
 
-static void actSt13aElevUpSub(GObj *volatile a0);
-static void actSt13aElevDownSub(GObj *volatile a0);
-void actSt13aElevDownChk(GObj *volatile a0);
+static void actSt13aElevUpSub(GObj *volatile self);
+static void actSt13aElevDownSub(GObj *volatile self);
+void actSt13aElevDownChk(GObj *volatile self);
 
 /* .data: actor mail packets. */
 
@@ -66,7 +66,7 @@ int sekizo_13a = 0;
 
 unsigned char sekizo_13a_vol = 0;
 
-static void actSt13aElevUpSub(GObj *volatile a0)
+static void actSt13aElevUpSub(GObj *volatile self)
 {
     AdpcmPlay(((AdpcmObj *)st13a_up)->stream);
 
@@ -102,7 +102,7 @@ static void actSt13aElevUpSub(GObj *volatile a0)
     _ACTWait(0);
 }
 
-void actSt13aElevUp(GObj *volatile a0)
+void actSt13aElevUp(GObj *volatile self)
 {
     GProc *th;
 
@@ -139,10 +139,10 @@ void actSt13aElevUp(GObj *volatile a0)
     RequestStageChange(15, boyGObj, 0, 0.025f, 8.0f);
 }
 
-void actSt13aElevDown(GObj *volatile a0)
+void actSt13aElevDown(GObj *volatile self)
 {
-    GObj *x = a0;
-    Act *self = actInitialize(a0);
+    GObj *x = self;
+    Act *act = actInitialize(self);
 
     _ACTWait(1);
 
@@ -157,13 +157,13 @@ void actSt13aElevDown(GObj *volatile a0)
         stage_SetAnimation(173, 0, 451);
 
         elevDown_mes[0].func = actSt13aElevDownChk;
-        self->mail = elevDown_mes;
-        ACTSendMailCorrect(a0, 430);
+        act->mail = elevDown_mes;
+        ACTSendMailCorrect(self, 430);
         _ACTWait(0);
     }
 }
 
-static void actSt13aElevDownSub(GObj *volatile a0)
+static void actSt13aElevDownSub(GObj *volatile self)
 {
     stage_SetAnimation(173, 1, 451);
     stage_SetAnimation(175, 1, 0);
@@ -191,7 +191,7 @@ static void actSt13aElevDownSub(GObj *volatile a0)
     _ACTWait(0);
 }
 
-void actSt13aElevDownChk(GObj *volatile a0)
+void actSt13aElevDownChk(GObj *volatile self)
 {
     GProc *th;
 
@@ -236,11 +236,11 @@ void actSt13aElevDownChk(GObj *volatile a0)
     gflagOff(15);
 }
 
-void actSt13aSekizoChk(GObj *volatile a0)
+void actSt13aSekizoChk(GObj *volatile self)
 {
     float d[4];
 
-    while (scpTriggerBall(a0, boyGObj, 200.0f) == 0 || scpGameStat_BoyWeaponkind() != 5 ||
+    while (scpTriggerBall(self, boyGObj, 200.0f) == 0 || scpGameStat_BoyWeaponkind() != 5 ||
            scpActStatusDeathFall(boyGObj) != 0) {
         _ACTWait(1);
     }
@@ -264,7 +264,7 @@ void actSt13aSekizoChk(GObj *volatile a0)
     scpPlayMot(boyGObj, 0);
     _ACTWait(1);
 
-    sceVu0SubVector(d, test_CURRENTROOT(a0), test_CURRENTROOT(boyGObj));
+    sceVu0SubVector(d, test_CURRENTROOT(self), test_CURRENTROOT(boyGObj));
     scpPlayMotDir(boyGObj, d);
 
     scpSekizouCheckPoint();
@@ -291,10 +291,10 @@ void actSt13aSekizoChk(GObj *volatile a0)
     scpBoyControlReadDisable = 0;
 }
 
-void actSt13aElev(GObj *volatile a0)
+void actSt13aElev(GObj *volatile self)
 {
-    GObj *x = a0;
-    Act *self = actInitialize(a0);
+    GObj *x = self;
+    Act *act = actInitialize(self);
 
     _ACTWait(1);
 
@@ -304,16 +304,16 @@ void actSt13aElev(GObj *volatile a0)
         stage_SetAnimation(173, 0, 0);
 
         elev_mes[0].func = actSt13aElevMain;
-        self->mail = elev_mes;
-        ACTSendMailCorrect(a0, 430);
+        act->mail = elev_mes;
+        ACTSendMailCorrect(self, 430);
         _ACTWait(0);
     }
 }
 
-void actSt13aSekizo(GObj *volatile a0)
+void actSt13aSekizo(GObj *volatile self)
 {
-    GObj *x = a0;
-    Act *self = actInitialize(a0);
+    GObj *x = self;
+    Act *act = actInitialize(self);
 
     _ACTWait(1);
 
@@ -321,52 +321,52 @@ void actSt13aSekizo(GObj *volatile a0)
         stage_SetAnimation(176, 0, 0);
 
         sekizo_mes[0].func = actSt13aSekizoChk;
-        self->mail = sekizo_mes;
-        ACTSendMailCorrect(a0, 430);
+        act->mail = sekizo_mes;
+        ACTSendMailCorrect(self, 430);
         _ACTWait(0);
     } else {
         stage_SetAnimation(176, 0, -1);
     }
 }
 
-void actSt13aCheck(GObj *volatile a0)
+void actSt13aCheck(GObj *volatile self)
 {
-    GObj *x = a0;
-    Act *self = actInitialize(a0);
+    GObj *x = self;
+    Act *act = actInitialize(self);
 
     _ACTWait(1);
 
     if (gflagChk(327) == 0) {
         check_mes[0].func = actSt13aCheckChk;
-        self->mail = check_mes;
-        ACTSendMailCorrect(a0, 430);
+        act->mail = check_mes;
+        ACTSendMailCorrect(self, 430);
         _ACTWait(0);
     }
 }
 
-void actSt13aChain(GObj *volatile a0)
+void actSt13aChain(GObj *volatile self)
 {
-    GObj *x = a0;
-    Act *self = actInitialize(a0);
+    GObj *x = self;
+    Act *act = actInitialize(self);
 
     _ACTWait(1);
 
     if (gflagChk(328) == 0) {
         chainNg_mes[0].func = actSt13aChainNG;
-        self->mail = chainNg_mes;
-        ACTSendMailCorrect(a0, 430);
+        act->mail = chainNg_mes;
+        ACTSendMailCorrect(self, 430);
         _ACTWait(0);
     } else {
         chainOk_mes[0].func = actSt13aChainOK;
-        self->mail = chainOk_mes;
-        ACTSendMailCorrect(a0, 430);
+        act->mail = chainOk_mes;
+        ACTSendMailCorrect(self, 430);
         _ACTWait(0);
     }
 }
 
-void actSt13aElevMain(GObj *volatile a0)
+void actSt13aElevMain(GObj *volatile self)
 {
-    Act *sub = GOBJ_ACT(a0);
+    Act *sub = GOBJ_ACT(self);
 
     sub->mainMail = elevMain_mes;
     while (1) {
@@ -374,9 +374,9 @@ void actSt13aElevMain(GObj *volatile a0)
     }
 }
 
-void actSt13aElevSwitch(GObj *volatile a0)
+void actSt13aElevSwitch(GObj *volatile self)
 {
-    Act *sub = GOBJ_ACT(a0);
+    Act *sub = GOBJ_ACT(self);
 
     sub->mainMail = 0;
     lt_switch_layout(55);
@@ -384,11 +384,11 @@ void actSt13aElevSwitch(GObj *volatile a0)
 
     elevSwitch_mes[0].func = actSt13aElevUp;
     sub->mail = elevSwitch_mes;
-    ACTSendMailCorrect(a0, 430);
+    ACTSendMailCorrect(self, 430);
     _ACTWait(0);
 }
 
-void actSt13aCheckChk(GObj *volatile a0)
+void actSt13aCheckChk(GObj *volatile self)
 {
     _ACTWait(1);
 
@@ -396,11 +396,11 @@ void actSt13aCheckChk(GObj *volatile a0)
     gflagOn(327);
 }
 
-void actSt13aChainOK(GObj *volatile a0)
+void actSt13aChainOK(GObj *volatile self)
 {
-    Act *sub = GOBJ_ACT(a0);
+    Act *sub = GOBJ_ACT(self);
 
-    while (scpTriggerBall(a0, scpSearchGobj(2072), 200.0f) != 0) {
+    while (scpTriggerBall(self, scpSearchGobj(2072), 200.0f) != 0) {
         _ACTWait(1);
     }
 
@@ -409,15 +409,15 @@ void actSt13aChainOK(GObj *volatile a0)
 
     chainOK_mes[0].func = actSt13aChainNG;
     sub->mail = chainOK_mes;
-    ACTSendMailCorrect(a0, 430);
+    ACTSendMailCorrect(self, 430);
     _ACTWait(0);
 }
 
-void actSt13aChainNG(GObj *volatile a0)
+void actSt13aChainNG(GObj *volatile self)
 {
-    Act *sub = GOBJ_ACT(a0);
+    Act *sub = GOBJ_ACT(self);
 
-    while (scpTriggerBall(a0, scpSearchGobj(2072), 200.0f) == 0) {
+    while (scpTriggerBall(self, scpSearchGobj(2072), 200.0f) == 0) {
         _ACTWait(1);
     }
 
@@ -426,6 +426,6 @@ void actSt13aChainNG(GObj *volatile a0)
 
     chainNG_mes[0].func = actSt13aChainOK;
     sub->mail = chainNG_mes;
-    ACTSendMailCorrect(a0, 430);
+    ACTSendMailCorrect(self, 430);
     _ACTWait(0);
 }

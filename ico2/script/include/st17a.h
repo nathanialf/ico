@@ -12,13 +12,13 @@
 
 /* st17a.o's .sdata globals */
 extern char *cam;
-void actLinkTestChk(GObj *volatile a0);
-void actSt17aDoorDownChk(GObj *volatile a0);
-void actSt17aDoorDownEffect(GObj *volatile a0);
-void actSt17aDoorUpChk(GObj *volatile a0);
-void actSt17aDoorUpEffect(GObj *volatile a0);
-void actSt17aHasiChk(GObj *volatile a0);
-void actSt17aHasiEffect(GObj *volatile a0);
-void actSt17aIntroChk(GObj *volatile a0);
+void actLinkTestChk(GObj *volatile self);
+void actSt17aDoorDownChk(GObj *volatile self);
+void actSt17aDoorDownEffect(GObj *volatile self);
+void actSt17aDoorUpChk(GObj *volatile self);
+void actSt17aDoorUpEffect(GObj *volatile self);
+void actSt17aHasiChk(GObj *volatile self);
+void actSt17aHasiEffect(GObj *volatile self);
+void actSt17aIntroChk(GObj *volatile self);
 
 #endif /* ST17A_H */

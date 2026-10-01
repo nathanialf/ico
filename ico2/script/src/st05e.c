@@ -14,7 +14,7 @@
 #include "script.h"
 #include "main.h"
 
-static void actSt05eWaterStopSub(GObj *volatile a0);
+static void actSt05eWaterStopSub(GObj *volatile self);
 
 /* .data: four 0x20-byte actor mail packets, one per thread hand-off. */
 
@@ -33,7 +33,7 @@ static int demoEnd;
 
 static int demoSkipped; /* derived name */
 
-void actSt05eWaterStop(GObj *volatile a0)
+void actSt05eWaterStop(GObj *volatile self)
 {
     GProc *th;
 
@@ -79,7 +79,7 @@ void actSt05eWaterStop(GObj *volatile a0)
 /* .sdata: the solar stream handle. */
 char *solar = 0;
 
-void actSt05eSolarChk(GObj *volatile a0)
+void actSt05eSolarChk(GObj *volatile self)
 {
     while (scpIsRotObjectZPlusDirInclude(1556, 269, 271) == 0) {
         _ACTWait(1);
@@ -136,18 +136,18 @@ void actSt05eSolarChk(GObj *volatile a0)
     gflagOn(232);
 }
 
-void actSt05eWater(GObj *volatile a0)
+void actSt05eWater(GObj *volatile self)
 {
-    GObj *x = a0;
-    Act *self = actInitialize(a0);
+    GObj *x = self;
+    Act *act = actInitialize(self);
     _ACTWait(1);
 
     if (gflagChk(231) == 0) {
         scpSearchGobj(1555)->active = 0;
 
         water_mes[0].func = actSt05eWaterMain;
-        self->mail = water_mes;
-        ACTSendMailCorrect(a0, 430);
+        act->mail = water_mes;
+        ACTSendMailCorrect(self, 430);
         _ACTWait(0);
     } else {
         scpSearchGobj(1554)->active = 0;
@@ -156,18 +156,18 @@ void actSt05eWater(GObj *volatile a0)
     }
 }
 
-void actSt05eSolar(GObj *volatile a0)
+void actSt05eSolar(GObj *volatile self)
 {
-    GObj *x = a0;
-    Act *self = actInitialize(a0);
+    GObj *x = self;
+    Act *act = actInitialize(self);
     _ACTWait(1);
 
     SetRotObjectArmRadius(scpSearchGobj(1556), 200.0f);
 
     if (gflagChk(232) == 0) {
         solar_mes[0].func = actSt05eSolarChk;
-        self->mail = solar_mes;
-        ACTSendMailCorrect(a0, 430);
+        act->mail = solar_mes;
+        ACTSendMailCorrect(self, 430);
         _ACTWait(0);
     } else {
         SetRotObjectLockFlag(scpSearchGobj(1556), 1);
@@ -178,9 +178,9 @@ void actSt05eSolar(GObj *volatile a0)
     }
 }
 
-void actSt05eWaterMain(GObj *volatile a0)
+void actSt05eWaterMain(GObj *volatile self)
 {
-    Act *sub = GOBJ_ACT(a0);
+    Act *sub = GOBJ_ACT(self);
 
     sub->mainMail = waterMain_mes;
     while (1) {
@@ -188,20 +188,20 @@ void actSt05eWaterMain(GObj *volatile a0)
     }
 }
 
-void actSt05eWaterSwitch(GObj *volatile a0)
+void actSt05eWaterSwitch(GObj *volatile self)
 {
-    Act *sub = GOBJ_ACT(a0);
+    Act *sub = GOBJ_ACT(self);
 
     scpBoyControlReadDisable = 1;
 
     sub->mainMail = 0;
     waterSwitch_mes[0].func = actSt05eWaterStop;
     sub->mail = waterSwitch_mes;
-    ACTSendMailCorrect(a0, 430);
+    ACTSendMailCorrect(self, 430);
     _ACTWait(0);
 }
 
-void actSt05eWaterFlagOn(GObj *volatile a0)
+void actSt05eWaterFlagOn(GObj *volatile self)
 {
     int i = (60 - systemStatus[0] * 10) / systemStatus[1] * 6.0;
 
@@ -217,7 +217,7 @@ void actSt05eWaterFlagOn(GObj *volatile a0)
     gflagOn(231);
 }
 
-static void actSt05eWaterStopSub(GObj *volatile a0)
+static void actSt05eWaterStopSub(GObj *volatile self)
 {
     _ACTWait(60);
 

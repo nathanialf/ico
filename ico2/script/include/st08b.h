@@ -12,16 +12,16 @@
 
 /* st08b.c's `inline` functions, in the order of their definitions'
  * out-of-line copies at the end of the object (first-declaration order). */
-void actSt08bKuren(GObj *volatile a0);
-void actSt08bEne(GObj *volatile a0);
-void actSt08bEnemy1(GObj *volatile a0);
-void actSt08bEnemy2(GObj *volatile a0);
-inline void actSt08bKurenMain(GObj *volatile a0);
-inline void actSt08aGirlYoro(GObj *volatile a0);
+void actSt08bKuren(GObj *volatile self);
+void actSt08bEne(GObj *volatile self);
+void actSt08bEnemy1(GObj *volatile self);
+void actSt08bEnemy2(GObj *volatile self);
+inline void actSt08bKurenMain(GObj *volatile self);
+inline void actSt08aGirlYoro(GObj *volatile self);
 void actSt08bDoorEvent(int x);
-inline void actSt08bDoorUpEffect(GObj *volatile a0);
-void actSt08bDoorDownEffect(GObj *volatile a0);
-inline void actSt08bEneChk(GObj *volatile a0);
-void actSt08bKurenSwitch(GObj *volatile a0);
+inline void actSt08bDoorUpEffect(GObj *volatile self);
+void actSt08bDoorDownEffect(GObj *volatile self);
+inline void actSt08bEneChk(GObj *volatile self);
+void actSt08bKurenSwitch(GObj *volatile self);
 
 #endif /* ST08B_H */

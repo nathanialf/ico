@@ -17,8 +17,8 @@
 #include "script.h"
 #include "main.h"
 
-static void actSt17aFallChk(GObj *volatile a0);
-static void actSt17aHint1Chk(GObj *volatile a0);
+static void actSt17aFallChk(GObj *volatile self);
+static void actSt17aHint1Chk(GObj *volatile self);
 
 static ActMail linkTest_mes[2] = {{430}, {429}}; /* derived name */
 
@@ -51,10 +51,10 @@ static const ConstVec doorDownEffect2Pos = {{6600.0f, -2000.0f, 1100.0f, 1.0f}};
 
 static const ConstVec hasiChkSePos = {{3587.0f, -2072.0f, 1124.0f, 0.0f}}; /* derived name */
 
-void actSt17aDoor(GObj *volatile a0)
+void actSt17aDoor(GObj *volatile self)
 {
-    GObj *x = a0;
-    Act *self = actInitialize(a0);
+    GObj *x = self;
+    Act *act = actInitialize(self);
     _ACTWait(1);
 
     if (gflagChk(32) == 0) {
@@ -62,35 +62,35 @@ void actSt17aDoor(GObj *volatile a0)
         stage_SetAnimation(131, 1, 0);
 
         doorInit_mes[0].func = actSt17aDoorUpChk;
-        self->mail = doorInit_mes;
-        ACTSendMailCorrect(a0, 430);
+        act->mail = doorInit_mes;
+        ACTSendMailCorrect(self, 430);
         _ACTWait(0);
-    } else if (scpTriggerBall(a0, boyGObj, 200.0f) != 0 ||
-               ((void *)girlGObj != 0 && scpTriggerBall(a0, (void *)girlGObj, 400.0f) != 0)) {
+    } else if (scpTriggerBall(self, boyGObj, 200.0f) != 0 ||
+               ((void *)girlGObj != 0 && scpTriggerBall(self, (void *)girlGObj, 400.0f) != 0)) {
         stage_SetLoopFlag(131, 1);
         stage_SetAnimation(131, 1, 0);
 
         _ACTWait(60);
         doorDown_mes[0].func = actSt17aDoorDownChk;
-        self->mail = doorDown_mes;
-        ACTSendMailCorrect(a0, 430);
+        act->mail = doorDown_mes;
+        ACTSendMailCorrect(self, 430);
         _ACTWait(0);
     } else {
         stage_SetAnimation(129, 0, 0);
         doorUp_mes[0].func = actSt17aDoorUpChk;
-        self->mail = doorUp_mes;
-        ACTSendMailCorrect(a0, 430);
+        act->mail = doorUp_mes;
+        ACTSendMailCorrect(self, 430);
         _ACTWait(0);
     }
 }
 
-void actSt17aDoorUpChk(GObj *volatile a0)
+void actSt17aDoorUpChk(GObj *volatile self)
 {
-    Act *sub = GOBJ_ACT(a0);
+    Act *sub = GOBJ_ACT(self);
     long long buf[2];
     int h;
 
-    while (scpTriggerFloorAttrTargetMan(a0, 0x3000000) == 0) {
+    while (scpTriggerFloorAttrTargetMan(self, 0x3000000) == 0) {
         _ACTWait(1);
     }
 
@@ -123,17 +123,17 @@ void actSt17aDoorUpChk(GObj *volatile a0)
 
     doorUpChk_mes[0].func = actSt17aDoorDownChk;
     sub->mail = doorUpChk_mes;
-    ACTSendMailCorrect(a0, 430);
+    ACTSendMailCorrect(self, 430);
     _ACTWait(0);
 }
 
-void actSt17aDoorDownChk(GObj *volatile a0)
+void actSt17aDoorDownChk(GObj *volatile self)
 {
-    Act *sub = GOBJ_ACT(a0);
+    Act *sub = GOBJ_ACT(self);
     long long buf[2];
     int h;
 
-    while (scpTriggerFloorAttrTargetMan(a0, 0x3000000) != 0) {
+    while (scpTriggerFloorAttrTargetMan(self, 0x3000000) != 0) {
         _ACTWait(1);
     }
 
@@ -165,11 +165,11 @@ void actSt17aDoorDownChk(GObj *volatile a0)
 
     door_mes[0].func = actSt17aDoorUpChk;
     sub->mail = door_mes;
-    ACTSendMailCorrect(a0, 430);
+    ACTSendMailCorrect(self, 430);
     _ACTWait(0);
 }
 
-void actSt17aHasiChk(GObj *volatile a0)
+void actSt17aHasiChk(GObj *volatile self)
 {
     if ((void *)girlGObj == 0) {
         _ACTWait(0);
@@ -254,7 +254,7 @@ void actSt17aHasiChk(GObj *volatile a0)
 
 /* The seven spawn positions are initialised block locals, as in e3.c's
  * actE3CageFallEffect. */
-void actSt17aHasiEffect(GObj *volatile a0)
+void actSt17aHasiEffect(GObj *volatile self)
 {
     float t;
     int n;
@@ -308,9 +308,9 @@ void actSt17aHasiEffect(GObj *volatile a0)
    spins for. */
 static int demoEnd;
 
-/* a0 is the actor entry parameter, volatile like every other stage
+/* self is the actor entry parameter, volatile like every other stage
    actor's. */
-static void actSt17aIntroCancel(GObj *volatile a0)
+static void actSt17aIntroCancel(GObj *volatile self)
 {
     demoEnd = 0;
 
@@ -340,32 +340,32 @@ static void actSt17aIntroCancel(GObj *volatile a0)
     scpBoyControlReadDisable = 0;
 }
 
-void actLinkTest(GObj *volatile a0)
+void actLinkTest(GObj *volatile self)
 {
-    GObj *x = a0;
-    Act *self = actInitialize(a0);
+    GObj *x = self;
+    Act *act = actInitialize(self);
     _ACTWait(1);
 
     linkTest_mes[0].func = actLinkTestChk;
-    self->mail = linkTest_mes;
-    ACTSendMailCorrect(a0, 430);
+    act->mail = linkTest_mes;
+    ACTSendMailCorrect(self, 430);
     _ACTWait(0);
 }
 
-void actSt17aSekizo(GObj *volatile a0)
+void actSt17aSekizo(GObj *volatile self)
 {
-    GObj *x = a0;
+    GObj *x = self;
 
-    actInitialize(a0);
+    actInitialize(self);
     _ACTWait(1);
 
-    scpSekizou(a0, 32, 82, 130, 18, 6450.0f, -2100.0f, 1000.0f, 6450.0f, -2100.0f, 1100.0f);
+    scpSekizou(self, 32, 82, 130, 18, 6450.0f, -2100.0f, 1000.0f, 6450.0f, -2100.0f, 1100.0f);
 }
 
-void actSt17aHasi(GObj *volatile a0)
+void actSt17aHasi(GObj *volatile self)
 {
-    GObj *x = a0;
-    Act *self = actInitialize(a0);
+    GObj *x = self;
+    Act *act = actInitialize(self);
     _ACTWait(1);
 
     if (gflagChk(33) == 0) {
@@ -373,8 +373,8 @@ void actSt17aHasi(GObj *volatile a0)
         stage_SetAnimation(132, 0, 0);
         SetWayGroupActive(3, 1);
         hasi_mes[0].func = actSt17aHasiChk;
-        self->mail = hasi_mes;
-        ACTSendMailCorrect(a0, 430);
+        act->mail = hasi_mes;
+        ACTSendMailCorrect(self, 430);
         _ACTWait(0);
     } else {
         scpSearchGobj(243)->active = 0;
@@ -382,46 +382,46 @@ void actSt17aHasi(GObj *volatile a0)
     }
 }
 
-void actSt17aIntro(GObj *volatile a0)
+void actSt17aIntro(GObj *volatile self)
 {
-    GObj *x = a0;
-    Act *self = actInitialize(a0);
+    GObj *x = self;
+    Act *act = actInitialize(self);
     _ACTWait(1);
 
     if (gflagChk(34) == 0) {
         intro_mes[0].func = actSt17aIntroChk;
-        self->mail = intro_mes;
-        ACTSendMailCorrect(a0, 430);
+        act->mail = intro_mes;
+        ACTSendMailCorrect(self, 430);
         _ACTWait(0);
     }
 }
 
-void actSt17aHint1(GObj *volatile a0)
+void actSt17aHint1(GObj *volatile self)
 {
-    GObj *x = a0;
-    Act *self = actInitialize(a0);
+    GObj *x = self;
+    Act *act = actInitialize(self);
     _ACTWait(1);
 
     if (gflagChk(35) == 0) {
         hint1_mes[0].func = actSt17aHint1Chk;
-        self->mail = hint1_mes;
-        ACTSendMailCorrect(a0, 430);
+        act->mail = hint1_mes;
+        ACTSendMailCorrect(self, 430);
         _ACTWait(0);
     } else {
         FinishHint(0);
     }
 }
 
-void actSt17aFall(GObj *volatile a0)
+void actSt17aFall(GObj *volatile self)
 {
-    GObj *x = a0;
-    Act *self = actInitialize(a0);
+    GObj *x = self;
+    Act *act = actInitialize(self);
     _ACTWait(1);
 
     if (gflagChk(33) == 0) {
         fall_mes[0].func = actSt17aFallChk;
-        self->mail = fall_mes;
-        ACTSendMailCorrect(a0, 430);
+        act->mail = fall_mes;
+        ACTSendMailCorrect(self, 430);
         _ACTWait(0);
     }
 }
@@ -431,7 +431,7 @@ void actSt17aSekizoEvent(int x)
     volatile int local = x;
 }
 
-void actLinkTestChk(GObj *volatile a0)
+void actLinkTestChk(GObj *volatile self)
 {
     *(int *)(((int *)boyGObj)[87] + 1256) = 1;
     *(int *)(((int *)boyGObj)[87] + 1256) = 0;
@@ -444,7 +444,7 @@ void actSt17aDoorEvent(int x)
     volatile int local = x;
 }
 
-void actSt17aDoorUpEffect(GObj *volatile a0)
+void actSt17aDoorUpEffect(GObj *volatile self)
 {
     long long b1[2];
     long long b2[2];
@@ -468,7 +468,7 @@ void actSt17aDoorUpEffect(GObj *volatile a0)
     }
 }
 
-void actSt17aDoorDownEffect(GObj *volatile a0)
+void actSt17aDoorDownEffect(GObj *volatile self)
 {
     long long b1[2];
     long long b2[2];
@@ -500,7 +500,7 @@ void actSt17aHasiEvent(int x)
 /* .sdata: the camera stream handle. */
 char *cam = 0;
 
-void actSt17aIntroChk(GObj *volatile a0)
+void actSt17aIntroChk(GObj *volatile self)
 {
     lt_switch_layout(55);
     scpBoyControlReadDisable = 1;
@@ -518,16 +518,16 @@ void actSt17aIntroChk(GObj *volatile a0)
     demoEnd = 1;
 }
 
-void actSt17aGirlWay(GObj *volatile a0)
+void actSt17aGirlWay(GObj *volatile self)
 {
     EffectArg buf = {{1547.0f, -2070.0f, 1495.0f, 0.0f}};
 
     _SCPMoveCharactorByWay((void *)girlGObj, 0, buf.f, 100.0f, 2);
 }
 
-static void actSt17aHint1Chk(GObj *volatile a0)
+static void actSt17aHint1Chk(GObj *volatile self)
 {
-    while (scpTriggerBall(a0, boyGObj, 200.0f) == 0) {
+    while (scpTriggerBall(self, boyGObj, 200.0f) == 0) {
         _ACTWait(1);
     }
 
@@ -537,9 +537,9 @@ static void actSt17aHint1Chk(GObj *volatile a0)
     FinishHint(0);
 }
 
-static void actSt17aFallChk(GObj *volatile a0)
+static void actSt17aFallChk(GObj *volatile self)
 {
-    while (!(gflagChk(33) && scpTriggerBall(a0, boyGObj, 1800.0f))) {
+    while (!(gflagChk(33) && scpTriggerBall(self, boyGObj, 1800.0f))) {
         _ACTWait(1);
     }
 

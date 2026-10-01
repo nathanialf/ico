@@ -11,18 +11,18 @@ static ActMail check_mes[2] = {{430}, {429}}; /* derived name */
 /* .sdata: the lightning stream handle. */
 char *lightning2 = 0;
 
-void actSt17bTest(GObj *volatile a0)
+void actSt17bTest(GObj *volatile self)
 {
-    GObj *x = a0;
+    GObj *x = self;
 
-    actInitialize(a0);
+    actInitialize(self);
     _ACTWait(1);
 }
 
-void actSt17bCheck(GObj *volatile a0)
+void actSt17bCheck(GObj *volatile self)
 {
-    GObj *x = a0;
-    Act *self = (Act *)actInitialize(a0);
+    GObj *x = self;
+    Act *act = (Act *)actInitialize(self);
 
     _ACTWait(1);
     ScpCallCameraSetTarget(14990.0f, 7074.0f, -4694.0f);
@@ -30,13 +30,13 @@ void actSt17bCheck(GObj *volatile a0)
 
     if (gflagChk(36) == 0) {
         check_mes[0].func = actSt17bCheckChk;
-        self->mail = check_mes;
-        ACTSendMailCorrect(a0, 430);
+        act->mail = check_mes;
+        ACTSendMailCorrect(self, 430);
         _ACTWait(0);
     }
 }
 
-void actSt17bCheckChk(GObj *volatile a0)
+void actSt17bCheckChk(GObj *volatile self)
 {
     _ACTWait(1);
     CheckPoint();

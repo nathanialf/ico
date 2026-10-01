@@ -10,9 +10,9 @@
 
 #include "typedef.h"
 
-void actSt04eWaterFlagOn(GObj *volatile a0);
-void actSt04eWaterMain(GObj *volatile a0);
-void actSt04eWaterStop(GObj *volatile a0);
-void actSt04eWaterSwitch(GObj *volatile a0);
+void actSt04eWaterFlagOn(GObj *volatile self);
+void actSt04eWaterMain(GObj *volatile self);
+void actSt04eWaterStop(GObj *volatile self);
+void actSt04eWaterSwitch(GObj *volatile self);
 
 #endif /* ST04E_H */

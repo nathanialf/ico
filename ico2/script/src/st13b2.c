@@ -1,8 +1,8 @@
 #include "typedef.h"
 #include "generator.h"
 
-void actSt13b2Generator(GObj *volatile a0)
+void actSt13b2Generator(GObj *volatile self)
 {
-    Generator_Mask(a0);
-    Generator_ResetCount(a0);
+    Generator_Mask(self);
+    Generator_ResetCount(self);
 }

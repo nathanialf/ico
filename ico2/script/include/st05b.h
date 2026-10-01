@@ -14,7 +14,7 @@
 extern char *sekizo5b;
 extern int sekizo_5b;
 extern unsigned char sekizo_5b_vol;
-void actSt05bGirlWay(GObj *volatile a0);
-void actSt05bSekizoChk(GObj *volatile a0);
+void actSt05bGirlWay(GObj *volatile self);
+void actSt05bSekizoChk(GObj *volatile self);
 
 #endif /* ST05B_H */

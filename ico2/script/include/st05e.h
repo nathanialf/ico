@@ -12,10 +12,10 @@
 
 /* st05e.o's .sdata globals */
 extern char *solar;
-void actSt05eSolarChk(GObj *volatile a0);
-void actSt05eWaterFlagOn(GObj *volatile a0);
-void actSt05eWaterMain(GObj *volatile a0);
-void actSt05eWaterStop(GObj *volatile a0);
-void actSt05eWaterSwitch(GObj *volatile a0);
+void actSt05eSolarChk(GObj *volatile self);
+void actSt05eWaterFlagOn(GObj *volatile self);
+void actSt05eWaterMain(GObj *volatile self);
+void actSt05eWaterStop(GObj *volatile self);
+void actSt05eWaterSwitch(GObj *volatile self);
 
 #endif /* ST05E_H */

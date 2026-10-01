@@ -30,7 +30,7 @@
 #include "main.h"
 #include "jimaku.h"
 
-static void actSt13cHandSub(GObj *volatile a0);
+static void actSt13cHandSub(GObj *volatile self);
 
 /* the stage-animation number sets the contes play; two functions keep one
    in their frame as the scratch vector they hand scpPlayMotDir or
@@ -151,10 +151,10 @@ static const EffectArg cageFallEffect8 = {{-10.0f, 0.0f, 466.0f, 1.0f}}; /* deri
 
 static const EffectArg cageFallEffect9 = {{-25.0f, 0.0f, 450.0f, 1.0f}}; /* derived name */
 
-void actSt13cBmg1(GObj *volatile a0)
+void actSt13cBmg1(GObj *volatile self)
 {
-    GObj *x = a0;
-    Act *self = actInitialize(a0);
+    GObj *x = self;
+    Act *act = actInitialize(self);
 
     _ACTWait(1);
 
@@ -176,15 +176,15 @@ void actSt13cBmg1(GObj *volatile a0)
         scpPlayPosSet(girlGObj, -7.0f, -5725.0f, 18.0f);
 
         bmg1_mes[0].func = actSt13cBmg1Chk;
-        self->mail = bmg1_mes;
-        ACTSendMailCorrect(a0, 430);
+        act->mail = bmg1_mes;
+        ACTSendMailCorrect(self, 430);
         _ACTWait(0);
     } else {
         scpPlayPosSet(girlGObj, -7.0f, -5725.0f, 18.0f);
     }
 }
 
-void actSt13cBmg1Chk(GObj *volatile a0)
+void actSt13cBmg1Chk(GObj *volatile self)
 {
     AnimSet w;
     GProc *th1;
@@ -195,7 +195,7 @@ void actSt13cBmg1Chk(GObj *volatile a0)
         _ACTWait(0);
     }
 
-    while (scpTriggerBall(a0, boyGObj, 200.0f) == 0) {
+    while (scpTriggerBall(self, boyGObj, 200.0f) == 0) {
         _ACTWait(1);
     }
 
@@ -257,7 +257,7 @@ void actSt13cBmg1Chk(GObj *volatile a0)
     lt_switch_layout(54);
 }
 
-void actSt13cConte04(GObj *volatile a0)
+void actSt13cConte04(GObj *volatile self)
 {
     scpPlayStart(boyGObj);
 
@@ -293,7 +293,7 @@ void actSt13cConte04(GObj *volatile a0)
     _ACTWait(0);
 }
 
-void actSt13cConte04Jimaku(GObj *volatile a0)
+void actSt13cConte04Jimaku(GObj *volatile self)
 {
     float t;
     float tn;
@@ -337,7 +337,7 @@ void actSt13cConte04Jimaku(GObj *volatile a0)
     _ACTWait(0);
 }
 
-void actSt13cCage1stDownDemoCancel(GObj *volatile a0)
+void actSt13cCage1stDownDemoCancel(GObj *volatile self)
 {
     float ofs[4];
     float dir[4];
@@ -389,7 +389,7 @@ void actSt13cCage1stDownDemoCancel(GObj *volatile a0)
     lt_switch_layout(54);
 }
 
-void actSt13cCage1stDown(GObj *volatile a0)
+void actSt13cCage1stDown(GObj *volatile self)
 {
     int se;
 
@@ -436,10 +436,10 @@ void actSt13cCage1stDown(GObj *volatile a0)
     _ACTWait(1);
 }
 
-void actSt13cCageFall(GObj *volatile a0)
+void actSt13cCageFall(GObj *volatile self)
 {
-    GObj *x = a0;
-    Act *self = actInitialize(a0);
+    GObj *x = self;
+    Act *act = actInitialize(self);
 
     _ACTWait(1);
 
@@ -450,8 +450,8 @@ void actSt13cCageFall(GObj *volatile a0)
         SetWeaponTorchChainReactionFlagAll(1);
 
         cageFall_mes[0].func = actSt13cCageFallChk;
-        self->mail = cageFall_mes;
-        ACTSendMailCorrect(a0, 430);
+        act->mail = cageFall_mes;
+        ACTSendMailCorrect(self, 430);
         _ACTWait(0);
     } else {
         if (gflagChk(22) == 0) {
@@ -462,8 +462,8 @@ void actSt13cCageFall(GObj *volatile a0)
             stage_SetAnimation(76, 0, 0);
 
             cageFall2_mes[0].func = actSt13cCageFallChk;
-            self->mail = cageFall2_mes;
-            ACTSendMailCorrect(a0, 430);
+            act->mail = cageFall2_mes;
+            ACTSendMailCorrect(self, 430);
             _ACTWait(0);
         }
 
@@ -475,7 +475,7 @@ void actSt13cCageFall(GObj *volatile a0)
     }
 }
 
-void actSt13cCageFallChk(GObj *volatile a0)
+void actSt13cCageFallChk(GObj *volatile self)
 {
     AnimSet16 w;
     GProc *th1;
@@ -488,7 +488,7 @@ void actSt13cCageFallChk(GObj *volatile a0)
         _ACTWait(0);
     }
 
-    while (scpTriggerBall(a0, boyGObj, 160.0f) == 0 || gflagChk(20) == 0) {
+    while (scpTriggerBall(self, boyGObj, 160.0f) == 0 || gflagChk(20) == 0) {
         _ACTWait(1);
     }
 
@@ -638,7 +638,7 @@ void actSt13cCageFallChk(GObj *volatile a0)
     GOBJ_ACT(boyGObj)->flags &= ~0x100000;
 }
 
-void actSt13cConte05(GObj *volatile a0)
+void actSt13cConte05(GObj *volatile self)
 {
     lt_switch_layout(55);
     scpBoyControlReadDisable = 1;
@@ -786,7 +786,7 @@ void actSt13cConte05(GObj *volatile a0)
     _ACTWait(0);
 }
 
-void actSt13cConte05Jimaku(GObj *volatile a0)
+void actSt13cConte05Jimaku(GObj *volatile self)
 {
     float t;
     float tn;
@@ -836,7 +836,7 @@ void actSt13cConte05Jimaku(GObj *volatile a0)
     _ACTWait(0);
 }
 
-void actSt13cCageFallEffect(GObj *volatile a0)
+void actSt13cCageFallEffect(GObj *volatile self)
 {
     EffectArg b1;
     EffectArg b2;
@@ -904,7 +904,7 @@ void actSt13cCageFallEffect(GObj *volatile a0)
     _ACTWait(0);
 }
 
-static void actSt13cSekizoChk(GObj *volatile a0)
+static void actSt13cSekizoChk(GObj *volatile self)
 {
     /* the SE handle, which the sound subsystem owns; here it is never
        written before soundSeDefStop reads it back */
@@ -915,8 +915,8 @@ static void actSt13cSekizoChk(GObj *volatile a0)
         _ACTWait(0);
     }
 
-    while (scpTriggerBall(a0, boyGObj, 200.0f) == 0 || scpTriggerBall(a0, girlGObj, 200.0f) == 0 ||
-           gflagChk(28) == 0) {
+    while (scpTriggerBall(self, boyGObj, 200.0f) == 0 ||
+           scpTriggerBall(self, girlGObj, 200.0f) == 0 || gflagChk(28) == 0) {
         _ACTWait(1);
     }
 
@@ -946,7 +946,7 @@ static void actSt13cSekizoChk(GObj *volatile a0)
     scpPlayPosSet(girlGObj, -300.0f, -100.0f, 0.0f);
     _ACTWait(1);
 
-    sceVu0SubVector(dir, test_CURRENTROOT(a0), test_CURRENTROOT(girlGObj));
+    sceVu0SubVector(dir, test_CURRENTROOT(self), test_CURRENTROOT(girlGObj));
     scpPlayMotDir(girlGObj, dir);
 
     scpBoyControlReadDisable = 1;
@@ -984,9 +984,9 @@ static void actSt13cSekizoChk(GObj *volatile a0)
     lt_switch_layout(54);
 }
 
-void actSt13cGirlCarryChk(GObj *volatile a0)
+void actSt13cGirlCarryChk(GObj *volatile self)
 {
-    Act *self = GOBJ_ACT(a0);
+    Act *act = GOBJ_ACT(self);
 
     if (girlGObj == 0) {
         _ACTWait(0);
@@ -1010,14 +1010,14 @@ void actSt13cGirlCarryChk(GObj *volatile a0)
     gflagOn(26);
 
     girlCarryChk_mes[0].func = actSt13cGirlCarryAgainChk;
-    self->mail = girlCarryChk_mes;
-    ACTSendMailCorrect(a0, 430);
+    act->mail = girlCarryChk_mes;
+    ACTSendMailCorrect(self, 430);
     _ACTWait(0);
 
     _ACTWait(1);
 }
 
-void actSt13cHandChk(GObj *volatile a0)
+void actSt13cHandChk(GObj *volatile self)
 {
     float dir[4];
     GProc *th1;
@@ -1136,7 +1136,7 @@ void actSt13cHandChk(GObj *volatile a0)
     gflagOn(28);
 }
 
-void actSt13cHandJimaku(GObj *volatile a0)
+void actSt13cHandJimaku(GObj *volatile self)
 {
     float t;
     float tn;
@@ -1179,25 +1179,25 @@ void actSt13cHandJimaku(GObj *volatile a0)
     } while (t < 800.0f);
 }
 
-void actSt13cSleep(GObj *volatile a0)
+void actSt13cSleep(GObj *volatile self)
 {
-    GObj *x = a0;
-    Act *self = actInitialize(a0);
+    GObj *x = self;
+    Act *act = actInitialize(self);
 
     _ACTWait(1);
 
     if (gflagChk(19) == 0) {
         sleep_mes[0].func = actSt13cSleepChk;
-        self->mail = sleep_mes;
-        ACTSendMailCorrect(a0, 430);
+        act->mail = sleep_mes;
+        ACTSendMailCorrect(self, 430);
         _ACTWait(0);
     }
 }
 
-void actSt13cCageDown(GObj *volatile a0)
+void actSt13cCageDown(GObj *volatile self)
 {
-    GObj *x = a0;
-    Act *self = actInitialize(a0);
+    GObj *x = self;
+    Act *act = actInitialize(self);
 
     _ACTWait(1);
 
@@ -1206,8 +1206,8 @@ void actSt13cCageDown(GObj *volatile a0)
         stage_SetAnimation(76, 0, 0);
 
         cageDown_mes[0].func = actSt13cCageDownMain;
-        self->mail = cageDown_mes;
-        ACTSendMailCorrect(a0, 430);
+        act->mail = cageDown_mes;
+        ACTSendMailCorrect(self, 430);
         _ACTWait(0);
     }
 
@@ -1216,31 +1216,31 @@ void actSt13cCageDown(GObj *volatile a0)
     }
 }
 
-void actSt13cCageFallReady(GObj *volatile a0)
+void actSt13cCageFallReady(GObj *volatile self)
 {
-    GObj *x = a0;
-    Act *self = actInitialize(a0);
+    GObj *x = self;
+    Act *act = actInitialize(self);
 
     _ACTWait(1);
 
     if (gflagChk(22) == 0) {
         cageFallReady_mes[0].func = actSt13cCageFallReadyChk;
-        self->mail = cageFallReady_mes;
-        ACTSendMailCorrect(a0, 430);
+        act->mail = cageFallReady_mes;
+        ACTSendMailCorrect(self, 430);
         _ACTWait(0);
     }
 }
 
-void actSt13cEnemy(GObj *volatile a0)
+void actSt13cEnemy(GObj *volatile self)
 {
-    GObj *x = a0;
+    GObj *x = self;
 
-    actInitialize(a0);
+    actInitialize(self);
 
     _ACTWait(1);
 
-    bossGenerator = a0;
-    Generator_Mask(a0);
+    bossGenerator = self;
+    Generator_Mask(self);
 
     while (gflagChk(23) == 0) {
         _ACTWait(1);
@@ -1249,32 +1249,32 @@ void actSt13cEnemy(GObj *volatile a0)
     Generator_Call(scpSearchGobj(152));
     _ACTWait(180);
 
-    Generator_Call(a0);
+    Generator_Call(self);
     scpSleepEnemyAll();
     gflagOff(23);
 }
 
-void actSt13cEnemyNull(GObj *volatile a0)
+void actSt13cEnemyNull(GObj *volatile self)
 {
-    GObj *x = a0;
+    GObj *x = self;
 
-    actInitialize(a0);
+    actInitialize(self);
 
     _ACTWait(1);
 
-    Generator_Mask(a0);
+    Generator_Mask(self);
 
     while (gflagChk(25) == 0) {
         _ACTWait(1);
     }
 
-    Generator_MaskOff(a0);
+    Generator_MaskOff(self);
 }
 
-void actSt13cSekizo(GObj *volatile a0)
+void actSt13cSekizo(GObj *volatile self)
 {
-    GObj *x = a0;
-    Act *self = actInitialize(a0);
+    GObj *x = self;
+    Act *act = actInitialize(self);
 
     _ACTWait(1);
 
@@ -1283,8 +1283,8 @@ void actSt13cSekizo(GObj *volatile a0)
         SetWayGroupActive(2, 0);
 
         sekizo_mes[0].func = actSt13cSekizoChk;
-        self->mail = sekizo_mes;
-        ACTSendMailCorrect(a0, 430);
+        act->mail = sekizo_mes;
+        ACTSendMailCorrect(self, 430);
         _ACTWait(0);
     } else {
         stage_SetAnimation(77, 0, -1);
@@ -1292,87 +1292,87 @@ void actSt13cSekizo(GObj *volatile a0)
     }
 }
 
-void actSt13cSekizoJimaku(GObj *volatile a0)
+void actSt13cSekizoJimaku(GObj *volatile self)
 {
-    GObj *x = a0;
-    Act *self = actInitialize(a0);
+    GObj *x = self;
+    Act *act = actInitialize(self);
 
     _ACTWait(1);
 
     if (gflagChk(31) == 0) {
         sekizoJimaku_mes[0].func = actSt13cSekizoJimakuChk;
-        self->mail = sekizoJimaku_mes;
-        ACTSendMailCorrect(a0, 430);
+        act->mail = sekizoJimaku_mes;
+        ACTSendMailCorrect(self, 430);
         _ACTWait(0);
     }
 }
 
-void actSt13cHand(GObj *volatile a0)
+void actSt13cHand(GObj *volatile self)
 {
-    GObj *x = a0;
-    Act *self = actInitialize(a0);
+    GObj *x = self;
+    Act *act = actInitialize(self);
 
     _ACTWait(1);
 
     if (gflagChk(27) == 0) {
         hand_mes[0].func = actSt13cHandChk;
-        self->mail = hand_mes;
-        ACTSendMailCorrect(a0, 430);
+        act->mail = hand_mes;
+        ACTSendMailCorrect(self, 430);
         _ACTWait(0);
     }
 }
 
-void actSt13cGirlCarry(GObj *volatile a0)
+void actSt13cGirlCarry(GObj *volatile self)
 {
-    GObj *x = a0;
-    Act *self = actInitialize(a0);
+    GObj *x = self;
+    Act *act = actInitialize(self);
 
     _ACTWait(1);
 
     if (gflagChk(27) == 0) {
         girlCarry_mes[0].func = actSt13cGirlCarryChk;
-        self->mail = girlCarry_mes;
-        ACTSendMailCorrect(a0, 430);
+        act->mail = girlCarry_mes;
+        ACTSendMailCorrect(self, 430);
         _ACTWait(0);
     }
 }
 
-void actSt13cRescue(GObj *volatile a0)
+void actSt13cRescue(GObj *volatile self)
 {
-    GObj *x = a0;
-    Act *self = actInitialize(a0);
+    GObj *x = self;
+    Act *act = actInitialize(self);
 
     _ACTWait(1);
 
     if (gflagChk(30) == 0 && gflagChk(27) == 0) {
         rescue_mes[0].func = actSt13cRescueChk;
-        self->mail = rescue_mes;
-        ACTSendMailCorrect(a0, 430);
+        act->mail = rescue_mes;
+        ACTSendMailCorrect(self, 430);
         _ACTWait(0);
     }
 }
 
-void actSt13cBuki(GObj *volatile a0)
+void actSt13cBuki(GObj *volatile self)
 {
-    GObj *x = a0;
-    Act *self = actInitialize(a0);
+    GObj *x = self;
+    Act *act = actInitialize(self);
 
     _ACTWait(1);
 
     buki_mes[0].func = actSt13cBukiChk;
-    self->mail = buki_mes;
-    ACTSendMailCorrect(a0, 430);
+    act->mail = buki_mes;
+    ACTSendMailCorrect(self, 430);
     _ACTWait(0);
 }
 
-void actE3St13cSekizo(GObj *volatile a0)
+void actE3St13cSekizo(GObj *volatile self)
 {
-    GObj *x = a0;
+    GObj *x = self;
 
-    actInitialize(a0);
+    actInitialize(self);
     _ACTWait(1);
 
-    scpSekizou(a0, 31, 77, 0, 17, -300.0f, -100.0f, 100.0f, -300.0f, -100.0f, 0.0f);
+    scpSekizou(self, 31, 77, 0, 17, -300.0f, -100.0f, 100.0f, -300.0f, -100.0f, 0.0f);
 
     if (gflagChk(31) == 0) {
         SetWayGroupActive(2, 0);
@@ -1391,7 +1391,7 @@ void actSt13cSleepEvent(int x)
     volatile int local = x;
 }
 
-void actSt13cSleepChk(GObj *volatile a0)
+void actSt13cSleepChk(GObj *volatile self)
 {
     long long ofs[2];
     float dir[4];
@@ -1400,7 +1400,7 @@ void actSt13cSleepChk(GObj *volatile a0)
         _ACTWait(0);
     }
 
-    while (scpTriggerBall(a0, girlGObj, 200.0f) == 0) {
+    while (scpTriggerBall(self, girlGObj, 200.0f) == 0) {
         _ACTWait(1);
     }
 
@@ -1415,9 +1415,9 @@ void actSt13cSleepChk(GObj *volatile a0)
     scpPlayMotReq(girlGObj, 285);
 }
 
-void actSt13cCageDownMain(GObj *volatile a0)
+void actSt13cCageDownMain(GObj *volatile self)
 {
-    Act *sub = GOBJ_ACT(a0);
+    Act *sub = GOBJ_ACT(self);
 
     sub->mainMail = cageDownMain_mes;
     while (1) {
@@ -1425,9 +1425,9 @@ void actSt13cCageDownMain(GObj *volatile a0)
     }
 }
 
-void actSt13cCageDownSwitch(GObj *volatile a0)
+void actSt13cCageDownSwitch(GObj *volatile self)
 {
-    Act *sub = GOBJ_ACT(a0);
+    Act *sub = GOBJ_ACT(self);
 
     sub->mainMail = 0;
     scpBoyControlReadDisable = 1;
@@ -1435,12 +1435,12 @@ void actSt13cCageDownSwitch(GObj *volatile a0)
     if (gflagChk(20) == 0) {
         cageDownSwitch_mes[0].func = actSt13cCage1stDown;
         sub->mail = cageDownSwitch_mes;
-        ACTSendMailCorrect(a0, 430);
+        ACTSendMailCorrect(self, 430);
         _ACTWait(0);
     }
 }
 
-void actSt13cCage1stDownDemo(GObj *volatile a0)
+void actSt13cCage1stDownDemo(GObj *volatile self)
 {
     scpPlayStart(boyGObj);
     scpPlayMot(boyGObj, 313);
@@ -1450,11 +1450,11 @@ void actSt13cCage1stDownDemo(GObj *volatile a0)
     _ACTWait(0);
 }
 
-void actSt13cCageFallReadyChk(GObj *volatile a0)
+void actSt13cCageFallReadyChk(GObj *volatile self)
 {
-    GObj *x = a0;
+    GObj *x = self;
 
-    actInitialize(a0);
+    actInitialize(self);
 
     _ACTWait(1);
 
@@ -1475,11 +1475,11 @@ static void actE3St13cSekizoEvent(int x)
     volatile int local = x;
 }
 
-void actSt13cSekizoJimakuChk(GObj *volatile a0)
+void actSt13cSekizoJimakuChk(GObj *volatile self)
 {
-    GObj *x = a0;
+    GObj *x = self;
 
-    actInitialize(a0);
+    actInitialize(self);
 
     _ACTWait(1);
 
@@ -1491,7 +1491,7 @@ void actSt13cSekizoJimakuChk(GObj *volatile a0)
     actCreateSubThread(actSt13cSekizoJimakuEff, 21);
 }
 
-void actSt13cSekizoJimakuEff(GObj *volatile a0)
+void actSt13cSekizoJimakuEff(GObj *volatile self)
 {
     float t;
     float tn;
@@ -1522,9 +1522,9 @@ void actSt13cSekizoJimakuEff(GObj *volatile a0)
     } while (t < 500.0f);
 }
 
-void actSt13cGirlCarryAgainChk(GObj *volatile a0)
+void actSt13cGirlCarryAgainChk(GObj *volatile self)
 {
-    Act *self = GOBJ_ACT(a0);
+    Act *act = GOBJ_ACT(self);
 
     if (girlGObj == 0) {
         _ACTWait(0);
@@ -1537,14 +1537,14 @@ void actSt13cGirlCarryAgainChk(GObj *volatile a0)
     gflagOff(26);
 
     girlCarryAgainChk_mes[0].func = actSt13cGirlCarryChk;
-    self->mail = girlCarryAgainChk_mes;
-    ACTSendMailCorrect(a0, 430);
+    act->mail = girlCarryAgainChk_mes;
+    ACTSendMailCorrect(self, 430);
     _ACTWait(0);
 
     _ACTWait(1);
 }
 
-static void actSt13cHandSub(GObj *volatile a0)
+static void actSt13cHandSub(GObj *volatile self)
 {
     _ACTWait(100);
     scpPlayWaitMotEnd(boyGObj);
@@ -1552,7 +1552,7 @@ static void actSt13cHandSub(GObj *volatile a0)
     _ACTWait(0);
 }
 
-void actSt13cRescueChk(GObj *volatile a0)
+void actSt13cRescueChk(GObj *volatile self)
 {
     if (girlGObj == 0) {
         _ACTWait(0);
@@ -1578,7 +1578,7 @@ void actSt13cBukiEvent(int x)
     volatile int local = x;
 }
 
-void actSt13cBukiChk(GObj *volatile a0)
+void actSt13cBukiChk(GObj *volatile self)
 {
     while (ForMotionViewer_GetCurrentMotion(boyGObj) != 231) {
         _ACTWait(1);

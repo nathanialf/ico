@@ -10,10 +10,10 @@
 
 #include "typedef.h"
 
-void actSt04rDoor2Chk(GObj *volatile a0);
-void actSt04rDoorChk(GObj *volatile a0);
-void actSt05cDoorDownChk(GObj *volatile a0);
-void actSt05cDoorDownEffect(GObj *volatile a0);
-void actSt05cEneChk(GObj *volatile a0);
+void actSt04rDoor2Chk(GObj *volatile self);
+void actSt04rDoorChk(GObj *volatile self);
+void actSt05cDoorDownChk(GObj *volatile self);
+void actSt05cDoorDownEffect(GObj *volatile self);
+void actSt05cEneChk(GObj *volatile self);
 
 #endif /* ST05C_H */

@@ -14,19 +14,19 @@
 extern char *st10r_floor;
 extern char *cage10r;
 extern char *chain10r;
-void actSt10rCageMain(GObj *volatile a0);
-void actSt10rChainMain(GObj *volatile a0);
-void actSt10rChainMove(GObj *volatile a0);
-void actSt10rChainSwitch(GObj *volatile a0);
-void actSt10rEneChk(GObj *volatile a0);
-void actSt10rExitChk(GObj *volatile a0);
-void actSt10rFenceDownChk(GObj *volatile a0);
-void actSt10rFenceDownChk2(GObj *volatile a0);
-void actSt10rFenceUpChk(GObj *volatile a0);
-void actSt10rFenceUpChk2(GObj *volatile a0);
-void actSt10rFloorChk(GObj *volatile a0);
-void actSt10rGirlWay(volatile unsigned int a0);
-void actSt10rTowerChk(GObj *volatile a0);
-void actSt10rTowerConte(GObj *volatile a0);
+void actSt10rCageMain(GObj *volatile self);
+void actSt10rChainMain(GObj *volatile self);
+void actSt10rChainMove(GObj *volatile self);
+void actSt10rChainSwitch(GObj *volatile self);
+void actSt10rEneChk(GObj *volatile self);
+void actSt10rExitChk(GObj *volatile self);
+void actSt10rFenceDownChk(GObj *volatile self);
+void actSt10rFenceDownChk2(GObj *volatile self);
+void actSt10rFenceUpChk(GObj *volatile self);
+void actSt10rFenceUpChk2(GObj *volatile self);
+void actSt10rFloorChk(GObj *volatile self);
+void actSt10rGirlWay(volatile unsigned int self);
+void actSt10rTowerChk(GObj *volatile self);
+void actSt10rTowerConte(GObj *volatile self);
 
 #endif /* ST10R_H */

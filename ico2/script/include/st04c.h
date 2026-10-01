@@ -10,11 +10,11 @@
 
 #include "typedef.h"
 
-void actSt04cDoorDownChk(GObj *volatile a0);
-void actSt04cDoorDownEffect(GObj *volatile a0);
-void actSt04cEneChk(GObj *volatile a0);
-void actSt04cIntroChk(GObj *volatile a0);
-void actSt04lDoorChk(GObj *volatile a0);
+void actSt04cDoorDownChk(GObj *volatile self);
+void actSt04cDoorDownEffect(GObj *volatile self);
+void actSt04cEneChk(GObj *volatile self);
+void actSt04cIntroChk(GObj *volatile self);
+void actSt04lDoorChk(GObj *volatile self);
 
 /* a vector: four floats, or the same 16 bytes as two doublewords */
 typedef union StVec { /* field names derived */

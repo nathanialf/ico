@@ -15,9 +15,9 @@
 #include "script.h"
 #include "main.h"
 
-static void actSt04rDoor2Sub(GObj *volatile a0);
-static void actSt04rDoorSub(GObj *volatile a0);
-static void actSt05cCrestHintChk(GObj *volatile a0);
+static void actSt04rDoor2Sub(GObj *volatile self);
+static void actSt04rDoorSub(GObj *volatile self);
+static void actSt05cCrestHintChk(GObj *volatile self);
 
 /* .sbss: the demo's own end flag, raised by the subthreads the wait loops
    below spin for. */
@@ -41,11 +41,11 @@ static ActMail st04rDoor2_mes[2] = {{430}, {429}}; /* derived name */
 
 static ActMail crestHint_mes[2] = {{430}, {429}}; /* derived name */
 
-void actSt05cDoorDownChk(GObj *volatile a0)
+void actSt05cDoorDownChk(GObj *volatile self)
 {
     StVec pos;
 
-    while (scpTriggerBall(a0, boyGObj, 200.0f) == 0) {
+    while (scpTriggerBall(self, boyGObj, 200.0f) == 0) {
         _ACTWait(1);
     }
 
@@ -70,12 +70,12 @@ void actSt05cDoorDownChk(GObj *volatile a0)
     scpBoyControlReadDisable = 0;
 }
 
-void actSt04rDoorChk(GObj *volatile a0)
+void actSt04rDoorChk(GObj *volatile self)
 {
-    GObj *x = a0;
+    GObj *x = self;
     GProc *th;
 
-    actInitialize(a0);
+    actInitialize(self);
     _ACTWait(1);
 
     while (gflagChk(255) == 0) {
@@ -126,12 +126,12 @@ void actSt04rDoorChk(GObj *volatile a0)
     }
 }
 
-void actSt04rDoor2Chk(GObj *volatile a0)
+void actSt04rDoor2Chk(GObj *volatile self)
 {
-    GObj *x = a0;
+    GObj *x = self;
     GProc *th;
 
-    actInitialize(a0);
+    actInitialize(self);
     _ACTWait(1);
 
     while (gflagChk(256) == 0) {
@@ -182,11 +182,11 @@ void actSt04rDoor2Chk(GObj *volatile a0)
     }
 }
 
-void actSt05cSolarXL(GObj *volatile a0)
+void actSt05cSolarXL(GObj *volatile self)
 {
-    GObj *x = a0;
+    GObj *x = self;
 
-    actInitialize(a0);
+    actInitialize(self);
     _ACTWait(1);
 
     if (gflagChk(139) == 0) {
@@ -194,11 +194,11 @@ void actSt05cSolarXL(GObj *volatile a0)
     }
 }
 
-void actSt05cWaterXL(GObj *volatile a0)
+void actSt05cWaterXL(GObj *volatile self)
 {
-    GObj *x = a0;
+    GObj *x = self;
 
-    actInitialize(a0);
+    actInitialize(self);
     _ACTWait(1);
 
     if (gflagChk(231) != 0) {
@@ -206,17 +206,17 @@ void actSt05cWaterXL(GObj *volatile a0)
     }
 }
 
-void actSt04rDoor(GObj *volatile a0)
+void actSt04rDoor(GObj *volatile self)
 {
-    GObj *x = a0;
-    Act *self = actInitialize(a0);
+    GObj *x = self;
+    Act *act = actInitialize(self);
     _ACTWait(1);
 
     if (gflagChk(255) == 0) {
         stage_SetAnimation(332, 0, 0);
         st04rDoor_mes[0].func = actSt04rDoorChk;
-        self->mail = st04rDoor_mes;
-        ACTSendMailCorrect(a0, 430);
+        act->mail = st04rDoor_mes;
+        ACTSendMailCorrect(self, 430);
         _ACTWait(0);
     } else {
         stage_SetAnimation(332, 0, -1);
@@ -224,17 +224,17 @@ void actSt04rDoor(GObj *volatile a0)
     }
 }
 
-void actSt04rDoor2(GObj *volatile a0)
+void actSt04rDoor2(GObj *volatile self)
 {
-    GObj *x = a0;
-    Act *self = actInitialize(a0);
+    GObj *x = self;
+    Act *act = actInitialize(self);
     _ACTWait(1);
 
     if (gflagChk(256) == 0) {
         stage_SetAnimation(333, 0, 0);
         st04rDoor2_mes[0].func = actSt04rDoor2Chk;
-        self->mail = st04rDoor2_mes;
-        ACTSendMailCorrect(a0, 430);
+        act->mail = st04rDoor2_mes;
+        ACTSendMailCorrect(self, 430);
         _ACTWait(0);
     } else {
         stage_SetAnimation(333, 0, -1);
@@ -242,85 +242,85 @@ void actSt04rDoor2(GObj *volatile a0)
     }
 }
 
-void actSt05cDoorDown(GObj *volatile a0)
+void actSt05cDoorDown(GObj *volatile self)
 {
-    GObj *x = a0;
-    Act *self = actInitialize(a0);
+    GObj *x = self;
+    Act *act = actInitialize(self);
 
     if (gflagChk(165) == 0) {
         doorDown_mes[0].func = actSt05cDoorDownChk;
-        self->mail = doorDown_mes;
-        ACTSendMailCorrect(a0, 430);
+        act->mail = doorDown_mes;
+        ACTSendMailCorrect(self, 430);
         _ACTWait(0);
     }
 }
 
-void actSt05cEne(GObj *volatile a0)
+void actSt05cEne(GObj *volatile self)
 {
-    GObj *x = a0;
-    Act *self = actInitialize(a0);
+    GObj *x = self;
+    Act *act = actInitialize(self);
     _ACTWait(1);
 
     if (gflagChk(167) == 0) {
         ene_mes[0].func = actSt05cEneChk;
-        self->mail = ene_mes;
-        ACTSendMailCorrect(a0, 430);
+        act->mail = ene_mes;
+        ACTSendMailCorrect(self, 430);
         _ACTWait(0);
     }
 }
 
-void actSt05cEnemy1(GObj *volatile a0)
+void actSt05cEnemy1(GObj *volatile self)
 {
-    GObj *x = a0;
+    GObj *x = self;
 
-    actInitialize(a0);
+    actInitialize(self);
     _ACTWait(1);
 
-    Generator_Mask(a0);
+    Generator_Mask(self);
 
     while (gflagChk(168) == 0) {
         _ACTWait(1);
     }
 
     _ACTWait(1);
-    Generator_MaskOff(a0);
+    Generator_MaskOff(self);
     _ACTWait(60);
-    Generator_Call(a0);
+    Generator_Call(self);
     _ACTWait(60);
-    Generator_Call(a0);
+    Generator_Call(self);
 }
 
-void actSt05cEnemy2(GObj *volatile a0)
+void actSt05cEnemy2(GObj *volatile self)
 {
-    GObj *x = a0;
+    GObj *x = self;
 
-    actInitialize(a0);
+    actInitialize(self);
     _ACTWait(1);
 
-    Generator_Mask(a0);
+    Generator_Mask(self);
 
     while (gflagChk(168) == 0) {
         _ACTWait(1);
     }
 
     _ACTWait(1);
-    Generator_MaskOff(a0);
-    Generator_Call(a0);
+    Generator_MaskOff(self);
+    Generator_Call(self);
     _ACTWait(60);
-    Generator_Call(a0);
+    Generator_Call(self);
 }
 
-void actSt05cCrestHint(GObj *volatile a0)
+void actSt05cCrestHint(GObj *volatile self)
 {
-    GObj *x = a0;
-    Act *self = actInitialize(a0);
+    GObj *x = self;
+    Act *act = actInitialize(self);
     _ACTWait(1);
 
     if (gflagChk(169) == 0) {
         SleepHint(23);
         crestHint_mes[0].func = actSt05cCrestHintChk;
-        self->mail = crestHint_mes;
-        ACTSendMailCorrect(a0, 430);
+        act->mail = crestHint_mes;
+        ACTSendMailCorrect(self, 430);
         _ACTWait(0);
     }
 }
@@ -330,7 +330,7 @@ void actSt05cDoorDownEvent(int x)
     volatile int local = x;
 }
 
-void actSt05cDoorDownEffect(GObj *volatile a0)
+void actSt05cDoorDownEffect(GObj *volatile self)
 {
     StVec a;
     StVec b;
@@ -354,7 +354,7 @@ void actSt05cDoorDownEffect(GObj *volatile a0)
     }
 }
 
-void actSt05cEneChk(GObj *volatile a0)
+void actSt05cEneChk(GObj *volatile self)
 {
     if (girlGObj == 0) {
         _ACTWait(0);
@@ -369,7 +369,7 @@ void actSt05cEneChk(GObj *volatile a0)
     gflagOn(168);
 }
 
-static void actSt04rDoorSub(GObj *volatile a0)
+static void actSt04rDoorSub(GObj *volatile self)
 {
     int h;
 
@@ -381,7 +381,7 @@ static void actSt04rDoorSub(GObj *volatile a0)
     _ACTWait(0);
 }
 
-static void actSt04rDoor2Sub(GObj *volatile a0)
+static void actSt04rDoor2Sub(GObj *volatile self)
 {
     int h;
 
@@ -393,7 +393,7 @@ static void actSt04rDoor2Sub(GObj *volatile a0)
     _ACTWait(0);
 }
 
-static void actSt05cCrestHintChk(GObj *volatile a0)
+static void actSt05cCrestHintChk(GObj *volatile self)
 {
     while (gflagChk(243) == 0 || gflagChk(244) == 0 || gflagChk(245) == 0 || gflagChk(232) != 0) {
         _ACTWait(1);

@@ -12,6 +12,6 @@
 
 /* st17b.o's .sdata globals */
 extern char *lightning2;
-void actSt17bCheckChk(GObj *volatile a0);
+void actSt17bCheckChk(GObj *volatile self);
 
 #endif /* ST17B_H */
