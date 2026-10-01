@@ -423,8 +423,6 @@ typedef struct {
     float f[4];
 } __attribute__((aligned(8))) WayPos;
 
-extern StgPre stageData[];
-
 void ExtractWayData(int stage_no)
 {
     WayPos v;

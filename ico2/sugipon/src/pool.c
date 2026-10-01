@@ -222,20 +222,6 @@ void GetPoolGlobalDrainVector(void *dst, GObj *a0)
     CopyVector(dst, ((PoolWork *)GOBJ_SUB(a0)->work)->drain);
 }
 
-/* RECONSTRUCTION, read from the ROM.  The 64-byte record CSVSYSTEM_InitDObj
-   takes as its layout: the position at 0x00, the rotation at 0x10, the scale
-   at 0x20 and the object word at 0x30.  The copy out of InitialSObjSimpleSetting is ld/sd
-   pairs, so the record is 8-aligned; ico2/sugipon/src/attackCheckBoundary.c
-   carries the same record under its own name. */
-typedef struct {
-    float x;           /* 0x00 */
-    float y;           /* 0x04 */
-    float z;           /* 0x08 */
-    float w;           /* 0x0C */
-    long long f_10[6]; /* 0x10, the rest of the record this TU copies out of
-                          the template and does not touch */
-} PoolLayout;
-
 typedef union {
     int i[4];
     float f[4];
@@ -293,12 +279,12 @@ char *InitPoolGeo(char *self, SObjSimpleSetting *lay)
         w->rippleNo = 0;
 
         if (GOBJ_SUB(self)->accessary != 26) {
-            PoolLayout obj = *(PoolLayout *)&InitialSObjSimpleSetting;
+            SObjSimpleSetting obj = InitialSObjSimpleSetting;
 
-            obj.x = -accessary[GOBJ_SUB(self)->accessary].pivot[0];
-            obj.y = -accessary[GOBJ_SUB(self)->accessary].pivot[1];
-            obj.z = -accessary[GOBJ_SUB(self)->accessary].pivot[2];
-            w->dobj = CSVSYSTEM_InitDObj(accessary[GOBJ_SUB(self)->accessary].model, (float *)&obj);
+            obj.pos[0] = -accessary[GOBJ_SUB(self)->accessary].pivot[0];
+            obj.pos[1] = -accessary[GOBJ_SUB(self)->accessary].pivot[1];
+            obj.pos[2] = -accessary[GOBJ_SUB(self)->accessary].pivot[2];
+            w->dobj = CSVSYSTEM_InitDObj(accessary[GOBJ_SUB(self)->accessary].model, &obj);
 
             w->spin = 0;
         } else {
@@ -860,7 +846,7 @@ void SetLimitedPoolReflactionMesh(PoolMesh *a0, GObj *a1, GObj *a2)
     CopyVector(v1, pos);
     v1[1] = w->pos[1];
     CopyVector(v2, pos);
-    v2[1] += GOBJ_SUB(a2)->projHeight;
+    v2[1] += GOBJ_SUB(a2)->root.projHeight;
 
     pos[1] = (v1[1] + v2[1]) * 0.5f;
     _InterVectorXYZ(pos, pos, (char *)(matrixptr + 944),
@@ -981,7 +967,7 @@ int poolRideFunc(char **a0, GObj *a1)
 {
     Sub15C *e = GOBJ_SUB(a1);
     PoolWork *p = GOBJ_SUB(a0[0])->work;
-    e->waterDepth = e->rootPosY - p->pos[1];
+    e->ctrl.waterDepth = e->root.pos[1] - p->pos[1];
     return 1;
 }
 

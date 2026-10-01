@@ -472,7 +472,7 @@ void GetClothAnimation(int a0, void *a1, GObj *a2, void *m, ClothCfg *cfg, int n
     int j;
     int n;
     int node;
-    int focus;
+    SkelNode *focus;
     char **rowsB = (char **)a1;
     int n0 = cfg->num;
     float seg = cfg->segLength;

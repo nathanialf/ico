@@ -6,17 +6,6 @@
  * InitWindManager's plus its own trailing line 72; ExecWindManager is the
  * TU's only plain function.  The object order Exec, Reinit, Set, Init,
  * GetRegularized is the prototype order of the deferred inline tail. */
-typedef struct WindParam {
-    /* the splat label D_005F5E1C sits on this member; the entry's direction
-       vector lives 0xC bytes in front of it. */
-    float pos[3]; /* +0x00 */
-    char pad0[128];
-    float amp;   /* +0x8C */
-    float speed; /* +0x90 */
-    char pad1[256];
-} WindParam;
-
-extern WindParam D_005F5E1C[];
 
 /* The TU's .sdata (MAIN.MAP names nothing in it), in ROM order: the wind kind,
    the base speed and its variance with their reciprocals, and the gust state. */
@@ -55,11 +44,11 @@ inline void SetWindManager(float a, float b, float c, float d, float e, float f,
 
 inline void InitWindManager(int no)
 {
-    float *pos = D_005F5E1C[no].pos;
-    float *dir = (float *)&D_005F5E1C[no] - 3;
+    const float *pos = stageData[no].windPos;
+    const float *dir = stageData[no].windDir;
 
-    SetWindManager(pos[0], pos[1], pos[2], dir[0], dir[1], dir[2], D_005F5E1C[no].speed,
-                   D_005F5E1C[no].amp);
+    SetWindManager(pos[0], pos[1], pos[2], dir[0], dir[1], dir[2], stageData[no].windSpeed,
+                   stageData[no].windAmp);
     windKind = no;
 }
 

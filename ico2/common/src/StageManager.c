@@ -47,9 +47,6 @@ IosMsgQueue stageMgrMsgQ = {0};
 
 StgSlot stageExitData[15] = {0};
 
-/* typedef.h carries StgPre but declares no stageData */
-extern const StgPre stageData[];
-
 /* .sbss: the one-entry buffer of the stage manager's message queue, and the
    stage stgmgrNextStagePreLoadForceStageSet asks the preloader for. */
 static int stageMgrMsgBuf; /* derived name */

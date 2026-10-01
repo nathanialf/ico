@@ -644,7 +644,7 @@ int rolling(GObj *a0)
                   (char *)GOBJ_SUB(a0) + 0x130);
     {
         char *col = (char *)&ap1RollClip;
-        CopyVector(col, GOBJ_SUB(a0)->lastPos);
+        CopyVector(col, GOBJ_SUB(a0)->root.last);
         CopyVector(col + 0x10, (char *)GOBJ_SUB(a0) + 0xA0);
         *(float *)(col + 4) -= 50.0f;
         if (clipAndTakeHit(&info, col)) {
@@ -657,11 +657,11 @@ int rolling(GObj *a0)
             {
                 char *col = (char *)&ap1RollClip;
                 if (*(int *)(col + 0x88) != 0) {
-                    GOBJ_SUB(a0)->floorAttr = GetWallAttribute(col);
+                    GOBJ_SUB(a0)->ctrl.floorAttr = GetWallAttribute(col);
                 }
                 if (CheckWallAttribute(a0, 0x50) != 0) {
                     if (GetPoolGlobalHeight(*(int *)(col + 0x80)) <
-                        GOBJ_SUB(a0)->rootPosY + 50.0f) {
+                        GOBJ_SUB(a0)->root.pos[1] + 50.0f) {
                         iosOmSendMail(a0, 0x26, a0);
                     }
                 }
@@ -669,10 +669,10 @@ int rolling(GObj *a0)
             {
                 char *col = (char *)&ap1RollClip;
                 if (*(int *)(col + 0x94) != 0) {
-                    GOBJ_SUB(a0)->floorAttr = GetFloorAttribute(col);
+                    GOBJ_SUB(a0)->ctrl.floorAttr = GetFloorAttribute(col);
                     if (CheckFloorAttribute(a0, 0x50) != 0) {
                         if (GetPoolGlobalHeight(*(int *)(col + 0x8C)) <
-                            GOBJ_SUB(a0)->rootPosY + 50.0f) {
+                            GOBJ_SUB(a0)->root.pos[1] + 50.0f) {
                             iosOmSendMail(a0, 0x26, a0);
                         }
                     }
@@ -858,7 +858,7 @@ void updateMatrix(GObj *a0)
     float mtx[16];
     AP1Work *p = GOBJ_SUB(a0)->work;
 
-    CopyVector(GOBJ_SUB(a0)->lastPos, (char *)GOBJ_SUB(a0) + 0xA0);
+    CopyVector(GOBJ_SUB(a0)->root.last, (char *)GOBJ_SUB(a0) + 0xA0);
     UpdateRootMatrix(a0);
     CopyMatrix(p->root, (void *)GOBJ_SUB(a0)->nodeMtx);
 
@@ -945,7 +945,7 @@ void AP1Geo(GObj *a0)
     }
     d = GOBJ_SUB(a0)->matrixTy - *(float *)((char *)GOBJ_SUB(a0)->nodeMtx + 0x34);
     if ((d < 0.0f) ? ((d = -d) > 10000.0f) : (d > 10000.0f)) {
-        GOBJ_SUB(a0)->floorAttr = 0x800;
+        GOBJ_SUB(a0)->ctrl.floorAttr = 0x800;
         /* EUC-JP: "fall-death request from the spider slipping free" */
         debug_StdPrintfDummy("蜘蛛の抜けによる落下死リクエスト\n");
     }

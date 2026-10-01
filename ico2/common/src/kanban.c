@@ -42,9 +42,6 @@ static const char kanbanOverMsg[] = "かんばんクエストボックスオー�
    origin, the same rectangle src/staffroll.c uses for the roll. */
 static const Pkt16 kanbanSprite = {{-5120, -1792, 10240, 3584}}; /* derived name */
 
-/* typedef.h carries StgPre but declares no stageData */
-extern const StgPre stageData[];
-
 /* .sdata: kanbanCommonRead and the sign's initial colour */
 int kanbanCommonRead = 0;
 

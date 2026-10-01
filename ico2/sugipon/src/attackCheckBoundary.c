@@ -15,28 +15,12 @@
    the colour the debug display draws a boundary sphere in */
 static unsigned int acbSphereColor[4] = {0, 128, 255, 128}; /* derived name */
 
-/* What the bytes pin (InitAttackCheckBoundaryManagerGeo's copy of the
-   template, listing lines 85 to 91): an 8-aligned record, since the 0x40-byte
-   copy is eight ld/sd pairs; position members that are plain float arrays,
-   since a union member's stores alias the int store `*obj = 0` and keep it
-   behind them where the ROM issues it first; and an int handle at 0x30,
-   whose store must conflict with `*obj = 0` so that sched1 keeps the two in
-   source order, which is what issues the 0x30 chunk of the copy first. What
-   they cannot pin: the vector type's name (sceVu0FVECTOR is the SDK's). */
-typedef struct {
-    sceVu0FVECTOR pos;   /* 0x00 */
-    sceVu0FVECTOR rot;   /* 0x10 */
-    sceVu0FVECTOR scale; /* 0x20 */
-    int obj;             /* 0x30 */
-    int unk34[3];        /* 0x34 */
-} AcbLayout;
-
 #include "attackCheckBoundary.h"
 #include "ios.h"
 #include "main.h"
 #include "GifPacket.h"
 
-static inline char *createAttackCheckBoundaryGObj(AcbLayout *lay)
+static inline char *createAttackCheckBoundaryGObj(SObjSimpleSetting *lay)
 {
     return CreateLayoutedGObj(63, 0x4B, -1, 0, lay, -1, 7, 1);
 }
@@ -56,7 +40,7 @@ inline int InitAttackCheckBoundaryGeo(int unused, void *obj)
 {
     AcbWork *w = (AcbWork *)iosMallocDebug(ios_partition_sugipon, 0xC, __FILE__, 27);
 
-    w->handle = (int *)((AcbLayout *)obj)->obj;
+    w->handle = (int *)((SObjSimpleSetting *)obj)->obj;
     w->f4 = 0;
     *w->handle = 0;
     w->attr = 0;
@@ -116,7 +100,7 @@ inline float GetAttackCheckBoundaryRadius(GObj *a0)
 
 inline char *CreateAttackCheckBoundary(int *obj, float x, float y, float z, float r)
 {
-    AcbLayout lay = *(AcbLayout *)&InitialSObjSimpleSetting;
+    SObjSimpleSetting lay = InitialSObjSimpleSetting;
 
     lay.pos[0] = x;
     lay.pos[1] = y;
@@ -158,7 +142,7 @@ void AttackCheckBoundaryBeforeFunc(char *self)
 
                     if (k == 4 || k == 5 || k == 6 || k == 9 || k == 8) {
                         if (*(int *)b[0] < 2) {
-                            GOBJ_SUB(g)->wallAttr = b[2];
+                            GOBJ_SUB(g)->ctrl.wallAttr = b[2];
                             ExecuteSEPackage(g, 74);
                             b[1] = 2;
                             *(int *)b[0] = 2;

@@ -684,10 +684,10 @@ void synchronizeMotionOutputOriginForGirl(GObj *gobj)
     if (girlGObj != 0) {
         p = motSyncPairs;
         for (i = 0; i < 5; i++) {
-            if (GOBJ_SUB(girlGObj)->motion == p->girl) {
+            if (GOBJ_SUB(girlGObj)->ctrl.motion == p->girl) {
                 okA = 1;
             }
-            if (GOBJ_SUB(gobj)->motion == p->boy) {
+            if (GOBJ_SUB(gobj)->ctrl.motion == p->boy) {
                 okB = 1;
             }
             p++;
@@ -722,7 +722,7 @@ void actionOfWater(GObj *gobj)
     int node;
 
     ExecWaterDot(w->waterDot);
-    if (GOBJ_SUB(gobj)->rootUpdateMode == 0xB) {
+    if (GOBJ_SUB(gobj)->ctrl.rootUpdateMode == 0xB) {
         w->wet = 1;
         w->dripVel = 5.0f;
         w->drip = 0.0f;
@@ -812,7 +812,7 @@ inline void SetBoyStonizedVisual(GObj *a0)
     AdjustMotionHeightToNearestField(a0);
     crown->stone = 1;
     crown->stoneAnim = 0;
-    GOBJ_SUB(a0)->word62C = 0;
+    GOBJ_SUB(a0)->ctrl.slipOn = 0;
 }
 
 /* kept local: float (int, void *, void *, float) here, float (int, float, void *, void *) in StageAnimation.h */
@@ -844,11 +844,11 @@ void BoyDL(GObj *gobj)
         dispCrown(gobj);
         dispClothes(gobj);
     }
-    if (stage_no == 0x27 && 20.0f < GOBJ_SUB(gobj)->waterDepth && GOBJ_SUB(gobj)->pool != 0 &&
-        CheckPoolHasGridMesh((GObj *)GOBJ_SUB(gobj)->pool) == 0) {
+    if (stage_no == 0x27 && 20.0f < GOBJ_SUB(gobj)->ctrl.waterDepth &&
+        GOBJ_SUB(gobj)->ctrl.pool != 0 && CheckPoolHasGridMesh(GOBJ_SUB(gobj)->ctrl.pool) == 0) {
         sub = GOBJ_SUB(gobj);
         m = (PoolMesh *)(sub->work + 0x34);
-        SetLimitedPoolReflactionMesh(m, sub->pool, gobj);
+        SetLimitedPoolReflactionMesh(m, sub->ctrl.pool, gobj);
         DispLimitedPoolReflactionMesh(m);
     }
     DispWaterDot(w->waterDot);

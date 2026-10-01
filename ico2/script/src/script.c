@@ -187,10 +187,6 @@ typedef struct {                     /* field names derived */
     char pad8C[52];                  /* 0x8C */
 } ClipWorkScript; /* derived name */ /* 0xC0 */
 
-/* the per-stage records: row [stage_no], entry .ent[no - 1] the stage's
-   exits in exitData. */
-/* typedef.h carries StgPre but declares no stageData */
-extern const StgPre stageData[];
 /* as in motionManager2.h, which this TU does not include */
 extern int GetSkeltonFocusNode(char *a0, int a1);
 
@@ -495,7 +491,7 @@ void scpPlayMotDirSmz(char *self, float *dir)
     sceVu0Normalize(dir, dir);
     SetMotionDirectionSmooze(
         self, dir,
-        (float)((struct MotTblRec *)(GOBJ_SUB(self)->motion * 0x194 + (char *)motionKind))
+        (float)((struct MotTblRec *)(GOBJ_SUB(self)->ctrl.motion * 0x194 + (char *)motionKind))
             ->smzAngle);
 }
 
@@ -725,7 +721,7 @@ inline int scpTriggerIgnore(GObj *self)
     while (ignoreKind[i] != -1) {
         if (((GObj *)self)->kind == ignoreKind[i]) {
             Sub15C *sub = GOBJ_SUB(self);
-            if (_ACTGame_GetParamF(2) < sub->groundHeight || GOBJ_ACT(self)->actMode == 0x16) {
+            if (_ACTGame_GetParamF(2) < sub->ctrl.groundHeight || GOBJ_ACT(self)->actMode == 0x16) {
                 return 1;
             }
         }
@@ -1883,16 +1879,16 @@ inline int scpActStatusDeathFall(GObj *self)
 
     sub = GOBJ_SUB(self);
     if (stage_no == 0x22) {
-        if (_ACTGame_GetParamF(2) - 200.0f < sub->groundHeight) {
+        if (_ACTGame_GetParamF(2) - 200.0f < sub->ctrl.groundHeight) {
             return 1;
         }
         sub = GOBJ_SUB(self);
     }
-    if (_ACTGame_GetParamF(2) < sub->groundHeight) {
+    if (_ACTGame_GetParamF(2) < sub->ctrl.groundHeight) {
         return 1;
     }
     sub = GOBJ_SUB(self);
-    if (!(_ACTGame_GetParamF(2) < sub->fallHeight)) {
+    if (!(_ACTGame_GetParamF(2) < sub->ctrl.fallHeight)) {
         return 0;
     }
     return 1;

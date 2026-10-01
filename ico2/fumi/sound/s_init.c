@@ -1285,10 +1285,6 @@ inline void soundSeDefVolumeRateSet(int a0, float f)
     }
 }
 
-/* The stage table sits in .rodata, so it is declared const: its loads are then
-   unchanging and do not order against soundSeEnvNotUseClose's `p = 0` store. */
-extern const StgPre stageData[];
-
 inline void soundReqTickProc(void)
 {
     char *p = (char *)seSlotTbl;

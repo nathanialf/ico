@@ -151,7 +151,7 @@ union PackPowerWord { /* field names derived */
 /* the attack table row of the actor's current motion, 0 when none matches */
 static inline int GetAttackKindIndex(Sub15C *p) /* derived name */
 {
-    int id = p->motion;
+    int id = p->ctrl.motion;
     int i;
 
     for (i = 0; i < 20; i++) {

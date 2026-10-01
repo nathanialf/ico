@@ -7,10 +7,6 @@
 #include "thread.h"
 #include "s_init.h"
 #include <sound.h>
-
-/* kept local: no header declares the stage table (common owns it) */
-extern StgPre stageData[];
-
 #include "soundManager.h"
 
 inline void sndManager(void)

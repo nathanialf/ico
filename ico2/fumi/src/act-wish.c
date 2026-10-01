@@ -227,7 +227,7 @@ void ACTGetWish_FromPad(GObj *a0, float *a1)
     }
 
     if (s->padNow & 8) {
-        if (GOBJ_SUB(a0)->motion == 0xBA) {
+        if (GOBJ_SUB(a0)->ctrl.motion == 0xBA) {
             GOBJ_WORK(a0)->noInterpTimer = (0x3C - systemStatus[0] * 0xA) / systemStatus[1] / 6;
         }
         if (GOBJ_WORK(a0)->wishHoldTimer == 0) {

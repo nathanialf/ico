@@ -629,7 +629,7 @@ void actE3CageFallDemo(GObj *volatile a0)
     {
         int self = (int)girlGObj;
 
-        GOBJ_SUB(self)->word514 =
+        GOBJ_SUB(self)->ctrl.blendFrames =
             (int)((float)((0x3C - systemStatus[0] * 0xA) / systemStatus[1]) / 60.0f * 30.0f);
 
         scpPlayEnd(self);
@@ -1092,9 +1092,6 @@ void actE3Warning(GObj *volatile a0)
 
     RequestStageChange(1, boyGObj, 0, 255.0f, 0.0f);
 }
-
-/* typedef.h carries StgPre but declares no stageData */
-extern const StgPre stageData[];
 
 void actE3Inst1(GObj *volatile a0)
 {

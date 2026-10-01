@@ -22,6 +22,8 @@ typedef struct {   /* field names derived */
     char path[48]; /* 0x20 */
 } ParticleEffectFile;
 
+/* the 61 particle effect files (the particle-effect data member) */
+extern const ParticleEffectFile particleEffectFile[];
 void DeleteParticleEffect(int no);
 void DisableParticleEffectGeometryControl(int a0);
 void DispParticleEffects(void);

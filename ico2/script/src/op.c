@@ -283,10 +283,6 @@ static ActMail opDemo02_mes[2] = {{430}, {429}}; /* derived name */
 
 static ActMail opDemo03_mes[2] = {{430}, {429}}; /* derived name */
 
-/* stageData is read-only, so `const`, as typedef.h has exitData; the
-   cutscene entries read their exit index out of `ent`. */
-extern const StgPre stageData[];
-
 inline void actSubMpegReturnPreload(GObj *volatile a0)
 {
     _ACTWait((int)((float)((0x3C - systemStatus[0] * 0xA) / systemStatus[1]) * 5.0f));

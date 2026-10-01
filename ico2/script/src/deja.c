@@ -23,9 +23,6 @@ static ActMail after_mes[2] = {{430}, {429}}; /* derived name */
 static int demoEnd;
 
 void actDejaDemo(GObj *volatile a0);
-/* stageData is read-only, so `const`, as typedef.h has exitData; typedef.h
-   declares no stageData. */
-extern const StgPre stageData[];
 void actDejaAfterChk(GObj *volatile a0);
 
 /* .sdata: the scene's stream handle */

@@ -152,7 +152,7 @@ static inline int SetHandOnWall(GObj *obj, char *hw, char *vec, char *ref, int n
 {
     Vec4 plane;
 
-    if (GOBJ_SUB(obj)->wallPlane == 0) {
+    if (GOBJ_SUB(obj)->root.wall.n == 0) {
         return 0;
     }
     GetGlobalWallPlane(&plane, (char *)(int)GOBJ_SUB(obj) + 0x180);
@@ -224,7 +224,7 @@ static inline void ResetHandTarget(GObj *obj, int off)
     char *h = (char *)(int)GOBJ_SUB(obj) + off;
     *(int *)(h + 0x20) = 0;
     *(int *)(h + 0x24) = 0;
-    ((IntFloat *)(h + 0x50))->f = GOBJ_SUB(obj)->handRate;
+    ((IntFloat *)(h + 0x50))->f = GOBJ_SUB(obj)->root.handRate;
 }
 
 void HandManager(GObj *obj)
@@ -234,8 +234,8 @@ void HandManager(GObj *obj)
     if (debug_now_motion_viewer == 0) {
         ResetHandTarget(obj, 0x310);
         ResetHandTarget(obj, 0x2B0);
-        if (GOBJ_SUB(obj)->handIK != 0) {
-            const MotionDef *rec = &motionKind[GOBJ_SUB(obj)->motion];
+        if (GOBJ_SUB(obj)->root.handIK != 0) {
+            const MotionDef *rec = &motionKind[GOBJ_SUB(obj)->ctrl.motion];
             _handManager(obj, (char *)(int)GOBJ_SUB(obj) + 0x310,
                          motionIKEffKind + ((rec->modeBits.word >> 8) & 0xF0), XUnitVector,
                          GetSkeltonFocusNode(obj, 0x13));
@@ -243,6 +243,6 @@ void HandManager(GObj *obj)
                              motionIKEffKind + ((rec->modeBits.word >> 4) & 0xF0), XUnitVector,
                              GetSkeltonFocusNode(obj, 3));
         }
-        GOBJ_SUB(obj)->handBlend += (t - GOBJ_SUB(obj)->handBlend) * 0.1f;
+        GOBJ_SUB(obj)->root.twistRate += (t - GOBJ_SUB(obj)->root.twistRate) * 0.1f;
     }
 }

@@ -180,7 +180,10 @@ void motEnemyRun(GObj *volatile a0);
 void actEnemyJump(GObj *volatile a0);
 inline int EnemyUtil_isOtherStatus(char *self, int mode);
 int isEnemyHyde(GObj *a0);
-inline int _ApproachTarget(GObj *self, void *tgt, void *pos, void *fn, float range, unsigned char flag);
+
+inline int _ApproachTarget(GObj *self, void *tgt, void *pos, void *fn, float range,
+                           unsigned char flag);
+
 void afterEnemyBodylift(GObj *volatile a0);
 
 int _ApproachTarget_Boss(GObj *self, void *tgt, void *pos, void *fn, float range,
@@ -190,7 +193,7 @@ int _ApproachTarget_Way(GObj *self, void *tgt, void *pos, void *fn, float range,
                         unsigned char flag);
 
 int actEnemyForceSwitchToCarry(void *a0);
-void actEnemyRestart(GObj *self, float *pos, float *dir, int kind, int mot);
+void actEnemyRestart(GObj *self, float *pos, float *dir, int kind, GObj *mother);
 void boss_effect_start(char *self, int id);
 int flyMailCore(void *self);
 /* MAIN.MAP global of enemy_act.o's .sdata, the run's last word (act.c sets it) */

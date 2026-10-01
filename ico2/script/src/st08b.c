@@ -154,7 +154,7 @@ void actSt08bKurenSwitch(GObj *volatile a0)
             } else {
                 p2.ll[0] = kurenSwitch2Pos.d[0];
                 p2.ll[1] = kurenSwitch2Pos.d[1];
-                p2.f[1] += *(float *)(GOBJ_SUB(girlGObj)->skel + 0x14);
+                p2.f[1] += GOBJ_SUB(girlGObj)->skel->pos[1];
                 SetDirectRootPosition(girlGObj, &p2);
             }
         }
@@ -163,7 +163,7 @@ void actSt08bKurenSwitch(GObj *volatile a0)
 
     if (girlGObj != 0) {
         GetRootPosition(&p1, girlGObj);
-        GOBJ_SUB(girlGObj)->groundY = p1.f[1];
+        GOBJ_SUB(girlGObj)->root.footPos[1] = p1.f[1];
     }
 
     while (stage_CheckAnimationFrame(370, frame, 1) == 0) {

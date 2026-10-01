@@ -689,7 +689,7 @@ void _checkCliffAndWall(void)
                 skelMotCtrl->wallTopHeight += 30.0f;
             }
         }
-        if (skelGObj == boyGObj && GOBJ_SUB(skelGObj)->word568 == 0) {
+        if (skelGObj == boyGObj && GOBJ_SUB(skelGObj)->ctrl.cliffEdge == 0) {
             _SubVectorXYZ(v, skelRoot->pos, skelRoot->last);
             v[1] = 0.0f;
             d = VectorLengthSquare(v);
@@ -716,7 +716,7 @@ void _checkCliffAndWall(void)
             DrawGObjWallCollision(skelRoot->wall.o.obj, 0);
         }
     }
-    if (GOBJ_SUB(skelGObj)->wallHit != 0 && GOBJ_SUB(skelGObj)->wallPlane == 0) {
+    if (GOBJ_SUB(skelGObj)->ctrl.wallHit != 0 && GOBJ_SUB(skelGObj)->root.wall.n == 0) {
         debug_assertMessage(__FILE__, 822, "NOT ENTRY WCL\n");
         __assert(__FILE__, 822, "e");
     }
@@ -933,7 +933,7 @@ inline void getGeometryOfMotion(ObjNode *out, int second)
     buf = *(ShiftBlk *)((char *)GOBJ_SUB(skelGObj) + 0x180);
     _getGeometryOfMotion(out, second);
     p = ((GObj *)skelGObj)->dobj;
-    if (p->keepWall != 0) {
+    if (p->ctrl.keepWall != 0) {
         *(ShiftBlk *)((char *)p + 0x180) = buf;
     }
 }
@@ -963,7 +963,7 @@ void execPositionReserver(GObj *self, ObjNode m)
         }
     }
     skelMotCtrl->reserveMoved = 1;
-    if (GOBJ_SUB(self)->posReserve == 1) {
+    if (GOBJ_SUB(self)->ctrl.posReserve == 1) {
         if (m.obj != 0) {
             CopyVector(buf, skelRoot->savePos);
             _ApplyMatrix(buf, ((char *)GOBJ_SUB(m.obj)->nodeMtx + m.node * 0x40), (char *)buf);
@@ -976,7 +976,7 @@ void execPositionReserver(GObj *self, ObjNode m)
         flg = skelMotCtrl->flags;
         if ((flg & 0x2000) || m.obj != skelRoot->hitObj.obj || m.node != skelRoot->hitObj.node ||
             (skelMotCtrl->slipOn != 0 && (skelMotCtrl->floorAttr & 0xF00000)) || (flg & 2)) {
-            GOBJ_SUB(self)->posReserve = 0;
+            GOBJ_SUB(self)->ctrl.posReserve = 0;
         } else if (skelMotCtrl->reserveBlend != 0) {
             _InterVectorXYZ(skelRoot->pos, skelRoot->savePos, skelRoot->pos,
                             1.0f - (float)skelMotCtrl->reserveBlend * 0.5f);
@@ -992,7 +992,7 @@ void execPositionReserver(GObj *self, ObjNode m)
                              (char *)buf2);
                 MatrixDrive_TransMatrixV(buf2);
                 gif_StartPacketPri(0xB);
-                if (GOBJ_SUB(self)->posReserve == 1) {
+                if (GOBJ_SUB(self)->ctrl.posReserve == 1) {
                     prim_DispWireSphere(50.0f, reserverColor, 0x10, 8);
                 } else {
                     prim_DispWireSphere(50.0f, reserverColor2, 0x10, 8);
@@ -1055,22 +1055,22 @@ void GetGeometryOfMotion(void *self, void *m0, void *m1, float *v, float r, floa
         skelMotion = m0;
         skelMotion2 = m1;
         skelScale = MOWORK(self)->nodes->scale[0];
-        skelRoot = (struct MotRoot *)((char *)MOWORK(self) + 0xA0);
-        skelMotCtrl = (struct MotCtrl *)((char *)MOWORK(self) + 0x470);
+        skelRoot = &MOWORK(self)->root;
+        skelMotCtrl = &MOWORK(self)->ctrl;
         skelNode = (char *)*(MotNode **)((char *)MOWORK(self) + 0x8C);
         skelMotDef = &motionKind[skelMotCtrl->motion];
         CopyVector(rootMove, v);
         CopyVector(rootStep, step);
         skelMotCtrl->flags = 0;
         sceVu0SubVector(rootDelta, skelRoot->last, skelRoot->clipFrom);
-        if (MOWORK(self)->word638 != 0) {
+        if (MOWORK(self)->ctrl.keepStand != 0) {
             ObjNode tmp;
             getGeometryOfMotion(&tmp, r != 1.0f);
         } else {
             getGeometryOfMotion(&sh, r != 1.0f);
         }
         CopyVector(skelRoot->clipFrom, skelRoot->last);
-        if (MOWORK(self)->word4E8 == 1) {
+        if (MOWORK(self)->ctrl.noStand == 1) {
             sh = InitialObjPointer;
         }
         AddVectorXYZ(MOWORK(self)->motionPos, skelRoot->pos, skelRoot->trans);
@@ -1098,8 +1098,8 @@ void GetGeometryOfMotion(void *self, void *m0, void *m1, float *v, float r, floa
             (*(void (**)(ObjNode *, char *))(*(int *)&sh.obj->dobj + 0x81C))(&sh, self);
         }
     } else {
-        MOWORK(self)->rootPosY = MOWORK(self)->rootPosY - MOWORK(self)->height;
-        MOWORK(self)->lastPos[1] = MOWORK(self)->lastPos[1] - MOWORK(self)->height;
+        MOWORK(self)->root.pos[1] = MOWORK(self)->root.pos[1] - MOWORK(self)->root.height;
+        MOWORK(self)->root.last[1] = MOWORK(self)->root.last[1] - MOWORK(self)->root.height;
     }
     MOWORK(self)->motionPos[1] = MOWORK(self)->motionPos[1] - skelRoot->height;
     if (sh.obj != 0) {
@@ -1134,8 +1134,8 @@ void GetMatrixOfMotion(GObj *self, char *tbl, void *ofs)
     skelQuat = (char *)GOBJ_SUB(self)->nodeQuat;
     skelNode = (char *)*(int *)((int)GOBJ_SUB(self) + 0x8C);
     skelScale = GOBJ_SUB(self)->nodes->scale[0];
-    skelRoot = (struct MotRoot *)((int)GOBJ_SUB(self) + 0xA0);
-    skelMotCtrl = (struct MotCtrl *)((int)GOBJ_SUB(self) + 0x470);
+    skelRoot = &GOBJ_SUB(self)->root;
+    skelMotCtrl = &GOBJ_SUB(self)->ctrl;
     skelNodeNum = GOBJ_SUB(self)->skelNodeNum;
     skelGeoType = objLayout[*(GenGeoKind *)(((char *)self) + 8) * 0x4C + 0x46];
     skelGObj = (int)self;

@@ -169,8 +169,8 @@ static void dispClothes(GObj *gobj)
         /* Two separate tests, not `>= 642 || < 639`: gcc's fold_range_test
          * merges a disjunction over one operand into `(unsigned)(v - 639) < 3`,
          * which ROM does not have, ROM keeps both `slti`s. */
-        if (GOBJ_SUB(gobj)->motion < 642) {
-            if (GOBJ_SUB(gobj)->motion >= 639) {
+        if (GOBJ_SUB(gobj)->ctrl.motion < 642) {
+            if (GOBJ_SUB(gobj)->ctrl.motion >= 639) {
                 goto skip;
             }
         }
@@ -1848,7 +1848,7 @@ void GirlGeo(GObj *a0)
         GirlAct_BoyAndMeCollisionMail(a0);
     } else {
         w = GOBJ_SUB(a0);
-        if (w->hand0Mode == 4 && w->cylinderOn != 0 && *(int *)((char *)w + 0x3C8) != 0) {
+        if (w->root.hand0Mode == 4 && w->cylinderOn != 0 && *(int *)((char *)w + 0x3C8) != 0) {
             n0 = GetSkeltonFocusNode(boyGObj, 6);
             n1 = GetSkeltonFocusNode(a0, 0x16);
             sceVu0SubVector(v, (char *)GOBJ_SUB(boyGObj)->nodeMtx + n0 * 64 + 0x30,
@@ -1867,7 +1867,7 @@ void GirlGeo(GObj *a0)
 void GirlAI(GObj *a0)
 {
     Sub15C *work = GOBJ_SUB(a0);
-    int mode = work->motion;
+    int mode = work->ctrl.motion;
     GirlWork *cloth = *(GirlWork **)((char *)work + 0x830);
     int hint = *(int *)((char *)work + 0x4C8);
 
@@ -1881,7 +1881,8 @@ void GirlAI(GObj *a0)
             cloth->hint1Ready = 1;
             debug_StdPrintfDummy("hint1 voice ready\n");
         }
-        if (cloth->hint1Ready != 0 && cloth->hint1Played == 0 && 47.0f < GOBJ_SUB(a0)->animFrame) {
+        if (cloth->hint1Ready != 0 && cloth->hint1Played == 0 &&
+            47.0f < GOBJ_SUB(a0)->ctrl.animFrame) {
             scpGirlHintVoicePlay();
             cloth->hint1Played = 1;
             debug_StdPrintfDummy("hint1 voice play\n");
@@ -1897,7 +1898,8 @@ void GirlAI(GObj *a0)
             cloth->hint2Ready = 1;
             debug_StdPrintfDummy("hint2 voice ready\n");
         }
-        if (cloth->hint2Ready != 0 && cloth->hint2Played == 0 && 107.0f < GOBJ_SUB(a0)->animFrame) {
+        if (cloth->hint2Ready != 0 && cloth->hint2Played == 0 &&
+            107.0f < GOBJ_SUB(a0)->ctrl.animFrame) {
             scpGirlHintVoicePlay();
             cloth->hint2Played = 1;
             debug_StdPrintfDummy("hint2 voice play\n");

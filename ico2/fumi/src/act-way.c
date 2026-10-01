@@ -67,7 +67,7 @@ void DetourCheck(GObj *self, float *out)
         break;
     }
     /* listing line 139: the four tests are one statement */
-    if (ok == 0 || act->stickMag == 0.0f || (GOBJ_SUB(self)->motFlags & 2) == 0 ||
+    if (ok == 0 || act->stickMag == 0.0f || (GOBJ_SUB(self)->ctrl.flags & 2) == 0 ||
         ((*(unsigned long long *)((char *)GOBJ_ACT(self)->work + 0x448) >> 33) & 1) == 0) {
         return;
     }
@@ -113,7 +113,8 @@ int checkPositionIllegal(GObj *self, float *pos)
         return 1;
     }
     if (act->actMode == 0x26 ||
-        ((((EnemyParaRow *)((char *)motionKind + GOBJ_SUB(self)->motion * 0x194))->flags18C >> 12) &
+        ((((EnemyParaRow *)((char *)motionKind + GOBJ_SUB(self)->ctrl.motion * 0x194))->flags18C >>
+          12) &
          1)) {
         return 1;
     }

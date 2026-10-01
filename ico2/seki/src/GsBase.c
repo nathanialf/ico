@@ -1370,7 +1370,6 @@ typedef struct sceCdCLOCK {
 
 /* kept local: agrees with main.h, which this TU does not include (db differs) */
 extern int stage_no;
-extern const StgPre stageData[];
 
 inline int gsb_LoadStageSettings(void)
 {

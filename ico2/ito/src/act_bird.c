@@ -101,7 +101,7 @@ void birdBeforeFunc(GObj *self)
             break;
 
         case 10: {
-            int st = GOBJ_SUB(self)->motion;
+            int st = GOBJ_SUB(self)->ctrl.motion;
 
             if (st >= 1139 && st <= 1141) {
                 act->motReq = SetMotionRequest(self, 322, act->motOriReq);
@@ -279,9 +279,9 @@ void subBirdBrainMain(void *volatile gobj)
     GetRootPosition(startPos, gobj);
     GetRootPosition(lastPos, gobj);
 
-    lastState = GOBJ_SUB(gobj)->motion;
+    lastState = GOBJ_SUB(gobj)->ctrl.motion;
     /* the loop opens by reading the same field into `state` again */
-    state = GOBJ_SUB(gobj)->motion;
+    state = GOBJ_SUB(gobj)->ctrl.motion;
     while (1) {
         int changed;
         int hit;
@@ -290,9 +290,9 @@ void subBirdBrainMain(void *volatile gobj)
         int noAvoid;
         float phase;
 
-        state = GOBJ_SUB(gobj)->motion;
-        phase = GOBJ_SUB(gobj)->animFrame;
-        hit = GOBJ_SUB(gobj)->word4CC;
+        state = GOBJ_SUB(gobj)->ctrl.motion;
+        phase = GOBJ_SUB(gobj)->ctrl.animFrame;
+        hit = GOBJ_SUB(gobj)->ctrl.frameEnd;
 
         changed = 0;
 
@@ -465,8 +465,8 @@ void subBirdBrainMain(void *volatile gobj)
             } else {
                 char buf[1024];
 
-                sprintf(buf, "STOP NO FIN %d,%1.1f", GOBJ_SUB(gobj)->motion,
-                        GOBJ_SUB(gobj)->animFrame);
+                sprintf(buf, "STOP NO FIN %d,%1.1f", GOBJ_SUB(gobj)->ctrl.motion,
+                        GOBJ_SUB(gobj)->ctrl.animFrame);
                 Debug_WireString_Bird(pos, buf);
                 break;
             }
@@ -716,10 +716,10 @@ void subBirdBrainMain(void *volatile gobj)
         if (state != 1139) {
             float rp[4];
 
-            if ((GOBJ_SUB(gobj)->motFlags & 0x400) || CheckFloorAttribute(gobj, 64) ||
+            if ((GOBJ_SUB(gobj)->ctrl.flags & 0x400) || CheckFloorAttribute(gobj, 64) ||
                 CheckFloorAttribute(gobj, 80)) {
                 GetRootPosition(rp, gobj);
-                rp[1] = GOBJ_SUB(gobj)->waterY;
+                rp[1] = GOBJ_SUB(gobj)->ctrl.waterY;
                 SetDirectRootPositionNoFitting(gobj, rp);
                 act->motReq = SetMotionRequest(gobj, 172, act->motOriReq);
                 EntryStageMultiBgaManager(498, rp, IdentityQuaternion);
@@ -857,15 +857,15 @@ inline BirdWork *InitBirdGeo(GObj *gobj, void *home)
     w->scared = 0;
     InitMotionOrient(gobj, 2421, 2467, -1, -1, 1134);
 
-    GOBJ_SUB(gobj)->word544 = 1;
-    GOBJ_SUB(gobj)->word54C = 0;
-    GOBJ_SUB(gobj)->word548 = 1;
-    GOBJ_SUB(gobj)->catchBoy = 0;
+    GOBJ_SUB(gobj)->ctrl.wordD4 = 1;
+    GOBJ_SUB(gobj)->ctrl.wordDC = 0;
+    GOBJ_SUB(gobj)->ctrl.wordD8 = 1;
+    GOBJ_SUB(gobj)->ctrl.catchBoy = 0;
     /* the animation frame at 0x4AC and the word after it start at the same
        random frame */
     ((IntFloat *)((int)GOBJ_SUB(gobj) + 0x4AC))->f = random_unit() * 100.0f;
     ((IntFloat *)((int)GOBJ_SUB(gobj) + 0x4B0))->f = ((IntFloat *)((int)GOBJ_SUB(gobj) + 0x4AC))->f;
-    GOBJ_SUB(gobj)->word4C4 = 0;
+    GOBJ_SUB(gobj)->ctrl.waterDrag = 0;
     SetLodLevel(gobj, 3);
     return w;
 }

@@ -249,8 +249,8 @@ void SpiderLayoutGeo(GObj *self)
             GObj *gen = *(GObj **)*(char **)&self->dobj;
 
             if (gen != 0 && gen->kind != 33 && IsActCharDead(gen) == 0) {
-                if (*(void **)(*(char **)&gen->act + 0x54) != 0) {
-                    GetGeneratorSafePosition(pos, *(void **)(*(char **)&gen->act + 0x54));
+                if (GOBJ_ACT(gen)->mother != 0) {
+                    GetGeneratorSafePosition(pos, GOBJ_ACT(gen)->mother);
                     setAllSpiderPositions(self, pos);
                 }
                 WakeUpLayoutedSpiders(self);

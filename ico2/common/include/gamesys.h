@@ -21,12 +21,10 @@ extern int gamesysTimeCount;
 extern int gamesysAnotherStageTsuresari;
 extern int gamesysVersionDiff;
 extern int gamesysObjBuffOver;
-
 /* the object-kind table (obj-kind-data) and the stage layout objects
    (obj-layout), data members linked with debug.o and gamesys.o */
 extern ObjKindEnt objKindData[];
 extern GenGeo objLayout[];
-
 int gamesysGetGirlStageIDAndPosition(int *pos);
 void gamesysMemoryHandlerRead(int *self, void *dst, int size);
 void gamesysMemoryHandlerWrite(int *self, void *src, int size);
@@ -39,9 +37,8 @@ void gamesysObjInfoInit(void);
 GamesysObjInfo *gamesysObjInfoPosNewStageSet(int no, int kind, int stage, float *pos, float *rot);
 int *gamesysObjInfoPosSetStage(int *self, int a1, int a2, int a3);
 void gamesysObjInfoStageInitFlagCls(void);
-int *gamesysObjInfoUniqDataSet(int a0);
+int *gamesysObjInfoUniqDataSet(GObj *a0);
 void gamesysStageExitTimeSet(int a0);
-
 void gamesysBackStageProcess(void);
 void gamesysNObjInfoInit(void);
 void gamesysObjInfoStageInitPosSaveUnlock(void);

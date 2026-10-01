@@ -213,7 +213,7 @@ void playEff(int no)
     p = &motionEffKind[no];
     flags = p->flags;
     if ((flags >> 1) & 1) {
-        pos[1] = GOBJ_SUB(fdsGObj)->waterY;
+        pos[1] = GOBJ_SUB(fdsGObj)->ctrl.waterY;
     }
     if (flags & 1) {
         EntryStageMultiBgaManager(motionEffKind[no].eff, pos, q);
@@ -360,7 +360,7 @@ void ExecFrameDependSequence(GObj *gobj)
             }
         }
     }
-    if (GOBJ_SUB(gobj)->pickedWeapon != 0) {
+    if (GOBJ_SUB(gobj)->ctrl.pickedWeapon != 0) {
         if (((FDSFlags *)fdsFlags)->weaponDone == 0) {
             fireFDSSlot(fdsRecord->weaponFrame, 0, 0, &((FDSFlags *)fdsFlags)->weaponDone,
                         execWeaponLightOff);
@@ -523,7 +523,7 @@ void StopFDSVibration(void *a0)
 
 inline int checkWaterDepth(GObj *a0, int a1)
 {
-    return (int)GOBJ_SUB(a0)->waterDepth < a1;
+    return (int)GOBJ_SUB(a0)->ctrl.waterDepth < a1;
 }
 
 inline int checkModelDataID(GObj *a0, int a1)
@@ -533,7 +533,7 @@ inline int checkModelDataID(GObj *a0, int a1)
 
 inline int checkWeaponType(GObj *a0, int a1)
 {
-    GObj *w = (GObj *)GOBJ_SUB(a0)->pickedWeapon;
+    GObj *w = (GObj *)GOBJ_SUB(a0)->ctrl.pickedWeapon;
     if (w != 0 && CheckWeaponKind(w) == a1) {
         return 1;
     }
@@ -557,11 +557,11 @@ inline int execWeaponLightOff(void)
     Sub15C *p;
     GObj *q;
     p = GOBJ_SUB(fdsGObj);
-    q = (GObj *)p->pickedWeapon;
+    q = (GObj *)p->ctrl.pickedWeapon;
     if (q != 0) {
         if (CheckWeaponKind(q) == 1) {
             Sub15C *r = GOBJ_SUB(fdsGObj);
-            LightTorchOffOfWeapon((GObj *)r->pickedWeapon);
+            LightTorchOffOfWeapon((GObj *)r->ctrl.pickedWeapon);
         }
     }
     return 1;

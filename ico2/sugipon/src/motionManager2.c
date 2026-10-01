@@ -207,7 +207,7 @@ void GetOrientOfCliffOfGObj(float *dir, GObj *obj)
 void SetMotionDirection(GObj *a0, float *a1)
 {
     Sub15C *base = a0->dobj;
-    struct MotCtrl *s2 = (struct MotCtrl *)((char *)base + 0x470);
+    struct MotCtrl *s2 = &base->ctrl;
     char *m;
     Sub15C *ctrl;
     if (a1[0] == 0.0f && a1[2] == 0.0f) {
@@ -265,14 +265,14 @@ void SetMotionDirectionWithLimit(GObj *self, float *dir, float lim0, float lim1)
 
 void GetRootPosOfNextFrame(float *pos, GObj *obj)
 {
-    struct MotRoot *sub = (struct MotRoot *)((char *)obj->dobj + 0xA0);
+    struct MotRoot *sub = &obj->dobj->root;
     CopyVector(pos, sub->move);
     SubVectorXYZ(pos, pos, sub);
 }
 
 void AdjustMotionHeightToField(GObj *obj)
 {
-    struct MotRoot *sub = (struct MotRoot *)((char *)obj->dobj + 0xA0);
+    struct MotRoot *sub = &obj->dobj->root;
     sub->footPos[1] = GetYProjectionOfPlane(sub->plane.f, sub->footPos);
     debug_StdPrintfDummy("Adjust Motion Height To Field. --------------\n");
 }
@@ -995,15 +995,15 @@ void SlopeIKControl(GObj *self, char *arg, int a2, Vec4 *vel)
     float r0 = 1.0f;
     float r1 = 1.0f;
 
-    ik = (struct MotCtrl *)((char *)GOBJ_SUB(self) + 0x470);
-    sub = (struct MotRoot *)((char *)GOBJ_SUB(self) + 0xA0);
+    ik = &GOBJ_SUB(self)->ctrl;
+    sub = &GOBJ_SUB(self)->root;
     if (ik->rootUpdateMode < 3) {
         if (ik->rootUpdateMode > 0) {
             if (sub->slopeIK != 0) {
                 n0 = GOBJ_SUB(self)->focusNodes[49];
                 n1 = GOBJ_SUB(self)->focusNodes[45];
                 if (n0 != -1 && n1 != -1) {
-                    SkelNode *skel = (SkelNode *)GOBJ_SUB(self)->skel;
+                    SkelNode *skel = GOBJ_SUB(self)->skel;
 
                     calcFootIK(skel, arg, n0, GOBJ_SUB(self)->nodes->scale[0], sub->footIKRate);
                     calcFootIK(skel, arg, n1, GOBJ_SUB(self)->nodes->scale[0], sub->footIKRate);
@@ -1718,7 +1718,7 @@ void *GetMotionPointer(GObj *self)
 
 int GetCollisionOfLastActiveField(GObj *self)
 {
-    return self->dobj->lastField;
+    return self->dobj->root.lastField;
 }
 
 int CheckFieldContact(ClipBuf *info, GObj *self, float *pos, float lim)
@@ -1729,7 +1729,7 @@ int CheckFieldContact(ClipBuf *info, GObj *self, float *pos, float lim)
     float d;
 
     if (info->floor.n != 0) {
-        h = GOBJ_SUB(self)->moveY;
+        h = GOBJ_SUB(self)->root.move[1];
         dy = info->pt[2][1] - pos[1];
         if (CompareAttribute(GetFloorAttribute(info), 0x50) != 0) {
             if (h >= 0.0f) {
@@ -1737,18 +1737,18 @@ int CheckFieldContact(ClipBuf *info, GObj *self, float *pos, float lim)
                 d = info->pt[2][1] - ph;
                 if (dy < lim) {
                     if (d > 0.0f) {
-                        if ((GOBJ_SUB(self)->contactFlags & 1) == 0 && h > 5.0f) {
+                        if ((GOBJ_SUB(self)->ctrl.contactFlags & 1) == 0 && h > 5.0f) {
                             SetFallDownSplash(info->floor.o.obj, self);
-                            GOBJ_SUB(self)->contactFlags |= 1;
+                            GOBJ_SUB(self)->ctrl.contactFlags |= 1;
                         }
                     }
                     return 1;
                 }
                 if (d > 0.0f) {
                     if (ph - pos[1] < lim * 0.8f) {
-                        if ((GOBJ_SUB(self)->contactFlags & 1) == 0 && h > 5.0f) {
+                        if ((GOBJ_SUB(self)->ctrl.contactFlags & 1) == 0 && h > 5.0f) {
                             SetFallDownSplash(info->floor.o.obj, self);
-                            GOBJ_SUB(self)->contactFlags |= 1;
+                            GOBJ_SUB(self)->ctrl.contactFlags |= 1;
                         }
                         return 2;
                     }
@@ -1882,51 +1882,51 @@ int AdjustMotionHeightToNearestField(GObj *self)
 
 void SetRootUpdateMode(GObj *self, int val)
 {
-    self->dobj->rootUpdateMode = val;
+    self->dobj->ctrl.rootUpdateMode = val;
 }
 
 float ForMotionViewer_GetCurrentAnimationFrame(GObj *self)
 {
-    return GOBJ_SUB(self)->animFrame;
+    return GOBJ_SUB(self)->ctrl.animFrame;
 }
 
 int ForMotionViewer_GetCurrentMotion(GObj *self)
 {
-    return self->dobj->motion;
+    return self->dobj->ctrl.motion;
 }
 
 void EnableMotionOrientUpdate(GObj *self)
 {
-    self->dobj->orientUpdateOff = 0;
+    self->dobj->ctrl.orientUpdateOff = 0;
 }
 
 void DisableMotionOrientUpdate(GObj *self)
 {
-    self->dobj->orientUpdateOff = 1;
+    self->dobj->ctrl.orientUpdateOff = 1;
 }
 
 int CheckFloorAttribute(GObj *self, int attr)
 {
     Sub15C *sub = self->dobj;
-    return CompareAttribute(sub->floorAttr, attr);
+    return CompareAttribute(sub->ctrl.floorAttr, attr);
 }
 
 int CheckWallAttribute(GObj *self, int attr)
 {
     Sub15C *sub = self->dobj;
-    return CompareAttribute(sub->wallAttr, attr);
+    return CompareAttribute(sub->ctrl.wallAttr, attr);
 }
 
 int CheckPureWallAttribute(GObj *self, int attr)
 {
     Sub15C *sub = self->dobj;
-    return CompareAttribute(sub->pureWallAttr, attr);
+    return CompareAttribute(sub->ctrl.pureWallAttr, attr);
 }
 
 int CheckPureCliffAttribute(GObj *self, int attr)
 {
     Sub15C *sub = self->dobj;
-    return CompareAttribute(sub->pureCliffAttr, attr);
+    return CompareAttribute(sub->ctrl.pureCliffAttr, attr);
 }
 
 int GetStreamShapeMotion(float *dst, FloorAttr *a1)
@@ -2018,13 +2018,13 @@ float GetRopeHangablePos(GObj *self)
 int GetMotionFrameFlag1(GObj *self)
 {
     Sub15C *sub = self->dobj;
-    return sub->frameFlag1;
+    return sub->ctrl.frameFlag1;
 }
 
 int GetMotionFrameFlag2(GObj *self)
 {
     Sub15C *sub = self->dobj;
-    return sub->frameFlag2;
+    return sub->ctrl.frameFlag2;
 }
 
 float GetHeightOfFieldPlaneDifference(GObj *a, GObj *b)
@@ -2077,23 +2077,23 @@ void SetMotionNodeFixModeParameter(GObj *self, char *obj, float x, float y, floa
 {
     float vec[4] = {x, y, z, 1.0f};
 
-    GOBJ_SUB(self)->fixObj = (int)obj;
-    GOBJ_SUB(self)->fixNode = getSkeltonFocusNode(obj, node);
-    GOBJ_SUB(self)->fixMode = mode;
-    CopyVector((char *)GOBJ_SUB(self) + 0x440, vec);
-    CopyQuaternion((char *)GOBJ_SUB(self) + 0x430, quat);
-    GOBJ_SUB(self)->fixWeight = w;
+    GOBJ_SUB(self)->root.fixObj = (int)obj;
+    GOBJ_SUB(self)->root.fixNode = getSkeltonFocusNode(obj, node);
+    GOBJ_SUB(self)->root.fixMode = mode;
+    CopyVector(GOBJ_SUB(self)->root.fixPos, vec);
+    CopyQuaternion(GOBJ_SUB(self)->root.fixQuat, quat);
+    GOBJ_SUB(self)->root.fixWeight = w;
 }
 
 void GetRootProjectionPosOfGObj(float *pos, GObj *obj)
 {
     GetRootPosition(pos, obj);
-    pos[1] += obj->dobj->projHeight;
+    pos[1] += obj->dobj->root.projHeight;
 }
 
 void SetMotionPlaySpeedRatio(GObj *self, float val)
 {
-    GOBJ_SUB(self)->speedRatio = val;
+    GOBJ_SUB(self)->ctrl.speedRatio = val;
 }
 
 void ClearMotionGeometryInfo(GObj *self)
@@ -2233,7 +2233,7 @@ void GetOutOutsideOfWall(GObj *obj, float threshold)
 {
     int buf0[4];
     int buf1[4];
-    if (GOBJ_SUB(obj)->wallPlane != 0) {
+    if (GOBJ_SUB(obj)->root.wall.n != 0) {
         float dot;
         GetRootPosition(buf0, obj);
         GetGlobalWallPlane(buf1, (char *)obj->dobj + 0x180);

@@ -69,9 +69,6 @@ static unsigned int fadeLength; /* derived name */
 
 static unsigned int fadeCount; /* derived name */
 
-/* typedef.h carries StgPre but declares no stageData */
-extern const StgPre stageData[];
-
 #include "layout_texture.h"
 
 /* This TU does not include <string.h>; memset is declared as

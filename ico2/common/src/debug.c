@@ -714,9 +714,6 @@ extern float dptofp(double v);
 
 /* clang-format on */
 
-/* typedef.h carries StgPre but declares no stageData */
-extern const StgPre stageData[];
-
 /* memory-card request block */
 /* one sceMcTblGetDir record: the file name sits at +0x20 in a 0x40-byte entry
    (debug_selectFile forms the table base as mc+0x4C0 and the name as
@@ -3849,7 +3846,7 @@ void debug_Menu_off(void)
 /* the file debugSceOpen has open */
 static int sceFd = -1; /* derived name */
 
-inline int debugSceOpen(char *name, int mode)
+inline int debugSceOpen(const char *name, int mode)
 {
     sprintf(sceOpenPath, "%s%s;1", "cdrom0:\\", name);
     return sceFd = sceOpen(sceOpenPath, mode);

@@ -10,6 +10,6 @@
 
 /* the data file path of a stage (-1 for the common data), packed or not */
 char *GetDataFileName(int no, int isDF);
-char *GetDataFileName2(char *name, int isDF);
+char *GetDataFileName2(const char *name, int isDF);
 
 #endif /* ACCESS_H */

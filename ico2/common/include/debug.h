@@ -133,7 +133,7 @@ int debug_SelectCsvWindowWithLine(char *title, int x, int y, int rows, const voi
                                   int off, int deref, int n, int *psel);
 
 int debug_TryToGetStartStage(void);
-inline int debugSceOpen(char *name, int mode);
+inline int debugSceOpen(const char *name, int mode);
 inline int debugSceClose(int a0);
 int debugSceCloseFdNew(void);
 void debug_closeLog(void);
@@ -148,8 +148,9 @@ void debug_SaveStartStageFile(int stage);
 int _debug_SelectCsvWindow(char *title, int x, int y, int rows, int base, int stride, int off,
                            int deref, int n, int *psel, void (*getline)(), int (*colfunc)(int));
 
-int debug_SelectCsvWindowWithLineColor(char *title, int x, int y, int rows, const void *base, int stride,
-                                       int off, int deref, int n, int *psel, int (*colfunc)(int));
+int debug_SelectCsvWindowWithLineColor(char *title, int x, int y, int rows, const void *base,
+                                       int stride, int off, int deref, int n, int *psel,
+                                       int (*colfunc)(int));
 
 int debug_mcFormat(int port);
 int debug_mcUnformat(int port);
@@ -184,8 +185,8 @@ void debug_PrintfDummy(int x, int y, unsigned int col, const char *fmt, ...);
 int debug_SETest(int reset);
 int debug_SelectActGobj(int reset);
 
-int debug_SelectCsvWindow(char *title, int x, int y, int rows, const void *base, int stride, int off,
-                          int deref, int n, int *psel);
+int debug_SelectCsvWindow(char *title, int x, int y, int rows, const void *base, int stride,
+                          int off, int deref, int n, int *psel);
 
 int debug_SelectStage(void);
 void debug_SetDmaCallback(void);

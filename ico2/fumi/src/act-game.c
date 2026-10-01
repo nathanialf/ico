@@ -100,7 +100,6 @@ typedef struct {
 extern void SetBoyInfo(int *a0, int *a1);
 /* kept local: agrees with boyact.h, which this TU does not include (PrivInsCamSet differs) */
 extern void BoyInfoUpdate_StageChange(void);
-extern const StgPre stageData[];
 
 /* One table: a 100-entry object list, two parallel per-entry int arrays
    (the full view result and the simple one), the entry count and the
@@ -231,8 +230,8 @@ inline void ACTGameCollisionOn(volatile int *self)
 
 inline int ACTGame_CheckHandMotion(char *a0, char *a1)
 {
-    MotionRec *rec0 = &motionKind[GOBJ_SUB(a0)->motion];
-    MotionRec *rec1 = &motionKind[GOBJ_SUB(a1)->motion];
+    MotionRec *rec0 = &motionKind[GOBJ_SUB(a0)->ctrl.motion];
+    MotionRec *rec1 = &motionKind[GOBJ_SUB(a1)->ctrl.motion];
     int b0 = (rec0->f_18C >> 18) & 1;
     int b1 = (rec1->f_18C >> 18) & 1;
     return b0 & b1;
@@ -240,7 +239,7 @@ inline int ACTGame_CheckHandMotion(char *a0, char *a1)
 
 inline int ACTGame_CheckItemMotion(GObj *a0)
 {
-    MotionRec *rec = &motionKind[GOBJ_SUB(a0)->motion];
+    MotionRec *rec = &motionKind[GOBJ_SUB(a0)->ctrl.motion];
     return (rec->u_188.w >> 19) & 7;
 }
 
@@ -467,12 +466,12 @@ inline unsigned char ACTGame_CheckPriInputFrame(GObj *a0)
     short e;
     short s;
 
-    e = motionKind[GOBJ_SUB(a0)->motion].f_184;
-    if ((float)e < GOBJ_SUB(a0)->animFrame && e != -1) {
+    e = motionKind[GOBJ_SUB(a0)->ctrl.motion].f_184;
+    if ((float)e < GOBJ_SUB(a0)->ctrl.animFrame && e != -1) {
         return 1;
     }
-    s = motionKind[GOBJ_SUB(a0)->motion].f_180;
-    if (s != -1 && GOBJ_SUB(a0)->animFrame < (float)s) {
+    s = motionKind[GOBJ_SUB(a0)->ctrl.motion].f_180;
+    if (s != -1 && GOBJ_SUB(a0)->ctrl.animFrame < (float)s) {
         return 1;
     }
     return 0;
@@ -485,7 +484,7 @@ inline int ACTGame_GetCurrentCallStatus(GObj *a0)
     if (a0 != boyGObj) {
         return 0;
     }
-    switch (motionKind[GOBJ_SUB(a0)->motion].u_188.h.hi & 7) {
+    switch (motionKind[GOBJ_SUB(a0)->ctrl.motion].u_188.h.hi & 7) {
     case 1:
         return 1;
     case 2:
@@ -526,7 +525,7 @@ inline int PAIR_IsStatus_BOY_DITCH(void)
 
     switch ((unsigned int)GOBJ_ACT(b)->actMode) {
     case 0x58:
-        if (motionKind[GOBJ_SUB(b)->motion].f_150 != 1) {
+        if (motionKind[GOBJ_SUB(b)->ctrl.motion].f_150 != 1) {
             break;
         }
         /* fall through */
@@ -602,7 +601,7 @@ inline int PAIR_IsStatus_BOY_WAIT(void)
         switch ((unsigned int)GOBJ_ACT(b)->actMode) {
         case 0x4E:
         case 0x58:
-            if (motionKind[GOBJ_SUB(b)->motion].f_150 == 1) {
+            if (motionKind[GOBJ_SUB(b)->ctrl.motion].f_150 == 1) {
                 return 1;
             }
             break;
@@ -1248,11 +1247,11 @@ int ACTLookTarget_Exec(GObj *a0)
     int b0;
 
     if (debug_font_flag & 1) {
-        debug_Printf(10, 170, 0x0FFFFFFF, "mode=[%d]\n", GOBJ_SUB(a0)->lookMode);
+        debug_Printf(10, 170, 0x0FFFFFFF, "mode=[%d]\n", GOBJ_SUB(a0)->root.lookMode);
     }
     rv = 0;
     if (s->lookPri == 0) {
-        GOBJ_SUB(a0)->lookMode = 0;
+        GOBJ_SUB(a0)->root.lookMode = 0;
     } else {
         if (t == 0) {
             pos[0] = s->lookPosX;
@@ -1274,7 +1273,7 @@ int ACTLookTarget_Exec(GObj *a0)
         ((IntFloat *)((char *)(int)GOBJ_SUB(a0) + 0x390))->f = pos[0];
         ((IntFloat *)((char *)(int)GOBJ_SUB(a0) + 0x394))->f = pos[1];
         ((IntFloat *)((char *)(int)GOBJ_SUB(a0) + 0x398))->f = pos[2];
-        GOBJ_SUB(a0)->lookMode = b0;
+        GOBJ_SUB(a0)->root.lookMode = b0;
     }
     return rv;
 }
@@ -1327,8 +1326,8 @@ void ACTParaStatus_Exec(GObj *self)
     p = s->enemy;
     if ((p->paraTimer)++ >= 121) {
         sub = GOBJ_SUB(self);
-        if ((sub->motFlagsLo & 0x16) || (int)sub->word4CC != 0) {
-            if (motionKind[sub->motion].f_150 == 1) {
+        if ((sub->ctrl.ctrlFlags & 0x16) || (int)sub->ctrl.frameEnd != 0) {
+            if (motionKind[sub->ctrl.motion].f_150 == 1) {
                 GOBJ_ACT(self)->enemy->paraTimer = 0;
                 GOBJ_ACT(self)->enemy->paraRandom = (int)(_GetRandom() * 10.0f);
                 changed = 1;
@@ -1484,12 +1483,12 @@ inline void ACTGame_SetMotionPlaySpeedRatio_Exec(GObj *a0)
     ratio = 1.0f;
     keep = (unsigned int)(int)GOBJ_ACT(a0)->enemy->speedRatioPri < 3 && a0 == girlGObj;
     if ((int)GOBJ_ACT(a0)->enemy->speedRatioPri == 1) {
-        if (((&motionKind[GOBJ_SUB(a0)->motion])->f_18C >> 30) & 1) {
+        if (((&motionKind[GOBJ_SUB(a0)->ctrl.motion])->f_18C >> 30) & 1) {
             ratio = GOBJ_ACT(a0)->enemy->speedRatio;
             keep = 0;
         }
     } else {
-        if ((((&motionKind[GOBJ_SUB(a0)->motion])->f_18C >> 26) & 1) == 0) {
+        if ((((&motionKind[GOBJ_SUB(a0)->ctrl.motion])->f_18C >> 26) & 1) == 0) {
             ratio = GOBJ_ACT(a0)->enemy->speedRatio;
         }
     }
@@ -1635,7 +1634,7 @@ void ACTGame_InnerVelocityUpdate(GObj *self)
         ((ActStatusWord *)((char *)GOBJ_ACT(self)->work + 0x448))->q &= ~(1ULL << 33);
     }
     nomove = 0;
-    if (((&motionKind[GOBJ_SUB(self)->motion])->f_18C >> 10) & 1) {
+    if (((&motionKind[GOBJ_SUB(self)->ctrl.motion])->f_18C >> 10) & 1) {
         if (GOBJ_WORK(self)->speed < 4.0f) {
             nomove = 1;
         }
@@ -1683,7 +1682,8 @@ void ACTGame_BeforeFunc(GObj *self)
     }
 
     if (((int)(s->flags20.ll >> 40) & 1) == 0 &&
-        ((int)(&motionKind[GOBJ_SUB(self)->motion])->f_18C >= 0 || GOBJ_SUB(self)->word4F8 != 0)) {
+        ((int)(&motionKind[GOBJ_SUB(self)->ctrl.motion])->f_18C >= 0 ||
+         GOBJ_SUB(self)->ctrl.reserveMoved != 0)) {
         GetRootPosition((char *)s + 0x110, self);
     }
 
@@ -1780,7 +1780,7 @@ void ACTGame_BeforeFunc(GObj *self)
         GOBJ_WORK(self)->bit37Frames = 0;
     }
 
-    if ((((&motionKind[GOBJ_SUB(self)->motion])->f_18C >> 14) & 1) ||
+    if ((((&motionKind[GOBJ_SUB(self)->ctrl.motion])->f_18C >> 14) & 1) ||
         actModeTbl[GOBJ_ACT(self)->actMode].bit14) {
         s->flags18.ll |= 1ULL << 38;
         if (self == boyGObj) {
@@ -2325,7 +2325,7 @@ void ActOrientTest(GObj *self)
     if (GOBJ_ACT(self)->enemy->stoneLevel > 0) {
         ACTSendMailCorrect(self, 111);
     }
-    if (((&motionKind[GOBJ_SUB(self)->motion])->f_190 >> 2) & 1) {
+    if (((&motionKind[GOBJ_SUB(self)->ctrl.motion])->f_190 >> 2) & 1) {
         if (GetMotionFrameFlag1(self)) {
             memset(&w1, 0, 0xC0);
             GetSkeltonPosition(sk1, self, 0x33);
@@ -2355,7 +2355,7 @@ void ActOrientTest(GObj *self)
             }
         }
     }
-    if (((&motionKind[GOBJ_SUB(self)->motion])->f_190 >> 3) & 1) {
+    if (((&motionKind[GOBJ_SUB(self)->ctrl.motion])->f_190 >> 3) & 1) {
         memset(&w2, 0, 0xC0);
         near = 0;
         p2[0] = test_CURRENTROOT(self)[0];
@@ -2809,9 +2809,9 @@ void ACTLookTargetSystem_Exec(GObj *self)
             GetSkeltonPosition(p, self, 0x23);
             sceVu0ScaleVector(dir, (char *)GOBJ_ACT(self)->work + 0x4A0, 300.0f);
             sceVu0AddVector(pos, p, dir);
-            GOBJ_SUB(self)->ikRate0 = 0.3f;
-            GOBJ_SUB(self)->ikRate1 = 0.3f;
-            GOBJ_SUB(self)->ikRate2 = 0.3f;
+            GOBJ_SUB(self)->root.ikRate0 = 0.3f;
+            GOBJ_SUB(self)->root.ikRate1 = 0.3f;
+            GOBJ_SUB(self)->root.ikRate2 = 0.3f;
             rv = 1;
             break;
         case 12:
@@ -3030,7 +3030,7 @@ void ACTLookTargetSystem_Exec(GObj *self)
             debug_NMarker((float *)((char *)(int)GOBJ_SUB(self) + 0x390), 0xFF, 0xFF, 0xFF, 100.0f);
         }
     } else {
-        GOBJ_SUB(self)->lookMode = 0;
+        GOBJ_SUB(self)->root.lookMode = 0;
     }
 }
 
@@ -3070,7 +3070,7 @@ inline void ACTGame_SendSoundMail(GObj *a0, int mail, int a2, int a3, int a4)
 
 void ACTItemWatchMotion(GObj *self)
 {
-    MotionRec *rec = &motionKind[GOBJ_SUB(self)->motion];
+    MotionRec *rec = &motionKind[GOBJ_SUB(self)->ctrl.motion];
     Act *sub = GOBJ_ACT(self);
     int mode = rec->u_188.w >> 19;
     int frame = rec->u_188.b;
@@ -3143,7 +3143,7 @@ void ACTItemWatchMotion(GObj *self)
 
     switch (mode) {
     case 2:
-        if ((float)frame < GOBJ_SUB(self)->animFrame) {
+        if ((float)frame < GOBJ_SUB(self)->ctrl.animFrame) {
             ItemHold();
         } else if (sub->heldItem.i != 0) {
             float pos[4];
@@ -3154,7 +3154,7 @@ void ACTItemWatchMotion(GObj *self)
         break;
 
     case 4:
-        if (GOBJ_SUB(self)->animFrame < (float)frame) {
+        if (GOBJ_SUB(self)->ctrl.animFrame < (float)frame) {
             ItemHold();
         } else {
             ItemRelease();
@@ -3162,7 +3162,7 @@ void ACTItemWatchMotion(GObj *self)
         break;
 
     case 3:
-        if (GOBJ_SUB(self)->animFrame < (float)frame) {
+        if (GOBJ_SUB(self)->ctrl.animFrame < (float)frame) {
             ItemHold();
         } else {
             ACTItemThrow();
@@ -3252,23 +3252,23 @@ void RequestChangeHandMode(char *self, int mode, int pri, int flag, int p5, int 
         hmc->f_4 = pri;
         switch (mode) {
         case 0:
-            GOBJ_SUB(self)->hand0Mode = hmc->f_0;
-            GOBJ_SUB(self)->hand0Obj = p5;
-            GOBJ_SUB(self)->hand0Node = p6;
+            GOBJ_SUB(self)->root.hand0Mode = hmc->f_0;
+            GOBJ_SUB(self)->root.hand0Obj = p5;
+            GOBJ_SUB(self)->root.hand0Node = p6;
             if (p7 != 0) {
-                GOBJ_SUB(self)->hand0PosX = p7[0];
-                GOBJ_SUB(self)->hand0PosY = p7[1];
-                GOBJ_SUB(self)->hand0PosZ = p7[2];
+                GOBJ_SUB(self)->root.hand0Pos[0] = p7[0];
+                GOBJ_SUB(self)->root.hand0Pos[1] = p7[1];
+                GOBJ_SUB(self)->root.hand0Pos[2] = p7[2];
             }
             break;
         case 1:
-            GOBJ_SUB(self)->hand1Mode = hmc->f_0;
-            GOBJ_SUB(self)->hand1Obj = p5;
-            GOBJ_SUB(self)->hand1Node = p6;
+            GOBJ_SUB(self)->root.hand1Mode = hmc->f_0;
+            GOBJ_SUB(self)->root.hand1Obj = p5;
+            GOBJ_SUB(self)->root.hand1Node = p6;
             if (p7 != 0) {
-                GOBJ_SUB(self)->hand1PosX = p7[0];
-                GOBJ_SUB(self)->hand1PosY = p7[1];
-                GOBJ_SUB(self)->hand1PosZ = p7[2];
+                GOBJ_SUB(self)->root.hand1Pos[0] = p7[0];
+                GOBJ_SUB(self)->root.hand1Pos[1] = p7[1];
+                GOBJ_SUB(self)->root.hand1Pos[2] = p7[2];
             }
             break;
         }

@@ -326,12 +326,12 @@ void ExecIcoMisc(void)
     eBrainProcess();
     if (fall_death_active != 0) {
         if (boyGObj != 0) {
-            if (GOBJ_SUB(boyGObj)->fallHeight > 1000.0f) {
+            if (GOBJ_SUB(boyGObj)->ctrl.fallHeight > 1000.0f) {
                 lt_switch_layout(62);
             }
         }
         if (girlGObj != 0) {
-            if (GOBJ_SUB(girlGObj)->fallHeight > 1000.0f) {
+            if (GOBJ_SUB(girlGObj)->ctrl.fallHeight > 1000.0f) {
                 lt_switch_layout(62);
             }
         }
@@ -360,15 +360,11 @@ typedef struct {
     unsigned int _21 : 31;
 } EffEnt;
 
-/* typedef.h carries StgPre but declares no stageData */
-extern const StgPre stageData[];
 /* motionOrientManager.h carries MotionDef and declares no motionKind */
 extern const ScnPre motionKind[];
 /* the effect table, read-only here and read as EffEnt;
    frameDependSequence.h declares EffEntry */
 extern const EffEnt motionEffKind[];
-/* effectTool.c's table; no header declares it */
-extern char particleEffectFile[][80];
 
 static unsigned char setActorsDebugPending = 1; /* derived name */
 
@@ -510,7 +506,7 @@ void InitIcoMisc(int *arg)
             /* "the particle %s that %s calls is emitted forever" */
             debug_StdPrintfDummy(
                 "\"\033[33m%s\033[m\"が呼ぶパーティクル\"\033[33m%s\033[m\"は永久発生です\n",
-                motionKind[i].name, particleEffectFile[motionEffKind[id].pkg]);
+                motionKind[i].name, particleEffectFile[motionEffKind[id].pkg].name);
             found = 1;
         }
     }

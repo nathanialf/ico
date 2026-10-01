@@ -235,7 +235,7 @@ void ClearStreamMotionEntry(GObj *gobj)
     *(int *)((char *)GOBJ_SUB(gobj) + 0x470) = -1;
     GOBJ_SUB(gobj)->streamScale = 1;
     CopyVector(GOBJ_SUB(gobj)->streamOfs, ZeroVector);
-    GOBJ_SUB(gobj)->catchBoy = 1;
+    GOBJ_SUB(gobj)->ctrl.catchBoy = 1;
     if (0) {
         float v[4];
 
@@ -480,9 +480,9 @@ inline int EntryStreamMotion(GObj *a0)
     streamEntry[no].obj.p = a0;
 
     *(int *)((char *)GOBJ_SUB(a0) + 0x470) = no;
-    GOBJ_SUB(a0)->word4F0 = 0;
-    GOBJ_SUB(a0)->posReserve = 0;
-    GOBJ_SUB(a0)->catchBoy = 0;
+    GOBJ_SUB(a0)->ctrl.loopFlag = 0;
+    GOBJ_SUB(a0)->ctrl.posReserve = 0;
+    GOBJ_SUB(a0)->ctrl.catchBoy = 0;
     streamNum = no + 1;
     return no;
 }

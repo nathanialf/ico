@@ -36,9 +36,6 @@ typedef struct CamSetHdr { /* field names derived */
     CamSetItem groups[1]; /* 0x10 */
 } CamSetHdr;
 
-/* the data-only member stage-all.o, read through this file's view of its
-   rows; no header declares it */
-extern const StgPre stageData[];
 /* boyact.h is not included: this file passes GetBoyRootPositionForCamera
    more arguments than boyact.h declares */
 extern void GetBoyRootPositionForCamera();
@@ -816,7 +813,7 @@ static void GetTargetOffset(GObj *gobj, float *v, unsigned char flag)
         }
         _ApplyRyGV(ofs, (float)n * 3.1415927f / 180.0f);
         p = GOBJ_SUB(gobj);
-        if (3.0f < FSqrt(p->moveX * p->moveX + p->moveZ * p->moveZ)) {
+        if (3.0f < FSqrt(p->root.move[0] * p->root.move[0] + p->root.move[2] * p->root.move[2])) {
             sceVu0SubVector(w, ofs, lastTargetOffset);
             if (FSqrt(w[0] * w[0] + w[1] * w[1] + w[2] * w[2]) < 1.5f) {
                 lastTargetOffset[0] = ofs[0];

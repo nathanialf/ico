@@ -1233,10 +1233,6 @@ inline void group_select(MenuThread *m)
     }
 }
 
-/* the data-only member stage-all.o, read through this file's view of its
-   rows; no header declares it */
-extern StgPre stageData[];
-
 void wakeup_cameraedit(void)
 {
     print_y = 50;

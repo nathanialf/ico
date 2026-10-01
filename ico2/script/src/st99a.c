@@ -129,8 +129,8 @@ void actSt27aWave(GObj *volatile a0)
 
 void actExplodeChk(GObj *volatile a0)
 {
-    GOBJ_SUB(scpSearchGobj(3014))->word4E8 = 1;
-    GOBJ_SUB(scpSearchGobj(3014))->word4E8 = 0;
+    GOBJ_SUB(scpSearchGobj(3014))->ctrl.noStand = 1;
+    GOBJ_SUB(scpSearchGobj(3014))->ctrl.noStand = 0;
     scpGetWallCollision(0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 100.0f);
     _ACTWait(60);
     stage_SetAnimation(511, 1, 0);
@@ -143,8 +143,8 @@ void actExplodeChk(GObj *volatile a0)
 
 void actSplash1Chk(GObj *volatile a0)
 {
-    GOBJ_SUB(scpSearchGobj(3015))->word4E8 = 1;
-    GOBJ_SUB(scpSearchGobj(3015))->word4E8 = 0;
+    GOBJ_SUB(scpSearchGobj(3015))->ctrl.noStand = 1;
+    GOBJ_SUB(scpSearchGobj(3015))->ctrl.noStand = 0;
     scpGetWallCollision(0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 100.0f);
     _ACTWait(60);
     stage_SetAnimation(498, 1, 0);
@@ -157,8 +157,8 @@ void actSplash1Chk(GObj *volatile a0)
 
 void actSplash2Chk(GObj *volatile a0)
 {
-    GOBJ_SUB(scpSearchGobj(3016))->word4E8 = 1;
-    GOBJ_SUB(scpSearchGobj(3016))->word4E8 = 0;
+    GOBJ_SUB(scpSearchGobj(3016))->ctrl.noStand = 1;
+    GOBJ_SUB(scpSearchGobj(3016))->ctrl.noStand = 0;
     scpGetWallCollision(0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 100.0f);
     _ACTWait(60);
     stage_SetAnimation(499, 1, 0);

@@ -2,10 +2,6 @@
 #include <stdio.h>
 #include "access.h"
 
-/* the data-only member stage-all.o, read through this file's view of its
-   rows; no header declares it */
-extern StgPre stageData[];
-
 /* the path sprintf builds and this file hands back */
 static char accessPath[528]; /* derived name */
 
@@ -16,7 +12,7 @@ static char accessPath[528]; /* derived name */
 char *GetDataFileName(int no, int isDF)
 {
     char buf[256];
-    char *name;
+    const char *name;
 
     if (no == -1) {
         name = "COMMON";
@@ -32,7 +28,7 @@ char *GetDataFileName(int no, int isDF)
 #endif
 }
 
-char *GetDataFileName2(char *name, int isDF)
+char *GetDataFileName2(const char *name, int isDF)
 {
     char dir[128];
     char ext[128];

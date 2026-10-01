@@ -29,9 +29,8 @@ static int enemiesWait; /* derived name */
 
 static EBSlot ebrainSlots[32]; /* derived name */
 
-/* the data-only members stage-all.o, obj-layout.o, read through this
-   file's views of their rows; no header declares them */
-extern StgPre stageData[];
+/* the data-only member obj-layout.o, read through this file's view of its
+   rows; no header declares it */
 extern GenGeo objLayout[];
 
 static inline void eBrainSetStatus(EBSlot *p, int newst) /* derived name */

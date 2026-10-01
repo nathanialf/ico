@@ -35,9 +35,6 @@ static unsigned char padActVolume; /* derived name */
 static int doorUpDone; /* derived name */
 
 /* .data: actor mail packets. */
-/* typedef.h carries StgPre but declares no stageData */
-extern const StgPre stageData[];
-
 static ActMail floor_mes[2] = {{430}, {429}}; /* derived name */
 
 static ActMail sekizo_mes[2] = {{430}, {429}}; /* derived name */

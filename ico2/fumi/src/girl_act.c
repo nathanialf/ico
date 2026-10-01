@@ -132,7 +132,7 @@ void motGirlHand50(GObj *volatile a0)
             break;
         _ACTWait(1);
     }
-    while (GOBJ_SUB(a0)->motion < 0x214 || !(GOBJ_SUB(a0)->motion < 0x21B)) {
+    while (GOBJ_SUB(a0)->ctrl.motion < 0x214 || !(GOBJ_SUB(a0)->ctrl.motion < 0x21B)) {
         sub->motReq = SetMotionRequest((void *)a0, 1, sub->motOriReq);
         _ACTWait(1);
     }
@@ -195,7 +195,7 @@ void motGirlHand100(GObj *volatile a0)
             break;
         _ACTWait(1);
     }
-    while (GOBJ_SUB(a0)->motion < 0x214 || !(GOBJ_SUB(a0)->motion < 0x21B)) {
+    while (GOBJ_SUB(a0)->ctrl.motion < 0x214 || !(GOBJ_SUB(a0)->ctrl.motion < 0x21B)) {
         sub->motReq = SetMotionRequest((void *)a0, 1, sub->motOriReq);
         _ACTWait(1);
     }
@@ -208,7 +208,7 @@ void motGirlHand100(GObj *volatile a0)
     }
     iosOmSendMail(boyGObj, 0x63, (int)isysCurrentGObj);
     sub->motReq = SetMotionRequest((void *)a0, 0x65, sub->motOriReq);
-    while (GOBJ_SUB(a0)->motion < 0x214 || !(GOBJ_SUB(a0)->motion < 0x21B)) {
+    while (GOBJ_SUB(a0)->ctrl.motion < 0x214 || !(GOBJ_SUB(a0)->ctrl.motion < 0x21B)) {
         sub->motReq = SetMotionRequest((void *)a0, 1, sub->motOriReq);
         _ACTWait(1);
     }
@@ -273,7 +273,7 @@ expired:
     debug_StdPrintfDummy("%s sync error\n",
                          (void *)a0 == (void *)((int *)boyGObj) ? "boy" : "girl");
 held:
-    while (GOBJ_SUB(a0)->motion < 0x214 || !(GOBJ_SUB(a0)->motion < 0x21B)) {
+    while (GOBJ_SUB(a0)->ctrl.motion < 0x214 || !(GOBJ_SUB(a0)->ctrl.motion < 0x21B)) {
         sub->motReq = SetMotionRequest((void *)a0, 1, sub->motOriReq);
         _ACTWait(1);
     }
@@ -1691,7 +1691,7 @@ void subGirlBrainMain(GObj *volatile a0)
             } else {
                 v = c;
             }
-            GOBJ_SUB(a0)->ikRate0 = v;
+            GOBJ_SUB(a0)->root.ikRate0 = v;
         }
         look = 0;
         fire = 0;
@@ -1752,7 +1752,7 @@ void subGirlBrainMain(GObj *volatile a0)
             _FrontGV(test_CURRENTROOT((boyGObj)), test_CURRENTROOT((void *)a0),
                      test_CURRENTORIENT((void *)a0), 90) &&
             ACTGameViewSimple_Check(a0, boyGObj)) {
-            MotionDef *rec = motionKind + GOBJ_SUB(((int *)boyGObj))->motion;
+            MotionDef *rec = motionKind + GOBJ_SUB(((int *)boyGObj))->ctrl.motion;
             int send;
 
             if ((rec->flags.word >> 15) & 1) {
@@ -3336,7 +3336,7 @@ int padtimer_walk = 0;
 int padtimer_run = 0;
 
 /* the motion-def row of an actor's current motion (boyact.c's CHAINROW) */
-#define MOTDIRROW(self) (GOBJ_SUB(self)->motion + motionKind)
+#define MOTDIRROW(self) (GOBJ_SUB(self)->ctrl.motion + motionKind)
 
 /* girl_act.c:1533-2539 in the listing.  Lines 1654-2362 carry no instruction
    in the January link or in retail: that block is compiled-out debug code,
@@ -3692,7 +3692,7 @@ void subGirlCollision(GObj *volatile a0)
                 ((ActTurn *)sub)->f_5C8 = dir[2];
                 GetEyeDirection((char *)eye, (char *)a0);
                 rot = (float)_RotyGV(eye, dir);
-                rec = motionKind + GOBJ_SUB(a0)->motion;
+                rec = motionKind + GOBJ_SUB(a0)->ctrl.motion;
                 if (rec->flags.word & 1) {
                     padtimer_run = 0;
                     padtimer_walk = 0;
@@ -3751,7 +3751,7 @@ void subGirlCollision(GObj *volatile a0)
             }
             if (!(_DistSqGV(test_CURRENTROOT((boyGObj)), test_CURRENTROOT((void *)girlGObj)) <
                   250000.0f)) {
-                if (GOBJ_SUB(((int *)boyGObj))->hand1Mode == 5) {
+                if (GOBJ_SUB(((int *)boyGObj))->root.hand1Mode == 5) {
                     debug_StdPrintfDummy("hand connect error\n");
                 }
                 ACTGame_DisconnectHand();
@@ -3796,12 +3796,12 @@ void subGirlCollision(GObj *volatile a0)
         ATGoalTurnSendMail((void *)a0);
         attr = &actModeTbl[sub->actMode];
         if (attr->softIk) {
-            GOBJ_SUB(a0)->ikRate0 = 0.3f;
+            GOBJ_SUB(a0)->root.ikRate0 = 0.3f;
         } else {
-            GOBJ_SUB(a0)->ikRate0 = GOBJ_WORK(a0)->defIkRate0;
+            GOBJ_SUB(a0)->root.ikRate0 = GOBJ_WORK(a0)->defIkRate0;
         }
-        if ((void *)girlControlMode != 0 && stage_no == 23 && GOBJ_SUB(a0)->word578 != 0 &&
-            GOBJ_SUB(a0)->float5E0 < 50.0f) {
+        if ((void *)girlControlMode != 0 && stage_no == 23 && GOBJ_SUB(a0)->ctrl.upperWall != 0 &&
+            GOBJ_SUB(a0)->ctrl.upperWallDist < 50.0f) {
             if (sub->actMode == 36) {
                 ACTSendMailCorrect((void *)a0, 0x1AC);
             }
@@ -3974,7 +3974,7 @@ void actGirlHand(GObj *volatile a0)
             ACTSendMailCorrect((void *)a0, 0x3E);
             debug_StdPrintfDummy("?\n");
         }
-        if (GOBJ_SUB(a0)->hand0Mode == 6) {
+        if (GOBJ_SUB(a0)->root.hand0Mode == 6) {
             HandMgr_Update();
             HandMgr_Judge();
             n++;
@@ -4010,7 +4010,7 @@ void actGirlHand(GObj *volatile a0)
                 }
             }
         }
-        if (GOBJ_SUB(a0)->hand0Mode == 6) {
+        if (GOBJ_SUB(a0)->root.hand0Mode == 6) {
             static float pullLen = 0.0f;  /* derived name */
             static float pullTurn = 0.0f; /* derived name */
 
@@ -4138,7 +4138,7 @@ void actGirlHand(GObj *volatile a0)
                 sub->motReq = SetMotionRequest((void *)a0, 1, sub->motOriReq);
                 ACTGame_SetMotionPlaySpeedRatio_Reserve((void *)a0, 1.0f, 2);
                 if (hand < dist) {
-                    rec = motionKind + GOBJ_SUB(a0)->motion;
+                    rec = motionKind + GOBJ_SUB(a0)->ctrl.motion;
                     if (((rec->flags.word >> 29) & 1) == 0 || mode != 1) {
                         st = 1;
                         if (mode == 3) {

@@ -351,7 +351,6 @@ typedef struct {
 } MotionRec;
 
 extern MotionRec motionKind[];
-extern const StgPre stageData[];
 
 /* act-env.c:949-953: the negated-orient angle, eight call sites.  Interim
    name: the listing inlines it everywhere, so neither MAIN.MAP nor the
@@ -519,7 +518,7 @@ void ACTGetEnvironment(void *a0, void *a1, float *a2, EnvFlag *flags, ActEnv *en
        and below its 1403 def line.  `inline` is required or gcc emits
        out-of-line copies ahead of this function and breaks the TU order. */
     Act *sub = GOBJ_ACT(a0);
-    char *obj = (char *)GOBJ_SUB(a0)->wallObj;
+    char *obj = (char *)GOBJ_SUB(a0)->root.wall.o.obj;
     int kind = ((EnvSub *)(char *)GOBJ_SUB(a0))->kind;
     float dist = ((EnvMotion *)(char *)sub->motReq)->wallDist;
     float hgt = -((EnvMotion *)(char *)sub->motReq)->height;
@@ -531,7 +530,7 @@ void ACTGetEnvironment(void *a0, void *a1, float *a2, EnvFlag *flags, ActEnv *en
     int v1E0;
     int v1E4 = 0;
     int v1E8 = 0;
-    char *w564 = (char *)GOBJ_SUB(a0)->wallHit;
+    char *w564 = (char *)GOBJ_SUB(a0)->ctrl.wallHit;
     char *w574 = ((EnvSub *)(char *)GOBJ_SUB(a0))->wallRec;
     char *v1EC = 0;
     float k;
@@ -558,17 +557,17 @@ void ACTGetEnvironment(void *a0, void *a1, float *a2, EnvFlag *flags, ActEnv *en
     char *o;
 
     memset(prj, 0, 16);
-    if ((char *)GOBJ_SUB(a0)->wallPlane == 0) {
+    if ((char *)GOBJ_SUB(a0)->root.wall.n == 0) {
         w574 = 0;
         w564 = 0;
     }
     if (w574 == 0 && w564 == 0)
         dist = 3.40282347e+38f /* FLT_MAX */;
-    if (GOBJ_SUB(a0)->word568 == 0)
+    if (GOBJ_SUB(a0)->ctrl.cliffEdge == 0)
         hh = 3.40282347e+38f /* FLT_MAX */;
     if ((int)(sub->flags18.ll >> 52) & 1)
         v1D8 = 0;
-    if (GOBJ_SUB(a0)->groundHeight > _ACTGame_GetParamF(2)) {
+    if (GOBJ_SUB(a0)->ctrl.groundHeight > _ACTGame_GetParamF(2)) {
         v1D8 = 0;
         v1DC = 0;
     }
@@ -624,13 +623,13 @@ void ACTGetEnvironment(void *a0, void *a1, float *a2, EnvFlag *flags, ActEnv *en
             CheckPureWallAttribute(a0, 0x600))
             hgt = wallh = 3.40282347e+38f /* FLT_MAX */;
     }
-    if (GOBJ_SUB(a0)->word568) {
+    if (GOBJ_SUB(a0)->ctrl.cliffEdge) {
         if (CheckPureCliffAttribute(a0, 0x300) || CheckPureCliffAttribute(a0, 0x500) ||
             CheckPureCliffAttribute(a0, 0x600))
             hh = 3.40282347e+38f /* FLT_MAX */;
     }
-    if ((w574 != 0 || w564 != 0) && (char *)GOBJ_SUB(a0)->wallPlane != 0) {
-        GetOrientOfWall(env->wallOrient, (void *)GOBJ_SUB(a0)->wallPlane,
+    if ((w574 != 0 || w564 != 0) && (char *)GOBJ_SUB(a0)->root.wall.n != 0) {
+        GetOrientOfWall(env->wallOrient, (void *)GOBJ_SUB(a0)->root.wall.n,
                         (int *)((char *)GOBJ_SUB(a0) + 0x180));
         env->wallOrient[3] = 1.0f;
         if (w564 != 0) {
@@ -664,8 +663,8 @@ void ACTGetEnvironment(void *a0, void *a1, float *a2, EnvFlag *flags, ActEnv *en
             }
         }
     }
-    if (w564 == 0 && GOBJ_SUB(a0)->word57C) {
-        if (GOBJ_SUB(a0)->float5E4 < 100.0f) {
+    if (w564 == 0 && GOBJ_SUB(a0)->ctrl.sideWall) {
+        if (GOBJ_SUB(a0)->ctrl.sideWallDist < 100.0f) {
             if (H0968(a1, (float *)((char *)GOBJ_SUB(a0) + 0x5D0)) < 40) {
                 sub->flags18.ll |= (1ULL << 44);
                 sub->flags18.ll |= (1ULL << 45);
@@ -732,7 +731,7 @@ void ACTGetEnvironment(void *a0, void *a1, float *a2, EnvFlag *flags, ActEnv *en
 
             if (190.0f < hgt && hgt < 210.0f && hgt < 40.0f) {
             }
-            row = &motionKind[GOBJ_SUB(a0)->motion];
+            row = &motionKind[GOBJ_SUB(a0)->ctrl.motion];
             g = 1;
             if ((row->u_188.w >> 19) & 7) {
                 kk = 60.0f;
@@ -888,7 +887,7 @@ void ACTGetEnvironment(void *a0, void *a1, float *a2, EnvFlag *flags, ActEnv *en
             flags[2].w |= 0x20000;
         }
     }
-    switch (((int)(&motionKind[GOBJ_SUB(a0)->motion])->u_188.w << 6) >> 30) {
+    switch (((int)(&motionKind[GOBJ_SUB(a0)->ctrl.motion])->u_188.w << 6) >> 30) {
     default:
         kd = 60.0f;
         break;
@@ -896,7 +895,7 @@ void ACTGetEnvironment(void *a0, void *a1, float *a2, EnvFlag *flags, ActEnv *en
         if (CheckWallAttributeEdegWall((int)a0)) {
             kd = 30.0f;
         } else {
-            kd = GetCorrectDistance(motionKind[GOBJ_SUB(a0)->motion].f_164 + 2.0f,
+            kd = GetCorrectDistance(motionKind[GOBJ_SUB(a0)->ctrl.motion].f_164 + 2.0f,
                                     v1F8);
         }
         kd = (kd < 0.0f) ? 0.0f : ((30.0f < kd) ? 30.0f : kd);
@@ -928,7 +927,7 @@ void ACTGetEnvironment(void *a0, void *a1, float *a2, EnvFlag *flags, ActEnv *en
         }
         else if (CheckWallAttribute(a0, 0x3000))
             flags[2].bit.b22 = c60b;
-        else if (GOBJ_SUB(a0)->word1E4) {
+        else if (GOBJ_SUB(a0)->root.cliffFloor) {
             flags[2].bit.b14 = c60a;
             flags[2].bit.b13 = c130;
             if (debug_no_breast_hang)
@@ -963,7 +962,7 @@ void ACTGetEnvironment(void *a0, void *a1, float *a2, EnvFlag *flags, ActEnv *en
         }
     }
     if (*(int *)(a0 + 0xC) == 4 && *(int *)((char *)GOBJ_ACT(a0)->enemy + 0x1E4) == 3 &&
-        dist < 180.0f && GOBJ_SUB(a0)->word1E4) {
+        dist < 180.0f && GOBJ_SUB(a0)->root.cliffFloor) {
         if (40.0f <= hgt && hgt < 300.0f)
             flags[1].w |= 0x8000000;
         else if (300.0f <= hgt && hgt < 500.0f)
@@ -973,7 +972,7 @@ void ACTGetEnvironment(void *a0, void *a1, float *a2, EnvFlag *flags, ActEnv *en
     }
         }
     }
-    if (hh != 3.40282347e+38f /* FLT_MAX */ && GOBJ_SUB(a0)->word568 && v1DC) {
+    if (hh != 3.40282347e+38f /* FLT_MAX */ && GOBJ_SUB(a0)->ctrl.cliffEdge && v1DC) {
         float rr;
         int r;
 
@@ -1514,11 +1513,11 @@ void ACTGetEnvironment(void *a0, void *a1, float *a2, EnvFlag *flags, ActEnv *en
     }
     if (CheckFloorAttribute(a0, 0x50)) {
         sub->wish1.ll |= 0x1000;
-        if (GOBJ_SUB(a0)->waterDepth > (a0 == boyGObj ? 110.0f : 135.0f)) {
+        if (GOBJ_SUB(a0)->ctrl.waterDepth > (a0 == boyGObj ? 110.0f : 135.0f)) {
             *(unsigned long long *)((char *)sub + 0x480) |= 0x2000;
             debug_StdPrintfDummy("enter water\n");
         }
-        if (GOBJ_SUB(a0)->waterDepth < (a0 == boyGObj ? 105.0f : 130.0f)) {
+        if (GOBJ_SUB(a0)->ctrl.waterDepth < (a0 == boyGObj ? 105.0f : 130.0f)) {
             *(unsigned long long *)((char *)sub + 0x480) |= 0x4000;
             debug_StdPrintfDummy("exit water\n");
         }
@@ -1532,7 +1531,7 @@ void ACTGetEnvironment(void *a0, void *a1, float *a2, EnvFlag *flags, ActEnv *en
         int x;
         int n;
         float rad;
-        MotionRec *row = &motionKind[GOBJ_SUB(a0)->motion];
+        MotionRec *row = &motionKind[GOBJ_SUB(a0)->ctrl.motion];
 
         rad = ((row->u_188.w >> 19) & 7) ? 100.0f : 90.0f;
         c = CheckTorchChainReaction(a0, 200.0f);
@@ -1587,8 +1586,8 @@ void ACTGetEnvironment(void *a0, void *a1, float *a2, EnvFlag *flags, ActEnv *en
             }
         }
         n = 0;
-        if (GOBJ_SUB(a0)->word578) {
-            if (GOBJ_SUB(a0)->float5E0 < 50.0f)
+        if (GOBJ_SUB(a0)->ctrl.upperWall) {
+            if (GOBJ_SUB(a0)->ctrl.upperWallDist < 50.0f)
                 n = 1;
         }
         if (!n)

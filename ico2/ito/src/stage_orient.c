@@ -10,9 +10,6 @@ typedef struct { /* field names derived */
     float pos2[3];
 } StageOrientDef;
 
-/* the per-stage preset records; each carries the stage's name */
-extern const StgPre stageData[];
-
 static const StageOrientDef stageOrientDefs[41] = {
     /* derived name */
     {"st47a", 0.0f, {200.0f, -350.0f, -950.0f}, {0.0f, -1750.0f, 0.0f}},

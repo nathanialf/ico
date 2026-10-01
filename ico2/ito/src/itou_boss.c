@@ -329,7 +329,7 @@ void BossEnemyFunc(void *self)
     if (gflag[0] != 0 && InqCapsuleGhostBossStage() != 0) {
         _ACTSetEnemyDisappearSpeed(self, 6.0f);
 
-        switch (GOBJ_SUB(self)->motion) {
+        switch (GOBJ_SUB(self)->ctrl.motion) {
         default:
             break;
         case 905:

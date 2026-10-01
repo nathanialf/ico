@@ -500,15 +500,15 @@ void uncarriedItemGeo(GObj *gobj)
     float grav;
 
     p = GOBJ_SUB(gobj)->work;
-    GOBJ_SUB(gobj)->wallAttr = 0;
-    GOBJ_SUB(gobj)->floorAttr = 0;
+    GOBJ_SUB(gobj)->ctrl.wallAttr = 0;
+    GOBJ_SUB(gobj)->ctrl.floorAttr = 0;
     CopyVector(vel, (char *)GOBJ_SUB(gobj) + 0x130);
     len0 = VectorLength(vel);
     UnlinkParentOfDObj(gobj);
     GetRootPosition(pos, gobj);
     vel[1] += ITEM_DT * 0.5f * ITEM_DT;
     if (p->inPool == 1) {
-        float d = pos[1] - GOBJ_SUB(gobj)->waterY;
+        float d = pos[1] - GOBJ_SUB(gobj)->ctrl.waterY;
 
         if (d < 0.0f ? -d < 20.0f : d < 20.0f) {
             float r = (d + 20.0f) / 40.0f;
@@ -517,7 +517,7 @@ void uncarriedItemGeo(GObj *gobj)
             floatGeo(1.0f - r * 0.08f);
             if (p->wave == 0) {
                 CopyVector(q, pos);
-                q[1] = GOBJ_SUB(gobj)->waterY;
+                q[1] = GOBJ_SUB(gobj)->ctrl.waterY;
                 EntryStageMultiBgaManager(0x1EC, q, IdentityQuaternion);
             }
         } else if (0.0f < d) {
@@ -537,7 +537,7 @@ void uncarriedItemGeo(GObj *gobj)
     cw.radius = 20.0f;
     ClipWall(&cw);
     if (cw.wallHit != 0) {
-        GOBJ_SUB(gobj)->wallAttr = GetWallAttribute(&cw);
+        GOBJ_SUB(gobj)->ctrl.wallAttr = GetWallAttribute(&cw);
         GetReflectionElement(&cw, 0.8f, 0.8f);
         CopyVector(npos, cw.f_50);
         CopyVector(vel, cw.f_60);
@@ -562,7 +562,7 @@ void uncarriedItemGeo(GObj *gobj)
     if (cw.floorHit != 0) {
         float axis[4];
 
-        GOBJ_SUB(gobj)->floorAttr = GetFloorAttribute(&cw);
+        GOBJ_SUB(gobj)->ctrl.floorAttr = GetFloorAttribute(&cw);
         GetReflectionElement(&cw, 0.8f, 0.7f);
         CopyVector(npos, cw.f_50);
         CopyVector(vel, cw.f_60);
@@ -601,10 +601,10 @@ void uncarriedItemGeo(GObj *gobj)
             ClipFloor(&cw);
             if (CheckFieldContact(&cw, gobj, npos, 20.0f) == 2) {
                 if (p->inPool != 1) {
-                    GOBJ_SUB(gobj)->waterY = GetPoolGlobalHeight(cw.f_8C.p_0);
+                    GOBJ_SUB(gobj)->ctrl.waterY = GetPoolGlobalHeight(cw.f_8C.p_0);
                     GetPoolGlobalDrainVector(p->drain, cw.f_8C.p_0);
                 }
-                GOBJ_SUB(gobj)->waterDepth = cw.pos[1] - GOBJ_SUB(gobj)->waterY;
+                GOBJ_SUB(gobj)->ctrl.waterDepth = cw.pos[1] - GOBJ_SUB(gobj)->ctrl.waterY;
                 p->inPool = 1;
             }
         }
@@ -954,9 +954,9 @@ int ReviveAllCarryableItemsWithRandomVelocity(float up, float horz)
             p->released = 1;
             p->sleep = 0;
         }
-        GOBJ_SUB(g)->moveX = horz * GetTableSin(ang);
-        GOBJ_SUB(g)->moveY = up * random_unit();
-        GOBJ_SUB(g)->moveZ = horz * GetTableCos(ang);
+        GOBJ_SUB(g)->root.move[0] = horz * GetTableSin(ang);
+        GOBJ_SUB(g)->root.move[1] = up * random_unit();
+        GOBJ_SUB(g)->root.move[2] = horz * GetTableCos(ang);
     }
     return 1;
 }

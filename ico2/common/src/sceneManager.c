@@ -118,9 +118,6 @@ inline void MoveNextStage_Clear(void)
     nextStageNo = -1;
 }
 
-/* typedef.h carries StgPre but declares no stageData */
-extern const StgPre stageData[];
-
 int GetRealModelId(int stageNo, char *gen)
 {
     int mdl;
@@ -266,7 +263,7 @@ inline GObj *CreateLayoutedGObj(int id, int a1, int a2, int a3, void *lay, int a
     ObjKindEnt *layout = &objKindData[id];
     GObj *gobj = CreateGObj(layout, id, a5, a6, a7);
     Sub15C *dobj = CSVSYSTEM_InitDObj(a1, lay);
-    int (*fn)(char *, int);
+    int (*fn)(GObj *, void *);
 
     /* the 0x15C slot is the int handle GOBJ_SUB reads (typedef.h) */
     *(int *)&gobj->dobj = (int)dobj;
@@ -286,33 +283,21 @@ typedef union {
     GamesysObjInfo info;
 } GamesysObjInfoFlag;
 
-/* the 0x40-byte actor-init record CreateLayoutedGObj hands to the kind's
-   constructor: position, angle and scale as VU0 vectors, then the
-   generator's word at 0x30; 0x34..0x3F is the alignment tail, copied but
-   never written.  It has SObjSimpleSetting's shape (attackCheckBoundary.c's
-   AcbLayout is the same record) with 16-byte vectors. */
-typedef struct {         /* field names derived */
-    sceVu0FVECTOR pos;   /* 0x00 */
-    sceVu0FVECTOR ang;   /* 0x10 */
-    sceVu0FVECTOR scale; /* 0x20 */
-    int obj;             /* 0x30 */
-} ActInit;
-
 /* restores the position the previous stage stored through MoveNextStage_Set;
    named after its siblings MoveNextStage_Set and MoveNextStage_Clear */
-static inline void MoveNextStage_Get(ActInit *a, int kind) /* derived name */
+static inline void MoveNextStage_Get(SObjSimpleSetting *a, int kind) /* derived name */
 {
     if (stage_no == nextStageNo && kind == 1) {
         a->pos[0] = nextStagePos[0];
         a->pos[1] = nextStagePos[1];
         a->pos[2] = nextStagePos[2];
-        a->ang[1] = nextStageRot[1] * 3.1415927f / 180.0f;
+        a->rot[1] = nextStageRot[1] * 3.1415927f / 180.0f;
     }
 }
 
 void initSceneGObj(int stage, int no)
 {
-    ActInit a;
+    SObjSimpleSetting a;
     GenGeo *gen = &objLayout[no];
     ObjKindEnt *lay = &objKindData[gen->kind];
     GamesysObjInfo *info = gamesysObjInfoGet(gen->kind, no);
@@ -353,7 +338,7 @@ void initSceneGObj(int stage, int no)
         /* one statement: a constructor built in a temporary and assigned
            (the construct ico2/ito/src/lightning.c uses for its
            LightningVtx) */
-        a = (ActInit){
+        a = (SObjSimpleSetting){
             {-gen->pos[0], -gen->pos[1], -gen->pos[2], 1.0f},
             {gen->rot[0] * 3.1415927f / 180.0f, 0.0f, gen->rot[2] * 3.1415927f / 180.0f, 0.0f},
             {gen->scale[0], gen->scale[1], gen->scale[2], 1.0f},
@@ -366,7 +351,7 @@ void initSceneGObj(int stage, int no)
         if (gen->rot[1] < -180.0f) {
             ry += 360.0f;
         }
-        a.ang[1] = ry * 3.1415927f / 180.0f;
+        a.rot[1] = ry * 3.1415927f / 180.0f;
 
         if (info != 0) {
             if (lay->infoInit != 0) {
@@ -375,9 +360,9 @@ void initSceneGObj(int stage, int no)
                 a.pos[0] = info->pos[0];
                 a.pos[1] = info->pos[1];
                 a.pos[2] = info->pos[2];
-                a.ang[0] = info->rot[0];
-                a.ang[1] = info->rot[1];
-                a.ang[2] = info->rot[2];
+                a.rot[0] = info->rot[0];
+                a.rot[1] = info->rot[1];
+                a.rot[2] = info->rot[2];
                 st = info->work[0];
             }
         }

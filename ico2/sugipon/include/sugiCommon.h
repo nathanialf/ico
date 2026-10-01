@@ -219,17 +219,4 @@ typedef union DlFlag {
     long long ll;
 } DlFlag;
 
-/* One 64-byte node of an object's skeleton, the array Sub15C + 0x8C holds:
-   the node's rest position and rotation, its first child, its next sibling
-   and its parent, -1 where there is none. */
-typedef struct SkelNode { /* field names derived */
-    char pad00[16];
-    float pos[4];  /* 0x10 */
-    float quat[4]; /* 0x20 */
-    int child;     /* 0x30 */
-    int sibling;   /* 0x34 */
-    int parent;    /* 0x38 */
-    int pad3C;
-} SkelNode;
-
 #endif /* SUGICOMMON_H */

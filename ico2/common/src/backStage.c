@@ -65,9 +65,6 @@ typedef struct {
     int work[4];          /* 0x30 */
 } GamesysObjInfoBackstage;
 
-/* typedef.h carries StgPre but declares no stageData */
-extern const StgPre stageData[];
-
 /* the actor work record a gobj carries at 0x164 (src/enemy_act.c reads the same
    0x444 member off the same 0x164 pointer) */
 typedef struct {
@@ -364,7 +361,7 @@ static inline void kidnapWarpToWaypoint(int gobj, float range) /* derived name *
     }
     k = (n * (rand() & 0xFFFF)) >> 16;
     CopyWpPos(wp.f, k, k);
-    wp.f[1] = wp.f[1] - *(float *)(GOBJ_SUB(gobj)->skel + 0x14);
+    wp.f[1] = wp.f[1] - GOBJ_SUB(gobj)->skel->pos[1];
     SetDirectRootPosition(gobj, wp.f);
 }
 
@@ -439,8 +436,7 @@ void backStageProcessInStage(float arg)
                         routeSetPos(backStageGirlTargetEnemyGop, t, pos.f, 1.0f);
                     }
                     debug_StdPrintfDummy("set pos %f %f %f\n", pos.f[0], pos.f[1], pos.f[2]);
-                    pos.f[1] =
-                        pos.f[1] - *(float *)(GOBJ_SUB(backStageGirlTargetEnemyGop)->skel + 0x14);
+                    pos.f[1] = pos.f[1] - GOBJ_SUB(backStageGirlTargetEnemyGop)->skel->pos[1];
                     SetDirectRootPosition(backStageGirlTargetEnemyGop, pos.f);
                 }
             }

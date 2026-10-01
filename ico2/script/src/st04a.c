@@ -301,9 +301,9 @@ void actSt04aGateChk(GObj *volatile a0)
         scpPlayMot(boyGObj, 0);
         scpPlayMot(girlGObj, 532);
 
-        GOBJ_SUB(boyGObj)->word514 =
+        GOBJ_SUB(boyGObj)->ctrl.blendFrames =
             (int)((float)((0x3C - systemStatus[0] * 0xA) / systemStatus[1]) / 60.0f * 0.0f);
-        GOBJ_SUB(girlGObj)->word514 =
+        GOBJ_SUB(girlGObj)->ctrl.blendFrames =
             (int)((float)((0x3C - systemStatus[0] * 0xA) / systemStatus[1]) / 60.0f * 0.0f);
 
         sceVu0SubVector(dir, test_CURRENTROOT(girlGObj), test_CURRENTROOT(boyGObj));
@@ -931,9 +931,9 @@ void actConte09(GObj *volatile a0)
     }
     _ACTWait(1);
 
-    GOBJ_SUB(boyGObj)->word514 =
+    GOBJ_SUB(boyGObj)->ctrl.blendFrames =
         (int)((float)((0x3C - systemStatus[0] * 0xA) / systemStatus[1]) / 60.0f * 0.0f);
-    GOBJ_SUB(girlGObj)->word514 =
+    GOBJ_SUB(girlGObj)->ctrl.blendFrames =
         (int)((float)((0x3C - systemStatus[0] * 0xA) / systemStatus[1]) / 60.0f * 0.0f);
 
     demoEnd = 1;

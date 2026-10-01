@@ -209,7 +209,7 @@ void actSt17aHasiChk(GObj *volatile a0)
         scpPlayWaitMotEnd((void *)girlGObj);
 
         scpPlayMot((void *)girlGObj, 532);
-        GOBJ_SUB(girlGObj)->word514 =
+        GOBJ_SUB(girlGObj)->ctrl.blendFrames =
             (int)((float)((0x3C - systemStatus[0] * 0xA) / systemStatus[1]) / 60.0f * 0.0f);
 
         scpPlayEnd((void *)girlGObj);
@@ -236,7 +236,7 @@ void actSt17aHasiChk(GObj *volatile a0)
 
         scpPlayMot(boyGObj, 0);
         scpPlayMot((void *)girlGObj, 532);
-        GOBJ_SUB(girlGObj)->word514 =
+        GOBJ_SUB(girlGObj)->ctrl.blendFrames =
             (int)((float)((0x3C - systemStatus[0] * 0xA) / systemStatus[1]) / 60.0f * 0.0f);
     }
 

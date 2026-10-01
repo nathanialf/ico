@@ -478,8 +478,6 @@ static inline void initEffectTool(void)
     }
 }
 
-extern ParticleEffectFile particleEffectFile[];
-
 int saveEffectData(int id)
 {
     int *pkg;

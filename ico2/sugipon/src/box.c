@@ -139,7 +139,7 @@ void initFallDown(GObj *a0)
 
     GetRootPosition(pos, a0);
     GOBJ_SUB(a0)->colRotate = 0;
-    *(int *)&GOBJ_SUB(a0)->animFrame = 0;
+    *(int *)&GOBJ_SUB(a0)->ctrl.animFrame = 0;
     if (p->wall.n != 0) {
         GetWallGlobalInfo((char *)pts, n, p->wall.n,
                           (char *)GOBJ_SUB(p->wall.o.obj)->nodeMtx + (p->wall.o.node << 6));
@@ -151,9 +151,9 @@ void initFallDown(GObj *a0)
         DivQuaternion(((char *)GOBJ_SUB(a0) + 0xE0), ((char *)GOBJ_SUB(a0) + 0xE0),
                       ((char *)GOBJ_SUB(a0) + 0xC0));
         GetMatrixFromQuaternionPos(p->mtx[0], (char *)GOBJ_SUB(a0) + 0xC0, (char *)pos);
-        GOBJ_SUB(a0)->motion = 1143;
+        GOBJ_SUB(a0)->ctrl.motion = 1143;
     } else {
-        GOBJ_SUB(a0)->motion = 1143;
+        GOBJ_SUB(a0)->ctrl.motion = 1143;
         GetRootQuaternion(((char *)GOBJ_SUB(a0) + 0xC0), a0);
     }
 }
@@ -171,27 +171,27 @@ int checkFieldContact(GObj *a0, float lim)
 
     GetRootPosition(pos, a0);
     CopyVector(v, pos);
-    v[1] -= GOBJ_SUB(a0)->moveY;
+    v[1] -= GOBJ_SUB(a0)->root.move[1];
     GetLowerPlaneCollision(&w, v);
     r = CheckFieldContact(&w, a0, pos, lim);
     if (*(int *)GOBJ_SUB(a0) != 0) {
         UnlinkParentOfDObj(a0);
     }
-    GOBJ_SUB(a0)->floorAttr = 0;
+    GOBJ_SUB(a0)->ctrl.floorAttr = 0;
     switch (r) {
     case 1:
         if (a0 != w.floor.o.obj) {
             if (*(GObj **)GOBJ_SUB(a0) != w.floor.o.obj ||
                 *(int *)((char *)GOBJ_SUB(a0) + 4) != w.floor.o.node) {
                 LinkParentOfDObj(a0, (PackedLL_19CAF0 *)&w.floor);
-                GOBJ_SUB(a0)->floorAttr = GetFloorAttribute(&w);
+                GOBJ_SUB(a0)->ctrl.floorAttr = GetFloorAttribute(&w);
             }
         }
         w.pt[1][1] = w.pt[2][1] - 50.0f;
         SetDirectRootPosition(a0, w.pt[1]);
         return 1;
     case 2:
-        GOBJ_SUB(a0)->floorAttr = GetFloorAttribute(&w);
+        GOBJ_SUB(a0)->ctrl.floorAttr = GetFloorAttribute(&w);
         return 2;
     }
     return 0;
@@ -1044,8 +1044,8 @@ int playAnimationCore(GObj *a0)
     float q[4];
     BoxWork *p = GOBJ_SUB(a0)->work;
 
-    GetFloatingMotion(mot, dir, motionTable[GOBJ_SUB(a0)->motion], 1, 0, 0,
-                      GOBJ_SUB(a0)->animFrame);
+    GetFloatingMotion(mot, dir, motionTable[GOBJ_SUB(a0)->ctrl.motion], 1, 0, 0,
+                      GOBJ_SUB(a0)->ctrl.animFrame);
     dir[3] = 1.0f;
     sceVu0ApplyMatrix(pos, p->mtx[0], dir);
     CopyQuaternion(q, (char *)GOBJ_SUB(a0) + 0xC0);
@@ -1054,8 +1054,8 @@ int playAnimationCore(GObj *a0)
     RotQuaternionY(q, -16384);
     MultiQuaternion(q, q, (char *)GOBJ_SUB(a0) + 0xE0);
     SetRootQuaternion(a0, q);
-    sceVu0SubVector(&GOBJ_SUB(a0)->moveX, pos, GOBJ_SUB(a0)->lastPos);
-    CopyVector(GOBJ_SUB(a0)->lastPos, pos);
+    sceVu0SubVector(&GOBJ_SUB(a0)->root.move[0], pos, GOBJ_SUB(a0)->root.last);
+    CopyVector(GOBJ_SUB(a0)->root.last, pos);
     SetRootPosition(a0, pos);
     ExecFrameDependSequence(a0);
     return UpdateFrameCounter(a0);
@@ -1209,9 +1209,9 @@ void avoidCharGObj(GObj *a0, GObj *a1)
     float pos[4];
     int hit;
 
-    w.rad = (30.0f < GOBJ_SUB(a1)->radius) ? GOBJ_SUB(a1)->radius : 30.0f;
+    w.rad = (30.0f < GOBJ_SUB(a1)->root.radius) ? GOBJ_SUB(a1)->root.radius : 30.0f;
     GetRootPosition(pos, a1);
-    pos[1] += GOBJ_SUB(a1)->projHeight + 10.0f;
+    pos[1] += GOBJ_SUB(a1)->root.projHeight + 10.0f;
     CopyVector(&w, pos);
     CopyVector(w.pt[1], pos);
     w.filter.o.obj = a0;
@@ -1219,13 +1219,13 @@ void avoidCharGObj(GObj *a0, GObj *a1)
     w.filter.n = 0;
     ClipWallE(&w);
     if (w.wall.n != 0) {
-        switch (GOBJ_SUB(a1)->rootUpdateMode) {
+        switch (GOBJ_SUB(a1)->ctrl.rootUpdateMode) {
         case 7:
         case 8:
         case 10:
         case 15:
         case 16:
-            hit = (char *)GOBJ_SUB(a1)->wallObj == a0;
+            hit = (char *)GOBJ_SUB(a1)->root.wall.o.obj == a0;
             break;
         default:
             hit = 1;
@@ -1339,11 +1339,11 @@ void execFloating(GObj *self)
         _AddVectorXYZ(cw.pt[0], pos, ofs);
         cw.pt[0][3] = 0.0f;
         _SubVector((char *)GOBJ_SUB(self) + 0x130, cw.pt[0], w->lastPos);
-        GOBJ_SUB(self)->word13C = 0;
+        GOBJ_SUB(self)->root.move[3] = 0;
         CopyVector(w->lastPos, cw.pt[0]);
         SetRootPosition(self, pos);
     }
-    GOBJ_SUB(self)->moveY += GetTableSin(w->floatPhase) * 0.1f;
+    GOBJ_SUB(self)->root.move[1] += GetTableSin(w->floatPhase) * 0.1f;
     w->floatPhase += 2048;
     w->charHit = 0;
     if (w->floatPhase == 0) {
@@ -1417,9 +1417,9 @@ void initLanding(GObj *a0)
     BoxWork *p = GOBJ_SUB(a0)->work;
 
     GetRootPosition(pos, a0);
-    CopyVector(&GOBJ_SUB(a0)->moveX, ZeroVector);
-    *(int *)&GOBJ_SUB(a0)->animFrame = 0;
-    GOBJ_SUB(a0)->motion = 1144;
+    CopyVector(&GOBJ_SUB(a0)->root.move[0], ZeroVector);
+    *(int *)&GOBJ_SUB(a0)->ctrl.animFrame = 0;
+    GOBJ_SUB(a0)->ctrl.motion = 1144;
     if (p->wall.n != 0) {
         float d;
 
@@ -1860,7 +1860,7 @@ static inline int checkCharGObjs(GObj *obj, GObj *holder, float *dir)
         if (*list != holder) {
             GetRootPosition(pos2, *list);
             _SubVector(d, pos2, pos);
-            if (move(d, w + w, w, GOBJ_SUB(*list)->radius + 5.0f) != 0) {
+            if (move(d, w + w, w, GOBJ_SUB(*list)->root.radius + 5.0f) != 0) {
                 return 0;
             }
         }
@@ -2001,7 +2001,7 @@ int MoveBoxWithHoldPoint(GObj *a0, void *a1, GObj *a2, int a3, float *a4)
     } else if (checkCharGObjs(a0, a2, a4) && checkBoxStopWall(a0, a4) &&
                CheckGeneratorCollision(a0, a4) && checkItemHit(a0, a4)) {
         q->moveFrames = (0x3C - systemStatus[0] * 0xA) / systemStatus[1] *
-                        (GetNbMotionFrames(GOBJ_SUB(a2)->motion) - 1) / 0x1E;
+                        (GetNbMotionFrames(GOBJ_SUB(a2)->ctrl.motion) - 1) / 0x1E;
         _ScaleVectorXYZ(q->vel, a4, 100.0f / (float)q->moveFrames);
 
         hit = checkMoveWall(a0, a4);
@@ -2021,7 +2021,7 @@ int MoveBoxWithHoldPoint(GObj *a0, void *a1, GObj *a2, int a3, float *a4)
             CopyVector(*(char **)(*(char **)(q->subGObj + 0x15C) + 0xC) + 0x30, npos);
             *(int *)(q->subGObj + 0x16C) = 1;
         }
-        if (GOBJ_SUB(a2)->word56C != 0) {
+        if (GOBJ_SUB(a2)->ctrl.cliffWallHit != 0) {
             q->wall = *(WallCfg *)((char *)GOBJ_SUB(a2) + 0x190);
         }
     } else {
@@ -2044,7 +2044,7 @@ inline int BoxRideFunc(ObjNode *a0, GObj *a1)
     if (s0->mode != 5) {
         return 0;
     }
-    p15c->moveY += 0.5f;
+    p15c->root.move[1] += 0.5f;
     GetRootPosition(buf + 0x10, obj);
     CopyVector(buf, (char *)GOBJ_SUB(a1) + 0xA0);
     *(int *)(buf + 4) = 0;
@@ -2091,7 +2091,7 @@ void ReInitBoxGeo(GObj *a0)
         debug_StdPrintfDummy(
             "\033[36m箱が地面の無いところに初期配置されています。\n動作が保証できません(コリジョン定義より前に箱がありませんか?)\033[m\n");
     } else {
-        int m = GOBJ_SUB(a0)->floorAttr;
+        int m = GOBJ_SUB(a0)->ctrl.floorAttr;
 
         if (m == 0x40 || m == 0x50) {
             initFloating(a0);

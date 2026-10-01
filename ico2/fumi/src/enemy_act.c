@@ -413,7 +413,7 @@ void _DoAwait(char *self)
     EnemyParaRow *row;
     if ((void *)boyGObj != 0) {
         _ACTParaStatus_Set(self, 0x1C);
-        row = &motionKind[GOBJ_SUB(self)->motion];
+        row = &motionKind[GOBJ_SUB(self)->ctrl.motion];
         if ((row->flags18C >> 3) & 1) {
             EnemyUtil_TurnToBoy(self, ((void *)boyGObj), 5);
         }
@@ -425,7 +425,7 @@ void _DoAwaitGirl(GObj *self)
     EnemyParaRow *row;
     if ((char *)girlGObj != 0) {
         _ACTParaStatus_Set(self, 0x1C);
-        row = &motionKind[GOBJ_SUB(self)->motion];
+        row = &motionKind[GOBJ_SUB(self)->ctrl.motion];
         if ((row->flags18C >> 3) & 1) {
             EnemyUtil_TurnToBoy(self, girlGObj, 5);
         }
@@ -681,7 +681,7 @@ void subEnemyCollision(GObj *volatile a0)
         if (GOBJ_ACT(a0)->enemy->liftKind == 3) {
             boss_effect_process((char *)a0);
         }
-        if (sub->actMode == 5 && 400.0f < GOBJ_SUB(a0)->groundHeight) {
+        if (sub->actMode == 5 && 400.0f < GOBJ_SUB(a0)->ctrl.groundHeight) {
             FlyMail((void *)a0);
         }
         if (sub->stickMag != 0.0f) {
@@ -691,8 +691,8 @@ void subEnemyCollision(GObj *volatile a0)
         } else if (0.1f < sub->stickMag && sub->actMode != 0x73) {
             SetMotionDirectionSmooze(a0, dir,
                                      (float)((a0 == (int)((char *)girlGObj) && girlControlMode != 0)
-                                                 ? motionKind[GOBJ_SUB(a0)->motion].f182
-                                                 : motionKind[GOBJ_SUB(a0)->motion].f186));
+                                                 ? motionKind[GOBJ_SUB(a0)->ctrl.motion].f182
+                                                 : motionKind[GOBJ_SUB(a0)->ctrl.motion].f186));
         }
         if (actEnemyFlagCheckDead(a0) == 0) {
             ACTGame_SaveActorInformation((char *)a0);
@@ -944,7 +944,7 @@ static inline float getEnemyRestartLife(char *self)
     return GetEnemyDefLife(self) * _ACTGame_GetParamF(idx);
 }
 
-void actEnemyRestart(GObj *self, float *pos, float *dir, int kind, int mot)
+void actEnemyRestart(GObj *self, float *pos, float *dir, int kind, GObj *mother)
 {
     float v[4];
     Act *sub;
@@ -998,10 +998,10 @@ void actEnemyRestart(GObj *self, float *pos, float *dir, int kind, int mot)
     sub->maxLife = life;
     sub->life = life;
     sub->wayMode = 0;
-    if (mot != 0) {
-        sub->restartMot = mot;
+    if (mother != 0) {
+        sub->mother = mother;
     } else {
-        sub->restartMot = 0;
+        sub->mother = 0;
     }
     *(int *)((char *)sub + 0xD4) = (int)&actIntrList[79];
     ACTSendMailCorrect(self, mail);
@@ -1189,7 +1189,7 @@ void actEnemyKidnapEnd(GObj *volatile a0)
                 goto gameover;
             }
         }
-        if (GOBJ_SUB(a0)->motion == 952) {
+        if (GOBJ_SUB(a0)->ctrl.motion == 952) {
             /* RECONSTRUCTION (listing row 2486): the girl's record and her
                action are read before the null test, and the ROM loads 0x6F
                into a register of its own in that same block and compares the
@@ -1206,7 +1206,7 @@ void actEnemyKidnapEnd(GObj *volatile a0)
                 SetEnemyDissolve(a0, (ratio < 0.01) ? 0.01f : ((1.0f < ratio) ? 1.0f : ratio));
                 dist = dist + 1.0f;
             }
-            if (50.0f < GOBJ_SUB(a0)->animFrame) {
+            if (50.0f < GOBJ_SUB(a0)->ctrl.animFrame) {
                 if ((((int)((long long)sub->flags20.ll >> 21)) & 1) == 0) {
                 gameover:
                     if (GOBJ_ACT(girlGObj)->actMode == 0x6F && GOBJ_ACT(girlGObj)->carrier == a0) {
@@ -1309,14 +1309,14 @@ void actEnemyKidnapBegin(GObj *volatile a0)
     int mode;
 
     while (1) {
-        if (GOBJ_SUB(a0)->motion == 0x3AA) {
+        if (GOBJ_SUB(a0)->ctrl.motion == 0x3AA) {
             _OrientXZGV(dir, test_CURRENTROOT((girlGObj)), test_CURRENTROOT(a0));
             if (0.1f < sub->stickMag && sub->actMode != 0x73) {
                 SetMotionDirectionSmooze(
                     (void *)a0, dir,
                     (float)((a0 == (int)((char *)girlGObj) && girlControlMode != 0)
-                                ? motionKind[GOBJ_SUB(a0)->motion].f182
-                                : motionKind[GOBJ_SUB(a0)->motion].f186));
+                                ? motionKind[GOBJ_SUB(a0)->ctrl.motion].f182
+                                : motionKind[GOBJ_SUB(a0)->ctrl.motion].f186));
             }
             mode = enemyKidnapCheckGirl(a0);
             switch (mode) {
@@ -1359,8 +1359,8 @@ void MoveChestForCatchBoy(GObj *self)
     int ang;
     int ang2;
 
-    GOBJ_SUB(self)->catchBoy = 1;
-    GOBJ_SUB(self)->lookMode = 2;
+    GOBJ_SUB(self)->ctrl.catchBoy = 1;
+    GOBJ_SUB(self)->root.lookMode = 2;
     GetRootProjectionPosOfGObj(p0, self);
     GetRootProjectionPosOfGObj(p1, ((void *)boyGObj));
     GetSkeltonPosition(sk, self, 1);
@@ -1392,15 +1392,15 @@ void MoveChestForCatchBoy(GObj *self)
 inline void afterEnemyBodylift(GObj *volatile a0)
 {
     GObj *x = a0;
-    GOBJ_SUB(x)->catchBoy = 0;
-    GOBJ_SUB(x)->lookMode = 0;
+    GOBJ_SUB(x)->ctrl.catchBoy = 0;
+    GOBJ_SUB(x)->root.lookMode = 0;
 }
 
 /* listing rows 2655-2657: a `static inline` outside this function's span. */
 static inline void enemyBodyliftClearBoy(char *self)
 {
-    GOBJ_SUB(self)->catchBoy = 0;
-    GOBJ_SUB(self)->lookMode = 0;
+    GOBJ_SUB(self)->ctrl.catchBoy = 0;
+    GOBJ_SUB(self)->root.lookMode = 0;
 }
 
 void actEnemyBodylift(GObj *volatile a0)
@@ -1589,7 +1589,7 @@ void CheckEnemyBrainMode(char *self, int *outMode, int *outData)
     int mode;
 
     *outData = 0;
-    if (*(int *)(sub + 0x148) != 0 && motionKind[GOBJ_SUB(self)->motion].f100 == 0) {
+    if (*(int *)(sub + 0x148) != 0 && motionKind[GOBJ_SUB(self)->ctrl.motion].f100 == 0) {
         *outMode = -1;
         return;
     }

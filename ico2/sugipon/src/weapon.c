@@ -94,7 +94,7 @@ void weaponStickSE(GObj *a0)
 static inline void releaseWeaponHolder(WeaponWork *w)
 {
     if (w->holder != 0) {
-        w->holder->dobj->pickedWeapon = 0;
+        w->holder->dobj->ctrl.pickedWeapon = 0;
     }
     w->holderId = -1;
 }
@@ -396,9 +396,9 @@ void calcDynamicGeometry(GObj *g)
             CopyVector(dir1, cc.dir);
             if (36.0f < VectorLengthSquare(cc.d)) {
                 if (cc.wall) {
-                    GOBJ_SUB(g)->wallAttr = GetWallAttribute(&cc);
+                    GOBJ_SUB(g)->ctrl.wallAttr = GetWallAttribute(&cc);
                 } else {
-                    GOBJ_SUB(g)->wallAttr = GetFloorAttribute(&cc);
+                    GOBJ_SUB(g)->ctrl.wallAttr = GetFloorAttribute(&cc);
                 }
                 weaponHitReactionSE(g);
             }
@@ -418,9 +418,9 @@ void calcDynamicGeometry(GObj *g)
             CopyVector(dir2, cc.dir);
             if (36.0f < VectorLengthSquare(cc.d)) {
                 if (cc.wall) {
-                    GOBJ_SUB(g)->wallAttr = GetWallAttribute(&cc);
+                    GOBJ_SUB(g)->ctrl.wallAttr = GetWallAttribute(&cc);
                 } else {
-                    GOBJ_SUB(g)->wallAttr = GetFloorAttribute(&cc);
+                    GOBJ_SUB(g)->ctrl.wallAttr = GetFloorAttribute(&cc);
                 }
                 weaponHitReactionSE(g);
             }
@@ -921,7 +921,7 @@ void WeaponGeo(GObj *g)
     w->bladeOn = 0;
     if (w->kind >= 10 || kind < 8) {
         if (w->state == 1 ||
-            (w->holder != 0 && motionKind[w->holder->dobj->motion].flags2.bits.weaponSwing)) {
+            (w->holder != 0 && motionKind[w->holder->dobj->ctrl.motion].flags2.bits.weaponSwing)) {
             calcBlur(g, weaponKind[kind].length);
             w->bladeOn = 1;
         }
@@ -1008,7 +1008,7 @@ void PickupWeapon(GObj *a0, GObj *a1, int a2)
 
     p->holder = a1;
     p->holderId = GetSkeltonFocusNode(a1, a2);
-    GOBJ_SUB(a1)->pickedWeapon = (int)a0;
+    GOBJ_SUB(a1)->ctrl.pickedWeapon = (int)a0;
 }
 
 char *CheckSwapableWeapon(GObj *a0, float dist)
@@ -1055,7 +1055,7 @@ void ReleaseWeapon(GObj *a0)
 {
     WeaponWork *p = GOBJ_SUB(a0)->work;
     if (p->holder) {
-        p->holder->dobj->pickedWeapon = 0;
+        p->holder->dobj->ctrl.pickedWeapon = 0;
     }
     p->holder = 0;
     p->holderId = -1;
@@ -1125,7 +1125,7 @@ void ReleaseWeaponWithFumble(GObj *a0, void *a1, void *a2)
     char *f = (char *)e + 0xA0;
 
     if (w->holder) {
-        w->holder->dobj->pickedWeapon = 0;
+        w->holder->dobj->ctrl.pickedWeapon = 0;
     }
     w->holder = 0;
     w->holderId = -1;

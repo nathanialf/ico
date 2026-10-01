@@ -321,7 +321,7 @@ static void chain_simulate_term_swingstart(GObj *gobj)
         debug_Printf(10, chainDebugY, 0x0FFFFFFF, "chain_simulate_term_swingstart\n");
     }
 
-    h = GOBJ_SUB(boyGObj)->animFrame;
+    h = GOBJ_SUB(boyGObj)->ctrl.animFrame;
 
     if (h < 20.0f) {
         if (cw->pdl.amp < 0.3) {
@@ -367,7 +367,7 @@ static void chain_simulate_term_moveup(GObj *gobj)
         cw->pdl.ampSpeed = -0.15f;
     }
     chain_simulate_term_simple(gobj);
-    h = GOBJ_SUB(boyGObj)->animFrame;
+    h = GOBJ_SUB(boyGObj)->ctrl.animFrame;
     v[0] = cw->pdl.orient[0];
     v[1] = cw->pdl.orient[1];
     v[2] = cw->pdl.orient[2];
@@ -418,7 +418,7 @@ static void chain_simulate_term_down(GObj *gobj)
         cw->pdl.ampSpeed = -0.15f;
     }
     chain_simulate_term_simple(gobj);
-    h = GOBJ_SUB(boyGObj)->animFrame;
+    h = GOBJ_SUB(boyGObj)->ctrl.animFrame;
     v[0] = cw->pdl.orient[0];
     v[1] = cw->pdl.orient[1];
     v[2] = cw->pdl.orient[2];
@@ -853,7 +853,7 @@ static inline int GetChainSimulateMode(GObj *gobj) /* derived name */
             mode = st == 59 ? 9 : 3;
         }
 
-        switch (GOBJ_SUB(holder)->motion) {
+        switch (GOBJ_SUB(holder)->ctrl.motion) {
         case 136:
         case 137:
             if (mode == 3) {
@@ -947,7 +947,7 @@ void ChainGeo(GObj *gobj)
 
         lim = cw->hangRange;
         if (GOBJ_ACT(boyGObj)->actMode == 5 ||
-            (((motionKind + GOBJ_SUB(boyGObj)->motion)->flags >> 11) & 1)) {
+            (((motionKind + GOBJ_SUB(boyGObj)->ctrl.motion)->flags >> 11) & 1)) {
             lim = 70.0f;
         }
 
@@ -1024,16 +1024,16 @@ void ChainGeo(GObj *gobj)
 
     if (cw->hold != 0) {
         sub = (char *)GOBJ_ACT(boyGObj);
-        ((ChainExtPtr *)&boyGObj->dobj)->sub->ropeState = 0;
+        ((ChainExtPtr *)&boyGObj->dobj)->sub->root.ropeState = 0;
         TestChainUpDown(gobj, cw->owner);
 
         /* 0x130..0x138 of the extension is a float vector (cleared here and in
          * case 2 beside the float stores at 0x410..0x418) */
         switch (mode) {
         case 8:
-            ((ChainExtPtr *)&boyGObj->dobj)->sub->moveX = 0.0f;
-            ((ChainExtPtr *)&boyGObj->dobj)->sub->moveY = 0.0f;
-            ((ChainExtPtr *)&boyGObj->dobj)->sub->moveZ = 0.0f;
+            ((ChainExtPtr *)&boyGObj->dobj)->sub->root.move[0] = 0.0f;
+            ((ChainExtPtr *)&boyGObj->dobj)->sub->root.move[1] = 0.0f;
+            ((ChainExtPtr *)&boyGObj->dobj)->sub->root.move[2] = 0.0f;
             SetChainRootUpdateMode(boyGObj, 2, &cw->node[cw->holdNode].x);
             break;
         case 7:
@@ -1049,28 +1049,28 @@ void ChainGeo(GObj *gobj)
                 float *nd = (float *)((cw->holdNode << 5) + (int)cw->node);
                 float h;
 
-                ((ChainExtPtr *)&boyGObj->dobj)->sub->moveX = 0.0f;
-                ((ChainExtPtr *)&boyGObj->dobj)->sub->moveY = 0.0f;
-                ((ChainExtPtr *)&boyGObj->dobj)->sub->moveZ = 0.0f;
-                ((ChainExtPtr *)&boyGObj->dobj)->sub->ropeBaseX = nd[0];
-                ((ChainExtPtr *)&boyGObj->dobj)->sub->ropeBaseY = nd[1];
-                ((ChainExtPtr *)&boyGObj->dobj)->sub->ropeBaseZ = nd[2];
-                h = ((ChainExtPtr *)&boyGObj->dobj)->sub->animFrame;
+                ((ChainExtPtr *)&boyGObj->dobj)->sub->root.move[0] = 0.0f;
+                ((ChainExtPtr *)&boyGObj->dobj)->sub->root.move[1] = 0.0f;
+                ((ChainExtPtr *)&boyGObj->dobj)->sub->root.move[2] = 0.0f;
+                ((ChainExtPtr *)&boyGObj->dobj)->sub->root.holdPoint[0] = nd[0];
+                ((ChainExtPtr *)&boyGObj->dobj)->sub->root.holdPoint[1] = nd[1];
+                ((ChainExtPtr *)&boyGObj->dobj)->sub->root.holdPoint[2] = nd[2];
+                h = ((ChainExtPtr *)&boyGObj->dobj)->sub->ctrl.animFrame;
                 if (h < 3.0f) {
-                    ((ChainExtPtr *)&boyGObj->dobj)->sub->ropeState = -1;
+                    ((ChainExtPtr *)&boyGObj->dobj)->sub->root.ropeState = -1;
                     ropeInterRate = 0.5f;
                 } else if (h < 10.0f) {
-                    ((ChainExtPtr *)&boyGObj->dobj)->sub->ropeState = -1;
+                    ((ChainExtPtr *)&boyGObj->dobj)->sub->root.ropeState = -1;
                     ropeInterRate = 1.0f;
                 } else {
-                    ((ChainExtPtr *)&boyGObj->dobj)->sub->ropeState = 1;
+                    ((ChainExtPtr *)&boyGObj->dobj)->sub->root.ropeState = 1;
                 }
             }
             break;
         default:
             if (sub != 0) {
-                CopyVector(&GOBJ_SUB(boyGObj)->ropeBaseX, &cw->node[cw->holdNode]);
-                ((ChainExtPtr *)&boyGObj->dobj)->sub->ropeState = 1;
+                CopyVector(&GOBJ_SUB(boyGObj)->root.holdPoint[0], &cw->node[cw->holdNode]);
+                ((ChainExtPtr *)&boyGObj->dobj)->sub->root.ropeState = 1;
             }
             break;
         }
@@ -1333,7 +1333,7 @@ static void TestChainUpDown(GObj *gobj, GObj *boy)
 
 
 
-    int mode = GetChainClimbMode(GOBJ_SUB(boy)->motion);
+    int mode = GetChainClimbMode(GOBJ_SUB(boy)->ctrl.motion);
 
     switch (mode) {
     case 4: {
@@ -1344,7 +1344,7 @@ static void TestChainUpDown(GObj *gobj, GObj *boy)
 
         rec = (ChainClimbWork *)chainClimb; if (rec->prev != mode) {
             rec->phase = 0.0f;
-            rec->frames = (int)(float)*motionTable[((ChainExtPtr *)&boy->dobj)->sub->motion];
+            rec->frames = (int)(float)*motionTable[((ChainExtPtr *)&boy->dobj)->sub->ctrl.motion];
             SetChainClimbNodePoint(boy, rec);
             rec->target[0] = rec->node[0]; rec->target[2] = rec->node[2];
             rec->target[1] = rec->node[1] - 100.0f;
@@ -1380,7 +1380,7 @@ static void TestChainUpDown(GObj *gobj, GObj *boy)
 
         rec = (ChainClimbWork *)chainClimb; if (rec->prev != mode) {
             rec->phase = 0.0f;
-            rec->frames = (int)(float)*motionTable[((ChainExtPtr *)&boy->dobj)->sub->motion];
+            rec->frames = (int)(float)*motionTable[((ChainExtPtr *)&boy->dobj)->sub->ctrl.motion];
             SetChainClimbNodePoint(boy, rec);
             rec->target[0] = rec->node[0]; rec->target[2] = rec->node[2];
             rec->target[1] = rec->node[1] - 100.0f;
@@ -1412,7 +1412,7 @@ static void TestChainUpDown(GObj *gobj, GObj *boy)
         ChainClimbWork *rec;
         rec = (ChainClimbWork *)chainClimb; if (rec->prev != mode) {
             rec->phase = 0.0f;
-            rec->frames = (int)(float)*motionTable[((ChainExtPtr *)&boy->dobj)->sub->motion];
+            rec->frames = (int)(float)*motionTable[((ChainExtPtr *)&boy->dobj)->sub->ctrl.motion];
             SetChainClimbNodePoint(boy, rec);
             rec->target[0] = rec->node[0]; rec->target[2] = rec->node[2];
             rec->target[1] = rec->node[1] + 200.0f;
@@ -1457,10 +1457,10 @@ static void TestChainUpDown(GObj *gobj, GObj *boy)
 
 void SetChainRootUpdateMode(GObj *gobj, int mode, float *pos)
 {
-    GOBJ_SUB(gobj)->ropeState = mode;
-    ((ChainVal *)&GOBJ_SUB(gobj)->ropeBaseX)->f = pos[0];
-    ((ChainVal *)&GOBJ_SUB(gobj)->ropeBaseY)->f = pos[1];
-    ((ChainVal *)&GOBJ_SUB(gobj)->ropeBaseZ)->f = pos[2];
+    GOBJ_SUB(gobj)->root.ropeState = mode;
+    ((ChainVal *)&GOBJ_SUB(gobj)->root.holdPoint[0])->f = pos[0];
+    ((ChainVal *)&GOBJ_SUB(gobj)->root.holdPoint[1])->f = pos[1];
+    ((ChainVal *)&GOBJ_SUB(gobj)->root.holdPoint[2])->f = pos[2];
     if (mode == 3) {
         SetDirectRootPositionNoFittingWithNodePoint(gobj, 22, pos, 1.0f);
     }

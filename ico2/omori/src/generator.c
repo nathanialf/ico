@@ -51,9 +51,8 @@ typedef struct GenWork {        /* field names derived */
     int timer;     /* 0x64 */
 } GenWork;
 
-/* the data-only members stage-all.o, obj-layout.o, read through this file's
-   views of their rows; no header declares them */
-extern StgPre stageData[];
+/* the data-only member obj-layout.o, read through this file's view of its
+   rows; no header declares it */
 extern GenGeo objLayout[];
 
 /* the generator packet: 11277 bytes are read into it, which is what
@@ -892,7 +891,7 @@ void GeneratorGeo(GObj *gobj)
 {
     GenWork *w = GOBJ_SUB(gobj)->work;
     int hard = 0;
-    StgPre *sd = &stageData[stage_no];
+    const StgPre *sd = &stageData[stage_no];
     int noBoy = sd->flag1 && girlGObj == 0;
 
     w->hard = (int)IsNeedGeneratorHard(gobj);

@@ -8,17 +8,22 @@
 #ifndef SCENEMANAGER_H
 #define SCENEMANAGER_H
 
+#include <libvu0.h>
 
 struct GObj;
-/* the layout record CSVSYSTEM_InitDObj starts a scene object from: position,
-   rotation, scale and the object word */
-typedef struct {
-    float pos[4];
-    float rot[4];
-    float scale[4];
-    int obj;
-    int pad34[3];
-} SObjSimpleSetting; /* derived name */
+
+/* the 0x40-byte layout record CSVSYSTEM_InitDObj starts a scene object from
+   and CreateLayoutedGObj hands to the kind's constructor: position, rotation
+   and scale as VU0 vectors, then the object word (the generator's word at
+   0x30); 0x34..0x3F is the alignment tail, copied but never written.  With
+   exactly these four members initSceneGObj's constructor fills a temporary
+   without clearing it first, as the ROM does. */
+typedef struct {         /* field names derived */
+    sceVu0FVECTOR pos;   /* 0x00 */
+    sceVu0FVECTOR rot;   /* 0x10 */
+    sceVu0FVECTOR scale; /* 0x20 */
+    int obj;             /* 0x30 */
+} SObjSimpleSetting;     /* derived name */
 
 /* sceneManager.c's .data global */
 extern SObjSimpleSetting InitialSObjSimpleSetting;
@@ -44,7 +49,9 @@ typedef struct {   /* field names derived */
     int first;     /* 0x20, the enemymodelTable range */
     int last;      /* 0x24 */
 } EnemyMdlRec;     /* derived name */
-extern const int enemymodelTable[]; /* enemy-model-tbl: the model ids enemymodelGroup ranges cover */
+
+extern const int
+    enemymodelTable[]; /* enemy-model-tbl: the model ids enemymodelGroup ranges cover */
 extern const EnemyMdlRec enemymodelGroup[];
 
 #endif /* SCENEMANAGER_H */

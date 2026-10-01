@@ -59,7 +59,7 @@ extern MotionDef motionKind[];
 extern void GetChainNearestNodePosition(float *out, void *g, float *ref);
 
 /* the motion-def row of an actor's current motion */
-#define CHAINROW(self) (GOBJ_SUB(self)->motion + motionKind)
+#define CHAINROW(self) (GOBJ_SUB(self)->ctrl.motion + motionKind)
 
 void findChainInJump(void *self)
 {
@@ -305,7 +305,7 @@ void motBoyHand50(GObj *volatile a0)
         }
         _ACTWait(1);
     }
-    while (GOBJ_SUB(a0)->motion < 0 || 2 <= GOBJ_SUB(a0)->motion) {
+    while (GOBJ_SUB(a0)->ctrl.motion < 0 || 2 <= GOBJ_SUB(a0)->ctrl.motion) {
         _ACTWait(1);
     }
     _ACTWait(1);
@@ -394,7 +394,7 @@ void motBoyHand100(GObj *volatile a0)
     ACTSendMailCorrect(a0, 0x65);
     debug_StdPrintfDummy("%s sync error\n", (void *)a0 == boyGObj ? "boy" : "girl");
 done:
-    while (GOBJ_SUB(a0)->motion < 0 || 2 <= GOBJ_SUB(a0)->motion) {
+    while (GOBJ_SUB(a0)->ctrl.motion < 0 || 2 <= GOBJ_SUB(a0)->ctrl.motion) {
         _ACTWait(1);
     }
     _ACTWait(1);
@@ -484,7 +484,7 @@ void motBoyHand200(GObj *volatile a0)
     ACTSendMailCorrect(a0, 0x6A);
     debug_StdPrintfDummy("%s sync error\n", (void *)a0 == boyGObj ? "boy" : "girl");
 done:
-    while (GOBJ_SUB(a0)->motion < 0 || 2 <= GOBJ_SUB(a0)->motion) {
+    while (GOBJ_SUB(a0)->ctrl.motion < 0 || 2 <= GOBJ_SUB(a0)->ctrl.motion) {
         _ACTWait(1);
     }
     _ACTWait(1);
@@ -544,7 +544,7 @@ void handoff_heroin(void)
     void *boy = boyGObj;
 
     if (girlGObj != 0) {
-        if (GOBJ_SUB(girlGObj)->hand0Mode == 6) {
+        if (GOBJ_SUB(girlGObj)->root.hand0Mode == 6) {
             if (actModeTbl[GOBJ_ACT(boy)->actMode].bit7) {
             } else {
                 iosOmSendMail(girlGObj, 0x3E, (int)isysCurrentGObj);
@@ -555,7 +555,7 @@ void handoff_heroin(void)
             GetHeightOfFieldPlaneDifference(boyGObj, girlGObj);
         }
     }
-    if (girlGObj != 0 && GOBJ_SUB(girlGObj)->hand0Mode != 6) {
+    if (girlGObj != 0 && GOBJ_SUB(girlGObj)->root.hand0Mode != 6) {
         if (_DistxzGV(test_CURRENTROOT(boyGObj), test_CURRENTROOT(girlGObj)) < 100.0f &&
             ABSF(ABSF(BOYGIRL_DY())) < 100.0f) {}
     }
@@ -595,7 +595,7 @@ void CheckCollisionAttr(void *self)
     int flag = 1;
     int esc = 0;
 
-    if (_ACTGame_GetParamF(2) < stage->groundHeight) {
+    if (_ACTGame_GetParamF(2) < stage->ctrl.groundHeight) {
         return;
     }
     if (GOBJ_ACT(self)->actMode == 0x16) {
@@ -851,15 +851,15 @@ int GetChainSlope(void)
     if (b < 5.0f) {
         return 0;
     }
-    ratio = (float)*motionTable[GOBJ_SUB(g)->motion] / (c * 0.5f);
+    ratio = (float)*motionTable[GOBJ_SUB(g)->ctrl.motion] / (c * 0.5f);
     ACTGame_SetMotionPlaySpeedRatio_Reserve(
         g, ratio * (float)((60 - systemStatus[0] * 10) / systemStatus[1]) / 30.0f, 7);
     if (debug_font_flag & 1) {
         debug_Printf(10, 140, 0x0FFFFFFF, "speed = %f (%f)\n", fptodp(ratio), fptodp(c));
     }
     if (debug_font_flag & 1) {
-        debug_Printf(10, 150, 0x0FFFFFFF, "%f / %f\n", fptodp(GOBJ_SUB(g)->animFrame),
-                     fptodp((float)*motionTable[GOBJ_SUB(g)->motion]));
+        debug_Printf(10, 150, 0x0FFFFFFF, "%f / %f\n", fptodp(GOBJ_SUB(g)->ctrl.animFrame),
+                     fptodp((float)*motionTable[GOBJ_SUB(g)->ctrl.motion]));
     }
     if ((b < 0.0f ? -b : b) < 30.0f) {
         up = 1;
@@ -1179,7 +1179,7 @@ void subBoyControl(GObj *volatile a0)
 
             slow = 0;
             if (s->actMode == 1) {
-                if (GOBJ_SUB(a0)->motion == 0 || GOBJ_SUB(a0)->motion == 1) {
+                if (GOBJ_SUB(a0)->ctrl.motion == 0 || GOBJ_SUB(a0)->ctrl.motion == 1) {
                     if (0.5f < s->stickMag) {
                         slowWalkTimer = (60 - systemStatus[0] * 10) / systemStatus[1] / 5;
                     }
@@ -1523,7 +1523,7 @@ void subBoyControl(GObj *volatile a0)
             switch (GetChainSlope()) {
             case 0:
                 ACTSendMailCorrect(a0, 0xA3);
-                if (GOBJ_SUB(a0)->motion == 137 && GOBJ_SUB(a0)->animFrame < 50.0f) {
+                if (GOBJ_SUB(a0)->ctrl.motion == 137 && GOBJ_SUB(a0)->ctrl.animFrame < 50.0f) {
                     ACTSendMailCorrect(a0, 0xA4);
                 }
                 break;
@@ -1540,7 +1540,7 @@ void subBoyControl(GObj *volatile a0)
                 ACTSendMailCorrect(a0, 0x97);
                 break;
             }
-            if (GOBJ_SUB(a0)->motion == 135) {
+            if (GOBJ_SUB(a0)->ctrl.motion == 135) {
                 d = 1.0f;
             } else if (s->padNow & 0x20) {
                 d = 1.0f;
@@ -2039,7 +2039,7 @@ void subBoyCollision(GObj *volatile a0)
                     if (isBottomOfChain((void *)sub->chain)) {
                         ACTSendMailCorrect(a0, 0x9D);
                     }
-                } else if (GOBJ_SUB(a0)->motion == 0x76) {
+                } else if (GOBJ_SUB(a0)->ctrl.motion == 0x76) {
                     float bodyori[4];
                     int cor;
                     int ry;
@@ -2081,7 +2081,7 @@ void subBoyCollision(GObj *volatile a0)
                     ACTSendMailCorrect(a0, 0x14B);
                 }
             }
-            if (GOBJ_SUB(a0)->motion == 0x76) {
+            if (GOBJ_SUB(a0)->ctrl.motion == 0x76) {
                 if (sub->stickX - 0x80 < -100) {
                     ACTSendMailCorrect(a0, 0xA0);
                 }
@@ -2654,12 +2654,13 @@ void actBoyTakeWeapon(GObj *volatile a0)
     _OrientXZGV(dir, p, test_CURRENTROOT((void *)a0));
     SetMotionDirection((void *)a0, dir);
     while (1) {
-        if (GOBJ_SUB(a0)->motion == 0xE6) {
-            if (15.0f < GOBJ_SUB(a0)->animFrame && GOBJ_SUB(a0)->animFrame < 48.0f && !picked) {
+        if (GOBJ_SUB(a0)->ctrl.motion == 0xE6) {
+            if (15.0f < GOBJ_SUB(a0)->ctrl.animFrame && GOBJ_SUB(a0)->ctrl.animFrame < 48.0f &&
+                !picked) {
                 PickupWeapon(BOYINFO.nextWeapon, (void *)a0, 6);
                 picked = 1;
             }
-            if (30.0f < GOBJ_SUB(a0)->animFrame && !put) {
+            if (30.0f < GOBJ_SUB(a0)->ctrl.animFrame && !put) {
                 if (BOYINFO.weapon != 0) {
                     ReleaseWeapon(BOYINFO.weapon);
                     ExecuteSEPackage(BOYINFO.weapon, 0x50);
@@ -2667,14 +2668,14 @@ void actBoyTakeWeapon(GObj *volatile a0)
                 PutWeapon();
                 put = 1;
             }
-            if (48.0f < GOBJ_SUB(a0)->animFrame) {
+            if (48.0f < GOBJ_SUB(a0)->ctrl.animFrame) {
                 if (*(BoyAfterFunc *)((char *)sub + 0x14) != 0) {
                     (*(BoyAfterFunc *)((char *)sub + 0x14))(a0);
                     *(BoyAfterFunc *)((char *)sub + 0x14) = 0;
                 }
             }
         } else {
-            if (16.0f < GOBJ_SUB(a0)->animFrame) {
+            if (16.0f < GOBJ_SUB(a0)->ctrl.animFrame) {
                 if (*(BoyAfterFunc *)((char *)sub + 0x14) != 0) {
                     (*(BoyAfterFunc *)((char *)sub + 0x14))(a0);
                     *(BoyAfterFunc *)((char *)sub + 0x14) = 0;
@@ -2872,7 +2873,7 @@ void actBoyPullupReady(GObj *volatile a0)
     ACTAdjustPlane(a0, BOY_WALL(a0) + 0x8C0);
     while (1) {
         if (*(unsigned char *)(BOY_WALL(a0) + 0x4F0) &&
-            motionKind[GOBJ_SUB(a0)->motion].playMode != 1) {
+            motionKind[GOBJ_SUB(a0)->ctrl.motion].playMode != 1) {
             _MoveGV(mv, test_CURRENTROOT((void *)a0), (float *)(BOY_WALL(a0) + 0x500), 3.0f);
             SetRootPosition(a0, mv);
         }
@@ -3032,8 +3033,8 @@ void actBoyReadyMove(GObj *volatile a0)
 
     while (1) {
         if ((((void *)a0 == girlGObj && girlControlMode != 0)
-                 ? (GOBJ_SUB(a0)->motion + motionKind)->girlDirFrames
-                 : (GOBJ_SUB(a0)->motion + motionKind)->dirFrames) == 0) {
+                 ? (GOBJ_SUB(a0)->ctrl.motion + motionKind)->girlDirFrames
+                 : (GOBJ_SUB(a0)->ctrl.motion + motionKind)->dirFrames) == 0) {
             SetMotionDirectionSmooze(a0, ord.dir, 10.0f);
         } else {
             _ACTMotDirSmzDirect((void *)a0, ord.dir);
@@ -3075,7 +3076,7 @@ void actBoyRescueReady(GObj *volatile a0)
     int n1, n2;
     char *hold;
     int u = 0;
-    int gm = GOBJ_SUB(girlGObj)->motion;
+    int gm = GOBJ_SUB(girlGObj)->ctrl.motion;
     int t;
 
     p[0] = test_CURRENTROOT((void *)a0)[0];
@@ -3102,8 +3103,8 @@ void actBoyRescueReady(GObj *volatile a0)
             SetDirectRootPositionNoFitting((void *)a0, np);
         }
         rest--;
-        if (motionKind[GOBJ_SUB(a0)->motion].playMode == 1 || (GOBJ_SUB(a0)->motFlagsLo & 0x16) ||
-            GOBJ_SUB(a0)->word4CC != 0) {
+        if (motionKind[GOBJ_SUB(a0)->ctrl.motion].playMode == 1 ||
+            (GOBJ_SUB(a0)->ctrl.ctrlFlags & 0x16) || GOBJ_SUB(a0)->ctrl.frameEnd != 0) {
             hold = (char *)GOBJ_ACT(girlGObj)->carrier;
             hp = GOBJ_ACT(hold)->modeFrame;
             r = 0;
@@ -3316,7 +3317,7 @@ void actBoyRescueGirlBhang(GObj *volatile a0)
                 SetRootPosition((void *)a0, mv);
             }
         }
-        if (motionKind[GOBJ_SUB(a0)->motion].playMode == 1) {
+        if (motionKind[GOBJ_SUB(a0)->ctrl.motion].playMode == 1) {
             if (mode == 1) {
                 ACTSendMailCorrect(a0, 0x15B);
                 if (girlGObj != 0) {
@@ -3539,7 +3540,7 @@ inline void *GetBoyWeaponGObj(void)
 
 inline void actBoyStand(GObj *volatile a0)
 {
-    MotionDef *row = GOBJ_SUB(a0)->motion + motionKind;
+    MotionDef *row = GOBJ_SUB(a0)->ctrl.motion + motionKind;
 
     if ((row->flags.word >> 8) & 1) {
         ACTAdjustPlane(a0, (char *)GOBJ_ACT(a0)->work + 0x8B0);

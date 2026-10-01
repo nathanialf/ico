@@ -355,7 +355,7 @@ void subAP1BrainMain(volatile int self)
         boyObj = boyGObj;
         GetRootPosition(&selfPos, (GObj *)self);
         GetRootPosition(&boy, boyObj);
-        boy.y -= GOBJ_SUB(boyObj)->height - 10.0f;
+        boy.y -= GOBJ_SUB(boyObj)->root.height - 10.0f;
         boyDist = AP1GetDirection(&boyLocalDir, &boyDelta, &boy, &selfPos);
         boyPitch = AP1GetVerticalAngle(boyObj, &boyLocalDir);
         AP1ToLocal((GObj *)self, &boyLocalDir);
@@ -396,7 +396,7 @@ void subAP1BrainMain(volatile int self)
             CopyVector(&look, &smooth);
         } else {
             GetRootPosition(&look, boyObj);
-            look.y -= GOBJ_SUB(boyObj)->height - 10.0f;
+            look.y -= GOBJ_SUB(boyObj)->root.height - 10.0f;
             hold = 0;
         }
 

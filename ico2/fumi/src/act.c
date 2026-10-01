@@ -266,9 +266,9 @@ void actInitialize_only_charcter(char *self)
     memset(p, 0, 0x980);
     g->work = (int)p;
     q = (Vec4 *)*(char **)(*(char **)(self + 0x164) + 0x688);
-    ((Vec4 *)((char *)q + 0x320))->f[0] = GOBJ_SUB(self)->ikRate0;
-    ((Vec4 *)((char *)q + 0x320))->f[1] = GOBJ_SUB(self)->ikRate1;
-    ((Vec4 *)((char *)q + 0x320))->f[2] = GOBJ_SUB(self)->ikRate2;
+    ((Vec4 *)((char *)q + 0x320))->f[0] = GOBJ_SUB(self)->root.ikRate0;
+    ((Vec4 *)((char *)q + 0x320))->f[1] = GOBJ_SUB(self)->root.ikRate1;
+    ((Vec4 *)((char *)q + 0x320))->f[2] = GOBJ_SUB(self)->root.ikRate2;
     ((ActFWord *)((char *)q + 0x330))->f = -1.0f;
     ((ActFWord *)((char *)q + 0x334))->f = 1.0f;
     ((ActFWord *)((char *)q + 0x348))->f = 3.0f;
@@ -591,7 +591,7 @@ void BeforeFunc(GObj *self)
     g = *(char **)((char *)self + 0x15C);
     *(char **)((char *)w + 0x40) = *(char **)(g + 0x540);
     if ((((&motionKind[*(int *)(*(char **)((char *)self + 0x15C) + 0x4A0)])->f18C >> 1) & 1) != 0 &&
-        GOBJ_SUB(self)->animFrame < 3.0f) {
+        GOBJ_SUB(self)->ctrl.animFrame < 3.0f) {
         w->flags20.ll |= 1LL << 18;
     }
     if (intr != 0) {
@@ -687,14 +687,14 @@ void ACTDebugMove(GObj *a0, int a1)
     float pos[4];
     ActPadStick st;
     Act *ext;
-    char *p;
+    SkelNode *p;
     float h;
     int mode = 1;
     int dbg = 0; /* local debug switch, see the test at the end of the loop */
 
     ext = GOBJ_ACT(self);
-    p = (char *)GOBJ_SUB(self)->skel;
-    h = (p != 0) ? *(float *)(p + 0x14) : 0.0f;
+    p = GOBJ_SUB(self)->skel;
+    h = (p != 0) ? p->pos[1] : 0.0f;
     DisableChangeRootUpdateMode(self);
     SetRootUpdateMode(self, 0);
     while (((ext->padNow & 1) != 0 || mode == 1) && self == (char *)CurrentTargetGObj) {
@@ -782,7 +782,7 @@ void ACTDebugMove(GObj *a0, int a1)
                 SetSimplePlane((float *)((char *)GOBJ_SUB(self) + 0x1D0), 0.0f, -1.0f, 0.0f,
                                pos[1] + h);
                 CopyVector((char *)GOBJ_SUB(self) + 0x250, pos);
-                GOBJ_SUB(self)->groundY += h;
+                GOBJ_SUB(self)->root.footPos[1] += h;
             }
         }
         debug_PrintfDummy(10, 185, 0xFFFFFF00u, "LW's coord:");

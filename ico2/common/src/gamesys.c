@@ -388,15 +388,15 @@ int *gamesysObjInfoPosSetStage(int *self, int a1, int a2, int a3)
     return p;
 }
 
-int *gamesysObjInfoUniqDataSet(int a0)
+int *gamesysObjInfoUniqDataSet(GObj *a0)
 {
     int *p;
-    void (*fn)(int *, int);
+    void (*fn)(int *, GObj *);
     ObjKindEnt *elem;
     int idx;
 
     p = gamesysObjInfoBaseSet((int *)a0, stage_no);
-    idx = ((GObj *)a0)->kind;
+    idx = a0->kind;
     elem = &objKindData[idx];
     fn = elem->uniqDataSet;
     if (fn != 0) {

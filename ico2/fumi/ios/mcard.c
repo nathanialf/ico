@@ -527,7 +527,7 @@ int iosMcHandlerRead(McMgr *mp, unsigned char *buf, int len)
 
             if ((mp->end = mp->f10) == 0) {
                 debug_StdPrintfDummy(
-                    "iosMcHandlerRead: ¥á¥â¥ê¥«¡¼¥É¤«¤é¥Ç¡¼¥¿ÆÉ¤á¤Ê¤«¤Ã¤¿(¥ê¥¯¥¨¥¹¥È¤ÎÊı¤¬¥µ¥¤¥ºÂç¤­¤¤) %d %d\n",
+                    "iosMcHandlerRead: ãƒ¡ãƒ¢ãƒªã‚«ãƒ¼ãƒ‰ã‹ã‚‰ãƒ‡ãƒ¼ã‚¿èª­ã‚ãªã‹ã£ãŸ(ãƒªã‚¯ã‚¨ã‚¹ãƒˆã®æ–¹ãŒã‚µã‚¤ã‚ºå¤§ãã„) %d %d\n",
                     mp->pos, len);
                 mp->f10 = -15;
                 return;

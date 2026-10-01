@@ -1141,9 +1141,9 @@ static inline void QueenStatusUpdate(GObj *g, QueenStatus *st) /* derived name *
     st->prevRatio.f = st->ratio.f;
     st->prevStep = st->step;
 
-    st->motion = GOBJ_SUB(g)->motion;
-    st->ratio.f = GOBJ_SUB(g)->animFrame;
-    st->step = GOBJ_SUB(g)->word4CC;
+    st->motion = GOBJ_SUB(g)->ctrl.motion;
+    st->ratio.f = GOBJ_SUB(g)->ctrl.animFrame;
+    st->step = GOBJ_SUB(g)->ctrl.frameEnd;
     st->changed = 0;
     if (st->motion != st->prevMotion) {
         st->count = 1;
@@ -1252,7 +1252,7 @@ void subQueenBrainMain(volatile int g)
                 }
             }
 
-            switch (GOBJ_SUB(g)->motion) {
+            switch (GOBJ_SUB(g)->ctrl.motion) {
             case 1072:
             case 1077:
             case 1078:
@@ -1263,7 +1263,7 @@ void subQueenBrainMain(volatile int g)
                 ((QueenLookAt *)((char *)GOBJ_SUB(g) + 0x380))->on.i = 1;
             }
 
-            switch (GOBJ_SUB(g)->motion) {
+            switch (GOBJ_SUB(g)->ctrl.motion) {
             case 1073:
             case 1074:
             case 1075:
@@ -1297,7 +1297,7 @@ void subQueenBrainMain(volatile int g)
             case 1078:
                 ((QueenVal *)(ext + 0x130))->motReq =
                     SetMotionRequest((char *)g, 1, ((Act *)ext)->motOriReq);
-                if (GOBJ_SUB(g)->animFrame > 15.0f && ballw->busy == 0 && motionOk != 0) {
+                if (GOBJ_SUB(g)->ctrl.animFrame > 15.0f && ballw->busy == 0 && motionOk != 0) {
                     uv = (stage_no == 37) ? &ballUVScrollSt25[barrierw->damage]
                                           : &ballUVScrollDefault[barrierw->damage];
 

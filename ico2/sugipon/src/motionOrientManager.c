@@ -78,7 +78,7 @@ void orientDebug(void *self, int idx, int y)
     char buf[256];
     MotOriName name;
 
-    switch (motionKind[MOWORK(self)->motion].rootUpdateMode) {
+    switch (motionKind[MOWORK(self)->ctrl.motion].rootUpdateMode) {
     default:
     case 12:
     case 13:
@@ -138,8 +138,8 @@ void orientDebug(void *self, int idx, int y)
     }
     if (debug_window_flag != 0) {
         name = motionOriKind[idx];
-        debug_PrintFontWindow(y, "%s \207 %s (%s)\n", &name, motionKind[MOWORK(self)->motion].name,
-                              buf);
+        debug_PrintFontWindow(y, "%s \207 %s (%s)\n", &name,
+                              motionKind[MOWORK(self)->ctrl.motion].name, buf);
     }
 }
 
@@ -297,7 +297,7 @@ int UpdateFrameCounter(void *self)
             case 17:
             case 20:
                 if (MOWORK(self)->skel != 0) {
-                    float a = 1.0f - MOWORK(self)->waterDepth * MOWORK(self)->scaleRatio;
+                    float a = 1.0f - MOWORK(self)->ctrl.waterDepth * MOWORK(self)->scaleRatio;
 
                     if (a < 0.1f) {
                         a = 0.1f;
@@ -1198,18 +1198,18 @@ void getMotionGeometry(void *self)
     ExecFrameDependSequence(self);
     execFrameTrigger(self);
     UpdateFrameCounter(self);
-    if (stage_no == 16 && MOWORK(self)->wallHit != 0) {
+    if (stage_no == 16 && MOWORK(self)->ctrl.wallHit != 0) {
         void *g = isysGObjSearchFromObjLayoutID(865);
 
         if (g != 0) {
             void *o;
             void *t;
 
-            if ((void *)MOWORK(self)->wallObj == g) {
+            if ((void *)MOWORK(self)->root.wall.o.obj == g) {
                 g = isysGObjSearchFromObjLayoutID(866);
             }
             o = *(void **)MOWORK(g);
-            t = (void *)MOWORK(self)->wallObj;
+            t = (void *)MOWORK(self)->root.wall.o.obj;
             if (*(int *)((char *)o + 0xC) == 17) {
                 if (o == t) {
                     ((Vec16 *)((char *)MOWORK(self) + 0x5A0))->f[0] = 3.40282347e+38f;
@@ -1317,7 +1317,7 @@ void getShapeGeometry(void *self)
 }
 
 /* kept local: int (void *, float *, void *, int) here, int (char *, float *, char *, char *) in motionManager2.h */
-extern int GetStreamMotion(void *dst, float *v, void *sm, int n);
+extern int GetStreamMotion(void *dst, float *v, void *sm, SkelNode *skel);
 
 /* Listing lines 1640-1647: a static inline both stream-geometry functions absorb
  * (once and twice), with no symbol and no census row, so its name is not on
@@ -1557,24 +1557,24 @@ inline void InitMotionOrient(void *self, int a1, int a2, int a3, int a4, int a5)
 
 inline unsigned int GetCurrentMotionDirectionAdjustFlag(GObj *a0)
 {
-    return motionKind[GOBJ_SUB(a0)->motion].modeBits.bits.dirAdjust;
+    return motionKind[GOBJ_SUB(a0)->ctrl.motion].modeBits.bits.dirAdjust;
 }
 
 inline int ExecuteSlipProc(GObj *a0)
 {
     Sub15C *e = a0->dobj;
-    if (e->lastSlipFlags != e->slipFlags) {
+    if (e->ctrl.lastSlipFlags != e->ctrl.slipFlags) {
         StopSEPackageWithGroupVariation(a0, 1);
-        if (GOBJ_SUB(a0)->slipFlags & 0x100000) {
+        if (GOBJ_SUB(a0)->ctrl.slipFlags & 0x100000) {
             ExecuteSEPackageWithGroupVariation(a0, 0x72, 1);
         }
-        if (GOBJ_SUB(a0)->slipFlags & 0x200000) {
+        if (GOBJ_SUB(a0)->ctrl.slipFlags & 0x200000) {
             ExecuteSEPackageWithGroupVariation(a0, 0x74, 1);
         }
-        if (GOBJ_SUB(a0)->slipFlags & 0x400000) {
+        if (GOBJ_SUB(a0)->ctrl.slipFlags & 0x400000) {
             ExecuteSEPackageWithGroupVariation(a0, 0x76, 1);
         }
-        if (GOBJ_SUB(a0)->slipFlags & 0x800000) {
+        if (GOBJ_SUB(a0)->ctrl.slipFlags & 0x800000) {
             ExecuteSEPackageWithGroupVariation(a0, 0x78, 1);
         }
     }
@@ -1584,7 +1584,7 @@ inline int ExecuteSlipProc(GObj *a0)
 inline int ExecutePauseSlipProc(GObj *a0)
 {
     if (systemStatus[5] != 0) {
-        GOBJ_SUB(a0)->lastSlipFlags = 0;
+        GOBJ_SUB(a0)->ctrl.lastSlipFlags = 0;
         StopSEPackageWithGroupVariation(a0, 1);
     }
     return 1;

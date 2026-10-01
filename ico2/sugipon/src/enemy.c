@@ -546,11 +546,11 @@ void EnemyGeo(GObj *self)
         w->timer = w->timer + 1;
     }
 
-    GOBJ_SUB(self)->catchBoy = 0;
-    GOBJ_SUB(self)->word54C = 2;
-    GOBJ_SUB(self)->word548 = 0;
+    GOBJ_SUB(self)->ctrl.catchBoy = 0;
+    GOBJ_SUB(self)->ctrl.wordDC = 2;
+    GOBJ_SUB(self)->ctrl.wordD8 = 0;
     if (GetEnemyTypeFromGObj(self) == 3)
-        GOBJ_SUB(self)->catchBoy = 1;
+        GOBJ_SUB(self)->ctrl.catchBoy = 1;
 
     ExecMotionOrient(self);
 
@@ -560,7 +560,7 @@ void EnemyGeo(GObj *self)
         Sub15C *s = GOBJ_SUB(self);
         if (*(int *)((char *)s + 0x63C) != 0) {
             if (w->f_2C != 0) {
-                if (!(s->motion == 0x3A1 || s->motion == 0x3A2)) {
+                if (!(s->ctrl.motion == 0x3A1 || s->ctrl.motion == 0x3A2)) {
                     GetProjectionOfPlane(buf, (float *)((char *)s + 0x1D0),
                                          (float *)(*(char **)((char *)s + 0xC) +
                                                    *(int *)((char *)s + 0x220) * 0x40 + 0x30));
@@ -571,7 +571,7 @@ void EnemyGeo(GObj *self)
     }
     ExecEnemyFootPrints(w->foot);
 
-    GOBJ_SUB(self)->word558 = (GOBJ_SUB(self)->word558 + 1) % 10;
+    GOBJ_SUB(self)->ctrl.wordE8 = (GOBJ_SUB(self)->ctrl.wordE8 + 1) % 10;
 
     ratio = (*(float *)((char *)GOBJ_SUB(self)->nodes + 0x20) +
              *(float *)((char *)GOBJ_SUB(self)->nodes + 0x24) +
@@ -622,10 +622,10 @@ void EnemyDL(int *self)
 
 void DemoMotionGeo(GObj *self)
 {
-    GOBJ_SUB(self)->hand1Mode = 0;
-    GOBJ_SUB(self)->hand0Mode = 0;
-    GOBJ_SUB(self)->word3B8 = 0;
-    GOBJ_SUB(self)->word3BC = 0;
+    GOBJ_SUB(self)->root.hand1Mode = 0;
+    GOBJ_SUB(self)->root.hand0Mode = 0;
+    GOBJ_SUB(self)->root.lookIK = 0;
+    GOBJ_SUB(self)->root.handTurnIK = 0;
     ExecMotionOrient(self);
 }
 
@@ -818,7 +818,7 @@ void ResetEnemyPositionInfo(GObj *self)
 
     ResetEnemyEye(w->eye0);
     ResetEnemyEye(w->eye1);
-    GOBJ_SUB(self)->word514 =
+    GOBJ_SUB(self)->ctrl.blendFrames =
         (int)((float)((0x3C - systemStatus[0] * 0xA) / systemStatus[1]) / 60.0f * 0.0f);
 }
 

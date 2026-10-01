@@ -104,7 +104,6 @@ static int *bgaPlayList;
 
 static StageAnim stageAnimTable[87];
 
-extern const StgPre stageData[];
 extern GenGeo objLayout[];
 
 /* The layout record a stage object is made with and handed to its init
@@ -121,7 +120,7 @@ typedef struct {
 #include <stdio.h>
 
 /* objAction's row as this TU reads it: the two stage animations the
-   object plays (typedef.h's OaRecB carries them as baseMode and word4) */
+   object plays (typedef.h's OaRecB carries them as baseMode and anim2) */
 typedef struct { /* field names derived */
     int anim[2]; /* 0x00 */
     char pad8[12];
@@ -178,7 +177,7 @@ void stage_MakeGObj(int *dat, int no)
 
 void stage_ApplyData(char *name, char *data)
 {
-    const int *tbl[2] = {&stageData[stage_no].word120, &stageData[stage_no].labelTop};
+    const int *tbl[2] = {&stageData[stage_no].animLayoutFirst, &stageData[stage_no].labelTop};
     char buf[1024];
     int m;
     int i;
@@ -263,7 +262,7 @@ static __inline__ void stageAnimDebugHook(void)
 int stage_Init(void)
 {
     const StgObjDat *p = 0;
-    const int *tbl[2] = {&stageData[stage_no].word120, &stageData[stage_no].labelTop};
+    const int *tbl[2] = {&stageData[stage_no].animLayoutFirst, &stageData[stage_no].labelTop};
     StageGObjInit arg;
     int max = 0;
     int m;

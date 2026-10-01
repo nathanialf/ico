@@ -380,7 +380,7 @@ static inline void setPoolHeightOfFloor(ClipBuf *w)
      * same word of the same work block as `char **`. */
     GObj *obj = w->floor.o.obj;
 
-    skelMotCtrl->obj = obj;
+    skelMotCtrl->pool = obj;
     skelMotCtrl->waterY = GetPoolGlobalHeight(obj);
     skelMotCtrl->waterDepth = w->pt[2][1] - skelMotCtrl->waterY;
 }
@@ -1967,7 +1967,7 @@ ObjNode rootUpdateEnemyFly(void)
     int contact;
 
     AddVectorXYZ(skelRoot->pos, skelRoot->pos, skelRoot->move);
-    if (GOBJ_SUB(skelGObj)->word654 == 0) {
+    if (GOBJ_SUB(skelGObj)->ctrl.noFieldClip == 0) {
         wallCollisionAndReact(0.0f);
         contact = getFlyFieldCollision(&w);
         switch (contact) {
