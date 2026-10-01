@@ -543,6 +543,7 @@ void actConte12Jimaku(GObj *volatile a0)
     _ACTWait(0);
 }
 
+/* kept local: typedef.h carries StgPre but declares no stageData */
 extern const StgPre stageData[];
 
 void actSt25aQueenDeadChk(GObj *volatile a0)

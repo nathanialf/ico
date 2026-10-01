@@ -48,6 +48,7 @@ IosMsgQueue stageMgrMsgQ = {0};
 
 StgSlot stageExitData[15] = {0};
 
+/* kept local: typedef.h carries StgPre but declares no stageData */
 extern const StgPre stageData[];
 
 /* .sbss, owned by StageManager.o (VMA 0x63C348..0x63C350, no MAIN.MAP symbol,

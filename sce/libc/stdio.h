@@ -17,7 +17,7 @@ int printf(const char *fmt, ...);    /* definition in sce/ */
 int sprintf(char *str, const char *fmt, ...);  /* definition in sce/ */
 int sscanf(const char *str, const char *fmt, ...); /* definition in sce/ */
 int vfprintf();
-int vsprintf(void *out, void *a1, void *a2);              /* definition in sce/ */
+int vsprintf(char *out, const char *fmt, char *ap); /* definition in sce/; ap is the va_list, a char * on the EE */
 int fflush(struct Fil *fp);                               /* definition in sce/ */
 int fiprintf(void *fp, void *fmt, ...);                   /* definition in sce/ */
 int vfiprintf(char *fp, char *fmt0, void *ap);            /* definition in sce/ */

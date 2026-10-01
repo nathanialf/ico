@@ -548,6 +548,7 @@ typedef struct {
     unsigned int w[4];
 } EeReg128;
 
+/* kept local: libkernl's tlbfunc.c defines it and sce/'s eekernel.h does not declare it */
 extern int SetDebugHandler();
 
 /* debug_exception_screen.c.inc(476-477, 493-495): blank the character screen
@@ -695,6 +696,7 @@ void debugEEExceptionMain(int arg0, unsigned int cause, unsigned int epc, unsign
     }
 }
 
+/* kept local: libkernl's tlbfunc.c defines it and sce/'s eekernel.h does not declare it */
 extern int SetDebugHandler();
 
 inline void debugExceptionInit(void *workBuf)

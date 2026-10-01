@@ -96,6 +96,7 @@ extern void iosMcChdirProduct(void *a0);
 extern int iosMcSync(unsigned long *a0);
 /* kept local: returns void here, int in mcard.h */
 extern void iosMcLoadProductBlock(void *a0);
+/* kept local: kanban.h does not declare it; kanban.c returns its own Node *, read here as KanbanReq * */
 extern KanbanReq *kanbanReqAdd(int a0, int a1);
 
 int kanbanBootMcCheck(void)

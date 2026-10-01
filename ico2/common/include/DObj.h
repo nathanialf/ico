@@ -14,6 +14,8 @@
 
 #include "sceneManager.h"
 
+struct Sub15C;
+
 /* The parent-link word LinkParentOfDObj copies: one long long the ROM moves with
  * an ld/sd pair off a 4-byte-aligned address, so the struct is packed. */
 typedef struct {
@@ -27,7 +29,7 @@ void FreeDObj(void);
 void LinkParentOfDObj(void *a0, PackedLL_19CAF0 *a1);
 void UnlinkParentOfDObj(void *a0);
 
-char *CSVSYSTEM_InitDObj(int id, SObjSimpleSetting *lay);
+struct Sub15C *CSVSYSTEM_InitDObj(int id, SObjSimpleSetting *lay);
 void initPolygonState(char *d, SObjSimpleSetting *lay);
 
 #endif /* DOBJ_H */

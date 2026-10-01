@@ -107,6 +107,7 @@ void ResetCharFileManager(void)
     InitCameraSetManager();
 }
 
+/* kept local: PObj.c has no header; the definition is (int, int, int) */
 extern PObj *InitPObj(void *buf, int a1, int id);
 
 /* "Illegal Model ID number: %d (\"%s\")\n" / "ReadModelFile:Already loaded. (id:%d)%s\n" / "ReadModelFile:loaded::(id:%d)%s(addr:%p/size:%d)\n" / sprintf above belong to ReadModelFile. */
@@ -182,7 +183,9 @@ void ReadVolumeModelFile(void *h, int a1, int size, int id, int a4, int a5, int 
     iosFree(buf);
 }
 
+/* kept local: PObj.c has no header; the definition is (ObjHdr *, char *, int) */
 extern PObj *AllocPObj(void *buf, int a1, int id);
+/* kept local: Shadow.h (seki) does not declare it; the definition takes PObjModel * */
 extern void shadow_MakeObjectData(PObj *p);
 
 void ReadShadowModelFile(void *h, int a1, int size, int id, int a4, int a5, int a6)
@@ -412,6 +415,7 @@ typedef struct {
     char pad138[92];
 } MotEnt; /* 0x194 */
 
+/* kept local: motionOrientManager.h (sugipon) carries MotionDef and declares no motionKind */
 extern MotEnt motionKind[];
 
 void ReadMotionFile(void *h, int a1, int size, int id, int a4, int a5, int a6)

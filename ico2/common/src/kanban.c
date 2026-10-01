@@ -48,7 +48,8 @@ static const char kanbanOverMsg[] = "かんばんクエストボックスオー�
    origin, the same rectangle src/staffroll.c uses for the roll. */
 static const Pkt16 kanbanSprite = {{-5120, -1792, 10240, 3584}};
 
-extern StgPre stageData[];
+/* kept local: typedef.h carries StgPre but declares no stageData */
+extern const StgPre stageData[];
 
 /* kanban.o's .sdata run (VMA 0x63B498..0x63B4BC, 0x24 B = MAIN.MAP), in the
    ROM's order: kanbanCommonRead (MAIN.MAP global), the sign's initial colour,
@@ -68,7 +69,9 @@ extern char D_0030D014[];
    name, so the twins in ico2/fumi/src/jimaku and ico2/common/src/layout_texture
    are statics too and `static` here keeps this one's ELF symbol local */
 static void display_texture(LtProp *pr, LtProperty *e, KanbanCol *col);
+/* kept local: sce/'s string.h does not declare it */
 extern char *strtok(char *s, const char *sep);
+/* kept local: sce/'s string.h does not declare it */
 extern char *strrchr(const char *s, int c);
 /* kept local: agrees with GifPacket.h, which this TU does not include (gif_SpriteSensitive, gif_SpriteSensitiveOffset differ) */
 extern void gif_EndPacket(void);

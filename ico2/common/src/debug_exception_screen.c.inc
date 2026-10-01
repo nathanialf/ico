@@ -67,6 +67,7 @@ extern void sceVif1PkReset();
 extern void sceVif1PkCnt();
 /* kept local: agrees with libpkt.h, which this TU does not include (sceVif1PkAddGsData, sceVif1PkReset differ) */
 extern void sceVif1PkOpenDirectCode();
+/* kept local: void * and u128_dbgscr here, sceVif1Packet * and u_long128 in libpkt.h */
 extern void sceVif1PkOpenGifTag(void *packet, u128_dbgscr tag);
 /* kept local: void (void *, unsigned long long) here, void (int **, long long) in libpkt.h */
 extern void sceVif1PkAddGsData(void *packet, unsigned long long data);

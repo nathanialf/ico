@@ -73,7 +73,8 @@ static unsigned int fadeLength;
 
 static unsigned int fadeCount;
 
-extern StgPre stageData[];
+/* kept local: typedef.h carries StgPre but declares no stageData */
+extern const StgPre stageData[];
 
 #include "layout_texture.h"
 
@@ -456,6 +457,7 @@ extern void gif_EndPacket(void);
    ltHighlightColor is the second highlight colour, GlobalStageSetting the system record whose
    reduction tint it inverts, and GetTableSin/gif_SpriteSensitiveOffset/
    gif_PointOffset/gif_SetGsReg/rand are its callees. */
+/* kept local: main.h declares it; this TU does not include main.h (pad, systemStatus differ) */
 extern StageSetting GlobalStageSetting;
 /* kept local: z is unsigned int here, long long in GifPacket.h */
 extern void gif_SpriteSensitiveOffset(int *r, unsigned int z, int *uv, unsigned char *col,
@@ -729,7 +731,9 @@ void exec_layout_texture(void)
    init_textures_of_specified_property's loop apart from texProperty's base,
    which no index expression on texProperty gives (measured). */
 extern char D_0030D014[];
+/* kept local: sce/'s string.h does not declare it */
 extern char *strtok(char *s, const char *sep);
+/* kept local: sce/'s string.h does not declare it */
 extern char *strrchr(const char *s, int c);
 
 /* source lines 1249-1259 */

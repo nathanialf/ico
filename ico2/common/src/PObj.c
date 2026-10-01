@@ -216,8 +216,6 @@ static __inline__ void SetPObjVector(Vec v, float x, float y, float z)
     v[3] = 0.0f;
 }
 
-extern void MakeBoundingBox(PObj *p);
-
 typedef struct ObjHdr { /* the loaded model file image */
     char pad0[4];
     int f4;           /* 0x4  object table, file offset then pointer */

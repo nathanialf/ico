@@ -532,8 +532,6 @@ int stageSE06abirdOut(int *self)
     return -1;
 }
 
-extern int stageSEtaimatsu(SEObj *a0);
-
 int stageSE06ataimatsu(int *self)
 {
     float *p = (float *)GetCameraPos((int)self);

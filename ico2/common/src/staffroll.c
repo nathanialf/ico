@@ -70,6 +70,7 @@ void staffRollStart(float t, int alpha)
     memset(rollLines, 0, sizeof(rollLines));
 }
 
+/* kept local: DisplayFont.h (seki) does not declare it; the definition's parameters differ */
 extern void font_Print(unsigned int attr, char *str, int size, StaffRollCol col, float x, float y);
 
 /* The scroll loop walks the 300-entry table by BYTE offset and spells the base

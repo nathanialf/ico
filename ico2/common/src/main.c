@@ -115,6 +115,7 @@ static const ThreadTbl allThreads = {{&mainThread, &schedulerThread, &mcThread, 
  * DImode `dli` the assembler expands into the adjacent lui/ori pair the ROM has. */
 void idle(void);
 void scheduler(void);
+/* kept local: motionOrientManager.h (sugipon) carries MotOriName and declares no movieFile */
 extern char movieFile[];
 /* gsb_ResetSnap and gsb_TakeSnap return a value the callers drop, and the ROM
    proves it here: the load that follows each of the two calls takes $3, not
@@ -123,11 +124,17 @@ extern char movieFile[];
    gsb_TakeSnap). Their definitions in ico2/seki/src/GsBase.c are empty, so the
    declaration is the only evidence; GsBase.o is byte-identical either way. */
 extern int gsb_ResetSnap(void);
+/* kept local: mv_main.h (ito) does not declare it; the definition takes char * and returns int */
 extern void movie_init(void *p, int w, int h, int a3, int a4, int a5, int col);
+/* kept local: geometryManager.h (sugipon) does not declare it */
 extern void MakeCharGObjList(void);
+/* kept local: StageAnimation.h (seki) does not declare it */
 extern void stage_ResetAnimation(void);
+/* kept local: StageAnimation.h (seki) does not declare it */
 extern void stage_CalcAnimationNoParent(void);
+/* kept local: StageAnimation.h (seki) does not declare it */
 extern void stage_CalcAnimationParent(void);
+/* kept local: int, as the note above gsb_ResetSnap gives; GsBase.h (seki) does not declare it */
 extern int gsb_TakeSnap(void);
 int movie_abort_check(void);
 

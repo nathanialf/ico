@@ -4,7 +4,7 @@
 #include <string.h>
 #include <reent.h>
 
-int vsprintf(void *out, void *a1, void *a2)
+int vsprintf(char *out, const char *fmt, char *ap)
 {
     char s[0x60];
     int n;
@@ -14,7 +14,7 @@ int vsprintf(void *out, void *a1, void *a2)
     *(void **)(s + 0x10) = out;
     *(int *)(s + 0x14) = 0x7FFFFFFF;
     *(int *)(s + 0x54) = (int)_impure_ptr;
-    n = vfprintf(s, a1, a2);
+    n = vfprintf(s, fmt, ap);
     *(char *)(*(void **)(s + 0x0)) = 0;
     return n;
 }

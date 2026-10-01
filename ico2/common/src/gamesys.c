@@ -196,8 +196,6 @@ GamesysObjInfo *gamesysObjInfoEmptyAreaSearch(GamesysObjInfoReq *req)
     return p;
 }
 
-extern GamesysObjInfo *gamesysObjInfoEmptyAreaSearch(GamesysObjInfoReq *req);
-
 int *gamesysObjInfoBaseSet(int *self, int stage)
 {
     GamesysObjInfoReq req;

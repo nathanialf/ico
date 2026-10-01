@@ -455,7 +455,7 @@ static inline void makeSlotTable(char *d)
     }
 }
 
-char *CSVSYSTEM_InitDObj(int id, SObjSimpleSetting *lay)
+Sub15C *CSVSYSTEM_InitDObj(int id, SObjSimpleSetting *lay)
 {
     char *d;
 
@@ -478,7 +478,7 @@ char *CSVSYSTEM_InitDObj(int id, SObjSimpleSetting *lay)
         makeSlotTable(d);
     }
     debug_StdPrintfDummy("\x1b[35mEND OF INIT DOBJ\x1b[m\n");
-    return d;
+    return (Sub15C *)d;
 }
 
 inline void LinkParentOfDObj(void *a0, PackedLL_19CAF0 *a1)

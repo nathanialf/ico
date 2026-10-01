@@ -65,7 +65,8 @@ typedef struct {
     int work[4];          /* 0x30 */
 } GamesysObjInfoBackstage;
 
-extern StgPre stageData[];
+/* kept local: typedef.h carries StgPre but declares no stageData */
+extern const StgPre stageData[];
 
 /* the actor work record a gobj carries at 0x164 (src/enemy_act.c reads the same
    0x444 member off the same 0x164 pointer) */
@@ -79,6 +80,7 @@ typedef struct {
    does not include gamesys.h) */
 /* kept local: GamesysObjInfoBackstage [] here, GamesysObjInfo [] in gamesys.h */
 extern GamesysObjInfoBackstage gameSysObjInfo[];
+/* kept local: gamesys.h declares it; this TU does not include gamesys.h (see above) */
 extern GenGeo objLayout[];
 
 /* .bss, owned by backStage.o and reached only from this file: the nest position

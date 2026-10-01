@@ -123,6 +123,7 @@ inline void MoveNextStage_Clear(void)
     nextStageNo = -1;
 }
 
+/* kept local: typedef.h carries StgPre but declares no stageData */
 extern const StgPre stageData[];
 
 int GetRealModelId(int stageNo, char *gen)
@@ -163,7 +164,6 @@ plain:
 /* sceneManager.c:213-313.  GlobalStageSetting is the system's StageSetting
    record (typedef.h).  The stage-preset record is read through the stageData[stage] subscript on
    every line, which is what the listing's per-line pointer copies show. */
-extern StageSetting GlobalStageSetting;
 /* kept local: Texture.h declares it (void); the callers here pass 0 */
 extern int tex_RemakeRegistersSampleMin(int a);
 
@@ -266,15 +266,16 @@ void InitStageLight(int stage)
     tex_RemakeRegistersSampleMin(0);
 }
 
-inline char *CreateLayoutedGObj(int id, int a1, int a2, int a3, void *lay, int a5, int a6, int a7)
+inline GObj *CreateLayoutedGObj(int id, int a1, int a2, int a3, void *lay, int a5, int a6, int a7)
 {
     ObjKindEnt *layout = &objKindData[id];
-    char *gobj = CreateGObj(layout, id, a5, a6, a7);
-    int dobj = CSVSYSTEM_InitDObj(a1, lay);
+    GObj *gobj = CreateGObj(layout, id, a5, a6, a7);
+    Sub15C *dobj = CSVSYSTEM_InitDObj(a1, lay);
     int (*fn)(char *, int);
 
-    *(int *)&((GObj *)gobj)->dobj = dobj;
-    ((Sub15C *)dobj)->accessary = a2;
+    /* the 0x15C slot is the int handle GOBJ_SUB reads (typedef.h) */
+    *(int *)&gobj->dobj = (int)dobj;
+    dobj->accessary = a2;
 
     light_AddLight(gobj, a3, 1);
 
@@ -292,16 +293,21 @@ typedef union {
 
 /* RECONSTRUCTION: the 0x40-byte actor-init record CreateLayoutedGObj hands to the
    kind's constructor: position, angle and scale as VU0 vectors, then the
-   generator's word at 0x38.  The vectors' 16-byte alignment is what makes gcc
+   generator's word at 0x30.  The vectors' 16-byte alignment is what makes gcc
    copy the record with eight ld/sd pairs, and the record has exactly the four
    members initSceneGObj's constructor names, so store_constructor fills the
    temporary without clearing it first (the ROM has no clear); 0x34..0x3F is
-   the alignment tail, copied but never written. */
+   the alignment tail, copied but never written.
+   PINNED: this is SObjSimpleSetting's shape (attackCheckBoundary.c's AcbLayout
+   is the same record).  Declaring SObjSimpleSetting with these vectors leaves
+   every includer's .text identical but makes InitialSObjSimpleSetting's .data
+   16-aligned where the gated object is 8; the ELF places it at 0x4E45C0
+   either way, so the ROM does not decide, and the record stays separate. */
 typedef struct {
     sceVu0FVECTOR pos;   /* 0x00 */
     sceVu0FVECTOR ang;   /* 0x10 */
     sceVu0FVECTOR scale; /* 0x20 */
-    int f30;             /* 0x30 */
+    int obj;             /* 0x30 */
 } ActInit;
 
 /* sceneManager.c:118-127: the static helper that restores the position the

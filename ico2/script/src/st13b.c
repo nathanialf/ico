@@ -36,7 +36,8 @@ static unsigned char padActVolume;
 static int doorUpDone;
 
 /* st13b.o's own .data run (no MAIN.MAP symbols): actor mail packets. */
-extern StgPre stageData[];
+/* kept local: typedef.h carries StgPre but declares no stageData */
+extern const StgPre stageData[];
 
 static ActMail floor_mes[2] = {{430}, {429}};
 

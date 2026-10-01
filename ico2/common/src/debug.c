@@ -17,6 +17,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <eekernel.h>
+#include <sound.h>
 #include <sifdev.h>
 #include <libvu0.h>
 #include "gamesys.h"
@@ -466,8 +467,6 @@ static int startStageNo = -1; /* derived name */
 
 int debugBackGroundDisableFlag = 0;
 
-extern int debug_bar_flag;
-
 /* the areas debug_Load parcels its files into; the report prints how much of
    each one is in use once the file has been allocated out of it */
 
@@ -646,6 +645,7 @@ typedef struct {
     int x, y, z, w;
 } DbgVtx;
 
+/* kept local: brain.h (omori) does not declare it */
 extern float brainGetLevel(Brain *b, BrainTarget *t);
 /* kept local: z0 is unsigned int here, long long in GifPacket.h; z1 is unsigned int here, long long in GifPacket.h */
 extern void gif_Line(int *v0, int *v1, unsigned int z0, unsigned int z1, unsigned char *col,
@@ -724,12 +724,15 @@ typedef struct {
 /* kept local: the store-image entry points are not declared in libgraph.h */
 extern void sceGsSetDefStoreImage(void *si, short fbp, short fbw, short psm, short x, short y,
                                   short w, short h);
+/* kept local: libgraph.h does not declare it */
 extern void sceGsExecStoreImage(void *si, unsigned int addr);
+/* kept local: libgcc's dp-bit.c helper, which no header declares */
 extern float dptofp(double v);
 
 /* clang-format on */
 
-extern StgPre stageData[];
+/* kept local: typedef.h carries StgPre but declares no stageData */
+extern const StgPre stageData[];
 
 /* memory-card request block */
 /* one sceMcTblGetDir record: the file name sits at +0x20 in a 0x40-byte entry
@@ -795,6 +798,7 @@ typedef struct {
 extern void iosMcLoadProductBlock(void *a0);
 /* kept local: returns void here, int in mcard.h */
 extern void iosMcLoadGameBlock(void *a0, int a1);
+/* forward declaration: defined below, on this TU's McReq view */
 extern int debug_selectFile(McReq *mc);
 /* kept local: returns void here, int in mcard.h */
 extern void iosMcDelete(void *a0);
@@ -813,11 +817,12 @@ typedef struct {
     char *msg;
 } McTypeMsg;
 
+/* kept local: layout_action.c's block in this TU's McReq view (layout_action.h) */
 extern McReq mc;
 /* kept local: returns void here, int in mcard.h */
 extern void iosMcGetInfo(void *a0);
+/* kept local: GsysObjInfo [] here; s_init.h (fumi) carries SeDef and declares no seDef */
 extern GsysObjInfo seDef[];
-extern int SgGetSlotStatus(int a0, int slot);
 
 /* src/debug.c:5364-5376 in the listing: the sibling of debug_ListPadControlGobj
    that lists the actor GObjs the debug menu can print (kinds 1, 2, 4 and 0x2F). */
@@ -832,6 +837,7 @@ typedef struct {
     int val;
 } DbgBoxVal;
 
+/* kept local: camera-editor.h (omori) does not declare it; the definition takes BoxVec * */
 extern void DebugDispBox(float *centre, float *width);
 
 /* one editable value of the debug ball: its label and the cell it moves */
@@ -863,13 +869,19 @@ typedef struct {
 /* The strings these tables point at stay blob-owned by address until the
    TU's plain .rodata and .sdata runs close up. */
 /* the menu's handlers defined further down this file or in other TUs */
+/* kept local: GsBase.h (seki) does not declare it */
 extern int gsb_StageSetting(void);
+/* kept local: motionViewer.c (sugipon) has no header that declares it */
 extern int MotionViewer(void);
+/* kept local: effectTool.h (sugipon) does not declare it */
 extern int EffectTool(void);
+/* kept local: Texture.h (seki) does not declare it */
 extern int tex_ListTool(void);
 /* kept local: pad.h cannot declare it while effectTool.c and camera-ico2.c
    declare it as a char array */
+/* kept local: pad.c's record (fumi); no header declares it */
 extern PadConf iosPadConfDefault;
+/* kept local: motionManager2.h (sugipon) does not declare it; the definition takes int * */
 extern void DebugDisp1Collision(void *hit);
 /* Profiler bar table: 0x400 entries of 0x1C bytes; debugBarCount = live count.
    Callers pass (label, colour, __FILE__, __LINE__) -- see the call sites in

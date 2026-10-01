@@ -11,6 +11,7 @@
 #include "kanbanBoot.h"
 #include "script.h"
 #include "GsBase.h"
+#include <libcdvd.h>
 #include <string.h>
 #include "StageAnimation.h"
 #include "Basic.h"
@@ -190,6 +191,7 @@ extern R1F0 IosMcProductFile[];
 extern int IosMcPreviewInfo[];
 /* the custom pad configuration ios/pad.c owns; kept local: pad.h cannot
    declare it while camera-root.c declares it as a char array */
+/* kept local: pad.c's record (fumi); no header declares it */
 extern PadConf iosPadConfCustom;
 
 /* the memory-card error messages, VMA 0x61D760..0x61D840 */
@@ -2237,7 +2239,7 @@ extern void iosMcSaveGameBlock(void *a0, int a1);
 /* the CD real-time clock record sceCdReadClock fills in; kept local because
    the disc records no declaration-only header and seki/src/GsBase.c carries
    the same pair for the same reason. */
-typedef struct {
+typedef struct sceCdCLOCK {
     unsigned char stat;
     unsigned char second;
     unsigned char minute;
@@ -2247,8 +2249,6 @@ typedef struct {
     unsigned char month;
     unsigned char year;
 } sceCdCLOCK;
-
-extern int sceCdReadClock(sceCdCLOCK *clock);
 
 /* layout_action.c:1766-1776 in the listing: the save serial, the clock
    packed into one word or a random number when the clock cannot be read;

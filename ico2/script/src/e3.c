@@ -1101,13 +1101,14 @@ void actE3Warning(GObj *volatile a0)
     RequestStageChange(1, boyGObj, 0, 255.0f, 0.0f);
 }
 
-extern StgPre stageData[];
+/* kept local: typedef.h carries StgPre but declares no stageData */
+extern const StgPre stageData[];
 
 void actE3Inst1(GObj *volatile a0)
 {
     GObj *x = a0;
     Act *sub = (Act *)actInitialize(a0);
-    StgPre *pre;
+    const StgPre *pre;
 
     _ACTWait(1);
 

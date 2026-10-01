@@ -149,6 +149,7 @@ extern void SetMotionDirection(void *a0, float *a1);
 /* SCE VU0 library: sceVu0Normalize(dst, src) -- normalised in place here, so
    the second argument is already in $a1 and cse drops the redundant copy. */
 
+/* kept local: sugipon's motionKind (MotionDef, motionOrientManager.h) in this TU's view */
 extern struct MotTblRec {
     char pad0[390];
     short smzAngle;
@@ -212,7 +213,8 @@ typedef struct {
 
 /* the per-stage records: row [stage_no], entry .ent[no - 1] the stage's
    exits in exitData. */
-extern StgPre stageData[];
+/* kept local: typedef.h carries StgPre but declares no stageData */
+extern const StgPre stageData[];
 /* kept local: agrees with motionManager2.h, which this TU does not include (SetMotionNodeFixModeParameter differs) */
 extern int GetSkeltonFocusNode(char *a0, int a1);
 

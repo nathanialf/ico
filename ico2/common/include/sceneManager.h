@@ -30,7 +30,7 @@ extern SObjSimpleSetting InitialSObjSimpleSetting;
  * gcc 2.9 emits the deferred out-of-line copy of a plain-inline function in
  * first-declaration order, so this is the order sceneManager.c's inline tail has. */
 void ChangeStageStartInfo(int a0, int a1, int a2, int a3, int t0);
-char *CreateLayoutedGObj(int id, int a1, int a2, int a3, void *lay, int a5, int a6, int a7);
+struct GObj *CreateLayoutedGObj(int id, int a1, int a2, int a3, void *lay, int a5, int a6, int a7);
 void MoveNextStage_Set(float *a0, float *a1, int a2, int a3, int a4, int a5);
 void test_nextstage_firstwalk_set(int unused, int a, int b, int c);
 int GetStageStartInfo(struct GObj *a0, int a1, int a2, int *p, int *q, int *r);

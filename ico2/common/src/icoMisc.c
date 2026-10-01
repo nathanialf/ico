@@ -43,6 +43,7 @@
 #include "main.h"
 #include "windField.h"
 
+/* kept local: debug.h leaves it out (see there) */
 extern int debug_bar_flag;
 
 /* .sdata, owned by icoMisc.o (VMA 0x63B428..0x63B494, 0x6C B = MAIN.MAP), in
@@ -253,12 +254,19 @@ static int seEnvMute = 0; /* derived name */
 static int diskErrorBlink = 0; /* derived name */
 
 /* debug_Printf comes from debug.h */
+/* kept local: particleEffect.h (sugipon) does not declare it */
 extern void ExecParticleEffects(void);
+/* kept local: streamMotionManager.h (sugipon) does not declare it */
 extern void ExecStreamMotionManager(void);
+/* kept local: windManager.h (sugipon) does not declare it */
 extern void ExecWindManager(void);
+/* kept local: spiderGroupManager.h (sugipon) does not declare it */
 extern void ExecSpiderGroupManager(void);
+/* kept local: the definition in script.c is (void); this caller passes the camera */
 extern void scpGirlHintVoiceTickProc(int cam);
+/* kept local: fightSound.h (omori) does not declare it */
 extern void fightSoundProcess(void);
+/* kept local: ebrain.h (omori) does not declare it */
 extern void eBrainProcess(void);
 
 void ExecIcoMisc(void)
@@ -378,11 +386,15 @@ typedef struct {
     unsigned int _21 : 31;
 } EffEnt;
 
-extern StgPre stageData[];
+/* kept local: typedef.h carries StgPre but declares no stageData */
+extern const StgPre stageData[];
+/* kept local: motionOrientManager.h (sugipon) carries MotionDef and declares no motionKind */
 extern const ScnPre motionKind[];
 /* the effect table is read-only here; the const frees its loads and is what the
    ROM's schedule shows (RTX_UNCHANGING_P, see the printf site in the scan loop) */
+/* kept local: EffEnt here, EffEntry in frameDependSequence.h (sugipon) */
 extern const EffEnt motionEffKind[];
+/* kept local: effectTool.c's table (sugipon); no header declares it */
 extern char particleEffectFile[][80];
 
 static unsigned char setActorsDebugPending = 1; /* derived name */
@@ -397,14 +409,21 @@ static int loadedMotionSeg = -1; /* derived name */
    named sbss symbols); the frame stamp the load-time report below prints. */
 static int load_time;
 
+/* kept local: staticBlur.h (sugipon) does not declare it */
 extern void InitializeStaticBlur(void);
 /* kept local: agrees with flyManager.h, which this TU does not include */
 extern void InitFlyManager(void);
+/* kept local: Light.h (seki) does not declare it */
 extern void light_InitLight(void);
+/* kept local: EnemyInit.h (seki) does not declare it */
 extern void enemy_Initialize(void);
+/* kept local: ZFog.h (seki) does not declare it */
 extern void fog_MakeFogClut(void);
+/* kept local: particleEffect.h (sugipon) does not declare it */
 extern void InitParticleEffects(void);
+/* kept local: GsBase.h (seki) does not declare it */
 extern void gsb_ResetFilmNoise(void);
+/* kept local: StageAnimation.h (seki) does not declare it; the definition returns int */
 extern void stage_Init(void);
 
 void InitIcoMisc(int *arg)
