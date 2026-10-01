@@ -28,6 +28,50 @@
 #include "main.h"
 #include "fieldCollision.h"
 
+/* RECONSTRUCTION, read from the ROM.  A bomb's fuse: the torch object that
+   lights it, the frames left to burn, the fuse state (0 unlit, 1 burning,
+   2 exploding, 3 spent), where the explosion is centred and its animation
+   slot. */
+typedef struct {
+    char *torch;  /* 0x00 */
+    int time;     /* 0x04 */
+    int state;    /* 0x08 */
+    int padC;     /* 0x0C */
+    float pos[4]; /* 0x10 */
+    char *anim;   /* 0x20 */
+    int animMode; /* 0x24 */
+} ItemFuse;
+
+/* RECONSTRUCTION, read from the ROM.  The 160-byte work record InitItemGeo
+   allocates and fills from emptyItemWork: the dead flag, the kind (1 a bomb),
+   the carry state and holder, the rotation relative to the holder, the
+   bobbing spin, the fuse, the explosion's animation slot, the pool drift and
+   the wave phase.  8-aligned: the template copy is ld/sd pairs. */
+typedef struct {
+    int dead;       /* 0x00 */
+    int kind;       /* 0x04 */
+    int released;   /* 0x08 */
+    int held;       /* 0x0C */
+    int thrown;     /* 0x10 */
+    int holder;     /* 0x14, the holding object: an int, ItemGeo's store
+                          of 0 must share the int alias set of the object-sub
+                          load after it */
+    int pad18[2];   /* 0x18 */
+    float rot[4];   /* 0x20 */
+    float spin;     /* 0x30 */
+    int spinCount;  /* 0x34 */
+    int pad38[2];   /* 0x38 */
+    ItemFuse fuse;  /* 0x40 */
+    int pad68[2];   /* 0x68 */
+    int inPool;     /* 0x70 */
+    int sleep;      /* 0x74 */
+    int pad78[2];   /* 0x78 */
+    float drain[4]; /* 0x80 */
+    short wave;     /* 0x90 */
+    short pad92;    /* 0x92 */
+    int pad94[3];   /* 0x94 */
+} __attribute__((aligned(8))) ItemWork;
+
 void bombSparkStartSE(int a0)
 {
     ExecuteSEPackage(a0, 0x32);
@@ -48,8 +92,8 @@ void bombExplodeSE(int a0)
    is inlined into HoldItem, StopItemExplodeAnimationAll and GetBombTorchGObj. */
 static inline int IsItemKindBomb(char *gobj)
 {
-    char *p = *(char **)(*(char **)(gobj + 0x15C) + 0x830);
-    return *(int *)(p + 4) == 1;
+    ItemWork *p = (ItemWork *)*(char **)(*(char **)(gobj + 0x15C) + 0x830);
+    return p->kind == 1;
 }
 
 /* kept local: void (const char *, int) here, void (char *, int) in debug_exception.h */
@@ -60,7 +104,7 @@ void HoldItem(char *gobj, char *holder)
 {
     float q[4];
     float hq[4];
-    char *p;
+    ItemWork *p;
 
     if (gobj == 0) {
         /* lost sight of the small barrel but is still trying to grab it */
@@ -68,10 +112,10 @@ void HoldItem(char *gobj, char *holder)
         debug_assert(__FILE__, 0x164);
         __assert(__FILE__, 0x164, "0");
     }
-    p = (char *)*(int *)(*(int *)(gobj + 0x15C) + 0x830);
-    *(int *)(p + 8) = 0;
-    *(int *)(p + 0xC) = 1;
-    *(char **)(p + 0x14) = holder;
+    p = (ItemWork *)*(int *)(*(int *)(gobj + 0x15C) + 0x830);
+    p->released = 0;
+    p->held = 1;
+    p->holder = (int)holder;
     *(int *)(*(int *)(gobj + 0x15C) + 0x74) = 0;
     SetIdentityQuaternion((char *)*(int *)(gobj + 0x15C) + 0x150);
     if (IsItemKindBomb(gobj)) {
@@ -80,7 +124,7 @@ void HoldItem(char *gobj, char *holder)
     GetRootQuaternion(q, gobj);
     GetRootQuaternion(hq, holder);
     GetInverseQuaternion(hq, hq);
-    MultiQuaternion(p + 0x20, hq, q);
+    MultiQuaternion(p->rot, hq, q);
 }
 
 /* src/item.c:266-271 in the January-2002 listing: a static helper with no
@@ -90,25 +134,16 @@ void HoldItem(char *gobj, char *holder)
 static inline void setItemDead(char *gobj)
 {
     char *w = (char *)*(int *)(gobj + 0x15C);
-    char *p = (char *)*(int *)(w + 0x830);
+    ItemWork *p = (ItemWork *)*(int *)(w + 0x830);
 
     *(int *)(w + 0x74) = 0;
-    *(int *)p = 1;
+    p->dead = 1;
     *(int *)(gobj + 0x16C) = 0;
 }
 
-typedef struct {
-    long long pad00[5];
-    int pad28;
-    float f2C;
-    long long pad30[2];
-    int pad40;
-    int f44;
-    long long pad48[11];
-} ItemWorkImage;
-
 /* item.o's whole .data run, in the order the object emits it. */
-static ItemWorkImage emptyItemWork = {{0}, 0, 1.0f, {0}, 0, 300, {0}};
+static ItemWork emptyItemWork = {0,    0, 0,   0,       0, 0, {0}, {0.0f, 0.0f, 0.0f, 1.0f},
+                                 0.0f, 0, {0}, {0, 300}};
 
 /* The velocity a released item starts from. */
 static float zeroVelocity[4] = {0.0f, 0.0f, 0.0f, 0.0f};
@@ -149,12 +184,12 @@ void avoidInsideOfWall(void *self, int arg)
 
 void ReleaseItem(char *gobj)
 {
-    char *p = (char *)*(int *)(*(int *)(gobj + 0x15C) + 0x830);
-    avoidInsideOfWall(gobj, *(int *)(p + 0x14));
-    *(int *)(p + 8) = 1;
-    *(int *)(p + 0xC) = 0;
-    *(int *)(p + 0x14) = 0;
-    *(int *)(p + 0x10) = 0;
+    ItemWork *p = (ItemWork *)*(int *)(*(int *)(gobj + 0x15C) + 0x830);
+    avoidInsideOfWall(gobj, p->holder);
+    p->released = 1;
+    p->held = 0;
+    p->holder = 0;
+    p->thrown = 0;
     *(int *)(*(int *)(gobj + 0x15C) + 0x74) = 1;
     CopyVector((char *)*(int *)(gobj + 0x15C) + 0x130, zeroVelocity);
     SetIdentityQuaternion((char *)*(int *)(gobj + 0x15C) + 0x150);
@@ -162,11 +197,11 @@ void ReleaseItem(char *gobj)
 
 void ThrowItem(char *gobj, void *vel)
 {
-    char *p = *(char **)(*(char **)(gobj + 0x15C) + 0x830);
-    avoidInsideOfWall(gobj, *(int *)(p + 0x14));
-    *(int *)(p + 8) = 1;
-    *(int *)(p + 0xC) = 0;
-    *(int *)(p + 0x10) = 1;
+    ItemWork *p = (ItemWork *)*(char **)(*(char **)(gobj + 0x15C) + 0x830);
+    avoidInsideOfWall(gobj, p->holder);
+    p->released = 1;
+    p->held = 0;
+    p->thrown = 1;
     _ScaleVectorXYZ(*(char **)(gobj + 0x15C) + 0x130, vel,
                     30.0f / (float)((0x3C - systemStatus[0] * 0xA) / systemStatus[1]));
     SetIdentityQuaternion(*(char **)(gobj + 0x15C) + 0x150);
@@ -202,14 +237,14 @@ char *InitItemGeo(char *gobj, ItemLayout *layout)
     ItemParentLink link;
     ItemLayout lay;
     char *w = (char *)*(int *)(gobj + 0x15C);
-    char *p = (char *)iosMallocDebug(ios_partition_sugipon, 0xA0, __FILE__, 446);
+    ItemWork *p = iosMallocDebug(ios_partition_sugipon, 0xA0, __FILE__, 446);
 
-    *(char **)((char *)*(int *)(gobj + 0x15C) + 0x830) = p;
-    *(ItemWorkImage *)p = emptyItemWork;
-    *(int *)(p + 4) = layout->f_30;
+    *(ItemWork **)((char *)*(int *)(gobj + 0x15C) + 0x830) = p;
+    *p = emptyItemWork;
+    p->kind = layout->f_30;
     *(int *)(w + 0x78) = 0;
-    if (*(int *)(p + 4) == 1) {
-        char *rec = (char *)*(int *)(*(int *)(gobj + 0x15C) + 0x830);
+    if (p->kind == 1) {
+        ItemWork *rec = (ItemWork *)*(int *)(*(int *)(gobj + 0x15C) + 0x830);
         char *g;
 
         link.p_0 = gobj;
@@ -220,12 +255,12 @@ char *InitItemGeo(char *gobj, ItemLayout *layout)
         SetTorchChainReactionFlag(g, 1);
         LinkParentOfDObj(g, &link);
         CopyVector((char *)*(int *)(g + 0x15C) + 0xA0, itemDropOfs);
-        *(char **)(rec + 0x40) = g;
-        *(int *)(rec + 0x44) =
+        rec->fuse.torch = g;
+        rec->fuse.time =
             (int)((float)((0x3C - systemStatus[0] * 0xA) / systemStatus[1]) / 60.0f * 300.0f);
     }
     gamesysObjInfoCls(*(int *)(gobj + 0xC), *(int *)(gobj + 8));
-    return p;
+    return (char *)p;
 }
 
 /* The holder's 0x15C sub-handle is read through the SubHandle union at every
@@ -243,28 +278,28 @@ void carriedItemGeo(char *gobj)
     Vec16 up;
     unsigned short ang[2];
     Vec16 adj;
-    char *rec = (char *)*(int *)(*(int *)(gobj + 0x15C) + 0x830);
+    ItemWork *rec = (ItemWork *)*(int *)(*(int *)(gobj + 0x15C) + 0x830);
 
-    if (*(int *)((char *)((SubHandle *)(*(char **)(rec + 0x14) + 0x15C))->i + 0x604) != 0) {
-        int isPlayer = *(char **)(rec + 0x14) == girlGObj;
+    if (*(int *)((char *)((SubHandle *)((char *)rec->holder + 0x15C))->i + 0x604) != 0) {
+        int isPlayer = (char *)rec->holder == girlGObj;
         int node = isPlayer ? 6 : 22;
 
         if (isPlayer) {
             _ApplyMatrix(
                 &pos,
-                (char *)*(int *)((char *)((SubHandle *)(*(char **)(rec + 0x14) + 0x15C))->i + 0xC) +
-                    GetSkeltonFocusNode(*(char **)(rec + 0x14), node) * 0x40,
+                (char *)*(int *)((char *)((SubHandle *)((char *)rec->holder + 0x15C))->i + 0xC) +
+                    GetSkeltonFocusNode((char *)rec->holder, node) * 0x40,
                 carryOfsPlayer);
         } else {
             _ApplyMatrix(
                 &pos,
-                (char *)*(int *)((char *)((SubHandle *)(*(char **)(rec + 0x14) + 0x15C))->i + 0xC) +
-                    GetSkeltonFocusNode(*(char **)(rec + 0x14), node) * 0x40,
+                (char *)*(int *)((char *)((SubHandle *)((char *)rec->holder + 0x15C))->i + 0xC) +
+                    GetSkeltonFocusNode((char *)rec->holder, node) * 0x40,
                 carryOfsOther);
         }
         CopyQuaternion(
-            q, (char *)*(int *)((char *)((SubHandle *)(*(char **)(rec + 0x14) + 0x15C))->i + 0x10) +
-                   GetSkeltonFocusNode(*(char **)(rec + 0x14), node) * 0x10);
+            q, (char *)*(int *)((char *)((SubHandle *)((char *)rec->holder + 0x15C))->i + 0x10) +
+                   GetSkeltonFocusNode((char *)rec->holder, node) * 0x10);
         if (isPlayer) {
             RotQuaternionX(q, -16384);
         } else {
@@ -272,31 +307,30 @@ void carriedItemGeo(char *gobj)
         }
         SetRootQuaternion(gobj, q);
     } else {
-        int node = GetSkeltonFocusNode(*(char **)(rec + 0x14), 1);
+        int node = GetSkeltonFocusNode((char *)rec->holder, 1);
 
-        CopyVector(
-            &wpos,
-            (char *)*(int *)((char *)((SubHandle *)(*(char **)(rec + 0x14) + 0x15C))->i + 0xC) +
-                GetSkeltonFocusNode(*(char **)(rec + 0x14), 22) * 0x40 + 0x30);
+        CopyVector(&wpos,
+                   (char *)*(int *)((char *)((SubHandle *)((char *)rec->holder + 0x15C))->i + 0xC) +
+                       GetSkeltonFocusNode((char *)rec->holder, 22) * 0x40 + 0x30);
         MatrixDrive_SetTransposeMatrix(
-            m, (char *)*(int *)((char *)((SubHandle *)(*(char **)(rec + 0x14) + 0x15C))->i + 0xC) +
+            m, (char *)*(int *)((char *)((SubHandle *)((char *)rec->holder + 0x15C))->i + 0xC) +
                    node * 0x40);
         _ApplyMatrix(q, m, &wpos);
         q[2] = 0.0f;
         _ApplyMatrix(
             &pos,
-            (char *)*(int *)((char *)((SubHandle *)(*(char **)(rec + 0x14) + 0x15C))->i + 0xC) +
+            (char *)*(int *)((char *)((SubHandle *)((char *)rec->holder + 0x15C))->i + 0xC) +
                 node * 0x40,
             q);
         memset(&up, 0, 16);
         up.f[1] = 1.0f;
         sceVu0ApplyMatrix(
             &up,
-            (char *)*(int *)((char *)((SubHandle *)(*(char **)(rec + 0x14) + 0x15C))->i + 0xC) +
-                GetSkeltonFocusNode(*(char **)(rec + 0x14), 44) * 0x40,
+            (char *)*(int *)((char *)((SubHandle *)((char *)rec->holder + 0x15C))->i + 0xC) +
+                GetSkeltonFocusNode((char *)rec->holder, 44) * 0x40,
             &up);
         MatrixDrive_GetTurnZAngleYX(&ang[0], &ang[1], up.f[0], up.f[1], up.f[2]);
-        CopyQuaternion(&rot, rec + 0x20);
+        CopyQuaternion(&rot, rec->rot);
         SetIdentityQuaternion(&adj);
         RotQuaternionY(&adj, -ang[0]);
         RotQuaternionX(&adj, ang[1]);
@@ -390,10 +424,10 @@ static inline int breakItemOnWallHit(char *gobj, float len, float *pos, float *v
     float rot[4];
     float d[4];
     float sv[4];
-    char *p = (char *)*(int *)(*(int *)(gobj + 0x15C) + 0x830);
+    ItemWork *p = (ItemWork *)*(int *)(*(int *)(gobj + 0x15C) + 0x830);
 
     if (5.0f < len) {
-        int id = itemKind[*(int *)(p + 4)].f_0;
+        int id = itemKind[p->kind].f_0;
 
         if (id != 0x3CC) {
             memset(&rot, 0, 16);
@@ -403,11 +437,10 @@ static inline int breakItemOnWallHit(char *gobj, float len, float *pos, float *v
             _NormalizeVector(d, d);
             RotQuaternionY(&rot, GetTableArcTan2(d[0], d[2]));
             _ScaleVectorXYZ(sv, vel, 0.3f);
-            EntryStageMultiBgaManagerSensitiveWithStay(id, pos, &rot, sv,
-                                                       itemKind[*(int *)(p + 4)].f_4);
+            EntryStageMultiBgaManagerSensitiveWithStay(id, pos, &rot, sv, itemKind[p->kind].f_4);
             SetParticleEffect(10, pos, &rot);
         }
-        if ((itemKind + *(int *)(p + 4))->f_1C & 1) {
+        if ((itemKind + p->kind)->f_1C & 1) {
             ExecuteSEPackage((int)gobj, 0x27);
             return 1;
         }
@@ -421,18 +454,17 @@ static inline int breakItemOnWallHit(char *gobj, float len, float *pos, float *v
    calls entryBreakBgAnimation (rows 186-193).  The NAME is a reconstruction. */
 static inline int breakItemOnFloorHit(char *gobj, float len, float *pos, float *vel)
 {
-    char *p = (char *)*(int *)(*(int *)(gobj + 0x15C) + 0x830);
+    ItemWork *p = (ItemWork *)*(int *)(*(int *)(gobj + 0x15C) + 0x830);
 
     if (10.0f < len) {
-        entryBreakBgAnimation(itemKind[*(int *)(p + 4)].f_8, pos, vel,
-                              itemKind[*(int *)(p + 4)].f_C);
-        if ((itemKind + *(int *)(p + 4))->f_1C & 1) {
+        entryBreakBgAnimation(itemKind[p->kind].f_8, pos, vel, itemKind[p->kind].f_C);
+        if ((itemKind + p->kind)->f_1C & 1) {
             ExecuteSEPackage((int)gobj, 0x2B);
             return 1;
         }
     }
-    if (*(int *)(p + 0x10) == 0) {
-        *(int *)(p + 0x10) = 1;
+    if (p->thrown == 0) {
+        p->thrown = 1;
         ExecuteSEPackage((int)gobj, 0x30);
         return 0;
     }
@@ -448,14 +480,14 @@ void uncarriedItemGeo(char *gobj)
     float pos[4];  /* 0x10 */
     float npos[4]; /* 0x20 */
     float vel[4];  /* 0x30 */
-    char *p;       /* 0x40 */
+    ItemWork *p;   /* 0x40 */
 
     void floatGeo(float t)
     {
         ClipWorkItem w;
 
         _ScaleVector(vel, vel, t);
-        _AddVectorXYZ(vel, vel, p + 0x80);
+        _AddVectorXYZ(vel, vel, p->drain);
         GetSlerpQuaternion((char *)*(int *)(gobj + 0x15C) + 0x150,
                            (char *)*(int *)(gobj + 0x15C) + 0x150, IdentityQuaternion, t);
         RegularizeQuaternion((char *)*(int *)(gobj + 0x15C) + 0x150);
@@ -484,7 +516,7 @@ void uncarriedItemGeo(char *gobj)
     float spd;
     float grav;
 
-    p = (char *)*(int *)(*(int *)(gobj + 0x15C) + 0x830);
+    p = (ItemWork *)*(int *)(*(int *)(gobj + 0x15C) + 0x830);
     *(int *)((char *)*(int *)(gobj + 0x15C) + 0x5F4) = 0;
     *(int *)((char *)*(int *)(gobj + 0x15C) + 0x5F8) = 0;
     CopyVector(vel, (char *)*(int *)(gobj + 0x15C) + 0x130);
@@ -492,7 +524,7 @@ void uncarriedItemGeo(char *gobj)
     UnlinkParentOfDObj(gobj);
     GetRootPosition(pos, gobj);
     vel[1] += ITEM_DT * 0.5f * ITEM_DT;
-    if (*(int *)(p + 0x70) == 1) {
+    if (p->inPool == 1) {
         float d = pos[1] - *(float *)((char *)*(int *)(gobj + 0x15C) + 0x640);
 
         if (d < 0.0f ? -d < 20.0f : d < 20.0f) {
@@ -500,7 +532,7 @@ void uncarriedItemGeo(char *gobj)
 
             vel[1] -= ITEM_DT * 0.5f * ITEM_DT * 1.2f * r;
             floatGeo(1.0f - r * 0.08f);
-            if (*(short *)(p + 0x90) == 0) {
+            if (p->wave == 0) {
                 CopyVector(q, pos);
                 q[1] = *(float *)((char *)*(int *)(gobj + 0x15C) + 0x640);
                 EntryStageMultiBgaManager(0x1EC, q, IdentityQuaternion);
@@ -509,8 +541,8 @@ void uncarriedItemGeo(char *gobj)
             vel[1] -= ITEM_DT * 0.5f * ITEM_DT * 1.2f;
             floatGeo(0.92f);
         }
-        vel[1] += GetTableSin(*(short *)(p + 0x90)) * 0.1f;
-        *(short *)(p + 0x90) += 0x400;
+        vel[1] += GetTableSin(p->wave) * 0.1f;
+        p->wave += 0x400;
     }
     sceVu0AddVector(npos, pos, vel);
     GetRootQuaternion(q, gobj);
@@ -585,14 +617,14 @@ void uncarriedItemGeo(char *gobj)
             cw.to[1] += 10000.0f;
             ClipFloor(&cw);
             if (CheckFieldContact(&cw, gobj, npos, 20.0f) == 2) {
-                if (*(int *)(p + 0x70) != 1) {
+                if (p->inPool != 1) {
                     *(float *)((char *)*(int *)(gobj + 0x15C) + 0x640) =
                         GetPoolGlobalHeight(cw.f_8C.p_0);
-                    GetPoolGlobalDrainVector(p + 0x80, cw.f_8C.p_0);
+                    GetPoolGlobalDrainVector(p->drain, cw.f_8C.p_0);
                 }
                 *(float *)((char *)*(int *)(gobj + 0x15C) + 0x644) =
                     cw.pos[1] - *(float *)((char *)*(int *)(gobj + 0x15C) + 0x640);
-                *(int *)(p + 0x70) = 1;
+                p->inPool = 1;
             }
         }
     }
@@ -600,56 +632,56 @@ void uncarriedItemGeo(char *gobj)
     grav = ITEM_DT * 0.5f * ITEM_DT;
     if (len0 + (grav + grav) < spd) {
         CopyVector(npos, pos);
-        *(int *)(p + 8) = 0;
+        p->released = 0;
         /* emergency stop 2 */
         debug_StdPrintfDummy("緊急停止2(%f←%f)\n", spd, len0);
-        *(int *)(p + 0x14) = 0;
-        *(int *)(p + 0x74) = 0;
+        p->holder = 0;
+        p->sleep = 0;
     }
     if (LimitExistGeometry(npos, vel)) {
-        *(int *)(p + 8) = 0;
-        *(int *)(p + 0x14) = 0;
-        *(int *)(p + 0x74) = 0;
+        p->released = 0;
+        p->holder = 0;
+        p->sleep = 0;
         /* emergency stop 3 */
         debug_StdPrintfDummy("緊急停止3\n");
     }
     npos[3] = 1.0f;
     SetDirectRootPosition(gobj, npos);
     CopyVector((char *)*(int *)(gobj + 0x15C) + 0x130, vel);
-    if (*(int *)(p + 0x14) != 0) {
+    if (p->holder != 0) {
         if (VectorLengthSquare(vel) > 100.0f) {
-            _AttackCenter(*(char **)(p + 0x14), 0x12, npos, 0, 20.0f, (int)gobj);
+            _AttackCenter((char *)p->holder, 0x12, npos, 0, 20.0f, (int)gobj);
         }
     }
-    if (*(int *)(p + 0x74) != 0) {
-        *(int *)(p + 0x74) = *(int *)(p + 0x74) - 1;
+    if (p->sleep != 0) {
+        p->sleep = p->sleep - 1;
     }
     if (linked != 0) {
-        if (*(float *)(p + 0x30) < 8.0f && *(int *)(p + 0x74) == 0) {
-            int n = *(int *)(p + 0x34) + 1;
+        if (p->spin < 8.0f && p->sleep == 0) {
+            int n = p->spinCount + 1;
 
-            *(int *)(p + 0x34) = n;
+            p->spinCount = n;
             if (n >= 6) {
-                *(int *)(p + 0x34) = 0;
-                *(int *)(p + 8) = 0;
+                p->spinCount = 0;
+                p->released = 0;
                 /* vibration sleep */
                 debug_StdPrintfDummy("振動睡眠\n");
             }
-            *(float *)(p + 0x30) = spd;
+            p->spin = spd;
         } else {
-            *(float *)(p + 0x30) = 0;
-            *(int *)(p + 0x34) = 0;
+            p->spin = 0;
+            p->spinCount = 0;
         }
     }
     {
-        float v = *(float *)(p + 0x30);
+        float v = p->spin;
 
         if (v < spd) {
             v = spd;
         }
-        *(float *)(p + 0x30) = v;
+        p->spin = v;
     }
-    if (*(int *)(p + 8) == 0 && linked != 0) {
+    if (p->released == 0 && linked != 0) {
         LinkParentOfDObj(gobj, &link);
     }
 }
@@ -657,54 +689,54 @@ void uncarriedItemGeo(char *gobj)
 void execBombGeo(char *gobj)
 {
     float v[4];
-    char *rec = (char *)*(int *)(*(int *)(gobj + 0x15C) + 0x830);
-    char *q = rec + 0x40;
+    ItemWork *rec = (ItemWork *)*(int *)(*(int *)(gobj + 0x15C) + 0x830);
+    ItemFuse *q = &rec->fuse;
 
-    switch (*(int *)(q + 8)) {
+    switch (q->state) {
     default:
     case 0:
-        if (IsTorchLightOn(*(char **)q)) {
-            *(int *)(q + 8) = 1;
+        if (IsTorchLightOn(q->torch)) {
+            q->state = 1;
             bombSparkStartSE((int)gobj);
             bombSparkSE((int)gobj);
-            *(int *)(rec + 0x64) = 1;
+            rec->fuse.animMode = 1;
         }
         break;
     case 1:
         CopyVector(v, itemDropOfs);
-        v[1] = itemDropOfs[1] *
-               (((float)*(int *)(q + 4) *
-                     (1.0f / ((float)((0x3C - systemStatus[0] * 0xA) / systemStatus[1]) / 60.0f *
-                              300.0f)) +
-                 1.0f) *
-                0.5f);
-        CopyVector(((SubHandle *)(*(char **)q + 0x15C))->p + 0xA0, v);
-        *(int *)(q + 4) = *(int *)(q + 4) - 1;
-        if (*(int *)(q + 4) == 0) {
-            *(int *)(q + 8) = 2;
+        v[1] =
+            itemDropOfs[1] *
+            (((float)q->time * (1.0f / ((float)((0x3C - systemStatus[0] * 0xA) / systemStatus[1]) /
+                                        60.0f * 300.0f)) +
+              1.0f) *
+             0.5f);
+        CopyVector(((SubHandle *)(q->torch + 0x15C))->p + 0xA0, v);
+        q->time = q->time - 1;
+        if (q->time == 0) {
+            q->state = 2;
         }
         break;
     case 2:
-        *(int *)(rec + 0x64) = 0;
+        rec->fuse.animMode = 0;
         stage_SetLoopFlag(511, 0);
         stage_SetFrameStep(0x1FF, 1);
-        GetRootPosition(q + 0x10, gobj);
-        _AttackCenter(gobj, 0x11, (float *)(q + 0x10), 0, 200.0f, 0);
-        LightTorchOff(*(char **)q);
-        *(int *)(*(char **)q + 0x16C) = 0;
-        *(int *)(rec + 8) = 0;
+        GetRootPosition(q->pos, gobj);
+        _AttackCenter(gobj, 0x11, q->pos, 0, 200.0f, 0);
+        LightTorchOff(q->torch);
+        *(int *)(q->torch + 0x16C) = 0;
+        rec->released = 0;
         StopSEPackage(gobj);
         bombExplodeSE((int)gobj);
         stage_KillPlayBgAnimationIfOverMaxCount(0x1FF, 1);
-        *(char **)(q + 0x20) = stage_MakePlayBgAnimation(0x1FF);
-        *(float *)(*(char **)(q + 0x20) + 4) = 1.0f;
-        _CopyVector(*(char **)(q + 0x20) + 0x20, q + 0x10);
-        CopyQuaternion(*(char **)(q + 0x20) + 0x30, IdentityQuaternion);
-        *(int *)(q + 8) = 3;
+        q->anim = stage_MakePlayBgAnimation(0x1FF);
+        *(float *)(q->anim + 4) = 1.0f;
+        _CopyVector(q->anim + 0x20, q->pos);
+        CopyQuaternion(q->anim + 0x30, IdentityQuaternion);
+        q->state = 3;
         *(int *)(*(int *)(gobj + 0x15C) + 0x74) = 0;
         break;
     case 3:
-        *(int *)(rec + 8) = 0;
+        rec->released = 0;
         break;
     case 4:
         break;
@@ -713,13 +745,13 @@ void execBombGeo(char *gobj)
 
 void ItemGeo(char *gobj)
 {
-    char *p = (char *)*(int *)(*(int *)(gobj + 0x15C) + 0x830);
-    if (*(int *)p == 1) {
+    ItemWork *p = (ItemWork *)*(int *)(*(int *)(gobj + 0x15C) + 0x830);
+    if (p->dead == 1) {
         return;
     }
-    if (*(int *)(p + 0xC) != 0) {
+    if (p->held != 0) {
         carriedItemGeo(gobj);
-    } else if (*(int *)(p + 8) != 0) {
+    } else if (p->released != 0) {
         int held = *(int *)(*(int *)(gobj + 0x15C) + 0x74);
         *(int *)(*(int *)(gobj + 0x15C) + 0x74) = 0;
         uncarriedItemGeo(gobj);
@@ -731,7 +763,7 @@ void ItemGeo(char *gobj)
         if (owner != 0) {
             if (*(int *)(owner + 0xC) == 0x11) {
                 if (GetBoxMode(owner) == 2) {
-                    *(int *)(p + 0x14) = 0;
+                    p->holder = 0;
                     ThrowItem(gobj, (char *)*(int *)(owner + 0x15C) + 0x130);
                 }
             }
@@ -748,12 +780,12 @@ void ItemGeo(char *gobj)
    The NAME is a reconstruction. */
 static inline void checkBombExplodeEnd(char *gobj)
 {
-    char *p = (char *)*(int *)(*(int *)(gobj + 0x15C) + 0x830);
-    char *q = p + 0x40;
+    ItemWork *p = (ItemWork *)*(int *)(*(int *)(gobj + 0x15C) + 0x830);
+    ItemFuse *q = &p->fuse;
 
-    if (*(int *)(q + 8) == 3) {
-        if (stage_DispBgAnimation(p + 0x60) != 0) {
-            *(int *)(q + 8) = 4;
+    if (q->state == 3) {
+        if (stage_DispBgAnimation(&p->fuse.anim) != 0) {
+            q->state = 4;
             setItemDead(gobj);
         }
     }
@@ -761,30 +793,30 @@ static inline void checkBombExplodeEnd(char *gobj)
 
 void ItemDL(char *gobj)
 {
-    char *p = (char *)*(int *)(*(int *)(gobj + 0x15C) + 0x830);
+    ItemWork *p = (ItemWork *)*(int *)(*(int *)(gobj + 0x15C) + 0x830);
 
     if (IsItemKindBomb(gobj)) {
         checkBombExplodeEnd(gobj);
     }
-    if (*(int *)p == 1) {
+    if (p->dead == 1) {
         return;
     }
     if (IsItemKindBomb(gobj)) {
-        char *q = p + 0x40;
-        int mode = *(int *)(q + 8);
+        ItemFuse *q = &p->fuse;
+        int mode = q->state;
 
         if (mode >= 2) {
             return;
         }
         if (mode == 1) {
             if (systemStatus[5] != 0) {
-                if (*(int *)(q + 0x24) != 0) {
+                if (q->animMode != 0) {
                     StopSEPackage(gobj);
-                    *(int *)(q + 0x24) = 0;
+                    q->animMode = 0;
                 }
-            } else if (*(int *)(q + 0x24) == 0) {
+            } else if (q->animMode == 0) {
                 bombSparkSE((int)gobj);
-                *(int *)(q + 0x24) = mode;
+                q->animMode = mode;
             }
         }
     }
@@ -802,13 +834,13 @@ static inline int GetItemKindInline(char *gobj)
 int BreakItemFromOutside(char *gobj)
 {
     float pos[4];
-    char *p = (char *)*(int *)(*(int *)(gobj + 0x15C) + 0x830);
+    ItemWork *p = (ItemWork *)*(int *)(*(int *)(gobj + 0x15C) + 0x830);
 
     if (IsItemKindBomb(gobj)) {
-        *(int *)(p + 0x48) = 2;
+        p->fuse.state = 2;
     } else {
         GetRootPosition(pos, gobj);
-        entryBreakBgAnimation(itemKind[*(int *)(p + 4)].f_10, pos, ZeroVector, 0);
+        entryBreakBgAnimation(itemKind[p->kind].f_10, pos, ZeroVector, 0);
         ExecuteSEPackage((int)gobj, 0x2B);
         if (GetItemKindInline(gobj) == 6) {
             _AttackCenter(gobj, 0x11, pos, 0, 200.0f, 0);
@@ -821,10 +853,10 @@ int BreakItemFromOutside(char *gobj)
 int CheckCarryableItem(char *a0)
 {
     int r = 0;
-    char *p = *(char **)(*(char **)(a0 + 0x15C) + 0x830);
+    ItemWork *p = (ItemWork *)*(char **)(*(char **)(a0 + 0x15C) + 0x830);
     if (*(int *)(a0 + 0x16C) != 0) {
-        if (*(long long *)(p + 8) == 0) {
-            if (*(int *)(p + 0x48) < 2) {
+        if (*(long long *)&p->released == 0) {
+            if (p->fuse.state < 2) {
                 r = 1;
             }
         }
@@ -860,9 +892,9 @@ int IsBombExplode(char *a0)
 
 void *GetBombTorchGObj(char *a0)
 {
-    char *p = *(char **)(*(char **)(a0 + 0x15C) + 0x830);
+    ItemWork *p = (ItemWork *)*(char **)(*(char **)(a0 + 0x15C) + 0x830);
     if (IsItemKindBomb(a0)) {
-        return *(void **)(p + 0x40);
+        return p->fuse.torch;
     }
     return 0;
 }
@@ -874,10 +906,10 @@ void *GetBombTorchGObj(char *a0)
 static inline int CheckCarryableItemInline(char *a0)
 {
     int r = 0;
-    char *p = *(char **)(*(char **)(a0 + 0x15C) + 0x830);
+    ItemWork *p = (ItemWork *)*(char **)(*(char **)(a0 + 0x15C) + 0x830);
     if (*(int *)(a0 + 0x16C) != 0) {
-        if (*(long long *)(p + 8) == 0) {
-            if (*(int *)(p + 0x48) < 2) {
+        if (*(long long *)&p->released == 0) {
+            if (p->fuse.state < 2) {
                 r = 1;
             }
         }
@@ -891,10 +923,10 @@ int ReviveAllCarryableItems(void)
     for (g = isysGObjSearchFromObjKindID_begin(19); g != 0;
          g = isysGObjSearchFromObjKindID_next(g)) {
         if (CheckCarryableItemInline(g)) {
-            char *p = *(char **)(*(char **)(g + 0x15C) + 0x830);
+            ItemWork *p = (ItemWork *)*(char **)(*(char **)(g + 0x15C) + 0x830);
             UnlinkParentOfDObj(g);
-            *(int *)(p + 8) = 1;
-            *(int *)(p + 0x74) = 0;
+            p->released = 1;
+            p->sleep = 0;
         }
     }
     return 1;
@@ -911,10 +943,10 @@ int ReviveCarryableItemsWithBoundary(void *center, float radius)
         GetRootPosition(pos, g);
         if (distance_squared(pos, center) < r2) {
             if (CheckCarryableItemInline(g)) {
-                char *p = *(char **)(*(char **)(g + 0x15C) + 0x830);
+                ItemWork *p = (ItemWork *)*(char **)(*(char **)(g + 0x15C) + 0x830);
                 UnlinkParentOfDObj(g);
-                *(int *)(p + 8) = 1;
-                *(int *)(p + 0x74) = 0;
+                p->released = 1;
+                p->sleep = 0;
             }
         }
     }
@@ -930,10 +962,10 @@ int ReviveAllCarryableItemsWithRandomVelocity(float up, float horz)
         short ang = random_unit() * 65536.0f;
 
         if (CheckCarryableItemInline(g)) {
-            char *p = *(char **)(*(char **)(g + 0x15C) + 0x830);
+            ItemWork *p = (ItemWork *)*(char **)(*(char **)(g + 0x15C) + 0x830);
             UnlinkParentOfDObj(g);
-            *(int *)(p + 8) = 1;
-            *(int *)(p + 0x74) = 0;
+            p->released = 1;
+            p->sleep = 0;
         }
         *(float *)((char *)*(int *)(g + 0x15C) + 0x130) = horz * GetTableSin(ang);
         *(float *)((char *)*(int *)(g + 0x15C) + 0x134) = up * random_unit();
@@ -961,10 +993,10 @@ void StopItemExplodeAnimationAll(void)
     char *g;
     for (g = isysGObjSearchFromObjKindID_begin(19); g != 0;
          g = isysGObjSearchFromObjKindID_next(g)) {
-        char *p = *(char **)(*(char **)(g + 0x15C) + 0x830);
+        ItemWork *p = (ItemWork *)*(char **)(*(char **)(g + 0x15C) + 0x830);
         if (IsItemKindBomb(g)) {
-            if (*(int *)(p + 0x48) == 3) {
-                if (stage_DispBgAnimation(p + 0x60) == 0) {
+            if (p->fuse.state == 3) {
+                if (stage_DispBgAnimation(&p->fuse.anim) == 0) {
                     debug_StdPrintfDummy(bombAnimStopMsg);
                 }
             }
@@ -975,12 +1007,11 @@ void StopItemExplodeAnimationAll(void)
 int BreakItemWithAttackHit(char *gobj, float *dir)
 {
     float pos[4];
-    char *p = (char *)*(int *)(*(int *)(gobj + 0x15C) + 0x830);
+    ItemWork *p = (ItemWork *)*(int *)(*(int *)(gobj + 0x15C) + 0x830);
 
     if (!IsItemKindBomb(gobj)) {
         GetRootPosition(pos, gobj);
-        if (entryBreakBgAnimation(itemKind[*(int *)(p + 4)].f_14, pos, dir,
-                                  itemKind[*(int *)(p + 4)].f_18)) {
+        if (entryBreakBgAnimation(itemKind[p->kind].f_14, pos, dir, itemKind[p->kind].f_18)) {
             ExecuteSEPackage((int)gobj, 0x2B);
             setItemDead(gobj);
         }
@@ -994,10 +1025,10 @@ int ReviveAllCarryableItemsWithNonSleepFrame(int nonSleepFrame)
     for (g = isysGObjSearchFromObjKindID_begin(19); g != 0;
          g = isysGObjSearchFromObjKindID_next(g)) {
         if (CheckCarryableItemInline(g)) {
-            char *p = *(char **)(*(char **)(g + 0x15C) + 0x830);
+            ItemWork *p = (ItemWork *)*(char **)(*(char **)(g + 0x15C) + 0x830);
             UnlinkParentOfDObj(g);
-            *(int *)(p + 8) = 1;
-            *(int *)(p + 0x74) = nonSleepFrame;
+            p->released = 1;
+            p->sleep = nonSleepFrame;
         }
     }
     return 1;

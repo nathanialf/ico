@@ -102,6 +102,52 @@ void flushWork(int pri)
     gif_SetZTest(1);
 }
 
+/* RECONSTRUCTION, read from the ROM.  One ripple of the pool's surface: the
+   grid cell it started in and the remainder inside that cell on each of the
+   two horizontal axes, its amplitude (negative when the slot is free) and its
+   age.  InitPoolGeo clears five of them, SetFallDownSplash starts the next
+   one in turn. */
+typedef struct {
+    int ix;    /* 0x00 */
+    float fx;  /* 0x04 */
+    int iz;    /* 0x08 */
+    float fz;  /* 0x0C */
+    float amp; /* 0x10 */
+    float age; /* 0x14 */
+} PoolRipple;
+
+/* RECONSTRUCTION, read from the ROM.  The pool's work record, the 224 bytes
+   InitPoolGeo allocates and leaves in the object's work word (Sub15C+0x830):
+   the surface's position (its y is the water height every reader takes) and
+   drain vector, the two splash managers, the height grid and its two meshes, the
+   ripples, the wave phase and the reflected stage object.  The two multi-BGA
+   managers are char *: InitPoolGeo's store of the second must share the
+   char * alias set of the object-sub load after it, which the ROM keeps
+   below the store (measured: BgaDisp *, void * and int all let sched1 lift
+   the load and swap $a0/$v1 at the last store). */
+typedef struct {
+    float pos[4];         /* 0x00 */
+    float drain[4];       /* 0x10, GetPoolGlobalDrainVector's vector: the
+                               layout's x and z angles in degrees */
+    int splashNo;         /* 0x20, the next slot of splash */
+    char *splash;         /* 0x24, two splash animations */
+    int f_28;             /* 0x28 */
+    char *bga;            /* 0x2C, ten animations PoolDL draws */
+    int hasGrid;          /* 0x30 */
+    int nx;               /* 0x34 */
+    int ny;               /* 0x38 */
+    float step;           /* 0x3C, the grid spacing */
+    Mesh3D *reflect;      /* 0x40, the mirrored surface */
+    Mesh3D *surface;      /* 0x44, the refracting surface drawn into the work */
+    Prim3DVec **wire;     /* 0x48, the rows of reflect's vertices */
+    float **height;       /* 0x4C, the height grid, one row per x */
+    PoolRipple ripple[5]; /* 0x50 */
+    int rippleNo;         /* 0xC8 */
+    short phase;          /* 0xCC */
+    char *dobj;           /* 0xD0, the reflected stage object or 0 */
+    int spin;             /* 0xD4 */
+} PoolWork;
+
 /* The listing gives this body rows 178 to 186 and attributes those rows to
    both SetFallDownSplash and InitPoolGeo, so it is a static of this file that
    the compiler inlines into each of them and it has no symbol of its own.  It
@@ -111,18 +157,18 @@ void flushWork(int pri)
    cell step and the two grid counts arrive as parameters: in both callers
    the listing puts their loads and the cell arithmetic on row 178 with the
    amplitude, the row integrate.c gives an inline's parameter set-up. */
-static inline void setWaveCell(char *w, float *pos, char *cell, float step, int nx, int ny,
-                               float amp)
+static inline void setWaveCell(PoolWork *w, float *pos, PoolRipple *cell, float step, int nx,
+                               int ny, float amp)
 {
     float d[4];
 
-    _SubVector(d, pos, w);
-    *(int *)(cell + 0x0) = (int)(d[0] / step) + (nx >> 1);
-    *(float *)(cell + 0x4) = d[0] - (float)(int)(d[0] / step) * step;
-    *(int *)(cell + 0x8) = (int)(d[2] / step) + (ny >> 1);
-    *(float *)(cell + 0xC) = d[2] - (float)(int)(d[2] / step) * step;
-    *(float *)(cell + 0x10) = amp;
-    *(float *)(cell + 0x14) = 0.0f;
+    _SubVector(d, pos, w->pos);
+    cell->ix = (int)(d[0] / step) + (nx >> 1);
+    cell->fx = d[0] - (float)(int)(d[0] / step) * step;
+    cell->iz = (int)(d[2] / step) + (ny >> 1);
+    cell->fz = d[2] - (float)(int)(d[2] / step) * step;
+    cell->amp = amp;
+    cell->age = 0.0f;
 }
 
 void setNodePursueParticleEffectWithUpperLimit(char *a0, char *a1, int a2, float f)
@@ -140,12 +186,12 @@ void SetFallDownSplash(char *pool, char *self)
 {
     float pos[4];
     float tmp[4];
-    char *w = *(char **)(*(char **)(pool + 0x15C) + 0x830);
+    PoolWork *w = (PoolWork *)GOBJ_SUB(pool)->f_830;
 
     GetRootPosition(pos, self);
     _ScaleVectorXYZ(tmp, *(char **)(self + 0x15C) + 0x130, 2.0f);
     _AddVector(pos, pos, tmp);
-    pos[1] = *(float *)(w + 0x4);
+    pos[1] = w->pos[1];
 
     if (*(int *)(*(char **)(self + 0x15C) + 0x8C) != 0) {
         setNodePursueParticleEffectWithUpperLimit((char *)48, self, 51, pos[1]);
@@ -155,15 +201,14 @@ void SetFallDownSplash(char *pool, char *self)
     stage_SetLoopFlag(499, 0);
     stage_SetFrameStep(499, 1);
 
-    EntryMultiBgaManagerNoKind(*(BgaDisp **)(w + 0x24), *(int *)(w + 0x20), pos);
-    *(int *)(w + 0x20) = (*(int *)(w + 0x20) + 1) % 2;
+    EntryMultiBgaManagerNoKind(w->splash, w->splashNo, pos);
+    w->splashNo = (w->splashNo + 1) % 2;
 
-    if (*(int *)(w + 0x30) != 0) {
-        setWaveCell(w, pos, w + 0x50 + *(int *)(w + 0xC8) * 24, *(float *)(w + 0x3C),
-                    *(int *)(w + 0x34), *(int *)(w + 0x38), 0.5f);
-        *(int *)(w + 0xC8) = *(int *)(w + 0xC8) + 1;
-        if (*(int *)(w + 0xC8) == 5) {
-            *(int *)(w + 0xC8) = 0;
+    if (w->hasGrid != 0) {
+        setWaveCell(w, pos, &w->ripple[w->rippleNo], w->step, w->nx, w->ny, 0.5f);
+        w->rippleNo = w->rippleNo + 1;
+        if (w->rippleNo == 5) {
+            w->rippleNo = 0;
         }
     }
 
@@ -172,7 +217,7 @@ void SetFallDownSplash(char *pool, char *self)
 
 void GetPoolGlobalDrainVector(void *dst, char *a0)
 {
-    CopyVector(dst, *(char **)((char *)GOBJ_SUB(a0) + 0x830) + 0x10);
+    CopyVector(dst, ((PoolWork *)GOBJ_SUB(a0)->f_830)->drain);
 }
 
 /* RECONSTRUCTION, read from the ROM.  The 64-byte record CSVSYSTEM_InitDObj
@@ -219,119 +264,108 @@ extern StgCsvEnt D_002A79B8[];
 extern IosMemPart *ios_partition_sugipon;
 int poolRideFunc(char **a0, char *a1);
 
-char *InitPoolGeo(char *self, char *lay)
+char *InitPoolGeo(char *self, SObjSimpleSetting *lay)
 {
-    char *w = iosMallocDebug(ios_partition_sugipon, 224, "src/pool.c", 316);
-    char *rip;
+    PoolWork *w = iosMallocDebug(ios_partition_sugipon, 224, "src/pool.c", 316);
     int i;
     int j;
     int k;
 
-    CopyVector(w, lay);
-    *(float *)(w + 0xC) = 1.0f;
-    CopyVector(w + 0x10, ZeroVector);
-    *(float *)(w + 0x10) = -*(float *)(lay + 0x10) * 180.0f / 3.1415927f;
-    *(float *)(w + 0x18) = -*(float *)(lay + 0x18) * 180.0f / 3.1415927f;
+    CopyVector(w->pos, lay->pos);
+    w->pos[3] = 1.0f;
+    CopyVector(w->drain, ZeroVector);
+    w->drain[0] = -lay->rot[0] * 180.0f / 3.1415927f;
+    w->drain[2] = -lay->rot[2] * 180.0f / 3.1415927f;
 
-    if (*(int *)(lay + 0x30) != 0) {
-        *(int *)(w + 0x30) = 1;
-        *(int *)(w + 0x34) = (int)*(float *)(lay + 0x20);
-        *(int *)(w + 0x38) = (int)*(float *)(lay + 0x28);
-        *(float *)(w + 0x3C) = *(float *)(lay + 0x24);
+    if (lay->obj != 0) {
+        w->hasGrid = 1;
+        w->nx = (int)lay->scale[0];
+        w->ny = (int)lay->scale[2];
+        w->step = lay->scale[1];
 
-        *(char **)(w + 0x4C) =
-            iosMallocDebug(ios_partition_sugipon, *(int *)(w + 0x34) * 4, "src/pool.c", 330);
+        w->height = iosMallocDebug(ios_partition_sugipon, w->nx * 4, "src/pool.c", 330);
 
-        for (i = 0; i < *(int *)(w + 0x34); i++) {
-            *(char **)(*(char **)(w + 0x4C) + i * 4) =
-                iosMallocDebug(ios_partition_sugipon, *(int *)(w + 0x38) * 4, "src/pool.c", 334);
+        for (i = 0; i < w->nx; i++) {
+            w->height[i] = iosMallocDebug(ios_partition_sugipon, w->ny * 4, "src/pool.c", 334);
         }
 
-        *(char **)(w + 0x44) = prim_InitMesh3D(*(int *)(w + 0x38), *(int *)(w + 0x34), 1, 0x1C,
-                                               (*(int *)(lay + 0x30) & 0xFFFFFF00) | 0x80, 1);
+        w->surface = prim_InitMesh3D(w->ny, w->nx, 1, 0x1C, (lay->obj & 0xFFFFFF00) | 0x80, 1);
 
-        *(char **)(w + 0x40) =
-            prim_InitMesh3D(*(int *)(w + 0x38), *(int *)(w + 0x34), 1, 0x5C, 0x80808080, 1);
+        w->reflect = prim_InitMesh3D(w->ny, w->nx, 1, 0x5C, 0x80808080, 1);
 
-        *(short *)(w + 0xCC) = 0;
-        *(char **)(w + 0x48) =
-            iosMallocDebug(ios_partition_sugipon, *(int *)(w + 0x34) * 4, "src/pool.c", 357);
+        w->phase = 0;
+        w->wire = iosMallocDebug(ios_partition_sugipon, w->nx * 4, "src/pool.c", 357);
 
-        for (j = 0; j < *(int *)(w + 0x34); j++) {
-            (*(float ***)(w + 0x48))[j] =
-                *(float **)(*(char **)(w + 0x40) + 0x6C) + j * *(int *)(w + 0x38) * 4;
+        for (j = 0; j < w->nx; j++) {
+            w->wire[j] = w->reflect->pos + j * w->ny;
         }
 
-        rip = w + 0x60;
         for (k = 0; k < 5; k++) {
-            setWaveCell(w, (float *)w, w + 0x50 + k * 24, *(float *)(w + 0x3C), *(int *)(w + 0x34),
-                        *(int *)(w + 0x38), 1.0f);
-            *(float *)(rip + k * 24) = -1.0f;
+            setWaveCell(w, w->pos, &w->ripple[k], w->step, w->nx, w->ny, 1.0f);
+            w->ripple[k].amp = -1.0f;
         }
 
-        *(int *)(w + 0xC8) = 0;
+        w->rippleNo = 0;
 
-        if (*(int *)(*(char **)(self + 0x15C) + 0x844) != 26) {
+        if (GOBJ_SUB(self)->f_844 != 26) {
             PoolLayout obj = *(PoolLayout *)&InitialSObjSimpleSetting;
 
-            obj.x = -D_002A79B8[*(int *)(*(char **)(self + 0x15C) + 0x844)].f_C;
-            obj.y = -D_002A79B8[*(int *)(*(char **)(self + 0x15C) + 0x844)].f_10;
-            obj.z = -D_002A79B8[*(int *)(*(char **)(self + 0x15C) + 0x844)].f_14;
-            *(char **)(w + 0xD0) = CSVSYSTEM_InitDObj(
-                D_002A79B8[*(int *)(*(char **)(self + 0x15C) + 0x844)].id, (float *)&obj);
+            obj.x = -D_002A79B8[GOBJ_SUB(self)->f_844].f_C;
+            obj.y = -D_002A79B8[GOBJ_SUB(self)->f_844].f_10;
+            obj.z = -D_002A79B8[GOBJ_SUB(self)->f_844].f_14;
+            w->dobj = CSVSYSTEM_InitDObj(D_002A79B8[GOBJ_SUB(self)->f_844].id, (float *)&obj);
 
-            *(int *)(w + 0xD4) = 0;
+            w->spin = 0;
         } else {
-            *(char **)(w + 0xD0) = 0;
+            w->dobj = 0;
 
-            *(int *)(w + 0xD4) = 0;
+            w->spin = 0;
         }
     } else {
-        *(int *)(w + 0x30) = 0;
+        w->hasGrid = 0;
     }
 
     {
-        PoolDisp *q = (PoolDisp *)(*(char **)(*(char **)(self + 0x15C) + 0x870));
+        PoolDisp *q = GOBJ_SUB(self)->p_870;
         q->pos.i[0] = q->pos.i[1] = q->pos.i[2] = 0;
     }
     {
-        PoolDisp *q = (PoolDisp *)(*(char **)(*(char **)(self + 0x15C) + 0x870));
+        PoolDisp *q = GOBJ_SUB(self)->p_870;
         q->scale.f[0] = q->scale.f[1] = q->scale.f[2] = 1.0f;
     }
     {
-        PoolDisp *q = (PoolDisp *)(*(char **)(*(char **)(self + 0x15C) + 0x870));
+        PoolDisp *q = GOBJ_SUB(self)->p_870;
         q->rot.f[0] = q->rot.f[1] = q->rot.f[2] = 0.0f;
     }
 
     _UnitMatrix(*(char **)(self + 0x15C) + 0x20);
     _UnitMatrix(*(char **)(*(char **)(self + 0x15C) + 0xC));
 
-    *(int *)(w + 0x28) = 0;
-    *(char **)(w + 0x2C) = InitMultiBgaManager(10);
+    w->f_28 = 0;
+    w->bga = InitMultiBgaManager(10);
 
-    *(int *)(w + 0x20) = 0;
-    *(char **)(w + 0x24) = InitMultiBgaManager(2);
+    w->splashNo = 0;
+    w->splash = InitMultiBgaManager(2);
 
     *(int *)(*(char **)(self + 0x15C) + 0x81C) = (int)poolRideFunc;
 
-    return w;
+    return (char *)w;
 }
 
-static inline void decayRipple(char *c)
+static inline void decayRipple(PoolRipple *c)
 {
-    if (*(float *)(c + 0x10) < 0.0f) {
+    if (c->amp < 0.0f) {
         return;
     }
-    *(float *)(c + 0x14) += 60.0f / (float)((60 - systemStatus[0] * 10) / systemStatus[1]);
-    *(float *)(c + 0x10) -=
-        60.0f / (float)((60 - systemStatus[0] * 10) / systemStatus[1]) * 0.0005f;
+    c->age += 60.0f / (float)((60 - systemStatus[0] * 10) / systemStatus[1]);
+    c->amp -= 60.0f / (float)((60 - systemStatus[0] * 10) / systemStatus[1]) * 0.0005f;
 }
 
-static inline void addRippleToGrid(char *w, char *c, float **grid)
+static inline void addRippleToGrid(PoolWork *w, PoolRipple *c, float **grid)
 {
-    float step = *(float *)(w + 0x3C);
-    int nx = *(int *)(w + 0x34);
-    int ny = *(int *)(w + 0x38);
+    float step = w->step;
+    int nx = w->nx;
+    int ny = w->ny;
     float r;
     float inv;
     float dx;
@@ -344,21 +378,21 @@ static inline void addRippleToGrid(char *w, char *c, float **grid)
     int ix;
     int iz;
 
-    if (*(float *)(c + 0x10) < 0.0f) {
+    if (c->amp < 0.0f) {
         return;
     }
 
     {
-        r = *(float *)(c + 0x14) * 3.0f;
+        r = c->age * 3.0f;
         inv = 1.0f / r;
         n = (int)(r / step);
 
         for (x = -n; x <= n; x++) {
-            dx = (float)x * step - *(float *)(c + 0x4);
+            dx = (float)x * step - c->fx;
             if (dx < 0.0f) {
                 dx = -dx;
             }
-            ix = *(int *)(c + 0x0) + x;
+            ix = c->ix + x;
 
             if (ix < 0) {
                 continue;
@@ -369,11 +403,11 @@ static inline void addRippleToGrid(char *w, char *c, float **grid)
             row = grid[ix];
 
             for (y = -n; y <= n; y++) {
-                dy = (float)y * step - *(float *)(c + 0xC);
+                dy = (float)y * step - c->fz;
                 if (dy < 0.0f) {
                     dy = -dy;
                 }
-                iz = *(int *)(c + 0x8) + y;
+                iz = c->iz + y;
                 if (dx < dy) {
                     t = dy * 0.9375f + dx * 0.359375f;
                 } else {
@@ -388,21 +422,21 @@ static inline void addRippleToGrid(char *w, char *c, float **grid)
                         continue;
                     }
 
-                    row[iz] += GetTableCos((t - 1.0f) * r * 512.0f) * 80.0f /
-                               (*(float *)(c + 0x14) * 2.0f + 10.0f);
+                    row[iz] +=
+                        GetTableCos((t - 1.0f) * r * 512.0f) * 80.0f / (c->age * 2.0f + 10.0f);
                 }
             }
         }
     }
 }
 
-static inline void makeWaveGrid(char *w, float **grid, int ang)
+static inline void makeWaveGrid(PoolWork *w, float **grid, int ang)
 {
     int i;
     int j;
-    int nx = *(int *)(w + 0x34);
-    int ny = *(int *)(w + 0x38);
-    int nn = (int)*(float *)(w + 0x3C);
+    int nx = w->nx;
+    int ny = w->ny;
+    int nn = (int)w->step;
     float *row;
 
     for (i = 0; i < nx; i++) {
@@ -428,11 +462,11 @@ void updatePoolGeo(char *self)
     float tmp[4];
     float pos[4];
     float sub[4];
-    char *w = *(char **)((char *)GOBJ_SUB(self) + 0x830);
-    char *mesh0 = *(char **)(w + 0x40);
-    char *mesh1 = *(char **)(w + 0x44);
-    float step = *(float *)(w + 0x3C);
-    float **grid = *(float ***)(w + 0x4C);
+    PoolWork *w = (PoolWork *)GOBJ_SUB(self)->f_830;
+    Mesh3D *mesh0 = w->reflect;
+    Mesh3D *mesh1 = w->surface;
+    float step = w->step;
+    float **grid = w->height;
     float sx;
     float sy;
     float *pc;
@@ -441,12 +475,12 @@ void updatePoolGeo(char *self)
     float *pd;
     int ang;
     float *row;
-    char *q;
-    char *uv;
-    char *q2;
+    Prim3DVec *q;
+    Prim3DVec *uv;
+    Prim3DVec *q2;
     float *row2;
-    char *uv2;
-    char *qq;
+    Prim3DVec *uv2;
+    Prim3DVec *qq;
     float h;
     float iw;
     float usc;
@@ -464,7 +498,7 @@ void updatePoolGeo(char *self)
     pb = (float *)(matrixptr + 0x440);
     pd = (float *)(matrixptr + 0x480);
 
-    CopyVector(pa, w);
+    CopyVector(pa, w->pos);
     CopyVector(pb, &org);
     CopyVector(pd, ZeroVector);
 
@@ -473,40 +507,40 @@ void updatePoolGeo(char *self)
 
     if (systemStatus[5] == 0) {
         for (k = 0; k < 5; k++) {
-            decayRipple(w + k * 24 + 0x50);
+            decayRipple(&w->ripple[k]);
         }
     }
 
-    ang = (short)*(unsigned short *)(w + 0xCC);
+    ang = w->phase;
 
     makeWaveGrid(w, grid, ang);
 
     for (k = 0; k < 5; k++) {
-        addRippleToGrid(w, w + k * 24 + 0x50, grid);
+        addRippleToGrid(w, &w->ripple[k], grid);
     }
 
-    for (i = 0; i < *(int *)(w + 0x34); i++) {
-        q = *(char **)(mesh1 + 0x6C) + i * *(int *)(w + 0x38) * 16;
-        uv = *(char **)(mesh1 + 0x74) + i * *(int *)(w + 0x38) * 16;
+    for (i = 0; i < w->nx; i++) {
+        q = mesh1->pos + i * w->ny;
+        uv = mesh1->st + i * w->ny;
         row = grid[i];
 
-        pd[0] = (float)(((1 - *(int *)(w + 0x34)) >> 1) + i) * step;
+        pd[0] = (float)(((1 - w->nx) >> 1) + i) * step;
 
         j = 0;
 
-        for (; j < *(int *)(w + 0x38); j++, row++, q += 16, uv += 16) {
+        for (; j < w->ny; j++, row++, q++, uv++) {
             h = *row;
 
             pd[1] = h * 30.0f;
-            pd[2] = (float)(((1 - *(int *)(w + 0x38)) >> 1) + j) * step;
+            pd[2] = (float)(((1 - w->ny) >> 1) + j) * step;
             _AddVector(q, pa, pd);
 
             _ApplyCurrentMatrix(out, q);
             iw = 1.0f / out[3];
             _ScaleVector(pc, out, iw);
             _SubVector(out, pc, pb);
-            *(float *)(uv + 0x0) = out[0] * sx + 0.5f + h * 30.0f * iw;
-            *(float *)(uv + 0x4) = out[1] * sy + 0.5f + h * 30.0f * iw;
+            uv->x = out[0] * sx + 0.5f + h * 30.0f * iw;
+            uv->y = out[1] * sy + 0.5f + h * 30.0f * iw;
         }
     }
 
@@ -521,13 +555,13 @@ void updatePoolGeo(char *self)
 
     _SetCurrentMatrix(matrixptr + 0x100);
 
-    for (i = 0; i < *(int *)(w + 0x34); i++) {
-        q2 = *(char **)(mesh1 + 0x6C) + i * *(int *)(w + 0x38) * 16;
-        qq = *(char **)(mesh0 + 0x6C) + i * *(int *)(w + 0x38) * 16;
-        uv2 = *(char **)(mesh0 + 0x74) + i * *(int *)(w + 0x38) * 16;
+    for (i = 0; i < w->nx; i++) {
+        q2 = mesh1->pos + i * w->ny;
+        qq = mesh0->pos + i * w->ny;
+        uv2 = mesh0->st + i * w->ny;
         row2 = grid[i];
 
-        for (j = 0; j < *(int *)(w + 0x38); j++, row2++, q2 += 16, uv2 += 16) {
+        for (j = 0; j < w->ny; j++, row2++, q2++, uv2++) {
             nrm[0] = nrm[2] = *row2 * 0.1f;
 
             CopyVector(qq, q2);
@@ -545,7 +579,7 @@ void updatePoolGeo(char *self)
             _ScaleVectorXYZ(pc, out, 1.0f / out[3]);
 
             _AddVector(pos, qq, ref);
-            qq += 16;
+            qq++;
             _ApplyCurrentMatrix(pos, pos);
             _ScaleVectorXYZ(pos, pos, 1.0f / pos[3]);
 
@@ -553,8 +587,8 @@ void updatePoolGeo(char *self)
 
             _SubVector(out, pc, pb);
 
-            *(float *)(uv2 + 0x0) = (out[0] + sub[0] * 1000.0f) * usc + 0.5f;
-            *(float *)(uv2 + 0x4) = (out[1] + sub[1] * 1000.0f) * vsc + 0.5f;
+            uv2->x = (out[0] + sub[0] * 1000.0f) * usc + 0.5f;
+            uv2->y = (out[1] + sub[1] * 1000.0f) * vsc + 0.5f;
         }
     }
 
@@ -604,7 +638,7 @@ void dispPool(char *self)
     char m2[0x40];
     char m3[0x40];
     char m4[0x40];
-    char *w = *(char **)((char *)GOBJ_SUB(self) + 0x830);
+    PoolWork *w = (PoolWork *)GOBJ_SUB(self)->f_830;
 
     gif_StartPacketPri(4);
     copyToWork(4);
@@ -621,7 +655,7 @@ void dispPool(char *self)
 
     _SetCurrentMatrix(matrixptr + 0x100);
 
-    prim_DispMesh3D(*(int *)(w + 0x44), dispLightColor, dispLightNormal, -1);
+    prim_DispMesh3D(w->surface, dispLightColor, dispLightNormal, -1);
 
     CopyMatrix((char *)GOBJ_SUB(self)->p_874 + 0x40, workLightColor);
     CopyMatrix((char *)GOBJ_SUB(self)->p_874, workLightNormal);
@@ -650,23 +684,23 @@ void dispPool(char *self)
     CopyMatrix(*(char **)((char *)GOBJ_SUB(self) + 0xC), MatrixDrive_GetMatrix());
     reg_RenderReflection((char *)GOBJ_SUB(self), 4);
 
-    if (*(int *)(w + 0xD0) != 0) {
-        CopyMatrix(MatrixDrive_GetMatrix(), *(char **)(w + 0xD0) + 0x20);
+    if (w->dobj != 0) {
+        CopyMatrix(MatrixDrive_GetMatrix(), w->dobj + 0x20);
         switch (stage_no) {
         case 101:
-            MatrixDrive_RotMatrixZ((*(int *)(w + 0xD4) << 16) / 1600);
+            MatrixDrive_RotMatrixZ((w->spin << 16) / 1600);
             break;
         case 15:
-            MatrixDrive_RotMatrixZ(-(*(int *)(w + 0xD4) << 16) / 1600);
+            MatrixDrive_RotMatrixZ(-(w->spin << 16) / 1600);
         }
 
-        CopyMatrix(*(char **)(*(char **)(w + 0xD0) + 0xC), MatrixDrive_GetMatrix());
+        CopyMatrix(*(char **)(w->dobj + 0xC), MatrixDrive_GetMatrix());
 
-        reg_RenderReflection(*(char **)(w + 0xD0), 4);
+        reg_RenderReflection(w->dobj, 4);
 
         if (systemStatus[5] == 0) {
-            if (++*(int *)(w + 0xD4) > 1600) {
-                *(int *)(w + 0xD4) = 0;
+            if (++w->spin > 1600) {
+                w->spin = 0;
             }
         }
     }
@@ -697,7 +731,7 @@ void dispPool(char *self)
 
     _SetCurrentMatrix(matrixptr + 0x100);
 
-    prim_DispMesh3D(*(int *)(w + 0x40), dispLightColor, dispLightNormal, -1);
+    prim_DispMesh3D(w->reflect, dispLightColor, dispLightNormal, -1);
 
     gif_StartPacketPri(4);
     gif_SetDrawEnviroment(0x800, 0, ScreenWidth, ScreenHeight, 1, 0);
@@ -710,22 +744,22 @@ void dispPool(char *self)
     gif_EndPacket();
 
     if (debug_skel_flag != 0) {
-        DispMeshWire((int *)*(int *)(w + 0x48), *(int *)(w + 0x34), *(int *)(w + 0x38));
+        DispMeshWire(w->wire, w->nx, w->ny);
     }
 }
 
 void PoolDL(char *self)
 {
-    char *w = *(char **)((char *)GOBJ_SUB(self) + 0x830);
+    PoolWork *w = (PoolWork *)GOBJ_SUB(self)->f_830;
 
-    DispMultiBgaManagerWithKind(0x1F2, *(int *)(w + 0x2C), 10);
-    DispMultiBgaManagerWithKind(0x1F3, *(int *)(w + 0x24), 2);
+    DispMultiBgaManagerWithKind(498, w->bga, 10);
+    DispMultiBgaManagerWithKind(499, w->splash, 2);
     if (systemStatus[5] == 0) {
-        *(short *)(w + 0xCC) =
-            (short)((float)*(short *)(w + 0xCC) +
+        w->phase =
+            (short)((float)w->phase +
                     60.0f / (float)((60 - systemStatus[0] * 10) / systemStatus[1]) * 2000.0f);
     }
-    if (*(int *)(w + 0x30) != 0) {
+    if (w->hasGrid != 0) {
         updatePoolGeo(self);
         dispPool(self);
     } else {
@@ -733,37 +767,32 @@ void PoolDL(char *self)
     }
 }
 
-void InitLimitedPoolReflactionMesh(char *a0)
+void InitLimitedPoolReflactionMesh(PoolMesh *a0)
 {
     int i;
     int j;
 
-    *(char **)(a0 + 0x10) = prim_InitMesh3D(*(int *)(a0 + 0x4), *(int *)(a0 + 0x0), 1, 0x1C,
-                                            *(unsigned int *)(a0 + 0x1C), 1);
-    *(char ****)(a0 + 0x14) =
-        (char ***)iosMallocDebug(ios_partition_sugipon, *(int *)(a0 + 0x0) * 4, "src/pool.c", 884);
-    *(char **)(a0 + 0x18) =
-        iosMallocDebug(ios_partition_sugipon, *(int *)(a0 + 0x0) * 4, "src/pool.c", 885);
-    for (i = 0; i < *(int *)(a0 + 0x0); i++) {
-        *(char **)(*(char **)(a0 + 0x18) + i * 4) =
-            *(char **)(*(char **)(a0 + 0x10) + 0x6C) + i * *(int *)(a0 + 0x4) * 16;
-        (*(char ****)(a0 + 0x14))[i] = (char **)iosMallocDebug(
-            ios_partition_sugipon, *(int *)(a0 + 0x4) * 4, "src/pool.c", 890);
-        for (j = 0; j < *(int *)(a0 + 0x4); j++) {
-            (*(char ****)(a0 + 0x14))[i][j] = 0;
+    a0->mesh = prim_InitMesh3D(a0->ncol, a0->nrow, 1, 0x1C, a0->color, 1);
+    a0->height = iosMallocDebug(ios_partition_sugipon, a0->nrow * 4, "src/pool.c", 884);
+    a0->row = iosMallocDebug(ios_partition_sugipon, a0->nrow * 4, "src/pool.c", 885);
+    for (i = 0; i < a0->nrow; i++) {
+        a0->row[i] = a0->mesh->pos + i * a0->ncol;
+        a0->height[i] = iosMallocDebug(ios_partition_sugipon, a0->ncol * 4, "src/pool.c", 890);
+        for (j = 0; j < a0->ncol; j++) {
+            a0->height[i][j] = 0.0f;
         }
     }
 }
 
-void SetLayoutedPoolReflactionMesh(char *a0)
+void SetLayoutedPoolReflactionMesh(PoolMesh *a0)
 {
     ConstVec vec;
     float out[4];
-    char *mesh;
+    Mesh3D *mesh;
     char *tmp;
     char *base;
-    char *q;
-    char *uv;
+    Prim3DVec *q;
+    Prim3DVec *uv;
     float sx;
     float sy;
     float iw;
@@ -773,18 +802,15 @@ void SetLayoutedPoolReflactionMesh(char *a0)
     int j;
 
     if (systemStatus[5] == 0) {
-        for (i = 0; i < *(int *)(a0 + 0x0); i++) {
-            (*(float ***)(a0 + 0x14))[i][0] -=
-                ((*(float ***)(a0 + 0x14))[i][0] - random_signed() * 0.1f) * 0.8f;
-            for (j = *(int *)(a0 + 0x4) - 1; j > 0; j--) {
-                (*(float ***)(a0 + 0x14))[i][j] -= ((*(float ***)(a0 + 0x14))[i][j] -
-                                                    (*(float ***)(a0 + 0x14))[i][j - 1] * 1.15f) *
-                                                   0.8f;
+        for (i = 0; i < a0->nrow; i++) {
+            a0->height[i][0] -= (a0->height[i][0] - random_signed() * 0.1f) * 0.8f;
+            for (j = a0->ncol - 1; j > 0; j--) {
+                a0->height[i][j] -= (a0->height[i][j] - a0->height[i][j - 1] * 1.15f) * 0.8f;
             }
         }
     }
 
-    mesh = *(char **)(a0 + 0x10);
+    mesh = a0->mesh;
     vec = screenOrigin;
     sx = 1.0f / (float)ScreenWidth;
     sy = 1.0f / (float)ScreenHeight;
@@ -796,39 +822,39 @@ void SetLayoutedPoolReflactionMesh(char *a0)
     _InitCurrentMatrix();
     _SetCurrentMatrix(matrixptr + 0x100);
 
-    for (i = 0; i < *(int *)(a0 + 0x0); i++) {
-        q = *(char **)(mesh + 0x6C) + i * *(int *)(a0 + 0x4) * 16;
-        uv = *(char **)(mesh + 0x74) + i * *(int *)(a0 + 0x4) * 16;
-        for (j = 0; j < *(int *)(a0 + 0x4); j++) {
-            h = (*(float ***)(a0 + 0x14))[i][j];
+    for (i = 0; i < a0->nrow; i++) {
+        q = mesh->pos + i * a0->ncol;
+        uv = mesh->st + i * a0->ncol;
+        for (j = 0; j < a0->ncol; j++) {
+            h = a0->height[i][j];
             _ApplyCurrentMatrix(out, q);
             iw = 1.0f / out[3];
             _ScaleVector(tmp, out, iw);
             _SubVector(out, tmp, base);
             t = out[0] * sx + 0.5f + h * 50.0f * iw;
-            *(float *)(uv + 0x0) = t < 0.0f ? 0.0f : t;
+            uv->x = t < 0.0f ? 0.0f : t;
             t = out[1] * sy + 0.5f + h * 50.0f * iw;
-            *(float *)(uv + 0x4) = 1.0f < t ? 1.0f : t;
-            q += 16;
-            uv += 16;
+            uv->y = 1.0f < t ? 1.0f : t;
+            q++;
+            uv++;
         }
     }
     prim_UpdateMesh3D(mesh, 9, buffer_ID);
 }
 
-void SetLimitedPoolReflactionMesh(char *a0, char *a1, char *a2)
+void SetLimitedPoolReflactionMesh(PoolMesh *a0, char *a1, char *a2)
 {
-    char *w = *(char **)((char *)GOBJ_SUB(a1) + 0x830);
+    PoolWork *w = (PoolWork *)GOBJ_SUB(a1)->f_830;
     float pos[4];
     float v1[4];
     float v2[4];
     ConstVec vec;
     float out[4];
-    char *mesh;
+    Mesh3D *mesh;
     char *tmp;
     char *base;
-    char *q;
-    char *uv;
+    Prim3DVec *q;
+    Prim3DVec *uv;
     float dist;
     float dz;
     float sx;
@@ -839,16 +865,15 @@ void SetLimitedPoolReflactionMesh(char *a0, char *a1, char *a2)
     int j;
 
     if (systemStatus[5] == 0) {
-        for (i = 0; i < *(int *)(a0 + 0x0); i++) {
-            for (j = 0; j < *(int *)(a0 + 0x4); j++) {
-                (*(float ***)(a0 + 0x14))[i][j] -=
-                    ((*(float ***)(a0 + 0x14))[i][j] - random_signed() * 0.3f) * 0.5f;
+        for (i = 0; i < a0->nrow; i++) {
+            for (j = 0; j < a0->ncol; j++) {
+                a0->height[i][j] -= (a0->height[i][j] - random_signed() * 0.3f) * 0.5f;
             }
         }
     }
     GetRootPosition(pos, a2);
     CopyVector(v1, pos);
-    v1[1] = *(float *)(w + 4);
+    v1[1] = w->pos[1];
     CopyVector(v2, pos);
     v2[1] += GOBJ_SUB(a2)->f_270;
 
@@ -864,43 +889,43 @@ void SetLimitedPoolReflactionMesh(char *a0, char *a1, char *a2)
     pos[0] -= dist * 0.5f;
     pos[2] -= dist * 0.5f;
 
-    mesh = *(char **)(a0 + 0x10);
+    mesh = a0->mesh;
     vec = screenOrigin;
     sx = 1.0f / (float)ScreenWidth;
     sy = 1.0f / (float)ScreenHeight;
     tmp = (char *)(matrixptr + 0x4C0);
     base = (char *)(matrixptr + 0x440);
 
-    dz = dist / (float)*(int *)(a0 + 0x0);
+    dz = dist / (float)a0->nrow;
 
     CopyVector(base, &vec);
 
     _InitCurrentMatrix();
     _SetCurrentMatrix(matrixptr + 0x100);
 
-    for (i = 0; i < *(int *)(a0 + 0x0); i++) {
-        q = *(char **)(mesh + 0x6C) + i * *(int *)(a0 + 0x4) * 16;
-        uv = *(char **)(mesh + 0x74) + i * *(int *)(a0 + 0x4) * 16;
-        for (j = 0; j < *(int *)(a0 + 0x4); j++) {
-            h = (*(float ***)(a0 + 0x14))[i][j];
-            *(float *)(q + 0x0) = pos[0] + (float)i * dz;
-            *(float *)(q + 0x4) = pos[1];
-            *(float *)(q + 0x8) = pos[2] + (float)j * dz;
-            *(float *)(q + 0xC) = 1.0f;
+    for (i = 0; i < a0->nrow; i++) {
+        q = mesh->pos + i * a0->ncol;
+        uv = mesh->st + i * a0->ncol;
+        for (j = 0; j < a0->ncol; j++) {
+            h = a0->height[i][j];
+            q->x = pos[0] + (float)i * dz;
+            q->y = pos[1];
+            q->z = pos[2] + (float)j * dz;
+            q->w = 1.0f;
             _ApplyCurrentMatrix(out, q);
             iw = 1.0f / out[3];
             _ScaleVector(tmp, out, iw);
             _SubVector(out, tmp, base);
-            *(float *)(uv + 0x0) = out[0] * sx + 0.5f + h * 50.0f * iw;
-            *(float *)(uv + 0x4) = out[1] * sy + 0.5f + h * 50.0f * iw;
-            q += 16;
-            uv += 16;
+            uv->x = out[0] * sx + 0.5f + h * 50.0f * iw;
+            uv->y = out[1] * sy + 0.5f + h * 50.0f * iw;
+            q++;
+            uv++;
         }
     }
     prim_UpdateMesh3D(mesh, 9, buffer_ID);
 }
 
-void DispLimitedPoolReflactionMesh(int *a0)
+void DispLimitedPoolReflactionMesh(PoolMesh *a0)
 {
     gif_StartPacketPri(4);
     copyToWork(4);
@@ -912,9 +937,9 @@ void DispLimitedPoolReflactionMesh(int *a0)
     gif_SetAlpha(0, 4, 0x80);
     gif_EndPacket();
     _SetCurrentMatrix(matrixptr + 0x100);
-    prim_DispMesh3D(a0[4], dispLightColor, dispLightNormal, -1);
+    prim_DispMesh3D(a0->mesh, dispLightColor, dispLightNormal, -1);
     if (debug_skel_flag != 0) {
-        DispMeshWire((int *)a0[6], a0[0], a0[1]);
+        DispMeshWire(a0->row, a0->nrow, a0->ncol);
     }
 }
 
@@ -922,34 +947,33 @@ void PoolGeo(void) {}
 
 float GetPoolGlobalHeight(char *a0)
 {
-    return *(float *)(*(char **)((char *)GOBJ_SUB(a0) + 0x830) + 4);
+    return ((PoolWork *)GOBJ_SUB(a0)->f_830)->pos[1];
 }
 
 float GetPoolGlobalHeightDetail(char *a0, float *pos)
 {
-    char *p = *(char **)((char *)GOBJ_SUB(a0) + 0x830);
+    PoolWork *p = (PoolWork *)GOBJ_SUB(a0)->f_830;
     float inv;
     int ix;
     int iz;
 
-    if (*(int *)(p + 0x30) != 0) {
-        inv = 1.0f / *(float *)(p + 0x3C);
-        ix = (int)((pos[0] - *(float *)(p + 0x0)) * inv + (float)(*(int *)(p + 0x34) >> 1));
-        iz = (int)((pos[2] - *(float *)(p + 0x8)) * inv + (float)(*(int *)(p + 0x38) >> 1));
-        ix = ix >= 0 ? (ix < *(int *)(p + 0x34) ? ix : *(int *)(p + 0x34) - 1) : 0;
-        iz = iz >= 0 ? (iz < *(int *)(p + 0x38) ? iz : *(int *)(p + 0x38) - 1) : 0;
-        return *(float *)(*(char **)(*(char **)(p + 0x4C) + ix * 4) + iz * 4) * 100.0f +
-               *(float *)(p + 0x4);
+    if (p->hasGrid != 0) {
+        inv = 1.0f / p->step;
+        ix = (int)((pos[0] - p->pos[0]) * inv + (float)(p->nx >> 1));
+        iz = (int)((pos[2] - p->pos[2]) * inv + (float)(p->ny >> 1));
+        ix = ix >= 0 ? (ix < p->nx ? ix : p->nx - 1) : 0;
+        iz = iz >= 0 ? (iz < p->ny ? iz : p->ny - 1) : 0;
+        return p->height[ix][iz] * 100.0f + p->pos[1];
     }
-    return *(float *)(p + 0x4);
+    return p->pos[1];
 }
 
 int CheckPoolHasGridMesh(char *a0)
 {
-    return *(int *)(*(char **)((char *)GOBJ_SUB(a0) + 0x830) + 0x30) != 0;
+    return ((PoolWork *)GOBJ_SUB(a0)->f_830)->hasGrid != 0;
 }
 
-void InitLayoutedPoolReflactionMesh(char *a0, char *a1)
+void InitLayoutedPoolReflactionMesh(PoolMesh *a0, PoolMeshQuad *a1)
 {
     float v0[4];
     float v1[4];
@@ -957,15 +981,13 @@ void InitLayoutedPoolReflactionMesh(char *a0, char *a1)
     int j;
 
     InitLimitedPoolReflactionMesh(a0);
-    for (i = 0; i < *(int *)(a0 + 0x0); i++) {
-        _InterVectorXYZ(v0, a1 + 0x0, a1 + 0x20, (float)i / (float)(*(int *)(a0 + 0x0) - 1));
-        _InterVectorXYZ(v1, a1 + 0x10, a1 + 0x30, (float)i / (float)(*(int *)(a0 + 0x0) - 1));
-        for (j = 0; j < *(int *)(a0 + 0x4); j++) {
-            _InterVectorXYZ(*(char **)(*(char **)(a0 + 0x10) + 0x6C) +
-                                (i * *(int *)(a0 + 0x4) + j) * 0x10,
-                            v0, v1, (float)j / (float)(*(int *)(a0 + 0x4) - 1));
-            *(float *)(*(char **)(*(char **)(a0 + 0x10) + 0x6C) +
-                       (i * *(int *)(a0 + 0x4) + j) * 0x10 + 0xC) = 1.0f;
+    for (i = 0; i < a0->nrow; i++) {
+        _InterVectorXYZ(v0, &a1->corner[0], &a1->corner[2], (float)i / (float)(a0->nrow - 1));
+        _InterVectorXYZ(v1, &a1->corner[1], &a1->corner[3], (float)i / (float)(a0->nrow - 1));
+        for (j = 0; j < a0->ncol; j++) {
+            _InterVectorXYZ(&a0->mesh->pos[i * a0->ncol + j], v0, v1,
+                            (float)j / (float)(a0->ncol - 1));
+            a0->mesh->pos[i * a0->ncol + j].w = 1.0f;
         }
     }
 }
@@ -973,8 +995,8 @@ void InitLayoutedPoolReflactionMesh(char *a0, char *a1)
 int poolRideFunc(char **a0, char *a1)
 {
     Sub15C *e = GOBJ_SUB(a1);
-    char *p = *(char **)(*(char **)(a0[0] + 0x15C) + 0x830);
-    e->f_644 = e->f_A4 - *(float *)(p + 4);
+    PoolWork *p = (PoolWork *)GOBJ_SUB(a0[0])->f_830;
+    e->f_644 = e->f_A4 - p->pos[1];
     return 1;
 }
 

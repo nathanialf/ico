@@ -14,28 +14,12 @@
 #include "main.h"
 #include "debug_exception.h"
 #include "GifPacket.h"
-
-typedef struct {
-    /* 0x00 */ int cr;
-    /* 0x04 */ int cg;
-    /* 0x08 */ int cb;
-    /* 0x0C */ int ca;
-    /* 0x10 */ float x;
-    /* 0x14 */ float y;
-    /* 0x18 */ float z;
-    /* 0x1C */ float w;
-} Fan2DVtx __attribute__((aligned(16)));
-
-typedef struct {
-    /* 0x00 */ int n;
-    /* 0x04 */ int f04;
-    /* 0x08 */ Fan2DVtx *buf;
-} Fan2D;
+#include "Primitive.h"
 
 /* kept local: void * here, int in ios.h */
 extern void *ios_partition_seki;
 
-Fan2D *prim_InitFan2D(int n, float *pos, unsigned int cc, unsigned int rc, float r)
+Fan2D *prim_InitFan2D(int n, float r, float *pos, unsigned int cc, unsigned int rc)
 {
     Fan2D *f;
     Fan2DVtx *q;
@@ -82,7 +66,7 @@ Fan2D *prim_InitFan2D(int n, float *pos, unsigned int cc, unsigned int rc, float
     return f;
 }
 
-void prim_SetFan2D(Fan2D *f, float *pos, unsigned int cc, unsigned int rc, float r)
+void prim_SetFan2D(Fan2D *f, float r, float *pos, unsigned int cc, unsigned int rc)
 {
     Fan2DVtx *q;
     Fan2DVtx *first;
@@ -270,31 +254,6 @@ void prim_DispFan2D(Fan2D *f, int mode)
 }
 
 typedef int Qw128 __attribute__((mode(TI)));
-
-typedef struct {
-    float x, y, z, w;
-} Prim3DVec __attribute__((aligned(16)));
-
-typedef struct {
-    /* 0x00 */ int nx;
-    /* 0x04 */ int ny;
-    /* 0x08 */ int f08;
-    /* 0x0C */ int f0C;
-    /* 0x10 */ float mtx[4][4];
-    /* 0x50 */ int f50;
-    /* 0x54 */ int f54;
-    /* 0x58 */ int f58;
-    /* 0x5C */ int f5C;
-    /* 0x60 */ long long f60;
-    /* 0x68 */ unsigned int col;
-    /* 0x6C */ Prim3DVec *pos;
-    /* 0x70 */ Prim3DVec *uv;
-    /* 0x74 */ Prim3DVec *nrm;
-    /* 0x78 */ int f78;
-    /* 0x7C */ void *bufs[2];
-    /* 0x84 */ int f84[3];
-} Mesh3D;
-
 extern void __assert(char *file, int line, char *expr);
 
 /* The mesh strip's GIF tag template: NLOOP and PRIM are ORed in per strip.
@@ -380,17 +339,17 @@ Mesh3D *prim_InitMesh3D(int nx, int ny, int rot, long long col, unsigned int col
     m->ny = ny;
     m->pos =
         (Prim3DVec *)iosMallocDebug(ios_partition_seki, m->nx * 16 * m->ny, "src/Primitive.c", 579);
-    m->uv =
-        (Prim3DVec *)iosMallocDebug(ios_partition_seki, m->nx * 16 * m->ny, "src/Primitive.c", 580);
     m->nrm =
+        (Prim3DVec *)iosMallocDebug(ios_partition_seki, m->nx * 16 * m->ny, "src/Primitive.c", 580);
+    m->st =
         (Prim3DVec *)iosMallocDebug(ios_partition_seki, m->nx * 16 * m->ny, "src/Primitive.c", 581);
     for (i = 0; i < m->nx * m->ny; i++) {
         m->pos[i].x = m->pos[i].y = m->pos[i].z = 0.0f;
         m->pos[i].w = 1.0f;
-        m->uv[i].x = m->uv[i].y = m->uv[i].z = 0.0f;
-        m->uv[i].w = 0.0f;
-        m->nrm[i].x = m->nrm[i].y = m->nrm[i].w = 0.0f;
-        m->nrm[i].z = 1.0f;
+        m->nrm[i].x = m->nrm[i].y = m->nrm[i].z = 0.0f;
+        m->nrm[i].w = 0.0f;
+        m->st[i].x = m->st[i].y = m->st[i].w = 0.0f;
+        m->st[i].z = 1.0f;
     }
     m->f50 = m->nx * 2;
     m->f54 = m->ny - 1;
@@ -414,9 +373,7 @@ Mesh3D *prim_InitMesh3D(int nx, int ny, int rot, long long col, unsigned int col
 }
 
 /* Primitive.c lines 635-706.  prim_makeNormal fills the per-vertex normal
-   buffer at Mesh3D+0x70 (the field the other members of this TU call `uv`;
-   the names in the typedef are placeholders and 0x70 is the normal buffer
-   here).  The four neighbours of a vertex are walked with one pair of
+   buffer at Mesh3D+0x70.  The four neighbours of a vertex are walked with one pair of
    indices, x and y, reassigned for each neighbour (listing rows 645, 651,
    657 and 663) and wrapped when the mesh is closed in that direction. */
 
@@ -511,19 +468,19 @@ void prim_makeNormal(Mesh3D *m)
                 cnt++;
             }
             s = 1.0f / cnt;
-            m->uv[i * m->nx + j].x = n.x * s;
-            m->uv[i * m->nx + j].y = n.y * s;
-            m->uv[i * m->nx + j].z = n.z * s;
-            m->uv[i * m->nx + j].w = 0.0f;
-            _NormalizeVector(&m->uv[i * m->nx + j], &m->uv[i * m->nx + j]);
-            _ApplyCurrentMatrix(&a, &m->uv[i * m->nx + j]);
+            m->nrm[i * m->nx + j].x = n.x * s;
+            m->nrm[i * m->nx + j].y = n.y * s;
+            m->nrm[i * m->nx + j].z = n.z * s;
+            m->nrm[i * m->nx + j].w = 0.0f;
+            _NormalizeVector(&m->nrm[i * m->nx + j], &m->nrm[i * m->nx + j]);
+            _ApplyCurrentMatrix(&a, &m->nrm[i * m->nx + j]);
             b.x = b.y = 0.0f;
             b.z = b.w = 1.0f;
             a.z = _InnerProduct(&b, &a);
             if (a.z > 0.0f) {
-                _ScaleVector(&m->uv[i * m->nx + j], &m->uv[i * m->nx + j], -1.0f);
+                _ScaleVector(&m->nrm[i * m->nx + j], &m->nrm[i * m->nx + j], -1.0f);
             }
-            m->uv[i * m->nx + j].w = 0.0f;
+            m->nrm[i * m->nx + j].w = 0.0f;
         }
     }
     _PopCurrentMatrix();
@@ -563,12 +520,12 @@ void prim_UpdateMesh3D(Mesh3D *m, int flags, int idx)
             p++;
             if (m->f58 != 0) {
                 if (flags & 6) {
-                    *p = *(Qw128 *)&m->uv[(i + (j & 1)) * m->nx + (j >> 1)];
+                    *p = *(Qw128 *)&m->nrm[(i + (j & 1)) * m->nx + (j >> 1)];
                 }
                 p++;
             }
             if (flags & 8) {
-                *p = *(Qw128 *)&m->nrm[(i + (j & 1)) * m->nx + (j >> 1)];
+                *p = *(Qw128 *)&m->st[(i + (j & 1)) * m->nx + (j >> 1)];
             }
             p++;
         }
@@ -739,31 +696,6 @@ void prim_DispMesh3D(Mesh3D *m, void *la, void *lb, int tex)
     dl_CloseDma();
 }
 
-typedef struct {
-    /* 0x00 */ int head[4];
-    /* 0x10 */ float mtx[4][4];
-    /* 0x50 */ float lmtx[4][4];
-    /* 0x90 */ int tail[4];
-} PrimParticleBuf;
-
-typedef struct {
-    /* 0x000 */ PrimParticleBuf buf[2];
-    /* 0x140 */ int f140;
-    /* 0x144 */ int f144;
-    /* 0x148 */ int num;
-    /* 0x14C */ float x;
-    /* 0x150 */ float y;
-    /* 0x154 */ float z;
-    /* 0x158 */ int f158;
-    /* 0x15C */ char name[0x20];
-    /* 0x17C */ int tex;
-    /* 0x180 */ int cur;
-    /* 0x184 */ int f184;
-    /* 0x188 */ char *objs[2];
-    /* 0x190 */ int f190;
-    /* 0x194 */ int f194;
-} PrimParticle;
-
 /* One 16-byte constant packet template, copied to the stack. */
 typedef struct {
     long long d[2];
@@ -893,11 +825,11 @@ void prim_DispParticle(PrimParticle *p, void *mtx)
     }
 }
 
-void prim_DeleteParticle(int a0)
+void prim_DeleteParticle(PrimParticle *p)
 {
-    EntryDelayFree(*(int *)(a0 + 0x18C));
-    EntryDelayFree(*(int *)(a0 + 0x188));
-    EntryDelayFree(a0);
+    EntryDelayFree(p->objs[1]);
+    EntryDelayFree(p->objs[0]);
+    EntryDelayFree(p);
 }
 
 void prim_DispWireYCylinder(void *col, int n, int flag, float r, float y0, float y1)

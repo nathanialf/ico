@@ -26,6 +26,41 @@ typedef struct {
     unsigned int f48;
 } GVGeo2;
 
+typedef struct GenBga {
+    char *p;
+    char f4;
+    char pad[3];
+} GenBga;
+
+/* RECONSTRUCTION, read from the ROM.  The generator's work record: whether
+   the stage needs it hard, three state bytes, the enemy kind it calls, the
+   direction it sends enemies off in, its four multi-BGA managers (each with
+   its active byte), the main status, the current animation slot and the
+   timers.  The direction is three floats: the byte at 0x2C follows it, and
+   sceVu0ApplyMatrix writes a whole quadword there. */
+typedef struct {
+    int count;            /* 0x00 */
+    int f_4;              /* 0x04 */
+    int f_8;              /* 0x08 */
+    int hard;             /* 0x0C */
+    unsigned char f_10;   /* 0x10 */
+    unsigned char active; /* 0x11 */
+    unsigned char f_12;   /* 0x12 */
+    unsigned char pad13;  /* 0x13 */
+    int kind;             /* 0x14 */
+    int pad18[2];         /* 0x18 */
+    float dir[3];         /* 0x20 */
+    unsigned char f_2C;   /* 0x2C */
+    char pad2D[3];        /* 0x2D */
+    GenBga bga[4];        /* 0x30 */
+    int status;           /* 0x50 */
+    int f_54;             /* 0x54 */
+    int cur;              /* 0x58 */
+    int f_5C;             /* 0x5C */
+    int f_60;             /* 0x60 */
+    int timer;            /* 0x64 */
+} GenWork;
+
 extern StgPre stageData[];
 extern GVGeo2 objLayout[];
 
@@ -48,10 +83,10 @@ inline int SearchActiveGenerator(void)
 
     g = (char *)isysGObjSearchFromObjKindID_begin(33);
     while (g != 0) {
-        char *w = *(char **)((char *)GOBJ_SUB(g) + 0x830);
+        GenWork *w = *(GenWork **)((char *)GOBJ_SUB(g) + 0x830);
 
         if (*(int *)(g + 0x16C) != 0) {
-            if (*(int *)(w + 0x50) == 1) {
+            if (w->status == 1) {
                 return 1;
             }
         }
@@ -78,12 +113,12 @@ int CheckGeneratorCollision(char *gobj, float *dir)
     sceVu0AddVector(pos, pos, tmp);
 
     for (; g != 0; g = (char *)isysGObjSearchFromObjKindID_next(g)) {
-        char *w = *(char **)((char *)GOBJ_SUB(g) + 0x830);
+        GenWork *w = *(GenWork **)((char *)GOBJ_SUB(g) + 0x830);
 
         if (*(int *)(g + 0x16C) == 0) {
             continue;
         }
-        if (*(int *)(w + 0x50) != 1) {
+        if (w->status != 1) {
             continue;
         }
         GetRootPosition(p, g);
@@ -176,22 +211,22 @@ void GetGeneratorSafePosition(float *dst, char *gobj)
 void switch_MainStatus(char *gobj, unsigned char st)
 {
     float pos[4];
-    char *w = *(char **)((char *)GOBJ_SUB(gobj) + 0x830);
+    GenWork *w = *(GenWork **)((char *)GOBJ_SUB(gobj) + 0x830);
 
-    if (st == *(int *)(w + 0x50)) {
+    if (st == w->status) {
         return;
     }
 
-    switch (*(int *)(w + 0x50)) {
+    switch (w->status) {
     case 0:
         if (!IsNeedGeneratorHard()) {
-            *(int *)(w + 0x50) = 2;
+            w->status = 2;
             gamesysObjInfoUniqDataSet(gobj);
             break;
         }
         iosOmSendMail(gobj, 0, gobj);
-        *(int *)(w + 0x50) = 1;
-        *(int *)(w + 0x64) = ((60 - systemStatus[0] * 10) / systemStatus[1]) * 4;
+        w->status = 1;
+        w->timer = ((60 - systemStatus[0] * 10) / systemStatus[1]) * 4;
         GetGeneratorSafePosition(pos, gobj);
         SetRootPosition(gobj, pos);
         gamesysObjInfoUniqDataSet(gobj);
@@ -199,7 +234,7 @@ void switch_MainStatus(char *gobj, unsigned char st)
 
     case 1:
         iosOmSendMail(gobj, 2, gobj);
-        *(int *)(w + 0x50) = 2;
+        w->status = 2;
         gamesysObjInfoUniqDataSet(gobj);
         break;
 
@@ -210,63 +245,60 @@ void switch_MainStatus(char *gobj, unsigned char st)
 
 extern void __assert(char *file, int line, char *expr);
 
-typedef struct GenBga {
-    char *p;
-    char f4;
-    char pad[3];
-} GenBga;
-
 /* generator.c:467-473 and 475-479, two static inline helpers of this TU: the
    listing gives endfunc_BGA rows 468-478, outside its own 489-505 span. */
 static inline char *ResetCurrentBga(char *gobj)
 {
-    char *w = *(char **)((char *)GOBJ_SUB(gobj) + 0x830);
+    GenWork *w = *(GenWork **)((char *)GOBJ_SUB(gobj) + 0x830);
 
-    if (*(int *)(w + 0x58) != -1) {
-        char *e = w + *(int *)(w + 0x58) * 8;
+    if (w->cur != -1) {
+        /* the slot is reached as a byte offset from the record: the ROM's
+           addu takes the record as its first operand and folds the table
+           offset into the store, which the subscript does not give */
+        char *e = (char *)w + w->cur * 8;
         char *q;
 
         *(char *)(e + 0x34) = 0;
-        q = w + *(int *)(w + 0x58) * 8;
+        q = (char *)w + w->cur * 8;
         **(float **)(q + 0x30) = -1.0f;
     }
-    return w;
+    return (char *)w;
 }
 
-static inline void EntryBga(char *gobj, char *w, int slot)
+static inline void EntryBga(char *gobj, GenWork *w, int slot)
 {
     float mtx[4];
 
     memset(mtx, 0, 16);
     mtx[3] = 1.0f;
-    EntryMultiBgaManager(*(int *)(w + 0x30 + slot * 8), 0, -1, (void *)test_CURRENTROOT(gobj), mtx);
+    EntryMultiBgaManager(w->bga[slot].p, 0, -1, (void *)test_CURRENTROOT(gobj), mtx);
 }
 
 void endfunc_BGA(char *gobj)
 {
-    char *w = *(char **)((char *)GOBJ_SUB(gobj) + 0x830);
+    GenWork *w = *(GenWork **)((char *)GOBJ_SUB(gobj) + 0x830);
 
-    switch (*(int *)(w + 0x58)) {
+    switch (w->cur) {
     case 0: {
-        char *cur;
+        GenWork *cur;
 
-        *(char *)(w + 0x3C) = 1;
-        cur = ResetCurrentBga(gobj);
+        w->bga[1].f4 = 1;
+        cur = (GenWork *)ResetCurrentBga(gobj);
         EntryBga(gobj, cur, 1);
-        *(int *)(cur + 0x58) = 1;
+        cur->cur = 1;
         break;
     }
 
     case 1:
-        **(int **)(w + 0x38) = 0;
+        *(int *)w->bga[1].p = 0;
         break;
 
     case 2: {
-        char *cur;
+        GenWork *cur;
 
-        *(char *)(w + 0x2C) = 1;
-        cur = ResetCurrentBga(gobj);
-        *(int *)(cur + 0x58) = -1;
+        w->f_2C = 1;
+        cur = (GenWork *)ResetCurrentBga(gobj);
+        cur->cur = -1;
         break;
     }
 
@@ -279,10 +311,10 @@ void endfunc_BGA(char *gobj)
 
 char *IsNeedGeneratorHard(char *mother)
 {
-    char *w = *(char **)((char *)GOBJ_SUB(mother) + 0x830);
+    GenWork *w = *(GenWork **)((char *)GOBJ_SUB(mother) + 0x830);
     char *g;
     int count = 0;
-    int isCalling = (*(int *)(w + 0x50) == 1);
+    int isCalling = (w->status == 1);
 
     if (mother != 0 && *(int *)(mother + 8) == 0xEAE) {
         int found = 0;
@@ -479,9 +511,9 @@ inline void RestoreReviveCount(char *gobj)
 
 void Generator_QuickCall(char *gobj)
 {
-    char *w = *(char **)((char *)GOBJ_SUB(gobj) + 0x830);
+    GenWork *w = *(GenWork **)((char *)GOBJ_SUB(gobj) + 0x830);
 
-    *(int *)(w + 0x50) = 1;
+    w->status = 1;
     gamesysObjInfoUniqDataSet(gobj);
     iosOmSendMail(gobj, 1, gobj);
 }
@@ -742,34 +774,34 @@ typedef struct GenReq {
 
 void generatorBeforeFunc(char *gobj)
 {
-    char *w = *(char **)((char *)GOBJ_SUB(gobj) + 0x830);
+    GenWork *w = *(GenWork **)((char *)GOBJ_SUB(gobj) + 0x830);
     GenReq *q = (GenReq *)(gobj + 0x54);
     int i;
 
     for (i = 0; i < q->count; i++) {
         switch (((GenReqEntry *)(gobj + 0x5C))[i].kind) {
         case 0: {
-            char *cur;
+            GenWork *cur;
 
-            *(char *)(w + 0x34) = 1;
-            cur = ResetCurrentBga(gobj);
+            w->bga[0].f4 = 1;
+            cur = (GenWork *)ResetCurrentBga(gobj);
             EntryBga(gobj, cur, 0);
-            *(int *)(cur + 0x58) = 0;
+            cur->cur = 0;
             break;
         }
 
         case 1: {
-            char *cur;
+            GenWork *cur;
 
-            *(char *)(w + 0x3C) = 1;
-            cur = ResetCurrentBga(gobj);
+            w->bga[1].f4 = 1;
+            cur = (GenWork *)ResetCurrentBga(gobj);
             EntryBga(gobj, cur, 1);
-            *(int *)(cur + 0x58) = 1;
+            cur->cur = 1;
             break;
         }
 
         case 2:
-            *(int *)(w + 0x60) = ((60 - systemStatus[0] * 10) / systemStatus[1]) * 4;
+            w->f_60 = ((60 - systemStatus[0] * 10) / systemStatus[1]) * 4;
             break;
         }
     }
@@ -826,7 +858,7 @@ extern void debug_Arrow(float len, void *from, void *to, int r, int g, int b);
    GeneratorGeo the rows 1262-1268, outside its own 1274-1410 span. */
 static inline void SetGeneratorAimVector(char *gobj)
 {
-    char *w = *(char **)((char *)GOBJ_SUB(gobj) + 0x830);
+    GenWork *w = *(GenWork **)((char *)GOBJ_SUB(gobj) + 0x830);
     float m[16];
     float v[4];
 
@@ -836,7 +868,7 @@ static inline void SetGeneratorAimVector(char *gobj)
     v[2] = 1.0f;
     GetRootMatrix(m, gobj);
     v[3] = 0.0f;
-    sceVu0ApplyMatrix(w + 0x20, m, v);
+    sceVu0ApplyMatrix(w->dir, m, v);
 }
 
 /* generator.c:481-486, a static inline helper of this TU: the listing gives
@@ -844,10 +876,10 @@ static inline void SetGeneratorAimVector(char *gobj)
    inside this wrapper. */
 static inline void EntryGeneratorBga2(char *gobj)
 {
-    char *cur = ResetCurrentBga(gobj);
+    GenWork *cur = (GenWork *)ResetCurrentBga(gobj);
 
     EntryBga(gobj, cur, 2);
-    *(int *)(cur + 0x58) = 2;
+    cur->cur = 2;
 }
 
 /* generator.c:636-648, a static inline helper of this TU: the listing gives
@@ -859,11 +891,11 @@ static inline unsigned char IsGeneratorCalling(void)
 
     g = (char *)isysGObjSearchFromObjKindID_begin(33);
     while (g != 0) {
-        char *w = *(char **)((char *)GOBJ_SUB(g) + 0x830);
+        GenWork *w = *(GenWork **)((char *)GOBJ_SUB(g) + 0x830);
 
         if (*(int *)(g + 0x16C) != 0) {
-            if (*(int *)(w + 0xC) != 0) {
-                if (*(int *)(w + 0x50) == 1) {
+            if (w->hard != 0) {
+                if (w->status == 1) {
                     return 1;
                 }
             }
@@ -877,74 +909,74 @@ static inline unsigned char IsGeneratorCalling(void)
    GeneratorGeo the rows 761-776. */
 static inline void CallEnemyFromGenerator(char *gobj, float *pos, float *dir)
 {
-    char *w = *(char **)((char *)GOBJ_SUB(gobj) + 0x830);
+    GenWork *w = *(GenWork **)((char *)GOBJ_SUB(gobj) + 0x830);
 
-    if (CallEnemy(gobj, pos, dir, *(int *)(w + 0x14)) != 0) {
+    if (CallEnemy(gobj, pos, dir, w->kind) != 0) {
         float mtx[4];
 
         memset(mtx, 0, 16);
         mtx[3] = 1.0f;
-        EntryMultiBgaManager(*(int *)(w + 0x48), 0, -1, (void *)test_CURRENTROOT(gobj), mtx);
+        EntryMultiBgaManager(w->bga[3].p, 0, -1, (void *)test_CURRENTROOT(gobj), mtx);
     }
 }
 
 void GeneratorGeo(char *gobj)
 {
-    char *w = *(char **)((char *)GOBJ_SUB(gobj) + 0x830);
+    GenWork *w = *(GenWork **)((char *)GOBJ_SUB(gobj) + 0x830);
     int hard = 0;
     StgPre *sd = &stageData[stage_no];
     int noBoy = sd->flag1 && girlGObj == 0;
 
-    *(int *)(w + 0xC) = (int)IsNeedGeneratorHard(gobj);
-    if (*(int *)(w + 0xC) != 0) {
-        if (*(int *)(w + 0x64) < 30) {
-            *(int *)(w + 0x64) = 30;
+    w->hard = (int)IsNeedGeneratorHard(gobj);
+    if (w->hard != 0) {
+        if (w->timer < 30) {
+            w->timer = 30;
         }
     }
 
-    if (*(int *)(w + 0) >= 12) {
-        if (*(unsigned char *)(w + 0x12) != 0) {
-            *(int *)(w + 8) = 0;
-            *(char *)(w + 0x12) = 0;
+    if (w->count >= 12) {
+        if (w->f_12 != 0) {
+            w->f_8 = 0;
+            w->f_12 = 0;
         }
 
         if (isysGObjSearchFromObjKindID_begin(47) != 0) {
-            *(char *)(w + 0x11) = 1;
+            w->active = 1;
         } else {
-            *(char *)(w + 0x11) = 0;
+            w->active = 0;
         }
 
         SetGeneratorAimVector(gobj);
 
         if (noBoy) {
-            *(int *)(w + 8) = 0;
+            w->f_8 = 0;
         }
 
-        if (*(int *)(w + 8) == 0) {
-            if (*(unsigned char *)(w + 0x10) == 0) {
+        if (w->f_8 == 0) {
+            if (w->f_10 == 0) {
                 if (!noBoy) {
-                    *(int *)(w + 4) = *(int *)(w + 4) + 1;
-                    if (*(int *)(w + 4) >= 11) {
+                    w->f_4 = w->f_4 + 1;
+                    if (w->f_4 >= 11) {
                         Generator_Call(gobj);
-                        *(int *)(w + 4) = 0;
+                        w->f_4 = 0;
                     }
                 }
             }
         }
 
-        switch (*(int *)(w + 0x54)) {
+        switch (w->f_54) {
         case 0:
-            if (*(int *)(w + 8) != 0) {
-                *(int *)(w + 0x54) = 1;
-                *(int *)(w + 0x5C) = ((60 - systemStatus[0] * 10) / systemStatus[1]) * 2;
+            if (w->f_8 != 0) {
+                w->f_54 = 1;
+                w->f_5C = ((60 - systemStatus[0] * 10) / systemStatus[1]) * 2;
                 switch_MainStatus(gobj, 1);
             }
             break;
 
         case 1:
-            *(int *)(w + 0x5C) = *(int *)(w + 0x5C) - 1;
-            if (*(int *)(w + 0x5C) < 0) {
-                *(int *)(w + 0x54) = 2;
+            w->f_5C = w->f_5C - 1;
+            if (w->f_5C < 0) {
+                w->f_54 = 2;
             }
             break;
 
@@ -958,7 +990,7 @@ void GeneratorGeo(char *gobj)
             break;
         }
 
-        if (*(unsigned char *)(w + 0x11) != 0) {
+        if (w->active != 0) {
             hard = 1;
         }
 
@@ -967,41 +999,41 @@ void GeneratorGeo(char *gobj)
             int i;
 
             if (hard) {
-                if (((60 - systemStatus[0] * 10) / systemStatus[1]) / 2 < *(int *)(w + 0)) {
-                    if (*(int *)(w + 8) != 0) {
+                if (((60 - systemStatus[0] * 10) / systemStatus[1]) / 2 < w->count) {
+                    if (w->f_8 != 0) {
                         GetRootPosition(pos, gobj);
-                        for (i = 0; i < *(int *)(w + 8); i++) {
-                            CallEnemyFromGenerator(gobj, pos, (float *)(w + 0x20));
+                        for (i = 0; i < w->f_8; i++) {
+                            CallEnemyFromGenerator(gobj, pos, w->dir);
                         }
-                        *(int *)(w + 8) = 0;
+                        w->f_8 = 0;
                     }
                 }
             }
 
             if (!IsGeneratorCalling()) {
-                if (*(int *)(w + 0x64) == 0) {
+                if (w->timer == 0) {
                     switch_MainStatus(gobj, 0);
                 }
             }
 
-            if (*(int *)(w + 0x60) != -1) {
-                if (*(int *)(w + 0x60) == 0) {
-                    *(char *)(w + 0x44) = 1;
+            if (w->f_60 != -1) {
+                if (w->f_60 == 0) {
+                    w->bga[2].f4 = 1;
                     EntryGeneratorBga2(gobj);
-                    *(int *)(w + 0x60) = -1;
+                    w->f_60 = -1;
                 } else {
-                    *(int *)(w + 0x60) = *(int *)(w + 0x60) - 1;
+                    w->f_60 = w->f_60 - 1;
                 }
             }
 
-            debug_Arrow(100.0f, (void *)test_CURRENTROOT(gobj), w + 0x20, 0xFF, 0, 0xFF);
+            debug_Arrow(100.0f, (void *)test_CURRENTROOT(gobj), w->dir, 0xFF, 0, 0xFF);
         }
     }
 
-    if (*(int *)(w + 0x64) != 0) {
-        *(int *)(w + 0x64) = *(int *)(w + 0x64) - 1;
+    if (w->timer != 0) {
+        w->timer = w->timer - 1;
     }
-    *(int *)(w + 0) = *(int *)(w + 0) + 1;
+    w->count = w->count + 1;
 }
 
 /* generator.c:1414-1420, a static inline helper of this TU: the listing gives
@@ -1028,22 +1060,22 @@ static inline void SetGeneratorBgaRootPosition(char *gobj, GenBga *tbl)
 
 void GeneratorDL(char *gobj)
 {
-    char *w = *(char **)((char *)GOBJ_SUB(gobj) + 0x830);
-    GenBga *tbl = (GenBga *)(w + 0x30);
+    GenWork *w = *(GenWork **)((char *)GOBJ_SUB(gobj) + 0x830);
+    GenBga *tbl = w->bga;
     int idx;
 
     SetGeneratorBgaRootPosition(gobj, tbl);
 
-    if (*(unsigned char *)(w + 0x11)) {
-        DispMultiBgaManagerWithKind(508, *(int *)(w + 0x38), 1);
+    if (w->active) {
+        DispMultiBgaManagerWithKind(508, w->bga[1].p, 1);
     } else {
-        DispMultiBgaManagerWithKind(507, *(int *)(w + 0x30), 1);
-        DispMultiBgaManagerWithKind(508, *(int *)(w + 0x38), 1);
-        DispMultiBgaManagerWithKind(509, *(int *)(w + 0x40), 1);
-        DispMultiBgaManagerWithKind(506, *(int *)(w + 0x48), 1);
+        DispMultiBgaManagerWithKind(507, w->bga[0].p, 1);
+        DispMultiBgaManagerWithKind(508, w->bga[1].p, 1);
+        DispMultiBgaManagerWithKind(509, w->bga[2].p, 1);
+        DispMultiBgaManagerWithKind(506, w->bga[3].p, 1);
     }
 
-    idx = *(int *)(w + 0x58);
+    idx = w->cur;
     if (idx != -1) {
         GenBga *e = &tbl[idx];
 
@@ -1060,11 +1092,11 @@ inline int GeneratorWorkEnd(char *a0)
 
 inline int IsOpenGenerator(char *gobj)
 {
-    char *w = *(char **)((char *)GOBJ_SUB(gobj) + 0x830);
+    GenWork *w = *(GenWork **)((char *)GOBJ_SUB(gobj) + 0x830);
     int ret = 0;
-    if (*(int *)(w + 0x50) == 1) {
+    if (w->status == 1) {
         GVGeo2 *g = (GVGeo2 *)(*(int *)(gobj + 8) * sizeof(GVGeo2) + (char *)objLayout);
-        ret = (((int)(g->f48 << 27) >> 27) == -2) ? 0 : *(int *)(w + 0x50);
+        ret = (((int)(g->f48 << 27) >> 27) == -2) ? 0 : w->status;
     }
     return ret;
 }

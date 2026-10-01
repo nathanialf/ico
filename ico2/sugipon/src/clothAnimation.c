@@ -1025,13 +1025,13 @@ ClothSet *InitClothes(int cfg)
     r->rec = (int **)iosMallocDebug(ios_partition_sugipon, i * 0x2E0, "src/clothAnimation.c", 1240);
     for (i = 0; i < r->num; i++) {
         if (*(int *)(i * 0x1C + cfg + 0x14) != 0) {
-            *(char **)(i * 0x2E0 + (int)r->rec) = prim_InitMesh3D(
+            *(Mesh3D **)(i * 0x2E0 + (int)r->rec) = prim_InitMesh3D(
                 *(int *)(i * 0x1C + cfg + 8), *(int *)(i * 0x1C + cfg), 1, 0x5C, 0x80808080, 1);
             *(int *)(i * 0x2E0 + (int)r->rec + 0x10) = 1;
             *(TexBlob *)(i * 0x2E0 + (int)r->rec + 0x18) =
                 *(TexBlob *)tex_GetTextureData(tex_GetTextureNo(*(void **)(i * 0x1C + cfg + 0x14)));
         } else {
-            *(char **)(i * 0x2E0 + (int)r->rec) = prim_InitMesh3D(
+            *(Mesh3D **)(i * 0x2E0 + (int)r->rec) = prim_InitMesh3D(
                 *(int *)(i * 0x1C + cfg + 8), *(int *)(i * 0x1C + cfg), 1, 0x4C, 0xFFFFFF80, 1);
             *(int *)(i * 0x2E0 + (int)r->rec + 0x10) = 0;
         }
@@ -1086,13 +1086,13 @@ ClothSet *InitClothesNoShade(int cfg)
     r->rec = (int **)iosMallocDebug(ios_partition_sugipon, i * 0x2E0, "src/clothAnimation.c", 1301);
     for (i = 0; i < r->num; i++) {
         if (*(int *)(i * 0x1C + cfg + 0x14) != 0) {
-            *(char **)(i * 0x2E0 + (int)r->rec) = prim_InitMesh3D(
+            *(Mesh3D **)(i * 0x2E0 + (int)r->rec) = prim_InitMesh3D(
                 *(int *)(i * 0x1C + cfg + 8), *(int *)(i * 0x1C + cfg), 1, 0x5C, 0x80808080, 0);
             *(int *)(i * 0x2E0 + (int)r->rec + 0x10) = 1;
             *(TexBlob *)(i * 0x2E0 + (int)r->rec + 0x18) =
                 *(TexBlob *)tex_GetTextureData(tex_GetTextureNo(*(void **)(i * 0x1C + cfg + 0x14)));
         } else {
-            *(char **)(i * 0x2E0 + (int)r->rec) = prim_InitMesh3D(
+            *(Mesh3D **)(i * 0x2E0 + (int)r->rec) = prim_InitMesh3D(
                 *(int *)(i * 0x1C + cfg + 8), *(int *)(i * 0x1C + cfg), 1, 0x4C, 0xFFFFFF80, 0);
             *(int *)(i * 0x2E0 + (int)r->rec + 0x10) = 0;
         }
@@ -1157,7 +1157,7 @@ static int wireColor[4] = {128, 64, 0, 128};
 
 static int wireSeamColor[4] = {0, 128, 0, 128};
 
-void DispMeshWire(int *rows, int nx, int ny)
+void DispMeshWire(Prim3DVec **rows, int nx, int ny)
 {
     int i;
     int j;
@@ -1170,24 +1170,20 @@ void DispMeshWire(int *rows, int nx, int ny)
     for (i = 0; i < nx; i++) {
         for (j = 1; j < ny; j++) {
             if (i == 0 || i == nx / 2 - 1) {
-                DrawLineG((char *)rows[i] + j * 16, wireSeamColor, (char *)rows[i] + (j * 16 - 16),
-                          wireSeamColor, 0);
+                DrawLineG(&rows[i][j], wireSeamColor, &rows[i][j - 1], wireSeamColor, 0);
             } else {
-                DrawLineG((char *)rows[i] + j * 16, wireColor, (char *)rows[i] + (j * 16 - 16),
-                          wireColor, 0);
+                DrawLineG(&rows[i][j], wireColor, &rows[i][j - 1], wireColor, 0);
             }
         }
     }
     for (j = 0; j < ny; j++) {
         if (j == ny - 1) {
             for (i = 1; i < nx; i++) {
-                DrawLineG((char *)rows[i] + j * 16, wireColor, (char *)rows[i - 1] + j * 16,
-                          wireColor, 0);
+                DrawLineG(&rows[i][j], wireColor, &rows[i - 1][j], wireColor, 0);
             }
         } else {
             for (i = 1; i < nx; i++) {
-                DrawLineG((char *)rows[i] + j * 16, wireColor, (char *)rows[i - 1] + j * 16,
-                          wireCrossColor, 0);
+                DrawLineG(&rows[i][j], wireColor, &rows[i - 1][j], wireCrossColor, 0);
             }
         }
     }
@@ -1214,7 +1210,7 @@ void DispCloth4D(int *a0, void *a1, void *a2)
     prim_DispMesh3D(a0[1], a1, a2, t);
     if (debug_cloth_info != 0) {
         m = (int *)a0[184];
-        DispMeshWire((int *)a0[2], m[0], m[1]);
+        DispMeshWire((Prim3DVec **)a0[2], m[0], m[1]);
     }
 }
 
@@ -1238,7 +1234,7 @@ void DispCloth4DWithAdd(int *a0, void *a1, void *a2)
     prim_DispMesh3D(a0[1], a1, a2, t);
     if (debug_cloth_info != 0) {
         m = (int *)a0[184];
-        DispMeshWire((int *)a0[2], m[0], m[1]);
+        DispMeshWire((Prim3DVec **)a0[2], m[0], m[1]);
     }
 }
 
@@ -2011,18 +2007,11 @@ typedef struct {
 } Blob64;
 
 typedef struct {
-    char pad[0x6C];
-    char *p6C;
-    char *p70;
-    char *p74;
-} Mesh3D;
-
-typedef struct {
     int gobj;
     Mesh3D *mesh;
-    char **p8;
-    char **pC;
-    char **p10;
+    Prim3DVec **p8;
+    Prim3DVec **pC;
+    Prim3DVec **p10;
     int pad14;
     TexBlob tex;
     int cfg;
@@ -2059,33 +2048,33 @@ Cloth4D *InitCloth4D(int a0, Cloth4DCfg *cfg, int tbl)
     r->cfg = (int)cfg;
     r->f2F4 = 0;
     if (cfg->tex != 0) {
-        r->mesh = (Mesh3D *)prim_InitMesh3D(cfg->ny, cfg->nx, 1, 0x5C, 0x80808080, 1);
+        r->mesh = prim_InitMesh3D(cfg->ny, cfg->nx, 1, 0x5C, 0x80808080, 1);
         r->tex = *(TexBlob *)tex_GetTextureData(tex_GetTextureNo(cfg->tex));
     } else {
-        r->mesh = (Mesh3D *)prim_InitMesh3D(cfg->ny, cfg->nx, 1, 0x4C, 0xFFFFFF80, 1);
+        r->mesh = prim_InitMesh3D(cfg->ny, cfg->nx, 1, 0x4C, 0xFFFFFF80, 1);
     }
-    r->p8 =
-        (char **)iosMallocDebug(ios_partition_sugipon, cfg->nx * 4, "src/clothAnimation.c", 2218);
-    r->pC =
-        (char **)iosMallocDebug(ios_partition_sugipon, cfg->nx * 4, "src/clothAnimation.c", 2219);
-    r->p10 =
-        (char **)iosMallocDebug(ios_partition_sugipon, cfg->nx * 4, "src/clothAnimation.c", 2220);
+    r->p8 = (Prim3DVec **)iosMallocDebug(ios_partition_sugipon, cfg->nx * 4, "src/clothAnimation.c",
+                                         2218);
+    r->pC = (Prim3DVec **)iosMallocDebug(ios_partition_sugipon, cfg->nx * 4, "src/clothAnimation.c",
+                                         2219);
+    r->p10 = (Prim3DVec **)iosMallocDebug(ios_partition_sugipon, cfg->nx * 4,
+                                          "src/clothAnimation.c", 2220);
     for (i = 0; i < cfg->nx; i++) {
-        *(char **)(i * 4 + (int)r->p8) = (char *)((int)r->mesh->p6C + i * cfg->ny * 16);
-        *(char **)(i * 4 + (int)r->pC) =
-            iosMallocDebug(ios_partition_sugipon, cfg->ny * 16, "src/clothAnimation.c", 2224);
-        *(char **)(i * 4 + (int)r->p10) = (char *)((int)r->mesh->p70 + i * cfg->ny * 16);
+        r->p8[i] = r->mesh->pos + i * cfg->ny;
+        r->pC[i] = (Prim3DVec *)iosMallocDebug(ios_partition_sugipon, cfg->ny * 16,
+                                               "src/clothAnimation.c", 2224);
+        r->p10[i] = r->mesh->nrm + i * cfg->ny;
         for (j = 0; j < cfg->ny; j++) {
-            CopyVector(*(char **)(i * 4 + (int)r->p8) + j * 16, ZeroPoint);
-            CopyVector(*(char **)(i * 4 + (int)r->pC) + j * 16, ZeroVector);
-            *(float *)((i * cfg->ny + j) * 16 + (int)r->mesh->p74) =
+            CopyVector(&r->p8[i][j], ZeroPoint);
+            CopyVector(&r->pC[i][j], ZeroVector);
+            r->mesh->st[i * cfg->ny + j].x =
                 *(float *)(j * 8 + *(int *)(i * 0x60 + (int)cfg->p24 + 0x40));
-            *(float *)((i * cfg->ny + j) * 16 + (int)r->mesh->p74 + 4) =
+            r->mesh->st[i * cfg->ny + j].y =
                 1.0f - *(float *)(j * 8 + *(int *)(i * 0x60 + (int)cfg->p24 + 0x40) + 4);
         }
     }
-    prim_UpdateMesh3D((int)r->mesh, 8, buffer_ID);
-    prim_UpdateMesh3D((int)r->mesh, 8, (buffer_ID + 1) & 1);
+    prim_UpdateMesh3D(r->mesh, 8, buffer_ID);
+    prim_UpdateMesh3D(r->mesh, 8, (buffer_ID + 1) & 1);
     if (tbl != 0) {
         i = 0;
         sc = *(float *)(*(int *)(*(int *)(r->gobj + 0x15C) + 0x870) + 0x20);

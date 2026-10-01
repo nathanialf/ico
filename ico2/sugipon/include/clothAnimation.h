@@ -12,10 +12,12 @@
 #ifndef CLOTHANIMATION_H
 #define CLOTHANIMATION_H
 
+#include "Primitive.h"
+
 void DispCloth4D(int *a0, void *a1, void *a2);
 void DispCloth4DWithAdd(int *a0, void *a1, void *a2);
 void DispClothMesh(int *a0, void *a1, void *a2);
-void DispMeshWire(int *rows, int nx, int ny);
+void DispMeshWire(Prim3DVec **rows, int nx, int ny);
 void GetChainAnimation(void *chain, int a, void *m);
 float GetChainCollision(int *a0, void *pos, float r);
 float GetChainNodeID(int a0, float f);

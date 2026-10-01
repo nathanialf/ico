@@ -636,7 +636,7 @@ char *InitBoyGeo(char *gobj, void *csv)
     *(float *)(w + 0x3C) = 300.0f;
     *(float *)(w + 0x40) = 300.0f;
     *(int *)(w + 0x50) = 0x80808080;
-    InitLimitedPoolReflactionMesh(w + 0x34);
+    InitLimitedPoolReflactionMesh((PoolMesh *)(w + 0x34));
     *(char **)(w + 0x54) = AllocWaterDot(gobj, 0x1E, 5);
     *(int *)(w + 0x58) = 0;
     *(int *)(w + 0x5C) = 0;
@@ -812,7 +812,7 @@ void BoyDL(char *gobj)
     char pos[0x10];
     char quat[0x10];
     char *w = *(char **)(*(char **)(gobj + 0x15C) + 0x830);
-    char *m;
+    PoolMesh *m;
     char *sub;
     int r;
 
@@ -835,7 +835,7 @@ void BoyDL(char *gobj)
     if (stage_no == 0x27 && 20.0f < GOBJ_SUB(gobj)->f_644 && GOBJ_SUB(gobj)->f_648 != 0 &&
         CheckPoolHasGridMesh((char *)GOBJ_SUB(gobj)->f_648) == 0) {
         sub = (char *)GOBJ_SUB(gobj);
-        m = *(char **)(sub + 0x830) + 0x34;
+        m = (PoolMesh *)(*(char **)(sub + 0x830) + 0x34);
         SetLimitedPoolReflactionMesh(m, *(int *)(sub + 0x648), gobj);
         DispLimitedPoolReflactionMesh(m);
     }

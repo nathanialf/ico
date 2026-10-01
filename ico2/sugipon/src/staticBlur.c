@@ -94,9 +94,9 @@ static int feedMode = 2; /* derived name */
 
 static int feedModeRequest = 0; /* derived name */
 
-static int sunGlowFan = 0; /* derived name */
+static Fan2D *sunGlowFan = 0; /* derived name */
 
-static int sunCoreFan = 0; /* derived name */
+static Fan2D *sunCoreFan = 0; /* derived name */
 
 static int sunOn = 0; /* derived name */
 
@@ -1311,9 +1311,10 @@ void FullScreenEffectAfter(void)
     tex_UnlockHeadTBP(8);
 }
 
-/* kept local: int [] here, float [4] in matrixDrive.h */
-extern int ZeroPoint[];
-/* kept local: agrees with matrixDrive.h, which this TU does not include (ZeroPoint differs) */
+/* kept local: matrixDrive.h, which this TU does not include: InitStaticBlur
+   calls CopyVector with one argument (the ROM sets only $a0), which the
+   header's prototype refuses */
+extern float ZeroPoint[4];
 extern void CopyVector();
 
 /* INTERIM (same pattern as GetSkeltonFocusNode in src/motionManager2.c): the
@@ -1324,8 +1325,8 @@ extern void CopyVector();
    serves the C caller.  Collapses to one `inline` definition at layout. */
 static inline void initStaticBlur(void)
 {
-    sunGlowFan = prim_InitFan2D(0x10, 80.0f, ZeroPoint, 0xFFFFFF80u, 0);
-    sunCoreFan = prim_InitFan2D(0x10, 80.0f, ZeroPoint, 0xFFFFFF80u, 0);
+    sunGlowFan = prim_InitFan2D(16, 80.0f, ZeroPoint, 0xFFFFFF80u, 0);
+    sunCoreFan = prim_InitFan2D(16, 80.0f, ZeroPoint, 0xFFFFFF80u, 0);
 }
 
 int InitStaticBlur(void)
@@ -1370,8 +1371,8 @@ void InitializeStaticBlur(void)
 
 void _initStaticBlur(void)
 {
-    sunGlowFan = prim_InitFan2D(0x10, 80.0f, ZeroPoint, 0xFFFFFF80u, 0);
-    sunCoreFan = prim_InitFan2D(0x10, 80.0f, ZeroPoint, 0xFFFFFF80u, 0);
+    sunGlowFan = prim_InitFan2D(16, 80.0f, ZeroPoint, 0xFFFFFF80u, 0);
+    sunCoreFan = prim_InitFan2D(16, 80.0f, ZeroPoint, 0xFFFFFF80u, 0);
 }
 
 void SetAuraEffect(void) {}

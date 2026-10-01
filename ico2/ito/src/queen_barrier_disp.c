@@ -12,20 +12,6 @@
 #include "main.h"
 #include "Matrix.h"
 
-typedef struct MeshST { /* the 0x10 stride texture coordinate record */
-    float s;            /* 0x0 */
-    float t;            /* 0x4 */
-    char _8[8];
-} MeshST;
-
-typedef struct Mesh3D {
-    char _0[0x68];
-    int col;    /* 0x68 */
-    QVec *pos;  /* 0x6C */
-    QVec *nrm;  /* 0x70 */
-    MeshST *st; /* 0x74 */
-} Mesh3D;
-
 /* .sbss, queen_barrier_disp.o's three words in the ROM's order (MAIN.MAP line
    7608 sizes the run 0xC and names no symbol in it, so the names are ours):
    the barrier mesh, the damage flash timer queen_barrier_set_damage starts at
@@ -155,9 +141,9 @@ void makeRefractST(float k)
             _AddVectorXYZ(&v, &v, &w);
             v.f[3] = 1.0f;
             _RotTransPersCurrentMatrix(&v, &v);
-            barrierMesh->st[idx].s =
+            barrierMesh->st[idx].x =
                 ((v.f[0] - 2048.0f) + (float)(ScreenWidth >> 1)) * (1.0f / (float)ScreenWidth);
-            barrierMesh->st[idx].t =
+            barrierMesh->st[idx].y =
                 ((v.f[1] - 2048.0f) + (float)(ScreenHeight >> 1)) * (1.0f / (float)ScreenHeight);
         }
     }
@@ -224,13 +210,13 @@ void queen_barrier_disp_proc(char *g, float k)
     makeRefractST(k);
 
     prim_UpdateMesh3D(barrierMesh, 24, buffer_ID);
-    prim_DispMesh3D((int)barrierMesh, 0, 0, -1);
+    prim_DispMesh3D(barrierMesh, 0, 0, -1);
 }
 
 void queen_barrier_disp_init(void)
 {
-    QVec *pos;
-    QVec *nrm;
+    Prim3DVec *pos;
+    Prim3DVec *nrm;
     int i;
     int j;
     int idx;
@@ -255,8 +241,8 @@ void queen_barrier_disp_init(void)
             idx = i * 15 + j;
             _ScaleVectorXYZ(&pos[idx], &v, 300.0f);
             _NormalizeVector(&nrm[idx], &pos[idx]);
-            barrierMesh->st[idx].s = (float)j / 14.0f;
-            barrierMesh->st[idx].t = (float)i / 14.0f;
+            barrierMesh->st[idx].x = (float)j / 14.0f;
+            barrierMesh->st[idx].y = (float)i / 14.0f;
         }
     }
     prim_UpdateMesh3D(barrierMesh, 11, 0);

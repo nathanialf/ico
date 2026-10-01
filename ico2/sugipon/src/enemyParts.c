@@ -107,37 +107,10 @@ extern void *ios_partition_seki;
 /* enemyParts.o's whole .data run, in ROM order: the templates the loops and
    struct assignments copy out of. */
 
-/* The 0x60-byte eye record's initialiser.  ROM copies it with the MIPS
-   back end's block-move LOOP (four ld / four sd per turn, 0x20 at a time),
-   which is what a 0x60-byte 8-aligned struct assignment expands to. */
-typedef struct EnemyEyeTmpl {
-    long long d[12];
-} EnemyEyeTmpl;
-
-typedef struct EnemyFootPrintHead {
-    int num;    /* 0x00 */
-    char *dobj; /* 0x04 */
-    int idx;    /* 0x08 */
-    char *buf;  /* 0x0C */
-} EnemyFootPrintHead;
-
-/* 0x20 bytes at 8-byte alignment, so ROM copies it with plain ld/sd; the
-   long long view is what carries that alignment, the struct view carries
-   the values. */
-typedef union DlVtxTemplate {
-    struct {
-        int tag;     /* 0x00 */
-        float w;     /* 0x04 */
-        int rest[6]; /* 0x08 */
-    } v;
-
-    long long d[4];
-} DlVtxTemplate;
-
 static PointBlur pointBlurTemplate = {2, 1, 0, 0, 0, {0, 0, 0, 0}, 0, {1.0f, 1.0f, 1.0f, 1.0f},
                                       1, 5};
 
-static EnemyEyeTmpl enemyEyeTemplate = {{0}};
+static EnemyEye enemyEyeTemplate = {0};
 
 static int enemyEyeBlurColor[4] = {0x32, 0x62, 0x80, 0x80};
 
@@ -154,7 +127,7 @@ static int enemyEyeBlurTint[4] = {0x00, 0x80, 0xFF, 0x80};
    sdl/sdr, gcc's unaligned block move. */
 static EnemyFootPrintHead footPrintHeadTemplate = {0, 0, 0, 0};
 
-static DlVtxTemplate footPrintVtxTemplate = {{-1, 1.0f, {0, 0, 0, 0, 0, 0}}};
+static EnemyFootPrint footPrintVtxTemplate = {-1, 1.0f};
 
 /* The display row's flag word is 64 bits wide: ROM sets and clears single
    bits in it with ld/or/sd and ld/and/sd, and reaches the 16-bit field two
@@ -183,116 +156,115 @@ static inline PointBlur *initPointBlurAt(int num, int a1, int *col, void *pos)
     return p;
 }
 
-char *InitEnemyEye(int num, int a1, int a2)
+EnemyEye *InitEnemyEye(int num, int a1, int a2)
 {
-    char *p;
+    EnemyEye *p;
 
-    p = (char *)iosMallocDebug(ios_partition_sugipon, 0x60, "src/enemyParts.c", 137);
-    *(EnemyEyeTmpl *)p = enemyEyeTemplate;
+    p = iosMallocDebug(ios_partition_sugipon, 0x60, "src/enemyParts.c", 137);
+    *p = enemyEyeTemplate;
 
-    *(char **)(p + 0x50) = CSVSYSTEM_InitDObj(0x52A, (float *)&InitialSObjSimpleSetting);
-    ((DlFlag *)(*(int *)(*(char **)(p + 0x50) + 0x870) + 0x38))->ll |= 1;
-    *(float *)(*(int *)(*(char **)(p + 0x50) + 0x870) + 0x30) = 1e-5f;
-    ((DlFlag *)(*(int *)(*(char **)(p + 0x50) + 0x870) + 0x38))->ll |= 4;
-    *(float *)(*(int *)(*(char **)(p + 0x50) + 0x870) + 0x20) =
-        *(float *)(*(int *)(*(char **)(p + 0x50) + 0x870) + 0x24) =
-            *(float *)(*(int *)(*(char **)(p + 0x50) + 0x870) + 0x28) = 3.0f;
-    *(short *)(*(char **)(p + 0x50) + 0x84C) = 2;
+    p->dobj[0] = CSVSYSTEM_InitDObj(0x52A, (float *)&InitialSObjSimpleSetting);
+    ((DlFlag *)(*(int *)(p->dobj[0] + 0x870) + 0x38))->ll |= 1;
+    *(float *)(*(int *)(p->dobj[0] + 0x870) + 0x30) = 1e-5f;
+    ((DlFlag *)(*(int *)(p->dobj[0] + 0x870) + 0x38))->ll |= 4;
+    *(float *)(*(int *)(p->dobj[0] + 0x870) + 0x20) =
+        *(float *)(*(int *)(p->dobj[0] + 0x870) + 0x24) =
+            *(float *)(*(int *)(p->dobj[0] + 0x870) + 0x28) = 3.0f;
+    *(short *)(p->dobj[0] + 0x84C) = 2;
 
-    *(char **)(p + 0x54) = CSVSYSTEM_InitDObj(0x52B, (float *)&InitialSObjSimpleSetting);
-    ((DlFlag *)(*(int *)(*(char **)(p + 0x54) + 0x870) + 0x38))->ll |= 1;
-    *(float *)(*(int *)(*(char **)(p + 0x54) + 0x870) + 0x30) = 1e-5f;
-    ((DlFlag *)(*(int *)(*(char **)(p + 0x54) + 0x870) + 0x38))->ll &= ~4;
-    *(float *)(*(int *)(*(char **)(p + 0x54) + 0x870) + 0x20) =
-        *(float *)(*(int *)(*(char **)(p + 0x50) + 0x870) + 0x24) =
-            *(float *)(*(int *)(*(char **)(p + 0x50) + 0x870) + 0x28) = 3.0f;
-    *(short *)(*(char **)(p + 0x54) + 0x84C) = 2;
+    p->dobj[1] = CSVSYSTEM_InitDObj(0x52B, (float *)&InitialSObjSimpleSetting);
+    ((DlFlag *)(*(int *)(p->dobj[1] + 0x870) + 0x38))->ll |= 1;
+    *(float *)(*(int *)(p->dobj[1] + 0x870) + 0x30) = 1e-5f;
+    ((DlFlag *)(*(int *)(p->dobj[1] + 0x870) + 0x38))->ll &= ~4;
+    *(float *)(*(int *)(p->dobj[1] + 0x870) + 0x20) =
+        *(float *)(*(int *)(p->dobj[0] + 0x870) + 0x24) =
+            *(float *)(*(int *)(p->dobj[0] + 0x870) + 0x28) = 3.0f;
+    *(short *)(p->dobj[1] + 0x84C) = 2;
 
-    *(char **)(p + 0x58) = CSVSYSTEM_InitDObj(0x52C, (float *)&InitialSObjSimpleSetting);
-    ((DlFlag *)(*(int *)(*(char **)(p + 0x58) + 0x870) + 0x38))->ll |= 1;
-    *(float *)(*(int *)(*(char **)(p + 0x58) + 0x870) + 0x30) = 1e-5f;
-    ((DlFlag *)(*(int *)(*(char **)(p + 0x58) + 0x870) + 0x38))->ll &= ~4;
-    *(float *)(*(int *)(*(char **)(p + 0x58) + 0x870) + 0x20) =
-        *(float *)(*(int *)(*(char **)(p + 0x50) + 0x870) + 0x24) =
-            *(float *)(*(int *)(*(char **)(p + 0x50) + 0x870) + 0x28) = 3.0f;
-    *(short *)(*(char **)(p + 0x58) + 0x84C) = 2;
+    p->dobj[2] = CSVSYSTEM_InitDObj(0x52C, (float *)&InitialSObjSimpleSetting);
+    ((DlFlag *)(*(int *)(p->dobj[2] + 0x870) + 0x38))->ll |= 1;
+    *(float *)(*(int *)(p->dobj[2] + 0x870) + 0x30) = 1e-5f;
+    ((DlFlag *)(*(int *)(p->dobj[2] + 0x870) + 0x38))->ll &= ~4;
+    *(float *)(*(int *)(p->dobj[2] + 0x870) + 0x20) =
+        *(float *)(*(int *)(p->dobj[0] + 0x870) + 0x24) =
+            *(float *)(*(int *)(p->dobj[0] + 0x870) + 0x28) = 3.0f;
+    *(short *)(p->dobj[2] + 0x84C) = 2;
 
     if (num != 0) {
-        *(int *)p = 1;
-        *(PointBlur **)(p + 0x4) = initPointBlurAt(num, a2, enemyEyeBlurColor, enemyEyeBlurRate);
+        p->blurOn = 1;
+        p->blur = initPointBlurAt(num, a2, enemyEyeBlurColor, enemyEyeBlurRate);
     }
     return p;
 }
 
-char *InitEnemyFootPrint(int num)
+EnemyFootPrintHead *InitEnemyFootPrint(int num)
 {
-    char *p;
+    EnemyFootPrintHead *p;
     char *d;
     int i;
     int j;
 
-    p = (char *)iosMallocDebug(ios_partition_sugipon, 0x10, "src/enemyParts.c", 226);
-    *(EnemyFootPrintHead *)p = footPrintHeadTemplate;
-    *(int *)p = num;
-    *(int *)(p + 0xC) =
-        (int)iosMallocDebug(ios_partition_sugipon, num << 5, "src/enemyParts.c", 229);
+    p = iosMallocDebug(ios_partition_sugipon, 0x10, "src/enemyParts.c", 226);
+    *p = footPrintHeadTemplate;
+    p->num = num;
+    p->buf = iosMallocDebug(ios_partition_sugipon, num << 5, "src/enemyParts.c", 229);
     d = CSVSYSTEM_InitDObj(0x50F, (float *)&InitialSObjSimpleSetting);
-    *(char **)(p + 0x4) = d;
+    p->dobj = d;
     if (*(int *)(d + 0xC) != 0) {
         iosFree(*(int *)(d + 0xC) & 0xFFFFFFF);
     }
-    if (*(int *)(*(char **)(p + 0x4) + 0x10) != 0) {
-        iosFree(*(int *)(*(char **)(p + 0x4) + 0x10) & 0xFFFFFFF);
+    if (*(int *)(p->dobj + 0x10) != 0) {
+        iosFree(*(int *)(p->dobj + 0x10) & 0xFFFFFFF);
     }
-    *(int *)(*(char **)(p + 0x4) + 0xC) = 0;
-    *(int *)(*(char **)(p + 0x4) + 0x10) = 0;
-    *(int *)(*(char **)(p + 0x4) + 0xC) =
+    *(int *)(p->dobj + 0xC) = 0;
+    *(int *)(p->dobj + 0x10) = 0;
+    *(int *)(p->dobj + 0xC) =
         (int)iosMallocDebug(ios_partition_seki, num << 6, "src/enemyParts.c", 232);
-    *(int *)(*(char **)(p + 0x4) + 0x10) =
+    *(int *)(p->dobj + 0x10) =
         (int)iosMallocDebug(ios_partition_seki, num << 4, "src/enemyParts.c", 232);
-    *(int *)(*(char **)(p + 0x4) + 0x8) = num;
-    if (*(int *)(*(char **)(p + 0x4) + 0x870) != 0) {
-        iosFree(*(int *)(*(char **)(p + 0x4) + 0x870) & 0xFFFFFFF);
+    *(int *)(p->dobj + 0x8) = num;
+    if (*(int *)(p->dobj + 0x870) != 0) {
+        iosFree(*(int *)(p->dobj + 0x870) & 0xFFFFFFF);
     }
-    *(int *)(*(char **)(p + 0x4) + 0x870) =
+    *(int *)(p->dobj + 0x870) =
         (int)iosMallocDebug(ios_partition_seki, num * 0x50, "src/enemyParts.c", 232);
     for (i = 0; i < num; i++) {
-        ((DlFlag *)(i * 0x50 + (int)*(char **)(*(char **)(p + 0x4) + 0x870) + 0x38))->ll &= ~1;
-        ((DlFlag *)(i * 0x50 + (int)*(char **)(*(char **)(p + 0x4) + 0x870) + 0x38))->ll &= ~2;
-        *(float *)(i * 0x50 + (int)*(char **)(*(char **)(p + 0x4) + 0x870) + 0x40) = 0.0f;
-        *(float *)(i * 0x50 + (int)*(char **)(*(char **)(p + 0x4) + 0x870) + 0x44) = 0.0f;
-        *(float *)(i * 0x50 + (int)*(char **)(*(char **)(p + 0x4) + 0x870) + 0x48) = 0.0f;
-        *(float *)(i * 0x50 + (int)*(char **)(*(char **)(p + 0x4) + 0x870) + 0x4C) = 1.0f;
-        ((DlFlag *)(i * 0x50 + (int)*(char **)(*(char **)(p + 0x4) + 0x870) + 0x38))->ll &= ~4;
-        *(int *)(i * 0x50 + (int)*(char **)(*(char **)(p + 0x4) + 0x870) + 0x30) = 0;
-        *(float *)(i * 0x50 + (int)*(char **)(*(char **)(p + 0x4) + 0x870) + 0x34) = 1.0f;
-        *(short *)(i * 0x50 + (int)*(char **)(*(char **)(p + 0x4) + 0x870) + 0x3A) = 0;
-        *(float *)(i * 0x50 + (int)*(char **)(*(char **)(p + 0x4) + 0x870) + 0x20) = 1.0f;
-        *(float *)(i * 0x50 + (int)*(char **)(*(char **)(p + 0x4) + 0x870) + 0x24) = 1.0f;
-        *(float *)(i * 0x50 + (int)*(char **)(*(char **)(p + 0x4) + 0x870) + 0x28) = 1.0f;
+        ((DlFlag *)(i * 0x50 + (int)*(char **)(p->dobj + 0x870) + 0x38))->ll &= ~1;
+        ((DlFlag *)(i * 0x50 + (int)*(char **)(p->dobj + 0x870) + 0x38))->ll &= ~2;
+        *(float *)(i * 0x50 + (int)*(char **)(p->dobj + 0x870) + 0x40) = 0.0f;
+        *(float *)(i * 0x50 + (int)*(char **)(p->dobj + 0x870) + 0x44) = 0.0f;
+        *(float *)(i * 0x50 + (int)*(char **)(p->dobj + 0x870) + 0x48) = 0.0f;
+        *(float *)(i * 0x50 + (int)*(char **)(p->dobj + 0x870) + 0x4C) = 1.0f;
+        ((DlFlag *)(i * 0x50 + (int)*(char **)(p->dobj + 0x870) + 0x38))->ll &= ~4;
+        *(int *)(i * 0x50 + (int)*(char **)(p->dobj + 0x870) + 0x30) = 0;
+        *(float *)(i * 0x50 + (int)*(char **)(p->dobj + 0x870) + 0x34) = 1.0f;
+        *(short *)(i * 0x50 + (int)*(char **)(p->dobj + 0x870) + 0x3A) = 0;
+        *(float *)(i * 0x50 + (int)*(char **)(p->dobj + 0x870) + 0x20) = 1.0f;
+        *(float *)(i * 0x50 + (int)*(char **)(p->dobj + 0x870) + 0x24) = 1.0f;
+        *(float *)(i * 0x50 + (int)*(char **)(p->dobj + 0x870) + 0x28) = 1.0f;
     }
-    *(short *)(*(char **)(p + 0x4) + 0x84C) = 2;
+    *(short *)(p->dobj + 0x84C) = 2;
     for (j = 0; j < num; j++) {
-        *(DlVtxTemplate *)(j * 0x20 + *(int *)(p + 0xC)) = footPrintVtxTemplate;
-        ((DlFlag *)(j * 0x50 + (int)*(char **)(*(char **)(p + 0x4) + 0x870) + 0x38))->ll |= 1;
-        *(float *)(j * 0x50 + (int)*(char **)(*(char **)(p + 0x4) + 0x870) + 0x30) = 1.0f;
-        ((DlFlag *)(j * 0x50 + (int)*(char **)(*(char **)(p + 0x4) + 0x870) + 0x38))->ll &= ~4;
-        *(float *)(j * 0x50 + (int)*(char **)(*(char **)(p + 0x4) + 0x870) + 0x20) =
-            *(float *)(j * 0x50 + (int)*(char **)(*(char **)(p + 0x4) + 0x870) + 0x24) =
-                *(float *)(j * 0x50 + (int)*(char **)(*(char **)(p + 0x4) + 0x870) + 0x28) = 0.0f;
+        p->buf[j] = footPrintVtxTemplate;
+        ((DlFlag *)(j * 0x50 + (int)*(char **)(p->dobj + 0x870) + 0x38))->ll |= 1;
+        *(float *)(j * 0x50 + (int)*(char **)(p->dobj + 0x870) + 0x30) = 1.0f;
+        ((DlFlag *)(j * 0x50 + (int)*(char **)(p->dobj + 0x870) + 0x38))->ll &= ~4;
+        *(float *)(j * 0x50 + (int)*(char **)(p->dobj + 0x870) + 0x20) =
+            *(float *)(j * 0x50 + (int)*(char **)(p->dobj + 0x870) + 0x24) =
+                *(float *)(j * 0x50 + (int)*(char **)(p->dobj + 0x870) + 0x28) = 0.0f;
     }
     return p;
 }
 
-int ExecEnemyFootPrints(char *self)
+int ExecEnemyFootPrints(EnemyFootPrintHead *self)
 {
     int q[4];
     int i;
-    char *base;
+    EnemyFootPrint *base;
 
-    base = (char *)*(int *)(self + 0xC);
-    for (i = 0; i < *(int *)self; i++) {
-        char *fp = base + i * 0x20;
+    base = self->buf;
+    for (i = 0; i < self->num; i++) {
+        EnemyFootPrint *fp = &base[i];
         char *dl;
         /* The free marker is a statement of its own, not a constant folded
            into the store below.  ROM materialises it as `addiu $21,$0,-1`
@@ -306,51 +278,53 @@ int ExecEnemyFootPrints(char *self)
            is where the assignment sits here. */
         int dead;
 
-        if (*(int *)fp < 0) {
+        if (fp->life < 0) {
             continue;
         }
-        dl = (char *)(i * 0x50 + *(int *)(*(char **)(self + 0x4) + 0x870));
-        *(float *)(dl + 0x30) = -(float)(*(int *)fp + 1) / 30.0f;
-        *(float *)(dl + 0x20) = *(float *)(dl + 0x20) + *(float *)(fp + 0x4);
-        *(float *)(fp + 0x4) = *(float *)(fp + 0x4) * 0.9f;
+        dl = (char *)(i * 0x50 + *(int *)(self->dobj + 0x870));
+        *(float *)(dl + 0x30) = -(float)(fp->life + 1) / 30.0f;
+        *(float *)(dl + 0x20) = *(float *)(dl + 0x20) + fp->speed;
+        fp->speed = fp->speed * 0.9f;
         *(float *)(dl + 0x24) = *(float *)(dl + 0x28) = *(float *)(dl + 0x20);
         dead = -1;
         SetQuaternionByAxisRotateVWithNoRegularize(q, rand(), YUnitVector);
-        GetMatrixFromQuaternionPos((char *)(*(int *)(*(char **)(self + 0x4) + 0xC) + i * 0x40),
-                                   (char *)q, fp + 0x10);
-        *(int *)fp = *(int *)fp + 1;
-        if (*(int *)fp == 30) {
-            *(int *)fp = dead;
-            *(float *)(*(char **)(*(char **)(self + 0x4) + 0x870) + 0x80) = 1.0f;
+        GetMatrixFromQuaternionPos((char *)(*(int *)(self->dobj + 0xC) + i * 0x40), (char *)q,
+                                   fp->pos);
+        fp->life = fp->life + 1;
+        if (fp->life == 30) {
+            fp->life = dead;
+            *(float *)(*(char **)(self->dobj + 0x870) + 0x80) = 1.0f;
         }
     }
     return 1;
 }
 
-int EntryEnemyFootPrint(char *self, void *pos)
+int EntryEnemyFootPrint(EnemyFootPrintHead *self, void *pos)
 {
-    int i = *(int *)(self + 0x8);
-    char *fp = (char *)(i * 0x20 + *(int *)(self + 0xC));
+    int i = self->idx;
+    /* the slot address as an int sum, offset first: the ROM's addu takes the
+       scaled index as its first operand, which the subscript does not give */
+    EnemyFootPrint *fp = (EnemyFootPrint *)(i * 32 + (int)self->buf);
     char *vt;
 
-    *(float *)(fp + 0x4) = 0.05f;
-    *(int *)(fp + 0x0) = 0;
-    _CopyVector(fp + 0x10, pos);
+    fp->speed = 0.05f;
+    fp->life = 0;
+    _CopyVector(fp->pos, pos);
 
-    *(float *)((char *)(i * 0x20 + *(int *)(self + 0xC)) + 0x14) += -5.0f;
-    vt = (char *)(i * 0x50 + *(int *)(*(char **)(self + 0x4) + 0x870));
+    self->buf[i].pos[1] += -5.0f;
+    vt = (char *)(i * 0x50 + *(int *)(self->dobj + 0x870));
     *(float *)(vt + 0x20) = *(float *)(vt + 0x24) = *(float *)(vt + 0x28) = 0.0f;
 
-    *(int *)(self + 0x8) = *(int *)(self + 0x8) + 1;
-    if (*(int *)(self + 0x8) == *(int *)self) {
-        *(int *)(self + 0x8) = 0;
+    self->idx = self->idx + 1;
+    if (self->idx == self->num) {
+        self->idx = 0;
     }
     return 0;
 }
 
-int DispEnemyFootPrints(int *a0)
+int DispEnemyFootPrints(EnemyFootPrintHead *a0)
 {
-    p2o_DispVU1DObj(a0[1]);
+    p2o_DispVU1DObj(a0->dobj);
     return 1;
 }
 
@@ -381,21 +355,21 @@ int DispPointBlur(int *self)
     return 1;
 }
 
-int UpdateEnemyEye(char *a0, int a1, float f)
+int UpdateEnemyEye(EnemyEye *a0, void *m, float f)
 {
-    _MulMatrix(a0 + 0x10, a1, enemyEyeScaleMatrix);
-    if (*(int *)a0 != 0) {
-        UpdatePointBlur(*(PointBlur **)(a0 + 0x4), a0 + 0x40, enemyEyeBlurTint, f * 3.0f);
+    _MulMatrix(a0->mtx, m, enemyEyeScaleMatrix);
+    if (a0->blurOn != 0) {
+        UpdatePointBlur(a0->blur, a0->mtx[3], enemyEyeBlurTint, f * 3.0f);
     }
     return 1;
 }
 
-int DispEnemyEye(char *a0)
+int DispEnemyEye(EnemyEye *a0)
 {
-    _CopyMatrix(*(int *)(*(char **)(a0 + 0x50) + 0xC), a0 + 0x10);
-    reg_DispMultiPri(*(int *)(a0 + 0x50), 0xA);
-    if (*(int *)a0 != 0) {
-        char *fobj = *(char **)(a0 + 0x4);
+    _CopyMatrix(*(int *)(a0->dobj[0] + 0xC), a0->mtx);
+    reg_DispMultiPri(a0->dobj[0], 10);
+    if (a0->blurOn != 0) {
+        char *fobj = (char *)a0->blur;
         gif_StartPacketPri(*(int *)fobj);
         gif_SetAlpha(1, *(int *)(fobj + 0x34), 0x80);
         gif_Draw2DStripG(*(int *)(fobj + 0xC), *(int *)(fobj + 0x10), *(int *)(fobj + 0x4) << 1, 1);
@@ -404,9 +378,9 @@ int DispEnemyEye(char *a0)
     return 1;
 }
 
-int ResetEnemyEye(char *self)
+int ResetEnemyEye(EnemyEye *self)
 {
-    char *p = *(char **)(self + 0x4);
+    char *p = (char *)self->blur;
     *(int *)(p + 0x30) = 1;
     return 1;
 }

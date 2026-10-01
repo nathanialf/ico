@@ -27,10 +27,10 @@ static float flag4PointFix[2][4][4] = {
    SetFlag4PointFixID's own span and below its def line, with no out-of-line
    body of their own: a helper gcc inlined whole into its single call site
    at line 70. */
-static inline void setFlag4PointMesh(char *mesh, char *cl, float k, int id)
+static inline void setFlag4PointMesh(Mesh3D *mesh, char *cl, float k, int id)
 {
     float *tbl = flag4PointFix[id][0];
-    float *v = *(float **)(mesh + 0x74);
+    Prim3DVec *v = mesh->st;
     int n = *(int *)cl;
     int m = *(int *)(cl + 0x8);
     int i;
@@ -46,8 +46,8 @@ static inline void setFlag4PointMesh(char *mesh, char *cl, float k, int id)
         for (j = 0; j < m; j++) {
             c = tbl[1] + (tbl[9] - tbl[1]) * j / (m - 1) + k;
             d = tbl[5] + (tbl[13] - tbl[5]) * j / (m - 1) + k;
-            *(float *)((i * m + j) * 0x10 + (int)v + 0x4) = c + (d - c) * i / (n - 1);
-            *(float *)((i * m + j) * 0x10 + (int)v) = a + (b - a) * j / (m - 1);
+            v[i * m + j].y = c + (d - c) * i / (n - 1);
+            v[i * m + j].x = a + (b - a) * j / (m - 1);
         }
     }
 }

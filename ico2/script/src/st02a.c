@@ -292,13 +292,13 @@ void actSt02aWaterFallReflactionEffect(volatile int a0)
     PoolMeshQuad q0 = fallReflactionQuad;
     PoolMeshQuad q1 = poolReflactionQuad;
 
-    InitLayoutedPoolReflactionMesh((char *)&m0, (char *)&q0);
-    InitLayoutedPoolReflactionMesh((char *)&m1, (char *)&q1);
+    InitLayoutedPoolReflactionMesh(&m0, &q0);
+    InitLayoutedPoolReflactionMesh(&m1, &q1);
     for (;;) {
-        SetLayoutedPoolReflactionMesh((char *)&m0);
-        DispLimitedPoolReflactionMesh((int *)&m0);
-        SetLayoutedPoolReflactionMesh((char *)&m1);
-        DispLimitedPoolReflactionMesh((int *)&m1);
+        SetLayoutedPoolReflactionMesh(&m0);
+        DispLimitedPoolReflactionMesh(&m0);
+        SetLayoutedPoolReflactionMesh(&m1);
+        DispLimitedPoolReflactionMesh(&m1);
         _ACTWait(1);
     }
 }
