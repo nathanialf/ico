@@ -28,7 +28,7 @@ char *soundDataAreaSearch(int *a0);
 char *soundDataAreaGet(int a0, int a1, int a2, int a3);
 char *soundHDDataSet(int a0, int a1, int a2, int a3, int a4);
 char *soundSQDataSet(int a0, int a1, int a2, int a3, int a4);
-int soundSeDefPlay(int a0, int a1, int a2, int a3);
+int soundSeDefPlay(int a0, unsigned int a1, int a2, int a3);
 int soundSeDefPlayWithVolumeRate(int a0, int a1, int a2, int a3);
 float soundSeDefVolumeRateGet(int a0);
 void soundSeDefVolumeRateSet(int a0, float f);

@@ -31,11 +31,12 @@ typedef struct {
 } FcColor;
 
 typedef int (*FcFunc)(void *a0, int a1);
-/* kept local: agrees with gobj.h, which this TU does not include (isysGObjGetExist_next differ) */
+/* kept local: agrees with gobj.h, which this TU does not include (isysGObjGetExist_next differs) */
 extern void *isysGObjGetExist_begin(void);
-/* kept local: void * (void) here, void * (void *) in gobj.h */
+/* kept local: start is void here, struct GObj * in gobj.h */
 extern void *isysGObjGetExist_next(void);
-extern void __assert(char *file, int line, char *expr);
+/* kept local: agrees with mv_defs.h, which this TU does not include */
+extern void __assert(const char *file, int line, const char *expr);
 
 /* fieldCollision.o's .sbss and .bss, each in the ROM's order (MAIN.MAP lines
    7593 and 7704 size the runs 0x38 and 0x5C0 and name no symbol in either, so

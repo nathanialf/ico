@@ -58,11 +58,9 @@ static int partitionFreeColor[4] = {255, 128, 64, 128}; /* derived name */
 
 static int partitionUsedColor[4] = {64, 128, 255, 128}; /* derived name */
 
-/* kept local: this TU's use of gif_MakeSpriteNoTexture does not fit the
-   prototype in GifPacket.h (the colour word arrives as a 32-bit unsigned,
-   which the ROM materialises with lui + ori). */
-extern void gif_MakeSpriteNoTexture(int x, int y, int w, int h, unsigned int col,
-                                    unsigned int *tint, int mode);
+/* kept local: z is unsigned int here, long long in GifPacket.h */
+extern void gif_MakeSpriteNoTexture(int x, int y, int w, int h, unsigned int z, unsigned char *col,
+                                    int prim);
 
 /* .bss, owned by icoMisc.o (MAIN.MAP sizes the run 0x80 and names no
    symbol in it): the line buffer the memory report is printed through. */
@@ -71,11 +69,11 @@ static char printBuf[128];
 
 inline void ExitIcoMisc(void) {}
 
-/* kept local: agrees with GifPacket.h, which this TU does not include (gif_SetAlpha differ) */
+/* kept local: agrees with GifPacket.h, which this TU does not include (gif_MakeSpriteNoTexture differs) */
 extern void gif_StartPacketPri(int pri);
-/* kept local: void (int, int, int) here, void (long long, long long, long long) in GifPacket.h */
-extern void gif_SetAlpha(int a0, int a1, int a2);
-/* kept local: agrees with GifPacket.h, which this TU does not include (gif_SetAlpha differ) */
+/* kept local: agrees with GifPacket.h, which this TU does not include (gif_MakeSpriteNoTexture differs) */
+extern void gif_SetAlpha(long long a0, long long a1, long long a2);
+/* kept local: agrees with GifPacket.h, which this TU does not include (gif_MakeSpriteNoTexture differs) */
 extern void gif_EndPacket(void);
 
 /* two-dimensional screen position handed to Draw2DLine */
@@ -565,13 +563,13 @@ int dbgC5 = 0;
 
 static int windLineColor[4] = {0, 128, 255, 128}; /* derived name */
 
-/* kept local: agrees with GifPacket.h, which this TU does not include (gif_SetAlpha differ) */
+/* kept local: agrees with GifPacket.h, which this TU does not include (gif_MakeSpriteNoTexture differs) */
 extern void gif_StartPacketPri(int pri);
-/* kept local: void (int, int, int) here, void (long long, long long, long long) in GifPacket.h */
-extern void gif_SetAlpha(int a0, int a1, int a2);
-/* kept local: agrees with GifPacket.h, which this TU does not include (gif_SetAlpha differ) */
+/* kept local: agrees with GifPacket.h, which this TU does not include (gif_MakeSpriteNoTexture differs) */
+extern void gif_SetAlpha(long long a0, long long a1, long long a2);
+/* kept local: agrees with GifPacket.h, which this TU does not include (gif_MakeSpriteNoTexture differs) */
 extern void gif_EndPacket(void);
-/* kept local: void * (int, void *) here, int (void) in windField.h */
+/* kept local: returns void * here, int in windField.h; void is int here, void in windField.h */
 extern void *GetWindVector(int a0, void *pos);
 
 void DispIcoMisc(void)

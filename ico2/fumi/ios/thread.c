@@ -124,6 +124,7 @@ extern int _gp; /* linker-defined global pointer */
 static int n_thread = 0; /* derived name: the number of live IOS threads */
 
 inline void iosThreadDestroyMgr(); /* deferred-tail member; see the emission-order note */
+/* kept local: agrees with mv_defs.h, which this TU does not include */
 extern void __assert(const char *file, int line, const char *expr);
 
 /* thread.c:111 - iosThreadCreate.  It is a PUBLIC function (10 external call

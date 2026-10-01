@@ -18,6 +18,7 @@
 #include "boyact.h"
 #include "act-game.h"
 #include "StageManager.h"
+#include "s_init.h"
 
 /* the custom key map's sixteen pad button codes (iosPadConfCustom[44..59]),
    the default one bit per button */
@@ -170,7 +171,7 @@ static int keyConfigSlot[8] = {1, 2, 3, 4, 5, 0, 0, 0}; /* derived name */
    alignment common/src/kanbanBoot.c's own request block carries. */
 int mc[640] __attribute__((aligned(64))) = {0};
 
-/* kept local: agrees with mcard.h, which this TU does not include (iosMcGetBlockSaveInfo, iosMcLoadGameBlock differ) */
+/* kept local: agrees with mcard.h, which this TU does not include (iosMcDelete, iosMcFormat, iosMcGetBlockSaveInfo, iosMcLoadGameBlock, iosMcLoadProductBlock, iosMcSaveGameBlock, iosMcSaveIconBlock, iosMcSaveProductBlock differ) */
 extern int iosMcSync(unsigned long *a0);
 extern int D_00534CC0[];
 /* kept local: agrees with main.h, which this TU does not include (pad differ) */
@@ -277,14 +278,11 @@ typedef struct {
 
 /* file-local: nothing outside this TU calls it */
 int _la_memory_card_check(McWork *p, int a1);
-/* kept local: agrees with mcard.h, which this TU does not include (iosMcGetBlockSaveInfo, iosMcLoadGameBlock differ) */
+/* kept local: agrees with mcard.h, which this TU does not include (iosMcDelete, iosMcFormat, iosMcGetBlockSaveInfo, iosMcLoadGameBlock, iosMcLoadProductBlock, iosMcSaveGameBlock, iosMcSaveIconBlock, iosMcSaveProductBlock differ) */
 extern int iosMcGetInfo(void *a0);
-/* kept local: this TU's uses of these two do not fit the prototypes in
-   mcard.h (no caller reads a result; la_load_processing's registers after
-   both calls are those of a void call) */
-/* kept local: void (void *) here, int (void *) in mcard.h */
+/* kept local: returns void here, int in mcard.h */
 extern void iosMcLoadProductBlock(void *a0);
-/* kept local: void (void *) here, int (void *) in mcard.h */
+/* kept local: returns void here, int in mcard.h */
 extern void iosMcGetBlockSaveInfo(void *a0);
 
 /* .sdata, layout_action.o's run in the ROM's order (VMA 0x63B4D8..0x63B5F8,
@@ -1436,13 +1434,9 @@ int la_load_start_check(int a0)
 /* "chk:%d\n" and "case 4\n", short strings in this TU's .sdata at VMA
    0x63B588 and 0x63B590 */
 
-/* kept local: agrees with s_init.h, which this TU does not include (soundDataOpen, soundDataOpenSync differ) */
-extern int seEnvForceClose;
 /* the current game's save record, as in la_system_save_processing */
-/* kept local: this TU's uses of iosMcLoadGameBlock do not fit the prototype
-   in mcard.h, exactly as in common/src/debug.c */
-/* kept local: void (void *, void *) here, int (void *, int) in mcard.h */
-extern void iosMcLoadGameBlock(void *a0, void *buf);
+/* kept local: returns void here, int in mcard.h */
+extern void iosMcLoadGameBlock(void *a0, int a1);
 
 /* layout_action.c:1796-1800 in the listing: the saved file's serial read
    from the port's record, with the file number kept beside it; inlined into
@@ -1598,13 +1592,6 @@ inline int la_general_mc_confirm(void)
     }
     return -1;
 }
-
-/* kept local: agrees with s_init.h, which this TU does not include (soundDataOpen, soundDataOpenSync differ) */
-extern void soundSePlayModeStop(int a0);
-/* kept local: void (void *, int, int, int, int) here, void (int *, int, int, int, int) in s_init.h */
-extern void soundDataOpen(void *p, int a1, int a2, int a3, int t0);
-/* kept local: char * (void *) here, int * (int *) in s_init.h */
-extern char *soundDataOpenSync(void *p);
 
 /* layout_action.c:2565-2570 in the listing: inlined into la_game_over_continue
    and into la_mc_confirm_save_file with different data numbers, so the number is
@@ -1825,17 +1812,17 @@ typedef struct {
     unsigned char a;
 } SprCol;
 
-/* kept local: agrees with GifPacket.h, which this TU does not include (gif_SetAlpha, gif_Sprite differ) */
+/* kept local: agrees with GifPacket.h, which this TU does not include (gif_Sprite differs) */
 extern void gif_StartPacketPri(int pri);
-/* kept local: agrees with GifPacket.h, which this TU does not include (gif_SetAlpha, gif_Sprite differ) */
-extern void gif_SetZTest(int on);
-/* kept local: agrees with GifPacket.h, which this TU does not include (gif_SetAlpha, gif_Sprite differ) */
-extern void gif_SetZWrite(int on);
-/* kept local: void (int, int, int) here, void (long long, long long, long long) in GifPacket.h */
-extern void gif_SetAlpha(int a, int b, int c);
-/* kept local: void (void *, unsigned int, void *, void *, int) here, void (int *, long long, int *, unsigned char *, int) in GifPacket.h */
-extern void gif_Sprite(void *rect, unsigned int z, void *uv, void *col, int prim);
-/* kept local: agrees with GifPacket.h, which this TU does not include (gif_SetAlpha, gif_Sprite differ) */
+/* kept local: agrees with GifPacket.h, which this TU does not include (gif_Sprite differs) */
+extern void gif_SetZTest(int a0);
+/* kept local: agrees with GifPacket.h, which this TU does not include (gif_Sprite differs) */
+extern void gif_SetZWrite(int a0);
+/* kept local: agrees with GifPacket.h, which this TU does not include (gif_Sprite differs) */
+extern void gif_SetAlpha(long long a0, long long a1, long long a2);
+/* kept local: z is unsigned int here, long long in GifPacket.h */
+extern void gif_Sprite(int *r, unsigned int z, int *uv, unsigned char *col, int prim);
+/* kept local: agrees with GifPacket.h, which this TU does not include (gif_Sprite differs) */
 extern void gif_EndPacket(void);
 
 static int barStep = 0; /* derived name */
@@ -2210,7 +2197,7 @@ int la_format_confirm(int a0, int a1)
     return -1;
 }
 
-/* kept local: void (void *) here, int (void *) in mcard.h */
+/* kept local: returns void here, int in mcard.h */
 extern void iosMcFormat(void *a0);
 
 static int formatStep = 0; /* derived name */
@@ -2252,14 +2239,12 @@ inline int la_format_processing(int a0)
 }
 
 /* the system-save error message, VMA 0x61DBB8 */
-/* kept local: this TU's uses of the block calls do not fit the prototypes in
-   mcard.h, exactly as in common/src/debug.c */
-/* kept local: void (void *) here, int (void *) in mcard.h */
+/* kept local: returns void here, int in mcard.h */
 extern void iosMcSaveIconBlock(void *a0);
-/* kept local: void (void *) here, int (void *) in mcard.h */
+/* kept local: returns void here, int in mcard.h */
 extern void iosMcSaveProductBlock(void *a0);
-/* kept local: void (void *, void *) here, int (void *, int) in mcard.h */
-extern void iosMcSaveGameBlock(void *a0, void *buf);
+/* kept local: returns void here, int in mcard.h */
+extern void iosMcSaveGameBlock(void *a0, int a1);
 
 /* the current game's save record (la_save_confirm_complete copies the
    preview from it) */
@@ -2520,8 +2505,6 @@ inline int la_save_confirm_complete(int a0, int a1)
 
 /* kept local: agrees with main.h, which this TU does not include (pad differ) */
 extern int optionScreenMode;
-/* kept local: agrees with s_init.h, which this TU does not include (soundDataOpen, soundDataOpenSync differ) */
-extern void soundDataSegAllClose(int a0, int a1);
 
 /* layout_action.c:3462-3499 in the listing. */
 int la_end_confirm(void)
@@ -2629,7 +2612,7 @@ inline int la_delete_confirm(int a0, int a1)
     return -1;
 }
 
-/* kept local: void (void *) here, int (void *) in mcard.h */
+/* kept local: returns void here, int in mcard.h */
 extern void iosMcDelete(void *a0);
 
 static int deleteStep = 0; /* derived name */
@@ -3023,11 +3006,6 @@ static const int screenModeItem[5] = {303, 304, 305, 306, 307}; /* derived name 
 static const int screenModeAnim[5] = {-1, 67, 68, 69, 70}; /* derived name */
 
 static const int choiceItem[4] = {321, 322, 328, 329}; /* derived name */
-
-/* kept local: agrees with s_init.h, which this TU does not include (soundDataOpen, soundDataOpenSync differ) */
-extern int soundOutputModeGet(void);
-/* kept local: agrees with s_init.h, which this TU does not include (soundDataOpen, soundDataOpenSync differ) */
-extern void soundOutputModeSet(int a0);
 
 /* layout_action.c:4272-4371 in the listing.  The switch table is jtbl_0061DCC0
    (26 arms over the property item, cases 300..325; VMA 0x61DCC0..0x61DD28). */

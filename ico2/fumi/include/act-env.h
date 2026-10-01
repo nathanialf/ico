@@ -63,6 +63,52 @@ typedef union {
     } bit;
 } EnvFlag;
 
-void ACTGetEnvironment(void *self, void *a1, float *orient, EnvFlag *flags, char *env);
+/* the 0x20-byte contact record (Sub15C + 0x180) the environment check keeps
+   two copies of */
+typedef struct { /* field names derived */
+    char b[0x20];
+} ClipCopy;
+
+/* the actor's environment record (Act + 0x4B0) ACTGetEnvironment fills in:
+   the wall and cliff orientations and positions, the contact objects and
+   the two contact copies */
+typedef struct {             /* field names derived */
+    float wallOrient[4];     /* 0x0 */
+    float cliffOrient[4];    /* 0x10 */
+    float torchOrient[4];    /* 0x20 */
+    float torchRevOrient[4]; /* 0x30 */
+    float cliffEdgePos[4];   /* 0x40 */
+    float cliffStepPos[4];   /* 0x50 */
+    float ditchPos[4];       /* 0x60 */
+    float ditchDir[4];       /* 0x70 */
+    char pad80[0x10];
+    float cliffBackPos[4]; /* 0x90 */
+    float edgeOrient[4];   /* 0xA0 */
+    char padB0[0x10];
+    float edgePos[4]; /* 0xC0 */
+    char padD0[0x20];
+    float pullPos[4]; /* 0xF0 */
+    char pad100[0x30];
+    int wallWord;      /* 0x130 */
+    int cliffSel;      /* 0x134 */
+    float cliffHeight; /* 0x138 */
+    int wallObj;       /* 0x13C */
+    int boxObj;        /* 0x140 */
+    int holdBoxObj;    /* 0x144 */
+    int kind12Obj;     /* 0x148 */
+    int pullObj;       /* 0x14C */
+    int pullKind;      /* 0x150 */
+    char pad154[0x4];
+    char *swapWeapon;      /* 0x158 */
+    char *frontObj;        /* 0x15C */
+    char *cageObj;         /* 0x160 */
+    char *bombObj;         /* 0x164 */
+    char *torchRevObj;     /* 0x168 */
+    int sofaObj;           /* 0x16C */
+    ClipCopy wallContact;  /* 0x170 */
+    ClipCopy cliffContact; /* 0x190 */
+} ActEnv;
+
+void ACTGetEnvironment(void *self, void *a1, float *orient, EnvFlag *flags, ActEnv *env);
 
 #endif /* ACT_ENV_H */

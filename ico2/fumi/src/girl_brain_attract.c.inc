@@ -206,13 +206,6 @@ typedef struct {
     sceVu0FVECTOR dir; /* 0x240 */
 } GirlSofaWork;
 
-/* The actor's status word at 0x438 as one-bit fields; the attract state sets
-   bit 16 when its target record asks for the detailed way search. */
-typedef struct {
-    unsigned long long : 16;
-    unsigned long long wayDetail : 1;
-} GirlActFlag438;
-
 /* the three attract parameter sets */
 static GirlAttractParam attractObjParam = {0, {0}, {0}, 0, 338, 100.0f, 100.0f}; /* derived name */
 
@@ -465,7 +458,7 @@ restart:
             int p = ACTWayMove_BeginDetail((void *)a0, mypos, tgt.pos, tgt.obj, 0, 0);
 
             if (tgt.f_30 != 0) {
-                ((GirlActFlag438 *)((char *)sub + 0x438))->wayDetail = 1;
+                sub->wayState.bits.wayDetail = 1;
             }
             if (p != 0) {
                 setMode(3);

@@ -217,32 +217,21 @@ typedef struct OmProc {
     char thread[0x4]; /* 0x24 */
 } OmProc;
 
-typedef struct OmGObj {
-    char _p0[0x10];
-    struct OmGObj *next; /* 0x10 */
-    char _p14[0x28 - 0x14];
-    void (*fn)(struct OmGObj *); /* 0x28 */
-    OmProc *procs;               /* 0x2C */
-    char _p30[0x16C - 0x30];
-    int active;      /* 0x16C */
-    int pauseExempt; /* 0x170 */
-} OmGObj;
-
 void _iosOmMain(void)
 {
-    OmGObj *g;
-    OmGObj *g2;
+    GObj *g;
+    GObj *g2;
     OmProc *p;
     int k;
     int pri;
 
     for (k = 0; k < 8; k++) {
-        g = (OmGObj *)gobj_link_head[k];
+        g = gobj_link_head[k];
         if ((active_gobj_link >> k) & 1) {
             for (; g != 0; g = g->next) {
                 isysCurrentGObj = (char *)g;
                 if (systemStatus[5] == 0 || g->pauseExempt != 0) {
-                    if (g->active != 0) {
+                    if (g->f_16C != 0) {
                         if (g->fn != 0) {
                             g->fn(g);
                         }
@@ -252,14 +241,14 @@ void _iosOmMain(void)
         }
     }
     for (k = 0; k < 8; k++) {
-        g2 = (OmGObj *)gobj_link_head[k];
+        g2 = gobj_link_head[k];
         if ((active_gobj_link >> k) & 1) {
             for (; g2 != 0; g2 = g2->next) {
                 isysCurrentGObj = (char *)g2;
                 if (systemStatus[5] == 0 || g2->pauseExempt != 0) {
-                    if (g2->active != 0) {
+                    if (g2->f_16C != 0) {
                         for (pri = 0x13; pri < 27; pri++) {
-                            p = g2->procs;
+                            p = (OmProc *)g2->procHead;
                             while (p != 0) {
                                 if (p->pri == pri) {
                                     if (p->enabled != 0) {

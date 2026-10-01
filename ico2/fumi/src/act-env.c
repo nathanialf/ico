@@ -6,6 +6,7 @@
 #include "gobj.h"
 #include "camera-editor.h"
 #include "commonact.h"
+#include "motionManager2.h"
 
 union ENVIF {
     int i;
@@ -45,19 +46,9 @@ static const VECTOR sofaSeatOffset = {30.0f, 0.0f, -50.0f, 0.0f};
 
 /* kept local: int here, GObj * in main.h */
 extern int boyGObj;
-/* kept local: agrees with motionManager2.h, which this TU does not include (CheckWallAttribute differ) */
-extern int CheckPureWallAttribute();
-/* kept local: agrees with motionManager2.h, which this TU does not include (CheckPureWallAttribute differ) */
-extern int CheckWallAttribute();
 /* same prototype motionManager2.h carries; kept local because this TU does not include it */
-/* kept local: agrees with motionManager2.h, which this TU does not include (CheckPureWallAttribute, CheckWallAttribute differ) */
-extern float GetHeightOfFieldPlaneDifference(int *a, int *b);
 /* same prototype motionManager2.h carries; kept local because this TU does not include it */
-/* kept local: agrees with motionManager2.h, which this TU does not include (CheckPureWallAttribute, CheckWallAttribute differ) */
-extern void SetMotionDirection(void *a0, float *a1);
 /* same prototype motionManager2.h carries; kept local because this TU does not include it */
-/* kept local: agrees with motionManager2.h, which this TU does not include (CheckPureWallAttribute, CheckWallAttribute differ) */
-extern void GetRootProjectionPosOfGObj(int a0, int a1);
 /* kept local: agrees with main.h, which this TU does not include (boyGObj, ((char *)girlGObj) differ) */
 extern int stage_no;
 
@@ -273,26 +264,26 @@ void DebugActOrientFlag(unsigned int *f)
 inline void ACTSetEnvAllmighty(char *a0)
 {
     Act *s = GOBJ_ACT(a0);
-    s->f_478 |= (1ULL << 38);
-    s->f_478 |= (1ULL << 39);
-    s->f_478 |= (1ULL << 40);
-    s->f_478 |= (1ULL << 41);
-    s->f_478 |= (1ULL << 44);
-    s->f_478 |= (1ULL << 45);
+    s->wish0.ll |= (1ULL << 38);
+    s->wish0.ll |= (1ULL << 39);
+    s->wish0.ll |= (1ULL << 40);
+    s->wish0.ll |= (1ULL << 41);
+    s->wish0.ll |= (1ULL << 44);
+    s->wish0.ll |= (1ULL << 45);
     if (ACTGame_FLAG_TETSUNAGI()) {
         s->flags18.ll &= ~(1ULL << 43);
         s->f_28 = 0;
     } else {
         if ((int)(s->flags18.ll >> 43) & 1)
-            s->f_478 |= (1ULL << 46);
+            s->wish0.ll |= (1ULL << 46);
         s->f_28 += 1;
     }
-    s->f_478 |= (1ULL << 50);
-    s->f_478 |= (1ULL << 51);
-    s->f_478 |= (1ULL << 52);
-    s->f_478 |= (1ULL << 53);
-    s->f_478 |= (1ULL << 49);
-    s->f_480 |= (1ULL << 43);
+    s->wish0.ll |= (1ULL << 50);
+    s->wish0.ll |= (1ULL << 51);
+    s->wish0.ll |= (1ULL << 52);
+    s->wish0.ll |= (1ULL << 53);
+    s->wish0.ll |= (1ULL << 49);
+    s->wish1.ll |= (1ULL << 43);
 }
 
 inline int CheckWallAttributeEdegWall(int a0)
@@ -303,38 +294,28 @@ inline int CheckWallAttributeEdegWall(int a0)
     return (unsigned char)CheckWallAttribute(a0, 0x1000);
 }
 
-typedef struct {
-    char b[0x20];
-} ClipCopy;
-
-/* kept local: the two records ACTGetEnvironment's head reads as members,
-   shaped from its own loads (offsets from the ROM, names ours): the motion
-   record at actor + 0x130 and the sub-object at object + 0x15C. */
-typedef struct {
-    char _000[0x110];
-    float f_110; /* 0x110 */
-    float f_114; /* 0x114 */
-    char _118[0x18];
-    float f_130; /* 0x130 */
-    char _134[0x4];
-    float f_138; /* 0x138 */
+/* The motion record at actor + 0x130 and the three sub-object words
+   ACTGetEnvironment's head reads that Sub15C does not name yet (the object
+   kind at 0x0, the wall record at 0x574, the wall height at 0x5A4). */
+typedef struct { /* field names derived */
+    char pad000[0x110];
+    float cliffDepth; /* 0x110 */
+    float cliffDist;  /* 0x114 */
+    char pad118[0x18];
+    float height; /* 0x130 */
+    char pad134[0x4];
+    float wallDist; /* 0x138 */
 } EnvMotion;
 
-typedef struct {
-    int f_0; /* 0x0 */
-    char _004[0x17C];
-    char *f_180; /* 0x180 */
-    char _184[0x3DC];
-    float f_560; /* 0x560 */
-    char *f_564; /* 0x564 */
-    char _568[0xC];
-    char *f_574; /* 0x574 */
-    char _578[0x2C];
-    float f_5A4; /* 0x5A4 */
+typedef struct { /* field names derived */
+    int kind;    /* 0x0 */
+    char pad004[0x570];
+    char *wallRec; /* 0x574 */
+    char pad578[0x2C];
+    float wallTop; /* 0x5A4 */
 } EnvSub;
 
 extern int _FrontGV(float *a0, float *a1, void *ori, int deg);
-extern int CheckPureCliffAttribute(void *a0, int attr);
 extern float GetCorrectDistance(float d, int n);
 extern void GetOrientOfCliffOfGObj(void *out, void *obj);
 /* same prototype as its definition in weapon.c; kept local because no header carries it */
@@ -519,7 +500,7 @@ static __inline__ void envDebugPrint(void)
 #define BOX_DY ((p100[1] - prj[1]) < 0.0f ? -(p100[1] - prj[1]) : (p100[1] - prj[1]))
 #define BOX_SIDE(lo, hi, ofs, ang, cond, to)                                                      \
     if ((lo) < p120[0] && p120[0] <= (hi)) {                                                     \
-        sceVu0ScaleVector(*(char **)(*(char **)(a0 + 0x164) + 0x688) + 0x500, env + 0x10,       \
+        sceVu0ScaleVector(*(char **)(*(char **)(a0 + 0x164) + 0x688) + 0x500, env->cliffOrient,       \
                           (p120[0] < 0.0f ? -p120[0] : p120[0]) - (ofs));                       \
         _ApplyRyGV(*(char **)(*(char **)(a0 + 0x164) + 0x688) + 0x500, (ang));                  \
         sceVu0AddVector((float *)(*(char **)(*(char **)(a0 + 0x164) + 0x688) + 0x500), pos,     \
@@ -530,7 +511,7 @@ static __inline__ void envDebugPrint(void)
         break;                                                                                   \
     }
 
-void ACTGetEnvironment(void *a0, void *a1, float *a2, EnvFlag *flags, char *env)
+void ACTGetEnvironment(void *a0, void *a1, float *a2, EnvFlag *flags, ActEnv *env)
 {
     float prj[4];
     float pos[4];
@@ -540,21 +521,21 @@ void ACTGetEnvironment(void *a0, void *a1, float *a2, EnvFlag *flags, char *env)
        sit at act-env.c:1432-1445 and 1486-1488, inside this function's span
        and below its 1403 def line.  `inline` is required or gcc emits
        out-of-line copies ahead of this function and breaks the TU order. */
-    char *sub = *(char **)(a0 + 0x164);
-    char *obj = ((EnvSub *)(char *)GOBJ_SUB(a0))->f_180;
-    int kind = ((EnvSub *)(char *)GOBJ_SUB(a0))->f_0;
-    float dist = ((EnvMotion *)*(char **)(sub + 0x130))->f_138;
-    float hgt = -((EnvMotion *)*(char **)(sub + 0x130))->f_130;
-    float wallh = -((EnvSub *)(char *)GOBJ_SUB(a0))->f_5A4;
-    float hh = ((EnvMotion *)*(char **)(sub + 0x130))->f_114;
-    float f26 = ((EnvMotion *)*(char **)(sub + 0x130))->f_110;
+    Act *sub = GOBJ_ACT(a0);
+    char *obj = (char *)GOBJ_SUB(a0)->f_180;
+    int kind = ((EnvSub *)(char *)GOBJ_SUB(a0))->kind;
+    float dist = ((EnvMotion *)(char *)sub->f_130)->wallDist;
+    float hgt = -((EnvMotion *)(char *)sub->f_130)->height;
+    float wallh = -((EnvSub *)(char *)GOBJ_SUB(a0))->wallTop;
+    float hh = ((EnvMotion *)(char *)sub->f_130)->cliffDist;
+    float f26 = ((EnvMotion *)(char *)sub->f_130)->cliffDepth;
     int v1D8 = 1;
     int v1DC = 1;
     int v1E0;
     int v1E4 = 0;
     int v1E8 = 0;
-    char *w564 = ((EnvSub *)(char *)GOBJ_SUB(a0))->f_564;
-    char *w574 = ((EnvSub *)(char *)GOBJ_SUB(a0))->f_574;
+    char *w564 = (char *)GOBJ_SUB(a0)->f_564;
+    char *w574 = ((EnvSub *)(char *)GOBJ_SUB(a0))->wallRec;
     char *v1EC = 0;
     float k;
     float kk;
@@ -588,25 +569,25 @@ void ACTGetEnvironment(void *a0, void *a1, float *a2, EnvFlag *flags, char *env)
         dist = 3.40282347e+38f /* FLT_MAX */;
     if (GOBJ_SUB(a0)->f_568 == 0)
         hh = 3.40282347e+38f /* FLT_MAX */;
-    if ((int)(*(unsigned long long *)(sub + 0x18) >> 52) & 1)
+    if ((int)(sub->flags18.ll >> 52) & 1)
         v1D8 = 0;
-    if (((EnvSub *)(char *)GOBJ_SUB(a0))->f_560 > _ACTGame_GetParamF(2)) {
+    if (GOBJ_SUB(a0)->f_560 > _ACTGame_GetParamF(2)) {
         v1D8 = 0;
         v1DC = 0;
     }
     GetRootProjectionPosOfGObj((int)prj, (int)a0);
     GetRootPosition(pos, a0);
     GetSkeltonOrient(ori, a0, 0x2C);
-    *(ClipCopy *)(env + 0x170) = *(ClipCopy *)((char *)GOBJ_SUB(a0) + 0x180);
-    ((ActStatusWord *)(sub + 0x18))->q &= ~(1ULL << 44);
-    ((ActStatusWord *)(sub + 0x18))->q &= ~(1ULL << 45);
-    ((ActStatusWord *)(sub + 0x20))->q &= ~(1ULL << 7);
-    ((ActStatusWord *)(sub + 0x20))->q &= ~(1ULL << 36);
-    *(char *)(*(char **)(*(char **)(a0 + 0x164) + 0x688) + 0x4F0) = 0;
-    if ((int)(*(unsigned long long *)(sub + 0x20) >> 15) & 1) {
+    env->wallContact = *(ClipCopy *)((char *)GOBJ_SUB(a0) + 0x180);
+    sub->flags18.ll &= ~(1ULL << 44);
+    sub->flags18.ll &= ~(1ULL << 45);
+    sub->flags20.ll &= ~(1ULL << 7);
+    sub->flags20.ll &= ~(1ULL << 36);
+    *(char *)((char *)GOBJ_ACT(a0)->f_688 + 0x4F0) = 0;
+    if ((int)(sub->flags20.ll >> 15) & 1) {
         k = 0.0f;
         v1E0 = 0;
-    } else if ((int)(*(unsigned long long *)(sub + 0x20) >> 14) & 1) {
+    } else if ((int)(sub->flags20.ll >> 14) & 1) {
         k = 100.0f;
         v1E0 = 0;
     } else {
@@ -624,7 +605,7 @@ void ACTGetEnvironment(void *a0, void *a1, float *a2, EnvFlag *flags, char *env)
                 if (GetCageChainPoint((char *)p40, (char *)p50, o)) {
                     if (_DistxzSqGV(test_CURRENTROOT(a0), p40) < 4900.0f && p50[1] > pos[1]) {
                         v1EC = o;
-                        *(char **)(env + 0x160) = o;
+                        env->cageObj = o;
                         break;
                     }
                 }
@@ -652,9 +633,9 @@ void ACTGetEnvironment(void *a0, void *a1, float *a2, EnvFlag *flags, char *env)
             hh = 3.40282347e+38f /* FLT_MAX */;
     }
     if ((w574 != 0 || w564 != 0) && (char *)GOBJ_SUB(a0)->f_188 != 0) {
-        GetOrientOfWall(env, (void *)GOBJ_SUB(a0)->f_188,
+        GetOrientOfWall(env->wallOrient, (void *)GOBJ_SUB(a0)->f_188,
                         (int *)((char *)GOBJ_SUB(a0) + 0x180));
-        *(float *)(env + 0xC) = 1.0f;
+        env->wallOrient[3] = 1.0f;
         if (w564 != 0) {
             float p60[4];
             int c1 = 1;
@@ -668,29 +649,29 @@ void ACTGetEnvironment(void *a0, void *a1, float *a2, EnvFlag *flags, char *env)
                     c1 = 0;
             }
             GetSkeltonOrient(p60, a0, 0x2C);
-            r = H0950(p60, (float *)env);
+            r = H0950(p60, env->wallOrient);
             if (c2 && 30 < r)
                 flags[0].w |= 0x20;
             if (c1 && r < -30)
                 flags[0].w |= 0x10;
         }
         if (w574 != 0) {
-            if (dist < 40.0f && H0968(a1, (float *)env) < 75)
+            if (dist < 40.0f && H0968(a1, env->wallOrient) < 75)
                 flags[0].w |= 2;
             if (dist < k) {
-                int ry = H0968(a1, (float *)env);
+                int ry = H0968(a1, env->wallOrient);
 
-                *(unsigned long long *)(sub + 0x18) |= (1ULL << 60);
+                sub->flags18.ll |= (1ULL << 60);
                 if (dist < 60.0f && ry < 30)
-                    *(unsigned long long *)(sub + 0x18) |= (1ULL << 59);
+                    sub->flags18.ll |= (1ULL << 59);
             }
         }
     }
     if (w564 == 0 && GOBJ_SUB(a0)->f_57C) {
         if (GOBJ_SUB(a0)->f_5E4 < 100.0f) {
             if (H0968(a1, (float *)((char *)GOBJ_SUB(a0) + 0x5D0)) < 40) {
-                *(unsigned long long *)(sub + 0x18) |= (1ULL << 44);
-                *(unsigned long long *)(sub + 0x18) |= (1ULL << 45);
+                sub->flags18.ll |= (1ULL << 44);
+                sub->flags18.ll |= (1ULL << 45);
             }
         }
     }
@@ -698,21 +679,21 @@ void ACTGetEnvironment(void *a0, void *a1, float *a2, EnvFlag *flags, char *env)
         void *ori2 = test_CURRENTORIENT(a0);
         int v1F8;
 
-        v1F8 = H0968(ori2, (float *)env);
-        *(int *)(env + 0x130) = *(int *)(*(char **)(env + 0x178) + 0x48);
+        v1F8 = H0968(ori2, env->wallOrient);
+        env->wallWord = *(int *)(*(char **)((char *)env + 0x178) + 0x48);
         w564 = (char *)(CheckPureWallAttribute(a0, 0x1000) & 0xFF);
-        *(int *)(env + 0x13C) = (int)obj;
+        env->wallObj = (int)obj;
         flags[0].w |= 1;
         if (hgt < wallh && hgt != -3.40282347e+38f /* -FLT_MAX */)
             hgt = wallh;
         if (dist < k && 40.0f <= PosOrFar())
-            *(unsigned long long *)(sub + 0x18) |= (1ULL << 60);
+            sub->flags18.ll |= (1ULL << 60);
         if (dist < 300.0f && PosOrFar() <= 250.0f)
             flags[0].w |= 4;
         if (a0 == ((char *)girlGObj) && dist < 300.0f && *(int *)(obj + 0xC) == 0x11 &&
-            IsThisBoxTruck(obj) == 7 && H0968(a1, (float *)env) < 45 &&
-            H0968(a2, (float *)env) < 45 && _AbsRotyGV(a1, a2) < 45)
-            ((ActStatusWord *)(sub + 0x20))->q |= (1ULL << 38);
+            IsThisBoxTruck(obj) == 7 && H0968(a1, env->wallOrient) < 45 &&
+            H0968(a2, env->wallOrient) < 45 && _AbsRotyGV(a1, a2) < 45)
+            sub->flags20.ll |= (1ULL << 38);
         if (CheckWallAttributeNotYorda(0xB000, 1) || CheckWallAttributeNotYorda(0xE000, 1) ||
             CheckWallAttributeNotYorda(0xC000, 0) || CheckWallAttributeNotYorda(0xD000, 1) ||
             CheckWallAttributeEdegWall((int)a0) || CheckWallAttributeNotYorda(0x3000, 0))
@@ -726,23 +707,23 @@ void ACTGetEnvironment(void *a0, void *a1, float *a2, EnvFlag *flags, char *env)
                 float p60[4], p70[4], p80[4];
                 float p90[4][4];
 
-                sceVu0ScaleVector(p60, (float *)env, -1.0f);
+                sceVu0ScaleVector(p60, env->wallOrient, -1.0f);
                 GetMatrixDirectionToZ(p90[0], p60);
                 sceVu0SubVector(p70, test_CURRENTROOT(boyGObj),
                                 test_CURRENTROOT(((char *)girlGObj)));
                 p70[3] = 0.0f;
                 sceVu0ApplyMatrix(p80, p90, p70);
                 if (dist < p80[2])
-                    *(unsigned long long *)(sub + 0x20) |= (1ULL << 19);
+                    sub->flags20.ll |= (1ULL << 19);
             }
         }
         if (stage_no == 16 && dist < 40.0f && 150.0f < (hgt < 0.0f ? -hgt : hgt) &&
             v1F8 < 45 && *(int *)(obj + 0xC) == 0x11)
-            *(unsigned long long *)(sub + 0x20) |= (1ULL << 39);
+            sub->flags20.ll |= (1ULL << 39);
         if (dist < 40.0f) {
-            *(unsigned long long *)(sub + 0x18) |= (1ULL << 44);
+            sub->flags18.ll |= (1ULL << 44);
             if (136 <= _AbsRotyGV(test_CURRENTORIENT(a0), env))
-                *(unsigned long long *)(sub + 0x18) |= (1ULL << 45);
+                sub->flags18.ll |= (1ULL << 45);
         }
         {
             float p60[4];
@@ -764,14 +745,14 @@ void ACTGetEnvironment(void *a0, void *a1, float *a2, EnvFlag *flags, char *env)
                 kk = 40.0f;
             }
             if (dist < 120.0f && t7) {
-                sceVu0ScaleVector(p60, (float *)env, dist);
-                sceVu0AddVector((float *)((char *)*(int *)((char *)*(int *)(a0 + 0x164) + 0x688) + 0x840),
+                sceVu0ScaleVector(p60, env->wallOrient, dist);
+                sceVu0AddVector((float *)((char *)GOBJ_ACT(a0)->f_688 + 0x840),
                                 pos, p60);
-                sceVu0ScaleVector((float *)((char *)*(int *)((char *)*(int *)(a0 + 0x164) + 0x688) + 0x850),
-                                  (float *)env, -1.0f);
-                *(float *)((char *)*(int *)((char *)*(int *)(a0 + 0x164) + 0x688) + 0x860) = 40.0f;
-                *(int *)((char *)*(int *)((char *)*(int *)(a0 + 0x164) + 0x688) + 0x864) = 20;
-                *(int *)((char *)*(int *)((char *)*(int *)(a0 + 0x164) + 0x688) + 0x868) = 1;
+                sceVu0ScaleVector((float *)((char *)GOBJ_ACT(a0)->f_688 + 0x850),
+                                  env->wallOrient, -1.0f);
+                *(float *)((char *)GOBJ_ACT(a0)->f_688 + 0x860) = 40.0f;
+                *(int *)((char *)GOBJ_ACT(a0)->f_688 + 0x864) = 20;
+                *(int *)((char *)GOBJ_ACT(a0)->f_688 + 0x868) = 1;
                 flags[1].w |= 8;
             }
             if (a0 == ((char *)girlGObj) && _ACTCharStatus_Check(a0, 0x1C)) {
@@ -810,12 +791,12 @@ void ACTGetEnvironment(void *a0, void *a1, float *a2, EnvFlag *flags, char *env)
                     flags[1].w |= 0x80000;
                 if (t16)
                     flags[1].w |= 0x100000;
-                if (*(unsigned long long *)(sub + 0x480) & 0x3C0000) {
-                    if (((int)(*(unsigned long long *)(sub + 0x480) >> 20) & 1) &&
+                if (*(unsigned long long *)((char *)sub + 0x480) & 0x3C0000) {
+                    if (((int)(*(unsigned long long *)((char *)sub + 0x480) >> 20) & 1) &&
                         *(int *)(a0 + 0xC) == 4)
-                        H1366(a0, (float *)env, dist, (float *)(sub + 0x590));
+                        H1366(a0, env->wallOrient, dist, (float *)((char *)sub + 0x590));
                     else
-                        H1379(a0, (float *)env, dist, (float *)(sub + 0x590));
+                        H1379(a0, env->wallOrient, dist, (float *)((char *)sub + 0x590));
                 }
                 if (80.0f < hgt && hgt < 180.0f) {
                     if (*(int *)(obj + 0xC) == 0x11)
@@ -827,15 +808,15 @@ void ACTGetEnvironment(void *a0, void *a1, float *a2, EnvFlag *flags, char *env)
                     flags[1].w |= 0x40;
             }
             if (dist < 50.0f) {
-                if (!((int)(*(unsigned long long *)(sub + 0x20) >> 12) & 1) &&
+                if (!((int)(sub->flags20.ll >> 12) & 1) &&
                     *(int *)(obj + 0xC) == 0x10) {
                     float rad = (a0 == boyGObj) ? 30.0f : 10.0f;
 
                     GetSofaPosition(a0, obj);
-                    debug_NMarker((float *)(sub + 0x5B0), 0, 0xFF, 0, 100.0f);
-                    if (_DistxzSqGV(prj, sub + 0x5B0) < rad * rad) {
+                    debug_NMarker((float *)((char *)sub + 0x5B0), 0, 0xFF, 0, 100.0f);
+                    if (_DistxzSqGV(prj, (char *)sub + 0x5B0) < rad * rad) {
                         flags[1].w |= 0x20;
-                        *(int *)(env + 0x16C) = (int)obj;
+                        env->sofaObj = (int)obj;
                     }
                 }
             }
@@ -844,46 +825,46 @@ void ACTGetEnvironment(void *a0, void *a1, float *a2, EnvFlag *flags, char *env)
             float p70[4];
 
             flags[2].w |= 0x20;
-            *(int *)(env + 0x140) = (int)obj;
+            env->boxObj = (int)obj;
             if (CanHoldBox(obj) && GetBoxHoldPoint(p70, obj, a0)) {
                 flags[2].w |= 0x10;
-                *(int *)(env + 0x144) = (int)obj;
+                env->holdBoxObj = (int)obj;
             }
         }
         if (*(int *)(obj + 0xC) == 0x12 && CheckWallAttribute(a0, 0x700)) {
             flags[2].w |= 0x40;
-            *(int *)(env + 0x148) = (int)obj;
+            env->kind12Obj = (int)obj;
         }
         if (*(int *)(obj + 0xC) == 0x17 && CheckPureWallAttribute(a0, 0x500)) {
             flags[2].w |= 0x80;
-            *(int *)(env + 0x14C) = (int)obj;
-            *(int *)(env + 0x150) = kind;
-            H1263((float *)(env + 0xF0), a0, obj, 5.0f);
+            env->pullObj = (int)obj;
+            env->pullKind = kind;
+            H1263(env->pullPos, a0, obj, 5.0f);
         }
         if (*(int *)(obj + 0xC) == 0x16 && CheckWallAttribute(a0, 0x500) &&
             CanFloorLeverPull(obj)) {
             flags[2].w |= 0x100;
-            *(int *)(env + 0x14C) = (int)obj;
-            H1263((float *)(env + 0xF0), a0, obj, 45.0f);
+            env->pullObj = (int)obj;
+            H1263(env->pullPos, a0, obj, 45.0f);
             {
                 float p70[4];
 
-                sceVu0ScaleVector(p70, (float *)env, -10.0f);
+                sceVu0ScaleVector(p70, env->wallOrient, -10.0f);
                 _ApplyRyGV(p70, 1.5707964f);
-                sceVu0AddVector((float *)(env + 0xF0), (float *)(env + 0xF0), p70);
+                sceVu0AddVector(env->pullPos, env->pullPos, p70);
             }
         }
         if (*(int *)(obj + 0xC) == 0x18 && CheckWallAttribute(a0, 0x600) &&
             CanWallLeverPull(obj)) {
             flags[2].w |= 0x200;
-            *(int *)(env + 0x14C) = (int)obj;
-            H1263((float *)(env + 0xF0), a0, obj, 30.0f);
+            env->pullObj = (int)obj;
+            H1263(env->pullPos, a0, obj, 30.0f);
         }
         if (*(int *)(obj + 0xC) == 0x19 && CheckWallAttribute(a0, 0x600) &&
             CanWallLeverPull(obj)) {
             flags[2].w |= 0x400;
-            *(int *)(env + 0x14C) = (int)obj;
-            H1263((float *)(env + 0xF0), a0, obj, 30.0f);
+            env->pullObj = (int)obj;
+            H1263(env->pullPos, a0, obj, 30.0f);
         }
     }
     if (dist < 200.0f) {
@@ -893,17 +874,17 @@ void ACTGetEnvironment(void *a0, void *a1, float *a2, EnvFlag *flags, char *env)
             CheckPureWallAttribute(a0, 0x400)) {
             flags[2].bit.b24 = b;
             flags[2].w |= 0x800000;
-            *(float *)(env + 0xA0) = *(float *)(env + 0x0);
-            *(float *)(env + 0xA4) = *(float *)(env + 0x4);
-            *(float *)(env + 0xA8) = *(float *)(env + 0x8);
-            H1253((float *)(env + 0xC0), a0, 0);
+            env->edgeOrient[0] = env->wallOrient[0];
+            env->edgeOrient[1] = env->wallOrient[1];
+            env->edgeOrient[2] = env->wallOrient[2];
+            H1253(env->edgePos, a0, 0);
             {
                 float p70[4];
 
-                sceVu0ScaleVector(p70, (float *)env, 30.0f);
-                sceVu0AddVector((float *)(env + 0xC0), (float *)(env + 0xC0), p70);
+                sceVu0ScaleVector(p70, env->wallOrient, 30.0f);
+                sceVu0AddVector(env->edgePos, env->edgePos, p70);
             }
-            *(float *)(env + 0xCC) = 1.0f;
+            env->edgePos[3] = 1.0f;
         }
         if (CheckPureWallAttribute(a0, 0xC000)) {
             flags[2].bit.b18 = b;
@@ -959,32 +940,32 @@ void ACTGetEnvironment(void *a0, void *a1, float *a2, EnvFlag *flags, char *env)
                 flags[2].bit.b13 = c60c;
         }
     }
-    if (dist < 50.0f && H0968(a2, (float *)env) < 40 &&
+    if (dist < 50.0f && H0968(a2, env->wallOrient) < 40 &&
         (a0 == boyGObj || a0 == ((char *)girlGObj) || (130.0f < hgt && *(int *)(obj + 0xC) != 0x10)))
-        *(unsigned long long *)(sub + 0x488) |= 8;
-    if (((int)(*(unsigned long long *)(sub + 0x488) >> 3) & 1) && 65.0f < PosOrFar() &&
+        *(unsigned long long *)((char *)sub + 0x488) |= 8;
+    if (((int)(*(unsigned long long *)((char *)sub + 0x488) >> 3) & 1) && 65.0f < PosOrFar() &&
         (float)v1F8 < 30.0f)
-        *(unsigned long long *)(sub + 0x478) |= (1ULL << 42);
+        *(unsigned long long *)((char *)sub + 0x478) |= (1ULL << 42);
     if (dist < 60.0f) {
         int e = ((float)v1F8 < 30.0f) ? 1 : 0;
 
         if (*(int *)(obj + 0xC) == 0x36) {
             if (!QueenBarrierInqBreakable())
-                *(unsigned long long *)(sub + 0x478) |= (1ULL << 63);
+                *(unsigned long long *)((char *)sub + 0x478) |= (1ULL << 63);
         } else
-            *(unsigned long long *)(sub + 0x478) |= (1ULL << 62);
+            *(unsigned long long *)((char *)sub + 0x478) |= (1ULL << 62);
         if (230.0f < PosOrFar() && !CheckWallAttribute(a0, 0x400) &&
             !CheckWallAttribute(a0, 0x8000) && *(int *)(obj + 0xC) != 0x2C &&
             *(int *)(obj + 0xC) != 0x36) {
             if (e) {
                 if (CheckWallAttribute(a0, 0xE000))
-                    *(unsigned long long *)(sub + 0x480) |= 1;
+                    *(unsigned long long *)((char *)sub + 0x480) |= 1;
                 else
-                    *(unsigned long long *)(sub + 0x480) |= 2;
+                    *(unsigned long long *)((char *)sub + 0x480) |= 2;
             }
         }
     }
-    if (*(int *)(a0 + 0xC) == 4 && *(int *)(*(char **)(*(char **)(a0 + 0x164) + 0x680) + 0x1E4) == 3 &&
+    if (*(int *)(a0 + 0xC) == 4 && *(int *)((char *)GOBJ_ACT(a0)->f_680 + 0x1E4) == 3 &&
         dist < 180.0f && GOBJ_SUB(a0)->f_1E4) {
         if (40.0f <= hgt && hgt < 300.0f)
             flags[1].w |= 0x8000000;
@@ -999,9 +980,9 @@ void ACTGetEnvironment(void *a0, void *a1, float *a2, EnvFlag *flags, char *env)
         float rr;
         int r;
 
-        GetOrientOfCliffOfGObj(env + 0x10, a0);
-        *(float *)(env + 0x1C) = 1.0f;
-        r = H0973(test_CURRENTORIENT(a0), (float *)(env + 0x10), 1.0f);
+        GetOrientOfCliffOfGObj(env->cliffOrient, a0);
+        env->cliffOrient[3] = 1.0f;
+        r = H0973(test_CURRENTORIENT(a0), env->cliffOrient, 1.0f);
         if (a0 == boyGObj && ((char *)girlGObj) != 0) {
             float p60[4];
 
@@ -1013,7 +994,7 @@ void ACTGetEnvironment(void *a0, void *a1, float *a2, EnvFlag *flags, char *env)
                 float pB0[4], pC0[4];
 
                 sceVu0SubVector(pB0, p60, pos);
-                GetMatrixDirectionToZ(p70[0], (float *)(env + 0x10));
+                GetMatrixDirectionToZ(p70[0], env->cliffOrient);
                 pB0[3] = 0.0f;
                 sceVu0ApplyMatrix(pC0, p70, pB0);
                 if (0.0f < pC0[2])
@@ -1023,24 +1004,24 @@ void ACTGetEnvironment(void *a0, void *a1, float *a2, EnvFlag *flags, char *env)
             }
         }
         if (a0 == boyGObj && hh < 80.0f && ((char *)girlGObj) != 0 &&
-            171 <= _AbsRotyGV(test_CURRENTORIENT(((char *)girlGObj)), env + 0x10)) {
-            if (*(int *)(*(char **)(((char *)girlGObj) + 0x164) + 0x34) == 0x1D &&
+            171 <= _AbsRotyGV(test_CURRENTORIENT(((char *)girlGObj)), env->cliffOrient)) {
+            if (GOBJ_ACT(girlGObj)->unk34 == 0x1D &&
                 _DistSqGV(pos, test_CURRENTROOT(((char *)girlGObj))) < 14400.0f)
                 flags[0].w |= 0x4000000;
-            if (*(int *)(*(char **)(((char *)girlGObj) + 0x164) + 0x34) == 0x1C &&
+            if (GOBJ_ACT(girlGObj)->unk34 == 0x1C &&
                 _DistSqGV(pos, test_CURRENTROOT(((char *)girlGObj))) < 40000.0f)
                 flags[0].w |= 0x2000000;
         }
         if (hh < 20.0f && 45 < r) {
-            if ((int)(*(unsigned long long *)(sub + 0x20) >> 42) & 1) {
-                SetMotionDirection(a0, (float *)(env + 0x10));
-                *(unsigned long long *)(sub + 0x20) &= ~(1ULL << 42);
+            if ((int)(sub->flags20.ll >> 42) & 1) {
+                SetMotionDirection(a0, env->cliffOrient);
+                sub->flags20.ll &= ~(1ULL << 42);
             }
         }
         if (((char *)girlControlMode) != 0 && stage_no == 26 && 3000.0f < pos[2])
             v1E8 = 1;
         if ((v1E8 ? hh < 35.0f : hh < 50.0f) && a0 == ((char *)girlGObj) && boyGObj != 0 &&
-            *(int *)(*(char **)(boyGObj + 0x164) + 0x34) == 0x58) {
+            GOBJ_ACT(boyGObj)->unk34 == 0x58) {
             float p60[4];
 
             rr = 400.0f;
@@ -1054,23 +1035,23 @@ void ACTGetEnvironment(void *a0, void *a1, float *a2, EnvFlag *flags, char *env)
                 rr = 0.0f;
             if (_DistSqGV(p60, pos) < rr * rr &&
                 _FrontGV(p60, pos, test_CURRENTORIENT(a0), 45)) {
-                _OrientXZGV(*(char **)(*(char **)(a0 + 0x164) + 0x688) + 0x510, p60, pos);
+                _OrientXZGV((char *)GOBJ_ACT(a0)->f_688 + 0x510, p60, pos);
                 flags[0].w |= 0x800;
             }
         }
-        if (*(int *)(sub + 0x34) == 0x29) {
+        if (sub->unk34 == 0x29) {
             if (900.0f < f26)
                 flags[1].w |= 0x180;
             else
                 flags[1].w |= 0x200;
         }
         if (hh < k && 40.0f <= f26)
-            *(unsigned long long *)(sub + 0x18) |= (1ULL << 61);
+            sub->flags18.ll |= (1ULL << 61);
         if (hh < 300.0f && 100.0f <= f26) {
             flags[0].w |= 8;
-            *(float *)(env + 0x138) = hh;
+            env->cliffHeight = hh;
         }
-        switch (*(unsigned int *)(sub + 0x34)) {
+        switch ((unsigned int)sub->unk34) {
         case 2:
             if (hh < 20.0f && 180.0f < f26) {
                 if (a0 == boyGObj && 900.0f < f26)
@@ -1089,18 +1070,18 @@ void ACTGetEnvironment(void *a0, void *a1, float *a2, EnvFlag *flags, char *env)
                     p60[2] = ((float *)a2)[2];
                     sceVu0ScaleVector(p60, p60, hh);
                     GetRootPosition(p70, a0);
-                    sceVu0AddVector((float *)(env + 0x40), p70, p60);
+                    sceVu0AddVector(env->cliffEdgePos, p70, p60);
                     if (5.0f < hh && CheckFloorAttribute(a0, 0xF000) && 20.0f < (float)r) {
                         float d = (15.0f - hh) * 5.0f / 15.0f;
                         float s;
                         float p80[4], p90[4];
 
                         s = (d < 0.0f) ? 0.0f : ((5.0f < d) ? 5.0f : d);
-                        sceVu0ScaleVector(p90, (float *)(env + 0x10), -s);
+                        sceVu0ScaleVector(p90, env->cliffOrient, -s);
                         sceVu0AddVector(p80, test_CURRENTROOT(a0), p90);
-                        *(float *)(env + 0x90) = p80[0];
-                        *(float *)(env + 0x94) = p80[1];
-                        *(float *)(env + 0x98) = p80[2];
+                        env->cliffBackPos[0] = p80[0];
+                        env->cliffBackPos[1] = p80[1];
+                        env->cliffBackPos[2] = p80[2];
                         flags[3].w |= 0x4000;
                         flags[3].w &= ~2;
                         flags[3].w &= ~4;
@@ -1138,18 +1119,18 @@ void ACTGetEnvironment(void *a0, void *a1, float *a2, EnvFlag *flags, char *env)
                     p60[2] = ((float *)a2)[2];
                     sceVu0ScaleVector(p60, p60, hh + 10.0f);
                     GetRootPosition(p70, a0);
-                    sceVu0AddVector((float *)(env + 0x40), p70, p60);
+                    sceVu0AddVector(env->cliffEdgePos, p70, p60);
                     if (5.0f < hh && CheckFloorAttribute(a0, 0xF000) && 20.0f < (float)r) {
                         float d = (25.0f - hh) * 5.0f / 25.0f;
                         float s;
                         float p80[4], p90[4];
 
                         s = (d < 0.0f) ? 0.0f : ((5.0f < d) ? 5.0f : d);
-                        sceVu0ScaleVector(p90, (float *)(env + 0x10), -s);
+                        sceVu0ScaleVector(p90, env->cliffOrient, -s);
                         sceVu0AddVector(p80, test_CURRENTROOT(a0), p90);
-                        *(float *)(env + 0x90) = p80[0];
-                        *(float *)(env + 0x94) = p80[1];
-                        *(float *)(env + 0x98) = p80[2];
+                        env->cliffBackPos[0] = p80[0];
+                        env->cliffBackPos[1] = p80[1];
+                        env->cliffBackPos[2] = p80[2];
                         flags[3].w |= 0x4000;
                         flags[3].w &= ~2;
                         flags[2].w &= 0x7FFFFFFF;
@@ -1159,33 +1140,33 @@ void ACTGetEnvironment(void *a0, void *a1, float *a2, EnvFlag *flags, char *env)
             break;
         }
         if (ACTGame_FLAG_TETSUNAGI() && hh < 40.0f && 1000.0f < f26) {
-            *(ClipCopy *)(env + 0x190) = *(ClipCopy *)((char *)GOBJ_SUB(a0) + 0x180);
+            env->cliffContact = *(ClipCopy *)((char *)GOBJ_SUB(a0) + 0x180);
             flags[0].w |= 0x8000000;
         }
         if (hh < 40.0f) {
             if (!((stage_no == 86 || stage_no == 3 || stage_no == 46) && *(int *)(a0 + 0xC) == 4) &&
                 CheckPureCliffAttribute(a0, 0x400) && 60.0f < f26) {
-                *(float *)(env + 0xA0) = *(float *)(env + 0x10);
-                *(float *)(env + 0xA4) = *(float *)(env + 0x14);
-                *(float *)(env + 0xA8) = *(float *)(env + 0x18);
+                env->edgeOrient[0] = env->cliffOrient[0];
+                env->edgeOrient[1] = env->cliffOrient[1];
+                env->edgeOrient[2] = env->cliffOrient[2];
                 flags[2].w |= 0x2000000;
-                if (hh < 10.0f && H0973(ori, (float *)(env + 0x10), 1.0f) < 60)
+                if (hh < 10.0f && H0973(ori, env->cliffOrient, 1.0f) < 60)
                     flags[2].w |= 0x4000000;
-                H1253((float *)(env + 0xC0), a0, 1);
-                *(float *)(env + 0xCC) = 1.0f;
+                H1253(env->edgePos, a0, 1);
+                env->edgePos[3] = 1.0f;
             }
             if (CheckPureCliffAttribute(a0, 0xC000))
                 flags[2].w |= 0x80000;
         }
         if (hh < 25.0f && v1E0 &&
-            !(((char *)girlGObj) != 0 && *(int *)(*(char **)(((char *)girlGObj) + 0x164) + 0x34) == 0x6F &&
-              *(char **)(*(char **)(((char *)girlGObj) + 0x164) + 0x144) == a0)) {
+            !(((char *)girlGObj) != 0 && GOBJ_ACT(girlGObj)->unk34 == 0x6F &&
+              (char *)GOBJ_ACT(girlGObj)->f_144 == a0)) {
             if (f26 < 55.0f)
-                ((ActStatusWord *)(sub + 0x480))->q |= (1ULL << 24);
+                sub->wish1.ll |= (1ULL << 24);
             else if (f26 < 105.0f)
-                ((ActStatusWord *)(sub + 0x480))->q |= (1ULL << 25);
+                sub->wish1.ll |= (1ULL << 25);
             else if (f26 < 205.0f)
-                ((ActStatusWord *)(sub + 0x480))->q |= (1ULL << 26);
+                sub->wish1.ll |= (1ULL << 26);
         }
         {
         float p60[4], p70[4], p80[4], p90[4], pA0[4], pB0[4];
@@ -1200,10 +1181,10 @@ void ACTGetEnvironment(void *a0, void *a1, float *a2, EnvFlag *flags, char *env)
         float hdif;
 
         if (a0 == boyGObj && ((char *)girlGObj) != 0 &&
-            *(int *)(*(char **)(((char *)girlGObj) + 0x164) + 0x34) != 0x26 && hh < 200.0f &&
+            GOBJ_ACT(girlGObj)->unk34 != 0x26 && hh < 200.0f &&
             !ACTGame_FLAG_TETSUNAGI() && !CheckPureCliffAttribute(a0, 0x7000) &&
             !CheckPureCliffAttribute(a0, 0x400) &&
-            _AbsRotyGV(env + 0x10, ori) < 60) {
+            _AbsRotyGV(env->cliffOrient, ori) < 60) {
             v200 = 1;
             hdif = -GetHeightOfFieldPlaneDifference((int *)boyGObj, (int *)((char *)girlGObj));
             if (!(hh < 60.0f))
@@ -1240,7 +1221,7 @@ void ACTGetEnvironment(void *a0, void *a1, float *a2, EnvFlag *flags, char *env)
                         v204 = 0;
                 }
             }
-            if (((int)(*(unsigned long long *)(*(char **)(boyGObj + 0x164) + 0x20) >> 43) &
+            if (((int)(GOBJ_ACT(boyGObj)->flags20.ll >> 43) &
                  1) &&
                 1600.0f < pos[1] && 200 <= sel)
                 sel = 0;
@@ -1249,10 +1230,10 @@ void ACTGetEnvironment(void *a0, void *a1, float *a2, EnvFlag *flags, char *env)
                 pA0[0] = prj[0];
                 pA0[1] = prj[1];
                 pA0[2] = prj[2];
-                sceVu0ScaleVector(p90, (float *)(env + 0x10), hh + 50.0f);
+                sceVu0ScaleVector(p90, env->cliffOrient, hh + 50.0f);
                 sceVu0AddVector(pB0, pA0, p90);
                 pB0[1] = pB0[1] + f26;
-                GetMatrixDirectionToZ(pC0[0], (float *)(env + 0x10));
+                GetMatrixDirectionToZ(pC0[0], env->cliffOrient);
                 for (o = isysGObjSearchFromObjKindID_begin(0x11); o != 0;
                      o = isysGObjSearchFromObjKindID_next(o)) {
                     if (*(int *)(o + 0x16C) && IsThisBoxTruck(o) != 7) {
@@ -1283,32 +1264,32 @@ void ACTGetEnvironment(void *a0, void *a1, float *a2, EnvFlag *flags, char *env)
                 v204 = 0;
             if (sel != 0 && lim < hdif && v204) {
                 GetRootPosition(p140, a0);
-                sceVu0ScaleVector(p130, (float *)(env + 0x10), hh);
-                sceVu0AddVector((float *)(env + 0x50), p140, p130);
-                if (*(unsigned char *)(*(char **)(*(char **)(a0 + 0x164) + 0x688) + 0x4F0))
-                    sceVu0AddVector((float *)(env + 0x50),
-                                    (float *)(*(char **)(*(char **)(a0 + 0x164) + 0x688) + 0x500), p130);
+                sceVu0ScaleVector(p130, env->cliffOrient, hh);
+                sceVu0AddVector(env->cliffStepPos, p140, p130);
+                if (*(unsigned char *)((char *)GOBJ_ACT(a0)->f_688 + 0x4F0))
+                    sceVu0AddVector(env->cliffStepPos,
+                                    (float *)((char *)GOBJ_ACT(a0)->f_688 + 0x500), p130);
                 GetRootPosition(p160, a0);
-                sceVu0ScaleVector(p150, (float *)(env + 0x10), hh - 30.0f);
-                sceVu0AddVector((float *)((char *)*(int *)((char *)*(int *)(a0 + 0x164) + 0x688) + 0x810), p160, p150);
-                *(float *)((char *)*(int *)((char *)*(int *)(a0 + 0x164) + 0x688) + 0x820) = *(float *)(env + 0x10);
-                *(float *)((char *)*(int *)((char *)*(int *)(a0 + 0x164) + 0x688) + 0x824) = *(float *)(env + 0x14);
-                *(float *)((char *)*(int *)((char *)*(int *)(a0 + 0x164) + 0x688) + 0x828) = *(float *)(env + 0x18);
-                *(float *)((char *)*(int *)((char *)*(int *)(a0 + 0x164) + 0x688) + 0x830) = 30.0f;
-                *(int *)((char *)*(int *)((char *)*(int *)(a0 + 0x164) + 0x688) + 0x834) = 20;
-                *(int *)((char *)*(int *)((char *)*(int *)(a0 + 0x164) + 0x688) + 0x838) = 0;
-                ((ActStatusWord *)(sub + 0x480))->q |= 4;
+                sceVu0ScaleVector(p150, env->cliffOrient, hh - 30.0f);
+                sceVu0AddVector((float *)((char *)GOBJ_ACT(a0)->f_688 + 0x810), p160, p150);
+                *(float *)((char *)GOBJ_ACT(a0)->f_688 + 0x820) = env->cliffOrient[0];
+                *(float *)((char *)GOBJ_ACT(a0)->f_688 + 0x824) = env->cliffOrient[1];
+                *(float *)((char *)GOBJ_ACT(a0)->f_688 + 0x828) = env->cliffOrient[2];
+                *(float *)((char *)GOBJ_ACT(a0)->f_688 + 0x830) = 30.0f;
+                *(int *)((char *)GOBJ_ACT(a0)->f_688 + 0x834) = 20;
+                *(int *)((char *)GOBJ_ACT(a0)->f_688 + 0x838) = 0;
+                sub->wish1.ll |= 4;
                 if (v200) {
-                    *(int *)(env + 0x134) = sel;
+                    env->cliffSel = sel;
                     switch (sel) {
                     case 100:
-                        ((ActStatusWord *)(sub + 0x488))->q |= 0x80;
+                        sub->wish2.ll |= 0x80;
                         break;
                     case 200:
-                        ((ActStatusWord *)(sub + 0x488))->q |= 0x100;
+                        sub->wish2.ll |= 0x100;
                         break;
                     case 300:
-                        ((ActStatusWord *)(sub + 0x488))->q |= 0x200;
+                        sub->wish2.ll |= 0x200;
                         break;
                     default:
                         debug_assert("src/act-env.c", 2633);
@@ -1325,13 +1306,13 @@ void ACTGetEnvironment(void *a0, void *a1, float *a2, EnvFlag *flags, char *env)
             !(((char *)girlGObj) != 0 && boyGObj != 0 &&
               test_CURRENTROOT(((char *)girlGObj))[1] >
                   test_CURRENTROOT(boyGObj)[1] + 800.0f) &&
-            (*(int *)(*(char **)(((char *)girlGObj) + 0x164) + 0x34) == 4 ||
+            (GOBJ_ACT(girlGObj)->unk34 == 4 ||
              !(_DistxzSqGV(test_CURRENTROOT(boyGObj), test_CURRENTROOT(((char *)girlGObj))) <
                (hh + 100.0f) * (hh + 100.0f))) &&
             !(_DistxzSqGV(test_CURRENTROOT(boyGObj), test_CURRENTROOT(((char *)girlGObj))) < 40000.0f &&
               300.0f < GetHeightOfFieldPlaneDifference((int *)((char *)girlGObj), (int *)boyGObj))) {
             _OrientXZGV(p130, test_CURRENTROOT(((char *)girlGObj)), test_CURRENTROOT(boyGObj));
-            if (_AbsRotyGV(p130, env + 0x10) < 80) {
+            if (_AbsRotyGV(p130, env->cliffOrient) < 80) {
                 float *tbl;
                 float range;
                 int sofa = 0;
@@ -1340,9 +1321,9 @@ void ACTGetEnvironment(void *a0, void *a1, float *a2, EnvFlag *flags, char *env)
 
                 getDitchDistTbl(&tbl, &range, &sofa, p160, p170, &carry);
                 for (i = 0; 0.0f <= tbl[i]; i++) {
-                    if (GetDitchPosition(p140, pos, (float *)(env + 0x10), hh, tbl[i],
+                    if (GetDitchPosition(p140, pos, env->cliffOrient, hh, tbl[i],
                                          range)) {
-                        sceVu0ScaleVector(p150, (float *)(env + 0x10), -1.0f);
+                        sceVu0ScaleVector(p150, env->cliffOrient, -1.0f);
                         if (sofa) {
                             p140[0] = p160[0];
                             p140[1] = p160[1];
@@ -1352,28 +1333,28 @@ void ACTGetEnvironment(void *a0, void *a1, float *a2, EnvFlag *flags, char *env)
                             p150[2] = p170[2];
                         }
                         if (hh < 60.0f) {
-                            *(char *)(sub + 0x530) = *(char *)&carry;
-                            *(float *)(env + 0x60) = p140[0];
-                            *(float *)(env + 0x64) = p140[1];
-                            *(float *)(env + 0x68) = p140[2];
-                            *(float *)(env + 0x70) = p150[0];
-                            *(float *)(env + 0x74) = p150[1];
-                            *(float *)(env + 0x78) = p150[2];
-                            ((ActStatusWord *)(sub + 0x488))->q |= 0x2000;
+                            *(char *)((char *)sub + 0x530) = *(char *)&carry;
+                            env->ditchPos[0] = p140[0];
+                            env->ditchPos[1] = p140[1];
+                            env->ditchPos[2] = p140[2];
+                            env->ditchDir[0] = p150[0];
+                            env->ditchDir[1] = p150[1];
+                            env->ditchDir[2] = p150[2];
+                            sub->wish2.ll |= 0x2000;
                         } else {
-                            sceVu0ScaleVector(p180, (float *)(env + 0x10), hh - 30.0f);
-                            sceVu0AddVector((float *)((char *)*(int *)((char *)*(int *)(a0 + 0x164) + 0x688) + 0x870), pos,
+                            sceVu0ScaleVector(p180, env->cliffOrient, hh - 30.0f);
+                            sceVu0AddVector((float *)((char *)GOBJ_ACT(a0)->f_688 + 0x870), pos,
                                             p180);
-                            *(float *)((char *)*(int *)((char *)*(int *)(a0 + 0x164) + 0x688) + 0x880) =
-                                *(float *)(env + 0x10);
-                            *(float *)((char *)*(int *)((char *)*(int *)(a0 + 0x164) + 0x688) + 0x884) =
-                                *(float *)(env + 0x14);
-                            *(float *)((char *)*(int *)((char *)*(int *)(a0 + 0x164) + 0x688) + 0x888) =
-                                *(float *)(env + 0x18);
-                            *(float *)((char *)*(int *)((char *)*(int *)(a0 + 0x164) + 0x688) + 0x890) = 30.0f;
-                            *(int *)((char *)*(int *)((char *)*(int *)(a0 + 0x164) + 0x688) + 0x894) = 20;
-                            *(int *)((char *)*(int *)((char *)*(int *)(a0 + 0x164) + 0x688) + 0x898) = 0;
-                            ((ActStatusWord *)(sub + 0x480))->q |= 0x10;
+                            *(float *)((char *)GOBJ_ACT(a0)->f_688 + 0x880) =
+                                env->cliffOrient[0];
+                            *(float *)((char *)GOBJ_ACT(a0)->f_688 + 0x884) =
+                                env->cliffOrient[1];
+                            *(float *)((char *)GOBJ_ACT(a0)->f_688 + 0x888) =
+                                env->cliffOrient[2];
+                            *(float *)((char *)GOBJ_ACT(a0)->f_688 + 0x890) = 30.0f;
+                            *(int *)((char *)GOBJ_ACT(a0)->f_688 + 0x894) = 20;
+                            *(int *)((char *)GOBJ_ACT(a0)->f_688 + 0x898) = 0;
+                            sub->wish1.ll |= 0x10;
                         }
                         break;
                     }
@@ -1383,9 +1364,9 @@ void ACTGetEnvironment(void *a0, void *a1, float *a2, EnvFlag *flags, char *env)
         if (flags[2].w < 0 ? hh < 40.0f : hh < 30.0f) {
             char *found = 0;
 
-            p140[0] = *(float *)(env + 0x10);
-            p140[1] = *(float *)(env + 0x14);
-            p140[2] = *(float *)(env + 0x18);
+            p140[0] = env->cliffOrient[0];
+            p140[1] = env->cliffOrient[1];
+            p140[2] = env->cliffOrient[2];
             _ApplyRyGV(p140, 1.5707964f);
             for (o = isysGObjSearchFromObjKindID_begin(0x15); o != 0;
                  o = isysGObjSearchFromObjKindID_next(o)) {
@@ -1394,7 +1375,7 @@ void ACTGetEnvironment(void *a0, void *a1, float *a2, EnvFlag *flags, char *env)
 
                     if (CheckChainClimbablePos(o)) {
                         GetChainClimbOrient(p170, o);
-                        if (46 <= _AbsRotyGV(p170, env + 0x10))
+                        if (46 <= _AbsRotyGV(p170, env->cliffOrient))
                             continue;
                     }
                     GetRootPosition(p160, o);
@@ -1412,41 +1393,41 @@ void ACTGetEnvironment(void *a0, void *a1, float *a2, EnvFlag *flags, char *env)
             if (v1EC != 0) {
                 sceVu0SubVector(p180, test_CURRENTROOT(v1EC), pos);
                 p180[1] = 0.0f;
-                if (0.0f < sceVu0InnerProduct(p180, env + 0x10))
+                if (0.0f < sceVu0InnerProduct(p180, env->cliffOrient))
                     found = v1EC;
             }
             if (found != 0) {
-                ((ActStatusWord *)(sub + 0x480))->q |= (1ULL << 62);
-                *(char **)(env + 0x15C) = found;
+                sub->wish1.ll |= (1ULL << 62);
+                env->frontObj = found;
                 p1A0[0] = test_CURRENTROOT(found)[0];
                 p1A0[1] = test_CURRENTROOT(found)[1];
                 p1A0[2] = test_CURRENTROOT(found)[2];
-                sceVu0ScaleVector(p190, (float *)(env + 0x10), -20.0f);
-                *(float *)(*(char **)(*(char **)(a0 + 0x164) + 0x680) + 0x1D0) = p1A0[0];
-                *(float *)(*(char **)(*(char **)(a0 + 0x164) + 0x680) + 0x1D4) = p1A0[1];
-                *(float *)(*(char **)(*(char **)(a0 + 0x164) + 0x680) + 0x1D8) = p1A0[2];
-                sceVu0AddVector((float *)(*(char **)(*(char **)(a0 + 0x164) + 0x680) + 0x1C0), p1A0, p190);
-                *(float *)(*(char **)(*(char **)(a0 + 0x164) + 0x680) + 0x1C4) = pos[1];
+                sceVu0ScaleVector(p190, env->cliffOrient, -20.0f);
+                *(float *)((char *)GOBJ_ACT(a0)->f_680 + 0x1D0) = p1A0[0];
+                *(float *)((char *)GOBJ_ACT(a0)->f_680 + 0x1D4) = p1A0[1];
+                *(float *)((char *)GOBJ_ACT(a0)->f_680 + 0x1D8) = p1A0[2];
+                sceVu0AddVector((float *)((char *)GOBJ_ACT(a0)->f_680 + 0x1C0), p1A0, p190);
+                *(float *)((char *)GOBJ_ACT(a0)->f_680 + 0x1C4) = pos[1];
             }
         }
         }
     }
     CheckFloorAttribute(a0, 0x200);
-    if (a0 == ((char *)girlGObj) && *(int *)(sub + 0x34) == 0x45) {
+    if (a0 == ((char *)girlGObj) && sub->unk34 == 0x45) {
         float hd = -GetHeightOfFieldPlaneDifference((int *)boyGObj, (int *)a0);
 
-        if (((int)(*(unsigned long long *)(sub + 0x480) >> 18) & 1) && 5.0f < hd) {
-            *(unsigned long long *)(sub + 0x488) |= 0x40;
-            *(unsigned long long *)(sub + 0x488) |= 0x400;
+        if (((int)(*(unsigned long long *)((char *)sub + 0x480) >> 18) & 1) && 5.0f < hd) {
+            *(unsigned long long *)((char *)sub + 0x488) |= 0x40;
+            *(unsigned long long *)((char *)sub + 0x488) |= 0x400;
         }
-        if (((int)(*(unsigned long long *)(sub + 0x480) >> 19) & 1) && 60.0f < hd) {
+        if (((int)(*(unsigned long long *)((char *)sub + 0x480) >> 19) & 1) && 60.0f < hd) {
             if (dist < 40.0f)
-                *(unsigned long long *)(sub + 0x20) |= (1ULL << 36);
-            if (*(int *)(*(char **)(boyGObj + 0x164) + 0x34) == 0x37)
-                *(unsigned long long *)(sub + 0x488) |= 0x800;
-            *(unsigned long long *)(sub + 0x488) |= 0x1000;
+                sub->flags20.ll |= (1ULL << 36);
+            if (GOBJ_ACT(boyGObj)->unk34 == 0x37)
+                *(unsigned long long *)((char *)sub + 0x488) |= 0x800;
+            *(unsigned long long *)((char *)sub + 0x488) |= 0x1000;
         }
-        if (((int)(*(unsigned long long *)(sub + 0x480) >> 20) & 1) && 195.0f < hd)
+        if (((int)(*(unsigned long long *)((char *)sub + 0x480) >> 20) & 1) && 195.0f < hd)
             envDebugPrint();
     }
     /* RECONSTRUCTION, ROM-proven deleted-code window: the bytes pin an
@@ -1456,50 +1437,50 @@ void ACTGetEnvironment(void *a0, void *a1, float *a2, EnvFlag *flags, char *env)
        pin its text.  The assignment to the loop cursor is our spelling. */
     o = a0;
     if (((char *)girlGObj) != 0) {
-        ((ActStatusWord *)(sub + 0x478))->q |= (1ULL << 47);
-        ((ActStatusWord *)(sub + 0x478))->q |= (1ULL << 48);
+        sub->wish0.ll |= (1ULL << 47);
+        sub->wish0.ll |= (1ULL << 48);
     }
-    if (*(char **)(sub + 0x180) != 0)
-        ((ActStatusWord *)(sub + 0x480))->q |= (1ULL << 44);
-    if (a0 == boyGObj && *(int *)(sub + 0x34) != 14) {
+    if (*(char **)((char *)sub + 0x180) != 0)
+        sub->wish1.ll |= (1ULL << 44);
+    if (a0 == boyGObj && sub->unk34 != 14) {
         char *w;
 
-        if (*(char **)(sub + 0x150) != 0)
-            w = CheckSwapableWeapon(*(char **)(sub + 0x150), 150.0f);
+        if ((char *)sub->f_150 != 0)
+            w = CheckSwapableWeapon((char *)sub->f_150, 150.0f);
         else
             w = CheckSwapableWeapon(a0, 150.0f);
         if (w != 0) {
             float p60[4], p70[4];
 
-            *(char **)(env + 0x158) = w;
-            ((ActStatusWord *)(sub + 0x478))->q |= (1ULL << 55);
+            env->swapWeapon = w;
+            sub->wish0.ll |= (1ULL << 55);
             p60[0] = test_CURRENTROOT(w)[0];
             p60[1] = test_CURRENTROOT(w)[1];
             p60[2] = test_CURRENTROOT(w)[2];
             _OrientXZGV(p70, p60, pos);
             if ((_AbsRotyGV(p70, a2) < 45 && _DistxzSqGV(p60, pos) < 6400.0f) ||
                 (45 <= _AbsRotyGV(p70, a2) && _DistxzSqGV(p60, pos) < 900.0f)) {
-                ((ActStatusWord *)(sub + 0x478))->q |= (1ULL << 54);
-                *(char **)(env + 0x158) = w;
+                sub->wish0.ll |= (1ULL << 54);
+                env->swapWeapon = w;
             }
         }
     }
-    if (*(unsigned int *)(sub + 0x34) < 0x3B) {
-        if (0x39 <= *(unsigned int *)(sub + 0x34)) {
+    if ((unsigned int)sub->unk34 < 0x3B) {
+        if (0x39 <= (unsigned int)sub->unk34) {
         float c0, c4, c8;
 
-        GetChainPendulum(*(char **)(sub + 0x190), &c0, &c4, &c8);
+        GetChainPendulum((char *)sub->f_190, &c0, &c4, &c8);
         if (0.0f < c0)
-            *(unsigned long long *)(sub + 0x480) |= (1ULL << 60);
+            *(unsigned long long *)((char *)sub + 0x480) |= (1ULL << 60);
         else
-            *(unsigned long long *)(sub + 0x480) |= (1ULL << 61);
+            *(unsigned long long *)((char *)sub + 0x480) |= (1ULL << 61);
         }
     }
     if (a0 == boyGObj && ((char *)girlGObj) != 0 &&
-        *(int *)(*(char **)(((char *)girlGObj) + 0x164) + 0x34) == 0x6F) {
-        char *h = *(char **)(*(char **)(((char *)girlGObj) + 0x164) + 0x144);
+        GOBJ_ACT(girlGObj)->unk34 == 0x6F) {
+        char *h = (char *)GOBJ_ACT(girlGObj)->f_144;
 
-        if (*(int *)(*(char **)(h + 0x164) + 0x34) == 0x67 && GetMotionFrameFlag1(h)) {
+        if (GOBJ_ACT(h)->unk34 == 0x67 && GetMotionFrameFlag1(h)) {
             float p60[4], p70[4];
 
             if (_ACTGame_SearchGObj(a0, ((char *)girlGObj), 200.0f, 400.0f, 0x78, p60)) {
@@ -1511,37 +1492,37 @@ void ACTGetEnvironment(void *a0, void *a1, float *a2, EnvFlag *flags, char *env)
                 if (_DistxzSqGV(pos, p70) < 22500.0f &&
                     ((prj[1] - p70[1]) < 0.0f ? -(prj[1] - p70[1]) : (prj[1] - p70[1])) <
                         50.0f) {
-                    ((ActStatusWord *)(sub + 0x478))->q |= (1ULL << 56);
-                    *(char **)(*(char **)(*(char **)(a0 + 0x164) + 0x680) + 0x2E0) = n;
+                    sub->wish0.ll |= (1ULL << 56);
+                    *(char **)((char *)GOBJ_ACT(a0)->f_680 + 0x2E0) = n;
                 }
             }
         }
     }
     if (CheckFloorAttribute(a0, 0x800) || CheckFloorAttribute(a0, 0x900))
-        *(unsigned long long *)(sub + 0x480) |= (1ULL << 15);
+        *(unsigned long long *)((char *)sub + 0x480) |= (1ULL << 15);
     if (CheckFloorAttribute(a0, 0x800000)) {
         float p60[4];
 
         sceVu0Normalize(p60, (char *)GOBJ_SUB(a0) + 0x1D0);
-        *(float *)(*(char **)(*(char **)(a0 + 0x164) + 0x680) + 0x270) = p60[0];
-        *(float *)(*(char **)(*(char **)(a0 + 0x164) + 0x680) + 0x274) = p60[1];
-        *(float *)(*(char **)(*(char **)(a0 + 0x164) + 0x680) + 0x278) = p60[2];
+        *(float *)((char *)GOBJ_ACT(a0)->f_680 + 0x270) = p60[0];
+        *(float *)((char *)GOBJ_ACT(a0)->f_680 + 0x274) = p60[1];
+        *(float *)((char *)GOBJ_ACT(a0)->f_680 + 0x278) = p60[2];
         if (0.0f < sceVu0InnerProduct(test_CURRENTORIENT(a0), p60)) {
-            ((ActStatusWord *)(sub + 0x480))->q |= (1ULL << 16);
-            *(char *)(*(char **)(*(char **)(a0 + 0x164) + 0x680) + 0x280) = 0;
+            sub->wish1.ll |= (1ULL << 16);
+            *(char *)((char *)GOBJ_ACT(a0)->f_680 + 0x280) = 0;
         } else {
-            ((ActStatusWord *)(sub + 0x480))->q |= (1ULL << 17);
-            *(char *)(*(char **)(*(char **)(a0 + 0x164) + 0x680) + 0x280) = 1;
+            sub->wish1.ll |= (1ULL << 17);
+            *(char *)((char *)GOBJ_ACT(a0)->f_680 + 0x280) = 1;
         }
     }
     if (CheckFloorAttribute(a0, 0x50)) {
-        ((ActStatusWord *)(sub + 0x480))->q |= 0x1000;
+        sub->wish1.ll |= 0x1000;
         if (GOBJ_SUB(a0)->f_644 > (a0 == boyGObj ? 110.0f : 135.0f)) {
-            *(unsigned long long *)(sub + 0x480) |= 0x2000;
+            *(unsigned long long *)((char *)sub + 0x480) |= 0x2000;
             debug_StdPrintfDummy("enter water\n");
         }
         if (GOBJ_SUB(a0)->f_644 < (a0 == boyGObj ? 105.0f : 130.0f)) {
-            *(unsigned long long *)(sub + 0x480) |= 0x4000;
+            *(unsigned long long *)((char *)sub + 0x480) |= 0x4000;
             debug_StdPrintfDummy("exit water\n");
         }
     }
@@ -1565,7 +1546,7 @@ void ACTGetEnvironment(void *a0, void *a1, float *a2, EnvFlag *flags, char *env)
                 if (((p70[1] - prj[1]) < 0.0f ? -(p70[1] - prj[1]) : (p70[1] - prj[1])) <
                         200.0f &&
                     p70[1] < prj[1]) {
-                    _OrientXZGV(env + 0x20, p70, prj);
+                    _OrientXZGV(env->torchOrient, p70, prj);
                     t23 = c;
                     t30 = t23;
                 }
@@ -1582,30 +1563,30 @@ void ACTGetEnvironment(void *a0, void *a1, float *a2, EnvFlag *flags, char *env)
                 if (((p70[1] - prj[1]) < 0.0f ? -(p70[1] - prj[1]) : (p70[1] - prj[1])) <
                         200.0f &&
                     p70[1] < prj[1]) {
-                    _OrientXZGV(env + 0x30, p70, prj);
+                    _OrientXZGV(env->torchRevOrient, p70, prj);
                     t19 = c;
-                    *(char **)(env + 0x168) = t19;
+                    env->torchRevObj = t19;
                 }
             }
         }
         if (!ACTGame_NoWeapon(a0)) {
-            x = ACTGame_isWeaponEnableCatchfire(*(int **)(sub + 0x150));
+            x = ACTGame_isWeaponEnableCatchfire((int *)sub->f_150);
             if (x != 0) {
                 if (!IsTorchLightOn(x)) {
                     if (t30 != 0)
-                        *(unsigned long long *)(sub + 0x480) |= (1ULL << 33);
+                        *(unsigned long long *)((char *)sub + 0x480) |= (1ULL << 33);
                 } else {
                     if (t19 != 0)
-                        *(unsigned long long *)(sub + 0x480) |= (1ULL << 35);
+                        *(unsigned long long *)((char *)sub + 0x480) |= (1ULL << 35);
                 }
             }
         }
-        if (*(char **)(sub + 0x180) != 0) {
-            char *b = GetBombTorchGObj(*(char **)(sub + 0x180));
+        if (*(char **)((char *)sub + 0x180) != 0) {
+            char *b = GetBombTorchGObj(*(char **)((char *)sub + 0x180));
 
             if (t23 != 0 && b != 0 && !IsTorchLightOn(b)) {
-                *(char **)(env + 0x164) = b;
-                ((ActStatusWord *)(sub + 0x480))->q |= (1ULL << 34);
+                env->bombObj = b;
+                sub->wish1.ll |= (1ULL << 34);
             }
         }
         n = 0;
@@ -1614,11 +1595,11 @@ void ACTGetEnvironment(void *a0, void *a1, float *a2, EnvFlag *flags, char *env)
                 n = 1;
         }
         if (!n)
-            ((ActStatusWord *)(sub + 0x480))->q |= 0x400;
+            sub->wish1.ll |= 0x400;
     }
     if (((unsigned int)flags[2].w >> 5) & 1) {
         *(int *)(*(char **)(*(char **)(a0 + 0x164) + 0x680) + 0x2C4) = (int)obj;
-        GetBoxHoldPoint((float *)(*(char **)(*(char **)(a0 + 0x164) + 0x680) + 0x2D0), obj, a0);
+        GetBoxHoldPoint((float *)((char *)GOBJ_ACT(a0)->f_680 + 0x2D0), obj, a0);
     }
 }
 

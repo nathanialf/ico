@@ -143,8 +143,8 @@ struct S {
     int b;
 };
 
-/* kept local: void (char *, float *) here, void (void *, float *) in motionManager2.h */
-extern void SetMotionDirection(char *self, float *dir);
+/* kept local: agrees with motionManager2.h, which this TU does not include (SetMotionNodeFixModeParameter differs) */
+extern void SetMotionDirection(void *a0, float *a1);
 
 /* SCE VU0 library: sceVu0Normalize(dst, src) -- normalised in place here, so
    the second argument is already in $a1 and cse drops the redundant copy. */
@@ -203,8 +203,8 @@ struct WoodBoxEnt {
     float b3;       /* 0x2C */
 };
 
-/* kept local: void (void *) here, void (int *) in motionManager2.h */
-extern void ClearMotionGeometryInfo(void *a0);
+/* kept local: agrees with motionManager2.h, which this TU does not include (SetMotionNodeFixModeParameter differs) */
+extern void ClearMotionGeometryInfo(int *self);
 
 /* the wall-collision result the ClipWall work area hands back at +0x80 */
 
@@ -227,8 +227,8 @@ struct StgEnt {
 
 extern struct StgEnt exitData[];
 extern StgPre stageData[];
-/* kept local: int (int, int) here, int (char *, int) in motionManager2.h */
-extern int GetSkeltonFocusNode(int a0, int a1);
+/* kept local: agrees with motionManager2.h, which this TU does not include (SetMotionNodeFixModeParameter differs) */
+extern int GetSkeltonFocusNode(char *a0, int a1);
 
 /* .data, last in script.o's run: the wood-bridge trigger table, one row per
    bridge object, walked by object id. */
@@ -246,9 +246,9 @@ static struct WoodBoxEnt woodBoxTbl[11] = {
     {3294, 9, {0}, {-100.0f, -200.0f, 0.0f, 0.0f}, 0.0f, 0.0f, 0.0f, 0.0f},
 };
 
-/* kept local: agrees with motionManager2.h, which this TU does not include (ClearMotionGeometryInfo, GetSkeltonFocusNode differ) */
+/* kept local: agrees with motionManager2.h, which this TU does not include (SetMotionNodeFixModeParameter differs) */
 extern int CheckFloorAttribute(char *self, int attr);
-/* kept local: int (char *, int) here, int (char *) in motionManager2.h */
+/* kept local: agrees with motionManager2.h, which this TU does not include (SetMotionNodeFixModeParameter differs) */
 extern int CheckWallAttribute(char *self, int attr);
 extern char objLayout[];
 
@@ -257,15 +257,16 @@ struct EnemyEnt {
     unsigned short f42;
 }; /* 0x4C stride */
 
-/* kept local: void (void *, void *, int, int, void *, float, float, float, float) here, void (char *, char *, float, float, float, int, int, float, void *) in motionManager2.h */
-extern void SetMotionNodeFixModeParameter(void *a0, void *a1, int a2, int a3, void *a4, float f12,
-                                          float f13, float f14, float f15);
+/* kept local: motionManager2.h lists the parameters as (self, obj, x, y, z, mode, node, w, quat);
+   the callers pass them in this order */
+extern void SetMotionNodeFixModeParameter(char *self, char *obj, int mode, int node, void *quat,
+                                          float x, float y, float z, float w);
 
 /* .sbss, owned by script.o and reached only from this file: a stage change has
    been requested and no further one is accepted. */
 static int stageChangeReq;
 
-/* kept local: this TU's uses of IsWallLeverStatus do not fit the prototype in box.h */
+/* kept local: a0 is void here, char * in switch.h */
 extern int IsWallLeverStatus(void);
 
 /* kept local: this TU's uses of ACTGame_isHangChain do not fit the prototype in act-game.h */
@@ -274,7 +275,7 @@ extern int IsWallLeverStatus(void);
    record scpBornSpider fills and hands MakeAP1GObj for each spider */
 static struct DQW spiderLayout = {0, 0, 0, 0, 0, 0, {0}, {1.0f, 1.0f, 1.0f}}; /* derived name */
 
-/* kept local: agrees with box.h, which this TU does not include (IsWallLeverStatus differ) */
+/* kept local: agrees with box.h, which this TU does not include */
 extern int CheckReadyAllSwitches();
 extern ActMail queen_appear_mes[];
 

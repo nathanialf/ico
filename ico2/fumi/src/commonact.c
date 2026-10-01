@@ -394,7 +394,7 @@ int _ACTCorrectMsg(char *self, int msg, void *param)
         break;
     case 7:
         if ((((CorrMotRec *)(motionKind + GOBJ_SUB(self)->f_4A0 * 0x194))->f188 >> 19) & 7) {
-            if (sk->f_180 != 0) {
+            if (sk->heldItem.i != 0) {
                 msg = 315;
             }
         }
@@ -608,10 +608,10 @@ int ACTGetOrientFromIntrK(char *self, int k, void *buf, int arg)
     *out = *(IntrOrient *)((char *)s + 0x620);
     switch (k) {
     case 140:
-        out->b = ((IntrOrient *)(*(char **)((char *)GOBJ_ACT(self) + 0x688) + 0x480))->b;
+        out->b = ((IntrOrient *)((char *)GOBJ_ACT(self)->f_688 + 0x480))->b;
         break;
     case 305:
-        out->a = ((IntrOrient *)(*(char **)((char *)GOBJ_ACT(self) + 0x688) + 0x480))->a;
+        out->a = ((IntrOrient *)((char *)GOBJ_ACT(self)->f_688 + 0x480))->a;
         break;
     case 298:
         *(char **)((char *)s + 0x30) = GetMailAdditionalData(self, arg);
@@ -623,14 +623,14 @@ int ACTGetOrientFromIntrK(char *self, int k, void *buf, int arg)
         tmp = *(IntrVec3 *)(*(char **)((char *)GOBJ_ACT(self) + 0x30));
         out->a = out->b = ((IntrOrient *)((char *)s + 0x620))->a =
             ((IntrOrient *)((char *)s + 0x620))->b = tmp;
-        *(int *)((char *)s + 0x61C) = *(int *)&tmp;
-        GetSofaPosition(self, *(char **)((char *)s + 0x61C));
+        s->f_61C = *(int *)&tmp;
+        GetSofaPosition(self, (char *)s->f_61C);
         break;
     case 145:
-        out->a = *(IntrVec3 *)(*(char **)((char *)GOBJ_ACT(self) + 0x688) + 0x3D8);
+        out->a = *(IntrVec3 *)((char *)GOBJ_ACT(self)->f_688 + 0x3D8);
         break;
     case 144:
-        out->a = *(IntrVec3 *)(*(char **)((char *)GOBJ_ACT(self) + 0x688) + 0x3CC);
+        out->a = *(IntrVec3 *)((char *)GOBJ_ACT(self)->f_688 + 0x3CC);
         break;
     case 114:
     case 115:
@@ -639,9 +639,9 @@ int ACTGetOrientFromIntrK(char *self, int k, void *buf, int arg)
         out->b = ((IntrOrient *)((char *)s + 0x620))->a;
         break;
     case 45:
-        return *(int *)(*(char **)((char *)GOBJ_ACT(self) + 0x680) + 0xC0);
+        return GOBJ_ACT(self)->f_680->f_C0;
     case 63:
-        if (*(int *)((char *)s + 0x34) == 0x4A) {
+        if (s->unk34 == 0x4A) {
             ret = 272;
         }
         break;
@@ -671,17 +671,17 @@ int ACTGetOrientFromIntrK(char *self, int k, void *buf, int arg)
             if (ACTGame_NoWeapon(self)) {
                 ret = 42;
             } else {
-                ret = ACTGame_GetMotOrientFromWeapon(*(int *)((char *)s + 0x150));
+                ret = ACTGame_GetMotOrientFromWeapon(s->f_150);
             }
         }
         break;
     case 72:
     case 74:
     case 338:
-        ret = *(int *)((char *)s + 0x44);
+        ret = s->f_44;
         break;
     case 81:
-        ret = *(int *)((char *)s + 0x44);
+        ret = s->f_44;
         out->a = ((IntrOrient *)((char *)GOBJ_ACT(boyGObj) + 0x620))->b;
         *(IntrOrient *)((char *)s + 0x620) = *out;
         break;
@@ -693,15 +693,15 @@ int ACTGetOrientFromIntrK(char *self, int k, void *buf, int arg)
         break;
     case 416:
         ret = 0;
-        if (*(int *)((char *)s + 0x134) != 0 && !((int)(s->flags20.ll >> 13) & 1)) {
-            ret = *(int *)((char *)s + 0x134);
-            *(int *)((char *)s + 0x134) = 0;
+        if (s->f_134 != 0 && !((int)(s->flags20.ll >> 13) & 1)) {
+            ret = s->f_134;
+            s->f_134 = 0;
         }
         break;
     case 152:
     case 155:
     case 156:
-        out->a = *(IntrVec3 *)(*(char **)((char *)GOBJ_ACT(self) + 0x680) + 0x350);
+        out->a = *(IntrVec3 *)((char *)GOBJ_ACT(self)->f_680 + 0x350);
         break;
     default:
         ret = intrMotion[k];
@@ -785,7 +785,7 @@ void WithMailFunc_WayBeginPosError(void *a0)
     ACTWay_SetBeginPositionIllegal(a0);
 }
 
-/* kept local: void (void *) here, void (int, int, int, int) in weapon.h */
+/* kept local: a0 is void * here, int in weapon.h */
 extern void ExecWeaponHitReaction(void *a0);
 
 void WithMailFunc_AttackFail(char *a0)
@@ -802,8 +802,8 @@ void WithMailFunc_AttackFail(char *a0)
     }
 }
 
-/* kept local: int (void *) here, int (char *) in weapon.h */
-extern int ReleaseWeaponWithFumbleSequential(void *a0);
+/* kept local: agrees with weapon.h, which this TU does not include (ExecWeaponHitReaction differs) */
+extern int ReleaseWeaponWithFumbleSequential(char *g);
 
 void WithMailFunc_AttackRejectInQueen(char *a0)
 {
@@ -821,8 +821,8 @@ void WithMailFunc_AttackRejectInQueen(char *a0)
     }
 }
 
-/* kept local: int (int, int *) here, int (char *, int *) in chain.h */
-extern int GetChainDirCorrectVal(int chain, int *out);
+/* kept local: agrees with chain.h, which this TU does not include (HoldChain, ReleaseChain, SetChainRootUpdateMode differ) */
+extern int GetChainDirCorrectVal(char *a0, int *a1);
 
 void GetCorrectOrientOfChain(void *buf, void *obj)
 {
@@ -848,7 +848,7 @@ void GetCorrectOrientOfChain(void *buf, void *obj)
     }
 }
 
-/* kept local: void (void *) here, int (void *) in fieldCollision.h */
+/* kept local: agrees with fieldCollision.h, which this TU does not include */
 extern void ClipWall(void *a0);
 
 /* reconstruction: the ClipWall work buffer as this function reads it. RsWork
@@ -920,26 +920,27 @@ int CollisCheckInRope(void *a0, int chain)
     return rv;
 }
 
-/* kept local: void (void *, void *) here, void (void *, float *) in chain.h */
-extern void GetRootPositionHandExtra(void *a0, void *out);
-/* kept local: void (int, void *, void *) here, void (char *) in chain.h */
-extern void HoldChain(int chain, void *a0, void *pos);
-/* kept local: void (int) here, void (char *) in chain.h */
-extern void LockChainGeo(int a0);
-/* kept local: void (int) here, void (char *) in chain.h */
-extern void UnLockChainGeo(int a0);
-/* kept local: agrees with chain.h, which this TU does not include (GetChainDirCorrectVal, GetRootPositionHandExtra differ) */
+/* kept local: agrees with chain.h, which this TU does not include (HoldChain, ReleaseChain, SetChainRootUpdateMode differ) */
+extern void GetRootPositionHandExtra(void *a0, float *a1);
+/* kept local: chain.h declares HoldChain(char *); it takes the holder and the hand position
+   too, which it hands on to StartPendulum */
+extern void HoldChain(char *chain, char *owner, float *pos);
+/* kept local: agrees with chain.h, which this TU does not include (HoldChain, ReleaseChain, SetChainRootUpdateMode differ) */
+extern void LockChainGeo(char *a0);
+/* kept local: agrees with chain.h, which this TU does not include (HoldChain, ReleaseChain, SetChainRootUpdateMode differ) */
+extern void UnLockChainGeo(char *a0);
+/* kept local: agrees with chain.h, which this TU does not include (HoldChain, ReleaseChain, SetChainRootUpdateMode differ) */
 extern void ChainGeo(int a0);
-/* kept local: int (int) here, int (char *) in chain.h */
-extern int CheckChainClimbablePos(int chain);
-/* kept local: void (void *, int) here, void (float *, char *) in chain.h */
-extern void GetChainClimbOrient(void *out, int chain);
-/* kept local: agrees with chain.h, which this TU does not include (GetChainDirCorrectVal, GetRootPositionHandExtra differ) */
+/* kept local: agrees with chain.h, which this TU does not include (HoldChain, ReleaseChain, SetChainRootUpdateMode differ) */
+extern int CheckChainClimbablePos(char *a0);
+/* kept local: agrees with chain.h, which this TU does not include (HoldChain, ReleaseChain, SetChainRootUpdateMode differ) */
+extern void GetChainClimbOrient(float *dst, char *a0);
+/* kept local: agrees with chain.h, which this TU does not include (HoldChain, ReleaseChain, SetChainRootUpdateMode differ) */
 extern void GetChainClimbCollision(void *out, int chain);
-/* kept local: void (void *) here, int (void *) in fieldCollision.h */
+/* kept local: agrees with fieldCollision.h, which this TU does not include */
 extern void ClipFloor(void *a0);
 extern char motionKind[];
-/* kept local: agrees with motionManager2.h, which this TU does not include (GetMotionFrameFlag1, GetSkeltonFocusNode differ) */
+/* kept local: agrees with motionManager2.h, which this TU does not include (SetMotionNodeFixModeParameter differs) */
 extern void SetMotionDirection();
 
 typedef struct {
@@ -973,14 +974,14 @@ static inline int chainFloorHit(char *a0, void *w)
     return 0;
 }
 
-/* kept local: void (int, int) here, void (char *) in chain.h */
-extern void ReleaseChain(int a0, int a1);
+/* kept local: chain.h declares ReleaseChain(char *); the caller passes the holder too */
+extern void ReleaseChain(char *chain, char *owner);
 
 inline void afterCommonRope(volatile int a0)
 {
     Act *s = GOBJ_ACT(a0);
     debug_StdPrintfDummy("common rope after func\n");
-    ReleaseChain(s->f_190, a0);
+    ReleaseChain((char *)s->f_190, (char *)a0);
     {
         int g = a0;
         *(int *)((int)s + 0x194) = s->f_190;
@@ -1000,7 +1001,7 @@ inline void actAfterForceRope(volatile int a0)
 
 void actCommonRope(volatile int a0)
 {
-    char *s;
+    Act *s;
     float dir[4];
     float ori[4];
     float hand[4];
@@ -1013,27 +1014,27 @@ void actCommonRope(volatile int a0)
     nsteps = ((0x3C - systemStatus[0] * 10) / systemStatus[1]) / 3;
     total = nsteps;
     step = -1;
-    s = *(char **)(a0 + 0x164);
+    s = GOBJ_ACT(a0);
     GetCorrectOrientOfChain(dir, (void *)a0);
     ori[0] = *(float *)((char *)test_CURRENTORIENT((char *)a0) + 0);
     ori[1] = *(float *)((char *)test_CURRENTORIENT((char *)a0) + 4);
     ori[2] = *(float *)((char *)test_CURRENTORIENT((char *)a0) + 8);
     roty = _RotyGV(dir, ori);
-    if (*(int *)(s + 0x14) == 0) {
+    if ((int)s->after == 0) {
         GetRootPositionHandExtra((void *)a0, hand);
         step = 0;
-        HoldChain(*(int *)(s + 0x190), (void *)a0, hand);
+        HoldChain((char *)s->f_190, (char *)a0, hand);
     }
-    *(int *)(s + 0x14) = (int)afterCommonRope;
-    *(int *)(s + 0x18) = (int)actAfterForceRope;
-    LockChainGeo(*(int *)(s + 0x190));
+    *(int *)((char *)s + 0x14) = (int)afterCommonRope;
+    *(int *)((char *)s + 0x18) = (int)actAfterForceRope;
+    LockChainGeo(s->f_190);
     _ACTWait(1);
     debug_StdPrintfDummy("enter actCommonRope\n");
     while (1) {
-        UnLockChainGeo(*(int *)(s + 0x190));
-        ChainGeo(*(int *)(s + 0x190));
-        LockChainGeo(*(int *)(s + 0x190));
-        switch (CollisCheckInRope((void *)a0, *(int *)(s + 0x190))) {
+        UnLockChainGeo(s->f_190);
+        ChainGeo(s->f_190);
+        LockChainGeo(s->f_190);
+        switch (CollisCheckInRope((void *)a0, s->f_190)) {
         case 1:
             ACTSendMailCorrect((char *)a0, 0xA8);
             break;
@@ -1056,14 +1057,11 @@ void actCommonRope(volatile int a0)
             }
             step++;
         }
-        if (CheckChainClimbablePos(*(int *)(s + 0x190))) {
-            GetChainClimbOrient(*(char **)(*(char **)(a0 + 0x164) + 0x680) + 0x330,
-                                *(int *)(s + 0x190));
-            GetRootPosition((float *)(*(char **)(*(char **)(a0 + 0x164) + 0x680) + 0x340),
-                            (void *)*(int *)(s + 0x190));
-            GetChainClimbCollision(*(char **)(*(char **)(a0 + 0x164) + 0x680) + 0x350,
-                                   *(int *)(s + 0x190));
-            ((RopeSubObj *)*(char **)(*(char **)(a0 + 0x164) + 0x680))->f35C = *(int *)(s + 0x190);
+        if (CheckChainClimbablePos(s->f_190)) {
+            GetChainClimbOrient((char *)GOBJ_ACT(a0)->f_680 + 0x330, s->f_190);
+            GetRootPosition((float *)((char *)GOBJ_ACT(a0)->f_680 + 0x340), (void *)s->f_190);
+            GetChainClimbCollision((char *)GOBJ_ACT(a0)->f_680 + 0x350, s->f_190);
+            ((RopeSubObj *)(char *)GOBJ_ACT(a0)->f_680)->f35C = s->f_190;
             ActSendMail_WithAdditionalData((char *)a0, 0x98, (void *)a0,
                                            *(char **)(*(char **)(a0 + 0x164) + 0x680) + 0x330);
         }
@@ -1071,7 +1069,7 @@ void actCommonRope(volatile int a0)
     }
 }
 
-/* kept local: void (float, void *, void *, int, int, int) here, void (void) in camera-editor.h */
+/* kept local: void is float here, void in camera-editor.h */
 extern void debug_Arrow(float len, void *from, void *to, int r, int g, int b);
 
 /* INTERIM (see the GetSkeltonFocusNode note in src/motionManager2.c): the
@@ -1133,8 +1131,8 @@ void motCommonRopeTurnL(volatile int a0)
     }
 }
 
-/* kept local: void (void *, int, float *) here, void (char *, int, float *) in chain.h */
-extern void SetChainRootUpdateMode(void *a0, int mode, float *p);
+/* kept local: gobj is void * here, char * in chain.h */
+extern void SetChainRootUpdateMode(void *a0, int mode, float *pos);
 
 typedef struct {
     float x, y, z;
@@ -1250,8 +1248,8 @@ typedef union {
     float *f;
 } CagePtr;
 
-/* kept local: void (void *, int, float *) here, void (char *, int, float *) in chain.h */
-extern void SetChainRootUpdateMode(void *a0, int mode, float *p);
+/* kept local: gobj is void * here, char * in chain.h */
+extern void SetChainRootUpdateMode(void *a0, int mode, float *pos);
 
 void actCommonRopeCliff(volatile int a0)
 {
@@ -1291,8 +1289,8 @@ void actCommonRopeCliff(volatile int a0)
 }
 
 /* SU-E BEGIN TestCageUpDown */
-/* kept local: int (void *, void *) here, int (char *, int) in motionManager2.h */
-extern int GetSkeltonFocusNode(void *a0, void *a1);
+/* kept local: agrees with motionManager2.h, which this TU does not include (SetMotionDirection, SetMotionNodeFixModeParameter differ) */
+extern int GetSkeltonFocusNode(char *a0, int a1);
 
 typedef struct {
     float a[4];
@@ -1420,8 +1418,8 @@ void TestCageUpDown(int cage, char *gobj)
 
 /* SU-E END TestCageUpDown */
 
-/* kept local: void (void *, void *, void *) here, void (void *, void *, int *) in fieldCollision.h */
-extern void GetOrientOfWall(void *out, void *obj, void *pos);
+/* kept local: agrees with fieldCollision.h, which this TU does not include */
+extern void GetOrientOfWall(void *a0, void *a1, int *a2);
 
 typedef struct {
     float x, y;
@@ -1480,7 +1478,7 @@ static inline unsigned char ropeSpecialWallHit(RsVec4 *p1, RsHit *hit)
 
 void actCommonRopeSpecial(volatile int a0)
 {
-    char *s;
+    Act *s;
     RsHit hit;
     RsVec4 p1;
     RsVec4 p2;
@@ -1488,27 +1486,25 @@ void actCommonRopeSpecial(volatile int a0)
     int cage;
     unsigned char found;
 
-    s = *(char **)(a0 + 0x164);
-    cage = *(int *)(s + 0x610);
+    s = GOBJ_ACT(a0);
+    cage = s->f_610;
     if (cage != 0) {
-        *(int *)(*(char **)(*(char **)(a0 + 0x164) + 0x688) + 0x400) = cage;
+        *(int *)((char *)GOBJ_ACT(a0)->f_688 + 0x400) = cage;
     } else {
-        cage = *(int *)(*(char **)(*(char **)(a0 + 0x164) + 0x688) + 0x400);
+        cage = (int)GOBJ_WORK(a0)->f_400;
     }
-    if (*(int *)(*(char **)(*(char **)(a0 + 0x164) + 0x688) + 0x900) == 4 ||
-        *(int *)(*(char **)(*(char **)(a0 + 0x164) + 0x688) + 0x900) == 5) {
-        GetSkeltonPosition((float *)(*(char **)(*(char **)(a0 + 0x164) + 0x688) + 0x410),
-                           (char *)a0, 35);
+    if (*(int *)((char *)GOBJ_ACT(a0)->f_688 + 0x900) == 4 ||
+        *(int *)((char *)GOBJ_ACT(a0)->f_688 + 0x900) == 5) {
+        GetSkeltonPosition((float *)((char *)GOBJ_ACT(a0)->f_688 + 0x410), (char *)a0, 35);
     } else {
-        GetSkeltonPosition((float *)(*(char **)(*(char **)(a0 + 0x164) + 0x688) + 0x410),
-                           (char *)a0, 22);
+        GetSkeltonPosition((float *)((char *)GOBJ_ACT(a0)->f_688 + 0x410), (char *)a0, 22);
     }
     GetCageChainPoint(p1.f, p2.f, (void *)cage);
     found = ropeSpecialWallHit(&p1, &hit);
     GOBJ_SUB(a0)->f_420 = 0;
     while (1) {
         if (GOBJ_SUB(a0)->f_4A0 == 118) {
-            *(long long *)(s + 0x20) &= ~(1ULL << 11);
+            *(long long *)((char *)s + 0x20) &= ~(1ULL << 11);
         }
         GetSkeltonPosition(pos.f, (char *)a0, 35);
         GetCageChainPoint(p1.f, p2.f, (void *)cage);
@@ -1520,15 +1516,15 @@ void actCommonRopeSpecial(volatile int a0)
             ACTSendMailCorrect((char *)a0, 0xC7);
         }
         if (found && pos.f[1] < p1.f[1] + 60.0f) {
-            ((RsSub *)*(char **)(*(char **)(a0 + 0x164) + 0x680))->f35C = cage;
+            ((RsSub *)(char *)GOBJ_ACT(a0)->f_680)->f35C = cage;
             GetOrientOfWall(*(char **)(*(char **)(a0 + 0x164) + 0x680) + 0x330, hit.obj, &hit);
-            ((RsSub *)*(char **)(*(char **)(a0 + 0x164) + 0x680))->f340 = p1.f[0];
-            ((RsSub *)*(char **)(*(char **)(a0 + 0x164) + 0x680))->f344 = p1.f[1];
-            ((RsSub *)*(char **)(*(char **)(a0 + 0x164) + 0x680))->f348 = p1.f[2];
-            ((RsSub *)*(char **)(*(char **)(a0 + 0x164) + 0x680))->f344 -= 100.0f;
-            ((RsSub *)*(char **)(*(char **)(a0 + 0x164) + 0x680))->f350 = hit;
+            ((RsSub *)(char *)GOBJ_ACT(a0)->f_680)->f340 = p1.f[0];
+            ((RsSub *)(char *)GOBJ_ACT(a0)->f_680)->f344 = p1.f[1];
+            ((RsSub *)(char *)GOBJ_ACT(a0)->f_680)->f348 = p1.f[2];
+            ((RsSub *)(char *)GOBJ_ACT(a0)->f_680)->f344 -= 100.0f;
+            ((RsSub *)(char *)GOBJ_ACT(a0)->f_680)->f350 = hit;
             ActSendMail_WithAdditionalData((char *)a0, 0xB0, (void *)a0,
-                                           *(char **)(*(char **)(a0 + 0x164) + 0x680) + 0x330);
+                                           (char *)GOBJ_ACT(a0)->f_680 + 0x330);
         }
         TestCageUpDown(cage, (void *)a0);
         _ACTWait(1);
@@ -1600,9 +1596,9 @@ void actCommonLever(volatile int a0)
 
     ((LeverAnim *)(char *)GOBJ_ACT(a0)->f_688)->f394 =
         ((0x3C - systemStatus[0] * 10) / systemStatus[1]) * 5;
-    p[0] = *(float *)((char *)s + 0x5A0);
-    p[1] = *(float *)((char *)s + 0x5A4);
-    p[2] = *(float *)((char *)s + 0x5A8);
+    p[0] = s->f_5A0;
+    p[1] = s->f_5A4;
+    p[2] = s->f_5A8;
     p[1] = test_CURRENTROOT((void *)a0)[1];
     SetDirectRootPositionNoFittingWithNodePointXZ((void *)a0, 0x2C, (char *)s + 0x5A0, 1.0f);
     actMotDirToWall((char *)a0);
@@ -1619,13 +1615,13 @@ void actCommonLever(volatile int a0)
     }
 }
 
-/* kept local: void (void *) here, void (void *, int) in ebrain.h */
-extern void eBrainSendMes(void *a0);
+/* kept local: agrees with ebrain.h, which this TU does not include */
+extern void eBrainSendMes(void *gop, int mes);
 
 void EBRAIN_SEND_MES(void *a0, int a1)
 {
     if (a0 && *(int *)((char *)a0 + 0xC) == 4)
-        eBrainSendMes(a0);
+        eBrainSendMes(a0, a1);
 }
 
 inline void actCommonPlay(volatile int a0)
@@ -1784,10 +1780,12 @@ void actCommonDie(volatile int a0)
     }
 }
 
-/* kept local: void (void *, void *, int, int, float *, float, float, float, float) here, void (char *, char *, float, float, float, int, int, float, void *) in motionManager2.h */
-extern void SetMotionNodeFixModeParameter(void *a, void *b, int c, int d, float *q, float x,
-                                          float y, float z, float w);
-extern void __assert(char *a0, int a1, char *a2);
+/* kept local: motionManager2.h lists the parameters as (self, obj, x, y, z, mode, node, w, quat);
+   the callers pass them in this order */
+extern void SetMotionNodeFixModeParameter(char *self, char *obj, int mode, int node, void *quat,
+                                          float x, float y, float z, float w);
+/* kept local: agrees with mv_defs.h, which this TU does not include */
+extern void __assert(const char *file, int line, const char *expr);
 
 typedef struct {
     int rot[3];
@@ -1934,20 +1932,18 @@ typedef struct {
 
 void actCommonStone(volatile int a0)
 {
-    StoneSub *s = (StoneSub *)*(char **)(a0 + 0x164);
+    StoneSub *s = (StoneSub *)(char *)GOBJ_ACT(a0);
 
     s->f14 = (int)afterCommonStone;
     *(int *)(*(char **)(*(char **)(a0 + 0x164) + 0x680) + 0x2A0) = 0;
     while (1) {
         if (debug_font_flag & 1) {
-            debug_Printf(10, 170, 0xFFFFFFF, "count =(%d)\n",
-                         *(int *)(*(char **)(*(char **)(a0 + 0x164) + 0x680) + 0xCC));
+            debug_Printf(10, 170, 0xFFFFFFF, "count =(%d)\n", GOBJ_ACT(a0)->f_680->f_CC);
         }
         if (debug_font_flag & 1) {
-            debug_Printf(10, 180, 0xFFFFFFF, "level =(%d)\n",
-                         *(int *)(*(char **)(*(char **)(a0 + 0x164) + 0x680) + 0x29C));
+            debug_Printf(10, 180, 0xFFFFFFF, "level =(%d)\n", GOBJ_ACT(a0)->f_680->f_29C);
         }
-        switch (*(int *)(*(char **)(*(char **)(a0 + 0x164) + 0x680) + 0x29C)) {
+        switch (GOBJ_ACT(a0)->f_680->f_29C) {
         case 0:
         case 1:
             break;
@@ -1958,11 +1954,11 @@ void actCommonStone(volatile int a0)
             _ACTParaStatus_Set(a0, 0x27);
             break;
         }
-        if (*(int *)(*(char **)(*(char **)(a0 + 0x164) + 0x680) + 0xCC) < 0) {
+        if (GOBJ_ACT(a0)->f_680->f_CC < 0) {
             ACTSendMailCorrect((char *)a0, 0xC7);
-            *(int *)(*(char **)(*(char **)(a0 + 0x164) + 0x680) + 0x29C) = 0;
+            GOBJ_ACT(a0)->f_680->f_29C = 0;
         }
-        if (s->f4C >= 0x3D && *(int *)(*(char **)(*(char **)(a0 + 0x164) + 0x680) + 0x29C) >= 3) {
+        if (s->f4C >= 0x3D && GOBJ_ACT(a0)->f_680->f_29C >= 3) {
             ACT_LAYOUT_GAMEOVER();
             _ACTWait(0);
         }
@@ -2207,8 +2203,8 @@ void actCommonBox(volatile int a0)
     }
 }
 
-/* kept local: int (void *) here, int (char *) in motionManager2.h */
-extern int GetMotionFrameFlag1(void *a0);
+/* kept local: agrees with motionManager2.h, which this TU does not include (SetMotionDirection, SetMotionNodeFixModeParameter differ) */
+extern int GetMotionFrameFlag1(char *self);
 /* kept local: Blob12 here, FcColInfo in fieldCollision.h */
 extern Blob12 InitialColInfo;
 
@@ -2219,8 +2215,8 @@ inline void afterCommonBar(volatile int a0)
     _boxbar_set_sound(a0, 0);
 }
 
-/* kept local: int (void *) here, int (char *) in motionManager2.h */
-extern int GetMotionFrameFlag2(void *a0);
+/* kept local: agrees with motionManager2.h, which this TU does not include (SetMotionDirection, SetMotionNodeFixModeParameter differ) */
+extern int GetMotionFrameFlag2(char *self);
 
 typedef struct {
     char _0[0x1C0];
@@ -2309,10 +2305,10 @@ void funcCommonFallDircorrect(char *a0)
     SetMotionDirection(a0, (char *)GOBJ_ACT(a0)->f_688 + 0x360);
 }
 
-/* kept local: float (void *) here, float (char *) in chain.h */
-extern float GetChainHangRange(void *o);
-/* kept local: float (void *) here, float (char *) in chain.h */
-extern float GetChainLength(void *o);
+/* kept local: agrees with chain.h, which this TU does not include (HoldChain, ReleaseChain, SetChainRootUpdateMode differ) */
+extern float GetChainHangRange(char *a0);
+/* kept local: agrees with chain.h, which this TU does not include (HoldChain, ReleaseChain, SetChainRootUpdateMode differ) */
+extern float GetChainLength(char *a0);
 
 void correctJumpOrientByChain(char *a0)
 {
@@ -2745,7 +2741,7 @@ static inline unsigned char IsFlyTimeOver(int a0)
     return 0;
 }
 
-/* kept local: agrees with fieldCollision.h, which this TU does not include (ClipFloor, ClipWall differ) */
+/* kept local: agrees with fieldCollision.h, which this TU does not include */
 extern void ClipCollision(int *self);
 /* kept local: no header declares it */
 extern void GetRootMotionMatrix(void *m, char *obj);
@@ -2753,7 +2749,7 @@ extern void GetRootMotionMatrix(void *m, char *obj);
 extern float GetEnemyFlyXZAccel(int a0);
 /* kept local: no header declares it; the ROM passes the position's address */
 extern void SetDarkVolumeEffect(float *pos, float size);
-/* kept local: int (void *, void *) here, int (FlyLimitInfo *, void *) in flyManager.h */
+/* kept local: info is void * here, FlyLimitInfo * in flyManager.h */
 extern int GetFlyLimitHeight(void *info, void *pos);
 
 /* reconstruction: GetFlyLimitHeight's result, as flyManager.c fills it */
@@ -3190,14 +3186,14 @@ void actCommonFly(volatile int a0)
                     debug_fly_limit_test != 0);
 }
 
-/* kept local: float (void *, int) here, float (char *, int) in motionManager2.h */
-extern float GetDifferenceFromWallUpperField(void *a0, int node);
-/* kept local: float (void *, int) here, float (char *, int) in motionManager2.h */
-extern float GetDifferenceFromLastField(void *a0, int node);
-/* kept local: float (void *, int) here, float (char *, int) in motionManager2.h */
-extern float GetDifferenceFromWallUpperPlane(void *a0, int node);
-/* kept local: float (void *, int) here, float (char *, int) in motionManager2.h */
-extern float GetDifferenceFromWallLowerPlane(void *a0, int node);
+/* kept local: agrees with motionManager2.h, which this TU does not include (SetMotionDirection, SetMotionNodeFixModeParameter differ) */
+extern float GetDifferenceFromWallUpperField(char *a0, int a1);
+/* kept local: agrees with motionManager2.h, which this TU does not include (SetMotionDirection, SetMotionNodeFixModeParameter differ) */
+extern float GetDifferenceFromLastField(char *a0, int a1);
+/* kept local: agrees with motionManager2.h, which this TU does not include (SetMotionDirection, SetMotionNodeFixModeParameter differ) */
+extern float GetDifferenceFromWallUpperPlane(char *self, int node);
+/* kept local: agrees with motionManager2.h, which this TU does not include (SetMotionDirection, SetMotionNodeFixModeParameter differ) */
+extern float GetDifferenceFromWallLowerPlane(char *self, int node);
 
 typedef struct {
     char _0[0x290];
@@ -3372,8 +3368,8 @@ inline void actCommonSwim(volatile int a0)
     }
 }
 
-/* kept local: agrees with motionManager2.h, which this TU does not include (GetMotionFrameFlag1, GetSkeltonFocusNode differ) */
-extern void SetMotionDirectionWithLimit(void *a0, float *dir, float lo, float hi);
+/* kept local: agrees with motionManager2.h, which this TU does not include (SetMotionDirection, SetMotionNodeFixModeParameter differ) */
+extern void SetMotionDirectionWithLimit(void *self, float *dir, float lim0, float lim1);
 
 inline void actCommonDodge(volatile int a0)
 {
@@ -3645,11 +3641,11 @@ void ACTSendMailCorrect(char *a0, int a1)
 {
     Act *s = GOBJ_ACT(a0);
     if ((a1 == 0xB5 || a1 == 0xBA) && *(int *)(a0 + 0xC) == 1) {
-        long long f = (long long)s->f_488;
-        if (((int)(f >> 5) & 1) && ((int)((long long)s->f_498 >> 5) & 1)) {
+        long long f = (long long)s->wish2.ll;
+        if (((int)(f >> 5) & 1) && ((int)((long long)s->wish4.ll >> 5) & 1)) {
             a1 = 0xB6;
         } else if ((int)(f >> 3) & 1) {
-            a1 = ((int)((long long)s->f_498 >> 3) & 1) ? 0xB7 : a1;
+            a1 = ((int)((long long)s->wish4.ll >> 3) & 1) ? 0xB7 : a1;
         }
     }
     iosOmSendMail(a0, a1, (int)a0);
@@ -3811,31 +3807,31 @@ static __inline__ unsigned char requestBecarryMotion(char *self, int mot, int wa
 
 void actCommonBecarry(volatile int a0)
 {
-    char *s = (char *)GOBJ_ACT(a0);
+    Act *s = GOBJ_ACT(a0);
     int cur = -1;
     char *g;
     int old;
     unsigned char done;
     unsigned long long fl;
 
-    g = *(char **)(s + 0x144);
+    g = *(char **)((char *)s + 0x144);
     ACTGameCollisionOff((volatile int *)a0);
-    ((ActFlagJ *)(s + 0x18))->p = (void *)afterCommonBecarry;
-    ((ActFlagJ *)(s + 0x18))->ll &= ~(1ULL << 46);
+    ((ActFlagJ *)((char *)s + 0x18))->p = (void *)afterCommonBecarry;
+    ((ActFlagJ *)((char *)s + 0x18))->ll &= ~(1ULL << 46);
     _ACTWait(1);
     while (1) {
         _ACTCharStatus_Set((char *)a0, 9, -1.0f, 0);
         old = cur;
         cur = GOBJ_SUB(g)->f_4A0;
         if (old != cur) {
-            done = requestBecarryMotion(
-                (char *)a0, cur, (*(int *)((char *)GOBJ_ACT(g) + 0x34) == 103) ? 30 : 0, 2118);
+            done =
+                requestBecarryMotion((char *)a0, cur, (GOBJ_ACT(g)->unk34 == 103) ? 30 : 0, 2118);
             if (!done) {
-                ((ActFlagJ *)(s + 0x18))->ll |= (1ULL << 46);
+                ((ActFlagJ *)((char *)s + 0x18))->ll |= (1ULL << 46);
             }
         }
-        if (6 <= *(int *)(s + 0x4C)) {
-            if (actModeTbl[*(int *)((char *)GOBJ_ACT(g) + 0x34)].b0 ||
+        if (6 <= *(int *)((char *)s + 0x4C)) {
+            if (actModeTbl[GOBJ_ACT(g)->unk34].b0 ||
                 (fl = ((CarryMot *)motionKind)[GOBJ_SUB(g)->f_4A0].f18C, fl >> 7)) {
                 afterCommonCarry((int)g);
                 debug_StdPrintfDummy("girl becarry error");
@@ -3851,12 +3847,14 @@ void actCommonBecarry(volatile int a0)
         if (debug_font_flag & 1) {
             debug_Printf(100, 160, 0xFFFFFFF, "[%s]\n",
                          D_0055FF18 +
-                             *(int *)(*(char **)(*(char **)(s + 0x144) + 0x15C) + 0x4A0) * 0x194);
+                             *(int *)(*(char **)(*(char **)((char *)s + 0x144) + 0x15C) + 0x4A0) *
+                                 0x194);
         }
         if (debug_font_flag & 1) {
             debug_Printf(
                 100, 170, 0xFFFFFFF, "[%s]\n",
-                actModeTbl[*(int *)(*(char **)(*(char **)(s + 0x144) + 0x164) + 0x34)].name);
+                actModeTbl[*(int *)(*(char **)(*(char **)((char *)s + 0x144) + 0x164) + 0x34)]
+                    .name);
         }
         _ACTWait(1);
     }
@@ -4160,8 +4158,8 @@ void ACT_LAYOUT_GAMEOVER(void)
     }
 }
 
-/* kept local: void (int, int, float) here, void (void *, void *, float) in motionManager2.h */
-extern void AdjustRootPositionToVerticalSidePlaneOfWall(int a0, int a1, float a2);
+/* kept local: agrees with motionManager2.h, which this TU does not include (SetMotionDirection, SetMotionNodeFixModeParameter differ) */
+extern void AdjustRootPositionToVerticalSidePlaneOfWall(void *a0, void *a1, float f);
 
 void ACTAdjustPlane(int a0, int a1)
 {
@@ -4249,8 +4247,8 @@ inline void actCommonDelete(volatile int a0)
     _ACTWait(0);
 }
 
-/* kept local: void (void *) here, void (char *) in weapon.h */
-extern void LightTorchOnOfWeapon(void *a0);
+/* kept local: agrees with weapon.h, which this TU does not include (ExecWeaponHitReaction differs) */
+extern void LightTorchOnOfWeapon(char *a0);
 
 inline void actCommonCatchFire(volatile int a0)
 {
@@ -4326,7 +4324,7 @@ inline void actCommonClimb(volatile int a0)
     }
 }
 
-/* kept local: agrees with fieldCollision.h, which this TU does not include (ClipFloor, ClipWall differ) */
+/* kept local: agrees with fieldCollision.h, which this TU does not include */
 extern int CompareAttribute(unsigned int a, unsigned int b);
 
 typedef struct {
@@ -4360,8 +4358,8 @@ inline void actCommonLadderBellow(volatile int a0)
     }
 }
 
-/* kept local: int (void *, int) here, int (char *) in motionManager2.h */
-extern int CheckWallAttribute(void *a0, int a1);
+/* kept local: agrees with motionManager2.h, which this TU does not include (SetMotionDirection, SetMotionNodeFixModeParameter differ) */
+extern int CheckWallAttribute(char *self, int attr);
 
 inline void actCommonLadderBellowHang(volatile int a0)
 {
@@ -4451,8 +4449,8 @@ inline void actCommonRopeTouchWall(volatile int a0)
     }
 }
 
-/* kept local: void (int, float *) here, void (char *, float *) in chain.h */
-extern void PlumbOrientUpdateChain(int a0, float *q);
+/* kept local: agrees with chain.h, which this TU does not include (HoldChain, ReleaseChain, SetChainRootUpdateMode differ) */
+extern void PlumbOrientUpdateChain(char *a0, float *src);
 
 typedef struct {
     char _0[0x18];
@@ -4786,10 +4784,10 @@ inline void motCommonSlip(volatile int a0)
     Act *s = GOBJ_ACT(a0);
 
     while (1) {
-        long long f = (long long)s->f_480;
+        long long f = (long long)s->wish1.ll;
 
-        if (!((((int)(f >> 16) & 1) && ((int)((long long)s->f_490 >> 16) & 1)) ||
-              (((int)(f >> 17) & 1) && ((int)((long long)s->f_490 >> 17) & 1)))) {
+        if (!((((int)(f >> 16) & 1) && ((int)((long long)s->wish3.ll >> 16) & 1)) ||
+              (((int)(f >> 17) & 1) && ((int)((long long)s->wish3.ll >> 17) & 1)))) {
             ACTSendMailCorrect((char *)a0, 0xC7);
         }
         _ACTWait(1);
@@ -4970,8 +4968,8 @@ static char commonOrient[16];
 
 static float commonPos[4];
 
-/* kept local: void (void *, void *) here, void (int, int) in motionManager2.h */
-extern void _GetMotionDirection(void *a0, void *a1);
+/* kept local: agrees with motionManager2.h, which this TU does not include (SetMotionDirection, SetMotionNodeFixModeParameter differ) */
+extern void _GetMotionDirection(int a0, int a1);
 
 inline float *test_CURRENTORIENT(char *a0)
 {
@@ -5143,7 +5141,7 @@ inline void actAfterFly(volatile int a0)
     ResetFlyLimit(a0);
 }
 
-/* kept local: void (void *) here, int (void *) in fieldCollision.h */
+/* kept local: agrees with fieldCollision.h, which this TU does not include */
 extern void ClipWallField(void *a0);
 
 inline void ClipCollisionWithField(char *a0)

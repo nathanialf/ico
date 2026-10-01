@@ -633,10 +633,10 @@ extern void gif_SetAlpha(long long a0, long long a1, long long a2);
 extern void gif_SetZTest(int a0);
 /* kept local: agrees with GifPacket.h, which this TU does not include (gif_Line, gif_Sprite differ) */
 extern void gif_SetZWrite(int a0);
-/* kept local: void (void *, unsigned int, int, void *, int) here, void (int *, long long, int *, unsigned char *, int) in GifPacket.h */
-extern void gif_Sprite(void *a0, unsigned int a1, int a2, void *a3, int a4);
+/* kept local: z is unsigned int here, long long in GifPacket.h */
+extern void gif_Sprite(int *r, unsigned int z, int *uv, unsigned char *col, int prim);
 /* kept local: agrees with GifPacket.h, which this TU does not include (gif_Line, gif_Sprite differ) */
-extern void gif_StartPacketPri(int a0);
+extern void gif_StartPacketPri(int pri);
 
 typedef struct {
     int x, y, z;
@@ -647,8 +647,9 @@ typedef struct {
 } DbgVtx;
 
 extern float brainGetLevel(Brain *b, BrainTarget *t);
-/* kept local: void (void *, void *, unsigned int, unsigned int, void *, int) here, void (int *, int *, long long, long long, unsigned char *, int) in GifPacket.h */
-extern void gif_Line(void *v0, void *v1, unsigned int z0, unsigned int z1, void *col, int prim);
+/* kept local: z0 is unsigned int here, long long in GifPacket.h; z1 is unsigned int here, long long in GifPacket.h */
+extern void gif_Line(int *v0, int *v1, unsigned int z0, unsigned int z1, unsigned char *col,
+                     int prim);
 
 /* .sbss, owned by debug.o (MAIN.MAP debug.o .sbss 0x10; it names no symbol,
    so the names are ours), in the ROM's run order: the rows debug_DispBox,
@@ -780,33 +781,33 @@ typedef struct {
     char c[2];
 } McPat;
 
-/* kept local: void (McReq *) here, int (void *) in mcard.h */
-extern void iosMcChdirProduct(McReq *mc);
-/* kept local: void (McReq *) here, int (void *) in mcard.h */
-extern void iosMcGetDir(McReq *mc);
-/* kept local: agrees with mcard.h, which this TU does not include (iosMcChdirProduct, iosMcGetBlockSaveInfo differ) */
-extern int iosMcSync();
-/* kept local: void (McReq *) here, int (void *) in mcard.h */
-extern void iosMcGetBlockSaveInfo(McReq *mc);
-/* kept local: void (McReq *) here, int (void *) in mcard.h */
-extern void iosMcSaveIconBlock(McReq *mc);
-/* kept local: void (McReq *) here, int (void *) in mcard.h */
-extern void iosMcSaveProductBlock(McReq *mc);
-/* kept local: void (McReq *, void *) here, int (void *, int) in mcard.h */
-extern void iosMcSaveGameBlock(McReq *mc, void *buf);
+/* kept local: returns void here, int in mcard.h */
+extern void iosMcChdirProduct(void *a0);
+/* kept local: returns void here, int in mcard.h */
+extern void iosMcGetDir(void *a0);
+/* kept local: agrees with mcard.h, which this TU does not include (iosMcChdirProduct, iosMcDelete, iosMcFormat, iosMcGetBlockSaveInfo, iosMcGetDir, iosMcGetInfo, iosMcLoadGameBlock, iosMcLoadProductBlock, iosMcSaveGameBlock, iosMcSaveIconBlock, iosMcSaveProductBlock, iosMcUnformat differ) */
+extern int iosMcSync(unsigned long *a0);
+/* kept local: returns void here, int in mcard.h */
+extern void iosMcGetBlockSaveInfo(void *a0);
+/* kept local: returns void here, int in mcard.h */
+extern void iosMcSaveIconBlock(void *a0);
+/* kept local: returns void here, int in mcard.h */
+extern void iosMcSaveProductBlock(void *a0);
+/* kept local: returns void here, int in mcard.h */
+extern void iosMcSaveGameBlock(void *a0, int a1);
 
 /* the default save-file name "game." lives in .sdata as 6 bytes */
 typedef struct {
     char c[6];
 } McName6;
 
-/* kept local: void (McReq *) here, int (void *) in mcard.h */
-extern void iosMcLoadProductBlock(McReq *mc);
-/* kept local: void (McReq *, void *) here, int (void *, int) in mcard.h */
-extern void iosMcLoadGameBlock(McReq *mc, void *buf);
+/* kept local: returns void here, int in mcard.h */
+extern void iosMcLoadProductBlock(void *a0);
+/* kept local: returns void here, int in mcard.h */
+extern void iosMcLoadGameBlock(void *a0, int a1);
 extern int debug_selectFile(McReq *mc);
-/* kept local: void (McReq *) here, int (void *) in mcard.h */
-extern void iosMcDelete(McReq *mc);
+/* kept local: returns void here, int in mcard.h */
+extern void iosMcDelete(void *a0);
 
 /* one line of the memory-card menu: the label debug_SelectCsvWindow prints and
    the state machine it hands control to */
@@ -823,8 +824,8 @@ typedef struct {
 } McTypeMsg;
 
 extern McReq mc;
-/* kept local: void (McReq *) here, int (void *) in mcard.h */
-extern void iosMcGetInfo(McReq *mc);
+/* kept local: returns void here, int in mcard.h */
+extern void iosMcGetInfo(void *a0);
 /* kept local: char * here, GObj * in main.h (boyGObj) */
 extern char *D_00639EA4;
 extern GsysObjInfo seDef[];
@@ -888,13 +889,13 @@ extern void DebugDisp1Collision(void *hit);
    main.c and motionManager2.c, where a3 is literally the caller's line number.
    +0x14 samples the EE timer T0_COUNT at 0x10000000; volatile because it is a
    hardware counter (and the ROM's 32-bit `lw` shows the read is not narrowed). */
-/* kept local: void (int) here, int (void *) in mcard.h */
-extern void iosMcFormat(int port);
-/* kept local: int (int) here, int (unsigned long *) in mcard.h */
-extern int iosMcSync(int port);
-/* kept local: void (int) here, int (void *) in mcard.h */
-extern void iosMcUnformat(int port);
-/* kept local: agrees with mcard.h, which this TU does not include (iosMcChdirProduct, iosMcGetBlockSaveInfo differ) */
+/* kept local: returns void here, int in mcard.h */
+extern void iosMcFormat(void *a0);
+/* kept local: agrees with mcard.h, which this TU does not include (iosMcChdirProduct, iosMcDelete, iosMcFormat, iosMcGetBlockSaveInfo, iosMcGetDir, iosMcGetInfo, iosMcLoadGameBlock, iosMcLoadProductBlock, iosMcSaveGameBlock, iosMcSaveIconBlock, iosMcSaveProductBlock, iosMcUnformat differ) */
+extern int iosMcSync(unsigned long *a0);
+/* kept local: returns void here, int in mcard.h */
+extern void iosMcUnformat(void *a0);
+/* kept local: agrees with mcard.h, which this TU does not include (iosMcChdirProduct, iosMcDelete, iosMcFormat, iosMcGetBlockSaveInfo, iosMcGetDir, iosMcGetInfo, iosMcLoadGameBlock, iosMcLoadProductBlock, iosMcSaveGameBlock, iosMcSaveIconBlock, iosMcSaveProductBlock, iosMcUnformat differ) */
 extern void iosMcTest(void);
 extern unsigned short seKind[];
 /* pad state block: +0x4 held buttons, +0xC newly-pressed (trigger) buttons */

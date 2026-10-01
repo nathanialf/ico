@@ -234,7 +234,8 @@ static __inline__ void SetPObjVector(Vec v, float x, float y, float z)
 }
 
 extern void MakeBoundingBox(PObj *p);
-extern void __assert(char *file, int line, char *expr);
+/* kept local: agrees with mv_defs.h, which this TU does not include */
+extern void __assert(const char *file, int line, const char *expr);
 
 typedef struct ObjHdr { /* the loaded model file image */
     char _0[4];

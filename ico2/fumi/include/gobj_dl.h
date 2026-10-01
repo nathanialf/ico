@@ -12,14 +12,17 @@
 #ifndef GOBJ_DL_H
 #define GOBJ_DL_H
 
-typedef struct DLN {
-    char _p0[0x34];
+typedef struct DLN { /* field names derived */
+    char pad0[0x34];
     struct DLN *next;
     struct DLN *prev;
-    char _p1[0x4];
+    char pad3C[0x4];
     unsigned char id;
-    char _p2[0x3];
+    char pad41[0x3];
     int key;
+    void *dl; /* 0x48, the display function the object manager calls */
+    char pad4C[0x4];
+    void *drawMask; /* 0x50, ANDed with the camera's mask to pick the cameras that draw it */
 } DLN;
 
 /* The declarations below lead this header because their order is load-bearing:

@@ -183,8 +183,8 @@ void isysGObjLinkObjDL(void *a0, void *a1, unsigned char a2, void *a3, void *a4)
 {
     debug_StdPrintfDummy("GObjLinkDL in\n");
     if (a1 != 0) {
-        *(void **)((char *)a0 + 0x48) = a1;
-        *(void **)((char *)a0 + 0x50) = a4;
+        ((DLN *)a0)->dl = a1;
+        ((DLN *)a0)->drawMask = a4;
         add_gobj_to_tail(a0, a2, a3);
         debug_StdPrintfDummy("GObjLinkDL out\n");
     }
@@ -193,16 +193,17 @@ void isysGObjLinkObjDL(void *a0, void *a1, unsigned char a2, void *a3, void *a4)
 void isysGObjLinkObjDLHead(void *a0, void *a1, unsigned char a2, void *a3, void *a4)
 {
     if (a1 != 0) {
-        *(void **)((char *)a0 + 0x48) = a1;
-        *(void **)((char *)a0 + 0x50) = a4;
+        ((DLN *)a0)->dl = a1;
+        ((DLN *)a0)->drawMask = a4;
         add_gobj_to_head(a0, a2, a3);
     }
 }
 
-void isysGObjLinkObjDLAfterGObj(int *self, int *a1, int a2, int *a3)
+void isysGObjLinkObjDLAfterGObj(DLN *self, void *a1, void *a2, DLN *a3)
 {
-    int *t0;
-    int v34, v44;
+    DLN *t0;
+    DLN *v34;
+    int v44;
     if (a1 == 0)
         return;
     t0 = self;
@@ -210,24 +211,25 @@ void isysGObjLinkObjDLAfterGObj(int *self, int *a1, int a2, int *a3)
         debug_StdPrintfDummy("isys:null GObj\n");
         return;
     }
-    t0[0x14] = a2;
-    t0[0x12] = (int)a1;
-    *((unsigned char *)t0 + 0x40) = *((unsigned char *)a3 + 0x40);
-    t0[0xE] = (int)a3;
-    v34 = a3[0xD];
-    v44 = a3[0x11];
-    t0[0xD] = v34;
-    a3[0xD] = (int)t0;
-    t0[0x11] = v44;
-    if (t0[0xD] == 0) {
-        gobj_dl_link_tail[*((unsigned char *)t0 + 0x40)] = (int)t0;
+    t0->drawMask = a2;
+    t0->dl = a1;
+    t0->id = a3->id;
+    t0->prev = a3;
+    v34 = a3->next;
+    v44 = a3->key;
+    t0->next = v34;
+    a3->next = t0;
+    t0->key = v44;
+    if (t0->next == 0) {
+        ((DLN **)gobj_dl_link_tail)[t0->id] = t0;
     }
 }
 
-void isysGObjLinkObjDLBeforeGObj(int *self, int *a1, int a2, int *a3)
+void isysGObjLinkObjDLBeforeGObj(DLN *self, void *a1, void *a2, DLN *a3)
 {
-    int *t0;
-    int v34, v44;
+    DLN *t0;
+    DLN *v34;
+    int v44;
     if (a1 == 0)
         return;
     t0 = self;
@@ -235,16 +237,16 @@ void isysGObjLinkObjDLBeforeGObj(int *self, int *a1, int a2, int *a3)
         debug_StdPrintfDummy("isys:null GObj\n");
         return;
     }
-    t0[0x14] = a2;
-    t0[0x12] = (int)a1;
-    *((unsigned char *)t0 + 0x40) = *((unsigned char *)a3 + 0x40);
-    t0[0xE] = (int)a3;
-    v34 = a3[0xD];
-    v44 = a3[0x11];
-    t0[0xD] = v34;
-    a3[0xD] = (int)t0;
-    t0[0x11] = v44;
-    if (t0[0xD] == 0) {
-        gobj_dl_link_tail[*((unsigned char *)t0 + 0x40)] = (int)t0;
+    t0->drawMask = a2;
+    t0->dl = a1;
+    t0->id = a3->id;
+    t0->prev = a3;
+    v34 = a3->next;
+    v44 = a3->key;
+    t0->next = v34;
+    a3->next = t0;
+    t0->key = v44;
+    if (t0->next == 0) {
+        ((DLN **)gobj_dl_link_tail)[t0->id] = t0;
     }
 }

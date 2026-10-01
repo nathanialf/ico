@@ -58,8 +58,8 @@ union GAIF {
     float f;
 };
 
-/* kept local: int (void *, int) here, int (char *, int) in motionManager2.h */
-extern int GetSkeltonFocusNode(void *obj, int kind);
+/* kept local: agrees with motionManager2.h, which this TU does not include (SetMotionNodeFixModeParameter differs) */
+extern int GetSkeltonFocusNode(char *a0, int a1);
 
 void GetEyeDirection(char *dir, char *obj)
 {
@@ -83,8 +83,8 @@ void funcGirlHandDisconnect(void)
     debug_StdPrintfDummy("--disconnect--\n");
 }
 
-/* kept local: agrees with motionManager2.h, which this TU does not include (GetRootProjectionPosOfGObj, GetSkeltonFocusNode differ) */
-extern void SetMotionDirection(void *a0, float *dir);
+/* kept local: agrees with motionManager2.h, which this TU does not include (SetMotionNodeFixModeParameter differs) */
+extern void SetMotionDirection(void *a0, float *a1);
 
 /* The three climb headers (omori/include/g50climb.h, g100climb.h,
    g200climb.h in the listing) textually included here: each defines the
@@ -555,9 +555,10 @@ static inline void ATGoalTurnSendMail(void *self)
     }
 }
 
-/* kept local: void (void *, void *) here, void (int, int) in motionManager2.h */
-extern void GetRootProjectionPosOfGObj(void *out, void *obj);
-extern void __assert(char *file, int line, char *expr);
+/* kept local: agrees with motionManager2.h, which this TU does not include (SetMotionNodeFixModeParameter differs) */
+extern void GetRootProjectionPosOfGObj(int a0, int a1);
+/* kept local: agrees with mv_defs.h, which this TU does not include */
+extern void __assert(const char *file, int line, const char *expr);
 
 /* girl_brain_main.c.inc:279-293: the wire-string marker (colour, a
    MatrixDrive transform of the position, DispWireString, colour reset).
@@ -896,8 +897,8 @@ int girlBrainHideCheckIntercept(float *from, float *to, char *list, int n)
     return 0;
 }
 
-/* kept local: void (void *, int, int, int, float, float) here, void (int *, int, int, int, float, float) in camera-editor.h */
-extern void debug_Marker(void *buf, int a1, int a2, int a3, float f12, float f13);
+/* kept local: agrees with camera-editor.h, which this TU does not include (debug_Arrow differs) */
+extern void debug_Marker(int *buf, int a1, int a2, int a3, float f12, float f13);
 
 /* girl_brain_main.c.inc:313-317 (rows outside WayTest's span => static inline) */
 static inline void dispWayMarker(float *p)
@@ -1412,10 +1413,10 @@ void subGirlBrainMain(volatile int a0)
                     _ACTCharStatus_Set(boy, 4, -1.0f, 0);
                 }
                 if (bact->f_10 % ((60 - systemStatus[0] * 10) / systemStatus[1]) == 0) {
-                    *(char **)((char *)GOBJ_ACT(boy)->f_688 + 0x370) = brain_val.hide.ent[0].obj;
+                    GOBJ_WORK(boy)->f_370 = brain_val.hide.ent[0].obj;
                 }
-                if (*(char **)((char *)GOBJ_ACT(boy)->f_688 + 0x370) == 0) {
-                    *(char **)((char *)GOBJ_ACT(boy)->f_688 + 0x370) = brain_val.hide.ent[0].obj;
+                if (GOBJ_WORK(boy)->f_370 == 0) {
+                    GOBJ_WORK(boy)->f_370 = brain_val.hide.ent[0].obj;
                 }
                 *(void **)((char *)bact + 0x80) = *(void **)((char *)GOBJ_ACT(boy)->f_688 + 0x370);
                 *(void **)((char *)bact + 0x84) = *(void **)((char *)GOBJ_ACT(boy)->f_688 + 0x370);
@@ -1426,22 +1427,22 @@ void subGirlBrainMain(volatile int a0)
                 near = 0;
             }
             if ((((int)(act->flags20.ll >> 28)) & 1) && !near) {
-                *(int *)((char *)GOBJ_ACT(a0)->f_688 + 0x380) =
+                GOBJ_WORK(a0)->f_380 =
                     (int)(_ACTGame_GetParamF(0) *
                           (float)((60 - systemStatus[0] * 10) / systemStatus[1]));
             }
             act->flags20.ll = (act->flags20.ll & ~(1LL << 28)) | ((long long)near << 28);
         }
-        if (*(int *)((char *)GOBJ_ACT(a0)->f_688 + 0x380) != 0) {
+        if (GOBJ_WORK(a0)->f_380 != 0) {
             float lv;
 
-            *(int *)((char *)GOBJ_ACT(a0)->f_688 + 0x380) -= 1;
-            lv = (float)*(int *)((char *)GOBJ_ACT(a0)->f_688 + 0x380) * 10.0f /
+            GOBJ_WORK(a0)->f_380 -= 1;
+            lv = (float)GOBJ_WORK(a0)->f_380 * 10.0f /
                  (_ACTGame_GetParamF(0) * (float)((60 - systemStatus[0] * 10) / systemStatus[1]));
             if (lv > 2.0f) {
                 brainSetLevelGop((int)((int *)boyGObj), 0, 1, lv);
             } else {
-                *(int *)((char *)GOBJ_ACT(a0)->f_688 + 0x380) = 0;
+                GOBJ_WORK(a0)->f_380 = 0;
             }
         }
         {
@@ -1493,7 +1494,7 @@ void subGirlBrainMain(volatile int a0)
                 }
             }
             {
-                void *tgt = *(void **)((char *)GOBJ_ACT(a0)->f_688 + 0x3E4);
+                void *tgt = (void *)GOBJ_WORK(a0)->f_3E4;
 
                 if (tgt) {
                     dir[0] = test_CURRENTROOT(tgt)[0];
@@ -1747,7 +1748,7 @@ void subGirlBrainMain(volatile int a0)
                 }
             }
         }
-        if (*(int *)((char *)GOBJ_ACT(a0)->f_688 + 0x3C4) == 0 && ((int *)boyGObj) != 0 &&
+        if (GOBJ_WORK(a0)->f_3C4 == 0 && ((int *)boyGObj) != 0 &&
             _FrontGV(test_CURRENTROOT(((int *)boyGObj)), test_CURRENTROOT((void *)a0),
                      test_CURRENTORIENT((void *)a0), 90) &&
             ACTGameViewSimple_Check((void *)a0, ((int *)boyGObj))) {
@@ -1773,8 +1774,8 @@ void subGirlBrainMain(volatile int a0)
     }
 }
 
-/* kept local: void (void *, int, int, int, float) here, void (int *, int, int, int, float) in camera-editor.h */
-extern void debug_NMarker(void *pos, int r, int g, int b, float size);
+/* kept local: agrees with camera-editor.h, which this TU does not include (debug_Arrow differs) */
+extern void debug_NMarker(int *self, int a1, int a2, int a3, float t);
 
 inline void subGirlBrain_Idle(volatile int a0)
 {
@@ -3007,7 +3008,7 @@ static void Danger_Box(void *self)
     if (!r) {
         _ACTWait(0);
     }
-    sub->f_438 |= 0x10000;
+    sub->wayState.flags |= 0x10000;
     _ACTWait(1);
     turn = 0;
     while (1) {
@@ -3327,8 +3328,8 @@ static char *wayTestStateName[9] = {"IDLE",    "SEARCHWAY", "LOSTTWAY", "APPROAC
 GirlBrainWork brain_val = {0};
 
 extern float GetDifferenceFromLowerField(void *obj, int node);
-/* kept local: void (float *, void *) here, void (int, int) in motionManager2.h */
-extern void _GetMotionDirection(float *dir, void *g);
+/* kept local: agrees with motionManager2.h, which this TU does not include (SetMotionNodeFixModeParameter differs) */
+extern void _GetMotionDirection(int a0, int a1);
 extern void _ACTCommonMailTest(void *self, int a1, int a2, int a3);
 extern char motionKind[];
 
@@ -3627,11 +3628,11 @@ extern void ACTGame_CommonLoop(void *self);
 extern void brainLevelProcess(Brain *b);
 extern void ACTLookTargetSystem_Exec(void *self);
 extern void ACTParaStatus_Exec(void *self);
-/* kept local: void (float, void *, void *, int, int, int) here, void (void) in camera-editor.h */
+/* kept local: void is float here, void in camera-editor.h */
 extern void debug_Arrow(float len, void *from, void *to, int r, int g, int b);
 extern double fptodp(float v);
-/* kept local: agrees with motionManager2.h, which this TU does not include (GetRootProjectionPosOfGObj, GetSkeltonFocusNode differ) */
-extern void SetMotionDirection(void *a0, float *dir);
+/* kept local: agrees with motionManager2.h, which this TU does not include (SetMotionNodeFixModeParameter differs) */
+extern void SetMotionDirection(void *a0, float *a1);
 extern char actModeTbl[];
 
 void subGirlCollision(volatile int a0)
@@ -3837,8 +3838,8 @@ void subGirlCollision(volatile int a0)
 
 /* kept local: this TU's uses of GetHeightOfFieldPlaneDifference do not fit the
    prototype in motionManager2.h */
-/* kept local: float (void *, void *) here, float (int *, int *) in motionManager2.h */
-extern float GetHeightOfFieldPlaneDifference(void *a, void *b);
+/* kept local: agrees with motionManager2.h, which this TU does not include (SetMotionNodeFixModeParameter differs) */
+extern float GetHeightOfFieldPlaneDifference(int *a, int *b);
 
 inline int NotNeedBackHand(void)
 {
@@ -4260,9 +4261,10 @@ typedef struct {
     int w[8];
 } GirlPullBlk;
 
-/* kept local: void (void *, void *, int, int, float *, float, float, float, float) here, void (char *, char *, float, float, float, int, int, float, void *) in motionManager2.h */
-extern void SetMotionNodeFixModeParameter(void *a, void *b, int c, int d, float *q, float x,
-                                          float y, float z, float w);
+/* kept local: motionManager2.h lists the parameters as (self, obj, x, y, z, mode, node, w, quat);
+   the callers pass them in this order */
+extern void SetMotionNodeFixModeParameter(char *self, char *obj, int mode, int node, void *quat,
+                                          float x, float y, float z, float w);
 
 inline void afterGirlPulledGo(void *a0)
 {
@@ -4286,7 +4288,7 @@ void actGirlPulledGo(volatile int a0)
     memset(q, 0, 0x10);
     q[3] = 1.0f;
     RotQuaternionY(q, 0);
-    SetMotionNodeFixModeParameter((void *)girlGObj, ((int *)boyGObj), 2, 6, q, 0.0f, 0.0f, 0.0f,
+    SetMotionNodeFixModeParameter((char *)girlGObj, (char *)boyGObj, 2, 6, q, 0.0f, 0.0f, 0.0f,
                                   1.0f);
     while (1) {
         if (!PAIR_IsStatus_BOY_PULL()) {
@@ -4422,10 +4424,6 @@ inline void actGirlAttack(volatile int a0)
     _ACTWait(0);
 }
 
-/* kept local: void (void *, void *, int, int, float *, float, float, float, float) here, void (char *, char *, float, float, float, int, int, float, void *) in motionManager2.h */
-extern void SetMotionNodeFixModeParameter(void *a, void *b, int c, int d, float *q, float x,
-                                          float y, float z, float w);
-
 inline void actGirlHang(volatile int a0)
 {
     Act *s = GOBJ_ACT(a0);
@@ -4498,13 +4496,13 @@ inline void actGirlBehanged(volatile int a0)
         memset(q, 0, 0x10);
         q[3] = 1.0f;
         RotQuaternionY(q, 0);
-        SetMotionNodeFixModeParameter((void *)girlGObj, ((int *)boyGObj), 2, 6, q, 0.0f, 0.0f, 0.0f,
+        SetMotionNodeFixModeParameter((char *)girlGObj, (char *)boyGObj, 2, 6, q, 0.0f, 0.0f, 0.0f,
                                       1.0f);
         _ACTWait(1);
     }
 }
 
-/* kept local: void (float, void *, void *, int, int, int) here, void (void) in camera-editor.h */
+/* kept local: void is float here, void in camera-editor.h */
 extern void debug_Arrow(float len, void *from, void *to, int r, int g, int b);
 
 void actGirlReadyMove(volatile int a0)
@@ -4533,8 +4531,8 @@ void actGirlReadyMove(volatile int a0)
     }
 }
 
-/* kept local: agrees with motionManager2.h, which this TU does not include (GetRootProjectionPosOfGObj, GetSkeltonFocusNode differ) */
-extern void SetMotionDirection(void *a0, float *dir);
+/* kept local: agrees with motionManager2.h, which this TU does not include (SetMotionNodeFixModeParameter differs) */
+extern void SetMotionDirection(void *a0, float *a1);
 
 void actGirlRescueDst(volatile int a0)
 {
@@ -4672,7 +4670,7 @@ void actGirlSupportBGBegin(volatile int a0)
     memset(q, 0, 0x10);
     q[3] = 1.0f;
     RotQuaternionY(q, 0);
-    SetMotionNodeFixModeParameter((void *)girlGObj, ((int *)boyGObj), 2, 6, q, 0.0f, 0.0f, 0.0f,
+    SetMotionNodeFixModeParameter((char *)girlGObj, (char *)boyGObj, 2, 6, q, 0.0f, 0.0f, 0.0f,
                                   1.0f);
     s->after = (void *)afterGirlSupportBGBegin;
     ACTGame_ConnectHand();

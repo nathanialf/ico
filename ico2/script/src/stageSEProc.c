@@ -54,7 +54,7 @@ static const Blk16 se10lBoxCenter = {{141.0f, 1328.0f, -122.0f, 0.0f}};
 
 static const Blk16 se10lBoxSize = {{600.0f, 700.0f, 1000.0f, 0.0f}};
 
-/* kept local: agrees with camera-root.h, which this TU does not include */
+/* kept local: returns int * here, void * in camera-root.h */
 extern int *GetCameraPos();
 
 /* SRCFILE.TXT rows 579 to 583 and 696 to 698: the two box tests are each their

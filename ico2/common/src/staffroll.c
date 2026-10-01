@@ -116,7 +116,8 @@ int staffRollScroll(void)
 extern char *staffRollNameData[];
 /* staffroll_dat.o's entry count (MAIN.MAP; a data-only member) */
 extern int staffRollNameDataNum;
-extern void __assert(char *file, int line, char *expr);
+/* kept local: agrees with mv_defs.h, which this TU does not include */
+extern void __assert(const char *file, int line, const char *expr);
 
 int staffRollNameOut(void)
 {

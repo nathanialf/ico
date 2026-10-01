@@ -273,7 +273,8 @@ int short_direction_between_wp(WayPoint *from, WayPoint *to)
     return dir;
 }
 
-extern void __assert(void *a0, int a1, void *a2);
+/* kept local: agrees with mv_defs.h, which this TU does not include */
+extern void __assert(const char *file, int line, const char *expr);
 
 inline int direction_across_bridge(WayGroup *bridge, int a1)
 {

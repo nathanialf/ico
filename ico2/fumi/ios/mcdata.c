@@ -13,10 +13,10 @@ struct McIconWork {
    caller is spinning on has finished. */
 static int mcDataDone;
 
-/* kept local: void (int) here, void (void *) in mcard.h */
-extern void iosMcMgrSync(int self);
-/* kept local: void (int, void *, int) here, int () in mcard.h */
-extern void iosMcHandlerWrite(int self, void *buf, int size);
+/* kept local: agrees with mcard.h, which this TU does not include (iosMcHandlerWrite differs) */
+extern void iosMcMgrSync(void *mp);
+/* kept local: returns void here, int in mcard.h */
+extern void iosMcHandlerWrite();
 
 /* Background-read callback: pulls the icon file off the disc a chunk at a
    time into a 64-byte aligned buffer and waits for the writer to drain it. */

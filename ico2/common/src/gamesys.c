@@ -73,9 +73,11 @@ void *gameSysMemoryFuncList[] = {
 
 int gamesysStageExitTime[106] = {0};
 
-/* the ROM starts the records on a 16-byte boundary, eight bytes past the
-   exit-time table (MAIN.MAP's link, whose table ends on one, shows no gap) */
-GamesysObjInfo gameSysObjInfo[182] __attribute__((aligned(16))) = {0};
+/* the save records as gamesys keeps them, on quadword boundaries: pos and rot
+   are vectors */
+typedef GamesysObjInfo GamesysObjRec __attribute__((aligned(16))); /* derived name */
+
+GamesysObjRec gameSysObjInfo[182] = {0};
 
 char gameSysMainSaveBuff[25596] = {0};
 

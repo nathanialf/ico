@@ -2,6 +2,7 @@
 #include "act-game.h"
 #include "debug.h"
 #include "gamesys.h"
+#include "main.h"
 #include "sceneManager.h"
 #include "act-env.h"
 #include "act-wish.h"
@@ -87,30 +88,20 @@ typedef struct {
 } MotionRec;
 
 extern MotionRec motionKind[];
-/* kept local: agrees with main.h, which this TU does not include (boyGObj, ((char *)girlControlMode) differ) */
-extern int stage_no;
 
 /* The exit table: one 40-byte entry per exit, in .rodata. */
 
 extern const ExitData exitData[];
-/* kept local: agrees with main.h, which this TU does not include (boyGObj, ((char *)girlControlMode) differ) */
-extern int exit_no;
 
 typedef struct {
     float x, y, z, w;
 } __attribute__((aligned(16))) Vec4S;
 
-/* kept local: char * here, GObj * in main.h */
-extern GObj *girlGObj;
-/* kept local: char * here, GObj * in main.h */
-extern char *boyGObj;
-/* kept local: agrees with boyact.h, which this TU does not include (PrivInsCamSet differ) */
+/* kept local: agrees with boyact.h, which this TU does not include (PrivInsCamSet differs) */
 extern void SetBoyInfo(int *a0, int *a1);
-/* kept local: agrees with boyact.h, which this TU does not include (PrivInsCamSet differ) */
+/* kept local: agrees with boyact.h, which this TU does not include (PrivInsCamSet differs) */
 extern void BoyInfoUpdate_StageChange(void);
 extern const StgPre stageData[];
-/* kept local: char * here, GObj * in main.h */
-extern char *boyGObj;
 
 /* One table: a 100-entry object list, two parallel per-entry int arrays
    (the full view result and the simple one), the entry count and the
@@ -128,8 +119,6 @@ typedef struct {
    anywhere in the ROM and stay in the blob. */
 static ActGameViewTbl actGameView;
 
-/* kept local: agrees with main.h, which this TU does not include (boyGObj, ((char *)girlControlMode) differ) */
-extern int systemStatus[];
 extern char actModeTbl[];
 
 /* One 0x50-byte record per act status, indexed by sub->0x34. */
@@ -166,10 +155,9 @@ typedef struct {
     float f[8];
 } EnvOct;
 
-/* kept local: agrees with weapon.h, which this TU does not include (GetTorchGObjOfWeapon differ) */
+/* kept local and unprototyped: weapon.h declares CheckWeaponKind(char *), and
+   ACTGame_isWeaponCombustible calls it with no argument */
 extern int CheckWeaponKind();
-/* kept local: char * here, int in main.h */
-extern int girlControlMode;
 
 /* The actor's orient-request bitfield: three 64-bit request words at
    sub+0x478, each paired with the permission mask 16 bytes further on. */
@@ -194,7 +182,7 @@ typedef struct {
 
 static HandClInfo handClInfoClear = {0}; /* derived name */
 
-/* kept local: void (void *, void *, float, int, int, int) here, void (void) in camera-editor.h */
+/* kept local: void is void * here, void in camera-editor.h */
 extern void debug_Arrow(void *root, void *vec, float len, int r, int g, int b);
 
 /* The hand-mode rows the motion record's two hand nibbles index: 16 bytes a
@@ -209,21 +197,21 @@ extern HandModeRow motionIKEffKind[];
    brainAddLevelGirlDetail */
 extern void brainAddLevelGirlDetail(int a0, float f);
 void ACTItemWatchMotion(char *self);
-/* kept local: void (float *, int, int, int, float) here, void (int *, int, int, int, float) in camera-editor.h */
-extern void debug_NMarker(float *pos, int r, int g, int b, float size);
+/* kept local: agrees with camera-editor.h, which this TU does not include (debug_Arrow differs) */
+extern void debug_NMarker(int *self, int a1, int a2, int a3, float t);
 /* The look-target candidate table: 27 rows, one column per character kind
    (self->_164->_48). */
 extern int lookTargetData[][3];
 extern float gameParam[];
-/* kept local: agrees with boyact.h, which this TU does not include (PrivInsCamSet differ) */
+/* kept local: agrees with boyact.h, which this TU does not include (PrivInsCamSet differs) */
 extern void SetBoyInfo(int *a0, int *a1);
-/* kept local: agrees with main.h, which this TU does not include (boyGObj, ((char *)girlControlMode) differ) */
-extern int itemWatchOff;
-/* kept local: float (void *, void *) here, void (void *, void *) in poly-flat.h */
-extern float IsPointIsInScreen(void *dst, void *root);
-/* kept local: void (void *, void *, void *, int, int, int, float, float) here, void (float *, float *, int, int, int, float, float, unsigned char) in boyact.h */
-extern void PrivInsCamSet(void *a0, void *a1, void *a2, int a3, int a4, int a5, float f0, float f1);
-extern void __assert(char *file, int line, char *expr);
+/* kept local: returns float here, void in poly-flat.h */
+extern float IsPointIsInScreen(void *a0, void *a1);
+/* kept local: f5 is int here, float in boyact.h; a7 is float here, unsigned char in boyact.h */
+extern void PrivInsCamSet(float *pos, float *tgt, int a2, int a3, int a4, int a5, float f6,
+                          float f1);
+/* kept local: agrees with mv_defs.h, which this TU does not include */
+extern void __assert(const char *file, int line, const char *expr);
 
 /* The pending hand-mode command record: two ints at +0x314 (connect) and
    +0x31C (disconnect) of the actor's hand work block. */
@@ -232,8 +220,8 @@ typedef struct {
     int f_4;
 } HandModeCmd;
 
-/* kept local: int (int *) here, int (char *) in weapon.h */
-extern int GetTorchGObjOfWeapon(int *self);
+/* kept local: agrees with weapon.h, which this TU does not include (CheckWeaponKind differs) */
+extern int GetTorchGObjOfWeapon(char *a0);
 extern WeaponEntry weaponKind[];
 
 inline void ACTGameCollisionOff(volatile int *self)
@@ -454,19 +442,19 @@ inline int ACTGame_FLAG_TETSUNAGI_VISUAL(void)
 
 void ACTGame_TryConnectHand(void)
 {
-    RequestChangeHandMode(boyGObj, 1, 5, 5, (int)((char *)girlGObj), 0, 0);
+    RequestChangeHandMode((char *)boyGObj, 1, 5, 5, (int)((char *)girlGObj), 0, 0);
 }
 
 void ACTGame_TryDisconnectHand(void)
 {
-    RequestChangeHandMode(boyGObj, 1, 5, 0, 0, 0, 0);
+    RequestChangeHandMode((char *)boyGObj, 1, 5, 0, 0, 0, 0);
 }
 
 inline void ACTGame_ConnectHand(void)
 {
     Act *s = GOBJ_ACT(((char *)girlGObj));
     RequestChangeHandMode(((char *)girlGObj), 0, 5, 6, (int)boyGObj, 0, 0);
-    RequestChangeHandMode(boyGObj, 1, 5, 5, (int)((char *)girlGObj), 0, 0);
+    RequestChangeHandMode((char *)boyGObj, 1, 5, 5, (int)((char *)girlGObj), 0, 0);
     s->flags18.ll |= (1ULL << 40);
 }
 
@@ -480,7 +468,7 @@ inline void ACTGame_DisconnectHand(void)
 {
     Act *s = GOBJ_ACT(((char *)girlGObj));
     RequestChangeHandMode(((char *)girlGObj), 0, 5, 0, 0, 0, 0);
-    RequestChangeHandMode(boyGObj, 1, 5, 0, 0, 0, 0);
+    RequestChangeHandMode((char *)boyGObj, 1, 5, 0, 0, 0, 0);
     s->flags18.ll &= ~(1ULL << 40);
 }
 
@@ -504,7 +492,7 @@ inline int ACTGame_GetCurrentCallStatus(char *a0)
 {
     Act *s = GOBJ_ACT(a0);
 
-    if (a0 != boyGObj) {
+    if (a0 != (char *)boyGObj) {
         return 0;
     }
     switch (motionKind[GOBJ_SUB(a0)->f_4A0].u_188.h.hi & 7) {
@@ -515,7 +503,7 @@ inline int ACTGame_GetCurrentCallStatus(char *a0)
     case 3:
         return 0;
     }
-    if (((int)(s->f_478 >> 46) & 1) && ((int)(s->f_488 >> 46) & 1)) {
+    if (((int)(s->wish0.ll >> 46) & 1) && ((int)(s->wish2.ll >> 46) & 1)) {
         /* The ROM'(char *)s `sltiu 4; beqz` then `st != 0` pair is the decision tree
            of a switch on an unsigned index (listing row 1298 holds the whole
            dispatch, rows 1299-1306 are code-free case lines); the cast
@@ -544,7 +532,7 @@ inline void PAIR_GetPosition_BOY_DITCH(float *a0, float *a1)
 
 inline int PAIR_IsStatus_BOY_DITCH(void)
 {
-    char *b = boyGObj;
+    char *b = (char *)boyGObj;
 
     switch ((unsigned int)GOBJ_ACT(b)->unk34) {
     case 0x58:
@@ -618,7 +606,7 @@ inline int PAIR_IsStatus_GIRL_PULL(void)
 
 inline int PAIR_IsStatus_BOY_WAIT(void)
 {
-    char *b = boyGObj;
+    char *b = (char *)boyGObj;
 
     if (b != 0) {
         switch ((unsigned int)GOBJ_ACT(b)->unk34) {
@@ -1164,7 +1152,7 @@ inline int ACTGame_isWeaponEnableCatchfire(int *self)
     int ret = 0;
     unsigned long combustible = ACTGame_isWeaponCombustible();
     if (combustible) {
-        ret = GetTorchGObjOfWeapon(self);
+        ret = GetTorchGObjOfWeapon((char *)self);
     }
     return ret;
 }
@@ -1172,7 +1160,7 @@ inline int ACTGame_isWeaponEnableCatchfire(int *self)
 inline int ACTGame_isHangChain(char *a0)
 {
     Act *s = GOBJ_ACT(a0);
-    if (a0 == boyGObj) {
+    if (a0 == (char *)boyGObj) {
         char *attr = actModeTbl + s->unk34 * 0x50;
         if ((*(unsigned int *)(attr + 0x4C) >> 2) & 1) {
             return s->f_190;
@@ -1282,7 +1270,7 @@ int ACTLookTarget_Exec(char *a0)
             pos[0] = s->f_C0;
             pos[1] = s->f_C4;
             pos[2] = s->f_C8;
-        } else if (t == boyGObj) {
+        } else if (t == (char *)boyGObj) {
             /* the boy's skeleton position read in place: the listing gives
                the focus-node call line 2243 and all three copies line 2244,
                not GetSkeltonPosition's lines, which it defines later (2597) */
@@ -1385,7 +1373,7 @@ void _ACTCharStatus_Clear(char *a0)
     float d;
 
     memset((char *)s + 0x58, 0, 0x38);
-    if (a0 == boyGObj || a0 == ((char *)girlGObj)) {
+    if (a0 == (char *)boyGObj || a0 == ((char *)girlGObj)) {
         nearest = 3.40282347e+38f; /* FLT_MAX */
         sel = 0;
         g = isysGObjSearchFromObjKindID_begin(4);
@@ -1400,7 +1388,7 @@ void _ACTCharStatus_Clear(char *a0)
             g = isysGObjSearchFromObjKindID_next(g);
         }
         *(int **)((char *)s + 0x7C) = sel;
-        if (a0 == boyGObj) {
+        if (a0 == (char *)boyGObj) {
             if (old != 0 && s->f_10 % ((0x3C - systemStatus[0] * 0xA) / systemStatus[1] * 2) != 0) {
                 s->f_7C = old;
             }
@@ -1678,7 +1666,7 @@ void ACTGame_InnerVelocityUpdate(char *self)
 inline int ACTNotNeedCameraOffset(char *a0)
 {
     Act *s;
-    if (a0 != 0 && a0 == boyGObj) {
+    if (a0 != 0 && a0 == (char *)boyGObj) {
         s = GOBJ_ACT(a0);
         if ((char *)s != 0) {
             return (int)(s->flags20.ll >> 41) & 1;
@@ -1791,12 +1779,12 @@ void ACTGame_BeforeFunc(char *self)
         (GOBJ_WORK(self)->f_3C8)--;
     }
 
-    if ((int)(((ActStatusWord *)((char *)s + 0x18))->q >> 36) & 1) {
+    if ((int)(s->flags18.ll >> 36) & 1) {
         (GOBJ_WORK(self)->f_3B8)++;
     } else {
         GOBJ_WORK(self)->f_3B8 = 0;
     }
-    if ((int)(((ActStatusWord *)((char *)s + 0x18))->q >> 37) & 1) {
+    if ((int)(s->flags18.ll >> 37) & 1) {
         (GOBJ_WORK(self)->f_3BC)++;
     } else {
         GOBJ_WORK(self)->f_3BC = 0;
@@ -1804,8 +1792,8 @@ void ACTGame_BeforeFunc(char *self)
 
     if ((((&motionKind[GOBJ_SUB(self)->f_4A0])->f_18C >> 14) & 1) ||
         ((((StatusAttr *)(actModeTbl + GOBJ_ACT(self)->unk34 * 0x50))->f_4C >> 14) & 1)) {
-        ((ActStatusWord *)((char *)s + 0x18))->q |= 1ULL << 38;
-        if (self == boyGObj) {
+        s->flags18.ll |= 1ULL << 38;
+        if (self == (char *)boyGObj) {
             if (((char *)girlGObj) != 0) {
                 GOBJ_WORK(((char *)girlGObj))->f_3B0 =
                     (0x3C - systemStatus[0] * 0xA) / systemStatus[1];
@@ -1813,7 +1801,7 @@ void ACTGame_BeforeFunc(char *self)
         }
     }
 
-    if ((int)(((ActStatusWord *)((char *)s + 0x18))->q >> 38) & 1) {
+    if ((int)(s->flags18.ll >> 38) & 1) {
         (GOBJ_WORK(self)->f_3C0)++;
     } else {
         GOBJ_WORK(self)->f_3C0 = 0;
@@ -1950,7 +1938,8 @@ void ACTEnvGetTest(char *self, void *a1)
         *(EnvOct *)((char *)s + 0x620) = *(EnvOct *)((char *)&old + 0x170);
         *(EnvOct *)((char *)s + 0x660) = *(EnvOct *)((char *)&old + 0x1B0);
         *(EnvOct *)((char *)s + 0x640) = *(EnvOct *)((char *)&old + 0x190);
-        ACTGetEnvironment(self, a1, test_CURRENTORIENT(self), (char *)s + 0x47C, (char *)s + 0x4B0);
+        ACTGetEnvironment(self, a1, test_CURRENTORIENT(self), (char *)s + 0x47C,
+                          (ActEnv *)&s->f_4B0);
         break;
 
     case 10:
@@ -1992,26 +1981,26 @@ void ACTEnvGetTest(char *self, void *a1)
         memset((char *)s + 0x49C, 0, 0x10);
     }
 
-    if ((int)(s->f_498 >> 39) & 1) {
-        s->f_488 |= 1ULL << 39;
+    if ((int)(s->wish4.ll >> 39) & 1) {
+        s->wish2.ll |= 1ULL << 39;
     }
-    if ((int)(s->f_498 >> 44) & 1) {
-        s->f_488 |= 1ULL << 44;
+    if ((int)(s->wish4.ll >> 44) & 1) {
+        s->wish2.ll |= 1ULL << 44;
     }
-    if ((int)(s->f_498 >> 45) & 1) {
-        s->f_488 |= 1ULL << 45;
+    if ((int)(s->wish4.ll >> 45) & 1) {
+        s->wish2.ll |= 1ULL << 45;
     }
-    if ((int)(s->f_498 >> 50) & 1) {
-        s->f_488 |= 1ULL << 50;
+    if ((int)(s->wish4.ll >> 50) & 1) {
+        s->wish2.ll |= 1ULL << 50;
     }
-    if ((int)(s->f_498 >> 51) & 1) {
-        s->f_488 |= 1ULL << 51;
+    if ((int)(s->wish4.ll >> 51) & 1) {
+        s->wish2.ll |= 1ULL << 51;
     }
-    if ((int)(s->f_498 >> 52) & 1) {
-        s->f_488 |= 1ULL << 52;
+    if ((int)(s->wish4.ll >> 52) & 1) {
+        s->wish2.ll |= 1ULL << 52;
     }
-    if ((int)(s->f_498 >> 53) & 1) {
-        s->f_488 |= 1ULL << 53;
+    if ((int)(s->wish4.ll >> 53) & 1) {
+        s->wish2.ll |= 1ULL << 53;
     }
     FunctionAboutClingedStatus(self);
 }
@@ -2072,7 +2061,7 @@ void ActOrientTest(char *self)
     if (ORBIT(ORQ((char *)s, 0), 51) && ORBIT(ORM((char *)s, 0), 51)) {
         ACTSendMailCorrect(self, 279);
     }
-    if (self != boyGObj) {
+    if (self != (char *)boyGObj) {
         if (ORBIT(ORQ((char *)s, 0), 50) && ORBIT(ORM((char *)s, 0), 50)) {
             ACTSendMailCorrect(self, 278);
         }
@@ -2194,7 +2183,7 @@ void ActOrientTest(char *self)
     if (ORBIT(ORQ((char *)s, 1), 5) && ORBIT(ORM((char *)s, 1), 5)) {
         if (self == ((char *)girlGObj)) {
             int ok = 0;
-            if (((char *)girlControlMode) != 0) {
+            if (girlControlMode != 0) {
                 ok = 1;
             }
             if (GOBJ_ACT(self)->unk34 == 0x75) {
@@ -2456,7 +2445,7 @@ void GetGirlHandlinkClInfo(void)
     if (boyGObj == 0 || ((char *)girlGObj) == 0) {
         return;
     }
-    GetRootProjectionPosOfGObj(boyPos, boyGObj);
+    GetRootProjectionPosOfGObj(boyPos, (char *)boyGObj);
     GetRootProjectionPosOfGObj(girlPos, ((char *)girlGObj));
     if (ACTGame_FLAG_TETSUNAGI() == 0) {
         if (!(_DistxzSqGV(boyPos, girlPos) < 12100.0f)) {
@@ -2475,7 +2464,7 @@ void GetGirlHandlinkClInfo(void)
     }
 work:
     ((HandClInfo *)((char *)GOBJ_ACT(((char *)girlGObj))->f_688 + 0x540))->on = 1;
-    GetSkeltonPosition(boyHand, boyGObj, (void *)44);
+    GetSkeltonPosition(boyHand, (char *)boyGObj, (void *)44);
     GetSkeltonPosition(girlHand, ((char *)girlGObj), (void *)44);
 
     ok = ACTCheckCollis_W(
@@ -2582,32 +2571,31 @@ void ACTGame_CommonLoop(char *self)
         _ACTCharStatus_Set(self, 19, 0.0f, 0);
     }
 
-    if (((int)(s->f_488 >> 5) & 1) && ((int)(s->f_498 >> 5) & 1)) {
+    if (((int)(s->wish2.ll >> 5) & 1) && ((int)(s->wish4.ll >> 5) & 1)) {
         _ACTParaStatus_Set(self, 18);
         _ACTCharStatus_Set(self, 24, 0.0f, 0);
     }
 
-    if ((((int)(s->f_488 >> 3) & 1) && ((int)(s->f_498 >> 3) & 1)) ||
-        (((int)(s->f_488 >> 4) & 1) && ((int)(s->f_498 >> 4) & 1))) {
+    if ((((int)(s->wish2.ll >> 3) & 1) && ((int)(s->wish4.ll >> 3) & 1)) ||
+        (((int)(s->wish2.ll >> 4) & 1) && ((int)(s->wish4.ll >> 4) & 1))) {
         _ACTParaStatus_Set(self, 26);
         _ACTCharStatus_Set(self, 23, 0.0f, 0);
     }
 
-    if (((char *)girlControlMode) != 0 && ((int)(s->f_478 >> 33) & 1) &&
-        ((int)(s->f_488 >> 33) & 1)) {
+    if (girlControlMode != 0 && ((int)(s->wish0.ll >> 33) & 1) && ((int)(s->wish2.ll >> 33) & 1)) {
         _ACTParaStatus_Set(self, 27);
     }
 
     handL = 0;
     handR = 0;
-    if (((int)(s->f_478 >> 36) & 1) && ((int)(s->f_488 >> 36) & 1)) {
+    if (((int)(s->wish0.ll >> 36) & 1) && ((int)(s->wish2.ll >> 36) & 1)) {
         _ACTParaStatus_Set(self, 24);
         handL =
             (((&motionKind[*(int *)((char *)((IntFloat *)(self + 0x15C))->i + 0x4A0)])->u_188.w >>
               12) &
              0xF) != 0;
     }
-    if (((int)(s->f_478 >> 37) & 1) && ((int)(s->f_488 >> 37) & 1)) {
+    if (((int)(s->wish0.ll >> 37) & 1) && ((int)(s->wish2.ll >> 37) & 1)) {
         _ACTParaStatus_Set(self, 25);
         handR =
             (((&motionKind[*(int *)((char *)((IntFloat *)(self + 0x15C))->i + 0x4A0)])->u_188.w >>
@@ -2642,10 +2630,10 @@ void ACTGame_CommonLoop(char *self)
         RequestChangeHandMode(self, 1, 1, 0, 0, 0, 0);
     }
 
-    if (((int)(s->f_478 >> 34) & 1) && ((int)(s->f_488 >> 34) & 1)) {
+    if (((int)(s->wish0.ll >> 34) & 1) && ((int)(s->wish2.ll >> 34) & 1)) {
         _ACTCharStatus_Set(self, 25, 0.0f, 0);
     }
-    if (((int)(s->f_478 >> 35) & 1) && ((int)(s->f_488 >> 35) & 1)) {
+    if (((int)(s->wish0.ll >> 35) & 1) && ((int)(s->wish2.ll >> 35) & 1)) {
         _ACTCharStatus_Set(self, 26, 0.0f, 0);
     }
 
@@ -2673,7 +2661,7 @@ void ACTGame_CommonLoop(char *self)
         int limit;
         int connect;
 
-        if (self == boyGObj && s->unk34 == 1 &&
+        if (self == (char *)boyGObj && s->unk34 == 1 &&
             (((unsigned long long)(&motionKind[*(int *)((char *)((IntFloat *)(self + 0x15C))->i +
                                                         0x4A0)])
                   ->f_190 >>
@@ -2692,7 +2680,7 @@ void ACTGame_CommonLoop(char *self)
                 orient[1] = 0.0f;
                 limit = 45;
             }
-            if (((int)(s->flags20.ll >> 23) & 1) && !((int)(s->f_480 >> 2) & 1)) {
+            if (((int)(s->flags20.ll >> 23) & 1) && !((int)(s->wish1.ll >> 2) & 1)) {
                 if (limit < _AbsRotyGV(orient, test_CURRENTORIENT(self))) {
                     SetMotionDirection(self, orient);
                     ResetMotionProgramInterpInfo(self, 35);
@@ -2705,7 +2693,7 @@ void ACTGame_CommonLoop(char *self)
             /* Boy first: the inline'(char *)s first parameter binding is the
                boyGObj load (listing row 932), and the ROM'(char *)s `and` takes
                the boy'(char *)s bit as its first operand. */
-            if (ACTGame_CheckHandMotion(boyGObj, ((char *)girlGObj))) {
+            if (ACTGame_CheckHandMotion((char *)boyGObj, ((char *)girlGObj))) {
                 connect = 1;
             } else {
                 connect = 0;
@@ -2714,7 +2702,7 @@ void ACTGame_CommonLoop(char *self)
                 connect = 1;
             }
             if (connect && (s->f_2E0 & 8)) {
-                iosOmSendMail(((char *)girlGObj), 63, boyGObj);
+                iosOmSendMail(((char *)girlGObj), 63, (char *)boyGObj);
             }
         }
         break;
@@ -2881,20 +2869,20 @@ void ACTLookTargetSystem_Exec(char *self)
             if (*(int *)(s + 0x10) % 15 / 10 != 0) {
                 target = *(char **)(s + 0x80);
             } else {
-                target = boyGObj;
+                target = (char *)boyGObj;
             }
             break;
         case 9:
             target = *(char **)(s + 0x84);
             break;
         case 7:
-            target = boyGObj;
+            target = (char *)boyGObj;
             if (*(int *)(s + 0x10) % 15 / 10 != 0) {
                 target = *(char **)(s + 0x80);
             }
             break;
         case 3:
-            target = boyGObj;
+            target = (char *)boyGObj;
             break;
         case 1:
             sceVu0ScaleVector(pos, test_CURRENTORIENT(self), 200.0f);
@@ -2916,7 +2904,7 @@ void ACTLookTargetSystem_Exec(char *self)
             break;
         }
         if (target != 0) {
-            if (target == boyGObj) {
+            if (target == (char *)boyGObj) {
                 /* the listing writes these two statements out at act-game.c
                    4202-4203 instead of calling GetSkeltonPosition, so the
                    node comes off `target` and the skeleton off the global. */
@@ -3100,26 +3088,25 @@ void ACTItemWatchMotion(char *self)
        request, expanded at the four motion arms below. */
     inline void ItemHold(void)
     {
-        if (*(int *)((char *)sub + 0x180) != 0) {
+        if (sub->heldItem.i != 0) {
             return;
         }
-        if ((*(int *)((char *)sub + 0x180) = *(int *)((char *)sub + 0x184)) == 0) {
+        if ((sub->heldItem.i = sub->nextItem.i) == 0) {
             return;
         }
-        HoldItem(*(int *)((char *)sub + 0x180), self);
+        HoldItem(sub->heldItem.i, self);
     }
 
-    /* Nested inline (dev lines 4474-4476): drop whatever is held.  The two
-       slots hold the held / pending item object POINTERS (the same values the
-       head block above compares against the other actor's pair), so they are
-       read and cleared through `char **`. */
+    /* Nested inline (dev lines 4474-4476): drop whatever is held, read
+       through the slots' pointer member, as the head block below compares
+       them against the other actor's pair. */
     inline void ItemRelease(void)
     {
-        if (*(char **)((char *)sub + 0x180) == 0) {
+        if (sub->heldItem.p == 0) {
             return;
         }
-        ReleaseItem((int)*(char **)((char *)sub + 0x180));
-        *(char **)((char *)sub + 0x184) = *(char **)((char *)sub + 0x180) = 0;
+        ReleaseItem((int)sub->heldItem.p);
+        sub->nextItem.p = sub->heldItem.p = 0;
     }
 
     /* A real GNU nested function: ROM passes the parent's frame in $2
@@ -3130,37 +3117,35 @@ void ACTItemWatchMotion(char *self)
         float v[4];
         int kind;
 
-        if (*(int *)((char *)sub + 0x180) == 0) {
+        if (sub->heldItem.i == 0) {
             return;
         }
         sceVu0ScaleVector(v, test_CURRENTORIENT(self),
                           _ACTGame_GetParamF(9) + _ACTGame_GetParamF(9));
-        kind = GetItemKind(*(int *)((char *)sub + 0x180));
+        kind = GetItemKind(sub->heldItem.i);
         if (kind == 1 || kind == 6) {
             debug_StdPrintfDummy("BOMB!!\n");
             v[0] *= 0.5f;
             v[1] -= 25.0f;
             v[2] *= 0.5f;
         }
-        ThrowItem(*(int *)((char *)sub + 0x180), v);
-        *(int *)((char *)sub + 0x184) = *(int *)((char *)sub + 0x180) = 0;
+        ThrowItem(sub->heldItem.i, v);
+        sub->nextItem.i = sub->heldItem.i = 0;
     }
 
     mode &= 7;
 
     if (self == ((char *)girlGObj) && boyGObj != 0) {
-        if (*(char **)((char *)sub + 0x184) != 0) {
+        if (sub->nextItem.p != 0) {
             Act *o = GOBJ_ACT(boyGObj);
-            if (*(char **)((char *)sub + 0x184) == *(char **)((char *)o + 0x184) ||
-                *(char **)((char *)sub + 0x184) == *(char **)((char *)o + 0x180)) {
-                *(char **)((char *)sub + 0x184) = 0;
+            if (sub->nextItem.p == o->nextItem.p || sub->nextItem.p == o->heldItem.p) {
+                sub->nextItem.p = 0;
             }
         }
-        if (*(char **)((char *)sub + 0x180) != 0) {
+        if (sub->heldItem.p != 0) {
             Act *o = GOBJ_ACT(boyGObj);
-            if (*(char **)((char *)sub + 0x180) == *(char **)((char *)o + 0x184) ||
-                *(char **)((char *)sub + 0x180) == *(char **)((char *)o + 0x180)) {
-                *(char **)((char *)sub + 0x180) = 0;
+            if (sub->heldItem.p == o->nextItem.p || sub->heldItem.p == o->heldItem.p) {
+                sub->heldItem.p = 0;
             }
         }
     }
@@ -3169,9 +3154,9 @@ void ACTItemWatchMotion(char *self)
     case 2:
         if ((float)frame < GOBJ_SUB(self)->f_4AC) {
             ItemHold();
-        } else if (*(int *)((char *)sub + 0x180) != 0) {
+        } else if (sub->heldItem.i != 0) {
             float pos[4];
-            GetRootPosition(pos, *(int *)((char *)sub + 0x180));
+            GetRootPosition(pos, sub->heldItem.i);
             SetDirectRootPositionNoFittingWithNodePoint(self, (void *)0x16, pos, 0.2f);
             debug_StdPrintfDummy("!!\n");
         }
@@ -3202,24 +3187,24 @@ void ACTItemWatchMotion(char *self)
         break;
     }
 
-    if (self == boyGObj && itemWatchOff == 0) {
-        *(int *)((char *)sub + 0x154) = *(int *)((char *)sub + 0x180);
-        SetBoyInfo((void *)sub->f_150, *(void **)((char *)sub + 0x180));
+    if (self == (char *)boyGObj && itemWatchOff == 0) {
+        *(int *)((char *)sub + 0x154) = sub->heldItem.i;
+        SetBoyInfo((void *)sub->f_150, (void *)sub->heldItem.p);
     }
     if (self == ((char *)girlGObj)) {
-        *(int *)((char *)sub + 0x154) = *(int *)((char *)sub + 0x180);
+        *(int *)((char *)sub + 0x154) = sub->heldItem.i;
         if (mode != 0) {
-            int item = *(int *)((char *)sub + 0x180);
+            int item = sub->heldItem.i;
             int drop = 0;
             if (item != 0) {
                 drop = *(int *)(item + 0x16C) == 0;
             }
+            /* two word tests: as member tests gcc folds them into one doubleword load */
             if (*(int *)((char *)sub + 0x180) == 0 && *(int *)((char *)sub + 0x184) == 0) {
                 drop = 1;
             }
             if (drop) {
-                *(int *)((char *)sub + 0x154) = *(int *)((char *)sub + 0x180) =
-                    *(int *)((char *)sub + 0x184) = 0;
+                *(int *)((char *)sub + 0x154) = sub->heldItem.i = sub->nextItem.i = 0;
                 ACTSendMailCorrect(self, 0x7E);
             }
         }
@@ -3229,11 +3214,11 @@ void ACTItemWatchMotion(char *self)
 inline void ACTItemForceDrop(char *a0)
 {
     Act *s = GOBJ_ACT(a0);
-    int item = s->f_180;
+    int item = s->heldItem.i;
     if (item != 0) {
         ReleaseItem(item);
-        s->f_180 = 0;
-        *(int *)((char *)s + 0x184) = 0;
+        s->heldItem.i = 0;
+        s->nextItem.i = 0;
     }
 }
 
@@ -3246,7 +3231,7 @@ void ACTGame_InsertCamera_GirlIsPinch(void)
     if (boyGObj == 0 || ((char *)girlGObj) == 0) {
         return;
     }
-    GetRootPosition(p0, boyGObj);
+    GetRootPosition(p0, (char *)boyGObj);
     GetRootPosition(p1, ((char *)girlGObj));
     if (_DistSqGV((int *)p0, (int)p1) < 22500.0f) {
         return;

@@ -119,14 +119,10 @@ typedef struct GeoNode GeoNode; /* *(Obj7F0  + 0x20) */
 
 typedef struct GeoSub GeoSub; /* *(GeoNode + 0x8)  */
 
-/* GObj and PObjGObj below are two views of ONE record: the game object.  Every
- * offset either view knows is named in both, under the same name, so no offset
- * a translation unit has identified is left inside a pad; the two names survive
- * only because their field types differ where the bytes let them (this view
- * carries the typed sub-object and actor pointers, the other carries them as
- * words).  Rungs: ROM bytes for every offset, the reading translation units for
- * the roles; names are this repository's. */
-struct GObj {
+/* GObj and PObjGObj below are two views of ONE record: the game object.  GObj
+ * types the run-list links, the sub-object pointer and the run function;
+ * PObjGObj carries them as words.  The names are this repository's. */
+struct GObj {             /* field names derived */
     GObj *f0;             /* 0x0, the object itself while its table entry is
                                in use, 0 when free (gobj.c) */
     int f04;              /* 0x4   */
@@ -159,12 +155,12 @@ struct GObj {
     int act; /* 0x164, the actor/action-state object, held as a word like
                 0x15C: the actor and script translation units read it as Act
                 through GOBJ_ACT below, other translation units hang their own
-                record there.  Rung: ROM bytes; a pointer-typed read of this
-                word moves the schedule of every actor function that stores
-                an int before it (alias set). */
+                record there */
     char _pad168[0x4];
-    int f_16C; /* 0x16C */
-    int f_170; /* 0x170 */
+    int f_16C;       /* 0x16C, nonzero while the object is active: the object
+                  manager runs only active objects' functions and processes */
+    int pauseExempt; /* 0x170, nonzero when the object keeps running while the
+                  game is paused (systemStatus[5]) */
 };
 
 struct Sub15C {
@@ -997,13 +993,33 @@ typedef struct PObjGObj {
 } PObjGObj;
 
 /* RECONSTRUCTION, PLACED BY INCLUDE PATTERN: one record for 38 TUs that carried 6 divergent local copies; this body is the one the ROM's bytes accept in the most of them. */
-typedef struct Act {
-    int f_0;     /* 0x0 */
-    void *f_4;   /* 0x4 */
-    int f_8;     /* 0x8 */
-    int f_C;     /* 0xC */
-    int f_10;    /* 0x10 */
-    void *after; /* 0x14, the actor's after function (enemy_act.c's name) */
+/* Act + 0x438: the way-state word, one 64-bit flag word whose low two bytes
+   are also the way walker's two status bytes; bit 16 asks for the detailed
+   way search (act-way.c, girl_act.c's attract state) */
+typedef union { /* field names derived */
+    long long flags;
+    unsigned char st[2];
+
+    struct {
+        unsigned long long : 16;
+        unsigned long long wayDetail : 1;
+    } bits;
+} WayState;
+
+/* one of the actor's 64-bit wish words (Act + 0x478 .. 0x49F): act-wish.c sets
+   and tests their bits, other readers take the low or high word */
+typedef union { /* field names derived */
+    unsigned long long ll;
+    unsigned int w[2];
+} ActWishWord;
+
+typedef struct Act { /* field names derived */
+    int f_0;         /* 0x0 */
+    void *f_4;       /* 0x4 */
+    int f_8;         /* 0x8 */
+    int f_C;         /* 0xC */
+    int f_10;        /* 0x10 */
+    void *after;     /* 0x14, the actor's after function (enemy_act.c's name) */
 
     union {
         unsigned long long ll;
@@ -1012,7 +1028,7 @@ typedef struct Act {
                   (commonact.c stores actAfterForceRope, afterCommonRopeCliff,
                   actAfterDown and actAfterRopeJump there), the state flags
                   in the high word, which every reader tests as bits 32-63
-                  of the doubleword.  Reconstruction, rung: ROM bytes. */
+                  of the doubleword */
 
     ActStatus flags20; /* 0x20 */
     int f_28;          /* 0x28 */
@@ -1078,8 +1094,7 @@ typedef struct Act {
     char *f_154;        /* 0x154 */
     void *box;          /* 0x158, the box/truck GObj the actor is holding: commonact.c
                   stores it here in actCommonBox and reads it back through
-                  `*(void **)(s + 0x158)` in the boxbar helpers.
-                  Reconstruction, rung: ROM bytes (the store and those reads). */
+                  `*(void **)(s + 0x158)` in the boxbar helpers */
     char _pad15C[0x4];
     char *f_160; /* 0x160 */
     char _pad164[0xC];
@@ -1087,9 +1102,21 @@ typedef struct Act {
     float f_174; /* 0x174 */
     float f_178; /* 0x178 */
     char _pad17C[0x4];
-    int f_180;   /* 0x180 */
-    char *f_184; /* 0x184 */
-    int f_188;   /* 0x188 */
+
+    /* 0x180 the held item, 0x184 the item about to be taken (act-game.c's
+       ItemHold): the item object, which HoldItem, ThrowItem and GetItemKind
+       take as an int and the release and compare paths read as a pointer */
+    union {
+        int i;
+        char *p;
+    } heldItem;
+
+    union {
+        int i;
+        char *p;
+    } nextItem;
+
+    int f_188; /* 0x188 */
     char _pad18C[0x4];
     int f_190;   /* 0x190 */
     char *f_194; /* 0x194 */
@@ -1159,26 +1186,26 @@ typedef struct Act {
     float f_424; /* 0x424 */
     float f_428; /* 0x428 */
     char _pad42C[0xC];
-    long long f_438; /* 0x438 */
-    int f_440;       /* 0x440 */
-    int f_444;       /* 0x444 */
-    int f_448;       /* 0x448 */
-    int f_44C;       /* 0x44C */
-    int f_450;       /* 0x450 */
-    int f_454;       /* 0x454 */
-    float f_458;     /* 0x458 */
-    float f_45C;     /* 0x45C */
-    int f_460;       /* 0x460 */
-    int f_464;       /* 0x464 */
-    int f_468;       /* 0x468 */
-    int f_46C;       /* 0x46C */
+    WayState wayState; /* 0x438 */
+    int f_440;         /* 0x440 */
+    int f_444;         /* 0x444 */
+    int f_448;         /* 0x448 */
+    int f_44C;         /* 0x44C */
+    int f_450;         /* 0x450 */
+    int f_454;         /* 0x454 */
+    float f_458;       /* 0x458 */
+    float f_45C;       /* 0x45C */
+    int f_460;         /* 0x460 */
+    int f_464;         /* 0x464 */
+    int f_468;         /* 0x468 */
+    int f_46C;         /* 0x46C */
     char _pad470[0x8];
-    unsigned long long f_478; /* 0x478 */
-    unsigned long long f_480; /* 0x480 */
-    unsigned long long f_488; /* 0x488 */
-    unsigned long long f_490; /* 0x490 */
-    unsigned long long f_498; /* 0x498 */
-    int f_4A0;                /* 0x4A0 */
+    ActWishWord wish0; /* 0x478 */
+    ActWishWord wish1; /* 0x480 */
+    ActWishWord wish2; /* 0x488 */
+    ActWishWord wish3; /* 0x490 */
+    ActWishWord wish4; /* 0x498 */
+    int f_4A0;         /* 0x4A0 */
     char _pad4A4[0xC];
     float f_4B0; /* 0x4B0 */
     float f_4B4; /* 0x4B4 */

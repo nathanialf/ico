@@ -276,7 +276,7 @@ static __inline__ GObj *allocGObjEntry(void)
        integer arithmetic on the table's address, not &gobjTable[i] */
     g = (GObj *)(i * sizeof(GObj) + (int)gobjTable);
     g->act = 0;
-    g->f_170 = 0;
+    g->pauseExempt = 0;
     return g;
 }
 

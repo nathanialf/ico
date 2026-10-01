@@ -86,19 +86,20 @@ static int jimakuDispOn = 0; /* derived name */
 
 int jimakuOn = 1;
 
-/* kept local: agrees with GifPacket.h, which this TU does not include (gif_SetAlpha, gif_SetGsReg differ) */
+/* kept local: agrees with GifPacket.h, which this TU does not include (gif_SpriteSensitiveOffset differs) */
 extern void gif_StartPacketPri(int pri);
-/* kept local: void (int, int, int) here, void (long long, long long, long long) in GifPacket.h */
-extern void gif_SetAlpha(int a, int b, int c);
-/* kept local: void (int, long long) here, void (long long, long long) in GifPacket.h */
-extern void gif_SetGsReg(int reg, long long v);
-/* kept local: agrees with GifPacket.h, which this TU does not include (gif_SetAlpha, gif_SetGsReg differ) */
-extern void gif_SetZWrite(int on);
-/* kept local: agrees with GifPacket.h, which this TU does not include (gif_SetAlpha, gif_SetGsReg differ) */
-extern void gif_SetZTest(int on);
-/* kept local: void (int *, unsigned int, int *, JimCol *, int) here, void (int *, long long, int *, unsigned char *, int) in GifPacket.h */
-extern void gif_SpriteSensitiveOffset(int *dst, unsigned int rgba, int *src, JimCol *col, int flag);
-/* kept local: agrees with GifPacket.h, which this TU does not include (gif_SetAlpha, gif_SetGsReg differ) */
+/* kept local: agrees with GifPacket.h, which this TU does not include (gif_SpriteSensitiveOffset differs) */
+extern void gif_SetAlpha(long long a0, long long a1, long long a2);
+/* kept local: agrees with GifPacket.h, which this TU does not include (gif_SpriteSensitiveOffset differs) */
+extern void gif_SetGsReg(long long a0, long long a1);
+/* kept local: agrees with GifPacket.h, which this TU does not include (gif_SpriteSensitiveOffset differs) */
+extern void gif_SetZWrite(int a0);
+/* kept local: agrees with GifPacket.h, which this TU does not include (gif_SpriteSensitiveOffset differs) */
+extern void gif_SetZTest(int a0);
+/* kept local: z is unsigned int here, long long in GifPacket.h */
+extern void gif_SpriteSensitiveOffset(int *r, unsigned int z, int *uv, unsigned char *col,
+                                      int prim);
+/* kept local: agrees with GifPacket.h, which this TU does not include (gif_SpriteSensitiveOffset differs) */
 extern void gif_EndPacket(void);
 
 void display_texture(JimTex *t)
@@ -257,7 +258,8 @@ void jimakuMgrBegin(JimakuArg *p)
     }
 }
 
-extern void __assert(char *file, int line, char *expr);
+/* kept local: agrees with mv_defs.h, which this TU does not include */
+extern void __assert(const char *file, int line, const char *expr);
 
 /* The DEBUG build's switch to print the way groups' states after each Next
    (name ours); retail builds it as 0. */

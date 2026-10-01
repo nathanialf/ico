@@ -117,25 +117,26 @@ static void display_texture(KanbanProp *pr, LayoutTex *e, Col4 *col);
 extern char texFile[][0x34];
 extern char *strtok(char *s, const char *sep);
 extern char *strrchr(const char *s, int c);
-extern void __assert(char *file, int line, char *expr);
+/* kept local: agrees with mv_defs.h, which this TU does not include */
+extern void __assert(const char *file, int line, const char *expr);
 extern void display_layout(Node *a0);
-/* kept local: agrees with GifPacket.h, which this TU does not include (gif_SetAlpha, gif_SpriteSensitive differ) */
+/* kept local: agrees with GifPacket.h, which this TU does not include (gif_SpriteSensitive, gif_SpriteSensitiveOffset differ) */
 extern void gif_EndPacket(void);
-/* kept local: void (int, int, int) here, void (long long, long long, long long) in GifPacket.h */
-extern void gif_SetAlpha(int a0, int a1, int a2);
-/* kept local: agrees with GifPacket.h, which this TU does not include (gif_SetAlpha, gif_SpriteSensitive differ) */
+/* kept local: agrees with GifPacket.h, which this TU does not include (gif_SpriteSensitive, gif_SpriteSensitiveOffset differ) */
+extern void gif_SetAlpha(long long a0, long long a1, long long a2);
+/* kept local: agrees with GifPacket.h, which this TU does not include (gif_SpriteSensitive, gif_SpriteSensitiveOffset differ) */
 extern void gif_SetZTest(int a0);
-/* kept local: agrees with GifPacket.h, which this TU does not include (gif_SetAlpha, gif_SpriteSensitive differ) */
+/* kept local: agrees with GifPacket.h, which this TU does not include (gif_SpriteSensitive, gif_SpriteSensitiveOffset differ) */
 extern void gif_SetZWrite(int a0);
-/* kept local: void (void *, unsigned int, int, void *, int) here, void (int *, long long, int *, unsigned char *, int) in GifPacket.h */
-extern void gif_SpriteSensitive(void *a0, unsigned int a1, int a2, void *a3, int a4);
-/* kept local: void (int *, unsigned int, int *, unsigned char *, int) here, void (int *, long long, int *, unsigned char *, int) in GifPacket.h */
+/* kept local: z is unsigned int here, long long in GifPacket.h */
+extern void gif_SpriteSensitive(int *r, unsigned int z, int *uv, unsigned char *col, int prim);
+/* kept local: z is unsigned int here, long long in GifPacket.h */
 extern void gif_SpriteSensitiveOffset(int *r, unsigned int z, int *uv, unsigned char *col,
                                       int prim);
-/* kept local: void (int *, unsigned int, unsigned char *, int) here, void (int *, long long, unsigned char *, int) in GifPacket.h */
-extern void gif_PointOffset(int *v, unsigned int z, unsigned char *col, int prim);
-/* kept local: agrees with GifPacket.h, which this TU does not include (gif_SetAlpha, gif_SpriteSensitive differ) */
-extern void gif_StartPacketPri(int a0);
+/* kept local: agrees with GifPacket.h, which this TU does not include (gif_SpriteSensitive, gif_SpriteSensitiveOffset differ) */
+extern void gif_PointOffset(int *v, long long z, unsigned char *col, int prim);
+/* kept local: agrees with GifPacket.h, which this TU does not include (gif_SpriteSensitive, gif_SpriteSensitiveOffset differ) */
+extern void gif_StartPacketPri(int pri);
 
 #include "kanban.h"
 #include <string.h>

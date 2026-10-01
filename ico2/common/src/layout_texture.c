@@ -7,6 +7,7 @@
 #include <stdlib.h>
 #include "debug_exception.h"
 #include "tableSin.h"
+#include "s_init.h"
 
 typedef struct {
     unsigned char r;
@@ -275,8 +276,6 @@ static inline void lt_draw_layout(int no)
     }
 }
 
-/* kept local: int (int, unsigned int, float *, int) here, int (int, int, int, int) in s_init.h */
-extern int soundSeDefPlay(int se, unsigned int handle, float *pos, int a3);
 /* kept local: agrees with main.h, which this TU does not include (GlobalStageSetting, pad differ) */
 extern int systemStatus[];
 
@@ -500,17 +499,17 @@ void texture_fading(LtProp *p)
     }
 }
 
-/* kept local: agrees with GifPacket.h, which this TU does not include (gif_SetAlpha, gif_SpriteSensitive differ) */
+/* kept local: agrees with GifPacket.h, which this TU does not include (gif_SpriteSensitive, gif_SpriteSensitiveOffset differ) */
 extern void gif_StartPacketPri(int pri);
-/* kept local: agrees with GifPacket.h, which this TU does not include (gif_SetAlpha, gif_SpriteSensitive differ) */
-extern void gif_SetZTest(int on);
-/* kept local: agrees with GifPacket.h, which this TU does not include (gif_SetAlpha, gif_SpriteSensitive differ) */
-extern void gif_SetZWrite(int on);
-/* kept local: void (int, int, int) here, void (long long, long long, long long) in GifPacket.h */
-extern void gif_SetAlpha(int a, int b, int c);
-/* kept local: void (void *, unsigned int, void *, void *, int) here, void (int *, long long, int *, unsigned char *, int) in GifPacket.h */
-extern void gif_SpriteSensitive(void *rect, unsigned int z, void *uv, void *col, int prim);
-/* kept local: agrees with GifPacket.h, which this TU does not include (gif_SetAlpha, gif_SpriteSensitive differ) */
+/* kept local: agrees with GifPacket.h, which this TU does not include (gif_SpriteSensitive, gif_SpriteSensitiveOffset differ) */
+extern void gif_SetZTest(int a0);
+/* kept local: agrees with GifPacket.h, which this TU does not include (gif_SpriteSensitive, gif_SpriteSensitiveOffset differ) */
+extern void gif_SetZWrite(int a0);
+/* kept local: agrees with GifPacket.h, which this TU does not include (gif_SpriteSensitive, gif_SpriteSensitiveOffset differ) */
+extern void gif_SetAlpha(long long a0, long long a1, long long a2);
+/* kept local: z is unsigned int here, long long in GifPacket.h */
+extern void gif_SpriteSensitive(int *r, unsigned int z, int *uv, unsigned char *col, int prim);
+/* kept local: agrees with GifPacket.h, which this TU does not include (gif_SpriteSensitive, gif_SpriteSensitiveOffset differ) */
 extern void gif_EndPacket(void);
 extern void texture_fading(LtProp *p);
 /* The census display_texture body below reads these:
@@ -519,12 +518,13 @@ extern void texture_fading(LtProp *p);
    gif_PointOffset/gif_SetGsReg/rand are its callees. */
 /* kept local: unsigned char [] here, StageSetting in main.h */
 extern unsigned char GlobalStageSetting[];
-/* kept local: void (void *, unsigned int, void *, void *, int) here, void (int *, long long, int *, unsigned char *, int) in GifPacket.h */
-extern void gif_SpriteSensitiveOffset(void *rect, unsigned int z, void *ofs, void *col, int prim);
-/* kept local: void (void *, unsigned int, void *, int) here, void (int *, long long, unsigned char *, int) in GifPacket.h */
-extern void gif_PointOffset(void *pt, unsigned int z, void *col, int prim);
-/* kept local: void (int, int) here, void (long long, long long) in GifPacket.h */
-extern void gif_SetGsReg(int reg, int val);
+/* kept local: z is unsigned int here, long long in GifPacket.h */
+extern void gif_SpriteSensitiveOffset(int *r, unsigned int z, int *uv, unsigned char *col,
+                                      int prim);
+/* kept local: agrees with GifPacket.h, which this TU does not include (gif_SpriteSensitive, gif_SpriteSensitiveOffset differ) */
+extern void gif_PointOffset(int *v, long long z, unsigned char *col, int prim);
+/* kept local: agrees with GifPacket.h, which this TU does not include (gif_SpriteSensitive, gif_SpriteSensitiveOffset differ) */
+extern void gif_SetGsReg(long long a0, long long a1);
 
 /* source lines 870-887: the pulsing highlight sprite, inlined three times by
    display_texture.  The listing puts the parameter setup on the brace line
@@ -791,7 +791,8 @@ extern char texFile[][0x34];
 extern char D_0030D014[];
 extern char *strtok(char *s, const char *sep);
 extern char *strrchr(const char *s, int c);
-extern void __assert(char *file, int line, char *expr);
+/* kept local: agrees with mv_defs.h, which this TU does not include */
+extern void __assert(const char *file, int line, const char *expr);
 
 /* source lines 1249-1259 */
 static inline char *lt_texture_base_name(char *src)

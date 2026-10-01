@@ -272,9 +272,9 @@ void actSt04aGateChk(volatile int a0)
 
         {
             /* the boy's and the girl's root positions after the gate opens */
-            static const ConstVec boyRootPos __attribute__((aligned(16))) = {
+            static const ConstVec boyRootPos = {
                 {1.635725f, -72.36407f, -1233.2648f, 0.0f}}; /* derived name */
-            static const ConstVec girlRootPos __attribute__((aligned(16))) = {
+            static const ConstVec girlRootPos = {
                 {7.660961f, -88.9936f, -1293.0424f, 0.0f}}; /* derived name */
             long long p1[2];
             long long p2[2];
@@ -770,9 +770,9 @@ void actSt04aGateOpenChk(volatile int a0)
 
         {
             /* the boy's and the girl's root positions after the second gate */
-            static const ConstVec boyRootPos2 __attribute__((aligned(16))) = {
+            static const ConstVec boyRootPos2 = {
                 {29.91216f, -71.98232f, -118.11676f, 0.0f}}; /* derived name */
-            static const ConstVec girlRootPos2 __attribute__((aligned(16))) = {
+            static const ConstVec girlRootPos2 = {
                 {-49.44171f, -76.71414f, -142.27318f, 0.0f}}; /* derived name */
             long long p1[2];
             long long p2[2];
@@ -823,9 +823,9 @@ void actSt04aGateOpenChk(volatile int a0)
     scpSearchGobj(648)->f16C = 0;
 }
 
-static const ConstVec liftOfs1 __attribute__((aligned(16))) = {{0.0f, 0.0f, 6000.0f, 1.0f}};
+static const ConstVec liftOfs1 = {{0.0f, 0.0f, 6000.0f, 1.0f}};
 
-static const ConstVec liftOfs2 __attribute__((aligned(16))) = {{-5000.0f, 0.0f, 5300.0f, 1.0f}};
+static const ConstVec liftOfs2 = {{-5000.0f, 0.0f, 5300.0f, 1.0f}};
 
 void actConte09(volatile int a0)
 {

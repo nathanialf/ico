@@ -18,7 +18,8 @@
 #include <string.h>
 #include "ios.h"
 
-extern void __assert(char *file, int line, char *expr);
+/* kept local: agrees with mv_defs.h, which this TU does not include */
+extern void __assert(const char *file, int line, const char *expr);
 
 typedef struct {
     char _0[0x20];
@@ -229,7 +230,7 @@ typedef struct {
 extern TexRec texFile[];
 /* kept local: agrees with main.h, which this TU does not include (GlobalStageSetting differ) */
 extern int NonLinearCameraMove;
-/* kept local: int (int, void *) here, int () in Texture.h */
+/* kept local: agrees with Texture.h, which this TU does not include (tex_RemakeRegistersSampleMin differs) */
 extern int tex_InitTexture(int id, void *buf);
 
 void ReadTextureFile(void *h, int a1, int size, int a3, int a4, int a5, int a6)
@@ -718,8 +719,8 @@ void ReadEndCheckFile(void *h, int a1, int size)
 
 /* kept local: char [] here, StageSetting in main.h */
 extern char GlobalStageSetting[];
-/* kept local: void (int) here, int (void) in Texture.h */
-extern void tex_RemakeRegistersSampleMin(int a);
+/* kept local: Texture.h declares it (void); the callers here pass 0 */
+extern int tex_RemakeRegistersSampleMin(int a);
 
 void ReadStageSettingFile(void *h, int a1, int size)
 {

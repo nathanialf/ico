@@ -107,7 +107,8 @@ static const char adpcmNoAllocMsg[] = "AdpcmIopBuffAlloc not alloc\n";
 static const char adpcmFreeIopMsg[] =
     "IOP領域が確保されているのにもかかわらず,使われていなので解放します\n";
 
-extern void __assert(char *file, int line, char *expr);
+/* kept local: agrees with mv_defs.h, which this TU does not include */
+extern void __assert(const char *file, int line, const char *expr);
 extern int SgStAdpcmOpen(AdpcmChReq *req);
 extern int SgStAdpcmChannelVolume(long long mask, int l, int r);
 

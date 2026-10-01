@@ -43,10 +43,10 @@ static float enemySec; /* enemyDist scaled to seconds */
 
 static float nestSec; /* nestDist scaled to seconds */
 
-/* kept local: int (void *, void *, int) here, void (int *, int, int) in gamesys.h */
-extern int gamesysMemoryHandlerWrite(void *, void *, int);
-/* kept local: int (void *, void *, int) here, void (int *, int, int) in gamesys.h */
-extern int gamesysMemoryHandlerRead(void *, void *, int);
+/* kept local: agrees with gamesys.h, which this TU does not include */
+extern void gamesysMemoryHandlerWrite(int *self, int n, int a2);
+/* kept local: agrees with gamesys.h, which this TU does not include */
+extern void gamesysMemoryHandlerRead(int *self, int a1, int a2);
 
 static int pinchTold; /* the boy has already been told the heroine is in trouble */
 
@@ -107,16 +107,16 @@ extern int gamesysAnotherStageTsuresari;
 
 static int wayKidnap; /* the carrier walks the waypoint route instead of a generator */
 
-/* kept local: GamesysObjInfoBackstage * (int, int, int, float *, float *) here, GamesysObjInfo * (int, int, int, float *, float *) in gamesys.h */
-extern GamesysObjInfoBackstage *gamesysObjInfoPosNewStageSet(int no, int kind, int stage,
-                                                             float *pos, float *rot);
-/* kept local: void (int *) here, void (short *) in generator.h */
-extern void SetInfoSpKidnapGenerator(int *work);
-/* kept local: void (int *) here, void (void) in generator.h */
+/* kept local: agrees with gamesys.h, which this TU does not include */
+extern GamesysObjInfo *gamesysObjInfoPosNewStageSet(int no, int kind, int stage, float *pos,
+                                                    float *rot);
+/* kept local: agrees with generator.h, which this TU does not include (SetInfoSpKidnapEnemy differs) */
+extern void SetInfoSpKidnapGenerator(short *a0);
+/* kept local: void is int * here, void in generator.h */
 extern void SetInfoSpKidnapEnemy(int *work);
-/* kept local: agrees with gamesys.h, which this TU does not include (gameSysObjInfo, gamesysMemoryHandlerRead differ) */
+/* kept local: agrees with gamesys.h, which this TU does not include */
 extern int *gamesysObjInfoPosSetStage(int *self, int a1, int a2, int a3);
-/* kept local: agrees with gamesys.h, which this TU does not include (gameSysObjInfo, gamesysMemoryHandlerRead differ) */
+/* kept local: agrees with gamesys.h, which this TU does not include */
 extern void gamesysObjInfoCls(int kind, int no);
 /* kept local with gamesys.h's declaration, which this TU does not include */
 /* kept local: agrees with gamesys.h, which this TU does not include (gameSysObjInfo, gamesysMemoryHandlerRead differ) */

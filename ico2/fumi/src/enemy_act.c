@@ -92,7 +92,8 @@ EnemyBrainMode brainModeTable[] = {
    4-byte array. */
 static const int brainTargetNone[1] = {0}; /* derived name */
 
-extern void __assert(char *file, int line, char *expr);
+/* kept local: agrees with mv_defs.h, which this TU does not include */
+extern void __assert(const char *file, int line, const char *expr);
 
 #define BOSS_START_WORK(self) ((int)GOBJ_ACT(self)->f_680)
 
@@ -123,9 +124,9 @@ typedef struct {
 extern EnemyParaRow motionKind[];
 /* kept local: this TU's uses of _GetMotionDirection do not fit the prototype in
    motionManager2.h */
-/* kept local: void (void *, int) here, void (int, int) in motionManager2.h */
-extern void _GetMotionDirection(void *dir, int self);
-/* kept local: agrees with motionManager2.h, which this TU does not include (GetMotionFrameFlag2, SetMotionNodeFixModeParameter differ) */
+/* kept local: agrees with motionManager2.h, which this TU does not include (SetMotionNodeFixModeParameter differs) */
+extern void _GetMotionDirection(int a0, int a1);
+/* kept local: agrees with motionManager2.h, which this TU does not include (SetMotionNodeFixModeParameter differs) */
 extern int CheckFloorAttribute(char *self, int attr);
 extern void _ACTCommonMailTest(int self, int a1, int a2, int a3);
 
@@ -146,24 +147,25 @@ extern void ACTGame_CommonLoop(void *self);
    pair where a small scalar would go gp-relative under -G 8. */
 extern void ACTParaStatus_Exec(void *self);
 extern float GetEnemyDefParaIndex(void *self);
-/* kept local: agrees with motionManager2.h, which this TU does not include (GetMotionFrameFlag2, SetMotionNodeFixModeParameter differ) */
-extern void SetMotionDirection(void *self, float *dir);
-/* kept local: int (void *) here, int (char *) in motionManager2.h */
-extern int GetMotionFrameFlag2(void *self);
-/* kept local: agrees with motionManager2.h, which this TU does not include (GetMotionFrameFlag2, SetMotionNodeFixModeParameter differ) */
-extern void SetMotionDirectionWithLimit(void *self, float *buf, float a, float b);
-/* kept local: void (void *) here, void (void) in attackhit.h */
+/* kept local: agrees with motionManager2.h, which this TU does not include (SetMotionNodeFixModeParameter differs) */
+extern void SetMotionDirection(void *a0, float *a1);
+/* kept local: agrees with motionManager2.h, which this TU does not include (SetMotionNodeFixModeParameter differs) */
+extern int GetMotionFrameFlag2(char *self);
+/* kept local: agrees with motionManager2.h, which this TU does not include (SetMotionNodeFixModeParameter differs) */
+extern void SetMotionDirectionWithLimit(void *self, float *dir, float lim0, float lim1);
+/* kept local: void is void * here, void in attackhit.h */
 extern void EnemyAttackCenter(void *self);
-/* kept local: agrees with motionManager2.h, which this TU does not include (GetMotionFrameFlag2, SetMotionNodeFixModeParameter differ) */
-extern void InitMotionGeoInfo(char *p, float x, float y, float z, float a, float b, float c);
+/* kept local: agrees with motionManager2.h, which this TU does not include (SetMotionNodeFixModeParameter differs) */
+extern void InitMotionGeoInfo(char *self, float x, float y, float z, float rx, float ry, float rz);
 extern char D_002A8570[];
-/* kept local: void (void *, void *, int, int, float *, float, float, float, float) here, void (char *, char *, float, float, float, int, int, float, void *) in motionManager2.h */
-extern void SetMotionNodeFixModeParameter(void *a, void *b, int c, int d, float *q, float e,
-                                          float f, float g, float h);
-/* kept local: void (float *, char *) here, void (int, int) in motionManager2.h */
-extern void GetRootProjectionPosOfGObj(float *dst, char *gobj);
-/* kept local: int (void *) here, int (char *) in motionManager2.h */
-extern int GetMotionFrameFlag1(void *self);
+/* kept local: motionManager2.h lists the parameters as (self, obj, x, y, z, mode, node, w, quat);
+   the callers pass them in this order */
+extern void SetMotionNodeFixModeParameter(char *self, char *obj, int mode, int node, void *quat,
+                                          float x, float y, float z, float w);
+/* kept local: agrees with motionManager2.h, which this TU does not include (SetMotionNodeFixModeParameter differs) */
+extern void GetRootProjectionPosOfGObj(int a0, int a1);
+/* kept local: agrees with motionManager2.h, which this TU does not include (SetMotionNodeFixModeParameter differs) */
+extern int GetMotionFrameFlag1(char *self);
 
 /* The point the lifting enemy turns to.  RECONSTRUCTION: the ROM holds three
    vectors here (0x30 bytes, the first two equal) and only the first is ever
@@ -221,7 +223,7 @@ static char *brainTarget;
    prototype does not name. */
 /* kept local: agrees with flyManager.h, which this TU does not include */
 extern int GetFlyLimitClearance(void *pos);
-/* kept local: agrees with motionManager2.h, which this TU does not include (GetMotionFrameFlag2, SetMotionNodeFixModeParameter differ) */
+/* kept local: agrees with motionManager2.h, which this TU does not include (SetMotionNodeFixModeParameter differs) */
 extern int CheckFloorAttribute(char *self, int attr);
 /* the three actor sub-threads this function starts; their bodies are below */
 extern char D_002A84F8[];
@@ -1114,7 +1116,7 @@ inline void actEnemyNest(volatile int a0)
     stg = stage_no;
     *(int *)((char *)sub + 0x440) = 0;
     x2 = a0;
-    *(int *)((char *)sub + 0x444) = 7;
+    sub->f_444 = 7;
     gamesysObjInfoPosSetStage((int *)x2, 7, 0, stg);
     _ACTWait(0);
 }

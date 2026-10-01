@@ -192,7 +192,8 @@ extern int scePadEnterPressMode(int port, int slot);
 extern int scePadInfoAct(int port, int slot, int actno, int term);
 extern int scePadSetActAlign(int port, int slot, void *align);
 extern int scePadGetState(int port, int slot);
-extern void __assert(char *file, int line, char *msg);
+/* kept local: agrees with mv_defs.h, which this TU does not include */
+extern void __assert(const char *file, int line, const char *expr);
 
 int controler_stable_check(void *a0)
 {

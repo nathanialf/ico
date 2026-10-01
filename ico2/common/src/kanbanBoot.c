@@ -91,12 +91,12 @@ static int mcPort; /* the card slot being checked, 0 then 1 */
 
 static int bootVideoMode; /* the video mode in force when the sign went up */
 
-/* kept local: void (McReq *) here, int (void *) in mcard.h */
-extern void iosMcChdirProduct(McReq *mc);
-/* kept local: int (McReq *) here, int (unsigned long *) in mcard.h */
-extern int iosMcSync(McReq *mc);
-/* kept local: void (McReq *) here, int (void *) in mcard.h */
-extern void iosMcLoadProductBlock(McReq *mc);
+/* kept local: returns void here, int in mcard.h */
+extern void iosMcChdirProduct(void *a0);
+/* kept local: agrees with mcard.h, which this TU does not include (iosMcChdirProduct, iosMcLoadProductBlock differ) */
+extern int iosMcSync(unsigned long *a0);
+/* kept local: returns void here, int in mcard.h */
+extern void iosMcLoadProductBlock(void *a0);
 extern KanbanReq *kanbanReqAdd(int a0, int a1);
 
 int kanbanBootMcCheck(void)

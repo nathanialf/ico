@@ -167,9 +167,9 @@ extern void SgInit(void);
 extern void SgSetDigitalOutputMode(int a0);
 extern void SgSetTickMode(int a0);
 extern void SgSetReverbEndAddr(int a0, int a1);
-/* kept local: agrees with sound.h, which this TU does not include */
+/* kept local: agrees with sce/libsndn2/sound.h, which is not on the game's include path */
 extern void SgSetReverbType(int a0, int a1);
-/* kept local: agrees with sound.h, which this TU does not include */
+/* kept local: agrees with sce/libsndn2/sound.h, which is not on the game's include path */
 extern void SgSetReverbDepth(int a0, int a1, int a2);
 extern void SgSetMasterVol(int a0, int a1, int a2);
 
@@ -258,9 +258,10 @@ void soundAllocIopFree(void)
     sceSifFreeIopHeap(soundIopHeapAddrs);
 }
 
-extern void __assert(char *file, int line, char *msg);
-/* kept local: int (int, int) here, int (int *, int) in sound.h */
-extern int SgVabOpenFakeBody(int a0, int a1);
+/* kept local: agrees with mv_defs.h, which this TU does not include */
+extern void __assert(const char *file, int line, const char *expr);
+/* kept local: agrees with sce/libsndn2/sound.h, which is not on the game's include path */
+extern int SgVabOpenFakeBody(int *a0, int a1);
 extern void SgSetSeMasterVol(int vab, int vol);
 extern int SgBgmOpen(int vab, int a1);
 extern void SgSetBgmVol(int h, int vol, int pan);
@@ -1273,7 +1274,7 @@ static int _soundSeDefPlay(int kind, unsigned int a1, float *a2, int a3, SeEnvDe
     return (slot->num << 8) | ch;
 }
 
-inline int soundSeDefPlay(int a0, int a1, int a2, int a3)
+inline int soundSeDefPlay(int a0, unsigned int a1, int a2, int a3)
 {
     int idx = _soundSeDefPlay(a0, a1, a2, a3, 0, 0, -1.0f);
     if (idx >= 0) {

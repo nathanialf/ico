@@ -216,8 +216,8 @@ void findChainInJump(void *self)
     }
 }
 
-/* kept local: void (void *, void *) here, void (int, int) in motionManager2.h */
-extern void GetRootProjectionPosOfGObj(void *out, void *obj);
+/* kept local: agrees with motionManager2.h, which this TU does not include (SetMotionNodeFixModeParameter differs) */
+extern void GetRootProjectionPosOfGObj(int a0, int a1);
 
 /* dir: subBoyCollision passes the motion direction (sub + 0x120) in $6; this
    body never reads it */
@@ -337,8 +337,8 @@ void motBoyHand50(volatile int a0)
     }
 }
 
-/* kept local: agrees with motionManager2.h, which this TU does not include (CheckFloorAttribute, GetHeightOfFieldPlaneDifference differ) */
-extern void SetMotionDirection(void *self, float *dir);
+/* kept local: agrees with motionManager2.h, which this TU does not include (SetMotionNodeFixModeParameter differs) */
+extern void SetMotionDirection(void *a0, float *a1);
 
 /* boyact.c rows 1522-1529 of the listing: the shared "face the girl" prologue
    the b100climb.h / b200climb.h climb motions open with. */
@@ -538,8 +538,8 @@ done:
 }
 
 extern char actModeTbl[];
-/* kept local: float (void *, void *) here, float (int *, int *) in motionManager2.h */
-extern float GetHeightOfFieldPlaneDifference(void *boy, void *girl);
+/* kept local: agrees with motionManager2.h, which this TU does not include (SetMotionNodeFixModeParameter differs) */
+extern float GetHeightOfFieldPlaneDifference(int *a, int *b);
 
 /* One 0x50-byte record per act status, indexed by sub->0x34. */
 
@@ -597,8 +597,8 @@ static int attrWallHit[3]; /* derived name */
 
 static long long boyInfo[12]; /* derived name */
 
-/* kept local: int (void *, int) here, int (char *, int) in motionManager2.h */
-extern int CheckFloorAttribute(void *self, int id);
+/* kept local: agrees with motionManager2.h, which this TU does not include (SetMotionNodeFixModeParameter differs) */
+extern int CheckFloorAttribute(char *self, int attr);
 
 void CheckCollisionAttr(void *self)
 {
@@ -720,9 +720,10 @@ float test_rope_velo[4] = {0.0f, 0.0f, 0.0f, 0.0f};
 
 float add_rope_vec[4] = {0.0f, 0.0f, 0.0f, 0.0f};
 
-/* kept local: float (float, int, void *, void *) here, float (int, float, void *, void *) in StageAnimation.h */
-extern float stage_PlayBgAnimation(float frame, int id, void *a, void *b);
-extern void __assert(char *file, int line, char *expr);
+/* kept local: key is float here, int in StageAnimation.h; t is int here, float in StageAnimation.h */
+extern float stage_PlayBgAnimation(float frame, int id, void *v, void *q);
+/* kept local: agrees with mv_defs.h, which this TU does not include */
+extern void __assert(const char *file, int line, const char *expr);
 
 void BoyBgaManager(void *self, int id, void *dst)
 {
@@ -889,16 +890,16 @@ int GetChainSlope(void)
 
 /* kept local: this TU's uses of these do not fit the prototypes in the headers
    the rest of the file reaches. */
-/* kept local: void (void *) here, int (void *) in fieldCollision.h */
-extern void ClipWall(void *w);
-/* kept local: float (void *, void *) here, void (void *, void *) in poly-flat.h */
-extern float IsPointIsInScreen(void *dst, void *pos);
-/* kept local: void (void *, void *) here, void (int, int) in motionManager2.h */
-extern void _GetMotionDirection(void *dst, void *g);
+/* kept local: agrees with fieldCollision.h, which this TU does not include */
+extern void ClipWall(void *a0);
+/* kept local: returns float here, void in poly-flat.h */
+extern float IsPointIsInScreen(void *a0, void *a1);
+/* kept local: agrees with motionManager2.h, which this TU does not include (SetMotionNodeFixModeParameter differs) */
+extern void _GetMotionDirection(int a0, int a1);
 extern void _ACTCommonMailTest(int a0, int a, int b, int c);
 extern float GetDifferenceFromLowerField(int self, int a1);
-/* kept local: int (void *) here, int (char *) in motionManager2.h */
-extern int GetMotionFrameFlag1(void *self);
+/* kept local: agrees with motionManager2.h, which this TU does not include (SetMotionNodeFixModeParameter differs) */
+extern int GetMotionFrameFlag1(char *self);
 extern void IncreasePdlChain(int id);
 extern void DecreasePdlChain(int id);
 
@@ -1736,8 +1737,8 @@ void InitSwapWeapon(void *self)
     }
 }
 
-/* kept local: void (void *, float, float, float, float, float, float) here, void (char *, float, float, float, float, float, float) in motionManager2.h */
-extern void InitMotionGeoInfo(void *node, float x, float y, float z, float rx, float ry, float rz);
+/* kept local: agrees with motionManager2.h, which this TU does not include (SetMotionNodeFixModeParameter differs) */
+extern void InitMotionGeoInfo(char *self, float x, float y, float z, float rx, float ry, float rz);
 
 void PutWeapon(void)
 {
@@ -1783,7 +1784,7 @@ static inline int SwapBoyWeapon(void *oldW, void *newW, void *boy)
     return 1;
 }
 
-/* kept local: float * (void) here, int * (void) in camera-root.h */
+/* kept local: returns float * here, int * in camera-root.h */
 extern float *GetCurrentCameraSet2(void);
 
 void OtherStageGirlPinchCamera_After(float t)
@@ -1823,8 +1824,9 @@ static int characterPacket[8]; /* derived name */
 
 static PrivInsCam privInsCam; /* derived name */
 
-/* kept local: agrees with camera-root.h, which this TU does not include (GetCurrentCameraSet2 differ) */
-extern void InsertCamera_SetDetail(float *cam, float *p, int a2, int a3, int a4, int a5, float f);
+/* kept local: agrees with camera-root.h, which this TU does not include (GetCurrentCameraSet2 differs) */
+extern void InsertCamera_SetDetail(float *pos, float *tgt, int gobj, int cutType, int b37, int b38,
+                                   float blend);
 
 void PrivInsCamProcess(void)
 {
@@ -1876,15 +1878,15 @@ void PrivInsCamProcess(void)
 
 /* kept local: poly-flat.h declares IsPointIsInScreen void, the callers here
    read the float it returns */
-/* kept local: float (void *, void *) here, void (void *, void *) in poly-flat.h */
-extern float IsPointIsInScreen(void *dst, void *pos);
+/* kept local: returns float here, void in poly-flat.h */
+extern float IsPointIsInScreen(void *a0, void *a1);
 extern void ACTGame_CommonLoop(void *self);
 extern void ACTParaStatus_Exec(void *self);
 extern void ACTLookTargetSystem_Exec(void *self);
 extern float GetDifferenceFromLowerField(int self, int a1);
 extern int isBottomOfChain(void *chain);
-/* kept local: agrees with camera-root.h, which this TU does not include (GetCurrentCameraSet2 differ) */
-extern void Camctrl_SetTarget(int self, int obj, int a2);
+/* kept local: agrees with camera-root.h, which this TU does not include (GetCurrentCameraSet2 differs) */
+extern void Camctrl_SetTarget(int a0, int a1, int a2);
 
 /* the boy's work record at Act+0x688.  subBoyCollision's stores through it are
    member accesses: the ROM moves its a0 reloads ahead of them (the 0x4B0
@@ -1988,7 +1990,7 @@ void subBoyCollision(volatile int a0)
 
     PrivInsCamInit();
 
-    while (*(int *)((char *)sub + 0x130) == 0) {
+    while ((int)sub->f_130 == 0) {
         _ACTWait(1);
     }
     if (200.0f < GetDifferenceFromLowerField(a0, 0x2C)) {
@@ -2014,14 +2016,13 @@ void subBoyCollision(volatile int a0)
             hang = hangBit;
         }
         if (hang == 0) {
-            if (*(float *)((char *)sub + 0x34C) != 0.0f &&
-                CorrectOrient_RopeCliff(vec, (void *)a0, (float *)((char *)sub + 0x120)) != 0) {
-                *(float *)((char *)sub + 0x120) = vec[0];
-                *(float *)((char *)sub + 0x124) = vec[1];
-                *(float *)((char *)sub + 0x128) = vec[2];
+            if (sub->f_34C != 0.0f && CorrectOrient_RopeCliff(vec, (void *)a0, sub->dir) != 0) {
+                sub->dir[0] = vec[0];
+                sub->dir[1] = vec[1];
+                sub->dir[2] = vec[2];
             }
-            if (0.1f < *(float *)((char *)sub + 0x34C) && *(int *)((char *)sub + 0x34) != 0x73) {
-                SetMotionDirectionSmooze((void *)a0, (float *)((char *)sub + 0x120),
+            if (0.1f < sub->f_34C && sub->unk34 != 0x73) {
+                SetMotionDirectionSmooze((void *)a0, sub->dir,
                                          (float)(((void *)a0 == girlGObj && girlControlMode != 0)
                                                      ? CHAINROW(a0)->f_182
                                                      : CHAINROW(a0)->f_186));
@@ -2030,47 +2031,46 @@ void subBoyCollision(volatile int a0)
         CommonAttackCenter((void *)a0);
         ACTGame_SaveActorInformation((void *)a0);
         if (*(unsigned int *)((char *)sub + 0x34) < 4 && *(int *)((char *)sub + 0x34) != 0) {
-            if (*(int *)((char *)sub + 0x2E4) & 0x20) {
+            if (sub->unk2E4 & 0x20) {
                 int hit;
 
                 ACTSearchGObj_inl((void *)a0, 0x13, 0x2D, &hit, vec, 100.0f);
             }
         }
-        switch (*(int *)((char *)sub + 0x34)) {
+        switch (sub->unk34) {
         case 0x1C:
-            if (((int)(*(unsigned long long *)((char *)sub + 0x480) >> 10) & 1) &&
-                ((int)(*(unsigned long long *)((char *)sub + 0x490) >> 10) & 1)) {
+            if (((int)(sub->wish1.ll >> 10) & 1) && ((int)(sub->wish3.ll >> 10) & 1)) {
                 ACTSendMailCorrect(a0, 0xC7);
             }
             break;
         case 0x20:
         case 0x26:
-            if (*(int *)((char *)sub + 0x2E4) & 0x40) {
+            if (sub->unk2E4 & 0x40) {
                 ACTSendMailCorrect(a0, 0x13C);
             }
             break;
         case 0x39:
             SaveBoyOrientForScript();
             add_rope_val = 0.0f;
-            if (*(int *)((char *)sub + 0x2E4) & 0x10) {
+            if (sub->unk2E4 & 0x10) {
                 ACTSendMailCorrect(a0, 0xC3);
             }
-            if (*(int *)((char *)sub + 0x2E4) & 0x40) {
-                HANG_TARGET(a0)->f33C = test_CURRENTROOT(*(void **)((char *)sub + 0x190))[1] +
-                                        GetChainLength(*(void **)((char *)sub + 0x190)) -
+            if (sub->unk2E4 & 0x40) {
+                HANG_TARGET(a0)->f33C = test_CURRENTROOT((void *)sub->f_190)[1] +
+                                        GetChainLength((void *)sub->f_190) -
                                         test_CURRENTROOT((void *)a0)[1];
                 ActSendMail_WithAdditionalData((void *)a0, 0x13C, (void *)a0,
                                                &HANG_TARGET(a0)->f33C);
             }
-            if (*(int *)((char *)sub + 0x2E0) & 0x20) {
+            if (sub->f_2E0 & 0x20) {
                 ACTSendMailCorrect(a0, 0xA2);
                 ACTSendMailCorrect(a0, 0xE3);
             } else {
-                if (*(int *)((char *)sub + 0x33C) - 0x80 < -100) {
+                if (sub->f_33C - 0x80 < -100) {
                     ACTSendMailCorrect(a0, 0x14A);
-                } else if (100 < *(int *)((char *)sub + 0x33C) - 0x80) {
+                } else if (100 < sub->f_33C - 0x80) {
                     ACTSendMailCorrect(a0, 0x14B);
-                    if (isBottomOfChain(*(void **)((char *)sub + 0x190))) {
+                    if (isBottomOfChain((void *)sub->f_190)) {
                         ACTSendMailCorrect(a0, 0x9D);
                     }
                 } else if (GOBJ_SUB(a0)->f_4A0 == 0x76) {
@@ -2080,20 +2080,20 @@ void subBoyCollision(volatile int a0)
 
                     GetCorrectOrientOfChain(vec, (void *)a0);
                     SetMotionDirection((void *)a0, vec);
-                    if (GetChainDirCorrectVal(*(void **)((char *)sub + 0x190), &cor) != 0) {
-                        if (*(int *)((char *)sub + 0x338) - 0x80 < -100) {
+                    if (GetChainDirCorrectVal((void *)sub->f_190, &cor) != 0) {
+                        if (sub->f_338 - 0x80 < -100) {
                             ACTSendMailCorrect(a0, 0xA0);
                         }
-                        if (100 < *(int *)((char *)sub + 0x338) - 0x80) {
+                        if (100 < sub->f_338 - 0x80) {
                             ACTSendMailCorrect(a0, 0xA1);
                         }
                     } else {
-                        if (*(int *)((char *)sub + 0x338) - 0x80 < -100) {
+                        if (sub->f_338 - 0x80 < -100) {
                             ry = 5;
                         } else {
                             ry = 0;
                         }
-                        if (100 < *(int *)((char *)sub + 0x338) - 0x80) {
+                        if (100 < sub->f_338 - 0x80) {
                             ry = -5;
                         }
                         bodyori[0] = test_CURRENTORIENT((void *)a0)[0];
@@ -2108,32 +2108,32 @@ void subBoyCollision(volatile int a0)
             break;
         case 0x42:
             if (((int)(sub->flags20.ll >> 11) & 1) == 0) {
-                if (*(int *)((char *)sub + 0x33C) - 0x80 < -100) {
+                if (sub->f_33C - 0x80 < -100) {
                     ACTSendMailCorrect(a0, 0x14A);
                 }
-                if (100 < *(int *)((char *)sub + 0x33C) - 0x80) {
+                if (100 < sub->f_33C - 0x80) {
                     ACTSendMailCorrect(a0, 0x14B);
                 }
             }
             if (GOBJ_SUB(a0)->f_4A0 == 0x76) {
-                if (*(int *)((char *)sub + 0x338) - 0x80 < -100) {
+                if (sub->f_338 - 0x80 < -100) {
                     ACTSendMailCorrect(a0, 0xA0);
                 }
-                if (100 < *(int *)((char *)sub + 0x338) - 0x80) {
+                if (100 < sub->f_338 - 0x80) {
                     ACTSendMailCorrect(a0, 0xA1);
                 }
             }
             ACTSendMailCorrect(a0, 0x150);
-            if (*(int *)((char *)sub + 0x2E4) & 0x40) {
+            if (sub->unk2E4 & 0x40) {
                 ACTSendMailCorrect(a0, 0x13C);
             }
             break;
         case 0x37:
-            if (girlGObj != 0 && *(int *)((char *)GOBJ_ACT(girlGObj) + 0x40) != 0x5E &&
-                *(int *)((char *)GOBJ_ACT(girlGObj) + 0x40) != 0x65 &&
-                (60 - systemStatus[0] * 10) / systemStatus[1] < *(int *)((char *)sub + 0x4C)) {
-                if (((int)(*(unsigned long long *)((char *)sub + 0x478) >> 49) & 1) == 0 ||
-                    ((int)(*(unsigned long long *)((char *)sub + 0x488) >> 49) & 1) == 0) {
+            if (girlGObj != 0 && GOBJ_ACT(girlGObj)->f_40 != 0x5E &&
+                GOBJ_ACT(girlGObj)->f_40 != 0x65 &&
+                (60 - systemStatus[0] * 10) / systemStatus[1] < sub->f_4C) {
+                if (((int)(sub->wish0.ll >> 49) & 1) == 0 ||
+                    ((int)(sub->wish2.ll >> 49) & 1) == 0) {
                     ACTSendMailCorrect(a0, 0xF9);
                 } else {
                     ACTSendMailCorrect(a0, 0xFA);
@@ -2141,18 +2141,15 @@ void subBoyCollision(volatile int a0)
             }
             /* falls through into the next arm */
         case 0x44:
-            if (((int)(*(unsigned long long *)((char *)sub + 0x478) >> 48) & 1) &&
-                ((int)(*(unsigned long long *)((char *)sub + 0x488) >> 48) & 1)) {
+            if (((int)(sub->wish0.ll >> 48) & 1) && ((int)(sub->wish2.ll >> 48) & 1)) {
                 if (girlGObj != 0) {
                     iosOmSendMail(girlGObj, 0x3E, isysCurrentGObj);
                 }
                 ACTSendMailCorrect(a0, 0xFA);
-            } else if (NotNeedBackHand() || (*(int *)((char *)GOBJ_ACT(girlGObj) + 0x3C) != 0x5E &&
-                                             *(int *)((char *)GOBJ_ACT(girlGObj) + 0x3C) != 0x65 &&
-                                             (60 - systemStatus[0] * 10) / systemStatus[1] * 2 <
-                                                 *(int *)((char *)sub + 0x4C))) {
-                if (((int)(*(unsigned long long *)((char *)sub + 0x478) >> 49) & 1) &&
-                    ((int)(*(unsigned long long *)((char *)sub + 0x488) >> 49) & 1)) {
+            } else if (NotNeedBackHand() ||
+                       (GOBJ_ACT(girlGObj)->f_3C != 0x5E && GOBJ_ACT(girlGObj)->f_3C != 0x65 &&
+                        (60 - systemStatus[0] * 10) / systemStatus[1] * 2 < sub->f_4C)) {
+                if (((int)(sub->wish0.ll >> 49) & 1) && ((int)(sub->wish2.ll >> 49) & 1)) {
                     ACTSendMailCorrect(a0, 0xFA);
                 } else {
                     ACTSendMailCorrect(a0, 0xF9);
@@ -2173,19 +2170,17 @@ void subBoyCollision(volatile int a0)
             int cpos[4];
 
             looking = 0;
-            if (((int)(*(unsigned long long *)((char *)sub + 0x478) >> 46) & 1) == 0 ||
-                ((int)(*(unsigned long long *)((char *)sub + 0x488) >> 46) & 1) == 0) {
+            if (((int)(sub->wish0.ll >> 46) & 1) == 0 || ((int)(sub->wish2.ll >> 46) & 1) == 0) {
                 girlLookStarted = 0;
                 girlLookInScreen = 0;
             }
-            if (girlGObj != 0 && *(int *)((char *)GOBJ_ACT(girlGObj) + 0x34) == 0x45) {
+            if (girlGObj != 0 && GOBJ_ACT(girlGObj)->unk34 == 0x45) {
                 sceVu0ScaleVector(vec, test_CURRENTORIENT((void *)a0), 200.0f);
                 vec[1] = 0.0f;
                 sceVu0AddVector(vec, test_CURRENTROOT((void *)a0), vec);
                 _ACTLookTarget_Set((void *)a0, 0, vec, 1, 1);
             }
-            if (((int)(*(unsigned long long *)((char *)sub + 0x478) >> 46) & 1) &&
-                ((int)(*(unsigned long long *)((char *)sub + 0x488) >> 46) & 1)) {
+            if (((int)(sub->wish0.ll >> 46) & 1) && ((int)(sub->wish2.ll >> 46) & 1)) {
                 int see = 0;
                 int onGirl = 0;
 
@@ -2227,7 +2222,7 @@ void subBoyCollision(volatile int a0)
                     _ACTParaStatus_Set((void *)a0, 0x13);
                     _ACTCharStatus_Set((void *)a0, 0x22, -1.0f, 0);
                 }
-                hold = *(int *)((char *)sub + 0x2E0) & 0x8;
+                hold = sub->f_2E0 & 0x8;
                 looking = hold != 0;
             }
             if (girlGObj != 0 && (looking || ((int)(GOBJ_ACT(girlGObj)->flags20.ll >> 26) & 1))) {
@@ -2315,7 +2310,7 @@ void subBoyCollision(volatile int a0)
                 void *w;
 
                 if (girlGObj == 0 && (w = searchWeapon()) != 0) {
-                    if ((*(int *)((char *)sub + 0x2E0) & 0x8) == 0) {
+                    if ((sub->f_2E0 & 0x8) == 0) {
                         weaponLookInScreen = 0;
                         weaponLookStarted = 0;
                     } else {
@@ -2364,7 +2359,7 @@ void subBoyCollision(volatile int a0)
                     camOn = 1;
                     looking = 0;
                 }
-                if ((*(int *)((char *)sub + 0x2E0) & 0x8) && lo != 0) {
+                if ((sub->f_2E0 & 0x8) && lo != 0) {
                     ((float *)broot)[0] = test_CURRENTROOT(boyGObj)[0];
                     ((float *)broot)[1] = test_CURRENTROOT(boyGObj)[1];
                     ((float *)broot)[2] = test_CURRENTROOT(boyGObj)[2];
@@ -2407,10 +2402,8 @@ void subBoyCollision(volatile int a0)
                 boyCamDebugDisp(camOn, looking);
             }
             ACTLookTargetSystem_Exec((void *)a0);
-            if (boyGObj != 0 && girlGObj != 0 &&
-                *(int *)((char *)GOBJ_ACT(boyGObj) + 0x34) == 0x2D &&
-                *(int *)((char *)GOBJ_ACT(girlGObj) + 0x34) ==
-                    *(int *)((char *)GOBJ_ACT(boyGObj) + 0x34)) {
+            if (boyGObj != 0 && girlGObj != 0 && GOBJ_ACT(boyGObj)->unk34 == 0x2D &&
+                GOBJ_ACT(girlGObj)->unk34 == GOBJ_ACT(boyGObj)->unk34) {
                 if (0x3C < sitCount++) {
                     if (sitLayoutDone == 0) {
                         lt_switch_layout(0x1C);
@@ -2426,9 +2419,8 @@ void subBoyCollision(volatile int a0)
                 girlGObj != 0) {
                 iosOmSendMail(girlGObj, 0x3D, isysCurrentGObj);
             }
-            ((ActStatusWord *)((char *)sub + 0x18))->q =
-                (((ActStatusWord *)((char *)sub + 0x18))->q & ~0x20000000000LL) |
-                ((unsigned long long)(ACTGame_FLAG_TETSUNAGI() & 1) << 41);
+            sub->flags18.ll = (sub->flags18.ll & ~0x20000000000LL) |
+                              ((unsigned long long)(ACTGame_FLAG_TETSUNAGI() & 1) << 41);
             if (((CHAINROW(a0)->f_18C >> 13) & 1) && ACTGame_FLAG_TETSUNAGI() == 0) {
                 ACTSendMailCorrect(a0, 0x1AA);
             }
@@ -2453,7 +2445,7 @@ void subBoyCollision(volatile int a0)
 void afterBoySwim(volatile int a0);
 /* kept local: S12 here, FcColInfo in fieldCollision.h */
 extern S12 InitialColInfo;
-/* kept local: agrees with motionManager2.h, which this TU does not include (CheckFloorAttribute, GetHeightOfFieldPlaneDifference differ) */
+/* kept local: agrees with motionManager2.h, which this TU does not include (SetMotionNodeFixModeParameter differs) */
 extern int GetSkeltonFocusNode(char *a0, int a1);
 extern void MoveFloatingBox(void *box, int self, void *m, void *p, float d);
 
@@ -2598,8 +2590,8 @@ inline void actBoyFall(volatile int a0)
 }
 
 extern void BoyAttackCenter(int a0);
-/* kept local: agrees with motionManager2.h, which this TU does not include (CheckFloorAttribute, GetHeightOfFieldPlaneDifference differ) */
-extern void SetMotionDirectionWithLimit(void *self, float *dir, float lo, float hi);
+/* kept local: agrees with motionManager2.h, which this TU does not include (SetMotionNodeFixModeParameter differs) */
+extern void SetMotionDirectionWithLimit(void *self, float *dir, float lim0, float lim1);
 
 /* INTERIM: ACTSearchEnemy is a file-scope `inline` in the original TU (rows
    1671/1674, around ACTSearchGObj's 1644-1661; see ACTSearchGObj_inl above
@@ -2613,17 +2605,17 @@ static inline void ACTSearchEnemy_inl(void *a0, int *out_id, float *out_vec)
 void actBoyAttack(volatile int a0)
 {
     char *sub = (char *)GOBJ_ACT(a0);
-    int mot = *(int *)(sub + 0x10);
+    int mot = *(int *)((char *)sub + 0x10);
     float vec[4];
 
     *(unsigned long long *)(sub + 0x20) |= 0x100000000ULL;
-    *(int *)(sub + 0x450) = mot;
+    *(int *)((char *)sub + 0x450) = mot;
     debug_StdPrintfDummy("attack sub id [%d]\n", mot);
     debug_StdPrintfDummy("enter actBoyAttack\n");
     _ACTWait(2);
-    ACTSearchEnemy_inl((void *)a0, (int *)(sub + 0x188), vec);
+    ACTSearchEnemy_inl((void *)a0, (int *)((char *)sub + 0x188), vec);
     while (1) {
-        if (*(int *)(sub + 0x188)) {
+        if (*(int *)((char *)sub + 0x188)) {
             if (ACTGame_NoWeapon((char *)a0)) {
                 SetMotionDirectionWithLimit((void *)a0, vec, 5.0f, 45.0f);
             } else {
@@ -2636,8 +2628,8 @@ void actBoyAttack(volatile int a0)
     }
 }
 
-/* kept local: agrees with motionManager2.h, which this TU does not include (CheckFloorAttribute, GetHeightOfFieldPlaneDifference differ) */
-extern void SetMotionDirection(void *self, float *dir);
+/* kept local: agrees with motionManager2.h, which this TU does not include (SetMotionNodeFixModeParameter differs) */
+extern void SetMotionDirection(void *a0, float *a1);
 
 void actBoyTakeWeaponReady(volatile int a0)
 {
@@ -2725,10 +2717,10 @@ void actBoyTakeWeapon(volatile int a0)
     }
 }
 
-/* kept local: void (void *, void *, void *) here, void (void *, void *, int *) in fieldCollision.h */
-extern void GetOrientOfWall(void *out, void *wall, void *pos);
-/* kept local: int (int, int) here, int (unsigned int, unsigned int) in fieldCollision.h */
-extern int CompareAttribute(int attr, int mask);
+/* kept local: agrees with fieldCollision.h, which this TU does not include */
+extern void GetOrientOfWall(void *a0, void *a1, int *a2);
+/* kept local: agrees with fieldCollision.h, which this TU does not include */
+extern int CompareAttribute(unsigned int a, unsigned int b);
 
 #define BOY_WALL(o) ((char *)GOBJ_ACT(o)->f_688)
 
@@ -2963,9 +2955,10 @@ void actBoyPullupGo(volatile int a0)
     }
 }
 
-/* kept local: void (void *, void *, int, int, float *, float, float, float, float) here, void (char *, char *, float, float, float, int, int, float, void *) in motionManager2.h */
-extern void SetMotionNodeFixModeParameter(void *a, void *b, int c, int d, float *q, float x,
-                                          float y, float z, float w);
+/* kept local: motionManager2.h lists the parameters as (self, obj, x, y, z, mode, node, w, quat);
+   the callers pass them in this order */
+extern void SetMotionNodeFixModeParameter(char *self, char *obj, int mode, int node, void *quat,
+                                          float x, float y, float z, float w);
 extern void InsertCamera_Set(float *pos, float *tgt, int frames);
 extern char D_005577F4[];
 
@@ -3093,8 +3086,8 @@ void actBoyReadyMove(volatile int a0)
             _ACTMotDirSmzDirect((void *)a0, ord.dir);
         }
         if (ord.fix) {
-            sub->f_490 |= 0x80000;
-            sub->f_490 |= 0x40;
+            sub->wish3.ll |= 0x80000;
+            sub->wish3.ll |= 0x40;
         }
         if (ord.frames-- < 0) {
             ACTSendMailCorrect(a0, 0x10A);
@@ -3410,8 +3403,8 @@ inline int RequestStageChangeKidnapEnd(void *a0, int a1)
     return rv;
 }
 
-/* kept local: agrees with camera-root.h, which this TU does not include (GetCurrentCameraSet2 differ) */
-extern void InsertCamera_SetNoraml(float *a, float *b, int c, int d);
+/* kept local: agrees with camera-root.h, which this TU does not include (GetCurrentCameraSet2 differs) */
+extern void InsertCamera_SetNoraml(float *pos, float *tgt, int gobj, int cutType);
 
 void SetStatusBoy_OtherStageGirlPinch(void)
 {
