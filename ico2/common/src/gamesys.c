@@ -397,8 +397,6 @@ int *gamesysObjInfoPosSetStage(int *self, int a1, int a2, int a3)
     return p;
 }
 
-extern ObjKindEnt objKindData[];
-
 int *gamesysObjInfoUniqDataSet(int a0)
 {
     int *p;
@@ -408,7 +406,7 @@ int *gamesysObjInfoUniqDataSet(int a0)
 
     p = gamesysObjInfoBaseSet((int *)a0, stage_no);
     idx = ((GObj *)a0)->kind;
-    elem = (ObjKindEnt *)((char *)objKindData + idx * 0x64);
+    elem = &objKindData[idx];
     fn = elem->uniqDataSet;
     if (fn != 0) {
         fn(p + 12, a0);

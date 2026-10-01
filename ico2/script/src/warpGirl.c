@@ -130,20 +130,20 @@ void warpGirlInStage(int stageNo)
     }
     warpGirlInStageSet = 1;
     if (w->to0 == stageNo) {
-        pos[0] = -w->p2[3];
-        pos[1] = -w->p2[2];
-        pos[2] = -w->p2[1];
-        ry = w->p2[0];
+        pos[0] = -w->arrive0[3];
+        pos[1] = -w->arrive0[2];
+        pos[2] = -w->arrive0[1];
+        ry = w->arrive0[0];
     } else if (w->to1 == stageNo) {
-        pos[0] = -w->p1[3];
-        pos[1] = -w->p1[2];
-        pos[2] = -w->p1[1];
-        ry = w->p1[0];
+        pos[0] = -w->arrive1[3];
+        pos[1] = -w->arrive1[2];
+        pos[2] = -w->arrive1[1];
+        ry = w->arrive1[0];
     } else if (w->to2 == stageNo) {
-        pos[0] = -w->p0[3];
-        pos[1] = -w->p0[2];
-        pos[2] = -w->p0[1];
-        ry = w->p0[0];
+        pos[0] = -w->arrive2[3];
+        pos[1] = -w->arrive2[2];
+        pos[2] = -w->arrive2[1];
+        ry = w->arrive2[0];
     } else {
         warpGirlInStageSet = 0;
         return;

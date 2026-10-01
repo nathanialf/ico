@@ -406,7 +406,7 @@ void actSt13aChainOK(GObj *volatile a0)
         _ACTWait(1);
     }
 
-    EnableChainHang((char *)scpSearchGobj(2071));
+    EnableChainHang(scpSearchGobj(2071));
     gflagOff(328);
 
     chainOK_mes[0].func = actSt13aChainNG;
@@ -423,7 +423,7 @@ void actSt13aChainNG(GObj *volatile a0)
         _ACTWait(1);
     }
 
-    UnableChainHang((char *)scpSearchGobj(2071));
+    UnableChainHang(scpSearchGobj(2071));
     gflagOn(328);
 
     chainNG_mes[0].func = actSt13aChainOK;

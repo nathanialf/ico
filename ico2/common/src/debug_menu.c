@@ -4,6 +4,7 @@
 #include "debug_menu.h"
 #include "main.h"
 #include "GobjProc.h"
+#include "gamesys.h"
 
 /* .sdata, owned by debug_menu.o (VMA 0x63B400..0x63B414, 0x14 B; MAIN.MAP's
    January run is 0x10 and names no symbol in it), the "object target" menu's
@@ -79,8 +80,6 @@ void init_debug_menu(void)
     debugMenuFlag1 = 1;
     targetGObjIdx = 0;
 }
-
-extern ObjKindEnt objKindData[];
 
 char *debug_TargetGObj_Func(int idx)
 {

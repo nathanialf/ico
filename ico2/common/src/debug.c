@@ -826,8 +826,6 @@ typedef struct {
     void *obj;
 } DbgGobjEnt;
 
-extern ObjKindEnt objKindData[];
-
 /* one editable row of the debug box: its label and the value shown */
 typedef struct {
     char *name;
@@ -955,7 +953,7 @@ inline void debug_SaveStartStageFile(int stage)
 {
     char buf[256];
     debug_StdPrintfDummy("==== Save start stage =======================================\n");
-    if (debugSceOpen((int)"thisIsYourStartStage", 0x602) < 0) {
+    if (debugSceOpen("thisIsYourStartStage", 0x602) < 0) {
         debug_StdPrintfDummy("debug_SaveStartStageFile: host file open error.\n");
     } else {
         sprintf(buf, "%d", stage);
@@ -978,7 +976,7 @@ void debug_SaveDebugOptionFile(void)
     int i;
     int fd;
     debug_StdPrintfDummy("==== Save Debug Option ======================================\n");
-    fd = debugSceOpen((int)"thisIsYourDebugOption", 0x602) < 0;
+    fd = debugSceOpen("thisIsYourDebugOption", 0x602) < 0;
     if (fd) {
         debug_StdPrintfDummy("debug_SaveDebugOptionFile: host file open error.\n");
     } else {
@@ -1007,7 +1005,7 @@ int debug_GetDebugOption(void)
     DbgOpt *p;
 
     debug_StdPrintfDummy("==== Try to read Debug Option file. =========================\n");
-    fd = debugSceOpen((int)"thisIsYourDebugOption", 1);
+    fd = debugSceOpen("thisIsYourDebugOption", 1);
     if (fd < 0) {
         debug_StdPrintfDummy("debug_GetDebugOption:No Debug Option file. Setting to default.\n");
         fd = -1;
@@ -1207,7 +1205,7 @@ int debug_Load(char **dst, char *name, int kind)
     int fd;
 
     sprintf(buf, "ico2Data/%s", name);
-    fd = debugSceOpen((int)buf, 1);
+    fd = debugSceOpen(buf, 1);
     if (fd < 0) {
         debug_StdPrintfDummy("file is not exist(%s)\n", name);
         return -1;
@@ -2196,7 +2194,7 @@ int debug_SnapShot(int idx)
                     } else {
                         sprintf(name, "snapshot/snap%07d.bmp", i);
                     }
-                    fd = debugSceOpen((int)name, 1);
+                    fd = debugSceOpen(name, 1);
                     debugSceClose(fd);
                     if (fd < 0) {
                         break;
@@ -2207,7 +2205,7 @@ int debug_SnapShot(int idx)
                 } else {
                     sprintf(name, "snapshot/snap%07d.bmp", i);
                 }
-                fd = debugSceOpen((int)name, 0x602);
+                fd = debugSceOpen(name, 0x602);
                 if (debug_snapshot_format == 0) {
                     debug_WriteTim2(fd, buf, w * mask, h * mask);
                 } else {
@@ -2268,7 +2266,7 @@ inline void debug_DispMatrix(int *a0)
     }
 }
 
-void debug_Printf(int a, int b, unsigned int c, char *fmt, ...)
+void debug_Printf(int a, int b, unsigned int c, const char *fmt, ...)
 {
     char buf[256];
     void *args = (char *)__builtin_next_arg(fmt) - 0x20;
@@ -2328,11 +2326,11 @@ inline void debug_ResizeFontWindowHeight(int val)
 
 inline void debug_SetBarDummy(void) {}
 
-void debug_PrintfDummy(int a0, int a1, unsigned int a2, int a3, ...) {}
+void debug_PrintfDummy(int x, int y, unsigned int col, const char *fmt, ...) {}
 
 void debug_PrintFontWindowDummy(int a0, int a1, ...) {}
 
-void debug_StdPrintfDummy(char *fmt, ...)
+void debug_StdPrintfDummy(const char *fmt, ...)
 {
     (void)fmt;
 }
@@ -2501,17 +2499,17 @@ int debug_Mode(void)
 
     modeBlink++;
 
-    debug_PrintfDummy(10, 50, 0xFFFFFF00u, (int)"DEBUG MODE");
-    debug_PrintfDummy(138, 50, 0x00FFFF00u, (int)"Push '\202' to save debug options.");
+    debug_PrintfDummy(10, 50, 0xFFFFFF00u, "DEBUG MODE");
+    debug_PrintfDummy(138, 50, 0x00FFFF00u, "Push '\202' to save debug options.");
 
     i = (modeSelect + 70) % 76;
     end = (modeSelect + 83) % 76;
     j = 1;
     while (i != end) {
         if (debugOption[i].strs != 0) {
-            debug_PrintfDummy(18, j * 8 + 50, modeSelect == i ? (((modeBlink >> 3) & 1) ? blinkColor[0] : debugOption[i].col) : debugOption[i].col, (int)"%c%s : %s(%d)", modeSelect == i ? 62 : 32, (int)debugOption[i].name, (int)debugOption[i].strs[*debugOption[i].val - debugOption[i].min], *debugOption[i].val);
+            debug_PrintfDummy(18, j * 8 + 50, modeSelect == i ? (((modeBlink >> 3) & 1) ? blinkColor[0] : debugOption[i].col) : debugOption[i].col, "%c%s : %s(%d)", modeSelect == i ? 62 : 32, debugOption[i].name, debugOption[i].strs[*debugOption[i].val - debugOption[i].min], *debugOption[i].val);
         } else {
-            debug_PrintfDummy(18, j * 8 + 50, modeSelect == i ? (((modeBlink >> 3) & 1) ? blinkColor[0] : debugOption[i].col) : debugOption[i].col, (int)"%c%s : %d", modeSelect == i ? 62 : 32, (int)debugOption[i].name, *debugOption[i].val);
+            debug_PrintfDummy(18, j * 8 + 50, modeSelect == i ? (((modeBlink >> 3) & 1) ? blinkColor[0] : debugOption[i].col) : debugOption[i].col, "%c%s : %d", modeSelect == i ? 62 : 32, debugOption[i].name, *debugOption[i].val);
         }
         if (++i == 76) i = 0;
         j++;
@@ -2589,7 +2587,7 @@ inline int _debug_SelectCsvWindow(char *title, int x, int y, int rows, int base,
     int col;
 
     sel = *psel;
-    debug_PrintfDummy(x, y, 0xFFFFFF00u, (int)"%s", (int)title);
+    debug_PrintfDummy(x, y, 0xFFFFFF00u, "%s", title);
     if ((pad[0].now & 2) == 0) {
         if (pad[0].flags & 0x80) {
             debug_font_flag ^= 2;
@@ -2645,7 +2643,7 @@ inline int _debug_SelectCsvWindow(char *title, int x, int y, int rows, int base,
             } else {
                 buf[0] = 0;
             }
-            debug_PrintfDummy(x, yy, col, (int)"  %s", (int)buf);
+            debug_PrintfDummy(x, yy, col, "  %s", buf);
             yy += 8;
         }
         if (csvScroll <= 0xFFFE) {
@@ -2668,14 +2666,14 @@ void getLineBuffer(int a0, int a1, int a2)
     sprintf(a0, "%02d:%s", a1, a2);
 }
 
-inline int debug_SelectCsvWindowWithLine(char *title, int x, int y, int rows, void *base, int stride,
+inline int debug_SelectCsvWindowWithLine(char *title, int x, int y, int rows, const void *base, int stride,
                                   int off, int deref, int n, int *psel)
 {
     return _debug_SelectCsvWindow(title, x, y, rows, (int)base, stride, off, deref, n, psel,
                                       getLineBuffer, 0);
 }
 
-inline int debug_SelectCsvWindowWithLineColor(char *title, int x, int y, int rows, void *base, int stride,
+inline int debug_SelectCsvWindowWithLineColor(char *title, int x, int y, int rows, const void *base, int stride,
                                        int off, int deref, int n, int *psel, int (*colfunc)(int))
 {
     return _debug_SelectCsvWindow(title, x, y, rows, (int)base, stride, off, deref, n, psel,
@@ -2730,7 +2728,7 @@ int debug_SelectStage(void)
 static inline int debug_mcConfirm(char *msg)
 {
     int yes = 0;
-    debug_PrintfDummy(80, 70, 0xFFFFFF00u, (int)"%s? Yes:O No:X", (int)msg);
+    debug_PrintfDummy(80, 70, 0xFFFFFF00u, "%s? Yes:O No:X", msg);
     if (pad[0].flags & 0x20) {
         yes = 1;
     }
@@ -2742,7 +2740,7 @@ static inline int debug_mcConfirm(char *msg)
 static inline int debug_mcAsk(char *msg)
 {
     int yes = 0;
-    debug_PrintfDummy(80, 70, 0xFFFFFF00u, (int)"%s", (int)msg);
+    debug_PrintfDummy(80, 70, 0xFFFFFF00u, "%s", msg);
     if (pad[0].flags & 0x20) {
         yes = 1;
     }
@@ -2770,7 +2768,7 @@ inline int debug_mcFormat(int port)
         break;
     case 1:
         if (formatBlink++ & 0x10) {
-            debug_PrintfDummy(120, 70, 0xFFFFFF00u, (int)"now formatting");
+            debug_PrintfDummy(120, 70, 0xFFFFFF00u, "now formatting");
         }
         if (iosMcSync(port) != 0) {
             formatState++;
@@ -2801,7 +2799,7 @@ inline int debug_mcUnformat(int port)
         break;
     case 1:
         if (unformatBlink++ & 0x10) {
-            debug_PrintfDummy(120, 70, 0xFFFFFF00u, (int)"now unformatting");
+            debug_PrintfDummy(120, 70, 0xFFFFFF00u, "now unformatting");
         }
         if (iosMcSync(port) != 0) {
             unformatState++;
@@ -2971,7 +2969,7 @@ int debug_mcSaveMainBlock(McReq *mc)
     case 5:
     case 7:
     case 12:
-        debug_PrintfDummy(120, 70, 0xFFFFFF00u, (int)"save %s", (int)mc->name47C);
+        debug_PrintfDummy(120, 70, 0xFFFFFF00u, "save %s", mc->name47C);
         if (iosMcSync(mc)) {
             saveState++;
         }
@@ -3040,7 +3038,7 @@ int debug_mcLoadMainBlock(McReq *mc)
         break;
     case 5:
     case 8:
-        debug_PrintfDummy(120, 70, 0xFFFFFF00u, (int)"load %s", (int)mc->name47C);
+        debug_PrintfDummy(120, 70, 0xFFFFFF00u, "load %s", mc->name47C);
         if (iosMcSync(mc)) {
             loadState++;
         }
@@ -3105,7 +3103,7 @@ int debug_mcDeleteFile(McReq *mc)
         deleteState++;
         break;
     case 3:
-        debug_PrintfDummy(120, 70, 0xFFFFFF00u, (int)"delete %s", (int)mc->name47C);
+        debug_PrintfDummy(120, 70, 0xFFFFFF00u, "delete %s", mc->name47C);
         if (iosMcSync(mc)) {
             deleteState++;
         }
@@ -3171,7 +3169,7 @@ int debug_MemoryCard(void)
         if (mc.f14 != 2) {
             p = &tm[2];
         }
-        debug_PrintfDummy(10, 60, p->col, (int)"Memory card port 0: %s free:%d Kbytes", (int)p->msg,
+        debug_PrintfDummy(10, 60, p->col, "Memory card port 0: %s free:%d Kbytes", p->msg,
                           mc.f18);
         if (mc.ret >= -2) {
             r = debug_SelectCsvWindow("MENU", 0xA, 0x44, 0xA, menu, 8, 0, 1, 6, &mcMenuSelect);
@@ -3267,7 +3265,7 @@ void debug_SESlotDisp(void)
             }
             strcat(buf, tmp);
             if (bit == 7) {
-                debug_PrintfDummy(400, y, col, (int)"%s", (int)buf);
+                debug_PrintfDummy(400, y, col, "%s", buf);
             }
         }
     }
@@ -3285,7 +3283,7 @@ inline int debug_reverbTest(void)
         depth -= (0 < depth);
     }
     soundReverbDepthSet(depth);
-    debug_PrintfDummy(10, 80, 0xFFFFFF00u, (int)"REVERB DEPTH %d%%\n", soundReverbDepthGet());
+    debug_PrintfDummy(10, 80, 0xFFFFFF00u, "REVERB DEPTH %d%%\n", soundReverbDepthGet());
     return (pad[0].flags & 0x60) != 0;
 }
 
@@ -3413,7 +3411,7 @@ static inline int debug_ListActGobj(DbgGobjEnt *list)
         case 2:
         case 4:
         case 0x2F:
-            list[n].name = ((ObjKindEnt *)((char *)objKindData + kind * 0x64))->name;
+            list[n].name = objKindData[kind].name;
             list[n].obj = g;
             n++;
         }
@@ -3431,7 +3429,7 @@ static inline int debug_ListPadControlGobj(DbgGobjEnt *list)
         int kind = ((GObj *)g)->kind;
         if (kind == 2 || kind == 4) {
             list[n].obj = g;
-            list[n].name = ((ObjKindEnt *)((char *)objKindData + kind * 0x64))->name;
+            list[n].name = objKindData[kind].name;
             n++;
         }
     }
@@ -3539,10 +3537,10 @@ int debug_DispBox(int on)
 
         for (i = 0; i < 6; i++) {
             if (i == dispBoxRow) {
-                debug_PrintfDummy(10, i * 10 + 80, 0xFFFFFF00u, (int)">>%8s = %d\n", (int)list[i].name,
+                debug_PrintfDummy(10, i * 10 + 80, 0xFFFFFF00u, ">>%8s = %d\n", list[i].name,
                                   list[i].val);
             } else {
-                debug_PrintfDummy(10, i * 10 + 80, 0xFFFFFF00u, (int)"  %8s = %d\n", (int)list[i].name,
+                debug_PrintfDummy(10, i * 10 + 80, 0xFFFFFF00u, "  %8s = %d\n", list[i].name,
                                   list[i].val);
             }
         }
@@ -3715,9 +3713,9 @@ int debug_CollisionTest(int reset)
         prim_DispWireSphere(5.0f, (void *)&collisionWallCol, 8, 4);
         gif_EndPacket();
         DebugDisp1Collision(&mv);
-        debug_PrintfDummy(80, 180, 0xFFFFFF00u, (int)"HIT: %p,%d", (int)collisionRay.wall.ref.poly,
+        debug_PrintfDummy(80, 180, 0xFFFFFF00u, "HIT: %p,%d", collisionRay.wall.ref.poly,
                           collisionRay.wall.ref.tri);
-        debug_PrintfDummy(80, 190, 0xFFFFFF00u, (int)"ATTR: %x",
+        debug_PrintfDummy(80, 190, 0xFFFFFF00u, "ATTR: %x",
                           GetWallAttribute((int)&collisionRay));
     }
     if (collisionRay.floorHit != 0) {
@@ -3730,9 +3728,9 @@ int debug_CollisionTest(int reset)
         prim_DispWireSphere(5.0f, (void *)&collisionFloorCol, 8, 4);
         gif_EndPacket();
     }
-    debug_PrintfDummy(80, 160, 0xFFFFFF00u, (int)"SRC: %f, %f, %f", collisionRay.src[0],
+    debug_PrintfDummy(80, 160, 0xFFFFFF00u, "SRC: %f, %f, %f", collisionRay.src[0],
                       collisionRay.src[1], collisionRay.src[2]);
-    debug_PrintfDummy(80, 170, 0xFFFFFF00u, (int)"DST: %f, %f, %f", collisionRay.dst[0],
+    debug_PrintfDummy(80, 170, 0xFFFFFF00u, "DST: %f, %f, %f", collisionRay.dst[0],
                       collisionRay.dst[1], collisionRay.dst[2]);
     CameraSetMode(1);
     DrawCollisionRay((char *)&collisionRay);
@@ -3797,7 +3795,7 @@ static int menuArg = 0; /* derived name */
 static inline void debug_MenuBlink(void)
 {
     if (menuBlink >> 4) {
-        debug_PrintfDummy(220, 60, 0x80C0FF80u, (int)"DISC VER.%s %s", (int)"Jan 17 2002", (int)"15:37:26");
+        debug_PrintfDummy(220, 60, 0x80C0FF80u, "DISC VER.%s %s", "Jan 17 2002", "15:37:26");
     }
     menuBlink++;
     if (menuBlink >= 0x41) {
@@ -3811,12 +3809,12 @@ static inline void debug_MenuHelp(void)
     int y;
     int i;
 
-    debug_PrintfDummy(220, 70, 0xFFFFFF80u, (int)"FIXED BUG ID LIST");
+    debug_PrintfDummy(220, 70, 0xFFFFFF80u, "FIXED BUG ID LIST");
     x = 0xF0;
     y = 0x50;
     i = 0;
     while (debugMenuHelp[i] != 0) {
-        debug_PrintfDummy(x, y, 0x80808080u, (int)"%s", (int)debugMenuHelp[i]);
+        debug_PrintfDummy(x, y, 0x80808080u, "%s", debugMenuHelp[i]);
         y += 10;
         if (y >= 301) {
             y = 0x50;
@@ -3890,10 +3888,10 @@ void debug_Menu_off(void)
 /* the file debugSceOpen has open */
 static int sceFd = -1; /* derived name */
 
-inline int debugSceOpen(int a0, int a1)
+inline int debugSceOpen(char *name, int mode)
 {
-    sprintf(sceOpenPath, "%s%s;1", "cdrom0:\\", a0);
-    return sceFd = sceOpen(sceOpenPath, a1);
+    sprintf(sceOpenPath, "%s%s;1", "cdrom0:\\", name);
+    return sceFd = sceOpen(sceOpenPath, mode);
 }
 
 inline int debugSceClose(int a0)

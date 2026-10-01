@@ -146,9 +146,9 @@ void scpSetBoyWeaponGObj(void *w);
 /* girl-warp-list: one girl warp, 0x58 bytes. Reader: ico2/script/src/
  * warpGirl.c (WarpRec). Owner: ico2/script/include/script.h. */
 typedef struct {         /* field names derived */
-    float p0[4];         /* 0x00 */
-    float p1[4];         /* 0x10 */
-    float p2[4];         /* 0x20 */
+    float arrive2[4];    /* 0x00, the arrival in to2: y angle, then z, y, x */
+    float arrive1[4];    /* 0x10, the arrival in to1 */
+    float arrive0[4];    /* 0x20, the arrival in to0 */
     int gflag;           /* 0x30 */
     float box0[3];       /* 0x34 */
     float box1[3];       /* 0x40 */

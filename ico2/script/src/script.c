@@ -236,7 +236,6 @@ static struct WoodBoxEnt woodBoxTbl[11] = {
 extern int CheckFloorAttribute(GObj *self, int attr);
 /* kept local: agrees with motionManager2.h, which this TU does not include */
 extern int CheckWallAttribute(GObj *self, int attr);
-extern GenGeo objLayout[];
 /* kept local: motionManager2.h lists the parameters as (self, obj, x, y, z, mode, node, w, quat);
    the callers pass them in this order */
 extern void SetMotionNodeFixModeParameter(char *self, char *obj, int mode, int node, void *quat,

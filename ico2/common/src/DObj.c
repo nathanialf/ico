@@ -128,7 +128,7 @@ static inline void initGeometryScaleRatio(char *d)
     *(float *)(d + 0x824) = r;
 }
 
-void initGeometryState(char *self, float *lay)
+void initGeometryState(char *self, SObjSimpleSetting *lay)
 {
     DObjGObj g;
     DObjGObj *p;
@@ -140,7 +140,8 @@ void initGeometryState(char *self, float *lay)
 
     p = &g;
     g.data.p = self;
-    InitMotionGeoInfo(self + 0xA0, lay[0], lay[1], lay[2], lay[4], lay[5], lay[6]);
+    InitMotionGeoInfo(self + 0xA0, lay->pos[0], lay->pos[1], lay->pos[2], lay->rot[0], lay->rot[1],
+                      lay->rot[2]);
     InitMotionStateInfo(p->data.p + 0x470);
     InitFrameDependSequence(p->data.p + 0x740);
     *(DObjBlkC0 *)(p->data.p + 0x680) = initialGeoWork;
@@ -188,7 +189,7 @@ void initGeometryState(char *self, float *lay)
 
         {
             DObjVec dir = {{0.0f, 0.0f, 1.0f, 1.0f}};
-            _ApplyRyGV(&dir, -lay[5]);
+            _ApplyRyGV(&dir, -lay->rot[1]);
             SetMotionDirection(p, &dir);
         }
     } else {
@@ -204,26 +205,26 @@ void initGeometryState(char *self, float *lay)
     initGeometryScaleRatio(p->data.p);
 }
 
-void initMatrixDObj(char *self, float *lay)
+void initMatrixDObj(char *self, SObjSimpleSetting *lay)
 {
     float v[4];
     float d;
 
     MatrixDrive_PushMatrix();
-    CopyVector(v, lay);
+    CopyVector(v, lay->pos);
     d = 3.1415927f;
     v[3] = 1.0f;
     _UnitMatrix(MatrixDrive_GetMatrix());
     MatrixDrive_TransMatrixV(v);
-    MatrixDrive_RotMatrixY((short)(lay[5] * 32768.0f / d));
-    MatrixDrive_RotMatrixX((short)(lay[4] * 32768.0f / d));
-    MatrixDrive_RotMatrixZ((short)(lay[6] * 32768.0f / d));
+    MatrixDrive_RotMatrixY((short)(lay->rot[1] * 32768.0f / d));
+    MatrixDrive_RotMatrixX((short)(lay->rot[0] * 32768.0f / d));
+    MatrixDrive_RotMatrixZ((short)(lay->rot[2] * 32768.0f / d));
     CopyMatrix(self + 0x20, MatrixDrive_GetMatrix());
 
     SetIdentityQuaternion(self + 0x60);
-    RotQuaternionY(self + 0x60, (short)(lay[5] * 32768.0f / d));
-    RotQuaternionX(self + 0x60, (short)(lay[4] * 32768.0f / d));
-    RotQuaternionZ(self + 0x60, (short)(lay[6] * 32768.0f / d));
+    RotQuaternionY(self + 0x60, (short)(lay->rot[1] * 32768.0f / d));
+    RotQuaternionX(self + 0x60, (short)(lay->rot[0] * 32768.0f / d));
+    RotQuaternionZ(self + 0x60, (short)(lay->rot[2] * 32768.0f / d));
     MatrixDrive_PopMatrix();
 }
 
@@ -237,7 +238,7 @@ typedef union {
 /* kept local: this TU's view of ios.c's seki partition handle is a pointer
    (ios.h declares the handles int, and that view changes this TU's code) */
 
-void allocObjectData(char *self, char *lay, int n)
+void allocObjectData(char *self, SObjSimpleSetting *lay, int n)
 {
     int i;
     int j;
@@ -297,7 +298,7 @@ void allocObjectData(char *self, char *lay, int n)
             *(float *)(e + 0x30) = 0.0f;
             *(float *)(e + 0x34) = 1.0f;
             *(short *)(e + 0x3A) = 0;
-            _CopyVector(e + 0x20, lay + 0x20);
+            _CopyVector(e + 0x20, lay->scale);
         }
     }
 }
@@ -370,7 +371,7 @@ static inline void allocIntTable(char *d, int n)
     }
 }
 
-void initPolygonState(char *d, float *lay)
+void initPolygonState(char *d, SObjSimpleSetting *lay)
 {
     char *p;
     char *e;
@@ -389,7 +390,7 @@ void initPolygonState(char *d, float *lay)
         *(short *)(d + 0x84C) = k;
         *(int *)(d + 0x8) = *(int *)(d + 0x88);
         allocMatrixArrays(d, *(int *)(d + 0x88));
-        allocObjectData(d, (char *)lay, *(signed char *)(p + 0x2E));
+        allocObjectData(d, lay, *(signed char *)(p + 0x2E));
         applySkeltonMatrices(d);
         break;
     case 0:
@@ -400,7 +401,7 @@ void initPolygonState(char *d, float *lay)
                                 ? *(signed char *)(p + 0x2E)
                                 : *(int *)(d + 0x88);
         allocMatrixArrays(d, *(int *)(d + 0x8));
-        allocObjectData(d, (char *)lay, *(signed char *)(p + 0x2E));
+        allocObjectData(d, lay, *(signed char *)(p + 0x2E));
         break;
     }
 
@@ -454,7 +455,7 @@ static inline void makeSlotTable(char *d)
     }
 }
 
-char *CSVSYSTEM_InitDObj(int id, float *lay)
+char *CSVSYSTEM_InitDObj(int id, SObjSimpleSetting *lay)
 {
     char *d;
 

@@ -275,13 +275,13 @@ void ExecIcoMisc(void)
     }
     if (iosCdvdDiskStatusGet() != 0) {
         if (diskErrorBlink++ < 15) {
-            debug_PrintfDummy(250, 100, 0xFF000000, (int)"DISK ERROR");
+            debug_PrintfDummy(250, 100, 0xFF000000, "DISK ERROR");
         } else if (diskErrorBlink >= 31) {
             diskErrorBlink = 0;
         }
     }
     if (iopBuffOver != 0) {
-        debug_PrintfDummy(250, 100, 0xFF000000, (int)"IOP BUFF OVER -%d bytes", iopBuffOver);
+        debug_PrintfDummy(250, 100, 0xFF000000, "IOP BUFF OVER -%d bytes", iopBuffOver);
     }
     iosOmGetGObjStatus(&total, &used);
     if (debug_font_flag2 != 0 || (debug_font_flag & 1) != 0) {

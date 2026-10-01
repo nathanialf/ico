@@ -20,8 +20,6 @@
 #include <assert.h>
 #include "main.h"
 
-extern ObjKindEnt objKindData[];
-
 /* .sbss, owned by sceneManager.o and reached only from this file (MAIN.MAP
    names no symbol in the run), in the ROM's run order: the three frame counts
    GetStageStartInfo hands back, which boyact's stage-entry action waits out in
@@ -268,11 +266,11 @@ void InitStageLight(int stage)
     tex_RemakeRegistersSampleMin(0);
 }
 
-inline char *CreateLayoutedGObj(int id, int a1, int a2, int a3, int a4, int a5, int a6, int a7)
+inline char *CreateLayoutedGObj(int id, int a1, int a2, int a3, void *lay, int a5, int a6, int a7)
 {
-    ObjKindEnt *layout = (ObjKindEnt *)((char *)objKindData + id * 0x64);
+    ObjKindEnt *layout = &objKindData[id];
     char *gobj = CreateGObj(layout, id, a5, a6, a7);
-    int dobj = CSVSYSTEM_InitDObj(a1, a4);
+    int dobj = CSVSYSTEM_InitDObj(a1, lay);
     int (*fn)(char *, int);
 
     *(int *)&((GObj *)gobj)->dobj = dobj;
@@ -282,7 +280,7 @@ inline char *CreateLayoutedGObj(int id, int a1, int a2, int a3, int a4, int a5, 
 
     fn = layout->create;
     if (fn != 0) {
-        GOBJ_SUB(gobj)->work = fn(gobj, a4);
+        GOBJ_SUB(gobj)->work = fn(gobj, lay);
     }
     return gobj;
 }
@@ -291,8 +289,6 @@ typedef union {
     long long flag;
     GamesysObjInfo info;
 } GamesysObjInfoFlag;
-
-extern GenGeo objLayout[];
 
 /* RECONSTRUCTION: the 0x40-byte actor-init record CreateLayoutedGObj hands to the
    kind's constructor: position, angle and scale as VU0 vectors, then the
@@ -330,7 +326,7 @@ void initSceneGObj(int stage, int no)
 {
     ActInit a;
     GenGeo *gen = &objLayout[no];
-    ObjKindEnt *lay = (ObjKindEnt *)((char *)objKindData + gen->kind * 0x64);
+    ObjKindEnt *lay = &objKindData[gen->kind];
     GamesysObjInfo *info = gamesysObjInfoGet(gen->kind, no);
     int mdl = gen->mdl;
     int st;
@@ -400,7 +396,7 @@ void initSceneGObj(int stage, int no)
 
         MoveNextStage_Get(&a, gen->kind);
 
-        gobj = CreateLayoutedGObj(gen->kind, mdl, gen->accessary, gen->light & 0x1F, (int)&a, no,
+        gobj = CreateLayoutedGObj(gen->kind, mdl, gen->accessary, gen->light & 0x1F, &a, no,
                                   (gen->flags >> 14) & 7, 0);
 
         fld = gen->procPri;
@@ -590,7 +586,7 @@ int HotInitSceneObjects(int a0)
         do {
             int idx = ((GObj *)node)->kind;
             if (idx >= 0) {
-                ObjKindEnt *e = (ObjKindEnt *)((char *)objKindData + idx * 0x64);
+                ObjKindEnt *e = &objKindData[idx];
                 void (*fn)(int *);
                 if (e->before != 0) {
                     iosOmSendMail(node, 0x2F, (int)node);

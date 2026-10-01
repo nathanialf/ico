@@ -135,11 +135,11 @@ void debug_DispVu1SReg(int no);
 void debug_DispMatrix(int *a0);
 void debug_SetBarDummy(void);
 
-int debug_SelectCsvWindowWithLine(char *title, int x, int y, int rows, void *base, int stride,
+int debug_SelectCsvWindowWithLine(char *title, int x, int y, int rows, const void *base, int stride,
                                   int off, int deref, int n, int *psel);
 
 int debug_TryToGetStartStage(void);
-inline int debugSceOpen(int a0, int a1);
+inline int debugSceOpen(char *name, int mode);
 inline int debugSceClose(int a0);
 int debugSceCloseFdNew(void);
 void debug_closeLog(void);
@@ -154,7 +154,7 @@ void debug_SaveStartStageFile(int stage);
 int _debug_SelectCsvWindow(char *title, int x, int y, int rows, int base, int stride, int off,
                            int deref, int n, int *psel, void (*getline)(), int (*colfunc)(int));
 
-int debug_SelectCsvWindowWithLineColor(char *title, int x, int y, int rows, void *base, int stride,
+int debug_SelectCsvWindowWithLineColor(char *title, int x, int y, int rows, const void *base, int stride,
                                        int off, int deref, int n, int *psel, int (*colfunc)(int));
 
 int debug_mcFormat(int port);
@@ -185,8 +185,8 @@ int debug_MemoryCard(void);
 void debug_PrintCharacter(char *str, int x, int y, int r, int g, int b, int sz);
 void debug_PrintFont(int a0, int a1, int a2, char *a3);
 void debug_PrintFontWindow(int col, char *fmt, ...);
-void debug_Printf(int a, int b, unsigned int c, char *fmt, ...);
-void debug_PrintfDummy(int a0, int a1, unsigned int a2, int a3, ...);
+void debug_Printf(int a, int b, unsigned int c, const char *fmt, ...);
+void debug_PrintfDummy(int x, int y, unsigned int col, const char *fmt, ...);
 int debug_SETest(int reset);
 int debug_SelectActGobj(int reset);
 
@@ -195,7 +195,7 @@ int debug_SelectCsvWindow(char *title, int x, int y, int rows, const void *base,
 
 int debug_SelectStage(void);
 void debug_SetDmaCallback(void);
-void debug_StdPrintfDummy(char *fmt, ...);
+void debug_StdPrintfDummy(const char *fmt, ...);
 void debug_brainBar(void);
 void debug_makeBackImage(void);
 void debug_openLog(void);

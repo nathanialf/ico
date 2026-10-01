@@ -13,6 +13,7 @@
 #define GAMESYS_H
 
 #include "backStage.h"
+#include "typedef.h"
 
 /* gamesys.c's .data, MAIN.MAP's gamesys.o globals in its order */
 extern char stamp_str[];
@@ -24,6 +25,11 @@ extern int gamesysTimeCount;
 extern int gamesysAnotherStageTsuresari;
 extern int gamesysVersionDiff;
 extern int gamesysObjBuffOver;
+
+/* the object-kind table (obj-kind-data) and the stage layout objects
+   (obj-layout), the data members MAIN.MAP places in debug.o and gamesys.o */
+extern ObjKindEnt objKindData[];
+extern GenGeo objLayout[];
 
 int gamesysGetGirlStageIDAndPosition(int *pos);
 void gamesysMemoryHandlerRead(int *self, void *dst, int size);
