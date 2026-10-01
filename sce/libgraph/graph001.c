@@ -18,8 +18,12 @@ typedef struct {
 } sceGsGParam;
 
 /* the member's .data: its build stamp and the record, interlaced NTSC frame
-   mode until sceGsResetGraph sets it */
-static char sceGsVersion[16] = "PsIIlibgraph2200"; /* derived name */
+   mode until sceGsResetGraph sets it.  The stamp is 16-aligned in Sony's
+   object: the shipped link starts this member's .data at 0x54A2A0, 12 bytes
+   past vobj.o's run end at 0x54A294, where an 8-aligned section would sit at
+   0x54A298.  The stamp is the run's first object, so its alignment is the
+   section's. */
+static char sceGsVersion[16] __attribute__((aligned(16))) = "PsIIlibgraph2200"; /* derived name */
 
 static sceGsGParam gsGParam = {1, 2, 1, 3, 0, 0}; /* derived name */
 

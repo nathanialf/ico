@@ -381,7 +381,6 @@ typedef union {
 } GamesysObjInfoFlag;
 
 extern GenGeo objLayout[];
-extern void *D_0063ACF0;
 /* kept local: void * here, GObj * in main.h */
 extern void *boyGObj;
 
@@ -525,7 +524,7 @@ void initSceneGObj(int stage, int no)
         }
 
         if (st == 4) {
-            D_0063ACF0 = gobj;
+            backStageGirlTargetEnemyGop = gobj;
         }
 
         if (gen->f28 != 0) {
@@ -676,7 +675,7 @@ void InitSceneObjects(int stage)
 
     gamesysObjInfoStageInitFlagCls();
 
-    D_0063ACF0 = 0;
+    backStageGirlTargetEnemyGop = 0;
     fightSoundProcessRequestStart();
 
     CreateClipCollisionManagerGObj();

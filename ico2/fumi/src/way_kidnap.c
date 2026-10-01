@@ -10,14 +10,20 @@
 #include <libvu0.h>
 #include <stdlib.h>
 
-extern int D_0063BD64;
-extern int D_0063BD60;
-extern int D_0063BD68;
+/* .sdata, owned by way_kidnap.o (VMA 0x63BD60..0x63BD6C, then
+   WayPointWithRangeFromPos2's FLT_MAX pool word; 0x10 B = MAIN.MAP), names ours:
+   the count of positions add_wp_pos has collected, the flag that stops it while
+   WayRangeSearch measures a path, and the range search's limit mode. */
+static int wpPosCount = 0; /* derived name */
+
+static int wpPosLock = 0; /* derived name */
+
+static int wayRangeLimit = 0; /* derived name */
 
 static inline void ClearWpPos(void)
 {
-    if (D_0063BD64 == 0) {
-        D_0063BD60 = 0;
+    if (wpPosLock == 0) {
+        wpPosCount = 0;
     }
 }
 
@@ -57,14 +63,14 @@ static WpPosEntry wpPosInfo[276];
 
 void add_wp_pos(WayPoint *wp, float *pos, float len)
 {
-    if (D_0063BD64) {
+    if (wpPosLock) {
         return;
     }
     fzShowV(pos);
 
-    wpPosInfo[D_0063BD60].wp = wp;
-    wpPosInfo[D_0063BD60].len = len;
-    sceVu0CopyVector(wpPosVec[D_0063BD60++], pos);
+    wpPosInfo[wpPosCount].wp = wp;
+    wpPosInfo[wpPosCount].len = len;
+    sceVu0CopyVector(wpPosVec[wpPosCount++], pos);
 }
 
 /* way_kidnap.c:109 and 117-127 in the listing: public inlines, so gcc defers
@@ -73,7 +79,7 @@ void add_wp_pos(WayPoint *wp, float *pos, float len)
    string CopyWpPos prints is entered here, first in the TU's .rodata. */
 inline int NumOfWpPos(void)
 {
-    return D_0063BD60;
+    return wpPosCount;
 }
 
 inline int CopyWpPos(float dst[][4], int from, int to)
@@ -153,7 +159,7 @@ float WayLengthOfPos_Pos(float *pos0, float *pos1)
     if (w.f70 == 2) {
         goto fail;
     }
-    if (D_0063BD68 == 0 && w.f70 == 1) {
+    if (wayRangeLimit == 0 && w.f70 == 1) {
         goto fail;
     }
 
@@ -238,16 +244,16 @@ static inline int wpsort_compfnc(float *a, float *b)
 
 static inline void WayRangeSearch(float *pos, float range, WpPosEntry *e, int limit, int chk)
 {
-    D_0063BD68 = limit;
+    wayRangeLimit = limit;
     ClearWpPos();
 
     for (e->wp = WayPoint_begin(); e->wp != 0; e->wp = WayPoint_next(e->wp)) {
         if (range <= _GetLength(pos, e->wp->pos)) {
             continue;
         }
-        D_0063BD64 = 1;
+        wpPosLock = 1;
         e->len = WayLengthOfPos_Pos(pos, e->wp->pos);
-        D_0063BD64 = 0;
+        wpPosLock = 0;
         if (e->len < 0.0f) {
             continue;
         }
@@ -256,7 +262,7 @@ static inline void WayRangeSearch(float *pos, float range, WpPosEntry *e, int li
         }
         add_wp_pos(e->wp, e->wp->pos, e->len);
     }
-    D_0063BD68 = 0;
+    wayRangeLimit = 0;
 }
 
 int WayPointWithRangeFromPos(float *pos, int mode, float range)
@@ -317,7 +323,6 @@ typedef struct WayEdge {
 } WayEdge;
 
 extern WayEdge way_group[];
-extern float D_0063BD6C[];
 /* kept local: void (float *, float *, float *) here, void (void *, void *, void *) in Matrix.h */
 extern void _SubVector(float *dst, float *a, float *b);
 /* kept local: float (float *, float *) here, float (void *, void *) in Matrix.h */
@@ -502,7 +507,7 @@ ret:
     }
     if (found == 0) {
         nearest = 0;
-        best = D_0063BD6C[0];
+        best = 3.40282347e+38f /* FLT_MAX */;
         /* not found, so search every WAYPOOINT for the nearest point of the
            active group that allows a nest */
         debug_StdPrintfDummy(

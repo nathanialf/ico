@@ -24,4 +24,12 @@ void disp_memory_partition_bar(void);
 void disp_memory_partition(void);
 void ExecIcoMisc(void);
 
+/* Six debug words nothing in the ROM reads. */
+extern int dbgC0;
+extern int dbgC1;
+extern int dbgC2;
+extern int dbgC3;
+extern int dbgC4;
+extern int dbgC5;
+
 #endif /* ICOMISC_H */

@@ -23,6 +23,9 @@ void backStageProcessInStage(float arg);
 void backStageProcessOutStage(void);
 void routeSetPos(int gobj0, int gobj1, float *out, float ratio);
 
+/* The enemy carrying the heroine off, which sceneManager sets when it takes her. */
+extern int backStageGirlTargetEnemyGop;
+
 /* RECONSTRUCTION, PLACED BY INCLUDE PATTERN: one record for 3 TUs that carried 2 divergent local copies; this body is the one the ROM's bytes accept in the most of them. */
 typedef struct {
     short flag;

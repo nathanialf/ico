@@ -205,7 +205,6 @@ void actE3TitleChk(volatile int a0)
 extern int NonLinearCameraMove;
 /* kept local: void (int *) here, void (char **) in script.h */
 extern void scpAdpcmCloseFunc(int *h);
-extern int mpegPlayReturnStage;
 
 void actE3TitleFrameChk(volatile int a0)
 {

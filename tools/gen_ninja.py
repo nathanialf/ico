@@ -1,543 +1,244 @@
 #!/usr/bin/env python3
-"""tools/gen_ninja.py — emit build.ninja from the splat-generated manifest.
+"""tools/gen_ninja.py: emit build.ninja from config/link_order.pal.txt.
 
-Replaces the Makefile's `$(shell find ...)` discovery and per-recipe
-shell-outs. Reads `config/ico.<ver>.d` (the authoritative .o list in link
-order; <ver> is the branch's target slug — `main`=pal, `ntsc`=us,
-`aug6`=aug6, resolved by tools/ico_version.py) and writes a `build.ninja`
-covering:
+Every object from its own source, linked by the hand-written config/link.pal.ld
+in the one object order of config/link_order.pal.txt.
 
-    asm/%.s          → build/asm/%.o     via ee-as + objcopy
-    src/%.s          → build/src/%.o     via ee-as + objcopy
-    src/%.c          → build/src/%.o     via tools/compile_c.sh
-    $(ALL_OBJS) +ld  → build/ico.elf     via ld -T
-    build/ico.elf    → build/ico.rom     via objcopy -O binary
-                       build/ico.rom     verified against config/sha1sums.txt
+Rules: cc (tools/compile_c.sh), as (the .s sources, assembler and -G per
+archive as compile_c.sh chooses them for C), vu (ico2/vusrc/*.dsm through
+dvp-as, ps2dev's DVP assembler built by tools/setup.sh under tools/cc/dvp-as/,
+run from ico2/ on the path vusrc/<stem>.dsm because the overlay section names
+it writes hash that path; -no-abicalls -mabi=64 leave the ABI bits of e_flags
+clear, the one setting the link merges with the game's EABI64 objects), data
+(tools/extract_data.py per data-only member row), labels (the D_<VMA>
+placeholders a tracked source still spells inside a data member's row, which
+the extractor defines as labels), link (the period linker, GNU ld 2.10 with
+tools/binutils-2.10-ee.patch, built by tools/setup.sh under
+tools/cc/binutils-2.10-ee/, writing the IRIX-compatible elf32-littlemips output
+MAIN.MAP names: once to ico.syms.elf, which keeps the symbols, and once with -s
+to ico.elf, since the base carries no .symtab or .strtab but 2.10's -s keeps
+their names in .shstrtab as the base does; ld 2.10 has no INCLUDE inside a
+section, so the script it reads is build/link.ld, config/link.pal.ld with its
+INCLUDE lines expanded), rom, verify (tools/check_elf.py --gate).
 
-The generator emits one `build build.ninja: gen_ninja ...` edge so Ninja
-auto-regenerates the manifest when `config/ico.<ver>.d` (or any of the
-postprocess lookup TXTs) changes — the moment someone flips an asm
-subsegment to c and re-runs `tools/build.sh setup`, the next `ninja`
-picks up the new graph without manual intervention.
-
-The compile rule still calls `tools/compile_c.sh` with 2 args; the
-script does its own per-file grep lookups. This is byte-identical to
-Make. Pre-baking grep results at generate time is a separate
-optimization deferred to a follow-up.
+    tools/build.sh setup && ninja
 """
 
-from __future__ import annotations
-
 import re
-import shutil
+import subprocess
 import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-sys.path.insert(0, str(Path(__file__).resolve().parent))
-from ico_version import detect_version, source_roots  # noqa: E402
-
-# Version slug selects the target's config namespace: `main` = PAL retail
-# (pal), `ntsc` = USA retail (us), `aug6` = the prototype. Explicit VERSION env
-# wins; else detected from which config/ico.<ver>.yaml the tree carries.
-VERSION = detect_version(ROOT)
-DEPS_FILE = ROOT / "config" / f"ico.{VERSION}.d"
-# Every target is a raw round-trip: link directly against splat's one-pass
-# linker script.
-# Noncontiguous data blocks are placed by the carved subsegments splat emits
-# (no postprocess pass). A hand-written `linker_script_extra.ld` may add
-# per-symbol selectors for #include-coalesced TUs. The old slinky.ld
-# pipeline lived on the retired `retail` branch (deleted 2026-07-29).
-LDSCRIPT = ROOT / "config" / f"ico.{VERSION}.ld"
-LDSCRIPT_EXTRA = ROOT / "config" / f"ico.{VERSION}.linker_script_extra.ld"
-AUTO_FUNCS = ROOT / "config" / f"undefined_funcs_auto.{VERSION}.txt"
-AUTO_SYMS = ROOT / "config" / f"undefined_syms_auto.{VERSION}.txt"
-EXTRA_SYMS = ROOT / "config" / f"undefined_funcs_extra.{VERSION}.txt"
-
-# Per-function/per-TU compile allowlists are a RETIRED, banned matching lever
-# (CLAUDE.md "Crutches are BANNED"). extra_cflags.txt / use_old_as.txt /
-# lit4_pool_slots.txt were removed 2026-09-04 along with the code paths in
-# compile_c.sh + quick_diff.sh that read them; use_modern_as.txt went 2026-08-05
-# and no_trailing_nop / shared_sp_restore / shared_jr_restore 2026-05-31. The
-# list stays (empty) because the ninja rebuild dependency edges below are keyed
-# off it — a future always-on config would be added here, not a matching lever.
-POSTPROCESS_TXTS = []
-
-OUTPUT = ROOT / "build.ninja"
-
-ASM_RE = re.compile(r"^build/asm/(.+)\.o$")
-# Source roots that map to repo-root subdirs (matches splat's src_path: .).
-# The retail targets (us, pal) use src/ + ios/ sound/ isys/; the aug6 prototype
-# mirrors the dev's per-developer module tree (TRFILE: common/ fumi/ sugipon/
-# seki/ omori/ script/ ito/, each with src/ and subsystem subdirs). The union is
-# taken on purpose: a stray TU under another target's root still has to build.
-# Fixed union order (flat roots first), NOT per-version: discover_sidecar_objs
-# appends in this order and sidecar objects go on the link line in the order
-# they are appended, so reordering it would reorder the link.
-SOURCE_ROOTS = tuple(dict.fromkeys(
-    source_roots("us") + source_roots("pal") + source_roots("aug6")))
-SRC_RE = re.compile(rf"^build/((?:{'|'.join(SOURCE_ROOTS)})/.+)\.o$")
+LIST = "config/link_order.pal.txt"
+SCRIPT = "config/link.pal.ld"
+TABLE = "config/data_members.pal.txt"
+BASE_ELF = "baserom/pal/baseelf.elf"
+OUT = "build"
+NINJA = "build.ninja"
+LD = "tools/cc/binutils-2.10-ee/bin/ld"
+DVP_AS = "tools/cc/dvp-as/bin/dvp-as"
+LINK_LD = f"{OUT}/link.ld"
+LABELS = f"{OUT}/data_labels.txt"
+# Output sections the script can take input by input (its INCLUDE lines).
+LISTED = {"data": ".data .data.*", "rodata": ".rodata .rodata.*"}
 
 
-def mips_prefix() -> str:
-    # Probes objcopy, not as: modern binutils supply only the link and the
-    # objcopy passes here. Every object is assembled by the period ee-as.
-    if shutil.which("mips64r5900el-ps2-elf-objcopy"):
-        return "mips64r5900el-ps2-elf-"
-    return "mips-linux-gnu-"
+def fail(msg):
+    sys.exit(f"gen_ninja: {msg}")
 
 
-def parse_objs(deps_path: Path) -> list[str]:
-    """Pull the `.o` paths out of the splat-generated dependency file.
-
-    Format is a Make rule:
-        build/ico.elf: \
-            build/asm/cod/000000.o \
-            build/src/cod/0000B8.o \
-            ...
-    """
-    objs: list[str] = []
-    text = deps_path.read_text()
-    after_colon = text.split(":", 1)[1] if ":" in text else text
-    for tok in after_colon.replace("\\", " ").split():
-        if tok.endswith(".o"):
-            objs.append(tok)
-    return objs
-
-
-def discover_sidecar_objs(splat_objs: set[str]) -> list[str]:
-    """Find `.c`/`.s` source files that splat does NOT list in ico.<VERSION>.d.
-
-    Any object under a source root that isn't already emitted from the
-    splat manifest (e.g. a hand-added TU not yet wired as a subsegment)
-    still needs its `.o` listed on the link command line, so the build
-    graph must build it too. Match Make's `find src -name '*.c'`
-    discovery for everything outside the splat manifest.
-    """
-    extras: list[str] = []
-    # Walk every source root the project lays out at repo top-level (SOURCE_ROOTS:
-    # `src/` plus the original ICO sibling subsystems `ios/`, `sound/`, `isys/`
-    # for the retail targets, plus the aug6 per-developer module dirs).
-    for root_name in SOURCE_ROOTS:
-        root_dir = ROOT / root_name
-        if not root_dir.is_dir():
+def parse_list():
+    entries = []
+    for n, line in enumerate((ROOT / LIST).read_text().splitlines(), 1):
+        f = line.split("#", 1)[0].split()
+        if not f:
             continue
-        for ext in ("*.c", "*.s"):
-            for path in sorted(root_dir.rglob(ext)):
-                obj_path = "build/" + str(path.relative_to(ROOT).with_suffix(".o"))
-                if obj_path not in splat_objs:
-                    extras.append(obj_path)
-    return extras
+        kind, _, name = f[0].rpartition(":")
+        kind = kind or "src"
+        if kind not in ("src", "data"):
+            fail(f"{LIST}:{n}: unknown line form '{f[0]}'")
+        align = {}
+        for tok in f[1:]:
+            m = re.fullmatch(r"align\.(data|rodata)=(\d+)", tok)
+            if not m or kind != "src":
+                fail(f"{LIST}:{n}: bad token '{tok}'")
+            align[m.group(1)] = int(m.group(2))
+        entries.append(dict(kind=kind, name=name, align=align, line=n))
+    return entries
 
 
-def align_for(basename: str) -> int:
-    """Largest power-of-two ≤ 8 dividing the hex offset, else 8.
-
-    Mirrors Makefile:162 and tools/compile_c.sh::align_for so the
-    objcopy --set-section-alignment matches the original recipe.
-    """
-    stem = basename.split(".", 1)[0]
-    if not re.fullmatch(r"[0-9A-Fa-f]+", stem):
-        return 8
-    n = int(stem, 16)
-    if n == 0:
-        return 8
-    a = 8
-    while a > 1 and n % a != 0:
-        a //= 2
-    return a
+def table_rows():
+    rows = {}
+    for line in (ROOT / TABLE).read_text().splitlines():
+        f = line.split("#", 1)[0].split()
+        if f:
+            rows.setdefault(f[1], []).append(f"{f[1]}.{f[0]}")
+    return rows
 
 
-# Section names splat can hand a raw blob object. splat's data-blob objects are
-# named `<ROMHEX>.<section>.o` (e.g. `174700.data.o`, `453700.rodata.o`); asm
-# text blobs and textbin are plain `<ROMHEX>.o`.
-_BLOB_SECT_RE = re.compile(r"^[0-9A-Fa-f]+\.(data|rodata|lit4|sdata|sbss|bss)\.o$")
+def obj_of(src):
+    return f"{OUT}/{src.rsplit('.', 1)[0]}.o"
 
 
-def section_for(basename: str) -> str:
-    """The one ALLOC section a splat blob object owns.
-
-    Carve correctness depends on this. The period assembler gives a blob's own
-    section its own default alignment (measured 2026-09-30: 4 for `.data`,
-    `.rodata` and `.sdata`, 1 for `.bss` and `.sbss`, 4 for `.text`), which is
-    not the alignment of the object the blob stands in for: a blob starting at
-    an odd or 2-aligned ROM address would be padded forward, and one whose ROM
-    predecessor ends short of an 8-aligned start would lose that pad. Setting
-    each blob's alignment to `align_for()` (a divisor of its own ROM address,
-    so never a source of padding) reproduces both; with these flags and the VU
-    objects' 16 removed, every PROGBITS output section and .sbss mismatch.
-    See docs/NOTES.md "Data carves" (the section-alignment floor).
-    """
-    m = _BLOB_SECT_RE.match(basename)
-    if m:
-        return f".{m.group(1)}"
-    return ".text"
+def archive_as(src):
+    """compile_c.sh's per-archive assembler and -G for a source path."""
+    if re.match(r"sce/(libc|libm|libgcc)/", src):
+        return "as_old", "0"
+    if src.startswith("sce/"):
+        return "as_sdk", "0"
+    return "as_old", "8"
 
 
-def check_ld_carve_globs(ld_path: Path) -> None:
-    """Resolve or reject a per-TU/per-section carve glob emitted more than once.
+def check(entries, rows):
+    listed = set()
+    for e in entries:
+        where = f"{LIST}:{e['line']}"
+        if e["kind"] == "src":
+            if not (ROOT / e["name"]).is_file():
+                fail(f"{where}: {e['name']} does not exist")
+            if e["name"] in listed:
+                fail(f"{where}: {e['name']} is listed twice")
+            listed.add(e["name"])
+        elif e["name"] not in rows:
+            fail(f"{where}: {e['name']} is not a member in {TABLE}")
+    tracked = subprocess.run(["git", "ls-files", "--", "ico2", "sce"], cwd=ROOT,
+                             capture_output=True, text=True, check=True).stdout.split()
+    missing = [p for p in tracked if p.endswith((".c", ".s", ".S", ".dsm")) and p not in listed]
+    if missing:
+        fail(f"tracked sources missing from {LIST}:\n  " + "\n  ".join(missing))
 
-    splat emits one whole-object selector, `build/src/<tu>.o(.data*)`, per
-    dot-form carve subsegment. GNU ld assigns each input section to the FIRST
-    output statement that matches it, so a TU with TWO disjoint carved runs in
-    the SAME section produces two identical globs of which only the first is
-    live: every carved section of that TU collapses into the first run's
-    address and the link silently mislays the rest.
 
-    `.rodata` is the one section where the C build names each run: for a TU
-    with several `.rodata` carve rows tools/postprocess_split_jtbls.py puts
-    every switch jump table on its own `.rodata.0x<VMA>` section, and the k-th
-    duplicate glob is rewritten to the typed selector of the k-th row (rows in
-    address order, VMA = ROM offset + 0x100000 on this target). The unnamed
-    `.rodata` (strings, doubles, initialiser templates) and the named
-    `.rodata.<symbol>` objects go to the row marked `plain-rodata` in its yaml
-    comment, else to the first row. Since B-12 (2026-09-30) the only such TU is
-    ico2/common/src/debug_exception, whose run still has a blob row between its
-    jump table and its template. Every other section keeps the hard constraint:
-    one contiguous carved run per (TU, section), or the build stops here
-    instead of at the SHA mismatch.
-    """
-    if not ld_path.exists():
-        return
-    lines = ld_path.read_text().splitlines()
-    counts: dict[tuple[str, str], int] = {}
-    for line in lines:
-        m = re.match(r"\s*(build/\S+\.o)\((\S+?)\);", line)
-        if m:
-            counts[(m.group(1), m.group(2))] = counts.get((m.group(1), m.group(2)), 0) + 1
-    dup_rodata = {k[0] for k, n in counts.items() if n > 1 and k[1] == ".rodata*"}
-    dupes = [f"{k[0]}({k[1]})" for k, n in counts.items()
-             if n > 1 and k[1] != ".rodata*"]
-    if dupes:
-        raise SystemExit(
-            "gen_ninja: duplicate linker-script selector(s) — a TU may hold only "
-            "ONE contiguous carved run per section; the 2nd+ run is dead and its "
-            "bytes collapse into the 1st run's address:\n  "
-            + "\n  ".join(dupes)
-            + "\nMerge the runs into one contiguous carve (absorbing any "
-            "verified in-between bytes) or leave the later run in the blob."
-        )
-    if not dup_rodata:
-        return
-    yaml_path = ROOT / "config" / f"ico.{VERSION}.yaml"
-    rows: dict[str, list[int]] = {}
-    plain: dict[str, int] = {}
-    for line in yaml_path.read_text().splitlines():
-        m = re.match(r"\s*-\s*\[0x([0-9A-Fa-f]+),\s*\.rodata,\s*(\S+?)\]\s*(#.*)?$", line)
-        if m:
-            off = int(m.group(1), 16)
-            rows.setdefault(m.group(2), []).append(off)
-            if "plain-rodata" in (m.group(3) or ""):
-                plain[m.group(2)] = off
-    seen: dict[str, int] = {}
+def label_sources():
+    """The files write_labels scans: every tracked C, header and assembly source."""
+    tracked = subprocess.run(["git", "ls-files", "--", "ico2", "sce"], cwd=ROOT,
+                             capture_output=True, text=True, check=True).stdout.split()
+    return [p for p in tracked if p.endswith((".c", ".h", ".inc", ".s", ".S"))]
+
+
+def write_labels(out):
+    """Transitional: the placeholders a source still gives addresses inside the
+    extracted tables. config/data_members.pal.txt carries MAIN.MAP's names and
+    the few derived names the C reads a table by; a C or assembly file that reads
+    a table at an interior offset by a placeholder (D_<VMA>, the address is the
+    name) needs that label defined. Only names some source spells are written,
+    so the file empties as the readers take their tables' real names."""
+    rows = []
+    for line in (ROOT / TABLE).read_text().splitlines():
+        f = line.split("#", 1)[0].split()
+        if f:
+            own = set() if f[4] == "-" else {s.split("@")[0] for s in f[4].split(",")}
+            rows.append((int(f[2], 16), int(f[3], 16), own))
+    idents = set()
+    for p in label_sources():
+        idents.update(re.findall(r"\bD_[0-9A-F]{8}\b", (ROOT / p).read_text(errors="replace")))
+    lines = []
+    for name in sorted(idents):
+        addr = int(name[2:], 16)
+        if any(lo <= addr < hi and name not in own for lo, hi, own in rows):
+            lines.append(f"{name} {addr:08X}")
+    Path(out).parent.mkdir(parents=True, exist_ok=True)
+    Path(out).write_text("".join(l + "\n" for l in lines))
+
+
+def objects(e, rows):
+    if e["kind"] == "src":
+        return [obj_of(e["name"])]
+    return [f"{OUT}/data/{k}.o" for k in rows[e["name"]]]
+
+
+def inputs_ld(entries, rows, sec):
+    """build/<sec>.inputs.ld: the section input by input, or empty when no
+    line needs more than the script's wildcard."""
+    if not any(sec in e["align"] for e in entries):
+        return ""
     out = []
-    for line in lines:
-        m = re.match(r"(\s*)(build/(\S+)\.o)\(\.rodata\*\);", line)
-        if m and m.group(2) in dup_rodata:
-            tu = m.group(3)
-            k = seen.get(tu, 0); seen[tu] = k + 1
-            offs = sorted(rows.get(tu, []))
-            if k >= len(offs):
-                raise SystemExit(f"gen_ninja: {tu}: more .rodata selectors than carve rows")
-            vma = offs[k] + 0x100000
-            # `[A-Za-z_]` keeps the named objects and excludes the `0x...` jump-table names
-            plain_here = (plain.get(tu) == offs[k]) if tu in plain else (k == 0)
-            named = f".rodata.0x{vma:08X}"
-            sel = (f".rodata {named} .rodata.[A-Za-z_]*" if plain_here else named)
-            line = f"{m.group(1)}{m.group(2)}({sel});"
-        out.append(line)
-    ld_path.write_text("\n".join(out) + "\n")
+    for e in entries:
+        for o in objects(e, rows):
+            if sec in e["align"]:
+                out.append(f". = ALIGN({e['align'][sec]});")
+            out.append(f"*{o}({LISTED[sec]})")
+    return "\n".join(out) + "\n"
 
 
-def align_data_rows(ld_path: Path) -> None:
-    """Give every data-kind input the alignment its own ROM address proves.
-
-    The period assembler puts no 16-byte floor on `.data` or `.rdata`: an
-    object's section carries the largest alignment of its members (16 for a
-    jump table or an aligned vector, 8 for a double or a record, 1 for a
-    string), and ld pads the previous input up to it. Our objects only know
-    their own members, and the split-out jump tables and per-object `.data.*`
-    sections lose the alignment the original single section had, so a carved
-    object followed by a 16-aligned neighbour comes up short by the pad. The
-    ROM address of every row is a fact: aligning each data-kind input to the
-    largest power of two (capped at 16) that divides its own address pads a
-    short predecessor exactly as the original neighbour did and can never
-    pad past the input's own address. Text keeps its natural placement so a
-    function's missing trailing words stay visible.
-    """
-    if not ld_path.exists():
-        return
-    yaml_path = ROOT / "config" / f"ico.{VERSION}.yaml"
-    rows: dict[tuple[str, str], list[int]] = {}
-    for line in yaml_path.read_text().splitlines():
-        m = re.match(r"\s*-\s*\[0x([0-9A-Fa-f]+),\s*\.?(data|rodata|lit4|sdata|sbss|bss),\s*(\S+?)\]", line)
-        if m:
-            rows.setdefault((m.group(3), m.group(2)), []).append(int(m.group(1), 16))
-    for k in rows:
-        rows[k].sort()
-    seen: dict[tuple[str, str], int] = {}
+def expand_includes(script):
+    """config/link.pal.ld with each INCLUDE line replaced by the file it names:
+    ld 2.10 reads INCLUDE only at the top level of a script."""
     out = []
-    for line in ld_path.read_text().splitlines():
-        m = re.match(r"(\s*)build/(\S+?)\.o\((\.[a-z0-9]+)", line)
+    for line in (ROOT / script).read_text().splitlines(keepends=True):
+        m = re.fullmatch(r"(\s*)INCLUDE\s+(\S+)\s*", line)
         if m:
-            indent, obj, sect = m.group(1), m.group(2), m.group(3)
-            kind = sect.lstrip(".")
-            if kind in ("data", "rodata", "lit4", "sdata", "sbss", "bss"):
-                bm = re.match(r"asm/data/(cod/[0-9A-Fa-f]+)\.(\w+)$", obj)
-                if bm:
-                    off = int(bm.group(1).split("/")[1], 16)
-                else:
-                    key = (obj, kind)
-                    k = seen.get(key, 0)
-                    seen[key] = k + 1
-                    offs = rows.get(key, [])
-                    off = offs[k] if k < len(offs) else None
-                if off:
-                    align = 16
-                    while align > 4 and off % align:
-                        align //= 2
-                    if align > 4:
-                        out.append(f"{indent}. = ALIGN({align});")
-        out.append(line)
-    ld_path.write_text("\n".join(out) + "\n")
-
-
-def source_for(obj_path: str) -> tuple[str, str]:
-    """Map `build/<sub>/<stem>.o` to its source `.c` or `.s` and the rule name.
-
-    Returns (source_path, rule_name). Asm objects always use `as_asm`.
-    Source objects probe the filesystem: `.c` (cc_src) or `.s` (as_hasm).
-    """
-    m = ASM_RE.match(obj_path)
-    if m:
-        return f"asm/{m.group(1)}.s", "as_asm"
-
-    m = SRC_RE.match(obj_path)
-    if m:
-        # `stem` already includes the source-root prefix (e.g. "cod/000110"
-        # or "ico2/fumi/ios/cdvd") since YAML names are repo-root-relative.
-        stem = m.group(1)
-        c_path = ROOT / f"{stem}.c"
-        s_path = ROOT / f"{stem}.s"
-        if c_path.exists():
-            return f"{stem}.c", "cc_src"
-        if s_path.exists():
-            return f"{stem}.s", "as_hasm"
-        raise SystemExit(
-            f"gen_ninja: no source for {obj_path} (looked for {c_path} and {s_path})"
-        )
-
-    raise SystemExit(f"gen_ninja: unrecognized object path {obj_path}")
-
-
-def emit_header(out, prefix: str) -> None:
-    out.write("# Auto-generated by tools/gen_ninja.py — do not edit by hand.\n")
-    out.write("# Regenerate via `tools/build.sh setup` or by touching one of\n")
-    out.write("# the listed regen inputs and running `ninja` again.\n\n")
-    out.write("ninja_required_version = 1.10\n\n")
-    out.write("root = .\n")
-    out.write("builddir = build\n\n")
-    out.write(f"mips_ld = {prefix}ld\n")
-    out.write(f"mips_objcopy = {prefix}objcopy\n")
-    # The period ee-as 2.9-991111 bundled with the compiler assembles every
-    # object here: the splat data blobs and the hand-written VU1 microprogram
-    # `.s` (since 2026-09-15; modern gas assembled those two classes until then).
-    # C TUs go through tools/compile_c.sh, which selects the assembler PER
-    # ARCHIVE by the disc's link (user ruling 2026-09-27, docs/NOTES.md
-    # "Assembler per archive"): the SDK-install sce/ archives on SCE's 2.10-ee
-    # assembler, everything else on ee-as 2.9-991111. Only `ld` and `objcopy`
-    # stay on modern binutils: the period toolchain ships no linker.
-    # Flags mirror compile_c.sh's EE_ASFLAGS; ee-as 2.9 has no -march or
-    # -no-pad-sections, it takes -mcpu and pads nothing on its own. -mabi=eabi is
-    # the driver's default assembler option; ld takes the output's ABI bit from
-    # the first input, crt0.o, which this rule assembles. -Iinclude stays for
-    # the splat blobs' `.include "labels.inc"`.
-    out.write("ee_as = tools/period_env.sh tools/cc/ee-gcc2.9-991111/bin/as\n")
-    out.write("asflags = -EL -mcpu=5900 -mabi=eabi -G 8 -Iinclude\n\n")
-
-
-def emit_rules(out) -> None:
-    out.write("rule gen_ninja\n")
-    # Pin the active VERSION into the self-regen command. Detection alone would
-    # be enough in a normal tree, but an explicit VERSION= override on the
-    # generating run must survive into the ninja-triggered regen — otherwise the
-    # manifest silently flips back to the tree's detected target mid-build.
-    out.write(f"  command = VERSION={VERSION} .venv/bin/python tools/gen_ninja.py\n")
-    out.write("  description = GEN build.ninja\n")
-    out.write("  generator = 1\n\n")
-
-    out.write("rule as_asm\n")
-    out.write(
-        "  command = $ee_as $asflags -o $out $in && "
-        "$mips_objcopy $alignflags $out\n"
-    )
-    out.write("  description = AS $out\n\n")
-
-    out.write("rule as_hasm\n")
-    out.write(
-        "  command = $ee_as $asflags -o $out $in && "
-        "$mips_objcopy $alignflags $out\n"
-    )
-    out.write("  description = AS $out\n\n")
-
-    # A developer's `.s` beside a `c` row takes its archive's assembler and -G,
-    # as compile_c.sh gives a C member (and tools/gen_ninja_plain.py a `.s`):
-    # the SDK-install sce/ archives on SCE's 2.10-ee assembler at -G 0, libc,
-    # libm and libgcc on ee-as 2.9-991111 at -G 0, the game on ee-as at -G 8.
-    out.write("rule as_src\n")
-    out.write("  command = $ee_as $asflags -o $out $in\n")
-    out.write("  description = AS $out\n\n")
-    out.write("rule as_src_lib\n")
-    out.write("  command = $ee_as -EL -mcpu=5900 -mabi=eabi -G 0 -o $out $in\n")
-    out.write("  description = AS $out\n\n")
-    out.write("rule as_src_sdk\n")
-    out.write("  command = tools/period_env.sh tools/cc/ee-gcc2.96/bin/as -EL -mcpu=5900 -mabi=eabi -G 0 -o $out $in\n")
-    out.write("  description = AS $out\n\n")
-
-    out.write("rule cc_src\n")
-    out.write("  command = tools/compile_c.sh $in $out\n")
-    out.write("  description = CC $out\n\n")
-
-    out.write("rule link\n")
-    out.write("  command = $mips_ld $ldflags -o $out $objs\n")
-    out.write("  description = LD $out\n\n")
-
-    out.write("rule objcopy_rom\n")
-    out.write("  command = $mips_objcopy -O binary --gap-fill=0x00 $in $out\n")
-    out.write("  description = OBJCOPY $out\n\n")
-
-    out.write("rule verify_rom\n")
-    # check_elf.py --gate: every allocated section of the built ELF against the
-    # base ELF by address (bytes for PROGBITS, address and size for NOBITS) and
-    # the ROM's SHA-1 against config/sha1sums.txt's baseelf.rom row. It reads
-    # build/ico.elf and the link map beside the ROM.
-    out.write(
-        "  command = .venv/bin/python tools/check_elf.py --gate "
-        f"--map build/ico.{VERSION}.map --rom $in && touch $out\n"
-    )
-    out.write("  description = VERIFY $in\n\n")
-
-
-_HASM_NAMES: set[str] | None = None
-
-
-def hasm_names() -> set[str]:
-    """Names of the yaml's `hasm` rows (the hand-typed VU1 microprograms)."""
-    global _HASM_NAMES
-    if _HASM_NAMES is None:
-        yaml_path = ROOT / "config" / f"ico.{VERSION}.yaml"
-        _HASM_NAMES = set()
-        for line in yaml_path.read_text().splitlines():
-            m = re.match(r"\s*-\s*\[0x[0-9A-Fa-f]+,\s*hasm,\s*(\S+?)\]", line)
-            if m:
-                _HASM_NAMES.add(m.group(1))
-    return _HASM_NAMES
-
-
-def _stem_of(obj_path: str) -> str:
-    m = SRC_RE.match(obj_path)
-    return m.group(1) if m else ""
-
-
-def emit_edges(out, objs: list[str]) -> None:
-    for obj in objs:
-        src, rule = source_for(obj)
-        align = align_for(Path(obj).name)
-        sect = section_for(Path(obj).name)
-        if rule == "as_hasm" and _stem_of(obj) in hasm_names():
-            # The VU1 microprograms are the ROM's own .vutext output section,
-            # which the shipped ELF aligns to 16 (readelf: .vutext at 0x289BD0,
-            # align 16). Our link folds them behind the last .text object, so
-            # their input section carries that alignment itself; without it the
-            # twelve bytes between .text's end (0x289BC4) and .vutext are lost as
-            # soon as the last text function is C rather than a padded stub.
-            # A `.s` beside a `c` row (crt0, klib, the R5900 string members)
-            # is a developer's source and keeps the alignment its own `.align`
-            # directives give its sections, as a compiled object does.
-            align = 16
-        if rule == "cc_src":
-            out.write(f"build {obj}: cc_src {src}\n")
-        elif rule == "as_hasm" and _stem_of(obj) not in hasm_names():
-            if re.match(r"sce/(libc|libm|libgcc)/", src):
-                rule = "as_src_lib"
-            elif src.startswith("sce/"):
-                rule = "as_src_sdk"
-            else:
-                rule = "as_src"
-            out.write(f"build {obj}: {rule} {src}\n")
+            out.append((ROOT / m.group(2)).read_text())
         else:
-            # Own section: aligned to a divisor of its own ROM address (never a
-            # source of padding). The other standard sections the assembler
-            # emits are left as it made them: measured 2026-09-30, forcing them
-            # to 1 was byte-dead (the empty .data/.bss already carry 1, and the
-            # empty .text of a data blob carries 4 and places nothing).
-            flags = f"--set-section-alignment {sect}={align}"
-            out.write(f"build {obj}: {rule} {src}\n  alignflags = {flags}\n")
-    out.write("\n")
+            out.append(line)
+    return "".join(out)
 
 
-def emit_link(out, objs: list[str]) -> None:
-    ld_inputs = [str(LDSCRIPT.relative_to(ROOT))]
-    ldflag_parts = ["-EL", "-T", str(LDSCRIPT.relative_to(ROOT))]
-    for opt_ld in (LDSCRIPT_EXTRA, AUTO_FUNCS, AUTO_SYMS, EXTRA_SYMS):
-        if opt_ld.exists():
-            rel = str(opt_ld.relative_to(ROOT))
-            ld_inputs.append(rel)
-            ldflag_parts.extend(["-T", rel])
-    ldflag_parts.extend(
-        ["--no-check-sections", "--no-warn-mismatch", "-Map", f"build/ico.{VERSION}.map"]
-    )
-
-    objs_line = " ".join(objs)
-    deps_line = " ".join(ld_inputs)
-    out.write(f"build build/ico.elf: link {objs_line} | {deps_line}\n")
-    out.write(f"  ldflags = {' '.join(ldflag_parts)}\n")
-    out.write(f"  objs = {objs_line}\n\n")
-
-    out.write("build build/ico.rom: objcopy_rom build/ico.elf\n\n")
-    out.write("build build/.verified: verify_rom build/ico.rom\n\n")
-    out.write("default build/.verified\n\n")
-
-
-def emit_regen(out) -> None:
-    inputs = ["tools/gen_ninja.py", str(DEPS_FILE.relative_to(ROOT))]
-    for txt in POSTPROCESS_TXTS:
-        inputs.append(f"config/{txt}")
-    inputs_line = " $\n    ".join(inputs)
-    out.write(f"build build.ninja: gen_ninja | $\n    {inputs_line}\n\n")
-
-
-def main() -> int:
-    if not DEPS_FILE.exists():
-        print(
-            f"gen_ninja: {DEPS_FILE} missing — run `tools/build.sh setup` first",
-            file=sys.stderr,
-        )
-        return 1
-
-    check_ld_carve_globs(LDSCRIPT)
-    align_data_rows(LDSCRIPT)
-
-    splat_objs = parse_objs(DEPS_FILE)
-    if not splat_objs:
-        print(f"gen_ninja: no .o entries found in {DEPS_FILE}", file=sys.stderr)
-        return 1
-    sidecar_objs = discover_sidecar_objs(set(splat_objs))
-    all_objs = splat_objs + sidecar_objs
-
-    prefix = mips_prefix()
-
-    with OUTPUT.open("w") as out:
-        emit_header(out, prefix)
-        emit_rules(out)
-        emit_edges(out, all_objs)
-        emit_link(out, all_objs)
-        emit_regen(out)
-
-    print(
-        f"gen_ninja: wrote {OUTPUT.relative_to(ROOT)} "
-        f"({len(splat_objs)} splat + {len(sidecar_objs)} sidecar = {len(all_objs)} objects)"
-    )
+def main():
+    if sys.argv[1:2] == ["--labels"]:
+        write_labels(sys.argv[2])
+        return 0
+    entries = parse_list()
+    rows = table_rows()
+    check(entries, rows)
+    for sec in LISTED:
+        p = ROOT / OUT / f"{sec}.inputs.ld"
+        p.parent.mkdir(parents=True, exist_ok=True)
+        p.write_text(inputs_ld(entries, rows, sec))
+    (ROOT / LINK_LD).write_text(expand_includes(SCRIPT))
+    w = []
+    w.append(f"# Generated by tools/gen_ninja.py from {LIST}; do not edit.\n"
+             f"ninja_required_version = 1.10\nbuilddir = {OUT}\n"
+             f"ld = {LD}\ndvp_as = {DVP_AS}\nobjcopy = mips-linux-gnu-objcopy\npy = .venv/bin/python\n"
+             "as_old = tools/period_env.sh tools/cc/ee-gcc2.9-991111/bin/as\n"
+             "as_sdk = tools/period_env.sh tools/cc/ee-gcc2.96/bin/as\n"
+             "asflags = -EL -mcpu=5900 -mabi=eabi\n"
+             f"ldcmd = $ld -EL --oformat elf32-littlemips -T {LINK_LD} --no-warn-mismatch\n\n")
+    w.append(f"rule gen\n  command = $py tools/gen_ninja.py\n  generator = 1\n"
+             "  description = GEN $out\n\n"
+             "rule cc\n  command = tools/compile_c.sh $in $out\n  description = CC $out\n\n")
+    for r in ("as_old", "as_sdk"):
+        w.append(f"rule {r}\n  command = ${r} $asflags -G $gnum -o $out $in\n  description = AS $out\n\n")
+    w.append("rule vu\n  command = cd ico2 && ../$dvp_as -no-abicalls -mabi=64 -o ../$out $dsm\n"
+             "  description = VU $out\n\n"
+             f"rule data\n  command = $py tools/extract_data.py --only $key --out-dir {OUT}/data"
+             f" --extra-labels {LABELS} --assemble > /dev/null\n  description = DATA $out\n\n"
+             "rule labels\n  command = $py tools/gen_ninja.py --labels $out\n"
+             "  description = LABELS $out\n\n"
+             f"rule link\n  command = $ldcmd -Map {OUT}/ico.pal.map -o {OUT}/ico.syms.elf $in"
+             f" && $ldcmd -s -o {OUT}/ico.elf $in\n  description = LD $out\n\n"
+             "rule rom\n  command = $objcopy -O binary --gap-fill=0 $in $out\n  description = ROM $out\n\n"
+             f"rule verify\n  command = $py tools/check_elf.py --gate --elf {OUT}/ico.elf"
+             f" --map {OUT}/ico.pal.map --rom $in && touch $out\n  description = VERIFY $in\n\n")
+    link = []
+    for e in entries:
+        for o in objects(e, rows):
+            link.append(o)
+            if e["kind"] == "src" and e["name"].endswith(".c"):
+                w.append(f"build {o}: cc {e['name']}\n")
+            elif e["kind"] == "src" and e["name"].endswith(".dsm"):
+                w.append(f"build {o}: vu {e['name']} | {DVP_AS}\n"
+                         f"  dsm = {Path(e['name']).relative_to('ico2')}\n")
+            elif e["kind"] == "src":
+                rule, gnum = archive_as(e["name"])
+                w.append(f"build {o}: {rule} {e['name']}\n  gnum = {gnum}\n")
+            else:
+                key = Path(o).stem
+                w.append(f"build {o}: data {TABLE} | tools/extract_data.py {BASE_ELF} {LABELS}\n"
+                         f"  key = {key}\n")
+    w.append(f"build {LABELS}: labels {' '.join(label_sources())} | {LIST} {TABLE}"
+             " tools/gen_ninja.py\n")
+    w.append(f"\nbuild {OUT}/ico.syms.elf {OUT}/ico.elf: link {' '.join(link)} | {LINK_LD} {LD}\n"
+             f"build {OUT}/ico.rom: rom {OUT}/ico.elf\n"
+             f"build {OUT}/.verified: verify {OUT}/ico.rom | tools/check_elf.py\n"
+             f"default {OUT}/.verified\n"
+             f"build {NINJA} {OUT}/data.inputs.ld {OUT}/rodata.inputs.ld {LINK_LD}: gen | "
+             f"tools/gen_ninja.py {LIST} {TABLE} {SCRIPT}\n")
+    (ROOT / NINJA).write_text("".join(w))
+    n = {k: sum(e["kind"] == k for e in entries) for k in ("src", "data")}
+    toks = sum(len(e["align"]) for e in entries)
+    print(f"gen_ninja: wrote {NINJA} ({len(link)} objects: {n['src']} sources, "
+          f"{n['data']} data members, {toks} align tokens)")
     return 0
 
 

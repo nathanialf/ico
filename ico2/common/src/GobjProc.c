@@ -6,7 +6,9 @@
 #include "gobj.h"
 #include "gobj_process.h"
 
-extern int D_0063C0C8;
+/* .sdata, owned by GobjProc.o (VMA 0x63C0C8..0x63C0CC; MAIN.MAP names no
+   symbol in the run): the number of entries in gobj_table. */
+static int gobjCount = 0; /* derived name */
 
 /* .bss, owned by GobjProc.o and reached only from this file (MAIN.MAP names no
    symbol in the run): the table of created game objects, 208 entries. */
@@ -17,12 +19,12 @@ extern void isysGObjLinkCameraDL(void *a0, int a1, int a2, int a3, unsigned int 
 
 void ResetGObjProc(void)
 {
-    D_0063C0C8 = 0;
+    gobjCount = 0;
 }
 
 int GetMaxGObj(void)
 {
-    return D_0063C0C8;
+    return gobjCount;
 }
 
 int GetGObjP(int idx)
@@ -33,7 +35,7 @@ int GetGObjP(int idx)
 int GetGObjId(int a0)
 {
     int i;
-    for (i = 0; i < D_0063C0C8; i++) {
+    for (i = 0; i < gobjCount; i++) {
         if (a0 == (int)gobj_table[i]) {
             return i;
         }
@@ -44,7 +46,7 @@ int GetGObjId(int a0)
 void PrintGObjID(int a0)
 {
     int i;
-    for (i = 0; i < D_0063C0C8; i++) {
+    for (i = 0; i < gobjCount; i++) {
         if (a0 == (int)gobj_table[i]) {
             debug_StdPrintfDummy("%d\n", i);
         }
@@ -84,7 +86,7 @@ inline PObjGObj *CreateGObjByFuncSet(int a0, int a1, int a2, int a3, int a4, int
     g->f08 = -1;
     g->kind = -1;
     g->f16C = 1;
-    gobj_table[D_0063C0C8++] = g;
+    gobj_table[gobjCount++] = g;
     isysGObjProcAdd(g, a1, 1, 0x16);
     isysGObjProcAdd(g, a2, 1, 0x17);
     isysGObjProcAdd(g, a3, 1, 0x18);

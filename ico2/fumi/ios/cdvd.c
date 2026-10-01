@@ -399,9 +399,6 @@ void iosCdvdMgrSearchFile(char *self)
     }
 }
 
-extern int stagePreLoadSectorCnt;
-extern int stagePreLoadLsn;
-
 void iosCdvdMgrStStart(char *self)
 {
     int total;

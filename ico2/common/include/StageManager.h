@@ -31,4 +31,26 @@ void StageManager(void);
 /* The preload buffer cdvd.c's stream reads the next stage's file through. */
 extern char stagePreLoadBuff[];
 
+/* The movie switches main.c's loop reads and the stage thread sets: the movie
+   playing, its decoder started, the stage it returns to, its first colour,
+   resources being freed, and the stage thread's wakeup request. */
+extern int mpegPlay;
+extern int mpegInitDone;
+extern int mpegPlayReturnStage;
+extern unsigned int mpegPlayInitColor;
+extern int stageManagerFreeResourceFlag;
+extern int stgMgrWakeupRequest;
+
+/* The next stage's preload, cdvd.c's stream reads it back. */
+extern int stagePreLoadStageNo;
+extern int stagePreLoadReadOffset;
+extern int stagePreLoad2ndReadOffset;
+extern int stagePreLoadLsn;
+extern int stagePreLoadSectorCnt;
+
+/* The fade-in speed main.c hands the switch after a movie, and the number of
+   exits stgmgrNextStagePreLoadEntry collected. */
+extern float mpegPlayFadeInSpeed;
+extern int stageExitDataCnt;
+
 #endif /* STAGEMANAGER_H */

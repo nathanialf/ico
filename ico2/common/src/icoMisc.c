@@ -39,9 +39,13 @@
 #include "thread.h"
 
 extern int debug_bar_flag;
-extern unsigned int D_0063B428;
-extern char D_0063B430[];
-extern char D_0063B438[];
+
+/* .sdata, owned by icoMisc.o (VMA 0x63B428..0x63B494, 0x6C B = MAIN.MAP), in
+   the ROM's order: the partition bar's backdrop tint, then
+   disp_memory_partition_bar's "e" and "%10s"; ExecIcoMisc's three state words;
+   InitIcoMisc's four, then its "MOTION1".."MOTION3" and "%s\n"; the six debug
+   words dbgC0..dbgC5 (MAIN.MAP globals, declared in icoMisc.h). */
+static unsigned int partitionBarTint = 0x80FFFFFF; /* derived name */
 
 /* .data, owned by icoMisc.o (MAIN.MAP sizes the run 0x30 and names no symbol
    in it): the partition bar's two line colours and the wind-field line colour,
@@ -139,7 +143,7 @@ void disp_memory_partition_bar(void)
     if (debug_bar_flag == 2) {
         gif_SetAlpha(1, 2, 32);
         gif_MakeSpriteNoTexture((-(ScreenWidth >> 1) + 2178) << 4, (ScreenHeight / 2 + 1898) << 4,
-                                (ScreenWidth - 200) << 4, 768, 0xFFFFFFFF, &D_0063B428, 1);
+                                (ScreenWidth - 200) << 4, 768, 0xFFFFFFFF, &partitionBarTint, 1);
     }
     gif_SetAlpha(1, 2, 112);
     for (j = 0, k = 0; j < max; j += 0x100000) {
@@ -167,7 +171,7 @@ void disp_memory_partition_bar(void)
                         "DISP_MEMORY_PARTITION_BAR():\n\tINVALID MEMORY FREE AREA INDICATED IN PARTITION \"%s\"\n\tMALLOCED MEMORY'S NEXT_FREE: %p\n",
                         p + 0x10, e);
                     debug_assertMessage(__FILE__, 609, buf);
-                    __assert(__FILE__, 609, D_0063B430);
+                    __assert(__FILE__, 609, "e");
                 }
             } while (e != 0);
         }
@@ -201,7 +205,7 @@ void disp_memory_partition_bar(void)
         p = parts[i];
         debug_PrintfDummy(ScreenWidth / 2 - (ScreenWidth >> 1) + 30,
                           (ScreenHeight / 2 - 150 + ScreenHeight / 2 + i * 18) / 2, 0xFFFFFF80,
-                          D_0063B438, p + 0x10);
+                          "%10s", p + 0x10);
     }
 }
 
@@ -239,9 +243,12 @@ void disp_memory_partition(void)
     }
 }
 
-extern int D_0063B448;
-extern int D_0063B444;
-extern int D_0063B440;
+static int prevCameraPos = 0; /* derived name */
+
+static int seEnvMute = 0; /* derived name */
+
+static int diskErrorBlink = 0; /* derived name */
+
 /* kept local: agrees with main.h, which this TU does not include (boyGObj, girlGObj differ) */
 extern int graphics_ready;
 /* kept local: agrees with main.h, which this TU does not include (boyGObj, girlGObj differ) */
@@ -281,10 +288,10 @@ void ExecIcoMisc(void)
         debug_SESlotDisp();
     }
     if (iosCdvdDiskStatusGet() != 0) {
-        if (D_0063B448++ < 15) {
+        if (diskErrorBlink++ < 15) {
             debug_PrintfDummy(250, 100, 0xFF000000, (int)"DISK ERROR");
-        } else if (D_0063B448 >= 31) {
-            D_0063B448 = 0;
+        } else if (diskErrorBlink >= 31) {
+            diskErrorBlink = 0;
         }
     }
     if (iopBuffOver != 0) {
@@ -319,12 +326,12 @@ void ExecIcoMisc(void)
         soundSeEnvMasterVolRate = scpSeEnvMasterVolRate;
         ExecSpiderGroupManager();
         ExecGameOverEffect();
-        D_0063B444 = 0;
+        seEnvMute = 0;
     } else {
         if (current_layout_id == 28) {
-            D_0063B444 = 1;
+            seEnvMute = 1;
         }
-        if (D_0063B444 != 0) {
+        if (seEnvMute != 0) {
             soundSeEnvMasterVolRate = 0.0f;
         } else if (scpSeEnvMasterVolRate > 0.5f) {
             soundSeEnvMasterVolRate = 0.5f;
@@ -336,12 +343,12 @@ void ExecIcoMisc(void)
             warpGirlOutStage(stage_no, 1);
         }
         cam = GetCameraPos();
-        if (D_0063B440 == 0) {
+        if (prevCameraPos == 0) {
             if (cam != 0) {
                 soundSeEnvPlay();
             }
         }
-        D_0063B440 = cam;
+        prevCameraPos = cam;
         if (cam != 0) {
             soundReqTickProc();
             scpGirlHintVoiceTickProc(cam);
@@ -405,19 +412,19 @@ extern int frame_count;
 extern int graphics_ready;
 /* kept local: agrees with main.h, which this TU does not include (boyGObj, girlGObj differ) */
 extern int stage_no;
-extern unsigned char D_0063B44C;
-extern int D_0063B450;
-extern int D_0063B454;
-extern int D_0063B458;
+
+static unsigned char setActorsDebugPending = 1; /* derived name */
+
+static int charFileManagerReady = 0; /* derived name */
+
+static int commonPackLoaded = 0; /* derived name */
+
+static int loadedMotionSeg = -1; /* derived name */
 
 /* .sbss, owned by icoMisc.o (MAIN.MAP does not name it: the member has no
    named sbss symbols); the frame stamp the load-time report below prints. */
 static int load_time;
 
-extern char D_0063B460[];
-extern char D_0063B468[];
-extern char D_0063B470[];
-extern char D_0063B478[];
 extern void InitializeStaticBlur(void);
 /* kept local: agrees with flyManager.h, which this TU does not include */
 extern void InitFlyManager(void);
@@ -453,9 +460,9 @@ void InitIcoMisc(int *arg)
         scpBoyControlReadDisable = 0;
         systemStatus[4] = 0;
     }
-    if (thisIsYourStartStage != 1 && D_0063B44C != 0) {
+    if (thisIsYourStartStage != 1 && setActorsDebugPending != 0) {
         ACTGame_SetActors_Debug(stage, 0);
-        D_0063B44C = 0;
+        setActorsDebugPending = 0;
     }
     debug_StdPrintfDummy("Init Object Light\n");
     light_InitLight();
@@ -463,48 +470,48 @@ void InitIcoMisc(int *arg)
     enemy_Initialize();
     debug_StdPrintfDummy("Init Packing Data\n");
     load_time = frame_count;
-    if (D_0063B450 == 0) {
+    if (charFileManagerReady == 0) {
         InitCharFileManager();
     } else {
         ResetCharFileManager();
     }
-    D_0063B450 = 1;
+    charFileManagerReady = 1;
     debug_StdPrintfDummy("InitCharFIleManager out\n");
     pack = LoadFileType;
-    if (D_0063B454 == 0) {
+    if (commonPackLoaded == 0) {
         debugCdvdLoadInfoSegInit(0);
         iosCdvdLoadPackFile(pack, GetDataFileName(-1, pack), 0);
         kanbanInit(0);
         kanbanBootInit();
-        D_0063B454 = 1;
+        commonPackLoaded = 1;
     }
     if (stage_no == 1) {
         kanbanBootStart();
     }
-    if (D_0063B458 != stageData[stage].mot) {
+    if (loadedMotionSeg != stageData[stage].mot) {
         /* the listing's dispatch tests ==2, <3, ==3 in that order: case 1 shares
            the default arm, which is what puts a low-bound test in the tree */
         switch (stageData[stage].mot) {
         case 1:
         default:
-            fname = GetDataFileName2(D_0063B460, pack);
+            fname = GetDataFileName2("MOTION1", pack);
             break;
         case 2:
-            fname = GetDataFileName2(D_0063B468, pack);
+            fname = GetDataFileName2("MOTION2", pack);
             break;
         case 3:
-            fname = GetDataFileName2(D_0063B470, pack);
+            fname = GetDataFileName2("MOTION3", pack);
             break;
         }
-        if (D_0063B458 != -1) {
+        if (loadedMotionSeg != -1) {
             /* "this stage uses a different motion segment from the previous one" */
             debug_StdPrintfDummy(
                 "\033[33mこのステージは前のステージと異なるモーションセグメントを使用します。\033[m\n");
-            ResetStatic2MotionManager(D_0063B458);
+            ResetStatic2MotionManager(loadedMotionSeg);
         }
         iosMallocResetPartition(ios_partition_s2motion);
         iosCdvdLoadPackFile(pack, fname, 0);
-        D_0063B458 = stageData[stage].mot;
+        loadedMotionSeg = stageData[stage].mot;
     }
     debug_StdPrintfDummy("iosCdvdLoadPackFile\n");
     debugCdvdLoadInfoSegInit(1);
@@ -521,7 +528,7 @@ void InitIcoMisc(int *arg)
     debug_StdPrintfDummy("InitSceneObjects( %d )\n", stage);
     InitSceneObjects(stage);
     InitWindManager(stage);
-    debug_StdPrintfDummy(D_0063B478, stageData[stage_no].name);
+    debug_StdPrintfDummy("%s\n", stageData[stage_no].name);
     init_layout_texture(stage);
 
     found = 0;
@@ -572,6 +579,18 @@ void InitIcoMisc(int *arg)
     systemStatus[6] = 0;
     iosThreadDestroy(0);
 }
+
+int dbgC0 = 0;
+
+int dbgC1 = 0;
+
+int dbgC2 = 0;
+
+int dbgC3 = 0;
+
+int dbgC4 = 0;
+
+int dbgC5 = 0;
 
 static int windLineColor[4] = {0, 128, 255, 128}; /* derived name */
 

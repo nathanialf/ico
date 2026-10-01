@@ -10,7 +10,8 @@
 # Columns: <section> <member> <rom_lo> <rom_hi> <symbol>@<offset>,...
 #   section   the section the bytes occupy in the retail ELF
 #   rom_lo/hi VMA range [lo, hi) in baserom/pal/baseelf.elf (rom offset + 0x100000)
-#   symbols   MAIN.MAP's names for the member, offset from rom_lo; "-" for none
+#   symbols   MAIN.MAP's names for the member, offset from rom_lo; "-" for none.
+#             The three unmapped runs carry the derived name their C reader uses.
 #
 # Derivation. MAIN.MAP is a DIFFERENT, older link: no address below comes from
 # it. It gives each member's order, size and symbols. The retail link loads the
@@ -43,7 +44,8 @@ data camera-set 0x2ad010 0x2adaf0 cameraSetList@0x0
 # game-param: C:act-game.c float D_002ADAF0[] (_ACTGame_GetParamF). ROM span 0xb0 != MAIN.MAP 0x90 (+32 B)
 data game-param 0x2adaf0 0x2adba0 gameParam@0x0
 # unmapped_002ADBA0: C:lws_kyomi.c struct HintDef D_002ADBA0; no MAIN.MAP member; float run of game-param ends at 0x2adba0. not in MAIN.MAP; span 0x1c0
-data unmapped_002ADBA0 0x2adba0 0x2add60 -
+# the label is hintTable, lws_kyomi.c's derived name for it (MAIN.MAP has no name for this run)
+data unmapped_002ADBA0 0x2adba0 0x2add60 hintTable@0x0
 # motion-orient: C:commonact.c/motionOrientManager.c D_002ADD60. ROM span 0xe760 != MAIN.MAP 0xc8d0 (+7824 B)
 data motion-orient 0x2add60 0x2bc4c0 motionOrient@0x0
 # node-fix-ofs: C:commonact.c ClingRec D_002BC4C0 (clingData). size = MAIN.MAP 0x21c + 4 B fill before next
@@ -77,7 +79,8 @@ data model-path 0x4fba80 0x5339c0 modelData@0x0
 # prog-se-link: C:frameDependSequence.c SePackage D_005339C0. ROM span 0x600 != MAIN.MAP 0x5c4 (+60 B)
 data prog-se-link 0x5339c0 0x533fc0 progSELink@0x0
 # unmapped_00533FC0: C:boy.c MotSyncPair D_00533FC0; no MAIN.MAP member; progSELink's -1 terminator ends at 0x533fc0. not in MAIN.MAP; span 0x28
-data unmapped_00533FC0 0x533fc0 0x533fe8 -
+# the label is motSyncPairs, boy.c's derived name for it (MAIN.MAP has no name for this run)
+data unmapped_00533FC0 0x533fc0 0x533fe8 motSyncPairs@0x0
 # texture-layout: C:layout_texture.c LtProp D_00533FE8. ROM span 0x1180 != MAIN.MAP 0x1068 (+280 B)
 data texture-layout 0x533fe8 0x535168 texLayout@0x0
 # texture-path: C:layout_texture.c char D_00535168[][0x34] (kanban, charFileManager ReadTextureFile); MAP puts texture-path in .rodata. ROM span 0xf08 != MAIN.MAP 0x680 (+2184 B); MAIN.MAP section .rodata; the last 35 B are zero (fill or table tail)
@@ -109,7 +112,8 @@ rodata idle-mot-def 0x55f7a0 0x55f824 idlingDef@0x0
 # init-func: C:cdvd.c PackKind D_0055F828, debug.c. size = MAIN.MAP 0x3a8
 rodata init-func 0x55f828 0x55fbd0 initFunc@0x0
 # unmapped_0055FBD0: C:jimaku.c char D_0055FBD0[][32] (text/data_EG01.jim ...); no MAIN.MAP member. not in MAIN.MAP; span 0x140
-rodata unmapped_0055FBD0 0x55fbd0 0x55fd10 -
+# the label is jimakuFileName, jimaku.c's derived name for it (MAIN.MAP has no name for this run)
+rodata unmapped_0055FBD0 0x55fbd0 0x55fd10 jimakuFileName@0x0
 # look-target-data: C:act-game.c int D_0055FD10[][3]. ROM span 0x148 != MAIN.MAP 0x12c (+28 B); the last 27 B are zero (fill or table tail)
 rodata look-target-data 0x55fd10 0x55fe58 lookTargetData@0x0
 # motion-def: C:act-game.c MotionRec D_0055FE58 (motionOrientManager.c too). ROM span 0x713b0 != MAIN.MAP 0x6bd00 (+22192 B)
@@ -202,3 +206,11 @@ rodata way-group 0x62b648 0x635fc0 wayGroupSheet@0x0
 # ---- .sdata: after 0x63b670, before 0x63b678 (a_p_1 .sdata (still in blob cod/53B518))
 # staffroll_dat: pointer targets: 780 staffRollNameData words point at 0x63b670; a_p_1's .data points at 0x63b678; staffRollNameOut's gp load at 0x63b674. ROM span 0x8 != MAIN.MAP 0x10 (-8 B); staffRollNameDataNum: MAIN.MAP offset 0xc, ROM 0x4 (staffRollNameOut gp load at 0x63b674)
 sdata staffroll_dat 0x63b670 0x63b678 staffRollNameDataNum@0x4
+
+# ---- .sbss: after boyact.o's run (0x63C1F0..0x63C204), before enemy_act.o's (0x63C208)
+# TRANSITIONAL: owner ico2/fumi/src/enemy_act, carve pending. Four zero bytes no code reads: the
+# fill before enemy_act.o's .sbss, which the ROM starts 8-aligned (MAIN.MAP's January link has the
+# same *fill* before its 4-byte run). The 4-byte brainTarget is 8-aligned in the developer's object;
+# typing it as an aggregate gives the alignment but moves ChangeBrain_ToAttack's else arm (see
+# .claude/.decomp_stash/finish/reports/P1-12.md). No placeholder labels: nothing names these bytes.
+sbss transitional_0063C204 0x63c204 0x63c208 -

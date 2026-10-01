@@ -20,6 +20,10 @@ extern void *gameSysMemoryFuncList[];
 extern int gamesysStageExitTime[];
 extern GamesysObjInfo gameSysObjInfo[];
 extern char gameSysMainSaveBuff[];
+extern int gamesysTimeCount;
+extern int gamesysAnotherStageTsuresari;
+extern int gamesysVersionDiff;
+extern int gamesysObjBuffOver;
 
 int gamesysGetGirlStageIDAndPosition(int a0);
 void gamesysMemoryHandlerRead(int *self, int a1, int a2);

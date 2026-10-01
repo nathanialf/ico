@@ -117,9 +117,6 @@ extern void iosThreadStart(void *th);
 extern void iosThreadSleep(void);
 void idle(void);
 void scheduler(void);
-extern int mpegPlay;
-extern int stageManagerFreeResourceFlag;
-extern int stgMgrWakeupRequest;
 /* kept local: void (int) here, int (void) in libgraph.h */
 extern void sceGsSyncV(int mode);
 /* kept local: int (void *) here, int (int *) in thread.h */
@@ -127,10 +124,6 @@ extern int iosThreadCancelWakeup(void *th);
 /* kept local: int (void *) here, int (int *) in thread.h */
 extern int iosThreadWakeup(void *th);
 extern char movieFile[];
-extern int mpegInitDone;
-extern int mpegPlayInitColor;
-extern int mpegPlayReturnStage;
-extern float mpegPlayFadeInSpeed;
 /* gsb_ResetSnap and gsb_TakeSnap return a value the callers drop, and the ROM
    proves it here: the load that follows each of the two calls takes $3, not
    $2, because local-alloc still has $2 live over the load's birth index for

@@ -1,20 +1,19 @@
 #!/usr/bin/env bash
 # tools/build.sh — top-level orchestration for the ICO decomp.
 #
-# Version-generic: the target slug and every per-version path (splat yaml,
-# base ROM, linker script, asm root) come from tools/ico_version.sh —
-# `main` = PAL retail (pal), `ntsc` = USA retail (us), `aug6` = the
-# Aug-6-2001 prototype (aug6). Override with VERSION=<slug> for ad-hoc runs.
+# The target slug and the base ELF/ROM paths come from tools/ico_version.sh
+# (`main` = PAL retail, slug pal). Override with VERSION=<slug> for ad-hoc runs.
 #
-# Inner-loop build is `ninja` (or `.venv/bin/ninja` if not on PATH).
-# This script only handles one-shots that don't belong in the build
-# graph: baserom verification, splat, progress regeneration.
+# Inner-loop build is `ninja` (or `.venv/bin/ninja` if not on PATH): every
+# object from its own source, linked by config/link.pal.ld in the order of
+# config/link_order.pal.txt (tools/gen_ninja.py writes build.ninja). This
+# script only handles the one-shots that do not belong in the build graph.
 #
 # Subcommands:
-#   setup       Verify baserom SHA-1 + run splat + regen build.ninja.
-#   split       Just re-run splat (no baserom check, no build.ninja regen).
+#   setup       Verify the base ELF and ROM SHA-1s + write build.ninja.
+#   regen       Just rewrite build.ninja.
 #   clean       rm -rf build/.
-#   distclean   clean + remove splat-emitted asm and config artifacts.
+#   distclean   clean + remove build.ninja and ninja's state.
 #   progress    Regenerate progress tables (README, docs/PROGRESS.md, docs/progress.json).
 
 set -eu
@@ -23,99 +22,26 @@ ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 cd "${ROOT}"
 
 VENV_PY="${ROOT}/.venv/bin/python"
-SPLAT="${ROOT}/.venv/bin/splat"
 
-# One branch per target: `main` = PAL retail (pal), `ntsc` = USA retail (us),
-# `aug6` = the Aug-6-2001 prototype (aug6). The slug and every per-version path
-# come from tools/ico_version.sh, which detects them from which
-# config/ico.<ver>.yaml this working tree carries. VERSION stays overridable via
-# env for ad-hoc targets; exported so child tools (gen_ninja.py, splat's own
-# callees) see the same slug.
 # shellcheck source=tools/ico_version.sh
 . "${ROOT}/tools/ico_version.sh"
 ico_version_init "${ROOT}"
 VERSION="${ICO_VERSION}"
 export VERSION
-# The base ROM (objcopy -O binary view) lives beside the base ELF: baserom/ for
-# us, baserom/<ver>/ for pal and aug6 — same gitignored, branch-shared working
-# tree. Overridable via env for ad-hoc targets.
+BASEELF="${BASEELF:-${ICO_BASEELF}}"
 BASEROM="${BASEROM:-${ICO_ROM}}"
-SPLAT_YAML="config/ico.${VERSION}.yaml"
-LDSCRIPT="config/ico.${VERSION}.ld"
-DEPS_FILE="config/ico.${VERSION}.d"
-AUTO_FUNCS="config/undefined_funcs_auto.${VERSION}.txt"
-AUTO_SYMS="config/undefined_syms_auto.${VERSION}.txt"
 
 regen_ninja() {
-    echo "==> regenerating build.ninja"
+    echo "==> writing build.ninja"
     "${VENV_PY}" tools/gen_ninja.py
 }
 
-split() {
-    # ICO patches the installed splat (.c.inc scanning, aug6 layout,
-    # sub-word data tails) and UNAPPLIES the retired $ACC/$Q sigil
-    # rewrite if present. The patches die on every `pip install`, so
-    # re-apply (idempotent) here.
-    "${VENV_PY}" tools/patch_splat.py
-    # Remove the previous run's linker script and build graph first: if splat
-    # fails (a malformed symbol row, a bad yaml row) nothing stale is left for
-    # ninja to link, so the failure cannot masquerade as a placement mismatch
-    # (2026-09-27: a colon in a symbol_addrs comment did exactly that).
-    rm -f "${LDSCRIPT}" build.ninja
-    echo "==> running splat against ${SPLAT_YAML}"
-    if ! "${SPLAT}" split "${SPLAT_YAML}"; then
-        echo "build.sh: splat FAILED; ${LDSCRIPT} and build.ninja removed, fix config/ and re-run setup" >&2
-        exit 2
-    fi
-    # This target is a clean, raw round-trip: splat reproduces the original layout
-    # byte-for-byte via config (align: 0x80, .reginfo subseg) + the
-    # patch_splat.py aug6 layout/sub-word-tail patches. There is deliberately
-    # NO linker-script post-processing and NO data->typed-C migration — data is
-    # placed by per-TU yaml carving + dot-form subsegments, and noncontiguous
-    # data blocks land via the carved selectors splat emits in a single pass.
-    # The old postprocess/slinky machinery lived on the retired `retail`
-    # branch (deleted 2026-07-29); this rebuild deliberately has none.
-    #
-    # box.o: functions written in shipped-VMA order across box.c + the
-    # block-#included src/switch.c (BOX_SWBLK guards), so the default single
-    # .text glob lays them out correctly — no -ffunction-sections, no
-    # trace-reorder postprocess.
-    echo "==> ${VERSION}: raw pipeline (no postprocess, no data-migration)"
-}
-
 setup() {
-    echo "==> clean build/ (full rebuild — incremental ninja silently retains stale .o files when only .h/.s deps change, masking yaml-flip / coalesce regressions)"
+    echo "==> clean build/ (full rebuild)"
     rm -rf build .ninja_log .ninja_deps
-    echo "==> verifying base ROM SHA-1"
+    echo "==> verifying the base ELF and ROM SHA-1s"
+    "${VENV_PY}" tools/verify_elf.py --target "${BASEELF}"
     "${VENV_PY}" tools/verify_elf.py --target "${BASEROM}"
-    echo "==> assembling the VU1 microprograms (ico2/vusrc/*.dsm) with dvp-as for splat's hasm rows"
-    # dvp-as (ps2dev's DVP assembler, built by tools/setup.sh) assembles each
-    # program from ico2/ on the path vusrc/<stem>.dsm, as the plain build's vu
-    # rule does. splat's hasm row ico2/<stem> reads ico2/<stem>.s (gitignored),
-    # written here as the object's .vutext bytes in .word lines under the
-    # program's global label; splat's link script takes that row's .text*, so
-    # the ROM's .vutext is the dvp-as output byte for byte.
-    local vu_objcopy=mips-linux-gnu-objcopy
-    command -v mips64r5900el-ps2-elf-objcopy >/dev/null && vu_objcopy=mips64r5900el-ps2-elf-objcopy
-    mkdir -p build/vu
-    for dsm in ico2/vusrc/*.dsm; do
-        stem=$(basename "${dsm%.dsm}")
-        # VU microprogram global symbol: TitleCase(stem, split on '_') + MicroProgram
-        # e.g. cluster→ClusterMicroProgram, normal_c→NormalCMicroProgram
-        sym=$("${VENV_PY}" -c "import sys;print(''.join(w.title() for w in sys.argv[1].split('_'))+'MicroProgram')" "$stem")
-        (cd ico2 && ../tools/cc/dvp-as/bin/dvp-as -no-abicalls -mabi=64 -o "../build/vu/${stem}.o" "vusrc/${stem}.dsm")
-        "${vu_objcopy}" -O binary -j .vutext "build/vu/${stem}.o" "build/vu/${stem}.bin"
-        "${VENV_PY}" - "build/vu/${stem}.bin" "$sym" "ico2/${stem}.s" <<'PY'
-import sys
-body = open(sys.argv[1], "rb").read()
-sym = sys.argv[2]
-lines = ['.section .text,"ax"', "", f".global {sym}", f".type {sym}, @function", f"{sym}:", f"    .ent {sym}"]
-lines += [f"    .word 0x{int.from_bytes(body[i:i + 4], 'little'):08X}" for i in range(0, len(body), 4)]
-lines += [f"    .size {sym}, . - {sym}", f"    .end {sym}", ""]
-open(sys.argv[3], "w").write("\n".join(lines))
-PY
-    done
-    split
     regen_ninja
 }
 
@@ -125,14 +51,6 @@ do_clean() {
 
 do_distclean() {
     do_clean
-    # Purge splat's emitted asm but keep the TRACKED per-function baselines
-    # under <asm_root>/nonmatchings/ (asm/ for us and pal, asm/aug6/ for the
-    # prototype — the yaml's own asm_path, via tools/ico_version.sh).
-    find "${ICO_ASM_ROOT}" -type f -name '*.s' \
-         ! -path "${ICO_ASM_ROOT}/nonmatchings/*" -delete
-    find "${ICO_ASM_ROOT}" -type d -empty ! -path "${ICO_ASM_ROOT}" \
-         ! -path "${ICO_ASM_ROOT}/nonmatchings*" -delete 2>/dev/null || true
-    rm -f "${LDSCRIPT}" "${AUTO_FUNCS}" "${AUTO_SYMS}" "${DEPS_FILE}"
     rm -f build.ninja .ninja_log .ninja_deps
 }
 
@@ -145,7 +63,6 @@ do_progress() {
 cmd="${1:-help}"
 case "$cmd" in
     setup)      setup ;;
-    split)      split ;;
     regen)      regen_ninja ;;
     clean)      do_clean ;;
     distclean)  do_distclean ;;
@@ -154,11 +71,10 @@ case "$cmd" in
         cat <<EOF
 usage: $0 <subcommand>
 
-  setup       verify base ROM, run splat, regenerate build.ninja
-  split       re-run splat only (no baserom verify, no build.ninja regen)
-  regen       regenerate build.ninja from config/ico.${VERSION}.d
+  setup       verify the base ELF and ROM, write build.ninja
+  regen       rewrite build.ninja from config/link_order.${VERSION}.txt
   clean       rm -rf build/
-  distclean   clean + delete splat-emitted asm and config artifacts
+  distclean   clean + delete build.ninja and ninja's state
   progress    regenerate README, docs/PROGRESS.md and docs/progress.json
 
 Build with: ninja

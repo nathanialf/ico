@@ -1,5 +1,6 @@
 #include "typedef.h"
 #include "debug.h"
+#include "StageManager.h"
 #include "gflag.h"
 #include "layout_action.h"
 #include <string.h>
@@ -110,7 +111,6 @@ typedef struct LtProperty {
 
 extern LtProperty texProperty[];
 extern StgPre stageData[];
-extern int mpegPlayReturnStage;
 
 /* The 0x38-byte layout property records this TU shares with src/kanban. */
 typedef struct LtProp {

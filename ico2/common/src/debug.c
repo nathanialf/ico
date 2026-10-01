@@ -755,7 +755,6 @@ extern DbgReverbPad D_0028F8F0[];
 /* clang-format on */
 
 extern StgPre stageData[];
-extern int mpegPlayReturnStage;
 
 /* memory-card request block */
 /* one sceMcTblGetDir record: the file name sits at +0x20 in a 0x40-byte entry

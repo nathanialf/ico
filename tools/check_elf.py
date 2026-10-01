@@ -6,10 +6,10 @@ derive progress from that comparison and the link map.
               .vutext .data .rodata .lit4 .sdata; a zero-sized one such as
               .vudata is listed and trivially passes) the built ELF must hold
               the same bytes at the same addresses. The built ELF's section
-              names do not matter (today everything sits inside `.cod`), only
+              names do not matter, only
               addresses. For the NOBITS sections (.sbss .bss) the built ELF
               must allocate the base's address range; the share of it owned
-              by an object outside build/asm/ is reported. Then the ROM SHA-1
+              by an object under build/ico2/ or build/sce/ is reported. Then the ROM SHA-1
               against config/sha1sums.txt (gated) and the ELF SHA-1 (reported,
               gated only with --require-elf-sha). A second, informational
               table compares .reginfo, the .DVP.* sections, e_flags, e_entry,
@@ -23,8 +23,8 @@ derive progress from that comparison and the link map.
               the base's (NOBITS: ownership only, there is nothing to
               compare). `*fill*` rows are credited to the input section that
               follows them, since it is that section's alignment that the
-              linker padded for. Objects under build/data/ (extracted data
-              tables, none today) are counted separately as `extracted`.
+              linker padded for. Objects under build/data/ (the extracted
+              data-only members) are counted separately as `extracted`.
 
   --full-diff The whole file, built vs base, for the ELF-identity work: ELF
               header fields side by side, program headers, section headers
@@ -35,7 +35,7 @@ derive progress from that comparison and the link map.
               reports; it gates nothing and needs no map.
 
 Inputs: build/ico.elf, build/ico.<ver>.map (written by the link, see
-tools/gen_ninja.py emit_link), the base ELF and config/sha1sums.txt.
+tools/gen_ninja.py), the base ELF and config/sha1sums.txt.
 """
 
 from __future__ import annotations
@@ -233,8 +233,6 @@ def _rel(p: Path) -> str:
 def owner_class(obj: str | None) -> str:
     if obj is None:
         return "none"
-    if obj.startswith("build/plain/"):      # the plain link's objects
-        obj = "build/" + obj[len("build/plain/"):]
     if obj.startswith(OWNED_ROOTS):
         return "owned"
     if obj.startswith(EXTRACTED_ROOT):

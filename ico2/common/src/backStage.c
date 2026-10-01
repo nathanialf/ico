@@ -16,7 +16,9 @@
 #include "geometryManager.h"
 #include "layout_texture.h"
 
-extern int D_0063ACF0;
+/* .sdata, owned by backStage.o (VMA 0x63ACF0..0x63ACFC): the enemy the heroine is
+   carried off by, then backStageProcessOutStage's "%d\n" (MAIN.MAP global). */
+int backStageGirlTargetEnemyGop = 0;
 
 /* .sbss, owned by backStage.o and reached only from this file (MAIN.MAP names
    no symbol in the run).  The off-stage kidnap state, in the ROM's run order,
@@ -96,6 +98,7 @@ extern GenGeoRec objLayout[];
    the carrier walks to. */
 static float nestPos[4];
 
+/* kept local: agrees with gamesys.h, which this TU does not include (gameSysObjInfo, gamesysMemoryHandlerRead differ) */
 extern int gamesysAnotherStageTsuresari;
 /* kept local: agrees with main.h, which this TU does not include (girlGObj differ) */
 extern int stage_no;
@@ -132,10 +135,10 @@ extern int systemStatus[];
 /* kept local with gamesys.h's declaration, which this TU does not include */
 /* kept local: agrees with gamesys.h, which this TU does not include (gameSysObjInfo, gamesysMemoryHandlerRead differ) */
 extern int gamesysStageExitTime[];
+/* kept local: unsigned int here, int in gamesys.h */
 extern unsigned int gamesysTimeCount;
 /* kept local: int here, GObj * in main.h */
 extern int girlGObj;
-extern char D_0063ACF8[];
 /* kept local: void (float *, float, int) here, int (float *, int, float) in way_kidnap.h */
 extern void WayPointWithRangeFromPos(float *pos, float range, int flag);
 /* kept local: int (int) here, void * (int) in gobj.h */
@@ -147,7 +150,7 @@ extern int isysGObjSearchFromObjLayoutID(int id);
 
 inline void backStageProcessInit(void)
 {
-    D_0063ACF0 = 0;
+    backStageGirlTargetEnemyGop = 0;
     kidnapObjIdx = -1;
     kidnapState = 0;
     pinchTold = 0;
@@ -420,7 +423,7 @@ void backStageProcessInStage(float arg)
             40.0f;
     if (arg != 0.0f) {
         range = arg;
-        debug_StdPrintfDummy(D_0063ACF8, (int)(*(long long *)&gameSysObjInfo[1] >> 1) & 1);
+        debug_StdPrintfDummy("%d\n", (int)(*(long long *)&gameSysObjInfo[1] >> 1) & 1);
     } else {
         if (gamesysStageExitTime[stage_no] == 0) {
             return;
@@ -433,8 +436,8 @@ void backStageProcessInStage(float arg)
     if (limit < range) {
         range = limit;
     }
-    if (D_0063ACF0 == 0 && IsGirlEscortedInCurrentStage() == 0 && gflagChk(394) == 0 &&
-        gameSysObjInfo[1].stage == stage_no && warpGirlInStageSet == 0) {
+    if (backStageGirlTargetEnemyGop == 0 && IsGirlEscortedInCurrentStage() == 0 &&
+        gflagChk(394) == 0 && gameSysObjInfo[1].stage == stage_no && warpGirlInStageSet == 0) {
         /* the heroine is not held, so the position is changed at random */
         debug_StdPrintfDummy("ヒロイン捕まっていないのでランダムで位置変更");
         if (gflagChk(391) == 0) {
@@ -444,7 +447,7 @@ void backStageProcessInStage(float arg)
     gobj = isysGObjSearchFromObjKindID_begin(4);
     while (gobj != 0) {
         if (isEnemyKidnapEnable(gobj) != 0) {
-            if (D_0063ACF0 != gobj) {
+            if (backStageGirlTargetEnemyGop != gobj) {
                 /* the heroine is not held */
                 debug_StdPrintfDummy("ヒロイン捕まってない");
                 if (gflagChk(391) == 0 && InqCapsuleGhostBossStage() == 0) {
@@ -469,18 +472,20 @@ void backStageProcessInStage(float arg)
                         rest = nestDist - ratio;
                     }
                     GetRootPosition(root.f, girlGObj);
-                    SetDirectRootPosition(D_0063ACF0, root.f);
+                    SetDirectRootPosition(backStageGirlTargetEnemyGop, root.f);
                     if (0.0f < nestDist) {
-                        routeSetPos(D_0063ACF0, t, pos.f, rest / nestDist);
+                        routeSetPos(backStageGirlTargetEnemyGop, t, pos.f, rest / nestDist);
                     } else {
                         /* no route to the nest was found, so it is placed at the nest directly */
                         debug_StdPrintfDummy("巣までの経路がみつからないので直接巣に配置");
-                        routeSetPos(D_0063ACF0, t, pos.f, 1.0f);
+                        routeSetPos(backStageGirlTargetEnemyGop, t, pos.f, 1.0f);
                     }
                     debug_StdPrintfDummy("set pos %f %f %f\n", pos.f[0], pos.f[1], pos.f[2]);
                     pos.f[1] =
-                        pos.f[1] - *(float *)(*(int *)(*(int *)(D_0063ACF0 + 0x15C) + 0x8C) + 0x14);
-                    SetDirectRootPosition(D_0063ACF0, pos.f);
+                        pos.f[1] -
+                        *(float *)(*(int *)(*(int *)(backStageGirlTargetEnemyGop + 0x15C) + 0x8C) +
+                                   0x14);
+                    SetDirectRootPosition(backStageGirlTargetEnemyGop, pos.f);
                 }
             }
         }
@@ -490,7 +495,7 @@ void backStageProcessInStage(float arg)
 
 void backStageSave(void *a0)
 {
-    gamesysMemoryHandlerWrite(a0, &D_0063ACF0, 4);
+    gamesysMemoryHandlerWrite(a0, &backStageGirlTargetEnemyGop, 4);
     gamesysMemoryHandlerWrite(a0, &kidnapState, 4);
     gamesysMemoryHandlerWrite(a0, &kidnapTime, 4);
     gamesysMemoryHandlerWrite(a0, &carryTime, 4);
@@ -503,7 +508,7 @@ void backStageSave(void *a0)
 
 void backStageLoad(void *a0)
 {
-    gamesysMemoryHandlerRead(a0, &D_0063ACF0, 4);
+    gamesysMemoryHandlerRead(a0, &backStageGirlTargetEnemyGop, 4);
     gamesysMemoryHandlerRead(a0, &kidnapState, 4);
     gamesysMemoryHandlerRead(a0, &kidnapTime, 4);
     gamesysMemoryHandlerRead(a0, &carryTime, 4);

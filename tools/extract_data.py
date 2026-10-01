@@ -39,7 +39,9 @@ from pathlib import Path
 from elftools.elf.elffile import ELFFile
 
 ROOT = Path(__file__).resolve().parent.parent
-SECTIONS = ("data", "rodata", "sdata")
+SECTIONS = ("data", "rodata", "sdata", "sbss")
+# Sections with no file bytes: the row is that many zero bytes, written as .space.
+NOBITS = ("sbss",)
 EE_AS = ROOT / "tools/cc/ee-gcc2.9-991111/bin/as"
 PERIOD_ENV = ROOT / "tools/period_env.sh"
 EE_ASFLAGS = ["-EL", "-mcpu=5900", "-G", "8"]
@@ -73,6 +75,8 @@ def rom_bytes(elf, lo, hi, section):
     base, size = s["sh_addr"], s["sh_size"]
     if not (base <= lo and hi <= base + size):
         sys.exit(f"0x{lo:x}..0x{hi:x} is outside the base ELF's .{section} (0x{base:x}..0x{base + size:x})")
+    if section in NOBITS:
+        return bytes(hi - lo)
     return s.data()[lo - base:hi - base]
 
 
@@ -106,6 +110,16 @@ def render(row, data, extra):
     for names in labels.values():
         for name in names:
             out.append(f"    .globl {name}")
+    if row["section"] in NOBITS:
+        a = lo
+        for b in sorted(labels) + [hi]:
+            if b > a:
+                out.append(f"    .space {b - a}  # {a:08X}")
+                a = b
+            for name in labels.get(b, []):
+                out.append(f"{name}:")
+        out.append("")
+        return "\n".join(out)
     a = lo
     while a < hi:
         for name in labels.get(a, []):
@@ -136,7 +150,10 @@ def assemble_and_check(src, row, data):
     with open(obj, "rb") as fh:
         e = ELFFile(fh)
         s = e.get_section_by_name("." + row["section"])
-        got = s.data() if s is not None else b""
+        if row["section"] in NOBITS:
+            got = bytes(s["sh_size"]) if s is not None else b""
+        else:
+            got = s.data() if s is not None else b""
         for other in (".data", ".rodata", ".sdata", ".text"):
             t = e.get_section_by_name(other)
             if other != "." + row["section"] and t is not None and t["sh_size"]:

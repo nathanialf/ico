@@ -9,10 +9,22 @@ extern int GetMaxGObj(void);
 extern int GetGObjP(); /* unprototyped: C89 default int return, a GObj handle */
 /* kept local: agrees with GobjProc.h, which this TU does not include (GetGObjP differ) */
 extern int GetGObjId(int gobj);
-extern int D_0063B404;
-extern int *D_0063B408;
-extern int D_0063B40C;
-extern int D_0063B410;
+
+/* .sdata, owned by debug_menu.o (VMA 0x63B400..0x63B414, 0x14 B; MAIN.MAP's
+   January run is 0x10 and names no symbol in it), the "object target" menu's
+   state in the ROM's order: a word nothing in the ROM reads, the camera target
+   to restore on cancel, the object being targeted, the display word saved from
+   it, and the blink counter. */
+static int debugMenuUnusedWord = 0; /* derived name */
+
+static int savedCameraTarget = 0; /* derived name */
+
+static int *targetGObj = 0; /* derived name */
+
+static int savedDispWord = 0; /* derived name */
+
+static int targetBlinkCount = 0; /* derived name */
+
 /* kept local: int here, GObj * in main.h */
 extern int CurrentTargetGObj;
 
@@ -37,33 +49,33 @@ int debug_TargetGObj(int reset)
     n = GetMaxGObj();
     if (reset != 0) {
         int t = CameraGetTarget();
-        D_0063B408 = 0;
-        D_0063B404 = t;
+        targetGObj = 0;
+        savedCameraTarget = t;
         targetGObjIdx = GetGObjId(t);
     }
     ret = debug_SelectCsvWindowVal((int)"object target", 0xA, 0x3C, 0xA, n, (int)&targetGObjIdx,
                                    (int (*)(int, int))debug_TargetGObj_Func, 0);
-    if (D_0063B408 != (int *)GetGObjP(targetGObjIdx)) {
+    if (targetGObj != (int *)GetGObjP(targetGObjIdx)) {
         CameraSetMode(2);
-        CameraChangeTargetParallel((int)D_0063B408, GetGObjP(targetGObjIdx));
-        if (D_0063B408 != 0) {
-            D_0063B408[0x14] = D_0063B40C;
+        CameraChangeTargetParallel((int)targetGObj, GetGObjP(targetGObjIdx));
+        if (targetGObj != 0) {
+            targetGObj[0x14] = savedDispWord;
         }
-        D_0063B408 = (int *)GetGObjP(targetGObjIdx);
-        D_0063B40C = D_0063B408[0x14];
+        targetGObj = (int *)GetGObjP(targetGObjIdx);
+        savedDispWord = targetGObj[0x14];
     }
-    D_0063B408 = (int *)GetGObjP(targetGObjIdx);
-    CurrentTargetGObj = (int)D_0063B408;
-    Camctrl_SetTarget((int)D_0063B408, 0, 3);
+    targetGObj = (int *)GetGObjP(targetGObjIdx);
+    CurrentTargetGObj = (int)targetGObj;
+    Camctrl_SetTarget((int)targetGObj, 0, 3);
     debug_PrintfDummy(16, 16, 0xFFFFFFFF, "GObj address:%p", CurrentTargetGObj);
-    if ((D_0063B410++ & 7) == 0) {
-        D_0063B408[0x14] = ~D_0063B408[0x14];
+    if ((targetBlinkCount++ & 7) == 0) {
+        targetGObj[0x14] = ~targetGObj[0x14];
     }
     if (ret != 0) {
-        D_0063B408[0x14] = D_0063B40C;
+        targetGObj[0x14] = savedDispWord;
         if (ret < 0) {
-            Camctrl_SetTarget(D_0063B404, 0, 3);
-            CurrentTargetGObj = D_0063B404;
+            Camctrl_SetTarget(savedCameraTarget, 0, 3);
+            CurrentTargetGObj = savedCameraTarget;
         }
     }
     return ret;

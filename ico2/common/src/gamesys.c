@@ -107,7 +107,12 @@ void gamesysObjInfoInit(void)
     backStageProcessInit();
 }
 
-extern int gamesysTimeCount;
+/* .sdata, owned by gamesys.o (VMA 0x63B414..0x63B428, 0x14 B = MAIN.MAP), in
+   the ROM's order: the frame clock the object records are stamped with, the
+   stage the heroine's record was last seen in, the other-stage kidnap flag
+   backStage keeps, the save-version mismatch flag and the object-buffer
+   overflow flag (MAIN.MAP globals, declared in gamesys.h, but the stage). */
+int gamesysTimeCount = 0;
 
 void gamesysObjInfoSave(void *h)
 {
@@ -136,7 +141,9 @@ void gamesysObjInfoLoad(void *h)
 }
 
 /* unsigned: the ROM reads it with lhu (0x1B6928). */
-extern unsigned short D_0063B418;
+static unsigned short gamesysGirlStage = 0; /* derived name */
+
+int gamesysAnotherStageTsuresari = 0;
 
 /* RECONSTRUCTION: the January listing's whole gamesysObjInfoEmptyAreaSearch
  * (gamesys.c:356-413: search for an empty record, else the oldest one, clear
@@ -157,7 +164,7 @@ static inline GamesysObjInfo *gamesysObjInfoOldestSearch(GamesysObjInfoReq *req)
         t = 0xFFFFFFFF;
         for (i = req->start; i < req->end; i++) {
             p = &gameSysObjInfo[i];
-            if ((unsigned int)p->time < t && p->stage != stage_no && p->stage != D_0063B418) {
+            if ((unsigned int)p->time < t && p->stage != stage_no && p->stage != gamesysGirlStage) {
                 t = p->time;
                 k = i;
             }
@@ -261,7 +268,7 @@ void gamesysBackStageProcess(void)
 {
     unsigned short *h = (unsigned short *)gameSysObjInfo;
     if (h[0x21] == 0x94) {
-        D_0063B418 = h[0x22];
+        gamesysGirlStage = h[0x22];
     }
     gamesysTimeCount++;
     backStageProcessMain();
@@ -540,7 +547,9 @@ void gamesysMemoryLoad(void **tbl, int a1, void *a2)
     gflagOn(394);
 }
 
-extern int gamesysVersionDiff;
+int gamesysVersionDiff = 0;
+
+int gamesysObjBuffOver = 0;
 
 void gamesysVersionLoad(int *self)
 {

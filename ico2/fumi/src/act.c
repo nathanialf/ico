@@ -53,6 +53,11 @@ extern int isysGObjProcAddGOppArg();
 /* kept local: int here, char * in main.h */
 extern int matrixptr;
 
+/* .sdata, owned by act.o (VMA 0x63BD5C..0x63BD60, 4 B = MAIN.MAP act.o .sdata,
+   which names no symbol in it): one zero word that nothing in the ROM reads,
+   neither gp-relative nor through a %hi/%lo pair. */
+static int actUnusedWord = 0; /* derived name */
+
 #include "act.h"
 #include "enemy_act.h"
 #include <libvu0.h>

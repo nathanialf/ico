@@ -39,9 +39,21 @@ static int mvClearPacket[80];
 /* kept local: int () here, void (void *) in libgraph.h */
 extern int sceGsPutDispEnv();
 extern char voBuf[];
-extern int D_0063C0BC;
-extern int D_0063C0B4;
-extern int D_0063C0B8;
+
+/* .sdata, owned by mv_disp.o (VMA 0x63C0B4..0x63C0C8, 0x14 B = MAIN.MAP, which
+   names no symbol in it), the display state vblankHandler shares with the
+   foreground code, in the ROM's order: the vblanks counted while displaying,
+   the displaying flag, the image-done flag handler_endimage clears, the field
+   the GS reports, and the path-sync result. */
+static int dispVblankCount = 0; /* derived name */
+
+static int dispRunning = 0; /* derived name */
+
+static int dispImageDone = 0; /* derived name */
+
+static int dispField = 0; /* derived name */
+
+static int dispSyncBusy = 0; /* derived name */
 
 /* .sbss, owned by mv_disp.o and reached only from this file: the frame
    counter the display loop keeps. */
@@ -160,8 +172,6 @@ void sendDispEnv(void *a0)
     sceGsSyncPath(0, 0);
 }
 
-extern int D_0063C0C0;
-extern int D_0063C0C4;
 /* kept local: agrees with libgraph.h, which this TU does not include (sceGsPutDispEnv, sceGsSetDefDispEnv differ) */
 extern void sceGsResetPath(void);
 
@@ -170,11 +180,11 @@ void dispCreate(int *self, int a1, int a2, int a3, int a4)
     /* the five display-state words are read and written by vblankHandler on the
        vblank interrupt, so the resets are volatile here exactly as they are at
        the two sites further down this file */
-    *(volatile int *)&D_0063C0B8 = 0;
-    *(volatile int *)&D_0063C0B4 = 0;
-    *(volatile int *)&D_0063C0BC = 0;
-    *(volatile int *)&D_0063C0C0 = 0;
-    *(volatile int *)&D_0063C0C4 = 0;
+    *(volatile int *)&dispRunning = 0;
+    *(volatile int *)&dispVblankCount = 0;
+    *(volatile int *)&dispImageDone = 0;
+    *(volatile int *)&dispField = 0;
+    *(volatile int *)&dispSyncBusy = 0;
     sceGsSyncV(0);
     sceGsResetGraph(0, 1, systemStatus[0] != 0 ? 3 : 2, 1);
     sceGsResetPath();
@@ -262,13 +272,13 @@ int vblankHandler(void)
     int *tag;
     int st;
 
-    *(volatile int *)&D_0063C0C0 = (int)((*GS_CSR >> 13) & 1);
-    if (*(volatile int *)&D_0063C0B8 != 0) {
-        *(volatile int *)&D_0063C0B4 = *(volatile int *)&D_0063C0B4 + 1;
+    *(volatile int *)&dispField = (int)((*GS_CSR >> 13) & 1);
+    if (*(volatile int *)&dispRunning != 0) {
+        *(volatile int *)&dispVblankCount = *(volatile int *)&dispVblankCount + 1;
         /* the display-state words are read back by this handler and by the
            foreground code between vblanks, the file's existing idiom */
-        *(volatile int *)&D_0063C0C4 = sceGsSyncPath(1, 0);
-        if (*(volatile int *)&D_0063C0C4 == 0) {
+        *(volatile int *)&dispSyncBusy = sceGsSyncPath(1, 0);
+        if (*(volatile int *)&dispSyncBusy == 0) {
             tag = voBufGetTag(voBuf);
             if (tag == 0) {
                 mvFrameCount++;
@@ -276,15 +286,15 @@ int vblankHandler(void)
                 EI();
                 return 0;
             }
-            if (*(volatile int *)&D_0063C0C0 == 0 && tag[0] == 2) {
+            if (*(volatile int *)&dispField == 0 && tag[0] == 2) {
                 dispSwitch(display, 0);
                 loadImage((int)tag + 0x26740);
                 tag[0] = 1;
-            } else if (*(volatile int *)&D_0063C0C0 != 0 && (st = tag[0]) == 1) {
+            } else if (*(volatile int *)&dispField != 0 && (st = tag[0]) == 1) {
                 dispSwitch(display, 1);
                 loadImage((int)tag + 0x40);
                 tag[0] = 0;
-                *(volatile int *)&D_0063C0BC = st;
+                *(volatile int *)&dispImageDone = st;
             }
         }
     }
@@ -295,9 +305,9 @@ int vblankHandler(void)
 
 inline int handler_endimage(void)
 {
-    if (D_0063C0BC != 0) {
+    if (dispImageDone != 0) {
         voBufDecCount(voBuf);
-        D_0063C0BC = 0;
+        dispImageDone = 0;
     }
     SYNC();
     EI();
@@ -308,14 +318,14 @@ inline void startDisplay(int a0)
 {
     while (sceGsSyncV(0) == a0)
         ;
-    *(volatile int *)&D_0063C0B8 = 1;
+    *(volatile int *)&dispRunning = 1;
     mvFrameCount = 0;
-    *(volatile int *)&D_0063C0B4 = 0;
+    *(volatile int *)&dispVblankCount = 0;
 }
 
 inline void endDisplay(void)
 {
-    D_0063C0B8 = 0;
+    dispRunning = 0;
     mvFrameCount = 0;
 }
 

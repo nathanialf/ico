@@ -1,5 +1,6 @@
 #include "typedef.h"
 #include "debug.h"
+#include "StageManager.h"
 #include "adpcm_init.h"
 #include "Matrix.h"
 #include "main.h"
@@ -21,7 +22,6 @@ extern StgPre stageData[];
 extern void soundReverbDepthSet(int a0);
 /* kept local: void (int) here, void (void) in s_init.h */
 extern void soundSeKindBuild(int idx);
-extern int mpegPlay;
 /* kept local: void (int) here, int (int *) in thread.h */
 extern void iosThreadCancelWakeup(int mode);
 /* kept local: agrees with thread.h, which this TU does not include (iosThreadCancelWakeup differ) */

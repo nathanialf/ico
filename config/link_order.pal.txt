@@ -95,7 +95,7 @@ ico2/fumi/src/act-parallel-control.c
 ico2/fumi/src/act-wish.c
 ico2/fumi/src/boyact.c
 ico2/fumi/src/commonact.c
-blob:cod/0063C204.sbss
+data:transitional_0063C204
 ico2/fumi/src/enemy_act.c
 ico2/fumi/src/fieldCollision.c
 ico2/fumi/src/fuzio.c
@@ -185,7 +185,6 @@ data:weapon-def
 ico2/common/src/DObj.c
 ico2/common/src/StageManager.c
 ico2/common/src/backStage.c
-blob:cod/53AC98.sdata
 ico2/common/src/charFileManager.c
 ico2/common/src/debug.c
 ico2/common/src/debug_exception.c
@@ -193,7 +192,6 @@ ico2/common/src/debug_menu.c
 ico2/common/src/gamesys.c
 ico2/common/src/haveParentSimpleObj.c
 ico2/common/src/icoMisc.c
-blob:cod/53B400.sdata
 ico2/common/src/kanban.c
 ico2/common/src/kanbanBoot.c
 ico2/common/src/layout_action.c
@@ -227,7 +225,6 @@ ico2/sugipon/src/handManager.c
 ico2/sugipon/src/item.c
 ico2/sugipon/src/lineManager.c
 ico2/sugipon/src/lodManager.c
-blob:cod/51FB51.rodata
 ico2/sugipon/src/motionFileManager.c
 ico2/sugipon/src/motionManager.c
 ico2/sugipon/src/motionOrientManager.c
@@ -269,7 +266,6 @@ ico2/fumi/src/act.c
 ico2/fumi/src/act2.c
 ico2/fumi/src/seMail.c
 ico2/fumi/src/way_kidnap.c
-blob:cod/53BD40.sdata
 ico2/fumi/src/way_llf.c
 ico2/fumi/src/way_tool.c
 ico2/script/src/deja.c
@@ -320,7 +316,6 @@ ico2/ito/mpeg/mv_audiodec.c
 ico2/ito/mpeg/mv_disp.c
 ico2/ito/mpeg/mv_sub.c
 ico2/ito/mpeg/mv_vibuf.c
-blob:cod/53C090.sdata
 ico2/common/src/GobjProc.c
 data:blend-motion-def
 data:enemy-def
@@ -352,7 +347,6 @@ data:texture-path
 data:way-point
 data:weapon-fumble-def
 ico2/fumi/src/vobj.c
-blob:cod/44A294.data
 sce/libgraph/graph001.c
 sce/libgraph/graph002.c
 sce/libgraph/graph003.c

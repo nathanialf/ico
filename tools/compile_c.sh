@@ -1,12 +1,8 @@
 #!/usr/bin/env bash
 # tools/compile_c.sh <src.c> <out.o>
 #
-# Compile one C source for the ICO decomp: ee-gcc → .s → jtbl section split →
-# ee-as (per archive) → objcopy.
-# Replaces the per-recipe body of the Makefile's $(BUILD_DIR)/src/%.o
-# rule so the same path is callable from both Make (Phase 1) and Ninja
-# (Phase 2). Running all the steps inside one shell invocation avoids
-# the per-line fork overhead that Make imposed on every `.c` file.
+# Compile one C source for the ICO decomp: ee-gcc → .s → ee-as (per archive)
+# → objcopy. build.ninja's cc rule (tools/gen_ninja.py) runs it per object.
 
 set -eu
 
@@ -141,33 +137,10 @@ ASFLAGS="-EL -march=r5900 -G ${GNUM} -no-pad-sections"
 # and it sets only the EF_MIPS_ABI_EABI64 bit (0x4000) of e_flags.
 EE_ASFLAGS="-EL -mcpu=5900 -mabi=eabi -G ${GNUM}"
 
-PYTHON="${ROOT}/.venv/bin/python"
-
-BASE="$(basename "${SRC}" .c)"
-# Relative TU path without the .c (e.g. fumi/src/jimaku), with any leading
-# ROOT/ prefix stripped — the alternate config key form quick_diff.sh accepts.
-REL="${SRC%.c}"; REL="${REL#"${ROOT}/"}"
 S="${OUT%.o}.s"
-
-# Match the Makefile's `^[[:space:]]*<KEY>(<space>|<eol>|#)` pattern. KEY may be
-# the TU BASENAME (canonical) or the full TU path — both forms are honored here
-# and in quick_diff.sh so a single config line agrees across diff and build.
-listed() {
-    local txt="$1"
-    [ -r "$txt" ] || return 1
-    grep -qE "^[[:space:]]*(${BASE}|${REL})([[:space:]]|\$|#)" "$txt"
-}
 
 mkdir -p "$(dirname "${OUT}")"
 
-# TUs that include a header under `ito/include/` (e.g. mv_defs.h) must be
-# compiled so the `__FILE__` literal resolves to "../ito/include/<h>" exactly
-# as the original build did: a *relative* `-I../ito/include` evaluated from a
-# CWD one level below ROOT (so `../ito/include` == `${ROOT}/ito/include`).
-# ee-gcc records the -I spelling verbatim into __FILE__, so an absolute -I (or
-# a different CWD) would change the baked rodata string. Opt-in per TU via
-# config/include_ito.txt; all paths are made absolute since CWD changes.
-INCLUDE_ITO_TXT="${ROOT}/config/include_ito.txt"
 # ico2/<programmer>/<kind>/<file>.c : compile it the way the original build
 # did, from inside the programmer's own directory with RELATIVE -I entries to
 # the sibling programmers' include dirs. ee-gcc bakes the spelling it is given
@@ -196,12 +169,6 @@ if [ -n "${ICO2_PROG}" ]; then
     DUMP_CWD="${ROOT}/ico2/${ICO2_PROG}"
     ( cd "${ROOT}/ico2/${ICO2_PROG}" \
       && "${ROOT}/tools/period_env.sh" "${CC}" -B "${EEGCC_LIB}" ${ICO2_INCS} ${CFLAGS} -o "${S_ABS}" "${SRC_REL}" )
-elif listed "${INCLUDE_ITO_TXT}"; then
-    SRC_ABS="${SRC}"; case "${SRC_ABS}" in /*) ;; *) SRC_ABS="${ROOT}/${SRC_ABS}";; esac
-    S_ABS="${S}";    case "${S_ABS}"   in /*) ;; *) S_ABS="${ROOT}/${S_ABS}";; esac
-    # shellcheck disable=SC2086
-    DUMP_CWD="${ROOT}/ito"
-    ( cd "${ROOT}/ito" && "${ROOT}/tools/period_env.sh" "${CC}" -B "${EEGCC_LIB}" ${CFLAGS} -I../ito/include -o "${S_ABS}" "${SRC_ABS}" )
 else
     # sce/<archive>/<member>.c : the vendor archives were built member by member
     # from inside the member's own directory, so __FILE__ is the bare name
@@ -219,13 +186,6 @@ fi
 if [ -n "${DUMP_DIR:-}" ]; then
     echo "compile_c.sh: dumps in ${DUMP_DIR}" >&2
 fi
-
-# A TU with several `.rodata` carve rows (its run still has blob rows between
-# its C pieces; since B-12 only debug_exception) gets each gcc switch jtbl on
-# its own .rodata.0x<VMA> section so the linker can place it. Every other TU is
-# left as the compiler emitted it: the tool reads the yaml for the TU named by
-# SRC and does nothing for a single-row TU.
-"${PYTHON}" "${ROOT}/tools/postprocess_split_jtbls.py" "${S}" "${SRC}"
 
 # No rewrite of compiler output is left. The last one was the inline-asm return
 # wrap: ee-as 2.9-991111 swaps the final instruction of a gcc inline-asm block
@@ -251,20 +211,18 @@ fi
 # does not have (after mfc1, and after a store two insns past a c.lt.s); dropped
 # 2026-09-05, whole ROM re-verified byte-identical.
 
-# NOTE: the r5900 special VU0 registers ACC / Q / R need no translation here.
-# Both sources now speak the period assembler's dialect natively: splat emits
-# them bare (patch_splat.py's sigil rewrite is retired) and our own inline asm
-# — include/vu0.h plus the literal VU0_REG strings — was converted to the bare
-# spelling at source on 2026-08-01.
+# NOTE: the r5900 special VU0 registers ACC / Q / R need no translation here:
+# the inline asm spells them bare, the period assembler's dialect (converted at
+# source on 2026-08-01).
 
 # Assembler, selected per ARCHIVE by the disc's link (the paragraph at EE_AS_OLD
 # and docs/NOTES.md "Assembler per archive"): the game and the compiler-install
 # libraries (libc, libm, libgcc) on the assembler bundled with the compiler, the
 # SDK-install archives on SCE's 2.10-ee assembler that fills reorder-mode delay
 # slots as Sony's library build did. The assembler reads cc1's .s as it is:
-# with every function in C there are no INCLUDE_ASM siblings to flatten and no
-# splat `%gp_rel` spellings, and the former preprocess_old_as.py step was
-# measured a no-op on all 371 .s files before it was deleted (2026-09-30).
+# with every function in C there is nothing to flatten (the former
+# preprocess_old_as.py step was measured a no-op on all 371 .s files before it
+# was deleted, 2026-09-30).
 # There is no per-TU and no per-function selection and no config opt-in
 # (config/use_as296.txt was tried and reverted 2026-08-05; config/use_old_as.txt
 # retired 2026-09-04), and no modern-gas path at all (retired 2026-08-05: it
@@ -292,9 +250,8 @@ esac
 #   above, never by a fallback.
 #
 # If the selected assembler rejects this TU, that is a REAL defect in the .s to be
-# fixed at the source (past causes: splat's `enddlabel` leaving an `.ent`
-# unclosed — fixed in include/labels.inc; the $ACC/$Q/$R sigil dialect, now
-# spelled bare at source). Hard-fail so ninja
+# fixed at the source (a past cause: the $ACC/$Q/$R sigil dialect, now spelled
+# bare at source). Hard-fail so ninja
 # stops on it instead of silently producing an object from a different assembler.
 # shellcheck disable=SC2086
 if "${ROOT}/tools/period_env.sh" "${SELECTED_EE_AS}" ${EE_ASFLAGS} -o "${OUT}" "${S}" 2>"${OUT}.aserr"; then

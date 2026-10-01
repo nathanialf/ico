@@ -55,9 +55,6 @@ inline void ResetStatic2MotionManager(int a0)
    char * is our choice within that. */
 static char *motionFileBase = 0; /* derived name */
 
-extern char D_0061FB60[];
-extern char D_0061FB80[];
-
 typedef struct {
     int f0; /* 0x00 */
     int f4; /* 0x04 */
@@ -74,8 +71,9 @@ void pursueNodeList(void **node, unsigned char *type)
         ofs = (int)*node;
         switch (type[i]) {
         default:
-            debug_StdPrintfDummy(D_0061FB60, type[i]);
-            debug_StdPrintfDummy(D_0061FB80);
+            debug_StdPrintfDummy("Invalid node formatID: (%d)\n", type[i]);
+            /* "this MOB file is broken, or its version is old." */
+            debug_StdPrintfDummy("このMOBファイルは壊れているか、バージョンが古いです。\n");
             break;
         case 1:
         case 4:

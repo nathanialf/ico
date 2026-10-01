@@ -61,17 +61,7 @@ StgSlot stageExitData[15] = {0};
 extern int stage_no;
 extern StgFile D_0055C53C[];
 extern const StgPre stageData[];
-extern int stagePreLoadStageNo;
-extern int stagePreLoadReadOffset;
-extern int stagePreLoad2ndReadOffset;
-extern int D_0063ACC4;
-extern int D_0063ACC8;
-extern int D_0063ACD0;
-extern int stagePreLoadLsn;
-extern int stagePreLoadSectorCnt;
-extern int stageExitDataCnt;
 extern int stgmgrNextStagePreLoad(CdvdBgReq *bg);
-extern int D_0063ACCC;
 
 /* .sbss, owned by StageManager.o (VMA 0x63C348..0x63C350, no MAIN.MAP symbol,
    so file statics; names ours): the one-entry buffer of the stage manager's
@@ -99,7 +89,6 @@ typedef struct {
 extern StgMgrMsg stageMgrMsg;
 /* kept local: agrees with main.h, which this TU does not include (boyGObj, girlGObj differ) */
 extern int graphics_ready;
-extern unsigned int mpegPlayInitColor;
 /* kept local: agrees with main.h, which this TU does not include (boyGObj, girlGObj differ) */
 extern int db[];
 
@@ -113,16 +102,10 @@ static unsigned int initIcoMiscThread[28];
 extern void *ios_partition_root;
 /* kept local: agrees with main.h, which this TU does not include (boyGObj, girlGObj differ) */
 extern int current_stage_no;
-extern int mpegPlay;
-extern int mpegInitDone;
-extern int stageManagerFreeResourceFlag;
-extern char D_0063ACE0[];
 /* kept local: agrees with main.h, which this TU does not include (boyGObj, girlGObj differ) */
 extern int IosCdLock;
 /* kept local: agrees with main.h, which this TU does not include (boyGObj, girlGObj differ) */
 extern int IosStgMgrLock;
-extern float mpegPlayFadeInSpeed;
-extern int stgMgrWakeupRequest;
 /* kept local: agrees with jimaku.h, which this TU does not include */
 extern void jimakuEnd();
 /* kept local: agrees with main.h, which this TU does not include (boyGObj, girlGObj differ) */
@@ -146,7 +129,6 @@ extern void *boyGObj;
 /* kept local: void * here, GObj * in main.h */
 extern void *girlGObj;
 extern int jimaku_msg[];
-extern char D_0063ACB0[];
 
 #include "StageManager.h"
 #include <libgraph.h>
@@ -155,6 +137,24 @@ extern char D_0063ACB0[];
 #include <libdma.h>
 #include <string.h>
 #include "typedef.h"
+
+/* .sdata, owned by StageManager.o (VMA 0x63AC98..0x63ACF0, 0x58 B = MAIN.MAP
+   StageManager.o .sdata), in the ROM's order: the movie switches main.c's loop
+   reads, defined before stop_free_resources, whose "here\n" follows them; the
+   preload state before stgmgrNextStagePreLoad, whose "done" follows it; the fade
+   speed and the exit count last. MAIN.MAP names every global here; the four
+   file statics carry no symbol. */
+int mpegPlay = 0;
+
+int mpegInitDone = 0;
+
+int mpegPlayReturnStage = 3;
+
+unsigned int mpegPlayInitColor = 0x80000000;
+
+int stageManagerFreeResourceFlag = 0;
+
+int stgMgrWakeupRequest = 0;
 
 static void stgmgrNextStagePreLoadDiskNotReady(void);
 
@@ -191,7 +191,7 @@ void stop_free_resources(void)
     iosMallocResetPartition(ios_partition_oomori);
     iosMallocResetPartition(ios_partition_isys);
     ResetDynamicMotionManager();
-    debug_StdPrintfDummy(D_0063ACB0);
+    debug_StdPrintfDummy("here\n");
     InitDelayFree();
     girlGObj = 0;
     boyGObj = 0;
@@ -306,6 +306,24 @@ static __inline__ int stgPreLoadDebugHold(void)
 #endif
 }
 
+int stagePreLoadStageNo = 0;
+
+int stagePreLoadReadOffset = 0;
+
+int stagePreLoad2ndReadOffset = 0;
+
+static int stagePreLoadWait = 0; /* derived name */
+
+static int stagePreLoadMode = 0; /* derived name */
+
+static int stagePreLoadNoCancel = 0; /* derived name */
+
+static int stagePreLoadMgrEntry = 0; /* derived name */
+
+int stagePreLoadLsn = 0;
+
+int stagePreLoadSectorCnt = 0;
+
 int stgmgrNextStagePreLoad(CdvdBgReq *bg)
 {
     float root[4];
@@ -315,14 +333,14 @@ int stgmgrNextStagePreLoad(CdvdBgReq *bg)
     int i;
     float dist;
 
-    if (D_0063ACC4++ < 15) {
+    if (stagePreLoadWait++ < 15) {
         return 0;
     }
-    D_0063ACC4 = 0;
-    if (iosCdvdBackGroundMgrEntryNum() >= 3 && D_0063ACCC == 0) {
+    stagePreLoadWait = 0;
+    if (iosCdvdBackGroundMgrEntryNum() >= 3 && stagePreLoadNoCancel == 0) {
         return 0;
     }
-    switch (D_0063ACC8) {
+    switch (stagePreLoadMode) {
     case 0: {
         int best = -1;
 
@@ -369,7 +387,7 @@ int stgmgrNextStagePreLoad(CdvdBgReq *bg)
                              size - readSize);
         bg->f110 = 0;
         ret = iosCdvdBackGroundRead(bg, stagePreLoadBuff, readSize);
-        debug_StdPrintfDummy(D_0063ACE0);
+        debug_StdPrintfDummy("done");
         stagePreLoadSectorCnt = readSize >> 11;
         stagePreLoadStageNo = stage;
     }
@@ -379,9 +397,13 @@ int stgmgrNextStagePreLoad(CdvdBgReq *bg)
 static inline void stgmgrNextStagePreLoadDiskNotReady(void)
 {
     stagePreLoadStageNo = 0;
-    D_0063ACC4 = 0;
+    stagePreLoadWait = 0;
     stagePreLoadLsn = 0;
 }
+
+float mpegPlayFadeInSpeed = 0.0f;
+
+int stageExitDataCnt = 0;
 
 void stgmgrNextStagePreLoadEntry(int stage)
 {
@@ -402,33 +424,33 @@ void stgmgrNextStagePreLoadEntry(int stage)
     }
     ret = iosCdvdBackGroundMgrAdd("DFDATAS/COMMON.DF", stgmgrNextStagePreLoad, 0,
                                   stgmgrNextStagePreLoadDiskNotReady, 0, 0, 0, 0);
-    D_0063ACD0 = ret;
+    stagePreLoadMgrEntry = ret;
     iosCdvdBackGroundMgrNotDiskReadyPauseSet(ret, 1);
     stagePreLoadStageNo = 0;
     stagePreLoadSectorCnt = 0;
     stagePreLoadLsn = 0;
     stagePreLoadReadOffset = 0;
     stagePreLoad2ndReadOffset = 0;
-    D_0063ACC4 = 0;
-    D_0063ACC8 = 0;
+    stagePreLoadWait = 0;
+    stagePreLoadMode = 0;
 }
 
 inline void stgmgrNextStagePreLoadDistBoyMode(void)
 {
-    D_0063ACC8 = 0;
-    D_0063ACCC = 0;
+    stagePreLoadMode = 0;
+    stagePreLoadNoCancel = 0;
 }
 
 inline void stgmgrNextStagePreLoadForceStageSet(int val)
 {
     stagePreLoadForceStageNo = val;
-    D_0063ACC8 = 1;
-    D_0063ACCC = 0;
+    stagePreLoadMode = 1;
+    stagePreLoadNoCancel = 0;
 }
 
 inline void stgmgrNextStagePreLoadForceNoCancel(int val)
 {
-    D_0063ACCC = val;
+    stagePreLoadNoCancel = val;
 }
 
 void StageManager(void)
@@ -474,10 +496,10 @@ void StageManager(void)
             fightSoundClose();
             soundDataSegAllClose(0, 2);
         }
-        if (D_0063ACD0 != 0) {
-            iosCdvdBackGroundMgrDelete(D_0063ACD0);
+        if (stagePreLoadMgrEntry != 0) {
+            iosCdvdBackGroundMgrDelete(stagePreLoadMgrEntry);
         }
-        D_0063ACD0 = 0;
+        stagePreLoadMgrEntry = 0;
         if (msg->stage <= 0xFFFF) {
             exit_stage((int *)msg->stage);
             lt_switch_layout(0x35);

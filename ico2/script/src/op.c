@@ -109,7 +109,6 @@ extern int optionScreenMode;
 extern int girlControlMode;
 /* kept local: agrees with script.h, which this TU does not include (scpAdpcmPlayRequestFunc, scpPlayStart differ) */
 extern int scpBoyControlReadDisable;
-extern int mpegPlayReturnStage;
 /* kept local: agrees with script.h, which this TU does not include (scpAdpcmPlayRequestFunc, scpPlayStart differ) */
 extern int scpFadeChk(void);
 /* kept local: void (int, int, int, float) here, void (float, int, int, int) in script.h */

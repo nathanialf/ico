@@ -3,11 +3,6 @@
 #include "access.h"
 
 extern StgPre stageData[];
-extern char D_0063C090[];
-extern char D_0063C098[]; /* "DFDATAS" */
-extern char D_0063C0A0[]; /* "DF" */
-extern char D_0063C0A8[]; /* "DATAS" */
-extern char D_0063C0B0[]; /* "BIN" */
 
 /* .bss, owned by access.o and reached only from this file (MAIN.MAP names no
    symbol in the run): the path sprintf builds and this file hands back. */
@@ -24,7 +19,7 @@ char *GetDataFileName(int no, int isDF)
     char *name;
 
     if (no == -1) {
-        name = D_0063C090;
+        name = "COMMON";
     } else {
         name = stageData[no].dataFile;
     }
@@ -43,11 +38,11 @@ char *GetDataFileName2(char *name, int isDF)
     char ext[128];
 
     if (isDF) {
-        sprintf(dir, D_0063C098);
-        sprintf(ext, D_0063C0A0);
+        sprintf(dir, "DFDATAS");
+        sprintf(ext, "DF");
     } else {
-        sprintf(dir, D_0063C0A8);
-        sprintf(ext, D_0063C0B0);
+        sprintf(dir, "DATAS");
+        sprintf(ext, "BIN");
     }
 
     sprintf(accessPath, "%s/%s.%s", dir, name, ext);
