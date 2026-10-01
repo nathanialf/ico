@@ -41,7 +41,17 @@ float fmodf(float x, float y);       /* definition in sce/ */
 float sinf(float x);                 /* definition in sce/ */
 float copysignf(float a0, float a1); /* definition in sce/ */
 int isnanf(float x);                 /* definition in sce/ */
-int matherr(void *a0);               /* definition in sce/ */
+/* newlib's math.h: the record the wrappers hand matherr */
+struct exception {
+    int type;      /* 0x0 */
+    char *name;    /* 0x4 */
+    double arg1;   /* 0x8 */
+    double arg2;   /* 0x10 */
+    double retval; /* 0x18 */
+    int err;       /* 0x20 */
+};
+
+int matherr(struct exception *x);    /* definition in sce/ */
 float scalbnf(float x, int n);       /* definition in sce/ */
 int isinf(long long x);              /* definition in sce/ */
 int isnan(long long x);              /* definition in sce/ */

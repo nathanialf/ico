@@ -36,10 +36,12 @@ extern const double __mprec_bigtens[];
 extern const double __mprec_tinytens[];
 void abort(void);                                                    /* definition in sce/ */
 long long strtoul(void *a0, int a1, int a2);                         /* definition in sce/ */
-void *_malloc_r(void *reent_ptr, int bytes);                         /* definition in sce/ */
-void _free_r(int *self, void *mem);                                  /* definition in sce/ */
-void *_realloc_r(void *reent_ptr, void *oldmem, unsigned int bytes); /* definition in sce/ */
-void *_calloc_r(void *rptr, unsigned int n, unsigned int elem_size); /* definition in sce/ */
+struct Reent;
+
+void *_malloc_r(struct Reent *reent_ptr, int bytes);                         /* definition in sce/ */
+void _free_r(struct Reent *reent_ptr, void *mem);                            /* definition in sce/ */
+void *_realloc_r(struct Reent *reent_ptr, void *oldmem, unsigned int bytes); /* definition in sce/ */
+void *_calloc_r(struct Reent *reent_ptr, unsigned int n, unsigned int elem_size); /* definition in sce/ */
 
 unsigned long _strtoul_r(struct _reent *rptr, const char *nptr, char **endptr,
                          int base); /* definition in sce/ */

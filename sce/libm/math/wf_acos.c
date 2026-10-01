@@ -1,21 +1,8 @@
 /* libm.a member wf_acos.o.  MAIN.MAP member spans tile this run exactly and
  * this member starts at an 8-aligned function start of the shipped ELF. */
 #include <math.h>
+#include <errno.h>
 #include <math_private.h>
-
-/* newlib's wrapper layer: struct exception and the _LIB_VERSION guard.  The
-   member's own copies stand for the Sony/newlib math.h this tree cannot name. */
-struct exception {
-    int type;      /* 0x0 */
-    char *name;    /* 0x4 */
-    double arg1;   /* 0x8 */
-    double arg2;   /* 0x10 */
-    double retval; /* 0x18 */
-    int err;       /* 0x20 */
-};
-
-/* kept local: errno.h declares it as its definition, returning int, where these uses take int * */
-extern int *__errno(void);
 
 float acosf(float x)
 {

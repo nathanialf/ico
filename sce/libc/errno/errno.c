@@ -3,12 +3,7 @@
 #include <reent.h>
 #include <errno.h>
 
-struct D520 {
-    char pad0[8];
-    PObjBlk *blk; /* 0x8 */
-};
-
-int __errno(void)
+int *__errno(void)
 {
-    return (int)_impure_ptr;
+    return &_impure_ptr->err;
 }

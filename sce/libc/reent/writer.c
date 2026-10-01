@@ -3,25 +3,17 @@
 #include <stdlib.h>
 #include <string.h>
 #include <reent.h>
+#include <unistd.h>
+#include <errno.h>
 
-struct D520 {
-    char pad0[8];
-    PObjBlk *blk; /* 0x8 */
-};
-
-/* kept local: errno.h declares it as `int errno` */
-extern int errno[];
-/* kept local: unistd.h declares it as `int write(int fd, void *buf, int size)` */
-extern int write(int a1, int a2, int a3);
-
-int _write_r(int *self, int a1, int a2, int a3)
+long _write_r(Reent *ptr, int fd, void *buf, int cnt)
 {
-    int ret;
-    errno[0] = 0;
-    ret = write(a1, a2, a3);
+    long ret;
+    errno = 0;
+    ret = write(fd, buf, cnt);
     if (ret == -1) {
-        if (errno[0] != 0) {
-            self[0] = errno[0];
+        if (errno != 0) {
+            ptr->err = errno;
         }
     }
     return ret;

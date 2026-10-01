@@ -104,7 +104,7 @@ int sceGsSetDefTexEnv(sceGsTexEnv *env, short flush, short tbp, short tbw, short
                       short flt); /* definition in sce/ */
 int sceGsSwapDBuff(void *a0, int a1);              /* definition in sce/ */
 int sceGsSyncPath(int mode, unsigned short timeout); /* definition in sce/ */
-int sceGsSyncV(void);                              /* definition in sce/ */
+int sceGsSyncV(int mode);                          /* definition in sce/ */
 short sceGszbufaddr(short a0, short a1, short a2); /* definition in sce/ */
 
 #endif /* SCE_LIBGRAPH_LIBGRAPH_H */

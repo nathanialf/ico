@@ -1,30 +1,15 @@
 /* libc.a member freer.o.  MAIN.MAP member spans tile this run exactly and
  * this member starts at an 8-aligned function start of the shipped ELF. */
 #include <stdlib.h>
+#include <libc_internal.h>
 #include <string.h>
 #include <reent.h>
 
-struct D520 {
-    char pad0[8];
-    PObjBlk *blk; /* 0x8 */
-};
-
-typedef unsigned int INTERNAL_SIZE_T;
-
 #define SIZE_SZ (sizeof(INTERNAL_SIZE_T))
-
-struct malloc_chunk {
-    INTERNAL_SIZE_T prev_size;
-    INTERNAL_SIZE_T size;
-    struct malloc_chunk *fd;
-    struct malloc_chunk *bk;
-};
-
-typedef struct malloc_chunk *mchunkptr;
-
 #define PREV_INUSE 0x1
 #define SIZE_BITS 0x3
 #define MINSIZE 16
+#define malloc_getpagesize (4096)
 #define MAX_SMALLBIN_SIZE 512
 #define BINBLOCKWIDTH 4
 #define chunksize(p) ((p)->size & ~(SIZE_BITS))
@@ -36,9 +21,6 @@ typedef struct malloc_chunk *mchunkptr;
 
 /* The bin array of the shipped allocator (mallocr.o owns it; MAIN.MAP map
    line 6262 names it __malloc_av_). */
-/* kept local: this member cannot include libc_internal.h, whose __malloc_current_mallinfo,
-   __malloc_sbrk_base, __malloc_top_pad conflict with its own */
-extern mchunkptr __malloc_av_[];
 
 #define bin_at(i) ((mchunkptr)((char *)&(__malloc_av_[2 * (i) + 2]) - 2 * SIZE_SZ))
 #define top (bin_at(0)->fd)
@@ -94,18 +76,7 @@ extern mchunkptr __malloc_av_[];
         }                                                                                          \
     }
 
-/* kept local: this member cannot include libc_internal.h, whose __malloc_current_mallinfo,
-   __malloc_sbrk_base, __malloc_top_pad conflict with its own */
-extern unsigned long __malloc_trim_threshold;
-/* kept local: libc_internal.h declares it as `unsigned long __malloc_top_pad` */
-extern unsigned int __malloc_top_pad;
-/* kept local: this member cannot include libc_internal.h, whose __malloc_current_mallinfo,
-   __malloc_sbrk_base, __malloc_top_pad conflict with its own */
-extern void __malloc_lock(void);
-extern void __malloc_unlock();
-extern int _malloc_trim_r(int *self, unsigned int pad);
-
-void _free_r(int *self, void *mem)
+void _free_r(Reent *self, void *mem)
 {
     mchunkptr p;
     INTERNAL_SIZE_T hd;
@@ -122,7 +93,7 @@ void _free_r(int *self, void *mem)
         return;
     }
 
-    __malloc_lock();
+    __malloc_lock(self);
     p = mem2chunk(mem);
     hd = p->size;
 
@@ -185,48 +156,46 @@ void _free_r(int *self, void *mem)
     __malloc_unlock(self);
 }
 
-/* kept in the array spelling the matched code needs: a plain scalar makes
-   gcc address them differently */
-/* kept local: libc_internal.h declares it as `char *__malloc_sbrk_base` */
-extern int __malloc_sbrk_base[];
-/* kept local: libc_internal.h declares it as `struct mallinfo __malloc_current_mallinfo` */
-extern int __malloc_current_mallinfo[];
-/* kept local: libgcc's, and libgcc2.h is not on this archive's include path */
-extern long long __muldi3(long long a0, long long a1);
-extern long long __udivdi3(long long a0, long long a1);
-
-int _malloc_trim_r(int *self, unsigned int a1)
+int _malloc_trim_r(Reent *reent_ptr, unsigned int pad)
 {
-    long long A;
-    long long need;
-    long long newlen;
-    int r4;
+    long top_size;     /* Amount of top-most memory */
+    long extra;        /* Amount to release */
+    char *current_brk; /* address returned by pre-check sbrk call */
+    char *new_brk;     /* address returned by negative sbrk call */
+    unsigned long pagesz = malloc_getpagesize;
 
-    __malloc_lock();
-    A = top->size & 0xFFFFFFFC;
-    need = __udivdi3((A - a1) + 0xFEF, 0x1000);
-    newlen = __muldi3(need - 1, 0x1000);
-    if (newlen < 0x1000) {
-        goto fail;
+    __malloc_lock(reent_ptr);
+    top_size = chunksize(top);
+    extra = ((top_size - pad - MINSIZE + (pagesz - 1)) / pagesz - 1) * pagesz;
+
+    if (extra < (long)pagesz) { /* Not enough memory to release */
+        __malloc_unlock(reent_ptr);
+        return 0;
+    } else {
+        /* Test to make sure no one else called sbrk */
+        current_brk = (char *)(_sbrk_r(reent_ptr, 0));
+        if (current_brk != (char *)(top) + top_size) {
+            __malloc_unlock(reent_ptr);
+            return 0;
+        } else {
+            new_brk = (char *)(_sbrk_r(reent_ptr, -extra));
+            if (new_brk == (char *)(-1)) { /* sbrk failed? */
+                /* Try to figure out what we have */
+                current_brk = (char *)(_sbrk_r(reent_ptr, 0));
+                top_size = current_brk - (char *)top;
+                if (top_size >= (long)MINSIZE) { /* if not, we are very very dead! */
+                    __malloc_current_mallinfo.arena = current_brk - __malloc_sbrk_base;
+                    set_head(top, top_size | PREV_INUSE);
+                }
+                __malloc_unlock(reent_ptr);
+                return 0;
+            } else {
+                /* Success. Adjust top accordingly. */
+                set_head(top, (top_size - extra) | PREV_INUSE);
+                __malloc_current_mallinfo.arena -= extra;
+                __malloc_unlock(reent_ptr);
+                return 1;
+            }
+        }
     }
-    if (_sbrk_r(self, 0) != (int)top + (int)A) {
-        goto fail;
-    }
-    if (_sbrk_r(self, -(int)newlen) != 0xFFFFFFFFU) {
-        goto adjust;
-    }
-    r4 = _sbrk_r(self, 0);
-    A = r4 - (int)top;
-    if (A >= 0x10) {
-        __malloc_current_mallinfo[0] = r4 - __malloc_sbrk_base[0];
-        top->size = A | 1;
-    }
-fail:
-    __malloc_unlock(self);
-    return 0;
-adjust:
-    top->size = (A - newlen) | 1;
-    __malloc_current_mallinfo[0] -= (int)newlen;
-    __malloc_unlock(self);
-    return 1;
 }

@@ -3,26 +3,9 @@
 #include <stdlib.h>
 #include <reent.h>
 #include <string.h>
+#include <libc_internal.h>
 
-struct D520 {
-    char pad0[8];
-    PObjBlk *blk; /* 0x8 */
-};
-
-/* newlib Bigint: _next, _k, _maxwds, _sign, _wds, then the word array. */
-typedef struct _Bigint {
-    struct _Bigint *next; /* 0x00 */
-    int k;                /* 0x04 */
-    int maxwds;           /* 0x08 */
-    int sign;             /* 0x0C */
-    int wds;              /* 0x10 */
-    unsigned int x[1];    /* 0x14 */
-} Bigint;
-
-/* kept local: libc_internal.h declares it as `int __mcmp(unsigned int *a, unsigned int *b)` */
-extern int __mcmp(Bigint *a, Bigint *b);
-
-static int quorem(Bigint *b, Bigint *S)
+static int quorem(_Bigint *b, _Bigint *S)
 {
     int n;
     int borrow, y;
@@ -31,13 +14,13 @@ static int quorem(Bigint *b, Bigint *S)
     int z;
     unsigned int si, zs;
 
-    n = S->wds;
-    if (b->wds < n) {
+    n = S->_wds;
+    if (b->_wds < n) {
         return 0;
     }
-    sx = S->x;
+    sx = S->_x;
     sxe = sx + --n;
-    bx = b->x;
+    bx = b->_x;
     bxe = bx + n;
     q = *bxe / (*sxe + 1);
     if (q) {
@@ -57,19 +40,19 @@ static int quorem(Bigint *b, Bigint *S)
             bx++;
         } while (sx <= sxe);
         if (!*bxe) {
-            bx = b->x;
+            bx = b->_x;
             while (--bxe > bx && !*bxe) {
                 --n;
             }
-            b->wds = n;
+            b->_wds = n;
         }
     }
     if (__mcmp(b, S) >= 0) {
         q++;
         borrow = 0;
         carry = 0;
-        bx = b->x;
-        sx = S->x;
+        bx = b->_x;
+        sx = S->_x;
         do {
             si = *sx++;
             ys = (si & 0xFFFF) + carry;
@@ -83,13 +66,13 @@ static int quorem(Bigint *b, Bigint *S)
             ((unsigned short *)bx)[0] = (unsigned short)y;
             bx++;
         } while (sx <= sxe);
-        bx = b->x;
+        bx = b->_x;
         bxe = bx + n;
         if (!*bxe) {
             while (--bxe > bx && !*bxe) {
                 --n;
             }
-            b->wds = n;
+            b->_wds = n;
         }
     }
     return q;
@@ -120,42 +103,7 @@ union double_union {
 #define Sign_bit 0x80000000
 #define n_bigtens 5
 
-/* kept local: libc_internal.h declares it as `void _Bfree(char *a0, int *a1)` */
-extern void _Bfree(void *ptr, Bigint *v);
-/* kept local: libc_internal.h declares it as `int *_Balloc(void *ptr, int k)` */
-extern Bigint *_Balloc(void *ptr, int k);
-/* kept local: libc_internal.h declares it as `int *_d2b(void *ptr, double dd, int *e, int
-   *bits)` */
-extern Bigint *_d2b(void *ptr, double d, int *e, int *bits);
-/* kept local: libc_internal.h declares it as `void *_i2b(void *a0, int a1)` */
-extern Bigint *_i2b(void *ptr, int i);
-/* kept local: libc_internal.h declares it as `int *_pow5mult(void *ptr, struct _Bigint *b, int
-   k)` */
-extern Bigint *_pow5mult(void *ptr, Bigint *b, int k);
-/* kept local: libc_internal.h declares it as `int *_multiply(void *ptr, struct _Bigint *a,
-   struct _Bigint *b)` */
-extern Bigint *_multiply(void *ptr, Bigint *a, Bigint *b);
-/* kept local: libc_internal.h declares it as `int *_lshift(void *ptr, struct _Bigint *b, int
-   k)` */
-extern Bigint *_lshift(void *ptr, Bigint *b, int k);
-/* kept local: libc_internal.h declares it as `int *__mdiff(void *ptr, struct _Bigint *a, struct
-   _Bigint *b)` */
-extern Bigint *__mdiff(void *ptr, Bigint *a, Bigint *b);
-/* kept local: libc_internal.h declares it as `int *_multadd(void *ptr, struct _Bigint *b, int
-   m, int a)` */
-extern Bigint *_multadd(void *ptr, Bigint *b, int m, int a);
-/* kept local: this member cannot include libc_internal.h, whose _Balloc, _Bfree, __mcmp,
-   __mdiff, _d2b, _i2b, _lshift, _multadd, _multiply, _pow5mult conflict with its own */
-extern int _hi0bits(unsigned int x);
-
-/* the reentrancy record's cached result string */
-typedef struct {
-    char pad0[0x40];
-    Bigint *_result; /* 0x40 */
-    int _result_k;   /* 0x44 */
-} DtoaReent;
-
-char *_dtoa_r(DtoaReent *ptr, double _d, int mode, int ndigits, int *decpt, int *sign, char **rve)
+char *_dtoa_r(Reent *ptr, double _d, int mode, int ndigits, int *decpt, int *sign, char **rve)
 {
     int bbits, b2, b5, be, dig, i, ieps, ilim, ilim0, ilim1, j, j1, k, k0, k_check, leftright, m2,
         m5, s2, s5, spec_case, try_quick;
@@ -163,17 +111,17 @@ char *_dtoa_r(DtoaReent *ptr, double _d, int mode, int ndigits, int *decpt, int 
     int L;
     int denorm;
     unsigned int x;
-    Bigint *b, *b1, *delta, *mlo, *mhi, *S;
+    _Bigint *b, *b1, *delta, *mlo, *mhi, *S;
     double ds;
     char *s, *s0;
 
     d.d = _d;
 
-    if (ptr->_result) {
-        ptr->_result->k = ptr->_result_k;
-        ptr->_result->maxwds = 1 << ptr->_result_k;
-        _Bfree(ptr, ptr->_result);
-        ptr->_result = 0;
+    if (ptr->result) {
+        ptr->result->_k = ptr->result_k;
+        ptr->result->_maxwds = 1 << ptr->result_k;
+        _Bfree(ptr, ptr->result);
+        ptr->result = 0;
     }
 
     if (word0(d) & Sign_bit) {
@@ -286,11 +234,11 @@ char *_dtoa_r(DtoaReent *ptr, double _d, int mode, int ndigits, int *decpt, int 
         }
     }
     j = sizeof(unsigned int);
-    for (ptr->_result_k = 0; sizeof(Bigint) - sizeof(unsigned int) + j <= i; j <<= 1) {
-        ptr->_result_k++;
+    for (ptr->result_k = 0; sizeof(_Bigint) - sizeof(unsigned int) + j <= i; j <<= 1) {
+        ptr->result_k++;
     }
-    ptr->_result = _Balloc(ptr, ptr->_result_k);
-    s = s0 = (char *)ptr->_result;
+    ptr->result = _Balloc(ptr, ptr->result_k);
+    s = s0 = (char *)ptr->result;
 
     if (ilim >= 0 && ilim <= Quick_max && try_quick) {
         /* Try to get by with floating-point arithmetic. */
@@ -499,7 +447,7 @@ char *_dtoa_r(DtoaReent *ptr, double _d, int mode, int ndigits, int *decpt, int 
     /* Arrange for convenient computation of quotients:
      * shift left if necessary so divisor has 4 leading 0 bits.
      */
-    if ((i = ((s5 ? 32 - _hi0bits(S->x[S->wds - 1]) : 1) + s2) & 0x1f) != 0) {
+    if ((i = ((s5 ? 32 - _hi0bits(S->_x[S->_wds - 1]) : 1) + s2) & 0x1f) != 0) {
         i = 32 - i;
     }
     if (i > 4) {
@@ -552,9 +500,9 @@ char *_dtoa_r(DtoaReent *ptr, double _d, int mode, int ndigits, int *decpt, int 
 
         mlo = mhi;
         if (spec_case) {
-            mhi = _Balloc(ptr, mhi->k);
-            memcpy((char *)&mhi->sign, (char *)&mlo->sign,
-                   mlo->wds * sizeof(int) + 2 * sizeof(int));
+            mhi = _Balloc(ptr, mhi->_k);
+            memcpy((char *)&mhi->_sign, (char *)&mlo->_sign,
+                   mlo->_wds * sizeof(int) + 2 * sizeof(int));
             mhi = _lshift(ptr, mhi, Log2P);
         }
 
@@ -565,7 +513,7 @@ char *_dtoa_r(DtoaReent *ptr, double _d, int mode, int ndigits, int *decpt, int 
              */
             j = __mcmp(b, mlo);
             delta = __mdiff(ptr, S, mhi);
-            j1 = delta->sign ? 1 : __mcmp(b, delta);
+            j1 = delta->_sign ? 1 : __mcmp(b, delta);
             _Bfree(ptr, delta);
             if (j1 == 0 && !mode && !(word1(d) & 1)) {
                 if (dig == '9') {

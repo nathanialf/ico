@@ -1,22 +1,11 @@
 /* libm.a member wf_fmod.o.  MAIN.MAP member spans tile this run exactly and
  * this member starts at an 8-aligned function start of the shipped ELF. */
 #include <math.h>
+#include <errno.h>
 #include <math_private.h>
-
-struct exception {
-    int type;      /* 0x00 */
-    char *name;    /* 0x04 */
-    double arg1;   /* 0x08 */
-    double arg2;   /* 0x10 */
-    double retval; /* 0x18 */
-    int err;       /* 0x20 */
-};
 
 #define DOMAIN 1
 #define EDOM 33
-
-/* kept local: errno.h declares it as its definition, returning int, where these uses take int * */
-extern int *__errno(void);
 
 float fmodf(float x, float y)
 {

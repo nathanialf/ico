@@ -130,7 +130,7 @@ int _ch4dma(int channel)
     return 0;
 }
 
-void _csc_storeRefImage(char *p)
+void _csc_storeRefImage(int *p)
 {
     int buf[8];
     void *self = _theSceMpeg;
@@ -141,7 +141,7 @@ void _csc_storeRefImage(char *p)
     int hid;
 
     buf[0] = 2;
-    n = *(int *)(p + 0xC) * *(int *)(p + 0x10);
+    n = p[0xC / 4] * p[0x10 / 4];
     _dispatchMpegCallback(self, buf);
     if (*IPU_CTRL & 0x4000) {
         *(int *)IPU_CTRL = 0x40000000;
@@ -149,7 +149,7 @@ void _csc_storeRefImage(char *p)
     while (*IPU_CTRL < 0) {}
     _sendIpuCommand(0);
     while (*IPU_CTRL < 0) {}
-    addr = *(int *)p & 0x0FFFFFFF;
+    addr = p[0] & 0x0FFFFFFF;
     qwc = n * 24;
     storeQwc = qwc;
     storeAddr = addr;

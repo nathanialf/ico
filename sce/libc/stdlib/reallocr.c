@@ -3,25 +3,9 @@
 #include <string.h>
 #include <reent.h>
 #include <stdlib.h>
-
-struct D520 {
-    char pad0[8];
-    PObjBlk *blk; /* 0x8 */
-};
-
-typedef unsigned int INTERNAL_SIZE_T;
+#include <libc_internal.h>
 
 #define SIZE_SZ (sizeof(INTERNAL_SIZE_T))
-
-struct malloc_chunk {
-    INTERNAL_SIZE_T prev_size;
-    INTERNAL_SIZE_T size;
-    struct malloc_chunk *fd;
-    struct malloc_chunk *bk;
-};
-
-typedef struct malloc_chunk *mchunkptr;
-
 #define PREV_INUSE 0x1
 #define SIZE_BITS 0x3
 /* This build of the allocator is configured with MALLOC_ALIGNMENT 16: the ROM's
@@ -47,9 +31,6 @@ typedef struct malloc_chunk *mchunkptr;
 #define set_head(p, s) ((p)->size = (s))
 
 /* The bin array of the shipped allocator. */
-/* kept local: this member cannot include libc_internal.h, whose __malloc_lock conflicts with
-   its own */
-extern mchunkptr __malloc_av_[];
 
 #define bin_at(i) ((mchunkptr)((char *)&(__malloc_av_[2 * (i) + 2]) - 2 * SIZE_SZ))
 #define top (bin_at(0)->fd)
@@ -86,13 +67,7 @@ extern mchunkptr __malloc_av_[];
             memcpy(dest, src, mcsz);                                                               \
     } while (0)
 
-/* kept local: libc_internal.h declares it as `void __malloc_lock(void)` */
-extern void __malloc_lock(void *r);
-/* kept local: this member cannot include libc_internal.h, whose __malloc_lock conflicts with
-   its own */
-extern void __malloc_unlock(void *r);
-
-void *_realloc_r(void *reent_ptr, void *oldmem, unsigned int bytes)
+void *_realloc_r(Reent *reent_ptr, void *oldmem, unsigned int bytes)
 {
     INTERNAL_SIZE_T nb;
 

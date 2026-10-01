@@ -11,6 +11,6 @@
 #define SCE_LIBC_ERRNO_H
 
 extern int errno;  /* definition in sce/ (reent/sbrkr.c) */
-int __errno(void); /* definition in sce/ (errno/errno.c) */
+int *__errno(void); /* definition in sce/ (errno/errno.c) */
 
 #endif /* SCE_LIBC_ERRNO_H */

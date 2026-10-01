@@ -2,24 +2,9 @@
  * this member starts at an 8-aligned function start of the shipped ELF. */
 #include <reent.h>
 #include <stdlib.h>
-
-struct D520 {
-    char pad0[8];
-    PObjBlk *blk; /* 0x8 */
-};
-
-typedef unsigned int INTERNAL_SIZE_T;
+#include <libc_internal.h>
 
 #define SIZE_SZ (sizeof(INTERNAL_SIZE_T))
-
-struct malloc_chunk {
-    INTERNAL_SIZE_T prev_size;
-    INTERNAL_SIZE_T size;
-    struct malloc_chunk *fd;
-    struct malloc_chunk *bk;
-};
-
-typedef struct malloc_chunk *mchunkptr;
 
 typedef struct malloc_chunk *mbinptr;
 
@@ -140,19 +125,6 @@ mchunkptr __malloc_av_[NAV * 2 + 2] = {
 #define DEFAULT_TRIM_THRESHOLD (128 * 1024)
 #define DEFAULT_TOP_PAD 0
 
-struct mallinfo {
-    int arena;
-    int ordblks;
-    int smblks;
-    int hblks;
-    int hblkhd;
-    int usmblks;
-    int fsmblks;
-    int uordblks;
-    int fordblks;
-    int keepcost;
-};
-
 unsigned long __malloc_trim_threshold = DEFAULT_TRIM_THRESHOLD;
 
 unsigned long __malloc_top_pad = DEFAULT_TOP_PAD;
@@ -175,13 +147,7 @@ struct mallinfo __malloc_current_mallinfo = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 #define MORECORE(size) _sbrk_r(reent_ptr, (size))
 #define MORECORE_FAILURE -1
 
-/* kept local: libc_internal.h declares it as `void __malloc_lock(void)` */
-extern void __malloc_lock(void *r);
-/* kept local: this member cannot include libc_internal.h, whose __malloc_lock conflicts with
-   its own */
-extern void __malloc_unlock(void *r);
-
-static void malloc_extend_top(void *reent_ptr, INTERNAL_SIZE_T nb)
+static void malloc_extend_top(Reent *reent_ptr, INTERNAL_SIZE_T nb)
 {
     char *brk;
     INTERNAL_SIZE_T front_misalign;
@@ -255,7 +221,7 @@ static void malloc_extend_top(void *reent_ptr, INTERNAL_SIZE_T nb)
         max_total_mem = sbrked_mem;
 }
 
-void *_malloc_r(void *reent_ptr, int bytes)
+void *_malloc_r(Reent *reent_ptr, int bytes)
 {
     mchunkptr victim;
     INTERNAL_SIZE_T victim_size;

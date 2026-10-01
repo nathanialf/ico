@@ -129,7 +129,7 @@ int ioctl(void)
     return -1;
 }
 
-int lseek(int a1, int a2, int a3)
+long lseek(int fd, long offset, int whence)
 {
     return -1;
 }
@@ -200,10 +200,10 @@ int isatty(void)
     return 1;
 }
 
-int fstat(void *a0, void *a1)
+int fstat(int fd, struct stat *st)
 {
-    *(long long *)((char *)a1 + 0x48) = 0;
-    *(int *)((char *)a1 + 0x4) = 0x2000;
+    st->st_blksize = 0;
+    st->st_mode = S_IFCHR;
     return 0;
 }
 

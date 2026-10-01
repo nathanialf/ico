@@ -14,11 +14,6 @@ void _initSeqAgain(void)
     _ipuSetMPEG1(1);
 }
 
-/* kept local: libmpeg_internal.h leaves it out: its callers' arguments do not fit the
-   definition's prototype */
-extern void _dispRefImage();
-extern void _dispRefImageField();
-
 void _lastFrame(int a0)
 {
     int t;

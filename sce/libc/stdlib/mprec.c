@@ -5,78 +5,50 @@
 #include <reent.h>
 #include <libc_internal.h>
 
-struct D520 {
-    char pad0[8];
-    PObjBlk *blk; /* 0x8 */
-};
-
-/* newlib Bigint: _next, _k, _maxwds, _sign, _wds, then the word array. */
-typedef struct _Bigint {
-    struct _Bigint *next; /* 0x00 */
-    int k;                /* 0x04 */
-    int maxwds;           /* 0x08 */
-    int sign;             /* 0x0C */
-    int wds;              /* 0x10 */
-    unsigned int x[1];    /* 0x14 */
-} Bigint;
-
-/* the _reent slot the Bigint free list hangs off, at 0x4C */
-typedef struct {
-    char pad0[0x48];
-    Bigint *p5s;       /* 0x48 */
-    Bigint **freelist; /* 0x4C */
-} MpReent;
-
-int *_Balloc(void *ptr, int k)
+_Bigint *_Balloc(Reent *ptr, int k)
 {
-    MpReent *r = (MpReent *)ptr;
-    Bigint *rv;
+    _Bigint *rv;
     int x;
 
-    if (r->freelist == 0) {
-        r->freelist = (Bigint **)_calloc_r(ptr, 4, 16);
-        if (r->freelist == 0) {
+    if (ptr->freelist == 0) {
+        ptr->freelist = (_Bigint **)_calloc_r(ptr, 4, 16);
+        if (ptr->freelist == 0) {
             return 0;
         }
     }
-    rv = r->freelist[k];
+    rv = ptr->freelist[k];
     if (rv != 0) {
-        r->freelist[k] = rv->next;
+        ptr->freelist[k] = rv->_next;
     } else {
         x = 1 << k;
-        rv = (Bigint *)_calloc_r(ptr, 1, sizeof(Bigint) + (x - 1) * sizeof(int));
+        rv = (_Bigint *)_calloc_r(ptr, 1, sizeof(_Bigint) + (x - 1) * sizeof(int));
         if (rv == 0) {
             return 0;
         }
-        rv->k = k;
-        rv->maxwds = x;
+        rv->_k = k;
+        rv->_maxwds = x;
     }
-    rv->sign = rv->wds = 0;
-    return (int *)rv;
+    rv->_sign = rv->_wds = 0;
+    return rv;
 }
 
-void _Bfree(char *a0, int *a1)
+void _Bfree(Reent *ptr, _Bigint *v)
 {
-    if (a1) {
-        int off = a1[1] * 4;
-        int *slot;
-        a0 = *(char **)(a0 + 0x4C);
-        off += (int)a0;
-        slot = (int *)off;
-        a1[0] = slot[0];
-        slot[0] = (int)a1;
+    if (v) {
+        v->_next = ptr->freelist[v->_k];
+        ptr->freelist[v->_k] = v;
     }
 }
 
-int *_multadd(void *ptr, Bigint *b, int m, int a)
+_Bigint *_multadd(Reent *ptr, _Bigint *b, int m, int a)
 {
-    Bigint *b1;
+    _Bigint *b1;
     unsigned int *x;
     unsigned int xi, y, z;
     int i, wds;
 
-    wds = b->wds;
-    x = b->x;
+    wds = b->_wds;
+    x = b->_x;
     i = 0;
     do {
         xi = *x;
@@ -86,58 +58,42 @@ int *_multadd(void *ptr, Bigint *b, int m, int a)
         *x++ = (z << 16) + (y & 0xFFFF);
     } while (++i < wds);
     if (a != 0) {
-        if (wds >= b->maxwds) {
-            b1 = (Bigint *)_Balloc(ptr, b->k + 1);
-            memcpy((char *)&b1->sign, (char *)&b->sign, b->wds * 4 + 8);
-            _Bfree(ptr, (int *)b);
+        if (wds >= b->_maxwds) {
+            b1 = _Balloc(ptr, b->_k + 1);
+            memcpy((char *)&b1->_sign, (char *)&b->_sign, b->_wds * 4 + 8);
+            _Bfree(ptr, b);
             b = b1;
         }
-        b->x[wds++] = a;
-        b->wds = wds;
+        b->_x[wds++] = a;
+        b->_wds = wds;
     }
-    return (int *)b;
+    return b;
 }
 
-int _s2b(void *a0, char *a1, int a2, int a3, int a4)
+_Bigint *_s2b(Reent *ptr, const char *s, int nd0, int nd, unsigned int y9)
 {
-    int n3 = (a3 + 8) / 9;
-    int p = 1;
-    int five = 0;
-    int i18;
-    int *r5;
-    int i17;
+    _Bigint *b;
+    int i, k;
+    int x, y;
 
-    if (p < n3) {
-        do {
-            p <<= 1;
-            five++;
-        } while (p < n3);
-    }
-    i18 = a2 < 10;
-    r5 = _Balloc(a0, five);
-    i17 = 9;
-    r5[5] = a4;
-    r5[4] = 1;
-    if (i18 == 0) {
-        a1 += 9;
-        do {
-            i17++;
-            r5 = _multadd(a0, (Bigint *)r5, 10, a1[0] - 0x30);
-            a1++;
-        } while (i17 < a2);
-        a1++;
-    } else {
-        a1 += 10;
-    }
-    if (i17 < a3) {
-        i17 = a3 - i17;
-        do {
-            r5 = _multadd(a0, (Bigint *)r5, 10, a1[0] - 0x30);
-            a1++;
-            i17--;
-        } while (i17 != 0);
-    }
-    return (int)r5;
+    x = (nd + 8) / 9;
+    for (k = 0, y = 1; x > y; y <<= 1, k++)
+        ;
+    b = _Balloc(ptr, k);
+    b->_x[0] = y9;
+    b->_wds = 1;
+    i = 9;
+    if (9 < nd0) {
+        s += 9;
+        do
+            b = _multadd(ptr, b, 10, *s++ - '0');
+        while (++i < nd0);
+        s++;
+    } else
+        s += 10;
+    for (; i < nd; i++)
+        b = _multadd(ptr, b, 10, *s++ - '0');
+    return b;
 }
 
 int _hi0bits(unsigned int a0)
@@ -168,19 +124,19 @@ int _hi0bits(unsigned int a0)
     return n;
 }
 
-int _lo0bits(int *p)
+int _lo0bits(unsigned int *y)
 {
-    unsigned int v = *p;
+    unsigned int v = *y;
     int n;
     if (v & 7) {
         if (v & 1) {
             return 0;
         }
         if (v & 2) {
-            *p = v >> 1;
+            *y = v >> 1;
             return 1;
         }
-        *p = v >> 2;
+        *y = v >> 2;
         return 2;
     }
     n = 0;
@@ -201,24 +157,26 @@ int _lo0bits(int *p)
         v >>= 2;
     }
     if (v & 1) {
-        *p = v;
+        *y = v;
     } else {
         v >>= 1;
         n += 1;
         if (v == 0) {
             return 0x20;
         }
-        *p = v;
+        *y = v;
     }
     return n;
 }
 
-void *_i2b(void *a0, int a1)
+_Bigint *_i2b(Reent *ptr, int i)
 {
-    int *r = _Balloc(a0, 1);
-    r[5] = a1;
-    r[4] = 1;
-    return r;
+    _Bigint *b;
+
+    b = _Balloc(ptr, 1);
+    b->_x[0] = i;
+    b->_wds = 1;
+    return b;
 }
 
 /* newlib mprec.h Storeinc for a little-endian target: the two halves of the
@@ -227,34 +185,34 @@ void *_i2b(void *a0, int a1)
     (((unsigned short *)(a))[1] = (unsigned short)(b),                                             \
      ((unsigned short *)(a))[0] = (unsigned short)(c), (a)++)
 
-int *_multiply(void *ptr, Bigint *a, Bigint *b)
+_Bigint *_multiply(Reent *ptr, _Bigint *a, _Bigint *b)
 {
-    Bigint *c;
+    _Bigint *c;
     int k, wa, wb, wc;
     unsigned int carry, *x, *xa, *xae, *xb, *xbe, *xc, *xc0, y, z;
     unsigned int z2;
 
-    if (a->wds < b->wds) {
+    if (a->_wds < b->_wds) {
         c = a;
         a = b;
         b = c;
     }
-    k = a->k;
-    wa = a->wds;
-    wb = b->wds;
+    k = a->_k;
+    wa = a->_wds;
+    wb = b->_wds;
     wc = wa + wb;
-    if (wc > a->maxwds) {
+    if (wc > a->_maxwds) {
         k++;
     }
-    c = (Bigint *)_Balloc(ptr, k);
-    for (x = c->x, xa = x + wc; x < xa; x++) {
+    c = _Balloc(ptr, k);
+    for (x = c->_x, xa = x + wc; x < xa; x++) {
         *x = 0;
     }
-    xa = a->x;
+    xa = a->_x;
     xae = xa + wa;
-    xb = b->x;
+    xb = b->_x;
     xbe = xb + wb;
-    xc0 = c->x;
+    xc0 = c->_x;
     for (; xb < xbe; xb++, xc0++) {
         if ((y = *xb & 0xFFFF) != 0) {
             x = xa;
@@ -284,74 +242,73 @@ int *_multiply(void *ptr, Bigint *a, Bigint *b)
             *xc = z2;
         }
     }
-    for (xc0 = c->x, xc = xc0 + wc; wc > 0 && *--xc == 0; wc--) {
+    for (xc0 = c->_x, xc = xc0 + wc; wc > 0 && *--xc == 0; wc--) {
         ;
     }
-    c->wds = wc;
-    return (int *)c;
+    c->_wds = wc;
+    return c;
 }
 
-int *_pow5mult(void *ptr, Bigint *b, int k)
+_Bigint *_pow5mult(Reent *ptr, _Bigint *b, int k)
 {
-    MpReent *r = (MpReent *)ptr;
-    Bigint *b1;
-    Bigint *p5;
-    Bigint *p51;
+    _Bigint *b1;
+    _Bigint *p5;
+    _Bigint *p51;
     int i;
     static const int p05[3] = {5, 25, 125};
 
     i = k & 3;
     if (i != 0) {
-        b = (Bigint *)_multadd(ptr, b, p05[i - 1], 0);
+        b = _multadd(ptr, b, p05[i - 1], 0);
     }
     k >>= 2;
     if (k == 0) {
-        return (int *)b;
+        return b;
     }
-    p5 = r->p5s;
+    p5 = ptr->p5s;
     if (p5 == 0) {
-        p5 = r->p5s = (Bigint *)_i2b(ptr, 625);
-        p5->next = 0;
+        p5 = ptr->p5s = _i2b(ptr, 625);
+        p5->_next = 0;
     }
     for (;;) {
         if (k & 1) {
-            b1 = (Bigint *)_multiply(ptr, b, p5);
-            _Bfree(ptr, (int *)b);
+            b1 = _multiply(ptr, b, p5);
+            _Bfree(ptr, b);
             b = b1;
         }
         k >>= 1;
         if (k == 0) {
             break;
         }
-        p51 = p5->next;
+        p51 = p5->_next;
         if (p51 == 0) {
-            p51 = p5->next = (Bigint *)_multiply(ptr, p5, p5);
-            p51->next = 0;
+            p51 = p5->_next = _multiply(ptr, p5, p5);
+            p51->_next = 0;
         }
         p5 = p51;
     }
-    return (int *)b;
+    return b;
 }
 
-int *_lshift(void *ptr, Bigint *b, int k)
+_Bigint *_lshift(Reent *ptr, _Bigint *b, int k)
 {
     int i, k1, n, n1;
-    Bigint *b1;
+    _Bigint *b1;
     unsigned int *x, *x1, *xe, z;
 
     n = k >> 5;
-    k1 = b->k;
-    n1 = n + b->wds + 1;
-    for (i = b->maxwds; n1 > i; i <<= 1) {
+    k1 = b->_k;
+    n1 = n + b->_wds + 1;
+    for (i = b->_maxwds; n1 > i; i <<= 1) {
         k1++;
     }
-    b1 = (Bigint *)_Balloc(ptr, k1);
-    x1 = b1->x;
+    b1 = _Balloc(ptr, k1);
+    x1 = b1->_x;
     for (i = 0; i < n; i++) {
         *x1++ = 0;
     }
-    x = b->x;
-    xe = x + b->wds;
+    x = b->_x;
+    xe = x + b->_wds;
     if (k &= 0x1F) {
         k1 = 32 - k;
         z = 0;
@@ -367,44 +324,46 @@ int *_lshift(void *ptr, Bigint *b, int k)
             *x1++ = *x++;
         } while (x < xe);
     }
-    b1->wds = n1 - 1;
-    _Bfree(ptr, (int *)b);
-    return (int *)b1;
+    b1->_wds = n1 - 1;
+    _Bfree(ptr, b);
+    return b1;
 }
 
-int __mcmp(unsigned int *a, unsigned int *b)
+int __mcmp(_Bigint *a, _Bigint *b)
 {
-    int n = a[4] - b[4];
-    unsigned int *pa, *pb, *pae, *pbe;
-    if (n != 0)
-        return n;
-    n = b[4];
-    pa = a + 5;
-    pb = b + 5;
-    pae = pa + n;
-    pbe = pb + n;
-    do {
-        --pae;
-        --pbe;
-        if (*pae != *pbe)
-            return (*pae < *pbe) ? -1 : 1;
-    } while (pa < pae);
+    unsigned int *xa, *xa0, *xb, *xb0;
+    int i, j;
+
+    i = a->_wds;
+    j = b->_wds;
+    if (i -= j)
+        return i;
+    xa0 = a->_x;
+    xa = xa0 + j;
+    xb0 = b->_x;
+    xb = xb0 + j;
+    for (;;) {
+        if (*--xa != *--xb)
+            return *xa < *xb ? -1 : 1;
+        if (xa <= xa0)
+            break;
+    }
     return 0;
 }
 
-int *__mdiff(void *ptr, Bigint *a, Bigint *b)
+_Bigint *__mdiff(Reent *ptr, _Bigint *a, _Bigint *b)
 {
-    Bigint *c;
+    _Bigint *c;
     int i, wa, wb;
     int borrow, y, z;
     unsigned int *xa, *xae, *xb, *xbe, *xc;
 
-    i = __mcmp((unsigned int *)a, (unsigned int *)b);
+    i = __mcmp(a, b);
     if (i == 0) {
-        c = (Bigint *)_Balloc(ptr, 0);
-        c->wds = 1;
-        c->x[0] = 0;
-        return (int *)c;
+        c = _Balloc(ptr, 0);
+        c->_wds = 1;
+        c->_x[0] = 0;
+        return c;
     }
     if (i < 0) {
         c = a;
@@ -414,15 +373,15 @@ int *__mdiff(void *ptr, Bigint *a, Bigint *b)
     } else {
         i = 0;
     }
-    c = (Bigint *)_Balloc(ptr, a->k);
-    c->sign = i;
-    wa = a->wds;
-    xa = a->x;
+    c = _Balloc(ptr, a->_k);
+    c->_sign = i;
+    wa = a->_wds;
+    xa = a->_x;
     xae = xa + wa;
-    wb = b->wds;
-    xb = b->x;
+    wb = b->_wds;
+    xb = b->_x;
     xbe = xb + wb;
-    xc = c->x;
+    xc = c->_x;
     borrow = 0;
     do {
         y = (*xa & 0xFFFF) - (*xb & 0xFFFF) + borrow;
@@ -441,8 +400,8 @@ int *__mdiff(void *ptr, Bigint *a, Bigint *b)
     while (*--xc == 0) {
         wa--;
     }
-    c->wds = wa;
-    return (int *)c;
+    c->_wds = wa;
+    return c;
 }
 
 /* newlib mprec.c ulp(): the double is one 64-bit register here, and the
@@ -481,14 +440,14 @@ double _ulp(double xx)
     return a.d;
 }
 
-double _b2d(Bigint *a, int *e)
+double _b2d(_Bigint *a, int *e)
 {
     unsigned int *xa, *xa0, w, y, z;
     int k;
     MpDouble d;
 
-    xa0 = a->x;
-    xa = xa0 + a->wds;
+    xa0 = a->_x;
+    xa = xa0 + a->_wds;
     y = *--xa;
     k = _hi0bits(y);
     *e = 32 - k;
@@ -511,16 +470,16 @@ double _b2d(Bigint *a, int *e)
     return d.d;
 }
 
-int *_d2b(void *ptr, double dd, int *e, int *bits)
+_Bigint *_d2b(Reent *ptr, double dd, int *e, int *bits)
 {
-    Bigint *b;
+    _Bigint *b;
     int de, i, k;
     unsigned int *x, y, z;
     MpDouble d;
 
     d.d = dd;
-    b = (Bigint *)_Balloc(ptr, 1);
-    x = b->x;
+    b = _Balloc(ptr, 1);
+    x = b->_x;
     z = word0(d) & 0xFFFFF;
     word0(d) &= 0x7FFFFFFF;
     de = (int)(word0(d) >> 20);
@@ -529,18 +488,18 @@ int *_d2b(void *ptr, double dd, int *e, int *bits)
     }
     y = word1(d);
     if (y != 0) {
-        k = _lo0bits((int *)&y);
+        k = _lo0bits(&y);
         if (k != 0) {
             x[0] = y | z << (32 - k);
             z >>= k;
         } else {
             x[0] = y;
         }
-        i = b->wds = (x[1] = z) ? 2 : 1;
+        i = b->_wds = (x[1] = z) ? 2 : 1;
     } else {
-        k = _lo0bits((int *)&z);
+        k = _lo0bits(&z);
         x[0] = z;
-        i = b->wds = 1;
+        i = b->_wds = 1;
         k += 32;
     }
     if (de != 0) {
@@ -550,10 +509,10 @@ int *_d2b(void *ptr, double dd, int *e, int *bits)
         *e = de - 1023 - 52 + 1 + k;
         *bits = 32 * i - _hi0bits(x[i - 1]);
     }
-    return (int *)b;
+    return b;
 }
 
-double _ratio(Bigint *a, Bigint *b)
+double _ratio(_Bigint *a, _Bigint *b)
 {
     MpDouble da;
     MpDouble db;
@@ -561,7 +520,7 @@ double _ratio(Bigint *a, Bigint *b)
 
     da.d = _b2d(a, &ka);
     db.d = _b2d(b, &kb);
-    k = ka - kb + 32 * (a->wds - b->wds);
+    k = ka - kb + 32 * (a->_wds - b->_wds);
     if (k > 0) {
         word0(da) += k * 0x100000;
     } else {
@@ -580,21 +539,16 @@ const double __mprec_bigtens[] = {1e16, 1e32, 1e64, 1e128, 1e256};
 
 const double __mprec_tinytens[] = {1e-16, 1e-32, 1e-64, 1e-128, 1e-256};
 
-/* kept local: libgcc's soft-float entry point (dp-bit.c, long arguments), and libgcc2.h is not
-   on this archive's include path */
-extern long dpmul(long a, long b);
-
-long _mprec_log10(int n)
+double _mprec_log10(int dig)
 {
-    long acc = (long)0xFFC0 << 46;
-    if (n < 0x18) {
-        return (
-            (const long *)
-                __mprec_tens)[n]; /* the double's bits: the EE does double arithmetic in software */
+    double v = 1.0;
+
+    if (dig < 24) {
+        return __mprec_tens[dig];
     }
-    while (n > 0) {
-        acc = dpmul(acc, (long)0x8048 << 47);
-        n--;
+    while (dig > 0) {
+        v *= 10;
+        dig--;
     }
-    return acc;
+    return v;
 }

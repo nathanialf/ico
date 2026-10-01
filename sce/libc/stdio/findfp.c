@@ -3,21 +3,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <reent.h>
+#include <libc_internal.h>
 #include <stdio.h>
-
-struct D520 {
-    char pad0[8];
-    PObjBlk *blk; /* 0x8 */
-};
-
-/* kept local: libc_internal.h declares it as `int __sread(Fil *a0, int a1, int a2)` */
-extern int __sread(void *a0, int a1, int a2);
-/* kept local: libc_internal.h declares it as `long __swrite(Fil *a0, int a1, int a2)` */
-extern long __swrite(void *a0, int a1, int a2);
-/* kept local: libc_internal.h declares it as `long __sseek(Fil *a0, int a1, int a2)` */
-extern long __sseek(void *a0, int a1, int a2);
-/* kept local: libc_internal.h declares it as `int __sclose(Fil *a0)` */
-extern int __sclose(void *a0);
 
 void std(Fil *fp, int flags, int file, Reent *data)
 {

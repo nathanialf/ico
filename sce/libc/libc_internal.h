@@ -14,18 +14,39 @@
 
 #include <reent.h>
 
-struct _Bigint;
+typedef struct _Bigint _Bigint;
 
 struct __suio;
 
-struct malloc_chunk;
+typedef unsigned int INTERNAL_SIZE_T;
 
-struct mallinfo;
+struct malloc_chunk {
+    INTERNAL_SIZE_T prev_size;
+    INTERNAL_SIZE_T size;
+    struct malloc_chunk *fd;
+    struct malloc_chunk *bk;
+};
 
-int __sread(Fil *a0, int a1, int a2);                              /* definition in sce/ */
-long __swrite(Fil *a0, int a1, int a2);                            /* definition in sce/ */
-long __sseek(Fil *a0, int a1, int a2);                             /* definition in sce/ */
-int __sclose(Fil *a0);                                             /* definition in sce/ */
+typedef struct malloc_chunk *mchunkptr;
+
+/* newlib's mallinfo record; mallocr keeps the arena total in it */
+struct mallinfo {
+    int arena;
+    int ordblks;
+    int smblks;
+    int hblks;
+    int hblkhd;
+    int usmblks;
+    int fsmblks;
+    int uordblks;
+    int fordblks;
+    int keepcost;
+};
+
+int __sread(void *cookie, char *buf, int n);                      /* definition in sce/ */
+int __swrite(void *cookie, char *buf, int n);                     /* definition in sce/ */
+long __sseek(void *cookie, long offset, int whence);              /* definition in sce/ */
+int __sclose(void *cookie);                                       /* definition in sce/ */
 void __sinit(Reent *s);                                            /* definition in sce/ */
 void __smakebuf(Fil *fp);                                          /* definition in sce/ */
 int __srefill(Fil *fp);                                            /* definition in sce/ */
@@ -38,28 +59,29 @@ void _cleanup_r(Reent *ptr);                                       /* definition
 void std(Fil *fp, int flags, int file, Reent *data);               /* definition in sce/ */
 int _vfiprintf_r(void *data, Fil *fp, const char *fmt0, char *ap); /* definition in sce/ */
 int _vfprintf_r(int *self, int subj, int b, void *args); /* dominant spelling at 1 of 2 sites */
-int *_Balloc(void *ptr, int k);                          /* definition in sce/ */
-void _Bfree(char *a0, int *a1);                          /* definition in sce/ */
-int *_d2b(void *ptr, double dd, int *e, int *bits);      /* definition in sce/ */
-void *_i2b(void *a0, int a1);                            /* definition in sce/ */
-int *_pow5mult(void *ptr, struct _Bigint *b, int k);     /* definition in sce/ */
-int *_multiply(void *ptr, struct _Bigint *a, struct _Bigint *b); /* definition in sce/ */
-int *_lshift(void *ptr, struct _Bigint *b, int k);               /* definition in sce/ */
-int *__mdiff(void *ptr, struct _Bigint *a, struct _Bigint *b);   /* definition in sce/ */
-int *_multadd(void *ptr, struct _Bigint *b, int m, int a);       /* definition in sce/ */
-int _hi0bits(unsigned int a0);                                   /* definition in sce/ */
-int __mcmp(unsigned int *a, unsigned int *b);                    /* definition in sce/ */
-double _b2d(struct _Bigint *a, int *e);                          /* definition in sce/ */
-double _ulp(double xx);                                          /* definition in sce/ */
-double _ratio(struct _Bigint *a, struct _Bigint *b);             /* definition in sce/ */
-int _s2b(void *a0, char *a1, int a2, int a3, int a4);            /* definition in sce/ */
+_Bigint *_Balloc(Reent *ptr, int k);                                  /* definition in sce/ */
+void _Bfree(Reent *ptr, _Bigint *v);                                  /* definition in sce/ */
+_Bigint *_multadd(Reent *ptr, _Bigint *b, int m, int a);              /* definition in sce/ */
+_Bigint *_s2b(Reent *ptr, const char *s, int nd0, int nd, unsigned int y9); /* definition in sce/ */
+int _hi0bits(unsigned int x);                                         /* definition in sce/ */
+int _lo0bits(unsigned int *y);                                        /* definition in sce/ */
+_Bigint *_i2b(Reent *ptr, int i);                                     /* definition in sce/ */
+_Bigint *_multiply(Reent *ptr, _Bigint *a, _Bigint *b);               /* definition in sce/ */
+_Bigint *_pow5mult(Reent *ptr, _Bigint *b, int k);                    /* definition in sce/ */
+_Bigint *_lshift(Reent *ptr, _Bigint *b, int k);                      /* definition in sce/ */
+int __mcmp(_Bigint *a, _Bigint *b);                                   /* definition in sce/ */
+_Bigint *__mdiff(Reent *ptr, _Bigint *a, _Bigint *b);                 /* definition in sce/ */
+double _ulp(double x);                                                /* definition in sce/ */
+double _b2d(_Bigint *a, int *e);                                      /* definition in sce/ */
+_Bigint *_d2b(Reent *ptr, double d, int *e, int *bits);               /* definition in sce/ */
+double _ratio(_Bigint *a, _Bigint *b);                                /* definition in sce/ */
 extern struct malloc_chunk *__malloc_av_[];       /* definition in sce/ (stdlib/mallocr.c) */
 extern unsigned long __malloc_trim_threshold;     /* definition in sce/ (stdlib/mallocr.c) */
 extern unsigned long __malloc_top_pad;            /* definition in sce/ (stdlib/mallocr.c) */
 extern char *__malloc_sbrk_base;                  /* definition in sce/ (stdlib/mallocr.c) */
 extern struct mallinfo __malloc_current_mallinfo; /* definition in sce/ (stdlib/mallocr.c) */
-void __malloc_lock(void);                         /* definition in sce/ */
-void __malloc_unlock();                           /* definition in sce/ */
-int _malloc_trim_r(int *self, unsigned int a1);   /* definition in sce/ */
+void __malloc_lock(Reent *ptr);                   /* definition in sce/ */
+void __malloc_unlock(Reent *ptr);                 /* definition in sce/ */
+int _malloc_trim_r(Reent *reent_ptr, unsigned int pad); /* definition in sce/ */
 
 #endif /* SCE_LIBC_LIBC_INTERNAL_H */

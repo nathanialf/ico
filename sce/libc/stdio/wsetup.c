@@ -1,15 +1,13 @@
 /* libc.a member wsetup.o.  MAIN.MAP member spans tile this run exactly and
  * this member starts at an 8-aligned function start of the shipped ELF. */
 #include <reent.h>
+#include <stdlib.h>
 #include <libc_internal.h>
 
 struct D520 {
     char pad0[8];
     PObjBlk *blk; /* 0x8 */
 };
-
-/* kept local: stdlib.h declares it as `void _free_r(int *self, void *mem)` */
-extern void _free_r(void *a0, void *a1);
 
 int __swsetup(Fil *fp)
 {

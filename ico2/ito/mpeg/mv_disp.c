@@ -3,6 +3,7 @@
 #include "mv_vobuf.h"
 #include "mv_disp.h"
 #include <eeregs.h>
+#include <libgraph.h>
 #include "main.h"
 
 void *setTEX0_1(int *a0, int a1, int a2, int a3, int p4, int p5, int p6, int p7, unsigned int p8,
@@ -36,8 +37,6 @@ static int mvDispPacket[80];
 
 static int mvClearPacket[80];
 
-/* kept local: int () here, void (void *) in libgraph.h */
-extern int sceGsPutDispEnv();
 extern char voBuf[];
 
 /* .sdata, owned by mv_disp.o (VMA 0x63C0B4..0x63C0C8, 0x14 B = MAIN.MAP, which
@@ -59,18 +58,12 @@ static int dispSyncBusy = 0; /* derived name */
    counter the display loop keeps. */
 static int mvFrameCount;
 
-/* kept local: int (int) here, int (void) in libgraph.h */
-extern int sceGsSyncV(int a0);
-
 inline void loadImage(int a0)
 {
     *D2_TADR = phys_addr(a0);
     *D2_QWC = 0;
     *D2_CHCR = 0x105;
 }
-
-/* kept local: int (int, int) here, void (int, int) in libgraph.h */
-extern int sceGsSyncPath(int a0, int a1);
 
 typedef struct MvRect {
     int x;
@@ -122,9 +115,6 @@ void dispClear(int *self, unsigned int col)
     sceGsSyncPath(0, 0);
 }
 
-/* kept local: void (int *, int, short, short, short, short) here, void (sceGsDispEnv *, short, short, short, short, short) in libgraph.h */
-extern void sceGsSetDefDispEnv(int *env, int psm, short w, short h, short dx, short dy);
-
 void setDispEnv(int *self, int a1, int a2, int a3, int a4)
 {
     int *p;
@@ -138,7 +128,7 @@ void setDispEnv(int *self, int a1, int a2, int a3, int a4)
     self[0x38 / 4] = a1;
     self[0x3C / 4] = a2;
 
-    sceGsSetDefDispEnv(self, 0, a1, a2 / 2, 0, 0);
+    sceGsSetDefDispEnv((sceGsDispEnv *)self, 0, a1, a2 / 2, 0, 0);
 
     self[0x14 / 4] = (self[0x14 / 4] & ~0x7FF) | (a3 & 0x7FF);
     self[0x14 / 4] = (self[0x14 / 4] & 0xFFC007FF) | ((a4 & 0x7FF) << 11);
@@ -171,9 +161,6 @@ void sendDispEnv(void *a0)
     *D2_CHCR = 0x101;
     sceGsSyncPath(0, 0);
 }
-
-/* kept local: agrees with libgraph.h, which this TU does not include (sceGsPutDispEnv, sceGsSetDefDispEnv differ) */
-extern void sceGsResetPath(void);
 
 void dispCreate(int *self, int a1, int a2, int a3, int a4)
 {

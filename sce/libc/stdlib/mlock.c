@@ -3,11 +3,6 @@
 #include <reent.h>
 #include <libc_internal.h>
 
-struct D520 {
-    char pad0[8];
-    PObjBlk *blk; /* 0x8 */
-};
+void __malloc_lock(Reent *ptr) {}
 
-void __malloc_lock(void) {}
-
-void __malloc_unlock() {}
+void __malloc_unlock(Reent *ptr) {}

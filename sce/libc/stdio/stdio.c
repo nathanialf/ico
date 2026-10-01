@@ -5,49 +5,53 @@
 #include <reent.h>
 #include <libc_internal.h>
 
-struct D520 {
-    char pad0[8];
-    PObjBlk *blk; /* 0x8 */
-};
+#define __SAPP 0x0100
+#define __SOFF 0x1000
+#define SEEK_END 2
 
-int __sread(Fil *a0, int a1, int a2)
+int __sread(void *cookie, char *buf, int n)
 {
-    long v = _read_r((int *)a0->data, a0->file, a1, a2);
-    if ((int)v >= 0) {
-        a0->offset = a0->offset + (int)v;
+    Fil *fp = (Fil *)cookie;
+    int ret;
+
+    ret = _read_r(fp->data, fp->file, buf, n);
+    if (ret >= 0) {
+        fp->offset += ret;
     } else {
-        a0->flags &= ~0x1000;
+        fp->flags &= ~__SOFF;
     }
-    return (int)v;
+    return ret;
 }
 
-long __swrite(Fil *a0, int a1, int a2)
+int __swrite(void *cookie, char *buf, int n)
 {
-    unsigned short flag = a0->flags;
-    if (flag & 0x100) {
-        _lseek_r((int *)a0->data, a0->file, 0, 2);
+    Fil *fp = (Fil *)cookie;
+
+    if (fp->flags & __SAPP) {
+        (void)_lseek_r(fp->data, fp->file, 0, SEEK_END);
     }
-    flag = a0->flags & ~0x1000;
-    a0->flags = flag;
-    {
-        unsigned long r = (unsigned long)_write_r((int *)a0->data, a0->file, a1, a2);
-        return (int)r;
-    }
+    fp->flags &= ~__SOFF;
+    return _write_r(fp->data, fp->file, buf, n);
 }
 
-long __sseek(Fil *a0, int a1, int a2)
+long __sseek(void *cookie, long offset, int whence)
 {
-    unsigned long r = (unsigned long)_lseek_r((int *)a0->data, a0->file, a1, a2);
-    if (r == -1) {
-        a0->flags &= ~0x1000;
+    Fil *fp = (Fil *)cookie;
+    long ret;
+
+    ret = _lseek_r(fp->data, fp->file, offset, whence);
+    if (ret == -1L) {
+        fp->flags &= ~__SOFF;
     } else {
-        a0->offset = (int)r;
-        a0->flags |= 0x1000;
+        fp->flags |= __SOFF;
+        fp->offset = ret;
     }
-    return r;
+    return ret;
 }
 
-int __sclose(Fil *a0)
+int __sclose(void *cookie)
 {
-    return _close_r((int *)a0->data, a0->file);
+    Fil *fp = (Fil *)cookie;
+
+    return _close_r(fp->data, fp->file);
 }

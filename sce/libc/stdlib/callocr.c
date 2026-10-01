@@ -3,25 +3,9 @@
 #include <string.h>
 #include <reent.h>
 #include <stdlib.h>
-
-struct D520 {
-    char pad0[8];
-    PObjBlk *blk; /* 0x8 */
-};
-
-typedef unsigned int INTERNAL_SIZE_T;
+#include <libc_internal.h>
 
 #define SIZE_SZ (sizeof(INTERNAL_SIZE_T))
-
-struct malloc_chunk {
-    INTERNAL_SIZE_T prev_size;
-    INTERNAL_SIZE_T size;
-    struct malloc_chunk *fd;
-    struct malloc_chunk *bk;
-};
-
-typedef struct malloc_chunk *mchunkptr;
-
 #define mem2chunk(mem) ((mchunkptr)((char *)(mem) - 2 * SIZE_SZ))
 #define SIZE_BITS 0x3
 #define chunksize(p) ((p)->size & ~(SIZE_BITS))
@@ -49,7 +33,7 @@ typedef struct malloc_chunk *mchunkptr;
             memset((charp), 0, mzsz);                                                              \
     } while (0)
 
-void *_calloc_r(void *rptr, unsigned int n, unsigned int elem_size)
+void *_calloc_r(Reent *rptr, unsigned int n, unsigned int elem_size)
 {
     mchunkptr p;
     INTERNAL_SIZE_T csz;

@@ -5,11 +5,8 @@
  * state (var.o's and init.o's globals, MAIN.MAP's names) and the helpers
  * the members call across files.  Each declaration is the definition's in
  * sce/libmpeg where that is C (var.c's objects, the members' functions),
- * else the spelling its callers carry.  Left out: the helpers whose callers
- * pass other arguments than the definition takes (_getAllRefs,
- * _getRef0, _motionVector, _motionVectors, _dispRefImage, _dispRefImageField):
- * each user keeps its own declaration until those sites are
- * retyped.
+ * else the spelling its callers carry.  A reference image (_refFrame0 and
+ * the rest, 26 ints) is passed as the int pointer var.o declares it.
  */
 #ifndef SCE_LIBMPEG_LIBMPEG_INTERNAL_H
 #define SCE_LIBMPEG_LIBMPEG_INTERNAL_H
@@ -70,14 +67,14 @@ extern int _copyright_identifier;
 extern int _copyright_number_1;
 extern int _copyright_number_2;
 extern int _copyright_number_3;
-void _cpr8(char *im);
-void _csc_storeRefImage(char *p);
+void _cpr8(int *im);
+void _csc_storeRefImage(int *p);
 extern int *_curBot;
 extern int *_curFrame;
 extern int *_curTop;
 
-int _decMB0(int *mb_type, int *motion_type, int *dct_type, int PMV[2][2][2], int *mv_field_sel,
-            int *dmvector);
+int _decMB0(int *mb_type, int *motion_type, int *dct_type, int PMV[2][2][2],
+            int mv_field_sel[2][2], int *dmvector);
 
 int _decPicture(int a0, int a1);
 int _decodeOrSkip(int a0, int a1, int a2);
@@ -95,12 +92,16 @@ extern int _display_vertical_size;
 void _doCSC2(int a0, int a1);
 void _doMC(int a0);
 extern int _drop_frame_flag;
+void _dispRefImage(int *img, int a1);
+void _dispRefImageField(int *top, int *bot, int a2);
 void _dualPrimeVector(int *DMV, int *dmvector, int mvx, int mvy);
 void _extensionAndUserData(void);
 void _extrainfo(void);
 extern int _f_code[2][2];
 extern int _field_sequence;
 void _flushBuf(int a0);
+void _getAllRefs(int x, int y, int mbflags, int motion_type, int *PMV, int *mv_field_sel,
+                 int *dmvector);
 extern int *_forwBot;
 extern int *_forwFrame;
 extern int *_forwTop;
@@ -113,8 +114,10 @@ extern int _frame_rate_extension_d;
 extern int _frame_rate_extension_n;
 extern int _full_pel_backward_vector;
 extern int _full_pel_forward_vector;
-void _getPtsDtsFlags(char *a0, void *a1, void *a2, void *a3);
+void _getPtsDtsFlags(int *img, void *a1, void *a2, void *a3);
 int _getpic(int a0);
+void _getRef0(int *img, int lineOff, int predIdx, int yoff, int h, int x, int y, int mvx, int mvy,
+              int fld, int avg);
 void _groupOfPicturesHeader(void);
 extern long long _headerDts;
 extern long long _headerPts;
@@ -136,7 +139,7 @@ extern int _intra_slice;
 extern int _intra_vlc_format;
 void _ipuSetMPEG1(int a0);
 int _ipuVdec(int tbl);
-int _isOutSizeOK(char *p);
+int _isOutSizeOK(int *p);
 void _lastFrame(int a0);
 extern int _load_intra_quantizer_matrix;
 extern int _load_non_intra_quantizer_matrix;
@@ -146,7 +149,11 @@ extern int _matrix_coefficients;
 extern int _maxval;
 int _mbAddressIncrement(void);
 extern int _mbcont[];
-int _motionComp0(int a0, int a1, int a2, int a3, int *a4, int *a5, int *a6);
+int _motionComp0(int a0, int a1, int a2, int a3, int *PMV, int *mv_field_sel, int *dmvector);
+void _motionVector(int *PMV, int *dmvector, int h_r_size, int v_r_size, int dmv, int mvscale,
+                   int full_pel);
+void _motionVectors(int PMV[2][2][2], int *dmvector, int mv_field_sel[2][2], int s, int mv_count,
+                    int mv_format, int h_r_size, int v_r_size, int dmv, int mvscale);
 unsigned int _nextBit(int a0);
 int _nextHeader(void);
 void _nextStartCode(void);
@@ -185,7 +192,7 @@ void _sequenceExtension(void);
 void _sequenceHeader(void);
 void _sequenceScalableExtension(void);
 void _setDefaultQM(int cmd, unsigned char *qm);
-int _skipMB0(int *a0, int *a1, int *a2, int *a3);
+int _skipMB0(int *PMV, int *motion_type, int *mv_field_sel, int *mb_type);
 int _slice0(int a0, int a1);
 int _sliceA0(int a0, int *a1, int *a2, int *a3);
 int _sliceB(void);

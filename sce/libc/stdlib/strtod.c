@@ -2,11 +2,7 @@
  * this member starts at an 8-aligned function start of the shipped ELF. */
 #include <stdlib.h>
 #include <reent.h>
-
-struct D520 {
-    char pad0[8];
-    PObjBlk *blk; /* 0x8 */
-};
+#include <libc_internal.h>
 
 /* newlib's mprec.h configuration for this build, spelled out in the member
    that uses it.  Evidence rung: the SRCFILE.TXT line map of _strtod_r picks
@@ -27,21 +23,6 @@ typedef unsigned int ULong;
 #define FLT_RADIX 2
 #define FLT_ROUNDS 1
 #define ERANGE 34
-
-struct _reent {
-    int _errno; /* 0x0 */
-};
-
-struct _Bigint {
-    struct _Bigint *_next; /* 0x00 */
-    int _k;                /* 0x04 */
-    int _maxwds;           /* 0x08 */
-    int _sign;             /* 0x0C */
-    int _wds;              /* 0x10 */
-    ULong _x[1];           /* 0x14 */
-};
-
-typedef struct _Bigint _Bigint;
 
 union double_union {
     double d;
@@ -97,40 +78,6 @@ extern const union __dmath __infinity[1];
 #define tens __mprec_tens
 #define bigtens __mprec_bigtens
 #define tinytens __mprec_tinytens
-
-/* kept local: libc_internal.h declares it as `int *_Balloc(void *ptr, int k)` */
-extern _Bigint *_Balloc(struct _reent *p, int k);
-/* kept local: libc_internal.h declares it as `void _Bfree(char *a0, int *a1)` */
-extern void _Bfree(struct _reent *p, _Bigint *v);
-/* kept local: libc_internal.h declares it as `int _s2b(void *a0, char *a1, int a2, int a3, int
-   a4)` */
-extern _Bigint *_s2b(struct _reent *p, const char *s, int nd0, int nd, ULong y9);
-/* kept local: libc_internal.h declares it as `void *_i2b(void *a0, int a1)` */
-extern _Bigint *_i2b(struct _reent *p, int i);
-/* kept local: libc_internal.h declares it as `int *_multiply(void *ptr, struct _Bigint *a,
-   struct _Bigint *b)` */
-extern _Bigint *_multiply(struct _reent *p, _Bigint *a, _Bigint *b);
-/* kept local: libc_internal.h declares it as `int *_pow5mult(void *ptr, struct _Bigint *b, int
-   k)` */
-extern _Bigint *_pow5mult(struct _reent *p, _Bigint *b, int k);
-/* kept local: libc_internal.h declares it as `int *_lshift(void *ptr, struct _Bigint *b, int
-   k)` */
-extern _Bigint *_lshift(struct _reent *p, _Bigint *b, int k);
-/* kept local: libc_internal.h declares it as `int *__mdiff(void *ptr, struct _Bigint *a, struct
-   _Bigint *b)` */
-extern _Bigint *__mdiff(struct _reent *p, _Bigint *a, _Bigint *b);
-/* kept local: libc_internal.h declares it as `int __mcmp(unsigned int *a, unsigned int *b)` */
-extern int __mcmp(_Bigint *a, _Bigint *b);
-/* kept local: this member cannot include libc_internal.h, whose _Balloc, _Bfree, __mcmp,
-   __mdiff, _d2b, _i2b, _lshift, _multiply, _pow5mult, _s2b conflict with its own */
-extern double _ulp(double x);
-/* kept local: libc_internal.h declares it as `int *_d2b(void *ptr, double dd, int *e, int
-   *bits)` */
-extern _Bigint *_d2b(struct _reent *p, double d, int *e, int *bits);
-/* kept local: this member cannot include libc_internal.h, whose _Balloc, _Bfree, __mcmp,
-   __mdiff, _d2b, _i2b, _lshift, _multiply, _pow5mult, _s2b conflict with its own */
-extern double _ratio(_Bigint *a, _Bigint *b);
-
 #define Balloc _Balloc
 #define Bfree _Bfree
 #define s2b _s2b
@@ -144,7 +91,7 @@ extern double _ratio(_Bigint *a, _Bigint *b);
 #define d2b _d2b
 #define ratio _ratio
 
-double _strtod_r(struct _reent *ptr, const char *s00, char **se)
+double _strtod_r(Reent *ptr, const char *s00, char **se)
 {
     int bb2, bb5, bbe, bd2, bd5, bbbits, bs2, c, dsign, e1, esign, i, j, k, nd, nd0, nf, nz, nz0,
         sign;
@@ -315,7 +262,7 @@ dig_done:
         if (e1 &= ~15) {
             if (e1 > DBL_MAX_10_EXP) {
             ovfl:
-                ptr->_errno = ERANGE;
+                ptr->err = ERANGE;
                 rv.d = HUGE_VAL;
                 if (bd0)
                     goto retfree;
@@ -359,7 +306,7 @@ dig_done:
                 if (!rv.d) {
                 undfl:
                     rv.d = 0.;
-                    ptr->_errno = ERANGE;
+                    ptr->err = ERANGE;
                     if (bd0)
                         goto retfree;
                     goto ret;
@@ -558,7 +505,7 @@ ret:
 
 double strtod(const char *s00, char **se)
 {
-    return _strtod_r((struct _reent *)_impure_ptr, s00, se);
+    return _strtod_r(_impure_ptr, s00, se);
 }
 
 float strtodf(const char *s00, char **se)

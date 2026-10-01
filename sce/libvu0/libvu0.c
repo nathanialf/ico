@@ -80,7 +80,7 @@ void sceVu0OuterProduct(void *a0, void *a1, void *a2)
 
 float sceVu0InnerProduct(void *a0, void *a1)
 {
-    register float ret __asm__("$f0");
+    float ret;
     __asm__ __volatile__(".set noreorder\n"
                          "lqc2 $vf4, 0x0($4)\n"
                          "lqc2 $vf5, 0x0($5)\n"
@@ -88,7 +88,7 @@ float sceVu0InnerProduct(void *a0, void *a1)
                          "vaddy.x $vf5, $vf5, $vf5y\n"
                          "vaddz.x $vf5, $vf5, $vf5z\n"
                          "qmfc2.ni $2, $vf5\n"
-                         "mtc1 $2, $f0\n"
+                         "mtc1 $2, %0\n"
                          ".set reorder\n"
                          : "=f"(ret)::"$2");
     return ret;
@@ -784,15 +784,15 @@ void sceVu0ScaleVectorXYZ(void *a0, void *a1, float a2)
 
 int sceVu0ClipScreen(void *a0)
 {
-    register int r __asm__("$2");
+    int r;
     __asm__ __volatile__(".set noreorder\n"
                          "vsub.xyzw $vf4, $vf0, $vf0\n"
-                         "lui $2, 0x4580\n"
-                         "dsll $2, $2, 16\n"
-                         "ori $2, $2, 0x4580\n"
-                         "dsll $2, $2, 16\n"
+                         "lui %0, 0x4580\n"
+                         "dsll %0, %0, 16\n"
+                         "ori %0, %0, 0x4580\n"
+                         "dsll %0, %0, 16\n"
                          "lqc2 $vf7, 0x0($4)\n"
-                         "qmtc2.ni $2, $vf6\n"
+                         "qmtc2.ni %0, $vf6\n"
                          "ctc2.ni $0, $vi16\n"
                          "vsub.xyw $vf5, $vf7, $vf4\n"
                          "vsub.xy $vf5, $vf6, $vf7\n"
@@ -801,7 +801,7 @@ int sceVu0ClipScreen(void *a0)
                          "vnop\n"
                          "vnop\n"
                          "vnop\n"
-                         "cfc2.ni $2, $vi16\n"
+                         "cfc2.ni %0, $vi16\n"
                          ".set reorder\n"
                          : "=r"(r));
     return r & 0xC0;
@@ -809,17 +809,17 @@ int sceVu0ClipScreen(void *a0)
 
 int sceVu0ClipScreen3(void *a0, void *a1, void *a2)
 {
-    register int ret __asm__("$2");
+    int ret;
     __asm__ __volatile__(".set noreorder\n"
                          "vsub.xyzw $vf4, $vf0, $vf0\n"
-                         "lui $2, 0x4580\n"
-                         "dsll $2, $2, 16\n"
-                         "ori $2, $2, 0x4580\n"
-                         "dsll $2, $2, 16\n"
+                         "lui %0, 0x4580\n"
+                         "dsll %0, %0, 16\n"
+                         "ori %0, %0, 0x4580\n"
+                         "dsll %0, %0, 16\n"
                          "lqc2 $vf6, 0x0($4)\n"
                          "lqc2 $vf8, 0x0($5)\n"
                          "lqc2 $vf9, 0x0($6)\n"
-                         "qmtc2.ni $2, $vf7\n"
+                         "qmtc2.ni %0, $vf7\n"
                          "ctc2.ni $0, $vi16\n"
                          "vsub.xyw $vf5, $vf6, $vf4\n"
                          "vsub.xy $vf5, $vf7, $vf6\n"
@@ -832,7 +832,7 @@ int sceVu0ClipScreen3(void *a0, void *a1, void *a2)
                          "vnop\n"
                          "vnop\n"
                          "vnop\n"
-                         "cfc2.ni $2, $vi16\n"
+                         "cfc2.ni %0, $vi16\n"
                          ".set reorder\n"
                          : "=r"(ret));
     return ret & 0xC0;

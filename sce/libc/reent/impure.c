@@ -7,7 +7,23 @@
 #include <reent.h>
 
 static Reent impure_data = {
-    0, &impure_data.sf[0], &impure_data.sf[1], &impure_data.sf[2], 0, "", 0, "C", 0, 0, {0}, 1,
+    0,
+    &impure_data.sf[0],
+    &impure_data.sf[1],
+    &impure_data.sf[2],
+    0,
+    "",
+    0,
+    "C",
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    1,
 };
 
 Reent *_impure_ptr = &impure_data;

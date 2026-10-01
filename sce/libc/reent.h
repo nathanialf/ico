@@ -54,7 +54,7 @@ typedef struct Fil {
     void *cookie;     /* 0x1C, the argument the four stream calls below take */
     int (*read)(void *cookie, char *buf, int n);    /* 0x20 */
     int (*write)(void *cookie, char *buf, int n);   /* 0x24 */
-    int (*seek)(void *cookie, int off, int whence); /* 0x28 */
+    long (*seek)(void *cookie, long off, int whence); /* 0x28 */
     int (*close)(void *cookie);                     /* 0x2C */
     Sbuf ub;                                        /* 0x30 */
     unsigned char *up;                              /* 0x38 */
@@ -66,6 +66,18 @@ typedef struct Fil {
     int offset;                                     /* 0x50 */
     struct Reent *data;                             /* 0x54 */
 } Fil;
+
+/* newlib's big integer (sys/reent.h): mprec's Balloc keeps a free list of
+ * them per size k in the reentrancy record, dtoa caches its result string in
+ * one. */
+struct _Bigint {
+    struct _Bigint *_next; /* 0x00 */
+    int _k;                /* 0x04 */
+    int _maxwds;           /* 0x08 */
+    int _sign;             /* 0x0C */
+    int _wds;              /* 0x10 */
+    unsigned int _x[1];    /* 0x14 */
+};
 
 /* The reentrancy record, newlib's struct _reent: impure.c's _REENT_INIT sets
  * the three standard stream pointers, the locale name and the rand seed; the
@@ -79,7 +91,12 @@ typedef struct Reent {
     const char *current_locale; /* 0x034 */
     int sdidinit;               /* 0x038 */
     void *cleanup;              /* 0x03C */
-    char pad040[0x18];          /* 0x040 */
+    struct _Bigint *result;     /* 0x040, dtoa's cached result */
+    int result_k;               /* 0x044 */
+    struct _Bigint *p5s;        /* 0x048, mprec's powers of 5 */
+    struct _Bigint **freelist;  /* 0x04C, Balloc's lists by k */
+    int cvtlen;                 /* 0x050 */
+    char *cvtbuf;               /* 0x054 */
     unsigned int rand_next;     /* 0x058 */
     char *strtok_last;          /* 0x05C */
     char pad060[0x178];         /* 0x060 */
@@ -88,10 +105,12 @@ typedef struct Reent {
 } Reent;
 
 extern Reent *_impure_ptr;                       /* definition in sce/ (reent/impure.c) */
-int _close_r(int *self, int a1);                 /* definition in sce/ */
-int _read_r(int *self, int a1, int a2, int a3);  /* definition in sce/ */
-int _write_r(int *self, int a1, int a2, int a3); /* definition in sce/ */
-int _lseek_r(int *self, int a1, int a2, int a3); /* definition in sce/ */
-int _sbrk_r(int *self, int a1);                  /* definition in sce/ */
+int _close_r(Reent *ptr, int fd);                           /* definition in sce/ */
+long _read_r(Reent *ptr, int fd, void *buf, int cnt);       /* definition in sce/ */
+long _write_r(Reent *ptr, int fd, void *buf, int cnt);      /* definition in sce/ */
+long _lseek_r(Reent *ptr, int fd, long pos, int whence);      /* definition in sce/ */
+struct stat;
+int _fstat_r(Reent *ptr, int fd, struct stat *pstat);        /* definition in sce/ */
+int _sbrk_r(Reent *ptr, int incr);                          /* definition in sce/ */
 
 #endif /* SCE_LIBC_REENT_H */

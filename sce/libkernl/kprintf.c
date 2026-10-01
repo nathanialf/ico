@@ -93,14 +93,6 @@ int ftoi(unsigned long long a)
     return (int)m;
 }
 
-/* kept local: libgcc's soft-float entry point (dp-bit.c, long arguments), and libgcc2.h is not
-   on this archive's include path */
-extern int dpcmp(double a, double b);
-extern double dpsub(double a, double b);
-extern double dpmul(double a, double b);
-extern double dpdiv(double a, double b);
-/* kept local: libgcc's, and libgcc2.h is not on this archive's include path */
-extern unsigned long long __fixunsdfdi(double a);
 /* kept local: this member cannot include libkernl_internal.h, whose kputs conflicts with its
    own */
 extern void kprintf(char *fmt, ...);
@@ -111,23 +103,23 @@ void printfloat(double v)
     int e = 0;
     int n;
 
-    if (dpcmp(v, zero) < 0) {
-        v = dpsub(zero, v);
+    if (v < zero) {
+        v = zero - v;
         putchar_fn('-');
     }
-    if (dpcmp(v, 0.1) < 0) {
-        while (dpcmp(v, 0.1) < 0) {
-            v = dpmul(v, 10.0);
+    if (v < 0.1) {
+        while (v < 0.1) {
+            v *= 10.0;
             e--;
         }
-    } else if (dpcmp(v, 1.0) >= 0) {
-        while (dpcmp(v, 1.0) >= 0) {
-            v = dpdiv(v, 10.0);
+    } else if (v >= 1.0) {
+        while (v >= 1.0) {
+            v /= 10.0;
             e++;
         }
     }
-    v = dpmul(v, 1000000.0);
-    n = ftoi(__fixunsdfdi(v));
+    v *= 1000000.0;
+    n = ftoi(v);
     kprintf("0.%d", n);
     if (e >= 0) {
         kprintf("e+%d", e);
@@ -332,9 +324,13 @@ void _printf(char *fmt, char *ap)
             case 'e':
             case 'f': {
                 /* CRUTCH (user-approved 2026-09-29, finisher to fix): the ROM has a nop
-                 * between c.eq.s and bc1f here, which no ee-gcc 2.9-991111 template and no
-                 * SCE 2.10 assembler option emits. The $f12 register variable x and the nop
-                 * asm stand in for whatever produced it. */
+                 * between c.eq.s and bc1f here. The compiler writes only `#nop` and then
+                 * `.set noreorder` before the branch; the nop is the assembler's hazard
+                 * flush. Measured 2026-10-01 on this member's .s: SCE 2.10-ee assembles
+                 * it with only this nop missing (no option adds it for the R5900), and
+                 * ee-as 2.9-991111 assembles it with only ftoi's return slot unfilled.
+                 * Sony's library assembler did both; no assembler in the tree does. The
+                 * $f12 register variable x and the nop asm stand in for that. */
                 register float x __asm__("$f12");
 
                 ap += 8;

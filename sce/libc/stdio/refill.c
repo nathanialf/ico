@@ -1,6 +1,7 @@
 /* libc.a member refill.o.  MAIN.MAP member spans tile this run exactly and
  * this member starts at an 8-aligned function start of the shipped ELF. */
 #include <reent.h>
+#include <stdlib.h>
 #include <libc_internal.h>
 
 struct D520 {
@@ -12,8 +13,6 @@ struct D520 {
    as the shipped code does; the declaration is left unprototyped. */
 /* kept local: not yet moved to stdio.h */
 extern int fflush();
-/* kept local: stdlib.h declares it as `void _free_r(int *self, void *mem)` */
-extern void _free_r(Reent *r, void *p);
 
 int lflush(void)
 {

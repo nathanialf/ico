@@ -4,7 +4,7 @@
 #include <eeregs.h>
 #include <eekernel.h>
 
-int sceGsSyncV(void)
+int sceGsSyncV(int mode)
 {
     char *p = (char *)sceGsGetGParam();
     long c;

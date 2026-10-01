@@ -3,13 +3,11 @@
 
 #include <math.h>
 
-/* kept local: libgcc's soft-float entry point (dp-bit.c, long arguments), and libgcc2.h is not
-   on this archive's include path */
-extern int dpcmp(long a0, long a1);
-
-int matherr(void *a0)
+int matherr(struct exception *x)
 {
-    long p = *(long *)((char *)a0 + 8);
-    dpcmp(p, p);
-    return 0;
+    int n = 0;
+
+    if (x->arg1 != x->arg1)
+        return 0;
+    return n;
 }
