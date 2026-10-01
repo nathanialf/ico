@@ -30,9 +30,7 @@ pins are fine only where the developers' own source was assembly).
      one-assembler ruling of 2026-09-23 after the disc's link was measured).
   6. A file-scope `__asm__(...)` block that defines (`.global NAME`) a function
      the listing attributes to three or more source lines of a .c file: that is
-     a compiled-C function typed out as asm, a stub hidden from the
-     NON_MATCHING count (mv_vibuf carried five until 2026-09-23); it is written
-     as C instead.
+     a compiled-C function typed out as asm, and it is written as C instead.
 """
 import os
 import re
@@ -205,7 +203,7 @@ def main(argv):
                 if fn is None and not PIN.search(l):
                     # a file-scope asm block: every function it defines is judged by
                     # the listing on its own name (rule 6: a compiled-C function typed
-                    # out as asm is a stub hidden from the NON_MATCHING count)
+                    # out as asm is written as C instead)
                     text = asm_block_text(L, i)
                     for g in re.findall(r'\.globa?l\s+(\w+)', text):
                         key = f'{f}:{g}'

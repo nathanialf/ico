@@ -1,12 +1,8 @@
 #!/usr/bin/env bash
-# Install the IP-safety scan + byte-identical-build gate as git hooks
-# (opt-in). Installs:
-#   - pre-commit: catches local commits that break the build
-#   - pre-push:   catches commits authored with --no-verify before
-#                   they reach a shared ref. This is the real gate;
-#                   30 commits got pushed in May 2026 that broke the
-#                   global SHA because pre-commit was --no-verify'd
-#                   and there was no pre-push backstop.
+# Install the IP-safety scan and the byte gate as git hooks (opt-in):
+#   - pre-commit: refuses a local commit that breaks the build
+#   - pre-push:   refuses to push a ref whose tip does not rebuild the base,
+#                 the backstop for commits made with --no-verify
 # Re-run any time either hook body changes.
 set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
@@ -25,30 +21,24 @@ fi
 
 cat > "$HOOK" <<'EOF'
 #!/usr/bin/env bash
-# Auto-installed by tools/install_hooks.sh. Runs:
-#   1. tools/check_no_rom.sh   : IP-safety scan on staged files
-#   2. tools/build.sh setup    : splat + migrator + ninja regen
-#   3. ninja                   : byte-identical-build gate (SHA-1 verify)
-#   4. tools/check_elf.py --progress : refresh the progress tables and
-#                                 docs/progress.json from the built ELF and its
-#                                 link map, then `git add` them into this commit
+# Auto-installed by tools/install_hooks.sh. Runs, in order:
+#   1. tools/check_no_rom.sh        IP-safety scan of the staged files
+#   2. tools/check_dev_native.py    refuses codegen-steering constructs in staged C
+#   3. tools/format.sh --check      staged C must be clang-formatted
+#   4. tools/build.sh setup         verify the base ELF and ROM SHA-1s, write build.ninja
+#   5. ninja                        build every object from source, link, and run
+#                                   tools/check_elf.py --gate (the byte gate)
+#   6. tools/check_elf.py --progress
+#                                   refresh README.md, docs/PROGRESS.md and
+#                                   docs/progress.json from the built ELF and its
+#                                   link map, then `git add` them into this commit
 #
-# The full-setup step matters: incremental ninja can be misleadingly
-# green if the per-TU data sidecars on disk happen to match a prior
-# state. Running setup forces the migrator/aligner/rewriter pipeline
-# to regenerate from current asm + linker map, so a commit can only
-# land if a from-scratch rebuild also passes SHA-1.
+# Steps 4 to 6 run only when a staged path can affect the build (ico2/, sce/,
+# config/, tools/, baserom/). `build.sh setup` deletes build/ first, so the gate
+# is always a from-scratch build of the staged tree.
 #
-# Bypass with --no-verify only when you're committing changes that
-# don't touch the build graph (docs-only edits, etc.) and you're
-# certain the build is still green.
-#
-# Notes:
-# * Setup + ninja is invoked only when the staged changes can plausibly
-#   affect the build (ico2/, sce/, src/, asm/, config/, tools/, include/, baserom/).
-#   Pure docs/notes commits skip it.
-# * If `build.ninja` is absent (fresh checkout), the hook prints a hint
-#   and skips the gate rather than spending minutes mid-commit.
+# Bypass with --no-verify only for a commit that cannot touch the build and
+# when the build is known green.
 set -e
 ROOT="$(git rev-parse --show-toplevel)"
 
@@ -60,28 +50,27 @@ ROOT="$(git rev-parse --show-toplevel)"
 # ROM-proven exceptions with their reasons.
 python3 "$ROOT/tools/check_dev_native.py"
 
-# Staged C must be clang-formatted (whitespace only; the byte gate below
-# proves formatting never changes the ROM). Fix with: tools/format.sh FILE
+# Staged C must be clang-formatted. Formatting can move bytes under -g, which
+# the byte gate below catches. Fix with: tools/format.sh FILE
 STAGED_C=$(git diff --cached --name-only --diff-filter=ACMR -z | tr '\0' '\n' |
-    grep -E '^(ico2/[^/]+/[^/]+|sce(/[^/]+){0,3}|src)/[^/]+\.c(\.inc)?$' || true)
+    grep -E '^(ico2/[^/]+/[^/]+|sce(/[^/]+){0,3})/[^/]+\.c(\.inc)?$' || true)
 if [[ -n "$STAGED_C" ]]; then
     # shellcheck disable=SC2086
     "$ROOT/tools/format.sh" --check $STAGED_C
 fi
 
-# Decide whether staged changes can affect the build. Pure-docs commits
-# (only docs/, README.md, .gitignore, etc.) bypass the build gate.
+# Pure-docs commits (docs/, README.md, .gitignore, ...) skip the build gate.
 BUILD_SENSITIVE=$(git diff --cached --name-only -z |
     tr '\0' '\n' |
-    grep -E '^([A-Za-z0-9_]+/src/|ico2/|sce/|src/|ios/|isys/|ito/|sound/|asm/|config/|tools/|include/|baserom/|Makefile|build\.ninja$)' ||
+    grep -E '^(ico2/|sce/|config/|tools/|baserom/)' ||
     true)
 if [[ -z "$BUILD_SENSITIVE" ]]; then
     exit 0
 fi
 
 if [[ ! -f "$ROOT/build.ninja" ]]; then
-    echo "pre-commit: build.ninja not found: run \`tools/build.sh setup\` once," >&2
-    echo "  then this hook will be able to enforce the SHA-1 gate." >&2
+    echo "pre-commit: build.ninja not found: run \`tools/build.sh setup && ninja\` once," >&2
+    echo "  then this hook will be able to enforce the byte gate." >&2
     exit 0
 fi
 
@@ -94,30 +83,28 @@ if [[ -z "$NINJA" ]]; then
     exit 0
 fi
 
-echo "pre-commit: tools/build.sh setup (full regen) ..."
+echo "pre-commit: tools/build.sh setup ..."
 if ! "$ROOT/tools/build.sh" setup >/dev/null; then
     echo "" >&2
-    echo "pre-commit: SETUP FAILED: splat/migrator pipeline errored." >&2
-    echo "  Run \`tools/build.sh setup\` manually to see the error." >&2
+    echo "pre-commit: SETUP FAILED: the base ELF or ROM SHA-1 check or the" >&2
+    echo "  build.ninja generation errored. Run \`tools/build.sh setup\` to see why." >&2
     exit 1
 fi
 
-echo "pre-commit: ninja (SHA-1 gate) ..."
+echo "pre-commit: ninja (byte gate) ..."
 if ! "$NINJA" -C "$ROOT"; then
     echo "" >&2
-    echo "pre-commit: BUILD FAILED: the staged changes break the byte-identical" >&2
-    echo "  round-trip. Fix the build (or rebase) before committing." >&2
+    echo "pre-commit: BUILD FAILED: the staged tree does not rebuild the base ELF" >&2
+    echo "  byte for byte. Fix the build (or rebase) before committing." >&2
     echo "  Bypass with \`git commit --no-verify\` only if you understand why" >&2
     echo "  ninja is failing and have a follow-up commit ready that fixes it." >&2
     exit 1
 fi
 
-# Build is green: refresh the progress tables + GitHub Pages JSON so every
-# build-affecting commit carries up-to-date numbers, and stage them into THIS
-# commit. These are derived artifacts, so a regen hiccup warns but never blocks
-# the commit (the SHA-1 gate above already passed). `git add` here re-stages the
-# regenerated files; for a normal `git commit`/`commit -a` they ride along in
-# this commit (a path-scoped `git commit <file>` won't pick them up).
+# Build is green: refresh the progress tables and the dashboard's JSON and
+# stage them into THIS commit. They are derived files, so a failure here warns
+# and never blocks the commit (the byte gate above already passed). For a
+# path-scoped `git commit <file>` the re-staged files do not ride along.
 echo "pre-commit: tools/check_elf.py --progress (refresh + stage progress) ..."
 if "$ROOT/.venv/bin/python" "$ROOT/tools/check_elf.py" --progress >/dev/null 2>&1; then
     git add "$ROOT/README.md" "$ROOT/docs/PROGRESS.md" "$ROOT/docs/progress.json" 2>/dev/null || true
@@ -129,18 +116,19 @@ EOF
 chmod +x "$HOOK"
 echo "Installed pre-commit hook at $HOOK"
 
-# pre-push: re-run the SHA gate against the tip of each ref being
+# pre-push: re-run the byte gate against the tip of each ref being
 # pushed. Catches commits that bypassed pre-commit via --no-verify.
 # Cannot itself be bypassed (--no-verify only affects pre-commit and
 # commit-msg; for push, use `git push --no-verify`, but reviewers can
 # at least see push history in the reflog).
 cat > "$PUSH_HOOK" <<'EOF'
 #!/usr/bin/env bash
-# Auto-installed by tools/install_hooks.sh. Per-push SHA gate.
+# Auto-installed by tools/install_hooks.sh. Per-push byte gate.
 #
-# For each ref being pushed, checks out its tip in a worktree, runs
-# tools/build.sh setup + ninja, and refuses the push if SHA-1 doesn't
-# match. This is the backstop against commits authored with
+# For each ref being pushed whose commits touch the build, requires the
+# working tree to be at that ref's tip, runs tools/build.sh setup + ninja
+# (which ends in tools/check_elf.py --gate), and refuses the push if the
+# rebuilt ELF differs from the base. This is the backstop against commits authored with
 # `git commit --no-verify` that broke the byte-identical round-trip.
 #
 # Bypass with `git push --no-verify` ONLY when pushing a known-broken
@@ -175,13 +163,13 @@ while read local_ref local_sha remote_ref remote_sha; do
         range="$remote_sha..$local_sha"
     fi
     BUILD_SENSITIVE=$(git diff --name-only "$range" 2>/dev/null |
-        grep -E '^([A-Za-z0-9_]+/src/|ico2/|sce/|src/|ios/|isys/|ito/|sound/|asm/|config/|tools/|include/|baserom/|Makefile|build\.ninja$)' ||
+        grep -E '^(ico2/|sce/|config/|tools/|baserom/)' ||
         true)
     if [[ -z "$BUILD_SENSITIVE" ]]; then
         continue
     fi
 
-    echo "pre-push: build-sensitive changes in $local_ref → re-verifying SHA gate ..."
+    echo "pre-push: build-sensitive changes in $local_ref: re-running the byte gate ..."
     # Verify the tip being pushed builds clean. Use the current working
     # tree (which should match local_sha if the user hasn't done weird
     # things). If working tree differs, refuse.
@@ -198,14 +186,14 @@ while read local_ref local_sha remote_ref remote_sha; do
         continue
     fi
     if ! "$NINJA" -C "$ROOT" >/dev/null 2>&1; then
-        echo "pre-push: SHA-1 GATE FAILED on $local_ref: refusing push." >&2
-        echo "  This is the byte-identical round-trip check. The commit being pushed" >&2
+        echo "pre-push: BYTE GATE FAILED on $local_ref: refusing push." >&2
+        echo "  The rebuilt ELF differs from the base. The commit being pushed" >&2
         echo "  was likely authored with \`git commit --no-verify\`. Fix the build" >&2
         echo "  (or rebase to drop the bad commit) before pushing." >&2
         push_failed=1
         continue
     fi
-    echo "pre-push: SHA-1 gate OK on $local_ref"
+    echo "pre-push: byte gate OK on $local_ref"
 done
 
 exit $push_failed

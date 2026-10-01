@@ -2,24 +2,25 @@
 # =============================================================================
 # tools/setup.sh
 #
-# One-shot host setup. Idempotent — running it twice is fine.
+# One-shot host setup. Idempotent: running it twice is fine.
 #
 #   1. Create a Python venv at .venv and install tools/requirements.txt.
-#   2. Initialize / update git submodules (splat, asm-differ).
-#   3. Set up the EE toolchain (system binary detection → Docker → source),
-#      and build the period linker (ld 2.10) and dvp-as from public source.
-#   4. Fetch a pinned Ghidra release into tools/ghidra/.
-#   5. Best-effort install pcsx2.
-#   6. Install the IP-safety pre-commit hook.
+#   2. Fetch the period compilers (ee-gcc 2.9-991111 and ee-gcc 2.96, for its
+#      SCE 2.10 assembler), check for a MIPS objcopy, and build the period
+#      linker (GNU ld 2.10) and dvp-as from public source.
+#   3. Optional: fetch a pinned Ghidra release into tools/ghidra/, for
+#      interactive reverse engineering. Nothing in the build uses it.
+#   4. Optional: best-effort install of pcsx2, to boot the rebuilt ELF.
+#   5. Install the git hooks (tools/install_hooks.sh).
 #
 # This script downloads no disc data, no assets, and no ICO-specific files.
-# Everything pulled is from open-source projects (ps2dev, ghidra, etc.) used
-# across many PS2 reverse-engineering projects.
+# Everything pulled is from open-source projects (GNU binutils, ps2dev,
+# decompme/compilers, Ghidra).
 #
 # Skip flags:
-#   SKIP_TOOLCHAIN=1   skip step 4
-#   SKIP_GHIDRA=1      skip step 5
-#   SKIP_PCSX2=1       skip step 6
+#   SKIP_TOOLCHAIN=1   skip step 2
+#   SKIP_GHIDRA=1      skip step 3
+#   SKIP_PCSX2=1       skip step 4
 # =============================================================================
 set -euo pipefail
 
@@ -42,20 +43,9 @@ source "$VENV/bin/activate"
 python -m pip install --upgrade pip >/dev/null
 python -m pip install -r tools/requirements.txt
 
-# --- 2. Submodules -----------------------------------------------------------
-
-if [[ -d .git ]] && [[ -f .gitmodules ]]; then
-    echo "==> updating submodules"
-    git submodule update --init --recursive
-elif [[ -d .git ]]; then
-    echo "==> no .gitmodules yet (skipping submodule init)"
-else
-    echo "==> not a git repo yet; run 'git init' first (skipping submodules)"
-fi
-
-# --- 3. EE GCC 2.9-991111 (matching compiler — same source as the
-#       PAL ICO-decomp project) and ee-gcc 2.96 (only its bundled ee-as
-#       2.10, used by the src/.o assembler step) ------------------------
+# --- 2. EE GCC 2.9-991111 (the game's compiler, and its ee-as 2.9-991111
+#       for the game, libc, libm and libgcc) and ee-gcc 2.96 (only its
+#       bundled SCE 2.10 assembler, for the SDK-install sce/ archives) ----
 
 EEGCC29_DIR="$ROOT/tools/cc/ee-gcc2.9-991111"
 EEGCC29_BIN="$EEGCC29_DIR/ee-gcc"
@@ -104,14 +94,14 @@ if [[ -f "$EEGCC_BIN" ]] && ! "$EEGCC_BIN" --version >/dev/null 2>&1; then
 EOF
 fi
 
-# --- 3b. EE binutils (assembler/linker) -------------------------------------
+# --- 2b. MIPS objcopy (the ROM view and compile_c.sh's object step) ---------
 
 if [[ "${SKIP_TOOLCHAIN:-0}" == "1" ]]; then
     :
 elif command -v mips64r5900el-ps2-elf-objcopy >/dev/null 2>&1; then
     echo "==> system EE binutils detected"
 elif command -v mips-linux-gnu-objcopy >/dev/null 2>&1; then
-    echo "==> using mips-linux-gnu binutils for the link (system fallback)"
+    echo "==> using mips-linux-gnu binutils (objcopy)"
 else
     cat <<'EOF' >&2
 
@@ -121,19 +111,18 @@ Quickest fix on Debian/Ubuntu:
 
     sudo apt-get install binutils-mips-linux-gnu
 
-That gives you mips-linux-gnu-ld / -objcopy, which link and round-trip the ICO
-ELF. Assembly is not their job: every object is assembled by the period
-ee-as 2.9-991111 under tools/cc/, fetched above. The PS2-specific
-'mips64r5900el-ps2-elf-' prefix is only needed if you want EE-specific
-binutils features; for matching work the generic binutils is sufficient.
+That gives you mips-linux-gnu-objcopy, which writes build/ico.rom from the
+linked ELF. Assembly and linking are not its job: every object is assembled by
+the period assemblers under tools/cc/, fetched above, and the link is GNU ld
+2.10, built below.
 
 EOF
 fi
 
-# --- 3c. Period linker and DVP assembler, built from public source ---------
+# --- 2c. Period linker and DVP assembler, built from public source ---------
 #
-# The plain build (tools/gen_ninja_plain.py) links with the linker era of the
-# retail link and assembles the VU microprograms with a DVP assembler. Both are
+# The build (tools/gen_ninja.py) links with the linker era of the retail link
+# and assembles the VU microprograms with a DVP assembler. Both are
 # built here from public GPL source; no SDK file is fetched or used.
 #
 #   ld 2.10 + EE/DVP patch   GNU binutils 2.10 release tarball,
@@ -238,10 +227,10 @@ if [[ "${SKIP_TOOLCHAIN:-0}" == "1" ]]; then
     echo "==> SKIP_TOOLCHAIN=1; not building ld 2.10 / dvp-as"
 else
     # dvp-as first: the 2.10 build takes its config.sub/config.guess.
-    build_dvp_as && build_ld210 || echo "==> plain-build toolchain incomplete" >&2
+    build_dvp_as && build_ld210 || echo "==> linker / dvp-as build incomplete" >&2
 fi
 
-# --- 4. Ghidra ---------------------------------------------------------------
+# --- 3. Ghidra (optional, interactive RE only) --------------------------------
 
 GHIDRA_VER="${GHIDRA_VER:-11.2.1}"
 GHIDRA_REL="${GHIDRA_REL:-PUBLIC_20241105}"
@@ -265,7 +254,7 @@ else
     echo "==> curl not available; skipping Ghidra"
 fi
 
-# --- 5. pcsx2 (optional) -----------------------------------------------------
+# --- 4. pcsx2 (optional) -----------------------------------------------------
 
 if [[ "${SKIP_PCSX2:-0}" == "1" ]]; then
     echo "==> SKIP_PCSX2=1; not installing pcsx2"
@@ -279,7 +268,7 @@ else
     echo "==> non-apt host; install pcsx2 manually from https://pcsx2.net"
 fi
 
-# --- 6. pre-commit hook ------------------------------------------------------
+# --- 5. git hooks --------------------------------------------------------------
 
 if [[ -d .git ]]; then
     bash tools/install_hooks.sh
@@ -301,4 +290,4 @@ case "$ICO_VERSION" in
     *)    echo "  1. Place your $ICO_VERSION disc image under baserom/" ;;
 esac
 echo "  2. Run 'tools/extract_elf.sh' to extract $ICO_BASEELF and record SHA-1"
-echo "  3. Run 'tools/build.sh setup && ninja' to verify and build"
+echo "  3. Run 'tools/build.sh setup && .venv/bin/ninja' to verify and build"

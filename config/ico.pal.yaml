@@ -1,3 +1,4 @@
+# Posterity: the matching era's splat layout for the PAL target, kept as the record of how the ELF was split and carved. The plain build reads none of its rows: tools/ico_version.{py,sh} name the target (pal) by this file's existence and read its asm_path, which no build step uses.
 # =============================================================================
 # splat configuration — ICO (PAL retail SCES-50760, boot ELF SCES_507.60)
 #

@@ -35,7 +35,9 @@ derive progress from that comparison and the link map.
               reports; it gates nothing and needs no map.
 
 Inputs: build/ico.elf, build/ico.<ver>.map (written by the link, see
-tools/gen_ninja.py), the base ELF and config/sha1sums.txt.
+tools/gen_ninja.py), the base ELF and config/sha1sums.txt. --progress also
+reads the function symbols from build/ico.syms.elf, the same link with its
+symbol table kept (build/ico.elf is stripped, as the base is).
 """
 
 from __future__ import annotations
@@ -62,6 +64,7 @@ VERSION = detect_version(REPO_ROOT)
 BASE_ELF = baseelf_path(REPO_ROOT, VERSION)
 BUILT_ELF = REPO_ROOT / "build" / "ico.elf"
 BUILT_ROM = REPO_ROOT / "build" / "ico.rom"
+BUILT_SYMS = REPO_ROOT / "build" / "ico.syms.elf"
 LINK_MAP = REPO_ROOT / "build" / f"ico.{VERSION}.map"
 SHA1SUMS = REPO_ROOT / "config" / "sha1sums.txt"
 README = REPO_ROOT / "README.md"
@@ -69,7 +72,7 @@ PROGRESS_DOC = REPO_ROOT / "docs" / "PROGRESS.md"
 PROGRESS_JSON = REPO_ROOT / "docs" / "progress.json"
 
 NOBITS = (".sbss", ".bss")
-# Badge / table order: ELF link order, as progress.py has it.
+# Badge / table order: ELF link order.
 REPORT_ORDER = [".text", ".vutext", ".data", ".vudata", ".rodata",
                 ".lit4", ".sdata", ".sbss", ".bss"]
 OWNED_ROOTS = ("build/ico2/", "build/sce/")
@@ -77,8 +80,8 @@ EXTRACTED_ROOT = "build/data/"
 BLOB_ROOT = "build/asm/"
 VUTEXT_GROUP = ".vutext"
 VUTEXT_NOTE = (
-    "VU1 microprograms in the .vutext ELF section — hand-typed src/*.S, "
-    "assembled byte-identically. Counted separately from .text so the "
+    "VU1 microprograms in the .vutext ELF section: ico2/vusrc/*.dsm, "
+    "assembled by dvp-as. Counted separately from .text so the "
     "headline .text figure is not inflated."
 )
 
@@ -113,12 +116,18 @@ class Elf:
                 })
             self.funcs = []
             symtab = elf.get_section_by_name(".symtab")
+            vutext = [i for i, s in enumerate(self.sections) if s["name"] == ".vutext"]
             if symtab is not None:
                 for sym in symtab.iter_symbols():
-                    if sym["st_info"]["type"] != "STT_FUNC":
-                        continue
                     if not isinstance(sym["st_shndx"], int):
                         continue       # SHN_ABS: a script-defined address
+                    # dvp-as gives each VU1 microprogram's entry label no
+                    # symbol type, so a global label in .vutext counts too.
+                    vu_entry = (sym["st_info"]["type"] == "STT_NOTYPE"
+                                and sym["st_info"]["bind"] == "STB_GLOBAL"
+                                and sym["st_shndx"] in vutext)
+                    if sym["st_info"]["type"] != "STT_FUNC" and not vu_entry:
+                        continue
                     self.funcs.append((sym["st_value"], sym["st_size"], sym.name))
         self.funcs.sort()
         self._progbits = sorted(
@@ -805,28 +814,51 @@ def _badge_color(m: int, t: int) -> str:
     return "orange" if pct > 0.0 else "red"
 
 
-def _badges(sections: dict) -> str:
+def _badge_text(m: int, x: int, t: int) -> str:
+    """`100.00 % C`, or `72.54 % C + 27.46 % table` when part of the section
+    is extracted data."""
+    text = f"{_fmt_pct(m, t)} C"
+    if x:
+        text += f" + {_fmt_pct(x, t)} table"
+    return text
+
+
+def _badges(sections: dict, extracted: dict) -> str:
+    """One badge per section: the share built from C and the share built
+    from the extracted data tables; the colour is their sum, the share of
+    the section that is identical to the base."""
     from urllib.parse import quote
     lines = []
     for sec in REPORT_ORDER:
         m, t = sections.get(sec, (0, 0))
         if not t:
             continue
-        pct = quote(_fmt_pct(m, t), safe="").replace("-", "%2D")
-        url = f"https://img.shields.io/badge/{sec.lstrip('.')}-{pct}-{_badge_color(m, t)}.svg"
+        x = extracted.get(sec, 0)
+        msg = quote(_badge_text(m, x, t), safe="").replace("-", "%2D")
+        url = f"https://img.shields.io/badge/{sec.lstrip('.')}-{msg}-{_badge_color(m + x, t)}.svg"
         lines.append(f"![{sec} progress]({url})")
     return "\n".join(lines)
 
 
-def _table(sections: dict) -> str:
-    lines = ["| Section | Matched bytes | Total bytes | % |",
-             "| --- | ---: | ---: | ---: |"]
+def _table(sections: dict, extracted: dict) -> str:
+    lines = ["| Section | From C | Extracted tables | Total bytes | C % | Identical % |",
+             "| --- | ---: | ---: | ---: | ---: | ---: |"]
     for sec in REPORT_ORDER:
         m, t = sections.get(sec, (0, 0))
         if not t:
             continue
+        x = extracted.get(sec, 0)
         metric = " (owned)" if sec in NOBITS else ""
-        lines.append(f"| `{sec}`{metric} | {m} | {t} | {_fmt_pct(m, t)} |")
+        lines.append(f"| `{sec}`{metric} | {m} | {x} | {t} | {_fmt_pct(m, t)} "
+                     f"| {_fmt_pct(m + x, t)} |")
+    lines.append("")
+    lines.append(
+        "**From C** counts the bytes placed by an object compiled or assembled "
+        "from a source under `ico2/` or `sce/`. **Extracted tables** counts the "
+        "bytes of the data-only archive members, which the build writes out of "
+        "the user's own base ELF (`tools/extract_data.py`, rows in "
+        "`config/data_members.pal.txt`) instead of from committed source. "
+        "**Identical** is their sum: the share of the section equal to the base.")
     lines.append("")
     lines.append(
         "`.sbss` and `.bss` are NOBITS: they hold no ROM bytes, so their "
@@ -854,6 +886,10 @@ def _splice(path: Path, body: str) -> bool:
 
 def run_progress(args) -> int:
     base, built = Elf(BASE_ELF), Elf(BUILT_ELF)
+    if not built.funcs and BUILT_SYMS.exists():
+        # build/ico.elf is stripped; the function symbols are in the
+        # unstripped image of the same link.
+        built.funcs = Elf(BUILT_SYMS).funcs
     cmp_ = Comparison(base, built, parse_map(LINK_MAP))
     secs = compute(cmp_)
     tree = build_tree(cmp_, secs)
@@ -875,7 +911,9 @@ def run_progress(args) -> int:
         out.mkdir(parents=True, exist_ok=True)
         readme.write_text(README.read_text())
         doc.write_text(PROGRESS_DOC.read_text())
-    for path, body in ((readme, _badges(sections)), (doc, _table(sections))):
+    extracted = tree["totals"]["extracted"]
+    for path, body in ((readme, _badges(sections, extracted)),
+                       (doc, _table(sections, extracted))):
         print(f"check_elf: {'rewrote' if _splice(path, body) else 'unchanged'} {path}")
     js.write_text(json.dumps(tree, separators=(",", ":")) + "\n")
     print(f"check_elf: wrote {js}")
@@ -895,14 +933,18 @@ def main() -> int:
     ap.add_argument("--elf", help="built ELF (default build/ico.elf)")
     ap.add_argument("--map", help="link map (default build/ico.<ver>.map)")
     ap.add_argument("--rom", help="built ROM (default build/ico.rom)")
+    ap.add_argument("--syms", help="--progress: built ELF with symbols "
+                    "(default build/ico.syms.elf)")
     args = ap.parse_args()
-    global BUILT_ELF, LINK_MAP, BUILT_ROM
+    global BUILT_ELF, LINK_MAP, BUILT_ROM, BUILT_SYMS
     if args.elf:
         BUILT_ELF = Path(args.elf).resolve()
     if args.map:
         LINK_MAP = Path(args.map).resolve()
     if args.rom:
         BUILT_ROM = Path(args.rom).resolve()
+    if args.syms:
+        BUILT_SYMS = Path(args.syms).resolve()
     for p in (BASE_ELF, BUILT_ELF) + (() if args.full_diff else (LINK_MAP,)):
         if not p.exists():
             sys.exit(f"check_elf: {p} not found")

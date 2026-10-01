@@ -1,14 +1,14 @@
 # ico
 
 <!-- progress:begin -->
-![.text progress](https://img.shields.io/badge/text-100.00%20%25-brightgreen.svg)
-![.vutext progress](https://img.shields.io/badge/vutext-100.00%20%25-brightgreen.svg)
-![.data progress](https://img.shields.io/badge/data-72.54%20%25-yellowgreen.svg)
-![.rodata progress](https://img.shields.io/badge/rodata-9.49%20%25-orange.svg)
-![.lit4 progress](https://img.shields.io/badge/lit4-100.00%20%25-brightgreen.svg)
-![.sdata progress](https://img.shields.io/badge/sdata-99.91%20%25-green.svg)
-![.sbss progress](https://img.shields.io/badge/sbss-99.68%20%25-green.svg)
-![.bss progress](https://img.shields.io/badge/bss-100.00%20%25-brightgreen.svg)
+![.text progress](https://img.shields.io/badge/text-100.00%20%25%20C-brightgreen.svg)
+![.vutext progress](https://img.shields.io/badge/vutext-100.00%20%25%20C-brightgreen.svg)
+![.data progress](https://img.shields.io/badge/data-72.54%20%25%20C%20%2B%2027.46%20%25%20table-brightgreen.svg)
+![.rodata progress](https://img.shields.io/badge/rodata-9.49%20%25%20C%20%2B%2090.51%20%25%20table-brightgreen.svg)
+![.lit4 progress](https://img.shields.io/badge/lit4-100.00%20%25%20C-brightgreen.svg)
+![.sdata progress](https://img.shields.io/badge/sdata-99.91%20%25%20C%20%2B%200.09%20%25%20table-brightgreen.svg)
+![.sbss progress](https://img.shields.io/badge/sbss-99.68%20%25%20C%20%2B%200.32%20%25%20table-brightgreen.svg)
+![.bss progress](https://img.shields.io/badge/bss-100.00%20%25%20C-brightgreen.svg)
 <!-- progress:end -->
 
 **[Live progress dashboard](https://nathanialf.github.io/ico/#pal)**: decomp status per directory, TU and function for this branch's target (PAL retail, SCES-50760), updated on every push. The dashboard covers all three targets; switch with the picker at the top.
@@ -50,13 +50,20 @@ boot ELF `baserom/pal/baseelf.elf` is
 `da3644c54c26fe760f3b6a591a5fc2eab396ed2b`. The round trip is byte-identical
 on every commit; the pre-commit and pre-push hooks run the gate.
 
-`tools/progress.py` regenerates the badges (`tools/build.sh progress` runs it
-together with the dashboard). There is one badge per section of the reference
-ELF, in link order: `.text`, `.vutext`, `.data`, `.rodata`, `.lit4`, `.sdata`,
-`.sbss`, `.bss`. The last two are NOBITS and hold no ROM bytes, so their
-figure is **ownership**: how much of the section a compiled TU defines and the
-link seats at the ROM's addresses, not bytes reproduced. A section the ELF
-sizes at zero (`.vudata` here) gets no badge.
+`tools/check_elf.py --progress` regenerates the badges, `docs/PROGRESS.md`
+and the dashboard's `docs/progress.json` from the built ELF and its link map
+(`tools/build.sh progress` runs it). There is one badge per section of the
+reference ELF, in link order: `.text`, `.vutext`, `.data`, `.rodata`, `.lit4`,
+`.sdata`, `.sbss`, `.bss`. Each badge gives the share of the section built
+from source (`C`) and, where there is one, the share built from the extracted
+data tables (`table`): the data-only archive members, which the build writes
+from the user's own base ELF instead of from committed source
+(`tools/extract_data.py`, `config/data_members.pal.txt`). The badge is green
+when the two together cover the section byte for byte. `.sbss` and `.bss` are
+NOBITS and hold no ROM bytes, so their figure is **ownership**: how much of
+the section an object defines and the link seats at the ROM's addresses, not
+bytes reproduced. A section the ELF sizes at zero (`.vudata` here) gets no
+badge.
 
 [`docs/PROGRESS.md`](docs/PROGRESS.md) has the per-section breakdown.
 
