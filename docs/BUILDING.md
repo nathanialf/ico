@@ -126,9 +126,9 @@ ROM (`tools/verify_elf.py`), and writes `build.ninja` with
 - `config/data_members.pal.txt`: the data-only members (member, section,
   address range, MAIN.MAP's names at their offsets).
 - `config/data_schema.pal.txt`: the data-only members written as C (member,
-  element type, the header that defines it, element count, MAIN.MAP's names),
-  with `config/data_schema.pal.h` for the record types no game header defines
-  yet.
+  section, element type, the header that defines it, element count,
+  MAIN.MAP's names), with `config/data_schema.pal.h` for the record types no
+  game header defines yet.
 
 `tools/build.sh` also has `regen` (rewrite `build.ninja` only), `clean`
 (delete `build/`), `distclean` (also `build.ninja` and ninja's state) and
@@ -153,18 +153,21 @@ ROM (`tools/verify_elf.py`), and writes `build.ninja` with
   from `ico2/` because the overlay section names it writes hash the source
   path;
 - writes the data-only members from the base ELF into `build/data/`. A
-  member `config/data_schema.pal.txt` lists is written as C by
-  `tools/gen_data_c.py`: an initialized array of its record type, with every
-  pointer named after the symbol at its address, floats as the shortest
-  decimal that reads back to the same bits and names as string literals. The
-  addresses come from a first link, `build/ico.layout.elf`, in which a zero
-  stand-in of the member's size takes its place. The C compiles with the
-  game's flags like any `ico2/` source, the object is checked against the
+  member `config/data_schema.pal.txt` lists (72 of the 74) is written as C by
+  `tools/gen_data_c.py`: an initialized array of its record type per section,
+  with every pointer named after the symbol at its address, floats as the
+  shortest decimal that reads back to the same bits and names as string
+  literals; a member's own string pool (staffroll_dat's) is written as the
+  literals its pointers name, and the compiler lays it out. The addresses
+  come from a first link, `build/ico.layout.elf`, in which a zero stand-in of
+  the member's size takes its place. The C compiles with the game's flags
+  like any `ico2/` source, each section of the object is checked against the
   member's ROM range with its relocations applied, and a label a source
   spells inside the member (`D_<VMA>`) is bound to the member's symbol plus
-  its offset by `build/data/<member>.alias.ld`. Every other member is written
-  as assembly by `tools/extract_data.py`, and each assembled table is checked
-  against its ROM range;
+  its offset by `build/data/<member>.alias.ld`. The other two (stage-anim and
+  the transitional `.sbss` word) are written as assembly by
+  `tools/extract_data.py`, and each assembled table is checked against its
+  ROM range;
 - links with ld 2.10 and `config/link.pal.ld`, once to `build/ico.syms.elf`
   (symbols kept, with the map `build/ico.pal.map`) and once stripped to
   `build/ico.elf`, as the base is;

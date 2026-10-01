@@ -3,15 +3,19 @@
 
 The members config/data_schema.pal.txt lists are written in the form the
 developers compiled: one C translation unit per member, an initialized array
-of the member's record type, which ninja compiles with the game's flags
-(tools/compile_c.sh). The values come from the user's own
-baserom/pal/baseelf.elf at build time and are never committed (docs/LEGAL.md);
-the schema row and the record's header hold only types.
+(or a single object) of a record type per section the member occupies, which
+ninja compiles with the game's flags (tools/compile_c.sh). The values come
+from the user's own baserom/pal/baseelf.elf at build time and are never
+committed (docs/LEGAL.md); the schema rows and the records' header hold only
+types. A member row with no schema row is the member's own string pool: the
+char pointers into it are written as string literals, and the compiler lays
+the pool out (8-aligned literals, in .rodata, or .sdata under -G 8 when they
+are 8 bytes or less, in the order it emits them).
 
 Four modes, one member each (MEMBER is the name in the schema):
 
   --stub MEMBER --out F.s
-      a zero-filled stand-in of the member's ROM range carrying its symbols,
+      a zero-filled stand-in of the member's ROM ranges carrying its symbols,
       for the layout link (build/ico.layout.elf) that fixes every other
       object's address before the C exists
   --alias MEMBER --labels build/data_labels.txt --out F.ld
@@ -22,9 +26,10 @@ Four modes, one member each (MEMBER is the name in the schema):
       link places at that address, floats as the shortest decimal that reads
       back to the same bits, strings as literals
   --check MEMBER --obj F.o --layout build/ico.layout.elf --out STAMP
-      the compiled object's section, with its relocations applied against the
-      layout link, must equal the member's ROM range (zero fill after it);
-      otherwise the first differing offset and the field there are reported
+      each section of the compiled object, with its relocations applied
+      against the layout link, must equal the member's ROM range for that
+      section (zero fill after it); otherwise the first differing offset and
+      the field there are reported
 
 The record type is read from the header the schema row names: a typedef of a
 struct whose fields are integers, floats, pointers (object or function),
@@ -57,38 +62,60 @@ def fail(msg):
 # ---------------------------------------------------------------- schema ----
 
 def parse_schema(path=SCHEMA):
+    """The schema's rows, by member: one row per section the member's C defines."""
     rows = {}
     for n, line in enumerate(path.read_text().splitlines(), 1):
         f = line.split("#", 1)[0].split()
         if not f:
             continue
-        if len(f) not in (6, 7) or f[1] not in ("data", "rodata"):
+        if len(f) not in (6, 7) or f[1] not in ("data", "rodata", "sdata"):
             fail(f"{path}:{n}: expected '<member> <section> <type> <header> <count> <symbols> [hex=...]'")
         syms = []
-        for s in f[5].split(","):
-            name, idx = s.split("@")
+        for x in f[5].split(","):
+            name, idx = x.split("@")
             syms.append((name, int(idx)))
         if syms[0][1] != 0 or any(b[1] <= a[1] for a, b in zip(syms, syms[1:])):
             fail(f"{path}:{n}: symbols must start at element 0 and ascend")
+        if f[4] == "-" and len(syms) != 1:
+            fail(f"{path}:{n}: a single object ('-' count) takes one symbol")
         hexf = set()
         if len(f) == 7:
             if not f[6].startswith("hex="):
                 fail(f"{path}:{n}: bad column '{f[6]}'")
             hexf = set(f[6][4:].split(","))
-        rows[f[0]] = dict(member=f[0], section=f[1], type=f[2], header=f[3], count=int(f[4]),
-                          syms=syms, hex=hexf, line=n)
+        r = dict(member=f[0], section=f[1], type=f[2], header=f[3],
+                 count=None if f[4] == "-" else int(f[4]), syms=syms, hex=hexf, line=n)
+        if any(o["section"] == r["section"] for o in rows.get(f[0], [])):
+            fail(f"{path}:{n}: {f[0]} has a second .{f[1]} row")
+        rows.setdefault(f[0], []).append(r)
     return rows
 
 
-def member_row(name):
+def member_rows(name):
+    """The member's rows of config/data_members.pal.txt, in table order, each
+    with its schema row (None for a row only the C's string literals fill: a
+    member's own string pool, which the compiler lays out)."""
     sch = parse_schema()
     if name not in sch:
         fail(f"{name} is not in {SCHEMA.relative_to(ROOT)}")
-    s = sch[name]
     rows = [r for r in extract_data.parse_table(TABLE) if r["member"] == name]
-    if len(rows) != 1 or rows[0]["section"] != s["section"]:
-        fail(f"{name}: needs exactly one .{s['section']} row in {TABLE.relative_to(ROOT)}")
-    return s, rows[0]
+    out = []
+    for r in rows:
+        s = [x for x in sch[name] if x["section"] == r["section"]]
+        if not s and r["section"] not in ("rodata", "sdata"):
+            fail(f"{name}: its .{r['section']} row has no schema row")
+        out.append((s[0] if s else None, r))
+    for x in sch[name]:
+        if not any(r["section"] == x["section"] for r in rows):
+            fail(f"{name}: needs a .{x['section']} row in {TABLE.relative_to(ROOT)}")
+    return out
+
+
+def start_of(s, row):
+    """Where the schema row's first array starts in its table row: the offset
+    the table gives that symbol (0 when it names none)."""
+    table = dict(row["syms"])
+    return table.get(s["syms"][0][0], 0)
 
 
 # ------------------------------------------------------------ C types -------
@@ -115,6 +142,13 @@ INTS = {
 }
 
 
+def c_base(name):
+    """A schema type column spelling a C base type: words joined by '_'
+    (unsigned_short), since the column is one whitespace-free word; a
+    trailing '*' makes it a pointer (char*)."""
+    return name.replace("_", " ")
+
+
 def strip_c(text):
     text = re.sub(r"/\*.*?\*/", " ", text, flags=re.S)
     text = re.sub(r"//[^\n]*", " ", text)
@@ -134,6 +168,10 @@ class Header:
     def typedef(self, name):
         if name in self.cache:
             return self.cache[name]
+        if name.endswith("*"):
+            return T("ptr", 4, 4, target=self.typedef(name[:-1]))
+        if c_base(name) in INTS or c_base(name) in ("float", "double"):
+            return self.base_type(c_base(name).split())
         t = self.toks
         for i, tok in enumerate(t):
             if tok != name or i == 0:
@@ -382,8 +420,8 @@ def float_text(bits, double=False):
         return None
     for d in range(1, 10):
         s = f"{v:.{d}g}"
-        if struct.pack("<f", float(s)) == bits:
-            break
+        if abs(float(s)) <= 3.4028234663852886e38 and struct.pack("<f", float(s)) == bits:
+            break  # (a shorter spelling of FLT_MAX can round past it)
     m, _, e = s.partition("e")
     if e:
         exp = int(e)
@@ -435,9 +473,21 @@ def c_string(bs):
 
 
 class Writer:
-    def __init__(self, data, base, layout, hexf, relocs=None):
+    def __init__(self, data, base, layout, hexf, pool=()):
         self.data, self.base, self.layout, self.hexf = data, base, layout, hexf
-        self.funcs, self.objs, self.errors = set(), {}, []
+        self.pool = pool  # the member's own rows, (lo, hi, bytes): its strings
+        self.funcs, self.objs, self.errors = {}, {}, []
+
+    def literal(self, v, path):
+        """The string literal a char pointer into the member's own rows names."""
+        for lo, hi, bs in self.pool:
+            if lo <= v < hi:
+                nul = bs.find(0, v - lo)
+                if nul < 0:
+                    self.errors.append(f"{path}: the string at 0x{v:08X} has no terminator")
+                    return "0"
+                return c_string(bs[v - lo:nul])
+        return None
 
     def value(self, ty, off, path):
         d = self.data
@@ -455,12 +505,19 @@ class Writer:
             if v == 0:
                 return "0"
             func = ty.kind == "fptr"
+            if not func and ty.target.kind == "int" and ty.target.size == 1:
+                lit = self.literal(v, f"0x{self.base + off:08X} {path}")
+                if lit is not None:
+                    return lit
             name, err = self.layout.name_at(v, func)
             if name is None:
                 self.errors.append(f"0x{self.base + off:08X} {path}: {err}")
                 return f"0 /* 0x{v:08X} */"
             if func:
-                self.funcs.add(name)
+                ret = c_decl(ty.ret, "") or "void "
+                if self.funcs.setdefault(name, ret) != ret:
+                    self.errors.append(f"0x{self.base + off:08X} {path}: {name} is held by fields "
+                                       f"returning {self.funcs[name].strip()} and {ret.strip()}")
                 return name
             decl = c_decl(ty.target, name)
             if decl is None:
@@ -494,123 +551,166 @@ class Writer:
         fail(f"cannot write a value of kind {ty.kind} ({path})")
 
 
-def write_c(s, row, data, layout):
-    hdr = Header(s["header"])
-    ty = hdr.typedef(s["type"])
-    size = ty.size * s["count"]
-    span = row["hi"] - row["lo"]
-    if size > span or any(data[size:]):
-        fail(f"{s['member']}: {s['count']} x {s['type']} ({ty.size} B) = {size} B, "
-             f"but the ROM range holds {span} B" + (" with nonzero bytes after it" if size <= span else ""))
-    w = Writer(data, row["lo"], layout, s["hex"])
-    bounds = [i for _, i in s["syms"]] + [s["count"]]
-    arrays = []
-    for (name, first), last in zip(s["syms"], bounds[1:]):
-        lines = [f"    {w.value(ty, i * ty.size, '')}," for i in range(first, last)]
-        arrays.append((name, last - first, lines))
-    if w.errors:
-        fail(f"{s['member']}: the record {s['type']} does not hold the ROM's bytes:\n  " +
-             "\n  ".join(w.errors[:20]) + (f"\n  ... {len(w.errors) - 20} more" if len(w.errors) > 20 else ""))
-    inc = Path("../..") / s["header"]
+def c_type(ty, spelled):
+    """The C spelling of an element type the schema names."""
+    if ty.kind in ("int", "float"):
+        return ty.name, ""
+    if ty.kind == "ptr":
+        inner, star = c_type(ty.target, spelled[:-1])
+        return inner, star + "*"
+    return spelled, ""
+
+
+def write_c(member, rows, datas, layout):
+    pool = [(r["lo"], r["hi"], datas[r["section"]]) for _, r in rows]
+    defs, headers, funcs, objs = [], [], {}, {}
+    for s, row in rows:
+        if s is None:
+            continue
+        data = datas[row["section"]]
+        ty = Header(s["header"]).typedef(s["type"])
+        start = start_of(s, row)
+        n = s["count"] or 1
+        size = ty.size * n
+        span = row["hi"] - row["lo"] - start
+        if size > span or any(data[start + size:]):
+            fail(f"{member}: {n} x {s['type']} ({ty.size} B) = {size} B from offset {start}, "
+                 f"but the ROM's .{row['section']} range holds {span} B" +
+                 (" with nonzero bytes after it" if size <= span else ""))
+        w = Writer(data[start:], row["lo"] + start, layout, s["hex"], pool)
+        bounds = [i for _, i in s["syms"]] + [n]
+        tname, star = c_type(ty, s["type"])
+        const = "const " if row["section"] == "rodata" else ""
+        for (name, first), last in zip(s["syms"], bounds[1:]):
+            if s["count"] is None:
+                defs.append(f"{const}{tname} {star}{name} = {w.value(ty, 0, '')};")
+            else:
+                defs.append(f"{const}{tname} {star}{name}[{last - first}] = {{")
+                defs.extend(f"    {w.value(ty, i * ty.size, '')}," for i in range(first, last))
+                defs.append("};")
+            defs.append("")
+        if w.errors:
+            fail(f"{member}: the record {s['type']} does not hold the ROM's bytes:\n  " +
+                 "\n  ".join(w.errors[:20]) + (f"\n  ... {len(w.errors) - 20} more" if len(w.errors) > 20 else ""))
+        for f, ret in w.funcs.items():
+            if funcs.setdefault(f, ret) != ret:
+                fail(f"{member}: {f} is held by fields returning {funcs[f].strip()} and {ret.strip()}")
+        objs.update(w.objs)
+        if s["header"] not in headers:
+            headers.append(s["header"])
     out = [
-        f"/* {s['member']}.o .{row['section']}, written by tools/gen_data_c.py from",
-        " * baserom/pal/baseelf.elf and config/data_schema.pal.txt. Generated: do not commit. */",
-        "",
-        f'#include "{inc.as_posix()}"',
+        f"/* {member}.o, written by tools/gen_data_c.py from baserom/pal/baseelf.elf",
+        " * and config/data_schema.pal.txt. Generated: do not commit. */",
         "",
     ]
-    for f in sorted(w.funcs):
-        out.append(f"extern void {f}();")
-    for o in sorted(w.objs):
-        out.append(f"extern {w.objs[o]};")
-    if w.funcs or w.objs:
+    out += [f'#include "{(Path("../..") / h).as_posix()}"' for h in headers]
+    out.append("")
+    for f in sorted(funcs):
+        out.append(f"extern {funcs[f]}{f}();")
+    for o in sorted(objs):
+        out.append(f"extern {objs[o]};")
+    if funcs or objs:
         out.append("")
-    const = "const " if s["section"] == "rodata" else ""
-    for name, n, lines in arrays:
-        out.append(f"{const}{s['type']} {name}[{n}] = {{")
-        out.extend(lines)
-        out.append("};")
-        out.append("")
-    return "\n".join(out)
+    return "\n".join(out + defs)
 
 
 # --------------------------------------------------------- stub / alias -----
 
-def write_stub(s, row):
-    lo, hi = row["lo"], row["hi"]
-    align = extract_data.natural_align(lo)
-    out = [f"# layout stand-in for {s['member']}.o .{row['section']} (zeros); generated.",
-           f"    .section .{row['section']}", f"    .align {align.bit_length() - 1}"]
-    out += [f"    .globl {n}" for n, _ in s["syms"]]
-    hdr = Header(s["header"])
-    size = hdr.typedef(s["type"]).size
-    a = 0
-    for n, i in s["syms"]:
-        if i * size > a:
-            out.append(f"    .space {i * size - a}")
-            a = i * size
-        out.append(f"{n}:")
-    out.append(f"    .space {hi - lo - a}")
+def write_stub(member, rows):
+    out = [f"# layout stand-in for {member}.o (zeros); generated."]
+    for s, row in rows:
+        lo, hi = row["lo"], row["hi"]
+        align = extract_data.natural_align(lo)
+        out += [f"    .section .{row['section']}", f"    .align {align.bit_length() - 1}"]
+        labels = []
+        if s is not None:
+            size = Header(s["header"]).typedef(s["type"]).size
+            start = start_of(s, row)
+            labels = [(n, start + i * size) for n, i in s["syms"]]
+        out += [f"    .globl {n}" for n, _ in labels]
+        a = 0
+        for n, o in labels:
+            if o > a:
+                out.append(f"    .space {o - a}")
+                a = o
+            out.append(f"{n}:")
+        out.append(f"    .space {hi - lo - a}")
     return "\n".join(out) + "\n"
 
 
-def write_alias(s, row, labels_path):
-    lo, hi = row["lo"], row["hi"]
-    first = s["syms"][0][0]
-    own = {n for n, _ in s["syms"]}
-    out = [f"/* {s['member']}: placeholder labels sources spell inside it; generated. */"]
+def write_alias(member, rows, labels_path):
+    out = [f"/* {member}: placeholder labels sources spell inside it; generated. */"]
     for line in Path(labels_path).read_text().splitlines():
         if not line.strip():
             continue
         name, addr = line.split()
         a = int(addr, 16)
-        if lo <= a < hi and name not in own:
-            out.append(f"{name} = {first} + {a - lo};")
+        for s, row in rows:
+            if not row["lo"] <= a < row["hi"]:
+                continue
+            if s is None:
+                fail(f"{member}: {name} lies in its .{row['section']} string pool")
+            if name not in {n for n, _ in s["syms"]}:
+                base = row["lo"] + start_of(s, row)
+                out.append(f"{name} = {s['syms'][0][0]} + {a - base};")
     return "\n".join(out) + "\n"
 
 
 # --------------------------------------------------------------- check ------
 
-def check(s, row, data, obj, layout):
-    sec = "." + ("rodata" if s["section"] == "rodata" else "data")
+def check(member, rows, datas, obj, layout):
+    """Each section of the compiled object, its relocations applied against
+    the layout link, must equal the member's row of that section (zero fill
+    after it); the object may hold bytes in no other section."""
+    by_sec = {"." + r["section"]: (sch, r) for sch, r in rows}
     with open(obj, "rb") as fh:
         e = ELFFile(fh)
-        target = e.get_section_by_name(sec)
-        if target is None:
-            fail(f"{obj}: no {sec}")
         for other in (".data", ".rodata", ".sdata", ".sbss", ".bss", ".text"):
             t = e.get_section_by_name(other)
-            if other != sec and t is not None and t["sh_size"]:
-                fail(f"{obj}: {t['sh_size']} B in {other}; the member is all {sec}")
-        got = bytearray(target.data())
+            if other not in by_sec and t is not None and t["sh_size"]:
+                fail(f"{obj}: {t['sh_size']} B in {other}, where {member} has no row")
+        got = {}
+        for sec in by_sec:
+            t = e.get_section_by_name(sec)
+            got[sec] = bytearray(t.data()) if t is not None else bytearray()
         symtab = e.get_section_by_name(".symtab")
         for rs in e.iter_sections():
-            if not isinstance(rs, RelocationSection) or e.get_section(rs["sh_info"]).name != sec:
+            if not isinstance(rs, RelocationSection):
+                continue
+            sec = e.get_section(rs["sh_info"]).name
+            if sec not in by_sec:
                 continue
             for r in rs.iter_relocations():
                 if r["r_info_type"] != 2:  # R_MIPS_32
-                    fail(f"{obj}: relocation type {r['r_info_type']} at 0x{r['r_offset']:x}")
+                    fail(f"{obj}: relocation type {r['r_info_type']} at {sec}+0x{r['r_offset']:x}")
                 sym = symtab.get_symbol(r["r_info_sym"])
                 if sym["st_shndx"] == "SHN_UNDEF":
                     if sym.name not in layout.by_name:
                         fail(f"{obj}: {sym.name} is not defined by the layout link")
                     v = layout.by_name[sym.name]
-                elif e.get_section(sym["st_shndx"]).name == sec:
-                    v = row["lo"] + sym["st_value"]
                 else:
-                    fail(f"{obj}: relocation against {e.get_section(sym['st_shndx']).name}")
+                    tsec = e.get_section(sym["st_shndx"]).name
+                    if tsec not in by_sec:
+                        fail(f"{obj}: relocation against {tsec}")
+                    v = by_sec[tsec][1]["lo"] + sym["st_value"]
                 o = r["r_offset"]
-                v += int.from_bytes(got[o:o + 4], "little")
-                got[o:o + 4] = (v & 0xFFFFFFFF).to_bytes(4, "little")
-    want = data
-    if len(got) > len(want) or any(want[len(got):]) or bytes(got) != want[:len(got)]:
-        n = min(len(got), len(want))
-        diff = next((i for i in range(n) if got[i] != want[i]), n)
-        ty = Header(s["header"]).typedef(s["type"])
-        el, within = divmod(diff, ty.size)
-        fail(f"{obj}: {sec} differs from the ROM at 0x{row['lo'] + diff:08X} "
-             f"(element {el}, offset 0x{within:x} of {s['type']}; object {len(got)} B, ROM {len(want)} B)")
-    return len(got)
+                v += int.from_bytes(got[sec][o:o + 4], "little")
+                got[sec][o:o + 4] = (v & 0xFFFFFFFF).to_bytes(4, "little")
+    sizes = []
+    for sec, (sch, row) in by_sec.items():
+        g, want = got[sec], datas[row["section"]]
+        if len(g) > len(want) or any(want[len(g):]) or bytes(g) != want[:len(g)]:
+            n = min(len(g), len(want))
+            diff = next((i for i in range(n) if g[i] != want[i]), n)
+            where = ""
+            if sch is not None and diff >= start_of(sch, row):
+                size = Header(sch["header"]).typedef(sch["type"]).size
+                el, within = divmod(diff - start_of(sch, row), size)
+                where = f"element {el}, offset 0x{within:x} of {sch['type']}; "
+            fail(f"{obj}: {sec} differs from the ROM at 0x{row['lo'] + diff:08X} "
+                 f"({where}object {len(g)} B, ROM {len(want)} B)")
+        sizes.append(f"{sec} {len(g)} B equal to 0x{row['lo']:08X}..0x{row['lo'] + len(g):08X}")
+    return "; ".join(sizes)
 
 
 def write_if_changed(path, text):
@@ -636,22 +736,23 @@ def main():
     ap.add_argument("--out", type=Path, required=True)
     a = ap.parse_args()
     member = a.stub or a.alias or a.c or a.check
-    s, row = member_row(member)
+    rows = member_rows(member)
     a.out.parent.mkdir(parents=True, exist_ok=True)
     if a.stub:
-        write_if_changed(a.out, write_stub(s, row))
+        write_if_changed(a.out, write_stub(member, rows))
         return 0
     if a.alias:
-        write_if_changed(a.out, write_alias(s, row, a.labels))
+        write_if_changed(a.out, write_alias(member, rows, a.labels))
         return 0
     with open(a.elf, "rb") as fh:
-        data = extract_data.rom_bytes(ELFFile(fh), row["lo"], row["hi"], row["section"])
+        elf = ELFFile(fh)
+        datas = {r["section"]: extract_data.rom_bytes(elf, r["lo"], r["hi"], r["section"])
+                 for _, r in rows}
     layout = Layout(a.layout)
     if a.c:
-        write_if_changed(a.out, write_c(s, row, data, layout))
+        write_if_changed(a.out, write_c(member, rows, datas, layout))
         return 0
-    n = check(s, row, data, a.obj, layout)
-    a.out.write_text(f"{member} {n} B equal to 0x{row['lo']:08X}..0x{row['lo'] + n:08X}\n")
+    a.out.write_text(f"{member}: {check(member, rows, datas, a.obj, layout)}\n")
     return 0
 
 

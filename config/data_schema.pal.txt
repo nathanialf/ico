@@ -1,28 +1,107 @@
 # config/data_schema.pal.txt -- the data-only members written as C.
 #
-# One row per member of config/data_members.pal.txt that tools/gen_data_c.py
-# writes as a C translation unit instead of assembly. The row holds facts
-# about the member's type, never its values: the build reads the values from
-# the user's own baserom/pal/baseelf.elf and writes build/data/<member>.c,
-# which ninja compiles with the game's flags (tools/compile_c.sh). Nothing
-# generated is committed (docs/LEGAL.md).
+# One row per (member, section) of config/data_members.pal.txt that
+# tools/gen_data_c.py writes as one C translation unit instead of assembly.
+# The row holds facts about the member's type, never its values: the build
+# reads the values from the user's own baserom/pal/baseelf.elf and writes
+# build/data/<member>.c, which ninja compiles with the game's flags
+# (tools/compile_c.sh). Nothing generated is committed (docs/LEGAL.md).
 #
 # Columns: <member> <section> <type> <header> <count> <symbols> [hex=<field>,...]
-#   member    the member's name in config/data_members.pal.txt (one row there)
-#   section   data or rodata; rodata rows are defined const
-#   type      the element type, a typedef the header defines
+#   member    the member's name in config/data_members.pal.txt
+#   section   data, rodata or sdata: the table row the definition fills;
+#             rodata rows are defined const
+#   type      the element type, a typedef the header defines, or a C base
+#             type with its words joined by '_' (unsigned_short), with a
+#             trailing '*' for a pointer to it (char*)
 #   header    the header that defines it, repo-relative
-#   count     the number of elements the member holds
+#   count     the number of elements the member holds, or '-' for a single
+#             object
 #   symbols   MAIN.MAP's names for the member, <name>@<element index>; each
 #             names one array, and the arrays follow each other in the order
-#             given
+#             given from the offset the table gives the first name (0 when
+#             it gives none)
 #   hex=      fields spelled in hex because they hold masks (dotted paths for
 #             nested fields); every other number is decimal
+#
+# A table row of the member with no schema row here is its own string pool
+# (staffroll_dat's .rodata, and the head of its .sdata): the char pointers
+# into it are written as string literals and the compiler lays the pool out.
 #
 # A label some source spells inside the member (build/data_labels.txt, the
 # D_<VMA> placeholders) is not an array of its own: gen_data_c.py binds it to
 # the member's first symbol plus its offset in build/data/<member>.alias.ld.
 
+accessary data AccessaryRec config/data_schema.pal.h 26 accessary@0
+act-data-tbl data IdleRangeRec config/data_schema.pal.h 3 actDataTbl@0
 act-intrlist data IntrMail config/data_schema.pal.h 875 actIntrList@0 hex=flags
+camera-set data CameraSetFile config/data_schema.pal.h 87 cameraSetList@0
+game-param data float config/data_schema.pal.h 44 gameParam@0
+unmapped_002ADBA0 data HintDef config/data_schema.pal.h 28 hintTable@0 hex=flags
+motion-orient data MotionOrientEntry config/data_schema.pal.h 2468 motionOrient@0
+node-fix-ofs data ClingRec config/data_schema.pal.h 15 clingData@0
+obj-action data ObjAction config/data_schema.pal.h 967 objAction@0 hex=flags
+obj-kind-data data ObjKindEnt config/data_schema.pal.h 70 objKindData@0
 obj-layout data GenGeo config/data_schema.pal.h 3759 objLayout@0 hex=procMask,flags
+parallel-motion-tbl data ParallelMotionRow config/data_schema.pal.h 86 parallelMotionTbl@0
+sekind data unsigned_short config/data_schema.pal.h 1420 seKind@0
+tex-property data LtProperty config/data_schema.pal.h 436 texProperty@0 hex=flags
+weapon-def data WeaponDef config/data_schema.pal.h 10 weaponKind@0
+staffroll_dat data char* config/data_schema.pal.h 964 staffRollNameData@0
+item-kind-def data ItemBreakRec config/data_schema.pal.h 7 itemKind@0 hex=flags
+mirror-motion-def data MotOriAlt config/data_schema.pal.h 6 mirrorMotionTable@0
+model-path data PObjMdl config/data_schema.pal.h 1637 modelData@0 hex=flags
+prog-se-link data SePackage config/data_schema.pal.h 128 progSELink@0
+unmapped_00533FC0 data MotSyncPair config/data_schema.pal.h 5 motSyncPairs@0
+texture-layout data LtProp config/data_schema.pal.h 80 texLayout@0
+texture-path data TexRec config/data_schema.pal.h 74 texFile@0
+way-point data WaySrcPt config/data_schema.pal.h 2924 wayPointSheet@0
+weapon-fumble-def data FumbleRow config/data_schema.pal.h 21 weaponFumbleGeo@0
+act-mode-def rodata ActModeRec config/data_schema.pal.h 120 actModeTbl@0 hex=flags
+adpcmfile rodata AdpcmDataRec config/data_schema.pal.h 105 adpcmFile@0
+attack-def rodata AttackKindEntry config/data_schema.pal.h 20 attackData@0 hex=flags
+auto-escort rodata EscortPoint config/data_schema.pal.h 98 autoEscortData@0
+exit-data rodata ExitData config/data_schema.pal.h 261 exitData@0
+generator-sub-position rodata SafePosOffset config/data_schema.pal.h 7 generatorSubPosition@0
+girl-warp-list rodata WarpRec config/data_schema.pal.h 25 girlWarpList@0
+iconfile rodata IconFile config/data_schema.pal.h 5 iconFile@0
+idle-mot-def rodata IdlingDef config/data_schema.pal.h 11 idlingDef@0
+init-func rodata PackKind config/data_schema.pal.h 26 initFunc@0
+unmapped_0055FBD0 rodata JimakuFileName config/data_schema.pal.h 10 jimakuFileName@0
+look-target-data rodata LookTarget config/data_schema.pal.h 27 lookTargetData@0
 motion-def rodata MotionRec config/data_schema.pal.h 1148 motionKind@0 hex=modeBits,flags,flags2
+motion-ik-eff-def rodata HandModeRow config/data_schema.pal.h 7 motionIKEffKind@0
+motion-orient-def rodata MotOriName config/data_schema.pal.h 327 motionOriKind@0
+motion-random-def rodata int config/data_schema.pal.h 100 randomMotionKind@0
+moviefile rodata MotOriName config/data_schema.pal.h 7 movieFile@0
+obj-light rodata ObjLight config/data_schema.pal.h 3 objectLight@0
+pair-motion rodata BecPair config/data_schema.pal.h 31 pairMotion@0
+param-escape-run rodata EscapeRange config/data_schema.pal.h 8 paramEscapeRun@0
+se-env rodata SeEnvDef config/data_schema.pal.h 425 seEnv@0 hex=flags
+sedef rodata SeDef config/data_schema.pal.h 1426 seDef@0 hex=flags
+sefile rodata SeBank config/data_schema.pal.h 104 seFile@0 hex=flags
+selist rodata SeKind config/data_schema.pal.h 3837 seList@0
+shocklist rodata PadActDef config/data_schema.pal.h 28 shockList@0
+stage-all rodata StgPre config/data_schema.pal.h 106 stageData@0 hex=attr,flags
+stage-anim-model rodata StgObjDat config/data_schema.pal.h 1377 objTableScene@0
+stream-motion-def rodata StreamMotionFile config/data_schema.pal.h 9 streamMotion@0
+blend-motion-def rodata MotOriSub config/data_schema.pal.h 321 blendMotionKind@0
+enemy-def rodata EnemyDef config/data_schema.pal.h 45 enemyKind@0 hex=attr
+enemy-model-grp rodata EnemyMdlRec config/data_schema.pal.h 10 enemymodelGroup@0
+enemy-model-tbl rodata int config/data_schema.pal.h 25 enemymodelTable@0
+enemy-random-def rodata EnemyKindRange config/data_schema.pal.h 22 randomEnemyKind@0
+enemy-random-variation-def rodata int config/data_schema.pal.h 86 randomEnemyVariationKind@0
+layout-cloth-def rodata LayoutClothDef config/data_schema.pal.h 36 layoutClothDef@0 hex=attr
+motion-eff-condition-def rodata VibCondEntry config/data_schema.pal.h 51 motEffCondKind@0
+motion-eff-def rodata EffEntry config/data_schema.pal.h 25 motionEffKind@0 hex=flags
+motion-eff-random-def rodata int config/data_schema.pal.h 10 randomEffKind@0
+motion-limit-def rodata MotOriLimit config/data_schema.pal.h 48 motionLimitDef@0
+motion-se-condition-def rodata SECondEntry config/data_schema.pal.h 211 motSECondKind@0
+motion-se-random-def rodata SERandEntry config/data_schema.pal.h 1151 randomSEKind@0
+obj-trigger-def rodata int config/data_schema.pal.h 11 objTriggerDef@0
+obj-trigger rodata ObjActMailEnt config/data_schema.pal.h 33 objTrigger@0
+parallel-motion-orient rodata MotOriParallelEnt config/data_schema.pal.h 54 parallelMotionOrient@0
+particle-effect rodata ParticleEffectFile config/data_schema.pal.h 61 particleEffectFile@0
+spider-def rodata SpiderKindRec config/data_schema.pal.h 6 spiderDef@0
+way-group rodata WaySrcGrp config/data_schema.pal.h 723 wayGroupSheet@0
+staffroll_dat sdata int config/data_schema.pal.h - staffRollNameDataNum@0

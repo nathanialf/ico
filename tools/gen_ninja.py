@@ -88,12 +88,12 @@ def table_rows():
 
 
 def schema_members():
-    """The members tools/gen_data_c.py writes as C, with the header each names."""
+    """The members tools/gen_data_c.py writes as C, with the headers their rows name."""
     out = {}
     for line in (ROOT / SCHEMA).read_text().splitlines():
         f = line.split("#", 1)[0].split()
-        if f:
-            out[f[0]] = f[3]
+        if f and f[3] not in out.setdefault(f[0], "").split():
+            out[f[0]] = (out[f[0]] + " " + f[3]).strip()
     return out
 
 

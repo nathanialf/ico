@@ -3,9 +3,11 @@
 # One row per (member, section) for every member that MAIN.MAP lists with
 # .data/.rodata/.sdata but no .text, plus three runs in the same data-only
 # territory that MAIN.MAP does not list (member name unmapped_<VMA>).
-# tools/extract_data.py reads this table and the user's own
-# baserom/pal/baseelf.elf and writes build/data/<member>.<section>.s; the bytes
-# are never committed.
+# A member config/data_schema.pal.txt types is written as one C translation
+# unit by tools/gen_data_c.py (build/data/<member>.c, its rows the sections of
+# that one object); every other row is written as assembly by
+# tools/extract_data.py (build/data/<member>.<section>.s). Both read this table
+# and the user's own baserom/pal/baseelf.elf; the bytes are never committed.
 #
 # Columns: <section> <member> <rom_lo> <rom_hi> <symbol>@<offset>,...
 #   section   the section the bytes occupy in the retail ELF
@@ -27,11 +29,9 @@
 # after the January link, and their exact end inside trailing zero fill is not
 # recoverable (the bytes are identical either way).
 #
-# Members whose bytes are C today: motion-random-def's bytes are
-# ico2/fumi/src/act-parallel-control.c's actPara_MakeTblTbl, obj-trigger-def's
-# and obj-trigger's are ico2/omori/src/objact.c's objActMailId and
-# objActMailTable. They were written as C before the data-only members were
-# taken from the user's disc instead.
+# Rows still written as assembly: stage-anim, whose range runs 52 B past its
+# last 0x5C record into what MAIN.MAP's size puts in stream-motion-def (a
+# "NULL" row at 0x618d50), and the transitional .sbss row.
 
 # ---- .data: after 0x2a79b8, before 0x319020 (DObj.o .data (C))
 # accessary: C:box.c D_002A79B8 (row base); pool/cage/puddle geo inits. ROM span 0x410 != MAIN.MAP 0x348 (+200 B); the last 16 B are zero (fill or table tail)
