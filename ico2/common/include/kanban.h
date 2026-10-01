@@ -32,11 +32,9 @@ void kanbanReqDelFade(Kanban *self);
 void kanbanReqAllDel(void);
 void kanbanReqAllDelFade(void);
 void kanbanExec(void);
-void init_textures_of_specified_property(int first, int last);
 void kanbanInit(int no);
 Kanban *kanbanReqAdd(int no, int pri);
 /* kanban.o's .sdata global */
 extern int kanbanCommonRead;
-void display_layout(Kanban *k);
 
 #endif /* KANBAN_H */

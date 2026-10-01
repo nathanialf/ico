@@ -14,6 +14,8 @@
 #include "main.h"
 #include "script.h"
 
+static void actSt19aChainDownSub(GObj *volatile a0);
+
 /* .sbss: the demo's own end flag, raised by the subthread the wait loop below
    spins for. */
 static int demoEnd;
@@ -440,7 +442,7 @@ void actSt19aChainSwitch(GObj *volatile a0)
     }
 }
 
-void actSt19aChainDownSub(GObj *volatile a0)
+static void actSt19aChainDownSub(GObj *volatile a0)
 {
     _ACTWait(60);
 

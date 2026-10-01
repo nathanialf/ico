@@ -112,7 +112,7 @@ static inline void initGeometryScaleRatio(char *d) /* derived name */
     *(float *)(d + 0x824) = r;
 }
 
-void initGeometryState(char *self, SObjSimpleSetting *lay)
+static void initGeometryState(char *self, SObjSimpleSetting *lay)
 {
     DObjGObj g;
     DObjGObj *p;
@@ -189,7 +189,7 @@ void initGeometryState(char *self, SObjSimpleSetting *lay)
     initGeometryScaleRatio(p->data.p);
 }
 
-void initMatrixDObj(char *self, SObjSimpleSetting *lay)
+static void initMatrixDObj(char *self, SObjSimpleSetting *lay)
 {
     float v[4];
     float d;
@@ -219,7 +219,7 @@ typedef union {
     int i[2];
 } DObjFlags;
 
-void allocObjectData(char *self, SObjSimpleSetting *lay, int n)
+static void allocObjectData(char *self, SObjSimpleSetting *lay, int n)
 {
     int i;
     int j;
@@ -284,7 +284,7 @@ void allocObjectData(char *self, SObjSimpleSetting *lay, int n)
     }
 }
 
-void initInitialInverseMatrix(char *a0)
+static void initInitialInverseMatrix(char *a0)
 {
     char *m = iosMallocDebug(ios_partition_sugipon, *(int *)(a0 + 0x88) << 6, __FILE__, 333);
     *(char **)(a0 + 0x90) = m;
@@ -348,7 +348,7 @@ static inline void allocIntTable(char *d, int n) /* derived name */
     }
 }
 
-void initPolygonState(char *d, SObjSimpleSetting *lay)
+static void initPolygonState(char *d, SObjSimpleSetting *lay)
 {
     char *p;
     char *e;

@@ -11,7 +11,6 @@
 #include "typedef.h"
 
 void actSt18aDoorChk(GObj *volatile a0);
-void actSt18aDoorChkSub(GObj *volatile a0);
 void actSt18aDoorDownChk(GObj *volatile a0);
 void actSt18aEne2Chk(GObj *volatile a0);
 void actSt18aEneChk(GObj *volatile a0);

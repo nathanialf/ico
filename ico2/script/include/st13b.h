@@ -31,18 +31,12 @@ void actSt13bConte02Jimaku(GObj *volatile a0);
 void actSt13bDoorMain(GObj *volatile a0);
 void actSt13bDoorSwitch(GObj *volatile a0);
 void actSt13bDoorUp(GObj *volatile a0);
-void actSt13bDoorUpSub(GObj *volatile a0);
-void actSt13bElev2CharaChk(GObj *volatile a0);
-void actSt13bElev2Chk(GObj *volatile a0);
 void actSt13bElevDown(GObj *volatile a0);
-void actSt13bElevDownSub(GObj *volatile a0);
 void actSt13bElevMain(GObj *volatile a0);
 void actSt13bElevSwitch(GObj *volatile a0);
 void actSt13bElevUpChk(GObj *volatile a0);
-void actSt13bElevUpSub(GObj *volatile a0);
 void actSt13bFloorChk(GObj *volatile a0);
 void actSt13bMeetAgainChk(GObj *volatile a0);
-void actSt13bMeetAgainSub(GObj *volatile a0);
 void actSt13bSekizo2Chk(GObj *volatile a0);
 void actSt13bSekizoChk(GObj *volatile a0);
 

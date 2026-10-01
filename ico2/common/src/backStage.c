@@ -248,7 +248,7 @@ void backStageProcessMain(void)
     }
 }
 
-void routeSetPos(int gobj0, int gobj1, float *out, float ratio)
+static void routeSetPos(int gobj0, int gobj1, float *out, float ratio)
 {
     Vec16 p0;
     Vec16 cur;

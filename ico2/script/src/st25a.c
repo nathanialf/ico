@@ -30,6 +30,8 @@
 #include "script.h"
 #include "jimaku.h"
 
+static void actSt25aElevCharaChk(GObj *volatile a0);
+
 /* .sdata: the ADPCM request slots the scenes hand scpAdpcmPlayRequestFunc
    and wait on, and conte12's flag. */
 static char *conte11 = 0; /* derived name */
@@ -109,7 +111,7 @@ static ActMail elev_chara_mes[2] = {{430}, {429}}; /* derived name */
 static ActMail elev_end_mes[2] = {{430}, {429}}; /* derived name */
 
 void actSt25aQueenBeforeChk(GObj *volatile a0);
-void actSt25aQueenDeadReadyChk(GObj *volatile a0);
+static void actSt25aQueenDeadReadyChk(GObj *volatile a0);
 void actItouQueenAttackChk(GObj *volatile a0);
 void actConte11(GObj *volatile a0);
 void actConte11Jimaku(GObj *volatile a0);
@@ -698,7 +700,7 @@ void BoySekikaTexScroll(void)
     tex_SetUVScroll(sekikaBoyTexture, 0.0f, 0.0f, 0.0f, 0.01f, 0.0f, 0.5f, 1);
 }
 
-void actSt25aElevChk(GObj *volatile a0)
+static void actSt25aElevChk(GObj *volatile a0)
 {
     Act *sub = GOBJ_ACT(a0);
 
@@ -912,7 +914,7 @@ void actConte11Jimaku(GObj *volatile a0)
     } while (t < 1500.0f);
 }
 
-void actSt25aQueenDeadReadyChk(GObj *volatile a0)
+static void actSt25aQueenDeadReadyChk(GObj *volatile a0)
 {
     int i;
 
@@ -946,7 +948,7 @@ void actItouQueenAttackChk(GObj *volatile a0)
     }
 }
 
-void actSt25aElevCharaChk(GObj *volatile a0)
+static void actSt25aElevCharaChk(GObj *volatile a0)
 {
     Act *sub = GOBJ_ACT(a0);
 

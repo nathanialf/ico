@@ -44,6 +44,19 @@
 #include "debug_exception.h"
 #include <assert.h>
 
+static int debug_CollisionTest(int reset);
+static int debug_DispBall(int on);
+static int debug_DispBox(int on);
+static void debug_DrawBar(void);
+static void debug_MakeFont(void);
+static int debug_Mode(void);
+static void debug_PrintCharacter(char *str, int x, int y, int r, int g, int b, int sz);
+static void debug_PrintFont(int a0, int a1, int a2, char *a3);
+static int debug_selectFile(McMgr *mc);
+static void debug_makeBackImage(void);
+
+static int debug_girl_pad_control;
+
 typedef struct {
     int x, y;
     unsigned int w, h;
@@ -727,9 +740,6 @@ typedef struct {
     char c[6];
 } McName6;
 
-/* forward declaration: defined below */
-extern int debug_selectFile(McMgr *mc);
-
 /* one line of the memory-card menu: the label debug_SelectCsvWindow prints and
    the state machine it hands control to */
 typedef struct {
@@ -886,7 +896,7 @@ inline int debug_TryToGetStartStage(void)
     return -1;
 }
 
-void debug_SaveDebugOptionFile(void)
+static void debug_SaveDebugOptionFile(void)
 {
     char buf[256];
     int i;
@@ -909,7 +919,7 @@ void debug_SaveDebugOptionFile(void)
     debug_openLog();
 }
 
-int debug_GetDebugOption(void)
+static int debug_GetDebugOption(void)
 {
     char buf[256];
     int fd;
@@ -1218,7 +1228,7 @@ typedef unsigned long long GifTag[2] __attribute__((aligned(16))); /* derived na
 static GifTag debugFontTag = {0x2000400000008000LL, 0x51}; /* derived name */
 
 /* clang-format off */
-void debug_MakeFont(void)
+static void debug_MakeFont(void)
 {
     int on = 1, off = 0;
     struct { float v[4]; char *volatile ptr; } w; /* the cursor is re-read from the frame at every push */
@@ -1280,7 +1290,7 @@ void debug_MakeFont(void)
     }
 }
 
-void debug_makeBackImage(void)
+static void debug_makeBackImage(void)
 {
     int i;
     int j;
@@ -1310,7 +1320,7 @@ void debug_makeBackImage(void)
     debug_MakeFont();
 }
 
-void debug_PrintCharacter(char *str, int x, int y, int r, int g, int b, int sz)
+static void debug_PrintCharacter(char *str, int x, int y, int r, int g, int b, int sz)
 {
     char *p;
     char *q;
@@ -1362,7 +1372,7 @@ void debug_PrintCharacter(char *str, int x, int y, int r, int g, int b, int sz)
 /* debug_PrintFont's backdrop colour */
 static DbgCol fontBackCol = {0x00, 0x00, 0x00, 0x80}; /* derived name */
 
-void debug_PrintFont(int a0, int a1, int a2, char *a3)
+static void debug_PrintFont(int a0, int a1, int a2, char *a3)
 {
     FR buf[2];
     int r;
@@ -1408,7 +1418,7 @@ inline void debug_ClearFontWindow(void)
     fontWindowLine = 0;
 }
 
-void debug_FlushFontWindow(void)
+static void debug_FlushFontWindow(void)
 {
     FR r = {16, (int)(224.0f - ((float)charNumH + 0.5f) * 8.0f), 50, charNumH};
     FR rect;
@@ -1485,7 +1495,7 @@ static DbgCol brainColHigh[1] = {{0xFF, 0x40, 0x40, 0xFF}}; /* derived name */
 
 static DbgCol brainColMax[1] = {{0xFF, 0xFF, 0xFF, 0xFF}}; /* derived name */
 
-void debug_brainBar(void)
+static void debug_brainBar(void)
 {
     void draw_batsu(DbgPos * p)
     {
@@ -1584,7 +1594,7 @@ void debug_brainBar(void)
     gif_EndPacket();
 }
 
-int debug_MakeBarString(char *p, int a, int b, FR fr, long long x, int line)
+static int debug_MakeBarString(char *p, int a, int b, FR fr, long long x, int line)
 {
     char buf[16];
     int i;
@@ -1629,7 +1639,7 @@ static DbgCol barScaleCol[1] = {{0xA0, 0xA0, 0xA0, 0xA0}}; /* derived name */
 static DbgCol barLabelCol[1] = {{0x80, 0x80, 0x80, 0x60}}; /* derived name */
 
 /* clang-format off */
-void debug_DrawBar(void)
+static void debug_DrawBar(void)
 {
     long long sh;
     long long x = -256;
@@ -1913,7 +1923,7 @@ inline void debug_ResetBar(void)
 
 /* Halves a 32-bit snapshot with a 2x2 box filter; the clamp and the
    destination helper are nested functions. */
-void debug_ResizeSnapShot(int dst, int src, int w, int h)
+static void debug_ResizeSnapShot(int dst, int src, int w, int h)
 {
     int r, g, b, a;
     int x, y, i, j;
@@ -1997,7 +2007,7 @@ static inline void debug_WriteTim2(int fd, int *img, int w, int h) /* derived na
     }
 }
 
-void debug_WriteBMP(int fd, int w, int h, unsigned int *src)
+static void debug_WriteBMP(int fd, int w, int h, unsigned int *src)
 {
     unsigned char line[w * 3];
     BmpHeader hdr;
@@ -2392,7 +2402,7 @@ static unsigned char modeBlink = 0; /* derived name */
 static const unsigned int blinkColor[] = {0xFFFFFF00, 0xC0C0C000}; /* derived name */
 
 /* clang-format off */
-int debug_Mode(void)
+static int debug_Mode(void)
 {
     int i, end, j;
     int ret = 0;
@@ -2561,7 +2571,7 @@ inline int _debug_SelectCsvWindow(char *title, int x, int y, int rows, int base,
     return 0;
 }
 
-void getLineBuffer(int a0, int a1, int a2)
+static void getLineBuffer(int a0, int a1, int a2)
 {
     sprintf(a0, "%02d:%s", a1, a2);
 }
@@ -2580,7 +2590,7 @@ inline int debug_SelectCsvWindowWithLineColor(char *title, int x, int y, int row
                                       getLineBuffer, colfunc);
 }
 
-void getBuffer(int a0)
+static void getBuffer(int a0)
 {
     sprintf(a0, "%s");
 }
@@ -2592,7 +2602,7 @@ int debug_SelectCsvWindow(char *title, int x, int y, int rows, const void *base,
                                       getBuffer, 0);
 }
 
-int debug_SelectStageMain(int ret, int stage)
+static int debug_SelectStageMain(int ret, int stage)
 {
     if (systemStatus[6] != 0) {
         return 0;
@@ -2711,7 +2721,7 @@ inline int debug_mcUnformat(int port)
     return 0;
 }
 
-int debug_mcRetErrCheck(McMgr *mc)
+static int debug_mcRetErrCheck(McMgr *mc)
 {
     char buf[64];
     int r;
@@ -2757,7 +2767,7 @@ int debug_mcRetErrCheck(McMgr *mc)
 
 static int selectFileState = 0; /* derived name */
 
-int debug_selectFile(McMgr *mc)
+static int debug_selectFile(McMgr *mc)
 {
     int i;
     int r = 0;
@@ -2823,7 +2833,7 @@ inline void *debug_saveNumFunc(int a0, void *a1)
 
 static int saveState = 0; /* derived name */
 
-int debug_mcSaveMainBlock(McMgr *mc)
+static int debug_mcSaveMainBlock(McMgr *mc)
 {
     int r = 0;
     int ret = 0;
@@ -2893,7 +2903,7 @@ int debug_mcSaveMainBlock(McMgr *mc)
 
 static int loadState = 0; /* derived name */
 
-int debug_mcLoadMainBlock(McMgr *mc)
+static int debug_mcLoadMainBlock(McMgr *mc)
 {
     int r = 0;
     int ret = 0;
@@ -2971,7 +2981,7 @@ int debug_mcLoadMainBlock(McMgr *mc)
 
 static int deleteState = 0; /* derived name */
 
-int debug_mcDeleteFile(McMgr *mc)
+static int debug_mcDeleteFile(McMgr *mc)
 {
     char buf[32];
     int ret = 0;
@@ -3222,7 +3232,7 @@ inline void debugCdvdLoadInfoSegCls(int page, int idx)
     *(int *)((char *)loadInfoSeg + (page * 0xD0 + idx * 8)) = 0;
 }
 
-char *debugCdvdLoadInfoSegDispFunc(int idx, int page)
+static char *debugCdvdLoadInfoSegDispFunc(int idx, int page)
 {
     char buf[16];
     int d;
@@ -3336,7 +3346,7 @@ static inline int debug_ListPadControlGobj(DbgGobjEnt *list) /* derived name */
 
 static int actGobjSelect = 0; /* derived name */
 
-int debug_SelectActGobj(int reset)
+static int debug_SelectActGobj(int reset)
 {
     DbgGobjEnt list[10];
     int n;
@@ -3371,7 +3381,7 @@ inline int debug_SelectPad2ControlGobj(int reset)
     return (r == -1) ? -1 : 0;
 }
 
-int debug_DispBox(int on)
+static int debug_DispBox(int on)
 {
     int i;
     int step;
@@ -3455,7 +3465,7 @@ int debug_DispBox(int on)
 /* debug_DispBall's sphere radius */
 static float ballRadius = 0.0f; /* derived name */
 
-int debug_DispBall(int on)
+static int debug_DispBall(int on)
 {
     DbgBallList list = {{{"centerX", &ballCentre[0]}, {"centerY", &ballCentre[1]}, {"centerZ", &ballCentre[2]}, {" radius", &ballRadius}}};
     /* the wire sphere's colour */
@@ -3546,7 +3556,7 @@ static Col4 collisionWallCol = {{0, 0x80, 0xFF, 0x80}}; /* derived name */
 /* the floor hit sphere colour */
 static Col4 collisionFloorCol = {{0, 0x80, 0xFF, 0x80}}; /* derived name */
 
-int debug_CollisionTest(int reset)
+static int debug_CollisionTest(int reset)
 {
     float v[4];
     VECTOR mv;
@@ -3632,7 +3642,7 @@ int debug_CollisionTest(int reset)
     return r;
 }
 
-inline int debug_FreeCamera(int a0)
+static inline int debug_FreeCamera(int a0)
 {
     if (a0 != 0) {
         CameraSetMode(1);
@@ -3969,7 +3979,7 @@ int debug_hand_camera = 0; /* derived name */
 
 int debug_enemy_kidnap_timer = 0; /* derived name */
 
-int debug_girl_pad_control = 0; /* derived name */
+static int debug_girl_pad_control = 0; /* derived name */
 
 int debug_hair_tight_level = 0; /* derived name */
 

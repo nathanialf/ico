@@ -29,16 +29,16 @@ typedef union {
     GamesysObjInfo info;
 } GamesysObjInfoFlag;
 
-void gamesysVersionLoad(int *self);
-void gamesysVersionSave(int a0);
+static void gamesysVersionLoad(int *self);
+static void gamesysVersionSave(int a0);
 void gamesysObjInfoLoad(void *h);
 void gamesysObjInfoSave(void *h);
-void gamesysGeneratorInfoLoad(int *a0);
-void gamesysGeneratorInfoSave(int *self);
-void gamesysHintInfoLoad(int *a0);
-void gamesysHintInfoSave(int *self);
-void gamesysCharacterInfoLoad(int *a0);
-void gamesysCharacterInfoSave(int *self);
+static void gamesysGeneratorInfoLoad(int *a0);
+static void gamesysGeneratorInfoSave(int *self);
+static void gamesysHintInfoLoad(int *a0);
+static void gamesysHintInfoSave(int *self);
+static void gamesysCharacterInfoLoad(int *a0);
+static void gamesysCharacterInfoSave(int *self);
 
 /* .data: the build stamp written into the save area and compared against
    the one the card holds; the save area's handler table, a load and a save
@@ -174,7 +174,7 @@ static inline GamesysObjInfo *gamesysObjInfoOldestSearch(GamesysObjInfoReq *req)
     return p;
 }
 
-GamesysObjInfo *gamesysObjInfoEmptyAreaSearch(GamesysObjInfoReq *req)
+static GamesysObjInfo *gamesysObjInfoEmptyAreaSearch(GamesysObjInfoReq *req)
 {
     GamesysObjInfo *p;
 
@@ -276,7 +276,7 @@ void gamesysMemoryHandlerWrite(int *self, void *src, int size)
     debug_StdPrintfDummy("write size %d\n", self[1]);
 }
 
-void gamesysGeneratorInfoSave(int *self)
+static void gamesysGeneratorInfoSave(int *self)
 {
     int *buf;
     int size;
@@ -287,7 +287,7 @@ void gamesysGeneratorInfoSave(int *self)
     gamesysMemoryHandlerWrite(self, buf, size);
 }
 
-void gamesysGeneratorInfoLoad(int *a0)
+static void gamesysGeneratorInfoLoad(int *a0)
 {
     int *s1 = GetbufpGeneratorPacket();
     int s2 = GetsizeGeneratorPacket();
@@ -298,7 +298,7 @@ void gamesysGeneratorInfoLoad(int *a0)
     return ReadGeneratorPacket();
 }
 
-void gamesysHintInfoSave(int *self)
+static void gamesysHintInfoSave(int *self)
 {
     char *buf;
     int size;
@@ -309,7 +309,7 @@ void gamesysHintInfoSave(int *self)
     gamesysMemoryHandlerWrite(self, buf, size);
 }
 
-void gamesysHintInfoLoad(int *a0)
+static void gamesysHintInfoLoad(int *a0)
 {
     char *s1 = GetBuffHintSaveInfo();
     int s2 = GetSizeHintSaveInfo();
@@ -320,7 +320,7 @@ void gamesysHintInfoLoad(int *a0)
     return ReadHintSaveInfo();
 }
 
-void gamesysCharacterInfoSave(int *self)
+static void gamesysCharacterInfoSave(int *self)
 {
     int *buf;
     int size;
@@ -331,7 +331,7 @@ void gamesysCharacterInfoSave(int *self)
     gamesysMemoryHandlerWrite(self, buf, size);
 }
 
-void gamesysCharacterInfoLoad(int *a0)
+static void gamesysCharacterInfoLoad(int *a0)
 {
     int *s1 = GetbufpCharacterPacket();
     int s2 = GetsizeCharacterPacket();
@@ -537,7 +537,7 @@ int gamesysVersionDiff = 0;
 
 int gamesysObjBuffOver = 0;
 
-void gamesysVersionLoad(int *self)
+static void gamesysVersionLoad(int *self)
 {
     int buf[8];
     gamesysMemoryHandlerRead(self, buf, 18);
@@ -548,7 +548,7 @@ void gamesysVersionLoad(int *self)
     }
 }
 
-void gamesysVersionSave(int a0)
+static void gamesysVersionSave(int a0)
 {
     if (gamesysVersionDiff == 0) {
         gamesysMemoryHandlerWrite((int *)a0, stamp_str, 18);

@@ -14,7 +14,6 @@ void actExplodeChk(GObj *volatile a0);
 void actSpiderChk(GObj *volatile a0);
 void actSplash1Chk(GObj *volatile a0);
 void actSplash2Chk(GObj *volatile a0);
-void actSt17aTestChk(GObj *volatile a0);
 void actSt27aWave1(GObj *volatile a0);
 void actSt27aWaveChk(GObj *volatile a0);
 void actWave1(GObj *volatile a0);

@@ -122,7 +122,7 @@ inline void MoveNextStage_Clear(void)
     nextStageNo = -1;
 }
 
-int GetRealModelId(int stageNo, char *gen)
+static int GetRealModelId(int stageNo, char *gen)
 {
     int mdl;
     int first;
@@ -299,7 +299,7 @@ static inline void MoveNextStage_Get(SObjSimpleSetting *a, int kind) /* derived 
     }
 }
 
-void initSceneGObj(int stage, int no)
+static void initSceneGObj(int stage, int no)
 {
     SObjSimpleSetting a;
     GenGeo *gen = &objLayout[no];
@@ -417,7 +417,7 @@ void initSceneGObj(int stage, int no)
     MakeCollisionDependGObjList();
 }
 
-void initParentLink(int id)
+static void initParentLink(int id)
 {
     GenGeo *gen = &objLayout[id];
     int parentId = gen->parent;
@@ -490,7 +490,7 @@ static inline void initGamesysSceneGObjs(int stage) /* derived name */
     }
 }
 
-void initWayData(int stage)
+static void initWayData(int stage)
 {
     ExtractWayData(stage);
 }

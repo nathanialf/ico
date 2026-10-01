@@ -16,7 +16,6 @@ void backStageTsuresariReturn(void);
 void backStageProcessInStage(float arg);
 void backStageProcessOutStage(void);
 void backStageProcessMain(void);
-void routeSetPos(int gobj0, int gobj1, float *out, float ratio);
 /* The enemy carrying the heroine off, which sceneManager sets when it takes her. */
 extern int backStageGirlTargetEnemyGop;
 

@@ -26,7 +26,6 @@ inline void actE3CageFallReadyChk(GObj *volatile a0);
 inline void actE3St01bEneChk(GObj *volatile a0);
 void actE3St09aGirlWay(GObj *volatile a0);
 inline void actE3St09aBrgMain(GObj *volatile a0);
-inline void actE3St09aBrgSwitch(GObj *volatile a0);
 void actE3CageFallChk(GObj *volatile a0);
 void actE3CageFallDemo(GObj *volatile a0);
 void actE3CageFallEffect(GObj *volatile a0);

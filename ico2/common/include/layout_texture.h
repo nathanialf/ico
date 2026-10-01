@@ -25,9 +25,6 @@ void lt_default_mask_property(int idx, int flag);
 int lt_fade_status(void);
 void lt_set_item_select_func(int val);
 void lt_set_fade_mode(int val);
-void default_item_select(int no);
-void display_primary_texture_layout(int no, int sel);
-void display_texture_fade_cancel_chk(int from, int to);
 void lt_analog2Pad(void);
 void exec_layout_texture(void);
 void init_layout_texture(int stage);
@@ -98,6 +95,5 @@ typedef struct {                     /* field names derived */
 } LtProp;                            /* derived name */
 
 extern LtProp texLayout[];
-void texture_fading(LtProp *p);
 
 #endif /* LAYOUT_TEXTURE_H */

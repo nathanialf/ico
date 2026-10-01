@@ -106,7 +106,6 @@ extern int debug_one_hit_only;
 extern int debug_ignore_dodge;
 extern int debug_hand_camera;
 extern int debug_enemy_kidnap_timer;
-extern int debug_girl_pad_control;
 extern int debug_hair_tight_level;
 extern int debug_hair_gravity_level;
 extern int debug_hair_bend_angle;
@@ -167,23 +166,14 @@ int debug_BackStageTest(void);
 int debug_tsuresariTimeZero(void);
 int debug_hintStart(void);
 int debug_SelectPad2ControlGobj(int reset);
-int debug_FreeCamera(int a0);
 void debug_Assert(char *fmt, ...);
-int debug_DispBall(int on);
-int debug_DispBox(int on);
 void debug_DispQW(void *p, int size);
-void debug_DrawBar(void);
-void debug_FlushFontWindow(void);
 void debug_Init(void);
-void debug_MakeFont(void);
 int debug_MemoryCard(void);
-void debug_PrintCharacter(char *str, int x, int y, int r, int g, int b, int sz);
-void debug_PrintFont(int a0, int a1, int a2, char *a3);
 void debug_PrintFontWindow(int col, char *fmt, ...);
 void debug_Printf(int a, int b, unsigned int c, const char *fmt, ...);
 void debug_PrintfDummy(int x, int y, unsigned int col, const char *fmt, ...);
 int debug_SETest(int reset);
-int debug_SelectActGobj(int reset);
 
 int debug_SelectCsvWindow(char *title, int x, int y, int rows, const void *base, int stride,
                           int off, int deref, int n, int *psel);
@@ -192,20 +182,14 @@ int debug_SelectStage(void);
 void debug_Menu_off(void);
 void debug_SetDmaCallback(void);
 void debug_StdPrintfDummy(const char *fmt, ...);
-void debug_brainBar(void);
-void debug_makeBackImage(void);
 void debug_openLog(void);
-void getBuffer(int a0);
-void getLineBuffer(int a0, int a1, int a2);
 void debug_FlushFont(void);
 void debug_VariableInit(void);
 int debug_SnapShot(int idx);
-int debug_Mode(void);
 
 int debug_SelectCsvWindowVal(int a0, int a1, int a2, int a3, int count, int a5, int (*fn)(int, int),
                              int a7);
 
 void debug_SESlotDisp(void);
-int debug_CollisionTest(int reset);
 
 #endif /* DEBUG_H */

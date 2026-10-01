@@ -26,11 +26,6 @@ extern int layoutActPushStartNew;
 /* the memory-card request block the layout actions and the debug menu
    drive */
 extern McMgr mc;
-void _la_mask_preview_info(void);
-int _la_mcard_error_check(void *a0);
-int _la_set_current_port_2(void *p, int a1);
-int _la_set_current_port_lock_2(void *p, int a1);
-void _la_set_preview_info();
 /* The layout actions the texture layout's tables call, each an `inline`
    definition, in the order of their out-of-line copies at the end of the
    object (first-declaration order). */

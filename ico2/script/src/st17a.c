@@ -17,6 +17,9 @@
 #include "script.h"
 #include "main.h"
 
+static void actSt17aFallChk(GObj *volatile a0);
+static void actSt17aHint1Chk(GObj *volatile a0);
+
 static ActMail linkTest_mes[2] = {{430}, {429}}; /* derived name */
 
 static ActMail doorInit_mes[2] = {{430}, {429}}; /* derived name */
@@ -307,7 +310,7 @@ static int demoEnd;
 
 /* a0 is the actor entry parameter, volatile like every other stage
    actor's. */
-void actSt17aIntroCancel(GObj *volatile a0)
+static void actSt17aIntroCancel(GObj *volatile a0)
 {
     demoEnd = 0;
 
@@ -522,7 +525,7 @@ void actSt17aGirlWay(GObj *volatile a0)
     _SCPMoveCharactorByWay((void *)girlGObj, 0, buf.f, 100.0f, 2);
 }
 
-void actSt17aHint1Chk(GObj *volatile a0)
+static void actSt17aHint1Chk(GObj *volatile a0)
 {
     while (scpTriggerBall(a0, boyGObj, 200.0f) == 0) {
         _ACTWait(1);
@@ -534,7 +537,7 @@ void actSt17aHint1Chk(GObj *volatile a0)
     FinishHint(0);
 }
 
-void actSt17aFallChk(GObj *volatile a0)
+static void actSt17aFallChk(GObj *volatile a0)
 {
     while (!(gflagChk(33) && scpTriggerBall(a0, boyGObj, 1800.0f))) {
         _ACTWait(1);

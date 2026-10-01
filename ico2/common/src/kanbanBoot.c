@@ -55,7 +55,7 @@ extern void iosMcChdirProduct(void *a0);
 extern int iosMcSync(unsigned long *a0);
 extern void iosMcLoadProductBlock(void *a0);
 
-int kanbanBootMcCheck(void)
+static int kanbanBootMcCheck(void)
 {
     McMgr *mc = &bootMcReq;
     McProductFile *r;

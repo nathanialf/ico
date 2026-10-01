@@ -15,6 +15,8 @@
 #include "typedef.h"
 #include "main.h"
 
+static void actSt18aDoorChkSub(GObj *volatile a0);
+
 static ActMail intro_mes[2] = {{430}, {429}}; /* derived name */
 
 static ActMail switchL_mes[2] = {{430}, {429}}; /* derived name */
@@ -555,7 +557,7 @@ void actSt18aCamera(int x)
     volatile int local = x;
 }
 
-void actSt18aDoorChkSub(GObj *volatile a0)
+static void actSt18aDoorChkSub(GObj *volatile a0)
 {
     _ACTWait(60);
 

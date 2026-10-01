@@ -6,6 +6,8 @@
 #include "typedef.h"
 #include "main.h"
 
+static void actSt17aTestChk(GObj *volatile a0);
+
 static ActMail explode_mes[2] = {{430}, {429}}; /* derived name */
 
 static ActMail splash1_mes[2] = {{430}, {429}}; /* derived name */
@@ -222,7 +224,7 @@ void actSpiderChk(GObj *volatile a0)
     }
 }
 
-void actSt17aTestChk(GObj *volatile a0)
+static void actSt17aTestChk(GObj *volatile a0)
 {
     while (1) {
         while ((pad[1].flags & 0x20) == 0) {

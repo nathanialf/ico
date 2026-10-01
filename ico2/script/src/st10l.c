@@ -16,6 +16,8 @@
 #include "script.h"
 #include "main.h"
 
+static void actSt10lEneKillChk(GObj *volatile a0);
+
 /* .rodata: the girl's way-point packet for actSt10lEneCam3Chk, a 16-byte
    constant vector template whose long long view the copy reads */
 
@@ -886,7 +888,7 @@ void actSt10lChainSwitch(GObj *volatile a0)
     _ACTWait(0);
 }
 
-void actSt10lEneKillChk(GObj *volatile a0)
+static void actSt10lEneKillChk(GObj *volatile a0)
 {
     int save;
 

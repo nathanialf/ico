@@ -17,7 +17,6 @@ extern char *gondola_down;
 extern unsigned int st20a_yure;
 extern unsigned char st20a_yure_vol;
 void actSt20aBridgeDown(GObj *volatile a0);
-void actSt20aBridgeDownSub(GObj *volatile a0);
 void actSt20aBridgeMain(GObj *volatile a0);
 void actSt20aBridgeSwitch(GObj *volatile a0);
 void actSt20aEneChk(GObj *volatile a0);
@@ -26,11 +25,9 @@ void actSt20aFenceDownChk(GObj *volatile a0);
 void actSt20aFenceDownChk2(GObj *volatile a0);
 void actSt20aFenceUpChk(GObj *volatile a0);
 void actSt20aFenceUpChk2(GObj *volatile a0);
-void actSt20aGirlPosChk(GObj *volatile a0);
 void actSt20aGondolaDown(GObj *volatile a0);
 void actSt20aGondolaMain(GObj *volatile a0);
 void actSt20aGondolaSwitch(GObj *volatile a0);
 void actSt20aGondolaUp(GObj *volatile a0);
-void actSt20aHint1Chk(GObj *volatile a0);
 
 #endif /* ST20A_H */

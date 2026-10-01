@@ -73,7 +73,7 @@ extern void font_Print(unsigned int attr, char *str, int size, StaffRollCol col,
    base at every use site. */
 #define SROLL(off) ((StaffRollEntry *)((char *)rollLines + (off)))
 
-int staffRollScroll(void)
+static int staffRollScroll(void)
 {
     int count;
     int i;
@@ -109,7 +109,7 @@ int staffRollScroll(void)
     return count;
 }
 
-int staffRollNameOut(void)
+static int staffRollNameOut(void)
 {
     StaffRollEntry *e;
     char **s;

@@ -23,6 +23,13 @@
 #include "main.h"
 #include "script.h"
 
+static void actSt10rCageSub(GObj *volatile a0);
+static void actSt10rChainMoveSub(GObj *volatile a0);
+static void actSt10rFloorSub(GObj *volatile a0);
+static void actSt10rTowerResqueChk(GObj *volatile a0);
+static void actSt10rWayOffChk(GObj *volatile a0);
+static void actSt10rWayOnChk(GObj *volatile a0);
+
 static ActMail floor_mes[2] = {{430}, {429}}; /* derived name */
 
 static ActMail floor_hit_mes[2] = {{430}, {429}}; /* derived name */
@@ -160,7 +167,7 @@ void actSt10rFloorChk(GObj *volatile a0)
     lt_switch_layout(54);
 }
 
-void actSt10rFloorHitChk(GObj *volatile a0)
+static void actSt10rFloorHitChk(GObj *volatile a0)
 {
     for (;;) {
         while (scpTriggerBall(a0, boyGObj, 100.0f) == 0 || gflagChk(300) != 0 ||
@@ -846,7 +853,7 @@ void actSt10rWay(GObj *volatile a0)
     _ACTWait(0);
 }
 
-void actSt10rFloorSub(GObj *volatile a0)
+static void actSt10rFloorSub(GObj *volatile a0)
 {
     stage_SetAnimation(385, 1, 0);
 
@@ -871,7 +878,7 @@ void actSt10rFloorSub(GObj *volatile a0)
     _ACTWait(0);
 }
 
-void actSt10rCageSub(GObj *volatile a0)
+static void actSt10rCageSub(GObj *volatile a0)
 {
     _ACTWait(30);
 
@@ -942,7 +949,7 @@ void actSt10rChainSwitch(GObj *volatile a0)
     _ACTWait(0);
 }
 
-void actSt10rChainMoveSub(GObj *volatile a0)
+static void actSt10rChainMoveSub(GObj *volatile a0)
 {
     int se;
 
@@ -987,7 +994,7 @@ void actSt10rEneChk(GObj *volatile a0)
     gflagOn(307);
 }
 
-void actSt10rWayOnChk(GObj *volatile a0)
+static void actSt10rWayOnChk(GObj *volatile a0)
 {
     Act *sub = GOBJ_ACT(a0);
 
@@ -1006,7 +1013,7 @@ void actSt10rWayOnChk(GObj *volatile a0)
     _ACTWait(0);
 }
 
-void actSt10rWayOffChk(GObj *volatile a0)
+static void actSt10rWayOffChk(GObj *volatile a0)
 {
     Act *sub = GOBJ_ACT(a0);
 
@@ -1025,7 +1032,7 @@ void actSt10rWayOffChk(GObj *volatile a0)
     _ACTWait(0);
 }
 
-void actSt10rTowerResqueChk(GObj *volatile a0)
+static void actSt10rTowerResqueChk(GObj *volatile a0)
 {
     while (gflagChk(303) != 0 || gflagChk(302) == 0 || scpTriggerBall(a0, boyGObj, 500.0f) == 0 ||
            (ForMotionViewer_GetCurrentMotion(boyGObj) != 84 &&

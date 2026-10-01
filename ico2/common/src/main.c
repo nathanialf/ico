@@ -98,8 +98,8 @@ static int schedulerMsgBuff[8]; /* derived name */
 static const ThreadTbl allThreads = {{&mainThread, &schedulerThread, &mcThread, &cdvdThread,
                                       &stageManagerThread, &soundThread}}; /* derived name */
 
-void idle(void);
-void scheduler(void);
+static void idle(void);
+static void scheduler(void);
 /* motionOrientManager.h carries MotOriName and declares no movieFile */
 extern char movieFile[];
 /* mv_main.h does not declare it; the definition takes char * and returns int */
@@ -220,7 +220,7 @@ static int idleCount; /* derived name */
 
 static int idleLoop; /* derived name */
 
-void idle(void)
+static void idle(void)
 {
     debug_StdPrintfDummy("idle() in\n");
     debug_StdPrintfDummy("--------------------------------------------------------------\n");
@@ -255,7 +255,7 @@ void idle(void)
 /* vsyncs counted toward systemStatus[1], the frame step */
 static int frameStepCount = 0; /* derived name */
 
-void scheduler(void)
+static void scheduler(void)
 {
     int msg[4];
 
@@ -319,7 +319,7 @@ void scheduler(void)
     debug_StdPrintfDummy("scheduler() out\n");
 }
 
-void boot(void)
+static void boot(void)
 {
     debug_StdPrintfDummy("boot()\n");
     debug_StdPrintfDummy("file init\n");

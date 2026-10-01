@@ -21,6 +21,10 @@
 #include "main.h"
 #include "script.h"
 
+static void actSt13bDoorUpSub(GObj *volatile a0);
+static void actSt13bElev2CharaChk(GObj *volatile a0);
+static void actSt13bElevUpSub(GObj *volatile a0);
+
 /* .sbss: the demo's own end flag, the conte-02 end flag, the pad actuator
    handle and volume byte the door-up subthread holds, and the flag
    actSt13bDoorUpSub raises when the door is up. */
@@ -535,7 +539,7 @@ void actSt13bMeetAgain(GObj *volatile a0)
     }
 }
 
-void actSt13bMeetAgainSub(GObj *volatile a0)
+static void actSt13bMeetAgainSub(GObj *volatile a0)
 {
     stage_SetAnimation(760, 1, 0);
 
@@ -736,7 +740,7 @@ void actSt13bBossAfterChk(GObj *volatile a0)
     lt_switch_layout(54);
 }
 
-void actSt13bElevDownSub(GObj *volatile a0)
+static void actSt13bElevDownSub(GObj *volatile a0)
 {
     stage_SetAnimation(40, 1, 235);
 
@@ -920,7 +924,7 @@ void actSt13bDoorUp(GObj *volatile a0)
     lt_switch_layout(54);
 }
 
-void actSt13bElev2Chk(GObj *volatile a0)
+static void actSt13bElev2Chk(GObj *volatile a0)
 {
     Act *sub = GOBJ_ACT(a0);
 
@@ -1204,7 +1208,7 @@ void actSt13bElevSwitch(GObj *volatile a0)
     _ACTWait(0);
 }
 
-void actSt13bElevUpSub(GObj *volatile a0)
+static void actSt13bElevUpSub(GObj *volatile a0)
 {
     stage_SetAnimation(40, 1, 0);
     st13b_boss_yure = iosPadActRequest(boyPad, 9);
@@ -1247,7 +1251,7 @@ void actSt13bDoorSwitch(GObj *volatile a0)
     _ACTWait(0);
 }
 
-void actSt13bDoorUpSub(GObj *volatile a0)
+static void actSt13bDoorUpSub(GObj *volatile a0)
 {
     _ACTWait(60);
 
@@ -1271,7 +1275,7 @@ void actSt13bDoorUpSub(GObj *volatile a0)
     _ACTWait(0);
 }
 
-void actSt13bElev2CharaChk(GObj *volatile a0)
+static void actSt13bElev2CharaChk(GObj *volatile a0)
 {
     Act *sub = GOBJ_ACT(a0);
 

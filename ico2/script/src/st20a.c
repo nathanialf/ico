@@ -20,6 +20,10 @@
 #include "typedef.h"
 #include "main.h"
 
+static void actSt20aBridgeDownSub(GObj *volatile a0);
+static void actSt20aGirlPosChk(GObj *volatile a0);
+static void actSt20aHint1Chk(GObj *volatile a0);
+
 /* This stage's actor mail records. Word 0 of each entry is the mail id the
    entry answers (430 = the actor's own wake-up post, 429 = the trailing
    entry); the handler in .func is installed at run time just before the
@@ -555,7 +559,7 @@ void actSt20aBridgeSwitch(GObj *volatile a0)
     _ACTWait(0);
 }
 
-void actSt20aBridgeDownSub(GObj *volatile a0)
+static void actSt20aBridgeDownSub(GObj *volatile a0)
 {
     _ACTWait(30);
     while (brg20a == 0) {
@@ -635,7 +639,7 @@ void actSt20aEneChk(GObj *volatile a0)
     gflagOn(319);
 }
 
-void actSt20aGirlPosChk(GObj *volatile a0)
+static void actSt20aGirlPosChk(GObj *volatile a0)
 {
     while (girlGObj == 0 || scpTriggerBall(a0, girlGObj, 200.0f) == 0) {
         _ACTWait(1);
@@ -644,7 +648,7 @@ void actSt20aGirlPosChk(GObj *volatile a0)
     WakeupHint(20);
 }
 
-void actSt20aHint1Chk(GObj *volatile a0)
+static void actSt20aHint1Chk(GObj *volatile a0)
 {
     while (scpTriggerBall(a0, boyGObj, 100.0f) == 0 &&
            scpTriggerFloorAttr(boyGObj, 0x4000000) == 0) {

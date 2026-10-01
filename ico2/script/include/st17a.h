@@ -17,11 +17,8 @@ void actSt17aDoorDownChk(GObj *volatile a0);
 void actSt17aDoorDownEffect(GObj *volatile a0);
 void actSt17aDoorUpChk(GObj *volatile a0);
 void actSt17aDoorUpEffect(GObj *volatile a0);
-void actSt17aFallChk(GObj *volatile a0);
 void actSt17aHasiChk(GObj *volatile a0);
 void actSt17aHasiEffect(GObj *volatile a0);
-void actSt17aHint1Chk(GObj *volatile a0);
-void actSt17aIntroCancel(GObj *volatile a0);
 void actSt17aIntroChk(GObj *volatile a0);
 
 #endif /* ST17A_H */

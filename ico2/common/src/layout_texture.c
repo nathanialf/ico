@@ -78,6 +78,8 @@ extern void *memset(void *dst, int c, int n);
 
 #include "Texture.h"
 
+static void default_item_select(int no);
+
 /* The sprite rectangle the gif helpers take: origin and size, in 1/16 pixels. */
 typedef struct {
     int x;
@@ -90,7 +92,7 @@ typedef struct {
    pixels centred on the origin */
 static const SprRect primarySpriteRect = {-5120, -1808, 10240, 3616}; /* derived name */
 
-void display_texture_fade_cancel_chk(int from, int to)
+static void display_texture_fade_cancel_chk(int from, int to)
 {
     short list1[256];
     short list2[256];
@@ -220,7 +222,7 @@ static inline void lt_switch_layout_3(int no) /* derived name */
     }
 }
 
-void default_item_select(int no)
+static void default_item_select(int no)
 {
     LtProp *p = &texLayout[no];
     LtProperty *e = &texProperty[p->curItem];
@@ -302,7 +304,7 @@ static inline void lt_reset_property_chain(int no) /* derived name */
 
 /* the layout fade's state machine; fadeState is read and written as the
    file static itself, as in the rest of this TU */
-void texture_fading(LtProp *p)
+static void texture_fading(LtProp *p)
 {
     unsigned char *col = ltCursorColor;
     int *cur;
@@ -555,7 +557,7 @@ static inline void lt_draw_primary_sprite(SprCol *col) /* derived name */
     gif_EndPacket();
 }
 
-void display_primary_texture_layout(int no, int sel)
+static void display_primary_texture_layout(int no, int sel)
 {
     SprCol col;
     LtProp *p = &texLayout[no];

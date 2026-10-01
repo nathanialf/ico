@@ -19,8 +19,8 @@
    below spin for. */
 static int demoEnd;
 
-void actSt13aElevUpSub(GObj *volatile a0);
-void actSt13aElevDownSub(GObj *volatile a0);
+static void actSt13aElevUpSub(GObj *volatile a0);
+static void actSt13aElevDownSub(GObj *volatile a0);
 void actSt13aElevDownChk(GObj *volatile a0);
 
 /* .data: actor mail packets. */
@@ -66,7 +66,7 @@ int sekizo_13a = 0;
 
 unsigned char sekizo_13a_vol = 0;
 
-void actSt13aElevUpSub(GObj *volatile a0)
+static void actSt13aElevUpSub(GObj *volatile a0)
 {
     AdpcmPlay(((AdpcmObj *)st13a_up)->stream);
 
@@ -163,7 +163,7 @@ void actSt13aElevDown(GObj *volatile a0)
     }
 }
 
-void actSt13aElevDownSub(GObj *volatile a0)
+static void actSt13aElevDownSub(GObj *volatile a0)
 {
     stage_SetAnimation(173, 1, 451);
     stage_SetAnimation(175, 1, 0);

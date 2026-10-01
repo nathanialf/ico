@@ -1143,7 +1143,7 @@ void scpGirlHintVoiceTickProc(void)
     AdpcmInterStereoVolumeSet(snd, 0);
 }
 
-void scpWoodSrh(GObj *self, struct WoodBoxEnt *w)
+static void scpWoodSrh(GObj *self, struct WoodBoxEnt *w)
 {
     float pos[4];
     float dst[4];

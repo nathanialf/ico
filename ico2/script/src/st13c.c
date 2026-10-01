@@ -30,6 +30,8 @@
 #include "main.h"
 #include "jimaku.h"
 
+static void actSt13cHandSub(GObj *volatile a0);
+
 /* the stage-animation number sets the contes play; two functions keep one
    in their frame as the scratch vector they hand scpPlayMotDir or
    DirectCallEnemy. */
@@ -902,7 +904,7 @@ void actSt13cCageFallEffect(GObj *volatile a0)
     _ACTWait(0);
 }
 
-void actSt13cSekizoChk(GObj *volatile a0)
+static void actSt13cSekizoChk(GObj *volatile a0)
 {
     /* the SE handle, which the sound subsystem owns; here it is never
        written before soundSeDefStop reads it back */
@@ -1468,7 +1470,7 @@ void actSt13cCageFallEvent(int x)
     volatile int local = x;
 }
 
-void actE3St13cSekizoEvent(int x)
+static void actE3St13cSekizoEvent(int x)
 {
     volatile int local = x;
 }
@@ -1542,7 +1544,7 @@ void actSt13cGirlCarryAgainChk(GObj *volatile a0)
     _ACTWait(1);
 }
 
-void actSt13cHandSub(GObj *volatile a0)
+static void actSt13cHandSub(GObj *volatile a0)
 {
     _ACTWait(100);
     scpPlayWaitMotEnd(boyGObj);

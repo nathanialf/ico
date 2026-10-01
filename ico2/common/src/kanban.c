@@ -56,6 +56,8 @@ extern void gif_StartPacketPri(int pri);
 #include <stdlib.h>
 #include "main.h"
 
+static void init_textures_of_specified_property(int first, int last);
+
 static inline char *get_texture_base_name(char *src) /* derived name */
 {
     char buf[256];
@@ -247,7 +249,7 @@ inline void kanbanReqAllDelFade(void)
     } while (i >= 0);
 }
 
-void init_textures_of_specified_property(int first, int last)
+static void init_textures_of_specified_property(int first, int last)
 {
     int i;
     int no;
@@ -341,7 +343,7 @@ static void display_texture(LtProp *pr, LtProperty *e, KanbanCol *col)
     }
 }
 
-int fade_exec(Kanban *p)
+static int fade_exec(Kanban *p)
 {
     int ret = 0;
     float f;
@@ -374,7 +376,7 @@ int fade_exec(Kanban *p)
     return ret;
 }
 
-void display_layout(Kanban *k)
+static void display_layout(Kanban *k)
 {
     LtProp *pr;
     int i;

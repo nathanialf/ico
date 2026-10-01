@@ -34,9 +34,7 @@ void actSt47aHane2Girl(GObj *volatile a0);
 void actSt47aHane2Main(GObj *volatile a0);
 void actSt47aHane2Switch(GObj *volatile a0);
 void actSt47aHane2Up(GObj *volatile a0);
-void actSt47aHint2OnChk(GObj *volatile a0);
 void actSt47aRopeChk(GObj *volatile a0);
-void actSt47aRopeSub(GObj *volatile a0);
 void actSt47aSekizo1Chk(GObj *volatile a0);
 
 #endif /* ST47A_H */

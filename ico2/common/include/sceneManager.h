@@ -36,8 +36,6 @@ void test_nextstage_firstwalk_set(int unused, int a, int b, int c);
 int GetStageStartInfo(struct GObj *a0, int a1, int a2, int *p, int *q, int *r);
 void MoveNextStage_Clear(void);
 void InitStageLight(int stage);
-void initParentLink(int id);
-void initSceneGObj(int stage, int id);
 void InitSceneObjects(int stage);
 
 /* enemy-model-grp: one enemy model group, 0x28 bytes. Reader:

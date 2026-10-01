@@ -23,6 +23,10 @@
 #include "typedef.h"
 #include "main.h"
 
+static int _la_set_current_port_2(void *p, int a1);
+static int _la_set_current_port_lock_2(void *p, int a1);
+static void _la_set_preview_info(void);
+
 /* the custom key map's sixteen pad button codes (iosPadConfCustom.bit),
    the default one bit per button */
 typedef struct {
@@ -170,7 +174,7 @@ extern void iosMcDelete(void *a0);
 /* mcard.c's preview record */
 extern int IosMcPreviewInfo[];
 
-int _la_mcard_error_check(void *a0)
+static int _la_mcard_error_check(void *a0)
 {
     char *w = (char *)a0;
 
@@ -209,7 +213,7 @@ int _la_mcard_error_check(void *a0)
 }
 
 /* file-local: nothing outside this TU calls it */
-int _la_memory_card_check(McMgr *p, int a1);
+static int _la_memory_card_check(McMgr *p, int a1);
 
 /* .sdata: these ten statics and the three globals after them, then each
    function's own statics before it */
@@ -239,7 +243,7 @@ int layout_boot_flag = 0;
 
 int enable_game_pause = 1;
 
-int _la_memory_card_check(McMgr *p, int a1)
+static int _la_memory_card_check(McMgr *p, int a1)
 {
     int r;
     int i;
@@ -376,7 +380,7 @@ static int port2Changed = 0; /* derived name */
 
 static int port2Locked = 0; /* derived name */
 
-int _la_set_current_port_2(void *p, int a1)
+static int _la_set_current_port_2(void *p, int a1)
 {
     McPortInfo tmp;
     int r;
@@ -485,7 +489,7 @@ static int lock2Changed = 0; /* derived name */
 
 static int lock2Locked = 0; /* derived name */
 
-int _la_set_current_port_lock_2(void *p, int a1)
+static int _la_set_current_port_lock_2(void *p, int a1)
 {
     McPortInfo tmp;
     int r;
@@ -541,7 +545,7 @@ static int portNewStep = 0; /* derived name */
 
 static int portNewRestart = 1; /* derived name */
 
-int _la_set_current_port_new(McMgr *p, int a1)
+static int _la_set_current_port_new(McMgr *p, int a1)
 {
     int r = 0;
     int v;
@@ -828,7 +832,7 @@ static int fileMoved = 0; /* derived name */
 
 static int fileFirst = 1; /* derived name */
 
-inline int la_mc_saved_file_select(int a0)
+static inline int la_mc_saved_file_select(int a0)
 {
     int i = a0 - 0x3E;
     int old = i;
@@ -924,7 +928,7 @@ int la_mc_file_select(int a0)
     return (pad[0].flags & 0x50) ? curFile : -1;
 }
 
-void _la_mask_preview_info(void)
+static void _la_mask_preview_info(void)
 {
     int i;
 
@@ -962,7 +966,7 @@ static inline void playTime(struct McPreview *p, int *hour, int *min, int *sec) 
     }
 }
 
-void _la_set_preview_info(void)
+static void _la_set_preview_info(void)
 {
     int hour;
     int min;
@@ -1678,7 +1682,7 @@ static int barStep = 0; /* derived name */
 
 static int barFrame = 0; /* derived name */
 
-void progressive_bar(void)
+static void progressive_bar(void)
 {
     int n;
 

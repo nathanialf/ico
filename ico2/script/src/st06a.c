@@ -54,10 +54,10 @@ static const ConstVec farPos = {{0.0f, 0.0f, -1000000.0f, 1.0f}}; /* derived nam
 
 /* st06a.c's `inline` functions, in the order of their definitions'
    out-of-line copies at the end of the object (first-declaration order). */
-inline void actSt06aPistonRideOffChk(GObj *volatile a0);
-inline void actSt06aPistonFlagOffChk(GObj *volatile a0);
-inline void actSt06aSoundChk(GObj *volatile a0);
-inline void actSt06aSound2Chk(GObj *volatile a0);
+static inline void actSt06aPistonRideOffChk(GObj *volatile a0);
+static inline void actSt06aPistonFlagOffChk(GObj *volatile a0);
+static inline void actSt06aSoundChk(GObj *volatile a0);
+static inline void actSt06aSound2Chk(GObj *volatile a0);
 
 static ActMail suimon_mes[2] = {{430}, {429}}; /* derived name */
 
@@ -671,7 +671,7 @@ static void actSt06aJumpMove(GObj *volatile a0)
     lt_switch_layout(54);
 }
 
-inline void actSt06aPistonRideOffChk(GObj *volatile a0)
+static inline void actSt06aPistonRideOffChk(GObj *volatile a0)
 {
     Act *sub = GOBJ_ACT(a0);
 
@@ -1568,7 +1568,7 @@ static void actSt06aPistonRideOnChk(GObj *volatile a0)
     _ACTWait(0);
 }
 
-inline void actSt06aPistonFlagOffChk(GObj *volatile a0)
+static inline void actSt06aPistonFlagOffChk(GObj *volatile a0)
 {
     Act *sub = GOBJ_ACT(a0);
 
@@ -1591,7 +1591,7 @@ inline void actSt06aPistonFlagOffChk(GObj *volatile a0)
     _ACTWait(0);
 }
 
-inline void actSt06aSoundChk(GObj *volatile a0)
+static inline void actSt06aSoundChk(GObj *volatile a0)
 {
     int handle = soundSeDefPlay(1358, 0, sound_chk_pos, 1);
 
@@ -1602,7 +1602,7 @@ inline void actSt06aSoundChk(GObj *volatile a0)
     soundSeDefStop(handle);
 }
 
-inline void actSt06aSound2Chk(GObj *volatile a0)
+static inline void actSt06aSound2Chk(GObj *volatile a0)
 {
     int handle;
 

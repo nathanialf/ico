@@ -13,8 +13,6 @@
 void ExitIcoMisc(void);
 void DispIcoMisc(void);
 void InitIcoMisc(int *arg);
-void disp_memory_partition_bar(void);
-void disp_memory_partition(void);
 void ExecIcoMisc(void);
 /* Six debug words nothing reads. */
 extern int dbgC0;

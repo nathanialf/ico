@@ -24,6 +24,5 @@ void FreeDObj(void);
 void LinkParentOfDObj(void *a0, PackedLL_19CAF0 *a1);
 void UnlinkParentOfDObj(void *a0);
 struct Sub15C *CSVSYSTEM_InitDObj(int id, SObjSimpleSetting *lay);
-void initPolygonState(char *d, SObjSimpleSetting *lay);
 
 #endif /* DOBJ_H */

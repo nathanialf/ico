@@ -22,6 +22,9 @@
 #include "script.h"
 #include "main.h"
 
+static void actSt47aHint2OnChk(GObj *volatile a0);
+static void actSt47aRopeSub(GObj *volatile a0);
+
 void actSt47aInit(void)
 {
     if (gflagChk(47) != 0) {
@@ -921,7 +924,7 @@ void actSt47aHane2Girl(GObj *volatile a0)
     _SCPMoveCharactorByWay(girlGObj, 0, (float *)buf, 100.0f, 0);
 }
 
-void actSt47aRopeSub(GObj *volatile a0)
+static void actSt47aRopeSub(GObj *volatile a0)
 {
     _ACTWait(15);
 
@@ -983,7 +986,7 @@ void actSt47aEneChk(GObj *volatile a0)
     gflagOn(53);
 }
 
-void actSt47aHint2OnChk(GObj *volatile a0)
+static void actSt47aHint2OnChk(GObj *volatile a0)
 {
     while (gflagChk(47) == 0) {
         _ACTWait(1);

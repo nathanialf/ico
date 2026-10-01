@@ -15,6 +15,10 @@
 #include "typedef.h"
 #include "main.h"
 
+static void actSt09aBrgDownSub(GObj *volatile a0);
+static void actSt09aHint1Chk(GObj *volatile a0);
+static void actSt09aHint2Chk(GObj *volatile a0);
+
 /* .sbss: the demo's own end flag, raised by the subthread the wait loop below
    spins for. */
 static int demoEnd;
@@ -347,7 +351,7 @@ void actSt09aBrgSwitch(GObj *volatile a0)
     _ACTWait(0);
 }
 
-void actSt09aBrgDownSub(GObj *volatile a0)
+static void actSt09aBrgDownSub(GObj *volatile a0)
 {
     stage_SetAnimation(378, 1, 0);
 
@@ -374,7 +378,7 @@ void actSt09aBrgDownSub(GObj *volatile a0)
     _ACTWait(0);
 }
 
-void actSt09aHint1Chk(GObj *volatile a0)
+static void actSt09aHint1Chk(GObj *volatile a0)
 {
     while (scpTriggerFloorAttr(boyGObj, 0x1000000) == 0) {
         _ACTWait(1);
@@ -386,7 +390,7 @@ void actSt09aHint1Chk(GObj *volatile a0)
     FinishHint(10);
 }
 
-void actSt09aHint2Chk(GObj *volatile a0)
+static void actSt09aHint2Chk(GObj *volatile a0)
 {
     while (scpTriggerBall(a0, boyGObj, 400.0f) == 0) {
         _ACTWait(1);

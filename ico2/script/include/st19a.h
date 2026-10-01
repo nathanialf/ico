@@ -16,7 +16,6 @@ extern char *fence_down_19a;
 extern char *hgrm_19a;
 extern char *pipe19a;
 void actSt19aChainDown(GObj *volatile a0);
-void actSt19aChainDownSub(GObj *volatile a0);
 void actSt19aChainMain(GObj *volatile a0);
 void actSt19aChainSwitch(GObj *volatile a0);
 void actSt19aHagurumaChk(GObj *volatile a0);

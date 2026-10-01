@@ -58,6 +58,8 @@ void actE3WarningChk(GObj *volatile a0)
 
 #include "e3.h"
 
+static inline void actE3St09aBrgSwitch(GObj *volatile a0);
+
 /* .sdata: the title stream's handle, the capsule's, the cage fall's, the
    first gate's, the stone statue's and its volume word, then the statue
    shake's volume. */
@@ -1467,7 +1469,7 @@ inline void actE3St09aBrgMain(GObj *volatile a0)
     }
 }
 
-inline void actE3St09aBrgSwitch(GObj *volatile a0)
+static inline void actE3St09aBrgSwitch(GObj *volatile a0)
 {
     Act *sub = GOBJ_ACT(a0);
 

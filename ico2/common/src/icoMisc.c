@@ -45,6 +45,7 @@
 #include "debug_exception.h"
 #include <assert.h>
 
+static void disp_memory_partition_bar(void);
 /* debug.h leaves it out (see there) */
 extern int debug_bar_flag;
 
@@ -91,7 +92,7 @@ static __inline__ void partitionBarDebugDisp(void) /* derived name */
 #endif
 }
 
-void disp_memory_partition_bar(void)
+static void disp_memory_partition_bar(void)
 {
     IosMemPart *parts[5] = {ios_partition_isys, ios_partition_s2motion, ios_partition_smotion,
                             ios_partition_common, 0};
@@ -188,7 +189,7 @@ void disp_memory_partition_bar(void)
     }
 }
 
-void disp_memory_partition(void)
+static void disp_memory_partition(void)
 {
     IosMemPart *p;
     int y = 0x70;
