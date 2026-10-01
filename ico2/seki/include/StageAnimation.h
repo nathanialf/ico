@@ -14,10 +14,10 @@ typedef struct {          /* field names derived */
     char path[64];        /* 0x00, the .bga file, "NULL" for none */
     int objFirst;         /* 0x40, the objTableScene range */
     int objLast;          /* 0x44 */
-    int word48;           /* 0x48, copied into the BGA data's 0x04 */
-    unsigned char byte4C; /* 0x4C, copied into the BGA data's 0x0B */
+    int group;            /* 0x48, copied into the BGA header's group */
+    unsigned char cut;    /* 0x4C, copied into the BGA header's cut flag */
     char pad4D[3];
-    int word50; /* 0x50 */
+    int loop;   /* 0x50, the loop flag the animation calls take */
     void *data; /* 0x54, the loaded BGA data or the data pointer */
     int no;     /* 0x58, the row's own index, -1 for none */
 } StageAnimDef; /* derived name */

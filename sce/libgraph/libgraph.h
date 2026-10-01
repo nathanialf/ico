@@ -82,6 +82,40 @@ typedef struct {
     unsigned long long test_1r_addr; /* 0x58 */
 } sceGsClear;
 
+/* The host-to-local transfer packet sceGsSetDefLoadImage fills (graph015):
+   a GIF tag, four (data, address) register pairs, the image's GIF tag. */
+typedef struct {
+    long long giftag0[2]; /* 0x00 */
+    long long bitbltbuf;  /* 0x10 */
+    long long abitbltbuf; /* 0x18 */
+    long long trxpos;     /* 0x20 */
+    long long atrxpos;    /* 0x28 */
+    long long trxreg;     /* 0x30 */
+    long long atrxreg;    /* 0x38 */
+    long long trxdir;     /* 0x40 */
+    long long atrxdir;    /* 0x48 */
+    long long giftag1[2]; /* 0x50 */
+} sceGsLoadImage;
+
+/* The local-to-host transfer packet sceGsSetDefStoreImage fills (graph016):
+   four VIF codes, a GIF tag, five (data, address) register pairs. */
+typedef struct {
+    unsigned int vifcode[4]; /* 0x00 */
+    long long giftag[2];     /* 0x10 */
+    long long bitbltbuf;     /* 0x20 */
+    long long abitbltbuf;    /* 0x28 */
+    long long trxpos;        /* 0x30 */
+    long long atrxpos;       /* 0x38 */
+    long long trxreg;        /* 0x40 */
+    long long atrxreg;       /* 0x48 */
+    long long finish;        /* 0x50 */
+    long long afinish;       /* 0x58 */
+    long long trxdir;        /* 0x60 */
+    long long atrxdir;       /* 0x68 */
+} sceGsStoreImage;
+
+int sceGsExecLoadImage(void *pkt, void *img);  /* definition in sce/ */
+int sceGsExecStoreImage(void *pkt, void *img); /* definition in sce/ */
 sceGsGParam *sceGsGetGParam(void);                                      /* definition in sce/ */
 unsigned long sceGsGetIMR(void);                                        /* definition in sce/ */
 void sceGsPutDispEnv(void *a0);                                         /* definition in sce/ */
@@ -101,10 +135,17 @@ int sceGsSetDefClear(sceGsClear *cl, short ztst, short x, short y, short w, shor
 int sceGsSetDefDrawEnv(sceGsDrawEnv *env, short psm, short w, short h, short ztst,
                        short zpsm); /* definition in sce/ */
 
+int sceGsSetDefLoadImage(sceGsLoadImage *di, short dbp, short dbw, short dpsm, short dsax,
+                         short dsay, short rrw, short rrh); /* definition in sce/ */
+
+/* sceGsSetDefStoreImage is left out: Texture.c, the game's caller that
+   includes this header, declares it with int parameters, which its bytes pin. */
+
 int sceGsSetDefTexEnv(sceGsTexEnv *env, short flush, short tbp, short tbw, short psm, short tw,
                       short th, short tfx, short cbp, short cpsm, short cld,
                       short flt); /* definition in sce/ */
 
+void sceGsSetHalfOffset(void *a0, short a1, short a2, short a3); /* definition in sce/ */
 int sceGsSwapDBuff(void *a0, int a1);                /* definition in sce/ */
 int sceGsSyncPath(int mode, unsigned short timeout); /* definition in sce/ */
 int sceGsSyncV(int mode);                            /* definition in sce/ */

@@ -1001,8 +1001,6 @@ extern int frame_count;
 extern int odd_even;
 /* as in main.h, which this TU does not include */
 extern int GlobalTimer;
-/* libgraph.h does not declare it; graph021's signature */
-extern void sceGsSetHalfOffset(void *env, short x, short y, short field);
 
 /* One frame boundary: take the field parity from the GS CSR, run the
  * reduction pass, flip the double buffer and hand the display list back

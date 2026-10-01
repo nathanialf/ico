@@ -18,42 +18,17 @@
 #include "Matrix.h"
 #include "enemy_act.h"
 #include "gobj.h"
+#include "BgAnimation.h"
 
 /* bgaAnimDefault is the 0x30-byte default record
    bga_InitData block-copies into its mallocseki() allocation (two
    (0,0,0,1.0f) vectors then four words); bgaParticlePos is the (0,0,0,1.0f)
    position vector bga_ApplyDObject hands to
    SetParticleEffectActiveSensing. */
-typedef struct BgaAnimDefault { /* field names derived */
-    /* 0x00 */ VECTOR pos;
-    /* 0x10 */ VECTOR quat;
-    /* 0x20 */ int obj;
-    /* 0x24 */ int idx;
-    /* 0x28 */ int root;
-    /* 0x2C */ char pad2C[4];
-} BgaAnimDefault; /* derived name */
-
-static BgaAnimDefault bgaAnimDefault = {
+static BgaAnim bgaAnimDefault = {
     /* derived name */
     {0.0f, 0.0f, 0.0f, 1.0f}, {0.0f, 0.0f, 0.0f, 1.0f}, 0, -1, 1, 0,
 };
-
-/* The head of a BGA file, its "BGA"
-   magic, the play state (-1 off, 0 held, 1 playing), the camera-cut flag, the
-   DObj list and the root list bga_InitData builds from it, the frame range,
-   the step and the current frame, and the animation record it allocates. */
-typedef struct BgaHeader { /* field names derived */
-    char magic[10];
-    signed char mode;     /* 0x0A */
-    char cut;             /* 0x0B */
-    int dobjs;            /* 0x0C */
-    int roots;            /* 0x10 */
-    float start;          /* 0x14 */
-    float end;            /* 0x18 */
-    float step;           /* 0x1C */
-    float frame;          /* 0x20 */
-    BgaAnimDefault *anim; /* 0x24 */
-} BgaHeader;              /* derived name */
 
 static float bgaParticlePos[4] = {0.0f, 0.0f, 0.0f, 1.0f}; /* derived name */
 
@@ -171,6 +146,8 @@ static inline void bga_makeRootList(BgaHeader *p) /* derived name */
         }
     } while ((d = (BgaDObjEnt *)d->u.next) != 0);
 
+    /* the list is written as int words, which may alias the int p->dobjs, so
+       the ROM reloads it after them; pointer stores would not (measured) */
     p->roots = mallocseki((n + 1) * 4);
     ((int *)p->roots)[n] = 0;
     d = (BgaDObjEnt *)p->dobjs;
@@ -187,26 +164,9 @@ static inline void bga_makeRootList(BgaHeader *p) /* derived name */
     } while (1);
 }
 
-/* BgAnimation.c's `inline` functions, in the order of their definitions'
-   out-of-line copies at the end of the object (first-declaration order). */
-void bga_ResetCamera(void);
-int bga_GetCameraMatrix(void *p);
-char *bga_InitSdfCamera(char *a0);
-void bga_SetCamFrame(char *data, int frame, int mode);
-int bga_CheckAnimationFinish(BgaHeader *p);
-int bga_CheckAnimationFrame(BgaHeader *p, int frame, int reset);
-int bga_CheckAnimationFrameIn(BgaHeader *p, int in, int out);
-int bga_CheckSdfCameraFinish(char *data);
-int bga_CheckSdfCameraFrame(char *data, int frame, int reset);
-int bga_CheckSdfCameraFrameIn(char *data, int in, int out);
-void bga_SetCameraForceOff(void);
-void bga_InitBGA(void);
-void bga_SetUniqAnimationFlag(int val);
-void bga_ResetAnimation(void);
-float bga_GetZoom(void);
-
-char *bga_InitData(BgaHeader *p)
+char *bga_InitData(char *data)
 {
+    BgaHeader *p = (BgaHeader *)data;
     BgaDObjEnt *d;
     int i;
     unsigned int j;
@@ -219,7 +179,7 @@ char *bga_InitData(BgaHeader *p)
     }
     p->dobjs += (int)p;
     p->mode = -1;
-    p->anim = (BgaAnimDefault *)mallocseki(sizeof(BgaAnimDefault));
+    p->anim = mallocseki(sizeof(BgaAnim));
     *p->anim = bgaAnimDefault;
     d = (BgaDObjEnt *)p->dobjs;
     while (1) {
@@ -282,7 +242,7 @@ char *bga_InitData(BgaHeader *p)
     }
     bga_makeRootList(p);
     bga_linkTree(p);
-    return (char *)p;
+    return data;
 }
 
 typedef struct BgaSdfKey { /* field names derived */
@@ -430,7 +390,7 @@ void bga_initLightEnvelope(BgaDObjEnt *p)
     }
 }
 
-void bga_ApplyDObject(BgaDObjEnt *p, void **objs, int n, int no)
+void bga_ApplyDObject(BgaDObjEnt *p, GObj **objs, int n, int no)
 {
     char buf[1024];
     int i;
@@ -1486,7 +1446,8 @@ void _RotTransCurrentMatrixYXZ(void *t, int *rot)
     VU0_V2OP(vmove.xyzw, 7, 13);
 }
 
-/* Externs and record views bga_CalcObject uses. */
+/* Externs and record views bga_CalcObject uses.  BgaNodeBits is typedef.h's
+   DObjNode with its flag bits named as RegistPacket.c reads them. */
 
 typedef struct BgaNodeBits { /* field names derived */
 
@@ -1495,9 +1456,9 @@ typedef struct BgaNodeBits { /* field names derived */
     /* 0x34 */ int alpha;
     /* 0x38 */ union {
         struct {
-            int b0 : 1;
-            int b1 : 1;
-            int b2 : 1;
+            int fade : 1;      /* the node fades by fade and alpha */
+            int screenPos : 1; /* drawn unrotated at pos in view space (type 10) */
+            int billboard : 1; /* faces the camera, turned only by rotZ (type 4) */
             short rotZ;
         } b;
 
@@ -1562,7 +1523,6 @@ typedef struct BgaLightning { /* field names derived */
 } BgaLightning; /* derived name */
 
 /* BgAnimation.h is not included: its bga_InitData does not agree with this file */
-extern void bga_addLightning(int kind, BgaLightningDef *a1, float *vec, int id, int t0, float f);
 
 static inline void bga_checkCameraDistance(void) /* derived name */
 {
@@ -1733,11 +1693,11 @@ void bga_CalcObject(BgaDObjEnt *d, float dt, float f13, int a1, int a2, int a3)
             } else {
                 _GetCurrentMatrix(&((BgaObj *)d->u.obj)->mtx[d->num]);
             }
-            ((BgaObj *)d->u.obj)->work[d->num].flags.b.b1 = (d->type == 10);
-            if (((BgaObj *)d->u.obj)->work[d->num].flags.b.b1) {
+            ((BgaObj *)d->u.obj)->work[d->num].flags.b.screenPos = (d->type == 10);
+            if (((BgaObj *)d->u.obj)->work[d->num].flags.b.screenPos) {
                 _CopyVector(((BgaObj *)d->u.obj)->work[d->num].pos, bgaPos);
             }
-            ((BgaObj *)d->u.obj)->work[d->num].flags.b.b2 = (d->type == 4);
+            ((BgaObj *)d->u.obj)->work[d->num].flags.b.billboard = (d->type == 4);
             ((BgaObj *)d->u.obj)->work[d->num].flags.b.rotZ = bgaRollZ;
         }
         if (a1 != 0 && d->type == 2) {
@@ -1823,9 +1783,6 @@ void bga_resetObjectCounter(BgaCntNode *o, float f, int a1)
     bga_clampCount(&o->count, f);
 }
 
-/* BgAnimation.h is not included: its bga_InitData does not agree with this file */
-extern void bga_CalcAnimation(BgaHeader *p, int a1, int a2);
-
 void bga_SetFrame(BgaHeader *p, int frame, int mode, int a3)
 {
     float f;
@@ -1875,16 +1832,6 @@ typedef struct BgaAnimObj { /* field names derived */
     /* 0x15C */ BgaAnimGeom *geom;
 } BgaAnimObj; /* derived name */
 
-typedef struct BgaAnimEnt { /* field names derived */
-    /* 0x00 */ float pos[4];
-    /* 0x10 */ float quat[4];
-    /* 0x20 */ BgaAnimObj *obj;
-    /* 0x24 */ int idx;
-    /* 0x28 */ int root;
-} BgaAnimEnt; /* derived name */
-
-#define BGA_ANIM_ENT(p) ((BgaAnimEnt *)(p)->anim) /* derived name */
-
 void bga_CalcAnimation(BgaHeader *p, int a1, int a2)
 {
     float m[4][4];
@@ -1902,13 +1849,13 @@ void bga_CalcAnimation(BgaHeader *p, int a1, int a2)
         bgaCameraActive = 1;
     }
 
-    GetMatrixFromQuaternionPos(m, BGA_ANIM_ENT(p)->quat, BGA_ANIM_ENT(p));
-    if (BGA_ANIM_ENT(p)->obj) {
-        if (BGA_ANIM_ENT(p)->root) {
-            _SetCurrentMatrix(BGA_ANIM_ENT(p)->obj->geom->mtx[BGA_ANIM_ENT(p)->idx]);
+    GetMatrixFromQuaternionPos(m, p->anim->quat, p->anim->pos);
+    if (p->anim->obj) {
+        if (p->anim->root) {
+            _SetCurrentMatrix(p->anim->obj->geom->mtx[p->anim->idx]);
         } else {
-            GetRootMatrix(rm, BGA_ANIM_ENT(p)->obj);
-            CopyVector(rm[3], BGA_ANIM_ENT(p)->obj->geom->mtx[BGA_ANIM_ENT(p)->idx][3]);
+            GetRootMatrix(rm, p->anim->obj);
+            CopyVector(rm[3], p->anim->obj->geom->mtx[p->anim->idx][3]);
             _SetCurrentMatrix(rm);
         }
     } else {
@@ -1916,17 +1863,16 @@ void bga_CalcAnimation(BgaHeader *p, int a1, int a2)
     }
     _MulCurrentMatrixR(m);
 
-    if (BGA_ANIM_ENT(p)->obj) {
-        if (BGA_ANIM_ENT(p)->root) {
-            CopyQuaternion(GetCurrentQuaternion(),
-                           BGA_ANIM_ENT(p)->obj->geom->quat[BGA_ANIM_ENT(p)->idx]);
+    if (p->anim->obj) {
+        if (p->anim->root) {
+            CopyQuaternion(GetCurrentQuaternion(), p->anim->obj->geom->quat[p->anim->idx]);
         } else {
-            GetRootQuaternion(GetCurrentQuaternion(), BGA_ANIM_ENT(p)->obj);
+            GetRootQuaternion(GetCurrentQuaternion(), p->anim->obj);
         }
     } else {
         SetIdentityQuaternion(GetCurrentQuaternion());
     }
-    MultiQuaternion(GetCurrentQuaternion(), GetCurrentQuaternion(), BGA_ANIM_ENT(p)->quat);
+    MultiQuaternion(GetCurrentQuaternion(), GetCurrentQuaternion(), p->anim->quat);
 
     for (i = 0;; i++) {
         f2 = (p->mode == 1);

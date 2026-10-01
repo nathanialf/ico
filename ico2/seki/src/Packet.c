@@ -802,21 +802,7 @@ int pac_makeStrip(char **out, char *obj, char **tbl, int shpno, int matno, int l
     return size;
 }
 
-/* The material table entry's 64-bit mode word at +0x60: the same qword
-   pac_setMaterialPacket reads back as its three mode selectors. */
-typedef struct MatEnt { /* field names derived */
-    char pad0[96];
-    unsigned long long b0 : 1;
-    unsigned long long b1 : 2;
-    unsigned long long b3 : 2;
-    unsigned long long b5 : 2;
-    unsigned long long b7 : 1;
-    unsigned long long b8 : 1;
-    unsigned long long b9 : 1;
-    char pad1[8];
-} MatEnt; /* derived name */
-
-void pac_setMaterialPacket(MatEnt *ent)
+void pac_setMaterialPacket(PObjMaterial *ent)
 {
     char *p;
 
@@ -833,7 +819,7 @@ void pac_setMaterialPacket(MatEnt *ent)
     p += 8;
     *(long long *)p = 14;
     p += 8;
-    switch ((int)(*(long long *)((char *)ent + 0x60) >> 1) & 3) {
+    switch ((int)(ent->attr.bits >> 1) & 3) {
     case 2:
         *(long long *)p = 0x8000000048LL;
         p += 8;
@@ -853,7 +839,7 @@ void pac_setMaterialPacket(MatEnt *ent)
     }
     *(long long *)p = 0x42;
     p += 8;
-    switch ((int)(*(long long *)((char *)ent + 0x60) >> 3) & 3) {
+    switch ((int)(ent->attr.bits >> 3) & 3) {
     case 0:
         *(long long *)p = 5;
         p += 8;
@@ -873,7 +859,7 @@ void pac_setMaterialPacket(MatEnt *ent)
     }
     *(long long *)p = 8;
     p += 8;
-    *(long long *)p = (int)(*(long long *)((char *)ent + 0x60) >> 9) & 1;
+    *(long long *)p = (int)(ent->attr.bits >> 9) & 1;
     p += 8;
     *(long long *)p = 0x4A;
     p += 8;
@@ -885,100 +871,80 @@ void pac_setMaterialPacket(MatEnt *ent)
     *(int *)(p + 4) = 0;
 }
 
-typedef struct MatSrc { /* field names derived */
-    char pad0[5];
-    unsigned char f_5;
-    unsigned char f_6;
-    char pad1[5];
-    float f_C;
-} MatSrc; /* derived name */
-
-typedef struct MatObj { /* field names derived */
-    char pad0[160];
-    int f_A0;
-    char pad1[12];
-    int f_B0;
-    char pad2[12];
-    int f_C0;
-    char pad3[12];
-    MatSrc *f_D0;
-    unsigned int f_D4;
-} MatObj; /* derived name */
-
-typedef struct MatTab { /* field names derived */
-    MatEnt *f_0;
-    char pad0[12];
-    short f_10;
-} MatTab; /* derived name */
-
-void pac_makeMaterialTable(MatTab *out, MatObj *obj, int p2, int p3, unsigned int p4)
+void pac_makeMaterialTable(PObjGroup *out, PObjPart *obj, int p2, int p3, unsigned int p4)
 {
-    MatEnt *tbl;
-    MatEnt *ent;
-    MatSrc *src;
+    PObjMaterial *tbl;
+    PObjMaterial *ent;
+    PObjMatDef *src;
     unsigned int i;
     unsigned int flag;
     int a;
     int x;
 
-    tbl = (MatEnt *)mallocseki(obj->f_D4 * 0x70);
-    for (i = 0; i < obj->f_D4; i++) {
+    tbl = mallocseki(obj->matCount * 0x70);
+    for (i = 0; i < obj->matCount; i++) {
         ent = &tbl[i];
-        src = (MatSrc *)(i * 0x10 + (int)obj->f_D0);
-        flag = src->f_C >= 0.501960814f;
-        a = src->f_5;
-        x = src->f_6 == 0;
+        /* the entry address is formed by hand: &obj->mats[i] moves the bytes
+           (measured) */
+        src = (PObjMatDef *)(i * 0x10 + (int)obj->mats);
+        flag = src->alpha >= 0.501960814f;
+        a = src->wrap;
+        x = src->fbaOff == 0;
         if (p4 != 0)
             x = debug_shadow_flag == 1;
-        ent->b0 = p4;
-        ent->b1 = flag * p3;
-        ent->b3 = (a < 4) ? a : 3;
-        ent->b9 = x;
-        ent->b5 = obj->f_A0 ? p2 : 0;
-        ent->b7 = obj->f_B0 != 0;
-        ent->b8 = obj->f_C0 != 0;
+        ent->attr.b.mode = p4;
+        ent->attr.b.blend = flag * p3;
+        ent->attr.b.wrap = (a < 4) ? a : 3;
+        ent->attr.b.fba = x;
+        ent->attr.b.variant = obj->nrm ? p2 : 0;
+        ent->attr.b.hasUv = obj->uv != 0;
+        ent->attr.b.hasCol = obj->col != 0;
         pac_setMaterialPacket(ent);
     }
-    out->f_0 = tbl;
-    out->f_10 = obj->f_D4;
+    out->materials = tbl;
+    out->matCount = obj->matCount;
 }
 
-typedef struct MatLine { /* field names derived */
-    MatEnt *f_0;
-    char pad0[8];
-    short f_C;
-} MatLine; /* derived name */
+/* the line-primitive part's group record: its material table, its
+   texture-info table and the two counts */
+typedef struct MatLine {     /* field names derived */
+    PObjMaterial *materials; /* 0x00 */
+    char *texs;              /* 0x04 */
+    char pad08[4];
+    short matCount; /* 0x0C */
+    short texCount; /* 0x0E */
+} MatLine;          /* derived name */
 
-void pac_makeMaterialTableLine(MatLine *out, MatObj *obj, int p2, int p3, unsigned int p4)
+void pac_makeMaterialTableLine(MatLine *out, PObjPart *obj, int p2, int p3, unsigned int p4)
 {
-    MatEnt *tbl;
-    MatEnt *ent;
-    MatSrc *src;
+    PObjMaterial *tbl;
+    PObjMaterial *ent;
+    PObjMatDef *src;
     unsigned int i;
     unsigned int flag;
     short a;
     int x;
 
-    tbl = (MatEnt *)mallocseki(obj->f_D4 * 0x70);
-    for (i = 0; i < obj->f_D4; i++) {
+    tbl = mallocseki(obj->matCount * 0x70);
+    for (i = 0; i < obj->matCount; i++) {
         ent = &tbl[i];
-        src = (MatSrc *)(i * 0x10 + (int)obj->f_D0);
-        flag = src->f_C >= 0.501960814f;
-        a = src->f_5;
-        x = src->f_6 == 0;
-        ent->b0 = p4;
-        ent->b1 = flag * p3;
+        src = (PObjMatDef *)(i * 0x10 + (int)obj->mats);
+        flag = src->alpha >= 0.501960814f;
+        a = src->wrap;
+        x = src->fbaOff == 0;
+        ent->attr.b.mode = p4;
+        ent->attr.b.blend = flag * p3;
         if (a >= 4)
             a = 3;
-        ent->b3 = a;
-        ent->b9 = x;
-        ent->b5 = obj->f_A0 ? p2 : 0;
-        ent->b7 = obj->f_B0 != 0;
-        ent->b8 = obj->f_C0 != 0;
+        ent->attr.b.wrap = a;
+        ent->attr.b.fba = x;
+        ent->attr.b.variant = obj->nrm ? p2 : 0;
+        ent->attr.b.hasUv = obj->uv != 0;
+        ent->attr.b.hasCol = obj->col != 0;
         pac_setMaterialPacket(ent);
     }
-    out->f_0 = tbl;
-    out->f_C = obj->f_D4;
+    out->materials = tbl;
+    out->matCount = obj->matCount;
 }
 
 void pac_getTextureInfo(char *m, char *info, int idx)
@@ -1228,7 +1194,7 @@ void pac_makePacket(void *a0, int a1, int a2)
             src = *(char **)(obj + 0x40) + i * 384;
             nmat = *(int *)(src + 0xE4);
             nshape = *(int *)(src + 0xD4);
-            pac_makeMaterialTable((MatTab *)tbl, (MatObj *)src, a1, lod, a2);
+            pac_makeMaterialTable((PObjGroup *)tbl, (PObjPart *)src, a1, lod, a2);
             pac_makeTextureTable(tbl, src);
             if (*(int *)(src + 0x124) != 0)
                 pac_makeShapeTable((int)tbl, src);
@@ -1305,7 +1271,7 @@ void pac_makePacket(void *a0, int a1, int a2)
             vtx = *(char **)(src + 0x90);
             uv = *(char **)(src + 0xB0);
             idx = *(char **)(src + 0xC0);
-            pac_makeMaterialTableLine((MatLine *)mtbl, (MatObj *)src, a1, lod, a2);
+            pac_makeMaterialTableLine((MatLine *)mtbl, (PObjPart *)src, a1, lod, a2);
             pac_makeTextureTableLine(mtbl, src);
             ((PacObjMode *)obj)->type = 2;
             top = p;

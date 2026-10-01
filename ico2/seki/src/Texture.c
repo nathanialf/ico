@@ -797,25 +797,11 @@ void tex_convertClutCSM2ToCSM1(Tim2Picture *pic)
     }
 }
 
-/* the two transfer packets libgraph fills in, by their public names: the
- * load packet is 0x60 bytes and the store packet 0x70. */
-typedef struct sceGsLoadImage {
-    long long qw[12];
-} sceGsLoadImage;
-
-typedef struct sceGsStoreImage {
-    long long qw[14];
-} sceGsStoreImage;
-
-/* libgraph.h does not declare the image-transfer calls; this file declares
- * them itself, the load call with short parameters and the store call with
- * int ones. */
-extern int sceGsSetDefLoadImage(sceGsLoadImage *img, short dbp, short dbw, short dpsm, short dsax,
-                                short dsay, short rrw, short rrh);
+/* graph016 takes short parameters; declared that way, tex_convertImage's frame
+ * grows by 16 bytes and its registers move, so this file declares int ones
+ * and libgraph.h leaves the call out. */
 extern int sceGsSetDefStoreImage(sceGsStoreImage *img, int sbp, int sbw, int spsm, int ssax,
                                  int ssay, int rrw, int rrh);
-extern int sceGsExecLoadImage(sceGsLoadImage *img, void *src);
-extern int sceGsExecStoreImage(sceGsStoreImage *img, void *dst);
 
 /* "FALSE" */
 

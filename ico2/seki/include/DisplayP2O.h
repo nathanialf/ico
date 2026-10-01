@@ -24,6 +24,17 @@ typedef struct PObjMorph { /* field names derived */
     char pad14[12];
 } PObjMorph; /* derived name */
 
+/* one material definition of a part, 16 bytes: the texture wrap mode
+ * (pac_makeMaterialTable clamps it to 3), whether the frame-buffer alpha
+ * correction is off, and the alpha, half or more of which blends */
+typedef struct PObjMatDef { /* field names derived */
+    char pad00[5];
+    unsigned char wrap;   /* 0x05 */
+    unsigned char fbaOff; /* 0x06 */
+    char pad07[5];
+    float alpha; /* 0x0C */
+} PObjMatDef; /* derived name */
+
 /* The display's view of the model record ico2/common/src/PObj.c builds (its
  * PObj) and of the 0x180-byte part record the model's 0x40 points at (its
  * PObjSub).  Sub15C + 0x854 holds the object's model and + 0x858 the shadow
@@ -38,10 +49,15 @@ typedef struct PObjPart { /* field names derived */
     char pad98[8];
     char *nrm;             /* 0xA0 */
     unsigned int nrmCount; /* 0xA4 */
-    char padA8[44];
-    int shapeCount; /* 0xD4 */
+    char padA8[8];
+    char *uv; /* 0xB0 */
+    char padB4[12];
+    char *col; /* 0xC0 */
+    char padC4[12];
+    PObjMatDef *mats;      /* 0xD0 */
+    unsigned int matCount; /* 0xD4 */
     char padD8[12];
-    int matCount; /* 0xE4 */
+    int texCount; /* 0xE4 */
     char padE8[8];
     void *polys;            /* 0xF0 */
     unsigned int polyCount; /* 0xF4 */
@@ -63,27 +79,42 @@ typedef struct PObjPart { /* field names derived */
 
 /* one material, 0x70 bytes: the six-quadword GS packet reg_transMaterialPacket
  * sends, then the attribute word: bit 0 the microprogram mode, bits 1 and 2
- * the blend (nonzero draws the material at priority 1 or 2), bits 5 and 6
- * the microprogram variant; read as the low word and as the doubleword */
+ * the blend (nonzero draws the material at priority 1 or 2), bits 3 and 4
+ * the texture wrap, bits 5 and 6 the microprogram variant, bit 7 whether the
+ * part has texture coordinates, bit 8 vertex colours, bit 9 the frame-buffer
+ * alpha correction; read as the low word, the doubleword and the bits */
 typedef struct PObjMaterial { /* field names derived */
     char packet[96];          /* 0x00 */
 
     union {
         long long bits;
         int word;
+
+        struct {
+            unsigned long long mode : 1;
+            unsigned long long blend : 2;
+            unsigned long long wrap : 2;
+            unsigned long long variant : 2;
+            unsigned long long hasUv : 1;
+            unsigned long long hasCol : 1;
+            unsigned long long fba : 1;
+        } b;
     } attr; /* 0x60 */
 
     char pad68[8];
 } PObjMaterial; /* derived name */
 
 /* one part's group record, 48 bytes a part: the part's material table (0x70
- * bytes a material), its first packet and its morph packets */
+ * bytes a material), its texture-info table, its first packet, its morph
+ * packets and the two table counts */
 typedef struct PObjGroup {   /* field names derived */
     PObjMaterial *materials; /* 0x00 */
-    char pad04[4];
+    char *texs;              /* 0x04 */
     void *packets;           /* 0x08 */
     struct PacHeader *morph; /* 0x0C */
-    char pad10[32];
+    short matCount;          /* 0x10 */
+    short texCount;          /* 0x12 */
+    char pad14[28];
 } PObjGroup; /* derived name */
 
 typedef struct PObjModel { /* field names derived */
