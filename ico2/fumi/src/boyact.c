@@ -2570,11 +2570,12 @@ void actBoyCliffHesitate(GObj *volatile self)
 {
     int hit = 0;
 
-    ACTAdjustPlane(self, BOY_WALL(self) + 0x8C0);
-    GetOrientOfWall(BOY_WALL(self) + 0x8D0, GOBJ_WORK(self)->cliffWall, BOY_WALL(self) + 0x8C0);
-    if (CompareAttribute(*(int *)((char *)GOBJ_WORK(self)->cliffWall + 0x48), 0x400)) {
+    ACTAdjustPlane(self, &GOBJ_WORK(self)->intrReq.b.wall);
+    GetOrientOfWall(BOY_WALL(self) + 0x8D0, GOBJ_WORK(self)->intrReq.b.wall.elem,
+                    &GOBJ_WORK(self)->intrReq.b.wall.o);
+    if (CompareAttribute(((FcWallEnt *)GOBJ_WORK(self)->intrReq.b.wall.elem)->attr, 0x400)) {
         hit = 1;
-        *(S12 *)(BOY_WALL(self) + 0x490) = *(S12 *)(BOY_WALL(self) + 0x8C0);
+        GOBJ_WORK(self)->cliffReq.b = GOBJ_WORK(self)->intrReq.b;
     }
     while (1) {
         if (hit) {
@@ -3386,7 +3387,7 @@ inline void actBoyStand(GObj *volatile self)
     MotionDef *row = GOBJ_SUB(self)->ctrl.motion + motionKind;
 
     if ((row->flags.word >> 8) & 1) {
-        ACTAdjustPlane(self, (char *)GOBJ_ACT(self)->work + 0x8B0);
+        ACTAdjustPlane(self, &GOBJ_WORK(self)->intrReq.a.wall);
     }
     while (1) {
         _ACTWait(1);
@@ -3396,14 +3397,14 @@ inline void actBoyStand(GObj *volatile self)
 inline void actBoyHang(GObj *volatile self)
 {
     char *g = (char *)self;
-    ACTAdjustPlane(self, (char *)GOBJ_ACT(g)->work + 0x8B0);
+    ACTAdjustPlane(self, &GOBJ_WORK(g)->intrReq.a.wall);
     _ACTWait(0);
 }
 
 inline void actBoyBHang(GObj *volatile self)
 {
     char *g = (char *)self;
-    ACTAdjustPlane(self, (char *)GOBJ_ACT(g)->work + 0x8B0);
+    ACTAdjustPlane(self, &GOBJ_WORK(g)->intrReq.a.wall);
     _ACTWait(0);
 }
 

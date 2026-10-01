@@ -4226,7 +4226,7 @@ inline void actGirlHang(GObj *volatile self)
     if ((void *)girlControlMode != 0) {
         if (*(int *)((char *)GOBJ_ACT(self)->work + 0x900) == 4) {
             rope = 1;
-            ACTAdjustPlane((void *)self, (char *)GOBJ_ACT(self)->work + 0x8B0);
+            ACTAdjustPlane((void *)self, &GOBJ_WORK(self)->intrReq.a.wall);
         }
     }
     for (;;) {
@@ -4245,7 +4245,7 @@ inline void actGirlBHang(GObj *volatile self)
     if (*(int *)((char *)GOBJ_ACT(self)->work + 0x904) == 0x5A) {
         rope = *(int *)((char *)GOBJ_ACT(self)->work + 0x900) == 4;
     }
-    ACTAdjustPlane((void *)self, (char *)GOBJ_ACT(self)->work + 0x8B0);
+    ACTAdjustPlane((void *)self, &GOBJ_WORK(self)->intrReq.a.wall);
     for (;;) {
         if (rope && (60 - systemStatus[0] * 10) / systemStatus[1] * 5 < s->modeFrame) {
             ACTSendMailCorrect((void *)self, 0xC7);

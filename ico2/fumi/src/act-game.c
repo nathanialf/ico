@@ -638,22 +638,22 @@ inline int ACTCheckCollis_W(float f, void *hand0, void *hand1, void *actor, void
     return rv & 0xFF;
 }
 
-inline int ACTCheckCollis_CI(float *start, float *end, int *attr, char *wallHit)
+inline int ACTCheckCollis_CI(float *start, float *end, int *attr, WallCfg *wallHit)
 {
-    char buf[192];
-    memset(buf, 0, 0xC0);
-    *(int *)(buf + 0x70) = 0;
-    sceVu0CopyVector(buf, start);
-    sceVu0CopyVector(buf + 0x10, end);
-    ClipWall(buf);
+    ClipWork buf;
+    memset(&buf, 0, 0xC0);
+    buf.radius = 0;
+    sceVu0CopyVector(buf.pt[0], start);
+    sceVu0CopyVector(buf.pt[1], end);
+    ClipWall(&buf);
     if (attr != 0) {
-        *attr = *(int *)(buf + 0x98);
+        *attr = buf.attr;
     }
     if (wallHit != 0) {
-        *(U64ag *)wallHit = *(U64ag *)(buf + 0x80);
-        *(int *)(wallHit + 8) = *(int *)(buf + 0x88);
+        wallHit->o = buf.wall.o;
+        wallHit->elem = buf.wall.elem;
     }
-    return *(int *)(buf + 0x88) != 0;
+    return buf.wall.elem != 0;
 }
 
 void *floorGObj_ACTCheckCollis_WELL;
@@ -920,17 +920,17 @@ void ACTGameView_Loop(GObj *self)
         }
         break;
     case 1:
-        *(void (**)(void *))(GOBJ_ACT(self)->work + 0x7F4) = ClipWall;
-        GOBJ_WORK(self)->viewObj = actGameView.obj[i];
-        GOBJ_WORK(self)->viewRadius = 0.0f;
-        GetSkeltonPosition((float *)(GOBJ_ACT(self)->work + 0x730), self, 0x23);
-        GetRootPosition(GOBJ_ACT(self)->work + 0x740, actGameView.obj[i]);
-        RequestClipCollision(GOBJ_ACT(self)->work + 0x720);
+        GOBJ_WORK(self)->view.func = ClipWall;
+        GOBJ_WORK(self)->view.obj = actGameView.obj[i];
+        GOBJ_WORK(self)->view.clip.radius = 0.0f;
+        GetSkeltonPosition(GOBJ_WORK(self)->view.clip.pt[0], self, 0x23);
+        GetRootPosition(GOBJ_WORK(self)->view.clip.pt[1], actGameView.obj[i]);
+        RequestClipCollision(&GOBJ_WORK(self)->view);
         GOBJ_WORK(self)->viewState = 2;
         break;
     case 2:
-        if (GOBJ_WORK(self)->viewResult != 0) {
-            if (GOBJ_WORK(self)->viewHitWall != 0) {
+        if (GOBJ_WORK(self)->view.done != 0) {
+            if (GOBJ_WORK(self)->view.clip.wall.elem != 0) {
                 GOBJ_WORK(self)->viewState = 6;
             } else {
                 GOBJ_WORK(self)->viewState = 3;
@@ -938,17 +938,17 @@ void ACTGameView_Loop(GObj *self)
         }
         break;
     case 3:
-        *(void (**)(void *))(GOBJ_ACT(self)->work + 0x7F4) = ClipFloor;
-        GOBJ_WORK(self)->viewObj = actGameView.obj[i];
-        GOBJ_WORK(self)->viewRadius = 0.0f;
-        GetSkeltonPosition((float *)(GOBJ_ACT(self)->work + 0x730), self, 0x23);
-        GetRootPosition(GOBJ_ACT(self)->work + 0x740, actGameView.obj[i]);
-        RequestClipCollision(GOBJ_ACT(self)->work + 0x720);
+        GOBJ_WORK(self)->view.func = ClipFloor;
+        GOBJ_WORK(self)->view.obj = actGameView.obj[i];
+        GOBJ_WORK(self)->view.clip.radius = 0.0f;
+        GetSkeltonPosition(GOBJ_WORK(self)->view.clip.pt[0], self, 0x23);
+        GetRootPosition(GOBJ_WORK(self)->view.clip.pt[1], actGameView.obj[i]);
+        RequestClipCollision(&GOBJ_WORK(self)->view);
         GOBJ_WORK(self)->viewState = 4;
         break;
     case 4:
-        if (GOBJ_WORK(self)->viewResult != 0) {
-            if (GOBJ_WORK(self)->viewHitFloor != 0) {
+        if (GOBJ_WORK(self)->view.done != 0) {
+            if (GOBJ_WORK(self)->view.clip.floor.elem != 0) {
                 GOBJ_WORK(self)->viewState = 6;
             } else {
                 GOBJ_WORK(self)->viewState = 5;

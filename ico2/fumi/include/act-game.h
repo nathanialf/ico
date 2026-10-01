@@ -9,6 +9,7 @@
 #define ACT_GAME_H
 
 #include "typedef.h" /* WayRequest, which ActWork carries at 0x580 */
+#include "clipCollisionManager.h"
 
 struct GObj;
 
@@ -54,7 +55,9 @@ typedef struct ActWork { /* field names derived */
     int bit38Frames;     /* 0x3C0 */
     int mailB1Timer;     /* 0x3C4 */
     int ditchTimer;      /* 0x3C8 */
-    char pad3CC[24];
+    MotOriTarget bellowWall400;  /* 0x3CC, the wall of attribute 0x400 actCommonLadderBellow
+                                    found below, which mail 144 turns to */
+    MotOriTarget bellowWall3000; /* 0x3D8, the same for attribute 0x3000 and mail 145 */
     int dangerObj; /* 0x3E4 */
     char pad3E8[8];
     float hideDirX; /* 0x3F0 */
@@ -79,7 +82,10 @@ typedef struct ActWork { /* field names derived */
     char *genTarget;         /* 0x460 */
     int motherLabel;         /* 0x464 */
     struct GObj *motherGObj; /* 0x468, the generator object motherLabel names */
-    char pad46C[52];
+    char pad46C[20];
+    MotOriReq cliffReq; /* 0x480, the request mails 140 and 305 turn to: b the
+                           wall under the cliff edge (actBoyCliffHesitate),
+                           a the actor's motion request's b (actBoyHangBefore) */
     float pinchPosX; /* 0x4A0 */
     float pinchPosY; /* 0x4A4 */
     float pinchPosZ; /* 0x4A8 */
@@ -100,24 +106,17 @@ typedef struct ActWork { /* field names derived */
     char pad540[64];
     WayRequest wayReq; /* 0x580, the way search RequestWayBegin hands to the way system manager */
     char pad638[232];
-    int viewResult; /* 0x720, the clip request ACTGameView_Loop runs (clipCollisionManager.c's ClipColWork): done */
-    char pad724[124];
-    float viewRadius; /* 0x7A0, the clip radius (ClipWork+0x70) */
-    char pad7A4[20];
-    int viewHitWall; /* 0x7B8, the wall the clip hit */
-    char pad7BC[8];
-    int viewHitFloor; /* 0x7C4, the floor the clip hit */
-    char pad7C8[40];
-    char *viewObj; /* 0x7F0 */
-    char pad7F4[12];
+    ClipColReq view; /* 0x720, the clip ACTGameView_Loop runs to the object it looks at */
     int viewState; /* 0x800 */
     char pad804[156];
     float emgPosX; /* 0x8A0 */
     float emgPosY; /* 0x8A4 */
     float emgPosZ; /* 0x8A8 */
-    char pad8AC[28];
-    void *cliffWall; /* 0x8C8 */
-    char pad8CC[4];
+    char pad8AC[4];
+    MotOriReq intrReq; /* 0x8B0, the orient request of the interrupt motion
+                          act_check_intr_list started; the hang and climb acts
+                          lay the root against its walls, b's element the wall
+                          under the cliff edge */
 } ActWork; /* derived name */
 
 #define GOBJ_WORK(o) ((ActWork *)GOBJ_ACT(o)->work) /* derived name */
@@ -157,7 +156,7 @@ int ACTCheckCollis_WF(float f, void *p0, void *p1, void *actor, void *posout);
 int ACTCheckCollis_W(float f, void *hand0, void *hand1, void *actor, void *posout, void *magtarget,
                      int *flagout);
 
-int ACTCheckCollis_CI(float *start, float *end, int *attr, char *wallHit);
+int ACTCheckCollis_CI(float *start, float *end, int *attr, WallCfg *wallHit);
 int ACTCheckCollis_WELL(void *p0, void *p1, void *actor, void *posout, float f);
 unsigned char ACTCheckCollis_WAY(float f, void *p0, void *p1, void *actor, void *posout);
 int ACTCheckViewCl(struct GObj *self, void *target, void *targetPos, int range, float f);

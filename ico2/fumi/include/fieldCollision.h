@@ -54,23 +54,23 @@ typedef struct FcFloorEnt { /* field names derived */
 /* fieldCollision.c's `inline` functions (all but the sixteen it compiles in
  * place), in the order of their definitions' out-of-line copies at the end of
  * the object (first-declaration order). */
-void ClipWallDebug(void *work);
-inline void ClipWall(void *work);
-void ClipWallR(void *work);
-void ClipWallWaveForce(void *work);
-void ClipWallFuchiHangWalkStop(void *work);
-void ClipWallField(void *work);
-void ClipWallEField(void *work);
-void ClipWallBoxStop(void *work);
-void ClipWallAdjustPos(void *work);
-void ClipWallE(void *work);
-void ClipWallCheckCB(void *work, int filter);
-void ClipWallFieldCheckCB(void *work, int filter);
-void ClipFloor(void *work);
-void ClipFloorE(void *work);
-void ClipFloorR(void *work);
-void ClipFloorIH(void *work);
-void ClipFloorCheckCB(void *work, int filter);
+void ClipWallDebug(ClipWork *work);
+inline void ClipWall(ClipWork *work);
+void ClipWallR(ClipWork *work);
+void ClipWallWaveForce(ClipWork *work);
+void ClipWallFuchiHangWalkStop(ClipWork *work);
+void ClipWallField(ClipWork *work);
+void ClipWallEField(ClipWork *work);
+void ClipWallBoxStop(ClipWork *work);
+void ClipWallAdjustPos(ClipWork *work);
+void ClipWallE(ClipWork *work);
+void ClipWallCheckCB(ClipWork *work, int filter);
+void ClipWallFieldCheckCB(ClipWork *work, int filter);
+void ClipFloor(ClipWork *work);
+void ClipFloorE(ClipWork *work);
+void ClipFloorR(ClipWork *work);
+void ClipFloorIH(ClipWork *work);
+void ClipFloorCheckCB(ClipWork *work, int filter);
 void ClipCollision(ClipWork *self);
 int ChangeFieldCollisionDebugMode(int drawRay);
 void LoadCollision(int *self, int fname);

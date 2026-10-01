@@ -53,23 +53,6 @@ typedef struct { /* field names derived */
     Vec4A_P_1 b; /* 0x10 */
 } AP1ColSeg;     /* derived name */
 
-/* ClipCollision's work record as this file reaches it: the segment to clip,
- * the clipped point, the probe radius, the wall and floor hits and the hit
- * normal (0xC0 bytes, the stride of the two records below). */
-typedef struct {    /* field names derived */
-    Vec4A_P_1 from; /* 0x00 */
-    Vec4A_P_1 to;   /* 0x10 */
-    Vec4A_P_1 pos;  /* 0x20 */
-    char pad30[64];
-    float radius; /* 0x70 */
-    char pad74[12];
-    WallCfg wall;  /* 0x80 */
-    WallCfg floor; /* 0x8C */
-    char pad98[8];
-    Vec4A_P_1 normal; /* 0xA0 */
-    char padB0[16];
-} AP1Clip; /* derived name */
-
 /* The 0x280-byte work record InitAP1 allocates into the object's work word:
  * the layout row, whether the body is its own skeleton (1) or two arm objects
  * (0), the mode, the four limbs, the two collision hits, the nine focus nodes,
@@ -150,9 +133,9 @@ static Vec4A_P_1 ap1PartOffset[6] = {{{20.0f, 0.0f, 80.0f, 1.0f}}, /* derived na
 static float ap1LayoutUp[4] = {0.0f, 0.0f, 1.0f, 0.0f}; /* derived name */
 
 /* the clip records fitToCol and rolling fill */
-static AP1Clip ap1PartClip = {{{0.0f}}}; /* derived name */
+static ClipWork ap1PartClip = {{{0.0f}}}; /* derived name */
 
-static AP1Clip ap1RollClip = {{{0.0f}}, {{0.0f}}, {{0.0f}}, {0}, 20.0f}; /* derived name */
+static ClipWork ap1RollClip = {{{0.0f}}, {{0.0f}}, 20.0f}; /* derived name */
 
 static float ap1ArmScale[16] = {2.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, /* derived name */
                                 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f};
@@ -386,17 +369,17 @@ static void zAxisRotFitting(GObj *self, void *nrm)
     }
 }
 
-static inline int clipAndTakeHit(WallCfg *dst, char *col) /* derived name */
+static inline int clipAndTakeHit(WallCfg *dst, ClipWork *col) /* derived name */
 {
     ClipCollision(col);
-    if (*(int *)(col + 0x88) != 0) {
-        dst->elem = *(void **)(col + 0x88);
-        dst->o = *(ObjNode *)(col + 0x80);
+    if (col->wall.elem != 0) {
+        dst->elem = col->wall.elem;
+        dst->o = col->wall.o;
         return 1;
     }
-    if (*(int *)(col + 0x94) != 0) {
-        dst->elem = *(void **)(col + 0x94);
-        dst->o = *(ObjNode *)(col + 0x8C);
+    if (col->floor.elem != 0) {
+        dst->elem = col->floor.elem;
+        dst->o = col->floor.o;
         return 1;
     }
     return 0;
@@ -430,10 +413,10 @@ static inline int clipPartPair(WallCfg *dst, Mtx44 *m, AP1ColSeg *tbl, Vec4A_P_1
     int i;
 
     for (i = 0; i < 2; i++) {
-        _ApplyMatrix(&ap1PartClip, m, &tbl[i].a);
-        _ApplyMatrix(&ap1PartClip.to, m, &tbl[i].b);
-        if (clipAndTakeHit(dst, (char *)&ap1PartClip)) {
-            CopyVector(pos, &ap1PartClip.pos);
+        _ApplyMatrix(ap1PartClip.pt[0], m, &tbl[i].a);
+        _ApplyMatrix(ap1PartClip.pt[1], m, &tbl[i].b);
+        if (clipAndTakeHit(dst, &ap1PartClip)) {
+            CopyVector(pos, ap1PartClip.pt[2]);
             CopyVector(nrm, &ap1PartClip.normal);
             return 1;
         }
@@ -615,35 +598,35 @@ static int rolling(GObj *self)
         (60.0f / (float)((60 - systemStatus[0] * 10) / systemStatus[1]));
     _AddVectorXYZ(GOBJ_SUB(self)->root.pos, GOBJ_SUB(self)->root.pos, GOBJ_SUB(self)->root.move);
     {
-        char *col = (char *)&ap1RollClip;
-        CopyVector(col, GOBJ_SUB(self)->root.last);
-        CopyVector(col + 0x10, GOBJ_SUB(self)->root.pos);
-        *(float *)(col + 4) -= 50.0f;
+        ClipWork *col = &ap1RollClip;
+        CopyVector(col->pt[0], GOBJ_SUB(self)->root.last);
+        CopyVector(col->pt[1], GOBJ_SUB(self)->root.pos);
+        col->pt[0][1] -= 50.0f;
         if (clipAndTakeHit(&info, col)) {
-            CopyVector(GOBJ_SUB(self)->root.pos, &ap1RollClip.pos);
+            CopyVector(GOBJ_SUB(self)->root.pos, ap1RollClip.pt[2]);
             CopyVector(GOBJ_SUB(self)->root.move, ZeroVector);
             yAxisRotFitting(self, &ap1RollClip.normal);
             LinkParentOfDObj(self, &info);
             UpdateRootMatrix(self);
             applyPartOrients(self);
             {
-                char *col = (char *)&ap1RollClip;
-                if (*(int *)(col + 0x88) != 0) {
+                ClipWork *col = &ap1RollClip;
+                if (col->wall.elem != 0) {
                     GOBJ_SUB(self)->ctrl.floorAttr = GetWallAttribute(col);
                 }
                 if (CheckWallAttribute(self, 0x50) != 0) {
-                    if (GetPoolGlobalHeight(*(int *)(col + 0x80)) <
+                    if (GetPoolGlobalHeight(col->wall.o.obj) <
                         GOBJ_SUB(self)->root.pos[1] + 50.0f) {
                         iosOmSendMail(self, 0x26, self);
                     }
                 }
             }
             {
-                char *col = (char *)&ap1RollClip;
-                if (*(int *)(col + 0x94) != 0) {
+                ClipWork *col = &ap1RollClip;
+                if (col->floor.elem != 0) {
                     GOBJ_SUB(self)->ctrl.floorAttr = GetFloorAttribute(col);
                     if (CheckFloorAttribute(self, 0x50) != 0) {
-                        if (GetPoolGlobalHeight(*(int *)(col + 0x8C)) <
+                        if (GetPoolGlobalHeight(col->floor.o.obj) <
                             GOBJ_SUB(self)->root.pos[1] + 50.0f) {
                             iosOmSendMail(self, 0x26, self);
                         }
@@ -654,8 +637,8 @@ static int rolling(GObj *self)
         }
     }
     {
-        char *col = (char *)&ap1RollClip;
-        *(float *)(col + 0x14) += 500.0f;
+        ClipWork *col = &ap1RollClip;
+        col->pt[1][1] += 500.0f;
         ClipFloor(col);
         if (CheckFieldContact(col, self, GOBJ_SUB(self)->root.pos, 50.0f) == 2) {
             CopyVector(GOBJ_SUB(self)->root.move, ZeroVector);

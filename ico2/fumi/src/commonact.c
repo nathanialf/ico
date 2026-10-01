@@ -99,7 +99,7 @@ void afterCommonBar(GObj *volatile self);
 static inline void actAfterJump(GObj *volatile self);
 inline void actAfterFall(GObj *volatile self);
 inline void actAfterFly(GObj *volatile self);
-static inline void ClipCollisionWithField(char *work);
+static inline void ClipCollisionWithField(ClipWork *work);
 inline void afterCommonOneWall(int x);
 int ACTCheckFlagAttack(GObj *self);
 static inline void afterCommonBecarry(GObj *volatile self);
@@ -599,10 +599,10 @@ int ACTGetOrientFromIntrK(GObj *self, int k, MotOriReq *out, int arg)
     *out = s->motOriReq;
     switch (k) {
     case 140:
-        out->b = ((MotOriReq *)((char *)GOBJ_ACT(self)->work + 0x480))->b;
+        out->b = GOBJ_WORK(self)->cliffReq.b;
         break;
     case 305:
-        out->a = ((MotOriReq *)((char *)GOBJ_ACT(self)->work + 0x480))->a;
+        out->a = GOBJ_WORK(self)->cliffReq.a;
         break;
     case 298:
         *(char **)((char *)s + 0x30) = GetMailAdditionalData(self, arg);
@@ -617,10 +617,10 @@ int ACTGetOrientFromIntrK(GObj *self, int k, MotOriReq *out, int arg)
         GetSofaPosition(self, s->sofaObj);
         break;
     case 145:
-        out->a = *(MotOriTarget *)((char *)GOBJ_ACT(self)->work + 0x3D8);
+        out->a = GOBJ_WORK(self)->bellowWall3000;
         break;
     case 144:
-        out->a = *(MotOriTarget *)((char *)GOBJ_ACT(self)->work + 0x3CC);
+        out->a = GOBJ_WORK(self)->bellowWall400;
         break;
     case 114:
     case 115:
@@ -1998,7 +1998,7 @@ void actCommonBar(GObj *volatile self)
     ori[0] = *(float *)((char *)test_CURRENTORIENT(self) + 0);
     ori[1] = *(float *)((char *)test_CURRENTORIENT(self) + 4);
     ori[2] = *(float *)((char *)test_CURRENTORIENT(self) + 8);
-    GetRotObjectHoldPoint(hold, hold2, (char *)GOBJ_ACT(self)->work + 0x8B0, (void *)self);
+    GetRotObjectHoldPoint(hold, hold2, &GOBJ_WORK(self)->intrReq.a.wall, (void *)self);
     (int)GOBJ_SUB(s) = (int)bar;
     s->after = (void *)afterCommonBar;
     debug_StdPrintfDummy("set %p\n", bar);
@@ -2471,28 +2471,6 @@ static inline unsigned char IsFlyTimeOver(int self) /* derived name */
     return 0;
 }
 
-/* typedef.h's ClipWork as the fly code reads it, with its vectors as the
-   FlyPt points the code builds: rad is ClipWork's radius, wall its wall
-   element and floor its floor element. */
-typedef struct { /* field names derived */
-    FlyPt v[7];  /* 0x00 from, 0x10 to, 0x20 the hit position */
-    float rad;
-    char pad74[20];
-    int wall;
-    char pad8C[8];
-    int floor;
-    char pad98[40];
-} FlyClip; /* derived name */
-
-/* the clip request at 0x690 of the actor record */
-typedef struct { /* field names derived */
-    int done;
-    char pad4[12];
-    FlyClip w;
-    int fD0;
-    void (*func)();
-} FlyClipReq; /* derived name */
-
 static void flyCoreLoop(GObj *self, GObj *target, int checkStuck)
 {
     Act *act = GOBJ_ACT(self);
@@ -2538,51 +2516,51 @@ static void flyCoreLoop(GObj *self, GObj *target, int checkStuck)
     while (1) {
         int getLandOffset(float *out, float *pos, short ang, float h)
         {
-            FlyClip w;
+            ClipWork w;
 
             memset(&w, 0, 0xC0);
             _UnitMatrix(MatrixDrive_GetMatrix());
             MatrixDrive_TransMatrixV((char *)pos);
             MatrixDrive_RotMatrixY(ang);
             MatrixDrive_TransMatrix(0.0f, 0.0f, h);
-            CopyVector(w.v[1].f, (char *)MatrixDrive_GetMatrix() + 0x30);
-            CopyVector(w.v[0].f, pos);
-            w.v[0].f[3] = w.v[1].f[3] = 1.0f;
-            w.v[0].f[1] -= 50.0f;
-            w.v[1].f[1] -= 50.0f;
+            CopyVector(w.pt[1], (char *)MatrixDrive_GetMatrix() + 0x30);
+            CopyVector(w.pt[0], pos);
+            w.pt[0][3] = w.pt[1][3] = 1.0f;
+            w.pt[0][1] -= 50.0f;
+            w.pt[1][1] -= 50.0f;
             ClipWall(&w);
-            if (w.wall) {
+            if (w.wall.elem) {
                 return 0;
             }
-            CopyVector(w.v[0].f, w.v[1].f);
-            w.v[1].f[1] += 100.0f;
+            CopyVector(w.pt[0], w.pt[1]);
+            w.pt[1][1] += 100.0f;
             ClipFloor(&w);
-            if (w.floor) {
-                _SubVectorXYZ(out, w.v[2].f, pos);
+            if (w.floor.elem) {
+                _SubVectorXYZ(out, w.pt[2], pos);
                 return 1;
             }
             return 0;
         }
 
-        inline void RequestFlyClip(FlyClipReq * req, void (*func)()) /* derived name */
+        inline void RequestFlyClip(ClipColReq * req, void (*func)(ClipWork *)) /* derived name */
         {
             req->func = func;
-            req->w.rad = 50.0f;
-            CopyVector(req->w.v[0].f, mat[3]);
-            CopyVector(req->w.v[1].f, root);
-            req->fD0 = 0;
-            RequestClipCollision((int *)req);
+            req->clip.radius = 50.0f;
+            CopyVector(req->clip.pt[0], mat[3]);
+            CopyVector(req->clip.pt[1], root);
+            req->obj = 0;
+            RequestClipCollision(req);
         }
 
         inline void FlyStep(void) /* derived name */
         {
             if (needInit) {
-                RequestFlyClip((FlyClipReq *)((char *)act + 0x690),
+                RequestFlyClip((ClipColReq *)((char *)act + 0x690),
                                checkStuck ? ClipCollisionWithField : ClipCollision);
                 needInit = 0;
-            } else if (((FlyClipReq *)((char *)act + 0x690))->done) {
-                if (((FlyClipReq *)((char *)act + 0x690))->w.wall ||
-                    ((FlyClipReq *)((char *)act + 0x690))->w.floor) {
+            } else if (((ClipColReq *)((char *)act + 0x690))->done) {
+                if (((ClipColReq *)((char *)act + 0x690))->clip.wall.elem ||
+                    ((ClipColReq *)((char *)act + 0x690))->clip.floor.elem) {
                     if (10000.0f < VectorLengthSquare(dir)) {
                         acc = -1.0f;
                     } else if (0.0f < vC0[1]) {
@@ -2593,7 +2571,7 @@ static void flyCoreLoop(GObj *self, GObj *target, int checkStuck)
                 } else {
                     acc = calcFlyAccel(root, mat[3]);
                 }
-                RequestFlyClip((FlyClipReq *)((char *)act + 0x690),
+                RequestFlyClip((ClipColReq *)((char *)act + 0x690),
                                checkStuck ? ClipCollisionWithField : ClipCollision);
             }
             {
@@ -2610,17 +2588,17 @@ static void flyCoreLoop(GObj *self, GObj *target, int checkStuck)
                         debug_font_flag = save;
                     }
                     if (lenSq < 90000.0f && (info.floorY < root[1] || root[1] < info.limitY)) {
-                        FlyClip w = {{{{0.0f}}}, 50.0f};
+                        ClipWork w = {{{0.0f}}, {{0.0f}}, 50.0f};
 
-                        CopyVector(w.v[0].f, mat[3]);
-                        w.v[0].f[1] += 100.0f;
-                        _ApplyMatrix(w.v[1].f, mat, ZUnitVector);
-                        w.v[1].f[1] = 0.0f;
-                        _NormalizeVector(w.v[1].f, w.v[1].f);
-                        _ScaleVectorXYZ(w.v[1].f, w.v[1].f, 200.0f);
-                        _AddVectorXYZ(w.v[1].f, w.v[0].f, w.v[1].f);
+                        CopyVector(w.pt[0], mat[3]);
+                        w.pt[0][1] += 100.0f;
+                        _ApplyMatrix(w.pt[1], mat, ZUnitVector);
+                        w.pt[1][1] = 0.0f;
+                        _NormalizeVector(w.pt[1], w.pt[1]);
+                        _ScaleVectorXYZ(w.pt[1], w.pt[1], 200.0f);
+                        _AddVectorXYZ(w.pt[1], w.pt[0], w.pt[1]);
                         ClipWall(&w);
-                        if (w.wall) {
+                        if (w.wall.elem) {
                             MatrixDrive_PushMatrix();
                             CopyMatrix(MatrixDrive_GetMatrix(), mat);
                             if (stage_no == 19 || stage_no == 28) {
@@ -3087,29 +3065,13 @@ inline void actCommonGuard(GObj *volatile self)
 
 #undef LADW
 
-typedef struct { /* field names derived */
-    char pad0[32];
-    float _20, _24, _28;
-    char pad2C[68];
-    float _70;
-    char pad74[12];
-    int _80;
-    char pad84[4];
-    int _88;
-    int _8c;
-    char pad90[4];
-    int _94;
-    int _98;
-    char pad9C[36];
-} EdgeHangWork; /* derived name */
-
 void actCommonEdgeHang(GObj *volatile self)
 {
-    EdgeHangWork work;
+    ClipWork work;
     float p1[4];
     float p2[4];
 
-    ACTAdjustPlane(self, GOBJ_ACT(self)->work + 0x8B0);
+    ACTAdjustPlane(self, &GOBJ_WORK(self)->intrReq.a.wall);
     while (1) {
         if (CheckWallAttributeEdegWall((void *)self) == 0) {
             ACTSendMailCorrect(self, 0xE2);
@@ -3119,13 +3081,13 @@ void actCommonEdgeHang(GObj *volatile self)
         }
         if (stageData[stage_no].flag2) {
             memset(&work, 0, 0xC0);
-            GetSkeltonPosition((float *)&work, self, 0x2C);
+            GetSkeltonPosition(work.pt[0], self, 0x2C);
             GetSkeltonPosition(p1, self, 0x33);
             GetSkeltonPosition(p2, self, 0x2F);
-            sceVu0AddVector((char *)&work + 0x10, p1, p2);
-            sceVu0ScaleVector((char *)&work + 0x10, (char *)&work + 0x10, 0.5f);
+            sceVu0AddVector(work.pt[1], p1, p2);
+            sceVu0ScaleVector(work.pt[1], work.pt[1], 0.5f);
             ClipFloor(&work);
-            if (work._94 != 0) {
+            if (work.floor.elem != 0) {
                 ACTSendMailCorrect(self, 0xE2);
             }
         }
@@ -3919,7 +3881,7 @@ inline void actCommonItem(GObj *volatile self)
 
 inline void actCommonClimb(GObj *volatile self)
 {
-    ACTAdjustPlane(self, GOBJ_ACT(self)->work + 0x8B0);
+    ACTAdjustPlane(self, &GOBJ_WORK(self)->intrReq.a.wall);
     for (;;) {
         ACTSendMailCorrect(self, 0xC7);
         _ACTWait(1);
@@ -3932,7 +3894,7 @@ typedef struct { /* field names derived */
 
 inline void actCommonLadderBellow(GObj *volatile self)
 {
-    float hit[4];
+    WallCfg hit;
     float p[4];
     float q[4];
     float dir[4];
@@ -3942,14 +3904,14 @@ inline void actCommonLadderBellow(GObj *volatile self)
         GetSkeltonPosition(p, self, 0x2C);
         sceVu0ScaleVector(dir, test_CURRENTORIENT(self), 50.0f);
         sceVu0AddVector(q, p, dir);
-        if (ACTCheckCollis_CI(p, q, attr, (char *)hit) != 0) {
+        if (ACTCheckCollis_CI(p, q, attr, &hit) != 0) {
             if (CompareAttribute(attr[0], 0x3000) != 0) {
                 ACTSendMailCorrect(self, 0x91);
-                *(Vec3f *)((char *)GOBJ_ACT(self)->work + 0x3D8) = *(Vec3f *)hit;
+                GOBJ_WORK(self)->bellowWall3000.wall = hit;
             }
             if (CompareAttribute(attr[0], 0x400) != 0) {
                 ACTSendMailCorrect(self, 0x90);
-                *(Vec3f *)((char *)GOBJ_ACT(self)->work + 0x3CC) = *(Vec3f *)hit;
+                GOBJ_WORK(self)->bellowWall400.wall = hit;
             }
         }
         ACTSendMailCorrect(self, 0xE2);
@@ -4083,33 +4045,17 @@ inline void actCommonRopeTurn(GObj *volatile self)
     }
 }
 
-typedef struct { /* field names derived */
-    char pad0[32];
-    float _20, _24, _28;
-    char pad2C[68];
-    float _70;
-    char pad74[12];
-    int _80;
-    char pad84[4];
-    int _88;
-    int _8c;
-    char pad90[4];
-    int _94;
-    int _98;
-    char pad9C[36];
-} FloorWork; /* derived name */
-
 static inline int isRopeDownEndOnFloor(GObj *self) /* derived name */
 {
-    FloorWork work;
+    ClipWork work;
     MotionDef *rec = &motionKind[GOBJ_SUB(self)->ctrl.motion];
 
     if ((rec->flags.word >> 4) & 1) {
-        GetSkeltonPosition((float *)&work, self, 0x2C);
-        GetSkeltonPosition((float *)((char *)&work + 0x10), self, 0x33);
-        *(float *)((char *)&work + 0x14) = *(float *)((char *)&work + 0x14) - 5.0f;
+        GetSkeltonPosition(work.pt[0], self, 0x2C);
+        GetSkeltonPosition(work.pt[1], self, 0x33);
+        work.pt[1][1] = work.pt[1][1] - 5.0f;
         ClipFloor(&work);
-        if (work._94 != 0) {
+        if (work.floor.elem != 0) {
             return 1;
         }
     }
@@ -4712,14 +4658,14 @@ inline void actAfterFly(GObj *volatile self)
     ResetFlyLimit(self);
 }
 
-static inline void ClipCollisionWithField(char *work)
+static inline void ClipCollisionWithField(ClipWork *work)
 {
     int tmp[4];
-    sceVu0CopyVector(tmp, work + 0x10);
+    sceVu0CopyVector(tmp, work->pt[1]);
     ClipWallField(work);
-    sceVu0CopyVector(work + 0x10, work + 0x20);
+    sceVu0CopyVector(work->pt[1], work->pt[2]);
     ClipFloor(work);
-    sceVu0CopyVector(work + 0x10, tmp);
+    sceVu0CopyVector(work->pt[1], tmp);
 }
 
 inline void afterCommonOneWall(int x)

@@ -46,28 +46,11 @@ static RopeTemplate ropeChainInit[2] = {
     {-1},
 }; /* derived name */
 
-typedef struct { /* field names derived */
-    int a;
-    int b;
-} RopePair; /* derived name */
-
-/* The wall-clip request, the same record ico2/omori/src/chain.c hands to
-   ClipWall (endpoints at 0x00 and 0x10, hit flag at 0x88); the rope also reads
-   the 8 bytes at 0x80. */
-typedef struct { /* field names derived */
-    /* 0x00 */ float from[4];
-    /* 0x10 */ float to[4];
-    /* 0x20 */ char _20[0x60];
-    /* 0x80 */ RopePair out;
-    /* 0x88 */ void *hit; /* the wall hit; fieldCollision.c reads it as a pointer */
-    /* 0x8C */ char _8c[0x34];
-} RopeClipWork; /* derived name */
-
 typedef struct {                       /* field names derived */
     /* 0x00 */ void *chains;           /* InitChains' chain system */
     /* 0x04 */ int upperWallClimbable; /* a wall was found above the rope */
-    /* 0x08 */ RopePair wallSrc;       /* that wall's slot pair */
-    /* 0x10 */ void *wall;             /* that wall */
+    /* 0x08 */ ObjNode wallSrc;        /* that wall's object and node */
+    /* 0x10 */ FcWallEnt *wall;        /* that wall */
 } RopeGeoWork;                         /* derived name */
 
 void *InitRopeGeo(GObj *o, const float *p)
@@ -102,15 +85,15 @@ void *InitRopeGeo(GObj *o, const float *p)
     if (p[4] != 0.0f) {
         sceVu0FVECTOR v0 = {0.0f, 0.0f, -10.0f, 1.0f};
         sceVu0FVECTOR v1 = {0.0f, 0.0f, 10.0f, 1.0f};
-        RopeClipWork cw;
+        ClipWork cw;
 
         sceVu0UnitMatrix(MatrixDrive_GetMatrix());
         MatrixDrive_TransMatrix(p[0], p[1] + 10.0f, p[2]);
         MatrixDrive_RotMatrixY(p[5] * 10430.378f);
-        sceVu0ApplyMatrix(cw.from, MatrixDrive_GetMatrix(), &v0);
-        sceVu0ApplyMatrix(cw.to, MatrixDrive_GetMatrix(), &v1);
+        sceVu0ApplyMatrix(cw.pt[0], MatrixDrive_GetMatrix(), &v0);
+        sceVu0ApplyMatrix(cw.pt[1], MatrixDrive_GetMatrix(), &v1);
         ClipWall(&cw);
-        if (cw.hit == 0) {
+        if (cw.wall.elem == 0) {
             /* "Cannot find the wall above the rope. Is the direction wrong, or
                is it placed where there is no wall?" (EUC-JP, in yellow) */
             debug_StdPrintfDummy("\033[33m鎖の上の壁を見"
@@ -122,12 +105,12 @@ void *InitRopeGeo(GObj *o, const float *p)
             debug_assert(__FILE__, 69);
             __assert(__FILE__, 69, "0");
         }
-        w->wallSrc = cw.out;
-        w->wall = cw.hit;
+        w->wallSrc = cw.wall.o;
+        w->wall = cw.wall.elem;
         w->upperWallClimbable = 1;
     } else {
-        w->wallSrc.a = 0;
-        w->wallSrc.b = 0;
+        w->wallSrc.obj = 0;
+        w->wallSrc.node = 0;
         w->wall = 0;
         w->upperWallClimbable = 0;
     }

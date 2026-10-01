@@ -145,10 +145,9 @@ static float zeroVelocity[4] = {0.0f, 0.0f, 0.0f, 0.0f}; /* derived name */
 /* The offset a dropped item is placed at, below the holder's hand. */
 static float itemDropOfs[4] = {0.0f, -50.0f, 0.0f, 1.0f}; /* derived name */
 
-/* The shared item scratch buffer.  avoidInsideOfWall builds the wall-push
-   layout in its first three vectors; the 20.0f at offset 0x70 is the only
-   other initialised word of the 192, and nothing in the tree reads it, so the
-   buffer's internal shape past the first three vectors is not recovered. */
+/* The clip avoidInsideOfWall runs from the holder to the item, a ClipWork's
+   192 bytes with the radius 20 at 0x70.  The ROM places it 8-aligned in
+   .data, so it is not the 16-aligned ClipWork itself. */
 static float itemWork[12][4] = {
     {0.0f, 0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f, 0.0f},  {0.0f, 0.0f, 0.0f, 0.0f},
     {0.0f, 0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f, 0.0f},  {0.0f, 0.0f, 0.0f, 0.0f},
@@ -164,16 +163,16 @@ static float carryOfsOther[4] = {-10.0f, -15.0f, 0.0f, 1.0f}; /* derived name */
 
 static void avoidInsideOfWall(void *self, GObj *arg)
 {
-    char *p;
+    ClipWork *p;
     if (arg == 0)
         return;
-    p = (char *)itemWork;
-    GetRootPosition(p, arg);
-    GetRootPosition(p + 0x10, self);
+    p = (ClipWork *)itemWork;
+    GetRootPosition(p->pt[0], arg);
+    GetRootPosition(p->pt[1], self);
     ClipWall(p);
-    if (*(int *)(p + 0x88) == 0)
+    if (p->wall.elem == 0)
         return;
-    SetDirectRootPositionNoFitting(self, p + 0x20);
+    SetDirectRootPositionNoFitting(self, p->pt[2]);
 }
 
 void ReleaseItem(GObj *gobj)
@@ -337,42 +336,9 @@ static inline int entryBreakBgAnimation(int id, float *pos, float *dir, int arg)
     return 0;
 }
 
-/* 0x60..0x120 of uncarriedItemGeo's frame and the whole of floatGeo's: the
-   192-byte workspace ClipWall / ClipFloor / ClipWallWaveForce / CheckFieldContact
-   fill in.  It is the same record avoidInsideOfWall drives through itemWork,
-   whose +0x88 hit flag and +0x20 result position that function already names. */
 /* the per-frame step from the frame-rate pair at systemStatus; ThrowItem
    and InitItemGeo spell the same integer quotient out */
 #define ITEM_DT (60.0f / (float)((60 - systemStatus[0] * 10) / systemStatus[1])) /* derived name */
-
-typedef struct DObjLink { /* field names derived */
-    char *obj;            /* the object the clip hit */
-    int node;             /* its node */
-} DObjLink;               /* derived name */
-
-/* this file's own view of ClipWork; the shared one is in
-   ico2/common/include/typedef.h */
-typedef struct ClipWorkItem { /* field names derived */
-    float from[4];            /* 0x00 */
-    float to[4];              /* 0x10 */
-    float pos[4];             /* 0x20 */
-    float bounce[4]; /* 0x30, the motion along the plane normal, scaled (GetReflectionElement) */
-    float slide[4];  /* 0x40, the motion along the plane, scaled */
-    float reflectPos[4]; /* 0x50, the point the reflected motion reaches */
-    float reflect[4];    /* 0x60, the reflected motion, slide plus bounce */
-    float radius;        /* 0x70 */
-    int skipSrc[2];      /* 0x74 */
-    int skipElem;        /* 0x7C */
-    int wallSrc[2];      /* 0x80 */
-    int wallHit;         /* 0x88 */
-    DObjLink floorSrc;   /* 0x8C, the object and node of the floor hit */
-    int floorHit;        /* 0x94 */
-    int attr;            /* 0x98 */
-    char pad9C[4];
-    float plane[4]; /* 0xA0 */
-    int slideCount; /* 0xB0 */
-    char padB4[12];
-} ClipWorkItem; /* derived name */
 
 /* the wall-hit arm of uncarriedItemGeo */
 static inline int breakItemOnWallHit(GObj *gobj, float len, float *pos,
@@ -433,7 +399,7 @@ static inline int breakItemOnFloorHit(GObj *gobj, float len, float *pos,
 
 static void uncarriedItemGeo(GObj *gobj)
 {
-    DObjLink link; /* 0x00 */
+    ObjNode link;  /* 0x00 */
     float pos[4];  /* 0x10 */
     float npos[4]; /* 0x20 */
     float vel[4];  /* 0x30 */
@@ -441,32 +407,32 @@ static void uncarriedItemGeo(GObj *gobj)
 
     void floatGeo(float t)
     {
-        ClipWorkItem w;
+        ClipWork w;
 
         _ScaleVector(vel, vel, t);
         _AddVectorXYZ(vel, vel, p->drain);
         GetSlerpQuaternion(GOBJ_SUB(gobj)->root.itemQuat, GOBJ_SUB(gobj)->root.itemQuat,
                            IdentityQuaternion, t);
         RegularizeQuaternion(GOBJ_SUB(gobj)->root.itemQuat);
-        CopyVector(w.from, pos);
-        CopyVector(w.to, w.from);
+        CopyVector(w.pt[0], pos);
+        CopyVector(w.pt[1], w.pt[0]);
         w.radius = 200.0f;
         ClipWallWaveForce(&w);
-        if (w.wallHit != 0) {
-            float d = GetDistanceFromPlane(w.plane, w.from);
+        if (w.wall.elem != 0) {
+            float d = GetDistanceFromPlane(w.normal.f, w.pt[0]);
 
             d += w.radius;
             if (0.0f < d) {
                 float k = 1.0f / (d + 50.0f);
 
-                vel[0] += w.plane[0] * 100.0f * k;
-                vel[2] += w.plane[2] * 100.0f * k;
+                vel[0] += w.normal.f[0] * 100.0f * k;
+                vel[2] += w.normal.f[2] * 100.0f * k;
             }
         }
     }
 
-    float q[4];      /* 0x50 */
-    ClipWorkItem cw; /* 0x60 */
+    float q[4];  /* 0x50 */
+    ClipWork cw; /* 0x60 */
     int linked = 0;
     float len0;
     float len;
@@ -506,79 +472,79 @@ static void uncarriedItemGeo(GObj *gobj)
     MultiQuaternion(q, GOBJ_SUB(gobj)->root.itemQuat, q);
     RegularizeQuaternion(q);
     SetRootQuaternion(gobj, q);
-    CopyVector(cw.from, pos);
-    CopyVector(cw.to, npos);
+    CopyVector(cw.pt[0], pos);
+    CopyVector(cw.pt[1], npos);
     cw.radius = 20.0f;
     ClipWall(&cw);
-    if (cw.wallHit != 0) {
+    if (cw.wall.elem != 0) {
         GOBJ_SUB(gobj)->ctrl.wallAttr = GetWallAttribute(&cw);
         GetReflectionElement(&cw, 0.8f, 0.8f);
-        CopyVector(npos, cw.reflectPos);
-        CopyVector(vel, cw.reflect);
-        if (breakItemOnWallHit(gobj, VectorLength(cw.bounce), npos, vel)) {
+        CopyVector(npos, cw.reflect.pos);
+        CopyVector(vel, cw.reflect.dir);
+        if (breakItemOnWallHit(gobj, VectorLength(cw.reflect.bounce), npos, vel)) {
             setItemDead(gobj);
         }
     }
-    CopyVector(cw.from, pos);
-    CopyVector(cw.to, pos);
-    cw.from[1] -= 20.0f;
-    cw.to[1] += 20.0f;
+    CopyVector(cw.pt[0], pos);
+    CopyVector(cw.pt[1], pos);
+    cw.pt[0][1] -= 20.0f;
+    cw.pt[1][1] += 20.0f;
     ClipFloor(&cw);
-    if (cw.floorHit != 0) {
-        CopyVector(pos, cw.pos);
+    if (cw.floor.elem != 0) {
+        CopyVector(pos, cw.pt[2]);
         pos[1] -= 20.0f;
     }
-    CopyVector(cw.from, pos);
-    CopyVector(cw.to, npos);
-    cw.from[1] += 20.0f;
-    cw.to[1] += 20.0f;
+    CopyVector(cw.pt[0], pos);
+    CopyVector(cw.pt[1], npos);
+    cw.pt[0][1] += 20.0f;
+    cw.pt[1][1] += 20.0f;
     ClipFloor(&cw);
-    if (cw.floorHit != 0) {
+    if (cw.floor.elem != 0) {
         float axis[4];
 
         GOBJ_SUB(gobj)->ctrl.floorAttr = GetFloorAttribute(&cw);
         GetReflectionElement(&cw, 0.8f, 0.7f);
-        CopyVector(npos, cw.reflectPos);
-        CopyVector(vel, cw.reflect);
+        CopyVector(npos, cw.reflect.pos);
+        CopyVector(vel, cw.reflect.dir);
         npos[1] -= 20.0f;
-        sceVu0OuterProduct(axis, cw.plane, cw.slide);
+        sceVu0OuterProduct(axis, cw.normal.f, cw.reflect.slide);
         SetQuaternionByAxisRotate(GOBJ_SUB(gobj)->root.itemQuat,
-                                  (short)(int)(-VectorLength(cw.slide) * 521.5189209f), axis[0],
-                                  axis[1], axis[2]);
-        len = VectorLength(cw.bounce);
+                                  (short)(int)(-VectorLength(cw.reflect.slide) * 521.5189209f),
+                                  axis[0], axis[1], axis[2]);
+        len = VectorLength(cw.reflect.bounce);
         if (breakItemOnFloorHit(gobj, len, npos, vel)) {
             setItemDead(gobj);
         }
         linked = 2;
-        link = cw.floorSrc;
+        link = cw.floor.o;
     } else {
-        CopyVector(cw.to, pos);
-        CopyVector(cw.from, pos);
-        cw.from[1] -= 20.0f;
-        cw.to[1] += 20.0f;
+        CopyVector(cw.pt[1], pos);
+        CopyVector(cw.pt[0], pos);
+        cw.pt[0][1] -= 20.0f;
+        cw.pt[1][1] += 20.0f;
         cw.radius = 0;
         ClipFloor(&cw);
-        if (cw.floorHit != 0) {
+        if (cw.floor.elem != 0) {
             float n[4];
             float sv[4];
 
-            CopyVector(npos, cw.pos);
-            npos[1] = cw.pos[1] - 21.0f;
-            cw.plane[3] = 0;
+            CopyVector(npos, cw.pt[2]);
+            npos[1] = cw.pt[2][1] - 21.0f;
+            cw.normal.f[3] = 0;
             linked = 1;
-            CopyVector(n, cw.plane);
-            sceVu0ScaleVector(sv, n, GetDistanceFromPlane(cw.plane, vel) * -2.0f);
+            CopyVector(n, cw.normal.f);
+            sceVu0ScaleVector(sv, n, GetDistanceFromPlane(cw.normal.f, vel) * -2.0f);
             AddVectorXYZ(vel, vel, sv);
-            link = cw.floorSrc;
+            link = cw.floor.o;
         } else {
-            cw.to[1] += 10000.0f;
+            cw.pt[1][1] += 10000.0f;
             ClipFloor(&cw);
             if (CheckFieldContact(&cw, gobj, npos, 20.0f) == 2) {
                 if (p->inPool != 1) {
-                    GOBJ_SUB(gobj)->ctrl.waterY = GetPoolGlobalHeight(cw.floorSrc.obj);
-                    GetPoolGlobalDrainVector(p->drain, cw.floorSrc.obj);
+                    GOBJ_SUB(gobj)->ctrl.waterY = GetPoolGlobalHeight(cw.floor.o.obj);
+                    GetPoolGlobalDrainVector(p->drain, cw.floor.o.obj);
                 }
-                GOBJ_SUB(gobj)->ctrl.waterDepth = cw.pos[1] - GOBJ_SUB(gobj)->ctrl.waterY;
+                GOBJ_SUB(gobj)->ctrl.waterDepth = cw.pt[2][1] - GOBJ_SUB(gobj)->ctrl.waterY;
                 p->inPool = 1;
             }
         }

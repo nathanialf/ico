@@ -12,4 +12,10 @@
  * out-of-line copies at the end of the object (first-declaration order). */
 int InitParentSimpleObjGeo(void);
 
+struct GObj;
+
+/* the kind's geometry and display functions in objKindData */
+void ParentSimpleObjGeo(struct GObj *self);
+void ParentSimpleObjDL(struct GObj *self);
+
 #endif /* HAVEPARENTSIMPLEOBJ_H */

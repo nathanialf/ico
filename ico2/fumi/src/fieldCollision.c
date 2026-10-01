@@ -1131,106 +1131,104 @@ inline void ClipWallRD(void)
     collision_pick = 0;
 }
 
-static int (*clipWallFunc)(void *work,
-                           int mode) = (int (*)(void *, int))__ClipWall; /* derived name */
+static void (*clipWallFunc)(ClipWork *work, int mode) = __ClipWall; /* derived name */
 
-static int (*clipFloorFunc)(void *work,
-                            int mode) = (int (*)(void *, int))__ClipFloor; /* derived name */
+static void (*clipFloorFunc)(ClipWork *work, int mode) = __ClipFloor; /* derived name */
 
 inline int ChangeFieldCollisionDebugMode(int drawRay)
 {
-    clipWallFunc = (int (*)(void *, int))__ClipWall;
-    clipFloorFunc = (int (*)(void *, int))__ClipFloor;
+    clipWallFunc = __ClipWall;
+    clipFloorFunc = __ClipFloor;
     if (drawRay != 0) {
-        clipWallFunc = (int (*)(void *, int))__ClipWallWithDrawRay;
-        clipFloorFunc = (int (*)(void *, int))__ClipFloorWithDrawRay;
+        clipWallFunc = __ClipWallWithDrawRay;
+        clipFloorFunc = __ClipFloorWithDrawRay;
     }
     return 0;
 }
 
-inline void ClipWallDebug(void *work)
+inline void ClipWallDebug(ClipWork *work)
 {
     clipWallFunc(work, 0);
 }
 
-inline void ClipWall(void *work)
+inline void ClipWall(ClipWork *work)
 {
     clipWallFunc(work, 0x1);
 }
 
-inline void ClipWallR(void *work)
+inline void ClipWallR(ClipWork *work)
 {
     clipWallFunc(work, 0x2);
 }
 
-inline void ClipWallWaveForce(void *work)
+inline void ClipWallWaveForce(ClipWork *work)
 {
     clipWallFunc(work, 0x6);
 }
 
-inline void ClipWallFuchiHangWalkStop(void *work)
+inline void ClipWallFuchiHangWalkStop(ClipWork *work)
 {
     clipWallFunc(work, 0x7);
 }
 
-inline void ClipWallField(void *work)
+inline void ClipWallField(ClipWork *work)
 {
     clipWallFunc(work, 0x3);
 }
 
-inline void ClipWallEField(void *work)
+inline void ClipWallEField(ClipWork *work)
 {
     clipWallFunc(work, 0x5);
 }
 
-inline void ClipWallBoxStop(void *work)
+inline void ClipWallBoxStop(ClipWork *work)
 {
     clipWallFunc(work, 0xA);
 }
 
-inline void ClipWallAdjustPos(void *work)
+inline void ClipWallAdjustPos(ClipWork *work)
 {
     clipWallFunc(work, 0xB);
 }
 
-inline void ClipWallE(void *work)
+inline void ClipWallE(ClipWork *work)
 {
     clipWallFunc(work, 0x4);
 }
 
-inline void ClipWallCheckCB(void *work, int filter)
+inline void ClipWallCheckCB(ClipWork *work, int filter)
 {
     colFilter = (int (*)(void *))filter;
     clipWallFunc(work, 8);
 }
 
-inline void ClipWallFieldCheckCB(void *work, int filter)
+inline void ClipWallFieldCheckCB(ClipWork *work, int filter)
 {
     colFilter = (int (*)(void *))filter;
     clipWallFunc(work, 9);
 }
 
-inline void ClipFloor(void *work)
+inline void ClipFloor(ClipWork *work)
 {
     clipFloorFunc(work, 0xC);
 }
 
-inline void ClipFloorE(void *work)
+inline void ClipFloorE(ClipWork *work)
 {
     clipFloorFunc(work, 0xD);
 }
 
-inline void ClipFloorR(void *work)
+inline void ClipFloorR(ClipWork *work)
 {
     clipFloorFunc(work, 0xE);
 }
 
-inline void ClipFloorIH(void *work)
+inline void ClipFloorIH(ClipWork *work)
 {
     clipFloorFunc(work, 0xF);
 }
 
-inline void ClipFloorCheckCB(void *work, int filter)
+inline void ClipFloorCheckCB(ClipWork *work, int filter)
 {
     colFilter = (int (*)(void *))filter;
     clipFloorFunc(work, 0x10);

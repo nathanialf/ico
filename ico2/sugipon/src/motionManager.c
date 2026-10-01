@@ -18,6 +18,7 @@
 #include "gv.h"
 #include "fieldCollision.h"
 #include "motionManager.h"
+#include "DisplayP2O.h"
 #include <libvu0.h>
 #include <assert.h>
 
@@ -185,8 +186,6 @@ typedef struct { /* field names derived */
     int node;
 } ActPt; /* derived name */
 
-/* declared here: DisplayP2O.h does not compile in this file (too few arguments to function `p2o_DispVU1') */
-extern void p2o_DispVU1();
 static void getInitialMatrix(Sub15C *obj, int idx);
 
 #include <string.h>
@@ -1227,7 +1226,7 @@ void SkelTest(GObj *self)
     v = sub->skel;
     skelNode = v;
     if (v != 0) {
-        p2o_DispVU1();
+        p2o_DispVU1(self);
         if (debug_skel_flag != 0) {
             dispSkelton(self);
         }

@@ -13,16 +13,6 @@
 #include "fieldCollision.h"
 #include <assert.h>
 
-typedef struct { /* field names derived */
-    float a[4];
-    float b[4];
-    char pad0[0x70 - 0x20];
-    float f70;
-    char pad1[0x88 - 0x74];
-    int f88;
-    char pad2[0xC0 - 0x8C];
-} ClipBox; /* derived name */
-
 typedef struct WpSortEnt { /* field names derived */
     WayPoint *wp;
     float d;
@@ -52,7 +42,7 @@ static inline WayPoint *visible_waypoint_of_all_except_gid_sub(float *pos, int g
                                                                int thread) /* derived name */
 {
     float buf[4];
-    ClipBox cb;
+    ClipWork cb;
     WpSortEnt *tbl;
     WayPoint *wp;
     WayPoint *ret;
@@ -78,22 +68,22 @@ static inline WayPoint *visible_waypoint_of_all_except_gid_sub(float *pos, int g
     if (thread) {
         _ACTWait(1);
     }
-    cb.f70 = 0.0f;
+    cb.radius = 0.0f;
 
     ret = 0;
     for (i = 0; i < n; i++) {
         wp = tbl[i].wp;
-        sceVu0CopyVector(cb.a, pos);
-        sceVu0CopyVector(cb.b, wp->pos);
-        cb.a[1] -= 75.0f;
-        cb.b[1] -= 75.0f;
+        sceVu0CopyVector(cb.pt[0], pos);
+        sceVu0CopyVector(cb.pt[1], wp->pos);
+        cb.pt[0][1] -= 75.0f;
+        cb.pt[1][1] -= 75.0f;
         ClipWall(&cb);
-        if (cb.f88 == 0) {
+        if (cb.wall.elem == 0) {
             if (thread) {
                 _ACTWait(1);
             }
             ClipWallField(&cb);
-            if (cb.f88 == 0) {
+            if (cb.wall.elem == 0) {
                 ret = wp;
                 break;
             }
@@ -123,7 +113,7 @@ static inline WayPoint *visible_waypoint_of_all_except_temp_sub(float *pos, int 
                                                                 int thread) /* derived name */
 {
     float buf[4];
-    ClipBox cb;
+    ClipWork cb;
     WpSortEnt *tbl;
     WayPoint *wp;
     WayPoint *ret;
@@ -151,22 +141,22 @@ static inline WayPoint *visible_waypoint_of_all_except_temp_sub(float *pos, int 
     if (thread) {
         _ACTWait(1);
     }
-    cb.f70 = 0.0f;
+    cb.radius = 0.0f;
 
     ret = 0;
     for (i = 0; i < n; i++) {
         wp = tbl[i].wp;
-        sceVu0CopyVector(cb.a, pos);
-        sceVu0CopyVector(cb.b, wp->pos);
-        cb.a[1] -= 75.0f;
-        cb.b[1] -= 75.0f;
+        sceVu0CopyVector(cb.pt[0], pos);
+        sceVu0CopyVector(cb.pt[1], wp->pos);
+        cb.pt[0][1] -= 75.0f;
+        cb.pt[1][1] -= 75.0f;
         ClipWall(&cb);
-        if (cb.f88 == 0) {
+        if (cb.wall.elem == 0) {
             if (thread) {
                 _ACTWait(1);
             }
             ClipWallField(&cb);
-            if (cb.f88 == 0) {
+            if (cb.wall.elem == 0) {
                 ret = wp;
                 break;
             }
@@ -943,11 +933,11 @@ inline void visible_waypoint_of_all_from_gobj(void *obj)
 inline WayPoint *visible_waypoint(float *arg0, int handle)
 {
     float buf[4];
-    ClipBox cb;
+    ClipWork cb;
     float bestDist;
     WayPoint *best = 0;
     WayPoint *cur;
-    cb.f70 = 50.0f;
+    cb.radius = 50.0f;
     cur = WayPointList_begin(handle);
     bestDist = 100000.0f;
     if (cur != 0) {
@@ -956,12 +946,12 @@ inline WayPoint *visible_waypoint(float *arg0, int handle)
             sceVu0SubVector(buf, cur->pos, arg0);
             d = fzMagnitudefv(buf);
             if (d < bestDist) {
-                sceVu0CopyVector(cb.a, arg0);
-                sceVu0CopyVector(cb.b, cur->pos);
-                cb.a[1] -= 75.0f;
-                cb.b[1] -= 75.0f;
+                sceVu0CopyVector(cb.pt[0], arg0);
+                sceVu0CopyVector(cb.pt[1], cur->pos);
+                cb.pt[0][1] -= 75.0f;
+                cb.pt[1][1] -= 75.0f;
                 ClipWall(&cb);
-                if (cb.f88 == 0) {
+                if (cb.wall.elem == 0) {
                     bestDist = d;
                     best = cur;
                 }
