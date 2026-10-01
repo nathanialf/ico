@@ -961,8 +961,6 @@ typedef struct MatObj {
     unsigned int f_D4;
 } MatObj;
 
-extern void pac_setMaterialPacket(MatEnt *ent);
-
 typedef struct MatTab {
     MatEnt *f_0;
     char pad0[0xC];

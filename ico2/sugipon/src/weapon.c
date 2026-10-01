@@ -900,12 +900,9 @@ void calcBlur(GObj *g, float t)
     }
 }
 
-typedef struct {
-    char pad00[0x190]; /* 0x000 */
-    unsigned int f190; /* 0x190 */
-} WeaponEnemyPara;     /* 0x194 */
-
-extern WeaponEnemyPara motionKind[];
+/* kept local: motionOrientManager.h reaches ico2/fumi's TUs through
+   typedef.h, and commonact.c declares the table char [] */
+extern const MotionDef motionKind[];
 
 /* The MatrixDrive matrix, viewed as the union of float and int arrays this
    codebase uses for VU0 data.  The union member reference is what puts the
@@ -933,11 +930,7 @@ void WeaponGeo(GObj *g)
     if (w->kind >= 10 || kind < 8) {
         if (w->state == 1 ||
             (w->holder != 0 &&
-             ((((WeaponEnemyPara *)(*(int *)(*(char **)&w->holder->dobj + 0x4A0) * 0x194 +
-                                    (char *)motionKind))
-                   ->f190 >>
-               4) &
-              1))) {
+             motionKind[*(int *)(*(char **)&w->holder->dobj + 0x4A0)].flags2.bits.weaponSwing)) {
             calcBlur(g, weaponKind[kind].length);
             w->bladeOn = 1;
         }

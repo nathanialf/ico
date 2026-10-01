@@ -32,6 +32,7 @@ void tex_scrollClut(void *a0, void *a1, void *a2, int a3, int a4, void *a5, int 
 void tex_convertImage(void *dst, void *src, short fmt, short w, short h);
 void tex_textureAnimation(void);
 void tex_ResetVram(void);
+void tex_UpdateMipMapLevel(float lv);
 int tex_GetTWTH(int a0);
 
 #endif /* TEXTURE_H */

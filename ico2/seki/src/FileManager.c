@@ -1,6 +1,7 @@
 #include "debug.h"
 #include "cdvd.h"
 #include "memory.h"
+#include "ios.h"
 #include <string.h>
 #include <ctype.h>
 #include <eekernel.h>
@@ -34,31 +35,6 @@ typedef struct sceCdRMode {
     unsigned char pad;
 } sceCdRMode;
 
-/* ios memory partition; field 0x38 is the partition's base address, which the
-   per-area "(%2.1f%%)" prints subtract from the end of the new block. */
-typedef struct IosPartition {
-    unsigned char unk_00[0x38];
-    char *base;
-} IosPartition;
-
-/* kept local: IosPartition * here, int in ios.h */
-extern IosPartition *ios_partition_hara;
-/* kept local: IosPartition * here, int in ios.h */
-extern IosPartition *ios_partition_sugipon;
-/* kept local: IosPartition * here, int in ios.h */
-extern IosPartition *ios_partition_dmotion;
-/* kept local: IosPartition * here, int in ios.h */
-extern IosPartition *ios_partition_smotion;
-/* kept local: IosPartition * here, int in ios.h */
-extern IosPartition *ios_partition_seki;
-/* kept local: IosPartition * here, int in ios.h */
-extern IosPartition *ios_partition_oomori;
-/* kept local: IosPartition * here, int in ios.h */
-extern IosPartition *ios_partition_horagai;
-/* kept local: IosPartition * here, int in ios.h */
-extern IosPartition *ios_partition_sound;
-/* kept local: IosPartition * here, int in ios.h */
-extern IosPartition *ios_partition_sound_semi;
 extern int sceCdSearchFile(sceCdlFILE *fp, const char *name);
 
 /* SRCFILE puts this pair on seki/src/FileManager.c:184-185, above file_Init's
@@ -174,14 +150,14 @@ int file_LoadCDFile(void **adr, char *fname, int area)
         *adr = iosMallocDebug(ios_partition_seki, asize, "src/FileManager.c", 349);
         PrintLoad();
         debug_StdPrintfDummy(" to seki area.(%2.1f%%)\n",
-                             ((int)*adr + asize - (int)ios_partition_seki->base) * 100.0f /
+                             ((int)*adr + asize - (int)ios_partition_seki->start) * 100.0f /
                                  10059776.0f);
         break;
     case 1:
         *adr = iosMallocDebug(ios_partition_sugipon, asize, "src/FileManager.c", 357);
         PrintLoad();
         debug_StdPrintfDummy(" to sugi area.(%2.1f%%/%2.1f%%)\n", asize * 100.0f / 524288.0f,
-                             ((int)*adr + asize - (int)ios_partition_sugipon->base) * 100.0f /
+                             ((int)*adr + asize - (int)ios_partition_sugipon->start) * 100.0f /
                                  524288.0f);
         break;
     case 3:
@@ -189,26 +165,26 @@ int file_LoadCDFile(void **adr, char *fname, int area)
         PrintLoad();
         debug_StdPrintfDummy(
             " to static motion area.(%2.1f%%/%2.1f%%)\n", asize * 100.0f / 1179648.0f,
-            ((int)*adr + asize - (int)ios_partition_smotion->base) * 100.0f / 1179648.0f);
+            ((int)*adr + asize - (int)ios_partition_smotion->start) * 100.0f / 1179648.0f);
         break;
     case 5:
         *adr = iosMallocDebug(ios_partition_dmotion, asize, "src/FileManager.c", 375);
         PrintLoad();
         debug_StdPrintfDummy(
             " to dynamic motion area.(%2.1f%%/%2.1f%%)\n", asize * 100.0f / 3670016.0f,
-            ((int)*adr + asize - (int)ios_partition_dmotion->base) * 100.0f / 3670016.0f);
+            ((int)*adr + asize - (int)ios_partition_dmotion->start) * 100.0f / 3670016.0f);
         break;
     case 6:
         *adr = iosMallocDebug(ios_partition_hara, asize, "src/FileManager.c", 384);
         PrintLoad();
         debug_StdPrintfDummy(" to hara-area.(%2.1f%%)\n",
-                             ((int)*adr + asize - (int)ios_partition_hara->base) * 100.0f);
+                             ((int)*adr + asize - (int)ios_partition_hara->start) * 100.0f);
         break;
     case 7:
         *adr = iosMallocDebug(ios_partition_oomori, asize, "src/FileManager.c", 392);
         PrintLoad();
         debug_StdPrintfDummy(" to oomori area.(%2.1f%%)\n",
-                             ((int)*adr + asize - (int)ios_partition_oomori->base) * 100.0f /
+                             ((int)*adr + asize - (int)ios_partition_oomori->start) * 100.0f /
                                  327680.0f);
         break;
     case 8:

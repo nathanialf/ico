@@ -295,16 +295,9 @@ static short ikBend0 = 0; /* derived name */
 
 static short ikBend1 = 0; /* derived name */
 
-extern char motionKind[];
-
-/* RECONSTRUCTION, names ours: the 0x194-byte motion-table record of
- * motionKind (motionViewer.c's MotRec); only the flag word this file reads
- * is named.  The ROM loads it with a 0x190 displacement from the record, the
- * shape of a structure member. */
-typedef struct {
-    char pad[0x190];
-    unsigned int flags;
-} MotTblRec;
+/* kept local: motionOrientManager.h reaches ico2/fumi's TUs through
+   typedef.h, and commonact.c declares the table char [] */
+extern const MotionDef motionKind[];
 
 /* The frame-rate factors every blend in _getFinalMatrix scales by: the
  * frame counter pair gives the frames per second of the current mode. */
@@ -790,7 +783,7 @@ void _getFinalMatrix(int id)
             MultiQuaternion(q, q, r);
             APPLY_ROT(q);
             if (skelMotCtrl->pickedWeapon != 0 &&
-                !(((MotTblRec *)(motionKind + skelMotCtrl->motion * 404))->flags >> 4 & 1)) {
+                !motionKind[skelMotCtrl->motion].flags2.bits.weaponSwing) {
                 switch (skelMotCtrl->rootUpdateMode) {
                 case 0:
                 case 6:

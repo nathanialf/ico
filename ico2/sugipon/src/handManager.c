@@ -214,7 +214,9 @@ float _handManager(GObj *obj, char *hw, char *vec, char *ref, int node)
     return 1.0f;
 }
 
-extern char motionKind[];
+/* kept local: motionOrientManager.h reaches ico2/fumi's TUs through
+   typedef.h, and commonact.c declares the table char [] */
+extern const MotionDef motionKind[];
 extern char motionIKEffKind[];
 
 static inline void ResetHandTarget(GObj *obj, int off)
@@ -233,13 +235,13 @@ void HandManager(GObj *obj)
         ResetHandTarget(obj, 0x310);
         ResetHandTarget(obj, 0x2B0);
         if (GOBJ_SUB(obj)->handIK != 0) {
-            char *rec = motionKind + GOBJ_SUB(obj)->motion * 0x194;
+            const MotionDef *rec = &motionKind[GOBJ_SUB(obj)->motion];
             _handManager(obj, (char *)(int)GOBJ_SUB(obj) + 0x310,
-                         motionIKEffKind + ((*(unsigned int *)(rec + 0x188) >> 8) & 0xF0),
-                         XUnitVector, GetSkeltonFocusNode(obj, 0x13));
+                         motionIKEffKind + ((rec->modeBits.word >> 8) & 0xF0), XUnitVector,
+                         GetSkeltonFocusNode(obj, 0x13));
             t = _handManager(obj, (char *)(int)GOBJ_SUB(obj) + 0x2B0,
-                             motionIKEffKind + ((*(unsigned int *)(rec + 0x188) >> 4) & 0xF0),
-                             XUnitVector, GetSkeltonFocusNode(obj, 3));
+                             motionIKEffKind + ((rec->modeBits.word >> 4) & 0xF0), XUnitVector,
+                             GetSkeltonFocusNode(obj, 3));
         }
         GOBJ_SUB(obj)->handBlend += (t - GOBJ_SUB(obj)->handBlend) * 0.1f;
     }

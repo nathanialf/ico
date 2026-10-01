@@ -32,8 +32,8 @@ Four modes, one member each (MEMBER is the name in the schema):
       the field there are reported
 
 The record type is read from the header the schema row names: a typedef of a
-struct whose fields are integers, floats, pointers (object or function),
-arrays, nested structs and bit-fields, laid out by the EE's rules (4-byte
+struct whose fields are integers, enums, floats, pointers (object or
+function), arrays, nested structs and bit-fields, laid out by the EE's rules (4-byte
 pointers and ints, 8-byte long long and double, bit-fields from the low bit
 of their declared type's unit).
 """
@@ -188,6 +188,10 @@ class Header:
                 if t[k] != "}":
                     continue
                 start = self._match_back(k)
+                if "enum" in (t[start - 1], t[start - 2]) and t[start - 3:start].count("typedef"):
+                    ty = self._enum(start, k, name)
+                    self.cache[name] = ty
+                    return ty
                 kw = start - 1
                 while t[kw] not in ("struct", "union"):
                     kw -= 1
@@ -223,6 +227,24 @@ class Header:
                 if depth == 0:
                     return k
             k -= 1
+
+    def _match_fwd(self, k):
+        depth = 0
+        while True:
+            if self.toks[k] == "{":
+                depth += 1
+            elif self.toks[k] == "}":
+                depth -= 1
+                if depth == 0:
+                    return k
+            k += 1
+
+    def _enum(self, ob, cb, name):
+        """An enum whose body spans tokens ob..cb: an int, as gcc lays it out (4
+        bytes; unsigned unless an enumerator is negative). Its values are
+        written as numbers, since an enumerator constant is an int."""
+        signed = "-" in self.toks[ob:cb]
+        return T("int", 4, 4, signed=signed, name=name)
 
     def _skip_back_parens(self, k):
         depth = 0
@@ -267,6 +289,12 @@ class Header:
             return T("void", 0, 1, name=key)
         if len(toks) == 2 and toks[0] in ("struct", "union"):
             return T("opaque", 0, 1, name=key)
+        if len(toks) == 2 and toks[0] == "enum":
+            t = self.toks
+            for i in range(len(t) - 2):
+                if t[i] == "enum" and t[i + 1] == toks[1] and t[i + 2] == "{":
+                    return self._enum(i + 2, self._match_fwd(i + 2), key)
+            fail(f"{self.path}: no enum {toks[1]}")
         if len(toks) == 1:
             ty = self.typedef(toks[0])
             return ty
@@ -295,7 +323,7 @@ class Header:
                 k = end + 1
             else:
                 b = k
-                if t[k] in ("struct", "union"):
+                if t[k] in ("struct", "union", "enum"):
                     k += 2
                 elif t[k] in BASE_WORDS:
                     while t[k] in BASE_WORDS:

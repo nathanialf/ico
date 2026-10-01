@@ -51,6 +51,9 @@ static char *naturalNodePos; /* derived name */
 
 static char *naturalMotion; /* derived name */
 
+/* the current motion's motionKind record, held as a byte pointer: the blend
+   factor _getFinalMatrix reads at 0x158 schedules as the ROM has it only as a
+   byte-offset float load (a MotionDef pointer moves 88 bytes) */
 static char *skelMotDef; /* derived name */
 
 /* .data, owned by motionManager.o (VMA 0x4EC950..0x4ECBE0), in the ROM's run
@@ -1003,7 +1006,6 @@ void execPositionReserver(GObj *self, ObjNode m)
 }
 
 extern void dispPlane(void *plane, void *pos);
-extern char motionKind[];
 void GetMatrixOfMotion(GObj *self, char *tbl, void *ofs);
 
 typedef struct MotNodeTag MotNode;
@@ -1059,7 +1061,7 @@ void GetGeometryOfMotion(void *self, void *m0, void *m1, float *v, float r, char
         skelRoot = (struct MotRoot *)((char *)MOWORK(self) + 0xA0);
         skelMotCtrl = (struct MotCtrl *)((char *)MOWORK(self) + 0x470);
         skelNode = (char *)*(MotNode **)((char *)MOWORK(self) + 0x8C);
-        skelMotDef = motionKind + skelMotCtrl->motion * 404;
+        skelMotDef = (char *)&motionKind[skelMotCtrl->motion];
         CopyVector(rootMove, v);
         CopyVector(rootStep, tbl);
         skelMotCtrl->flags = 0;

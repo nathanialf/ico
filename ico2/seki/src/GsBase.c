@@ -21,6 +21,7 @@
 #include "Light.h"
 #include "Matrix.h"
 #include "DmaPacket.h"
+#include "DisplayList.h"
 #include <libgraph.h>
 
 /* Declared here, not through string.h: with newlib's prototype in scope gcc
@@ -517,11 +518,6 @@ clear:
     fadeStatus = 0;
 }
 
-/* kept local: agrees with main.h, which this TU does not include (db differs) */
-extern int optionScreenMode;
-/* kept local: agrees with main.h, which this TU does not include (db differs) */
-extern StageSetting GlobalStageSetting;
-
 void gsb_SetMotionBlur(void)
 {
     int i = optionScreenMode;
@@ -543,10 +539,6 @@ static float scissorStep = 0.0f; /* derived name */
 
 /* kept local: agrees with GifPacket.h, which this TU does not include (gif_MakeSpriteNoTexture, gif_SetAlpha differ) */
 extern void gif_EndPacketPath1(void);
-/* kept local: agrees with DisplayList.h, which this TU does not include (dl_OpenDma differs) */
-extern int dl_GetPri(void);
-/* kept local: agrees with DisplayList.h, which this TU does not include (dl_OpenDma differs) */
-extern void dl_SetDLPriority();
 
 /* The letterbox the demo scenes fade in: two black bars, top and bottom,
  * whose alpha eases to 128 while the scene is state 55 and back to 0
@@ -604,14 +596,6 @@ void gsb_scissorOnDemo(void)
     }
 }
 
-/* kept local: agrees with main.h, which this TU does not include (db differs) */
-extern int systemStatus[];
-/* kept local: void (int, long long) here, void (long long, long long) in GifPacket.h */
-extern void gif_SetGsReg(int a0, long long a1);
-/* kept local: agrees with GifPacket.h, which this TU does not include (gif_MakeSpriteNoTexture, gif_SetAlpha differ) */
-extern void gif_EndPacketPath1(void);
-/* kept local: agrees with GifPacket.h, which this TU does not include (gif_MakeSpriteNoTexture, gif_SetAlpha differ) */
-extern void gif_StartPacketPri(int pri);
 /* kept local: void (int, int, int) here, void (long long, long long, long long) in GifPacket.h */
 extern void gif_SetAlpha(int a0, int a1, int a2);
 /* kept local: void (int, int, int, int, unsigned int, unsigned char *, int) here, void (int, int, int, int, long long, unsigned char *, int) in GifPacket.h */
@@ -728,16 +712,9 @@ void gsb_antiAlias(void)
     gif_EndPacket();
 }
 
-/* kept local: agrees with GifPacket.h, which this TU does not include (gif_MakeSpriteNoTexture, gif_SetAlpha differ) */
-extern void gif_EndPacketPath1(void);
-/* kept local: void (int, long long) here, void (long long, long long) in GifPacket.h */
-extern void gif_SetGsReg(int a0, long long a1);
-/* kept local: agrees with GifPacket.h, which this TU does not include (gif_MakeSpriteNoTexture, gif_SetAlpha differ) */
-extern void gif_StartPacketPriPath1(int a0);
-
 void gsb_setNormalReg(int ctx)
 {
-    dl_SetDLPriority();
+    dl_SetDLPriority(ctx);
     gif_StartPacketPriPath1(dl_GetPri());
     gif_SetGsReg(0x47, 0x50000);
     gif_SetGsReg(0x4E, 0x300000C0);
@@ -748,7 +725,7 @@ void gsb_setNormalReg(int ctx)
 
 void gsb_setSemitransReg(int ctx)
 {
-    dl_SetDLPriority();
+    dl_SetDLPriority(ctx);
     gif_StartPacketPriPath1(dl_GetPri());
     gif_SetGsReg(0x47, 0x5140D);
     gif_SetGsReg(0x4E, 0x300000C0);
@@ -759,7 +736,7 @@ void gsb_setSemitransReg(int ctx)
 
 void gsb_setSpecularReg(int ctx)
 {
-    dl_SetDLPriority();
+    dl_SetDLPriority(ctx);
     gif_StartPacketPriPath1(dl_GetPri());
     gif_SetGsReg(0x47, 0x5C000);
     gif_SetGsReg(0x4E, 0x1300000C0LL);
@@ -770,7 +747,7 @@ void gsb_setSpecularReg(int ctx)
 
 void gsb_setParticleReg(int ctx)
 {
-    dl_SetDLPriority();
+    dl_SetDLPriority(ctx);
     gif_StartPacketPriPath1(dl_GetPri());
     gif_SetGsReg(0x47, 0x50000);
     gif_SetGsReg(0x4E, 0x1300000C0LL);
@@ -783,10 +760,6 @@ void gsb_setParticleReg(int ctx)
 extern int game_pause;
 /* kept local: agrees with main.h, which this TU does not include (db differs) */
 extern char *matrixptr;
-/* kept local: void (int, char *, int) here, void (int, int, int) in DisplayList.h */
-extern void dl_OpenDma(int a0, char *a1, int a2);
-/* kept local: agrees with DisplayList.h, which this TU does not include (dl_OpenDma differs) */
-extern void dl_CloseDma(void);
 
 /* the head of the common matrix packet: the three constant rows of the VU
    parameter block (the unit w, the clip extents and a zero row) and the GIF
@@ -952,15 +925,6 @@ inline void gsb_ResetFilmNoise(void)
     }
 }
 
-/* kept local: GsBase.h does not compile in this TU (conflicting types for `gsb_PostEffect') */
-extern void gsb_antiAlias(void);
-/* kept local: GsBase.h does not compile in this TU (conflicting types for `gsb_PostEffect') */
-extern void gsb_KeepFrameBuffer(void);
-/* kept local: GsBase.h does not compile in this TU (conflicting types for `gsb_PostEffect') */
-extern void gsb_fade(void);
-/* kept local: GsBase.h does not compile in this TU (conflicting types for `gsb_PostEffect') */
-extern void gsb_scissorOnDemo(void);
-
 /* set by gsb_UpdateGSSystem once the frame is up, tested by gsb_PostEffect */
 static int postEffectReady = 0; /* derived name */
 
@@ -1014,10 +978,6 @@ extern int screen_offset_y;
 extern int screen_offset_x;
 /* kept local: sceGsDBuff here, int [140] in main.h */
 extern sceGsDBuff db;
-/* kept local: GsBase.h does not compile in this TU (conflicting types for `gsb_PostEffect') */
-extern void gsb_Init(void *p);
-/* kept local: agrees with DisplayList.h, which this TU does not include (dl_OpenDma differs) */
-extern void dl_Init(void);
 
 void gsb_InitGSSystem(void)
 {
@@ -1097,14 +1057,10 @@ inline int gsb_SyncGSSystem(void)
 /* kept local: agrees with main.h, which this TU does not include (db differs) */
 extern int frame_count;
 /* kept local: agrees with main.h, which this TU does not include (db differs) */
-extern int buffer_ID;
-/* kept local: agrees with main.h, which this TU does not include (db differs) */
 extern int odd_even;
 /* kept local: agrees with main.h, which this TU does not include (db differs) */
 extern int GlobalTimer;
 extern void sceGsSetHalfOffset(void *env, short x, short y, int field);
-/* kept local: GsBase.h does not compile in this TU (conflicting types for `gsb_PostEffect') */
-extern void gsb_Reduction(void);
 
 /* One frame boundary: take the field parity from the GS CSR, run the
  * reduction pass, flip the double buffer and hand the display list back
@@ -1145,10 +1101,6 @@ void gsb_UpdateGSSystem(int keep)
     currentScreenWidth = GlobalTimer;
     light_ResetLight();
 }
-
-/* kept local: agrees with main.h, which this TU does not include (db differs) */
-extern int systemStatus[];
-extern void sceGsSetHalfOffset(void *env, short x, short y, int field);
 
 /* Reset the GS between stages: reopen the paths, reset the VU0 and the DMA,
  * put the graphics mode back, take the field parity out of the GS CSR and
@@ -1290,10 +1242,6 @@ extern int D_0028F948[];
  * planes.  MAIN.MAP names no symbol inside GsBase.o's .bss, so the name is
  * a reconstruction; the extent (10 floats) is the ROM run's. */
 static float vsParam[10];
-
-extern void tex_UpdateMipMapLevel(float lv);
-/* kept local: GsBase.h does not compile in this TU (conflicting types for `gsb_PostEffect') */
-extern void gsb_SetVSMatrixSub(float *a, float *b, float *c, float *d, float *vs);
 
 /* Set the view and screen matrices for a frame of w by h at depth d: the
  * centre is the screen middle less the staff roll offset, the zoom eases
@@ -1584,9 +1532,6 @@ static const unsigned int filmNoiseRowColor[] = {0xFFFFFF00, 0xFF000000}; /* der
 static char *filmNoiseOnOffText[] = {"Off", "On"};
 
 static int filmNoiseRow = 0; /* derived name */ /* the highlighted row */
-
-/* kept local: agrees with main.h, which this TU does not include (db differs) */
-extern PadState pad[16];
 
 /* The film noise page of the debug menu: seven editable words of the stage
  * record for the target this page names, the pad keys that walk and change
@@ -1999,9 +1944,6 @@ inline void gsb_SetZoom(float a, float b)
     zoomTarget = a;
     zoomSpeed = b;
 }
-
-/* kept local: GsBase.h does not compile in this TU (conflicting types for `gsb_PostEffect') */
-extern void updateOtherEditingLockFlag(void);
 
 inline int lockOtherEditing(void)
 {

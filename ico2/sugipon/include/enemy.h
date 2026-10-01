@@ -22,6 +22,23 @@ typedef struct { /* field names derived */
     int last;    /* 0x04 */
 } EnemyKindRange;
 
+/* enemy-def: one enemy kind, 0x1C bytes, by kind: the model and the particle
+   object it is drawn with, its life, the scale its model is drawn at, the
+   dodge range, then the attribute word: the parameter row in bits 0-7, the
+   fly type in bits 8-9 and the battle type in bits 10-11. */
+typedef struct {    /* field names derived */
+    int model;      /* 0x00, the model id, 0x610 for none */
+    int particle;   /* 0x04, the particle object, -1 for none */
+    float life;     /* 0x08 */
+    float float0C;  /* 0x0C */
+    float scale;    /* 0x10 */
+    float dodge;    /* 0x14 */
+    int paraIndex : 8;
+    unsigned int flyType : 2;
+    unsigned int battleType : 2;
+} EnemyDef; /* derived name */
+
+extern const EnemyDef enemyKind[];
 extern const EnemyKindRange randomEnemyKind[];
 extern const int randomEnemyVariationKind[];
 int CanThisEnemyFly(struct GObj *a0);

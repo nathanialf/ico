@@ -60,5 +60,8 @@ void RegularizeQuaternion(void *a0);
 void SetCurrentQuaternion(float *a0);
 void SetIdentityQuaternion(void *a0);
 void MultiCurrentQuaternion(void *a0);
+void RotCurrentQuaternionX(short a0);
+void RotCurrentQuaternionY(short a0);
+void RotCurrentQuaternionZ(short a0);
 
 #endif /* QUATERNION_H */

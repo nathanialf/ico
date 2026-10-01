@@ -98,6 +98,7 @@ typedef struct {
 
 Cloth4D *InitCloth4D(struct GObj *g, void *a1, void *a2);
 int InitClothes(char *p);
+int InitClothesNoShade(char *p);
 int SetChainExtendedWeight(int *a0, int idx, float w0, float w1);
 void TestDispChainAnimation(int *a0);
 void getCloth4D(void *a0, int **rows);

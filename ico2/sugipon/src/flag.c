@@ -1,4 +1,6 @@
 #include "flag.h"
+#include "ios.h"
+#include "attackCheckBoundary.h"
 #include "memory.h"
 #include "DisplayP2O.h"
 #include "Light.h"
@@ -71,11 +73,9 @@ void SetFlag4PointFixID(GObj *self, int a1, int id)
     prim_UpdateMesh3D(*(char **)(*(char **)(*(char **)(w + 0x4) + 0x4)), 8, 1);
 }
 
-extern void *ios_partition_sugipon; /* kept local: void * here, int in ios.h */
-extern void *ios_partition_seki;    /* kept local: void * here, int in ios.h */
-/* the cloth layout rows, 104 bytes each (layout-cloth-def.o) */
-extern char layoutClothDef[];
-extern int InitClothesNoShade(char *p);
+/* InitFlagGeo builds a cloth from the laid-out object's row of layoutClothDef
+   (attackCheckBoundary.h): its corners, the cloth type in the low four bits,
+   the rows and columns, the length shared out over the columns and the fall. */
 
 /* the flag's cloth template, copied into every new config; InitFlagGeo below
    sits on the listing's own lines (85-226), fenced from clang-format */
@@ -88,43 +88,43 @@ char *InitFlagGeo(char *self, char *arg)
     Vec4Flag v[4];
     char *mesh;
     Vec4Flag *q;
-    char *ent = layoutClothDef + *(int *)(arg + 0x30) * 104;
-    float k = *(float *)(ent + 0x60) / (float)*(int *)(ent + 0x5C);
+    const LayoutClothDef *ent = &layoutClothDef[*(int *)(arg + 0x30)];
+    float k = ent->length / (float)ent->count;
     float d;
     int type, i, j;
     char *cl = iosMallocDebug(ios_partition_sugipon, 56, __FILE__, __LINE__);
     *(ClothCfg *)cl = flagCfg;
-    *(float *)(cl + 0x18) = *(float *)(ent + 0x64);
+    *(float *)(cl + 0x18) = ent->weight;
     *(int *)(cl + 0x1C) = -1;
-    *(int *)(cl + 0x0) = *(int *)(ent + 0x58);
-    *(int *)(cl + 0x8) = *(int *)(ent + 0x5C);
+    *(int *)(cl + 0x0) = ent->rows;
+    *(int *)(cl + 0x8) = ent->count;
 
     mesh = iosMallocDebug(ios_partition_sugipon, *(int *)(cl + 0x0) * 48, __FILE__, __LINE__);
     ((FlagNodeWord *)(cl + 0x10))->i = (int)mesh;
     /* a union member store (alias set 0): the ROM's schedule keeps it, and
        line 126's store, ahead of every ent load below */
-    v[0].m[0] = *(float *)(ent + 0x20);
-    v[0].m[1] = -*(float *)(ent + 0x24);
-    v[0].m[2] = *(float *)(ent + 0x28);
+    v[0].m[0] = ent->pt[0][0];
+    v[0].m[1] = -ent->pt[0][1];
+    v[0].m[2] = ent->pt[0][2];
     v[0].m[3] = 1.0f;
 
-    v[1].m[0] = *(float *)(ent + 0x2C);
-    v[1].m[1] = -*(float *)(ent + 0x30);
-    v[1].m[2] = *(float *)(ent + 0x34);
+    v[1].m[0] = ent->pt[1][0];
+    v[1].m[1] = -ent->pt[1][1];
+    v[1].m[2] = ent->pt[1][2];
     v[1].m[3] = 1.0f;
 
-    v[2].m[0] = *(float *)(ent + 0x38);
-    v[2].m[1] = -*(float *)(ent + 0x3C);
-    v[2].m[2] = *(float *)(ent + 0x40);
+    v[2].m[0] = ent->pt[2][0];
+    v[2].m[1] = -ent->pt[2][1];
+    v[2].m[2] = ent->pt[2][2];
     v[2].m[3] = 1.0f;
 
-    v[3].m[0] = *(float *)(ent + 0x44);
-    v[3].m[1] = -*(float *)(ent + 0x48);
-    v[3].m[2] = *(float *)(ent + 0x4C);
+    v[3].m[0] = ent->pt[3][0];
+    v[3].m[1] = -ent->pt[3][1];
+    v[3].m[2] = ent->pt[3][2];
     v[3].m[3] = 1.0f;
 
     *(int *)(p + 0x10) = 0;
-    type = *(int *)(ent + 0x50) & 0xF;
+    type = ent->kind & 0xF;
     *(int *)(p + 0x0) = type;
     switch (type) {
     case 1:
@@ -142,8 +142,8 @@ char *InitFlagGeo(char *self, char *arg)
            block forces the re-read the ROM does and the buffer words keep
            their pointer types; the other slot reads here are GOBJ_SUB's */
     case 0:
-        *(char **)(cl + 0x14) = iosMallocDebug(ios_partition_sugipon, strlen(ent) + 1, __FILE__, __LINE__);
-        strcpy(*(char **)(cl + 0x14), ent);
+        *(char **)(cl + 0x14) = iosMallocDebug(ios_partition_sugipon, strlen(ent->name) + 1, __FILE__, __LINE__);
+        strcpy(*(char **)(cl + 0x14), ent->name);
 
 
         _InterVectorXYZ((char *)GOBJ_SUB(self) + 0xA0, &v[0], &v[1], 0.5f);
@@ -169,8 +169,8 @@ char *InitFlagGeo(char *self, char *arg)
 
 
     case 4:
-        *(char **)(cl + 0x14) = iosMallocDebug(ios_partition_sugipon, strlen(ent) + 1, __FILE__, __LINE__);
-        strcpy(*(char **)(cl + 0x14), ent);
+        *(char **)(cl + 0x14) = iosMallocDebug(ios_partition_sugipon, strlen(ent->name) + 1, __FILE__, __LINE__);
+        strcpy(*(char **)(cl + 0x14), ent->name);
         /* 179 and 191 index v, the walking pointer being loop.c's giv (the
            ROM initialises it after gcse's preheader insertions); 191 and 196
            count with j, which the ROM keeps in a register of its own apart

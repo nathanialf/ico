@@ -1,5 +1,6 @@
 #include "debug.h"
 #include "motionFileManager.h"
+#include "motionOrientManager.h"
 #include <eekernel.h>
 
 /* .sbss, owned by motionFileManager.o and reached only from this file
@@ -11,13 +12,9 @@ static int motionMemorySize;
 
 static int motionMemorySizeStatic2;
 
-typedef struct {
-    char pad[0x134];
-    int node_id;
-    char pad2[0x194 - 0x138];
-} MotFileRec;
-
-extern MotFileRec motionKind[];
+/* kept local: motionOrientManager.h reaches ico2/fumi's TUs through
+   typedef.h, and commonact.c declares the table char [] */
+extern const MotionDef motionKind[];
 
 /* every motion's loaded data, indexed by motion number (MAIN.MAP global);
    charFileManager fills the entries, the resets clear them */

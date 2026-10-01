@@ -515,10 +515,6 @@ void tex_transRegister(CdvdRec *t)
     dl_CloseDma();
 }
 
-extern int tex_transVramDirectTex(Tim2Picture *pic, CdvdRec *t, int levels, int lv);
-extern int tex_transVramClutTex(Tim2Picture *pic, CdvdRec *t, int levels, int lv);
-extern void tex_setTexReg(Tim2Picture *pic, CdvdRec *t, int levels, int lv, int clut);
-
 /* "FALSE" */
 
 int tex_transTM2(Tim2Picture *pic, CdvdRec *t, int id, int pri)
@@ -779,8 +775,6 @@ static inline void texInitMipLevels(Tim2Picture *pic, CdvdRec *t)
         t->lv[i].dbw = dbw;
     }
 }
-
-extern void tex_setRegisters(Tim2Picture *pic, CdvdRec *t);
 
 /* "FALSE" */
 
@@ -1086,9 +1080,6 @@ void tex_makeTexturePacket(void *file, CdvdRec *t)
     }
 }
 
-/* kept local: int (char *, const char *, ...) here, int (void *, int, ...) in stdio.h */
-extern int sprintf(char *buf, const char *fmt, ...);
-
 /* "%s" */
 
 /* listing rows 1444-1458 and 1564-1578: the same trimming code, written out in
@@ -1116,8 +1107,6 @@ static inline void texTrimName(char *name)
         }
     }
 }
-
-extern void tex_makeTexturePacket(void *pkt, CdvdRec *t);
 
 /* "1:%s\n" */
 
@@ -1197,9 +1186,6 @@ void *pkt;
     return no;
 }
 
-/* kept local: int (char *, const char *, ...) here, int (void *, int, ...) in stdio.h */
-extern int sprintf(char *buf, const char *fmt, ...);
-
 /* "%s" */
 /* "%s.tm2" */
 
@@ -1272,12 +1258,6 @@ typedef struct TexColor {
     unsigned char a;
 } TexColor;
 
-/* kept local: agrees with GifPacket.h, which this TU does not include (gif_SpriteSensitiveOrg differs) */
-extern void gif_StartPacketPri(int pri);
-/* kept local: agrees with GifPacket.h, which this TU does not include (gif_SpriteSensitiveOrg differs) */
-extern void gif_SetGsReg(long long reg, long long val);
-/* kept local: agrees with GifPacket.h, which this TU does not include (gif_SpriteSensitiveOrg differs) */
-extern void gif_EndPacket(void);
 /* kept local: agrees with GifPacket.h, which this TU does not include (gif_SpriteSensitiveOrg differs) */
 extern void gif_SetZTest(int on);
 /* kept local: agrees with GifPacket.h, which this TU does not include (gif_SpriteSensitiveOrg differs) */
@@ -2213,7 +2193,7 @@ short tex_GetVramFreeAddress(int a0)
     return vramPri[a0].f0;
 }
 
-void tex_UpdateMipMapLevel(void)
+void tex_UpdateMipMapLevel(float lv)
 {
     int i;
     for (i = 0; i < texCount; i++) {

@@ -2,9 +2,9 @@
 #include "motionManager2.h"
 #include "lodManager.h"
 
-/* The layout-name table src/sceneManager.c and src/gamesys.c also index with
-   0x64-byte records. */
-extern char objKindData[];
+/* kept local: typedef.h holds the record but no declaration of the table,
+   which every reader declares itself */
+extern ObjKindEnt objKindData[];
 
 /* Two parallel node tables indexed by the LOD level. */
 /* lodManager.o's whole .data run.  Two node lists and the two parallel
@@ -35,7 +35,7 @@ void SetLodLevel(GObj *self, int lv)
         /* %s: the LOD of "%s" was set to "%s" */
         debug_StdPrintfDummy(
             "%s: \"\033[36m%s\033[m\"のLODが\"\033[36m%s\033[m\"に設定されました\n", __FILE__,
-            objKindData + n * 0x64, lodNameTable[lv]);
+            objKindData[n].name, lodNameTable[lv]);
     }
     SetMotionBlendlessNode(self, lodNodeTable[lv]);
     p = *(char **)(((char *)self) + 0x15C);

@@ -1,17 +1,3 @@
-typedef struct {  /* field names derived */
-    int model;    /* 0x00, the model id, 0x610 for none */
-    int particle; /* 0x04, the particle object, -1 for none */
-    float life;
-    float float0C;
-    float scale; /* 0x10 */
-    float dodge;
-    int paraIndex : 8;
-    unsigned int flyType : 2;
-    unsigned int battleType : 2;
-} EnemyDef;
-
-extern EnemyDef D_00624880[];
-
 #include "typedef.h"
 #include "enemy.h"
 #include "sugiCommon.h"
@@ -79,7 +65,7 @@ static float offsetMatrix[4][4] = {
 typedef struct {
     int kind;                 /* 0x00 */
     int ctr;                  /* 0x04, setEnemyObject's randomiser state */
-    int def;                  /* 0x08, the D_00624880 row */
+    int def;                  /* 0x08, the enemyKind row */
     int padC;                 /* 0x0C */
     int *particle;            /* 0x10 */
     int *broken;              /* 0x14 */
@@ -212,19 +198,19 @@ retry:
         goto retry;
     }
     p = sub->nodes;
-    sc = D_00624880[kind].scale;
+    sc = enemyKind[kind].scale;
     p->scale[2] = sc;
     p->scale[1] = sc;
     p->scale[0] = sc;
     w->scale = sc;
-    obj = D_00624880[kind].model;
+    obj = enemyKind[kind].model;
     if (obj != 0x610) {
         *(int *)&GOBJ_SUB(self)->model = GetPObjAddress(obj);
         GOBJ_SUB(self)->modelId = obj;
         debug_StdPrintfDummy("%p\n", GOBJ_SUB(self)->model);
         w->loaded = 1;
     }
-    pid = D_00624880[kind].particle;
+    pid = enemyKind[kind].particle;
     if (pid != -1) {
         setEnemyParticleObject(self, pid);
     }
@@ -532,7 +518,7 @@ void *InitEnemyGeo(GObj *self, char *param)
     w->float50 = 1.0f;
     kind = enemyInitPartsList(self, param);
     w->def = kind;
-    w->float50 = D_00624880[kind].float0C;
+    w->float50 = enemyKind[kind].float0C;
     InitMotionOrient(self, 0x84A, 0x967, 0x18, 0x24, 0x342);
     no = enemyVariation;
     *(int *)(SUBOF(self) + 0x558) = no;
@@ -802,27 +788,27 @@ void SetEnemyWingRatio(GObj *a0, float f)
 
 int CanThisEnemyFly(GObj *a0)
 {
-    return D_00624880[((EnemyWork *)GOBJ_SUB(a0)->work)->def].flyType;
+    return enemyKind[((EnemyWork *)GOBJ_SUB(a0)->work)->def].flyType;
 }
 
 int GetEnemyBattleType(GObj *a0)
 {
-    return D_00624880[((EnemyWork *)GOBJ_SUB(a0)->work)->def].battleType;
+    return enemyKind[((EnemyWork *)GOBJ_SUB(a0)->work)->def].battleType;
 }
 
 float GetEnemyDefLife(GObj *a0)
 {
-    return D_00624880[((EnemyWork *)GOBJ_SUB(a0)->work)->def].life;
+    return enemyKind[((EnemyWork *)GOBJ_SUB(a0)->work)->def].life;
 }
 
 float GetEnemyDefDodgeRange(GObj *a0)
 {
-    return D_00624880[((EnemyWork *)GOBJ_SUB(a0)->work)->def].dodge;
+    return enemyKind[((EnemyWork *)GOBJ_SUB(a0)->work)->def].dodge;
 }
 
 float GetEnemyDefParaIndex(GObj *a0)
 {
-    return D_00624880[((EnemyWork *)GOBJ_SUB(a0)->work)->def].paraIndex;
+    return enemyKind[((EnemyWork *)GOBJ_SUB(a0)->work)->def].paraIndex;
 }
 
 void ResetEnemyPositionInfo(GObj *self)

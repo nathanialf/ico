@@ -69,7 +69,7 @@ idle-mot-def rodata IdlingDef ico2/fumi/include/commonact.h 11 idlingDef@0
 init-func rodata PackKind ico2/fumi/include/cdvd.h 26 initFunc@0
 unmapped_0055FBD0 rodata JimakuFileName ico2/fumi/include/jimaku.h 10 jimakuFileName@0
 look-target-data rodata LookTarget ico2/fumi/include/act-game.h 27 lookTargetData@0
-motion-def rodata MotionRec config/data_schema.pal.h 1148 motionKind@0 hex=modeBits,flags,flags2
+motion-def rodata MotionDef ico2/sugipon/include/motionOrientManager.h 1148 motionKind@0 hex=modeBits.word,flags.word,flags2.word
 motion-ik-eff-def rodata HandModeRow ico2/sugipon/include/handManager.h 7 motionIKEffKind@0
 motion-orient-def rodata MotOriName ico2/sugipon/include/motionOrientManager.h 327 motionOriKind@0
 motion-random-def rodata int config/data_schema.pal.h 100 randomMotionKind@0
@@ -87,12 +87,12 @@ stage-anim-model rodata StgObjDat ico2/seki/include/StageAnimation.h 1377 objTab
 stage-anim rodata StageAnimDef ico2/seki/include/StageAnimation.h 973 stageTable@0
 stream-motion-def rodata StreamMotionFile ico2/sugipon/include/streamMotionManager.h 10 streamMotion@0
 blend-motion-def rodata MotOriSub ico2/sugipon/include/motionOrientManager.h 321 blendMotionKind@0
-enemy-def rodata EnemyDef config/data_schema.pal.h 45 enemyKind@0 hex=attr
+enemy-def rodata EnemyDef ico2/sugipon/include/enemy.h 45 enemyKind@0 hex=attr
 enemy-model-grp rodata EnemyMdlRec ico2/common/include/sceneManager.h 10 enemymodelGroup@0
 enemy-model-tbl rodata int config/data_schema.pal.h 25 enemymodelTable@0
 enemy-random-def rodata EnemyKindRange ico2/sugipon/include/enemy.h 22 randomEnemyKind@0
 enemy-random-variation-def rodata int config/data_schema.pal.h 86 randomEnemyVariationKind@0
-layout-cloth-def rodata LayoutClothDef config/data_schema.pal.h 36 layoutClothDef@0 hex=attr
+layout-cloth-def rodata LayoutClothDef ico2/sugipon/include/attackCheckBoundary.h 36 layoutClothDef@0 hex=attr
 motion-eff-condition-def rodata VibCondEntry ico2/sugipon/include/frameDependSequence.h 51 motEffCondKind@0
 motion-eff-def rodata EffEntry ico2/sugipon/include/frameDependSequence.h 25 motionEffKind@0 hex=flags
 motion-eff-random-def rodata int config/data_schema.pal.h 10 randomEffKind@0

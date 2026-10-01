@@ -2,6 +2,7 @@
 #include "quaternion.h"
 #include "tableSin.h"
 #include <libvu0.h>
+#include "matrixDrive.h"
 
 /* Quadword copies this TU alone issues; the wrappers shared with other
    programmers' trees are in ../common/include/typedef.h.  dst/src are
@@ -27,12 +28,14 @@
 #define LQ16_FROM(p) __asm__ __volatile__("lq $6, 0(%0)" : : "r"(p) : "memory")
 #define SQ16_TO(p) __asm__ __volatile__("sq $6, 0(%0)" : : "r"(p) : "memory")
 
+/* a matrix as UnitRotation keeps it: its translation row moved as one
+   128-bit quadword around the unit fill */
 typedef int Qw128 __attribute__((mode(TI)));
 
-typedef struct {
+typedef struct { /* field names derived */
     char pad[0x30];
-    Qw128 q;
-} MatDrive;
+    Qw128 q; /* 0x30, the translation row */
+} MatDrive;  /* derived name */
 
 /* the TU's one .sdata word (MAIN.MAP matrixDrive.o .sdata 0x4, no symbol): the
    current depth of the matrix stack below */
@@ -52,9 +55,6 @@ void InitMatrixDrive(void)
     InitTableSin();
     InitQuaternionDrive();
 }
-
-/* kept local: matrixDrive.h does not compile in this TU (conflicting types for `UnitRotation') */
-extern void CopyMatrix(void *dst, void *src);
 
 void MatrixDrive_PushMatrix(void)
 {
@@ -141,9 +141,6 @@ void MatrixDrive_ScaleMatrix(float x, float y, float z)
                     scaleWorkMatrix);
 }
 
-/* kept local: matrixDrive.h does not compile in this TU (conflicting types for `UnitRotation') */
-extern float FSqrt(float a0);
-
 void MatrixDrive_TurnViewMatrix(float x, float y, float z)
 {
     float v0[4] = {x, y, z, 1.0f};
@@ -192,9 +189,6 @@ void *MatrixDrive_GetLastMatrix(void)
 {
     return &matrixStack[matrixStackIndex * 0x40 - 0x40];
 }
-
-/* kept local: matrixDrive.h does not compile in this TU (conflicting types for `UnitRotation') */
-extern void CopyVector(void *dst, void *src);
 
 void MatrixDrive_TransMatrixV(void *a0)
 {
@@ -558,8 +552,9 @@ void SubVectorXYZ(void *p0, void *p1, void *p2)
     VU0_LSV(sqc2, 4, 0x0, 4);
 }
 
-void UnitRotation(MatDrive *a0)
+void UnitRotation(void *m)
 {
+    MatDrive *a0 = m;
     Qw128 tmp[1];
     void *p = &a0->q;
     LQ16_FROM(p);
@@ -583,7 +578,7 @@ float FSqrt(float a0)
     VU0_NOREORDER_END();
 }
 
-void VectorLength(void *p0)
+float VectorLength(void *p0)
 {
     VU0_LSV(lqc2, 4, 0x0, 4);
     VU0_V3OP(vmul.xyz, 4, 4, 4);
@@ -597,7 +592,7 @@ void VectorLength(void *p0)
     VU0_NOREORDER_END();
 }
 
-void VectorLengthSquare(void *p0)
+float VectorLengthSquare(void *p0)
 {
     VU0_LSV(lqc2, 3, 0x0, 4);
     VU0_V3OP(vmul.xyz, 3, 3, 3);

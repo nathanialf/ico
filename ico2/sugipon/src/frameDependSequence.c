@@ -25,7 +25,7 @@ static void *fdsWork = 0; /* derived name */
 
 static void *fdsLayout = 0; /* derived name */
 
-static void *fdsRecord = 0; /* derived name */
+static const MotionDef *fdsRecord = 0; /* derived name */
 
 /* the sequence's owner object, held as a char pointer: setSEEnvironment's
    store of it keeps its place behind the owner's display-object reads only as
@@ -299,20 +299,6 @@ void execVibCondition(int no, int *entry)
     }
 }
 
-typedef struct FDSSlot { /* 0x08 */
-    float t;             /* 0x00 */
-    int no;              /* 0x04 */
-} FDSSlot;
-
-typedef struct FDSRecord { /* 0x194 */
-    FDSSlot eff[12];       /* 0x000 */
-    FDSSlot se[12];        /* 0x060 */
-    char _C0[0x30];        /* 0x0C0 */
-    FDSSlot vib[2];        /* 0x0F0 */
-    char _100[0x38];       /* 0x100 */
-    FDSSlot weapon;        /* 0x138 */
-} FDSRecord;
-
 typedef struct FDSFlags { /* 0x74 */
     int vibDone[2];       /* 0x00 */
     int effDone[12];      /* 0x08 */
@@ -321,7 +307,9 @@ typedef struct FDSFlags { /* 0x74 */
     int vibEntry[2];      /* 0x6C */
 } FDSFlags;
 
-extern char motionKind[];
+/* kept local: motionOrientManager.h reaches ico2/fumi's TUs through
+   typedef.h, and commonact.c declares the table char [] */
+extern const MotionDef motionKind[];
 
 /* static helper the listing places at frameDependSequence.c lines 414-421; never
  * emitted out of line, so it has no MAIN.MAP symbol and this name is ours. */
@@ -348,18 +336,18 @@ void ExecFrameDependSequence(GObj *gobj)
     fdsLayout = p;
     fdsWork = w + 0xA0;
     fdsFlags = w + 0x740;
-    fdsRecord = motionKind + *(int *)(p + 0x30) * 0x194;
+    fdsRecord = &motionKind[*(int *)(p + 0x30)];
     fdsVolume = 1.0f;
 
     for (i = 0; i < 12; i++) {
         if (((FDSFlags *)fdsFlags)->seDone[i] == 0) {
-            fireFDSSlot(((FDSRecord *)fdsRecord)->se[i].t, ((FDSRecord *)fdsRecord)->se[i].no, 0,
+            fireFDSSlot(fdsRecord->se[i].t, fdsRecord->se[i].no, 0,
                         &((FDSFlags *)fdsFlags)->seDone[i], execSE);
         }
     }
     for (i = 0; i < 2; i++) {
         if (((FDSFlags *)fdsFlags)->vibDone[i] == 0) {
-            fireFDSSlot(((FDSRecord *)fdsRecord)->vib[i].t, ((FDSRecord *)fdsRecord)->vib[i].no,
+            fireFDSSlot(fdsRecord->vib[i].t, fdsRecord->vib[i].no,
                         &((FDSFlags *)fdsFlags)->vibEntry[i], &((FDSFlags *)fdsFlags)->vibDone[i],
                         execVib);
         }
@@ -367,15 +355,15 @@ void ExecFrameDependSequence(GObj *gobj)
     if (CheckFloorAttribute((GObj *)fdsGObj, 0x40000) == 0) {
         for (i = 0; i < 12; i++) {
             if (((FDSFlags *)fdsFlags)->effDone[i] == 0) {
-                fireFDSSlot(((FDSRecord *)fdsRecord)->eff[i].t, ((FDSRecord *)fdsRecord)->eff[i].no,
-                            0, &((FDSFlags *)fdsFlags)->effDone[i], execEff);
+                fireFDSSlot(fdsRecord->eff[i].t, fdsRecord->eff[i].no, 0,
+                            &((FDSFlags *)fdsFlags)->effDone[i], execEff);
             }
         }
     }
     if (GOBJ_SUB(gobj)->pickedWeapon != 0) {
         if (((FDSFlags *)fdsFlags)->weaponDone == 0) {
-            fireFDSSlot(((FDSRecord *)fdsRecord)->weapon.t, 0, 0,
-                        &((FDSFlags *)fdsFlags)->weaponDone, execWeaponLightOff);
+            fireFDSSlot(fdsRecord->weaponFrame, 0, 0, &((FDSFlags *)fdsFlags)->weaponDone,
+                        execWeaponLightOff);
         }
     }
 }
@@ -408,7 +396,7 @@ static inline int setSEEnvironment(GObj *gobj, int id)
         p = w + 0x470;
         fdsWork = w + 0xA0;
         fdsFlags = w + 0x740;
-        fdsRecord = motionKind + *(int *)(p + 0x30) * 0x194;
+        fdsRecord = &motionKind[*(int *)(p + 0x30)];
         fdsGroup = *(int *)(w + (id << 2) + 0x61C);
         fdsLayout = p;
     } else {

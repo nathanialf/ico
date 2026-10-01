@@ -944,15 +944,9 @@ void DispSkelton(GObj *self, int a1)
 
 /* the motion record table SlopeIKControl indexes by the IK block's 0x30 word;
    the two slope rates are the only fields this TU reaches. */
-typedef struct {
-    char pad0[0x160];
-    float rate0; /* 0x160 */
-    char pad164[0x168 - 0x164];
-    float rate1; /* 0x168 */
-    char pad16C[0x194 - 0x16C];
-} SlopeRec;
-
-extern SlopeRec motionKind[];
+/* kept local: motionOrientManager.h reaches ico2/fumi's TUs through
+   typedef.h, and commonact.c declares the table char [] */
+extern const MotionDef motionKind[];
 
 /* dev lines 1175-1196 and 1201-1218: two helpers with no out-of-line copy in
    the listing, so the names here are ours. */
@@ -1359,9 +1353,6 @@ typedef struct {
     unsigned char s;
     unsigned short a, b, c;
 } MotElemS;
-
-/* kept local: motionManager2.h does not compile in this TU (conflicting types for `CopyMotionWithNodeHrc') */
-extern void _getS16MotRotElem(void *dst, void *src);
 
 /* INTERIM (see the getSkeltonFocusNode note below): the listing inlines
    _getMotRotElem (dev line 1667) into _getMotion, so it is `inline` in the dev's
@@ -2142,9 +2133,6 @@ void GetMotionRootPos(
     float *src = (float *)(*(int *)((char *)a1 + 4) + idx * 0xC);
     getRootPos(dst, src);
 }
-
-/* kept local: motionManager2.h does not compile in this TU (conflicting types for `CopyMotionWithNodeHrc') */
-extern void _getMotion(void *dst, void *m, int node, int idx);
 
 void GetMotion(char *dst, float *root, void *motion, int idx, unsigned char *mask, int count,
                char *hrc)

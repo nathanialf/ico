@@ -259,15 +259,10 @@ void GetSlerpQuaternionNoRegularize(void *out, void *qa, void *qb, float t)
     _AddVector(out, out, tq);
 }
 
-/* kept local: declaring it only through quaternion.h moves this TU's bytes */
-extern void GetSlerpQuaternionNoRegularize();
-
-/* The three trailing arguments are never named here: the forwarder leaves them
- * in $5, $6 and $f12 for GetSlerpQuaternionNoRegularize, which is why the
- * kept-local declaration above is unprototyped. */
+/* The slerp, then the result put back to unit length. */
 void GetSlerpQuaternion(void *out, void *qa, void *qb, float t)
 {
-    GetSlerpQuaternionNoRegularize(out);
+    GetSlerpQuaternionNoRegularize(out, qa, qb, t);
     RegularizeQuaternion(out);
 }
 

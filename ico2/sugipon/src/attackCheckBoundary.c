@@ -200,36 +200,6 @@ typedef struct AcbMgr {
     AcbEntry *list; /* 0x0C */
 } AcbMgr;
 
-/* RECONSTRUCTION: the attribute word of a cloth layout record has a type of
-   its own. The ROM's schedule of InitAttackCheckBoundaryManagerGeo loads
-   rec->attr (line 61) above the roster store `mgr->list[i].obj = g` (line
-   214), while that store must still precede the first sub-object chase
-   (line 62) and the attribute store must force the second chase (line 218)
-   to reload; with the roster handle and both chases int (the engine's
-   int-handle reading, GOBJ_SUB), only an attribute load outside int's alias
-   set is free to rise (the compiler's sched2 dump gives int set 2 and this
-   enum its own set). Only the type is attested: the table holds 96 and 128
-   here and the developers' enumerator names are not recoverable. */
-typedef enum { CLOTH_ATTR_NONE = 0 } ClothAttr;
-
-/* RECONSTRUCTION: one record of layoutClothDef (MAIN.MAP line 6655, member
-   layout-cloth-def.o, .rodata; the retail table is 36 records, 0xEA0 bytes).
-   The name string and the four corner points are the table's own bytes; this
-   TU reads the first two corners, the attribute and the boundary count, and
-   InitFlagGeo reads the rest. */
-typedef struct {    /* field names derived */
-    char name[32];  /* 0x00 */
-    float pt[4][3]; /* 0x20 */
-    int kind;       /* 0x50, the cloth type in the low four bits (InitFlagGeo's switch) */
-    ClothAttr attr; /* 0x54 */
-    int rows;       /* 0x58, the cloth's rows (ClothCfg num) */
-    int count;      /* 0x5C, the columns, and the boundaries a manager lays out */
-    float length;   /* 0x60, the cloth's length, shared out over the columns */
-    float weight;   /* 0x64, the fall added to each point a step (ClothCfg weight) */
-} LayoutClothDef;
-
-extern const LayoutClothDef layoutClothDef[];
-
 /* attackCheckBoundary.o's own 8-byte .sdata (MAIN.MAP line 7305, unnamed
    there): the blank roster entry each slot starts from */
 static AcbEntry acbBlankEntry = {0, 0}; /* derived name */

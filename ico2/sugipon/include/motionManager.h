@@ -79,6 +79,13 @@ typedef struct {
     float b;
 } MotLimAng; /* derived name */
 
+/* RECONSTRUCTION, the type and enumerator names are ours: the 0x360 word of the
+ * root block (MotRoot handIK) holds the table's 2-bit mode (bits 26-27 of the 0x188 word).
+ * The ROM stores it ahead of the int store to the motion control while every int store to
+ * the block stays behind that one, so its lvalue has an alias set of its own:
+ * an enumerated mode, as motionOrientManager.c's debug_bar_flag. */
+enum MotOriShiftMode { MOTORI_SHIFT_0, MOTORI_SHIFT_1, MOTORI_SHIFT_2, MOTORI_SHIFT_3 };
+
 /* RECONSTRUCTION, names ours: the motion work's root block (the motion work
    + 0xA0, up to its motion-control block at + 0x470), the record skelRoot
    points at.  The position, translation, rotation and the last position are
@@ -165,14 +172,16 @@ struct MotRoot {
     int handTurnIK;   /* 0x31C, the motion turns toward the hand targets (1) */
     int fieldWall;    /* 0x320, the motion clips against field walls */
     int fuchiMode;    /* 0x324, the edge reaction mode */
-    char _pad328[0x4];
+    int word328;      /* 0x328, the motion record's word104 */
     int avgWallPlane; /* 0x32C, the motion averages four wall planes */
     int flag330;      /* 0x330, the motion drops node 4's own turn */
     int flag334;      /* 0x334, the motion drops node 6's own turn */
     float radius;     /* 0x338, the clip radius */
-    char _pad33C[0x14];
+    float radiusTo;   /* 0x33C, the clip radius a shift eases to */
+    float radiusFrom; /* 0x340, the clip radius it eases from */
+    char _pad344[0xC];
     float cliffPlane[4]; /* 0x350, the plane at the cliff floor's height */
-    int handIK;          /* 0x360, nonzero while HandManager runs the hand IK */
+    enum MotOriShiftMode handIK; /* 0x360, nonzero while HandManager runs the hand IK */
     int stepNode;        /* 0x364, the focus node the step solution walks on */
     char _pad368[0x8];
     float holdPoint[4]; /* 0x370, the point the hang hold is measured from */

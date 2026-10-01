@@ -58,65 +58,13 @@ typedef union MotWorkRef {
 
 #define MOWORK(self) (((MotWorkRef *)((char *)(self) + 0x15C))->sub)
 
-typedef struct MotOriTrigEnt {
-    /* 0x000 */ char pad000[0xC0];
-    /* 0x0C0 */ char name[0x30];
-    /* 0x0F0 */ char pad0F0[0x14];
-    /* 0x104 */ int f104;
-    /* 0x108 */ int f108;
-    /* 0x10C */ int f10C;
-    /* 0x110 */ int f110;
-    /* 0x114 */ int f114;
-    /* 0x118 */ int f118;
-    /* 0x11C */ int f11C;
-    /* 0x120 */ char pad120[0x10];
-    /* 0x130 */ int f130;
-    /* 0x134 */ char pad134[0x8];
-    /* 0x13C */ int f13C;
-    /* 0x140 */ int f140;
-    /* 0x144 */ int f144;
-    /* 0x148 */ int f148;
-    /* 0x14C */ int f14C;
-    /* 0x150 */ int f150;
-    /* 0x154 */ int f154;
-    /* 0x158 */ char pad158[0x4];
-    /* 0x15C */ float f15C;
-    /* 0x160 */ char pad160[0x4];
-    /* 0x164 */ float f164;
-    /* 0x168 */ char pad168[0x4];
-    /* 0x16C */ int f16C;
-    /* 0x170 */ int f170;
-    /* 0x174 */ float f174;
-    /* 0x178 */ int f178;
-    /* 0x17C */ int f17C;
-    /* 0x180 */ char pad180[0x8];
-    /* 0x188 */ unsigned int : 26;
-    unsigned int f188_26 : 2;
-    unsigned int f188_28 : 2;
-    unsigned int f188_30 : 2;
-    /* 0x18C */ unsigned int : 17;
-    unsigned int f18C_17 : 1;
-    unsigned int : 1;
-    unsigned int f18C_19 : 1;
-    unsigned int f18C_20 : 1;
-    unsigned int : 1;
-    unsigned int f18C_22 : 1;
-    unsigned int f18C_23 : 1;
-    unsigned int : 3;
-    unsigned int f18C_27 : 1;
-    unsigned int : 4;
-    /* 0x190 */ unsigned int : 9;
-    unsigned int f190_9 : 1;
-    unsigned int : 22;
-} MotOriTrigEnt;
-
 /* The 0x470 motion work area is motionManager.h's MotCtrl.  UpdateFrameCounter
    needs the record form because a field reference and an `extern int` are in
    different alias sets, which is what lets the ROM's motionFrameUpdate load
    schedule above the two preceding work-area stores. */
 
 /* .rodata at 0x55FE58 in the ROM: the trigger definition table is read-only. */
-extern const MotOriTrigEnt motionKind[];
+extern const MotionDef motionKind[];
 
 /* the seventeen fixed captions the orientation debug window prints, one per
    trigger kind, plus the window's own format at 0x6201C8 */
@@ -130,7 +78,7 @@ void orientDebug(void *self, int idx, int y)
     char buf[256];
     MotOriName name;
 
-    switch (motionKind[MOWORK(self)->motion].f118) {
+    switch (motionKind[MOWORK(self)->motion].rootUpdateMode) {
     default:
     case 12:
     case 13:
@@ -197,7 +145,7 @@ void orientDebug(void *self, int idx, int y)
 
 static inline void checkMotionKind(int i, int j)
 {
-    if (motionKind[i].f178 != 0x140) {
+    if (motionKind[i].blendKind != 0x140) {
         char buf[0x100];
 
         /* EUC-JP: "the node-blending motion (%s) uses a node-blending motion again" */
@@ -216,11 +164,11 @@ int GetNbMotionFrames(int id)
     int m;
     int n;
 
-    if (motionKind[id].f178 == 0x140) {
+    if (motionKind[id].blendKind == 0x140) {
         return *motionTable[id];
     }
-    m = blendMotionKind[motionKind[id].f178].motion;
-    n = blendMotionKind[motionKind[id].f178].frames;
+    m = blendMotionKind[motionKind[id].blendKind].motion;
+    n = blendMotionKind[motionKind[id].blendKind].frames;
     checkMotionKind(m, id);
     if (n != -1) {
         return n;
@@ -232,12 +180,12 @@ float GetMotionPlaySpeedRatio(int id)
 {
     int m;
 
-    if (motionKind[id].f178 == 0x140) {
-        return motionKind[id].f174;
+    if (motionKind[id].blendKind == 0x140) {
+        return motionKind[id].playSpeedRatio;
     }
-    m = blendMotionKind[motionKind[id].f178].motion;
+    m = blendMotionKind[motionKind[id].blendKind].motion;
     checkMotionKind(m, id);
-    return motionKind[m].f174;
+    return motionKind[m].playSpeedRatio;
 }
 
 void execFrameTrigger(void *self)
@@ -245,7 +193,7 @@ void execFrameTrigger(void *self)
     struct MotCtrl *w = (struct MotCtrl *)((char *)MOWORK(self) + 0x470);
     float t;
 
-    t = (float)motionKind[w->motion].f144;
+    t = (float)motionKind[w->motion].triggerStart;
     if (0.0f <= t) {
         if (w->trigger1Done == 0) {
             if (t < w->animFrame) {
@@ -258,7 +206,7 @@ void execFrameTrigger(void *self)
             w->trigger1 = 0;
         }
     }
-    t = (float)motionKind[w->motion].f14C;
+    t = (float)motionKind[w->motion].trigger2Start;
     if (0.0f <= t) {
         if (w->trigger2Done != 0) {
             w->trigger2 = 0;
@@ -286,7 +234,7 @@ static __inline__ void clearFrameTriggerState(void *self)
  * shiftMotionData and UpdateFrameCounter both inline them. */
 static __inline__ int checkFrameInRange(int mot, float t)
 {
-    if ((float)motionKind[mot].f144 <= t && t <= (float)motionKind[mot].f148) {
+    if ((float)motionKind[mot].triggerStart <= t && t <= (float)motionKind[mot].triggerEnd) {
         return 1;
     }
     return 0;
@@ -294,7 +242,7 @@ static __inline__ int checkFrameInRange(int mot, float t)
 
 static __inline__ int checkFrameInRange2(int mot, float t, float t2)
 {
-    if ((float)motionKind[mot].f14C <= t2 && t <= (float)motionKind[mot].f154) {
+    if ((float)motionKind[mot].trigger2Start <= t2 && t <= (float)motionKind[mot].trigger2End) {
         return 1;
     }
     return 0;
@@ -302,15 +250,15 @@ static __inline__ int checkFrameInRange2(int mot, float t, float t2)
 
 static __inline__ int checkMotionShiftRange(int mot, float t, float t2)
 {
-    MotOriTrigEnt *e = &motionKind[mot];
-    float a = (float)e->f13C;
-    float b = (float)e->f140;
+    const MotionDef *e = &motionKind[mot];
+    float a = (float)e->shiftStart;
+    float b = (float)e->shiftLength;
     float ab = a + b;
 
     if (a < 0.0f || b < 0.0f) {
         return 0;
     }
-    if (e->f18C_19) {
+    if (e->flags.bits.shiftInside) {
         if (a < t2 && t < ab) {
             return 1;
         }
@@ -337,10 +285,10 @@ int UpdateFrameCounter(void *self)
     w->frameEnd = 0;
     w->loopFlag = 0;
     if (motionFrameUpdate == 1) {
-        t = w->speedRatio * motionKind[w->motion].f174 * w->playRate *
+        t = w->speedRatio * motionKind[w->motion].playSpeedRatio * w->playRate *
             (60.0f / (float)((60 - systemStatus[0] * 10) / systemStatus[1]) * 0.5f);
         if (systemStatus[0] != 0) {
-            t = t * motionKind[w->motion].f15C;
+            t = t * motionKind[w->motion].palSpeedRatio;
         }
         if (w->waterDrag != 0) {
             switch (w->rootUpdateMode) {
@@ -364,14 +312,14 @@ int UpdateFrameCounter(void *self)
         }
         w->lastFrame = w->animFrame;
         w->animFrame = w->animFrame + t;
-        switch (motionKind[w->motion].f150) {
+        switch (motionKind[w->motion].playMode) {
         case 1:
             if ((float)(nf - 1) <= w->animFrame) {
                 w->animFrame = w->animFrame - (float)(nf - 1);
-                w->frameEnd = motionKind[w->motion].f150;
+                w->frameEnd = motionKind[w->motion].playMode;
                 InitFrameDependSequence(m + 0x740);
                 clearFrameTriggerState(self);
-                if (motionKind[w->motion].f18C_20 != 0) {
+                if (motionKind[w->motion].flags.bits.loop != 0) {
                     w->loopFlag = 1;
                 }
             }
@@ -564,18 +512,11 @@ static __inline__ int searchAltMotion(int req)
     return req;
 }
 
-/* RECONSTRUCTION, the type and enumerator names are ours: the 0x360 word of the
- * motion block holds the table's 2-bit mode (bits 26-27 of the 0x188 word).
- * The ROM stores it ahead of the int store to w->f_A4 while every int store to
- * the block stays behind that one, so its lvalue has an alias set of its own:
- * an enumerated mode, as debug_bar_flag below. */
-enum MotOriShiftMode { MOTORI_SHIFT_0, MOTORI_SHIFT_1, MOTORI_SHIFT_2, MOTORI_SHIFT_3 };
-
 void shiftMotionData(int a0, int a1, int a2, int a3)
 {
     char *m = (char *)*(int *)(a0 + 0x15C);
     struct MotCtrl *w = (struct MotCtrl *)(m + 0x470);
-    char *mw = m + 0xA0;
+    struct MotRoot *mw = (struct MotRoot *)(m + 0xA0);
     int mot;
     float frame;
 
@@ -594,35 +535,35 @@ void shiftMotionData(int a0, int a1, int a2, int a3)
     w->shiftFrame = (int)w->animFrame;
     w->blendFrames =
         (int)((float)a3 * ((float)((60 - systemStatus[0] * 10) / systemStatus[1]) / 60.0f));
-    *(int *)(mw + 0x180) = -1;
-    *(int *)(mw + 0x310) = motionKind[mot].f10C;
-    *(int *)(mw + 0x308) = motionKind[mot].f114;
-    *(int *)(mw + 0x30C) = motionKind[mot].f110;
-    *(enum MotOriShiftMode *)(mw + 0x360) = motionKind[mot].f188_26;
-    *(int *)(mw + 0x314) = motionKind[mot].f18C_23;
-    *(float *)(mw + 0x340) = *(float *)(mw + 0x338);
-    *(float *)(mw + 0x33C) = motionKind[mot].f164 < 5.0f ? 5.0f : motionKind[mot].f164;
-    *(int *)(mw + 0x318) = motionKind[mot].f170;
-    *(int *)(mw + 0x31C) = motionKind[mot].f17C;
-    *(int *)(mw + 0x324) = motionKind[mot].f188_28;
-    *(int *)(mw + 0x320) = motionKind[mot].f16C;
-    *(int *)(mw + 0x328) = motionKind[mot].f104;
-    *(int *)(mw + 0x32C) = motionKind[mot].f18C_22;
-    *(int *)(mw + 0x330) = motionKind[mot].f190_9;
+    mw->standNode = -1;
+    mw->slopeIK = motionKind[mot].slopeIK;
+    mw->noStepSearch = motionKind[mot].noStepSearch;
+    mw->gravity = motionKind[mot].gravity;
+    mw->handIK = motionKind[mot].modeBits.bits.handIK;
+    mw->stairStep = motionKind[mot].flags.bits.stairStep;
+    mw->radiusFrom = mw->radius;
+    mw->radiusTo = motionKind[mot].clipRadius < 5.0f ? 5.0f : motionKind[mot].clipRadius;
+    mw->lookIK = motionKind[mot].lookIK;
+    mw->handTurnIK = motionKind[mot].handTurnIK;
+    mw->fuchiMode = motionKind[mot].modeBits.bits.fuchiMode;
+    mw->fieldWall = motionKind[mot].fieldWall;
+    mw->word328 = motionKind[mot].word104;
+    mw->avgWallPlane = motionKind[mot].flags.bits.avgWallPlane;
+    mw->flag330 = motionKind[mot].flags2.bits.dropNode4Turn;
     w->updateModeChanged = 0;
     if (w->keepUpdateMode == 0) {
-        if (w->rootUpdateMode != motionKind[mot].f118) {
+        if (w->rootUpdateMode != motionKind[mot].rootUpdateMode) {
             w->updateModeChanged = 1;
-            w->rootUpdateMode = motionKind[mot].f118;
+            w->rootUpdateMode = motionKind[mot].rootUpdateMode;
         }
     }
     w->parallelEnded = 0;
     if (w->parallel != 0) {
-        if (motionKind[mot].f18C_17 == 0) {
+        if (motionKind[mot].flags.bits.parallel == 0) {
             w->parallelEnded = 1;
         }
     }
-    w->parallel = motionKind[mot].f18C_17;
+    w->parallel = motionKind[mot].flags.bits.parallel;
     w->motion = mot;
     w->request = a2;
     w->blendCount = 1;
@@ -637,9 +578,9 @@ void shiftMotionData(int a0, int a1, int a2, int a3)
     w->shifted = 1;
     w->frameEnd = 0;
     w->contactFlags = 0;
-    if (motionKind[mot].f18C_20 != 0) {
+    if (motionKind[mot].flags.bits.loop != 0) {
         w->loopFlag = 1;
-        if (motionKind[w->lastMotion].f18C_20 == 0) {
+        if (motionKind[w->lastMotion].flags.bits.loop == 0) {
             w->posReserve = 0;
         }
     } else {
@@ -677,7 +618,7 @@ void shiftMotionOrientEndFunc(void *self)
         return;
     }
 ok:
-    if (motionKind[w->motion].f130 == 0) {
+    if (motionKind[w->motion].wallFeedback == 0) {
         return;
     }
     FeedbackWallWorkInfoToBrainSystem(self);
@@ -727,9 +668,9 @@ void shiftMotionOrientBeginFunc(void *self, int a1, int a2, int a3)
     ang = 0;
     v.f[2] = 1.0f;
     if (*(int *)(w + 0x68) != 0 && *(int *)(w + 0x68) != 6) {
-        int kind = motionKind[*(int *)(w + 0x94)].f108;
+        int kind = motionKind[*(int *)(w + 0x94)].adjustAngle;
 
-        if (motionKind[*(int *)(w + 0x30)].f18C_27 || kind != 0) {
+        if (motionKind[*(int *)(w + 0x30)].flags.bits.adjustRoot || kind != 0) {
             sceVu0UnitMatrix(MatrixDrive_GetMatrix());
             if (kind != 0 && kind != 1) {
                 ang = (short)(kind * 32768 / 180);
@@ -1002,7 +943,7 @@ void getNodeBlendedFloatingMotion(void *dst, float *root, int id, int n, int a4,
     int prev = -1;
     void *skel = *(void **)((char *)MOWORK(self) + 0x8C);
 
-    for (i = 0, j = motionKind[id].f178; blendMotionKind[j].motion != 0x47B; i++, j++) {
+    for (i = 0, j = motionKind[id].blendKind; blendMotionKind[j].motion != 0x47B; i++, j++) {
         int node = blendMotionKind[j].motion;
 
         checkMotionKind(node, id);
@@ -1053,7 +994,7 @@ extern void SlopeIKControl(void *self, void *m, float *v, float *r, int n);
  * repo's spelling. */
 static inline void getMotionRootPos(char *w, float *v)
 {
-    int m = blendMotionKind[motionKind[*(int *)(w + 0x30)].f178].motion;
+    int m = blendMotionKind[motionKind[*(int *)(w + 0x30)].blendKind].motion;
     float t = *(float *)(w + 0x40);
 
     checkMotionKind(m, *(int *)(w + 0x30));
@@ -1109,7 +1050,7 @@ void getMotionGeometry(void *self)
     float scale = *(float *)((char *)MOWORK(self)->nodes + 0x20);
     int *md = motionTable[w->motion];
 
-    if (motionKind[w->motion].f178 == 0x140) {
+    if (motionKind[w->motion].blendKind == 0x140) {
         assertMotionLoaded(w, md);
         assertMotionNodeCount(w, md, n);
     }
@@ -1119,7 +1060,7 @@ void getMotionGeometry(void *self)
         Vec16 v;
         Vec16 rv;
 
-        if (motionKind[w->motion].f178 == 0x140) {
+        if (motionKind[w->motion].blendKind == 0x140) {
             GetFloatingMotion(mot, w->animFrame, v.f, md, n, tbl, p);
             GetFloatingMotionRootPos(rv.f, md, w->lastFrame);
         } else {
@@ -1225,7 +1166,7 @@ void getMotionGeometry(void *self)
             if (debug_motion_interporate != 0) {
                 flag = w->blendFrames >= w->blendCount;
             }
-            k = motionKind[w->motion].f11C;
+            k = motionKind[w->motion].stepNode;
             if (flag != 0) {
                 float s = (float)w->blendCount / (float)w->blendFrames;
 
@@ -1309,7 +1250,7 @@ void getShapeGeometry(void *self)
 {
     char *m = (char *)*(int *)((char *)self + 0x15C) + 0x470;
 
-    if (motionKind[*(int *)(m + 0x30)].f178 == 0x140) {
+    if (motionKind[*(int *)(m + 0x30)].blendKind == 0x140) {
         void *mot = motionTable[*(int *)(m + 0x30)];
 
         if (CheckMotionIncludeFacialData(mot) == 0) {
@@ -1380,8 +1321,6 @@ void getShapeGeometry(void *self)
 
 /* kept local: int (void *, float *, void *, int) here, int (char *, float *, char *, char *) in motionManager2.h */
 extern int GetStreamMotion(void *dst, float *v, void *sm, int n);
-/* kept local: void (void *, void *) here, void (GObj *, int) in motionManager2.h */
-extern void DispSkelton(void *self, void *m);
 
 /* Listing lines 1640-1647: a static inline both stream-geometry functions absorb
  * (once and twice), with no symbol and no census row, so its name is not on
@@ -1418,9 +1357,6 @@ void getStreamMotionGeometry(void *self, void *sm)
 /* kept local: this declaration is identical to the motionManager2.h prototype, but the
  * TU cannot include that header while its GetStreamMotion, DispSkelton and
  * FeedbackWallWorkInfoToBrainSystem uses still need declarations of their own. */
-/* kept local: agrees with motionManager2.h, which this TU does not include (CopyMotionWithNodeHrc, DispSkelton differ) */
-extern void GetBlendedMotion(void *dst, float *dv, void *m1, float *v1, void *m0, float *v0,
-                             float t, int tbl, int n);
 
 void getStreamBlendMotionGeometry(void *self, void *sm0, void *sm1, float t)
 {
@@ -1624,8 +1560,7 @@ inline void InitMotionOrient(void *self, int a1, int a2, int a3, int a4, int a5)
 
 inline unsigned int GetCurrentMotionDirectionAdjustFlag(GObj *a0)
 {
-    char *rec = (char *)motionKind + GOBJ_SUB(a0)->motion * 0x194;
-    return *(unsigned int *)(rec + 0x188) >> 30;
+    return motionKind[GOBJ_SUB(a0)->motion].modeBits.bits.dirAdjust;
 }
 
 inline int ExecuteSlipProc(GObj *a0)

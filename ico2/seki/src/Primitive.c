@@ -313,8 +313,6 @@ void prim_makePacketMesh3D(Mesh3D *m, void *pkt, int uv)
     }
 }
 
-extern void prim_makePacketMesh3D(Mesh3D *m, void *pkt, int n);
-
 Mesh3D *prim_InitMesh3D(int nx, int ny, int rot, long long col, unsigned int col2, int lit)
 {
     Mesh3D *m;
@@ -471,8 +469,6 @@ void prim_makeNormal(Mesh3D *m)
     }
     _PopCurrentMatrix();
 }
-
-extern void prim_makeNormal(Mesh3D *m);
 
 void prim_UpdateMesh3D(Mesh3D *m, int flags, int idx)
 {

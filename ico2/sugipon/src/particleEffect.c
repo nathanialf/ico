@@ -620,9 +620,6 @@ void SetParticleEffectGeometry(int a0, void *a1, void *a2)
     }
 }
 
-/* kept local: agrees with particleEffect.h, which this TU does not include (SetParticleEffectByPartition differs) */
-extern int execParticleEffect(void *a0);
-
 void SetParticleEffectUpperLimit(int no, float f)
 {
     PEGeo *o;
@@ -789,8 +786,6 @@ void ExecParticleEffects(void)
     }
 }
 
-extern void dispParticleEffect(PEGeo *geo);
-
 void DispParticleEffects(void)
 {
     int i;
@@ -814,10 +809,6 @@ void SetParticleEffectPauseFlag(int a0, int a1)
 {
     particleEffects[a0].pause = a1;
 }
-
-/* kept local: PEVector * and PEQuaternion * here, void * in particleEffect.h */
-extern int SetParticleEffectByPartition(int no, PEVector *pos, PEQuaternion *quat,
-                                        struct IosMemPart *part);
 
 int SetParticleEffect(int no, PEVector *pos, PEQuaternion *quat)
 {

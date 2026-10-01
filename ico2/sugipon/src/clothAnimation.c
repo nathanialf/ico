@@ -1945,9 +1945,9 @@ void getCloth4D_postProcess(int *a0, int **a1)
     }
 }
 
-/* kept local: clothAnimation.h does not compile in this TU (conflicting types for `GetChainAnimation') */
-extern void getCloth4D(void *a0, int **rows);
-extern char motionKind[];
+/* kept local: motionOrientManager.h reaches ico2/fumi's TUs through
+   typedef.h, and commonact.c declares the table char [] */
+extern const MotionDef motionKind[];
 
 void _getCloth4D(int *a0, float x, float y, float z, float w, int tight, void *a6, void *a7)
 {
@@ -1966,7 +1966,6 @@ void _getCloth4D(int *a0, float x, float y, float z, float w, int tight, void *a
     int nx2;
     int ny2;
     char *plane;
-    char *ent;
 
     for (i = 0; i < nx; i++) {
         rows[i] = data[i];
@@ -1977,8 +1976,7 @@ void _getCloth4D(int *a0, float x, float y, float z, float w, int tight, void *a
     getCloth4D_preProcess(a0, x, y, z, w, tight, a6, a7);
     getCloth4D(a0, rows);
     obj = (int *)*(int *)((char *)a0[0] + 0x15C);
-    ent = motionKind + obj[296] * 0x194;
-    if ((*(unsigned int *)(ent + 0x18C) >> 21) & 1) {
+    if (motionKind[obj[296]].flags.bits.clothPlane) {
         plane = (char *)obj + 0x1D0;
         m = (int *)a0[184];
         rowsB = (int *)a0[2];

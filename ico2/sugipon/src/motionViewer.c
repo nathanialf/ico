@@ -125,20 +125,10 @@ typedef struct {
     int x, y, w, h;
 } BarRect;
 
-typedef struct {
-    char pad000[0x134];
-    int unk134; /* 0x134 */
-    char pad138[0x13C - 0x138];
-    int frameA; /* 0x13C */
-    int frameB; /* 0x140 */
-    char pad144[0x178 - 0x144];
-    int unk178; /* 0x178 */
-    char pad17C[0x18C - 0x17C];
-    unsigned int flags; /* 0x18C */
-    char pad190[0x194 - 0x190];
-} MotRec;
-
-extern MotRec motionKind[];
+/* kept local: motionOrientManager.h reaches ico2/fumi's TUs through
+   typedef.h, and commonact.c declares the table char []; not const here,
+   since debug_SelectCsvWindowWithLine takes its rows as void * */
+extern MotionDef motionKind[];
 
 void dispMotFrameProgress(int obj, float cur)
 {
@@ -183,15 +173,15 @@ void dispMotFrameProgress(int obj, float cur)
     }
     BarCol colA = {52, 84, 192, 128};
     BarCol colB = {192, 84, 52, 128};
-    float f1 = motionKind[obj].frameA;
-    float f2 = motionKind[obj].frameB;
+    float f1 = motionKind[obj].shiftStart;
+    float f2 = motionKind[obj].shiftLength;
 
     if (f1 >= 0.0f && f2 >= 0.0f) {
         float sum = f1 + f2;
         int rev;
 
         dispProgressBar(0, f1, GetNbMotionFrames(obj) - 1, cur,
-                        (rev = (((motionKind + obj)->flags >> 19) & 1)) ? &colB : &colA);
+                        (rev = (motionKind + obj)->flags.bits.shiftInside) ? &colB : &colA);
         dispProgressBar(f1, sum, GetNbMotionFrames(obj) - 1, cur, rev ? &colA : &colB);
         dispProgressBar(sum, GetNbMotionFrames(obj) - 1, GetNbMotionFrames(obj) - 1, cur,
                         rev ? &colB : &colA);
@@ -331,7 +321,8 @@ int motKindMenuProc(void)
                                         0xC0, 0, ent->motLast - ent->motFirst, &motSel, 0);
     base = motSel;
     cur = base + ent->motFirst;
-    if (motionKind[cur].unk134 != 0 && motionKind[cur].unk178 == 0x140 && motionTable[cur] == 0) {
+    if (motionKind[cur].node_id != 0 && motionKind[cur].blendKind == 0x140 &&
+        motionTable[cur] == 0) {
         base = 0;
         if (((blinkCount >> 4) & 3) != 0) {
             debug_PrintfDummy(10, 60, 0x4080FF00, "NO MOTION IN THIS STAGE.");
