@@ -541,13 +541,13 @@ typedef struct {
     float src[4];    /* 0x00 */
     float dst[4];    /* 0x10 */
     float hit[4];    /* 0x20 */
-    char _30[64];    /* 0x30 */
+    char pad30[64];  /* 0x30 */
     int f70;         /* 0x70 */
-    char _74[12];    /* 0x74 */
+    char pad74[12];  /* 0x74 */
     DbgWallHit wall; /* 0x80 */
-    char _8C[8];     /* 0x8C */
+    char pad8C[8];   /* 0x8C */
     int floorHit;    /* 0x94 */
-    char _98[40];    /* 0x98 */
+    char pad98[40];  /* 0x98 */
 } DbgRay;
 
 /* .bss, owned by debug.o (MAIN.MAP debug.o .bss 0xB3A0, VMA 0x704680..0x70FA20
@@ -754,20 +754,20 @@ typedef struct {
     int f14;      /* 0x14 */
     int f18;      /* 0x18 */
     int f1C;      /* 0x1C */
-    char _20[0x4];
+    char pad20[4];
     int f24; /* 0x24 */
-    char _28[0x18];
+    char pad28[24];
     int sel; /* 0x40 */
     int num; /* 0x44 -- entries filled in by iosMcGetDir */
     int _48;
     int f4C; /* 0x4C */
     int f50; /* 0x50 */
-    char _54[0x400];
-    char name454[0x28]; /* 0x454 */
-    char name47C[0x24]; /* 0x47C */
-    char _4A0[0x20];    /* 0x4A0 */
-    McDirEnt dir[8];    /* 0x4C0 -- sceMcTblGetDir records, 0x40 each */
-    char _6C0[0x300];
+    char pad54[1024];
+    char name454[40]; /* 0x454 */
+    char name47C[36]; /* 0x47C */
+    char pad4A0[32];  /* 0x4A0 */
+    McDirEnt dir[8];  /* 0x4C0 -- sceMcTblGetDir records, 0x40 each */
+    char pad6C0[768];
     long long blockFlags; /* 0x9C0 -- one bit per save block, set where a block holds data */
 } McReq;
 
@@ -872,7 +872,7 @@ typedef struct {
     float fx;      /* 0x0C */
     float fz;      /* 0x10 */
     float mag;     /* 0x14 */
-    char unk18[8]; /* 0x18 */
+    char pad18[8]; /* 0x18 */
 } DbgPadStick;
 
 /* The strings these tables point at stay blob-owned by address until the
@@ -882,7 +882,9 @@ extern int gsb_StageSetting(void);
 extern int MotionViewer(void);
 extern int EffectTool(void);
 extern int tex_ListTool(void);
-extern char iosPadConfDefault[];
+/* kept local: pad.h cannot declare it while effectTool.c and camera-ico2.c
+   declare it as a char array */
+extern PadConf iosPadConfDefault;
 extern void DebugDisp1Collision(void *hit);
 /* Profiler bar table: 0x400 entries of 0x1C bytes; debugBarCount = live count.
    Callers pass (label, colour, __FILE__, __LINE__) -- see the call sites in
@@ -910,7 +912,7 @@ inline void ChangeGirlControlMode(int a0)
 
 void debug_Assert(char *fmt, ...)
 {
-    char buf[0x100];
+    char buf[256];
     vsprintf(buf, fmt, (char *)__builtin_next_arg(fmt) - 56);
     debug_assertMessage("src/debug.c", 0x570, buf);
     __assert("src/debug.c", 0x570, "e");
@@ -958,7 +960,7 @@ inline void debug_closeLog(void)
 
 void debug_LogPrintf(const char *fmt, ...)
 {
-    char buf[0x100];
+    char buf[256];
     int info;
     vsprintf(buf, fmt, (char *)__builtin_next_arg(fmt) - 0x38);
     info = strlen(buf);
@@ -967,7 +969,7 @@ void debug_LogPrintf(const char *fmt, ...)
 
 inline void debug_SaveStartStageFile(int stage)
 {
-    char buf[0x100];
+    char buf[256];
     debug_StdPrintfDummy("==== Save start stage =======================================\n");
     if (debugSceOpen((int)"thisIsYourStartStage", 0x602) < 0) {
         debug_StdPrintfDummy("debug_SaveStartStageFile: host file open error.\n");
@@ -988,7 +990,7 @@ inline int debug_TryToGetStartStage(void)
 
 void debug_SaveDebugOptionFile(void)
 {
-    char buf[0x100];
+    char buf[256];
     int i;
     int fd;
     debug_StdPrintfDummy("==== Save Debug Option ======================================\n");
@@ -1011,7 +1013,7 @@ void debug_SaveDebugOptionFile(void)
 
 int debug_GetDebugOption(void)
 {
-    char buf[0x100];
+    char buf[256];
     int fd;
     int size;
     int i;
@@ -1215,7 +1217,7 @@ inline float debug_GetTimerCount(void)
 
 int debug_Load(char **dst, char *name, int kind)
 {
-    char buf[0x100];
+    char buf[256];
     int size;
     int sz;
     int fd;
@@ -1653,7 +1655,7 @@ void debug_brainBar(void)
             col = &c1;
         }
         gif_Line(&a, &b, 0xFFFFFFFFU, 0xFFFFFFFFU, col, 1);
-        if (*(int *)(brain->tgt[i].gobj + 0xC) == 0x3D) {
+        if (((GObj *)brain->tgt[i].gobj)->kind == 0x3D) {
             /* a.z is never written: the ROM reads sp+0x48 uninitialised here
                too, so the 2001 source carried the same bug. */
             c.x = a.x;
@@ -1728,8 +1730,7 @@ int debug_MakeBarString(char *p, int a, int b, FR fr, long long x, int line)
         }
     }
     if (strlen(barString) != 0 && (debug_font_flag & 1)) {
-        debug_Printf((int)(x + 0x148), fr.y + line * 7 + (fr.h + 0x71), 0xFFFFFF00u,
-                     (int)barString);
+        debug_Printf((int)(x + 0x148), fr.y + line * 7 + (fr.h + 0x71), 0xFFFFFF00u, barString);
     }
     return strlen(barString);
 }
@@ -1771,8 +1772,8 @@ void debug_DrawBar(void)
 
 
 
-    if (debug_font_flag & 1) debug_Printf(ScreenWidth / 2 - 298, ScreenHeight / 2 + 92, 0xFFFFFF00u, (int)"draw");
-    if (debug_font_flag & 1) { debug_Printf(ScreenWidth / 2 - 282, ScreenHeight / 2 + 102, 0xFFFFFF00u, (int)"cpu"); debugBars[debug_debug_bar_start_item].count = debugBars[debug_debug_bar_start_item].count; }
+    if (debug_font_flag & 1) debug_Printf(ScreenWidth / 2 - 298, ScreenHeight / 2 + 92, 0xFFFFFF00u, "draw");
+    if (debug_font_flag & 1) { debug_Printf(ScreenWidth / 2 - 282, ScreenHeight / 2 + 102, 0xFFFFFF00u, "cpu"); debugBars[debug_debug_bar_start_item].count = debugBars[debug_debug_bar_start_item].count; }
     /* RULING-VESTIGIAL-EXCEPTION (supervisor, c1p137-harvest): the first set of sh on the next line is dead and flow deletes it, so it emits nothing; the bytes pin a dead set of sh reading a debugBars element here (without it gcse has no debugBars base before the second bar loop, which then stays phony) and the listing's no-code rows 2610-2611 place it, but neither pins its text. RECONSTRUCTION (c1p144): the store-back of debugBars[debug_debug_bar_start_item].count after the "cpu" print is a no-op the compiler deletes after reload (reload_cse removes the store, flow2 the load); its only trace is the one reload register its address takes for gcse's (high debugBars), which shifts every later reload by one register as in the ROM, so the bytes pin a load and store of one debugBars field in that branch after the call, not its text. */
     sh = debugBars[debug_debug_bar_start_item].count;
     sh = debug_debug_bar_multiply;
@@ -1920,7 +1921,7 @@ void debug_DrawBar(void)
         sprintf(buf, "%d", i);
         v0.x = (used_dl_memory[i] << 9) / 100 - 256 + ScreenWidth / 2;
         v0.y = ScreenHeight / 2 + 88;
-        if (debug_font_flag & 1) debug_Printf(v0.x, v0.y, 0xFFFFFF00u, (int)buf);
+        if (debug_font_flag & 1) debug_Printf(v0.x, v0.y, 0xFFFFFF00u, buf);
     }
 
     if (debug_debug_bar_start_item < debugBarCount) {
@@ -1938,7 +1939,7 @@ void debug_DrawBar(void)
             if (barMax < val) barMax = val;
             if (val < barMin) barMin = val;
         }
-        if (debug_font_flag & 1) debug_Printf(10, ScreenHeight / 2 - 28, 0xFFFFFF00u, (int)"A:%p W:%1.2f%% W~%1.2f%% W_:%1.2f%%",
+        if (debug_font_flag & 1) debug_Printf(10, ScreenHeight / 2 - 28, 0xFFFFFF00u, "A:%p W:%1.2f%% W~%1.2f%% W_:%1.2f%%",
                          debugBars[debug_debug_bar_start_item].line, val, barMax, barMin);
 
 
@@ -1948,7 +1949,7 @@ void debug_DrawBar(void)
 
     if (debug_font_flag & 1) debug_Printf(ScreenWidth + 70, ScreenHeight / 2 - 14, 0xFFFFFF00u,
                          (int)(sh > 0 ? "/%d" : "x%d"), sh > 0 ? (1 << sh) : (1 << -sh));
-    if (debug_font_flag & 1) debug_Printf(ScreenWidth + 30, ScreenHeight / 2 - 24, 0xFFFFFF00u, (int)"%.2f%%",
+    if (debug_font_flag & 1) debug_Printf(ScreenWidth + 30, ScreenHeight / 2 - 24, 0xFFFFFF00u, "%.2f%%",
                          sh > 0 ? (float)(100 << sh) : (float)(10000 >> -sh) * 0.01f);
 }
 
@@ -1997,7 +1998,7 @@ void debug_DispBar(void)
     va = (float)(drawTimerCount * 100) * inv;
 
     if (debug_font_flag2 != 0 || (debug_font_flag & 1) != 0)
-        debug_Printf(10, 10, 0xFFFFFF00u, (int)"C%03d G%03d F%d", vb, va, frame_count);
+        debug_Printf(10, 10, 0xFFFFFF00u, "C%03d G%03d F%d", vb, va, frame_count);
     if (debug_brain_bar_flag != 0)
         debug_brainBar();
     if (debug_bar_flag != 0)
@@ -2007,7 +2008,7 @@ void debug_DispBar(void)
         if (strips != 0)
             n = strips;
         if (debug_font_flag2 != 0 || (debug_font_flag & 1) != 0)
-            debug_Printf(10, 20, 0xFFFFFF00u, (int)"P%d S%d A%d(%d) T%d(%d)", polygons, strips,
+            debug_Printf(10, 20, 0xFFFFFF00u, "P%d S%d A%d(%d) T%d(%d)", polygons, strips,
                          polygons / n, packets, texturetranssize / 1024, textures);
     }
 }
@@ -2159,7 +2160,7 @@ static int snapFirst = 1; /* derived name */
 int debug_SnapShot(int idx)
 {
     int si[28];
-    char name[0x100];
+    char name[256];
     int size;
     int mask;
     unsigned int i;
@@ -2283,17 +2284,17 @@ inline void debug_DispMatrix(int *a0)
     }
 }
 
-void debug_Printf(int a, int b, unsigned int c, int x, ...)
+void debug_Printf(int a, int b, unsigned int c, char *fmt, ...)
 {
-    char buf[0x100];
-    void *args = (char *)__builtin_next_arg(x) - 0x20;
-    vsprintf(buf, x, args);
+    char buf[256];
+    void *args = (char *)__builtin_next_arg(fmt) - 0x20;
+    vsprintf(buf, fmt, args);
     debug_PrintFont(a, b, c, buf);
 }
 
 void debug_Printf2(int a, int b, unsigned int c, int x, ...)
 {
-    char buf[0x100];
+    char buf[256];
     void *args = (char *)__builtin_next_arg(x) - 0x20;
     vsprintf(buf, x, args);
     debug_PrintFont(a, b, c, buf);
@@ -2301,7 +2302,7 @@ void debug_Printf2(int a, int b, unsigned int c, int x, ...)
 
 void debug_PrintFontWindow(int col, char *fmt, ...)
 {
-    char buf[0x100];
+    char buf[256];
     char *p = buf;
     int nl = 0;
     int i;
@@ -2370,7 +2371,7 @@ void debug_PrintFontf(int x, int y, char *p, ...)
         if (c == '\n') {
             *d = 0;
             if (debug_font_flag & 1) {
-                debug_Printf(x, y, 0xFFFFFF00u, (int)fontfLine);
+                debug_Printf(x, y, 0xFFFFFF00u, fontfLine);
             }
             d = fontfLine;
             y += 8;
@@ -2569,7 +2570,7 @@ int debug_Mode(void)
 int debug_SelectCsvWindowVal(int a0, int a1, int a2, int a3, int count, int a5, int (*fn)(int, int),
                              int a7)
 {
-    char buf[count][0x25];
+    char buf[count][37];
     int i;
     for (i = 0; i < count; i++) {
         if (fn != 0) {
@@ -2592,7 +2593,7 @@ static int csvScroll = 0; /* derived name */
 inline int _debug_SelectCsvWindow(char *title, int x, int y, int rows, int base, int stride, int off,
                            int deref, int n, int *psel, void (*getline)(), int (*colfunc)(int))
 {
-    char buf[0x100];
+    char buf[256];
     int sel;
     int i;
     int half;
@@ -2831,7 +2832,7 @@ inline int debug_mcUnformat(int port)
 
 int debug_mcRetErrCheck(McReq *mc)
 {
-    char buf[0x40];
+    char buf[64];
     int r;
     if (mc->ret >= 0) {
         return 1;
@@ -3091,7 +3092,7 @@ static int deleteState = 0; /* derived name */
 
 int debug_mcDeleteFile(McReq *mc)
 {
-    char buf[0x20];
+    char buf[32];
     int ret = 0;
     int r;
 
@@ -3342,7 +3343,7 @@ inline void debugCdvdLoadInfoSegCls(int page, int idx)
 
 char *debugCdvdLoadInfoSegDispFunc(int idx, int page)
 {
-    char buf[0x10];
+    char buf[16];
     int d;
     d = *(int *)((char *)loadInfoSeg + (page * 0xD0 + idx * 8)) -
         *(int *)((char *)loadInfoSeg + (page * 0xD0 + idx * 8) + 4);
@@ -3565,11 +3566,11 @@ int debug_DispBox(int on)
     CameraSetMode(1);
     DebugDispBox(boxCentre, boxWidth);
     if (debug_font_flag & 1) {
-        debug_Printf(10, 150, 0xFFFFFF00u, (int)"[%s] %4d %4d %4d", (int)"center", (int)boxCentre[0],
+        debug_Printf(10, 150, 0xFFFFFF00u, "[%s] %4d %4d %4d", (int)"center", (int)boxCentre[0],
                      (int)boxCentre[1], (int)boxCentre[2]);
     }
     if (debug_font_flag & 1) {
-        debug_Printf(10, 160, 0xFFFFFF00u, (int)"[%s] %4d %4d %4d", (int)" width", (int)boxWidth[0],
+        debug_Printf(10, 160, 0xFFFFFF00u, "[%s] %4d %4d %4d", (int)" width", (int)boxWidth[0],
                      (int)boxWidth[1], (int)boxWidth[2]);
     }
     return (D_0028F8F0[0].hold & 0x40) ? -1 : 0;
@@ -3631,12 +3632,12 @@ int debug_DispBall(int on)
     for (i = 0; i < num; i++) {
         if (i == dispBallRow) {
             if (debug_font_flag & 1) {
-                debug_Printf(10, i * 10 + 80, 0xFFFFFF00u, (int)">>%8s = %d\n", (int)list.v[i].name,
+                debug_Printf(10, i * 10 + 80, 0xFFFFFF00u, ">>%8s = %d\n", (int)list.v[i].name,
                              (int)*list.v[i].val);
             }
         } else {
             if (debug_font_flag & 1) {
-                debug_Printf(10, i * 10 + 80, 0xFFFFFF00u, (int)"  %8s = %d\n", (int)list.v[i].name,
+                debug_Printf(10, i * 10 + 80, 0xFFFFFF00u, "  %8s = %d\n", (int)list.v[i].name,
                              (int)*list.v[i].val);
             }
         }
@@ -3688,7 +3689,7 @@ int debug_CollisionTest(int reset)
         collisionRay.dst[2] += 100.0f;
     }
     memset(&mv, 0, sizeof(mv));
-    iosPadConnect(padCtx, 0, 0, iosPadConfDefault);
+    iosPadConnect(padCtx, 0, 0, &iosPadConfDefault);
     iosPadRead(padCtx);
     iosPadGetStick(padCtx, &st0, 0, 2, 2, 0);
     iosPadGetStick(padCtx, &st1, 1, 2, 2, 0);

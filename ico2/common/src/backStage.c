@@ -68,7 +68,7 @@ typedef struct {
 /* the 0x194-byte per-stage record stageData; wayBits is a 9-bit field in the
    bitfield word at 0x18C, which is why it is read with an lhu at 0x18E */
 typedef struct {
-    char pad000[0x18C];
+    char pad000[396];
     unsigned int pad18C : 16;
     unsigned int wayBits : 9;
     unsigned int pad18E_hi : 7;
@@ -80,7 +80,7 @@ extern char stageData[];
 /* the actor work record a gobj carries at 0x164 (src/enemy_act.c reads the same
    0x444 member off the same 0x164 pointer) */
 typedef struct {
-    char pad000[0x444];
+    char pad000[1092];
     int objNo; /* 0x444 */
 } ActorWorkRec;
 
@@ -275,9 +275,9 @@ void backStageProcessMain(void)
                 s->work[0] = 4;
             } else {
                 memset(&tmp, 0, sizeof(tmp));
-                tmp.f[0] = objLayout[0xEAE].rot[0];
-                tmp.f[1] = objLayout[0xEAE].rot[1];
-                tmp.f[2] = objLayout[0xEAE].rot[2];
+                tmp.f[0] = objLayout[3758].rot[0];
+                tmp.f[1] = objLayout[3758].rot[1];
+                tmp.f[2] = objLayout[3758].rot[2];
                 rot = tmp;
                 g1 = gamesysObjInfoPosNewStageSet(0xEAD, 4, gameSysObjInfo[1].stage,
                                                   gameSysObjInfo[1].pos.f, gameSysObjInfo[1].rot.f);

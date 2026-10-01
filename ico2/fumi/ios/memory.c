@@ -14,21 +14,6 @@ typedef struct IosMemTag {
     char c[16];
 } IosMemTag;
 
-typedef struct IosMemNode {
-    char tag[16];                 /* 0x00 */
-    char name[16];                /* 0x10 */
-    struct IosMemNode *prev;      /* 0x20 */
-    struct IosMemNode *next;      /* 0x24 */
-    struct IosMemNode *free_prev; /* 0x28 */
-    struct IosMemNode *free_next; /* 0x2C */
-    struct IosMemPart *part;      /* 0x30 */
-    int size;                     /* 0x34 */
-    int line;                     /* 0x38 */
-    int pad3C;                    /* 0x3C */
-    struct IosMemNode *pad40;     /* 0x40 (partition header view) */
-    struct IosMemNode *head;      /* 0x44 (partition header view: free-list head) */
-} IosMemNode;
-
 /* kept local: agrees with mv_defs.h, which this TU does not include */
 extern void __assert(const char *file, int line, const char *expr);
 

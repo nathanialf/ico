@@ -28,8 +28,8 @@
 #include "main.h"
 
 typedef struct AdpcmReq {
-    char pad00[0x2C]; /* 0x00 */
-    int unk2C;        /* 0x2C */
+    char pad00[44]; /* 0x00 */
+    int unk2C;      /* 0x2C */
 } AdpcmReq;
 
 /* .sbss, owned by st04l.o and reached only from this file (MAIN.MAP names no

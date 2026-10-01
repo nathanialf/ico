@@ -75,7 +75,7 @@ void actSt01bEneChk(volatile int a0)
 }
 
 typedef struct {
-    char pad00[0x2C];
+    char pad00[44];
     int f2C;
 } FloorRec;
 

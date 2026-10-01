@@ -1042,6 +1042,20 @@ typedef union { /* field names derived */
     unsigned int w[2];
 } ActWishWord;
 
+#include "motionOrientManager.h" /* MotOriReq, which Act carries at 0x620 */
+
+/* The pad configuration record iosPadConnect hands a pad (pad.c's
+   iosPadConfDefault and iosPadConfCustom, and the copy each actor keeps), 60
+   words: two byte tables and a pair table for the pressure and repeat
+   handling (no reader in this build) and, at 0xB0, the sixteen button bits
+   iosPadRead ORs. */
+typedef struct PadConf { /* field names derived */
+    unsigned char press[12][2];
+    unsigned char pressRate[24];
+    int repeat[16][2];
+    int bit[16];
+} PadConf;
+
 typedef struct Act { /* field names derived */
     int f_0;         /* 0x0 */
     void *f_4;       /* 0x4 */
@@ -1119,7 +1133,7 @@ typedef struct Act { /* field names derived */
     int f_144;          /* 0x144 */
     struct GObj *f_148; /* 0x148, the object the actor holds (the carried girl) */
     char *f_14C;        /* 0x14C */
-    int f_150;          /* 0x150 */
+    GObj *f_150;        /* 0x150, the weapon the actor holds */
     char *f_154;        /* 0x154 */
     void *box;          /* 0x158, the box/truck GObj the actor is holding: commonact.c
                   stores it here in actCommonBox and reads it back through
@@ -1147,14 +1161,14 @@ typedef struct Act { /* field names derived */
 
     int f_188; /* 0x188 */
     char _pad18C[0x4];
-    int f_190;   /* 0x190 */
+    GObj *f_190; /* 0x190, the chain the actor hangs on */
     char *f_194; /* 0x194 */
     char _pad198[0x8];
     float f_1A0; /* 0x1A0 */
     float f_1A4; /* 0x1A4 */
     float f_1A8; /* 0x1A8 */
     char _pad1AC[0x4];
-    int f_1B0; /* 0x1B0 */
+    GObj *f_1B0; /* 0x1B0, the object whose attack hit the actor */
     char _pad1B4[0x4];
     int f_1B8; /* 0x1B8 */
     char _pad1BC[0x4];
@@ -1169,12 +1183,12 @@ typedef struct Act { /* field names derived */
     char f_1DA; /* 0x1DA */
     char f_1DB; /* 0x1DB */
     char _pad1DC[0x4];
-    float f_1E0; /* 0x1E0 */
-    float f_1E4; /* 0x1E4 */
-    char _pad1E8[0x78];
-    int f_260; /* 0x260 */
-    char _pad264[0x74];
-    char *f_2D8; /* 0x2D8 */
+    float f_1E0;     /* 0x1E0 */
+    float f_1E4;     /* 0x1E4 */
+    PadConf padConf; /* 0x1E8, the pad configuration the actor's pad record
+                        at 0x2D8 is connected to (actInitialize copies
+                        iosPadConfDefault into it) */
+    char *f_2D8;     /* 0x2D8 */
     char _pad2DC[0x4];
     int f_2E0;  /* 0x2E0 */
     int unk2E4; /* 0x2E4 */
@@ -1281,14 +1295,16 @@ typedef struct Act { /* field names derived */
     char _pad604[0x4];
     char *f_608; /* 0x608 */
     char _pad60C[0x4];
-    int f_610;   /* 0x610 */
-    void *f_614; /* 0x614 */
-    void *f_618; /* 0x618 */
-    int f_61C;   /* 0x61C */
-    char _pad620[0x60];
-    struct EnemyBattleWork *f_680; /* 0x680, the enemy work (enemy_act.c) */
-    int f_684;                     /* 0x684 */
-    int f_688;                     /* 0x688 */
+    int f_610;           /* 0x610 */
+    void *f_614;         /* 0x614 */
+    void *f_618;         /* 0x618 */
+    int f_61C;           /* 0x61C */
+    MotOriReq motOriReq; /* 0x620, the motion orient request SetMotionRequest
+                            takes, filled from the sub-object's at 0x180 */
+    char _pad640[0x40];
+    struct EnemyBattleWork *f_680;    /* 0x680, the enemy work (enemy_act.c) */
+    struct MailAdditionalData *f_684; /* 0x684, the mail additional data table */
+    int f_688;                        /* 0x688 */
 } Act;
 
 /* RECONSTRUCTION, PLACED BY INCLUDE PATTERN: one record for 2 TUs that carried 2 divergent local copies; this body is the one the ROM's bytes accept in the most of them. */

@@ -12,6 +12,21 @@
 #ifndef GOBJ_PROCESS_H
 #define GOBJ_PROCESS_H
 
+/* one process node of a game object (0x94 bytes): 0x4 owner GObj, 0x8 prev,
+   0xC next; the owner keeps the list head at +0x2C and the tail at +0x30 */
+typedef struct GProc {     /* field names derived */
+    struct GProc *self;    /* 0x00, the node itself while the entry is in use, 0 when free */
+    char *owner;           /* 0x04 */
+    struct GProc *prev;    /* 0x08 */
+    struct GProc *next;    /* 0x0C */
+    int noThread;          /* 0x10, set when the process runs inline instead of on a thread */
+    unsigned int priority; /* 0x14, the list is kept in ascending priority order */
+    int active;            /* 0x18 */
+    int func;              /* 0x1C, the body of an inline process */
+    char pad20[4];
+    char thread[112]; /* 0x24, the IOSThread a threaded process runs on */
+} GProc;
+
 /* The declarations below lead this header because their order is load-bearing:
  * gcc 2.9 emits the deferred out-of-line copy of a plain-inline function in
  * first-declaration order, so this is the order gobj_process.c's inline tail has. */
@@ -29,7 +44,6 @@ void isysGObjProcThreadSleep(int a0);
 int isysGObjProcAddSGOppArg(int a, int b, int c, int d, int e);
 void isysGObjProcActivePtr(void *a0, int a1);
 void free_gobj_process_resource(char *self);
-
 int isysGObjProcAdd_(int a0, int a1, int a2, unsigned char a3, int a4, long a5);
 void isysGObjProcRemove(int *a0);
 void isysGObjProcessInit(unsigned int a0);

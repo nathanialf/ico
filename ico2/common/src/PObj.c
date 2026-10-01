@@ -15,7 +15,7 @@
 typedef float Vec[4] __attribute__((aligned(16)));
 
 typedef struct PObjMdl {
-    char _0[0x70];
+    char pad0[112];
     float f70;           /* 0x70 */
     float f74;           /* 0x74 */
     float f78;           /* 0x78 */
@@ -29,27 +29,27 @@ typedef struct PObjMdl {
 } PObjMdl;
 
 typedef struct PktHdr {
-    char _0[0xF0];
+    char pad0[240];
     int kind; /* 0xF0 */
 } PktHdr;
 
 typedef struct PObjPkt {
-    char _0[0x854];
+    char pad0[2132];
     struct PObj *owner; /* 0x854 */
-    char _858[0x18];
+    char pad858[24];
     void *f870;   /* 0x870 */
     PktHdr *f874; /* 0x874 */
 } PObjPkt;
 
 typedef struct PObjSub { /* 0x180 stride, hung off the PObj at 0x40 */
-    long long _0[0x12];
+    long long _0[18];
     Vec *f90;         /* 0x90 */
     unsigned int f94; /* 0x94 */
     long long _98[(0x180 - 0x98) / 8];
 } PObjSub;
 
 typedef struct PObj {
-    char _0[0x24];
+    char pad0[36];
     int f24;      /* 0x24 */
     PObjPkt *pkt; /* 0x28 */
     short f2C;    /* 0x2C */
@@ -75,7 +75,7 @@ typedef struct PObj {
     float f3C;     /* 0x3C */
     PObjSub *sub;  /* 0x40 */
     Vec (*f44)[8]; /* 0x44 */
-    char _48[8];
+    char pad48[8];
     Vec bb[8]; /* 0x50 */
 } PObj;
 
@@ -238,7 +238,7 @@ extern void MakeBoundingBox(PObj *p);
 extern void __assert(const char *file, int line, const char *expr);
 
 typedef struct ObjHdr { /* the loaded model file image */
-    char _0[4];
+    char pad0[4];
     int f4;           /* 0x4  object table, file offset then pointer */
     unsigned int f8;  /* 0x8  objnum */
     unsigned int fC;  /* 0xC  clstnum */
@@ -248,33 +248,33 @@ typedef struct ObjHdr { /* the loaded model file image */
 
 typedef struct ObjEnt { /* the 0x10 stride records the 0xF0 table holds */
     void *p;            /* 0x0 */
-    char _4[0xC];
+    char pad4[12];
 } ObjEnt;
 
 typedef struct ObjRec {
-    char _0[0x80];
+    char pad0[128];
     int f80; /* 0x80 */
-    char _84[0xC];
+    char pad84[12];
     char *f90; /* 0x90 */
-    char _94[0xC];
+    char pad94[12];
     char *fA0; /* 0xA0 */
-    char _A4[0xC];
+    char padA4[12];
     char *fB0; /* 0xB0 */
-    char _B4[0xC];
+    char padB4[12];
     char *fC0; /* 0xC0 */
-    char _C4[0xC];
+    char padC4[12];
     char *fD0; /* 0xD0 */
-    char _D4[0xC];
+    char padD4[12];
     char *fE0; /* 0xE0 */
-    char _E4[0xC];
+    char padE4[12];
     char *fF0;        /* 0xF0 */
     unsigned int fF4; /* 0xF4 */
-    char _F8[8];
+    char padF8[8];
     char *f100;        /* 0x100 */
     unsigned int f104; /* 0x104 */
-    char _108[8];
+    char pad108[8];
     char *f110; /* 0x110 */
-    char _114[0xC];
+    char pad114[12];
     char *f120;        /* 0x120 */
     unsigned int f124; /* 0x124 */
 } ObjRec;

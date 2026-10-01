@@ -23,8 +23,8 @@ static ActMail demoCam_mes[2] = {{430}, {429}};
 /* the 16-byte vector this file copies whole */
 
 typedef struct SwordObj {
-    char unk00[0x2C]; /* 0x00 */
-    void *unk2C;      /* 0x2C */
+    char pad0[44]; /* 0x00 */
+    void *unk2C;   /* 0x2C */
 } SwordObj;
 
 /* .sbss, owned by st24a.o and reached only from this file (MAIN.MAP names no

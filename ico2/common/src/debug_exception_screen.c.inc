@@ -9,8 +9,6 @@
  * this file for these functions and MAIN.MAP lists them under debug_exception.o; debug.c calls them as externs.
  * The three Vif1/GIF helpers are inline (they inline into drawSprite/PutFont and their out-of-line copies close the
  * object); the rest are ordinary functions emitted in this order. */
-/* kept local: agrees with main.h, which this TU does not include (pad differ) */
-extern int db[];
 /* kept local: agrees with libpkt.h, which this TU does not include (sceVif1PkAddGsData, sceVif1PkReset differ) */
 extern void sceVif1PkCloseDirectCode();
 /* kept local: agrees with libpkt.h, which this TU does not include (sceVif1PkAddGsData, sceVif1PkReset differ) */
@@ -119,25 +117,9 @@ static int cursorX = 0; /* derived name */
 
 static int cursorY = 0; /* derived name */
 
-typedef struct {
-    int _0;
-    int _4;
-    int _8;
-    int btn;
-} DbgPad;
-
-/* kept local: DbgPad [] here, PadState [16] in main.h */
-extern DbgPad pad[];
-
 /* The cursor blink's phase, stepped every frame. */
 static int blinkPhase = 0; /* derived name */
 
-/* kept local: agrees with main.h, which this TU does not include (pad differ) */
-extern int buffer_ID;
-/* kept local: agrees with main.h, which this TU does not include (pad differ) */
-extern int odd_even;
-/* kept local: agrees with main.h, which this TU does not include (pad differ) */
-extern int frame_count;
 /* kept local: void (void *, int) here, int (void *, int) in libgraph.h */
 extern void sceGsSwapDBuff(void *a0, int a1);
 /* kept local: int (int) here, int (void) in libgraph.h */
@@ -503,10 +485,10 @@ static inline void dispBase(void)
 
 void baseFunc(void)
 {
-    if (pad[0].btn & 0x8000)
+    if (pad[0].rep & 0x8000)
         if (--scrollTop < 0)
             scrollTop = 0;
-    if (pad[0].btn & 0x2000)
+    if (pad[0].rep & 0x2000)
         if (++scrollTop >= 50)
             scrollTop = 49;
     SetDrawEnvironment(1);

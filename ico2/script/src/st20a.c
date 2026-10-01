@@ -535,7 +535,7 @@ void actSt20aGirlPos(volatile int a0)
 /* the actor entry's parameter is its frame home: the thread switch writes it */
 void actSt20aBridgeMain(volatile int a0)
 {
-    *(char **)((int)GOBJ_ACT(a0) + 0xD0) = (char *)bridgeMain_mes;
+    GOBJ_ACT(a0)->mainMail = bridgeMain_mes;
     scpBoyControlReadDisable = 0;
     while (1) {
         _ACTWait(1);
@@ -560,7 +560,7 @@ void actSt20aBridgeDownSub(volatile int a0)
     while (brg20a == 0) {
         _ACTWait(1);
     }
-    AdpcmPlay(*(int *)(brg20a + 0x2C));
+    AdpcmPlay(((AdpcmObj *)brg20a)->stream);
     stage_SetAnimation(148, 1, 0);
     st20a_yure = iosPadActRequest(boyPad, 9);
     st20a_yure_vol = 0x80;
@@ -580,7 +580,7 @@ void actSt20aGondolaMain(volatile int a0)
     lt_switch_layout(54);
     scpBoyControlReadDisable = 0;
     scpWakeupEnemyAll();
-    *(char **)((char *)p + 0xD0) = (char *)gondolaMain_mes;
+    p->mainMail = gondolaMain_mes;
     while (1) {
         _ACTWait(1);
     }

@@ -69,7 +69,7 @@ unsigned char sekizo_13a_vol = 0;
 
 void actSt13aElevUpSub(volatile int a0)
 {
-    AdpcmPlay(*(int *)(st13a_up + 0x2C));
+    AdpcmPlay(((AdpcmObj *)st13a_up)->stream);
 
     stage_SetAnimation(173, 1, 0);
     stage_SetAnimation(174, 1, 0);
@@ -200,7 +200,7 @@ void actSt13aElevDownChk(volatile int a0)
         _ACTWait(1);
     }
 
-    AdpcmPlay(*(int *)(st13a_down + 0x2C));
+    AdpcmPlay(((AdpcmObj *)st13a_down)->stream);
     scpFadeIn(6.0f);
 
     th = actCreateSubThread(actSt13aElevDownSub, 21);

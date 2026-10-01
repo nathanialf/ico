@@ -59,11 +59,11 @@ extern void GetChainNearestNodePosition(float *out, void *g, float *ref);
    subBoyCollision hands SetMotionDirectionSmooze (with and without the girl
    held), 0x18C and 0x190 flag words (0x190 the jump-chain flags) */
 typedef struct {
-    char _000[0x182];
+    char pad0[386];
     short f_182;
-    char _184[0x2];
+    char pad184[2];
     short f_186;
-    char _188[0x4];
+    char pad188[4];
     unsigned int f_18C;
     unsigned int f_190;
 } ChainMotRow;
@@ -409,8 +409,8 @@ done:
         _ACTWait(1);
     }
     _ACTWait(1);
-    sub->f_130 = SetMotionRequest((void *)a0, 0x65, *(MotOriReq *)((char *)sub + 0x620));
-    sub->f_130 = SetMotionRequest((void *)a0, 0xA4, *(MotOriReq *)((char *)sub + 0x620));
+    sub->f_130 = SetMotionRequest((void *)a0, 0x65, sub->motOriReq);
+    sub->f_130 = SetMotionRequest((void *)a0, 0xA4, sub->motOriReq);
     while ((*(int *)((char *)sub->f_130 + 0x5C) & 1) == 0) {
         _ACTWait(1);
     }
@@ -423,7 +423,7 @@ done:
         }
         _ACTWait(1);
     }
-    sub->f_130 = SetMotionRequest((void *)a0, 0x65, *(MotOriReq *)((char *)sub + 0x620));
+    sub->f_130 = SetMotionRequest((void *)a0, 0x65, sub->motOriReq);
     while ((*(int *)((char *)sub->f_130 + 0x5C) & 1) == 0) {
         _ACTWait(1);
     }
@@ -499,12 +499,12 @@ done:
         _ACTWait(1);
     }
     _ACTWait(1);
-    sub->f_130 = SetMotionRequest((void *)a0, 0x66, *(MotOriReq *)((char *)sub + 0x620));
+    sub->f_130 = SetMotionRequest((void *)a0, 0x66, sub->motOriReq);
     while ((*(int *)((char *)sub->f_130 + 0x5C) & 1) == 0) {
         _ACTWait(1);
     }
-    sub->f_130 = SetMotionRequest((void *)a0, 0x66, *(MotOriReq *)((char *)sub + 0x620));
-    sub->f_130 = SetMotionRequest((void *)a0, 0xA4, *(MotOriReq *)((char *)sub + 0x620));
+    sub->f_130 = SetMotionRequest((void *)a0, 0x66, sub->motOriReq);
+    sub->f_130 = SetMotionRequest((void *)a0, 0xA4, sub->motOriReq);
     while ((*(int *)((char *)sub->f_130 + 0x5C) & 1) == 0) {
         _ACTWait(1);
     }
@@ -517,7 +517,7 @@ done:
         }
         _ACTWait(1);
     }
-    sub->f_130 = SetMotionRequest((void *)a0, 0x66, *(MotOriReq *)((char *)sub + 0x620));
+    sub->f_130 = SetMotionRequest((void *)a0, 0x66, sub->motOriReq);
     while ((*(int *)((char *)sub->f_130 + 0x5C) & 1) == 0) {
         _ACTWait(1);
     }
@@ -902,12 +902,8 @@ extern float GetDifferenceFromLowerField(int self, int a1);
 extern int GetMotionFrameFlag1(char *self);
 extern void IncreasePdlChain(int id);
 extern void DecreasePdlChain(int id);
-
-/* the pad configuration record, as fumi's ios/pad.c and src/act.c type it */
-typedef struct {
-    int w[60];
-} PadConf;
-
+/* kept local: pad.h cannot declare it while camera-root.c declares it as a
+   char array */
 extern PadConf iosPadConfCustom;
 /* kept local: agrees with camera-root.h, which this TU does not include (GetCurrentCameraSet2 differ) */
 extern int InsertCameraWorkingFlag;
@@ -918,12 +914,12 @@ extern int FixViewInGameCameraFlag;
    endpoints, the radius at 0x70 and the hit flag at 0x88 (commonact.c's
    RopeWallWork is the same 0xC0-byte record). */
 typedef struct {
-    char _00[0x70];
+    char pad0[112];
     float f70;
-    char _74[0x0C];
+    char pad74[12];
     CharPos f80;
     int f88;
-    char _8C[0x34];
+    char pad8C[52];
 } BoyWallWork;
 
 /* The listing gives this one lines 2066-2072 of boyact.c: an inline-only
@@ -1068,7 +1064,7 @@ void subBoyControl(volatile int a0)
                                (unsigned char)debug_stick_simulate);
                 if (debug_stick_input) {
                     if (debug_font_flag & 1) {
-                        debug_Printf(10, 170, 0x0FFFFFFF, (int)"L = %f\n", fptodp(s->f_34C));
+                        debug_Printf(10, 170, 0x0FFFFFFF, "L = %f\n", fptodp(s->f_34C));
                     }
                 }
                 ableBoyControl = 1;
@@ -1671,7 +1667,7 @@ typedef struct {
     unsigned char fire : 1;
     unsigned short torch : 1;
     unsigned char escort : 1;
-    char pad10[0x10];        /* 0x10 */
+    char pad10[16];          /* 0x10 */
     void *weapon;            /* 0x20 */
     void *nextWeapon;        /* 0x24 */
     char pad28[0x30 - 0x28]; /* 0x28 */
@@ -1692,7 +1688,7 @@ typedef struct {
 #define BOYEFSTAGE ((unsigned char *)boyInfo + 0x50)
 
 typedef struct {
-    char pad00[0x0C];
+    char pad00[12];
     float f0C; /* 0x0C */
     float f10;
     float f14;
@@ -1895,7 +1891,7 @@ extern void Camctrl_SetTarget(int a0, int a1, int a2);
    actBoyDitch3mReady's 0x348 store is the same case: the mail's a0 reload
    goes ahead of it and the store lands in the call's delay slot. */
 typedef struct {
-    char pad000[0x33C];
+    char pad000[828];
     float f33C; /* 0x33C */
     char pad340[0x348 - 0x340];
     float f348; /* 0x348 */
@@ -2454,14 +2450,14 @@ extern void MoveFloatingBox(void *box, int self, void *m, void *p, float d);
    box GObj and the grip point, a four-float vector sceVu0ApplyMatrix takes
    whole (its w set to 1 before the apply) */
 typedef struct {
-    char _pad0[0xCC];
+    char pad0[204];
     int f_CC; /* 0xCC, the lift level actBoyBelift sets to 10 and clamps */
-    char _padD0[0x15C];
+    char padD0[348];
     void *f_22C; /* 0x22C, the object the boy lifts (actBoyBelift stores the girl) */
-    char _pad230[0x90];
+    char pad230[144];
     int f_2C0;   /* 0x2C0 */
     char *f_2C4; /* 0x2C4 */
-    char _pad2C8[0x8];
+    char pad2C8[8];
     float f_2D0[4]; /* 0x2D0 */
 } BoyExt;
 
@@ -3063,11 +3059,11 @@ typedef struct {
 
 /* the motion parameter table: one 0x194-byte row per motion id */
 typedef struct {
-    char _000[0x182];
+    char pad0[386];
     short f_182;
-    char _184[0x02];
+    char pad184[2];
     short f_186;
-    char _188[0x0C];
+    char pad188[12];
 } BoyMotionRow;
 
 void actBoyReadyMove(volatile int a0)
@@ -3589,7 +3585,7 @@ inline void *GetBoyWeaponGObj(void)
 }
 
 typedef struct {
-    char pad00[0x18C];
+    char pad00[396];
     unsigned int flags18C;
     char pad190[4];
 } BoyParaRow;

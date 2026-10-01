@@ -6,7 +6,7 @@
    entry points it starts. 429 terminates a table. */
 typedef struct MailRec {
     unsigned short id; /* 0x00 */
-    char _p2[0x2];
+    char pad2[2];
     void *main;   /* 0x04 */
     void *motion; /* 0x08 */
     void *sub;    /* 0x0C */
@@ -25,10 +25,10 @@ typedef struct MailBox {
 } MailBox;
 
 typedef struct ActState {
-    char _p0[0x4];
+    char pad0[4];
     void *mainThread;   /* 0x04 */
     void *motionThread; /* 0x08 */
-    char _pC[0xC4];
+    char padC[196];
     MailRec *listB; /* 0xD0 */
     MailRec *listA; /* 0xD4 */
     int lastKey;    /* 0xD8 */

@@ -234,11 +234,8 @@ void after_func_exec(char *self, int oldst, int newst)
 
 inline void actInitialize_geo(void *self) {}
 
-/* The pad configuration template copied into the work block at +0x1E8. */
-typedef struct {
-    int w[60];
-} PadConf;
-
+/* kept local: pad.h cannot declare it while effectTool.c and camera-ico2.c
+   declare it as a char array */
 extern PadConf iosPadConfDefault;
 
 void actInitialize_ext_charcter(char *self)
@@ -259,7 +256,7 @@ void actInitialize_ext_charcter(char *self)
 
 /* The actor object: only the work pointer at +0x164 matters here. */
 typedef struct {
-    char _0[0x164];
+    char pad0[356];
     int work;
 } ActSelf;
 
@@ -271,7 +268,7 @@ typedef union {
 /* The extended work block hung off the work block at +0x688; the three
    ten-entry histories at 0x900, 0x928 and 0x950 are read back in BeforeFunc. */
 typedef struct {
-    char _0[0x900];
+    char pad0[2304];
     int a900[10];
     int a928[10];
     int a950[10];
@@ -372,7 +369,7 @@ char *actInitialize(char *self)
         p->f_1B0 = 0;
         p->f_1DA = 0;
     }
-    *(PadConf *)(w + 0x1E8) = iosPadConfDefault;
+    ((Act *)w)->padConf = iosPadConfDefault;
 
     memset(w + 0x170, 0, 0x20);
     memset(w + 0x134, 0, 0x8);
@@ -534,7 +531,7 @@ typedef union {
 /* Motion record table, 0x194 bytes per entry (only the flags word is used
    here); src/act-game.c carries the full layout as MotionRec. */
 typedef struct {
-    char _0[0x18C];
+    char pad0[396];
     unsigned int f18C;
     unsigned int f190;
 } ActMotionRec;
@@ -685,14 +682,14 @@ typedef struct {
     float a[4];   /* 0x00 start point   */
     float b[4];   /* 0x10 end point     */
     float pos[4]; /* 0x20 clipped point */
-    char _30[0x40];
+    char pad30[64];
     float f_70;
-    char _74[0x14];
+    char pad74[20];
     int f_88;
-    char _8c[0x08];
+    char pad8C[8];
     int f_94;
     int f_98;
-    char _9c[0x24];
+    char pad9C[36];
 } ActClipWork;
 
 /* The stick reading iosPadGetStick fills in: the 0x20-byte record
@@ -701,11 +698,11 @@ typedef struct {
 typedef struct {
     int x; /* 0x00 */
     int y; /* 0x04 */
-    char _08[0x04];
+    char pad8[4];
     float dx;  /* 0x0C */
     float dz;  /* 0x10 */
     float mag; /* 0x14 */
-    char _18[0x08];
+    char pad18[8];
 } ActPadStick;
 
 extern void GetLowerPlaneCollision(void *work, void *pos);

@@ -31,20 +31,14 @@
 #include "jimaku.h"
 
 typedef struct {
-    char name[0x110];
-    int f110;
-    int lsn;
-} CdvdBgReq;
-
-typedef struct {
     int f0;
-    unsigned char _4[0x24];
+    unsigned char pad4[36];
 } StgFile;
 
 typedef struct {
     int stage;
     float dist;
-    unsigned char _8[0x8];
+    unsigned char pad8[8];
     float pos[4];
 } StgSlot;
 
@@ -59,8 +53,6 @@ int stageMgrMsgQ[12] = {0};
 
 StgSlot stageExitData[15] = {0};
 
-/* kept local: agrees with main.h, which this TU does not include (boyGObj, girlGObj differ) */
-extern int stage_no;
 extern StgFile D_0055C53C[];
 extern const StgPre stageData[];
 extern int stgmgrNextStagePreLoad(CdvdBgReq *bg);
@@ -73,49 +65,14 @@ static int stageMgrMsgBuf;
 
 static int stagePreLoadForceStageNo;
 
-/* kept local: agrees with main.h, which this TU does not include (boyGObj, girlGObj differ) */
-extern int systemStatus[];
-
-typedef struct {
-    int cmd;
-    int stage;
-    int _8;
-    float fC;
-    float f10;
-    unsigned char r;
-    unsigned char g;
-    unsigned char b;
-} StgMgrMsg;
-
-/* kept local: StgMgrMsg here, int [6] in main.h */
-extern StgMgrMsg stageMgrMsg;
-/* kept local: agrees with main.h, which this TU does not include (boyGObj, girlGObj differ) */
-extern int graphics_ready;
-/* kept local: agrees with main.h, which this TU does not include (boyGObj, girlGObj differ) */
-extern int db[];
-
 /* .bss, owned by StageManager.o (the retail run is 0x70, the size of thread.c's
    own IOSThread record; MAIN.MAP sizes its own link's 0x80 and names no symbol
    in it): the thread descriptor InitIcoMisc is started through. */
 /* */
 static unsigned int initIcoMiscThread[28];
 
-/* kept local: agrees with main.h, which this TU does not include (boyGObj, girlGObj differ) */
-extern int current_stage_no;
-/* kept local: agrees with main.h, which this TU does not include (boyGObj, girlGObj differ) */
-extern int IosCdLock;
-/* kept local: agrees with main.h, which this TU does not include (boyGObj, girlGObj differ) */
-extern int IosStgMgrLock;
-/* kept local: agrees with main.h, which this TU does not include (boyGObj, girlGObj differ) */
-extern int game_pause;
-/* kept local: agrees with main.h, which this TU does not include (boyGObj, girlGObj differ) */
-extern int before_stage_no;
-/* kept local: void * here, GObj * in main.h */
-extern void *boyGObj;
-/* kept local: void * here, GObj * in main.h */
-extern void *girlGObj;
-
 #include "StageManager.h"
+#include "main.h"
 #include <libgraph.h>
 #include <libvu0.h>
 #include <eekernel.h>
@@ -365,12 +322,12 @@ int stgmgrNextStagePreLoad(CdvdBgReq *bg)
         strcpy(bg->name, GetDataFileName(stage, 1));
         ret = -1;
         iosCdvdChgFileName(bg);
-        stagePreLoadLsn = bg->lsn = iosCdvdGetFileLsn(bg, &size);
+        stagePreLoadLsn = bg->lsn = iosCdvdGetFileLsn(bg->name, &size);
         size = (size + 0x7FF) / 0x800 * 0x800;
         readSize = size > 0x1C0000 ? 0x1C0000 : size;
         debug_StdPrintfDummy("preload %s move %d total %d reset %d\n", bg, readSize, size,
                              size - readSize);
-        bg->f110 = 0;
+        bg->pos = 0;
         ret = iosCdvdBackGroundRead(bg, stagePreLoadBuff, readSize);
         debug_StdPrintfDummy("done");
         stagePreLoadSectorCnt = readSize >> 11;
@@ -458,7 +415,7 @@ void StageManager(void)
             break;
         case 1:
             fadeStatus = 1;
-            fadeSpeed = msg->f10;
+            fadeSpeed = msg->fadeIn;
             fadeColor[0] = msg->r;
             fadeColor[1] = msg->g;
             fadeColor[2] = msg->b;
@@ -467,7 +424,7 @@ void StageManager(void)
             fbKeep = 1;
             if (stageData[msg->stage].mpegNo != 0) {
                 stgMgrWakeupRequest = 1;
-                mpegPlayFadeInSpeed = msg->fC;
+                mpegPlayFadeInSpeed = msg->fadeOut;
                 do {
                     iosThreadSleep();
                 } while (fadeStatus != 3);
@@ -500,7 +457,7 @@ void StageManager(void)
         } else {
             debug_StdPrintfDummy("out of stage %d\n", msg->stage);
         }
-        if (msg->fC == 0.0f) {
+        if (msg->fadeOut == 0.0f) {
             fadeStatus = 0;
             stgMgrWakeupRequest = 1;
             while (systemStatus[6] != 0) {
@@ -523,7 +480,7 @@ void StageManager(void)
             fadeStatus = 1;
             fbKeep = 0;
             stgMgrWakeupRequest = 0;
-            fadeSpeed = -msg->fC;
+            fadeSpeed = -msg->fadeOut;
         }
         continue;
     badCmd:
@@ -548,7 +505,7 @@ void stgmgrForceSwitch(int stage)
     stageMgrMsg.cmd = 0;
     stageMgrMsg.stage = stage;
     graphics_ready = 1;
-    stageMgrMsg.fC = 0;
+    stageMgrMsg.fadeOut = 0;
     iosMsgSend(stageMgrMsgQ, &stageMgrMsg, 1);
 }
 
@@ -562,8 +519,8 @@ void stgmgrForceSwitchWithFadeColor(int stage, float fadeIn, float fadeOut, unsi
 {
     stageMgrMsg.cmd = 1;
     stageMgrMsg.stage = stage;
-    stageMgrMsg.fC = fadeOut;
-    stageMgrMsg.f10 = fadeIn;
+    stageMgrMsg.fadeOut = fadeOut;
+    stageMgrMsg.fadeIn = fadeIn;
     stageMgrMsg.r = r;
     stageMgrMsg.g = g;
     stageMgrMsg.b = b;

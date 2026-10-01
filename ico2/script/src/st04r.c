@@ -2,6 +2,7 @@
 #include "layout_texture.h"
 #include "pad.h"
 #include "thread.h"
+#include "gobj_process.h"
 #include "obj_manager.h"
 #include "adpcm_init.h"
 #include "s_init.h"
@@ -432,7 +433,7 @@ void openGate(int a0)
         _ACTWait(1);
     }
 
-    iosThreadSetPri((int *)(th + 0x24), 34);
+    iosThreadSetPri((int *)((GProc *)th)->thread, 34);
 
     if (demoEnd == 0) {
         scpFadeOut(16.0f, 0, 0, 0);
@@ -590,7 +591,7 @@ void actSt04rSolarBeamChk(volatile int a0)
         _ACTWait(1);
     }
 
-    AdpcmPlay(*(int *)(solar4r + 0x2C));
+    AdpcmPlay(((AdpcmObj *)solar4r)->stream);
 
     preload(0xF);
 
@@ -637,7 +638,7 @@ void actSt04rStairSub(volatile int a0)
         _ACTWait(1);
     }
 
-    AdpcmPlay(*(int *)(crest3_4r + 0x2C));
+    AdpcmPlay(((AdpcmObj *)crest3_4r)->stream);
 
     stage_SetAnimation(350, 1, 0);
 
@@ -740,7 +741,7 @@ void actSt04rStairChk(volatile int a0)
             _ACTWait(1);
         }
 
-        iosThreadSetPri((int *)(th + 0x24), 34);
+        iosThreadSetPri((int *)((GProc *)th)->thread, 34);
 
         while (scpFadeChk() != 0) {
             _ACTWait(1);
@@ -765,7 +766,7 @@ void actSt04rStairChk(volatile int a0)
 
         scpFadeIn(3.0f);
     } else {
-        iosThreadSetPri((int *)(th + 0x24), 34);
+        iosThreadSetPri((int *)((GProc *)th)->thread, 34);
     }
 
     if (padAct >= 0) {
@@ -960,7 +961,7 @@ void actSt04rBrgCommon(volatile int a0)
         _ACTWait(1);
     }
 
-    iosThreadSetPri((int *)(th + 0x24), 34);
+    iosThreadSetPri((int *)((GProc *)th)->thread, 34);
 
     if (demoEnd == 0) {
         scpFadeOut(16.0f, 0, 0, 0);
@@ -2438,7 +2439,7 @@ void actSt04rBrg1Sub(volatile int a0)
         _ACTWait(1);
     }
 
-    AdpcmPlay(*(int *)(sekizo5c + 0x2C));
+    AdpcmPlay(((AdpcmObj *)sekizo5c)->stream);
 
     stage_SetAnimation(sekizo_4r, 1, 0);
 

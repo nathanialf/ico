@@ -72,7 +72,7 @@ typedef struct IOSThread {
     int hasQueue;             /* 0x48 */
     void *queue;              /* 0x4C */
     char name[16];            /* 0x50 */
-    char pad60[0x10];         /* 0x60: the record is 0x70 bytes, which is the gap
+    char pad60[16];           /* 0x60: the record is 0x70 bytes, which is the gap
                             between the boot thread and its stack in the ROM's
                             own .bss run */
 } IOSThread;

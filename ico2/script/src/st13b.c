@@ -202,7 +202,7 @@ void actSt13bConte02(volatile int a0)
         _ACTWait((0x3C - systemStatus[0] * 10) / systemStatus[1] * 1.0);
     }
 
-    AdpcmPlay(*(int *)(st13b_adpcm + 0x2C));
+    AdpcmPlay(((AdpcmObj *)st13b_adpcm)->stream);
 
     while (stage_ContinueAnimation(586, 587) == 0) {
         _ACTWait(1);
@@ -680,7 +680,7 @@ void actSt13bBossChk(volatile int a0)
         _ACTWait(1);
     }
 
-    AdpcmPlay(*(int *)(boss + 0x2C));
+    AdpcmPlay(((AdpcmObj *)boss)->stream);
 }
 
 void actSt13bBossAfterChk(volatile int a0)

@@ -16,6 +16,7 @@
 #include <eekernel.h>
 #include "GifPacket.h"
 #include "debug_exception.h"
+#include "main.h"
 
 typedef struct SqEntry {
     unsigned short num;        /* 0x0 */
@@ -775,16 +776,6 @@ typedef struct DbgRow {
     DbgVal v;    /* 0x04 */
 } DbgRow;
 
-/* the pad record the debug pages read: held buttons at +4, triggered at +0xC */
-typedef struct DbgPad {
-    int _0;
-    int hold;
-    int _8;
-    int trg;
-} DbgPad;
-
-/* kept local: DbgPad [] here, PadState [16] in main.h */
-extern DbgPad pad[];
 static inline void soundSeEnvDefaultSet(SeSlot *self);
 
 static void debug_DispSEInfo(void)
@@ -825,13 +816,13 @@ static void debug_DispSEInfo(void)
     int dbg = 0; /* local debug switch, see the test after the solo toggle */
 
     cam = GetCameraPos();
-    if (pad[0].hold & 0x400) {
+    if (pad[0].flags & 0x400) {
         show ^= 1;
     }
     if (show == 0) {
         return;
     }
-    if (pad[0].trg & 0x20) {
+    if (pad[0].rep & 0x20) {
         page = page + 1;
     }
     for (i = page;; i++) {
@@ -845,7 +836,7 @@ static void debug_DispSEInfo(void)
     }
     self = &seSlotTbl[i];
     page = i;
-    if (pad[0].hold & 0x40) {
+    if (pad[0].flags & 0x40) {
         solo ^= 1;
     }
     if (dbg) {
@@ -862,7 +853,7 @@ static void debug_DispSEInfo(void)
             p->flag.bit.f29 = solo;
         }
     }
-    if (pad[0].hold & 0x80) {
+    if (pad[0].flags & 0x80) {
         soundSeEnvDefaultSet(self);
     }
     if (self->unk34 != 0) {
@@ -893,18 +884,18 @@ static void debug_DispSEInfo(void)
 
         num = 9;
 
-        if (pad[0].trg & 0x1000) {
+        if (pad[0].rep & 0x1000) {
             curRow = curRow - 1;
         }
-        if (pad[0].trg & 0x4000) {
+        if (pad[0].rep & 0x4000) {
             curRow = curRow + 1;
         }
         curRow = (curRow + num) % num;
         cur = &list[curRow];
-        if (pad[0].trg & 0x2000) {
+        if (pad[0].rep & 0x2000) {
             step = cur->v.step;
         }
-        if (pad[0].trg & 0x8000) {
+        if (pad[0].rep & 0x8000) {
             step = -cur->v.step;
         }
         debug_PrintfDummy(10, 70, 0xFFFFFF00u, (int)"req no %d %s %f\n", page, self->unk38, dist);
@@ -1071,10 +1062,6 @@ typedef struct SeKind {
 extern unsigned short seKind[];
 extern SeKind seList[];
 extern char seDef[];
-/* kept local: agrees with main.h, which this TU does not include (pad differ) */
-extern int boyPad;
-/* kept local: agrees with main.h, which this TU does not include (pad differ) */
-extern int stage_no;
 extern int SgSePlay(int vab, int a1, int a2);
 
 inline void soundSeGroupStop(int arg)
@@ -1388,8 +1375,6 @@ extern char seEnv[];
 /* The stage table sits in .rodata, so it is declared const: its loads are then
    unchanging and do not order against soundSeEnvNotUseClose's `p = 0` store. */
 extern const StgPre stageData[];
-/* kept local: agrees with main.h, which this TU does not include (pad differ) */
-extern int systemStatus[];
 extern int SgGetSlotStatus(int a0, int a1);
 
 inline void soundReqTickProc(void)
@@ -1510,7 +1495,7 @@ void soundSeEnvPlay(void)
 /* One 100-byte entry of the SE bank table: the name strcmp compares and the
    "in use" flag the stage lists are filtered on. */
 typedef struct SeBank {
-    char name[0x60];     /* 0x00 */
+    char name[96];       /* 0x00 */
     unsigned int b0 : 1; /* 0x60 bit 0 */
     unsigned int b1 : 31;
 } SeBank;

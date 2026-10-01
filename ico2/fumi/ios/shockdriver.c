@@ -2,7 +2,7 @@
 #include <libpad.h>
 
 struct PadNode {
-    char pad[0x30];
+    char pad[48];
     struct PadNode *prev;
     struct PadNode *next;
 };

@@ -227,10 +227,10 @@ int ChangeMailInLadder(char *a0, int a1)
 void DamageFunc(char *a0);
 
 typedef struct {
-    char _0[0x188];
+    char pad0[392];
     unsigned int f188;
     unsigned int f18C;
-    char _190[4];
+    char pad190[4];
 } CorrMotRec;
 
 extern int IsAbleChainHang(char *a0);
@@ -857,13 +857,13 @@ extern void ClipWall(void *a0);
    object at 0x80 and the hit flag at 0x88; what ClipWall writes has not been
    established, so the two views are kept apart rather than merged. */
 typedef struct {
-    char _00[0x70];
+    char pad0[112];
     float f70;
-    char _74[0x0C];
+    char pad74[12];
     int f80;
-    char _84[0x04];
+    char pad84[4];
     int f88;
-    char _8C[0x34];
+    char pad8C[52];
 } RopeWallWork;
 
 int CollisCheckInRope(void *a0, int chain)
@@ -944,20 +944,20 @@ extern char motionKind[];
 extern void SetMotionDirection();
 
 typedef struct {
-    char _0[0x35C];
+    char pad0[860];
     int f35C;
 } RopeSubObj;
 
 typedef struct {
-    char _00[0x94];
+    char pad0[148];
     int f94;
-    char _98[0x28];
+    char pad98[40];
 } RopeFloorWork;
 
 typedef struct {
-    char _0[0x18C];
+    char pad0[396];
     unsigned int f18C;
-    char _190[4];
+    char pad190[4];
 } RopeMotRec;
 
 static inline int chainFloorHit(char *a0, void *w)
@@ -1313,7 +1313,7 @@ void TestCageUpDown(int cage, char *gobj)
 
         cageUpDown.cnt = 0;
         cageUpDown.lim = (float)*motionTable[*(int *)(((CagePtr *)(o + 0x15C))->p + 0x4A0)];
-        n = GetSkeltonFocusNode(o, (void *)0x23);
+        n = GetSkeltonFocusNode(o, 35);
         cageUpDown.a[0] =
             *(float *)(*(char **)(((CagePtr *)(o + 0x15C))->p + 0xC) + n * 0x40 + 0x30);
         cageUpDown.a[1] =
@@ -1436,8 +1436,8 @@ typedef union {
 } RsVec4;
 
 typedef struct {
-    char _0[0x330];
-    char f330[0x10];
+    char pad0[816];
+    char f330[16];
     float f340;
     float f344;
     float f348;
@@ -1447,10 +1447,10 @@ typedef struct {
 } RsSub;
 
 typedef struct {
-    char _00[0x80];
+    char pad0[128];
     RsVec2 h80;
     int f88;
-    char _8C[0x34];
+    char pad8C[52];
 } RsWork;
 
 static inline unsigned char ropeSpecialWallHit(RsVec4 *p1, RsHit *hit)
@@ -1557,7 +1557,7 @@ void SetDirectRootPositionXZ(void *a0, void *a1)
 }
 
 typedef struct {
-    char _0[0x394];
+    char pad0[916];
     int f394;
 } LeverAnim;
 
@@ -1800,7 +1800,7 @@ typedef struct {
 extern ClingRec clingData[];
 
 typedef struct {
-    char _0[0x21C];
+    char pad0[540];
     int f21C;
     int f220;
 } ClingSub;
@@ -1903,7 +1903,7 @@ void actCommonStoneDead(volatile int a0)
 }
 
 typedef struct {
-    char _0[0x14];
+    char pad0[20];
     int f14;
 } ReviveSub;
 
@@ -1924,9 +1924,9 @@ inline void actCommonRevive(volatile int a0)
 }
 
 typedef struct {
-    char _0[0x14];
+    char pad0[20];
     int f14;
-    char _18[0x34];
+    char pad18[52];
     int f4C;
 } StoneSub;
 
@@ -1968,12 +1968,12 @@ void actCommonStone(volatile int a0)
 }
 
 typedef struct {
-    char _0[0x250];
+    char pad0[592];
     int f250, f254, f258, f25C;
 } SofaObj;
 
 typedef struct {
-    char _0[0x3A0];
+    char pad0[928];
     int f3A0, f3A4;
 } SofaAnim;
 
@@ -2066,11 +2066,11 @@ extern int MoveBoxWithHoldPoint(char *box, void *hold, void *self, int node, voi
 typedef struct {
     float p[4];
     float q[4];
-    char _20[0x50];
+    char pad20[80];
     float f70;
-    char _74[0x14];
+    char pad74[20];
     int f88;
-    char _8C[0x34];
+    char pad8C[52];
 } BoxWallWork;
 
 /* The height is an int: the ROM materialises 48.0f and 30.0f at the 0x70 store
@@ -2219,7 +2219,7 @@ inline void afterCommonBar(volatile int a0)
 extern int GetMotionFrameFlag2(char *self);
 
 typedef struct {
-    char _0[0x1C0];
+    char pad0[448];
     int f1C0;
     int f1C4;
     int f1C8;
@@ -2257,7 +2257,7 @@ void actCommonBar(volatile int a0)
         if (GetMotionFrameFlag1((void *)a0)) {
             float dir[4];
             float up[4];
-            int node = GetSkeltonFocusNode((void *)a0, (void *)0x20);
+            int node = GetSkeltonFocusNode((void *)a0, 32);
             unsigned char ok;
             lit = 1;
             CopyVector(dir, (char *)GOBJ_SUB(a0)->f_C + node * 64 + 0x30);
@@ -2376,7 +2376,7 @@ typedef union {
 } ActFlagJ;
 
 typedef struct {
-    char _0[0x18E];
+    char pad0[398];
     unsigned short f18E;
 } MotRecJ;
 
@@ -2642,7 +2642,7 @@ void actCommonFall(volatile int a0)
    other arm of the join), which alias analysis allows only when the store is
    a struct member and the frame slot a scalar. */
 typedef struct {
-    char _0[0x654];
+    char pad0[1620];
     int limit;
 } FlyLimitSub;
 
@@ -2769,17 +2769,17 @@ typedef struct {
 typedef struct {
     FlyPt v[7]; /* 0x00 from, 0x10 to, 0x20 the hit position */
     float rad;
-    char _74[0x14];
+    char pad74[20];
     int wall;
-    char _8C[0x8];
+    char pad8C[8];
     int floor;
-    char _98[0x28];
+    char pad98[40];
 } FlyClip;
 
 /* reconstruction: the clip request at 0x690 of the actor record */
 typedef struct {
     int done;
-    char _04[0xC];
+    char pad4[12];
     FlyClip w;
     int fD0;
     void (*func)();
@@ -3151,7 +3151,7 @@ void flyCoreLoop(char *a0, char *target, int a2)
 }
 
 typedef struct {
-    char _0[0x5F8];
+    char pad0[1528];
     int f5F8;
 } FlyCtlJ;
 
@@ -3196,7 +3196,7 @@ extern float GetDifferenceFromWallUpperPlane(char *self, int node);
 extern float GetDifferenceFromWallLowerPlane(char *self, int node);
 
 typedef struct {
-    char _0[0x290];
+    char pad0[656];
     int f290;
     int f294;
 
@@ -3207,9 +3207,9 @@ typedef struct {
 } LadderWork;
 
 typedef struct {
-    char _0[0x150];
+    char pad0[336];
     int f150;
-    char _154[0x40];
+    char pad154[64];
 } LadMotRec;
 
 /* the motion table is an array of LadMotRec; this TU's other members declare
@@ -3419,19 +3419,19 @@ inline void actCommonGuard(volatile int a0)
 extern const StgPre stageData[];
 
 typedef struct {
-    char _00[0x20];
+    char pad0[32];
     float _20, _24, _28;
-    char _2c[0x44];
+    char pad2C[68];
     float _70;
-    char _74[0x0C];
+    char pad74[12];
     int _80;
-    char _84[0x04];
+    char pad84[4];
     int _88;
     int _8c;
-    char _90[0x04];
+    char pad90[4];
     int _94;
     int _98;
-    char _9c[0x24];
+    char pad9C[36];
 } EdgeHangWork;
 
 void actCommonEdgeHang(volatile int a0)
@@ -3519,9 +3519,9 @@ void funcCommonError(char *a0, int a1, char *a2)
 }
 
 typedef struct {
-    char _0[0x18C];
+    char pad0[396];
     unsigned int f18C;
-    char _190[0x04];
+    char pad190[4];
 } MotRecSm;
 
 int SetMotionDirectionSmooze(int a0, float *dir, float s)
@@ -3569,12 +3569,12 @@ extern char motionOriKind[];
 extern char D_0055FF18[];
 
 typedef struct {
-    char _0[0xC2];
+    char pad0[194];
     short fC2;
 } MotNameRecDP;
 
 typedef struct {
-    char _0[0x186];
+    char pad0[390];
     short f186;
 } MotRecDP;
 
@@ -3652,9 +3652,9 @@ void ACTSendMailCorrect(char *a0, int a1)
 }
 
 typedef struct {
-    char _0[0x190];
+    char pad0[400];
     unsigned int f190;
-    char _194[0];
+    char pad194[0];
 } MtMotRec;
 
 void _ACTCommonMailTest(char *self, int a1, int a2, int a3)
@@ -3754,7 +3754,7 @@ extern SlowrunRec motionOrient[];
 
 typedef struct {
     int _0[9];
-    char name[0x20];
+    char name[32];
     int f44;
     int f48;
     unsigned int b0 : 1;
@@ -3766,9 +3766,9 @@ typedef struct {
 extern CarryRec actModeTbl[];
 
 typedef struct {
-    char _0[0x18C];
+    char pad0[396];
     unsigned char f18C;
-    char _18D[7];
+    char pad18D[7];
 } CarryMot;
 
 typedef struct {
@@ -3830,7 +3830,7 @@ void actCommonBecarry(volatile int a0)
                 ((ActFlagJ *)((char *)s + 0x18))->ll |= (1ULL << 46);
             }
         }
-        if (6 <= *(int *)((char *)s + 0x4C)) {
+        if (6 <= s->f_4C) {
             if (actModeTbl[GOBJ_ACT(g)->unk34].b0 ||
                 (fl = ((CarryMot *)motionKind)[GOBJ_SUB(g)->f_4A0].f18C, fl >> 7)) {
                 afterCommonCarry((int)g);
@@ -4091,13 +4091,13 @@ typedef union {
 } IntFloatSR;
 
 typedef struct {
-    char _0[0x182];
+    char pad0[386];
     short f182;
     short f184;
     short f186;
-    char _188[4];
+    char pad188[4];
     unsigned int f18C;
-    char _190[4];
+    char pad190[4];
 } MotRecSR;
 
 void actCommonSlowrun(volatile int a0)
@@ -4108,7 +4108,7 @@ void actCommonSlowrun(volatile int a0)
         int i1;
         int i2;
 
-        i1 = GetSkeltonFocusNode((char *)girlGObj, (void *)0x16);
+        i1 = GetSkeltonFocusNode((char *)girlGObj, 22);
         i2 = GetSkeltonFocusNode((char *)boyGObj, (void *)6);
         ((IntFloatSR *)p[0])[0].f = *(float *)((i1 << 6) + GOBJ_SUB(girlGObj)->f_C + 0x30);
         ((IntFloatSR *)p[0])[1].f = *(float *)((i1 << 6) + GOBJ_SUB(girlGObj)->f_C + 0x34);
@@ -4126,7 +4126,7 @@ void actCommonSlowrun(volatile int a0)
 }
 
 typedef struct {
-    char _0[0x14];
+    char pad0[20];
     int f14;
 } TruckLeverWork;
 
@@ -4453,7 +4453,7 @@ inline void actCommonRopeTouchWall(volatile int a0)
 extern void PlumbOrientUpdateChain(char *a0, float *src);
 
 typedef struct {
-    char _0[0x18];
+    char pad0[24];
     int f18;
 } RopeSwingWork;
 
@@ -4495,19 +4495,19 @@ inline void actCommonRopeTurn(volatile int a0)
 }
 
 typedef struct {
-    char _00[0x20];
+    char pad0[32];
     float _20, _24, _28;
-    char _2c[0x44];
+    char pad2C[68];
     float _70;
-    char _74[0x0C];
+    char pad74[12];
     int _80;
-    char _84[0x04];
+    char pad84[4];
     int _88;
     int _8c;
-    char _90[0x04];
+    char pad90[4];
     int _94;
     int _98;
-    char _9c[0x24];
+    char pad9C[36];
 } FloorWork;
 
 static inline int isRopeDownEndOnFloor(char *self)
@@ -4538,7 +4538,7 @@ inline void actCommonRopeDownEnd(volatile int a0)
 }
 
 typedef struct {
-    char _0[0x130];
+    char pad0[304];
     int f130;
     int f134;
     int f138;
@@ -4569,7 +4569,7 @@ inline void actCommonRopeJumpBefore(volatile int a0)
 }
 
 typedef struct {
-    char _0[0x18];
+    char pad0[24];
     int f18;
 } RopeTurnSpWork;
 
@@ -4668,7 +4668,7 @@ inline void actCommonPPipe(volatile int a0)
 }
 
 typedef struct {
-    char _0[0x4C0];
+    char pad0[1216];
     float f4C0;
     float f4C4;
     float f4C8;
@@ -4736,7 +4736,7 @@ inline void motCommonBarPull(volatile int a0)
 }
 
 typedef struct {
-    char _0[0x38];
+    char pad0[56];
     int f38;
 } LadderMotWork;
 
@@ -4758,7 +4758,7 @@ inline void motCommonLadderUp(volatile int a0)
 }
 
 typedef struct {
-    char _0[0x38];
+    char pad0[56];
     unsigned int f38;
 } LadderDownMotWork;
 
@@ -5129,7 +5129,7 @@ inline void actAfterFall(volatile int a0)
 }
 
 typedef struct {
-    char _0[0x20];
+    char pad0[32];
     unsigned long long status;
 } FlySub;
 
@@ -5165,7 +5165,7 @@ inline int ACTCheckFlagAttack(char *a0)
 }
 
 typedef struct {
-    char _0[0x74];
+    char pad0[116];
     int coll;
 } BecSub;
 

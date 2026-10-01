@@ -129,8 +129,8 @@ void actSt27aWave(volatile int a0)
 
 void actExplodeChk(volatile int a0)
 {
-    *(int *)(scpSearchGobj(3014)->sub + 0x4E8) = 1;
-    *(int *)(scpSearchGobj(3014)->sub + 0x4E8) = 0;
+    GOBJ_SUB(scpSearchGobj(3014))->f_4E8 = 1;
+    GOBJ_SUB(scpSearchGobj(3014))->f_4E8 = 0;
     scpGetWallCollision(0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 100.0f);
     _ACTWait(60);
     stage_SetAnimation(511, 1, 0);
@@ -143,8 +143,8 @@ void actExplodeChk(volatile int a0)
 
 void actSplash1Chk(volatile int a0)
 {
-    *(int *)(scpSearchGobj(3015)->sub + 0x4E8) = 1;
-    *(int *)(scpSearchGobj(3015)->sub + 0x4E8) = 0;
+    GOBJ_SUB(scpSearchGobj(3015))->f_4E8 = 1;
+    GOBJ_SUB(scpSearchGobj(3015))->f_4E8 = 0;
     scpGetWallCollision(0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 100.0f);
     _ACTWait(60);
     stage_SetAnimation(498, 1, 0);
@@ -157,8 +157,8 @@ void actSplash1Chk(volatile int a0)
 
 void actSplash2Chk(volatile int a0)
 {
-    *(int *)(scpSearchGobj(3016)->sub + 0x4E8) = 1;
-    *(int *)(scpSearchGobj(3016)->sub + 0x4E8) = 0;
+    GOBJ_SUB(scpSearchGobj(3016))->f_4E8 = 1;
+    GOBJ_SUB(scpSearchGobj(3016))->f_4E8 = 0;
     scpGetWallCollision(0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 100.0f);
     _ACTWait(60);
     stage_SetAnimation(499, 1, 0);

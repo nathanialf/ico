@@ -556,7 +556,7 @@ void actSt08aDoorMain(volatile int a0)
 
     scpBoyControlReadDisable = 0;
 
-    *(int *)((int)sub + 0xD0) = (int)door_main_mes;
+    sub->mainMail = door_main_mes;
     while (1) {
         _ACTWait(1);
     }
@@ -644,7 +644,7 @@ void actSt08aHasiMain(volatile int a0)
 
     scpBoyControlReadDisable = 0;
 
-    *(int *)((int)sub + 0xD0) = (int)hasi_main_mes;
+    sub->mainMail = hasi_main_mes;
     while (1) {
         _ACTWait(1);
     }

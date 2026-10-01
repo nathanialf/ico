@@ -29,10 +29,10 @@
    MAIN.MAP lists for main.o in ROM order. Each has an initialiser: the ROM
    holds them in .data, not .bss. systemStatus starts in PAL mode (word 0)
    at a frame step of 2 (word 1). db is the GS double buffer (libgraph's
-   sceGsDBuff, 0x230 B), stageMgrMsg the stage manager's message
-   (StageManager.c's StgMgrMsg, 0x18 B) and SchedulerMsgQ the scheduler's
-   queue (message.c's IosMsgQueue, 0x30 B); those three records are still
-   local to the TUs that read their fields, so this file holds them as words. */
+   sceGsDBuff, 0x230 B), stageMgrMsg the stage manager's message (main.h's
+   StgMgrMsg, 0x18 B) and SchedulerMsgQ the scheduler's queue (message.c's
+   IosMsgQueue, 0x30 B); the first and last of these records are still local
+   to the TUs that read their fields, so this file holds them as words. */
 int systemStatus[12] = {1, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7};
 
 int db[140] = {0};
@@ -41,7 +41,7 @@ StageSetting GlobalStageSetting = {{{0}}};
 
 PadState pad[16] = {{0}};
 
-int stageMgrMsg[6] = {0};
+StgMgrMsg stageMgrMsg = {0};
 
 int SchedulerMsgQ[12] = {0};
 

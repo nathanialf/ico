@@ -357,7 +357,7 @@ inline int point_nige(void)
 
 inline int quick_save_wpfile(void)
 {
-    char buf[0x70];
+    char buf[112];
     int s0;
     int i;
     unsigned char *p;
@@ -385,7 +385,7 @@ inline int quick_save_wpfile(void)
 
 int quick_load_wpfile(void)
 {
-    char buf[0x70];
+    char buf[112];
     int s0;
     int i;
     char *p;
@@ -512,8 +512,8 @@ typedef struct {
 int wp_print_out(void)
 {
     WpName name = {"way0000"};
-    char line[0x100];
-    char fname[0x70];
+    char line[256];
+    char fname[112];
     WayGroup *g;
     WayPoint *p;
     int fd;
@@ -705,7 +705,9 @@ WayMenu debugWayMenu[9] = {{"group + create", group_create},  {"      + select",
                            {"quick save", quick_save_wpfile}, {"quick load", quick_load_wpfile},
                            {"save text", wp_print_out}};
 
-extern char iosPadConfDefault[];
+/* kept local: pad.h cannot declare it while effectTool.c and camera-ico2.c
+   declare it as a char array */
+extern PadConf iosPadConfDefault;
 
 int debug_WayTool(void)
 {
@@ -736,7 +738,7 @@ int debug_WayTool(void)
         first_waytool = 2;
     }
 
-    iosPadConnect(wayToolPad, 0, 0, iosPadConfDefault);
+    iosPadConnect(wayToolPad, 0, 0, &iosPadConfDefault);
     iosPadRead(wayToolPad);
     iosPadGetStick(wayToolPad, wayToolStick, 1, 0, 0, 0);
 
@@ -777,7 +779,7 @@ inline void cursor_control(volatile int a0)
 {
     Act *w = GOBJ_ACT(a0);
 
-    iosPadConnect((char *)w + 0x2D8, 0, 0, iosPadConfDefault);
+    iosPadConnect((char *)w + 0x2D8, 0, 0, &iosPadConfDefault);
 
     while (1) {
         iosPadRead((char *)w + 0x2D8);

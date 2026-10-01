@@ -22,21 +22,21 @@
 extern void __assert(const char *file, int line, const char *expr);
 
 typedef struct {
-    char _0[0x20];
+    char pad0[32];
     int unk_20; /* 0x20 */
 } PObj;
 
 typedef struct {
-    char _0[0x44];
+    char pad0[68];
     short unk_44; /* 0x44 */
-    char _46[0x6];
+    char pad46[6];
     float *unk_4C; /* 0x4C */
 } Bone;            /* 0x50 */
 
 typedef struct {
-    char _0[0x8];
+    char pad0[8];
     int count; /* 0x08 */
-    char _C[0x4];
+    char padC[4];
     int unk_10; /* 0x10 */
     int unk_14; /* 0x14 */
     int unk_18; /* 0x18 */
@@ -72,6 +72,7 @@ static int objSerial = 0; /* derived name */
 
 #include "charFileManager.h"
 #include <stdio.h>
+#include "main.h"
 
 /* kept local: the prototype names PObj, a record only this TU defines, so it
    cannot travel to the header until that record has a home of its own. */
@@ -108,14 +109,12 @@ void ResetCharFileManager(void)
     InitCameraSetManager();
 }
 
-/* kept local: agrees with main.h, which this TU does not include (GlobalStageSetting differ) */
-extern int systemStatus[];
 extern PObj *InitPObj(void *buf, int a1, int id);
 
 /* "Illegal Model ID number: %d (\"%s\")\n" / "ReadModelFile:Already loaded. (id:%d)%s\n" / "ReadModelFile:loaded::(id:%d)%s(addr:%p/size:%d)\n" / sprintf above belong to ReadModelFile. */
 void ReadModelFile(void *h, int a1, int size, int id, int a4, int a5, int part)
 {
-    char buf[0x100];
+    char buf[256];
     char *p;
 
     systemStatus[8]++;
@@ -223,13 +222,11 @@ void ReadShadowModelFile(void *h, int a1, int size, int id, int a4, int a5, int 
 }
 
 typedef struct {
-    char _0[0x30];
+    char pad0[48];
     int unk_30; /* 0x30 */
 } TexRec;       /* 0x34 */
 
 extern TexRec texFile[];
-/* kept local: agrees with main.h, which this TU does not include (GlobalStageSetting differ) */
-extern int NonLinearCameraMove;
 /* kept local: agrees with Texture.h, which this TU does not include (tex_RemakeRegistersSampleMin differs) */
 extern int tex_InitTexture(int id, void *buf);
 
@@ -265,7 +262,7 @@ void ReadTextureFile(void *h, int a1, int size, int a3, int a4, int a5, int a6)
 }
 
 typedef struct {
-    char name[0x8C];
+    char name[140];
 } SkelEnt; /* 0x8C */
 
 extern SkelEnt modelData[];
@@ -333,7 +330,7 @@ void ReadSkeltonFile(void *h, char *name, int size, int a3, int a4, int a5, int 
 }
 
 typedef struct {
-    char name[0x8C];
+    char name[140];
 } CollEnt; /* 0x8C */
 
 extern CollEnt D_004FBAB0[];
@@ -430,9 +427,9 @@ void ReadStageAnimationFile(void *h, int a1, int size, int a3, int a4, int a5, i
 }
 
 typedef struct {
-    char _0[0x134];
+    char pad0[308];
     int unk_134; /* 0x134 */
-    char _138[0x5C];
+    char pad138[92];
 } MotEnt; /* 0x194 */
 
 extern MotEnt motionKind[];
@@ -483,7 +480,7 @@ void ReadParticleEffectFile(void *h, int a1, int size, int a3)
 }
 
 typedef struct {
-    char _0[0x60];
+    char pad0[96];
     unsigned int loaded : 1; /* 0x60 bit 0 */
 } SeRec;                     /* 0x64 */
 
@@ -657,7 +654,7 @@ inline void ReadSoundAdpcmFile(void *h, int a1, int size, int a3, int a4, int a5
         debug_StdPrintfDummy("ReadAdpcmFile:loaded::[%d]%s  (size:%d)\n", a3, a1, size);
         q = adpcmDataSet(p, a3, a4, a6, size, AdpcmIopBuffAlloc(), 0);
         iosFree(p);
-        AdpcmPlay(*(int *)(q + 0x2C));
+        AdpcmPlay(((AdpcmObj *)q)->stream);
     } else {
         iosCdvdHandlerRead(h, 0, size);
     }
@@ -717,8 +714,6 @@ void ReadEndCheckFile(void *h, int a1, int size)
     iosFree(buf);
 }
 
-/* kept local: char [] here, StageSetting in main.h */
-extern char GlobalStageSetting[];
 /* kept local: Texture.h declares it (void); the callers here pass 0 */
 extern int tex_RemakeRegistersSampleMin(int a);
 
@@ -729,21 +724,21 @@ void ReadStageSettingFile(void *h, int a1, int size)
     systemStatus[8]++;
     buf = iosMallocDebug(ios_partition_seki, size, __FILE__, 905);
     iosCdvdHandlerRead(h, buf, size);
-    memcpy(GlobalStageSetting, buf, size);
+    memcpy(&GlobalStageSetting, buf, size);
     light_AddLight(0, 0, 0);
     tex_RemakeRegistersSampleMin(0);
 }
 
 typedef struct {
-    char _0[0x70];
+    char pad0[112];
     int unk_70; /* 0x70 */
-    char _74[0x10];
+    char pad74[16];
     int unk_84;   /* 0x84 */
     int unk_88;   /* 0x88 */
     char *unk_8C; /* 0x8C */
-    char _90[0x7A4];
+    char pad90[1956];
     int unk_834; /* 0x834 */
-    char _838[0x1C];
+    char pad838[28];
     PObj *unk_854; /* 0x854 */
     PObj *unk_858; /* 0x858 */
 } CsvChar;

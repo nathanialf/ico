@@ -20,9 +20,9 @@
 /* kept local: this TU's bytes only come out with its own view of Act, so it
    keeps one under its own name; the shared view is in ico2/common/include/typedef.h. */
 typedef struct ActSt10L {
-    char unk00[0x34];  /* 0x00 */
+    char pad0[52];     /* 0x00 */
     int f34;           /* 0x34 */
-    char unk38[0x98];  /* 0x38 */
+    char pad38[152];   /* 0x38 */
     ActMail *mainMail; /* 0xD0 */
     ActMail *mail;     /* 0xD4 */
 } ActSt10L;
@@ -30,10 +30,10 @@ typedef struct ActSt10L {
 /* kept local: this TU's bytes only come out with its own view of PObjGObj, so it
    keeps one under its own name; the shared view is in ico2/common/include/typedef.h. */
 typedef struct PObjGObjSt10L {
-    char pad00[0x164]; /* 0x000 */
-    ActSt10L *act;     /* 0x164 */
-    char pad168[0x4];  /* 0x168 */
-    int f16C;          /* 0x16C */
+    char pad00[356]; /* 0x000 */
+    ActSt10L *act;   /* 0x164 */
+    char pad168[4];  /* 0x168 */
+    int f16C;        /* 0x16C */
 } PObjGObjSt10L;
 
 /* the shared pad-state array (op.c's PadState, GsBase.c's GsbPad): 0x58 per

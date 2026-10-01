@@ -3,6 +3,7 @@
 #include "mcard.h"
 #include "boyact.h"
 #include "stage_orient.h"
+#include "itou_gflag.h"
 #include "generator.h"
 #include "lws_kyomi.h"
 #include "warpGirl.h"
@@ -18,12 +19,6 @@ static unsigned char gflags[50] = {0};
 int gFlagGameClear = 0; /* derived name */
 
 int gFlagSaveStage = 0;
-
-extern int gamesysVersionDiff;
-/* kept local: agrees with itou_gflag.h, which this TU does not include */
-extern void itouGFlagInit();
-int gflagChk(int bit_idx);
-void gflagOn(int bit_idx);
 
 void gflagInit(void)
 {

@@ -185,7 +185,7 @@ int debug_MemoryCard(void);
 void debug_PrintCharacter(char *str, int x, int y, int r, int g, int b, int sz);
 void debug_PrintFont(int a0, int a1, int a2, char *a3);
 void debug_PrintFontWindow(int col, char *fmt, ...);
-void debug_Printf(int a, int b, unsigned int c, int x, ...);
+void debug_Printf(int a, int b, unsigned int c, char *fmt, ...);
 void debug_PrintfDummy(int a0, int a1, unsigned int a2, int a3, ...);
 int debug_SETest(int reset);
 int debug_SelectActGobj(int reset);
@@ -202,11 +202,13 @@ void debug_openLog(void);
 void getBuffer(int a0);
 void getLineBuffer(int a0, int a1, int a2);
 void debug_FlushFont(void);
-
 void debug_VariableInit(void);
 int debug_SnapShot(int idx);
 int debug_Mode(void);
-int debug_SelectCsvWindowVal(int a0, int a1, int a2, int a3, int count, int a5, int (*fn)(int, int), int a7);
+
+int debug_SelectCsvWindowVal(int a0, int a1, int a2, int a3, int count, int a5, int (*fn)(int, int),
+                             int a7);
+
 void debug_SESlotDisp(void);
 int debug_CollisionTest(int reset);
 

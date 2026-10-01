@@ -35,7 +35,7 @@ void actDejaDemo(volatile int a0);
 
 /* the 0x28-byte stage-manager table entry */
 typedef struct {
-    char pad00[0x24];
+    char pad00[36];
     int preload; /* 0x24 */
 } StgEntry;
 

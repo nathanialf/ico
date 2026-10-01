@@ -6,6 +6,7 @@
 #include "gv.h"
 #include "lws_kyomi.h"
 #include "gflag.h"
+#include "itou_gflag.h"
 #include "geometryManager.h"
 #include "matrixDrive.h"
 #include "motionManager2.h"
@@ -38,9 +39,6 @@ void gamesysHintInfoLoad(int *a0);
 void gamesysHintInfoSave(int *self);
 void gamesysCharacterInfoLoad(int *a0);
 void gamesysCharacterInfoSave(int *self);
-/* the other TUs' save-area handlers the table carries; no header declares them */
-extern void itouGflagLoad(int a0, int a1, int a2, int a3);
-extern void itouGflagSave(void);
 
 /* .data, owned by gamesys.o in MAIN.MAP's order (all five are the map's
    globals): the build stamp written into the save area and compared against
@@ -268,9 +266,8 @@ int *gamesysObjInfoBaseSet(int *self, int stage)
 
 void gamesysBackStageProcess(void)
 {
-    unsigned short *h = (unsigned short *)gameSysObjInfo;
-    if (h[0x21] == 0x94) {
-        gamesysGirlStage = h[0x22];
+    if (gameSysObjInfo[1].no == 148) {
+        gamesysGirlStage = gameSysObjInfo[1].stage;
     }
     gamesysTimeCount++;
     backStageProcessMain();
@@ -395,8 +392,8 @@ void gamesysObjInfoStageInitPosSaveUnlock(void)
 int *gamesysObjInfoPosSetStage(int *self, int a1, int a2, int a3)
 {
     int *p = gamesysObjInfoBaseSet(self, a3);
-    p[0xC] = a1;
-    p[0xD] = a2;
+    ((GamesysObjInfo *)p)->work[0] = a1;
+    ((GamesysObjInfo *)p)->work[1] = a2;
     return p;
 }
 
@@ -571,7 +568,7 @@ void gamesysVersionSave(int a0)
         return;
     }
     {
-        char buf[0x20];
+        char buf[32];
         memset(buf, 0, 18);
         gamesysMemoryHandlerWrite((int *)a0, (int)buf, 18);
     }

@@ -19,18 +19,14 @@
 #include "act-game.h"
 #include "StageManager.h"
 #include "s_init.h"
+#include "typedef.h"
+#include "main.h"
 
-/* the custom key map's sixteen pad button codes (iosPadConfCustom[44..59]),
+/* the custom key map's sixteen pad button codes (iosPadConfCustom.bit),
    the default one bit per button */
 typedef struct {
     int code[16];
 } KeyConf;
-
-typedef struct {
-    int _0;
-    int flags;
-    char _8[0x50];
-} R58;
 
 /* The port record's flag word is reached through a union member: the ROM's
    codegen at layout_action.c:1128 proves that store is an alias-set-0 access
@@ -131,9 +127,6 @@ void CUR_SE(void)
     soundSeDefPlay(411, 0xFFFFFFFE, 0, 0);
 }
 
-/* kept local: R58 [] here, PadState [16] in main.h */
-extern R58 pad[];
-
 inline int PSH_POSITIVE_OR_NEGATIVE(int idx)
 {
     int v = pad[idx].flags;
@@ -174,12 +167,10 @@ int mc[640] __attribute__((aligned(64))) = {0};
 /* kept local: agrees with mcard.h, which this TU does not include (iosMcDelete, iosMcFormat, iosMcGetBlockSaveInfo, iosMcLoadGameBlock, iosMcLoadProductBlock, iosMcSaveGameBlock, iosMcSaveIconBlock, iosMcSaveProductBlock differ) */
 extern int iosMcSync(unsigned long *a0);
 extern int D_00534CC0[];
-/* kept local: agrees with main.h, which this TU does not include (pad differ) */
-extern int systemStatus[];
 
 typedef struct {
     unsigned int _0;
-    char _4[0x10];
+    char _4[16];
 } R14;
 
 /* one card's save record; the bytes pin an alignment above 32 bits (the
@@ -187,10 +178,10 @@ typedef struct {
    0x29B5F0 and its 0x1F0 stride do: a SIF DMA buffer for the card code */
 typedef struct {
     R14 f[20];
-    char _190[0x50];
+    char pad190[80];
     int _1E0;
     int _1E4;
-    char _1E8[0x8];
+    char pad1E8[8];
 } R1F0 __attribute__((aligned(16)));
 
 /* kept local (mcard.h's entry points do not fit this file's calls): mcard.c's
@@ -199,14 +190,10 @@ extern R1F0 IosMcProductFile[];
 /* kept local: agrees with mcard.h, which this TU does not include (iosMcGetBlockSaveInfo, iosMcLoadGameBlock differ) */
 extern int IosMcPreviewInfo[];
 extern int D_005343C8[];
-/* kept local: agrees with main.h, which this TU does not include (pad differ) */
-extern int lock_execIcoMisc;
 extern int D_00534400[];
-/* the custom pad configuration ios/pad.c owns, reached here as its words
-   (the sixteen button bits from word 44) */
-extern int iosPadConfCustom[];
-/* kept local: agrees with main.h, which this TU does not include (pad differ) */
-extern int stage_no;
+/* the custom pad configuration ios/pad.c owns; kept local: pad.h cannot
+   declare it while camera-root.c declares it as a char array */
+extern PadConf iosPadConfCustom;
 
 /* the memory-card error messages, VMA 0x61D760..0x61D840 */
 
@@ -266,13 +253,13 @@ typedef struct {
     int _10;
     int _14;
     int _18;
-    char _1C[4];
+    char pad1C[4];
     int _20;
-    char _24[0x20];
+    char pad24[32];
     int _44;
-    char _48[0x434];
+    char pad48[1076];
     McName _47C;
-    char _482[0x53E];
+    char pad482[1342];
     long long _9C0;
 } McWork;
 
@@ -729,7 +716,7 @@ inline void keyconfig_reset(void)
     KeyConf def = {{0x0001, 0x0002, 0x0004, 0x0008, 0x0010, 0x0020, 0x0040, 0x0080, 0x0100, 0x0200,
                     0x0400, 0x0800, 0x1000, 0x2000, 0x4000, 0x8000}};
 
-    *(KeyConf *)&iosPadConfCustom[44] = def;
+    *(KeyConf *)iosPadConfCustom.bit = def;
 }
 
 /* layout_action.c:1455-1490 in the listing. */
@@ -746,7 +733,7 @@ int la_vibe_select(void)
             break;
         }
         if (titleAdpcm != 0) {
-            *(short *)(*(int *)(titleAdpcm + 0x2C) + 0x44) = 0x80;
+            ((AdpcmObj *)titleAdpcm)->stream->f44 = 0x80;
         }
         titleAdpcm = 0;
         gflagInit();
@@ -1566,7 +1553,7 @@ int la_load_processing(int a0)
         debug_StdPrintfDummy("stage no %d\n", gFlagSaveStage);
         seEnvForceClose = 1;
         if (titleAdpcm != 0) {
-            *(short *)(*(int *)(titleAdpcm + 0x2C) + 0x44) = 0x40;
+            ((AdpcmObj *)titleAdpcm)->stream->f44 = 0x40;
         }
         titleAdpcm = 0;
         if (gflagChk(395)) {
@@ -1671,7 +1658,7 @@ int la_mc_confirm_save_file(int a0, int a1)
             if (layoutVoice != (char *)0xFFFFFFFF) {
                 saveVoice = 0;
                 if (layoutVoice != 0) {
-                    AdpcmPlay(*(void **)(layoutVoice + 0x2C));
+                    AdpcmPlay(((AdpcmObj *)layoutVoice)->stream);
                     return -1;
                 }
             }
@@ -2503,9 +2490,6 @@ inline int la_save_confirm_complete(int a0, int a1)
     return -1;
 }
 
-/* kept local: agrees with main.h, which this TU does not include (pad differ) */
-extern int optionScreenMode;
-
 /* layout_action.c:3462-3499 in the listing. */
 int la_end_confirm(void)
 {
@@ -2690,8 +2674,8 @@ inline void la_playtime_count(void)
    own in the ROM and no census row, and the name is descriptive. */
 static inline void releaseGameLoopCursor(void)
 {
-    if (layoutVoice != 0 && *(int *)(layoutVoice + 0x2C) != 0) {
-        *(short *)(*(char **)(layoutVoice + 0x2C) + 0x44) = 0x100;
+    if (layoutVoice != 0 && ((AdpcmObj *)layoutVoice)->stream != 0) {
+        ((AdpcmObj *)layoutVoice)->stream->f44 = 0x100;
     }
     layoutVoice = 0;
 }
@@ -2824,7 +2808,7 @@ int la_game_over_continue(int a0)
         if (layoutVoice != (char *)0xFFFFFFFF) {
             gameOverVoice = 0;
             if (layoutVoice != 0) {
-                AdpcmPlay(*(void **)(layoutVoice + 0x2C));
+                AdpcmPlay(((AdpcmObj *)layoutVoice)->stream);
                 return -1;
             }
         }
@@ -2934,7 +2918,7 @@ int la_key_config(int a0)
         D_00534CC0[0] = 323;
         for (i = 0; i < 16; i++) {
             if ((keyConfigMask >> i) & 1) {
-                keyConfigSlot[keyCodeIndex((iosPadConfCustom + 44)[i])] = keyCodeIndex(1 << i);
+                keyConfigSlot[keyCodeIndex(iosPadConfCustom.bit[i])] = keyCodeIndex(1 << i);
             }
         }
     }
@@ -2968,13 +2952,13 @@ int la_key_config(int a0)
             POSITIVE_SE();
             for (i = 0; i < 16; i++) {
                 if ((keyConfigMask >> i) & 1) {
-                    iosPadConfCustom[i + 44] = 0;
+                    iosPadConfCustom.bit[i] = 0;
                 } else {
-                    iosPadConfCustom[i + 44] = 1 << i;
+                    iosPadConfCustom.bit[i] = 1 << i;
                 }
             }
             for (i = 0; i < 8; i++) {
-                (iosPadConfCustom + 44)[keyBitIndex(keyConfigCode[keyConfigSlot[i]])] =
+                iosPadConfCustom.bit[keyBitIndex(keyConfigCode[keyConfigSlot[i]])] =
                     keyConfigCode[i];
             }
             keyconfigMaskAll();
@@ -2989,11 +2973,6 @@ int la_key_config(int a0)
     }
     return -1;
 }
-
-/* kept local: agrees with main.h, which this TU does not include (pad differ) */
-extern int optionControlType;
-/* kept local: agrees with main.h, which this TU does not include (pad differ) */
-extern int girlControlMode;
 
 /* the option screen's layout items: the five screen modes, the stage
    animation each mode plays (-1 for none), and the two choices of the control
@@ -3018,7 +2997,7 @@ int la_game_option(void)
 
     mode = soundOutputModeGet();
     lt_analog2Pad();
-    if ((pad[0]._0 & 0xA000) != 0) {
+    if ((pad[0].now & 0xA000) != 0) {
         cur = optionControlType;
         sel = optionScreenMode;
         switch (lt_current_property_item()) {

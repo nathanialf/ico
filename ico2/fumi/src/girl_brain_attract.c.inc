@@ -201,7 +201,7 @@ extern char actModeTbl[];
    the facing _GetRootObjectOrient fills for it.  The ROM's schedule proves
    these are field references (in-struct MEMs), not casts off an int. */
 typedef struct {
-    char _000[0x230];
+    char pad0[560];
     sceVu0FVECTOR pos; /* 0x230 */
     sceVu0FVECTOR dir; /* 0x240 */
 } GirlSofaWork;

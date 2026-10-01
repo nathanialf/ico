@@ -5,11 +5,11 @@
 #include "main.h"
 
 struct jNode {
-    char _0[4];
+    char pad0[4];
     int status;
     int field8;
     int fieldC;
-    char _10[4];
+    char pad10[4];
     int field14;
 };
 
@@ -42,15 +42,15 @@ static int jimakuFrameSema[13];
 #include "gflag.h"
 
 typedef struct JimTex {
-    char _0[0x1C];
+    char pad0[28];
     int tex; /* 0x1C */
-    char _20[0x24];
+    char pad20[36];
     int centre; /* 0x44 */
     int h;      /* 0x48 */
     int w;      /* 0x4C */
     int y;      /* 0x50 */
     int x;      /* 0x54 */
-    char _58[4];
+    char pad58[4];
     int u;  /* 0x5C */
     int tw; /* 0x60 */
     int th; /* 0x64 */
@@ -426,7 +426,7 @@ void jimakuEnd(JimakuArg *msg)
 /* the 0x70-byte layout-texture property records (LtProperty in
    src/layout_texture.c); jimaku owns entries 434 and 435. */
 typedef struct {
-    char _0[0x1C];
+    char pad0[28];
     int f1C; /* 0x1C */
     char _20[0x70 - 0x20];
 } JimakuLayout;

@@ -9,7 +9,7 @@
 #include "message.h"
 
 typedef struct IosMsg {
-    char pad0[0x44];
+    char pad0[68];
     struct IosMsg *next; /* 0x44 */
 } IosMsg;
 
@@ -26,10 +26,10 @@ typedef struct IosMsgQueue {
 /* the event thread iosMsgSetEvent spawns: an IOSThread with three trailing
    words of its own bookkeeping. */
 typedef struct MsgEventThread {
-    char pad0[0x30];
+    char pad0[48];
     int id;  /* 0x0030 IOSThread.id  */
     int arg; /* 0x0034 IOSThread.arg */
-    char pad38[0x4058];
+    char pad38[16472];
     IosMsgQueue *queue; /* 0x4090 */
     int val;            /* 0x4094 */
     int intc;           /* 0x4098 */

@@ -206,15 +206,15 @@ inline int iosOmExeMail(void (*func)(IosMail))
 }
 
 typedef struct OmProc {
-    char _p0[0x8];
+    char pad0[8];
     struct OmProc *next; /* 0x08 */
-    char _pC[0x4];
+    char padC[4];
     int mode;           /* 0x10 */
     int pri;            /* 0x14 */
     int enabled;        /* 0x18 */
     void (*fn)(void *); /* 0x1C */
-    char _p20[0x4];
-    char thread[0x4]; /* 0x24 */
+    char pad20[4];
+    char thread[4]; /* 0x24 */
 } OmProc;
 
 void _iosOmMain(void)
@@ -286,7 +286,7 @@ void iosOmMain(void)
 /* the camera list node the DL walk hangs off (gobj_camera_dl_link_head) and the per-kind
    GObj list heads (gobj_dl_link_head) */
 typedef struct OmCam {
-    char _p0[0x34];
+    char pad0[52];
     struct OmCam *next; /* 0x34 */
     char _p38[0x48 - 0x38];
     void (*dl)(struct OmCam *); /* 0x48 */
@@ -295,11 +295,11 @@ typedef struct OmCam {
 } OmCam;
 
 typedef struct OmObj {
-    char _p0[0x34];
+    char pad0[52];
     struct OmObj *next; /* 0x34 */
     char _p38[0x48 - 0x38];
     void (*dl)(struct OmObj *); /* 0x48 */
-    char _p4C[0x4];
+    char pad4C[4];
     int drawMask; /* 0x50 */
     char _p54[0x16C - 0x54];
     int active; /* 0x16C */

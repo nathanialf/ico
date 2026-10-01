@@ -2,6 +2,7 @@
 #include "pad.h"
 #include "keyInput.h"
 #include <libcdvd.h>
+#include "main.h"
 
 /* The EE exceptions the debug monitor traps: {cause code, printable name}. */
 typedef struct {
@@ -547,8 +548,6 @@ typedef struct {
     unsigned int w[4];
 } EeReg128;
 
-/* kept local: agrees with main.h, which this TU does not include */
-extern void Emergency_DestroyAllThread(void);
 extern int SetDebugHandler();
 
 /* debug_exception_screen.c.inc(476-477, 493-495): blank the character screen
@@ -669,7 +668,7 @@ void debugEEExceptionMain(int arg0, unsigned int cause, unsigned int epc, unsign
        display call instead of filling its delay slot. */
     for (;;) {
         tex = 1;
-        if (pad[0]._4 & 0x20) {
+        if (pad[0].flags & 0x20) {
             sel = page;
             if (sel >= 3) {
                 sel = 0;

@@ -17,24 +17,24 @@
 /* One sampled pad buffer: the two button bytes the device leaves at +2 and
    +3, active low. */
 typedef struct {
-    unsigned char _0[2];
+    unsigned char pad0[2];
     unsigned char hi; /* 0x02 */
     unsigned char lo; /* 0x03 */
     unsigned char rx; /* 0x04 */
     unsigned char ry; /* 0x05 */
     unsigned char lx; /* 0x06 */
     unsigned char ly; /* 0x07 */
-    unsigned char _8[0x18];
+    unsigned char pad8[24];
 } IosPadBuf;
 
 /* The device record iosPadDev carries one of per port: the buffer the last
    read filled is chosen by the index at +0xC, and +0x194 is set while the
    port has no controller. */
 typedef struct {
-    char _0[0x10];
+    char pad0[16];
     unsigned char motor0; /* 0x10 */
     unsigned char motor1; /* 0x11 */
-    char _12[0x2];
+    char pad12[2];
     int f14; /* 0x14 */
 } IosPadShock;
 
@@ -44,7 +44,7 @@ typedef struct {
     int f8;           /* 0x08 */
     int idx;          /* 0x0C */
     IosPadBuf buf[2]; /* 0x10 */
-    char _50[0x30];
+    char pad50[48];
     /* 0x80, scePadPortOpen's DMA buffer, which the library requires
        64-byte aligned: the record's stride of 0x200 and the 64-aligned
        start of pad.o's .data follow from it */
@@ -56,16 +56,16 @@ typedef struct {
     int _190;
     unsigned int error;   /* 0x194 */
     unsigned char act[6]; /* 0x198 */
-    char _19e[0x6];
+    char pad19E[6];
     IosPadShock shock; /* 0x1A4 */
-    char _1bc[0x4];
+    char pad1BC[4];
     unsigned long long f1C0; /* 0x1C0 */
 } IosPadDevRec;
 
 /* The caller's pad handle, the record iosPadConnect fills in. */
 typedef struct {
     IosPadDevRec *dev; /* 0x00 */
-    char *conf;        /* 0x04 */
+    PadConf *conf;     /* 0x04 */
     int now;           /* 0x08 */
     int trg;           /* 0x0C */
     int rel;           /* 0x10 */
@@ -85,7 +85,7 @@ typedef struct {
     float dx;  /* 0x0C */
     float dz;  /* 0x10 */
     float mag; /* 0x14 */
-    char _18[8];
+    char pad18[8];
 } IosPadStick;
 
 typedef struct {
@@ -115,16 +115,6 @@ extern int Shock_Request(int box, int player, ShockPrm prm, int key, int a4);
 static int padTermId;
 
 static int padEnabled;
-
-/* The pad configuration record, 60 words: two byte tables and a pair table
-   for the pressure and repeat handling (their roles are ours; no reader in
-   this build) and, at 0xB0, the sixteen button bits iosPadRead ORs. */
-typedef struct {
-    unsigned char press[12][2];
-    unsigned char pressRate[24];
-    int repeat[16][2];
-    int bit[16];
-} PadConf;
 
 /* .data, owned by pad.o, 0x29BA40..0x29C0E0 (= MAIN.MAP pad.o .data 0x6A0,
    line 5827, which names iosPadConfDefault, iosPadConfCustom, iosPadDev,
@@ -508,10 +498,10 @@ int iosPadRead(void *pad)
 
     for (i = 0; i < 16; i++) {
         if ((pbits >> i) & 1) {
-            old |= *(int *)(ctx->conf + (i << 2) + 0xB0);
+            old |= ctx->conf->bit[i];
         }
         if ((cbits >> i) & 1) {
-            now |= *(int *)(ctx->conf + (i << 2) + 0xB0);
+            now |= ctx->conf->bit[i];
         }
     }
 
@@ -742,11 +732,11 @@ int iosPadGetDevice(int a, int b)
     return -1;
 }
 
-int iosPadConnect(void *a0, int a1, int a2, int a3)
+int iosPadConnect(void *pad, int a1, int port, PadConf *conf)
 {
-    int *p = (int *)a0;
-    p[1] = a3;
-    p[0] = (int)&iosPadDev[a2];
+    IosPadCtx *ctx = (IosPadCtx *)pad;
+    ctx->conf = conf;
+    ctx->dev = &iosPadDev[port];
     return 0;
 }
 
@@ -887,7 +877,7 @@ void iosPadDevManager(void)
 
 typedef struct ShockRequest {
     ShockPrm prm; /* 0x00 */
-    unsigned char pad[0x38];
+    unsigned char pad[56];
     struct ShockRequest *org; /* 0x3C */
 } ShockRequest;
 

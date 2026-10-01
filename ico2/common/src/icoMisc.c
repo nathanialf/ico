@@ -110,13 +110,13 @@ static __inline__ void partitionBarDebugDisp(void)
 
 void disp_memory_partition_bar(void)
 {
-    char *parts[5] = {ios_partition_isys, ios_partition_s2motion, ios_partition_smotion,
-                      ios_partition_common, 0};
+    IosMemPart *parts[5] = {ios_partition_isys, ios_partition_s2motion, ios_partition_smotion,
+                            ios_partition_common, 0};
     D2Pos st;
     D2Pos ed;
     char buf[1024];
-    char *p;
-    char *e;
+    IosMemPart *p;
+    IosMemNode *e;
     int i = 0;
     int j;
     int k;
@@ -133,7 +133,7 @@ void disp_memory_partition_bar(void)
     gif_StartPacketPri(12);
     for (; parts[i] != 0; i++) {
         p = parts[i];
-        size = *(int *)(p + 0x3C) - *(int *)(p + 0x38) + 0x10;
+        size = p->end - p->start + 0x10;
         if (max < size) {
             max = size;
         }
@@ -161,17 +161,17 @@ void disp_memory_partition_bar(void)
     for (i = 0; parts[i] != 0; i++) {
         used = 0;
         p = parts[i];
-        e = *(char **)(p + 0x44);
-        total = *(int *)(p + 0x3C) - *(int *)(p + 0x38) + 0x10;
+        e = p->head;
+        total = p->end - p->start + 0x10;
         if (e != 0) {
             do {
-                used += *(int *)(e + 0x34) << 4;
-                e = *(char **)(e + 0x2C);
+                used += e->size << 4;
+                e = e->free_next;
                 if ((unsigned int)e > 0x1FEFFF0) {
                     sprintf(
                         buf,
                         "DISP_MEMORY_PARTITION_BAR():\n\tINVALID MEMORY FREE AREA INDICATED IN PARTITION \"%s\"\n\tMALLOCED MEMORY'S NEXT_FREE: %p\n",
-                        p + 0x10, e);
+                        p->name, e);
                     debug_assertMessage(__FILE__, 609, buf);
                     __assert(__FILE__, 609, "e");
                 }
@@ -207,40 +207,40 @@ void disp_memory_partition_bar(void)
         p = parts[i];
         debug_PrintfDummy(ScreenWidth / 2 - (ScreenWidth >> 1) + 30,
                           (ScreenHeight / 2 - 150 + ScreenHeight / 2 + i * 18) / 2, 0xFFFFFF80,
-                          "%10s", p + 0x10);
+                          "%10s", p->name);
     }
 }
 
 void disp_memory_partition(void)
 {
-    char *p;
+    IosMemPart *p;
     int y = 0x70;
     debug_PrintfDummy(24, 100, 0xFFFFFF00, "partition             total free/all      max free");
     iosMallocCheckLeak(ios_partition_root);
-    p = *(char **)((char *)ios_partition_root + 0x28);
+    p = ios_partition_root->parent;
     if (p != 0) {
         do {
             unsigned int sum = 0;
             unsigned int max = 0;
-            char *e;
+            IosMemNode *e;
             int diff;
             iosMallocCheckLeak(p);
-            e = *(char **)(p + 0x44);
+            e = p->head;
             if (e != 0) {
                 do {
-                    unsigned int v = *(int *)(e + 0x34) << 4;
+                    unsigned int v = e->size << 4;
                     if (max < v) {
                         max = v;
                     }
                     sum += v;
-                    e = *(char **)(e + 0x2C);
+                    e = e->free_next;
                 } while (e != 0);
             }
-            diff = *(int *)(p + 0x3C) - *(int *)(p + 0x38) + 0x10;
-            sprintf(printBuf, "%8s%8x: %8x/%8x %x", p + 0x10, p, sum, diff, max);
+            diff = p->end - p->start + 0x10;
+            sprintf(printBuf, "%8s%8x: %8x/%8x %x", p->name, p, sum, diff, max);
             debug_PrintfDummy(100, y, 0xFFFFFF00, printBuf);
             y += 8;
-            p = *(char **)(p + 0x24);
+            p = p->next;
         } while (p != 0);
     }
 }
@@ -284,8 +284,8 @@ void ExecIcoMisc(void)
     }
     iosOmGetGObjStatus(&total, &used);
     if (debug_font_flag2 != 0 || (debug_font_flag & 1) != 0) {
-        debug_Printf(470, 10, (used * 100 / total > 90) ? 0xFF300080 : 0xC0FF80, (int)"GObj %d/%d",
-                     used, total);
+        debug_Printf(470, 10, (used * 100 / total > 90) ? 0xFF300080 : 0xC0FF80, "GObj %d/%d", used,
+                     total);
     }
     if (debug_memory_bar != 0) {
         disp_memory_partition_bar();
@@ -370,9 +370,9 @@ typedef struct {
 /* particle-effect entry: package id at 0x18, attribute word at 0x20 whose
    bit 0 marks the entry as already handled */
 typedef struct {
-    char _0[0x18];
+    char pad0[24];
     int pkg; /* 0x18 */
-    char _1C[0x4];
+    char pad1C[4];
     unsigned int done : 1; /* 0x20 */
     unsigned int _21 : 31;
 } EffEnt;
@@ -382,7 +382,7 @@ extern const ScnPre motionKind[];
 /* the effect table is read-only here; the const frees its loads and is what the
    ROM's schedule shows (RTX_UNCHANGING_P, see the printf site in the scan loop) */
 extern const EffEnt motionEffKind[];
-extern char particleEffectFile[][0x50];
+extern char particleEffectFile[][80];
 
 static unsigned char setActorsDebugPending = 1; /* derived name */
 

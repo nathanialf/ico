@@ -1205,7 +1205,7 @@ void actSt06aShutterOpenSub(volatile int a0)
         _ACTWait(1);
     }
 
-    AdpcmPlay(*(int *)(shutter + 0x2C));
+    AdpcmPlay(((AdpcmObj *)shutter)->stream);
 
     stage_SetAnimation(110, 1, 0);
 

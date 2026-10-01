@@ -3,6 +3,7 @@
 #include "layout_texture.h"
 #include "pad.h"
 #include "thread.h"
+#include "gobj_process.h"
 #include "adpcm_init.h"
 #include "s_init.h"
 #include "act.h"
@@ -25,15 +26,15 @@
 /* kept local: this TU's bytes only come out with its own view of PObjGObj, so it
    keeps one under its own name; the shared view is in ico2/common/include/typedef.h. */
 typedef struct PObjGObjSt10R {
-    char pad00[0x8];   /* 0x000 */
-    int f08;           /* 0x008 */
-    int f0C;           /* 0x00C */
-    char pad10[0x14C]; /* 0x010 */
-    char *f15C;        /* 0x15C */
-    char pad160[0x4];  /* 0x160 */
-    Act *act;          /* 0x164 */
-    char pad168[0x4];  /* 0x168 */
-    int f16C;          /* 0x16C */
+    char pad00[8];   /* 0x000 */
+    int f08;         /* 0x008 */
+    int f0C;         /* 0x00C */
+    char pad10[332]; /* 0x010 */
+    char *f15C;      /* 0x15C */
+    char pad160[4];  /* 0x160 */
+    Act *act;        /* 0x164 */
+    char pad168[4];  /* 0x168 */
+    int f16C;        /* 0x16C */
 } PObjGObjSt10R;
 
 static ActMail floor_mes[2] = {{430}, {429}};
@@ -160,7 +161,7 @@ void actSt10rFloorChk(volatile int a0)
         _ACTWait(1);
     }
 
-    iosThreadSetPri((int *)(th + 0x24), 34);
+    iosThreadSetPri((int *)((GProc *)th)->thread, 34);
 
     if (demoEnd == 0) {
         scpFadeOut(16.0f, 0, 0, 0);
@@ -235,7 +236,7 @@ void actSt10rCageMain(volatile int a0)
         _ACTWait(1);
     }
 
-    iosThreadSetPri((int *)(th + 0x24), 34);
+    iosThreadSetPri((int *)((GProc *)th)->thread, 34);
 
     if (demoEnd == 0) {
         scpFadeOut(16.0f, 0, 0, 0);
@@ -319,7 +320,7 @@ void actSt10rTowerChk(volatile int a0)
 
     iosPadActStopAll();
 
-    iosThreadSetPri((int *)(th + 0x24), 34);
+    iosThreadSetPri((int *)((GProc *)th)->thread, 34);
 
     if (f) {
         stage_SetAnimation(389, 1, -1);
@@ -352,7 +353,7 @@ void actSt10rTowerConte(volatile int a0)
 {
     stage_SetAnimation(389, 1, 0);
 
-    AdpcmPlay(*(int *)(st10r_adpcm + 0x2C));
+    AdpcmPlay(((AdpcmObj *)st10r_adpcm)->stream);
 
     scpSearchGobj(1594)->f16C = 0;
     scpSearchGobj(1595)->f16C = 0;
@@ -414,7 +415,7 @@ void actSt10rChainMove(volatile int a0)
         _ACTWait(1);
     }
 
-    iosThreadSetPri((int *)(th + 0x24), 34);
+    iosThreadSetPri((int *)((GProc *)th)->thread, 34);
 
     if (demoEnd == 0) {
         scpFadeOut(16.0f, 0, 0, 0);
@@ -904,7 +905,7 @@ void actSt10rCageSub(volatile int a0)
         _ACTWait(1);
     }
 
-    AdpcmPlay(*(int *)(cage10r + 0x2C));
+    AdpcmPlay(((AdpcmObj *)cage10r)->stream);
 
     stage_SetAnimation(388, 1, 0);
 
@@ -949,7 +950,7 @@ void actSt10rChainMain(volatile int a0)
 {
     Act *sub = GOBJ_ACT(a0);
 
-    *(int *)((int)sub + 0xD0) = (int)chain_main_mes;
+    sub->mainMail = chain_main_mes;
     while (1) {
         _ACTWait(1);
     }
@@ -977,7 +978,7 @@ void actSt10rChainMoveSub(volatile int a0)
         _ACTWait(1);
     }
 
-    AdpcmPlay(*(int *)(chain10r + 0x2C));
+    AdpcmPlay(((AdpcmObj *)chain10r)->stream);
 
     stage_SetAnimation(387, 1, 0);
 

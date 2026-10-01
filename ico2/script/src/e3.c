@@ -127,7 +127,7 @@ void actE3Title(volatile int a0)
         _ACTWait(1);
     }
 
-    systemStatus[0xB] = 7;
+    systemStatus[11] = 7;
 
     scpFadeOut(255.0f, 0, 0, 0);
 
@@ -170,7 +170,7 @@ void actE3TitleChk(volatile int a0)
     gflagOn(357);
     debug_StdPrintfDummy("game_start\n");
 
-    AdpcmPlay(*(int *)(e3title + 0x2C));
+    AdpcmPlay(((AdpcmObj *)e3title)->stream);
 
     scpFadeOut(4.0f, 0, 0, 0);
     while (scpFadeChk() != 0) {
@@ -516,7 +516,7 @@ void actE3CageFallChk(volatile int a0)
         _ACTWait(1);
     }
 
-    AdpcmPlay(*(int *)(e3cage + 0x2C));
+    AdpcmPlay(((AdpcmObj *)e3cage)->stream);
 
     actCreateSubThread(actE3CageFallDemo, 21);
 
@@ -935,7 +935,7 @@ void actE3GateDemo(volatile int a0)
     }
     _ACTWait(1);
 
-    AdpcmPlay(*(int *)(e3gate1st + 0x2C));
+    AdpcmPlay(((AdpcmObj *)e3gate1st)->stream);
 
     while (stage_ContinueAnimation(648, 649) == 0) {
         _ACTWait(1);

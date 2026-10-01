@@ -8,6 +8,7 @@
 #include "warpGirl.h"
 #include <string.h>
 #include <libvu0.h>
+#include "main.h"
 
 int warpGirlInStageSet = 0;
 
@@ -35,21 +36,16 @@ typedef struct WarpRec {
 } WarpRec;
 
 /* the 16-byte vector this file copies whole */
-typedef union Vec16 {
+typedef union WarpVec { /* derived name */ /* field names derived */
     float f[4];
     long long q[2];
-} Vec16;
+} WarpVec;
 
 extern WarpRec girlWarpList[];
-/* kept local: agrees with main.h, which this TU does not include (girlGObj differ) */
-extern int stage_no;
 
 /* .sbss, owned by warpGirl.o and reached only from this file (MAIN.MAP names
    no symbol in the run): set when a warp destination has been found. */
 static int warpFound;
-
-/* kept local: int here, GObj * in main.h */
-extern int girlGObj;
 
 /* warpGirl.c:75-81 in the listing: the "this record wins" setter.  No MAIN.MAP
    symbol (the listing inlines it), so the name is ours. */
@@ -119,12 +115,12 @@ void warpGirlOutStage(int stage, int noSet)
             b1[0] = w->box1[2];
             b1[1] = w->box1[1];
             b1[2] = w->box1[0];
-            *(Vec16 *)b0 = *(Vec16 *)b1;
+            *(WarpVec *)b0 = *(WarpVec *)b1;
             memset(rpos, 0, 16);
             rpos[0] = w->box0[2];
             rpos[1] = w->box0[1];
             rpos[2] = w->box0[0];
-            *(Vec16 *)b1 = *(Vec16 *)rpos;
+            *(WarpVec *)b1 = *(WarpVec *)rpos;
             GetRootPosition(rpos, girlGObj);
             if (scpTriggerPosBox(rpos, b0, b1) == 0) {
                 continue;

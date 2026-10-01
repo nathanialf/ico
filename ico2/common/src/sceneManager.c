@@ -131,7 +131,7 @@ extern const StgPre stageData[];
 /* RECONSTRUCTION: the 0x28-byte enemy-model record; the two members named are the
    first and one-past-last index into the model-id list enemymodelTable. */
 typedef struct {
-    unsigned char _0[0x20]; /* 0x00 */
+    unsigned char pad0[32]; /* 0x00 */
     int first;              /* 0x20 */
     int last;               /* 0x24 */
 } EnemyMdlRec;

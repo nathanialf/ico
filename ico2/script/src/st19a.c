@@ -449,7 +449,7 @@ void actSt19aChainDownSub(volatile int a0)
         _ACTWait(1);
     }
 
-    AdpcmPlay(*(int *)(pipe19a + 0x2C));
+    AdpcmPlay(((AdpcmObj *)pipe19a)->stream);
 
     stage_SetAnimation(144, 1, 0);
 

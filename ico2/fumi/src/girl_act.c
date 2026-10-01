@@ -39,7 +39,7 @@ typedef struct GirlStand {
     sceVu0FVECTOR prev; /* 0x00 last frame's root position */
     sceVu0FVECTOR cur;  /* 0x10 this frame's root position */
     float f_20;         /* 0x20 */
-    char _24[0x0C];
+    char pad24[12];
     sceVu0FVECTOR sub30; /* 0x30 */
     sceVu0FVECTOR sub40; /* 0x40 */
     float f_50;          /* 0x50 */
@@ -131,7 +131,7 @@ void motGirlHand50(volatile int a0)
         _ACTWait(1);
     }
     while (GOBJ_SUB(a0)->f_4A0 < 0x214 || !(GOBJ_SUB(a0)->f_4A0 < 0x21B)) {
-        sub->f_130 = SetMotionRequest((void *)a0, 1, *(MotOriReq *)((char *)sub + 0x620));
+        sub->f_130 = SetMotionRequest((void *)a0, 1, sub->motOriReq);
         _ACTWait(1);
     }
     _ACTWait(1);
@@ -146,7 +146,7 @@ void motGirlHand50(volatile int a0)
         ACTSendMailCorrect((void *)a0, 7);
     }
     iosOmSendMail(((int *)boyGObj), 0x5E, isysCurrentGObj);
-    sub->f_130 = SetMotionRequest((void *)a0, 0x5E, *(MotOriReq *)((char *)sub + 0x620));
+    sub->f_130 = SetMotionRequest((void *)a0, 0x5E, sub->motOriReq);
     while ((*(int *)((char *)sub->f_130 + 0x5C) & 1) == 0) {
         _ACTWait(1);
     }
@@ -194,7 +194,7 @@ void motGirlHand100(volatile int a0)
         _ACTWait(1);
     }
     while (GOBJ_SUB(a0)->f_4A0 < 0x214 || !(GOBJ_SUB(a0)->f_4A0 < 0x21B)) {
-        sub->f_130 = SetMotionRequest((void *)a0, 1, *(MotOriReq *)((char *)sub + 0x620));
+        sub->f_130 = SetMotionRequest((void *)a0, 1, sub->motOriReq);
         _ACTWait(1);
     }
     _ACTWait(1);
@@ -205,9 +205,9 @@ void motGirlHand100(volatile int a0)
         _ACTWait(1);
     }
     iosOmSendMail(((int *)boyGObj), 0x63, isysCurrentGObj);
-    sub->f_130 = SetMotionRequest((void *)a0, 0x65, *(MotOriReq *)((char *)sub + 0x620));
+    sub->f_130 = SetMotionRequest((void *)a0, 0x65, sub->motOriReq);
     while (GOBJ_SUB(a0)->f_4A0 < 0x214 || !(GOBJ_SUB(a0)->f_4A0 < 0x21B)) {
-        sub->f_130 = SetMotionRequest((void *)a0, 1, *(MotOriReq *)((char *)sub + 0x620));
+        sub->f_130 = SetMotionRequest((void *)a0, 1, sub->motOriReq);
         _ACTWait(1);
     }
     _ACTWait(1);
@@ -272,7 +272,7 @@ expired:
                          (void *)a0 == (void *)((int *)boyGObj) ? "boy" : "girl");
 held:
     while (GOBJ_SUB(a0)->f_4A0 < 0x214 || !(GOBJ_SUB(a0)->f_4A0 < 0x21B)) {
-        sub->f_130 = SetMotionRequest((void *)a0, 1, *(MotOriReq *)((char *)sub + 0x620));
+        sub->f_130 = SetMotionRequest((void *)a0, 1, sub->motOriReq);
         _ACTWait(1);
     }
     _ACTWait(1);
@@ -283,7 +283,7 @@ held:
         _ACTWait(1);
     }
     iosOmSendMail(((int *)boyGObj), 0x68, isysCurrentGObj);
-    sub->f_130 = SetMotionRequest((void *)a0, 0x66, *(MotOriReq *)((char *)sub + 0x620));
+    sub->f_130 = SetMotionRequest((void *)a0, 0x66, sub->motOriReq);
     while ((*(int *)((char *)sub->f_130 + 0x5C) & 1) == 0) {
         _ACTWait(1);
     }
@@ -324,24 +324,24 @@ typedef struct {
 
 typedef struct {
     int num; /* 0x00 */
-    char _04[0x0C];
+    char pad4[12];
     GirlListEnt ent[100]; /* 0x10 */
 } GirlList;
 
 typedef struct GirlBrainWork {
     unsigned char f_0; /* 0x00 */
     unsigned char f_1; /* 0x01 */
-    char _2[0xC8E];
+    char pad2[3214];
     GirlList others;  /* 0x0C90 */
     GirlList listB;   /* 0x1F60 */
     GirlList hide;    /* 0x3230 */
     GirlList listD;   /* 0x4500 */
     void *target;     /* 0x57D0 the brain's current target gobj             */
     void *lastTarget; /* 0x57D4 the target the last DecideMode pass saw      */
-    char _57D8[0x04];
+    char pad57D8[4];
     int curMode;    /* 0x57DC the mode the brain last switched to */
     int targetFlag; /* 0x57E0 bit 16 of the winning BrainTarget's b18 word */
-    char _57E4[0x0C];
+    char pad57E4[12];
     float f_57F0[4]; /* 0x57F0 the runaway goal            */
     float f_5800[4]; /* 0x5800 last accepted hide point    */
     float f_5810[4]; /* 0x5810 */
@@ -350,7 +350,7 @@ typedef struct GirlBrainWork {
     float f_5840[4]; /* 0x5840 */
     float f_5850[4]; /* 0x5850 */
     int f_5860;      /* 0x5860 */
-    char _5864[0x8C];
+    char pad5864[140];
     unsigned char f_58F0; /* 0x58F0 */
     unsigned char f_58F1; /* 0x58F1 */
     unsigned char f_58F2; /* 0x58F2 set on the frame the mode changes */
@@ -400,12 +400,12 @@ typedef struct {
     float f_28;
     float f_2C;
     unsigned char f_30;
-    char _31[0x0F];
+    char pad31[15];
     sceVu0FVECTOR dir; /* 0x40 */
     unsigned char f_50;
-    char _51[3];
+    char pad51[3];
     float f_54;
-    char _58[8];
+    char pad58[8];
 } GirlAttractParam;
 
 void subGirlBrain_Idle(volatile int a0);
@@ -513,7 +513,7 @@ static inline void ATGoalTurnSet(void *actor, int prio, int dir, float *v)
    what lets ROM's reloads of `a0` move ahead of them (GetEyeDirection's
    argument, the mail call whose delay slot takes the 0x34C store). */
 typedef struct {
-    char _0[0x34C];
+    char pad0[844];
     float f_34C; /* 0x34C : move ratio */
     char _350[0x5C0 - 0x350];
     float f_5C0; /* 0x5C0 : turn direction */
@@ -2853,7 +2853,7 @@ retry:
                 sub->f_34C = 1.0f;
             }
             if (debug_font_flag & 1) {
-                debug_Printf(10, 110, 0x0FFFFFFF, (int)"goal[%d]\n", turn);
+                debug_Printf(10, 110, 0x0FFFFFFF, "goal[%d]\n", turn);
             }
             if (turn) {
                 sub->f_34C = 0.0f;
@@ -3212,7 +3212,7 @@ extern void *D_00629DE4;
 
 int isEnterHideadv(void)
 {
-    char buf[0x20];
+    char buf[32];
     int rv = 0;
     float diff;
     if (((int *)boyGObj) == 0) {
@@ -3346,11 +3346,11 @@ int padtimer_run = 0;
    rates handed to SetMotionDirectionSmooze (boyact.c reads the same row
    through its CHAINROW macro) */
 typedef struct {
-    char _000[0x182];
+    char pad0[386];
     short f_182;
-    char _184[0x2];
+    char pad184[2];
     short f_186;
-    char _188[0xC];
+    char pad188[12];
 } MotDirRow;
 
 #define MOTDIRROW(self)                                                                            \
@@ -3396,7 +3396,7 @@ void subGirlControl(volatile int a0)
         debug_StdPrintfDummy("girl no!!\n");
         _ACTWait(1);
     }
-    iosPadConnect(w.p + 0x2D8, 0, 1, w.p + 0x1E8);
+    iosPadConnect(w.p + 0x2D8, 0, 1, &((Act *)w.p)->padConf);
     girlPad = w.p + 0x2D8;
     /* A C loop: the January listing pads the loop top (0x179998) to an
        8-byte boundary with a nop, which final.c does only after a loop-begin
@@ -3414,7 +3414,8 @@ void subGirlControl(volatile int a0)
                    declaration-block reading of 1639 leaves them swapped.
                    What they cannot: what the January code broke out of. */
                 do {
-                    iosPadConnect(w.p + 0x2D8, 0, (void *)girlControlMode != 0, w.p + 0x1E8);
+                    iosPadConnect(w.p + 0x2D8, 0, (void *)girlControlMode != 0,
+                                  &((Act *)w.p)->padConf);
                     iosPadRead(w.p + 0x2D8);
                     iosPadGetStick(w.p + 0x2D8, w.p + 0x338, 0, 2, 2, debug_stick_simulate);
                     _GetMotionDirection(mdir, (void *)a0);
@@ -3427,9 +3428,9 @@ void subGirlControl(volatile int a0)
                     }
                 } while (0);
             } else if ((void *)a0 == (void *)CurrentTargetGObjSub) {
-                iosPadConnect(w.p + 0x2D8, 0, 1, w.p + 0x1E8);
+                iosPadConnect(w.p + 0x2D8, 0, 1, &((Act *)w.p)->padConf);
             } else {
-                iosPadConnect(w.p + 0x2D8, 0, 1, w.p + 0x1E8);
+                iosPadConnect(w.p + 0x2D8, 0, 1, &((Act *)w.p)->padConf);
             }
             /* The compiled-out block of the listing's lines 1654-2362.  What the
            bytes pin: its four texts in .rodata, in this order, after
@@ -3727,7 +3728,7 @@ void subGirlCollision(volatile int a0)
             } else {
                 GetSkeltonOrient(sk, (void *)a0, 1);
                 if (debug_font_flag & 1) {
-                    debug_Printf(10, 100, 0x0FFFFFFF, (int)"[%d]\n",
+                    debug_Printf(10, 100, 0x0FFFFFFF, "[%d]\n",
                                  _AbsRotyGV((char *)sub + 0x120, sk));
                 }
                 if (_AbsRotyGV((char *)sub + 0x120, sk) < 60) {
@@ -4159,7 +4160,7 @@ void actGirlHand(volatile int a0)
                 if (mode == 2) {
                     hand = 60.0f;
                 }
-                sub->f_130 = SetMotionRequest((void *)a0, 1, *(MotOriReq *)((char *)sub + 0x620));
+                sub->f_130 = SetMotionRequest((void *)a0, 1, sub->motOriReq);
                 ACTGame_SetMotionPlaySpeedRatio_Reserve((void *)a0, 1.0f, 2);
                 if (hand < dist) {
                     rec = motionKind + GOBJ_SUB(a0)->f_4A0 * 0x194;
@@ -4173,7 +4174,7 @@ void actGirlHand(volatile int a0)
                 break;
             case 1: {
                 float speed = (dist - 80.0f) / 80.0f + 0.6f;
-                sub->f_130 = SetMotionRequest((void *)a0, 0xE, *(MotOriReq *)((char *)sub + 0x620));
+                sub->f_130 = SetMotionRequest((void *)a0, 0xE, sub->motOriReq);
                 HandMgr_Speed(speed);
                 if (mode == st || p1 != 0) {
                     if (dist < 80.0f) {
@@ -4188,8 +4189,7 @@ void actGirlHand(volatile int a0)
             }
             case 2: {
                 float speed = (dist - 90.0f) * 4.0f / 90.0f + 1.0f;
-                sub->f_130 =
-                    SetMotionRequest((void *)a0, 0x10, *(MotOriReq *)((char *)sub + 0x620));
+                sub->f_130 = SetMotionRequest((void *)a0, 0x10, sub->motOriReq);
                 *(long long *)((char *)sub + 0x20) |= 0x100000;
                 HandMgr_Speed(speed);
                 if (mode == 1) {
@@ -4207,7 +4207,7 @@ void actGirlHand(volatile int a0)
                 break;
             }
             case 3:
-                sub->f_130 = SetMotionRequest((void *)a0, 0xE, *(MotOriReq *)((char *)sub + 0x620));
+                sub->f_130 = SetMotionRequest((void *)a0, 0xE, sub->motOriReq);
                 st = 0;
                 break;
             }
@@ -4893,9 +4893,9 @@ void DebugDispAutoEscort(void)
    alias.c can then tell them apart from the fixed-address parameter home, which
    is what lets ROM's reloads of `a0` move ahead of them. */
 typedef struct {
-    char _0[0x3B0];
+    char pad0[944];
     int f_3B0; /* 0x3B0 : frames left before the "cannot reach" retry */
-    char _3B4[0x16C];
+    char pad3B4[364];
     float f_520; /* 0x520 : hint-point target position */
     float f_524;
     float f_528;

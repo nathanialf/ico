@@ -19,12 +19,12 @@ void setMailTarget(int a0, int *a1, int *a2)
 /* One 60-byte sound-mail record: the mail id, an optional per-target filter,
    and a flag word whose low nibble selects the target set. */
 typedef struct SeRec {
-    char _p0[0x28];
+    char pad0[40];
     int mail;                                              /* 0x28 */
     int (*check)(int target, int self, struct SeRec *rec); /* 0x2C */
-    char _p30[0x4];
+    char pad30[4];
     unsigned short x34; /* 0x34 */
-    char _p36[0x2];
+    char pad36[2];
     unsigned int flags; /* 0x38 */
 } SeRec;
 

@@ -181,17 +181,17 @@ inline int iosMcGetBlockSaveInfo(void *a0)
 }
 
 typedef struct {
-    char b[0x40];
+    char b[64];
 } McBlk;
 
 typedef struct {
-    char unk0[0x190];
+    char pad0[400];
     int soundMode;
     int outputMode;
     int unk198;
     int gobj;
-    char blk[0x40];
-    char unk1E0[8];
+    char blk[64];
+    char pad1E0[8];
     int cameraMove;
     int unk1EC;
 } McSaveRec;
@@ -199,9 +199,10 @@ typedef struct {
 /* defined below, at their ROM slots; the 2001 source called them from here
    without a prototype, so they keep the non-prototype form. */
 extern McSaveRec IosMcProductFile[];
-/* the custom pad configuration ios/pad.c owns, saved from its button bits
-   (0xB0) */
-extern char iosPadConfCustom[];
+/* the custom pad configuration ios/pad.c owns, saved from its button bits;
+   kept local: pad.h cannot declare it while camera-root.c declares it as a
+   char array */
+extern PadConf iosPadConfCustom;
 
 inline int product_write(int *self)
 {
@@ -211,7 +212,7 @@ inline int product_write(int *self)
     (IosMcProductFile + self[2])->gobj = optionControlType;
     (IosMcProductFile + self[2])->cameraMove = NonLinearCameraMove;
     (IosMcProductFile + self[2])->unk1EC = systemStatus[0];
-    *(McBlk *)(IosMcProductFile + self[2])->blk = *(McBlk *)(iosPadConfCustom + 0xB0);
+    *(McBlk *)(IosMcProductFile + self[2])->blk = *(McBlk *)iosPadConfCustom.bit;
     iosMcHandlerWrite((int)self, (int)(IosMcProductFile + self[2]), 0x1F0);
     return 0;
 }
@@ -238,7 +239,7 @@ inline int gameblock_read(int *self, void *buf)
     soundOutputModeSet((IosMcProductFile + self[2])->outputMode);
     iosPadActRequestEnable = (IosMcProductFile + self[2])->unk198;
     optionControlType = (IosMcProductFile + self[2])->gobj;
-    *(McBlk *)(iosPadConfCustom + 0xB0) = *(McBlk *)(IosMcProductFile + self[2])->blk;
+    *(McBlk *)iosPadConfCustom.bit = *(McBlk *)(IosMcProductFile + self[2])->blk;
     iosMcHandlerRead((int)self, (int)&optionScreenMode, 4);
     iosMcHandlerRead((int)self, (int)&girlControlMode, 4);
     return self[4];
@@ -248,32 +249,32 @@ inline int gameblock_read(int *self, void *buf)
    (the same record src/debug.c spells as McDirEnt). */
 
 typedef struct {
-    long long f0;             /* 0x00 -- the iosMc command/flag word, 64-bit */
-    int port;                 /* 0x08 */
-    int slot;                 /* 0x0C */
-    int f10;                  /* 0x10 */
-    int f14;                  /* 0x14 */
-    int f18;                  /* 0x18 */
-    int f1C;                  /* 0x1C */
-    int f20;                  /* 0x20 */
-    int f24;                  /* 0x24 */
-    int fd;                   /* 0x28 */
-    int f2C;                  /* 0x2C */
-    int f30;                  /* 0x30 */
-    int size;                 /* 0x34 */
-    int pos;                  /* 0x38 */
-    int end;                  /* 0x3C */
-    int f40;                  /* 0x40 */
-    int f44;                  /* 0x44 -- entries filled in by sceMcGetDir */
-    int f48;                  /* 0x48 */
-    int sum;                  /* 0x4C */
-    int f50;                  /* 0x50 */
-    unsigned char buf[0x400]; /* 0x54 -- the one-sector staging cache */
-    char name454[0x14];       /* 0x454 */
-    char pwd468[0x14];        /* 0x468 */
-    char name47C[0x44];       /* 0x47C */
-    McDirEnt dir[20];         /* 0x4C0 */
-    long long mask;           /* 0x9C0 */
+    long long f0;            /* 0x00 -- the iosMc command/flag word, 64-bit */
+    int port;                /* 0x08 */
+    int slot;                /* 0x0C */
+    int f10;                 /* 0x10 */
+    int f14;                 /* 0x14 */
+    int f18;                 /* 0x18 */
+    int f1C;                 /* 0x1C */
+    int f20;                 /* 0x20 */
+    int f24;                 /* 0x24 */
+    int fd;                  /* 0x28 */
+    int f2C;                 /* 0x2C */
+    int f30;                 /* 0x30 */
+    int size;                /* 0x34 */
+    int pos;                 /* 0x38 */
+    int end;                 /* 0x3C */
+    int f40;                 /* 0x40 */
+    int f44;                 /* 0x44 -- entries filled in by sceMcGetDir */
+    int f48;                 /* 0x48 */
+    int sum;                 /* 0x4C */
+    int f50;                 /* 0x50 */
+    unsigned char buf[1024]; /* 0x54 -- the one-sector staging cache */
+    char name454[20];        /* 0x454 */
+    char pwd468[20];         /* 0x468 */
+    char name47C[68];        /* 0x47C */
+    McDirEnt dir[20];        /* 0x4C0 */
+    long long mask;          /* 0x9C0 */
 } McMgr;
 
 /* the product directory name, 17 bytes including the terminator: the ROM

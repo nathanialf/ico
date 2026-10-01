@@ -65,7 +65,7 @@ typedef struct {
 } KanbanReq;
 
 typedef struct {
-    char _0[0x1E8];
+    char pad0[488];
     int f1E8; /* 0x1E8 */
     int f1EC; /* 0x1EC */
 } KanbanStageRec;

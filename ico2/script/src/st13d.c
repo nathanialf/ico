@@ -3,6 +3,7 @@
 #include "script.h"
 #include "geometryManager.h"
 #include "st13d.h"
+#include "main.h"
 
 inline void actSt13dInit(void) {}
 
@@ -12,11 +13,6 @@ typedef union PosBox {
     float f[4];
     long long lo[2];
 } PosBox;
-
-typedef struct Act Act;
-
-/* kept local: void * here, GObj * in main.h */
-extern void *boyGObj;
 
 static const PosBox exitPos = {{854.0f, -156.0f, 0.0f, 0.0f}};
 

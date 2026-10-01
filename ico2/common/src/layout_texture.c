@@ -73,7 +73,7 @@ static unsigned int fadeCount;
 
 /* The 0x70-byte layout-property records. */
 typedef struct LtProperty {
-    char pad0[0x10];
+    char pad0[16];
     int f10; /* 0x10 */
     char pad14[0x1C - 0x14];
     int f1C;   /* 0x1C */
@@ -787,7 +787,7 @@ void exec_layout_texture(void)
 /* census init_textures_of_specified_property, a file static; MAIN.MAP carries no
    global of that name, so ico2/common/src/kanban's twin is a static too and
    `static` here keeps this one's ELF symbol local */
-extern char texFile[][0x34];
+extern char texFile[][52];
 extern char D_0030D014[];
 extern char *strtok(char *s, const char *sep);
 extern char *strrchr(const char *s, int c);

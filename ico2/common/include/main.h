@@ -15,9 +15,22 @@ extern int systemStatus[12];
 extern int db[140];
 extern StageSetting GlobalStageSetting;
 extern PadState pad[16];
-extern int stageMgrMsg[6];
-extern int SchedulerMsgQ[12];
 
+/* the stage manager's message: switch (0) or switch with a fade (1), the
+   stage, the fade-out and fade-in speeds and the fade colour */
+typedef struct { /* field names derived */
+    int cmd;
+    int stage;
+    char pad8[4];
+    float fadeOut;
+    float fadeIn;
+    unsigned char r;
+    unsigned char g;
+    unsigned char b;
+} StgMgrMsg;
+
+extern StgMgrMsg stageMgrMsg;
+extern int SchedulerMsgQ[12];
 /* .sdata; the ones marked derived are named by this tree, the rest by MAIN.MAP */
 extern char NetLoadTARGET[];
 extern int buffer_ID;
@@ -62,7 +75,6 @@ extern GObj *CurrentTargetGObjSub;
 extern int current_stage_no;
 extern void (*system_stage_func)(void);
 extern int InterStageSwitchLock;
-
 void Main(void);
 void Emergency_DestroyAllThread(void);
 

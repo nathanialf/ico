@@ -13,6 +13,7 @@
 #include "kanbanBoot.h"
 #include "layout_action.h"
 #include "thread.h"
+#include "gobj_process.h"
 #include "main.h"
 #include "script.h"
 
@@ -200,7 +201,7 @@ void actOpDemo01(volatile int a0)
             if (titleSubAdpcm != 0) {
                 scpAdpcmCloseFunc(&titleSubAdpcm);
             }
-            iosThreadSetPri((int *)(th + 0x24), 34);
+            iosThreadSetPri((int *)((GProc *)th)->thread, 34);
             scpFadeOut(16.0f, 0, 0, 0);
             break;
 
@@ -220,7 +221,7 @@ void actOpDemo01(volatile int a0)
                     break;
                 }
             }
-            iosThreadSetPri((int *)(th + 0x24), 34);
+            iosThreadSetPri((int *)((GProc *)th)->thread, 34);
             scpFadeOut(16.0f, 0, 0, 0);
             break;
 

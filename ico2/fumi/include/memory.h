@@ -12,7 +12,7 @@
 #ifndef MEMORY_H
 #define MEMORY_H
 
-typedef struct IosMemPart {
+typedef struct IosMemPart {    /* field names derived */
     char tag[16];              /* 0x00 */
     char name[16];             /* 0x10 */
     struct IosMemPart *prev;   /* 0x20 */
@@ -26,6 +26,22 @@ typedef struct IosMemPart {
     int total;                 /* 0x40 */
     struct IosMemNode *head;   /* 0x44 */
 } IosMemPart;
+
+/* one block of a partition, allocated or on its free list */
+typedef struct IosMemNode {       /* field names derived */
+    char tag[16];                 /* 0x00 */
+    char name[16];                /* 0x10 */
+    struct IosMemNode *prev;      /* 0x20 */
+    struct IosMemNode *next;      /* 0x24 */
+    struct IosMemNode *free_prev; /* 0x28 */
+    struct IosMemNode *free_next; /* 0x2C */
+    struct IosMemPart *part;      /* 0x30 */
+    int size;                     /* 0x34 */
+    int line;                     /* 0x38 */
+    int pad3C;                    /* 0x3C */
+    struct IosMemNode *pad40;     /* 0x40 (partition header view) */
+    struct IosMemNode *head;      /* 0x44 (partition header view: free-list head) */
+} IosMemNode;
 
 /* The declarations below lead this header because their order is load-bearing:
  * gcc 2.9 emits the deferred out-of-line copy of a plain-inline function in

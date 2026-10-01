@@ -78,7 +78,7 @@ unsigned char sekizo_yure_vol = 0;
    rotation, the unit scale at 0x20 and the kind index at 0x30 */
 struct DQW {
     float f0, f4, f8, fc, f10, f14;
-    char _18[0x8];
+    char pad18[8];
     float scale[3];
     int _2C;
     int f30;
@@ -150,9 +150,9 @@ extern void SetMotionDirection(void *a0, float *a1);
    the second argument is already in $a1 and cse drops the redundant copy. */
 
 extern struct MotTblRec {
-    char _000[0x186];
+    char pad0[390];
     short smzAngle;
-    char _188[0xC];
+    char pad188[12];
 } motionKind[];
 
 /* .data, first in script.o's run: the colour packet prim_DispWireBox draws the
@@ -178,14 +178,6 @@ static ActMail doorTypeUpDown_mes[2] = {{430}, {429}};
 
 static ActMail doorTypeUpUp_mes[2] = {{430}, {429}};
 
-struct ScpAct {
-    char _000[0x18];
-    ActStatus st18; /* 0x18 -- the 64-bit actor status word */
-    char _020[0xB0];
-    ActMail *mainMail; /* 0xD0 */
-    ActMail *mail;     /* 0xD4 */
-};
-
 /* kept local: this TU's uses of AdpcmInterStereoVolumeSet do not fit the
    prototype in adpcm_init.h */
 
@@ -193,14 +185,14 @@ struct ScpAct {
    trigger `kind` that selects which axis test runs, the bridge end offset the
    way group is built from, and the four axis bounds the tests read. */
 struct WoodBoxEnt {
-    short id;       /* 0x00 */
-    char kind;      /* 0x02 */
-    char _03[0x0D]; /* 0x03 */
-    float ofs[4];   /* 0x10 */
-    float b0;       /* 0x20 */
-    float b1;       /* 0x24 */
-    float b2;       /* 0x28 */
-    float b3;       /* 0x2C */
+    short id;      /* 0x00 */
+    char kind;     /* 0x02 */
+    char pad3[13]; /* 0x03 */
+    float ofs[4];  /* 0x10 */
+    float b0;      /* 0x20 */
+    float b1;      /* 0x24 */
+    float b2;      /* 0x28 */
+    float b3;      /* 0x2C */
 };
 
 /* kept local: agrees with motionManager2.h, which this TU does not include (SetMotionNodeFixModeParameter differs) */
@@ -211,17 +203,17 @@ extern void ClearMotionGeometryInfo(int *self);
 typedef struct {
     float p0[4];        /* 0x00 */
     float p1[4];        /* 0x10 */
-    char _020[0x50];    /* 0x20 */
+    char pad20[80];     /* 0x20 */
     float f70;          /* 0x70 */
-    char _074[0x0C];    /* 0x74 */
+    char pad74[12];     /* 0x74 */
     struct WallCol res; /* 0x80 */
-    char _08C[0x34];    /* 0x8C */
+    char pad8C[52];     /* 0x8C */
 } ClipWorkScript;       /* 0xC0 */
 
 /* the 0x28-byte stage table at exitData and the per-stage 0x194-byte link
    table at stageData: row [stage_no], entry .ent[no - 1] at +0xA0. */
 struct StgEnt {
-    char _00[0x24];
+    char pad0[36];
     int id;
 }; /* 0x28 */
 
@@ -253,7 +245,7 @@ extern int CheckWallAttribute(char *self, int attr);
 extern char objLayout[];
 
 struct EnemyEnt {
-    char _00[0x42];
+    char pad0[66];
     unsigned short f42;
 }; /* 0x4C stride */
 
@@ -289,7 +281,7 @@ extern ActMail queen_appear_mes[];
 inline void actSubSekizoSe(volatile int a0)
 {
     int x = a0;
-    struct ScpAct *act = (struct ScpAct *)actInitialize(a0);
+    Act *act = (Act *)actInitialize(a0);
 
     _ACTWait(1);
     if (gflagChk(332) == 0) {
@@ -316,7 +308,7 @@ inline void scpDispOffAllWithKind(int kind)
 {
     int v0 = isysGObjSearchFromObjKindID_begin(kind);
     while (v0 != 0) {
-        *(int *)(v0 + 0x50) = 0;
+        ((GObj *)v0)->f50 = 0;
         v0 = isysGObjSearchFromObjKindID_next(v0);
     }
 }
@@ -343,7 +335,7 @@ inline void scpDisActivateAllWithKind(int kind)
 {
     int v0 = isysGObjSearchFromObjKindID_begin(kind);
     while (v0 != 0) {
-        *(int *)(v0 + 0x16C) = 0;
+        ((GObj *)v0)->f_16C = 0;
         v0 = isysGObjSearchFromObjKindID_next(v0);
     }
 }
@@ -569,7 +561,7 @@ void scpPlayMot(char *self, int mot)
         id = 0x846;
     } else if (self == (char *)isysGObjSearchFromObjLayoutID(0x865)) {
         id = 0x96D;
-    } else if (*(int *)(self + 0xC) == 4) {
+    } else if (((GObj *)self)->kind == 4) {
         id = 0x965;
     }
 
@@ -578,14 +570,13 @@ void scpPlayMot(char *self, int mot)
         return;
     }
     ControlMotionOrient(id, mot);
-    *(int *)((char *)act + 0x130) =
-        SetMotionRequest(self, 0x10C, *(MotOriReq *)((char *)act + 0x620));
+    act->f_130 = SetMotionRequest(self, 0x10C, act->motOriReq);
 }
 
 inline void scpPlayMotReq(char *a0, int a1)
 {
     Act *p = GOBJ_ACT(a0);
-    *(int *)((char *)p + 0x130) = SetMotionRequest(a0, a1, *(MotOriReq *)((char *)p + 0x620));
+    p->f_130 = SetMotionRequest(a0, a1, p->motOriReq);
 }
 
 inline void scpPlayPosSet(void *a0, float f12, float f13, float f14)
@@ -774,7 +765,7 @@ inline int scpTriggerIgnore(char *self)
     int i = 0;
 
     while (ignoreKind[i] != -1) {
-        if (*(int *)(self + 0xC) == ignoreKind[i]) {
+        if (((GObj *)self)->kind == ignoreKind[i]) {
             Sub15C *sub = GOBJ_SUB(self);
             if (_ACTGame_GetParamF(2) < sub->f_560 || GOBJ_ACT(self)->unk34 == 0x16) {
                 return 1;
@@ -863,7 +854,7 @@ inline void scpDoorTypeUp(volatile int a0)
         scpTransLinear((void *)self, 1, -act->f_458, act->f_458);
     }
     doorTypeUp_mes[0].func = scpDoorTypeUpMain;
-    ((struct ScpAct *)act)->mail = doorTypeUp_mes;
+    act->mail = doorTypeUp_mes;
     ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
@@ -871,7 +862,7 @@ inline void scpDoorTypeUp(volatile int a0)
 inline void scpDoorTypeUpMain(volatile int a0)
 {
     Act *p = GOBJ_ACT(a0);
-    *(int *)((char *)p + 0xD0) = p->f_460;
+    p->mainMail = (ActMail *)p->f_460;
     for (;;) {
         _ACTWait(1);
     }
@@ -879,10 +870,10 @@ inline void scpDoorTypeUpMain(volatile int a0)
 
 inline void scpDoorTypeUpSwitch(volatile int a0)
 {
-    struct ScpAct *act = (struct ScpAct *)(char *)GOBJ_ACT(a0);
+    Act *act = GOBJ_ACT(a0);
 
     act->mainMail = 0;
-    if (gflagChk(*(int *)((char *)act + 0x454)) != 0) {
+    if (gflagChk(act->f_454) != 0) {
         doorTypeUpSwitchDown_mes[0].func = scpDoorTypeUpDown;
         act->mail = doorTypeUpSwitchDown_mes;
         ACTSendMailCorrect(a0, 430);
@@ -912,7 +903,7 @@ void scpDoorTypeUpDown(volatile int a0)
     }
     Camctrl_ExitEveRock();
     doorTypeUpDown_mes[0].func = scpDoorTypeUpMain;
-    ((struct ScpAct *)act)->mail = doorTypeUpDown_mes;
+    act->mail = doorTypeUpDown_mes;
     ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
@@ -935,7 +926,7 @@ void scpDoorTypeUpUp(volatile int a0)
     }
     Camctrl_ExitEveRock();
     doorTypeUpUp_mes[0].func = scpDoorTypeUpMain;
-    ((struct ScpAct *)act)->mail = doorTypeUpUp_mes;
+    act->mail = doorTypeUpUp_mes;
     ACTSendMailCorrect(a0, 430);
     _ACTWait(0);
 }
@@ -1045,7 +1036,7 @@ void scpSubAdpcmPlay(volatile int a0)
                 }
                 if (h != 0) {
                     if (p->unk10 != 0) {
-                        AdpcmPlay(*(int *)(h + 0x2C));
+                        AdpcmPlay(((AdpcmObj *)h)->stream);
                     }
                     if (p->unk14 == 0) {
                         if (p->id != 0) {
@@ -1077,11 +1068,11 @@ inline int scpAdpcmFadeCloseFunc(char **h, short fade)
     char *p = *h;
 
     if (p != 0) {
-        char *s = *(char **)(p + 0x2C);
+        AdpcmStream *s = ((AdpcmObj *)p)->stream;
         if (s == 0) {
             return 0;
         }
-        *(short *)(s + 0x44) = fade;
+        s->f44 = fade;
         return 1;
     }
     scpAdpcmRequestClose(h);
@@ -1093,7 +1084,7 @@ inline int scpAdpcmCloseChkFunc(char **h)
     int no;
     char *p = *h;
     if (p != 0) {
-        if (*(char **)(p + 0x2C) == 0 || *(int *)(*(char **)(p + 0x2C) + 0x28) == 0) {
+        if (((AdpcmObj *)p)->stream == 0 || ((AdpcmObj *)p)->stream->f28 == 0) {
             return 0;
         }
         return 1;
@@ -1175,7 +1166,7 @@ void scpGirlHintVoicePlay(void)
 {
     char *p = girlHintVoice;
     if (p != 0) {
-        AdpcmPlay(*(int *)(p + 0x2C));
+        AdpcmPlay(((AdpcmObj *)p)->stream);
     } else {
         /* the hint voice is not prepared yet, so it could not play */
         debug_StdPrintfDummy("ヒントポイスの準備未終了の状態なのでならせませんでした。\n");
@@ -1198,7 +1189,7 @@ void scpGirlHintVoiceTickProc(void)
     float pos[4];
     float dist;
     int deg;
-    char *snd;
+    AdpcmStream *snd;
     float vol;
     float lr;
     float l;
@@ -1211,7 +1202,7 @@ void scpGirlHintVoiceTickProc(void)
         girlHintVoice = 0;
         return;
     }
-    snd = *(char **)(girlHintVoice + 0x2C);
+    snd = ((AdpcmObj *)girlHintVoice)->stream;
     GetRootPosition(pos, girlGObj);
     CameraGetOtherObjOffset(pos, &dist, &deg);
     if (rmax <= dist) {
@@ -1248,8 +1239,8 @@ void scpGirlHintVoiceTickProc(void)
             adeg = 180 - adeg;
         r = (float)adeg * -0.01f + 1.0f;
     }
-    *(short *)(snd + 0x3C) = vol * 16383.0f * lr * l;
-    *(short *)(snd + 0x42) = vol * 16383.0f * lr * r;
+    snd->f3C[0] = vol * 16383.0f * lr * l;
+    snd->f40[1] = vol * 16383.0f * lr * r;
     AdpcmInterStereoVolumeSet(snd, 0);
 }
 
@@ -1424,7 +1415,7 @@ void scpSekizou(char *self, int flag, int anim, int anim2, int kind, float bx, f
     while (sekizo_common == 0) {
         _ACTWait(1);
     }
-    AdpcmPlay(*(int *)(sekizo_common + 0x2C));
+    AdpcmPlay(((AdpcmObj *)sekizo_common)->stream);
     if (fade != 0) {
         scpFadeIn(8.0f);
     }
@@ -1607,13 +1598,13 @@ void _SCPBoySupportGirl(float x0, float y0, float z0, float x1, float y1, float 
 
 inline int _SCPMoveCharactorByWay(char *self, int a1, float *dir, float speed, int a3)
 {
-    struct ScpAct *act = (struct ScpAct *)(char *)GOBJ_ACT(self);
+    Act *act = GOBJ_ACT(self);
 
-    act->st18.ll |= 1ULL << 47;
+    act->flags18.ll |= 1ULL << 47;
     ACTCharctrl_Lock(self);
     ACTSendMailCorrect(self, 0x106);
     ACTWayExec_Position(self, a1, dir, speed, a3);
-    act->st18.ll &= ~(1ULL << 47);
+    act->flags18.ll &= ~(1ULL << 47);
     ACTCharctrl_Unlock(self);
     return 0;
 }
@@ -1627,9 +1618,9 @@ void _SCPMoveCharactorByWay_Cancel(char *a0)
 inline void _SCPCharacterStop(char *self)
 {
     Act *p = GOBJ_ACT(self);
-    *(int *)((char *)p + 0x120) = 0;
-    *(int *)((char *)p + 0x124) = 0;
-    *(int *)((char *)p + 0x128) = 0;
+    p->dir[0] = 0;
+    p->dir[1] = 0;
+    p->dir[2] = 0;
     p->f_338 = p->f_33C = 0x7F;
     p->f_34C = 0;
 }
@@ -1865,7 +1856,7 @@ inline void ScpCallCameraOn(void)
 {
     char *g = boyGObj;
     if (g != 0) {
-        *(long long *)((char *)GOBJ_ACT(g) + 0x20) |= 0x800000;
+        GOBJ_ACT(g)->flags20.ll |= 0x800000;
     }
 }
 
@@ -1878,7 +1869,7 @@ inline void ScpCallCameraSetTarget(float x, float y, float z)
     char *g = boyGObj;
 
     if (g != 0) {
-        ActStatus *st = (ActStatus *)((char *)GOBJ_ACT(g) + 0x20);
+        ActStatus *st = &GOBJ_ACT(g)->flags20;
         st->ll = (st->ll & ~(3ULL << 24)) | (1ULL << 24);
         scriptCameraTarget[0] = pos[0];
         scriptCameraTarget[1] = pos[1];
@@ -1934,7 +1925,7 @@ void preload(int idx)
 
 inline int scpActStatusDeathFall(char *self)
 {
-    char *sub;
+    Sub15C *sub;
 
     switch ((unsigned int)GOBJ_ACT(self)->unk34) {
     case 4:
@@ -1948,18 +1939,18 @@ inline int scpActStatusDeathFall(char *self)
         return 0;
     }
 
-    sub = (char *)GOBJ_SUB(self);
+    sub = GOBJ_SUB(self);
     if (stage_no == 0x22) {
-        if (_ACTGame_GetParamF(2) - 200.0f < *(float *)(sub + 0x560)) {
+        if (_ACTGame_GetParamF(2) - 200.0f < sub->f_560) {
             return 1;
         }
-        sub = (char *)GOBJ_SUB(self);
+        sub = GOBJ_SUB(self);
     }
-    if (_ACTGame_GetParamF(2) < *(float *)(sub + 0x560)) {
+    if (_ACTGame_GetParamF(2) < sub->f_560) {
         return 1;
     }
-    sub = (char *)GOBJ_SUB(self);
-    if (!(_ACTGame_GetParamF(2) < *(float *)(sub + 0x55C))) {
+    sub = GOBJ_SUB(self);
+    if (!(_ACTGame_GetParamF(2) < sub->f_55C)) {
         return 0;
     }
     return 1;
@@ -2004,7 +1995,7 @@ inline int scpCheckExistAliveSpider(void)
 
 inline void scpLockMaxRotate(char *a0, float f12)
 {
-    ((ActStatus *)((char *)GOBJ_ACT(a0) + 0x20))->ll |= (1ULL << 33);
+    GOBJ_ACT(a0)->flags20.ll |= (1ULL << 33);
     GOBJ_WORK(a0)->f_344 = f12;
 }
 

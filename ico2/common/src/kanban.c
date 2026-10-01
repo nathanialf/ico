@@ -2,9 +2,9 @@
 #include "Texture.h"
 #include "debug_exception.h"
 
-typedef struct {
+typedef struct { /* field names derived */
     unsigned char b[4];
-} Col4;
+} KanbanCol; /* derived name */
 
 typedef struct KanbanProp KanbanProp;
 
@@ -14,7 +14,7 @@ typedef struct Node {
     int f8;
     int fC;
     float f10;
-    Col4 f14;
+    KanbanCol f14;
     struct Node *f18;
     struct Node *f1C;
 } Node;
@@ -47,7 +47,7 @@ static const char kanbanOverMsg[] = "かんばんクエストボックスオー�
 static const Pkt16 kanbanSprite = {{-5120, -1792, 10240, 3584}};
 
 typedef struct {
-    unsigned char pad0[0x130];
+    unsigned char pad0[304];
     int texFirst;
     int texLast;
     unsigned char pad1[0x194 - 0x138];
@@ -62,10 +62,10 @@ struct KanbanProp {
     float f14;
     float f18;
     float f1C;
-    unsigned char pad20[0x08];
+    unsigned char pad20[8];
     int f28;
     int f2C;
-    unsigned char pad30[0x08];
+    unsigned char pad30[8];
 };
 
 extern KanbanStage stageData[];
@@ -78,21 +78,18 @@ extern KanbanProp texLayout[];
 int kanbanCommonRead = 0;
 
 /* the colour a new sign starts with */
-static Col4 kanbanStartCol = {{0x80, 0x80, 0x80, 0}}; /* derived name */
-
-/* kept local: agrees with main.h, which this TU does not include */
-extern int systemStatus[];
+static KanbanCol kanbanStartCol = {{0x80, 0x80, 0x80, 0}}; /* derived name */
 
 typedef struct {
-    unsigned char pad00[0x18];
+    unsigned char pad00[24];
     void *f18;
     int f1C;
-    unsigned char pad20[0x10];
+    unsigned char pad20[16];
     int f30;
     int f34;
     int f38;
     int f3C;
-    unsigned char pad40[0x04];
+    unsigned char pad40[4];
     int f44;
     int f48;
     int f4C;
@@ -108,13 +105,11 @@ typedef struct {
 
 extern LayoutTex texProperty[];
 extern char D_0030D014[];
-/* kept local: int [] here, PadState [16] in main.h */
-extern int pad[];
 /* census display_texture, a file static; MAIN.MAP carries no global of that
    name, so the twins in ico2/fumi/src/jimaku and ico2/common/src/layout_texture
    are statics too and `static` here keeps this one's ELF symbol local */
-static void display_texture(KanbanProp *pr, LayoutTex *e, Col4 *col);
-extern char texFile[][0x34];
+static void display_texture(KanbanProp *pr, LayoutTex *e, KanbanCol *col);
+extern char texFile[][52];
 extern char *strtok(char *s, const char *sep);
 extern char *strrchr(const char *s, int c);
 /* kept local: agrees with mv_defs.h, which this TU does not include */
@@ -141,6 +136,7 @@ extern void gif_StartPacketPri(int pri);
 #include "kanban.h"
 #include <string.h>
 #include <stdlib.h>
+#include "main.h"
 
 static inline char *get_texture_base_name(char *src)
 {
@@ -201,16 +197,16 @@ static inline int kanban_layout_key(KanbanProp *pr)
     int ret = 0;
     LayoutTex *e = &texProperty[pr->f2C];
 
-    if ((pad[1] & 0x1000) && e->f3C > 0) {
+    if ((pad[0].flags & 0x1000) && e->f3C > 0) {
         pr->f2C = e->f3C;
-    } else if ((pad[1] & 0x4000) && e->f38 > 0) {
+    } else if ((pad[0].flags & 0x4000) && e->f38 > 0) {
         pr->f2C = e->f38;
-    } else if ((pad[1] & 0x8000) && e->f34 > 0) {
+    } else if ((pad[0].flags & 0x8000) && e->f34 > 0) {
         pr->f2C = e->f34;
-    } else if ((pad[1] & 0x2000) && e->f30 > 0) {
+    } else if ((pad[0].flags & 0x2000) && e->f30 > 0) {
         pr->f2C = e->f30;
     } else {
-        unsigned long button = pad[1]; /* derived name */
+        unsigned long button = pad[0].flags; /* derived name */
 
         if (button & 0x40) {
             ret = 1;
@@ -365,7 +361,7 @@ void kanbanInit(int no)
     }
 }
 
-static void display_texture(KanbanProp *pr, LayoutTex *e, Col4 *col)
+static void display_texture(KanbanProp *pr, LayoutTex *e, KanbanCol *col)
 {
     int uv[4];
     int r[4];
@@ -416,7 +412,7 @@ static void display_texture(KanbanProp *pr, LayoutTex *e, Col4 *col)
     if (e == &texProperty[pr->f2C]) {
         /* its initialiser is the anonymous 4-byte template at the end of
            the TU's .sdata run, which the ROM reaches with %hi/%lo */
-        Col4 col2 = {{0x80, 0x80, 0x80, 0x7F}};
+        KanbanCol col2 = {{0x80, 0x80, 0x80, 0x7F}};
 
         gif_StartPacketPri(11);
         gif_SetZTest(0);

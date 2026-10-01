@@ -29,7 +29,7 @@ void AdpcmStreamFree(void)
 }
 
 typedef struct {
-    char _0[0x30];
+    char pad0[48];
     int f30;
     int f34;
     int pitch; /* 0x38 */

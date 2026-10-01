@@ -95,7 +95,7 @@ void DetourCheck(char *self, float *out)
 /* the 0x194-byte enemy parameter rows, the same record ico2/fumi/src/enemy_act
    reads the 0x18C flag word out of */
 typedef struct {
-    char pad00[0x18C];
+    char pad00[396];
     unsigned int flags18C; /* 0x18C */
     char pad190[4];
 } EnemyParaRow;

@@ -307,7 +307,7 @@ void actSt02aWaterFallChk(volatile int a0)
 {
     Act *act = ((PObjGObj *)boyGObj)->act;
 
-    *(long long *)((char *)act + 0x20) &= ~0x80000000000LL;
+    act->flags20.ll &= ~0x80000000000LL;
     scpSearchGobj(1713)->f16C = 1;
     scpSearchGobj(1670)->f16C = 0;
     scpSearchGobj(1687)->f16C = 0;

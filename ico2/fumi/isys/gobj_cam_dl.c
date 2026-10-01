@@ -3,7 +3,7 @@
 #include "isys.h"
 
 typedef struct EnNode {
-    char pad[0x34];
+    char pad[52];
     struct EnNode *next;
     struct EnNode *prev;
 } EnNode;

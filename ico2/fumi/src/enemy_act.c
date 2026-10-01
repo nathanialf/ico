@@ -98,7 +98,7 @@ extern void __assert(const char *file, int line, const char *expr);
 #define BOSS_START_WORK(self) ((int)GOBJ_ACT(self)->f_680)
 
 typedef struct {
-    char pad00[0x14];
+    char pad00[20];
     int id;
     int timer;
     char busy;
@@ -110,7 +110,7 @@ typedef struct {
 #define BOSS_EFFECT_PARTS(self, i) ((BossPart *)((i) * 0x20 + BOSS_EFFECT_WORK(self) + 0x360))
 
 typedef struct {
-    char pad00[0x100];
+    char pad00[256];
     int f100;
     char pad104[0x182 - 0x104];
     short f182;
@@ -263,7 +263,7 @@ typedef enum { ACT_KIND_NONE = -1, ACT_KIND_GIRL = 1, ACT_KIND_ENEMY = 2 } ActKi
 #define ENEMY_START_WORK(self) ((int)GOBJ_ACT(self)->f_680)
 
 typedef struct {
-    char pad00[0x20];
+    char pad00[32];
     long long flags;
 } EnemyBrainWork;
 
@@ -500,7 +500,7 @@ void subEnemyControl(volatile int a0)
     int walkCnt = 0;
     int stopCnt = 0;
 
-    iosPadConnect((char *)sub + 0x2D8, 0, 1, (int)((char *)sub + 0x1E8));
+    iosPadConnect((char *)sub + 0x2D8, 0, 1, &sub->padConf);
     while (1) {
         enemyPollHitNodes(a0);
         /* The stick poll loop, subBoyControl's shape, repeating only under the
@@ -514,7 +514,7 @@ void subEnemyControl(volatile int a0)
         for (;;) {
             if (((int)(sub->flags18.ll >> 48)) & 1) {
                 if (a0 == (int)((char *)CurrentTargetGObj)) {
-                    iosPadConnect((char *)sub + 0x2D8, 0, 0, (int)((char *)sub + 0x1E8));
+                    iosPadConnect((char *)sub + 0x2D8, 0, 0, &sub->padConf);
                     iosPadRead((char *)sub + 0x2D8);
                     iosPadGetStick((char *)sub + 0x2D8, (char *)sub + 0x338, 0, 2, 2, 0);
                     _GetMotionDirection(dir, a0);
@@ -526,9 +526,9 @@ void subEnemyControl(volatile int a0)
                         sub->dir[2] = pos[2];
                     }
                 } else if (a0 == (int)((char *)CurrentTargetGObjSub)) {
-                    iosPadConnect((char *)sub + 0x2D8, 0, 1, (int)((char *)sub + 0x1E8));
+                    iosPadConnect((char *)sub + 0x2D8, 0, 1, &sub->padConf);
                 } else {
-                    iosPadConnect((char *)sub + 0x2D8, 0, 1, (int)((char *)sub + 0x1E8));
+                    iosPadConnect((char *)sub + 0x2D8, 0, 1, &sub->padConf);
                 }
             }
             if (!ENEMY_DEBUG_HOLD) {
@@ -754,7 +754,7 @@ inline void motEnemyStand(volatile int a0)
 {
     Act *sub = GOBJ_ACT(a0);
     debug_StdPrintfDummy("enter motEnemyStand\n");
-    *(char **)((char *)sub + 0x130) = SetMotionRequest(a0, 1, *(MotOriReq *)((char *)sub + 0x620));
+    *(char **)((char *)sub + 0x130) = SetMotionRequest(a0, 1, sub->motOriReq);
     while (1) {
         _ACTWait(1);
     }
@@ -773,7 +773,7 @@ inline void motEnemyWalk(volatile int a0)
     Act *sub = GOBJ_ACT(a0);
     char *mot;
     debug_StdPrintfDummy("enter motEnemyWalk\n");
-    mot = SetMotionRequest(a0, 8, *(MotOriReq *)((char *)sub + 0x620));
+    mot = SetMotionRequest(a0, 8, sub->motOriReq);
     *(char **)((char *)sub + 0x130) = mot;
     *(int *)(mot + 0x114) = 0;
     _ACTWait(0);
@@ -792,7 +792,7 @@ inline void motEnemyRun(volatile int a0)
     Act *sub = GOBJ_ACT(a0);
     char *mot;
     debug_StdPrintfDummy("enter motEnemyRun\n");
-    mot = SetMotionRequest(a0, 0xD, *(MotOriReq *)((char *)sub + 0x620));
+    mot = SetMotionRequest(a0, 0xD, sub->motOriReq);
     *(char **)((char *)sub + 0x130) = mot;
     *(int *)(mot + 0x114) = 0;
     _ACTWait(0);
@@ -1581,14 +1581,14 @@ inline int EnemyBrainStatus_Girl(char *a0)
 /* static inline of the 2001 source, listing lines 1148-1164 */
 static inline int getEnemyBrainMes(char *self, int *data)
 {
-    char *t = (char *)eBrainGetTarget(self);
+    EBSlot *t = eBrainGetTarget(self);
 
     if (t == 0) {
         *data = 0;
         return 0;
     }
-    *data = *(int *)(t + 4);
-    return *(unsigned short *)t;
+    *data = (int)t->target;
+    return t->status;
 }
 
 void CheckEnemyBrainMode(char *self, int *outMode, int *outData)
@@ -1734,11 +1734,9 @@ void subEnemyBrainMain(volatile int a0)
             for (; i < 5; i++) {
                 if (sub->unk34 == 5) {
                     ACTReserveTarget((char *)girlGObj, (void *)a0, 0xFF);
-                    *(char **)((char *)sub + 0x130) =
-                        SetMotionRequest(a0, 0x109, *(MotOriReq *)((char *)sub + 0x620));
+                    *(char **)((char *)sub + 0x130) = SetMotionRequest(a0, 0x109, sub->motOriReq);
                 } else {
-                    *(char **)((char *)sub + 0x130) =
-                        SetMotionRequest(a0, 0x107, *(MotOriReq *)((char *)sub + 0x620));
+                    *(char **)((char *)sub + 0x130) = SetMotionRequest(a0, 0x107, sub->motOriReq);
                 }
                 if (*(int *)((char *)sub->f_130 + 0xC) != 0) {
                     break;
@@ -1746,8 +1744,7 @@ void subEnemyBrainMain(volatile int a0)
                 _ACTWait(1);
             }
             if (gflagChk(0x189) != 0) {
-                *(char **)((char *)sub + 0x130) =
-                    SetMotionRequest(a0, 0x108, *(MotOriReq *)((char *)sub + 0x620));
+                *(char **)((char *)sub + 0x130) = SetMotionRequest(a0, 0x108, sub->motOriReq);
             }
         }
         break;

@@ -4,6 +4,7 @@
 #include "layout_texture.h"
 #include "pad.h"
 #include "thread.h"
+#include "gobj_process.h"
 #include "adpcm_init.h"
 #include "act.h"
 #include "boyact.h"
@@ -124,7 +125,7 @@ void actSt25aQueenAppearChk(volatile int a0)
     while (conte11 == 0) {
         _ACTWait(1);
     }
-    AdpcmPlay(*(int *)(conte11 + 0x2C));
+    AdpcmPlay(((AdpcmObj *)conte11)->stream);
     scpBoyControlReadDisable = 1;
     _ACTWait((0x3C - systemStatus[0] * 0xA) / systemStatus[1] * 3);
     actCreateSubThread(actConte11, 21);
@@ -191,10 +192,13 @@ void actConte11(volatile int a0)
     enable_game_pause = 1;
 }
 
-typedef union QueenWork {
+/* actSt25aQueenTalkChk's work area: the stage animations the cancelled
+   ending restores, or the boy's position and the direction vectors the
+   scene's motions are played along */
+typedef union TalkWork { /* derived name */ /* field names derived */
     AnimSet18 a;
     Vec4St25A v[3];
-} QueenWork;
+} TalkWork;
 
 extern char D_00618E70[];
 
@@ -207,7 +211,7 @@ static int eventDone;
 
 void actSt25aQueenTalkChk(volatile int a0)
 {
-    QueenWork w;
+    TalkWork w;
     unsigned int i;
     unsigned int n;
     int cancel;
@@ -265,8 +269,8 @@ void actSt25aQueenTalkChk(volatile int a0)
 
     DeleteStreamMotionManager();
     iosPadActStopAll();
-    iosThreadSetPri((int *)(th1 + 0x24), 34);
-    iosThreadSetPri((int *)(th2 + 0x24), 34);
+    iosThreadSetPri((int *)((GProc *)th1)->thread, 34);
+    iosThreadSetPri((int *)((GProc *)th2)->thread, 34);
 
     if (cancel != 0) {
         w.a = cancelAnimSet;
@@ -567,7 +571,7 @@ void actSt25aQueenDeadChk(volatile int a0)
     while (dead == 0) {
         _ACTWait(1);
     }
-    AdpcmPlay(*(int *)(dead + 0x2C));
+    AdpcmPlay(((AdpcmObj *)dead)->stream);
 
     stgmgrNextStagePreLoadForceStageSet(exitData[stageData[stage_no].ent[3]].f_24);
     stgmgrNextStagePreLoadForceNoCancel(1);
@@ -594,12 +598,12 @@ void actSt25aQueenDeadChk(volatile int a0)
         _ACTWait(1);
     }
 
-    *(int *)(scpSearchGobj(2149)->sub + 0x660) = 0;
+    GOBJ_SUB(scpSearchGobj(2149))->f_660 = 0;
     while (stage_ContinueAnimation(805, 806) == 0) {
         _ACTWait(1);
     }
 
-    *(int *)(scpSearchGobj(2149)->sub + 0x660) = 1;
+    GOBJ_SUB(scpSearchGobj(2149))->f_660 = 1;
     while (stage_ContinueAnimation(806, 807) == 0) {
         _ACTWait(1);
     }

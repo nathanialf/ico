@@ -298,20 +298,20 @@ inline int CheckWallAttributeEdegWall(int a0)
    ACTGetEnvironment's head reads that Sub15C does not name yet (the object
    kind at 0x0, the wall record at 0x574, the wall height at 0x5A4). */
 typedef struct { /* field names derived */
-    char pad000[0x110];
+    char pad000[272];
     float cliffDepth; /* 0x110 */
     float cliffDist;  /* 0x114 */
-    char pad118[0x18];
+    char pad118[24];
     float height; /* 0x130 */
-    char pad134[0x4];
+    char pad134[4];
     float wallDist; /* 0x138 */
 } EnvMotion;
 
 typedef struct { /* field names derived */
     int kind;    /* 0x0 */
-    char pad004[0x570];
+    char pad004[1392];
     char *wallRec; /* 0x574 */
-    char pad578[0x2C];
+    char pad578[44];
     float wallTop; /* 0x5A4 */
 } EnvSub;
 
@@ -329,15 +329,15 @@ extern int girlControlMode;
 /* kept local, as act-game.c keeps it: the 0x194-byte-per-entry motion record
    table indexed by the object's current motion id (obj->0x15C->0x4A0). */
 typedef struct {
-    char _000[0x150];
+    char pad0[336];
     int f_150;
-    char _154[0x10];
+    char pad154[16];
     float f_164;
-    char _168[0x18];
+    char pad168[24];
     short f_180;
     short f_182;
     short f_184;
-    char _186[0x02];
+    char pad186[2];
 
     union {
         unsigned int w;

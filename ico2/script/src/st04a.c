@@ -37,14 +37,14 @@
 /* kept local: this TU's bytes only come out with its own view of Act, so it
    keeps one under its own name; the shared view is in ico2/common/include/typedef.h. */
 typedef struct ActSt04A {
-    char unk00[0x20];  /* 0x00 */
+    char pad0[32];     /* 0x00 */
     ActStatus flags20; /* 0x20 */
-    char unk28[0xC];   /* 0x28 */
+    char pad28[12];    /* 0x28 */
     int unk34;         /* 0x34 */
-    char unk38[0x98];  /* 0x38 */
+    char unk38[152];   /* 0x38 */
     ActMail *mainMail; /* 0xD0 */
     ActMail *mail;     /* 0xD4 */
-    char unkD8[0x398]; /* 0xD8 */
+    char padD8[920];   /* 0xD8 */
     int unk470;        /* 0x470 */
     void *unk474;      /* 0x474 */
     int unk478;        /* 0x478 */
@@ -53,12 +53,12 @@ typedef struct ActSt04A {
 /* kept local: this TU's bytes only come out with its own view of PObjGObj, so it
    keeps one under its own name; the shared view is in ico2/common/include/typedef.h. */
 typedef struct PObjGObjSt04A {
-    char pad00[0x15C]; /* 0x000 */
-    char *f15C;        /* 0x15C */
-    char pad160[0x4];  /* 0x160 */
-    ActSt04A *act;     /* 0x164 */
-    char pad168[0x4];  /* 0x168 */
-    int f16C;          /* 0x16C */
+    char pad00[348]; /* 0x000 */
+    char *f15C;      /* 0x15C */
+    char pad160[4];  /* 0x160 */
+    ActSt04A *act;   /* 0x164 */
+    char pad168[4];  /* 0x168 */
+    int f16C;        /* 0x16C */
 } PObjGObjSt04A;
 
 /* .data, owned by st04a.o, in the ROM's order ahead of model_on and model_off
@@ -337,7 +337,7 @@ void actSt04aConte06(volatile int a0)
 {
     stage_SetAnimation(648, 1, 0);
 
-    AdpcmPlay(*(int *)(gate1st + 0x2C));
+    AdpcmPlay(((AdpcmObj *)gate1st)->stream);
 
     while (stage_ContinueAnimation(648, 649) == 0) {
         _ACTWait(1);
@@ -1023,7 +1023,7 @@ void actSt04aGateOpen2Chk(volatile int a0)
         _ACTWait(1);
     }
 
-    AdpcmPlay(*(int *)(gate_open2 + 0x2C));
+    AdpcmPlay(((AdpcmObj *)gate_open2)->stream);
 
     actCreateSubThread(actConte09_2, 21);
 }
@@ -1204,7 +1204,7 @@ void actSt04aGateOpen3Chk(volatile int a0)
         _ACTWait(1);
     }
 
-    AdpcmPlay(*(int *)(conte09_2 + 0x2C));
+    AdpcmPlay(((AdpcmObj *)conte09_2)->stream);
 
     actCreateSubThread(actSt04aEnvSeWakare2, 21);
     actCreateSubThread(actConte09_3, 21);
@@ -2176,7 +2176,7 @@ void actSt04aGirlSitChk(volatile int a0)
     while (gflagChk(140) == 0) {
         _ACTWait(1);
     }
-    ((ActStatus *)((char *)GOBJ_ACT(girlGObj) + 0x20))->ll |= 0x10000;
+    GOBJ_ACT(girlGObj)->flags20.ll |= 0x10000;
     n = 0;
     for (;;) {
         if ((int)(GOBJ_ACT(girlGObj)->flags20.ll >> 20) & 1) {

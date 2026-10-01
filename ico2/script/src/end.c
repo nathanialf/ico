@@ -502,7 +502,7 @@ void actConte14_10(volatile int a0)
         _ACTWait(1);
     }
 
-    AdpcmPlay(*(int *)(ed6 + 0x2C));
+    AdpcmPlay(((AdpcmObj *)ed6)->stream);
 
     scpPlayMot(boyGObj, 452);
 

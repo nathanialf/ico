@@ -37,7 +37,7 @@
 #include "fieldCollision.h"
 
 typedef struct {
-    char _0[0x1C];
+    char pad0[28];
     int f_1C;
     char _20[4];
 } WeaponEntry;
@@ -47,31 +47,31 @@ typedef struct {
 } __attribute__((packed)) U64ag;
 
 typedef struct {
-    char _00[0x20];
+    char pad0[32];
     float _20, _24, _28;
-    char _2c[0x44];
+    char pad2C[68];
     float _70;
-    char _74[0x0C];
+    char pad74[12];
     int _80;
-    char _84[0x04];
+    char pad84[4];
     int _88;
     int _8c;
-    char _90[0x04];
+    char pad90[4];
     int _94;
     int _98;
-    char _9c[0x24];
+    char pad9C[36];
 } HandWork;
 
 /* The 0x194-byte-per-entry motion record table, indexed by the object's
    current motion id (obj->0x15C->0x4A0). */
 typedef struct {
-    char _000[0x150];
+    char pad0[336];
     int f_150;
-    char _154[0x2C];
+    char pad154[44];
     short f_180;
     short f_182;
     short f_184;
-    char _186[0x02];
+    char pad186[2];
 
     union {
         unsigned int w;
@@ -172,11 +172,11 @@ typedef struct {
     unsigned char on;   /* 0x00 */
     unsigned char hit;  /* 0x01 */
     unsigned char attr; /* 0x02 */
-    char _03[0x0D];
+    char pad3[13];
     long long orient[2]; /* 0x10 -- GetOrientOfWall's output */
     unsigned char hit2;  /* 0x20 */
     unsigned char attr2; /* 0x21 */
-    char _22[0x0E];
+    char pad22[14];
     long long orient2[2]; /* 0x30 */
 } HandClInfo;
 
@@ -188,7 +188,7 @@ extern void debug_Arrow(void *root, void *vec, float len, int r, int g, int b);
 /* The hand-mode rows the motion record's two hand nibbles index: 16 bytes a
    row, the mode RequestChangeHandMode wants in the last word. */
 typedef struct {
-    char _0[0x0C];
+    char pad0[12];
     int mode;
 } HandModeRow;
 
@@ -695,7 +695,7 @@ inline int ACTCheckCollis_W(float f, void *hand0, void *hand1, void *actor, void
 
 inline int ACTCheckCollis_CI(int a0, int a1, int *a2, char *a3)
 {
-    char buf[0xC0];
+    char buf[192];
     memset(buf, 0, 0xC0);
     *(int *)(buf + 0x70) = 0;
     sceVu0CopyVector(buf, a0);
@@ -846,7 +846,7 @@ int ACTCheckView(char *self, void *a1, void *a2, int range, float f)
     float *m;
     int n;
 
-    n = GetSkeltonFocusNode(self, (void *)0x23) << 6;
+    n = GetSkeltonFocusNode(self, 35) << 6;
     m = (float *)(n + GOBJ_SUB(self)->f_C);
     pos[0] = m[12];
     pos[1] = m[13];
@@ -892,7 +892,7 @@ inline int ACTCheckViewCl(char *self, void *a1, void *a2, int range, float f)
     if (*(int *)(self + 0xC) == 4) {
         return 1;
     }
-    n = GetSkeltonFocusNode(self, (void *)0x23) << 6;
+    n = GetSkeltonFocusNode(self, 35) << 6;
     m = (float *)(n + *(int *)((int)((GObj *)(self))->p_15C + 0xC));
     pos[0] = m[12];
     pos[1] = m[13];
@@ -913,7 +913,7 @@ inline int ACTCheckViewClDetail(char *self, void *a1, void *a2, int range, float
     if (*(int *)(self + 0xC) == 4) {
         return 1;
     }
-    n = GetSkeltonFocusNode(self, (void *)0x23) << 6;
+    n = GetSkeltonFocusNode(self, 35) << 6;
     m = (float *)(n + *(int *)((int)((GObj *)(self))->p_15C + 0xC));
     pos[0] = m[12];
     pos[1] = m[13];
@@ -1274,7 +1274,7 @@ int ACTLookTarget_Exec(char *a0)
             /* the boy's skeleton position read in place: the listing gives
                the focus-node call line 2243 and all three copies line 2244,
                not GetSkeltonPosition's lines, which it defines later (2597) */
-            int idx = GetSkeltonFocusNode(t, (void *)0x23) << 6;
+            int idx = GetSkeltonFocusNode(t, 35) << 6;
             pos[0] = *(float *)(idx + *(int *)(((IntFloat *)(t + 0x15C))->i + 0xC) + 0x30);
             pos[1] = *(float *)(idx + *(int *)(((IntFloat *)(t + 0x15C))->i + 0xC) + 0x34);
             pos[2] = *(float *)(idx + *(int *)(((IntFloat *)(t + 0x15C))->i + 0xC) + 0x38);
@@ -2908,7 +2908,7 @@ void ACTLookTargetSystem_Exec(char *self)
                 /* the listing writes these two statements out at act-game.c
                    4202-4203 instead of calling GetSkeltonPosition, so the
                    node comes off `target` and the skeleton off the global. */
-                int idx = GetSkeltonFocusNode(target, (void *)0x23) << 6;
+                int idx = GetSkeltonFocusNode(target, 35) << 6;
                 ((IntFloat *)pos)[0].f =
                     *(float *)(idx + *(int *)((int)((GObj *)boyGObj)->p_15C + 0xC) + 0x30);
                 ((IntFloat *)pos)[1].f =

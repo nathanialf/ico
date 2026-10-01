@@ -12,11 +12,13 @@
 #ifndef PAD_H
 #define PAD_H
 
+struct PadConf;
+
 int iosPadActRequest(int port, int id);
 void iosPadActStop(int key);
 void iosPadActStopAll(void);
 int *iosPadActVolumeSet(int key, unsigned int val);
-int iosPadConnect(void *a0, int a1, int a2, int a3);
+int iosPadConnect(void *pad, int a1, int port, struct PadConf *conf);
 int iosPadDevInit(void *a0);
 int iosPadDevRead(void);
 int iosPadDevReadFunc(void);
@@ -26,10 +28,8 @@ int iosPadGetStick(void *dev, void *out, int mode, int a3, int a4, int a5);
 int iosPadGetStick_func(void *dev, void *out, int mode, int a3, int a4, int a5);
 int iosPadRead(void *pad);
 void iosPadStickCameraCoord(void *a0, float *a1);
-
 /* pad.c's vibration enable flag (MAIN.MAP's pad.o .sdata name). */
 extern int iosPadActRequestEnable;
-
 int controler_stable_check(void *a0);
 void iosPadActInit(void);
 

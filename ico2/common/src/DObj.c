@@ -29,9 +29,9 @@ typedef union {
 } DObjWord;
 
 typedef struct {
-    char pad[0x15C];
+    char pad[348];
     DObjWord data;
-    char pad2[0x20];
+    char pad2[32];
 } DObjGObj;
 
 typedef union {

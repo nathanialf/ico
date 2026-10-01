@@ -17,7 +17,7 @@
 #include "GifPacket.h"
 
 typedef struct {
-    char _0[0x10];
+    char pad0[16];
     FcWallEnt *walls; /* 0x10 */
     int unk14;
     short **unk18;
@@ -1418,26 +1418,26 @@ static FcColor wallRimColorExit1 = {25, 0, 19, 32}; /* derived name */
 static float unitMatrix[16] = {1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0}; /* derived name */
 
 typedef struct {
-    char _0[0x8];
+    char pad0[8];
     int nobj;  /* 0x8  */
     char *mtx; /* 0xC  */
-    char _10[0x60];
+    char pad10[96];
     char *coll; /* 0x70 */
-    char _74[0x4];
+    char pad74[4];
     int norot; /* 0x78 */
-    char _7C[0x4];
+    char pad7C[4];
     int multi; /* 0x80 */
 } FcWallSub;
 
 typedef struct {
-    char _0[0x15C];
+    char pad0[348];
     FcWallSub *sub; /* 0x15C */
 } FcWallObj;
 
 typedef struct {
-    char _0[0x8];
+    char pad0[8];
     int nwall; /* 0x8  */
-    char _c[0x4];
+    char padC[4];
     char *walls; /* 0x10 */
 } FcWallSet;
 

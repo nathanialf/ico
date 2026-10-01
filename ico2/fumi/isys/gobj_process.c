@@ -1,21 +1,7 @@
 #include "debug.h"
 #include "memory.h"
 #include "typedef.h"
-
-/* one process node: 0x4 owner GObj, 0x8 prev, 0xC next; the owner keeps the
-   list head at +0x2C and the tail at +0x30 */
-typedef struct GProc {
-    struct GProc *self;    /* 0x00, the node itself while the entry is in use, 0 when free */
-    char *owner;           /* 0x04 */
-    struct GProc *prev;    /* 0x08 */
-    struct GProc *next;    /* 0x0C */
-    int noThread;          /* 0x10, set when the process runs inline instead of on a thread */
-    unsigned int priority; /* 0x14, the list is kept in ascending priority order */
-    int active;            /* 0x18 */
-    int func;              /* 0x1C, the body of an inline process */
-    char _p20[0x4];
-    char thread[0x70]; /* 0x24, the IOSThread a threaded process runs on */
-} GProc;
+#include "gobj_process.h"
 
 extern void cut_gobj_process_link(GProc *p);
 
@@ -26,7 +12,6 @@ static char *procPool;
 
 static int procMax;
 
-#include "gobj_process.h"
 #include "thread.h"
 #include "ios.h"
 

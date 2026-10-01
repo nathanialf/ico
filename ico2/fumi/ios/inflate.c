@@ -18,7 +18,7 @@ struct huft {
 };
 
 typedef struct InflateWork {
-    char unk00[0x48];
+    char pad0[72];
     int wp;                /* 0x48 window position */
     unsigned int insize;   /* 0x4C */
     unsigned int inptr;    /* 0x50 */
@@ -40,9 +40,9 @@ typedef struct InflateWork {
 } InflateWork;
 
 typedef struct InflateHandler {
-    char unk00[0x8];
-    unsigned char slide[0x10000]; /* 0x00008 sliding window */
-    unsigned char inbuf[0x8000];  /* 0x10008 compressed input */
+    char pad0[8];
+    unsigned char slide[65536]; /* 0x00008 sliding window */
+    unsigned char inbuf[32768]; /* 0x10008 compressed input */
 } InflateHandler;
 
 #define IWORK(p) ((InflateWork *)((char *)(p) + 0x18000))

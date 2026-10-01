@@ -83,7 +83,7 @@ inline void actSt08bKurenMain(volatile int a0)
     if (girlGObj != 0) {
         scpPlayEnd(girlGObj);
     }
-    *(int *)((int)sub + 0xD0) = (int)kurenMain_mes;
+    sub->mainMail = kurenMain_mes;
     while (1) {
         _ACTWait(1);
     }

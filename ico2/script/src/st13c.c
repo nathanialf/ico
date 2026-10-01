@@ -4,6 +4,7 @@
 #include "layout_texture.h"
 #include "pad.h"
 #include "thread.h"
+#include "gobj_process.h"
 #include "obj_manager.h"
 #include "adpcm_init.h"
 #include "s_init.h"
@@ -41,25 +42,25 @@ typedef struct AnimSet16 {
 } AnimSet16;
 
 typedef struct AdpcmSlot {
-    char pad00[0x2C]; /* 0x00 */
-    int unk2C;        /* 0x2C */
+    char pad00[44]; /* 0x00 */
+    int unk2C;      /* 0x2C */
 } AdpcmSlot;
 
 typedef struct MotObj {
-    char pad00[0x514]; /* 0x000 */
-    int unk514;        /* 0x514 */
+    char pad00[1300]; /* 0x000 */
+    int unk514;       /* 0x514 */
 } MotObj;
 
 /* kept local: this TU's bytes only come out with its own view of PObjGObjSt13c. */
 /* kept local: this TU's bytes only come out with its own view of PObjGObj, so it
    keeps one under its own name; the shared view is in ico2/common/include/typedef.h. */
 typedef struct PObjGObjSt13c {
-    char pad00[0x15C]; /* 0x000 */
-    int unk15C;        /* 0x15C */
-    int unk160;        /* 0x160 */
-    int act;           /* 0x164 (Act * handle) */
-    int unk168;        /* 0x168 */
-    int unk16C;        /* 0x16C */
+    char pad00[348]; /* 0x000 */
+    int unk15C;      /* 0x15C */
+    int unk160;      /* 0x160 */
+    int act;         /* 0x164 (Act * handle) */
+    int unk168;      /* 0x168 */
+    int unk16C;      /* 0x16C */
 } PObjGObjSt13c;
 
 /* .sbss, owned by st13c.o and reached only from this file (MAIN.MAP names no
@@ -248,8 +249,8 @@ void actSt13cBmg1Chk(volatile int a0)
             _ACTWait(1);
         }
 
-        iosThreadSetPri((int *)(th1 + 0x24), 34);
-        iosThreadSetPri((int *)(th2 + 0x24), 34);
+        iosThreadSetPri((int *)((GProc *)th1)->thread, 34);
+        iosThreadSetPri((int *)((GProc *)th2)->thread, 34);
 
         w = conte04Anims;
         for (i = 0; i < 5; i++) {
@@ -262,8 +263,8 @@ void actSt13cBmg1Chk(volatile int a0)
         stage_SetAnimation(629, 1, -1);
         scpFadeIn(3.0f);
     } else {
-        iosThreadSetPri((int *)(th1 + 0x24), 34);
-        iosThreadSetPri((int *)(th2 + 0x24), 34);
+        iosThreadSetPri((int *)((GProc *)th1)->thread, 34);
+        iosThreadSetPri((int *)((GProc *)th2)->thread, 34);
     }
 
     scpPlayMot(boyGObj, 0);
@@ -364,7 +365,7 @@ void actSt13cCage1stDownDemoCancel(volatile int a0)
 
     demoEnd = 0;
 
-    th = (int *)(actCreateSubThread(actSt13cCage1stDownDemo, 21) + 0x24);
+    th = (int *)((GProc *)actCreateSubThread(actSt13cCage1stDownDemo, 21))->thread;
 
     while (demoEnd == 0 && ((pad[0].flags & 0x800) == 0 || scpAdpcmPlayRequestNum() != 0)) {
         _ACTWait(1);
@@ -559,9 +560,9 @@ void actSt13cCageFallChk(volatile int a0)
         }
     }
 
-    iosThreadSetPri((int *)(th1 + 0x24), 34);
-    iosThreadSetPri((int *)(th2 + 0x24), 34);
-    iosThreadSetPri((int *)(th3 + 0x24), 34);
+    iosThreadSetPri((int *)((GProc *)th1)->thread, 34);
+    iosThreadSetPri((int *)((GProc *)th2)->thread, 34);
+    iosThreadSetPri((int *)((GProc *)th3)->thread, 34);
 
     if (cancel) {
         w = conte05Anims;
@@ -1113,8 +1114,8 @@ void actSt13cHandChk(volatile int a0)
         _ACTWait(1);
     }
 
-    iosThreadSetPri((int *)(th2 + 0x24), 34);
-    iosThreadSetPri((int *)(th1 + 0x24), 34);
+    iosThreadSetPri((int *)((GProc *)th2)->thread, 34);
+    iosThreadSetPri((int *)((GProc *)th1)->thread, 34);
 
     if (demoEnd == 0) {
         scpAdpcmFadeCloseFunc(&st13c_reserved, 0x200);

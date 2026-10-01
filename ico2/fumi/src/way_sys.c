@@ -217,18 +217,18 @@ inline int GetWay_begin(void *a0, int a1, int a2)
 /* kept local: this TU's bytes only come out with its own view of the record,
    named apart from typedef.h's ClipWork as act.c names its ActClipWork. */
 typedef struct {
-    float p0[4];      /* 0x00 segment start */
-    float p1[4];      /* 0x10 segment end */
-    float hit[4];     /* 0x20 the clipped point */
-    char pad30[0x40]; /* 0x30 */
-    float f70;        /* 0x70 */
-    char pad74[0xC];  /* 0x74 */
-    char *f80;        /* 0x80 */
-    int f84;          /* 0x84 */
-    int wall;         /* 0x88 */
-    char pad8C[0x8];  /* 0x8C */
-    int floor;        /* 0x94 */
-    char pad98[0x28]; /* 0x98 */
+    float p0[4];    /* 0x00 segment start */
+    float p1[4];    /* 0x10 segment end */
+    float hit[4];   /* 0x20 the clipped point */
+    char pad30[64]; /* 0x30 */
+    float f70;      /* 0x70 */
+    char pad74[12]; /* 0x74 */
+    char *f80;      /* 0x80 */
+    int f84;        /* 0x84 */
+    int wall;       /* 0x88 */
+    char pad8C[8];  /* 0x8C */
+    int floor;      /* 0x94 */
+    char pad98[40]; /* 0x98 */
 } __attribute__((aligned(16))) WayClipWork;
 
 typedef float WayVec[4] __attribute__((aligned(16)));
@@ -236,9 +236,9 @@ typedef float WayVec[4] __attribute__((aligned(16)));
 /* The scene's generated-geometry record, 0x4C bytes; this TU reads only the
    kind byte at 0x46 (the same record ico2/common/src/sceneManager.c carves). */
 typedef struct {
-    char pad00[0x46];   /* 0x00 */
+    char pad00[70];     /* 0x00 */
     unsigned char kind; /* 0x46 */
-    char pad47[0x5];    /* 0x47 */
+    char pad47[5];      /* 0x47 */
 } GenGeoKind;
 
 extern GenGeoKind objLayout[];

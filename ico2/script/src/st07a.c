@@ -165,7 +165,7 @@ void actSt07aChanChk(volatile int a0)
     while (bridge == 0) {
         _ACTWait(1);
     }
-    AdpcmPlay(*(int *)(bridge + 0x2C));
+    AdpcmPlay(((AdpcmObj *)bridge)->stream);
 
     hEffect = actCreateSubThread(actSt07aChanEffect, 21);
 
