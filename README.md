@@ -116,8 +116,8 @@ sce/<archive>/              Sony's runtime libraries (libkernl, libgraph,
 config/                     link_order.pal.txt (every object in link order),
                             link.pal.ld (the linker script),
                             data_members.pal.txt (the data-only members),
-                            data_schema.pal.txt and data_schema.pal.h (the
-                            record types of the members built as C),
+                            data_schema.pal.txt (the record type, count and
+                            names of each member built as C),
                             sha1sums.txt; ico.pal.yaml and symbol_addrs.pal*.txt
                             are kept as a record and nothing reads them
 tools/                      setup, extraction, build and gate scripts, listed
