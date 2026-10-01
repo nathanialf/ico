@@ -149,9 +149,15 @@ ROM (`tools/verify_elf.py`), and writes `build.ninja` with
 - assembles each hand-written `.s` (`sce/crt0.s`, `sce/libkernl/klib.s`,
   `sce/libkernl/tlbtrap.s` and the R5900 string functions under
   `sce/libc/machine/r5900/`) with its archive's assembler and `-G`;
-- assembles the five VU1 microprograms `ico2/vusrc/*.dsm` with dvp-as, run
-  from `ico2/` because the overlay section names it writes hash the source
-  path;
+- assembles the five VU1 microprograms: the period cpp reads each program's
+  text, `ico2/vusrc/<stem>.vsm`, from standard input in `ico2/` with
+  `-Ivusrc` (it includes `vusrc/vu1_common.h` and, in normal_c and normal_l,
+  `vusrc/scissorcommcut.h`) and writes `build/ico2/vusrc/<stem>.i`; dvp-as,
+  run from `ico2/` with `-I../build/ico2`, assembles `vusrc/<stem>.dsm`, the
+  DMA tags around `.include "vusrc/<stem>.i"`. The overlay section names
+  dvp-as writes hash the name of the file it is reading and the line: the
+  `.dsm` path for the first overlay of each program, the empty name cpp gives
+  standard input and the include's path for the others;
 - writes the data-only members from the base ELF into `build/data/`. A
   member `config/data_schema.pal.txt` lists (73 of the 74) is written as C by
   `tools/gen_data_c.py`: an initialized array of its record type per section,
@@ -174,12 +180,14 @@ ROM (`tools/verify_elf.py`), and writes `build.ninja` with
 - runs `tools/check_elf.py --gate`: every allocated section of
   `build/ico.elf` must hold the base ELF's bytes at the base's addresses,
   `.sbss` and `.bss` must be allocated over the base's ranges, and
-  `build/ico.rom` must have the recorded SHA-1. A second, informational table
-  compares `.reginfo`, the `.DVP.*` sections, `e_flags`, `e_entry` and the
-  program and section headers. The build fails when a gated check fails.
+  `build/ico.rom` and `build/ico.elf` must have the recorded SHA-1s
+  (`--require-elf-sha`). A second, informational table compares `.reginfo`,
+  the `.DVP.*` sections, `e_flags`, `e_entry` and the program and section
+  headers. The build fails when a gated check fails.
 
 `./build.sh` prints the gate table once more after ninja. ninja does not
-track header or `.c.inc` dependencies: after editing one, run
+track header or `.c.inc` dependencies (the VU includes under `ico2/vusrc/`
+are listed on the cpp step): after editing one, run
 `tools/build.sh clean` before `ninja`.
 
 ## Progress and the dashboard

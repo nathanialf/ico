@@ -1,0 +1,163 @@
+; ico2/vusrc/particle.vsm /* derived name */: the program text of vusrc/particle.dsm.
+; Program-5 entry dispatch.
+	nop                              b SET_GSREGISTER                       ; 0x4B40
+	nop                              nop
+	nop                              b SET_UVOFFSET                         ; 0x4B50
+	nop                              nop
+	nop                              nop                                    ; 0x4B60 - reserved
+	nop                              nop                                    ; 0x4B68 - reserved
+	nop                              nop                                    ; 0x4B70 - reserved
+	nop                              nop                                    ; 0x4B78 - reserved
+	nop                              b SET_FONT_OFFSET                      ; 0x4B80
+	nop                              nop
+	nop                              b START_DEBUG_FONT                     ; 0x4B90
+	nop                              nop
+	nop                              b SPACE_DEBUG_FONT                     ; 0x4BA0
+	nop                              nop
+	nop                              nop                                    ; 0x4BB0 - reserved
+	nop                              nop                                    ; 0x4BB8 - reserved
+	nop                              b SET_PARTICLE_MATRIX                  ; 0x4BC0
+	nop                              nop
+	nop                              b BEGIN_PARTICLE                       ; 0x4BD0
+	nop                              nop
+	nop                              b START_PARTICLE                       ; 0x4BE0
+	nop                              nop
+	nop                              nop                                    ; 0x4BF0 - reserved
+	nop                              nop                                    ; 0x4BF8 - reserved
+
+; Program-5 entry dispatch tail (8 reserved nop_swap fillers).
+	nop                              nop                                    ; 0x4C00 - reserved
+	nop                              nop                                    ; 0x4C08 - reserved
+	nop                              nop                                    ; 0x4C10 - reserved
+	nop                              nop                                    ; 0x4C18 - reserved
+	nop                              nop                                    ; 0x4C20 - reserved
+	nop                              nop                                    ; 0x4C28 - reserved
+	nop                              nop                                    ; 0x4C30 - reserved
+	nop                              nop                                    ; 0x4C38 - reserved
+
+#include "vu1_common.h"
+
+; -----------------------------------------------------------------------
+; SET_PARTICLE_MATRIX - 8-quad load into vf01..vf08 (variant of SET_CLUSTER_LIGHT (cluster)).
+; -----------------------------------------------------------------------
+SET_PARTICLE_MATRIX:
+	nop                              xtop vi10
+	nop                              lqi.xyzw vf01, (vi10++)
+	nop                              lqi.xyzw vf02, (vi10++)
+	nop                              lqi.xyzw vf03, (vi10++)
+	nop                              lqi.xyzw vf04, (vi10++)
+	nop                              lqi.xyzw vf05, (vi10++)
+	nop                              lqi.xyzw vf06, (vi10++)
+	nop                              lqi.xyzw vf07, (vi10++)
+	nop                              lqi.xyzw vf08, (vi10++)
+
+; -----------------------------------------------------------------------
+; BEGIN_PARTICLE - 3-bundle shared terminator.  Also reachable from
+; START_PARTICLE loop tail via `ibeq vi05, vi00, BEGIN_PARTICLE` or `b BEGIN_PARTICLE`.
+; -----------------------------------------------------------------------
+BEGIN_PARTICLE:
+	nop                              nop                                    ; entry / delay slot of SET_PARTICLE_MATRIX lqi chain
+	nop[e]                           nop                                    ; END
+	nop                              nop                                    ; E-bit delay slot
+
+; -----------------------------------------------------------------------
+; START_PARTICLE - particle / clip-test routine.  Loads input quads
+; vf23/vf24/vf26/vf27/vf29, sets up output cursors vi02 = vi11,
+; vi01 = mem[544], vi03 = vi01, vi05 = 0.  Per-particle loop:
+;   - Load vf30/vf31 (position + direction).
+;   - Build vf10 = vf30.xyz with .w=0; vf28 = (vf30 + vf30.w into .xy)
+;     plus .zw masked.
+;   - Run two FMAC chains producing vf09 and vf12 (transformed pos
+;     and tangent).
+;   - Compute vf13/vf14 = particle motion vectors using add+sub
+;     micro-patches (lane-by-lane).
+;   - addz/addx into vf20 for sprite axis.
+;   - Two clip tests (sub.xyw + fmand chain) against vf26/vf27/vf10/vf11.
+;   - On clip-pass: store vf09/vf12 to (vi03+3)/(vi03+5); advance.
+;   - Loop count via vi07, then post-process and `b BEGIN_PARTICLE`.
+; -----------------------------------------------------------------------
+START_PARTICLE:
+	nop                              xtop vi10
+	nop                              ilwr.x vi07, (vi10)
+	nop                              iaddiu vi11, vi10, 1
+	nop                              lqi.xyzw vf23, (vi11++)
+	nop                              lqi.xyzw vf24, (vi11++)
+	nop                              lqi.xyzw vf26, (vi11++)
+	nop                              lqi.xyzw vf27, (vi11++)
+	nop                              lqi.xyzw vf29, (vi11++)
+	nop                              iaddiu vi02, vi11, 0
+	nop                              iaddiu vi01, vi00, 544
+	nop                              iaddiu vi03, vi01, 0
+	nop                              iaddiu vi05, vi00, 0
+
+LOOP_PARTICLE:
+	nop                              lqi.xyzw vf30, (vi02++)
+	nop                              lqi.xyzw vf31, (vi02++)
+	nop                              iaddi vi07, vi07, -1
+	nop                              move.xyz vf10, vf30
+	nop                              move.w vf10, vf00
+	addw.xy vf28, vf00, vf30w        iaddiu vi10, vi00, 1
+	subx.w vf00, vf31, vf00x         move.zw vf28, vf00
+	mulax.xyzw acc, vf01, vf10x      sq.xyzw vf23, 0(vi03)
+	madday.xyzw acc, vf02, vf10y     nop
+	maddaz.xyzw acc, vf03, vf10z     nop
+	maddw.xyzw vf09, vf04, vf00w     fmand vi11, vi10
+	mulx.xy vf28, vf28, vf29x        ibeq vi11, vi10, CLIP_PARTICLE
+	add.xy vf13, vf00, vf31          nop
+	addw.z vf13, vf00, vf00w         nop
+	sub.w vf13, vf00, vf00           div q, vf00w, vf09w
+	mulax.xyzw acc, vf05, vf28x      nop
+	madday.xyzw acc, vf06, vf28y     move.xyzw vf10, vf09
+	maddaz.xyzw acc, vf07, vf28z     move.xyzw vf11, vf09
+	maddw.xyzw vf12, vf08, vf28w     sq.xyzw vf13, 2(vi03)
+	add.xy vf14, vf00, vf31          iaddiu vi10, vi00, 208
+	addw.z vf14, vf00, vf00w         nop
+	sub.w vf14, vf00, vf00           nop
+	sub.xy vf10, vf10, vf12          nop
+	add.xy vf11, vf11, vf12          nop
+	addz.xyz vf20, vf00, vf31z       nop
+	addx.w vf20, vf31, vf00x         nop
+	mulq.xyz vf10, vf10, q           nop
+	mulq.xyz vf11, vf11, q           nop
+	addy.x vf14, vf14, vf29y         nop
+	addz.y vf14, vf14, vf29z         nop
+	ftoi0.xyzw vf20, vf20            nop
+	sub.xyw vf28, vf26, vf10         mfir.w vf09, vi00
+	sub.xyw vf28, vf10, vf27         mfir.w vf12, vi00
+	sub.xyw vf28, vf26, vf11         sq.xyzw vf14, 4(vi03)
+	sub.xyw vf28, vf11, vf27         sq.xyzw vf20, 1(vi03)
+	ftoi4.xyz vf09, vf10             fmand vi11, vi10
+	ftoi4.xyz vf12, vf11             fmand vi11, vi11
+	nop                              fmand vi11, vi11
+	nop                              fmand vi11, vi11
+	nop                              ibne vi11, vi10, CLIP_PARTICLE
+	nop                              nop                                    ; (delay slot)
+	nop                              sq.xyzw vf09, 3(vi03)
+	nop                              sq.xyzw vf12, 5(vi03)
+	nop                              iaddiu vi05, vi05, 1
+	nop                              iaddiu vi04, vi03, 0
+	nop                              iaddiu vi03, vi03, 6
+
+CLIP_PARTICLE:
+	nop                              ibne vi07, vi00, LOOP_PARTICLE
+	nop                              nop                                    ; (delay slot)
+	nop                              ibeq vi05, vi00, BEGIN_PARTICLE
+	nop                              sq.xyzw vf24, 0(vi04)                  ; (delay slot)
+	nop                              xgkick vi01
+	nop                              nop
+	nop                              b BEGIN_PARTICLE                       ; -> END
+	nop                              nop                                    ; (delay slot)
+
+; =======================================================================
+; SIXTH VU0 PROGRAM begins here (truncated - only the first 2 bundles
+; of the header are within .vutext 0x50E0 byte limit).  The rest of
+; program 6 lives beyond the section in `.data` / non-VU memory.
+; =======================================================================
+
+; Trailing alignment padding - 0x40 bytes of zero between .vutext
+; logical end (0x50E0) and the next section start (0x5120).  The
+; original textbin .bin file extends to 0x5120 (file size 20768),
+; and the linker uses those bytes for alignment between .vutext and
+; .data.  Reproducing the same 0x40 zero bytes keeps the LD
+; section-end alignment at the original VMA.
+

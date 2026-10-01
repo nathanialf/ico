@@ -27,7 +27,8 @@ cat > "$HOOK" <<'EOF'
 #   3. tools/format.sh --check      staged C must be clang-formatted
 #   4. tools/build.sh setup         verify the base ELF and ROM SHA-1s, write build.ninja
 #   5. ninja                        build every object from source, link, and run
-#                                   tools/check_elf.py --gate (the byte gate)
+#                                   tools/check_elf.py --gate --require-elf-sha
+#                                   (the byte gate and the whole ELF's SHA-1)
 #   6. tools/check_elf.py --progress
 #                                   refresh README.md, docs/PROGRESS.md and
 #                                   docs/progress.json from the built ELF and its
@@ -120,8 +121,8 @@ cat > "$PUSH_HOOK" <<'EOF'
 # For each ref being pushed whose commits touch the build, requires the
 # working tree to be at that ref's tip with no uncommitted change to a
 # build path, runs tools/build.sh setup + ninja
-# (which ends in tools/check_elf.py --gate), and refuses the push if the
-# rebuilt ELF differs from the base. This is the backstop against commits authored with
+# (which ends in tools/check_elf.py --gate --require-elf-sha), and refuses the
+# push if the rebuilt ELF differs from the base. This is the backstop against commits authored with
 # `git commit --no-verify` that broke the byte-identical round-trip.
 #
 # Bypass with `git push --no-verify` ONLY when pushing a known-broken

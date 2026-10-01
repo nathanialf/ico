@@ -3,9 +3,8 @@
 A source tree for the PlayStation 2 game **ICO** (Sony Computer Entertainment,
 2001) that rebuilds the boot ELF of the PAL retail disc, SCES-50760
 (`SCES_507.60`), with the toolchain the game was built with. Every byte the
-console loads is identical to the disc's (the ROM image SHA-1 matches). The
-ELF file itself still differs in seven section-name strings of the VU
-assembler's non-loaded overlay metadata; that delta is recorded below.
+console loads is identical to the disc's (the ROM image SHA-1 matches), and
+so is the ELF file itself (its SHA-1 matches the disc's).
 
 <!-- progress:begin -->
 ![.text progress](https://img.shields.io/badge/text-100.00%20%25-brightgreen.svg)
@@ -45,8 +44,8 @@ host needs a 64-bit Linux with 32-bit libraries, a host gcc, a MIPS `objcopy`
 and network access for the first run; [`docs/BUILDING.md`](docs/BUILDING.md)
 lists the packages and describes each step.
 
-The build checks two SHA-1s from `config/sha1sums.txt`: the extracted ELF
-before it starts and the rebuilt ROM image at the end.
+The build checks the SHA-1s from `config/sha1sums.txt`: the extracted ELF
+before it starts, and the rebuilt ROM image and the rebuilt ELF at the end.
 
 | file | SHA-1 |
 | --- | --- |
@@ -55,11 +54,15 @@ before it starts and the rebuilt ROM image at the end.
 
 The gate (`tools/check_elf.py --gate`) also compares every allocated section
 of `build/ico.elf` with the base ELF by address and checks that `.sbss` and
-`.bss` cover the base's ranges. The whole-file SHA-1 of `build/ico.elf` is
-reported but not gated: it differs from the disc's only in the names of seven
-`.DVP.overlay` sections (the DVP assembler hashes an include path into them
-that the disc does not record; the sections' contents, sizes and flags
-match). `tools/check_elf.py --full-diff` lists the delta.
+`.bss` cover the base's ranges, and that the whole-file SHA-1 of
+`build/ico.elf` is the base ELF's (`--require-elf-sha`): the section headers,
+the symbol-name strings ld keeps and the `.DVP` overlay names and tables all
+match. The overlay names hash the file and line the DVP assembler was reading:
+each microprogram's `.dsm` for the first, then the text cpp read from standard
+input (an empty name) and, in normal_c and normal_l, the shared include
+`vusrc/scissorcommcut.h`, whose name is derived (the hash fixes it among the
+names of its form). `tools/check_elf.py --full-diff` prints the whole-file
+comparison.
 
 ## Progress badges
 
@@ -102,7 +105,9 @@ ico2/<programmer>/<kind>/   the game, at the paths the disc's listing records:
                             each with src/ and include/, and fumi's ios/,
                             isys/ and sound/, ito's mpeg/
 ico2/vusrc/                 the five VU1 microprograms (cluster, mesh,
-                            normal_c, normal_l, particle) as dvp-as sources
+                            normal_c, normal_l, particle): each a .dsm (the
+                            DMA tags) around its .vsm (the program, through
+                            cpp), and two shared includes
 sce/<archive>/              Sony's runtime libraries (libkernl, libgraph,
                             libdma, libpad, libmc, libcdvd, libmpeg, libipu,
                             libpkt, libscf, libsndn2, libvu0) and the

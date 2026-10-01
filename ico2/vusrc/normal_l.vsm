@@ -1,0 +1,619 @@
+; ico2/vusrc/normal_l.vsm /* derived name */: the program text of vusrc/normal_l.dsm.
+#define VERTEX_QW 4 /* derived name */
+;
+; The program: the entry table, each `b` the entry of one routine; the
+; routines every program carries (vu1_common.h); the matrix and light
+; uploads; the BEGIN/START_NORMAL_L, NORMAL_L_SPEC and NORMAL_REF triangle
+; loops; SCISSOR_COMMON (scissorcommcut.h); and the SCISSOR_L loop, which
+; calls it between SCISSOR_COMMON_PUSHREGISTER and _POPREGISTER.
+; Program-4 entry-stub dispatch.
+	nop                              b SET_GSREGISTER                       ; 0x2EA0 - entry -> SET_GSREGISTER
+	nop                              nop
+	nop                              b SET_UVOFFSET                         ; 0x2EB0 - entry -> SET_UVOFFSET
+	nop                              nop
+	nop                              nop                                    ; 0x2EC0 - reserved
+	nop                              nop                                    ; 0x2EC8 - reserved
+	nop                              nop                                    ; 0x2ED0 - reserved
+	nop                              nop                                    ; 0x2ED8 - reserved
+	nop                              b SET_FONT_OFFSET                      ; 0x2EE0 - entry -> SET_FONT_OFFSET
+	nop                              nop
+	nop                              b START_DEBUG_FONT                     ; 0x2EF0 - entry -> START_DEBUG_FONT
+	nop                              nop
+	nop                              b SPACE_DEBUG_FONT                     ; 0x2F00 - entry -> SPACE_DEBUG_FONT
+	nop                              nop
+	nop                              nop                                    ; 0x2F10 - reserved
+	nop                              nop                                    ; 0x2F18 - reserved
+	nop                              b SET_NORMAL_MATRIX                    ; 0x2F20 - entry -> SET_NORMAL_MATRIX
+	nop                              nop
+	nop                              b SET_NORMAL_LIGHT                     ; 0x2F30 - entry -> SET_NORMAL_LIGHT
+	nop                              nop
+	nop                              nop                                    ; 0x2F40 - reserved
+	nop                              nop                                    ; 0x2F48 - reserved
+	nop                              nop                                    ; 0x2F50 - reserved
+	nop                              nop                                    ; 0x2F58 - reserved
+	nop                              nop                                    ; 0x2F60 - reserved
+	nop                              nop                                    ; 0x2F68 - reserved
+	nop                              nop                                    ; 0x2F70 - reserved
+	nop                              nop                                    ; 0x2F78 - reserved
+	nop                              nop                                    ; 0x2F80 - reserved
+	nop                              nop                                    ; 0x2F88 - reserved
+	nop                              nop                                    ; 0x2F90 - reserved
+	nop                              nop                                    ; 0x2F98 - reserved
+	nop                              b BEGIN_NORMAL_L                       ; 0x2FA0 - entry -> BEGIN_NORMAL_L
+	nop                              nop
+	nop                              b BEGIN_NORMAL_L_SPEC                  ; 0x2FB0 - entry -> BEGIN_NORMAL_L_SPEC  (far target)
+	nop                              nop
+	nop                              b BEGIN_SCISSOR_L                               ; 0x2FC0 - entry -> L_18E0  (far target)
+	nop                              nop
+	nop                              b BEGIN_NORMAL_REF                             ; 0x2FD0 - entry -> sub_38C0  (far target)
+	nop                              nop
+
+; =======================================================================
+; ROUTINES. The entry table above branches to each.
+; =======================================================================
+
+#include "vu1_common.h"
+
+; SET_NORMAL_MATRIX - bulk 13-quad upload to mem[16..27] + mem[3]->mem[37]
+; (clone of SET_NORMAL_MATRIX (normal_c)).
+SET_NORMAL_MATRIX:
+	nop                              xtop vi01
+	nop                              lqi.xyzw vf01, (vi01++)
+	nop                              sq.xyzw vf01, 16(vi00)
+	nop                              lqi.xyzw vf02, (vi01++)
+	nop                              sq.xyzw vf02, 17(vi00)
+	nop                              lqi.xyzw vf03, (vi01++)
+	nop                              sq.xyzw vf03, 18(vi00)
+	nop                              lqi.xyzw vf04, (vi01++)
+	nop                              sq.xyzw vf04, 19(vi00)
+	nop                              lqi.xyzw vf31, (vi01++)
+	nop                              sq.xyzw vf31, 20(vi00)
+	nop                              lqi.xyzw vf31, (vi01++)
+	nop                              sq.xyzw vf31, 21(vi00)
+	nop                              lqi.xyzw vf31, (vi01++)
+	nop                              sq.xyzw vf31, 22(vi00)
+	nop                              lqi.xyzw vf31, (vi01++)
+	nop                              sq.xyzw vf31, 23(vi00)
+	nop                              lqi.xyzw vf31, (vi01++)
+	nop                              sq.xyzw vf31, 24(vi00)
+	nop                              lqi.xyzw vf31, (vi01++)
+	nop                              sq.xyzw vf31, 25(vi00)
+	nop                              lqi.xyzw vf31, (vi01++)
+	nop                              sq.xyzw vf31, 26(vi00)
+	nop                              lqi.xyzw vf31, (vi01++)
+	nop                              sq.xyzw vf31, 27(vi00)
+	nop                              lq.xyzw vf31, 3(vi00)
+	nop                              sq.xyzw vf31, 37(vi00)
+	nop[e]                           nop                                    ; upper: E-bit pad (END)
+	nop                              nop                                    ; E-bit delay slot
+
+; SET_NORMAL_LIGHT - bulk 8-quad upload via vf31 to mem[28..35] (clone of SET_NORMAL_LIGHT (normal_c)).
+SET_NORMAL_LIGHT:
+	nop                              xtop vi01
+	nop                              lqi.xyzw vf31, (vi01++)
+	nop                              sq.xyzw vf31, 28(vi00)
+	nop                              lqi.xyzw vf31, (vi01++)
+	nop                              sq.xyzw vf31, 29(vi00)
+	nop                              lqi.xyzw vf31, (vi01++)
+	nop                              sq.xyzw vf31, 30(vi00)
+	nop                              lqi.xyzw vf31, (vi01++)
+	nop                              sq.xyzw vf31, 31(vi00)
+	nop                              lqi.xyzw vf31, (vi01++)
+	nop                              sq.xyzw vf31, 32(vi00)
+	nop                              lqi.xyzw vf31, (vi01++)
+	nop                              sq.xyzw vf31, 33(vi00)
+	nop                              lqi.xyzw vf31, (vi01++)
+	nop                              sq.xyzw vf31, 34(vi00)
+	nop                              lqi.xyzw vf31, (vi01++)
+	nop                              sq.xyzw vf31, 35(vi00)
+	nop[e]                           nop                                    ; upper: E-bit pad (END)
+	nop                              nop                                    ; E-bit delay slot
+
+; BEGIN_NORMAL_L - I-register setup with extended bulk load (variant of BEGIN_NORMAL_C (normal_c)
+; with 8 additional lq from mem[28..35] into vf05..vf12).
+BEGIN_NORMAL_L:
+	nop                              loi 0x4b7ffffe                         ; pad[I] + I = 0x4B7FFFFE
+	addi.w vf14, vf00, i             move.xyzw vf13, vf00
+	nop                              loi 0x457ff000                         ; pad[I] + I = 0x457FF000
+	addi.xy vf14, vf00, i            nop
+	nop                              lq.xyzw vf23, 2(vi00)
+	nop                              lq.xyzw vf05, 28(vi00)
+	nop                              lq.xyzw vf06, 29(vi00)
+	nop                              lq.xyzw vf07, 30(vi00)
+	nop                              lq.xyzw vf08, 31(vi00)
+	nop                              lq.xyzw vf09, 32(vi00)
+	nop                              lq.xyzw vf10, 33(vi00)
+	nop                              lq.xyzw vf11, 34(vi00)
+	nop                              lq.xyzw vf12, 35(vi00)
+	nop[e]                           nop                                    ; upper: E-bit pad (END)
+	nop                              nop                                    ; E-bit delay slot
+START_NORMAL_L:
+	nop                              xtop vi13
+
+; --- BEGIN_NORMAL_L transform body (0x3400..0x3618) ---
+; Reached directly when EE sets VU0_TPC=0x3400.  Loop tail branches
+; `b BEGIN_NORMAL_L` to re-enter BEGIN_NORMAL_L I-imm setup tail, which then hits
+; the E-bit at 0x33E8 to terminate.  Same exit-via-branch-into-tail
+; pattern as BEGIN_NORMAL_C_NOCLIP (normal_c) / BEGIN_NORMAL_C (normal_c) in program 3.
+	nop                              iaddiu vi14, vi00, 32767
+	nop                              iaddiu vi02, vi13, 1
+	nop                              ilwr.x vi04, (vi13)
+	nop                              lq.xyzw vf29, 0(vi13)
+	nop                              iand vi04, vi14, vi04
+	nop                              iaddiu vi01, vi13, 192
+	nop                              sq.xyzw vf29, 0(vi01)
+	nop                              iaddiu vi14, vi14, 1
+	nop                              iaddi vi03, vi01, -2                   ; vi03 = vi01 - 2 (note: -2, not +1)
+	nop                              mfir.w vf19, vi00
+	nop                              mfir.w vf20, vi14
+	nop                              iaddiu vi07, vi00, 208
+	sub.w       vf21, vf21, vf21     lq.xyzw vf16, 1(vi02)
+	nop                              lq.xyzw vf15, 0(vi02)
+	nop                              lq.xyzw vf17, 2(vi02)
+	nop                              lq.xyzw vf18, 3(vi02)
+	mulax.xyzw acc, vf05, vf16x      nop
+	madday.xyzw acc, vf06, vf16y     nop
+	maddaz.xyzw acc, vf07, vf16z     nop
+	maddw.xyzw vf29, vf08, vf16w     nop
+	sub.w       vf00, vf17, vf00     nop
+	mulax.xyzw acc, vf01, vf15x      nop
+	madday.xyzw acc, vf02, vf15y     nop
+	maxx.xyzw vf29, vf29, vf00x      nop
+	maddaz.xyzw acc, vf03, vf15z     fsand vi15, 0x2
+	maddw.xyzw vf28, vf04, vf00w     nop
+	add.xy      vf17, vf17, vf23     nop
+	nop                              nop
+	mulax.xyzw acc, vf09, vf29x      nop
+	madday.xyzw acc, vf10, vf29y     div q, vf00w, vf28w
+
+LOOP_NORMAL_L:
+	maddaz.xyzw acc, vf11, vf29z     iaddiu vi02, vi02, 4
+	maddw.xyzw vf29, vf12, vf29w     ibeq vi15, vi00, CONT_NORMAL_L
+	nop                              lq.xyzw vf16, 1(vi02)
+	nop                              iaddiu vi05, vi00, 3
+CONT_NORMAL_L:
+	mulq.xyz vf28, vf28, q           waitq
+	mulq.xyz vf21, vf17, q           lq.xyzw vf15, 0(vi02)
+	maxx.xyzw vf29, vf29, vf00x      lq.xyzw vf17, 2(vi02)
+	mulax.xyzw acc, vf05, vf16x      iaddi vi04, vi04, -1
+	sub.xyw     vf00, vf13, vf28     iaddiu vi03, vi03, 3
+	sub.xyw     vf00, vf28, vf14     sq.xyzw vf21, 0(vi03)
+; I-bit bundle: upper mul.xyz vf18,vf18,vf29 + I-bit; lower = 255.0f -> I
+	mul.xyz vf18, vf18, vf29         loi 0x437f0000
+	madday.xyzw acc, vf06, vf16y     move.xyzw vf30, vf28
+	maddaz.xyzw acc, vf07, vf16z     fmand vi14, vi07
+	maddw.xyzw vf29, vf08, vf16w     fmand vi14, vi14
+	minii.xyzw vf22, vf18, i         iaddi vi05, vi05, -1
+	mulax.xyzw acc, vf01, vf15x      lq.xyzw vf18, 3(vi02)
+	sub.w       vf00, vf17, vf00     nop
+	madday.xyzw acc, vf02, vf15y     nop
+	ftoi0.xyzw  vf22, vf22           nop
+	maddaz.xyzw acc, vf03, vf15z     nop
+	maddw.xyzw vf28, vf04, vf00w     fsand vi15, 0x2
+	maxx.xyzw vf29, vf29, vf00x      nop
+	ftoi4.xyz   vf20, vf30           sq.xyzw vf22, 1(vi03)
+	ftoi4.xyz   vf19, vf30           ibne vi14, vi07, CLIP_NORMAL_L
+	add.xy      vf17, vf17, vf23     div q, vf00w, vf28w
+	nop                              ibgtz vi05, CLIP_NORMAL_L_SET
+	nop                              nop
+NOCLIP_NORMAL_L:
+	mulax.xyzw acc, vf09, vf29x      ibne vi04, vi00, LOOP_NORMAL_L
+	madday.xyzw acc, vf10, vf29y     sq.xyzw vf19, 2(vi03)
+	nop                              xgkick vi01
+	nop                              b BEGIN_NORMAL_L                       ; -> BEGIN_NORMAL_L E-bit
+	nop                              nop                                    ; (branch delay slot)
+CLIP_NORMAL_L:
+	nop                              iaddiu vi05, vi00, 3
+CLIP_NORMAL_L_SET:
+	mulax.xyzw acc, vf09, vf29x      ibne vi04, vi00, LOOP_NORMAL_L
+	madday.xyzw acc, vf10, vf29y     sq.xyzw vf20, 2(vi03)
+	nop                              xgkick vi01
+	nop                              b BEGIN_NORMAL_L                       ; -> BEGIN_NORMAL_L E-bit
+	nop                              nop                                    ; (branch delay slot)
+
+; -----------------------------------------------------------------------
+; BEGIN_NORMAL_L_SPEC - I-register setup (clone of BEGIN_NORMAL_L I-imm prologue).
+; Transform body extends past 0x3690 (deferred to next batch).
+; -----------------------------------------------------------------------
+BEGIN_NORMAL_L_SPEC:
+	nop                              loi 0x4b7ffffe                         ; pad[I] + I = 0x4B7FFFFE
+	addi.w vf14, vf00, i             move.xyzw vf13, vf00
+	nop                              loi 0x457ff000                         ; pad[I] + I = 0x457FF000
+	addi.xy vf14, vf00, i            nop
+	nop                              lq.xyzw vf23, 2(vi00)
+	nop                              lq.xyzw vf05, 28(vi00)
+	nop                              lq.xyzw vf06, 29(vi00)
+	nop                              lq.xyzw vf07, 30(vi00)
+	nop                              lq.xyzw vf08, 31(vi00)
+	nop                              lq.xyzw vf09, 32(vi00)
+	nop                              lq.xyzw vf10, 33(vi00)
+	nop                              lq.xyzw vf11, 34(vi00)
+	nop                              lq.xyzw vf12, 35(vi00)
+	nop[e]                           nop                                    ; upper: E-bit pad (END)
+	nop                              nop                                    ; E-bit delay slot
+
+; --- BEGIN_NORMAL_L_SPEC transform body (0x3698..0x38B8) ---
+; Reached directly when EE sets VU0_TPC=0x3698.  Loop tail `b L_0798`
+; re-enters BEGIN_NORMAL_L_SPEC I-setup-tail at 0x3628 (the addi.w bundle),
+; which then falls through to the E-bit at 0x3688 and terminates.
+; This routine adds a specular-power chain (mul.xyz vf30 squared
+; twice) before quantizing, and has the I-bit 255.0f trick at 0x3810.
+START_NORMAL_L_SPEC:
+	nop                              xtop vi13
+	nop                              iaddiu vi14, vi00, 32767
+	nop                              iaddiu vi02, vi13, 1
+	nop                              ilwr.x vi04, (vi13)
+	nop                              lq.xyzw vf29, 0(vi13)
+	nop                              iand vi04, vi14, vi04
+	nop                              iaddiu vi01, vi13, 192
+	nop                              sq.xyzw vf29, 0(vi01)
+	nop                              iaddiu vi14, vi14, 1
+	nop                              iaddiu vi03, vi01, 1
+	nop                              mfir.w vf19, vi00
+	nop                              mfir.w vf20, vi14
+	nop                              iaddiu vi07, vi00, 208
+	sub.w       vf21, vf21, vf21     lq.xyzw vf16, 1(vi02)
+	nop                              lq.xyzw vf15, 0(vi02)
+	nop                              lq.xyzw vf17, 2(vi02)
+	nop                              lq.xyzw vf18, 3(vi02)
+	mulax.xyzw acc, vf05, vf16x      nop
+	madday.xyzw acc, vf06, vf16y     nop
+	maddaz.xyzw acc, vf07, vf16z     nop
+	maddw.xyzw vf29, vf08, vf16w     nop
+	sub.w       vf00, vf17, vf00     nop
+	mulax.xyzw acc, vf01, vf15x      nop
+	madday.xyzw acc, vf02, vf15y     nop
+	maddaz.xyzw acc, vf03, vf15z     nop
+	maddw.xyzw vf28, vf04, vf00w     fsand vi15, 0x2
+	maxx.xyzw vf29, vf29, vf00x      nop
+	add.xy      vf17, vf17, vf23     nop
+	nop                              nop
+
+LOOP_NORMAL_L_SPEC:
+	mulax.xyzw acc, vf09, vf29x      div q, vf00w, vf28w
+	madday.xyzw acc, vf10, vf29y     iaddiu vi02, vi02, 4
+	maddaz.xyzw acc, vf11, vf29z     ibeq vi15, vi00, CONT_NORMAL_L_SPEC
+	maddw.xyzw vf29, vf00, vf29w     lq.xyzw vf16, 1(vi02)
+	nop                              iaddiu vi05, vi00, 3
+CONT_NORMAL_L_SPEC:
+	maxx.xyzw vf29, vf29, vf00x      waitq
+	mulq.xyz vf28, vf28, q           nop
+	mulq.xyz vf21, vf17, q           lq.xyzw vf15, 0(vi02)
+	mulax.xyzw acc, vf05, vf16x      lq.xyzw vf17, 2(vi02)
+	mul.xyz     vf30, vf29, vf29     iaddi vi04, vi04, -1
+	sub.xyw     vf00, vf13, vf28     nop
+	sub.xyw     vf00, vf28, vf14     sq.xyzw vf21, 0(vi03)
+	madday.xyzw acc, vf06, vf16y     nop
+	mul.xyz     vf30, vf30, vf30     nop
+	maddaz.xyzw acc, vf07, vf16z     fmand vi14, vi07
+	maddw.xyzw vf29, vf08, vf16w     fmand vi14, vi14
+	sub.w       vf00, vf17, vf00     nop
+; I-bit bundle: upper mul.xyz vf18,vf18,vf30 + I-bit; lower = 255.0f -> I
+	mul.xyz vf18, vf18, vf30         loi 0x437f0000
+	mulax.xyzw acc, vf01, vf15x      nop
+	madday.xyzw acc, vf02, vf15y     nop
+	maddaz.xyzw acc, vf03, vf15z     fsand vi15, 0x2
+	minii.xyzw vf22, vf18, i         nop
+	ftoi4.xyz   vf19, vf28           iaddi vi05, vi05, -1
+	ftoi4.xyz   vf20, vf28           lq.xyzw vf18, 3(vi02)
+	maddw.xyzw vf28, vf04, vf00w     nop
+	ftoi0.xyzw  vf22, vf22           nop
+	maxx.xyzw vf29, vf29, vf00x      ibne vi14, vi07, CLIP_NORMAL_L_SPEC
+	add.xy      vf17, vf17, vf23     iaddiu vi03, vi03, 3
+	nop                              ibgtz vi05, CLIP_NORMAL_L_SPEC_SET
+	nop                              nop
+	nop                              sq.xyzw vf19, -1(vi03)
+	nop                              b CLIP_NORMAL_L_SPEC_END
+	nop                              nop
+CLIP_NORMAL_L_SPEC:
+	nop                              iaddiu vi05, vi00, 3
+CLIP_NORMAL_L_SPEC_SET:
+	nop                              sq.xyzw vf20, -1(vi03)
+CLIP_NORMAL_L_SPEC_END:
+	nop                              ibne vi04, vi00, LOOP_NORMAL_L_SPEC
+	nop                              sq.xyzw vf22, -2(vi03)
+	nop                              xgkick vi01
+END_NORMAL_L_SPEC:
+	nop                              b BEGIN_NORMAL_L_SPEC                               ; -> BEGIN_NORMAL_L_SPEC E-bit
+
+; -----------------------------------------------------------------------
+; sub_38C0 - 1-bundle no-op entry (also delay slot of `b L_0798` above).
+; Falls through into sub_38C8 I-register setup.
+; -----------------------------------------------------------------------
+	nop                              nop                                    ; do nothing (entry / branch delay slot)
+BEGIN_NORMAL_REF:
+	nop                              loi 0x4b7ffffe                         ; pad[I] + I = 0x4B7FFFFE
+	addi.w vf14, vf00, i             move.xyzw vf13, vf00
+	nop                              loi 0x457ff000                         ; pad[I] + I = 0x457FF000
+	addi.xy vf14, vf00, i            nop
+	nop                              lq.xyzw vf23, 2(vi00)
+	nop                              lq.xyzw vf05, 24(vi00)
+	nop                              lq.xyzw vf06, 25(vi00)
+	nop                              lq.xyzw vf07, 26(vi00)
+	nop                              lq.xyzw vf08, 27(vi00)
+	nop                              lq.xyzw vf09, 12(vi00)
+	nop                              lq.xyzw vf10, 13(vi00)
+	nop                              lq.xyzw vf11, 14(vi00)
+	nop                              lq.xyzw vf12, 15(vi00)
+	nop[e]                           nop                                    ; upper: E-bit pad (END)
+	nop                              nop                                    ; E-bit delay slot
+
+; -----------------------------------------------------------------------
+; START_NORMAL_REF - full skinned vertex transform with rsqrt + per-vertex
+; rotational refinement.  Largest single routine in the blob so far.
+;
+; Reached via VU0_TPC=0x3940 (entry from sub_38C0 path) OR directly.
+; Loop tail `b BEGIN_NORMAL_REF` returns to the I-imm setup tail, which then
+; falls through to E-bit at 0x3930 to terminate.
+;
+; Distinctive features vs earlier transform routines:
+;   - rsqrt Q computation for unit-vector normalization at 0x3A60.
+;   - mulax.w/madday.w/maddz.w accumulator-form chains feeding a
+;     squared-distance computation (vf27 = |vf29|^2).
+;   - mulaw.xyz/maddaw.xyz/maddw.xyz vf30 chain - a tri-add producing
+;     a refined position vf30 from vf27 scaled by vf29.
+;   - rinit R / rget.xyzw vf25 - captures the VU0 R-register state
+;     (a hardware random-number lane).
+;   - Two LOI immediate bundles at 0x3BA8 (= 0.125f) and 0x3BB0
+;     (= 0.25f) carrying float constants in the lower-half opcode
+;     position; the upper FMAC of those bundles is unaffected (no
+;     I-bit) but the next-iter `mulai.xy` / `maddi.xy` consume the
+;     last-loaded I value.
+;   - Front-face / back-face / refined-position 3-way output store
+;     (sq vf19 / vf20 / vf21 at -1(vi03), -1(vi03), -3(vi03)).
+; -----------------------------------------------------------------------
+START_NORMAL_REF:
+	nop                              xtop vi13
+	nop                              iaddiu vi14, vi00, 32767
+	nop                              iaddiu vi02, vi13, 1
+	nop                              ilwr.x vi04, (vi13)
+	nop                              lq.xyzw vf29, 0(vi13)
+	nop                              iand vi04, vi14, vi04
+	nop                              iaddiu vi01, vi13, 192
+	nop                              sq.xyzw vf29, 0(vi01)
+	nop                              iaddi vi14, vi14, 1
+	nop                              iaddiu vi03, vi01, 1
+	nop                              mfir.w vf19, vi00
+	nop                              mfir.w vf20, vi14
+	sub.w       vf21, vf21, vf21     iaddiu vi07, vi00, 208
+	nop                              lq.xyzw vf15, 0(vi02)
+	nop                              lq.xyzw vf16, 1(vi02)
+	nop                              lq.xyzw vf17, 2(vi02)
+	nop                              lq.xyzw vf18, 3(vi02)
+
+	mulax.xyzw acc, vf05, vf15x      nop
+	madday.xyzw acc, vf06, vf15y     nop
+	maddaz.xyzw acc, vf07, vf15z     nop
+	maddw.xyzw vf29, vf08, vf00w     nop
+	mulax.xyzw acc, vf01, vf15x      nop
+	madday.xyzw acc, vf02, vf15y     nop
+	maddaz.xyzw acc, vf03, vf15z     nop
+	maddw.xyzw vf28, vf04, vf00w     nop
+	mul.xyz     vf27, vf29, vf29     nop                                    ; vf27 = vf29^2 (squared lights)
+	mulax.xyzw acc, vf05, vf16x      nop
+	madday.xyzw acc, vf06, vf16y     nop
+	maddaz.xyzw acc, vf07, vf16z     nop
+	maddw.xyzw vf30, vf00, vf16w     nop
+
+LOOP_NORMAL_REF:
+	mulax.w acc, vf00, vf27x         div q, vf00w, vf28w                    ; sum-of-squares init
+	madday.w acc, vf00, vf27y        iaddiu vi02, vi02, 4
+	maddz.w vf27, vf00, vf27z        iaddi vi04, vi04, -1                   ; vf27.w = sum-of-squared-lanes
+	ftoi0.xyzw  vf22, vf18           nop
+	sub.w       vf00, vf17, vf00     nop
+	addq.x vf31, vf00, q             waitq                                  ; vf31.x = vf00.x + Q
+	nop                              rsqrt q, vf00w, vf27w                  ; Q = 1/sqrt(|vf29|^2)
+	nop                              sq.xyzw vf22, 1(vi03)
+	nop                              fsand vi15, 0x2
+	nop                              ibeq vi15, vi00, CONT_NORMAL_REF
+	nop                              nop
+	nop                              iaddiu vi05, vi00, 3
+CONT_NORMAL_REF:
+	mulq.xyz vf29, vf29, q           waitq                                  ; vf29 = vf29 * Q (unit-length normalize)
+	mulx.xyz vf28, vf28, vf31x       nop                                    ; vf28.xyz *= vf31.x
+	nop                              lq.xyzw vf15, 0(vi02)
+	nop                              lq.xyzw vf16, 1(vi02)
+	mul.xyz     vf27, vf29, vf30     lq.xyzw vf18, 3(vi02)
+	sub.xyw     vf00, vf28, vf14     lq.xyzw vf17, 2(vi02)
+	sub.xyw     vf00, vf13, vf28     iaddi vi05, vi05, -1
+	ftoi4.xyz   vf19, vf28           nop
+	mulax.w acc, vf00, vf27x         nop
+	madday.w acc, vf00, vf27y        fmand vi14, vi07
+	maddz.w vf27, vf00, vf27z        fmand vi14, vi14
+	ftoi4.xyz   vf20, vf28           nop
+	nop                              nop
+	nop                              nop
+	mulaw.xyz acc, vf30, vf27w       nop                                    ; ACC = vf30 + ?
+	maddaw.xyz acc, vf30, vf27w      nop
+	maddw.xyz vf30, vf29, vf27w      nop                                    ; vf30 += vf29*vf27.w
+	mulax.xyzw acc, vf05, vf15x      nop
+	madday.xyzw acc, vf06, vf15y     nop
+	maddaz.xyzw acc, vf07, vf15z     nop
+	maddw.xyzw vf29, vf08, vf00w     nop
+	mulax.xyzw acc, vf09, vf30x      nop
+	madday.xyzw acc, vf10, vf30y     nop
+	maddaz.xyzw acc, vf11, vf30z     nop
+	maddw.xyzw vf26, vf00, vf00w     nop                                    ; vf26 = ?
+	mulax.xyzw acc, vf01, vf15x      nop
+	madday.xyzw acc, vf02, vf15y     nop
+	maddaz.xyzw acc, vf03, vf15z     nop
+	add.z       vf26, vf26, vf26     rinit r, vf00w                         ; R = vf00.w (sequence reset)
+	maddw.xyzw vf28, vf04, vf00w     rget.xyzw vf25, r                      ; vf25 = R (sequence sample)
+	mul.xyz     vf27, vf29, vf29     nop
+	mulax.xyzw acc, vf05, vf16x      nop
+	addz.xy vf26, vf26, vf26z        nop
+	madday.xyzw acc, vf06, vf16y     mr32.z vf26, vf00                      ; vf26.z = ?
+	maddaz.xyzw acc, vf07, vf16z     nop
+; LOI bundles: upper has I-bit set (bit 31); lower is the 32-bit
+; float immediate loaded into the VU0 I-register.  The upper FMAC
+; still executes normally; the I-load happens in parallel.
+	maddw.xyzw vf30, vf00, vf16w     loi 0x3e000000                         ; maddw.xyzw vf30,vf00,vf16 [I-bit]; I = 0.125f
+	mulai.xy acc, vf26, i            loi 0x3e800000                         ; mulai.xy vf26 [I-bit];           I = 0.25f
+	maddi.xy vf26, vf25, i           nop                                    ; vf26.xy += vf25 * I
+	nop                              nop
+	nop                              nop
+	nop                              ibne vi14, vi07, CLIP_NORMAL_REF
+	mulx.xyz vf21, vf26, vf31x       iaddiu vi03, vi03, 3                   ; vf21.xyz = vf26 * vf31.x
+	nop                              ibgtz vi05, CLIP_NORMAL_REF_SET
+	nop                              nop
+	nop                              sq.xyzw vf19, -1(vi03)
+	nop                              b CLIP_NORMAL_REF_END
+	nop                              nop
+CLIP_NORMAL_REF:
+	nop                              iaddiu vi05, vi00, 3
+CLIP_NORMAL_REF_SET:
+	nop                              sq.xyzw vf20, -1(vi03)
+CLIP_NORMAL_REF_END:
+	nop                              ibne vi04, vi00, LOOP_NORMAL_REF
+	nop                              sq.xyzw vf21, -3(vi03)                 ; (delay slot - also stores refined vf21)
+	nop                              xgkick vi01
+END_NORMAL_REF:
+	nop                              b BEGIN_NORMAL_REF                     ; -> sub_38C8 I-setup tail/E-bit
+	nop                              nop                                    ; (branch delay slot)
+
+#include "scissorcommcut.h"
+
+; -----------------------------------------------------------------------
+; BEGIN_SCISSOR_L - vertex-buffer init (program-4 clone of L_2BC0).
+; Loads scratch matrix vf13..vf16 from mem[20..23], extended bulk
+; load vf05..vf12 from mem[28..35] / mem[32..35].  Sets vi14 = 256.
+; -----------------------------------------------------------------------
+BEGIN_SCISSOR_L:
+	sub.xyzw vf31, vf00, vf00        lq.xyzw vf17, 2(vi00)
+	nop                              lq.xyzw vf13, 20(vi00)
+	nop                              lq.xyzw vf14, 21(vi00)
+	nop                              lq.xyzw vf15, 22(vi00)
+	nop                              lq.xyzw vf16, 23(vi00)
+	nop                              lq.xyzw vf05, 28(vi00)
+	nop                              lq.xyzw vf06, 29(vi00)
+	nop                              lq.xyzw vf07, 30(vi00)
+	nop                              lq.xyzw vf08, 31(vi00)
+	nop                              lq.xyzw vf09, 32(vi00)
+	nop                              lq.xyzw vf10, 33(vi00)
+	nop                              lq.xyzw vf11, 34(vi00)
+	nop                              lq.xyzw vf12, 35(vi00)
+	mulw.w vf17, vf00, vf00w         iaddiu vi14, vi00, 256
+	nop                              move.z vf17, vf00
+	nop[e]                           nop                                    ; upper: E-bit pad (END)
+	nop                              nop                                    ; E-bit delay slot
+
+; -----------------------------------------------------------------------
+; START_SCISSOR_L - bone-blended vertex transform with clip-flag culling
+; (program-4 clone of sub_2C00, but with subtle vf-register
+; reshuffling: vf18/vf19/vf20/vf21 instead of vf18/vf21/vf20).
+; -----------------------------------------------------------------------
+START_SCISSOR_L:
+	nop                              xtop vi01
+	nop                              ilwr.x vi10, (vi01)
+	nop                              iaddiu vi11, vi00, 32767
+	nop                              iand vi10, vi10, vi11
+	nop                              iaddi vi11, vi11, 1
+	nop                              lq.xyzw vf25, 0(vi01)
+	nop                              iaddiu vi03, vi01, 1
+	nop                              iaddiu vi02, vi01, 192
+	nop                              sq.xyzw vf25, 0(vi02)
+	nop                              iaddiu vi07, vi02, 1
+	mulw.xyzw vf22, vf00, vf00w      iaddi vi04, vi00, -2
+	mulw.xyzw vf23, vf00, vf00w      iaddi vi05, vi00, -2
+	mulw.xyzw vf24, vf00, vf00w      iaddi vi06, vi00, -2
+	nop                              lq.xyzw vf19, 1(vi03)                  ; (different load order vs sub_2C00)
+	nop                              lq.xyzw vf18, 0(vi03)
+	nop                              lq.xyzw vf21, 2(vi03)
+	nop                              lq.xyzw vf20, 3(vi03)
+
+SCISSOR_L_LOOP:
+	mulax.xyzw acc, vf05, vf19x      iaddiu vi03, vi03, 4
+	madday.xyzw acc, vf06, vf19y     iaddi vi10, vi10, -1
+	maddaz.xyzw acc, vf07, vf19z     iadd vi04, vi00, vi05
+	maddw.xyzw vf26, vf08, vf19w     iadd vi05, vi00, vi06
+	mulax.xyzw acc, vf01, vf18x      move.xyzw vf22, vf23
+	madday.xyzw acc, vf02, vf18y     move.xyzw vf23, vf24
+	maddaz.xyzw acc, vf03, vf18z     lq.xyzw vf19, 1(vi03)
+	maxx.xyzw vf26, vf26, vf00x      nop
+	nop                              nop
+	nop                              nop
+	maddw.xyzw vf25, vf04, vf18w     nop
+	mulax.xyzw acc, vf09, vf26x      nop
+	madday.xyzw acc, vf10, vf26y     nop
+	maddaz.xyzw acc, vf11, vf26z     nop
+	maddw.xyzw vf26, vf12, vf26w     div q, vf00w, vf25w
+	mulax.xyzw acc, vf13, vf18x      nop
+	madday.xyzw acc, vf14, vf18y     nop
+	maddaz.xyzw acc, vf15, vf18z     nop
+	maddw.xyzw vf24, vf16, vf18w     nop
+	maxx.xyzw vf26, vf26, vf00x      lq.xyzw vf18, 0(vi03)
+	add.xy      vf21, vf21, vf17     nop
+	mulq.xyzw vf27, vf25, q          waitq
+	mulq.xyz vf28, vf21, q           nop
+	mul.xyz     vf20, vf20, vf26     nop
+; I-bit immediate bundle: upper sub.w vf00,vf21,vf00 + I-bit; lower = 255.0f -> I.
+; (disasm reads lower as `bal vi31, L_1AD0` - a misread; the next bundle is sequential.)
+	sub.w vf00, vf21, vf00           loi 0x437f0000
+
+	ftoi4.xyzw  vf27, vf27           lq.xyzw vf21, 2(vi03)
+	nop                              sq.xyzw vf28, 0(vi07)
+	minii.xyzw vf20, vf20, i         nop
+	clipw.xyz vf22, vf22w            fsand vi08, 0x2                        ; flag-bit FD-dispatch FMAC
+	clipw.xyz vf23, vf23w            sq.xyzw vf27, 2(vi07)
+	clipw.xyz vf24, vf24w            nop
+	nop                              nop
+	nop                              nop
+	nop                              nop
+	ftoi0.xyzw  vf29, vf20           fcand vi01, 0x3F
+	nop                              lq.xyzw vf20, 3(vi03)
+	nop                              iadd vi06, vi00, vi01
+	nop                              ibeq vi08, vi00, SCISSOR_L_CONT
+	nop                              sq.xyzw vf29, 1(vi07)                  ; (delay slot)
+	nop                              iaddi vi04, vi00, 1
+	nop                              iaddi vi05, vi00, 1
+	nop                              iaddi vi09, vi00, 2
+SCISSOR_L_CONT:
+	nop                              iadd vi01, vi04, vi05
+	nop                              iadd vi01, vi01, vi06
+	nop                              nop
+	nop                              ibgtz vi01, SCISSOR_L_XYZ3
+	nop                              nop                                    ; (delay slot)
+SCISSOR_L_XYZ2:
+	nop                              ibne vi10, vi00, SCISSOR_L_LOOP
+	nop                              iaddiu vi07, vi07, 3                   ; (delay slot)
+	nop                              xgkick vi02
+	nop                              nop
+	nop                              b BEGIN_SCISSOR_L
+	nop                              nop
+SCISSOR_L_XYZ3:
+	nop                              iaddi vi09, vi09, -1
+	nop                              ibgtz vi09, SCISSOR_L_XYZ3_ONLY
+	nop                              fcor vi01, 0xFDF7DF
+	nop                              ibne vi01, vi00, SCISSOR_L_XYZ3_ONLY
+	nop                              nop
+	nop                              fcor vi01, 0xFEFBEF
+	nop                              ibne vi01, vi00, SCISSOR_L_XYZ3_ONLY
+	nop                              nop
+	nop                              fcor vi01, 0xFF7DF7
+	nop                              ibne vi01, vi00, SCISSOR_L_XYZ3_ONLY
+	nop                              nop
+	nop                              fcor vi01, 0xFFBEFB
+	nop                              ibne vi01, vi00, SCISSOR_L_XYZ3_ONLY
+	nop                              nop
+	nop                              fcor vi01, 0xFFDF7D
+	nop                              ibne vi01, vi00, SCISSOR_L_XYZ3_ONLY
+	nop                              nop
+	nop                              fcor vi01, 0xFFEFBE
+	nop                              ibne vi01, vi00, SCISSOR_L_XYZ3_ONLY
+	nop                              nop
+	nop                              bal vi15, SCISSOR_COMMON_PUSHREGISTER
+	nop                              nop
+	nop                              bal vi15, SCISSOR_COMMON
+	nop                              nop
+	nop                              bal vi15, SCISSOR_COMMON_POPREGISTER
+	nop                              nop
+SCISSOR_L_XYZ3_ONLY:
+	nop                              b SCISSOR_L_XYZ2
+	nop                              isw.w vi11, 2(vi07)                    ; (delay slot)
+
+; =======================================================================
+; FIFTH VU0 PROGRAM begins here.  FCSET imm = 0x59 this time.
+; Entry table at 0x4B40..0x4BE8 with targets L_1DB0 / L_1E38 /
+; L_1E70 / L_1EE0 / L_1FB8 / L_1FD0 / L_2018 / L_2030.
+; =======================================================================
+

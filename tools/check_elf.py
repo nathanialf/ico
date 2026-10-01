@@ -10,9 +10,8 @@ derive progress from that comparison and the link map.
               (.sbss .bss) the built ELF must allocate the base's address
               range; the share of it owned by an object under build/ico2/ or
               build/sce/ is reported. Then the ROM SHA-1 against
-              config/sha1sums.txt (gated) and the ELF SHA-1 (reported, gated
-              only with --require-elf-sha, kept for the ELF-identity work
-              --full-diff measures). A second, informational table compares
+              config/sha1sums.txt (gated) and the ELF SHA-1 (gated with
+              --require-elf-sha, which the build's verify step passes). A second, informational table compares
               .reginfo, the .DVP.* sections, e_flags, e_entry, program and
               section headers. Exit 0 only when every gated check passes.
 

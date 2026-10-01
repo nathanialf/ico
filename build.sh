@@ -78,4 +78,4 @@ fi
 
 echo
 echo "==> build.sh: gate"
-.venv/bin/python tools/check_elf.py --gate
+.venv/bin/python tools/check_elf.py --gate --require-elf-sha

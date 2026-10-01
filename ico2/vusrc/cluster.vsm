@@ -1,0 +1,623 @@
+; ico2/vusrc/cluster.vsm /* derived name */: the program text of vusrc/cluster.dsm.
+	nop                              b SET_GSREGISTER
+	nop                              nop
+	nop                              b SET_UVOFFSET
+	nop                              nop
+	nop                              nop
+	nop                              nop
+
+; -----------------------------------------------------------------------
+; Entry-stub dispatch table (continued).  Each `pad ; b L_XXXX` bundle
+; is a callable VU0 entry point at its 8-byte slot - the EE selects
+; one by setting VU0_TPC to that offset before VCALLMS.  The bundle
+; that immediately follows a branch is its delay slot (always
+; `pad ; nop_swap`); intervening `pad ; nop_swap` bundles are reserved
+; / unused dispatch slots and alignment padding.
+; -----------------------------------------------------------------------
+	nop                              nop                                    ; 0x40 - reserved slot
+	nop                              nop                                    ; 0x48 - reserved slot
+	nop                              b SET_FONT_OFFSET                      ; 0x50 - entry -> SET_FONT_OFFSET
+	nop                              nop                                    ; delay slot
+	nop                              b START_DEBUG_FONT                     ; 0x60 - entry -> START_DEBUG_FONT
+	nop                              nop                                    ; delay slot
+	nop                              b SPACE_DEBUG_FONT                     ; 0x70 - entry -> SPACE_DEBUG_FONT
+	nop                              nop                                    ; delay slot
+
+	nop                              nop                                    ; 0x80 - reserved slot
+	nop                              nop                                    ; 0x88 - reserved slot
+	nop                              b SET_CLUSTER_MATRIX                   ; 0x90 - entry -> SET_CLUSTER_MATRIX
+	nop                              nop                                    ; delay slot
+	nop                              b SET_CLUSTER_LIGHT                    ; 0xA0 - entry -> SET_CLUSTER_LIGHT
+	nop                              nop                                    ; delay slot
+	nop                              b BEGIN_CLUSTER_0                      ; 0xB0 - entry -> BEGIN_CLUSTER_0
+	nop                              nop                                    ; delay slot
+
+	nop                              b BEGIN_CLUSTER_0_SPEC                 ; 0xC0 - entry -> BEGIN_CLUSTER_0_SPEC
+	nop                              nop                                    ; delay slot
+	nop                              b BEGIN_CLUSTER_1_SPEC                             ; 0xD0 - entry -> sub_0A30
+	nop                              nop                                    ; delay slot
+	nop                              nop                                    ; 0xE0 - reserved slot
+	nop                              nop                                    ; 0xE8 - reserved slot
+	nop                              nop                                    ; 0xF0 - reserved slot
+	nop                              nop                                    ; 0xF8 - reserved slot
+
+	nop                              nop                                    ; 0x100 - reserved slot
+	nop                              nop                                    ; 0x108 - reserved slot
+
+; =======================================================================
+; SUBROUTINE BODIES.  These are the targets of the entry-stub branches
+; above.  Each routine is callable independently (via VCALLMS with a
+; matching VU0_TPC) and terminates via an E-bit upper-half pad followed
+; by its implicit one-bundle delay slot.
+;
+; The E-bit pad (upper=`0x400002FF`, lower=anything) is `nop[e]` in the
+; upper slot; the lower halves of those bundles are plain `nop`s
+; ahead of the one-bundle delay slot.
+; =======================================================================
+
+#include "vu1_common.h"
+
+; -----------------------------------------------------------------------
+; SET_CLUSTER_MATRIX - VIF-driven .w-lane patch of mem[2] + bulk copy + load
+;   four working-constants from low mem.
+;
+; Like SET_UVOFFSET but patches the .w lane instead of .xy, then runs a
+; `count`-iteration quad-copy from VIF into mem[16+], and finally
+; loads four scratch quads (vf09..vf12) from the fixed slots mem[4..7]
+; that are presumably needed by the next VU0 program.
+; -----------------------------------------------------------------------
+SET_CLUSTER_MATRIX:
+	nop                              xtop vi12                              ; vi12 = VIF top
+	nop                              ilwr.x vi06, (vi12)                    ; vi06 = *(int*)vi12  (count)
+	nop                              lq.xyzw vf30, 2(vi00)                  ; vf30 = mem[2]
+	nop                              lqi.xyzw vf31, (vi12++)                ; vf31 = *vi12++
+	nop                              move.w vf30, vf31                      ; vf30.w = vf31.w
+	nop                              sq.xyzw vf30, 2(vi00)                  ; mem[2] = vf30
+	nop                              iaddiu vi13, vi00, 16                  ; vi13 = mem[16] base
+
+LOOP:
+	nop                              iaddi vi06, vi06, -1                   ; --count
+	nop                              lqi.xyzw vf28, (vi12++)                ; vf28 = *vi12++
+	nop                              ibne vi06, vi00, LOOP                  ; loop
+	nop                              sqi.xyzw vf28, (vi13++)                ; *vi13++ = vf28       (delay slot)
+
+	nop                              lq.xyzw vf09, 4(vi00)                  ; vf09 = mem[4]
+	nop                              lq.xyzw vf10, 5(vi00)                  ; vf10 = mem[5]
+	nop                              lq.xyzw vf11, 6(vi00)                  ; vf11 = mem[6]
+	nop                              lq.xyzw vf12, 7(vi00)                  ; vf12 = mem[7]
+	nop[e]                           nop                                    ; upper: E-bit pad (END)
+	nop                              nop                                    ; E-bit delay slot
+
+; -----------------------------------------------------------------------
+; SET_CLUSTER_LIGHT - bulk 8-quad load from VIF into vf13..vf20.
+;
+; Loads eight contiguous quads (a 2x4-matrix block, or two 4x1 vectors,
+; or a small bone palette) into a contiguous register block.  No
+; stores - the loaded data remains live for the next VU0 program.
+; -----------------------------------------------------------------------
+SET_CLUSTER_LIGHT:
+	nop                              xtop vi12                              ; vi12 = VIF top
+	nop                              lqi.xyzw vf13, (vi12++)                ; vf13 = *vi12++
+	nop                              lqi.xyzw vf14, (vi12++)                ; vf14 = *vi12++
+	nop                              lqi.xyzw vf15, (vi12++)                ; vf15 = *vi12++
+	nop                              lqi.xyzw vf16, (vi12++)                ; vf16 = *vi12++
+	nop                              lqi.xyzw vf17, (vi12++)                ; vf17 = *vi12++
+	nop                              lqi.xyzw vf18, (vi12++)                ; vf18 = *vi12++
+	nop                              lqi.xyzw vf19, (vi12++)                ; vf19 = *vi12++
+	nop                              lqi.xyzw vf20, (vi12++)                ; vf20 = *vi12++
+	nop[e]                           nop                                    ; upper: E-bit pad (END)
+	nop                              nop                                    ; E-bit delay slot
+
+; -----------------------------------------------------------------------
+; BEGIN_CLUSTER_0 - trivial no-op entry (callable empty routine).  Also the
+; shared return target of START_CLUSTER_0 (`b BEGIN_CLUSTER_0` to terminate).
+; -----------------------------------------------------------------------
+BEGIN_CLUSTER_0:
+	nop                              nop                                    ; do nothing
+	nop[e]                           nop                                    ; upper: E-bit pad (END)
+	nop                              nop                                    ; E-bit delay slot
+
+; -----------------------------------------------------------------------
+; START_CLUSTER_0 - skinned vertex transform with perspective divide,
+;   color quantization, and front-face/back-face slot selection.
+;
+; Top-level shape:
+;   Prologue (0x428..0x480):
+;     - Read count and header quad from VIF input at vi13.
+;     - Initialize input cursor vi02 = vi13+1 and output cursor
+;       vi01 = vi02+192; mirror the post-header cursor in vi03.
+;     - Seed vf26.w = 0, vf27.w = 0x8000 (sign-bit float - used as
+;       the "back-face" position-slot marker).
+;
+;   Per-vertex loop body (LOOP_CLUSTER_0):
+;     1. Load two weight quads vf21,vf22 from the vi02 stream and
+;        two matrix-index ints (vi10 from .x lane, vi11 from .z
+;        lane) - these select two source matrices M, N from the
+;        constant pool at low mem.
+;     2. Compute M*vf21 -> vf28, N*vf21 -> vf29; M*vf22 -> vf30,
+;        N*vf22 -> vf31 (standard mulax / madday / maddaz / maddw
+;        accumulator chains, four times).
+;     3. Blend the two pairs by the bone-weights in vf23.y/.w:
+;          vf28 = M*vf21*vf23.y + N*vf21*vf23.w
+;          vf22 = M*vf22*vf23.y + N*vf22*vf23.w
+;     4. Transform skinned position by the model matrix
+;        [vf09..vf12]: vf28 = [vf09..vf12] * vf28.
+;     5. Transform skinned vector by [vf13..vf16]: vf30 = ... * vf22.
+;        Concurrently fire `div Q, vf00.w, vf28.w` to start the
+;        perspective-divide reciprocal.
+;     6. Clamp negatives, waitq, then mulq.xyz vf28 *= Q (perspective
+;        divide) and re-transform by [vf17..vf20]: vf30 = ... * vf30
+;        (post-divide screen-space position).
+;     7. Convert vf28 to fixed-point colors (ftoi4) into vf26, vf27;
+;        load I-register with 255.0 (via I-bit on a mul.xyz bundle)
+;        and use minii to saturate the post-mul color vf25 to 255.
+;        ftoi0 truncates to int.
+;     8. Use fmand to derive clip-flags into vi14; compare against
+;        a clip-mask in vi09 to select front-face vs back-face
+;        position slot (vf26 vs vf27).  vi07 is a 3-slot rotating
+;        decimator (skip 2 out of 3 back-face writes?).
+;     9. Store one output triplet (color, normal, position) at
+;        mem[vi03..vi03+2]; advance vi03 by 3.
+;
+;   Loop tail (0x6D0..0x6F8):
+;     - `ibne vi06, ..., LOOP_CLUSTER_0` continues while count != 0.
+;     - After the loop: `xgkick vi01` kicks the GIF packet, then
+;       `b BEGIN_CLUSTER_0` branches to the shared no-op terminator.
+;
+; The bundle at 0x0618 sets the I-bit on its upper (mul.xyz vf25, vf25,
+; vf30) and carries 255.0f (0x437F0000) for the I register in its lower,
+; written `loi` in the lower slot.
+; -----------------------------------------------------------------------
+START_CLUSTER_0:
+	nop                              xtop vi13                              ; vi13 = VIF top
+	nop                              iaddiu vi14, vi00, 32767               ; vi14 = 0x7FFF
+	nop                              iaddiu vi02, vi13, 1                   ; vi02 = vi13 + 1     (vertex-stream ptr)
+	nop                              ilwr.x vi06, (vi13)                    ; vi06 = *(int*)vi13  (count)
+	nop                              lq.xyzw vf28, 0(vi13)                  ; vf28 = mem[vi13]    (header quad)
+	nop                              iand vi06, vi14, vi06                  ; vi06 &= 0x7FFF
+	nop                              iaddiu vi01, vi02, 192                 ; vi01 = vi02 + 192   (output base)
+	nop                              sq.xyzw vf28, 0(vi01)                  ; mem[vi01] = vf28    (store header)
+	nop                              iaddi vi14, vi14, 1                    ; vi14 = 0x8000       (sign-bit pattern)
+	nop                              iaddiu vi03, vi01, 1                   ; vi03 = vi01 + 1     (output cursor)
+	nop                              mfir.w vf26, vi00                      ; vf26.w = 0          (front-face marker)
+	nop                              mfir.w vf27, vi14                      ; vf27.w = 0x8000     (back-face marker)
+
+LOOP_CLUSTER_0:
+	nop                              lqi.xyzw vf21, (vi02++)                ; vf21 = *vi02++       (weight quad 0)
+	nop                              lqi.xyzw vf22, (vi02++)                ; vf22 = *vi02++       (weight quad 1)
+	nop                              ilwr.x vi10, (vi02)                    ; vi10 = (int)mem[vi02].x  (matrix M base)
+	nop                              ilwr.z vi11, (vi02)                    ; vi11 = (int)mem[vi02].z  (matrix N base)
+	nop                              lq.xyzw vf01, 0(vi10)                  ; vf01..vf04 = M
+	nop                              lq.xyzw vf02, 1(vi10)
+	nop                              lq.xyzw vf03, 2(vi10)
+	nop                              lq.xyzw vf04, 3(vi10)
+
+; ACC = M * vf21 -> vf28
+	mulax.xyzw acc, vf01, vf21x      lq.xyzw vf05, 0(vi11)                  ; ACC.xyzw = vf01 * vf21.x; load N[0]
+	madday.xyzw acc, vf02, vf21y     lq.xyzw vf06, 1(vi11)                  ; ACC += vf02 * vf21.y;   load N[1]
+	maddaz.xyzw acc, vf03, vf21z     lq.xyzw vf07, 2(vi11)                  ; ACC += vf03 * vf21.z;   load N[2]
+	maddw.xyzw vf28, vf04, vf00w     lq.xyzw vf08, 3(vi11)                  ; vf28 = ACC + vf04 * vf00.w; load N[3]
+
+; ACC = N * vf21 -> vf29
+	mulax.xyzw acc, vf05, vf21x      iaddi vi06, vi06, -1                   ; ACC.xyzw = vf05 * vf21.x; --count
+	madday.xyzw acc, vf06, vf21y     lqi.xyzw vf23, (vi02++)                ; ACC += vf06 * vf21.y; vf23 = *vi02++ (bone weights)
+	maddaz.xyzw acc, vf07, vf21z     nop                                    ; ACC += vf07 * vf21.z
+	maddw.xyzw vf29, vf08, vf00w     move.xyzw vf04, vf00                   ; vf29 = ACC + vf08*vf00.w; vf04 = (0,0,0,1)
+
+; ACC = M * vf22 -> vf30   (note: maddw uses vf22.w here, not vf00.w)
+	mulax.xyzw acc, vf01, vf22x      nop                                    ; ACC = vf01 * vf22.x
+	madday.xyzw acc, vf02, vf22y     nop                                    ; ACC += vf02 * vf22.y
+	maddaz.xyzw acc, vf03, vf22z     nop                                    ; ACC += vf03 * vf22.z
+	maddw.xyzw vf30, vf04, vf22w     move.xyzw vf08, vf00                   ; vf30 = ACC + (0,0,0,1)*vf22.w; vf08 = (0,0,0,1)
+
+; ACC = N * vf22 -> vf31
+	mulax.xyzw acc, vf05, vf22x      move.w vf28, vf00                      ; ACC = vf05 * vf22.x; vf28.w = 1
+	madday.xyzw acc, vf06, vf22y     nop                                    ; ACC += vf06 * vf22.y
+	maddaz.xyzw acc, vf07, vf22z     nop                                    ; ACC += vf07 * vf22.z
+	maddw.xyzw vf31, vf08, vf22w     nop                                    ; vf31 = ACC + vf08*vf22.w
+
+; Bone-weight blend by vf23.y / vf23.w -> vf28 (from vf28, vf29) and vf22 (from vf30, vf31)
+	mulay.xyz acc, vf28, vf23y       move.w vf22, vf00                      ; ACC.xyz = vf28 * vf23.y;  vf22.w = 1
+	maddw.xyz vf28, vf29, vf23w      nop                                    ; vf28.xyz = ACC + vf29*vf23.w
+	mulay.xyz acc, vf30, vf23y       nop                                    ; ACC.xyz = vf30 * vf23.y
+	maddw.xyz vf22, vf31, vf23w      nop                                    ; vf22.xyz = ACC + vf31*vf23.w
+
+; Apply per-model matrix [vf09..vf12] to vf28 (skinned color/light vector)
+	mulax.xyzw acc, vf09, vf28x      nop                                    ; ACC = vf09 * vf28.x
+	madday.xyzw acc, vf10, vf28y     nop                                    ; ACC += vf10 * vf28.y
+	maddaz.xyzw acc, vf11, vf28z     nop                                    ; ACC += vf11 * vf28.z
+	maddw.xyzw vf28, vf12, vf28w     nop                                    ; vf28 = ACC + vf12 * vf28.w
+
+; Apply [vf13..vf16] to vf22 (skinned position pre-divide) + start perspective divide
+	mulax.xyzw acc, vf13, vf22x      lqi.xyzw vf24, (vi02++)                ; ACC = vf13*vf22.x; vf24 = *vi02++ (alt-color quad)
+	madday.xyzw acc, vf14, vf22y     nop                                    ; ACC += vf14*vf22.y
+	maddaz.xyzw acc, vf15, vf22z     nop                                    ; ACC += vf15*vf22.z
+	maddw.xyzw vf30, vf16, vf22w     div q, vf00w, vf28w                    ; vf30 = ACC + vf16*vf22.w; Q = 1.0/vf28.w
+
+; Cycle-pad while Q divides; meanwhile set up clip-flag accumulator
+	sub.w       vf00, vf24, vf00     nop                                    ; flag-set: vf24.w - 0
+	nop                              nop
+	nop                              nop
+	maxx.xyzw vf30, vf30, vf00x      nop                                    ; vf30 = max(vf30, vf00.x=0)  (clamp negatives)
+	sub.w       vf24, vf24, vf24     fsand vi15, 0x2                        ; vf24.w = 0; vi15 = MAC.flags & 0x02
+	mulq.xyz vf28, vf28, q           waitq                                  ; vf28.xyz *= Q (perspective divide)
+
+; Apply [vf17..vf20] to vf30 (post-divide screen-space transform)
+	mulax.xyzw acc, vf17, vf30x      nop                                    ; ACC = vf17 * vf30.x
+	madday.xyzw acc, vf18, vf30y     nop                                    ; ACC += vf18 * vf30.y
+	maddaz.xyzw acc, vf19, vf30z     iaddiu vi13, vi00, 0                   ; ACC += vf19*vf30.z; vi13 = 0 (clip slot)
+	maddw.xyzw vf30, vf20, vf30w     lqi.xyzw vf25, (vi02++)                ; vf30 = ACC + vf20*vf30.w; vf25 = *vi02++ (color)
+	maxx.xyzw vf30, vf30, vf00x      nop                                    ; clamp vf30 to >= 0
+
+; Quantize colors / set up clip-flag bits
+	ftoi4.xyz   vf26, vf28           lq.xyzw vf29, 0(vi13)                  ; vf26.xyz = float->fix4(vf28); vf29 = mem[0] (clip-x bounds)
+	ftoi4.xyz   vf27, vf28           lq.xyzw vf31, 1(vi13)                  ; vf27.xyz = float->fix4(vf28); vf31 = mem[1] (clip-y bounds)
+	mulq.xyz vf24, vf24, q           nop                                    ; vf24.xyz *= Q (perspective on alt-color)
+; I-bit bundle: upper = mul.xyz vf25,vf25,vf30 with I-bit set; lower = 255.0f -> I reg.
+	mul.xyz vf25, vf25, vf30         loi 0x437f0000                         ; mul.xyz[I] vf25,vf25,vf30 + I = 255.0f
+
+	nop                              iaddiu vi09, vi00, 208                 ; vi09 = 0xD0  (clip-mask: bits .y/.z/.w?)
+	sub.xyw     vf00, vf29, vf28     nop                                    ; flag-set: clip(vf29 - vf28) on xyw
+	sub.xyw     vf00, vf28, vf31     nop                                    ; flag-set: clip(vf28 - vf31) on xyw
+	minii.xyzw vf25, vf25, i         sq.xyzw vf24, 0(vi03)                  ; saturate vf25 <= I(=255); store alt-color
+	nop                              nop
+	nop                              fmand vi14, vi09                       ; vi14 = MAC.flags & vi09 (clip bits)
+	nop                              fmand vi14, vi14                       ; vi14 = MAC.flags & vi14 (combine)
+	ftoi0.xyzw  vf25, vf25           ibeq vi15, vi00, CONT_CLUSTER_0        ; ftoi0 (round-to-int); if vi15==0 skip-reset
+	nop                              nop                                    ; (branch delay slot)
+	nop                              iaddiu vi07, vi00, 3                   ; vi07 = 3 (back-face slot counter)
+
+CONT_CLUSTER_0:
+	nop                              iaddi vi07, vi07, -1                   ; --vi07
+	nop                              sq.xyzw vf25, 1(vi03)                  ; mem[vi03+1] = vf25 (quantized color)
+	nop                              ibne vi14, vi09, CLIP_CLUSTER_0        ; if clip-flags do not match, use back-face slot
+	nop                              nop                                    ; (branch delay slot)
+	nop                              ibgtz vi07, CLIP_CLUSTER_0_SET         ; if vi07 > 0, also use back-face slot
+	nop                              sq.xyzw vf26, 2(vi03)                  ; mem[vi03+2] = vf26 (front-face position)  (delay slot)
+	nop                              b CLIP_CLUSTER_0_END                   ; skip back-face write
+	nop                              nop                                    ; (branch delay slot)
+CLIP_CLUSTER_0:
+	nop                              iaddiu vi07, vi00, 3                   ; reset vi07 = 3 (back-face slot triggered)
+CLIP_CLUSTER_0_SET:
+	nop                              sq.xyzw vf27, 2(vi03)                  ; mem[vi03+2] = vf27 (back-face position)
+CLIP_CLUSTER_0_END:
+	nop                              iaddiu vi03, vi03, 3                   ; vi03 += 3 (advance output by 3 quads)
+	nop                              nop
+	nop                              ibne vi06, vi00, LOOP_CLUSTER_0        ; loop while count != 0
+	nop                              nop                                    ; (branch delay slot)
+	nop                              xgkick vi01                            ; kick GIF packet at vi01
+	nop                              nop
+	nop                              b BEGIN_CLUSTER_0                      ; -> BEGIN_CLUSTER_0 (shared END stub)
+	nop                              nop                                    ; (branch delay slot)
+
+; -----------------------------------------------------------------------
+; BEGIN_CLUSTER_0_SPEC - second shared no-op terminator (TPC=0xC0 dispatch target).
+; Identical 3-bundle layout to BEGIN_CLUSTER_0 at a different VRAM slot; the
+; START_CLUSTER_0_SPEC routine `b sub_0708` returns to L_0708 here for END.
+; -----------------------------------------------------------------------
+BEGIN_CLUSTER_0_SPEC:
+	nop                              nop                                    ; do nothing (entry)
+	nop[e]                           nop                                    ; upper: E-bit pad (END)
+	nop                              nop                                    ; E-bit delay slot
+
+; -----------------------------------------------------------------------
+; START_CLUSTER_0_SPEC - second skinned vertex transform routine.
+;
+; Near-clone of START_CLUSTER_0 (see that routine docstring for the full
+; algorithm).  Differences from START_CLUSTER_0:
+;   * Loop-relative: the first `lqi vf21, vi02` is unrolled above the
+;     loop start label (sub_0718_loop = sub_0718_loop); subsequent iterations
+;     only re-load vf22.  This means vf21 stays constant per call.
+;   * Bundle at 0x0950 mirrors START_CLUSTER_0 I-bit immediate trick:
+;     upper 0x81DECE6A (mul.xyz vf25,vf25,vf30 with I-bit) + lower
+;     0x437F0000 (= 255.0f -> I-register).  disasm reads the lower as
+;     `bal vi31, L_0958`; that is a misread.
+;   * Two extra `mul.xyz vf30, vf30, vf30` bundles at 0x0910 / 0x0930
+;     square vf30 twice (likely a specular-power approximation).
+;   * The `maddw vf30, vf00, vf30` at 0x08E8 uses vf00 (not vf20) as
+;     the .w-broadcast source; combined with the squaring it implies
+;     this routine does not apply the screen-space matrix in vf17..20.
+;   * Loop tail branches to sub_0708 (L_0708) instead of BEGIN_CLUSTER_0.
+; -----------------------------------------------------------------------
+START_CLUSTER_0_SPEC:
+	nop                              xtop vi13                              ; vi13 = VIF top
+	nop                              iaddiu vi14, vi00, 32767               ; vi14 = 0x7FFF
+	nop                              iaddiu vi02, vi13, 1
+	nop                              ilwr.x vi06, (vi13)                    ; vi06 = count
+	nop                              lq.xyzw vf28, 0(vi13)
+	nop                              iand vi06, vi14, vi06
+	nop                              iaddiu vi01, vi02, 192                 ; output base = vi02 + 192
+	nop                              sq.xyzw vf28, 0(vi01)
+	nop                              iaddi vi14, vi14, 1                    ; vi14 = 0x8000
+	nop                              iaddiu vi03, vi01, 1
+	nop                              mfir.w vf26, vi00                      ; vf26.w = 0
+	nop                              mfir.w vf27, vi14                      ; vf27.w = 0x8000
+LOOP_CLUSTER_0_SPEC:
+	nop                              lqi.xyzw vf21, (vi02++)                ; vf21 = *vi02++ (loaded ONCE - not in loop)
+
+	nop                              lqi.xyzw vf22, (vi02++)                ; vf22 = *vi02++
+	nop                              ilwr.x vi10, (vi02)
+	nop                              ilwr.z vi11, (vi02)
+	nop                              lq.xyzw vf01, 0(vi10)
+	nop                              lq.xyzw vf02, 1(vi10)
+	nop                              lq.xyzw vf03, 2(vi10)
+	nop                              lq.xyzw vf04, 3(vi10)
+
+	mulax.xyzw acc, vf01, vf21x      lq.xyzw vf05, 0(vi11)
+	madday.xyzw acc, vf02, vf21y     lq.xyzw vf06, 1(vi11)
+	maddaz.xyzw acc, vf03, vf21z     lq.xyzw vf07, 2(vi11)
+	maddw.xyzw vf28, vf04, vf00w     lq.xyzw vf08, 3(vi11)
+
+	mulax.xyzw acc, vf05, vf21x      iaddi vi06, vi06, -1
+	madday.xyzw acc, vf06, vf21y     lqi.xyzw vf23, (vi02++)
+	maddaz.xyzw acc, vf07, vf21z     nop
+	maddw.xyzw vf29, vf08, vf00w     move.xyzw vf04, vf00
+
+	mulax.xyzw acc, vf01, vf22x      nop
+	madday.xyzw acc, vf02, vf22y     nop
+	maddaz.xyzw acc, vf03, vf22z     nop
+	maddw.xyzw vf30, vf04, vf22w     move.xyzw vf08, vf00
+
+	mulax.xyzw acc, vf05, vf22x      move.w vf28, vf00
+	madday.xyzw acc, vf06, vf22y     nop
+	maddaz.xyzw acc, vf07, vf22z     nop
+	maddw.xyzw vf31, vf08, vf22w     nop
+
+	mulay.xyz acc, vf28, vf23y       move.w vf22, vf00
+	maddw.xyz vf28, vf29, vf23w      nop
+	mulay.xyz acc, vf30, vf23y       nop
+	maddw.xyz vf22, vf31, vf23w      nop
+
+	mulax.xyzw acc, vf09, vf28x      nop
+	madday.xyzw acc, vf10, vf28y     nop
+	maddaz.xyzw acc, vf11, vf28z     nop
+	maddw.xyzw vf28, vf12, vf28w     nop
+
+	mulax.xyzw acc, vf13, vf22x      lqi.xyzw vf24, (vi02++)
+	madday.xyzw acc, vf14, vf22y     nop
+	maddaz.xyzw acc, vf15, vf22z     nop
+	maddw.xyzw vf30, vf16, vf22w     div q, vf00w, vf28w
+
+	sub.w       vf00, vf24, vf00     nop
+	nop                              nop
+	nop                              nop
+	maxx.xyzw vf30, vf30, vf00x      nop
+	sub.w       vf24, vf24, vf24     fsand vi15, 0x2
+	mulq.xyz vf28, vf28, q           waitq
+
+	mulax.xyzw acc, vf17, vf30x      nop
+	madday.xyzw acc, vf18, vf30y     nop
+	maddaz.xyzw acc, vf19, vf30z     iaddiu vi13, vi00, 0
+	maddw.xyzw vf30, vf00, vf30w     lqi.xyzw vf25, (vi02++)                ; vf30.w-broadcast from vf30 itself
+	maxx.xyzw vf30, vf30, vf00x      nop
+
+	nop                              nop
+	nop                              nop
+	nop                              nop
+	mul.xyz     vf30, vf30, vf30     nop                                    ; vf30^2 (specular power step 1)
+	nop                              nop
+	nop                              nop
+	nop                              nop
+	mul.xyz     vf30, vf30, vf30     nop                                    ; vf30^4 (specular power step 2)
+
+	ftoi4.xyz   vf26, vf28           lq.xyzw vf29, 0(vi13)
+	ftoi4.xyz   vf27, vf28           lq.xyzw vf31, 1(vi13)
+	mulq.xyz vf24, vf24, q           nop
+	mul.xyz vf25, vf25, vf30         loi 0x437f0000                         ; mul.xyz[I] vf25,vf25,vf30 + I = 255.0f
+
+	nop                              iaddiu vi09, vi00, 208
+	sub.xyw     vf00, vf29, vf28     nop
+	sub.xyw     vf00, vf28, vf31     nop
+	minii.xyzw vf25, vf25, i         sq.xyzw vf24, 0(vi03)
+	nop                              nop
+	nop                              fmand vi14, vi09
+	nop                              fmand vi14, vi14
+	ftoi0.xyzw  vf25, vf25           ibeq vi15, vi00, CONT_CLUSTER_0_SPEC
+	nop                              nop
+	nop                              iaddiu vi07, vi00, 3
+
+CONT_CLUSTER_0_SPEC:
+	nop                              iaddi vi07, vi07, -1
+	nop                              sq.xyzw vf25, 1(vi03)
+	nop                              ibne vi14, vi09, CLIP_CLUSTER_0_SPEC
+	nop                              nop
+	nop                              ibgtz vi07, CLIP_CLUSTER_0_SPEC_SET
+	nop                              sq.xyzw vf26, 2(vi03)
+	nop                              b CLIP_CLUSTER_0_SPEC_END
+	nop                              nop
+CLIP_CLUSTER_0_SPEC:
+	nop                              iaddiu vi07, vi00, 3
+CLIP_CLUSTER_0_SPEC_SET:
+	nop                              sq.xyzw vf27, 2(vi03)
+CLIP_CLUSTER_0_SPEC_END:
+	nop                              iaddiu vi03, vi03, 3
+	nop                              nop
+	nop                              ibne vi06, vi00, LOOP_CLUSTER_0_SPEC
+	nop                              nop
+	nop                              xgkick vi01
+	nop                              nop
+	nop                              b BEGIN_CLUSTER_0_SPEC                               ; -> BEGIN_CLUSTER_0_SPEC / L_0708 (END)
+; branch delay slot of `b L_0708` is the next bundle in source -
+; which is sub_0A30 entry bundle at 0x0A30 (a `pad ; nop_swap`).
+
+; -----------------------------------------------------------------------
+; sub_0A30 - third shared no-op terminator (TPC=0xD0 dispatch target).
+; Same 4-bundle shape as BEGIN_CLUSTER_0 / BEGIN_CLUSTER_0_SPEC, with an extra `nop_swap`
+; bundle (BEGIN_CLUSTER_1_SPEC) at +8 so START_CLUSTER_1_SPEC loop tail has a `b BEGIN_CLUSTER_1_SPEC`
+; target with the E-bit one bundle later.
+; -----------------------------------------------------------------------
+	nop                              nop                                    ; do nothing (entry / also START_CLUSTER_0_SPEC branch delay slot)
+BEGIN_CLUSTER_1_SPEC:
+	nop                              nop                                    ; START_CLUSTER_1_SPEC branch target
+	nop[e]                           nop                                    ; upper: E-bit pad (END)
+	nop                              nop                                    ; E-bit delay slot
+
+; -----------------------------------------------------------------------
+; START_CLUSTER_1_SPEC - third skinned vertex transform routine.
+;
+; Near-clone of START_CLUSTER_0 / START_CLUSTER_0_SPEC; same overall shape (per-vertex
+; matrix*weight skinning with perspective divide, fmand-driven
+; front/back face slot selection, and `xgkick`-then-`b BEGIN_CLUSTER_1_SPEC`
+; termination).  Key differences from START_CLUSTER_0:
+;   * Setup phase additionally computes `vi12 = vi02 + 2` and loads
+;     all four weight quads vf21/vf22/vf23/vf24 from low-mem-relative
+;     `lq` (non-incrementing), with matrix indices read from vi12
+;     instead of vi02.
+;   * Setup also adds a one-shot `add.xy vf24, vf24, mem[2]` (FMAC
+;     in upper of the lq vf03 bundle at 0x0B00).
+;   * Loop body is restructured: the LOOP_CLUSTER_1_SPEC label is after a full
+;     pre-loop matrix-mul prologue (M*vf22, N*vf22, M*vf21, N*vf21
+;     all happen ONCE before the loop), and per-iteration only the
+;     blends, divide, and per-vertex transforms re-execute.  Stream
+;     advance is `iaddiu vi02, vi02, 5` (5 quads per vertex).
+;   * Bundle 0x0C70 is the I-bit immediate trick (upper sub.xyw
+;     vf00,vf29,vf28 with I-bit; lower 0x437F0000 = 255.0f -> I).
+;   * `mul.w vf25, vf25, vf23` at 0x0C68 - per-vertex alpha mod via
+;     bone-weight .w.
+;   * The clip-mismatch path at CLIP_CLUSTER_1_SPEC/CLIP_CLUSTER_1_SPEC_SET branches back to
+;     LOOP_CLUSTER_1_SPEC (loop) WITHOUT going through the "common" tail -
+;     there are TWO `xgkick` exits (post-front-face and post-back-
+;     face), each followed by `b BEGIN_CLUSTER_1_SPEC`.
+; -----------------------------------------------------------------------
+START_CLUSTER_1_SPEC:
+	nop                              xtop vi13
+	nop                              iaddiu vi14, vi00, 32767
+	nop                              iaddiu vi02, vi13, 1
+	nop                              ilwr.x vi06, (vi13)
+	nop                              lq.xyzw vf28, 0(vi13)
+	nop                              iand vi06, vi14, vi06
+	nop                              iaddiu vi01, vi02, 192
+	nop                              sq.xyzw vf28, 0(vi01)
+	nop                              iaddi vi14, vi14, 1
+	nop                              iaddiu vi03, vi01, 1
+	nop                              mfir.w vf26, vi00
+	nop                              mfir.w vf27, vi14
+	nop                              iaddiu vi12, vi02, 2                   ; vi12 = vi02 + 2 (matrix-index ptr)
+	nop                              lq.xyzw vf21, 0(vi02)                  ; vf21 = mem[vi02+0] (weight quad A)
+	nop                              lq.xyzw vf22, 1(vi02)                  ; vf22 = mem[vi02+1] (weight quad B)
+	nop                              ilwr.x vi10, (vi12)                    ; vi10 = (int)mem[vi12].x (matrix M idx)
+	nop                              ilwr.z vi11, (vi12)                    ; vi11 = (int)mem[vi12].z (matrix N idx)
+	nop                              lq.xyzw vf23, 2(vi02)                  ; vf23 = mem[vi02+2] (bone weights)
+	nop                              lq.xyzw vf24, 3(vi02)                  ; vf24 = mem[vi02+3] (alt-color)
+	nop                              lq.xyzw vf28, 2(vi00)                  ; vf28 = mem[2] (view-translate?)
+	nop                              lq.xyzw vf01, 0(vi10)                  ; M[0]
+	nop                              lq.xyzw vf02, 1(vi10)                  ; M[1]
+	add.xy      vf24, vf24, vf28     lq.xyzw vf03, 2(vi10)                  ; vf24.xy += mem[2].xy; M[2]
+	nop                              lq.xyzw vf04, 3(vi10)                  ; M[3]
+
+; M*vf22 -> vf30 + load N
+	mulax.xyzw acc, vf01, vf22x      lq.xyzw vf05, 0(vi11)
+	madday.xyzw acc, vf02, vf22y     lq.xyzw vf06, 1(vi11)
+	maddaz.xyzw acc, vf03, vf22z     lq.xyzw vf07, 2(vi11)
+	maddw.xyzw vf30, vf00, vf22w     lq.xyzw vf08, 3(vi11)
+
+; N*vf22 -> vf31  (with one iaddiu fold-in)
+	mulax.xyzw acc, vf05, vf22x      nop
+	madday.xyzw acc, vf06, vf22y     iaddiu vi09, vi00, 208                 ; vi09 = 0xD0 clip-mask
+	maddaz.xyzw acc, vf07, vf22z     nop
+	maddw.xyzw vf31, vf00, vf22w     nop
+
+; M*vf21 -> vf28
+	mulax.xyzw acc, vf01, vf21x      nop
+	madday.xyzw acc, vf02, vf21y     nop
+	maddaz.xyzw acc, vf03, vf21z     nop
+	maddw.xyzw vf28, vf04, vf00w     nop
+
+; N*vf21 -> vf29
+	mulax.xyzw acc, vf05, vf21x      nop
+	madday.xyzw acc, vf06, vf21y     nop
+	maddaz.xyzw acc, vf07, vf21z     nop
+	maddw.xyzw vf29, vf08, vf00w     nop
+
+LOOP_CLUSTER_1_SPEC:
+	mulay.xyz acc, vf30, vf23y       move.w vf22, vf00                      ; ACC = vf30*vf23.y; vf22.w = 1
+	maddw.xyz vf22, vf31, vf23w      iaddiu vi02, vi02, 5                   ; vf22 = ACC + vf31*vf23.w; vi02 += 5
+	mulay.xyz acc, vf28, vf23y       move.w vf28, vf00                      ; ACC = vf28*vf23.y; vf28.w = 1
+	maddw.xyz vf28, vf29, vf23w      iaddi vi06, vi06, -1                   ; vf28 = ACC + vf29*vf23.w; --count
+	sub.w       vf00, vf24, vf00     iaddiu vi13, vi00, 0                   ; flag-set; vi13 = 0 (clip-mem slot)
+	mulax.xyzw acc, vf13, vf22x      iaddiu vi12, vi02, 2                   ; ACC = vf13*vf22.x; vi12 = vi02+2 (next-iter matrix idx)
+	madday.xyzw acc, vf14, vf22y     lq.xyzw vf21, 0(vi02)                  ; ACC += vf14*vf22.y; vf21 = next vf21
+	maddaz.xyzw acc, vf15, vf22z     ilwr.x vi10, (vi12)                    ; ACC += vf15*vf22.z; vi10 = next M idx
+	maddw.xyzw vf30, vf16, vf22w     fsand vi15, 0x2                        ; vf30 = ACC + vf16*vf22.w; vi15 = MAC.flag & 0x2
+
+; Per-vertex matrix transform of vf28 (color/light) + prefetch next-iter matrix
+	mulax.xyzw acc, vf09, vf28x      lq.xyzw vf29, 0(vi13)                  ; ACC = vf09*vf28.x; vf29 = mem[0]
+	madday.xyzw acc, vf10, vf28y     lq.xyzw vf31, 1(vi13)                  ; ACC += vf10*vf28.y; vf31 = mem[1]
+	maddaz.xyzw acc, vf11, vf28z     lq.xyzw vf22, 1(vi02)                  ; ACC += vf11*vf28.z; vf22 = next vf22
+	maddw.xyzw vf28, vf12, vf28w     ilwr.z vi11, (vi12)                    ; vf28 = ACC + vf12*vf28.w; vi11 = next N idx
+	maxx.xyzw vf30, vf30, vf00x      lq.xyzw vf01, 0(vi10)                  ; clamp vf30 >= 0; M[0] next-iter
+	sub.w       vf24, vf24, vf24     lq.xyzw vf02, 1(vi10)                  ; vf24.w = 0; M[1] next
+	nop                              lq.xyzw vf03, 2(vi10)                  ; M[2] next
+	nop                              div q, vf00w, vf28w                    ; Q = 1/vf28.w
+	mulax.xyzw acc, vf17, vf30x      lq.xyzw vf04, 3(vi10)                  ; ACC = vf17*vf30.x; M[3] next
+	madday.xyzw acc, vf18, vf30y     lq.xyzw vf05, 0(vi11)                  ; ACC += vf18*vf30.y; N[0] next
+	maddaz.xyzw acc, vf19, vf30z     lq.xyzw vf06, 1(vi11)                  ; ACC += vf19*vf30.z; N[1] next
+	maddw.xyzw vf30, vf20, vf30w     lq.xyzw vf07, 2(vi11)                  ; vf30 = ACC + vf20*vf30.w; N[2] next
+	mulax.xyzw acc, vf01, vf22x      lq.xyzw vf08, 3(vi11)                  ; (next-iter M*vf22 start); N[3] next
+	madday.xyzw acc, vf02, vf22y     lq.xyzw vf23, 2(vi00)                  ; ACC += vf02*vf22.y; vf23 = mem[2]
+	mulq.xyz vf28, vf28, q           lq.xyzw vf25, -1(vi02)                 ; vf28 *= Q; vf25 = mem[vi02-1] (color quad)
+	maxx.xyzw vf30, vf30, vf00x      nop                                    ; clamp vf30 >= 0
+	mulq.xyz vf24, vf24, q           nop                                    ; vf24 *= Q
+	maddaz.xyzw acc, vf03, vf22z     nop                                    ; ACC += vf03*vf22.z (next-iter M*vf22)
+	mul.w       vf25, vf25, vf23     nop                                    ; vf25.w *= vf23.w (alpha by bone-weight-w)
+
+; I-bit immediate bundle: upper = sub.xyw vf00,vf29,vf28 + I-bit; lower = 255.0f -> I
+; (disasm reads lower as `bal vi31, L_0C78` - misread; the next bundle at 0x0C78 is sequential.)
+	sub.xyw vf00, vf29, vf28         loi 0x437f0000
+
+	mul.xyz     vf29, vf30, vf30     lq.xyzw vf23, 2(vi02)                  ; vf29 = vf30^2 (specular-pow); vf23 = next bone weights
+	sub.xyw     vf00, vf28, vf31     sq.xyzw vf24, 0(vi03)                  ; clip-flag; store alt-color
+	ftoi4.xyz   vf26, vf28           nop                                    ; vf26 = ftoi4(vf28)
+	ftoi4.xyz   vf27, vf28           fmand vi14, vi09                       ; vf27 = ftoi4(vf28); vi14 = MAC & 0xD0
+	maddw.xyzw vf30, vf00, vf22w     nop                                    ; vf30 += vf00*vf22.w (cont next-iter)
+	mul.xyz     vf25, vf25, vf29     fmand vi14, vi14                       ; vf25 *= vf30^2; combine MAC flags
+	mulax.xyzw acc, vf05, vf22x      lq.xyzw vf24, 3(vi02)                  ; (cont N*vf22 next-iter); vf24 = next alt-color
+	madday.xyzw acc, vf06, vf22y     nop
+	maddaz.xyzw acc, vf07, vf22z     nop
+	minii.xyzw vf25, vf25, i         nop                                    ; saturate vf25 <= I(=255)
+	maddw.xyzw vf31, vf00, vf22w     iaddi vi07, vi07, -1                   ; vf31 cont; --vi07
+	mulax.xyzw acc, vf01, vf21x      nop                                    ; (cont M*vf21 next-iter)
+	madday.xyzw acc, vf02, vf21y     nop
+	ftoi0.xyzw  vf25, vf25           nop                                    ; vf25 = ftoi0(vf25)
+	maddaz.xyzw acc, vf03, vf21z     nop
+	maddw.xyzw vf28, vf04, vf00w     nop
+	mulax.xyzw acc, vf05, vf21x      nop                                    ; (cont N*vf21 next-iter)
+	madday.xyzw acc, vf06, vf21y     sq.xyzw vf25, 1(vi03)                  ; store vf25 color
+	maddaz.xyzw acc, vf07, vf21z     ibeq vi15, vi00, CONT_CLUSTER_1_SPEC   ; if vi15==0 skip-reset
+	maddw.xyzw vf29, vf08, vf00w     lq.xyzw vf25, 2(vi00)                  ; vf25 = mem[2] (alpha reset?)  (delay slot)
+	nop                              iaddiu vi07, vi00, 2                   ; vi07 = 2
+
+CONT_CLUSTER_1_SPEC:
+	nop                              ibne vi14, vi09, CLIP_CLUSTER_1_SPEC   ; clip-mismatch -> back-face path
+	nop                              nop                                    ; (delay slot)
+	nop                              ibgtz vi07, CLIP_CLUSTER_1_SPEC_SET    ; vi07 > 0 -> back-face path
+NOCLIP_CLUSTER_1_SPEC:
+	nop                              sq.xyzw vf26, 2(vi03)                  ; front-face position  (delay slot)
+	add.xy      vf24, vf24, vf25     ibne vi06, vi00, LOOP_CLUSTER_1_SPEC   ; vf24.xy += vf25.xy; loop
+	nop                              iaddiu vi03, vi03, 3                   ; vi03 += 3            (delay slot)
+	nop                              xgkick vi01
+	nop                              nop
+	nop                              b BEGIN_CLUSTER_1_SPEC                 ; -> END
+	nop                              nop                                    ; (branch delay slot)
+CLIP_CLUSTER_1_SPEC:
+	nop                              iaddiu vi07, vi00, 3                   ; reset vi07 = 3
+CLIP_CLUSTER_1_SPEC_SET:
+	nop                              sq.xyzw vf27, 2(vi03)                  ; back-face position
+	add.xy      vf24, vf24, vf25     ibne vi06, vi00, LOOP_CLUSTER_1_SPEC   ; vf24.xy += vf25.xy; loop
+	nop                              iaddiu vi03, vi03, 3                   ; vi03 += 3            (delay slot)
+	nop                              xgkick vi01
+	nop                              nop
+	nop                              b BEGIN_CLUSTER_1_SPEC                 ; -> END
+	nop                              nop                                    ; (branch delay slot)
+
+; =======================================================================
+; SECOND VU0 PROGRAM begins here.  ICO `.vutext` blob is a
+; concatenation of multiple VU0 programs (each <= 4 KB of micro
+; memory); the EE DMAs the appropriate slice into VU0 RAM before
+; VCALLMS.  Bundle 0x0DB0 mirrors program 1 bundle 0x0000:
+; nop-upper paired with a special-class lower (here a different op
+; with op7=0x38), and bundle 0x0DC8 mirrors program 1 0x0008
+; FMAC-family `.word 0x4A000000` upper.
+; =======================================================================
+
+; Program-2 control-flag prologue (parallels 0x0000..0x0008 in program 1).
