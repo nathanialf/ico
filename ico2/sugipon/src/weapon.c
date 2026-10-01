@@ -524,7 +524,7 @@ void getGeometry(GObj *g)
         MatrixDrive_TransMatrix(7.0f, -3.0f, 0.0f);
         CopyVector(pos, MatrixDrive_GetMatrix()[3]);
         CopyQuaternion(quat, *(char **)(d + 0x10) + n * 0x10);
-        if (((int *)(*(char **)(*(char **)&w->holder->dobj + 0x8C) + n * 0x40))[1] == 22) {
+        if (GOBJ_SUB(w->holder)->skel[n].kind == 22) {
             RotQuaternionY(quat, -32768);
         }
         sceVu0SubVector((char *)p + 0x130, pos, rp);

@@ -546,7 +546,7 @@ void shiftMotionData(int a0, int a1, int a2, int a3)
     mw->handTurnIK = motionKind[mot].handTurnIK;
     mw->fuchiMode = motionKind[mot].modeBits.bits.fuchiMode;
     mw->fieldWall = motionKind[mot].fieldWall;
-    mw->word328 = motionKind[mot].cylinder;
+    mw->cylinder = motionKind[mot].cylinder;
     mw->avgWallPlane = motionKind[mot].flags.bits.avgWallPlane;
     mw->flag330 = motionKind[mot].flags2.bits.dropNode4Turn;
     w->updateModeChanged = 0;
@@ -596,7 +596,7 @@ void shiftMotionOrientEndFunc(void *self)
     struct MotCtrl *w = &MOWORK(self)->ctrl;
     int x;
 
-    if (w->word1AC == -1) {
+    if (w->seGroup[0] == -1) {
         /* EUC-JP: "the SE internal processing seems wrong for some reason; report it to Sugiyama" */
         debug_StdPrintfDummy(
             "何らかの理由でSEの内部処理がおかしいようです。杉山に報告してください。\n");
@@ -635,10 +635,10 @@ inline void CopyBlendMotionDataSource(void *self, short ang)
     *(struct MotOriFloat *)((char *)MOWORK(self) + 0x808) =
         *(struct MotOriFloat *)((char *)MOWORK(self) + 0x160);
     *(struct MotOriHead8 *)((char *)MOWORK(self) + 0x800) = *(struct MotOriHead8 *)MOWORK(self);
-    while (*(int *)(*(char **)((char *)MOWORK(self) + 0x8C) + i * 0x40 + 0x38) == -1) {
+    while (MOWORK(self)->skel[i].parent == -1) {
         SetQuaternionByAxisRotate(quat, ang, 0.0f, 1.0f, 0.0f);
         MultiQuaternion(mot + i * 0x20 + 0x10, quat, mot + i * 0x20 + 0x10);
-        i = *(int *)(*(char **)((char *)MOWORK(self) + 0x8C) + i * 0x40 + 0x34);
+        i = MOWORK(self)->skel[i].sibling;
     }
 }
 
@@ -939,7 +939,7 @@ void getNodeBlendedFloatingMotion(void *dst, float *root, int id, int n, int a4,
     int i;
     int j;
     int prev = -1;
-    void *skel = *(void **)((char *)MOWORK(self) + 0x8C);
+    void *skel = MOWORK(self)->skel;
 
     for (i = 0, j = motionKind[id].blendKind; blendMotionKind[j].motion != 0x47B; i++, j++) {
         int node = blendMotionKind[j].motion;
@@ -1110,14 +1110,14 @@ void getMotionGeometry(void *self)
                   ((float)((60 - systemStatus[0] * 10) / systemStatus[1]) / 60.0f);
             CopyVector(&fv, w->dir);
             CopyVector(&tv, w->lastDir);
-            if (*(void **)MOWORK(self) != 0) {
+            if (MOWORK(self)->parent.obj != 0) {
                 sceVu0ApplyMatrix(&fv,
-                                  (char *)MOWORK(*(void **)MOWORK(self))->nodeMtx +
-                                      MOWORK(self)->parentNode * 0x40,
+                                  (char *)MOWORK(MOWORK(self)->parent.obj)->nodeMtx +
+                                      MOWORK(self)->parent.node * 0x40,
                                   &fv);
                 sceVu0ApplyMatrix(&tv,
-                                  (char *)MOWORK(*(void **)MOWORK(self))->nodeMtx +
-                                      MOWORK(self)->parentNode * 0x40,
+                                  (char *)MOWORK(MOWORK(self)->parent.obj)->nodeMtx +
+                                      MOWORK(self)->parent.node * 0x40,
                                   &tv);
             }
             d = tv.f[0] * fv.f[0] + tv.f[2] * fv.f[2];
@@ -1207,7 +1207,7 @@ void getMotionGeometry(void *self)
             if ((void *)MOWORK(self)->root.wall.o.obj == g) {
                 g = isysGObjSearchFromObjLayoutID(866);
             }
-            o = *(void **)MOWORK(g);
+            o = MOWORK(g)->parent.obj;
             t = (void *)MOWORK(self)->root.wall.o.obj;
             if (*(int *)((char *)o + 0xC) == 17) {
                 if (o == t) {
@@ -1542,16 +1542,16 @@ void SetNodeRotationLimitDataTable(void *self, int a1, int a2)
 
 inline void InitMotionOrient(void *self, int a1, int a2, int a3, int a4, int a5)
 {
-    char *m = (char *)GOBJ_SUB(self) + 0x470;
+    struct MotCtrl *m = &GOBJ_SUB(self)->ctrl;
 
     if (a3 >= 0 && a4 >= 0) {
         SetNodeRotationLimitDataTable(self, a3, a4);
     }
-    *(int *)(m + 0x4) = a1;
-    *(int *)(m + 0x8) = a2;
+    m->oriFrom = a1;
+    m->oriTo = a2;
     shiftMotionData((int)self, a5, a5, 0);
-    *(int *)(m + 0x1AC) = soundSeGroupGet();
-    *(int *)(m + 0x1B0) = soundSeGroupGet();
+    m->seGroup[0] = soundSeGroupGet();
+    m->seGroup[1] = soundSeGroupGet();
 }
 
 inline unsigned int GetCurrentMotionDirectionAdjustFlag(GObj *a0)

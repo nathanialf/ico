@@ -233,7 +233,7 @@ typedef struct {
     PoolQuad scale; /* 0x20 */
 } PoolDisp;
 
-int poolRideFunc(char **a0, GObj *a1);
+int poolRideFunc(ObjNode *a0, GObj *a1);
 
 char *InitPoolGeo(char *self, SObjSimpleSetting *lay)
 {
@@ -318,7 +318,7 @@ char *InitPoolGeo(char *self, SObjSimpleSetting *lay)
     w->splashNo = 0;
     w->splash = InitMultiBgaManager(2);
 
-    ((SubHandle *)(self + 0x15C))->sub->rideFunc = (int)poolRideFunc;
+    ((SubHandle *)(self + 0x15C))->sub->rideFunc = poolRideFunc;
 
     return (char *)w;
 }
@@ -963,10 +963,10 @@ void InitLayoutedPoolReflactionMesh(PoolMesh *a0, PoolMeshQuad *a1)
     }
 }
 
-int poolRideFunc(char **a0, GObj *a1)
+int poolRideFunc(ObjNode *a0, GObj *a1)
 {
     Sub15C *e = GOBJ_SUB(a1);
-    PoolWork *p = GOBJ_SUB(a0[0])->work;
+    PoolWork *p = GOBJ_SUB(a0->obj)->work;
     e->ctrl.waterDepth = e->root.pos[1] - p->pos[1];
     return 1;
 }

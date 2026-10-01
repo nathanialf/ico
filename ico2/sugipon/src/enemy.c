@@ -92,7 +92,7 @@ void setEnemyParticleObject(GObj *self, int pid)
     Sub15C *sub = GOBJ_SUB(self);
     EnemyWork *w = sub->work;
     int n = sub->skelNodeNum;
-    char *tbl = *(char **)((char *)sub + 0x8C);
+    SkelNode *tbl = sub->skel;
     struct DObjNode *p = sub->nodes;
     int *parts;
     int *fl;
@@ -140,7 +140,7 @@ void setEnemyParticleObject(GObj *self, int pid)
             n4 = rand() % 4;
             _CopyVector(*(char **)(parts[i] + 0x190) + cnt * 32, q);
             _CopyVector(*(char **)(parts[i] + 0x194) + cnt * 32, q);
-            type = *(int *)(tbl + i * 0x40 + 4);
+            type = tbl[i].kind;
             if (type >= 38)
                 goto spread;
             if (type < 36)
@@ -248,7 +248,7 @@ void dispEnemyObject(void *self)
     EnemyDispEntry *tmp;
     int i, j;
     int n = GOBJ_SUB(self)->skelNodeNum;
-    char *tbl = *(char **)(*(char **)(self + 0x15C) + 0x8C);
+    SkelNode *tbl = GOBJ_SUB(self)->skel;
     EnemyWork *w = GOBJ_SUB(self)->work;
     int *pl = w->particle;
     EnemyDispEntry buf[n];
@@ -300,7 +300,7 @@ void dispEnemyObject(void *self)
         if ((w->broken)[i] != 0) continue;
         if ((w->flag)[i] == 0) continue;
 
-        switch (*(int *)(tbl + i * 0x40 + 4)) {
+        switch (tbl[i].kind) {
         case 37:
             if (GOBJ_SUB(self)->nodes->fade == 0.0f)
                 DispEnemyEye(w->eye0);
@@ -468,7 +468,7 @@ int CheckEnemyHit(GObj *self, float *pos, float *a, float *b)
  * reads it back as a pointer, so every read of it is a union view, the same
  * spelling ico2/sugipon/src/geometryManager.c uses for the same slot. */
 
-#define SUBOF(o) (((SubHandle *)&((GObj *)(o))->dobj)->p)
+#define SUBOF(o) (((SubHandle *)&((GObj *)(o))->dobj)->sub)
 
 /* the TU's one named .sdata object (after the two literals): the variation
    number the next enemy takes, stepped by two modulo ten */
@@ -484,11 +484,11 @@ static inline int enemyInitPartsList(GObj *self, SObjSimpleSetting *param)
     int n;
     int *parts;
 
-    n = *(int *)(SUBOF(self) + 0x88);
+    n = SUBOF(self)->skelNodeNum;
     /* The work-record entry is chased as an int and cast: the ROM orders every
      * store of InitEnemyGeo's setup group ahead of this load, which only an int
      * view of the slot produces (evidence rung: ROM bytes). */
-    w = (EnemyWork *)*(int *)(SUBOF(self) + 0x830);
+    w = (EnemyWork *)*(int *)&SUBOF(self)->work;
 
     parts = (int *)iosMallocDebug(ios_partition_sugipon, n * 4, "src/enemy.c", 285);
     w->broken = parts;
@@ -505,7 +505,7 @@ void *InitEnemyGeo(GObj *self, SObjSimpleSetting *param)
     int no;
 
     w = iosMallocDebug(ios_partition_sugipon, 0x54, "src/enemy.c", 641);
-    *(EnemyWork **)(SUBOF(self) + 0x830) = w;
+    SUBOF(self)->work = w;
     w->word1C = 0;
     w->eye0 = InitEnemyEye(10, 0, 10);
     w->word24 = 0;
@@ -524,9 +524,9 @@ void *InitEnemyGeo(GObj *self, SObjSimpleSetting *param)
     w->flyXZAccel = enemyKind[kind].float0C;
     InitMotionOrient(self, 0x84A, 0x967, 0x18, 0x24, 0x342);
     no = enemyVariation;
-    *(int *)(SUBOF(self) + 0x558) = no;
+    SUBOF(self)->ctrl.variation = no;
     enemyVariation = (no + 2) % 10;
-    *(int *)(SUBOF(self) + 0x550) = 0;
+    SUBOF(self)->ctrl.catchBoy = 0;
     SetLodLevel(self, 2);
     return w;
 }
@@ -560,7 +560,7 @@ void EnemyGeo(GObj *self)
 
     if (isEnemyActive(self) != 0) {
         Sub15C *s = GOBJ_SUB(self);
-        if (s->ctrl.word1CC != 0) {
+        if (s->ctrl.landed != 0) {
             if (w->footSwitch != 0) {
                 if (!(s->ctrl.motion == 0x3A1 || s->ctrl.motion == 0x3A2)) {
                     GetProjectionOfPlane(
@@ -573,7 +573,7 @@ void EnemyGeo(GObj *self)
     }
     ExecEnemyFootPrints(w->foot);
 
-    GOBJ_SUB(self)->ctrl.wordE8 = (GOBJ_SUB(self)->ctrl.wordE8 + 1) % 10;
+    GOBJ_SUB(self)->ctrl.variation = (GOBJ_SUB(self)->ctrl.variation + 1) % 10;
 
     ratio = (GOBJ_SUB(self)->nodes->scale[0] + GOBJ_SUB(self)->nodes->scale[1] +
              GOBJ_SUB(self)->nodes->scale[2]) /

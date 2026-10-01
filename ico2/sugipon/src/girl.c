@@ -1848,7 +1848,7 @@ void GirlGeo(GObj *a0)
         GirlAct_BoyAndMeCollisionMail(a0);
     } else {
         w = GOBJ_SUB(a0);
-        if (w->root.hand0Mode == 4 && w->cylinderOn != 0 && *(int *)((char *)w + 0x3C8) != 0) {
+        if (w->root.hand0Mode == 4 && w->cylinderOn != 0 && w->root.cylinder != 0) {
             n0 = GetSkeltonFocusNode(boyGObj, 6);
             n1 = GetSkeltonFocusNode(a0, 0x16);
             sceVu0SubVector(v, (char *)GOBJ_SUB(boyGObj)->nodeMtx + n0 * 64 + 0x30,

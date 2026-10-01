@@ -13,7 +13,7 @@ void switchReleaseSE(GObj *a0)
     ExecuteSEPackage(a0, 0x40);
 }
 
-inline void SetSwitchTriggerFunc(GObj *a0, void *a1)
+inline void SetSwitchTriggerFunc(GObj *a0, int (*a1)(GObj *, int))
 {
     ((LeverGeoWork *)GOBJ_SUB(a0)->work)->trigger = a1;
 }
@@ -112,11 +112,11 @@ void FloorLeverTriStateGeo(GObj *a0)
 
     if (p->state != -1 && p->state != 1) {
         if (p->trigger != 0) {
-            p->trigger(**(int **)(((char *)a0) + 0x15C), 0);
+            p->trigger(GOBJ_SUB(a0)->parent.obj, 0);
         }
     } else {
         if (p->trigger != 0) {
-            p->trigger(**(int **)(((char *)a0) + 0x15C), p->state);
+            p->trigger(GOBJ_SUB(a0)->parent.obj, p->state);
         }
     }
     UpdateRootMatrix(a0);
@@ -152,7 +152,7 @@ void FloorLeverGeo(GObj *a0)
                 switchReleaseSE(a0);
             }
             if (p->trigger != 0) {
-                p->trigger(**(int **)(((char *)a0) + 0x15C), p->state);
+                p->trigger(GOBJ_SUB(a0)->parent.obj, p->state);
             }
         } else if (p->angle != 0) {
             p->shake = 0;
@@ -167,7 +167,7 @@ void FloorLeverGeo(GObj *a0)
             p->state = 0;
             p->timer = 0;
             if (p->trigger != 0) {
-                p->trigger(**(int **)(((char *)a0) + 0x15C), 0);
+                p->trigger(GOBJ_SUB(a0)->parent.obj, 0);
             }
         }
     } else {

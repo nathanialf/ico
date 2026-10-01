@@ -154,7 +154,7 @@ static float rootDelta[4]; /* derived name */
    object.  Declared here for the functions above; the definitions follow
    motMan_rootUpdate.c.inc, where the TU's .sdata has them, after that file's
    ObjNode template. */
-static char *skelNode; /* derived name */
+static SkelNode *skelNode; /* derived name */
 
 /* the object being skeletonised, held as a word: GetMatrixOfMotion's store
    of it keeps its place among the display-object reads only as an int store
@@ -209,7 +209,7 @@ extern void ClipWallField(void *a0);
 extern void DrawCollisionRay(void *a0);
 /* kept local: DisplayP2O.h does not compile in this TU (too few arguments to function `p2o_DispVU1') */
 extern void p2o_DispVU1();
-static void getInitialMatrix(int a0, int a1);
+static void getInitialMatrix(Sub15C *a0, int a1);
 /* kept local: void () here, void (void *) in fieldCollision.h */
 extern void ClipFloor();
 
@@ -266,19 +266,19 @@ int findActPoint(int *list)
         return -1;
     }
     for (i = 0; i < skelNodeNum; i++) {
-        int order = findActPointOrder(list, *(int *)(skelNode + i * 0x40 + 4));
+        int order = findActPointOrder(list, skelNode[i].kind);
         int v;
         if (order == 0) {
             continue;
         }
         if (skelRoot->hand1IKMode != 0) {
-            int k = *(int *)(skelNode + i * 0x40 + 4);
+            int k = skelNode[i].kind;
             if (k == 6 || k == 11) {
                 continue;
             }
         }
         if (skelRoot->hand0IKMode != 0) {
-            int k = *(int *)(skelNode + i * 0x40 + 4);
+            int k = skelNode[i].kind;
             if (k == 22 || k == 27) {
                 continue;
             }
@@ -308,7 +308,7 @@ int checkActPointWithHeight(int kind, float h)
         }
     }
     for (i = 0; i < skelNodeNum; i++) {
-        if (*(int *)(skelNode + i * 0x40 + 4) == kind) {
+        if (skelNode[i].kind == kind) {
             float d;
             if (*(int *)(skelMotion + i * 0x20) >= 249) {
                 return -1;
@@ -366,7 +366,7 @@ void clearCollisionStatus(void)
     skelMotCtrl->slipFlags = 0;
     skelMotCtrl->waterDepth = 0.0f;
 
-    skelMotCtrl->word1CC = 0;
+    skelMotCtrl->landed = 0;
 }
 
 void checkUpperWallState(void)
@@ -667,12 +667,12 @@ void _checkCliffAndWall(void)
     float d;
     float t;
 
-    if (skelMotCtrl->wordDC == 1 || (skelMotCtrl->wordDC == 2 && skelMotCtrl->wordE8 == 0)) {
+    if (skelMotCtrl->wordDC == 1 || (skelMotCtrl->wordDC == 2 && skelMotCtrl->variation == 0)) {
         MatrixDrive_PushMatrix();
         checkCliffState(1);
         MatrixDrive_PopMatrix();
     }
-    if (skelMotCtrl->wordDC == 1 || (skelMotCtrl->wordDC == 2 && skelMotCtrl->wordE8 == 1)) {
+    if (skelMotCtrl->wordDC == 1 || (skelMotCtrl->wordDC == 2 && skelMotCtrl->variation == 1)) {
         MatrixDrive_PushMatrix();
         checkWallState(3);
         MatrixDrive_PopMatrix();
@@ -734,7 +734,7 @@ void checkCliffAndWallStateOfLastPlane(void)
     MatrixDrive_PushMatrix();
     _checkCliffAndWall();
     MatrixDrive_PopMatrix();
-    if (skelMotCtrl->wordE4 != 0) {
+    if (skelMotCtrl->sideWallCheck != 0) {
         MatrixDrive_PushMatrix();
         checkWallSideState();
         MatrixDrive_PopMatrix();
@@ -789,7 +789,7 @@ void dispLastNode(void)
 #include "GifPacket.h"
 #include "DObj.h"
 
-static char *skelNode = 0;
+static SkelNode *skelNode = 0;
 
 static int skelGObj = 0;
 
@@ -910,8 +910,7 @@ void _getGeometryOfMotion(ObjNode *out, int second)
         MatrixDrive_PopMatrix();
     }
 
-    skelMotCtrl->groundHeight =
-        skelRoot->pos[1] + *(float *)(skelNode + 0x14) - skelRoot->footPos[1];
+    skelMotCtrl->groundHeight = skelRoot->pos[1] + skelNode->pos[1] - skelRoot->footPos[1];
 
     MatrixDrive_PushMatrix();
     MatrixDrive_SetTransposeMatrix((void *)MatrixDrive_GetMatrix(), MatrixDrive_GetMatrix());
@@ -922,7 +921,7 @@ void _getGeometryOfMotion(ObjNode *out, int second)
     PopQuaternion();
 
     if (skelRoot->standNode != -1 && save180 == -1) {
-        skelMotCtrl->word1CC = 1;
+        skelMotCtrl->landed = 1;
     }
 }
 
@@ -1026,7 +1025,7 @@ void GetGeometryOfMotion(void *self, void *m0, void *m1, float *v, float r, floa
     ObjNode sh;
     float v2[4];
 
-    sh = *(ObjNode *)MOWORK(self);
+    sh = MOWORK(self)->parent;
     stepFocusNode = k;
     if ((char *)MOWORK(self)->localObj != 0) {
         MOWORK(self)->localPos[3] = 1.0f;
@@ -1054,7 +1053,7 @@ void GetGeometryOfMotion(void *self, void *m0, void *m1, float *v, float r, floa
         skelScale = MOWORK(self)->nodes->scale[0];
         skelRoot = &MOWORK(self)->root;
         skelMotCtrl = &MOWORK(self)->ctrl;
-        skelNode = (char *)MOWORK(self)->skel;
+        skelNode = MOWORK(self)->skel;
         skelMotDef = &motionKind[skelMotCtrl->motion];
         CopyVector(rootMove, v);
         CopyVector(rootStep, step);
@@ -1092,7 +1091,7 @@ void GetGeometryOfMotion(void *self, void *m0, void *m1, float *v, float r, floa
     if (sh.obj != 0) {
         LinkParentOfDObj(self, &sh);
         if (GOBJ_SUB(sh.obj)->rideFunc != 0) {
-            ((void (*)(ObjNode *, char *))GOBJ_SUB(sh.obj)->rideFunc)(&sh, self);
+            GOBJ_SUB(sh.obj)->rideFunc(&sh, self);
         }
     } else {
         MOWORK(self)->root.pos[1] = MOWORK(self)->root.pos[1] - MOWORK(self)->root.height;
@@ -1129,7 +1128,7 @@ void GetMatrixOfMotion(GObj *self, char *tbl, void *ofs)
        nine gp stores the way ROM does. */
     skelMotion = tbl;
     skelQuat = (char *)GOBJ_SUB(self)->nodeQuat;
-    skelNode = (char *)GOBJ_SUB(self)->skel;
+    skelNode = GOBJ_SUB(self)->skel;
     skelScale = GOBJ_SUB(self)->nodes->scale[0];
     skelRoot = &GOBJ_SUB(self)->root;
     skelMotCtrl = &GOBJ_SUB(self)->ctrl;
@@ -1202,11 +1201,9 @@ void GetMatrixOfMotion(GObj *self, char *tbl, void *ofs)
    other static of that name. */
 static void dispSkeltonHierarchy(int node)
 {
-    if (*(int *)(skelNode + node * 64 + 0x38) != -1) {
+    if (skelNode[node].parent != -1) {
         float o[3] = {0.0f, 0.0f, 0.0f};
-        float p[3] = {*(float *)(skelNode + node * 64 + 0x10),
-                      *(float *)(skelNode + node * 64 + 0x14),
-                      *(float *)(skelNode + node * 64 + 0x18)};
+        float p[3] = {skelNode[node].pos[0], skelNode[node].pos[1], skelNode[node].pos[2]};
         float ax[3] = {0.0f, 5.0f, 0.0f};
         float ay[3] = {0.0f, 0.0f, 5.0f};
         float az[3] = {5.0f, 0.0f, 0.0f};
@@ -1222,19 +1219,19 @@ static void dispSkeltonHierarchy(int node)
     }
     MatrixDrive_PushMatrix();
     CopyMatrix(MatrixDrive_GetMatrix(), (char *)GOBJ_SUB(skelGObj)->nodeMtx + node * 64);
-    if (*(int *)(skelNode + node * 64 + 0x30) == -1) {
+    if (skelNode[node].child == -1) {
         float o2[3] = {0.0f, 0.0f, 0.0f};
         float e[3] = {10.0f, 0.0f, 0.0f};
         sceVu0IVECTOR c = {0xFF, 0xFF, 0xFF, 0x80};
 
         DrawLineG(o2, c, e, c, -1);
     }
-    if (*(int *)(skelNode + node * 64 + 0x30) != -1) {
-        dispSkeltonHierarchy(*(int *)(skelNode + node * 64 + 0x30));
+    if (skelNode[node].child != -1) {
+        dispSkeltonHierarchy(skelNode[node].child);
     }
     MatrixDrive_PopMatrix();
-    if (*(int *)(skelNode + node * 64 + 0x34) != -1) {
-        dispSkeltonHierarchy(*(int *)(skelNode + node * 64 + 0x34));
+    if (skelNode[node].sibling != -1) {
+        dispSkeltonHierarchy(skelNode[node].sibling);
     }
 }
 
@@ -1243,16 +1240,16 @@ static void dispSkeltonHierarchy(int node)
    ico2/sugipon/src/geometryManager is a static too and `static` here keeps this
    one's ELF symbol local.  No INCLUDE_ASM sibling in this TU calls it. */
 
-static void getInitialMatrix(int obj, int idx)
+static void getInitialMatrix(Sub15C *obj, int idx)
 {
-    char *nd;
+    SkelNode *nd;
     char *mtx;
 
-    nd = *(char **)(obj + 0x8C) + idx * 0x40;
+    nd = &obj->skel[idx];
     MatrixDrive_PushMatrix();
-    MatrixDrive_TransMatrixV(nd + 0x10);
-    MultiMatrixByQuaternion(nd + 0x20);
-    switch (*(int *)(nd + 4)) {
+    MatrixDrive_TransMatrixV(nd->pos);
+    MultiMatrixByQuaternion(nd->quat);
+    switch (nd->kind) {
     case 19:
     case 20:
     case 22:
@@ -1260,14 +1257,14 @@ static void getInitialMatrix(int obj, int idx)
         MatrixDrive_RotMatrixZ((short)((pad[0].ana[1] - 0x80) << 7));
         break;
     }
-    mtx = *(char **)(obj + 0xC) + idx * 0x40;
+    mtx = (char *)obj->nodeMtx + idx * 0x40;
     CopyMatrix(mtx, (void *)MatrixDrive_GetMatrix());
-    if (*(int *)(nd + 0x30) != -1) {
-        getInitialMatrix(obj, *(int *)(nd + 0x30));
+    if (nd->child != -1) {
+        getInitialMatrix(obj, nd->child);
     }
     MatrixDrive_PopMatrix();
-    if (*(int *)(nd + 0x34) != -1) {
-        getInitialMatrix(obj, *(int *)(nd + 0x34));
+    if (nd->sibling != -1) {
+        getInitialMatrix(obj, nd->sibling);
     }
 }
 
@@ -1292,7 +1289,7 @@ void SkelTest(GObj *a0)
     SkelNode *v;
     skelGObj = (int)a0;
     v = sub->skel;
-    skelNode = (char *)v;
+    skelNode = v;
     if (v != 0) {
         p2o_DispVU1();
         if (debug_skel_flag != 0) {
@@ -1308,12 +1305,12 @@ void SkelTestGeo(GObj *a0)
     int i;
     skelGObj = (int)a0;
     v = sub->skel;
-    skelNode = (char *)v;
+    skelNode = v;
     if (v != 0) {
         Sub15C *s2;
         sceVu0UnitMatrix(MatrixDrive_GetMatrix());
         MatrixDrive_RotMatrixX(-0x8000);
-        getInitialMatrix((int)GOBJ_SUB(a0), 0);
+        getInitialMatrix(GOBJ_SUB(a0), 0);
         s2 = GOBJ_SUB(a0);
         for (i = 0; i < s2->skelNodeNum; i++) {
             int e = s2->nodeMtx + i * 0x40;

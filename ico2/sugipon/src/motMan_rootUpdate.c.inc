@@ -530,7 +530,7 @@ static void setIKAndAdjustRootHeight(char *mv)
         skelRoot->last[1] = skelRoot->last[1] + h;
         return;
     }
-    if (*(float *)(skelNode + 0x14) * skelScale < (h < 0.0f ? -h : h)) {
+    if (skelNode->pos[1] * skelScale < (h < 0.0f ? -h : h)) {
         skelRoot->pos[1] = skelRoot->pos[1] + h;
         skelRoot->last[1] = skelRoot->last[1] + h;
         return;
@@ -547,7 +547,7 @@ static void setIKAndAdjustRootHeight(char *mv)
     d0 = getFloorDropAt(p1.f, pl.f, skelRoot->pos);
 
     dy = d0;
-    switch (*(int *)(skelNode + skelRoot->stepNode * 0x40 + 4)) {
+    switch (skelNode[skelRoot->stepNode].kind) {
     case 0x30:
         node = GetSkeltonFocusNode((GObj *)skelGObj, 0x34);
         break;
@@ -597,7 +597,7 @@ static void setIKAndAdjustRootHeight(char *mv)
         }
         if (skelRoot->word200 != 0) {
             skelRoot->word204 = 1;
-            if (*(int *)(skelNode + skelRoot->stepNode * 0x40 + 4) == 0x30) {
+            if (skelNode[skelRoot->stepNode].kind == 0x30) {
                 if (0.0f < d1) {
                     skelRoot->lift[0] = 0.0f;
                     skelRoot->lift[1] = -d1;
@@ -614,11 +614,11 @@ static void setIKAndAdjustRootHeight(char *mv)
                     skelRoot->lift[1] = d1;
                 }
             }
-            if (skelRoot->lift[0] < -(*(float *)(skelNode + 0x14) * skelScale * 0.5f)) {
-                skelRoot->lift[0] = -(*(float *)(skelNode + 0x14) * skelScale * 0.5f);
+            if (skelRoot->lift[0] < -(skelNode->pos[1] * skelScale * 0.5f)) {
+                skelRoot->lift[0] = -(skelNode->pos[1] * skelScale * 0.5f);
             }
-            if (skelRoot->lift[1] < -(*(float *)(skelNode + 0x14) * skelScale * 0.5f)) {
-                skelRoot->lift[1] = -(*(float *)(skelNode + 0x14) * skelScale * 0.5f);
+            if (skelRoot->lift[1] < -(skelNode->pos[1] * skelScale * 0.5f)) {
+                skelRoot->lift[1] = -(skelNode->pos[1] * skelScale * 0.5f);
             }
         }
     }
@@ -770,7 +770,7 @@ ObjNode rootUpdateXZ(int kind, int no)
 
         skelRoot->stepNode = no;
         CopyVector(&focus, nodePos + no * 0x10);
-        switch (*(int *)(skelNode + no * 0x40 + 4)) {
+        switch (skelNode[no].kind) {
         case 47:
             skelRoot->stepNode = GetSkeltonFocusNode((GObj *)skelGObj, 48);
             break;
@@ -882,7 +882,7 @@ ObjNode rootUpdateXZ(int kind, int no)
             skelRoot->footPos[3] = 1.0f;
             proj = GetYProjectionOfPlane(skelRoot->plane.f, sum.f);
             gap = proj - skelRoot->footPos[1];
-            if ((gap < 0.0f ? -gap : gap) < *(float *)(skelNode + 0x14) * skelScale) {
+            if ((gap < 0.0f ? -gap : gap) < skelNode->pos[1] * skelScale) {
                 skelRoot->footPos[1] = proj;
             }
         }
@@ -1655,7 +1655,7 @@ ObjNode rootUpdateTrueMotion(int a0)
     GetMatrixFromQuaternion(mtx, skelRoot->quat);
     if (noMove == 0) {
         sceVu0ApplyMatrix((int *)&v, mtx, (char *)rootMove);
-        v.f[1] = v.f[1] + *(float *)(skelNode + 0x14);
+        v.f[1] = v.f[1] + skelNode->pos[1];
         v.f[0] = v.f[2] = 0.0f;
         CopyVector(skelRoot->trans, &v);
     } else {
@@ -1948,7 +1948,7 @@ ObjNode rootUpdateFly(void)
         markPoolContact(&w);
         break;
     }
-    wallCollisionAndReact(*(float *)(skelNode + 0x14));
+    wallCollisionAndReact(skelNode->pos[1]);
     skelRoot->height = 0.0f;
     SubVectorXYZ(skelRoot->move, skelRoot->pos, skelRoot->last);
     CopyVector(skelRoot->trans, ZeroPoint);

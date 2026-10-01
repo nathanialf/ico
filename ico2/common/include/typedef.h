@@ -129,7 +129,8 @@ struct DObjNode {   /* field names derived */
     union {
         int i;
         long long ll; /* bit 0 fade, bits 1 and 2 */
-    } flags;          /* 0x38; its 0x3A half is also stored as a short, the Z angle */
+    } flags;          /* 0x38; its 0x3A half is also stored as a short, the Z angle; stored
+                         through a union member, worm.o and enemyParts.o move (measured) */
 
     float pos[4]; /* 0x40, reset to 0 0 0 1 */
 };
@@ -320,7 +321,7 @@ struct MotRoot {       /* field names derived */
     int handTurnIK;   /* 0x31C, the motion turns toward the hand targets (1) */
     int fieldWall;    /* 0x320, the motion clips against field walls */
     int fuchiMode;    /* 0x324, the edge reaction mode */
-    int word328;      /* 0x328, the motion record's word104 */
+    int cylinder;     /* 0x328, the motion record's cylinder flag: the object takes part in cylinder collision */
     int avgWallPlane; /* 0x32C, the motion averages four wall planes */
     int flag330;      /* 0x330, the motion drops node 4's own turn */
     int flag334;      /* 0x334, the motion drops node 6's own turn */
@@ -334,7 +335,7 @@ struct MotRoot {       /* field names derived */
     char _pad368[8];
     float holdPoint[4]; /* 0x370, the point the hang hold is measured from */
     int ropeState;      /* 0x380, 0, or -1 and 1 by the hold height on the chain */
-    int fixObj;         /* 0x384, the object SetMotionNodeFixModeParameter fixes the node to */
+    int fixObj; /* 0x384, the object SetMotionNodeFixModeParameter fixes the node to; held as a word: stored as GObj * (or char *, P4-xcut), SetMotionNodeFixModeParameter's code changes (measured) */
     int fixNode;        /* 0x388, the focus node on that object */
     char _pad38C[4];
     float fixQuat[4];     /* 0x390, the fixed node's turn */
@@ -412,8 +413,8 @@ struct MotCtrl {           /* field names derived */
     int wordD8;         /* 0xD8 */
     int wordDC;         /* 0xDC */
     int catchBoy;       /* 0xE0, 1 while the enemy holds the boy */
-    int wordE4;         /* 0xE4 */
-    int wordE8;         /* 0xE8 */
+    int sideWallCheck;  /* 0xE4, nonzero runs checkWallSideState after the cliff and wall checks (InitBoyGeo sets it) */
+    int variation;      /* 0xE8, the enemy's variation counter, 0 to 9: its parity alternates the cliff and the wall check */
     float fallHeight;   /* 0xEC, the fall height the death checks compare */
     float groundHeight; /* 0xF0, the root's height above the ground */
     int wallHit;        /* 0xF4, a wall was hit this frame */
@@ -450,30 +451,33 @@ struct MotCtrl {           /* field names derived */
     int trigger2Done; /* 0x1A4 */
     float
         ropeHangPos; /* 0x1A8, where the boy hangs on the rope (the rope's chain collision, GetRopeHangablePos) */
-    int word1AC; /* 0x1AC */
-    char _pad1B0[4];
+    int seGroup[2]; /* 0x1AC, the two SE groups InitMotionOrient takes (soundSeGroupGet); shiftMotionOrientEndFunc asserts on -1 */
     int slipFlags;     /* 0x1B4 */
     int lastSlipFlags; /* 0x1B8 */
     int slipOn;        /* 0x1BC, the floor slip attribute bits take effect */
     int pickedWeapon;  /* 0x1C0, the weapon PickupWeapon picked up */
     int keepWall;      /* 0x1C4, nonzero to keep the wall contact over getGeometryOfMotion */
     int keepStand;     /* 0x1C8, nonzero to keep the stand object over getGeometryOfMotion */
-    int word1CC;       /* 0x1CC */
+    int landed;        /* 0x1CC, 1 for the frame the root comes to stand on a node */
     float waterY;      /* 0x1D0, the water surface height */
     float waterDepth;  /* 0x1D4, the depth under the pool surface */
     GObj *pool;        /* 0x1D8, the pool the object stands in */
     int contactFlags;  /* 0x1DC, the field contact bits CheckFieldContact sets */
     int word1E0;       /* 0x1E0 */
     int noFieldClip; /* 0x1E4, nonzero skips the flying root's wall and field collision (rootUpdateEnemyFly) */
-    int word1E8; /* 0x1E8, set to 1 by the ending (end.c) on its two layout objects 2793 and 2794; nothing reads it */
+    int word1E8; /* 0x1E8, nonzero mutes the motion SEs (playSE in frameDependSequence.c); the ending (end.c) sets it on its two layout objects 2793 and 2794 */
     char _pad1EC[4];
 };
 
 /* One 64-byte node of an object's skeleton, the array Sub15C skel points at:
-   the node's rest position and rotation, its first child, its next sibling
-   and its parent, -1 where there is none. */
+   the node's kind (the act-point kinds the stand search and the stair step
+   test: 6 and 11 the hand-1 side, 22 and 27 the hand-0 side, 0x30), its rest
+   position and rotation, its first child, its next sibling and its parent,
+   -1 where there is none. */
 typedef struct SkelNode { /* field names derived */
-    char pad00[16];
+    char pad00[4];
+    int kind; /* 0x4 */
+    char pad08[8];
     float pos[4];  /* 0x10 */
     float quat[4]; /* 0x20 */
     int child;     /* 0x30 */
@@ -482,12 +486,11 @@ typedef struct SkelNode { /* field names derived */
     int pad3C;
 } SkelNode;
 
-struct Sub15C { /* field names derived */
-    char pad0[4];
-    int parentNode; /* 0x4, the parent object's node this one hangs from; the parent object is the word at 0 */
+struct Sub15C {     /* field names derived */
+    ObjNode parent; /* 0x0, the object and node this one hangs from (LinkParentOfDObj), obj 0 for none */
     int nodeNum;  /* 0x8, the count of node matrices and quaternions at 0xC and 0x10 */
-    int nodeMtx;  /* 0xC, one 64-byte matrix a node */
-    int nodeQuat; /* 0x10, one quaternion a node */
+    int nodeMtx;  /* 0xC, one 64-byte matrix a node; held as a word: typed float (*)[4][4], attackhit.o and act-game.o move, where the ROM adds a byte offset to it (measured, P4-xcut) */
+    int nodeQuat; /* 0x10, one quaternion a node; held as a word: typed float (*)[4], GetMatrixOfMotion's int-typed read of it moves (measured, P4-xcut) */
     char pad14[12];
     int matrix; /* 0x20, the object's own matrix starts here (initMatrixDObj) */
     char pad24[48];
@@ -529,7 +532,7 @@ struct Sub15C { /* field names derived */
     int nodeLimit;     /* 0x810, one rotation limit record pointer a skeleton node */
     int nodeVec;       /* 0x814, one vector a skeleton node */
     char pad818[4];
-    int rideFunc; /* 0x81C, the function an object riding this one calls (CageRideFunc, poolRideFunc) */
+    int (*rideFunc)(ObjNode *on, GObj *rider); /* 0x81C, called for an object that comes to stand on this one (CageRideFunc, poolRideFunc) */
     char *blendless;  /* 0x820, one byte a node, set where the motion blend leaves the node alone */
     float scaleRatio; /* 0x824, the geometry scale ratio initGeometryScaleRatio sets */
     char pad828[8];

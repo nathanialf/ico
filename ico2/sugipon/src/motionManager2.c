@@ -927,6 +927,9 @@ static int skeltonDispSwitch = 0; /* derived name */
 
 void DispSkelton(GObj *self, int a1)
 {
+    /* the skeleton is read as a void * word: read as the skel member
+       (SkelNode *), the skelGObj store is issued first, where the ROM stores
+       skelNodes, skelDispFlag and then skelGObj */
     skelNodes = *(void **)((char *)GOBJ_SUB(self) + 0x8C);
     skelDispFlag = a1;
     skelGObj = self;

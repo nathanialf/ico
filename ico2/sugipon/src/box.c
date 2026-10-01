@@ -175,15 +175,15 @@ int checkFieldContact(GObj *a0, float lim)
     v[1] -= GOBJ_SUB(a0)->root.move[1];
     GetLowerPlaneCollision(&w, v);
     r = CheckFieldContact(&w, a0, pos, lim);
-    if (*(int *)GOBJ_SUB(a0) != 0) {
+    if (GOBJ_SUB(a0)->parent.obj != 0) {
         UnlinkParentOfDObj(a0);
     }
     GOBJ_SUB(a0)->ctrl.floorAttr = 0;
     switch (r) {
     case 1:
         if (a0 != w.floor.o.obj) {
-            if (*(GObj **)GOBJ_SUB(a0) != w.floor.o.obj ||
-                *(int *)((char *)GOBJ_SUB(a0) + 4) != w.floor.o.node) {
+            if (GOBJ_SUB(a0)->parent.obj != w.floor.o.obj ||
+                GOBJ_SUB(a0)->parent.node != w.floor.o.node) {
                 LinkParentOfDObj(a0, (PackedLL_19CAF0 *)&w.floor);
                 GOBJ_SUB(a0)->ctrl.floorAttr = GetFloorAttribute(&w);
             }
@@ -2143,7 +2143,7 @@ BoxWork *InitBoxGeo(GObj *self, BoxLayout *lay)
     w->effectDObj = CSVSYSTEM_InitDObj(63, &InitialSObjSimpleSetting);
 
     w->route = lay->kind & 0xFFFF;
-    *(void **)((char *)GOBJ_SUB(self) + 0x81C) = (void *)BoxRideFunc;
+    GOBJ_SUB(self)->rideFunc = BoxRideFunc;
 
     g = CreateLayoutedGObj(0, 64, -1, 0, lay, 0, 7, 0);
     w->subGObj = (int)g;
@@ -2191,7 +2191,7 @@ BoxWork *InitBoxGeo(GObj *self, BoxLayout *lay)
                 &q, (short)(accessary[GOBJ_SUB(self)->accessary].subRotY * 32768.0f / 180.0f));
             CopyVector(GOBJ_SUB(o)->root.quat, &q);
 
-            SetSwitchTriggerFunc(o, (void *)moveBoxAutoMatic);
+            SetSwitchTriggerFunc(o, moveBoxAutoMatic);
 
             w->friction = 0.85f;
         }

@@ -333,17 +333,17 @@ static inline void getRotOfDir(float *q, float *v)
 /* The motion's own rotation for the node, the matrix rebuilt from it, and
  * the stream's offset from the skeleton's rest rotation. */
 #define GET_NODE_ROT(q, dq)                                                                        \
-    MultiQuaternion(GetCurrentQuaternion(), GetLastQuaternion(), node + 0x20);                     \
+    MultiQuaternion(GetCurrentQuaternion(), GetLastQuaternion(), node->quat);                      \
     GetMatrixFromQuaternionRotElem(MatrixDrive_GetMatrix(), GetCurrentQuaternion());               \
     CopyQuaternion(q, IdentityQuaternion);                                                         \
-    DivQuaternion(dq, elem + 0x10, node + 0x20)
+    DivQuaternion(dq, elem + 0x10, node->quat)
 #define APPLY_ROT(q)                                                                               \
     MultiCurrentQuaternion(q);                                                                     \
     GetMatrixFromQuaternionRotElem(MatrixDrive_GetMatrix(), GetCurrentQuaternion())
 
 void _getFinalMatrix(int id)
 {
-    char *node = skelNode + id * 0x40;
+    SkelNode *node = &skelNode[id];
     char *elem = skelMotion + id * 0x20;
     char *geo = (char *)GOBJ_SUB(skelGObj) + 0xA0;
     MotIk *ik = *(MotIk **)(geo + 0x76C) + id;
@@ -353,14 +353,14 @@ void _getFinalMatrix(int id)
     float q[4];
     int dbg = 0;
 
-    if (*(int *)(node + 0x38) != -1) {
-        sceVu0ScaleVectorXYZ(v, node + 0x10, skelScale);
+    if (node->parent != -1) {
+        sceVu0ScaleVectorXYZ(v, node->pos, skelScale);
         sceVu0ApplyMatrix(MatrixDrive_GetMatrix()[3], MatrixDrive_GetLastMatrix(), v);
     } else {
         ikRotZ = ikRotY = ikBend0 = ikBend1 = 0;
     }
 
-    switch (*(int *)(node + 4)) {
+    switch (node->kind) {
     case 0:
         MultiQuaternion(GetCurrentQuaternion(), GetLastQuaternion(), elem + 0x10);
         MultiQuaternion(GetCurrentQuaternion(), twistQuatLow, GetCurrentQuaternion());
@@ -641,20 +641,19 @@ void _getFinalMatrix(int id)
                 float dd;
                 int i;
                 int ci;
-                char *cn;
+                SkelNode *cn;
 
                 d = VectorLength(out);
                 for (i = 0, cn = node; i < 2; i++) {
-                    ci = *(int *)(cn + 0x30);
+                    ci = cn->child;
                     if (ci == -1) {
                         break;
                     }
-                    cn = skelNode + ci * 0x40;
-                    len[i] = skelScale * VectorLength(cn + 0x10);
+                    cn = &skelNode[ci];
+                    len[i] = skelScale * VectorLength(cn->pos);
                 }
                 len[1] += skelScale *
-                          VectorLength(skelNode + GetSkeltonFocusNode((GObj *)skelGObj, 32) * 0x40 +
-                                       0x10);
+                          VectorLength(skelNode[GetSkeltonFocusNode((GObj *)skelGObj, 32)].pos);
                 {
                     float ax[4], w[4];
                     short ang;
@@ -667,7 +666,7 @@ void _getFinalMatrix(int id)
                                                 skelMotion + n * 0x20 + 0x10);
                         MatrixDrive_TransMatrix(5.0f, -3.0f, 0.0f);
                         CopyVector(p, (void *)(MatrixDrive_GetMatrix()[3]));
-                        _AddVector(t, skelNode + *(int *)(node + 0x30) * 0x40 + 0x10, p);
+                        _AddVector(t, skelNode[node->child].pos, p);
                         l = skelScale * VectorLength(t);
                         w[0] = l;
                         w[1] = 0.0f;
@@ -851,20 +850,19 @@ void _getFinalMatrix(int id)
                 float d;
                 int i;
                 int ci;
-                char *cn;
+                SkelNode *cn;
 
                 d = VectorLength(out);
                 for (i = 0, cn = node; i < 2; i++) {
-                    ci = *(int *)(cn + 0x30);
+                    ci = cn->child;
                     if (ci == -1) {
                         break;
                     }
-                    cn = skelNode + ci * 0x40;
-                    len[i] = skelScale * VectorLength(cn + 0x10);
+                    cn = &skelNode[ci];
+                    len[i] = skelScale * VectorLength(cn->pos);
                 }
                 len[1] += skelScale *
-                          VectorLength(skelNode + GetSkeltonFocusNode((GObj *)skelGObj, 16) * 0x40 +
-                                       0x10);
+                          VectorLength(skelNode[GetSkeltonFocusNode((GObj *)skelGObj, 16)].pos);
                 ikBend0 = GetTableArcCos((d * d + len[0] * len[0] - len[1] * len[1]) /
                                          (2.0f * len[0] * d));
                 ikBend1 = GetTableArcCos((d * d + len[1] * len[1] - len[0] * len[0]) /
@@ -953,7 +951,7 @@ void _getFinalMatrix(int id)
         if (skelRoot->word204 != 0) {
             int i;
             int flag;
-            char *cn;
+            SkelNode *cn;
             int ci;
             float len[2];
             float p[4];
@@ -972,19 +970,19 @@ void _getFinalMatrix(int id)
             MultiMatrixByQuaternion(dq);
             MatrixDrive_PushMatrix();
             for (i = 0, cn = node; i < 2; i++) {
-                ci = *(int *)(cn + 0x30);
+                ci = cn->child;
                 if (ci == -1) {
                     flag = 1;
                     break;
                 }
-                cn = skelNode + ci * 0x40;
-                sceVu0ScaleVectorXYZ(sv, cn + 0x10, skelScale);
+                cn = &skelNode[ci];
+                sceVu0ScaleVectorXYZ(sv, cn->pos, skelScale);
                 MatrixDrive_TransMatrixV(sv);
                 MultiMatrixByQuaternion(skelMotion + ci * 0x20 + 0x10);
-                len[i] = skelScale * VectorLength(cn + 0x10);
+                len[i] = skelScale * VectorLength(cn->pos);
             }
             CopyVector(p, (void *)(MatrixDrive_GetMatrix()[3]));
-            switch (*(int *)(node + 4)) {
+            switch (node->kind) {
             case 45:
                 p[1] += skelRoot->lift[0];
                 break;
@@ -1033,7 +1031,7 @@ void _getFinalMatrix(int id)
             RotQuaternionZ(q, -ikBend1);
             RotQuaternionY(q, -ikRotY);
             RotQuaternionZ(q, -ikRotZ);
-            MultiQuaternion(q, q, skelMotion + *(int *)(node + 0x38) * 0x20 + 0x10);
+            MultiQuaternion(q, q, skelMotion + node->parent * 0x20 + 0x10);
             MultiQuaternion(q, q, dq);
             APPLY_ROT(q);
             break;
@@ -1119,19 +1117,19 @@ void EditRotEmphasys(void)
 
 static inline void getFinalMatrixCore(int id)
 {
-    char *e = skelNode + id * 0x40;
+    SkelNode *e = &skelNode[id];
     MatrixDrive_PushMatrixWithNoCopy();
     PushQuaternionWithNoCopy();
     _getFinalMatrix(id);
     CopyMatrix((char *)GOBJ_SUB(skelGObj)->nodeMtx + id * 0x40, (void *)MatrixDrive_GetMatrix());
     CopyQuaternion(skelQuat + id * 0x10, GetCurrentQuaternion());
-    if (*(int *)(e + 0x30) != -1) {
-        getFinalMatrixCore(*(int *)(e + 0x30));
+    if (e->child != -1) {
+        getFinalMatrixCore(e->child);
     }
     MatrixDrive_PopMatrix();
     PopQuaternion();
-    if (*(int *)(e + 0x34) != -1) {
-        getFinalMatrixCore(*(int *)(e + 0x34));
+    if (e->sibling != -1) {
+        getFinalMatrixCore(e->sibling);
     }
 }
 
@@ -1154,11 +1152,11 @@ void getFinalMatrix(int id)
  * getFinalMatrixWithNaturalGeometry (def line 1452), no MAIN.MAP symbol. */
 static inline void applyNaturalGeometry(int id)
 {
-    char *e = skelNode + id * 0x40;
+    SkelNode *e = &skelNode[id];
     Vec16 t;
 
-    if (*(int *)(e + 0x38) != -1) {
-        _ScaleVectorXYZ(&t, e + 0x10, skelScale);
+    if (e->parent != -1) {
+        _ScaleVectorXYZ(&t, e->pos, skelScale);
         _ApplyMatrix(MatrixDrive_GetMatrix()[3], MatrixDrive_GetLastMatrix(), (char *)&t);
     }
     MultiQuaternion(GetCurrentQuaternion(), GetLastQuaternion(), skelMotion + id * 0x20 + 0x10);
@@ -1167,9 +1165,9 @@ static inline void applyNaturalGeometry(int id)
 
 void getFinalMatrixWithNaturalGeometry(int id)
 {
-    char *e = skelNode + id * 0x40;
-    int child = *(int *)(e + 0x30);
-    int next = *(int *)(e + 0x34);
+    SkelNode *e = &skelNode[id];
+    int child = e->child;
+    int next = e->sibling;
 
     MatrixDrive_PushMatrixWithNoCopy();
     PushQuaternionWithNoCopy();
@@ -1188,11 +1186,11 @@ void getFinalMatrixWithNaturalGeometry(int id)
 
 void _calcNaturalGeometry(int a0)
 {
-    char *elemA = skelNode + a0 * 0x40;
+    SkelNode *elemA = &skelNode[a0];
     char *elemB = naturalMotion + a0 * 0x20;
     float (*x)[4];
-    if (*(int *)(elemA + 0x38) != -1) {
-        _ScaleVectorXYZ(naturalTrans, elemA + 0x10, skelScale);
+    if (elemA->parent != -1) {
+        _ScaleVectorXYZ(naturalTrans, elemA->pos, skelScale);
         GetMatrixFromQuaternionPos(naturalMatrix, elemB + 0x10, naturalTrans);
     } else {
         GetMatrixFromQuaternion(naturalMatrix, elemB + 0x10);
@@ -1203,9 +1201,9 @@ void _calcNaturalGeometry(int a0)
 
 static inline void pursueNaturalGeometry(int id)
 {
-    char *e = skelNode + id * 0x40;
-    int child = *(int *)(e + 0x30);
-    int next = *(int *)(e + 0x34);
+    SkelNode *e = &skelNode[id];
+    int child = e->child;
+    int next = e->sibling;
     char *o;
     float (*m)[4];
     MatrixDrive_PushMatrixWithNoCopy();

@@ -37,7 +37,7 @@ typedef struct {  /* field names derived */
     char pad44[12];
 } CageWork; /* derived name */
 
-int CageRideFunc(char **self, GObj *rider)
+int CageRideFunc(ObjNode *self, GObj *rider)
 {
     float v[4];
     float n[4];
@@ -45,7 +45,7 @@ int CageRideFunc(char **self, GObj *rider)
     float d;
     float t;
 
-    w = GOBJ_SUB(*self)->work;
+    w = GOBJ_SUB(self->obj)->work;
     CopyVector(v, GOBJ_SUB(rider)->root.pos);
     v[1] = v[1] - 250.0f;
     sceVu0Normalize(n, v);
@@ -226,7 +226,7 @@ char *InitCageGeo(char *self, SObjSimpleSetting *lay)
         }
     }
     w->dobj->dispType = 2;
-    ((SubHandle *)(self + 0x15C))->sub->rideFunc = (int)CageRideFunc;
+    ((SubHandle *)(self + 0x15C))->sub->rideFunc = CageRideFunc;
     return (char *)w;
 }
 

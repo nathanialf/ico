@@ -89,7 +89,7 @@ static float savedMatrix340[16]; /* derived name */
 extern void memset(void *p, int c, int n);
 void PuddleGeo(GObj *a0);
 void EntryRippleToPuddle(GObj *a0, void *vec);
-int puddleRideFunc(GObj **a0, GObj *a1);
+int puddleRideFunc(ObjNode *a0, GObj *a1);
 
 PuddleWork *InitPuddleGeo(GObj *a0, SObjSimpleSetting *a1)
 {
@@ -116,7 +116,7 @@ PuddleWork *InitPuddleGeo(GObj *a0, SObjSimpleSetting *a1)
         w->rip[i] = rippleInit;
     }
 
-    GOBJ_SUB(a0)->rideFunc = (int)puddleRideFunc;
+    GOBJ_SUB(a0)->rideFunc = puddleRideFunc;
     return w;
 }
 
@@ -422,18 +422,18 @@ inline void EntryRippleToPuddle(GObj *a0, void *vec)
     }
 }
 
-inline int puddleRideFunc(GObj **a0, GObj *a1)
+inline int puddleRideFunc(ObjNode *a0, GObj *a1)
 {
     float v[4];
     Sub15C *e;
     int n;
 
     e = a1->dobj;
-    if (e->ctrl.word1CC != 0) {
+    if (e->ctrl.landed != 0) {
         n = e->root.standNode;
         if (n != -1) {
             CopyVector(v, (char *)e->nodeMtx + n * 0x40 + 0x30);
-            EntryRippleToPuddle(*a0, v);
+            EntryRippleToPuddle(a0->obj, v);
         }
     }
     return 1;

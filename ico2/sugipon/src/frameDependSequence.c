@@ -326,17 +326,17 @@ static inline void fireFDSSlot(float t, int no, void *entry, int *done, int (*fn
 
 void ExecFrameDependSequence(GObj *gobj)
 {
-    char *w;
-    char *p;
+    Sub15C *w;
+    struct MotCtrl *p;
     int i;
 
-    w = (char *)GOBJ_SUB(gobj);
-    p = w + 0x470;
+    w = GOBJ_SUB(gobj);
+    p = &w->ctrl;
     fdsGObj = (char *)gobj;
     fdsLayout = p;
-    fdsWork = w + 0xA0;
-    fdsFlags = w + 0x740;
-    fdsRecord = &motionKind[*(int *)(p + 0x30)];
+    fdsWork = &w->root;
+    fdsFlags = w->fdsFlags;
+    fdsRecord = &motionKind[p->motion];
     fdsVolume = 1.0f;
 
     for (i = 0; i < 12; i++) {
@@ -389,6 +389,9 @@ static inline int setSEEnvironment(GObj *gobj, int id)
     char *p;
     int no;
 
+    /* the display object is read as a char pointer, the type of the fdsGObj
+       store after it: read as the dobj member (Sub15C *), that store rises
+       above the stores the ROM issues first */
     w = *(char **)((char *)gobj + 0x15C);
     fdsGObj = (char *)gobj;
     if (w != 0) {

@@ -31,7 +31,7 @@ typedef struct {     /* field names derived */
     char *handle;    /* 0x10, the handle DObj, drawn turned by the two angles */
     int linked;      /* 0x14, nonzero once the lever is parented to the floor under it */
     int linkWait;    /* 0x18, frames counted before the parenting probe */
-    void (*trigger)(int, int); /* 0x1C, called with the parent object and the state */
+    int (*trigger)(struct GObj *, int); /* 0x1C, called with the parent object and the state */
 } LeverGeoWork;
 
 /* The declarations below lead this header because their order is load-bearing:
@@ -40,7 +40,7 @@ typedef struct {     /* field names derived */
 int InitSwitchGeo(void);
 void SwitchGeo(void);
 void SwitchDL(void);
-void SetSwitchTriggerFunc(struct GObj *a0, void *a1);
+void SetSwitchTriggerFunc(struct GObj *a0, int (*a1)(struct GObj *, int));
 void SetSwitchState(char *a0, int a1);
 void SetFloorLeverWithNodePoint(struct GObj *a0, struct GObj *a1, int a2);
 int CanFloorLeverPull(char *a0);
