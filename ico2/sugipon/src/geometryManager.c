@@ -19,7 +19,7 @@ static void getInitialMatrix(Sub15C *mdl, int no);
 
 /* The display object's root block (Sub15C root, typedef.h) holds the root
    position, its quaternion and the root height; the object it hangs from is
-   the word at 0 and that object's node is parent.node. */
+   parent.obj and that object's node is parent.node. */
 void GetRootQuaternionByDObj(void *q, Sub15C *dobj)
 {
     GObj *parent;
@@ -746,7 +746,7 @@ void GetRootMotionOrient(float *dir, GObj *obj)
     sceVu0ApplyMatrix(dir, m, ZUnitVector);
 }
 
-void GetRootMotionMatrix(void *mtx, GObj *obj)
+void GetRootMotionMatrix(float (*mtx)[4], GObj *obj)
 {
     float buf[4][4];
     Sub15C *sub = GOBJ_SUB(obj);

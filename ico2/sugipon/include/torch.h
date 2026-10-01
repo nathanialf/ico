@@ -20,7 +20,7 @@ struct TorchGeoWork;
 struct TorchGeoWork *InitTorchGeo(struct GObj *self, SObjSimpleSetting *lay);
 void TorchDL(void);
 int IsTorchLightOn(struct GObj *torch);
-char *CheckTorchChainReaction(struct GObj *self, float dist);
+struct GObj *CheckTorchChainReaction(struct GObj *self, float dist);
 void SetTorchLife(struct GObj *torch, int life, int fadeTime);
 void SetTorchChainReactionFlag(struct GObj *torch, int flag);
 void UpdateRealTimeGeometryValue(struct GObj *self);

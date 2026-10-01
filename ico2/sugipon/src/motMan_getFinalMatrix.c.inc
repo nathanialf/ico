@@ -2,24 +2,24 @@
 inline int SetDirectMotionProgramInterpInfo(GObj *self, int focus, float rate)
 {
     int n = GetSkeltonFocusNode(self, focus);
-    MotIk *e = (MotIk *)(GOBJ_SUB(self)->nodeRotElem + (n << 6));
+    MotIk *e = &GOBJ_SUB(self)->nodeRotElem[n];
     if (n < 0)
         return 0;
     e->rate = rate;
-    CopyQuaternion(e->q20, IdentityQuaternion);
-    CopyQuaternion(e->q30, IdentityQuaternion);
+    CopyQuaternion(e->step, IdentityQuaternion);
+    CopyQuaternion(e->offset, IdentityQuaternion);
     return 1;
 }
 
 inline int ResetMotionProgramInterpInfo(GObj *self, int focus)
 {
     int n = GetSkeltonFocusNode(self, focus);
-    MotIk *e = (MotIk *)(GOBJ_SUB(self)->nodeRotElem + (n << 6));
+    MotIk *e = &GOBJ_SUB(self)->nodeRotElem[n];
     if (n < 0)
         return 0;
     e->rate = 0.0f;
-    CopyQuaternion(e->q20, IdentityQuaternion);
-    CopyQuaternion(e->q30, IdentityQuaternion);
+    CopyQuaternion(e->step, IdentityQuaternion);
+    CopyQuaternion(e->offset, IdentityQuaternion);
     return 1;
 }
 
@@ -404,8 +404,8 @@ static void _getFinalMatrix(int id)
         }
         if (ik->rate < 0.01f) {
             CopyQuaternion(ik->q, GetCurrentQuaternion());
-            SetIdentityQuaternion(ik->q30);
-            CopyQuaternion(ik->q20, ik->q30);
+            SetIdentityQuaternion(ik->offset);
+            CopyQuaternion(ik->step, ik->offset);
         } else {
             float out[4];
             short h;
@@ -436,14 +436,14 @@ static void _getFinalMatrix(int id)
                 RotQuaternionX(rq, -ha);
                 RotQuaternionZ(rq, -pa);
                 RotQuaternionY(rq, -ba);
-                avoidReverseInterpOnCurrentMatrixWithLimit(ik->q, lim, ik->q30, rq, 1.2f);
+                avoidReverseInterpOnCurrentMatrixWithLimit(ik->q, lim, ik->offset, rq, 1.2f);
                 MultiQuaternion(t, GetCurrentQuaternion(), rq);
                 DivQuaternion(t2, t, ik->q);
                 GetSlerpQuaternion(t3, t2, IdentityQuaternion, skelRoot->ikRate1 * 30.0f / MOT_FPS);
-                GetSlerpQuaternion(ik->q20, t3, ik->q20, skelRoot->ikRate2 * 30.0f / MOT_FPS);
-                MultiQuaternion(ik->q, ik->q, ik->q20);
+                GetSlerpQuaternion(ik->step, t3, ik->step, skelRoot->ikRate2 * 30.0f / MOT_FPS);
+                MultiQuaternion(ik->q, ik->q, ik->step);
                 RegularizeQuaternion(ik->q);
-                DivQuaternion(ik->q30, ik->q, GetCurrentQuaternion());
+                DivQuaternion(ik->offset, ik->q, GetCurrentQuaternion());
             }
         }
         {
@@ -471,8 +471,8 @@ static void _getFinalMatrix(int id)
         }
         if (ik->rate < 0.01f) {
             CopyQuaternion(ik->q, GetCurrentQuaternion());
-            SetIdentityQuaternion(ik->q30);
-            CopyQuaternion(ik->q20, ik->q30);
+            SetIdentityQuaternion(ik->offset);
+            CopyQuaternion(ik->step, ik->offset);
         } else {
             /* work0 and work1 are read only by the DEBUG build's report of the
                interpolation's two quaternions */
@@ -490,10 +490,10 @@ static void _getFinalMatrix(int id)
             short hb, pb, bb;
             float rate = 1.0f;
 
-            avoidReverseInterpOnCurrentMatrix(ik->q, lim, ik->q30);
+            avoidReverseInterpOnCurrentMatrix(ik->q, lim, ik->offset);
 #ifdef DEBUG
             CopyQuaternion(work0, ik->q);
-            CopyQuaternion(work1, ik->q30);
+            CopyQuaternion(work1, ik->offset);
             scePrintf("interp %f %f %f %f -> %f %f %f %f\n", work0[0], work0[1], work0[2], work0[3],
                       work1[0], work1[1], work1[2], work1[3]);
 #endif
@@ -550,10 +550,10 @@ static void _getFinalMatrix(int id)
                 MultiQuaternion(t, GetCurrentQuaternion(), r);
                 DivQuaternion(t2, t, ik->q);
                 GetSlerpQuaternion(t3, t2, IdentityQuaternion, skelRoot->ikRate1 * 30.0f / MOT_FPS);
-                GetSlerpQuaternion(ik->q20, t3, ik->q20, skelRoot->ikRate2 * 30.0f / MOT_FPS);
-                MultiQuaternion(ik->q, ik->q, ik->q20);
+                GetSlerpQuaternion(ik->step, t3, ik->step, skelRoot->ikRate2 * 30.0f / MOT_FPS);
+                MultiQuaternion(ik->q, ik->q, ik->step);
                 RegularizeQuaternion(ik->q);
-                DivQuaternion(ik->q30, ik->q, GetCurrentQuaternion());
+                DivQuaternion(ik->offset, ik->q, GetCurrentQuaternion());
             }
             ik->dp = ik->dp + ((pb - ik->p) * (skelRoot->ikRate1 * 30.0f / MOT_FPS) - ik->dp) *
                                   (skelRoot->ikRate2 * 30.0f / MOT_FPS);

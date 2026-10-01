@@ -48,17 +48,17 @@ static float pasteToFBPoint[4] = {0.0f, 0.0f, 0.0f, 1.0f}; /* derived name */
 /* as in GifPacket.h, which this file does not include */
 extern void gif_EndPacket(void);
 /* void (int, int, int) here, void (long long, long long, long long) in GifPacket.h */
-extern void gif_SetAlpha(int a, int b, int c);
+extern void gif_SetAlpha(int alpha, int mode, int fix);
 /* void (int, int, int, int, int, int) here, void (unsigned long long, unsigned long long, unsigned int, unsigned int, int, int) in GifPacket.h */
-extern void gif_SetDrawEnviroment(int fb, int b, int w, int h, int e, int f);
+extern void gif_SetDrawEnviroment(int fbp, int psm, int w, int h, int useoffset, int clear);
 /* void (int, long long) here, void (long long, long long) in GifPacket.h */
-extern void gif_SetGsReg(int reg, long long val);
+extern void gif_SetGsReg(int reg, long long data);
 /* as in GifPacket.h, which this file does not include */
 extern void gif_SetZTest(int on);
 /* as in GifPacket.h, which this file does not include */
 extern void gif_SetZWrite(int on);
 /* void (void *, unsigned int, void *, void *, int) here, void (int *, long long, int *, unsigned char *, int) in GifPacket.h */
-extern void gif_SpriteSensitiveOrg(void *rect, unsigned int z, void *uv, void *col, int e);
+extern void gif_SpriteSensitiveOrg(void *r, unsigned int z, void *uv, void *col, int prim);
 /* as in GifPacket.h, which this file does not include */
 extern void gif_StartPacketPri(int pri);
 
@@ -76,7 +76,7 @@ static const SprUV workBufferUv = {8, 8, 4088, 2040}; /* derived name */
 
 /* The post effect and aura feed modes FullScreenEffect* dispatch on and the
    requests the stage parameters make, the flare switch, the two sun fans,
-   the sun switch, the depth fade depth and alpha, the aura subtraction depth,
+   the sun switch, the depth fade start and width, the aura subtraction depth,
    then the sprite colours of the passes. */
 static int postMode = 1; /* derived name */
 
@@ -94,9 +94,9 @@ static Fan2D *sunCoreFan = 0; /* derived name */
 
 static int sunOn = 0; /* derived name */
 
-static float depthFadeDepth = 100.0f; /* derived name */
+static float depthFadeStart = 100.0f; /* derived name */
 
-static float depthFadeAlpha = 400.0f; /* derived name */
+static float depthFadeWidth = 400.0f; /* derived name */
 
 static float auraInspireZ = 200.0f; /* derived name */
 
@@ -195,7 +195,7 @@ static void auraInspireAfter(int mode)
 
         gif_SetGsReg(6, workBase[1] | ((long long)(ScreenWidth / 64) << 14) | 0x664000000LL);
 
-        gif_SetDrawEnviroment(workBase[0], 0, 0x100, 0x80, 0, 0);
+        gif_SetDrawEnviroment(workBase[0], 0, 256, 128, 0, 0);
 
         gif_SetAlpha(1, 5, 0);
         gif_SpriteSensitiveOrg(srect, 0, suv, &alphaCopyCol, 1);
@@ -208,7 +208,7 @@ static void auraInspireAfter(int mode)
 
         gif_SetGsReg(6, workBase[0] | 0x20010000 | 0x5C0000000LL);
 
-        gif_SetDrawEnviroment(0x3F00, 0, 0x80, 0x80, 0, 0);
+        gif_SetDrawEnviroment(0x3F00, 0, 128, 128, 0, 0);
 
         gif_SetAlpha(1, 5, 0);
         gif_SpriteSensitiveOrg(srect, 0, suv, &alphaCopyCol, 1);
@@ -231,7 +231,7 @@ static void auraInspireAfter(int mode)
         if (systemStatus[0] == 0) {
             SprUV a = {-1024, 768, 2048, 256};
 
-            gif_SetDrawEnviroment(0x3F00, 0, 0x80, 0x80, 0, 0);
+            gif_SetDrawEnviroment(0x3F00, 0, 128, 128, 0, 0);
 
             gif_SetAlpha(0, 2, 0);
             gif_SpriteSensitiveOrg(&a, 0, (void *)0, &clearCol, 0);
@@ -242,7 +242,7 @@ static void auraInspireAfter(int mode)
 
             gif_SetGsReg(6, ((long long)(ScreenWidth / 64) << 14) | 0x664000800LL);
 
-            gif_SetDrawEnviroment(0x3F00, 0, 0x80, 0x80, 0, 0);
+            gif_SetDrawEnviroment(0x3F00, 0, 128, 128, 0, 0);
 
             gif_SetAlpha(0, 2, 0);
             gif_SpriteSensitiveOrg(srect, 0, suv, &whiteCol, 0);
@@ -269,7 +269,7 @@ static void auraInspireAfter(int mode)
         {
             SprUV a = {-1024, -1024, 2048, 2048};
 
-            gif_SetDrawEnviroment(workBase[0], 0, 0x80, 0x80, 0, 0);
+            gif_SetDrawEnviroment(workBase[0], 0, 128, 128, 0, 0);
 
             gif_SetAlpha(0, 2, 0);
             gif_SpriteSensitiveOrg(&a, 0, (void *)0, &clearCol, 0);
@@ -284,7 +284,7 @@ static void auraInspireAfter(int mode)
 
                 gif_SetGsReg(6, 0x5DC00BF00LL);
 
-                gif_SetDrawEnviroment(workBase[0], 0, 0x80, 0x80, 0, 0);
+                gif_SetDrawEnviroment(workBase[0], 0, 128, 128, 0, 0);
 
                 gif_SetAlpha(1, 0, 32);
                 gif_SpriteSensitiveOrg(srect, 0, &a, &whiteCol, 1);
@@ -305,7 +305,7 @@ static void auraInspireAfter(int mode)
     {
         gif_SetGsReg(6, workBase[1] | ((long long)(ScreenWidth / 64) << 14) | 0x664000000LL);
 
-        gif_SetDrawEnviroment(0x3F00, 0, 0x80, 0x80, 0, 0);
+        gif_SetDrawEnviroment(0x3F00, 0, 128, 128, 0, 0);
 
         gif_SetAlpha(0, 2, 0);
         gif_SpriteSensitiveOrg(work0ToFeedBackRect, 0, uv, &whiteCol, 0);
@@ -313,7 +313,7 @@ static void auraInspireAfter(int mode)
 
     inline void pasteFeedBackAreaToWork0(void) /* derived name */
     {
-        gif_SetDrawEnviroment(0x3F00, 0, 0x80, 0x80, 0, 0);
+        gif_SetDrawEnviroment(0x3F00, 0, 128, 128, 0, 0);
 
         gif_SetAlpha(0, 2, 0);
         gif_SpriteSensitiveOrg(feedBackToWork0Rect, 0, (void *)0, &alphaCopyCol, 0);
@@ -392,7 +392,7 @@ static void auraInspireAfter(int mode)
     gif_StartPacketPri(8);
     gif_SetGsReg(0x4A, 0);
     gif_SetGsReg(8, 5);
-    gif_SetGsReg(0x14, 96);
+    gif_SetGsReg(0x14, 0x60);
 
     gif_SetZTest(0);
     gif_SetZWrite(0);
@@ -473,9 +473,8 @@ void makeFullScreenFlareBefore(int mode)
             unsigned char col[4] = {0, 0, 0, 192};
             SprUV r = {-2048, -512, 4096, 1024};
 
-            gif_SetAlpha(1, 2, 0x80);
-            gif_SetDrawEnviroment(workBase[2] + ScreenWidth * ScreenHeight / 64, 0, 0x100, 0x40, 0,
-                                  0);
+            gif_SetAlpha(1, 2, 128);
+            gif_SetDrawEnviroment(workBase[2] + ScreenWidth * ScreenHeight / 64, 0, 256, 64, 0, 0);
 
             gif_SpriteSensitiveOrg(&r, 0, (void *)0, col, 1);
         }
@@ -520,7 +519,7 @@ void makeFullScreenFlareBefore(int mode)
 
         gif_SetZTest(0);
         gif_SetZWrite(0);
-        gif_SetAlpha(1, 2, 0x60);
+        gif_SetAlpha(1, 2, 96);
         gif_SetGsReg(0x47, 0x30815);
 
         {
@@ -578,7 +577,7 @@ void makeFullScreenFlareAfter(int mode)
         gif_SetGsReg(6, workBase[2] | ((long long)(ScreenWidth / 64) << 14) | 0x664000000LL);
         gif_SetGsReg(0x14, 0x60);
 
-        gif_SetDrawEnviroment(workBase[0], 0, 0x100, 0x80, 0, 0);
+        gif_SetDrawEnviroment(workBase[0], 0, 256, 128, 0, 0);
 
         gif_SetZTest(0);
         gif_SetZWrite(0);
@@ -601,7 +600,7 @@ void makeFullScreenFlareAfter(int mode)
 
         gif_SetGsReg(0x14, 0x60);
 
-        gif_SetDrawEnviroment(workBase[3], 0, 0x100, 0x80, 0, 0);
+        gif_SetDrawEnviroment(workBase[3], 0, 256, 128, 0, 0);
 
         gif_SetGsReg(6, workBase[0] | 0x20010000 | 0x5C0000000LL);
 
@@ -629,7 +628,7 @@ void makeFullScreenFlareAfter(int mode)
 
             gif_SetGsReg(0x14, 0x60);
 
-            gif_SetDrawEnviroment(workBase[3], 0, 0x100, 0x80, 0, 0);
+            gif_SetDrawEnviroment(workBase[3], 0, 256, 128, 0, 0);
 
             gif_SetGsReg(8, 5);
 
@@ -658,7 +657,7 @@ void makeFullScreenFlareAfter(int mode)
 
             gif_SetGsReg(6, workBase[3] | 0x20010000 | 0x5C0000000LL);
 
-            gif_SetDrawEnviroment(workBase[1], 0, 0x100, 0x80, 0, 0);
+            gif_SetDrawEnviroment(workBase[1], 0, 256, 128, 0, 0);
             {
                 int x0 = (sunScreen[0] + ScreenWidth / 2) * 4096 / ScreenWidth;
                 int y0 = (sunScreen[1] + ScreenHeight / 2) * 2048 / ScreenHeight;
@@ -681,7 +680,7 @@ void makeFullScreenFlareAfter(int mode)
 
             gif_SetGsReg(6, workBase[1] | 0x20010000 | 0x5C0000000LL);
 
-            gif_SetDrawEnviroment(workBase[3], 0, 0x100, 0x80, 0, 0);
+            gif_SetDrawEnviroment(workBase[3], 0, 256, 128, 0, 0);
             d = (SprUV){520, 264, 0, 0};
             {
                 int rate = 10;
@@ -703,7 +702,7 @@ void makeFullScreenFlareAfter(int mode)
 
                 gif_SetZTest(0);
                 gif_SetZWrite(0);
-                gif_SetAlpha(1, 1, 0x60);
+                gif_SetAlpha(1, 1, 96);
                 gif_SetGsReg(0x47, 0x34003);
                 {
                     SprUV e = {520, 264, 0, 0};
@@ -722,7 +721,7 @@ void makeFullScreenFlareAfter(int mode)
 
     inline void pasteWork0ToFB(void) /* derived name */
     {
-        gif_SetDrawEnviroment(workBase[0], 0, 0x100, 0x80, 0, 0);
+        gif_SetDrawEnviroment(workBase[0], 0, 256, 128, 0, 0);
 
         gif_SetZTest(0);
         gif_SetZWrite(0);
@@ -785,7 +784,7 @@ static void pasteFullScreenFlare(void)
 
     gif_SetZTest(0);
     gif_SetZWrite(0);
-    gif_SetAlpha(1, 0, 0x80);
+    gif_SetAlpha(1, 0, 128);
 
     uv = workBufferUv;
     col = (SprCol){{128, 128, 128, 128}};
@@ -816,9 +815,9 @@ static inline int depthFieldPass(int n, int cur, int pre) /* derived name */
     gif_SetGsReg(6, tex | 0x20010000 | 0x15C0000000LL);
 
     if (pre < cur) {
-        gif_SetGsReg(0x14, 64);
+        gif_SetGsReg(0x14, 0x40);
     } else {
-        gif_SetGsReg(0x14, 32);
+        gif_SetGsReg(0x14, 0x20);
     }
     gif_SetGsReg(8, 5);
     gif_SetAlpha(1, 4, 0);
@@ -832,7 +831,7 @@ static inline int depthFieldPass(int n, int cur, int pre) /* derived name */
     return cur;
 }
 
-void depthField(float depth, float alpha, float rate)
+void depthField(float depth, float width, float rate)
 {
     void copyToWork(void)
     {
@@ -844,7 +843,7 @@ void depthField(float depth, float alpha, float rate)
         gif_SetZWrite(0);
         gif_SetAlpha(0, 4, 0);
         gif_SetGsReg(0x47, 0);
-        gif_SetGsReg(0x14, 96);
+        gif_SetGsReg(0x14, 0x60);
 
         {
             int uv[4] = {8, 8, ScreenWidth * 16, 8192};
@@ -860,7 +859,7 @@ void depthField(float depth, float alpha, float rate)
     {
         gif_SetDrawEnviroment(workBase[0], 0, 256, 128, 0, 0);
         gif_SetGsReg(6, workBase[1] | 0x20010000 | 0x1600000000LL);
-        gif_SetGsReg(0x14, 96);
+        gif_SetGsReg(0x14, 0x60);
         gif_SetAlpha(1, 4, 0);
         gif_SetZTest(0);
         gif_SetZWrite(0);
@@ -879,7 +878,7 @@ void depthField(float depth, float alpha, float rate)
 
         gif_SetDrawEnviroment(0x800, 0, ScreenWidth, ScreenHeight, 0, 0);
 
-        gif_SetGsReg(0x14, 96);
+        gif_SetGsReg(0x14, 0x60);
         gif_SetZWrite(0);
         gif_SetGsReg(0x47, 0x50000);
         gif_SetAlpha(1, 2, (int)(rate * 128.0f));
@@ -933,9 +932,9 @@ void depthField(float depth, float alpha, float rate)
     gif_SetDrawEnviroment(0x800, 0, ScreenWidth, ScreenHeight, 0, 0);
 
     for (i = 1; i < 4; i++) {
-        pasteToFB(depth + alpha * i * 0.25f, i * 0.25f);
+        pasteToFB(depth + width * i * 0.25f, i * 0.25f);
     }
-    pasteToFB(depth + alpha, 1.0f);
+    pasteToFB(depth + width, 1.0f);
 
     gif_EndPacket();
 }
@@ -987,11 +986,11 @@ static void calcSun(void)
     _NormalizeVector(buf, sunDir);
     _ScaleVector(buf, buf, 1000000.0f);
     buf[3] = 1.0f;
-    _ApplyMatrix(buf, matrixptr + 0x100, buf);
+    _ApplyMatrix(buf, matrixptr + 256, buf);
     _ScaleVectorXYZ(buf, buf, 1.0f / buf[3]);
     _AddVectorXYZ(buf, buf, sunScreenOffset);
     _FTOI0Vector(sunScreen, buf);
-    _ApplyMatrix(sunView, matrixptr + 0x80, sunDir);
+    _ApplyMatrix(sunView, matrixptr + 128, sunDir);
 }
 
 static int colorSettingItem = 0; /* derived name */
@@ -1234,13 +1233,13 @@ void FullScreenEffectAfter(void)
         }
         break;
     case 2:
-        depthField(depthFadeDepth, depthFadeAlpha, 1.0f);
+        depthField(depthFadeStart, depthFadeWidth, 1.0f);
         break;
     case 3:
         if (flareOn) {
             makeFullScreenFlareAfter(0);
         }
-        depthField(depthFadeDepth, depthFadeAlpha, 1.0f);
+        depthField(depthFadeStart, depthFadeWidth, 1.0f);
         if (flareOn) {
             pasteFullScreenFlare();
         }
@@ -1255,7 +1254,7 @@ void FullScreenEffectAfter(void)
         if (flareOn) {
             makeFullScreenFlareAfter(2);
         }
-        depthField(depthFadeDepth, depthFadeAlpha, 1.0f);
+        depthField(depthFadeStart, depthFadeWidth, 1.0f);
         if (flareOn) {
             pasteFullScreenFlare();
         }
@@ -1270,7 +1269,7 @@ void FullScreenEffectAfter(void)
         if (flareOn) {
             makeFullScreenFlareAfter(1);
         }
-        depthField(depthFadeDepth, depthFadeAlpha, 1.0f);
+        depthField(depthFadeStart, depthFadeWidth, 1.0f);
         if (flareOn) {
             pasteFullScreenFlare();
         }
@@ -1283,8 +1282,8 @@ void FullScreenEffectAfter(void)
         auraInspireAfter(feedMode);
     }
 
-    depthFadeDepth = GlobalStageSetting.depthFieldStart;
-    depthFadeAlpha = GlobalStageSetting.depthFieldWidth;
+    depthFadeStart = GlobalStageSetting.depthFieldStart;
+    depthFadeWidth = GlobalStageSetting.depthFieldWidth;
 
     tex_UnlockHeadTBP(7);
     tex_UnlockHeadTBP(8);

@@ -112,15 +112,15 @@ inline void actAttackCheckBoundaryStart(GObj *self)
     p->flags18.ll |= 1LL << 32;
 }
 
-void AttackCheckBoundaryBeforeFunc(char *self)
+void AttackCheckBoundaryBeforeFunc(GObj *self)
 {
-    int *mgr = (int *)(self + 0x54);
-    int *e = (int *)(self + 0x5C);
+    IosMailBox *box = &self->mailBox;
+    IosMail *e = box->mail;
     int i;
 
-    for (i = 0; i < mgr[1]; i++, e += 2) {
-        if (e[0] == 13) {
-            if (*(char **)&e[1] == boyGObj) {
+    for (i = 0; i < box->num; i++, e++) {
+        if (e->type == 13) {
+            if (e->arg == boyGObj) {
                 AcbWork *b = GOBJ_SUB(self)->work;
                 void *g = GetBoyWeaponGObj();
 
@@ -156,7 +156,7 @@ void AttackCheckBoundaryBeforeFunc(char *self)
             }
         }
     }
-    mgr[1] = 0;
+    box->num = 0;
 }
 
 /* the manager's 8-byte roster entries and its work block at sub+0x830 */

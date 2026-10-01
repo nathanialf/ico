@@ -30,7 +30,7 @@ struct GObj;
  * first-declaration order, so this is the order box.c's inline tail has. */
 int CanHoldBox(struct GObj *self);
 void BoxDL(struct GObj *self);
-void GetBoxGlobalHoldPoint(void *out, void *self, void *local);
+void GetBoxGlobalHoldPoint(float *out, struct GObj *self, float *local);
 int IsThisBoxTruck(struct GObj *self);
 void ExecBoxMoveStartReaction(struct GObj *self, int dir);
 void ExecBoxMoveEndReaction(struct GObj *self);

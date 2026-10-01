@@ -31,21 +31,6 @@ typedef struct ClipBuf { /* field names derived */
     char _B0[16];
 } __attribute__((aligned(16))) ClipBuf; /* derived name */
 
-/* a node's 0x40-byte IK state: the blend rate _getFinalMatrix eases toward
-   its target, the heading, pitch and pitch step of the look turn, and the
-   node's three quaternions */
-typedef struct { /* field names derived */
-    float rate;  /* 0x00 */
-    short h;     /* 0x04 */
-    short _6;
-    short p; /* 0x08 */
-    short _A[2];
-    short dp;     /* 0x0E */
-    float q[4];   /* 0x10 */
-    float q20[4]; /* 0x20 */
-    float q30[4]; /* 0x30 */
-} MotIk;          /* derived name */
-
 /* one entry of a node's interp limit table, in degrees: the heading, pitch
    and bank limits _getFinalMatrix's turns are clamped to, read at 12-byte
    steps (the table's +0x30 and +0x48 headings are entries 4 and 6) */

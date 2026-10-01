@@ -8,7 +8,9 @@
 #ifndef GEOMETRYMANAGER_H
 #define GEOMETRYMANAGER_H
 
-#include "typedef.h"
+struct GObj;
+struct ObjNode;
+struct Sub15C;
 
 int CylinderCollision(struct GObj *self, int group, float r, float h, float s);
 
@@ -32,8 +34,8 @@ void GetRootQuaternion(void *q, struct GObj *obj);
 void GetRootQuaternionByDObj(void *q, struct Sub15C *dobj);
 void GlobalizeGeometry(struct GObj *gobj);
 int LimitExistGeometry(float *pos, float *move);
-void LocalizeDirectionOrient(struct GObj *self, ObjNode *link);
-void LocalizeGeometry(struct GObj *gobj, ObjNode *link);
+void LocalizeDirectionOrient(struct GObj *self, struct ObjNode *link);
+void LocalizeGeometry(struct GObj *gobj, struct ObjNode *link);
 void SetDirectRootPosition(struct GObj *self, void *v);
 void SetDirectRootPositionNoFitting(struct GObj *self, void *v);
 void SetDirectRootPositionNoFittingWithNodePoint(struct GObj *gobj, int node, float *pos, float t);

@@ -16,7 +16,7 @@ void FullScreenEffectBefore(void);
 void FullScreenEffectAfter(void);
 void makeFullScreenFlareBefore(int mode);
 void makeFullScreenFlareAfter(int mode);
-void depthField(float depth, float alpha, float rate);
+void depthField(float depth, float width, float rate);
 void GetSunWorldPos(float *pos);
 int InitStaticBlur(void);
 void StaticBlur(void);

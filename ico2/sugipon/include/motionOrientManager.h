@@ -188,10 +188,14 @@ extern MotOriAlt mirrorMotionTable[];
 extern const MotOriSub blendMotionKind[];
 extern const MotOriLimit motionLimitDef[];
 
-/* The 32-byte orient record an actor hands to SetMotionRequest by value.
- * ico2/fumi/src/act.c has the same record as IntrOrient. */
+/* The 32-byte orient record an actor hands to SetMotionRequest by value: two
+ * points, each with a fourth word.  ico2/fumi/src/commonact.c has the same
+ * record as IntrOrient. */
 typedef struct { /* field names derived */
-    int word[8]; /* copied whole, no member read: its eight words */
+    float a[3];  /* 0x00 */
+    int aw;      /* 0x0C */
+    float b[3];  /* 0x10 */
+    int bw;      /* 0x1C */
 } MotOriReq;     /* derived name */
 
 /* The declarations below lead this header because their order is load-bearing:

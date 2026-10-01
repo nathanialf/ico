@@ -657,7 +657,7 @@ typedef struct MotionStateInfo { /* field names derived */
     int shifted;                 /* 0xC */
     int ctrlFlags;               /* 0x10 */
     unsigned int flags;          /* 0x14 */
-    int word18;                  /* 0x18 */
+    int shiftStop;               /* 0x18 */
     int *shiftReq;               /* 0x1C */
     int *shiftNext;              /* 0x20 */
     int shiftFrom;               /* 0x24 */
@@ -697,9 +697,9 @@ typedef struct MotionStateInfo { /* field names derived */
     Vec4 dir;           /* 0xB0 */
     Vec4 lastDir;       /* 0xC0 */
     int orientKind;     /* 0xD0 */
-    int wordD4;         /* 0xD4 */
-    int wordD8;         /* 0xD8 */
-    int wordDC;         /* 0xDC */
+    int floorFit;       /* 0xD4 */
+    int wallReact;      /* 0xD8 */
+    int cliffWallCheck; /* 0xDC */
     int catchBoy;       /* 0xE0 */
     int sideWallCheck;  /* 0xE4 */
     int variation;      /* 0xE8 */
@@ -752,7 +752,7 @@ typedef struct MotionStateInfo { /* field names derived */
     int contactFlags;  /* 0x1DC */
     int mailDelay;     /* 0x1E0 */
     int noFieldClip;   /* 0x1E4 */
-    int word1E8;       /* 0x1E8 */
+    int seMute;        /* 0x1E8 */
     char pad1EC[4];
 } MotionStateInfo; /* derived name */
 

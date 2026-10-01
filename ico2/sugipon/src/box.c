@@ -1499,7 +1499,7 @@ static void action(GObj *self)
     }
 }
 
-inline void GetBoxGlobalHoldPoint(void *out, void *self, void *local)
+inline void GetBoxGlobalHoldPoint(float *out, GObj *self, float *local)
 {
     float buf[16];
     GetRootMatrix(buf, self);
@@ -1509,7 +1509,7 @@ inline void GetBoxGlobalHoldPoint(void *out, void *self, void *local)
 /* The clip work buffer is declared in a block of its own after the
    candidate loop.  The first iteration measures with sugiCommon.h's
    distance_squared_b, the rest with distance_squared. */
-int GetBoxHoldPoint(float *out, GObj *self, void *chara)
+int GetBoxHoldPoint(float *out, GObj *self, GObj *chara)
 {
     float pos[4];
     float p[4];
@@ -1543,7 +1543,7 @@ int GetBoxHoldPoint(float *out, GObj *self, void *chara)
 
         memset(&w, 0, 0xC0);
         GetBoxGlobalHoldPoint(w.pt[1], self, ZeroPoint);
-        GetBoxGlobalHoldPoint(&w, self, out);
+        GetBoxGlobalHoldPoint(w.pt[0], self, out);
         ClipWall(&w);
         if (w.wall.n != 0) {
             if (CompareAttribute(GetWallAttribute(&w), 0xB00) ||
@@ -1873,7 +1873,7 @@ static int moveBoxAutoMatic(GObj *self, int dir)
     return r;
 }
 
-int MoveBoxWithHoldPoint(GObj *self, void *holdPoint, GObj *holder, int focus, float *dir)
+int MoveBoxWithHoldPoint(GObj *self, float *holdPoint, GObj *holder, int focus, float *dir)
 {
     float plane[4];
     float nv[4];

@@ -1,27 +1,7 @@
 /* motMan_rootUpdate.c.inc: the motion manager's root update, the wall, floor and water passes; motionManager.c includes this file. */
-/* as in fieldCollision.h, which this file does not include */
-extern int ClipFloorE(void *work);
-/* int (void *) here, int (int) in fieldCollision.h */
-extern int GetFloorAttribute(void *w);
-/* as in fieldCollision.h, which this file does not include */
-extern int CompareAttribute(unsigned int a, unsigned int b);
-/* void (int, void *, int, char *) here, void (char *, void *, char *, void *) in fieldCollision.h */
-extern void GetWallGlobalInfo(int pts, void *v, int w, char *node);
-/* ObjNode here, FcBlk8 in fieldCollision.h */
-extern ObjNode InitialObjPointer;
-/* as in fieldCollision.h, which this file does not include */
-extern void ClipWallAdjustPos(void *work);
-/* as in fieldCollision.h, which this file does not include */
-extern void ClipWallE(void *work);
-/* WallCfg here, FcColInfo in fieldCollision.h */
-extern WallCfg InitialColInfo;
 /* declared as ico2/sugipon/src/box.c declares it; fumi's act.c declares it
  * with another view, so motionManager2.h does not */
 extern void GetLowerPlaneCollision(void *work, void *pos);
-/* as in fieldCollision.h, which this file does not include */
-extern void ClipWallWaveForce(void *work);
-/* as in fieldCollision.h, which this file does not include */
-extern int ClipWallEField(void *work);
 
 /* _wallHitReaction's helper */
 static inline int getWallSlideDirection(void *dir, void *hit, void *wall) /* derived name */
@@ -52,7 +32,7 @@ static void _wallHitReaction(ClipBuf *w, void *pos, void *last, int noSlide)
 
     SubVectorXYZ(&mv, w->pt[1], w->pt[2]);
     SubVectorXYZ(pos, pos, &mv);
-    GetOrientOfWall(&nrm, w->wall.n, &w->wall);
+    GetOrientOfWall(&nrm, w->wall.n, &w->wall.o);
     skelMotCtrl->flags = skelMotCtrl->flags | 2;
 
     CopyVector(&pl, &nrm);
@@ -371,7 +351,7 @@ static int getFieldCollision(ClipBuf *w)
     }
     if (w->floor.n != 0) {
         checkPoolFloor(w);
-        d = GetYDistanceFromPlane(&skelRoot->plane, w->pt[2]);
+        d = GetYDistanceFromPlane(skelRoot->plane.f, w->pt[2]);
         if (d <= 35.0f) {
             return 1;
         }
@@ -534,7 +514,7 @@ static void setIKAndAdjustRootHeight(char *mv)
             pl2 = pl;
             pl2.f[3] = 0.0f;
 
-            t = GetYDistanceFromPlane(&pl2, skelRoot->move);
+            t = GetYDistanceFromPlane(pl2.f, skelRoot->move);
 
             if (!(5.0f < (t < 0.0f ? -t : t))) {
                 if (debug_mot_slope_interp == 0) {
@@ -653,7 +633,7 @@ static void floorFitting(int kind)
         GetMatrixFromQuaternion(mtx, skelRoot->quat);
         _ApplyMatrix(&dir, mtx, ZUnitVector);
         plane.f[3] = 0.0f;
-        floorSlope[1] = GetYDistanceFromPlane(&plane, &dir);
+        floorSlope[1] = GetYDistanceFromPlane(plane.f, dir.f);
         floorSlope[2] = 1.0f;
         _NormalizeVector(floorSlope, floorSlope);
         ang = GetTableArcTan2(floorSlope[1], floorSlope[2]);
@@ -686,11 +666,11 @@ static inline int getFloorAttributeUnderNode(void) /* derived name */
 #define WALL_COLLISION_AND_WAVE_FORCE() /* derived name */                                         \
     if (wallCollisionAndFloorFit(skelRoot->pos, skelRoot->last, skelRoot->projHeight + -30.0f) ==  \
         0) {                                                                                       \
-        if (skelMotCtrl->wordD8 != 0) {                                                            \
+        if (skelMotCtrl->wallReact != 0) {                                                         \
             wallCollisionAndFloorFit(skelRoot->pos, skelRoot->last, 5.0f);                         \
         }                                                                                          \
     }                                                                                              \
-    if (skelMotCtrl->wordD8 != 0) {                                                                \
+    if (skelMotCtrl->wallReact != 0) {                                                             \
         waveForceReaction(skelRoot, skelRoot->last, 0.0f);                                         \
     }
 
@@ -810,7 +790,7 @@ static ObjNode rootUpdateXZ(int kind, int no)
         sceVu0TransposeMatrix(MatrixDrive_GetMatrix(), MatrixDrive_GetMatrix());
         sceVu0ApplyMatrix(skelRoot->focusLocal, MatrixDrive_GetMatrix(), &focus);
         MatrixDrive_PopMatrix();
-        skelRoot->height = GetYDistanceFromPlane(&skelRoot->plane, skelRoot->pos);
+        skelRoot->height = GetYDistanceFromPlane(skelRoot->plane.f, skelRoot->pos);
         {
             Vec16 sum;
             float proj, gap;
@@ -928,12 +908,12 @@ static ObjNode rootUpdateXZ_MotPos(int kind, int no)
 
     if (wallCollisionAndFloorFit(skelRoot->pos, skelRoot->last, skelRoot->projHeight + -30.0f) ==
         0) {
-        if (skelMotCtrl->wordD8 != 0) {
+        if (skelMotCtrl->wallReact != 0) {
             wallCollisionAndFloorFit(skelRoot->pos, skelRoot->last, 5.0f);
         }
     }
 
-    if (skelMotCtrl->wordD4 != 0) {
+    if (skelMotCtrl->floorFit != 0) {
         if (no != -1 || skelRoot->slopeIK != 0) {
             if (getFieldCollision(&w) != 0) {
                 CopyVector(&skelRoot->plane, &w.normal);
@@ -1321,7 +1301,7 @@ static ObjNode rootUpdateSwim(void)
         CopyVector(&skelRoot->plane, &w.normal);
     }
     wallCollisionAndFloorFit(skelRoot->pos, skelRoot->last, 0.0f);
-    if (skelMotCtrl->wordD8 != 0) {
+    if (skelMotCtrl->wallReact != 0) {
         waveForceReaction(skelRoot, skelRoot->last, 0.0f);
     }
     checkCliffAndWallStateAtJump();
@@ -1487,7 +1467,7 @@ static ObjNode rootUpdateStepSolution(int kind)
     }
 
     if (kind >= 7 && (kind < 9 || kind == 16)) {
-        if (skelMotCtrl->wordD8 != 0) {
+        if (skelMotCtrl->wallReact != 0) {
             if (skelMotDef->wallFeedback == 0) {
                 clipStepWallAndReact(skelRoot, skelRoot->last, skelRoot->radius, &cfg);
             }

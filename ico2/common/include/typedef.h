@@ -369,7 +369,7 @@ struct MotCtrl {           /* field names derived */
     int shifted;           /* 0xC, 1 after a motion shift */
     int ctrlFlags;         /* 0x10 */
     unsigned int flags;    /* 0x14 */
-    int word18;            /* 0x18 */
+    int shiftStop;         /* 0x18, nonzero stops the motion shift (ExecMotionOrient reports it) */
     int *shiftReq;         /* 0x1C, the request table searchMotionShift walks, -1 terminated */
     int *shiftNext;        /* 0x20, the motion each request shifts to */
     int shiftFrom;         /* 0x24 */
@@ -409,9 +409,9 @@ struct MotCtrl {           /* field names derived */
     float dir[4];     /* 0xB0, the motion direction */
     float lastDir[4]; /* 0xC0 */
     int orientKind;   /* 0xD0 */
-    int wordD4;       /* 0xD4 */
-    int wordD8;       /* 0xD8 */
-    int wordDC;       /* 0xDC */
+    int floorFit;       /* 0xD4, nonzero fits the root to the floor after a direct move */
+    int wallReact;      /* 0xD8, nonzero runs the low wall clip, the wave force and the step wall reaction */
+    int cliffWallCheck; /* 0xDC, the cliff and wall checks: 1 every frame, 2 alternating on variation */
     int catchBoy;     /* 0xE0, 1 while the enemy holds the boy */
     int sideWallCheck; /* 0xE4, nonzero runs checkWallSideState after the cliff and wall checks (InitBoyGeo sets it) */
     int variation; /* 0xE8, the enemy's variation counter, 0 to 9: its parity alternates the cliff and the wall check */
@@ -466,7 +466,7 @@ struct MotCtrl {           /* field names derived */
     int contactFlags;  /* 0x1DC, the field contact bits CheckFieldContact sets */
     int mailDelay; /* 0x1E0, counts the first frame up before the motion orient sends its state mail */
     int noFieldClip; /* 0x1E4, nonzero skips the flying root's wall and field collision (rootUpdateEnemyFly) */
-    int word1E8; /* 0x1E8, nonzero mutes the motion SEs (playSE in frameDependSequence.c); the ending (end.c) sets it on its two layout objects 2793 and 2794 */
+    int seMute; /* 0x1E8, nonzero mutes the motion SEs (playSE in frameDependSequence.c); the ending (end.c) sets it on its two layout objects 2793 and 2794 */
     char _pad1EC[4];
 };
 
@@ -488,6 +488,23 @@ typedef struct SkelNode { /* field names derived */
     int parent;    /* 0x38 */
     int pad3C;
 } SkelNode; /* derived name */
+
+/* One 64-byte IK state of a skeleton node, the array Sub15C nodeRotElem
+   points at: the blend rate _getFinalMatrix eases toward its target, the
+   heading, pitch and pitch step of the look turn, the node's IK rotation, the
+   per-frame step slerped toward it and its offset from the motion's own
+   rotation */
+typedef struct MotIk { /* field names derived */
+    float rate;       /* 0x00 */
+    short h;          /* 0x04 */
+    short pad06;
+    short p;          /* 0x08 */
+    short pad0A[2];
+    short dp;         /* 0x0E */
+    float q[4];       /* 0x10 */
+    float step[4];    /* 0x20 */
+    float offset[4];  /* 0x30 */
+} MotIk;              /* derived name */
 
 struct Sub15C { /* field names derived */
     ObjNode
@@ -532,7 +549,7 @@ struct Sub15C { /* field names derived */
     void *localObj;    /* 0x800, the object the position at 0x7E0 is relative to, 0 for none */
     int localNode;     /* 0x804, the node of that object */
     float localHeight; /* 0x808, the height added to the local position */
-    char *nodeRotElem; /* 0x80C, one 64-byte rotation element a skeleton node */
+    MotIk *nodeRotElem; /* 0x80C, one IK state a skeleton node */
     int nodeLimit;     /* 0x810, one rotation limit record pointer a skeleton node */
     int nodeVec;       /* 0x814, one vector a skeleton node */
     char pad818[4];

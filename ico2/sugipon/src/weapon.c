@@ -781,11 +781,10 @@ static void calcBlur(GObj *g, float t)
     Sub15C *e = GOBJ_SUB(g);
     WeaponWork *w = (WeaponWork *)e->work;
     char *base;
-    char *vtx;
-    char *q;
+    PEPartRec *vtx;
     char *dst1;
     char *dst2;
-    char *pd;
+    PEGeo *pd;
     int h;
     int i;
     int j;
@@ -815,8 +814,8 @@ static void calcBlur(GObj *g, float t)
         SetQuaternionByAxisRotateVWithNoRegularize(q2, (short)(ang * (float)i / 10.0f), n);
         sceVu0InterVector(p, e->root.pos, d, rr);
         GetMatrixFromQuaternionPos(m, q2, p);
-        CopyVector(base + i * 32, (char *)m + 0x30);
-        sceVu0ApplyMatrix(base + (i * 32 + 0x10), m, a);
+        CopyVector(base + i * 32, m[3]);
+        sceVu0ApplyMatrix(base + (i * 32 + 16), m, a);
     }
     if (w->kind >= 10) {
         return;
@@ -828,26 +827,23 @@ static void calcBlur(GObj *g, float t)
         h = SetParticleEffect(50, e->root.pos, IdentityQuaternion);
         if (h != -1) {
             pd = GetParticleEffectData(h);
-            vtx = *(char **)(pd + 0x24);
-            q = *(char **)(pd + 0x28);
-            dst1 = *(char **)(q + 0x190);
-            dst2 = *(char **)(q + 0x194);
+            vtx = pd->parts;
+            dst1 = (char *)pd->prim->vtx;
+            dst2 = (char *)pd->prim->vtxNext;
             ExecParticleEffect(h);
-            for (j = 0; j < *(int *)(pd + 0x30); j++) {
-                k = j * 10 / *(int *)(pd + 0x30);
+            for (j = 0; j < pd->n; j++) {
+                k = j * 10 / pd->n;
                 r = random_unit();
-                _InterVector(vtx + 0x10, base + (k + 1) * 32, base + ((k + 1) * 32 + 16), r);
+                _InterVector(vtx->pos, base + (k + 1) * 32, base + ((k + 1) * 32 + 16), r);
                 _InterVector(tmp, base + k * 32, base + (k * 32 + 16), r);
-                _SubVector(sub, vtx + 0x10, tmp);
-                _ScaleVector(
-                    vtx + 0x20, sub,
-                    *(float *)(*(char **)(pd + 0x20) + 0x10) *
-                        (*(float *)(*(char **)(pd + 0x20) + 0x14) * random_signed() + 1.0f));
-                sceVu0CopyVector(dst1, vtx + 0x10);
-                dst1 += 0x20;
-                sceVu0CopyVector(dst2, vtx + 0x10);
-                dst2 += 0x20;
-                vtx += 0x70;
+                _SubVector(sub, vtx->pos, tmp);
+                _ScaleVector(vtx->vel, sub,
+                             pd->pkg->speed * (pd->pkg->speedRand * random_signed() + 1.0f));
+                sceVu0CopyVector(dst1, vtx->pos);
+                dst1 += 32;
+                sceVu0CopyVector(dst2, vtx->pos);
+                dst2 += 32;
+                vtx++;
             }
         }
     }
@@ -1062,11 +1058,11 @@ void LightTorchOffOfWeapon(GObj *self)
     }
 }
 
-int GetTorchGObjOfWeapon(GObj *self)
+GObj *GetTorchGObjOfWeapon(GObj *self)
 {
     WeaponWork *p = GOBJ_SUB(self)->work;
     if (p->count) {
-        return (int)p->objs[0];
+        return p->objs[0];
     }
     return 0;
 }

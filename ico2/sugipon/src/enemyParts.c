@@ -133,7 +133,7 @@ static inline PointBlur *initPointBlurAt(int num, int pri, int *col, void *pos) 
     return p;
 }
 
-EnemyEye *InitEnemyEye(int num, int unused, int pri)
+EnemyEye *InitEnemyEye(int num, int mode, int pri)
 {
     EnemyEye *p;
 

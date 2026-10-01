@@ -857,9 +857,9 @@ inline BirdWork *InitBirdGeo(GObj *gobj, void *home)
     w->scared = 0;
     InitMotionOrient(gobj, 2421, 2467, -1, -1, 1134);
 
-    GOBJ_SUB(gobj)->ctrl.wordD4 = 1;
-    GOBJ_SUB(gobj)->ctrl.wordDC = 0;
-    GOBJ_SUB(gobj)->ctrl.wordD8 = 1;
+    GOBJ_SUB(gobj)->ctrl.floorFit = 1;
+    GOBJ_SUB(gobj)->ctrl.cliffWallCheck = 0;
+    GOBJ_SUB(gobj)->ctrl.wallReact = 1;
     GOBJ_SUB(gobj)->ctrl.catchBoy = 0;
     /* the animation frame at 0x4AC and the word after it start at the same
        random frame */

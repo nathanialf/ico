@@ -867,7 +867,7 @@ inline void SetParallelMotionTableWithNoRequest(void *self, int *next, int *req)
 {
     struct MotCtrl *m = &GOBJ_SUB(self)->ctrl;
 
-    if (m->word18 == 0) {
+    if (m->shiftStop == 0) {
         m->shiftReq = req;
         m->shiftNext = next;
     }
@@ -1377,7 +1377,7 @@ void ExecMotionOrient(void *self)
 {
     struct MotCtrl *w = &GOBJ_SUB(self)->ctrl;
 
-    if (w->word18 != 0) {
+    if (w->shiftStop != 0) {
         /* EUC-JP: "the motion replacement function is stopped" */
         debug_StdPrintfDummy("\033[36mモーション置き換え機能が停止しています。\033[m: %p\n", self);
     }

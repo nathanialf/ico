@@ -54,6 +54,7 @@ void GetBlendedMotion(struct StreamElem *dst, float *root, struct StreamElem *a,
                       struct StreamElem *b, float *rootB, float t, unsigned char *mask, int count);
 
 float GetDifferenceFromLastField(GObj *self, int node);
+float GetDifferenceFromLowerField(GObj *self, int node);
 float GetDifferenceFromWallLowerPlane(GObj *self, int node);
 float GetDifferenceFromWallUpperField(GObj *self, int node);
 float GetDifferenceFromWallUpperPlane(GObj *self, int node);

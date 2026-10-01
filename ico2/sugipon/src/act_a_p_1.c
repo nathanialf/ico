@@ -564,9 +564,7 @@ void actAP1Start(GObj *g)
 
 int IsActCharDead(GObj *self)
 {
-    int *v1 = (int *)self->act;
-    long x = *(unsigned int *)((char *)v1 + 0x1C);
-    return (((int)x) & 1) ^ 1;
+    return ((int)(GOBJ_ACT(self)->flags18.ll >> 32) & 1) ^ 1;
 }
 
 void SetAP1HostGObj(GObj *self, GObj *host)

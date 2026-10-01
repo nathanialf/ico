@@ -12,7 +12,7 @@
 #include "motionManager2.h"
 #include "frameDependSequence.h"
 
-static int execSE(int a0, void *a1);
+static int execSE(int no, void *entry);
 static int checkWaterDepth(struct GObj *gobj, int depth);
 static int checkModelDataID(struct GObj *gobj, int id);
 static int checkWeaponType(struct GObj *gobj, int kind);
@@ -60,7 +60,7 @@ static int playSE(int no)
 
     if (no != 0) {
         if (((GObj *)fdsGObj)->drawMask != 0) {
-            if (fdsLayout != 0 && fdsLayout->word1E8 != 0) {
+            if (fdsLayout != 0 && fdsLayout->seMute != 0) {
                 /* EUC-JP: "gObj:(%p) has its motion SE stopped" */
                 debug_StdPrintfDummy("gObj:(%p) はモーションSEが停止しています\n", fdsGObj);
                 return 1;
@@ -169,19 +169,19 @@ static int playSEConditionID(int no, void *entry)
     return 0;
 }
 
-static inline int execSE(int a0, void *a1)
+static inline int execSE(int no, void *entry)
 {
-    if (a0 <= 0xFFFF) {
-        return playSE(a0);
-    } else if (a0 <= 0x1FFFF) {
-        return playSERandomID(a0 - 0x10000, a1);
+    if (no <= 0xFFFF) {
+        return playSE(no);
+    } else if (no <= 0x1FFFF) {
+        return playSERandomID(no - 0x10000, entry);
     } else {
-        return playSEConditionID(a0 - 0x20000, a1);
+        return playSEConditionID(no - 0x20000, entry);
     }
     /* the bad-ID report, switched off */
     if (0) {
         /* EUC-JP: "an SE with a strange ID(%d) was called" */
-        debug_StdPrintfDummy("おかしなID(%d)のSEがコールされました\n", a0);
+        debug_StdPrintfDummy("おかしなID(%d)のSEがコールされました\n", no);
     }
 }
 
@@ -455,9 +455,7 @@ extern void soundSeGroupStop(int arg);
 
 void StopSEPackageWithGroupVariation(GObj *gobj, int grp)
 {
-    int *p = (int *)GOBJ_SUB(gobj);
-    p += grp;
-    soundSeGroupStop(p[0x187]);
+    soundSeGroupStop(GOBJ_SUB(gobj)->ctrl.seGroup[grp]);
 }
 
 void StopSEPackage(GObj *gobj)

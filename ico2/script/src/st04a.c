@@ -2046,7 +2046,7 @@ static void finishCallBackFunc(GObj *obj)
     _NormalizeVector(GOBJ_SUB(obj)->ctrl.dir, &v);
 
     for (i = 0; i < GOBJ_SUB(obj)->skelNodeNum; i++) {
-        *(Mtx44 *)(GOBJ_SUB(obj)->nodeRotElem + i * 64) = jointMtxInit;
+        *(Mtx44 *)&GOBJ_SUB(obj)->nodeRotElem[i] = jointMtxInit;
     }
 }
 

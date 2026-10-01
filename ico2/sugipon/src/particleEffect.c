@@ -16,29 +16,6 @@
 
 static int setParticleEffect(struct PEGeo *self, struct PEPackage *pkg, struct IosMemPart *part);
 
-/* The 128-byte per-effect geometry object SetParticleEffectByPartition
-   allocates: the emitter's position and orientation, its package, the
-   particle records and the primitive that draws them, the emission count, the
-   floor clamp and the rate, and the callback a geometry-controlled effect
-   runs instead of the integrator. */
-typedef struct PEGeo {       /* field names derived */
-    float pos[4];            /* 0x00 */
-    float quat[4];           /* 0x10 */
-    struct PEPackage *pkg;   /* 0x20 */
-    struct PEPartRec *parts; /* 0x24 */
-    PrimParticle *prim;      /* 0x28 */
-    float emitted;           /* 0x2C */
-    int n;                   /* 0x30 */
-    int clip;                /* 0x34 */
-    int floorOn;             /* 0x38 */
-    float floor;             /* 0x3C */
-    float rate;              /* 0x40 */
-    char pad44[32];          /* 0x44 */
-    int (*proc)(void *);     /* 0x64 */
-    int word68;              /* 0x68, setParticleEffect clears it; nothing reads it */
-    char pad6C[20];          /* 0x6C */
-} PEGeo;                     /* derived name */
-
 /* one vertex of the particle primitive's buffers */
 typedef struct PEVtx { /* field names derived */
     float pos[3];      /* 0x00 */
@@ -73,49 +50,6 @@ static PEffect particleEffects[128]; /* derived name */
 
 static int particleParams[61 * 40]; /* derived name */
 
-/* One particle package, 0xA0 bytes, the record an effect file supplies per
-   particle kind (SetParticleEffectPackage copies the file's over the default
-   below).  The colour is a quadword, so the record is 16-byte aligned. */
-typedef struct PEPackage {  /* field names derived */
-    int version;            /* 0x00 */
-    int mode;               /* 0x04 */
-    unsigned int alphaMode; /* 0x08, the GS alpha blend dispParticleEffect sets */
-    unsigned short spread;  /* 0x0C */
-    char pad0E[2];
-    float speed;     /* 0x10 */
-    float speedRand; /* 0x14 */
-    float drag;      /* 0x18 */
-    float gravity;   /* 0x1C */
-    short spinY;     /* 0x20 */
-    char pad22[2];
-    float spinYRand;     /* 0x24 */
-    float spinYDecay;    /* 0x28 */
-    float size;          /* 0x2C */
-    float sizeRand;      /* 0x30 */
-    float sizeStep;      /* 0x34 */
-    float sizeStepRand;  /* 0x38 */
-    float sizeStepDecay; /* 0x3C */
-    int count;           /* 0x40 */
-    int emit;            /* 0x44 */
-    float emitRand;      /* 0x48 */
-    float emitStep;      /* 0x4C, the particles emitted a frame */
-    float alpha;         /* 0x50 */
-    float alphaRand;     /* 0x54 */
-    int life;            /* 0x58 */
-    float lifeRand;      /* 0x5C */
-    char pad60[16];
-    sceVu0IVECTOR col; /* 0x70 */
-    int u;             /* 0x80 */
-    int v;             /* 0x84 */
-    short spinX;       /* 0x88 */
-    char pad8A[2];
-    float spinXRand; /* 0x8C */
-    float wind;      /* 0x90 */
-    int floorOn;     /* 0x94, nonzero clamps the particles to the floor */
-    int floorDepth;  /* 0x98, the floor height, negated */
-    char pad9C[4];
-} PEPackage; /* derived name */
-
 /* the free-slot search, inlined at its one call site */
 static inline int searchFreeParticleEffect(void) /* derived name */
 {
@@ -139,33 +73,13 @@ static void setParticleEffectGeometry(PEGeo *geo, void *pos, void *quat)
     CopyQuaternion(geo->quat, quat);
 }
 
-typedef struct PEPartRec { /* field names derived */
-    int alive;             /* 0x00, 0 once the particle has run out */
-    int spin;              /* 0x04 */
-    long long word08;
-    float pos[4];    /* 0x10 */
-    float vel[4];    /* 0x20 */
-    short spinX;     /* 0x30 */
-    short spinY;     /* 0x32 */
-    float size;      /* 0x34 */
-    float sizeStep;  /* 0x38 */
-    float alpha;     /* 0x3C */
-    float alphaStep; /* 0x40 */
-    int life;        /* 0x44 */
-    char pad48[8];
-    int col[4]; /* 0x50 */
-    float u;    /* 0x60 */
-    float v;    /* 0x64 */
-    char pad68[8];
-} PEPartRec; /* derived name */
-
 /* the staging record makeParticle fills before copying it whole into the
    caller's slot, the blank particle peSetVtx writes for an unused vertex, and
    the cleared effect slot InitParticleEffects fills the table with */
 static PEPartRec particleWork = {
     1,                        /* alive */
     0,                        /* spin */
-    0,                        /* word08 */
+    0,                        /* pad08 */
     {0.0f, 0.0f, 0.0f, 1.0f}, /* pos */
     {0.0f, 0.0f, 0.0f, 0.0f}, /* vel */
     0,
@@ -307,7 +221,7 @@ static int setParticleEffect(PEGeo *self, PEPackage *pkg, struct IosMemPart *par
     self->emitted = 0.0f;
 
     self->proc = 0;
-    self->word68 = 0;
+    self->endFunc = 0;
 
     self->prim = prim_InitParticleByPartition(n, 1.0f, 0.25f, 0.25f, 1, "enemy_tex01", 1, part);
     if (self->prim == 0)
@@ -833,9 +747,9 @@ void DeleteParticleEffectsByID(int id)
     DeleteParticleEffectsByPackage_inl(GetParticleEffectPackage_inl(id));
 }
 
-int GetParticleEffectData(int id)
+PEGeo *GetParticleEffectData(int id)
 {
-    return (int)particleEffects[id].geo;
+    return particleEffects[id].geo;
 }
 
 void DisableParticleEffectGeometryControl(int id)

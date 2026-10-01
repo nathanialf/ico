@@ -498,8 +498,8 @@ void EnemyGeo(GObj *self)
     }
 
     GOBJ_SUB(self)->ctrl.catchBoy = 0;
-    GOBJ_SUB(self)->ctrl.wordDC = 2;
-    GOBJ_SUB(self)->ctrl.wordD8 = 0;
+    GOBJ_SUB(self)->ctrl.cliffWallCheck = 2;
+    GOBJ_SUB(self)->ctrl.wallReact = 0;
     if (GetEnemyTypeFromGObj(self) == 3)
         GOBJ_SUB(self)->ctrl.catchBoy = 1;
 

@@ -221,7 +221,7 @@ inline TorchGeoWork *InitTorchGeo(GObj *self, SObjSimpleSetting *lay)
     return p;
 }
 
-inline char *CheckTorchChainReaction(GObj *self, float dist)
+inline GObj *CheckTorchChainReaction(GObj *self, float dist)
 {
     float pos[4];
     float pos2[4];
@@ -237,7 +237,7 @@ inline char *CheckTorchChainReaction(GObj *self, float dist)
         if (o != self && IsTorchLightOn(o) && o->active != 0 && w->flags != 2) {
             GetRootPosition(pos2, o);
             if (distance_squared(pos2, pos) < dist2) {
-                return (char *)o;
+                return o;
             }
         }
         o = isysGObjSearchFromObjKindID_next(o);
@@ -297,27 +297,26 @@ inline void UpdateRealTimeGeometryValue(GObj *self)
 
 /* nonzero when lighting `other`'s torch from `gobj` must not happen: the
  * heroine's bomb, or the boy's weapon pair */
-static inline int chainReactionBlocked(char *gobj, char *other) /* derived name */
+static inline int chainReactionBlocked(GObj *gobj, GObj *other) /* derived name */
 {
-    char *p;
-    char *q;
-    int a;
-    int b;
+    Act *p;
+    Act *q;
+    GObj *a;
+    GObj *b;
 
-    b = *(int *)*(char **)(gobj + 0x15C);
-    a = *(int *)*(char **)(other + 0x15C);
+    b = GOBJ_SUB(gobj)->parent.obj;
+    a = GOBJ_SUB(other)->parent.obj;
     if (girlGObj != 0) {
-        q = *(char **)((char *)girlGObj + 0x164);
-        if (b != 0 && b == *(int *)(q + 0x154)) {
+        q = GOBJ_ACT(girlGObj);
+        if (b != 0 && b == q->curItem) {
             /* tried to light the heroine's bomb */
             debug_StdPrintfDummy("ヒロインの爆弾に点火しようとした\n");
             return 1;
         }
     }
     if (b != 0 && a != 0) {
-        p = *(char **)((char *)boyGObj + 0x164);
-        if (ACTGame_NoWeapon(boyGObj) == 0 && a == *(int *)(p + 0x150) &&
-            b == *(int *)(p + 0x154)) {
+        p = GOBJ_ACT(boyGObj);
+        if (ACTGame_NoWeapon(boyGObj) == 0 && a == p->weapon && b == p->curItem) {
             /* an exception came up while lighting */
             debug_StdPrintfDummy("点火の例外処理発生\n");
             return 1;
@@ -329,7 +328,7 @@ static inline int chainReactionBlocked(char *gobj, char *other) /* derived name 
 static void procChainReaction(GObj *gobj)
 {
     TorchGeoWork *w;
-    char *o;
+    GObj *o;
 
     w = GOBJ_SUB(gobj)->work;
     if (w->chainFlag == 0) {

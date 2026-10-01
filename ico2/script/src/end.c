@@ -1360,8 +1360,8 @@ void actStaff2(GObj *volatile self)
     lt_switch_layout(55);
     scpBoyControlReadDisable = 1;
     scpSetBoyWeaponGObj(scpSearchGobj(2795));
-    scpSearchGobj(2793)->dobj->ctrl.word1E8 = 1;
-    scpSearchGobj(2794)->dobj->ctrl.word1E8 = 1;
+    scpSearchGobj(2793)->dobj->ctrl.seMute = 1;
+    scpSearchGobj(2794)->dobj->ctrl.seMute = 1;
     stage_SetAnimation(269, 0, 0);
     staff2_mes[0].func = actStaff2Chk;
     act->mail = staff2_mes;

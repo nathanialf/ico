@@ -15,7 +15,7 @@ struct GObj;
    gives, the blend mode of the blur the weapon trails (-1 for none) and the
    blur's colour.
    Readers: weapon.c, ico2/omori/src/attackhit.c (power and flags),
-   ico2/fumi/src/act-game.c (0x1C). */
+   ico2/fumi/src/act-game.c (motOrient). */
 typedef struct {            /* field names derived */
     float length;           /* 0x00, the blade tip's distance */
     float grip;             /* 0x04 */
@@ -24,7 +24,7 @@ typedef struct {            /* field names derived */
     int word10;             /* 0x10 */
     int blur;               /* 0x14, the blur's blend mode, -1 for none */
     unsigned char color[4]; /* 0x18, the blur's colour */
-    int word1C;             /* 0x1C */
+    int motOrient;          /* 0x1C, the motion orient the holder takes (act-game.c) */
     unsigned int flags;     /* 0x20, bit 0 unguardable, bit 1 the swing sweeps */
 } WeaponDef;                /* derived name */
 
@@ -41,9 +41,10 @@ typedef struct {  /* field names derived */
 struct GObj *CheckSwapableWeapon(struct GObj *self, float dist);
 int CheckWeaponKind(struct GObj *self);
 void ExecWeaponHitReaction(struct GObj *self);
-int GetTorchGObjOfWeapon(struct GObj *self);
+struct GObj *GetTorchGObjOfWeapon(struct GObj *self);
 void LightTorchOffOfWeapon(struct GObj *self);
 void LightTorchOnOfWeapon(struct GObj *self);
+void LightTorchOnOfWeaponWithNoSE(struct GObj *self);
 void PickupWeapon(struct GObj *self, struct GObj *holder, int focus);
 void ReleaseWeapon(struct GObj *self);
 int ReleaseWeaponWithFumbleSequential(struct GObj *g);
