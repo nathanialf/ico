@@ -8,6 +8,8 @@
 #ifndef FLAG_H
 #define FLAG_H
 
+#include "clothAnimation.h"
+
 struct GObj;
 
 void SetFlag4PointFixID(struct GObj *self, int a1, int id);
@@ -16,17 +18,17 @@ typedef struct { /* field names derived */
     float m[4];
 } Vec4Flag; /* derived name */
 
-/* The InitClothes config record, the same 0x1C-byte layout clothTest.c
-   carries (rows, spacing, columns, anchors, texture, weight). */
-typedef struct ClothCfg { /* field names derived */
-    int num;         /* 0x00  rows, and -1 ends the array */
-    float segLength; /* 0x04  the spacing between rows */
-    int div;         /* 0x08  columns */
-    int wrap;        /* 0x0C  nonzero when the last column joins the first */
-    void *anchors;   /* 0x10 */
-    void *tex;       /* 0x14  null means the untextured mesh */
-    float weight;    /* 0x18  the fall added to each point a step */
-} ClothCfg; /* derived name */
+/* The flag's work record, InitFlagGeo's 20-byte allocation: the cloth
+   type (the layout kind's low four bits), the clothes InitClothes builds,
+   their config, whether the object collides, and SetFlag4PointFixID's
+   quarter turns. */
+typedef struct { /* field names derived */
+    int type;
+    ClothSet *clothes;
+    ClothCfg *cfg;
+    int collide;
+    int turns;
+} FlagWork; /* derived name */
 
 /* one word of a record, read and written through a union member: the
    node flags' bit clears and InitFlagGeo's float stores */
@@ -42,7 +44,7 @@ typedef union { /* field names derived */
    the nodes reset; worm.c and boy.c carry the same block.  The block has its
    own counter, and each node's 0.0f words are stored from one float set at
    the top of the loop body. */
-#define FLAG_ALLOC_NODES(o, num) /* derived name */ \
+#define FLAG_ALLOC_NODES(o, num) /* derived name */                                                \
     {                                                                                              \
         int n;                                                                                     \
         if ((o)->nodeMtx != 0) {                                                                   \

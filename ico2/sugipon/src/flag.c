@@ -29,12 +29,12 @@ static float flag4PointFix[2][4][4] = {
    corners of the id's row of flag4PointFix, its height raised by k.
    SetFlag4PointFixID is the one caller, passing a1 * 0.25f as k.
  */
-static inline void setFlag4PointMesh(Mesh3D *mesh, char *cl, float k, int id) /* derived name */
+static inline void setFlag4PointMesh(Mesh3D *mesh, ClothCfg *cl, float k, int id) /* derived name */
 {
     float *tbl = flag4PointFix[id][0];
     Prim3DVec *v = mesh->st;
-    int n = *(int *)cl;
-    int m = *(int *)(cl + 0x8);
+    int n = cl->num;
+    int m = cl->div;
     int i;
     int j;
     float a;
@@ -56,21 +56,21 @@ static inline void setFlag4PointMesh(Mesh3D *mesh, char *cl, float k, int id) /*
 
 void SetFlag4PointFixID(GObj *self, int a1, int id)
 {
-    char *w;
+    FlagWork *w;
     short ang;
 
     w = GOBJ_SUB(self)->work;
-    *(int *)(w + 0x10) = a1;
+    w->turns = a1;
     _UnitMatrix(MatrixDrive_GetMatrix());
     ang = -a1 * 0x4000;
     MatrixDrive_RotMatrixZ(ang);
     _ApplyMatrix((char *)GOBJ_SUB(self) + 0xA0, MatrixDrive_GetMatrix(),
                  (char *)GOBJ_SUB(self) + 0xA0);
     RotQuaternionZ(GOBJ_SUB(self)->root.quat, ang);
-    setFlag4PointMesh(*(Mesh3D **)(*(char **)(*(char **)(w + 0x4) + 0x4)), *(char **)(w + 0x8),
-                      a1 * 0.25f, id);
-    prim_UpdateMesh3D(*(Mesh3D **)(*(char **)(*(char **)(w + 0x4) + 0x4)), 8, 0);
-    prim_UpdateMesh3D(*(Mesh3D **)(*(char **)(*(char **)(w + 0x4) + 0x4)), 8, 1);
+    /* the clothes' one cloth: its mesh, and the config's rows and columns */
+    setFlag4PointMesh(w->clothes->rec->mesh, w->cfg, a1 * 0.25f, id);
+    prim_UpdateMesh3D(w->clothes->rec->mesh, 8, 0);
+    prim_UpdateMesh3D(w->clothes->rec->mesh, 8, 1);
 }
 
 /* InitFlagGeo builds a cloth from the laid-out object's row of layoutClothDef
@@ -92,15 +92,15 @@ char *InitFlagGeo(char *self, char *arg)
     float k = ent->length / (float)ent->count;
     float d;
     int type, i, j;
-    char *cl = iosMallocDebug(ios_partition_sugipon, 56, __FILE__, __LINE__);
-    *(ClothCfg *)cl = flagCfg;
-    *(float *)(cl + 0x18) = ent->weight;
-    *(int *)(cl + 0x1C) = -1;
-    *(int *)(cl + 0x0) = ent->rows;
-    *(int *)(cl + 0x8) = ent->count;
+    ClothCfg *cl = iosMallocDebug(ios_partition_sugipon, 56, __FILE__, __LINE__);
+    *cl = flagCfg;
+    cl->weight = ent->weight;
+    cl[1].num = -1;
+    cl->num = ent->rows;
+    cl->div = ent->count;
 
-    mesh = iosMallocDebug(ios_partition_sugipon, *(int *)(cl + 0x0) * 48, __FILE__, __LINE__);
-    ((FlagNodeWord *)(cl + 0x10))->i = (int)mesh;
+    mesh = iosMallocDebug(ios_partition_sugipon, cl->num * 48, __FILE__, __LINE__);
+    ((FlagNodeWord *)&cl->anchors)->i = (int)mesh;
     /* the four corners of the layout entry, with y negated and w set
        to 1 */
     v[0].m[0] = ent->pt[0][0];
@@ -129,21 +129,21 @@ char *InitFlagGeo(char *self, char *arg)
     switch (type) {
     case 1:
     case 2:
-        FLAG_ALLOC_NODES(((SubHandle *)(self + 0x15C))->sub, *(int *)(cl + 0x8) - 1);
+        FLAG_ALLOC_NODES(((SubHandle *)(self + 0x15C))->sub, cl->div - 1);
         CopyVector(((SubHandle *)(self + 0x15C))->p + 0xA0, ZeroPoint);
         CopyVector(mesh + 0x10, &v[0]);
         CopyVector(mesh + 0x20, &v[1]);
         *(int *)mesh = -1;
         *(float *)(mesh + 4) = k;
-        *(int *)(p + 4) = InitClothes(cl);
+        *(ClothSet **)(p + 4) = InitClothes(cl);
         break;
         /* types 1 and 2 above reach the 0x15C slot through SubHandle, as
            cage.c and girlForceField.c do; the other slot reads here are
            GOBJ_SUB's.  Type 0 hangs the cloth along the line between the
            first two corners. */
     case 0:
-        *(char **)(cl + 0x14) = iosMallocDebug(ios_partition_sugipon, strlen(ent->name) + 1, __FILE__, __LINE__);
-        strcpy(*(char **)(cl + 0x14), ent->name);
+        cl->tex = iosMallocDebug(ios_partition_sugipon, strlen(ent->name) + 1, __FILE__, __LINE__);
+        strcpy(cl->tex, ent->name);
 
 
         _InterVectorXYZ(GOBJ_SUB(self)->root.pos, &v[0], &v[1], 0.5f);
@@ -151,26 +151,26 @@ char *InitFlagGeo(char *self, char *arg)
         _SubVectorXYZ(&v[1], &v[1], GOBJ_SUB(self)->root.pos);
 
         d = GetPointDistance(&v[0], &v[1]);
-        *(float *)(cl + 4) = d / (float)*(int *)(cl + 0x0);
+        cl->segLength = d / (float)cl->num;
 
 
 
-        for (i = 0; i < *(int *)(cl + 0x0); i++) {
+        for (i = 0; i < cl->num; i++) {
             _InterVector(mesh + 0x10 + i * 48, &v[0], &v[1],
-                         (float)i / (float)(*(int *)(cl + 0x0) - 1));
+                         (float)i / (float)(cl->num - 1));
             *(int *)(mesh + i * 48) = -1;
             *(float *)(mesh + i * 48 + 4) = k;
         }
 
-        *(int *)(p + 4) = InitClothes(cl);
+        *(ClothSet **)(p + 4) = InitClothes(cl);
         break;
 
 
 
 
     case 4:
-        *(char **)(cl + 0x14) = iosMallocDebug(ios_partition_sugipon, strlen(ent->name) + 1, __FILE__, __LINE__);
-        strcpy(*(char **)(cl + 0x14), ent->name);
+        cl->tex = iosMallocDebug(ios_partition_sugipon, strlen(ent->name) + 1, __FILE__, __LINE__);
+        strcpy(cl->tex, ent->name);
         /* type 4: the object's root is the mean of the four corners, the
            corners are made relative to it, and each column's length is
            shared out between the lengths of the two sides
@@ -184,7 +184,7 @@ char *InitFlagGeo(char *self, char *arg)
             _SubVectorXYZ(q, q, GOBJ_SUB(self)->root.pos);
 
         d = GetPointDistance(&v[0], &v[1]);
-        *(float *)(cl + 4) = d / (float)(*(int *)(cl + 0x0) - 1);
+        cl->segLength = d / (float)(cl->num - 1);
 
 
 
@@ -193,13 +193,13 @@ char *InitFlagGeo(char *self, char *arg)
 
         k = GetPointDistance(&v[0], &v[2]);
         d = GetPointDistance(&v[1], &v[3]);
-        for (j = 0; j < *(int *)(cl + 0x0); j++) {
+        for (j = 0; j < cl->num; j++) {
             *(int *)(mesh + j * 48) = -1;
-            *(float *)(mesh + j * 48 + 4) = (k + (d - k) * j / (float)(*(int *)(cl + 0x0) - 1)) / (float)(*(int *)(cl + 0x8) - 1);
+            *(float *)(mesh + j * 48 + 4) = (k + (d - k) * j / (float)(cl->num - 1)) / (float)(cl->div - 1);
         }
 
 
-        *(int *)(p + 4) = InitClothesNoShade(cl);
+        *(ClothSet **)(p + 4) = InitClothesNoShade(cl);
         break;
     }
 
@@ -229,34 +229,32 @@ char *InitFlagGeo(char *self, char *arg)
 
 void FlagGeo(GObj *self)
 {
-    char *gd;
-    char *o;
+    FlagWork *gd;
+    ClothSet *o;
 
     gd = GOBJ_SUB(self)->work;
-    o = *(char **)(gd + 0x4);
+    o = gd->clothes;
     if (*(char **)((char *)GOBJ_SUB(self)) != 0 &&
         *(int *)(*(char **)((char *)GOBJ_SUB(self)) + 0x16C) == 0) {
         return;
     }
     GetRootMatrix(MatrixDrive_GetMatrix(), self);
-    switch (*(int *)gd) {
+    /* types 0 and 1 hang the cloth from its anchors, type 2 pins the far end
+       of each row as well (GetClothAnimation's last argument), type 4 holds
+       it by its four corners; a flag that collides is its own wall owner, and
+       the collision flag goes in the wall-count slot the callee recomputes */
+    switch (gd->type) {
     case 0:
     case 1:
-        GetClothAnimation(*(void **)(*(char **)(o + 0x4) + 0x4),
-                          *(void **)(*(char **)(o + 0x4) + 0x8), 0, MatrixDrive_GetMatrix(),
-                          *(int *)(gd + 0x8), *(int *)(gd + 0xC),
-                          *(int *)(gd + 0xC) != 0 ? self : 0, 0);
+        GetClothAnimation(o->rec->pos, o->rec->vel, 0, MatrixDrive_GetMatrix(), gd->cfg,
+                          gd->collide, gd->collide != 0 ? self : 0, 0);
         break;
     case 2:
-        GetClothAnimation(*(void **)(*(char **)(o + 0x4) + 0x4),
-                          *(void **)(*(char **)(o + 0x4) + 0x8), 0, MatrixDrive_GetMatrix(),
-                          *(int *)(gd + 0x8), *(int *)(gd + 0xC),
-                          *(int *)(gd + 0xC) != 0 ? self : 0, 1);
+        GetClothAnimation(o->rec->pos, o->rec->vel, 0, MatrixDrive_GetMatrix(), gd->cfg,
+                          gd->collide, gd->collide != 0 ? self : 0, 1);
         break;
     case 4:
-        GetClothAnimationFix4Points(*(void **)(*(char **)(o + 0x4) + 0x4),
-                                    *(void **)(*(char **)(o + 0x4) + 0x8), *(int *)(gd + 0x8),
-                                    MatrixDrive_GetMatrix());
+        GetClothAnimationFix4Points(o->rec->pos, o->rec->vel, gd->cfg, MatrixDrive_GetMatrix());
         break;
     }
 }
@@ -268,24 +266,26 @@ void FlagDL(GObj *self)
     Vec4Flag l20;
     Vec4Flag l30;
     Vec4Flag l40;
-    char *gd;
-    char *o;
+    FlagWork *gd;
+    ClothSet *o;
     char *base;
     char *m;
     int i;
     int n;
 
     gd = GOBJ_SUB(self)->work;
-    o = *(char **)(gd + 0x4);
+    o = gd->clothes;
     if (*(char **)((char *)GOBJ_SUB(self)) != 0 &&
         *(int *)(*(char **)((char *)GOBJ_SUB(self)) + 0x16C) == 0) {
         return;
     }
-    switch (*(int *)gd) {
+    /* types 1 and 2 turn the cloth's first row into the object's node
+       matrices and draw the nodes; types 0 and 4 draw the cloth mesh */
+    switch (gd->type) {
     case 1:
     case 2:
-        n = *(int *)(*(char **)(gd + 0x8) + 0x8);
-        base = *(char **)(*(char **)(*(char **)(o + 0x4) + 0x4));
+        n = gd->cfg->div;
+        base = (char *)o->rec->pos[0];
         memset(&l0, 0, 0x10);
         l0.m[3] = 1.0f;
         memset(&l10, 0, 0x10);
@@ -304,12 +304,12 @@ void FlagDL(GObj *self)
     case 0:
         light_MakeLightMatrix(GOBJ_SUB(self), 0);
         m = (char *)GOBJ_SUB(self)->lightMtx;
-        DispClothMesh(*(int **)(o + 0x4), m + 0x40, m);
+        DispClothMesh(o->rec, m + 0x40, m);
         break;
     case 4:
         light_MakeLightMatrix(GOBJ_SUB(self), 0);
         m = (char *)GOBJ_SUB(self)->lightMtx;
-        DispClothMesh(*(int **)(o + 0x4), m + 0x40, m);
+        DispClothMesh(o->rec, m + 0x40, m);
         break;
     }
 }

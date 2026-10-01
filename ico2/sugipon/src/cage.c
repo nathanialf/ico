@@ -24,7 +24,7 @@ typedef struct {   /* field names derived */
     Sub15C *dobj2; /* 0x04 */
     char pad08[8];
     float rot[4];     /* 0x10 */
-    char *chains;     /* 0x20 */
+    ChainSet *chains; /* 0x20 */
     int upperNode;    /* 0x24, the chain node weighted over 0 to 600 */
     int lowerNode;    /* 0x28, the chain node weighted over 500 to 1400 */
     int linkCount;    /* 0x2C, the chain's length over linkLength, the DObj node count */
@@ -57,11 +57,11 @@ int CageRideFunc(ObjNode *self, GObj *rider)
     v[1] = 0.0f;
     sceVu0ScaleVector(v, v, t * 0.06f / w->mass);
 
-    sceVu0AddVector((void *)(w->upperNode * 80 + *(int *)(w->chains + 8) + 0x40),
-                    (void *)(w->upperNode * 80 + *(int *)(w->chains + 8) + 0x40), v);
+    sceVu0AddVector(&w->chains->nodes->ex[w->upperNode].v2, &w->chains->nodes->ex[w->upperNode].v2,
+                    v);
 
-    sceVu0SubVector((void *)(w->lowerNode * 80 + *(int *)(w->chains + 8) + 0x40),
-                    (void *)(w->lowerNode * 80 + *(int *)(w->chains + 8) + 0x40), v);
+    sceVu0SubVector(&w->chains->nodes->ex[w->lowerNode].v2, &w->chains->nodes->ex[w->lowerNode].v2,
+                    v);
 
     return 1;
 }
@@ -70,15 +70,15 @@ void SetCageFixGeometry(GObj *self, void *pos, void *dir)
 {
     CageWork *w = GOBJ_SUB(self)->work;
 
-    CopyVector(*(char **)(w->chains) + 0x20, pos);
+    CopyVector(w->chains->cfg + 0x20, pos);
     CopyVector(w->rot, dir);
 }
 
 inline int GetCageChainPoint(char *a0, char *a1, GObj *a2)
 {
     CageWork *w = GOBJ_SUB(a2)->work;
-    CopyVector(a0, *(char **)(*(char **)(w->chains + 8)));
-    CopyVector(a1, *(char **)(*(char **)(w->chains + 8)) + 0x10);
+    CopyVector(a0, w->chains->nodes->pos);
+    CopyVector(a1, w->chains->nodes->pos + 0x10);
     *(float *)(a0 + 4) = *(float *)(a0 + 4) + 50.0f;
     *(float *)(a1 + 4) = *(float *)(a1 + 4) - 150.0f;
     return w->rideable;
@@ -128,9 +128,9 @@ char *InitCageGeo(char *self, SObjSimpleSetting *lay)
     *(float *)(ch + 0x28) = lay->pos[2];
     *(float *)(ch + 0x14) = lay->scale[1];
     SetIdentityQuaternion(w->rot);
-    w->chains = (char *)InitChains(ch);
-    w->upperNode = SetChainExtendedWeight(*(int **)(w->chains + 8), 1, 0.0f, 600.0f);
-    w->lowerNode = SetChainExtendedWeight(*(int **)(w->chains + 8), 1, 500.0f, 1400.0f);
+    w->chains = InitChains(ch);
+    w->upperNode = SetChainExtendedWeight(w->chains->nodes, 1, 0.0f, 600.0f);
+    w->lowerNode = SetChainExtendedWeight(w->chains->nodes, 1, 500.0f, 1400.0f);
     w->angle = (short)(-lay->rot[1] * 10430.378f);
     w->rideable = 1;
     one = 1.0f;
@@ -233,27 +233,23 @@ void HotInitCageGeo(GObj *self)
 {
     CageWork *w = GOBJ_SUB(self)->work;
 
-    CopyVector((void *)(w->upperNode * 80 + *(int *)(w->chains + 8) + 0x40), ZeroVector);
-    CopyVector((void *)(w->lowerNode * 80 + *(int *)(w->chains + 8) + 0x40), ZeroVector);
+    CopyVector(&w->chains->nodes->ex[w->upperNode].v2, ZeroVector);
+    CopyVector(&w->chains->nodes->ex[w->lowerNode].v2, ZeroVector);
 
-    CopyVector((void *)(w->upperNode * 80 + *(int *)(w->chains + 8) + 0x30),
-               *(char **)(w->chains) + 0x20);
-    CopyVector((void *)(w->lowerNode * 80 + *(int *)(w->chains + 8) + 0x30),
-               *(char **)(w->chains) + 0x20);
+    CopyVector(&w->chains->nodes->ex[w->upperNode].v1, w->chains->cfg + 0x20);
+    CopyVector(&w->chains->nodes->ex[w->lowerNode].v1, w->chains->cfg + 0x20);
 
-    CopyVector(*(void **)(*(int *)(w->chains + 8)), *(char **)(w->chains) + 0x20);
-    CopyVector((void *)(*(int *)(*(int *)(w->chains + 8)) + 0x10), *(char **)(w->chains) + 0x20);
+    CopyVector(w->chains->nodes->pos, w->chains->cfg + 0x20);
+    CopyVector(w->chains->nodes->pos + 0x10, w->chains->cfg + 0x20);
 
-    *(float *)(*(int *)(*(int *)(w->chains + 8)) + 0x14) =
-        *(float *)(*(int *)(*(int *)(w->chains + 8)) + 0x14) + w->linkLength * (float)w->linkCount;
+    *(float *)(w->chains->nodes->pos + 0x14) =
+        *(float *)(w->chains->nodes->pos + 0x14) + w->linkLength * (float)w->linkCount;
 
-    *(float *)(*(int *)(w->chains + 8) + w->upperNode * 80 + 0x34) =
-        *(float *)(*(int *)(w->chains + 8) + w->upperNode * 80 + 0x34) +
-        w->linkLength * (float)w->linkCount;
+    w->chains->nodes->ex[w->upperNode].v1.y =
+        w->chains->nodes->ex[w->upperNode].v1.y + w->linkLength * (float)w->linkCount;
 
-    *(float *)(*(int *)(w->chains + 8) + w->lowerNode * 80 + 0x34) =
-        *(float *)(*(int *)(w->chains + 8) + w->lowerNode * 80 + 0x34) +
-        (w->linkLength * (float)w->linkCount + 500.0f);
+    w->chains->nodes->ex[w->lowerNode].v1.y =
+        w->chains->nodes->ex[w->lowerNode].v1.y + (w->linkLength * (float)w->linkCount + 500.0f);
 }
 
 inline void StabilizeAllLayoutedCage(void)
@@ -290,26 +286,26 @@ static inline void SetCageChainQuaternion(void *q, void *a, void *b) /* derived 
         q, (short)(atan2f(FSqrt(d[0] * d[0] + d[2] * d[2]), d[1]) * 10430.378f), axis);
 }
 
-static inline void AddCageWindForce(char *n, float k) /* derived name */
+static inline void AddCageWindForce(ExW *n, float k) /* derived name */
 {
     float v[4];
 
-    CopyVector(v, GetWindVector(0, n + 0x20));
-    _ScaleVector(v, v, k / *(float *)(n + 0x44));
-    _AddVector(n + 0x30, n + 0x30, v);
+    CopyVector(v, GetWindVector(0, &n->v1));
+    _ScaleVector(v, v, k / n->len1);
+    _AddVector(&n->v2, &n->v2, v);
 }
 
 void CageGeo(GObj *self)
 {
     CageWork *w;
-    char *n0;
-    char *n1;
+    ExW *n0;
+    ExW *n1;
     int i;
 
     w = GOBJ_SUB(self)->work;
 
-    n0 = *(char **)(w->chains + 8) + (w->upperNode * 80 + 16);
-    n1 = *(char **)(w->chains + 8) + (w->lowerNode * 80 + 16);
+    n0 = &w->chains->nodes->ex[w->upperNode];
+    n1 = &w->chains->nodes->ex[w->lowerNode];
     AddCageWindForce(n0, 1.0f);
     AddCageWindForce(n1, 10.0f);
 
@@ -321,45 +317,42 @@ void CageGeo(GObj *self)
         int angle;
         float f;
 
-        sceVu0SubVector(v, (void *)(w->lowerNode * 80 + *(int *)(w->chains + 8) + 0x30),
-                        (void *)(w->upperNode * 80 + *(int *)(w->chains + 8) + 0x30));
+        sceVu0SubVector(v, &w->chains->nodes->ex[w->lowerNode].v1,
+                        &w->chains->nodes->ex[w->upperNode].v1);
         sceVu0Normalize(v, v);
         angle = GetTableArcTan2(FSqrt(v[0] * v[0] + v[2] * v[2]), v[1]);
         if (angle >= 2731) {
             f = (float)angle / 2730.0f;
             v[1] = 0.0f;
             sceVu0ScaleVector(v, v, f);
-            sceVu0SubVector((void *)(w->lowerNode * 80 + *(int *)(w->chains + 8) + 0x40),
-                            (void *)(w->lowerNode * 80 + *(int *)(w->chains + 8) + 0x40), v);
-            sceVu0AddVector((void *)(w->upperNode * 80 + *(int *)(w->chains + 8) + 0x40),
-                            (void *)(w->upperNode * 80 + *(int *)(w->chains + 8) + 0x40), v);
+            sceVu0SubVector(&w->chains->nodes->ex[w->lowerNode].v2,
+                            &w->chains->nodes->ex[w->lowerNode].v2, v);
+            sceVu0AddVector(&w->chains->nodes->ex[w->upperNode].v2,
+                            &w->chains->nodes->ex[w->upperNode].v2, v);
         }
     }
 
-    sceVu0ScaleVectorXYZ((void *)(w->lowerNode * 80 + *(int *)(w->chains + 8) + 0x40),
-                         (void *)(w->lowerNode * 80 + *(int *)(w->chains + 8) + 0x40), w->damping);
-    sceVu0ScaleVectorXYZ((void *)(w->upperNode * 80 + *(int *)(w->chains + 8) + 0x40),
-                         (void *)(w->upperNode * 80 + *(int *)(w->chains + 8) + 0x40), w->damping);
+    sceVu0ScaleVectorXYZ(&w->chains->nodes->ex[w->lowerNode].v2,
+                         &w->chains->nodes->ex[w->lowerNode].v2, w->damping);
+    sceVu0ScaleVectorXYZ(&w->chains->nodes->ex[w->upperNode].v2,
+                         &w->chains->nodes->ex[w->upperNode].v2, w->damping);
 
-    SetCageChainQuaternion((char *)GOBJ_SUB(self)->nodeQuat,
-                           (void *)(w->lowerNode * 80 + *(int *)(w->chains + 8) + 0x30),
-                           (void *)(w->upperNode * 80 + *(int *)(w->chains + 8) + 0x30));
+    SetCageChainQuaternion((char *)GOBJ_SUB(self)->nodeQuat, &w->chains->nodes->ex[w->lowerNode].v1,
+                           &w->chains->nodes->ex[w->upperNode].v1);
     RotQuaternionY((char *)GOBJ_SUB(self)->nodeQuat, w->angle);
     MultiQuaternion((char *)GOBJ_SUB(self)->nodeQuat, (char *)GOBJ_SUB(self)->nodeQuat, w->rot);
     RegularizeQuaternion((char *)GOBJ_SUB(self)->nodeQuat);
     GetMatrixFromQuaternionPos(MatrixDrive_GetMatrix(), (char *)GOBJ_SUB(self)->nodeQuat,
-                               (void *)(w->upperNode * 80 + *(int *)(w->chains + 8) + 0x30));
+                               &w->chains->nodes->ex[w->upperNode].v1);
     MatrixDrive_TransMatrix(0.0f, 0.0f, 0.0f);
     CopyMatrix((char *)GOBJ_SUB(self)->nodeMtx, MatrixDrive_GetMatrix());
 
     {
         float q[4];
 
-        SetCageChainQuaternion(q, *(char **)(*(char **)(w->chains + 8)) + 0x10,
-                               *(char **)(*(char **)(w->chains + 8)));
-        GetMatrixFromQuaternionPos(MatrixDrive_GetMatrix(), q,
-                                   *(char **)(*(char **)(w->chains + 8)));
-        CopyVector(MatrixDrive_GetMatrix()[3], *(char **)(*(char **)(w->chains + 8)) + 0x10);
+        SetCageChainQuaternion(q, w->chains->nodes->pos + 0x10, w->chains->nodes->pos);
+        GetMatrixFromQuaternionPos(MatrixDrive_GetMatrix(), q, w->chains->nodes->pos);
+        CopyVector(MatrixDrive_GetMatrix()[3], w->chains->nodes->pos + 0x10);
     }
     MatrixDrive_TransMatrix(0.0f, -(w->linkLength * 0.5f - 20.0f), 0.0f);
 

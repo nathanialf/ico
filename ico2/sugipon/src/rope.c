@@ -12,9 +12,11 @@
 #include "ios.h"
 #include <assert.h>
 
-/* float (void *, void *, float) here, float (int *, void *, float) in clothAnimation.h */
+/* The chain functions are declared here, not through clothAnimation.h:
+   HoldRope calls GetChainNodeID with the parameter record alone (it writes
+   no $f12 before the call), where the definition takes the length as a
+   second argument.  The chain system is held as an int (RopeGeoWork). */
 extern float GetChainCollision(void *a0, void *a1, float w);
-/* int (void *) here, void * (char *) in clothAnimation.h */
 extern int InitChains(void *c);
 
 /* The chain template the rope starts from: two 0x50-byte records, the
@@ -239,9 +241,7 @@ typedef union { /* field names derived */
     int *i;
 } Sub15CRef; /* derived name */
 
-/* float (void *) here, float (int, float) in clothAnimation.h */
 extern float GetChainNodeID(void *n);
-/* int (void *, int, float, float) here, int (int *, int, float, float) in clothAnimation.h */
 extern int SetChainExtendedWeight(void *a0, int a1, float f12, float f13);
 
 void HoldRope(void *a0, void *a1)
@@ -273,7 +273,6 @@ void HoldRope(void *a0, void *a1)
 
 inline void ReleaseRope(void) {}
 
-/* as in clothAnimation.h, which this file does not include */
 extern void GetChainAnimation(void *sys, int obj, void *mtx);
 
 static void ropeGeo(void *a0)
@@ -318,7 +317,6 @@ inline void RopeGeo(void *a0)
     ropeChainCollision(a0);
 }
 
-/* void (void *) here, void (int *) in clothAnimation.h */
 extern void TestDispChainAnimation(void *a0);
 
 void RopeDL(GObj *a0)

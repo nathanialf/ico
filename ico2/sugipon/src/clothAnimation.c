@@ -20,6 +20,7 @@
 #include "GifPacket.h"
 #include "Matrix.h"
 #include "windField.h"
+#include "clothAnimation.h"
 
 typedef struct { /* field names derived */
     float v[4];
@@ -38,7 +39,7 @@ static const LineColor chainLineColor0 = {255, 255, 255, 128}; /* derived name *
 
 static const LineColor chainLineColor1 = {255, 0, 0, 128}; /* derived name */
 
-void TestDispChainAnimation(int *a0)
+void TestDispChainAnimation(ChainSet *sys)
 {
     LineColor c0 = chainLineColor0;
     LineColor c1 = chainLineColor1;
@@ -49,9 +50,9 @@ void TestDispChainAnimation(int *a0)
     gif_StartPacketPri(0xB);
     gif_SetAlpha(1, 5, 0x80);
     sceVu0UnitMatrix(MatrixDrive_GetMatrix());
-    for (i = 0; i < a0[1]; i++) {
-        int n = *(int *)((char *)a0[0] + i * 0x50);
-        char *pts = *(char **)((char *)a0[2] + i * 0x1A0);
+    for (i = 0; i < sys->num; i++) {
+        int n = *(int *)(sys->cfg + i * 0x50);
+        char *pts = sys->nodes[i].pos;
         for (j = 1; j < n; j++) {
             char *p = pts + j * 16;
             char *q = pts + (j * 16 - 16);
@@ -60,7 +61,7 @@ void TestDispChainAnimation(int *a0)
             DrawLine(p, q, col, 0);
         }
         for (j = 0; j < 5; j++) {
-            char *base = (char *)a0[2] + i * 0x1A0;
+            char *base = (char *)&sys->nodes[i];
             char *w = base + j * 0x50;
             if (0.0f <= *(float *)(w + 0x10)) {
                 DrawLine(base + 0x30, base + 0x80, &c0, 0);
@@ -70,34 +71,10 @@ void TestDispChainAnimation(int *a0)
     gif_EndPacket();
 }
 
-void GetChainExWeightGlobalPos(float *pos, char *nodes, int idx)
+void GetChainExWeightGlobalPos(float *pos, ChainNode *node, int idx)
 {
-    CopyVector(pos, nodes + idx * 0x50 + 0x30);
+    CopyVector(pos, &node->ex[idx].v1);
 }
-
-typedef struct { /* field names derived */
-    float w;
-    char pad[12];
-    VECTOR v0;
-    VECTOR v1;
-    VECTOR v2;
-    char pad2[16];
-} ExW; /* derived name */
-
-typedef struct { /* field names derived */
-    char *pos;   /* 0x0, the chain's points, 16 bytes each */
-    char *vel;   /* 0x4, their velocities */
-    char *len;   /* 0x8, one float a point, the step down the chain */
-    int word0C;  /* 0xC, InitChains clears it; nothing reads it */
-    ExW ex[5];
-} ChainNode; /* derived name */
-
-typedef struct { /* field names derived */
-    char *cfg;
-    int num;
-    ChainNode *nodes;
-    int oddFrame; /* flipped every GetChainAnimation */
-} ChainSet;       /* derived name */
 
 /* the chain's red debug segment, built only when DEBUG is defined */
 static __inline__ void chainDebugOld(VECTOR *old) /* derived name */
@@ -107,16 +84,16 @@ static __inline__ void chainDebugOld(VECTOR *old) /* derived name */
 #endif
 }
 
-void GetChainAnimation(ChainSet *sys, GObj *obj, char *mtx)
+void GetChainAnimation(ChainSet *sys, GObj *obj, float (*mtx)[4])
 {
     VECTOR dv;
     VECTOR tv;
-    float mm[16];
+    float mm[4][4];
     VECTOR ew[5];
-    char *pm;
+    float (*pm)[4];
     int i;
 
-    pm = (char *)mm;
+    pm = mm;
     sceVu0UnitMatrix(pm);
     for (i = 0; i < sys->num; i++) {
         char *cf = (char *)(i * 0x50 + (int)sys->cfg);
@@ -163,15 +140,14 @@ void GetChainAnimation(ChainSet *sys, GObj *obj, char *mtx)
 
         for (k = 0; k < 5; k++) {
             if (0.0f <= (sys->nodes + i)->ex[k].w) {
-                CopyVector(&dv, (char *)&(sys->nodes + i)->ex[k] + 0x20);
+                CopyVector(&dv, &(sys->nodes + i)->ex[k].v1);
                 (sys->nodes + i)->ex[k].v2.y +=
                     60.0f / (float)((0x3C - systemStatus[0] * 0xA) / systemStatus[1]) * 0.5f *
                     (60.0f / (float)((0x3C - systemStatus[0] * 0xA) / systemStatus[1]));
-                CopyVector(&ew[k], (char *)&(sys->nodes + i)->ex[k] + 0x30);
-                AddVectorXYZ((char *)&(sys->nodes + i)->ex[k] + 0x20,
-                             (char *)&(sys->nodes + i)->ex[k] + 0x20,
-                             (char *)&(sys->nodes + i)->ex[k] + 0x30);
-                sceVu0ScaleVector((char *)&(sys->nodes + i)->ex[k] + 0x30, &dv, -1.0f);
+                CopyVector(&ew[k], &(sys->nodes + i)->ex[k].v2);
+                AddVectorXYZ(&(sys->nodes + i)->ex[k].v1, &(sys->nodes + i)->ex[k].v1,
+                             &(sys->nodes + i)->ex[k].v2);
+                sceVu0ScaleVector(&(sys->nodes + i)->ex[k].v2, &dv, -1.0f);
             }
         }
 
@@ -334,7 +310,7 @@ void GetChainAnimation(ChainSet *sys, GObj *obj, char *mtx)
                 int m;
                 int q;
 
-                sceVu0ApplyMatrix(pts, mtx + no * 64, cp + 0x10);
+                sceVu0ApplyMatrix(pts, mtx + no * 4, cp + 0x10);
                 for (m = 0; m < 5; m++) {
                     if (0.0f <= (sys->nodes + i)->ex[m].w) {
                         bindExWeight((char *)&(sys->nodes + i)->ex[m], &ew[m], *(float *)(cp + 4));
@@ -348,7 +324,7 @@ void GetChainAnimation(ChainSet *sys, GObj *obj, char *mtx)
                           *(float *)(cp + 4));
                 }
                 chainDebugOld(old);
-                sceVu0ApplyMatrix(pts, mtx + no * 64, cp + 0x10);
+                sceVu0ApplyMatrix(pts, mtx + no * 4, cp + 0x10);
             }
 
             calc2(pts, 0, n - 1);
@@ -357,9 +333,9 @@ void GetChainAnimation(ChainSet *sys, GObj *obj, char *mtx)
             calc2(pts, 0, n - 1);
         }
 
-        sceVu0ApplyMatrix(pts, mtx + no * 64, cp + 0x10);
+        sceVu0ApplyMatrix(pts, mtx + no * 4, cp + 0x10);
 
-        sceVu0ApplyMatrix(pts, mtx + no * 64, cp + 0x10);
+        sceVu0ApplyMatrix(pts, mtx + no * 4, cp + 0x10);
 
         for (j = 0; j < n; j++) {
             AddVectorXYZ(vel + j * 16, vel + j * 16, pts + j * 16);
@@ -368,36 +344,34 @@ void GetChainAnimation(ChainSet *sys, GObj *obj, char *mtx)
 
         for (k = 0; k < 5; k++) {
             if (0.0f <= (sys->nodes + i)->ex[k].w) {
-                AddVectorXYZ((char *)&(sys->nodes + i)->ex[k] + 0x30,
-                             (char *)&(sys->nodes + i)->ex[k] + 0x30,
-                             (char *)&(sys->nodes + i)->ex[k] + 0x20);
+                AddVectorXYZ(&(sys->nodes + i)->ex[k].v2, &(sys->nodes + i)->ex[k].v2,
+                             &(sys->nodes + i)->ex[k].v1);
             }
         }
     }
     sys->oddFrame = sys->oddFrame == 0;
 }
 
-int SetChainExtendedWeight(int *a0, int idx, float w0, float w1)
+int SetChainExtendedWeight(ChainNode *node, int idx, float w0, float w1)
 {
     int i;
-    char *ex;
+    ExW *ex;
 
-    if (a0[3] >= 5) {
+    if (node->exNum >= 5) {
         debug_StdPrintfDummy("No more weights... \n");
         return -1;
     }
     for (i = 0; i < 5; i++) {
-        if (*(float *)((char *)a0 + 0x10 + i * 0x50) < 0.0f) {
-            *(float *)((char *)a0 + i * 0x50 + 0x10) = (float)idx - 1e-6f;
-            *(float *)((char *)a0 + i * 0x50 + 0x50) = w0;
-            *(float *)((char *)a0 + i * 0x50 + 0x54) = w1;
-            ex = (char *)a0 + 0x10 + i * 0x50;
-            CopyVector(ex + 0x30, ZeroVector);
-            CopyVector(ex + 0x10, (char *)a0[0] + idx * 16);
-            CopyVector(ex + 0x20, (char *)a0[0] + idx * 16);
-            *(float *)((char *)a0 + i * 0x50 + 0x34) =
-                *(float *)((char *)a0 + i * 0x50 + 0x34) + w0;
-            a0[3] = a0[3] + 1;
+        if (node->ex[i].w < 0.0f) {
+            node->ex[i].w = (float)idx - 1e-6f;
+            node->ex[i].len0 = w0;
+            node->ex[i].len1 = w1;
+            ex = &node->ex[i];
+            CopyVector(&ex->v2, ZeroVector);
+            CopyVector(&ex->v0, node->pos + idx * 16);
+            CopyVector(&ex->v1, node->pos + idx * 16);
+            node->ex[i].v1.y = node->ex[i].v1.y + w0;
+            node->exNum = node->exNum + 1;
             return i;
         }
     }
@@ -417,23 +391,12 @@ static __inline__ void pushInsidePlane(void *p, const void *plane) /* derived na
     }
 }
 
-/* The cloth config record, the 0x1C-byte layout clothTest.c and flag.h carry
-   (rows, spacing, columns, anchors, texture, weight). */
-typedef struct ClothCfg { /* field names derived */
-    int num;              /* 0x00  rows, and -1 ends the array */
-    float segLength;      /* 0x04  the spacing between rows */
-    int div;              /* 0x08  columns */
-    int wrap;             /* 0x0C  nonzero when the last column joins the first */
-    void *anchors;        /* 0x10 */
-    void *tex;            /* 0x14  null means the untextured mesh */
-    float weight;         /* 0x18  the fall added to each point a step */
-} ClothCfg;               /* derived name */
-
 /* The sixth parameter is the wall count, which the function recomputes from
-   the wall owner before any use, so the value passed in is never read.  a6,
-   the wall owner, is an object handle passed as an int. */
-void GetClothAnimation(int a0, void *a1, GObj *a2, void *m, ClothCfg *cfg, int nwall, int a6,
-                       int a7)
+   the wall owner before any use, so the value passed in is never read.  The
+   wall owner is an object handle passed as an int, the form the wall-plane
+   query GetGlobalWallPlane takes (fieldCollision.h). */
+void GetClothAnimation(VECTOR **pos, VECTOR **vel, GObj *obj, void *m, ClothCfg *cfg, int nwall,
+                       int wallOwner, int a7)
 {
     VECTOR dv;
     float pw;
@@ -445,7 +408,7 @@ void GetClothAnimation(int a0, void *a1, GObj *a2, void *m, ClothCfg *cfg, int n
     int n;
     int node;
     SkelNode *focus;
-    char **rowsB = (char **)a1;
+    char **rowsB = (char **)vel;
     int n0 = cfg->num;
     float seg = cfg->segLength;
     int nx = cfg->div - (a7 != 0);
@@ -454,13 +417,13 @@ void GetClothAnimation(int a0, void *a1, GObj *a2, void *m, ClothCfg *cfg, int n
     int wrap = cfg->wrap;
 
     focus = 0;
-    if (a6 != 0) {
-        nwall = *(int *)(GOBJ_SUB(a6)->colData + 8);
+    if (wallOwner != 0) {
+        nwall = *(int *)(GOBJ_SUB(wallOwner)->colData + 8);
     } else {
         nwall = 0;
     }
-    if (a2 != 0) {
-        focus = GOBJ_SUB(a2)->skel;
+    if (obj != 0) {
+        focus = GOBJ_SUB(obj)->skel;
     }
     for (i = 0; i < n0; i++) {
         float damp = 0.8f;
@@ -468,25 +431,25 @@ void GetClothAnimation(int a0, void *a1, GObj *a2, void *m, ClothCfg *cfg, int n
         for (j = 1; j < nx; j++) {
             sceVu0ScaleVector(&dv, rowsB[i] + j * 16, damp);
             damp = damp * 0.98f;
-            sceVu0ScaleVector(rowsB[i] + j * 16, ((char **)a0)[i] + j * 16, -1.0f);
-            AddVectorXYZ(((char **)a0)[i] + j * 16, ((char **)a0)[i] + j * 16, &dv);
+            sceVu0ScaleVector(rowsB[i] + j * 16, ((char **)pos)[i] + j * 16, -1.0f);
+            AddVectorXYZ(((char **)pos)[i] + j * 16, ((char **)pos)[i] + j * 16, &dv);
         }
     }
     for (i = 0; i < n0; i++) {
         if (focus != 0) {
-            node = GetSkeltonFocusNode((GObj *)a2, *(int *)(pts + i * 48));
-            sceVu0ApplyMatrix(((char **)a0)[i], (char *)GOBJ_SUB(a2)->nodeMtx + node * 64,
+            node = GetSkeltonFocusNode(obj, *(int *)(pts + i * 48));
+            sceVu0ApplyMatrix(((char **)pos)[i], (char *)GOBJ_SUB(obj)->nodeMtx + node * 64,
                               pts + i * 48 + 16);
         } else {
             if (m != 0) {
-                _ApplyMatrix(((char **)a0)[i], m, pts + i * 48 + 16);
+                _ApplyMatrix(((char **)pos)[i], m, pts + i * 48 + 16);
                 if (a7 != 0) {
-                    _ApplyMatrix(((char **)a0)[i] + nx * 16, m, pts + i * 48 + 32);
+                    _ApplyMatrix(((char **)pos)[i] + nx * 16, m, pts + i * 48 + 32);
                 }
             }
         }
         for (j = 1; j < nx; j++) {
-            char *p = ((char **)a0)[i] + j * 16;
+            char *p = ((char **)pos)[i] + j * 16;
             /* a block-scoped work area with one word cleared that nothing
                reads after the gravity add; its type is box.c's union
                quadword */
@@ -501,11 +464,11 @@ void GetClothAnimation(int a0, void *a1, GObj *a2, void *m, ClothCfg *cfg, int n
         float lim = t * t * seg * seg;
 
         for (i = 1; i < n0 / 2; i++) {
-            SubVectorXYZ(&dv, ((char **)a0)[i] + j * 16, ((char **)a0)[i - 1] + j * 16);
+            SubVectorXYZ(&dv, ((char **)pos)[i] + j * 16, ((char **)pos)[i - 1] + j * 16);
             len = VectorLengthSquare(&dv);
             if (lim < len) {
                 sceVu0ScaleVectorXYZ(&dv, &dv, t * seg / _Sqrt(len));
-                AddVectorXYZ(((char **)a0)[i] + j * 16, ((char **)a0)[i - 1] + j * 16, &dv);
+                AddVectorXYZ(((char **)pos)[i] + j * 16, ((char **)pos)[i - 1] + j * 16, &dv);
             }
         }
         if (n0 != 1) {
@@ -517,11 +480,11 @@ void GetClothAnimation(int a0, void *a1, GObj *a2, void *m, ClothCfg *cfg, int n
                 } else {
                     q = i + 1;
                 }
-                SubVectorXYZ(&dv, ((char **)a0)[i] + j * 16, ((char **)a0)[q] + j * 16);
+                SubVectorXYZ(&dv, ((char **)pos)[i] + j * 16, ((char **)pos)[q] + j * 16);
                 len = VectorLengthSquare(&dv);
                 if (lim < len) {
                     sceVu0ScaleVectorXYZ(&dv, &dv, t * seg / _Sqrt(len));
-                    AddVectorXYZ(((char **)a0)[i] + j * 16, ((char **)a0)[q] + j * 16, &dv);
+                    AddVectorXYZ(((char **)pos)[i] + j * 16, ((char **)pos)[q] + j * 16, &dv);
                 }
             }
         }
@@ -532,11 +495,12 @@ void GetClothAnimation(int a0, void *a1, GObj *a2, void *m, ClothCfg *cfg, int n
             float lim = len * len;
 
             for (j = 1; j < nx; j++) {
-                SubVectorXYZ(&dv, ((char **)a0)[i] + j * 16, ((char **)a0)[i] + (j * 16 - 16));
+                SubVectorXYZ(&dv, ((char **)pos)[i] + j * 16, ((char **)pos)[i] + (j * 16 - 16));
                 d2 = VectorLengthSquare(&dv);
                 if (lim < d2) {
                     sceVu0ScaleVectorXYZ(&dv, &dv, len / _Sqrt(d2));
-                    AddVectorXYZ(((char **)a0)[i] + j * 16, ((char **)a0)[i] + (j * 16 - 16), &dv);
+                    AddVectorXYZ(((char **)pos)[i] + j * 16, ((char **)pos)[i] + (j * 16 - 16),
+                                 &dv);
                 }
             }
         }
@@ -556,19 +520,21 @@ void GetClothAnimation(int a0, void *a1, GObj *a2, void *m, ClothCfg *cfg, int n
             float lim = len * len;
 
             for (j = nx - 1; j > 0; j--) {
-                SubVectorXYZ(&dv, ((char **)a0)[i] + j * 16, ((char **)a0)[i] + (j * 16 + 16));
+                SubVectorXYZ(&dv, ((char **)pos)[i] + j * 16, ((char **)pos)[i] + (j * 16 + 16));
                 d2 = VectorLengthSquare(&dv);
                 if (lim < d2) {
                     sceVu0ScaleVectorXYZ(&dv, &dv, len / _Sqrt(d2));
-                    AddVectorXYZ(((char **)a0)[i] + j * 16, ((char **)a0)[i] + (j * 16 + 16), &dv);
+                    AddVectorXYZ(((char **)pos)[i] + j * 16, ((char **)pos)[i] + (j * 16 + 16),
+                                 &dv);
                 }
             }
             for (j = 1; j < nx; j++) {
-                SubVectorXYZ(&dv, ((char **)a0)[i] + j * 16, ((char **)a0)[i] + (j * 16 - 16));
+                SubVectorXYZ(&dv, ((char **)pos)[i] + j * 16, ((char **)pos)[i] + (j * 16 - 16));
                 d2 = VectorLengthSquare(&dv);
                 if (lim < d2) {
                     sceVu0ScaleVectorXYZ(&dv, &dv, len / _Sqrt(d2));
-                    AddVectorXYZ(((char **)a0)[i] + j * 16, ((char **)a0)[i] + (j * 16 - 16), &dv);
+                    AddVectorXYZ(((char **)pos)[i] + j * 16, ((char **)pos)[i] + (j * 16 - 16),
+                                 &dv);
                 }
             }
             /* the vectors of the row's rotation, in a block of their own
@@ -590,15 +556,15 @@ void GetClothAnimation(int a0, void *a1, GObj *a2, void *m, ClothCfg *cfg, int n
                 float rtotal;
                 int angle;
 
-                _SubVector(&va, ((char **)a0)[i] + nx * 16, ((char **)a0)[i]);
+                _SubVector(&va, ((char **)pos)[i] + nx * 16, ((char **)pos)[i]);
                 total = VectorLength(&va);
                 rtotal = 1.0f / total;
                 for (j = 1; j < nx; j++) {
                     float l0;
                     float l1;
 
-                    _SubVector(&vb, ((char **)a0)[i] + j * 16, ((char **)a0)[i]);
-                    _SubVector(&vc, ((char **)a0)[i] + j * 16, ((char **)a0)[i] + nx * 16);
+                    _SubVector(&vb, ((char **)pos)[i] + j * 16, ((char **)pos)[i]);
+                    _SubVector(&vc, ((char **)pos)[i] + j * 16, ((char **)pos)[i] + nx * 16);
                     l0 = VectorLengthSquare(&vb);
                     l1 = VectorLengthSquare(&vc);
                     if (lim * (float)j * (float)j < l0 ||
@@ -609,14 +575,14 @@ void GetClothAnimation(int a0, void *a1, GObj *a2, void *m, ClothCfg *cfg, int n
                         GetMatrixFromQuaternion((char *)mx, (char *)qt);
                         _ApplyMatrix(&vb, mx, &va);
                         _ScaleVector(&vb, &vb, len * (float)j * rtotal);
-                        _AddVectorXYZ(((char **)a0)[i] + j * 16, ((char **)a0)[i], &vb);
+                        _AddVectorXYZ(((char **)pos)[i] + j * 16, ((char **)pos)[i], &vb);
                     }
                 }
 #ifdef DEBUG
                 _ScaleVector(&ve, &va, 0.5f);
-                _AddVectorXYZ(&vf, ((char **)a0)[i], &ve);
-                _AddVectorXYZ(&vg, ((char **)a0)[i], &va);
-                DrawLine(((char **)a0)[i], (char *)&vf, (LineColor *)&chainLineColor0, 0);
+                _AddVectorXYZ(&vf, ((char **)pos)[i], &ve);
+                _AddVectorXYZ(&vg, ((char **)pos)[i], &va);
+                DrawLine(((char **)pos)[i], (char *)&vf, (LineColor *)&chainLineColor0, 0);
                 DrawLine((char *)&vf, (char *)&vg, (LineColor *)&chainLineColor1, 0);
 #endif
             }
@@ -625,22 +591,22 @@ void GetClothAnimation(int a0, void *a1, GObj *a2, void *m, ClothCfg *cfg, int n
     for (n = 0; n < nwall; n++) {
         /* the wall owner's sub-record, then the query for its n-th wall
            plane */
-        int sub = *(int *)(a6 + 0x15C),
-            q[3] = {a6, 0, *(int *)(*(int *)(sub + 0x70) + 0x10) + n * 80};
+        int sub = *(int *)(wallOwner + 0x15C),
+            q[3] = {wallOwner, 0, *(int *)(*(int *)(sub + 0x70) + 0x10) + n * 80};
         VECTOR pl;
 
         GetGlobalWallPlane(&pl, q);
         for (i = 0; i < n0; i++) {
             for (j = 1; j < nx; j++) {
-                pushInsidePlane(((char **)a0)[i] + j * 16, &pl);
+                pushInsidePlane(((char **)pos)[i] + j * 16, &pl);
             }
         }
     }
-    wind = GetWindVector(&pw, ((char **)a0)[0]);
+    wind = GetWindVector(&pw, ((char **)pos)[0]);
     pw = pw / 40960.0f;
     for (i = 0; i < n0; i++) {
         for (j = 1; j < nx; j++) {
-            AddVectorXYZ(rowsB[i] + j * 16, rowsB[i] + j * 16, ((char **)a0)[i] + j * 16);
+            AddVectorXYZ(rowsB[i] + j * 16, rowsB[i] + j * 16, ((char **)pos)[i] + j * 16);
             AddVectorXYZ(rowsB[i] + j * 16, rowsB[i] + j * 16, wind);
             {
                 VECTOR r = {pw * (float)((rand() & 0x7FFF) - 16383),
@@ -653,22 +619,14 @@ void GetClothAnimation(int a0, void *a1, GObj *a2, void *m, ClothCfg *cfg, int n
     }
 }
 
-/* One entry of the four-corner anchor table the cloth is pinned to: the
-   middle vector is the local-space anchor position _ApplyMatrix transforms
-   into the corner point. */
+/* One entry of the four-corner anchor table the cloth is pinned to, the
+   48-byte anchor record ClothCfg's anchors point at: the middle vector is the
+   local-space anchor position _ApplyMatrix transforms into the corner point. */
 typedef struct { /* field names derived */
     VECTOR v0;
     VECTOR v1;
     VECTOR v2;
 } ClothFixPoint; /* derived name */
-
-typedef struct { /* field names derived */
-    int nx;
-    char pad04[4];
-    int ny;
-    char pad0C[4];
-    ClothFixPoint *fix;
-} ClothFixCfg; /* derived name */
 
 /* the debug draw of a fix point's anchor, built only when DEBUG is defined */
 static __inline__ void clothFixDebug(ClothFixPoint *fix) /* derived name */
@@ -678,7 +636,7 @@ static __inline__ void clothFixDebug(ClothFixPoint *fix) /* derived name */
 #endif
 }
 
-void GetClothAnimationFix4Points(VECTOR **pa, VECTOR **pv, ClothFixCfg *cfg, void *mtx)
+void GetClothAnimationFix4Points(VECTOR **pa, VECTOR **pv, ClothCfg *cfg, void *mtx)
 {
     VECTOR dv;
     int i;
@@ -687,9 +645,9 @@ void GetClothAnimationFix4Points(VECTOR **pa, VECTOR **pv, ClothFixCfg *cfg, voi
     int ny;
     ClothFixPoint *q;
 
-    nx = cfg->nx;
-    ny = cfg->ny;
-    q = cfg->fix;
+    nx = cfg->num;
+    ny = cfg->div;
+    q = cfg->anchors;
 
     for (i = 0; i < nx; i++) {
         for (j = 0; j < ny; j++) {
@@ -900,7 +858,7 @@ ChainSet *InitChains(char *a0)
                                          "src/clothAnimation.c", 1203);
         r->nodes[i].len = iosMallocDebug(ios_partition_sugipon, *(int *)(i * 0x50 + (int)a0) * 4,
                                          "src/clothAnimation.c", 1204);
-        r->nodes[i].word0C = 0;
+        r->nodes[i].exNum = 0;
         for (j = 0; j < 5; j++) {
             r->nodes[i].ex[j].w = -1.0f;
             CopyVector(&r->nodes[i].ex[j].v0, ZeroPoint);
@@ -921,35 +879,26 @@ ChainSet *InitChains(char *a0)
     return r;
 }
 
-typedef struct { /* field names derived */
-    long long q[89];
-} TexBlob; /* derived name */
-
 /* one cloth InitCloth4D builds: its owner, the mesh it draws and the point
    rows the cloth step walks */
-typedef struct Cloth4D { /* field names derived */
-    int gobj;
+struct Cloth4D { /* field names derived */
+    GObj *gobj;
     Mesh3D *mesh;
     Prim3DVec **pos; /* 0x8, one row a column, into the mesh's positions */
     Prim3DVec **vel; /* 0xC, one row a column, the points' velocities */
     Prim3DVec **nrm; /* 0x10, one row a column, into the mesh's normals */
     int pad14;
     TexBlob tex;
-    int cfg;
+    Cloth4DCfg *cfg;
     int colNum;     /* 0x2E4, the count of collision cylinders (ClothHangCfg rows) */
     char **colNode; /* 0x2E8, the focus node each cylinder hangs from */
     char *colMtx;   /* 0x2EC, one matrix a cylinder */
     char *col;      /* 0x2F0, the cylinders, scaled by the actor's scale */
     int word2F4;    /* 0x2F4, InitCloth4D clears it; nothing reads it */
     int collision;  /* 0x2F8, nonzero while the cylinders collide (girl.c's debug_hair_collision) */
-} Cloth4D;          /* derived name */
+}; /* derived name */
 
-typedef struct { /* field names derived */
-    int num;
-    int **rec;
-} ClothSet; /* derived name */
-
-ClothSet *InitClothes(int cfg)
+ClothSet *InitClothes(ClothCfg *cfg)
 {
     ClothSet *r;
     int i = 0;
@@ -960,43 +909,42 @@ ClothSet *InitClothes(int cfg)
 
     r = (ClothSet *)iosMallocDebug(ios_partition_sugipon, 8, "src/clothAnimation.c", 1235);
     debug_StdPrintfDummy("\x1b[36mALLOC CLOTHES\x1b[m\n");
-    while (*(int *)(i * 0x1C + cfg) != -1) {
+    while (cfg[i].num != -1) {
         i++;
     }
     r->num = i;
-    r->rec = (int **)iosMallocDebug(ios_partition_sugipon, i * 0x2E0, "src/clothAnimation.c", 1240);
+    r->rec =
+        (ClothRec *)iosMallocDebug(ios_partition_sugipon, i * 0x2E0, "src/clothAnimation.c", 1240);
     for (i = 0; i < r->num; i++) {
-        if (*(int *)(i * 0x1C + cfg + 0x14) != 0) {
-            *(Mesh3D **)(i * 0x2E0 + (int)r->rec) = prim_InitMesh3D(
-                *(int *)(i * 0x1C + cfg + 8), *(int *)(i * 0x1C + cfg), 1, 0x5C, 0x80808080, 1);
+        if (cfg[i].tex != 0) {
+            *(Mesh3D **)(i * 0x2E0 + (int)r->rec) =
+                prim_InitMesh3D(cfg[i].div, cfg[i].num, 1, 0x5C, 0x80808080, 1);
             *(int *)(i * 0x2E0 + (int)r->rec + 0x10) = 1;
             *(TexBlob *)(i * 0x2E0 + (int)r->rec + 0x18) =
-                *(TexBlob *)tex_GetTextureData(tex_GetTextureNo(*(void **)(i * 0x1C + cfg + 0x14)));
+                *(TexBlob *)tex_GetTextureData(tex_GetTextureNo(cfg[i].tex));
         } else {
-            *(Mesh3D **)(i * 0x2E0 + (int)r->rec) = prim_InitMesh3D(
-                *(int *)(i * 0x1C + cfg + 8), *(int *)(i * 0x1C + cfg), 1, 0x4C, 0xFFFFFF80, 1);
+            *(Mesh3D **)(i * 0x2E0 + (int)r->rec) =
+                prim_InitMesh3D(cfg[i].div, cfg[i].num, 1, 0x4C, 0xFFFFFF80, 1);
             *(int *)(i * 0x2E0 + (int)r->rec + 0x10) = 0;
         }
-        *(char **)(i * 0x2E0 + (int)r->rec + 4) = iosMallocDebug(
-            ios_partition_sugipon, *(int *)(i * 0x1C + cfg) * 4, "src/clothAnimation.c", 1268);
-        *(char **)(i * 0x2E0 + (int)r->rec + 8) = iosMallocDebug(
-            ios_partition_sugipon, *(int *)(i * 0x1C + cfg) * 4, "src/clothAnimation.c", 1269);
-        *(char **)(i * 0x2E0 + (int)r->rec + 0xC) = iosMallocDebug(
-            ios_partition_sugipon, *(int *)(i * 0x1C + cfg) * 4, "src/clothAnimation.c", 1270);
-        for (m = 0; m < *(int *)(i * 0x1C + cfg); m++) {
+        *(char **)(i * 0x2E0 + (int)r->rec + 4) =
+            iosMallocDebug(ios_partition_sugipon, cfg[i].num * 4, "src/clothAnimation.c", 1268);
+        *(char **)(i * 0x2E0 + (int)r->rec + 8) =
+            iosMallocDebug(ios_partition_sugipon, cfg[i].num * 4, "src/clothAnimation.c", 1269);
+        *(char **)(i * 0x2E0 + (int)r->rec + 0xC) =
+            iosMallocDebug(ios_partition_sugipon, cfg[i].num * 4, "src/clothAnimation.c", 1270);
+        for (m = 0; m < cfg[i].num; m++) {
             *(char **)(m * 4 + (int)*(char **)(i * 0x2E0 + (int)r->rec + 4)) =
                 (char *)(*(int *)(*(char **)(i * 0x2E0 + (int)r->rec) + 0x6C) +
-                         m * *(int *)(i * 0x1C + cfg + 8) * 16);
-            *(char **)(m * 4 + (int)*(char **)(i * 0x2E0 + (int)r->rec + 8)) =
-                iosMallocDebug(ios_partition_sugipon, *(int *)(i * 0x1C + cfg + 8) * 16,
-                               "src/clothAnimation.c", 1275);
+                         m * cfg[i].div * 16);
+            *(char **)(m * 4 + (int)*(char **)(i * 0x2E0 + (int)r->rec + 8)) = iosMallocDebug(
+                ios_partition_sugipon, cfg[i].div * 16, "src/clothAnimation.c", 1275);
             *(char **)(m * 4 + (int)*(char **)(i * 0x2E0 + (int)r->rec + 0xC)) =
-                iosMallocDebug(ios_partition_sugipon, *(int *)(i * 0x1C + cfg + 8) * 4,
-                               "src/clothAnimation.c", 1276);
+                iosMallocDebug(ios_partition_sugipon, cfg[i].div * 4, "src/clothAnimation.c", 1276);
             memset(aa, 0, 16);
             aa[3] = 1.0f;
             memset(bb, 0, 16);
-            for (q = 0; q < *(int *)(i * 0x1C + cfg + 8); q++) {
+            for (q = 0; q < cfg[i].div; q++) {
                 CopyVector(
                     *(char **)(m * 4 + (int)*(char **)(i * 0x2E0 + (int)r->rec + 4)) + q * 16, aa);
                 CopyVector(
@@ -1010,7 +958,7 @@ ClothSet *InitClothes(int cfg)
     return r;
 }
 
-ClothSet *InitClothesNoShade(int cfg)
+ClothSet *InitClothesNoShade(ClothCfg *cfg)
 {
     ClothSet *r;
     int i = 0;
@@ -1021,43 +969,42 @@ ClothSet *InitClothesNoShade(int cfg)
 
     r = (ClothSet *)iosMallocDebug(ios_partition_sugipon, 8, "src/clothAnimation.c", 1296);
     debug_StdPrintfDummy("\x1b[36mALLOC CLOTHES\x1b[m\n");
-    while (*(int *)(i * 0x1C + cfg) != -1) {
+    while (cfg[i].num != -1) {
         i++;
     }
     r->num = i;
-    r->rec = (int **)iosMallocDebug(ios_partition_sugipon, i * 0x2E0, "src/clothAnimation.c", 1301);
+    r->rec =
+        (ClothRec *)iosMallocDebug(ios_partition_sugipon, i * 0x2E0, "src/clothAnimation.c", 1301);
     for (i = 0; i < r->num; i++) {
-        if (*(int *)(i * 0x1C + cfg + 0x14) != 0) {
-            *(Mesh3D **)(i * 0x2E0 + (int)r->rec) = prim_InitMesh3D(
-                *(int *)(i * 0x1C + cfg + 8), *(int *)(i * 0x1C + cfg), 1, 0x5C, 0x80808080, 0);
+        if (cfg[i].tex != 0) {
+            *(Mesh3D **)(i * 0x2E0 + (int)r->rec) =
+                prim_InitMesh3D(cfg[i].div, cfg[i].num, 1, 0x5C, 0x80808080, 0);
             *(int *)(i * 0x2E0 + (int)r->rec + 0x10) = 1;
             *(TexBlob *)(i * 0x2E0 + (int)r->rec + 0x18) =
-                *(TexBlob *)tex_GetTextureData(tex_GetTextureNo(*(void **)(i * 0x1C + cfg + 0x14)));
+                *(TexBlob *)tex_GetTextureData(tex_GetTextureNo(cfg[i].tex));
         } else {
-            *(Mesh3D **)(i * 0x2E0 + (int)r->rec) = prim_InitMesh3D(
-                *(int *)(i * 0x1C + cfg + 8), *(int *)(i * 0x1C + cfg), 1, 0x4C, 0xFFFFFF80, 0);
+            *(Mesh3D **)(i * 0x2E0 + (int)r->rec) =
+                prim_InitMesh3D(cfg[i].div, cfg[i].num, 1, 0x4C, 0xFFFFFF80, 0);
             *(int *)(i * 0x2E0 + (int)r->rec + 0x10) = 0;
         }
-        *(char **)(i * 0x2E0 + (int)r->rec + 4) = iosMallocDebug(
-            ios_partition_sugipon, *(int *)(i * 0x1C + cfg) * 4, "src/clothAnimation.c", 1329);
-        *(char **)(i * 0x2E0 + (int)r->rec + 8) = iosMallocDebug(
-            ios_partition_sugipon, *(int *)(i * 0x1C + cfg) * 4, "src/clothAnimation.c", 1330);
-        *(char **)(i * 0x2E0 + (int)r->rec + 0xC) = iosMallocDebug(
-            ios_partition_sugipon, *(int *)(i * 0x1C + cfg) * 4, "src/clothAnimation.c", 1331);
-        for (m = 0; m < *(int *)(i * 0x1C + cfg); m++) {
+        *(char **)(i * 0x2E0 + (int)r->rec + 4) =
+            iosMallocDebug(ios_partition_sugipon, cfg[i].num * 4, "src/clothAnimation.c", 1329);
+        *(char **)(i * 0x2E0 + (int)r->rec + 8) =
+            iosMallocDebug(ios_partition_sugipon, cfg[i].num * 4, "src/clothAnimation.c", 1330);
+        *(char **)(i * 0x2E0 + (int)r->rec + 0xC) =
+            iosMallocDebug(ios_partition_sugipon, cfg[i].num * 4, "src/clothAnimation.c", 1331);
+        for (m = 0; m < cfg[i].num; m++) {
             *(char **)(m * 4 + (int)*(char **)(i * 0x2E0 + (int)r->rec + 4)) =
                 (char *)(*(int *)(*(char **)(i * 0x2E0 + (int)r->rec) + 0x6C) +
-                         m * *(int *)(i * 0x1C + cfg + 8) * 16);
-            *(char **)(m * 4 + (int)*(char **)(i * 0x2E0 + (int)r->rec + 8)) =
-                iosMallocDebug(ios_partition_sugipon, *(int *)(i * 0x1C + cfg + 8) * 16,
-                               "src/clothAnimation.c", 1336);
+                         m * cfg[i].div * 16);
+            *(char **)(m * 4 + (int)*(char **)(i * 0x2E0 + (int)r->rec + 8)) = iosMallocDebug(
+                ios_partition_sugipon, cfg[i].div * 16, "src/clothAnimation.c", 1336);
             *(char **)(m * 4 + (int)*(char **)(i * 0x2E0 + (int)r->rec + 0xC)) =
-                iosMallocDebug(ios_partition_sugipon, *(int *)(i * 0x1C + cfg + 8) * 4,
-                               "src/clothAnimation.c", 1337);
+                iosMallocDebug(ios_partition_sugipon, cfg[i].div * 4, "src/clothAnimation.c", 1337);
             memset(aa, 0, 16);
             aa[3] = 1.0f;
             memset(bb, 0, 16);
-            for (q = 0; q < *(int *)(i * 0x1C + cfg + 8); q++) {
+            for (q = 0; q < cfg[i].div; q++) {
                 CopyVector(
                     *(char **)(m * 4 + (int)*(char **)(i * 0x2E0 + (int)r->rec + 4)) + q * 16, aa);
                 CopyVector(
@@ -1071,23 +1018,23 @@ ClothSet *InitClothesNoShade(int cfg)
     return r;
 }
 
-void DispClothMesh(int *a0, void *a1, void *a2)
+void DispClothMesh(ClothRec *rec, void *a1, void *a2)
 {
     int t;
     dl_SetDLPriority(2);
     p2o_SetDefaultEnviroment();
-    prim_UpdateMesh3D(a0[0], 5, buffer_ID);
+    prim_UpdateMesh3D(rec->mesh, 5, buffer_ID);
     gif_StartPacketPri(2);
     gif_SetAlpha(1, 7, 0x80);
     gif_SetGsReg(8, 0);
     gif_EndPacket();
     _SetCurrentMatrix(matrixptr + 0x100);
-    if (a0[4] != 0) {
-        t = tex_GetTextureNo((char *)a0 + 0x18);
+    if (rec->textured != 0) {
+        t = tex_GetTextureNo((char *)&rec->tex);
     } else {
         t = -1;
     }
-    prim_DispMesh3D(a0[0], a1, a2, t);
+    prim_DispMesh3D(rec->mesh, a1, a2, t);
 }
 
 /* the wire mesh's three line colours, one word per channel, RGBA: the cross
@@ -1135,11 +1082,10 @@ void DispMeshWire(Prim3DVec **rows, int nx, int ny)
 void DispCloth4D(Cloth4D *c, void *a1, void *a2)
 {
     int t;
-    int *m;
     dl_SetDLPriority(1);
     p2o_SetDefaultEnviroment();
     prim_UpdateMesh3D(c->mesh, 3, buffer_ID);
-    if (((int *)c->cfg)[8] != 0) {
+    if (c->cfg->tex != 0) {
         t = tex_GetTextureNo(&c->tex);
     } else {
         t = -1;
@@ -1151,19 +1097,17 @@ void DispCloth4D(Cloth4D *c, void *a1, void *a2)
     _SetCurrentMatrix(matrixptr + 0x100);
     prim_DispMesh3D(c->mesh, a1, a2, t);
     if (debug_cloth_info != 0) {
-        m = (int *)c->cfg;
-        DispMeshWire(c->pos, m[0], m[1]);
+        DispMeshWire(c->pos, c->cfg->nx, c->cfg->ny);
     }
 }
 
 void DispCloth4DWithAdd(Cloth4D *c, void *a1, void *a2)
 {
     int t;
-    int *m;
     dl_SetDLPriority(1);
     p2o_SetDefaultEnviroment();
     prim_UpdateMesh3D(c->mesh, 3, buffer_ID);
-    if (((int *)c->cfg)[8] != 0) {
+    if (c->cfg->tex != 0) {
         t = tex_GetTextureNo(&c->tex);
     } else {
         t = -1;
@@ -1175,8 +1119,7 @@ void DispCloth4DWithAdd(Cloth4D *c, void *a1, void *a2)
     _SetCurrentMatrix(matrixptr + 0x100);
     prim_DispMesh3D(c->mesh, a1, a2, t);
     if (debug_cloth_info != 0) {
-        m = (int *)c->cfg;
-        DispMeshWire(c->pos, m[0], m[1]);
+        DispMeshWire(c->pos, c->cfg->nx, c->cfg->ny);
     }
 }
 
@@ -1216,25 +1159,6 @@ static __inline__ void clothSetPoint(void *dst, const void *src, float f) /* der
     _ApplyCurrentMatrix(&tv, src);
     _ScaleVectorXYZ(dst, &tv, f);
 }
-
-/* One entry of the Cloth4DCfg point table (clothAnimation.h spells the same
-   96 bytes with the two links as named fields): the column loop reads the
-   links by index. */
-typedef struct { /* field names derived */
-    int node;
-    float weight;
-} Cloth4DLink; /* derived name */
-
-typedef struct {  /* field names derived */
-    float length; /* 0x00, the column's length */
-    char pad04[12];
-    float pos[4];
-    float dir[4];
-    Cloth4DLink link[2]; /* 0x30 */
-    float (*uv)[2];
-    char pad44[12];
-    float vec50[4];
-} Cloth4DCol; /* derived name */
 
 static void getCloth4D_preProcess(void *a0, float g, float damp, float z, float w, int tight,
                                   void *qa, void *qb)
@@ -1926,20 +1850,7 @@ typedef struct { /* field names derived */
     long long q[8];
 } Blob64; /* derived name */
 
-typedef struct { /* field names derived */
-    int nx;
-    int ny;
-    int word08; /* 0x08 */
-    int word0C; /* 0x0C */
-    int r;      /* 0x10, the colour prim_InitMesh3D is given */
-    int g;      /* 0x14 */
-    int b;      /* 0x18 */
-    int a;      /* 0x1C */
-    void *tex;
-    char *cols;
-} Cloth4DCfg; /* derived name */
-
-Cloth4D *InitCloth4D(GObj *a0, Cloth4DCfg *cfg, int tbl)
+Cloth4D *InitCloth4D(GObj *a0, Cloth4DCfg *cfg, ClothHangCfg *tbl)
 {
     Cloth4D *r;
     int i;
@@ -1948,7 +1859,7 @@ Cloth4D *InitCloth4D(GObj *a0, Cloth4DCfg *cfg, int tbl)
 
     r = (Cloth4D *)iosMallocDebug(ios_partition_sugipon, 0x300, "src/clothAnimation.c", 2183);
     r->gobj = a0;
-    r->cfg = (int)cfg;
+    r->cfg = cfg;
     r->word2F4 = 0;
     if (cfg->tex != 0) {
         r->mesh = prim_InitMesh3D(cfg->ny, cfg->nx, 1, 0x5C, 0x80808080, 1);
@@ -1970,10 +1881,8 @@ Cloth4D *InitCloth4D(GObj *a0, Cloth4DCfg *cfg, int tbl)
         for (j = 0; j < cfg->ny; j++) {
             CopyVector(&r->pos[i][j], ZeroPoint);
             CopyVector(&r->vel[i][j], ZeroVector);
-            r->mesh->st[i * cfg->ny + j].x =
-                *(float *)(j * 8 + *(int *)(i * 0x60 + (int)cfg->cols + 0x40));
-            r->mesh->st[i * cfg->ny + j].y =
-                1.0f - *(float *)(j * 8 + *(int *)(i * 0x60 + (int)cfg->cols + 0x40) + 4);
+            r->mesh->st[i * cfg->ny + j].x = cfg->cols[i].uv[j][0];
+            r->mesh->st[i * cfg->ny + j].y = 1.0f - cfg->cols[i].uv[j][1];
         }
     }
     prim_UpdateMesh3D(r->mesh, 8, buffer_ID);
@@ -1981,7 +1890,7 @@ Cloth4D *InitCloth4D(GObj *a0, Cloth4DCfg *cfg, int tbl)
     if (tbl != 0) {
         i = 0;
         sc = GOBJ_SUB(r->gobj)->nodes->scale[0];
-        while (*(int *)(i * 0x40 + tbl) != -1) {
+        while (tbl[i].enable != -1) {
             i++;
         }
         r->colNum = i;
@@ -1990,8 +1899,8 @@ Cloth4D *InitCloth4D(GObj *a0, Cloth4DCfg *cfg, int tbl)
             iosMallocDebug(ios_partition_sugipon, r->colNum * 0x40, "src/clothAnimation.c", 2254);
         r->colNode = (char **)iosMallocDebug(ios_partition_sugipon, r->colNum * 4,
                                              "src/clothAnimation.c", 2255);
-        for (i = 0; *(int *)(i * 0x40 + tbl) != -1; i++) {
-            *(Blob64 *)(i * 0x40 + (int)r->col) = *(Blob64 *)(i * 0x40 + tbl);
+        for (i = 0; tbl[i].enable != -1; i++) {
+            *(Blob64 *)(i * 0x40 + (int)r->col) = *(Blob64 *)&tbl[i];
             *(float *)(i * 0x40 + (int)r->col + 0xC) =
                 *(float *)(i * 0x40 + (int)r->col + 0xC) * sc;
             *(float *)(i * 0x40 + (int)r->col + 8) = *(float *)(i * 0x40 + (int)r->col + 8) * sc;
@@ -2000,8 +1909,7 @@ Cloth4D *InitCloth4D(GObj *a0, Cloth4DCfg *cfg, int tbl)
                 1.0f / (*(float *)(i * 0x40 + (int)r->col + 0xC) +
                         *(float *)(i * 0x40 + (int)r->col + 0xC));
             sceVu0UnitMatrix(r->colMtx + i * 0x40);
-            *(int *)(i * 4 + (int)r->colNode) =
-                GetSkeltonFocusNode(a0, *(int *)(i * 0x40 + tbl + 0x10));
+            *(int *)(i * 4 + (int)r->colNode) = GetSkeltonFocusNode(a0, tbl[i].node);
         }
         r->collision = 1;
     } else {
@@ -2011,12 +1919,12 @@ Cloth4D *InitCloth4D(GObj *a0, Cloth4DCfg *cfg, int tbl)
     return r;
 }
 
-void GetChainNodeGlobalQuaternion(void *a0, int *a1, int count)
+void GetChainNodeGlobalQuaternion(void *a0, ChainNode *node, int count)
 {
     ClothBuf buf;
     SetIdentityQuaternion(a0);
     if (count > 0) {
-        char *base = *(char **)a1;
+        char *base = node->pos;
         int off = count * 16;
         SubVectorXYZ(&buf, base + off, base + (off - 16));
         MatrixDrive_GetTurnYAngleXZ(&buf.a, &buf.b, buf.v[0], buf.v[1], buf.v[2]);
@@ -2025,82 +1933,81 @@ void GetChainNodeGlobalQuaternion(void *a0, int *a1, int count)
     }
 }
 
-void MoveChainExtendedWeight(int a0, int a1, float f)
+void MoveChainExtendedWeight(ChainNode *node, int a1, float f)
 {
-    *(float *)(a0 + a1 * 0x50 + 0x10) = f;
+    node->ex[a1].w = f;
 }
 
-void InitChainVelocity(int *a0)
+void InitChainVelocity(ChainSet *sys)
 {
     int i;
     int j;
     int k;
 
-    for (i = 0; i < a0[1]; i++) {
-        int cnt = *(int *)((char *)a0[0] + i * 0x50);
+    for (i = 0; i < sys->num; i++) {
+        int cnt = *(int *)(sys->cfg + i * 0x50);
         for (j = 0; j < cnt; j++) {
-            CopyVector(*(char **)((char *)a0[2] + i * 0x1A0 + 4) + j * 16, ZeroVector);
+            CopyVector(sys->nodes[i].vel + j * 16, ZeroVector);
         }
         for (k = 0; k < 5; k++) {
-            char *w = (char *)a0[2] + i * 0x1A0 + 0x10 + k * 0x50;
-            CopyVector(w + 0x30, ZeroVector);
+            ExW *w = &sys->nodes[i].ex[k];
+            CopyVector(&w->v2, ZeroVector);
         }
     }
 }
 
-void DeleteChainExtendedWeight(int *a0, int a1)
+void DeleteChainExtendedWeight(ChainNode *node, int a1)
 {
-    int *p = (int *)((char *)a0 + a1 * 0x50);
-    *(float *)((char *)p + 0x10) = -1.0f;
-    a0[3] = a0[3] - 1;
+    node->ex[a1].w = -1.0f;
+    node->exNum = node->exNum - 1;
 }
 
-float GetChainNodeID(int a0, float f)
+float GetChainNodeID(char *cfg, float f)
 {
-    return f / *(float *)(a0 + 0x14);
+    return f / *(float *)(cfg + 0x14);
 }
 
-void ResetClothAnimation(int *a0, int *a1, int *a2)
+void ResetClothAnimation(VECTOR **pos, VECTOR **vel, ClothCfg *cfg)
 {
-    int outer = a2[0];
-    int inner = a2[2];
+    int outer = cfg->num;
+    int inner = cfg->div;
     int i = 0;
     int j;
 
     if (outer > 0) {
         do {
             for (j = 1; j < inner; j++) {
-                char *p = (char *)a0[i];
-                CopyVector(p + j * 16, p);
-                CopyVector((char *)a1[i] + j * 16, ZeroVector);
+                VECTOR *p = pos[i];
+                CopyVector(&p[j], p);
+                CopyVector(&vel[i][j], ZeroVector);
             }
             i++;
         } while (i < outer);
     }
 }
 
-void GetChainExWeightGlobalQuaternion(float *q, int nodes, int i, int j)
+void GetChainExWeightGlobalQuaternion(float *q, ChainNode *node, int i, int j)
 {
     ClothBuf buf;
     SetIdentityQuaternion(q);
-    SubVectorXYZ(&buf, j * 0x50 + nodes + 0x30, i * 0x50 + nodes + 0x20);
+    SubVectorXYZ(&buf, &node->ex[j].v1, &node->ex[i].v0);
     buf.v[1] = buf.v[1] + 100.0f;
     MatrixDrive_GetTurnYAngleXZ(&buf.a, &buf.b, buf.v[0], buf.v[1], buf.v[2]);
     RotQuaternionX(q, (short)-buf.a);
     RotQuaternionZ(q, (short)-buf.b);
 }
 
-float GetChainCollision(int *a0, void *pos, float r)
+float GetChainCollision(ChainSet *sys, void *pos, float r)
 {
     int i;
     int j;
 
     r = r * r;
-    for (i = 0; i < a0[1]; i++) {
-        char *pts = *(char **)(i * 0x1A0 + a0[2]);
-        for (j = 0; j < *(int *)(i * 0x50 + a0[0]) - 1; j++) {
+    for (i = 0; i < sys->num; i++) {
+        char *pts = sys->nodes[i].pos;
+        for (j = 0; j < *(int *)(i * 0x50 + sys->cfg) - 1; j++) {
             if (distance_squared(pts + j * 16, pos) < r) {
-                return (float)j * *(float *)(i * 0x50 + a0[0] + 0x14);
+                return (float)j * *(float *)(i * 0x50 + sys->cfg + 0x14);
             }
         }
     }
@@ -2291,16 +2198,16 @@ int checkFrontAcross(void *a0, void *a1)
     return 0;
 }
 
-void LockZAnimation(int *a0)
+void LockZAnimation(ChainSet *sys)
 {
     int i;
     int j;
-    int n = a0[1];
+    int n = sys->num;
 
     for (i = 0; i < n; i++) {
-        int cnt = *(int *)((char *)a0[0] + i * 0x50);
+        int cnt = *(int *)(sys->cfg + i * 0x50);
         for (j = 0; j < cnt; j++) {
-            *(float *)(*(int *)((char *)a0[2] + i * 0x1A0 + 4) + j * 16 + 8) = 0.0f;
+            *(float *)(sys->nodes[i].vel + j * 16 + 8) = 0.0f;
         }
     }
 }

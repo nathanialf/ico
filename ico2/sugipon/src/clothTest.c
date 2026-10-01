@@ -12,16 +12,6 @@ typedef struct ClothTestAnchor { /* field names derived */
     float vel[4];  /* 0x20 */
 } ClothTestAnchor; /* derived name */
 
-typedef struct ClothCfg { /* field names derived */
-    int num;              /* 0x00  rows, and -1 ends the array */
-    float segLength;      /* 0x04  the spacing between rows */
-    int div;              /* 0x08  columns */
-    int wrap;             /* 0x0C  nonzero when the last column joins the first */
-    void *anchors;        /* 0x10 */
-    void *tex;            /* 0x14  null means the untextured mesh */
-    float weight;         /* 0x18  the fall added to each point a step */
-} ClothCfg;               /* derived name */
-
 static ClothTestAnchor clothTestAnchors[20] = {
     {-1, 15.0f, {0}, {0.0f, 0.0f, 15.0f, 1.0f}, {0.0f, 0.0f, 0.0f, 0.0f}},
     {-1, 15.0f, {0}, {-10.0f, 0.0f, 14.0f, 1.0f}, {0.0f, 0.0f, 0.0f, 0.0f}},
@@ -48,10 +38,10 @@ static ClothTestAnchor clothTestAnchors[20] = {
 static ClothCfg clothTestCfg[2] = {{20, 20.0f, 15, 1, clothTestAnchors, 0, 3.0f},
                                    {-1}}; /* derived name */
 
-int *InitClothTestGeo(void)
+ClothSet **InitClothTestGeo(void)
 {
-    int *p = iosMallocDebug(ios_partition_sugipon, 0x290, "src/clothTest.c", 65);
-    *p = InitClothes((char *)clothTestCfg);
+    ClothSet **p = iosMallocDebug(ios_partition_sugipon, 0x290, "src/clothTest.c", 65);
+    *p = InitClothes(clothTestCfg);
     return p;
 }
 
