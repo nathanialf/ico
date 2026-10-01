@@ -37,7 +37,7 @@ typedef struct WaterDotWork {
  * gcc 2.9 emits the deferred out-of-line copy of a plain-inline function in
  * first-declaration order, so this is the order waterDot.c's inline tail has. */
 void InitializeWaterDot(void);
-void EntryWaterDot(WaterDotWork *w, VECTOR *pos, VECTOR *vel, float range);
+void EntryWaterDot(WaterDotWork *w, void *pos, void *vel, float range);
 WaterDotWork *AllocWaterDot(int gobj, int num, int num2);
 void DispWaterDot(WaterDotWork *w);
 void ExecWaterDot(WaterDotWork *w);

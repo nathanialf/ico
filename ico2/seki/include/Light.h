@@ -14,6 +14,7 @@
 
 #include <libvu0.h>
 
+struct GObj;
 struct Sub15C;
 
 /* RECONSTRUCTION: the per-object light matrix record at *(Sub15C + 0x874)
@@ -47,12 +48,15 @@ typedef struct {  /* field names derived */
     float range;  /* 0x0C */
 } ObjLight;
 
+/* the object light table light_AddLight indexes by the object's light number */
+extern const ObjLight objectLight[];
+
 struct Light; /* Light.c's light list node */
 
 struct AmbientVolume; /* Light.c's ambient volume node */
 
 struct AmbientVolume *light_AddAmbientObject(int obj);
-struct Light *light_AddLight(char *self, int b, int kind);
+struct Light *light_AddLight(struct GObj *self, int b, int kind);
 void light_DispVolume(void);
 void light_DrawCursor(float *dir, int mode);
 void light_GetColorAnalog(float *col);
@@ -60,8 +64,8 @@ void light_KillAllFixLight(void);
 void light_MakeLightMatrix(struct Sub15C *a, int b);
 void light_getAmbientLight(struct Sub15C *a, int b);
 void light_getNearLight(struct Sub15C *a, int b);
-void light_killLinkAmbient();
-void light_killLinkLight(char *node);
+void light_killLinkAmbient(struct AmbientVolume *p);
+void light_killLinkLight(struct Light *p);
 void light_resetFlatLight(void);
 int light_Tool(void);
 void light_ResetLight(void);

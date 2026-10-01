@@ -1,9 +1,9 @@
-typedef struct {
-    int a;
-    int b;
+typedef struct {  /* field names derived */
+    int model;    /* 0x00, the model id, 0x610 for none */
+    int particle; /* 0x04, the particle object, -1 for none */
     float life;
-    float c;
-    float d;
+    float float0C;
+    float scale; /* 0x10 */
     float dodge;
     int paraIndex : 8;
     unsigned int flyType : 2;
@@ -97,7 +97,7 @@ typedef struct {
     float wing;               /* 0x44 */
     float scale;              /* 0x48 */
     int timer;                /* 0x4C */
-    float f_50;               /* 0x50 */
+    float float50;            /* 0x50 */
 } EnemyWork;
 
 void setEnemyParticleObject(GObj *self, int pid)
@@ -212,19 +212,19 @@ retry:
         goto retry;
     }
     p = sub->nodes;
-    sc = D_00624880[kind].d;
+    sc = D_00624880[kind].scale;
     p->scale[2] = sc;
     p->scale[1] = sc;
     p->scale[0] = sc;
     w->scale = sc;
-    obj = D_00624880[kind].a;
+    obj = D_00624880[kind].model;
     if (obj != 0x610) {
         *(int *)&GOBJ_SUB(self)->model = GetPObjAddress(obj);
         GOBJ_SUB(self)->modelId = obj;
         debug_StdPrintfDummy("%p\n", GOBJ_SUB(self)->model);
         w->loaded = 1;
     }
-    pid = D_00624880[kind].b;
+    pid = D_00624880[kind].particle;
     if (pid != -1) {
         setEnemyParticleObject(self, pid);
     }
@@ -529,10 +529,10 @@ void *InitEnemyGeo(GObj *self, char *param)
     w->f_40 = 0;
     w->wing = 0.0f;
     w->timer = 0;
-    w->f_50 = 1.0f;
+    w->float50 = 1.0f;
     kind = enemyInitPartsList(self, param);
     w->def = kind;
-    w->f_50 = D_00624880[kind].c;
+    w->float50 = D_00624880[kind].float0C;
     InitMotionOrient(self, 0x84A, 0x967, 0x18, 0x24, 0x342);
     no = enemyVariation;
     *(int *)(SUBOF(self) + 0x558) = no;

@@ -160,11 +160,11 @@ typedef struct { /* field names derived */
 /* enemy-def: one enemy kind, 0x1C bytes. Reader: ico2/sugipon/src/enemy.c
  * (EnemyDef). Owner: ico2/sugipon/include/enemy.h. */
 typedef struct { /* field names derived */
-    int word0;         /* 0x00 */
-    int word4;         /* 0x04 */
+    int model;         /* 0x00, the model id, 0x610 for none */
+    int particle;      /* 0x04, the particle object, -1 for none */
     float life;        /* 0x08 */
     float float0C;     /* 0x0C */
-    float float10;     /* 0x10 */
+    float scale;       /* 0x10 */
     float dodge;       /* 0x14 */
     unsigned int attr; /* 0x18, paraIndex in bits 0-7, flyType 8-9, battleType 10-11 */
 } EnemyDef; /* derived name */
@@ -175,12 +175,13 @@ typedef struct { /* field names derived */
 typedef struct { /* field names derived */
     char name[32];     /* 0x00 */
     float pt[4][3];    /* 0x20 */
-    int word50;        /* 0x50 */
-    unsigned int attr; /* 0x54, ClothAttr */
-    int word58;        /* 0x58 */
-    int count;         /* 0x5C, the boundaries a manager lays out */
-    float float60;     /* 0x60 */
-    float float64;     /* 0x64 */
+    int kind;          /* 0x50, the cloth type in the low four bits */
+    unsigned int attr; /* 0x54, ClothAttr: gen_data_c parses no enum, so the
+                          reader's enum type stays in attackCheckBoundary.c */
+    int rows;          /* 0x58 */
+    int count;         /* 0x5C, the columns, and the boundaries a manager lays out */
+    float length;      /* 0x60 */
+    float weight;      /* 0x64 */
 } LayoutClothDef; /* derived name */
 
 

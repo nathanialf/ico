@@ -17,10 +17,10 @@
  * first-declaration order, so this is the order Basic.c's inline tail has. */
 void malloc_SetPartition(int val);
 int malloc_GetPartition(void);
-int mallocseki(int size);
+void *mallocseki(int size);
 int freeseki(void *a0);
 void resetmallocseki(void);
-int mallocsekistage(int size);
+void *mallocsekistage(int size);
 int reallocseki(int size, int align);
 
 void dma_init(void);

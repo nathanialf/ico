@@ -8,30 +8,23 @@
 #include "matrixDrive.h"
 #include "quaternion.h"
 
-typedef struct TorchGeoWork {
+typedef struct TorchGeoWork { /* field names derived */
     /* 0x00 */ int flags;
-    /* 0x04 */ int unk04;
-    /* 0x08 */ int unk08;
-    /* 0x0C */ int unk0C;
+    /* 0x04 */ int pad04[3];
     /* 0x10 */ float pos[4];
     /* 0x20 */ int lightOn;
-    /* 0x24 */ int unk24;
+    /* 0x24 */ int burnTime; /* frames the torch has been alight */
     /* 0x28 */ int life;
     /* 0x2C */ int lifeMax;
     /* 0x30 */ int chainFlag;
-    /* 0x34 */ int unk34;
-    /* 0x38 */ int unk38;
-    /* 0x3C */ int unk3C;
-    /* 0x40 */ int unk40;
-    /* 0x44 */ int unk44;
-    /* 0x48 */ int unk48;
-    /* 0x4C */ int unk4C;
+    /* 0x34 */ int effect[5]; /* the particle effects a lit torch runs, -1 when off */
+    /* 0x48 */ int pad48[2];
 } __attribute__((aligned(16))) TorchGeoWork;
 
 /* torch.o's whole .data run: the torch work record InitTorchGeo starts every
    torch from.  The 0x50 malloc right above the copy proves the size. */
 static TorchGeoWork emptyTorchWork = {
-    0, 0, 0, 0, {0.0f, 0.0f, 0.0f, 1.0f}, 0, 0, 65536, 65536, 0, -1, -1, -1, -1, -1, 0, 0,
+    0, {0}, {0.0f, 0.0f, 0.0f, 1.0f}, 0, 0, 65536, 65536, 0, {-1, -1, -1, -1, -1}, {0},
 };
 
 #include "torch.h"
@@ -42,7 +35,9 @@ static TorchGeoWork emptyTorchWork = {
 
 inline void SetTorchChainReactionFlag(GObj *a0, int a1)
 {
-    *(int *)((char *)GOBJ_SUB(a0)->work + 0x30) = a1;
+    TorchGeoWork *w = GOBJ_SUB(a0)->work;
+
+    w->chainFlag = a1;
 }
 
 void torchOffSE(GObj *a0)
@@ -79,48 +74,52 @@ void LightTorchOn(GObj *gobj)
         if (n > 0) {
             return;
         }
-        w->unk38 = SetParticleEffectByPartition(0x15, pos, IdentityQuaternion, ios_partition_seki);
-        w->unk44 = SetParticleEffectByPartition(0x13, pos, IdentityQuaternion, ios_partition_seki);
+        w->effect[1] =
+            SetParticleEffectByPartition(0x15, pos, IdentityQuaternion, ios_partition_seki);
+        w->effect[4] =
+            SetParticleEffectByPartition(0x13, pos, IdentityQuaternion, ios_partition_seki);
         break;
     case 4:
-        w->unk34 = SetParticleEffectByPartition(0x17, pos, IdentityQuaternion, ios_partition_seki);
+        w->effect[0] =
+            SetParticleEffectByPartition(0x17, pos, IdentityQuaternion, ios_partition_seki);
         break;
     default:
-        w->unk40 = SetParticleEffectByPartition(7, pos, IdentityQuaternion, ios_partition_seki);
-        w->unk34 = SetParticleEffectByPartition(5, pos, IdentityQuaternion, ios_partition_seki);
-        w->unk38 = SetParticleEffectByPartition(9, pos, IdentityQuaternion, ios_partition_seki);
-        w->unk44 = SetParticleEffectByPartition(0x13, pos, IdentityQuaternion, ios_partition_seki);
+        w->effect[3] = SetParticleEffectByPartition(7, pos, IdentityQuaternion, ios_partition_seki);
+        w->effect[0] = SetParticleEffectByPartition(5, pos, IdentityQuaternion, ios_partition_seki);
+        w->effect[1] = SetParticleEffectByPartition(9, pos, IdentityQuaternion, ios_partition_seki);
+        w->effect[4] =
+            SetParticleEffectByPartition(0x13, pos, IdentityQuaternion, ios_partition_seki);
         break;
     }
-    w->unk24 = 0;
+    w->burnTime = 0;
     w->lightOn = 1;
-    *(int *)(*(int *)(((char *)gobj) + 0x15C) + 0x83C) = 1;
+    GOBJ_SUB(gobj)->lightId = 1;
 }
 
-void LightTorchOff(char *gobj)
+void LightTorchOff(GObj *gobj)
 {
     TorchGeoWork *w = GOBJ_SUB(gobj)->work;
 
     if (w->lightOn != 0) {
-        if (w->unk40 != -1) {
-            DeleteParticleEffect(w->unk40);
+        if (w->effect[3] != -1) {
+            DeleteParticleEffect(w->effect[3]);
         }
-        if (w->unk3C != -1) {
-            DeleteParticleEffect(w->unk3C);
+        if (w->effect[2] != -1) {
+            DeleteParticleEffect(w->effect[2]);
         }
-        if (w->unk34 != -1) {
-            DeleteParticleEffect(w->unk34);
+        if (w->effect[0] != -1) {
+            DeleteParticleEffect(w->effect[0]);
         }
-        if (w->unk38 != -1) {
-            DeleteParticleEffect(w->unk38);
+        if (w->effect[1] != -1) {
+            DeleteParticleEffect(w->effect[1]);
         }
-        if (w->unk44 != -1) {
-            DeleteParticleEffect(w->unk44);
+        if (w->effect[4] != -1) {
+            DeleteParticleEffect(w->effect[4]);
         }
-        w->unk3C = w->unk40 = w->unk34 = w->unk38 = w->unk44 = -1;
-        w->unk24 = 0;
+        w->effect[2] = w->effect[3] = w->effect[0] = w->effect[1] = w->effect[4] = -1;
+        w->burnTime = 0;
         w->lightOn = 0;
-        *(int *)(*(int *)(gobj + 0x15C) + 0x83C) = 0;
+        GOBJ_SUB(gobj)->lightId = 0;
         torchOffSE(gobj);
     }
 }
@@ -129,20 +128,20 @@ void torchDrainControl(GObj *gobj, float level)
 {
     TorchGeoWork *w = GOBJ_SUB(gobj)->work;
 
-    if (w->unk40 != -1) {
-        SetParticleEffectDrainLevel(w->unk40, level);
+    if (w->effect[3] != -1) {
+        SetParticleEffectDrainLevel(w->effect[3], level);
     }
-    if (w->unk3C != -1) {
-        SetParticleEffectDrainLevel(w->unk3C, level);
+    if (w->effect[2] != -1) {
+        SetParticleEffectDrainLevel(w->effect[2], level);
     }
-    if (w->unk34 != -1) {
-        SetParticleEffectDrainLevel(w->unk34, level);
+    if (w->effect[0] != -1) {
+        SetParticleEffectDrainLevel(w->effect[0], level);
     }
-    if (w->unk38 != -1) {
-        SetParticleEffectDrainLevel(w->unk38, level);
+    if (w->effect[1] != -1) {
+        SetParticleEffectDrainLevel(w->effect[1], level);
     }
-    if (w->unk44 != -1) {
-        SetParticleEffectDrainLevel(w->unk44, level);
+    if (w->effect[4] != -1) {
+        SetParticleEffectDrainLevel(w->effect[4], level);
     }
 }
 
@@ -150,20 +149,20 @@ void moveTorch(GObj *gobj, void *mtx)
 {
     TorchGeoWork *w = GOBJ_SUB(gobj)->work;
 
-    if (w->unk40 != -1) {
-        SetParticleEffectGeometry(w->unk40, mtx, IdentityQuaternion);
+    if (w->effect[3] != -1) {
+        SetParticleEffectGeometry(w->effect[3], mtx, IdentityQuaternion);
     }
-    if (w->unk3C != -1) {
-        SetParticleEffectGeometry(w->unk3C, mtx, IdentityQuaternion);
+    if (w->effect[2] != -1) {
+        SetParticleEffectGeometry(w->effect[2], mtx, IdentityQuaternion);
     }
-    if (w->unk34 != -1) {
-        SetParticleEffectGeometry(w->unk34, mtx, IdentityQuaternion);
+    if (w->effect[0] != -1) {
+        SetParticleEffectGeometry(w->effect[0], mtx, IdentityQuaternion);
     }
-    if (w->unk38 != -1) {
-        SetParticleEffectGeometry(w->unk38, mtx, IdentityQuaternion);
+    if (w->effect[1] != -1) {
+        SetParticleEffectGeometry(w->effect[1], mtx, IdentityQuaternion);
     }
-    if (w->unk44 != -1) {
-        SetParticleEffectGeometry(w->unk44, mtx, IdentityQuaternion);
+    if (w->effect[4] != -1) {
+        SetParticleEffectGeometry(w->effect[4], mtx, IdentityQuaternion);
     }
 }
 
@@ -171,20 +170,20 @@ void setPauseFlag(GObj *gobj, int flag)
 {
     TorchGeoWork *w = GOBJ_SUB(gobj)->work;
 
-    if (w->unk40 != -1) {
-        SetParticleEffectPauseFlag(w->unk40, flag);
+    if (w->effect[3] != -1) {
+        SetParticleEffectPauseFlag(w->effect[3], flag);
     }
-    if (w->unk3C != -1) {
-        SetParticleEffectPauseFlag(w->unk3C, flag);
+    if (w->effect[2] != -1) {
+        SetParticleEffectPauseFlag(w->effect[2], flag);
     }
-    if (w->unk34 != -1) {
-        SetParticleEffectPauseFlag(w->unk34, flag);
+    if (w->effect[0] != -1) {
+        SetParticleEffectPauseFlag(w->effect[0], flag);
     }
-    if (w->unk38 != -1) {
-        SetParticleEffectPauseFlag(w->unk38, flag);
+    if (w->effect[1] != -1) {
+        SetParticleEffectPauseFlag(w->effect[1], flag);
     }
-    if (w->unk44 != -1) {
-        SetParticleEffectPauseFlag(w->unk44, flag);
+    if (w->effect[4] != -1) {
+        SetParticleEffectPauseFlag(w->effect[4], flag);
     }
 }
 
@@ -363,22 +362,22 @@ void TorchGeo(GObj *gobj)
     } else {
         setPauseFlag(gobj, 1);
     }
-    if (w->unk24 < 0xFFFF) {
-        w->unk24 = w->unk24 + 1;
+    if (w->burnTime < 0xFFFF) {
+        w->burnTime = w->burnTime + 1;
     }
     if (o != 0) {
         UpdateRealTimeGeometryValue(gobj);
         moveTorch(gobj, w->pos);
     }
-    if (w->life < w->unk24) {
+    if (w->life < w->burnTime) {
         LightTorchOff(gobj);
         procChainReaction(gobj);
         return;
     }
-    if (w->chainFlag == 0 && w->lifeMax < w->unk24) {
-        drain = (float)(w->unk24 - w->lifeMax) / (float)(w->life - w->lifeMax);
+    if (w->chainFlag == 0 && w->lifeMax < w->burnTime) {
+        drain = (float)(w->burnTime - w->lifeMax) / (float)(w->life - w->lifeMax);
         torchDrainControl(gobj, 1.0f - drain);
-        if (w->unk24 == w->life - 1) {
+        if (w->burnTime == w->life - 1) {
             id = SetParticleEffectActiveSensing(0x36, w->pos, IdentityQuaternion);
             if (id != -1) {
                 ExecParticleEffect(id);

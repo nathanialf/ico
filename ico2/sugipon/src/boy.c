@@ -442,7 +442,7 @@ static void execClothes(GObj *gobj)
    TU's .data, after the sync marker colours */
 static LightLineExt lightLineExt; /* derived name */
 
-LightLineExt *InitLightLineGeo(char *gobj, float *pos)
+LightLineExt *InitLightLineGeo(GObj *gobj, float *pos)
 {
     LLVec v = {pos[0] + 500.0f, pos[1], pos[2] + 200.0f, 1.0f};
     int i;
@@ -845,7 +845,7 @@ void BoyDL(GObj *gobj)
         dispClothes(gobj);
     }
     if (stage_no == 0x27 && 20.0f < GOBJ_SUB(gobj)->waterDepth && GOBJ_SUB(gobj)->pool != 0 &&
-        CheckPoolHasGridMesh((char *)GOBJ_SUB(gobj)->pool) == 0) {
+        CheckPoolHasGridMesh((GObj *)GOBJ_SUB(gobj)->pool) == 0) {
         sub = GOBJ_SUB(gobj);
         m = (PoolMesh *)(sub->work + 0x34);
         SetLimitedPoolReflactionMesh(m, sub->pool, gobj);

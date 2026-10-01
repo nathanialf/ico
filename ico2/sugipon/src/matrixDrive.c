@@ -509,13 +509,15 @@ typedef struct {
     float w;
 } __attribute__((aligned(16))) MdVec;
 
-void MatrixDrive_SetTransposeMatrix(float *dst, float *src)
+void MatrixDrive_SetTransposeMatrix(void *dstMtx, void *srcMtx)
 {
+    float *dst = dstMtx;
+    float *src = srcMtx;
     MdVec v = {-src[12], -src[13], -src[14], 0.0f};
 
     sceVu0TransposeMatrix(dst, src);
     dst[3] = dst[7] = dst[11] = 0.0f;
-    sceVu0ApplyMatrix((int *)&dst[12], (char *)dst, &v);
+    sceVu0ApplyMatrix(&dst[12], dst, &v);
     dst[15] = 1.0f;
 }
 

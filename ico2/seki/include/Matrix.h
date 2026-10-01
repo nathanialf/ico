@@ -66,7 +66,7 @@ float _GetNorm(void *v);
 float _GetLength(void *a, void *b);
 float _GetLengthXY(void *a, void *b);
 float _GetLengthXZ(void *a, void *b);
-void _CopyMatrix(void *dst, void *src);
+void _CopyMatrix(void *dst, const void *src);
 void _MulMatrix(void *p0, void *p1, void *p2);
 void _ApplyMatrix(void *p0, void *p1, void *p2);
 void _UnitMatrix(void *p0);

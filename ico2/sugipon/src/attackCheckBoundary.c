@@ -217,15 +217,15 @@ typedef enum { CLOTH_ATTR_NONE = 0 } ClothAttr;
    The name string and the four corner points are the table's own bytes; this
    TU reads the first two corners, the attribute and the boundary count, and
    InitFlagGeo reads the rest. */
-typedef struct {
+typedef struct {    /* field names derived */
     char name[32];  /* 0x00 */
     float pt[4][3]; /* 0x20 */
-    int f_50;       /* 0x50 */
+    int kind;       /* 0x50, the cloth type in the low four bits (InitFlagGeo's switch) */
     ClothAttr attr; /* 0x54 */
-    int f_58;       /* 0x58 */
-    int count;      /* 0x5C, the boundaries a manager lays out */
-    float f_60;     /* 0x60 */
-    float f_64;     /* 0x64 */
+    int rows;       /* 0x58, the cloth's rows (ClothCfg num) */
+    int count;      /* 0x5C, the columns, and the boundaries a manager lays out */
+    float length;   /* 0x60, the cloth's length, shared out over the columns */
+    float weight;   /* 0x64, the fall added to each point a step (ClothCfg weight) */
 } LayoutClothDef;
 
 extern const LayoutClothDef layoutClothDef[];

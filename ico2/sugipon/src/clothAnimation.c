@@ -72,9 +72,9 @@ void TestDispChainAnimation(int *a0)
     gif_EndPacket();
 }
 
-void GetChainExWeightGlobalPos(int a0, int a1, int a2)
+void GetChainExWeightGlobalPos(float *pos, char *nodes, int idx)
 {
-    CopyVector(a0, a1 + a2 * 0x50 + 0x30);
+    CopyVector(pos, nodes + idx * 0x50 + 0x30);
 }
 
 typedef struct {
@@ -502,7 +502,7 @@ void GetClothAnimation(int a0, void *a1, GObj *a2, void *m, ClothCfg *cfg, int n
     }
     for (i = 0; i < n0; i++) {
         if (focus != 0) {
-            node = GetSkeltonFocusNode((char *)a2, *(int *)(pts + i * 48));
+            node = GetSkeltonFocusNode((GObj *)a2, *(int *)(pts + i * 48));
             sceVu0ApplyMatrix(((char **)a0)[i], (char *)GOBJ_SUB(a2)->nodeMtx + node * 64,
                               pts + i * 48 + 16);
         } else {
@@ -653,7 +653,7 @@ void GetClothAnimation(int a0, void *a1, GObj *a2, void *m, ClothCfg *cfg, int n
                         lim * (float)(nx - j) * (float)(nx - j) < l1) {
                         _OuterProduct(&vd, &vb, &va);
                         angle = arcCosOfTriangle(total, len * (float)j, len * (float)(nx - j));
-                        SetQuaternionByAxisRotateV((int *)qt, angle, (int *)&vd);
+                        SetQuaternionByAxisRotateV(qt, angle, (float *)&vd);
                         GetMatrixFromQuaternion((char *)mx, (char *)qt);
                         _ApplyMatrix(&vb, mx, &va);
                         _ScaleVector(&vb, &vb, len * (float)j * rtotal);
@@ -2176,15 +2176,15 @@ void ResetClothAnimation(int *a0, int *a1, int *a2)
     }
 }
 
-void GetChainExWeightGlobalQuaternion(int a0, int a1, int i, int j)
+void GetChainExWeightGlobalQuaternion(float *q, int nodes, int i, int j)
 {
     ClothBuf buf;
-    SetIdentityQuaternion(a0);
-    SubVectorXYZ(&buf, j * 0x50 + a1 + 0x30, i * 0x50 + a1 + 0x20);
+    SetIdentityQuaternion(q);
+    SubVectorXYZ(&buf, j * 0x50 + nodes + 0x30, i * 0x50 + nodes + 0x20);
     buf.v[1] = buf.v[1] + 100.0f;
     MatrixDrive_GetTurnYAngleXZ(&buf.a, &buf.b, buf.v[0], buf.v[1], buf.v[2]);
-    RotQuaternionX(a0, (short)-buf.a);
-    RotQuaternionZ(a0, (short)-buf.b);
+    RotQuaternionX(q, (short)-buf.a);
+    RotQuaternionZ(q, (short)-buf.b);
 }
 
 float GetChainCollision(int *a0, void *pos, float r)

@@ -31,34 +31,34 @@
    template they initialise it from: 224 bytes, 8-aligned (ROM copies it 32
    bytes at a time with ld/sd pairs).  The fields are the ones this file
    reads; the names are ours. */
-typedef struct {
-    int kind;            /* 0x00: the switch in InitWeaponGeo */
-    int state;           /* 0x04: 2 while the weapon falls from a fumble */
-    char *holder;        /* 0x08: the holding object, 0 when none */
-    int holderId;        /* 0x0C: -1 when none */
-    float hit[4][4];     /* 0x10: checkHit's positions at 0x20, 0x30, 0x40 */
-    int count;           /* 0x50 */
-    char **objs;         /* 0x54 */
-    char *buf;           /* 0x58 */
-    char *sword;         /* 0x5C */
-    int fumbleTime;      /* 0x60 */
-    int fumbleFrame;     /* 0x64 */
-    float fumbleSpeed;   /* 0x68 */
-    int f6C;             /* 0x6C */
+typedef struct {       /* field names derived */
+    int kind;          /* 0x00: the switch in InitWeaponGeo */
+    int state;         /* 0x04: 2 while the weapon falls from a fumble */
+    GObj *holder;      /* 0x08: the holding object, 0 when none */
+    int holderId;      /* 0x0C: -1 when none */
+    float hit[4][4];   /* 0x10: checkHit's positions at 0x20, 0x30, 0x40 */
+    int count;         /* 0x50 */
+    GObj **objs;       /* 0x54, the torch objects the weapon carries */
+    char *buf;         /* 0x58 */
+    char *sword;       /* 0x5C */
+    int fumbleTime;    /* 0x60 */
+    int fumbleFrame;   /* 0x64 */
+    float fumbleSpeed; /* 0x68 */
+    char pad6C[4];
     float fumbleFrom[4]; /* 0x70 */
     float fumbleTo[4];   /* 0x80 */
     float fumbleQuat[4]; /* 0x90 */
     int fumbleSlot;      /* 0xA0: the drop-table row, 0 to 6 */
-    int fA4;             /* 0xA4 */
-    float fA8;           /* 0xA8 */
-    float fAC;           /* 0xAC */
+    int bladeOn;         /* 0xA4: the laser blade is out */
+    float bladeLength;   /* 0xA8: the blade's drawn length */
+    float bladeTimer;    /* 0xAC: frames the blade has been growing */
     char *net;           /* 0xB0 */
     char *model0;        /* 0xB4 */
     char *model1;        /* 0xB8 */
-    int fBC;             /* 0xBC */
+    int humAnim;         /* 0xBC: the blade's BG animation handle */
     int offsetMode;      /* 0xC0: SetWeaponOffsetMode */
-    int fC4[3];          /* 0xC4 */
-    float vD0[4];        /* 0xD0 */
+    char padC4[12];
+    float tipPos[4]; /* 0xD0: the blade tip */
 } __attribute__((aligned(8))) WeaponWork;
 
 void torchOnOfWeaponSE(GObj *a0)
@@ -93,7 +93,7 @@ void weaponStickSE(GObj *a0)
 static inline void releaseWeaponHolder(WeaponWork *w)
 {
     if (w->holder != 0) {
-        *(int *)(*(char **)(w->holder + 0x15C) + 0x630) = 0;
+        *(int *)(*(char **)&w->holder->dobj + 0x630) = 0;
     }
     w->holderId = -1;
 }
@@ -219,7 +219,7 @@ static WeaponWork swordWorkTemplate = {
     0,
     0,
     0.0f,
-    0,
+    {0},
     {0.0f, 0.0f, 0.0f, 1.0f},
     {0.0f, 0.0f, 0.0f, 1.0f},
     {0.0f, 0.0f, 0.0f, 1.0f},
@@ -232,7 +232,7 @@ static WeaponWork swordWorkTemplate = {
     0,
     0,
     0,
-    {0, 0, 0},
+    {0},
     {0.0f, 0.0f, 0.0f, 1.0f},
 };
 
@@ -516,14 +516,14 @@ void getGeometry(GObj *g)
     char *rp = (char *)p + 0xA0;
 
     if (w->holder != 0) {
-        char *d = *(char **)(w->holder + 0x15C);
+        char *d = *(char **)&w->holder->dobj;
         int n = w->holderId;
 
         CopyMatrix(MatrixDrive_GetMatrix(), *(char **)(d + 0xC) + n * 0x40);
         MatrixDrive_TransMatrix(7.0f, -3.0f, 0.0f);
         CopyVector(pos, (char *)MatrixDrive_GetMatrix() + 0x30);
         CopyQuaternion(quat, *(char **)(d + 0x10) + n * 0x10);
-        if (((int *)(*(char **)(*(char **)(w->holder + 0x15C) + 0x8C) + n * 0x40))[1] == 22) {
+        if (((int *)(*(char **)(*(char **)&w->holder->dobj + 0x8C) + n * 0x40))[1] == 22) {
             RotQuaternionY(quat, -32768);
         }
         sceVu0SubVector((char *)p + 0x130, pos, rp);
@@ -665,7 +665,7 @@ void *InitWeaponGeo(GObj *g, QSwordLayout *lay)
     WeaponWork *w = iosMallocDebug(ios_partition_sugipon, 0xE0, __FILE__, 820);
     int i;
 
-    GOBJ_SUB(g)->work = (int)w;
+    GOBJ_SUB(g)->work = w;
 
     *w = swordWorkTemplate;
     w->kind = lay->kind & 0xFF;
@@ -804,7 +804,7 @@ void dispBlur(GObj *g)
         gif_EndPacket();
     }
     if (w->kind == 8) {
-        if (12.0f < w->fA8) {
+        if (12.0f < w->bladeLength) {
             _UnitMatrix(MatrixDrive_GetMatrix());
             gif_StartPacketPri(2);
             gif_SetAlpha(1, 5, 128);
@@ -929,17 +929,17 @@ void WeaponGeo(GObj *g)
     checkHit(g);
 
     kind = w->kind;
-    w->fA4 = 0;
+    w->bladeOn = 0;
     if (w->kind >= 10 || kind < 8) {
         if (w->state == 1 ||
             (w->holder != 0 &&
-             ((((WeaponEnemyPara *)(*(int *)(*(char **)(w->holder + 0x15C) + 0x4A0) * 0x194 +
+             ((((WeaponEnemyPara *)(*(int *)(*(char **)&w->holder->dobj + 0x4A0) * 0x194 +
                                     (char *)motionKind))
                    ->f190 >>
                4) &
               1))) {
             calcBlur(g, weaponKind[kind].length);
-            w->fA4 = 1;
+            w->bladeOn = 1;
         }
     } else {
         weaponKind[kind].length = 40.0f;
@@ -950,38 +950,38 @@ void WeaponGeo(GObj *g)
             if (w->holder == boyGObj && ACTGame_FLAG_TETSUNAGI_VISUAL()) {
                 weaponKind[w->kind].length = 270.0f;
             }
-            if (w->fAC >= 30.0f) {
-                w->fA8 += (weaponKind[w->kind].length - w->fA8) * 0.4f;
+            if (w->bladeTimer >= 30.0f) {
+                w->bladeLength += (weaponKind[w->kind].length - w->bladeLength) * 0.4f;
             } else {
-                w->fAC = w->fAC + 1.0f;
-                if (w->fAC == 29.0f) {
+                w->bladeTimer = w->bladeTimer + 1.0f;
+                if (w->bladeTimer == 29.0f) {
                     ExecuteDirectSE(g, 0x101E7);
                 }
             }
         } else {
-            w->fA8 += (0.0f - w->fA8) * 0.1f;
-            w->fAC = 0.0f;
+            w->bladeLength += (0.0f - w->bladeLength) * 0.1f;
+            w->bladeTimer = 0.0f;
         }
-        calcBlur(g, w->fA8);
-        w->fA4 = 1;
-        t = w->fA8;
+        calcBlur(g, w->bladeLength);
+        w->bladeOn = 1;
+        t = w->bladeLength;
         stage_SetLoopFlag(473, 1);
         if (t > 1.0f) {
-            n = (int)stage_PlayBgAnimation(473, (float)w->fBC, (char *)GOBJ_SUB(g)->nodeMtx + 0x30,
-                                           IdentityQuaternion);
+            n = (int)stage_PlayBgAnimation(473, (float)w->humAnim,
+                                           (char *)GOBJ_SUB(g)->nodeMtx + 0x30, IdentityQuaternion);
             if (systemStatus[5] == 0) {
-                w->fBC = n;
+                w->humAnim = n;
             }
         } else {
             stage_PlayBgAnimation(473, 0.0f, (char *)GOBJ_SUB(g)->nodeMtx + 0x30,
                                   IdentityQuaternion);
-            w->fBC = 0;
+            w->humAnim = 0;
         }
         stage_SetLoopFlag(473, 0);
     }
 
     GetRootMatrix(MatrixDrive_GetMatrix(), g);
-    CopyVector(w->vD0, (char *)MatrixDrive_GetMatrix() + 0x30);
+    CopyVector(w->tipPos, (char *)MatrixDrive_GetMatrix() + 0x30);
     if (w->offsetMode != 0) {
         float v[4] = {0.0f, 0.0f, 1.0f, 0.0f};
 
@@ -1008,12 +1008,12 @@ void WeaponDL(GObj *g)
         break;
     case 8:
     case 9:
-        dispLaserSword(g, w->fA8);
+        dispLaserSword(g, w->bladeLength);
         break;
     case 0:
         break;
     }
-    if (w->fA4 != 0) {
+    if (w->bladeOn != 0) {
         dispBlur(g);
     }
 }
@@ -1054,7 +1054,7 @@ char *CheckSwapableWeapon(GObj *a0, float dist)
         if (*(int *)(g + 0x16C) == 0)
             continue;
 
-        wp = w->vD0;
+        wp = w->tipPos;
         if (stage_no == 4 && *(int *)(g + 0x8) != 0x80)
             continue;
 
@@ -1071,7 +1071,7 @@ void ReleaseWeapon(GObj *a0)
 {
     WeaponWork *p = GOBJ_SUB(a0)->work;
     if (p->holder) {
-        *(int *)(*(char **)(p->holder + 0x15C) + 0x630) = 0;
+        *(int *)(*(char **)&p->holder->dobj + 0x630) = 0;
     }
     p->holder = 0;
     p->holderId = -1;
@@ -1141,7 +1141,7 @@ void ReleaseWeaponWithFumble(GObj *a0, void *a1, void *a2)
     char *f = (char *)e + 0xA0;
 
     if (w->holder) {
-        *(int *)(*(char **)(w->holder + 0x15C) + 0x630) = 0;
+        *(int *)(*(char **)&w->holder->dobj + 0x630) = 0;
     }
     w->holder = 0;
     w->holderId = -1;

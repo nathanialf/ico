@@ -85,7 +85,7 @@ void setWaterDot(WaterDot *dot, VECTOR *pos, VECTOR *vel)
     CopyVector(&dot->vel, vel);
 }
 
-inline void EntryWaterDot(WaterDotWork *w, VECTOR *pos, VECTOR *vel, float range)
+inline void EntryWaterDot(WaterDotWork *w, void *pos, void *vel, float range)
 {
     VECTOR v = {random_signed_b() * range, random_signed_b() * range, random_signed_b() * range,
                 1.0f};

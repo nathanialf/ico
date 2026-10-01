@@ -16,24 +16,24 @@ struct GObj;
 
 struct Sub15C;
 
-int CylinderCollision(char *self, int group, float r, float h, float s);
+int CylinderCollision(struct GObj *self, int group, float r, float h, float s);
 
 int CylinderCollisionWithControlDynamics(struct GObj *self, int group, int ctrl, float r, float h,
                                          float s);
 
-int *GetCharGObjList(void);
+struct GObj **GetCharGObjList(void);
 void GetGlobalDirectionOrient(float *dir, struct GObj *obj, void *src);
 void GetInitialSkeltonMatrixByDObj(char *mdl);
 float GetProjectionOfPlane(void *a0, void *a1, void *a2);
 float GetProjectionOfPlaneWithKeepAway(void *a0, void *a1, void *a2, float f);
 void GetProjectionPosOfPlane(void *a0, void *a1, void *a2);
-void GetRootMatrix(float *m, struct GObj *obj);
+void GetRootMatrix(void *mtx, struct GObj *obj);
 void GetRootMatrixRotOffset(void *q, struct GObj *obj);
 void GetRootMatrixTransOffset(char *dst, struct GObj *src);
 void GetRootMotionOrient(char *a0, struct GObj *a1);
 void GetRootOrient(char *a0, struct GObj *a1);
-void GetRootPosition(float *pos, struct GObj *obj);
-void GetRootPositionByDObj(float *pos, struct Sub15C *src);
+void GetRootPosition(void *pos, struct GObj *obj);
+void GetRootPositionByDObj(void *pos, struct Sub15C *src);
 void GetRootQuaternion(void *q, struct GObj *obj);
 void GetRootQuaternionByDObj(void *q, struct Sub15C *dobj);
 void GlobalizeGeometry(struct GObj *gobj);

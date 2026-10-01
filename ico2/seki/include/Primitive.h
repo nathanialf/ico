@@ -24,24 +24,24 @@ typedef struct {
    buffer at 0x70 is the normal buffer (prim_makeNormal fills it and
    prim_UpdateMesh3D copies it under flag 4), the one at 0x74 the texture
    coordinates (flag 8; pool, flag and clothAnimation write s and t there). */
-typedef struct {
+typedef struct { /* field names derived */
     /* 0x00 */ int nx;
     /* 0x04 */ int ny;
-    /* 0x08 */ int f08;
-    /* 0x0C */ int f0C;
+    /* 0x08 */ int wrapX; /* the last column joins the first (prim_makeNormal) */
+    /* 0x0C */ int wrapY; /* the last row joins the first */
     /* 0x10 */ float mtx[4][4];
-    /* 0x50 */ int f50;
-    /* 0x54 */ int f54;
-    /* 0x58 */ int f58;
-    /* 0x5C */ int f5C;
-    /* 0x60 */ long long f60;
+    /* 0x50 */ int stripLen; /* the vertices of one strip, two a column */
+    /* 0x54 */ int strips;   /* the strips, one a row pair */
+    /* 0x58 */ int lit;      /* the microcode lights the mesh, so its normals are sent */
+    /* 0x5C */ int pad5C;
+    /* 0x60 */ long long prim; /* the GIF register word */
     /* 0x68 */ unsigned int col;
     /* 0x6C */ Prim3DVec *pos;
     /* 0x70 */ Prim3DVec *nrm;
     /* 0x74 */ Prim3DVec *st;
-    /* 0x78 */ int f78;
+    /* 0x78 */ int qwc; /* the size of one packet buffer in quadwords */
     /* 0x7C */ void *bufs[2];
-    /* 0x84 */ int f84[3];
+    /* 0x84 */ int pad84[3];
 } Mesh3D;
 
 /* A 2D fan: n rim vertices round a centre, each a colour and a position. */
@@ -56,9 +56,9 @@ typedef struct {
     /* 0x1C */ float w;
 } Fan2DVtx __attribute__((aligned(16)));
 
-typedef struct {
+typedef struct { /* field names derived */
     /* 0x00 */ int n;
-    /* 0x04 */ int f04;
+    /* 0x04 */ int blend; /* set when a vertex colour is not opaque */
     /* 0x08 */ Fan2DVtx *buf;
 } Fan2D;
 
@@ -71,22 +71,22 @@ typedef struct {
     /* 0x90 */ int tail[4];
 } PrimParticleBuf;
 
-typedef struct {
+typedef struct { /* field names derived */
     /* 0x000 */ PrimParticleBuf buf[2];
-    /* 0x140 */ int f140;
-    /* 0x144 */ int f144;
+    /* 0x140 */ int headQwc; /* the size of one packet head in quadwords */
+    /* 0x144 */ int word144;
     /* 0x148 */ int num;
     /* 0x14C */ float x;
     /* 0x150 */ float y;
     /* 0x154 */ float z;
-    /* 0x158 */ int f158;
+    /* 0x158 */ int word158; /* the init call's fifth argument */
     /* 0x15C */ char name[0x20];
     /* 0x17C */ int tex;
     /* 0x180 */ int cur;
-    /* 0x184 */ int f184;
+    /* 0x184 */ int objSize; /* the object buffers' size, bytes until init ends, then quadwords */
     /* 0x188 */ char *objs[2];
-    /* 0x190 */ int f190;
-    /* 0x194 */ int f194;
+    /* 0x190 */ int vtx;     /* the vertices of the buffer being drawn (objs + 0x70) */
+    /* 0x194 */ int vtxNext; /* the vertices of the other buffer */
 } PrimParticle;
 
 void prim_DeleteParticle(PrimParticle *p);
@@ -101,7 +101,7 @@ void prim_DispWireSphere(float r, void *col, int nu, int nv);
 /* the radius second: staticBlur's calls load $f12 ahead of the integer
    arguments, the evaluation order of this parameter list */
 Fan2D *prim_InitFan2D(int n, float r, float *pos, unsigned int cc, unsigned int rc);
-Mesh3D *prim_InitMesh3D(int nx, int ny, int rot, long long col, unsigned int col2, int f58);
+Mesh3D *prim_InitMesh3D(int nx, int ny, int rot, long long col, unsigned int col2, int lit);
 PrimParticle *prim_InitParticle(int num, float x, float y, float z, int a1, char *name, int a3);
 
 PrimParticle *prim_InitParticleByPartition(int num, float x, float y, float z, int a1, char *name,

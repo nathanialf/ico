@@ -85,8 +85,8 @@ extern const MotOriLimit motionLimitDef[];
  * copies it into its frame, which is what the ROM's prologue does). The same
  * record is reconstructed in ico2/fumi/src/act.c as IntrOrient, whose matched
  * uses fix the member spelling. */
-typedef struct {
-    int w[8];
+typedef struct {  /* field names derived */
+    int word[8]; /* copied whole, no member read: its eight words */
 } MotOriReq;
 
 /* The declarations below lead this header because their order is load-bearing:

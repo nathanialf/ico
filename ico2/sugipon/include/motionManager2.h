@@ -15,13 +15,14 @@
 /* the 32-byte motion record CopyMotion and CopyMotionWithNodeHrc copy
    (motionManager2.c) */
 struct Pack32;
+struct ClipBuf;
 
 #include "typedef.h"
 
 int AdjustMotionHeightToNearestField(GObj *self);
 void AdjustRootPositionToVerticalSidePlaneOfWall(void *a0, void *a1, float f);
 void AdjustVerticalSidePlaneOfWall(float *out, int *cfg, float *pos, float t);
-int CheckFieldContact(char *info, GObj *self, float *pos, float lim);
+int CheckFieldContact(struct ClipBuf *info, GObj *self, float *pos, float lim);
 /* ROM: two arguments, the GObj and the attribute mask (act_bird.c:806 passes
    0x40 and 0x50 in $5, boyact/script/a_p_1/frameDependSequence do the same). */
 int CheckFloorAttribute(GObj *self, int attr);

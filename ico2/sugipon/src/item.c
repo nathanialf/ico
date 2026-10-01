@@ -34,7 +34,7 @@
    2 exploding, 3 spent), where the explosion is centred and its animation
    slot. */
 typedef struct {
-    char *torch;  /* 0x00 */
+    GObj *torch;  /* 0x00 */
     int time;     /* 0x04 */
     int state;    /* 0x08 */
     int padC;     /* 0x0C */
@@ -130,14 +130,14 @@ void HoldItem(GObj *gobj, GObj *holder)
    out-of-line copy of its own, inlined into uncarriedItemGeo, ItemDL,
    BreakItemFromOutside and BreakItemWithAttackHit (rows 267 to 270).
    The NAME is a reconstruction; the listing carries no symbol for it. */
-static inline void setItemDead(char *gobj)
+static inline void setItemDead(GObj *gobj)
 {
-    char *w = (char *)*(int *)(gobj + 0x15C);
+    char *w = (char *)*(int *)&gobj->dobj;
     ItemWork *p = (ItemWork *)*(int *)(w + 0x830);
 
     *(int *)(w + 0x74) = 0;
     p->dead = 1;
-    *(int *)(gobj + 0x16C) = 0;
+    gobj->active = 0;
 }
 
 /* item.o's whole .data run, in the order the object emits it. */
@@ -181,29 +181,29 @@ void avoidInsideOfWall(void *self, GObj *arg)
     SetDirectRootPositionNoFitting(self, p + 0x20);
 }
 
-void ReleaseItem(char *gobj)
+void ReleaseItem(GObj *gobj)
 {
-    ItemWork *p = (ItemWork *)*(int *)(*(int *)(gobj + 0x15C) + 0x830);
+    ItemWork *p = (ItemWork *)*(int *)(*(int *)&gobj->dobj + 0x830);
     avoidInsideOfWall(gobj, p->holder);
     p->released = 1;
     p->held = 0;
     p->holder = 0;
     p->thrown = 0;
     GOBJ_SUB(gobj)->disp = 1;
-    CopyVector((char *)*(int *)(gobj + 0x15C) + 0x130, zeroVelocity);
-    SetIdentityQuaternion((char *)*(int *)(gobj + 0x15C) + 0x150);
+    CopyVector((char *)*(int *)&gobj->dobj + 0x130, zeroVelocity);
+    SetIdentityQuaternion((char *)*(int *)&gobj->dobj + 0x150);
 }
 
-void ThrowItem(char *gobj, void *vel)
+void ThrowItem(GObj *gobj, void *vel)
 {
     ItemWork *p = (ItemWork *)(char *)GOBJ_SUB(gobj)->work;
     avoidInsideOfWall(gobj, p->holder);
     p->released = 1;
     p->held = 0;
     p->thrown = 1;
-    _ScaleVectorXYZ(*(char **)(gobj + 0x15C) + 0x130, vel,
+    _ScaleVectorXYZ(*(char **)&gobj->dobj + 0x130, vel,
                     30.0f / (float)((0x3C - systemStatus[0] * 0xA) / systemStatus[1]));
-    SetIdentityQuaternion(*(char **)(gobj + 0x15C) + 0x150);
+    SetIdentityQuaternion(*(char **)&gobj->dobj + 0x150);
 }
 
 typedef union {
@@ -280,25 +280,25 @@ void carriedItemGeo(GObj *gobj)
     ItemWork *rec = (ItemWork *)*(int *)(*(int *)(((char *)gobj) + 0x15C) + 0x830);
 
     if (*(int *)((char *)((SubHandle *)((char *)rec->holder + 0x15C))->i + 0x604) != 0) {
-        int isPlayer = (char *)rec->holder == girlGObj;
+        int isPlayer = (GObj *)rec->holder == girlGObj;
         int node = isPlayer ? 6 : 22;
 
         if (isPlayer) {
             _ApplyMatrix(
                 &pos,
                 (char *)*(int *)((char *)((SubHandle *)((char *)rec->holder + 0x15C))->i + 0xC) +
-                    GetSkeltonFocusNode((char *)rec->holder, node) * 0x40,
+                    GetSkeltonFocusNode((GObj *)rec->holder, node) * 0x40,
                 carryOfsPlayer);
         } else {
             _ApplyMatrix(
                 &pos,
                 (char *)*(int *)((char *)((SubHandle *)((char *)rec->holder + 0x15C))->i + 0xC) +
-                    GetSkeltonFocusNode((char *)rec->holder, node) * 0x40,
+                    GetSkeltonFocusNode((GObj *)rec->holder, node) * 0x40,
                 carryOfsOther);
         }
         CopyQuaternion(
             q, (char *)*(int *)((char *)((SubHandle *)((char *)rec->holder + 0x15C))->i + 0x10) +
-                   GetSkeltonFocusNode((char *)rec->holder, node) * 0x10);
+                   GetSkeltonFocusNode((GObj *)rec->holder, node) * 0x10);
         if (isPlayer) {
             RotQuaternionX(q, -16384);
         } else {
@@ -306,11 +306,11 @@ void carriedItemGeo(GObj *gobj)
         }
         SetRootQuaternion(gobj, q);
     } else {
-        int node = GetSkeltonFocusNode((char *)rec->holder, 1);
+        int node = GetSkeltonFocusNode((GObj *)rec->holder, 1);
 
         CopyVector(&wpos,
                    (char *)*(int *)((char *)((SubHandle *)((char *)rec->holder + 0x15C))->i + 0xC) +
-                       GetSkeltonFocusNode((char *)rec->holder, 22) * 0x40 + 0x30);
+                       GetSkeltonFocusNode((GObj *)rec->holder, 22) * 0x40 + 0x30);
         MatrixDrive_SetTransposeMatrix(
             m, (char *)*(int *)((char *)((SubHandle *)((char *)rec->holder + 0x15C))->i + 0xC) +
                    node * 0x40);
@@ -326,7 +326,7 @@ void carriedItemGeo(GObj *gobj)
         sceVu0ApplyMatrix(
             &up,
             (char *)*(int *)((char *)((SubHandle *)((char *)rec->holder + 0x15C))->i + 0xC) +
-                GetSkeltonFocusNode((char *)rec->holder, 44) * 0x40,
+                GetSkeltonFocusNode((GObj *)rec->holder, 44) * 0x40,
             &up);
         MatrixDrive_GetTurnZAngleYX(&ang[0], &ang[1], up.f[0], up.f[1], up.f[2]);
         CopyQuaternion(&rot, rec->rot);
@@ -694,7 +694,7 @@ void execBombGeo(GObj *gobj)
                                         60.0f * 300.0f)) +
               1.0f) *
              0.5f);
-        CopyVector(((SubHandle *)(q->torch + 0x15C))->p + 0xA0, v);
+        CopyVector(((SubHandle *)&q->torch->dobj)->p + 0xA0, v);
         q->time = q->time - 1;
         if (q->time == 0) {
             q->state = 2;
@@ -707,7 +707,7 @@ void execBombGeo(GObj *gobj)
         GetRootPosition(q->pos, gobj);
         _AttackCenter(gobj, 0x11, q->pos, 0, 200.0f, 0);
         LightTorchOff(q->torch);
-        *(int *)(q->torch + 0x16C) = 0;
+        q->torch->active = 0;
         rec->released = 0;
         StopSEPackage(gobj);
         bombExplodeSE(gobj);
@@ -762,9 +762,9 @@ void ItemGeo(GObj *gobj)
 /* src/item.c:919-932 in the listing: a second static helper with no
    out-of-line copy, inlined only into ItemDL (rows 920, 922, 929, 931).
    The NAME is a reconstruction. */
-static inline void checkBombExplodeEnd(char *gobj)
+static inline void checkBombExplodeEnd(GObj *gobj)
 {
-    ItemWork *p = (ItemWork *)*(int *)(*(int *)(gobj + 0x15C) + 0x830);
+    ItemWork *p = (ItemWork *)*(int *)(*(int *)&gobj->dobj + 0x830);
     ItemFuse *q = &p->fuse;
 
     if (q->state == 3) {
@@ -810,9 +810,9 @@ void ItemDL(GObj *gobj)
 /* INTERIM stand-in: GetItemKind is a real TU function with its own ROM slot
    (matched below), but the compiler inlines it into BreakItemFromOutside.
    Delete it and mark the real definition `inline` once this TU is C-complete. */
-static inline int GetItemKindInline(char *gobj)
+static inline int GetItemKindInline(GObj *gobj)
 {
-    return *(int *)((char *)*(int *)(*(int *)(gobj + 0x15C) + 0x830) + 4);
+    return ((ItemWork *)*(int *)(*(int *)&gobj->dobj + 0x830))->kind;
 }
 
 int BreakItemFromOutside(GObj *gobj)
@@ -834,11 +834,11 @@ int BreakItemFromOutside(GObj *gobj)
     return 0;
 }
 
-int CheckCarryableItem(char *a0)
+int CheckCarryableItem(GObj *a0)
 {
     int r = 0;
-    ItemWork *p = (ItemWork *)(char *)GOBJ_SUB(a0)->work;
-    if (*(int *)(a0 + 0x16C) != 0) {
+    ItemWork *p = GOBJ_SUB(a0)->work;
+    if (a0->active != 0) {
         if (*(long long *)&p->released == 0) {
             if (p->fuse.state < 2) {
                 r = 1;
@@ -850,7 +850,9 @@ int CheckCarryableItem(char *a0)
 
 int GetItemKind(GObj *a0)
 {
-    return *(int *)((char *)GOBJ_SUB(a0)->work + 4);
+    ItemWork *p = GOBJ_SUB(a0)->work;
+
+    return p->kind;
 }
 
 int GetCharHeldItem(char *a0)
@@ -866,12 +868,16 @@ int GetCharHeldItem(char *a0)
 
 int IsItemHoldable(GObj *a0)
 {
-    return *(int *)((char *)GOBJ_SUB(a0)->work) == 0;
+    ItemWork *p = GOBJ_SUB(a0)->work;
+
+    return p->dead == 0;
 }
 
 int IsBombExplode(GObj *a0)
 {
-    return *(int *)((char *)GOBJ_SUB(a0)->work + 0x48) == 2;
+    ItemWork *p = GOBJ_SUB(a0)->work;
+
+    return p->fuse.state == 2;
 }
 
 void *GetBombTorchGObj(GObj *a0)
@@ -887,11 +893,11 @@ void *GetBombTorchGObj(GObj *a0)
    slot (matched above), but the compiler inlines it into the four Revive
    walkers.  Delete it and mark the real definition `inline` once this TU is
    C-complete. */
-static inline int CheckCarryableItemInline(char *a0)
+static inline int CheckCarryableItemInline(GObj *a0)
 {
     int r = 0;
-    ItemWork *p = (ItemWork *)(char *)GOBJ_SUB(a0)->work;
-    if (*(int *)(a0 + 0x16C) != 0) {
+    ItemWork *p = GOBJ_SUB(a0)->work;
+    if (a0->active != 0) {
         if (*(long long *)&p->released == 0) {
             if (p->fuse.state < 2) {
                 r = 1;
@@ -907,7 +913,7 @@ int ReviveAllCarryableItems(void)
     for (g = isysGObjSearchFromObjKindID_begin(19); g != 0;
          g = isysGObjSearchFromObjKindID_next(g)) {
         if (CheckCarryableItemInline(g)) {
-            ItemWork *p = (ItemWork *)(char *)GOBJ_SUB(g)->work;
+            ItemWork *p = (ItemWork *)GOBJ_SUB(g)->work;
             UnlinkParentOfDObj(g);
             p->released = 1;
             p->sleep = 0;
@@ -927,7 +933,7 @@ int ReviveCarryableItemsWithBoundary(void *center, float radius)
         GetRootPosition(pos, g);
         if (distance_squared(pos, center) < r2) {
             if (CheckCarryableItemInline(g)) {
-                ItemWork *p = (ItemWork *)(char *)GOBJ_SUB(g)->work;
+                ItemWork *p = (ItemWork *)GOBJ_SUB(g)->work;
                 UnlinkParentOfDObj(g);
                 p->released = 1;
                 p->sleep = 0;
@@ -939,29 +945,31 @@ int ReviveCarryableItemsWithBoundary(void *center, float radius)
 
 int ReviveAllCarryableItemsWithRandomVelocity(float up, float horz)
 {
-    char *g;
+    GObj *g;
 
     for (g = isysGObjSearchFromObjKindID_begin(19); g != 0;
          g = isysGObjSearchFromObjKindID_next(g)) {
         short ang = random_unit() * 65536.0f;
 
         if (CheckCarryableItemInline(g)) {
-            ItemWork *p = (ItemWork *)(char *)GOBJ_SUB(g)->work;
+            ItemWork *p = (ItemWork *)GOBJ_SUB(g)->work;
             UnlinkParentOfDObj(g);
             p->released = 1;
             p->sleep = 0;
         }
-        *(float *)((char *)*(int *)(g + 0x15C) + 0x130) = horz * GetTableSin(ang);
-        *(float *)((char *)*(int *)(g + 0x15C) + 0x134) = up * random_unit();
-        *(float *)((char *)*(int *)(g + 0x15C) + 0x138) = horz * GetTableCos(ang);
+        *(float *)((char *)*(int *)&g->dobj + 0x130) = horz * GetTableSin(ang);
+        *(float *)((char *)*(int *)&g->dobj + 0x134) = up * random_unit();
+        *(float *)((char *)*(int *)&g->dobj + 0x138) = horz * GetTableCos(ang);
     }
     return 1;
 }
 
-int CheckItemDead(char *a0)
+int CheckItemDead(GObj *a0)
 {
     int r = 0;
-    if (*(int *)((char *)GOBJ_SUB(a0)->work) == 1 || *(int *)(a0 + 0x16C) == 0) {
+    ItemWork *p = GOBJ_SUB(a0)->work;
+
+    if (p->dead == 1 || a0->active == 0) {
         r = 1;
     }
     return r;
@@ -977,7 +985,7 @@ void StopItemExplodeAnimationAll(void)
     GObj *g;
     for (g = isysGObjSearchFromObjKindID_begin(19); g != 0;
          g = isysGObjSearchFromObjKindID_next(g)) {
-        ItemWork *p = (ItemWork *)(char *)GOBJ_SUB(g)->work;
+        ItemWork *p = (ItemWork *)GOBJ_SUB(g)->work;
         if (IsItemKindBomb(g)) {
             if (p->fuse.state == 3) {
                 if (stage_DispBgAnimation(&p->fuse.anim) == 0) {
@@ -1009,7 +1017,7 @@ int ReviveAllCarryableItemsWithNonSleepFrame(int nonSleepFrame)
     for (g = isysGObjSearchFromObjKindID_begin(19); g != 0;
          g = isysGObjSearchFromObjKindID_next(g)) {
         if (CheckCarryableItemInline(g)) {
-            ItemWork *p = (ItemWork *)(char *)GOBJ_SUB(g)->work;
+            ItemWork *p = (ItemWork *)GOBJ_SUB(g)->work;
             UnlinkParentOfDObj(g);
             p->released = 1;
             p->sleep = nonSleepFrame;

@@ -24,7 +24,7 @@ char *CheckTorchChainReaction(struct GObj *a0, float dist);
 void SetTorchLife(struct GObj *a0, int a1, int a2);
 void SetTorchChainReactionFlag(struct GObj *a0, int a1);
 void UpdateRealTimeGeometryValue(struct GObj *a0);
-void LightTorchOff(char *gobj);
+void LightTorchOff(struct GObj *gobj);
 void LightTorchOn(struct GObj *gobj);
 
 #endif /* TORCH_H */

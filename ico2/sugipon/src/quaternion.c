@@ -86,8 +86,10 @@ void SetIdentityQuaternion(void *a0)
 /* the {1, 1, 1, sqrt(2)} multiplier GetMatrixFromQuaternion feeds $vf12 */
 static float quatToMatrixScale[4] = {1.0f, 1.0f, 1.0f, 1.41421356f};
 
-void GetMatrixFromQuaternion(float *a0, void *a1)
+void GetMatrixFromQuaternion(void *mtx, void *a1)
 {
+    float *m = mtx;
+
     __asm__ __volatile__(".set noreorder\n"
                          "lqc2 $vf11, 0x0($5)\n"
                          "lqc2 $vf12, 0x0(%0)\n"
@@ -121,7 +123,7 @@ void GetMatrixFromQuaternion(float *a0, void *a1)
                          :
                          : "r"(quatToMatrixScale)
                          : "memory");
-    CopyVector(a0 + 12, ZeroPoint);
+    CopyVector(m + 12, ZeroPoint);
 }
 
 /* the file's `nxt` permutation table */
@@ -428,8 +430,10 @@ inline void GetMatrixFromQuaternionRotElem(void *a0, void *a1)
                          : "memory");
 }
 
-inline void GetMatrixFromQuaternionPos(float *a0, void *a1, void *a2)
+inline void GetMatrixFromQuaternionPos(void *mtx, void *a1, void *a2)
 {
+    float *m = mtx;
+
     __asm__ __volatile__(".set noreorder\n"
                          "lqc2 $vf11, 0x0(%2)\n"
                          "lqc2 $vf12, 0x0(%0)\n"
@@ -461,10 +465,10 @@ inline void GetMatrixFromQuaternionPos(float *a0, void *a1, void *a2)
                          "sqc2 $vf16, 0x20(%1)\n"
                          ".set reorder\n"
                          :
-                         : "r"(quatToMatrixScale), "r"(a0), "r"(a1)
+                         : "r"(quatToMatrixScale), "r"(m), "r"(a1)
                          : "memory");
-    CopyVector(a0 + 12, a2);
-    a0[15] = 1.0f;
+    CopyVector(m + 12, a2);
+    m[15] = 1.0f;
 }
 
 inline void MultiMatrixByQuaternion(void *src)

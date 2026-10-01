@@ -27,11 +27,11 @@ inline int ResetMotionProgramInterpInfo(GObj *a0, int a1)
  * _getFinalMatrix.  The first gives a point relative to the root placed at
  * the matrix's translation, the second the same vector in the current
  * matrix's local axes. */
-static inline void getRootRelativePos(float *out, int mtx, float *pos)
+static inline void getRootRelativePos(float *out, sceVu0FVECTOR *mtx, float *pos)
 {
     float w[4];
 
-    AddVectorXYZ(w, (void *)(mtx + 0x30), skelRoot->pos);
+    AddVectorXYZ(w, mtx[3], skelRoot->pos);
     SubVectorXYZ(out, pos, w);
     out[3] = 0.0f;
 }
@@ -42,9 +42,8 @@ static inline void getLocalTargetDir(float *out, float *pos)
 
     getRootRelativePos(tmp, MatrixDrive_GetMatrix(), pos);
     MatrixDrive_PushMatrixWithNoCopy();
-    MatrixDrive_SetTransposeMatrix((void *)MatrixDrive_GetMatrix(),
-                                   (int)MatrixDrive_GetLastMatrix());
-    sceVu0ApplyMatrix((int *)out, MatrixDrive_GetMatrix(), (char *)tmp);
+    MatrixDrive_SetTransposeMatrix(MatrixDrive_GetMatrix(), MatrixDrive_GetLastMatrix());
+    sceVu0ApplyMatrix(out, MatrixDrive_GetMatrix(), tmp);
     MatrixDrive_PopMatrix();
 }
 
@@ -215,7 +214,7 @@ static inline short limitInterpAngle(MotLimAng *info, short ang)
     return 0;
 }
 
-int avoidReverseInterpOnCurrentMatrix(char *q, MotLimAng *info, void *out)
+int avoidReverseInterpOnCurrentMatrix(float *q, MotLimAng *info, void *out)
 {
     float mtx[16];
     Vec16 up;
@@ -259,7 +258,7 @@ static inline short classifyInterpAngle(MotLimAng *info, short ang, float k)
     return 0;
 }
 
-void avoidReverseInterpOnCurrentMatrixWithLimit(char *q, MotLimAng *info, void *outA, void *outB,
+void avoidReverseInterpOnCurrentMatrixWithLimit(float *q, MotLimAng *info, void *outA, void *outB,
                                                 float k)
 {
     float mtx[16];
@@ -363,8 +362,7 @@ void _getFinalMatrix(int id)
 
     if (*(int *)(node + 0x38) != -1) {
         sceVu0ScaleVectorXYZ(v, node + 0x10, skelScale);
-        sceVu0ApplyMatrix((int *)(MatrixDrive_GetMatrix() + 0x30), (int)MatrixDrive_GetLastMatrix(),
-                          (char *)v);
+        sceVu0ApplyMatrix(MatrixDrive_GetMatrix() + 0x30, MatrixDrive_GetLastMatrix(), v);
     } else {
         ikRotZ = ikRotY = ikBend0 = ikBend1 = 0;
     }
@@ -972,7 +970,7 @@ void _getFinalMatrix(int id)
             float d2;
             float aa;
             float bb;
-            int m;
+            float *m;
 
             GET_NODE_ROT(q, dq);
             flag = 0;
@@ -1006,7 +1004,7 @@ void _getFinalMatrix(int id)
             dd = d * d;
             m = MatrixDrive_GetMatrix();
             sceVu0TransposeMatrix(m, m);
-            sceVu0ApplyMatrix((int *)p, m, (char *)p);
+            sceVu0ApplyMatrix(p, m, p);
             sceVu0Normalize(p, p);
             ikRotZ = asinf(p[1]) * 10430.378f;
             ikRotY = -asinf(p[2]) * 10430.378f;
@@ -1146,7 +1144,7 @@ static inline void getFinalMatrixCore(int id)
 
 void getFinalMatrix(int id)
 {
-    char v[0x10];
+    float v[4];
 
     MatrixDrive_PushMatrix();
     _ApplyMatrix(v, MatrixDrive_GetMatrix(), ZUnitVector);
@@ -1200,7 +1198,7 @@ void _calcNaturalGeometry(int a0)
 {
     char *elemA = skelNode + a0 * 0x40;
     char *elemB = naturalMotion + a0 * 0x20;
-    int x;
+    float *x;
     if (*(int *)(elemA + 0x38) != -1) {
         _ScaleVectorXYZ(naturalTrans, elemA + 0x10, skelScale);
         GetMatrixFromQuaternionPos(naturalMatrix, elemB + 0x10, naturalTrans);
@@ -1208,7 +1206,7 @@ void _calcNaturalGeometry(int a0)
         GetMatrixFromQuaternion(naturalMatrix, elemB + 0x10);
     }
     x = MatrixDrive_GetMatrix();
-    _MulMatrix((void *)x, MatrixDrive_GetLastMatrix(), naturalMatrix);
+    _MulMatrix(x, MatrixDrive_GetLastMatrix(), naturalMatrix);
 }
 
 static inline void pursueNaturalGeometry(int id)
@@ -1217,12 +1215,12 @@ static inline void pursueNaturalGeometry(int id)
     int child = *(int *)(e + 0x30);
     int next = *(int *)(e + 0x34);
     char *o;
-    int m;
+    float *m;
     MatrixDrive_PushMatrixWithNoCopy();
     _calcNaturalGeometry(id);
     o = naturalNodePos + id * 0x10;
     m = MatrixDrive_GetMatrix();
-    CopyVector((void *)o, (char *)m + 0x30);
+    CopyVector(o, m + 12);
     if (child != -1) {
         pursueNaturalGeometry(child);
     }

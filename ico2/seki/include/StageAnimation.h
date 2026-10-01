@@ -44,7 +44,7 @@ void stage_SetLoopFlag(int key, int a1);
 void stage_SetFrameStep(int target, int val);
 void stage_SetParentOfGObj(int a0, void *a1);
 void stage_SetParentOfGObjWithLocalRotationFlag(int a0, void *a1, int a2);
-void stage_SetLocalizeGeometry(int key, int arg1, int arg2);
+void stage_SetLocalizeGeometry(int key, float *pos, float *rot);
 void stage_KillPlayBgAnimationIfOverMaxCount(int a0, int a1);
 int stage_CheckAnimationFrameIn(int a0, int a1, int a2);
 void stage_ApplyData(char *name, char *data);

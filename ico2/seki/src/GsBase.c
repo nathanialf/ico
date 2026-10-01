@@ -1492,14 +1492,14 @@ inline int gsb_SaveStageSettings(void)
    a float, its range, its default and its step, and the callback to run once
    the value has moved. */
 typedef struct GsbToolItem {
-    char *name;   /* 0x00 */
-    void *val;    /* 0x04 */
-    int isFloat;  /* 0x08 */
-    float min;    /* 0x0C */
-    float max;    /* 0x10 */
-    float def;    /* 0x14 */
-    float step;   /* 0x18 */
-    void (*fn)(); /* 0x1C */
+    char *name;  /* 0x00 */
+    void *val;   /* 0x04 */
+    int isFloat; /* 0x08 */
+    float min;   /* 0x0C */
+    float max;   /* 0x10 */
+    float def;   /* 0x14 */
+    float step;  /* 0x18 */
+    int (*fn)(); /* 0x1C */
 } GsbToolItem;
 
 /* the four pages of seven rows, one page per render target, each row naming

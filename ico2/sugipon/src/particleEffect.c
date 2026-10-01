@@ -139,10 +139,10 @@ static inline int searchFreeParticleEffect(void)
     return -1;
 }
 
-void setParticleEffectGeometry(int a0, int a1, int a2)
+void setParticleEffectGeometry(PEGeo *geo, void *pos, void *quat)
 {
-    CopyVector(a0, a1);
-    CopyQuaternion(a0 + 0x10, a2);
+    CopyVector(geo->pos, pos);
+    CopyQuaternion(geo->quat, quat);
 }
 
 typedef struct PEPartRec {
@@ -308,7 +308,7 @@ static inline void peSetVtx(PEVtx *dst, PEPartRec *pt)
    attribution (287 self->pkg, 289, 291, 292, 293, 295, 296, 299, 300, 303),
    not the order the ROM issues them in: gcc 2.9 carries each insn's line
    note through scheduling (haifa-sched.c restore_line_notes). */
-int setParticleEffect(PEGeo *self, PEPackage *pkg, int part)
+int setParticleEffect(PEGeo *self, PEPackage *pkg, struct IosMemPart *part)
 {
     float m[16];
     PEPartRec *p;
@@ -332,8 +332,7 @@ int setParticleEffect(PEGeo *self, PEPackage *pkg, int part)
     self->proc = 0;
     self->f68 = 0;
 
-    self->prim =
-        prim_InitParticleByPartition(n, 1.0f, 0.25f, 0.25f, 1, "enemy_tex01", 1, (void *)part);
+    self->prim = prim_InitParticleByPartition(n, 1.0f, 0.25f, 0.25f, 1, "enemy_tex01", 1, part);
     if (self->prim == 0)
         return 0;
     self->parts =
@@ -343,8 +342,8 @@ int setParticleEffect(PEGeo *self, PEPackage *pkg, int part)
         return 0;
     }
     p = self->parts;
-    d0 = (PEVtx *)self->prim->f190;
-    d1 = (PEVtx *)self->prim->f194;
+    d0 = (PEVtx *)self->prim->vtx;
+    d1 = (PEVtx *)self->prim->vtxNext;
     GetMatrixFromQuaternionPos((char *)m, self->quat, self->pos);
     MatrixDrive_PushMatrix();
     for (i = 0; i < self->n; i++) {
@@ -440,7 +439,7 @@ int execParticleEffect(void *a0)
     float next;
 
     self = a0;
-    d0 = (PEVtx *)self->prim->f190;
+    d0 = (PEVtx *)self->prim->vtx;
     flags = 0;
     if (particleEffectOffScreen(self)) {
         return self->pkg->mode == 1;
@@ -461,8 +460,8 @@ int execParticleEffect(void *a0)
     total = (float)self->n;
     last = self->emitted;
     if (last < total) {
-        v0 = (PEVtx *)self->prim->f190;
-        v1 = (PEVtx *)self->prim->f194;
+        v0 = (PEVtx *)self->prim->vtx;
+        v1 = (PEVtx *)self->prim->vtxNext;
         base = self->parts;
         next = last + self->pkg->unk_4C;
         n = (int)next;
@@ -567,7 +566,7 @@ void dispParticleEffect(PEGeo *geo)
     prim_DispParticle(geo->prim, matrixptr + 0x100);
 }
 
-int SetParticleEffectByPartition(int no, PEVector *pos, PEQuaternion *quat, int part)
+int SetParticleEffectByPartition(int no, PEVector *pos, PEQuaternion *quat, struct IosMemPart *part)
 {
     int id;
 
@@ -583,7 +582,7 @@ int SetParticleEffectByPartition(int no, PEVector *pos, PEQuaternion *quat, int 
     particleEffects[id].sensPos = 0;
     particleEffects[id].sensQuat = 0;
     if (particleEffects[id].geo != 0) {
-        setParticleEffectGeometry((int)particleEffects[id].geo, (int)pos, (int)quat);
+        setParticleEffectGeometry(particleEffects[id].geo, pos, quat);
         if (setParticleEffect(particleEffects[id].geo,
                               (PEPackage *)((char *)particleParams + no * 160), part) == 0) {
             iosFree(particleEffects[id].geo);
@@ -609,14 +608,14 @@ static inline void deleteParticleEffectGeo(int no)
     particleEffects[no].geo = 0;
 }
 
-void SetParticleEffectGeometry(int a0, int a1, int a2)
+void SetParticleEffectGeometry(int a0, void *a1, void *a2)
 {
     if (a0 >= 0) {
         if (particleEffects[a0].used == 0) {
             debug_StdPrintfDummy(
                 "\033[36mError!!! Set geometry for release type particle.\033[m\n");
         } else {
-            setParticleEffectGeometry((int)particleEffects[a0].geo, a1, a2);
+            setParticleEffectGeometry(particleEffects[a0].geo, a1, a2);
         }
     }
 }
@@ -657,7 +656,7 @@ static inline void updateParticleVectors(int no)
     int i;
 
     g = particleEffects[no].geo;
-    d = (PEVtx *)g->prim->f190;
+    d = (PEVtx *)g->prim->vtx;
     s = g->parts;
     for (i = 0; i < g->n; i++) {
         setParticleVector(d, s);
@@ -678,8 +677,8 @@ void ExecParticleEffect(int no)
     }
     if (particleEffects[no].geoCtrl != 0) {
         if (particleEffects[no].sensing != 0) {
-            SetParticleEffectGeometry(no, (int)particleEffects[no].sensPos,
-                                      (int)particleEffects[no].sensQuat);
+            SetParticleEffectGeometry(no, particleEffects[no].sensPos,
+                                      particleEffects[no].sensQuat);
         }
         if (execParticleEffect(particleEffects[no].geo) == 0) {
             deleteParticleEffectGeo(no);
@@ -701,7 +700,7 @@ void ResetParticleEffectPackages(int *pkg)
 {
     PEVector pos;
     PEQuaternion quat;
-    int part;
+    struct IosMemPart *part;
     int i;
 
     part = ios_partition_oomori;
@@ -713,7 +712,7 @@ void ResetParticleEffectPackages(int *pkg)
             particleEffects[i].geo =
                 (PEGeo *)iosMallocDebugNoAssert(part, sizeof(PEGeo), __FILE__, 663);
             particleEffects[i].used = 1;
-            setParticleEffectGeometry((int)particleEffects[i].geo, (int)&pos, (int)&quat);
+            setParticleEffectGeometry(particleEffects[i].geo, &pos, &quat);
             setParticleEffect(particleEffects[i].geo, (PEPackage *)pkg, part);
         }
     }
@@ -816,8 +815,9 @@ void SetParticleEffectPauseFlag(int a0, int a1)
     particleEffects[a0].pause = a1;
 }
 
-/* kept local: int (int, PEVector *, PEQuaternion *, int) here, int (int, float *, void *, int) in particleEffect.h */
-extern int SetParticleEffectByPartition(int no, PEVector *pos, PEQuaternion *quat, int part);
+/* kept local: PEVector * and PEQuaternion * here, void * in particleEffect.h */
+extern int SetParticleEffectByPartition(int no, PEVector *pos, PEQuaternion *quat,
+                                        struct IosMemPart *part);
 
 int SetParticleEffect(int no, PEVector *pos, PEQuaternion *quat)
 {

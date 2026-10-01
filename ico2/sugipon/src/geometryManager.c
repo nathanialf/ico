@@ -407,7 +407,7 @@ static int charGObjKinds[5] = {1, 2, 4, 47, -1};
    names no symbol in the run; its geometryManager.o .bss size 0x100 fixes the
    length, and matrixDrive's 0x1000 and quaternion's 0x400 tile the rest of the
    region exactly).  The live character objects the cylinder check walks. */
-static int charGObjList[64];
+static GObj *charGObjList[64];
 
 /* the TU's .sdata word after the two assert literals (MAIN.MAP names nothing
    in the run): the number of entries in charGObjList */
@@ -437,7 +437,7 @@ void MakeCharGObjList(void)
     charGObjCount = 0;
     while (o != 0) {
         if (isCharGObj(o) != 0) {
-            charGObjList[charGObjCount++] = (int)o;
+            charGObjList[charGObjCount++] = o;
             if (charGObjCount >= 0x41) {
                 debug_assertMessage("src/geometryManager.c", 558,
                                     "TOO MANY CHARACTERS EXIST ON THIS STAGE(>64)\n");
@@ -715,7 +715,7 @@ static __inline__ int CylinderCollisionWithControlDynamics_i(GObj *self, int gro
     return hit;
 }
 
-int CylinderCollision(char *self, int group, float r, float h, float s)
+int CylinderCollision(GObj *self, int group, float r, float h, float s)
 {
     return CylinderCollisionWithControlDynamics_i(self, group, 1, r, h, s);
 }
@@ -765,8 +765,9 @@ void GetRootMatrixByDObj(float *m, Sub15C *src)
     m[13] += p[0x30];
 }
 
-void GetRootMatrix(float *m, GObj *obj)
+void GetRootMatrix(void *mtx, GObj *obj)
 {
+    float *m = mtx;
     Sub15C *src = obj->dobj;
     float *p = (float *)((char *)src + 0xA0);
     GetMatrixFromQuaternionPos(m, (char *)src + 0xD0, p);
@@ -779,8 +780,9 @@ void GetRootMatrix(float *m, GObj *obj)
     m[13] += p[0x30];
 }
 
-void GetRootPositionByDObj(float *pos, Sub15C *src)
+void GetRootPositionByDObj(void *dst, Sub15C *src)
 {
+    float *pos = dst;
     float *p = (float *)((char *)src + 0xA0);
     float f0;
     GObj *g = *(GObj **)src;
@@ -878,8 +880,9 @@ void SetRootPosition(GObj *obj, void *pos)
     }
 }
 
-void GetRootPosition(float *pos, GObj *obj)
+void GetRootPosition(void *dst, GObj *obj)
 {
+    float *pos = dst;
     Sub15C *src = obj->dobj;
     float *p = (float *)((char *)src + 0xA0);
     float f0;
@@ -1016,7 +1019,7 @@ float GetProjectionOfPlaneWithKeepAway(void *a0, void *a1, void *a2, float f)
     return dot;
 }
 
-int *GetCharGObjList(void)
+GObj **GetCharGObjList(void)
 {
     return charGObjList;
 }

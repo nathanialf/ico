@@ -26,7 +26,10 @@ int bga_CheckSdfCameraFrameIn(char *p, int in, int out);
 void bga_DispLightning(void);
 int bga_InitData(char *data);
 void bga_ResetAnimation(void);
-void bga_SetCamFrame(char *p, int frame, int mode);
+/* unprototyped, as bga_SetFrame: stage_SetAnimation passes a fourth word
+   (the ROM loads $7 at the call) that the three-parameter definition does not
+   read */
+void bga_SetCamFrame();
 void bga_SetCameraForceOff(void);
 void bga_SetFrame();
 void bga_SetUniqAnimationFlag(int val);

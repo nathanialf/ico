@@ -30,13 +30,13 @@ Fan2D *prim_InitFan2D(int n, float r, float *pos, unsigned int cc, unsigned int 
     q = f->buf;
 
     f->n = n;
-    f->f04 = 0;
+    f->blend = 0;
     q->cr = cc >> 24;
     q->cg = (cc >> 16) & 0xFF;
     q->cb = (cc >> 8) & 0xFF;
     q->ca = cc & 0xFF;
     if ((cc & 0xFF) != 128) {
-        f->f04 = 1;
+        f->blend = 1;
     }
     q->x = pos[0] + center_X;
     q->y = pos[1] + center_Y;
@@ -57,7 +57,7 @@ Fan2D *prim_InitFan2D(int n, float r, float *pos, unsigned int cc, unsigned int 
         q->cb = (rc >> 8) & 0xFF;
         q->ca = rc & 0xFF;
         if ((rc & 0xFF) != 128) {
-            f->f04 = 1;
+            f->blend = 1;
         }
         q++;
     }
@@ -161,12 +161,12 @@ void prim_DispFan2D(Fan2D *f, int mode)
         ((PrimPkWord *)(p + 0x18))->d = 0xE;
         d->ptr.c = p + 0x20;
         if (mode == 0) {
-            ((PrimPkWord *)(p + 0x20))->d = ((long long)f->f04 << 6) | 0x10D;
+            ((PrimPkWord *)(p + 0x20))->d = ((long long)f->blend << 6) | 0x10D;
             d->ptr.c = p + 0x28;
             ((PrimPkWord *)(p + 0x28))->d = 0;
             d->ptr.c = p + 0x30;
         } else {
-            ((PrimPkWord *)(p + 0x20))->d = ((long long)f->f04 << 6) | 0x10A;
+            ((PrimPkWord *)(p + 0x20))->d = ((long long)f->blend << 6) | 0x10A;
             d->ptr.c = p + 0x28;
             ((PrimPkWord *)(p + 0x28))->d = 0;
             d->ptr.c = p + 0x30;
@@ -264,10 +264,10 @@ void prim_makePacketMesh3D(Mesh3D *m, void *pkt, int uv)
         c.w = 127.0f;
     }
     _SetCurrentMatrix(m->mtx);
-    for (i = 0; i < m->f54; i++) {
-        int w = m->f50;
-        int n = w * (m->f58 + 2) + 2;
-        long long reg = m->f60;
+    for (i = 0; i < m->strips; i++) {
+        int w = m->stripLen;
+        int n = w * (m->lit + 2) + 2;
+        long long reg = m->prim;
 
         if (n >= 253) {
             debug_StdPrintfDummy("too large mesh packet. %d\n", w);
@@ -283,7 +283,7 @@ void prim_makePacketMesh3D(Mesh3D *m, void *pkt, int uv)
         p += 0x20;
         *(Qw128 *)p = *(Qw128 *)&c;
         p += 0x10;
-        for (k = 0; k < m->f50; k++) {
+        for (k = 0; k < m->stripLen; k++) {
             *(Qw128 *)p = *(Qw128 *)&nv;
             p += 0x10;
             if (uv != 0) {
@@ -315,7 +315,7 @@ void prim_makePacketMesh3D(Mesh3D *m, void *pkt, int uv)
 
 extern void prim_makePacketMesh3D(Mesh3D *m, void *pkt, int n);
 
-Mesh3D *prim_InitMesh3D(int nx, int ny, int rot, long long col, unsigned int col2, int f58)
+Mesh3D *prim_InitMesh3D(int nx, int ny, int rot, long long col, unsigned int col2, int lit)
 {
     Mesh3D *m;
     int i;
@@ -337,24 +337,24 @@ Mesh3D *prim_InitMesh3D(int nx, int ny, int rot, long long col, unsigned int col
         m->st[i].x = m->st[i].y = m->st[i].w = 0.0f;
         m->st[i].z = 1.0f;
     }
-    m->f50 = m->nx * 2;
-    m->f54 = m->ny - 1;
+    m->stripLen = m->nx * 2;
+    m->strips = m->ny - 1;
 
-    m->f58 = f58;
+    m->lit = lit;
 
-    m->f78 = m->f54 * (m->f50 * (f58 + 2) + 4);
+    m->qwc = m->strips * (m->stripLen * (lit + 2) + 4);
 
-    m->bufs[0] = iosMallocDebug(ios_partition_seki, m->f78 * 16, "src/Primitive.c", 597);
-    m->bufs[1] = iosMallocDebug(ios_partition_seki, m->f78 * 16, "src/Primitive.c", 598);
+    m->bufs[0] = iosMallocDebug(ios_partition_seki, m->qwc * 16, "src/Primitive.c", 597);
+    m->bufs[1] = iosMallocDebug(ios_partition_seki, m->qwc * 16, "src/Primitive.c", 598);
 
     _InitCurrentMatrix();
     _RotCurrentMatrixZ((short)((float)(rot % 4) * 3.1415927f * 0.5f * 10430.3779f));
     _GetCurrentMatrix(m->mtx);
 
-    m->f60 = col;
+    m->prim = col;
     m->col = col2;
-    prim_makePacketMesh3D(m, m->bufs[0], m->f58);
-    prim_makePacketMesh3D(m, m->bufs[1], m->f58);
+    prim_makePacketMesh3D(m, m->bufs[0], m->lit);
+    prim_makePacketMesh3D(m, m->bufs[1], m->lit);
     return m;
 }
 
@@ -390,7 +390,7 @@ void prim_makeNormal(Mesh3D *m)
             x = j - 1;
             y = i;
             if (x < 0) {
-                if (m->f08 != 0) {
+                if (m->wrapX != 0) {
                     x = m->nx - 1;
                 }
             }
@@ -401,7 +401,7 @@ void prim_makeNormal(Mesh3D *m)
             x = j;
             y = i - 1;
             if (y < 0) {
-                if (m->f0C != 0) {
+                if (m->wrapY != 0) {
                     y = m->ny - 1;
                 }
             }
@@ -412,7 +412,7 @@ void prim_makeNormal(Mesh3D *m)
             x = j + 1;
             y = i;
             if (x >= m->nx) {
-                if (m->f08 != 0) {
+                if (m->wrapX != 0) {
                     x = 0;
                 }
             }
@@ -423,7 +423,7 @@ void prim_makeNormal(Mesh3D *m)
             x = j;
             y = i + 1;
             if (y >= m->ny) {
-                if (m->f0C != 0) {
+                if (m->wrapY != 0) {
                     y = 0;
                 }
             }
@@ -480,11 +480,11 @@ void prim_UpdateMesh3D(Mesh3D *m, int flags, int idx)
     int i;
     int j;
 
-    if (m->f58 != 0 && (flags & 4) != 0) {
+    if (m->lit != 0 && (flags & 4) != 0) {
         prim_makeNormal(m);
     }
     p = (Qw128 *)m->bufs[idx];
-    for (i = 0; i < m->f54; i++) {
+    for (i = 0; i < m->strips; i++) {
         p += 2;
         if (flags & 0x10) {
             Prim3DVec c = {(float)((m->col >> 24) & 0xFF), (float)((m->col >> 16) & 0xFF),
@@ -499,12 +499,12 @@ void prim_UpdateMesh3D(Mesh3D *m, int flags, int idx)
             *p = *(Qw128 *)&c;
         }
         p++;
-        for (j = 0; j < m->f50; j++) {
+        for (j = 0; j < m->stripLen; j++) {
             if (flags & 1) {
                 *p = *(Qw128 *)&m->pos[(i + (j & 1)) * m->nx + (j >> 1)];
             }
             p++;
-            if (m->f58 != 0) {
+            if (m->lit != 0) {
                 if (flags & 6) {
                     *p = *(Qw128 *)&m->nrm[(i + (j & 1)) * m->nx + (j >> 1)];
                 }
@@ -658,7 +658,7 @@ void prim_DispMesh3D(Mesh3D *m, void *la, void *lb, int tex)
     d->gif.c = 0;
     d->end.c = 0;
     setMatrix();
-    if (m->f58 != 0) {
+    if (m->lit != 0) {
         setLight();
     }
     if (tex == -1) {
@@ -677,8 +677,8 @@ void prim_DispMesh3D(Mesh3D *m, void *la, void *lb, int tex)
     gif_StartPacketPri(pri);
     gif_SetGsReg(0x4A, 0);
     gif_EndPacket();
-    mc_SetMicroCode(2, m->f58, 0, 1, pri);
-    dl_OpenDma(2, m->bufs[buffer_ID], m->f78);
+    mc_SetMicroCode(2, m->lit, 0, 1, pri);
+    dl_OpenDma(2, m->bufs[buffer_ID], m->qwc);
     dl_CloseDma();
 }
 
@@ -720,14 +720,14 @@ PrimParticle *prim_InitParticleByPartition(int num, float x, float y, float z, i
     p->buf[0].tail[1] = 0;
     p->buf[0].tail[2] = 0;
     p->buf[0].tail[3] = 0;
-    p->f140 = 10;
+    p->headQwc = 10;
     malloc_MemCpy(&p->buf[1], &p->buf[0], 160);
-    p->f144 = 0;
+    p->word144 = 0;
     p->num = num;
     p->x = x;
     p->y = y;
     p->z = z;
-    p->f158 = a1;
+    p->word158 = a1;
     sprintf(p->name, "%s", name);
     p->tex = tex_GetTextureNo(p->name);
     if (p->tex < 0 || p->tex >= tex_GetTextureNum()) {
@@ -735,24 +735,24 @@ PrimParticle *prim_InitParticleByPartition(int num, float x, float y, float z, i
         debug_assert("src/Primitive.c", 938);
         __assert("src/Primitive.c", 938, "FALSE");
     }
-    p->f184 = num * 32 + 128;
-    p->objs[0] = (char *)iosMallocDebugNoAssert(heap, p->f184, "src/Primitive.c", 944);
+    p->objSize = num * 32 + 128;
+    p->objs[0] = (char *)iosMallocDebugNoAssert(heap, p->objSize, "src/Primitive.c", 944);
     if (p->objs[0] == 0) {
         iosFree(p);
         return 0;
     }
-    p->objs[1] = (char *)iosMallocDebugNoAssert(heap, p->f184, "src/Primitive.c", 949);
+    p->objs[1] = (char *)iosMallocDebugNoAssert(heap, p->objSize, "src/Primitive.c", 949);
     if (p->objs[1] == 0) {
         iosFree(p->objs[0]);
         iosFree(p);
         return 0;
     }
     q = p->objs[0];
-    p->f184 = p->f184 >> 4;
+    p->objSize = p->objSize >> 4;
     *(int *)(q + 0x0) = 0;
     *(int *)(q + 0x4) = 0;
     *(int *)(q + 0x8) = 0;
-    *(int *)(q + 0xC) = ((p->f184 - 2) << 16) | 0x6C008000;
+    *(int *)(q + 0xC) = ((p->objSize - 2) << 16) | 0x6C008000;
     *(int *)(q + 0x10) = num;
     *(int *)(q + 0x14) = 0;
     *(int *)(q + 0x18) = 0;
@@ -772,10 +772,10 @@ PrimParticle *prim_InitParticleByPartition(int num, float x, float y, float z, i
     *(float *)(q + 0x64) = y;
     *(float *)(q + 0x68) = z;
     *(float *)(q + 0x6C) = 0.0f;
-    malloc_MemCpy(p->objs[1], p->objs[0], p->f184 * 16);
+    malloc_MemCpy(p->objs[1], p->objs[0], p->objSize * 16);
     p->cur = 0;
-    p->f190 = (int)(p->objs[0] + 0x70);
-    p->f194 = (int)(p->objs[1] + 0x70);
+    p->vtx = (int)(p->objs[0] + 0x70);
+    p->vtxNext = (int)(p->objs[1] + 0x70);
     return p;
 }
 
@@ -797,16 +797,16 @@ void prim_DispParticle(PrimParticle *p, void *mtx)
             _CopyMatrix(p->buf[p->cur].mtx, mtx);
             _CopyMatrix(p->buf[p->cur].lmtx, matrixptr + 0xC0);
             mc_TransMicroCode(5, 1 << pri);
-            dl_OpenDma(2, &p->buf[p->cur], p->f140);
+            dl_OpenDma(2, &p->buf[p->cur], p->headQwc);
             dl_CloseDma();
             mc_SetMicroCode(3, 0, 0, 0, pri);
-            dl_OpenDma(2, p->objs[p->cur], p->f184);
+            dl_OpenDma(2, p->objs[p->cur], p->objSize);
             dl_CloseDma();
             if (systemStatus[5] == 0) {
                 p->cur ^= 1;
             }
-            p->f190 = (int)(p->objs[p->cur] + 112);
-            p->f194 = (int)(p->objs[p->cur ? 0 : 1] + 112);
+            p->vtx = (int)(p->objs[p->cur] + 112);
+            p->vtxNext = (int)(p->objs[p->cur ? 0 : 1] + 112);
         }
     }
 }

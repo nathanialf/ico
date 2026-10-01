@@ -747,7 +747,7 @@ inline float _GetLengthXZ(void *a, void *b)
     VU0_NOREORDER_END();
 }
 
-inline void _CopyMatrix(void *dst, void *src)
+inline void _CopyMatrix(void *dst, const void *src)
 {
     QCOPY64_PARALLEL("$6", "$7", "$8", "$9");
 }

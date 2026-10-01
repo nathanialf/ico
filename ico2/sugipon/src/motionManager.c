@@ -171,8 +171,8 @@ static float skelScale = 1.0f; /* derived name */
 
 /* kept local: agrees with fieldCollision.h, which this TU does not include (InitialColInfo, InitialObjPointer differ) */
 extern void ClipWall(void *a0);
-/* kept local: float (int, int) here, float (float *, float *) in fieldCollision.h */
-extern float GetYProjectionOfPlane(int a0, int a1);
+/* kept local: agrees with fieldCollision.h, which this TU does not include (InitialColInfo, InitialObjPointer differ) */
+extern float GetYProjectionOfPlane(float *plane, float *pos);
 /* kept local: agrees with fieldCollision.h, which this TU does not include (InitialColInfo, InitialObjPointer differ) */
 extern void ClipWallFuchiHangWalkStop(void *a0);
 /* kept local: int (void *) here, int (int) in fieldCollision.h */
@@ -320,10 +320,10 @@ int checkActPointWithHeight(int kind, float h)
     return -1;
 }
 
-inline void GetWallVector(int a0, int a1)
+inline void GetWallVector(float *v, ClipBuf *w)
 {
-    CopyVector(a0, a1 + 0xA0);
-    *(int *)(a0 + 0xC) = 0;
+    CopyVector(v, &w->normal);
+    v[3] = 0.0f;
 }
 
 /* listing lines 203-209: inlined here and into _checkCliffAndWall, never emitted out of
@@ -453,7 +453,7 @@ void checkWallState(int flag)
     }
     if (p->wall.n != 0) {
         tmp = *p;
-        GetWallVector((int)wv, (int)p);
+        GetWallVector(wv, p);
         sceVu0ScaleVector(sv, wv, -200.0f);
         AddVectorXYZ(p->pt[1], p, sv);
         if (skelRoot->fieldWall != 0) {
@@ -555,7 +555,7 @@ void checkCliffState(int a0)
         float d;
         float dd;
 
-        GetWallVector((int)wv, (int)p);
+        GetWallVector(wv, p);
         sceVu0ScaleVector(sc, wv, 300.0f);
         AddVectorXYZ(p->pt[1], p, sc);
         ClipWallR(p);
@@ -726,7 +726,7 @@ void checkCliffAndWallStateOfLastPlane(void)
     _UnitMatrix(MatrixDrive_GetMatrix());
     {
         register float *p = skelRoot->pos;
-        float r = GetYProjectionOfPlane((int)&skelRoot->plane, (int)skelRoot->pos);
+        float r = GetYProjectionOfPlane(skelRoot->plane.f, skelRoot->pos);
         MatrixDrive_TransMatrix(p[0], r, skelRoot->pos[2]);
     }
     MultiMatrixByQuaternion(skelRoot->quat);
@@ -782,6 +782,9 @@ void dispLastNode(void)
 }
 
 #include "motMan_rootUpdate.c.inc"
+/* GifPacket.h is read here, after dispActNode: that function calls the gif
+   packet functions undeclared, as the ROM's argument setup shows (with
+   gif_SetAlpha's long long prototype in scope its registers change) */
 #include "GifPacket.h"
 #include "DObj.h"
 
@@ -1093,7 +1096,7 @@ void GetGeometryOfMotion(void *self, void *m0, void *m1, float *v, float r, char
     if (sh.obj != 0) {
         LinkParentOfDObj(self, &sh);
         if (GOBJ_SUB(sh.obj)->rideFunc != 0) {
-            (*(void (**)(ObjNode *, char *))(*(int *)(sh.obj + 0x15C) + 0x81C))(&sh, self);
+            (*(void (**)(ObjNode *, char *))(*(int *)&sh.obj->dobj + 0x81C))(&sh, self);
         }
     } else {
         MOWORK(self)->rootPosY = MOWORK(self)->rootPosY - MOWORK(self)->height;
@@ -1276,7 +1279,7 @@ static void getInitialMatrix(int obj, int idx)
  * SkelTestGeo below call this function with one argument, as ROM does. */
 void dispSkelton()
 {
-    int v;
+    float *v;
     gif_StartPacketPri(0xB);
     gif_SetAlpha(1, 5, 0x80);
     MatrixDrive_PushMatrix();

@@ -6,6 +6,7 @@
 #include "gobj_dl.h"
 #include "gobj_process.h"
 #include "Basic.h"
+#include "BgAnimation.h"
 #include "Light.h"
 #include "Matrix.h"
 #include "RegistPacket.h"
@@ -63,7 +64,7 @@ typedef struct AnimNode {
    stage_SetScale the k-loop test's own copy of it). */
 typedef struct {
     short kind[64];   /* 0x000 */
-    char *obj[64];    /* 0x080 */
+    GObj *obj[64];    /* 0x080 */
     int *data[64];    /* 0x180 */
     int *entry1;      /* 0x280 */
     char *entry2;     /* 0x284 */
@@ -92,11 +93,6 @@ typedef struct {
     float rot[4];      /* 0x30 */
 } BgaPlayNode;
 
-/* kept local: agrees with BgAnimation.h, which this TU does not include (bga_CalcAnimation, bga_CheckAnimationFinish differ) */
-extern void bga_ResetAnimation();
-/* kept local: agrees with BgAnimation.h, which this TU does not include (bga_CalcAnimation, bga_CheckAnimationFinish differ) */
-extern void bga_SetCameraForceOff();
-
 /* The TU's own .sbss and .bss, in ROM run order (names ours): the number of
    loaded animation records, the head of the play-node list, and the record
    table stage_Init fills, 87 records of 0x290 bytes (0xDEF0, the whole run
@@ -108,36 +104,10 @@ static int *bgaPlayList;
 static StageAnim stageAnimTable[87];
 
 extern void __assert(char *file, int line, char *expr);
-/* kept local: int (int) here, int (char *) in BgAnimation.h */
-extern int bga_CheckAnimationFinish(int a0);
-/* kept local: int (int) here, int (char *) in BgAnimation.h */
-extern int bga_CheckSdfCameraFinish(int a0);
-/* kept local: int (int, int, int) here, int (char *, int, int) in BgAnimation.h */
-extern int bga_CheckAnimationFrame(int a0, int a1, int a2);
-/* kept local: int (int, int, int) here, int (char *, int, int) in BgAnimation.h */
-extern int bga_CheckSdfCameraFrame(int a0, int a1, int a2);
-/* kept local: agrees with BgAnimation.h, which this TU does not include (bga_CalcAnimation, bga_CheckAnimationFinish differ) */
-extern void bga_CalcSdfCamera(char *p, int a1);
 extern char D_005F5E70[];
 extern char objLayout[];
 extern char D_002BC6E0[];
 extern char D_00602FA0[];
-/* kept local: agrees with BgAnimation.h, which this TU does not include (bga_CalcAnimation, bga_CheckAnimationFinish differ) */
-extern int bga_InitData(char *data);
-/* kept local: agrees with BgAnimation.h, which this TU does not include (bga_CalcAnimation, bga_CheckAnimationFinish differ) */
-extern void bga_SetFrame();
-/* kept local: agrees with BgAnimation.h, which this TU does not include (bga_CalcAnimation, bga_CheckAnimationFinish differ) */
-extern void bga_SetCamFrame();
-/* kept local: agrees with BgAnimation.h, which this TU does not include (bga_CalcAnimation, bga_CheckAnimationFinish differ) */
-extern void bga_SetUniqAnimationFlag(int val);
-/* kept local: void (void *, int, int) here, void (char *, int, int) in BgAnimation.h */
-extern void bga_CalcAnimation(void *a0, int a1, int a2);
-/* kept local: agrees with BgAnimation.h, which this TU does not include (bga_CalcAnimation, bga_CheckAnimationFinish differ) */
-extern void bga_DispLightning(void);
-/* kept local: int (int, int, int) here, int (char *, int, int) in BgAnimation.h */
-extern int bga_CheckAnimationFrameIn(int a0, int a1, int a2);
-/* kept local: int (int, int, int) here, int (char *, int, int) in BgAnimation.h */
-extern int bga_CheckSdfCameraFrameIn(int a0, int a1, int a2);
 
 /* The layout record a stage object is made with and handed to its init
    function: position, rotation, scale and a flag word (names ours). */
@@ -156,7 +126,7 @@ void stage_MakeGObj(int *dat, int no)
 {
     StageGObjInit init = {{0.0f, 0.0f, 0.0f, 1.0f}, {0.0f}, {1.0f, 1.0f, 1.0f, 1.0f}};
     int i;
-    char *g;
+    GObj *g;
     char *d;
     int w;
     int kind = dat[0];
@@ -169,24 +139,24 @@ void stage_MakeGObj(int *dat, int no)
             return;
         }
     }
-    g = (char *)isysGObjAdd(0, 0, 0);
+    g = isysGObjAdd(0, 0, 0);
     if (g == 0) {
         debug_StdPrintfDummy("stage_MakeGObj:can't alloc gobj %d\n", no);
         debug_assert(__FILE__, 541);
         __assert(__FILE__, 541, "0");
     }
     e->kind[e->flags.b.count] = kind;
-    *(int *)(g + 0x4) = 1;
-    *(int *)(g + 0x8) = 0;
+    g->labelType = 1;
+    g->labelId = 0;
     isysGObjKindTableAdd(g, aux);
     isysGObjProcAdd(g, 0, 1, 0x16);
     isysGObjProcAdd(g, 0, 1, 0x17);
     isysGObjProcAdd(g, 0, 1, 0x18);
     isysGObjLinkObjDL(g, 0, 0, 7, 0xFFFFFFFF);
-    *(int *)(g + 0x24) = 0;
+    *(int *)((char *)g + 0x24) = 0;
     e->obj[e->flags.b.count] = g;
     d = CSVSYSTEM_InitDObj(kind, &init);
-    *(int *)(g + 0x15C) = (int)d;
+    *(int *)&g->dobj = (int)d;
     *(int *)(d + 0x80) = 1;
     e->data[e->flags.b.count] = dat;
     w = (e->flags.i & ~0x3FF) | ((e->flags.b.count + 1) & 0x3FF);
@@ -250,11 +220,7 @@ typedef struct {
 } StgBgaSet;
 
 extern char objKindData[];
-/* kept local: agrees with BgAnimation.h, which this TU does not include (bga_CalcAnimation, bga_CheckAnimationFinish differ) */
-extern void bga_InitBGA(void);
-/* kept local: agrees with BgAnimation.h, which this TU does not include (bga_CalcAnimation, bga_CheckAnimationFinish differ) */
-extern void bga_ResetCamera(void);
-extern void bga_ApplyDObject(char *a0, char **a1, int a2, int a3);
+extern void bga_ApplyDObject(char *a0, GObj **a1, int a2, int a3);
 
 /* an animated object's DObj, its 0x15C word read through AnimWord */
 #define STG_SUB(o) ((Sub15C *)((AnimWord *)((char *)(o) + 0x15C))->i) /* derived name */
@@ -309,10 +275,10 @@ int stage_Init(void)
     char *rec;
     char *tbl2;
     char *obj;
-    char *g;
+    GObj *g;
     char *a;
     char *r;
-    int (*fn)(char *, StageGObjInit *);
+    int (*fn)(GObj *, StageGObjInit *);
     StageAnim *e;
 
     bga_InitBGA();
@@ -502,7 +468,7 @@ int stage_Init(void)
                 g = e->obj[k];
                 arg = stageGObjArg;
                 tbl2 = objKindData + *(int *)((char *)e->data[k] + 4) * 100;
-                fn = *(int (**)(char *, StageGObjInit *))(tbl2 + 0x58);
+                fn = *(int (**)(GObj *, StageGObjInit *))(tbl2 + 0x58);
                 if (fn != 0) {
                     STG_SUB(e->obj[k])->work = (void *)fn(g, &arg);
                 }
@@ -510,7 +476,7 @@ int stage_Init(void)
                 isysGObjProcAdd(g, *(int *)(tbl2 + 0x50), 1, 0x17);
                 isysGObjProcAdd(g, *(int *)(tbl2 + 0x4C), 1, 0x18);
                 isysGObjLinkObjDL(g, 0, 0, 7, 0xFFFFFFFF);
-                *(int *)(g + 0x16C) = 1;
+                g->active = 1;
                 STG_SUB(e->obj[k])->disp = 0;
             }
         }
@@ -559,7 +525,7 @@ void stage_SetAnimation(int key, int p1, int p2)
             }
             bga_SetFrame(e->entry2, p2, p1, e->entry1[0x50 / 4]);
             for (k = 0; k < ((e->flags.i << 22) >> 22); k++) {
-                *(int *)(*(char **)(e->obj[k] + 0x15C) + 0x74) = 1;
+                *(int *)(*(char **)&e->obj[k]->dobj + 0x74) = 1;
             }
             break;
         case 1:
@@ -578,8 +544,8 @@ void stage_SetAnimation(int key, int p1, int p2)
                 continue;
             }
             for (k = 0; k < ((e->flags.i << 22) >> 22); k++) {
-                if (*(char **)(e->obj[k] + 0x15C) != 0) {
-                    *(int *)(*(char **)(e->obj[k] + 0x15C) + 0x74) = 0;
+                if (*(char **)&e->obj[k]->dobj != 0) {
+                    *(int *)(*(char **)&e->obj[k]->dobj + 0x74) = 0;
                 }
             }
         }
@@ -917,7 +883,7 @@ inline void stage_SetParentOfGObjWithLocalRotationFlag(int a0, void *a1, int a2)
     }
 }
 
-inline void stage_SetLocalizeGeometry(int key, int arg1, int arg2)
+inline void stage_SetLocalizeGeometry(int key, float *pos, float *rot)
 {
     int count = *(volatile int *)&stageAnimCount;
     int i = 0;
@@ -927,14 +893,14 @@ inline void stage_SetLocalizeGeometry(int key, int arg1, int arg2)
     do {
         int *entry1 = e->entry1;
         if (key == entry1[0x58 / 4]) {
-            int *entry2;
+            char *entry2;
             char *target;
             entry2 = e->entry2;
-            target = *(char **)((char *)entry2 + 0x24);
-            _CopyVector(target, arg1);
+            target = *(char **)(entry2 + 0x24);
+            _CopyVector(target, pos);
             entry2 = e->entry2;
-            target = *(char **)((char *)entry2 + 0x24);
-            CopyQuaternion(target + 0x10, arg2);
+            target = *(char **)(entry2 + 0x24);
+            CopyQuaternion(target + 0x10, rot);
             count = *(volatile int *)&stageAnimCount;
         }
         i++;
@@ -1052,7 +1018,7 @@ float stage_PlayBgAnimationDissolve(int key, void *v, void *q, float t, float dv
         CopyQuaternion(*(char **)(e->entry2 + 0x24) + 0x10, q);
         bga_SetFrame(e->entry2, (int)r, 1, e->entry1[0x50 / 4]);
         for (k = 0; k < e->flags.b.count; k++) {
-            *(int *)(*(char **)(e->obj[k] + 0x15C) + 0x74) = 1;
+            *(int *)(*(char **)&e->obj[k]->dobj + 0x74) = 1;
         }
         if (systemStatus[0x14 / 4] != 0) {
             break;
@@ -1077,7 +1043,7 @@ float stage_PlayBgAnimationDissolve(int key, void *v, void *q, float t, float dv
         }
         stageAnimDebugHook();
         for (k = 0; k < e->flags.b.count; k++) {
-            Sub15C *d = ((GObj *)e->obj[k])->dobj;
+            Sub15C *d = e->obj[k]->dobj;
 
             for (m = 0; m < d->nodeNum; m++) {
                 d->nodes[m].alpha = dv;
@@ -1202,7 +1168,7 @@ static inline void stage_SetBgAnimationPlayNode(BgaPlayNode *node, int key)
         if (key == e->entry1[0x58 / 4]) {
             if ((e->flags.i >> 30) == 0) {
                 for (k = 0; k < e->flags.b.count; k++) {
-                    *(void **)(*(char **)(e->obj[k] + 0x15C) + 0x850) = node;
+                    *(void **)(*(char **)&e->obj[k]->dobj + 0x850) = node;
                 }
             }
         }
@@ -1294,5 +1260,5 @@ end:
 
 void stage_SetCameraForceOff(int a0, int a1, int a2, int a3)
 {
-    bga_SetCameraForceOff(a0, a1, a2, a3);
+    bga_SetCameraForceOff();
 }

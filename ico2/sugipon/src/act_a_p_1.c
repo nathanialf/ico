@@ -34,9 +34,9 @@ typedef struct AP1Vec {
 /* the two-letter tag GetAP1AIMode hands the debug display. */
 static char *ap1ModeTag[] = {"ST", "WA", "JM", "AT", "DE", "SL"};
 
-inline char *GetAP1AIMode(char *self)
+inline char *GetAP1AIMode(GObj *self)
 {
-    char *p = *(char **)(self + 0x164);
+    char *p = *(char **)&self->act;
 
     if (p == 0 || *(unsigned int *)(p + 0x34) >= 6) {
         return "--";
@@ -352,13 +352,13 @@ void subAP1BrainMain(volatile int self)
     *(int *)(p + 0x4C) = 0;
 
     while (1) {
-        boyObj = (char *)boyGObj;
-        GetRootPosition(&selfPos, (char *)self);
+        boyObj = boyGObj;
+        GetRootPosition(&selfPos, (GObj *)self);
         GetRootPosition(&boy, boyObj);
         boy.y -= GOBJ_SUB(boyObj)->height - 10.0f;
         boyDist = AP1GetDirection(&boyLocalDir, &boyDelta, &boy, &selfPos);
         boyPitch = AP1GetVerticalAngle(boyObj, &boyLocalDir);
-        AP1ToLocal((char *)self, &boyLocalDir);
+        AP1ToLocal((GObj *)self, &boyLocalDir);
         CopyVector(&boyLocalFlat, &boyLocalDir);
         boyLocalFlat.y = 0.0f;
         _NormalizeVector(&boyLocalFlat, &boyLocalFlat);
@@ -368,7 +368,7 @@ void subAP1BrainMain(volatile int self)
         boyDeltaFlat.y = 0.0f;
         boySafe = IsBoyStatus_NotDanger() == 0;
 
-        host = *(char **)(p + 0xA8);
+        host = *(GObj **)(p + 0xA8);
         if (host != 0) {
             AP1Vec dest;
 
@@ -401,7 +401,7 @@ void subAP1BrainMain(volatile int self)
         }
 
         lookDist = AP1GetDirection(&lookLocalDir, &lookDelta, &look, &selfPos);
-        AP1ToLocal((char *)self, &lookLocalDir);
+        AP1ToLocal((GObj *)self, &lookLocalDir);
         CopyVector(&lookLocalFlat, &lookLocalDir);
         lookLocalFlat.y = 0.0f;
         _NormalizeVector(&lookLocalFlat, &lookLocalFlat);
@@ -468,14 +468,14 @@ typedef struct AP1MailQueue {
  * 510-515, 517-527, 530-533 and 543-556, expanded into AP1BeforeFunc (and, for
  * the first, into SetAP1DeadStatus); never emitted out of line, so none has a
  * MAIN.MAP symbol and these four names are ours. */
-static inline void AP1SetMode(char *self, int mode)
+static inline void AP1SetMode(GObj *self, int mode)
 {
     typedef union {
         int i;
         long long ll;
     } U;
 
-    char *p = *(char **)(self + 0x164);
+    char *p = *(char **)&self->act;
 
     *(int *)(p + 0x34) = mode;
     ((U *)(p + 0x18))->ll &= ~(1LL << 32);
@@ -496,7 +496,7 @@ static inline void AP1DeadEffect(GObj *self)
     }
 }
 
-static inline void AP1DeadMode(char *self)
+static inline void AP1DeadMode(GObj *self)
 {
     if (GOBJ_ACT(self)->actMode != 4)
         AP1SetMode(self, 4);
@@ -518,26 +518,26 @@ static inline void AP1DeadEffectHit(GObj *self)
     }
 }
 
-static inline void AP1SetHold(char *self)
+static inline void AP1SetHold(GObj *self)
 {
     typedef union {
         int i;
         long long ll;
     } U;
 
-    char *p = *(char **)(self + 0x164);
+    char *p = *(char **)&self->act;
 
     ((U *)(p + 0x20))->ll |= 0x200000;
 }
 
-static inline void AP1ClrHold(char *self)
+static inline void AP1ClrHold(GObj *self)
 {
     typedef union {
         int i;
         long long ll;
     } U;
 
-    char *p = *(char **)(self + 0x164);
+    char *p = *(char **)&self->act;
 
     ((U *)(p + 0x20))->ll &= ~0x200000;
 }
@@ -625,19 +625,19 @@ void actAP1Start(GObj *g)
     actCreateSubThread(subAP1Control, 21);
 }
 
-int IsActCharDead(int *a0)
+int IsActCharDead(GObj *a0)
 {
-    int *v1 = (int *)a0[0x164 / 4];
+    int *v1 = (int *)a0->act;
     long x = *(unsigned int *)((char *)v1 + 0x1C);
     return (((int)x) & 1) ^ 1;
 }
 
-void SetAP1HostGObj(char *self, int val)
+void SetAP1HostGObj(GObj *self, int val)
 {
     GOBJ_ACT(self)->lookTarget = val;
 }
 
-void SetAP1PriorLevel(char *self, int val)
+void SetAP1PriorLevel(GObj *self, int val)
 {
     GOBJ_ACT(self)->lookPri = val;
 }

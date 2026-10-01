@@ -32,7 +32,7 @@ void MatrixDrive_RotMatrixX(short a0);
 void MatrixDrive_RotMatrixY(short a0);
 void MatrixDrive_RotMatrixZ(short a0);
 void MatrixDrive_ScaleMatrix(float x, float y, float z);
-void MatrixDrive_SetTransposeMatrix(float *dst, float *src);
+void MatrixDrive_SetTransposeMatrix(void *dst, void *src);
 void MatrixDrive_TransMatrix(float x, float y, float z);
 void MatrixDrive_TransMatrixV(void *a0);
 void MatrixDrive_TurnObjectMatrix(float x, float y, float z);

@@ -22,19 +22,19 @@ static int reviveGroupIdCount = 0; /* derived name */
 
 static int execFrame = 0; /* derived name */
 
-static int reviveMaster = 0; /* derived name */
+static GObj *reviveMaster = 0; /* derived name */
 
 static int reviveCounter = 0; /* derived name */
 
 static int reviveDone = 0; /* derived name */
 
 typedef struct {
-    int group;    /* 0x00 */
-    void *spider; /* 0x04 */
+    GObj *group; /* 0x00 */
+    int spider;  /* 0x04, the spider's index in the group */
 } SpiderPair;
 
 typedef struct {
-    void *gobj; /* 0x00 */
+    GObj *gobj; /* 0x00 */
     int rev;    /* 0x04 */
 } SpiderGroupEnt;
 
@@ -46,11 +46,13 @@ static int spidersInRange[100];
 
 static SpiderPair spiderPairs[5];
 
+/* words, not GObj *: EntrySpiderGroupManager's id store keeps the ROM's
+   order against the group table's rev store only as an int store */
 static int spiderGroupIds[64];
 
 static SpiderGroupEnt spiderGroups[64];
 
-static int reviveGroupIds[64];
+static GObj *reviveGroupIds[64];
 
 /* one RGBA tint per spider group, alpha 0x80 throughout */
 static int spiderGroupColors[7][4] = {{0x7F, 0x00, 0x00, 0x80}, {0x40, 0x7F, 0x00, 0x80},
@@ -104,7 +106,7 @@ void EntrySpiderGroupManager(int gobj)
 {
     int *p;
 
-    spiderGroups[spiderGroupCount].gobj = (void *)gobj;
+    spiderGroups[spiderGroupCount].gobj = (GObj *)gobj;
     p = getReviveEnemyGObj(spiderGroupIdCount);
     if (p != 0) {
         debug_StdPrintfDummy("LOCK %p for LABEL %d, ID:%d\n", p, p[2], spiderGroupCount);
@@ -121,7 +123,7 @@ void EntrySpiderGroupManager(int gobj)
     EntryRevivedSpiderGroupManager(gobj);
 }
 
-inline void EntryToSpiderGroupManagerForReviveMaster(int a0, int a1)
+inline void EntryToSpiderGroupManagerForReviveMaster(GObj *a0, GObj *a1)
 {
     reviveGroupIds[reviveGroupIdCount++] = a0;
     reviveMaster = a1;

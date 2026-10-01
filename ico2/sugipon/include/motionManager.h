@@ -23,7 +23,7 @@ struct GObj;
    record keeps a copy at +0xE0.  The object/node pair is its own member: the
    ROM copies it as an eight-byte block and the count as a separate word. */
 typedef struct {
-    char *obj; /* the object (a GObj) */
+    GObj *obj; /* the object */
     int node;  /* the node index in its geometry */
 } ObjNode;     /* derived name */
 
@@ -41,7 +41,7 @@ typedef struct {
    (checkWallSideState's, at 0x61FD00 in .rodata) sits on a 16-byte boundary
    after EditRotEmphasys's 8-aligned strings, the alignment of the points the
    block opens with. */
-typedef struct {
+typedef struct ClipBuf {
     float pt[3][4]; /* 0x00 the start, end and clipped points */
     char _30[0x40];
     float rad;      /* 0x70 sweep radius */
@@ -318,7 +318,7 @@ int SetDirectMotionProgramInterpInfo(struct GObj *a0, int a1, float f);
 void GetGeometryOfMotion(void *self, void *m0, void *m1, float *v, float r, char *tbl, int k);
 void _checkCliffAndWall(void);
 void _getFinalMatrix(int id);
-int adjustSideWall(ClipBuf *w, int a1, int a2);
+int adjustSideWall(ClipBuf *w, int a1, Vec16 *wallPlane);
 int checkActPointWithHeight(int kind, float h);
 void checkCliffState(int a0);
 void checkWallSideState(void);

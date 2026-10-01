@@ -41,7 +41,7 @@ typedef struct {
     char pad2[0x10];
 } StreamNode;
 
-int GetWaterReaction(float *outH, int *outFlag, char *info, float *pos, float *vel, float h0,
+int GetWaterReaction(float *outH, int *outFlag, ClipBuf *info, float *pos, float *vel, float h0,
                      float h1, float h2, float scaleIn, float amp)
 {
     float drain[4];
@@ -53,10 +53,10 @@ int GetWaterReaction(float *outH, int *outFlag, char *info, float *pos, float *v
     if (outFlag != 0) {
         *outFlag = 0;
     }
-    if (*(int *)(info + 0x94) != 0) {
+    if (info->floor.n != 0) {
         if (CompareAttribute(GetFloorAttribute(info), 0x50) != 0) {
             scale = scaleIn;
-            pool = *(int *)(info + 0x8C);
+            pool = info->floor.o.obj;
             waterH = GetPoolGlobalHeightDetail(pool, pos);
             GetPoolGlobalDrainVector(drain, pool);
             if (outFlag != 0) {
@@ -271,26 +271,25 @@ void GetRootPosOfNextFrame(float *pos, GObj *obj)
 
 void AdjustMotionHeightToField(GObj *obj)
 {
-    char *o = (char *)obj->dobj;
-    struct MotRoot *sub = (struct MotRoot *)(o + 0xA0);
-    sub->footPos[1] = GetYProjectionOfPlane(o + 0x1D0, o + 0x250);
+    struct MotRoot *sub = (struct MotRoot *)((char *)obj->dobj + 0xA0);
+    sub->footPos[1] = GetYProjectionOfPlane(sub->plane.f, sub->footPos);
     debug_StdPrintfDummy("Adjust Motion Height To Field. --------------\n");
 }
 
-void GetLowerPlaneCollision(int a0, int a1)
+void GetLowerPlaneCollision(ClipBuf *w, float *pos)
 {
-    CopyVector(a0, a1);
-    CopyVector(a0 + 0x10, a0);
-    *(float *)(a0 + 0x14) = *(float *)(a0 + 0x14) + 10000.0f;
-    ClipFloor(a0);
+    CopyVector(w->pt[0], pos);
+    CopyVector(w->pt[1], w->pt[0]);
+    w->pt[1][1] = w->pt[1][1] + 10000.0f;
+    ClipFloor(w);
 }
 
-void getLowerPlaneCollisionE(int a0, int a1)
+void getLowerPlaneCollisionE(ClipBuf *w, float *pos)
 {
-    CopyVector(a0, a1);
-    CopyVector(a0 + 0x10, a0);
-    *(float *)(a0 + 0x14) = *(float *)(a0 + 0x14) + 10000.0f;
-    ClipFloorE(a0);
+    CopyVector(w->pt[0], pos);
+    CopyVector(w->pt[1], w->pt[0]);
+    w->pt[1][1] = w->pt[1][1] + 10000.0f;
+    ClipFloorE(w);
 }
 
 /* static inline in the ROM: inlined into AdjustMotionHeightToNearestField and
@@ -305,9 +304,9 @@ static inline int adjustMotionHeightToNearestField(char *o, float *pos)
     p[1] = p[1] - 100.0f;
     if (sub->filter.o.obj != 0) {
         buf.filter = sub->filter;
-        getLowerPlaneCollisionE((int)&buf, (int)p);
+        getLowerPlaneCollisionE(&buf, p);
     } else {
-        GetLowerPlaneCollision((int)&buf, (int)p);
+        GetLowerPlaneCollision(&buf, p);
     }
     if (buf.floor.n == 0) {
         return 0;
@@ -1732,24 +1731,24 @@ int GetCollisionOfLastActiveField(GObj *self)
     return self->dobj->lastField;
 }
 
-int CheckFieldContact(char *info, GObj *self, float *pos, float lim)
+int CheckFieldContact(ClipBuf *info, GObj *self, float *pos, float lim)
 {
     float h;
     float dy;
     float ph;
     float d;
 
-    if (*(int *)(info + 0x94) != 0) {
+    if (info->floor.n != 0) {
         h = GOBJ_SUB(self)->moveY;
-        dy = *(float *)(info + 0x24) - pos[1];
+        dy = info->pt[2][1] - pos[1];
         if (CompareAttribute(GetFloorAttribute(info), 0x50) != 0) {
             if (h >= 0.0f) {
-                ph = GetPoolGlobalHeight(*(int *)(info + 0x8C));
-                d = *(float *)(info + 0x24) - ph;
+                ph = GetPoolGlobalHeight(info->floor.o.obj);
+                d = info->pt[2][1] - ph;
                 if (dy < lim) {
                     if (d > 0.0f) {
                         if ((GOBJ_SUB(self)->contactFlags & 1) == 0 && h > 5.0f) {
-                            SetFallDownSplash(*(int *)(info + 0x8C), self);
+                            SetFallDownSplash(info->floor.o.obj, self);
                             GOBJ_SUB(self)->contactFlags |= 1;
                         }
                     }
@@ -1758,7 +1757,7 @@ int CheckFieldContact(char *info, GObj *self, float *pos, float lim)
                 if (d > 0.0f) {
                     if (ph - pos[1] < lim * 0.8f) {
                         if ((GOBJ_SUB(self)->contactFlags & 1) == 0 && h > 5.0f) {
-                            SetFallDownSplash(*(int *)(info + 0x8C), self);
+                            SetFallDownSplash(info->floor.o.obj, self);
                             GOBJ_SUB(self)->contactFlags |= 1;
                         }
                         return 2;
@@ -1979,7 +1978,7 @@ float GetDifferenceFromLowerField(GObj *a0, int a1)
     int idx;
     ctrl = a0->dobj;
     idx = (*(signed char **)((char *)ctrl + 0x840))[a1];
-    GetLowerPlaneCollision((int)&buf, ctrl->nodeMtx + (idx << 6) + 0x30);
+    GetLowerPlaneCollision(&buf, ctrl->nodeMtx + (idx << 6) + 0x30);
     if (buf.floor.n == 0) {
         return 3.40282347e+38f;
     }

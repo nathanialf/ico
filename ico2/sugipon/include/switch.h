@@ -19,8 +19,17 @@ struct GObj;
  * words, read back as such at box.c's own call sites.  RECONSTRUCTION: the
  * name is ours, and it deliberately is not FloorLeverGeo, which MAIN.MAP
  * gives to the lever's per-frame function in the same TU. */
-typedef struct {
-    int w[8];
+typedef struct {     /* field names derived */
+    short shake;     /* 0x00, the X rock the lever gives while it springs back */
+    short angle;     /* 0x02, the lever's Z angle */
+    int state;       /* 0x04, 0 at rest, 1 or -1 once thrown */
+    int timer;       /* 0x08, frames since the lever was thrown */
+    int base;        /* 0x0C, the base DObj, kept as a word: the ROM orders its
+                        store and the handle's table load as an int store's */
+    char *handle;    /* 0x10, the handle DObj, drawn turned by the two angles */
+    int linked;      /* 0x14, nonzero once the lever is parented to the floor under it */
+    int linkWait;    /* 0x18, frames counted before the parenting probe */
+    void (*trigger)(int, int); /* 0x1C, called with the parent object and the state */
 } LeverGeoWork;
 
 /* The declarations below lead this header because their order is load-bearing:

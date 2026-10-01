@@ -11,8 +11,12 @@ static int mallocPartition = -1; /* derived name */
 static int mallocTotal = 0; /* derived name */
 
 extern void __assert(const char *file, int line, char *expr);
-/* kept local: int (int, int, const char *, int) here, void * (IosMemPart *, int, char *, int) in memory.h */
-extern int iosMallocDebug(int heap, int size, const char *file, int line);
+
+/* kept local: memory.h is not included, its iosFree and iosReallocDebug
+   disagree with the calls below (see them); const char * here, char * there */
+struct IosMemPart;
+
+extern void *iosMallocDebug(struct IosMemPart *part, int size, const char *file, int line);
 /* kept local: int () here, void * (void *) in memory.h */
 extern int iosFree();
 /* kept local: int (int, int, const char *, int) here, void * (void *, unsigned int) in memory.h */
@@ -61,9 +65,9 @@ inline int malloc_GetPartition(void)
 
 inline void resetmallocseki(void) {}
 
-inline int mallocseki(int size)
+inline void *mallocseki(int size)
 {
-    int ptr = 0;
+    void *ptr = 0;
 
     if (mallocPartition == -1) {
         debug_StdPrintfDummy("set partition first!\n");
@@ -83,10 +87,10 @@ inline int mallocseki(int size)
     return ptr;
 }
 
-inline int mallocsekistage(int size)
+inline void *mallocsekistage(int size)
 {
     int save = mallocPartition;
-    int r;
+    void *r;
 
     mallocPartition = 1;
     r = mallocseki(size);
