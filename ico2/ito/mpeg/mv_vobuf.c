@@ -47,6 +47,9 @@ void voBufDelete(VoBuf *self)
    same name */
 static void Free(int a0)
 {
+    /* the buffers are kept as addresses (alloc_zeroed), some at their
+       uncached-accelerated alias; the heap takes the block back with the
+       segment bits off */
     iosFree((void *)phys_addr(a0));
 }
 

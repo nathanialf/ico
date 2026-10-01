@@ -12,17 +12,15 @@
 #include "gv.h"
 #include "commonact.h"
 
-typedef struct AttackPack {
+typedef struct AttackPack { /* field names derived */
     /* 0x00 */ unsigned char active;
-    /* 0x01 */ unsigned char f01;
+    /* 0x01 */ unsigned char down; /* the hit knocks the target down */
     /* 0x02 */ char pad02[2];
     /* 0x04 */ void *actor;
-    /* 0x08 */ int f08;
+    /* 0x08 */ char *spare; /* an object the attack never hits */
     /* 0x0C */ int group;
     /* 0x10 */ int group2;
-    /* 0x14 */ int f14;
-    /* 0x18 */ int f18;
-    /* 0x1C */ int f1C;
+    /* 0x14 */ char pad14[12];
     /* 0x20 */ float center[4];
     /* 0x30 */ float from[4];
     /* 0x40 */ float to[4];
@@ -30,12 +28,9 @@ typedef struct AttackPack {
     /* 0x54 */ float radius1;
     /* 0x58 */ float thickness;
     /* 0x5C */ float power;
-    /* 0x60 */ char f60;
+    /* 0x60 */ char sweep; /* the weapon's swing sweeps the area round the actor */
     /* 0x61 */ unsigned char hasDir;
-    /* 0x62 */ char pad62[2];
-    /* 0x64 */ int f64;
-    /* 0x68 */ int f68;
-    /* 0x6C */ int f6C;
+    /* 0x62 */ char pad62[14];
     /* 0x70 */ float dir[4];
 } __attribute__((aligned(16))) AttackPack;
 
@@ -117,28 +112,28 @@ int inner_check(float *p, float *o, float *a, float *b, float r, float t)
     return 0;
 }
 
-typedef struct {
-    char _00[0x10];
-    /* 0x10 */ int f10;
-    /* 0x14 */ int f14;
-    /* 0x18 */ float f18;
-    /* 0x1C */ float f1C;
-    /* 0x20 */ unsigned int b0 : 1;
-    unsigned int b1 : 1;
-    unsigned int b2 : 1;
-    unsigned int b3 : 1;
-    unsigned int b4 : 1;
-    unsigned int brest : 27;
+typedef struct { /* field names derived */
+    char pad00[16];
+    /* 0x10 */ int motion;    /* the motion the row belongs to */
+    /* 0x14 */ int focusNode; /* the focus node a body attack hits from */
+    /* 0x18 */ float radius;
+    /* 0x1C */ float power;
+    /* 0x20 */ unsigned int weapon : 1; /* the attack is the held weapon's */
+    unsigned int down : 1;              /* it knocks the target down */
+    unsigned int unguardable : 1;
+    unsigned int stone : 1;  /* it is a stone hit */
+    unsigned int toRoot : 1; /* the reach runs from the focus node to the root */
+    unsigned int padBits : 27;
 } AttackKindEntry;
 
 extern const AttackKindEntry attackData[];
 
-typedef struct {
-    /* 0x00 */ float f00;
-    char _04[4];
-    /* 0x08 */ float f08;
-    char _0C[0x14];
-    /* 0x20 */ unsigned int f20;
+typedef struct { /* field names derived */
+    /* 0x00 */ float radius;
+    char pad04[4];
+    /* 0x08 */ float power; /* the attack power multiplier */
+    char pad0C[20];
+    /* 0x20 */ unsigned int flags; /* bit 0 unguardable, bit 1 the swing sweeps */
 } WeaponKindEntry;
 
 extern WeaponKindEntry weaponKind[];
@@ -157,7 +152,7 @@ static inline int GetAttackKindIndex(Sub15C *p) /* derived name */
     int i;
 
     for (i = 0; i < 20; i++) {
-        if (id == attackData[i].f10) {
+        if (id == attackData[i].motion) {
             return i;
         }
     }
@@ -194,19 +189,19 @@ void MakeAttackPack_Actor(AttackPack *pack, char *gobj, void *weapon)
     }
     pack->group = k;
     pack->group2 = ext->attackGroup | (k << 16);
-    switch (attackData[k].b0) {
+    switch (attackData[k].weapon) {
     case 1:
         if (weapon == 0) {
             return;
         }
         wk = CheckWeaponKind(weapon);
         WeaponCurPos(weapon, pack->center, pack->from, pack->to);
-        pack->radius0 = (weaponKind + wk)->f00;
+        pack->radius0 = (weaponKind + wk)->radius;
         pack->radius1 = 20.0f;
-        ((union PackPowerWord *)&pack->power)->f = attackData[k].f1C * weaponKind[wk].f08;
+        ((union PackPowerWord *)&pack->power)->f = attackData[k].power * weaponKind[wk].power;
         pack->active = 1;
-        pack->f60 = ((weaponKind + wk)->f20 >> 1) & 1;
-        if (pack->f60 == 0) {
+        pack->sweep = ((weaponKind + wk)->flags >> 1) & 1;
+        if (pack->sweep == 0) {
             return;
         }
         _OrientGV(v0, pack->center, pack->to);
@@ -218,14 +213,14 @@ void MakeAttackPack_Actor(AttackPack *pack, char *gobj, void *weapon)
         break;
 
     case 0:
-        GetFocusNodePos(gobj, attackData[k].f14, v0);
+        GetFocusNodePos(gobj, attackData[k].focusNode, v0);
         pack->center[0] = v0[0];
         pack->center[1] = v0[1];
         pack->center[2] = v0[2];
         pack->from[0] = v0[0];
         pack->from[1] = v0[1];
         pack->from[2] = v0[2];
-        if (attackData[k].b4 != 0) {
+        if (attackData[k].toRoot != 0) {
             pack->to[0] = test_CURRENTROOT(gobj)[0];
             pack->to[1] = test_CURRENTROOT(gobj)[1];
             pack->to[2] = test_CURRENTROOT(gobj)[2];
@@ -234,10 +229,10 @@ void MakeAttackPack_Actor(AttackPack *pack, char *gobj, void *weapon)
             pack->to[0] = v0[0];
             pack->to[1] = v0[1];
             pack->to[2] = v0[2];
-            pack->radius0 = attackData[k].f18;
+            pack->radius0 = attackData[k].radius;
         }
-        pack->radius1 = attackData[k].f18;
-        pack->power = attackData[k].f1C;
+        pack->radius1 = attackData[k].radius;
+        pack->power = attackData[k].power;
         pack->active = 1;
         if (((GObj *)gobj)->kind == 4) {
             if (actEnemy_isLargeEnemy(gobj) != 0) {
@@ -246,7 +241,7 @@ void MakeAttackPack_Actor(AttackPack *pack, char *gobj, void *weapon)
             }
             if (((GObj *)gobj)->kind == 4) {
                 if ((GOBJ_ACT(gobj)->enemy->flags.w.bits & 1) != 0) {
-                    pack->f01 = 1;
+                    pack->down = 1;
                 }
             }
         }
@@ -365,11 +360,11 @@ void AttackMail(char *self, AttackPack *pack)
     if (group < 0) {
         power = 10.0f;
     } else if (weapon == 0) {
-        power = attackData[group].f1C;
+        power = attackData[group].power;
     } else {
         kind = CheckWeaponKind(weapon);
-        power = attackData[group].f1C * weaponKind[kind].f08;
-        hard = (weaponKind + kind)->f20 & 1;
+        power = attackData[group].power * weaponKind[kind].power;
+        hard = (weaponKind + kind)->flags & 1;
     }
     iosOmSendMail(self, 13, attacker);
 
@@ -388,9 +383,9 @@ void AttackMail(char *self, AttackPack *pack)
         e->attacker = attacker;
         e->damage = (int)power;
         GOBJ_ACT(self)->hitGroup = pack->group2;
-        GOBJ_ACT(self)->downHit = attackData[group].b1 || pack->f01;
-        GOBJ_ACT(self)->unguardable = attackData[group].b2 || hard;
-        GOBJ_ACT(self)->stoneHit = attackData[group].b3;
+        GOBJ_ACT(self)->downHit = attackData[group].down || pack->down;
+        GOBJ_ACT(self)->unguardable = attackData[group].unguardable || hard;
+        GOBJ_ACT(self)->stoneHit = attackData[group].stone;
         if (attacker == boyGObj) {
             aext->flags20.ll &= ~0x100000000ULL;
         }
@@ -475,7 +470,7 @@ int AttackCheckHit(AttackPack *pack, char *gobj, short *out)
     for (i = 0; i < n; i++) {
         flags[i] = 0;
     }
-    if (pack->f60 != 0) {
+    if (pack->sweep != 0) {
         v[0][0] = test_CURRENTROOT(pack->actor)[0];
         v[0][1] = test_CURRENTROOT(pack->actor)[1];
         v[0][2] = test_CURRENTROOT(pack->actor)[2];
@@ -503,7 +498,7 @@ int AttackCheckHit(AttackPack *pack, char *gobj, short *out)
             sceVu0AddVector(v[m], v[m], acc);
         }
         for (i = 0; i < n; i++) {
-            if (inner_check((float *)(sk->nodeMtx + (i << 6) + 0x30), v[0], v[1], v[2], 0.0f,
+            if (inner_check((float *)(sk->nodeMtx + (i << 6) + 48), v[0], v[1], v[2], 0.0f,
                             100.0f) != 0) {
                 flags[i] = 1;
             }
@@ -512,9 +507,9 @@ int AttackCheckHit(AttackPack *pack, char *gobj, short *out)
         for (t = 0.0f; t < pack->radius0; t += pack->radius1) {
             _InterGV(w, pack->to, pack->center, t, pack->radius0 - t);
             for (i = 0; i < n; i++) {
-                if (_DistSqGV((float *)(sk->nodeMtx + (i << 6) + 0x30), w) <
+                if (_DistSqGV((float *)(sk->nodeMtx + (i << 6) + 48), w) <
                     ((float)hitR + pack->radius1) * ((float)hitR + pack->radius1)) {
-                    if (!(_DistSqGV((float *)(sk->nodeMtx + (i << 6) + 0x30), w) <
+                    if (!(_DistSqGV((float *)(sk->nodeMtx + (i << 6) + 48), w) <
                           ((float)hitR + pack->thickness) * ((float)hitR + pack->thickness))) {
                         flags[i] = 1;
                     }
@@ -557,7 +552,7 @@ int AttackGenerate(AttackPack *pack)
         if (((GObj *)g)->active == 0) {
             continue;
         }
-        if (AttackCheckSameGroup(pack->actor, g, (char *)pack->f08) != 0) {
+        if (AttackCheckSameGroup(pack->actor, g, pack->spare) != 0) {
             continue;
         }
         debug_StdPrintfDummy("group ok\n");
@@ -617,7 +612,7 @@ inline void CommonAttackCenter(char *a0)
     AttackGenerate(&pack);
 }
 
-inline int _AttackCenter(char *gop, int group, float *pos, float *ofs, float radius, int kind)
+inline int _AttackCenter(char *gop, int group, float *pos, float *ofs, float radius, char *spare)
 {
     AttackPack pack;
 
@@ -626,7 +621,7 @@ inline int _AttackCenter(char *gop, int group, float *pos, float *ofs, float rad
         __assert(__FILE__, 931, "gop!=NULL");
     }
     SetupAttackPack(&pack, gop, group, pos, ofs, radius);
-    pack.f08 = kind;
+    pack.spare = spare;
     return AttackGenerate(&pack);
 }
 

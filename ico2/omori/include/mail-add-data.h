@@ -12,6 +12,7 @@ int ActSendMail_WithAdditionalData(char *gop, int msg, void *sender, void *data)
 void *GetMailAdditionalData(char *gop, int mail);
 inline void ClearMailAdditionalData(char *gop);
 
-void InitMailAdditionalData(char *a0, int a1);
+struct MailAdditionalData;
+void InitMailAdditionalData(char *a0, struct MailAdditionalData *table);
 
 #endif /* MAIL_ADD_DATA_H */

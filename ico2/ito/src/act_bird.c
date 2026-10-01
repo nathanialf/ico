@@ -77,7 +77,7 @@ void birdBeforeFunc(char *self)
     float there[4];
     float here[4];
     int i;
-    GObjMailQueue *q = (GObjMailQueue *)(self + 0x54);
+    GObjMailQueue *q = (GObjMailQueue *)&((GObj *)self)->mailQueue;
 
     for (i = 0; i < q->num; i++) {
         GObjMailEntry *e = &q->e[i];
@@ -632,7 +632,7 @@ void subBirdBrainMain(void *volatile gobj)
                 if (sv[3] > 0.0f && __builtin_fabsf(sx) < 0.6f && sy > -1.3f && sy < 0.5f) {
                     float dy;
 
-                    sceVu0InversMatrix(im, (char *)matrixptr + 0x80);
+                    sceVu0InversMatrix(im, (char *)matrixptr + 128);
                     point_ahead(p2, pos, im[1]);
                     apply_matrix_w1(sv2, (char *)matrixptr + 0x100, p2);
                     sv2[1] = sv2[1] / sv2[3] - 2048.0f;
@@ -794,7 +794,7 @@ void Debug_WireString_Bird(float *pos, char *fmt, ...)
     void *args = (char *)__builtin_next_arg(fmt) - 0x30;
 
     MatrixDrive_PushMatrix();
-    sceVu0TransposeMatrix(m, (void *)(matrixptr + 0x80));
+    sceVu0TransposeMatrix(m, (void *)(matrixptr + 128));
     m[3] = m[7] = m[11] = 0.0f;
     sceVu0UnitMatrix(MatrixDrive_GetMatrix());
     MatrixDrive_TransMatrix(pos[0], pos[1], pos[2]);

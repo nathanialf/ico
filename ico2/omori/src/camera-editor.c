@@ -87,14 +87,14 @@ inline void StickToTrans(int a0, int a1, int a2, int a3, float *out, int a5)
 
 inline void debug_Arrow(float len, void *from, void *to, int r, int g, int b) {}
 
-inline void debug_NMarker(int *self, int a1, int a2, int a3, float t)
+inline void debug_NMarker(float *pos, int r, int g, int b, float size)
 {
-    int buf[4];
-    sceVu0ScaleVector(buf, self, -1.0f);
-    debug_Marker(buf, a1, a2, a3, t, 0.0f);
+    float buf[4];
+    sceVu0ScaleVector(buf, pos, -1.0f);
+    debug_Marker(buf, r, g, b, size, 0.0f);
 }
 
-inline void debug_Marker(int *buf, int a1, int a2, int a3, float f12, float f13) {}
+inline void debug_Marker(float *pos, int r, int g, int b, float size, float pulse) {}
 
 static inline void writeCameraSetFile(int no, void *buf, int size)
 {
@@ -183,7 +183,7 @@ void saveEditedData(int *range)
         sceWrite(fd, dumpLine, strlen(dumpLine));
         for (j = ((BoxRec *)(i * 0x4C + cameraSetEdit[1]))->pinFirst;
              j < ((BoxRec *)(i * 0x4C + cameraSetEdit[1]))->pinLast; j++) {
-            PinRec *p = (PinRec *)CameraEdit_PIN(i, j);
+            PinRec *p = CameraEdit_PIN(i, j);
 
             /* the pin flag prints as a maru when set and a batsu when clear */
             sprintf(dumpLine, "%s\t%d\t\t%d\t%d\t%d\t\t\t%d\t%d\t%d\n", p->on ? "○" : "×",
@@ -220,10 +220,10 @@ static inline void dispPinRange(int box, int from, int to)
         ((float (*)[4])MatrixDrive_GetMatrix())[2][2] = -1.0f;
     gif_StartPacketPri(11);
     for (i = from; i < to; i++) {
-        float a[3] = {((float *)CameraEdit_PIN(box, i))[0], ((float *)CameraEdit_PIN(box, i))[1],
-                      ((float *)CameraEdit_PIN(box, i))[2]};
-        float b[3] = {((float *)CameraEdit_PIN(box, i))[3], ((float *)CameraEdit_PIN(box, i))[4],
-                      ((float *)CameraEdit_PIN(box, i))[5]};
+        float a[3] = {CameraEdit_PIN(box, i)->pos[0], CameraEdit_PIN(box, i)->pos[1],
+                      CameraEdit_PIN(box, i)->pos[2]};
+        float b[3] = {CameraEdit_PIN(box, i)->look[0], CameraEdit_PIN(box, i)->look[1],
+                      CameraEdit_PIN(box, i)->look[2]};
         DrawLine(a, b, (int)col, -1);
     }
     gif_EndPacket();
@@ -547,10 +547,10 @@ void dispCameraPinType2(int box, int from, int to, int type)
     for (i = from; i < to; i++) {
         int c1v[4];
         int c2v[4];
-        ArrowVtx a = {((float *)CameraEdit_PIN(box, i))[0], ((float *)CameraEdit_PIN(box, i))[1],
-                      ((float *)CameraEdit_PIN(box, i))[2], 0.0f};
-        ArrowVtx b = {((float *)CameraEdit_PIN(box, i))[3], ((float *)CameraEdit_PIN(box, i))[4],
-                      ((float *)CameraEdit_PIN(box, i))[5], 0.0f};
+        ArrowVtx a = {CameraEdit_PIN(box, i)->pos[0], CameraEdit_PIN(box, i)->pos[1],
+                      CameraEdit_PIN(box, i)->pos[2], 0.0f};
+        ArrowVtx b = {CameraEdit_PIN(box, i)->look[0], CameraEdit_PIN(box, i)->look[1],
+                      CameraEdit_PIN(box, i)->look[2], 0.0f};
         float n[4];
         float m1[4][4];
         float t;
@@ -560,9 +560,8 @@ void dispCameraPinType2(int box, int from, int to, int type)
         MatrixDrive_TransMatrixV(&b);
         MatrixDrive_TurnObjectMatrix(-(b.x - a.x), b.y - a.y, b.z - a.z);
         {
-            ArrowVtx d = {-((float *)CameraEdit_PIN(box, i))[3],
-                          -((float *)CameraEdit_PIN(box, i))[4],
-                          -((float *)CameraEdit_PIN(box, i))[5], 1.0f};
+            ArrowVtx d = {-CameraEdit_PIN(box, i)->look[0], -CameraEdit_PIN(box, i)->look[1],
+                          -CameraEdit_PIN(box, i)->look[2], 1.0f};
 
             MatrixDrive_SetTransposeMatrix(m1, MatrixDrive_GetMatrix());
             sceVu0ApplyMatrix(n, matrixptr + 0x80, &d);
@@ -1055,23 +1054,23 @@ void menuPinSelect(MenuThread *m)
             if (i == cur) {
                 if (debug_font_flag & 1) {
                     debug_Printf(40, print_y += 10, 0xFFFFFF00, ">>%s %d",
-                                 ((PinRec *)CameraEdit_PIN(no, cur))->on ? "ON " : "OFF", k);
+                                 CameraEdit_PIN(no, cur)->on ? "ON " : "OFF", k);
                 }
             } else {
                 if (debug_font_flag & 1) {
                     debug_Printf(40, print_y += 10, 0xFFFFFF00, "  %s %d",
-                                 ((PinRec *)CameraEdit_PIN(no, i))->on ? "ON " : "OFF", k);
+                                 CameraEdit_PIN(no, i)->on ? "ON " : "OFF", k);
                 }
             }
         }
-        if (((PinRec *)CameraEdit_PIN(no, cur))->range != 0.0f) {
-            debug_Marker((int *)CameraEdit_PIN(no, cur), 0, 0, 255,
-                         ((PinRec *)CameraEdit_PIN(no, cur))->range, 0.0f);
+        if (CameraEdit_PIN(no, cur)->range != 0.0f) {
+            debug_Marker(CameraEdit_PIN(no, cur)->pos, 0, 0, 255, CameraEdit_PIN(no, cur)->range,
+                         0.0f);
         } else {
-            debug_Marker((int *)CameraEdit_PIN(no, cur), 255, 0, 0, 100.0f, 0.0f);
+            debug_Marker(CameraEdit_PIN(no, cur)->pos, 255, 0, 0, 100.0f, 0.0f);
         }
         {
-            PinRec *p = (PinRec *)CameraEdit_PIN(no, cur);
+            PinRec *p = CameraEdit_PIN(no, cur);
             CamWork cw = {
                 {p->pos[0], p->pos[1], p->pos[2]}, {p->look[0], p->look[1], p->look[2]}, p->fov};
 
@@ -1105,7 +1104,7 @@ static inline int camHeading(float *at, float *eye) /* derived name */
 
 void menuPinEdit(MenuThread *m)
 {
-    PinRec *pin = (PinRec *)CameraEdit_PIN(editPinNo, m->arg);
+    PinRec *pin = CameraEdit_PIN(editPinNo, m->arg);
     int cur = 0;
     int i;
 
@@ -1182,20 +1181,20 @@ void menuPinEdit(MenuThread *m)
                 SetWSMatrix(&cw);
 
                 StickToTrans(D_0028F8F0[1].ana[1] - 128, D_0028F8F0[1].ana[0] - 128,
-                             D_0028F8F0[1].now & 2, camHeading(cw.at, &cw), out, 20);
+                             D_0028F8F0[1].now & 2, camHeading(cw.at, cw.eye), out, 20);
                 sceVu0ScaleVector(out, out, -1.0f);
                 pin->pos[0] = pin->pos[0] + out[0];
                 pin->pos[1] = pin->pos[1] + out[1];
                 pin->pos[2] = pin->pos[2] + out[2];
 
                 StickToTrans(D_0028F8F0[1].ana[3] - 128, D_0028F8F0[1].ana[2] - 128,
-                             D_0028F8F0[1].now & 2, camHeading(cw.at, &cw), out, 20);
+                             D_0028F8F0[1].now & 2, camHeading(cw.at, cw.eye), out, 20);
                 sceVu0ScaleVector(out, out, -1.0f);
                 pin->look[0] = pin->look[0] + out[0];
                 pin->look[1] = pin->look[1] + out[1];
                 pin->look[2] = pin->look[2] + out[2];
 
-                debug_Marker((int *)pin->look, 255, 0, 0, 100.0f, 0.0f);
+                debug_Marker(pin->look, 255, 0, 0, 100.0f, 0.0f);
             }
         }
         if (D_0028F8F0[1].trg & 0x10) {
@@ -1513,9 +1512,9 @@ inline int CameraEdit_BOX(int a0)
     return cameraSetEdit[1] + a0 * 0x4C;
 }
 
-inline int CameraEdit_PIN(int a0, int a1)
+inline PinRec *CameraEdit_PIN(int a0, int a1)
 {
-    return ((S4C *)(cameraSetEdit[1] + a0 * 0x4C))->items + a1 * 0x5C;
+    return (PinRec *)((S4C *)(cameraSetEdit[1] + a0 * 0x4C))->items + a1;
 }
 
 inline void CameraEdit_DispPin(int box, int pin)
@@ -1550,13 +1549,13 @@ BoxRec cameraGroupDefault = {"0", 0.0f, 0.0f, 0.0f, 100.0f, 100.0f, 100.0f};
 
 /* a 128-byte record after the group default, -1 at 0x40, 50.0 at 0x64 and
    1 at 0x68; nothing reads it */
-static struct {
-    int w00[16];
-    int w40;
-    int w44[8];
-    float w64;
-    int w68;
-    int w6C[5];
+static struct { /* field names derived */
+    int pad00[16];
+    int word40;
+    int pad44[8];
+    float float64;
+    int word68;
+    int pad6C[5];
 } cameraEditRec = {{0}, -1, {0}, 50.0f, 1}; /* derived name */
 
 inline void ConvertCameraSetBuffer(int n, S4C *item, char *groups)
@@ -1573,16 +1572,16 @@ inline void ConvertCameraSetBuffer(int n, S4C *item, char *groups)
     m1->items = (char *)m1 + 0x70;
     m1->pool = (char *)m1 + 0x1E20;
     m1->count = 0;
-    f = &m1->flags[0x63];
-    for (a = 0x63; a >= 0; a--) {
+    f = &m1->flags[99];
+    for (a = 99; a >= 0; a--) {
         *f-- = 0;
     }
     m2 = (CamMgr *)cameraSetEdit;
     m2->items = (char *)m2 + 0x70;
     m2->pool = (char *)m2 + 0x1E20;
     m2->count = 0;
-    f = &m2->flags[0x63];
-    for (b = 0x63; b >= 0; b--) {
+    f = &m2->flags[99];
+    for (b = 99; b >= 0; b--) {
         *f-- = 0;
     }
     for (i = 0; i < n; i++) {

@@ -11,6 +11,7 @@
 #include "geometryManager.h"
 #include "main.h"
 #include "Matrix.h"
+#include "DmaPacket.h"
 
 /* The barrier mesh, the damage flash timer queen_barrier_set_damage starts
    at 60, and the ripple phase the animation advances each frame. */
@@ -41,15 +42,11 @@ typedef struct {
     unsigned char c[4];
 } GifCol;
 
-/* this file's view of the packet buffer: it writes through a doubleword
-   cursor, where DmaPacket.h's DpkCtl has an int * */
-extern GifDpk PacketBufferStruct;
-
 /* gif_SetGsReg's body: one GS register write, data then address */
 static inline void setGsReg(long long a0, long long a1)
 {
-    *PacketBufferStruct.ptr++ = a1;
-    *PacketBufferStruct.ptr++ = a0;
+    *PacketBufferStruct.ptr.d++ = a1;
+    *PacketBufferStruct.ptr.d++ = a0;
 }
 
 void MakeRefractTexture(int frame)

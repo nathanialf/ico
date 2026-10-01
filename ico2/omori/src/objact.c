@@ -64,7 +64,7 @@ inline void ObjAction_Mail(void *a0, int a1)
 inline void ObjAction_MailCenter(void *a0, int a1)
 {
     int i;
-    ObjActMailEnt *e;
+    const ObjActMailEnt *e;
     int n;
 
     for (i = 0; i < 33; i++) {

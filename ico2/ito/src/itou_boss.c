@@ -287,7 +287,7 @@ void bossCtrlBeforeFunc(char *self)
     int cnt;
     int r;
 
-    q = (GObjMailQueue *)(self + 0x54);
+    q = (GObjMailQueue *)&((GObj *)self)->mailQueue;
     for (i = 0; i < q->num; i++) {
         e = &q->e[i];
         if (e->mail == 18) {

@@ -11,33 +11,13 @@
 #include "itou_sub.h"
 #include "lightning.h"
 #include "DisplayList.h"
+#include "DmaPacket.h"
 
 typedef struct {
     LightningVtx v[4];
 } StructC;
 
 typedef float LightningMtx[4][4] __attribute__((aligned(16)));
-
-/* the display-list packet cursor record, with the write cursor seen as a
- * union of the pointer widths the packet code writes through */
-typedef struct {
-    int cur;
-    int *buf[2];
-    char *dma;
-
-    union {
-        unsigned long long *d;
-        char *c;
-    } ptr;
-
-    char *tail;
-    char *gif;
-    char *end;
-} LightningDpk;
-
-/* this file's view of the packet buffer: it writes through a doubleword or
-   a byte cursor, where DmaPacket.h's DpkCtl has an int * */
-extern LightningDpk PacketBufferStruct;
 
 /* one strip vertex as the three GS register payloads it is sent as */
 typedef struct {
@@ -226,10 +206,6 @@ static __inline__ float random_sign(float x)
     return x;
 }
 
-/* declared unsigned here: this file compares the free packet size unsigned,
-   where DmaPacket.h declares it int */
-extern unsigned int dpk_CheckBufferSize(void);
-
 /* the Catmull-Rom basis, halved, that turns four control points into the
    segment's cubic coefficients */
 static LightningMtx catmullRom = {
@@ -310,13 +286,13 @@ void DrawLightning2(int num, LightningVtx *v, StructB *col, float f0, float f1, 
     dl_SetDLPriority(6);
     pk = PacketBufferStruct.ptr.c;
     top = (unsigned long long *)(pk + 16);
-    PacketBufferStruct.gif = 0;
-    PacketBufferStruct.dma = pk;
+    PacketBufferStruct.gif.c = 0;
+    PacketBufferStruct.dma.c = pk;
     PacketBufferStruct.ptr.c = pk + 8;
-    PacketBufferStruct.end = 0;
-    PacketBufferStruct.tail = pk;
+    PacketBufferStruct.end.c = 0;
+    PacketBufferStruct.tail.c = pk;
     ((GifPkWord *)(pk + 8))->w[0] = 0x11000000;
-    PacketBufferStruct.gif = pk + 12;
+    PacketBufferStruct.gif.c = pk + 12;
     PacketBufferStruct.ptr.d = top;
     stripOn = 0;
     stripTag = 0;
@@ -450,14 +426,15 @@ end:
     if (n & 1) {
         *PacketBufferStruct.ptr.d++ = 0;
     }
-    ((GifPkWord *)PacketBufferStruct.tail)->d =
-        (unsigned int)((((unsigned int)(PacketBufferStruct.ptr.c - PacketBufferStruct.tail) >> 4) -
+    ((GifPkWord *)PacketBufferStruct.tail.c)->d =
+        (unsigned int)((((unsigned int)(PacketBufferStruct.ptr.c - PacketBufferStruct.tail.c) >>
+                         4) -
                         1) |
                        0x10000000);
-    ((GifPkWord *)PacketBufferStruct.gif)->w[0] =
-        ((unsigned int)(PacketBufferStruct.ptr.c - PacketBufferStruct.gif) >> 4) | 0x50000000;
+    ((GifPkWord *)PacketBufferStruct.gif.c)->w[0] =
+        ((unsigned int)(PacketBufferStruct.ptr.c - PacketBufferStruct.gif.c) >> 4) | 0x50000000;
     p = PacketBufferStruct.ptr.c;
-    PacketBufferStruct.tail = p;
+    PacketBufferStruct.tail.c = p;
     ((GifPkWord *)p)->d = 0x60000000;
     PacketBufferStruct.ptr.c = p + 8;
     ((GifPkWord *)(p + 8))->w[0] = 0;
@@ -466,7 +443,7 @@ end:
     PacketBufferStruct.ptr.c = p + 0x10;
     if (n > 0) {
         dl_SetDLPriority(dl_GetPri());
-        dl_OpenDma(5, (int)PacketBufferStruct.dma, 0);
+        dl_OpenDma(5, (int)PacketBufferStruct.dma.c, 0);
         dl_CloseDma();
     }
 }

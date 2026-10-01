@@ -70,7 +70,7 @@ int _InterRotGV(float *dst, float *cur, float *tgt, int step)
 
 float _DistxzSqGV(void *a0, void *a1)
 {
-    char buf[0x10];
+    char buf[16];
     sceVu0SubVector(buf, a0, a1);
     *(int *)(buf + 4) = 0;
     return sceVu0InnerProduct(buf, buf);
@@ -78,21 +78,21 @@ float _DistxzSqGV(void *a0, void *a1)
 
 float _DistSqGV(void *a0, void *a1)
 {
-    char buf[0x10];
+    char buf[16];
     sceVu0SubVector(buf, a0, a1);
     return sceVu0InnerProduct(buf, buf);
 }
 
 float _DistGV(void *a0, void *a1)
 {
-    char buf[0x10];
+    char buf[16];
     sceVu0SubVector(buf, a0, a1);
     return FSqrt(sceVu0InnerProduct(buf, buf));
 }
 
 float _DistxzGV(void *a0, void *a1)
 {
-    char buf[0x10];
+    char buf[16];
     sceVu0SubVector(buf, a0, a1);
     *(int *)(buf + 4) = 0;
     return FSqrt(sceVu0InnerProduct(buf, buf));
@@ -195,20 +195,18 @@ inline void _OrientGV(float *dst, float *a, float *b)
     sceVu0Normalize(dst, buf);
 }
 
-inline int _FrontGV(int a0, int a1, int a2, int a3)
+inline int _FrontGV(float *a0, float *a1, float *dir, int deg)
 {
-    int *p;
-    int buf[8];
-    register int sa2 = a2;
-    register int sa3 = a3;
+    float *p;
+    float buf[8];
     int r;
     p = &buf[4];
     sceVu0SubVector(p, a0, a1);
     p = &buf[0];
-    buf[5] = 0;
+    buf[5] = 0.0f;
     sceVu0Normalize(p, &buf[4]);
-    r = _RotyGV((float *)p, (float *)sa2);
-    return __builtin_abs(r) < sa3;
+    r = _RotyGV(p, dir);
+    return __builtin_abs(r) < deg;
 }
 
 inline void SwapGV(float *a, float *b)

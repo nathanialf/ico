@@ -9,8 +9,8 @@
 #include "main.h"
 #include "geometryManager.h"
 
-struct HintInfo {
-    int _0;
+struct HintInfo { /* field names derived */
+    int anim;     /* the stage animation the hint plays */
     int no;
     int time;
     int flags;
@@ -19,8 +19,8 @@ struct HintInfo {
 /* The hint TABLE's element type differs from the per-GObj record above in one
  * field: hintTable[i].time is a float (seconds), the record's is an int
  * (frames).  CreateKyomiGObj converts one into the other. */
-struct HintDef {
-    int _0;
+struct HintDef { /* field names derived */
+    int stage;
     int no;
     float time;
     int flags;
@@ -60,9 +60,9 @@ char *CreateKyomiGObj(int no)
     hint = (struct HintInfo *)iosMallocDebug(ios_partition_sugipon, 16, "src/lws_kyomi.c", 101);
     GOBJ_SUB(gobj)->work = hint;
     *hint = hintDefault;
-    hint->_0 = no;
+    hint->anim = no;
     for (i = 0; i < 28; i++) {
-        if (hintTable[i]._0 == stage_no && hintTable[i].no == no) {
+        if (hintTable[i].stage == stage_no && hintTable[i].no == no) {
             hint->no = i;
             hint->time = (int)(hintTable[i].time * 60.0f * 60.0f *
                                (float)((60 - systemStatus[0] * 10) / systemStatus[1]) / 60.0f);
@@ -87,7 +87,7 @@ void LwsKyomiGeo(void *gobj)
     hint = GOBJ_SUB(gobj)->work;
     hint->flags &= ~1;
     for (i = 0; i < 28; i++) {
-        if (hintTable[i]._0 == stage_no && (hintTable[i].flags & 1) == 0) {
+        if (hintTable[i].stage == stage_no && (hintTable[i].flags & 1) == 0) {
             if ((((unsigned int)hintTable[i].flags >> 1) & 1) == 0 && i == hint->no) {
                 hint->flags |= 1;
             }
@@ -95,17 +95,17 @@ void LwsKyomiGeo(void *gobj)
         }
     }
     if (hint->no != -1) {
-        fin = stage_CheckAnimationFinish(hint->_0);
+        fin = stage_CheckAnimationFinish(hint->anim);
         if (hint->flags & 1) {
             hintTimers[hint->no] += 1.0f;
             if ((float)hint->time < hintTimers[hint->no]) {
                 if (fin != 0) {
-                    stage_SetAnimation(hint->_0, 1, 0);
+                    stage_SetAnimation(hint->anim, 1, 0);
                 }
             }
         } else {
             if (fin == 0) {
-                stage_SetAnimation(hint->_0, -1, -2);
+                stage_SetAnimation(hint->anim, -1, -2);
             }
         }
     }
@@ -247,7 +247,7 @@ char *GetBuffHintSaveInfo(void)
 
 void Hint_Init(void)
 {
-    struct HintInfo *p;
+    struct HintDef *p;
     int i;
 
     hintTimers = hintWork.timer;

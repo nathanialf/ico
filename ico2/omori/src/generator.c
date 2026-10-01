@@ -242,13 +242,8 @@ static inline char *ResetCurrentBga(char *gobj) /* derived name */
     GenWork *w = GOBJ_SUB(gobj)->work;
 
     if (w->cur != -1) {
-        /* the slot, as a byte offset from the record */
-        char *e = (char *)w + w->cur * 8;
-        char *q;
-
-        *(char *)(e + 0x34) = 0;
-        q = (char *)w + w->cur * 8;
-        **(float **)(q + 0x30) = -1.0f;
+        w->bga[w->cur].active = 0;
+        w->bga[w->cur].p->f0 = -1.0f;
     }
     return (char *)w;
 }
@@ -278,7 +273,7 @@ void endfunc_BGA(char *gobj)
     }
 
     case 1:
-        *(int *)w->bga[1].p = 0;
+        w->bga[1].p->f0 = 0.0f;
         break;
 
     case 2: {
@@ -755,26 +750,26 @@ inline int MemoryGenerator(short *a0, char *a1)
     return 1;
 }
 
-/* The pending-BGA request queue of the generator actor: the count lives at
-   gobj+0x58 and the entries run from gobj+0x5C. */
+/* The generator's view of its object's mail box (GObj 0x54, typedef.h's
+   IosMailBox): the count, and the queued mails with an unsigned kind. */
 typedef struct GenReqEntry { /* field names derived */
     unsigned int kind;
-    int f4;
+    int arg;
 } GenReqEntry;
 
-typedef struct GenReq {
-    int f0;
+typedef struct GenReq { /* field names derived */
+    int queue;
     int count;
 } GenReq;
 
 void generatorBeforeFunc(char *gobj)
 {
     GenWork *w = GOBJ_SUB(gobj)->work;
-    GenReq *q = (GenReq *)(gobj + 0x54);
+    GenReq *q = (GenReq *)&((GObj *)gobj)->mailQueue;
     int i;
 
     for (i = 0; i < q->count; i++) {
-        switch (((GenReqEntry *)(gobj + 0x5C))[i].kind) {
+        switch (((GenReqEntry *)((GObj *)gobj)->mail)[i].kind) {
         case 0: {
             GenWork *cur;
 
@@ -827,19 +822,13 @@ inline GenWork *InitGeneratorGeo(char *gobj, GVGeo2 *src)
     p->dir[1] = 0.0f;
     p->dir[2] = 1.0f;
     /* the direction is a quadword whose fourth word holds the bgaDone byte */
-    *(float *)((char *)p + 0x2C) = 0.0f;
+    *(float *)&p->bgaDone = 0.0f;
+
     _ApplyRyGV(p->dir, src->rot[2]);
 
-    {
-        char *r = &p->bga[0].active;
-        BgaDisp **q = &p->bga[0].p;
-
-        for (i = 0; i < 4; i++) {
-            *q = InitMultiBgaManager(1);
-            *r = 0;
-            q += 2;
-            r += 8;
-        }
+    for (i = 0; i < 4; i++) {
+        p->bga[i].p = InitMultiBgaManager(1);
+        p->bga[i].active = 0;
     }
 
     return p;

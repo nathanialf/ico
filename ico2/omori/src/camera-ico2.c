@@ -185,7 +185,8 @@ void CameraSetCameraSet_Default(void)
     CameraSetCameraSet(stageData[stage_no].camSetId);
 }
 
-void GetRootPositionForCamera(int a0, int a1)
+void GetRootPositionForCamera(float *a0, int a1)
+
 {
     if (a1 == boyGObj) {
         GetBoyRootPositionForCamera(a0, a1);

@@ -74,19 +74,22 @@ void OverrideBrainStatusByGObj(Brain *b, int gobj, float f8, float f10, float fC
     debug_StdPrintfDummy("ブレインレベルのオーバーライドに失敗しました\n");
 }
 
-typedef struct {
-    char _0[0x46];
-    unsigned char b46;
-    char _47[1];
-    unsigned int w48;
+/* the brain's view of a stage layout row (generator.c's GVGeo2): the object
+   kind and the flag word, bit 20 of which puts the object in the girl's
+   brain */
+typedef struct { /* field names derived */
+    char pad00[70];
+    unsigned char kind;
+    char pad47[1];
+    unsigned int flags;
 } BrainDefEnt;
 
 extern BrainDefEnt objLayout[];
 
 static inline void brainSetTargetSub(Brain *b, int gobj, float lvl, int k)
 {
-    float fc = objKindData[k].brainCapStep;
-    float f10 = objKindData[k].brainRate;
+    float capStep = objKindData[k].brainCapStep;
+    float rate = objKindData[k].brainRate;
     BrainTarget *t;
     int i;
 
@@ -95,15 +98,16 @@ static inline void brainSetTargetSub(Brain *b, int gobj, float lvl, int k)
             break;
         }
     }
-    if (i == 0x28) {
+    if (i == 40) {
         return;
     }
     t = &b->tgt[i];
     t->gobj = gobj;
     t->level = 0.0f;
     t->levelCap = lvl;
-    t->capStep = fc;
-    t->rate = f10;
+    t->capStep = capStep;
+    t->rate = rate;
+
     t->byte18 = 0;
     t->alwaysSeen = 0;
     *(int *)&t->byte18 &= ~0x10000;
@@ -113,9 +117,9 @@ static inline void brainSetTargetSub(Brain *b, int gobj, float lvl, int k)
 void brainStatusDefaultSet(Brain *b, int gobj, int idx)
 {
     BrainDefEnt *d = objLayout + idx;
-    int k = d->b46;
+    int k = d->kind;
 
-    if ((d->w48 >> 20) & 1) {
+    if ((d->flags >> 20) & 1) {
         if (objKindData[k].brainLevel != 0) {
             brainSetTargetSub(b, gobj, (float)objKindData[k].brainLevel, k);
         }

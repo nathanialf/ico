@@ -28,10 +28,10 @@ int *GetCurrentCameraSet2(void);
 void InitCamera(void);
 void InsertCamera_Exec(float *cam, int *cut, int *cutType, int *enable);
 
-void InsertCamera_SetDetail(float *pos, float *tgt, int gobj, int cutType, int b37, int b38,
+void InsertCamera_SetDetail(float *pos, float *tgt, int frames, int cutType, int zoom, int cutBack,
                             float blend);
 
-void InsertCamera_SetNoraml(float *pos, float *tgt, int gobj, int cutType);
+void InsertCamera_SetNoraml(float *pos, float *tgt, int frames, int cutType);
 int InsertCamera_isEnable(void);
 void MakeCameraMatrix();
 void ResetHandCameraLimitInDemo(void);

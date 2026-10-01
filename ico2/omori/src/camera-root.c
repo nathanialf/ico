@@ -65,9 +65,9 @@ typedef struct CamCtrl {
     int lastPri; /* 0x0C */
 } CamCtrl;
 
-typedef struct InsertCameraWork {
-    int gobj; /* 0x00 */
-    int w04;  /* 0x04 */
+typedef struct InsertCameraWork { /* field names derived */
+    int frames;                   /* 0x00, how long the insert camera runs */
+    int count;                    /* 0x04, the frames it has run */
     char pad08[0x10 - 0x08];
     float pos[3]; /* 0x10 */
     char pad1c[0x20 - 0x1C];
@@ -77,8 +77,8 @@ typedef struct InsertCameraWork {
     unsigned char enable;  /* 0x34 */
     unsigned char cut;     /* 0x35 */
     unsigned char cutType; /* 0x36 */
-    unsigned char b37;     /* 0x37 */
-    unsigned char b38;     /* 0x38 */
+    unsigned char zoom;    /* 0x37, the zoom request while it runs */
+    unsigned char cutBack; /* 0x38, cut back to the game camera at the end */
     char pad39[0x40 - 0x39];
     /* a VU0 quadword record: pos and tgt are quadword vectors */
 } InsertCameraWork __attribute__((aligned(16)));
@@ -307,14 +307,14 @@ void DebugCameraSemiAuto(void)
             targetCameraSet.moving = 0;
         }
     } else {
-        float buf[10];
+        union CameraSetIn buf;
         CameraEditManual(&cameraSet, 1);
-        buf[0] = cameraSet.pos[0];
-        buf[1] = cameraSet.pos[1];
-        buf[2] = cameraSet.pos[2];
-        buf[8] = cameraSet.fov;
-        GetRootPosition(&buf[4], cameraTargetGObj);
-        ConvertCameraSet(&cameraSet, buf);
+        buf.f[0] = cameraSet.pos[0];
+        buf.f[1] = cameraSet.pos[1];
+        buf.f[2] = cameraSet.pos[2];
+        buf.f[8] = cameraSet.fov;
+        GetRootPosition(&buf.f[4], cameraTargetGObj);
+        ConvertCameraSet(&cameraSet, &buf);
     }
     MakeCameraMatrix(&cameraSet);
 }
@@ -502,13 +502,13 @@ static inline void InsertCamera_Step(void) /* derived name */
         insertCamera.enable = 0;
     }
     if (insertCamera.enable != 0) {
-        if (insertCamera.w04 < insertCamera.gobj) {
-            insertCamera.w04 = insertCamera.w04 + 1;
-            zoomRequest = insertCamera.b37;
+        if (insertCamera.count < insertCamera.frames) {
+            insertCamera.count = insertCamera.count + 1;
+            zoomRequest = insertCamera.zoom;
             zoomBlend = insertCamera.blend;
         } else {
             insertCamera.enable = 0;
-            gamecamCutBack = insertCamera.b38;
+            gamecamCutBack = insertCamera.cutBack;
         }
     }
 }
@@ -792,18 +792,24 @@ void CameraSetTargetGObj(int a, int b)
 
 void CameraChangeTargetParallel(int a0, int a1)
 {
-    char buf[0x30];
+    struct {           /* field names derived */
+        float move[4]; /* the step from the old target to the new one */
+        float from[4]; /* the old target's root */
+        float to[4];   /* the new target's root */
+    } buf;
+
     if (a0 == 0) {
-        *(int *)(buf + 0) = 0;
-        *(int *)(buf + 4) = 0;
-        *(int *)(buf + 8) = 0;
+        buf.move[0] = 0.0f;
+        buf.move[1] = 0.0f;
+        buf.move[2] = 0.0f;
     } else {
-        GetRootPosition(buf + 0x10, a0);
-        GetRootPosition(buf + 0x20, a1);
-        sceVu0SubVector(buf, buf + 0x20, buf + 0x10);
+        GetRootPosition(buf.from, a0);
+        GetRootPosition(buf.to, a1);
+        sceVu0SubVector(buf.move, buf.to, buf.from);
     }
     *(CamTgt *)&targetCameraSet = *(CamTgt *)&cameraSet;
-    sceVu0AddVector(&targetCameraSet, &targetCameraSet, buf);
+    sceVu0AddVector(&targetCameraSet, &targetCameraSet, buf.move);
+
     targetCameraSet.moving = 1;
 }
 
@@ -846,11 +852,11 @@ void CameraGetOtherObjOffset(float *pos, float *outDist, int *outAngle)
     *outAngle = ang;
 }
 
-void InsertCamera_Set(float *pos, float *tgt, int gobj)
+void InsertCamera_Set(float *pos, float *tgt, int frames)
 {
     if (InsertCamera_isEnable()) {
-        insertCamera.gobj = gobj;
-        insertCamera.w04 = 0;
+        insertCamera.frames = frames;
+        insertCamera.count = 0;
         insertCamera.pos[0] = pos[0];
         insertCamera.pos[1] = pos[1];
         insertCamera.pos[2] = pos[2];
@@ -860,41 +866,41 @@ void InsertCamera_Set(float *pos, float *tgt, int gobj)
         insertCamera.enable = 1;
         insertCamera.cut = 1;
         insertCamera.cutType = 0;
-        insertCamera.b37 = 1;
-        insertCamera.b38 = 1;
+        insertCamera.zoom = 1;
+        insertCamera.cutBack = 1;
         insertCamera.blend = -1.0f;
     }
 }
 
-void InsertCamera_SetNoraml(float *pos, float *tgt, int gobj, int cutType)
+void InsertCamera_SetNoraml(float *pos, float *tgt, int frames, int cutType)
 {
     if (InsertCamera_isEnable()) {
-        insertCamera.gobj = gobj;
-        insertCamera.w04 = 0;
+        insertCamera.frames = frames;
+        insertCamera.count = 0;
         sceVu0ScaleVector(insertCamera.pos, pos, -1.0f);
         sceVu0ScaleVector(insertCamera.tgt, tgt, -1.0f);
         insertCamera.enable = 1;
         insertCamera.cut = 1;
         insertCamera.cutType = cutType;
-        insertCamera.b37 = 1;
-        insertCamera.b38 = 1;
+        insertCamera.zoom = 1;
+        insertCamera.cutBack = 1;
         insertCamera.blend = -1.0f;
     }
 }
 
-void InsertCamera_SetDetail(float *pos, float *tgt, int gobj, int cutType, int b37, int b38,
+void InsertCamera_SetDetail(float *pos, float *tgt, int frames, int cutType, int zoom, int cutBack,
                             float blend)
 {
     if (InsertCamera_isEnable()) {
-        insertCamera.gobj = gobj;
-        insertCamera.w04 = 0;
+        insertCamera.frames = frames;
+        insertCamera.count = 0;
         sceVu0ScaleVector(insertCamera.pos, pos, -1.0f);
         sceVu0ScaleVector(insertCamera.tgt, tgt, -1.0f);
         insertCamera.enable = 1;
         insertCamera.cut = 1;
         insertCamera.cutType = cutType;
-        insertCamera.b37 = b37;
-        insertCamera.b38 = b38;
+        insertCamera.zoom = zoom;
+        insertCamera.cutBack = cutBack;
         insertCamera.blend = blend;
     }
 }

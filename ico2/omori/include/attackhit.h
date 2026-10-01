@@ -9,7 +9,7 @@
 #define ATTACKHIT_H
 
 void CommonAttackCenter(char *a0);
-int _AttackCenter(char *gop, int group, float *pos, float *ofs, float radius, int kind);
+int _AttackCenter(char *gop, int group, float *pos, float *ofs, float radius, char *spare);
 void AttackCenter_WithDir(char *gop, int group, float *pos, float *dir, float radius);
 
 void EnemyAttackCenter(void);

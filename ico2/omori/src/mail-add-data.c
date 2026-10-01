@@ -73,9 +73,9 @@ inline void *GetMailAdditionalData(char *gop, int mail)
     return 0;
 }
 
-void InitMailAdditionalData(char *a0, int a1)
+void InitMailAdditionalData(char *a0, struct MailAdditionalData *table)
 {
-    GOBJ_ACT(a0)->mailAddData = a1;
+    GOBJ_ACT(a0)->mailAddData = table;
     ClearMailAdditionalData(a0);
 }
 

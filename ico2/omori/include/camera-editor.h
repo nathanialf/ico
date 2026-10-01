@@ -71,8 +71,8 @@ typedef struct MenuThread { /* field names derived */
 } MenuThread;
 
 /* the functions camera-editor.c defines `inline` */
-inline void debug_NMarker(int *self, int a1, int a2, int a3, float t);
-inline void debug_Marker(int *buf, int a1, int a2, int a3, float f12, float f13);
+inline void debug_NMarker(float *pos, int r, int g, int b, float size);
+inline void debug_Marker(float *pos, int r, int g, int b, float size, float pulse);
 inline void debug_Arrow(float len, void *from, void *to, int r, int g, int b);
 inline void InitCameraEditor(void);
 inline int debug_CameraEditor(void);
@@ -84,7 +84,7 @@ inline int CameraEdit_BOX_NUMBER(void);
 inline int CameraEdit_PIN_NUMBER(int a0);
 inline int CameraEdit_PIN_NUMBER_ALL(int *a0, int a1);
 inline int CameraEdit_BOX(int a0);
-inline int CameraEdit_PIN(int a0, int a1);
+inline PinRec *CameraEdit_PIN(int a0, int a1);
 inline void CameraEdit_DispPin(int box, int pin);
 inline void ConvertCameraSetBuffer(int n, S4C *item, char *groups);
 inline void StickToTrans(int a0, int a1, int a2, int a3, float *out, int a5);
