@@ -32,7 +32,7 @@ typedef struct { /* field names derived */
     int rgba[4];
 } FcColor; /* derived name */
 
-typedef int (*FcFunc)(void *a0, int a1);
+typedef int (*FcFunc)(void *work, int mode);
 
 /* fieldCollision.o's .sbss and .bss.  .sbss: the number of objects in the
    collision list, the nine collision statistics DispCollisionPC prints (a
@@ -127,26 +127,26 @@ void MakeCollisionDependGObjList(void)
     }
 }
 
-void GetReflectionElement(char *a0, float arg0, float arg1)
+void GetReflectionElement(char *work, float arg0, float arg1)
 {
     float buf0[4];
     float L10[4];
     float L20[4];
     float z;
 
-    CopyVector(L10, a0 + 0xA0);
+    CopyVector(L10, work + 0xA0);
     *(int *)&L10[3] = 0;
-    sceVu0SubVector(buf0, a0 + 0x10, a0);
-    sceVu0ScaleVector(a0 + 0x30, L10, -GetDistanceFromPlane(L10, buf0));
-    sceVu0AddVector(a0 + 0x40, buf0, a0 + 0x30);
-    sceVu0ScaleVectorXYZ(a0 + 0x30, a0 + 0x30, arg1);
-    sceVu0ScaleVectorXYZ(a0 + 0x40, a0 + 0x40, arg0);
-    sceVu0AddVector(a0 + 0x60, a0 + 0x40, a0 + 0x30);
+    sceVu0SubVector(buf0, work + 0x10, work);
+    sceVu0ScaleVector(work + 0x30, L10, -GetDistanceFromPlane(L10, buf0));
+    sceVu0AddVector(work + 0x40, buf0, work + 0x30);
+    sceVu0ScaleVectorXYZ(work + 0x30, work + 0x30, arg1);
+    sceVu0ScaleVectorXYZ(work + 0x40, work + 0x40, arg0);
+    sceVu0AddVector(work + 0x60, work + 0x40, work + 0x30);
     {
         float *p20 = L20;
-        z = GetPointDistance(a0 + 0x20, a0 + 0x10);
-        sceVu0ScaleVector(p20, a0 + 0x60, z / GetPointDistance(a0, a0 + 0x10));
-        sceVu0AddVector(a0 + 0x50, a0 + 0x20, p20);
+        z = GetPointDistance(work + 0x20, work + 0x10);
+        sceVu0ScaleVector(p20, work + 0x60, z / GetPointDistance(work, work + 0x10));
+        sceVu0AddVector(work + 0x50, work + 0x20, p20);
     }
 }
 
@@ -167,9 +167,9 @@ static __inline__ float FcAbsF(float v) /* derived name */
     return v;
 }
 
-static int clip_wall_1(void *a0, FcWallEnt *wall, int flip, int useh)
+static int clip_wall_1(void *work, FcWallEnt *wall, int flip, int useh)
 {
-    ClipWork *ray = (ClipWork *)a0;
+    ClipWork *ray = (ClipWork *)work;
     FcWallEnt *e;
     float pa[4];
     float pb[4];
@@ -364,10 +364,10 @@ static __inline__ int FloorPointInside(FcFloorEnt *e, float *pt) /* derived name
     return cross & 1;
 }
 
-static int clip_floor_1(void *a0, int a1, int a2)
+static int clip_floor_1(void *work, int floor, int backFace)
 {
-    float *ray = (float *)a0;
-    FcFloorEnt *e = (FcFloorEnt *)a1;
+    float *ray = (float *)work;
+    FcFloorEnt *e = (FcFloorEnt *)floor;
     float hit[4];
     float nx = e->nx;
     float ex = ray[8];
@@ -384,7 +384,7 @@ static int clip_floor_1(void *a0, int a1, int a2)
     float t;
 
     de = nx * ex + ny * ey + nz * ez + pd;
-    if (a2 != 0) {
+    if (backFace != 0) {
         if (de < 0.0f) {
             return 0;
         }
@@ -397,7 +397,7 @@ static int clip_floor_1(void *a0, int a1, int a2)
     sy = ray[1];
     sz = ray[2];
     ds = nx * sx + ny * sy + nz * sz + pd;
-    if (a2 != 0) {
+    if (backFace != 0) {
         if (ds >= 0.0f) {
             return 0;
         }
@@ -1081,18 +1081,18 @@ static void _Clip(char *self, int mode)
     }
 }
 
-static void __ClipWall(ClipWork *a0, int a1)
+static void __ClipWall(ClipWork *work, int mode)
 {
-    a0->slideCount = 0;
-    a0->floorHit = 0;
-    a0->wallHit = 0;
-    *(ObjNode *)a0->wallSrc = InitialObjPointer;
-    _Clip(a0, a1);
+    work->slideCount = 0;
+    work->floorHit = 0;
+    work->wallHit = 0;
+    *(ObjNode *)work->wallSrc = InitialObjPointer;
+    _Clip(work, mode);
 }
 
-static inline void __ClipWallWithDrawRay(char *w, int a1)
+static inline void __ClipWallWithDrawRay(char *w, int mode)
 {
-    __ClipWall(w, a1);
+    __ClipWall(w, mode);
     gif_StartPacketPri(11);
     MatrixDrive_PushMatrix();
     {
@@ -1109,16 +1109,16 @@ static inline void __ClipWallWithDrawRay(char *w, int a1)
     gif_EndPacket();
 }
 
-static void __ClipFloor(ClipWork *a0, int a1)
+static void __ClipFloor(ClipWork *work, int mode)
 {
-    a0->floorHit = 0;
-    *(ObjNode *)a0->floorSrc = InitialObjPointer;
-    _Clip(a0, a1);
+    work->floorHit = 0;
+    *(ObjNode *)work->floorSrc = InitialObjPointer;
+    _Clip(work, mode);
 }
 
-static inline void __ClipFloorWithDrawRay(char *w, int a1)
+static inline void __ClipFloorWithDrawRay(char *w, int mode)
 {
-    __ClipFloor(w, a1);
+    __ClipFloor(w, mode);
     gif_StartPacketPri(11);
     MatrixDrive_PushMatrix();
     {
@@ -1144,133 +1144,134 @@ inline void ClipWallRD(void)
     collision_pick = 0;
 }
 
-static int (*clipWallFunc)(void *a0, int a1) = (int (*)(void *, int))__ClipWall; /* derived name */
+static int (*clipWallFunc)(void *work,
+                           int mode) = (int (*)(void *, int))__ClipWall; /* derived name */
 
-static int (*clipFloorFunc)(void *a0,
-                            int a1) = (int (*)(void *, int))__ClipFloor; /* derived name */
+static int (*clipFloorFunc)(void *work,
+                            int mode) = (int (*)(void *, int))__ClipFloor; /* derived name */
 
-inline int ChangeFieldCollisionDebugMode(int a0)
+inline int ChangeFieldCollisionDebugMode(int drawRay)
 {
     clipWallFunc = (int (*)(void *, int))__ClipWall;
     clipFloorFunc = (int (*)(void *, int))__ClipFloor;
-    if (a0 != 0) {
+    if (drawRay != 0) {
         clipWallFunc = (int (*)(void *, int))__ClipWallWithDrawRay;
         clipFloorFunc = (int (*)(void *, int))__ClipFloorWithDrawRay;
     }
     return 0;
 }
 
-inline void ClipWallDebug(void *a0)
+inline void ClipWallDebug(void *work)
 {
-    clipWallFunc(a0, 0);
+    clipWallFunc(work, 0);
 }
 
-inline void ClipWall(void *a0)
+inline void ClipWall(void *work)
 {
-    clipWallFunc(a0, 0x1);
+    clipWallFunc(work, 0x1);
 }
 
-inline void ClipWallR(void *a0)
+inline void ClipWallR(void *work)
 {
-    clipWallFunc(a0, 0x2);
+    clipWallFunc(work, 0x2);
 }
 
-inline void ClipWallWaveForce(void *a0)
+inline void ClipWallWaveForce(void *work)
 {
-    clipWallFunc(a0, 0x6);
+    clipWallFunc(work, 0x6);
 }
 
-inline void ClipWallFuchiHangWalkStop(void *a0)
+inline void ClipWallFuchiHangWalkStop(void *work)
 {
-    clipWallFunc(a0, 0x7);
+    clipWallFunc(work, 0x7);
 }
 
-inline void ClipWallField(void *a0)
+inline void ClipWallField(void *work)
 {
-    clipWallFunc(a0, 0x3);
+    clipWallFunc(work, 0x3);
 }
 
-inline void ClipWallEField(void *a0)
+inline void ClipWallEField(void *work)
 {
-    clipWallFunc(a0, 0x5);
+    clipWallFunc(work, 0x5);
 }
 
-inline void ClipWallBoxStop(void *a0)
+inline void ClipWallBoxStop(void *work)
 {
-    clipWallFunc(a0, 0xA);
+    clipWallFunc(work, 0xA);
 }
 
-inline void ClipWallAdjustPos(void *a0)
+inline void ClipWallAdjustPos(void *work)
 {
-    clipWallFunc(a0, 0xB);
+    clipWallFunc(work, 0xB);
 }
 
-inline void ClipWallE(void *a0)
+inline void ClipWallE(void *work)
 {
-    clipWallFunc(a0, 0x4);
+    clipWallFunc(work, 0x4);
 }
 
-inline void ClipWallCheckCB(void *a0, int a1)
+inline void ClipWallCheckCB(void *work, int filter)
 {
-    colFilter = (int (*)(void *))a1;
-    clipWallFunc(a0, 8);
+    colFilter = (int (*)(void *))filter;
+    clipWallFunc(work, 8);
 }
 
-inline void ClipWallFieldCheckCB(void *a0, int a1)
+inline void ClipWallFieldCheckCB(void *work, int filter)
 {
-    colFilter = (int (*)(void *))a1;
-    clipWallFunc(a0, 9);
+    colFilter = (int (*)(void *))filter;
+    clipWallFunc(work, 9);
 }
 
-inline void ClipFloor(void *a0)
+inline void ClipFloor(void *work)
 {
-    clipFloorFunc(a0, 0xC);
+    clipFloorFunc(work, 0xC);
 }
 
-inline void ClipFloorE(void *a0)
+inline void ClipFloorE(void *work)
 {
-    clipFloorFunc(a0, 0xD);
+    clipFloorFunc(work, 0xD);
 }
 
-inline void ClipFloorR(void *a0)
+inline void ClipFloorR(void *work)
 {
-    clipFloorFunc(a0, 0xE);
+    clipFloorFunc(work, 0xE);
 }
 
-inline void ClipFloorIH(void *a0)
+inline void ClipFloorIH(void *work)
 {
-    clipFloorFunc(a0, 0xF);
+    clipFloorFunc(work, 0xF);
 }
 
-inline void ClipFloorCheckCB(void *a0, int a1)
+inline void ClipFloorCheckCB(void *work, int filter)
 {
-    colFilter = (int (*)(void *))a1;
-    clipFloorFunc(a0, 0x10);
+    colFilter = (int (*)(void *))filter;
+    clipFloorFunc(work, 0x10);
 }
 
-inline int ClipWallVector(int *a0, int *a1)
+inline int ClipWallVector(int *start, int *end)
 {
     int buf[48];
     *(float *)&buf[28] = 50.0f;
-    sceVu0CopyVector(buf, a0);
-    sceVu0CopyVector(buf + 4, a1);
+    sceVu0CopyVector(buf, start);
+    sceVu0CopyVector(buf + 4, end);
     ClipWall(buf);
     return buf[34];
 }
 
-inline float GetYProjectionOfPlane(float *a0, float *a1)
+inline float GetYProjectionOfPlane(float *plane, float *pos)
 {
-    return -(a0[0] * a1[0] + a0[2] * a1[2] + a0[3]) / a0[1];
+    return -(plane[0] * pos[0] + plane[2] * pos[2] + plane[3]) / plane[1];
 }
 
-inline float GetDistanceFromPlane(void *a0, void *a1)
+inline float GetDistanceFromPlane(void *plane, void *pos)
 {
-    return sceVu0InnerProduct(a0, a1) + ((float *)a0)[3];
+    return sceVu0InnerProduct(plane, pos) + ((float *)plane)[3];
 }
 
-inline float GetYDistanceFromPlane(float *a0, float *a1)
+inline float GetYDistanceFromPlane(float *plane, float *pos)
 {
-    return a1[1] - GetYProjectionOfPlane(a0, a1);
+    return pos[1] - GetYProjectionOfPlane(plane, pos);
 }
 
 typedef union { /* field names derived */
@@ -1305,18 +1306,18 @@ inline void GetGlobalWallPlane(float *plane, int *r)
     plane[3] = -sceVu0InnerProduct(plane, pts);
 }
 
-inline int ClipPlane(int a0)
+inline int ClipPlane(int work)
 {
-    float *p = (float *)a0;
-    char *q = (char *)(a0 + 0xA0);
+    float *p = (float *)work;
+    char *q = (char *)(work + 0xA0);
     float t0, t1, d;
 
-    sceVu0CopyVector((int *)(a0 + 0x20), (int *)(a0 + 0x10));
-    t0 = GetDistanceFromPlane(q, (void *)(a0 + 0x10));
+    sceVu0CopyVector((int *)(work + 0x20), (int *)(work + 0x10));
+    t0 = GetDistanceFromPlane(q, (void *)(work + 0x10));
     if (t0 >= 0.0f) {
         return 0;
     }
-    t1 = GetDistanceFromPlane(q, (void *)a0);
+    t1 = GetDistanceFromPlane(q, (void *)work);
     if (t1 < 0.0f) {
         if (t0 < 0.0f) {
             return 0;
@@ -1340,17 +1341,17 @@ inline void ClipCollision(int *self)
     sceVu0CopyVector(p10, buf);
 }
 
-inline void MapCollisionData(void *a0)
+inline void MapCollisionData(void *data)
 {
-    int *p = (int *)a0;
-    p[4] = (int)a0 + p[4];
-    p[5] = (int)a0 + p[5];
+    int *p = (int *)data;
+    p[4] = (int)data + p[4];
+    p[5] = (int)data + p[5];
 }
 
-inline void LoadCollision(int *self, int a1)
+inline void LoadCollision(int *self, int fname)
 {
     int *p;
-    file_LoadFile((int)self, a1, 0);
+    file_LoadFile((int)self, fname, 0);
     p = (int *)self[0];
     p[4] = (int)p + p[4];
     p[5] = (int)p + p[5];
@@ -1499,9 +1500,9 @@ void DrawGObjFloorCollision(char *gobj, int col)
     gif_EndPacket();
 }
 
-inline void DrawCollision(int a0)
+inline void DrawCollision(int mode)
 {
-    int n = a0;
+    int n = mode;
     void *obj;
 
     if (n > 0) {
@@ -1619,15 +1620,15 @@ int GetEdgeOfFloor(float *out, FcFloorEnt *e, float *p1, float *p2)
     return i;
 }
 
-inline void GetOrientOfWall(void *a0, void *a1, int *a2)
+inline void GetOrientOfWall(void *out, void *wallEnt, int *src)
 {
     float buf[4];
     /* NULL on the no-wall path, where the code stores 0 through it: a
        deliberate fault after the message */
     int *trap;
-    void *obj = (void *)a2[0];
+    void *obj = (void *)src[0];
 
-    if (a1 == 0) {
+    if (wallEnt == 0) {
         buf[1] = 0.0f;
         buf[2] = 1.0f;
         trap = 0;
@@ -1636,13 +1637,13 @@ inline void GetOrientOfWall(void *a0, void *a1, int *a2)
         debug_StdPrintfDummy("壁が無いのにGetOrientOfWallが呼ばれました\n");
     } else {
         trap = (int *)1;
-        buf[0] = -GetTableSin((short)-*(unsigned short *)((char *)a1 + 0x44));
+        buf[0] = -GetTableSin((short)-*(unsigned short *)((char *)wallEnt + 0x44));
         buf[1] = 0.0f;
-        buf[2] = GetTableCos((short)-*(unsigned short *)((char *)a1 + 0x44));
+        buf[2] = GetTableCos((short)-*(unsigned short *)((char *)wallEnt + 0x44));
         buf[3] = 1.0f;
     }
     if (trap == 0) {
-        CopyVector((void *)a0, (void *)buf);
+        CopyVector((void *)out, (void *)buf);
         *trap = 0;
         return;
     }
@@ -1651,13 +1652,13 @@ inline void GetOrientOfWall(void *a0, void *a1, int *a2)
         int *sub = (int *)(int)GOBJ_SUB(obj);
         if (sub != 0 && *(int *)((char *)sub + 0xC) != 0) {
             if (*(int *)((char *)sub + 0x78) != 0) {
-                int *p5 = (int *)a2[0];
-                int idx = a2[1];
+                int *p5 = (int *)src[0];
+                int idx = src[1];
                 int *o3 = (int *)(int)GOBJ_SUB(p5);
-                sceVu0ApplyMatrix(a0, (void *)(*(int *)((char *)o3 + 0xC) + (idx << 6)), buf);
+                sceVu0ApplyMatrix(out, (void *)(*(int *)((char *)o3 + 0xC) + (idx << 6)), buf);
                 return;
             }
-            CopyVector((void *)a0, (void *)buf);
+            CopyVector((void *)out, (void *)buf);
             return;
         }
         /* "GetOrientOfWall was called for an object with no DOBJ" */
@@ -1771,11 +1772,11 @@ void MakeExitAttributeIndex(void)
     }
 }
 
-inline int PositionOfExit(GObj *a0, int a1)
+inline int PositionOfExit(float *pos, int attr)
 {
-    int v = (int)exitAttr[a1 & 0xF];
+    int v = (int)exitAttr[attr & 0xF];
     if (v != 0) {
-        CopyVector(a0, v);
+        CopyVector(pos, v);
         return 0;
     }
     return 1;

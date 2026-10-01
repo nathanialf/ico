@@ -130,66 +130,66 @@ typedef struct EnemyBattleWork { /* field names derived */
 
 /* enemy_act.c's `inline` functions, in the order of their definitions'
  * out-of-line copies at the end of the object (first-declaration order). */
-void funcEnemyAiGetGirl(struct GObj *a0);
-void actEnemyStand(GObj *volatile a0);
-void actEnemyWalk(GObj *volatile a0);
-void actEnemyRun(GObj *volatile a0);
-void actEnemyHang(GObj *volatile a0);
-void actEnemyCarry(GObj *volatile a0);
-void actEnemyBodyslam(GObj *volatile a0);
-void actEnemyBodyslamFail(GObj *volatile a0);
-void actEnemyNest(GObj *volatile a0);
-void funcEnemyCarryFail(struct GObj *a0);
+void funcEnemyAiGetGirl(struct GObj *self);
+void actEnemyStand(GObj *volatile self);
+void actEnemyWalk(GObj *volatile self);
+void actEnemyRun(GObj *volatile self);
+void actEnemyHang(GObj *volatile self);
+void actEnemyCarry(GObj *volatile self);
+void actEnemyBodyslam(GObj *volatile self);
+void actEnemyBodyslamFail(GObj *volatile self);
+void actEnemyNest(GObj *volatile self);
+void funcEnemyCarryFail(struct GObj *self);
 void actEnemyHyde(GObj *self);
-inline void actEnemyFlagOnFree(GObj *a0);
-inline void afterCommonCarry(GObj *volatile a0);
-void actEnemyFlagOnDead(GObj *a0);
-int EnemyBrainStatus_Boy(struct GObj *a0);
-int EnemyBrainStatus_Girl(struct GObj *a0);
-inline int actEnemyFlagCheckDead(GObj *a0);
-inline int actEnemyFlagCheckActive(GObj *a0);
-int ACTEnemyForceSwitchToCarry(GObj *a0);
-int actEnemy_GetClingTarget(struct GObj *a0);
-int actEnemy_isNormalEnemy(struct GObj *a0);
-int actEnemy_isLargeEnemy(struct GObj *a0);
-int actEnemy_isSmallEnemy(struct GObj *a0);
-int IsEnemyBrainToGenerator(char *a0, int *out);
+inline void actEnemyFlagOnFree(GObj *self);
+inline void afterCommonCarry(GObj *volatile self);
+void actEnemyFlagOnDead(GObj *self);
+int EnemyBrainStatus_Boy(struct GObj *self);
+int EnemyBrainStatus_Girl(struct GObj *self);
+inline int actEnemyFlagCheckDead(GObj *self);
+inline int actEnemyFlagCheckActive(GObj *self);
+int ACTEnemyForceSwitchToCarry(GObj *self);
+int actEnemy_GetClingTarget(struct GObj *self);
+int actEnemy_isNormalEnemy(struct GObj *self);
+int actEnemy_isLargeEnemy(struct GObj *self);
+int actEnemy_isSmallEnemy(struct GObj *self);
+int IsEnemyBrainToGenerator(char *self, int *out);
 int IsEnemyBrainToBoy(struct GObj *self);
-int GetEnemyTypeFromGObj(struct GObj *a0);
+int GetEnemyTypeFromGObj(struct GObj *obj);
 int GetEnemyType(float x, float y, float z);
 int isEnemyKidnapEnable(GObj *self);
 inline int isEnemyActive(GObj *self);
-int GetMotherGeneratorLabelAskEnemy(struct GObj *a0);
-struct GObj *GetMotherGeneratorGObjAskEnemy(struct GObj *a0);
-inline void subEnemyBrain_Idle(GObj *volatile a0);
-void subEnemyBrain_Await(GObj *volatile a0);
-void subEnemyBrain_FindGirl(GObj *volatile a0);
-void subEnemyBrain_BodyGuard(GObj *volatile a0);
-void subEnemyBrain_Shoulder(GObj *volatile a0);
-void subEnemyBrain_Pickup(GObj *volatile a0);
-void subEnemyBrain_Bodyslam(GObj *volatile a0);
-void subEnemyBrain_Irregular(GObj *volatile a0);
-inline void _BrainMode_SetDirect(char *a0, int a1, BrainModeTarget *a2);
+int GetMotherGeneratorLabelAskEnemy(struct GObj *enemy);
+struct GObj *GetMotherGeneratorGObjAskEnemy(struct GObj *enemy);
+inline void subEnemyBrain_Idle(GObj *volatile self);
+void subEnemyBrain_Await(GObj *volatile self);
+void subEnemyBrain_FindGirl(GObj *volatile self);
+void subEnemyBrain_BodyGuard(GObj *volatile self);
+void subEnemyBrain_Shoulder(GObj *volatile self);
+void subEnemyBrain_Pickup(GObj *volatile self);
+void subEnemyBrain_Bodyslam(GObj *volatile self);
+void subEnemyBrain_Irregular(GObj *volatile self);
+inline void _BrainMode_SetDirect(char *self, int mode, BrainModeTarget *tgt);
 inline void EnemyUtil_TurnToBoy(GObj *self, GObj *tgt, int smooze);
-inline int FlyMail(void *a0);
+inline int FlyMail(void *self);
 void boss_effect_callback(int id);
-void motEnemyStand(GObj *volatile a0);
-void motEnemyWalk(GObj *volatile a0);
-void motEnemyRun(GObj *volatile a0);
-void actEnemyJump(GObj *volatile a0);
+void motEnemyStand(GObj *volatile self);
+void motEnemyWalk(GObj *volatile self);
+void motEnemyRun(GObj *volatile self);
+void actEnemyJump(GObj *volatile self);
 inline int EnemyUtil_isOtherStatus(char *self, int mode);
-int isEnemyHyde(GObj *a0);
+int isEnemyHyde(GObj *self);
 
 inline int _ApproachTarget(GObj *self, void *tgt, void *pos, void *fn, float range,
                            unsigned char flag);
 
-void afterEnemyBodylift(GObj *volatile a0);
+void afterEnemyBodylift(GObj *volatile self);
 
 void actEnemyRestart(GObj *self, float *pos, float *dir, int kind, GObj *mother);
 /* enemy_act.o's last .sdata global (act.c sets it) */
 extern int entesty;
-void subEnemyControl(GObj *volatile a0);
-void subEnemyCollision(GObj *volatile a0);
-void subEnemyBrainMain(GObj *volatile a0);
+void subEnemyControl(GObj *volatile self);
+void subEnemyCollision(GObj *volatile self);
+void subEnemyBrainMain(GObj *volatile self);
 
 #endif /* ENEMY_ACT_H */

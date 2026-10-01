@@ -40,9 +40,9 @@ void DrawVObj(int no, int color)
     gif_EndPacket();
 }
 
-void SetVObjRT(int a0, void *a1)
+void SetVObjRT(int rot, void *trans)
 {
     sceVu0UnitMatrix(MatrixDrive_GetMatrix());
-    *(float *)((char *)a1 + 0xC) = 1.0f;
-    MatrixDrive_TransMatrixV(a1);
+    *(float *)((char *)trans + 0xC) = 1.0f;
+    MatrixDrive_TransMatrixV(trans);
 }

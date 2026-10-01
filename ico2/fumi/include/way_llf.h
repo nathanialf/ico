@@ -60,7 +60,7 @@ int DeleteWayGroup(int gno);
 void CloseWayGroup(int idx);
 int CreateWayPoint(float *pos);
 int AddWayPoint(int gno, int pno);
-int AddWayPointTop(int a0, int a1);
+int AddWayPointTop(int gno, int pno);
 int InsertWayPointAfter(int dummy, int idx1, int idx2);
 int DeleteWayPoint(int pno);
 int CreateBridge(float *a, float *b);
@@ -71,14 +71,14 @@ WayGroup *WayBridge_next(WayGroup *p);
 WayGroup *WayBridgeAll_begin(void);
 WayGroup *WayBridgeAll_next(WayGroup *p);
 WayGroup *WayBridgeVar_begin(void);
-WayGroup *WayBridgeVar_next(WayGroup *a0);
+WayGroup *WayBridgeVar_next(WayGroup *g);
 WayPoint *WayPoint_begin(void);
-WayPoint *WayPoint_next(WayPoint *a0);
-WayPoint *WayPointList_begin(int a0);
-WayPoint *WayPointList_next(WayPoint *a0);
+WayPoint *WayPoint_next(WayPoint *p);
+WayPoint *WayPointList_begin(int gno);
+WayPoint *WayPointList_next(WayPoint *p);
 WayPoint *waypoint_bidirectional_list(WayPoint *self, int which);
 void InitWayPointSystem(void);
-void SetWayGroupActive(int a0, int a1);
+void SetWayGroupActive(int gno, int active);
 int CheckWayGroupActive(int idx);
 
 #endif /* WAY_LLF_H */

@@ -315,9 +315,7 @@ typedef struct { /* field names derived */
     float wallTop; /* 0x5A4 */
 } EnvSub;          /* derived name */
 
-/* defined in omori/src/gv.c, which gv.h does not declare */
-extern int _FrontGV(float *target, float *pos, float *dir, int deg);
-extern float GetCorrectDistance(int deg, float dist);
+/* defined in sugipon/src/motionManager2.c, which motionManager2.h does not declare */
 extern void GetOrientOfCliffOfGObj(void *out, void *obj);
 /* same prototype as its definition in weapon.c; no header carries it */
 extern char *CheckSwapableWeapon(char *self, float dist);

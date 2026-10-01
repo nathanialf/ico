@@ -18,12 +18,12 @@ struct jNode { /* field names derived */
 }; /* derived name */
 
 struct jWayGroup { /* field names derived */ /* jimakuRing element, stride 0x18 */
-    int f0;
-    int f4;
-    int f8;
-    int fC;
-    struct jWayGroup *node; /* the next group in the ring */
-    char *buf;              /* 0x14 its 0x8C40 read buffer */
+    int block;                               /* 0x00, the disc block read into buf, -1 when none */
+    int state;                               /* 0x04, 1 shown, 2 done with, 3 free, 4 read */
+    int tex;                                 /* 0x08, the texture made from buf, -1 when none */
+    int stamp;                               /* 0x0C, lock_execIcoMisc when tex was made */
+    struct jWayGroup *node;                  /* the next group in the ring */
+    char *buf;                               /* 0x14 its 0x8C40 read buffer */
 }; /* derived name */
 
 /* the four-group read ring, the groups' CD read buffers (64-byte aligned as
@@ -123,7 +123,7 @@ static void display_texture(LtProperty *t)
     gif_EndPacket();
 }
 
-void iosCdvdBackGroundReadJimaku(int self, int a1, int size)
+void iosCdvdBackGroundReadJimaku(CdvdBgReq *self, void *buf, int size)
 {
     int large = size + 0x7FE;
     int v1 = size - 1;
@@ -131,11 +131,11 @@ void iosCdvdBackGroundReadJimaku(int self, int a1, int size)
     if (neg_one < v1)
         large = v1;
     large = ((large >> 11) + 1) << 11;
-    iosCdvdBackGroundRead(self, a1, large);
-    iosCdvdBackGroundMgrSeek(self, *(int *)((char *)self + 0x110) + size);
+    iosCdvdBackGroundRead(self, buf, large);
+    iosCdvdBackGroundMgrSeek(self, self->pos + size);
 }
 
-static int jimakuHandler(int self, JimakuArg *p)
+static int jimakuHandler(CdvdBgReq *self, JimakuArg *p)
 {
     JimakuSub *sub = &p->sub;
     struct jWayGroup *g;
@@ -145,8 +145,8 @@ static int jimakuHandler(int self, JimakuArg *p)
 
     while (sub->ringPos != (sub->n + 3) % 4) {
         g = &jimakuRing[sub->ringPos];
-        if (g->f4 == 2) {
-            g->f4 = 3;
+        if (g->state == 2) {
+            g->state = 3;
             break;
         }
         /* read the record in pieces of at most 0x8C40 bytes */
@@ -155,11 +155,11 @@ static int jimakuHandler(int self, JimakuArg *p)
             n = (0x8C40 < left) ? 0x8C40 : left;
             jimakuBuf[sub->ringPos][0] = -1;
             jimakuBuf[sub->ringPos][1] = -1;
-            iosCdvdBackGroundReadJimaku(self, (int)jimakuBuf[sub->ringPos], n);
+            iosCdvdBackGroundReadJimaku(self, jimakuBuf[sub->ringPos], n);
             left -= n;
         }
-        jimakuRing[sub->ringPos].f0 = sub->block++;
-        jimakuRing[sub->ringPos].f4 = 4;
+        jimakuRing[sub->ringPos].block = sub->block++;
+        jimakuRing[sub->ringPos].state = 4;
         iosCdvdBackGroundMgrSeek(sub->bg, sub->block * 0x8800);
         sub->ringPos = (sub->ringPos + 1) % 4;
     }
@@ -192,9 +192,9 @@ static void jimakuMgrBegin(JimakuArg *p)
         g->buf = jimakuBuf[i];
     }
     sub->n = 0;
-    jimakuRing[0].f0 = -1;
-    jimakuRing[0].f4 = 3;
-    jimakuRing[0].f8 = -1;
+    jimakuRing[0].block = -1;
+    jimakuRing[0].state = 3;
+    jimakuRing[0].tex = -1;
     sub->ringPos = 1;
     switch (NonLinearCameraMove) {
     case 2:
@@ -225,9 +225,9 @@ static void jimakuMgrBegin(JimakuArg *p)
         iosCdvdBackGroundMgrSeek(q->bg, q->block * 0x8800);
         m = (q->ringPos = (q->n + 1) % 4);
         while (m != q->n) {
-            jimakuRing[m].f0 = -1;
-            jimakuRing[m].f4 = 3;
-            jimakuRing[m].f8 = -1;
+            jimakuRing[m].block = -1;
+            jimakuRing[m].state = 3;
+            jimakuRing[m].tex = -1;
             m = (m + 1) % 4;
         }
     }
@@ -247,7 +247,7 @@ static void jimakuMgrNext(JimakuArg *p)
     JimakuSub *sub = &p->sub;
     struct jWayGroup *g = &jimakuRing[sub->n];
 
-    while (g->node->f4 != 4) {
+    while (g->node->state != 4) {
         if (iosSemaWait(&jimakuReadSema) < 0) {
             return;
         }
@@ -255,12 +255,12 @@ static void jimakuMgrNext(JimakuArg *p)
     if (iosSemaWait(&jimakuReadSema) < 0) {
         return;
     }
-    g->node->f4 = 1;
+    g->node->state = 1;
     sprintf(buf, "jimaku%02d.tm2", (sub->n + 1) % 4);
-    g->node->f8 = tex_InitTexture(buf, g->node->buf);
-    tex_SetSamplingType(tex_GetTextureData(g->node->f8), 1, 1);
-    g->node->fC = lock_execIcoMisc;
-    if (g->node->f8 == -1) {
+    g->node->tex = tex_InitTexture(buf, g->node->buf);
+    tex_SetSamplingType(tex_GetTextureData(g->node->tex), 1, 1);
+    g->node->stamp = lock_execIcoMisc;
+    if (g->node->tex == -1) {
         debug_StdPrintfDummy("already exist\n");
         debug_assert(__FILE__, 688);
         __assert(__FILE__, 688, "0");
@@ -269,9 +269,9 @@ static void jimakuMgrNext(JimakuArg *p)
     if (iosSemaWait(&jimakuShownSema) < 0) {
         return;
     }
-    g->f4 = 2;
-    if (g->f8 >= 0) {
-        tex_FreeTexture(g->f8);
+    g->state = 2;
+    if (g->tex >= 0) {
+        tex_FreeTexture(g->tex);
     }
     sub->cur = jimakuBuf[sub->n];
     jimakuDispOn = 1;
@@ -281,7 +281,7 @@ static void jimakuMgrNext(JimakuArg *p)
         int m;
 
         for (m = 0; m < 4; m++) {
-            debug_StdPrintfDummy(m == sub->n ? ">%d" : " %d", jimakuRing[m].f4);
+            debug_StdPrintfDummy(m == sub->n ? ">%d" : " %d", jimakuRing[m].state);
         }
         debug_StdPrintfDummy("\n");
     }
@@ -295,9 +295,9 @@ static void jimakuMgrJump(JimakuArg *p)
     iosCdvdBackGroundMgrSeek(q->bg, q->block * 0x8800);
     m = (q->ringPos = (q->n + 1) % 4);
     while (m != q->n) {
-        jimakuRing[m].f0 = -1;
-        jimakuRing[m].f4 = 3;
-        jimakuRing[m].f8 = -1;
+        jimakuRing[m].block = -1;
+        jimakuRing[m].state = 3;
+        jimakuRing[m].tex = -1;
         m = (m + 1) % 4;
     }
     jimakuMgrNext(p);
@@ -371,7 +371,7 @@ void jimakuJump(JimakuArg *msg)
         int v = sub->jump;
 
         if (v == -1) {
-            jimakuDispTime = ((0x3C - systemStatus[0] * 0xA) / systemStatus[1]) << 2;
+            jimakuDispTime = ((60 - systemStatus[0] * 10) / systemStatus[1]) << 2;
         } else {
             jimakuDispTime = v;
         }
@@ -394,7 +394,7 @@ void jimakuDisp(JimakuArg *msg)
     if (systemStatus[10] == 0) {
         return;
     }
-    c = g->fC;
+    c = g->stamp;
     if ((unsigned int)(c + jimakuDispTime) < (unsigned int)lock_execIcoMisc) {
         jimakuDispOn = 0;
     }
@@ -411,7 +411,7 @@ void jimakuDisp(JimakuArg *msg)
         }
     }
     if (jimakuDispOn != 0) {
-        int v = g->f8;
+        int v = g->tex;
         texProperty[435].texNo = v;
         texProperty[434].texNo = v;
         if (v < 0) {

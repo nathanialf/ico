@@ -177,9 +177,9 @@ static GirlAttractParam attractBoyParam = {0, {0}, {0}, 0, 338, 100.0f, 70.0f}; 
 
 /* The actor entry parameter is volatile: the actor scheduler writes the
  * caller's home slot while this thread is parked in _ACTWait. */
-void subGirlBrain_Attract(GObj *volatile a0)
+void subGirlBrain_Attract(GObj *volatile self)
 {
-    Act *sub = GOBJ_ACT(a0);
+    Act *sub = GOBJ_ACT(self);
     float mypos[4];
     float last[4];
     GirlAttractParam tgt;
@@ -252,13 +252,13 @@ restart:
         tgt.pos[0] = sub->sofaPos[0];
         tgt.pos[1] = sub->sofaPos[1];
         tgt.pos[2] = sub->sofaPos[2];
-        ((GirlSofaWork *)GOBJ_ACT(a0)->enemy)->pos[0] = sub->sofaPos[0];
-        ((GirlSofaWork *)GOBJ_ACT(a0)->enemy)->pos[1] = sub->sofaPos[1];
-        ((GirlSofaWork *)GOBJ_ACT(a0)->enemy)->pos[2] = sub->sofaPos[2];
-        _GetRootObjectOrient(((GirlSofaWork *)GOBJ_ACT(a0)->enemy)->dir, param);
-        tgt.dir[0] = ((GirlSofaWork *)GOBJ_ACT(a0)->enemy)->dir[0];
-        tgt.dir[1] = ((GirlSofaWork *)GOBJ_ACT(a0)->enemy)->dir[1];
-        tgt.dir[2] = ((GirlSofaWork *)GOBJ_ACT(a0)->enemy)->dir[2];
+        ((GirlSofaWork *)GOBJ_ACT(self)->enemy)->pos[0] = sub->sofaPos[0];
+        ((GirlSofaWork *)GOBJ_ACT(self)->enemy)->pos[1] = sub->sofaPos[1];
+        ((GirlSofaWork *)GOBJ_ACT(self)->enemy)->pos[2] = sub->sofaPos[2];
+        _GetRootObjectOrient(((GirlSofaWork *)GOBJ_ACT(self)->enemy)->dir, param);
+        tgt.dir[0] = ((GirlSofaWork *)GOBJ_ACT(self)->enemy)->dir[0];
+        tgt.dir[1] = ((GirlSofaWork *)GOBJ_ACT(self)->enemy)->dir[1];
+        tgt.dir[2] = ((GirlSofaWork *)GOBJ_ACT(self)->enemy)->dir[2];
         tgt.f_50 = 1;
         break;
     case 2:
@@ -277,9 +277,9 @@ restart:
         float margin;
         float ratio;
 
-        root[0] = test_CURRENTROOT((void *)a0)[0];
-        root[1] = test_CURRENTROOT((void *)a0)[1];
-        root[2] = test_CURRENTROOT((void *)a0)[2];
+        root[0] = test_CURRENTROOT((void *)self)[0];
+        root[1] = test_CURRENTROOT((void *)self)[1];
+        root[2] = test_CURRENTROOT((void *)self)[2];
         if (tgt.obj != 0 && *(int *)((char *)tgt.obj + 0xC) == 32 &&
             !(_DistSqGV(root, test_CURRENTROOT(tgt.obj)) < 90000.0f)) {
             far = 1;
@@ -287,13 +287,13 @@ restart:
         if (!ACTGame_FLAG_TETSUNAGI()) {
             sub->flags20.ll |= 0x2000000000ULL;
         }
-        if (type == 0 && tgt.obj == (void *)boyGObj && GOBJ_WORK(a0)->brainTimer != 0) {
+        if (type == 0 && tgt.obj == (void *)boyGObj && GOBJ_WORK(self)->brainTimer != 0) {
             noTurn = 0;
         }
-        if (*(int *)GOBJ_SUB(a0) != 0 && *(int *)(*(int *)GOBJ_SUB(a0) + 0xC) == 17 &&
+        if (*(int *)GOBJ_SUB(self) != 0 && *(int *)(*(int *)GOBJ_SUB(self) + 0xC) == 17 &&
             boyGObj != 0 && type == 0 && tgt.obj == (void *)boyGObj &&
             root[1] < test_CURRENTROOT(boyGObj)[1] &&
-            _DistSqGV(test_CURRENTROOT((void *)a0), test_CURRENTROOT(boyGObj)) <
+            _DistSqGV(test_CURRENTROOT((void *)self), test_CURRENTROOT(boyGObj)) <
                 _ACTGame_GetParamF(30) * _ACTGame_GetParamF(30)) {
             hint = 1;
             escape = 1;
@@ -302,13 +302,13 @@ restart:
             hint = 1;
         }
         if (0 < brain_val.f_590C) {
-            _ACTCharStatus_Set((void *)a0, 31, -1.0f, 0);
+            _ACTCharStatus_Set((void *)self, 31, -1.0f, 0);
         }
         if (kind != getKind()) {
             goto restart;
         }
-        type2 = girlBrainGetTargetType((void *)a0);
-        GetRootProjectionPosOfGObj(mypos, (void *)a0);
+        type2 = girlBrainGetTargetType((void *)self);
+        GetRootProjectionPosOfGObj(mypos, (void *)self);
         if (tgt.f_30 == 0) {
             int onSofa = 0;
             float dir[4];
@@ -337,7 +337,7 @@ restart:
                     tgt.pos[1] = mypos[1];
                     tgt.pos[2] = mypos[2];
                     if (tgt.obj != 0) {
-                        GirlBrainClearTarget((void *)a0, &tgt);
+                        GirlBrainClearTarget((void *)self, &tgt);
                     }
                     break;
                 case 2:
@@ -352,17 +352,17 @@ restart:
         dispWayMarker(tgt.pos);
         if (tgt.obj != 0) {
             if (brainDecTargetTimer(tgt.obj)) {
-                GirlBrainClearTarget((void *)a0, &tgt);
+                GirlBrainClearTarget((void *)self, &tgt);
             }
         }
         if (boyGObj != 0 && GOBJ_ACT(boyGObj)->actMode == 49) {
             if (tgt.obj == (void *)boyGObj || tgt.obj == GOBJ_ACT(boyGObj)->box) {
-                GirlBrainClearTarget((void *)a0, &tgt);
+                GirlBrainClearTarget((void *)self, &tgt);
             }
         }
         if (sub->actMode == 81) {
             if (tgt.obj == (void *)boyGObj) {
-                GirlBrainClearTarget((void *)a0, &tgt);
+                GirlBrainClearTarget((void *)self, &tgt);
             }
         }
         if (sub->wayMode == 3) {
@@ -377,7 +377,7 @@ restart:
 
             clamped = (speed < _ACTGame_GetParamF(29)) ? _ACTGame_GetParamF(29)
                                                        : ((1.0f < speed) ? 1.0f : speed);
-            ACTGame_SetMotionPlaySpeedRatio_Reserve((void *)a0, clamped, 1);
+            ACTGame_SetMotionPlaySpeedRatio_Reserve((void *)self, clamped, 1);
         }
         {
             float rate = girlBrainGetTargetLevel() * 4.0f;
@@ -389,7 +389,7 @@ restart:
             /* a second speed, computed and clamped like the one above and applied only
                with the debug switch set */
             if (dbg) {
-                ACTGame_SetMotionPlaySpeedRatio_Reserve((void *)a0, v, 1);
+                ACTGame_SetMotionPlaySpeedRatio_Reserve((void *)self, v, 1);
             }
         }
         if (((int)(sub->flags18.ll >> 62) & 1) && type == 0 && tgt.obj == (void *)boyGObj) {
@@ -402,12 +402,12 @@ restart:
         }
         switch (sub->wayMode) {
         case 0:
-            _ACTLookTarget_Set((void *)a0, 0, 0, 6, 1);
+            _ACTLookTarget_Set((void *)self, 0, 0, 6, 1);
             sub->stickMag = 0.0f;
             setMode(6);
             break;
         case 1: {
-            int p = ACTWayMove_BeginDetail((void *)a0, mypos, tgt.pos, tgt.obj, 0, 0);
+            int p = ACTWayMove_BeginDetail((void *)self, mypos, tgt.pos, tgt.obj, 0, 0);
 
             if (tgt.f_30 != 0) {
                 sub->wayState.bits.wayDetail = 1;
@@ -425,22 +425,22 @@ restart:
             break;
         }
         case 3: {
-            int p = ACTWayMove_NextDetail((void *)a0, (char *)sub + 0x120, tgt.pos, 0,
+            int p = ACTWayMove_NextDetail((void *)self, (char *)sub + 0x120, tgt.pos, 0,
                                           tgt.obj != 0 && IsTopHint(tgt.obj));
 
-            if (GOBJ_ACT(a0)->actMode == 45) {
+            if (GOBJ_ACT(self)->actMode == 45) {
                 if (type == 1) {
                     setMode(4);
                     break;
                 }
             } else if (type == 1) {
-                if (tgt.obj != (void *)boyGObj && GOBJ_WORK(a0)->sofaRestTimer != 0) {
+                if (tgt.obj != (void *)boyGObj && GOBJ_WORK(self)->sofaRestTimer != 0) {
                     setMode(8);
                     sub->stickMag = 0.0f;
                     break;
                 }
                 if (type == 1 && ((int)(sub->flags20.ll >> 12) & 1) &&
-                    _DistSqGV(test_CURRENTROOT((void *)a0), tgt.pos) < 40000.0f) {
+                    _DistSqGV(test_CURRENTROOT((void *)self), tgt.pos) < 40000.0f) {
                     setMode(2);
                     break;
                 }
@@ -467,17 +467,17 @@ restart:
                         setMode(4);
                         sub->stickMag = 0.0f;
                     } else if (sub->wayGoalDist < 300.0f) {
-                        girlBrainSetWalkRatio((void *)a0, 0.5f);
+                        girlBrainSetWalkRatio((void *)self, 0.5f);
                     } else {
                         ratio = far ? 1.0f : girlBrainGetTypeRatio(type2);
-                        girlBrainSetWalkRatio((void *)a0, ratio);
+                        girlBrainSetWalkRatio((void *)self, ratio);
                     }
                 } else {
                     if (sub->wayGoalDist < tgt.f_28 + margin &&
                         ((sub->wayGoalHeight < 0.0f) ? -sub->wayGoalHeight : sub->wayGoalHeight) <
                             tgt.f_2C) {
                         if (tgt.f_50) {
-                            if (ATGoalTurnMail((void *)a0, tgt.dir, 0x23)) {
+                            if (ATGoalTurnMail((void *)self, tgt.dir, 0x23)) {
                                 noTurn = 0;
                             }
                         }
@@ -488,7 +488,7 @@ restart:
                         }
                     } else {
                         ratio = far ? 1.0f : girlBrainGetTypeRatio(type2);
-                        girlBrainSetWalkRatio((void *)a0, ratio);
+                        girlBrainSetWalkRatio((void *)self, ratio);
                         if (sub->wayGoalDist < tgt.f_54) {
                             sub->stickMag = (0.5f < sub->stickMag) ? 0.5f : sub->stickMag;
                         }
@@ -504,7 +504,7 @@ restart:
                 last[2] = tgt.pos[2];
             }
             if (tgt.obj != (void *)boyGObj && !(tgt.obj != 0 && IsTopHint(tgt.obj)) &&
-                !ACTGameViewSimple_Check(a0, tgt.obj)) {
+                !ACTGameViewSimple_Check(self, tgt.obj)) {
                 switch (sub->actMode) {
                 case 2:
                     turnCnt = turnCnt + 1;
@@ -519,7 +519,7 @@ restart:
             }
             if (tgt.obj != 0 && IsTopHint(tgt.obj) &&
                 ((int)((unsigned long long)sub->wayFlags >> 18) & 1)) {
-                hintCnt = hintCnt + actModeTbl[GOBJ_ACT(a0)->actMode].hintCount;
+                hintCnt = hintCnt + actModeTbl[GOBJ_ACT(self)->actMode].hintCount;
                 if ((60 - systemStatus[0] * 10) / systemStatus[1] * 4 < hintCnt) {
                     sub->stickMag = 0.0f;
                 }
@@ -542,24 +542,24 @@ restart:
                                    ? (60 - systemStatus[0] * 10) / systemStatus[1] * 2
                                    : 0)) {
                 sub->stickMag = 0;
-                _ACTLookTarget_Set((void *)a0, tgt.obj, 0, 2, 1);
+                _ACTLookTarget_Set((void *)self, tgt.obj, 0, 2, 1);
                 if (tgt.obj != 0 && IsTopHint(tgt.obj) && sub->wayMode == 2 &&
                     girlControlMode == 0) {
-                    girlAttractTurnMailL((void *)a0, tgt.obj, tgt.pos, mypos);
-                    if (actModeTbl[GOBJ_ACT(a0)->actMode].attractWait) {
+                    girlAttractTurnMailL((void *)self, tgt.obj, tgt.pos, mypos);
+                    if (actModeTbl[GOBJ_ACT(self)->actMode].attractWait) {
                         cnt = (60 - systemStatus[0] * 10) / systemStatus[1] * 10;
                     }
                 }
                 if (tgt.obj == (void *)boyGObj && sub->wayMode == 2 && escape == 0 &&
-                    GOBJ_WORK(a0)->timer3B0 == 0 && girlControlMode == 0 &&
+                    GOBJ_WORK(self)->timer3B0 == 0 && girlControlMode == 0 &&
                     brain_val.targetFlag != 0) {
-                    girlAttractTurnMailR((void *)a0, tgt.pos, mypos);
+                    girlAttractTurnMailR((void *)self, tgt.pos, mypos);
                     if (sub->actMode == 77) {
                         cnt = (60 - systemStatus[0] * 10) / systemStatus[1] * 10;
                     }
                 }
             } else {
-                _ACTLookTarget_Set((void *)a0, 0, 0, 6, 1);
+                _ACTLookTarget_Set((void *)self, 0, 0, 6, 1);
                 setMode(8);
             }
             if (((int)(sub->flags18.ll >> 63) & 1) || (sub->flags20.i[0] & 1)) {
@@ -580,13 +580,13 @@ restart:
                                  : 0)) {
                 sub->stickMag = 0.0f;
                 if (tgt.obj != 0 && IsTopHint(tgt.obj) && girlControlMode == 0) {
-                    girlAttractTurnMailL((void *)a0, tgt.obj, tgt.pos, mypos);
-                    if (actModeTbl[GOBJ_ACT(a0)->actMode].attractWait) {
+                    girlAttractTurnMailL((void *)self, tgt.obj, tgt.pos, mypos);
+                    if (actModeTbl[GOBJ_ACT(self)->actMode].attractWait) {
                         cnt = (60 - systemStatus[0] * 10) / systemStatus[1] * 10;
                     }
                 } else {
                     sub->orientMot = tgt.kind;
-                    ACTSendMailCorrect((void *)a0, tgt.mail);
+                    ACTSendMailCorrect((void *)self, tgt.mail);
                 }
             } else {
                 setMode(8);
@@ -595,7 +595,7 @@ restart:
         case 8:
             cnt = cnt + 1;
             if (cnt == 2) {
-                GirlBrainClearTarget((void *)a0, &tgt);
+                GirlBrainClearTarget((void *)self, &tgt);
             }
             if ((60 - systemStatus[0] * 10) / systemStatus[1] < cnt) {
                 setMode(0);

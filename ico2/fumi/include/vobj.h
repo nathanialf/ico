@@ -9,6 +9,6 @@
 #define VOBJ_H
 
 void DrawVObj(int no, int color);
-void SetVObjRT(int a0, void *a1);
+void SetVObjRT(int rot, void *trans);
 
 #endif /* VOBJ_H */

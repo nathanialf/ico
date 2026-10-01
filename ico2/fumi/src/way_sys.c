@@ -13,7 +13,7 @@
 #include "fieldCollision.h"
 #include "gamesys.h"
 
-int _FUNC_GetWay_begin(void *a0, WVTObj *w, int a2, int a3)
+int _FUNC_GetWay_begin(void *from, WVTObj *w, int goal, int threaded)
 {
     WayPoint *(*findTemp)(float *, int);
     WayPoint *(*findGid)(float *, int);
@@ -30,7 +30,7 @@ int _FUNC_GetWay_begin(void *a0, WVTObj *w, int a2, int a3)
 
     ret = 0;
     work = WayUtilWorkAlloc();
-    if (a3) {
+    if (threaded) {
         findTemp = visible_waypoint_of_all_except_temp_ThreadVersion;
 
         findGid = visible_waypoint_of_all_except_gid_ThreadVersion;
@@ -42,16 +42,16 @@ int _FUNC_GetWay_begin(void *a0, WVTObj *w, int a2, int a3)
         findPath = shortest_path;
     }
 
-    wp0 = findTemp(a0, -1);
+    wp0 = findTemp(from, -1);
     if (wp0 == 0) {
         goto out;
     }
 
     if ((unsigned int)w->stampFrame < (unsigned int)(lock_execIcoMisc - 1) || w->nearWp == 0) {
         if (w->guideFirst >= 0) {
-            wp = findTemp((void *)a2, way_point[w->guideFirst].group);
+            wp = findTemp((void *)goal, way_point[w->guideFirst].group);
         } else {
-            wp = findTemp((void *)a2, -1);
+            wp = findTemp((void *)goal, -1);
         }
 
         w->nearWp = wp;
@@ -68,7 +68,7 @@ int _FUNC_GetWay_begin(void *a0, WVTObj *w, int a2, int a3)
     }
 
     if (way_group[wp->group].active == 0) {
-        wp = findGid((void *)a2, wp->group);
+        wp = findGid((void *)goal, wp->group);
         if (wp == 0) {
             goto out;
         }
@@ -82,7 +82,7 @@ int _FUNC_GetWay_begin(void *a0, WVTObj *w, int a2, int a3)
     debug_StdPrintfDummy("gid t:%d m:%d\n", wp0->group, wp->group);
 
     w->group = wp->group;
-    sceVu0CopyVector(w->pos, a0);
+    sceVu0CopyVector(w->pos, from);
 
     g0 = wp0->group;
     g1 = wp->group;
@@ -124,7 +124,7 @@ int _FUNC_GetWay_begin(void *a0, WVTObj *w, int a2, int a3)
             if (0) {
                 debug_StdPrintfDummy("gid:%d = tgid:%d, mgid:%d\n", gid, g1, g0);
             }
-            wpn = nearest_waypoint_of_group(a0, gid);
+            wpn = nearest_waypoint_of_group(from, gid);
 
             g0 = gid;
             wp0 = wpn;
@@ -200,9 +200,9 @@ out:
     return (int)ret;
 }
 
-inline int GetWay_begin(void *a0, int a1, int a2)
+inline int GetWay_begin(void *from, int way, int goal)
 {
-    return _FUNC_GetWay_begin(a0, a1, a2, 0);
+    return _FUNC_GetWay_begin(from, way, goal, 0);
 }
 
 /* The collision query ClipWall / ClipFloorR fill in: 192 bytes, 16-aligned. */

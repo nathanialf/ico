@@ -62,7 +62,7 @@ static unsigned char wpBuf[32]; /* derived name */
    reads */
 static char wayToolBuf[544]; /* derived name */
 
-inline void cursor_control(GObj *volatile a0);
+inline void cursor_control(GObj *volatile self);
 
 static int group_create(void)
 {
@@ -584,7 +584,7 @@ static void draw_way_group(int g, WayCol *col)
     }
 }
 
-static void way_toolDL(int a0)
+static void way_toolDL(int arg)
 {
     WayVec m;
     WayVec blink;
@@ -599,7 +599,7 @@ static void way_toolDL(int a0)
     if (load_save_flag != 0) {
         return;
     }
-    GetRootPosition(wayWorkPos, a0);
+    GetRootPosition(wayWorkPos, arg);
 
     MatrixDrive_PushMatrix();
     sceVu0UnitMatrix(MatrixDrive_GetMatrix());
@@ -727,17 +727,17 @@ int debug_WayTool(void)
     return 0;
 }
 
-inline void cursor_control(GObj *volatile a0)
+inline void cursor_control(GObj *volatile self)
 {
-    Act *w = GOBJ_ACT(a0);
+    Act *w = GOBJ_ACT(self);
 
     iosPadConnect((char *)w + 0x2D8, 0, 0, &iosPadConfDefault);
 
     while (1) {
         iosPadRead((char *)w + 0x2D8);
 
-        if (a0 == CurrentTargetGObj && (w->padTrg & 1)) {
-            ACTDebugMove(a0, 1);
+        if (self == CurrentTargetGObj && (w->padTrg & 1)) {
+            ACTDebugMove(self, 1);
         }
         _ACTWait(1);
     }

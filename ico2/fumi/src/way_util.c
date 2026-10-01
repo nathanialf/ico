@@ -29,7 +29,7 @@ typedef struct WpSortEnt { /* field names derived */
 } WpSortEnt; /* derived name */
 
 /* the qsort comparator the two visible_waypoint searches sort by */
-static inline int wpsort_compfnc(WpSortEnt *a0, WpSortEnt *a1);
+static inline int wpsort_compfnc(WpSortEnt *p, WpSortEnt *q);
 
 /* the name every iosMallocDebug and assert in this file reports itself under */
 static const char wayUtilFile[] = "src/way_util.c"; /* derived name */
@@ -267,15 +267,15 @@ int short_direction_between_wp(WayPoint *from, WayPoint *to)
     return dir;
 }
 
-inline int direction_across_bridge(WayGroup *bridge, int a1)
+inline int direction_across_bridge(WayGroup *bridge, int gid)
 {
     WayPoint *e1 = &way_point[bridge->end[0]];
     WayPoint *e2;
-    if (e1->group == a1) {
+    if (e1->group == gid) {
         return 1;
     }
     e2 = &way_point[bridge->end[1]];
-    if (e2->group != a1) {
+    if (e2->group != gid) {
         debug_StdPrintfDummy("abnormal bridge\n");
         debug_assert(wayUtilFile, 706);
         __assert(wayUtilFile, 706, "0");
@@ -285,7 +285,7 @@ inline int direction_across_bridge(WayGroup *bridge, int a1)
 
 /* the bridge between two groups, which waybridge_between_group and
    wgid_next inline */
-static inline WayGroup *bridgeBetweenGroups(int a0, int a1) /* derived name */
+static inline WayGroup *bridgeBetweenGroups(int gidA, int gidB) /* derived name */
 {
     WayGroup *p = WayBridge_begin();
     while (p != 0) {
@@ -293,10 +293,10 @@ static inline WayGroup *bridgeBetweenGroups(int a0, int a1) /* derived name */
         WayPoint *eB = &way_point[p->end[1]];
         int a = eA->group;
         int b = eB->group;
-        if (a == a0 && b == a1) {
+        if (a == gidA && b == gidB) {
             return p;
         }
-        if (b == a0 && a == a1) {
+        if (b == gidA && a == gidB) {
             return p;
         }
         p = WayBridge_next(p);
@@ -535,23 +535,23 @@ int GetWgAll(int from, int to, WgAll *w)
 /* the end of a group on a given side: waypoint_connect_group_side_me and
    set_check_wp inline the first; set_check_wp inlines the second, a
    file-static copy of waypoint_connect_group_side_bridge */
-static inline WayPoint *groupSideMe(WayGroup *a0, int a1) /* derived name */
+static inline WayPoint *groupSideMe(WayGroup *bridge, int gid) /* derived name */
 {
-    WayPoint *e = &way_point[a0->end[0]];
-    if (e->group == a1)
+    WayPoint *e = &way_point[bridge->end[0]];
+    if (e->group == gid)
         return e;
-    e = &way_point[a0->end[1]];
-    return e->group == a1 ? e : 0;
+    e = &way_point[bridge->end[1]];
+    return e->group == gid ? e : 0;
 }
 
-static inline WayPoint *groupSideBridge(WayGroup *a0, int a1) /* derived name */
+static inline WayPoint *groupSideBridge(WayGroup *bridge, int gid) /* derived name */
 {
-    WayPoint *e = &way_point[a0->end[0]];
-    if (e->group == a1)
-        return a0->first;
-    e = &way_point[a0->end[1]];
-    if (e->group == a1)
-        return a0->last;
+    WayPoint *e = &way_point[bridge->end[0]];
+    if (e->group == gid)
+        return bridge->first;
+    e = &way_point[bridge->end[1]];
+    if (e->group == gid)
+        return bridge->last;
     return 0;
 }
 
@@ -697,9 +697,9 @@ inline WayPoint *nearest_waypoint_of_group(float *arg0, int handle)
     return best;
 }
 
-inline WayPoint *nearest_waypoint(float *a0)
+inline WayPoint *nearest_waypoint(float *pos)
 {
-    return nearest_waypoint_of_group(a0, current_select_gid);
+    return nearest_waypoint_of_group(pos, current_select_gid);
 }
 
 inline WayPoint *nearest_waypoint_from_gobj(void *dobj)
@@ -851,7 +851,7 @@ ret0:
     return 0;
 }
 
-inline WayPoint *nearest_waypoint_of_all_except_group(float *arg0, int a1)
+inline WayPoint *nearest_waypoint_of_all_except_group(float *pos, int gid)
 {
     float buf[4];
     WayPoint *t = WayPoint_begin();
@@ -862,8 +862,8 @@ inline WayPoint *nearest_waypoint_of_all_except_group(float *arg0, int a1)
     if (best != 0) {
         do {
             float d;
-            if (cur->group != a1) {
-                sceVu0SubVector(buf, cur->pos, arg0);
+            if (cur->group != gid) {
+                sceVu0SubVector(buf, cur->pos, pos);
                 d = fzMagnitudefv(buf);
                 if (d < bestDist) {
                     bestDist = d;
@@ -902,7 +902,7 @@ inline WayPoint *nearest_waypoint_of_all_not_bridge_except_group(float *arg0, in
     return best;
 }
 
-inline WayPoint *nearest_waypoint_of_all(float *a0)
+inline WayPoint *nearest_waypoint_of_all(float *pos)
 {
     float buf[4];
     int neg1 = -1;
@@ -915,7 +915,7 @@ inline WayPoint *nearest_waypoint_of_all(float *a0)
         do {
             float d;
             if (cur->group != neg1) {
-                sceVu0SubVector(buf, cur->pos, a0);
+                sceVu0SubVector(buf, cur->pos, pos);
                 d = fzMagnitudefv(buf);
                 if (d < bestDist) {
                     bestDist = d;
@@ -928,15 +928,15 @@ inline WayPoint *nearest_waypoint_of_all(float *a0)
     return best;
 }
 
-inline WayPoint *visible_waypoint_of_all(void *a0)
+inline WayPoint *visible_waypoint_of_all(void *pos)
 {
-    return visible_waypoint_of_all_except_gid(a0, -1);
+    return visible_waypoint_of_all_except_gid(pos, -1);
 }
 
-inline void visible_waypoint_of_all_from_gobj(void *a0)
+inline void visible_waypoint_of_all_from_gobj(void *obj)
 {
     float buf[4];
-    GetRootPosition(buf, a0);
+    GetRootPosition(buf, obj);
     visible_waypoint_of_all_except_gid(buf, -1);
 }
 
@@ -1021,9 +1021,9 @@ inline WayPoint *get_wp_nearest_bridge_side_bridge(int arg0, int arg1)
     return 0;
 }
 
-inline WayGroup *waybridge_between_group(int a0, int a1)
+inline WayGroup *waybridge_between_group(int gidA, int gidB)
 {
-    return bridgeBetweenGroups(a0, a1);
+    return bridgeBetweenGroups(gidA, gidB);
 }
 
 inline WayPoint *bridge_waypoint_side_me(int me, int target)
@@ -1042,22 +1042,22 @@ inline WayPoint *bridge_waypoint_side_me(int me, int target)
     return 0;
 }
 
-inline WayPoint *waypoint_connect_group_side_me(WayGroup *a0, int a1)
+inline WayPoint *waypoint_connect_group_side_me(WayGroup *bridge, int gid)
 {
-    return groupSideMe(a0, a1);
+    return groupSideMe(bridge, gid);
 }
 
-inline WayPoint *bridge_waypoint_side_bridge(int a0, int a1)
+inline WayPoint *bridge_waypoint_side_bridge(int gidA, int gidB)
 {
     WayGroup *p = WayBridge_begin();
     while (p != 0) {
         WayPoint *eA = &way_point[p->end[0]];
         WayPoint *eB = &way_point[p->end[1]];
         int a = eA->group;
-        if (a == a0 && eB->group == a1) {
+        if (a == gidA && eB->group == gidB) {
             return p->last;
         }
-        if (eB->group == a0 && a == a1) {
+        if (eB->group == gidA && a == gidB) {
             return p->first;
         }
         p = WayBridge_next(p);
@@ -1065,14 +1065,14 @@ inline WayPoint *bridge_waypoint_side_bridge(int a0, int a1)
     return 0;
 }
 
-inline WayPoint *waypoint_connect_group_side_bridge(WayGroup *a0, int a1)
+inline WayPoint *waypoint_connect_group_side_bridge(WayGroup *bridge, int gid)
 {
-    WayPoint *e = &way_point[a0->end[0]];
-    if (e->group == a1)
-        return a0->first;
-    e = &way_point[a0->end[1]];
-    if (e->group == a1)
-        return a0->last;
+    WayPoint *e = &way_point[bridge->end[0]];
+    if (e->group == gid)
+        return bridge->first;
+    e = &way_point[bridge->end[1]];
+    if (e->group == gid)
+        return bridge->last;
     return 0;
 }
 
@@ -1092,10 +1092,10 @@ inline int NearestWgFromTarget(int cur, int end, WgAll *w)
     return cur;
 }
 
-static inline int wpsort_compfnc(WpSortEnt *a0, WpSortEnt *a1)
+static inline int wpsort_compfnc(WpSortEnt *p, WpSortEnt *q)
 {
-    float x = a0->d;
-    float y = a1->d;
+    float x = p->d;
+    float y = q->d;
     if (x < y) {
         return -1;
     }

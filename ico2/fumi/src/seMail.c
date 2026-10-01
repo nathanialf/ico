@@ -6,15 +6,15 @@
 #include "main.h"
 #include "s_init.h"
 
-static void setMailTarget(GObj *a0, GObj **a1, int *a2)
+static void setMailTarget(GObj *obj, GObj **list, int *num)
 {
-    int v = *a2;
+    int v = *num;
     if (v >= 0x10) {
         debug_StdPrintfDummy("seMail: gobj buff over\n");
         return;
     }
-    *a2 = v + 1;
-    a1[v] = a0;
+    *num = v + 1;
+    list[v] = obj;
 }
 
 /* as in the generated sedef member, which defines the rows const; s_init.c
@@ -69,18 +69,18 @@ void seMail(GObj *self, int id)
     }
 }
 
-int seMailTargetDistCheck(void *a0, void *a1, SeDef *rec)
+int seMailTargetDistCheck(void *obj0, void *obj1, SeDef *rec)
 {
     float buf0[4];
     float buf1[4];
     float buf2[4];
     float threshold;
     threshold = (float)(rec->range * rec->range);
-    if (a0 == 0 || a1 == 0) {
+    if (obj0 == 0 || obj1 == 0) {
         return 0;
     }
-    GetRootPosition(buf0, a0);
-    GetRootPosition(buf1, a1);
+    GetRootPosition(buf0, obj0);
+    GetRootPosition(buf1, obj1);
     sceVu0SubVector(buf2, buf0, buf1);
     if (sceVu0InnerProduct(buf2, buf2) < threshold) {
         return 1;

@@ -10,41 +10,41 @@
 
 struct GObj;
 
-void ACTAcceptMail(struct GObj *a0, int a1);
-void ACTAdjustPlane(struct GObj *a0, void *wall); /* wall: the wall record the root is laid against */
+void ACTAcceptMail(struct GObj *self, int mail);
+void ACTAdjustPlane(struct GObj *self, void *wall); /* wall: the wall record the root is laid against */
 int ACTGetOrientFromIntrK(char *self, int kind, void *buf, int i);
 
 struct IntrMail; /* act.h */
 
-void ACTRunIntrCorrect(struct GObj *self, struct IntrMail *a1, struct IntrMail *a2);
-void ACTSendMailCorrect(struct GObj *a0, int a1);
-void ACTSetPositionWithFitting(void *a0, float *pos);
+void ACTRunIntrCorrect(struct GObj *self, struct IntrMail *intr, struct IntrMail *corr);
+void ACTSendMailCorrect(struct GObj *self, int mail);
+void ACTSetPositionWithFitting(void *self, float *pos);
 void ACT_LAYOUT_GAMEOVER(void);
 void ContinueCorrectPosition(void *obj);
-void ControlMotionOrient(int a0, int a1);
+void ControlMotionOrient(int id, int mot);
 void GetCorrectOrientOfChain(void *buf, void *obj);
-int IsCorrectPosition(struct GObj *a0);
-int SetMotionDirectionSmooze(struct GObj *a0, float *dir, float s);
-void StartCorrectPosition(struct GObj *a0, float *pos, float *dir, int mode, float t);
+int IsCorrectPosition(struct GObj *self);
+int SetMotionDirectionSmooze(struct GObj *self, float *dir, float s);
+void StartCorrectPosition(struct GObj *self, float *pos, float *dir, int mode, float t);
 int _ACTCorrectMsg(struct GObj *self, int msg, void *arg);
-void _ACTDebugPrint(struct GObj *a0);
-int _ACTMotDirSmzDirect(char *a0, float *a1);
-void actAfterDown(struct GObj *volatile a0);
-void actAfterFly(struct GObj *volatile a0);
-void actAfterForceRope(struct GObj *volatile a0);
-void actAfterForceRopeSwing(struct GObj *volatile a0);
-void afterCommonBar(struct GObj *volatile a0);
+void _ACTDebugPrint(struct GObj *self);
+int _ACTMotDirSmzDirect(char *self, float *dir);
+void actAfterDown(struct GObj *volatile self);
+void actAfterFly(struct GObj *volatile self);
+void actAfterForceRope(struct GObj *volatile self);
+void actAfterForceRopeSwing(struct GObj *volatile self);
+void afterCommonBar(struct GObj *volatile self);
 void afterCommonOneWall(int x);
-void afterCommonRevive(volatile unsigned int a0);
-void afterCommonRope(struct GObj *volatile a0);
-void afterCommonStone(struct GObj *volatile a0);
-void afterCommonTruckLever(struct GObj *volatile a0);
-void subCommonIdle(struct GObj *volatile a0);
-float *test_CURRENTORIENT(struct GObj *a0);
-float *test_CURRENTROOT(struct GObj *a0);
-int FloorIsTruck(struct GObj *a0);
-void afterCommonBox(struct GObj *volatile a0);
-void actAfterFall(struct GObj *volatile a0);
+void afterCommonRevive(volatile unsigned int self);
+void afterCommonRope(struct GObj *volatile self);
+void afterCommonStone(struct GObj *volatile self);
+void afterCommonTruckLever(struct GObj *volatile self);
+void subCommonIdle(struct GObj *volatile self);
+float *test_CURRENTORIENT(struct GObj *self);
+float *test_CURRENTROOT(struct GObj *self);
+int FloorIsTruck(struct GObj *self);
+void afterCommonBox(struct GObj *volatile self);
+void actAfterFall(struct GObj *volatile self);
 
 /* idle-mot-def: one idling motion per actor kind, 0x0C bytes. Reader:
  * ico2/fumi/src/commonact.c (int [][3]). Owner: ico2/fumi/include/commonact.h. */
@@ -85,6 +85,6 @@ typedef struct { /* field names derived */
 } BecPair;       /* derived name */
 extern const BecPair pairMotion[];
 
-void _ACTCommonMailTest(struct GObj *self, int a1, int a2, int a3);
+void _ACTCommonMailTest(struct GObj *self, int stopCnt, int walkCnt, int runCnt);
 
 #endif /* COMMONACT_H */

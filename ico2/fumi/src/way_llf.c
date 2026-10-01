@@ -19,7 +19,7 @@ int current_select_gid;
 
 /* defined `inline` below, and called before their definitions */
 inline int DeleteWayPoint(int pno);
-inline void SetWayGroupActive(int a0, int a1);
+inline void SetWayGroupActive(int gno, int active);
 
 /* The TU's shared group allocator, expanded into CreateWayGroup's and
  * CreateTempWayGroup's callers: the first free slot of the way-group table. */
@@ -130,10 +130,10 @@ inline int AddWayPoint(int gno, int pno)
     return 0;
 }
 
-inline int AddWayPointTop(int a0, int a1)
+inline int AddWayPointTop(int gno, int pno)
 {
-    WayGroup *wg = &way_group[a0];
-    WayPoint *node = &way_point[a1];
+    WayGroup *wg = &way_group[gno];
+    WayPoint *node = &way_point[pno];
     WayPoint *old;
     node->prev = 0;
     old = wg->first;
@@ -205,7 +205,7 @@ inline int DeleteWayPoint(int pno)
 
 /* CreateBridge sits between DeleteWayPoint and the begin iterators; it is the
    one function of the TU too large to inline. */
-int CreateBridge(float *a0, float *a1)
+int CreateBridge(float *a, float *b)
 {
     int gno;
     int p0;
@@ -216,10 +216,10 @@ int CreateBridge(float *a0, float *a1)
         debug_StdPrintfDummy("WayPointCreateNewBridge: way group not create\n");
         return -1;
     }
-    p0 = CreateWayPoint(a0);
+    p0 = CreateWayPoint(a);
     AddWayPoint(gno, p0);
     way_point[p0].bridgeEnd = 1;
-    p1 = CreateWayPoint(a1);
+    p1 = CreateWayPoint(b);
     AddWayPoint(gno, p1);
     way_point[p1].bridgeEnd = 1;
     set_bridge(gno);
@@ -332,11 +332,11 @@ ret0:
     return 0;
 }
 
-inline WayGroup *WayBridgeVar_next(WayGroup *a0)
+inline WayGroup *WayBridgeVar_next(WayGroup *g)
 {
     WayGroup *p, *end = &way_group[93];
-    if (a0 != 0 && a0 != end) {
-        for (p = a0 + 1;; p++) {
+    if (g != 0 && g != end) {
+        for (p = g + 1;; p++) {
             if (p->used != 0 && p->bridge != 0 && p->active != 0)
                 return p;
             if (p == end)
@@ -364,17 +364,17 @@ ret0:
     return 0;
 }
 
-inline WayPoint *WayPoint_next(WayPoint *a0)
+inline WayPoint *WayPoint_next(WayPoint *p)
 {
     WayPoint *end = &way_point[274];
-    if (a0 == 0)
+    if (p == 0)
         goto ret0;
-    if (a0 == end)
+    if (p == end)
         goto ret0;
-    for (a0++;; a0++) {
-        if (a0->used != 0)
-            return a0;
-        if (a0 == end)
+    for (p++;; p++) {
+        if (p->used != 0)
+            return p;
+        if (p == end)
             break;
     }
 ret0:
@@ -395,14 +395,14 @@ static inline WayPoint *wayPointListNext(WayPoint *wp) /* derived name */
     return wp->next;
 }
 
-inline WayPoint *WayPointList_begin(int a0)
+inline WayPoint *WayPointList_begin(int gno)
 {
-    return way_group[a0].first;
+    return way_group[gno].first;
 }
 
-inline WayPoint *WayPointList_next(WayPoint *a0)
+inline WayPoint *WayPointList_next(WayPoint *p)
 {
-    return wayPointListNext(a0);
+    return wayPointListNext(p);
 }
 
 inline WayPoint *waypoint_bidirectional_list(WayPoint *self, int which)
@@ -451,9 +451,9 @@ void InitWayPointSystem(void)
     n_way_group = 0;
 }
 
-inline void SetWayGroupActive(int a0, int a1)
+inline void SetWayGroupActive(int gno, int active)
 {
-    way_group[a0].active = a1;
+    way_group[gno].active = active;
 }
 
 inline int CheckWayGroupActive(int idx)

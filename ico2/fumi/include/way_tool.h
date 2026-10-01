@@ -15,7 +15,7 @@ struct GObj;
 int play_way(void);
 int point_nige(void);
 int quick_save_wpfile(void);
-void cursor_control(struct GObj *volatile a0);
+void cursor_control(struct GObj *volatile self);
 void ExtractWayData(int stage_no);
 int debug_WayTool(void);
 
