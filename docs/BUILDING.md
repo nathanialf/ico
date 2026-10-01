@@ -129,9 +129,8 @@ ELF and ROM (`tools/verify_elf.py`), and writes `build.ninja` with
 - `config/data_members.pal.txt`: the data-only members (member, section,
   address range, MAIN.MAP's names at their offsets).
 - `config/data_schema.pal.txt`: the data-only members written as C (member,
-  section, element type, the header that defines it, element count,
-  MAIN.MAP's names), with `config/data_schema.pal.h` for the record types no
-  game header defines yet.
+  section, element type, the game header that defines it, element count,
+  MAIN.MAP's names).
 
 `tools/build.sh` also has `verify` (the SHA-1s only), `regen` (rewrite
 `build.ninja` only), `clean` (delete `build/`), `distclean` (also

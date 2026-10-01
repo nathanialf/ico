@@ -32,10 +32,12 @@ Four modes, one member each (MEMBER is the name in the schema):
       the field there are reported
 
 The record type is read from the header the schema row names: a typedef of a
-struct whose fields are integers, enums, floats, pointers (object or
+struct, or a struct tag (`struct Name { ... };`, which the C then spells
+`struct Name`), whose fields are integers, enums, floats, pointers (object or
 function), arrays, nested structs and bit-fields, laid out by the EE's rules (4-byte
 pointers and ints, 8-byte long long and double, bit-fields from the low bit
-of their declared type's unit).
+of their declared type's unit). A base type with a trailing [N] is an array
+element (char[32]: the C defines `char name[count][32]`).
 """
 
 import argparse
@@ -171,6 +173,11 @@ class Header:
             return self.cache[name]
         if name.endswith("*"):
             return T("ptr", 4, 4, target=self.typedef(name[:-1]))
+        m = re.fullmatch(r"(.+)\[(\d+)\]", name)
+        if m:
+            el = self.typedef(m.group(1))
+            n = int(m.group(2))
+            return T("array", el.size * n, el.align, elem=el, n=n)
         if c_base(name) in INTS or c_base(name) in ("float", "double"):
             return self.base_type(c_base(name).split())
         t = self.toks
@@ -215,7 +222,14 @@ class Header:
                     ty = self.base_type(t[k + 2:i])
                     self.cache[name] = ty
                     return ty
-        fail(f"{self.path}: no typedef {name}")
+        # `struct name { ... };`: a record known by its tag alone
+        for i in range(1, len(t) - 1):
+            if t[i] == name and t[i - 1] in ("struct", "union") and t[i + 1] == "{":
+                ty = self._aggregate(i - 1, i + 1)
+                ty.name = f"{t[i - 1]} {name}"
+                self.cache[name] = ty
+                return ty
+        fail(f"{self.path}: no typedef or struct tag {name}")
 
     def _match_back(self, k):
         depth = 0
@@ -615,13 +629,17 @@ class Writer:
 
 
 def c_type(ty, spelled):
-    """The C spelling of an element type the schema names."""
+    """The C spelling of an element type the schema names: its base, the stars
+    before the object's name and the bounds after its own."""
     if ty.kind in ("int", "float"):
-        return ty.name, ""
+        return ty.name, "", ""
     if ty.kind == "ptr":
-        inner, star = c_type(ty.target, spelled[:-1])
-        return inner, star + "*"
-    return spelled, ""
+        inner, star, dims = c_type(ty.target, spelled[:-1])
+        return inner, star + "*", dims
+    if ty.kind == "array":
+        inner, star, dims = c_type(ty.elem, spelled[:spelled.rindex("[")])
+        return inner, star, f"[{ty.n}]" + dims
+    return getattr(ty, "name", None) or spelled, "", ""
 
 
 def write_c(member, rows, datas, layout):
@@ -642,13 +660,13 @@ def write_c(member, rows, datas, layout):
                  (" with nonzero bytes after it" if size <= span else ""))
         w = Writer(data[start:], row["lo"] + start, layout, s["hex"], pool)
         bounds = [i for _, i in s["syms"]] + [n]
-        tname, star = c_type(ty, s["type"])
+        tname, star, dims = c_type(ty, s["type"])
         const = "const " if row["section"] == "rodata" else ""
         for (name, first), last in zip(s["syms"], bounds[1:]):
             if s["count"] is None:
-                defs.append(f"{const}{tname} {star}{name} = {w.value(ty, 0, '')};")
+                defs.append(f"{const}{tname} {star}{name}{dims} = {w.value(ty, 0, '')};")
             else:
-                defs.append(f"{const}{tname} {star}{name}[{last - first}] = {{")
+                defs.append(f"{const}{tname} {star}{name}[{last - first}]{dims} = {{")
                 defs.extend(f"    {w.value(ty, i * ty.size, '')}," for i in range(first, last))
                 defs.append("};")
             defs.append("")

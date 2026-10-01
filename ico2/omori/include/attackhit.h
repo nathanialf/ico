@@ -9,9 +9,10 @@
 #define ATTACKHIT_H
 
 /* one row of attackData, the data-only member attack-def.o: an attack
-   kind's motion, the node it hits from, its reach and power and its flags */
+   kind's motion, the node it hits from, its reach and power and its flags.
+   No code reads the first four words (-1 in every row but the first). */
 typedef struct { /* field names derived */
-    char pad00[16];
+    /* 0x00 */ int word0[4];
     /* 0x10 */ int motion;    /* the motion the row belongs to */
     /* 0x14 */ int focusNode; /* the focus node a body attack hits from */
     /* 0x18 */ float radius;
@@ -25,6 +26,9 @@ typedef struct { /* field names derived */
 } AttackKindEntry; /* derived name */
 
 extern const AttackKindEntry attackData[];
+
+struct GObj;
+
 void CommonAttackCenter(struct GObj *gobj);
 
 int _AttackCenter(struct GObj *gop, int group, float *pos, float *ofs, float radius,

@@ -11,9 +11,10 @@
 #   member    the member's name in config/data_members.pal.txt
 #   section   data, rodata or sdata: the table row the definition fills;
 #             rodata rows are defined const
-#   type      the element type, a typedef the header defines, or a C base
-#             type with its words joined by '_' (unsigned_short), with a
-#             trailing '*' for a pointer to it (char*)
+#   type      the element type: a typedef or a struct tag the header
+#             defines, or a C base type with its words joined by '_'
+#             (unsigned_short), with a trailing '*' for a pointer to it
+#             (char*) or a trailing [N] for an array of N (char[32])
 #   header    the header that defines it, repo-relative
 #   count     the number of elements the member holds, or '-' for a single
 #             object
@@ -35,19 +36,19 @@
 accessary data AccessaryRec ico2/sugipon/include/box.h 26 accessary@0
 act-data-tbl data IdleRangeRec ico2/fumi/include/commonact.h 3 actDataTbl@0
 act-intrlist data IntrMail ico2/fumi/include/act.h 875 actIntrList@0 hex=flags
-camera-set data CameraSetFile config/data_schema.pal.h 87 cameraSetList@0
-game-param data float config/data_schema.pal.h 44 gameParam@0
-unmapped_002ADBA0 data HintDef config/data_schema.pal.h 28 hintTable@0 hex=flags
+camera-set data char[32] ico2/omori/include/camera-ico2.h 87 cameraSetList@0
+game-param data float ico2/fumi/include/act-game.h 44 gameParam@0
+unmapped_002ADBA0 data HintDef ico2/omori/include/lws_kyomi.h 28 hintTable@0 hex=flags
 motion-orient data MotionOrientEntry ico2/sugipon/include/motionOrientManager.h 2468 motionOrient@0
 node-fix-ofs data ClingRec ico2/fumi/include/commonact.h 15 clingData@0
 obj-action data OaRecB ico2/common/include/typedef.h 967 objAction@0 hex=flags
 obj-kind-data data ObjKindEnt ico2/common/include/typedef.h 70 objKindData@0
 obj-layout data GenGeo ico2/common/include/typedef.h 3759 objLayout@0 hex=procPri,flags
 parallel-motion-tbl data ParallelMotionRow ico2/fumi/include/act-parallel-control.h 86 parallelMotionTbl@0
-sekind data unsigned_short config/data_schema.pal.h 1420 seKind@0
+sekind data unsigned_short ico2/fumi/include/s_init.h 1420 seKind@0
 tex-property data LtProperty ico2/common/include/layout_texture.h 436 texProperty@0
 weapon-def data WeaponDef ico2/sugipon/include/weapon.h 10 weaponKind@0
-staffroll_dat data char* config/data_schema.pal.h 964 staffRollNameData@0
+staffroll_dat data char* ico2/common/include/staffroll.h 964 staffRollNameData@0
 item-kind-def data ItemBreakRec ico2/sugipon/include/item.h 7 itemKind@0 hex=flags
 mirror-motion-def data MotOriAlt ico2/sugipon/include/motionOrientManager.h 6 mirrorMotionTable@0
 model-path data PObjMdl ico2/common/include/charFileManager.h 1637 modelData@0
@@ -59,10 +60,10 @@ way-point data WaySrcPt ico2/fumi/include/way_tool.h 2924 wayPointSheet@0
 weapon-fumble-def data FumbleRow ico2/sugipon/include/weapon.h 21 weaponFumbleGeo@0
 act-mode-def rodata ActModeRec ico2/fumi/include/act.h 120 actModeTbl@0
 adpcmfile rodata AdpcmDataRec ico2/fumi/include/adpcm_init.h 105 adpcmFile@0
-attack-def rodata AttackKindEntry config/data_schema.pal.h 20 attackData@0 hex=flags
+attack-def rodata AttackKindEntry ico2/omori/include/attackhit.h 20 attackData@0
 auto-escort rodata EscortPoint ico2/fumi/include/girl_act.h 98 autoEscortData@0
 exit-data rodata ExitData ico2/common/include/typedef.h 261 exitData@0
-generator-sub-position rodata SafePosOffset config/data_schema.pal.h 7 generatorSubPosition@0
+generator-sub-position rodata SafePosOffset ico2/omori/include/generator.h 7 generatorSubPosition@0
 girl-warp-list rodata WarpRec ico2/script/include/script.h 25 girlWarpList@0
 iconfile rodata IconFile ico2/fumi/include/mcard.h 5 iconFile@0
 idle-mot-def rodata IdlingDef ico2/fumi/include/commonact.h 11 idlingDef@0
@@ -72,7 +73,7 @@ look-target-data rodata LookTarget ico2/fumi/include/act-game.h 27 lookTargetDat
 motion-def rodata MotionDef ico2/sugipon/include/motionOrientManager.h 1148 motionKind@0 hex=modeBits.word,flags.word,flags2.word
 motion-ik-eff-def rodata HandModeRow ico2/sugipon/include/handManager.h 7 motionIKEffKind@0
 motion-orient-def rodata MotOriName ico2/sugipon/include/motionOrientManager.h 327 motionOriKind@0
-motion-random-def rodata int config/data_schema.pal.h 100 randomMotionKind@0
+motion-random-def rodata int ico2/fumi/include/act-parallel-control.h 100 randomMotionKind@0
 moviefile rodata MotOriName ico2/sugipon/include/motionOrientManager.h 7 movieFile@0
 obj-light rodata ObjLight ico2/seki/include/Light.h 3 objectLight@0
 pair-motion rodata BecPair ico2/fumi/include/commonact.h 31 pairMotion@0
@@ -89,20 +90,20 @@ stream-motion-def rodata StreamMotionFile ico2/sugipon/include/streamMotionManag
 blend-motion-def rodata MotOriSub ico2/sugipon/include/motionOrientManager.h 321 blendMotionKind@0
 enemy-def rodata EnemyDef ico2/sugipon/include/enemy.h 45 enemyKind@0 hex=attr
 enemy-model-grp rodata EnemyMdlRec ico2/common/include/sceneManager.h 10 enemymodelGroup@0
-enemy-model-tbl rodata int config/data_schema.pal.h 25 enemymodelTable@0
+enemy-model-tbl rodata int ico2/common/include/sceneManager.h 25 enemymodelTable@0
 enemy-random-def rodata EnemyKindRange ico2/sugipon/include/enemy.h 22 randomEnemyKind@0
-enemy-random-variation-def rodata int config/data_schema.pal.h 86 randomEnemyVariationKind@0
+enemy-random-variation-def rodata int ico2/sugipon/include/enemy.h 86 randomEnemyVariationKind@0
 layout-cloth-def rodata LayoutClothDef ico2/sugipon/include/attackCheckBoundary.h 36 layoutClothDef@0 hex=attr
 motion-eff-condition-def rodata VibCondEntry ico2/sugipon/include/frameDependSequence.h 51 motEffCondKind@0
 motion-eff-def rodata EffEntry ico2/sugipon/include/frameDependSequence.h 25 motionEffKind@0 hex=flags
-motion-eff-random-def rodata int config/data_schema.pal.h 10 randomEffKind@0
+motion-eff-random-def rodata int ico2/sugipon/include/frameDependSequence.h 10 randomEffKind@0
 motion-limit-def rodata MotOriLimit ico2/sugipon/include/motionOrientManager.h 48 motionLimitDef@0
 motion-se-condition-def rodata SECondEntry ico2/sugipon/include/frameDependSequence.h 211 motSECondKind@0
 motion-se-random-def rodata SERandEntry ico2/sugipon/include/frameDependSequence.h 1151 randomSEKind@0
-obj-trigger-def rodata int config/data_schema.pal.h 11 objTriggerDef@0
+obj-trigger-def rodata int ico2/omori/include/objact.h 11 objTriggerDef@0
 obj-trigger rodata ObjActMailEnt ico2/omori/include/objact.h 33 objTrigger@0
 parallel-motion-orient rodata MotOriParallelEnt ico2/sugipon/include/motionOrientManager.h 54 parallelMotionOrient@0
 particle-effect rodata ParticleEffectFile ico2/sugipon/include/particleEffect.h 61 particleEffectFile@0
 spider-def rodata SpiderKindRec ico2/sugipon/include/spider.h 6 spiderDef@0
 way-group rodata WaySrcGrp ico2/fumi/include/way_tool.h 723 wayGroupSheet@0
-staffroll_dat sdata int config/data_schema.pal.h - staffRollNameDataNum@0
+staffroll_dat sdata int ico2/common/include/staffroll.h - staffRollNameDataNum@0

@@ -20,6 +20,8 @@ typedef struct SafePosOffset { /* field names derived */
 
 extern const SafePosOffset generatorSubPosition[];
 
+struct GObj;
+
 struct GenGeo;
 
 struct GenWork *InitGeneratorGeo(struct GObj *gobj, struct GenGeo *src);
