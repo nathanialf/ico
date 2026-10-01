@@ -442,7 +442,7 @@ int cylinderCollisionCheck(GObj *self, float *ppos, GObj *target, float r, float
     float d1[4];
     float d2[4];
     float d3[4];
-    ClipBuf w;
+    ClipWork w;
     float dy;
     float len;
     float over;
@@ -472,36 +472,36 @@ int cylinderCollisionCheck(GObj *self, float *ppos, GObj *target, float r, float
         if (exceptOwn != 0) {
             w.filter.o.obj = self;
             w.filter.o.node = -1;
-            w.filter.n = 0;
-            w.rad = SUBOF(self)->root.radius;
+            w.filter.elem = 0;
+            w.radius = SUBOF(self)->root.radius;
             CopyVector(w.pt[0], ppos);
             CopyVector(w.pt[1], d2);
             ClipWallE(&w);
-            if (w.wall.n != 0) {
+            if (w.wall.elem != 0) {
                 CopyVector(d2, w.pt[2]);
             }
-            w.rad = SUBOF(target)->root.radius;
+            w.radius = SUBOF(target)->root.radius;
             CopyVector(w.pt[0], pos);
             CopyVector(w.pt[1], d3);
             ClipWallE(&w);
-            if (w.wall.n != 0) {
+            if (w.wall.elem != 0) {
                 CopyVector(d3, w.pt[2]);
             }
             goto moved;
         }
-        w.rad = SUBOF(self)->root.radius;
+        w.radius = SUBOF(self)->root.radius;
         CopyVector(w.pt[0], ppos);
         CopyVector(w.pt[1], d2);
         ClipWall(&w);
-        if (w.wall.n != 0) {
+        if (w.wall.elem != 0) {
             CopyVector(d2, w.pt[2]);
         }
     }
-    w.rad = SUBOF(target)->root.radius;
+    w.radius = SUBOF(target)->root.radius;
     CopyVector(w.pt[0], pos);
     CopyVector(w.pt[1], d3);
     ClipWall(&w);
-    if (w.wall.n != 0) {
+    if (w.wall.elem != 0) {
         CopyVector(d3, w.pt[2]);
     }
 moved:

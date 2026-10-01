@@ -400,19 +400,19 @@ inline WallCfg *scpGetWallCollision(float x0, float y0, float z0, float x1, floa
 {
     ClipWork work;
 
-    work.a[0] = x0;
-    work.a[1] = y0;
-    work.a[2] = z0;
-    work.a[3] = 1.0f;
-    work.b[0] = x1;
-    work.b[1] = y1;
-    work.b[2] = z1;
-    work.b[3] = 1.0f;
+    work.pt[0][0] = x0;
+    work.pt[0][1] = y0;
+    work.pt[0][2] = z0;
+    work.pt[0][3] = 1.0f;
+    work.pt[1][0] = x1;
+    work.pt[1][1] = y1;
+    work.pt[1][2] = z1;
+    work.pt[1][3] = 1.0f;
     work.radius = 0.0f;
     ClipWall(&work);
-    wallColResult.n = work.wallHit;
-    wallColResult.o = work.wallSrc;
-    if (work.wallHit == 0) {
+    wallColResult.elem = work.wall.elem;
+    wallColResult.o = work.wall.o;
+    if (work.wall.elem == 0) {
         /* no wall collision found */
         debug_StdPrintfDummy(
             "scpGetWallCollision: (%4.3f, %4.3f, %4.3f) => (%4.3f, %4.3f, %4.3f)\n\t壁コリジョンが見つかりません。\n",
@@ -1475,8 +1475,8 @@ void _SCPBoySupportGirl(float x0, float y0, float z0, float x1, float y1, float 
     sceVu0ScaleVector(v1, v1, -1.0f);
     wc = scpGetWallCollision(v0[0], v0[1], v0[2], v1[0], v1[1], v1[2]);
     if (wc != 0) {
-        *(WallCfg *)((char *)GOBJ_ACT(boyGObj) + 1648) = *wc;
-        *(WallCfg *)((char *)GOBJ_ACT(girlGObj) + 1632) = *wc;
+        GOBJ_ACT(boyGObj)->supportReq.b.wall = *wc;
+        GOBJ_ACT(girlGObj)->supportReq.a.wall = *wc;
         iosOmSendMail(boyGObj, 385, boyGObj);
         iosOmSendMail(girlGObj, 386, boyGObj);
     }

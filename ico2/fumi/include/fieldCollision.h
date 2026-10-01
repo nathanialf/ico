@@ -12,8 +12,6 @@
 
 struct GObj;
 
-struct ClipWork;
-
 /* The empty wall-hit record (no object, node -1, no wall) a character's
    collision filter is reset to. */
 extern WallCfg InitialColInfo;
@@ -35,6 +33,24 @@ typedef struct FcWallEnt { /* field names derived */
     float *normal; /* 0x4C */
 } FcWallEnt;       /* derived name */
 
+typedef struct { /* field names derived */
+    float x, y, z, w;
+} FcVec4; /* derived name */
+
+/* one floor of a collision set, 0x70 bytes (the table stride): the polygon
+ * clip_floor_1 tests, its plane, and the attribute the _clipF filters,
+ * ClipFloorByGObj and MakeExitAttributeIndex read (its low nibble the exit
+ * slot). */
+typedef struct FcFloorEnt { /* field names derived */
+    FcVec4 v[4];            /* 0x00, the polygon's corners */
+    float nx, ny, nz, npad; /* 0x40, the plane normal */
+    float d;                /* 0x50, the plane distance */
+    int nex;                /* 0x54, the corners past the first three */
+    char pad58[8];
+    int attr; /* 0x60 */
+    char pad64[12];
+} FcFloorEnt; /* derived name */
+
 /* fieldCollision.c's `inline` functions (all but the sixteen it compiles in
  * place), in the order of their definitions' out-of-line copies at the end of
  * the object (first-declaration order). */
@@ -55,15 +71,15 @@ void ClipFloorE(void *work);
 void ClipFloorR(void *work);
 void ClipFloorIH(void *work);
 void ClipFloorCheckCB(void *work, int filter);
-void ClipCollision(int *self);
+void ClipCollision(ClipWork *self);
 int ChangeFieldCollisionDebugMode(int drawRay);
 void LoadCollision(int *self, int fname);
 void DrawCollision(int mode);
 int ClipPlane(int work);
 void GetOrientOfWall(void *out, void *wallEnt, ObjNode *src);
 void SetSimplePlane(float *self, float a, float b, float c, float d);
-int GetWallAttribute(struct ClipWork *w);
-int GetFloorAttribute(struct ClipWork *w);
+int GetWallAttribute(ClipWork *w);
+int GetFloorAttribute(ClipWork *w);
 int CompareAttribute(unsigned int a, unsigned int b);
 void GetWallGlobalInfo(char *pts, void *nrm, char *w, void *m);
 inline float GetDistanceFromPlane(void *plane, void *pos);
@@ -74,10 +90,10 @@ int PositionOfExit(float *pos, int attr);
 void GetGlobalWallPlane(float *plane, WallCfg *wall);
 /* compiled in place */
 void ClipFloorByGObj(char *work, struct GObj *gobj);
-void DrawCollisionRay(char *ray);
+void DrawCollisionRay(ClipWork *ray);
 void DrawGObjFloorCollision(struct GObj *gobj, int col);
 void DrawGObjWallCollision(struct GObj *gobj, int col);
-void GetReflectionElement(char *work, float arg0, float arg1);
+void GetReflectionElement(ClipWork *work, float arg0, float arg1);
 void MakeExitAttributeIndex(void);
 void MakeCollisionDependGObjList(void);
 

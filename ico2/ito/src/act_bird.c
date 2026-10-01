@@ -356,34 +356,34 @@ void subBirdBrainMain(void *volatile gobj)
             }
 
             wf.radius = rad;
-            CopyVector(wf.a, pos);
-            sceVu0ScaleVectorXYZ(wf.b, mtx[2], fwd);
-            sceVu0AddVector(wf.b, wf.b, pos);
+            CopyVector(wf.pt[0], pos);
+            sceVu0ScaleVectorXYZ(wf.pt[1], mtx[2], fwd);
+            sceVu0AddVector(wf.pt[1], wf.pt[1], pos);
             ClipWall(&wf);
 
             wr.radius = rad;
-            CopyVector(wr.a, pos);
+            CopyVector(wr.pt[0], pos);
             sceVu0ScaleVectorXYZ(tr, mtx[0], len);
-            sceVu0AddVector(wr.b, pos, tr);
+            sceVu0AddVector(wr.pt[1], pos, tr);
             ClipWall(&wr);
 
             wl.radius = rad;
-            CopyVector(wl.a, pos);
+            CopyVector(wl.pt[0], pos);
             sceVu0ScaleVectorXYZ(tl, mtx[0], -len);
-            sceVu0AddVector(wl.b, pos, tl);
+            sceVu0AddVector(wl.pt[1], pos, tl);
             ClipWall(&wl);
 
-            if (wf.wallHit != 0 || wr.wallHit != 0 || wl.wallHit != 0) {
+            if (wf.wall.elem != 0 || wr.wall.elem != 0 || wl.wall.elem != 0) {
                 blocked = 1;
 
-                if (wr.wallHit != 0) {
+                if (wr.wall.elem != 0) {
                     sceVu0ScaleVectorXYZ(avoid, tr, -1.0f);
                     sign = -1.0f;
-                } else if (wl.wallHit != 0) {
+                } else if (wl.wall.elem != 0) {
                     sceVu0ScaleVectorXYZ(avoid, tl, -1.0f);
                     sign = 1.0f;
                 } else {
-                    sceVu0Normalize(nrm, wf.normal);
+                    sceVu0Normalize(nrm, &wf.normal);
 
                     CopyVector(avoid, nrm);
                     sign = 1.0f;
@@ -614,12 +614,12 @@ void subBirdBrainMain(void *volatile gobj)
                 up[1] = 180.0f;
 
                 sceVu0ScaleVector(ahead, dir, 100.0f);
-                CopyVector(cf.a, pos);
-                sceVu0AddVector(cf.b, cf.a, up);
-                sceVu0AddVector(cf.b, cf.b, ahead);
+                CopyVector(cf.pt[0], pos);
+                sceVu0AddVector(cf.pt[1], cf.pt[0], up);
+                sceVu0AddVector(cf.pt[1], cf.pt[1], ahead);
                 ClipFloor(&cf);
                 attr = GetFloorAttribute(&cf);
-                if (cf.floorHit != 0 && attr != 64 && attr != 80) {
+                if (cf.floor.elem != 0 && attr != 64 && attr != 80) {
                     act->motReq = SetMotionRequest(gobj, 316, act->motOriReq);
                 }
 
@@ -686,14 +686,14 @@ void subBirdBrainMain(void *volatile gobj)
             }
 
             GetRootPosition(p, gobj);
-            CopyVector(cd.a, p);
-            GetRootPosition(cd.b, gobj);
-            cd.b[1] = cd.b[1] + 50.0f;
+            CopyVector(cd.pt[0], p);
+            GetRootPosition(cd.pt[1], gobj);
+            cd.pt[1][1] = cd.pt[1][1] + 50.0f;
             ClipFloor(&cd);
-            if (cd.floorHit != 0) {
+            if (cd.floor.elem != 0) {
                 float lim = -6.0f;
 
-                float y = cd.pos[1] + lim;
+                float y = cd.pt[2][1] + lim;
                 /* nothing reads `q` after this */
                 q[1] = lim;
                 if (y < p[1]) {

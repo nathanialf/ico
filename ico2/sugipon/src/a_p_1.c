@@ -390,12 +390,12 @@ static inline int clipAndTakeHit(WallCfg *dst, char *col) /* derived name */
 {
     ClipCollision(col);
     if (*(int *)(col + 0x88) != 0) {
-        dst->n = *(void **)(col + 0x88);
+        dst->elem = *(void **)(col + 0x88);
         dst->o = *(ObjNode *)(col + 0x80);
         return 1;
     }
     if (*(int *)(col + 0x94) != 0) {
-        dst->n = *(void **)(col + 0x94);
+        dst->elem = *(void **)(col + 0x94);
         dst->o = *(ObjNode *)(col + 0x8C);
         return 1;
     }
@@ -438,7 +438,7 @@ static inline int clipPartPair(WallCfg *dst, Mtx44 *m, AP1ColSeg *tbl, Vec4A_P_1
             return 1;
         }
     }
-    dst->n = 0;
+    dst->elem = 0;
     return 0;
 }
 

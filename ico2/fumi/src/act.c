@@ -615,8 +615,6 @@ void BeforeFunc(GObj *self)
     entesty = 100;
 }
 
-extern void GetLowerPlaneCollision(void *work, void *pos);
-
 /* this TU passes the packet priority that the prototype in
    seki/include/GifPacket.h leaves out */
 
@@ -655,30 +653,30 @@ void ACTDebugMove(GObj *self, int a1)
             ClipWork w;
 
             if ((ext->padTrg & 0x200) != 0) {
-                sceVu0CopyVector(w.a, pos);
-                sceVu0CopyVector(w.b, pos);
-                w.b[1] -= 10000.0f;
+                sceVu0CopyVector(w.pt[0], pos);
+                sceVu0CopyVector(w.pt[1], pos);
+                w.pt[1][1] -= 10000.0f;
                 ClipFloorR(&w);
-                if (w.floorHit != 0) {
-                    pos[1] = w.pos[1] - h;
+                if (w.floor.elem != 0) {
+                    pos[1] = w.pt[2][1] - h;
                     break;
                 }
             }
-            sceVu0CopyVector(w.a, pos);
-            sceVu0CopyVector(w.b, pos);
-            w.a[1] -= 10.0f;
-            w.b[1] += 10000.0f;
+            sceVu0CopyVector(w.pt[0], pos);
+            sceVu0CopyVector(w.pt[1], pos);
+            w.pt[0][1] -= 10.0f;
+            w.pt[1][1] += 10000.0f;
             ClipFloor(&w);
-            if (w.floorHit == 0) {
-                sceVu0CopyVector(w.a, pos);
-                sceVu0CopyVector(w.b, pos);
-                w.b[1] -= 10000.0f;
+            if (w.floor.elem == 0) {
+                sceVu0CopyVector(w.pt[0], pos);
+                sceVu0CopyVector(w.pt[1], pos);
+                w.pt[1][1] -= 10000.0f;
                 ClipFloorR(&w);
-                if (w.floorHit == 0) {
+                if (w.floor.elem == 0) {
                     break;
                 }
             }
-            pos[1] = w.pos[1] - h;
+            pos[1] = w.pt[2][1] - h;
             break;
         }
         case 1:
@@ -695,25 +693,25 @@ void ACTDebugMove(GObj *self, int a1)
             ClipWork w;
 
             GetLowerPlaneCollision(&w, pos);
-            if (w.floorHit != 0 && CompareAttribute(w.attr, 0x800) == 0 &&
+            if (w.floor.elem != 0 && CompareAttribute(w.attr, 0x800) == 0 &&
                 CompareAttribute(w.attr, 0x900) == 0) {
                 ClipWork w2;
 
-                sceVu0CopyVector(w2.a, pos);
-                sceVu0CopyVector(w2.b, pos);
-                w2.b[1] += 10000.0f;
+                sceVu0CopyVector(w2.pt[0], pos);
+                sceVu0CopyVector(w2.pt[1], pos);
+                w2.pt[1][1] += 10000.0f;
                 ClipFloor(&w2);
-                if (w2.floorHit != 0) {
+                if (w2.floor.elem != 0) {
                     sceVu0IVECTOR col = {32, 32, 255, 128};
 
-                    w2.a[1] += 200.0f;
+                    w2.pt[0][1] += 200.0f;
                     gif_StartPacketPri(11);
                     MatrixDrive_PushMatrix();
                     gif_SetAlpha(1, 5, 128);
                     gif_SetZWrite(0);
                     gif_SetZTest(1);
                     sceVu0UnitMatrix(MatrixDrive_GetMatrix());
-                    DrawLineG(w2.a, col, w2.pos, col, 0);
+                    DrawLineG(w2.pt[0], col, w2.pt[2], col, 0);
                     MatrixDrive_PopMatrix();
                     gif_EndPacket();
                 }
@@ -730,10 +728,10 @@ void ACTDebugMove(GObj *self, int a1)
         {
             ClipWork w3;
 
-            sceVu0CopyVector(w3.a, pos);
-            sceVu0CopyVector(w3.b, pos);
-            w3.a[1] -= 200.0f;
-            w3.b[1] += 200.0f;
+            sceVu0CopyVector(w3.pt[0], pos);
+            sceVu0CopyVector(w3.pt[1], pos);
+            w3.pt[0][1] -= 200.0f;
+            w3.pt[1][1] += 200.0f;
             ClipFloor(&w3);
             gif_StartPacketPri(11);
             gif_SetAlpha(1, 5, 128);
@@ -756,7 +754,7 @@ void ACTDebugMove(GObj *self, int a1)
                 q2[0] += 200.0f;
                 q3[2] -= 200.0f;
                 q4[2] += 200.0f;
-                DrawLineG(w3.a, col2, w3.b, col2, 0);
+                DrawLineG(w3.pt[0], col2, w3.pt[1], col2, 0);
                 DrawLineG(q1, col2, q2, col2, 0);
                 DrawLineG(q3, col2, q4, col2, 0);
             }
@@ -770,7 +768,7 @@ void ACTDebugMove(GObj *self, int a1)
                 int i;
 
                 for (i = 0; i < 5; i++) {
-                    DrawLineG(w4.a, col, pt[i].f, col, 0);
+                    DrawLineG(w4.pt[0], col, pt[i].f, col, 0);
                 }
             }
         }
@@ -778,14 +776,14 @@ void ACTDebugMove(GObj *self, int a1)
     {
         ClipWork w3;
 
-        sceVu0CopyVector(w3.a, pos);
-        sceVu0CopyVector(w3.b, pos);
-        w3.a[1] -= 10.0f;
-        w3.b[1] += 10000.0f;
+        sceVu0CopyVector(w3.pt[0], pos);
+        sceVu0CopyVector(w3.pt[1], pos);
+        w3.pt[0][1] -= 10.0f;
+        w3.pt[1][1] += 10000.0f;
         ClipFloor(&w3);
-        if (w3.floorHit != 0 && CompareAttribute(w3.attr, 0x800) == 0 &&
+        if (w3.floor.elem != 0 && CompareAttribute(w3.attr, 0x800) == 0 &&
             CompareAttribute(w3.attr, 0x900) == 0) {
-            pos[1] = w3.pos[1] - h;
+            pos[1] = w3.pt[2][1] - h;
             SetDirectRootPositionNoFitting(self, pos);
             EnableChangeRootUpdateMode(self);
             AdjustMotionHeightToNearestField(self);

@@ -150,7 +150,7 @@ static inline int SetHandOnWall(GObj *obj, char *hw, char *vec, float *ref,
 {
     Vec4 plane;
 
-    if (GOBJ_SUB(obj)->root.wall.n == 0) {
+    if (GOBJ_SUB(obj)->root.wall.elem == 0) {
         return 0;
     }
     GetGlobalWallPlane(plane.f, &GOBJ_SUB(obj)->root.wall);

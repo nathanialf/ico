@@ -289,27 +289,8 @@ static int calcDynamicPathGeometry(GObj *g)
     return 0;
 }
 
-/* The collision query ClipCollision fills in: 192 bytes, 16-byte aligned by
-   its quadword members. */
-typedef struct {        /* field names derived */
-    sceVu0FVECTOR from; /* 0x00 start of the swept segment */
-    sceVu0FVECTOR to;   /* 0x10 end of the swept segment */
-    char pad20[16];     /* 0x20 */
-    sceVu0FVECTOR d;    /* 0x30 the clipped travel */
-    char pad40[16];     /* 0x40 */
-    sceVu0FVECTOR hit;  /* 0x50 */
-    sceVu0FVECTOR dir;  /* 0x60 */
-    float radius;       /* 0x70, the clip radius, 10 */
-    char pad74[20];     /* 0x74 */
-    int wall;           /* 0x88 */
-    char pad8C[8];      /* 0x8C */
-    int hit94;          /* 0x94 */
-    char pad98[40];     /* 0x98 */
-} CollWork;             /* derived name */
-
 /* the query calcDynamicGeometry starts from: all clear but the radius */
-static const CollWork collWorkInit = /* derived name */
-    {{0.0f}, {0.0f}, {0}, {0.0f}, {0}, {0.0f}, {0.0f}, 10.0f};
+static const ClipWork collWorkInit = {{{0.0f}}, {{0.0f}}, 10.0f}; /* derived name */
 
 /* the offset the wall test pushes the blade tip along, its z set per test */
 static float hitOfs[4] = {0.0f, 0.0f, 1.0f, 1.0f}; /* derived name */
@@ -329,7 +310,7 @@ static void calcDynamicGeometry(GObj *g)
     struct MotRoot *rp = &p->root;
     float d = weaponKind[w->kind].grip;
     float r = weaponKind[w->kind].length - d;
-    CollWork cc = collWorkInit;
+    ClipWork cc = collWorkInit;
     int hitA;
     int hitB;
 
@@ -356,19 +337,19 @@ static void calcDynamicGeometry(GObj *g)
         GetMatrixFromQuaternionPos(m2, p->root.quat, rp->pos);
 
         hitOfs[2] = r;
-        _ApplyMatrix(cc.from, m1, hitOfs);
-        _ApplyMatrix(cc.to, m2, hitOfs);
-        CopyVector(v1, cc.to);
-        _SubVector(dir1, cc.to, cc.from);
+        _ApplyMatrix(cc.pt[0], m1, hitOfs);
+        _ApplyMatrix(cc.pt[1], m2, hitOfs);
+        CopyVector(v1, cc.pt[1]);
+        _SubVector(dir1, cc.pt[1], cc.pt[0]);
 
         ClipCollision(&cc);
-        if (cc.wall != 0 || cc.hit94 != 0) {
+        if (cc.wall.elem != 0 || cc.floor.elem != 0) {
             hitA = 1;
             GetReflectionElement(&cc, 0.7f, 0.7f);
-            CopyVector(v1, cc.hit);
-            CopyVector(dir1, cc.dir);
-            if (36.0f < VectorLengthSquare(cc.d)) {
-                if (cc.wall) {
+            CopyVector(v1, cc.reflect.pos);
+            CopyVector(dir1, cc.reflect.dir);
+            if (36.0f < VectorLengthSquare(cc.reflect.bounce)) {
+                if (cc.wall.elem) {
                     GOBJ_SUB(g)->ctrl.wallAttr = GetWallAttribute(&cc);
                 } else {
                     GOBJ_SUB(g)->ctrl.wallAttr = GetFloorAttribute(&cc);
@@ -378,19 +359,19 @@ static void calcDynamicGeometry(GObj *g)
         }
 
         hitOfs[2] = -r;
-        _ApplyMatrix(cc.from, m1, hitOfs);
-        _ApplyMatrix(cc.to, m2, hitOfs);
-        CopyVector(v2, cc.to);
-        _SubVector(dir2, cc.to, cc.from);
+        _ApplyMatrix(cc.pt[0], m1, hitOfs);
+        _ApplyMatrix(cc.pt[1], m2, hitOfs);
+        CopyVector(v2, cc.pt[1]);
+        _SubVector(dir2, cc.pt[1], cc.pt[0]);
 
         ClipCollision(&cc);
-        if (cc.wall != 0 || cc.hit94 != 0) {
+        if (cc.wall.elem != 0 || cc.floor.elem != 0) {
             hitB = 1;
             GetReflectionElement(&cc, 0.7f, 0.7f);
-            CopyVector(v2, cc.hit);
-            CopyVector(dir2, cc.dir);
-            if (36.0f < VectorLengthSquare(cc.d)) {
-                if (cc.wall) {
+            CopyVector(v2, cc.reflect.pos);
+            CopyVector(dir2, cc.reflect.dir);
+            if (36.0f < VectorLengthSquare(cc.reflect.bounce)) {
+                if (cc.wall.elem) {
                     GOBJ_SUB(g)->ctrl.wallAttr = GetWallAttribute(&cc);
                 } else {
                     GOBJ_SUB(g)->ctrl.wallAttr = GetFloorAttribute(&cc);
@@ -399,7 +380,7 @@ static void calcDynamicGeometry(GObj *g)
             }
         }
 
-        if (cc.hit94) {
+        if (cc.floor.elem) {
             w->state = 0;
             CopyVector(rp->move, ZeroVector);
             CopyQuaternion(p->root.quat, IdentityQuaternion);

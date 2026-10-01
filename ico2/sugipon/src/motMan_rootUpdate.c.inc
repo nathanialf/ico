@@ -1,8 +1,4 @@
 /* motMan_rootUpdate.c.inc: the motion manager's root update, the wall, floor and water passes; motionManager.c includes this file. */
-/* declared as ico2/sugipon/src/box.c declares it; fumi's act.c declares it
- * with another view, so motionManager2.h does not */
-extern void GetLowerPlaneCollision(void *work, void *pos);
-
 /* _wallHitReaction's helper */
 static inline int getWallSlideDirection(void *dir, void *hit, void *wall) /* derived name */
 {
@@ -21,7 +17,7 @@ static inline int getWallSlideDirection(void *dir, void *hit, void *wall) /* der
     return 1;
 }
 
-static void _wallHitReaction(ClipBuf *w, void *pos, void *last, int noSlide)
+static void _wallHitReaction(ClipWork *w, void *pos, void *last, int noSlide)
 {
     Vec16 mv;
     Vec16 nrm;
@@ -32,7 +28,7 @@ static void _wallHitReaction(ClipBuf *w, void *pos, void *last, int noSlide)
 
     SubVectorXYZ(&mv, w->pt[1], w->pt[2]);
     SubVectorXYZ(pos, pos, &mv);
-    GetOrientOfWall(&nrm, w->wall.n, &w->wall.o);
+    GetOrientOfWall(&nrm, w->wall.elem, &w->wall.o);
     skelMotCtrl->flags = skelMotCtrl->flags | 2;
 
     CopyVector(&pl, &nrm);
@@ -46,13 +42,13 @@ static void _wallHitReaction(ClipBuf *w, void *pos, void *last, int noSlide)
     sceVu0SubVector(&slide, &mv, &pen);
 
     if (noSlide == 0) {
-        ClipBuf cw = {{0}, {0}, w->rad};
+        ClipWork cw = {{0}, {0}, w->radius};
 
         CopyVector(&cw, pos);
         _AddVectorXYZ(cw.pt[1], pos, &slide);
 
         cw.filter.o = w->wall.o;
-        cw.filter.n = w->wall.n;
+        cw.filter.elem = w->wall.elem;
         if (skelRoot->fieldWall != 0) {
             ClipWallEField(&cw);
         } else {
@@ -60,11 +56,11 @@ static void _wallHitReaction(ClipBuf *w, void *pos, void *last, int noSlide)
         }
         if (debug_wallhitcoldisp != 0) {
             /* an initialised record whose address is taken */
-            WallCfg disp = {((WallCfg *)&w->wall)->o, ((WallCfg *)&w->wall)->n};
+            WallCfg disp = {w->wall.o, w->wall.elem};
 
             DebugDisp1Collision(&disp);
         }
-        if (cw.wall.n != 0) {
+        if (cw.wall.elem != 0) {
             Vec16 prj;
 
             GetProjectionOfPlane(&prj, &cw.normal, cw.pt[1]);
@@ -79,7 +75,7 @@ static void _wallHitReaction(ClipBuf *w, void *pos, void *last, int noSlide)
                     GetProjectionOfPlane(&step, &dir, &step);
                     _AddVectorXYZ(pos, cw.pt[2], &step);
                 } else {
-                    ClipBuf cw2;
+                    ClipWork cw2;
                     Vec16 push;
 
                     memset(&cw2, 0, 0xC0);
@@ -92,15 +88,14 @@ static void _wallHitReaction(ClipBuf *w, void *pos, void *last, int noSlide)
                     if (debug_wallhitcoldisp != 0) {
                         DrawCollisionRay(&cw2);
                     }
-                    if (cw2.wall.n != 0) {
+                    if (cw2.wall.elem != 0) {
                         Vec16 hp;
 
-                        cw2.normal.f[3] = cw2.normal.f[3] - (w->rad + 1.0f);
+                        cw2.normal.f[3] = cw2.normal.f[3] - (w->radius + 1.0f);
                         if (GetProjectionOfPlane(&hp, &cw2.normal, pos) < 0.0f) {
                             CopyVector(pos, &hp);
                             if (debug_wallhitcoldisp != 0) {
-                                WallCfg disp = {((WallCfg *)&cw2.wall)->o,
-                                                ((WallCfg *)&cw2.wall)->n};
+                                WallCfg disp = {cw2.wall.o, cw2.wall.elem};
 
                                 DebugDisp1CollisionWithColor(&disp, wallHitColor);
                             }
@@ -111,7 +106,7 @@ static void _wallHitReaction(ClipBuf *w, void *pos, void *last, int noSlide)
                 CopyVector(pos, &prj);
             }
             if (debug_wallhitcoldisp != 0) {
-                WallCfg disp = {((WallCfg *)&cw.wall)->o, ((WallCfg *)&cw.wall)->n};
+                WallCfg disp = {cw.wall.o, cw.wall.elem};
 
                 DebugDisp1CollisionWithColor(&disp, wallHitColor2);
             }
@@ -128,7 +123,7 @@ static void _wallHitReaction(ClipBuf *w, void *pos, void *last, int noSlide)
 static inline void clipStepWallAndReact(struct MotRoot *cur, float *last, float rad,
                                         WallCfg *col) /* derived name */
 {
-    ClipBuf w;
+    ClipWork w;
 
     if (debug_col_old_proc != 0) {
         CopyVector(&w, last);
@@ -136,10 +131,10 @@ static inline void clipStepWallAndReact(struct MotRoot *cur, float *last, float 
         CopyVector(&w, cur->clipFrom);
     }
     CopyVector(w.pt[1], cur->pos);
-    w.rad = rad * skelScale;
+    w.radius = rad * skelScale;
     w.filter = *col;
     ClipWallE(&w);
-    if (w.wall.n != 0) {
+    if (w.wall.elem != 0) {
         _wallHitReaction(&w, cur->pos, last, 1);
     }
 }
@@ -147,7 +142,7 @@ static inline void clipStepWallAndReact(struct MotRoot *cur, float *last, float 
 static inline int clipFuchiWallAndReact(struct MotRoot *cur, float *last, int mode,
                                         float rad) /* derived name */
 {
-    ClipBuf w;
+    ClipWork w;
 
     if (debug_col_old_proc != 0) {
         CopyVector(&w, last);
@@ -155,9 +150,9 @@ static inline int clipFuchiWallAndReact(struct MotRoot *cur, float *last, int mo
         CopyVector(&w, cur->clipFrom);
     }
     CopyVector(w.pt[1], cur->pos);
-    w.rad = rad * skelScale;
+    w.radius = rad * skelScale;
     ClipWallFuchiHangWalkStop(&w);
-    if (w.wall.n != 0) {
+    if (w.wall.elem != 0) {
         int attr = GetWallAttribute(&w);
 
         switch (mode) {
@@ -182,7 +177,7 @@ static inline int clipFuchiWallAndReact(struct MotRoot *cur, float *last, int mo
 
 static inline int clipFieldWallAndReset(struct MotRoot *cur, float *last) /* derived name */
 {
-    ClipBuf w;
+    ClipWork w;
 
     if (debug_col_old_proc != 0) {
         CopyVector(&w, last);
@@ -192,14 +187,14 @@ static inline int clipFieldWallAndReset(struct MotRoot *cur, float *last) /* der
     CopyVector(w.pt[1], cur->pos);
     w.filter = InitialColInfo;
     ClipWallField(&w);
-    if (w.wall.n != 0 && CompareAttribute(w.attr, 0x10000) != 0) {
+    if (w.wall.elem != 0 && CompareAttribute(w.attr, 0x10000) != 0) {
         _wallHitReaction(&w, cur->pos, last, 0);
         return 1;
     }
     return 0;
 }
 
-static void _wallCollisionPreProcess(ClipBuf *w, void *p, void *q, float dy)
+static void _wallCollisionPreProcess(ClipWork *w, void *p, void *q, float dy)
 {
     Vec16 save;
     float r;
@@ -216,13 +211,13 @@ static void _wallCollisionPreProcess(ClipBuf *w, void *p, void *q, float dy)
     if (skelRoot->fieldWall != 0) {
         r = skelRoot->radius;
         if (r < 20.0f) {
-            w->rad = skelScale * 20.0f;
+            w->radius = skelScale * 20.0f;
         } else {
-            w->rad = r * skelScale;
+            w->radius = r * skelScale;
         }
         ClipWallField(w);
     } else {
-        w->rad = skelRoot->radius * skelScale;
+        w->radius = skelRoot->radius * skelScale;
         CopyVector(&save, w->pt[1]);
         if (w->filter.o.obj != 0) {
             ClipWallE(w);
@@ -237,14 +232,14 @@ static void _wallCollisionPreProcess(ClipBuf *w, void *p, void *q, float dy)
 
 static inline int wallCollisionAndFloorFit(float *pos, float *last, float dy) /* derived name */
 {
-    ClipBuf w;
+    ClipWork w;
     Vec16 t;
 
     _wallCollisionPreProcess(&w, pos, last, dy);
-    if (w.wall.n != 0) {
+    if (w.wall.elem != 0) {
         _wallHitReaction(&w, pos, last, 0);
         return 1;
-    } else if (w.floor.n != 0) {
+    } else if (w.floor.elem != 0) {
         CopyVector(&t, w.pt[2]);
         t.f[1] = t.f[1] - dy;
         CopyVector(pos, &t);
@@ -257,12 +252,12 @@ static inline int wallCollisionAndFloorFit(float *pos, float *last, float dy) /*
 /* dy is the caller's constant */
 static inline void wallCollisionAndReact(float dy) /* derived name */
 {
-    ClipBuf w;
+    ClipWork w;
     struct MotRoot *g = skelRoot;
     float *last = g->last;
 
     _wallCollisionPreProcess(&w, g->pos, last, dy);
-    if (w.wall.n != 0) {
+    if (w.wall.elem != 0) {
         _wallHitReaction(&w, g->pos, last, 0);
     }
 }
@@ -272,7 +267,7 @@ static inline void wallCollisionAndReact(float dy) /* derived name */
  * uses it. */
 static inline void waveForceReaction(struct MotRoot *cur, float *last, float dy) /* derived name */
 {
-    ClipBuf w;
+    ClipWork w;
     float d;
     float k;
 
@@ -285,12 +280,12 @@ static inline void waveForceReaction(struct MotRoot *cur, float *last, float dy)
     w.filter = skelRoot->filter;
     w.pt[0][1] = w.pt[0][1] + dy;
     w.pt[1][1] = w.pt[1][1] + dy;
-    w.rad = skelRoot->radius + 200.0f;
+    w.radius = skelRoot->radius + 200.0f;
     CopyVector(w.pt[1], &w);
     ClipWallWaveForce(&w);
-    if (w.wall.n != 0) {
+    if (w.wall.elem != 0) {
         d = GetDistanceFromPlane(&w.normal, &w);
-        d = d + w.rad;
+        d = d + w.radius;
         if (d > 0.0f) {
             k = 1.0f / (d + 50.0f);
             /* the wall normal read through Vec16, as motionOrientManager.c
@@ -304,16 +299,16 @@ static inline void waveForceReaction(struct MotRoot *cur, float *last, float dy)
 
 inline int upperFieldCheck(float *pos, float dy)
 {
-    ClipBuf buf;
+    ClipWork buf;
     CopyVector(&buf, pos);
     CopyVector(buf.pt[1], pos);
     buf.pt[1][1] = buf.pt[1][1] + dy;
     ClipFloor(&buf);
-    return buf.floor.n;
+    return buf.floor.elem;
 }
 
 /* getFieldCollision's two helpers */
-static inline void setPoolHeightOfFloor(ClipBuf *w) /* derived name */
+static inline void setPoolHeightOfFloor(ClipWork *w) /* derived name */
 {
     /* &w->floor is the floor's owning object: ico2/sugipon/src/box.c reads the
      * same word of the same work block as `char **`. */
@@ -324,7 +319,7 @@ static inline void setPoolHeightOfFloor(ClipBuf *w) /* derived name */
     skelMotCtrl->waterDepth = w->pt[2][1] - skelMotCtrl->waterY;
 }
 
-static inline void checkPoolFloor(ClipBuf *w) /* derived name */
+static inline void checkPoolFloor(ClipWork *w) /* derived name */
 {
     int attr = GetFloorAttribute(w);
 
@@ -335,7 +330,7 @@ static inline void checkPoolFloor(ClipBuf *w) /* derived name */
     }
 }
 
-static int getFieldCollision(ClipBuf *w)
+static int getFieldCollision(ClipWork *w)
 {
     float d;
 
@@ -349,7 +344,7 @@ static int getFieldCollision(ClipBuf *w)
     } else {
         ClipFloor(w);
     }
-    if (w->floor.n != 0) {
+    if (w->floor.elem != 0) {
         checkPoolFloor(w);
         d = GetYDistanceFromPlane(skelRoot->plane.f, w->pt[2]);
         if (d <= 35.0f) {
@@ -397,7 +392,7 @@ static inline int makeRootFitPlane(float *pl, struct MotRoot *o) /* derived name
  * to sit on it. */
 static inline float getFloorDropAt(float *v, float *pl, float *o) /* derived name */
 {
-    ClipBuf w;
+    ClipWork w;
     float d;
 
     CopyVector(&w, v);
@@ -405,13 +400,13 @@ static inline float getFloorDropAt(float *v, float *pl, float *o) /* derived nam
     w.pt[0][1] = w.pt[0][1] - 100.0f;
     w.pt[1][1] = w.pt[1][1] + 500.0f;
     ClipFloor(&w);
-    if (w.floor.n != 0) {
+    if (w.floor.elem != 0) {
         d = -(w.pt[2][1] - v[1]);
     } else {
         d = 3.40282347e+38f;
     }
 
-    if (w.floor.n != 0) {
+    if (w.floor.elem != 0) {
         float t = GetYProjectionOfPlane(w.normal.f, o) - GetYProjectionOfPlane(pl, o);
 
         if (45.0f < (t < 0.0f ? -t : t)) {
@@ -561,7 +556,7 @@ static void setIKAndAdjustRootHeight(char *mv)
 }
 
 /* shared by rootUpdateFly and rootUpdateEnemyFly */
-static inline int getFlyFieldCollision(ClipBuf *w) /* derived name */
+static inline int getFlyFieldCollision(ClipWork *w) /* derived name */
 {
     float y;
 
@@ -569,7 +564,7 @@ static inline int getFlyFieldCollision(ClipBuf *w) /* derived name */
     if (y < -0.5f) {
         return 0;
     }
-    w->rad = 0.0f;
+    w->radius = 0.0f;
     CopyVector(w, skelRoot->pos);
     w->pt[0][1] = skelRoot->clipFrom[1];
     CopyVector(w->pt[1], skelRoot->pos);
@@ -600,7 +595,7 @@ static inline void adjustRootByLandingPlane(Vec16 *plane, float rate) /* derived
     }
 }
 
-void landingFieldAction(ClipBuf *w)
+void landingFieldAction(ClipWork *w)
 {
     float h;
 
@@ -615,7 +610,7 @@ void landingFieldAction(ClipBuf *w)
 }
 
 /* shared by rootUpdateFly and rootUpdateEnemyFly */
-static inline void markPoolContact(ClipBuf *w) /* derived name */
+static inline void markPoolContact(ClipWork *w) /* derived name */
 {
     skelMotCtrl->flags |= 0x400;
     setPoolHeightOfFloor(w);
@@ -645,7 +640,7 @@ static void floorFitting(int kind)
 /* rootUpdateXZ's helper */
 static inline int getFloorAttributeUnderNode(void) /* derived name */
 {
-    ClipBuf w;
+    ClipWork w;
     int node;
 
     memset(&w, 0, 0xC0);
@@ -655,7 +650,7 @@ static inline int getFloorAttributeUnderNode(void) /* derived name */
     w.pt[0][1] = w.pt[0][1] - 50.0f;
     w.pt[1][1] = w.pt[1][1] + 50.0f;
     ClipFloor(&w);
-    if (w.floor.n != 0) {
+    if (w.floor.elem != 0) {
         return GetFloorAttribute(&w);
     }
     return -1;
@@ -764,7 +759,7 @@ static ObjNode rootUpdateXZ(int kind, int no)
         WALL_COLLISION_AND_WAVE_FORCE();
         /* the work block closes after setIKAndAdjustRootHeight */
         {
-            ClipBuf w;
+            ClipWork w;
             int attr;
 
             if (getFieldCollision(&w) != 0) {
@@ -806,7 +801,7 @@ static ObjNode rootUpdateXZ(int kind, int no)
         }
         CopyVector(skelRoot->focusPos, &focus);
     } else {
-        ClipBuf w;
+        ClipWork w;
 
         if (skelRoot->gravity != 0) {
             skelRoot->move[1] += 60.0f / (float)((60 - systemStatus[0] * 10) / systemStatus[1]) *
@@ -875,7 +870,7 @@ static ObjNode rootUpdateXZ(int kind, int no)
 static ObjNode rootUpdateXZ_MotPos(int kind, int no)
 {
     ObjNode ret = {0, -1};
-    ClipBuf w;
+    ClipWork w;
     Vec16 mv;
     Vec16 step;
     float mtx[16];
@@ -956,9 +951,9 @@ static ObjNode rootUpdateXZ_MotPos(int kind, int no)
     return ret;
 }
 
-static int adjustSideWall(ClipBuf *w, int nearTest, Vec16 *wallPlane)
+static int adjustSideWall(ClipWork *w, int nearTest, Vec16 *wallPlane)
 {
-    WallCfg cfg = {((WallCfg *)&w->wall)->o, ((WallCfg *)&w->wall)->n};
+    WallCfg cfg = {w->wall.o, w->wall.elem};
     Vec16 pl0;
     Vec16 pl1;
     float pts[16];
@@ -985,24 +980,24 @@ static int adjustSideWall(ClipBuf *w, int nearTest, Vec16 *wallPlane)
     return 0;
 }
 
-static int checkSideWall(float *probe, float *mtx, ClipBuf *p, ClipBuf *base, Vec16 *wallPlane)
+static int checkSideWall(float *probe, float *mtx, ClipWork *p, ClipWork *base, Vec16 *wallPlane)
 {
     char buf[16];
     int flag;
     int mag;
     int mask;
 
-    p->rad = 0.0f;
+    p->radius = 0.0f;
     CopyVector(p, base);
     sceVu0ApplyMatrix(p->pt[1], mtx, probe);
     ClipWall(p);
 
-    if (p->wall.n != 0) {
+    if (p->wall.elem != 0) {
         goto disp_one;
     }
     if (skelRoot->fuchiMode != 0) {
         ClipWallFuchiHangWalkStop(p);
-        if (p->wall.n != 0) {
+        if (p->wall.elem != 0) {
             flag = 0;
             mag = GetWallAttribute(p);
             switch (skelRoot->fuchiMode) {
@@ -1031,13 +1026,13 @@ side_probe:
     CopyVector(p, (void *)p->pt[1]);
     _AddVectorXYZ(p->pt[1], p, buf);
     ClipWall(p);
-    if (p->wall.n != 0) {
+    if (p->wall.elem != 0) {
         goto disp_one;
     }
     CopyVector(p, (void *)p->pt[1]);
     CopyVector((void *)p->pt[1], base->pt[1]);
     ClipWall(p);
-    if (p->wall.n != 0) {
+    if (p->wall.elem != 0) {
     disp_one:
         return adjustSideWall(p, 1, wallPlane);
     }
@@ -1074,7 +1069,7 @@ static void checkWallUpperWall(void)
 /* rootUpdateHang's helper */
 static inline void dropWhenFloorTooFar(void) /* derived name */
 {
-    ClipBuf w;
+    ClipWork w;
 
     if (0.0f <= plane_distance(skelRoot->pos, &skelRoot->plane)) {
         return;
@@ -1083,7 +1078,7 @@ static inline void dropWhenFloorTooFar(void) /* derived name */
     CopyVector(w.pt[1], &w);
     w.pt[1][1] = w.pt[1][1] + 50.0f;
     ClipFloor(&w);
-    if (w.floor.n != 0) {
+    if (w.floor.elem != 0) {
         if ((GetFloorAttribute(&w) & 0x800000) == 0 && w.pt[2][1] - w.pt[0][1] < 50.0f) {
             forceFallDown();
         }
@@ -1098,7 +1093,7 @@ static void calcWallFittingGeometry(void)
     Vec16 rot;
     short ang;
 
-    GetWallGlobalInfo(0, &v, skelRoot->wall.n,
+    GetWallGlobalInfo(0, &v, skelRoot->wall.elem,
                       (char *)GOBJ_SUB(skelRoot->wall.o.obj)->nodeMtx + skelRoot->wall.o.node * 64);
     MatrixDrive_SetTransposeMatrix(mtx, MatrixDrive_GetMatrix());
     _ApplyMatrix(&v, mtx, &v);
@@ -1123,7 +1118,7 @@ static ObjNode rootUpdateHang(int kind, int hand1Pt, int hand0Pt)
     float mtx[16];
     Vec16 pl;
     Vec16 pl2;
-    ClipBuf w;
+    ClipWork w;
     float mtx2[16];
     Vec16 pos;
     int hit;
@@ -1143,7 +1138,7 @@ static ObjNode rootUpdateHang(int kind, int hand1Pt, int hand0Pt)
     MatrixDrive_PopMatrix();
     sceVu0ApplyMatrix(&w, mtx2, hangBack);
     sceVu0ApplyMatrix(w.pt[1], mtx2, hangFront);
-    w.rad = 0.0f;
+    w.radius = 0.0f;
 
     /* the work records, in a block of their own */
     {
@@ -1152,8 +1147,8 @@ static ObjNode rootUpdateHang(int kind, int hand1Pt, int hand0Pt)
 
         if (skelMotCtrl->updateModeChanged == 0) {
             ClipWall(&w);
-            if (w.wall.n != 0) {
-                WallCfg rec = {((WallCfg *)&w.wall)->o, ((WallCfg *)&w.wall)->n};
+            if (w.wall.elem != 0) {
+                WallCfg rec = {w.wall.o, w.wall.elem};
 
                 n = GetPureVerticalPlaneOfCurrentPosition(&skelRoot->plane, &pl, 0, &rec, 0,
                                                           skelRoot->pos);
@@ -1165,7 +1160,7 @@ static ObjNode rootUpdateHang(int kind, int hand1Pt, int hand0Pt)
                 }
                 CopyVector(&pl2, &pl);
                 if (skelRoot->wall.o.obj == rec.o.obj && skelRoot->wall.o.node == rec.o.node &&
-                    skelRoot->wall.n == rec.n) {
+                    skelRoot->wall.elem == rec.elem) {
                     hit = skelRoot->wallCount == n;
                 }
                 skelRoot->wall = rec;
@@ -1193,8 +1188,8 @@ static ObjNode rootUpdateHang(int kind, int hand1Pt, int hand0Pt)
         {
             Vec16 v;
             Vec16 sc;
-            ClipBuf sw1;
-            ClipBuf sw2;
+            ClipWork sw1;
+            ClipWork sw2;
             Vec16 dv;
             int r1;
             int r2;
@@ -1263,7 +1258,7 @@ out:
 
 static ObjNode rootUpdateSwim(void)
 {
-    ClipBuf w;
+    ClipWork w;
     Vec16 v;
     ObjNode shift = {0, -1};
     float mtx[16];
@@ -1296,7 +1291,7 @@ static ObjNode rootUpdateSwim(void)
         debug_StdPrintfDummy(
             "下にDWATERの水底がないです。このメッセージが連続で\n出てるなら、泳ぎから遷移していない状態です\n\n");
     }
-    if (w.floor.n != 0) {
+    if (w.floor.elem != 0) {
         skelMotCtrl->floorAttr = GetFloorAttribute(&w);
         CopyVector(&skelRoot->plane, &w.normal);
     }
@@ -1316,28 +1311,28 @@ static ObjNode rootUpdateSwim(void)
 }
 
 /* shared by rootUpdateStepSolution and rootUpdateY */
-static inline void clipWallAhead(ClipBuf *w) /* derived name */
+static inline void clipWallAhead(ClipWork *w) /* derived name */
 {
     float mtx[16];
 
     GetMatrixFromQuaternionPos(mtx, skelRoot->quat, skelRoot->pos);
     sceVu0ApplyMatrix(w, mtx, clipWallBack);
     sceVu0ApplyMatrix(w->pt[1], mtx, clipWallFront);
-    w->rad = 0.0f;
+    w->radius = 0.0f;
     ClipWall(w);
 }
 
 /* avoidSideAdjustWall's two helpers */
-static inline int clipSideWallAndHit(ClipBuf *w) /* derived name */
+static inline int clipSideWallAndHit(ClipWork *w) /* derived name */
 {
     int hit = 1;
 
     ClipWallAdjustPos(w);
 
-    return w->wall.n != 0 ? hit : 0;
+    return w->wall.elem != 0 ? hit : 0;
 }
 
-static inline void pushRootAlongSideWall(ClipBuf *w) /* derived name */
+static inline void pushRootAlongSideWall(ClipWork *w) /* derived name */
 {
     Vec16 t;
 
@@ -1384,7 +1379,7 @@ static ObjNode rootUpdateStepSolution(int kind)
     Vec16 avg;
     Vec16 pos;
     Vec16 adj;
-    ClipBuf w;
+    ClipWork w;
     float dir;
     float d;
     int node;
@@ -1458,7 +1453,7 @@ static ObjNode rootUpdateStepSolution(int kind)
     CopyVector(w.pt[1], &w);
     w.pt[1][1] = w.pt[1][1] + (skelRoot->projHeight + 10.0f);
     ClipFloor(&w);
-    if (w.floor.n != 0) {
+    if (w.floor.elem != 0) {
         skelMotCtrl->floorAttr = GetFloorAttribute(&w) & 0xF0;
     }
 
@@ -1508,14 +1503,14 @@ static ObjNode rootUpdateStepSolution(int kind)
         /* falls through to the kind-7/8 wall probe */
     case 7:
     case 8: {
-        ClipBuf cw;
+        ClipWork cw;
 
         clipWallAhead(&cw);
         {
-            WallCfg rec = {((WallCfg *)&cw.wall)->o, ((WallCfg *)&cw.wall)->n};
+            WallCfg rec = {cw.wall.o, cw.wall.elem};
             Vec16 wp;
 
-            if (cw.wall.n != 0) {
+            if (cw.wall.elem != 0) {
                 skelRoot->aheadWall = rec;
                 GetPureVerticalPlane(&wp, 0, 0, &rec, 0);
                 skelMotCtrl->cliffDepth = GetDistanceFromPlane(&wp, skelRoot->pos) - rootMove[1];
@@ -1687,8 +1682,8 @@ static ObjNode rootUpdateY(void)
     Vec16 center;
     Vec16 pos;
     Vec16 push;
-    ClipBuf w;
-    ClipBuf cw;
+    ClipWork w;
+    ClipWork cw;
     float d;
     int i;
 
@@ -1744,8 +1739,8 @@ static ObjNode rootUpdateY(void)
     getFieldCollision(&w);
     CopyVector(&skelRoot->plane, &w.normal);
     clipWallAhead(&cw);
-    if (cw.wall.n != 0) {
-        WallCfg rec = {((WallCfg *)&cw.wall)->o, ((WallCfg *)&cw.wall)->n};
+    if (cw.wall.elem != 0) {
+        WallCfg rec = {cw.wall.o, cw.wall.elem};
 
         skelRoot->aheadWall = rec;
     }
@@ -1813,7 +1808,7 @@ static ObjNode rootUpdateY_Rope(int actPt)
 static ObjNode rootUpdateFly(void)
 {
     ObjNode shift = {0, -1};
-    ClipBuf w;
+    ClipWork w;
     int contact;
     float h;
     float d;
@@ -1846,7 +1841,7 @@ static ObjNode rootUpdateFly(void)
 static ObjNode rootUpdateEnemyFly(void)
 {
     ObjNode shift = {0, -1};
-    ClipBuf w;
+    ClipWork w;
     int contact;
 
     AddVectorXYZ(skelRoot->pos, skelRoot->pos, skelRoot->move);

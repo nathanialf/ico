@@ -138,8 +138,8 @@ static void initFallDown(GObj *self)
     GetRootPosition(pos, self);
     GOBJ_SUB(self)->colRotate = 0;
     *(int *)&GOBJ_SUB(self)->ctrl.animFrame = 0;
-    if (p->wall.n != 0) {
-        GetWallGlobalInfo((char *)pts, n, p->wall.n,
+    if (p->wall.elem != 0) {
+        GetWallGlobalInfo((char *)pts, n, p->wall.elem,
                           (char *)GOBJ_SUB(p->wall.o.obj)->nodeMtx + (p->wall.o.node << 6));
         n[1] = 0.0f;
         sceVu0Normalize(n, n);
@@ -156,13 +156,9 @@ static void initFallDown(GObj *self)
     }
 }
 
-/* motionManager2.c's; motionManager2.h cannot declare it while act.c keeps
-   its own void * extern */
-extern void GetLowerPlaneCollision(void *work, void *pos);
-
 static int checkFieldContact(GObj *self, float lim)
 {
-    ClipBuf w;
+    ClipWork w;
     float pos[4];
     float v[4];
     int r;
@@ -201,7 +197,7 @@ static int checkFieldContact(GObj *self, float lim)
    buffer and the root-position scratch are the caller's: execNormalMove's
    two expansions get two separate work buffers and share one output
    vector. */
-static inline void checkBoxWallHit(GObj *self, ClipBuf *w, float *base, float *out,
+static inline void checkBoxWallHit(GObj *self, ClipWork *w, float *base, float *out,
                                    int stop) /* derived name */
 {
     BoxWork *p = GOBJ_SUB(self)->work;
@@ -210,7 +206,7 @@ static inline void checkBoxWallHit(GObj *self, ClipBuf *w, float *base, float *o
     if (out != 0) {
         CopyVector(out, base);
     }
-    w->rad = (p->scaleX < p->scaleZ ? p->scaleX : p->scaleZ) * 50.0f - 5.0f;
+    w->radius = (p->scaleX < p->scaleZ ? p->scaleX : p->scaleZ) * 50.0f - 5.0f;
     base[1] += 40.0f;
     CopyVector(w->pt[0], base);
     CopyVector(w->pt[1], base);
@@ -244,9 +240,9 @@ typedef struct { /* field names derived */
 
 static int execNormalMove(GObj *self, int stop)
 {
-    ClipBuf stopWork;
+    ClipWork stopWork;
     float pos[4];
-    ClipBuf work;
+    ClipWork work;
     float wn[4];
     BoxWallRec wn2;
     float plTop[4];
@@ -266,7 +262,7 @@ static int execNormalMove(GObj *self, int stop)
 
     if (stop != 0) {
         checkBoxWallHit(self, &stopWork, pos, 0, 1);
-        if (stopWork.wall.n != 0) {
+        if (stopWork.wall.elem != 0) {
             ret = 0;
             SetDirectRootPosition(self, stopWork.pt[2]);
         }
@@ -283,9 +279,9 @@ static int execNormalMove(GObj *self, int stop)
     } else {
         if (stop == 0) {
             checkBoxWallHit(self, &work, wn, pos, 0);
-            if (work.wall.n != 0) {
+            if (work.wall.elem != 0) {
                 wn2.pt = *(BoxWallPt *)&work.wall.o;
-                wn2.hit = (int)work.wall.n;
+                wn2.hit = (int)work.wall.elem;
                 *(BoxWallRec *)wn = wn2;
 
                 hw = (p->scaleX < p->scaleZ ? p->scaleX : p->scaleZ) * 50.0f;
@@ -344,7 +340,7 @@ static int execNormalMove(GObj *self, int stop)
 /* inlined once, into execAutoMove */
 static inline void setBoxStopWallFlag(GObj *self, float *vel) /* derived name */
 {
-    ClipBuf w;
+    ClipWork w;
     float dir[4];
     BoxWork *p = GOBJ_SUB(self)->work;
 
@@ -354,7 +350,7 @@ static inline void setBoxStopWallFlag(GObj *self, float *vel) /* derived name */
     GetRootPosition(w.pt[0], self);
     AddVectorXYZ(w.pt[1], w.pt[0], dir);
     ClipWallBoxStop(&w);
-    if (w.wall.n != 0) {
+    if (w.wall.elem != 0) {
         p->stopWall = 1;
     } else {
         p->stopWall = 0;
@@ -1115,14 +1111,14 @@ static float floatPushDir[8][4] = {
 
 /* inlined once, into execFloating; the clip work, the matrix and the two
    scratch vectors are the caller's */
-static inline void pushOutFloatingBox(ClipBuf *cw, float *m, float *sv, float *dv, float *pos,
+static inline void pushOutFloatingBox(ClipWork *cw, float *m, float *sv, float *dv, float *pos,
                                       float *q, float r) /* derived name */
 {
     float *dir;
     float len;
     int i;
 
-    memset(cw, 0, sizeof(ClipBuf));
+    memset(cw, 0, sizeof(ClipWork));
     /* the counter is only read by the test; the direction pointer walks
        up */
     for (i = 0, dir = floatPushDir[0]; i < 8; i++, dir += 4) {
@@ -1131,7 +1127,7 @@ static inline void pushOutFloatingBox(ClipBuf *cw, float *m, float *sv, float *d
         _ScaleVectorXYZ(sv, dir, r);
         _ApplyMatrix(cw->pt[1], m, sv);
         ClipWall(cw);
-        if (cw->wall.n != 0) {
+        if (cw->wall.elem != 0) {
             _SubVectorXYZ(dv, cw->pt[2], cw->pt[1]);
             len = VectorLengthSquare(dv);
             if (1.0f < len) {
@@ -1146,20 +1142,20 @@ static inline void pushOutFloatingBox(ClipBuf *cw, float *m, float *sv, float *d
 
 static void avoidCharGObj(GObj *self, GObj *chara)
 {
-    ClipBuf w;
+    ClipWork w;
     float pos[4];
     int hit;
 
-    w.rad = (30.0f < GOBJ_SUB(chara)->root.radius) ? GOBJ_SUB(chara)->root.radius : 30.0f;
+    w.radius = (30.0f < GOBJ_SUB(chara)->root.radius) ? GOBJ_SUB(chara)->root.radius : 30.0f;
     GetRootPosition(pos, chara);
     pos[1] += GOBJ_SUB(chara)->root.projHeight + 10.0f;
     CopyVector(&w, pos);
     CopyVector(w.pt[1], pos);
     w.filter.o.obj = self;
     w.filter.o.node = -1;
-    w.filter.n = 0;
+    w.filter.elem = 0;
     ClipWallE(&w);
-    if (w.wall.n != 0) {
+    if (w.wall.elem != 0) {
         switch (GOBJ_SUB(chara)->ctrl.rootUpdateMode) {
         case 7:
         case 8:
@@ -1173,7 +1169,7 @@ static void avoidCharGObj(GObj *self, GObj *chara)
             break;
         }
         if (hit != 0) {
-            GetCylinderCollisionWithExceptOwnCollision(self, chara, (w.rad + 50.0f) * 1.414f,
+            GetCylinderCollisionWithExceptOwnCollision(self, chara, (w.radius + 50.0f) * 1.414f,
                                                        100.0f, 0.5f, 0.0f, 1);
             UpdateRootMatrix(self);
         }
@@ -1188,7 +1184,7 @@ static float floatTiltAxis[4] = {0.0f, 1.0f, 0.0f, 0.0f}; /* derived name */
 
 static void execFloating(GObj *self)
 {
-    ClipBuf fw;
+    ClipWork fw;
     float pos[4];
     float d[4];
     float g[4];
@@ -1199,7 +1195,7 @@ static void execFloating(GObj *self)
     float q[4];
     float rot[4];
     float m[16];
-    ClipBuf cw;
+    ClipWork cw;
     float cm[16];
     float sv[4];
     float dv[4];
@@ -1346,7 +1342,7 @@ static void initLanding(GObj *self)
     CopyVector(&GOBJ_SUB(self)->root.move[0], ZeroVector);
     *(int *)&GOBJ_SUB(self)->ctrl.animFrame = 0;
     GOBJ_SUB(self)->ctrl.motion = 1144;
-    if (p->wall.n != 0) {
+    if (p->wall.elem != 0) {
         float d;
 
         GetPureVerticalPlane(0, plane, 0, &p->wall, 1);
@@ -1385,7 +1381,7 @@ static inline void attackBoxFallCenter(GObj *self) /* derived name */
     float pos[4];
     BoxWork *q = GOBJ_SUB(self)->work;
 
-    if (q->wall.n != 0) {
+    if (q->wall.elem != 0) {
         GetPureVerticalPlane(0, plane, 0, &q->wall, 1);
         plane[3] = 0.0f;
         GetRootPosition(pos, self);
@@ -1427,7 +1423,7 @@ static void inertiaMove(GObj *self)
 {
     float pos[4];
     float tmp[4];
-    ClipBuf w;
+    ClipWork w;
     float base[4];
     BoxWork *p = GOBJ_SUB(self)->work;
 
@@ -1440,7 +1436,7 @@ static void inertiaMove(GObj *self)
     sceVu0AddVector(pos, pos, tmp);
     SetRootPosition(self, pos);
     checkBoxWallHit(self, &w, base, pos, 1);
-    if (w.wall.n != 0) {
+    if (w.wall.elem != 0) {
         SetRootPosition(self, pos);
         CopyVector(p->vel, ZeroVector);
     }
@@ -1539,13 +1535,13 @@ int GetBoxHoldPoint(float *out, GObj *self, GObj *chara)
     q->holder = chara;
     CopyVector(q->holdPoint, out);
     {
-        ClipBuf w;
+        ClipWork w;
 
         memset(&w, 0, 0xC0);
         GetBoxGlobalHoldPoint(w.pt[1], self, ZeroPoint);
         GetBoxGlobalHoldPoint(w.pt[0], self, out);
         ClipWall(&w);
-        if (w.wall.n != 0) {
+        if (w.wall.elem != 0) {
             if (CompareAttribute(GetWallAttribute(&w), 0xB00) ||
                 CompareAttribute(GetWallAttribute(&w), 0x400)) {
                 return 0;
@@ -1562,7 +1558,7 @@ inline int CanHoldBox(GObj *self)
     return p->mode == 0;
 }
 
-static inline void setupClipWork(ClipBuf *w, GObj *obj, float *dir, float len,
+static inline void setupClipWork(ClipWork *w, GObj *obj, float *dir, float len,
                                  float h) /* derived name */
 {
     float t[4];
@@ -1575,13 +1571,13 @@ static inline void setupClipWork(ClipBuf *w, GObj *obj, float *dir, float len,
 
 static inline int checkBoxStopWall(GObj *obj, float *dir) /* derived name */
 {
-    ClipBuf w;
+    ClipWork w;
     int r = 1;
 
     memset(&w, 0, 0xC0);
     setupClipWork(&w, obj, dir, 145.0f, 40.0f);
     ClipWallBoxStop(&w);
-    if (w.wall.n != 0) {
+    if (w.wall.elem != 0) {
         r = 0;
     }
     return r;
@@ -1589,13 +1585,13 @@ static inline int checkBoxStopWall(GObj *obj, float *dir) /* derived name */
 
 static inline int checkMoveWall(GObj *obj, float *dir) /* derived name */
 {
-    ClipBuf w;
+    ClipWork w;
     int r = 1;
 
     memset(&w, 0, 0xC0);
     setupClipWork(&w, obj, dir, 245.0f, 0.0f);
     ClipWall(&w);
-    if (w.wall.n != 0) {
+    if (w.wall.elem != 0) {
         r = 0;
     }
     return r;

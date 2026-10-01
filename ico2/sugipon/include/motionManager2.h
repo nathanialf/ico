@@ -22,14 +22,13 @@ typedef struct StreamElem { /* field names derived */
    the motion state block every actor starts from */
 struct StreamShapeHdr;
 struct MotionStateInfo;
-struct ClipBuf;
 
 #include "typedef.h"
 
 int AdjustMotionHeightToNearestField(GObj *self);
 void AdjustRootPositionToVerticalSidePlaneOfWall(void *self, void *wall, float dist);
 void AdjustVerticalSidePlaneOfWall(float *out, WallCfg *cfg, float *pos, float t);
-int CheckFieldContact(struct ClipBuf *info, GObj *self, float *pos, float lim);
+int CheckFieldContact(ClipWork *info, GObj *self, float *pos, float lim);
 /* the GObj and the attribute mask (act_bird.c passes 0x40 and 0x50;
    boyact, script, a_p_1 and frameDependSequence do the same) */
 int CheckFloorAttribute(GObj *self, int attr);
@@ -59,6 +58,8 @@ float GetDifferenceFromWallLowerPlane(GObj *self, int node);
 float GetDifferenceFromWallUpperField(GObj *self, int node);
 float GetDifferenceFromWallUpperPlane(GObj *self, int node);
 float GetHeightOfFieldPlaneDifference(GObj *a, GObj *b);
+/* the floor a 10000-long ray from pos along +y meets (ClipFloor) */
+void GetLowerPlaneCollision(ClipWork *w, float *pos);
 int GetMotionFrameFlag1(GObj *self);
 int GetMotionFrameFlag2(GObj *self);
 void GetOrientOfCliffOfGObj(float *dir, GObj *obj);
@@ -93,7 +94,7 @@ void CopyMotionWithNodeHrc(struct StreamElem *dst, struct StreamElem *src, SkelN
 void GetFloatingShapeMotion(float *dst, char *m, float t, int count);
 void GetFloatingMotionRootPos(float *dst, void *m, float t);
 void GetOutOutsideOfWall(GObj *obj, float threshold);
-int GetWaterReaction(float *outH, int *outFlag, struct ClipBuf *info, float *pos, float *vel,
+int GetWaterReaction(float *outH, int *outFlag, ClipWork *info, float *pos, float *vel,
                      float h0, float h1, float h2, float scaleIn, float amp);
 void dispPlane(Vec4 *plane, float *pos);
 void GetOrientOfWallOfGObj(float *dir, GObj *obj);

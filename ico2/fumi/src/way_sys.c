@@ -219,10 +219,10 @@ static inline struct FcWallEnt *way_probe(float *a, float *b) /* derived name */
     off[3] = 0.0f;
 
     cc.radius = 0;
-    sceVu0AddVector(cc.a, a, off);
-    sceVu0AddVector(cc.b, b, off);
+    sceVu0AddVector(cc.pt[0], a, off);
+    sceVu0AddVector(cc.pt[1], b, off);
     ClipWall(&cc);
-    return cc.wallHit;
+    return cc.wall.elem;
 }
 
 static int avoid_obstacle2(float *pos, float *wp, WVTObj *w)
@@ -242,14 +242,14 @@ static int avoid_obstacle2(float *pos, float *wp, WVTObj *w)
     float d;
 
     hold = 0;
-    sceVu0CopyVector(cc.a, pos);
-    sceVu0CopyVector(cc.b, w->chk.cur->pos);
+    sceVu0CopyVector(cc.pt[0], pos);
+    sceVu0CopyVector(cc.pt[1], w->chk.cur->pos);
     cc.radius = 20.0f;
     ClipWall(&cc);
-    if (cc.wallHit == 0) {
+    if (cc.wall.elem == 0) {
         return 0;
     }
-    obj = cc.wallSrc.obj;
+    obj = cc.wall.o.obj;
     if (objLayout[obj->labelId].kind != 17) {
         return 0;
     }
@@ -385,28 +385,28 @@ static void create_box_bridge(char *g)
         off[1] = 0.0f;
         sceVu0AddVector(end, pos, off);
 
-        sceVu0CopyVector(cc.a, start);
-        sceVu0CopyVector(cc.b, end);
+        sceVu0CopyVector(cc.pt[0], start);
+        sceVu0CopyVector(cc.pt[1], end);
         cc.radius = 0;
         ClipWall(&cc);
-        if (cc.wallHit == 0) {
+        if (cc.wall.elem == 0) {
             continue;
         }
 
-        sceVu0CopyVector(cc.a, cc.b);
-        cc.b[1] = cc.b[1] - 175.0f;
+        sceVu0CopyVector(cc.pt[0], cc.pt[1]);
+        cc.pt[1][1] = cc.pt[1][1] - 175.0f;
         ClipFloorR(&cc);
-        sceVu0CopyVector(wp[0], cc.pos);
-        if (cc.floorHit == 0) {
+        sceVu0CopyVector(wp[0], cc.pt[2]);
+        if (cc.floor.elem == 0) {
             continue;
         }
 
-        sceVu0CopyVector(cc.a, start);
-        sceVu0SubVector(cc.b, pos, off);
+        sceVu0CopyVector(cc.pt[0], start);
+        sceVu0SubVector(cc.pt[1], pos, off);
         ClipWall(&cc);
-        sceVu0CopyVector(wp[2], cc.pos);
+        sceVu0CopyVector(wp[2], cc.pt[2]);
         wp[2][1] = pos[1] + 50.0f;
-        if (cc.wallHit != 0) {
+        if (cc.wall.elem != 0) {
             continue;
         }
 
@@ -447,13 +447,13 @@ static __inline__ struct FcWallEnt *way_wall_between(float *pos, WayPoint *wp) /
     off[2] = 0.0f;
     off[3] = 0.0f;
     cc.radius = 30.0f;
-    sceVu0AddVector(cc.a, pos, off);
-    sceVu0AddVector(cc.b, p, off);
+    sceVu0AddVector(cc.pt[0], pos, off);
+    sceVu0AddVector(cc.pt[1], p, off);
     ClipWall(&cc);
-    if (cc.wallHit == 0) {
+    if (cc.wall.elem == 0) {
         ClipWallField(&cc);
     }
-    return cc.wallHit;
+    return cc.wall.elem;
 }
 
 inline void DeleteGuideWay(WVTObj *o)

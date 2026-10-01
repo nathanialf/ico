@@ -30,7 +30,7 @@ typedef struct StreamShapeHdr { /* field names derived */
     unsigned char shapeNum;
 } StreamShapeHdr; /* derived name */
 
-int GetWaterReaction(float *outH, int *outFlag, ClipBuf *info, float *pos, float *vel, float h0,
+int GetWaterReaction(float *outH, int *outFlag, ClipWork *info, float *pos, float *vel, float h0,
                      float h1, float h2, float scaleIn, float amp)
 {
     float drain[4];
@@ -42,7 +42,7 @@ int GetWaterReaction(float *outH, int *outFlag, ClipBuf *info, float *pos, float
     if (outFlag != 0) {
         *outFlag = 0;
     }
-    if (info->floor.n != 0) {
+    if (info->floor.elem != 0) {
         if (CompareAttribute(GetFloorAttribute(info), 0x50) != 0) {
             scale = scaleIn;
             pool = info->floor.o.obj;
@@ -249,7 +249,7 @@ void AdjustMotionHeightToField(GObj *obj)
     debug_StdPrintfDummy("Adjust Motion Height To Field. --------------\n");
 }
 
-void GetLowerPlaneCollision(ClipBuf *w, float *pos)
+void GetLowerPlaneCollision(ClipWork *w, float *pos)
 {
     CopyVector(w->pt[0], pos);
     CopyVector(w->pt[1], w->pt[0]);
@@ -257,7 +257,7 @@ void GetLowerPlaneCollision(ClipBuf *w, float *pos)
     ClipFloor(w);
 }
 
-static void getLowerPlaneCollisionE(ClipBuf *w, float *pos)
+static void getLowerPlaneCollisionE(ClipWork *w, float *pos)
 {
     CopyVector(w->pt[0], pos);
     CopyVector(w->pt[1], w->pt[0]);
@@ -268,7 +268,7 @@ static void getLowerPlaneCollisionE(ClipBuf *w, float *pos)
 /* inlined into AdjustMotionHeightToNearestField and InitMotionGeoInfo */
 static inline int adjustMotionHeightToNearestField(char *o, float *pos) /* derived name */
 {
-    ClipBuf buf;
+    ClipWork buf;
     float p[4];
     struct MotRoot *sub = (struct MotRoot *)(o + 0xA0);
 
@@ -280,7 +280,7 @@ static inline int adjustMotionHeightToNearestField(char *o, float *pos) /* deriv
     } else {
         GetLowerPlaneCollision(&buf, p);
     }
-    if (buf.floor.n == 0) {
+    if (buf.floor.elem == 0) {
         return 0;
     }
     CopyVector((&sub->plane), (&buf.normal));
@@ -1095,7 +1095,7 @@ int GetPureVerticalPlaneOfCurrentPosition(void *plane0, void *plane1, float *pts
     sh = cfg->o.node << 6;
     p15c = obj->dobj;
     v_c = p15c->nodeMtx;
-    GetWallGlobalInfo(pts, nrm, cfg->n, v_c + sh);
+    GetWallGlobalInfo(pts, nrm, cfg->elem, v_c + sh);
     nrm[1] = 0;
     sceVu0Normalize((int *)nrm, (int *)nrm);
     t = tbl;
@@ -1143,7 +1143,7 @@ static void getVerticalElementOfWallNormal(int *self, int *p, WallCfg *cfg)
     Sub15C *p15c = obj->dobj;
     int v_c = p15c->nodeMtx;
 
-    GetWallGlobalInfo(self, p, cfg->n, v_c + sh);
+    GetWallGlobalInfo(self, p, cfg->elem, v_c + sh);
     p[1] = 0;
     _NormalizeVector(p, p);
 }
@@ -1707,14 +1707,14 @@ int GetCollisionOfLastActiveField(GObj *self)
     return self->dobj->root.lastField;
 }
 
-int CheckFieldContact(ClipBuf *info, GObj *self, float *pos, float lim)
+int CheckFieldContact(ClipWork *info, GObj *self, float *pos, float lim)
 {
     float h;
     float dy;
     float ph;
     float d;
 
-    if (info->floor.n != 0) {
+    if (info->floor.elem != 0) {
         h = GOBJ_SUB(self)->root.move[1];
         dy = info->pt[2][1] - pos[1];
         if (CompareAttribute(GetFloorAttribute(info), 0x50) != 0) {
@@ -1760,7 +1760,7 @@ static inline void debugDisp1CollisionWithColor(WallCfg *cfg, void *color) /* de
     int *p15c = (int *)obj->dobj;
     int v_c = p15c[0xC / 4];
 
-    GetWallGlobalInfo(pts, pts[4], cfg->n, v_c + sh);
+    GetWallGlobalInfo(pts, pts[4], cfg->elem, v_c + sh);
     gif_StartPacketPri(11);
     gif_SetAlpha(1, 5, 0x80);
     MatrixDrive_PushMatrix();
@@ -1917,13 +1917,13 @@ float GetDifferenceFromLastField(GObj *self, int node)
 
 float GetDifferenceFromLowerField(GObj *self, int node)
 {
-    ClipBuf buf;
+    ClipWork buf;
     Sub15C *ctrl;
     int idx;
     ctrl = self->dobj;
     idx = ((signed char *)ctrl->focusNodes)[node];
     GetLowerPlaneCollision(&buf, ctrl->nodeMtx + (idx << 6) + 0x30);
-    if (buf.floor.n == 0) {
+    if (buf.floor.elem == 0) {
         return 3.40282347e+38f;
     }
     return buf.pt[2][1] - buf.pt[0][1];
@@ -2124,7 +2124,7 @@ void GetOutOutsideOfWall(GObj *obj, float threshold)
 {
     int buf0[4];
     int buf1[4];
-    if (GOBJ_SUB(obj)->root.wall.n != 0) {
+    if (GOBJ_SUB(obj)->root.wall.elem != 0) {
         float dot;
         GetRootPosition(buf0, obj);
         GetGlobalWallPlane(buf1, &obj->dobj->root.wall);
@@ -2139,12 +2139,12 @@ void GetOutOutsideOfWall(GObj *obj, float threshold)
 
 void AdjustRootPositionToVerticalSidePlaneOfWall(void *self, void *wall, float dist)
 {
-    ClipBuf buf;
+    ClipWork buf;
     memset(&buf, 0, sizeof(buf));
     GetRootPosition(&buf, self);
     AdjustVerticalSidePlaneOfWall(buf.pt[1], wall, &buf, dist);
     ClipWall(&buf);
-    if (buf.wall.n != 0) {
+    if (buf.wall.elem != 0) {
         SetDirectRootPosition(self, buf.pt[2]);
         debug_StdPrintfDummy(adjustRootClippedMsg);
     } else {

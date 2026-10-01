@@ -299,7 +299,7 @@ static int checkActPointWithHeight(int kind, float h)
     return -1;
 }
 
-inline void GetWallVector(float *v, ClipBuf *w)
+inline void GetWallVector(float *v, ClipWork *w)
 {
     CopyVector(v, &w->normal);
     v[3] = 0.0f;
@@ -346,7 +346,7 @@ static void clearCollisionStatus(void)
 
 static void checkUpperWallState(void)
 {
-    ClipBuf buf;
+    ClipWork buf;
     memset(&buf, 0, sizeof(buf));
     MatrixDrive_PushMatrix();
     MatrixDrive_TransMatrixV(wallCheckBase);
@@ -354,7 +354,7 @@ static void checkUpperWallState(void)
     sceVu0ApplyMatrix(buf.pt[1], MatrixDrive_GetMatrix(), wallCheckAhead);
     MatrixDrive_PopMatrix();
     ClipWall(&buf);
-    if (buf.wall.n != 0) {
+    if (buf.wall.elem != 0) {
         float a;
         struct MotCtrl *D;
         a = GetPointDistance(buf.pt[2], &buf);
@@ -367,9 +367,9 @@ static void checkUpperWallState(void)
 
 static void checkWallSideState(void)
 {
-    ClipBuf buf = {{0}, {0}, 50.0f};
+    ClipWork buf = {{0}, {0}, 50.0f};
     float v[4];
-    ClipBuf *p = &buf;
+    ClipWork *p = &buf;
 
     MatrixDrive_PushMatrix();
     MatrixDrive_TransMatrixV(wallCheckBase);
@@ -385,7 +385,7 @@ static void checkWallSideState(void)
     if (hitColRayDisp != 0) {
         DrawCollisionRay(p);
     }
-    if (p->wall.n != 0) {
+    if (p->wall.elem != 0) {
         SubVectorXYZ(v, p->pt[2], p);
         skelMotCtrl->sideWallDist = FSqrt(sceVu0InnerProduct(v, v)) + 50.0f;
         skelMotCtrl->sideWall = 1;
@@ -395,10 +395,10 @@ static void checkWallSideState(void)
 
 static void checkWallState(int flag)
 {
-    ClipBuf buf;
-    ClipBuf *p;
+    ClipWork buf;
+    ClipWork *p;
     float wv[4];
-    ClipBuf tmp;
+    ClipWork tmp;
     float sv[4];
     WallCfg cfg;
     WallCfg cfg2;
@@ -419,7 +419,7 @@ static void checkWallState(int flag)
     if (hitColRayDisp != 0) {
         DrawCollisionRay(p);
     }
-    if (p->wall.n != 0) {
+    if (p->wall.elem != 0) {
         tmp = *p;
         GetWallVector(wv, p);
         sceVu0ScaleVector(sv, wv, -200.0f);
@@ -429,8 +429,8 @@ static void checkWallState(int flag)
         } else {
             ClipWall(p);
         }
-        if (p->wall.n != 0) {
-            if (p->wall.n != tmp.wall.n || p->wall.o.obj != tmp.wall.o.obj ||
+        if (p->wall.elem != 0) {
+            if (p->wall.elem != tmp.wall.elem || p->wall.o.obj != tmp.wall.o.obj ||
                 p->wall.o.node != tmp.wall.o.node) {
                 if (distance_squared(p, p->pt[2]) > distance_squared(&tmp, tmp.pt[2])) {
                     *p = tmp;
@@ -441,7 +441,7 @@ static void checkWallState(int flag)
             }
             /* one statement: the record is filled a member at a time, then
                the whole twelve bytes are copied out as one unit */
-            cfg = (cfg2.o = ((WallCfg *)&p->wall)->o, cfg2.n = ((WallCfg *)&p->wall)->n, cfg2);
+            cfg = (cfg2.o = p->wall.o, cfg2.elem = p->wall.elem, cfg2);
             if (flag & 1) {
                 float v[4];
 
@@ -453,7 +453,7 @@ static void checkWallState(int flag)
                 /* The hit count reaches GetOrientOfWall as a pointer-typed
                    load, which is what lets it issue ahead of the two int
                    stores above it. */
-                GetOrientOfWall(skelMotCtrl->wallNormal, p->wall.n, &p->wall.o);
+                GetOrientOfWall(skelMotCtrl->wallNormal, p->wall.elem, &p->wall.o);
                 skelRoot->wall = cfg;
                 skelRoot->wallCount = -1;
                 if (skelRoot->fieldWall != 0 && skelMotCtrl->wallAttr == 0x10000) {
@@ -473,10 +473,10 @@ static void checkWallState(int flag)
                 CopyVector((void *)p->pt[1], (void *)p);
                 p->pt[1][1] = p->pt[1][1] - 10000.0f;
                 ClipFloorR(p);
-                if (p->floor.n != 0) {
+                if (p->floor.elem != 0) {
                     skelMotCtrl->wallFloorHeight = (p->pt[2][1] - p->pt[0][1]) + -40.0f;
                     SetSimplePlane(skelRoot->cliffPlane, 0.0f, -1.0f, 0.0f, p->pt[2][1]);
-                    skelRoot->cliffFloor = p->floor.n;
+                    skelRoot->cliffFloor = p->floor.elem;
                 }
             }
         }
@@ -485,9 +485,9 @@ static void checkWallState(int flag)
 
 static void checkCliffState(int first)
 {
-    ClipBuf buf;
+    ClipWork buf;
     float mv[4];
-    ClipBuf *p;
+    ClipWork *p;
     float k;
 
     memset(&buf, 0, sizeof(buf));
@@ -504,11 +504,11 @@ static void checkCliffState(int first)
         DrawCollisionRay(p);
     }
     ClipWallR(p);
-    if (p->wall.n != 0) {
+    if (p->wall.elem != 0) {
         float wv[4];
         float sc[4];
         float hit[4];
-        ClipBuf fp;
+        ClipWork fp;
         float plane[4];
         WallCfg pl;
         WallCfg t;
@@ -522,11 +522,11 @@ static void checkCliffState(int first)
         if (hitColRayDisp != 0) {
             DrawCollisionRay(p);
         }
-        if (p->wall.n != 0) {
+        if (p->wall.elem != 0) {
             sceVu0ScaleVector(sc, wv, 10.0f);
             sceVu0AddVector(fp.pt[1], p->pt[2], sc);
             CopyVector(&fp, fp.pt[1]);
-            pl = (t.o = p->wall.o, t.n = p->wall.n, t);
+            pl = (t.o = p->wall.o, t.elem = p->wall.elem, t);
             GetPureVerticalPlane(plane, 0, 0, &pl, 0);
             d = GetDistanceFromPlane(plane, p->pt[2]);
             fp.pt[0][1] += d - 10.0f;
@@ -535,10 +535,10 @@ static void checkCliffState(int first)
                 DrawCollisionRay(&fp);
             }
             CopyVector(hit, p->pt[2]);
-            if (fp.floor.n == 0) {
+            if (fp.floor.elem == 0) {
                 float dv[4];
                 float nv[4];
-                ClipBuf w2;
+                ClipWork w2;
                 float ip;
 
                 CopyVector(dv, wv);
@@ -549,7 +549,7 @@ static void checkCliffState(int first)
                 skelMotCtrl->cliffWallHit = 1;
                 /* the wall-hit word is copied as the pointer it is, as
                    checkWallState reads it */
-                skelRoot->cliffWall.n = p->wall.n;
+                skelRoot->cliffWall.elem = p->wall.elem;
                 skelRoot->cliffWall.o = p->wall.o;
                 skelRoot->cliffWallCount = -1;
                 w2 = *p;
@@ -562,13 +562,13 @@ static void checkCliffState(int first)
                 if (hitColRayDisp != 0) {
                     DrawCollisionRay(&w2);
                 }
-                if (w2.wall.n == 0) {
+                if (w2.wall.elem == 0) {
                     skelMotCtrl->cliffEdge = 1;
                     skelMotCtrl->flags |= 0x10;
                 }
             }
             skelMotCtrl->pureCliffAttr = skelMotCtrl->wallAttr = GetWallAttribute(p);
-            GetOrientOfWall(skelMotCtrl->cliffNormal, p->wall.n, &p->wall.o);
+            GetOrientOfWall(skelMotCtrl->cliffNormal, p->wall.elem, &p->wall.o);
             if (skelMotCtrl->cliffDist < 30.0f) {
                 sceVu0ScaleVector(sc, wv, 10.0f);
                 SubVectorXYZ(p, hit, sc);
@@ -578,7 +578,7 @@ static void checkCliffState(int first)
                 if (hitColRayDisp != 0) {
                     DrawCollisionRay(p);
                 }
-                if (p->wall.n != 0) {
+                if (p->wall.elem != 0) {
                     dd = distance_squared(p->pt[2], p);
                     skelMotCtrl->cliffBack = 1;
                     d = FSqrt(dd);
@@ -597,7 +597,7 @@ static void checkCliffState(int first)
                     if (hitColRayDisp != 0) {
                         DrawCollisionRay(p);
                     }
-                    if (p->floor.n != 0) {
+                    if (p->floor.elem != 0) {
                         skelMotCtrl->wallFloorHeight = (p->pt[2][1] - p->pt[0][1]) + 10.0f;
                     }
                 }
@@ -610,7 +610,7 @@ static void checkCliffState(int first)
             if (hitColRayDisp != 0) {
                 DrawCollisionRay(p);
             }
-            if (p->floor.n != 0) {
+            if (p->floor.elem != 0) {
                 skelMotCtrl->cliffHeight = (p->pt[2][1] - p->pt[0][1]) + 10.0f;
             }
         }
@@ -674,7 +674,7 @@ static void _checkCliffAndWall(void)
             DrawGObjWallCollision(skelRoot->wall.o.obj, 0);
         }
     }
-    if (GOBJ_SUB(skelGObj)->ctrl.wallHit != 0 && GOBJ_SUB(skelGObj)->root.wall.n == 0) {
+    if (GOBJ_SUB(skelGObj)->ctrl.wallHit != 0 && GOBJ_SUB(skelGObj)->root.wall.elem == 0) {
         debug_assertMessage(__FILE__, 822, "NOT ENTRY WCL\n");
         __assert(__FILE__, 822, "e");
     }

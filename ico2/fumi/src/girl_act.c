@@ -1870,19 +1870,19 @@ static void _girlBrainHide_MakeHidePoint(float *p, float dist)
     sceVu0AddVector(p, brain_val.f_5850, p);
     p[1] = brain_val.f_5840[1];
     work.radius = 50.0f;
-    sceVu0CopyVector(work.a, brain_val.f_5820);
-    sceVu0CopyVector(work.b, p);
+    sceVu0CopyVector(work.pt[0], brain_val.f_5820);
+    sceVu0CopyVector(work.pt[1], p);
     ClipWall(&work);
-    work.a[0] = work.pos[0];
-    work.a[2] = work.pos[2];
-    work.b[0] = work.pos[0];
-    work.b[2] = work.pos[2];
-    work.a[1] = work.pos[1] - 200.0f;
-    work.b[1] = work.pos[1] + 200.0f;
+    work.pt[0][0] = work.pt[2][0];
+    work.pt[0][2] = work.pt[2][2];
+    work.pt[1][0] = work.pt[2][0];
+    work.pt[1][2] = work.pt[2][2];
+    work.pt[0][1] = work.pt[2][1] - 200.0f;
+    work.pt[1][1] = work.pt[2][1] + 200.0f;
     ClipFloor(&work);
-    p[0] = work.pos[0];
-    p[2] = work.pos[2];
-    p[1] = work.pos[1] - 10.0f;
+    p[0] = work.pt[2][0];
+    p[2] = work.pt[2][2];
+    p[1] = work.pt[2][1] - 10.0f;
 }
 
 static void girlBrainHide_GoalTurn(float *dir, unsigned char sendMail)
@@ -2049,12 +2049,12 @@ static inline int isNoWallBetween(float *from, float *to) /* derived name */
     ClipWork work;
 
     work.radius = 10.0f;
-    sceVu0CopyVector(work.a, from);
-    sceVu0CopyVector(work.b, to);
+    sceVu0CopyVector(work.pt[0], from);
+    sceVu0CopyVector(work.pt[1], to);
     ClipWall(&work);
-    if (work.wallHit == 0) {
+    if (work.wall.elem == 0) {
         ClipWallField(&work);
-        if (work.wallHit == 0) {
+        if (work.wall.elem == 0) {
             return 1;
         }
     }
@@ -2430,12 +2430,12 @@ inline int ACTCheckCollis_SAFE(float height, float *p0, float *p1, void *actor, 
     flag = actor ? GOBJ_SUB(actor)->disp : 0;
 
     work.radius = (float)radius;
-    work.a[0] = p0[0];
-    work.a[1] = p0[1];
-    work.a[2] = p0[2];
-    work.b[0] = p1[0];
-    work.b[2] = p1[2];
-    work.b[1] = p0[1];
+    work.pt[0][0] = p0[0];
+    work.pt[0][1] = p0[1];
+    work.pt[0][2] = p0[2];
+    work.pt[1][0] = p1[0];
+    work.pt[1][2] = p1[2];
+    work.pt[1][1] = p0[1];
 
     tmp[0] = p1[0];
     tmp[1] = p0[1];
@@ -2445,31 +2445,31 @@ inline int ACTCheckCollis_SAFE(float height, float *p0, float *p1, void *actor, 
         GOBJ_SUB(actor)->disp = 0;
     }
     ClipWall(&work);
-    if (work.wallHit == 0) {
+    if (work.wall.elem == 0) {
         ClipWallField(&work);
-        if (work.wallHit == 0)
+        if (work.wall.elem == 0)
             goto no_wall;
     }
-    tmp[0] = work.pos[0];
-    tmp[1] = work.pos[1];
-    tmp[2] = work.pos[2];
+    tmp[0] = work.pt[2][0];
+    tmp[1] = work.pt[2][1];
+    tmp[2] = work.pt[2][2];
 no_wall:
-    work.a[0] = tmp[0];
-    work.a[1] = tmp[1];
-    work.a[2] = tmp[2];
-    work.b[0] = tmp[0];
-    work.b[2] = tmp[2];
-    work.b[1] = tmp[1] + height;
+    work.pt[0][0] = tmp[0];
+    work.pt[0][1] = tmp[1];
+    work.pt[0][2] = tmp[2];
+    work.pt[1][0] = tmp[0];
+    work.pt[1][2] = tmp[2];
+    work.pt[1][1] = tmp[1] + height;
     ClipFloor(&work);
-    if (work.floorHit == 0) {
+    if (work.floor.elem == 0) {
         rv = 0;
     } else {
-        work.pos[1] -= 10.0f;
+        work.pt[2][1] -= 10.0f;
     }
     if (posout != 0) {
-        posout[0] = work.pos[0];
-        posout[1] = work.pos[1];
-        posout[2] = work.pos[2];
+        posout[0] = work.pt[2][0];
+        posout[1] = work.pt[2][1];
+        posout[2] = work.pt[2][2];
     }
     if (flag != 0) {
         GOBJ_SUB(actor)->disp = 1;

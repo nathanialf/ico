@@ -564,17 +564,6 @@ int _ACTCorrectMsg(GObj *self, int msg, void *param)
     return msg;
 }
 
-typedef struct { /* field names derived */
-    float x, y, z;
-} IntrVec3; /* derived name */
-
-typedef struct { /* field names derived */
-    IntrVec3 a;
-    float aw;
-    IntrVec3 b;
-    float bw;
-} IntrOrient; /* derived name */
-
 /* the motion each interrupt kind requests, indexed by the kind */
 static int intrMotion[432] = {
     0,   0,   0,   0,   0,   0,   117, 117, 61,  0,   1,   0,   0,   0,   0,   222, 223, 0,   0,
@@ -601,45 +590,43 @@ static int intrMotion[432] = {
     188, 189, 190, 191, 189, 118, 1,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,
     0,   0,   0,   0,   0,   0,   0,   0,   17,  18,  262, 0,   0,   0}; /* derived name */
 
-int ACTGetOrientFromIntrK(GObj *self, int k, void *buf, int arg)
+int ACTGetOrientFromIntrK(GObj *self, int k, MotOriReq *out, int arg)
 {
-    IntrOrient *out = (IntrOrient *)buf;
     Act *s = GOBJ_ACT(self);
-    IntrVec3 tmp;
+    MotOriTarget tmp;
     int ret = intrMotion[k];
 
-    *out = *(IntrOrient *)((char *)s + 0x620);
+    *out = s->motOriReq;
     switch (k) {
     case 140:
-        out->b = ((IntrOrient *)((char *)GOBJ_ACT(self)->work + 0x480))->b;
+        out->b = ((MotOriReq *)((char *)GOBJ_ACT(self)->work + 0x480))->b;
         break;
     case 305:
-        out->a = ((IntrOrient *)((char *)GOBJ_ACT(self)->work + 0x480))->a;
+        out->a = ((MotOriReq *)((char *)GOBJ_ACT(self)->work + 0x480))->a;
         break;
     case 298:
         *(char **)((char *)s + 0x30) = GetMailAdditionalData(self, arg);
-        tmp = *(IntrVec3 *)(*(char **)((char *)GOBJ_ACT(self) + 0x30));
-        out->b = ((IntrOrient *)((char *)s + 0x620))->b = tmp;
+        tmp = *(MotOriTarget *)(*(char **)((char *)GOBJ_ACT(self) + 0x30));
+        out->b = s->motOriReq.b = tmp;
         break;
     case 54:
         *(char **)((char *)s + 0x30) = GetMailAdditionalData(self, arg);
-        tmp = *(IntrVec3 *)(*(char **)((char *)GOBJ_ACT(self) + 0x30));
-        out->a = out->b = ((IntrOrient *)((char *)s + 0x620))->a =
-            ((IntrOrient *)((char *)s + 0x620))->b = tmp;
-        s->sofaObj = *(GObj **)&tmp;
+        tmp = *(MotOriTarget *)(*(char **)((char *)GOBJ_ACT(self) + 0x30));
+        out->a = out->b = s->motOriReq.a = s->motOriReq.b = tmp;
+        s->sofaObj = tmp.obj;
         GetSofaPosition(self, s->sofaObj);
         break;
     case 145:
-        out->a = *(IntrVec3 *)((char *)GOBJ_ACT(self)->work + 0x3D8);
+        out->a = *(MotOriTarget *)((char *)GOBJ_ACT(self)->work + 0x3D8);
         break;
     case 144:
-        out->a = *(IntrVec3 *)((char *)GOBJ_ACT(self)->work + 0x3CC);
+        out->a = *(MotOriTarget *)((char *)GOBJ_ACT(self)->work + 0x3CC);
         break;
     case 114:
     case 115:
     case 116:
     case 117:
-        out->b = ((IntrOrient *)((char *)s + 0x620))->a;
+        out->b = s->motOriReq.a;
         break;
     case 45:
         return GOBJ_ACT(self)->enemy->jumpOrient;
@@ -651,21 +638,20 @@ int ACTGetOrientFromIntrK(GObj *self, int k, void *buf, int arg)
     case 378:
     case 379:
     case 380:
-        out->b = out->a = ((IntrOrient *)((char *)s + 0x640))->b;
+        out->b = out->a = s->motOriReq640.b;
         break;
     case 381:
-        *out = *(IntrOrient *)((char *)s + 0x640) =
-            *(IntrOrient *)((char *)GOBJ_ACT(boyGObj) + 0x640);
+        *out = s->motOriReq640 = GOBJ_ACT(boyGObj)->motOriReq640;
         break;
     case 382:
     case 383:
     case 384:
-        *out = *(IntrOrient *)((char *)s + 0x640);
+        *out = s->motOriReq640;
         break;
     case 385:
     case 386:
-        *out = *(IntrOrient *)((char *)s + 0x660);
-        *(IntrOrient *)((char *)s + 0x620) = *out;
+        *out = s->supportReq;
+        s->motOriReq = *out;
         break;
     case 205:
     case 206:
@@ -685,14 +671,14 @@ int ACTGetOrientFromIntrK(GObj *self, int k, void *buf, int arg)
         break;
     case 81:
         ret = s->orientMot;
-        out->a = ((IntrOrient *)((char *)GOBJ_ACT(boyGObj) + 0x620))->b;
-        *(IntrOrient *)((char *)s + 0x620) = *out;
+        out->a = GOBJ_ACT(boyGObj)->motOriReq.b;
+        s->motOriReq = *out;
         break;
     case 89:
     case 399:
     case 403:
-        out->a = ((IntrOrient *)((char *)GOBJ_ACT(boyGObj) + 0x620))->b;
-        *(IntrOrient *)((char *)s + 0x620) = *out;
+        out->a = GOBJ_ACT(boyGObj)->motOriReq.b;
+        s->motOriReq = *out;
         break;
     case 416:
         ret = 0;
@@ -704,7 +690,7 @@ int ACTGetOrientFromIntrK(GObj *self, int k, void *buf, int arg)
     case 152:
     case 155:
     case 156:
-        out->a = *(IntrVec3 *)&GOBJ_ACT(self)->enemy->climbCol;
+        out->a = *(MotOriTarget *)&GOBJ_ACT(self)->enemy->climbCol;
         break;
     default:
         ret = intrMotion[k];
@@ -850,21 +836,21 @@ static int CollisCheckInRope(void *self, GObj *chain)
     p[2] = mid[2];
     p[1] = mid[1] + 10.0f;
     sceVu0ScaleVector(tmp, dir, -1.0f);
-    sceVu0AddVector(work.a, p, tmp);
+    sceVu0AddVector(work.pt[0], p, tmp);
     sceVu0ScaleVector(tmp, dir, 1.0f);
-    sceVu0AddVector(work.b, p, tmp);
+    sceVu0AddVector(work.pt[1], p, tmp);
     work.radius = 10.0f;
     ClipWall(&work);
-    if (work.wallHit != 0) {
-        if (ropeWallIsBox((char *)work.wallSrc.obj))
+    if (work.wall.elem != 0) {
+        if (ropeWallIsBox((char *)work.wall.o.obj))
             rv = 2;
         else
             rv = 1;
     } else {
-        SwapGV(work.a, work.b);
+        SwapGV(work.pt[0], work.pt[1]);
         ClipWall(&work);
-        if (work.wallHit != 0) {
-            if (ropeWallIsBox((char *)work.wallSrc.obj))
+        if (work.wall.elem != 0) {
+            if (ropeWallIsBox((char *)work.wall.o.obj))
                 rv = 2;
             else
                 rv = 1;
@@ -876,11 +862,11 @@ static int CollisCheckInRope(void *self, GObj *chain)
 static inline int chainFloorHit(GObj *self, ClipWork *w) /* derived name */
 {
     if (((motionKind + GOBJ_SUB(self)->ctrl.motion)->flags.word >> 4) & 1) {
-        GetSkeltonPosition(w->a, self, 44);
-        GetSkeltonPosition(w->b, self, 51);
-        w->b[1] -= 5.0f;
+        GetSkeltonPosition(w->pt[0], self, 44);
+        GetSkeltonPosition(w->pt[1], self, 51);
+        w->pt[1][1] -= 5.0f;
         ClipFloor(w);
-        if (w->floorHit != 0) {
+        if (w->floor.elem != 0) {
             return 1;
         }
     }
@@ -959,11 +945,11 @@ void actCommonRope(GObj *volatile self)
             if (step == nsteps) {
                 SetMotionDirection(self, dir);
             } else if (step < nsteps) {
-                work.a[0] = ori[0];
-                work.a[1] = ori[1];
-                work.a[2] = ori[2];
-                _ApplyRyGV(work.a, (float)(roty * step / total) * 3.1415927f / 180.0f);
-                SetMotionDirection(self, work.a);
+                work.pt[0][0] = ori[0];
+                work.pt[0][1] = ori[1];
+                work.pt[0][2] = ori[2];
+                _ApplyRyGV(work.pt[0], (float)(roty * step / total) * 3.1415927f / 180.0f);
+                SetMotionDirection(self, work.pt[0]);
             }
             step++;
         }
@@ -1321,12 +1307,12 @@ static inline unsigned char ropeSpecialWallHit(RsVec4 *p1, ClimbCol *hit) /* der
         sceVu0UnitMatrix((void *)MatrixDrive_GetMatrix());
         MatrixDrive_TransMatrix(p1->f[0], p1->f[1] + 0.0f, p1->f[2]);
         MatrixDrive_RotMatrixY((short)((float)i * 0.7853982f * 32768.0f / 3.1415927f));
-        sceVu0ApplyMatrix(work.a, (void *)MatrixDrive_GetMatrix(), va);
-        sceVu0ApplyMatrix(work.b, (void *)MatrixDrive_GetMatrix(), vb);
+        sceVu0ApplyMatrix(work.pt[0], (void *)MatrixDrive_GetMatrix(), va);
+        sceVu0ApplyMatrix(work.pt[1], (void *)MatrixDrive_GetMatrix(), vb);
         ClipWall(&work);
-        if (work.wallHit != 0) {
-            hit->wallSrc = work.wallSrc;
-            hit->wall = work.wallHit;
+        if (work.wall.elem != 0) {
+            hit->wallSrc = work.wall.o;
+            hit->wall = work.wall.elem;
             return 1;
         }
     }
@@ -1865,15 +1851,15 @@ static inline int boxWallCheck(GObj *self, GObj *box, float dist, int h) /* deri
     float t[4];
     Act *s = GOBJ_ACT(self);
 
-    GetRootPosition(w.a, box);
-    GetRootPosition(w.b, box);
+    GetRootPosition(w.pt[0], box);
+    GetRootPosition(w.pt[1], box);
     sceVu0ScaleVector(t, s->wallOrient, dist);
-    sceVu0AddVector(w.b, w.b, t);
+    sceVu0AddVector(w.pt[1], w.pt[1], t);
     w.radius = h;
-    w.a[1] += 10.0f;
-    w.b[1] += 10.0f;
+    w.pt[0][1] += 10.0f;
+    w.pt[1][1] += 10.0f;
     ClipWall(&w);
-    if (w.wallHit == 0) {
+    if (w.wall.elem == 0) {
         return 0;
     }
     return 1;
@@ -2486,8 +2472,8 @@ static inline unsigned char IsFlyTimeOver(int self) /* derived name */
 }
 
 /* typedef.h's ClipWork as the fly code reads it, with its vectors as the
-   FlyPt points the code builds: rad is ClipWork's radius, wall its wallHit
-   and floor its floorHit. */
+   FlyPt points the code builds: rad is ClipWork's radius, wall its wall
+   element and floor its floor element. */
 typedef struct { /* field names derived */
     FlyPt v[7];  /* 0x00 from, 0x10 to, 0x20 the hit position */
     float rad;

@@ -201,7 +201,7 @@ typedef union Vec16 { /* field names derived */
 
 /* An object and one of its nodes: the motion work opens with the parent
    it is linked to, the rootUpdates return the one they stand on, and the
-   wall-hit record at ClipBuf+0x80 is one followed by the hit count.  GetPureVerticalPlane reads it as its `int *cfg` argument (see
+   wall-hit record at ClipWork+0x80 is one followed by the hit count.  GetPureVerticalPlane reads it as its `int *cfg` argument (see
    getVerticalElementOfWallNormal in src/motionManager2) and the character
    record keeps a copy at +0xE0.  The object/node pair is its own member: the
    ROM copies it as an eight-byte block and the count as a separate word. */
@@ -212,8 +212,27 @@ typedef struct ObjNode { /* field names derived */
 
 typedef struct { /* field names derived */
     ObjNode o;
-    void *n;
+    void *elem; /* the element of o's collision: a wall (FcWallEnt) or a
+                   floor (FcFloorEnt), 0 for none */
 } WallCfg; /* derived name */
+
+/* One half of an orient request, the 12 bytes the request copies move: the
+ * point the motion turns to, or the wall (an object, its node and the wall
+ * element) or the object the mail that asked for it names. */
+typedef union { /* field names derived */
+    float pos[3];
+    WallCfg wall;
+    struct GObj *obj;
+} MotOriTarget; /* derived name */
+
+/* The 32-byte orient record an actor hands to SetMotionRequest by value: two
+ * targets, each with a fourth word. */
+typedef struct MotOriReq { /* field names derived */
+    MotOriTarget a; /* 0x00 */
+    int aw;         /* 0x0C */
+    MotOriTarget b; /* 0x10 */
+    int bw;         /* 0x1C */
+} MotOriReq;        /* derived name */
 
 /* RECONSTRUCTION, the type and enumerator names are ours: the 0x360 word of the
  * root block (MotRoot handIK) holds the table's 2-bit mode (bits 26-27 of the 0x188 word).
@@ -1035,27 +1054,30 @@ typedef union { /* field names derived */
     long long ll[2];
 } Vec4; /* derived name */
 
-/* the collision query ClipWall, ClipFloor and ClipCollision take: the segment,
-   the clipped point and what the search hit */
+/* the collision query ClipWall, ClipFloor and ClipCollision take: the
+   segment and the clipped point, the reflection GetReflectionElement builds
+   from them, the radius, the element the search skips, the wall and floor it
+   hit and the plane of the hit.  The block is quadword aligned, the
+   alignment of the points it opens with. */
 typedef struct ClipWork { /* field names derived */
-    float a[4];           /* 0x00 start point   */
-    float b[4];           /* 0x10 end point     */
-    float pos[4];         /* 0x20 clipped point */
-    char pad30[64];
-    float radius;              /* 0x70 clip radius */
-    ObjNode skipSrc;           /* 0x74, the object and node _Clip passes with an element, for
-                                  the element the search must skip */
-    int skipElem;              /* 0x7C */
-    ObjNode wallSrc;           /* 0x80, the object and node of the wall the search hit */
-    struct FcWallEnt *wallHit; /* 0x88, fieldCollision.h's wall record */
-    ObjNode floorSrc;          /* 0x8C, the object and node of the floor the search hit */
-    int floorHit;              /* 0x94 */
-    int attr;                  /* 0x98, the attribute of the element hit */
+    float pt[3][4]; /* 0x00, the start, end and clipped points */
+    struct {             /* GetReflectionElement's, from the hit plane */
+        float bounce[4]; /* 0x30, the motion along the plane normal, scaled */
+        float slide[4];  /* 0x40, the motion along the plane, scaled */
+        float pos[4];    /* 0x50, the point the reflected motion reaches */
+        float dir[4];    /* 0x60, the reflected motion, slide plus bounce */
+    } reflect;
+    float radius;        /* 0x70 clip radius */
+    WallCfg filter;      /* 0x74, the element the search skips; node -1 skips
+                            the whole object */
+    WallCfg wall;        /* 0x80, the wall the search hit */
+    WallCfg floor;       /* 0x8C, the floor the search hit */
+    int attr;            /* 0x98, the attribute of the element hit */
     char pad9C[4];
-    float normal[4]; /* 0xA0 */
+    Vec16 normal;    /* 0xA0, the hit plane */
     int slideCount;  /* 0xB0, times clip_wall_1 ran the ray along a wall's end */
     char padB4[12];
-} ClipWork; /* derived name */
+} __attribute__((aligned(16))) ClipWork; /* derived name */
 
 /* the girl's brain: the targets it weighs and the one it chose */
 typedef struct { /* field names derived */
@@ -1179,7 +1201,7 @@ typedef union { /* field names derived */
     unsigned int w[2];
 } ActWishWord; /* derived name */
 
-#include "motionOrientManager.h" /* MotOriReq, which Act carries at 0x620 */
+#include "motionOrientManager.h"
 #include "pad.h"                 /* IosPadStick, which Act carries at 0x338 */
 
 /* The pad configuration record iosPadConnect hands a pad (pad.c's
@@ -1450,7 +1472,11 @@ typedef struct Act { /* field names derived */
     GObj *sofaObj;       /* 0x61C, the sofa */
     MotOriReq motOriReq; /* 0x620, the motion orient request SetMotionRequest
                             takes, filled from the sub-object's at 0x180 */
-    char pad640[64];
+    MotOriReq motOriReq640; /* 0x640, an orient request mails 378 to 384 read
+                               (381 takes the boy's) */
+    MotOriReq supportReq;   /* 0x660, the wall _SCPBoySupportGirl sets (the
+                               girl's as a, the boy's as b), the request mails
+                               385 and 386 copy to motOriReq */
     struct EnemyBattleWork *enemy;          /* 0x680, the enemy work (enemy_act.c) */
     struct MailAdditionalData *mailAddData; /* 0x684, the mail additional data table */
     int work; /* 0x688, the actor's extended work block (act-game.h's ActWork) */

@@ -21,7 +21,7 @@
 typedef struct { /* field names derived */
     char pad0[16];
     FcWallEnt *walls; /* 0x10 */
-    int fcl;          /* 0x14, the floor list, 0x70 bytes a floor (charFileManager.c's names) */
+    FcFloorEnt *fcl;  /* 0x14, the floor list (charFileManager.c's names) */
     short **wblk;     /* 0x18, per block, the walls' indices, ended by a negative one */
     short **fblk;     /* 0x1C, per block, the floors' indices */
     float *ofs;       /* 0x20, the origin the blocks are counted from */
@@ -127,26 +127,26 @@ void MakeCollisionDependGObjList(void)
     }
 }
 
-void GetReflectionElement(char *work, float arg0, float arg1)
+void GetReflectionElement(ClipWork *work, float arg0, float arg1)
 {
     float buf0[4];
     float L10[4];
     float L20[4];
     float z;
 
-    CopyVector(L10, work + 0xA0);
+    CopyVector(L10, &work->normal);
     *(int *)&L10[3] = 0;
-    sceVu0SubVector(buf0, work + 0x10, work);
-    sceVu0ScaleVector(work + 0x30, L10, -GetDistanceFromPlane(L10, buf0));
-    sceVu0AddVector(work + 0x40, buf0, work + 0x30);
-    sceVu0ScaleVectorXYZ(work + 0x30, work + 0x30, arg1);
-    sceVu0ScaleVectorXYZ(work + 0x40, work + 0x40, arg0);
-    sceVu0AddVector(work + 0x60, work + 0x40, work + 0x30);
+    sceVu0SubVector(buf0, work->pt[1], work->pt[0]);
+    sceVu0ScaleVector(work->reflect.bounce, L10, -GetDistanceFromPlane(L10, buf0));
+    sceVu0AddVector(work->reflect.slide, buf0, work->reflect.bounce);
+    sceVu0ScaleVectorXYZ(work->reflect.bounce, work->reflect.bounce, arg1);
+    sceVu0ScaleVectorXYZ(work->reflect.slide, work->reflect.slide, arg0);
+    sceVu0AddVector(work->reflect.dir, work->reflect.slide, work->reflect.bounce);
     {
         float *p20 = L20;
-        z = GetPointDistance(work + 0x20, work + 0x10);
-        sceVu0ScaleVector(p20, work + 0x60, z / GetPointDistance(work, work + 0x10));
-        sceVu0AddVector(work + 0x50, work + 0x20, p20);
+        z = GetPointDistance(work->pt[2], work->pt[1]);
+        sceVu0ScaleVector(p20, work->reflect.dir, z / GetPointDistance(work->pt[0], work->pt[1]));
+        sceVu0AddVector(work->reflect.pos, work->pt[2], p20);
     }
 }
 
@@ -167,9 +167,8 @@ static __inline__ float FcAbsF(float v) /* derived name */
     return v;
 }
 
-static int clip_wall_1(void *work, FcWallEnt *wall, int flip, int useh)
+static int clip_wall_1(ClipWork *ray, FcWallEnt *wall, int flip, int useh)
 {
-    ClipWork *ray = (ClipWork *)work;
     FcWallEnt *e;
     float pa[4];
     float pb[4];
@@ -203,7 +202,7 @@ static int clip_wall_1(void *work, FcWallEnt *wall, int flip, int useh)
     nz = n[1];
     mx = -nx;
 
-    sceVu0CopyVector((int *)out, (int *)ray->pos);
+    sceVu0CopyVector((int *)out, (int *)ray->pt[2]);
 
     d[0] = out[0] - wall->pt[0][0];
     d[1] = out[1];
@@ -219,9 +218,9 @@ static int clip_wall_1(void *work, FcWallEnt *wall, int flip, int useh)
     pb[1] = d[1];
     /* the start point reads the wall through a pointer of its own */
     e = wall;
-    d[0] = ray->a[0] - e->pt[0][0];
-    d[1] = ray->a[1];
-    d[2] = ray->a[2] - e->pt[0][2];
+    d[0] = ray->pt[0][0] - e->pt[0][0];
+    d[1] = ray->pt[0][1];
+    d[2] = ray->pt[0][2] - e->pt[0][2];
     /* the wall origin is taken after the subtraction that reads it */
     ex = e->pt[0][0];
     ez = e->pt[0][2];
@@ -317,20 +316,9 @@ static int clip_wall_1(void *work, FcWallEnt *wall, int flip, int useh)
     t1 = pb[0] * mx + pb[2] * nz;
     out[0] = t2 + ex;
     out[2] = t1 + ez;
-    sceVu0CopyVector((int *)ray->pos, (int *)out);
+    sceVu0CopyVector((int *)ray->pt[2], (int *)out);
     return 1;
 }
-
-typedef struct { /* field names derived */
-    float x, y, z, w;
-} FcVec4; /* derived name */
-
-typedef struct {            /* field names derived */
-    FcVec4 v[4];            /* 0x00: polygon vertices */
-    float nx, ny, nz, npad; /* 0x40: plane normal */
-    float d;                /* 0x50: plane distance */
-    int nex;                /* 0x54: vertices past the first three */
-} FcFloorEnt;               /* derived name */
 
 static __inline__ int FloorPointInside(FcFloorEnt *e, float *pt) /* derived name */
 {
@@ -364,17 +352,15 @@ static __inline__ int FloorPointInside(FcFloorEnt *e, float *pt) /* derived name
     return cross & 1;
 }
 
-static int clip_floor_1(void *work, int floor, int backFace)
+static int clip_floor_1(ClipWork *ray, FcFloorEnt *e, int backFace)
 {
-    float *ray = (float *)work;
-    FcFloorEnt *e = (FcFloorEnt *)floor;
     float hit[4];
     float nx = e->nx;
-    float ex = ray[8];
+    float ex = ray->pt[2][0];
     float ny = e->ny;
-    float ey = ray[9];
+    float ey = ray->pt[2][1];
     float nz = e->nz;
-    float ez = ray[10];
+    float ez = ray->pt[2][2];
     float pd = e->d;
     float sx;
     float sy;
@@ -393,9 +379,9 @@ static int clip_floor_1(void *work, int floor, int backFace)
             return 0;
         }
     }
-    sx = ray[0];
-    sy = ray[1];
-    sz = ray[2];
+    sx = ray->pt[0][0];
+    sy = ray->pt[0][1];
+    sz = ray->pt[0][2];
     ds = nx * sx + ny * sy + nz * sz + pd;
     if (backFace != 0) {
         if (ds >= 0.0f) {
@@ -413,7 +399,7 @@ static int clip_floor_1(void *work, int floor, int backFace)
     if (FloorPointInside(e, hit) == 0) {
         return 0;
     }
-    sceVu0CopyVector((int *)(ray + 8), (int *)hit);
+    sceVu0CopyVector((int *)ray->pt[2], (int *)hit);
     return 1;
 }
 
@@ -558,10 +544,10 @@ static inline int _clipWDebug(ClipWork *work, GObj *obj, int node)
             while (*p >= 0) {
                 FcWallEnt *e = &curFuzio->walls[*p];
                 if (clip_wall_1(work, e, 0, 1) != 0) {
-                    work->wallHit = e;
+                    work->wall.elem = e;
                     ret = 1;
-                    work->wallSrc.obj = obj;
-                    work->wallSrc.node = node;
+                    work->wall.o.obj = obj;
+                    work->wall.o.node = node;
                 }
                 p++;
             }
@@ -584,10 +570,10 @@ static inline int _clipW(ClipWork *work, GObj *obj, int node)
                 if ((val & 0xF0000000) == 0) {
                     if ((val & 0xF0000) != 0x10000) {
                         if (clip_wall_1(work, e, 0, 1) != 0) {
-                            work->wallHit = e;
+                            work->wall.elem = e;
                             ret = 1;
-                            work->wallSrc.obj = obj;
-                            work->wallSrc.node = node;
+                            work->wall.o.obj = obj;
+                            work->wall.o.node = node;
                         }
                     }
                 }
@@ -611,13 +597,13 @@ static inline int _clipWE(ClipWork *work, GObj *obj, int node)
                 int val = e->attr;
                 if ((val & 0xF0000000) == 0) {
                     if ((val & 0xF0000) != 0x10000) {
-                        if (obj != work->skipSrc.obj || node != work->skipSrc.node ||
-                            (int)e != work->skipElem) {
+                        if (obj != work->filter.o.obj || node != work->filter.o.node ||
+                            e != work->filter.elem) {
                             if (clip_wall_1(work, e, 0, 0) != 0) {
-                                work->wallHit = e;
+                                work->wall.elem = e;
                                 ret = 1;
-                                work->wallSrc.obj = obj;
-                                work->wallSrc.node = node;
+                                work->wall.o.obj = obj;
+                                work->wall.o.node = node;
                             }
                         }
                     }
@@ -640,13 +626,13 @@ static inline int _clipWEField(ClipWork *work, GObj *obj, int node)
             while (*p >= 0) {
                 FcWallEnt *e = &curFuzio->walls[*p];
                 if ((e->attr & 0xF0000000) == 0) {
-                    if (obj != work->skipSrc.obj || node != work->skipSrc.node ||
-                        (int)e != work->skipElem) {
+                    if (obj != work->filter.o.obj || node != work->filter.o.node ||
+                        e != work->filter.elem) {
                         if (clip_wall_1(work, e, 0, 0) != 0) {
-                            work->wallHit = e;
+                            work->wall.elem = e;
                             found = 1;
-                            work->wallSrc.obj = obj;
-                            work->wallSrc.node = node;
+                            work->wall.o.obj = obj;
+                            work->wall.o.node = node;
                         }
                     }
                 }
@@ -671,10 +657,10 @@ static inline int _clipWR(ClipWork *work, GObj *obj, int node)
                 if ((val & 0xF0000000) == 0) {
                     if ((val & 0xF0000) != 0x10000) {
                         if (clip_wall_1(work, e, 1, 1) != 0) {
-                            work->wallHit = e;
+                            work->wall.elem = e;
                             ret = 1;
-                            work->wallSrc.obj = obj;
-                            work->wallSrc.node = node;
+                            work->wall.o.obj = obj;
+                            work->wall.o.node = node;
                         }
                     }
                 }
@@ -697,10 +683,10 @@ static inline int _clipWField(ClipWork *work, GObj *obj, int node)
                 FcWallEnt *e = &curFuzio->walls[*p];
                 if ((e->attr & 0xF0000000) == 0) {
                     if (clip_wall_1(work, e, 0, 1) != 0) {
-                        work->wallHit = e;
+                        work->wall.elem = e;
                         ret = 1;
-                        work->wallSrc.obj = obj;
-                        work->wallSrc.node = node;
+                        work->wall.o.obj = obj;
+                        work->wall.o.node = node;
                     }
                 }
                 p++;
@@ -722,10 +708,10 @@ static inline int _clipWDitchHangWalkStop(ClipWork *work, GObj *obj, int node)
                 FcWallEnt *e = &curFuzio->walls[*p];
                 if ((e->attr & 0x30000000) != 0) {
                     if (clip_wall_1(work, e, 0, 1) != 0) {
-                        work->wallHit = e;
+                        work->wall.elem = e;
                         ret = 1;
-                        work->wallSrc.obj = obj;
-                        work->wallSrc.node = node;
+                        work->wall.o.obj = obj;
+                        work->wall.o.node = node;
                     }
                 }
                 p++;
@@ -747,10 +733,10 @@ static inline int _clipWWaveForce(ClipWork *work, GObj *obj, int node)
                 FcWallEnt *e = &curFuzio->walls[*p];
                 if ((e->attr & 0xC0000000) == 0x40000000) {
                     if (clip_wall_1(work, e, 0, 1) != 0) {
-                        work->wallHit = e;
+                        work->wall.elem = e;
                         ret = 1;
-                        work->wallSrc.obj = obj;
-                        work->wallSrc.node = node;
+                        work->wall.o.obj = obj;
+                        work->wall.o.node = node;
                     }
                 }
                 p++;
@@ -774,10 +760,10 @@ static inline int _clipWBoxStop(ClipWork *work, GObj *obj, int node)
                 if ((val & 0x70000000) == 0) {
                     if ((val & 0xF0000) != 0x10000 || (val & 0xC0000000) == 0x80000000) {
                         if (clip_wall_1(work, e, 0, 1) != 0) {
-                            work->wallHit = e;
+                            work->wall.elem = e;
                             ret = 1;
-                            work->wallSrc.obj = obj;
-                            work->wallSrc.node = node;
+                            work->wall.o.obj = obj;
+                            work->wall.o.node = node;
                         }
                     }
                 }
@@ -800,10 +786,10 @@ static inline int _clipWAdjustPos(ClipWork *work, GObj *obj, int node)
                 FcWallEnt *e = &curFuzio->walls[*p];
                 if ((e->attr & 0xC0000000) == 0xC0000000) {
                     if (clip_wall_1(work, e, 0, 1) != 0) {
-                        work->wallHit = e;
+                        work->wall.elem = e;
                         ret = 1;
-                        work->wallSrc.obj = obj;
-                        work->wallSrc.node = node;
+                        work->wall.o.obj = obj;
+                        work->wall.o.node = node;
                     }
                 }
                 p++;
@@ -822,13 +808,13 @@ static inline int _clipF(ClipWork *work, GObj *obj, int node)
         short *p = curFuzio->fblk[blockTable[i]];
         if (p != 0) {
             while (*p >= 0) {
-                int e = curFuzio->fcl + (int)*p * 0x70;
+                FcFloorEnt *e = &curFuzio->fcl[*p];
                 if (clip_floor_1(work, e, 0) != 0) {
-                    work->floorHit = e;
+                    work->floor.elem = e;
                     ret = 1;
-                    work->floorSrc.obj = obj;
-                    work->floorSrc.node = node;
-                    work->wallHit = 0;
+                    work->floor.o.obj = obj;
+                    work->floor.o.node = node;
+                    work->wall.elem = 0;
                 }
                 p++;
             }
@@ -846,14 +832,15 @@ static inline int _clipFE(ClipWork *work, GObj *obj, int node)
         short *p = curFuzio->fblk[blockTable[i]];
         if (p != 0) {
             while (*p >= 0) {
-                int e = curFuzio->fcl + (int)*p * 0x70;
-                if (obj != work->skipSrc.obj || node != work->skipSrc.node || e != work->skipElem) {
+                FcFloorEnt *e = &curFuzio->fcl[*p];
+                if (obj != work->filter.o.obj || node != work->filter.o.node ||
+                    e != work->filter.elem) {
                     if (clip_floor_1(work, e, 0) != 0) {
-                        work->floorHit = e;
+                        work->floor.elem = e;
                         ret = 1;
-                        work->floorSrc.obj = obj;
-                        work->floorSrc.node = node;
-                        work->wallHit = 0;
+                        work->floor.o.obj = obj;
+                        work->floor.o.node = node;
+                        work->wall.elem = 0;
                     }
                 }
                 p++;
@@ -872,14 +859,14 @@ static inline int _clipFIH(ClipWork *work, GObj *obj, int node)
         short *p = curFuzio->fblk[blockTable[i]];
         if (p != 0) {
             while (*p >= 0) {
-                int e = curFuzio->fcl + (int)*p * 0x70;
-                if ((*(int *)(e + 0x60) & 0xF0000) != 0x20000) {
+                FcFloorEnt *e = &curFuzio->fcl[*p];
+                if ((e->attr & 0xF0000) != 0x20000) {
                     if (clip_floor_1(work, e, 0) != 0) {
-                        work->floorHit = e;
+                        work->floor.elem = e;
                         ret = 1;
-                        work->floorSrc.obj = obj;
-                        work->floorSrc.node = node;
-                        work->wallHit = 0;
+                        work->floor.o.obj = obj;
+                        work->floor.o.node = node;
+                        work->wall.elem = 0;
                     }
                 }
                 p++;
@@ -898,13 +885,13 @@ static inline int _clipFR(ClipWork *work, GObj *obj, int node)
         short *p = curFuzio->fblk[blockTable[i]];
         if (p != 0) {
             while (*p >= 0) {
-                int e = curFuzio->fcl + (int)*p * 0x70;
+                FcFloorEnt *e = &curFuzio->fcl[*p];
                 if (clip_floor_1(work, e, 1) != 0) {
-                    work->floorHit = e;
+                    work->floor.elem = e;
                     ret = 1;
-                    work->floorSrc.obj = obj;
-                    work->floorSrc.node = node;
-                    work->wallHit = 0;
+                    work->floor.o.obj = obj;
+                    work->floor.o.node = node;
+                    work->wall.elem = 0;
                 }
                 p++;
             }
@@ -1084,13 +1071,13 @@ static void _Clip(char *self, int mode)
 static void __ClipWall(ClipWork *work, int mode)
 {
     work->slideCount = 0;
-    work->floorHit = 0;
-    work->wallHit = 0;
-    work->wallSrc = InitialObjPointer;
+    work->floor.elem = 0;
+    work->wall.elem = 0;
+    work->wall.o = InitialObjPointer;
     _Clip(work, mode);
 }
 
-static inline void __ClipWallWithDrawRay(char *w, int mode)
+static inline void __ClipWallWithDrawRay(ClipWork *w, int mode)
 {
     __ClipWall(w, mode);
     gif_StartPacketPri(11);
@@ -1102,8 +1089,8 @@ static inline void __ClipWallWithDrawRay(char *w, int mode)
         gif_SetAlpha(1, 5, 0x80);
         gif_SetZTest(1);
         sceVu0UnitMatrix(MatrixDrive_GetMatrix());
-        DrawLineG((int *)w, c0, (int *)(w + 0x10), c0, 0);
-        DrawLineG((int *)w, c1, (int *)(w + 0x10), c1, -1);
+        DrawLineG(w->pt[0], c0, w->pt[1], c0, 0);
+        DrawLineG(w->pt[0], c1, w->pt[1], c1, -1);
     }
     MatrixDrive_PopMatrix();
     gif_EndPacket();
@@ -1111,12 +1098,12 @@ static inline void __ClipWallWithDrawRay(char *w, int mode)
 
 static void __ClipFloor(ClipWork *work, int mode)
 {
-    work->floorHit = 0;
-    work->floorSrc = InitialObjPointer;
+    work->floor.elem = 0;
+    work->floor.o = InitialObjPointer;
     _Clip(work, mode);
 }
 
-static inline void __ClipFloorWithDrawRay(char *w, int mode)
+static inline void __ClipFloorWithDrawRay(ClipWork *w, int mode)
 {
     __ClipFloor(w, mode);
     gif_StartPacketPri(11);
@@ -1128,8 +1115,8 @@ static inline void __ClipFloorWithDrawRay(char *w, int mode)
         gif_SetAlpha(1, 5, 0x80);
         gif_SetZTest(1);
         sceVu0UnitMatrix(MatrixDrive_GetMatrix());
-        DrawLineG((int *)w, c0, (int *)(w + 0x10), c0, 0);
-        DrawLineG((int *)w, c1, (int *)(w + 0x10), c1, -1);
+        DrawLineG(w->pt[0], c0, w->pt[1], c0, 0);
+        DrawLineG(w->pt[0], c1, w->pt[1], c1, -1);
     }
     MatrixDrive_PopMatrix();
     gif_EndPacket();
@@ -1249,14 +1236,14 @@ inline void ClipFloorCheckCB(void *work, int filter)
     clipFloorFunc(work, 0x10);
 }
 
-inline int ClipWallVector(int *start, int *end)
+inline void *ClipWallVector(float *start, float *end)
 {
-    int buf[48];
-    *(float *)&buf[28] = 50.0f;
-    sceVu0CopyVector(buf, start);
-    sceVu0CopyVector(buf + 4, end);
-    ClipWall(buf);
-    return buf[34];
+    ClipWork w;
+    w.radius = 50.0f;
+    sceVu0CopyVector(w.pt[0], start);
+    sceVu0CopyVector(w.pt[1], end);
+    ClipWall(&w);
+    return w.wall.elem;
 }
 
 inline float GetYProjectionOfPlane(float *plane, float *pos)
@@ -1301,7 +1288,7 @@ inline void GetGlobalWallPlane(float *plane, WallCfg *wall)
 {
     FcVec pts[4];
 
-    GetWallGlobalInfo((char *)pts, plane, wall->n,
+    GetWallGlobalInfo((char *)pts, plane, wall->elem,
                       (void *)((wall->o.node << 6) + GOBJ_SUB(wall->o.obj)->nodeMtx));
     plane[3] = -sceVu0InnerProduct(plane, pts);
 }
@@ -1330,15 +1317,14 @@ inline int ClipPlane(int work)
     return 1;
 }
 
-inline void ClipCollision(int *self)
+inline void ClipCollision(ClipWork *self)
 {
     int buf[4];
-    int *p10 = self + 4;
-    sceVu0CopyVector(buf, p10);
+    sceVu0CopyVector(buf, self->pt[1]);
     ClipWall(self);
-    sceVu0CopyVector(p10, self + 8);
+    sceVu0CopyVector(self->pt[1], self->pt[2]);
     ClipFloor(self);
-    sceVu0CopyVector(p10, buf);
+    sceVu0CopyVector(self->pt[1], buf);
 }
 
 inline void MapCollisionData(void *data)
@@ -1666,7 +1652,7 @@ inline void GetOrientOfWall(void *out, void *wallEnt, ObjNode *src)
     }
 }
 
-void DrawCollisionRay(char *ray)
+void DrawCollisionRay(ClipWork *ray)
 {
     sceVu0IVECTOR c0 = {64, 64, 64, 128};
     sceVu0IVECTOR c1 = {8, 16, 32, 128};
@@ -1683,10 +1669,10 @@ void DrawCollisionRay(char *ray)
     gif_SetAlpha(1, 5, 128);
     gif_SetZTest(1);
     sceVu0UnitMatrix(MatrixDrive_GetMatrix());
-    DrawLineG(ray, c0, ray + 0x10, c0, 0);
-    DrawLineG(ray, c1, ray + 0x10, c1, -1);
-    sceVu0SubVector(d, ray + 0x10, ray);
-    MatrixDrive_TransMatrixV(ray + 0x10);
+    DrawLineG(ray->pt[0], c0, ray->pt[1], c0, 0);
+    DrawLineG(ray->pt[0], c1, ray->pt[1], c1, -1);
+    sceVu0SubVector(d, ray->pt[1], ray->pt[0]);
+    MatrixDrive_TransMatrixV(ray->pt[1]);
     MatrixDrive_TurnYObjectMatrixXZ(d[0], d[1], d[2]);
     len = FSqrt(sceVu0InnerProduct(d, d));
     v[0] = len * 0.05f;
@@ -1695,12 +1681,12 @@ void DrawCollisionRay(char *ray)
     v[0] = -len * 0.05f;
     sceVu0ApplyMatrix(p1, MatrixDrive_GetMatrix(), v);
     sceVu0UnitMatrix(MatrixDrive_GetMatrix());
-    DrawLineG(p0, c0, ray + 0x10, c0, 0);
-    DrawLineG(p1, c0, ray + 0x10, c0, 0);
-    DrawLineG(p0, c1, ray + 0x10, c1, -1);
-    DrawLineG(p1, c1, ray + 0x10, c1, -1);
+    DrawLineG(p0, c0, ray->pt[1], c0, 0);
+    DrawLineG(p1, c0, ray->pt[1], c0, 0);
+    DrawLineG(p0, c1, ray->pt[1], c1, -1);
+    DrawLineG(p1, c1, ray->pt[1], c1, -1);
     sceVu0UnitMatrix(MatrixDrive_GetMatrix());
-    MatrixDrive_TransMatrixV(ray + 0x20);
+    MatrixDrive_TransMatrixV(ray->pt[2]);
     MatrixDrive_TurnYObjectMatrixXZ(d[0], d[1], d[2]);
     MatrixDrive_PopMatrix();
     gif_EndPacket();
@@ -1722,14 +1708,14 @@ inline int CompareAttribute(unsigned int a, unsigned int b)
 
 inline int GetWallAttribute(ClipWork *w)
 {
-    if (w->wallHit == 0)
+    if (w->wall.elem == 0)
         return 0;
     return w->attr;
 }
 
 inline int GetFloorAttribute(ClipWork *w)
 {
-    if (w->floorHit == 0)
+    if (w->floor.elem == 0)
         return 0;
     return w->attr;
 }

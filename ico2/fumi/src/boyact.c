@@ -1044,10 +1044,10 @@ void subBoyControl(GObj *volatile self)
                     GetRootPosition(p0, (void *)self);
                     GetRootPosition(p1, g);
                     work.radius = 10.0f;
-                    sceVu0CopyVector(work.a, p0);
-                    sceVu0CopyVector(work.b, p1);
+                    sceVu0CopyVector(work.pt[0], p0);
+                    sceVu0CopyVector(work.pt[1], p1);
                     ClipWall(&work);
-                    if (work.wallHit != 0) {
+                    if (work.wall.elem != 0) {
                         s->wayMode = 1;
                     }
                     dist = fzMagnitude2fv(p1, p0);
@@ -3323,18 +3323,18 @@ void actBoyStart(GObj *self)
 
             CopyMatrix(MatrixDrive_GetMatrix(), (void *)GOBJ_SUB(g)->nodeMtx);
             MatrixDrive_TransMatrix(0.0f, -50.0f, 0.0f);
-            sceVu0ApplyMatrix(cw.a, MatrixDrive_GetMatrix(), &p0);
-            sceVu0ApplyMatrix(cw.b, MatrixDrive_GetMatrix(), &p1);
+            sceVu0ApplyMatrix(cw.pt[0], MatrixDrive_GetMatrix(), &p0);
+            sceVu0ApplyMatrix(cw.pt[1], MatrixDrive_GetMatrix(), &p1);
             cw.radius = 0.0f;
             ClipWall(&cw);
-            if (cw.wallHit == 0) {
+            if (cw.wall.elem == 0) {
                 /* "!!! cannot find the sofa's wall !!!" */
                 debug_StdPrintfDummy("！！！ソファの壁を見付けることができません！！！\n");
             } else {
                 startOnSofa = 1;
                 sitLayoutDone = 1;
-                sofaWallHit.o = cw.wallSrc;
-                sofaWallHit.n = cw.wallHit;
+                sofaWallHit.o = cw.wall.o;
+                sofaWallHit.elem = cw.wall.elem;
                 scpBoyControlReadDisable = 0;
                 ActSendMail_WithAdditionalData((void *)self, 0x36, (void *)self, &sofaWallHit);
                 if (BOYINFO.bit32 && girlGObj != 0) {

@@ -3523,10 +3523,10 @@ static int debug_CollisionTest(int reset)
     r = debug_SelectCsvWindow("Collision Test", 10, 50, 11, collisionMoveName, 4, 0, 1, 3,
                               &collisionTestRow);
     if (reset != 0) {
-        GetRootPosition(collisionRay.a, boyGObj);
-        CopyVector(collisionRay.b, collisionRay.a);
+        GetRootPosition(collisionRay.pt[0], boyGObj);
+        CopyVector(collisionRay.pt[1], collisionRay.pt[0]);
         collisionRay.radius = 0;
-        collisionRay.b[2] += 100.0f;
+        collisionRay.pt[1][2] += 100.0f;
     }
     memset(&mv, 0, sizeof(mv));
     iosPadConnect(padCtx, 0, 0, &iosPadConfDefault);
@@ -3546,52 +3546,52 @@ static int debug_CollisionTest(int reset)
     }
     switch (collisionTestRow) {
     case 1:
-        _AddVector(collisionRay.a, collisionRay.a, &mv);
+        _AddVector(collisionRay.pt[0], collisionRay.pt[0], &mv);
         break;
     case 2:
-        _AddVector(collisionRay.b, collisionRay.b, &mv);
+        _AddVector(collisionRay.pt[1], collisionRay.pt[1], &mv);
         break;
     case 0:
     default:
-        _AddVector(collisionRay.a, collisionRay.a, &mv);
-        _AddVector(collisionRay.b, collisionRay.b, &mv);
+        _AddVector(collisionRay.pt[0], collisionRay.pt[0], &mv);
+        _AddVector(collisionRay.pt[1], collisionRay.pt[1], &mv);
         break;
     }
-    ClipCollision((int *)&collisionRay);
-    if (collisionRay.wallHit != 0) {
-        wall.o = collisionRay.wallSrc;
-        wall.n = collisionRay.wallHit;
+    ClipCollision(&collisionRay);
+    if (collisionRay.wall.elem != 0) {
+        wall.o = collisionRay.wall.o;
+        wall.elem = collisionRay.wall.elem;
         *(WallCfg *)&mv = wall;
         gif_StartPacketPri(11);
         gif_SetZWrite(0);
         gif_SetZTest(0);
         gif_SetAlpha(1, 0, 0x80);
         sceVu0UnitMatrix(MatrixDrive_GetMatrix());
-        MatrixDrive_TransMatrixV(collisionRay.pos);
+        MatrixDrive_TransMatrixV(collisionRay.pt[2]);
         prim_DispWireSphere(5.0f, (void *)&collisionWallCol, 8, 4);
         gif_EndPacket();
         DebugDisp1Collision(&mv);
-        debug_PrintfDummy(80, 180, 0xFFFFFF00u, "HIT: %p,%d", collisionRay.wallSrc.obj,
-                          collisionRay.wallSrc.node);
+        debug_PrintfDummy(80, 180, 0xFFFFFF00u, "HIT: %p,%d", collisionRay.wall.o.obj,
+                          collisionRay.wall.o.node);
         debug_PrintfDummy(80, 190, 0xFFFFFF00u, "ATTR: %x",
                           GetWallAttribute((int)&collisionRay));
     }
-    if (collisionRay.floorHit != 0) {
+    if (collisionRay.floor.elem != 0) {
         gif_StartPacketPri(11);
         gif_SetZWrite(0);
         gif_SetZTest(0);
         gif_SetAlpha(1, 0, 0x80);
         sceVu0UnitMatrix(MatrixDrive_GetMatrix());
-        MatrixDrive_TransMatrixV(collisionRay.pos);
+        MatrixDrive_TransMatrixV(collisionRay.pt[2]);
         prim_DispWireSphere(5.0f, (void *)&collisionFloorCol, 8, 4);
         gif_EndPacket();
     }
-    debug_PrintfDummy(80, 160, 0xFFFFFF00u, "SRC: %f, %f, %f", collisionRay.a[0],
-                      collisionRay.a[1], collisionRay.a[2]);
-    debug_PrintfDummy(80, 170, 0xFFFFFF00u, "DST: %f, %f, %f", collisionRay.b[0],
-                      collisionRay.b[1], collisionRay.b[2]);
+    debug_PrintfDummy(80, 160, 0xFFFFFF00u, "SRC: %f, %f, %f", collisionRay.pt[0][0],
+                      collisionRay.pt[0][1], collisionRay.pt[0][2]);
+    debug_PrintfDummy(80, 170, 0xFFFFFF00u, "DST: %f, %f, %f", collisionRay.pt[1][0],
+                      collisionRay.pt[1][1], collisionRay.pt[1][2]);
     CameraSetMode(1);
-    DrawCollisionRay((char *)&collisionRay);
+    DrawCollisionRay(&collisionRay);
     DrawCollision(0);
     return r;
 }

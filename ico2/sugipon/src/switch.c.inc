@@ -58,13 +58,13 @@ inline int CanFloorLeverPull(GObj *lev)
 
 inline void initParentize(GObj *lev)
 {
-    ClipBuf buf;
+    ClipWork buf;
     GetRootPosition(buf.pt[0], lev);
     CopyVector(buf.pt[1], buf.pt[0]);
     buf.pt[0][1] -= 10.0f;
     buf.pt[1][1] += 200.0f;
     ClipFloor(&buf);
-    if (buf.floor.n != 0) {
+    if (buf.floor.elem != 0) {
         LinkParentOfDObj(lev, &buf.floor.o);
     }
 }

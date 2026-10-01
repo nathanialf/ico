@@ -8,6 +8,8 @@
 #ifndef MOTIONORIENTMANAGER_H
 #define MOTIONORIENTMANAGER_H
 
+#include "typedef.h" /* MotOriReq */
+
 /* motion-orient: one orientation row, 0x18 bytes, keyed on the current
    motion and the requested kind.  Readers: motionOrientManager.c,
    motionViewer.c, ico2/fumi/src/commonact.c. */
@@ -187,16 +189,6 @@ extern const MotOriParallelEnt parallelMotionOrient[];
 extern MotOriAlt mirrorMotionTable[];
 extern const MotOriSub blendMotionKind[];
 extern const MotOriLimit motionLimitDef[];
-
-/* The 32-byte orient record an actor hands to SetMotionRequest by value: two
- * points, each with a fourth word.  ico2/fumi/src/commonact.c has the same
- * record as IntrOrient. */
-typedef struct { /* field names derived */
-    float a[3];  /* 0x00 */
-    int aw;      /* 0x0C */
-    float b[3];  /* 0x10 */
-    int bw;      /* 0x1C */
-} MotOriReq;     /* derived name */
 
 /* The declarations below lead this header because their order is load-bearing:
  * gcc 2.9 emits the deferred out-of-line copy of a plain-inline function in

@@ -182,30 +182,30 @@ static int GetDitchPosition(float *out, float *org, float *dir, float d0, float 
     float tmp2[4];
 
     sceVu0ScaleVector(tmp, dir, d0 + d1);
-    sceVu0AddVector(work.a, org, tmp);
-    work.b[0] = work.a[0];
-    work.b[1] = work.a[1];
-    work.b[2] = work.a[2];
-    work.a[1] -= 100.0f;
-    work.b[1] += h + 100.0f;
+    sceVu0AddVector(work.pt[0], org, tmp);
+    work.pt[1][0] = work.pt[0][0];
+    work.pt[1][1] = work.pt[0][1];
+    work.pt[1][2] = work.pt[0][2];
+    work.pt[0][1] -= 100.0f;
+    work.pt[1][1] += h + 100.0f;
     ClipFloor(&work);
-    if (work.floorHit != 0) {
+    if (work.floor.elem != 0) {
 #ifdef DEBUG
         sceVu0ScaleVector(tmp2, dir, d0);
-        sceVu0AddVector(work2.a, org, tmp2);
-        work2.b[0] = work2.a[0];
-        work2.b[1] = work2.a[1];
-        work2.b[2] = work2.a[2];
-        work2.a[1] -= 100.0f;
-        work2.b[1] += h + 100.0f;
+        sceVu0AddVector(work2.pt[0], org, tmp2);
+        work2.pt[1][0] = work2.pt[0][0];
+        work2.pt[1][1] = work2.pt[0][1];
+        work2.pt[1][2] = work2.pt[0][2];
+        work2.pt[0][1] -= 100.0f;
+        work2.pt[1][1] += h + 100.0f;
         ClipFloor(&work2);
-        if (work2.floorHit == 0) {
+        if (work2.floor.elem == 0) {
             scePrintf("env: ditch without floor at its near edge\n");
         }
 #endif
-        out[0] = work.pos[0];
-        out[1] = work.pos[1];
-        out[2] = work.pos[2];
+        out[0] = work.pt[2][0];
+        out[1] = work.pt[2][1];
+        out[2] = work.pt[2][2];
         return 1;
     }
     return 0;
@@ -365,13 +365,13 @@ static inline unsigned char ditchProbe(GObj *o, float h) /* derived name */
     s = GOBJ_ACT(o);
     if (o == boyGObj && stageData[stage_no].flag2 && (s->actMode == 4 || s->actMode == 5)) {
         memset(&work, 0, 0xC0);
-        GetSkeltonPosition(work.a, o, 0x2C);
-        work.b[0] = work.a[0];
-        work.b[2] = work.a[2];
-        work.b[1] = work.a[1] + 200.0f;
+        GetSkeltonPosition(work.pt[0], o, 0x2C);
+        work.pt[1][0] = work.pt[0][0];
+        work.pt[1][2] = work.pt[0][2];
+        work.pt[1][1] = work.pt[0][1] + 200.0f;
         ClipFloor(&work);
-        if (work.floorHit) {
-            y = work.pos[1] - work.a[1];
+        if (work.floor.elem) {
+            y = work.pt[2][1] - work.pt[0][1];
             d = h + y;
             if (d < 250.0f)
                 return 0;
@@ -510,7 +510,7 @@ void ACTGetEnvironment(void *self, void *dir, float *orient, EnvFlag *flags, Act
     char *o;
 
     memset(prj, 0, 16);
-    if ((char *)GOBJ_SUB(self)->root.wall.n == 0) {
+    if ((char *)GOBJ_SUB(self)->root.wall.elem == 0) {
         w574 = 0;
         w564 = 0;
     }
@@ -581,8 +581,8 @@ void ACTGetEnvironment(void *self, void *dir, float *orient, EnvFlag *flags, Act
             CheckPureCliffAttribute(self, 0x600))
             hh = 3.40282347e+38f /* FLT_MAX */;
     }
-    if ((w574 != 0 || w564 != 0) && (char *)GOBJ_SUB(self)->root.wall.n != 0) {
-        GetOrientOfWall(env->wallOrient, GOBJ_SUB(self)->root.wall.n, &GOBJ_SUB(self)->root.wall.o);
+    if ((w574 != 0 || w564 != 0) && (char *)GOBJ_SUB(self)->root.wall.elem != 0) {
+        GetOrientOfWall(env->wallOrient, GOBJ_SUB(self)->root.wall.elem, &GOBJ_SUB(self)->root.wall.o);
         env->wallOrient[3] = 1.0f;
         if (w564 != 0) {
             float p60[4];

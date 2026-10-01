@@ -199,13 +199,13 @@ static int collisionCheck(GObj *gobj)
     sceVu0Normalize(v, v);
     debug_Arrow(200.0f, &cw->node[cw->holdNode], v, 0xFF, 0, 0xFF);
     sceVu0ScaleVector(v, v, 140.0f);
-    w.a[0] = cw->node[cw->holdNode].x;
-    w.a[1] = cw->node[cw->holdNode].y;
-    w.a[2] = cw->node[cw->holdNode].z;
-    sceVu0AddVector(w.b, w.a, v);
+    w.pt[0][0] = cw->node[cw->holdNode].x;
+    w.pt[0][1] = cw->node[cw->holdNode].y;
+    w.pt[0][2] = cw->node[cw->holdNode].z;
+    sceVu0AddVector(w.pt[1], w.pt[0], v);
     w.radius = 10.0f;
     ClipWall(&w);
-    if (w.wallHit) {
+    if (w.wall.elem) {
         if (debug_font_flag & 1) {
             chainDebugY = chainDebugY + 10;
             debug_Printf(10, chainDebugY, 0x0FFFFFFF, "collision!!!\n");
@@ -694,18 +694,18 @@ ChainRecord *InitChainGeo(GObj *gobj, ChainGeoReq *req)
         sceVu0UnitMatrix(MatrixDrive_GetMatrix());
         MatrixDrive_TransMatrix(req->pos[0], req->pos[1] + 10.0f, req->pos[2]);
         MatrixDrive_RotMatrixY((short)(req->wallDir * 32768.0f / 3.1415927f));
-        sceVu0ApplyMatrix(w.a, MatrixDrive_GetMatrix(), p0);
-        sceVu0ApplyMatrix(w.b, MatrixDrive_GetMatrix(), p1);
+        sceVu0ApplyMatrix(w.pt[0], MatrixDrive_GetMatrix(), p0);
+        sceVu0ApplyMatrix(w.pt[1], MatrixDrive_GetMatrix(), p1);
         ClipWall(&w);
-        if (w.wallHit == 0) {
+        if (w.wall.elem == 0) {
             /* "cannot find the wall above the chain. / is the direction wrong, or is
              * it placed where there is no wall?" (in yellow) */
             debug_StdPrintfDummy(
                 "\033[33m鎖の上の壁を見付けることができません。\n方向が間違っているか、壁が無いところに置いていませんか?\033[m\n");
         } else {
-            memcpy(&cw->climb.wallSrc, &w.wallSrc, sizeof(w.wallSrc));
-            cw->climb.wall = w.wallHit;
-            GetOrientOfWall(cw->wallOrient, w.wallHit, &w.wallSrc);
+            memcpy(&cw->climb.wallSrc, &w.wall.o, sizeof(w.wall.o));
+            cw->climb.wall = w.wall.elem;
+            GetOrientOfWall(cw->wallOrient, w.wall.elem, &w.wall.o);
             cw->wallHit = 1;
         }
     } else {

@@ -11,11 +11,10 @@
 struct GObj;
 
 /* the wall a chain hangs against: the object and node ClipWall hit and the
-   wall record it returned (a FcWallEnt record; held as void *, the type
-   moves .text in InitChainGeo) */
+   wall record it returned */
 typedef struct ClimbCol {     /* field names derived */
     struct ObjNode wallSrc;   /* typedef.h's record */
-    void *wall;
+    struct FcWallEnt *wall;
 } ClimbCol; /* derived name */
 
 void ChainGeo(struct GObj *gobj);

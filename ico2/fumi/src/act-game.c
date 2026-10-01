@@ -576,22 +576,22 @@ inline int ACTCheckCollis_WF(float f, void *p0, void *p1, void *actor, void *pos
     rv = 1;
     flag = actor ? GOBJ_SUB(actor)->disp : 0;
     work.radius = f;
-    sceVu0CopyVector(work.a, p0);
-    sceVu0CopyVector(work.b, p1);
+    sceVu0CopyVector(work.pt[0], p0);
+    sceVu0CopyVector(work.pt[1], p1);
     if (flag != 0) {
         GOBJ_SUB(actor)->disp = 0;
     }
     ClipWall(&work);
-    if (work.wallHit == 0) {
+    if (work.wall.elem == 0) {
         ClipFloor(&work);
-        if (work.floorHit == 0) {
+        if (work.floor.elem == 0) {
             rv = 0;
         }
     }
     if (posout != 0) {
-        *(float *)((char *)posout + 0) = work.pos[0];
-        *(float *)((char *)posout + 4) = work.pos[1];
-        *(float *)((char *)posout + 8) = work.pos[2];
+        *(float *)((char *)posout + 0) = work.pt[2][0];
+        *(float *)((char *)posout + 4) = work.pt[2][1];
+        *(float *)((char *)posout + 8) = work.pt[2][2];
     }
     if (flag != 0) {
         GOBJ_SUB(actor)->disp = 1;
@@ -611,8 +611,8 @@ inline int ACTCheckCollis_W(float f, void *hand0, void *hand1, void *actor, void
     rv = 1;
     flag = actor ? GOBJ_SUB(actor)->disp : 0;
     work.radius = f;
-    sceVu0CopyVector(work.a, hand0);
-    sceVu0CopyVector(work.b, hand1);
+    sceVu0CopyVector(work.pt[0], hand0);
+    sceVu0CopyVector(work.pt[1], hand1);
     if (flag != 0) {
         GOBJ_SUB(actor)->disp = 0;
     }
@@ -620,17 +620,17 @@ inline int ACTCheckCollis_W(float f, void *hand0, void *hand1, void *actor, void
     if (flagout != 0) {
         *flagout = work.attr;
     }
-    wall = work.wallHit;
+    wall = work.wall.elem;
     if (wall == 0) {
         rv = 0;
     }
     if (posout != 0) {
-        *(float *)((char *)posout + 0) = work.pos[0];
-        *(float *)((char *)posout + 4) = work.pos[1];
-        *(float *)((char *)posout + 8) = work.pos[2];
+        *(float *)((char *)posout + 0) = work.pt[2][0];
+        *(float *)((char *)posout + 4) = work.pt[2][1];
+        *(float *)((char *)posout + 8) = work.pt[2][2];
     }
     if (wall != 0 && magtarget != 0) {
-        GetOrientOfWall(magtarget, wall, &work.wallSrc);
+        GetOrientOfWall(magtarget, wall, &work.wall.o);
     }
     if (flag != 0) {
         GOBJ_SUB(actor)->disp = 1;
@@ -672,24 +672,24 @@ inline int ACTCheckCollis_WELL(void *p0, void *p1, void *actor, void *posout, fl
     flag = actor ? GOBJ_SUB(actor)->disp : 0;
     work.radius = f;
     floorGObj_ACTCheckCollis_WELL = 0;
-    sceVu0CopyVector(work.a, p0);
-    sceVu0CopyVector(work.b, p1);
+    sceVu0CopyVector(work.pt[0], p0);
+    sceVu0CopyVector(work.pt[1], p1);
     if (flag != 0) {
         GOBJ_SUB(actor)->disp = 0;
     }
     ClipFloor(&work);
-    if (work.floorHit == 0) {
+    if (work.floor.elem == 0) {
         rv = 0;
     } else {
-        floorGObj_ACTCheckCollis_WELL = work.floorSrc.obj;
+        floorGObj_ACTCheckCollis_WELL = work.floor.o.obj;
     }
     if (flag != 0) {
         GOBJ_SUB(actor)->disp = 1;
     }
     if (posout != 0) {
-        *(float *)((char *)posout + 0) = work.pos[0];
-        *(float *)((char *)posout + 4) = work.pos[1];
-        *(float *)((char *)posout + 8) = work.pos[2];
+        *(float *)((char *)posout + 0) = work.pt[2][0];
+        *(float *)((char *)posout + 4) = work.pt[2][1];
+        *(float *)((char *)posout + 8) = work.pt[2][2];
     }
     return rv;
 }
@@ -704,8 +704,8 @@ inline unsigned char ACTCheckCollis_WAY(float f, void *p0, void *p1, void *actor
     flag = actor ? GOBJ_SUB(actor)->disp : 0;
     work.radius = f;
     wallGObj_ACTCheckCollis_WAY = 0;
-    sceVu0CopyVector(work.a, p0);
-    sceVu0CopyVector(work.b, p1);
+    sceVu0CopyVector(work.pt[0], p0);
+    sceVu0CopyVector(work.pt[1], p1);
     if (flag != 0) {
         GOBJ_SUB(actor)->disp = 0;
     }
@@ -715,7 +715,7 @@ inline unsigned char ACTCheckCollis_WAY(float f, void *p0, void *p1, void *actor
         GOBJ_SUB(actor)->disp = 1;
     }
     /* the wall record is published on both paths */
-    if (work.wallHit == 0) {
+    if (work.wall.elem == 0) {
         if (flag != 0) {
             GOBJ_SUB(actor)->disp = 0;
         }
@@ -723,20 +723,20 @@ inline unsigned char ACTCheckCollis_WAY(float f, void *p0, void *p1, void *actor
         if (flag != 0) {
             GOBJ_SUB(actor)->disp = 1;
         }
-        if (work.wallHit == 0) {
+        if (work.wall.elem == 0) {
             return 0;
         }
-        wallGObj_ACTCheckCollis_WAY = work.wallSrc.obj;
+        wallGObj_ACTCheckCollis_WAY = work.wall.o.obj;
     } else {
-        wallGObj_ACTCheckCollis_WAY = work.wallSrc.obj;
+        wallGObj_ACTCheckCollis_WAY = work.wall.o.obj;
     }
     if (CompareAttribute(attr, 0x30000) != 0) {
         return 0;
     }
     if (posout != 0) {
-        *(float *)((char *)posout + 0) = work.pos[0];
-        *(float *)((char *)posout + 4) = work.pos[1];
-        *(float *)((char *)posout + 8) = work.pos[2];
+        *(float *)((char *)posout + 0) = work.pt[2][0];
+        *(float *)((char *)posout + 4) = work.pt[2][1];
+        *(float *)((char *)posout + 8) = work.pt[2][2];
     }
     return 1;
 }
@@ -756,15 +756,15 @@ inline unsigned char ACTCheckCollis_VIEW(float f, void *p0, void *p1, void *acto
     }
 
     work.radius = f;
-    sceVu0CopyVector(work.a, p0);
-    sceVu0CopyVector(work.b, p1);
+    sceVu0CopyVector(work.pt[0], p0);
+    sceVu0CopyVector(work.pt[1], p1);
     if (flag != 0) {
         GOBJ_SUB(actor)->disp = 0;
     }
     ClipWall(&work);
-    if (work.wallHit == 0) {
+    if (work.wall.elem == 0) {
         ClipFloor(&work);
-        if (work.floorHit == 0) {
+        if (work.floor.elem == 0) {
             rv = 0;
         }
     }
@@ -2249,9 +2249,9 @@ static void ActOrientTest(GObj *self)
             sceVu0ScaleVector(p1, p1, 0.5f);
             p1[1] = p1[1] + 50.0f;
             sceVu0ScaleVector(d1, test_CURRENTORIENT(self), 50.0f);
-            sceVu0AddVector(w1.a, p1, d1);
+            sceVu0AddVector(w1.pt[0], p1, d1);
             sceVu0ScaleVector(d1, test_CURRENTORIENT(self), -50.0f);
-            sceVu0AddVector(w1.b, p1, d1);
+            sceVu0AddVector(w1.pt[1], p1, d1);
             w1.radius = 0.0f;
             ClipWall(&w1);
             if (CompareAttribute(w1.attr, 0x2000)) {
@@ -2277,9 +2277,9 @@ static void ActOrientTest(GObj *self)
         p2[1] = test_CURRENTROOT(self)[1];
         p2[2] = test_CURRENTROOT(self)[2];
         sceVu0ScaleVector(d2, test_CURRENTORIENT(self), -50.0f);
-        sceVu0AddVector(w2.a, p2, d2);
+        sceVu0AddVector(w2.pt[0], p2, d2);
         sceVu0ScaleVector(d2, test_CURRENTORIENT(self), 50.0f);
-        sceVu0AddVector(w2.b, p2, d2);
+        sceVu0AddVector(w2.pt[1], p2, d2);
         hitA = 0;
         w2.radius = 0.0f;
         ClipWall(&w2);
@@ -2291,7 +2291,7 @@ static void ActOrientTest(GObj *self)
             hitB = 1;
         }
         if (hitA || hitB) {
-            GetCollisCenterPositionSimple(c1, w2.wallSrc.obj, w2.wallHit);
+            GetCollisCenterPositionSimple(c1, w2.wall.o.obj, w2.wall.elem);
             if (_DistxzSqGV(c1, test_CURRENTROOT(self)) < 400.0f) {
                 near = 1;
             }
@@ -2318,17 +2318,17 @@ static void ActOrientTest(GObj *self)
         c1[1] = c1[1] + 50.0f;
         sceVu0ScaleVector(d3, test_CURRENTORIENT(self), 50.0f);
         _ApplyRyGV(d3, -1.5707964f);
-        sceVu0AddVector(w3.a, c1, d3);
+        sceVu0AddVector(w3.pt[0], c1, d3);
         sceVu0ScaleVector(d3, test_CURRENTORIENT(self), 50.0f);
         _ApplyRyGV(d3, 1.5707964f);
-        sceVu0AddVector(w3.b, c1, d3);
+        sceVu0AddVector(w3.pt[1], c1, d3);
         if (i == 1) {
-            SwapGV(w3.a, w3.b);
+            SwapGV(w3.pt[0], w3.pt[1]);
         }
         w3.radius = 0.0f;
         ClipWall(&w3);
-        if (w3.wallHit != 0) {
-            GetOrientOfWall(ow, w3.wallHit, &w3.wallSrc);
+        if (w3.wall.elem != 0) {
+            GetOrientOfWall(ow, w3.wall.elem, &w3.wall.o);
             SetMotionDirection(self, ow);
             s->flags20.ll &= ~(1ULL << 42);
             return;
