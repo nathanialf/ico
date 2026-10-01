@@ -906,6 +906,10 @@ typedef struct PadState {                                           /* field nam
     unsigned char ana[4]; /* 0x54, the two analog sticks */         /* derived name */
 } PadState;
 
+struct GamesysObjInfo;
+
+struct SObjSimpleSetting;
+
 /* RECONSTRUCTION, PLACED BY INCLUDE PATTERN: the 70-entry object-kind table at
  * objKindData, one 0x64-byte row per kind, indexed by the kind id a GObj carries
  * at +0xC.  The row's leading 0x24 bytes are the kind's name ("BOY", "GIRL",
@@ -921,18 +925,22 @@ typedef struct {        /* field names derived */
     float brainCapStep; /* 0x28, the girl brain's cap step for the kind (BrainTarget) */
     float brainRate;    /* 0x2C, the girl brain's rate for the kind */
     int brainLevel;     /* 0x30, the brain level the kind starts with, 0 for none */
-    void (*infoLoad)(); /* 0x34, applies the saved object info to the new GObj */
-    void (*infoInit)(); /* 0x38, builds the create arguments from the saved object info */
+    void (*infoLoad)(
+        GObj *, struct GamesysObjInfo *); /* 0x34, applies the saved object info to the new GObj */
+    void (*infoInit)(
+        struct SObjSimpleSetting *,
+        struct GamesysObjInfo *); /* 0x38, builds the create arguments from the saved object info */
     void (*uniqDataSet)(int *, GObj *); /* 0x3C, gamesys' per-kind unique-data writer */
-    void (*start)();                    /* 0x40, the actor's start process (actBoyStart) */
-    int layouted;           /* 0x44, nonzero when the kind is created from the stage layout */
-    void (*dl)();           /* 0x48, the display function (BoyDL) */
-    void (*afterGeo)();     /* 0x4C, the process CreateGObjByFuncSet adds after the geometry one */
-    void (*geo)();          /* 0x50, the geometry process (BoyGeo) */
+    void (*start)(GObj *);              /* 0x40, the actor's start process (actBoyStart) */
+    int layouted;       /* 0x44, nonzero when the kind is created from the stage layout */
+    void (*dl)(GObj *); /* 0x48, the display function (BoyDL) */
+    void (*afterGeo)(
+        GObj *);            /* 0x4C, the process CreateGObjByFuncSet adds after the geometry one */
+    void (*geo)(GObj *);    /* 0x50, the geometry process (BoyGeo) */
     void (*hotInit)(int *); /* 0x54, sceneManager's hot-init hook */
     int (*create)(GObj *, void *); /* 0x58, the kind's GObj constructor */
-    void (*ai)();                  /* 0x5C, the brain process (GirlAI, EnemyAI) */
-    void (*before)(); /* 0x60, the object's per-frame function (BeforeFunc); nonzero means
+    void (*ai)(GObj *);            /* 0x5C, the brain process (GirlAI, EnemyAI) */
+    void (*before)(GObj *); /* 0x60, the object's per-frame function (BeforeFunc); nonzero means
                            the kind takes mail 47 */
 } ObjKindEnt;
 
@@ -1403,13 +1411,14 @@ typedef struct GenGeo { /* field names derived */
     float scale[3];     /* 0x00 */
     float rot[3];       /* 0x0C, degrees */
     float pos[3];       /* 0x18 */
-    void (*proc)();     /* 0x24, the object's own act process (scpDeamon), 0 for the kind's start */
-    char **outGObj;     /* 0x28, where the created GObj is stored (scpDummyGObj), 0 for nowhere */
-    int mdl;            /* 0x2C */
-    int accessary;      /* 0x30, the accessary table row; for a generator the enemy kind it calls */
-    int action;         /* 0x34, the object's row in obj-action's objAction, 0 for none */
-    int initArg;        /* 0x38, the last word of the create arguments */
-    int word3C;         /* 0x3C, no C reader */
+    void (*proc)(
+        GObj *);    /* 0x24, the object's own act process (scpDeamon), 0 for the kind's start */
+    char **outGObj; /* 0x28, where the created GObj is stored (scpDummyGObj), 0 for nowhere */
+    int mdl;        /* 0x2C */
+    int accessary;  /* 0x30, the accessary table row; for a generator the enemy kind it calls */
+    int action;     /* 0x34, the object's row in obj-action's objAction, 0 for none */
+    int initArg;    /* 0x38, the last word of the create arguments */
+    int word3C;     /* 0x3C, no C reader */
     unsigned short procPri; /* 0x40, the process priority, shifted by 10 */
     short reviveCount;      /* 0x42, enemies left to revive, -1 for unlimited */
     unsigned short parent;  /* 0x44, the label of the object it belongs to (an enemy's generator) */
@@ -1441,7 +1450,10 @@ typedef struct { /* field names derived */
  * common/src/kanbanBoot.c. */
 typedef struct {        /* field names derived */
     unsigned int stage; /* 0x00, the saved stage, 0xFFFFFFFF for an empty file */
-    char info[16];      /* 0x04, the rest of the preview the file select shows */
+    int cleared;        /* 0x04, gFlagGameClear at the save */
+    int playTime;       /* 0x08, in frames */
+    int sofa;           /* 0x0C, the save sofa's layout id (GetSaveSofaLayoutID) */
+    int word10;         /* 0x10, no C reader */
 } McFileInfo;           /* derived name */
 
 typedef struct {                              /* field names derived */

@@ -84,7 +84,7 @@ static __inline__ void TidyPObjName(char *name) /* derived name */
 
 /* MakeBoundingBox: one axis-aligned box per sub-object into the block it
    allocates at 0x44, plus the whole object's box in self->bb. */
-void MakeBoundingBox(PObj *self)
+static void MakeBoundingBox(PObj *self)
 {
     Vec mn;
     Vec mx;
@@ -171,7 +171,7 @@ void MakeBoundingBox(PObj *self)
     }
 }
 
-void MakePacket(PObj *p, int n)
+static void MakePacket(PObj *p, int n)
 {
     PObjPkt *q;
 

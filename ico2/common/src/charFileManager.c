@@ -119,8 +119,8 @@ void ReadModelFile(void *h, int a1, int size, int id, int a4, int a5, int part)
         sprintf(buf, "Illegal Model ID number: %d (\"%s\")\n", id, a1);
         /* please raise MAX_CHARS in commmon/include/charFileName.h */
         debug_StdPrintfDummy("commmon/include/charFileName.hのMAX_CHARSを増やしてください\n");
-        debug_assertMessage(__FILE__, 0x82, buf);
-        __assert(__FILE__, 0x82, "e");
+        debug_assertMessage(__FILE__, 130, buf);
+        __assert(__FILE__, 130, "e");
     }
 
     if (charFiles[id].pObj != 0) {
@@ -136,7 +136,7 @@ void ReadModelFile(void *h, int a1, int size, int id, int a4, int a5, int part)
     }
 
     charFiles[id].state = part;
-    p = iosMallocDebug(ios_partition_seki, size, __FILE__, 0x91);
+    p = iosMallocDebug(ios_partition_seki, size, __FILE__, 145);
     iosCdvdHandlerRead(h, p, size);
     debug_StdPrintfDummy("ReadModelFile:loaded::(id:%d)%s(addr:%p/size:%d)\n", id, a1, p, size);
     charFiles[id].pObj = InitPObj(p, a1, id);
@@ -450,7 +450,7 @@ void ReadMotionFile(void *h, int a1, int size, int id, int a4, int a5, int a6)
 
 void ReadParticleEffectFile(void *h, int a1, int size, int a3)
 {
-    int *buf = iosMallocDebug(ios_partition_sugipon, size, __FILE__, 0x228);
+    int *buf = iosMallocDebug(ios_partition_sugipon, size, __FILE__, 552);
     systemStatus[8]++;
     iosCdvdHandlerRead(h, buf, size);
     SetParticleEffectPackage(a3, buf, size);
@@ -677,7 +677,7 @@ void ReadCamerasetFile(void *h, int a1, int size, int a3)
 
 void ReadEndCheckFile(void *h, int a1, int size)
 {
-    char *buf = iosMallocDebug(ios_partition_oomori, size, __FILE__, 0x356);
+    char *buf = iosMallocDebug(ios_partition_oomori, size, __FILE__, 854);
     systemStatus[8]++;
     iosCdvdHandlerRead(h, buf, size);
     iosFree(buf);

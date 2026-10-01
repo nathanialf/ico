@@ -8,9 +8,8 @@
 #ifndef CHARFILEMANAGER_H
 #define CHARFILEMANAGER_H
 
-/* The declarations below lead this header because their order is load-bearing:
- * gcc 2.9 emits the deferred out-of-line copy of a plain-inline function in
- * first-declaration order, so this is the order charFileManager.c's inline tail has. */
+/* charFileManager.c's `inline` functions, in the order of their definitions'
+ * out-of-line copies at the end of the object (first-declaration order). */
 void ReadSoundSqFile(void *h, int a1, int size, int a3, int kind, int a5, int a6);
 void ReadSoundAdpcmFile(void *h, int a1, int size, int a3, int a4, int a5, int a6);
 void InitCharFileManager(void);
@@ -28,12 +27,12 @@ typedef struct {    /* field names derived */
  * ico2/common/src/PObj.c (InitPObj, AllocPObj, MakePacket), charFileManager.c
  * (ReadSkeltonFile, ReadCollisionFile: the two paths). */
 typedef struct PObjMdl { /* field names derived */
-    char path[48];     /* 0x00, the skeleton file, "NULL" for none */
-    char collPath[64]; /* 0x30, the collision file */
-    float offset[3];   /* 0x70, InitPObj adds it to every vertex and box corner */
-    float float7C;     /* 0x7C, copied into the PObj at 0x34 */
-    float float80;     /* 0x80, copied into the PObj at 0x38 */
-    float float84;     /* 0x84, copied into the PObj at 0x3C */
+    char path[48];       /* 0x00, the skeleton file, "NULL" for none */
+    char collPath[64];   /* 0x30, the collision file */
+    float offset[3];     /* 0x70, InitPObj adds it to every vertex and box corner */
+    float float7C;       /* 0x7C, copied into the PObj at 0x34 */
+    float float80;       /* 0x80, copied into the PObj at 0x38 */
+    float float84;       /* 0x84, copied into the PObj at 0x3C */
     /* 0x88, read as bits */
     unsigned int pktKind : 4; /* the packet header's kind, 4 for none */
     unsigned int bits4 : 4;   /* MakePacket's tag bits 18-21 */

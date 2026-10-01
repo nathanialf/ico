@@ -92,7 +92,7 @@ static int fcReserved = 0; /* derived name */
 
 int collision_pick = 0;
 
-FcBlk8 InitialObjPointer = {0, -1};
+ObjNode InitialObjPointer = {0, -1};
 
 static int colObjListNum = 0; /* derived name */
 
@@ -1086,7 +1086,7 @@ static void __ClipWall(ClipWork *a0, int a1)
     a0->slideCount = 0;
     a0->floorHit = 0;
     a0->wallHit = 0;
-    *(FcBlk8 *)a0->wallSrc = InitialObjPointer;
+    *(ObjNode *)a0->wallSrc = InitialObjPointer;
     _Clip(a0, a1);
 }
 
@@ -1112,7 +1112,7 @@ static inline void __ClipWallWithDrawRay(char *w, int a1)
 static void __ClipFloor(ClipWork *a0, int a1)
 {
     a0->floorHit = 0;
-    *(FcBlk8 *)a0->floorSrc = InitialObjPointer;
+    *(ObjNode *)a0->floorSrc = InitialObjPointer;
     _Clip(a0, a1);
 }
 

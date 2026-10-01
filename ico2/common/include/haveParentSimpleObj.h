@@ -8,9 +8,8 @@
 #ifndef HAVEPARENTSIMPLEOBJ_H
 #define HAVEPARENTSIMPLEOBJ_H
 
-/* The declarations below lead this header because their order is load-bearing:
- * gcc 2.9 emits the deferred out-of-line copy of a plain-inline function in
- * first-declaration order, so this is the order haveParentSimpleObj.c's inline tail has. */
+/* haveParentSimpleObj.c's `inline` functions, in the order of their definitions'
+ * out-of-line copies at the end of the object (first-declaration order). */
 int InitParentSimpleObjGeo(void);
 
 #endif /* HAVEPARENTSIMPLEOBJ_H */

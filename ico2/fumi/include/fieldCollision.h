@@ -17,15 +17,9 @@ struct ClipWork;
 /* The empty wall-hit record (no object, node -1, no wall) a character's
    collision filter is reset to. */
 extern WallCfg InitialColInfo;
-
-/* The object pointer pair a clip resets its wall and floor sources to, copied
-   as one unaligned 8-byte block. */
-typedef struct { /* field names derived */
-    int obj;     /* the object the clip element belongs to, 0 for none */
-    int elem;    /* the element's index, -1 for none */
-} FcBlk8;        /* derived name */
-
-extern FcBlk8 InitialObjPointer;
+/* The empty object and node pair (no object, node -1) a clip resets its wall
+   and floor sources to and a display object's parent link is cleared to. */
+extern ObjNode InitialObjPointer;
 extern int collision_pick;
 
 /* one wall of a collision set, 0x50 bytes (the table

@@ -10,16 +10,13 @@
 
 #include <libgraph.h>
 
-/* The declarations below lead this header because their order is load-bearing:
- * gcc 2.9 emits the deferred out-of-line copy of a plain-inline function in
- * first-declaration order, so this is the order debug_exception.c's inline tail has. */
+/* debug_exception.c's `inline` functions, in the order of their definitions'
+ * out-of-line copies at the end of the object (first-declaration order). */
 void debugExceptionInit(void *workBuf);
 void debugIOPExceptionInit(void);
 void debug_assertMessage(char *file, int line, char *mes);
 void debug_assert(char *file, int line);
 void RestoreNormalDrawEnvironment(sceGsDBuff *db, int a1, int a2);
 void SetDrawEnvironment(int mode);
-void debugEEExceptionMain();
-void drawSprite(int r, int g, int b, int a, int x0, int y0, int x1, int y1, int tex);
 
 #endif /* DEBUG_EXCEPTION_H */

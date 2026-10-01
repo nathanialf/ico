@@ -17,32 +17,9 @@ int n_way_group;
 
 int current_select_gid;
 
-/* every definition below is `inline`; these declarations mark the bodies
- * inline before the first call. */
-inline int CreateWayGroup(void);
-inline int CreateTempWayGroup(void);
-inline int DeleteWayGroup(int gno);
-inline void CloseWayGroup(int idx);
-inline int CreateWayPoint(float *pos);
-inline int AddWayPoint(int gno, int pno);
-inline int AddWayPointTop(int a0, int a1);
-inline int InsertWayPointAfter(int dummy, int idx1, int idx2);
+/* defined `inline` below, and called before their definitions */
 inline int DeleteWayPoint(int pno);
-inline WayGroup *WayGroup_begin(void);
-inline WayGroup *WayGroup_next(WayGroup *p);
-inline WayGroup *WayBridge_begin(void);
-inline WayGroup *WayBridge_next(WayGroup *p);
-inline WayGroup *WayBridgeAll_begin(void);
-inline WayGroup *WayBridgeAll_next(WayGroup *p);
-inline WayGroup *WayBridgeVar_begin(void);
-inline WayGroup *WayBridgeVar_next(WayGroup *a0);
-inline WayPoint *WayPoint_begin(void);
-inline WayPoint *WayPoint_next(WayPoint *a0);
-inline WayPoint *WayPointList_begin(int a0);
-inline WayPoint *WayPointList_next(WayPoint *a0);
-inline WayPoint *waypoint_bidirectional_list(WayPoint *self, int which);
 inline void SetWayGroupActive(int a0, int a1);
-inline int CheckWayGroupActive(int idx);
 
 /* The TU's shared group allocator, expanded into CreateWayGroup's and
  * CreateTempWayGroup's callers: the first free slot of the way-group table. */

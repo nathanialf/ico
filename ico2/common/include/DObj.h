@@ -18,13 +18,11 @@ typedef struct {
     long long x;
 } __attribute__((packed, aligned(4))) PackedLL_19CAF0;
 
-/* The declarations below lead this header because their order is load-bearing:
- * gcc 2.9 emits the deferred out-of-line copy of a plain-inline function in
- * first-declaration order, so this is the order DObj.c's inline tail has. */
+/* DObj.c's `inline` functions, in the order of their definitions'
+ * out-of-line copies at the end of the object (first-declaration order). */
 void FreeDObj(void);
 void LinkParentOfDObj(void *a0, PackedLL_19CAF0 *a1);
 void UnlinkParentOfDObj(void *a0);
-
 struct Sub15C *CSVSYSTEM_InitDObj(int id, SObjSimpleSetting *lay);
 void initPolygonState(char *d, SObjSimpleSetting *lay);
 

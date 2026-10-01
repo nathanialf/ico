@@ -189,6 +189,7 @@ int debug_SelectCsvWindow(char *title, int x, int y, int rows, const void *base,
                           int off, int deref, int n, int *psel);
 
 int debug_SelectStage(void);
+void debug_Menu_off(void);
 void debug_SetDmaCallback(void);
 void debug_StdPrintfDummy(const char *fmt, ...);
 void debug_brainBar(void);

@@ -29,33 +29,38 @@ typedef struct {
     int code[16];
 } KeyConf;
 
-/* The port record's flag word, read whole and through a one-bit view of its
-   low bits: currentPortLockState tests bits 1 and 3..5 of the word, and
-   _la_set_current_port_new tests bit 1 and sets bits 2 and 6 of both ports
-   through the bits. */
+/* A card port's state as _la_memory_card_check finds it, read whole and
+   through a one-bit view: currentPortLockState tests bits 1 and 3..5 of the
+   word, and _la_set_current_port_new tests bit 1 and sets bits 2 and 6 of
+   both ports through the bits. */
 typedef union { /* field names derived */
     unsigned int w;
 
     struct {
-        unsigned int f0 : 1;
-        unsigned int f1 : 1;
-        unsigned int f2 : 1;
-        unsigned int f3 : 1;
-        unsigned int f4 : 1;
-        unsigned int f5 : 1;
-        unsigned int f6 : 1;
+        unsigned int card : 1;      /* a card is in the slot */
+        unsigned int ps2Card : 1;   /* it is a PlayStation 2 card */
+        unsigned int bothPs2 : 1;   /* both slots hold one */
+        unsigned int formatted : 1; /* sceMcGetInfo's format flag */
+        unsigned int hasSpace : 1;  /* 360 free clusters or more */
+        unsigned int hasSave : 1;   /* the card holds this game's save files */
+        unsigned int bothSave : 1;  /* both cards do */
     } bit;
-} R8Flags;
+} McPortFlags; /* derived name */
 
-typedef struct {
-    R8Flags _0;
-    int _4;
-} R8;
+typedef struct {       /* field names derived */
+    McPortFlags flags; /* 0x0 */
+    int fileMask;      /* 0x4, one bit for each save file on the card */
+} McPortInfo;          /* derived name */
 
-/* the five-word save preview record */
-struct S14 {
-    int w[5];
-};
+/* the save preview the file select shows, the five words of typedef.h's
+   McFileInfo */
+struct McPreview { /* field names derived */
+    int stage;     /* 0x00 */
+    int cleared;   /* 0x04 */
+    int playTime;  /* 0x08, in frames */
+    int sofa;      /* 0x0C */
+    int word10;    /* 0x10, no C reader */
+}; /* derived name */
 
 /* .sbss, thirteen words: the port-0 lock state _la_set_current_port_2 records and the one
    _la_set_current_port_lock_2 records, the lock results for port 0 and port 1
@@ -93,9 +98,9 @@ static int barTotal; /* derived name */
 /* .bss: the two card ports' records, the preview
    record of the save being confirmed, the open request of the layout voice
    and the twenty game flags kept across a load. */
-static R8 mcPortInfo[2]; /* derived name */
+static McPortInfo mcPortInfo[2]; /* derived name */
 
-static struct S14 previewInfo; /* derived name */
+static struct McPreview previewInfo; /* derived name */
 
 static AdpcmOpenReq voiceOpenReq; /* derived name */
 
@@ -234,7 +239,7 @@ int _la_memory_card_check(McWork *p, int a1);
 
 /* .sdata: these ten statics and the three globals after them, then each
    function's own statics before it */
-static R8 *curPortInfo = &mcPortInfo[0]; /* derived name */
+static McPortInfo *curPortInfo = &mcPortInfo[0]; /* derived name */
 
 static int lastPort = -1; /* derived name */
 
@@ -268,7 +273,7 @@ int _la_memory_card_check(McWork *p, int a1)
     curPortInfo = &mcPortInfo[p->_8];
     switch (a1) {
     case 0:
-        curPortInfo->_4 = 0;
+        curPortInfo->fileMask = 0;
         p->_C = 0;
         memset(&mcPortInfo[p->_8], 0, 8);
         p->_10 = 0;
@@ -314,9 +319,9 @@ int _la_memory_card_check(McWork *p, int a1)
         }
         mcLastResult = p->_10;
         if (p->_10 == -9 || r == -2) {
-            curPortInfo->_0.w = (int)curPortInfo->_0.w & ~0x20;
-            curPortInfo->_0.w = (int)curPortInfo->_0.w & ~2;
-            curPortInfo->_0.w = (int)curPortInfo->_0.w & ~1;
+            curPortInfo->flags.w = (int)curPortInfo->flags.w & ~0x20;
+            curPortInfo->flags.w = (int)curPortInfo->flags.w & ~2;
+            curPortInfo->flags.w = (int)curPortInfo->flags.w & ~1;
         }
         /* falls through */
     case 2:
@@ -328,23 +333,23 @@ int _la_memory_card_check(McWork *p, int a1)
             return 99;
         case 1:
         case 3:
-            curPortInfo->_0.w |= 1;
+            curPortInfo->flags.w |= 1;
             return 99;
         case 2:
-            curPortInfo->_0.w |= 3;
+            curPortInfo->flags.w |= 3;
             break;
         }
         switch (p->_20) {
         case 0:
             return 99;
         case 1:
-            curPortInfo->_0.w |= 8;
+            curPortInfo->flags.w |= 8;
             break;
         }
         if (p->_18 >= 360) {
-            curPortInfo->_0.w |= 0x10;
+            curPortInfo->flags.w |= 0x10;
         } else {
-            curPortInfo->_0.w = (int)curPortInfo->_0.w & ~0x10;
+            curPortInfo->flags.w = (int)curPortInfo->flags.w & ~0x10;
         }
         a1 = 10;
         break;
@@ -372,8 +377,8 @@ int _la_memory_card_check(McWork *p, int a1)
         }
         if (i < 10) {
             if (p->_44 == 10) {
-                curPortInfo->_0.w |= 0x20;
-                curPortInfo->_4 = p->_9C0;
+                curPortInfo->flags.w |= 0x20;
+                curPortInfo->fileMask = p->_9C0;
             }
         }
         break;
@@ -386,7 +391,7 @@ int _la_memory_card_check(McWork *p, int a1)
    and once into _la_set_current_port_lock_2 */
 static inline int currentPortLockState(void) /* derived name */
 {
-    return (((curPortInfo->_0.w >> 1) & 1) && (curPortInfo->_0.w & 0x38) != 8) ? 1 : -1;
+    return (((curPortInfo->flags.w >> 1) & 1) && (curPortInfo->flags.w & 0x38) != 8) ? 1 : -1;
 }
 
 static int port2Step = 0; /* derived name */
@@ -399,7 +404,7 @@ static int port2Locked = 0; /* derived name */
 
 int _la_set_current_port_2(void *p, int a1)
 {
-    R8 tmp;
+    McPortInfo tmp;
     int r;
     int q = 0;
 
@@ -416,8 +421,8 @@ int _la_set_current_port_2(void *p, int a1)
         switch (*(int *)((char *)p + 8)) {
         case 0:
             portLockState = currentPortLockState();
-            port2Changed = (curPortInfo->_0.w >> 5) & 1;
-            port2Locked = ((curPortInfo->_0.w >> 1) & 1) && (curPortInfo->_0.w & 0x38) != 8;
+            port2Changed = (curPortInfo->flags.w >> 5) & 1;
+            port2Locked = ((curPortInfo->flags.w >> 1) & 1) && (curPortInfo->flags.w & 0x38) != 8;
             /* the whole 8-byte record is copied to a local and never read
                again */
             tmp = *curPortInfo;
@@ -431,26 +436,26 @@ int _la_set_current_port_2(void *p, int a1)
                 r = currentPortLockState();
                 switch (r) {
                 case 1:
-                    r = curPortInfo->_0.w >> 5;
+                    r = curPortInfo->flags.w >> 5;
                     r &= 1;
-                    if ((curPortInfo->_0.w >> 1) & 1) {
-                        if ((curPortInfo->_0.w & 0x38) != 8) {
+                    if ((curPortInfo->flags.w >> 1) & 1) {
+                        if ((curPortInfo->flags.w & 0x38) != 8) {
                             q = 1;
                         }
                     }
                     if (port2Locked != 0 && q != 0) {
-                        mcPortInfo[0]._0.w |= 4;
-                        mcPortInfo[1]._0.w |= 4;
+                        mcPortInfo[0].flags.w |= 4;
+                        mcPortInfo[1].flags.w |= 4;
                     }
                     if (port2Changed != 0 && r != 0) {
-                        mcPortInfo[0]._0.w |= 0x40;
-                        mcPortInfo[1]._0.w |= 0x40;
+                        mcPortInfo[0].flags.w |= 0x40;
+                        mcPortInfo[1].flags.w |= 0x40;
                     }
                     if (lastPort >= 0) {
                         curPort = lastPort;
                     } else if (port2Changed != 0) {
                         curPort = 0;
-                    } else if ((curPortInfo->_0.w >> 5) & 1) {
+                    } else if ((curPortInfo->flags.w >> 5) & 1) {
                         curPort = 1;
                     }
                     break;
@@ -458,8 +463,8 @@ int _la_set_current_port_2(void *p, int a1)
                     lastPort = r;
                     curPort = 0;
                     curPortInfo = &mcPortInfo[0];
-                    curPortInfo->_0.w = (int)curPortInfo->_0.w & ~4;
-                    curPortInfo->_0.w = (int)curPortInfo->_0.w & ~0x40;
+                    curPortInfo->flags.w = (int)curPortInfo->flags.w & ~4;
+                    curPortInfo->flags.w = (int)curPortInfo->flags.w & ~0x40;
                     break;
                 }
                 break;
@@ -469,20 +474,20 @@ int _la_set_current_port_2(void *p, int a1)
                 case 1:
                     curPort = r;
                     curPortInfo = &mcPortInfo[1];
-                    curPortInfo->_0.w = (int)curPortInfo->_0.w & ~4;
-                    curPortInfo->_0.w = (int)curPortInfo->_0.w & ~0x40;
+                    curPortInfo->flags.w = (int)curPortInfo->flags.w & ~4;
+                    curPortInfo->flags.w = (int)curPortInfo->flags.w & ~0x40;
                     break;
                 case -1:
                     curPort = 0;
                     curPortInfo = &mcPortInfo[0];
-                    if ((mcPortInfo[0]._0.w & 1) || (mcPortInfo[1]._0.w & 1)) {
-                        mcPortInfo[0]._0.w |= 1;
+                    if ((mcPortInfo[0].flags.w & 1) || (mcPortInfo[1].flags.w & 1)) {
+                        mcPortInfo[0].flags.w |= 1;
                     }
-                    if (((mcPortInfo[0]._0.w >> 1) & 1) || ((mcPortInfo[1]._0.w >> 1) & 1)) {
-                        curPortInfo->_0.w |= 2;
+                    if (((mcPortInfo[0].flags.w >> 1) & 1) || ((mcPortInfo[1].flags.w >> 1) & 1)) {
+                        curPortInfo->flags.w |= 2;
                     }
-                    curPortInfo->_0.w = (int)curPortInfo->_0.w & ~4;
-                    curPortInfo->_0.w = (int)curPortInfo->_0.w & ~0x40;
+                    curPortInfo->flags.w = (int)curPortInfo->flags.w & ~4;
+                    curPortInfo->flags.w = (int)curPortInfo->flags.w & ~0x40;
                     _la_set_current_port_2(p, 1);
                     return -1;
                 }
@@ -508,7 +513,7 @@ static int lock2Locked = 0; /* derived name */
 
 int _la_set_current_port_lock_2(void *p, int a1)
 {
-    R8 tmp;
+    McPortInfo tmp;
     int r;
     int a;
     int q;
@@ -528,31 +533,31 @@ int _la_set_current_port_lock_2(void *p, int a1)
     }
     r = currentPortLockState();
     lock2PortState = r;
-    lock2Changed = (curPortInfo->_0.w >> 5) & 1;
-    lock2Locked = ((curPortInfo->_0.w >> 1) & 1) && (curPortInfo->_0.w & 0x38) != 8;
+    lock2Changed = (curPortInfo->flags.w >> 5) & 1;
+    lock2Locked = ((curPortInfo->flags.w >> 1) & 1) && (curPortInfo->flags.w & 0x38) != 8;
     tmp = *curPortInfo;
     switch (lock2PortState) {
     case 1:
-        a = curPortInfo->_0.w >> 5;
+        a = curPortInfo->flags.w >> 5;
         a &= 1;
         q = 0;
-        if ((curPortInfo->_0.w >> 1) & 1) {
-            if ((curPortInfo->_0.w & 0x38) != 8) {
+        if ((curPortInfo->flags.w >> 1) & 1) {
+            if ((curPortInfo->flags.w & 0x38) != 8) {
                 q = 1;
             }
         }
         if (lock2Locked != 0 && q != 0) {
-            mcPortInfo[*(int *)((char *)p + 8)]._0.w |= 4;
+            mcPortInfo[*(int *)((char *)p + 8)].flags.w |= 4;
         }
         if (lock2Changed != 0 && a != 0) {
-            mcPortInfo[*(int *)((char *)p + 8)]._0.w |= 0x40;
+            mcPortInfo[*(int *)((char *)p + 8)].flags.w |= 0x40;
         }
         _la_set_current_port_lock_2(p, 1);
         return 1;
     case -1:
         curPortInfo = &mcPortInfo[curPort];
-        curPortInfo->_0.w = (int)curPortInfo->_0.w & ~4;
-        curPortInfo->_0.w = (int)curPortInfo->_0.w & ~0x40;
+        curPortInfo->flags.w = (int)curPortInfo->flags.w & ~4;
+        curPortInfo->flags.w = (int)curPortInfo->flags.w & ~0x40;
         return -1;
     }
     return 0;
@@ -595,16 +600,16 @@ int _la_set_current_port_new(McWork *p, int a1)
         portNewStep++;
         break;
     case 4:
-        if (((mcPortInfo[0]._0.w >> 1) & 1) && ((mcPortInfo[1]._0.w >> 1) & 1))
+        if (((mcPortInfo[0].flags.w >> 1) & 1) && ((mcPortInfo[1].flags.w >> 1) & 1))
             v = 1;
         else
             v = 0;
-        mcPortInfo[0]._0.bit.f2 = mcPortInfo[1]._0.bit.f2 = v;
-        if (((mcPortInfo[0]._0.w >> 5) & 1) && ((mcPortInfo[1]._0.w >> 5) & 1))
+        mcPortInfo[0].flags.bit.bothPs2 = mcPortInfo[1].flags.bit.bothPs2 = v;
+        if (((mcPortInfo[0].flags.w >> 5) & 1) && ((mcPortInfo[1].flags.w >> 5) & 1))
             v = 1;
         else
             v = 0;
-        mcPortInfo[0]._0.bit.f6 = mcPortInfo[1]._0.bit.f6 = v;
+        mcPortInfo[0].flags.bit.bothSave = mcPortInfo[1].flags.bit.bothSave = v;
         if (port0LockResult == 1) {
             curPort = 0;
             r = 1;
@@ -612,7 +617,7 @@ int _la_set_current_port_new(McWork *p, int a1)
             curPort = 1;
             r = 1;
         } else {
-            if (((mcPortInfo[0]._0.w >> 1) & 1) == 0 && mcPortInfo[1]._0.bit.f1 == 1) {
+            if (((mcPortInfo[0].flags.w >> 1) & 1) == 0 && mcPortInfo[1].flags.bit.ps2Card == 1) {
                 curPort = 1;
             } else {
                 curPort = 0;
@@ -770,7 +775,7 @@ int la_title_continue_or_new(int a0)
     case 0:
         break;
     case 1:
-        if ((curPortInfo->_0.w & 0x22) == 2) {
+        if ((curPortInfo->flags.w & 0x22) == 2) {
             lt_set_item_select_func(0);
             actionStarted = 0;
             return 0xD;
@@ -826,7 +831,7 @@ int la_title_new_game_only(int a0)
         newGameDecided = 1;
         break;
     case 1:
-        if ((curPortInfo->_0.w >> 5) & 1) {
+        if ((curPortInfo->flags.w >> 5) & 1) {
             lt_set_item_select_func(0);
             actionStarted = 0;
             return 0xC;
@@ -887,7 +892,7 @@ static inline int mcCurrentFileNo(void) /* derived name */
 {
     int port = filePort;
     int no = (IosMcProductFile + port)->fileNo;
-    if (mcPortInfo[port]._4 == 0 || IosMcProductFile[port].file[no].stage == 0xFFFFFFFF)
+    if (mcPortInfo[port].fileMask == 0 || IosMcProductFile[port].file[no].stage == 0xFFFFFFFF)
         return 0;
     return no;
 }
@@ -940,7 +945,7 @@ int la_mc_file_select(int a0)
         }
     }
 
-    previewInfo = *(struct S14 *)&IosMcProductFile[filePort].file[curFile];
+    previewInfo = *(struct McPreview *)&IosMcProductFile[filePort].file[curFile];
 
     return (pad[0].flags & 0x50) ? curFile : -1;
 }
@@ -968,9 +973,9 @@ void _la_mask_preview_info(void)
 /* the play time of a save record split into hours, minutes and seconds and
    clamped to 99:59:59, inlined into _la_set_preview_info, la_load_processing
    and la_system_save_processing; the last two leave the results unused */
-static inline void playTime(struct S14 *p, int *hour, int *min, int *sec) /* derived name */
+static inline void playTime(struct McPreview *p, int *hour, int *min, int *sec) /* derived name */
 {
-    int frames = p->w[2];
+    int frames = p->playTime;
     int fps = ((60 - systemStatus[0] * 10) / systemStatus[1]) * systemStatus[1];
 
     *sec = (frames / fps) % 60;
@@ -1014,12 +1019,12 @@ void _la_set_preview_info(void)
     lt_mask_property(74, 0);
     lt_mask_property(75, 0);
 
-    n = previewInfo.w[0];
-    if (n == 0x3F) {
+    n = previewInfo.stage;
+    if (n == 63) {
         n = 38;
     }
     if (n >= 3 && n < 56) {
-        switch (previewInfo.w[3]) {
+        switch (previewInfo.sofa) {
         case 329:
             n = 39;
             break;
@@ -1028,7 +1033,7 @@ void _la_set_preview_info(void)
             break;
         }
         lt_mask_property(n + 134, 0);
-        if (previewInfo.w[1] != 0) {
+        if (previewInfo.cleared != 0) {
             lt_mask_property(136, 0);
         }
     }
@@ -1078,7 +1083,7 @@ int la_load_game_memory_card_check(int a0)
         actionStarted = 0;
         return 0x16;
     case -1:
-        if ((curPortInfo->_0.w >> 1) & 1) {
+        if ((curPortInfo->flags.w >> 1) & 1) {
             lt_set_item_select_func(0);
             actionStarted = 0;
             return 0x17;
@@ -1087,13 +1092,13 @@ int la_load_game_memory_card_check(int a0)
         actionStarted = 0;
         return 0x16;
     case 1:
-        if ((curPortInfo->_0.w >> 6) & 1) {
+        if ((curPortInfo->flags.w >> 6) & 1) {
             setLoadGameStartItem();
             lt_set_item_select_func(0);
             actionStarted = 0;
             return 0x11;
         }
-        if ((curPortInfo->_0.w >> 5) & 1) {
+        if ((curPortInfo->flags.w >> 5) & 1) {
             lt_set_item_select_func(0);
             actionStarted = 0;
             return 0x13;
@@ -1176,7 +1181,7 @@ int la_mc_load_file_select(int a0, int a1)
     r = _la_set_current_port_lock_2(mc, a0);
     switch (r) {
     case -1:
-        if (((curPortInfo->_0.w >> 1) & 1) == 0) {
+        if (((curPortInfo->flags.w >> 1) & 1) == 0) {
             lt_set_item_select_func(0);
             actionStarted = 0;
             return 22;
@@ -1185,12 +1190,12 @@ int la_mc_load_file_select(int a0, int a1)
         actionStarted = 0;
         return 23;
     case 1:
-        if (((curPortInfo->_0.w >> 1) & 1) == 0) {
+        if (((curPortInfo->flags.w >> 1) & 1) == 0) {
             lt_set_item_select_func(0);
             actionStarted = 0;
             return 22;
         }
-        if ((curPortInfo->_0.w & 0x22) == 2) {
+        if ((curPortInfo->flags.w & 0x22) == 2) {
             lt_set_item_select_func(0);
             actionStarted = 0;
             return 23;
@@ -1203,21 +1208,21 @@ int la_mc_load_file_select(int a0, int a1)
 
     if (fileMask != 0) {
         if (loadCardChanged == 0) {
-            if (((curPortInfo->_0.w >> 6) & 1) != 0) {
+            if (((curPortInfo->flags.w >> 6) & 1) != 0) {
                 debug_StdPrintfDummy("1 to 2\n");
                 lt_set_item_select_func(0);
                 actionStarted = 0;
                 return 17;
             }
-        } else if (((curPortInfo->_0.w >> 6) & 1) == 0) {
+        } else if (((curPortInfo->flags.w >> 6) & 1) == 0) {
             debug_StdPrintfDummy("2 to 1\n");
-            loadCardChanged = (curPortInfo->_0.w >> 6) & 1;
+            loadCardChanged = (curPortInfo->flags.w >> 6) & 1;
         }
     } else {
-        loadCardChanged = (curPortInfo->_0.w >> 6) & 1;
-        fileMask = curPortInfo->_4;
+        loadCardChanged = (curPortInfo->flags.w >> 6) & 1;
+        fileMask = curPortInfo->fileMask;
         actionStarted = r;
-        if ((curPortInfo->_0.w & 0xA) == 2) {
+        if ((curPortInfo->flags.w & 0xA) == 2) {
             loadFileChosen = r;
         }
     }
@@ -1239,12 +1244,12 @@ int la_load_confirm_no_memory_card(int a0)
     case 0:
         break;
     case -1:
-        if ((curPortInfo->_0.w & 0x32) == 2 || (curPortInfo->_0.w & 0x22) == 2) {
+        if ((curPortInfo->flags.w & 0x32) == 2 || (curPortInfo->flags.w & 0x22) == 2) {
             lt_set_item_select_func(0);
             actionStarted = 0;
             return 0x17;
         }
-        if ((curPortInfo->_0.w >> 1) & 1) {
+        if ((curPortInfo->flags.w >> 1) & 1) {
             lt_set_item_select_func(0);
             actionStarted = 0;
             return 0x14;
@@ -1252,12 +1257,12 @@ int la_load_confirm_no_memory_card(int a0)
         lock2Restart = 1;
         break;
     case 1:
-        if ((curPortInfo->_0.w & 0x32) == 2 || (curPortInfo->_0.w & 0x22) == 2) {
+        if ((curPortInfo->flags.w & 0x32) == 2 || (curPortInfo->flags.w & 0x22) == 2) {
             lt_set_item_select_func(0);
             actionStarted = 0;
             return 0x17;
         }
-        if ((curPortInfo->_0.w >> 1) & 1) {
+        if ((curPortInfo->flags.w >> 1) & 1) {
             lt_set_item_select_func(0);
             actionStarted = 0;
             return 0x14;
@@ -1282,7 +1287,7 @@ int la_load_confirm_no_data(int a0)
     case 0:
         break;
     case -1:
-        if (((curPortInfo->_0.w >> 1) & 1) == 0) {
+        if (((curPortInfo->flags.w >> 1) & 1) == 0) {
             lt_set_item_select_func(0);
             actionStarted = 0;
             return 0x16;
@@ -1290,7 +1295,7 @@ int la_load_confirm_no_data(int a0)
         lock2Restart = 1;
         break;
     case 1:
-        if ((curPortInfo->_0.w >> 5) & 1) {
+        if ((curPortInfo->flags.w >> 5) & 1) {
             lt_set_item_select_func(0);
             actionStarted = 0;
             return 0x14;
@@ -1321,12 +1326,12 @@ int la_load_start_check(int a0)
             actionStarted = 0;
             return 0x2E;
         }
-        if ((curPortInfo->_0.w & 3) != 3) {
+        if ((curPortInfo->flags.w & 3) != 3) {
             lt_set_item_select_func(0);
             actionStarted = 0;
             return 0x16;
         }
-        if ((curPortInfo->_4 >> selectFile) & 1) {
+        if ((curPortInfo->fileMask >> selectFile) & 1) {
             fileMask = 0x3FF;
             lt_set_item_select_func(0);
             actionStarted = 0;
@@ -1453,8 +1458,9 @@ int la_load_processing(int a0)
         systemStatus[4] = 1;
         debug_StdPrintfDummy("case 10\n");
         loadStep = 0;
-        *(struct S14 *)IosMcPreviewInfo = *(struct S14 *)&IosMcProductFile[mc[2]].file[mc[16]];
-        playTime((struct S14 *)IosMcPreviewInfo, &hour, &min, &sec);
+        *(struct McPreview *)IosMcPreviewInfo =
+            *(struct McPreview *)&IosMcProductFile[mc[2]].file[mc[16]];
+        playTime((struct McPreview *)IosMcPreviewInfo, &hour, &min, &sec);
         loadSerial = mcSetFileNo(mc[2], mc[16]);
         debug_StdPrintfDummy("stage no %d\n", gFlagSaveStage);
         seEnvForceClose = 1;
@@ -1612,14 +1618,14 @@ int la_save_game_memory_card_check(int a0)
         break;
     case -1:
         debug_StdPrintfDummy("fail\n");
-        if ((curPortInfo->_0.w & 3) == 3) {
-            if ((curPortInfo->_0.w >> 2) & 1) {
+        if ((curPortInfo->flags.w & 3) == 3) {
+            if ((curPortInfo->flags.w >> 2) & 1) {
                 setSaveGameStartItem();
                 lt_set_item_select_func(0);
                 actionStarted = 0;
                 return 0x12;
             }
-            if (((curPortInfo->_0.w >> 4) & 1) == 0) {
+            if (((curPortInfo->flags.w >> 4) & 1) == 0) {
                 lt_set_item_select_func(0);
                 actionStarted = 0;
                 return 0x20;
@@ -1629,15 +1635,15 @@ int la_save_game_memory_card_check(int a0)
         actionStarted = 0;
         return 0x1F;
     case 1:
-        debug_StdPrintfDummy("sucess :%d %d %d\n", (curPortInfo->_0.w >> 5) & 1,
-                             (curPortInfo->_0.w >> 4) & 1, (curPortInfo->_0.w & 0xA) == 2);
-        if ((curPortInfo->_0.w >> 2) & 1) {
+        debug_StdPrintfDummy("sucess :%d %d %d\n", (curPortInfo->flags.w >> 5) & 1,
+                             (curPortInfo->flags.w >> 4) & 1, (curPortInfo->flags.w & 0xA) == 2);
+        if ((curPortInfo->flags.w >> 2) & 1) {
             setSaveGameStartItem();
             lt_set_item_select_func(0);
             actionStarted = 0;
             return 0x12;
         }
-        if ((curPortInfo->_0.w & 0x30) != 0 || (curPortInfo->_0.w & 0xA) == 2) {
+        if ((curPortInfo->flags.w & 0x30) != 0 || (curPortInfo->flags.w & 0xA) == 2) {
             lt_set_item_select_func(0);
             actionStarted = 0;
             return 0x21;
@@ -1789,7 +1795,7 @@ int la_mc_save_file_select(int a0, int a1)
     r = _la_set_current_port_lock_2(mc, a0);
     switch (r) {
     case -1:
-        if (((curPortInfo->_0.w >> 1) & 1) == 0) {
+        if (((curPortInfo->flags.w >> 1) & 1) == 0) {
             lt_set_item_select_func(0);
             actionStarted = 0;
             return 31;
@@ -1798,27 +1804,27 @@ int la_mc_save_file_select(int a0, int a1)
         actionStarted = 0;
         return 32;
     case 1:
-        if (((mcPortInfo[filePort]._0.w >> 1) & 1) == 0) {
+        if (((mcPortInfo[filePort].flags.w >> 1) & 1) == 0) {
             lt_set_item_select_func(0);
             actionStarted = 0;
             return 28;
         }
         if (fileMask != 0) {
             if (saveCardChanged == 0) {
-                if (((curPortInfo->_0.w >> 2) & 1) != 0) {
+                if (((curPortInfo->flags.w >> 2) & 1) != 0) {
                     lt_set_item_select_func(0);
                     actionStarted = 0;
                     return 18;
                 }
-            } else if (((curPortInfo->_0.w >> 2) & 1) == 0) {
+            } else if (((curPortInfo->flags.w >> 2) & 1) == 0) {
                 saveCardChanged = 0;
             }
         } else {
-            saveCardChanged = (curPortInfo->_0.w >> 2) & 1;
-            if ((curPortInfo->_0.w >> 3) & 1) {
+            saveCardChanged = (curPortInfo->flags.w >> 2) & 1;
+            if ((curPortInfo->flags.w >> 3) & 1) {
                 debug_StdPrintfDummy("format 2\n");
                 saveSelectReady = r;
-            } else if ((curPortInfo->_0.w & 0xA) == 2) {
+            } else if ((curPortInfo->flags.w & 0xA) == 2) {
                 debug_StdPrintfDummy("unformat 2\n");
                 if (filePort == curPort) {
                     actionStarted = r;
@@ -1828,7 +1834,7 @@ int la_mc_save_file_select(int a0, int a1)
             }
         }
         if (filePort == curPort) {
-            fileMask = curPortInfo->_4;
+            fileMask = curPortInfo->fileMask;
             actionStarted = 1;
         }
         break;
@@ -1851,7 +1857,7 @@ inline int la_save_confirm_no_memory_card(int a0)
     case 0:
         break;
     case -1:
-        if ((curPortInfo->_0.w >> 1) & 1) {
+        if ((curPortInfo->flags.w >> 1) & 1) {
             lt_set_item_select_func(0);
             actionStarted = 0;
             return 0x1E;
@@ -1859,7 +1865,7 @@ inline int la_save_confirm_no_memory_card(int a0)
         lock2Restart = 1;
         break;
     case 1:
-        if ((curPortInfo->_0.w >> 1) & 1) {
+        if ((curPortInfo->flags.w >> 1) & 1) {
             lt_set_item_select_func(0);
             actionStarted = 0;
             return 0x1E;
@@ -1881,7 +1887,7 @@ inline int la_save_confirm_no_free_area(int a0)
     case 0:
         break;
     case -1:
-        if (((curPortInfo->_0.w >> 1) & 1) == 0) {
+        if (((curPortInfo->flags.w >> 1) & 1) == 0) {
             lt_set_item_select_func(0);
             actionStarted = 0;
             return 0x1F;
@@ -1889,7 +1895,7 @@ inline int la_save_confirm_no_free_area(int a0)
         lock2Restart = 1;
         break;
     case 1:
-        if ((curPortInfo->_0.w >> 4) & 1) {
+        if ((curPortInfo->flags.w >> 4) & 1) {
             lt_set_item_select_func(0);
             actionStarted = 0;
             return 0x1E;
@@ -1905,7 +1911,7 @@ int la_save_start_check(int a0)
     case 0:
         break;
     case -1:
-        if (((curPortInfo->_0.w >> 1) & 1) == 0) {
+        if (((curPortInfo->flags.w >> 1) & 1) == 0) {
             lt_set_item_select_func(0);
             actionStarted = 0;
             return 0x1F;
@@ -1919,18 +1925,18 @@ int la_save_start_check(int a0)
             actionStarted = 0;
             return 0x2C;
         }
-        if ((curPortInfo->_0.w & 0xA) == 2) {
+        if ((curPortInfo->flags.w & 0xA) == 2) {
             lt_set_item_select_func(0);
             actionStarted = 0;
             return 0x24;
         }
-        if ((curPortInfo->_4 >> selectFile) & 1) {
+        if ((curPortInfo->fileMask >> selectFile) & 1) {
             if (IosMcProductFile[filePort].file[selectFile].stage != 0xFFFFFFFF) {
                 lt_set_item_select_func(0);
                 actionStarted = 0;
                 return 0x23;
             }
-            if (curPortInfo->_4 != 0) {
+            if (curPortInfo->fileMask != 0) {
                 debug_StdPrintfDummy("already exist save data\n");
                 lt_set_item_select_func(0);
                 actionStarted = 0;
@@ -1981,14 +1987,14 @@ int la_save_confirm_overwrite(int a0, int a1)
         return 0x1F;
     case 1:
         if (saveCardChanged == 0) {
-            if (((curPortInfo->_0.w >> 2) & 1) == 0) {
+            if (((curPortInfo->flags.w >> 2) & 1) == 0) {
                 break;
             }
             lt_set_item_select_func(0);
             actionStarted = 0;
             return 0x12;
         }
-        if ((curPortInfo->_0.w >> 2) & 1) {
+        if ((curPortInfo->flags.w >> 2) & 1) {
             break;
         }
         saveCardChanged = 0;
@@ -2036,14 +2042,14 @@ int la_format_confirm(int a0, int a1)
         return 0x1F;
     case 1:
         if (saveCardChanged == 0) {
-            if (((curPortInfo->_0.w >> 2) & 1) == 0) {
+            if (((curPortInfo->flags.w >> 2) & 1) == 0) {
                 break;
             }
             lt_set_item_select_func(0);
             actionStarted = 0;
             return 0x12;
         }
-        if ((curPortInfo->_0.w >> 2) & 1) {
+        if ((curPortInfo->flags.w >> 2) & 1) {
             break;
         }
         saveCardChanged = 0;
@@ -2149,7 +2155,7 @@ int la_system_save_processing(int a0)
         mc[3] = 0;
         iosMcGetBlockSaveInfo(mc);
         systemSaveStep++;
-        curPortInfo->_0.w = (int)curPortInfo->_0.w & ~0x80;
+        curPortInfo->flags.w = (int)curPortInfo->flags.w & ~0x80;
         barStep++;
         break;
     case 2:
@@ -2164,7 +2170,7 @@ int la_system_save_processing(int a0)
             debug_StdPrintfDummy("McSave phase:%d  %x\n", systemSaveStep, err);
             return -1;
         }
-        curPortInfo->_0.w |= 0x80;
+        curPortInfo->flags.w |= 0x80;
         lt_set_item_select_func(0);
         actionStarted = 0;
         return 44;
@@ -2174,7 +2180,7 @@ int la_system_save_processing(int a0)
         }
         while ((IosMcProductFile[mc[2]].serial = mcMakeSerial()) == 0)
             ;
-        playTime((struct S14 *)IosMcPreviewInfo, &hour, &min, &sec);
+        playTime((struct McPreview *)IosMcPreviewInfo, &hour, &min, &sec);
         iosMcSaveProductBlock(mc);
         systemSaveStep++;
         barStep++;
@@ -2241,7 +2247,7 @@ int la_save_processing(int a0)
         mc[3] = 0;
         iosMcGetBlockSaveInfo(mc);
         saveStep++;
-        curPortInfo->_0.w = (int)curPortInfo->_0.w & ~0x80;
+        curPortInfo->flags.w = (int)curPortInfo->flags.w & ~0x80;
         break;
     case 1:
         if (iosMcSync((unsigned long *)mc) != 0) {
@@ -2260,7 +2266,7 @@ int la_save_processing(int a0)
             debug_StdPrintfDummy("McSave phase:%d  %x\n", saveStep, err);
             return -1;
         }
-        curPortInfo->_0.w |= 0x80;
+        curPortInfo->flags.w |= 0x80;
         debug_StdPrintfDummy("save error? %d\n", saveStep);
         lt_set_item_select_func(0);
         actionStarted = 0;
@@ -2269,8 +2275,9 @@ int la_save_processing(int a0)
         IosMcPreviewInfo[0] = stage_no;
         IosMcPreviewInfo[3] = GetSaveSofaLayoutID();
         IosMcPreviewInfo[1] = gFlagGameClear;
-        *(struct S14 *)&IosMcProductFile[mc[2]].file[mc[16]] = *(struct S14 *)IosMcPreviewInfo;
-        playTime((struct S14 *)IosMcPreviewInfo, &hour, &min, &sec);
+        *(struct McPreview *)&IosMcProductFile[mc[2]].file[mc[16]] =
+            *(struct McPreview *)IosMcPreviewInfo;
+        playTime((struct McPreview *)IosMcPreviewInfo, &hour, &min, &sec);
         (IosMcProductFile + mc[2])->fileNo = mc[16];
         if ((IosMcProductFile + mc[2])->serial == (IosMcProductFile + (mc[2] ^ 1))->serial) {
             do {
@@ -2308,7 +2315,7 @@ int la_save_processing(int a0)
 inline int la_save_confirm_complete(int a0, int a1)
 {
     if (a0) {
-        previewInfo = *(struct S14 *)IosMcPreviewInfo;
+        previewInfo = *(struct McPreview *)IosMcPreviewInfo;
         fileMask = 0x3FF;
         _la_set_preview_info();
         debug_StdPrintfDummy("save complete %d %d\n", fileMask, curFile);
@@ -2409,7 +2416,7 @@ inline int la_delete_start_check(int a0)
         actionStarted = 0;
         return 0x1E;
     case 1:
-        if ((curPortInfo->_4 >> selectFile) & 1) {
+        if ((curPortInfo->fileMask >> selectFile) & 1) {
             lt_set_item_select_func(0);
             actionStarted = 0;
             return 0x31;

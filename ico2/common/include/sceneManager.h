@@ -18,18 +18,17 @@ struct GObj;
    0x30); 0x34..0x3F is the alignment tail, copied but never written.  With
    exactly these four members initSceneGObj's constructor fills a temporary
    without clearing it first, as the ROM does. */
-typedef struct {         /* field names derived */
-    sceVu0FVECTOR pos;   /* 0x00 */
-    sceVu0FVECTOR rot;   /* 0x10 */
-    sceVu0FVECTOR scale; /* 0x20 */
-    int obj;             /* 0x30 */
-} SObjSimpleSetting;     /* derived name */
+typedef struct SObjSimpleSetting { /* field names derived */
+    sceVu0FVECTOR pos;             /* 0x00 */
+    sceVu0FVECTOR rot;             /* 0x10 */
+    sceVu0FVECTOR scale;           /* 0x20 */
+    int obj;                       /* 0x30 */
+} SObjSimpleSetting;               /* derived name */
 
 /* sceneManager.c's .data global */
 extern SObjSimpleSetting InitialSObjSimpleSetting;
-/* The declarations below lead this header because their order is load-bearing:
- * gcc 2.9 emits the deferred out-of-line copy of a plain-inline function in
- * first-declaration order, so this is the order sceneManager.c's inline tail has. */
+/* sceneManager.c's `inline` functions, in the order of their definitions'
+ * out-of-line copies at the end of the object (first-declaration order). */
 void ChangeStageStartInfo(int a0, int a1, int a2, int a3, int t0);
 struct GObj *CreateLayoutedGObj(int id, int a1, int a2, int a3, void *lay, int a5, int a6, int a7);
 void MoveNextStage_Set(float *a0, float *a1, int a2, int a3, int a4, int a5);

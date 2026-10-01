@@ -10,13 +10,6 @@
 #include "motionManager2.h"
 #include "quaternion.h"
 #include "ios.h"
-
-typedef struct {
-    unsigned int lo;
-    unsigned char m[3];
-    unsigned char hi;
-} DObjBlk8;
-
 #include "DObj.h"
 
 typedef union {
@@ -151,7 +144,7 @@ void initGeometryState(char *self, SObjSimpleSetting *lay)
         CopyVector(p->data.p + 0x7E0, ZeroPoint);
         CopyVector(p->data.p + 0x7F0, ZeroVector);
         *(int *)(p->data.p + 0x808) = 0;
-        *(DObjBlk8 *)(p->data.p + 0x800) = *(DObjBlk8 *)&InitialObjPointer;
+        *(ObjNode *)(p->data.p + 0x800) = InitialObjPointer;
         *(void **)(p->data.p + 0x80C) =
             iosMallocDebug(ios_partition_sugipon, *(int *)(p->data.p + 0x88) << 6, __FILE__, 137);
         for (i = 0; i < *(int *)(p->data.p + 0x88); i++) {
@@ -293,7 +286,7 @@ void allocObjectData(char *self, SObjSimpleSetting *lay, int n)
 
 void initInitialInverseMatrix(char *a0)
 {
-    char *m = iosMallocDebug(ios_partition_sugipon, *(int *)(a0 + 0x88) << 6, __FILE__, 0x14D);
+    char *m = iosMallocDebug(ios_partition_sugipon, *(int *)(a0 + 0x88) << 6, __FILE__, 333);
     *(char **)(a0 + 0x90) = m;
     GetInitialInverseMatrixByDObj(m, a0);
 }
@@ -476,5 +469,5 @@ inline void LinkParentOfDObj(void *a0, PackedLL_19CAF0 *a1)
 inline void UnlinkParentOfDObj(void *a0)
 {
     GlobalizeGeometry(a0);
-    *(DObjBlk8 *)GOBJ_SUB(a0) = *(DObjBlk8 *)&InitialObjPointer;
+    GOBJ_SUB(a0)->parent = InitialObjPointer;
 }

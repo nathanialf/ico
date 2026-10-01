@@ -11,27 +11,11 @@
 /* the head of the free list for each of the 70 object kinds */
 static GObj *gobjKindHead[70]; /* derived name */
 
-/* Deferred-`inline` tail: ee-gcc 2.9 emits a plain-`inline` function's
-   out-of-line copy at the END of the object in PROTOTYPE order while its
-   string literals are emitted where it is DEFINED.  That is what puts the
-   __FILE__ string, first used by isysGObjAlloc, at the head of this TU's
-   .rodata run even though its code sits in the object's tail. */
+/* defined `inline` below, and called before their definitions */
 inline void isysGObjAlloc(int n);
-inline void isysGObjRemove(GObj *g);
-inline void isysGObjKindTableAdd(GObj *g, int kind);
 inline void isysGObjKindTableRemove(GObj *g);
-inline void isysGObjMoveAfterGObj(GObj *self, GObj *other);
-inline void isysGObjMoveBeforeGObj(GObj *self, GObj *other);
-inline void *isysGObjAdd(void (*fn)(GObj *), int a1, int a2);
-inline void *isysGObjAddHead(void (*fn)(GObj *), int a1, int a2);
-inline void *isysGObjSearchFromObjLayoutID(int a0);
 inline void *isysGObjSearchFromObjKindID_begin(int kind);
 inline void *isysGObjSearchFromObjKindID_next(GObj *g);
-inline void *isysGObjSearchFromLabelTypeID(int a0);
-inline void *isysGObjGetExist_begin(void);
-inline void *isysGObjGetExist_next(GObj *start);
-inline void isysGObjActiveLink(int bit, int set);
-inline void isysGObjActiveDlLink(int a0, int a1);
 
 static void isysGObjKindTableInit(void)
 {

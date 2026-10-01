@@ -236,7 +236,6 @@ int ChangeMailInLadder(GObj *a0, int a1)
     return ret;
 }
 
-void DamageFunc(char *a0);
 extern int EnemyGetNSafeParts(char *a0);
 /* motionOrientManager.h declares none of the motion tables */
 extern MotionDef motionKind[];

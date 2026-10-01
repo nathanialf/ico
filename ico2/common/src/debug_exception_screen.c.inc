@@ -270,7 +270,7 @@ inline void SetPrimColorTex(int prim, int r, int g, int b, int a, int fst)
     SendVif1DirectPacket((int *)&packet);
 }
 
-void drawSprite(int r, int g, int b, int a, int x0, int y0, int x1, int y1, int tex)
+static void drawSprite(int r, int g, int b, int a, int x0, int y0, int x1, int y1, int tex)
 {
     Vif1Packet packet;
 
@@ -346,7 +346,7 @@ void PutFont(int c, int x, int y)
     SendVif1DirectPacket((int *)&packet);
 }
 
-void resetPath(void)
+static void resetPath(void)
 {
     sceDmaReset(1);
     sceDmaSync((int *)sceDmaGetChan(0), 0, 0x64);
@@ -358,7 +358,7 @@ void resetPath(void)
     sceGsResetPath();
 }
 
-void resetGS(void)
+static void resetGS(void)
 {
     sceVpu0Reset();
     gsb_Init(&db);
@@ -378,7 +378,7 @@ static inline void scrollDbgScreen(void) /* derived name */
     }
 }
 
-void putString(unsigned int color, char *fmt, ...)
+static void putString(unsigned int color, char *fmt, ...)
 {
     char buf[256];
     char *str = buf;
@@ -406,7 +406,7 @@ void putString(unsigned int color, char *fmt, ...)
     }
 }
 
-void drawWin(void)
+static void drawWin(void)
 {
     int i, j, k;
     int len = 50;
@@ -440,7 +440,7 @@ void drawWin(void)
     }
 }
 
-void saveBack(void)
+static void saveBack(void)
 {
     SetDrawEnvironment(1);
     drawSprite(0x10, 0x20, 0x30, 0x40, -0x136, -0x6B, 0x136, 0x6B, 0);
@@ -476,7 +476,7 @@ static inline void dispBase(void) /* derived name */
     blinkPhase = (blinkPhase + 1) & 3;
 }
 
-void baseFunc(void)
+static void baseFunc(void)
 {
     if (pad[0].rep & 0x8000)
         if (--scrollTop < 0)
@@ -489,7 +489,7 @@ void baseFunc(void)
     drawWin();
 }
 
-void syncGS(void)
+static void syncGS(void)
 {
     FlushCache(0);
     sceGsSyncPath(1, 0);

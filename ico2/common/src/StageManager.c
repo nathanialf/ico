@@ -85,7 +85,7 @@ int stgMgrWakeupRequest = 0;
 static void stgmgrNextStagePreLoadDiskNotReady(void);
 
 /*SW*/
-void stop_free_resources(void)
+static void stop_free_resources(void)
 {
     int i;
 
@@ -125,7 +125,7 @@ void stop_free_resources(void)
 
 /*SW-END*/
 /*SW*/
-void stage_initialize(void)
+static void stage_initialize(void)
 {
     isysInitialize();
     debug_StdPrintfDummy("InitTableSin\n");
@@ -147,7 +147,7 @@ void stage_initialize(void)
 
 /*SW-END*/
 
-void exit_stage(int *self)
+static void exit_stage(int *self)
 {
     gamesysStageExitTimeSet(stage_no);
     warpGirlOutStage(stage_no, 0);
@@ -165,7 +165,7 @@ typedef struct MpegRec {
     int f18;
 } MpegRec;
 
-void start_stage_Load_thread(int stage)
+static void start_stage_Load_thread(int stage)
 {
     before_stage_no = stage_no;
     stage_no = stage;
@@ -241,7 +241,7 @@ int stagePreLoadLsn = 0;
 
 int stagePreLoadSectorCnt = 0;
 
-int stgmgrNextStagePreLoad(CdvdBgReq *bg)
+static int stgmgrNextStagePreLoad(CdvdBgReq *bg)
 {
     float root[4];
     float d[4];
@@ -322,7 +322,7 @@ float mpegPlayFadeInSpeed = 0.0f;
 
 int stageExitDataCnt = 0;
 
-void stgmgrNextStagePreLoadEntry(int stage)
+static void stgmgrNextStagePreLoadEntry(int stage)
 {
     const StgPre *pre = &stageData[stage];
     int i;

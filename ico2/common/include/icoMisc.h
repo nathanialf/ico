@@ -8,18 +8,14 @@
 #ifndef ICOMISC_H
 #define ICOMISC_H
 
-/* The declarations below lead this header because their order is load-bearing:
- * gcc 2.9 emits the deferred out-of-line copy of a plain-inline function in
- * first-declaration order, so this is the order icoMisc.c's inline tail has. */
+/* icoMisc.c's `inline` functions, in the order of their definitions'
+ * out-of-line copies at the end of the object (first-declaration order). */
 void ExitIcoMisc(void);
-
 void DispIcoMisc(void);
-void InitIcoMisc();
-
+void InitIcoMisc(int *arg);
 void disp_memory_partition_bar(void);
 void disp_memory_partition(void);
 void ExecIcoMisc(void);
-
 /* Six debug words nothing reads. */
 extern int dbgC0;
 extern int dbgC1;

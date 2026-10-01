@@ -15,7 +15,7 @@
 void iosOmExeEachGObj(int idx, void (*fn)(int *, int), int arg);
 void iosOmExeEachGObjAll(void (*fn)(int *, int), int arg);
 int iosOmReturnExeEachGObj(int a0, int (*fn)(int *, int), int arg, int flag);
-void iosOmGetGObjStatus(int a0, int a1);
+void iosOmGetGObjStatus(int *total, int *used);
 int *iosOmSearchGObjId(int idx, int target);
 int *iosOmSearchGObjIdAll(int a0);
 void iosOmBeforeFuncStandard(void);

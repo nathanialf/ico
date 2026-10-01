@@ -18,16 +18,16 @@ static char omSpeedName[8][8] = {"STOP", "1/1",   "1/2",  "1/3",
 
 void iosOmInit(void)
 {
-    isysGObjInit(0x140);
-    isysGObjProcessInit(0x500);
+    isysGObjInit(320);
+    isysGObjProcessInit(1280);
     isysGObjDlInit();
     return isysGObjCameraDlInit();
 }
 
-inline void iosOmGetGObjStatus(int a0, int a1)
+inline void iosOmGetGObjStatus(int *total, int *used)
 {
-    *(int *)a0 = 0x140;
-    *(int *)a1 = isysGetNbAllocedGObjs();
+    *total = 320;
+    *used = isysGetNbAllocedGObjs();
 }
 
 inline void iosOmExeEachGObj(int idx, void (*fn)(int *, int), int arg)

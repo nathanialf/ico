@@ -42,6 +42,8 @@
 #include "act-game.h"
 #include "main.h"
 #include "windField.h"
+#include "debug_exception.h"
+#include <assert.h>
 
 /* debug.h leaves it out (see there) */
 extern int debug_bar_flag;
@@ -567,7 +569,7 @@ void DispIcoMisc(void)
     if (debug_skel_flag != 0) {
         MatrixDrive_PushMatrix();
         _UnitMatrix(MatrixDrive_GetMatrix());
-        gif_StartPacketPri(0xB);
+        gif_StartPacketPri(11);
         gif_SetAlpha(1, 5, 0x80);
         for (j = -10; j < 20; j++) {
             for (i = -10; i < 10; i++) {

@@ -62,12 +62,6 @@ static unsigned char wpBuf[32]; /* derived name */
    reads */
 static char wayToolBuf[544]; /* derived name */
 
-/* Deferred-`inline` tail members: a plain `inline` function's out-of-line copy
-   is emitted at the END of the object in PROTOTYPE order, while its string
-   literals are emitted where it is DEFINED. */
-inline int play_way(void);
-inline int point_nige(void);
-inline int quick_save_wpfile(void);
 inline void cursor_control(GObj *volatile a0);
 
 static int group_create(void)

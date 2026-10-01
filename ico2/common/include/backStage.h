@@ -8,22 +8,20 @@
 #ifndef BACKSTAGE_H
 #define BACKSTAGE_H
 
-/* The declarations below lead this header because their order is load-bearing:
- * gcc 2.9 emits the deferred out-of-line copy of a plain-inline function in
- * first-declaration order, so this is the order backStage.c's inline tail has. */
+/* backStage.c's `inline` functions, in the order of their definitions'
+ * out-of-line copies at the end of the object (first-declaration order). */
 void backStageProcessInit(void);
 void backStageDebugTimeZero(void);
 void backStageTsuresariReturn(void);
-
 void backStageProcessInStage(float arg);
 void backStageProcessOutStage(void);
+void backStageProcessMain(void);
 void routeSetPos(int gobj0, int gobj1, float *out, float ratio);
-
 /* The enemy carrying the heroine off, which sceneManager sets when it takes her. */
 extern int backStageGirlTargetEnemyGop;
 
 /* the gamesys object-info record */
-typedef struct { /* field names derived */
+typedef struct GamesysObjInfo { /* field names derived */
     short flag;
     unsigned short no;
     unsigned short stage;

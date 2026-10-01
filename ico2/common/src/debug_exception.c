@@ -217,7 +217,7 @@ static inline void waitCd(void) /* derived name */
         ;
 }
 
-void initLineTraceTable(void)
+static void initLineTraceTable(void)
 {
     int fd;
     int size;
@@ -268,7 +268,7 @@ typedef struct {
    then reading the matching TRFILE.TXT line back for the report.  The 16-byte
    record goes back by value. */
 
-SrcRef traceLine(char *out, unsigned int addr)
+static SrcRef traceLine(char *out, unsigned int addr)
 {
     int pos = 0;
     int i = 0;
@@ -353,7 +353,7 @@ static inline void dispRegs(unsigned int *regs) /* derived name */
    matches.  The reference arrives by value.  The debugExcDebugDisp() call is
    the DEBUG-build TTY trace (see its definition above). */
 
-void dispSource(SrcRef ref, int lines)
+static void dispSource(SrcRef ref, int lines)
 {
     unsigned char buf[1024];
     char *line;
@@ -560,8 +560,8 @@ static inline void dispBack(int page, int tex) /* derived name */
    for every trapped cause: freeze the game, copy the register image into the
    report window, draw the saved frame back over the screen and then loop on
    the pad, paging through the three report screens. */
-void debugEEExceptionMain(int arg0, unsigned int cause, unsigned int epc, unsigned int badvaddr,
-                          unsigned int status, EeReg128 *regs)
+static void debugEEExceptionMain(int arg0, unsigned int cause, unsigned int epc,
+                                 unsigned int badvaddr, unsigned int status, EeReg128 *regs)
 {
     int code = (cause >> 2) & 0xF;
     int sel = 0;
@@ -644,9 +644,6 @@ void debugEEExceptionMain(int arg0, unsigned int cause, unsigned int epc, unsign
         ExecKeyInput();
     }
 }
-
-/* libkernl's tlbfunc.c defines it; eekernel.h does not declare it */
-extern int SetDebugHandler();
 
 inline void debugExceptionInit(void *workBuf)
 {

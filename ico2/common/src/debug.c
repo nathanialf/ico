@@ -41,8 +41,8 @@
 #include "ios.h"
 #include "staffroll.h"
 #include "DmaPacket.h"
-
-/* debug_exception_screen.c.inc (compiled into debug_exception.o) */
+#include "debug_exception.h"
+#include <assert.h>
 
 typedef struct {
     int x, y;
@@ -614,6 +614,8 @@ extern void gif_Sprite(int *r, unsigned int z, int *uv, unsigned char *col, int 
 extern void gif_Line(int *v0, int *v1, unsigned int z0, unsigned int z1, unsigned char *col,
                      int prim);
 extern void gif_StartPacketPri(int pri);
+extern void gif_SetDrawEnviroment(unsigned long long fbp, unsigned long long psm, unsigned int w,
+                                  unsigned int h, int useoffset, int clear);
 
 typedef struct {
     int x, y, z;
@@ -848,10 +850,10 @@ void debug_Assert(char *fmt, ...)
 {
     char buf[256];
     vsprintf(buf, fmt, (char *)__builtin_next_arg(fmt) - 56);
-    debug_assertMessage("src/debug.c", 0x570, buf);
-    __assert("src/debug.c", 0x570, "e");
-    debug_assert("src/debug.c", 0x571);
-    __assert("src/debug.c", 0x571, "0");
+    debug_assertMessage("src/debug.c", 1392, buf);
+    __assert("src/debug.c", 1392, "e");
+    debug_assert("src/debug.c", 1393);
+    __assert("src/debug.c", 1393, "0");
 }
 
 /* the host log file (the DEBUG build opens it) */
@@ -1408,14 +1410,14 @@ void debug_PrintFont(int a0, int a1, int a2, char *a3)
         return;
     }
     if (debug_font_flag & 2) {
-        gif_StartPacketPri(0xB);
+        gif_StartPacketPri(11);
         gif_SetZTest(0);
         gif_SetZWrite(0);
         gif_SetAlpha(1, 2, 0x80);
         gif_Sprite(&buf[0], 0xFFFFFFFDU, 0, &fontBackCol, 1);
         gif_EndPacket();
     } else {
-        gif_StartPacketPri(0xB);
+        gif_StartPacketPri(11);
         gif_SetZTest(0);
         gif_SetAlpha(1, 2, 0x80);
         gif_EndPacket();
@@ -1431,7 +1433,7 @@ inline void debug_ClearFontWindow(void)
     char *p = (char *)fontLines;
     int i;
     p += 0x5B4;
-    for (i = 0x1A; i >= 0; i--) {
+    for (i = 26; i >= 0; i--) {
         *p = 0;
         p -= 0x38;
     }
@@ -1455,7 +1457,7 @@ void debug_FlushFontWindow(void)
     memset(col, 0, 4);
     ((char *)&tmp)[3] = 0x20;
     if (debug_window_flag != 0) {
-        gif_StartPacketPri(0xB);
+        gif_StartPacketPri(11);
         gif_SetZWrite(0);
         gif_SetZTest(0);
         gif_SetAlpha(1, 2, 0x20);
@@ -1552,7 +1554,7 @@ void debug_brainBar(void)
 
     ytop = -100;
     y = ytop;
-    gif_StartPacketPri(0xB);
+    gif_StartPacketPri(11);
     gif_SetAlpha(1, 2, c3.a);
     brain = &brainGirl;
     for (i = 0; i < 40; i++) {
@@ -3280,12 +3282,12 @@ inline int debugCdvdLoadInfoSegDisp(void)
     if (loadInfoPage != 0) {
         strcpy(title, "CD LOAD INFO STAGE");
     }
-    r = debug_SelectCsvWindowVal((int)title, 0x50, 0x46, 0xA, 0x1A, (int)&loadInfoSelect,
+    r = debug_SelectCsvWindowVal((int)title, 80, 70, 10, 26, (int)&loadInfoSelect,
                                  (int (*)(int, int))debugCdvdLoadInfoSegDispFunc, loadInfoPage);
     if (pad[0].flags & 0x10) {
         int i;
         int *p = (int *)((char *)loadInfoSeg + loadInfoPage * 0xD0);
-        for (i = 0x19; i >= 0; i--) {
+        for (i = 25; i >= 0; i--) {
             p[1] = p[0];
             p += 2;
         }

@@ -573,7 +573,7 @@ void display_primary_texture_layout(int no, int sel)
         } else {
             m = 0;
         }
-        sel = ((int (*)(int, int))p->proc)(ltSelectFlag, sel);
+        sel = p->proc(ltSelectFlag, sel);
         if (sel != -1) {
             flag = 0;
             if ((pad[0].flags & 0x40) != 0) {
@@ -634,7 +634,7 @@ void exec_layout_texture(void)
         v = p->curItem;
         ltCurrentItem = v;
         if (p->proc != 0 && (fadeState == 1 || fadeState == 2)) {
-            ret = ((int (*)(int, int))p->proc)(p->word24, ret);
+            ret = p->proc(p->word24, ret);
             p->word24 = 0;
             v = p->curItem;
         } else {
@@ -701,8 +701,8 @@ static inline int lt_texture_no_of_property(int idx) /* derived name */
 
     if (no < 0) {
         debug_StdPrintfDummy("no texture loaded.(%s)\n", src);
-        debug_assert(__FILE__, 0x507);
-        __assert(__FILE__, 0x507, "0");
+        debug_assert(__FILE__, 1287);
+        __assert(__FILE__, 1287, "0");
     }
     return no;
 }

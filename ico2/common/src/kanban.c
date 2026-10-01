@@ -5,21 +5,7 @@
 #include "layout_texture.h"
 #include <assert.h>
 #include "charFileManager.h"
-
-typedef struct { /* field names derived */
-    unsigned char b[4];
-} KanbanCol; /* derived name */
-
-typedef struct Node {
-    LtProp *f0;
-    int f4;
-    int f8;
-    int fC;
-    float f10;
-    KanbanCol f14;
-    struct Node *f18;
-    struct Node *f1C;
-} Node;
+#include "kanban.h"
 
 typedef union {
     int i[4];
@@ -27,13 +13,12 @@ typedef union {
 } Pkt16;
 
 /* The list head and the sign the layout key follows (.sbss), and the pool
-   (.bss), thirty Node entries of 0x20 bytes, the count both kanbanReqAdd and
-   kanbanReqAllDel walk. */
-static int *kanbanList; /* derived name */
+   (.bss) of thirty signs that kanbanReqAdd and kanbanReqAllDel walk. */
+static Kanban *kanbanList; /* derived name */
 
-static int kanbanCurrent; /* derived name */
+static Kanban *kanbanCurrent; /* derived name */
 
-static int kanbanNodes[30 * 8]; /* derived name */
+static Kanban kanbanNodes[30]; /* derived name */
 
 /* kanban quest box over */
 static const char kanbanOverMsg[] = "かんばんクエストボックスオーバー\n"; /* derived name */
@@ -67,7 +52,6 @@ extern void gif_SpriteSensitiveOffset(int *r, unsigned int z, int *uv, unsigned 
 extern void gif_PointOffset(int *v, long long z, unsigned char *col, int prim);
 extern void gif_StartPacketPri(int pri);
 
-#include "kanban.h"
 #include <string.h>
 #include <stdlib.h>
 #include "main.h"
@@ -111,8 +95,8 @@ static inline int get_texture_no_of_property(int idx) /* derived name */
     if (no < 0) {
         debug_StdPrintfDummy("tex_id %d\n", n);
         debug_StdPrintfDummy("no texture loaded.(%s)\n", src);
-        debug_assert(__FILE__, 0x110);
-        __assert(__FILE__, 0x110, "0");
+        debug_assert(__FILE__, 272);
+        __assert(__FILE__, 272, "0");
     }
     return no;
 }
@@ -151,122 +135,115 @@ static inline int kanban_layout_key(LtProp *pr) /* derived name */
     return ret;
 }
 
-void kanbanReqAllDel(void);
-void kanbanReqAllDelFade(void);
-void kanbanExec(void);
-void kanbanReqAllDel(void);
-void kanbanReqAllDelFade(void);
-void kanbanExec(void);
-
 inline void kanbanReqAllDel(void)
 {
     int i;
-    for (i = 0x1D; i >= 0; i--) {
-        kanbanNodes[i * 8] = 0;
+    for (i = 29; i >= 0; i--) {
+        kanbanNodes[i].layout = 0;
     }
     kanbanList = 0;
     kanbanCurrent = 0;
 }
 
-Node *kanbanReqAdd(int no, int pri)
+Kanban *kanbanReqAdd(int no, int pri)
 {
-    Node *p;
+    Kanban *p;
     LtProp *pr;
-    Node *cur;
+    Kanban *cur;
     int i;
 
-    p = (Node *)kanbanNodes;
+    p = kanbanNodes;
     pr = &texLayout[no];
     for (i = 0; i < 30; i++, p++) {
-        if (p->f0 == 0)
+        if (p->layout == 0)
             goto found;
     }
     debug_StdPrintfDummy(kanbanOverMsg);
     return 0;
 
 found:
-    p->f0 = pr;
-    p->f8 = 0;
+    p->layout = pr;
+    p->key = 0;
     pr->curItem = pr->defaultItem;
-    p->fC &= ~1;
-    p->f10 = 0;
-    p->f14 = kanbanStartCol;
-    p->f4 = pri;
-    cur = (Node *)kanbanList;
+    p->flags &= ~1;
+    p->alpha = 0;
+    p->col = kanbanStartCol;
+    p->pri = pri;
+    cur = kanbanList;
     if (cur != 0) {
-        if (pri < cur->f4) {
-            cur->f1C = p;
-            p->f18 = cur;
-            p->f1C = 0;
-            kanbanList = (int *)p;
+        if (pri < cur->pri) {
+            cur->prev = p;
+            p->next = cur;
+            p->prev = 0;
+            kanbanList = p;
         } else {
             for (;;) {
-                if (cur->f18 == 0) {
+                if (cur->next == 0) {
                     goto append;
                 }
-                if (pri < cur->f4) {
+                if (pri < cur->pri) {
                     break;
                 }
-                cur = cur->f18;
+                cur = cur->next;
             }
-            p->f1C = cur->f1C;
-            cur->f1C = p;
-            p->f18 = cur;
+            p->prev = cur->prev;
+            cur->prev = p;
+            p->next = cur;
             goto done;
         append:
-            cur->f18 = p;
-            p->f1C = cur;
-            p->f18 = 0;
+            cur->next = p;
+            p->prev = cur;
+            p->next = 0;
         }
     } else {
-        kanbanList = (int *)p;
-        p->f1C = 0;
-        p->f18 = 0;
+        kanbanList = p;
+        p->prev = 0;
+        p->next = 0;
     }
 done:
     if (pr->defaultItem != -1) {
-        kanbanCurrent = (int)p;
+        kanbanCurrent = p;
     }
     return p;
 }
 
-inline void kanbanReqDel(int *self)
+inline void kanbanReqDel(Kanban *self)
 {
-    int *next = (int *)self[0x1C / 4];
-    int *prev = (int *)self[0x18 / 4];
-    if (next == 0) {
-        kanbanList = prev;
-        if (prev != 0) {
-            prev[0x1C / 4] = 0;
+    Kanban *prev = self->prev;
+    Kanban *next = self->next;
+    if (prev == 0) {
+        kanbanList = next;
+        if (next != 0) {
+            next->prev = 0;
         }
     } else {
-        next[0x18 / 4] = (int)prev;
-        if (prev != 0) {
-            ((int *)self[0x18 / 4])[0x1C / 4] = self[0x1C / 4];
+        prev->next = next;
+        if (next != 0) {
+            self->next->prev = self->prev;
         }
     }
-    self[0] = 0;
+    self->layout = 0;
 }
 
-inline void kanbanReqDelFade(int a0)
+inline void kanbanReqDelFade(Kanban *self)
 {
-    int v1 = kanbanCurrent;
-    *(int *)(a0 + 0xC) |= 1;
-    if (a0 == v1) {
+    Kanban *cur = kanbanCurrent;
+    self->flags |= 1;
+    if (self == cur) {
         kanbanCurrent = 0;
     }
 }
 
 inline void kanbanReqAllDelFade(void)
 {
-    int *p = kanbanNodes;
-    int i = 0x1D;
+    Kanban *p = kanbanNodes;
+    int i = 29;
     do {
-        if (p[0] != 0) {
-            p[3] |= 1;
+        if (p->layout != 0) {
+            p->flags |= 1;
         }
         i--;
-        p += 8;
+        p++;
     } while (i >= 0);
 }
 
@@ -364,71 +341,73 @@ static void display_texture(LtProp *pr, LtProperty *e, KanbanCol *col)
     }
 }
 
-int fade_exec(Node *p)
+int fade_exec(Kanban *p)
 {
     int ret = 0;
     float f;
 
-    if ((p->fC & 1) == 0) {
-        f = 127.0f / (p->f0->fadeInTime * (float)((60 - systemStatus[0] * 10) / systemStatus[1]));
+    if ((p->flags & 1) == 0) {
+        f = 127.0f /
+            (p->layout->fadeInTime * (float)((60 - systemStatus[0] * 10) / systemStatus[1]));
         if (f == 0.0f) {
             f = 127.0f;
         }
 
-        p->f10 = p->f10 + f;
-        if (p->f10 > 127.0f) {
-            p->f10 = 127.0f;
+        p->alpha = p->alpha + f;
+        if (p->alpha > 127.0f) {
+            p->alpha = 127.0f;
             ret = 1;
         }
     } else {
-        f = 127.0f / (p->f0->fadeOutTime * (float)((60 - systemStatus[0] * 10) / systemStatus[1]));
+        f = 127.0f /
+            (p->layout->fadeOutTime * (float)((60 - systemStatus[0] * 10) / systemStatus[1]));
         if (f == 0.0f) {
             f = 127.0f;
         }
-        p->f10 = p->f10 - f;
-        if (p->f10 < 0.0f) {
-            p->f10 = 0.0f;
+        p->alpha = p->alpha - f;
+        if (p->alpha < 0.0f) {
+            p->alpha = 0.0f;
             ret = -1;
         }
     }
-    p->f14.b[3] = (char)p->f10;
+    p->col.b[3] = (char)p->alpha;
     return ret;
 }
 
-void display_layout(Node *k)
+void display_layout(Kanban *k)
 {
     LtProp *pr;
     int i;
 
-    pr = k->f0;
+    pr = k->layout;
 
-    k->f8 = 0;
-    if (kanbanCurrent != 0 && ((Node *)kanbanCurrent)->f0 == pr && (k->fC & 1) == 0) {
-        k->f8 = kanban_layout_key(pr);
+    k->key = 0;
+    if (kanbanCurrent != 0 && kanbanCurrent->layout == pr && (k->flags & 1) == 0) {
+        k->key = kanban_layout_key(pr);
     }
 
     if (fade_exec(k) < 0) {
-        kanbanReqDel((int *)k);
+        kanbanReqDel(k);
     } else {
         for (i = pr->first; i < pr->last; i++) {
-            display_texture(pr, &texProperty[i], &k->f14);
+            display_texture(pr, &texProperty[i], &k->col);
         }
     }
 }
 
 inline void kanbanExec(void)
 {
-    Node *k;
+    Kanban *k;
     unsigned char col[4];
     Pkt16 pkt;
 
     if (kanbanList != 0) {
-        int o = (int)((Node *)kanbanList)->f0;
-        col[0] = (int)(*(float *)(o + 0x10) * 255.0f);
-        col[1] = (int)(*(float *)(o + 0x14) * 255.0f);
-        col[2] = (int)(*(float *)(o + 0x18) * 255.0f);
-        col[3] = (int)(*(float *)(o + 0x1C) * 127.0f);
-        gif_StartPacketPri(0xB);
+        LtProp *pr = kanbanList->layout;
+        col[0] = (int)(pr->colR * 255.0f);
+        col[1] = (int)(pr->colG * 255.0f);
+        col[2] = (int)(pr->colB * 255.0f);
+        col[3] = (int)(pr->colA * 127.0f);
+        gif_StartPacketPri(11);
         gif_SetZTest(0);
         gif_SetZWrite(0);
         gif_SetAlpha(1, 7, 0);
@@ -438,11 +417,11 @@ inline void kanbanExec(void)
         gif_SetZTest(1);
         gif_EndPacket();
     }
-    k = (Node *)kanbanList;
+    k = kanbanList;
     if (k != 0) {
         do {
             display_layout(k);
-            k = k->f18;
+            k = k->next;
         } while (k != 0);
     }
 }

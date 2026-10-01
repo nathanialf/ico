@@ -104,6 +104,8 @@ void scheduler(void);
 extern char movieFile[];
 /* mv_main.h does not declare it; the definition takes char * and returns int */
 extern void movie_init(void *p, int w, int h, int a3, int a4, int a5, int col);
+/* mv_main.h does not declare it either */
+extern int movie_proc(int (*poll)(void));
 /* geometryManager.h does not declare it */
 extern void MakeCharGObjList(void);
 /* StageAnimation.h does not declare it */

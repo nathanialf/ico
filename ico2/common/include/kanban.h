@@ -8,22 +8,35 @@
 #ifndef KANBAN_H
 #define KANBAN_H
 
-/* The declarations below lead this header because their order is load-bearing:
- * gcc 2.9 emits the deferred out-of-line copy of a plain-inline function in
- * first-declaration order, so this is the order kanban.c's inline tail has. */
-void kanbanReqDel(int *self);
-void kanbanReqDelFade(int a0);
+#include "layout_texture.h"
+
+typedef struct { /* field names derived */
+    unsigned char b[4];
+} KanbanCol; /* derived name */
+
+/* one sign on screen: a texture layout drawn over a backdrop, faded in and
+   out, kept in a list ordered by priority (kanbanReqAdd) */
+typedef struct Kanban {  /* field names derived */
+    LtProp *layout;      /* 0x00, the texLayout row shown, 0 for a free entry */
+    int pri;             /* 0x04, the list is kept in ascending order of it */
+    int key;             /* 0x08, this frame's key: 1 cross, 2 triangle, 0 none */
+    int flags;           /* 0x0C, bit 0: fading out */
+    float alpha;         /* 0x10, 0 to 127 */
+    KanbanCol col;       /* 0x14 */
+    struct Kanban *next; /* 0x18 */
+    struct Kanban *prev; /* 0x1C */
+} Kanban;                /* derived name */
+
+void kanbanReqDel(Kanban *self);
+void kanbanReqDelFade(Kanban *self);
 void kanbanReqAllDel(void);
 void kanbanReqAllDelFade(void);
 void kanbanExec(void);
-
 void init_textures_of_specified_property(int first, int last);
 void kanbanInit(int no);
-
+Kanban *kanbanReqAdd(int no, int pri);
 /* kanban.o's .sdata global */
 extern int kanbanCommonRead;
-
-struct Node;
-void display_layout(struct Node *k);
+void display_layout(Kanban *k);
 
 #endif /* KANBAN_H */

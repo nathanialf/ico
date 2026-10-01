@@ -33,43 +33,37 @@ inline void kanbanBootInit(void)
     bootStarted = 0;
 }
 
-/* memory-card request block shared with ios/mcard.c (the same object the
-   debug menu drives); only the words this file touches are named. */
-typedef struct {
+/* the memory-card manager block ios/mcard.c runs requests on (its McMgr);
+   only the words this file touches are named. */
+typedef struct { /* field names derived */
+
     /* the iosMc flag word.  This file clears a bit in it as one 64-bit
        quantity while ios/mcard.c takes the same block a word at a time, so
        the field carries both views. */
     union {
         long long ll;
         int w[2];
-    } f0; /* 0x00 */
+    } flags; /* 0x00 */
 
-    int f8;  /* 0x08 */
-    int fC;  /* 0x0C */
-    int f10; /* 0x10 */
-    int f14; /* 0x14 */
-    int f18; /* 0x18 */
-    int f1C; /* 0x1C */
-    int f20; /* 0x20 */
-    /* the product block iosMcLoadProductBlock reads into, the rest of the
-       0xA00-byte request block */
-    char block[0xA00 - 0x24];
-} McReq;
-
-typedef struct {
-    int *obj; /* 0x00 */
-    int f4;   /* 0x04 */
-    int f8;   /* 0x08 */
-} KanbanReq;
+    int port;      /* 0x08 */
+    int slot;      /* 0x0C */
+    int result;    /* 0x10, the last sceMcSync result */
+    int type;      /* 0x14, sceMcGetInfo's card type */
+    int free;      /* 0x18, sceMcGetInfo's free clusters */
+    int cardState; /* 0x1C */
+    int format;    /* 0x20, sceMcGetInfo's format flag */
+    /* the rest of the block, where iosMcLoadProductBlock works */
+    char block[2560 - 36];
+} McReq; /* derived name */
 
 /* .bss: the boot-time memory-card request block, on the 64-byte alignment
    of a DMA transfer buffer */
 static McReq bootMcReq __attribute__((aligned(64))); /* derived name */
 
 /* .sbss */
-static KanbanReq *bootKanban; /* derived name */ /* the sign the boot sequence is showing */
+static Kanban *bootKanban; /* derived name */ /* the sign the boot sequence is showing */
 
-static KanbanReq *bootKanbanSub; /* derived name */ /* the second sign shown beside it */
+static Kanban *bootKanbanSub; /* derived name */ /* the second sign shown beside it */
 
 /* the sign id the card check picked: 3 none, 0 ok, 4 full, -1 clear */
 static int mcKanbanId; /* derived name */
@@ -84,8 +78,6 @@ static int bootVideoMode; /* derived name */ /* the video mode in force when the
 extern void iosMcChdirProduct(void *a0);
 extern int iosMcSync(unsigned long *a0);
 extern void iosMcLoadProductBlock(void *a0);
-/* kanban.h does not declare it; kanban.c returns its own Node *, read here as KanbanReq * */
-extern KanbanReq *kanbanReqAdd(int a0, int a1);
 
 int kanbanBootMcCheck(void)
 {
@@ -106,9 +98,9 @@ int kanbanBootMcCheck(void)
         /* fallthrough */
     case 2:
         fbKeep = 1;
-        mc->f8 = mcPort;
-        mc->fC = 0;
-        mc->f0.ll &= ~2;
+        mc->port = mcPort;
+        mc->slot = 0;
+        mc->flags.ll &= ~2;
         iosMcChdirProduct(mc);
         mcCheckStep++;
         /* fallthrough */
@@ -118,13 +110,13 @@ int kanbanBootMcCheck(void)
         }
         break;
     case 4:
-        if (mc->f14 == 2) {
+        if (mc->type == 2) {
             mcKanbanId = 0;
-            if (mc->f10 == 0 && bootKanbanDone == 0) {
+            if (mc->result == 0 && bootKanbanDone == 0) {
                 mcCheckStep = 95;
                 break;
             }
-            if (mc->f20 == 0 || mc->f10 == 0 || mc->f18 >= 360) {
+            if (mc->format == 0 || mc->result == 0 || mc->free >= 360) {
                 mcCheckStep = 100;
                 break;
             }
@@ -155,12 +147,12 @@ int kanbanBootMcCheck(void)
         if (iosMcSync(mc) == 0) {
             break;
         }
-        if (mc->f10 != 0) {
+        if (mc->result != 0) {
             mcCheckStep = 100;
             break;
         }
         mcCheckStep++;
-        r = &IosMcProductFile[mc->f8];
+        r = &IosMcProductFile[mc->port];
         NonLinearCameraMove = r->cameraMove;
         systemStatus[0] = r->palMode;
         gsResetFunc(0);
@@ -206,10 +198,10 @@ int kanbanBootMcCheck(void)
         mcCheckStep++;
         break;
     case 102:
-        if (bootKanban->f8 != 1) {
+        if (bootKanban->key != 1) {
             break;
         }
-        switch (bootKanban->obj[11]) {
+        switch (bootKanban->layout->curItem) {
         case 26:
             NonLinearCameraMove = 2;
             break;
@@ -258,7 +250,7 @@ int kanbanBootMcCheck(void)
         mcCheckStep++;
         break;
     case 201:
-        switch (bootKanban->obj[11]) {
+        switch (bootKanban->layout->curItem) {
         case 33:
             systemStatus[0] = 1;
             break;
@@ -270,7 +262,7 @@ int kanbanBootMcCheck(void)
             bootVideoMode = systemStatus[0];
             gsResetFunc(0);
         }
-        if (bootKanban->f8 != 1) {
+        if (bootKanban->key != 1) {
             break;
         }
         kanbanReqDelFade(bootKanban);
@@ -302,10 +294,10 @@ int kanbanBootMcCheck(void)
         mcCheckStep++;
         break;
     case 302:
-        if (bootKanban->f8 != 1) {
+        if (bootKanban->key != 1) {
             break;
         }
-        if (bootKanban->obj[11] == 41) {
+        if (bootKanban->layout->curItem == 41) {
             mcCheckStep = -1;
             kanbanReqDelFade(bootKanbanSub);
             kanbanReqDelFade(bootKanban);
@@ -324,7 +316,7 @@ int kanbanBootMcCheck(void)
     return ret;
 }
 
-static KanbanReq *waitKanban; /* derived name */ /* the "please wait" sign */
+static Kanban *waitKanban; /* derived name */ /* the "please wait" sign */
 
 static int waitTimer; /* derived name */ /* frames left on that sign */
 
@@ -372,7 +364,7 @@ void kanbanBootMain(void)
         bootStep++;
         break;
     case 7:
-        if (waitKanban->obj != 0) {
+        if (waitKanban->layout != 0) {
             return;
         }
         kanbanBootEnd = 1;

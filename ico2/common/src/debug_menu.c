@@ -7,15 +7,15 @@
 #include "gamesys.h"
 
 /* .sdata, the "object target" menu's state: a word nothing reads, the camera target
-   to restore on cancel, the object being targeted, the display word saved from
+   to restore on cancel, the object being targeted, the camera mask saved from
    it, and the blink counter. */
 static int debugMenuUnusedWord = 0; /* derived name */
 
 static int savedCameraTarget = 0; /* derived name */
 
-static int *targetGObj = 0; /* derived name */
+static GObj *targetGObj = 0; /* derived name */
 
-static int savedDispWord = 0; /* derived name */
+static int savedDrawMask = 0; /* derived name */
 
 static int targetBlinkCount = 0; /* derived name */
 
@@ -27,7 +27,7 @@ static int debugMenuFlag1; /* derived name */
 
 static int targetGObjIdx; /* derived name */
 
-char *debug_TargetGObj_Func(int idx);
+static char *debug_TargetGObj_Func(int idx);
 
 int debug_TargetGObj(int reset)
 {
@@ -41,26 +41,26 @@ int debug_TargetGObj(int reset)
         savedCameraTarget = t;
         targetGObjIdx = GetGObjId(t);
     }
-    ret = debug_SelectCsvWindowVal((int)"object target", 0xA, 0x3C, 0xA, n, (int)&targetGObjIdx,
+    ret = debug_SelectCsvWindowVal((int)"object target", 10, 60, 10, n, (int)&targetGObjIdx,
                                    (int (*)(int, int))debug_TargetGObj_Func, 0);
-    if (targetGObj != (int *)GetGObjP(targetGObjIdx)) {
+    if (targetGObj != (GObj *)GetGObjP(targetGObjIdx)) {
         CameraSetMode(2);
         CameraChangeTargetParallel((int)targetGObj, GetGObjP(targetGObjIdx));
         if (targetGObj != 0) {
-            targetGObj[0x14] = savedDispWord;
+            targetGObj->drawMask = savedDrawMask;
         }
-        targetGObj = (int *)GetGObjP(targetGObjIdx);
-        savedDispWord = targetGObj[0x14];
+        targetGObj = (GObj *)GetGObjP(targetGObjIdx);
+        savedDrawMask = targetGObj->drawMask;
     }
-    targetGObj = (int *)GetGObjP(targetGObjIdx);
+    targetGObj = (GObj *)GetGObjP(targetGObjIdx);
     CurrentTargetGObj = (int)targetGObj;
     Camctrl_SetTarget((int)targetGObj, 0, 3);
     debug_PrintfDummy(16, 16, 0xFFFFFFFF, "GObj address:%p", CurrentTargetGObj);
     if ((targetBlinkCount++ & 7) == 0) {
-        targetGObj[0x14] = ~targetGObj[0x14];
+        targetGObj->drawMask = ~targetGObj->drawMask;
     }
     if (ret != 0) {
-        targetGObj[0x14] = savedDispWord;
+        targetGObj->drawMask = savedDrawMask;
         if (ret < 0) {
             Camctrl_SetTarget(savedCameraTarget, 0, 3);
             CurrentTargetGObj = savedCameraTarget;
@@ -76,7 +76,7 @@ void init_debug_menu(void)
     targetGObjIdx = 0;
 }
 
-char *debug_TargetGObj_Func(int idx)
+static char *debug_TargetGObj_Func(int idx)
 {
     int kind = ((GObj *)GetGObjP(idx))->kind;
     return objKindData[kind].name;

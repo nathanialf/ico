@@ -19,6 +19,10 @@
 #include "gobj_process.h"
 #include <assert.h>
 #include "main.h"
+#include "generator.h"
+#include "ebrain.h"
+#include "act.h"
+#include "debug_exception.h"
 
 /* .sbss: the three frame counts
    GetStageStartInfo hands back, which boyact's stage-entry action waits out in
@@ -403,7 +407,7 @@ void initSceneGObj(int stage, int no)
             *gen->outGObj = (char *)gobj;
         }
 
-        brainStatusDefaultSet(&brainGirl, (int)gobj, no);
+        brainStatusDefaultSet(&brainGirl, gobj, no);
 
         eBrainStatusSet(gobj, gen->kind);
 
