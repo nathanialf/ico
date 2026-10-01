@@ -18,7 +18,7 @@ static unsigned char handCameraMode; /* derived name */
    SetLimitHandCameraCorrect writes */
 static float handCameraWork[7]; /* derived name */
 
-static void RotateAccordingToStick_PatternThree(float *a, float *b, float x, float y)
+static void RotateAccordingToStick_PatternThree(float *pitch, float *yaw, float x, float y)
 {
     float *p = handCameraWork;
     float len = FSqrt(x * x + y * y);
@@ -44,7 +44,7 @@ static void RotateAccordingToStick_PatternThree(float *a, float *b, float x, flo
     else
         spd = handCameraRate * 0.008726646f * _ACTGame_GetParamF(17);
 
-    db = x * (p[5] * 3.1415927f / 180.0f) - *b;
+    db = x * (p[5] * 3.1415927f / 180.0f) - *yaw;
 
     if (y > 0.0f) {
         t = p[2];
@@ -53,7 +53,7 @@ static void RotateAccordingToStick_PatternThree(float *a, float *b, float x, flo
         if (t < 0.0f)
             t = -t;
     }
-    da = y * t - *a;
+    da = y * t - *pitch;
 
     d = FSqrt(da * da + db * db);
 
@@ -64,8 +64,8 @@ static void RotateAccordingToStick_PatternThree(float *a, float *b, float x, flo
         da = da * spd / d;
         db = db * spd / d;
     }
-    *a += da;
-    *b += db;
+    *pitch += da;
+    *yaw += db;
 }
 
 static void SetCurrentInfo(void *eye, void *at)

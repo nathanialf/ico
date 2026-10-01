@@ -12,23 +12,26 @@
 extern int eBrainBoyChaseCount;
 extern int eBrainGirlChaseCount;
 
+struct GObj;
+
 typedef struct EBSlot { /* field names derived */
     unsigned short status; /* 0x00, 0 idle, 1 chasing the boy, 2 chasing the girl */
     char pad2[2];
-    void *target;          /* 0x04, the GObj the enemy is sent after */
+    struct GObj *target;   /* 0x04, the GObj the enemy is sent after */
     float dist[2];         /* 0x08, [0] to the boy, [1] to the girl */
     int message;           /* 0x10, the brain message waiting for the enemy */
     int chaseFrames;       /* 0x14, frames spent chasing the boy */
-    void *owner;           /* 0x18, the enemy GObj the slot belongs to */
+    struct GObj *owner;    /* 0x18, the enemy GObj the slot belongs to */
 } EBSlot; /* derived name */
 
 void eBrainInit(void);
-int eBrainStatusSet(void *gop, int status);
-void eBrainSendMes(void *gop, int mes);
+void eBrainProcess(void);
+int eBrainStatusSet(struct GObj *gop, int status);
+void eBrainSendMes(struct GObj *gop, int mes);
 int GetStageFromLabel(int label);
 int eBrainGetTargetGeneratorFromLabelStage(int label, int stage);
 
-EBSlot *eBrainGetTarget(void *gop);
+EBSlot *eBrainGetTarget(struct GObj *gop);
 int eBrainGetTargetGeneratorFromLabel(int label);
 
 

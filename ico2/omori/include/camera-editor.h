@@ -8,30 +8,6 @@
 #ifndef CAMERA_EDITOR_H
 #define CAMERA_EDITOR_H
 
-/* a camera-set group record as the editor converts it: its item range and
-   the address of its item records */
-typedef struct S4C { /* field names derived */
-    int pad0[14];
-    int first;    /* 0x38, the group's first item record */
-    int end;      /* 0x3C, one past its last item record */
-    int pad40[2];
-    int items;    /* 0x48, the address of the item records, held as a word */
-} S4C; /* derived name */
-
-/* the camera box (group) record: the name, centre and half-size at 0x20 and
- * 0x2C, the pin range at 0x38 and the kind word at 0x44; the 0x4C stride is
- * camera-editor.c's */
-typedef struct { /* field names derived */
-    char name[0x20];
-    float cx, cy, cz; /* 0x20 */
-    float sx, sy, sz; /* 0x2C */
-    int pinFirst;     /* 0x38 */
-    int pinLast;      /* 0x3C */
-    char pad40[0x44 - 0x40];
-    int kind; /* 0x44 */
-    char pad48[0x4C - 0x48];
-} BoxRec; /* derived name */
-
 /* A camera pin, one item record of a camera set (0x5C bytes, copied whole):
  * the camera position and the point it looks at, two offsets of the look-at
  * point, the on flag, the field of view, the radius inside which the pin damps
@@ -57,15 +33,31 @@ typedef struct { /* field names derived */
     float ofsB[3];        /* 0x50, the look-at offset added as it is */
 } PinRec; /* derived name */
 
+/* A camera group (box) of a camera set, 0x4C bytes: the name, the box's centre
+ * and half-size, the range of the group's pins, the blend mode and the kind,
+ * and the group's pin records.  The groups lie at a 76-byte stride:
+ * camera-ico2.c reads them from the loaded set, camera-editor.c edits them in
+ * its two copies and draws and dumps them. */
+typedef struct CamGroup { /* field names derived */
+    char name[32];   /* 0x00 */
+    float center[3]; /* 0x20 */
+    float range[3];  /* 0x2C, the box's half-size */
+    int first;       /* 0x38, the group's first pin */
+    int end;         /* 0x3C, one past its last pin */
+    int mode;        /* 0x40, 2: ChaseCamera instead of the pins */
+    int kind;        /* 0x44, a change of kind restarts the monitor camera */
+    PinRec *items;   /* 0x48, the group's pin records */
+} CamGroup; /* derived name */
+
 extern PinRec cameraPinDefault;
-extern BoxRec cameraGroupDefault;
+extern CamGroup cameraGroupDefault;
 extern int curmenu;
 extern int print_y;
 extern unsigned char exit_f;
 /* A menu of the camera editor: its thread record, then the menu that opened
    it, which it wakes and hands back to on exit, and the menu's argument. */
 typedef struct MenuThread { /* field names derived */
-    char thread[0x70];
+    char thread[112];
     char *parent; /* 0x70 */
     int arg;      /* 0x74 */
 } MenuThread; /* derived name */
@@ -82,11 +74,11 @@ inline void CameraEdit_reflect_box(int box);
 inline void CameraEdit_reflect_pin(int box, int pin);
 inline int CameraEdit_BOX_NUMBER(void);
 inline int CameraEdit_PIN_NUMBER(int box);
-inline int CameraEdit_PIN_NUMBER_ALL(int *box, int n);
-inline int CameraEdit_BOX(int box);
+inline int CameraEdit_PIN_NUMBER_ALL(CamGroup *box, int n);
+inline CamGroup *CameraEdit_BOX(int box);
 inline PinRec *CameraEdit_PIN(int box, int pin);
 inline void CameraEdit_DispPin(int box, int pin);
-inline void ConvertCameraSetBuffer(int n, S4C *item, char *groups);
+inline void ConvertCameraSetBuffer(int n, CamGroup *item, char *groups);
 inline void StickToTrans(int stickV, int stickH, int vertical, int heading, float *out, int speed);
 inline void menu_2(MenuThread *m);
 inline void group_select(MenuThread *m);
@@ -106,6 +98,6 @@ typedef union Mat4 { /* field names derived */
     long long q[2];
 } Mat4; /* derived name */
 
-int CameraEdit_add_box(S4C *src);
+int CameraEdit_add_box(CamGroup *src);
 
 #endif /* CAMERA_EDITOR_H */

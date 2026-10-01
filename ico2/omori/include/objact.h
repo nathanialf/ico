@@ -10,7 +10,9 @@
 
 inline void ObjAction_CorrectGeo(int label, int unused);
 void ObjAction_Mail(void *data, int mail);
-void ObjAction_MailCenter(void *gobj, int step);
+struct GObj;
+
+void ObjAction_MailCenter(struct GObj *gobj, int step);
 void ObjAction_Init(void);
 
 

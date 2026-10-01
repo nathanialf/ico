@@ -22,20 +22,14 @@
 
 static void *ReadCameraSet(struct CamSetFile *f, int stage);
 
-/* a group record of a loaded camera set, as CameraSetCameraSet reads it */
-typedef struct CamSetItem { /* field names derived */
-    char pad0[0x48];
-    void *items; /* 0x48, the set's item records */
-} CamSetItem;    /* derived name */
-
 /* a loaded camera set: the file header, then the group records */
 typedef struct CamSetHdr { /* field names derived */
     int magic;
     int ver;
-    int count;            /* 0x08, the number of groups */
-    int total;            /* 0x0C, the number of items */
-    CamSetItem groups[1]; /* 0x10 */
-} CamSetHdr;              /* derived name */
+    int count;          /* 0x08, the number of groups */
+    int total;          /* 0x0C, the number of items */
+    CamGroup groups[1]; /* 0x10 */
+} CamSetHdr;            /* derived name */
 
 typedef struct PluralCameraSet { /* field names derived */
     int id;                      /* 0x00 */
@@ -49,16 +43,16 @@ typedef struct CamWork { /* field names derived */
 } CamWork;               /* derived name */
 
 typedef struct CameraState { /* field names derived */
-    char pad0[0x44];
+    char pad0[68];
     unsigned char active; /* 0x44 */
     char pad45[0x50 - 0x45];
-    CamWork work;    /* 0x50 */
-    float dbgA[4];   /* 0x80 */
-    float dbgB[4];   /* 0x90 */
-    float moveDist;  /* 0xA0 */
-    float atRate;    /* 0xA4 */
-    char padA8[0x8]; /* 0xA8: the run gives the record 0xB0 */
-} CameraState;       /* derived name */
+    CamWork work;   /* 0x50 */
+    float dbgA[4];  /* 0x80 */
+    float dbgB[4];  /* 0x90 */
+    float moveDist; /* 0xA0 */
+    float atRate;   /* 0xA4 */
+    char padA8[8];  /* 0xA8, to the record's 0xB0 bytes */
+} CameraState;      /* derived name */
 
 /* The per-group distance and weight arrays the group chooser scores, the
    monitor camera's whole state record, the two smoothed camera targets with
@@ -129,28 +123,17 @@ typedef struct CamSetFile { /* field names derived */
     int total;              /* 0x0C */
 } CamSetFile;               /* derived name */
 
-typedef struct CamGroup { /* field names derived */
-    char name[0x20];
-    float center[3]; /* 0x20 */
-    float range[3];  /* 0x2C, the box's half-size */
-    int first;       /* 0x38, the group's first item */
-    int last;        /* 0x3C */
-    char pad40[4];
-    int kind; /* 0x44 */
-    char pad48[4];
-} CamGroup; /* derived name */
-
 typedef struct CamItemV0 { /* 0x38 */ /* field names derived */
-    unsigned char _0[0x38];
-} CamItemV0; /* derived name */
+    unsigned char pin[56];            /* a version-0 pin record */
+} CamItemV0;                          /* derived name */
 
 typedef struct CamItemV1 { /* 0x40 */ /* field names derived */
-    unsigned char _0[0x40];
-} CamItemV1; /* derived name */
+    unsigned char pin[64];            /* a version-1 pin record */
+} CamItemV1;                          /* derived name */
 
 typedef struct CamItemV2 { /* 0x50 */ /* field names derived */
-    unsigned char _0[0x50];
-} CamItemV2; /* derived name */
+    unsigned char pin[80];            /* a version-2 pin record */
+} CamItemV2;                          /* derived name */
 
 inline void SetCameraZoomOffsetRatio(float val)
 {
@@ -159,8 +142,8 @@ inline void SetCameraZoomOffsetRatio(float val)
 
 void CameraSetCameraSet(int id)
 {
-    CamSetItem *p;
-    CamSetItem *end;
+    CamGroup *p;
+    CamGroup *end;
     int n;
     int i;
 
@@ -169,9 +152,9 @@ void CameraSetCameraSet(int id)
     p = ((CamSetHdr *)TopCameraSetDataOfCurrentStage)->groups;
     end = &p[n];
     for (i = 0; i < n; i++) {
-        p[i].items = end;
+        p[i].items = (PinRec *)end;
     }
-    ReflectCameraSetBinary((S4C *)p, n);
+    ReflectCameraSetBinary(p, n);
 }
 
 void CameraSetCameraSet_Default(void)
@@ -523,16 +506,7 @@ static inline int setHandCameraRates(float a, float b) /* derived name */
     return (60 - systemStatus[0] * 10) / systemStatus[1];
 }
 
-typedef struct CamSetGroup { /* 76 */ /* field names derived */
-    char pad0[0x38];
-    int first; /* 0x38 */
-    int last;  /* 0x3C */
-    int mode;  /* 0x40 */
-    char pad44[0x48 - 0x44];
-    PinRec *items; /* 0x48 */
-} CamSetGroup;     /* derived name */
-
-#define CAMSET_GROUP(n) ((CamSetGroup *)(cameraSetGroups + (n) * 76))
+#define CAMSET_GROUP(n) ((CamGroup *)(cameraSetGroups + (n) * 76))
 
 /* the debug markers' pulse, two steps a frame */
 static int markerPulse = 0; /* derived name */
@@ -590,7 +564,7 @@ static void CameraMove(int group, float *pos, float *out, float *ofsA, float *of
     sum = ofsA[2];
     i = 0;
     for (p = &CAMSET_GROUP(group)->items[CAMSET_GROUP(group)->first];
-         p != &CAMSET_GROUP(group)->items[CAMSET_GROUP(group)->last]; p++) {
+         p != &CAMSET_GROUP(group)->items[CAMSET_GROUP(group)->end]; p++) {
         if (p->on != 0) {
             {
                 Mat4 tv;
@@ -611,7 +585,7 @@ static void CameraMove(int group, float *pos, float *out, float *ofsA, float *of
     } else if (i < 5) {
         i = 0;
         for (p = &CAMSET_GROUP(group)->items[CAMSET_GROUP(group)->first];
-             p != &CAMSET_GROUP(group)->items[CAMSET_GROUP(group)->last]; p++) {
+             p != &CAMSET_GROUP(group)->items[CAMSET_GROUP(group)->end]; p++) {
             if (p->on != 0) {
                 cameraWeight[i] = (sum - cameraWeight[i]) * (sum - cameraWeight[i]);
                 i++;
@@ -621,7 +595,7 @@ static void CameraMove(int group, float *pos, float *out, float *ofsA, float *of
         cameraWeightStat(cameraWeight, i, &sd, &mean);
         i = 0;
         for (p = &CAMSET_GROUP(group)->items[CAMSET_GROUP(group)->first];
-             p != &CAMSET_GROUP(group)->items[CAMSET_GROUP(group)->last]; p++) {
+             p != &CAMSET_GROUP(group)->items[CAMSET_GROUP(group)->end]; p++) {
             if (p->on != 0) {
                 cameraWeight[i] = (cameraWeight[i] - mean) * 10.0f / sd + 50.0f;
                 if (cameraWeight[i] < 0.0f || 100.0f < cameraWeight[i]) {
@@ -641,14 +615,14 @@ static void CameraMove(int group, float *pos, float *out, float *ofsA, float *of
     }
     i = 0;
     for (p = &CAMSET_GROUP(group)->items[CAMSET_GROUP(group)->first];
-         p != &CAMSET_GROUP(group)->items[CAMSET_GROUP(group)->last]; p++) {
+         p != &CAMSET_GROUP(group)->items[CAMSET_GROUP(group)->end]; p++) {
         if (p->on != 0) {
             if (p->range != 0.0f && cameraDist[i] < p->range) {
                 u = (cameraDist[i] - 100.0f) / p->range;
                 rate = u < 0.0001f ? 0.0001f : (1.0f < u ? 1.0f : u);
                 j = 0;
                 for (r = &CAMSET_GROUP(group)->items[CAMSET_GROUP(group)->first];
-                     r != &CAMSET_GROUP(group)->items[CAMSET_GROUP(group)->last]; r++) {
+                     r != &CAMSET_GROUP(group)->items[CAMSET_GROUP(group)->end]; r++) {
                     if (r->on != 0) {
                         if (j != i) {
                             cameraWeight[j] = cameraWeight[j] * rate;
@@ -663,7 +637,7 @@ static void CameraMove(int group, float *pos, float *out, float *ofsA, float *of
     total = 0.0f;
     i = 0;
     for (p = &CAMSET_GROUP(group)->items[CAMSET_GROUP(group)->first];
-         p != &CAMSET_GROUP(group)->items[CAMSET_GROUP(group)->last]; p++) {
+         p != &CAMSET_GROUP(group)->items[CAMSET_GROUP(group)->end]; p++) {
         if (p->on != 0) {
             total = total + cameraWeight[i];
             i++;
@@ -683,7 +657,7 @@ static void CameraMove(int group, float *pos, float *out, float *ofsA, float *of
     e4 = 0.0f;
     i = 0;
     for (p = &CAMSET_GROUP(group)->items[CAMSET_GROUP(group)->first];
-         p != &CAMSET_GROUP(group)->items[CAMSET_GROUP(group)->last]; p++) {
+         p != &CAMSET_GROUP(group)->items[CAMSET_GROUP(group)->end]; p++) {
         if (p->on != 0) {
             w = cameraWeight[i] / total;
             acc[0] = acc[0] + p->pos[0] * w;
@@ -722,7 +696,7 @@ static void CameraMove(int group, float *pos, float *out, float *ofsA, float *of
     out[8] = e0;
 }
 
-inline int GetSizeOfCameraSetBinary(S4C *p, int n)
+inline int GetSizeOfCameraSetBinary(CamGroup *p, int n)
 {
     int size = n * 76;
     int i;
@@ -733,19 +707,19 @@ inline int GetSizeOfCameraSetBinary(S4C *p, int n)
     return size;
 }
 
-inline void MakeCameraSetBinary(S4C *src, int count, S4C *dst)
+inline void MakeCameraSetBinary(CamGroup *src, int count, CamGroup *dst)
 {
     int total = 0;
     PinRec *out = (PinRec *)(dst + count);
-    int outBase = (int)out;
-    S4C *s;
+    PinRec *outBase = out;
+    CamGroup *s;
     for (s = src; s != src + count; dst++, s++) {
         PinRec *is;
         *dst = *s;
         dst->first = total;
         dst->items = outBase;
-        is = ((PinRec *)s->items) + s->first;
-        while (is != (((PinRec *)s->items) + s->end)) {
+        is = s->items + s->first;
+        while (is != s->items + s->end) {
             *out = *is;
             out++;
             total++;
@@ -756,7 +730,7 @@ inline void MakeCameraSetBinary(S4C *src, int count, S4C *dst)
     }
 }
 
-void ReflectCameraSetBinary(S4C *src, int count)
+void ReflectCameraSetBinary(CamGroup *src, int count)
 {
     if (cameraSetBuf != 0) {
         iosFree(cameraSetBuf);
@@ -767,7 +741,7 @@ void ReflectCameraSetBinary(S4C *src, int count)
     cameraSetGroups = cameraSetBuf;
     cameraSetGroupsEnd = cameraSetBuf + count * 76;
     cameraSetGroupNum = count;
-    MakeCameraSetBinary(src, count, (S4C *)cameraSetBuf);
+    MakeCameraSetBinary(src, count, (CamGroup *)cameraSetBuf);
 }
 
 void InitIco2Camera(void)
@@ -1032,7 +1006,7 @@ static void *ReadCameraSet(CamSetFile *f, int stage)
 
         total = 0;
         for (i = 0; i < n; i++) {
-            total += og[i].last - og[i].first;
+            total += og[i].end - og[i].first;
         }
         f->total = n_pin = total;
         debug_StdPrintfDummy("n_group[%d], n_pin[%d]\n", n, n_pin);
@@ -1063,7 +1037,7 @@ static void *ReadCameraSet(CamSetFile *f, int stage)
 
         total = 0;
         for (i = 0; i < n; i++) {
-            total += og[i].last - og[i].first;
+            total += og[i].end - og[i].first;
         }
         f->total = n_pin = total;
         debug_StdPrintfDummy("n_group[%d], n_pin[%d]\n", n, n_pin);
@@ -1092,7 +1066,7 @@ static void *ReadCameraSet(CamSetFile *f, int stage)
 
         total = 0;
         for (i = 0; i < n; i++) {
-            total += og[i].last - og[i].first;
+            total += og[i].end - og[i].first;
         }
         f->total = n_pin = total;
         debug_StdPrintfDummy("n_group[%d], n_pin[%d]\n", n, n_pin);
@@ -1119,7 +1093,7 @@ static void *ReadCameraSet(CamSetFile *f, int stage)
 
         total = 0;
         for (i = 0; i < n; i++) {
-            total += og[i].last - og[i].first;
+            total += og[i].end - og[i].first;
         }
         f->total = n_pin = total;
         debug_StdPrintfDummy("n_group[%d], n_pin[%d]\n", n, n_pin);

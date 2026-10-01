@@ -16,12 +16,12 @@ extern int monitorCameraHold;      /* the title shortcut holds the monitor camer
 extern int insertCameraBlendTimer; /* frames left of the blend after an insert camera */
 void Camctrl_ExitEveRock(void);
 void Camctrl_SetTarget(struct GObj *gobj, struct GObj *subGObj, int pri);
-void CameraChangeTargetParallel(struct GObj *from, struct GObj *to);
+void CameraChangeTargetParallel(struct GObj *oldTarget, struct GObj *newTarget);
 int CameraGetMode(void);
 void CameraGetOtherObjOffset(float *pos, float *outDist, int *outAngle);
 struct GObj *CameraGetTarget(void);
 void CameraGetTargets(struct GObj **gobj, struct GObj **subGObj);
-void CameraSetMode(int x);
+void CameraSetMode(int mode);
 void *GetCameraPos(void);
 int *GetCurrentCameraSet2(void);
 void InitCamera(void);
@@ -45,7 +45,7 @@ void SetHandCameraLimitInDemo(int limitP, int limitV);
 void SetMonitorCameraInitializeFlag(void);
 void SetWSMatrix(void *src);
 void SetZoomMaxValInDemo(int zoom);
-void CameraSetTargetGObj(struct GObj *a, struct GObj *b);
+void CameraSetTargetGObj(struct GObj *gobj, struct GObj *subGObj);
 int UpdateHandCameraLimitP(void);
 int UpdateHandCameraLimitV(void);
 int UpdateZoomMaxVallInDemo(void);

@@ -26,7 +26,7 @@ static inline void brainSetTargetTimer(BrainTarget *t) /* derived name */
 Brain brainGirl = {0};
 
 static void brainAddLevel(BrainTarget *t, float lv);
-static void brainSetLevel(int *b, BrainTarget *t, float lv);
+static void brainSetLevel(Brain *b, BrainTarget *t, float lv);
 
 void brainAddLevelGirl(float lv)
 {
@@ -410,7 +410,7 @@ void brainSetLevelGop(GObj *gobj, float lv, int lookOnly, int alwaysSeen)
         if (((BrainTarget *)tgt)[i].gobj == gobj) {
             ((BrainTarget *)tgt)[i].byte18 = lookOnly;
             ((BrainTarget *)tgt)[i].alwaysSeen = alwaysSeen;
-            brainSetLevel((int *)brain, &((BrainTarget *)tgt)[i], lv);
+            brainSetLevel((Brain *)brain, &((BrainTarget *)tgt)[i], lv);
         }
     }
 }
@@ -483,13 +483,13 @@ static void brainAddLevel(BrainTarget *t, float lv)
     t->level = r;
 }
 
-static void brainSetLevel(int *b, BrainTarget *t, float lv)
+static void brainSetLevel(Brain *b, BrainTarget *t, float lv)
 {
     int cond;
     if (t->alwaysSeen != 0) {
         cond = 1;
     } else {
-        cond = ACTGameView_Check(*b, t->gobj) != 0;
+        cond = ACTGameView_Check(b->girl, t->gobj) != 0;
     }
     if (cond) {
         float r;

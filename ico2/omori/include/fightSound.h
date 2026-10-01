@@ -12,5 +12,7 @@ void fightSoundClose(void);
 int fightSoundPlayChk(void);
 void fightSoundProcessRequestPause(void);
 void fightSoundProcessRequestStart(void);
+void fightSoundProcess(void);
+int fightSoundProcessRequestStatus(void);
 
 #endif /* FIGHTSOUND_H */

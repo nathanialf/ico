@@ -63,7 +63,7 @@ inline void ObjAction_Mail(void *data, int mail)
     }
 }
 
-inline void ObjAction_MailCenter(void *gobj, int step)
+inline void ObjAction_MailCenter(GObj *gobj, int step)
 {
     int i;
     const ObjActMailEnt *e;
@@ -71,7 +71,7 @@ inline void ObjAction_MailCenter(void *gobj, int step)
 
     for (i = 0; i < 33; i++) {
         e = &objTrigger[i];
-        if (((GObj *)gobj)->labelId != e->labelId)
+        if (gobj->labelId != e->labelId)
             continue;
         n = e->triggerNo;
         if (step > 0) {

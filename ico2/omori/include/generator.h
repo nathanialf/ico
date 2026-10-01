@@ -36,24 +36,24 @@ int GetsizeGeneratorPacket(void);
 int RestoreGeneratorGeo(float *dst, float *src);
 int RestoreGeneratorExtGeo(struct GObj *gobj, short *info);
 int MemoryGenerator(short *info, struct GObj *gobj);
-void *IsEnableCallEnemy(struct GObj *self);
+struct GObj *IsEnableCallEnemy(struct GObj *self);
 
 struct GObj *DirectCallEnemy(struct GObj *gobj, struct GObj *mother, float *pos, float *dir,
                              int kind);
 
-void LockEnemyGenerate(int *self);
-void UnlockEnemyGenerate(void *gobj);
+void LockEnemyGenerate(struct GObj *gobj);
+void UnlockEnemyGenerate(struct GObj *gobj);
 void RestoreReviveCount(struct GObj *gobj);
 void ReturnEnemyToGenerator(int label);
 int GeneratorWorkEnd(struct GObj *gobj);
 int SearchActiveGenerator(void);
-void ResetReviveCountEnemy(int gobj);
+void ResetReviveCountEnemy(struct GObj *gobj);
 void SetInfoSpKidnapGenerator(short *info);
 void SetInfoSpKidnapEnemy(short *work);
 inline int IsOpenGenerator(struct GObj *gobj);
-int IsEnableCallEnemyByTargetGObj(void *gobj);
+int IsEnableCallEnemyByTargetGObj(struct GObj *gobj);
 int CheckGeneratorCollision(struct GObj *gobj, float *dir);
-void Generator_Delete(void *gobj);
+void Generator_Delete(struct GObj *gobj);
 void Generator_QuickCall(struct GObj *gobj);
 void GetGeneratorSafePosition(float *dst, struct GObj *gobj);
 int GetMotherGenerator(int label);

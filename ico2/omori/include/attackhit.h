@@ -36,5 +36,6 @@ int _AttackCenter(struct GObj *gop, int group, float *pos, float *ofs, float rad
 
 void AttackCenter_WithDir(struct GObj *gop, int group, float *pos, float *dir, float radius);
 void EnemyAttackCenter(struct GObj *gobj);
+void BoyAttackCenter(struct GObj *gobj);
 
 #endif /* ATTACKHIT_H */

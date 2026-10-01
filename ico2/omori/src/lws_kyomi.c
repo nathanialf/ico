@@ -214,7 +214,7 @@ void DebugHintStart(GObj *gobj)
 
 int GetSizeHintSaveInfo(void)
 {
-    return 120;
+    return sizeof(hintWork);
 }
 
 char *GetBuffHintSaveInfo(void)

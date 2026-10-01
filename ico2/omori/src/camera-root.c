@@ -516,9 +516,9 @@ static inline void InsertCamera_Step(void) /* derived name */
 }
 
 /* CameraSetMode's body: set the mode and stop the target set's move */
-static inline void cameraSetMode(int x) /* derived name */
+static inline void cameraSetMode(int mode) /* derived name */
 {
-    cameraMode = x;
+    cameraMode = mode;
     targetCameraSet.moving = 0;
 }
 
@@ -782,10 +782,10 @@ GObj *GetCameraDefaultTargetGObj(void)
     return boyGObj;
 }
 
-void CameraSetTargetGObj(GObj *a, GObj *b)
+void CameraSetTargetGObj(GObj *gobj, GObj *subGObj)
 {
-    cameraTargetGObj = a;
-    cameraTargetSubGObj = b;
+    cameraTargetGObj = gobj;
+    cameraTargetSubGObj = subGObj;
 }
 
 void CameraChangeTargetParallel(GObj *oldTarget, GObj *newTarget)
@@ -822,9 +822,9 @@ void CameraGetTargets(GObj **gobj, GObj **subGObj)
     *subGObj = cameraTargetSubGObj;
 }
 
-void CameraSetMode(int x)
+void CameraSetMode(int mode)
 {
-    cameraMode = x;
+    cameraMode = mode;
     targetCameraSet.moving = 0;
 }
 

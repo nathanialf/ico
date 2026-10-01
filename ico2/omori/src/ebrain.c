@@ -24,7 +24,7 @@ static int boyTargetNum; /* derived name */
 
 static int girlTargetNum; /* derived name */
 
-static void *girlHolder; /* derived name */
+static GObj *girlHolder; /* derived name */
 
 static int enemiesWait; /* derived name */
 
@@ -55,7 +55,7 @@ static inline void eBrainSetStatus(EBSlot *p, int newst) /* derived name */
     p->status = newst;
 }
 
-static inline EBSlot *eBrainGetPacket(void *gop) /* derived name */
+static inline EBSlot *eBrainGetPacket(GObj *gop) /* derived name */
 {
     int i;
 
@@ -81,7 +81,7 @@ inline void eBrainInit(void)
     }
 }
 
-inline int eBrainStatusSet(void *gop, int status)
+inline int eBrainStatusSet(GObj *gop, int status)
 {
     EBSlot *slot;
     int i;
@@ -275,7 +275,7 @@ int eBrainGetTargetGeneratorFromLabel(int label)
     return GeneratorLabel;
 }
 
-static inline int eBrainCanSeeTarget(void *gop, void *target) /* derived name */
+static inline int eBrainCanSeeTarget(GObj *gop, GObj *target) /* derived name */
 {
     float mypos[4];
     float tpos[4];
@@ -287,7 +287,7 @@ static inline int eBrainCanSeeTarget(void *gop, void *target) /* derived name */
     return ACTCheckViewCl(gop, target, tpos, 180, 100.0f);
 }
 
-EBSlot *eBrainGetTarget(void *gop)
+EBSlot *eBrainGetTarget(GObj *gop)
 {
     EBSlot *p;
     int changed;
@@ -459,7 +459,7 @@ EBSlot *eBrainGetTarget(void *gop)
     return p;
 }
 
-inline void eBrainSendMes(void *gop, int mes)
+inline void eBrainSendMes(GObj *gop, int mes)
 {
     EBSlot *p = eBrainGetPacket(gop);
 
