@@ -94,8 +94,8 @@ typedef struct { /* field names derived */
     /* 0x180 */ int cur;
     /* 0x184 */ int objSize; /* the object buffers' size, bytes until init ends, then quadwords */
     /* 0x188 */ PrimParticleObj *objs[2];
-    /* 0x190 */ int vtx;     /* the vertices of the buffer being drawn (objs + 0x70) */
-    /* 0x194 */ int vtxNext; /* the vertices of the other buffer */
+    /* 0x190 */ void *vtx;     /* the vertices of the buffer being drawn (objs + 0x70) */
+    /* 0x194 */ void *vtxNext; /* the vertices of the other buffer */
 } PrimParticle;              /* derived name */
 
 void prim_DeleteParticle(PrimParticle *p);

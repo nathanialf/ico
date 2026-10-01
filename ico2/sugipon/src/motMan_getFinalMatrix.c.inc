@@ -54,9 +54,11 @@ static inline void getLocalTargetDir(float *out, float *pos) /* derived name */
 
 /* lim is the motion program's interp record, the same one limitInterpAngle
    reads at +0x30 and +0x48.  hp and pp are the heading and pitch of the turn
-   being limited, bp the bank the record's tables interpolate from them. */
+   being limited, bp the bank the record's tables interpolate from them;
+   prevH is the heading the turn had, whose side the new one may not cross to,
+   and prevP the pitch it had. */
 static void limitHPAngleAndSetB(short *hp, short *pp, short *bp, MotLimAng *lim, short h,
-                                short kind, short p, short unused, int setb, int setflag,
+                                short prevH, short p, short prevP, int setb, int setflag,
                                 float rate)
 {
     *hp = h;
@@ -75,7 +77,7 @@ static void limitHPAngleAndSetB(short *hp, short *pp, short *bp, MotLimAng *lim,
         float t;
         float rp;
 
-        if (kind < 0 && *hp > 0) {
+        if (prevH < 0 && *hp > 0) {
             int base = rev - 32768;
             short d = (-*hp - base) / rate;
 
@@ -86,7 +88,7 @@ static void limitHPAngleAndSetB(short *hp, short *pp, short *bp, MotLimAng *lim,
                 }
             }
         }
-        if (kind > 0 && *hp < 0) {
+        if (prevH > 0 && *hp < 0) {
             int base = rev - 32768;
             short d = (*hp - base) / rate;
 
@@ -330,8 +332,7 @@ static void _getFinalMatrix(int id)
 {
     SkelNode *node = &skelNode[id];
     char *elem = skelMotion + id * 32;
-    /* the node's IK state and limit table (Sub15C nodeRotElem and nodeLimit),
-       addressed from the root block */
+    /* Sub15C nodeRotElem and nodeLimit, reached from the root block (the ROM adds 160 first) */
     char *geo = (char *)GOBJ_SUB(skelGObj) + 0xA0;
     MotIk *ik = *(MotIk **)(geo + 0x76C) + id;
     MotLimAng *lim = ((MotLimAng **)*(char **)(geo + 0x770))[id];
@@ -534,8 +535,8 @@ static void _getFinalMatrix(int id)
                 h /= n;
                 hv /= n;
             }
-            limitHPAngleAndSetB(&ha, &pa, &ba, lim, h, ik->h, -p, -ik->p, 0, 0, rate);
-            limitHPAngleAndSetB(&hb, &pb, &bb, lim, hv, ik->h, -p, -ik->p, 0, 0, rate);
+            limitHPAngleAndSetB(&ha, &pa, &ba, lim, h, ik->prevH, -p, -ik->pitch, 0, 0, rate);
+            limitHPAngleAndSetB(&hb, &pb, &bb, lim, hv, ik->prevH, -p, -ik->pitch, 0, 0, rate);
             pb *= -1;
             {
                 float r[4];
@@ -555,10 +556,12 @@ static void _getFinalMatrix(int id)
                 RegularizeQuaternion(ik->q);
                 DivQuaternion(ik->offset, ik->q, GetCurrentQuaternion());
             }
-            ik->dp = ik->dp + ((pb - ik->p) * (skelRoot->ikRate1 * 30.0f / MOT_FPS) - ik->dp) *
-                                  (skelRoot->ikRate2 * 30.0f / MOT_FPS);
-            ik->p += ik->dp;
-            skelRoot->b = ik->p * ik->rate;
+            ik->pitchSpeed =
+                ik->pitchSpeed +
+                ((pb - ik->pitch) * (skelRoot->ikRate1 * 30.0f / MOT_FPS) - ik->pitchSpeed) *
+                    (skelRoot->ikRate2 * 30.0f / MOT_FPS);
+            ik->pitch += ik->pitchSpeed;
+            skelRoot->b = ik->pitch * ik->rate;
         }
         {
             RotQuaternionX(GetCurrentQuaternion(), skelRoot->twist * 2.5f);

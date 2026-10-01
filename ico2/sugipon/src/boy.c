@@ -20,7 +20,7 @@
 #include <libvu0.h>
 #include "Matrix.h"
 
-typedef struct { /* 0x10 */
+typedef struct { /* field names derived */
     float x, y, z, w;
 } __attribute__((aligned(16))) LLVec; /* derived name */
 
@@ -32,7 +32,7 @@ typedef struct LightLineExt { /* field names derived */
 
 /* The colour record LightLineDL builds for DrawLineG: four 32-bit
    components, 16-byte aligned. */
-typedef struct { /* 0x10 */
+typedef struct { /* field names derived */
     int r, g, b, a;
 } __attribute__((aligned(16))) LLColor; /* derived name */
 

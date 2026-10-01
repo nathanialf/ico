@@ -81,25 +81,36 @@ typedef struct PEPartRec { /* field names derived */
 /* The 128-byte per-effect geometry object SetParticleEffectByPartition
    allocates: the emitter's position and orientation, its package, the
    particle records and the primitive that draws them, the emission count, the
-   floor clamp and the rate, and the callback a geometry-controlled effect
-   runs instead of the integrator. */
-typedef struct PEGeo {       /* field names derived */
-    float pos[4];            /* 0x00 */
-    float quat[4];           /* 0x10 */
-    struct PEPackage *pkg;   /* 0x20 */
-    struct PEPartRec *parts; /* 0x24 */
-    PrimParticle *prim;      /* 0x28 */
-    float emitted;           /* 0x2C */
-    int n;                   /* 0x30 */
-    int clip;                /* 0x34 */
-    int floorOn;             /* 0x38 */
-    float floor;             /* 0x3C */
-    float rate;              /* 0x40 */
-    char pad44[32];          /* 0x44 */
-    int (*proc)(void *);     /* 0x64 */
-    void (*endFunc)(int);    /* 0x68, the end callback a proc of ito's gather effect calls */
-    char pad6C[20];          /* 0x6C */
-} PEGeo;                     /* derived name */
+   floor clamp and the rate, then the goal the particles converge on
+   (ParticleEffects_SetAllGoal) and the user area of a proc that moves the
+   particles instead of the integrator (ito's gather effect): its speed, the
+   proc, the end callback with its argument and the caller's word. */
+typedef struct PEGeo {            /* field names derived */
+    float pos[4];                 /* 0x00 */
+    float quat[4];                /* 0x10 */
+    struct PEPackage *pkg;        /* 0x20 */
+    struct PEPartRec *parts;      /* 0x24 */
+    PrimParticle *prim;           /* 0x28 */
+    float emitted;                /* 0x2C */
+    int n;                        /* 0x30 */
+    int clip;                     /* 0x34 */
+    int floorOn;                  /* 0x38 */
+    float floor;                  /* 0x3C */
+    float rate;                   /* 0x40 */
+    char pad44[12];               /* 0x44 */
+    float goal[4];                /* 0x50 */
+    float speed;                  /* 0x60 */
+    int (*proc)(struct PEGeo *);  /* 0x64, 0 for none; the effect ends when it returns 0 */
+    void (*endFunc)(int);         /* 0x68 */
+    int id;                       /* 0x6C, the effect's id, endFunc's argument */
+
+    union {
+        int capsule;        /* the boss capsule the effect gathers at */
+        volatile int *done; /* the releasing thread's done flag */
+    } user;                 /* 0x70 */
+
+    char pad74[12];
+} PEGeo; /* derived name */
 
 /* particle-effect: one particle effect file, 0x50 bytes. Readers:
  * ico2/common/src/icoMisc.c, ico2/sugipon/src/effectTool.c (the path at

@@ -4,8 +4,8 @@
 #include <eekernel.h>
 
 /* the two running totals AddMotionMemorySize keeps, one per motion class
-   (its second argument picks the class; the node_id 4 reset clears the
-   second) */
+   (its second argument picks the class; the reset of the area-4, dynamic,
+   motions clears the second) */
 static int motionMemorySize; /* derived name */
 
 static int motionMemorySizeStatic2; /* derived name */
@@ -22,7 +22,7 @@ inline void ResetDynamicMotionManager(void)
 {
     int i;
     for (i = 0; i <= 1146; i++) {
-        if (motionKind[i].node_id == 4) {
+        if (motionKind[i].area == 4) {
             motionTable[i] = 0;
         }
     }
@@ -33,7 +33,7 @@ inline void ResetStatic2MotionManager(int seg)
 {
     int i;
     for (i = 0; i <= 1146; i++) {
-        if (motionKind[i].node_id == seg) {
+        if (motionKind[i].area == seg) {
             motionTable[i] = 0;
         }
     }

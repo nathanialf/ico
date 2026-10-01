@@ -154,7 +154,7 @@ typedef struct {     /* field names derived */
     float
         rootOffset[3]; /* 0x124, the root's offset the direct-play update takes off the position */
     int wallFeedback;  /* 0x130, the wall work is fed back to the brain */
-    int node_id;       /* 0x134, the motion file's node */
+    int area;          /* 0x134, the motion memory area: 0 static, 4 dynamic, else swap */
     float weaponFrame; /* 0x138 */
     int shiftStart;    /* 0x13C */
     int shiftLength;   /* 0x140 */

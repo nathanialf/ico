@@ -828,8 +828,8 @@ static void calcBlur(GObj *g, float t)
         if (h != -1) {
             pd = GetParticleEffectData(h);
             vtx = pd->parts;
-            dst1 = (char *)pd->prim->vtx;
-            dst2 = (char *)pd->prim->vtxNext;
+            dst1 = pd->prim->vtx;
+            dst2 = pd->prim->vtxNext;
             ExecParticleEffect(h);
             for (j = 0; j < pd->n; j++) {
                 k = j * 10 / pd->n;

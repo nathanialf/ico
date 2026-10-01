@@ -22,7 +22,7 @@ typedef struct PointBlur { /* field names derived */
     /* 0x10 */ GifColor *stripCol;
     /* 0x14 */ GifColor col;
     /* 0x18 */ long long _pad18; /* gives the record 8-byte alignment */
-    /* 0x20 */ float pos[4];
+    /* 0x20 */ float rate[4];    /* 1 1 1 1, the eye's 0.3 0.7 1 0; nothing reads it */
     /* 0x30 */ int dirty;
     /* 0x34 */ int alpha;
     /* 0x38 */ char _pad38[8];
@@ -114,7 +114,7 @@ static EnemyFootPrint footPrintVtxTemplate = {-1, 1.0f}; /* derived name */
 
 /* the body of InitPointBlur, which InitEnemyEye inlines and InitPointBlur
    calls */
-static inline PointBlur *initPointBlurAt(int num, int pri, int *col, void *pos) /* derived name */
+static inline PointBlur *initPointBlurAt(int num, int pri, int *col, float *rate) /* derived name */
 {
     PointBlur *p = (PointBlur *)iosMallocDebug(ios_partition_sugipon, 64, "src/enemyParts.c", 16);
     *p = pointBlurTemplate;
@@ -129,7 +129,7 @@ static inline PointBlur *initPointBlurAt(int num, int pri, int *col, void *pos) 
     p->col.g = col[1];
     p->col.b = col[2];
     p->col.a = col[3];
-    _CopyVector(p->pos, pos);
+    _CopyVector(p->rate, rate);
     return p;
 }
 
@@ -285,9 +285,9 @@ int DispEnemyFootPrints(EnemyFootPrintHead *self)
     return 1;
 }
 
-PointBlur *InitPointBlur(int num, int pri, int *col, void *pos)
+PointBlur *InitPointBlur(int num, int pri, int *col, float *rate)
 {
-    return initPointBlurAt(num, pri, col, pos);
+    return initPointBlurAt(num, pri, col, rate);
 }
 
 int DispPointBlur(PointBlur *self)

@@ -491,16 +491,17 @@ typedef struct SkelNode { /* field names derived */
 
 /* One 64-byte IK state of a skeleton node, the array Sub15C nodeRotElem
    points at: the blend rate _getFinalMatrix eases toward its target, the
-   heading, pitch and pitch step of the look turn, the node's IK rotation, the
-   per-frame step slerped toward it and its offset from the motion's own
-   rotation */
+   previous heading the look turn's limit is checked against (only the
+   initial copies write it, with 0), the eased pitch and its per-frame speed,
+   the node's IK rotation, the per-frame step slerped toward it and its
+   offset from the motion's own rotation */
 typedef struct MotIk { /* field names derived */
     float rate;       /* 0x00 */
-    short h;          /* 0x04 */
+    short prevH;      /* 0x04 */
     short pad06;
-    short p;          /* 0x08 */
+    short pitch;      /* 0x08 */
     short pad0A[2];
-    short dp;         /* 0x0E */
+    short pitchSpeed; /* 0x0E */
     float q[4];       /* 0x10 */
     float step[4];    /* 0x20 */
     float offset[4];  /* 0x30 */
@@ -510,7 +511,7 @@ struct Sub15C { /* field names derived */
     ObjNode
         parent; /* 0x0, the object and node this one hangs from (LinkParentOfDObj), obj 0 for none */
     int nodeNum; /* 0x8, the count of node matrices and quaternions at 0xC and 0x10 */
-    int nodeMtx; /* 0xC, one 64-byte matrix a node; held as a word: typed float (*)[4][4], attackhit.o and act-game.o move, where the ROM adds a byte offset to it (measured, P4-xcut) */
+    int nodeMtx; /* 0xC, one 64-byte matrix a node; held as a word: typed float (*)[4][4] or char *, attackhit.o, act-game.o, commonact.o, fieldCollision.o and girl_act.o move, where the ROM adds a byte offset to it (measured) */
     int nodeQuat; /* 0x10, one quaternion a node; held as a word: typed float (*)[4], GetMatrixOfMotion's int-typed read of it moves (measured, P4-xcut) */
     char pad14[12];
     int matrix; /* 0x20, the object's own matrix starts here (initMatrixDObj) */

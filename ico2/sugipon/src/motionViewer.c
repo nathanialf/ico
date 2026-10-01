@@ -210,7 +210,7 @@ typedef struct MvSub { /* field names derived */
     char pad350[48];
 
     /* 0x380, the test mode */
-    enum { TEST_OFF, TEST_PAD, TEST_RANDOM } testMode; /* derived name */
+    enum { TEST_OFF, TEST_PAD, TEST_RANDOM } testMode;
 
     char pad384[12];
     float testAt[4]; /* 0x390 */
@@ -312,7 +312,7 @@ static int motKindMenuProc(void)
                                         0, ent->motLast - ent->motFirst, &motSel, 0);
     base = motSel;
     cur = base + ent->motFirst;
-    if (motionKind[cur].node_id != 0 && motionKind[cur].blendKind == 320 && motionTable[cur] == 0) {
+    if (motionKind[cur].area != 0 && motionKind[cur].blendKind == 320 && motionTable[cur] == 0) {
         base = 0;
         if (((blinkCount >> 4) & 3) != 0) {
             debug_PrintfDummy(10, 60, 0x4080FF00, "NO MOTION IN THIS STAGE.");
@@ -613,7 +613,7 @@ int MotionViewer(void)
     MvVec pos;
     MvVec p;
 
-    union {
+    union { /* field names derived */
         MvVec v;
         float f[4];
     } q;

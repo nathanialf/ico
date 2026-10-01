@@ -105,7 +105,7 @@ typedef struct { /* field names derived */
 } ClothSet; /* derived name */
 
 /* one cloth InitCloth4D builds (clothAnimation.c) */
-typedef struct Cloth4D Cloth4D;
+typedef struct Cloth4D Cloth4D; /* derived name */
 
 void DispCloth4D(Cloth4D *c, void *la, void *lb);
 void DispCloth4DWithAdd(Cloth4D *c, void *la, void *lb);

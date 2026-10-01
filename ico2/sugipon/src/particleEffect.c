@@ -232,8 +232,8 @@ static int setParticleEffect(PEGeo *self, PEPackage *pkg, struct IosMemPart *par
         return 0;
     }
     p = self->parts;
-    d0 = (PEVtx *)self->prim->vtx;
-    d1 = (PEVtx *)self->prim->vtxNext;
+    d0 = self->prim->vtx;
+    d1 = self->prim->vtxNext;
     GetMatrixFromQuaternionPos((char *)m, self->quat, self->pos);
     MatrixDrive_PushMatrix();
     for (i = 0; i < self->n; i++) {
@@ -347,8 +347,8 @@ static int execParticleEffect(PEGeo *self)
     total = (float)self->n;
     last = self->emitted;
     if (last < total) {
-        v0 = (PEVtx *)self->prim->vtx;
-        v1 = (PEVtx *)self->prim->vtxNext;
+        v0 = self->prim->vtx;
+        v1 = self->prim->vtxNext;
         base = self->parts;
         next = last + self->pkg->emitStep;
         n = (int)next;
@@ -546,7 +546,7 @@ static inline void updateParticleVectors(int no) /* derived name */
 
 void ExecParticleEffect(int no)
 {
-    int (*proc)(void *);
+    int (*proc)(PEGeo *);
 
     if (particleEffects[no].used == 0) {
         return;
@@ -565,7 +565,7 @@ void ExecParticleEffect(int no)
         }
     } else {
         updateParticleVectors(no);
-        proc = *(int (**)(void *))((char *)particleEffects[no].geo + 0x64);
+        proc = particleEffects[no].geo->proc;
         if (proc != 0) {
             if (proc(particleEffects[no].geo) == 0) {
                 deleteParticleEffectGeo(no);
@@ -784,9 +784,9 @@ void ParticleEffects_SetAllGoal(void *goal)
 
     for (i = 0; i < 128; i++) {
         if (particleEffects[i].used != 0) {
-            char *v = (char *)particleEffects[i].geo;
+            PEGeo *v = particleEffects[i].geo;
             if (v != 0) {
-                sceVu0CopyVector(v + 0x50, goal);
+                sceVu0CopyVector(v->goal, goal);
             }
         }
     }

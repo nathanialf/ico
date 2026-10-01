@@ -76,7 +76,9 @@ static __inline__ float distance_squared(const void *a, const void *b) /* derive
 }
 
 /* a second squared-distance helper, written as separate VU0 macro
-   statements; GetBoxHoldPoint and subAP1BrainMain use it */
+   statements.  GetBoxHoldPoint (listing rows 87-97) and subAP1BrainMain use
+   it, though the listing cites only line 87 for subAP1BrainMain, the line
+   torch.c's and spider.c's distance_squared rows cite. */
 static __inline__ float distance_squared_b(const void *a, const void *b) /* derived name */
 {
     float d;
