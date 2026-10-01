@@ -26,7 +26,7 @@ static inline int sendMailAndGetIndex(GObj *gop, int msg, void *sender) /* deriv
     if (iosOmSendMail(gop, msg, sender) < 0) {
         return -1;
     }
-    return gop->mailNum - 1;
+    return gop->mailBox.num - 1;
 }
 
 static inline MailAdditionalData *getMailAdditionalDataTable(GObj *gop) /* derived name */

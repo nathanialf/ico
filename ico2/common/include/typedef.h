@@ -170,16 +170,16 @@ struct GObj {   /* field names derived */
     void (*fn)(GObj *);     /* 0x28, the object's per-frame function */
     struct GProc *procHead; /* 0x2C, head of the object's process list */
     struct GProc *procTail; /* 0x30, tail of the same list */
-    char pad34[8];          /* 0x34 .. 0x3B */
+    struct GObj *dlNext;    /* 0x34, next object on its display list (gobj_dl.c, gobj_cam_dl.c) */
+    struct GObj *dlPrev;    /* 0x38, previous object on its display list */
     GObj *kindNext;         /* 0x3C, next object of the same kind */
-    int dlLinkId;           /* 0x40, the display list the object is linked into (gobj_dl.c) */
-    char pad44[4];
-    int dl; /* 0x48, the object's display function */
-    char pad4C[4];
+    unsigned char dlLinkId; /* 0x40, the display list the object is linked into (gobj_dl.c) */
+    char pad41[3];
+    int dlKey;          /* 0x44, the display list's sort key */
+    void (*dl)(GObj *); /* 0x48, the object's display function, which the object manager calls */
+    int kindMask; /* 0x4C, a camera's object kinds, one bit per gobj_dl_link_head list */
     int drawMask; /* 0x50, ANDed with a camera's mask to pick the cameras that draw it; all ones while shown */
-    int mailQueue;    /* 0x54, the mail box (obj_manager.c's IosMailBox), this word unread */
-    int mailNum;      /* 0x58, the count of mails queued from 0x5C */
-    IosMail mail[32]; /* 0x5C, the queued mails, mailNum of them */
+    IosMailBox mailBox; /* 0x54, the mail box obj_manager.c queues and runs */
     Sub15C *dobj;     /* 0x15C, the display object (CSVSYSTEM_InitDObj) */
     char pad160[4];
     int act; /* 0x164, the actor/action-state object, held as a word like
@@ -205,8 +205,8 @@ typedef union Vec16 { /* field names derived */
    getVerticalElementOfWallNormal in src/motionManager2) and the character
    record keeps a copy at +0xE0.  The object/node pair is its own member: the
    ROM copies it as an eight-byte block and the count as a separate word. */
-typedef struct { /* field names derived */
-    GObj *obj;   /* the object */
+typedef struct ObjNode { /* field names derived */
+    GObj *obj;          /* the object */
     int node;    /* the node index in its geometry */
 } ObjNode;       /* derived name */
 
@@ -1198,7 +1198,7 @@ typedef struct Act { /* field names derived */
 
     union {
         unsigned long long ll;
-        void (*afterProc)(char *);
+        void (*afterProc)(GObj *);
     } flags18; /* 0x18, a 64-bit word: the after-proc in the low word
                   (commonact.c stores actAfterForceRope, afterCommonRopeCliff,
                   actAfterDown and actAfterRopeJump there), the state flags
@@ -1265,7 +1265,7 @@ typedef struct Act { /* field names derived */
     struct GObj *carried; /* 0x148, the object the actor holds (the carried girl) */
     char *brainTarget;    /* 0x14C, the enemy brain's target */
     GObj *weapon;         /* 0x150, the weapon the actor holds */
-    char *curItem;        /* 0x154, the held item as last published (SetBoyInfo, stage change) */
+    GObj *curItem;        /* 0x154, the held item as last published (SetBoyInfo, stage change) */
     void *box;            /* 0x158, the box/truck GObj the actor is holding: commonact.c
                   stores it here in actCommonBox and reads it back through
                   `*(void **)(s + 0x158)` in the boxbar helpers */
@@ -1282,12 +1282,12 @@ typedef struct Act { /* field names derived */
        take as an int and the release and compare paths read as a pointer */
     union {
         int i;
-        char *p;
+        GObj *p;
     } heldItem;
 
     union {
         int i;
-        char *p;
+        GObj *p;
     } nextItem;
 
     int attackTurn; /* 0x188, nonzero while the attack turns toward the target */
@@ -1343,7 +1343,8 @@ typedef struct Act { /* field names derived */
     long long wayFlags;  /* 0x3F0, the way walk flags */
     float wayGoalDist;   /* 0x3F8, the distance to the goal across the floor */
     float wayGoalHeight; /* 0x3FC, the goal's height over the actor */
-    char pad400[32];
+    struct WayPoint *wayLast; /* 0x400, the way point GetWay_next last returned */
+    char pad404[28];
     float wayDetailX; /* 0x420, the detailed way point, x */
     float wayDetailY; /* 0x424, the detailed way point, y */
     float wayDetailZ; /* 0x428, the detailed way point, z */
@@ -1389,16 +1390,16 @@ typedef struct Act { /* field names derived */
     float cliffHeight; /* 0x5E8, the cliff height */
     char pad5EC[8];
     char *holdBoxObj; /* 0x5F4, the box the actor can hold */
-    int barObj;       /* 0x5F8, the bar or turning object */
-    int pullObj;      /* 0x5FC, the pull lever */
+    GObj *barObj;     /* 0x5F8, the bar or turning object */
+    GObj *pullObj;    /* 0x5FC, the pull lever */
     void *pullKind;   /* 0x600, the pull lever's kind */
     char pad604[4];
-    char *swapWeapon; /* 0x608, the weapon the actor can swap to */
+    GObj *swapWeapon; /* 0x608, the weapon the actor can swap to */
     char pad60C[4];
     int cageObj;         /* 0x610, the cage */
-    void *bombObj;       /* 0x614, the bomb */
-    void *torchRevObj;   /* 0x618, the torch */
-    int sofaObj;         /* 0x61C, the sofa */
+    GObj *bombObj;       /* 0x614, the bomb */
+    GObj *torchRevObj;   /* 0x618, the torch */
+    GObj *sofaObj;       /* 0x61C, the sofa */
     MotOriReq motOriReq; /* 0x620, the motion orient request SetMotionRequest
                             takes, filled from the sub-object's at 0x180 */
     char pad640[64];
@@ -1493,7 +1494,7 @@ typedef union { /* field names derived */
  * runs a request on, on the 64-byte alignment of a DMA transfer buffer
  * (0xA00 bytes with its padding).  mcard.c works on the one it is handed;
  * kanbanBoot.c owns one for the boot check. */
-typedef struct {             /* field names derived */
+typedef struct McMgr {       /* field names derived */
     McFlags flags;           /* 0x00 -- bit 0 idle, bit 1 saving; the command in the high word */
     int port;                /* 0x08 */
     int slot;                /* 0x0C */
@@ -1505,7 +1506,7 @@ typedef struct {             /* field names derived */
     int segment;             /* 0x24 -- the save segment (iOSMcSaveSeg) being read or written */
     int fd;                  /* 0x28 */
     int openMode;            /* 0x2C */
-    int word30;              /* 0x30 */
+    int cmd;                 /* 0x30 -- the function sceMcSync reports as finished */
     int size;                /* 0x34 */
     int pos;                 /* 0x38 */
     int end;                 /* 0x3C */

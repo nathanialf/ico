@@ -627,8 +627,8 @@ int ACTGetOrientFromIntrK(GObj *self, int k, void *buf, int arg)
         tmp = *(IntrVec3 *)(*(char **)((char *)GOBJ_ACT(self) + 0x30));
         out->a = out->b = ((IntrOrient *)((char *)s + 0x620))->a =
             ((IntrOrient *)((char *)s + 0x620))->b = tmp;
-        s->sofaObj = *(int *)&tmp;
-        GetSofaPosition(self, (GObj *)s->sofaObj);
+        s->sofaObj = *(GObj **)&tmp;
+        GetSofaPosition(self, s->sofaObj);
         break;
     case 145:
         out->a = *(IntrVec3 *)((char *)GOBJ_ACT(self)->work + 0x3D8);
@@ -2182,7 +2182,7 @@ void actCommonJump(GObj *volatile self)
     int n;
 
     s->flags18.ll &= ~(1ULL << 55);
-    s->flags18.afterProc = (void (*)(char *))actAfterJump;
+    s->flags18.afterProc = actAfterJump;
     if (s->intrKind == 82) {
         GOBJ_WORK(self)->jumpTimer = ((60 - systemStatus[0] * 10) / systemStatus[1]) * 10;
     }
@@ -2285,7 +2285,7 @@ void actCommonFall(GObj *volatile self)
     wasHigh = 0;
     noVel = 0;
     slowed = 0;
-    ((Act *)(char *)s)->flags18.afterProc = (void (*)(char *))actAfterFall;
+    ((Act *)(char *)s)->flags18.afterProc = actAfterFall;
     if (stageData[stage_no].flag3) {
         keep = FALL_SUB(self)->ctrl.floorAttr & 0xF;
         debug_StdPrintfDummy("0x%8x -> 0x%8x\n", FALL_SUB(self)->ctrl.floorAttr, keep);
@@ -2915,7 +2915,7 @@ void actCommonFly(GObj *volatile self)
     char *gen = 0;
 
     s->flags18.ll &= ~(1ULL << 57);
-    s->flags18.afterProc = (void (*)(char *))actAfterFly;
+    s->flags18.afterProc = actAfterFly;
 
     ((FlyCtlJ *)(char *)GOBJ_SUB(self))->f5F8 = 0;
 
@@ -3497,7 +3497,7 @@ void actCommonBecarry(GObj *volatile self)
 
     g = *(char **)((char *)s + 0x144);
     ACTGameCollisionOff((volatile int *)self);
-    s->flags18.afterProc = (void (*)(char *))afterCommonBecarry;
+    s->flags18.afterProc = afterCommonBecarry;
     s->flags18.ll &= ~(1ULL << 46);
     _ACTWait(1);
     while (1) {
@@ -4490,7 +4490,7 @@ inline void motCommonRopeTurnSpecialL(GObj *volatile self)
 
 inline void motCommonTruckLeverLoop(GObj *volatile self)
 {
-    int sw = GOBJ_ACT(self)->pullObj;
+    GObj *sw = GOBJ_ACT(self)->pullObj;
 
     _ACTWait(6);
     SetSwitchState(sw, 0);
@@ -4500,7 +4500,7 @@ inline void motCommonTruckLeverLoop(GObj *volatile self)
 
 inline void motCommonTruckLeverPull(GObj *volatile self)
 {
-    int sw = GOBJ_ACT(self)->pullObj;
+    GObj *sw = GOBJ_ACT(self)->pullObj;
     _ACTWait(30);
     SetSwitchState(sw, -1);
     debug_StdPrintfDummy("pull");
@@ -4509,7 +4509,7 @@ inline void motCommonTruckLeverPull(GObj *volatile self)
 
 inline void motCommonTruckLeverPush(GObj *volatile self)
 {
-    int sw = GOBJ_ACT(self)->pullObj;
+    GObj *sw = GOBJ_ACT(self)->pullObj;
     _ACTWait(30);
     SetSwitchState(sw, 1);
     debug_StdPrintfDummy("push");

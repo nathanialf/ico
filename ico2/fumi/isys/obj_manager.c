@@ -115,15 +115,15 @@ inline void iosOmBeforeFuncStandard(void) {}
 
 inline int iosOmSendMail(GObj *g, int type, void *arg)
 {
-    IosMailBox *mb = (IosMailBox *)&g->mailQueue;
+    IosMailBox *mb = &g->mailBox;
     int count = mb->num;
     if (count == 32)
         return -1;
-    g->mail[count].type = type;
+    g->mailBox.mail[count].type = type;
     {
         int c2 = mb->num;
         mb->num = c2 + 1;
-        g->mail[c2].arg = arg;
+        g->mailBox.mail[c2].arg = arg;
     }
     return 0;
 }
@@ -164,7 +164,7 @@ inline int iosOmSendMailLink(int link, int val5, int val6)
 inline int iosOmExeMail(void (*func)(IosMail))
 {
     GObj *g = isysCurrentGObj;
-    IosMailBox *mb = (IosMailBox *)&g->mailQueue;
+    IosMailBox *mb = &g->mailBox;
     int i;
     for (i = 0; i < mb->num; i++) {
         switch (mb->mail[i].type) {
@@ -254,26 +254,13 @@ void iosOmMain(void)
     _iosOmMain();
 }
 
-/* the GObj the per-kind lists (gobj_dl_link_head) hold, as the DL walk under
-   each camera node (gobj_camera_dl_link_head) reads it */
-typedef struct OmObj { /* field names derived */
-    char pad0[52];
-    struct OmObj *next; /* 0x34 */
-    char _p38[0x48 - 0x38];
-    void (*dl)(struct OmObj *); /* 0x48 */
-    char pad4C[4];
-    int drawMask; /* 0x50 */
-    char _p54[0x16C - 0x54];
-    int active; /* 0x16C */
-} OmObj;        /* derived name */
-
 void iosOmCreateDL(void)
 {
-    DLN *c;
-    OmObj *g;
+    GObj *c;
+    GObj *g;
     int i;
 
-    for (c = gobj_camera_dl_link_head; c != 0; c = c->next) {
+    for (c = gobj_camera_dl_link_head; c != 0; c = c->dlNext) {
         if (active_gobj_link & 1) {
             if (c->dl != 0) {
                 c->dl(c);
@@ -282,7 +269,7 @@ void iosOmCreateDL(void)
         for (i = 0; i < 32; i++) {
             if ((active_gobj_link >> i) & 1) {
                 if ((c->kindMask >> i) & 1) {
-                    for (g = gobj_dl_link_head[i]; g != 0; g = g->next) {
+                    for (g = gobj_dl_link_head[i]; g != 0; g = g->dlNext) {
                         if (g->active != 0 && (c->drawMask & g->drawMask) != 0 && g->dl != 0) {
                             g->dl(g);
                         }

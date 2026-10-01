@@ -636,7 +636,7 @@ void ACTGetEnvironment(void *self, void *dir, float *orient, EnvFlag *flags, Act
         wallDeg = absRotyFromBack(ori2, env->wallOrient);
         env->wallWord = *(int *)(*(char **)((char *)env + 0x178) + 0x48);
         w564 = (char *)(CheckPureWallAttribute(self, 0x1000) & 0xFF);
-        env->wallObj = (int)obj;
+        env->wallObj = obj;
         flags[0].w |= 1;
         if (hgt < wallh && hgt != -3.40282347e+38f /* -FLT_MAX */)
             hgt = wallh;
@@ -787,7 +787,7 @@ void ACTGetEnvironment(void *self, void *dir, float *orient, EnvFlag *flags, Act
         }
         if (obj->kind == 18 && CheckWallAttribute(self, 0x700)) {
             flags[2].w |= 0x40;
-            env->kind12Obj = (int)obj;
+            env->barObj = (int)obj;
         }
         if (obj->kind == 23 && CheckPureWallAttribute(self, 0x500)) {
             flags[2].w |= 0x80;

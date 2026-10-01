@@ -8,7 +8,9 @@
 #ifndef MCDATA_H
 #define MCDATA_H
 
-int iosMcIconWriteIconsys(int self, int *p);
-int iosMcIconWriteIcon(int self, int *p);
+struct McMgr;
+
+int iosMcIconWriteIconsys(struct McMgr *self, int *p);
+int iosMcIconWriteIcon(struct McMgr *self, int *p);
 
 #endif /* MCDATA_H */

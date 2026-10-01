@@ -1627,7 +1627,7 @@ typedef struct {                      /* field names derived */
 static void InitSwapWeapon(void *self)
 {
     Act *sub = GOBJ_ACT(self);
-    char *info;
+    GObj *info;
     char *p;
     GenGeo *row;
 
@@ -1638,7 +1638,7 @@ static void InitSwapWeapon(void *self)
     }
     info = sub->swapWeapon;
     BOYINFO.nextWeapon = info;
-    p = (char *)gamesysObjInfoGet(*(int *)(info + 0xC), *(int *)(info + 0x8));
+    p = (char *)gamesysObjInfoGet(info->kind, info->labelId);
     if (p != 0) {
         BOYINFO.f30 = *(float *)(p + 0x10);
         BOYINFO.f34 = *(float *)(p + 0x14);
@@ -1647,7 +1647,7 @@ static void InitSwapWeapon(void *self)
         BOYINFO.f44 = *(float *)(p + 0x24);
         BOYINFO.f48 = *(float *)(p + 0x28);
     } else {
-        row = &objLayout[*(int *)(info + 0x8)];
+        row = &objLayout[info->labelId];
         BOYINFO.f30 = -row->pos[0];
         BOYINFO.f34 = -row->pos[1];
         BOYINFO.f38 = -row->pos[2];
@@ -3744,7 +3744,7 @@ inline void MakeCharacterPacket(void)
             *(int *)(pkt + 0x8) = sub->weapon->labelId;
         }
         if (sub->curItem != 0) {
-            *(int *)(pkt + 0xC) = *(int *)(sub->curItem + 0x8);
+            *(int *)(pkt + 0xC) = sub->curItem->labelId;
         }
         if (sub->actMode == 0x2D) {
             *(int *)(pkt + 0x10) = *(int *)(sub->sofa + 0x8);

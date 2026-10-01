@@ -75,7 +75,7 @@ int iosCdvdBackGroundReadIOPm(CdvdBgReq *self, void *buf, int size);
 char *iosCdvdChgFileName(char *name);
 void iosCdvdDirectStClose(struct IosCdvdHandle *self);
 void iosCdvdDirectStOpen(struct IosCdvdHandle *self);
-int iosCdvdDirectStRead(int stream, void *dst, int size, int *err);
+int iosCdvdDirectStRead(struct IosCdvdHandle *stream, void *dst, int size, int *err);
 int iosCdvdDiskStatusGet(void);
 int iosCdvdGetFileLsn(char *name, int *size);
 void iosCdvdHandlerRead(struct IosCdvdHandle *self, void *dst, int size);

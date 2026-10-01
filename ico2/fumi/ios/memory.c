@@ -31,9 +31,9 @@ inline IosMemPart *iosMallocInitPartition(unsigned int start, unsigned int end)
 
     *(IosMemTag *)part = *(IosMemTag *)"<PARTITION>____";
 
-    part->prev = 0;
-    part->next = 0;
     part->parent = 0;
+    part->next = 0;
+    part->child = 0;
 
     part->start = (char *)(node = (IosMemNode *)((char *)part + 80));
     part->end = (char *)top;
@@ -82,14 +82,14 @@ IosMemPart *iosMallocSetPartition(IosMemPart *part, int size, int align)
         debug_StdPrintfDummy("mem:fail init partition\n");
         return 0;
     }
-    base->prev = part;
-    if (part->parent != 0) {
-        base->next = part->parent;
+    base->parent = part;
+    if (part->child != 0) {
+        base->next = part->child;
     }
     part->nused = part->nused + 1;
     part->top = (char *)base;
     part->free = part->free - need;
-    part->parent = base;
+    part->child = base;
     part->head->size = part->head->size - need;
     return base;
 }
@@ -97,9 +97,9 @@ IosMemPart *iosMallocSetPartition(IosMemPart *part, int size, int align)
 IosMemPart *iosMallocResetPartition(IosMemPart *part)
 {
     IosMemNode *node;
-    IosMemPart *prev;
-    IosMemPart *next;
     IosMemPart *parent;
+    IosMemPart *next;
+    IosMemPart *child;
 
     if (part == 0) {
         debug_StdPrintfDummy("mem:null partition pointer\n");
@@ -116,13 +116,13 @@ IosMemPart *iosMallocResetPartition(IosMemPart *part)
             node = node->next;
         } while (node != 0);
     }
-    prev = part->prev;
-    next = part->next;
     parent = part->parent;
+    next = part->next;
+    child = part->child;
     iosMallocInitPartition((unsigned int)part, (unsigned int)part->end);
-    part->prev = prev;
-    part->next = next;
     part->parent = parent;
+    part->next = next;
+    part->child = child;
     return part;
 }
 
@@ -151,33 +151,33 @@ void iosMallocClearPartition(IosMemPart *part)
         debug_StdPrintfDummy("mem:illegal partition pointer\n");
         return;
     }
-    if (part->prev != 0 && part != part->prev->parent) {
+    if (part->parent != 0 && part != part->parent->child) {
         debug_StdPrintfDummy("mem:not last partition\n");
         return;
     }
-    if (part->parent != 0) {
-        child = part->parent;
+    if (part->child != 0) {
+        child = part->child;
         while (child != part) {
-            if (child->parent != 0) {
-                child = child->parent;
+            if (child->child != 0) {
+                child = child->child;
             } else if (strcmp(child->tag, "<PARTITION>____") != 0) {
                 debug_StdPrintfDummy("mem:illegal partition pointer\n");
                 return;
             } else {
                 *(IosMemTag *)child = *(IosMemTag *)" del partition ";
                 if (child->next == 0) {
-                    child->prev->parent = 0;
-                    child = child->prev;
+                    child->parent->child = 0;
+                    child = child->parent;
                 } else {
                     child = child->next;
                 }
             }
         }
     }
-    if (part->prev != 0) {
-        part->prev->parent = part->next;
-        part->prev->top = part->end;
-        part->prev->free = (unsigned int)(part->end - part->prev->start) >> 4;
+    if (part->parent != 0) {
+        part->parent->child = part->next;
+        part->parent->top = part->end;
+        part->parent->free = (unsigned int)(part->end - part->parent->start) >> 4;
     }
     *(IosMemTag *)part = *(IosMemTag *)" del partition ";
 }

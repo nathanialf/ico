@@ -2,7 +2,7 @@
 #include "gobj_dl.h"
 #include "isys.h"
 
-static void add_gobj_to_head(DLN *self, int kind, int key);
+static void add_gobj_to_head(GObj *self, int kind, int key);
 
 /* this list's own add_gobj_to_head; isys/gobj and each gobj list TU have
    their own file-static copy */
@@ -16,160 +16,160 @@ inline void isysGObjDlInit(void)
     }
 }
 
-static void cut_gobj_dl_link(DLN *p)
+static void cut_gobj_dl_link(GObj *p)
 {
     if (p == 0) {
         debug_StdPrintfDummy("isys:null GObj\n");
         return;
     }
 
-    if (p->prev == 0 && p->next == 0) {
+    if (p->dlPrev == 0 && p->dlNext == 0) {
         /* not linked into a list */
     } else {
-        if (p->prev != 0)
-            p->prev->next = p->next;
+        if (p->dlPrev != 0)
+            p->dlPrev->dlNext = p->dlNext;
 
-        if (p->next != 0) {
-            p->next->prev = p->prev;
+        if (p->dlNext != 0) {
+            p->dlNext->dlPrev = p->dlPrev;
         }
     }
 
-    if (p == ((DLN **)gobj_dl_link_head)[p->id]) {
-        ((DLN **)gobj_dl_link_head)[p->id] = p->next;
+    if (p == gobj_dl_link_head[p->dlLinkId]) {
+        gobj_dl_link_head[p->dlLinkId] = p->dlNext;
     }
-    if (p == ((DLN **)gobj_dl_link_tail)[p->id]) {
-        ((DLN **)gobj_dl_link_tail)[p->id] = p->prev;
+    if (p == gobj_dl_link_tail[p->dlLinkId]) {
+        gobj_dl_link_tail[p->dlLinkId] = p->dlPrev;
     }
 }
 
-void isysGObjRemoveObjDL(DLN *self)
+void isysGObjRemoveObjDL(GObj *self)
 {
     cut_gobj_dl_link(self);
 }
 
 /* this list's own add_gobj_to_tail, as in isys/gobj */
-static void add_gobj_to_tail(DLN *self, int kind, int key)
+static void add_gobj_to_tail(GObj *self, int kind, int key)
 {
     unsigned char idx = kind & 0xFF;
-    DLN *head;
-    DLN *tail;
-    DLN *cur;
+    GObj *head;
+    GObj *tail;
+    GObj *cur;
 
     debug_StdPrintfDummy("gobj dl added to tail\n");
-    self->id = idx;
-    self->key = key;
-    head = ((DLN **)gobj_dl_link_head)[idx];
+    self->dlLinkId = idx;
+    self->dlKey = key;
+    head = gobj_dl_link_head[idx];
     if (head == 0) {
-        ((DLN **)gobj_dl_link_head)[idx] = self;
-        self->prev = 0;
-        self->next = 0;
-        ((DLN **)gobj_dl_link_tail)[idx] = self;
-        debug_StdPrintfDummy("no_entry %p\n", self->next);
+        gobj_dl_link_head[idx] = self;
+        self->dlPrev = 0;
+        self->dlNext = 0;
+        gobj_dl_link_tail[idx] = self;
+        debug_StdPrintfDummy("no_entry %p\n", self->dlNext);
         return;
     }
-    if ((unsigned int)key < (unsigned int)head->key) {
-        self->prev = 0;
-        self->next = head;
-        head->prev = self;
-        ((DLN **)gobj_dl_link_head)[idx] = self;
-        debug_StdPrintfDummy("add to head %p\n", self->next);
+    if ((unsigned int)key < (unsigned int)head->dlKey) {
+        self->dlPrev = 0;
+        self->dlNext = head;
+        head->dlPrev = self;
+        gobj_dl_link_head[idx] = self;
+        debug_StdPrintfDummy("add to head %p\n", self->dlNext);
         return;
     }
-    tail = ((DLN **)gobj_dl_link_tail)[idx];
-    if ((unsigned int)key >= (unsigned int)tail->key) {
-        self->prev = tail;
-        self->next = 0;
-        tail->next = self;
-        ((DLN **)gobj_dl_link_tail)[idx] = self;
-        debug_StdPrintfDummy("add to tail %p\n", self->next);
+    tail = gobj_dl_link_tail[idx];
+    if ((unsigned int)key >= (unsigned int)tail->dlKey) {
+        self->dlPrev = tail;
+        self->dlNext = 0;
+        tail->dlNext = self;
+        gobj_dl_link_tail[idx] = self;
+        debug_StdPrintfDummy("add to tail %p\n", self->dlNext);
         return;
     }
     cur = head;
-    while ((unsigned int)cur->next->key <= (unsigned int)key) {
-        cur = cur->next;
+    while ((unsigned int)cur->dlNext->dlKey <= (unsigned int)key) {
+        cur = cur->dlNext;
     }
-    self->prev = cur;
-    self->next = cur->next;
-    cur->next = self;
-    self->next->prev = self;
+    self->dlPrev = cur;
+    self->dlNext = cur->dlNext;
+    cur->dlNext = self;
+    self->dlNext->dlPrev = self;
 }
 
-static void add_gobj_to_head(DLN *self, int kind, int key)
+static void add_gobj_to_head(GObj *self, int kind, int key)
 {
     unsigned char idx = kind & 0xFF;
-    DLN *head;
-    DLN *tail;
-    DLN *cur;
-    self->id = idx;
-    self->key = key;
-    head = ((DLN **)gobj_dl_link_head)[idx];
+    GObj *head;
+    GObj *tail;
+    GObj *cur;
+    self->dlLinkId = idx;
+    self->dlKey = key;
+    head = gobj_dl_link_head[idx];
     if (head == 0) {
-        ((DLN **)gobj_dl_link_head)[idx] = self;
-        self->prev = 0;
-        self->next = 0;
-        ((DLN **)gobj_dl_link_tail)[idx] = self;
+        gobj_dl_link_head[idx] = self;
+        self->dlPrev = 0;
+        self->dlNext = 0;
+        gobj_dl_link_tail[idx] = self;
         return;
     }
-    if ((unsigned int)head->key >= (unsigned int)key) {
-        self->prev = 0;
-        self->next = head;
-        head->prev = self;
-        ((DLN **)gobj_dl_link_head)[idx] = self;
+    if ((unsigned int)head->dlKey >= (unsigned int)key) {
+        self->dlPrev = 0;
+        self->dlNext = head;
+        head->dlPrev = self;
+        gobj_dl_link_head[idx] = self;
         return;
     }
-    tail = ((DLN **)gobj_dl_link_tail)[idx];
-    if ((unsigned int)tail->key < (unsigned int)key) {
-        self->prev = tail;
-        self->next = 0;
-        tail->next = self;
-        ((DLN **)gobj_dl_link_tail)[idx] = self;
+    tail = gobj_dl_link_tail[idx];
+    if ((unsigned int)tail->dlKey < (unsigned int)key) {
+        self->dlPrev = tail;
+        self->dlNext = 0;
+        tail->dlNext = self;
+        gobj_dl_link_tail[idx] = self;
         return;
     }
     cur = head;
-    while ((unsigned int)cur->next->key < (unsigned int)key) {
-        cur = cur->next;
+    while ((unsigned int)cur->dlNext->dlKey < (unsigned int)key) {
+        cur = cur->dlNext;
     }
-    self->prev = cur;
-    self->next = cur->next;
-    cur->next = self;
-    self->next->prev = self;
+    self->dlPrev = cur;
+    self->dlNext = cur->dlNext;
+    cur->dlNext = self;
+    self->dlNext->dlPrev = self;
 }
 
-void isysGObjMoveObjDL(DLN *self, unsigned char kind, int key)
+void isysGObjMoveObjDL(GObj *self, unsigned char kind, int key)
 {
     cut_gobj_dl_link(self);
     return add_gobj_to_tail(self, kind, key);
 }
 
-void isysGObjMoveObjDLHead(DLN *self, unsigned char kind, int key)
+void isysGObjMoveObjDLHead(GObj *self, unsigned char kind, int key)
 {
     cut_gobj_dl_link(self);
     return add_gobj_to_head(self, kind, key);
 }
 
-inline void isysGObjMoveObjDLAfterGObj(DLN *self, DLN *obj)
+inline void isysGObjMoveObjDLAfterGObj(GObj *self, GObj *obj)
 {
     cut_gobj_dl_link(self);
-    self->id = obj->id;
-    self->prev = obj;
-    self->next = obj->next;
-    obj->next = self;
-    self->key = obj->key;
-    if (self->next == 0) {
-        ((DLN **)gobj_dl_link_tail)[self->id] = self;
+    self->dlLinkId = obj->dlLinkId;
+    self->dlPrev = obj;
+    self->dlNext = obj->dlNext;
+    obj->dlNext = self;
+    self->dlKey = obj->dlKey;
+    if (self->dlNext == 0) {
+        gobj_dl_link_tail[self->dlLinkId] = self;
     }
 }
 
-inline void isysGObjMoveObjDLBeforeGObj(DLN *self, DLN *obj)
+inline void isysGObjMoveObjDLBeforeGObj(GObj *self, GObj *obj)
 {
     cut_gobj_dl_link(self);
-    self->id = obj->id;
-    self->prev = obj->prev;
-    self->next = obj;
-    obj->prev = self;
-    self->key = obj->key;
-    if (self->prev == 0) {
-        ((DLN **)gobj_dl_link_head)[self->id] = self;
+    self->dlLinkId = obj->dlLinkId;
+    self->dlPrev = obj->dlPrev;
+    self->dlNext = obj;
+    obj->dlPrev = self;
+    self->dlKey = obj->dlKey;
+    if (self->dlPrev == 0) {
+        gobj_dl_link_head[self->dlLinkId] = self;
     }
 }
 
@@ -177,8 +177,8 @@ void isysGObjLinkObjDL(void *self, void *dl, unsigned char kind, int key, unsign
 {
     debug_StdPrintfDummy("GObjLinkDL in\n");
     if (dl != 0) {
-        ((DLN *)self)->dl = dl;
-        ((DLN *)self)->drawMask = drawMask;
+        ((GObj *)self)->dl = dl;
+        ((GObj *)self)->drawMask = drawMask;
         add_gobj_to_tail(self, kind, key);
         debug_StdPrintfDummy("GObjLinkDL out\n");
     }
@@ -187,16 +187,16 @@ void isysGObjLinkObjDL(void *self, void *dl, unsigned char kind, int key, unsign
 void isysGObjLinkObjDLHead(void *self, void *dl, unsigned char kind, int key, unsigned int drawMask)
 {
     if (dl != 0) {
-        ((DLN *)self)->dl = dl;
-        ((DLN *)self)->drawMask = drawMask;
+        ((GObj *)self)->dl = dl;
+        ((GObj *)self)->drawMask = drawMask;
         add_gobj_to_head(self, kind, key);
     }
 }
 
-void isysGObjLinkObjDLAfterGObj(DLN *self, void *dl, int drawMask, DLN *obj)
+void isysGObjLinkObjDLAfterGObj(GObj *self, void *dl, int drawMask, GObj *obj)
 {
-    DLN *t0;
-    DLN *v34;
+    GObj *t0;
+    GObj *v34;
     int v44;
     if (dl == 0)
         return;
@@ -207,22 +207,22 @@ void isysGObjLinkObjDLAfterGObj(DLN *self, void *dl, int drawMask, DLN *obj)
     }
     t0->drawMask = drawMask;
     t0->dl = dl;
-    t0->id = obj->id;
-    t0->prev = obj;
-    v34 = obj->next;
-    v44 = obj->key;
-    t0->next = v34;
-    obj->next = t0;
-    t0->key = v44;
-    if (t0->next == 0) {
-        ((DLN **)gobj_dl_link_tail)[t0->id] = t0;
+    t0->dlLinkId = obj->dlLinkId;
+    t0->dlPrev = obj;
+    v34 = obj->dlNext;
+    v44 = obj->dlKey;
+    t0->dlNext = v34;
+    obj->dlNext = t0;
+    t0->dlKey = v44;
+    if (t0->dlNext == 0) {
+        gobj_dl_link_tail[t0->dlLinkId] = t0;
     }
 }
 
-void isysGObjLinkObjDLBeforeGObj(DLN *self, void *dl, int drawMask, DLN *obj)
+void isysGObjLinkObjDLBeforeGObj(GObj *self, void *dl, int drawMask, GObj *obj)
 {
-    DLN *t0;
-    DLN *v34;
+    GObj *t0;
+    GObj *v34;
     int v44;
     if (dl == 0)
         return;
@@ -233,14 +233,14 @@ void isysGObjLinkObjDLBeforeGObj(DLN *self, void *dl, int drawMask, DLN *obj)
     }
     t0->drawMask = drawMask;
     t0->dl = dl;
-    t0->id = obj->id;
-    t0->prev = obj;
-    v34 = obj->next;
-    v44 = obj->key;
-    t0->next = v34;
-    obj->next = t0;
-    t0->key = v44;
-    if (t0->next == 0) {
-        ((DLN **)gobj_dl_link_tail)[t0->id] = t0;
+    t0->dlLinkId = obj->dlLinkId;
+    t0->dlPrev = obj;
+    v34 = obj->dlNext;
+    v44 = obj->dlKey;
+    t0->dlNext = v34;
+    obj->dlNext = t0;
+    t0->dlKey = v44;
+    if (t0->dlNext == 0) {
+        gobj_dl_link_tail[t0->dlLinkId] = t0;
     }
 }

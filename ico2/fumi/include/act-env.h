@@ -88,10 +88,10 @@ typedef struct {             /* field names derived */
     int wallWord;      /* 0x130 */
     int cliffSel;      /* 0x134 */
     float cliffHeight; /* 0x138 */
-    int wallObj;       /* 0x13C */
+    struct GObj *wallObj; /* 0x13C */
     int boxObj;        /* 0x140 */
     int holdBoxObj;    /* 0x144 */
-    int kind12Obj;     /* 0x148 */
+    int barObj;        /* 0x148, the bar (kind 18) */
     int pullObj;       /* 0x14C */
     int pullKind;      /* 0x150 */
     char pad154[4];

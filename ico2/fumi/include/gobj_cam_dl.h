@@ -13,10 +13,10 @@
 /* gobj_cam_dl.c's `inline` functions, in the order of their definitions'
  * out-of-line copies at the end of the object (first-declaration order). */
 void isysGObjCameraDlInit(void);
-void isysGObjMoveCameraDLHead(DLN *self, int key);
-void isysGObjLinkCameraDLHead(DLN *self, void *dl, int key, int kindMask, int drawMask);
-void isysObjMoveCameraDLAfterGObj(DLN *self, DLN *obj);
-void isysObjMoveCameraDLBeforeGObj(DLN *self, DLN *obj);
-void isysGObjLinkCameraDL(DLN *self, void *dl, int key, int kindMask, int drawMask);
+void isysGObjMoveCameraDLHead(struct GObj *self, int key);
+void isysGObjLinkCameraDLHead(struct GObj *self, void *dl, int key, int kindMask, int drawMask);
+void isysObjMoveCameraDLAfterGObj(struct GObj *self, struct GObj *obj);
+void isysObjMoveCameraDLBeforeGObj(struct GObj *self, struct GObj *obj);
+void isysGObjLinkCameraDL(struct GObj *self, void *dl, int key, int kindMask, unsigned int drawMask);
 
 #endif /* GOBJ_CAM_DL_H */

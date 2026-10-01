@@ -11,9 +11,9 @@
 typedef struct IosMemPart {    /* field names derived */
     char tag[16];              /* 0x00 */
     char name[16];             /* 0x10 */
-    struct IosMemPart *prev;   /* 0x20 */
-    struct IosMemPart *next;   /* 0x24 */
-    struct IosMemPart *parent; /* 0x28 */
+    struct IosMemPart *parent; /* 0x20, the partition this one was carved from */
+    struct IosMemPart *next;   /* 0x24, the next partition carved from the same parent */
+    struct IosMemPart *child;  /* 0x28, the last partition carved from this one */
     int nused;                 /* 0x2C */
     char *top;                 /* 0x30 */
     int free;                  /* 0x34 */

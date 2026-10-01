@@ -8,6 +8,8 @@
 #ifndef MCARD_H
 #define MCARD_H
 
+struct McMgr;
+
 /* mcard.c's globals (typedef.h declares IosMcProductFile with its record) */
 extern int IosMcMgrSleep;
 extern int IosMcLock;
@@ -17,7 +19,7 @@ extern int IosMcPreviewInfo[];
 extern struct IosMsgQueue McMsgQ;
 /* mcard.c's `inline` functions, in the order of their definitions'
  * out-of-line copies at the end of the object (first-declaration order). */
-void iosMcMgrSync(void *mp);
+void iosMcMgrSync(struct McMgr *mp);
 void iosMcTest(void);
 int iosMcSync(unsigned long *req);
 int iosMcGetInfo(void *req);
@@ -32,8 +34,8 @@ int iosMcSaveGameBlock(void *req, int arg);
 int iosMcLoadGameBlock(void *req, int arg);
 int iosMcChdirProduct(void *req);
 int iosMcGetBlockSaveInfo(void *req);
-void iosMcHandlerRead();
-void iosMcHandlerWrite();
+void iosMcHandlerRead(struct McMgr *mp, unsigned char *buf, int len);
+void iosMcHandlerWrite(struct McMgr *mp, unsigned char *buf, int len);
 void iosMcManager(void);
 
 /* iconfile: one memory card icon file, 0x24 bytes. Reader: ico2/fumi/ios/

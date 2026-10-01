@@ -45,7 +45,7 @@ typedef struct WVTObj { /* field names derived */
 WayPoint *GetWay_begin(float *from, WVTObj *w, float *goal);
 void BridgeBox(void);
 inline void DeleteGuideWay(WVTObj *o);
-int GetWay_next(WVTObj *w, float *pos);
+WayPoint *GetWay_next(WVTObj *w, float *pos);
 WayPoint *_FUNC_GetWay_begin(float *from, WVTObj *w, float *goal, int threaded);
 int GetNearNigePointN(void *out, int num, WVTObj *w, float *pos);
 

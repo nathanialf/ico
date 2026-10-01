@@ -28,7 +28,7 @@ void BeforeFunc2(GObj *self)
 
     if (act != 0) {
         /* the mail box and the three lists to walk, the last a -1 terminator */
-        IosMailBox *mb = (IosMailBox *)&self->mailQueue;
+        IosMailBox *mb = &self->mailBox;
         MailRec *lists[3] = {act->listA, act->listB, (MailRec *)-1};
         MailRec *p;
         int i;

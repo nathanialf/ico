@@ -77,7 +77,7 @@ void birdBeforeFunc(GObj *self)
     float there[4];
     float here[4];
     int i;
-    GObjMailQueue *q = (GObjMailQueue *)&self->mailQueue;
+    GObjMailQueue *q = (GObjMailQueue *)&self->mailBox;
 
     for (i = 0; i < q->num; i++) {
         GObjMailEntry *e = &q->e[i];

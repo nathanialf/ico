@@ -296,7 +296,7 @@ static int stgmgrNextStagePreLoad(CdvdBgReq *bg)
         } while (stgPreLoadDebugHold());
         strcpy(bg->name, GetDataFileName(stage, 1));
         ret = -1;
-        iosCdvdChgFileName(bg);
+        iosCdvdChgFileName(bg->name);
         stagePreLoadLsn = bg->lsn = iosCdvdGetFileLsn(bg->name, &size);
         size = (size + 0x7FF) / 0x800 * 0x800;
         readSize = size > 0x1C0000 ? 0x1C0000 : size;

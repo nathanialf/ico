@@ -489,7 +489,7 @@ inline void DeleteGuideWay(WVTObj *o)
 /* the object whose wall collision GetWay_next draws, for debugging */
 static void *wayDebugWallGObj = 0; /* derived name */
 
-int GetWay_next(WVTObj *w, float *pos)
+WayPoint *GetWay_next(WVTObj *w, float *pos)
 {
     WayVec dv;
     WayPoint *cur;
@@ -592,7 +592,7 @@ int GetWay_next(WVTObj *w, float *pos)
     }
 
     if (blocked == 0 && lim < fzMagnitudefv(dv)) {
-        return (int)cur;
+        return cur;
     }
 
     /* prints compiled out of the retail build; their strings stay in .rodata.
@@ -607,7 +607,7 @@ int GetWay_next(WVTObj *w, float *pos)
         if (cur == w->chk.start) {
             w->reached = 1;
             DeleteGuideWay(w);
-            return (int)cur;
+            return cur;
         }
         break;
 
@@ -616,7 +616,7 @@ int GetWay_next(WVTObj *w, float *pos)
             w->reached = 1;
             DeleteGuideWay(w);
             w->nearWp = w->chk.cross;
-            return (int)cur;
+            return cur;
         }
         if (cur == w->chk.start) {
             debug_StdPrintfDummy("goal wp1\n");
@@ -627,7 +627,7 @@ int GetWay_next(WVTObj *w, float *pos)
                 w->guideFirst = -1;
             }
             w->nearWp = w->chk.start;
-            return (int)w->chk.cur;
+            return w->chk.cur;
         }
         break;
     }
@@ -646,7 +646,7 @@ int GetWay_next(WVTObj *w, float *pos)
     }
     debug_StdPrintfDummy("bilist:%p\n", w->chk.cur);
     w->nearWp = w->chk.cur;
-    return (int)w->nearWp;
+    return w->nearWp;
 }
 
 /* One candidate escape point: the way point id and the path length to it. */

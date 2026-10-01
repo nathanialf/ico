@@ -43,7 +43,7 @@ static inline int _iosMcIconWriteIconsys(int self, struct McIconWork *p)
     return 1;
 }
 
-inline int iosMcIconWriteIconsys(int self, int *p)
+inline int iosMcIconWriteIconsys(struct McMgr *self, int *p)
 {
     struct McIconWork work;
     CdvdBgReq *hdl;
@@ -74,7 +74,7 @@ inline int iosMcIconWriteIconsys(int self, int *p)
     return 0;
 }
 
-inline int iosMcIconWriteIcon(int self, int *p)
+inline int iosMcIconWriteIcon(struct McMgr *self, int *p)
 {
     return iosMcIconWriteIconsys(self, p);
 }

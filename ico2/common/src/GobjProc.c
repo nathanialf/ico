@@ -1,6 +1,7 @@
 #include "debug.h"
 #include "icoMisc.h"
 #include "gobj_dl.h"
+#include "gobj_cam_dl.h"
 #include "camera-root.h"
 #include "GobjProc.h"
 #include "gobj.h"
@@ -11,9 +12,6 @@ static int gobjCount = 0; /* derived name */
 
 /* .bss: the table of created game objects, 208 entries */
 static GObj *gobj_table[208]; /* derived name */
-
-/* this TU passes drawMask as unsigned int; gobj_cam_dl.h declares an int */
-extern void isysGObjLinkCameraDL(char *self, int dl, int key, int kindMask, unsigned int drawMask);
 
 void ResetGObjProc(void)
 {

@@ -35,7 +35,7 @@ char *iOSMcSaveSeg[6] = {"BESCES-50760ico", "icon.sys",    "boy_blk.ico",
 
 static int mcLockCount = 0; /* derived name */
 
-inline void iosMcMgrSync(void *mp)
+inline void iosMcMgrSync(McMgr *mp)
 {
     mcLockSemaParam.attr = 1;
     mcLockSemaParam.initCount = 0;
@@ -45,7 +45,7 @@ inline void iosMcMgrSync(void *mp)
     do {
         WaitSema(IosMcLock);
         mcLockCount++;
-    } while (sceMcSync(1, (int *)((char *)mp + 0x30), (int *)((char *)mp + 0x10)) == 0);
+    } while (sceMcSync(1, &mp->cmd, &mp->result) == 0);
     DeleteSema(IosMcLock);
     IosMcLock = -1;
 }
@@ -163,45 +163,46 @@ typedef struct { /* field names derived */
     char b[64];
 } McBlk; /* derived name */
 
-static inline int product_write(int *self)
+static inline int product_write(McMgr *self)
 {
-    (IosMcProductFile + self[2])->soundMode = systemStatus[11];
-    (IosMcProductFile + self[2])->outputMode = soundOutputModeGet();
-    (IosMcProductFile + self[2])->vibration = iosPadActRequestEnable;
-    (IosMcProductFile + self[2])->controlType = optionControlType;
-    (IosMcProductFile + self[2])->cameraMove = NonLinearCameraMove;
-    (IosMcProductFile + self[2])->palMode = systemStatus[0];
-    *(McBlk *)(IosMcProductFile + self[2])->padConf = *(McBlk *)iosPadConfCustom.bit;
-    iosMcHandlerWrite((int)self, (int)(IosMcProductFile + self[2]), 0x1F0);
+    (IosMcProductFile + self->port)->soundMode = systemStatus[11];
+    (IosMcProductFile + self->port)->outputMode = soundOutputModeGet();
+    (IosMcProductFile + self->port)->vibration = iosPadActRequestEnable;
+    (IosMcProductFile + self->port)->controlType = optionControlType;
+    (IosMcProductFile + self->port)->cameraMove = NonLinearCameraMove;
+    (IosMcProductFile + self->port)->palMode = systemStatus[0];
+    *(McBlk *)(IosMcProductFile + self->port)->padConf = *(McBlk *)iosPadConfCustom.bit;
+    iosMcHandlerWrite(self, (unsigned char *)(IosMcProductFile + self->port),
+                      sizeof(McProductFile));
     return 0;
 }
 
-static inline int product_read(int *self)
+static inline int product_read(McMgr *self)
 {
-    int idx = self[0x8 / 4];
-    iosMcHandlerRead((int)self, (int)&IosMcProductFile[idx], 0x1F0);
-    return self[0x10 / 4];
+    int idx = self->port;
+    iosMcHandlerRead(self, (unsigned char *)&IosMcProductFile[idx], sizeof(McProductFile));
+    return self->result;
 }
 
-static inline int gameblock_write(int self, void *buf)
+static inline int gameblock_write(McMgr *self, void *buf)
 {
-    iosMcHandlerWrite(self, buf, 0x63F4);
-    iosMcHandlerWrite(self, &optionScreenMode, 4);
-    iosMcHandlerWrite(self, &girlControlMode, 4);
+    iosMcHandlerWrite(self, buf, 25588);
+    iosMcHandlerWrite(self, (unsigned char *)&optionScreenMode, 4);
+    iosMcHandlerWrite(self, (unsigned char *)&girlControlMode, 4);
     return 0;
 }
 
-static inline int gameblock_read(int *self, void *buf)
+static inline int gameblock_read(McMgr *self, void *buf)
 {
-    iosMcHandlerRead((int)self, (int)buf, 0x63F4);
-    systemStatus[11] = (IosMcProductFile + self[2])->soundMode;
-    soundOutputModeSet((IosMcProductFile + self[2])->outputMode);
-    iosPadActRequestEnable = (IosMcProductFile + self[2])->vibration;
-    optionControlType = (IosMcProductFile + self[2])->controlType;
-    *(McBlk *)iosPadConfCustom.bit = *(McBlk *)(IosMcProductFile + self[2])->padConf;
-    iosMcHandlerRead((int)self, (int)&optionScreenMode, 4);
-    iosMcHandlerRead((int)self, (int)&girlControlMode, 4);
-    return self[4];
+    iosMcHandlerRead(self, buf, 25588);
+    systemStatus[11] = (IosMcProductFile + self->port)->soundMode;
+    soundOutputModeSet((IosMcProductFile + self->port)->outputMode);
+    iosPadActRequestEnable = (IosMcProductFile + self->port)->vibration;
+    optionControlType = (IosMcProductFile + self->port)->controlType;
+    *(McBlk *)iosPadConfCustom.bit = *(McBlk *)(IosMcProductFile + self->port)->padConf;
+    iosMcHandlerRead(self, (unsigned char *)&optionScreenMode, 4);
+    iosMcHandlerRead(self, (unsigned char *)&girlControlMode, 4);
+    return self->result;
 }
 
 /* the product directory name, 17 bytes including the terminator, copied as

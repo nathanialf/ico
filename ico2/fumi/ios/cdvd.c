@@ -1248,7 +1248,7 @@ int iosCdvdBackGroundMgrGetRunning(void)
     return bgRunning;
 }
 
-int iosCdvdDirectStRead(int stream, void *dst, int size, int *err)
+int iosCdvdDirectStRead(IosCdvdHandle *stream, void *dst, int size, int *err)
 {
     int local, result;
     *err = 0;

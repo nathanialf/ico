@@ -17,5 +17,5 @@ int strFileClose(char *self)
 
 int strFileRead(char *self, void *buf, int n, int *eof)
 {
-    return iosCdvdDirectStRead((int)self, buf, n, eof);
+    return iosCdvdDirectStRead((struct IosCdvdHandle *)self, buf, n, eof);
 }

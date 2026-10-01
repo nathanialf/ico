@@ -236,7 +236,7 @@ int ACTWayMove_BeginDetail(GObj *self, float *goal, float *from, void *tgt, void
             ret = 1;
         }
         *home = way;
-        *(int *)((char *)act + 0x400) = 0;
+        act->wayLast = 0;
         *(int *)((char *)act + 0x404) = (int)tgt;
         *(float *)((char *)act + 0x410) = from[0];
         *(float *)((char *)act + 0x414) = from[1];
@@ -286,6 +286,7 @@ int ACTWayMove_NextDetail(GObj *self, float *node, float *goal, unsigned char d,
     char *way;
     int again = 0;
     int w;
+    WayPoint *wp;
     int r;
     unsigned char ok;
     float dy;
@@ -410,15 +411,15 @@ int ACTWayMove_NextDetail(GObj *self, float *node, float *goal, unsigned char d,
         }
         *(short *)((char *)act + 0x3F0) = 1;
         way = (char *)act + 0x360;
-        w = GetWay_next(way, pos);
-        if (w != 0) {
-            if (*(int *)((char *)act + 0x400) != w) {
-                if (*(int *)((char *)act + 0x400) != 0) {
+        wp = GetWay_next(way, pos);
+        if (wp != 0) {
+            if (act->wayLast != wp) {
+                if (act->wayLast != 0) {
                     if (act->wayAvoid <= 0) {
                         *(short *)((char *)act + 0x3F0) = 1;
                     }
                 }
-                *(int *)((char *)act + 0x400) = w;
+                act->wayLast = wp;
             }
         }
         if (self == girlGObj) {

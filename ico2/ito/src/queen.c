@@ -950,7 +950,7 @@ void queenBeforeFunc(GObj *g)
 {
     QVec pos;
     QVec target;
-    GObjMailQueue *q = (GObjMailQueue *)&g->mailQueue;
+    GObjMailQueue *q = (GObjMailQueue *)&g->mailBox;
     QueenWork *w = GOBJ_SUB(g)->work;
     Act *act = GOBJ_ACT(g);
     int i;
@@ -1832,7 +1832,7 @@ int QueenBarrierInqBreakable(void)
 
 void queenBarrierBeforeFunc(GObj *g)
 {
-    GObjMailQueue *q = (GObjMailQueue *)&g->mailQueue;
+    GObjMailQueue *q = (GObjMailQueue *)&g->mailBox;
     QueenBarrierWork *w = GOBJ_SUB(g)->work;
     char *other;
     int i;
@@ -1895,7 +1895,7 @@ float GetQueenBallThickness(void)
 
 void queenBallBeforeFunc(GObj *g)
 {
-    GObjMailQueue *q = (GObjMailQueue *)&g->mailQueue;
+    GObjMailQueue *q = (GObjMailQueue *)&g->mailBox;
     QueenBallWork *w = GOBJ_SUB(g)->work;
     int i;
 

@@ -344,14 +344,14 @@ typedef struct GirlBrainWork { /* field names derived */
     int curMode;    /* 0x57DC the mode the brain last switched to */
     int targetFlag; /* 0x57E0 bit 16 of the winning BrainTarget's b18 word */
     char pad57E4[12];
-    float f_57F0[4]; /* 0x57F0 the runaway goal            */
-    float f_5800[4]; /* 0x5800 last accepted hide point    */
-    float f_5810[4]; /* 0x5810 */
-    float f_5820[4]; /* 0x5820 */
-    float f_5830[4]; /* 0x5830 the girl's own position     */
-    float f_5840[4]; /* 0x5840 */
-    float f_5850[4]; /* 0x5850 */
-    int f_5860;      /* 0x5860 */
+    float f_57F0[4];   /* 0x57F0 the runaway goal            */
+    float f_5800[4];   /* 0x5800 last accepted hide point    */
+    float f_5810[4];   /* 0x5810 */
+    float f_5820[4];   /* 0x5820 */
+    float f_5830[4];   /* 0x5830 the girl's own position     */
+    float f_5840[4];   /* 0x5840 */
+    float f_5850[4];   /* 0x5850 */
+    WayPoint *lastWay; /* 0x5860, the way point GetWay_next last returned */
     char pad5864[140];
     unsigned char f_58F0; /* 0x58F0 */
     unsigned char f_58F1; /* 0x58F1 */
@@ -2188,7 +2188,7 @@ static int girlBrainRunawaySearchPoint(float *goal, float *out, float *p)
             out[0] = s[0];
             out[1] = s[1];
             out[2] = s[2];
-            brain_val.f_5860 = 0;
+            brain_val.lastWay = 0;
             return 1;
         }
     }
@@ -2200,7 +2200,7 @@ static int girlBrainRunawayMoveByWay(char *self, float *out, float *tgt)
     float d[4];
     float pos[4];
     Act *sub;
-    int way;
+    WayPoint *way;
     int done;
 
     sub = GOBJ_ACT(self);
@@ -2216,15 +2216,12 @@ static int girlBrainRunawayMoveByWay(char *self, float *out, float *tgt)
         if (way == 0) {
             sceVu0CopyVector(out, (char *)sub + 0x3B0);
         } else {
-            char *w;
-
             sceVu0CopyVector(out, (char *)sub + 0x3B0);
-            w = (char *)&brain_val;
-            if (*(int *)(w + 0x5860) != way) {
-                if (*(int *)(w + 0x5860) != 0) {
+            if (brain_val.lastWay != way) {
+                if (brain_val.lastWay != 0) {
                     done = sub->wayAvoid < 1;
                 }
-                *(int *)(w + 0x5860) = way;
+                brain_val.lastWay = way;
             }
         }
         if (sub->wayCross == 0) {

@@ -200,7 +200,7 @@ static void disp_memory_partition(void)
     int y = 0x70;
     debug_PrintfDummy(24, 100, 0xFFFFFF00, "partition             total free/all      max free");
     iosMallocCheckLeak(ios_partition_root);
-    p = ios_partition_root->parent;
+    p = ios_partition_root->child;
     if (p != 0) {
         do {
             unsigned int sum = 0;

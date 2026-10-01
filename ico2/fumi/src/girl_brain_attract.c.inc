@@ -187,7 +187,7 @@ void subGirlBrain_Attract(GObj *volatile self)
     void *cur = brain_val.lastTarget;
     int type = 0;
     int kind;
-    int param = 0;
+    GObj *param = 0;
     int dbg = 0; /* local debug switch, see the rate block below */
     int fr = (60 - systemStatus[0] * 10) / systemStatus[1];
     int fr3 = fr + (60 - systemStatus[0] * 10) / systemStatus[1] * 2;
@@ -228,7 +228,7 @@ restart:
         break;
     case 1:
         type = 1;
-        param = (int)cur;
+        param = cur;
         break;
     case 2:
         type = 2;
@@ -248,7 +248,7 @@ restart:
     case 1:
         tgt = attractSofaParam;
         tgt.obj = cur;
-        GetSofaPosition(girlGObj, (GObj *)param);
+        GetSofaPosition(girlGObj, param);
         tgt.pos[0] = sub->sofaPos[0];
         tgt.pos[1] = sub->sofaPos[1];
         tgt.pos[2] = sub->sofaPos[2];

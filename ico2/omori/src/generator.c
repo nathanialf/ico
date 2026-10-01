@@ -739,11 +739,11 @@ typedef struct GenReq { /* field names derived */
 void generatorBeforeFunc(GObj *gobj)
 {
     GenWork *w = GOBJ_SUB(gobj)->work;
-    GenReq *q = (GenReq *)&gobj->mailQueue;
+    GenReq *q = (GenReq *)&gobj->mailBox;
     int i;
 
     for (i = 0; i < q->count; i++) {
-        switch (((GenReqEntry *)gobj->mail)[i].kind) {
+        switch (((GenReqEntry *)gobj->mailBox.mail)[i].kind) {
         case 0: {
             GenWork *cur;
 

@@ -286,7 +286,7 @@ void *isysGObjAddAfterGObj(void (*fn)(GObj *), GObj *other)
     g->labelType = -1;
     g->procHead = 0;
     g->procTail = 0;
-    g->mailNum = 0;
+    g->mailBox.num = 0;
     return g;
 }
 
@@ -321,7 +321,7 @@ void *isysGObjAddBeforeGObj(void (*fn)(GObj *), GObj *other)
     g->labelType = -1;
     g->procHead = 0;
     g->procTail = 0;
-    g->mailNum = 0;
+    g->mailBox.num = 0;
     return g;
 }
 
@@ -425,7 +425,7 @@ inline void *isysGObjAdd(void (*fn)(GObj *), int a1, int a2)
     g->labelType = -1;
     g->procHead = 0;
     g->procTail = 0;
-    g->mailNum = 0;
+    g->mailBox.num = 0;
     g->kind = 0;
     return g;
 }
@@ -448,7 +448,7 @@ inline void *isysGObjAddHead(void (*fn)(GObj *), int a1, int a2)
     g->labelType = -1;
     g->procHead = 0;
     g->procTail = 0;
-    g->mailNum = 0;
+    g->mailBox.num = 0;
     return g;
 }
 

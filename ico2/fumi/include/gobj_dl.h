@@ -8,24 +8,14 @@
 #ifndef GOBJ_DL_H
 #define GOBJ_DL_H
 
-typedef struct DLN { /* field names derived */
-    char pad0[52];
-    struct DLN *next;
-    struct DLN *prev;
-    char pad3C[4];
-    unsigned char id;
-    char pad41[3];
-    int key;
-    void (*dl)(struct DLN *); /* 0x48, the display function the object manager calls */
-    int kindMask; /* 0x4C, a camera node's object kinds, one bit per gobj_dl_link_head list */
-    int drawMask; /* 0x50, ANDed with the camera's mask to pick the cameras that draw it */
-} DLN;            /* derived name */
+/* The display lists link game objects through GObj + 0x34 (typedef.h). */
+struct GObj;
 
 /* gobj_dl.c's `inline` functions, in the order of their definitions'
  * out-of-line copies at the end of the object (first-declaration order). */
 void isysGObjDlInit(void);
-void isysGObjMoveObjDLAfterGObj(DLN *self, DLN *obj);
-void isysGObjMoveObjDLBeforeGObj(DLN *self, DLN *obj);
+void isysGObjMoveObjDLAfterGObj(struct GObj *self, struct GObj *obj);
+void isysGObjMoveObjDLBeforeGObj(struct GObj *self, struct GObj *obj);
 void isysGObjLinkObjDL(void *self, void *dl, unsigned char kind, int key, unsigned int drawMask);
 
 #endif /* GOBJ_DL_H */
