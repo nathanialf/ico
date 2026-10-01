@@ -18,6 +18,14 @@
 #include "poly-flat.h"
 #include <libvu0.h>
 
+/* ios/thread.c's entry points as the menus call them, each with the menu's
+   thread (thread.h declares Sleep with no argument, Destroy with an int and
+   Wakeup with an int *, so it is not included) */
+extern void iosThreadSleep(void *th);
+extern void iosThreadDestroy(void *th);
+extern void iosThreadWakeup(void *thread);
+extern void iosThreadMessage(int a0);
+
 typedef struct CamMgr {
     int count;        /* 0x00 */
     char *items;      /* 0x04 */
@@ -47,9 +55,6 @@ typedef struct {
     int num;
     int pins;
 } CamSetBinHdr;
-
-extern int GetSizeOfCameraSetBinary(S4C *p, int n);
-extern void MakeCameraSetBinary(S4C *src, int count, S4C *dst);
 
 inline void StickToTrans(int a0, int a1, int a2, int a3, float *out, int a5)
 {
@@ -147,9 +152,6 @@ static int *cameraSetEdit = (int *)0x30E27E0; /* derived name */
 static char dumpLine[2048]; /* derived name */
 
 extern void __assert(char *file, int line, char *expr);
-/* as thread.h declares it; thread.h is not included because this file
-   calls iosThreadDestroy and iosThreadSleep with a thread pointer */
-extern void iosThreadMessage(int a0);
 
 void saveEditedData(int *range)
 {
@@ -184,8 +186,8 @@ void saveEditedData(int *range)
             PinRec *p = (PinRec *)CameraEdit_PIN(i, j);
 
             /* the pin flag prints as a maru when set and a batsu when clear */
-            sprintf(dumpLine, "%s\t%d\t\t%d\t%d\t%d\t\t\t%d\t%d\t%d\n", p->type ? "○" : "×",
-                    (int)p->size, (int)p->pos[0], (int)p->pos[1], (int)p->pos[2], (int)p->look[0],
+            sprintf(dumpLine, "%s\t%d\t\t%d\t%d\t%d\t\t\t%d\t%d\t%d\n", p->on ? "○" : "×",
+                    (int)p->fov, (int)p->pos[0], (int)p->pos[1], (int)p->pos[2], (int)p->look[0],
                     (int)p->look[1], (int)p->look[2]);
             sceWrite(fd, dumpLine, strlen(dumpLine));
         }
@@ -297,10 +299,10 @@ void DebugDispBox(BoxVec *c, BoxVec *s)
         col.b = 64;
         col.a = 32;
         for (j = 0; j < 3; j++) {
-            _InterGV(e0, &v[idx6.e[n][0]], &v[idx6.e[n][1]], (float)j, (float)(3 - j));
-            _InterGV(e1, &v[idx6.e[n][0]], &v[idx6.e[n][1]], (float)(j + 1), (float)(2 - j));
-            _InterGV(e2, &v[idx6.e[n][2]], &v[idx6.e[n][3]], (float)j, (float)(3 - j));
-            _InterGV(e3, &v[idx6.e[n][2]], &v[idx6.e[n][3]], (float)(j + 1), (float)(2 - j));
+            _InterGV(e0, &v[idx6.e[n][0]].x, &v[idx6.e[n][1]].x, (float)j, (float)(3 - j));
+            _InterGV(e1, &v[idx6.e[n][0]].x, &v[idx6.e[n][1]].x, (float)(j + 1), (float)(2 - j));
+            _InterGV(e2, &v[idx6.e[n][2]].x, &v[idx6.e[n][3]].x, (float)j, (float)(3 - j));
+            _InterGV(e3, &v[idx6.e[n][2]].x, &v[idx6.e[n][3]].x, (float)(j + 1), (float)(2 - j));
             for (k = 0; k < 3; k++) {
                 _InterGV(g0, e0, e2, (float)k, (float)(3 - k));
                 _InterGV(g1, e0, e2, (float)(k + 1), (float)(2 - k));
@@ -328,7 +330,7 @@ void DebugDispBox(BoxVec *c, BoxVec *s)
     m2[0][0] = m2[1][1] = m2[2][2] = -1.0f;
     before_DrawLine(m);
     for (i = 0; i < 12; i++) {
-        do_DrawLine(&v[idx12.e[i][0]], &v[idx12.e[i][1]], &col2, -1);
+        do_DrawLine(&v[idx12.e[i][0]], &v[idx12.e[i][1]], col2.c, -1);
     }
     after_DrawLine();
 }
@@ -378,10 +380,10 @@ void DispCameraGroup(int box, unsigned char sel)
             col.a = 32;
         }
         for (j = 0; j < 3; j++) {
-            _InterGV(e0, &v[idx6.e[n][0]], &v[idx6.e[n][1]], (float)j, (float)(3 - j));
-            _InterGV(e1, &v[idx6.e[n][0]], &v[idx6.e[n][1]], (float)(j + 1), (float)(2 - j));
-            _InterGV(e2, &v[idx6.e[n][2]], &v[idx6.e[n][3]], (float)j, (float)(3 - j));
-            _InterGV(e3, &v[idx6.e[n][2]], &v[idx6.e[n][3]], (float)(j + 1), (float)(2 - j));
+            _InterGV(e0, &v[idx6.e[n][0]].x, &v[idx6.e[n][1]].x, (float)j, (float)(3 - j));
+            _InterGV(e1, &v[idx6.e[n][0]].x, &v[idx6.e[n][1]].x, (float)(j + 1), (float)(2 - j));
+            _InterGV(e2, &v[idx6.e[n][2]].x, &v[idx6.e[n][3]].x, (float)j, (float)(3 - j));
+            _InterGV(e3, &v[idx6.e[n][2]].x, &v[idx6.e[n][3]].x, (float)(j + 1), (float)(2 - j));
             for (k = 0; k < 3; k++) {
                 _InterGV(g0, e0, e2, (float)k, (float)(3 - k));
                 _InterGV(g1, e0, e2, (float)(k + 1), (float)(2 - k));
@@ -409,7 +411,7 @@ void DispCameraGroup(int box, unsigned char sel)
     m2[0][0] = m2[1][1] = m2[2][2] = -1.0f;
     before_DrawLine(m);
     for (i = 0; i < 12; i++) {
-        do_DrawLine(&v[idx12.e[i][0]], &v[idx12.e[i][1]], &col2, -1);
+        do_DrawLine(&v[idx12.e[i][0]], &v[idx12.e[i][1]], col2.c, -1);
     }
     after_DrawLine();
 }
@@ -657,13 +659,13 @@ void dispCameraGroupType2(int box, unsigned char sel)
     for (n = 0; n < 6; n++) {
         col = sel == 0 ? boxFaceColor : boxFaceColorSel;
         for (j = 0; j < 3; j++) {
-            _InterGV(e0, &v[boxFaceCorner[n][0]], &v[boxFaceCorner[n][1]], (float)j,
+            _InterGV(e0, &v[boxFaceCorner[n][0]].x, &v[boxFaceCorner[n][1]].x, (float)j,
                      (float)(3 - j));
-            _InterGV(e1, &v[boxFaceCorner[n][0]], &v[boxFaceCorner[n][1]], (float)(j + 1),
+            _InterGV(e1, &v[boxFaceCorner[n][0]].x, &v[boxFaceCorner[n][1]].x, (float)(j + 1),
                      (float)(2 - j));
-            _InterGV(e2, &v[boxFaceCorner[n][2]], &v[boxFaceCorner[n][3]], (float)j,
+            _InterGV(e2, &v[boxFaceCorner[n][2]].x, &v[boxFaceCorner[n][3]].x, (float)j,
                      (float)(3 - j));
-            _InterGV(e3, &v[boxFaceCorner[n][2]], &v[boxFaceCorner[n][3]], (float)(j + 1),
+            _InterGV(e3, &v[boxFaceCorner[n][2]].x, &v[boxFaceCorner[n][3]].x, (float)(j + 1),
                      (float)(2 - j));
             for (k = 0; k < 3; k++) {
                 _InterGV(g0, e0, e2, (float)k, (float)(3 - k));
@@ -772,13 +774,13 @@ void CameraEdit_DispBoxType2_Plane(int box, int sel)
             for (n = 0; n < 6; n++) {
                 col = (n != sel) ? cb : ca;
                 for (j = 0; j < 3; j++) {
-                    _InterGV(e0, &v[planeFaceCorner[n][0]], &v[planeFaceCorner[n][1]], (float)j,
+                    _InterGV(e0, &v[planeFaceCorner[n][0]].x, &v[planeFaceCorner[n][1]].x, (float)j,
                              (float)(3 - j));
-                    _InterGV(e1, &v[planeFaceCorner[n][0]], &v[planeFaceCorner[n][1]],
+                    _InterGV(e1, &v[planeFaceCorner[n][0]].x, &v[planeFaceCorner[n][1]].x,
                              (float)(j + 1), (float)(2 - j));
-                    _InterGV(e2, &v[planeFaceCorner[n][2]], &v[planeFaceCorner[n][3]], (float)j,
+                    _InterGV(e2, &v[planeFaceCorner[n][2]].x, &v[planeFaceCorner[n][3]].x, (float)j,
                              (float)(3 - j));
-                    _InterGV(e3, &v[planeFaceCorner[n][2]], &v[planeFaceCorner[n][3]],
+                    _InterGV(e3, &v[planeFaceCorner[n][2]].x, &v[planeFaceCorner[n][3]].x,
                              (float)(j + 1), (float)(2 - j));
                     for (k = 0; k < 3; k++) {
                         _InterGV(g0, e0, e2, (float)k, (float)(3 - k));
@@ -837,9 +839,6 @@ extern Pad D_0028F8F0[];
 int print_y;
 
 unsigned char exit_f;
-
-/* thread.h declares it (void) */
-extern void iosThreadSleep(void *th);
 
 void menuGroupSelect(MenuThread *m)
 {
@@ -912,9 +911,6 @@ typedef struct {
     int type; /* 0x44 */
     char pad48[0x4C - 0x48];
 } EditRec;
-
-/* thread.h declares it (int) */
-extern void iosThreadDestroy(void *th);
 
 void menuGroupEdit(MenuThread *m)
 {
@@ -1059,24 +1055,25 @@ void menuPinSelect(MenuThread *m)
             if (i == cur) {
                 if (debug_font_flag & 1) {
                     debug_Printf(40, print_y += 10, 0xFFFFFF00, ">>%s %d",
-                                 ((PinRec *)CameraEdit_PIN(no, cur))->type ? "ON " : "OFF", k);
+                                 ((PinRec *)CameraEdit_PIN(no, cur))->on ? "ON " : "OFF", k);
                 }
             } else {
                 if (debug_font_flag & 1) {
                     debug_Printf(40, print_y += 10, 0xFFFFFF00, "  %s %d",
-                                 ((PinRec *)CameraEdit_PIN(no, i))->type ? "ON " : "OFF", k);
+                                 ((PinRec *)CameraEdit_PIN(no, i))->on ? "ON " : "OFF", k);
                 }
             }
         }
-        if (*(float *)(CameraEdit_PIN(no, cur) + 0x30) != 0.0f) {
+        if (((PinRec *)CameraEdit_PIN(no, cur))->range != 0.0f) {
             debug_Marker((int *)CameraEdit_PIN(no, cur), 0, 0, 255,
-                         *(float *)(CameraEdit_PIN(no, cur) + 0x30), 0.0f);
+                         ((PinRec *)CameraEdit_PIN(no, cur))->range, 0.0f);
         } else {
             debug_Marker((int *)CameraEdit_PIN(no, cur), 255, 0, 0, 100.0f, 0.0f);
         }
         {
-            float *p = (float *)CameraEdit_PIN(no, cur);
-            CamWork cw = {{p[0], p[1], p[2]}, {p[3], p[4], p[5]}, p[10]};
+            PinRec *p = (PinRec *)CameraEdit_PIN(no, cur);
+            CamWork cw = {
+                {p->pos[0], p->pos[1], p->pos[2]}, {p->look[0], p->look[1], p->look[2]}, p->fov};
 
             sceVu0ScaleVector(&cw, &cw, -1.0f);
             sceVu0ScaleVector(cw.at, cw.at, -1.0f);
@@ -1123,8 +1120,8 @@ void menuPinEdit(MenuThread *m)
         }
         cur = (cur < 0) ? 7 : ((cur > 7) ? 0 : cur);
         {
-            EditItem item[8] = {{pin->type, 1, 1, "onoff"},
-                                {(int)pin->size, 1, 1, "view"},
+            EditItem item[8] = {{pin->on, 1, 1, "onoff"},
+                                {(int)pin->fov, 1, 1, "view"},
                                 {(int)pin->pos[0], 10, 0, "camera-x"},
                                 {(int)pin->pos[1], 10, 0, "camera-y"},
                                 {(int)pin->pos[2], 10, 0, "camera-z"},
@@ -1165,9 +1162,9 @@ void menuPinEdit(MenuThread *m)
                     }
                 }
             }
-            pin->type = item[0].val;
+            pin->on = item[0].val;
 
-            pin->size = (float)item[1].val;
+            pin->fov = (float)item[1].val;
             pin->pos[0] = (float)item[2].val;
             pin->pos[1] = (float)item[3].val;
             pin->pos[2] = (float)item[4].val;
@@ -1177,7 +1174,7 @@ void menuPinEdit(MenuThread *m)
             {
                 CamWork cw = {{pin->pos[0], pin->pos[1], pin->pos[2]},
                               {pin->look[0], pin->look[1], pin->look[2]},
-                              pin->size};
+                              pin->fov};
                 float out[4];
 
                 sceVu0ScaleVector(&cw, &cw, -1.0f);
@@ -1208,8 +1205,6 @@ void menuPinEdit(MenuThread *m)
         iosThreadSleep(m);
     }
 }
-
-extern char D_002AD010[];
 
 inline void menu_2(MenuThread *m)
 {
@@ -1247,8 +1242,6 @@ inline void group_select(MenuThread *m)
 }
 
 extern StgPre stageData[];
-/* thread.h declares it int (int *) */
-extern void iosThreadWakeup(void *thread);
 
 void wakeup_cameraedit(void)
 {
@@ -1256,8 +1249,8 @@ void wakeup_cameraedit(void)
     if (curmenu != 0) {
         iosThreadWakeup((void *)curmenu);
         if (pad[1].flags & 0x400) {
-            saveEditedDataBinary((int)&D_002AD010[stageData[stage_no].camSetId * 0x20],
-                                 cameraSetEdit[1], cameraSetEdit[0]);
+            saveEditedDataBinary((int)cameraSetList[stageData[stage_no].camSetId], cameraSetEdit[1],
+                                 cameraSetEdit[0]);
         }
     }
 }
@@ -1312,14 +1305,14 @@ inline int _CameraEdit_add_box(CamMgr *mgr, S4C *src)
     return -1;
 }
 
-inline int _CameraEdit_add_pin(void *a0, int a1, S5C *src)
+inline int _CameraEdit_add_pin(void *a0, int a1, PinRec *src)
 {
     int base = a1 * 0x4C + *(int *)((char *)a0 + 4);
     int n = ((S4C *)base)->end;
     int result = -1;
     if (n < 0x64) {
         int base2;
-        *(S5C *)(((S4C *)base)->items + n * 0x5C) = *src;
+        *(PinRec *)(((S4C *)base)->items + n * 0x5C) = *src;
         base2 = a1 * 0x4C + *(int *)((char *)a0 + 4);
         result = ((S4C *)base2)->end;
         ((S4C *)base2)->end = result + 1;
@@ -1363,14 +1356,14 @@ static inline S4C *_CameraEdit_BOX_p(CamMgr *mgr, int i)
     return (S4C *)(i * 0x4C + (int)mgr->items);
 }
 
-static inline S5C *_CameraEdit_PIN_p(CamMgr *mgr, int i, int j)
+static inline PinRec *_CameraEdit_PIN_p(CamMgr *mgr, int i, int j)
 {
-    return (S5C *)(_CameraEdit_BOX_p(mgr, i)->items + j * 0x5C);
+    return (PinRec *)(_CameraEdit_BOX_p(mgr, i)->items + j * 0x5C);
 }
 
 void _CameraEdit_del_pin(CamMgr *mgr, int box, int pin)
 {
-    S5C *p;
+    PinRec *p;
     if (_CameraEdit_BOX_p(mgr, box)->end <= 0) {
         /* "cannot delete any more" */
         debug_StdPrintfDummy("これ以上削除できません");
@@ -1391,19 +1384,15 @@ int CameraEdit_add_box(S4C *src)
 
 int CameraEdit_add_pin(int box, char *src)
 {
-    _CameraEdit_add_pin(cameraSetOrg, box, (S5C *)src);
-    return _CameraEdit_add_pin(cameraSetEdit, box, (S5C *)src);
+    _CameraEdit_add_pin(cameraSetOrg, box, (PinRec *)src);
+    return _CameraEdit_add_pin(cameraSetEdit, box, (PinRec *)src);
 }
-
-extern void _CameraEdit_del_box(CamMgr *mgr, int idx);
 
 void CameraEdit_del_box(int a0)
 {
     _CameraEdit_del_box((CamMgr *)cameraSetOrg, a0);
     _CameraEdit_del_box((CamMgr *)cameraSetEdit, a0);
 }
-
-extern void _CameraEdit_del_pin(CamMgr *mgr, int box, int pin);
 
 void CameraEdit_del_pin(int a0, int a1)
 {
@@ -1419,7 +1408,7 @@ void CameraEdit_DispBox(int a0, unsigned char a1)
 void CameraEdit_Reflect(void)
 {
     int *p = cameraSetOrg;
-    ReflectCameraSetBinary(p[1], p[0]);
+    ReflectCameraSetBinary((S4C *)p[1], p[0]);
 }
 
 void CameraEdit_Save(int a0)
@@ -1452,17 +1441,15 @@ inline int debug_CameraEditor(void)
 
 inline void CameraEdit_reset_box(int a0)
 {
-    struct S4Cx {
-        int w[19];
-    } *src;
-    struct S4Cx *dst;
-    void *saved;
+    S4C *src;
+    S4C *dst;
+    int saved;
     int i;
-    src = (struct S4Cx *)(cameraSetOrg[1] + a0 * 0x4C);
-    dst = (struct S4Cx *)(cameraSetEdit[1] + a0 * 0x4C);
-    saved = *(void **)((char *)dst + 0x48);
+    src = (S4C *)(cameraSetOrg[1] + a0 * 0x4C);
+    dst = (S4C *)(cameraSetEdit[1] + a0 * 0x4C);
+    saved = dst->items;
     *dst = *src;
-    *(void **)((char *)dst + 0x48) = saved;
+    dst->items = saved;
     i = 0;
     while (i < ((S4C *)CameraEdit_BOX(a0))->end - ((S4C *)CameraEdit_BOX(a0))->first) {
         CameraEdit_reset_pin(a0, i);
@@ -1472,8 +1459,8 @@ inline void CameraEdit_reset_box(int a0)
 
 inline void CameraEdit_reset_pin(int a0, int a1)
 {
-    S5C *dst = (S5C *)(((S4C *)(cameraSetEdit[1] + a0 * 0x4C))->items + a1 * 0x5C);
-    S5C *src = (S5C *)(((S4C *)(cameraSetOrg[1] + a0 * 0x4C))->items + a1 * 0x5C);
+    PinRec *dst = (PinRec *)(((S4C *)(cameraSetEdit[1] + a0 * 0x4C))->items + a1 * 0x5C);
+    PinRec *src = (PinRec *)(((S4C *)(cameraSetOrg[1] + a0 * 0x4C))->items + a1 * 0x5C);
     *dst = *src;
 }
 
@@ -1494,8 +1481,8 @@ inline void CameraEdit_reflect_box(int a0)
 
 inline void CameraEdit_reflect_pin(int a0, int a1)
 {
-    S5C *dst = (S5C *)(((S4C *)(cameraSetOrg[1] + a0 * 0x4C))->items + a1 * 0x5C);
-    S5C *src = (S5C *)(((S4C *)(cameraSetEdit[1] + a0 * 0x4C))->items + a1 * 0x5C);
+    PinRec *dst = (PinRec *)(((S4C *)(cameraSetOrg[1] + a0 * 0x4C))->items + a1 * 0x5C);
+    PinRec *src = (PinRec *)(((S4C *)(cameraSetEdit[1] + a0 * 0x4C))->items + a1 * 0x5C);
     *dst = *src;
 }
 
@@ -1540,11 +1527,11 @@ inline void CameraEdit_DispPin(int box, int pin)
    hand-camera rate */
 PinRec cameraPinDefault = {{0.0f, -500.0f, 0.0f},
                            {0.0f, 300.0f, 300.0f},
-                           300.0f,
-                           {0},
+                           {300.0f},
                            0,
                            0.0f,
-                           {0},
+                           0,
+                           0.0f,
                            1,
                            60.0f,
                            0.0f,
@@ -1552,8 +1539,7 @@ PinRec cameraPinDefault = {{0.0f, -500.0f, 0.0f},
                            0.0f,
                            10.0f,
                            10.0f,
-                           120.0f,
-                           80.0f};
+                           {120.0f, 80.0f}};
 
 /* sixteen zero bytes between the two defaults; nothing reads them */
 static float cameraEditVec[4] = {0.0f}; /* derived name */

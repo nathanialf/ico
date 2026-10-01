@@ -9,6 +9,8 @@
 #define CAMERA_ICO2_H
 
 extern int current_group;
+/* the camera data file of each camera set (the camera-set data member) */
+extern char cameraSetList[][32];
 struct S4C;
 struct CamSetFile;
 
@@ -19,7 +21,7 @@ int GetCameraGroupFromGObj(void *obj);
 int GetCameraGroupFromPosition(float *pos);
 void AddPluralCameraSet(int id, char *name);
 void InitPluralCameraSet(void);
-void *GetPluralCameraSet(int id);
+inline void *GetPluralCameraSet(int id);
 void MakeCameraSetBinary(struct S4C *src, int count, struct S4C *dst);
 int GetSizeOfCameraSetBinary(struct S4C *p, int n);
 void SetCameraTargetPosition(void *a0, void *a1, float a2);

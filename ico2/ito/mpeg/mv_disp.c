@@ -6,29 +6,35 @@
 #include <libgraph.h>
 #include "main.h"
 
-void *setTEX0_1(int *a0, int a1, int a2, int a3, int p4, int p5, int p6, int p7, unsigned int p8,
-                unsigned int p9, unsigned int p10, unsigned int p11, unsigned int p12);
+inline void *setTEX0_1(int *a0, int a1, int a2, int a3, int p4, int p5, int p6, int p7,
+                       unsigned int p8, unsigned int p9, unsigned int p10, unsigned int p11,
+                       unsigned int p12);
 
-void *setPRIM(int *a0, int a1, int a2, int a3, int p4, int p5, int p6, int p7, unsigned int p8,
-              unsigned int p9);
+inline void *setPRIM(int *a0, int a1, int a2, int a3, int p4, int p5, int p6, int p7,
+                     unsigned int p8, unsigned int p9);
 
-void *setUV(int *a0, int a1, int a2);
-void *setRGBAQ(int *a0, int a1, int a2, int a3, int p4, int p5);
-void *setXYZ2(int *a0, int a1, int a2, int a3);
-void *setFRAME_1(int *a0, int a1, int a2, int a3, int p4);
-void *setTEST_1(int *a0, int a1, int a2, int a3, int p4, int p5, int p6, int p7, unsigned int p8);
-void *setSCISSOR_1(int *a0, int a1, int a2, int a3, int p4);
-void *setXYOFFSET_1(int *a0, unsigned int a1, unsigned int a2);
-void *setPRMODECONT(int *a0, int a1);
-void *setPRMODE(int *a0, int a1, int a2, int a3, int p4, int p5, int p6, int p7, unsigned int p8);
+inline void *setUV(int *a0, int a1, int a2);
+inline void *setRGBAQ(int *a0, int a1, int a2, int a3, int p4, int p5);
+inline void *setXYZ2(int *a0, int a1, int a2, int a3);
+inline void *setFRAME_1(int *a0, int a1, int a2, int a3, int p4);
 
-void *setCLAMP_1(int *a0, unsigned int a1, unsigned int a2, unsigned int a3, unsigned int a4,
-                 unsigned int a5, unsigned int a6);
+inline void *setTEST_1(int *a0, int a1, int a2, int a3, int p4, int p5, int p6, int p7,
+                       unsigned int p8);
 
-int *setBITBLTBUF(int *a0, long long a1, long long a2, long long a3);
-int *setTRXPOS(int *a0, long long a1, int a2, int a3);
-void *setTRXREG(int *a0, int a1, int a2);
-void *setTRXDIR(int *a0, unsigned int a1);
+inline void *setSCISSOR_1(int *a0, int a1, int a2, int a3, int p4);
+inline void *setXYOFFSET_1(int *a0, unsigned int a1, unsigned int a2);
+inline void *setPRMODECONT(int *a0, int a1);
+
+inline void *setPRMODE(int *a0, int a1, int a2, int a3, int p4, int p5, int p6, int p7,
+                       unsigned int p8);
+
+inline void *setCLAMP_1(int *a0, unsigned int a1, unsigned int a2, unsigned int a3, unsigned int a4,
+                        unsigned int a5, unsigned int a6);
+
+inline int *setBITBLTBUF(int *a0, long long a1, long long a2, long long a3);
+inline int *setTRXPOS(int *a0, long long a1, int a2, int a3);
+inline void *setTRXREG(int *a0, int a1, int a2);
+inline void *setTRXDIR(int *a0, unsigned int a1);
 
 /* the two GIF packets this file builds, one per display path */
 static int mvDispPacket[80]; /* derived name */
@@ -243,7 +249,7 @@ void dispSwitch(MvDispEnv *a0, int flag)
     sceGsPutDispEnv(&a0->env.gs);
 }
 
-int vblankHandler(void)
+int vblankHandler(int cause)
 {
     VoTag *tag;
     int st;
@@ -279,7 +285,7 @@ int vblankHandler(void)
     return 0;
 }
 
-inline int handler_endimage(void)
+inline int handler_endimage(int channel)
 {
     if (dispImageDone != 0) {
         voBufDecCount(&voBuf);

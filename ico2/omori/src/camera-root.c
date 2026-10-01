@@ -131,6 +131,8 @@ static int zoomMaxInDemo; /* derived name */
 
 static int zoomBase; /* derived name */
 
+void ConvertCameraSet(CameraSet2 *dst, union CameraSetIn *src);
+
 void SetWSMatrix(void *a0)
 {
     ConvertCameraSet(&cameraSet, a0);
@@ -301,7 +303,7 @@ void DebugCameraManual(void)
 void DebugCameraSemiAuto(void)
 {
     if (targetCameraSet.moving != 0) {
-        if (_MoveGV(&cameraSet, &cameraSet, &targetCameraSet, 50.0f) < 1.0f) {
+        if (_MoveGV(cameraSet.pos, cameraSet.pos, targetCameraSet.pos, 50.0f) < 1.0f) {
             targetCameraSet.moving = 0;
         }
     } else {
@@ -344,11 +346,12 @@ void BackToGameCamera(void)
     SetCameraTargetPosition(buf.target, buf.eye, cameraFov);
 }
 
-void GetCameraInfomationFromGlobalPosition(int a0, int a1, int a2, int a3, int a4)
+void GetCameraInfomationFromGlobalPosition(float *pos, float *outDist, int *outAngle, float *fov,
+                                           float *zoom)
 {
-    *(float *)a3 = cameraSet.fov;
-    *(float *)a4 = (float)debug_zoom_per / 100.0f;
-    CameraGetOtherObjOffset(a0, a1, a2);
+    *fov = cameraSet.fov;
+    *zoom = (float)debug_zoom_per / 100.0f;
+    CameraGetOtherObjOffset(pos, outDist, outAngle);
 }
 
 /* GetCameraDefaultTargetGObj's body, for InitCamera and the camera step */
@@ -522,7 +525,8 @@ static inline void cameraSetMode(int x)
 /* set when the monitor camera must start over */
 static int monitorCameraInit = 0; /* derived name */
 
-extern char iosPadConfCustom[];
+/* the custom pad configuration ios/pad.c defines; pad.h does not declare it */
+extern PadConf iosPadConfCustom;
 
 void SetCameraMatrix(void)
 {
@@ -562,7 +566,7 @@ void SetCameraMatrix(void)
     case 2:
         DebugCameraSemiAuto();
         if (debug_font_flag3 != 0 || (debug_font_flag & 1) != 0) {
-            debug_Printf(220, 30, 0xFFFFFF00, (int)"FREECAM");
+            debug_Printf(220, 30, 0xFFFFFF00, "FREECAM");
         }
         if ((pad[0].now & 2) != 0 && (pad[0].flags & 0x100) != 0) {
             cameraSetMode(3);
@@ -575,14 +579,14 @@ void SetCameraMatrix(void)
         SetCameraMatrix_Ico2(gamecamCutBack);
         gamecamCutBack = 0;
         if (debug_font_flag3 != 0 || (debug_font_flag & 1) != 0) {
-            debug_Printf(220, 30, 0xFFFFFF00, (int)"GAMECAM");
+            debug_Printf(220, 30, 0xFFFFFF00, "GAMECAM");
         }
         break;
     case 1:
     handCamera:
         DebugCameraManual();
         if (debug_font_flag3 != 0 || (debug_font_flag & 1) != 0) {
-            debug_Printf(220, 30, 0xFFFFFF00, (int)"HANDCAM");
+            debug_Printf(220, 30, 0xFFFFFF00, "HANDCAM");
         }
         if ((pad[0].flags & 0x100) != 0) {
             cameraSetMode(3);
@@ -599,11 +603,11 @@ void SetCameraMatrix(void)
         }
         SetLimitHandCameraCorrect((float)handCameraLimitP, (float)handCameraLimitV);
         if (debug_font_flag3 != 0 || (debug_font_flag & 1) != 0) {
-            debug_Printf(220, 30, 0xFFFFFF00, (int)"PATHCAM");
+            debug_Printf(220, 30, 0xFFFFFF00, "PATHCAM");
         }
         if (debug_font_flag3 != 0 || (debug_font_flag & 1) != 0) {
-            debug_Printf(310, 30, 0xFFFFFF00, (int)"%d,%d,%d %d", (int)m[12], (int)m[13],
-                         (int)m[14], (int)cameraZoom);
+            debug_Printf(310, 30, 0xFFFFFF00, "%d,%d,%d %d", (int)m[12], (int)m[13], (int)m[14],
+                         (int)cameraZoom);
         }
         sceVu0TransposeMatrix(mt, m);
         CopyVector(ofs, &m[12]);
@@ -675,7 +679,7 @@ void SetCameraMatrix(void)
         _ApplyRyGV(ofs.f, ry);
         sceVu0AddVector(eye, rootPos, ofs.f);
         _InterGV(&in.f[4], rootPos, &prevCameraSet.f[4], 10.0f, 1.0f);
-        _InterGV(&in, eye, &prevCameraSet, 48.0f, 1.0f);
+        _InterGV(in.f, eye, prevCameraSet.f, 48.0f, 1.0f);
         in.f[8] = 50.0f;
         SetWSMatrix(&in);
         prevCameraSet = in;
@@ -695,7 +699,7 @@ void SetCameraMatrix(void)
         } else {
             zoomMax = zp[0].max;
         }
-        iosPadConnect(padCtx, 0, 0, (int)iosPadConfCustom);
+        iosPadConnect(padCtx, 0, 0, &iosPadConfCustom);
         if (zoomBaseInit != 0) {
             zoomBaseInit = 0;
             zoomBase = debug_zoom_per;

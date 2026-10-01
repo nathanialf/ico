@@ -5,14 +5,14 @@
 #include "act2.h"
 
 extern OaRecA objLayout[];
-extern OaRecB D_002BC6E0[];
+extern OaRecB objAction[];
 
 /* the object's action record, or none */
 static inline OaRecB *objActionRecord(int a0) /* derived name */
 {
     int e = objLayout[a0].action;
     if (e != 0) {
-        return &D_002BC6E0[e];
+        return &objAction[e];
     }
     return 0;
 }

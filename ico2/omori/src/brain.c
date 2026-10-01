@@ -140,8 +140,9 @@ static inline void brainLevelUp(BrainTarget *t) /* derived name */
     }
 }
 
-/* brainCheckView's body, for the caller above its definition */
-static inline int brainCheckView_INTERIM(Brain *b, BrainTarget *t)
+/* whether the girl sees the target, brainCheckView's test inlined into
+   brainLevelProcess */
+static inline int brainTargetInView(Brain *b, BrainTarget *t) /* derived name */
 {
     if (t->alwaysSeen != 0) {
         return 1;
@@ -163,7 +164,7 @@ void brainLevelProcess(Brain *b)
         if (t->gobj == 0) {
             continue;
         }
-        if (*(int *)(t->gobj + 0x16C) == 0) {
+        if (((GObj *)t->gobj)->active == 0) {
             t->level = 0.0f;
             continue;
         }
@@ -172,7 +173,7 @@ void brainLevelProcess(Brain *b)
             continue;
         }
         if (t != b->cur && t->level > 1.9 && girlGObj != 0 &&
-            ((int)(*(long long *)(*(int *)((char *)girlGObj + 0x164) + 0x20) >> 27) & 1)) {
+            ((int)(GOBJ_ACT(girlGObj)->flags20.ll >> 27) & 1)) {
             float r;
             /* 3.40282347e+38f is FLT_MAX */
             if (ACTGameViewSimple_Check(b->girl, t->gobj) != 0) {
@@ -190,7 +191,7 @@ void brainLevelProcess(Brain *b)
             t->level = r;
             continue;
         }
-        if (brainCheckView_INTERIM(b, t) == 0) {
+        if (brainTargetInView(b, t) == 0) {
             continue;
         }
         brainLevelUp(t);
@@ -209,8 +210,9 @@ void brainLevelProcess(Brain *b)
     }
 }
 
-/* brainGetLevel's body, for brainGetTarget above its definition */
-static inline float brainGetLevel_INTERIM(Brain *b, BrainTarget *t)
+/* the target's level as the chooser weighs it, the current target holding
+   the threshold on top: brainGetLevel's body inlined into brainGetTarget */
+static inline float brainTargetLevel(Brain *b, BrainTarget *t) /* derived name */
 {
     if (b->cur == t) {
         return t->level + b->threshold;
@@ -234,10 +236,10 @@ void brainGetTarget(Brain *b)
             continue;
         }
         t = &b->tgt[i];
-        if (best == 0 || brainGetLevel_INTERIM(b, t) > brainGetLevel_INTERIM(b, best)) {
+        if (best == 0 || brainTargetLevel(b, t) > brainTargetLevel(b, best)) {
             best = t;
             idx = i;
-        } else if (best != 0 && brainGetLevel_INTERIM(b, t) == brainGetLevel_INTERIM(b, best)) {
+        } else if (best != 0 && brainTargetLevel(b, t) == brainTargetLevel(b, best)) {
             if (girlGObj != 0) {
                 if (_DistSqGV(test_CURRENTROOT((void *)t->gobj), test_CURRENTROOT(girlGObj)) <
                     _DistSqGV(test_CURRENTROOT((void *)best->gobj), test_CURRENTROOT(girlGObj))) {
@@ -279,7 +281,7 @@ void brainGetTarget(Brain *b)
     b->idx = -1;
     if (best != 0) {
         b->idx = idx;
-        lv = (int)(brainGetLevel_INTERIM(b, best) - b->threshold);
+        lv = (int)(brainTargetLevel(b, best) - b->threshold);
 
         b->targetLevel = (float)lv / 10.0f;
         if (b->targetLevel < 0.0f) {

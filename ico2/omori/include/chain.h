@@ -13,6 +13,7 @@ void ChainPositionReset(char *a0);
 int CheckChainClimbablePos(char *a0);
 void EnableChainHang(char *a0);
 struct ClimbCol;
+struct ChainNode;
 void GetChainClimbCollision(struct ClimbCol *dst, char *a0);
 void GetChainClimbOrient(float *dst, char *a0);
 int GetChainDirCorrectVal(char *a0, int *a1);
@@ -29,7 +30,7 @@ void SetChainRootUpdateMode(char *gobj, int mode, float *pos);
 void UnLockChainGeo(char *a0);
 void UnableChainHang(char *a0);
 void chain_simulate_term_simple(int a0);
-void chain_sub_pendulum(char *base, int n, void *a2);
+void chain_sub_pendulum(struct ChainNode *base, int n, float *pos);
 int collisionCheck(char *gobj);
 void pendulum_Process(void *a0, int a1);
 

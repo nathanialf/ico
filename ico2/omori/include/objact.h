@@ -8,7 +8,7 @@
 #ifndef OBJACT_H
 #define OBJACT_H
 
-void ObjAction_CorrectGeo(int a0, int a1);
+inline void ObjAction_CorrectGeo(int a0, int a1);
 void ObjAction_Mail(void *a0, int a1);
 void ObjAction_MailCenter(void *a0, int a1);
 void ObjAction_Init(void);

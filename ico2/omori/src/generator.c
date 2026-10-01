@@ -28,7 +28,7 @@ typedef struct GVGeo2 { /* field names derived */
 } GVGeo2;
 
 typedef struct GenBga { /* field names derived */
-    char *p;            /* the multi-BGA manager */
+    BgaDisp *p;         /* the multi-BGA manager */
     char active;        /* set while the manager plays */
     char pad5[3];
 } GenBga;
@@ -63,8 +63,6 @@ typedef struct GenWork {        /* field names derived */
 
 extern StgPre stageData[];
 extern GVGeo2 objLayout[];
-/* objLayout[3757], the kidnap enemy's layout record */
-extern GVGeo2 D_00308924;
 
 /* the generator packet: 11277 bytes are read into it, which is what
    GetsizeGeneratorPacket returns, three under the buffer */
@@ -717,7 +715,7 @@ inline void ResetReviveCountEnemy(int a0)
 
 inline void SetInfoSpKidnapEnemy(void)
 {
-    GVGeo2 *info = &D_00308924;
+    GVGeo2 *info = &objLayout[3757]; /* the kidnap enemy's layout record */
     info->flags |= 0x200000;
     info->flags &= ~0x40000;
     info->reviveCount = 0;
@@ -834,7 +832,7 @@ inline GenWork *InitGeneratorGeo(char *gobj, GVGeo2 *src)
 
     {
         char *r = &p->bga[0].active;
-        int *q = (int *)&p->bga[0].p;
+        BgaDisp **q = &p->bga[0].p;
 
         for (i = 0; i < 4; i++) {
             *q = InitMultiBgaManager(1);
@@ -1039,7 +1037,7 @@ static inline void SetGeneratorBgaRootPosition(char *gobj, GenBga *tbl) /* deriv
     pos[2] = ((float *)test_CURRENTROOT(gobj))[2];
 
     for (i = 0; i < 4; i++) {
-        char *p = tbl[i].p;
+        char *p = (char *)tbl[i].p;
 
         *(float *)(p + 0x10) = pos[0];
         *(float *)(p + 0x14) = pos[1];

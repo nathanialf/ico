@@ -204,7 +204,7 @@ int decBitStrm0(VideoDec *dec, MvDispEnv *disp, VoBuf *vo)
 
 void Free(int a0)
 {
-    iosFree(phys_addr(a0));
+    iosFree((void *)phys_addr(a0));
 }
 
 int videoDecDelete(VideoDec *self)
@@ -240,8 +240,10 @@ int videoDecIsFlushed(VideoDec *self)
     return ret;
 }
 
-void videoDecMain(MvThreadArg *arg)
+void videoDecMain(void *thArg)
 {
+    MvThreadArg *arg = thArg;
+
     viBufReset(&arg->dec->vibuf);
     voBufReset(arg->vo);
     decBitStrm0(arg->dec, arg->disp, arg->vo);

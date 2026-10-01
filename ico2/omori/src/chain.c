@@ -22,7 +22,7 @@
 #include "obj_manager.h"
 #include "camera-editor.h"
 
-typedef struct {
+typedef struct ChainNode {
     float x, y, z, w;
     float vx, vy, vz, vw;
 } ChainNode;
@@ -257,7 +257,7 @@ void chain_simulate_term_simple(int a0)
     pendulum_Process(cw->pdl.orient, collisionCheck((char *)a0));
     ChainPendulumSwing(pos, cw, (float *)cw->pdl.orient);
     sceVu0AddVector(pos, cw->node, pos);
-    chain_sub_pendulum((char *)cw->node, cw->holdNode, pos);
+    chain_sub_pendulum(cw->node, cw->holdNode, pos);
     chain_sub_simulate(a0, cw->node, cw->holdNode, cw->nodes, 1, 0, 20.0f, 50.0f, 0.6f);
 }
 
@@ -373,7 +373,7 @@ void chain_simulate_term_moveup(int a0)
     sceVu0ScaleVector(v, v,
                       GetTableSin(h * 6.283185307179586 / 40.0 * 32768.0 / 3.1415927f) * 5.0f);
     sceVu0AddVector(w, &cw->node[cw->holdNode], v);
-    chain_sub_pendulum((char *)cw->node, cw->holdNode, w);
+    chain_sub_pendulum(cw->node, cw->holdNode, w);
 }
 
 void chain_simulate_term_free(int a0)
@@ -424,7 +424,7 @@ void chain_simulate_term_down(int a0)
     sceVu0ScaleVector(v, v,
                       GetTableSin(h * 6.283185307179586 / 23.0 * 32768.0 / 3.1415927f) * 2.0f);
     sceVu0AddVector(w, &cw->node[cw->holdNode], v);
-    chain_sub_pendulum((char *)cw->node, cw->holdNode, w);
+    chain_sub_pendulum(cw->node, cw->holdNode, w);
     if (cw->holdNode + 1 <= cw->nodes - 1) {
         nd = (ChainNode *)((cw->holdNode << 5) + (int)cw->node);
         next = nd + 1;
@@ -1038,35 +1038,35 @@ void ChainGeo(char *gobj)
         }
         break;
     case 2:
-        chain_simulate_hangstart(gobj);
+        chain_simulate_hangstart((int)gobj);
         break;
     case 3:
     case 11:
-        chain_simulate_term_loop(gobj);
+        chain_simulate_term_loop((int)gobj);
         break;
     case 9:
-        chain_simulate_term_ropeturn(gobj);
+        chain_simulate_term_ropeturn((int)gobj);
         break;
     case 4:
         chain_set_charachara(gobj, 20.0f);
-        chain_simulate_term_swingready(gobj);
+        chain_simulate_term_swingready((int)gobj);
         break;
     case 5:
-        chain_simulate_term_swingstart(gobj);
+        chain_simulate_term_swingstart((int)gobj);
         break;
     case 6:
-        chain_simulate_term(gobj);
+        chain_simulate_term((int)gobj);
         break;
     case 8:
         chain_set_charachara(gobj, 10.0f);
-        chain_simulate_term_down(gobj);
+        chain_simulate_term_down((int)gobj);
         break;
     case 7:
         chain_set_charachara(gobj, 20.0f);
-        chain_simulate_term_moveup(gobj);
+        chain_simulate_term_moveup((int)gobj);
         break;
     default:
-        chain_simulate_term_free(gobj);
+        chain_simulate_term_free((int)gobj);
         break;
     }
 
@@ -1776,18 +1776,18 @@ void chain_sub_simulate(int a0, ChainNode *nd, int from, int to, unsigned char f
     }
 }
 
-void chain_sub_pendulum(char *base, int n, void *a2)
+void chain_sub_pendulum(ChainNode *base, int n, float *pos)
 {
-    char *p;
+    ChainNode *p;
     int i = 0;
     if (n < 0) {
         return;
     }
     p = base;
     do {
-        _InterGV(p, base, a2, (float)i, (float)(n - i));
+        _InterGV(&p->x, &base->x, pos, (float)i, (float)(n - i));
         i++;
-        p += 0x20;
+        p++;
     } while (i <= n);
 }
 

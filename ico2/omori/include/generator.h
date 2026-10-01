@@ -14,7 +14,7 @@ void Generator_Call(char *a0);
 void Generator_ResetCount(char *a0);
 void Generator_Mask(char *a0);
 void Generator_MaskOff(char *a0);
-void SetMotherGenerator(int no, int label);
+inline void SetMotherGenerator(int no, int label);
 void Generator_Init(void);
 int *GetbufpGeneratorPacket(void);
 int GetsizeGeneratorPacket(void);
@@ -32,7 +32,7 @@ int SearchActiveGenerator(void);
 void ResetReviveCountEnemy(int a0);
 void SetInfoSpKidnapGenerator(short *a0);
 void SetInfoSpKidnapEnemy(void);
-int IsOpenGenerator(char *gobj);
+inline int IsOpenGenerator(char *gobj);
 int IsEnableCallEnemyByTargetGObj(void *a0);
 
 int CheckGeneratorCollision(char *gobj, float *dir);

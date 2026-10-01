@@ -32,7 +32,7 @@ int audioDecCreate(AudioDec *self, int a1, int a2)
     self->sentTotal = 0;
     self->iopSize = size;
     self->iopPos = 0;
-    self->f50 = 0;
+    self->word50 = 0;
 
     self->iopBuf = sceSifAllocIopHeap(size);
     if (self->iopBuf == 0) {
@@ -91,7 +91,7 @@ inline void audioDecReset(AudioDec *self)
 {
     SgStPcmVolume(3, 0, 0);
     SgStPcmStop(3);
-    *(volatile int *)&self->f50 = 0;
+    *(volatile int *)&self->word50 = 0;
     *(volatile int *)&self->state = 0;
     *(volatile int *)&self->headerBytes = 0;
     *(volatile int *)&self->writePos = 0;

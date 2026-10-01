@@ -344,9 +344,9 @@ void AttackMail(char *self, AttackPack *pack)
     float v0[4];
     float v1[4];
     float v2[4];
-    char *attacker;
+    GObj *attacker;
     Act *aext;
-    int e;
+    Act *e;
     float *r0;
     void *weapon;
     int group;
@@ -354,7 +354,7 @@ void AttackMail(char *self, AttackPack *pack)
     int hard;
     float power;
 
-    attacker = (char *)pack->actor;
+    attacker = pack->actor;
     aext = GOBJ_ACT(attacker);
     group = pack->group;
     weapon = 0;
@@ -383,15 +383,14 @@ void AttackMail(char *self, AttackPack *pack)
         BreakItemWithAttackHit(self, v0);
     }
 
-    /* Act's 0x1B0 holds the attacker object, a pointer, where typedef.h's Act has an int */
-    e = *(int *)(self + 0x164);
-    if (e != 0 && e + 0x1B0 != 0 && *(int *)(e + 0x680) != 0) {
-        *(char **)(e + 0x1B0) = attacker;
-        *(int *)(e + 0x1D0) = (int)power;
-        *(int *)(*(int *)(self + 0x164) + 0x1D4) = pack->group2;
-        *(char *)(*(int *)(self + 0x164) + 0x1D8) = attackData[group].b1 || pack->f01;
-        *(char *)(*(int *)(self + 0x164) + 0x1DB) = attackData[group].b2 || hard;
-        *(char *)(*(int *)(self + 0x164) + 0x1D9) = attackData[group].b3;
+    e = GOBJ_ACT(self);
+    if (e != 0 && &e->attacker != 0 && e->enemy != 0) {
+        e->attacker = attacker;
+        e->damage = (int)power;
+        GOBJ_ACT(self)->hitGroup = pack->group2;
+        GOBJ_ACT(self)->downHit = attackData[group].b1 || pack->f01;
+        GOBJ_ACT(self)->unguardable = attackData[group].b2 || hard;
+        GOBJ_ACT(self)->stoneHit = attackData[group].b3;
         if (attacker == boyGObj) {
             aext->flags20.ll &= ~0x100000000ULL;
         }
@@ -399,11 +398,11 @@ void AttackMail(char *self, AttackPack *pack)
         GetRootPosition(v1, self);
         sceVu0SubVector(v2, v0, v1);
         sceVu0Normalize(v2, v2);
-        *(float *)(*(int *)(self + 0x164) + 0x1C0) = v2[0];
-        *(float *)(*(int *)(self + 0x164) + 0x1C4) = v2[1];
-        *(float *)(*(int *)(self + 0x164) + 0x1C8) = v2[2];
+        GOBJ_ACT(self)->attackDirX = v2[0];
+        GOBJ_ACT(self)->attackDirY = v2[1];
+        GOBJ_ACT(self)->attackDirZ = v2[2];
         if (pack->hasDir != 0) {
-            sceVu0ScaleVector((void *)(*(int *)(self + 0x164) + 0x1C0), pack->dir, -1.0f);
+            sceVu0ScaleVector(&GOBJ_ACT(self)->attackDirX, pack->dir, -1.0f);
         }
     }
 }

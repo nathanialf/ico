@@ -502,7 +502,7 @@ int viBufGetTs(ViBuf *self, ViTs *out)
    same name */
 static void Free(int a0)
 {
-    iosFree(phys_addr(a0));
+    iosFree((void *)phys_addr(a0));
 }
 
 /* Stop the IPU input DMA, clear its registers and release the ring. */

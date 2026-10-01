@@ -95,9 +95,9 @@ inline float IsPointIsInScreen(void *a0, void *a1)
     return _IsInScreen2(a0);
 }
 
-void before_DrawLine(int a0)
+void before_DrawLine(void *m)
 {
-    CopyMatrix(drawline_ws_matrix, a0);
+    CopyMatrix(drawline_ws_matrix, m);
     gif_StartPacketPri(0xB);
 }
 
@@ -106,7 +106,7 @@ void after_DrawLine(void)
     gif_EndPacket();
 }
 
-inline void do_DrawLine(void *p0, void *p1, int *c, int a3)
+inline void do_DrawLine(void *p0, void *p1, unsigned int *c, int a3)
 {
     unsigned char col[4] = {c[0], c[1], c[2], c[3]};
     int v0[4];

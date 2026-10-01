@@ -35,7 +35,7 @@ typedef struct AudioDec { /* field names derived */
     int iopBuf;          /* 0x44, the IOP heap block the two PCM channels read */
     int iopSize;         /* 0x48 */
     int iopPos;          /* 0x4C */
-    int f50;             /* 0x50 */
+    int word50;          /* 0x50, cleared with the others, never read */
     int sentTotal;       /* 0x54 */
     char mono;           /* 0x58 */
     char pad59[3];

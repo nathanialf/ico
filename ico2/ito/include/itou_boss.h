@@ -16,6 +16,6 @@ void CapsuleGhostBossStart(void);
 int InqCapsuleGhostBossEnd(void);
 void BossCtrlGeo(void *self);
 void itou_boss_gflag_init(void);
-void gene_eff_end_func(int id);
+inline void gene_eff_end_func(int id);
 
 #endif /* ITOU_BOSS_H */

@@ -5,13 +5,13 @@
 int strFileOpen(char *a0, char *name)
 {
     strcpy(a0 + 0x38, name);
-    iosCdvdDirectStOpen(a0);
+    iosCdvdDirectStOpen((struct IosCdvdHandle *)a0);
     return 1;
 }
 
 int strFileClose(char *self)
 {
-    iosCdvdDirectStClose((int *)self);
+    iosCdvdDirectStClose((struct IosCdvdHandle *)self);
     return 1;
 }
 

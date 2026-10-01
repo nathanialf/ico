@@ -83,7 +83,7 @@ inline void StageOrientInit(void)
 
 /* the matrix that places a stage at its orient record's anchor and angle,
    for GetStageDifferenceMatrix and StageOrientGet2 */
-static inline void MakeStageOrientMatrix(float *m, StageOrientDef *p) /* derived name */
+static inline void MakeStageOrientMatrix(float *m, const StageOrientDef *p) /* derived name */
 {
     /* The DEBUG build reports how far the stage's second anchor (pos2) sits
        from the one the matrix is built on, through ofs; retail keeps only the
@@ -110,8 +110,8 @@ int GetStageDifferenceMatrix(float *out, int stA, int stB)
 {
     int a = stageOrientIdx[stA];
     int b = stageOrientIdx[stB];
-    StageOrientDef *pa;
-    StageOrientDef *pb;
+    const StageOrientDef *pa;
+    const StageOrientDef *pb;
     float m1[16];
     float m2[16];
     float mt[16];
@@ -145,7 +145,7 @@ inline int StageOrientGet(VECTOR *ret, int stA, int stB)
         return 0;
     }
     {
-        StageOrientDef *pa = &stageOrientDefs[a];
+        const StageOrientDef *pa = &stageOrientDefs[a];
         float *va = pa->pos;
         float *vb = stageOrientDefs[b].pos;
         float m[16];
@@ -175,8 +175,8 @@ int StageOrientGet2(VECTOR *ret, int stA, VECTOR *posA, int stB, VECTOR *posB)
         return 0;
     }
     {
-        StageOrientDef *pa = &stageOrientDefs[a];
-        StageOrientDef *pb = &stageOrientDefs[b];
+        const StageOrientDef *pa = &stageOrientDefs[a];
+        const StageOrientDef *pb = &stageOrientDefs[b];
         VECTOR va = {posA->x, -posA->y, posA->z, 1.0f};
         VECTOR vb = {posB->x, -posB->y, posB->z, 1.0f};
         VECTOR ta;
@@ -226,8 +226,8 @@ int OtherStagePositionGet(VECTOR *ret, int stA, int stB, VECTOR *pos)
         return 0;
     }
     {
-        StageOrientDef *pa = &stageOrientDefs[a];
-        StageOrientDef *pb = &stageOrientDefs[b];
+        const StageOrientDef *pa = &stageOrientDefs[a];
+        const StageOrientDef *pb = &stageOrientDefs[b];
         VECTOR v = {pos->x, -pos->y, pos->z, 1.0f};
         VECTOR t;
         float m1[16];

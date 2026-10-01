@@ -47,7 +47,7 @@ void voBufDelete(VoBuf *self)
    same name */
 static void Free(int a0)
 {
-    iosFree(phys_addr(a0));
+    iosFree((void *)phys_addr(a0));
 }
 
 void voBufReset(VoBuf *self)

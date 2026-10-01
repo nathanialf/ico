@@ -61,7 +61,7 @@ int videoDecDelete(VideoDec *self);
 int videoDecFlush(VideoDec *self);
 int videoDecGetState(VideoDec *self);
 int videoDecIsFlushed(VideoDec *self);
-void videoDecMain(MvThreadArg *arg);
+void videoDecMain(void *thArg);
 int videoDecSetStream(VideoDec *self, int type, int ch, void *fn, void *data);
 
 #endif /* MV_VIDEODEC_H */
