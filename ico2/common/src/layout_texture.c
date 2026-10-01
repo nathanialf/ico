@@ -686,8 +686,6 @@ void exec_layout_texture(void)
 extern char D_0030D014[];
 /* sce/'s string.h does not declare it */
 extern char *strtok(char *s, const char *sep);
-/* sce/'s string.h does not declare it */
-extern char *strrchr(const char *s, int c);
 
 static inline char *lt_texture_base_name(char *src) /* derived name */
 {

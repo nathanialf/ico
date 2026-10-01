@@ -23,6 +23,7 @@ int scePadInit(int a0);                                    /* definition in sce/
 int scePadInit2(int a0);                                   /* definition in sce/ */
 int scePadPortOpen(int a0, int a1, void *a2);              /* definition in sce/ */
 int scePadRead(int a0, int a1, int a2);                    /* definition in sce/ */
+int scePadSetActAlign(int a0, int a1, char *a2);           /* definition in sce/ */
 int scePadSetActDirect(int a0, int a1, unsigned char *a2); /* definition in sce/ */
 int scePadSetMainMode(int a0, int a1, int a2, int a3);     /* definition in sce/ */
 

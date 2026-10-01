@@ -177,9 +177,6 @@ char th_iosPadDevManager[112] = {0};
 
 IosMsgQueue padDevMgrMsgQ = {0};
 
-/* kept local: libpad.h declares no scePadSetActAlign */
-extern int scePadSetActAlign(int port, int slot, void *align);
-
 int controler_stable_check(void *a0)
 {
     IosPadDevRec *dev = (IosPadDevRec *)a0;

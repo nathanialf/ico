@@ -969,9 +969,6 @@ void iosCdvdPackLoad(void *a0)
     iosMsgSend(&CdvdMsgQ, a0, 0);
 }
 
-/* kept local: string.h declares no strrchr */
-extern char *strrchr(const char *s, int c);
-
 CdvdBgReq *iosCdvdBackGroundMgrAdd(const char *name, void *readFunc, int readArg, void *readyFunc,
                                    void *resumeFunc, int cbArg, void *closeFunc, int closeArg)
 {

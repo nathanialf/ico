@@ -1960,19 +1960,19 @@ void SgSetDigitalOutputMode(int a0)
     _SgSetPkAdd(0x32, 0xA, a0, 0);
 }
 
-int SgDmaWrite(int a0, void *a1, void *a2)
+int SgDmaWrite(unsigned int a0, unsigned int a1, unsigned int a2)
 {
     _SgDmaCommon(0x20, a0, a1, a2);
     return 0;
 }
 
-int SgDmaRead(void *a0, int a1, void *a2)
+int SgDmaRead(unsigned int a0, unsigned int a1, unsigned int a2)
 {
     _SgDmaCommon(0x21, a1, a0, a2);
     return 0;
 }
 
-void _SgDmaCommon(int cmd, int a1, void *a2, void *a3)
+void _SgDmaCommon(int cmd, unsigned int a1, unsigned int a2, unsigned int a3)
 {
     /* the transfer counter at +0x48 is shared with the IOP side */
     volatile int *com = (volatile int *)_SgGetComContext();
@@ -1981,9 +1981,9 @@ void _SgDmaCommon(int cmd, int a1, void *a2, void *a3)
     unsigned int w3;
 
     com[0x48 / 4] = com[0x48 / 4] + 1;
-    w3 = ((unsigned int)a2 << 24) | ((unsigned int)a3 & 0xFFFFFF);
-    w2 = (a1 << 16) | (((unsigned int)a2 >> 8) & 0xFFFF);
-    w1 = (com[0x48 / 4] << 8) | (((unsigned int)a1 >> 16) & 0xFF);
+    w3 = (a2 << 24) | (a3 & 0xFFFFFF);
+    w2 = (a1 << 16) | ((a2 >> 8) & 0xFFFF);
+    w1 = (com[0x48 / 4] << 8) | ((a1 >> 16) & 0xFF);
     _SgSetPkAdd(cmd, w1, w2, w3);
 }
 
@@ -2013,7 +2013,7 @@ int SgVabOpen(int a0, int *a1, int a2)
     int r;
     r = SgVabOpenFakeBody(a1, a2);
     if (r != -1) {
-        SgDmaWrite(a0, (void *)a2, (void *)a1[1]);
+        SgDmaWrite(a0, a2, a1[1]);
     }
     return r;
 }

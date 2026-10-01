@@ -26,7 +26,7 @@ unsigned int strlen(const char *s);
 int strncmp(const char *a, const char *b, unsigned int n);
 char *strncpy(char *d, const char *s, unsigned int n);
 char *strstr(const char *searchee, const char *lookfor); /* definition in sce/ */
-char *strrchr(const char *s, int c);                     /* newlib's prototype */
+char *strrchr(const char *s, int i);                     /* definition in sce/ */
 void *memchr(const void *s, int c, int n);
 int strtok_r(int a0, int a1, int a2); /* definition in sce/ */
 

@@ -58,8 +58,6 @@ extern char D_0030D014[];
 static void display_texture(LtProp *pr, LtProperty *e, KanbanCol *col);
 /* sce/'s string.h does not declare it */
 extern char *strtok(char *s, const char *sep);
-/* sce/'s string.h does not declare it */
-extern char *strrchr(const char *s, int c);
 /* GifPacket.h's entry points, which this TU does not include; the sprite
    calls take z as an unsigned int here, a long long in the header */
 extern void gif_EndPacket(void);
