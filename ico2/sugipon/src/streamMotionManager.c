@@ -218,9 +218,9 @@ void PlayStreamMotion(void)
 void ClearStreamMotionEntry(char *gobj)
 {
     *(int *)(*(int *)(gobj + 0x15C) + 0x470) = -1;
-    *(int *)(*(int *)(gobj + 0x15C) + 0x660) = 1;
+    GOBJ_SUB(gobj)->f_660 = 1;
     CopyVector((char *)*(int *)(gobj + 0x15C) + 0x670, ZeroVector);
-    *(int *)(*(int *)(gobj + 0x15C) + 0x550) = 1;
+    GOBJ_SUB(gobj)->f_550 = 1;
     if (0) {
         float v[4];
 
@@ -464,9 +464,9 @@ inline int EntryStreamMotion(char *a0)
     streamEntry[no].w[5] = (int)a0;
 
     *(int *)(*(int *)(a0 + 0x15C) + 0x470) = no;
-    *(int *)(*(int *)(a0 + 0x15C) + 0x4F0) = 0;
-    *(int *)(*(int *)(a0 + 0x15C) + 0x4EC) = 0;
-    *(int *)(*(int *)(a0 + 0x15C) + 0x550) = 0;
+    GOBJ_SUB(a0)->f_4F0 = 0;
+    GOBJ_SUB(a0)->f_4EC = 0;
+    GOBJ_SUB(a0)->f_550 = 0;
     streamNum = no + 1;
     return no;
 }

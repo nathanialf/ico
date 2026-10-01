@@ -7,6 +7,7 @@
 #include "moveColTest.h"
 #include <stdlib.h>
 #include "ios.h"
+#include "main.h"
 
 /* kept local: DisplayP2O.h does not compile in this TU (too many arguments to function `p2o_DispVU1') */
 extern void p2o_DispVU1();
@@ -31,48 +32,33 @@ typedef struct MctWork {
     short angle; /* 0x0A */
 } MctWork;
 
-typedef struct EditPad {
-    int flags;              /* 0x00 */
-    int trg;                /* 0x04 */
-    char pad08[0x58 - 0x8]; /* 0x08 */
-    int mode;               /* 0x58 */
-    char pad5C[0xAC - 0x5C];
-    unsigned char stick[4]; /* 0xAC */
-} EditPad;
-
-/* kept local: main.c's global; this TU does not include main.h */
-extern EditPad pad;
-
 /* the TU's .sdata (MAIN.MAP moveColTest.o .sdata 0xC, no symbol): the blink
    counter and the test offset, then MoveColTestGeo's "%d\n" */
 static unsigned char blinkCount = 0; /* derived name */
 
 static int testOffset = 0; /* derived name */
 
-/* kept local: main.c's global; this TU does not include main.h */
-extern int boyGObj;
-
 void MoveColTestGeo(char *self)
 {
     float pos[4];
-    MctWork *w = *(MctWork **)(*(char **)(self + 0x15C) + 0x830);
+    MctWork *w = GOBJ_SUB(self)->f_830;
     int c;
 
     CopyMatrix(MatrixDrive_GetMatrix(), *(char **)(self + 0x15C) + 0x20);
     MatrixDrive_RotMatrixZ(w->angle);
     CopyQuaternion(*(char **)(self + 0x15C) + 0xD0, *(char **)(self + 0x15C) + 0x60);
     RotQuaternionZ(*(char **)(self + 0x15C) + 0xD0, w->angle);
-    CopyMatrix(*(void **)(*(char **)(self + 0x15C) + 0xC), MatrixDrive_GetMatrix());
+    CopyMatrix((void *)GOBJ_SUB(self)->f_C, MatrixDrive_GetMatrix());
     UpdateRootMatrix(self);
 
-    if (pad.mode & 4) {
-        if (pad.stick[1] >= 0x81) {
-            c = pad.stick[1];
+    if (pad[1].now & 4) {
+        if (pad[1].ana[1] >= 0x81) {
+            c = pad[1].ana[1];
             if (c - 0x80 >= 0x15) {
                 w->angle += (c - 0x94) * 3;
             }
         } else {
-            c = pad.stick[1];
+            c = pad[1].ana[1];
             if (c - 0x80 < -0x14) {
                 w->angle += (c - 0x6C) * 3;
             }
@@ -84,12 +70,12 @@ void MoveColTestGeo(char *self)
 
     GetRootPosition(pos, boyGObj);
     pos[1] += -500.0f;
-    if (pad.trg & 0x400) {
+    if (pad[0].flags & 0x400) {
         scpBornSpider(0xA, pos[0], pos[1], pos[2], 300.0f);
         testOffset += 0xA;
         debug_StdPrintfDummy("%d\n", testOffset);
     }
-    if (pad.trg & 0x200) {
+    if (pad[0].flags & 0x200) {
         scpBornSpider(1, pos[0], pos[1], pos[2], 300.0f);
         testOffset += 1;
         debug_StdPrintfDummy("%d\n", testOffset);

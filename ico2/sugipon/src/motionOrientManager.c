@@ -53,9 +53,10 @@ struct MotOriFloat {
 typedef union MotWorkRef {
     char *p;
     int i;
+    Sub15C *sub;
 } MotWorkRef;
 
-#define MOWORK(self) (((MotWorkRef *)((char *)(self) + 0x15C))->p)
+#define MOWORK(self) (((MotWorkRef *)((char *)(self) + 0x15C))->sub)
 
 typedef struct MotOriTrigEnt {
     /* 0x000 */ char pad000[0xC0];
@@ -133,7 +134,7 @@ void orientDebug(void *self, int idx, int y)
     char buf[256];
     MotOriName name;
 
-    switch (motionKind[*(int *)(MOWORK(self) + 0x4A0)].f118) {
+    switch (motionKind[MOWORK(self)->f_4A0].f118) {
     default:
     case 12:
     case 13:
@@ -193,8 +194,8 @@ void orientDebug(void *self, int idx, int y)
     }
     if (debug_window_flag != 0) {
         name = motionOriKind[idx];
-        debug_PrintFontWindow(y, "%s \207 %s (%s)\n", &name,
-                              motionKind[*(int *)(MOWORK(self) + 0x4A0)].name, buf);
+        debug_PrintFontWindow(y, "%s \207 %s (%s)\n", &name, motionKind[MOWORK(self)->f_4A0].name,
+                              buf);
     }
 }
 
@@ -254,7 +255,7 @@ float GetMotionPlaySpeedRatio(int id)
 
 void execFrameTrigger(void *self)
 {
-    struct MotCtrl *w = (struct MotCtrl *)(MOWORK(self) + 0x470);
+    struct MotCtrl *w = (struct MotCtrl *)((char *)MOWORK(self) + 0x470);
     float t;
 
     t = (float)motionKind[w->motion].f144;
@@ -336,7 +337,7 @@ static __inline__ int checkMotionShiftRange(int mot, float t, float t2)
 
 int UpdateFrameCounter(void *self)
 {
-    char *m = MOWORK(self);
+    char *m = (char *)MOWORK(self);
     struct MotCtrl *w = (struct MotCtrl *)(m + 0x470);
     int nf = GetNbMotionFrames(w->motion);
     float t;
@@ -360,9 +361,8 @@ int UpdateFrameCounter(void *self)
             case 2:
             case 17:
             case 20:
-                if (*(int *)(MOWORK(self) + 0x8C) != 0) {
-                    float a =
-                        1.0f - *(float *)(MOWORK(self) + 0x644) * *(float *)(MOWORK(self) + 0x824);
+                if (*(int *)((char *)MOWORK(self) + 0x8C) != 0) {
+                    float a = 1.0f - MOWORK(self)->f_644 * MOWORK(self)->f_824;
 
                     if (a < 0.1f) {
                         a = 0.1f;
@@ -452,7 +452,7 @@ void sendStateMail(void *self)
 {
     float m[4][4];
     float pos[4];
-    struct MotCtrl *w = (struct MotCtrl *)(MOWORK(self) + 0x470);
+    struct MotCtrl *w = (struct MotCtrl *)((char *)MOWORK(self) + 0x470);
 
     if (debug_wire_string != 0) {
         MatrixDrive_PushMatrix();
@@ -545,7 +545,7 @@ void sendStateMail(void *self)
  * and returns the paired entry from the table at 0x20. */
 static inline int searchMotionShift(void *self, int id, int cur)
 {
-    struct MotCtrl *m = (struct MotCtrl *)(MOWORK(self) + 0x470);
+    struct MotCtrl *m = (struct MotCtrl *)((char *)MOWORK(self) + 0x470);
     int i;
 
     if (m->f_1C != 0 && m->f_20 != 0) {
@@ -671,7 +671,7 @@ extern void FeedbackWallWorkInfoToBrainSystem(void *self);
 
 void shiftMotionOrientEndFunc(void *self)
 {
-    struct MotCtrl *w = (struct MotCtrl *)(MOWORK(self) + 0x470);
+    struct MotCtrl *w = (struct MotCtrl *)((char *)MOWORK(self) + 0x470);
     int x;
 
     if (w->f_1AC == -1) {
@@ -704,18 +704,19 @@ ok:
 inline void CopyBlendMotionDataSource(void *self, short ang)
 {
     char quat[0x10];
-    char *mot = *(char **)(MOWORK(self) + 0x7D0);
+    char *mot = (char *)MOWORK(self)->p_7D0;
     int i = 0;
 
-    CopyMotion(mot, *(char **)(MOWORK(self) + 0x7B4), *(int *)(MOWORK(self) + 0x88));
-    CopyVector(MOWORK(self) + 0x7E0, MOWORK(self) + 0x7C0);
-    CopyVector(MOWORK(self) + 0x7F0, MOWORK(self) + 0x130);
-    *(struct MotOriFloat *)(MOWORK(self) + 0x808) = *(struct MotOriFloat *)(MOWORK(self) + 0x160);
-    *(struct MotOriHead8 *)(MOWORK(self) + 0x800) = *(struct MotOriHead8 *)MOWORK(self);
-    while (*(int *)(*(char **)(MOWORK(self) + 0x8C) + i * 0x40 + 0x38) == -1) {
+    CopyMotion(mot, (char *)MOWORK(self)->p_7B4, MOWORK(self)->f_88);
+    CopyVector((char *)MOWORK(self) + 0x7E0, (char *)MOWORK(self) + 0x7C0);
+    CopyVector((char *)MOWORK(self) + 0x7F0, (char *)MOWORK(self) + 0x130);
+    *(struct MotOriFloat *)((char *)MOWORK(self) + 0x808) =
+        *(struct MotOriFloat *)((char *)MOWORK(self) + 0x160);
+    *(struct MotOriHead8 *)((char *)MOWORK(self) + 0x800) = *(struct MotOriHead8 *)MOWORK(self);
+    while (*(int *)(*(char **)((char *)MOWORK(self) + 0x8C) + i * 0x40 + 0x38) == -1) {
         SetQuaternionByAxisRotate(quat, ang, 0.0f, 1.0f, 0.0f);
         MultiQuaternion(mot + i * 0x20 + 0x10, quat, mot + i * 0x20 + 0x10);
-        i = *(int *)(*(char **)(MOWORK(self) + 0x8C) + i * 0x40 + 0x34);
+        i = *(int *)(*(char **)((char *)MOWORK(self) + 0x8C) + i * 0x40 + 0x34);
     }
 }
 
@@ -727,7 +728,7 @@ extern void GetOutOutsideOfWall(void *self, float d);
 void shiftMotionOrientBeginFunc(void *self, int a1, int a2, int a3)
 {
     Vec16 v;
-    char *m = MOWORK(self);
+    char *m = (char *)MOWORK(self);
     char *w = m + 0x470;
     char *p = m + 0xA0;
     short ang;
@@ -770,8 +771,8 @@ void shiftMotionOrientBeginFunc(void *self, int a1, int a2, int a3)
         }
     }
     CopyBlendMotionDataSource(self, ang);
-    StopFDSVibration(MOWORK(self) + 0x740);
-    InitFrameDependSequence(MOWORK(self) + 0x740);
+    StopFDSVibration((char *)MOWORK(self) + 0x740);
+    InitFrameDependSequence((char *)MOWORK(self) + 0x740);
     clearFrameTriggerState(self);
 }
 
@@ -816,7 +817,7 @@ static inline int checkMotionShiftReady(struct MotCtrl *m, MotionOrientEntry *p)
 
 int normalMotionShift(void *self, int force)
 {
-    struct MotCtrl *w = (struct MotCtrl *)(MOWORK(self) + 0x470);
+    struct MotCtrl *w = (struct MotCtrl *)((char *)MOWORK(self) + 0x470);
     MotionOrientEntry *p = getMotionOrient(w->f_4, w->f_8, w->f_2C, w->f_D0);
 
     if (force == 0) {
@@ -824,7 +825,7 @@ int normalMotionShift(void *self, int force)
             return 0;
         }
     }
-    if (checkMotionShiftReady((struct MotCtrl *)(MOWORK(self) + 0x470), p) != 0) {
+    if (checkMotionShiftReady((struct MotCtrl *)((char *)MOWORK(self) + 0x470), p) != 0) {
         int kind = p->nextId;
         int mode = p->f10;
         int next;
@@ -887,7 +888,7 @@ static inline MotionOrientEntry *findParallelMotion(int cur, int next)
  * `return 0` for -1 would put a barrier ahead of it. */
 int parallelMotionShift(void *self)
 {
-    struct MotCtrl *m = (struct MotCtrl *)(MOWORK(self) + 0x470);
+    struct MotCtrl *m = (struct MotCtrl *)((char *)MOWORK(self) + 0x470);
     int next = searchMotionShift(self, m->f_2C, m->motion);
     MotionOrientEntry *p;
 
@@ -895,7 +896,7 @@ int parallelMotionShift(void *self)
         p = findParallelMotion(m->motion, next);
 
         if (p != 0) {
-            if (checkMotionShiftReady((struct MotCtrl *)(MOWORK(self) + 0x470), p) != 0) {
+            if (checkMotionShiftReady((struct MotCtrl *)((char *)MOWORK(self) + 0x470), p) != 0) {
                 shiftMotionOrientEndFunc(self);
                 shiftMotionOrientBeginFunc(self, p->nextId, m->f_2C, p->f10);
                 return 1;
@@ -903,7 +904,7 @@ int parallelMotionShift(void *self)
         } else if (next != 0x479) {
             MotionOrientEntry e = {m->motion, m->f_D0, next, m->f_24, m->f_28};
 
-            if (checkMotionShiftReady((struct MotCtrl *)(MOWORK(self) + 0x470), &e) != 0) {
+            if (checkMotionShiftReady((struct MotCtrl *)((char *)MOWORK(self) + 0x470), &e) != 0) {
                 shiftMotionOrientEndFunc(self);
                 shiftMotionOrientBeginFunc(self, next, m->f_2C, m->f_28);
                 return 1;
@@ -1027,7 +1028,7 @@ void getNodeBlendedFloatingMotion(void *dst, float *root, int id, int n, int a4,
     int i;
     int j;
     int prev = -1;
-    void *skel = *(void **)(MOWORK(self) + 0x8C);
+    void *skel = *(void **)((char *)MOWORK(self) + 0x8C);
 
     for (i = 0, j = motionKind[id].f178; blendMotionKind[j].f0 != 0x47B; i++, j++) {
         int node = blendMotionKind[j].f0;
@@ -1127,20 +1128,20 @@ static inline void assertMotionNodeCount(char *w, int *md, int n)
 
 void getMotionGeometry(void *self)
 {
-    int *p = *(int **)(MOWORK(self) + 0x8C);
-    char *mo = MOWORK(self) + 0xA0;
-    struct MotCtrl *w = (struct MotCtrl *)(MOWORK(self) + 0x470);
-    int n = *(int *)(MOWORK(self) + 0x88);
-    int tbl = *(int *)(MOWORK(self) + 0x820);
+    int *p = *(int **)((char *)MOWORK(self) + 0x8C);
+    char *mo = (char *)MOWORK(self) + 0xA0;
+    struct MotCtrl *w = (struct MotCtrl *)((char *)MOWORK(self) + 0x470);
+    int n = MOWORK(self)->f_88;
+    int tbl = *(int *)((char *)MOWORK(self) + 0x820);
     char mot[n * 0x20];
-    float scale = *(float *)(*(char **)(MOWORK(self) + 0x870) + 0x20);
+    float scale = *(float *)((char *)MOWORK(self)->p_870 + 0x20);
     int *md = motionTable[w->motion];
 
     if (motionKind[w->motion].f178 == 0x140) {
         assertMotionLoaded(w, md);
         assertMotionNodeCount(w, md, n);
     }
-    RegularizeQuaternion(MOWORK(self) + 0xD0);
+    RegularizeQuaternion((char *)MOWORK(self) + 0xD0);
     MatrixDrive_PushMatrix();
     {
         Vec16 v;
@@ -1199,14 +1200,12 @@ void getMotionGeometry(void *self)
             CopyVector(&fv, w->v0B0);
             CopyVector(&tv, w->v0C0);
             if (*(void **)MOWORK(self) != 0) {
-                sceVu0ApplyMatrix(&fv,
-                                  *(char **)(MOWORK(*(void **)MOWORK(self)) + 0xC) +
-                                      *(int *)(MOWORK(self) + 0x4) * 0x40,
-                                  &fv);
-                sceVu0ApplyMatrix(&tv,
-                                  *(char **)(MOWORK(*(void **)MOWORK(self)) + 0xC) +
-                                      *(int *)(MOWORK(self) + 0x4) * 0x40,
-                                  &tv);
+                sceVu0ApplyMatrix(
+                    &fv, (char *)MOWORK(*(void **)MOWORK(self))->f_C + MOWORK(self)->f_4 * 0x40,
+                    &fv);
+                sceVu0ApplyMatrix(
+                    &tv, (char *)MOWORK(*(void **)MOWORK(self))->f_C + MOWORK(self)->f_4 * 0x40,
+                    &tv);
             }
             d = tv.f[0] * fv.f[0] + tv.f[2] * fv.f[2];
             if (1.0f < d) {
@@ -1256,18 +1255,16 @@ void getMotionGeometry(void *self)
             if (flag != 0) {
                 float s = (float)w->f_A0 / (float)w->f_A4;
 
-                GetBlendedMotion(*(void **)(MOWORK(self) + 0x7B4), tmp.f, mot, v.f,
-                                 *(void **)(MOWORK(self) + 0x7D0), (float *)(MOWORK(self) + 0x7E0),
-                                 s, tbl, n);
+                GetBlendedMotion(MOWORK(self)->p_7B4, tmp.f, mot, v.f, MOWORK(self)->p_7D0,
+                                 (float *)((char *)MOWORK(self) + 0x7E0), s, tbl, n);
                 *(float *)(mo + 0x338) =
                     *(float *)(mo + 0x340) * (1.0f - s) + *(float *)(mo + 0x33C) * s;
-                GetGeometryOfMotion(self, mot, *(void **)(MOWORK(self) + 0x7B4), v.f, s, mo + 0xA0,
-                                    k);
+                GetGeometryOfMotion(self, mot, MOWORK(self)->p_7B4, v.f, s, mo + 0xA0, k);
             } else {
-                CopyMotion(*(void **)(MOWORK(self) + 0x7B4), mot, n);
+                CopyMotion(MOWORK(self)->p_7B4, mot, n);
                 *(float *)(mo + 0x338) = *(float *)(mo + 0x33C);
-                GetGeometryOfMotion(self, mot, *(void **)(MOWORK(self) + 0x7B4), v.f, 1.0f,
-                                    mo + 0xA0, w->f_58 ? k : -1);
+                GetGeometryOfMotion(self, mot, MOWORK(self)->p_7B4, v.f, 1.0f, mo + 0xA0,
+                                    w->f_58 ? k : -1);
             }
             SetIdentityQuaternion(&tmp);
             RotQuaternionX(&tmp, -32768);
@@ -1288,22 +1285,22 @@ void getMotionGeometry(void *self)
     ExecFrameDependSequence(self);
     execFrameTrigger(self);
     UpdateFrameCounter(self);
-    if (stage_no == 16 && *(int *)(MOWORK(self) + 0x564) != 0) {
+    if (stage_no == 16 && MOWORK(self)->f_564 != 0) {
         void *g = isysGObjSearchFromObjLayoutID(865);
 
         if (g != 0) {
             void *o;
             void *t;
 
-            if (*(void **)(MOWORK(self) + 0x180) == g) {
+            if ((void *)MOWORK(self)->f_180 == g) {
                 g = isysGObjSearchFromObjLayoutID(866);
             }
             o = *(void **)MOWORK(g);
-            t = *(void **)(MOWORK(self) + 0x180);
+            t = (void *)MOWORK(self)->f_180;
             if (*(int *)((char *)o + 0xC) == 17) {
                 if (o == t) {
-                    ((Vec16 *)(MOWORK(self) + 0x5A0))->f[0] = 3.40282347e+38f;
-                    ((Vec16 *)(MOWORK(self) + 0x5A0))->f[1] = 3.40282347e+38f;
+                    ((Vec16 *)((char *)MOWORK(self) + 0x5A0))->f[0] = 3.40282347e+38f;
+                    ((Vec16 *)((char *)MOWORK(self) + 0x5A0))->f[1] = 3.40282347e+38f;
                 }
             }
         }
@@ -1417,15 +1414,15 @@ extern void DispSkelton(void *self, void *m);
  * the disc; getStreamVec is this repo's spelling. */
 static inline int getStreamVec(void *self, void *sm, float *v, void *mot)
 {
-    float s = *(float *)(*(char **)(MOWORK(self) + 0x870) + 0x20);
+    float s = *(float *)((char *)MOWORK(self)->p_870 + 0x20);
 
-    if (GetStreamMotion(mot, v, sm, *(int *)(MOWORK(self) + 0x8C)) != 0) {
-        if (*(int *)(MOWORK(self) + 0x660) != 0) {
+    if (GetStreamMotion(mot, v, sm, *(int *)((char *)MOWORK(self) + 0x8C)) != 0) {
+        if (MOWORK(self)->f_660 != 0) {
             _ScaleVectorXYZ(v, v, s);
         }
-        v[0] -= *(float *)(MOWORK(self) + 0x670);
-        v[1] -= *(float *)(MOWORK(self) + 0x674);
-        v[2] += *(float *)(MOWORK(self) + 0x678);
+        v[0] -= MOWORK(self)->f_670[0];
+        v[1] -= MOWORK(self)->f_670[1];
+        v[2] += MOWORK(self)->f_670[2];
         return 1;
     }
     return 0;
@@ -1434,12 +1431,12 @@ static inline int getStreamVec(void *self, void *sm, float *v, void *mot)
 void getStreamMotionGeometry(void *self, void *sm)
 {
     float v[4];
-    char mot[*(int *)(MOWORK(self) + 0x88) * 0x20];
+    char mot[MOWORK(self)->f_88 * 0x20];
 
     if (getStreamVec(self, sm, v, mot)) {
         GetGeometryOfMotion(self, mot, mot, v, 1.0f, ZeroVector, -1);
-        CopyMotion(*(void **)(MOWORK(self) + 0x7B4), mot, *(int *)(MOWORK(self) + 0x88));
-        CopyVector(MOWORK(self) + 0x7C0, v);
+        CopyMotion(MOWORK(self)->p_7B4, mot, MOWORK(self)->f_88);
+        CopyVector((char *)MOWORK(self) + 0x7C0, v);
         DispSkelton(self, mot);
     }
 }
@@ -1456,17 +1453,18 @@ void getStreamBlendMotionGeometry(void *self, void *sm0, void *sm1, float t)
     float v0[4];
     float v1[4];
     float v2[4];
-    int n = *(int *)(MOWORK(self) + 0x88);
+    int n = MOWORK(self)->f_88;
     char mot0[n * 0x20];
 
     if (getStreamVec(self, sm0, v0, mot0)) {
         char mot1[n * 0x20], mot2[n * 0x20];
 
         getStreamVec(self, sm1, v1, mot1);
-        GetBlendedMotion(mot2, v2, mot1, v1, mot0, v0, t, *(int *)(MOWORK(self) + 0x820), n);
+        GetBlendedMotion(mot2, v2, mot1, v1, mot0, v0, t, *(int *)((char *)MOWORK(self) + 0x820),
+                         n);
         GetGeometryOfMotion(self, mot2, mot2, v2, 1.0f, ZeroVector, -1);
-        CopyMotion(*(void **)(MOWORK(self) + 0x7B4), mot2, *(int *)(MOWORK(self) + 0x88));
-        CopyVector(MOWORK(self) + 0x7C0, v2);
+        CopyMotion(MOWORK(self)->p_7B4, mot2, MOWORK(self)->f_88);
+        CopyVector((char *)MOWORK(self) + 0x7C0, v2);
         DispSkelton(self, mot2);
     }
 }
@@ -1543,7 +1541,7 @@ void getStreamShapeGeometry(void *self, void *sm)
 
 void getStreamMotion(void *self)
 {
-    void *s = *(void **)(MOWORK(self) + 0x470);
+    void *s = *(void **)((char *)MOWORK(self) + 0x470);
     char a[GetDataSizeOfStreamMotion(s)];
     float t = GetStreamMotionData(a, s);
 
@@ -1635,7 +1633,7 @@ void SetNodeRotationLimitDataTable(void *self, int a1, int a2)
             debug_assert(__FILE__, 1838);
             __assert(__FILE__, 1838, "0");
         }
-        *(int *)(*(int *)(MOWORK(self) + 0x810) + node * 4) = (int)&motionLimitDef[i];
+        *(int *)(MOWORK(self)->f_810 + node * 4) = (int)&motionLimitDef[i];
         if (motionLimitDef[i].mid.y < motionLimitDef[i + 2].mid.y) {
             tmp = motionLimitDef[i];
             *(MotOriLimit *)&motionLimitDef[i] = motionLimitDef[i + 2];
@@ -1671,7 +1669,7 @@ inline void InitMotionOrient(void *self, int a1, int a2, int a3, int a4, int a5)
 
 inline unsigned int GetCurrentMotionDirectionAdjustFlag(char *a0)
 {
-    char *rec = (char *)motionKind + *(int *)(*(char **)(a0 + 0x15C) + 0x4A0) * 0x194;
+    char *rec = (char *)motionKind + GOBJ_SUB(a0)->f_4A0 * 0x194;
     return *(unsigned int *)(rec + 0x188) >> 30;
 }
 
@@ -1680,16 +1678,16 @@ inline int ExecuteSlipProc(char *a0)
     char *e = *(char **)(a0 + 0x15C);
     if (*(int *)(e + 0x628) != *(int *)(e + 0x624)) {
         StopSEPackageWithGroupVariation(a0, 1);
-        if (*(int *)(*(char **)(a0 + 0x15C) + 0x624) & 0x100000) {
+        if (GOBJ_SUB(a0)->f_624 & 0x100000) {
             ExecuteSEPackageWithGroupVariation(a0, 0x72, 1);
         }
-        if (*(int *)(*(char **)(a0 + 0x15C) + 0x624) & 0x200000) {
+        if (GOBJ_SUB(a0)->f_624 & 0x200000) {
             ExecuteSEPackageWithGroupVariation(a0, 0x74, 1);
         }
-        if (*(int *)(*(char **)(a0 + 0x15C) + 0x624) & 0x400000) {
+        if (GOBJ_SUB(a0)->f_624 & 0x400000) {
             ExecuteSEPackageWithGroupVariation(a0, 0x76, 1);
         }
-        if (*(int *)(*(char **)(a0 + 0x15C) + 0x624) & 0x800000) {
+        if (GOBJ_SUB(a0)->f_624 & 0x800000) {
             ExecuteSEPackageWithGroupVariation(a0, 0x78, 1);
         }
     }
@@ -1699,7 +1697,7 @@ inline int ExecuteSlipProc(char *a0)
 inline int ExecutePauseSlipProc(char *a0)
 {
     if (systemStatus[5] != 0) {
-        *(int *)(*(char **)(a0 + 0x15C) + 0x628) = 0;
+        GOBJ_SUB(a0)->f_628 = 0;
         StopSEPackageWithGroupVariation(a0, 1);
     }
     return 1;

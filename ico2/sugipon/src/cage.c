@@ -40,7 +40,7 @@ int CageRideFunc(char **self, char *rider)
     float d;
     float t;
 
-    w = *(CageWork **)(*(char **)(*self + 0x15C) + 0x830);
+    w = GOBJ_SUB(*self)->f_830;
     CopyVector(v, (char *)GOBJ_SUB(rider) + 0xA0);
     v[1] = v[1] - 250.0f;
     sceVu0Normalize(n, v);
@@ -63,7 +63,7 @@ int CageRideFunc(char **self, char *rider)
 
 void SetCageFixGeometry(char *self, void *pos, void *dir)
 {
-    CageWork *w = *(CageWork **)((char *)GOBJ_SUB(self) + 0x830);
+    CageWork *w = GOBJ_SUB(self)->f_830;
 
     CopyVector(*(char **)(w->chains) + 0x20, pos);
     CopyVector(w->rot, dir);
@@ -71,7 +71,7 @@ void SetCageFixGeometry(char *self, void *pos, void *dir)
 
 inline int GetCageChainPoint(char *a0, char *a1, char *a2)
 {
-    CageWork *w = *(CageWork **)((char *)GOBJ_SUB(a2) + 0x830);
+    CageWork *w = GOBJ_SUB(a2)->f_830;
     CopyVector(a0, *(char **)(*(char **)(w->chains + 8)));
     CopyVector(a1, *(char **)(*(char **)(w->chains + 8)) + 0x10);
     *(float *)(a0 + 4) = *(float *)(a0 + 4) + 50.0f;
@@ -252,12 +252,12 @@ char *InitCageGeo(char *self, char *lay)
 
 inline void SetCageChainHangableFlag(char *a0, int a1)
 {
-    *(int *)(*(char **)((char *)GOBJ_SUB(a0) + 0x830) + 0x40) = a1;
+    *(int *)((char *)GOBJ_SUB(a0)->f_830 + 0x40) = a1;
 }
 
 void HotInitCageGeo(char *self)
 {
-    CageWork *w = *(CageWork **)((char *)GOBJ_SUB(self) + 0x830);
+    CageWork *w = GOBJ_SUB(self)->f_830;
 
     CopyVector((void *)(w->f_24 * 80 + *(int *)(w->chains + 8) + 0x40), ZeroVector);
     CopyVector((void *)(w->f_28 * 80 + *(int *)(w->chains + 8) + 0x40), ZeroVector);
@@ -294,7 +294,7 @@ inline void StabilizeAllLayoutedCage(void)
 
 inline void SetCageVelocityFriction(char *a0, float a1)
 {
-    *(float *)(*(char **)((char *)GOBJ_SUB(a0) + 0x830) + 0x3C) = a1;
+    *(float *)((char *)GOBJ_SUB(a0)->f_830 + 0x3C) = a1;
 }
 
 /* kept local: void * (int, void *) here, int (void) in windField.h */
@@ -334,7 +334,7 @@ void CageGeo(char *self)
     char *n1;
     int i;
 
-    w = *(CageWork **)((char *)GOBJ_SUB(self) + 0x830);
+    w = GOBJ_SUB(self)->f_830;
 
     n0 = *(char **)(w->chains + 8) + (w->f_24 * 80 + 16);
     n1 = *(char **)(w->chains + 8) + (w->f_28 * 80 + 16);
@@ -369,17 +369,16 @@ void CageGeo(char *self)
     sceVu0ScaleVectorXYZ((void *)(w->f_24 * 80 + *(int *)(w->chains + 8) + 0x40),
                          (void *)(w->f_24 * 80 + *(int *)(w->chains + 8) + 0x40), w->f_3C);
 
-    SetCageChainQuaternion(*(char **)((char *)GOBJ_SUB(self) + 0x10),
+    SetCageChainQuaternion((char *)GOBJ_SUB(self)->f_10,
                            (void *)(w->f_28 * 80 + *(int *)(w->chains + 8) + 0x30),
                            (void *)(w->f_24 * 80 + *(int *)(w->chains + 8) + 0x30));
-    RotQuaternionY(*(char **)((char *)GOBJ_SUB(self) + 0x10), w->angle);
-    MultiQuaternion(*(char **)((char *)GOBJ_SUB(self) + 0x10),
-                    *(char **)((char *)GOBJ_SUB(self) + 0x10), w->rot);
-    RegularizeQuaternion(*(char **)((char *)GOBJ_SUB(self) + 0x10));
-    GetMatrixFromQuaternionPos(MatrixDrive_GetMatrix(), *(char **)((char *)GOBJ_SUB(self) + 0x10),
+    RotQuaternionY((char *)GOBJ_SUB(self)->f_10, w->angle);
+    MultiQuaternion((char *)GOBJ_SUB(self)->f_10, (char *)GOBJ_SUB(self)->f_10, w->rot);
+    RegularizeQuaternion((char *)GOBJ_SUB(self)->f_10);
+    GetMatrixFromQuaternionPos(MatrixDrive_GetMatrix(), (char *)GOBJ_SUB(self)->f_10,
                                (void *)(w->f_24 * 80 + *(int *)(w->chains + 8) + 0x30));
     MatrixDrive_TransMatrix(0.0f, 0.0f, 0.0f);
-    CopyMatrix(*(char **)((char *)GOBJ_SUB(self) + 0x0C), MatrixDrive_GetMatrix());
+    CopyMatrix((char *)GOBJ_SUB(self)->f_C, MatrixDrive_GetMatrix());
 
     {
         float q[4];
@@ -404,7 +403,7 @@ void CageGeo(char *self)
 
 void CageDL(char *self)
 {
-    CageWork *w = *(CageWork **)((char *)GOBJ_SUB(self) + 0x830);
+    CageWork *w = GOBJ_SUB(self)->f_830;
 
     p2o_DispVU1(self);
     p2o_DispVU1DObjMulti(w->dobj);

@@ -11,7 +11,38 @@
 #include "main.h"
 #include "matrixDrive.h"
 
-typedef struct PEGeo PEGeo; /* the allocated per-effect geometry object */
+/* RECONSTRUCTION, read from the ROM.  The 128-byte per-effect geometry
+   object SetParticleEffectByPartition allocates: the emitter's position and
+   orientation, its package, the particle records and the primitive that draws
+   them, the emission count, the floor clamp and the rate, and the callback a
+   geometry-controlled effect runs instead of the integrator. */
+typedef struct PEGeo {
+    float pos[4];            /* 0x00 */
+    float quat[4];           /* 0x10 */
+    struct PEPackage *pkg;   /* 0x20 */
+    struct PEPartRec *parts; /* 0x24 */
+    PrimParticle *prim;      /* 0x28 */
+    float emitted;           /* 0x2C */
+    int n;                   /* 0x30 */
+    int clip;                /* 0x34 */
+    int floorOn;             /* 0x38 */
+    float floor;             /* 0x3C */
+    float rate;              /* 0x40 */
+    char pad44[0x20];        /* 0x44 */
+    int (*proc)(void *);     /* 0x64 */
+    int f68;                 /* 0x68 */
+    char pad6C[0x14];        /* 0x6C */
+} PEGeo;
+
+/* one vertex of the particle primitive's buffers */
+typedef struct PEVtx {
+    float pos[3]; /* 0x00 */
+    float size;   /* 0x0C */
+    float u;      /* 0x10 */
+    float v;      /* 0x14 */
+    float q;      /* 0x18 */
+    float alpha;  /* 0x1C */
+} PEVtx;
 
 typedef struct {
     float v[4];
@@ -44,11 +75,11 @@ static int particleParams[61 * 40];
    over the default below).  Field types are the accessors' in this file; the
    colour is a quadword, which makes the record 16-byte aligned as the ROM's
    default is (0x4ECDF0). */
-typedef struct {
-    int version;           /* 0x00 */
-    int mode;              /* 0x04 */
-    int unk_08;            /* 0x08 */
-    unsigned short spread; /* 0x0C */
+typedef struct PEPackage {
+    int version;            /* 0x00 */
+    int mode;               /* 0x04 */
+    unsigned int alphaMode; /* 0x08, the GS alpha blend dispParticleEffect sets */
+    unsigned short spread;  /* 0x0C */
     short unk_0E;
     float speed;     /* 0x10 */
     float speedRand; /* 0x14 */
@@ -112,7 +143,7 @@ void setParticleEffectGeometry(int a0, int a1, int a2)
     CopyQuaternion(a0 + 0x10, a2);
 }
 
-typedef struct {
+typedef struct PEPartRec {
     int unk_00;
     int spin; /* 0x04 */
     long long unk_08;
@@ -203,7 +234,7 @@ static inline float sugiSignedRandom(void)
     return sugiRandom() * 2.0f - 1.0f;
 }
 
-void _setParticleEffect(char *out, char *pkg, char *m, float k)
+void _setParticleEffect(PEPartRec *out, PEPackage *pkg, char *m, float k)
 {
     PEPartRec *w;
     int n;
@@ -211,51 +242,46 @@ void _setParticleEffect(char *out, char *pkg, char *m, float k)
 
     w = &particleWork;
     CopyVector(w->pos, m + 0x30);
-    spreadVector[2] = *(float *)(pkg + 0x10) * (*(float *)(pkg + 0x14) * sugiSignedRandom() + 1.0f);
+    spreadVector[2] = pkg->speed * (pkg->speedRand * sugiSignedRandom() + 1.0f);
     CopyMatrix(MatrixDrive_GetMatrix(), m);
-    if (*(unsigned short *)(pkg + 0xC) != 0) {
-        MatrixDrive_RotMatrixY(
-            (short)((float)*(unsigned short *)(pkg + 0xC) * (sugiRandom() - 0.5f) * 182.04445f));
-        MatrixDrive_RotMatrixX(
-            (short)((float)*(unsigned short *)(pkg + 0xC) * (sugiRandom() - 0.5f) * 182.04445f));
+    if (pkg->spread != 0) {
+        MatrixDrive_RotMatrixY((short)((float)pkg->spread * (sugiRandom() - 0.5f) * 182.04445f));
+        MatrixDrive_RotMatrixX((short)((float)pkg->spread * (sugiRandom() - 0.5f) * 182.04445f));
     }
     sceVu0ApplyMatrix(w->vel, MatrixDrive_GetMatrix(), spreadVector);
-    n = (int)((float)(unsigned int)*(int *)(pkg + 0x44) *
-              (*(float *)(pkg + 0x48) * sugiSignedRandom() + 1.0f));
+    n = (int)((float)(unsigned int)pkg->emit * (pkg->emitRand * sugiSignedRandom() + 1.0f));
     w->life = (float)n * k;
-    w->size = *(float *)(pkg + 0x2C) * (*(float *)(pkg + 0x30) * sugiSignedRandom() + 1.0f);
-    w->alpha = *(float *)(pkg + 0x50) * (*(float *)(pkg + 0x54) * sugiSignedRandom() + 1.0f) * k;
-    w->sizeStep = *(float *)(pkg + 0x34) * (*(float *)(pkg + 0x38) * sugiSignedRandom() + 1.0f);
-    if (*(short *)(pkg + 0x20) != 0) {
+    w->size = pkg->size * (pkg->sizeRand * sugiSignedRandom() + 1.0f);
+    w->alpha = pkg->alpha * (pkg->alphaRand * sugiSignedRandom() + 1.0f) * k;
+    w->sizeStep = pkg->sizeStep * (pkg->sizeStepRand * sugiSignedRandom() + 1.0f);
+    if (pkg->spinY != 0) {
         w->spin = 1;
-        w->spinX = (short)((float)*(short *)(pkg + 0x88) *
-                           (*(float *)(pkg + 0x8C) * sugiSignedRandom() + 1.0f));
-        w->spinY = (short)((float)*(short *)(pkg + 0x20) *
-                           (*(float *)(pkg + 0x24) * sugiSignedRandom() + 1.0f));
+        w->spinX = (short)((float)pkg->spinX * (pkg->spinXRand * sugiSignedRandom() + 1.0f));
+        w->spinY = (short)((float)pkg->spinY * (pkg->spinYRand * sugiSignedRandom() + 1.0f));
     } else {
         w->spin = 0;
     }
-    span = (float)*(int *)(pkg + 0x58) * (*(float *)(pkg + 0x5C) * sugiSignedRandom() + 1.0f);
+    span = (float)pkg->life * (pkg->lifeRand * sugiSignedRandom() + 1.0f);
     w->alphaStep = w->alpha / span;
     if ((float)w->life < span) {
         w->alpha = w->alpha - (span - (float)w->life) * w->alphaStep;
     }
-    CopyIVector(w->col, pkg + 0x70);
-    w->u = (float)*(int *)(pkg + 0x80) * 0.25f;
-    w->v = (float)*(int *)(pkg + 0x84) * 0.25f;
-    *(PEPartRec *)out = particleWork;
+    CopyIVector(w->col, &pkg->col);
+    w->u = (float)pkg->u * 0.25f;
+    w->v = (float)pkg->v * 0.25f;
+    *out = particleWork;
 }
 
 /* particleEffect.c:358-367 in the PAL listing, rows outside dispParticleEffect's
    own span (443-484): a static helper with no out-of-line copy, inlined at the
    one call site. It projects the effect's origin through the current camera
    matrix and reports whether the result falls outside the screen box. */
-static inline int particleEffectOffScreen(char *geo)
+static inline int particleEffectOffScreen(PEGeo *geo)
 {
     float v[4];
 
-    if (*(int *)(geo + 0x34) != 0) {
-        sceVu0ApplyMatrix(v, matrixptr + 0x100, geo);
+    if (geo->clip != 0) {
+        sceVu0ApplyMatrix(v, matrixptr + 0x100, geo->pos);
         sceVu0ScaleVectorXYZ(v, v, 1.0f / v[3]);
         if (v[2] < 0.0f || v[0] < 0.0f || 4095.0f < v[0] || v[1] < 0.0f || 4095.0f < v[1]) {
             return 1;
@@ -266,76 +292,75 @@ static inline int particleEffectOffScreen(char *geo)
 
 /* particleEffect.c:159-164: the vertex writer, a static helper with no
    out-of-line copy, inlined at every site in this TU. */
-static inline void peSetVtx(char *dst, char *pt)
+static inline void peSetVtx(PEVtx *dst, PEPartRec *pt)
 {
-    CopyVector(dst, pt + 0x10);
-    *(float *)(dst + 0xC) = *(float *)(pt + 0x34);
-    *(float *)(dst + 0x1C) = *(float *)(pt + 0x3C) * 128.0f;
-    *(float *)(dst + 0x10) = *(float *)(pt + 0x60);
-    *(float *)(dst + 0x14) = *(float *)(pt + 0x64);
-    *(float *)(dst + 0x18) = 128.0f;
+    CopyVector(dst, pt->pos);
+    dst->size = pt->size;
+    dst->alpha = pt->alpha * 128.0f;
+    dst->u = pt->u;
+    dst->v = pt->v;
+    dst->q = 128.0f;
 }
 
 /* listing rows 286-354. The statement order here is the listing's own line
    attribution (287 self->pkg, 289, 291, 292, 293, 295, 296, 299, 300, 303),
    not the order the ROM issues them in: gcc 2.9 carries each insn's line
    note through scheduling (haifa-sched.c restore_line_notes). */
-int setParticleEffect(char *self, char *pkg, int part)
+int setParticleEffect(PEGeo *self, PEPackage *pkg, int part)
 {
     float m[16];
-    char *p;
-    char *d0;
-    char *d1;
+    PEPartRec *p;
+    PEVtx *d0;
+    PEVtx *d1;
     int i;
     int n;
 
-    *(char **)(self + 0x20) = pkg;
+    self->pkg = pkg;
 
-    *(int *)(self + 0x34) = 1;
+    self->clip = 1;
 
-    *(int *)(self + 0x38) = *(int *)(pkg + 0x94);
-    *(float *)(self + 0x3C) = (float)(-*(int *)(pkg + 0x98));
-    *(float *)(self + 0x40) = 1.0f;
+    self->floorOn = pkg->unk_94;
+    self->floor = (float)(-pkg->unk_98);
+    self->rate = 1.0f;
 
-    n = *(int *)(pkg + 0x40);
-    *(int *)(self + 0x30) = n;
-    *(float *)(self + 0x2C) = 0.0f;
+    n = pkg->count;
+    self->n = n;
+    self->emitted = 0.0f;
 
-    *(int *)(self + 0x64) = 0;
-    *(int *)(self + 0x68) = 0;
+    self->proc = 0;
+    self->f68 = 0;
 
-    *(int *)(self + 0x28) =
-        (int)prim_InitParticleByPartition(n, 1.0f, 0.25f, 0.25f, 1, "enemy_tex01", 1, (void *)part);
-    if (*(int *)(self + 0x28) == 0)
+    self->prim =
+        prim_InitParticleByPartition(n, 1.0f, 0.25f, 0.25f, 1, "enemy_tex01", 1, (void *)part);
+    if (self->prim == 0)
         return 0;
-    *(int *)(self + 0x24) =
-        iosMallocDebugNoAssert(part, *(int *)(self + 0x30) * 112, __FILE__, 320);
-    if (*(int *)(self + 0x24) == 0) {
-        prim_DeleteParticle(*(int *)(self + 0x28));
+    self->parts =
+        (PEPartRec *)iosMallocDebugNoAssert(part, self->n * sizeof(PEPartRec), __FILE__, 320);
+    if (self->parts == 0) {
+        prim_DeleteParticle(self->prim);
         return 0;
     }
-    p = *(char **)(self + 0x24);
-    d0 = *(char **)(*(int *)(self + 0x28) + 0x190);
-    d1 = *(char **)(*(int *)(self + 0x28) + 0x194);
-    GetMatrixFromQuaternionPos((char *)m, self + 0x10, self);
+    p = self->parts;
+    d0 = (PEVtx *)self->prim->f190;
+    d1 = (PEVtx *)self->prim->f194;
+    GetMatrixFromQuaternionPos((char *)m, self->quat, self->pos);
     MatrixDrive_PushMatrix();
-    for (i = 0; i < *(int *)(self + 0x30); i++) {
-        _setParticleEffect(p, *(char **)(self + 0x20), (char *)m, 1.0f);
+    for (i = 0; i < self->n; i++) {
+        _setParticleEffect(p, self->pkg, (char *)m, 1.0f);
         peSetVtx(d0, p);
         peSetVtx(d1, p);
-        p += 112;
-        d0 += 32;
-        d1 += 32;
+        p++;
+        d0++;
+        d1++;
     }
     MatrixDrive_PopMatrix();
-    if (*(int *)(*(char **)(self + 0x20) + 0x4) == 1) {
-        for (i = 0; i < *(int *)(self + 0x30); i++) {
-            ((PEPartRec *)(*(char **)(self + 0x24) + i * 112))->life =
-                (int)(_GetRandom() * (float)(unsigned int)*(int *)(*(char **)(self + 0x20) + 0x44));
+    if (self->pkg->mode == 1) {
+        for (i = 0; i < self->n; i++) {
+            self->parts[i].life = (int)(_GetRandom() * (float)(unsigned int)self->pkg->emit);
         }
-        *(float *)(self + 0x2C) = (float)*(int *)(self + 0x30);
+        self->emitted = (float)self->n;
     }
-    return *(int *)(self + 0x24);
+    return (int)self->parts;
 }
 
 /* kept local: void * (int, void *) here, int (void) in windField.h */
@@ -347,31 +372,31 @@ extern void *GetWindVector(int a0, void *v);
 /* particleEffect.c:217-276 in the PAL listing, rows outside execParticleEffect's
    own span (383-427): the per-particle integrator, inlined at its one call site.
    It returns 0 for a slot that is already dead and 1 otherwise. */
-static inline int updateParticle(char *self, float *m)
+static inline int updateParticle(PEGeo *self, float *m)
 {
     float wv[4];
-    char *pkg;
+    PEPackage *pkg;
     void *wind;
 
-    pkg = *(char **)(self + 0x20);
+    pkg = self->pkg;
     if (PEWORK.unk_00 == 0) {
         return 0;
     }
     wind = GetWindVector(0, PEWORK.pos);
     PEWORK.vel[0] = PEWORK.vel[0] + (sugiRandom() - 0.5f) * 0.2f;
-    PEWORK.vel[1] = PEWORK.vel[1] + *(float *)(pkg + 0x1C);
+    PEWORK.vel[1] = PEWORK.vel[1] + pkg->gravity;
     PEWORK.vel[2] = PEWORK.vel[2] + (sugiRandom() - 0.5f) * 0.2f;
-    sceVu0ScaleVector(PEWORK.vel, PEWORK.vel, *(float *)(pkg + 0x18));
+    sceVu0ScaleVector(PEWORK.vel, PEWORK.vel, pkg->drag);
     sceVu0AddVector(PEWORK.pos, PEWORK.pos, PEWORK.vel);
-    _ScaleVectorXYZ(wv, wind, *(float *)(pkg + 0x90));
+    _ScaleVectorXYZ(wv, wind, pkg->wind);
     _AddVectorXYZ(PEWORK.pos, PEWORK.pos, wv);
-    if (*(int *)(self + 0x38) != 0) {
-        if (*(float *)(self + 0x3C) > PEWORK.pos[1]) {
-            PEWORK.pos[1] = *(float *)(self + 0x3C);
+    if (self->floorOn != 0) {
+        if (self->floor > PEWORK.pos[1]) {
+            PEWORK.pos[1] = self->floor;
             PEWORK.vel[1] = 0.0f;
         }
     }
-    if (PEWORK.life < *(int *)(pkg + 0x58)) {
+    if (PEWORK.life < pkg->life) {
         PEWORK.alpha = PEWORK.alpha - PEWORK.alphaStep;
     }
     if (PEWORK.alpha < 0.0f) {
@@ -381,16 +406,16 @@ static inline int updateParticle(char *self, float *m)
     if (PEWORK.size < 0.0f) {
         PEWORK.size = 0.0f;
     }
-    PEWORK.sizeStep = PEWORK.sizeStep * *(float *)(pkg + 0x3C);
+    PEWORK.sizeStep = PEWORK.sizeStep * pkg->sizeStepDecay;
     if (PEWORK.spin != 0) {
         PEWORK.spinX = PEWORK.spinX + PEWORK.spinY;
-        PEWORK.spinY = (short)((float)PEWORK.spinY * *(float *)(pkg + 0x28));
+        PEWORK.spinY = (short)((float)PEWORK.spinY * pkg->spinYDecay);
     }
     PEWORK.life = PEWORK.life - 1;
     if (PEWORK.life < 0) {
-        if (*(int *)(pkg + 0x4) == 1) {
+        if (pkg->mode == 1) {
             MatrixDrive_PushMatrix();
-            _setParticleEffect((char *)0x70000000, pkg, (char *)m, *(float *)(self + 0x40));
+            _setParticleEffect(&PEWORK, pkg, (char *)m, self->rate);
             MatrixDrive_PopMatrix();
         } else {
             PEWORK.unk_00 = 0;
@@ -402,12 +427,12 @@ static inline int updateParticle(char *self, float *m)
 int execParticleEffect(void *a0)
 {
     float m[16];
-    char *self;
-    char *part;
-    char *base;
-    char *d0;
-    char *v0;
-    char *v1;
+    PEGeo *self;
+    PEPartRec *part;
+    PEPartRec *base;
+    PEVtx *d0;
+    PEVtx *v0;
+    PEVtx *v1;
     int flags;
     int i;
     int n;
@@ -415,42 +440,42 @@ int execParticleEffect(void *a0)
     float total;
     float next;
 
-    self = (char *)a0;
-    d0 = *(char **)(*(int *)(self + 0x28) + 0x190);
+    self = a0;
+    d0 = (PEVtx *)self->prim->f190;
     flags = 0;
     if (particleEffectOffScreen(self)) {
-        return *(int *)(*(int *)(self + 0x20) + 0x4) == 1;
+        return self->pkg->mode == 1;
     }
-    GetMatrixFromQuaternionPos(m, self + 0x10, self);
-    part = *(char **)(self + 0x24);
-    for (i = 0; i < *(int *)(self + 0x30); i++, part += 112, d0 += 32) {
-        if ((float)i < *(float *)(self + 0x2C)) {
-            PEWORK = *(PEPartRec *)part;
+    GetMatrixFromQuaternionPos(m, self->quat, self->pos);
+    part = self->parts;
+    for (i = 0; i < self->n; i++, part++, d0++) {
+        if ((float)i < self->emitted) {
+            PEWORK = *part;
             flags |= updateParticle(self, m);
-            peSetVtx(d0, (char *)0x70000000);
-            *(PEPartRec *)part = PEWORK;
+            peSetVtx(d0, &PEWORK);
+            *part = PEWORK;
         } else {
-            peSetVtx(d0, (char *)&blankParticle);
+            peSetVtx(d0, &blankParticle);
             flags |= 1;
         }
     }
-    total = (float)*(int *)(self + 0x30);
-    last = *(float *)(self + 0x2C);
+    total = (float)self->n;
+    last = self->emitted;
     if (last < total) {
-        v0 = *(char **)(*(int *)(self + 0x28) + 0x190);
-        v1 = *(char **)(*(int *)(self + 0x28) + 0x194);
-        base = *(char **)(self + 0x24);
-        next = last + *(float *)(*(char **)(self + 0x20) + 0x4C);
+        v0 = (PEVtx *)self->prim->f190;
+        v1 = (PEVtx *)self->prim->f194;
+        base = self->parts;
+        next = last + self->pkg->unk_4C;
         n = (int)next;
         if (total < next) {
             n = (int)total;
         }
         for (i = (int)last; i < n; i++) {
-            _setParticleEffect(base + i * 112, *(char **)(self + 0x20), (char *)m, 1.0f);
-            peSetVtx(v0 + i * 32, base + i * 112);
-            peSetVtx(v1 + i * 32, base + i * 112);
+            _setParticleEffect(&base[i], self->pkg, (char *)m, 1.0f);
+            peSetVtx(&v0[i], &base[i]);
+            peSetVtx(&v1[i], &base[i]);
         }
-        *(float *)(self + 0x2C) = next;
+        self->emitted = next;
     }
     return flags;
 }
@@ -480,7 +505,7 @@ void dispParticleEffect(PEGeo *geo)
     char *p;
     char *q;
 
-    if (particleEffectOffScreen((char *)geo)) {
+    if (particleEffectOffScreen(geo)) {
         return;
     }
     dl_SetDLPriority(6);
@@ -496,7 +521,7 @@ void dispParticleEffect(PEGeo *geo)
     PacketBufferStruct.ptr = (unsigned long long *)(c + 0x18);
     ((GifPkWord *)(c + 0x18))->d = 0xE;
     PacketBufferStruct.ptr = (unsigned long long *)(c + 0x20);
-    switch (*(unsigned int *)(*(int *)((char *)geo + 0x20) + 0x8)) {
+    switch (geo->pkg->alphaMode) {
     case 1:
         peSetGsReg(0x49, 0);
         peSetGsReg(0x42, 0x48);
@@ -544,7 +569,7 @@ void dispParticleEffect(PEGeo *geo)
     PacketBufferStruct.ptr = (unsigned long long *)(q + 0x10);
     dl_OpenDma(5, PacketBufferStruct.dma, 0);
     dl_CloseDma();
-    prim_DispParticle(*(int *)((char *)geo + 0x28), matrixptr + 0x100);
+    prim_DispParticle(geo->prim, matrixptr + 0x100);
 }
 
 int SetParticleEffectByPartition(int no, PEVector *pos, PEQuaternion *quat, int part)
@@ -558,14 +583,14 @@ int SetParticleEffectByPartition(int no, PEVector *pos, PEQuaternion *quat, int 
     }
     particleEffects[id].used = 1;
     particleEffects[id].geoCtrl = 1;
-    particleEffects[id].geo = (PEGeo *)iosMallocDebugNoAssert(part, 128, __FILE__, 501);
+    particleEffects[id].geo = (PEGeo *)iosMallocDebugNoAssert(part, sizeof(PEGeo), __FILE__, 501);
     particleEffects[id].sensing = 0;
     particleEffects[id].sensPos = 0;
     particleEffects[id].sensQuat = 0;
     if (particleEffects[id].geo != 0) {
         setParticleEffectGeometry((int)particleEffects[id].geo, (int)pos, (int)quat);
-        if (setParticleEffect((char *)particleEffects[id].geo, (char *)particleParams + no * 160,
-                              part) == 0) {
+        if (setParticleEffect(particleEffects[id].geo,
+                              (PEPackage *)((char *)particleParams + no * 160), part) == 0) {
             iosFree(particleEffects[id].geo);
             particleEffects[id].geo = 0;
             particleEffects[id].used = 0;
@@ -582,9 +607,9 @@ int SetParticleEffectByPartition(int no, PEVector *pos, PEQuaternion *quat, int 
  * copy) are inlined into every deleter in this TU. */
 static inline void deleteParticleEffectGeo(int no)
 {
-    prim_DeleteParticle(*(int *)((char *)particleEffects[no].geo + 0x28));
+    prim_DeleteParticle(particleEffects[no].geo->prim);
     *(int *)((char *)particleEffects[no].geo + 0x28) = 0;
-    iosFree(*(void **)((char *)particleEffects[no].geo + 0x24));
+    iosFree(particleEffects[no].geo->parts);
     iosFree(particleEffects[no].geo);
     particleEffects[no].geo = 0;
 }
@@ -606,11 +631,11 @@ extern int execParticleEffect(void *a0);
 
 void SetParticleEffectUpperLimit(int no, float f)
 {
-    char *o;
+    PEGeo *o;
     if (no >= 0) {
-        o = (char *)particleEffects[no].geo;
-        *(int *)(o + 0x38) = 1;
-        *(float *)(o + 0x3C) = f;
+        o = particleEffects[no].geo;
+        o->floorOn = 1;
+        o->floor = f;
         execParticleEffect(o);
     }
 }
@@ -618,31 +643,31 @@ void SetParticleEffectUpperLimit(int no, float f)
 /* the listing's lines 159-164: the per-particle vector setup, a static helper
  * with no out-of-line copy shared by setParticleEffect / execParticleEffect /
  * ExecParticleEffect. */
-static inline void setParticleVector(char *d, char *s)
+static inline void setParticleVector(PEVtx *d, PEPartRec *s)
 {
-    CopyVector(d, s + 0x10);
-    *(float *)(d + 0x0C) = *(float *)(s + 0x34);
-    *(float *)(d + 0x1C) = *(float *)(s + 0x3C) * 128.0f;
-    *(float *)(d + 0x10) = *(float *)(s + 0x60);
-    *(float *)(d + 0x14) = *(float *)(s + 0x64);
-    *(float *)(d + 0x18) = 128.0f;
+    CopyVector(d, s->pos);
+    d->size = s->size;
+    d->alpha = s->alpha * 128.0f;
+    d->u = s->u;
+    d->v = s->v;
+    d->q = 128.0f;
 }
 
 /* the listing's lines 374-378. */
 static inline void updateParticleVectors(int no)
 {
-    char *g;
-    char *d;
-    char *s;
+    PEGeo *g;
+    PEVtx *d;
+    PEPartRec *s;
     int i;
 
-    g = (char *)particleEffects[no].geo;
-    d = *(char **)(*(char **)(g + 0x28) + 0x190);
-    s = *(char **)(g + 0x24);
-    for (i = 0; i < *(int *)(g + 0x30); i++) {
+    g = particleEffects[no].geo;
+    d = (PEVtx *)g->prim->f190;
+    s = g->parts;
+    for (i = 0; i < g->n; i++) {
         setParticleVector(d, s);
-        s += 112;
-        d += 32;
+        s++;
+        d++;
     }
 }
 
@@ -686,15 +711,15 @@ void ResetParticleEffectPackages(int *pkg)
 
     part = ios_partition_oomori;
     for (i = 0; i < 128; i++) {
-        if (particleEffects[i].used != 0 &&
-            *(int **)((char *)particleEffects[i].geo + 0x20) == pkg) {
+        if (particleEffects[i].used != 0 && particleEffects[i].geo->pkg == (PEPackage *)pkg) {
             CopyVector(&pos, particleEffects[i].geo);
             CopyQuaternion(&quat, (char *)particleEffects[i].geo + 0x10);
             deleteParticleEffectGeo(i);
-            particleEffects[i].geo = (PEGeo *)iosMallocDebugNoAssert(part, 128, __FILE__, 663);
+            particleEffects[i].geo =
+                (PEGeo *)iosMallocDebugNoAssert(part, sizeof(PEGeo), __FILE__, 663);
             particleEffects[i].used = 1;
             setParticleEffectGeometry((int)particleEffects[i].geo, (int)&pos, (int)&quat);
-            setParticleEffect((char *)particleEffects[i].geo, (char *)pkg, part);
+            setParticleEffect(particleEffects[i].geo, (PEPackage *)pkg, part);
         }
     }
 }
@@ -704,7 +729,7 @@ void ResetParticleEffectPackages(int *pkg)
 static PEPackage defaultPackage = {
     11,  /* version */
     1,   /* mode */
-    1,   /* unk_08 */
+    1,   /* alphaMode */
     360, /* spread */
     0,
     2.0f,  /* speed */
@@ -837,8 +862,7 @@ void DeleteParticleEffectsByPackage(int *pkg)
     int i;
 
     for (i = 0; i < 128; i++) {
-        if (particleEffects[i].used != 0 &&
-            *(int **)((char *)particleEffects[i].geo + 0x20) == pkg) {
+        if (particleEffects[i].used != 0 && particleEffects[i].geo->pkg == (PEPackage *)pkg) {
             deleteParticleEffectGeo(i);
             particleEffects[i].used = 0;
         }
@@ -861,8 +885,7 @@ static inline void DeleteParticleEffectsByPackage_inl(int *pkg)
     int i;
 
     for (i = 0; i < 128; i++) {
-        if (particleEffects[i].used != 0 &&
-            *(int **)((char *)particleEffects[i].geo + 0x20) == pkg) {
+        if (particleEffects[i].used != 0 && particleEffects[i].geo->pkg == (PEPackage *)pkg) {
             deleteParticleEffectGeo(i);
             particleEffects[i].used = 0;
         }
@@ -924,13 +947,13 @@ void ParticleEffects_SetAllGoal(void *goal)
 void SetParticleEffectClipEnableFlag(int a0, int a1)
 {
     if (a0 >= 0) {
-        *(int *)((char *)particleEffects[a0].geo + 0x34) = a1;
+        particleEffects[a0].geo->clip = a1;
     }
 }
 
 void SetParticleEffectDrainLevel(int a0, float f)
 {
     if (a0 >= 0) {
-        *(float *)((char *)particleEffects[a0].geo + 0x40) = f;
+        particleEffects[a0].geo->rate = f;
     }
 }

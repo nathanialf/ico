@@ -35,8 +35,7 @@ void UpdateRootMatrixByDObj(char *a0)
     {
         char *q = *(char **)a0;
         if (q != 0) {
-            sceVu0MulMatrix(fobj, *(char **)((char *)GOBJ_SUB(q) + 0xC) + (*(int *)(a0 + 0x4) << 6),
-                            fobj);
+            sceVu0MulMatrix(fobj, (char *)GOBJ_SUB(q)->f_C + (*(int *)(a0 + 0x4) << 6), fobj);
         }
     }
     *(float *)(fobj + 0x34) = *(float *)(fobj + 0x34) + *(float *)(p + 0xC0);
@@ -221,7 +220,7 @@ extern void __assert(char *file, int line, char *expr);
  * reads it back as a pointer, so every read of it is a union view and any store
  * in between forces the reload the ROM performs. */
 
-#define SUBOF(o) (((SubHandle *)((o) + 0x15C))->p)
+#define SUBOF(o) (((SubHandle *)((o) + 0x15C))->sub)
 
 /* INTERIM: the January-2002 listing inlines LocalizeDirectionOrient into
  * LocalizeGeometry (its geometryManager.c:348-352 rows sit inside
@@ -248,7 +247,7 @@ void LocalizeGeometry(char *gobj, int *dobj)
     char *sub;
     char *m;
 
-    sub = SUBOF(gobj);
+    sub = (char *)SUBOF(gobj);
 
     m = sub + 0xA0;
     if (*(int *)sub != 0) {
@@ -261,13 +260,12 @@ void LocalizeGeometry(char *gobj, int *dobj)
     }
 
     *(float *)(m + 0xC) = 1.0f;
-    *(float *)(m + 0x4) -= *(float *)(SUBOF(gobj) + 0x160);
-    *(float *)(m + 0x154) -= *(float *)(SUBOF(gobj) + 0x160);
-    MatrixDrive_SetTransposeMatrix(mtx, *(char **)(SUBOF((char *)dobj[0]) + 0xC) + (dobj[1] << 6));
+    *(float *)(m + 0x4) -= SUBOF(gobj)->f_160;
+    *(float *)(m + 0x154) -= SUBOF(gobj)->f_160;
+    MatrixDrive_SetTransposeMatrix(mtx, (char *)SUBOF((char *)dobj[0])->f_C + (dobj[1] << 6));
     sceVu0ApplyMatrix(m, mtx, m);
     sceVu0ApplyMatrix(sub + 0x1F0, mtx, sub + 0x1F0);
-    DivQuaternion(sub + 0xD0, sub + 0xD0,
-                  *(char **)(SUBOF((char *)dobj[0]) + 0x10) + (dobj[1] << 4));
+    DivQuaternion(sub + 0xD0, sub + 0xD0, (char *)SUBOF((char *)dobj[0])->f_10 + (dobj[1] << 4));
     LocalizeDirectionOrient_i((int *)gobj, dobj);
 }
 
@@ -290,28 +288,24 @@ void GetGlobalDirectionOrient(int *self, int *other, char *p)
 
 void GlobalizeGeometry(char *gobj)
 {
-    char *sub = SUBOF(gobj);
+    char *sub = (char *)SUBOF(gobj);
     char *m = sub + 0xA0;
     char *w = sub + 0x470;
 
     *(float *)(sub + 0xAC) = 1.0f;
     if (*(char **)SUBOF(gobj) != 0) {
-        sceVu0ApplyMatrix(
-            m, *(char **)(SUBOF(*(char **)SUBOF(gobj)) + 0xC) + (*(int *)(SUBOF(gobj) + 0x4) << 6),
-            m);
-        sceVu0ApplyMatrix(SUBOF(gobj) + 0x1F0,
-                          *(char **)(SUBOF(*(char **)SUBOF(gobj)) + 0xC) +
-                              (*(int *)(SUBOF(gobj) + 0x4) << 6),
-                          SUBOF(gobj) + 0x1F0);
+        sceVu0ApplyMatrix(m, (char *)SUBOF(*(char **)SUBOF(gobj))->f_C + (SUBOF(gobj)->f_4 << 6),
+                          m);
+        sceVu0ApplyMatrix((char *)SUBOF(gobj) + 0x1F0,
+                          (char *)SUBOF(*(char **)SUBOF(gobj))->f_C + (SUBOF(gobj)->f_4 << 6),
+                          (char *)SUBOF(gobj) + 0x1F0);
     }
-    *(float *)(SUBOF(gobj) + 0xA4) =
-        *(float *)(SUBOF(gobj) + 0xA4) + *(float *)(SUBOF(gobj) + 0x160);
-    *(float *)(SUBOF(gobj) + 0x1F4) =
-        *(float *)(SUBOF(gobj) + 0x1F4) + *(float *)(SUBOF(gobj) + 0x160);
+    SUBOF(gobj)->f_A4 = SUBOF(gobj)->f_A4 + SUBOF(gobj)->f_160;
+    SUBOF(gobj)->f_1F0[1] = SUBOF(gobj)->f_1F0[1] + SUBOF(gobj)->f_160;
     GetRootQuaternion(sub + 0xD0, gobj);
     GetGlobalDirectionOrient(sub + 0x520, gobj, sub + 0x520);
     *(int *)(w + 0xB4) = 0;
-    sceVu0Normalize(SUBOF(gobj) + 0x520, SUBOF(gobj) + 0x520);
+    sceVu0Normalize((char *)SUBOF(gobj) + 0x520, (char *)SUBOF(gobj) + 0x520);
     *(int *)(w + 0xBC) = 0;
 }
 
@@ -514,8 +508,8 @@ static __inline__ void SetRootPosition_c(char *a0, void *a1)
         char *sub = *(char **)(a0 + 0x15C);
         char *q = *(char **)sub;
         if (q != 0) {
-            MatrixDrive_SetTransposeMatrix(
-                buf, (char *)(*(int *)(*(char **)(q + 0x15C) + 0xC) + (*(int *)(sub + 4) << 6)));
+            MatrixDrive_SetTransposeMatrix(buf,
+                                           (char *)(GOBJ_SUB(q)->f_C + (*(int *)(sub + 4) << 6)));
             sceVu0ApplyMatrix(p, buf, p);
         }
     }
@@ -533,7 +527,7 @@ static __inline__ void SetDirectRootPositionNoFitting_c(char *self, void *v)
     SetRootPosition_c(self, pos);
     CopyVector(sub + 0x1F0, p);
     CopyVector(sub + 0x110, p);
-    *(int *)(*(char **)(self + 0x15C) + 0x4EC) = 0;
+    GOBJ_SUB(self)->f_4EC = 0;
     CopyVector(sub + 0x200, v);
     CopyVector(sub + 0x130, ZeroVector);
     CopyVector(sub + 0x170, ZeroVector);
@@ -578,14 +572,14 @@ int cylinderCollisionCheck(void *self, void *ppos, int target, float r, float rr
             w.owner = self;
             w._78 = -1;
             w._7C = 0;
-            w.radius = *(float *)(SUBOF((char *)self) + 0x3D8);
+            w.radius = SUBOF((char *)self)->f_3D8;
             CopyVector(w.from, ppos);
             CopyVector(w.to, d2);
             ClipWallE(&w);
             if (w.hit != 0) {
                 CopyVector(d2, w.out);
             }
-            w.radius = *(float *)(SUBOF((char *)target) + 0x3D8);
+            w.radius = SUBOF((char *)target)->f_3D8;
             CopyVector(w.from, pos);
             CopyVector(w.to, d3);
             ClipWallE(&w);
@@ -594,7 +588,7 @@ int cylinderCollisionCheck(void *self, void *ppos, int target, float r, float rr
             }
             goto moved;
         }
-        w.radius = *(float *)(SUBOF((char *)self) + 0x3D8);
+        w.radius = SUBOF((char *)self)->f_3D8;
         CopyVector(w.from, ppos);
         CopyVector(w.to, d2);
         ClipWall(&w);
@@ -602,7 +596,7 @@ int cylinderCollisionCheck(void *self, void *ppos, int target, float r, float rr
             CopyVector(d2, w.out);
         }
     }
-    w.radius = *(float *)(SUBOF((char *)target) + 0x3D8);
+    w.radius = SUBOF((char *)target)->f_3D8;
     CopyVector(w.from, pos);
     CopyVector(w.to, d3);
     ClipWall(&w);
@@ -612,21 +606,21 @@ int cylinderCollisionCheck(void *self, void *ppos, int target, float r, float rr
 moved:
     if (ctrl != 0) {
         if (self != 0) {
-            b = *(float *)(SUBOF((char *)self) + 0x1F4);
-            c = *(float *)(SUBOF((char *)self) + 0x204);
-            a = *(float *)(SUBOF((char *)self) + 0x134);
+            b = SUBOF((char *)self)->f_1F0[1];
+            c = *(float *)((char *)SUBOF((char *)self) + 0x204);
+            a = SUBOF((char *)self)->f_134;
             SetDirectRootPositionNoFitting_c(self, d2);
-            *(float *)(SUBOF((char *)self) + 0x134) = a;
-            *(float *)(SUBOF((char *)self) + 0x1F4) = b;
-            *(float *)(SUBOF((char *)self) + 0x204) = c;
+            SUBOF((char *)self)->f_134 = a;
+            SUBOF((char *)self)->f_1F0[1] = b;
+            *(float *)((char *)SUBOF((char *)self) + 0x204) = c;
         }
-        b = *(float *)(SUBOF((char *)target) + 0x1F4);
-        c = *(float *)(SUBOF((char *)target) + 0x204);
-        a = *(float *)(SUBOF((char *)target) + 0x134);
+        b = SUBOF((char *)target)->f_1F0[1];
+        c = *(float *)((char *)SUBOF((char *)target) + 0x204);
+        a = SUBOF((char *)target)->f_134;
         SetDirectRootPositionNoFitting_c((char *)target, d3);
-        *(float *)(SUBOF((char *)target) + 0x134) = a;
-        *(float *)(SUBOF((char *)target) + 0x1F4) = b;
-        *(float *)(SUBOF((char *)target) + 0x204) = c;
+        SUBOF((char *)target)->f_134 = a;
+        SUBOF((char *)target)->f_1F0[1] = b;
+        *(float *)((char *)SUBOF((char *)target) + 0x204) = c;
     } else {
         if (self != 0) {
             SetRootPosition_c(self, d2);

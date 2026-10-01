@@ -929,8 +929,8 @@ void DarkVolumeGeo(char *a0)
 {
     float *p;
 
-    *(int *)(*(int *)(a0 + 0x15C) + 0x74) = 0;
-    p = *(float **)(*(int *)(a0 + 0x15C) + 0xC);
+    GOBJ_SUB(a0)->f_74 = 0;
+    p = (float *)GOBJ_SUB(a0)->f_C;
     if (1e-05f < *p) {
         SetupDarkVolume((char *)p + 0x30, *p * 50.0f, 10.0f);
     }

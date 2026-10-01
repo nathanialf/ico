@@ -353,21 +353,48 @@ static Cloth4DCol tapeBoro2MeshCols[2] = {
      {1.58f, -0.946f, -1.463f, 0.0f}},
 };
 
+/* RECONSTRUCTION, read from the ROM.  The 104-byte work record InitBoyGeo
+   allocates and hangs at the object's work word: the crown in use and the
+   head, body and three crown display objects, the stonized state and its BG
+   animation, the five cloths, the pool reflection mesh, the water drops and
+   the drip state actionOfWater runs. */
+typedef struct BoyWork {
+    int crown;              /* 0x00, 1 or 2 picks crown1 or crown2, else crown0 */
+    char *head;             /* 0x04 */
+    char *body;             /* 0x08 */
+    char *crown0;           /* 0x0C */
+    char *crown1;           /* 0x10 */
+    char *crown2;           /* 0x14 */
+    int stone;              /* 0x18 */
+    int stoneAnim;          /* 0x1C */
+    char *mantle;           /* 0x20 */
+    char *tape;             /* 0x24 */
+    char *tapeBoro1;        /* 0x28 */
+    char *tapeB;            /* 0x2C */
+    char *tapeBoro2;        /* 0x30 */
+    PoolMesh refl;          /* 0x34 */
+    WaterDotWork *waterDot; /* 0x54 */
+    int wet;                /* 0x58 */
+    float dripVel;          /* 0x5C */
+    float drip;             /* 0x60 */
+    float detail;           /* 0x64 */
+} BoyWork;
+
 void dispClothes(char *gobj)
 {
-    char *w = *(char **)((char *)GOBJ_SUB(gobj) + 0x830);
+    BoyWork *w = GOBJ_SUB(gobj)->f_830;
     char *x;
 
     x = (char *)GOBJ_SUB(gobj)->p_874;
-    DispCloth4D(*(void **)(w + 0x20), x + 0x40, x);
+    DispCloth4D(w->mantle, x + 0x40, x);
     x = (char *)GOBJ_SUB(gobj)->p_874;
-    DispCloth4D(*(void **)(w + 0x24), x + 0x40, x);
+    DispCloth4D(w->tape, x + 0x40, x);
     x = (char *)GOBJ_SUB(gobj)->p_874;
-    DispCloth4D(*(void **)(w + 0x2C), x + 0x40, x);
+    DispCloth4D(w->tapeB, x + 0x40, x);
     x = (char *)GOBJ_SUB(gobj)->p_874;
-    DispCloth4D(*(void **)(w + 0x28), x + 0x40, x);
+    DispCloth4D(w->tapeBoro1, x + 0x40, x);
     x = (char *)GOBJ_SUB(gobj)->p_874;
-    DispCloth4D(*(void **)(w + 0x30), x + 0x40, x);
+    DispCloth4D(w->tapeBoro2, x + 0x40, x);
 }
 
 /* census execClothes, a file static: girl.c has its own static twin of this name.
@@ -380,17 +407,17 @@ void dispClothes(char *gobj)
  * two locals' names are ours (a nested inline leaves no symbol). */
 static void execClothes(char *gobj)
 {
-    char *w = *(char **)((char *)GOBJ_SUB(gobj) + 0x830);
+    BoyWork *w = GOBJ_SUB(gobj)->f_830;
 
-    if (*(int *)(w + 0x58) != 0) {
-        GetCloth4DWithDetail(*(void **)(w + 0x20), 0.0f, 0.5f, 1.0f, 0.0f);
-        GetCloth4DWithDetail(*(void **)(w + 0x24), 0.0f, 0.5f, 1.0f, 0.0f);
-        GetCloth4D(*(void **)(w + 0x2C), 5.0f, 0.98f);
-        GetCloth4D(*(void **)(w + 0x28), 5.0f, 0.98f);
-        GetCloth4D(*(void **)(w + 0x30), 5.0f, 0.98f);
-        *(float *)(w + 0x64) = 1.0f;
+    if (w->wet != 0) {
+        GetCloth4DWithDetail(w->mantle, 0.0f, 0.5f, 1.0f, 0.0f);
+        GetCloth4DWithDetail(w->tape, 0.0f, 0.5f, 1.0f, 0.0f);
+        GetCloth4D(w->tapeB, 5.0f, 0.98f);
+        GetCloth4D(w->tapeBoro1, 5.0f, 0.98f);
+        GetCloth4D(w->tapeBoro2, 5.0f, 0.98f);
+        w->detail = 1.0f;
     } else {
-        float f = *(float *)(w + 0x64);
+        float f = w->detail;
         float x = f * 5.0f + 3.0f;
         float wt = 1.0f - f;
         __inline__ void setClothDetail(void *cloth)
@@ -398,12 +425,12 @@ static void execClothes(char *gobj)
             GetCloth4DWithDetail(cloth, x, 0.98f, 1.0f, wt);
         }
 
-        setClothDetail(*(void **)(w + 0x20));
-        setClothDetail(*(void **)(w + 0x24));
-        setClothDetail(*(void **)(w + 0x2C));
-        setClothDetail(*(void **)(w + 0x28));
-        setClothDetail(*(void **)(w + 0x30));
-        *(float *)(w + 0x64) *= 0.999f;
+        setClothDetail(w->mantle);
+        setClothDetail(w->tape);
+        setClothDetail(w->tapeB);
+        setClothDetail(w->tapeBoro1);
+        setClothDetail(w->tapeBoro2);
+        w->detail *= 0.999f;
     }
 }
 
@@ -546,7 +573,7 @@ void LightLineDL(void)
 
 inline void SelectBoyCrown(char *a0, int a1)
 {
-    *(int *)(*(char **)((char *)GOBJ_SUB(a0) + 0x830) + 0x0) = a1;
+    ((BoyWork *)GOBJ_SUB(a0)->f_830)->crown = a1;
 }
 
 /* The display-list record's 0x38 word carries single bits set and cleared with
@@ -570,78 +597,77 @@ static ClothHangCfg tapeHang[3] = {
     {-1, 0.0f, 0.0f, 0.0f, 0, {0}, 0.0f, 0.0f, {0}, 0.0f, 0.0f, {0}},
 };
 
-char *InitBoyGeo(char *gobj, void *csv)
+BoyWork *InitBoyGeo(char *gobj, void *csv)
 {
-    char *w;
-    char *p;
+    BoyWork *w;
+    BoyWork *p;
     int i;
 
-    w = (char *)iosMallocDebug(ios_partition_sugipon, 0x68, "src/boy.c", 280);
-    *(char **)(*(char **)(gobj + 0x15C) + 0x830) = w;
-    p = *(char **)(*(char **)(gobj + 0x15C) + 0x830);
-    *(char **)(p + 0x20) = InitCloth4D(gobj, &mantleMesh, mantleHang);
-    *(char **)(p + 0x24) = InitCloth4D(gobj, &tapeMesh, tapeHang);
-    *(char **)(p + 0x2C) = InitCloth4D(gobj, &tapeBMesh, 0);
-    *(char **)(p + 0x28) = InitCloth4D(gobj, &tapeBoro1Mesh, 0);
-    *(char **)(p + 0x30) = InitCloth4D(gobj, &tapeBoro2Mesh, 0);
+    w = iosMallocDebug(ios_partition_sugipon, sizeof(BoyWork), "src/boy.c", 280);
+    /* the work word stored and read back as char *: the bytes pin that alias
+       set here (the cloth stores below must stay ordered against the reload) */
+    *(char **)(*(char **)(gobj + 0x15C) + 0x830) = (char *)w;
+    p = (BoyWork *)*(char **)(*(char **)(gobj + 0x15C) + 0x830);
+    p->mantle = (char *)InitCloth4D(gobj, &mantleMesh, mantleHang);
+    p->tape = (char *)InitCloth4D(gobj, &tapeMesh, tapeHang);
+    p->tapeB = (char *)InitCloth4D(gobj, &tapeBMesh, 0);
+    p->tapeBoro1 = (char *)InitCloth4D(gobj, &tapeBoro1Mesh, 0);
+    p->tapeBoro2 = (char *)InitCloth4D(gobj, &tapeBoro2Mesh, 0);
     *(int *)(*(char **)(gobj + 0x15C) + 0x554) = 1;
-    *(char **)(w + 0x4) = CSVSYSTEM_InitDObj(2, csv);
-    *(char **)(w + 0x8) = CSVSYSTEM_InitDObj(3, csv);
-    if (*(int *)(*(char **)(w + 0x8) + 0xC) != 0) {
-        iosFree(*(int *)(*(char **)(w + 0x8) + 0xC) & 0xFFFFFFF);
+    w->head = CSVSYSTEM_InitDObj(2, csv);
+    w->body = CSVSYSTEM_InitDObj(3, csv);
+    if (*(int *)(w->body + 0xC) != 0) {
+        iosFree(*(int *)(w->body + 0xC) & 0xFFFFFFF);
     }
-    if (*(int *)(*(char **)(w + 0x8) + 0x10) != 0) {
-        iosFree(*(int *)(*(char **)(w + 0x8) + 0x10) & 0xFFFFFFF);
+    if (*(int *)(w->body + 0x10) != 0) {
+        iosFree(*(int *)(w->body + 0x10) & 0xFFFFFFF);
     }
-    *(int *)(*(char **)(w + 0x8) + 0xC) = 0;
-    *(int *)(*(char **)(w + 0x8) + 0x10) = 0;
-    *(int *)(*(char **)(w + 0x8) + 0xC) =
-        (int)iosMallocDebug(ios_partition_seki, 0x80, "src/boy.c", 291);
-    *(int *)(*(char **)(w + 0x8) + 0x10) =
-        (int)iosMallocDebug(ios_partition_seki, 0x20, "src/boy.c", 291);
-    *(int *)(*(char **)(w + 0x8) + 0x8) = 2;
-    if (*(int *)(*(char **)(w + 0x8) + 0x870) != 0) {
-        iosFree(*(int *)(*(char **)(w + 0x8) + 0x870) & 0xFFFFFFF);
+    *(int *)(w->body + 0xC) = 0;
+    *(int *)(w->body + 0x10) = 0;
+    *(int *)(w->body + 0xC) = (int)iosMallocDebug(ios_partition_seki, 0x80, "src/boy.c", 291);
+    *(int *)(w->body + 0x10) = (int)iosMallocDebug(ios_partition_seki, 0x20, "src/boy.c", 291);
+    *(int *)(w->body + 0x8) = 2;
+    if (*(int *)(w->body + 0x870) != 0) {
+        iosFree(*(int *)(w->body + 0x870) & 0xFFFFFFF);
     }
-    *(int *)(*(char **)(w + 0x8) + 0x870) =
-        (int)iosMallocDebug(ios_partition_seki, 0xA0, "src/boy.c", 291);
+    *(int *)(w->body + 0x870) = (int)iosMallocDebug(ios_partition_seki, 0xA0, "src/boy.c", 291);
     for (i = 0; i < 2; i++) {
-        ((DlFlag *)(i * 0x50 + *(int *)(*(char **)(w + 0x8) + 0x870) + 0x38))->ll &= ~1;
-        ((DlFlag *)(i * 0x50 + *(int *)(*(char **)(w + 0x8) + 0x870) + 0x38))->ll &= ~2;
-        *(float *)(i * 0x50 + *(int *)(*(char **)(w + 0x8) + 0x870) + 0x40) = 0.0f;
-        *(float *)(i * 0x50 + *(int *)(*(char **)(w + 0x8) + 0x870) + 0x44) = 0.0f;
-        *(float *)(i * 0x50 + *(int *)(*(char **)(w + 0x8) + 0x870) + 0x48) = 0.0f;
-        *(float *)(i * 0x50 + *(int *)(*(char **)(w + 0x8) + 0x870) + 0x4C) = 1.0f;
-        ((DlFlag *)(i * 0x50 + *(int *)(*(char **)(w + 0x8) + 0x870) + 0x38))->ll &= ~4;
-        *(float *)(i * 0x50 + *(int *)(*(char **)(w + 0x8) + 0x870) + 0x30) = 0.0f;
-        *(float *)(i * 0x50 + *(int *)(*(char **)(w + 0x8) + 0x870) + 0x34) = 1.0f;
-        *(short *)(i * 0x50 + *(int *)(*(char **)(w + 0x8) + 0x870) + 0x3A) = 0;
-        *(float *)(i * 0x50 + *(int *)(*(char **)(w + 0x8) + 0x870) + 0x20) = 1.0f;
-        *(float *)(i * 0x50 + *(int *)(*(char **)(w + 0x8) + 0x870) + 0x24) = 1.0f;
-        *(float *)(i * 0x50 + *(int *)(*(char **)(w + 0x8) + 0x870) + 0x28) = 1.0f;
+        ((DlFlag *)(i * 0x50 + *(int *)(w->body + 0x870) + 0x38))->ll &= ~1;
+        ((DlFlag *)(i * 0x50 + *(int *)(w->body + 0x870) + 0x38))->ll &= ~2;
+        *(float *)(i * 0x50 + *(int *)(w->body + 0x870) + 0x40) = 0.0f;
+        *(float *)(i * 0x50 + *(int *)(w->body + 0x870) + 0x44) = 0.0f;
+        *(float *)(i * 0x50 + *(int *)(w->body + 0x870) + 0x48) = 0.0f;
+        *(float *)(i * 0x50 + *(int *)(w->body + 0x870) + 0x4C) = 1.0f;
+        ((DlFlag *)(i * 0x50 + *(int *)(w->body + 0x870) + 0x38))->ll &= ~4;
+        *(float *)(i * 0x50 + *(int *)(w->body + 0x870) + 0x30) = 0.0f;
+        *(float *)(i * 0x50 + *(int *)(w->body + 0x870) + 0x34) = 1.0f;
+        *(short *)(i * 0x50 + *(int *)(w->body + 0x870) + 0x3A) = 0;
+        *(float *)(i * 0x50 + *(int *)(w->body + 0x870) + 0x20) = 1.0f;
+        *(float *)(i * 0x50 + *(int *)(w->body + 0x870) + 0x24) = 1.0f;
+        *(float *)(i * 0x50 + *(int *)(w->body + 0x870) + 0x28) = 1.0f;
     }
-    *(short *)(*(char **)(w + 0x8) + 0x84C) = 2;
-    *(char **)(w + 0xC) = CSVSYSTEM_InitDObj(1, csv);
-    *(char **)(w + 0x10) = CSVSYSTEM_InitDObj(0xF, csv);
-    *(char **)(w + 0x14) = CSVSYSTEM_InitDObj(0x10, csv);
-    *(int *)(*(char **)(*(char **)(gobj + 0x15C) + 0x830)) = 0;
-    sceVu0UnitMatrix(*(char **)(w + 0xC) + 0x20);
+    *(short *)(w->body + 0x84C) = 2;
+    w->crown0 = CSVSYSTEM_InitDObj(1, csv);
+    w->crown1 = CSVSYSTEM_InitDObj(0xF, csv);
+    w->crown2 = CSVSYSTEM_InitDObj(0x10, csv);
+    (*(BoyWork **)(*(char **)(gobj + 0x15C) + 0x830))->crown = 0;
+    sceVu0UnitMatrix(w->crown0 + 0x20);
     InitMotionOrient(gobj, 0, 0x503, 0, 0xC, 0);
     InitLightLineGeo(gobj, csv);
     SetLodLevel(gobj, 2);
-    *(int *)(w + 0x18) = 0;
-    *(int *)(w + 0x1C) = 0;
-    *(int *)(w + 0x34) = 0x14;
-    *(int *)(w + 0x38) = 0x14;
-    *(float *)(w + 0x3C) = 300.0f;
-    *(float *)(w + 0x40) = 300.0f;
-    *(int *)(w + 0x50) = 0x80808080;
-    InitLimitedPoolReflactionMesh((PoolMesh *)(w + 0x34));
-    *(char **)(w + 0x54) = AllocWaterDot(gobj, 0x1E, 5);
-    *(int *)(w + 0x58) = 0;
-    *(int *)(w + 0x5C) = 0;
-    *(int *)(w + 0x60) = 0;
-    *(int *)(w + 0x64) = 0;
+    w->stone = 0;
+    w->stoneAnim = 0;
+    w->refl.nrow = 20;
+    w->refl.ncol = 20;
+    w->refl.f_8 = 300.0f;
+    w->refl.f_C = 300.0f;
+    w->refl.color = 0x80808080;
+    InitLimitedPoolReflactionMesh(&w->refl);
+    w->waterDot = AllocWaterDot((int)gobj, 30, 5);
+    w->wet = 0;
+    w->dripVel = 0.0f;
+    w->drip = 0.0f;
+    w->detail = 0.0f;
     return w;
 }
 
@@ -706,29 +732,29 @@ void synchronizeMotionOutputOriginForGirl(char *gobj)
 void actionOfWater(char *gobj)
 {
     float pos[4];
-    char *w = *(char **)(*(char **)(gobj + 0x15C) + 0x830);
+    BoyWork *w = GOBJ_SUB(gobj)->f_830;
     int node;
 
-    ExecWaterDot(*(int *)(w + 0x54));
+    ExecWaterDot((int)w->waterDot);
     if (GOBJ_SUB(gobj)->f_4D8 == 0xB) {
-        *(int *)(w + 0x58) = 1;
-        *(float *)(w + 0x5C) = 5.0f;
-        *(float *)(w + 0x60) = 0.0f;
+        w->wet = 1;
+        w->dripVel = 5.0f;
+        w->drip = 0.0f;
     } else {
-        *(int *)(w + 0x58) = 0;
-        *(float *)(w + 0x5C) = *(float *)(w + 0x5C) * 0.98f;
-        *(float *)(w + 0x60) = *(float *)(w + 0x60) + *(float *)(w + 0x5C);
-        if (1.0f < *(float *)(w + 0x60)) {
+        w->wet = 0;
+        w->dripVel = w->dripVel * 0.98f;
+        w->drip = w->drip + w->dripVel;
+        if (1.0f < w->drip) {
             node = GetSkeltonFocusNode(gobj, 0x16);
             CopyVector(pos, (char *)GOBJ_SUB(gobj)->f_C + (node << 6) + 0x30);
-            EntryWaterDot(*(int *)(w + 0x54), pos, ZeroVector, 8.0f);
+            EntryWaterDot((int)w->waterDot, pos, ZeroVector, 8.0f);
             node = GetSkeltonFocusNode(gobj, 0x6);
             CopyVector(pos, (char *)GOBJ_SUB(gobj)->f_C + (node << 6) + 0x30);
-            EntryWaterDot(*(int *)(w + 0x54), pos, ZeroVector, 8.0f);
+            EntryWaterDot((int)w->waterDot, pos, ZeroVector, 8.0f);
             node = GetSkeltonFocusNode(gobj, 0x2C);
             CopyVector(pos, (char *)GOBJ_SUB(gobj)->f_C + (node << 6) + 0x30);
-            EntryWaterDot(*(int *)(w + 0x54), pos, ZeroVector, 10.0f);
-            *(float *)(w + 0x60) = 0.0f;
+            EntryWaterDot((int)w->waterDot, pos, ZeroVector, 10.0f);
+            w->drip = 0.0f;
         }
     }
 }
@@ -753,39 +779,39 @@ void BoyGeo(char *gobj)
 
 void dispSubParts(char *gobj)
 {
-    char *w = *(char **)(*(char **)(gobj + 0x15C) + 0x830);
+    BoyWork *w = GOBJ_SUB(gobj)->f_830;
     char *a;
     char *c;
     int node;
 
-    a = *(char **)(w + 0x4);
+    a = w->head;
     node = GetSkeltonFocusNode(gobj, 0x23);
     CopyMatrix(*(char **)(a + 0xC), (char *)GOBJ_SUB(gobj)->f_C + (node << 6));
-    p2o_DispVU1DObj(*(char **)(w + 0x4));
-    a = *(char **)(w + 0x8);
+    p2o_DispVU1DObj(w->head);
+    a = w->body;
     node = GetSkeltonFocusNode(gobj, 0x14);
     CopyMatrix(*(char **)(a + 0xC), (char *)GOBJ_SUB(gobj)->f_C + (node << 6));
-    c = *(char **)(*(char **)(w + 0x8) + 0xC) + 0x40;
+    c = *(char **)(w->body + 0xC) + 0x40;
     node = GetSkeltonFocusNode(gobj, 0x4);
     CopyMatrix(c, (char *)GOBJ_SUB(gobj)->f_C + (node << 6));
-    p2o_DispVU1DObjMulti(*(char **)(w + 0x8));
+    p2o_DispVU1DObjMulti(w->body);
 }
 
 void dispCrown(char *gobj)
 {
-    char *w = *(char **)(*(char **)(gobj + 0x15C) + 0x830);
+    BoyWork *w = GOBJ_SUB(gobj)->f_830;
     int node = GetSkeltonFocusNode(gobj, 0x23);
     char *obj;
 
-    switch (*(int *)w) {
+    switch (w->crown) {
     case 1:
-        obj = *(char **)(w + 0x10);
+        obj = w->crown1;
         break;
     case 2:
-        obj = *(char **)(w + 0x14);
+        obj = w->crown2;
         break;
     default:
-        obj = *(char **)(w + 0xC);
+        obj = w->crown0;
         break;
     }
     CopyMatrix(MatrixDrive_GetMatrix(), (char *)GOBJ_SUB(gobj)->f_C + (node << 6));
@@ -796,11 +822,11 @@ void dispCrown(char *gobj)
 
 inline void SetBoyStonizedVisual(char *a0)
 {
-    char *crown = (char *)GOBJ_SUB(a0)->f_830;
+    BoyWork *crown = GOBJ_SUB(a0)->f_830;
     AdjustMotionHeightToNearestField(a0);
-    *(int *)(crown + 0x18) = 1;
-    *(int *)(crown + 0x1C) = 0;
-    *(int *)((int)GOBJ_SUB(a0) + 0x62C) = 0;
+    crown->stone = 1;
+    crown->stoneAnim = 0;
+    GOBJ_SUB(a0)->f_62C = 0;
 }
 
 /* kept local: float (int, void *, void *, float) here, float (int, float, void *, void *) in StageAnimation.h */
@@ -811,19 +837,19 @@ void BoyDL(char *gobj)
 {
     char pos[0x10];
     char quat[0x10];
-    char *w = *(char **)(*(char **)(gobj + 0x15C) + 0x830);
+    BoyWork *w = GOBJ_SUB(gobj)->f_830;
     PoolMesh *m;
     char *sub;
     int r;
 
     ExecutePauseSlipProc(gobj);
-    if (*(int *)(w + 0x18) != 0) {
+    if (w->stone != 0) {
         GetRootPosition(pos, gobj);
         GetRootQuaternion(quat, gobj);
         RotQuaternionY(quat, -0x8000);
-        r = (int)stage_PlayBgAnimation(0x1E8, pos, quat, (float)*(int *)(w + 0x1C));
+        r = (int)stage_PlayBgAnimation(0x1E8, pos, quat, (float)w->stoneAnim);
         if (systemStatus[5] == 0 && r != -1) {
-            *(int *)(w + 0x1C) = r;
+            w->stoneAnim = r;
         }
     } else {
         p2o_SetDefaultEnviroment();
@@ -839,5 +865,5 @@ void BoyDL(char *gobj)
         SetLimitedPoolReflactionMesh(m, *(int *)(sub + 0x648), gobj);
         DispLimitedPoolReflactionMesh(m);
     }
-    DispWaterDot(*(int *)(w + 0x54));
+    DispWaterDot((int)w->waterDot);
 }

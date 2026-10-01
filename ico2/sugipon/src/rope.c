@@ -232,12 +232,12 @@ void *InitRopeGeo(char *o, const float *p)
 
 inline int CheckRopeUpperWallClimbable(int a0, char *a1)
 {
-    return *(int *)(*(char **)(*(char **)(a1 + 0x15C) + 0x830) + 4);
+    return *(int *)((char *)GOBJ_SUB(a1)->f_830 + 4);
 }
 
 void SetRopeFixPoint(char *a0, void *a1)
 {
-    CopyVector(**(char ***)(*(char **)(*(char **)(a0 + 0x15C) + 0x830)) + 0x20, a1);
+    CopyVector(**(char ***)((char *)GOBJ_SUB(a0)->f_830) + 0x20, a1);
 }
 
 /* The actor's 0x15C sub-object slot: the engine stores a different per-actor

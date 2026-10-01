@@ -165,7 +165,7 @@ static inline int fumbleTargetBlocked(FumbleVec *p)
 
 int ReleaseWeaponWithFumbleSequential(char *g)
 {
-    WeaponWork *w = (WeaponWork *)GOBJ_SUB(g)->f_830;
+    WeaponWork *w = GOBJ_SUB(g)->f_830;
     FumbleVec a;
     int i;
 
@@ -403,9 +403,9 @@ void calcDynamicGeometry(char *g)
             CopyVector(dir1, cc.dir);
             if (36.0f < VectorLengthSquare(cc.d)) {
                 if (cc.wall) {
-                    *(int *)(*(char **)(g + 0x15C) + 0x5F4) = GetWallAttribute(&cc);
+                    GOBJ_SUB(g)->f_5F4 = GetWallAttribute(&cc);
                 } else {
-                    *(int *)(*(char **)(g + 0x15C) + 0x5F4) = GetFloorAttribute(&cc);
+                    GOBJ_SUB(g)->f_5F4 = GetFloorAttribute(&cc);
                 }
                 weaponHitReactionSE(g);
             }
@@ -425,9 +425,9 @@ void calcDynamicGeometry(char *g)
             CopyVector(dir2, cc.dir);
             if (36.0f < VectorLengthSquare(cc.d)) {
                 if (cc.wall) {
-                    *(int *)(*(char **)(g + 0x15C) + 0x5F4) = GetWallAttribute(&cc);
+                    GOBJ_SUB(g)->f_5F4 = GetWallAttribute(&cc);
                 } else {
-                    *(int *)(*(char **)(g + 0x15C) + 0x5F4) = GetFloorAttribute(&cc);
+                    GOBJ_SUB(g)->f_5F4 = GetFloorAttribute(&cc);
                 }
                 weaponHitReactionSE(g);
             }
@@ -560,7 +560,7 @@ void getGeometry(char *g)
 
 void WeaponCurPos(char *a0, void *a1, void *a2, void *a3)
 {
-    WeaponWork *p = (WeaponWork *)GOBJ_SUB(a0)->f_830;
+    WeaponWork *p = GOBJ_SUB(a0)->f_830;
     CopyVector(a1, p->hit[1]);
     CopyVector(a2, p->hit[2]);
     CopyVector(a3, p->hit[3]);
@@ -568,7 +568,7 @@ void WeaponCurPos(char *a0, void *a1, void *a2, void *a3)
 
 void WeaponHitEffect(char *a0, void *a1)
 {
-    WeaponWork *p = (WeaponWork *)GOBJ_SUB(a0)->f_830;
+    WeaponWork *p = GOBJ_SUB(a0)->f_830;
     CheckEnemyHit(a1, p->hit[1], p->hit[2], p->hit[3]);
 }
 
@@ -636,7 +636,7 @@ extern void LinkParentOfDObj(void *gobj, void *link);
 
 void initializeQueenzSword(char *g, int index, QSwordLayout *lay)
 {
-    WeaponWork *w = (WeaponWork *)GOBJ_SUB(g)->f_830;
+    WeaponWork *w = GOBJ_SUB(g)->f_830;
     QSwordLink lnk = {(int)g, index};
     QSwordLayout r;
     QSwordLayout r2;
@@ -745,11 +745,11 @@ void *InitWeaponGeo(char *g, QSwordLayout *lay)
 
 void dispLaserSword(char *g, float t)
 {
-    WeaponWork *w = (WeaponWork *)GOBJ_SUB(g)->f_830;
+    WeaponWork *w = GOBJ_SUB(g)->f_830;
 
     p2o_DispVU1(g);
     if (1.0f < t) {
-        CopyMatrix(MatrixDrive_GetMatrix(), *(void **)((char *)GOBJ_SUB(g) + 0xC));
+        CopyMatrix(MatrixDrive_GetMatrix(), (void *)GOBJ_SUB(g)->f_C);
         MatrixDrive_TransMatrix(0.0f, 0.0f, 7.5f);
         MatrixDrive_ScaleMatrix(1.0f, 1.0f, t / 100.0f);
         CopyMatrix(*(void **)(w->model0 + 0xC), MatrixDrive_GetMatrix());
@@ -776,7 +776,7 @@ void dispInsectNet(char *g)
 {
     int i;
 
-    CopyMatrix(MatrixDrive_GetMatrix(), *(void **)((char *)GOBJ_SUB(g) + 0xC));
+    CopyMatrix(MatrixDrive_GetMatrix(), (void *)GOBJ_SUB(g)->f_C);
     gif_StartPacketPri(11);
     gif_SetZTest(1);
     gif_SetZWrite(1);
@@ -795,7 +795,7 @@ void dispInsectNet(char *g)
 
 void dispBlur(char *g)
 {
-    WeaponWork *w = (WeaponWork *)GOBJ_SUB(g)->f_830;
+    WeaponWork *w = GOBJ_SUB(g)->f_830;
 
     if (weaponKind[w->kind].w[3] != -1) {
         char *e = (char *)weaponKind + w->kind * 36;
@@ -936,7 +936,7 @@ typedef union {
 
 void WeaponGeo(char *g)
 {
-    WeaponWork *w = (WeaponWork *)GOBJ_SUB(g)->f_830;
+    WeaponWork *w = GOBJ_SUB(g)->f_830;
     int kind;
     int i;
     int n;
@@ -985,15 +985,13 @@ void WeaponGeo(char *g)
         t = w->fA8;
         stage_SetLoopFlag(473, 1);
         if (t > 1.0f) {
-            n = (int)stage_PlayBgAnimation(473, (float)w->fBC,
-                                           *(char **)((char *)GOBJ_SUB(g) + 0xC) + 0x30,
+            n = (int)stage_PlayBgAnimation(473, (float)w->fBC, (char *)GOBJ_SUB(g)->f_C + 0x30,
                                            IdentityQuaternion);
             if (systemStatus[5] == 0) {
                 w->fBC = n;
             }
         } else {
-            stage_PlayBgAnimation(473, 0.0f, *(char **)((char *)GOBJ_SUB(g) + 0xC) + 0x30,
-                                  IdentityQuaternion);
+            stage_PlayBgAnimation(473, 0.0f, (char *)GOBJ_SUB(g)->f_C + 0x30, IdentityQuaternion);
             w->fBC = 0;
         }
         stage_SetLoopFlag(473, 0);
@@ -1009,13 +1007,13 @@ void WeaponGeo(char *g)
         a = -atan2f(v[1], _Sqrt(1.0f - v[1] * v[1]));
         ((WeaponMatrix *)MatrixDrive_GetMatrix())->f[3][1] -=
             GetTableSin((short)(a * 10430.378f)) * 70.0f;
-        CopyMatrix(*(char **)((char *)GOBJ_SUB(g) + 0xC), MatrixDrive_GetMatrix());
+        CopyMatrix((char *)GOBJ_SUB(g)->f_C, MatrixDrive_GetMatrix());
     }
 }
 
 void WeaponDL(char *g)
 {
-    WeaponWork *w = (WeaponWork *)GOBJ_SUB(g)->f_830;
+    WeaponWork *w = GOBJ_SUB(g)->f_830;
 
     switch (w->kind) {
     default:
@@ -1039,7 +1037,7 @@ void WeaponDL(char *g)
 
 void PickupWeapon(char *a0, char *a1, int a2)
 {
-    WeaponWork *p = (WeaponWork *)GOBJ_SUB(a0)->f_830;
+    WeaponWork *p = GOBJ_SUB(a0)->f_830;
 
     p->holder = a1;
     p->holderId = GetSkeltonFocusNode(a1, a2);
@@ -1063,7 +1061,7 @@ char *CheckSwapableWeapon(char *a0, float dist)
         if (g == a0)
             continue;
 
-        w = (WeaponWork *)GOBJ_SUB(g)->f_830;
+        w = GOBJ_SUB(g)->f_830;
         if (w->kind == 0)
             continue;
 
@@ -1088,7 +1086,7 @@ char *CheckSwapableWeapon(char *a0, float dist)
 
 void ReleaseWeapon(char *a0)
 {
-    WeaponWork *p = (WeaponWork *)GOBJ_SUB(a0)->f_830;
+    WeaponWork *p = GOBJ_SUB(a0)->f_830;
     if (p->holder) {
         *(int *)(*(char **)(p->holder + 0x15C) + 0x630) = 0;
     }
@@ -1104,7 +1102,7 @@ int CheckWeaponKind(char *a0)
 
 void LightTorchOnOfWeapon(char *a0)
 {
-    WeaponWork *p = (WeaponWork *)GOBJ_SUB(a0)->f_830;
+    WeaponWork *p = GOBJ_SUB(a0)->f_830;
     int i;
 
     if (p->count) {
@@ -1117,7 +1115,7 @@ void LightTorchOnOfWeapon(char *a0)
 
 void LightTorchOnOfWeaponWithNoSE(char *a0)
 {
-    WeaponWork *p = (WeaponWork *)GOBJ_SUB(a0)->f_830;
+    WeaponWork *p = GOBJ_SUB(a0)->f_830;
     int i;
 
     if (p->count) {
@@ -1130,7 +1128,7 @@ void LightTorchOnOfWeaponWithNoSE(char *a0)
 
 void LightTorchOffOfWeapon(char *a0)
 {
-    WeaponWork *p = (WeaponWork *)GOBJ_SUB(a0)->f_830;
+    WeaponWork *p = GOBJ_SUB(a0)->f_830;
     int i;
 
     for (i = 0; i < p->count; i++) {
@@ -1140,7 +1138,7 @@ void LightTorchOffOfWeapon(char *a0)
 
 int GetTorchGObjOfWeapon(char *a0)
 {
-    WeaponWork *p = (WeaponWork *)GOBJ_SUB(a0)->f_830;
+    WeaponWork *p = GOBJ_SUB(a0)->f_830;
     if (p->count) {
         return (int)p->objs[0];
     }
@@ -1191,7 +1189,7 @@ void SetWeaponTorchChainReactionFlagAll(int a0)
     int i;
 
     for (g = isysGObjSearchFromObjKindID_begin(14); g; g = isysGObjSearchFromObjKindID_next(g)) {
-        w = (WeaponWork *)GOBJ_SUB(g)->f_830;
+        w = GOBJ_SUB(g)->f_830;
         if (w->kind == 1) {
             for (i = 0; i < w->count; i++) {
                 SetTorchChainReactionFlag(w->objs[i], a0);
@@ -1206,7 +1204,7 @@ void *InitDemoQueensSword(char *a0, void *a1)
     int i;
 
     w = (WeaponWork *)iosMallocDebug(ios_partition_sugipon, 0xE0, __FILE__, 802);
-    *(WeaponWork **)((char *)GOBJ_SUB(a0) + 0x830) = w;
+    (WeaponWork *)GOBJ_SUB(a0)->f_830 = w;
     *w = swordWorkTemplate;
     for (i = 0; i < GOBJ_SUB(a0)->f_8; i++) {
         initializeQueenzSword(a0, i, a1);

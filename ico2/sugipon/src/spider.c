@@ -46,34 +46,57 @@ typedef struct {
     long long w[8];
 } SpiderLay;
 
-char *InitSpiderLayoutGeo(char *self, char *lay)
+/* RECONSTRUCTION, read from the ROM.  The 64-byte record InitSpiderLayoutGeo
+   allocates and hangs at the object's work word: the group's state (-1 laid
+   out, 0 entered in the group manager, 1 awake, 2 calling the master back),
+   the member spiders, and the counters SpiderLayoutGeo runs. */
+typedef struct {
+    int state;              /* 0x00 */
+    char pad04[0x1C];       /* 0x04 */
+    int n;                  /* 0x20, member count */
+    char **members;         /* 0x24, the member AP1 objects */
+    int awake;              /* 0x28 */
+    unsigned int entryWait; /* 0x2C */
+    unsigned int infoWait;  /* 0x30 */
+    int kind;               /* 0x34, index into the kind table */
+    int wakeFrom;           /* 0x38, first member to wake, -1 for none */
+    int revived;            /* 0x3C */
+} SpiderWork;
+
+/* the three words MemorySpiderLayout saves */
+typedef struct {
+    int awake;   /* 0x0 */
+    int alive;   /* 0x4 */
+    int revived; /* 0x8 */
+} SpiderMemory;
+
+SpiderWork *InitSpiderLayoutGeo(char *self, char *lay)
 {
     SpiderLay l;
-    char *w;
+    SpiderWork *w;
     int n;
     int i;
     int k;
 
-    w = (char *)iosMallocDebug((int)ios_partition_sugipon, 64, spiderFile, 43);
+    w = iosMallocDebug((int)ios_partition_sugipon, sizeof(SpiderWork), spiderFile, 43);
     l = *(SpiderLay *)lay;
 
     k = *(int *)(lay + 0x30);
     n = D_0062B588[k].n;
-    *(int *)(w + 0x20) = n;
-    *(int *)(w + 0x34) = k;
-    *(char **)(w + 0x24) =
-        (char *)iosMallocDebug((int)ios_partition_sugipon, n * 4, spiderFile, 47);
-    *(int *)(w + 0x28) = 0;
-    *(int *)(w + 0x00) = -1;
-    *(int *)(w + 0x2C) = 0;
-    *(int *)(w + 0x30) = 0;
-    *(int *)(w + 0x38) = -1;
-    *(int *)(w + 0x3C) = 0;
+    w->n = n;
+    w->kind = k;
+    w->members = iosMallocDebug((int)ios_partition_sugipon, n * 4, spiderFile, 47);
+    w->awake = 0;
+    w->state = -1;
+    w->entryWait = 0;
+    w->infoWait = 0;
+    w->wakeFrom = -1;
+    w->revived = 0;
 
     for (i = 0; i < n; i++) {
         *(float *)((char *)&l + 0x14) = random_signed_b() * 3.1415927f;
-        *(void **)(*(char **)(w + 0x24) + i * 4) = MakeAP1GObj(&l);
-        SetAP1VisualState(*(void **)(*(char **)(w + 0x24) + i * 4), 0);
+        w->members[i] = MakeAP1GObj(&l);
+        SetAP1VisualState(w->members[i], 0);
     }
     return w;
 }
@@ -81,17 +104,17 @@ char *InitSpiderLayoutGeo(char *self, char *lay)
 /* listing lines 78-88 */
 static inline void wakeSpiderGroup(char *self)
 {
-    char *w;
+    SpiderWork *w;
     int n;
     int i;
 
-    w = *(char **)(*(char **)(self + 0x15C) + 0x830);
+    w = GOBJ_SUB(self)->f_830;
 
-    n = *(int *)(w + 0x20);
-    *(int *)(w + 0x28) = 1;
+    n = w->n;
+    w->awake = 1;
     for (i = 0; i < n; i++) {
-        WakeUpAP1(*(void **)(*(char **)(w + 0x24) + i * 4));
-        SetAP1VisualState(*(void **)(*(char **)(w + 0x24) + i * 4), 1);
+        WakeUpAP1(w->members[i]);
+        SetAP1VisualState(w->members[i], 1);
     }
 }
 
@@ -104,13 +127,13 @@ void WakeUpLayoutedSpiders(void *self)
 /* listing lines 324-331 */
 static inline void setSpiderGroupHost(char *self, void *host)
 {
-    char *w;
+    SpiderWork *w;
     int i;
 
-    w = *(char **)(*(char **)(self + 0x15C) + 0x830);
-    for (i = 0; i < *(int *)(w + 0x20); i++) {
-        if (*(void **)(*(char **)(w + 0x24) + i * 4) != 0) {
-            SetAP1HostGObj(*(void **)(*(char **)(w + 0x24) + i * 4), host);
+    w = GOBJ_SUB(self)->f_830;
+    for (i = 0; i < w->n; i++) {
+        if (w->members[i] != 0) {
+            SetAP1HostGObj(w->members[i], host);
         }
     }
 }
@@ -121,18 +144,18 @@ typedef union {
 } SpiderWord;
 
 /* The prior-level pass reads the actor extension through a union view: the
-   `*(int *)w = 2;` status store in the caller has to kill this load, which only
+   `w->state = 2;` status store in the caller has to kill this load, which only
    an alias-set-0 union member does. */
 /* listing lines 336-341 */
 static inline void setSpiderGroupPrior(char *self)
 {
-    char *w;
+    SpiderWork *w;
     int i;
 
-    w = ((SpiderWord *)(((SpiderWord *)(self + 0x15C))->p + 0x830))->p;
-    for (i = 0; i < *(int *)(w + 0x20); i++) {
-        if (*(void **)(*(char **)(w + 0x24) + i * 4) != 0) {
-            SetAP1PriorLevel(*(void **)(*(char **)(w + 0x24) + i * 4), 1);
+    w = (SpiderWork *)((SpiderWord *)(((SpiderWord *)(self + 0x15C))->p + 0x830))->p;
+    for (i = 0; i < w->n; i++) {
+        if (w->members[i] != 0) {
+            SetAP1PriorLevel(w->members[i], 1);
         }
     }
 }
@@ -157,13 +180,13 @@ static inline int callSpidersToBoy(char *self)
 
 int CallSpidersToReviveEnemy(char *self)
 {
-    char *w;
+    SpiderWork *w;
 
-    w = *(char **)(*(char **)(self + 0x15C) + 0x830);
-    if (*(int *)w == 1) {
+    w = GOBJ_SUB(self)->f_830;
+    if (w->state == 1) {
         if (callSpidersToBoy(self)) {
             EntryToSpiderGroupManagerForReviveMaster(self, girlGObj);
-            *(int *)w = 2;
+            w->state = 2;
             setSpiderGroupPrior(self);
         } else {
             callSpidersToGirl(self);
@@ -178,24 +201,24 @@ static int spiderEntryCount = 0; /* derived name */
 /* listing lines 69-76 */
 static inline void setAllSpiderPositions(char *self, float *pos)
 {
-    char *w;
+    SpiderWork *w;
     int n;
     int i;
 
-    w = *(char **)(*(char **)(self + 0x15C) + 0x830);
-    n = *(int *)(w + 0x20);
+    w = GOBJ_SUB(self)->f_830;
+    n = w->n;
     for (i = 0; i < n; i++) {
-        SetDirectRootPosition(*(void **)(*(char **)(w + 0x24) + i * 4), pos);
+        SetDirectRootPosition(w->members[i], pos);
     }
 }
 
 void SpiderLayoutGeo(char *self)
 {
     float pos[4];
-    char *w;
+    SpiderWork *w;
     int i;
 
-    w = *(char **)(*(char **)(self + 0x15C) + 0x830);
+    w = GOBJ_SUB(self)->f_830;
     switch (*(int *)w) {
     case -1: {
         char *host = *(char **)*(char **)(self + 0x15C);
@@ -204,7 +227,7 @@ void SpiderLayoutGeo(char *self)
             setSpiderGroupHost(self, host);
         } else {
             callSpidersToGirl(self);
-            if (D_0062B588[*(int *)(w + 0x34)].f14 == 1) {
+            if (D_0062B588[w->kind].f14 == 1) {
                 if (callSpidersToBoy(self) == 0) {
                     /* an order came to target the heroine, but this stage has no heroine */
                     debug_StdPrintfDummy(
@@ -212,28 +235,27 @@ void SpiderLayoutGeo(char *self)
                 }
             }
         }
-        if ((*(unsigned int *)(w + 0x2C))++ >= 11) {
-            if (*(int *)(w + 0x3C) == 0) {
+        if (w->entryWait++ >= 11) {
+            if (w->revived == 0) {
                 debug_StdPrintfDummy("entry %d\n", spiderEntryCount++);
                 EntrySpiderGroupManager(self);
-                *(int *)w = 0;
+                w->state = 0;
             } else {
                 debug_StdPrintfDummy("entry revived %d\n", spiderEntryCount++);
                 EntryRevivedSpiderGroupManager(self);
-                *(int *)w = 0;
+                w->state = 0;
             }
         }
         break;
     }
     case 0:
-        if (*(int *)(w + 0x38) != -1) {
+        if (w->wakeFrom != -1) {
             wakeSpiderGroup(self);
-            for (i = *(int *)(w + 0x38); i < *(int *)(w + 0x20); i++) {
-                iosOmSendMail(*(void **)(*(char **)(w + 0x24) + i * 4), 223,
-                              *(void **)(*(char **)(w + 0x24) + i * 4));
-                SetAP1VisualState(*(void **)(*(char **)(w + 0x24) + i * 4), 0);
+            for (i = w->wakeFrom; i < w->n; i++) {
+                iosOmSendMail(w->members[i], 223, w->members[i]);
+                SetAP1VisualState(w->members[i], 0);
             }
-            *(int *)w = 1;
+            w->state = 1;
         } else {
             char *gen = *(char **)*(char **)(self + 0x15C);
 
@@ -243,7 +265,7 @@ void SpiderLayoutGeo(char *self)
                     setAllSpiderPositions(self, pos);
                 }
                 WakeUpLayoutedSpiders(self);
-                *(int *)w = 1;
+                w->state = 1;
             }
         }
         break;
@@ -263,8 +285,8 @@ void SpiderLayoutGeo(char *self)
     }
     }
 
-    if ((*(unsigned int *)(w + 0x30))++ >= 31) {
-        *(int *)(w + 0x30) = 0;
+    if (w->infoWait++ >= 31) {
+        w->infoWait = 0;
         gamesysObjInfoUniqDataSet(self);
     }
 }
@@ -274,12 +296,6 @@ int sgSelLine = 0;
 
 /* spider.o's whole .data run: the white the debug wire sphere is drawn in. */
 static int spiderWireColor[4] = {0xFF, 0xFF, 0xFF, 0xFF};
-
-typedef struct {
-    char pad[0x20];
-    int n;
-    void **members;
-} SpiderGrp;
 
 /* The rest of spider.o's .rodata run: the compiler puts SpiderLayoutGeo's
    switch table ahead of these, so they are named objects declared after it. */
@@ -295,11 +311,11 @@ static const char spiderReviveFmt[] = "   REVIVE: %d\n";
 
 void DispAllMemberOfSpider(char *self, int *col)
 {
-    SpiderGrp *g;
+    SpiderWork *g;
     char *p;
     int i;
 
-    g = *(SpiderGrp **)(*(char **)(self + 0x15C) + 0x830);
+    g = GOBJ_SUB(self)->f_830;
     for (i = 0; i < g->n; i++) {
         if (g->members[i] != 0) {
             _UnitMatrix(MatrixDrive_GetMatrix());
@@ -344,18 +360,18 @@ void DispAllMemberOfSpider(char *self, int *col)
 
 void SetSpiderGroupReviveStatus(char *a0)
 {
-    char *p = *(char **)(*(char **)(a0 + 0x15C) + 0x830);
-    *(int *)(p + 0x3C) = 1;
+    SpiderWork *p = GOBJ_SUB(a0)->f_830;
+    p->revived = 1;
     gamesysObjInfoUniqDataSet(a0);
     debug_StdPrintfDummy("SET %d\n", *(int *)(a0 + 8));
 }
 
 int DeadAllSpiders(char *gp)
 {
-    char *sg = *(char **)(*(char **)(gp + 0x15C) + 0x830);
+    SpiderWork *sg = GOBJ_SUB(gp)->f_830;
     int i;
-    for (i = 0; i < *(int *)(sg + 0x20); i++) {
-        char *o = (*(char ***)(sg + 0x24))[i];
+    for (i = 0; i < sg->n; i++) {
+        char *o = sg->members[i];
         if (o != 0) {
             iosOmSendMail(o, 0x26, o);
         }
@@ -367,11 +383,11 @@ int DeadAllSpiders(char *gp)
    GetAliveSpiders and MemorySpiderLayout; it has no out-of-line copy. */
 static inline int CountAliveSpiders(char *gp)
 {
-    char *sg = *(char **)(*(char **)(gp + 0x15C) + 0x830);
+    SpiderWork *sg = GOBJ_SUB(gp)->f_830;
     int i;
     int n = 0;
-    for (i = 0; i < *(int *)(sg + 0x20); i++) {
-        char *o = (*(char ***)(sg + 0x24))[i];
+    for (i = 0; i < sg->n; i++) {
+        char *o = sg->members[i];
         if (o != 0) {
             if (IsActCharDead(o) == 0) {
                 n++;
@@ -383,14 +399,14 @@ static inline int CountAliveSpiders(char *gp)
 
 int GetAliveSpiders(char *gp)
 {
-    char *oi = *(char **)(gp + 0x15C);
-    char *sg = *(char **)(oi + 0x830);
+    Sub15C *oi = *(Sub15C **)(gp + 0x15C);
+    SpiderWork *sg = oi->f_830;
     char *own = *(char **)oi;
 
     if (own != 0 && *(int *)(own + 0xC) != 0x21 && IsActCharDead(own) == 0) {
-        return *(int *)(sg + 0x20);
+        return sg->n;
     }
-    if (*(char **)(sg + 0x28)) {
+    if (sg->awake) {
         return CountAliveSpiders(gp);
     }
     return -1;
@@ -398,7 +414,7 @@ int GetAliveSpiders(char *gp)
 
 char *DeleteSpiderFromLayoutGroup(char *a0, int a1)
 {
-    char **arr = *(char ***)(*(char **)(*(char **)(a0 + 0x15C) + 0x830) + 0x24);
+    char **arr = ((SpiderWork *)GOBJ_SUB(a0)->f_830)->members;
     char *r = arr[a1];
     arr[a1] = 0;
     return r;
@@ -406,14 +422,14 @@ char *DeleteSpiderFromLayoutGroup(char *a0, int a1)
 
 /* Unnamed in MAIN.MAP: a static-inline helper (listing rows 219-222) that
    clears the dead members out of a spider group; it has no out-of-line copy. */
-static inline void RemoveDeadLayoutSpiders(char *sg)
+static inline void RemoveDeadLayoutSpiders(SpiderWork *sg)
 {
     int i;
-    for (i = 0; i < *(int *)(sg + 0x20); i++) {
-        char *o = (*(char ***)(sg + 0x24))[i];
+    for (i = 0; i < sg->n; i++) {
+        char *o = sg->members[i];
         if (o != 0) {
             if (IsActCharDead(o)) {
-                (*(char ***)(sg + 0x24))[i] = 0;
+                sg->members[i] = 0;
             }
         }
     }
@@ -422,14 +438,14 @@ static inline void RemoveDeadLayoutSpiders(char *sg)
 int GetNearestOfLayoutSpiders(float *dist, char *gp, void *center)
 {
     float pos[4];
-    char *sg = *(char **)(*(char **)(gp + 0x15C) + 0x830);
+    SpiderWork *sg = GOBJ_SUB(gp)->f_830;
     int nearest = -1;
     int i;
 
     RemoveDeadLayoutSpiders(sg);
 
-    for (i = 0; i < *(int *)(sg + 0x20); i++) {
-        char *o = (*(char ***)(sg + 0x24))[i];
+    for (i = 0; i < sg->n; i++) {
+        char *o = sg->members[i];
         if (o != 0) {
             float d;
 
@@ -447,12 +463,12 @@ int GetNearestOfLayoutSpiders(float *dist, char *gp, void *center)
 int CheckSpidersInsideOfReviveRange(int *out, char *gp, void *center)
 {
     float pos[4];
-    char *sg = *(char **)(*(char **)(gp + 0x15C) + 0x830);
-    char **p = *(char ***)(sg + 0x24);
+    SpiderWork *sg = GOBJ_SUB(gp)->f_830;
+    char **p = sg->members;
     int i;
     int n = 0;
 
-    for (i = 0; i < *(int *)(sg + 0x20); i++, p++) {
+    for (i = 0; i < sg->n; i++, p++) {
         if (*p != 0) {
             if (IsActCharDead(*p) == 0) {
                 GetRootPosition(pos, *p);
@@ -474,14 +490,14 @@ int RestoreSpiderLayoutGeo(void)
 
 int RestoreSpiderLayoutExtGeo(char *a0, char *a1)
 {
-    char *p = *(char **)(*(char **)(a0 + 0x15C) + 0x830);
+    SpiderWork *p = GOBJ_SUB(a0)->f_830;
     int *ex = (int *)(a1 + 0x30);
 
     if (*(int *)(a1 + 0x30)) {
-        *(int *)(p + 0x38) = ex[1];
+        p->wakeFrom = ex[1];
     }
     if (ex[2]) {
-        *(int *)(p + 0x3C) = 1;
+        p->revived = 1;
     }
     debug_StdPrintfDummy(spiderRestoreFmt, a0);
     debug_StdPrintfDummy(spiderWakeFmt, *(int *)(a1 + 0x30) ? "YES" : "NO");
@@ -494,18 +510,18 @@ int RestoreSpiderLayoutExtGeo(char *a0, char *a1)
    TU's .sdata, after RestoreSpiderLayoutExtGeo's two answers */
 int sgInfoLine = 0;
 
-int MemorySpiderLayout(char *dst, char *gp)
+int MemorySpiderLayout(SpiderMemory *dst, char *gp)
 {
-    char *sg = *(char **)(*(char **)(gp + 0x15C) + 0x830);
-    char *lay = *(char **)(sg + 0x28);
+    SpiderWork *sg = GOBJ_SUB(gp)->f_830;
+    int awake = sg->awake;
 
-    *(char **)dst = lay;
-    if (lay) {
-        *(int *)(dst + 4) = CountAliveSpiders(gp);
+    dst->awake = awake;
+    if (awake) {
+        dst->alive = CountAliveSpiders(gp);
     } else {
-        *(int *)(dst + 4) = 0;
+        dst->alive = 0;
     }
-    *(int *)(dst + 8) = *(int *)(sg + 0x3C);
+    dst->revived = sg->revived;
     return 1;
 }
 
@@ -513,11 +529,11 @@ int MemorySpiderLayout(char *dst, char *gp)
    WakeUpSpidersFromGenerator and SpiderLayoutGeo; it has no out-of-line copy. */
 static inline void SetLayoutedSpidersRootPosition(char *gp, void *pos)
 {
-    char *sg = *(char **)(*(char **)(gp + 0x15C) + 0x830);
-    int num = *(int *)(sg + 0x20);
+    SpiderWork *sg = GOBJ_SUB(gp)->f_830;
+    int num = sg->n;
     int i;
     for (i = 0; i < num; i++) {
-        SetDirectRootPosition((*(char ***)(sg + 0x24))[i], pos);
+        SetDirectRootPosition(sg->members[i], pos);
     }
 }
 
@@ -545,7 +561,7 @@ void WakeUpSpidersFromGenerator(char *gp)
    definition above stays until the TU's inline tail is laid out. */
 static inline char *DeleteSpiderFromLayoutGroup_inl(char *gp, int idx)
 {
-    char **arr = *(char ***)(*(char **)(*(char **)(gp + 0x15C) + 0x830) + 0x24);
+    char **arr = ((SpiderWork *)GOBJ_SUB(gp)->f_830)->members;
     char *r = arr[idx];
     arr[idx] = 0;
     return r;
@@ -553,24 +569,24 @@ static inline char *DeleteSpiderFromLayoutGroup_inl(char *gp, int idx)
 
 void DeleteAllSpidersOfLayoutGroup(char *gp)
 {
-    char *sg = *(char **)(*(char **)(gp + 0x15C) + 0x830);
+    SpiderWork *sg = GOBJ_SUB(gp)->f_830;
     int i;
-    for (i = 0; i < *(int *)(sg + 0x20); i++) {
-        char *o = (*(char ***)(sg + 0x24))[i];
+    for (i = 0; i < sg->n; i++) {
+        char *o = sg->members[i];
         if (o != 0) {
             SetAP1DeadStatus(o);
             DeleteSpiderFromLayoutGroup_inl(gp, i);
         }
     }
-    *(int *)(sg + 0x20) = 0;
+    sg->n = 0;
 }
 
 void SleepSpiderGroup(char *gp)
 {
-    char *sg = *(char **)(*(char **)(gp + 0x15C) + 0x830);
+    SpiderWork *sg = GOBJ_SUB(gp)->f_830;
     int i;
-    for (i = 0; i < *(int *)(sg + 0x20); i++) {
-        char *o = (*(char ***)(sg + 0x24))[i];
+    for (i = 0; i < sg->n; i++) {
+        char *o = sg->members[i];
         if (o != 0) {
             iosOmSendMail(o, 0x20, o);
         }
@@ -579,10 +595,10 @@ void SleepSpiderGroup(char *gp)
 
 void WakeupSpiderGroup(char *gp)
 {
-    char *sg = *(char **)(*(char **)(gp + 0x15C) + 0x830);
+    SpiderWork *sg = GOBJ_SUB(gp)->f_830;
     int i;
-    for (i = 0; i < *(int *)(sg + 0x20); i++) {
-        char *o = (*(char ***)(sg + 0x24))[i];
+    for (i = 0; i < sg->n; i++) {
+        char *o = sg->members[i];
         if (o != 0) {
             iosOmSendMail(o, 0x1F, o);
         }

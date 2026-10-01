@@ -484,7 +484,7 @@ void GetClothAnimation(int a0, void *a1, int a2, void *m, ClothCfg *cfg, int nwa
 
     focus = 0;
     if (a6 != 0) {
-        nwall = *(int *)(*(int *)(*(int *)((char *)a6 + 0x15C) + 0x70) + 8);
+        nwall = *(int *)(GOBJ_SUB(a6)->f_70 + 8);
     } else {
         nwall = 0;
     }
@@ -504,8 +504,7 @@ void GetClothAnimation(int a0, void *a1, int a2, void *m, ClothCfg *cfg, int nwa
     for (i = 0; i < n0; i++) {
         if (focus != 0) {
             node = GetSkeltonFocusNode((char *)a2, *(int *)(pts + i * 48));
-            sceVu0ApplyMatrix(((char **)a0)[i],
-                              (char *)*(int *)(*(int *)((char *)a2 + 0x15C) + 0xC) + node * 64,
+            sceVu0ApplyMatrix(((char **)a0)[i], (char *)GOBJ_SUB(a2)->f_C + node * 64,
                               pts + i * 48 + 16);
         } else {
             if (m != 0) {
@@ -961,22 +960,22 @@ ChainSet *InitChains(char *a0)
     int j;
     float step;
 
-    r = (ChainSet *)iosMallocDebug(ios_partition_sugipon, 0x10, "src/clothAnimation.c", 0x4A8);
+    r = (ChainSet *)iosMallocDebug(ios_partition_sugipon, 0x10, "src/clothAnimation.c", 1192);
     r->cfg = a0;
     while (*(int *)(i * 0x50 + (int)a0) != -1) {
         i++;
     }
     r->num = i;
-    r->nodes = (ChainNode *)iosMallocDebug(ios_partition_sugipon, i * 0x1A0, "src/clothAnimation.c",
-                                           0x4AE);
+    r->nodes =
+        (ChainNode *)iosMallocDebug(ios_partition_sugipon, i * 0x1A0, "src/clothAnimation.c", 1198);
     r->f3 = 0;
     for (i = 0; i < r->num; i++) {
         r->nodes[i].p0 = iosMallocDebug(ios_partition_sugipon, *(int *)(i * 0x50 + (int)a0) * 16,
-                                        "src/clothAnimation.c", 0x4B2);
+                                        "src/clothAnimation.c", 1202);
         r->nodes[i].p4 = iosMallocDebug(ios_partition_sugipon, *(int *)(i * 0x50 + (int)a0) * 16,
-                                        "src/clothAnimation.c", 0x4B3);
+                                        "src/clothAnimation.c", 1203);
         r->nodes[i].p8 = iosMallocDebug(ios_partition_sugipon, *(int *)(i * 0x50 + (int)a0) * 4,
-                                        "src/clothAnimation.c", 0x4B4);
+                                        "src/clothAnimation.c", 1204);
         r->nodes[i].fC = 0;
         for (j = 0; j < 5; j++) {
             r->nodes[i].ex[j].w = -1.0f;

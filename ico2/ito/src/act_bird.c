@@ -95,7 +95,7 @@ typedef struct {
 void birdBeforeFunc(char *self)
 {
     Act *act = GOBJ_ACT(self);
-    char *w = *(char **)((char *)GOBJ_SUB(self) + 0x830);
+    char *w = GOBJ_SUB(self)->f_830;
     float there[4];
     float here[4];
     int i;
@@ -294,7 +294,7 @@ void subBirdBrainMain(void *volatile gobj)
     float hover;
     float travel;
 
-    bw = *(char **)((char *)GOBJ_SUB(gobj) + 0x830);
+    bw = GOBJ_SUB(gobj)->f_830;
     frames = 0;
 
     lastHit = 0;
@@ -333,7 +333,7 @@ void subBirdBrainMain(void *volatile gobj)
 
         state = GOBJ_SUB(gobj)->f_4A0;
         phase = GOBJ_SUB(gobj)->f_4AC;
-        hit = *(int *)((int)GOBJ_SUB(gobj) + 0x4CC);
+        hit = GOBJ_SUB(gobj)->f_4CC;
 
         changed = 0;
 
@@ -759,7 +759,7 @@ void subBirdBrainMain(void *volatile gobj)
         if (state != 1139) {
             float rp[4];
 
-            if ((*(int *)((int)GOBJ_SUB(gobj) + 0x484) & 0x400) || CheckFloorAttribute(gobj, 64) ||
+            if ((GOBJ_SUB(gobj)->f_484 & 0x400) || CheckFloorAttribute(gobj, 64) ||
                 CheckFloorAttribute(gobj, 80)) {
                 GetRootPosition(rp, gobj);
                 rp[1] = GOBJ_SUB(gobj)->f_640;
@@ -885,7 +885,7 @@ void BirdDL(void *gobj)
     char *w;
 
     p2o_DispVU1Default(gobj);
-    w = *(char **)((char *)GOBJ_SUB(gobj) + 0x830);
+    w = GOBJ_SUB(gobj)->f_830;
     if (*(int *)(w + 0x30) != 0) {
         if (stage_DispBgAnimation(w + 0x30) != 0) {
             *(int *)(w + 0x30) = 0;
@@ -906,13 +906,13 @@ inline char *InitBirdGeo(char *a0, void *a1)
     w[0x10] = 0;
     InitMotionOrient(a0, 0x975, 0x9A3, -1, -1, 0x46E);
 
-    *(int *)((int)GOBJ_SUB(a0) + 0x544) = 1;
-    *(int *)((int)GOBJ_SUB(a0) + 0x54C) = 0;
-    *(int *)((int)GOBJ_SUB(a0) + 0x548) = 1;
-    *(int *)((int)GOBJ_SUB(a0) + 0x550) = 0;
+    GOBJ_SUB(a0)->f_544 = 1;
+    GOBJ_SUB(a0)->f_54C = 0;
+    GOBJ_SUB(a0)->f_548 = 1;
+    GOBJ_SUB(a0)->f_550 = 0;
     ((IntFloat *)((int)GOBJ_SUB(a0) + 0x4AC))->f = random_unit() * 100.0f;
     ((IntFloat *)((int)GOBJ_SUB(a0) + 0x4B0))->f = ((IntFloat *)((int)GOBJ_SUB(a0) + 0x4AC))->f;
-    *(int *)((int)GOBJ_SUB(a0) + 0x4C4) = 0;
+    GOBJ_SUB(a0)->f_4C4 = 0;
     SetLodLevel(a0, 3);
     return w;
 }

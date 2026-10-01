@@ -64,7 +64,7 @@ void GirlForceFieldDL(char *self)
     float pos[4];
     float quat[4];
     float gpos[4];
-    GirlForceFieldWork *w = *(GirlForceFieldWork **)((char *)GOBJ_SUB(self) + 0x830);
+    GirlForceFieldWork *w = GOBJ_SUB(self)->f_830;
     float d2;
     float ratio;
 

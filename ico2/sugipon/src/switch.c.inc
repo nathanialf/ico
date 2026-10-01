@@ -17,7 +17,7 @@ void switchReleaseSE(int a0)
 
 inline void SetSwitchTriggerFunc(char *a0, void *a1)
 {
-    *(void **)(*(char **)(*(char **)(a0 + 0x15C) + 0x830) + 0x1C) = a1;
+    *(void **)((char *)GOBJ_SUB(a0)->f_830 + 0x1C) = a1;
 }
 
 inline int InitSwitchGeo(void)
@@ -31,7 +31,7 @@ inline void SwitchDL(void) {}
 
 void GetFloorLeverGlobalHoldPoint(void *dst, char *a1)
 {
-    char *p = *(char **)(*(char **)(a1 + 0x15C) + 0x830);
+    char *p = GOBJ_SUB(a1)->f_830;
     GetRootMatrix(MatrixDrive_GetMatrix(), a1);
     MatrixDrive_RotMatrixZ(*(short *)(p + 2));
     MatrixDrive_TransMatrix(0.0f, -50.0f, 0.0f);
@@ -45,11 +45,11 @@ inline void SetFloorLeverWithNodePoint(char *a0, char *a1, int a2)
 {
     float buf[4];
     float pos[4];
-    char *q = *(char **)(*(char **)(a0 + 0x15C) + 0x830);
+    char *q = GOBJ_SUB(a0)->f_830;
     int idx = GetSkeltonFocusNode(a1, a2);
     void *m;
     GetRootPosition(pos, a0);
-    sceVu0SubVector(buf, *(char **)(*(char **)(a1 + 0x15C) + 0xC) + (idx << 6) + 0x30, pos);
+    sceVu0SubVector(buf, (char *)GOBJ_SUB(a1)->f_C + (idx << 6) + 0x30, pos);
     *(int *)&buf[3] = 0;
     GetRootMatrix(MatrixDrive_GetMatrix(), a0);
     m = MatrixDrive_GetMatrix();
@@ -60,7 +60,7 @@ inline void SetFloorLeverWithNodePoint(char *a0, char *a1, int a2)
 
 inline int CanFloorLeverPull(char *a0)
 {
-    return *(int *)(*(char **)(*(char **)(a0 + 0x15C) + 0x830) + 4) == 0;
+    return *(int *)((char *)GOBJ_SUB(a0)->f_830 + 4) == 0;
 }
 
 inline void initParentize(char *a0)
@@ -105,21 +105,21 @@ inline LeverGeoWork *InitFloorLeverGeo(char *a0, char *a1)
        names it sugipon/src/switch.c, included by src/box.c); __FILE__ here
        would spell the repository's .c.inc name. */
     LeverGeoWork *g =
-        (LeverGeoWork *)iosMallocDebug(ios_partition_sugipon, 0x20, "src/switch.c", 0x8D);
+        (LeverGeoWork *)iosMallocDebug(ios_partition_sugipon, 0x20, "src/switch.c", 141);
     *g = leverGeoInit;
     if (*(int *)(a1 + 0x30) != 0) {
         g->w[5] = 1;
     } else {
         g->w[5] = 0;
     }
-    g->w[3] = CSVSYSTEM_InitDObj(D_002A79B8[*(int *)(*(char **)(a0 + 0x15C) + 0x844)].dobj0, a1);
-    g->w[4] = CSVSYSTEM_InitDObj(D_002A79B8[*(int *)(*(char **)(a0 + 0x15C) + 0x844)].dobj1, a1);
+    g->w[3] = CSVSYSTEM_InitDObj(D_002A79B8[GOBJ_SUB(a0)->f_844].dobj0, a1);
+    g->w[4] = CSVSYSTEM_InitDObj(D_002A79B8[GOBJ_SUB(a0)->f_844].dobj1, a1);
     return g;
 }
 
 inline void SetSwitchState(char *a0, int a1)
 {
-    char *p = *(char **)(*(char **)(a0 + 0x15C) + 0x830);
+    char *p = GOBJ_SUB(a0)->f_830;
     int cur = *(int *)(p + 4);
     unsigned char ne = cur != a1;
     if (ne) {
@@ -132,7 +132,7 @@ inline void SetSwitchState(char *a0, int a1)
 
 void FloorLeverTriStateGeo(char *a0)
 {
-    char *p = *(char **)(*(char **)(a0 + 0x15C) + 0x830);
+    char *p = GOBJ_SUB(a0)->f_830;
 
     if (*(int *)(p + 4) != -1 && *(int *)(p + 4) != 1) {
         if (*(int *)(p + 0x1C) != 0) {
@@ -162,7 +162,7 @@ extern void SetParticleEffect(int kind, void *mat, void *q);
    probe's work buffer, so it is declared in the block that uses it. */
 void FloorLeverGeo(char *a0)
 {
-    char *p = *(char **)(*(char **)(a0 + 0x15C) + 0x830);
+    char *p = GOBJ_SUB(a0)->f_830;
 
     if (*(int *)(p + 0x14) == 0) {
         if ((*(int *)(p + 0x18))++ >= 3) {
@@ -213,12 +213,12 @@ end:
 
 inline int GetFloorLeverAngle(char *a0)
 {
-    return *(short *)(*(char **)(*(char **)(a0 + 0x15C) + 0x830) + 2);
+    return *(short *)((char *)GOBJ_SUB(a0)->f_830 + 2);
 }
 
 void FloorLeverDL(char *a0)
 {
-    char *p = *(char **)(*(char **)(a0 + 0x15C) + 0x830);
+    char *p = GOBJ_SUB(a0)->f_830;
 
     p2o_DispVU1(a0);
     MatrixDrive_PushMatrix();
@@ -232,7 +232,7 @@ void FloorLeverDL(char *a0)
 
 void GetWallLeverGlobalHoldPoint(void *dst, void *lev)
 {
-    char *p = *(char **)(*(char **)((char *)lev + 0x15C) + 0x830);
+    char *p = GOBJ_SUB(lev)->f_830;
 
     GetRootMatrix(MatrixDrive_GetMatrix(), lev);
     MatrixDrive_RotMatrixZ(*(short *)(p + 2));
@@ -244,11 +244,11 @@ inline void SetWallLeverWithNodePoint(char *a0, char *a1, int a2)
 {
     float buf[4];
     float pos[4];
-    char *q = *(char **)(*(char **)(a0 + 0x15C) + 0x830);
+    char *q = GOBJ_SUB(a0)->f_830;
     int idx = GetSkeltonFocusNode(a1, a2);
     void *m;
     GetRootPosition(pos, a0);
-    sceVu0SubVector(buf, *(char **)(*(char **)(a1 + 0x15C) + 0xC) + (idx << 6) + 0x30, pos);
+    sceVu0SubVector(buf, (char *)GOBJ_SUB(a1)->f_C + (idx << 6) + 0x30, pos);
     *(int *)&buf[3] = 0;
     GetRootMatrix(MatrixDrive_GetMatrix(), a0);
     m = MatrixDrive_GetMatrix();
@@ -260,32 +260,32 @@ inline void SetWallLeverWithNodePoint(char *a0, char *a1, int a2)
 
 inline int CanWallLeverPull(char *a0)
 {
-    return *(int *)(*(char **)(*(char **)(a0 + 0x15C) + 0x830) + 4) == 0;
+    return *(int *)((char *)GOBJ_SUB(a0)->f_830 + 4) == 0;
 }
 
 inline LeverGeoWork *InitWallLeverGeo(char *a0, char *a1)
 {
     LeverGeoWork *g =
-        (LeverGeoWork *)iosMallocDebug(ios_partition_sugipon, 0x20, "src/switch.c", 0x12C);
+        (LeverGeoWork *)iosMallocDebug(ios_partition_sugipon, 0x20, "src/switch.c", 300);
     *g = leverGeoInit;
     if (*(int *)(a1 + 0x30) != 0) {
         g->w[5] = 1;
     } else {
         g->w[5] = 0;
     }
-    g->w[3] = CSVSYSTEM_InitDObj(D_002A79B8[*(int *)(*(char **)(a0 + 0x15C) + 0x844)].dobj0, a1);
-    g->w[4] = CSVSYSTEM_InitDObj(D_002A79B8[*(int *)(*(char **)(a0 + 0x15C) + 0x844)].dobj1, a1);
+    g->w[3] = CSVSYSTEM_InitDObj(D_002A79B8[GOBJ_SUB(a0)->f_844].dobj0, a1);
+    g->w[4] = CSVSYSTEM_InitDObj(D_002A79B8[GOBJ_SUB(a0)->f_844].dobj1, a1);
     return g;
 }
 
 inline int GetWallLeverAngle(char *a0)
 {
-    return *(short *)(*(char **)(*(char **)(a0 + 0x15C) + 0x830) + 2);
+    return *(short *)((char *)GOBJ_SUB(a0)->f_830 + 2);
 }
 
 inline int IsWallLeverStatus(char *a0)
 {
-    short *p = (short *)*(char **)(*(char **)(a0 + 0x15C) + 0x830);
+    short *p = (short *)(char *)GOBJ_SUB(a0)->f_830;
     int ret = 0;
     if (__builtin_abs(p[1]) < 0xBB9) {
         if (__builtin_abs(p[0]) < 0xBB9) {
@@ -303,7 +303,7 @@ end:
    (the inlined IsWallLeverStatus above, switch.c:319-328). */
 void WallLeverGeo(char *a0)
 {
-    char *p = *(char **)(*(char **)(a0 + 0x15C) + 0x830);
+    char *p = GOBJ_SUB(a0)->f_830;
 
     if (*(int *)(p + 0x14) == 0) {
         if ((*(int *)(p + 0x18))++ >= 3) {
@@ -354,7 +354,7 @@ end:
 
 void WallLeverDL(char *a0)
 {
-    char *p = *(char **)(*(char **)(a0 + 0x15C) + 0x830);
+    char *p = GOBJ_SUB(a0)->f_830;
     char *d;
     p2o_DispVU1(a0);
     MatrixDrive_PushMatrix();
@@ -376,7 +376,7 @@ static inline int checkReadySwitchKind(int kind)
 
     for (o = isysGObjSearchFromObjKindID_begin(kind); o != 0;
          o = isysGObjSearchFromObjKindID_next(o)) {
-        char *p = *(char **)(*(char **)(o + 0x15C) + 0x830);
+        char *p = GOBJ_SUB(o)->f_830;
 
         if (*(int *)(p + 0x14) == 0) {
             return 0;

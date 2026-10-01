@@ -23,142 +23,6 @@
 #include "main.h"
 #include "DisplayP2O.h"
 
-/* census: sugipon/src/girl.c:706 `execClothes` (a TU-static; `static` keeps the ELF
- * symbol local, so it cannot collide with the sugipon/src/boy global). */
-static void execClothes(char *gobj)
-{
-    int q[4];
-    char *w;
-    int n;
-
-    n = GetSkeltonFocusNode(gobj, 35);
-    w = *(char **)((char *)GOBJ_SUB(gobj) + 0x830);
-    SetQuaternionByAxisRotateV(q, -debug_hair_bend_angle * 16, ZUnitVector);
-    if (*(void **)(w + 0x18) != 0) {
-        *(int *)(*(char **)(w + 0x18) + 0x2F8) = debug_hair_collision;
-    }
-    switch (*(int *)(w + 0xC)) {
-    default:
-    case 1:
-        if (*(void **)(w + 0x10) != 0) {
-            GetCloth4D(*(void **)(w + 0x10), 4.0f, 0.98f);
-        }
-        if (*(void **)(w + 0x14) != 0) {
-            GetCloth4D(*(void **)(w + 0x14), 4.0f, 0.98f);
-        }
-        if (*(void **)(w + 0x18) != 0) {
-            GetCloth4DWithTight(*(void **)(w + 0x18), debug_hair_gravity_level * 0.002f, 1.0f,
-                                debug_hair_tight_level * 0.01f, 1.0f,
-                                *(char **)((char *)GOBJ_SUB(gobj) + 0x10) + n * 16, q);
-        }
-        break;
-    case 2:
-        if (*(void **)(w + 0x10) != 0) {
-            GetCloth4D(*(void **)(w + 0x10), 0.0f, 0.98f);
-        }
-        if (*(void **)(w + 0x14) != 0) {
-            GetCloth4D(*(void **)(w + 0x14), 4.0f, 0.98f);
-        }
-        if (*(void **)(w + 0x18) != 0) {
-            GetCloth4DWithTight(*(void **)(w + 0x18), debug_hair_gravity_level * 0.002f, 1.0f,
-                                debug_hair_tight_level * 0.01f, 1.0f,
-                                *(char **)((char *)GOBJ_SUB(gobj) + 0x10) + n * 16, q);
-        }
-        break;
-    case 0:
-        break;
-    }
-    if (*(int *)(w + 0x4) != 0) {
-        if (*(void **)(w + 0x8) != 0) {
-            GetCloth4D(*(void **)(w + 0x8), 3.0f, 0.98f);
-        }
-    }
-    if (*(int *)(w + 0x1C) != 0) {
-        if (*(void **)(w + 0x20) != 0) {
-            GetCloth4D(*(void **)(w + 0x20), 4.0f, 0.98f);
-        }
-    }
-}
-
-/* census: sugipon/src/girl.c:763 `dispCrown` (a TU-static; `static` keeps the ELF
- * symbol local, so it cannot collide with the sugipon/src/boy global). */
-static void dispCrown(char *gobj, char *acc)
-{
-    char *w;
-    int n;
-
-    w = *(char **)((char *)GOBJ_SUB(gobj) + 0x830);
-    n = GetSkeltonFocusNode(gobj, 35);
-    CopyMatrix(MatrixDrive_GetMatrix(), *(char **)((char *)GOBJ_SUB(gobj) + 0xC) + n * 0x40);
-    MatrixDrive_ScaleMatrix(1.1111112f, 1.1111112f, 1.1111112f);
-    if (*(int *)(w + 0x28) != 0) {
-        CopyMatrix(*(char **)(*(char **)(w + 0x2C) + 0xC), MatrixDrive_GetMatrix());
-        CopyMatrix(*(char **)(*(char **)(w + 0x30) + 0xC), MatrixDrive_GetMatrix());
-        reg_DispAccessoryWithShadow(*(char **)(w + 0x30), (char *)GOBJ_SUB(gobj));
-        reg_DispAccessoryWithShadow(*(char **)(w + 0x2C), (char *)GOBJ_SUB(gobj));
-    } else {
-        CopyMatrix(*(char **)(acc + 0xC), MatrixDrive_GetMatrix());
-        reg_DispAccessoryWithShadow(acc, (char *)GOBJ_SUB(gobj));
-    }
-}
-
-static void dispCrown(char *gobj, char *acc);
-
-/* census: sugipon/src/girl.c:787 `dispClothes` (a TU-static; `static` keeps the ELF
- * symbol local, so it cannot collide with the sugipon/src/boy global). */
-static void dispClothes(char *gobj)
-{
-    char *w;
-    char *x;
-    char *y;
-
-    w = *(char **)((char *)GOBJ_SUB(gobj) + 0x830);
-    x = (char *)GOBJ_SUB(gobj)->p_874;
-    y = x + 0x40;
-    if (*(int *)(w + 0x24) != 0) {
-        dispCrown(gobj, *(char **)(w + 0x24));
-    }
-    if (*(int *)(w + 0xC) != 0) {
-        if (*(int *)(w + 0x28) != 0) {
-            if (*(int *)(w + 0x10) != 0) {
-                DispCloth4DWithAdd(*(void **)(w + 0x10), y, x);
-            }
-            if (*(int *)(w + 0x14) != 0) {
-                DispCloth4DWithAdd(*(void **)(w + 0x14), y, x);
-            }
-        } else {
-            if (*(int *)(w + 0x10) != 0) {
-                DispCloth4D(*(void **)(w + 0x10), y, x);
-            }
-            if (*(int *)(w + 0x14) != 0) {
-                DispCloth4D(*(void **)(w + 0x14), y, x);
-            }
-            if (*(int *)(w + 0x18) != 0) {
-                DispCloth4D(*(void **)(w + 0x18), y, x);
-            }
-        }
-    }
-    if (*(int *)(w + 0x4) != 0) {
-        /* Two separate tests, not `>= 642 || < 639`: gcc's fold_range_test
-         * merges a disjunction over one operand into `(unsigned)(v - 639) < 3`,
-         * which ROM does not have, ROM keeps both `slti`s. */
-        if (GOBJ_SUB(gobj)->f_4A0 < 642) {
-            if (GOBJ_SUB(gobj)->f_4A0 >= 639) {
-                goto skip;
-            }
-        }
-        if (*(int *)(w + 0x8) != 0) {
-            DispCloth4D(*(void **)(w + 0x8), y, x);
-        }
-    skip:;
-    }
-    if (*(int *)(w + 0x1C) != 0) {
-        if (*(int *)(w + 0x20) != 0) {
-            DispCloth4D(*(void **)(w + 0x20), y, x);
-        }
-    }
-}
-
 typedef struct GirlWork {
     int f0;  /* 0x00 */
     int f4;  /* 0x04 */
@@ -178,6 +42,142 @@ typedef struct GirlWork {
     int f3C; /* 0x3C */
     int f40; /* 0x40 */
 } GirlWork;
+
+/* census: sugipon/src/girl.c:706 `execClothes` (a TU-static; `static` keeps the ELF
+ * symbol local, so it cannot collide with the sugipon/src/boy global). */
+static void execClothes(char *gobj)
+{
+    int q[4];
+    GirlWork *w;
+    int n;
+
+    n = GetSkeltonFocusNode(gobj, 35);
+    w = GOBJ_SUB(gobj)->f_830;
+    SetQuaternionByAxisRotateV(q, -debug_hair_bend_angle * 16, ZUnitVector);
+    if ((void *)w->f18 != 0) {
+        *(int *)((char *)w->f18 + 0x2F8) = debug_hair_collision;
+    }
+    switch (w->fC) {
+    default:
+    case 1:
+        if ((void *)w->f10 != 0) {
+            GetCloth4D((void *)w->f10, 4.0f, 0.98f);
+        }
+        if ((void *)w->f14 != 0) {
+            GetCloth4D((void *)w->f14, 4.0f, 0.98f);
+        }
+        if ((void *)w->f18 != 0) {
+            GetCloth4DWithTight((void *)w->f18, debug_hair_gravity_level * 0.002f, 1.0f,
+                                debug_hair_tight_level * 0.01f, 1.0f,
+                                (char *)GOBJ_SUB(gobj)->f_10 + n * 16, q);
+        }
+        break;
+    case 2:
+        if ((void *)w->f10 != 0) {
+            GetCloth4D((void *)w->f10, 0.0f, 0.98f);
+        }
+        if ((void *)w->f14 != 0) {
+            GetCloth4D((void *)w->f14, 4.0f, 0.98f);
+        }
+        if ((void *)w->f18 != 0) {
+            GetCloth4DWithTight((void *)w->f18, debug_hair_gravity_level * 0.002f, 1.0f,
+                                debug_hair_tight_level * 0.01f, 1.0f,
+                                (char *)GOBJ_SUB(gobj)->f_10 + n * 16, q);
+        }
+        break;
+    case 0:
+        break;
+    }
+    if (w->f4 != 0) {
+        if ((void *)w->f8 != 0) {
+            GetCloth4D((void *)w->f8, 3.0f, 0.98f);
+        }
+    }
+    if (w->f1C != 0) {
+        if ((void *)w->f20 != 0) {
+            GetCloth4D((void *)w->f20, 4.0f, 0.98f);
+        }
+    }
+}
+
+/* census: sugipon/src/girl.c:763 `dispCrown` (a TU-static; `static` keeps the ELF
+ * symbol local, so it cannot collide with the sugipon/src/boy global). */
+static void dispCrown(char *gobj, char *acc)
+{
+    GirlWork *w;
+    int n;
+
+    w = GOBJ_SUB(gobj)->f_830;
+    n = GetSkeltonFocusNode(gobj, 35);
+    CopyMatrix(MatrixDrive_GetMatrix(), (char *)GOBJ_SUB(gobj)->f_C + n * 0x40);
+    MatrixDrive_ScaleMatrix(1.1111112f, 1.1111112f, 1.1111112f);
+    if (w->f28 != 0) {
+        CopyMatrix(*(char **)((char *)w->f2C + 0xC), MatrixDrive_GetMatrix());
+        CopyMatrix(*(char **)((char *)w->f30 + 0xC), MatrixDrive_GetMatrix());
+        reg_DispAccessoryWithShadow((char *)w->f30, (char *)GOBJ_SUB(gobj));
+        reg_DispAccessoryWithShadow((char *)w->f2C, (char *)GOBJ_SUB(gobj));
+    } else {
+        CopyMatrix(*(char **)(acc + 0xC), MatrixDrive_GetMatrix());
+        reg_DispAccessoryWithShadow(acc, (char *)GOBJ_SUB(gobj));
+    }
+}
+
+static void dispCrown(char *gobj, char *acc);
+
+/* census: sugipon/src/girl.c:787 `dispClothes` (a TU-static; `static` keeps the ELF
+ * symbol local, so it cannot collide with the sugipon/src/boy global). */
+static void dispClothes(char *gobj)
+{
+    GirlWork *w;
+    char *x;
+    char *y;
+
+    w = GOBJ_SUB(gobj)->f_830;
+    x = (char *)GOBJ_SUB(gobj)->p_874;
+    y = x + 0x40;
+    if (w->f24 != 0) {
+        dispCrown(gobj, (char *)w->f24);
+    }
+    if (w->fC != 0) {
+        if (w->f28 != 0) {
+            if (w->f10 != 0) {
+                DispCloth4DWithAdd((void *)w->f10, y, x);
+            }
+            if (w->f14 != 0) {
+                DispCloth4DWithAdd((void *)w->f14, y, x);
+            }
+        } else {
+            if (w->f10 != 0) {
+                DispCloth4D((void *)w->f10, y, x);
+            }
+            if (w->f14 != 0) {
+                DispCloth4D((void *)w->f14, y, x);
+            }
+            if (w->f18 != 0) {
+                DispCloth4D((void *)w->f18, y, x);
+            }
+        }
+    }
+    if (w->f4 != 0) {
+        /* Two separate tests, not `>= 642 || < 639`: gcc's fold_range_test
+         * merges a disjunction over one operand into `(unsigned)(v - 639) < 3`,
+         * which ROM does not have, ROM keeps both `slti`s. */
+        if (GOBJ_SUB(gobj)->f_4A0 < 642) {
+            if (GOBJ_SUB(gobj)->f_4A0 >= 639) {
+                goto skip;
+            }
+        }
+        if (w->f8 != 0) {
+            DispCloth4D((void *)w->f8, y, x);
+        }
+    skip:;
+    }
+    if (w->f1C != 0) {
+        if (w->f20 != 0) {
+            DispCloth4D((void *)w->f20, y, x);
+        }
+    }
+}
 
 /* The girl's eight generated cloth meshes: the five InitGirlGeo builds for the
    game, named after the work slot each fills, and the three the demo kind
@@ -1715,23 +1715,23 @@ static ClothHangCfg clothHangF20[2] = {
    ROM has them, while their string constants stay at this point of the run. */
 inline void SetGirlClothDispSwitch(char *a0, int a1, int a2)
 {
-    char *cloth = (char *)GOBJ_SUB(a0)->f_830;
+    GirlWork *cloth = GOBJ_SUB(a0)->f_830;
     switch (a1) {
     case 0:
-        *(int *)(cloth + 0x4) = a2;
+        cloth->f4 = a2;
         break;
     case 1:
-        *(int *)(cloth + 0xC) = a2;
+        cloth->fC = a2;
         break;
     case 2:
-        *(int *)(cloth + 0x1C) = a2;
+        cloth->f1C = a2;
         break;
     }
 }
 
 inline void SetGirlHairDispSwitch(char *a0, int a1)
 {
-    *(int *)(*(char **)((char *)GOBJ_SUB(a0) + 0x830) + 0x28) = a1;
+    *(int *)((char *)GOBJ_SUB(a0)->f_830 + 0x28) = a1;
 }
 
 typedef struct {
@@ -1773,7 +1773,7 @@ void *InitGirlGeo(char *gobj, char *csv)
     int p;
     int kind;
 
-    w = iosMallocDebug(ios_partition_sugipon, 0x44, __FILE__, 892);
+    w = iosMallocDebug(ios_partition_sugipon, sizeof(GirlWork), __FILE__, 892);
     p = (int)GOBJ_SUB(gobj);
     w->f38 = 0;
     w->f34 = 0;
@@ -1791,7 +1791,9 @@ void *InitGirlGeo(char *gobj, char *csv)
     w->f8 = 0;
     w->f10 = 0;
     w->f0 = kind;
-    GOBJ_SUB(gobj)->f_830 = (int)w;
+    /* an int-set store: the word is a pointer, but this store must stay
+       ordered against the int stores into the work record (the bytes) */
+    *(int *)&GOBJ_SUB(gobj)->f_830 = (int)w;
     switch (kind) {
     case 1:
         w->f10 = (int)InitCloth4D(gobj, &demoClothMeshF10, 0);
@@ -1811,9 +1813,9 @@ void *InitGirlGeo(char *gobj, char *csv)
         w->f30 = (int)CSVSYSTEM_InitDObj(0xE, csv);
         break;
     }
-    *(int *)(GOBJ_SUB(gobj)->f_830 + 0x4) = 1;
-    *(int *)(GOBJ_SUB(gobj)->f_830 + 0xC) = 1;
-    *(int *)(GOBJ_SUB(gobj)->f_830 + 0x1C) = 1;
+    *(int *)((char *)GOBJ_SUB(gobj)->f_830 + 0x4) = 1;
+    *(int *)((char *)GOBJ_SUB(gobj)->f_830 + 0xC) = 1;
+    *(int *)((char *)GOBJ_SUB(gobj)->f_830 + 0x1C) = 1;
     InitMotionOrient(gobj, 0x503, 0x84A, 0xC, 0x18, 0x214);
     SetLodLevel(gobj, 2);
     return w;
@@ -1842,8 +1844,8 @@ void GirlGeo(char *a0)
         if (*(int *)(w + 0x310) == 4 && *(int *)(w + 0x7C) != 0 && *(int *)(w + 0x3C8) != 0) {
             n0 = GetSkeltonFocusNode(boyGObj, 6);
             n1 = GetSkeltonFocusNode(a0, 0x16);
-            sceVu0SubVector(v, *(char **)((char *)GOBJ_SUB(boyGObj) + 0xC) + n0 * 64 + 0x30,
-                            *(char **)((char *)GOBJ_SUB(a0) + 0xC) + n1 * 64 + 0x30);
+            sceVu0SubVector(v, (char *)GOBJ_SUB(boyGObj)->f_C + n0 * 64 + 0x30,
+                            (char *)GOBJ_SUB(a0)->f_C + n1 * 64 + 0x30);
             len = FSqrt(sceVu0InnerProduct(v, v));
             if (10.0f < len) {
                 ratio = 1.0f - len / 50.0f;
@@ -1859,56 +1861,54 @@ void GirlAI(char *a0)
 {
     Sub15C *work = GOBJ_SUB(a0);
     int mode = work->f_4A0;
-    char *cloth = *(char **)((char *)work + 0x830);
+    GirlWork *cloth = *(GirlWork **)((char *)work + 0x830);
     int hint = *(int *)((char *)work + 0x4C8);
 
     if (mode == 0x297) {
         if (hint != 0) {
-            if (*(int *)(cloth + 0x38) != 0) {
+            if (cloth->f38 != 0) {
                 debug_StdPrintfDummy("reset hint2 voice ready\n");
                 scpGirlHintVoiceCancel();
             }
             scpGirlHintVoiceReady(0x65);
-            *(int *)(cloth + 0x34) = 1;
+            cloth->f34 = 1;
             debug_StdPrintfDummy("hint1 voice ready\n");
         }
-        if (*(int *)(cloth + 0x34) != 0 && *(int *)(cloth + 0x3C) == 0 &&
-            47.0f < GOBJ_SUB(a0)->f_4AC) {
+        if (cloth->f34 != 0 && cloth->f3C == 0 && 47.0f < GOBJ_SUB(a0)->f_4AC) {
             scpGirlHintVoicePlay();
-            *(int *)(cloth + 0x3C) = 1;
+            cloth->f3C = 1;
             debug_StdPrintfDummy("hint1 voice play\n");
         }
     }
     if (mode == 0x29A) {
         if (hint != 0) {
-            if (*(int *)(cloth + 0x34) != 0) {
+            if (cloth->f34 != 0) {
                 debug_StdPrintfDummy("reset hint1 voice ready\n");
                 scpGirlHintVoiceCancel();
             }
             scpGirlHintVoiceReady(0x67);
-            *(int *)(cloth + 0x38) = 1;
+            cloth->f38 = 1;
             debug_StdPrintfDummy("hint2 voice ready\n");
         }
-        if (*(int *)(cloth + 0x38) != 0 && *(int *)(cloth + 0x40) == 0 &&
-            107.0f < GOBJ_SUB(a0)->f_4AC) {
+        if (cloth->f38 != 0 && cloth->f40 == 0 && 107.0f < GOBJ_SUB(a0)->f_4AC) {
             scpGirlHintVoicePlay();
-            *(int *)(cloth + 0x40) = 1;
+            cloth->f40 = 1;
             debug_StdPrintfDummy("hint2 voice play\n");
         }
     }
-    if (*(int *)(cloth + 0x34) != 0) {
+    if (cloth->f34 != 0) {
         if (mode != 0x297 && mode != 0x298) {
             debug_StdPrintfDummy("hint1 voice reset\n");
-            *(int *)(cloth + 0x34) = 0;
-            *(int *)(cloth + 0x3C) = 0;
+            cloth->f34 = 0;
+            cloth->f3C = 0;
             scpGirlHintVoiceCancel();
         }
     }
-    if (*(int *)(cloth + 0x38) != 0) {
+    if (cloth->f38 != 0) {
         if (mode != 0x29A && mode != 0x29B) {
             debug_StdPrintfDummy("hint2 voice reset\n");
-            *(int *)(cloth + 0x38) = 0;
-            *(int *)(cloth + 0x40) = 0;
+            cloth->f38 = 0;
+            cloth->f40 = 0;
             scpGirlHintVoiceCancel();
         }
     }
@@ -1921,7 +1921,7 @@ static char *girlClothName[4] = {"", "DEVIL", "STONE", 0};
  * of line, so it has no MAIN.MAP symbol and this name is ours. */
 static inline int *getGirlCloth(char *gobj)
 {
-    return *(int **)((char *)GOBJ_SUB(gobj) + 0x830);
+    return (int *)GOBJ_SUB(gobj)->f_830;
 }
 
 void debugWireStringGirl(char *a0)

@@ -1774,7 +1774,7 @@ int CheckFieldContact(char *info, char *self, float *pos, float lim)
     float d;
 
     if (*(int *)(info + 0x94) != 0) {
-        h = *(float *)(*(int *)(self + 0x15C) + 0x134);
+        h = GOBJ_SUB(self)->f_134;
         dy = *(float *)(info + 0x24) - pos[1];
         if (CompareAttribute(GetFloorAttribute(info), 0x50) != 0) {
             if (h >= 0.0f) {
@@ -1782,18 +1782,18 @@ int CheckFieldContact(char *info, char *self, float *pos, float lim)
                 d = *(float *)(info + 0x24) - ph;
                 if (dy < lim) {
                     if (d > 0.0f) {
-                        if ((*(int *)(*(int *)(self + 0x15C) + 0x64C) & 1) == 0 && h > 5.0f) {
+                        if ((GOBJ_SUB(self)->f_64C & 1) == 0 && h > 5.0f) {
                             SetFallDownSplash(*(int *)(info + 0x8C), self);
-                            *(int *)(*(int *)(self + 0x15C) + 0x64C) |= 1;
+                            GOBJ_SUB(self)->f_64C |= 1;
                         }
                     }
                     return 1;
                 }
                 if (d > 0.0f) {
                     if (ph - pos[1] < lim * 0.8f) {
-                        if ((*(int *)(*(int *)(self + 0x15C) + 0x64C) & 1) == 0 && h > 5.0f) {
+                        if ((GOBJ_SUB(self)->f_64C & 1) == 0 && h > 5.0f) {
                             SetFallDownSplash(*(int *)(info + 0x8C), self);
-                            *(int *)(*(int *)(self + 0x15C) + 0x64C) |= 1;
+                            GOBJ_SUB(self)->f_64C |= 1;
                         }
                         return 2;
                     }
@@ -1898,7 +1898,7 @@ void ClearMotionBlendlessNode(char *a0)
 {
     int i = 0;
     char *arr = *(char **)(*(char **)(a0 + 0x15C) + 0x820);
-    while (i < *(int *)(*(char **)(a0 + 0x15C) + 0x88)) {
+    while (i < GOBJ_SUB(a0)->f_88) {
         arr[i] = 0;
         i++;
     }
@@ -1932,7 +1932,7 @@ void SetRootUpdateMode(char *self, int val)
 
 float ForMotionViewer_GetCurrentAnimationFrame(char *self)
 {
-    return *(float *)(*(char **)(self + 0x15C) + 0x4AC);
+    return GOBJ_SUB(self)->f_4AC;
 }
 
 int ForMotionViewer_GetCurrentMotion(char *self)
@@ -2026,8 +2026,7 @@ float GetDifferenceFromWallLowerPlane(char *self, int node)
 
     idx = getSkeltonFocusNode(self, node);
     GetPureVerticalPlane(pos, 0, pts, *(char **)(self + 0x15C) + 0x180, 1);
-    return GetYDistanceFromPlane(pos,
-                                 *(char **)(*(char **)(self + 0x15C) + 0xC) + idx * 0x40 + 0x30);
+    return GetYDistanceFromPlane(pos, (char *)GOBJ_SUB(self)->f_C + idx * 0x40 + 0x30);
 }
 
 float GetDifferenceFromWallUpperPlane(char *self, int node)
@@ -2038,8 +2037,7 @@ float GetDifferenceFromWallUpperPlane(char *self, int node)
 
     idx = getSkeltonFocusNode(self, node);
     GetPureVerticalPlane(pos, 0, pts, *(char **)(self + 0x15C) + 0x180, 0);
-    return GetYDistanceFromPlane(pos,
-                                 *(char **)(*(char **)(self + 0x15C) + 0xC) + idx * 0x40 + 0x30);
+    return GetYDistanceFromPlane(pos, (char *)GOBJ_SUB(self)->f_C + idx * 0x40 + 0x30);
 }
 
 void DisableChangeRootUpdateMode(char *self)
@@ -2122,12 +2120,12 @@ void SetMotionNodeFixModeParameter(char *self, char *obj, float x, float y, floa
 {
     float vec[4] = {x, y, z, 1.0f};
 
-    *(int *)(*(int *)(self + 0x15C) + 0x424) = (int)obj;
-    *(int *)(*(int *)(self + 0x15C) + 0x428) = getSkeltonFocusNode(obj, node);
-    *(int *)(*(int *)(self + 0x15C) + 0x454) = mode;
+    GOBJ_SUB(self)->f_424 = (int)obj;
+    GOBJ_SUB(self)->f_428 = getSkeltonFocusNode(obj, node);
+    GOBJ_SUB(self)->f_454 = mode;
     CopyVector(*(int *)(self + 0x15C) + 0x440, vec);
     CopyQuaternion(*(int *)(self + 0x15C) + 0x430, quat);
-    *(float *)(*(int *)(self + 0x15C) + 0x450) = w;
+    GOBJ_SUB(self)->f_450 = w;
 }
 
 void GetRootProjectionPosOfGObj(int a0, int a1)
@@ -2138,7 +2136,7 @@ void GetRootProjectionPosOfGObj(int a0, int a1)
 
 void SetMotionPlaySpeedRatio(char *self, float val)
 {
-    *(float *)(*(char **)(self + 0x15C) + 0x4B8) = val;
+    GOBJ_SUB(self)->f_4B8 = val;
 }
 
 /* kept local: void () here, void (void *, void *, void *) in libvu0.h */
@@ -2284,7 +2282,7 @@ void GetOutOutsideOfWall(void *obj, float threshold)
 {
     int buf0[4];
     int buf1[4];
-    if (*(int *)(*(char **)((char *)obj + 0x15C) + 0x188) != 0) {
+    if (GOBJ_SUB(obj)->f_188 != 0) {
         float dot;
         GetRootPosition(buf0, obj);
         GetGlobalWallPlane(buf1, *(char **)((char *)obj + 0x15C) + 0x180);

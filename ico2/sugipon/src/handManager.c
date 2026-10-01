@@ -222,7 +222,7 @@ static inline void ResetHandTarget(char *obj, int off)
     char *h = (char *)(int)GOBJ_SUB(obj) + off;
     *(int *)(h + 0x20) = 0;
     *(int *)(h + 0x24) = 0;
-    ((IntFloat *)(h + 0x50))->f = *(float *)((int)GOBJ_SUB(obj) + 0x460);
+    ((IntFloat *)(h + 0x50))->f = GOBJ_SUB(obj)->f_460;
 }
 
 void HandManager(char *obj)
@@ -232,7 +232,7 @@ void HandManager(char *obj)
     if (debug_now_motion_viewer == 0) {
         ResetHandTarget(obj, 0x310);
         ResetHandTarget(obj, 0x2B0);
-        if (*(int *)((int)GOBJ_SUB(obj) + 0x400) != 0) {
+        if (GOBJ_SUB(obj)->f_400 != 0) {
             char *rec = motionKind + GOBJ_SUB(obj)->f_4A0 * 0x194;
             _handManager(obj, (char *)(int)GOBJ_SUB(obj) + 0x310,
                          motionIKEffKind + ((*(unsigned int *)(rec + 0x188) >> 8) & 0xF0),
@@ -241,6 +241,6 @@ void HandManager(char *obj)
                              motionIKEffKind + ((*(unsigned int *)(rec + 0x188) >> 4) & 0xF0),
                              XUnitVector, GetSkeltonFocusNode(obj, 3));
         }
-        *(float *)((int)GOBJ_SUB(obj) + 0xF4) += (t - *(float *)((int)GOBJ_SUB(obj) + 0xF4)) * 0.1f;
+        GOBJ_SUB(obj)->f_F4 += (t - GOBJ_SUB(obj)->f_F4) * 0.1f;
     }
 }

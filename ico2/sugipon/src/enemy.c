@@ -227,9 +227,9 @@ retry:
     w->scale = sc;
     obj = D_00624880[kind].a;
     if (obj != 0x610) {
-        *(int *)((int)GOBJ_SUB(self) + 0x854) = GetPObjAddress(obj);
+        GOBJ_SUB(self)->f_854 = GetPObjAddress(obj);
         GOBJ_SUB(self)->f_84 = obj;
-        debug_StdPrintfDummy("%p\n", *(int *)((int)GOBJ_SUB(self) + 0x854));
+        debug_StdPrintfDummy("%p\n", GOBJ_SUB(self)->f_854);
         w->loaded = 1;
     }
     pid = D_00624880[kind].b;
@@ -267,13 +267,13 @@ void dispEnemyObject(void *self)
     float m[16];
     EnemyDispEntry *tmp;
     int i, j;
-    int n = *(int *)(*(char **)(self + 0x15C) + 0x88);
+    int n = GOBJ_SUB(self)->f_88;
     char *tbl = *(char **)(*(char **)(self + 0x15C) + 0x8C);
-    EnemyWork *w = *(EnemyWork **)(*(char **)(self + 0x15C) + 0x830);
+    EnemyWork *w = GOBJ_SUB(self)->f_830;
     int *pl = w->particle;
     EnemyDispEntry buf[n];
     EnemyDispEntry *ptr[n];
-    _SetCurrentMatrix(*(char **)(*(char **)(self + 0x15C) + 0xC));
+    _SetCurrentMatrix((char *)GOBJ_SUB(self)->f_C);
     _MulCurrentMatrixL(matrixptr + 0x100);
 
     _InitCurrentMatrix();
@@ -282,7 +282,7 @@ void dispEnemyObject(void *self)
     for (i = 0; i < *(int *)(*(volatile int *)(self + 0x15C) + 0x88); i++) {
         /* project each part's origin: z goes into buf[i].z for the sort */
         ptr[i] = &buf[i];
-        _SetCurrentMatrix(*(char **)(*(char **)(self + 0x15C) + 0xC) + i * 0x40);
+        _SetCurrentMatrix((char *)GOBJ_SUB(self)->f_C + i * 0x40);
         _MulCurrentMatrixL(matrixptr + 0x100);
         __asm__ __volatile__("lqc2 $vf8, 0x0(%0)\n\t"
                              "vmulax.xyzw ACC, $vf4, $vf8x\n\t"
@@ -322,11 +322,11 @@ void dispEnemyObject(void *self)
 
         switch (*(int *)(tbl + i * 0x40 + 4)) {
         case 37:
-            if (*(float *)(*(char **)(*(char **)(self + 0x15C) + 0x870) + 0x30) == 0.0f)
+            if (*(float *)((char *)GOBJ_SUB(self)->p_870 + 0x30) == 0.0f)
                 DispEnemyEye(w->eye0);
             break;
         case 36:
-            if (*(float *)(*(char **)(*(char **)(self + 0x15C) + 0x870) + 0x30) == 0.0f)
+            if (*(float *)((char *)GOBJ_SUB(self)->p_870 + 0x30) == 0.0f)
                 DispEnemyEye(w->eye1);
             break;
         default:
@@ -340,7 +340,7 @@ void dispEnemyObject(void *self)
                made on the current-matrix stack, rebuilt here because the
                stack no longer holds it. */
 
-            sceVu0MulMatrix(m, matrixptr + 0x100, *(char **)(*(char **)(self + 0x15C) + 0xC) + i * 0x40);
+            sceVu0MulMatrix(m, matrixptr + 0x100, (char *)GOBJ_SUB(self)->f_C + i * 0x40);
             prim_DispParticle(pl[i], m);
             break;
         }
@@ -567,11 +567,11 @@ void EnemyGeo(char *self)
         w->timer = w->timer + 1;
     }
 
-    *(int *)((int)GOBJ_SUB(self) + 0x550) = 0;
-    *(int *)((int)GOBJ_SUB(self) + 0x54C) = 2;
-    *(int *)((int)GOBJ_SUB(self) + 0x548) = 0;
+    GOBJ_SUB(self)->f_550 = 0;
+    GOBJ_SUB(self)->f_54C = 2;
+    GOBJ_SUB(self)->f_548 = 0;
     if (GetEnemyTypeFromGObj(self) == 3)
-        *(int *)((int)GOBJ_SUB(self) + 0x550) = 1;
+        GOBJ_SUB(self)->f_550 = 1;
 
     ExecMotionOrient(self);
 
@@ -592,7 +592,7 @@ void EnemyGeo(char *self)
     }
     ExecEnemyFootPrints(w->foot);
 
-    *(int *)((int)GOBJ_SUB(self) + 0x558) = (*(int *)((int)GOBJ_SUB(self) + 0x558) + 1) % 10;
+    GOBJ_SUB(self)->f_558 = (GOBJ_SUB(self)->f_558 + 1) % 10;
 
     ratio = (*(float *)((char *)GOBJ_SUB(self)->p_870 + 0x20) +
              *(float *)((char *)GOBJ_SUB(self)->p_870 + 0x24) +
@@ -600,18 +600,18 @@ void EnemyGeo(char *self)
             3.0f;
 
     _MulMatrix(MatrixDrive_GetMatrix(),
-               *(char **)((int)GOBJ_SUB(self) + 0xC) + GetSkeltonFocusNode(self, 0x24) * 0x40,
+               (char *)GOBJ_SUB(self)->f_C + GetSkeltonFocusNode(self, 0x24) * 0x40,
                (char *)offsetMatrix);
     UpdateEnemyEye(w->eye0, MatrixDrive_GetMatrix(), ratio);
     _MulMatrix(MatrixDrive_GetMatrix(),
-               *(char **)((int)GOBJ_SUB(self) + 0xC) + GetSkeltonFocusNode(self, 0x25) * 0x40,
+               (char *)GOBJ_SUB(self)->f_C + GetSkeltonFocusNode(self, 0x25) * 0x40,
                (char *)offsetMatrix);
     UpdateEnemyEye(w->eye1, MatrixDrive_GetMatrix(), ratio);
 }
 
 void DisplayEnemy(char *self)
 {
-    EnemyWork *w = *(EnemyWork **)((char *)GOBJ_SUB(self) + 0x830);
+    EnemyWork *w = GOBJ_SUB(self)->f_830;
 
     if (w->loaded != 0) {
         reg_DispEnemy((char *)GOBJ_SUB(self));
@@ -663,28 +663,28 @@ void SetEnemyDissolve(char *self, float ratio)
 
 void SetEnemyFlyXZAccel(char *a0, float f)
 {
-    *(float *)(*(char **)((char *)GOBJ_SUB(a0) + 0x830) + 0x50) = f;
+    *(float *)((char *)GOBJ_SUB(a0)->f_830 + 0x50) = f;
 }
 
 void SetEnemyFlyXZAccelAll(float accel)
 {
     char *g = isysGObjSearchFromObjKindID_begin(4);
     while (g != 0) {
-        *(float *)(*(char **)((char *)GOBJ_SUB(g) + 0x830) + 0x50) = accel;
+        *(float *)((char *)GOBJ_SUB(g)->f_830 + 0x50) = accel;
         g = isysGObjSearchFromObjKindID_next(g);
     }
 }
 
 float GetEnemyFlyXZAccel(char *a0)
 {
-    return *(float *)(*(char **)((char *)GOBJ_SUB(a0) + 0x830) + 0x50);
+    return *(float *)((char *)GOBJ_SUB(a0)->f_830 + 0x50);
 }
 
 void EnemyAI(void) {}
 
 void SetEnemyFootPrintSwitch(char *a0, int a1)
 {
-    *(int *)(*(char **)((char *)GOBJ_SUB(a0) + 0x830) + 0x2C) = a1;
+    *(int *)((char *)GOBJ_SUB(a0)->f_830 + 0x2C) = a1;
 }
 
 void EnemySetfAppearAll(char *self)
@@ -733,12 +733,12 @@ void enemySetParticleDie(void *a0, float *a1)
 
 void ReviveEnemyParticle(char *a0, int a1)
 {
-    (*(int **)(*(char **)((char *)GOBJ_SUB(a0) + 0x830) + 0x14))[a1] = 0;
+    (*(int **)((char *)GOBJ_SUB(a0)->f_830 + 0x14))[a1] = 0;
 }
 
 int isExistEnemyParticle(char *a0, int a1)
 {
-    return (*(int **)(*(char **)((char *)GOBJ_SUB(a0) + 0x830) + 0x14))[a1] == 0;
+    return (*(int **)((char *)GOBJ_SUB(a0)->f_830 + 0x14))[a1] == 0;
 }
 
 int EnemyGetNSafeParts(char *self)
@@ -749,7 +749,7 @@ int EnemyGetNSafeParts(char *self)
     int cnt = 0;
 
     for (i = 0; i < n; i++) {
-        p = *(int **)(*(char **)((char *)GOBJ_SUB(self) + 0x830) + 0x14);
+        p = *(int **)((char *)GOBJ_SUB(self)->f_830 + 0x14);
         if (p[i] == 0)
             cnt++;
     }
@@ -770,7 +770,7 @@ void EnemyDeleteParticle(char *self, float *dir, short *list)
 
 void SetEnemyHitGeometryAction(char *a0, int a1)
 {
-    *(int *)(*(char **)((char *)GOBJ_SUB(a0) + 0x830) + 0x38) = a1;
+    *(int *)((char *)GOBJ_SUB(a0)->f_830 + 0x38) = a1;
 }
 
 int InitDemoMotionGeo(char *self)
@@ -790,7 +790,7 @@ void HotInitDemoMotionGeo(char *self)
 
 int GetEnemyHitNodeFlag(char *a0)
 {
-    return *(int *)(*(char **)((char *)GOBJ_SUB(a0) + 0x830) + 0x14);
+    return *(int *)((char *)GOBJ_SUB(a0)->f_830 + 0x14);
 }
 
 int RandomizeEnemy(char *self)
@@ -805,37 +805,37 @@ int RandomizeEnemy(char *self)
 
 void SetEnemyWingRatio(char *a0, float f)
 {
-    (*(EnemyWork **)((char *)GOBJ_SUB(a0) + 0x830))->wing = f;
+    ((EnemyWork *)GOBJ_SUB(a0)->f_830)->wing = f;
 }
 
 int CanThisEnemyFly(char *a0)
 {
-    return D_00624880[(*(EnemyWork **)((char *)GOBJ_SUB(a0) + 0x830))->def].flyType;
+    return D_00624880[((EnemyWork *)GOBJ_SUB(a0)->f_830)->def].flyType;
 }
 
 int GetEnemyBattleType(char *a0)
 {
-    return D_00624880[(*(EnemyWork **)((char *)GOBJ_SUB(a0) + 0x830))->def].battleType;
+    return D_00624880[((EnemyWork *)GOBJ_SUB(a0)->f_830)->def].battleType;
 }
 
 float GetEnemyDefLife(char *a0)
 {
-    return D_00624880[(*(EnemyWork **)((char *)GOBJ_SUB(a0) + 0x830))->def].life;
+    return D_00624880[((EnemyWork *)GOBJ_SUB(a0)->f_830)->def].life;
 }
 
 float GetEnemyDefDodgeRange(char *a0)
 {
-    return D_00624880[(*(EnemyWork **)((char *)GOBJ_SUB(a0) + 0x830))->def].dodge;
+    return D_00624880[((EnemyWork *)GOBJ_SUB(a0)->f_830)->def].dodge;
 }
 
 float GetEnemyDefParaIndex(char *a0)
 {
-    return D_00624880[(*(EnemyWork **)((char *)GOBJ_SUB(a0) + 0x830))->def].paraIndex;
+    return D_00624880[((EnemyWork *)GOBJ_SUB(a0)->f_830)->def].paraIndex;
 }
 
 void ResetEnemyPositionInfo(char *self)
 {
-    EnemyWork *w = *(EnemyWork **)((char *)GOBJ_SUB(self) + 0x830);
+    EnemyWork *w = GOBJ_SUB(self)->f_830;
 
     ResetEnemyEye(w->eye0);
     ResetEnemyEye(w->eye1);

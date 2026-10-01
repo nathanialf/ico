@@ -102,16 +102,15 @@ void outerProcess(int act)
 
     if ((pad[1].flags & 0x20) != 0) {
         n = GetSkeltonFocusNode(boyGObj, 22);
-        GetWormRoute(act,
-                     (WormVec *)(*(char **)((char *)GOBJ_SUB(boyGObj) + 0xC) + n * 0x40 + 0x30));
+        GetWormRoute(act, (WormVec *)((char *)GOBJ_SUB(boyGObj)->f_C + n * 0x40 + 0x30));
         SetWormReduceRatio(act, 1.0f);
     }
 
     if ((pad[1].now & 0x40) != 0) {
         n = GetSkeltonFocusNode(boyGObj, 22);
-        SetDirectWormTargetPos(act, *(char **)((char *)GOBJ_SUB(boyGObj) + 0xC) + n * 0x40 + 0x30);
-        GetWormCaptureVector(v, (void *)act,
-                             *(char **)((char *)GOBJ_SUB(boyGObj) + 0xC) + n * 0x40 + 0x30, 5.0f);
+        SetDirectWormTargetPos(act, (char *)GOBJ_SUB(boyGObj)->f_C + n * 0x40 + 0x30);
+        GetWormCaptureVector(v, (void *)act, (char *)GOBJ_SUB(boyGObj)->f_C + n * 0x40 + 0x30,
+                             5.0f);
         GetRootPosition(p, boyGObj);
         sceVu0AddVector(p, p, v);
         SetDirectRootPosition(boyGObj, p);
@@ -182,7 +181,7 @@ void simulate(WormVec *v, int n, float len)
 void getAnimation(int act)
 {
     float tmp[4];
-    WormWork *w = *(WormWork **)((int)GOBJ_SUB(act) + 0x830);
+    WormWork *w = GOBJ_SUB(act)->f_830;
     WormRoute *r = w->route;
     int i, j;
 
@@ -215,7 +214,7 @@ void disp(void *act)
 {
     unsigned short ax;
     unsigned short az;
-    WormWork *w = *(WormWork **)((int)GOBJ_SUB(act) + 0x830);
+    WormWork *w = GOBJ_SUB(act)->f_830;
     WormRoute *r = w->route;
     int i;
     int j;
@@ -238,8 +237,7 @@ void disp(void *act)
             MatrixDrive_PushMatrix();
             MatrixDrive_ScaleMatrix(2.0f, len[j - 1] * 0.02f, 2.0f);
             MatrixDrive_RotMatrixX(-0x8000);
-            CopyMatrix(*(char **)((int)GOBJ_SUB(act) + 0xC) + (j * 0x40 - 0x40),
-                       MatrixDrive_GetMatrix());
+            CopyMatrix((char *)GOBJ_SUB(act)->f_C + (j * 0x40 - 0x40), MatrixDrive_GetMatrix());
             MatrixDrive_PopMatrix();
 
             if (j == num - 1) {
@@ -280,13 +278,13 @@ typedef union {
 
 inline void SetWormReduceRatio(int a0, float f12)
 {
-    ((WormFI *)(*(char **)((char *)GOBJ_SUB(a0) + 0x830) + 8))->f = f12;
+    ((WormFI *)((char *)GOBJ_SUB(a0)->f_830 + 8))->f = f12;
 }
 
 void GetWormRoute(int act, WormVec *target)
 {
     WormVec d;
-    WormWork *w = *(WormWork **)((int)GOBJ_SUB(act) + 0x830);
+    WormWork *w = GOBJ_SUB(act)->f_830;
     WormRoute *r = w->route;
     int i;
     int j;
@@ -317,7 +315,7 @@ void GetWormRoute(int act, WormVec *target)
 
 inline void SetDirectWormTargetPos(int act, void *pos)
 {
-    WormWork *w = *(WormWork **)((int)GOBJ_SUB(act) + 0x830);
+    WormWork *w = GOBJ_SUB(act)->f_830;
     WormRoute *r = w->route;
     int i;
 
@@ -331,7 +329,7 @@ inline void SetDirectWormTargetPos(int act, void *pos)
 
 inline void TraceWormRoute(int act, float t)
 {
-    WormWork *w = *(WormWork **)((int)GOBJ_SUB(act) + 0x830);
+    WormWork *w = GOBJ_SUB(act)->f_830;
     WormRoute *r = w->route;
     int i, j;
     float step = t * 8.99999f;
@@ -469,7 +467,7 @@ void GetWormCaptureVector(void *out, void *act, void *node, float scale)
 
 void WormGeo(int act)
 {
-    WormWork *w = *(WormWork **)((int)GOBJ_SUB(act) + 0x830);
+    WormWork *w = GOBJ_SUB(act)->f_830;
 
     if (wormFirst != 0) {
         ResetWormRoute(act, w);

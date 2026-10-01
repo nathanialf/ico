@@ -78,7 +78,7 @@ typedef struct {
 int UpdateRootPosition(char *gobj)
 {
     float pos[4];
-    ChainRecord *cw = (ChainRecord *)GOBJ_SUB(gobj)->f_830;
+    ChainRecord *cw = GOBJ_SUB(gobj)->f_830;
     ChainNode *nd;
     int moved = 0;
 
@@ -119,7 +119,7 @@ void _GetCorrectOrientOfChain(float *out, char *gobj, float *dir);
  * layout. */
 static inline void initPendulum(char *gobj)
 {
-    ChainRecord *cw = (ChainRecord *)GOBJ_SUB(gobj)->f_830;
+    ChainRecord *cw = GOBJ_SUB(gobj)->f_830;
     float a = (float)debug_chain_cycle_speed * -0.2f + 2.0f;
     float y;
 
@@ -144,7 +144,7 @@ float *pos;
 
 {
     float d[4];
-    ChainRecord *cw = (ChainRecord *)GOBJ_SUB(gobj)->f_830;
+    ChainRecord *cw = GOBJ_SUB(gobj)->f_830;
     int best = -1;
     float min = 3.40282347e+38f; /* FLT_MAX, a constant-pool word */
     int i;
@@ -201,7 +201,7 @@ int collisionCheck(char *gobj)
 {
     ChainClipWork w;
     float v[4];
-    ChainRecord *cw = (ChainRecord *)GOBJ_SUB(gobj)->f_830;
+    ChainRecord *cw = GOBJ_SUB(gobj)->f_830;
 
     if (cw->pdl.swing) {
         v[0] = cw->pdl.orient[0];
@@ -264,7 +264,7 @@ static inline void ChainPendulumSwing(float *dst, ChainRecord *cw, float *orient
 void chain_simulate_term_simple(int a0)
 {
     float pos[4];
-    ChainRecord *cw = (ChainRecord *)GOBJ_SUB(a0)->f_830;
+    ChainRecord *cw = GOBJ_SUB(a0)->f_830;
 
     pendulum_Process(cw->pdl.orient, collisionCheck((char *)a0));
     ChainPendulumSwing(pos, cw, (float *)cw->pdl.orient);
@@ -278,7 +278,7 @@ extern void chain_simulate_term_simple(int a0);
 
 void chain_simulate_term_ropeturn(int a0)
 {
-    ChainRecord *cw = (ChainRecord *)GOBJ_SUB(a0)->f_830;
+    ChainRecord *cw = GOBJ_SUB(a0)->f_830;
 
     if (debug_font_flag & 1) {
         chainDebugY = chainDebugY + 10;
@@ -290,7 +290,7 @@ void chain_simulate_term_ropeturn(int a0)
 
 void chain_simulate_term_loop(int a0)
 {
-    ChainRecord *cw = (ChainRecord *)GOBJ_SUB(a0)->f_830;
+    ChainRecord *cw = GOBJ_SUB(a0)->f_830;
 
     if (debug_font_flag & 1) {
         chainDebugY = chainDebugY + 10;
@@ -308,7 +308,7 @@ void chain_simulate_term_loop(int a0)
 
 void chain_simulate_term_swingready(int a0)
 {
-    ChainRecord *cw = (ChainRecord *)GOBJ_SUB(a0)->f_830;
+    ChainRecord *cw = GOBJ_SUB(a0)->f_830;
 
     if (debug_font_flag & 1) {
         chainDebugY = chainDebugY + 10;
@@ -326,7 +326,7 @@ void chain_simulate_term_swingready(int a0)
 
 void chain_simulate_term_swingstart(int a0)
 {
-    ChainRecord *cw = (ChainRecord *)GOBJ_SUB(a0)->f_830;
+    ChainRecord *cw = GOBJ_SUB(a0)->f_830;
     float h;
 
     if (debug_font_flag & 1) {
@@ -363,7 +363,7 @@ void chain_simulate_term_moveup(int a0)
 {
     float w[4];
     float v[4];
-    ChainRecord *cw = (ChainRecord *)GOBJ_SUB(a0)->f_830;
+    ChainRecord *cw = GOBJ_SUB(a0)->f_830;
     float h;
 
     if (debug_font_flag & 1) {
@@ -392,7 +392,7 @@ void chain_simulate_term_moveup(int a0)
 
 void chain_simulate_term_free(int a0)
 {
-    ChainRecord *cw = (ChainRecord *)GOBJ_SUB(a0)->f_830;
+    ChainRecord *cw = GOBJ_SUB(a0)->f_830;
 
     if (debug_font_flag & 1) {
         chainDebugY = chainDebugY + 10;
@@ -412,7 +412,7 @@ void chain_simulate_term_down(int a0)
 {
     float w[4];
     float v[4];
-    ChainRecord *cw = (ChainRecord *)GOBJ_SUB(a0)->f_830;
+    ChainRecord *cw = GOBJ_SUB(a0)->f_830;
     ChainNode *nd;
     ChainNode *next;
     float h;
@@ -450,7 +450,7 @@ void chain_simulate_term_down(int a0)
 
 void chain_simulate_hangstart(int a0)
 {
-    ChainRecord *cw = (ChainRecord *)GOBJ_SUB(a0)->f_830;
+    ChainRecord *cw = GOBJ_SUB(a0)->f_830;
 
     if (debug_font_flag & 1) {
         chainDebugY = chainDebugY + 10;
@@ -487,7 +487,7 @@ static inline void ResetChainNodes(ChainRecord *cw, float *pos)
 
 void chain_simulate_stop(int a0)
 {
-    ChainRecord *cw = (ChainRecord *)GOBJ_SUB(a0)->f_830;
+    ChainRecord *cw = GOBJ_SUB(a0)->f_830;
 
     ResetChainNodes(cw, (float *)cw->rootPos);
     if (debug_font_flag & 1) {
@@ -498,7 +498,7 @@ void chain_simulate_stop(int a0)
 
 void chain_simulate_free(int a0)
 {
-    ChainRecord *cw = (ChainRecord *)GOBJ_SUB(a0)->f_830;
+    ChainRecord *cw = GOBJ_SUB(a0)->f_830;
     int i;
 
     if (debug_font_flag & 1) {
@@ -711,6 +711,7 @@ typedef struct {
 typedef union {
     char *p;
     int i;
+    Sub15C *sub;
 } ChainExtPtr;
 
 /* the DObj entry flag word, the same union DObj.c's allocObjectData uses */
@@ -789,11 +790,11 @@ char *InitChainGeo(char *gobj, ChainGeoReq *req)
         *(float *)(cw + 0x70) = req->f18;
     }
 
-    if (*(char **)(((ChainExtPtr *)(gobj + 0x15C))->p + 0xC) != 0) {
-        iosFree((void *)((int)*(char **)(((ChainExtPtr *)(gobj + 0x15C))->p + 0xC) & 0x0FFFFFFF));
+    if ((char *)((ChainExtPtr *)(gobj + 0x15C))->sub->f_C != 0) {
+        iosFree((void *)((int)(char *)((ChainExtPtr *)(gobj + 0x15C))->sub->f_C & 0x0FFFFFFF));
     }
-    if (*(char **)(((ChainExtPtr *)(gobj + 0x15C))->p + 0x10) != 0) {
-        iosFree((void *)((int)*(char **)(((ChainExtPtr *)(gobj + 0x15C))->p + 0x10) & 0x0FFFFFFF));
+    if ((char *)((ChainExtPtr *)(gobj + 0x15C))->sub->f_10 != 0) {
+        iosFree((void *)((int)(char *)((ChainExtPtr *)(gobj + 0x15C))->sub->f_10 & 0x0FFFFFFF));
     }
     *(char **)(((ChainExtPtr *)(gobj + 0x15C))->p + 0xC) = 0;
     *(char **)(((ChainExtPtr *)(gobj + 0x15C))->p + 0x10) = 0;
@@ -801,77 +802,64 @@ char *InitChainGeo(char *gobj, ChainGeoReq *req)
         (void *)ios_partition_seki, (*(int *)(cw + 0x74) - 1) << 6, __FILE__, 1245);
     *(char **)(((ChainExtPtr *)(gobj + 0x15C))->p + 0x10) = (char *)iosMallocDebug(
         (void *)ios_partition_seki, (*(int *)(cw + 0x74) - 1) << 4, __FILE__, 1245);
-    *(int *)(((ChainExtPtr *)(gobj + 0x15C))->p + 0x8) = *(int *)(cw + 0x74) - 1;
-    if (*(char **)(((ChainExtPtr *)(gobj + 0x15C))->p + 0x870) != 0) {
-        iosFree((void *)((int)*(char **)(((ChainExtPtr *)(gobj + 0x15C))->p + 0x870) & 0x0FFFFFFF));
+    ((ChainExtPtr *)(gobj + 0x15C))->sub->f_8 = *(int *)(cw + 0x74) - 1;
+    if ((char *)((ChainExtPtr *)(gobj + 0x15C))->sub->p_870 != 0) {
+        iosFree((void *)((int)(char *)((ChainExtPtr *)(gobj + 0x15C))->sub->p_870 & 0x0FFFFFFF));
     }
     *(char **)(((ChainExtPtr *)(gobj + 0x15C))->p + 0x870) = (char *)iosMallocDebug(
         (void *)ios_partition_seki, (*(int *)(cw + 0x74) - 1) * 80, __FILE__, 1245);
 
     for (i = 0; i < *(int *)(cw + 0x74) - 1; i++) {
         {
-            char *e =
-                (char *)(i * 80 + (int)*(char **)(((ChainExtPtr *)(gobj + 0x15C))->p + 0x870));
+            char *e = (char *)(i * 80 + (int)(char *)((ChainExtPtr *)(gobj + 0x15C))->sub->p_870);
             ((ChainDObjFlags *)(e + 0x38))->ll &= ~1;
         }
         {
-            char *e =
-                (char *)(i * 80 + (int)*(char **)(((ChainExtPtr *)(gobj + 0x15C))->p + 0x870));
+            char *e = (char *)(i * 80 + (int)(char *)((ChainExtPtr *)(gobj + 0x15C))->sub->p_870);
             ((ChainDObjFlags *)(e + 0x38))->ll &= ~2;
         }
         {
-            char *e =
-                (char *)(i * 80 + (int)*(char **)(((ChainExtPtr *)(gobj + 0x15C))->p + 0x870));
+            char *e = (char *)(i * 80 + (int)(char *)((ChainExtPtr *)(gobj + 0x15C))->sub->p_870);
             *(float *)(e + 0x40) = 0.0f;
         }
         {
-            char *e =
-                (char *)(i * 80 + (int)*(char **)(((ChainExtPtr *)(gobj + 0x15C))->p + 0x870));
+            char *e = (char *)(i * 80 + (int)(char *)((ChainExtPtr *)(gobj + 0x15C))->sub->p_870);
             *(float *)(e + 0x44) = 0.0f;
         }
         {
-            char *e =
-                (char *)(i * 80 + (int)*(char **)(((ChainExtPtr *)(gobj + 0x15C))->p + 0x870));
+            char *e = (char *)(i * 80 + (int)(char *)((ChainExtPtr *)(gobj + 0x15C))->sub->p_870);
             *(float *)(e + 0x48) = 0.0f;
         }
         {
-            char *e =
-                (char *)(i * 80 + (int)*(char **)(((ChainExtPtr *)(gobj + 0x15C))->p + 0x870));
+            char *e = (char *)(i * 80 + (int)(char *)((ChainExtPtr *)(gobj + 0x15C))->sub->p_870);
             *(float *)(e + 0x4C) = 1.0f;
         }
         {
-            char *e =
-                (char *)(i * 80 + (int)*(char **)(((ChainExtPtr *)(gobj + 0x15C))->p + 0x870));
+            char *e = (char *)(i * 80 + (int)(char *)((ChainExtPtr *)(gobj + 0x15C))->sub->p_870);
             ((ChainDObjFlags *)(e + 0x38))->ll &= ~4;
         }
         {
-            char *e =
-                (char *)(i * 80 + (int)*(char **)(((ChainExtPtr *)(gobj + 0x15C))->p + 0x870));
+            char *e = (char *)(i * 80 + (int)(char *)((ChainExtPtr *)(gobj + 0x15C))->sub->p_870);
             *(int *)(e + 0x30) = 0;
         }
         {
-            char *e =
-                (char *)(i * 80 + (int)*(char **)(((ChainExtPtr *)(gobj + 0x15C))->p + 0x870));
+            char *e = (char *)(i * 80 + (int)(char *)((ChainExtPtr *)(gobj + 0x15C))->sub->p_870);
             *(float *)(e + 0x34) = 1.0f;
         }
         {
-            char *e =
-                (char *)(i * 80 + (int)*(char **)(((ChainExtPtr *)(gobj + 0x15C))->p + 0x870));
+            char *e = (char *)(i * 80 + (int)(char *)((ChainExtPtr *)(gobj + 0x15C))->sub->p_870);
             *(short *)(e + 0x3A) = 0;
         }
         {
-            char *e =
-                (char *)(i * 80 + (int)*(char **)(((ChainExtPtr *)(gobj + 0x15C))->p + 0x870));
+            char *e = (char *)(i * 80 + (int)(char *)((ChainExtPtr *)(gobj + 0x15C))->sub->p_870);
             *(float *)(e + 0x20) = 1.0f;
         }
         {
-            char *e =
-                (char *)(i * 80 + (int)*(char **)(((ChainExtPtr *)(gobj + 0x15C))->p + 0x870));
+            char *e = (char *)(i * 80 + (int)(char *)((ChainExtPtr *)(gobj + 0x15C))->sub->p_870);
             *(float *)(e + 0x24) = 1.0f;
         }
         {
-            char *e =
-                (char *)(i * 80 + (int)*(char **)(((ChainExtPtr *)(gobj + 0x15C))->p + 0x870));
+            char *e = (char *)(i * 80 + (int)(char *)((ChainExtPtr *)(gobj + 0x15C))->sub->p_870);
             *(float *)(e + 0x28) = 1.0f;
         }
     }
@@ -883,7 +871,7 @@ char *InitChainGeo(char *gobj, ChainGeoReq *req)
 void chain_set_charachara(char *gobj, float amp)
 {
     float v[4];
-    ChainRecord *cw = (ChainRecord *)GOBJ_SUB(gobj)->f_830;
+    ChainRecord *cw = GOBJ_SUB(gobj)->f_830;
     int deg;
     int idx;
     float c;
@@ -934,19 +922,19 @@ void TestChainUpDown(char *gobj, char *boy);
  * ChainGeo by its single call site. */
 static inline int GetChainSimulateMode(char *gobj)
 {
-    ChainRecord *cw = (ChainRecord *)GOBJ_SUB(gobj)->f_830;
+    ChainRecord *cw = GOBJ_SUB(gobj)->f_830;
     int mode = 1;
 
     if (cw->hold != 0) {
         char *holder = cw->owner;
-        int st = *(int *)(*(int *)(holder + 0x164) + 0x34);
+        int st = GOBJ_ACT(holder)->unk34;
 
         mode = 6;
         if (st != 58) {
             mode = st == 59 ? 9 : 3;
         }
 
-        switch (*(int *)(*(int *)(holder + 0x15C) + 0x4A0)) {
+        switch (GOBJ_SUB(holder)->f_4A0) {
         case 136:
         case 137:
             if (mode == 3) {
@@ -985,7 +973,7 @@ static inline int GetChainSimulateMode(char *gobj)
  * ChainGeo by its single call site; the caller reads the result as one byte. */
 static inline unsigned char isChainHitByHand(char *gobj, float *p, float *v, float *o, float lim)
 {
-    ChainRecord *cw = (ChainRecord *)GOBJ_SUB(gobj)->f_830;
+    ChainRecord *cw = GOBJ_SUB(gobj)->f_830;
     float d[4];
     int i;
     int ilim = (int)lim;
@@ -1018,7 +1006,7 @@ void ChainGeo(char *gobj)
 {
     float p[4];
     float v[4];
-    ChainRecord *cw = *(ChainRecord **)(*(int *)(gobj + 0x15C) + 0x830);
+    ChainRecord *cw = GOBJ_SUB(gobj)->f_830;
     char *sub;
     int mode;
     int moved;
@@ -1038,9 +1026,8 @@ void ChainGeo(char *gobj)
         float lim;
 
         lim = cw->angle;
-        if (*(int *)(*(int *)((char *)boyGObj + 0x164) + 0x34) == 5 ||
-            (((motionKind + *(int *)(*(int *)((char *)boyGObj + 0x15C) + 0x4A0))->flags18C >> 11) &
-             1)) {
+        if (GOBJ_ACT(boyGObj)->unk34 == 5 ||
+            (((motionKind + GOBJ_SUB(boyGObj)->f_4A0)->flags18C >> 11) & 1)) {
             lim = 70.0f;
         }
 
@@ -1252,7 +1239,7 @@ void GetPositionOnTheChain(float *out, char *gobj, float *pos)
     float b[4];
     int i0;
     int i1;
-    ChainRecord *cw = (ChainRecord *)GOBJ_SUB(gobj)->f_830;
+    ChainRecord *cw = GOBJ_SUB(gobj)->f_830;
     ChainNode *nd;
 
     ChainNodeSpan(cw, pos, &i0, &i1);
@@ -1280,7 +1267,7 @@ void GetPositionOnTheChain(float *out, char *gobj, float *pos)
 void PlumbPointUpdateChain(char *gobj, float *pos)
 {
     float d[4];
-    ChainRecord *cw = (ChainRecord *)GOBJ_SUB(gobj)->f_830;
+    ChainRecord *cw = GOBJ_SUB(gobj)->f_830;
     char *owner;
     int best = -1;
     float min = 3.40282347e+38f; /* FLT_MAX, a constant-pool word */
@@ -1397,7 +1384,7 @@ void TestChainUpDown(char *gobj, char *boy)
         int mode = -1;
         switch (motion) {
         case 119:
-            mode = 4; if (*(int *)((char *)GOBJ_ACT(boy) + 0x34) != 0x3F) {
+            mode = 4; if (GOBJ_ACT(boy)->unk34 != 0x3F) {
                 mode = 0;
             }
 
@@ -1417,7 +1404,7 @@ void TestChainUpDown(char *gobj, char *boy)
     }
 
     float v[4], org[4], w[4], d[4], hw[4], hd[4];
-    ChainRecord *cw = (ChainRecord *)GOBJ_SUB(gobj)->f_830;
+    ChainRecord *cw = GOBJ_SUB(gobj)->f_830;
     char *sub = (char *)GOBJ_ACT(boy);
 
     /* Each arm has its own pointer to the climb work, set on the arm's first
@@ -1434,7 +1421,7 @@ void TestChainUpDown(char *gobj, char *boy)
 
 
 
-    int mode = GetChainClimbMode(*(int *)((char *)GOBJ_SUB(boy) + 0x4A0));
+    int mode = GetChainClimbMode(GOBJ_SUB(boy)->f_4A0);
 
     switch (mode) {
     case 4: {
@@ -1569,7 +1556,7 @@ void SetChainRootUpdateMode(char *gobj, int mode, float *pos)
 
 void HoldChain(char *a0)
 {
-    char *p = (char *)GOBJ_SUB(a0)->f_830;
+    char *p = GOBJ_SUB(a0)->f_830;
     StartPendulum(a0);
     *(char *)(p + 0x60) = 1;
 }
@@ -1581,7 +1568,7 @@ void ReleaseChain(char *a0)
 
 void GetChainPendulum(char *a0, float *a, float *b, float *c)
 {
-    char *p = (char *)GOBJ_SUB(a0)->f_830;
+    char *p = GOBJ_SUB(a0)->f_830;
     *a = *(float *)(p + 0x30);
     *b = *(float *)(p + 0x34);
     if (*(float *)(p + 0x48) < *(float *)(p + 0x34)) {
@@ -1602,7 +1589,7 @@ void DecreasePdlChain(char *a0)
 
 void PlumbOrientUpdateChain(char *a0, float *src)
 {
-    char *p = (char *)GOBJ_SUB(a0)->f_830;
+    char *p = GOBJ_SUB(a0)->f_830;
     *(float *)(p + 0x20) = src[0];
     *(float *)(p + 0x24) = src[1];
     *(float *)(p + 0x28) = src[2];
@@ -1610,7 +1597,7 @@ void PlumbOrientUpdateChain(char *a0, float *src)
 
 int isBottomOfChain(char *a0)
 {
-    char *p = (char *)GOBJ_SUB(a0)->f_830;
+    char *p = GOBJ_SUB(a0)->f_830;
     return *(int *)(p + 0x68) == *(int *)(p + 0x74) - 1;
 }
 
@@ -1621,7 +1608,7 @@ int isStopChain(char *a0)
 
 void GetChainClimbOrient(float *dst, char *a0)
 {
-    char *p = (char *)GOBJ_SUB(a0)->f_830;
+    char *p = GOBJ_SUB(a0)->f_830;
     dst[0] = *(float *)(p + 0xB0);
     dst[1] = *(float *)(p + 0xB4);
     dst[2] = *(float *)(p + 0xB8);
@@ -1629,7 +1616,7 @@ void GetChainClimbOrient(float *dst, char *a0)
 
 int CheckChainClimbablePos(char *a0)
 {
-    char *p = (char *)GOBJ_SUB(a0)->f_830;
+    char *p = GOBJ_SUB(a0)->f_830;
 
     if (*(unsigned char *)(p + 0xA0) != 0 && *(int *)(p + 0x68) < 3)
         return 1;
@@ -1657,14 +1644,14 @@ void SetChainParentGObj(char *a0, void *a1)
  * inlines the static stand-in getChainDirCorrectVal, which collapses at layout. */
 int GetChainDirCorrectVal(char *a0, int *a1)
 {
-    char *p = (char *)GOBJ_SUB(a0)->f_830;
+    char *p = GOBJ_SUB(a0)->f_830;
     *a1 = (int)(*(float *)(p + 0x70) * 180.0f / 3.1415927f);
     return *(unsigned char *)(p + 0x6C);
 }
 
 static inline int getChainDirCorrectVal(char *a0, int *a1)
 {
-    char *p = (char *)GOBJ_SUB(a0)->f_830;
+    char *p = GOBJ_SUB(a0)->f_830;
     *a1 = (int)(*(float *)(p + 0x70) * 180.0f / 3.1415927f);
     return *(unsigned char *)(p + 0x6C);
 }
@@ -1682,7 +1669,7 @@ void GetRootPositionHandExtra(void *a0, float *a1)
 
 void InitPendulum(char *a0)
 {
-    ChainRecord *cw = (ChainRecord *)GOBJ_SUB(a0)->f_830;
+    ChainRecord *cw = GOBJ_SUB(a0)->f_830;
     float a = (float)debug_chain_cycle_speed * -0.2f + 2.0f;
     float y;
 
@@ -1736,7 +1723,7 @@ int IsAbleChainHang(char *a0)
 void ChainPositionReset(char *a0)
 {
     float pos[4];
-    ChainRecord *cw = (ChainRecord *)GOBJ_SUB(a0)->f_830;
+    ChainRecord *cw = GOBJ_SUB(a0)->f_830;
 
     UpdateRootMatrix(a0);
     GetRootPosition(pos, a0);
@@ -1826,7 +1813,7 @@ void chain_sub_pendulum(char *base, int n, void *a2)
 
 int GetChainNearestNodePosition(float *out, char *gobj, float *p)
 {
-    ChainRecord *cw = (ChainRecord *)GOBJ_SUB(gobj)->f_830;
+    ChainRecord *cw = GOBJ_SUB(gobj)->f_830;
 
     float best = 3.40282347e+38f; /* FLT_MAX, a constant-pool word */
     int ret = 0;

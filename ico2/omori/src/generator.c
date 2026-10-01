@@ -83,7 +83,7 @@ inline int SearchActiveGenerator(void)
 
     g = (char *)isysGObjSearchFromObjKindID_begin(33);
     while (g != 0) {
-        GenWork *w = *(GenWork **)((char *)GOBJ_SUB(g) + 0x830);
+        GenWork *w = GOBJ_SUB(g)->f_830;
 
         if (*(int *)(g + 0x16C) != 0) {
             if (w->status == 1) {
@@ -113,7 +113,7 @@ int CheckGeneratorCollision(char *gobj, float *dir)
     sceVu0AddVector(pos, pos, tmp);
 
     for (; g != 0; g = (char *)isysGObjSearchFromObjKindID_next(g)) {
-        GenWork *w = *(GenWork **)((char *)GOBJ_SUB(g) + 0x830);
+        GenWork *w = GOBJ_SUB(g)->f_830;
 
         if (*(int *)(g + 0x16C) == 0) {
             continue;
@@ -211,7 +211,7 @@ void GetGeneratorSafePosition(float *dst, char *gobj)
 void switch_MainStatus(char *gobj, unsigned char st)
 {
     float pos[4];
-    GenWork *w = *(GenWork **)((char *)GOBJ_SUB(gobj) + 0x830);
+    GenWork *w = GOBJ_SUB(gobj)->f_830;
 
     if (st == w->status) {
         return;
@@ -249,7 +249,7 @@ extern void __assert(char *file, int line, char *expr);
    listing gives endfunc_BGA rows 468-478, outside its own 489-505 span. */
 static inline char *ResetCurrentBga(char *gobj)
 {
-    GenWork *w = *(GenWork **)((char *)GOBJ_SUB(gobj) + 0x830);
+    GenWork *w = GOBJ_SUB(gobj)->f_830;
 
     if (w->cur != -1) {
         /* the slot is reached as a byte offset from the record: the ROM's
@@ -276,7 +276,7 @@ static inline void EntryBga(char *gobj, GenWork *w, int slot)
 
 void endfunc_BGA(char *gobj)
 {
-    GenWork *w = *(GenWork **)((char *)GOBJ_SUB(gobj) + 0x830);
+    GenWork *w = GOBJ_SUB(gobj)->f_830;
 
     switch (w->cur) {
     case 0: {
@@ -311,7 +311,7 @@ void endfunc_BGA(char *gobj)
 
 char *IsNeedGeneratorHard(char *mother)
 {
-    GenWork *w = *(GenWork **)((char *)GOBJ_SUB(mother) + 0x830);
+    GenWork *w = GOBJ_SUB(mother)->f_830;
     char *g;
     int count = 0;
     int isCalling = (w->status == 1);
@@ -511,7 +511,7 @@ inline void RestoreReviveCount(char *gobj)
 
 void Generator_QuickCall(char *gobj)
 {
-    GenWork *w = *(GenWork **)((char *)GOBJ_SUB(gobj) + 0x830);
+    GenWork *w = GOBJ_SUB(gobj)->f_830;
 
     w->status = 1;
     gamesysObjInfoUniqDataSet(gobj);
@@ -520,22 +520,22 @@ void Generator_QuickCall(char *gobj)
 
 inline void Generator_Call(char *a0)
 {
-    *(int *)(*(char **)((char *)GOBJ_SUB(a0) + 0x830) + 8) += 1;
+    *(int *)((char *)GOBJ_SUB(a0)->f_830 + 8) += 1;
 }
 
 inline void Generator_ResetCount(char *a0)
 {
-    *(char *)(*(char **)((char *)GOBJ_SUB(a0) + 0x830) + 0x12) = 1;
+    *(char *)((char *)GOBJ_SUB(a0)->f_830 + 0x12) = 1;
 }
 
 inline void Generator_Mask(char *a0)
 {
-    *(char *)(*(char **)((char *)GOBJ_SUB(a0) + 0x830) + 0x10) = 1;
+    *(char *)((char *)GOBJ_SUB(a0)->f_830 + 0x10) = 1;
 }
 
 inline void Generator_MaskOff(char *a0)
 {
-    *(char *)(*(char **)((char *)GOBJ_SUB(a0) + 0x830) + 0x10) = 0;
+    *(char *)((char *)GOBJ_SUB(a0)->f_830 + 0x10) = 0;
 }
 
 void Generator_Delete(void *a0)
@@ -740,7 +740,7 @@ inline int RestoreGeneratorGeo(float *dst, float *src)
 
 inline int RestoreGeneratorExtGeo(char *a0, short *a1)
 {
-    char *p = *(char **)((char *)GOBJ_SUB(a0) + 0x830);
+    char *p = GOBJ_SUB(a0)->f_830;
     *(int *)(p + 0x50) = a1[0x18];
     *(int *)(p + 8) = a1[0x19];
     if (a1[0x18] == 1) {
@@ -752,7 +752,7 @@ inline int RestoreGeneratorExtGeo(char *a0, short *a1)
 
 inline int MemoryGenerator(short *a0, char *a1)
 {
-    char *p = *(char **)((char *)GOBJ_SUB(a1) + 0x830);
+    char *p = GOBJ_SUB(a1)->f_830;
     a0[0] = *(unsigned short *)(p + 0x50);
     a0[1] = *(unsigned short *)(p + 8);
     return 1;
@@ -774,7 +774,7 @@ typedef struct GenReq {
 
 void generatorBeforeFunc(char *gobj)
 {
-    GenWork *w = *(GenWork **)((char *)GOBJ_SUB(gobj) + 0x830);
+    GenWork *w = GOBJ_SUB(gobj)->f_830;
     GenReq *q = (GenReq *)(gobj + 0x54);
     int i;
 
@@ -858,7 +858,7 @@ extern void debug_Arrow(float len, void *from, void *to, int r, int g, int b);
    GeneratorGeo the rows 1262-1268, outside its own 1274-1410 span. */
 static inline void SetGeneratorAimVector(char *gobj)
 {
-    GenWork *w = *(GenWork **)((char *)GOBJ_SUB(gobj) + 0x830);
+    GenWork *w = GOBJ_SUB(gobj)->f_830;
     float m[16];
     float v[4];
 
@@ -891,7 +891,7 @@ static inline unsigned char IsGeneratorCalling(void)
 
     g = (char *)isysGObjSearchFromObjKindID_begin(33);
     while (g != 0) {
-        GenWork *w = *(GenWork **)((char *)GOBJ_SUB(g) + 0x830);
+        GenWork *w = GOBJ_SUB(g)->f_830;
 
         if (*(int *)(g + 0x16C) != 0) {
             if (w->hard != 0) {
@@ -909,7 +909,7 @@ static inline unsigned char IsGeneratorCalling(void)
    GeneratorGeo the rows 761-776. */
 static inline void CallEnemyFromGenerator(char *gobj, float *pos, float *dir)
 {
-    GenWork *w = *(GenWork **)((char *)GOBJ_SUB(gobj) + 0x830);
+    GenWork *w = GOBJ_SUB(gobj)->f_830;
 
     if (CallEnemy(gobj, pos, dir, w->kind) != 0) {
         float mtx[4];
@@ -922,7 +922,7 @@ static inline void CallEnemyFromGenerator(char *gobj, float *pos, float *dir)
 
 void GeneratorGeo(char *gobj)
 {
-    GenWork *w = *(GenWork **)((char *)GOBJ_SUB(gobj) + 0x830);
+    GenWork *w = GOBJ_SUB(gobj)->f_830;
     int hard = 0;
     StgPre *sd = &stageData[stage_no];
     int noBoy = sd->flag1 && girlGObj == 0;
@@ -1060,7 +1060,7 @@ static inline void SetGeneratorBgaRootPosition(char *gobj, GenBga *tbl)
 
 void GeneratorDL(char *gobj)
 {
-    GenWork *w = *(GenWork **)((char *)GOBJ_SUB(gobj) + 0x830);
+    GenWork *w = GOBJ_SUB(gobj)->f_830;
     GenBga *tbl = w->bga;
     int idx;
 
@@ -1087,12 +1087,12 @@ void GeneratorDL(char *gobj)
 
 inline int GeneratorWorkEnd(char *a0)
 {
-    return *(int *)(*(char **)((char *)GOBJ_SUB(a0) + 0x830) + 8) == 0;
+    return *(int *)((char *)GOBJ_SUB(a0)->f_830 + 8) == 0;
 }
 
 inline int IsOpenGenerator(char *gobj)
 {
-    GenWork *w = *(GenWork **)((char *)GOBJ_SUB(gobj) + 0x830);
+    GenWork *w = GOBJ_SUB(gobj)->f_830;
     int ret = 0;
     if (w->status == 1) {
         GVGeo2 *g = (GVGeo2 *)(*(int *)(gobj + 8) * sizeof(GVGeo2) + (char *)objLayout);

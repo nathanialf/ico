@@ -139,7 +139,7 @@ int tryToRevive(void)
 
     if (reviveMaster != 0) {
         GetRootPosition(pos, reviveMaster);
-        pos[1] -= *(float *)(*(int *)(reviveMaster + 0x15C) + 0x160);
+        pos[1] -= GOBJ_SUB(reviveMaster)->f_160;
         for (i = 0; i < reviveGroupIdCount; i++) {
             n = CheckSpidersInsideOfReviveRange(spidersInRange, reviveGroupIds[i], pos);
             if (n != 0) {

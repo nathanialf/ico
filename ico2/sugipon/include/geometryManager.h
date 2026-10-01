@@ -59,6 +59,7 @@ void getInitialMatrix(char *mdl, int no);
 typedef union SubHandle {
     int i;
     char *p;
+    struct Sub15C *sub;
 } SubHandle;
 
 int GetCylinderCollisionWithExceptOwnCollision(char *self, int target, float r, float h, float s,

@@ -2246,8 +2246,7 @@ void bga_DispLightning(void)
                 k = p->n;
                 if (k < 10) {
                     p->n = k + 1;
-                    _CopyVector(&p->seg[k], (char *)*(int *)(*(int *)((char *)o + 0x15C) + 0xC) +
-                                                (g->f2C << 6) + 0x30);
+                    _CopyVector(&p->seg[k], (char *)GOBJ_SUB(o)->f_C + (g->f2C << 6) + 0x30);
                 }
             }
             col.c[0] = g->col[0];
@@ -2282,8 +2281,7 @@ void bga_DispLightning(void)
                 k = p->n;
                 if (k < 10) {
                     p->n = k + 1;
-                    _CopyVector(&p->seg[k], (char *)*(int *)(*(int *)((char *)o + 0x15C) + 0xC) +
-                                                (g->f2C << 6) + 0x30);
+                    _CopyVector(&p->seg[k], (char *)GOBJ_SUB(o)->f_C + (g->f2C << 6) + 0x30);
                 }
             }
             DrawLightningN(p->n, p, &col, g->f08, g->f0C, g->f10, g->f14, g->f18, g->f1C, g->f20,
@@ -2297,8 +2295,7 @@ void bga_DispLightning(void)
                         if (k < 10) {
                             p->n = k + 1;
                             _CopyVector(&p->seg[k],
-                                        (char *)*(int *)(*(int *)((char *)o + 0x15C) + 0xC) +
-                                            (g->f2C << 6) + 0x30);
+                                        (char *)GOBJ_SUB(o)->f_C + (g->f2C << 6) + 0x30);
                         }
                     }
                     DrawLightningN(p->n, p, &col, g->f08, g->f0C, g->f10, g->f14, g->f18, g->f1C,
@@ -2314,8 +2311,7 @@ void bga_DispLightning(void)
                         if (k < 10) {
                             p->n = k + 1;
                             _CopyVector(&p->seg[k],
-                                        (char *)*(int *)(*(int *)((char *)o + 0x15C) + 0xC) +
-                                            (g->f2C << 6) + 0x30);
+                                        (char *)GOBJ_SUB(o)->f_C + (g->f2C << 6) + 0x30);
                         }
                     }
                     DrawLightningN(p->n, p, &col, g->f08, g->f0C, g->f10, g->f14, g->f18, g->f1C,

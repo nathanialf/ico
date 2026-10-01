@@ -186,7 +186,7 @@ void SetFallDownSplash(char *pool, char *self)
 {
     float pos[4];
     float tmp[4];
-    PoolWork *w = (PoolWork *)GOBJ_SUB(pool)->f_830;
+    PoolWork *w = GOBJ_SUB(pool)->f_830;
 
     GetRootPosition(pos, self);
     _ScaleVectorXYZ(tmp, *(char **)(self + 0x15C) + 0x130, 2.0f);
@@ -462,7 +462,7 @@ void updatePoolGeo(char *self)
     float tmp[4];
     float pos[4];
     float sub[4];
-    PoolWork *w = (PoolWork *)GOBJ_SUB(self)->f_830;
+    PoolWork *w = GOBJ_SUB(self)->f_830;
     Mesh3D *mesh0 = w->reflect;
     Mesh3D *mesh1 = w->surface;
     float step = w->step;
@@ -638,7 +638,7 @@ void dispPool(char *self)
     char m2[0x40];
     char m3[0x40];
     char m4[0x40];
-    PoolWork *w = (PoolWork *)GOBJ_SUB(self)->f_830;
+    PoolWork *w = GOBJ_SUB(self)->f_830;
 
     gif_StartPacketPri(4);
     copyToWork(4);
@@ -681,7 +681,7 @@ void dispPool(char *self)
     gif_EndPacket();
 
     _UnitMatrix(MatrixDrive_GetMatrix());
-    CopyMatrix(*(char **)((char *)GOBJ_SUB(self) + 0xC), MatrixDrive_GetMatrix());
+    CopyMatrix((char *)GOBJ_SUB(self)->f_C, MatrixDrive_GetMatrix());
     reg_RenderReflection((char *)GOBJ_SUB(self), 4);
 
     if (w->dobj != 0) {
@@ -750,7 +750,7 @@ void dispPool(char *self)
 
 void PoolDL(char *self)
 {
-    PoolWork *w = (PoolWork *)GOBJ_SUB(self)->f_830;
+    PoolWork *w = GOBJ_SUB(self)->f_830;
 
     DispMultiBgaManagerWithKind(498, w->bga, 10);
     DispMultiBgaManagerWithKind(499, w->splash, 2);
@@ -844,7 +844,7 @@ void SetLayoutedPoolReflactionMesh(PoolMesh *a0)
 
 void SetLimitedPoolReflactionMesh(PoolMesh *a0, char *a1, char *a2)
 {
-    PoolWork *w = (PoolWork *)GOBJ_SUB(a1)->f_830;
+    PoolWork *w = GOBJ_SUB(a1)->f_830;
     float pos[4];
     float v1[4];
     float v2[4];
@@ -952,7 +952,7 @@ float GetPoolGlobalHeight(char *a0)
 
 float GetPoolGlobalHeightDetail(char *a0, float *pos)
 {
-    PoolWork *p = (PoolWork *)GOBJ_SUB(a0)->f_830;
+    PoolWork *p = GOBJ_SUB(a0)->f_830;
     float inv;
     int ix;
     int iz;
@@ -995,7 +995,7 @@ void InitLayoutedPoolReflactionMesh(PoolMesh *a0, PoolMeshQuad *a1)
 int poolRideFunc(char **a0, char *a1)
 {
     Sub15C *e = GOBJ_SUB(a1);
-    PoolWork *p = (PoolWork *)GOBJ_SUB(a0[0])->f_830;
+    PoolWork *p = GOBJ_SUB(a0[0])->f_830;
     e->f_644 = e->f_A4 - p->pos[1];
     return 1;
 }

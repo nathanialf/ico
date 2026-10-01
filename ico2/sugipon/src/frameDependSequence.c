@@ -244,8 +244,7 @@ void playEff(int no)
                 "注意：ノード指定のモーションエフェクトでノードが見つかりませんでした\n");
         } else {
             GetRootQuaternion(q, fdsGObj);
-            CopyMatrix(MatrixDrive_GetMatrix(),
-                       *(char **)((char *)GOBJ_SUB(fdsGObj) + 0xC) + (node << 6));
+            CopyMatrix(MatrixDrive_GetMatrix(), (char *)GOBJ_SUB(fdsGObj)->f_C + (node << 6));
         }
     }
     MatrixDrive_TransMatrix(-motionEffKind[no].x, -motionEffKind[no].y, -motionEffKind[no].z);

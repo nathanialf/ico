@@ -57,7 +57,7 @@ void SetFlag4PointFixID(char *self, int a1, int id)
     char *w;
     short ang;
 
-    w = *(char **)((char *)GOBJ_SUB(self) + 0x830);
+    w = GOBJ_SUB(self)->f_830;
     *(int *)(w + 0x10) = a1;
     _UnitMatrix(MatrixDrive_GetMatrix());
     ang = -a1 * 0x4000;
@@ -210,15 +210,15 @@ char *InitFlagGeo(char *self, char *arg)
 
 
 
-    if (*(int *)((char *)GOBJ_SUB(self) + 0x70) != 0) {
+    if (GOBJ_SUB(self)->f_70 != 0) {
 
         *(int *)(p + 0xC) = 1;
     } else { *(int *)(p + 0xC) = 0; }
 
-    *(int *)((char *)GOBJ_SUB(self) + 0x74) = 0;
+    GOBJ_SUB(self)->f_74 = 0;
 
-    *(int *)(*(char **)((char *)GOBJ_SUB(self) + 0x870) + 0x0) = *(int *)(*(char **)((char *)GOBJ_SUB(self) + 0x870) + 0x4) = *(int *)(*(char **)((char *)GOBJ_SUB(self) + 0x870) + 0x8) = 0;
-    ((FlagNodeWord *)(*(char **)((char *)GOBJ_SUB(self) + 0x870) + 0x20))->f = ((FlagNodeWord *)(*(char **)((char *)GOBJ_SUB(self) + 0x870) + 0x24))->f = ((FlagNodeWord *)(*(char **)((char *)GOBJ_SUB(self) + 0x870) + 0x28))->f = 1.0f;
+    *(int *)((char *)GOBJ_SUB(self)->p_870 + 0x0) = *(int *)((char *)GOBJ_SUB(self)->p_870 + 0x4) = *(int *)((char *)GOBJ_SUB(self)->p_870 + 0x8) = 0;
+    ((FlagNodeWord *)((char *)GOBJ_SUB(self)->p_870 + 0x20))->f = ((FlagNodeWord *)((char *)GOBJ_SUB(self)->p_870 + 0x24))->f = ((FlagNodeWord *)((char *)GOBJ_SUB(self)->p_870 + 0x28))->f = 1.0f;
 
     SetIdentityQuaternion((char *)GOBJ_SUB(self) + 0xD0);
 
@@ -232,7 +232,7 @@ void FlagGeo(char *self)
     char *gd;
     char *o;
 
-    gd = *(char **)((char *)GOBJ_SUB(self) + 0x830);
+    gd = GOBJ_SUB(self)->f_830;
     o = *(char **)(gd + 0x4);
     if (*(char **)((char *)GOBJ_SUB(self)) != 0 &&
         *(int *)(*(char **)((char *)GOBJ_SUB(self)) + 0x16C) == 0) {
@@ -275,7 +275,7 @@ void FlagDL(char *self)
     int i;
     int n;
 
-    gd = *(char **)((char *)GOBJ_SUB(self) + 0x830);
+    gd = GOBJ_SUB(self)->f_830;
     o = *(char **)(gd + 0x4);
     if (*(char **)((char *)GOBJ_SUB(self)) != 0 &&
         *(int *)(*(char **)((char *)GOBJ_SUB(self)) + 0x16C) == 0) {
@@ -296,8 +296,8 @@ void FlagDL(char *self)
             GetDifferencialQuaternionWithNoRegularize(&l40, &l30, &l10);
             MultiQuaternion(&l0, &l40, &l0);
             CopyVector(&l10, &l30);
-            GetMatrixFromQuaternionPos(*(char **)((char *)GOBJ_SUB(self) + 0xC) + (i * 0x40 - 0x40),
-                                       &l0, base + (i * 0x10 - 0x10));
+            GetMatrixFromQuaternionPos((char *)GOBJ_SUB(self)->f_C + (i * 0x40 - 0x40), &l0,
+                                       base + (i * 0x10 - 0x10));
         }
         p2o_DispVU1Multi(self);
         break;

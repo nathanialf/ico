@@ -201,11 +201,16 @@ struct Sub15C {
     float f_A4; /* 0xA4 */
     char _padA8[0x28];
     int f_D0; /* 0xD0 */
-    char _padD4[0x5C];
+    char _padD4[0x20];
+    float f_F4; /* 0xF4 */
+    char _padF8[0x38];
     float f_130; /* 0x130 */
     float f_134; /* 0x134 */
     float f_138; /* 0x138 */
-    char _pad13C[0x44];
+    int f_13C;   /* 0x13C */
+    char _pad140[0x20];
+    float f_160; /* 0x160 */
+    char _pad164[0x1C];
     int f_180; /* 0x180 */
     char _pad184[0x4];
     int f_188; /* 0x188 */
@@ -218,7 +223,9 @@ struct Sub15C {
     int f_1C8; /* 0x1C8 */
     char _pad1CC[0x14];
     int f_1E0; /* 0x1E0 */
-    char _pad1E4[0x8C];
+    char _pad1E4[0xC];
+    float f_1F0[4]; /* 0x1F0 */
+    char _pad200[0x70];
     float f_270; /* 0x270 */
     int f_274;   /* 0x274 */
     int f_278;   /* 0x278 */
@@ -250,15 +257,24 @@ struct Sub15C {
     int f_3B8; /* 0x3B8 */
     int f_3BC; /* 0x3BC */
     char _pad3C0[0x18];
-    int f_3D8; /* 0x3D8 */
-    char _pad3DC[0x44];
+    float f_3D8; /* 0x3D8 */
+    char _pad3DC[0x24];
+    int f_400; /* 0x400 */
+    char _pad404[0x1C];
     int f_420; /* 0x420 */
-    char _pad424[0x38];
+    int f_424; /* 0x424 */
+    int f_428; /* 0x428 */
+    char _pad42C[0x24];
+    float f_450; /* 0x450 */
+    int f_454;   /* 0x454 */
+    char _pad458[0x4];
     float f_45C; /* 0x45C */
-    char _pad460[0x4];
+    float f_460; /* 0x460 */
     float f_464; /* 0x464 */
     float f_468; /* 0x468 */
-    char _pad46C[0x24];
+    char _pad46C[0x18];
+    int f_484; /* 0x484 */
+    char _pad488[0x8];
     int f_490; /* 0x490, char-status index */
     char _pad494[0xC];
     int f_4A0; /* 0x4A0 index */
@@ -266,26 +282,38 @@ struct Sub15C {
     float f_4AC; /* 0x4AC */
     char _pad4B0[0x8];
     float f_4B8; /* 0x4B8 */
-    char _pad4BC[0x1C];
+    char _pad4BC[0x8];
+    int f_4C4; /* 0x4C4 */
+    char _pad4C8[0x4];
+    int f_4CC; /* 0x4CC */
+    char _pad4D0[0x8];
     int f_4D8; /* 0x4D8 */
     char _pad4DC[0x8];
     int f_4E4; /* 0x4E4 */
-    char _pad4E8[0x4];
+    int f_4E8; /* 0x4E8 */
     int f_4EC; /* 0x4EC */
-    char _pad4F0[0x8];
+    int f_4F0; /* 0x4F0 */
+    char _pad4F4[0x4];
     int f_4F8; /* 0x4F8 */
     char _pad4FC[0x18];
     int f_514; /* 0x514 */
-    char _pad518[0x14];
-    int f_52C; /* 0x52C */
+    char _pad518[0x8];
+    float f_520[3]; /* 0x520 */
+    int f_52C;      /* 0x52C */
     char _pad530[0x4];
     int f_534; /* 0x534 */
     int f_538; /* 0x538 */
     int f_53C; /* 0x53C */
     int f_540; /* 0x540 */
-    char _pad544[0x10];
+    int f_544; /* 0x544 */
+    int f_548; /* 0x548 */
+    int f_54C; /* 0x54C */
+    int f_550; /* 0x550 */
     int f_554; /* 0x554 */
-    char _pad558[0x14];
+    int f_558; /* 0x558 */
+    char _pad55C[0x8];
+    int f_564; /* 0x564 */
+    int f_568; /* 0x568 */
     int f_56C; /* 0x56C */
     char _pad570[0x78];
     float f_5E8; /* 0x5E8 */
@@ -296,31 +324,55 @@ struct Sub15C {
     int f_600;   /* 0x600 */
     int f_604;   /* 0x604 */
     float f_608; /* 0x608 */
-    char _pad60C[0x18];
+    int f_60C;   /* 0x60C */
+    int f_610;   /* 0x610 */
+    int f_614;   /* 0x614 */
+    char _pad618[0xC];
     int f_624; /* 0x624 */
     int f_628; /* 0x628 */
-    char _pad62C[0x4];
+    int f_62C; /* 0x62C */
     int f_630; /* 0x630 */
     int f_634; /* 0x634 */
-    char _pad638[0x8];
+    int f_638; /* 0x638 */
+    char _pad63C[0x4];
     float f_640; /* 0x640 */
     float f_644; /* 0x644 */
     int f_648;   /* 0x648 */
-    char _pad64C[0x1A4];
-    Obj7F0 *p_7F0; /* 0x7F0, cage-fix geometry */
+    int f_64C;   /* 0x64C */
+    char _pad650[0x4];
+    int f_654; /* 0x654 */
+    char _pad658[0x8];
+    int f_660; /* 0x660 */
+    char _pad664[0xC];
+    float f_670[3]; /* 0x670 */
+    char _pad67C[0x138];
+    void *p_7B4; /* 0x7B4 */
+    char _pad7B8[0x8];
+    float f_7C0[4]; /* 0x7C0 */
+    void *p_7D0;    /* 0x7D0 */
+    char _pad7D4[0xC];
+    float f_7E0[4]; /* 0x7E0 */
+    Obj7F0 *p_7F0;  /* 0x7F0, cage-fix geometry */
     char _pad7F4[0xC];
     void *p_800; /* 0x800, untyped (no consumers yet) */
-    char _pad804[0x10];
-    int f_814; /* 0x814 */
+    int f_804;   /* 0x804 */
+    float f_808; /* 0x808 */
+    char *p_80C; /* 0x80C */
+    int f_810;   /* 0x810 */
+    int f_814;   /* 0x814 */
     char _pad818[0x4];
     int f_81C; /* 0x81C */
-    char _pad820[0x10];
-    int f_830; /* 0x830, the actor's own work record; each actor TU casts it to its own shape */
-    int f_834; /* 0x834 */
-    int f_838; /* 0x838 */
+    char _pad820[0x4];
+    float f_824; /* 0x824 */
+    char _pad828[0x8];
+    void *f_830; /* 0x830, the actor's own work record; each actor TU casts it to its own shape */
+    int f_834;   /* 0x834 */
+    int f_838;   /* 0x838 */
     char _pad83C[0x8];
     int f_844; /* 0x844 */
-    char _pad848[0x28];
+    char _pad848[0xC];
+    int f_854; /* 0x854 */
+    char _pad858[0x18];
     void *p_870; /* 0x870 */
     void *p_874; /* 0x874, LightMatrix (Light.h); most readers cast it to char * */
 };

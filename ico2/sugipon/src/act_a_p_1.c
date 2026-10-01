@@ -247,7 +247,7 @@ int walkAI(char *self)
 
 void hehehe(char *a0)
 {
-    debug_StdPrintfDummy(ap1ModeName[*(int *)(*(char **)(a0 + 0x164) + 0x34)]);
+    debug_StdPrintfDummy(ap1ModeName[GOBJ_ACT(a0)->unk34]);
 }
 
 void SleepAP1(int *a0)
@@ -356,7 +356,7 @@ void subAP1BrainMain(volatile int self)
         boyObj = (char *)boyGObj;
         GetRootPosition(&selfPos, (char *)self);
         GetRootPosition(&boy, boyObj);
-        boy.y -= *(float *)(*(int *)(boyObj + 0x15C) + 0x160) - 10.0f;
+        boy.y -= GOBJ_SUB(boyObj)->f_160 - 10.0f;
         boyDist = AP1GetDirection(&boyLocalDir, &boyDelta, &boy, &selfPos);
         boyPitch = AP1GetVerticalAngle(boyObj, &boyLocalDir);
         AP1ToLocal((char *)self, &boyLocalDir);
@@ -397,7 +397,7 @@ void subAP1BrainMain(volatile int self)
             CopyVector(&look, &smooth);
         } else {
             GetRootPosition(&look, boyObj);
-            look.y -= *(float *)(*(int *)(boyObj + 0x15C) + 0x160) - 10.0f;
+            look.y -= GOBJ_SUB(boyObj)->f_160 - 10.0f;
             hold = 0;
         }
 
@@ -480,7 +480,7 @@ static inline void AP1SetMode(char *self, int mode)
 
     *(int *)(p + 0x34) = mode;
     ((U *)(p + 0x18))->ll &= ~(1LL << 32);
-    *(char *)(*(char **)(self + 0x164) + 0x1DA) = 1;
+    GOBJ_ACT(self)->f_1DA = 1;
 }
 
 static inline void AP1DeadEffect(char *self)
@@ -499,7 +499,7 @@ static inline void AP1DeadEffect(char *self)
 
 static inline void AP1DeadMode(char *self)
 {
-    if (*(int *)(*(char **)(self + 0x164) + 0x34) != 4)
+    if (GOBJ_ACT(self)->unk34 != 4)
         AP1SetMode(self, 4);
 }
 
@@ -615,7 +615,7 @@ void actAP1Start(char *g)
     *(int *)(s + 0x34) = 5;
     *(int *)(s + 0xAC) = 0;
     *(int *)(s + 0xA8) = 0;
-    *(char *)(*(int *)(g + 0x164) + 0x1DA) = 1;
+    GOBJ_ACT(g)->f_1DA = 1;
 
     ACTGameView_Add(girlGObj, g);
 
@@ -644,12 +644,12 @@ int IsActCharDead(int *a0)
 
 void SetAP1HostGObj(char *self, int val)
 {
-    *(int *)(*(char **)(self + 0x164) + 0xA8) = val;
+    GOBJ_ACT(self)->f_A8 = val;
 }
 
 void SetAP1PriorLevel(char *self, int val)
 {
-    *(int *)(*(char **)(self + 0x164) + 0xAC) = val;
+    GOBJ_ACT(self)->f_AC = val;
 }
 
 inline int jumpAI(int a0)

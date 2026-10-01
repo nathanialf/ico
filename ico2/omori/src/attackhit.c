@@ -619,7 +619,7 @@ int AttackGenerate(AttackPack *pack)
 inline void CommonAttackCenter(char *a0)
 {
     AttackPack pack;
-    MakeAttackPack_Actor(&pack, a0, *(void **)(*(char **)(a0 + 0x164) + 0x150));
+    MakeAttackPack_Actor(&pack, a0, (void *)GOBJ_ACT(a0)->f_150);
     AttackGenerate(&pack);
 }
 
