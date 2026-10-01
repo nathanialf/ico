@@ -9,6 +9,7 @@
 #include "matrixDrive.h"
 #include "tableSin.h"
 #include "main.h"
+#include "ios.h"
 
 /* 16-byte aligned: the template copy in InitPuddleGeo is ld/sd, not ldl/ldr. */
 typedef struct {
@@ -84,8 +85,6 @@ static float savedMatrix340[16]; /* derived name */
    what keeps the builtin off in this file. */
 /* kept local: declaring it only through string.h moves this TU's bytes */
 extern void memset(void *p, int c, int n);
-/* kept local: void * here, int in ios.h */
-extern void *ios_partition_sugipon;
 extern char D_002A79B8[];
 void PuddleGeo(char *a0);
 void EntryRippleToPuddle(char *a0, void *vec);

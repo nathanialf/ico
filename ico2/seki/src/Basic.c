@@ -14,8 +14,6 @@ static int mallocPartition = -1; /* derived name */
 
 static int mallocTotal = 0; /* derived name */
 
-/* kept local: void (const char *, int) here, void (char *, int) in debug_exception.h */
-extern void debug_assert(const char *file, int line);
 extern void __assert(const char *file, int line, char *expr);
 /* kept local: int (int, int, const char *, int) here, void * (IosMemPart *, int, char *, int) in memory.h */
 extern int iosMallocDebug(int heap, int size, const char *file, int line);
@@ -27,6 +25,7 @@ extern int iosReallocDebug(int size, int align, const char *file, int line);
 #include "Basic.h"
 #include "ios.h"
 #include "main.h"
+#include "debug_exception.h"
 
 void dma_init(void)
 {

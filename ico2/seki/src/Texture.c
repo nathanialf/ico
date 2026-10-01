@@ -10,6 +10,7 @@
 #include <eekernel.h>
 #include "tableSin.h"
 #include "main.h"
+#include "DmaPacket.h"
 
 /* One mipmap level of a texture record: the ROM reads addr with lw at +0, dbw
  * and vramSize with lh at +4 and +6, and indexes a 13-entry short table at +8
@@ -361,9 +362,6 @@ static inline int getTWTH(int a0)
     return ret;
 }
 
-/* kept local: GifDpk here, DpkCtl in DmaPacket.h */
-extern GifDpk PacketBufferStruct;
-
 /* The GS A+D writer this TU expands at every site. It is a MACRO and not the
  * static inline stand-in src/GifPacket.c carries, and the ROM says which:
  * expanded here, the packet cursor is read and bumped BEFORE the register
@@ -374,8 +372,8 @@ extern GifDpk PacketBufferStruct;
  * two instructions short per packet, measured on all four of them. */
 #define setGsReg(reg, val)                                                                         \
     {                                                                                              \
-        *PacketBufferStruct.ptr++ = (val);                                                         \
-        *PacketBufferStruct.ptr++ = (reg);                                                         \
+        *PacketBufferStruct.ptr.d++ = (val);                                                       \
+        *PacketBufferStruct.ptr.d++ = (reg);                                                       \
     }
 /* the record carries seven mipmap levels, so a level index is clamped to the
  * last one before it indexes lv[] */
@@ -1747,27 +1745,27 @@ void tex_printTexture(int id)
         setGsReg(0x08, 0);
         setGsReg(0x47, 0x30000);
         setGsReg(0x4E, 0x1300000C0LL);
-        *PacketBufferStruct.ptr++ = (pad[0].now & 0x10) == 0 ? 0x56 : 0x16;
-        *PacketBufferStruct.ptr++ = 0x00;
+        *PacketBufferStruct.ptr.d++ = (pad[0].now & 0x10) == 0 ? 0x56 : 0x16;
+        *PacketBufferStruct.ptr.d++ = 0x00;
         /* Q is the bits of `one`, read unsigned the way gsb_filmNoise in
          * GsBase.c reads its scale. The ROM pins the unsigned read: cse2 folds
          * its SImode bit copy to the constant (lui at 2321) and `one` dies in
          * $f0 after the ST sums; a signed read keeps `one` live across
          * FlushCache in $f20. */
-        *PacketBufferStruct.ptr++ = GIF_RGBA(&col.r) | ((long long)*(unsigned int *)&one << 32);
-        *PacketBufferStruct.ptr++ = 0x01;
-        *PacketBufferStruct.ptr++ =
+        *PacketBufferStruct.ptr.d++ = GIF_RGBA(&col.r) | ((long long)*(unsigned int *)&one << 32);
+        *PacketBufferStruct.ptr.d++ = 0x01;
+        *PacketBufferStruct.ptr.d++ =
             (long long)*(unsigned int *)&st[0] | ((long long)*(int *)&st[1] << 32);
-        *PacketBufferStruct.ptr++ = 0x02;
-        *PacketBufferStruct.ptr++ = GIF_XY(DISP_X(rect[0]), DISP_Y(rect[1]), 0x7FFFFFFFLL);
-        *PacketBufferStruct.ptr++ = 0x05;
-        *PacketBufferStruct.ptr++ =
+        *PacketBufferStruct.ptr.d++ = 0x02;
+        *PacketBufferStruct.ptr.d++ = GIF_XY(DISP_X(rect[0]), DISP_Y(rect[1]), 0x7FFFFFFFLL);
+        *PacketBufferStruct.ptr.d++ = 0x05;
+        *PacketBufferStruct.ptr.d++ =
             (long long)*(unsigned int *)&st[2] | ((long long)*(int *)&st[3] << 32);
-        *PacketBufferStruct.ptr++ = 0x02;
-        *PacketBufferStruct.ptr++ =
+        *PacketBufferStruct.ptr.d++ = 0x02;
+        *PacketBufferStruct.ptr.d++ =
             GIF_XY0(dispFar(DISP_X(rect[0]), DISP_X(rect[2])),
                     dispFar(DISP_Y(rect[1]), DISP_Y(rect[3])), 0x7FFFFFFFLL);
-        *PacketBufferStruct.ptr++ = 0x05;
+        *PacketBufferStruct.ptr.d++ = 0x05;
         setGsReg(0x4E, 0x300000C0);
         setGsReg(0x47, 0x50000);
     }

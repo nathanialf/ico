@@ -1,4 +1,5 @@
 #include "EnemyInit.h"
+#include "ios.h"
 
 /* the number of stages enemy_Initialize sets up (MAIN.MAP global, the TU's
    .sdata) */
@@ -836,8 +837,6 @@ EnemyModelSet *enemymodel01[] = {&enemy_enemymodel01_enemymodel04, 0};
 /* the stages' set lists and their counts, enemy_Initialize's table */
 static EnemySet enemySetTable[] = {{(int **)enemymodel01, 1}}; /* derived name */
 
-/* kept local: void * here, int in ios.h */
-extern void *ios_partition_seki;
 /* kept local: void * (void *, int, char *, int) here, void * (IosMemPart *, int, char *, int) in memory.h */
 extern void *iosMallocDebug(void *heap, int size, char *file, int line);
 

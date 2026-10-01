@@ -11,6 +11,7 @@
 #include "Matrix.h"
 #include "main.h"
 #include "GifPacket.h"
+#include "DmaPacket.h"
 
 /* The TU's .data, in ROM run order (names ours): the centre the game-over
    dark volume and its shock ring spread from, and the position of the
@@ -289,29 +290,9 @@ void renderViewCoordZSphere(void *pos, DVColor col, int neg, float r)
 
 inline void ExecGameOverEffect(void) {}
 
-/* The display-list packet builder state (DmaPacket's record). RECONSTRUCTION:
-   this TU holds every packet address as one pointer union read and written
-   through its members, as the matched ico2/seki/src/Shadow.c does, so each
-   field access is alias set 0. WHAT THE BYTES PIN: the open's gif = 0,
-   end = 0 and ptr = c + 8 stores survive flow, and the screen-size load waits
-   for the tag store. WHAT THEY CANNOT PIN: the member and type names. */
-typedef union {
-    unsigned long long *d;
-    char *c;
-} DVPkPtr;
-
-typedef struct {
-    int cur;
-    int *buf[2];
-    DVPkPtr dma;
-    DVPkPtr ptr;
-    DVPkPtr tail;
-    DVPkPtr gif;
-    DVPkPtr end;
-} DVDpk;
-
-/* kept local: DVDpk here, DpkCtl in DmaPacket.h */
-extern DVDpk PacketBufferStruct;
+/* WHAT THE BYTES PIN (PacketBufferStruct's union fields, DmaPacket.h): the
+   open's gif = 0, end = 0 and ptr = c + 8 stores survive flow, and the
+   screen-size load waits for the tag store. */
 void dl_SetDLPriority(int a0);
 void dl_OpenDma(int a0, int a1, int a2);
 void dl_CloseDma(void);

@@ -17,23 +17,23 @@ void dpk_Init(void)
     PacketBufferStruct.buf[1] =
         (int *)((int)iosMallocDebug(ios_partition_common, 0x80000, "src/DmaPacket.c", 135) |
                 0x30000000);
-    PacketBufferStruct.ptr = PacketBufferStruct.buf[PacketBufferStruct.cur];
+    PacketBufferStruct.ptr.i = PacketBufferStruct.buf[PacketBufferStruct.cur];
 }
 
 void dpk_SwapBuffer(void)
 {
     int i = PacketBufferStruct.cur ^ 1;
     PacketBufferStruct.cur = i;
-    PacketBufferStruct.ptr = PacketBufferStruct.buf[i];
-    PacketBufferStruct._14 = 0;
-    PacketBufferStruct._18 = 0;
-    PacketBufferStruct._1C = 0;
+    PacketBufferStruct.ptr.i = PacketBufferStruct.buf[i];
+    PacketBufferStruct.tail.c = 0;
+    PacketBufferStruct.gif.c = 0;
+    PacketBufferStruct.end.c = 0;
 }
 
-int dpk_CheckBufferSize(void)
+unsigned int dpk_CheckBufferSize(void)
 {
-    int idx = ((int *)&PacketBufferStruct)[0];
-    int adj_cur = ((int *)&PacketBufferStruct)[4] - 0x80000;
-    int end_off = ((int *)&PacketBufferStruct + idx)[1];
+    int idx = PacketBufferStruct.cur;
+    int adj_cur = (int)PacketBufferStruct.ptr.c - 0x80000;
+    int end_off = (int)PacketBufferStruct.buf[idx];
     return (end_off - adj_cur) >> 4;
 }

@@ -16,9 +16,7 @@
 #include <stdlib.h>
 #include "main.h"
 #include "GifPacket.h"
-
-/* kept local: void * here, int in ios.h */
-extern void *ios_partition_sugipon;
+#include "ios.h"
 
 /* spider.o's whole .rodata run starts here.  These three are named objects,
    not literals at their use sites: the two group-wake messages are used near

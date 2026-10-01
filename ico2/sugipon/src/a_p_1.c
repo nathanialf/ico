@@ -15,6 +15,7 @@
 #include "sugiCommon.h"
 #include "matrixDrive.h"
 #include "main.h"
+#include "ios.h"
 
 /* kept local: int (float) here, short (float) in tableSin.h: under the short return
    calcSubMission spills its frame addresses in another order */
@@ -216,10 +217,6 @@ extern void _UnitMatrix(void *m);
 /* kept local: int (void *, int) here, int (char *, int) in motionManager2.h */
 extern int GetSkeltonFocusNode(void *self, int id);
 extern void __assert(char *file, int line, char *expr);
-/* kept local: void * here, int in ios.h */
-extern void *ios_partition_sugipon;
-/* kept local: void * here, int in ios.h */
-extern void *ios_partition_seki;
 
 /* the name every iosMallocDebug and assert in this file reports itself under */
 static const char a_p_1File[] = "src/a_p_1.c";
@@ -389,7 +386,7 @@ void yAxisRotFitting(int *self, int arg2)
     Mtx44 m20;
     Vec4A_P_1 l60;
     Vec4A_P_1 l70;
-    int *r;
+    int r;
     float f;
 
     GetRootQuaternion((int)&l70, self);
@@ -400,7 +397,7 @@ void yAxisRotFitting(int *self, int arg2)
     if (r != 0) {
         _OuterProduct((int)&l10, arg2, (int)&l0);
         _NormalizeVector((int)&l10, (int)&l10);
-        SetQuaternionByAxisRotateV((int)&l60, (int)r, (int)&l10);
+        SetQuaternionByAxisRotateV((int)&l60, r, (int)&l10);
         MultiQuaternion((int)&l70, (int)&l60, (int)&l70);
         SetRootQuaternion((int)self, (int)&l70);
     }
@@ -413,7 +410,7 @@ void zAxisRotFitting(int *self, int arg2)
     Mtx44 m20;
     Vec4A_P_1 l60;
     Vec4A_P_1 l70;
-    int *r;
+    int r;
     float f;
 
     GetRootQuaternion((int)&l70, self);
@@ -424,7 +421,7 @@ void zAxisRotFitting(int *self, int arg2)
     if (r != 0) {
         _OuterProduct((int)&l10, arg2, (int)&l0);
         _NormalizeVector((int)&l10, (int)&l10);
-        SetQuaternionByAxisRotateV((int)&l60, (int)r, (int)&l10);
+        SetQuaternionByAxisRotateV((int)&l60, r, (int)&l10);
         MultiQuaternion((int)&l70, (int)&l60, (int)&l70);
         SetRootQuaternion((int)self, (int)&l70);
     }

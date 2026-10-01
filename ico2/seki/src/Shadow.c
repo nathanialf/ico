@@ -6,6 +6,7 @@
 #include "geometryManager.h"
 #include "main.h"
 #include "Matrix.h"
+#include "DmaPacket.h"
 
 /* .bss, Shadow.o's two objects in the ROM's order (MAIN.MAP line 7683 sizes
  * the run 0x1028 and names no symbol in it, so the names are ours).  One
@@ -20,12 +21,10 @@ static int killShadow = 0; /* derived name */
 
 static int killShadowRequest = 0; /* derived name */
 
-/* The display-list packet builder state, the record src/GifPacket.c carries
- * as GifDpk; this function opens, fills and closes a PATH1 packet of its own.
- * RECONSTRUCTION: this TU holds every packet address (dma, ptr, tail, gif,
- * end) as one pointer union, read and written through its members, so each
- * field access is alias set 0 (c-common.c c_get_alias_set: a reference
- * through a union). WHAT THE BYTES PIN: the open's gif = 0, end = 0 and
+/* The shadow display opens, fills and closes a PATH1 packet of its own
+ * through PacketBufferStruct (DmaPacket.h), whose packet addresses are one
+ * pointer union, so each field access is alias set 0 (c-common.c
+ * c_get_alias_set: a reference through a union). WHAT THE BYTES PIN: the open's gif = 0, end = 0 and
  * ptr = c + 8 stores survive flow's dead-store scan, so the int tag word
  * store between them and their second stores may alias them; the screen-size
  * loads wait for that tag store, so it is an int store outside any struct;
@@ -35,24 +34,7 @@ static int killShadowRequest = 0; /* derived name */
  * store precedes it in sched1, and that register file is what leaves t7 to
  * reload for the whole function). WHAT THEY CANNOT PIN: the member names and
  * types beyond one 64-bit packet pointer and one byte pointer, or the names
- * of the union and the record in the dev's header. */
-typedef union {
-    unsigned long long *d;
-    char *c;
-} ShadowPkPtr;
-
-typedef struct {
-    int cur;
-    int *buf[2];
-    ShadowPkPtr dma;
-    ShadowPkPtr ptr;
-    ShadowPkPtr tail;
-    ShadowPkPtr gif;
-    ShadowPkPtr end;
-} ShadowDpk;
-
-/* kept local: ShadowDpk here, DpkCtl in DmaPacket.h */
-extern ShadowDpk PacketBufferStruct;
+ * of the union and the record. */
 /* the screen width and height in pixels */
 /* kept local: agrees with DisplayList.h, which this TU does not include (dl_OpenDma differs) */
 extern void dl_SetDLPriority(int pri);

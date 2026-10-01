@@ -39,8 +39,6 @@ typedef struct PadBuf {
     char _p24[0x60 - 0x24];
 } PadBuf;
 
-/* kept local: main.c's global; this TU does not include main.h */
-extern int systemStatus[];
 extern char iosPadConfDefault[];
 /* kept local: void (void) here, int (void) in pad.h */
 extern void iosPadDevRead(void);

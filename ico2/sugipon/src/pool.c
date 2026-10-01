@@ -21,6 +21,7 @@
 #include "main.h"
 #include "GifPacket.h"
 #include "Matrix.h"
+#include "ios.h"
 
 typedef struct {
     char c[16];
@@ -260,8 +261,6 @@ typedef struct {
 } StgCsvEnt;
 
 extern StgCsvEnt D_002A79B8[];
-/* kept local: IosMemPart * here, int in ios.h */
-extern IosMemPart *ios_partition_sugipon;
 int poolRideFunc(char **a0, char *a1);
 
 char *InitPoolGeo(char *self, SObjSimpleSetting *lay)
@@ -338,8 +337,8 @@ char *InitPoolGeo(char *self, SObjSimpleSetting *lay)
         q->rot.f[0] = q->rot.f[1] = q->rot.f[2] = 0.0f;
     }
 
-    _UnitMatrix(*(char **)(self + 0x15C) + 0x20);
-    _UnitMatrix(*(char **)(*(char **)(self + 0x15C) + 0xC));
+    _UnitMatrix(&GOBJ_SUB(self)->f_20);
+    _UnitMatrix((char *)GOBJ_SUB(self)->f_C);
 
     w->f_28 = 0;
     w->bga = InitMultiBgaManager(10);

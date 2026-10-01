@@ -20,6 +20,8 @@
 #include "ZFog.h"
 #include "Light.h"
 #include "Matrix.h"
+#include "DmaPacket.h"
+#include <libgraph.h>
 
 /* Declared here, not through string.h: with newlib's prototype in scope gcc
    expands gsb_scissorOnDemo's four-byte zero fill as one store, and the ROM
@@ -76,8 +78,6 @@ int gsb_ResetSnap(void);
 int gsb_TakeSnap(void);
 int lockOtherEditing(void);
 int unlockOtherEditing(void);
-/* kept local: void (int *, int, short, short, short, short) here, void (sceGsDispEnv *, short, short, short, short, short) in libgraph.h */
-extern void sceGsSetDefDispEnv(int *env, int psm, short w, short h, short dx, short dy);
 
 /* The head of the TU's .sdata run: the stage lock state, the word gsb_Init
    clears (read nowhere in the ROM), the
@@ -99,25 +99,38 @@ static float zoomSpeed = 1000.0f; /* derived name */
 
 int currentFocusDistance = 1;
 
+/* libgraph's double buffer as sceGsSetDefDBuff fills it (libgraph.h in this
+   tree declares no record for it): the two display environments, then each
+   frame's GIF tag, draw environment and clear list */
+typedef struct {
+    sceGsDispEnv disp[2];
+    long long giftag0[2];
+    sceGsDrawEnv draw0;
+    sceGsClear clear0;
+    long long giftag1[2];
+    sceGsDrawEnv draw1;
+    sceGsClear clear1;
+} sceGsDBuff;
+
 /* Point the double buffer's two display and two draw environments at the
  * frame this stage draws into: the low nine bits of each frame word carry the
- * buffer base in 64-word units and the second qword of each draw env carries
- * the zbuffer base, its psm nibble and the mask bit. */
-void gsb_SetFrame(int *db, int a1, int a2, int psm, short zbp)
+ * buffer base in 64-word units and each draw env's ZBUF carries the zbuffer
+ * base, its psm nibble and the mask bit. */
+void gsb_SetFrame(sceGsDBuff *db, int a1, int a2, int psm, short zbp)
 {
-    int *disp1 = db + 0x28 / 4;
+    sceGsDispEnv *disp1 = &db->disp[1];
     long long zb = ((long long)zbp << 32) | 0xC0;
     short h = (short)(unsigned short)ScreenHeight / 2;
     short w = ScreenWidth;
 
-    *(int *)((char *)disp1 + 0x10) &= ~0x1FF;
-    *(int *)((char *)db + 0x10) &= ~0x1FF;
+    *(int *)&disp1->dispfb &= ~0x1FF;
+    *(int *)&db->disp[0].dispfb &= ~0x1FF;
     ((GifPkWord *)((char *)db + 0x150))->d =
         (((GifPkWord *)((char *)db + 0x150))->d & ~0x1FF) | 0x40;
     ((GifPkWord *)((char *)db + 0x60))->d = (((GifPkWord *)((char *)db + 0x60))->d & ~0x1FF) | 0x40;
     ((GifPkWord *)((char *)db + 0x160))->d = ((long long)(psm & 0xF) << 24) | zb;
     ((GifPkWord *)((char *)db + 0x70))->d = ((long long)(psm & 0xF) << 24) | zb;
-    sceGsSetDefDispEnv(db, 0, w, h, 0, 0);
+    sceGsSetDefDispEnv(&db->disp[0], 0, w, h, 0, 0);
     sceGsSetDefDispEnv(disp1, 0, w, h, 0, 0);
 }
 
@@ -125,14 +138,8 @@ void gsb_SetFrame(int *db, int a1, int a2, int psm, short zbp)
 extern int systemStatus[];
 /* kept local: agrees with main.h, which this TU does not include (db differs) */
 extern int buffer_ID;
-/* kept local: void (int) here, int (void) in libgraph.h */
-extern void sceGsSyncV(int a0);
-/* kept local: agrees with libgraph.h, which this TU does not include (sceGsSetDefDispEnv, sceGsSyncPath differ) */
-extern void sceGsResetGraph(short mode, short inter, short omode, short ffmd);
 extern void sceGsSetDefDBuff(void *db, short psm, short w, short h, short ztst, short zpsm,
                              short flag);
-/* kept local: int (int, int) here, void (int, int) in libgraph.h */
-extern int sceGsSyncPath(int mode, int timeout);
 /* kept local: GsBase.h does not compile in this TU (conflicting types for `gsb_PostEffect') */
 extern void gsb_SetVSMatrix(int w, int h, float d);
 
@@ -347,8 +354,6 @@ extern void gif_EndPacket(void);
 extern void gif_SetGsReg(int a0, long long a1);
 /* kept local: agrees with GifPacket.h, which this TU does not include (gif_MakeSpriteNoTexture, gif_SetAlpha differ) */
 extern void gif_StartPacketPriPath1(int a0);
-/* kept local: GifDpk here, DpkCtl in DmaPacket.h */
-extern GifDpk PacketBufferStruct;
 
 /* A rectangle in 16ths of a pixel, the form the sprite corners are written
    in.  RECONSTRUCTION: the record is 16 bytes and ROM's ldl/ldr pairs copy
@@ -365,8 +370,8 @@ typedef struct {
  * of the use (GsBase.c:957 carries the whole sprite, 1025 two registers). */
 #define setGsReg(reg, val)                                                                         \
     {                                                                                              \
-        *PacketBufferStruct.ptr++ = (val);                                                         \
-        *PacketBufferStruct.ptr++ = (reg);                                                         \
+        *PacketBufferStruct.ptr.d++ = (val);                                                       \
+        *PacketBufferStruct.ptr.d++ = (reg);                                                       \
     }
 /* RGBAQ packed from a four-byte colour, as Shadow.c packs it */
 #define GIF_RGBA(c)                                                                                \
@@ -810,46 +815,46 @@ void gsb_MakeCommonMatrix(void)
     _MulMatrix(matrixptr + 0x200, matrixptr + 0x1C0, matrixptr + 0x80);
     _MulMatrix(matrixptr + 0x280, matrixptr + 0x240, matrixptr + 0x80);
     _InversMatrix(matrixptr + 0x380, matrixptr + 0x80);
-    p = (GifPkWord *)PacketBufferStruct.ptr;
-    PacketBufferStruct.gif = 0;
-    PacketBufferStruct.dma = (char *)p;
-    PacketBufferStruct.end = 0;
-    PacketBufferStruct.tail = (char *)p;
+    p = (GifPkWord *)PacketBufferStruct.ptr.d;
+    PacketBufferStruct.gif.c = 0;
+    PacketBufferStruct.dma.c = (char *)p;
+    PacketBufferStruct.end.c = 0;
+    PacketBufferStruct.tail.c = (char *)p;
     p[0].d = 0x10000011;
-    PacketBufferStruct.ptr = (unsigned long long *)((char *)p + 8);
+    PacketBufferStruct.ptr.c = (char *)p + 8;
     p[1].w[0] = 0x13000000;
-    PacketBufferStruct.ptr = (unsigned long long *)((char *)p + 0xC);
-    PacketBufferStruct.gif = (char *)p + 0xC;
+    PacketBufferStruct.ptr.c = (char *)p + 0xC;
+    PacketBufferStruct.gif.c = (char *)p + 0xC;
     p[1].w[1] = 0x6C100000;
-    PacketBufferStruct.ptr = (unsigned long long *)((char *)p + 0x10);
+    PacketBufferStruct.ptr.c = (char *)p + 0x10;
     _CopyMatrix((char *)p + 0x10, &commonMatrixHead);
-    PacketBufferStruct.ptr = (unsigned long long *)((char *)PacketBufferStruct.ptr + 0x40);
-    _CopyMatrix(PacketBufferStruct.ptr, matrixptr + 0x100);
-    PacketBufferStruct.ptr = (unsigned long long *)((char *)PacketBufferStruct.ptr + 0x40);
-    _CopyMatrix(PacketBufferStruct.ptr, matrixptr + 0x340);
-    PacketBufferStruct.ptr = (unsigned long long *)((char *)PacketBufferStruct.ptr + 0x40);
-    _CopyMatrix(PacketBufferStruct.ptr, matrixptr + 0x380);
-    q = (GifPkWord *)PacketBufferStruct.ptr;
-    PacketBufferStruct.ptr = (unsigned long long *)((char *)q + 0x40);
+    PacketBufferStruct.ptr.c = PacketBufferStruct.ptr.c + 0x40;
+    _CopyMatrix(PacketBufferStruct.ptr.d, matrixptr + 0x100);
+    PacketBufferStruct.ptr.c = PacketBufferStruct.ptr.c + 0x40;
+    _CopyMatrix(PacketBufferStruct.ptr.d, matrixptr + 0x340);
+    PacketBufferStruct.ptr.c = PacketBufferStruct.ptr.c + 0x40;
+    _CopyMatrix(PacketBufferStruct.ptr.d, matrixptr + 0x380);
+    q = (GifPkWord *)PacketBufferStruct.ptr.d;
+    PacketBufferStruct.ptr.c = (char *)q + 0x40;
     q[8].w[0] = 0x13000000;
-    PacketBufferStruct.ptr = (unsigned long long *)((char *)q + 0x44);
+    PacketBufferStruct.ptr.c = (char *)q + 0x44;
     q[8].w[1] = 0;
-    PacketBufferStruct.ptr = (unsigned long long *)((char *)q + 0x48);
+    PacketBufferStruct.ptr.c = (char *)q + 0x48;
     q[9].w[0] = 0;
-    PacketBufferStruct.ptr = (unsigned long long *)((char *)q + 0x4C);
+    PacketBufferStruct.ptr.c = (char *)q + 0x4C;
     q[9].w[1] = 0;
-    PacketBufferStruct.ptr = (unsigned long long *)((char *)q + 0x50);
-    PacketBufferStruct.tail = (char *)q + 0x50;
+    PacketBufferStruct.ptr.c = (char *)q + 0x50;
+    PacketBufferStruct.tail.c = (char *)q + 0x50;
     q[10].d = 0x60000000;
-    PacketBufferStruct.ptr = (unsigned long long *)((char *)q + 0x58);
+    PacketBufferStruct.ptr.c = (char *)q + 0x58;
     q[11].w[0] = 0;
-    PacketBufferStruct.ptr = (unsigned long long *)((char *)q + 0x5C);
+    PacketBufferStruct.ptr.c = (char *)q + 0x5C;
     q[11].w[1] = 0;
-    PacketBufferStruct.ptr = (unsigned long long *)((char *)q + 0x60);
+    PacketBufferStruct.ptr.c = (char *)q + 0x60;
     do {
         dl_SetDLPriority(i);
         i++;
-        dl_OpenDma(5, PacketBufferStruct.dma, 0);
+        dl_OpenDma(5, PacketBufferStruct.dma.c, 0);
         dl_CloseDma();
     } while (i < 0xD);
 }
@@ -859,28 +864,28 @@ void gsb_MakeCommonMatrix(void)
  * default register set for each of the thirteen contexts. */
 void gsb_SetGsDefault(void)
 {
-    GifDpk *d = &PacketBufferStruct;
-    GifPkWord *p = (GifPkWord *)d->ptr;
+    DpkCtl *d = &PacketBufferStruct;
+    GifPkWord *p = (GifPkWord *)d->ptr.d;
 
-    d->gif = 0;
-    d->tail = (char *)p;
-    d->dma = (char *)p;
-    d->end = 0;
+    d->gif.c = 0;
+    d->tail.c = (char *)p;
+    d->dma.c = (char *)p;
+    d->end.c = 0;
     p[0].d = 0x10000000;
-    d->ptr = (unsigned long long *)((char *)p + 8);
+    d->ptr.c = (char *)p + 8;
     p[1].w[0] = 0x3000100;
-    d->ptr = (unsigned long long *)((char *)p + 0xC);
+    d->ptr.c = (char *)p + 0xC;
     p[1].w[1] = 0x2000180;
-    d->ptr = (unsigned long long *)((char *)p + 0x10);
-    d->tail = (char *)p + 0x10;
+    d->ptr.c = (char *)p + 0x10;
+    d->tail.c = (char *)p + 0x10;
     p[2].d = 0x60000000;
-    d->ptr = (unsigned long long *)((char *)p + 0x18);
+    d->ptr.c = (char *)p + 0x18;
     p[3].w[0] = 0;
-    d->ptr = (unsigned long long *)((char *)p + 0x1C);
+    d->ptr.c = (char *)p + 0x1C;
     p[3].w[1] = 0;
-    d->ptr = (unsigned long long *)((char *)p + 0x20);
+    d->ptr.c = (char *)p + 0x20;
     dl_SetDLPriority(0);
-    dl_OpenDma(5, d->dma, 0);
+    dl_OpenDma(5, d->dma.c, 0);
     dl_CloseDma();
     gsb_MakeCommonMatrix();
     gsb_setNormalReg(0);
@@ -1005,12 +1010,8 @@ static int firstGsInit = 1; /* derived name */
 extern int screen_offset_y;
 /* kept local: agrees with main.h, which this TU does not include (db differs) */
 extern int screen_offset_x;
-/* kept local: char [] here, int [140] in main.h */
-extern char db[];
-/* kept local: agrees with libgraph.h, which this TU does not include (sceGsSetDefDispEnv, sceGsSyncPath differ) */
-extern void sceGsResetPath(void);
-/* kept local: void (int) here, int (void) in libgraph.h */
-extern void sceGsSyncV(int a0);
+/* kept local: sceGsDBuff here, int [140] in main.h */
+extern sceGsDBuff db;
 /* kept local: GsBase.h does not compile in this TU (conflicting types for `gsb_PostEffect') */
 extern void gsb_Init(void *p);
 /* kept local: agrees with DisplayList.h, which this TU does not include (dl_OpenDma differs) */
@@ -1031,7 +1032,7 @@ void gsb_InitGSSystem(void)
         tex_Init();
         debug_StdPrintfDummy("gs init\n");
         sceGsSyncV(0);
-        gsb_Init(db);
+        gsb_Init(&db);
         sceGsSyncV(0);
         dl_Init();
         firstGsInit = 0;
@@ -1069,8 +1070,6 @@ inline int gsb_ResetSnap(void) {}
 
 inline int gsb_TakeSnap(void) {}
 
-/* kept local: int (int, int) here, void (int, int) in libgraph.h */
-extern int sceGsSyncPath(int mode, int timeout);
 /* kept local: GsBase.h does not compile in this TU (conflicting types for `gsb_PostEffect') */
 extern void gsb_ResetGSSystem(void);
 
@@ -1110,7 +1109,7 @@ extern void gsb_Reduction(void);
  * either swapped or cleared, then reopen the frame's register set. */
 void gsb_UpdateGSSystem(int keep)
 {
-    char *draw;
+    sceGsDrawEnv *draw;
 
     odd_even = (*GS_CSR >> 13) & 1;
     gsb_Reduction();
@@ -1122,11 +1121,11 @@ void gsb_UpdateGSSystem(int keep)
     frame_count++;
     buffer_ID = frame_count & 1;
     FlushCache(0);
-    sceGsSwapDBuff(db, buffer_ID);
+    sceGsSwapDBuff(&db, buffer_ID);
     if (buffer_ID != 0) {
-        draw = db + 0x150;
+        draw = &db.draw1;
     } else {
-        draw = db + 0x60;
+        draw = &db.draw0;
     }
     sceGsSetHalfOffset(draw, (short)((float)screen_offset_x + 2048.0f),
                        (short)((float)screen_offset_y + 2048.0f), odd_even == 0);
@@ -1147,8 +1146,6 @@ void gsb_UpdateGSSystem(int keep)
 
 /* kept local: agrees with main.h, which this TU does not include (db differs) */
 extern int systemStatus[];
-/* kept local: agrees with libgraph.h, which this TU does not include (sceGsSetDefDispEnv, sceGsSyncPath differ) */
-extern void sceGsResetGraph(short mode, short inter, short omode, short ffmd);
 extern void sceGsSetHalfOffset(void *env, short x, short y, int field);
 
 /* Reset the GS between stages: reopen the paths, reset the VU0 and the DMA,
@@ -1156,7 +1153,7 @@ extern void sceGsSetHalfOffset(void *env, short x, short y, int field);
  * flip the double buffer, then re-open the frame's display list. */
 void gsb_ResetGSSystem(void)
 {
-    char *draw;
+    sceGsDrawEnv *draw;
 
     sceGsResetPath();
     sceVpu0Reset();
@@ -1166,11 +1163,11 @@ void gsb_ResetGSSystem(void)
     buffer_ID = frame_count & 1;
     odd_even = (*GS_CSR >> 13) & 1;
     FlushCache(0);
-    sceGsSwapDBuff(db, buffer_ID);
+    sceGsSwapDBuff(&db, buffer_ID);
     if (buffer_ID != 0) {
-        draw = db + 0x150;
+        draw = &db.draw1;
     } else {
-        draw = db + 0x60;
+        draw = &db.draw0;
     }
     sceGsSetHalfOffset(draw, (short)((float)screen_offset_x + 2048.0f),
                        (short)((float)screen_offset_y + 2048.0f), odd_even == 0);

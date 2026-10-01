@@ -1,4 +1,5 @@
 #include "typedef.h"
+#include "Packet.h"
 #include "RegistPacket.h"
 #include "debug.h"
 #include "DisplayList.h"
@@ -12,6 +13,7 @@
 #include "debug_exception.h"
 #include "GifPacket.h"
 #include "Matrix.h"
+#include "DmaPacket.h"
 
 /* .sdata, RegistPacket.o's run (MAIN.MAP 0xA): the scissor switch
    reg_SetScissorSw sets and reg_Init clears, then the assert text. */
@@ -19,7 +21,7 @@ static int scissorSw = 0; /* derived name */
 
 extern void __assert(char *file, int line, char *expr);
 
-void reg_setShape(char *o, int idx, int flag, char *pkt, char *mat)
+void reg_setShape(char *o, int idx, int flag, PacHeader *pkt, char *mat)
 {
     float vec[4];
     char *mdl;
@@ -27,7 +29,7 @@ void reg_setShape(char *o, int idx, int flag, char *pkt, char *mat)
     char *p;
     char *m;
     char *v;
-    char *pk;
+    PacHeader *pk;
     char *t;
     int base;
     int i;
@@ -104,16 +106,15 @@ void reg_setShape(char *o, int idx, int flag, char *pkt, char *mat)
             n = *(short *)v;
             v += 0x10;
             while (pk != 0) {
-                if (*(short *)(v + 0xE) == *(short *)(pk + 0x82) &&
-                    *(short *)(v + 0xC) == *(short *)(pk + 0x80)) {
+                if (*(short *)(v + 0xE) == pk->shape && *(short *)(v + 0xC) == pk->mat) {
                     break;
                 }
-                pk = *(char **)(pk + 0x94);
+                pk = pk->next;
             }
             if (pk == 0) {
                 break;
             }
-            base = *(int *)(pk + 0x98);
+            base = (int)pk->data;
             p = (char *)(*(int *)(v - 0xC) + base);
             if (*(int *)(v - 0xC) != 0) {
                 if (n != 0) {
@@ -153,7 +154,7 @@ typedef struct {
     int e[12][2];
 } RegBoxLines;
 
-void reg_dispBoxLine(char *pk)
+void reg_dispBoxLine(PacHeader *pk)
 {
     RegColor col;
     RegBoxLines line;
@@ -180,19 +181,19 @@ void reg_dispBoxLine(char *pk)
     gif_SetAlpha(1, 4, 0x20);
     _CopyMatrix(MatrixDrive_GetMatrix(), matrixptr + 0x40);
     for (i = 0; i < 12; i++) {
-        DrawLine(pk + line.e[i][0] * 16, pk + line.e[i][1] * 16, &col, 0);
+        DrawLine(pk->box[line.e[i][0]], pk->box[line.e[i][1]], &col, 0);
     }
     gif_EndPacket();
 }
 
-int reg_clipPacketBoundingBox(char *pk)
+int reg_clipPacketBoundingBox(PacHeader *pk)
 {
     int ret = 1;
     int type;
 
     _SetCurrentMatrix(matrixptr + 0x300);
 
-    type = *(unsigned char *)(pk + 0x93);
+    type = ((unsigned char *)&pk->size)[3];
     switch (type) {
     case 0:
         ret = -1;
@@ -271,11 +272,10 @@ typedef union {
 /* the quadword copy type src/Primitive.c and src/Shadow.c use */
 typedef int Qw128 __attribute__((mode(TI)));
 
-/* The display-list packet builder state, the record src/Shadow.c carries as
- * ShadowDpk. RECONSTRUCTION: every packet address (dma, ptr, tail, gif, end)
- * is one pointer union, read and written through its members, so each field
- * access is alias set 0 (c-common.c c_get_alias_set: a reference through a
- * union). WHAT THE BYTES PIN (reg_setEMatrixPacket): its typed packet words
+/* PacketBufferStruct (DmaPacket.h): every packet address (dma, ptr, tail,
+ * gif, end) is one pointer union, read and written through its members, so
+ * each field access is alias set 0 (c-common.c c_get_alias_set: a reference
+ * through a union). WHAT THE BYTES PIN (reg_setEMatrixPacket): its typed packet words
  * keep every ptr store alive through flow's dead-store scan and stay in source
  * order with the ptr, tail and gif stores, while the two parameter homes, which
  * no typed packet word of another type may alias, sink below them (measured:
@@ -284,23 +284,6 @@ typedef int Qw128 __attribute__((mode(TI)));
  * homes above it). WHAT THEY CANNOT PIN: the member names and
  * types beyond one 64-bit packet pointer and one byte pointer. The matched
  * functions of this TU are byte-identical under either field typing. */
-typedef union {
-    unsigned long long *d;
-    char *c;
-} RegPkPtr;
-
-typedef struct {
-    int cur;
-    int *buf[2];
-    RegPkPtr dma;
-    RegPkPtr ptr;
-    RegPkPtr tail;
-    RegPkPtr gif;
-    RegPkPtr end;
-} RegDpk;
-
-/* kept local: RegDpk here, DpkCtl in DmaPacket.h */
-extern RegDpk PacketBufferStruct;
 
 char *reg_setNMatrixPacket(char *o, int idx)
 {
@@ -714,24 +697,24 @@ static const unsigned int regSpecularPacket[5][4] __attribute__((aligned(16))) =
    is a file static, which is what it is here.  Every other function of the TU
    aligns one-to-one with the listing around it, between reg_setCMatrixPacket and
    reg_transMaterialPacket. */
-static void reg_dispSpecular(char *a0, int a1, int a2) /* derived name */
+static void reg_dispSpecular(PacHeader *a0, int a1, int a2) /* derived name */
 {
     short h;
     dl_SetDLPriority(4);
-    h = *(short *)(a0 + 0x86);
+    h = a0->tex1;
     if (h >= 0) {
         texturetranssize += tex_TransTexture(h, 4);
     }
     dl_OpenDma(2, regSpecularPacket, 5);
     dl_CloseDma();
     reg_chooseSpecularMicroCode(a2, a1, 4);
-    dl_OpenDma(2, *(void **)(a0 + 0x98), (*(int *)(a0 + 0x90) & 0xFFFFFF) >> 4);
+    dl_OpenDma(2, a0->data, (a0->size & 0xFFFFFF) >> 4);
     dl_CloseDma();
 }
 
-void reg_transMaterialPacket(short *self, int *p)
+void reg_transMaterialPacket(PacHeader *self, int *p)
 {
-    short idx = self[0x80 / 2];
+    short idx = self->mat;
     if (idx != -1) {
         int v = *p + idx * 0x70;
         dl_OpenDma(2, v, 6);
@@ -835,7 +818,7 @@ static inline void regTransTexturePacket(int tex, int pri)
 
 /* ===== su-a sweep begin ===== */
 
-static void reg_dispSpecular(char *pkt, int r, int c);
+static void reg_dispSpecular(PacHeader *pkt, int r, int c);
 
 /* The GS state the reflection pass draws in: a VIF DIRECT of four qwords, a
    GIF A+D tag with CLAMP_1, PABE and ALPHA_1, then the VIF MSCNT; qword aligned because
@@ -896,7 +879,7 @@ void reg_dispNObj(char *o)
     char *mdl;
     char *grp;
     char *pk;
-    char *pkt;
+    PacHeader *pkt;
     char *box;
     int i;
     int j;
@@ -922,44 +905,41 @@ void reg_dispNObj(char *o)
             box = (char *)(j * 0x80 + *(int *)(*(char **)(o + 0x854) + 0x44));
             _SetCurrentMatrix(matrixptr + 0x300);
             if (gsb_ClipBox(box) != 0) {
-                pkt = *(char **)(grp + 8);
+                pkt = *(PacHeader **)(grp + 8);
                 while (pkt != 0) {
                     r = reg_clipPacketBoundingBox(pkt);
                     if (r != 0) {
-                        pri = regMaterialDLPri((int *)grp, *(short *)(pkt + 0x80),
-                                               tex_GetTexExtData(*(short *)(pkt + 0x84)), 0.0f);
-                        regTransTexturePacket(*(short *)(pkt + 0x84), pri);
-                        reg_transMaterialPacket((short *)pkt, (int *)grp);
-                        reg_chooseMicroCode((char *)(*(int *)grp + *(short *)(pkt + 0x80) * 0x70),
-                                            r, pri);
-                        dl_OpenDma(2, *(char **)(pkt + 0x98),
-                                   (*(int *)(pkt + 0x90) & 0xFFFFFF) >> 4);
+                        pri = regMaterialDLPri((int *)grp, pkt->mat, tex_GetTexExtData(pkt->tex),
+                                               0.0f);
+                        regTransTexturePacket(pkt->tex, pri);
+                        reg_transMaterialPacket(pkt, (int *)grp);
+                        reg_chooseMicroCode((char *)(*(int *)grp + pkt->mat * 0x70), r, pri);
+                        dl_OpenDma(2, pkt->data, (pkt->size & 0xFFFFFF) >> 4);
                         dl_CloseDma();
                         if (*(int *)(*(char **)(o + 0x874) + 0xF0) == 2) {
-                            if (*(short *)(pkt + 0x86) != -1) {
+                            if (pkt->tex1 != -1) {
                                 reg_dispSpecular(pkt, r, 0);
                             }
                         }
                         mode = *(int *)(*(char **)(o + 0x874) + 0xF0);
-                        if (*(short *)(pkt + 0x88) != -1) {
+                        if (pkt->tex2 != -1) {
                             if (mode == 0) {
                                 debug_StdPrintfDummy("光源オフでリフレクションを表示.\n");
                                 mc_TransMicroCode(2, 0x10);
                             }
                             dl_SetDLPriority(4);
-                            regTransTexturePacket(*(short *)(pkt + 0x88), 4);
+                            regTransTexturePacket(pkt->tex2, 4);
                             dl_OpenDma(2, regReflectionPacket, 6);
                             dl_CloseDma();
                             reg_chooseReflectionMicroCode(0, r, 4);
-                            dl_OpenDma(2, *(char **)(pkt + 0x98),
-                                       (*(int *)(pkt + 0x90) & 0xFFFFFF) >> 4);
+                            dl_OpenDma(2, pkt->data, (pkt->size & 0xFFFFFF) >> 4);
                             dl_CloseDma();
                             if (mode == 0) {
                                 mc_TransMicroCode(1, 0x10);
                             }
                         }
                     }
-                    pkt = *(char **)(pkt + 0x94);
+                    pkt = pkt->next;
                 }
             }
         }
@@ -985,7 +965,7 @@ void reg_dispMObj(char *o)
 {
     char *mdl;
     char *grp;
-    char *pkt;
+    PacHeader *pkt;
     char *pk;
     float *w;
     float alpha;
@@ -1020,17 +1000,17 @@ void reg_dispMObj(char *o)
             if (*(int *)(i * 0x180 + *(int *)(mdl + 0x40) + 0x124) != 0) {
                 if (*(char **)(grp + 0xC) != 0) {
                     if (buffer_ID != 0) {
-                        pkt = *(char **)(grp + 8);
+                        pkt = *(PacHeader **)(grp + 8);
                     } else {
-                        pkt = *(char **)(grp + 0xC);
+                        pkt = *(PacHeader **)(grp + 0xC);
                     }
                     reg_setShape(o, i, buffer_ID == 0, pkt,
-                                 (char *)(*(int *)grp + *(short *)(pkt + 0x80) * 0x70));
+                                 (char *)(*(int *)grp + pkt->mat * 0x70));
                 } else {
-                    pkt = *(char **)(grp + 8);
+                    pkt = *(PacHeader **)(grp + 8);
                 }
             } else {
-                pkt = *(char **)(grp + 8);
+                pkt = *(PacHeader **)(grp + 8);
             }
             while (pkt != 0) {
                 r = reg_clipPacketBoundingBox(pkt);
@@ -1041,38 +1021,34 @@ void reg_dispMObj(char *o)
                             fade = 1;
                         }
                     }
-                    pri = regMaterialDLPri((int *)grp, *(short *)(pkt + 0x80),
-                                           tex_GetTexExtData(*(short *)(pkt + 0x84)), fade);
-                    regTransTexturePacket(*(short *)(pkt + 0x84), pri);
-                    reg_transMaterialPacket((short *)pkt, (int *)grp);
+                    pri = regMaterialDLPri((int *)grp, pkt->mat, tex_GetTexExtData(pkt->tex), fade);
+                    regTransTexturePacket(pkt->tex, pri);
+                    reg_transMaterialPacket(pkt, (int *)grp);
                     dis = 0;
                     if (fade != 0) {
                         dis = reg_setDissolve(alpha, pri);
                     }
                     if (dis != -1) {
-                        reg_chooseMicroCode((char *)(*(int *)grp + *(short *)(pkt + 0x80) * 0x70),
-                                            r, pri);
-                        dl_OpenDma(2, *(char **)(pkt + 0x98),
-                                   (*(int *)(pkt + 0x90) & 0xFFFFFF) >> 4);
+                        reg_chooseMicroCode((char *)(*(int *)grp + pkt->mat * 0x70), r, pri);
+                        dl_OpenDma(2, pkt->data, (pkt->size & 0xFFFFFF) >> 4);
                         dl_CloseDma();
                         if (*(int *)(*(char **)(o + 0x874) + 0xF0) == 2) {
-                            if (*(short *)(pkt + 0x86) != -1) {
+                            if (pkt->tex1 != -1) {
                                 reg_dispSpecular(pkt, r, 0);
                             }
                         }
                         mode = *(int *)(*(char **)(o + 0x874) + 0xF0);
-                        if (*(short *)(pkt + 0x88) != -1) {
+                        if (pkt->tex2 != -1) {
                             if (mode == 0) {
                                 debug_StdPrintfDummy("光源オフでリフレクションを表示.\n");
                                 mc_TransMicroCode(2, 0x10);
                             }
                             dl_SetDLPriority(4);
-                            regTransTexturePacket(*(short *)(pkt + 0x88), 4);
+                            regTransTexturePacket(pkt->tex2, 4);
                             dl_OpenDma(2, regReflectionPacket, 6);
                             dl_CloseDma();
                             reg_chooseReflectionMicroCode(0, r, 4);
-                            dl_OpenDma(2, *(char **)(pkt + 0x98),
-                                       (*(int *)(pkt + 0x90) & 0xFFFFFF) >> 4);
+                            dl_OpenDma(2, pkt->data, (pkt->size & 0xFFFFFF) >> 4);
                             dl_CloseDma();
                             if (mode == 0) {
                                 mc_TransMicroCode(1, 0x10);
@@ -1083,7 +1059,7 @@ void reg_dispMObj(char *o)
                         reg_resetDissolve(pri);
                     }
                 }
-                pkt = *(char **)(pkt + 0x94);
+                pkt = pkt->next;
             }
         }
         if (*(int *)(o + 0x858) != 0) {
@@ -1095,7 +1071,7 @@ void reg_dispMObj(char *o)
 void reg_dispSObj(char *o, int idx)
 {
     char *grp;
-    char *pkt;
+    PacHeader *pkt;
     char *pk;
     int i;
     int r;
@@ -1103,7 +1079,7 @@ void reg_dispSObj(char *o, int idx)
     int mode;
 
     grp = *(char **)(*(char **)(o + 0x854) + 0x48);
-    pkt = *(char **)(grp + 8);
+    pkt = *(PacHeader **)(grp + 8);
     reg_transMicroCode(o, 0x3B5);
     pk = reg_setMMatrixPacket(o, idx);
     if (pk != 0) {
@@ -1119,37 +1095,36 @@ void reg_dispSObj(char *o, int idx)
         while (pkt != 0) {
             r = reg_clipPacketBoundingBox(pkt);
             if (r != 0) {
-                pri = regMaterialDLPri((int *)grp, *(short *)(pkt + 0x80),
-                                       tex_GetTexExtData(*(short *)(pkt + 0x84)), 0.0f);
-                regTransTexturePacket(*(short *)(pkt + 0x84), pri);
-                reg_transMaterialPacket((short *)pkt, (int *)grp);
-                reg_chooseMicroCode((char *)(*(int *)grp + *(short *)(pkt + 0x80) * 0x70), r, pri);
-                dl_OpenDma(2, *(char **)(pkt + 0x98), (*(int *)(pkt + 0x90) & 0xFFFFFF) >> 4);
+                pri = regMaterialDLPri((int *)grp, pkt->mat, tex_GetTexExtData(pkt->tex), 0.0f);
+                regTransTexturePacket(pkt->tex, pri);
+                reg_transMaterialPacket(pkt, (int *)grp);
+                reg_chooseMicroCode((char *)(*(int *)grp + pkt->mat * 0x70), r, pri);
+                dl_OpenDma(2, pkt->data, (pkt->size & 0xFFFFFF) >> 4);
                 dl_CloseDma();
                 if (*(int *)(*(char **)(o + 0x874) + 0xF0) == 2) {
-                    if (*(short *)(pkt + 0x86) != -1) {
+                    if (pkt->tex1 != -1) {
                         reg_dispSpecular(pkt, r, 0);
                     }
                 }
                 mode = *(int *)(*(char **)(o + 0x874) + 0xF0);
-                if (*(short *)(pkt + 0x88) != -1) {
+                if (pkt->tex2 != -1) {
                     if (mode == 0) {
                         debug_StdPrintfDummy("光源オフでリフレクションを表示.\n");
                         mc_TransMicroCode(2, 0x10);
                     }
                     dl_SetDLPriority(4);
-                    regTransTexturePacket(*(short *)(pkt + 0x88), 4);
+                    regTransTexturePacket(pkt->tex2, 4);
                     dl_OpenDma(2, regReflectionPacket, 6);
                     dl_CloseDma();
                     reg_chooseReflectionMicroCode(0, r, 4);
-                    dl_OpenDma(2, *(char **)(pkt + 0x98), (*(int *)(pkt + 0x90) & 0xFFFFFF) >> 4);
+                    dl_OpenDma(2, pkt->data, (pkt->size & 0xFFFFFF) >> 4);
                     dl_CloseDma();
                     if (mode == 0) {
                         mc_TransMicroCode(1, 0x10);
                     }
                 }
             }
-            pkt = *(char **)(pkt + 0x94);
+            pkt = pkt->next;
         }
     }
     if (*(int *)(o + 0x858) != 0) {
@@ -1161,8 +1136,8 @@ void reg_dispCObj(char *o)
 {
     char *mdl;
     char *grp;
-    char *pkt;
-    char *node;
+    PacHeader *pkt;
+    PacHeader *node;
     int i;
     int pri;
 
@@ -1172,34 +1147,32 @@ void reg_dispCObj(char *o)
     reg_setCMatrixPacket(o, 1.0f, 0x3B3);
     for (i = 0; i < *(signed char *)(mdl + 0x2E); i++, grp += 0x30) {
         if (*(int *)(i * 0x180 + *(int *)(mdl + 0x40) + 0x124) != 0) {
-            node = *(char **)(grp + 0xC);
+            node = *(PacHeader **)(grp + 0xC);
             if (node != 0) {
                 pkt = node;
                 if (buffer_ID != 0) {
-                    pkt = *(char **)(grp + 8);
+                    pkt = *(PacHeader **)(grp + 8);
                 }
-                reg_setShape(o, i, buffer_ID == 0, pkt,
-                             (char *)(*(int *)grp + *(short *)(pkt + 0x80) * 0x70));
+                reg_setShape(o, i, buffer_ID == 0, pkt, (char *)(*(int *)grp + pkt->mat * 0x70));
             } else {
-                pkt = *(char **)(grp + 8);
+                pkt = *(PacHeader **)(grp + 8);
             }
         } else {
-            pkt = *(char **)(grp + 8);
+            pkt = *(PacHeader **)(grp + 8);
         }
         while (pkt != 0) {
-            pri = regMaterialDLPri((int *)grp, *(short *)(pkt + 0x80),
-                                   tex_GetTexExtData(*(short *)(pkt + 0x84)), 0.0f);
-            regTransTexturePacket(*(short *)(pkt + 0x84), pri);
-            reg_transMaterialPacket((short *)pkt, (int *)grp);
-            reg_chooseMicroCode((char *)(*(int *)grp + *(short *)(pkt + 0x80) * 0x70), 0, pri);
-            dl_OpenDma(2, *(char **)(pkt + 0x98), (*(int *)(pkt + 0x90) & 0xFFFFFF) >> 4);
+            pri = regMaterialDLPri((int *)grp, pkt->mat, tex_GetTexExtData(pkt->tex), 0.0f);
+            regTransTexturePacket(pkt->tex, pri);
+            reg_transMaterialPacket(pkt, (int *)grp);
+            reg_chooseMicroCode((char *)(*(int *)grp + pkt->mat * 0x70), 0, pri);
+            dl_OpenDma(2, pkt->data, (pkt->size & 0xFFFFFF) >> 4);
             dl_CloseDma();
             if (debug_specular_flag == 2 && *(int *)(*(char **)(o + 0x874) + 0xF0) == 2) {
-                if (*(short *)(pkt + 0x86) != -1) {
+                if (pkt->tex1 != -1) {
                     reg_dispSpecular(pkt, 0, 1);
                 }
             }
-            pkt = *(char **)(pkt + 0x94);
+            pkt = pkt->next;
         }
     }
     if (*(int *)(o + 0x858) != 0) {
@@ -1655,7 +1628,7 @@ void reg_DispAccessoryWithShadow(char *o, char *src)
     char *mdl;
     char *grp;
     char *pk;
-    char *pkt;
+    PacHeader *pkt;
     char *box;
     int i;
     int j;
@@ -1681,44 +1654,41 @@ void reg_DispAccessoryWithShadow(char *o, char *src)
             box = (char *)(j * 0x80 + *(int *)(*(char **)(o + 0x854) + 0x44));
             _SetCurrentMatrix(matrixptr + 0x300);
             if (gsb_ClipBox(box) != 0) {
-                pkt = *(char **)(grp + 8);
+                pkt = *(PacHeader **)(grp + 8);
                 while (pkt != 0) {
                     r = reg_clipPacketBoundingBox(pkt);
                     if (r != 0) {
-                        pri = regMaterialDLPri((int *)grp, *(short *)(pkt + 0x80),
-                                               tex_GetTexExtData(*(short *)(pkt + 0x84)), 0.0f);
-                        regTransTexturePacket(*(short *)(pkt + 0x84), pri);
-                        reg_transMaterialPacket((short *)pkt, (int *)grp);
-                        reg_chooseMicroCode((char *)(*(int *)grp + *(short *)(pkt + 0x80) * 0x70),
-                                            r, pri);
-                        dl_OpenDma(2, *(char **)(pkt + 0x98),
-                                   (*(int *)(pkt + 0x90) & 0xFFFFFF) >> 4);
+                        pri = regMaterialDLPri((int *)grp, pkt->mat, tex_GetTexExtData(pkt->tex),
+                                               0.0f);
+                        regTransTexturePacket(pkt->tex, pri);
+                        reg_transMaterialPacket(pkt, (int *)grp);
+                        reg_chooseMicroCode((char *)(*(int *)grp + pkt->mat * 0x70), r, pri);
+                        dl_OpenDma(2, pkt->data, (pkt->size & 0xFFFFFF) >> 4);
                         dl_CloseDma();
                         if (*(int *)(*(char **)(o + 0x874) + 0xF0) == 2) {
-                            if (*(short *)(pkt + 0x86) != -1) {
+                            if (pkt->tex1 != -1) {
                                 reg_dispSpecular(pkt, r, 0);
                             }
                         }
                         mode = *(int *)(*(char **)(o + 0x874) + 0xF0);
-                        if (*(short *)(pkt + 0x88) != -1) {
+                        if (pkt->tex2 != -1) {
                             if (mode == 0) {
                                 debug_StdPrintfDummy("光源オフでリフレクションを表示.\n");
                                 mc_TransMicroCode(2, 0x10);
                             }
                             dl_SetDLPriority(4);
-                            regTransTexturePacket(*(short *)(pkt + 0x88), 4);
+                            regTransTexturePacket(pkt->tex2, 4);
                             dl_OpenDma(2, regReflectionPacket, 6);
                             dl_CloseDma();
                             reg_chooseReflectionMicroCode(0, r, 4);
-                            dl_OpenDma(2, *(char **)(pkt + 0x98),
-                                       (*(int *)(pkt + 0x90) & 0xFFFFFF) >> 4);
+                            dl_OpenDma(2, pkt->data, (pkt->size & 0xFFFFFF) >> 4);
                             dl_CloseDma();
                             if (mode == 0) {
                                 mc_TransMicroCode(1, 0x10);
                             }
                         }
                     }
-                    pkt = *(char **)(pkt + 0x94);
+                    pkt = pkt->next;
                 }
             }
         }
@@ -1734,7 +1704,7 @@ void reg_RenderReflection(char *o, int pri)
 {
     char *mdl;
     char *grp;
-    char *pkt;
+    PacHeader *pkt;
     char *pk;
     int i;
     int r;
@@ -1751,17 +1721,17 @@ void reg_RenderReflection(char *o, int pri)
     dl_OpenDma(5, pk, 0);
     dl_CloseDma();
     for (i = 0; i < *(signed char *)(mdl + 0x2E); i++) {
-        pkt = *(char **)(grp + 8);
+        pkt = *(PacHeader **)(grp + 8);
         while (pkt != 0) {
             r = reg_clipPacketBoundingBox(pkt);
             if (r != 0) {
-                regTransTexturePacket(*(short *)(pkt + 0x84), pri);
-                reg_transMaterialPacket((short *)pkt, (int *)grp);
-                reg_chooseMicroCode((char *)(*(int *)grp + *(short *)(pkt + 0x80) * 0x70), r, pri);
-                dl_OpenDma(2, *(char **)(pkt + 0x98), (*(int *)(pkt + 0x90) & 0xFFFFFF) >> 4);
+                regTransTexturePacket(pkt->tex, pri);
+                reg_transMaterialPacket(pkt, (int *)grp);
+                reg_chooseMicroCode((char *)(*(int *)grp + pkt->mat * 0x70), r, pri);
+                dl_OpenDma(2, pkt->data, (pkt->size & 0xFFFFFF) >> 4);
                 dl_CloseDma();
             }
-            pkt = *(char **)(pkt + 0x94);
+            pkt = pkt->next;
         }
         grp += 0x30;
     }
@@ -1776,7 +1746,7 @@ void reg_DispEnemy(void *sub)
     char *o = sub;
     char *mdl;
     char *grp;
-    char *pkt;
+    PacHeader *pkt;
     float alpha;
     int i;
     int pri;
@@ -1863,27 +1833,26 @@ void reg_DispEnemy(void *sub)
             if (*(int *)(i * 0x180 + *(int *)(mdl + 0x40) + 0x124) != 0) {
                 if (*(char **)(grp + 0xC) != 0) {
                     if (buffer_ID != 0) {
-                        pkt = *(char **)(grp + 8);
+                        pkt = *(PacHeader **)(grp + 8);
                     } else {
-                        pkt = *(char **)(grp + 0xC);
+                        pkt = *(PacHeader **)(grp + 0xC);
                     }
                     reg_setShape(o, i, buffer_ID == 0, pkt,
-                                 (char *)(*(int *)grp + *(short *)(pkt + 0x80) * 0x70));
+                                 (char *)(*(int *)grp + pkt->mat * 0x70));
                 } else {
-                    pkt = *(char **)(grp + 8);
+                    pkt = *(PacHeader **)(grp + 8);
                 }
             } else {
-                pkt = *(char **)(grp + 8);
+                pkt = *(PacHeader **)(grp + 8);
             }
             while (pkt != 0) {
-                pri = regMaterialDLPri((int *)grp, *(short *)(pkt + 0x80),
-                                       tex_GetTexExtData(*(short *)(pkt + 0x84)), 0.0f);
-                regTransTexturePacket(*(short *)(pkt + 0x84), pri);
-                reg_transMaterialPacket((short *)pkt, (int *)grp);
-                reg_chooseMicroCode((char *)(*(int *)grp + *(short *)(pkt + 0x80) * 0x70), 0, pri);
-                dl_OpenDma(2, *(char **)(pkt + 0x98), (*(int *)(pkt + 0x90) & 0xFFFFFF) >> 4);
+                pri = regMaterialDLPri((int *)grp, pkt->mat, tex_GetTexExtData(pkt->tex), 0.0f);
+                regTransTexturePacket(pkt->tex, pri);
+                reg_transMaterialPacket(pkt, (int *)grp);
+                reg_chooseMicroCode((char *)(*(int *)grp + pkt->mat * 0x70), 0, pri);
+                dl_OpenDma(2, pkt->data, (pkt->size & 0xFFFFFF) >> 4);
                 dl_CloseDma();
-                pkt = *(char **)(pkt + 0x94);
+                pkt = pkt->next;
             }
         }
     }
@@ -1897,8 +1866,8 @@ void reg_DispMultiPri(char *o, int pri)
 {
     char *mdl;
     char *grp;
-    char *pkt;
-    char *node;
+    PacHeader *pkt;
+    PacHeader *node;
     char *pk;
     float *w;
     float alpha;
@@ -1932,15 +1901,14 @@ void reg_DispMultiPri(char *o, int pri)
             }
         }
         if (*(int *)(i * 0x180 + *(int *)(mdl + 0x40) + 0x124) != 0 &&
-            (node = *(char **)(grp + 0xC)) != 0) {
+            (node = *(PacHeader **)(grp + 0xC)) != 0) {
             pkt = node;
             if (buffer_ID != 0) {
-                pkt = *(char **)(grp + 8);
+                pkt = *(PacHeader **)(grp + 8);
             }
-            reg_setShape(o, i, buffer_ID == 0, pkt,
-                         (char *)(*(int *)grp + *(short *)(pkt + 0x80) * 0x70));
+            reg_setShape(o, i, buffer_ID == 0, pkt, (char *)(*(int *)grp + pkt->mat * 0x70));
         } else {
-            pkt = *(char **)(grp + 8);
+            pkt = *(PacHeader **)(grp + 8);
         }
         while (pkt != 0) {
             r = reg_clipPacketBoundingBox(pkt);
@@ -1951,35 +1919,33 @@ void reg_DispMultiPri(char *o, int pri)
                         fade = 1;
                     }
                 }
-                regTransTexturePacket(*(short *)(pkt + 0x84), pri);
-                reg_transMaterialPacket((short *)pkt, (int *)grp);
+                regTransTexturePacket(pkt->tex, pri);
+                reg_transMaterialPacket(pkt, (int *)grp);
                 dis = 0;
                 if (fade != 0) {
                     dis = reg_setDissolve(alpha, pri);
                 }
                 if (dis != -1) {
-                    reg_chooseMicroCode((char *)(*(int *)grp + *(short *)(pkt + 0x80) * 0x70), r,
-                                        pri);
-                    dl_OpenDma(2, *(char **)(pkt + 0x98), (*(int *)(pkt + 0x90) & 0xFFFFFF) >> 4);
+                    reg_chooseMicroCode((char *)(*(int *)grp + pkt->mat * 0x70), r, pri);
+                    dl_OpenDma(2, pkt->data, (pkt->size & 0xFFFFFF) >> 4);
                     dl_CloseDma();
                     if (*(int *)(*(char **)(o + 0x874) + 0xF0) == 2) {
-                        if (*(short *)(pkt + 0x86) != -1) {
+                        if (pkt->tex1 != -1) {
                             reg_dispSpecular(pkt, r, 0);
                         }
                     }
                     mode = *(int *)(*(char **)(o + 0x874) + 0xF0);
-                    if (*(short *)(pkt + 0x88) != -1) {
+                    if (pkt->tex2 != -1) {
                         if (mode == 0) {
                             debug_StdPrintfDummy("光源オフでリフレクションを表示.\n");
                             mc_TransMicroCode(2, 0x10);
                         }
                         dl_SetDLPriority(4);
-                        regTransTexturePacket(*(short *)(pkt + 0x88), 4);
+                        regTransTexturePacket(pkt->tex2, 4);
                         dl_OpenDma(2, regReflectionPacket, 6);
                         dl_CloseDma();
                         reg_chooseReflectionMicroCode(0, r, 4);
-                        dl_OpenDma(2, *(char **)(pkt + 0x98),
-                                   (*(int *)(pkt + 0x90) & 0xFFFFFF) >> 4);
+                        dl_OpenDma(2, pkt->data, (pkt->size & 0xFFFFFF) >> 4);
                         dl_CloseDma();
                         if (mode == 0) {
                             mc_TransMicroCode(1, 0x10);
@@ -1990,7 +1956,7 @@ void reg_DispMultiPri(char *o, int pri)
                     reg_resetDissolve(pri);
                 }
             }
-            pkt = *(char **)(pkt + 0x94);
+            pkt = pkt->next;
         }
     }
 }

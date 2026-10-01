@@ -2,6 +2,7 @@
 #include "DisplayList.h"
 #include "typedef.h"
 #include "debug.h"
+#include "DmaPacket.h"
 
 /* The five VU1 microprograms this table hands to the DMA; MAIN.MAP pulls
    cluster.o, mesh.o, normal_c.o, normal_l.o and particle.o into the link
@@ -36,72 +37,69 @@ static int mcResident[16];
 /* The display-list packet builder state and one 64-bit packet slot; same
    objects src/GifPacket.c builds its packets in. */
 
-/* kept local: GifDpk here, DpkCtl in DmaPacket.h */
-extern GifDpk PacketBufferStruct;
-
 void mc_setBaseOffset(int base, int pri)
 {
     char *c;
     char *q;
 
-    c = (char *)PacketBufferStruct.ptr;
-    PacketBufferStruct.gif = 0;
-    PacketBufferStruct.dma = c;
-    PacketBufferStruct.end = 0;
-    PacketBufferStruct.tail = c;
+    c = PacketBufferStruct.ptr.c;
+    PacketBufferStruct.gif.c = 0;
+    PacketBufferStruct.dma.c = c;
+    PacketBufferStruct.end.c = 0;
+    PacketBufferStruct.tail.c = c;
     ((GifPkWord *)c)->d = 0x10000000;
-    PacketBufferStruct.ptr = (unsigned long long *)(c + 8);
+    PacketBufferStruct.ptr.c = c + 8;
 
     switch (base) {
     case 1:
     case 2: {
-        char *p = (char *)PacketBufferStruct.ptr;
+        char *p = PacketBufferStruct.ptr.c;
 
         ((GifPkWord *)p)->w[0] = 0x03000100;
         p += 4;
-        PacketBufferStruct.ptr = (unsigned long long *)p;
+        PacketBufferStruct.ptr.d = (unsigned long long *)p;
         ((GifPkWord *)p)->w[0] = 0x02000180;
-        PacketBufferStruct.ptr = (unsigned long long *)(p + 4);
+        PacketBufferStruct.ptr.c = p + 4;
     } break;
     case 3: {
-        char *p = (char *)PacketBufferStruct.ptr;
+        char *p = PacketBufferStruct.ptr.c;
 
         ((GifPkWord *)p)->w[0] = 0x03000100;
         p += 4;
-        PacketBufferStruct.ptr = (unsigned long long *)p;
+        PacketBufferStruct.ptr.d = (unsigned long long *)p;
         ((GifPkWord *)p)->w[0] = 0x02000180;
-        PacketBufferStruct.ptr = (unsigned long long *)(p + 4);
+        PacketBufferStruct.ptr.c = p + 4;
     } break;
     case 4: {
-        char *p = (char *)PacketBufferStruct.ptr;
+        char *p = PacketBufferStruct.ptr.c;
 
         ((GifPkWord *)p)->w[0] = 0x03000010;
         p += 4;
-        PacketBufferStruct.ptr = (unsigned long long *)p;
+        PacketBufferStruct.ptr.d = (unsigned long long *)p;
         ((GifPkWord *)p)->w[0] = 0x020001F8;
-        PacketBufferStruct.ptr = (unsigned long long *)(p + 4);
+        PacketBufferStruct.ptr.c = p + 4;
     } break;
     case 5: {
-        char *p = (char *)PacketBufferStruct.ptr;
+        char *p = PacketBufferStruct.ptr.c;
 
         ((GifPkWord *)p)->w[0] = 0x03000010;
         p += 4;
-        PacketBufferStruct.ptr = (unsigned long long *)p;
+        PacketBufferStruct.ptr.d = (unsigned long long *)p;
         ((GifPkWord *)p)->w[0] = 0x0200016A;
-        PacketBufferStruct.ptr = (unsigned long long *)(p + 4);
+        PacketBufferStruct.ptr.c = p + 4;
     } break;
     }
 
-    q = (char *)PacketBufferStruct.ptr;
-    PacketBufferStruct.tail = q;
+    q = PacketBufferStruct.ptr.c;
+    PacketBufferStruct.tail.c = q;
     ((GifPkWord *)q)->d = 0x60000000;
-    PacketBufferStruct.ptr = (unsigned long long *)(q + 8);
+    PacketBufferStruct.ptr.c = q + 8;
     ((GifPkWord *)(q + 8))->w[0] = 0;
-    PacketBufferStruct.ptr = (unsigned long long *)(q + 0xC);
+    PacketBufferStruct.ptr.c = q + 0xC;
     ((GifPkWord *)(q + 8))->w[1] = 0;
-    PacketBufferStruct.ptr = (unsigned long long *)(q + 0x10);
+    PacketBufferStruct.ptr.c = q + 0x10;
     dl_SetDLPriority(pri);
-    dl_OpenDma(5, (int)PacketBufferStruct.dma, 0);
+    dl_OpenDma(5, (int)PacketBufferStruct.dma.c, 0);
     dl_CloseDma();
 }
 
@@ -254,26 +252,26 @@ void mc_SetMicroCode(int mode, int a1, int a2, int a3, int pri)
         return;
     }
 
-    c = (char *)PacketBufferStruct.ptr;
-    PacketBufferStruct.gif = 0;
-    PacketBufferStruct.tail = c;
-    PacketBufferStruct.dma = c;
-    PacketBufferStruct.end = 0;
+    c = PacketBufferStruct.ptr.c;
+    PacketBufferStruct.gif.c = 0;
+    PacketBufferStruct.tail.c = c;
+    PacketBufferStruct.dma.c = c;
+    PacketBufferStruct.end.c = 0;
     ((GifPkWord *)c)->d = 0x10000000;
-    PacketBufferStruct.ptr = (unsigned long long *)(c + 8);
+    PacketBufferStruct.ptr.c = c + 8;
     ((GifPkWord *)(c + 8))->w[0] = code | 0x15000000;
-    PacketBufferStruct.ptr = (unsigned long long *)(c + 0xC);
+    PacketBufferStruct.ptr.c = c + 0xC;
     ((GifPkWord *)(c + 0xC))->w[0] = 0x13000000;
-    PacketBufferStruct.ptr = (unsigned long long *)(c + 0x10);
-    PacketBufferStruct.tail = c + 0x10;
+    PacketBufferStruct.ptr.c = c + 0x10;
+    PacketBufferStruct.tail.c = c + 0x10;
     ((GifPkWord *)(c + 0x10))->d = 0x60000000;
-    PacketBufferStruct.ptr = (unsigned long long *)(c + 0x18);
+    PacketBufferStruct.ptr.c = c + 0x18;
     ((GifPkWord *)(c + 0x18))->w[0] = 0;
-    PacketBufferStruct.ptr = (unsigned long long *)(c + 0x1C);
+    PacketBufferStruct.ptr.c = c + 0x1C;
     ((GifPkWord *)(c + 0x18))->w[1] = 0;
-    PacketBufferStruct.ptr = (unsigned long long *)(c + 0x20);
+    PacketBufferStruct.ptr.c = c + 0x20;
     dl_SetDLPriority(pri);
-    dl_OpenDma(5, (int)PacketBufferStruct.dma, 0);
+    dl_OpenDma(5, (int)PacketBufferStruct.dma.c, 0);
     dl_CloseDma();
 }
 

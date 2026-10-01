@@ -23,6 +23,7 @@
 #include "matrixDrive.h"
 #include "main.h"
 #include "fieldCollision.h"
+#include "ios.h"
 
 /* The work record InitWeaponGeo and InitDemoQueensSword allocate and the
    template they initialise it from: 224 bytes, 8-aligned (ROM copies it 32
@@ -622,9 +623,6 @@ typedef struct {
     int kind; /* 0x30 */
     char pad34[0xC];
 } __attribute__((aligned(8))) QSwordLayout;
-
-/* kept local: void * here, int in ios.h */
-extern void *ios_partition_sugipon;
 
 /* the queen's sword offset, its z set per sword */
 static float queenSwordOfs[4] = {0.0f, 0.0f, 0.0f, 1.0f};

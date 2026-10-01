@@ -10,6 +10,7 @@
 #include "Matrix.h"
 #include "main.h"
 #include "matrixDrive.h"
+#include "DmaPacket.h"
 
 /* RECONSTRUCTION, read from the ROM.  The 128-byte per-effect geometry
    object SetParticleEffectByPartition allocates: the emitter's position and
@@ -486,17 +487,14 @@ int execParticleEffect(void *a0)
 
 /* One 64-bit slot of a DMA/GIF packet, written either whole or as one half. */
 
-/* kept local: GifDpk here, DpkCtl in DmaPacket.h */
-extern GifDpk PacketBufferStruct;
-
 /* INTERIM (the same construct src/GifPacket.c uses for its own gif_SetGsReg):
    the listing inlines the GS-register writer at every site in this TU, so it is
    `inline` in the dev's TU; the out-of-line copy lives in src/GifPacket.c and
    stays at its own ROM slot. */
 static inline void peSetGsReg(long long a0, long long a1)
 {
-    *PacketBufferStruct.ptr++ = a1;
-    *PacketBufferStruct.ptr++ = a0;
+    *PacketBufferStruct.ptr.d++ = a1;
+    *PacketBufferStruct.ptr.d++ = a0;
 }
 
 void dispParticleEffect(PEGeo *geo)
@@ -509,18 +507,18 @@ void dispParticleEffect(PEGeo *geo)
         return;
     }
     dl_SetDLPriority(6);
-    c = (char *)PacketBufferStruct.ptr;
-    PacketBufferStruct.gif = 0;
-    PacketBufferStruct.end = 0;
-    PacketBufferStruct.dma = c;
-    PacketBufferStruct.tail = c;
-    PacketBufferStruct.ptr = (unsigned long long *)(c + 8);
+    c = PacketBufferStruct.ptr.c;
+    PacketBufferStruct.gif.c = 0;
+    PacketBufferStruct.end.c = 0;
+    PacketBufferStruct.dma.c = c;
+    PacketBufferStruct.tail.c = c;
+    PacketBufferStruct.ptr.c = c + 8;
     ((GifPkWord *)(c + 8))->w[0] = 0x11000000;
-    PacketBufferStruct.gif = c + 0xC;
-    PacketBufferStruct.end = c + 0x10;
-    PacketBufferStruct.ptr = (unsigned long long *)(c + 0x18);
+    PacketBufferStruct.gif.c = c + 0xC;
+    PacketBufferStruct.end.c = c + 0x10;
+    PacketBufferStruct.ptr.c = c + 0x18;
     ((GifPkWord *)(c + 0x18))->d = 0xE;
-    PacketBufferStruct.ptr = (unsigned long long *)(c + 0x20);
+    PacketBufferStruct.ptr.c = c + 0x20;
     switch (geo->pkg->alphaMode) {
     case 1:
         peSetGsReg(0x49, 0);
@@ -536,38 +534,37 @@ void dispParticleEffect(PEGeo *geo)
         peSetGsReg(0x42, 0x44);
         break;
     }
-    ((GifPkWord *)PacketBufferStruct.end)->d =
-        (unsigned int)(((unsigned int)((char *)PacketBufferStruct.ptr - PacketBufferStruct.end) >>
-                        4) -
+    ((GifPkWord *)PacketBufferStruct.end.c)->d =
+        (unsigned int)(((unsigned int)(PacketBufferStruct.ptr.c - PacketBufferStruct.end.c) >> 4) -
                        1) |
         0x1000000000008000LL;
-    ((GifPkWord *)PacketBufferStruct.gif)->w[0] =
-        (((unsigned int)((char *)PacketBufferStruct.ptr - PacketBufferStruct.gif) >> 4) << 16) |
+    ((GifPkWord *)PacketBufferStruct.gif.c)->w[0] =
+        (((unsigned int)(PacketBufferStruct.ptr.c - PacketBufferStruct.gif.c) >> 4) << 16) |
         0x6C008000;
-    p = (char *)PacketBufferStruct.ptr;
+    p = PacketBufferStruct.ptr.c;
     ((GifPkWord *)p)->w[0] = 0x15000000;
     p += 4;
-    PacketBufferStruct.ptr = (unsigned long long *)p;
+    PacketBufferStruct.ptr.d = (unsigned long long *)p;
     ((GifPkWord *)p)->w[0] = 0;
-    PacketBufferStruct.ptr = (unsigned long long *)(p + 4);
+    PacketBufferStruct.ptr.c = p + 4;
     ((GifPkWord *)(p + 4))->w[0] = 0;
-    PacketBufferStruct.ptr = (unsigned long long *)(p + 8);
+    PacketBufferStruct.ptr.c = p + 8;
     ((GifPkWord *)(p + 8))->w[0] = 0;
-    PacketBufferStruct.ptr = (unsigned long long *)(p + 0xC);
-    ((GifPkWord *)PacketBufferStruct.tail)->d =
-        (unsigned int)((((unsigned int)((char *)PacketBufferStruct.ptr - PacketBufferStruct.tail) >>
+    PacketBufferStruct.ptr.c = p + 0xC;
+    ((GifPkWord *)PacketBufferStruct.tail.c)->d =
+        (unsigned int)((((unsigned int)(PacketBufferStruct.ptr.c - PacketBufferStruct.tail.c) >>
                          4) -
                         1) |
                        0x10000000);
-    q = (char *)PacketBufferStruct.ptr;
-    PacketBufferStruct.tail = q;
+    q = PacketBufferStruct.ptr.c;
+    PacketBufferStruct.tail.c = q;
     ((GifPkWord *)q)->d = 0x60000000;
-    PacketBufferStruct.ptr = (unsigned long long *)(q + 8);
+    PacketBufferStruct.ptr.c = q + 8;
     ((GifPkWord *)(q + 8))->w[0] = 0;
-    PacketBufferStruct.ptr = (unsigned long long *)(q + 0xC);
+    PacketBufferStruct.ptr.c = q + 0xC;
     ((GifPkWord *)(q + 8))->w[1] = 0;
-    PacketBufferStruct.ptr = (unsigned long long *)(q + 0x10);
-    dl_OpenDma(5, PacketBufferStruct.dma, 0);
+    PacketBufferStruct.ptr.c = q + 0x10;
+    dl_OpenDma(5, PacketBufferStruct.dma.c, 0);
     dl_CloseDma();
     prim_DispParticle(geo->prim, matrixptr + 0x100);
 }

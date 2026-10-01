@@ -27,6 +27,7 @@
 #include "quaternion.h"
 #include "main.h"
 #include "fieldCollision.h"
+#include "debug_exception.h"
 
 /* RECONSTRUCTION, read from the ROM.  A bomb's fuse: the torch object that
    lights it, the frames left to burn, the fuse state (0 unlit, 1 burning,
@@ -96,8 +97,6 @@ static inline int IsItemKindBomb(char *gobj)
     return p->kind == 1;
 }
 
-/* kept local: void (const char *, int) here, void (char *, int) in debug_exception.h */
-extern void debug_assert(const char *file, int line);
 extern void __assert(const char *file, int line, char *expr);
 
 void HoldItem(char *gobj, char *holder)

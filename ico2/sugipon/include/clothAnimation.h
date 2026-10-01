@@ -14,8 +14,11 @@
 
 #include "Primitive.h"
 
-void DispCloth4D(int *a0, void *a1, void *a2);
-void DispCloth4DWithAdd(int *a0, void *a1, void *a2);
+/* one cloth InitCloth4D builds (clothAnimation.c) */
+typedef struct Cloth4D Cloth4D;
+
+void DispCloth4D(Cloth4D *c, void *a1, void *a2);
+void DispCloth4DWithAdd(Cloth4D *c, void *a1, void *a2);
 void DispClothMesh(int *a0, void *a1, void *a2);
 void DispMeshWire(Prim3DVec **rows, int nx, int ny);
 void GetChainAnimation(void *chain, int a, void *m);
@@ -88,7 +91,7 @@ typedef struct {
     int f2C;
 } Cloth4DCfg;
 
-int InitCloth4D(char *g, void *a1, void *a2);
+Cloth4D *InitCloth4D(char *g, void *a1, void *a2);
 int InitClothes(char *p);
 int SetChainExtendedWeight(int *a0, int idx, float w0, float w1);
 void TestDispChainAnimation(int *a0);

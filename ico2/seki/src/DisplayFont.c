@@ -5,6 +5,7 @@
 #include "GsBase.h"
 #include "Matrix.h"
 #include "GifPacket.h"
+#include "Texture.h"
 
 static unsigned int fontKerning[64] = {
     /* derived name */
@@ -113,11 +114,6 @@ int font_CheckAlign(unsigned char *col, unsigned char *str)
 typedef struct {
     unsigned char f[4];
 } SprCol;
-
-/* kept local: int (void *) here, int (char *) in Texture.h */
-extern int tex_GetTextureNo(void *name);
-/* kept local: agrees with Texture.h, which this TU does not include (tex_GetTextureNo differs) */
-extern int tex_TransTexture(int no, int pri);
 
 void font_Print(unsigned int color, unsigned char *str, float x, float y, int align, SprCol col)
 {

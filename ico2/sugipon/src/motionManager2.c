@@ -16,6 +16,7 @@
 #include "GifPacket.h"
 #include "Matrix.h"
 #include "motionManager.h"
+#include <libvu0.h>
 
 struct Pack32 {
     long long a, b, c, d;
@@ -39,9 +40,6 @@ typedef struct {
     float q[4];
     char pad2[0x10];
 } StreamNode;
-
-/* kept local: void (float *, float *, float *) here, void (void *, void *, void *) in libvu0.h */
-extern void sceVu0AddVector(float *dst, float *a, float *b);
 
 int GetWaterReaction(float *outH, int *outFlag, char *info, float *pos, float *vel, float h0,
                      float h1, float h2, float scaleIn, float amp)
@@ -103,9 +101,6 @@ int GetWaterReaction(float *outH, int *outFlag, char *info, float *pos, float *v
 
 /* 8-aligned RGBA quad, for the same reason; the components are signed (the
    colour scaling in dispPlane is cvt.s.w). */
-
-/* kept local: agrees with libvu0.h, which this TU does not include (sceVu0AddVector, sceVu0ApplyMatrix differ) */
-extern void sceVu0UnitMatrix(void *m);
 
 #define ABSF(x) ((x) < 0.0f ? -(x) : (x))
 
@@ -208,9 +203,6 @@ void GetOrientOfCliffOfGObj(int a0, int a1)
     CopyVector(a0, (int)((GObj *)(a1))->p_15C + 0x590);
 }
 
-/* kept local: void (int *, int *) here, void (void *, void *) in libvu0.h */
-extern void sceVu0Normalize(int *a0, int *a1);
-
 void SetMotionDirection(void *a0, float *a1)
 {
     char *base = *(char **)((char *)a0 + 0x15C);
@@ -236,9 +228,6 @@ void _GetMotionDirection(int a0, int a1)
 {
     GetGlobalDirectionOrient(a0, a1, (int)((GObj *)(a1))->p_15C + 0x520);
 }
-
-/* kept local: void (float *, float *, float *) here, void (void *, void *, void *) in libvu0.h */
-extern void sceVu0ApplyMatrix(float *dst, float *m, float *v);
 
 void SetMotionDirectionWithLimit(void *self, float *dir, float lim0, float lim1)
 {
@@ -304,9 +293,6 @@ void getLowerPlaneCollisionE(int a0, int a1)
     ClipFloorE(a0);
 }
 
-/* kept local: agrees with libvu0.h, which this TU does not include (sceVu0AddVector, sceVu0ApplyMatrix differ) */
-extern void sceVu0CopyVector();
-
 /* static inline in the ROM: inlined into AdjustMotionHeightToNearestField and
  * InitMotionGeoInfo, no out-of-line copy, so the name is ours. */
 static inline int adjustMotionHeightToNearestField(char *o, float *pos)
@@ -335,10 +321,6 @@ static inline int adjustMotionHeightToNearestField(char *o, float *pos)
 /* RotQuaternionZ's second parameter is `int`, not `short`: calcFootIK's dev line
    1035 passes the raw GetTableArcSin result with no sign extension, and its 1040
    site sign-extends explicitly.  InitMotionGeoInfo's site carries the (short). */
-/* kept local: void (float *, float *) here, void (void *, void *) in libvu0.h */
-extern void sceVu0TransposeMatrix(float *dst, float *src);
-/* kept local: void (float *, float *, float) here, void (void *, void *, float) in libvu0.h */
-extern void sceVu0ScaleVectorXYZ(float *dst, float *a, float s);
 
 int calcFootIK(char *skel, char *arg, int node, float scale, float ratio)
 {
@@ -1054,12 +1036,6 @@ void SlopeIKControl(GObj *self, char *arg, int a2, Vec4 *vel)
     ik->f_4C = (r0 > 1.0f) ? 1.0f : r0;
 }
 
-/* kept local: void (float *, float *, float *) here, void (void *, void *, void *) in libvu0.h */
-extern void sceVu0SubVector(float *dst, float *a, float *b);
-/* kept local: void (float *, float *, float *) here, void (void *, void *, void *) in libvu0.h */
-extern void sceVu0OuterProduct(float *dst, float *a, float *b);
-/* kept local: float (float *, float *) here, float (void *, void *) in libvu0.h */
-extern float sceVu0InnerProduct(float *a, float *b);
 extern void __assert(char *file, int line, char *expr);
 
 /* The tail of motionManager2.o's .rodata run: four named objects, in the
@@ -1287,9 +1263,6 @@ int GetPureVerticalPlane(void *plane0, void *plane1, float *ptsIn, int *cfg, int
     }
     return bestIdx;
 }
-
-/* kept local: agrees with libvu0.h, which this TU does not include (sceVu0AddVector, sceVu0ApplyMatrix differ) */
-extern void sceVu0CopyVector(void *dst, void *src);
 
 typedef struct {
     float x, y, z, w;
@@ -2138,9 +2111,6 @@ void SetMotionPlaySpeedRatio(char *self, float val)
 {
     GOBJ_SUB(self)->f_4B8 = val;
 }
-
-/* kept local: void () here, void (void *, void *, void *) in libvu0.h */
-extern void sceVu0AddVector();
 
 void ClearMotionGeometryInfo(int *self)
 {

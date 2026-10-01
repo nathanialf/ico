@@ -5,6 +5,7 @@
 #include "Texture.h"
 #include "ZFog.h"
 #include "main.h"
+#include "DmaPacket.h"
 
 /* The fog CLUT upload packet: a VIF code quad (nop, nop, FLUSHA, DIRECT 65),
  * a GIFtag (EOP, NLOOP=64, FLG=IMAGE), the 256-entry 32-bit CLUT itself and a
@@ -84,27 +85,6 @@ void fog_MakeFogClut(void)
     FlushCache(0);
 }
 
-/* The display-list packet builder state, the record src/GifPacket.c carries
- * as GifDpk, held here as src/Shadow.c holds it: every packet address is one
- * pointer union, so each field access is alias set 0 (c-common.c
- * c_get_alias_set: a reference through a union). */
-typedef union {
-    unsigned long long *d;
-    char *c;
-} FogPkPtr;
-
-typedef struct {
-    int cur;
-    int *buf[2];
-    FogPkPtr dma;
-    FogPkPtr ptr;
-    FogPkPtr tail;
-    FogPkPtr gif;
-    FogPkPtr end;
-} FogDpk;
-
-/* kept local: FogDpk here, DpkCtl in DmaPacket.h */
-extern FogDpk PacketBufferStruct;
 /* kept local: void (int, void *, int) here, void (int, int, int) in DisplayList.h */
 extern void dl_OpenDma(int chan, void *dma, int flag);
 /* kept local: agrees with DisplayList.h, which this TU does not include (dl_OpenDma differs) */

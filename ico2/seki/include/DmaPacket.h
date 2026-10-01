@@ -12,22 +12,31 @@
 #ifndef DMAPACKET_H
 #define DMAPACKET_H
 
+/* a packet address: the builders write doublewords through it and do their
+   address arithmetic in bytes */
+typedef union {
+    unsigned long long *d;
+    char *c;
+    int *i;
+} DpkPtr;
+
 /* the packet buffer control record: the current bank, the two banks, the
-   write pointer and three words dpk_SwapBuffer clears */
+   open DMA tag, the write pointer, the open tail tag, the open GIF tag and the
+   packet end */
 typedef struct {
-    int cur;     /* 0x00 */
-    int *buf[2]; /* 0x04 0x08 */
-    int _0C;
-    int *ptr; /* 0x10 */
-    int *_14;
-    int *_18;
-    int *_1C;
+    int cur;
+    int *buf[2];
+    DpkPtr dma;
+    DpkPtr ptr;
+    DpkPtr tail;
+    DpkPtr gif;
+    DpkPtr end;
 } DpkCtl;
 
 extern DpkCtl PacketBufferStruct;
 extern int used_dma_memory;
 void dpk_Init(void);
 void dpk_SwapBuffer(void);
-int dpk_CheckBufferSize(void);
+unsigned int dpk_CheckBufferSize(void);
 
 #endif /* DMAPACKET_H */

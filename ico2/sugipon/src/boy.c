@@ -40,6 +40,8 @@ typedef struct { /* 0x10 */
 #include "debug.h"
 #include "main.h"
 #include "GifPacket.h"
+#include "lineManager.h"
+#include "ios.h"
 
 /* The boy's five generated cloth meshes, in the order InitBoyGeo hands them to
    InitCloth4D: the mantle, the tape belt and the three loose tape strips.
@@ -359,14 +361,16 @@ static Cloth4DCol tapeBoro2MeshCols[2] = {
    animation, the five cloths, the pool reflection mesh, the water drops and
    the drip state actionOfWater runs. */
 typedef struct BoyWork {
-    int crown;              /* 0x00, 1 or 2 picks crown1 or crown2, else crown0 */
-    char *head;             /* 0x04 */
-    char *body;             /* 0x08 */
-    char *crown0;           /* 0x0C */
-    char *crown1;           /* 0x10 */
-    char *crown2;           /* 0x14 */
-    int stone;              /* 0x18 */
-    int stoneAnim;          /* 0x1C */
+    int crown;     /* 0x00, 1 or 2 picks crown1 or crown2, else crown0 */
+    char *head;    /* 0x04 */
+    Sub15C *body;  /* 0x08 */
+    char *crown0;  /* 0x0C */
+    char *crown1;  /* 0x10 */
+    char *crown2;  /* 0x14 */
+    int stone;     /* 0x18 */
+    int stoneAnim; /* 0x1C */
+    /* the cloth handles InitCloth4D returns, held as char *: typed Cloth4D * or
+       void * their stores in InitBoyGeo move across the 0x554 store (measured) */
     char *mantle;           /* 0x20 */
     char *tape;             /* 0x24 */
     char *tapeBoro1;        /* 0x28 */
@@ -386,15 +390,15 @@ void dispClothes(char *gobj)
     char *x;
 
     x = (char *)GOBJ_SUB(gobj)->p_874;
-    DispCloth4D(w->mantle, x + 0x40, x);
+    DispCloth4D((Cloth4D *)w->mantle, x + 0x40, x);
     x = (char *)GOBJ_SUB(gobj)->p_874;
-    DispCloth4D(w->tape, x + 0x40, x);
+    DispCloth4D((Cloth4D *)w->tape, x + 0x40, x);
     x = (char *)GOBJ_SUB(gobj)->p_874;
-    DispCloth4D(w->tapeB, x + 0x40, x);
+    DispCloth4D((Cloth4D *)w->tapeB, x + 0x40, x);
     x = (char *)GOBJ_SUB(gobj)->p_874;
-    DispCloth4D(w->tapeBoro1, x + 0x40, x);
+    DispCloth4D((Cloth4D *)w->tapeBoro1, x + 0x40, x);
     x = (char *)GOBJ_SUB(gobj)->p_874;
-    DispCloth4D(w->tapeBoro2, x + 0x40, x);
+    DispCloth4D((Cloth4D *)w->tapeBoro2, x + 0x40, x);
 }
 
 /* census execClothes, a file static: girl.c has its own static twin of this name.
@@ -433,9 +437,6 @@ static void execClothes(char *gobj)
         w->detail *= 0.999f;
     }
 }
-
-/* kept local: void * here, int in ios.h */
-extern void *ios_partition_sugipon;
 
 /* the one LightLineExt InitLightLineGeo fills; its definition closes the
    TU's .data, after the sync marker colours */
@@ -490,11 +491,6 @@ inline void LightLineGeo(void)
         }
     }
 }
-
-/* lineManager.h declares DrawLineG with int * endpoints; this TU hands it the
-   vector and colour records it builds on its own frame. */
-/* kept local: void (LLVec *, LLColor *, LLVec *, LLColor *, int) here, void (int *, int *, int *, int *, int) in lineManager.h */
-extern void DrawLineG(LLVec *p0, LLColor *c0, LLVec *p1, LLColor *c1, int flags);
 
 void LightLineDL(void)
 {
@@ -580,9 +576,6 @@ inline void SelectBoyCrown(char *a0, int a1)
    ld/or/sd and ld/and/sd, and a 16-bit field two bytes into the same
    container reached with a plain sh; the same union src/enemyParts.c uses. */
 
-/* kept local: void * here, int in ios.h */
-extern void *ios_partition_seki;
-
 /* The two points the boy's mantle hangs from, once for each cloth.  MAIN.MAP
    names no symbol in boy.o's .data, so these names are ours. */
 static ClothHangCfg mantleHang[3] = {
@@ -615,38 +608,38 @@ BoyWork *InitBoyGeo(char *gobj, void *csv)
     p->tapeBoro2 = (char *)InitCloth4D(gobj, &tapeBoro2Mesh, 0);
     *(int *)(*(char **)(gobj + 0x15C) + 0x554) = 1;
     w->head = CSVSYSTEM_InitDObj(2, csv);
-    w->body = CSVSYSTEM_InitDObj(3, csv);
-    if (*(int *)(w->body + 0xC) != 0) {
-        iosFree(*(int *)(w->body + 0xC) & 0xFFFFFFF);
+    w->body = (Sub15C *)CSVSYSTEM_InitDObj(3, csv);
+    if (w->body->f_C != 0) {
+        iosFree(w->body->f_C & 0xFFFFFFF);
     }
-    if (*(int *)(w->body + 0x10) != 0) {
-        iosFree(*(int *)(w->body + 0x10) & 0xFFFFFFF);
+    if (w->body->f_10 != 0) {
+        iosFree(w->body->f_10 & 0xFFFFFFF);
     }
-    *(int *)(w->body + 0xC) = 0;
-    *(int *)(w->body + 0x10) = 0;
-    *(int *)(w->body + 0xC) = (int)iosMallocDebug(ios_partition_seki, 0x80, "src/boy.c", 291);
-    *(int *)(w->body + 0x10) = (int)iosMallocDebug(ios_partition_seki, 0x20, "src/boy.c", 291);
-    *(int *)(w->body + 0x8) = 2;
-    if (*(int *)(w->body + 0x870) != 0) {
-        iosFree(*(int *)(w->body + 0x870) & 0xFFFFFFF);
+    w->body->f_C = 0;
+    w->body->f_10 = 0;
+    w->body->f_C = (int)iosMallocDebug(ios_partition_seki, 0x80, "src/boy.c", 291);
+    w->body->f_10 = (int)iosMallocDebug(ios_partition_seki, 0x20, "src/boy.c", 291);
+    w->body->f_8 = 2;
+    if ((int)w->body->p_870 != 0) {
+        iosFree((int)w->body->p_870 & 0xFFFFFFF);
     }
-    *(int *)(w->body + 0x870) = (int)iosMallocDebug(ios_partition_seki, 0xA0, "src/boy.c", 291);
+    w->body->p_870 = iosMallocDebug(ios_partition_seki, 0xA0, "src/boy.c", 291);
     for (i = 0; i < 2; i++) {
-        ((DlFlag *)(i * 0x50 + *(int *)(w->body + 0x870) + 0x38))->ll &= ~1;
-        ((DlFlag *)(i * 0x50 + *(int *)(w->body + 0x870) + 0x38))->ll &= ~2;
-        *(float *)(i * 0x50 + *(int *)(w->body + 0x870) + 0x40) = 0.0f;
-        *(float *)(i * 0x50 + *(int *)(w->body + 0x870) + 0x44) = 0.0f;
-        *(float *)(i * 0x50 + *(int *)(w->body + 0x870) + 0x48) = 0.0f;
-        *(float *)(i * 0x50 + *(int *)(w->body + 0x870) + 0x4C) = 1.0f;
-        ((DlFlag *)(i * 0x50 + *(int *)(w->body + 0x870) + 0x38))->ll &= ~4;
-        *(float *)(i * 0x50 + *(int *)(w->body + 0x870) + 0x30) = 0.0f;
-        *(float *)(i * 0x50 + *(int *)(w->body + 0x870) + 0x34) = 1.0f;
-        *(short *)(i * 0x50 + *(int *)(w->body + 0x870) + 0x3A) = 0;
-        *(float *)(i * 0x50 + *(int *)(w->body + 0x870) + 0x20) = 1.0f;
-        *(float *)(i * 0x50 + *(int *)(w->body + 0x870) + 0x24) = 1.0f;
-        *(float *)(i * 0x50 + *(int *)(w->body + 0x870) + 0x28) = 1.0f;
+        ((DlFlag *)(i * 0x50 + (int)w->body->p_870 + 0x38))->ll &= ~1;
+        ((DlFlag *)(i * 0x50 + (int)w->body->p_870 + 0x38))->ll &= ~2;
+        *(float *)(i * 0x50 + (int)w->body->p_870 + 0x40) = 0.0f;
+        *(float *)(i * 0x50 + (int)w->body->p_870 + 0x44) = 0.0f;
+        *(float *)(i * 0x50 + (int)w->body->p_870 + 0x48) = 0.0f;
+        *(float *)(i * 0x50 + (int)w->body->p_870 + 0x4C) = 1.0f;
+        ((DlFlag *)(i * 0x50 + (int)w->body->p_870 + 0x38))->ll &= ~4;
+        *(float *)(i * 0x50 + (int)w->body->p_870 + 0x30) = 0.0f;
+        *(float *)(i * 0x50 + (int)w->body->p_870 + 0x34) = 1.0f;
+        *(short *)(i * 0x50 + (int)w->body->p_870 + 0x3A) = 0;
+        *(float *)(i * 0x50 + (int)w->body->p_870 + 0x20) = 1.0f;
+        *(float *)(i * 0x50 + (int)w->body->p_870 + 0x24) = 1.0f;
+        *(float *)(i * 0x50 + (int)w->body->p_870 + 0x28) = 1.0f;
     }
-    *(short *)(w->body + 0x84C) = 2;
+    w->body->f_84C = 2;
     w->crown0 = CSVSYSTEM_InitDObj(1, csv);
     w->crown1 = CSVSYSTEM_InitDObj(0xF, csv);
     w->crown2 = CSVSYSTEM_InitDObj(0x10, csv);
@@ -788,10 +781,10 @@ void dispSubParts(char *gobj)
     node = GetSkeltonFocusNode(gobj, 0x23);
     CopyMatrix(*(char **)(a + 0xC), (char *)GOBJ_SUB(gobj)->f_C + (node << 6));
     p2o_DispVU1DObj(w->head);
-    a = w->body;
+    a = (char *)w->body;
     node = GetSkeltonFocusNode(gobj, 0x14);
     CopyMatrix(*(char **)(a + 0xC), (char *)GOBJ_SUB(gobj)->f_C + (node << 6));
-    c = *(char **)(w->body + 0xC) + 0x40;
+    c = (char *)w->body->f_C + 0x40;
     node = GetSkeltonFocusNode(gobj, 0x4);
     CopyMatrix(c, (char *)GOBJ_SUB(gobj)->f_C + (node << 6));
     p2o_DispVU1DObjMulti(w->body);

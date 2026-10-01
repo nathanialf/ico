@@ -13,14 +13,69 @@
    texts and the model name formats as literals. */
 static int maxPacketSize = 0; /* derived name */
 
-/* RECONSTRUCTION (name ours): the packet builder's work area, the TU's whole
- * .bss (MAIN.MAP Packet.o .bss 0x60, no symbol): the model name the error
- * messages print at 0, the open DMA tag, VIF code, GIF tag and write pointers
- * at 0x20..0x2C, the element count at 0x30, the state bits at 0x38, the
- * bounding box minimum at 0x40 and maximum at 0x50.  Every function reaches it
- * as raw storage through a char pointer, so it is kept as the byte array the
- * TU reads. */
-static char pacWork[0x60];
+/* A float word written through the union member: the store has alias set 0,
+   so the bounding-box stores of pac_growBounds end what CSE knows about the
+   strip entry and the strip builders re-read the vertex index after it, as the
+   ROM does. */
+typedef union {
+    float f;
+    unsigned int ui;
+} PacketFloat;
+
+/* RECONSTRUCTION (name ours): a 16-byte vector copied as two doublewords,
+   the ROM's ld/ld and sd/sd pair for the margin copy out of its template.
+   pacWork.boxMin and boxMax are the 32-byte bounding box, minimum then
+   maximum corner (the ROM reaches the maximum as %lo(pacWork + 0x50) and the
+   minimum with -16). */
+typedef struct {
+    sceVu0FVECTOR f;
+} PacBoxVec;
+
+/* The context's counter pair at +0x30 (w[0] the element count, w[1] the GIF
+   count) and the state word at +0x38: the TU reads each both as 32-bit words
+   and as a 64-bit mask, so both are this union and every access has alias
+   set 0. */
+typedef union {
+    unsigned long long ul;
+    long long l;
+    int w[2];
+} PacState;
+
+/* RECONSTRUCTION (names ours): the work area's layout, as the TU's accesses
+   read it. The strip builders reach the state and the write cursor as
+   members: the ROM materialises the bare pacWork address at the first access
+   of each region (listing 742 and 749, 911, 921, 933 and 944), which is what
+   a member access of the whole object expands to, where a char offset from
+   pacWork folds into one constant address. The cursor is a union of packet
+   pointers: every access to it has alias set 0, so each typed word store
+   keeps the cursor store before it alive while the int and float loads
+   between them move as the ROM's do, and each word is one post-increment
+   statement (the listing puts a word's value store and its cursor store on
+   one line). */
+typedef union {
+    int *i;
+    float *f;
+    unsigned int addr;
+    PacBoxVec *v;
+} PacCursor;
+
+typedef struct {
+    char name[0x20];
+    unsigned int dmaTag;
+    unsigned int vifCode;
+    unsigned int gifTag;
+    PacCursor cursor;
+    PacState counts;
+    PacState state;
+    PacketFloat boxMin[4];
+    PacketFloat boxMax[4];
+} PacWork;
+
+/* the packet builder's work area, the TU's whole .bss (MAIN.MAP Packet.o
+ * .bss 0x60, no symbol; the name is ours): the model name the error messages
+ * print, the open DMA tag, VIF code and GIF tag, the write cursor, the
+ * element counts, the state bits and the bounding box */
+static PacWork pacWork;
 
 void pac_DispQW(void *p, int size)
 {
@@ -74,7 +129,7 @@ inline void pac_Dump(int *a0, int size)
     } while (count != 0);
 }
 
-void pac_DumpPac(char *pac)
+void pac_DumpPac(PacHeader *pac)
 {
     char *q;
     int i;
@@ -82,31 +137,31 @@ void pac_DumpPac(char *pac)
     int n;
 
     while (pac != 0) {
-        q = *(char **)(pac + 0x98);
+        q = pac->data;
         cnt = 0;
-        for (i = 0; i < ((*(int *)(pac + 0x90) & 0xFFFFFF) >> 4); i++) {
+        for (i = 0; i < ((pac->size & 0xFFFFFF) >> 4); i++) {
             if (cnt == 0) {
                 if (i == 0)
                     debug_StdPrintfDummy(":::VIFCODE:UNPACK\n");
-                else if (i == ((*(int *)(pac + 0x90) & 0xFFFFFF) >> 4) - 1)
+                else if (i == ((pac->size & 0xFFFFFF) >> 4) - 1)
                     debug_StdPrintfDummy(":::VIFCODE:CAL/CNT END\n");
                 else
                     debug_StdPrintfDummy(":::VIFCODE:CAL/CNT-UNPACK\n");
                 debug_StdPrintfDummy(q);
             } else if (cnt == -1) {
-                char *ctx = pacWork;
-                n = (*(int *)q & 0xFFF) * *(int *)(ctx + 0x30);
+                PacWork *ctx = &pacWork;
+                n = (*(int *)q & 0xFFF) * ctx->counts.w[0];
                 cnt = n + 1;
-                debug_StdPrintfDummy(":::GIFTAG:NLOOP=%d(S:%d)\n", n, *(int *)(ctx + 0x30));
+                debug_StdPrintfDummy(":::GIFTAG:NLOOP=%d(S:%d)\n", n, ctx->counts.w[0]);
                 debug_StdPrintfDummy(q);
-                debug_StdPrintfDummy(":::PACKET:%s\n", ctx);
+                debug_StdPrintfDummy(":::PACKET:%s\n", ctx->name);
             } else {
                 debug_StdPrintfDummy(q);
             }
             q += 0x10;
             cnt--;
         }
-        pac = *(char **)(pac + 0x94);
+        pac = pac->next;
         debug_StdPrintfDummy("
 ");
     }
@@ -123,103 +178,55 @@ inline void pac_DispVu1Memory(int idx, int n, int size)
     }
 }
 
-/* A float word written through the union member: the store has alias set 0,
-   so the bounding-box stores of pac_growBounds end what CSE knows about the
-   strip entry and the strip builders re-read the vertex index after it, as the
-   ROM does. */
-typedef union {
-    float f;
-    unsigned int ui;
-} PacketFloat;
-
-/* RECONSTRUCTION (names ours): the work area's layout, as the TU's accesses
-   read it. The strip builders reach the state and the write cursor as
-   members: the ROM materialises the bare pacWork address at the first access
-   of each region (listing 742 and 749, 911, 921, 933 and 944), which is what
-   a member access of the whole object expands to, where a char offset from
-   pacWork folds into one constant address. The cursor is a union of packet
-   pointers: every access to it has alias set 0, so each typed word store
-   keeps the cursor store before it alive while the int and float loads
-   between them move as the ROM's do, and each word is one post-increment
-   statement (the listing puts a word's value store and its cursor store on
-   one line). The bytes cannot tell this cast view from a work area declared
-   with the struct type. */
-typedef union {
-    int *i;
-    float *f;
-} PacCursor;
-
-typedef struct {
-    char name[0x20];
-    int dmaTag;
-    int vifCode;
-    int gifTag;
-    PacCursor cursor;
-    int count;
-    int gifCount;
-    long long state;
-    float boxMin[4];
-    float boxMax[4];
-} PacWork;
-
 /* listing rows 607-613: grows the context's bounding box by one vertex (the
    strip builders inline it) */
-static inline void pac_growBounds(char *ctx, char *vtx, int idx)
+static inline void pac_growBounds(PacWork *ctx, char *vtx, int idx)
 {
-    if (*(float *)(ctx + 0x40) > *(float *)(vtx + idx * 16))
-        ((PacketFloat *)(ctx + 0x40))->f = *(float *)(vtx + idx * 16);
-    if (*(float *)(ctx + 0x50) < *(float *)(vtx + idx * 16))
-        ((PacketFloat *)(ctx + 0x50))->f = *(float *)(vtx + idx * 16);
-    if (*(float *)(ctx + 0x44) > *(float *)(vtx + idx * 16 + 4))
-        ((PacketFloat *)(ctx + 0x44))->f = *(float *)(vtx + idx * 16 + 4);
-    if (*(float *)(ctx + 0x54) < *(float *)(vtx + idx * 16 + 4))
-        ((PacketFloat *)(ctx + 0x54))->f = *(float *)(vtx + idx * 16 + 4);
-    if (*(float *)(ctx + 0x48) > *(float *)(vtx + idx * 16 + 8))
-        ((PacketFloat *)(ctx + 0x48))->f = *(float *)(vtx + idx * 16 + 8);
-    if (*(float *)(ctx + 0x58) < *(float *)(vtx + idx * 16 + 8))
-        ((PacketFloat *)(ctx + 0x58))->f = *(float *)(vtx + idx * 16 + 8);
+    if (ctx->boxMin[0].f > *(float *)(vtx + idx * 16))
+        ctx->boxMin[0].f = *(float *)(vtx + idx * 16);
+    if (ctx->boxMax[0].f < *(float *)(vtx + idx * 16))
+        ctx->boxMax[0].f = *(float *)(vtx + idx * 16);
+    if (ctx->boxMin[1].f > *(float *)(vtx + idx * 16 + 4))
+        ctx->boxMin[1].f = *(float *)(vtx + idx * 16 + 4);
+    if (ctx->boxMax[1].f < *(float *)(vtx + idx * 16 + 4))
+        ctx->boxMax[1].f = *(float *)(vtx + idx * 16 + 4);
+    if (ctx->boxMin[2].f > *(float *)(vtx + idx * 16 + 8))
+        ctx->boxMin[2].f = *(float *)(vtx + idx * 16 + 8);
+    if (ctx->boxMax[2].f < *(float *)(vtx + idx * 16 + 8))
+        ctx->boxMax[2].f = *(float *)(vtx + idx * 16 + 8);
 }
-
-/* RECONSTRUCTION (name ours): a 16-byte vector copied as two doublewords,
-   the ROM's ld/ld and sd/sd pair for the margin copy out of its template.
-   pacWork + 0x40 is the 32-byte bounding box, minimum then maximum corner
-   (the ROM reaches the maximum as %lo(pacWork + 0x50) and the minimum with
-   -16). */
-typedef struct {
-    sceVu0FVECTOR f;
-} PacBoxVec;
 
 void pac_makeBoundingBox(float (*box)[4], int flag)
 {
     PacBoxVec sum;
     PacBoxVec mrg;
-    char *ctx;
+    PacWork *ctx;
     int i;
 
     memset(&sum, 0, sizeof(sum));
     mrg = (PacBoxVec){{300.0f, 300.0f, 300.0f, 0.0f}};
     if (flag != 0) {
-        _AddVectorXYZ(pacWork + 0x50, pacWork + 0x50, &mrg);
-        _SubVectorXYZ(pacWork + 0x40, pacWork + 0x40, &mrg);
+        _AddVectorXYZ(pacWork.boxMax, pacWork.boxMax, &mrg);
+        _SubVectorXYZ(pacWork.boxMin, pacWork.boxMin, &mrg);
     }
     /* The eight corners are indexed off the box, not walked with a pointer:
        loop.c reduces the box[i] addresses to one pointer giv, and in that
        form sched1 schedules each block of the loop alone, the ROM's order; a
        pointer walk forms a ten-block interblock region and hoists the masks
        and the call's argument moves into the first block (measured). */
-    for (ctx = pacWork, i = 0; i < 8; i++) {
+    for (ctx = &pacWork, i = 0; i < 8; i++) {
         if (i & 1)
-            box[i][0] = *(float *)(ctx + 0x50);
+            box[i][0] = ctx->boxMax[0].f;
         else
-            box[i][0] = *(float *)(ctx + 0x40);
+            box[i][0] = ctx->boxMin[0].f;
         if (i & 2)
-            box[i][1] = *(float *)(ctx + 0x54);
+            box[i][1] = ctx->boxMax[1].f;
         else
-            box[i][1] = *(float *)(ctx + 0x44);
+            box[i][1] = ctx->boxMin[1].f;
         if (i & 4)
-            box[i][2] = *(float *)(ctx + 0x58);
+            box[i][2] = ctx->boxMax[2].f;
         else
-            box[i][2] = *(float *)(ctx + 0x48);
+            box[i][2] = ctx->boxMin[2].f;
         box[i][3] = 1.0f;
         _AddVectorXYZ(&sum, &sum, box[i]);
     }
@@ -231,19 +238,19 @@ void pac_error(char *name, int type)
 {
     switch (type) {
     case 5:
-        debug_Assert("IN %s\n%s:NoTexture Polygon(s) exist(s).\n", pacWork, name);
+        debug_Assert("IN %s\n%s:NoTexture Polygon(s) exist(s).\n", pacWork.name, name);
         break;
     case 1:
-        debug_Assert("IN %s\n%s:NoNormal Cluster Model exists.\n", pacWork, name);
+        debug_Assert("IN %s\n%s:NoNormal Cluster Model exists.\n", pacWork.name, name);
         break;
     case 2:
-        debug_Assert("IN %s\n%s:Abnormal Weight Data exist(s).\n", pacWork, name);
+        debug_Assert("IN %s\n%s:Abnormal Weight Data exist(s).\n", pacWork.name, name);
         break;
     case 3:
-        debug_Assert("IN %s\n%s:Too Much Weight (>=4) Vertex exist(s).\n", pacWork, name);
+        debug_Assert("IN %s\n%s:Too Much Weight (>=4) Vertex exist(s).\n", pacWork.name, name);
         break;
     case 4:
-        debug_Assert("IN %s\n%s:No Weight Vertex exist(s).\n", pacWork, name);
+        debug_Assert("IN %s\n%s:No Weight Vertex exist(s).\n", pacWork.name, name);
         break;
     }
     debug_assert("src/Packet.c", 684);
@@ -259,7 +266,7 @@ int pac_makeNormalStrip(char *obj, short *strip, int num)
     char *uv;
     char *ary;
     char *col;
-    char *ctx;
+    PacWork *ctx;
     float f2;
     int i;
 
@@ -268,45 +275,42 @@ int pac_makeNormalStrip(char *obj, short *strip, int num)
     uv = *(char **)(obj + 0xB0);
     ary = *(char **)(obj + 0xE0);
     col = *(char **)(obj + 0xC0);
-    ctx = pacWork;
-    *(int *)(strip - 6) =
-        (*(unsigned int *)(ctx + 0x2C) & 0x0FFFFFFF) - *(unsigned int *)(ctx + 0x20);
+    ctx = &pacWork;
+    *(int *)(strip - 6) = (ctx->cursor.addr & 0x0FFFFFFF) - ctx->dmaTag;
     for (i = 0, v = strip; i < num; i++, v += 8) {
-        char *ctx = pacWork;
+        PacWork *ctx = &pacWork;
 
         pac_growBounds(ctx, vtx, v[2]);
-        _CopyVector((*(PacBoxVec **)(ctx + 0x2C))++, vtx + v[2] * 16);
+        _CopyVector(ctx->cursor.v++, vtx + v[2] * 16);
         if (*(float *)(vtx + v[2] * 16 + 12) != 1.0f) {
             sprintf(buf, "\033[31msorce normal model data broken! %f %f %f %f [%d]\033[0m\n",
                     *(float *)(vtx + v[2] * 16), *(float *)(vtx + v[2] * 16 + 4),
                     *(float *)(vtx + v[2] * 16 + 8), *(float *)(vtx + v[2] * 16 + 12), v[2]);
             debug_StdPrintfDummy(buf);
         }
-        if ((int)(*(long long *)(ctx + 0x38) >> 1) & 1)
-            _CopyVector((*(PacBoxVec **)(ctx + 0x2C))++, nrm + v[3] * 16);
-        if (((int)(*(long long *)(ctx + 0x38) >> 3) & 1) && v[4] != -1) {
+        if ((int)(ctx->state.l >> 1) & 1)
+            _CopyVector(ctx->cursor.v++, nrm + v[3] * 16);
+        if (((int)(ctx->state.l >> 3) & 1) && v[4] != -1) {
             f2 = 1.0f;
             if (i == 0)
                 f2 = 0.0f;
-            *((PacWork *)ctx)->cursor.f++ =
-                *(float *)(uv + v[4] * 16) * *(float *)(ary + v[7] * 144 + 0x84);
-            *((PacWork *)ctx)->cursor.f++ =
-                *(float *)(uv + v[4] * 16 + 4) * *(float *)(ary + v[7] * 144 + 0x88);
-            *((PacWork *)ctx)->cursor.f++ = 1.0f;
-            *((PacWork *)ctx)->cursor.f++ = f2;
+            *ctx->cursor.f++ = *(float *)(uv + v[4] * 16) * *(float *)(ary + v[7] * 144 + 0x84);
+            *ctx->cursor.f++ = *(float *)(uv + v[4] * 16 + 4) * *(float *)(ary + v[7] * 144 + 0x88);
+            *ctx->cursor.f++ = 1.0f;
+            *ctx->cursor.f++ = f2;
         } else {
             pac_error("pac_makeNormalStrip", 5);
         }
-        if (((int)(((PacWork *)pacWork)->state >> 4) & 1) && v[5] != -1) {
-            *((PacWork *)pacWork)->cursor.f++ = (float)(unsigned char)col[v[5] * 4];
-            *((PacWork *)pacWork)->cursor.f++ = (float)(unsigned char)col[v[5] * 4 + 1];
-            *((PacWork *)pacWork)->cursor.f++ = (float)(unsigned char)col[v[5] * 4 + 2];
-            *((PacWork *)pacWork)->cursor.f++ = 127.0f;
+        if (((int)(pacWork.state.l >> 4) & 1) && v[5] != -1) {
+            *pacWork.cursor.f++ = (float)(unsigned char)col[v[5] * 4];
+            *pacWork.cursor.f++ = (float)(unsigned char)col[v[5] * 4 + 1];
+            *pacWork.cursor.f++ = (float)(unsigned char)col[v[5] * 4 + 2];
+            *pacWork.cursor.f++ = 127.0f;
         } else {
-            *((PacWork *)pacWork)->cursor.f++ = 128.0f;
-            *((PacWork *)pacWork)->cursor.f++ = 128.0f;
-            *((PacWork *)pacWork)->cursor.f++ = 128.0f;
-            *((PacWork *)pacWork)->cursor.f++ = 127.0f;
+            *pacWork.cursor.f++ = 128.0f;
+            *pacWork.cursor.f++ = 128.0f;
+            *pacWork.cursor.f++ = 128.0f;
+            *pacWork.cursor.f++ = 127.0f;
         }
     }
     return num - 2;
@@ -409,68 +413,66 @@ int pac_makeClusterStrip(char *obj, short *strip, int num)
     char *nrm;
     char *uv;
     char *col;
-    char *ctx;
+    PacWork *ctx;
 
     vtx = *(char **)(obj + 0x90);
     nrm = *(char **)(obj + 0xA0);
     uv = *(char **)(obj + 0xB0);
     col = *(char **)(obj + 0xC0);
-    ctx = pacWork;
-    *(int *)(strip - 6) =
-        (*(unsigned int *)(ctx + 0x2C) & 0x0FFFFFFF) - *(unsigned int *)(ctx + 0x20);
+    ctx = &pacWork;
+    *(int *)(strip - 6) = (ctx->cursor.addr & 0x0FFFFFFF) - ctx->dmaTag;
     for (i = 0, v = strip; i < num; i++, v += 8) {
-        char *ctx;
+        PacWork *ctx;
         int idx;
 
         idx = pac_getWeight(w, obj, (char *)v, num);
-        ctx = pacWork;
+        ctx = &pacWork;
         pac_growBounds(ctx, vtx, idx);
-        _CopyVector((*(PacBoxVec **)(ctx + 0x2C))++, vtx + v[2] * 16);
+        _CopyVector(ctx->cursor.v++, vtx + v[2] * 16);
         if (*(float *)(vtx + v[2] * 16 + 12) != 1.0f) {
             sprintf(buf, "\033[31msorce cluster model data broken! %f %f %f %f [%d]\033[0m\n",
                     *(float *)(vtx + v[2] * 16), *(float *)(vtx + v[2] * 16 + 4),
                     *(float *)(vtx + v[2] * 16 + 8), *(float *)(vtx + v[2] * 16 + 12), v[2]);
             debug_StdPrintfDummy(buf);
         }
-        if ((int)(*(long long *)(ctx + 0x38) >> 1) & 1)
-            _CopyVector((*(PacBoxVec **)(ctx + 0x2C))++, nrm + v[3] * 16);
+        if ((int)(ctx->state.l >> 1) & 1)
+            _CopyVector(ctx->cursor.v++, nrm + v[3] * 16);
         else
             pac_error("pac_makeClusterStrip", 1);
-        *((PacWork *)pacWork)->cursor.i++ = w[0].no * 4 + 16;
-        *((PacWork *)pacWork)->cursor.f++ = w[0].weight;
-        *((PacWork *)pacWork)->cursor.i++ = w[1].no * 4 + 16;
-        *((PacWork *)pacWork)->cursor.f++ = w[1].weight;
+        *pacWork.cursor.i++ = w[0].no * 4 + 16;
+        *pacWork.cursor.f++ = w[0].weight;
+        *pacWork.cursor.i++ = w[1].no * 4 + 16;
+        *pacWork.cursor.f++ = w[1].weight;
         if (w[0].no >= 60 || w[1].no >= 60) {
             debug_StdPrintfDummy("over 60 skeltons exist.\n");
             debug_assert("src/Packet.c", 917);
             __assert("src/Packet.c", 917, "0");
         }
-        if (((int)(((PacWork *)pacWork)->state >> 3) & 1) && v[4] != -1) {
-            *((PacWork *)pacWork)->cursor.f++ =
+        if (((int)(pacWork.state.l >> 3) & 1) && v[4] != -1) {
+            *pacWork.cursor.f++ =
                 *(float *)(uv + v[4] * 16) * *(float *)(*(char **)(obj + 0xE0) + v[7] * 144 + 0x84);
-            *((PacWork *)pacWork)->cursor.f++ =
-                *(float *)(uv + v[4] * 16 + 4) *
-                *(float *)(*(char **)(obj + 0xE0) + v[7] * 144 + 0x88);
-            *((PacWork *)pacWork)->cursor.f++ = 1.0f;
-            *((PacWork *)pacWork)->cursor.f++ = i == 0 ? 0.0f : 1.0f;
+            *pacWork.cursor.f++ = *(float *)(uv + v[4] * 16 + 4) *
+                                  *(float *)(*(char **)(obj + 0xE0) + v[7] * 144 + 0x88);
+            *pacWork.cursor.f++ = 1.0f;
+            *pacWork.cursor.f++ = i == 0 ? 0.0f : 1.0f;
         } else {
             pac_error("pac_makeClusterStrip", 5);
         }
-        if (((int)(((PacWork *)pacWork)->state >> 4) & 1) && v[5] != -1) {
+        if (((int)(pacWork.state.l >> 4) & 1) && v[5] != -1) {
             if (col == 0) {
                 debug_StdPrintfDummy("color table not exists.\n");
                 debug_assert("src/Packet.c", 936);
                 __assert("src/Packet.c", 936, "0");
             }
-            *((PacWork *)pacWork)->cursor.f++ = (float)(unsigned char)col[v[5] * 4];
-            *((PacWork *)pacWork)->cursor.f++ = (float)(unsigned char)col[v[5] * 4 + 1];
-            *((PacWork *)pacWork)->cursor.f++ = (float)(unsigned char)col[v[5] * 4 + 2];
-            *((PacWork *)pacWork)->cursor.f++ = 127.0f;
+            *pacWork.cursor.f++ = (float)(unsigned char)col[v[5] * 4];
+            *pacWork.cursor.f++ = (float)(unsigned char)col[v[5] * 4 + 1];
+            *pacWork.cursor.f++ = (float)(unsigned char)col[v[5] * 4 + 2];
+            *pacWork.cursor.f++ = 127.0f;
         } else {
-            *((PacWork *)pacWork)->cursor.f++ = 128.0f;
-            *((PacWork *)pacWork)->cursor.f++ = 128.0f;
-            *((PacWork *)pacWork)->cursor.f++ = 128.0f;
-            *((PacWork *)pacWork)->cursor.f++ = 127.0f;
+            *pacWork.cursor.f++ = 128.0f;
+            *pacWork.cursor.f++ = 128.0f;
+            *pacWork.cursor.f++ = 128.0f;
+            *pacWork.cursor.f++ = 127.0f;
         }
     }
     return num - 2;
@@ -479,43 +481,43 @@ int pac_makeClusterStrip(char *obj, short *strip, int num)
 void pac_openDmaTag(int a0)
 {
     register int mask = 0x0FFFFFFF;
-    char *ctx = pacWork;
+    PacWork *ctx = &pacWork;
     float f0 = 16777215.0f;
     float f1 = -16777215.0f;
-    *(int *)(ctx + 0x20) = a0 & mask;
-    *(int *)(ctx + 0x24) = (a0 + 0x8) & mask;
-    *(int *)(ctx + 0x28) = (a0 + 0x10) & mask;
-    *(int *)(ctx + 0x2C) = a0 + 0x20;
-    *(float *)(ctx + 0x48) = f0;
-    *(float *)(ctx + 0x44) = f0;
-    *(float *)(ctx + 0x40) = f0;
-    *(float *)(ctx + 0x58) = f1;
-    *(float *)(ctx + 0x54) = f1;
-    *(float *)(ctx + 0x50) = f1;
+    ctx->dmaTag = a0 & mask;
+    ctx->vifCode = (a0 + 0x8) & mask;
+    ctx->gifTag = (a0 + 0x10) & mask;
+    ctx->cursor.addr = a0 + 0x20;
+    ctx->boxMin[2].f = f0;
+    ctx->boxMin[1].f = f0;
+    ctx->boxMin[0].f = f0;
+    ctx->boxMax[2].f = f1;
+    ctx->boxMax[1].f = f1;
+    ctx->boxMax[0].f = f1;
     debug_StdPrintfDummy("DMAOPEN   :%p\n", a0 & mask);
 }
 
 void pac_setVifCode(int a0)
 {
-    char *ctx = pacWork;
-    *(int *)(*(int *)(ctx + 0x24)) = 0;
-    *(int *)(*(int *)(ctx + 0x24) + 4) = (a0 << 16) | 0x6C008000;
-    debug_StdPrintfDummy("VIFUNPACK :%08x %08x (%p:%d)\n", *(int *)(*(int *)(ctx + 0x24)),
-                         *(int *)(*(int *)(ctx + 0x24) + 4), *(int *)(ctx + 0x24), a0);
+    PacWork *ctx = &pacWork;
+    ((int *)ctx->vifCode)[0] = 0;
+    ((int *)ctx->vifCode)[1] = (a0 << 16) | 0x6C008000;
+    debug_StdPrintfDummy("VIFUNPACK :%08x %08x (%p:%d)\n", ((int *)ctx->vifCode)[0],
+                         ((int *)ctx->vifCode)[1], ctx->vifCode, a0);
 }
 
 void pac_setVifEndCode(void)
 {
-    char *ctx = pacWork;
-    int *p = (int *)*(int *)(ctx + 0x2C);
+    PacWork *ctx = &pacWork;
+    int *p = ctx->cursor.i;
     *p++ = 0x17000000;
-    *(int *)(ctx + 0x2C) = (int)p;
+    ctx->cursor.i = p;
     p[0] = 0;
-    *(int *)(ctx + 0x2C) = (int)(p + 1);
+    ctx->cursor.i = p + 1;
     p[1] = 0;
-    *(int *)(ctx + 0x2C) = (int)(p + 2);
+    ctx->cursor.i = p + 2;
     p[2] = 0;
-    *(int *)(ctx + 0x2C) = (int)(p + 3);
+    ctx->cursor.i = p + 3;
     debug_StdPrintfDummy(p + 3);
 }
 
@@ -544,7 +546,7 @@ void pac_setGifTag(char *shp, char *mat, unsigned long long nloop)
 {
     int abe;
     int tme;
-    char *ctx;
+    PacWork *ctx;
 
     if (mat == 0)
         abe = ((int)(*(long long *)(shp + 0x60) >> 1) & 3) != 0;
@@ -553,13 +555,13 @@ void pac_setGifTag(char *shp, char *mat, unsigned long long nloop)
     else
         abe = 1;
     tme = *(unsigned short *)(mat + 0x4E) & 1;
-    ctx = pacWork;
-    ((PacketWord *)(*(int *)(ctx + 0x28)))->ul =
+    ctx = &pacWork;
+    ((PacketWord *)ctx->gifTag)[0].ul =
         gifTagTmpl[tme].w0 |
         ((0xCULL | ((unsigned long long)tme << 4) | ((unsigned long long)abe << 6)) << 47) | nloop;
-    ((PacketWord *)(*(int *)(ctx + 0x28) + 8))->ul = gifTagTmpl[tme].w1;
+    ((PacketWord *)ctx->gifTag)[1].ul = gifTagTmpl[tme].w1;
     debug_StdPrintfDummy("GIFTAG    :");
-    debug_StdPrintfDummy(*(int *)(ctx + 0x28));
+    debug_StdPrintfDummy(ctx->gifTag);
     debug_StdPrintfDummy(" (%d)
 ", nloop);
 }
@@ -586,32 +588,30 @@ static int pacUnusedWord;
    it. */
 static inline void pac_closeDmaTag(void)
 {
-    ((unsigned int *)*(unsigned int *)(pacWork + 0x20))[0] = 0;
-    ((unsigned int *)*(unsigned int *)(pacWork + 0x20))[1] = 0;
+    ((unsigned int *)pacWork.dmaTag)[0] = 0;
+    ((unsigned int *)pacWork.dmaTag)[1] = 0;
 }
 
 int pac_closeTag(char *shp, char *mat)
 {
-    char *ctx;
+    PacWork *ctx;
     unsigned int n;
     unsigned int qwc;
 
-    ctx = pacWork;
-    n = ((*(unsigned int *)(ctx + 0x2C) & 0x0FFFFFFF) - *(unsigned int *)(ctx + 0x28)) >> 4;
+    ctx = &pacWork;
+    n = ((ctx->cursor.addr & 0x0FFFFFFF) - ctx->gifTag) >> 4;
     if (n == 1) {
-        *(unsigned int *)(ctx + 0x20) = 0;
-        *(unsigned int *)(ctx + 0x24) = 0;
-        *(unsigned int *)(ctx + 0x28) = 0;
+        ctx->dmaTag = 0;
+        ctx->vifCode = 0;
+        ctx->gifTag = 0;
         return 0;
     }
     pac_setVifCode(n);
-    pac_setGifTag(
-        shp, mat,
-        (((((*(unsigned int *)(ctx + 0x2C) & 0x0FFFFFFF) - *(unsigned int *)(ctx + 0x28)) >> 4) -
-          1) /
-         *(unsigned int *)(ctx + 0x30)));
+    pac_setGifTag(shp, mat,
+                  (((((ctx->cursor.addr & 0x0FFFFFFF) - ctx->gifTag) >> 4) - 1) /
+                   (unsigned int)ctx->counts.w[0]));
     pac_setVifEndCode();
-    qwc = ((*(unsigned int *)(ctx + 0x2C) & 0x0FFFFFFF) - *(unsigned int *)(ctx + 0x20)) >> 4;
+    qwc = ((ctx->cursor.addr & 0x0FFFFFFF) - ctx->dmaTag) >> 4;
     pac_closeDmaTag();
     pacPacketBytes += qwc * 16;
     pacTagCount += 1;
@@ -623,33 +623,30 @@ int pac_closeTag(char *shp, char *mat)
    further on. */
 static inline void pac_continueDmaTag(void)
 {
-    char *ctx = pacWork;
-    int *p = (int *)*(int *)(ctx + 0x2C);
+    PacWork *ctx = &pacWork;
+    int *p = ctx->cursor.i;
     *p++ = 0x17000000;
-    *(int *)(ctx + 0x2C) = (int)p;
+    ctx->cursor.i = p;
     p[0] = 0;
-    *(int *)(ctx + 0x24) = (int)(p + 1) & 0x0FFFFFFF;
-    *(int *)(ctx + 0x28) = (int)(p + 3) & 0x0FFFFFFF;
-    *(int *)(ctx + 0x2C) = (int)(p + 7);
+    ctx->vifCode = (int)(p + 1) & 0x0FFFFFFF;
+    ctx->gifTag = (int)(p + 3) & 0x0FFFFFFF;
+    ctx->cursor.i = p + 7;
 }
 
 void pac_continueTag(char *shp, char *mat)
 {
-    char *ctx;
+    PacWork *ctx;
 
-    ctx = pacWork;
-    if (((*(unsigned int *)(ctx + 0x2C) & 0x0FFFFFFF) - *(unsigned int *)(ctx + 0x28)) >> 4 == 1) {
+    ctx = &pacWork;
+    if (((ctx->cursor.addr & 0x0FFFFFFF) - ctx->gifTag) >> 4 == 1) {
         debug_StdPrintfDummy("pac_continueTag:Packet too small. %d\n", 0);
         debug_assert("src/Packet.c", 1147);
         __assert("src/Packet.c", 1147, "0");
     }
-    pac_setVifCode(((*(unsigned int *)(ctx + 0x2C) & 0x0FFFFFFF) - *(unsigned int *)(ctx + 0x28)) >>
-                   4);
-    pac_setGifTag(
-        shp, mat,
-        (((((*(unsigned int *)(ctx + 0x2C) & 0x0FFFFFFF) - *(unsigned int *)(ctx + 0x28)) >> 4) -
-          1) /
-         *(unsigned int *)(ctx + 0x30)));
+    pac_setVifCode(((ctx->cursor.addr & 0x0FFFFFFF) - ctx->gifTag) >> 4);
+    pac_setGifTag(shp, mat,
+                  (((((ctx->cursor.addr & 0x0FFFFFFF) - ctx->gifTag) >> 4) - 1) /
+                   (unsigned int)ctx->counts.w[0]));
     pac_continueDmaTag();
     pacTagCount += 1;
 }
@@ -662,46 +659,39 @@ void pac_continueTag(char *shp, char *mat)
 void pac_checkDivide(int num, char *shp, char *mat)
 {
     int limit = 192;
-    char *ctx;
+    PacWork *ctx;
     unsigned int qwc;
 
-    ctx = pacWork;
-    if (*(int *)(ctx + 0x30) * num > limit) {
-        debug_StdPrintfDummy("Original Strip Too Long. Size %d\n", *(int *)(ctx + 0x30) * num);
+    ctx = &pacWork;
+    if (ctx->counts.w[0] * num > limit) {
+        debug_StdPrintfDummy("Original Strip Too Long. Size %d\n", ctx->counts.w[0] * num);
         debug_assert("src/Packet.c", 1172);
         __assert("src/Packet.c", 1172, "0");
     }
-    qwc = ((*(unsigned int *)(ctx + 0x2C) & 0x0FFFFFFF) - *(unsigned int *)(ctx + 0x28)) >> 4;
-    if (qwc + *(int *)(ctx + 0x30) * num > limit) {
+    qwc = ((ctx->cursor.addr & 0x0FFFFFFF) - ctx->gifTag) >> 4;
+    if (qwc + ctx->counts.w[0] * num > limit) {
         pac_continueTag(shp, mat);
-        debug_StdPrintfDummy(
-            "size(0x%x) strips(%d)\n",
-            ((*(unsigned int *)(ctx + 0x2C) & 0x0FFFFFFF) - *(unsigned int *)(ctx + 0x28)) >> 4,
-            pacStripCount);
+        debug_StdPrintfDummy("size(0x%x) strips(%d)\n",
+                             ((ctx->cursor.addr & 0x0FFFFFFF) - ctx->gifTag) >> 4, pacStripCount);
         debug_StdPrintfDummy("--- cut ---\n\n");
         pacStripCount = 0;
-    } else if ((qwc - 1) / *(unsigned int *)(ctx + 0x30) * *(int *)(ctx + 0x34) + 1 +
-                   *(int *)(ctx + 0x34) * num >
+    } else if ((qwc - 1) / (unsigned int)ctx->counts.w[0] * ctx->counts.w[1] + 1 +
+                   ctx->counts.w[1] * num >
                limit) {
         debug_StdPrintfDummy(
-            "gif over! cut! %d/%d polys:%d/%d fchain:%d vif+gif:%d\n",
-            qwc + *(int *)(ctx + 0x30) * num, limit, pacPolyCount, *(int *)(ctx + 0x30),
-            pacStripCount,
-            qwc + ((qwc - 1) / *(unsigned int *)(ctx + 0x30) * *(int *)(ctx + 0x34) + 1));
+            "gif over! cut! %d/%d polys:%d/%d fchain:%d vif+gif:%d\n", qwc + ctx->counts.w[0] * num,
+            limit, pacPolyCount, ctx->counts.w[0], pacStripCount,
+            qwc + ((qwc - 1) / (unsigned int)ctx->counts.w[0] * ctx->counts.w[1] + 1));
         pac_continueTag(shp, mat);
-        debug_StdPrintfDummy(
-            "size(0x%x) strips(%d)\n",
-            ((*(unsigned int *)(ctx + 0x2C) & 0x0FFFFFFF) - *(unsigned int *)(ctx + 0x28)) >> 4,
-            pacStripCount);
+        debug_StdPrintfDummy("size(0x%x) strips(%d)\n",
+                             ((ctx->cursor.addr & 0x0FFFFFFF) - ctx->gifTag) >> 4, pacStripCount);
         debug_StdPrintfDummy("--- cut ---\n\n");
         pacStripCount = 0;
-    } else if (*(int *)(ctx + 0x30) * num >= 256) {
+    } else if (ctx->counts.w[0] * num >= 256) {
         debug_StdPrintfDummy("chain too long! cut!\n");
         pac_continueTag(shp, mat);
-        debug_StdPrintfDummy(
-            "size(0x%x) strips(%d)\n",
-            ((*(unsigned int *)(ctx + 0x2C) & 0x0FFFFFFF) - *(unsigned int *)(ctx + 0x28)) >> 4,
-            pacStripCount);
+        debug_StdPrintfDummy("size(0x%x) strips(%d)\n",
+                             ((ctx->cursor.addr & 0x0FFFFFFF) - ctx->gifTag) >> 4, pacStripCount);
         debug_StdPrintfDummy("--- cut ---\n\n");
         pacStripCount = 0;
     }
@@ -710,14 +700,6 @@ void pac_checkDivide(int num, char *shp, char *mat)
 typedef struct {
     unsigned int b0 : 1;
 } ShpFlags;
-
-/* The context's counter pair at +0x30 and the state word at +0x38 are one
-   qword region that the TU reads both as 32-bit counters and as a 64-bit
-   state mask. */
-typedef union {
-    unsigned long long ul;
-    int w[2];
-} PacState;
 
 extern void malloc_MemCpy(int dst, int src, int n);
 
@@ -739,46 +721,46 @@ static inline int pac_moveToSeki(int src, int size)
 void pac_countOneVertexPacketSize(char *shp, char *mat)
 {
     {
-        char *ctx = pacWork;
-        ((PacState *)(ctx + 0x30))->w[0] = 1;
-        ((PacState *)(ctx + 0x38))->ul |= 1;
+        PacWork *ctx = &pacWork;
+        ctx->counts.w[0] = 1;
+        ctx->state.ul |= 1;
     }
     if (((int)(*(long long *)(shp + 0x60) >> 5) & 3) != 0 || ((ShpFlags *)(shp + 0x60))->b0 == 1 ||
         (mat != 0 && *(short *)(mat + 0x4C) >= 0)) {
-        char *ctx = pacWork;
-        ((PacState *)(ctx + 0x30))->w[0] += 1;
-        ((PacState *)(ctx + 0x38))->ul |= 2;
+        PacWork *ctx = &pacWork;
+        ctx->counts.w[0] += 1;
+        ctx->state.ul |= 2;
     } else {
-        char *ctx = pacWork;
-        ((PacState *)(ctx + 0x38))->ul &= ~2;
+        PacWork *ctx = &pacWork;
+        ctx->state.ul &= ~2;
     }
     if (((ShpFlags *)(shp + 0x60))->b0 == 1) {
-        char *ctx = pacWork;
-        ((PacState *)(ctx + 0x30))->w[0] += 1;
-        ((PacState *)(ctx + 0x38))->ul |= 4;
+        PacWork *ctx = &pacWork;
+        ctx->counts.w[0] += 1;
+        ctx->state.ul |= 4;
     } else {
-        char *ctx = pacWork;
-        ((PacState *)(ctx + 0x38))->ul &= ~4;
+        PacWork *ctx = &pacWork;
+        ctx->state.ul &= ~4;
     }
     if (((int)(*(long long *)(shp + 0x60) >> 7) & 1) != 0) {
-        char *ctx = pacWork;
-        ((PacState *)(ctx + 0x30))->w[0] += 1;
-        ((PacState *)(ctx + 0x38))->ul |= 8;
+        PacWork *ctx = &pacWork;
+        ctx->counts.w[0] += 1;
+        ctx->state.ul |= 8;
     } else {
         pac_error("pac_countOneVertexPacketSize", 5);
     }
     if (((int)(*(long long *)(shp + 0x60) >> 8) & 1) != 0) {
-        char *ctx = pacWork;
-        ((PacState *)(ctx + 0x30))->w[0] += 1;
-        ((PacState *)(ctx + 0x38))->ul |= 0x10;
+        PacWork *ctx = &pacWork;
+        ctx->counts.w[0] += 1;
+        ctx->state.ul |= 0x10;
     } else {
-        char *ctx = pacWork;
-        ((PacState *)(ctx + 0x30))->w[0] += 1;
-        ((PacState *)(ctx + 0x38))->ul &= ~0x10;
+        PacWork *ctx = &pacWork;
+        ctx->counts.w[0] += 1;
+        ctx->state.ul &= ~0x10;
     }
     {
-        char *ctx = pacWork;
-        ((PacState *)(ctx + 0x30))->w[1] = 3;
+        PacWork *ctx = &pacWork;
+        ctx->counts.w[1] = 3;
     }
 }
 
@@ -801,7 +783,7 @@ int pac_makeStrip(char **out, char *obj, char **tbl, int shpno, int matno, int l
     int sz;
     int used;
     int packetSize;
-    char *ctx;
+    PacWork *ctx;
     float t0;
 
     num = *(int *)(obj + 0x104);
@@ -846,15 +828,15 @@ int pac_makeStrip(char **out, char *obj, char **tbl, int shpno, int matno, int l
     }
     inflateSec += debug_GetTimerSec() - t0;
     size = pac_closeTag(shp, mat);
-    ctx = pacWork;
-    used = *(int *)(ctx + 0x2C) - pkt;
+    ctx = &pacWork;
+    used = ctx->cursor.addr - pkt;
     if (maxPacketSize < used) {
         maxPacketSize = used;
         debug_StdPrintfDummy("\033[31mMaxPacketSize = %d\033[0m\n", used);
     }
     /* "IN OBJECT \"%s\"\nHUGE PACKET (SIZE:0x%x) APPEARED\nMAYBE INFLATE MEMORY AREA WAS BROKEN.\n" carries two conversions, "%s" for the object and "0x%x" for
        the size, so the recomputed size is sprintf's fourth argument. */
-    packetSize = *(int *)(ctx + 0x2C) - pkt;
+    packetSize = ctx->cursor.addr - pkt;
     if (0x100000 < packetSize) {
         sprintf(
             buf,
@@ -1306,7 +1288,7 @@ void pac_makePacket(void *a0, int a1, int a2)
         *(int *)(obj + 0x48) = (int)tbl;
         sprintf(tbl + 20, "%s", obj);
     }
-    sprintf(pacWork, "%s", obj);
+    sprintf(pacWork.name, "%s", obj);
     if (((PacObjMode *)obj)->type != 2) {
         for (i = 0; i < *(char *)(obj + 0x2E); i++) {
             prev = 0;

@@ -1001,6 +1001,25 @@ typedef struct {
     long long q[89];
 } TexBlob;
 
+/* one cloth InitCloth4D builds: its owner, the mesh it draws and the point
+   rows the cloth step walks */
+typedef struct Cloth4D {
+    int gobj;
+    Mesh3D *mesh;
+    Prim3DVec **p8;
+    Prim3DVec **pC;
+    Prim3DVec **p10;
+    int pad14;
+    TexBlob tex;
+    int cfg;
+    int n2E4;
+    char **p2E8;
+    char *p2EC;
+    char *p2F0;
+    int f2F4;
+    int f2F8;
+} Cloth4D;
+
 typedef struct {
     int num;
     int **rec;
@@ -1189,15 +1208,15 @@ void DispMeshWire(Prim3DVec **rows, int nx, int ny)
     gif_EndPacket();
 }
 
-void DispCloth4D(int *a0, void *a1, void *a2)
+void DispCloth4D(Cloth4D *c, void *a1, void *a2)
 {
     int t;
     int *m;
     dl_SetDLPriority(1);
     p2o_SetDefaultEnviroment();
-    prim_UpdateMesh3D(a0[1], 3, buffer_ID);
-    if (((int *)a0[184])[8] != 0) {
-        t = tex_GetTextureNo((char *)a0 + 0x18);
+    prim_UpdateMesh3D(c->mesh, 3, buffer_ID);
+    if (((int *)c->cfg)[8] != 0) {
+        t = tex_GetTextureNo(&c->tex);
     } else {
         t = -1;
     }
@@ -1206,22 +1225,22 @@ void DispCloth4D(int *a0, void *a1, void *a2)
     gif_SetGsReg(8, 0);
     gif_EndPacket();
     _SetCurrentMatrix(matrixptr + 0x100);
-    prim_DispMesh3D(a0[1], a1, a2, t);
+    prim_DispMesh3D(c->mesh, a1, a2, t);
     if (debug_cloth_info != 0) {
-        m = (int *)a0[184];
-        DispMeshWire((Prim3DVec **)a0[2], m[0], m[1]);
+        m = (int *)c->cfg;
+        DispMeshWire(c->p8, m[0], m[1]);
     }
 }
 
-void DispCloth4DWithAdd(int *a0, void *a1, void *a2)
+void DispCloth4DWithAdd(Cloth4D *c, void *a1, void *a2)
 {
     int t;
     int *m;
     dl_SetDLPriority(1);
     p2o_SetDefaultEnviroment();
-    prim_UpdateMesh3D(a0[1], 3, buffer_ID);
-    if (((int *)a0[184])[8] != 0) {
-        t = tex_GetTextureNo((char *)a0 + 0x18);
+    prim_UpdateMesh3D(c->mesh, 3, buffer_ID);
+    if (((int *)c->cfg)[8] != 0) {
+        t = tex_GetTextureNo(&c->tex);
     } else {
         t = -1;
     }
@@ -1230,10 +1249,10 @@ void DispCloth4DWithAdd(int *a0, void *a1, void *a2)
     gif_SetGsReg(8, 0);
     gif_EndPacket();
     _SetCurrentMatrix(matrixptr + 0x100);
-    prim_DispMesh3D(a0[1], a1, a2, t);
+    prim_DispMesh3D(c->mesh, a1, a2, t);
     if (debug_cloth_info != 0) {
-        m = (int *)a0[184];
-        DispMeshWire((Prim3DVec **)a0[2], m[0], m[1]);
+        m = (int *)c->cfg;
+        DispMeshWire(c->p8, m[0], m[1]);
     }
 }
 
@@ -2004,23 +2023,6 @@ void GetCloth4DWithTight(void *a0, float x, float y, float z, float w, void *a1,
 typedef struct {
     long long q[8];
 } Blob64;
-
-typedef struct {
-    int gobj;
-    Mesh3D *mesh;
-    Prim3DVec **p8;
-    Prim3DVec **pC;
-    Prim3DVec **p10;
-    int pad14;
-    TexBlob tex;
-    int cfg;
-    int n2E4;
-    char **p2E8;
-    char *p2EC;
-    char *p2F0;
-    int f2F4;
-    int f2F8;
-} Cloth4D;
 
 typedef struct {
     int nx;

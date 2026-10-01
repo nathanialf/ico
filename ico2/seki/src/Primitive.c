@@ -15,9 +15,8 @@
 #include "debug_exception.h"
 #include "GifPacket.h"
 #include "Primitive.h"
-
-/* kept local: void * here, int in ios.h */
-extern void *ios_partition_seki;
+#include "DmaPacket.h"
+#include "ios.h"
 
 Fan2D *prim_InitFan2D(int n, float r, float *pos, unsigned int cc, unsigned int rc)
 {
@@ -108,19 +107,6 @@ typedef union {
     int w[2];
 } PrimPkWord;
 
-typedef struct {
-    /* 0x00 */ int cur;
-    /* 0x04 */ int *buf[2];
-    /* 0x0C */ char *dma;
-    /* 0x10 */ char *ptr;
-    /* 0x14 */ char *tail;
-    /* 0x18 */ char *gif;
-    /* 0x1C */ char *end;
-} PrimDpk;
-
-/* kept local: PrimDpk here, DpkCtl in DmaPacket.h */
-extern PrimDpk PacketBufferStruct;
-
 void prim_DispFan2D(Fan2D *f, int mode)
 {
     int v[4];
@@ -160,43 +146,43 @@ void prim_DispFan2D(Fan2D *f, int mode)
         /* The header is written through a block-scoped handle on the packet
            context: one address materialisation covers the whole region,
            including the tag if/else. */
-        PrimDpk *d = &PacketBufferStruct;
+        DpkCtl *d = &PacketBufferStruct;
 
-        p = d->ptr;
-        d->dma = p;
-        d->tail = p;
-        d->gif = 0;
-        d->end = 0;
-        d->ptr = p + 8;
+        p = d->ptr.c;
+        d->dma.c = p;
+        d->tail.c = p;
+        d->gif.c = 0;
+        d->end.c = 0;
+        d->ptr.c = p + 8;
         ((PrimPkWord *)(p + 8))->w[0] = 0x11000000;
-        d->gif = p + 0xC;
-        d->end = p + 0x10;
-        d->ptr = p + 0x18;
+        d->gif.c = p + 0xC;
+        d->end.c = p + 0x10;
+        d->ptr.c = p + 0x18;
         ((PrimPkWord *)(p + 0x18))->d = 0xE;
-        d->ptr = p + 0x20;
+        d->ptr.c = p + 0x20;
         if (mode == 0) {
             ((PrimPkWord *)(p + 0x20))->d = ((long long)f->f04 << 6) | 0x10D;
-            d->ptr = p + 0x28;
+            d->ptr.c = p + 0x28;
             ((PrimPkWord *)(p + 0x28))->d = 0;
-            d->ptr = p + 0x30;
+            d->ptr.c = p + 0x30;
         } else {
             ((PrimPkWord *)(p + 0x20))->d = ((long long)f->f04 << 6) | 0x10A;
-            d->ptr = p + 0x28;
+            d->ptr.c = p + 0x28;
             ((PrimPkWord *)(p + 0x28))->d = 0;
-            d->ptr = p + 0x30;
+            d->ptr.c = p + 0x30;
         }
     }
 
     for (i = 0; i < f->n + 2; i++) {
         _FTOI4Vector(v, &q->x);
-        pp = PacketBufferStruct.ptr;
+        pp = PacketBufferStruct.ptr.c;
         ((PrimPkWord *)pp)->d = ((long long)q->cr | ((long long)q->cg << 8) |
                                  ((long long)q->cb << 16) | ((long long)q->ca << 24)) |
                                 ((long long)0x3F800000 << 32);
         pp += 8;
-        PacketBufferStruct.ptr = pp;
+        PacketBufferStruct.ptr.c = pp;
         ((PrimPkWord *)pp)->d = 1;
-        PacketBufferStruct.ptr = pp + 8;
+        PacketBufferStruct.ptr.c = pp + 8;
         if (q->z < 0.0f) {
             kick = 3;
         }
@@ -204,52 +190,52 @@ void prim_DispFan2D(Fan2D *f, int mode)
         if (kick > 0) {
             ((PrimPkWord *)(pp + 8))->d =
                 (long long)v[0] | ((long long)v[1] << 16) | ((long long)v[2] << 32);
-            PacketBufferStruct.ptr = pp + 0x10;
+            PacketBufferStruct.ptr.c = pp + 0x10;
             ((PrimPkWord *)(pp + 0x10))->d = 0xD;
-            PacketBufferStruct.ptr = pp + 0x18;
+            PacketBufferStruct.ptr.c = pp + 0x18;
         } else {
             ((PrimPkWord *)(pp + 8))->d =
                 (long long)v[0] | ((long long)v[1] << 16) | ((long long)v[2] << 32);
-            PacketBufferStruct.ptr = pp + 0x10;
+            PacketBufferStruct.ptr.c = pp + 0x10;
             ((PrimPkWord *)(pp + 0x10))->d = 5;
-            PacketBufferStruct.ptr = pp + 0x18;
+            PacketBufferStruct.ptr.c = pp + 0x18;
         }
         q++;
     }
 
-    end = PacketBufferStruct.end;
+    end = PacketBufferStruct.end.c;
     ((PrimPkWord *)end)->d =
-        (unsigned int)(((unsigned int)(PacketBufferStruct.ptr - end) >> 4) - 1) |
+        (unsigned int)(((unsigned int)(PacketBufferStruct.ptr.c - end) >> 4) - 1) |
         0x1000000000008000LL;
-    gif = PacketBufferStruct.gif;
+    gif = PacketBufferStruct.gif.c;
     ((PrimPkWord *)gif)->w[0] =
-        (((unsigned int)(PacketBufferStruct.ptr - gif) >> 4) << 16) | 0x6C008000;
+        (((unsigned int)(PacketBufferStruct.ptr.c - gif) >> 4) << 16) | 0x6C008000;
 
-    n = PacketBufferStruct.ptr;
+    n = PacketBufferStruct.ptr.c;
     ((PrimPkWord *)n)->w[0] = 0x15000000;
     n += 4;
-    PacketBufferStruct.ptr = n;
+    PacketBufferStruct.ptr.c = n;
     ((PrimPkWord *)n)->w[0] = 0;
-    PacketBufferStruct.ptr = n + 4;
+    PacketBufferStruct.ptr.c = n + 4;
     ((PrimPkWord *)n)->w[1] = 0;
-    PacketBufferStruct.ptr = n + 8;
+    PacketBufferStruct.ptr.c = n + 8;
     ((PrimPkWord *)(n + 8))->w[0] = 0;
-    PacketBufferStruct.ptr = n + 0xC;
+    PacketBufferStruct.ptr.c = n + 0xC;
 
-    tail = PacketBufferStruct.tail;
+    tail = PacketBufferStruct.tail.c;
     ((PrimPkWord *)tail)->d =
-        (unsigned int)(((unsigned int)(PacketBufferStruct.ptr - tail) >> 4) - 1) | 0x10000000;
+        (unsigned int)(((unsigned int)(PacketBufferStruct.ptr.c - tail) >> 4) - 1) | 0x10000000;
 
-    m = PacketBufferStruct.ptr;
-    PacketBufferStruct.tail = m;
+    m = PacketBufferStruct.ptr.c;
+    PacketBufferStruct.tail.c = m;
     ((PrimPkWord *)m)->d = 0x60000000;
-    PacketBufferStruct.ptr = m + 8;
+    PacketBufferStruct.ptr.c = m + 8;
     ((PrimPkWord *)(m + 8))->w[0] = 0;
-    PacketBufferStruct.ptr = m + 0xC;
+    PacketBufferStruct.ptr.c = m + 0xC;
     ((PrimPkWord *)(m + 8))->w[1] = 0;
-    PacketBufferStruct.ptr = m + 0x10;
+    PacketBufferStruct.ptr.c = m + 0x10;
 
-    dl_OpenDma(5, (int)PacketBufferStruct.dma, 0);
+    dl_OpenDma(5, (int)PacketBufferStruct.dma.c, 0);
     dl_CloseDma();
 }
 
@@ -541,7 +527,7 @@ void prim_UpdateMesh3D(Mesh3D *m, int flags, int idx)
    a nested body.  The retail build drops the three primitive counters the
    listing carries at rows 860-862.
    A matrix or vector copied into the packet takes the cursor post-incremented
-   as its destination, `_CopyMatrix(((float (*)[16])dd->ptr)++, m)`: the
+   as its destination, `_CopyMatrix(((float (*)[16])dd->ptr.c)++, m)`: the
    increment is queued (expr.c expand_increment, the MEM path), so the old
    cursor is copied out first and the add is done in place on the loaded
    register before the store and the call, which is setLight's second copy in
@@ -553,7 +539,7 @@ void prim_UpdateMesh3D(Mesh3D *m, int flags, int idx)
 
 void prim_DispMesh3D(Mesh3D *m, void *la, void *lb, int tex)
 {
-    PrimDpk *d;
+    DpkCtl *d;
     char *p;
     char *q;
     char *ext;
@@ -562,93 +548,93 @@ void prim_DispMesh3D(Mesh3D *m, void *la, void *lb, int tex)
     void setMatrix(void)
     {
         float mtx[16];
-        PrimDpk *dd;
+        DpkCtl *dd;
         char *q;
         char *r;
 
         _GetCurrentMatrix(mtx);
         dd = &PacketBufferStruct;
-        q = dd->ptr;
-        dd->tail = q;
+        q = dd->ptr.c;
+        dd->tail.c = q;
         ((PrimPkWord *)q)->d = 0x10000005;
-        dd->ptr = q + 8;
+        dd->ptr.c = q + 8;
         ((PrimPkWord *)(q + 8))->w[0] = 0;
-        dd->ptr = q + 0xC;
-        dd->gif = q + 0xC;
+        dd->ptr.c = q + 0xC;
+        dd->gif.c = q + 0xC;
         ((PrimPkWord *)(q + 0xC))->w[0] = 0x6C048000;
-        dd->ptr = q + 0x10;
-        _CopyMatrix(((float (*)[16])dd->ptr)++, mtx);
-        r = dd->ptr;
+        dd->ptr.c = q + 0x10;
+        _CopyMatrix(((float (*)[16])dd->ptr.c)++, mtx);
+        r = dd->ptr.c;
         ((PrimPkWord *)r)->w[0] = 0x15000010;
         r += 4;
-        dd->ptr = r;
+        dd->ptr.c = r;
         ((PrimPkWord *)r)->w[0] = 0;
-        dd->ptr = r + 4;
+        dd->ptr.c = r + 4;
         ((PrimPkWord *)(r + 4))->w[0] = 0;
-        dd->ptr = r + 8;
+        dd->ptr.c = r + 8;
         ((PrimPkWord *)(r + 8))->w[0] = 0;
-        dd->ptr = r + 0xC;
+        dd->ptr.c = r + 0xC;
     }
 
     void setLight(void)
     {
-        PrimDpk *dd;
+        DpkCtl *dd;
         char *q;
         char *r;
 
         dd = &PacketBufferStruct;
-        q = dd->ptr;
-        dd->tail = q;
+        q = dd->ptr.c;
+        dd->tail.c = q;
         ((PrimPkWord *)q)->d = 0x10000009;
-        dd->ptr = q + 8;
+        dd->ptr.c = q + 8;
         ((PrimPkWord *)(q + 8))->w[0] = 0;
-        dd->ptr = q + 0xC;
-        dd->gif = q + 0xC;
+        dd->ptr.c = q + 0xC;
+        dd->gif.c = q + 0xC;
         ((PrimPkWord *)(q + 0xC))->w[0] = 0x6C088000;
-        dd->ptr = q + 0x10;
-        _CopyMatrix(((float (*)[16])dd->ptr)++, lb);
-        _CopyMatrix(((float (*)[16])dd->ptr)++, la);
-        r = dd->ptr;
+        dd->ptr.c = q + 0x10;
+        _CopyMatrix(((float (*)[16])dd->ptr.c)++, lb);
+        _CopyMatrix(((float (*)[16])dd->ptr.c)++, la);
+        r = dd->ptr.c;
         ((PrimPkWord *)r)->w[0] = 0x15000012;
         r += 4;
-        dd->ptr = r;
+        dd->ptr.c = r;
         ((PrimPkWord *)r)->w[0] = 0;
-        dd->ptr = r + 4;
+        dd->ptr.c = r + 4;
         ((PrimPkWord *)(r + 4))->w[0] = 0;
-        dd->ptr = r + 8;
+        dd->ptr.c = r + 8;
         ((PrimPkWord *)(r + 8))->w[0] = 0;
-        dd->ptr = r + 0xC;
+        dd->ptr.c = r + 0xC;
     }
 
     void clearUVOffset(void)
     {
         float v[4];
-        PrimDpk *dd;
+        DpkCtl *dd;
         char *q;
         char *r;
 
         memset(v, 0, 16);
         dd = &PacketBufferStruct;
-        q = dd->ptr;
-        dd->tail = q;
+        q = dd->ptr.c;
+        dd->tail.c = q;
         ((PrimPkWord *)q)->d = 0x10000002;
-        dd->ptr = q + 8;
+        dd->ptr.c = q + 8;
         ((PrimPkWord *)(q + 8))->w[0] = 0;
-        dd->ptr = q + 0xC;
-        dd->gif = q + 0xC;
+        dd->ptr.c = q + 0xC;
+        dd->gif.c = q + 0xC;
         ((PrimPkWord *)(q + 0xC))->w[0] = 0x6C018000;
-        dd->ptr = q + 0x10;
-        _CopyVector(((float (*)[4])dd->ptr)++, v);
-        r = dd->ptr;
+        dd->ptr.c = q + 0x10;
+        _CopyVector(((float (*)[4])dd->ptr.c)++, v);
+        r = dd->ptr.c;
         ((PrimPkWord *)r)->w[0] = 0x15000002;
         r += 4;
-        dd->ptr = r;
+        dd->ptr.c = r;
         ((PrimPkWord *)r)->w[0] = 0;
-        dd->ptr = r + 4;
+        dd->ptr.c = r + 4;
         ((PrimPkWord *)(r + 4))->w[0] = 0;
-        dd->ptr = r + 8;
+        dd->ptr.c = r + 8;
         ((PrimPkWord *)(r + 8))->w[0] = 0;
-        dd->ptr = r + 0xC;
+        dd->ptr.c = r + 0xC;
     }
 
     pri = dl_GetPri();
@@ -666,11 +652,11 @@ void prim_DispMesh3D(Mesh3D *m, void *la, void *lb, int tex)
     }
     mc_TransMicroCode(4, 1 << pri);
     d = &PacketBufferStruct;
-    p = d->ptr;
-    d->tail = 0;
-    d->dma = p;
-    d->gif = 0;
-    d->end = 0;
+    p = d->ptr.c;
+    d->tail.c = 0;
+    d->dma.c = p;
+    d->gif.c = 0;
+    d->end.c = 0;
     setMatrix();
     if (m->f58 != 0) {
         setLight();
@@ -678,15 +664,15 @@ void prim_DispMesh3D(Mesh3D *m, void *la, void *lb, int tex)
     if (tex == -1) {
         clearUVOffset();
     }
-    q = d->ptr;
-    d->tail = q;
+    q = d->ptr.c;
+    d->tail.c = q;
     ((PrimPkWord *)q)->d = 0x60000000;
-    d->ptr = q + 8;
+    d->ptr.c = q + 8;
     ((PrimPkWord *)(q + 8))->w[0] = 0;
-    d->ptr = q + 0xC;
+    d->ptr.c = q + 0xC;
     ((PrimPkWord *)(q + 0xC))->w[0] = 0;
-    d->ptr = q + 0x10;
-    dl_OpenDma(5, (int)d->dma, 0);
+    d->ptr.c = q + 0x10;
+    dl_OpenDma(5, (int)d->dma.c, 0);
     dl_CloseDma();
     gif_StartPacketPri(pri);
     gif_SetGsReg(0x4A, 0);
@@ -917,9 +903,6 @@ void prim_DispWireBox(float *sz, void *col)
         DrawLineG(&v[e[i][0]], col, &v[e[i][1]], col, 0);
     }
 }
-
-/* kept local: void * here, int in ios.h */
-extern void *ios_partition_oomori;
 
 PrimParticle *prim_InitParticle(int num, float x, float y, float z, int a1, char *name, int a3)
 {

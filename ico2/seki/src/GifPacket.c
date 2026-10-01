@@ -1,6 +1,7 @@
 #include "typedef.h"
 #include "GifPacket.h"
 #include "GsBase.h"
+#include "DmaPacket.h"
 
 typedef struct {
     int a, b, c, d;
@@ -10,9 +11,6 @@ typedef struct {
    `tail`, `gif` and `end` are the back-pointers into the packet that
    gif_EndPacket patches once the packet's size is known (DMA tag, source
    chain tail, VIF DIRECT code and GIF tag respectively). */
-
-/* kept local: GifDpk here, DpkCtl in DmaPacket.h */
-extern GifDpk PacketBufferStruct;
 
 /* One 64-bit slot of a DMA/GIF packet: written either as the whole qword
    (DMA tag, GIF tag, A+D data) or as one of its two 32-bit halves. */
@@ -26,8 +24,8 @@ extern GifDpk PacketBufferStruct;
    stand-in.  Collapses to one `inline` definition at layout. */
 static inline void setGsReg(long long a0, long long a1)
 {
-    *PacketBufferStruct.ptr++ = a1;
-    *PacketBufferStruct.ptr++ = a0;
+    *PacketBufferStruct.ptr.d++ = a1;
+    *PacketBufferStruct.ptr.d++ = a0;
 }
 
 /* The two GS register payloads this file packs over and over: RGBAQ from a
@@ -61,18 +59,18 @@ void gif_StartPacket(void)
 {
     char *c;
 
-    c = (char *)PacketBufferStruct.ptr;
-    PacketBufferStruct.gif = 0;
-    PacketBufferStruct.end = 0;
-    PacketBufferStruct.dma = c;
-    PacketBufferStruct.tail = c;
-    PacketBufferStruct.ptr = (unsigned long long *)(c + 8);
+    c = PacketBufferStruct.ptr.c;
+    PacketBufferStruct.gif.c = 0;
+    PacketBufferStruct.end.c = 0;
+    PacketBufferStruct.dma.c = c;
+    PacketBufferStruct.tail.c = c;
+    PacketBufferStruct.ptr.c = c + 8;
     ((GifPkWord *)(c + 8))->w[0] = 0x11000000;
-    PacketBufferStruct.gif = c + 0xC;
-    PacketBufferStruct.end = c + 0x10;
-    PacketBufferStruct.ptr = (unsigned long long *)(c + 0x18);
+    PacketBufferStruct.gif.c = c + 0xC;
+    PacketBufferStruct.end.c = c + 0x10;
+    PacketBufferStruct.ptr.c = c + 0x18;
     ((GifPkWord *)(c + 0x18))->d = 0xE;
-    PacketBufferStruct.ptr = (unsigned long long *)(c + 0x20);
+    PacketBufferStruct.ptr.c = c + 0x20;
 }
 
 /* .sdata, GifPacket.o's run (MAIN.MAP 0x14, no symbol named): the open-packet
@@ -89,27 +87,26 @@ void gif_EndPacket(void)
 {
     char *p;
 
-    ((GifPkWord *)PacketBufferStruct.end)->d =
-        (unsigned int)(((unsigned int)((char *)PacketBufferStruct.ptr - PacketBufferStruct.end) >>
-                        4) -
+    ((GifPkWord *)PacketBufferStruct.end.c)->d =
+        (unsigned int)(((unsigned int)(PacketBufferStruct.ptr.c - PacketBufferStruct.end.c) >> 4) -
                        1) |
         0x1000000000008000LL;
-    ((GifPkWord *)PacketBufferStruct.gif)->w[0] =
-        ((unsigned int)((char *)PacketBufferStruct.ptr - PacketBufferStruct.gif) >> 4) | 0x50000000;
-    ((GifPkWord *)PacketBufferStruct.tail)->d =
-        (unsigned int)((((unsigned int)((char *)PacketBufferStruct.ptr - PacketBufferStruct.tail) >>
+    ((GifPkWord *)PacketBufferStruct.gif.c)->w[0] =
+        ((unsigned int)(PacketBufferStruct.ptr.c - PacketBufferStruct.gif.c) >> 4) | 0x50000000;
+    ((GifPkWord *)PacketBufferStruct.tail.c)->d =
+        (unsigned int)((((unsigned int)(PacketBufferStruct.ptr.c - PacketBufferStruct.tail.c) >>
                          4) -
                         1) |
                        0x10000000);
-    p = (char *)PacketBufferStruct.ptr;
-    PacketBufferStruct.tail = p;
+    p = PacketBufferStruct.ptr.c;
+    PacketBufferStruct.tail.c = p;
     ((GifPkWord *)p)->d = 0x60000000;
-    PacketBufferStruct.ptr = (unsigned long long *)(p + 8);
+    PacketBufferStruct.ptr.c = p + 8;
     ((GifPkWord *)(p + 8))->w[0] = 0;
-    PacketBufferStruct.ptr = (unsigned long long *)(p + 0xC);
+    PacketBufferStruct.ptr.c = p + 0xC;
     ((GifPkWord *)(p + 8))->w[1] = 0;
-    PacketBufferStruct.ptr = (unsigned long long *)(p + 0x10);
-    dl_OpenDma(5, PacketBufferStruct.dma, 0);
+    PacketBufferStruct.ptr.c = p + 0x10;
+    dl_OpenDma(5, PacketBufferStruct.dma.c, 0);
     dl_CloseDma();
     packetOpen = 0;
 }
@@ -118,18 +115,18 @@ void gif_StartPacketPath1(void)
 {
     char *c;
 
-    c = (char *)PacketBufferStruct.ptr;
-    PacketBufferStruct.gif = 0;
-    PacketBufferStruct.end = 0;
-    PacketBufferStruct.dma = c;
-    PacketBufferStruct.tail = c;
-    PacketBufferStruct.ptr = (unsigned long long *)(c + 8);
+    c = PacketBufferStruct.ptr.c;
+    PacketBufferStruct.gif.c = 0;
+    PacketBufferStruct.end.c = 0;
+    PacketBufferStruct.dma.c = c;
+    PacketBufferStruct.tail.c = c;
+    PacketBufferStruct.ptr.c = c + 8;
     ((GifPkWord *)(c + 8))->w[0] = 0x11000000;
-    PacketBufferStruct.gif = c + 0xC;
-    PacketBufferStruct.end = c + 0x10;
-    PacketBufferStruct.ptr = (unsigned long long *)(c + 0x18);
+    PacketBufferStruct.gif.c = c + 0xC;
+    PacketBufferStruct.end.c = c + 0x10;
+    PacketBufferStruct.ptr.c = c + 0x18;
     ((GifPkWord *)(c + 0x18))->d = 0xE;
-    PacketBufferStruct.ptr = (unsigned long long *)(c + 0x20);
+    PacketBufferStruct.ptr.c = c + 0x20;
 }
 
 void gif_EndPacketPath1(void)
@@ -137,38 +134,37 @@ void gif_EndPacketPath1(void)
     char *p;
     char *q;
 
-    ((GifPkWord *)PacketBufferStruct.end)->d =
-        (unsigned int)(((unsigned int)((char *)PacketBufferStruct.ptr - PacketBufferStruct.end) >>
-                        4) -
+    ((GifPkWord *)PacketBufferStruct.end.c)->d =
+        (unsigned int)(((unsigned int)(PacketBufferStruct.ptr.c - PacketBufferStruct.end.c) >> 4) -
                        1) |
         0x1000000000008000LL;
-    ((GifPkWord *)PacketBufferStruct.gif)->w[0] =
-        (((unsigned int)((char *)PacketBufferStruct.ptr - PacketBufferStruct.gif) >> 4) << 16) |
+    ((GifPkWord *)PacketBufferStruct.gif.c)->w[0] =
+        (((unsigned int)(PacketBufferStruct.ptr.c - PacketBufferStruct.gif.c) >> 4) << 16) |
         0x6C008000;
-    p = (char *)PacketBufferStruct.ptr;
+    p = PacketBufferStruct.ptr.c;
     ((GifPkWord *)p)->w[0] = 0x15000000;
     p += 4;
-    PacketBufferStruct.ptr = (unsigned long long *)p;
+    PacketBufferStruct.ptr.d = (unsigned long long *)p;
     ((GifPkWord *)p)->w[0] = 0;
-    PacketBufferStruct.ptr = (unsigned long long *)(p + 4);
+    PacketBufferStruct.ptr.c = p + 4;
     ((GifPkWord *)(p + 4))->w[0] = 0;
-    PacketBufferStruct.ptr = (unsigned long long *)(p + 8);
+    PacketBufferStruct.ptr.c = p + 8;
     ((GifPkWord *)(p + 8))->w[0] = 0;
-    PacketBufferStruct.ptr = (unsigned long long *)(p + 0xC);
-    ((GifPkWord *)PacketBufferStruct.tail)->d =
-        (unsigned int)((((unsigned int)((char *)PacketBufferStruct.ptr - PacketBufferStruct.tail) >>
+    PacketBufferStruct.ptr.c = p + 0xC;
+    ((GifPkWord *)PacketBufferStruct.tail.c)->d =
+        (unsigned int)((((unsigned int)(PacketBufferStruct.ptr.c - PacketBufferStruct.tail.c) >>
                          4) -
                         1) |
                        0x10000000);
-    q = (char *)PacketBufferStruct.ptr;
-    PacketBufferStruct.tail = q;
+    q = PacketBufferStruct.ptr.c;
+    PacketBufferStruct.tail.c = q;
     ((GifPkWord *)q)->d = 0x60000000;
-    PacketBufferStruct.ptr = (unsigned long long *)(q + 8);
+    PacketBufferStruct.ptr.c = q + 8;
     ((GifPkWord *)(q + 8))->w[0] = 0;
-    PacketBufferStruct.ptr = (unsigned long long *)(q + 0xC);
+    PacketBufferStruct.ptr.c = q + 0xC;
     ((GifPkWord *)(q + 8))->w[1] = 0;
-    PacketBufferStruct.ptr = (unsigned long long *)(q + 0x10);
-    dl_OpenDma(5, PacketBufferStruct.dma, 0);
+    PacketBufferStruct.ptr.c = q + 0x10;
+    dl_OpenDma(5, PacketBufferStruct.dma.c, 0);
     dl_CloseDma();
     packetOpen = 0;
 }
@@ -633,8 +629,8 @@ void gif_StartPacketPriPath1(int pri)
 
 void gif_SetGsReg(long long a0, long long a1)
 {
-    *PacketBufferStruct.ptr++ = a1;
-    *PacketBufferStruct.ptr++ = a0;
+    *PacketBufferStruct.ptr.d++ = a1;
+    *PacketBufferStruct.ptr.d++ = a0;
 }
 
 int gif_CheckOpen(void)
@@ -732,22 +728,22 @@ void gif_SetAlpha(long long a0, long long a1, long long a2)
     int idx;
 
     idx = (int)a1;
-    p = PacketBufferStruct.ptr;
+    p = PacketBufferStruct.ptr.d;
     *(volatile unsigned long long *)p = (a0 == 0);
     p++;
-    *(unsigned long long *volatile *)&PacketBufferStruct.ptr = p;
+    *(unsigned long long *volatile *)&PacketBufferStruct.ptr.d = p;
     *(volatile unsigned long long *)p = 0x49;
-    *(unsigned long long *volatile *)&PacketBufferStruct.ptr = p + 1;
+    *(unsigned long long *volatile *)&PacketBufferStruct.ptr.d = p + 1;
     a1 = 0x42;
     v = (unsigned long long)alphaTable[idx].a | ((unsigned long long)a2 << 32);
     v |=
         ((unsigned long long)alphaTable[idx].c << 4) | ((unsigned long long)alphaTable[idx].b << 2);
     v |= (unsigned long long)alphaTable[idx].d << 6;
     *(volatile unsigned long long *)(p + 1) = v;
-    *(unsigned long long *volatile *)&PacketBufferStruct.ptr = p + 2;
+    *(unsigned long long *volatile *)&PacketBufferStruct.ptr.d = p + 2;
     q = p + 3;
     *(volatile unsigned long long *)(p + 2) = a1;
-    PacketBufferStruct.ptr = q;
+    PacketBufferStruct.ptr.d = q;
 }
 
 void gif_MoveImage(long long sbp, long long sbw, long long psm, int *rect, long long dbp,

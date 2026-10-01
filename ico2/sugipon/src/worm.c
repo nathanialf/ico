@@ -7,10 +7,6 @@
 #include "DisplayP2O.h"
 
 void GetWormCaptureVector(void *out, void *act, void *node, float scale);
-/* kept local: void * here, int in ios.h */
-extern void *ios_partition_sugipon;
-/* kept local: void * here, int in ios.h */
-extern void *ios_partition_seki;
 
 /* the TU's one .sdata word (MAIN.MAP worm.o .sdata 0x4, no symbol) */
 static int wormFirst = 1; /* derived name */
@@ -93,6 +89,7 @@ void GetWormRoute(int act, WormVec *target);
 #include "matrixDrive.h"
 #include "main.h"
 #include "GifPacket.h"
+#include "ios.h"
 
 void outerProcess(int act)
 {

@@ -249,7 +249,7 @@ void DrawLine(int *p1, int *p2, int a2, int a3)
     Draw2DLine(t2, t3, a2, a3);
 }
 
-void DrawLineG(int *a0, int *a1, int *a2, int *a3, int a4)
+void DrawLineG(void *p0, void *c0, void *p1, void *c1, int z)
 {
     int t0[4];
     int t1[4];
@@ -258,15 +258,15 @@ void DrawLineG(int *a0, int *a1, int *a2, int *a3, int a4)
     int r;
 
     _InitCurrentMatrix();
-    r = _getLine(t0, t1, a0, a2);
+    r = _getLine(t0, t1, p0, p1);
     if (r == -1) {
         return;
     }
     _FTOI4Vector(t2, t0);
     _FTOI4Vector(t3, t1);
     if (r != 0) {
-        Draw2DLineG(t3, a1, t2, a3, a4);
+        Draw2DLineG(t3, c0, t2, c1, z);
     } else {
-        Draw2DLineG(t2, a1, t3, a3, a4);
+        Draw2DLineG(t2, c0, t3, c1, z);
     }
 }

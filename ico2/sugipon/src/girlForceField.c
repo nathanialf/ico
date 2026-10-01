@@ -22,6 +22,7 @@ typedef union GObjSubSlot {
 #include "girlForceField.h"
 #include "ios.h"
 #include "main.h"
+#include "StageAnimation.h"
 
 /* The TU's .data (VMA 0x4EB430, 16 B = MAIN.MAP girlForceField.o .data): the
    girl's blue, the colour boy.c's position-sync marker draws her sphere in.
@@ -55,9 +56,6 @@ inline void GirlForceFieldGeo(void) {}
 
 extern OaRecA objLayout[];
 extern OaRecB D_002BC6E0[];
-/* kept local: float (void *, float *, float *, float, float) here, float (int, void *, void *, float, float) in StageAnimation.h */
-extern float stage_PlayBgAnimationDissolve(void *anim, float *pos, float *quat, float frame,
-                                           float ratio);
 
 void GirlForceFieldDL(char *self)
 {

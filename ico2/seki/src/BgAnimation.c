@@ -16,6 +16,7 @@
 #include "ios.h"
 #include "main.h"
 #include "Matrix.h"
+#include "enemy_act.h"
 
 /* .data, carved VMA 0x4EE5B0..0x4EE5F0, bytes verified against
    baserom/pal/baseelf.rom.  bgaAnimDefault is the 0x30-byte default record
@@ -2185,8 +2186,6 @@ extern void *isysGObjSearchFromObjKindID_next(void *g);
 extern void *isysGObjGetExist_begin(void);
 /* kept local: agrees with gobj.h, which this TU does not include (isysGObjSearchFromObjKindID_next differs) */
 extern void *isysGObjGetExist_next(void *g);
-/* kept local: int (void *) here, int (int *) in enemy_act.h */
-extern int isEnemyHyde(void *g);
 
 /* Listing line 3069: the definition's four colour bytes widened into the
    16-byte record DrawLightningN reads.  The name is ours. */

@@ -12,6 +12,23 @@
 #ifndef PACKET_H
 #define PACKET_H
 
+/* RECONSTRUCTION (names ours): the header of one packet pac_MakePacket
+   builds: the bounding box's eight corners, the material, shape and texture
+   numbers, the packet size (the byte count in the low 24 bits, the clip type
+   in the top byte), the next packet of the model and its DMA data. */
+typedef struct PacHeader {
+    float box[8][4];        /* 0x00 */
+    short mat;              /* 0x80 */
+    short shape;            /* 0x82 */
+    short tex;              /* 0x84 */
+    short tex1;             /* 0x86 */
+    short tex2;             /* 0x88 */
+    short pad8A[3];         /* 0x8A */
+    int size;               /* 0x90 */
+    struct PacHeader *next; /* 0x94 */
+    char *data;             /* 0x98 */
+} PacHeader;
+
 /* The declarations below lead this header because their order is load-bearing:
  * gcc 2.9 emits the deferred out-of-line copy of a plain-inline function in
  * first-declaration order, so this is the order Packet.c's inline tail has. */

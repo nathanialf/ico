@@ -12,6 +12,8 @@
 #ifndef REGISTPACKET_H
 #define REGISTPACKET_H
 
+struct PacHeader;
+
 void reg_DispAccessoryWithShadow(char *o, char *src);
 void reg_DispEnemy(void *sub);
 void reg_DispMultiPri(char *o, int pri);
@@ -21,7 +23,7 @@ void reg_Init(void);
 void reg_RenderReflection(char *o, int pri);
 void reg_SetScissorSw(int val);
 void reg_chooseReflectionMicroCode(int a0, int a1, int a2);
-void reg_dispBoxLine(char *pk);
+void reg_dispBoxLine(struct PacHeader *pk);
 void reg_dispCObj(char *o);
 void reg_dispLine(char *node, float alpha);
 void reg_dispMObj(char *o);
@@ -33,6 +35,6 @@ void reg_setCMatrixPacket(char *o, float alpha, int prilist);
 int reg_setDissolve(float a, int pri);
 char *reg_setMMatrixPacket(char *o, int idx);
 char *reg_setNMatrixPacket(char *o, int idx);
-void reg_setShape(char *o, int idx, int flag, char *pkt, char *mat);
+void reg_setShape(char *o, int idx, int flag, struct PacHeader *pkt, char *mat);
 
 #endif /* REGISTPACKET_H */

@@ -33,7 +33,7 @@ int gsb_ClipBox(void *pk);
 void gsb_Init();
 void gsb_InitGSSystem(void);
 void gsb_MakeCommonMatrix(void);
-void gsb_PostEffect(void);
+int gsb_PostEffect(void);
 void gsb_Reduction(void);
 void gsb_ResetGSSystem(void);
 void gsb_SetBGColor(void *a0, int r, int g, int b);

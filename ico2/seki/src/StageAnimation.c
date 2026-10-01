@@ -12,6 +12,7 @@
 #include "quaternion.h"
 #include "GsBase.h"
 #include "main.h"
+#include <string.h>
 
 typedef union {
     int i;
@@ -26,6 +27,22 @@ typedef union {
 typedef struct {
     char _b[8];
 } Blob8;
+
+/* the animation record's packed word: its object count, node count, play
+   count and mode.  WHAT THE BYTES PIN: the mode is tested as the word shifted
+   down 30 (sra), where a bit-field compare against a constant folds to a
+   masked compare, and stage_SetAnimation's loop reads the count as the
+   shifted word (as a field its allocation rotates, measured) */
+typedef union {
+    int i;
+
+    struct {
+        int count : 10;
+        int nodes : 10;
+        int play : 10;
+        int mode : 2;
+    } b;
+} StageFlags;
 
 struct B8 {
     char _b[8];
@@ -45,13 +62,13 @@ typedef struct AnimNode {
    before the index is added, which is the ROM's addiu/addu pair (and in
    stage_SetScale the k-loop test's own copy of it). */
 typedef struct {
-    short kind[64]; /* 0x000 */
-    char *obj[64];  /* 0x080 */
-    int *data[64];  /* 0x180 */
-    int *entry1;    /* 0x280 */
-    int *entry2;    /* 0x284 */
-    int *entry3;    /* 0x288 */
-    AnimWord flags; /* 0x28C */
+    short kind[64];   /* 0x000 */
+    char *obj[64];    /* 0x080 */
+    int *data[64];    /* 0x180 */
+    int *entry1;      /* 0x280 */
+    char *entry2;     /* 0x284 */
+    char *entry3;     /* 0x288 */
+    StageFlags flags; /* 0x28C */
 } StageAnim;
 
 /* RECONSTRUCTION: the play node stage_MakePlayBgAnimation links into
@@ -105,10 +122,6 @@ extern char D_005F5E70[];
 extern char objLayout[];
 extern char D_002BC6E0[];
 extern char D_00602FA0[];
-/* kept local: agrees with string.h, which this TU does not include (strncmp differs) */
-extern int strcmp(const char *a, const char *b);
-/* kept local: int (const char *, const char *, int) here, int (const char *, const char *, unsigned int) in string.h */
-extern int strncmp(const char *a, const char *b, int n);
 /* kept local: agrees with BgAnimation.h, which this TU does not include (bga_CalcAnimation, bga_CheckAnimationFinish differ) */
 extern int bga_InitData(char *data);
 /* kept local: agrees with BgAnimation.h, which this TU does not include (bga_CalcAnimation, bga_CheckAnimationFinish differ) */
@@ -119,8 +132,6 @@ extern void bga_SetCamFrame();
 extern void bga_SetUniqAnimationFlag(int val);
 /* kept local: void (void *, int, int) here, void (char *, int, int) in BgAnimation.h */
 extern void bga_CalcAnimation(void *a0, int a1, int a2);
-/* kept local: IosMemPart * here, int in ios.h */
-extern IosMemPart *ios_partition_seki;
 /* kept local: agrees with BgAnimation.h, which this TU does not include (bga_CalcAnimation, bga_CheckAnimationFinish differ) */
 extern void bga_DispLightning(void);
 /* kept local: int (int, int, int) here, int (char *, int, int) in BgAnimation.h */
@@ -138,6 +149,7 @@ typedef struct {
 } StageGObjInit;
 
 #include "StageAnimation.h"
+#include "ios.h"
 #include <stdio.h>
 
 void stage_MakeGObj(int *dat, int no)
@@ -149,10 +161,10 @@ void stage_MakeGObj(int *dat, int no)
     int w;
     int kind = dat[0];
     int aux = dat[1];
-    char *e = (char *)stageAnimTable + no * 0x290;
+    StageAnim *e = &stageAnimTable[no];
 
-    for (i = 0; i < ((*(int *)(e + 0x28C) << 22) >> 22); i++) {
-        if (((short *)e)[i] == kind) {
+    for (i = 0; i < e->flags.b.count; i++) {
+        if (e->kind[i] == kind) {
             debug_StdPrintfDummy("Bga Object Already %d %d %d\n", kind, kind, no);
             return;
         }
@@ -163,7 +175,7 @@ void stage_MakeGObj(int *dat, int no)
         debug_assert(__FILE__, 541);
         __assert(__FILE__, 541, "0");
     }
-    *(short *)(e + (((*(int *)(e + 0x28C) << 22) >> 22) << 1)) = kind;
+    e->kind[e->flags.b.count] = kind;
     *(int *)(g + 0x4) = 1;
     *(int *)(g + 0x8) = 0;
     isysGObjKindTableAdd(g, aux);
@@ -172,13 +184,13 @@ void stage_MakeGObj(int *dat, int no)
     isysGObjProcAdd(g, 0, 1, 0x18);
     isysGObjLinkObjDL(g, 0, 0, 7, 0xFFFFFFFF);
     *(int *)(g + 0x24) = 0;
-    *(char **)(e + (((*(int *)(e + 0x28C) << 22) >> 22) << 2) + 0x80) = g;
+    e->obj[e->flags.b.count] = g;
     d = CSVSYSTEM_InitDObj(kind, &init);
     *(int *)(g + 0x15C) = (int)d;
     *(int *)(d + 0x80) = 1;
-    *(int *)(e + (((*(int *)(e + 0x28C) << 22) >> 22) << 2) + 0x180) = (int)dat;
-    w = (*(int *)(e + 0x28C) & ~0x3FF) | ((((*(int *)(e + 0x28C) << 22) >> 22) + 1) & 0x3FF);
-    *(int *)(e + 0x28C) = w;
+    e->data[e->flags.b.count] = dat;
+    w = (e->flags.i & ~0x3FF) | ((e->flags.b.count + 1) & 0x3FF);
+    e->flags.i = w;
     if (((w << 22) >> 22) >= 64) {
         debug_Assert("Too much Stage Animation Objects.\n");
         debug_assert(__FILE__, 562);
@@ -227,17 +239,10 @@ void stage_ApplyData(char *name, char *data)
     __assert(__FILE__, 617, "e");
 }
 
-typedef struct {
-    short kinds[64]; /* 0x000 */
-    char *objs[64];  /* 0x080 */
-    int *dats[64];   /* 0x180 */
-    char *p280;      /* 0x280 */
-    char *p284;      /* 0x284 */
-    char *p288;      /* 0x288 */
-    AnimWord flags;  /* 0x28C: count 0 to 9, node count 10 to 19, play 20 to 29, mode 30 to 31 */
-} StageEnt;
-
-#define STG ((StageEnt *)stageAnimTable)
+/* stage_Init reaches the table's records through a pointer: indexing the
+   array itself folds the table address into each access and moves gcse's
+   expression table (measured) */
+#define STG ((StageAnim *)stageAnimTable)
 
 typedef struct {
     int kind; /* 0x00 */
@@ -314,17 +319,17 @@ int stage_Init(void)
     char *a;
     char *r;
     int (*fn)(char *, StageGObjInit *);
-    StageEnt *e;
+    StageAnim *e;
 
     bga_InitBGA();
     for (i = 0; i < 87; i++) {
         for (k = 0; k < 64; k++) {
-            STG[i].kinds[k] = -1;
+            STG[i].kind[k] = -1;
         }
     }
     stageAnimCount = 0;
     for (i = 0; i < 87; i++) {
-        STG[i].flags.i &= ~0x3FF;
+        STG[i].flags.b.count = 0;
     }
     /* The DEBUG-build trace (see stageAnimDebugHook), here and at the next two
        code-free runs. The January listing zeroes a gp counter at line 650
@@ -372,7 +377,7 @@ int stage_Init(void)
                                       0xA) = -1;
                             *(int *)((char *)stageAnimTable + stageAnimCount * 0x290 + 0x280) =
                                 (int)obj;
-                            STG[stageAnimCount].flags.i &= 0xC00FFFFF;
+                            STG[stageAnimCount].flags.b.play = 0;
                             p = &D_00600498[*(int *)(obj + 0x40)];
                             q = &D_00600498[*(int *)(obj + 0x44)];
                             for (; p != q; p++) {
@@ -384,7 +389,7 @@ int stage_Init(void)
                             stageAnimDebugHook();
                             STG[stageAnimCount].flags.i =
                                 (STG[stageAnimCount].flags.i & 0x3FFFFFFF) | 0x40000000;
-                            stageAnimTable[stageAnimCount].entry3 = *(int **)(obj + 0x54);
+                            stageAnimTable[stageAnimCount].entry3 = *(char **)(obj + 0x54);
                             *(int *)((char *)stageAnimTable + stageAnimCount * 0x290 + 0x280) =
                                 (int)obj;
                         }
@@ -407,121 +412,120 @@ int stage_Init(void)
         }
     }
     for (i = 0; i < stageAnimCount; i++) {
-        if (((STG[i].flags.i << 22) >> 22) >= 64) {
+        if (STG[i].flags.b.count >= 64) {
             /* "stgBgas has %d, over MAX_ANIM_GOBJ %d" */
             debug_StdPrintfDummy("stgBgas が%d有り MAX_ANIM_GOBJ %dを越えました\n",
-                                 ((STG[i].flags.i << 22) >> 22), 64);
+                                 STG[i].flags.b.count, 64);
             debug_assert(__FILE__, 712);
             __assert(__FILE__, 712, "0");
         }
-        max = max < ((STG[i].flags.i << 22) >> 22) ? ((STG[i].flags.i << 22) >> 22) : max;
+        max = max < STG[i].flags.b.count ? STG[i].flags.b.count : max;
     }
     debug_StdPrintfDummy("Max Bga = %d // Max DObj %d\n", stageAnimCount, max);
     if (p != 0) {
-        e = STG;
+        e = stageAnimTable;
         for (i = 0; i < stageAnimCount; i++, e++) {
             if ((e->flags.i >> 30) == 1) {
                 continue;
             }
-            for (k = 0; k < ((e->flags.i << 22) >> 22); k++) {
-                if (STG_DAT(e->objs[k]) != 0) {
-                    *(int *)(STG_DAT(e->objs[k]) + 0x8) = 0;
+            for (k = 0; k < e->flags.b.count; k++) {
+                if (STG_DAT(e->obj[k]) != 0) {
+                    *(int *)(STG_DAT(e->obj[k]) + 0x8) = 0;
                 }
             }
             k = 0;
             for (;;) {
-                a = ((char **)*(int *)(e->p284 + 0x10))[k++];
+                a = ((char **)*(int *)(e->entry2 + 0x10))[k++];
                 if (a == 0) {
                     break;
                 }
-                r = e->p280;
+                r = (char *)e->entry1;
                 no = -1;
                 if (r != 0) {
                     no = (r - D_00602FA0) / 0x5CU;
                 }
-                bga_ApplyDObject(a, e->objs, ((e->flags.i << 22) >> 22), no);
+                bga_ApplyDObject(a, e->obj, e->flags.b.count, no);
             }
-            e->flags.i &= 0xFFF003FF;
-            for (k = 0; k < ((e->flags.i << 22) >> 22); k++) {
-                if (*(int *)(STG_DAT(e->objs[k]) + 0xC) != 0) {
-                    iosFree((void *)(*(int *)(STG_DAT(e->objs[k]) + 0xC) & 0x0FFFFFFF));
+            e->flags.b.nodes = 0;
+            for (k = 0; k < e->flags.b.count; k++) {
+                if (*(int *)(STG_DAT(e->obj[k]) + 0xC) != 0) {
+                    iosFree((void *)(*(int *)(STG_DAT(e->obj[k]) + 0xC) & 0x0FFFFFFF));
                 }
-                if (*(int *)(STG_DAT(e->objs[k]) + 0x10) != 0) {
-                    iosFree((void *)(*(int *)(STG_DAT(e->objs[k]) + 0x10) & 0x0FFFFFFF));
+                if (*(int *)(STG_DAT(e->obj[k]) + 0x10) != 0) {
+                    iosFree((void *)(*(int *)(STG_DAT(e->obj[k]) + 0x10) & 0x0FFFFFFF));
                 }
-                *(int *)(STG_DAT(e->objs[k]) + 0xC) = 0;
-                *(int *)(STG_DAT(e->objs[k]) + 0x10) = 0;
-                *(int *)(STG_DAT(e->objs[k]) + 0xC) = (int)iosMallocDebug(
-                    ios_partition_seki, *(int *)(STG_DAT(e->objs[k]) + 0x8) << 6, __FILE__, 761);
-                *(int *)(STG_DAT(e->objs[k]) + 0x10) = (int)iosMallocDebug(
-                    ios_partition_seki, *(int *)(STG_DAT(e->objs[k]) + 0x8) << 4, __FILE__, 761);
+                *(int *)(STG_DAT(e->obj[k]) + 0xC) = 0;
+                *(int *)(STG_DAT(e->obj[k]) + 0x10) = 0;
+                *(int *)(STG_DAT(e->obj[k]) + 0xC) = (int)iosMallocDebug(
+                    ios_partition_seki, *(int *)(STG_DAT(e->obj[k]) + 0x8) << 6, __FILE__, 761);
+                *(int *)(STG_DAT(e->obj[k]) + 0x10) = (int)iosMallocDebug(
+                    ios_partition_seki, *(int *)(STG_DAT(e->obj[k]) + 0x8) << 4, __FILE__, 761);
                 /* The reallocation block's own count line (`X->8 = N;`, as
                    chain.c, boy.c and box.c spell the same block), here passed
                    the count field itself (listing 762; all three allocations
                    pass line 761, one macro invocation). reload_cse deletes it
                    as a no-op and turns the 0x870 test's load into the ROM's
                    register copy. */
-                *(int *)(STG_DAT(e->objs[k]) + 0x8) = *(int *)(STG_DAT(e->objs[k]) + 0x8);
-                if (*(int *)(STG_DAT(e->objs[k]) + 0x870) != 0) {
-                    iosFree((void *)(*(int *)(STG_DAT(e->objs[k]) + 0x870) & 0x0FFFFFFF));
+                *(int *)(STG_DAT(e->obj[k]) + 0x8) = *(int *)(STG_DAT(e->obj[k]) + 0x8);
+                if (*(int *)(STG_DAT(e->obj[k]) + 0x870) != 0) {
+                    iosFree((void *)(*(int *)(STG_DAT(e->obj[k]) + 0x870) & 0x0FFFFFFF));
                 }
-                *(int *)(STG_DAT(e->objs[k]) + 0x870) = (int)iosMallocDebug(
-                    ios_partition_seki, *(int *)(STG_DAT(e->objs[k]) + 0x8) * 0x50, __FILE__, 761);
-                for (t = 0; t < *(int *)(STG_DAT(e->objs[k]) + 0x8); t++) {
-                    ((PlayWord *)(STG_NODE(e->objs[k], t) + 0x38))->l &= ~1;
-                    ((PlayWord *)(STG_NODE(e->objs[k], t) + 0x38))->l &= ~2;
-                    *(int *)(STG_NODE(e->objs[k], t) + 0x40) = 0;
-                    *(int *)(STG_NODE(e->objs[k], t) + 0x44) = 0;
-                    *(int *)(STG_NODE(e->objs[k], t) + 0x48) = 0;
-                    *(float *)(STG_NODE(e->objs[k], t) + 0x4C) = 1.0f;
-                    ((PlayWord *)(STG_NODE(e->objs[k], t) + 0x38))->l &= ~4;
-                    *(int *)(STG_NODE(e->objs[k], t) + 0x30) = 0;
-                    *(float *)(STG_NODE(e->objs[k], t) + 0x34) = 1.0f;
-                    *(short *)(STG_NODE(e->objs[k], t) + 0x3A) = 0;
-                    *(float *)(STG_NODE(e->objs[k], t) + 0x20) = 1.0f;
-                    *(float *)(STG_NODE(e->objs[k], t) + 0x24) = 1.0f;
-                    *(float *)(STG_NODE(e->objs[k], t) + 0x28) = 1.0f;
+                *(int *)(STG_DAT(e->obj[k]) + 0x870) = (int)iosMallocDebug(
+                    ios_partition_seki, *(int *)(STG_DAT(e->obj[k]) + 0x8) * 0x50, __FILE__, 761);
+                for (t = 0; t < *(int *)(STG_DAT(e->obj[k]) + 0x8); t++) {
+                    ((PlayWord *)(STG_NODE(e->obj[k], t) + 0x38))->l &= ~1;
+                    ((PlayWord *)(STG_NODE(e->obj[k], t) + 0x38))->l &= ~2;
+                    *(int *)(STG_NODE(e->obj[k], t) + 0x40) = 0;
+                    *(int *)(STG_NODE(e->obj[k], t) + 0x44) = 0;
+                    *(int *)(STG_NODE(e->obj[k], t) + 0x48) = 0;
+                    *(float *)(STG_NODE(e->obj[k], t) + 0x4C) = 1.0f;
+                    ((PlayWord *)(STG_NODE(e->obj[k], t) + 0x38))->l &= ~4;
+                    *(int *)(STG_NODE(e->obj[k], t) + 0x30) = 0;
+                    *(float *)(STG_NODE(e->obj[k], t) + 0x34) = 1.0f;
+                    *(short *)(STG_NODE(e->obj[k], t) + 0x3A) = 0;
+                    *(float *)(STG_NODE(e->obj[k], t) + 0x20) = 1.0f;
+                    *(float *)(STG_NODE(e->obj[k], t) + 0x24) = 1.0f;
+                    *(float *)(STG_NODE(e->obj[k], t) + 0x28) = 1.0f;
                 }
-                *(short *)(STG_DAT(e->objs[k]) + 0x84C) = 2;
-                e->flags.i =
-                    (e->flags.i & 0xFFF003FF) |
-                    ((((e->flags.i << 12) >> 22) + *(int *)(STG_DAT(e->objs[k]) + 0x8)) & 0x3FF)
-                        << 10;
-                for (u = 0; u < *(int *)(STG_DAT(e->objs[k]) + 0x8); u++) {
-                    _UnitMatrix((void *)(*(int *)(STG_DAT(e->objs[k]) + 0xC) + u * 64));
-                    SetIdentityQuaternion((void *)(*(int *)(STG_DAT(e->objs[k]) + 0x10) + u * 16));
+                *(short *)(STG_DAT(e->obj[k]) + 0x84C) = 2;
+                e->flags.i = (e->flags.i & 0xFFF003FF) |
+                             ((e->flags.b.nodes + *(int *)(STG_DAT(e->obj[k]) + 0x8)) & 0x3FF)
+                                 << 10;
+                for (u = 0; u < *(int *)(STG_DAT(e->obj[k]) + 0x8); u++) {
+                    _UnitMatrix((void *)(*(int *)(STG_DAT(e->obj[k]) + 0xC) + u * 64));
+                    SetIdentityQuaternion((void *)(*(int *)(STG_DAT(e->obj[k]) + 0x10) + u * 16));
                 }
             }
         }
-        e = STG;
+        e = stageAnimTable;
         for (i = 0; i < stageAnimCount; i++, e++) {
             if ((e->flags.i >> 30) == 1) {
                 continue;
             }
-            for (k = 0; k < ((e->flags.i << 22) >> 22); k++) {
+            for (k = 0; k < e->flags.b.count; k++) {
                 static const StageGObjInit stageGObjArg = /* derived name */
                     {{0.0f, 0.0f, 0.0f, 1.0f}, {0.0f}, {1.0f, 1.0f, 1.0f, 1.0f}, 1};
 
-                g = e->objs[k];
+                g = e->obj[k];
                 arg = stageGObjArg;
-                tbl2 = objKindData + *(int *)((char *)e->dats[k] + 4) * 100;
+                tbl2 = objKindData + *(int *)((char *)e->data[k] + 4) * 100;
                 fn = *(int (**)(char *, StageGObjInit *))(tbl2 + 0x58);
                 if (fn != 0) {
-                    *(int *)(STG_DAT(e->objs[k]) + 0x830) = fn(g, &arg);
+                    *(int *)(STG_DAT(e->obj[k]) + 0x830) = fn(g, &arg);
                 }
                 isysGObjProcAdd(g, *(int *)(tbl2 + 0x5C), 1, 0x16);
                 isysGObjProcAdd(g, *(int *)(tbl2 + 0x50), 1, 0x17);
                 isysGObjProcAdd(g, *(int *)(tbl2 + 0x4C), 1, 0x18);
                 isysGObjLinkObjDL(g, 0, 0, 7, 0xFFFFFFFF);
                 *(int *)(g + 0x16C) = 1;
-                *(int *)(STG_DAT(e->objs[k]) + 0x74) = 0;
+                *(int *)(STG_DAT(e->obj[k]) + 0x74) = 0;
             }
         }
     }
-    e = STG;
+    e = stageAnimTable;
     for (i = 0; i < stageAnimCount; i++, e++) {
-        if (*(int *)(e->p280 + 0x50) != 0) {
-            stage_SetAnimation(*(int *)(e->p280 + 0x58), 1, 0);
+        if (e->entry1[0x50 / 4] != 0) {
+            stage_SetAnimation(e->entry1[0x58 / 4], 1, 0);
         }
     }
     return stageAnimCount;
@@ -541,7 +545,7 @@ void stage_SetAnimation(int key, int p1, int p2)
         }
         switch (e->flags.i >> 30) {
         case 0:
-            uid = e->entry2[1];
+            uid = *(int *)(e->entry2 + 4);
             /* Local debug switch, off. What the bytes pin: the ROM's .rodata
                keeps "Illegal Group No. %d\n" at 0x550190 with no reference
                anywhere in the ROM, between stage_Init's data and
@@ -577,7 +581,7 @@ void stage_SetAnimation(int key, int p1, int p2)
             if ((e->flags.i >> 30) != 0) {
                 continue;
             }
-            if (uid != e->entry2[1] || key == e->entry1[0x58 / 4]) {
+            if (uid != *(int *)(e->entry2 + 4) || key == e->entry1[0x58 / 4]) {
                 continue;
             }
             for (k = 0; k < ((e->flags.i << 22) >> 22); k++) {
@@ -592,16 +596,16 @@ void stage_SetAnimation(int key, int p1, int p2)
 inline int stage_CheckAnimationFinish(int a0)
 {
     int i;
-    char *e = (char *)stageAnimTable;
-    for (i = 0; i < stageAnimCount; i++, e += 0x290) {
-        int *entry1 = *(int **)(e + 0x280);
+    StageAnim *e = stageAnimTable;
+    for (i = 0; i < stageAnimCount; i++, e++) {
+        int *entry1 = e->entry1;
         if (a0 == entry1[0x58 / 4]) {
-            int mode = *(int *)(e + 0x28C) >> 30;
+            int mode = e->flags.i >> 30;
             switch (mode) {
             case 0:
-                return bga_CheckAnimationFinish(*(int *)(e + 0x284));
+                return bga_CheckAnimationFinish(e->entry2);
             case 1:
-                return bga_CheckSdfCameraFinish(*(int *)(e + 0x288));
+                return bga_CheckSdfCameraFinish(e->entry3);
             }
         }
     }
@@ -614,21 +618,21 @@ inline int stage_CheckAnimationFinish(int a0)
 int stage_ContinueAnimation(int a0, int a1)
 {
     int i;
-    char *e = (char *)stageAnimTable;
-    for (i = 0; i < stageAnimCount; i++, e += 0x290) {
-        int *entry1 = *(int **)(e + 0x280);
+    StageAnim *e = stageAnimTable;
+    for (i = 0; i < stageAnimCount; i++, e++) {
+        int *entry1 = e->entry1;
         if (a0 == entry1[0x58 / 4]) {
-            int mode = *(int *)(e + 0x28C) >> 30;
+            int mode = e->flags.i >> 30;
             switch (mode) {
             case 0:
-                if (bga_CheckAnimationFinish(*(int *)(e + 0x284)) != 0) {
+                if (bga_CheckAnimationFinish(e->entry2) != 0) {
                     stage_SetAnimation(a0, 0, -1);
                     stage_SetAnimation(a1, 1, 0);
                     return 1;
                 }
                 return 0;
             case 1:
-                if (bga_CheckSdfCameraFinish(*(int *)(e + 0x288)) == 0) {
+                if (bga_CheckSdfCameraFinish(e->entry3) == 0) {
                     return 0;
                 }
                 stage_SetAnimation(a0, 0, -1);
@@ -646,16 +650,16 @@ int stage_ContinueAnimation(int a0, int a1)
 inline int stage_CheckAnimationFrame(int a0, int a1, int a2)
 {
     int i;
-    char *e = (char *)stageAnimTable;
-    for (i = 0; i < stageAnimCount; i++, e += 0x290) {
-        int *entry1 = *(int **)(e + 0x280);
+    StageAnim *e = stageAnimTable;
+    for (i = 0; i < stageAnimCount; i++, e++) {
+        int *entry1 = e->entry1;
         if (a0 == entry1[0x58 / 4]) {
-            int mode = *(int *)(e + 0x28C) >> 30;
+            int mode = e->flags.i >> 30;
             switch (mode) {
             case 0:
-                return bga_CheckAnimationFrame(*(int *)(e + 0x284), a1, a2);
+                return bga_CheckAnimationFrame(e->entry2, a1, a2);
             case 1:
-                return bga_CheckSdfCameraFrame(*(int *)(e + 0x288), a1, a2);
+                return bga_CheckSdfCameraFrame(e->entry3, a1, a2);
             }
         }
     }
@@ -665,16 +669,16 @@ inline int stage_CheckAnimationFrame(int a0, int a1, int a2)
 inline int stage_CheckAnimationFrameIn(int a0, int a1, int a2)
 {
     int i;
-    char *e = (char *)stageAnimTable;
-    for (i = 0; i < stageAnimCount; i++, e += 0x290) {
-        int *entry1 = *(int **)(e + 0x280);
+    StageAnim *e = stageAnimTable;
+    for (i = 0; i < stageAnimCount; i++, e++) {
+        int *entry1 = e->entry1;
         if (a0 == entry1[0x58 / 4]) {
-            int mode = *(int *)(e + 0x28C) >> 30;
+            int mode = e->flags.i >> 30;
             switch (mode) {
             case 0:
-                return bga_CheckAnimationFrameIn(*(int *)(e + 0x284), a1, a2);
+                return bga_CheckAnimationFrameIn(e->entry2, a1, a2);
             case 1:
-                return bga_CheckSdfCameraFrameIn(*(int *)(e + 0x288), a1, a2);
+                return bga_CheckSdfCameraFrameIn(e->entry3, a1, a2);
             }
         }
     }
@@ -692,7 +696,7 @@ void stage_ResetAnimation(void)
 void stage_CalcAnimationNoParent(void)
 {
     int i;
-    char *e;
+    StageAnim *e;
 
     if (graphics_ready != 0) {
         return;
@@ -702,11 +706,11 @@ void stage_CalcAnimationNoParent(void)
     }
     bga_SetUniqAnimationFlag(1);
     _InitCurrentMatrix();
-    e = (char *)stageAnimTable;
-    for (i = 0; i < stageAnimCount; i++, e += 0x290) {
-        switch (*(int *)(e + 0x28C) >> 30) {
+    e = stageAnimTable;
+    for (i = 0; i < stageAnimCount; i++, e++) {
+        switch (e->flags.i >> 30) {
         case 0: {
-            char *entry2 = *(char **)(e + 0x284);
+            char *entry2 = e->entry2;
             signed char lock = *(signed char *)(entry2 + 0xB);
 
             if (lock == 0) {
@@ -721,8 +725,8 @@ void stage_CalcAnimationNoParent(void)
             case -1: {
                 int k;
 
-                for (k = 0; k < ((*(int *)(e + 0x28C) << 22) >> 22); k++) {
-                    char *objs = e + 0x80;
+                for (k = 0; k < e->flags.b.count; k++) {
+                    char *objs = (char *)e->obj;
                     char *o = *(char **)(objs + (k << 2));
 
                     ((int *)*(int *)(o + 0x15C))[0x74 / 4] = 0;
@@ -738,11 +742,11 @@ void stage_CalcAnimationNoParent(void)
                 if (lock != 0) {
                     if (debug_font_flag & 1) {
                         debug_Printf(0, ScreenHeight / 2 - 28, 0xCCCCCC00,
-                                     "\033[32mCamera LWS : %s\033[0m\n", *(int *)(e + 0x280));
+                                     "\033[32mCamera LWS : %s\033[0m\n", e->entry1);
                     }
                 }
                 _InitCurrentMatrix();
-                bga_CalcAnimation(*(char **)(e + 0x284), *(int *)(*(char **)(e + 0x280) + 0x50), 0);
+                bga_CalcAnimation(e->entry2, e->entry1[0x50 / 4], 0);
                 break;
             }
             break;
@@ -751,11 +755,11 @@ void stage_CalcAnimationNoParent(void)
             if (systemStatus[0x14 / 4] != 0) {
                 continue;
             }
-            if (*(int *)(*(char **)(e + 0x288) + 0xC) != 1) {
+            if (*(int *)(e->entry3 + 0xC) != 1) {
                 continue;
             }
             _InitCurrentMatrix();
-            bga_CalcSdfCamera(*(char **)(e + 0x288), *(int *)(*(char **)(e + 0x280) + 0x50));
+            bga_CalcSdfCamera(e->entry3, e->entry1[0x50 / 4]);
             break;
         }
     }
@@ -765,7 +769,7 @@ void stage_CalcAnimationNoParent(void)
 void stage_CalcAnimationParent(void)
 {
     int i;
-    char *e;
+    StageAnim *e;
     char *entry2;
 
     if (graphics_ready != 0) {
@@ -775,12 +779,12 @@ void stage_CalcAnimationParent(void)
         return;
     }
     bga_SetUniqAnimationFlag(1);
-    e = (char *)stageAnimTable;
-    for (i = 0; i < stageAnimCount; i++, e += 0x290) {
-        if ((*(int *)(e + 0x28C) >> 30) != 0) {
+    e = stageAnimTable;
+    for (i = 0; i < stageAnimCount; i++, e++) {
+        if ((e->flags.i >> 30) != 0) {
             continue;
         }
-        entry2 = *(char **)(e + 0x284);
+        entry2 = e->entry2;
         if (*(signed char *)(entry2 + 0xB) != 0) {
             continue;
         }
@@ -794,8 +798,8 @@ void stage_CalcAnimationParent(void)
         case -1: {
             int k;
 
-            for (k = 0; k < ((*(int *)(e + 0x28C) << 22) >> 22); k++) {
-                char *objs = e + 0x80;
+            for (k = 0; k < e->flags.b.count; k++) {
+                char *objs = (char *)e->obj;
                 char *o = *(char **)(objs + (k << 2));
                 ((int *)*(int *)(o + 0x15C))[0x74 / 4] = 0;
                 if (((int *)*(int *)(o + 0x15C))[0x8 / 4] != 0) {
@@ -806,11 +810,11 @@ void stage_CalcAnimationParent(void)
         }
         case 1:
             _InitCurrentMatrix();
-            bga_CalcAnimation(*(char **)(e + 0x284), *(int *)(*(char **)(e + 0x280) + 0x50), 0);
+            bga_CalcAnimation(e->entry2, e->entry1[0x50 / 4], 0);
             break;
         case 0:
             _InitCurrentMatrix();
-            bga_CalcAnimation(*(char **)(e + 0x284), *(int *)(*(char **)(e + 0x280) + 0x50), 1);
+            bga_CalcAnimation(e->entry2, e->entry1[0x50 / 4], 1);
             break;
         }
     }
@@ -820,25 +824,25 @@ void stage_CalcAnimationParent(void)
 void stage_DispAnimation(void)
 {
     int i;
-    char *e;
+    StageAnim *e;
 
     if (stageAnimCount == 0) {
         return;
     }
 
-    e = (char *)stageAnimTable;
-    for (i = 0; i < stageAnimCount; i++, e += 0x290) {
-        int *entry1 = *(int **)(e + 0x280);
+    e = stageAnimTable;
+    for (i = 0; i < stageAnimCount; i++, e++) {
+        int *entry1 = e->entry1;
         signed char lv;
         int k;
 
         if (entry1[0x58 / 4] == 0x42) {
             continue;
         }
-        if ((*(int *)(e + 0x28C) >> 30) != 0) {
+        if ((e->flags.i >> 30) != 0) {
             continue;
         }
-        lv = *(signed char *)(*(int *)(e + 0x284) + 0xA);
+        lv = *(signed char *)(e->entry2 + 0xA);
         if (lv == -1) {
             continue;
         }
@@ -848,8 +852,8 @@ void stage_DispAnimation(void)
         if (lv >= 2) {
             continue;
         }
-        for (k = 0; k < ((*(int *)(e + 0x28C) << 22) >> 22); k++) {
-            char *objs = e + 0x80;
+        for (k = 0; k < e->flags.b.count; k++) {
+            char *objs = (char *)e->obj;
             char *d = *(char **)(*(char **)(objs + (k << 2)) + 0x15C);
 
             if (*(int *)(d + 0x74) != 0) {
@@ -864,9 +868,9 @@ inline void stage_SetLoopFlag(int key, int a1)
 {
     int count = *(volatile int *)&stageAnimCount;
     int i;
-    char *e = (char *)stageAnimTable;
-    for (i = 0; i < count; i++, e += 0x290) {
-        int *p = *(int **)(e + 0x280);
+    StageAnim *e = stageAnimTable;
+    for (i = 0; i < count; i++, e++) {
+        int *p = e->entry1;
         if (key == p[0x58 / 4]) {
             p[0x50 / 4] = a1;
             p = &(*((volatile int *)(&stageAnimCount)));
@@ -897,26 +901,26 @@ inline void stage_SetParentOfGObj(int a0, void *a1)
 {
     int i;
     int one = 1;
-    char *e = stageAnimTable;
+    StageAnim *e = stageAnimTable;
     for (i = 0; i < stageAnimCount; i++) {
-        if (a0 == *(int *)(*(char **)(e + 0x280) + 0x58)) {
-            *(struct B8 *)(*(char **)(*(char **)(e + 0x284) + 0x24) + 0x20) = *(struct B8 *)a1;
-            *(int *)(*(char **)(*(char **)(e + 0x284) + 0x24) + 0x28) = one;
+        if (a0 == e->entry1[0x58 / 4]) {
+            *(struct B8 *)(*(char **)(e->entry2 + 0x24) + 0x20) = *(struct B8 *)a1;
+            *(int *)(*(char **)(e->entry2 + 0x24) + 0x28) = one;
         }
-        e += 0x290;
+        e++;
     }
 }
 
 inline void stage_SetParentOfGObjWithLocalRotationFlag(int a0, void *a1, int a2)
 {
     int i;
-    char *e = stageAnimTable;
+    StageAnim *e = stageAnimTable;
     for (i = 0; i < stageAnimCount; i++) {
-        if (a0 == *(int *)(*(char **)(e + 0x280) + 0x58)) {
-            *(Blob8 *)(*(char **)(*(char **)(e + 0x284) + 0x24) + 0x20) = *(Blob8 *)a1;
-            *(int *)(*(char **)(*(char **)(e + 0x284) + 0x24) + 0x28) = a2;
+        if (a0 == e->entry1[0x58 / 4]) {
+            *(Blob8 *)(*(char **)(e->entry2 + 0x24) + 0x20) = *(Blob8 *)a1;
+            *(int *)(*(char **)(e->entry2 + 0x24) + 0x28) = a2;
         }
-        e += 0x290;
+        e++;
     }
 }
 
@@ -924,24 +928,24 @@ inline void stage_SetLocalizeGeometry(int key, int arg1, int arg2)
 {
     int count = *(volatile int *)&stageAnimCount;
     int i = 0;
-    char *e = (char *)stageAnimTable;
+    StageAnim *e = stageAnimTable;
     if (count <= 0)
         return;
     do {
-        int *entry1 = *(int **)(e + 0x280);
+        int *entry1 = e->entry1;
         if (key == entry1[0x58 / 4]) {
             int *entry2;
             char *target;
-            entry2 = *(int **)(e + 0x284);
+            entry2 = e->entry2;
             target = *(char **)((char *)entry2 + 0x24);
             _CopyVector(target, arg1);
-            entry2 = *(int **)(e + 0x284);
+            entry2 = e->entry2;
             target = *(char **)((char *)entry2 + 0x24);
             CopyQuaternion(target + 0x10, arg2);
             count = *(volatile int *)&stageAnimCount;
         }
         i++;
-        e += 0x290;
+        e++;
     } while (i < count);
 }
 
@@ -955,7 +959,7 @@ void stage_SetScale(int key, float scale)
     for (i = 0; i < stageAnimCount; i++, e++) {
         if (key == e->entry1[0x58 / 4]) {
             if ((e->flags.i >> 30) == 0) {
-                for (j = 0; j < ((e->flags.i << 22) >> 22); j++) {
+                for (j = 0; j < e->flags.b.count; j++) {
                     for (k = 0; k < *(int *)((char *)((AnimWord *)(e->obj[j] + 0x15C))->i + 0x8);
                          k++) {
                         *(float *)(*(char **)((char *)((AnimWord *)(e->obj[j] + 0x15C))->i +
@@ -981,59 +985,57 @@ float stage_PlayBgAnimation(int key, float t, void *v, void *q)
     int n = stageAnimCount;
     float r = t;
     float f;
-    char *e;
+    StageAnim *e;
 
     if (n == 0) {
         return 0.0f;
     }
-    e = (char *)stageAnimTable;
-    for (i = 0; i < n; i++, e += 0x290) {
-        if (key != *(int *)(*(char **)(e + 0x280) + 0x58)) {
+    e = stageAnimTable;
+    for (i = 0; i < n; i++, e++) {
+        if (key != e->entry1[0x58 / 4]) {
             continue;
         }
-        if ((*(int *)(e + 0x28C) >> 30) != 0) {
+        if ((e->flags.i >> 30) != 0) {
             continue;
         }
-        _CopyVector(*(void **)(*(char **)(e + 0x284) + 0x24), v);
-        CopyQuaternion(*(char **)(*(char **)(e + 0x284) + 0x24) + 0x10, q);
-        bga_SetFrame(*(int *)(e + 0x284), (int)r, 1, *(int *)(*(char **)(e + 0x280) + 0x50));
-        for (k = 0; k < ((*(int *)(e + 0x28C) << 22) >> 22); k++) {
-            char *objs = e + 0x80;
+        _CopyVector(*(void **)(e->entry2 + 0x24), v);
+        CopyQuaternion(*(char **)(e->entry2 + 0x24) + 0x10, q);
+        bga_SetFrame(e->entry2, (int)r, 1, e->entry1[0x50 / 4]);
+        for (k = 0; k < e->flags.b.count; k++) {
+            char *objs = (char *)e->obj;
 
             *(int *)(*(int *)(*(char **)(objs + (k << 2)) + 0x15C) + 0x74) = 1;
         }
         if (systemStatus[0x14 / 4] != 0) {
             break;
         }
-        f = *(float *)(*(char **)(e + 0x284) + 0x1C);
+        f = *(float *)(e->entry2 + 0x1C);
         if (systemStatus[0] != 0) {
             r = t + f * 1.2075409f;
         } else {
             r = t + f;
         }
-        if (*(float *)(*(char **)(e + 0x284) + 0x18) <= r) {
-            r = *(int *)(*(char **)(e + 0x280) + 0x50) != 0
-                    ? *(float *)(*(char **)(e + 0x284) + 0x14)
-                    : -1.0f;
+        if (*(float *)(e->entry2 + 0x18) <= r) {
+            r = e->entry1[0x50 / 4] != 0 ? *(float *)(e->entry2 + 0x14) : -1.0f;
         }
         break;
     }
-    e = (char *)stageAnimTable;
-    for (i = 0; i < stageAnimCount; i++, e += 0x290) {
-        if (key != *(int *)(*(char **)(e + 0x280) + 0x58)) {
+    e = stageAnimTable;
+    for (i = 0; i < stageAnimCount; i++, e++) {
+        if (key != e->entry1[0x58 / 4]) {
             continue;
         }
-        if ((*(int *)(e + 0x28C) >> 30) != 0) {
+        if ((e->flags.i >> 30) != 0) {
             continue;
         }
-        for (k = 0; k < ((*(int *)(e + 0x28C) << 22) >> 22); k++) {
-            char *objs = e + 0x80;
+        for (k = 0; k < e->flags.b.count; k++) {
+            char *objs = (char *)e->obj;
             char *d = *(char **)(*(char **)(objs + (k << 2)) + 0x15C);
 
             reg_DispObj(d);
             *(int *)(d + 0x74) = 0;
         }
-        *(signed char *)(*(char **)(e + 0x284) + 0xA) = -1;
+        *(signed char *)(e->entry2 + 0xA) = -1;
     }
     return r;
 }
@@ -1060,23 +1062,23 @@ float stage_PlayBgAnimationDissolve(int key, void *v, void *q, float t, float dv
         if ((e->flags.i >> 30) != 0) {
             continue;
         }
-        _CopyVector(*(void **)((char *)e->entry2 + 0x24), v);
-        CopyQuaternion(*(char **)((char *)e->entry2 + 0x24) + 0x10, q);
+        _CopyVector(*(void **)(e->entry2 + 0x24), v);
+        CopyQuaternion(*(char **)(e->entry2 + 0x24) + 0x10, q);
         bga_SetFrame(e->entry2, (int)r, 1, e->entry1[0x50 / 4]);
-        for (k = 0; k < ((e->flags.i << 22) >> 22); k++) {
+        for (k = 0; k < e->flags.b.count; k++) {
             *(int *)(*(char **)(e->obj[k] + 0x15C) + 0x74) = 1;
         }
         if (systemStatus[0x14 / 4] != 0) {
             break;
         }
-        f = *(float *)((char *)e->entry2 + 0x1C);
+        f = *(float *)(e->entry2 + 0x1C);
         if (systemStatus[0] != 0) {
             r = t + f * 1.2075409f;
         } else {
             r = t + f;
         }
-        if (*(float *)((char *)e->entry2 + 0x18) <= r) {
-            r = e->entry1[0x50 / 4] != 0 ? *(float *)((char *)e->entry2 + 0x14) : -1.0f;
+        if (*(float *)(e->entry2 + 0x18) <= r) {
+            r = e->entry1[0x50 / 4] != 0 ? *(float *)(e->entry2 + 0x14) : -1.0f;
         }
         break;
     }
@@ -1088,7 +1090,7 @@ float stage_PlayBgAnimationDissolve(int key, void *v, void *q, float t, float dv
             continue;
         }
         stageAnimDebugHook();
-        for (k = 0; k < ((e->flags.i << 22) >> 22); k++) {
+        for (k = 0; k < e->flags.b.count; k++) {
             char *d = *(char **)(e->obj[k] + 0x15C);
 
             for (m = 0; m < *(int *)(d + 0x8); m++) {
@@ -1099,7 +1101,7 @@ float stage_PlayBgAnimationDissolve(int key, void *v, void *q, float t, float dv
             stageAnimDebugHook();
         }
         stageAnimDebugHook();
-        *(signed char *)((char *)e->entry2 + 0xA) = -1;
+        *(signed char *)(e->entry2 + 0xA) = -1;
     }
     return r;
 }
@@ -1110,23 +1112,23 @@ int *stage_MakePlayBgAnimation(int key)
     int found = -1;
     float f = 1.0f;
     short num = 0;
-    char *e = (char *)stageAnimTable;
+    StageAnim *e = stageAnimTable;
     int *p;
 
-    for (i = 0; i < stageAnimCount; i++, e += 0x290) {
-        int *entry1 = *(int **)(e + 0x280);
+    for (i = 0; i < stageAnimCount; i++, e++) {
+        int *entry1 = e->entry1;
 
         if (key == entry1[0x58 / 4]) {
             found = i;
             {
-                int w = *(int *)(e + 0x28C);
+                int w = e->flags.i;
 
                 int t = (w << 2) >> 22;
 
-                *(int *)(e + 0x28C) = (w & 0xC00FFFFF) | (((t + 1) & 0x3FF) << 20);
+                e->flags.i = (w & 0xC00FFFFF) | (((t + 1) & 0x3FF) << 20);
                 num = (short)t;
             }
-            f = ((AnimWord *)(*(int *)(e + 0x284) + 0x14))->f;
+            f = ((AnimWord *)(e->entry2 + 0x14))->f;
             break;
         }
     }
@@ -1213,7 +1215,7 @@ static inline void stage_SetBgAnimationPlayNode(BgaPlayNode *node, int key)
     for (i = 0, e = stageAnimTable; i < stageAnimCount; i++, e++) {
         if (key == e->entry1[0x58 / 4]) {
             if ((e->flags.i >> 30) == 0) {
-                for (k = 0; k < ((e->flags.i << 22) >> 22); k++) {
+                for (k = 0; k < e->flags.b.count; k++) {
                     *(void **)(*(char **)(e->obj[k] + 0x15C) + 0x850) = node;
                 }
             }
@@ -1294,7 +1296,7 @@ int stage_DispBgAnimationNoFinish(char **slot)
                        jump then duplicates into a second loop entry; a
                        return gets its own $2 = 0 before the store. The bytes
                        pin the target, not the label's name. */
-                    (*self)->frame = *(float *)((char *)e->entry2 + 0x18);
+                    (*self)->frame = *(float *)(e->entry2 + 0x18);
                     goto end;
                 }
             }

@@ -12,6 +12,10 @@
 #ifndef MOTIONMANAGER2_H
 #define MOTIONMANAGER2_H
 
+/* the 32-byte motion record CopyMotion and CopyMotionWithNodeHrc copy
+   (motionManager2.c) */
+struct Pack32;
+
 #include "typedef.h"
 
 int AdjustMotionHeightToNearestField(char *self);

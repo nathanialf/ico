@@ -17,6 +17,7 @@
 #include "ios.h"
 #include "main.h"
 #include "GifPacket.h"
+#include <libvu0.h>
 
 struct MvObj;
 
@@ -517,9 +518,6 @@ typedef struct MvCol {
     int r, g, b, a;
 } __attribute__((aligned(16))) MvCol;
 
-/* kept local: agrees with libvu0.h, which this TU does not include (sceVu0ApplyMatrix, sceVu0InnerProduct differ) */
-extern void sceVu0UnitMatrix(void *m);
-
 void lookAtTest(MvVec *pos, float rad, void *colAxis, void *colRing, short dy, short ang)
 {
     float p0[4];
@@ -637,12 +635,6 @@ static int lookHeadStep = 0; /* derived name */
 static float lookRadius = 100.0f; /* derived name */
 
 extern void dispPlane(MvVec *plane, MvVec *pos);
-/* kept local: void (MvVec *, void *, MvVec *) here, void (void *, void *, void *) in libvu0.h */
-extern void sceVu0ApplyMatrix(MvVec *dst, void *m, MvVec *src);
-/* kept local: float (MvVec *, MvVec *) here, float (void *, void *) in libvu0.h */
-extern float sceVu0InnerProduct(MvVec *a, MvVec *b);
-/* kept local: agrees with libvu0.h, which this TU does not include (sceVu0ApplyMatrix, sceVu0InnerProduct differ) */
-extern void sceVu0TransposeMatrix(void *dst, void *src);
 
 int MotionViewer(void)
 {

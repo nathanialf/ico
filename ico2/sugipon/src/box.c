@@ -46,7 +46,7 @@ typedef struct BoxWork {
     WallCfg wall;     /* 0x060, the wall the box last hit */
     char f_06C[4];    /* 0x06C */
     float mtx[4][4];  /* 0x070, the box's matrix */
-    char f_0B0[16];   /* 0x0B0 */
+    float f_0B0[4];   /* 0x0B0 */
     float f_0C0[4];   /* 0x0C0 */
     float f_0D0[4];   /* 0x0D0 */
     float f_0E0[4];   /* 0x0E0 */
@@ -84,6 +84,8 @@ typedef struct BoxWork {
 #include <math.h>
 #include "stageMultiBgaManager.h"
 #include "DisplayP2O.h"
+#include "lineManager.h"
+#include "attackhit.h"
 
 /* kept local: void (void *) here, void (int) in geometryManager.h */
 extern void UpdateRootMatrix(void *a0);
@@ -918,8 +920,6 @@ void onPathInitialize(char *a0)
 
 /* kept local: this TU's uses of these do not fit the prototypes in the headers
    that declare them */
-/* kept local: void (void *, void *, void *, void *, int) here, void (int *, int *, int *, int *, int) in lineManager.h */
-extern void DrawLineG(void *p0, void *c0, void *p1, void *c1, int z);
 
 /* the debug switch the wall-fit trace is printed under */
 
@@ -1107,7 +1107,7 @@ int MoveFloatingBox(char *self, char *other, float *dst, void *src, float lim)
     float opos[4];
     float tp[4];
     float m[16];
-    char *w = GOBJ_SUB(self)->f_830;
+    BoxWork *w = GOBJ_SUB(self)->f_830;
     float dx;
     float dz;
     float len;
@@ -1171,7 +1171,7 @@ int MoveFloatingBox(char *self, char *other, float *dst, void *src, float lim)
 
     GetCylinderCollisionWithExceptOwnCollision(self, (int)other, 70.0f, 50.0f, 0.5f, 0.5f, 0);
 
-    *(int *)(w + 0x164) = 1;
+    w->f_164 = 1;
     return 1;
 }
 
@@ -1283,12 +1283,12 @@ void execFloating(char *self)
     float sv[4];
     float dv[4];
     int hit;
-    char *w = GOBJ_SUB(self)->f_830;
+    BoxWork *w = GOBJ_SUB(self)->f_830;
     float len;
     float r;
 
     if (boyGObj != 0) {
-        if (*(int *)(w + 0x164) == 0) {
+        if (w->f_164 == 0) {
             GetCylinderCollisionWithExceptOwnCollision(self, (int)boyGObj, 50.0f, 50.0f, 0.0f, 1.0f,
                                                        1);
             avoidCharGObj(self, boyGObj);
@@ -1309,7 +1309,7 @@ void execFloating(char *self)
     /* the three water-probe heights are written as additions of the offset, not
        as subtractions: the ROM adds -50.0f and -25.0f and gcc 2.9 emits sub.s
        for a written subtraction (line 1128 below is one). */
-    if (GetWaterReaction(w + 0xB0, &hit, fw, pos, (char *)GOBJ_SUB(self) + 0x130, pos[1] + -50.0f,
+    if (GetWaterReaction(w->f_0B0, &hit, fw, pos, (char *)GOBJ_SUB(self) + 0x130, pos[1] + -50.0f,
                          pos[1] + -25.0f, pos[1] + 50.0f, 0.9f,
                          60.0f / (float)((60 - systemStatus[0] * 10) / systemStatus[1]) * -0.1f *
                              (60.0f / (float)((60 - systemStatus[0] * 10) / systemStatus[1])) *
@@ -1317,54 +1317,53 @@ void execFloating(char *self)
         if (*(float *)(fw + 0x24) - 50.0f < pos[1]) {
             pos[1] = *(float *)(fw + 0x24) - 50.0f;
         }
-        _SubVector(d, pos, w + 0x170);
+        _SubVector(d, pos, w->f_170);
         d[1] = 0.0f;
         /* 0.1f * 0.1f, not 0.01f: the pool word is 0x3C23D70B, one ulp above
            the float nearest 0.01. */
         if (0.1f * 0.1f < VectorLengthSquare(d)) {
-            _SubVector(d, pos, w + 0x170);
-            *(float *)(w + 0x170) = pos[0];
-            *(float *)(w + 0x178) = pos[2];
+            _SubVector(d, pos, w->f_170);
+            w->f_170[0] = pos[0];
+            w->f_170[2] = pos[2];
         } else {
-            pos[0] = *(float *)(w + 0x170);
-            pos[2] = *(float *)(w + 0x178);
+            pos[0] = w->f_170[0];
+            pos[2] = w->f_170[2];
         }
         memset(g, 0, 0x10);
         g[1] = -35.0f;
-        sceVu0ScaleVectorXYZ(acc, w + 0xC0, -0.01f);
-        sceVu0AddVector(w + 0xD0, w + 0xD0, acc);
-        sceVu0AddVector(w + 0xD0, w + 0xD0, w + 0xF0);
-        sceVu0ScaleVectorXYZ(w + 0xD0, w + 0xD0, 0.95f);
-        sceVu0AddVector(w + 0xC0, w + 0xC0, w + 0xD0);
-        sceVu0OuterProduct(axis, floatTiltAxis, w + 0xC0);
+        sceVu0ScaleVectorXYZ(acc, w->f_0C0, -0.01f);
+        sceVu0AddVector(w->f_0D0, w->f_0D0, acc);
+        sceVu0AddVector(w->f_0D0, w->f_0D0, &w->f_0F0);
+        sceVu0ScaleVectorXYZ(w->f_0D0, w->f_0D0, 0.95f);
+        sceVu0AddVector(w->f_0C0, w->f_0C0, w->f_0D0);
+        sceVu0OuterProduct(axis, floatTiltAxis, w->f_0C0);
         CopyQuaternion(q, IdentityQuaternion);
         RotQuaternionY(q, GetTableArcTan2(*(float *)((char *)GOBJ_SUB(self) + 0x520),
                                           *(float *)((char *)GOBJ_SUB(self) + 0x528)));
-        SetQuaternionByAxisRotateV(rot, (short)(VectorLength(w + 0xC0) * 20.48f / 50.0f), axis);
+        SetQuaternionByAxisRotateV(rot, (short)(VectorLength(w->f_0C0) * 20.48f / 50.0f), axis);
         MultiQuaternion(q, q, rot);
         SetRootQuaternion(self, q);
         GetMatrixFromQuaternion(m, rot);
         sceVu0ApplyMatrix(ofs, m, g);
         ofs[1] = 0.0f;
-        sceVu0SubVector(sub, ofs, w + 0xE0);
+        sceVu0SubVector(sub, ofs, w->f_0E0);
         sceVu0SubVector(pos, pos, sub);
-        CopyVector(w + 0xE0, ofs);
-        r = *(float *)(w + 0x24) > *(float *)(w + 0x28) ? *(float *)(w + 0x24) * 50.0f
-                                                        : *(float *)(w + 0x28) * 50.0f;
+        CopyVector(w->f_0E0, ofs);
+        r = w->scaleX > w->scaleZ ? w->scaleX * 50.0f : w->scaleZ * 50.0f;
         pushOutFloatingBox(cw, cm, sv, dv, pos, q, r);
         _AddVectorXYZ(cw, pos, ofs);
         *(float *)(cw + 0xC) = 0.0f;
-        _SubVector((char *)GOBJ_SUB(self) + 0x130, cw, w + 0x100);
+        _SubVector((char *)GOBJ_SUB(self) + 0x130, cw, w->f_100);
         GOBJ_SUB(self)->f_13C = 0;
-        CopyVector(w + 0x100, cw);
+        CopyVector(w->f_100, cw);
         SetRootPosition(self, pos);
     }
-    GOBJ_SUB(self)->f_134 += GetTableSin(*(short *)(w + 0x118)) * 0.1f;
-    *(short *)(w + 0x118) += 2048;
-    *(int *)(w + 0x164) = 0;
-    if (*(short *)(w + 0x118) == 0) {
+    GOBJ_SUB(self)->f_134 += GetTableSin(w->f_118) * 0.1f;
+    w->f_118 += 2048;
+    w->f_164 = 0;
+    if (w->f_118 == 0) {
         CopyVector(cw, pos);
-        *(float *)(cw + 4) = *(float *)(w + 0xB0);
+        *(float *)(cw + 4) = w->f_0B0[0];
         EntryStageMultiBgaManager(491, cw, IdentityQuaternion);
     }
 }
@@ -1476,9 +1475,6 @@ static inline void playBoxAnimation(char *self, float *q)
         resetBoxRootQuaternion(self, q);
     }
 }
-
-/* kept local: void (char *, int, void *, void *, float) here, void (char *, int, float *, float *, float) in attackhit.h */
-extern void AttackCenter_WithDir(char *self, int kind, void *pos, void *dir, float r);
 
 /* box.c:1325-1339 in the listing: inlined once, into execFallDown, so it is a
    static inline here; it has no symbol of its own in the ROM and no census row,

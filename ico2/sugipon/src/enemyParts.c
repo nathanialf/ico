@@ -12,6 +12,7 @@
 #include "main.h"
 #include "matrixDrive.h"
 #include "Matrix.h"
+#include "ios.h"
 
 /* The packed colour word.  ROM copies it with lwl/lwr + swl/swr, which is
    gcc's unaligned block move: the type is a four-byte record of chars, so
@@ -98,11 +99,6 @@ int UpdatePointBlur(PointBlur *p, void *mtx, void *a2, float f)
     }
     return 1;
 }
-
-/* kept local: void * here, int in ios.h */
-extern void *ios_partition_sugipon;
-/* kept local: void * here, int in ios.h */
-extern void *ios_partition_seki;
 
 /* enemyParts.o's whole .data run, in ROM order: the templates the loops and
    struct assignments copy out of. */

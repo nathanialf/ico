@@ -392,7 +392,9 @@ struct Sub15C {
     int f_838;   /* 0x838 */
     char _pad83C[0x8];
     int f_844; /* 0x844 */
-    char _pad848[0xC];
+    char _pad848[0x4];
+    short f_84C; /* 0x84C */
+    char _pad84E[0x6];
     int f_854; /* 0x854 */
     char _pad858[0x18];
     void *p_870; /* 0x870 */
