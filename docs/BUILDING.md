@@ -153,7 +153,7 @@ ROM (`tools/verify_elf.py`), and writes `build.ninja` with
   from `ico2/` because the overlay section names it writes hash the source
   path;
 - writes the data-only members from the base ELF into `build/data/`. A
-  member `config/data_schema.pal.txt` lists (72 of the 74) is written as C by
+  member `config/data_schema.pal.txt` lists (73 of the 74) is written as C by
   `tools/gen_data_c.py`: an initialized array of its record type per section,
   with every pointer named after the symbol at its address, floats as the
   shortest decimal that reads back to the same bits and names as string
@@ -164,10 +164,9 @@ ROM (`tools/verify_elf.py`), and writes `build.ninja` with
   like any `ico2/` source, each section of the object is checked against the
   member's ROM range with its relocations applied, and a label a source
   spells inside the member (`D_<VMA>`) is bound to the member's symbol plus
-  its offset by `build/data/<member>.alias.ld`. The other two (stage-anim and
-  the transitional `.sbss` word) are written as assembly by
-  `tools/extract_data.py`, and each assembled table is checked against its
-  ROM range;
+  its offset by `build/data/<member>.alias.ld`. The other row (the
+  transitional `.sbss` word) is written as assembly by
+  `tools/extract_data.py` and checked against its ROM range;
 - links with ld 2.10 and `config/link.pal.ld`, once to `build/ico.syms.elf`
   (symbols kept, with the map `build/ico.pal.map`) and once stripped to
   `build/ico.elf`, as the base is;

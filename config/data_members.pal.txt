@@ -29,9 +29,7 @@
 # after the January link, and their exact end inside trailing zero fill is not
 # recoverable (the bytes are identical either way).
 #
-# Rows still written as assembly: stage-anim, whose range runs 52 B past its
-# last 0x5C record into what MAIN.MAP's size puts in stream-motion-def (a
-# "NULL" row at 0x618d50), and the transitional .sbss row.
+# The one row still written as assembly is the transitional .sbss row.
 
 # ---- .data: after 0x2a79b8, before 0x319020 (DObj.o .data (C))
 # accessary: C:box.c D_002A79B8 (row base); pool/cage/puddle geo inits. ROM span 0x410 != MAIN.MAP 0x348 (+200 B); the last 16 B are zero (fill or table tail)
@@ -151,10 +149,10 @@ rodata shocklist 0x5f5c70 0x5f5d50 shockList@0x0
 rodata stage-all 0x5f5d50 0x600498 stageData@0x0
 # stage-anim-model: C:StageAnimation.c StgObjDat D_00600498. ROM span 0x2b08 != MAIN.MAP 0x28d0 (+568 B)
 rodata stage-anim-model 0x600498 0x602fa0 objTableScene@0x0
-# stage-anim: C:StageAnimation.c D_00602FA0; bytes: path rows. ROM span 0x15de0 != MAIN.MAP 0x12204 (+15324 B); the last 44 B are zero (fill or table tail)
-rodata stage-anim 0x602fa0 0x618d80 stageTable@0x0
-# stream-motion-def: C:st25a.c/st04a.c/e3.c D_00618D80; 9 rows of 0x30 end at DObj's "src/DObj.c". ROM span 0x1b0 != MAIN.MAP 0x1e0 (-48 B); the last 16 B are zero (fill or table tail)
-rodata stream-motion-def 0x618d80 0x618f30 streamMotion@0x0
+# stage-anim: C:StageAnimation.c StageAnim D_00602FA0 (id * 0x5C); 973 rows of 0x5C, the last a "NULL" row with no -1, end at 0x618d4c. ROM span 0x15dac != MAIN.MAP 0x12204 (+15272 B); 4 B fill before next
+rodata stage-anim 0x602fa0 0x618d4c stageTable@0x0
+# stream-motion-def: C:st04a.c/st25a.c/e3.c StandbyStreamMotion's file rows (st04a.c streamMotion + 48, D_00618DB0, D_00618DE0; st25a.c D_00618E70, D_00618ED0; e3.c D_00618F00). size = MAIN.MAP 0x1e0: 10 rows of 0x30 from a "NULL" row at 0x618d50, e3.c's D_00618F00 being row 9, end at DObj's "src/DObj.c"
+rodata stream-motion-def 0x618d50 0x618f30 streamMotion@0x0
 
 # ---- .rodata: after 0x61df5c, before 0x61ee30 (a_p_1.o .rodata (C))
 # staffroll_dat: pointer targets: staffRollNameData's 182 .rodata pointers span 0x61df60..0x61ee08. ROM span 0xed0 != MAIN.MAP 0x10ba (-490 B); the last 14 B are zero (fill or table tail)

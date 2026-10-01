@@ -84,7 +84,8 @@ selist rodata SeKind config/data_schema.pal.h 3837 seList@0
 shocklist rodata PadActDef config/data_schema.pal.h 28 shockList@0
 stage-all rodata StgPre config/data_schema.pal.h 106 stageData@0 hex=attr,flags
 stage-anim-model rodata StgObjDat config/data_schema.pal.h 1377 objTableScene@0
-stream-motion-def rodata StreamMotionFile config/data_schema.pal.h 9 streamMotion@0
+stage-anim rodata StageAnimDef config/data_schema.pal.h 973 stageTable@0
+stream-motion-def rodata StreamMotionFile config/data_schema.pal.h 10 streamMotion@0
 blend-motion-def rodata MotOriSub config/data_schema.pal.h 321 blendMotionKind@0
 enemy-def rodata EnemyDef config/data_schema.pal.h 45 enemyKind@0 hex=attr
 enemy-model-grp rodata EnemyMdlRec config/data_schema.pal.h 10 enemymodelGroup@0

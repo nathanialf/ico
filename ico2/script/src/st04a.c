@@ -173,7 +173,7 @@ void actSt04aGateChk(volatile int a0)
 
     scpPlayMot(boyGObj, 0);
 
-    StandbyStreamMotion(streamMotion);
+    StandbyStreamMotion(streamMotion + 48);
 
     i = 0;
     while (CheckReadyStreamMotion() == 0) {

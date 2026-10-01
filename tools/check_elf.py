@@ -21,9 +21,12 @@ derive progress from that comparison and the link map.
               counts for its section when the map row that places it belongs
               to an object under build/ico2/ or build/sce/ AND the byte equals
               the base's (NOBITS: ownership only, there is nothing to
-              compare). `*fill*` rows are credited to the input section that
-              follows them, since it is that section's alignment that the
-              linker padded for. Objects under build/data/ (the data-only
+              compare). Fill belongs to the object it follows, in every
+              section: a `*fill*` row counts with the input section that ends
+              where it starts, so an object's trailing pad is the object's
+              (a data-only member's tail fill counts with the member, as it
+              did while the member was one assembled row). Objects under
+              build/data/ (the data-only
               members, generated at build time from the user's own base ELF,
               as C for the members config/data_schema.pal.txt lists and as
               assembly for the rest) are counted separately as `extracted`:
@@ -221,12 +224,12 @@ def parse_map(path: Path) -> list[dict]:
         elif obj and (obj.endswith(".o") or ".a(" in obj):
             out.append({"sect": sect, "addr": addr, "size": size, "obj": obj})
     out.sort(key=lambda r: (r["addr"], r["obj"] is not None))
-    # Credit each *fill* to the input section that follows it: the pad
-    # exists because that section asked for alignment.
+    # The rule for fill, in every section: a *fill* row belongs to the
+    # object it follows, the input section that ends where the fill starts.
     for i, r in enumerate(out):
         if r["obj"] is None:
-            nxt = next((q for q in out[i + 1:] if q["obj"] is not None), None)
-            r["fill_for"] = nxt["obj"] if nxt and nxt["addr"] == r["addr"] + r["size"] else None
+            prev = next((q for q in reversed(out[:i]) if q["obj"] is not None), None)
+            r["fill_for"] = prev["obj"] if prev and prev["addr"] + prev["size"] == r["addr"] else None
     return out
 
 
@@ -862,6 +865,7 @@ def _table(sections: dict, extracted: dict) -> str:
         "user's own base ELF: as C for the members `config/data_schema.pal.txt` "
         "lists (`tools/gen_data_c.py`) and as assembly for the rest "
         "(`tools/extract_data.py`); none of their content is in the repository. "
+        "Linker fill counts with the object it follows. "
         "**Identical** is their sum, the share of the section equal to the base, "
         "which the gate requires to be 100 % for every section with file bytes.")
     lines.append("")

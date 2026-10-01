@@ -813,8 +813,7 @@ typedef struct { /* field names derived */
 
 /* stage-anim: one stage animation, 0x5C bytes. Reader: ico2/seki/src/
  * StageAnimation.c (stage_ApplyData, the BGA set-up, (r - table) / 0x5C).
- * Owner: ico2/seki/include/StageAnimation.h. Not yet a schema row: the
- * member's ROM row ends 52 B past its last record (see the B-18 report). */
+ * Owner: ico2/seki/include/StageAnimation.h. */
 typedef struct { /* field names derived */
     char path[64];       /* 0x00, the .bga file, "NULL" for none */
     int objFirst;        /* 0x40, the objTableScene range */
