@@ -552,7 +552,7 @@ static inline void dispBack(int page, int tex) /* derived name */
     } else {
         SetDrawnTextureEnvironment(0x3000);
     }
-    RestoreNormalDrawEnvironment(db, buffer_ID, 0);
+    RestoreNormalDrawEnvironment(&db, buffer_ID, 0);
     drawSprite(128, 128, 128, 128, -320, -112, 320, 112, tex);
 }
 

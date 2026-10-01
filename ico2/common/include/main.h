@@ -8,9 +8,10 @@
 #define MAIN_H
 
 #include "typedef.h"
+#include <libgraph.h>
 
 extern int systemStatus[12];
-extern int db[140];
+extern sceGsDBuff db;
 extern StageSetting GlobalStageSetting;
 extern PadState pad[16];
 

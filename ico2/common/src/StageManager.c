@@ -169,7 +169,7 @@ void start_stage_Load_thread(int stage)
 {
     before_stage_no = stage_no;
     stage_no = stage;
-    gsb_SetBGColor(db, 1, 1, 1);
+    gsb_SetBGColor(&db, 1, 1, 1);
     sceGsSyncPath(0, 0);
     stageManagerFreeResourceFlag = 1;
     stop_free_resources();

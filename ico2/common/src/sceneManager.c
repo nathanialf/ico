@@ -205,7 +205,7 @@ void InitStageLight(int stage)
     GlobalStageSetting.fogFar = (int)stageData[stage].fog[7];
     GlobalStageSetting.fogStrength = 128;
 
-    gsb_SetBGColor(db, (int)GlobalStageSetting.bgCol[0], (int)GlobalStageSetting.bgCol[1],
+    gsb_SetBGColor(&db, (int)GlobalStageSetting.bgCol[0], (int)GlobalStageSetting.bgCol[1],
                    (int)GlobalStageSetting.bgCol[2]);
 
     GlobalStageSetting.shadowDepth = stageData[stage].shadowDepth;

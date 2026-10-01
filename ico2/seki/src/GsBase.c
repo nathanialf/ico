@@ -76,19 +76,6 @@ static float zoomSpeed = 1000.0f; /* derived name */
 
 int currentFocusDistance = 1;
 
-/* libgraph's double buffer as sceGsSetDefDBuff fills it (libgraph.h in this
-   tree declares no record for it): the two display environments, then each
-   frame's GIF tag, draw environment and clear list */
-typedef struct { /* field names derived */
-    sceGsDispEnv disp[2];
-    long long giftag0[2];
-    sceGsDrawEnv draw0;
-    sceGsClear clear0;
-    long long giftag1[2];
-    sceGsDrawEnv draw1;
-    sceGsClear clear1;
-} sceGsDBuff;
-
 /* Point the double buffer's two display and two draw environments at the
  * frame this stage draws into: the low nine bits of each frame word carry the
  * buffer base in 64-word units and each draw env's ZBUF carries the zbuffer
@@ -115,8 +102,6 @@ void gsb_SetFrame(sceGsDBuff *db, int a1, int a2, int psm, short zbp)
 extern int systemStatus[];
 /* as in main.h, which this TU does not include */
 extern int buffer_ID;
-extern void sceGsSetDefDBuff(void *db, short psm, short w, short h, short ztst, short zpsm,
-                             short flag);
 
 /* Bring the GS up for the frame size the stage record asks for: 512 by 448
  * interlaced, 512 by 512 in the tall mode and 512 by 448 otherwise, then set

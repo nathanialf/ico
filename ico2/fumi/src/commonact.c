@@ -145,6 +145,7 @@ inline void afterCommonTruckLever(GObj *volatile a0);
 #include "quaternion.h"
 #include "main.h"
 #include "fieldCollision.h"
+#include "chain.h"
 
 typedef struct {
     int a, b, c;
@@ -805,9 +806,6 @@ void WithMailFunc_AttackRejectInQueen(char *a0)
     }
 }
 
-/* kept local: agrees with chain.h, which this TU does not include (HoldChain, ReleaseChain, SetChainRootUpdateMode differ) */
-extern int GetChainDirCorrectVal(char *a0, int *a1);
-
 void GetCorrectOrientOfChain(void *buf, void *obj)
 {
     float q[4];
@@ -900,23 +898,6 @@ int CollisCheckInRope(void *a0, GObj *chain)
     return rv;
 }
 
-/* kept local: agrees with chain.h, which this TU does not include (HoldChain, ReleaseChain, SetChainRootUpdateMode differ) */
-extern void GetRootPositionHandExtra(void *a0, float *a1);
-/* kept local: chain.h declares HoldChain(char *); it takes the holder and the hand position
-   too, which it hands on to StartPendulum */
-extern void HoldChain(char *chain, char *owner, float *pos);
-/* kept local: agrees with chain.h, which this TU does not include (HoldChain, ReleaseChain, SetChainRootUpdateMode differ) */
-extern void LockChainGeo(char *a0);
-/* kept local: agrees with chain.h, which this TU does not include (HoldChain, ReleaseChain, SetChainRootUpdateMode differ) */
-extern void UnLockChainGeo(char *a0);
-/* kept local: agrees with chain.h, which this TU does not include (HoldChain, ReleaseChain, SetChainRootUpdateMode differ) */
-extern void ChainGeo(int a0);
-/* kept local: agrees with chain.h, which this TU does not include (HoldChain, ReleaseChain, SetChainRootUpdateMode differ) */
-extern int CheckChainClimbablePos(char *a0);
-/* kept local: agrees with chain.h, which this TU does not include (HoldChain, ReleaseChain, SetChainRootUpdateMode differ) */
-extern void GetChainClimbOrient(float *dst, char *a0);
-/* kept local: agrees with chain.h, which this TU does not include (HoldChain, ReleaseChain, SetChainRootUpdateMode differ) */
-extern void GetChainClimbCollision(void *out, int chain);
 /* kept local: agrees with motionManager2.h, which this TU does not include (SetMotionNodeFixModeParameter differs) */
 extern void SetMotionDirection();
 
@@ -945,14 +926,11 @@ static inline int chainFloorHit(GObj *a0, void *w)
     return 0;
 }
 
-/* kept local: chain.h declares ReleaseChain(char *); the caller passes the holder too */
-extern void ReleaseChain(char *chain, char *owner);
-
 inline void afterCommonRope(GObj *volatile a0)
 {
     Act *s = GOBJ_ACT(a0);
     debug_StdPrintfDummy("common rope after func\n");
-    ReleaseChain((char *)s->chain, (char *)a0);
+    ReleaseChain(s->chain, a0);
     {
         GObj *g = a0;
         *(int *)((int)s + 0x194) = s->chain;
@@ -992,9 +970,9 @@ void actCommonRope(GObj *volatile a0)
     ori[2] = *(float *)((char *)test_CURRENTORIENT(a0) + 8);
     roty = _RotyGV(dir, ori);
     if ((int)s->after == 0) {
-        GetRootPositionHandExtra((void *)a0, hand);
+        GetRootPositionHandExtra(a0, hand);
         step = 0;
-        HoldChain((char *)s->chain, (char *)a0, hand);
+        HoldChain(s->chain, a0, hand);
     }
     *(int *)((char *)s + 0x14) = (int)afterCommonRope;
     *(int *)((char *)s + 0x18) = (int)actAfterForceRope;
@@ -1100,9 +1078,6 @@ void motCommonRopeTurnL(GObj *volatile a0)
     }
 }
 
-/* kept local: gobj is void * here, char * in chain.h */
-extern void SetChainRootUpdateMode(void *a0, int mode, float *pos);
-
 typedef struct {
     float x, y, z;
 } ClimbVec3;
@@ -1177,7 +1152,7 @@ void actCommonRopeClimbEnd1(GObj *volatile a0)
             } else {
                 ACTSendMailCorrect(a0, 0xA1);
             }
-            SetChainRootUpdateMode((void *)a0, 3, pos);
+            SetChainRootUpdateMode(a0, 3, pos);
             _ACTWait(1);
         }
         if (GOBJ_SUB(a0)->ctrl.motion != 118) {
@@ -1217,9 +1192,6 @@ typedef union {
     float *f;
 } CagePtr;
 
-/* kept local: gobj is void * here, char * in chain.h */
-extern void SetChainRootUpdateMode(void *a0, int mode, float *pos);
-
 void actCommonRopeCliff(GObj *volatile a0)
 {
     float dst[4];
@@ -1245,8 +1217,7 @@ void actCommonRopeCliff(GObj *volatile a0)
         }
         if (GOBJ_SUB(a0)->ctrl.motion == 118) {
             y = test_CURRENTROOT((void *)a0)[1];
-            SetChainRootUpdateMode((char *)boyGObj, 3,
-                                   (float *)((char *)GOBJ_ACT(a0)->enemy + 0x1D0));
+            SetChainRootUpdateMode(boyGObj, 3, (float *)((char *)GOBJ_ACT(a0)->enemy + 0x1D0));
             p[0] = test_CURRENTROOT((void *)a0)[0];
             p[1] = test_CURRENTROOT((void *)a0)[1];
             p[2] = test_CURRENTROOT((void *)a0)[2];
@@ -2252,11 +2223,6 @@ void funcCommonFallDircorrect(GObj *a0)
     SetMotionDirection(a0, (char *)GOBJ_ACT(a0)->work + 0x360);
 }
 
-/* kept local: agrees with chain.h, which this TU does not include (HoldChain, ReleaseChain, SetChainRootUpdateMode differ) */
-extern float GetChainHangRange(char *a0);
-/* kept local: agrees with chain.h, which this TU does not include (HoldChain, ReleaseChain, SetChainRootUpdateMode differ) */
-extern float GetChainLength(char *a0);
-
 void correctJumpOrientByChain(GObj *a0)
 {
     float out[4];
@@ -2265,7 +2231,7 @@ void correctJumpOrientByChain(GObj *a0)
     float p[4];
     float q[4];
     float dir[4];
-    char *o;
+    GObj *o;
     float t;
     float best = 3.40282347e+38f; /* FLT_MAX */
     float ang = 0.0f;
@@ -2277,7 +2243,7 @@ void correctJumpOrientByChain(GObj *a0)
 
     for (o = isysGObjSearchFromObjKindID_begin(21); o != 0;
          o = isysGObjSearchFromObjKindID_next(o)) {
-        if (*(int *)(o + 0x16C) == 0) {
+        if (o->active == 0) {
             continue;
         }
         GetRootPosition(p, o);
@@ -4312,9 +4278,6 @@ inline void actCommonRopeTouchWall(GObj *volatile a0)
     }
 }
 
-/* kept local: agrees with chain.h, which this TU does not include (HoldChain, ReleaseChain, SetChainRootUpdateMode differ) */
-extern void PlumbOrientUpdateChain(char *a0, float *src);
-
 typedef struct {
     char pad0[24];
     int f18;
@@ -4451,7 +4414,7 @@ inline void actCommonRopeTurnSpecial(GObj *volatile a0)
         GetCageChainPoint(p0, p1, GOBJ_WORK(a0)->ropeCage);
         _InterGV(out, p0, p1, base.f[1] - p0[1], p1[1] - base.f[1]);
         out[1] = base.f[1];
-        SetChainRootUpdateMode((void *)a0, 3, out);
+        SetChainRootUpdateMode(a0, 3, out);
         _ACTWait(1);
     }
 }

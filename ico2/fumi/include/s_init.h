@@ -16,6 +16,8 @@ struct GObj;
 
 struct AdpcmStreamTag;
 
+struct AdpcmOpenReq;
+
 /* sound data area: one loaded bank, 0x30 bytes, the 16 rows of s_init.c's
  * soundDataTbl, keyed by its first word (num, bank). Readers: ico2/fumi/
  * sound/s_init.c, ico2/fumi/sound/adpcm_init.c (the stream at 0x2C); the
@@ -76,8 +78,8 @@ void soundAllocIopHeap(void);
 char *soundBDDataSet(int a0, int a1, int a2, int a3, int a4, int a5);
 void soundBufSegFree(int a0, int a1);
 void soundDataClose(char *obj);
-void soundDataOpen(int *work, int mode, int a2, int a3, int a4);
-int *soundDataOpenSync(int *work);
+void soundDataOpen(struct AdpcmOpenReq *work, int mode, int a2, int a3, int a4);
+int *soundDataOpenSync(struct AdpcmOpenReq *work);
 void soundDataSegAllClose(int a0, int a1);
 void soundDataSegNextStageNotUseClose(int a0, int a1);
 int soundInit(void);

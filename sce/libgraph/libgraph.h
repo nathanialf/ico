@@ -116,6 +116,20 @@ typedef struct {
 
 int sceGsExecLoadImage(void *pkt, void *img);  /* definition in sce/ */
 int sceGsExecStoreImage(void *pkt, void *img); /* definition in sce/ */
+
+/* The double buffer sceGsSetDefDBuff fills and sceGsSwapDBuff flips: the two
+   display environments, then each frame's GIF tag, draw environment and
+   clear list. */
+typedef struct {
+    sceGsDispEnv disp[2]; /* 0x000 */
+    long long giftag0[2]; /* 0x050 */
+    sceGsDrawEnv draw0;   /* 0x060 */
+    sceGsClear clear0;    /* 0x0E0 */
+    long long giftag1[2]; /* 0x140 */
+    sceGsDrawEnv draw1;   /* 0x150 */
+    sceGsClear clear1;    /* 0x1D0 */
+} sceGsDBuff;
+
 sceGsGParam *sceGsGetGParam(void);                                      /* definition in sce/ */
 unsigned long sceGsGetIMR(void);                                        /* definition in sce/ */
 void sceGsPutDispEnv(void *a0);                                         /* definition in sce/ */
@@ -132,6 +146,9 @@ int sceGsSetDefClear(sceGsClear *cl, short ztst, short x, short y, short w, shor
                      unsigned char r, unsigned char g, unsigned char b, unsigned char a,
                      unsigned int z); /* definition in sce/ */
 
+void sceGsSetDefDBuff(sceGsDBuff *db, short psm, short w, short h, short ztst, short zpsm,
+                      short flag); /* definition in sce/ */
+
 int sceGsSetDefDrawEnv(sceGsDrawEnv *env, short psm, short w, short h, short ztst,
                        short zpsm); /* definition in sce/ */
 
@@ -146,9 +163,9 @@ int sceGsSetDefTexEnv(sceGsTexEnv *env, short flush, short tbp, short tbw, short
                       short flt); /* definition in sce/ */
 
 void sceGsSetHalfOffset(void *a0, short a1, short a2, short a3); /* definition in sce/ */
-int sceGsSwapDBuff(void *a0, int a1);                /* definition in sce/ */
-int sceGsSyncPath(int mode, unsigned short timeout); /* definition in sce/ */
-int sceGsSyncV(int mode);                            /* definition in sce/ */
-short sceGszbufaddr(short a0, short a1, short a2);   /* definition in sce/ */
+int sceGsSwapDBuff(void *a0, int a1);                            /* definition in sce/ */
+int sceGsSyncPath(int mode, unsigned short timeout);             /* definition in sce/ */
+int sceGsSyncV(int mode);                                        /* definition in sce/ */
+short sceGszbufaddr(short a0, short a1, short a2);               /* definition in sce/ */
 
 #endif /* SCE_LIBGRAPH_LIBGRAPH_H */

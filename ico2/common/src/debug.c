@@ -707,8 +707,6 @@ typedef struct {
 /* libgraph.h does not declare the store-image entry points */
 extern void sceGsSetDefStoreImage(void *si, short fbp, short fbw, short psm, short x, short y,
                                   short w, short h);
-/* libgraph.h does not declare it */
-extern void sceGsExecStoreImage(void *si, unsigned int addr);
 /* libgcc's dp-bit.c helper, which no header declares */
 extern float dptofp(double v);
 
@@ -2134,7 +2132,7 @@ int debug_SnapShot(int idx)
     debug_StdPrintfDummy("Snap:%d:%p\n", idx, 0x2000000);
     sceGsSetDefStoreImage(si, 0x800, ScreenWidth / 64, 0, 0, 0, ScreenWidth, ScreenHeight);
     FlushCache(0);
-    sceGsExecStoreImage(si, 0x2000000);
+    sceGsExecStoreImage(si, (void *)0x2000000);
     sceGsSyncPath(0, 0);
     src = (int *)0x2000000;
     FlushCache(0);
@@ -2440,7 +2438,7 @@ inline void debug_DispVu1SReg(int no)
 
 inline int gsResetFunc(int a0)
 {
-    gsb_Init(db);
+    gsb_Init(&db);
     return 1;
 }
 

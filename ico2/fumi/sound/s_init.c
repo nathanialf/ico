@@ -519,9 +519,9 @@ inline char *soundSQDataSet(void *sq, int a1, int a2, int a3, int a4)
     return (char *)e;
 }
 
-void soundDataOpen(int *work, int mode, int a2, int a3, int a4)
+void soundDataOpen(AdpcmOpenReq *work, int mode, int a2, int a3, int a4)
 {
-    work[0] = mode;
+    work->mode = mode;
     switch (mode) {
     case 0:
         debug_assert(__FILE__, 614);
@@ -540,9 +540,9 @@ void soundDataOpen(int *work, int mode, int a2, int a3, int a4)
     }
 }
 
-int *soundDataOpenSync(int *work)
+int *soundDataOpenSync(AdpcmOpenReq *work)
 {
-    switch (work[0]) {
+    switch (work->mode) {
     case 0:
         debug_assert(__FILE__, 631);
         __assert(__FILE__, 631, "0");

@@ -923,7 +923,7 @@ static inline void scpAdpcmRequestClose(char **id) /* derived name */
 
 void scpSubAdpcmPlay(GObj *volatile a0)
 {
-    int work[8];
+    AdpcmOpenReq work;
     int i;
     char *h;
 
@@ -957,8 +957,8 @@ void scpSubAdpcmPlay(GObj *volatile a0)
                         _ACTWait(1);
                     }
                 }
-                soundDataOpen(work, 2, p->kind, p->unk0C, p->unk08);
-                while ((h = soundDataOpenSync(work)) == (char *)-1) {
+                soundDataOpen(&work, 2, p->kind, p->unk0C, p->unk08);
+                while ((h = soundDataOpenSync(&work)) == (char *)-1) {
                     _ACTWait(1);
                 }
                 if (h != 0) {

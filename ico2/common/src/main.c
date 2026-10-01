@@ -30,10 +30,10 @@
    at a frame step of 2 (word 1). db is the GS double buffer (libgraph's
    sceGsDBuff, 0x230 B), stageMgrMsg the stage manager's message (main.h's
    StgMgrMsg, 0x18 B) and SchedulerMsgQ the scheduler's queue (message.c's
-   IosMsgQueue, 0x30 B); this file holds db as words. */
+   IosMsgQueue, 0x30 B). */
 int systemStatus[12] = {1, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7};
 
-int db[140] = {0};
+sceGsDBuff db = {{{0}}};
 
 StageSetting GlobalStageSetting = {{{0}}};
 
@@ -183,7 +183,7 @@ void Main(void)
             ACTGame_SetActors_Debug(mpegPlayReturnStage, 1);
             gsb_UpdateGSSystem(1);
             gsb_UpdateGSSystem(1);
-            gsb_Init(db);
+            gsb_Init(&db);
             mpegPlay = 0;
             stgmgrForceSwitchWithFade(mpegPlayReturnStage, 255.0f, mpegPlayFadeInSpeed);
             if (ret == 1) {

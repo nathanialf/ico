@@ -8,31 +8,43 @@
  * screen, sprite/font blits). #included once at the top of debug_exception.c; debug.c calls them as externs.
  * The three Vif1/GIF helpers are inline (they inline into drawSprite/PutFont and their out-of-line copies close the
  * object); the rest are ordinary functions in this order. */
-/* libpkt.h's and libgraph.h's entry points, which this TU does not include */
+/* libpkt.h's entry points, which this TU does not include */
 extern void sceVif1PkCloseDirectCode();
 extern void sceVif1PkCloseGifTag();
 extern void sceVif1PkEnd();
 extern void sceVif1PkTerminate();
-extern void sceGsSyncPath();
-extern int sceGsSetDefTexEnv();
-extern int sceGsSetDefAlphaEnv();
-extern int sceGsSetDefDrawEnv();
 
 /* The four GS environment packets the screen sends with sceGsPutDrawEnv: a
    GIF tag (NLOOP registers in PACKED A+D, EOP) and the register writes after
    it, qword aligned for the DMA.  Each Set...Environment function fills its
-   own packet's registers through the uncached mirror before sending it. */
-static unsigned long long texFrameEnv[20]
-    __attribute__((aligned(16))) = {0x1000000000008009LL, 0xE}; /* derived name */
+   own packet's registers through the uncached mirror before sending it.
+   A texture packet carries TEST_1, the four alpha pairs sceGsSetDefAlphaEnv
+   fills and the four texture pairs sceGsSetDefTexEnv fills; the draw packet
+   carries the eight pairs of a draw environment. */
+typedef struct { /* field names derived */
+    unsigned long long giftag[2];
+    unsigned long long test;
+    unsigned long long test_addr;
+    long long alpha[8];
+    sceGsTexEnv tex;
+} DbgTexPacket;
 
-static unsigned long long texDrawEnv[18]
-    __attribute__((aligned(16))) = {0x1000000000008008LL, 0xE}; /* derived name */
+typedef struct { /* field names derived */
+    unsigned long long giftag[2];
+    sceGsDrawEnv draw;
+} DbgDrawPacket;
 
-static unsigned long long drawnTexEnv[20]
-    __attribute__((aligned(16))) = {0x1000000000008009LL, 0xE}; /* derived name */
+static DbgTexPacket texFrameEnv
+    __attribute__((aligned(16))) = {{0x1000000000008009LL, 0xE}}; /* derived name */
 
-static unsigned long long drawEnv[20]
-    __attribute__((aligned(16))) = {0x1000000000008002LL, 0xE}; /* derived name */
+static DbgDrawPacket texDrawEnv
+    __attribute__((aligned(16))) = {{0x1000000000008008LL, 0xE}}; /* derived name */
+
+static DbgTexPacket drawnTexEnv
+    __attribute__((aligned(16))) = {{0x1000000000008009LL, 0xE}}; /* derived name */
+
+static DbgTexPacket drawEnv
+    __attribute__((aligned(16))) = {{0x1000000000008002LL, 0xE}}; /* derived name */
 
 typedef unsigned int u128_dbgscr __attribute__((mode(TI)));
 
@@ -88,9 +100,6 @@ static int fontB = 255; /* derived name */
 /* The font's tag: XYZ2 pairs, one sprite per lit pixel. */
 static GifTag fontTag = {0x1400000000008000LL, 0x4}; /* derived name */
 
-/* as in libgraph.h, which this TU does not include */
-extern void sceGsResetPath(void);
-
 typedef struct {
     int col;
     char ch;
@@ -111,11 +120,6 @@ static int cursorY = 0; /* derived name */
 
 /* The cursor blink's phase, stepped every frame. */
 static int blinkPhase = 0; /* derived name */
-
-/* this TU declares it void; libgraph.h returns int */
-extern void sceGsSwapDBuff(void *a0, int a1);
-/* this TU passes an argument; libgraph.h declares (void) */
-extern int sceGsSyncV(int a0);
 
 inline void OpenVif1DirectPacket(void *packet)
 {
@@ -143,88 +147,88 @@ void SendVif1DirectPacket(int *self)
     sceDmaSend(p, (self[0x4 / 4] & 0x3FF0) | 0x80000000);
 }
 
-void RestoreNormalDrawEnvironment(void *a0, int a1, int a2)
+void RestoreNormalDrawEnvironment(sceGsDBuff *db, int a1, int a2)
 {
-    unsigned int base = (unsigned int)a0 | 0x20000000;
+    sceGsDBuff *u = (sceGsDBuff *)((unsigned int)db | 0x20000000);
     if (a1 != 0) {
-        sceGsSetHalfOffset((void *)(base + 0x150), 0x800, 0x800, (short)a2);
-        sceGsPutDrawEnv((void *)(base + 0x140));
+        sceGsSetHalfOffset(&u->draw1, 0x800, 0x800, (short)a2);
+        sceGsPutDrawEnv(u->giftag1);
     } else {
-        sceGsSetHalfOffset((void *)(base + 0x60), 0x800, 0x800, (short)a2);
-        sceGsPutDrawEnv((void *)(base + 0x50));
+        sceGsSetHalfOffset(&u->draw0, 0x800, 0x800, (short)a2);
+        sceGsPutDrawEnv(u->giftag0);
     }
 }
 
 void SetTextureWithFrameBuffer(int x)
 {
-    unsigned long long *env;
+    DbgTexPacket *env;
 
-    env = (unsigned long long *)((unsigned int)texFrameEnv | 0x20000000);
-    sceGsSetDefTexEnv(&env[12], 0, (short)x, (short)(ScreenWidth / 64), 1, 10, 8, 0, 0, 0, 0, 1);
-    sceGsSetDefAlphaEnv(&env[4], 0);
-    env[4] = 0x44;
-    env[2] = 0x20000;
-    env[3] = 0x47;
-    env[18] = 0;
-    env[14] = 0x61;
+    env = (DbgTexPacket *)((unsigned int)&texFrameEnv | 0x20000000);
+    sceGsSetDefTexEnv(&env->tex, 0, (short)x, (short)(ScreenWidth / 64), 1, 10, 8, 0, 0, 0, 0, 1);
+    sceGsSetDefAlphaEnv(env->alpha, 0);
+    env->alpha[0] = 0x44;
+    env->test = 0x20000;
+    env->test_addr = 0x47;
+    env->tex.clamp = 0;
+    env->tex.tex1 = 0x61;
     sceGsSyncPath(0, 0);
     sceGsPutDrawEnv(env);
 }
 
 void SetTexDrawEnvironment(int addr)
 {
-    unsigned long long *env;
+    DbgDrawPacket *env;
 
-    env = (unsigned long long *)((unsigned int)texDrawEnv | 0x20000000);
-    sceGsSetDefDrawEnv(&env[2], 0, (short)ScreenWidth, (short)ScreenHeight, 1, 0x31);
-    env[2] = (env[2] & ~0x1FF) | ((addr / 32) & 0x1FF);
-    env[4] |= 0x100000000;
+    env = (DbgDrawPacket *)((unsigned int)&texDrawEnv | 0x20000000);
+    sceGsSetDefDrawEnv(&env->draw, 0, (short)ScreenWidth, (short)ScreenHeight, 1, 0x31);
+    env->draw.frame = (env->draw.frame & ~0x1FF) | ((addr / 32) & 0x1FF);
+    env->draw.zbuf |= 0x100000000;
     sceGsSyncPath(0, 0);
     sceGsPutDrawEnv(env);
 }
 
 void SetDrawnTextureEnvironment(int x)
 {
-    unsigned long long *env;
+    DbgTexPacket *env;
 
-    env = (unsigned long long *)((unsigned int)drawnTexEnv | 0x20000000);
-    sceGsSetDefTexEnv(&env[12], 0, (short)x, (short)(ScreenWidth / 64), 0, 10, 8, 0, 0, 0, 0, 1);
-    sceGsSetDefAlphaEnv(&env[4], 0);
-    env[4] = 0x44;
-    env[2] = 0x20000;
-    env[3] = 0x47;
-    env[18] = 0;
-    env[14] = 0x61;
-    env[10] = 0;
+    env = (DbgTexPacket *)((unsigned int)&drawnTexEnv | 0x20000000);
+    sceGsSetDefTexEnv(&env->tex, 0, (short)x, (short)(ScreenWidth / 64), 0, 10, 8, 0, 0, 0, 0, 1);
+    sceGsSetDefAlphaEnv(env->alpha, 0);
+    env->alpha[0] = 0x44;
+    env->test = 0x20000;
+    env->test_addr = 0x47;
+    env->tex.clamp = 0;
+    env->tex.tex1 = 0x61;
+    env->alpha[6] = 0;
     sceGsSyncPath(0, 0);
     sceGsPutDrawEnv(env);
 }
 
 void SetDrawEnvironment(int mode)
 {
-    unsigned long long *env;
+    DbgTexPacket *env;
 
-    env = (unsigned long long *)((unsigned int)drawEnv | 0x20000000);
-    sceGsSetDefAlphaEnv(&env[4], 0);
+    env = (DbgTexPacket *)((unsigned int)&drawEnv | 0x20000000);
+    sceGsSetDefAlphaEnv(env->alpha, 0);
     switch (mode) {
     case 0:
-        env[4] = 0x48;
+        env->alpha[0] = 0x48;
         break;
     case 1:
-        env[4] = 0x44;
+        env->alpha[0] = 0x44;
         break;
     case 2:
-        env[4] = 0x42;
+        env->alpha[0] = 0x42;
         break;
     case 3:
-        env[4] = 0x0000002800000064ULL;
+        env->alpha[0] = 0x0000002800000064ULL;
         break;
     case 4:
-        env[4] = 0x68;
+        env->alpha[0] = 0x68;
         break;
     }
-    env[2] = 0x20000;
-    env[3] = 0x47;
+    env->test = 0x20000;
+    env->test_addr = 0x47;
     sceGsSyncPath(0, 0);
     sceGsPutDrawEnv(env);
 }
@@ -357,7 +361,7 @@ void resetPath(void)
 void resetGS(void)
 {
     sceVpu0Reset();
-    gsb_Init(db);
+    gsb_Init(&db);
 }
 
 static inline void scrollDbgScreen(void) /* derived name */
@@ -493,7 +497,7 @@ void syncGS(void)
     frame_count++;
     buffer_ID = frame_count & 1;
     gsb_Reduction();
-    sceGsSwapDBuff(db, buffer_ID);
-    RestoreNormalDrawEnvironment(db, buffer_ID, odd_even);
+    sceGsSwapDBuff(&db, buffer_ID);
+    RestoreNormalDrawEnvironment(&db, buffer_ID, odd_even);
     SetDrawEnvironment(1);
 }
