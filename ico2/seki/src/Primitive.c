@@ -752,8 +752,8 @@ PrimParticle *prim_InitParticleByPartition(int num, float x, float y, float z, i
     q->pos[3] = 0.0f;
     malloc_MemCpy(p->objs[1], p->objs[0], p->objSize * 16);
     p->cur = 0;
-    p->vtx = (int)p->objs[0]->vtx;
-    p->vtxNext = (int)p->objs[1]->vtx;
+    p->vtx = p->objs[0]->vtx;
+    p->vtxNext = p->objs[1]->vtx;
     return p;
 }
 
@@ -783,8 +783,8 @@ void prim_DispParticle(PrimParticle *p, void *mtx)
             if (systemStatus[5] == 0) {
                 p->cur ^= 1;
             }
-            p->vtx = (int)p->objs[p->cur]->vtx;
-            p->vtxNext = (int)p->objs[p->cur ? 0 : 1]->vtx;
+            p->vtx = p->objs[p->cur]->vtx;
+            p->vtxNext = p->objs[p->cur ? 0 : 1]->vtx;
         }
     }
 }

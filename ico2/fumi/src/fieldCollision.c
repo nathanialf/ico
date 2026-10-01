@@ -21,11 +21,11 @@
 typedef struct { /* field names derived */
     char pad0[16];
     FcWallEnt *walls; /* 0x10 */
-    int unk14;
-    short **unk18;
-    short **unk1C;
-    float *unk20;
-} FuzioCtx; /* derived name */
+    int fcl;          /* 0x14, the floor list, 0x70 bytes a floor (charFileManager.c's names) */
+    short **wblk;     /* 0x18, per block, the walls' indices, ended by a negative one */
+    short **fblk;     /* 0x1C, per block, the floors' indices */
+    float *ofs;       /* 0x20, the origin the blocks are counted from */
+} FuzioCtx;           /* derived name */
 
 /* One line colour of the collision display: red, green, blue, alpha. */
 typedef struct { /* field names derived */
@@ -482,10 +482,10 @@ static void makeCollisionBlockTable(float *ray)
     int pz;
 
     blockNum = 0;
-    x0 = (int)(ray[0] - curFuzio->unk20[0]);
-    x1 = (int)(ray[8] - curFuzio->unk20[0]);
-    z0 = (int)(ray[2] - curFuzio->unk20[2]);
-    z1 = (int)(ray[10] - curFuzio->unk20[2]);
+    x0 = (int)(ray[0] - curFuzio->ofs[0]);
+    x1 = (int)(ray[8] - curFuzio->ofs[0]);
+    z0 = (int)(ray[2] - curFuzio->ofs[2]);
+    z1 = (int)(ray[10] - curFuzio->ofs[2]);
     bx = x0 >> 9;
     bz = z0 >> 9;
     dx = x1 - x0;
@@ -553,7 +553,7 @@ static inline int _clipWDebug(ClipWork *work, GObj *obj, int node)
     int i;
 
     for (i = 0; i < blockNum; i++) {
-        short *p = curFuzio->unk18[blockTable[i]];
+        short *p = curFuzio->wblk[blockTable[i]];
         if (p != 0) {
             while (*p >= 0) {
                 FcWallEnt *e = &curFuzio->walls[*p];
@@ -576,7 +576,7 @@ static inline int _clipW(ClipWork *work, GObj *obj, int node)
     int i;
 
     for (i = 0; i < blockNum; i++) {
-        short *p = curFuzio->unk18[blockTable[i]];
+        short *p = curFuzio->wblk[blockTable[i]];
         if (p != 0) {
             while (*p >= 0) {
                 FcWallEnt *e = &curFuzio->walls[*p];
@@ -604,7 +604,7 @@ static inline int _clipWE(ClipWork *work, GObj *obj, int node)
     int i;
 
     for (i = 0; i < blockNum; i++) {
-        short *p = curFuzio->unk18[blockTable[i]];
+        short *p = curFuzio->wblk[blockTable[i]];
         if (p != 0) {
             while (*p >= 0) {
                 FcWallEnt *e = &curFuzio->walls[*p];
@@ -635,7 +635,7 @@ static inline int _clipWEField(ClipWork *work, GObj *obj, int node)
     int i;
 
     for (i = 0; i < blockNum; i++) {
-        short *p = curFuzio->unk18[blockTable[i]];
+        short *p = curFuzio->wblk[blockTable[i]];
         if (p != 0) {
             while (*p >= 0) {
                 FcWallEnt *e = &curFuzio->walls[*p];
@@ -663,7 +663,7 @@ static inline int _clipWR(ClipWork *work, GObj *obj, int node)
     int i;
 
     for (i = 0; i < blockNum; i++) {
-        short *p = curFuzio->unk18[blockTable[i]];
+        short *p = curFuzio->wblk[blockTable[i]];
         if (p != 0) {
             while (*p >= 0) {
                 FcWallEnt *e = &curFuzio->walls[*p];
@@ -691,7 +691,7 @@ static inline int _clipWField(ClipWork *work, GObj *obj, int node)
     int i;
 
     for (i = 0; i < blockNum; i++) {
-        short *p = curFuzio->unk18[blockTable[i]];
+        short *p = curFuzio->wblk[blockTable[i]];
         if (p != 0) {
             while (*p >= 0) {
                 FcWallEnt *e = &curFuzio->walls[*p];
@@ -716,7 +716,7 @@ static inline int _clipWDitchHangWalkStop(ClipWork *work, GObj *obj, int node)
     int i;
 
     for (i = 0; i < blockNum; i++) {
-        short *p = curFuzio->unk18[blockTable[i]];
+        short *p = curFuzio->wblk[blockTable[i]];
         if (p != 0) {
             while (*p >= 0) {
                 FcWallEnt *e = &curFuzio->walls[*p];
@@ -741,7 +741,7 @@ static inline int _clipWWaveForce(ClipWork *work, GObj *obj, int node)
     int i;
 
     for (i = 0; i < blockNum; i++) {
-        short *p = curFuzio->unk18[blockTable[i]];
+        short *p = curFuzio->wblk[blockTable[i]];
         if (p != 0) {
             while (*p >= 0) {
                 FcWallEnt *e = &curFuzio->walls[*p];
@@ -766,7 +766,7 @@ static inline int _clipWBoxStop(ClipWork *work, GObj *obj, int node)
     int i;
 
     for (i = 0; i < blockNum; i++) {
-        short *p = curFuzio->unk18[blockTable[i]];
+        short *p = curFuzio->wblk[blockTable[i]];
         if (p != 0) {
             while (*p >= 0) {
                 FcWallEnt *e = &curFuzio->walls[*p];
@@ -794,7 +794,7 @@ static inline int _clipWAdjustPos(ClipWork *work, GObj *obj, int node)
     int i;
 
     for (i = 0; i < blockNum; i++) {
-        short *p = curFuzio->unk18[blockTable[i]];
+        short *p = curFuzio->wblk[blockTable[i]];
         if (p != 0) {
             while (*p >= 0) {
                 FcWallEnt *e = &curFuzio->walls[*p];
@@ -819,10 +819,10 @@ static inline int _clipF(ClipWork *work, GObj *obj, int node)
     int i;
 
     for (i = 0; i < blockNum; i++) {
-        short *p = curFuzio->unk1C[blockTable[i]];
+        short *p = curFuzio->fblk[blockTable[i]];
         if (p != 0) {
             while (*p >= 0) {
-                int e = curFuzio->unk14 + (int)*p * 0x70;
+                int e = curFuzio->fcl + (int)*p * 0x70;
                 if (clip_floor_1(work, e, 0) != 0) {
                     work->floorHit = e;
                     ret = 1;
@@ -843,10 +843,10 @@ static inline int _clipFE(ClipWork *work, GObj *obj, int node)
     int i;
 
     for (i = 0; i < blockNum; i++) {
-        short *p = curFuzio->unk1C[blockTable[i]];
+        short *p = curFuzio->fblk[blockTable[i]];
         if (p != 0) {
             while (*p >= 0) {
-                int e = curFuzio->unk14 + (int)*p * 0x70;
+                int e = curFuzio->fcl + (int)*p * 0x70;
                 if (obj != work->skipSrc.obj || node != work->skipSrc.node || e != work->skipElem) {
                     if (clip_floor_1(work, e, 0) != 0) {
                         work->floorHit = e;
@@ -869,10 +869,10 @@ static inline int _clipFIH(ClipWork *work, GObj *obj, int node)
     int i;
 
     for (i = 0; i < blockNum; i++) {
-        short *p = curFuzio->unk1C[blockTable[i]];
+        short *p = curFuzio->fblk[blockTable[i]];
         if (p != 0) {
             while (*p >= 0) {
-                int e = curFuzio->unk14 + (int)*p * 0x70;
+                int e = curFuzio->fcl + (int)*p * 0x70;
                 if ((*(int *)(e + 0x60) & 0xF0000) != 0x20000) {
                     if (clip_floor_1(work, e, 0) != 0) {
                         work->floorHit = e;
@@ -895,10 +895,10 @@ static inline int _clipFR(ClipWork *work, GObj *obj, int node)
     int i;
 
     for (i = 0; i < blockNum; i++) {
-        short *p = curFuzio->unk1C[blockTable[i]];
+        short *p = curFuzio->fblk[blockTable[i]];
         if (p != 0) {
             while (*p >= 0) {
-                int e = curFuzio->unk14 + (int)*p * 0x70;
+                int e = curFuzio->fcl + (int)*p * 0x70;
                 if (clip_floor_1(work, e, 1) != 0) {
                     work->floorHit = e;
                     ret = 1;

@@ -240,7 +240,6 @@ static int ChangeMailInLadder(GObj *self, int mail)
     return ret;
 }
 
-extern int EnemyGetNSafeParts(GObj *self);
 /* motionOrientManager.h declares none of the motion tables */
 extern MotionDef motionKind[];
 
@@ -1390,9 +1389,9 @@ void actCommonRopeSpecial(GObj *volatile self)
     }
 }
 
-static void lever_nego1(void *self, void *lev)
+static void lever_nego1(GObj *self, GObj *lev)
 {
-    int m = *(int *)((char *)lev + 0xC);
+    int m = lev->kind;
     if (m < 22) {
         return;
     }
@@ -1424,13 +1423,13 @@ static inline void actMotDirToWall(GObj *self) /* derived name */
     SetMotionDirection(self, local);
 }
 
-static inline void correctLeverHoldPoint(void *self, char *lev) /* derived name */
+static inline void correctLeverHoldPoint(GObj *self, GObj *lev) /* derived name */
 {
     float w[4];
-    if (*(int *)(lev + 0xC) >= 22) {
-        if (*(int *)(lev + 0xC) < 24) {
+    if (lev->kind >= 22) {
+        if (lev->kind < 24) {
             GetFloorLeverGlobalHoldPoint(w, lev);
-        } else if (*(int *)(lev + 0xC) < 26) {
+        } else if (lev->kind < 26) {
             GetWallLeverGlobalHoldPoint(w, lev);
             debug_StdPrintfDummy("%f, %f, %f\n", w[0], w[1], w[2]);
         }
@@ -1442,7 +1441,7 @@ void actCommonLever(GObj *volatile self)
 {
     float p[4];
     Act *s = GOBJ_ACT(self);
-    char *lev = *(char **)((char *)s + 0x5FC);
+    GObj *lev = s->pullObj;
 
     GOBJ_WORK(self)->leverTimer = ((60 - systemStatus[0] * 10) / systemStatus[1]) * 5;
     p[0] = s->pullPos[0];
@@ -1545,8 +1544,6 @@ void actCommonDown(GObj *volatile self)
         _ACTWait(1);
     }
 }
-
-extern void enemySetParticleDie(void *root, float *dir);
 
 void actCommonDie(GObj *volatile self)
 {
@@ -1860,12 +1857,9 @@ static void _boxbar_set_sound(GObj *self, int mode)
 }
 
 typedef void (*BoxAfterFn)(volatile int);
-extern int GetBoxHoldPoint(float *out, char *box, void *chara);
-extern int AlignBox(char *box, float grid);
-extern int MoveBoxWithHoldPoint(char *box, void *hold, GObj *self, int node, float *dir);
 
 /* the height is an int */
-static inline int boxWallCheck(GObj *self, char *box, float dist, int h) /* derived name */
+static inline int boxWallCheck(GObj *self, GObj *box, float dist, int h) /* derived name */
 {
     ClipWork w;
     float t[4];
@@ -1887,24 +1881,24 @@ static inline int boxWallCheck(GObj *self, char *box, float dist, int h) /* deri
 
 void actCommonBox(GObj *volatile self)
 {
-    char *box;
+    GObj *box;
     /* a helper defined at the head of this body */
-    inline void addGirlLevelForBox(char *b) /* derived name */
+    inline void addGirlLevelForBox(GObj * b) /* derived name */
     {
-        if (girlGObj != 0 && *(char **)((char *)GOBJ_SUB(girlGObj)) == b) {
+        if (girlGObj != 0 && GOBJ_SUB(girlGObj)->parent.obj == b) {
             brainAddLevelGirl(1000.0f);
         }
     }
     Act *s = GOBJ_ACT(self);
-    char *sub;
+    GObj *sub;
     float hold[4];
 
     s->after = afterCommonBox;
     box = s->holdBoxObj;
     if (stage_no == 16) {
-        sub = *(char **)((char *)GOBJ_SUB(box));
+        sub = GOBJ_SUB(box)->parent.obj;
         if (sub != 0) {
-            if (*(int *)(sub + 0xC) == 0x11) {
+            if (sub->kind == 17) {
                 box = sub;
             }
         }
@@ -1920,7 +1914,7 @@ void actCommonBox(GObj *volatile self)
         unsigned char isTruck = IsThisBoxTruck(box);
 
         addGirlLevelForBox(box);
-        GetBoxHoldPoint(hold, box, (void *)self);
+        GetBoxHoldPoint(hold, box, self);
         if (!isTruck) {
             if (boxWallCheck(self, box, 100.0f, 48)) {
                 ACTSendMailCorrect(self, 0xC7);
@@ -2004,13 +1998,13 @@ typedef struct { /* field names derived */
 void actCommonBar(GObj *volatile self)
 {
     Act *s = GOBJ_ACT(self);
-    char *bar;
+    GObj *bar;
     float pos[4];
     float ori[4];
     float hold[4];
     float hold2[4];
 
-    bar = (char *)s->barObj;
+    bar = s->barObj;
     actMotDirToWall(self);
     pos[0] = *(float *)((char *)test_CURRENTROOT((void *)self) + 0);
     pos[1] = *(float *)((char *)test_CURRENTROOT((void *)self) + 4);
@@ -2201,8 +2195,6 @@ void actCommonJump(GObj *volatile self)
         _ACTWait(1);
     }
 }
-
-extern float GetDifferenceFromLowerField(GObj *obj, int node);
 
 /* The 0x15C slot is the engine's sub-object handle, read here as the SubHandle
  * union the way geometryManager.c's SUBOF reads it; the other readers use
@@ -2492,11 +2484,6 @@ static inline unsigned char IsFlyTimeOver(int self) /* derived name */
     }
     return 0;
 }
-
-/* no header declares it */
-extern void GetRootMotionMatrix(void *m, GObj *obj);
-/* no header declares it */
-extern float GetEnemyFlyXZAccel(GObj *obj);
 
 /* typedef.h's ClipWork as the fly code reads it, with its vectors as the
    FlyPt points the code builds: rad is ClipWork's radius, wall its wallHit
@@ -3768,7 +3755,7 @@ typedef struct { /* field names derived */
 void actCommonTruckLever(GObj *volatile self)
 {
     Act *s = GOBJ_ACT(self);
-    char *lev = (char *)s->pullObj;
+    GObj *lev = s->pullObj;
 
     ((TruckLeverWork *)s)->f14 = (int)afterCommonTruckLever;
     actMotDirToWall(self);
@@ -4040,7 +4027,7 @@ inline void actCommonFallDamage(GObj *volatile self)
 inline void actCommonLever2(GObj *volatile self)
 {
     Act *s = GOBJ_ACT(self);
-    char *lev = (char *)s->pullObj;
+    GObj *lev = s->pullObj;
 
     SetDirectRootPositionXZ((void *)self, s->pullPos);
     actMotDirToWall(self);

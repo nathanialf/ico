@@ -42,8 +42,8 @@ typedef struct PadBuf { /* field names derived */
 void ExecKeyInput(void)
 {
     PadBuf buf;
-    unsigned char stR[32];
-    unsigned char stL[32];
+    IosPadStick stR;
+    IosPadStick stL;
     int i;
     unsigned int j;
 
@@ -56,12 +56,12 @@ void ExecKeyInput(void)
         pad[i].flags = buf.trg2;
         pad[i].rel = buf.rel2;
         pad[i].rep = 0;
-        iosPadGetStick(&buf, stL, 1, 127, 127, 0);
-        pad[i].ana[0] = stL[0];
-        pad[i].ana[1] = stL[4];
-        iosPadGetStick(&buf, stR, 0, 127, 127, 0);
-        pad[i].ana[2] = stR[0];
-        pad[i].ana[3] = stR[4];
+        iosPadGetStick(&buf, &stL, 1, 127, 127, 0);
+        pad[i].ana[0] = stL.x;
+        pad[i].ana[1] = stL.y;
+        iosPadGetStick(&buf, &stR, 0, 127, 127, 0);
+        pad[i].ana[2] = stR.x;
+        pad[i].ana[3] = stR.y;
         for (j = 0; j < 16; j++) {
             if ((pad[i].now >> j) & 1) {
                 pad[i].hist[j]++;

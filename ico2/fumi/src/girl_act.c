@@ -3186,8 +3186,6 @@ static char *wayTestStateName[9] = {
    record, all zero, explicitly initialised so that it stays in .data. */
 GirlBrainWork brain_val = {0};
 
-extern float GetDifferenceFromLowerField(GObj *obj, int node);
-
 /* girl_act.o's .sdata globals (declared in girl_act.h) */
 int hyde_test = 0;
 
@@ -3213,7 +3211,7 @@ void subGirlControl(GObj *volatile self)
     /* the target and the actor pointer as one frame record; the target is
        an object handle, a word like the object's actor slot it is stored
        beside */
-    struct {
+    struct { /* field names derived */
         int target;
         Act *p;
     } w;

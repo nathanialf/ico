@@ -43,6 +43,10 @@ int BoxMemoryFunc(void);
 
 int CheckReadyAllSwitches();
 int GetBoxMode(struct GObj *self);
+int AlignBox(struct GObj *self, float grid);
+int GetBoxHoldPoint(float *out, struct GObj *self, struct GObj *chara);
+int MoveBoxWithHoldPoint(struct GObj *self, float *holdPoint, struct GObj *holder, int focus,
+                         float *dir);
 void GetFloorLeverGlobalHoldPoint(void *dst, struct GObj *lev);
 void GetWallLeverGlobalHoldPoint(void *dst, struct GObj *lev);
 int MoveFloatingBox(struct GObj *self, struct GObj *other, float *dst, void *src, float lim);

@@ -402,7 +402,7 @@ static int quick_load_wpfile(void)
 /* the authored way point table: one 0x1C record per point */
 typedef struct { /* field names derived */
     float f[4];
-} __attribute__((aligned(8))) WayPos;
+} __attribute__((aligned(8))) WayPos; /* derived name */
 
 void ExtractWayData(int stage_no)
 {
@@ -516,7 +516,7 @@ static int wp_print_out(void)
 
 typedef struct { /* field names derived */
     float f[4];
-} __attribute__((aligned(8))) WayVec;
+} __attribute__((aligned(8))) WayVec; /* derived name */
 
 /* way_tool.o .data +0x210: the nine RGBA packets the tool draws with. */
 static WayCol wayColorSelected = {{0xFF, 0xFF, 0xFF, 0xFF}}; /* derived name */

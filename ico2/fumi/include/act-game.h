@@ -8,6 +8,8 @@
 #ifndef ACT_GAME_H
 #define ACT_GAME_H
 
+#include "typedef.h" /* WayRequest, which ActWork carries at 0x580 */
+
 struct GObj;
 
 /* The actor's character work, the record at Act+0x688 (held there as a
@@ -95,7 +97,9 @@ typedef struct ActWork { /* field names derived */
     float hintPosZ;     /* 0x528 */
     char pad52C[4];
     float boxDir[4]; /* 0x530, the direction a box is pushed and pulled in (actCommonBox) */
-    char pad540[480];
+    char pad540[64];
+    WayRequest wayReq; /* 0x580, the way search RequestWayBegin hands to the way system manager */
+    char pad638[232];
     int viewResult; /* 0x720, the clip request ACTGameView_Loop runs (clipCollisionManager.c's ClipColWork): done */
     char pad724[124];
     float viewRadius; /* 0x7A0, the clip radius (ClipWork+0x70) */

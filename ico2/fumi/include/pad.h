@@ -66,7 +66,7 @@ void iosPadDisable(void);
 void iosPadEnable(void);
 int iosPadGetStick(void *dev, void *out, int mode, int a3, int a4, int simulate);
 int iosPadRead(void *pad);
-void iosPadStickCameraCoord(void *out, float *stick);
+void iosPadStickCameraCoord(void *out, IosPadStick *stick);
 /* pad.c's vibration enable flag (.sdata). */
 extern int iosPadActRequestEnable;
 /* pad.c's custom pad configuration, the record iosPadConnect takes for the

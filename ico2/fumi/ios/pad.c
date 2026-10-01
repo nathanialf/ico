@@ -651,9 +651,9 @@ int iosPadGetStick(void *dev, void *out, int mode, int a3, int a4, int simulate)
     return rv;
 }
 
-void iosPadStickCameraCoord(void *out, float *stick)
+void iosPadStickCameraCoord(void *out, IosPadStick *stick)
 {
-    Vec4 v = {{stick[3], 0.0f, -stick[4], 0.0f}};
+    Vec4 v = {{stick->dx, 0.0f, -stick->dz, 0.0f}};
     float m[16];
     sceVu0TransposeMatrix(m, (void *)((int)matrixptr + 0x80));
     sceVu0ApplyMatrix(out, m, &v);

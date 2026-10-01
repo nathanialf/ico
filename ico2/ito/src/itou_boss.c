@@ -265,7 +265,7 @@ static void effect_end_func(int id)
     CapsuleRec *e;
 
     if (isysGObjSearchFromObjKindID_begin(65) != 0) {
-        e = &capsule[((struct GGeo *)GetParticleEffectData(id))->user.capsule];
+        e = &capsule[GetParticleEffectData(id)->user.capsule];
         pbga_start((int **)&e->bga, 552);
         _CopyVector(e->bga + 0x20, e->pos);
         CopyQuaternion(e->bga + 0x30, e->quat);
@@ -305,7 +305,7 @@ void bossCtrlBeforeFunc(GObj *self)
                     r = GatherEffect_Set(12, pos, IdentityQuaternion, e2->pos, 1.0f,
                                          effect_end_func);
                     if (r >= 0) {
-                        ((struct GGeo *)GetParticleEffectData(r))->user.capsule = idx;
+                        GetParticleEffectData(r)->user.capsule = idx;
                         e2->state = 1;
                     }
                 }
@@ -466,7 +466,7 @@ static void gene_enemy(volatile int gobj)
                     r = GatherEffect_Set(12, sel->pos, sel->quat, pos, 1.0f, gene_eff_end_func);
                 }
                 if (r >= 0) {
-                    ((struct GGeo *)GetParticleEffectData(r))->user.done = flag;
+                    GetParticleEffectData(r)->user.done = flag;
                     SetParticleEffectClipEnableFlag(r, 0);
                     ExecuteSEPackage((GObj *)gobj, 99);
                     while (*flag == 0) {
@@ -643,5 +643,5 @@ inline int InqCapsuleGhostBossEnd(void)
 
 static inline void gene_eff_end_func(int id)
 {
-    *((struct GGeo *)GetParticleEffectData(id))->user.done = 1;
+    *GetParticleEffectData(id)->user.done = 1;
 }

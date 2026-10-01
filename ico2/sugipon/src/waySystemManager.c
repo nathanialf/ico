@@ -16,19 +16,17 @@ static void thStart(void);
 
 static inline void actWaySystemCore(volatile unsigned int self)
 {
-    int *s = (int *)((int *)self)[0x20 / 4];
-    int v;
-    v = _FUNC_GetWay_begin(((char *)s + 0x10), ((char *)s + 0x20), (int)((char *)s + 0xA0), 1);
-    s[0x4 / 4] = v;
-    s[0] = 1;
-    s[0xB0 / 4] = 0;
+    WayRequest *s = (WayRequest *)((int *)self)[0x20 / 4];
+    s->result = _FUNC_GetWay_begin(s->from, &s->way, s->goal, 1);
+    s->done = 1;
+    s->proc = 0;
 }
 
-inline void *RequestGetWayBegin(int *req)
+inline struct GProc *RequestGetWayBegin(WayRequest *req)
 {
-    void *t = actCreateSubThreadGOppArg(actWaySystemCore, 21);
-    *(int **)((char *)t + 0x20) = req;
-    req[0] = 0;
+    struct GProc *t = actCreateSubThreadGOppArg(actWaySystemCore, 21);
+    *(WayRequest **)((char *)t + 0x20) = req;
+    req->done = 0;
     return t;
 }
 

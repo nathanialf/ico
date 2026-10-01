@@ -162,8 +162,9 @@ static struct WoodBoxEnt woodBoxTbl[11] = {
    accepted. */
 static int stageChangeReq; /* derived name */
 
-/* declared (void) here: the call passes no object, while switch.h takes a
-   char * (so neither switch.h nor box.h, which includes it, is included) */
+/* declared (void) here: the call passes no object (the ROM leaves a0 as
+   scpIsWallLever2On received it), while switch.h takes the lever's GObj *
+   (so neither switch.h nor box.h, which includes it, is included) */
 extern int IsWallLeverStatus(void);
 
 /* .data: the layout record scpBornSpider fills and hands MakeAP1GObj for

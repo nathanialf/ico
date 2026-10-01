@@ -161,29 +161,29 @@ static inline WayPoint *RequestWayBegin(char *self, float *goal, float *from, WV
                                         unsigned char sub) /* derived name */
 {
     ActWork *req;
-    char *ws;
+    WayRequest *ws;
     WayPoint *w;
 
     if (sub) {
         req = GOBJ_WORK(self);
-        ws = (char *)req + 0x580;
-        if (*(int *)(ws + 0xB0) != 0) {
-            isysGObjProcRemove(*(int **)(ws + 0xB0));
-            *(int *)(ws + 0xB0) = 0;
+        ws = &req->wayReq;
+        if (ws->proc != 0) {
+            isysGObjProcRemove(ws->proc);
+            ws->proc = 0;
         }
-        *(float *)(ws + 0x10) = from[0];
-        *(float *)(ws + 0x14) = from[1];
-        *(float *)(ws + 0x18) = from[2];
-        *(WVTObj *)((char *)req + 0x5A0) = *way;
-        *(float *)(ws + 0xA0) = goal[0];
-        *(float *)(ws + 0xA4) = goal[1];
-        *(float *)(ws + 0xA8) = goal[2];
-        *(int *)(ws + 0xB0) = (int)RequestGetWayBegin((int *)ws);
-        while (*(int *)ws == 0) {
+        ws->from[0] = from[0];
+        ws->from[1] = from[1];
+        ws->from[2] = from[2];
+        req->wayReq.way = *way;
+        ws->goal[0] = goal[0];
+        ws->goal[1] = goal[1];
+        ws->goal[2] = goal[2];
+        ws->proc = RequestGetWayBegin(ws);
+        while (ws->done == 0) {
             _ACTWait(1);
         }
-        w = *(WayPoint **)(ws + 4);
-        *way = *(WVTObj *)(ws + 0x20);
+        w = ws->result;
+        *way = ws->way;
         return w;
     }
     if (self == (char *)girlGObj) {

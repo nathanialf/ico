@@ -656,10 +656,10 @@ typedef struct {           /* field names derived */
     float blend;           /* 0x30, InsertCamera_SetDetail's blend */
     unsigned char control; /* 0x34, PrivInsCamChk_Control's answer */
     unsigned char pad35[3];
-    int cnt;      /* 0x38 */
-    int on;       /* 0x3C */
-    float cur[4]; /* 0x40 */
-} __attribute__((aligned(16))) PrivInsCam;
+    int cnt;                               /* 0x38 */
+    int on;                                /* 0x3C */
+    float cur[4];                          /* 0x40 */
+} __attribute__((aligned(16))) PrivInsCam; /* derived name */
 
 static BoyWork boyInfoDefault = {{0, 0, 0xFFFFFFFF}}; /* derived name */
 
@@ -851,8 +851,6 @@ static int GetChainSlope(void)
     return down;
 }
 
-/* motionManager2.c's; motionManager2.h does not declare it */
-extern float GetDifferenceFromLowerField(GObj *obj, int node);
 /* as in camera-root.h, which this TU does not include (GetCurrentCameraSet2 differ) */
 extern int InsertCameraWorkingFlag;
 /* as in camera-root.h, which this TU does not include (GetCurrentCameraSet2 differ) */
@@ -2800,7 +2798,7 @@ void actBoyBelift(GObj *volatile self)
 {
     /* the quaternion is reached through a union, the form actEnemyKidnapEnd
        (enemy_act.c) gives the same memset-and-w=1 idiom */
-    union {
+    union { /* field names derived */
         float f[4];
     } q;
 
@@ -2887,7 +2885,7 @@ typedef struct { /* field names derived */
     int frames;
     int fix;
     int _2C;
-} __attribute__((aligned(16))) BoyMoveOrder;
+} __attribute__((aligned(16))) BoyMoveOrder; /* derived name */
 
 void actBoyReadyMove(GObj *volatile self)
 {
@@ -2929,7 +2927,7 @@ void actBoyRescueReady(GObj *volatile self)
     float tmp[4];
     float np[4];
 
-    union {
+    union { /* field names derived */
         float f[4];
         long long ll[2];
     } pts[2];
@@ -3112,7 +3110,7 @@ void actBoyDitch3mReady(GObj *volatile self)
                 if (_DistSqGV(p, q) < 3600.0f) {
                     b = 1;
                 }
-                if (sub->byte530 != 0) {
+                if (sub->ditchCarry != 0) {
                     b = 0;
                 }
                 if (b != 0) {
@@ -3244,9 +3242,6 @@ void SetStatusBoy_OtherStageGirlPinch(void)
 }
 
 void *gopp_subBoyControl;
-
-/* defined in sugipon/src/weapon.c, which weapon.h does not declare */
-extern void LightTorchOnOfWeaponWithNoSE(GObj *w);
 
 void actBoyStart(GObj *self)
 {
@@ -3533,7 +3528,7 @@ inline void ACTSearchEnemy(void *self, int *out_id, float *out_vec)
 
 inline void DeleteBoyWeapon(void)
 {
-    union {
+    union { /* field names derived */
         float f[4];
         long long ll[2];
     } buf;

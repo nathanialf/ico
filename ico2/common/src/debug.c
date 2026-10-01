@@ -1524,7 +1524,7 @@ static void debug_brainBar(void)
                 draw_batsu(&c);
             }
             c.x += 15;
-            if (brain->tgt[i].byte18) {
+            if (brain->tgt[i].lookOnly) {
                 draw_shikaku(&c);
             } else {
                 draw_batsu(&c);
@@ -3533,7 +3533,7 @@ static int debug_CollisionTest(int reset)
     iosPadRead(padCtx);
     iosPadGetStick(padCtx, &st0, 0, 2, 2, 0);
     iosPadGetStick(padCtx, &st1, 1, 2, 2, 0);
-    iosPadStickCameraCoord(v, (float *)&st1);
+    iosPadStickCameraCoord(v, &st1);
     if (padCtx[2] & 8) {
         if (st1.mag > 0.001f) {
             mv.y = st1.dz * st1.mag * 16.0f;

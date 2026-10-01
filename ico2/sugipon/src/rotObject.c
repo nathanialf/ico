@@ -84,7 +84,7 @@ static inline void getRotObjectDriveMatrix(GObj *gobj, void *dst) /* derived nam
 
 void GetRotObjectHoldPoint(void *pos, void *dir, WallCfg *wall, GObj *holder)
 {
-    struct {
+    struct { /* field names derived */
         float plane[4];
         float pos[4];
         float mtx[4][4];

@@ -95,9 +95,9 @@ static inline void brainSetTargetSub(Brain *b, GObj *gobj, float lvl, int k) /* 
     t->capStep = capStep;
     t->rate = rate;
 
-    t->byte18 = 0;
+    t->lookOnly = 0;
     t->alwaysSeen = 0;
-    *(int *)&t->byte18 &= ~0x10000;
+    *(int *)&t->lookOnly &= ~0x10000;
     brainSetTargetTimer(t);
 }
 
@@ -285,7 +285,7 @@ void brainGetTarget(Brain *b)
         }
         b->targetLevel = r;
         if (lv > 0) {
-            if (best->byte18 != 0 || lv < 2) {
+            if (best->lookOnly != 0 || lv < 2) {
                 b->targetType = 1;
             } else if (lv < 4) {
                 b->targetType = 2;
@@ -325,7 +325,7 @@ void brainClsTargetLevel(Brain *b)
     if (t->levelCap < t->level) {
         t->levelCap = t->level;
     }
-    *(int *)&t->byte18 &= ~0x10000;
+    *(int *)&t->lookOnly &= ~0x10000;
     brainSetTargetTimer(t);
 }
 
@@ -353,7 +353,7 @@ void brainAddLevelGirlDetail(int flag, float lv)
     if (b->cur != 0) {
         brainAddLevel(b->cur, lv);
         if (flag != 0) {
-            *(int *)&b->cur->byte18 |= 0x10000;
+            *(int *)&b->cur->lookOnly |= 0x10000;
         }
     }
 }
@@ -403,7 +403,7 @@ void brainSetLevelGop(GObj *gobj, float lv, int lookOnly, int alwaysSeen)
 
     for (i = 0; i < 40; i++) {
         if (((BrainTarget *)tgt)[i].gobj == gobj) {
-            ((BrainTarget *)tgt)[i].byte18 = lookOnly;
+            ((BrainTarget *)tgt)[i].lookOnly = lookOnly;
             ((BrainTarget *)tgt)[i].alwaysSeen = alwaysSeen;
             brainSetLevel((Brain *)brain, &((BrainTarget *)tgt)[i], lv);
         }

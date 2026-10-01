@@ -266,7 +266,7 @@ inline GObj *CreateLayoutedGObj(int id, int model, int accessary, int light, voi
     ObjKindEnt *layout = &objKindData[id];
     GObj *gobj = CreateGObj(layout, id, label, key, useStart);
     Sub15C *dobj = CSVSYSTEM_InitDObj(model, lay);
-    int (*fn)(GObj *, void *);
+    void *(*fn)(GObj *, void *);
 
     /* the 0x15C slot is the int handle GOBJ_SUB reads (typedef.h) */
     *(int *)&gobj->dobj = (int)dobj;

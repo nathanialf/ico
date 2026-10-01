@@ -26,6 +26,7 @@ void GetProjectionPosOfPlane(void *out, void *plane, void *pos);
 void GetRootMatrix(void *mtx, struct GObj *obj);
 void GetRootMatrixRotOffset(void *q, struct GObj *obj);
 void GetRootMatrixTransOffset(float *dst, struct GObj *src);
+void GetRootMotionMatrix(float (*mtx)[4], struct GObj *obj);
 void GetRootMotionOrient(float *dir, struct GObj *obj);
 void GetRootOrient(float *dir, struct GObj *obj);
 void GetRootPosition(void *pos, struct GObj *obj);

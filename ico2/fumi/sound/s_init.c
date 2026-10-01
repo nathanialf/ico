@@ -1015,7 +1015,7 @@ static int _soundSeDefPlay(int kind, unsigned int owner, float *pos, int playMod
     int cb;
 
     /* the search key as a bank:num pair written field by field, bank first */
-    union {
+    union { /* field names derived */
         int all;
 
         struct {

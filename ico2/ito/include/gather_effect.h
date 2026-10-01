@@ -8,17 +8,6 @@
 #ifndef GATHER_EFFECT_H
 #define GATHER_EFFECT_H
 
-/* itou_boss.c's view of the particle effect geometry's caller word (the
-   geometry record is particleEffect.h's PEGeo). */
-struct GGeo {          /* field names derived */
-    char pad0[112];    /* 0x00 */
-
-    union {
-        int capsule;        /* the boss capsule the effect gathers at */
-        volatile int *done; /* the releasing thread's done flag */
-    } user;                 /* 0x70 */
-};
-
 struct PEGeo;
 
 int GatherEffect_Set(int no, void *pos, void *quat, void *goal, float speed, void (*endFunc)(int));

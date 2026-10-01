@@ -61,6 +61,7 @@ float GetDifferenceFromWallUpperPlane(GObj *self, int node);
 float GetHeightOfFieldPlaneDifference(GObj *a, GObj *b);
 int GetMotionFrameFlag1(GObj *self);
 int GetMotionFrameFlag2(GObj *self);
+void GetOrientOfCliffOfGObj(float *dir, GObj *obj);
 int GetPureVerticalPlane(void *plane0, void *plane1, float *ptsIn, WallCfg *cfg, int flip);
 int GetPureVerticalPlaneOfCurrentPosition(void *plane0, void *plane1, float *ptsIn, WallCfg *cfg,
                                           int flip, float *pos);

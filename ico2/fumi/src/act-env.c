@@ -317,11 +317,6 @@ typedef struct { /* field names derived */
     float wallTop; /* 0x5A4 */
 } EnvSub;          /* derived name */
 
-/* defined in sugipon/src/motionManager2.c, which motionManager2.h does not declare */
-extern void GetOrientOfCliffOfGObj(void *out, void *obj);
-/* defined in sugipon/src/torch.c, which torch.h does not declare */
-extern char *CheckTorchChainReactionReverse(GObj *self, float dist);
-extern int GetBoxHoldPoint(float *out, GObj *self, void *chara);
 /* as in main.h */
 extern int girlControlMode;
 /* motionOrientManager.h declares none of the motion tables */
@@ -556,7 +551,7 @@ void ACTGetEnvironment(void *self, void *dir, float *orient, EnvFlag *flags, Act
         for (o = isysGObjSearchFromObjKindID_begin(0x2C); o != 0;
              o = isysGObjSearchFromObjKindID_next(o)) {
             if (*(int *)(o + 0x16C)) {
-                if (GetCageChainPoint((char *)p40, (char *)p50, o)) {
+                if (GetCageChainPoint(p40, p50, o)) {
                     if (_DistxzSqGV(test_CURRENTROOT(self), p40) < 4900.0f && p50[1] > pos[1]) {
                         v1EC = o;
                         env->cageObj = o;
@@ -567,7 +562,7 @@ void ACTGetEnvironment(void *self, void *dir, float *orient, EnvFlag *flags, Act
         }
         if (v1EC != 0) {
             GetRootPositionHandExtra(self, p60);
-            GetCageChainPoint((char *)p70, (char *)p80, v1EC);
+            GetCageChainPoint(p70, p80, v1EC);
             if (p70[1] + 50.0f < p60[1])
                 flags[0].w |= 0x10000000;
             if (((p60[1] - p70[1]) < 0.0f ? -(p60[1] - p70[1]) : (p60[1] - p70[1])) < 100.0f)
@@ -1281,7 +1276,7 @@ void ACTGetEnvironment(void *self, void *dir, float *orient, EnvFlag *flags, Act
                             p150[2] = p170[2];
                         }
                         if (hh < 60.0f) {
-                            *(char *)((char *)sub + 0x530) = *(char *)&carry;
+                            sub->ditchCarry = carry;
                             env->ditchPos[0] = p140[0];
                             env->ditchPos[1] = p140[1];
                             env->ditchPos[2] = p140[2];

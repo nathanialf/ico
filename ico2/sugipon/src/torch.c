@@ -245,7 +245,7 @@ inline GObj *CheckTorchChainReaction(GObj *self, float dist)
     return 0;
 }
 
-char *CheckTorchChainReactionReverse(GObj *self, float dist)
+GObj *CheckTorchChainReactionReverse(GObj *self, float dist)
 {
     float pos[4];
     float pos2[4];
@@ -276,7 +276,7 @@ char *CheckTorchChainReactionReverse(GObj *self, float dist)
             (((TorchGeoWork *)GOBJ_SUB(p)->work)->flags != 2 || lit == 0)) {
             GetRootPosition(pos2, p);
             if (distance_squared(pos2, pos) < dist) {
-                return (char *)p;
+                return p;
             }
         }
         p = isysGObjSearchFromObjKindID_next(p);

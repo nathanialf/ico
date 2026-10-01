@@ -1030,7 +1030,7 @@ void actEnemyKidnapEnd(GObj *volatile self)
     float mypos[4];
     float gpos[4];
 
-    union {
+    union { /* field names derived */
         float f[4];
         int i[4];
     } q;

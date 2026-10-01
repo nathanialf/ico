@@ -860,7 +860,7 @@ typedef struct { /* field names derived */
     float capStep;  /* 0x0C, what brainClsTargetLevel takes off the cap */
     float rate;     /* 0x10, the level's rise and decay rate */
     int timer;
-    unsigned char byte18;     /* 0x18, nonzero holds the target type at 1 */
+    unsigned char lookOnly;   /* 0x18, the girl only looks at the target; nonzero holds the target type at 1 */
     unsigned char alwaysSeen; /* 0x19, nonzero skips the view check */
     unsigned char detail;     /* 0x1A, bit 0 set by brainAddLevelGirlDetail */
     char pad1B[1];
@@ -948,7 +948,7 @@ typedef struct {        /* field names derived */
         GObj *);            /* 0x4C, the process CreateGObjByFuncSet adds after the geometry one */
     void (*geo)(GObj *);    /* 0x50, the geometry process (BoyGeo) */
     void (*hotInit)(GObj *); /* 0x54, sceneManager's hot-init hook */
-    int (*create)(GObj *, void *); /* 0x58, the kind's GObj constructor */
+    void *(*create)(GObj *, void *); /* 0x58, the kind's GObj constructor */
     void (*ai)(GObj *);            /* 0x5C, the brain process (GirlAI, EnemyAI) */
     void (*before)(GObj *); /* 0x60, the object's per-frame function (BeforeFunc); nonzero means
                            the kind takes mail 47 */
@@ -1234,6 +1234,20 @@ typedef struct WVTObj { /* field names derived */
     char pad78[8];    /* 0x78 */
 } __attribute__((aligned(8))) WVTObj; /* derived name */
 
+/* A way search handed to the way system manager's sub-thread (act-way.c's
+   RequestWayBegin, waySystemManager.c's actWaySystemCore): the search runs
+   _FUNC_GetWay_begin from `from` to `goal` over `way`, stores the first way
+   point and then sets done. */
+typedef struct WayRequest {   /* field names derived */
+    int done;                 /* 0x00, set once the search has run */
+    struct WayPoint *result;  /* 0x04, the way point the search returned */
+    char pad08[8];
+    float from[4];       /* 0x10 */
+    WVTObj way;          /* 0x20 */
+    float goal[4];       /* 0xA0 */
+    struct GProc *proc;  /* 0xB0, the sub-thread running the search, 0 when none */
+} WayRequest; /* derived name */
+
 typedef struct Act { /* field names derived */
     char pad0[4];
     struct GProc *actProc;  /* 0x4, the actor's action process (actInitialize, actChangeActMain) */
@@ -1410,7 +1424,7 @@ typedef struct Act { /* field names derived */
     char pad4F0[32];
     float ditchPos[4]; /* 0x510, the ditch position */
     char pad520[16];
-    unsigned char byte530; /* 0x530 */
+    unsigned char ditchCarry; /* 0x530, nonzero when ditchPos is stage 8's carry-mode ditch (getDitchDistTbl) */
     char pad531[47];
     float sofaOrient[4]; /* 0x560, the sofa seat orientation (GetSofaPosition) */
     float edgePos[4];    /* 0x570, the edge position, [3] nonzero while it is to be taken */
@@ -1423,7 +1437,7 @@ typedef struct Act { /* field names derived */
     int cliffSel;      /* 0x5E4, the cliff selection */
     float cliffHeight; /* 0x5E8, the cliff height */
     char pad5EC[8];
-    char *holdBoxObj; /* 0x5F4, the box the actor can hold */
+    GObj *holdBoxObj; /* 0x5F4, the box the actor can hold */
     GObj *barObj;     /* 0x5F8, the bar or turning object */
     GObj *pullObj;    /* 0x5FC, the pull lever */
     void *pullKind;   /* 0x600, the pull lever's kind */

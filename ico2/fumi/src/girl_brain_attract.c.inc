@@ -84,7 +84,7 @@ static int ATGoalTurnMail(void *actor, float *dir, int node)
 
 static int checkWaterfallResult(float *out)
 {
-    union {
+    union { /* field names derived */
         float f[4];
         int i[4];
     } t;

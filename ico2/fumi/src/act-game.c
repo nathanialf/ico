@@ -51,7 +51,7 @@ typedef struct { /* field names derived */
 
 typedef struct { /* field names derived */
     long long w;
-} __attribute__((packed)) U64ag;
+} __attribute__((packed)) U64ag; /* derived name */
 
 /* The 0x194-byte-per-entry motion record table, indexed by the object's
    current motion id (obj->0x15C->0x4A0). */
@@ -82,7 +82,7 @@ extern MotionRec motionKind[];
 
 typedef struct { /* field names derived */
     float x, y, z, w;
-} __attribute__((aligned(16))) Vec4S;
+} __attribute__((aligned(16))) Vec4S; /* derived name */
 
 /* as in boyact.h, which this TU does not include (PrivInsCamSet differs) */
 extern void SetBoyInfo(GObj *weapon, GObj *item);

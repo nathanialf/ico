@@ -453,8 +453,15 @@ class Header:
         attrs = [i for i, x in enumerate(toks) if x == "__attribute__"]
         if attrs:
             toks = toks[:attrs[0]]
-        if "(" in toks and toks[0] == "(" and toks[1] == "*":
-            # function pointer: ( * name ) ( params )
+        lead = 0
+        while lead < len(toks) and toks[lead] == "*":
+            lead += 1
+        if toks[lead:lead + 2] == ["(", "*"]:
+            # function pointer: * ... ( * name ) ( params ), the leading stars
+            # belonging to the type it returns
+            for _ in range(lead):
+                base = T("ptr", 4, 4, target=base)
+            toks = toks[lead:]
             name = toks[2]
             close = toks.index(")")
             params = " ".join(toks[close + 2:-1])

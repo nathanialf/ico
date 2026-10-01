@@ -224,7 +224,7 @@ int stage_Init(void)
     GObj *g;
     struct BgaDObjEnt *a;
     char *r;
-    int (*fn)(GObj *, void *);
+    void *(*fn)(GObj *, void *);
     StageAnim *e;
 
     bga_InitBGA();
@@ -390,7 +390,7 @@ int stage_Init(void)
                 kind = &objKindData[e->data[k][1]];
                 fn = kind->create;
                 if (fn != 0) {
-                    STG_SUB(e->obj[k])->work = (void *)fn(g, &arg);
+                    STG_SUB(e->obj[k])->work = fn(g, &arg);
                 }
                 isysGObjProcAdd(g, kind->ai, 1, 0x16);
                 isysGObjProcAdd(g, kind->geo, 1, 0x17);
