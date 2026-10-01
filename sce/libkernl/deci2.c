@@ -1,7 +1,9 @@
 /* libkernl.a(deci2.o) */
 #include <libkernl_internal.h>
 
-/* the work area sceDeci2Open hands the kernel, through its uncached alias */
+/* the work area sceDeci2Open hands the kernel, through its uncached alias.
+   Each call hands the kernel a block of four argument words, addresses
+   included. */
 static char deci2Buffer[36]; /* derived name */
 
 int sceDeci2Open(unsigned short protocol, void *opt, void *handler)
@@ -36,21 +38,21 @@ void sceDeci2Poll(int a0)
     Deci2Call(4, args);
 }
 
-int sceDeci2ExRecv(int a0, int a1, unsigned short a2)
+int sceDeci2ExRecv(int s, void *buf, unsigned short len)
 {
     int args[4];
-    args[0] = a0;
-    args[1] = a1;
-    args[2] = a2;
+    args[0] = s;
+    args[1] = (int)buf;
+    args[2] = len;
     return Deci2Call(-5, args);
 }
 
-int sceDeci2ExSend(int a0, int a1, unsigned short a2)
+int sceDeci2ExSend(int s, void *buf, unsigned short len)
 {
     int args[4];
-    args[0] = a0;
-    args[1] = a1;
-    args[2] = a2;
+    args[0] = s;
+    args[1] = (int)buf;
+    args[2] = len;
     return Deci2Call(-6, args);
 }
 

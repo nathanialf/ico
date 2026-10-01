@@ -11,12 +11,21 @@
 #ifndef SCE_LIBMC_LIBMC_H
 #define SCE_LIBMC_LIBMC_H
 
-int sceMcChdir(int a0, int a1, char *name, char *pwd);                    /* definition in sce/ */
-int sceMcClose(int arg);                                                  /* definition in sce/ */
-int sceMcDelete(int a0, int a1, char *name);                              /* definition in sce/ */
-int sceMcFlush(int arg);                                                  /* definition in sce/ */
-int sceMcFormat(int a0, int a1);                                          /* definition in sce/ */
-int sceMcGetDir(int a0, int a1, char *name, int a3, int nblk, void *buf); /* definition in sce/ */
+/* the 64-byte directory entry sceMcGetDir has the IOP fill, one per entry
+   asked for.  Nothing in this tree reads one, so only the tag is declared,
+   which keeps the type out of the debug tables of the game TU that includes
+   this header. */
+struct sceMcTblGetDir;
+
+int sceMcChdir(int a0, int a1, char *name, char *pwd); /* definition in sce/ */
+int sceMcClose(int arg);                               /* definition in sce/ */
+int sceMcDelete(int a0, int a1, char *name);           /* definition in sce/ */
+int sceMcFlush(int arg);                               /* definition in sce/ */
+int sceMcFormat(int a0, int a1);                       /* definition in sce/ */
+
+int sceMcGetDir(int a0, int a1, char *name, int a3, int nblk,
+                struct sceMcTblGetDir *table); /* definition in sce/ */
+
 int sceMcGetInfo(int port, int slot, int *type, int *free, int *format);
 int sceMcInit(void);
 int sceMcMkdir(int a0, int a1, char *name);           /* definition in sce/ */

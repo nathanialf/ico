@@ -9,15 +9,18 @@
 
 /* eekernel.h's spelling: FlushCache returns nothing. */
 
-void _set_sreg(int *a0, int *a1)
-{
-    ((int *)a1[7])[a0[4]] = a0[5];
-}
+/* the two system commands sceSifInitCmd installs handlers for: the IOP moving
+   its command buffer, and the IOP setting one of the software registers */
+typedef struct {
+    SifCmdHeader header;
+    int newaddr;        /* the IOP buffer address, the number iopbuf holds */
+} SifCmdChangeAddrData; /* derived name */
 
-void _change_addr(int *a0, int *a1)
-{
-    a1[2] = a0[4];
-}
+typedef struct {
+    SifCmdHeader header;
+    int rno;
+    int value;
+} SifCmdSRegData; /* derived name */
 
 /* The 32-entry SIF command handler table, a
    handler function and the data pointer handed to it. */
@@ -29,15 +32,31 @@ typedef struct {
 /* The SIF command data record (fields 3/4 and 5/6
    are what sceSifSetSysCmdBuffer and sceSifSetCmdBuffer swap). */
 typedef struct {
-    int sendbuf;
-    int ackbuf;
-    int iopbuf;
+    int sendbuf; /* the uncached alias of cmdSendBuf, its address OR 0x20000000 */
+    int ackbuf;  /* the same for cmdAckBuf */
+    int iopbuf;  /* the IOP's buffer address, read from and written to a SIF register */
     SifCmdEntry *systbl;
     int nsys;
     SifCmdEntry *usrtbl;
     int nusr;
     int *sreg;
 } SifCmdData;
+
+void _set_sreg(void *pkt, void *data)
+{
+    SifCmdSRegData *sr = pkt;
+    SifCmdData *cd = data;
+
+    cd->sreg[sr->rno] = sr->value;
+}
+
+void _change_addr(void *pkt, void *data)
+{
+    SifCmdChangeAddrData *ca = pkt;
+    SifCmdData *cd = data;
+
+    cd->iopbuf = ca->newaddr;
+}
 
 /* the member's .bss: the uncached send and ack buffers and the init packet on
    64-byte DMA lines, the DMAC handler id, the command data record, the system
@@ -122,7 +141,7 @@ void sceSifInitCmd(void)
     cmdData.iopbuf = sceSifGetReg(0x80000000);
     if (cmdData.iopbuf != 0) {
         cmdInitPkt[4] = (int)cmdSendBuf;
-        sceSifSendCmd(0x80000000, (int)cmdInitPkt, 0x14, 0, 0, 0);
+        sceSifSendCmd(0x80000000, cmdInitPkt, 0x14, 0, 0, 0);
         return;
     }
     while ((sceSifGetReg(4) & 0x20000) == 0) {
@@ -133,7 +152,7 @@ void sceSifInitCmd(void)
     sceSifSetReg(0x80000001, (int)&cmdData);
     cmdInitPkt[4] = (int)cmdSendBuf;
     cmdInitPkt[3] = 0;
-    sceSifSendCmd(0x80000002, (int)cmdInitPkt, 0x14, 0, 0, 0);
+    sceSifSendCmd(0x80000002, cmdInitPkt, 0x14, 0, 0, 0);
 }
 
 void sceSifExitCmd(void)
@@ -159,83 +178,85 @@ SifCmdEntry *sceSifSetSysCmdBuffer(SifCmdEntry *tbl, int n)
     return old;
 }
 
-void sceSifAddCmdHandler(int a0, int a1, int a2)
+/* The handler slot's address is worked as a byte offset into the table the
+   id's sign selects, and cid itself then carries that table's address. */
+void sceSifAddCmdHandler(int cid, void (*fn)(), void *data)
 {
-    int off = a0 * 8;
-    int *p;
-    if (a0 >= 0)
+    int off = cid * 8;
+    SifCmdEntry *h;
+    if (cid >= 0)
         goto pos;
-    a0 = (int)cmdData.systbl;
+    cid = (int)cmdData.systbl;
     goto done;
 pos:
-    a0 = (int)cmdData.usrtbl;
+    cid = (int)cmdData.usrtbl;
 done:
-    off += a0;
-    p = (int *)off;
-    p[0] = a1;
-    p[1] = a2;
+    off += cid;
+    h = (SifCmdEntry *)off;
+    h->fn = fn;
+    h->data = data;
 }
 
-void sceSifRemoveCmdHandler(int a0)
+void sceSifRemoveCmdHandler(int cid)
 {
-    int off = a0 * 8;
-    if (a0 < 0) {
-        a0 = (int)cmdData.systbl;
+    int off = cid * 8;
+    if (cid < 0) {
+        cid = (int)cmdData.systbl;
     } else {
-        a0 = (int)cmdData.usrtbl;
+        cid = (int)cmdData.usrtbl;
     }
-    off += a0;
-    *(int *)off = 0;
+    off += cid;
+    ((SifCmdEntry *)off)->fn = 0;
 }
 
-int _sceSifSendCmd(int cid, int mode, int pkt, int pktsize, int src, int dest, int size)
+int _sceSifSendCmd(int cid, int mode, void *pkt, int pktsize, void *src, void *dest, int size)
 {
-    SifDmaTransfer dmat[2];
+    sceSifDmaData dmat[2];
     SifCmdHeader *header;
     int count;
 
     if (pktsize < 16 || pktsize > 112) {
         return 0;
     }
-    header = (SifCmdHeader *)pkt;
+    header = pkt;
     count = 0;
     if (size > 0) {
         header->dsize = size;
-        dmat[0].src = src;
-        dmat[0].dest = dest;
+        dmat[0].src = (unsigned int)src;
+        dmat[0].dest = (unsigned int)dest;
         dmat[0].size = size;
         header->dest = dest;
         dmat[0].u.attr = 0;
         count = 1;
         if (mode & 4) {
-            sceSifWriteBackDCache((void *)src, size);
+            sceSifWriteBackDCache(src, size);
         }
     } else {
         header->dsize = 0;
         header->dest = 0;
     }
-    dmat[count].src = pkt;
+    dmat[count].src = (unsigned int)pkt;
     dmat[count].dest = cmdData.iopbuf;
     dmat[count].size = pktsize;
     header->cid = cid;
     header->psize = pktsize;
     dmat[count].u.attr = 0x44;
     count++;
-    sceSifWriteBackDCache((void *)pkt, pktsize);
+    sceSifWriteBackDCache(pkt, pktsize);
     if (mode & 1) {
-        return isceSifSetDma((int)dmat, count);
+        return isceSifSetDma(dmat, count);
     }
-    return sceSifSetDma((int)dmat, count);
+    return sceSifSetDma(dmat, count);
 }
 
-int sceSifSendCmd(int a0, int a1, int a2, int a3, int t0, int t1)
+unsigned int sceSifSendCmd(int cid, void *pkt, int pktsize, void *src, void *dest, int size)
 {
-    return _sceSifSendCmd(a0, 0, a1, a2, a3, t0, t1);
+    return _sceSifSendCmd(cid, 0, pkt, pktsize, src, dest, size);
 }
 
-int isceSifSendCmd(int a0, int a1, int a2, int a3, int t0, int t1)
+unsigned int isceSifSendCmd(int cid, void *pkt, int pktsize, void *src, void *dest, int size)
 {
-    return _sceSifSendCmd(a0, 1, a1, a2, a3, t0, t1);
+    return _sceSifSendCmd(cid, 1, pkt, pktsize, src, dest, size);
 }
 
 __asm__(".section .text\n"

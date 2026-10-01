@@ -13,7 +13,7 @@ int sceCdGetDiskType(void)
         return 0;
     }
     p = _sceCd_scmdrdata;
-    if (sceSifCallRpc(_sceCd_cd_scmd, 3, 0, 0, 0, p, 4, 0, 0) < 0) {
+    if (sceSifCallRpc(&_sceCd_cd_scmd, 3, 0, 0, 0, p, 4, 0, 0) < 0) {
         SignalSema(_sceCd_scmd_semid);
         return 0;
     }

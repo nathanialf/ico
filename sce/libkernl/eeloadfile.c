@@ -2,6 +2,7 @@
 
 #include <sifrpc.h>
 #include <string.h>
+#include <sifcmd.h>
 
 /* eeloadfile.o's .data: -1 until _lf_bind has bound the loadfile server, then
    the stamp _lf_version accepts besides the library's own (its four dots are
@@ -14,7 +15,7 @@ static char *lf_stamp = "...."; /* derived name */
    server's client record and the IOP module's version stamp */
 static char lf_buf[0x200] __attribute__((aligned(64))); /* derived name */
 
-static char lf_cd[0x28] __attribute__((aligned(64))); /* derived name */
+static sceSifRpcClientData lf_cd __attribute__((aligned(64))); /* derived name */
 
 static char lf_iopVersion[4]; /* derived name */
 
@@ -26,14 +27,14 @@ int _lf_bind(void)
     if (lf_bind_state >= 0)
         goto ret0;
 loop:
-    r = sceSifBindRpc(lf_cd, 0x80000006, 0);
+    r = sceSifBindRpc(&lf_cd, 0x80000006, 0);
     if (r < 0)
         return -1;
-    val = *(int *)(lf_cd + 0x24);
+    val = lf_cd.serve;
     if (val == 0)
         goto delay;
     lf_bind_state = 0;
-    r = sceSifCallRpc(lf_cd, 0xFF, 0, 0, 0, lf_buf, 4, 0, 0);
+    r = sceSifCallRpc(&lf_cd, 0xFF, 0, 0, 0, lf_buf, 4, 0, 0);
     if (r < 0)
         return 0xFFFEFFFF;
     __builtin_memcpy(lf_iopVersion, lf_buf, 4);
@@ -113,7 +114,7 @@ int _sceSifLoadModuleBuffer(void *addr, int arglen, int args, void *ret)
     } else {
         p->arglen = 0;
     }
-    if (sceSifCallRpc(lf_cd, 6, 0, lf_buf, 0x200, lf_buf, 8, 0, 0) < 0) {
+    if (sceSifCallRpc(&lf_cd, 6, 0, lf_buf, 0x200, lf_buf, 8, 0, 0) < 0) {
         return 0xFFFEFFFF;
     }
     r = ((SceLfRpcBuf *)lf_buf)->addr;
@@ -158,7 +159,7 @@ int _sceSifLoadModule(void *name, int arglen, int args, int ret, int rpcno)
         buf[0x104] = 0;
         *(int *)buf = 0;
     }
-    if (sceSifCallRpc(lf_cd, rpcno, 0, lf_buf, 0x200, lf_buf, 8, 0, 0) < 0) {
+    if (sceSifCallRpc(&lf_cd, rpcno, 0, lf_buf, 0x200, lf_buf, 8, 0, 0) < 0) {
         return 0xFFFEFFFF;
     }
     r = *(int *)(lf_buf + 0);
@@ -193,7 +194,7 @@ int _sceSifLoadElfPart(void *name, int sec, int out, int rpcno)
     buf[0x103] = 0;
     strncpy((lf_buf + 8) + 252, (char *)sec, 252);
     buf[0x1FF] = 0;
-    if (sceSifCallRpc(lf_cd, rpcno, 0, buf, 0x200, buf, 0x10, 0, 0) < 0) {
+    if (sceSifCallRpc(&lf_cd, rpcno, 0, buf, 0x200, buf, 0x10, 0, 0) < 0) {
         return 0xFFFEFFFF;
     }
     r = *(int *)buf;
@@ -226,7 +227,7 @@ int sceSifGetIopAddr(int a0, void *a1, int a2)
     }
     *(int *)(lf_buf + 0) = a0;
     *(int *)(lf_buf + 4) = a2;
-    r = sceSifCallRpc(lf_cd, 3, 0, lf_buf, 0x20, lf_buf, 0x20, 0, 0);
+    r = sceSifCallRpc(&lf_cd, 3, 0, lf_buf, 0x20, lf_buf, 0x20, 0, 0);
     if (r < 0) {
         return 0xFFFEFFFF;
     }
@@ -258,7 +259,7 @@ int sceSifSetIopAddr(int a0, void *a1, int a2)
     } else {
         return 0xFFFEFFFE;
     }
-    if (sceSifCallRpc(lf_cd, 2, 0, lf_buf, 0x20, lf_buf, 0x10, 0, 0) < 0) {
+    if (sceSifCallRpc(&lf_cd, 2, 0, lf_buf, 0x20, lf_buf, 0x10, 0, 0) < 0) {
         return 0xFFFEFFFF;
     }
     return 0;

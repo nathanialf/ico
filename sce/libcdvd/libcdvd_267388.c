@@ -19,7 +19,7 @@ int sceCdStatus(void)
         return -1;
     }
     p = _sceCd_scmdrdata;
-    if (sceSifCallRpc(_sceCd_cd_scmd, 0xC, 0, 0, 0, p, 4, 0, 0) < 0) {
+    if (sceSifCallRpc(&_sceCd_cd_scmd, 0xC, 0, 0, 0, p, 4, 0, 0) < 0) {
         SignalSema(*(volatile int *)&_sceCd_scmd_semid);
         return -1;
     }
@@ -40,7 +40,7 @@ int sceCdBreak(void)
     }
     p = _sceCd_scmdrdata;
     sceCdCbfunc_num = 8;
-    if (sceSifCallRpc(_sceCd_cd_scmd, 0x16, 0, 0, 0, p, 4, 0, 0) < 0) {
+    if (sceSifCallRpc(&_sceCd_cd_scmd, 0x16, 0, 0, 0, p, 4, 0, 0) < 0) {
         SignalSema(*(volatile int *)&_sceCd_scmd_semid);
         sceCdCbfunc_num = 0;
         return 0;
@@ -66,7 +66,7 @@ int sceCdReadClock(CdClock *clock)
         scePrintf("Libcdvd call Clock read 1\n");
     }
     p = _sceCd_scmdrdata;
-    if (sceSifCallRpc(_sceCd_cd_scmd, 1, 0, 0, 0, p, 0x10, 0, 0) < 0) {
+    if (sceSifCallRpc(&_sceCd_cd_scmd, 1, 0, 0, 0, p, 0x10, 0, 0) < 0) {
         SignalSema(*(volatile int *)&_sceCd_scmd_semid);
         return 0;
     }

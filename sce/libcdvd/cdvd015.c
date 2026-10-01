@@ -13,7 +13,7 @@ int sceCdGetError(void)
         return -1;
     }
     p = _sceCd_scmdrdata;
-    if (sceSifCallRpc(_sceCd_cd_scmd, 4, 0, 0, 0, p, 4, 0, 0) < 0) {
+    if (sceSifCallRpc(&_sceCd_cd_scmd, 4, 0, 0, 0, p, 4, 0, 0) < 0) {
         SignalSema(_sceCd_scmd_semid);
         return -1;
     }

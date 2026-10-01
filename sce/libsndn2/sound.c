@@ -7,6 +7,7 @@
  * own. */
 #include <eekernel.h>
 #include <sifrpc.h>
+#include <sifcmd.h>
 #include <string.h>
 #include "sound.h"
 
@@ -42,7 +43,7 @@ static int sgSeContext[128] __attribute__((aligned(64))); /* derived name */
 
 static int sgHeadContext[16]; /* derived name */
 
-static char sgClient[40]; /* derived name */
+static sceSifRpcClientData sgClient; /* derived name */
 
 void *_SgGetSlotContext(int a0)
 {
@@ -1889,20 +1890,20 @@ void _SgInit(int a0)
 
 int _SgSndn2Remote(int a0, int a1, void *a2, void *a3, int a4, int a5)
 {
-    return sceSifCallRpc(sgClient, a0, a1, a2, a4, a3, a5, 0, 0);
+    return sceSifCallRpc(&sgClient, a0, a1, a2, a4, a3, a5, 0, 0);
 }
 
 int SgSndn2RemoteInit(void)
 {
     /* the IOP module writes the bind result into the client-data block, so the
-       poll of its +0x24 word is volatile */
-    volatile int *cd = (volatile int *)sgClient;
+       poll of its server word is volatile */
+    volatile sceSifRpcClientData *cd = &sgClient;
     int i;
 
     FlushCache(0);
     sceSifInitRpc(0);
     do {
-        if (sceSifBindRpc(sgClient, 0x736E646E, 0) < 0) {
+        if (sceSifBindRpc(&sgClient, 0x736E646E, 0) < 0) {
             return -1;
         }
         /* The spin's zero words are not source: ee-gcc pads any loop too
@@ -1912,7 +1913,7 @@ int SgSndn2RemoteInit(void)
         do {
             i--;
         } while (i > 0);
-    } while (cd[0x24 / 4] == 0);
+    } while (cd->serve == 0);
     return 0;
 }
 
@@ -1921,7 +1922,7 @@ int SgSndn2RemoteSync(void)
     int ret = 0;
     int *p = _SgGetComContext();
     if (p[0x44 / 4] != 0) {
-        ret = sceSifCheckStatRpc(sgClient);
+        ret = sceSifCheckStatRpc(&sgClient);
     }
     return ret;
 }

@@ -65,7 +65,7 @@ int sceCdRead(int lsn, int sectors, void *buf, CdRMode *mode)
     }
     sceCdCbfunc_num = 1;
     _sceCd_c_cb_sem = 1;
-    if (sceSifCallRpc(_sceCd_cd_ncmd, 1, 1, sd, 24, 0, 0, _sceCd_cd_read_intr,
+    if (sceSifCallRpc(&_sceCd_cd_ncmd, 1, 1, sd, 24, 0, 0, _sceCd_cd_read_intr,
                       _sceCd_rd_intr_data) < 0) {
         sceCdCbfunc_num = 0;
         _sceCd_c_cb_sem = 0;

@@ -12,7 +12,7 @@ static SifCmdResetData resetData __attribute__((aligned(64))); /* derived name *
 
 int sceSifResetIop(char *arg, int mode)
 {
-    SifDmaTransfer dma;
+    sceSifDmaData dma;
     int i;
     unsigned int addr;
 
@@ -27,12 +27,12 @@ int sceSifResetIop(char *arg, int mode)
     resetData.header.cid = 0x80000003;
     resetData.header.dsize = 0;
     resetData.header.psize = sizeof(resetData);
-    dma.src = (int)&resetData;
+    dma.src = (unsigned int)&resetData;
     dma.dest = addr;
     dma.size = sizeof(resetData);
     dma.u.attr = 0x44;
     sceSifWriteBackDCache(&resetData, sizeof(resetData));
-    if (sceSifSetDma((int)&dma, 1) != 0) {
+    if (sceSifSetDma(&dma, 1) != 0) {
         sceSifSetReg(4, 0x10000);
         sceSifSetReg(4, 0x20000);
         sceSifSetReg(0x80000002, 0);

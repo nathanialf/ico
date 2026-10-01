@@ -2,17 +2,17 @@
 
 #include <sifrpc.h>
 #include <string.h>
+#include <sifcmd.h>
 
 /* iopheap.o's .data: -1 until sceSifInitIopHeap has bound the server */
 static int iopheap_bind = -1; /* derived name */
 
 /* the member's .bss: the heap server's client record and the RPC buffers,
    each on its own 64-byte DMA line */
-static int heapClient[10] __attribute__((aligned(64))); /* derived name */
-
-static int heapRecv __attribute__((aligned(64)));     /* derived name */
-static int heapAllocArg __attribute__((aligned(64))); /* derived name */
-static int heapFreeArg __attribute__((aligned(64)));  /* derived name */
+static sceSifRpcClientData heapClient __attribute__((aligned(64))); /* derived name */
+static int heapRecv __attribute__((aligned(64)));                   /* derived name */
+static int heapAllocArg __attribute__((aligned(64)));               /* derived name */
+static int heapFreeArg __attribute__((aligned(64)));                /* derived name */
 
 int sceSifInitIopHeap(void)
 {
@@ -20,10 +20,10 @@ int sceSifInitIopHeap(void)
     int ret;
     int val;
     for (;;) {
-        ret = sceSifBindRpc(heapClient, 0x80000003, 0);
+        ret = sceSifBindRpc(&heapClient, 0x80000003, 0);
         if (ret < 0)
             return -1;
-        val = heapClient[0x24 / 4];
+        val = heapClient.serve;
         if (val != 0) {
             iopheap_bind = 0;
             break;
@@ -43,7 +43,7 @@ int sceSifAllocIopHeap(int a0)
     if (ret < 0)
         return 0;
     heapAllocArg = a0;
-    ret = sceSifCallRpc(heapClient, 1, 0, &heapAllocArg, 4, &heapRecv, 4, 0, 0);
+    ret = sceSifCallRpc(&heapClient, 1, 0, &heapAllocArg, 4, &heapRecv, 4, 0, 0);
     if (ret >= 0)
         return heapRecv;
     return 0;
@@ -55,7 +55,7 @@ int sceSifFreeIopHeap(int a0)
     if (v2 < 0)
         return 0;
     heapFreeArg = a0;
-    v2 = sceSifCallRpc(heapClient, 2, 0, &heapFreeArg, 4, &heapRecv, 4, 0, 0);
+    v2 = sceSifCallRpc(&heapClient, 2, 0, &heapFreeArg, 4, &heapRecv, 4, 0, 0);
     if (v2 < 0)
         return -1;
     return heapRecv;
@@ -94,7 +94,7 @@ int sceSifLoadIopHeap(char *name, void *addr)
     }
     heapLoadReq.addr = (int)addr;
     heapLoadReq.name[251] = 0;
-    if (sceSifCallRpc(heapClient, 3, 0, &heapLoadReq, i + 5, &heapRecv, 4, 0, 0) >= 0) {
+    if (sceSifCallRpc(&heapClient, 3, 0, &heapLoadReq, i + 5, &heapRecv, 4, 0, 0) >= 0) {
         return heapRecv;
     }
     return -1;

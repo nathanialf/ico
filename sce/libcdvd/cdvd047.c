@@ -153,7 +153,7 @@ int sceCdStream(int lsn, int sectors, void *buf, int cmd, CdRMode *mode)
     }
     sceSifWriteBackDCache(sd, 0x14);
     p = _sceCd_ncmdrdata;
-    if (sceSifCallRpc(_sceCd_cd_ncmd, 9, 0, sd, 0x14, p, 4, 0, 0) < 0) {
+    if (sceSifCallRpc(&_sceCd_cd_ncmd, 9, 0, sd, 0x14, p, 4, 0, 0) < 0) {
         SignalSema(_sceCd_ncmd_semid);
         return 0;
     }

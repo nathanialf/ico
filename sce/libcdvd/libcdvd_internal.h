@@ -10,6 +10,8 @@
 #ifndef SCE_LIBCDVD_LIBCDVD_INTERNAL_H
 #define SCE_LIBCDVD_LIBCDVD_INTERNAL_H
 
+#include <sifcmd.h>
+
 extern int SCE_CD_debug;
 extern int _sceCd_ncmd_semid;
 extern int _sceCd_scmd_semid;
@@ -21,12 +23,12 @@ extern int _sceCd_ncmdrdata[];
 extern int _sceCd_ncmdsdata[];
 extern int _sceCd_rd_intr_data[];
 extern int _sceCd_Read_cur_pos[];
-extern int _sceCd_cd_ncmd[];
+extern sceSifRpcClientData _sceCd_cd_ncmd;
 extern int _sceCd_scmdrdata[];
-extern char _sceCd_cd_scmd[];
+extern sceSifRpcClientData _sceCd_cd_scmd;
 int _sceCd_ncmd_prechk(int cmd);
 int _sceCd_scmd_prechk(int cmd);
-void _sceCd_cd_callback(int *data);
+void _sceCd_cd_callback(void *data);
 void _sceCd_cd_read_intr(void *pkt);
 int sceCdNcmdDiskReady(void);
 void sceCdDelayThread(unsigned short a0);

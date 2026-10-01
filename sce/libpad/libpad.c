@@ -1,6 +1,7 @@
 /* libpad.a.  The archive's member boundaries in this build are not known,
  * so this file is the archive's whole run. */
 #include <sifrpc.h>
+#include <sifcmd.h>
 #include <libpad.h>
 #include <stdio.h>
 #include <eekernel.h>
@@ -39,7 +40,7 @@ static int padDebug = 1; /* derived name */
 
 /* the member's .bss: the two RPC clients (padman's two servers), the slot
    records, each slot's 64-byte command buffer and the RPC buffer */
-static int padClient[20]; /* derived name */
+static sceSifRpcClientData padClient[2]; /* derived name */
 
 static PadSlot padSlot[2][4]; /* derived name */
 
@@ -51,13 +52,7 @@ static int padRpcBuf[32] __attribute__((aligned(64))); /* derived name */
    member's first .rodata entry). */
 void _send_to_iop(int a0, int a1)
 {
-    struct {
-        int *src;
-        int dest;
-        int size;
-        int attr;
-        char rest[0xF0];
-    } buf;
+    sceSifDmaData dma[16]; /* the frame holds sixteen transfer records; one is sent */
 
     int *cmd = padSlot[a0][a1].cmdBuf;
     int ret = sceSifDmaStat(padSlot[a0][a1].dmaId);
@@ -75,11 +70,11 @@ void _send_to_iop(int a0, int a1)
         }
         *cmd = n;
         SyncDCache(cmd, (char *)cmd + 0x20);
-        buf.src = cmd;
-        buf.dest = (int)v;
-        buf.size = 0x20;
-        buf.attr = 0;
-        r = sceSifSetDma(&buf, 1);
+        dma[0].src = (unsigned int)cmd;
+        dma[0].dest = (unsigned int)v;
+        dma[0].size = 0x20;
+        dma[0].u.attr = 0;
+        r = sceSifSetDma(dma, 1);
         if (r == 0) {
             if (padDebug != 0) {
                 printf("libpad: sceSifSetDma faild\n");
@@ -97,15 +92,15 @@ int scePadInit(int a0)
 
     padInited = 1;
     while (1) {
-        sceSifBindRpc(padClient, 0x80000100, 0);
-        if (padClient[9] != 0) {
+        sceSifBindRpc(&padClient[0], 0x80000100, 0);
+        if (padClient[0].serve != 0) {
             break;
         }
         for (i = 0x10000; i != -1; i--) {}
     }
     while (1) {
-        sceSifBindRpc(&padClient[10], 0x80000101, 0);
-        if (padClient[19] != 0) {
+        sceSifBindRpc(&padClient[1], 0x80000101, 0);
+        if (padClient[1].serve != 0) {
             break;
         }
         for (i = 0x10000; i != -1; i--) {}
@@ -137,7 +132,7 @@ int scePadInit2(int a0)
     }
     padRpcBuf[0] = 0x10;
     padRpcBuf[4] = 0;
-    ret = sceSifCallRpc(padClient, 1, 0, padRpcBuf, 0x80, padRpcBuf, 0x80, 0, 0);
+    ret = sceSifCallRpc(&padClient[0], 1, 0, padRpcBuf, 0x80, padRpcBuf, 0x80, 0, 0);
     if (ret < 0) {
         return 0;
     }
@@ -149,7 +144,7 @@ int scePadEnd(void)
     int ret;
     int val;
     padRpcBuf[0] = 0xF;
-    ret = sceSifCallRpc(padClient, 1, 0, padRpcBuf, 0x80, padRpcBuf, 0x80, 0, 0);
+    ret = sceSifCallRpc(&padClient[0], 1, 0, padRpcBuf, 0x80, padRpcBuf, 0x80, 0, 0);
     if (ret < 0) {
         return 0;
     }
@@ -194,7 +189,7 @@ int scePadPortOpen(int a0, int a1, void *a2)
     padRpcBuf[1] = a0;
     padRpcBuf[2] = a1;
     padRpcBuf[4] = (int)a2;
-    ret = sceSifCallRpc(padClient, 1, 0, padRpcBuf, 0x80, padRpcBuf, 0x80, 0, 0);
+    ret = sceSifCallRpc(&padClient[0], 1, 0, padRpcBuf, 0x80, padRpcBuf, 0x80, 0, 0);
     if (ret < 0) {
         return 0;
     }
@@ -222,7 +217,7 @@ int scePadPortClose(int a0, int a1)
     padRpcBuf[1] = a0;
     padRpcBuf[2] = a1;
     padRpcBuf[4] = 1;
-    ret = sceSifCallRpc(padClient, 1, 0, padRpcBuf, 0x80, padRpcBuf, 0x80, 0, 0);
+    ret = sceSifCallRpc(&padClient[0], 1, 0, padRpcBuf, 0x80, padRpcBuf, 0x80, 0, 0);
     if (ret < 0) {
         return 0;
     }
@@ -462,7 +457,7 @@ int scePadInfoMode(int a0, int a1, int a2, int a3)
 int scePadSetMainMode(int a0, int a1, int a2, int a3)
 {
     int *s0 = padRpcBuf;
-    int local = 0;
+    void *local = 0;
     int ret;
     int s;
     padRpcBuf[0] = 6;
@@ -470,7 +465,7 @@ int scePadSetMainMode(int a0, int a1, int a2, int a3)
     s0[2] = a1;
     s0[3] = a2;
     s0[4] = a3;
-    ret = sceSifCallRpc((int)padClient, 1, 0, (int)s0, 0x80, (int)s0, 0x80, 0, local);
+    ret = sceSifCallRpc(&padClient[0], 1, 0, s0, 0x80, s0, 0x80, 0, local);
     if (ret < 0) {
         return 0;
     }
@@ -516,7 +511,7 @@ int scePadSetActAlign(int a0, int a1, char *a2)
     for (i = 0; i < 6; i++) {
         dst[i] = a2[i];
     }
-    ret = sceSifCallRpc(padClient, 1, 0, buf, 0x80, buf, 0x80, 0, 0);
+    ret = sceSifCallRpc(&padClient[0], 1, 0, buf, 0x80, buf, 0x80, 0, 0);
     if (ret < 0) {
         return 0;
     }
@@ -556,7 +551,7 @@ int scePadSetButtonInfo(int a0, int a1, int a2)
     padRpcBuf[0] = 0xA;
     padRpcBuf[1] = a0;
     padRpcBuf[2] = a1;
-    if (sceSifCallRpc(padClient, 1, 0, padRpcBuf, 0x80, padRpcBuf, 0x80, 0, 0) < 0) {
+    if (sceSifCallRpc(&padClient[0], 1, 0, padRpcBuf, 0x80, padRpcBuf, 0x80, 0, 0) < 0) {
         return 0;
     }
     ret = padRpcBuf[4];
@@ -598,7 +593,7 @@ int scePadSetVrefParam(int a0, int a1, void *a2)
     padRpcBuf[0] = 0xB;
     padRpcBuf[2] = a1;
     *(struct S12 *)((char *)padRpcBuf + 0xC) = *(struct S12 *)a2;
-    r = sceSifCallRpc(padClient, 1, 0, padRpcBuf, 0x80, padRpcBuf, 0x80, 0, 0);
+    r = sceSifCallRpc(&padClient[0], 1, 0, padRpcBuf, 0x80, padRpcBuf, 0x80, 0, 0);
     if (r < 0) {
         return 0;
     }
@@ -612,7 +607,7 @@ int scePadGetPortMax(void)
 {
     int ret;
     padRpcBuf[0] = 0xC;
-    ret = sceSifCallRpc(padClient, 1, 0, padRpcBuf, 0x80, padRpcBuf, 0x80, 0, 0);
+    ret = sceSifCallRpc(&padClient[0], 1, 0, padRpcBuf, 0x80, padRpcBuf, 0x80, 0, 0);
     if (ret < 0) {
         return 0;
     }
@@ -624,7 +619,7 @@ int scePadGetSlotMax(int a0)
     int ret;
     padRpcBuf[0] = 0xD;
     padRpcBuf[1] = a0;
-    ret = sceSifCallRpc(padClient, 1, 0, padRpcBuf, 0x80, padRpcBuf, 0x80, 0, 0);
+    ret = sceSifCallRpc(&padClient[0], 1, 0, padRpcBuf, 0x80, padRpcBuf, 0x80, 0, 0);
     if (ret < 0) {
         return 0;
     }
@@ -635,7 +630,7 @@ int scePadGetModVersion(void)
 {
     int ret;
     padRpcBuf[0] = 0x12;
-    ret = sceSifCallRpc(padClient, 1, 0, padRpcBuf, 0x80, padRpcBuf, 0x80, 0, 0);
+    ret = sceSifCallRpc(&padClient[0], 1, 0, padRpcBuf, 0x80, padRpcBuf, 0x80, 0, 0);
     if (ret < 0) {
         return 0;
     }
@@ -647,7 +642,7 @@ int scePadSetWarningLevel(int a0)
     int ret;
     padRpcBuf[0] = 0x14;
     padRpcBuf[1] = a0;
-    ret = sceSifCallRpc(padClient, 1, 0, padRpcBuf, 0x80, padRpcBuf, 0x80, 0, 0);
+    ret = sceSifCallRpc(&padClient[0], 1, 0, padRpcBuf, 0x80, padRpcBuf, 0x80, 0, 0);
     if (ret < 0) {
         return 0;
     }
