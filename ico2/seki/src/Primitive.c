@@ -525,7 +525,7 @@ void prim_DispMesh3D(Mesh3D *m, void *la, void *lb, int tex)
     DpkCtl *d;
     char *p;
     char *q;
-    char *ext;
+    TexExt *ext;
     int pri;
 
     void setMatrix(void)
@@ -624,10 +624,10 @@ void prim_DispMesh3D(Mesh3D *m, void *la, void *lb, int tex)
     if (debug_disp_mesh == 0) {
         return;
     }
-    ext = (char *)tex_GetTexExtData(tex);
-    if (*(int *)(ext + 0x40) != 0) {
-        if (*(int *)(ext + 0x24) != 0) {
-            pri = reg_GetShinePri(*(int *)(ext + 0x24));
+    ext = tex_GetTexExtData(tex);
+    if (ext->animated != 0) {
+        if (ext->file.shine != 0) {
+            pri = reg_GetShinePri(ext->file.shine);
         }
     }
     if (tex != -1) {
@@ -677,8 +677,8 @@ PrimParticle *prim_InitParticleByPartition(int num, float x, float y, float z, i
     Prim3DVec cl0 = {1024.0f, 1024.0f, 0.0f, 1.0f};
     Prim3DVec cl1 = {3071.0f, 3071.0f, 0.0f, 16777215.0f};
     PrimParticle *p;
-    char *q;
-    char *r;
+    PrimParticleObj *q;
+    int *r;
     /* the GIF tag's PRIM field: sprite, TME, ABE, AA1 */
     long long prim = 214;
 
@@ -717,12 +717,14 @@ PrimParticle *prim_InitParticleByPartition(int num, float x, float y, float z, i
         __assert("src/Primitive.c", 938, "FALSE");
     }
     p->objSize = num * 32 + 128;
-    p->objs[0] = (char *)iosMallocDebugNoAssert(heap, p->objSize, "src/Primitive.c", 944);
+    p->objs[0] =
+        (PrimParticleObj *)iosMallocDebugNoAssert(heap, p->objSize, "src/Primitive.c", 944);
     if (p->objs[0] == 0) {
         iosFree(p);
         return 0;
     }
-    p->objs[1] = (char *)iosMallocDebugNoAssert(heap, p->objSize, "src/Primitive.c", 949);
+    p->objs[1] =
+        (PrimParticleObj *)iosMallocDebugNoAssert(heap, p->objSize, "src/Primitive.c", 949);
     if (p->objs[1] == 0) {
         iosFree(p->objs[0]);
         iosFree(p);
@@ -730,33 +732,33 @@ PrimParticle *prim_InitParticleByPartition(int num, float x, float y, float z, i
     }
     q = p->objs[0];
     p->objSize = p->objSize >> 4;
-    *(int *)(q + 0x0) = 0;
-    *(int *)(q + 0x4) = 0;
-    *(int *)(q + 0x8) = 0;
-    *(int *)(q + 0xC) = ((p->objSize - 2) << 16) | 0x6C008000;
-    *(int *)(q + 0x10) = num;
-    *(int *)(q + 0x14) = 0;
-    *(int *)(q + 0x18) = 0;
-    *(int *)(q + 0x1C) = 0;
-    *(long long *)(q + 0x20) = hd.d[0] | (prim << 47) | 1;
-    *(long long *)(q + 0x28) = hd.d[1];
-    *(long long *)(q + 0x30) = hd.d[0] | (prim << 47) | 0x8001;
-    *(long long *)(q + 0x38) = hd.d[1];
-    _CopyVector(q + 0x40, &cl0);
-    _CopyVector(q + 0x50, &cl1);
-    r = q + (num * 32 + 0x70);
-    *(int *)(r + 0x0) = 0x13000000;
-    *(int *)(r + 0x4) = 0x17000000;
-    *(int *)(r + 0x8) = 0;
-    *(int *)(r + 0xC) = 0;
-    *(float *)(q + 0x60) = x;
-    *(float *)(q + 0x64) = y;
-    *(float *)(q + 0x68) = z;
-    *(float *)(q + 0x6C) = 0.0f;
+    q->vif[0] = 0;
+    q->vif[1] = 0;
+    q->vif[2] = 0;
+    q->vif[3] = ((p->objSize - 2) << 16) | 0x6C008000;
+    q->num[0] = num;
+    q->num[1] = 0;
+    q->num[2] = 0;
+    q->num[3] = 0;
+    q->tag[0][0] = hd.d[0] | (prim << 47) | 1;
+    q->tag[0][1] = hd.d[1];
+    q->tag[1][0] = hd.d[0] | (prim << 47) | 0x8001;
+    q->tag[1][1] = hd.d[1];
+    _CopyVector(q->clipMin, &cl0);
+    _CopyVector(q->clipMax, &cl1);
+    r = q->vtx[num];
+    r[0] = 0x13000000;
+    r[1] = 0x17000000;
+    r[2] = 0;
+    r[3] = 0;
+    q->pos[0] = x;
+    q->pos[1] = y;
+    q->pos[2] = z;
+    q->pos[3] = 0.0f;
     malloc_MemCpy(p->objs[1], p->objs[0], p->objSize * 16);
     p->cur = 0;
-    p->vtx = (int)(p->objs[0] + 0x70);
-    p->vtxNext = (int)(p->objs[1] + 0x70);
+    p->vtx = (int)p->objs[0]->vtx;
+    p->vtxNext = (int)p->objs[1]->vtx;
     return p;
 }
 
@@ -786,8 +788,8 @@ void prim_DispParticle(PrimParticle *p, void *mtx)
             if (systemStatus[5] == 0) {
                 p->cur ^= 1;
             }
-            p->vtx = (int)(p->objs[p->cur] + 112);
-            p->vtxNext = (int)(p->objs[p->cur ? 0 : 1] + 112);
+            p->vtx = (int)p->objs[p->cur]->vtx;
+            p->vtxNext = (int)p->objs[p->cur ? 0 : 1]->vtx;
         }
     }
 }

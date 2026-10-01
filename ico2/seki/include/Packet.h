@@ -32,6 +32,48 @@ typedef struct PacHeader {  /* field names derived */
     char pad9C[4];
 } PacHeader; /* derived name */
 
+/* one colour of a line record, as the GS RGBAQ register takes it */
+typedef struct PacColor { /* field names derived */
+    unsigned char r;
+    unsigned char g;
+    unsigned char b;
+    unsigned char a;
+} PacColor; /* derived name */
+
+/* one 192-byte line record pac_makePacket builds and RegistPacket.c draws: a
+   line's two vertices and texture coordinates.  A point keeps its last screen
+   position in pos[1] and the one before at 0x20, and per trail index its
+   screen positions at 0x50 and the ones before at 0x80.  Then the two
+   colours, and the word at 0xB8: the texture number, the blend and the type
+   (1 a point, 2 a line, 0 the end of the list), read whole by the drawing. */
+typedef struct PacLine {        /* field names derived */
+    sceVu0FVECTOR pos[2];       /* 0x00 */
+    sceVu0IVECTOR scrPrev;      /* 0x20 */
+    sceVu0FVECTOR uv[2];        /* 0x30 */
+    sceVu0IVECTOR trail[3];     /* 0x50 */
+    sceVu0IVECTOR trailPrev[3]; /* 0x80 */
+    PacColor col0;              /* 0xB0 */
+    PacColor col1;              /* 0xB4 */
+
+    union {
+        long long word;
+
+        struct {
+            unsigned short tex : 11;
+            unsigned short blend : 2;
+            short type : 3;
+        } b;
+    } attr; /* 0xB8 */
+} PacLine;  /* derived name */
+
+/* the 144-byte record a line part's group record points at: the line records
+   at +0xC, which RegistPacket.c's line display walks */
+typedef struct PacLineSet { /* field names derived */
+    char pad00[12];
+    PacLine *lines; /* 0x0C */
+    char pad10[128];
+} PacLineSet; /* derived name */
+
 struct PObjMaterial;
 
 struct PObjPart;

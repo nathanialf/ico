@@ -262,15 +262,11 @@ int stage_Init(void)
                             /* the DEBUG-build trace */
                             stageAnimDebugHook();
                             STG[stageAnimCount].flags.i &= 0x3FFFFFFF;
-                            *(int *)((char *)stageAnimTable + stageAnimCount * 0x290 + 0x284) =
-                                (int)obj->data;
-                            *(int *)((char *)obj->data + 0x4) = obj->group;
-                            ((char *)obj->data)[0xB] = obj->cut;
-                            *(char *)(*(int *)((char *)stageAnimTable + stageAnimCount * 0x290 +
-                                               0x284) +
-                                      0xA) = -1;
-                            *(int *)((char *)stageAnimTable + stageAnimCount * 0x290 + 0x280) =
-                                (int)obj;
+                            stageAnimTable[stageAnimCount].entry2 = obj->data;
+                            ((BgaHeader *)obj->data)->group = obj->group;
+                            ((BgaHeader *)obj->data)->cut = obj->cut;
+                            stageAnimTable[stageAnimCount].entry2->mode = -1;
+                            stageAnimTable[stageAnimCount].entry1 = obj;
                             STG[stageAnimCount].flags.b.play = 0;
                             p = &objTableScene[obj->objFirst];
                             q = &objTableScene[obj->objLast];
@@ -283,8 +279,7 @@ int stage_Init(void)
                             STG[stageAnimCount].flags.i =
                                 (STG[stageAnimCount].flags.i & 0x3FFFFFFF) | 0x40000000;
                             stageAnimTable[stageAnimCount].entry3 = obj->data;
-                            *(int *)((char *)stageAnimTable + stageAnimCount * 0x290 + 0x280) =
-                                (int)obj;
+                            stageAnimTable[stageAnimCount].entry1 = obj;
                         }
                         /* the DEBUG-build trace */
                         stageAnimDebugHook();
@@ -759,18 +754,18 @@ inline void stage_SetLoopFlag(int key, int a1)
 inline void stage_SetFrameStep(int target, int val)
 {
     int n = stageAnimCount;
-    char *p = (char *)stageAnimTable;
+    StageAnim *p = stageAnimTable;
     int i;
     if (n <= 0)
         return;
     i = n;
     do {
-        StageAnimDef *entry1 = *(StageAnimDef **)(p + 0x280);
+        StageAnimDef *entry1 = p->entry1;
         if (target == entry1->no) {
-            BgaHeader *entry2 = *(BgaHeader **)(p + 0x284);
+            BgaHeader *entry2 = p->entry2;
             entry2->step = (float)val;
         }
-        p += 0x290;
+        p++;
     } while (--i);
 }
 

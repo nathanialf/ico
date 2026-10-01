@@ -12,6 +12,8 @@
 
 struct PacHeader;
 
+struct PacLine;
+
 struct PObjMaterial;
 
 void reg_DispAccessoryWithShadow(Sub15C *o, Sub15C *src);
@@ -25,10 +27,10 @@ void reg_SetScissorSw(int val);
 void reg_chooseReflectionMicroCode(int a0, int a1, int a2);
 void reg_dispBoxLine(struct PacHeader *pk);
 void reg_dispCObj(Sub15C *o);
-void reg_dispLine(char *node, float alpha);
+void reg_dispLine(struct PacLine *node, float alpha);
 void reg_dispMObj(Sub15C *o);
 void reg_dispNObj(Sub15C *o);
-void reg_dispPoint(char *node, float alpha, int idx, int flag);
+void reg_dispPoint(struct PacLine *node, float alpha, int idx, int flag);
 void reg_dispPointLineObj(Sub15C *o);
 void reg_resetDissolve(int a0);
 void reg_setCMatrixPacket(Sub15C *o, float alpha, int prilist);

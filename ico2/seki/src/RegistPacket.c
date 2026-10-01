@@ -814,7 +814,7 @@ static inline int regGetShinePri(int a0) /* derived name */
 }
 
 /* Pick the display-list priority for one material and install it. */
-static inline int regMaterialDLPri(PObjGroup *grp, int nodeIdx, int *ext,
+static inline int regMaterialDLPri(PObjGroup *grp, int nodeIdx, TexExt *ext,
                                    float fade) /* derived name */
 {
     PObjMaterial *mat = &grp->materials[nodeIdx];
@@ -833,8 +833,8 @@ static inline int regMaterialDLPri(PObjGroup *grp, int nodeIdx, int *ext,
     if (fade != 0.0f) {
         pri = 5;
     }
-    if (ext[0x40 / 4] != 0 && ext[0x24 / 4] != 0) {
-        pri = regGetShinePri(ext[0x24 / 4]);
+    if (ext->animated != 0 && ext->file.shine != 0) {
+        pri = regGetShinePri(ext->file.shine);
     }
     dl_SetDLPriority(pri);
     return pri;
@@ -1141,7 +1141,7 @@ void reg_dispCObj(Sub15C *o)
     }
 }
 
-void reg_dispPoint(char *node, float alpha, int idx, int flag)
+void reg_dispPoint(PacLine *node, float alpha, int idx, int flag)
 {
     float fv[4];
     int iv[4];
@@ -1152,8 +1152,8 @@ void reg_dispPoint(char *node, float alpha, int idx, int flag)
     int z;
 
     on = 0;
-    pri = (*(long long *)(node + 0xB8) & 0x1800) != 0 ? 2 : 0;
-    if (alpha != 0.0f || (*(long long *)(node + 0xB8) & 0x1800) != 0) {
+    pri = (node->attr.word & 0x1800) != 0 ? 2 : 0;
+    if (alpha != 0.0f || (node->attr.word & 0x1800) != 0) {
         on = 1;
     }
     z = (int)(((alpha < 0.0f) ? (alpha + 1.0f) : (1.0f - alpha)) * 128.0f);
@@ -1173,36 +1173,36 @@ void reg_dispPoint(char *node, float alpha, int idx, int flag)
         ((RegPkWord *)(c + 0x18))->d = 0xE;
         PacketBufferStruct.ptr.c = c + 0x20;
     }
-    _RotTransPersCurrentMatrix(fv, node);
+    _RotTransPersCurrentMatrix(fv, node->pos[0]);
     _FTOI4Vector(iv, fv);
     if (idx == -1) {
         if (flag != 0) {
             _CopyIVector(iv2, iv);
         } else {
             if (systemStatus[5] == 0) {
-                v = *(Qw128 *)(node + 0x10);
+                v = *(Qw128 *)node->pos[1];
             } else {
-                v = *(Qw128 *)(node + 0x20);
+                v = *(Qw128 *)node->scrPrev;
             }
             *(Qw128 *)iv2 = v;
         }
         if (systemStatus[5] == 0) {
-            *(Qw128 *)(node + 0x20) = *(Qw128 *)(node + 0x10);
-            *(Qw128 *)(node + 0x10) = *(Qw128 *)iv;
+            *(Qw128 *)node->scrPrev = *(Qw128 *)node->pos[1];
+            *(Qw128 *)node->pos[1] = *(Qw128 *)iv;
         }
     } else {
         if (flag != 0) {
             _CopyIVector(iv2, iv);
         } else {
             if (systemStatus[5] == 0) {
-                _CopyIVector(iv2, node + (idx * 0x10 + 0x50));
+                _CopyIVector(iv2, node->trail[idx]);
             } else {
-                _CopyIVector(iv2, node + (idx * 0x10 + 0x80));
+                _CopyIVector(iv2, node->trailPrev[idx]);
             }
         }
         if (systemStatus[5] == 0) {
-            _CopyIVector(node + (idx * 0x10 + 0x80), node + (idx * 0x10 + 0x50));
-            _CopyIVector(node + (idx * 0x10 + 0x50), iv);
+            _CopyIVector(node->trailPrev[idx], node->trail[idx]);
+            _CopyIVector(node->trail[idx], iv);
         }
     }
     if (_IsInScreen(iv) != 0 && _IsInScreen(iv2) != 0) {
@@ -1221,11 +1221,9 @@ void reg_dispPoint(char *node, float alpha, int idx, int flag)
         }
         *PacketBufferStruct.ptr.d++ = ((long long)on << 6) | 0x101;
         *PacketBufferStruct.ptr.d++ = 0;
-        *PacketBufferStruct.ptr.d++ = (long long)*(unsigned char *)(node + 0xB0) |
-                                      ((long long)*(unsigned char *)(node + 0xB1) << 8) |
-                                      ((long long)*(unsigned char *)(node + 0xB2) << 16) |
-                                      ((long long)*(unsigned char *)(node + 0xB3) << 24) |
-                                      (0x3F800000LL << 32);
+        *PacketBufferStruct.ptr.d++ = (long long)node->col0.r | ((long long)node->col0.g << 8) |
+                                      ((long long)node->col0.b << 16) |
+                                      ((long long)node->col0.a << 24) | (0x3F800000LL << 32);
         *PacketBufferStruct.ptr.d++ = 1;
         *PacketBufferStruct.ptr.d++ =
             (long long)iv2[0] | ((long long)iv2[1] << 16) | ((long long)iv2[2] << 32);
@@ -1282,7 +1280,7 @@ typedef union { /* field names derived */
     unsigned int u;
 } RegFloatBits; /* derived name */
 
-void reg_dispLine(char *node, float alpha)
+void reg_dispLine(PacLine *node, float alpha)
 {
     float fv0[4];
     float fv1[4];
@@ -1297,7 +1295,7 @@ void reg_dispLine(char *node, float alpha)
     int on;
     int z;
 
-    h = *(long long *)(node + 0xB8);
+    h = node->attr.word;
     pri = (h & 0x1800) != 0 ? 2 : 0;
     tex = (unsigned short)h << 21 >> 21;
     hastex = tex >= 0;
@@ -1308,7 +1306,7 @@ void reg_dispLine(char *node, float alpha)
     z = (int)(((alpha < 0.0f) ? (alpha + 1.0f) : (1.0f - alpha)) * 128.0f);
     dl_SetDLPriority(pri);
     if (hastex != 0) {
-        long long f = *(long long *)(node + 0xB8);
+        long long f = node->attr.word;
 
         texturetranssize += tex_TransTexture((unsigned short)f << 21 >> 21, pri);
     }
@@ -1327,8 +1325,8 @@ void reg_dispLine(char *node, float alpha)
         ((RegPkWord *)(c + 0x18))->d = 0xE;
         PacketBufferStruct.ptr.c = c + 0x20;
     }
-    _RotTransPersCurrentMatrix(fv0, node);
-    _RotTransPersCurrentMatrix(fv1, node + 0x10);
+    _RotTransPersCurrentMatrix(fv0, node->pos[0]);
+    _RotTransPersCurrentMatrix(fv1, node->pos[1]);
     _FTOI4Vector(iv0, fv0);
     _FTOI4Vector(iv1, fv1);
     if (_IsInScreen(iv0) != 0 && _IsInScreen(iv1) != 0) {
@@ -1348,36 +1346,32 @@ void reg_dispLine(char *node, float alpha)
         /* PRIM in the GS register's field order: LINE with IIP, TME, ABE */
         *PacketBufferStruct.ptr.d++ = 9 | ((long long)hastex << 4) | ((long long)on << 6);
         *PacketBufferStruct.ptr.d++ = 0;
-        *PacketBufferStruct.ptr.d++ = (long long)*(unsigned char *)(node + 0xB0) |
-                                      ((long long)*(unsigned char *)(node + 0xB1) << 8) |
-                                      ((long long)*(unsigned char *)(node + 0xB2) << 16) |
-                                      ((long long)*(unsigned char *)(node + 0xB3) << 24) |
-                                      (0x3F800000LL << 32);
+        *PacketBufferStruct.ptr.d++ = (long long)node->col0.r | ((long long)node->col0.g << 8) |
+                                      ((long long)node->col0.b << 16) |
+                                      ((long long)node->col0.a << 24) | (0x3F800000LL << 32);
         *PacketBufferStruct.ptr.d++ = 1;
         if (hastex != 0) {
             RegFloatBits u;
             RegFloatBits v;
 
-            u.f = *(float *)(node + 0x30) / fv0[3];
-            v.f = *(float *)(node + 0x34) / fv0[3];
+            u.f = node->uv[0][0] / fv0[3];
+            v.f = node->uv[0][1] / fv0[3];
             *PacketBufferStruct.ptr.d++ = (long long)u.u | ((long long)v.u << 32);
             *PacketBufferStruct.ptr.d++ = 2;
         }
         *PacketBufferStruct.ptr.d++ =
             (long long)iv0[0] | ((long long)iv0[1] << 16) | ((long long)iv0[2] << 32);
         *PacketBufferStruct.ptr.d++ = 5;
-        *PacketBufferStruct.ptr.d++ = (long long)*(unsigned char *)(node + 0xB4) |
-                                      ((long long)*(unsigned char *)(node + 0xB5) << 8) |
-                                      ((long long)*(unsigned char *)(node + 0xB6) << 16) |
-                                      ((long long)*(unsigned char *)(node + 0xB7) << 24) |
-                                      (0x3F800000LL << 32);
+        *PacketBufferStruct.ptr.d++ = (long long)node->col1.r | ((long long)node->col1.g << 8) |
+                                      ((long long)node->col1.b << 16) |
+                                      ((long long)node->col1.a << 24) | (0x3F800000LL << 32);
         *PacketBufferStruct.ptr.d++ = 1;
         if (hastex != 0) {
             RegFloatBits u;
             RegFloatBits v;
 
-            u.f = *(float *)(node + 0x40) / fv1[3];
-            v.f = *(float *)(node + 0x44) / fv1[3];
+            u.f = node->uv[1][0] / fv1[3];
+            v.f = node->uv[1][1] / fv1[3];
             *PacketBufferStruct.ptr.d++ = (long long)u.u | ((long long)v.u << 32);
             *PacketBufferStruct.ptr.d++ = 2;
         }
@@ -1425,7 +1419,8 @@ void reg_dispPointLineObj(Sub15C *o)
     PObjModel *mdl;
     PObjGroup *grp;
     char *hdr;
-    char *node;
+    PacLine *node;
+    PacLineSet *set;
     struct DObjNode *w;
     long long h;
     float alpha;
@@ -1450,15 +1445,15 @@ void reg_dispPointLineObj(Sub15C *o)
     }
     for (i = 0; i < o->nodeNum; i++) {
         w = (struct DObjNode *)(i * 80 + (int)o->nodes);
-        node = grp->packets;
+        set = grp->packets;
         alpha = 1.0f - (1.0f - w->fade) * w->alpha;
         if (!flag && (alpha < 0.0f ? -alpha : alpha) == 1.0f) {
             continue;
         }
         _SetCurrentMatrix((char *)o->nodeMtx + i * 64);
         _MulCurrentMatrixL(matrixptr + 0x100);
-        node = *(char **)(node + 0xC);
-        h = *(long long *)(node + 0xB8);
+        node = set->lines;
+        h = node->attr.word;
         while (h & 0xE000) {
             switch ((short)h >> 13) {
             case 1:
@@ -1468,8 +1463,8 @@ void reg_dispPointLineObj(Sub15C *o)
                 reg_dispLine(node, alpha);
                 break;
             }
-            node += 0xC0;
-            h = *(long long *)(node + 0xB8);
+            node++;
+            h = node->attr.word;
         }
     }
 }

@@ -10,9 +10,12 @@
 /* set while the fight music is paused */
 static int fightSoundPause = 0; /* derived name */
 
-/* the fight loop's ADPCM handle at [0], its volume at [1] and the open
-   request at [2] */
-static int fightSnd[8]; /* derived name */
+/* the fight loop's ADPCM handle, its volume and the open request */
+static struct { /* field names derived */
+    int handle;
+    int volume;
+    AdpcmOpenReq req;
+} fightSnd; /* derived name */
 
 /* the fight music's step: 1 once the open is requested, 2 after it */
 static int fightSoundState = 0; /* derived name */
@@ -27,9 +30,9 @@ static void fightSoundProcessMain(void)
     int step;
 
     req = 0x110001;
-    fightSnd[0] = soundDataAreaSearch(&req);
-    if (fightSnd[0] == 0) {
-        fightSnd[1] = 0;
+    fightSnd.handle = soundDataAreaSearch(&req);
+    if (fightSnd.handle == 0) {
+        fightSnd.volume = 0;
         if (fightSoundPause == 1) {
             return;
         }
@@ -55,17 +58,17 @@ static void fightSoundProcessMain(void)
         fightSoundGirlTaken = 0;
         cond = 0;
     }
-    if (fightSnd[0] == 0) {
+    if (fightSnd.handle == 0) {
         if (cond != 0 || fightSoundGirlTaken != 0) {
             if (systemStatus[6] == 0) {
-                soundDataOpen(&fightSnd[2], 2, 1, 2, 0);
-                if (fightSnd[5] != 0) {
+                soundDataOpen(&fightSnd.req, 2, 1, 2, 0);
+                if (fightSnd.req.iopBuf != 0) {
                     fightSoundState = 1;
                 }
             }
         }
     }
-    if (fightSnd[0] == 0) {
+    if (fightSnd.handle == 0) {
         return;
     }
     step = 96;
@@ -73,18 +76,18 @@ static void fightSoundProcessMain(void)
         step = 1024;
     }
     if (cond == 0 && fightSoundGirlTaken == 0) {
-        fightSnd[1] -= step;
-        if (fightSnd[1] < 0) {
-            fightSnd[1] = 0;
+        fightSnd.volume -= step;
+        if (fightSnd.volume < 0) {
+            fightSnd.volume = 0;
         }
     } else {
-        fightSnd[1] += step;
-        if (fightSnd[1] > 6144) {
-            fightSnd[1] = 6144;
+        fightSnd.volume += step;
+        if (fightSnd.volume > 6144) {
+            fightSnd.volume = 6144;
         }
     }
-    AdpcmVolumeSet(fightSnd[0], fightSnd[1]);
-    if (fightSnd[1] == 0) {
+    AdpcmVolumeSet(fightSnd.handle, fightSnd.volume);
+    if (fightSnd.volume == 0) {
         fightSoundState = 2;
     }
 }
@@ -98,8 +101,8 @@ void fightSoundProcess(void)
         fightSoundProcessMain();
         break;
     case 1:
-        h = soundDataOpenSync(&fightSnd[2]);
-        fightSnd[0] = (int)h;
+        h = soundDataOpenSync(&fightSnd.req);
+        fightSnd.handle = (int)h;
         if (h != (int *)-1) {
             if (h != 0) {
                 AdpcmPlay(h[0x2C / 4]);
@@ -108,10 +111,10 @@ void fightSoundProcess(void)
         }
         break;
     case 2:
-        if (fightSnd[0] != 0) {
-            soundDataClose(fightSnd[0]);
+        if (fightSnd.handle != 0) {
+            soundDataClose(fightSnd.handle);
         }
-        fightSnd[0] = 0;
+        fightSnd.handle = 0;
         fightSoundState = 0;
         break;
     default:
@@ -127,9 +130,9 @@ void fightSoundProcessRequestPause(void)
 
 void fightSoundClose(void)
 {
-    if (fightSnd[0] != 0) {
-        soundDataClose(fightSnd[0]);
-        fightSnd[0] = 0;
+    if (fightSnd.handle != 0) {
+        soundDataClose(fightSnd.handle);
+        fightSnd.handle = 0;
     }
 }
 
@@ -145,5 +148,5 @@ int fightSoundProcessRequestStatus(void)
 
 int fightSoundPlayChk(void)
 {
-    return fightSnd[0];
+    return fightSnd.handle;
 }

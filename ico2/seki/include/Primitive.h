@@ -66,6 +66,20 @@ typedef struct { /* field names derived */
     /* 0x90 */ int tail[4];
 } PrimParticleBuf; /* derived name */
 
+/* one particle object buffer, the VU1 data of a particle object: the VIF
+   codes and the unpack, the particle count, the two GIF tags, the screen clip
+   window's two corners, the object position, then 32 bytes a particle and the
+   closing VIF codes (FLUSHA, MSCNT) */
+typedef struct { /* field names derived */
+    /* 0x00 */ int vif[4];
+    /* 0x10 */ int num[4];
+    /* 0x20 */ long long tag[2][2];
+    /* 0x40 */ float clipMin[4];
+    /* 0x50 */ float clipMax[4];
+    /* 0x60 */ float pos[4];
+    /* 0x70 */ int vtx[0][8];
+} PrimParticleObj; /* derived name */
+
 typedef struct { /* field names derived */
     /* 0x000 */ PrimParticleBuf buf[2];
     /* 0x140 */ int headQwc; /* the size of one packet head in quadwords */
@@ -79,10 +93,10 @@ typedef struct { /* field names derived */
     /* 0x17C */ int tex;
     /* 0x180 */ int cur;
     /* 0x184 */ int objSize; /* the object buffers' size, bytes until init ends, then quadwords */
-    /* 0x188 */ char *objs[2];
+    /* 0x188 */ PrimParticleObj *objs[2];
     /* 0x190 */ int vtx;     /* the vertices of the buffer being drawn (objs + 0x70) */
     /* 0x194 */ int vtxNext; /* the vertices of the other buffer */
-} PrimParticle; /* derived name */
+} PrimParticle;              /* derived name */
 
 void prim_DeleteParticle(PrimParticle *p);
 void prim_DispFan2D(Fan2D *f, int mode);

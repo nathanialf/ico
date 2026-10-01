@@ -1077,35 +1077,6 @@ typedef struct PObjLine { /* field names derived */
     int tex; /* 0x4C */
 } PObjLine;  /* derived name */
 
-/* The views pac_makePacket writes through. PacLine is a 192-byte line
-   record; the strips are Packet.h's PacHeader. */
-typedef struct { /* field names derived */
-    unsigned char r;
-    unsigned char g;
-    unsigned char b;
-    unsigned char a;
-} PacColor; /* derived name */
-
-typedef struct {          /* field names derived */
-    sceVu0FVECTOR pos[2]; /* 0x00, the two vertices */
-    sceVu0FVECTOR pad20;
-    sceVu0FVECTOR uv[2]; /* 0x30, the two texture coordinates */
-    sceVu0FVECTOR pad50[6];
-    PacColor col0;
-    PacColor col1;
-    unsigned short tex : 11;
-    unsigned short blend : 2;
-    short type : 3;
-} PacLine; /* derived name */
-
-/* the 144-byte record a line part's group record points at: the line records
-   at +0xC, which RegistPacket.c's line display walks */
-typedef struct PacLineSet { /* field names derived */
-    char pad00[12];
-    PacLine *lines; /* 0x0C */
-    char pad10[128];
-} PacLineSet; /* derived name */
-
 /* clears the running packet byte counter before a build */
 static inline void pac_resetPacketCount(void) /* derived name */
 {
@@ -1267,12 +1238,12 @@ void pac_makePacket(PObjModel *obj, int variant, int mode)
             obj->mode.s.type = 2;
             top = p;
             for (j = 0; j < src->lineCount; j++) {
-                p->type = line->num;
-                switch (p->type) {
+                p->attr.b.type = line->num;
+                switch (p->attr.b.type) {
                 case 1:
                     _CopyVector(p->pos[0], vtx + line->vtx[0] * 16);
                     p->col0 = ((PacColor *)idx)[line->col[0]];
-                    p->blend = 0.5019608f <= src->mats[line->mat].alpha;
+                    p->attr.b.blend = 0.5019608f <= src->mats[line->mat].alpha;
                     break;
                 case 2:
                     _CopyVector(p->pos[0], vtx + line->vtx[0] * 16);
@@ -1285,11 +1256,11 @@ void pac_makePacket(PObjModel *obj, int variant, int mode)
                     p->uv[1][3] = 0.0f;
                     p->col0 = ((PacColor *)idx)[line->col[0]];
                     p->col1 = ((PacColor *)idx)[line->col[1]];
-                    p->blend = 0.5019608f <= src->mats[line->mat].alpha;
+                    p->attr.b.blend = 0.5019608f <= src->mats[line->mat].alpha;
                     if (line->tex >= 0)
-                        p->tex = mtbl->texs[line->tex].tex;
+                        p->attr.b.tex = mtbl->texs[line->tex].tex;
                     else
-                        p->tex = -1;
+                        p->attr.b.tex = -1;
                     break;
                 default:
                     debug_StdPrintfDummy("illegal vertex num %d\n", line->num);
@@ -1300,7 +1271,7 @@ void pac_makePacket(PObjModel *obj, int variant, int mode)
                 line++;
                 p++;
             }
-            p[src->lineCount].type = 0;
+            p[src->lineCount].attr.b.type = 0;
             mtbl->lineSet = mallocseki(144);
             mtbl->lineSet->lines = top;
             mtbl++;
