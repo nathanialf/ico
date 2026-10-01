@@ -24,8 +24,8 @@
    iosThreadSleep call here while thread.c defines it (void), so the
    developer's own declarations disagreed, and these calls were compiled
    against a one-argument declaration like this one. */
-extern void iosThreadCreateS(void *th, int no, void (*func)(), int arg, void *heap, long stackSize,
-                             int pri);
+extern void iosThreadCreateS(void *th, int no, void (*func)(), void *arg, void *heap,
+                             long stackSize, int pri);
 extern void iosThreadStart(void *th);
 extern void iosThreadSleep(void *th);
 extern void iosThreadDestroy(void *th);

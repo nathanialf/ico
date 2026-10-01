@@ -857,7 +857,7 @@ static int CollisCheckInRope(void *self, GObj *chain)
     work.radius = 10.0f;
     ClipWall(&work);
     if (work.wallHit != 0) {
-        if (ropeWallIsBox((char *)work.wallSrc[0]))
+        if (ropeWallIsBox((char *)work.wallSrc.obj))
             rv = 2;
         else
             rv = 1;
@@ -865,7 +865,7 @@ static int CollisCheckInRope(void *self, GObj *chain)
         SwapGV(work.a, work.b);
         ClipWall(&work);
         if (work.wallHit != 0) {
-            if (ropeWallIsBox((char *)work.wallSrc[0]))
+            if (ropeWallIsBox((char *)work.wallSrc.obj))
                 rv = 2;
             else
                 rv = 1;
@@ -1310,39 +1310,16 @@ static void TestCageUpDown(int cage, GObj *gobj)
     cageUpDown.last = mot;
 }
 
-/* the pair ClipWall stores with the wall it hits (GetOrientOfWall reads the
-   object from the first word), copied as one record */
-typedef struct { /* field names derived */
-    int w[2];
-} RsSrc; /* derived name */
-
-/* the wall hit as ropeSpecialWallHit copies it out of the clip work */
-typedef struct { /* field names derived */
-    RsSrc src;
-    struct FcWallEnt *wall;
-} RsHit; /* derived name */
-
 typedef union { /* field names derived */
     float f[4];
     long long ll[2];
 } RsVec4; /* derived name */
 
-/* typedef.h's ClipWork with the pair at 0x80 as one record, so the hit is
-   copied whole */
-typedef struct { /* field names derived */
-    float a[4];
-    float b[4];
-    char pad20[96];
-    RsSrc wallSrc;
-    struct FcWallEnt *wallHit;
-    char pad8C[52];
-} RsWork; /* derived name */
-
-static inline unsigned char ropeSpecialWallHit(RsVec4 *p1, RsHit *hit) /* derived name */
+static inline unsigned char ropeSpecialWallHit(RsVec4 *p1, ClimbCol *hit) /* derived name */
 {
     sceVu0FVECTOR va = {0.0f, 0.0f, -20.0f, 1.0f};
     sceVu0FVECTOR vb = {0.0f, 0.0f, 20.0f, 1.0f};
-    RsWork work;
+    ClipWork work;
     int i;
 
     for (i = 0; i < 4; i++) {
@@ -1353,7 +1330,7 @@ static inline unsigned char ropeSpecialWallHit(RsVec4 *p1, RsHit *hit) /* derive
         sceVu0ApplyMatrix(work.b, (void *)MatrixDrive_GetMatrix(), vb);
         ClipWall(&work);
         if (work.wallHit != 0) {
-            hit->src = work.wallSrc;
+            hit->wallSrc = work.wallSrc;
             hit->wall = work.wallHit;
             return 1;
         }
@@ -1364,7 +1341,7 @@ static inline unsigned char ropeSpecialWallHit(RsVec4 *p1, RsHit *hit) /* derive
 void actCommonRopeSpecial(GObj *volatile self)
 {
     Act *s;
-    RsHit hit;
+    ClimbCol hit;
     RsVec4 p1;
     RsVec4 p2;
     RsVec4 pos;
@@ -1403,12 +1380,12 @@ void actCommonRopeSpecial(GObj *volatile self)
         if (found && pos.f[1] < p1.f[1] + 60.0f) {
             GOBJ_ACT(self)->enemy->climbObj = cage;
             GetOrientOfWall(*(char **)(*(char **)((char *)self + 0x164) + 0x680) + 0x330, hit.wall,
-                            hit.src.w);
+                            &hit.wallSrc);
             GOBJ_ACT(self)->enemy->climbPos[0] = p1.f[0];
             GOBJ_ACT(self)->enemy->climbPos[1] = p1.f[1];
             GOBJ_ACT(self)->enemy->climbPos[2] = p1.f[2];
             GOBJ_ACT(self)->enemy->climbPos[1] -= 100.0f;
-            *(RsHit *)&GOBJ_ACT(self)->enemy->climbCol = hit;
+            GOBJ_ACT(self)->enemy->climbCol = hit;
             ActSendMail_WithAdditionalData(self, 0xB0, (void *)self,
                                            GOBJ_ACT(self)->enemy->climbOrient);
         }

@@ -104,7 +104,7 @@ static inline int msgSend(IosMsgQueue *q, int val, int mode) /* derived name */
 static void send_signal_message(void)
 {
     MsgEventThread *self = (MsgEventThread *)iosGetIOSThreadFromId(GetThreadId());
-    MsgEventThread *th = (MsgEventThread *)self->th.arg;
+    MsgEventThread *th = self->th.arg;
 
     th_sig = &self->th;
     debug_StdPrintfDummy("%d %d\n", self->th.id, th->val);
@@ -124,7 +124,7 @@ void iosMsgSetEvent(int intc, IosMsgQueue *q, int val)
         debug_StdPrintfDummy("evt:null message queue\n");
     }
     th = iosMallocDebug(ios_partition_event, 16576, "ios/message.c", 453);
-    iosThreadCreate(&th->th, 4, send_signal_message, (int)th, th->stack, 16384, 11);
+    iosThreadCreate(&th->th, 4, send_signal_message, th, th->stack, 16384, 11);
     th->queue = q;
     th->val = val;
     th->intc = intc;

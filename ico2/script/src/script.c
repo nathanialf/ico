@@ -773,7 +773,7 @@ inline void scpDoorTypeUp(GObj *volatile self)
 inline void scpDoorTypeUpMain(GObj *volatile self)
 {
     Act *p = GOBJ_ACT(self);
-    p->mainMail = (ActMail *)p->doorMail;
+    p->mainMail = p->doorMail;
     for (;;) {
         _ACTWait(1);
     }

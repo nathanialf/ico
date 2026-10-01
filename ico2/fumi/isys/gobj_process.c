@@ -67,7 +67,7 @@ static GProc *isysGObjProcAdd_(GObj *gobj, GObj *arg, void (*func)(), unsigned c
     }
     p->self = p;
     if (noThread == 0) {
-        iosThreadCreateS(&p->thread, 1, func, arg ? (int)arg : (int)p, ios_partition_isys,
+        iosThreadCreateS(&p->thread, 1, func, arg ? (void *)arg : (void *)p, ios_partition_isys,
                          stackSize, pri);
         iosThreadStart(&p->thread);
         p->func = 0;

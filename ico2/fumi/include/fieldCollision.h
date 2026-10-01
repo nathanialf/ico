@@ -60,7 +60,7 @@ int ChangeFieldCollisionDebugMode(int drawRay);
 void LoadCollision(int *self, int fname);
 void DrawCollision(int mode);
 int ClipPlane(int work);
-void GetOrientOfWall(void *out, void *wallEnt, int *src);
+void GetOrientOfWall(void *out, void *wallEnt, ObjNode *src);
 void SetSimplePlane(float *self, float a, float b, float c, float d);
 int GetWallAttribute(struct ClipWork *w);
 int GetFloorAttribute(struct ClipWork *w);

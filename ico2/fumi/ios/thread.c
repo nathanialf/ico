@@ -53,7 +53,7 @@ iosThreadDestroyMgr(void); /* deferred-tail member; see the emission-order note 
 /* iosThreadCreate, a public function that iosThreadCreateS and iosThreadInit
  * also expand: a plain `inline`, so its out-of-line copy goes to the end of
  * the object. */
-inline void iosThreadCreate(IOSThread *th, int no, void (*func)(), int arg, void *stack,
+inline void iosThreadCreate(IOSThread *th, int no, void (*func)(), void *arg, void *stack,
                             long stackSize, int pri)
 {
     th->param.entry = iosThreadMain;
@@ -94,7 +94,7 @@ inline void iosThreadCreate(IOSThread *th, int no, void (*func)(), int arg, void
 /* iosThreadCreateS: iosThreadCreate over a malloc'd stack.  flags bit 0 marks
  * "this stack came from the heap"; iosThreadDestroyMgr reads it back and
  * frees the stack. */
-void iosThreadCreateS(IOSThread *th, int no, void (*func)(), int arg, void *heap, long stackSize,
+void iosThreadCreateS(IOSThread *th, int no, void (*func)(), void *arg, void *heap, long stackSize,
                       int pri)
 {
     void *stack;
@@ -110,7 +110,7 @@ void iosThreadCreateS(IOSThread *th, int no, void (*func)(), int arg, void *heap
 
 void iosThreadStart(IOSThread *th)
 {
-    StartThread(th->id, (void *)th->arg);
+    StartThread(th->id, th->arg);
 }
 
 void iosThreadStop(IOSThread *th)

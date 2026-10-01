@@ -703,14 +703,14 @@ ChainRecord *InitChainGeo(GObj *gobj, ChainGeoReq *req)
             debug_StdPrintfDummy(
                 "\033[33m鎖の上の壁を見付けることができません。\n方向が間違っているか、壁が無いところに置いていませんか?\033[m\n");
         } else {
-            memcpy(cw->climb.wallSrc, w.wallSrc, sizeof(w.wallSrc));
+            memcpy(&cw->climb.wallSrc, &w.wallSrc, sizeof(w.wallSrc));
             cw->climb.wall = w.wallHit;
-            GetOrientOfWall(cw->wallOrient, w.wallHit, w.wallSrc);
+            GetOrientOfWall(cw->wallOrient, w.wallHit, &w.wallSrc);
             cw->wallHit = 1;
         }
     } else {
-        cw->climb.wallSrc[0] = 0;
-        cw->climb.wallSrc[1] = 0;
+        cw->climb.wallSrc.obj = 0;
+        cw->climb.wallSrc.node = 0;
         cw->climb.wall = 0;
         cw->wallHit = 0;
     }

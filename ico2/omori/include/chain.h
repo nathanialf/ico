@@ -10,11 +10,11 @@
 
 struct GObj;
 
-/* the wall a chain hangs against: the element pair and the wall record
-   ClipWall returned for it (a FcWallEnt record; held as void *, the type
+/* the wall a chain hangs against: the object and node ClipWall hit and the
+   wall record it returned (a FcWallEnt record; held as void *, the type
    moves .text in InitChainGeo) */
-typedef struct ClimbCol { /* field names derived */
-    int wallSrc[2];
+typedef struct ClimbCol {     /* field names derived */
+    struct ObjNode wallSrc;   /* typedef.h's record */
     void *wall;
 } ClimbCol; /* derived name */
 

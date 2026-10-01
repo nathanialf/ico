@@ -73,13 +73,13 @@ int jimakuOn = 1;
 /* as in GifPacket.h, which this TU does not include (gif_SpriteSensitiveOffset differs) */
 extern void gif_StartPacketPri(int pri);
 /* as in GifPacket.h, which this TU does not include (gif_SpriteSensitiveOffset differs) */
-extern void gif_SetAlpha(long long a0, long long a1, long long a2);
+extern void gif_SetAlpha(long long alpha, long long mode, long long fix);
 /* as in GifPacket.h, which this TU does not include (gif_SpriteSensitiveOffset differs) */
-extern void gif_SetGsReg(long long a0, long long a1);
+extern void gif_SetGsReg(long long reg, long long data);
 /* as in GifPacket.h, which this TU does not include (gif_SpriteSensitiveOffset differs) */
-extern void gif_SetZWrite(int a0);
+extern void gif_SetZWrite(int on);
 /* as in GifPacket.h, which this TU does not include (gif_SpriteSensitiveOffset differs) */
-extern void gif_SetZTest(int a0);
+extern void gif_SetZTest(int on);
 /* z is unsigned int here, long long in GifPacket.h */
 extern void gif_SpriteSensitiveOffset(int *r, unsigned int z, int *uv, unsigned char *col,
                                       int prim);

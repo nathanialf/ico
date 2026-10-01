@@ -587,8 +587,7 @@ void ACTGetEnvironment(void *self, void *dir, float *orient, EnvFlag *flags, Act
             hh = 3.40282347e+38f /* FLT_MAX */;
     }
     if ((w574 != 0 || w564 != 0) && (char *)GOBJ_SUB(self)->root.wall.n != 0) {
-        GetOrientOfWall(env->wallOrient, (void *)GOBJ_SUB(self)->root.wall.n,
-                        (int *)((char *)GOBJ_SUB(self) + 0x180));
+        GetOrientOfWall(env->wallOrient, GOBJ_SUB(self)->root.wall.n, &GOBJ_SUB(self)->root.wall.o);
         env->wallOrient[3] = 1.0f;
         if (w564 != 0) {
             float p60[4];

@@ -48,6 +48,7 @@
 #include "EnemyInit.h"
 #include "ZFog.h"
 #include "flyManager.h"
+#include "staticBlur.h"
 #include <assert.h>
 
 static void disp_memory_partition_bar(void);
@@ -368,9 +369,6 @@ static int loadedMotionSeg = -1; /* derived name */
 
 /* .sbss: the frame stamp the load-time report below prints */
 static int load_time; /* derived name */
-
-/* staticBlur.h does not declare it */
-extern void InitializeStaticBlur(void);
 
 void InitIcoMisc(int *arg)
 {

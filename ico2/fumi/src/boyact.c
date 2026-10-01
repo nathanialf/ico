@@ -564,13 +564,8 @@ typedef struct { /* field names derived */
 } CharPos; /* derived name */
 
 /* the wall hit actBoyStart hands the boy and the girl with mail 0x36: the
-   ClipWall work record's 0x80 pair and its hit flag at 0x88 */
-typedef struct { /* field names derived */
-    CharPos pos; /* 0x00 */
-    int hit;     /* 0x08 */
-} BoyWallHit;    /* derived name */
-
-static BoyWallHit sofaWallHit; /* derived name */
+   ClipWall work record's wall pair and the wall it hit */
+static WallCfg sofaWallHit; /* derived name */
 
 static int attrWallHit[3]; /* derived name */
 
@@ -863,19 +858,6 @@ extern int InsertCameraWorkingFlag;
 /* as in camera-root.h, which this TU does not include (GetCurrentCameraSet2 differ) */
 extern int FixViewInGameCameraFlag;
 
-/* typedef.h's ClipWork with the pair at 0x80 as one CharPos, which
-   actBoyStart copies whole into the sofa's wall hit */
-typedef struct { /* field names derived */
-    float a[4];
-    float b[4];
-    char pad20[80];
-    float radius;
-    char pad74[12];
-    CharPos wallSrc;
-    int wallHit;
-    char pad8C[52];
-} BoyWallWork; /* derived name */
-
 /* An inline-only static that snapshots the boy's orient where the script
    side reads it, inlined into subBoyControl and subBoyCollision. */
 static inline void SaveBoyOrientForScript(void) /* derived name */
@@ -1059,7 +1041,7 @@ void subBoyControl(GObj *volatile self)
                 case 1: {
                     float p0[4];
                     float p1[4];
-                    BoyWallWork work;
+                    ClipWork work;
 
                     GetRootPosition(p0, (void *)self);
                     GetRootPosition(p1, g);
@@ -1740,8 +1722,8 @@ static int characterPacket[8]; /* derived name */
 static PrivInsCam privInsCam; /* derived name */
 
 /* as in camera-root.h, which this TU does not include (GetCurrentCameraSet2 differs) */
-extern void InsertCamera_SetDetail(float *pos, float *tgt, int gobj, int cutType, int b37, int b38,
-                                   float blend);
+extern void InsertCamera_SetDetail(float *pos, float *tgt, int frames, int cutType, int zoom,
+                                   int cutBack, float blend);
 
 static void PrivInsCamProcess(void)
 {
@@ -1792,7 +1774,7 @@ static void PrivInsCamProcess(void)
 }
 
 /* as in camera-root.h, which this TU does not include (GetCurrentCameraSet2 differs) */
-extern void Camctrl_SetTarget(int a0, int a1, int a2);
+extern void Camctrl_SetTarget(GObj *gobj, GObj *subGObj, int pri);
 
 /* the boy's work record at Act+0x688; subBoyCollision's stores through it are
    member accesses (girl_act.c's ActPara is the girl's view of the same
@@ -2136,10 +2118,10 @@ void subBoyCollision(GObj *volatile self)
                         if (lo != 0) {
                             ScpCallCameraGetTarget((float *)work);
                             SetRootPosition(lo, work);
-                            Camctrl_SetTarget(self, (int)lo, 1);
+                            Camctrl_SetTarget(self, lo, 1);
                         }
                     } else {
-                        Camctrl_SetTarget(self, (int)girlGObj, 1);
+                        Camctrl_SetTarget(self, girlGObj, 1);
                     }
                 }
             }
@@ -2229,7 +2211,7 @@ void subBoyCollision(GObj *volatile self)
                             ok = 1;
                         }
                         if (((int)(sub->flags20.ll >> 23) & 1) && ok) {
-                            Camctrl_SetTarget(self, (int)w, 1);
+                            Camctrl_SetTarget(self, w, 1);
                             camOn = 1;
                             if (stage_no == 0x25) {
                                 ((float *)cam)[0] = test_CURRENTROOT(w)[0];
@@ -2275,10 +2257,10 @@ void subBoyCollision(GObj *volatile self)
                             if (lo != 0) {
                                 ScpCallCameraGetTarget((float *)cpos);
                                 SetRootPosition(lo, cpos);
-                                Camctrl_SetTarget(self, (int)lo, 1);
+                                Camctrl_SetTarget(self, lo, 1);
                             }
                         } else {
-                            Camctrl_SetTarget(self, (int)lo, 1);
+                            Camctrl_SetTarget(self, lo, 1);
                         }
                     }
                 }
@@ -3225,7 +3207,7 @@ inline int RequestStageChangeKidnapEnd(int stage, int targetId)
 }
 
 /* as in camera-root.h, which this TU does not include (GetCurrentCameraSet2 differs) */
-extern void InsertCamera_SetNoraml(float *pos, float *tgt, int gobj, int cutType);
+extern void InsertCamera_SetNoraml(float *pos, float *tgt, int frames, int cutType);
 
 void SetStatusBoy_OtherStageGirlPinch(void)
 {
@@ -3341,7 +3323,7 @@ void actBoyStart(GObj *self)
         if (g != 0) {
             Vec16 p0 = {{0.0f, 0.0f, -50.0f, 1.0f}};
             Vec16 p1 = {{0.0f, 0.0f, 50.0f, 1.0f}};
-            BoyWallWork cw;
+            ClipWork cw;
 
             CopyMatrix(MatrixDrive_GetMatrix(), (void *)GOBJ_SUB(g)->nodeMtx);
             MatrixDrive_TransMatrix(0.0f, -50.0f, 0.0f);
@@ -3355,8 +3337,8 @@ void actBoyStart(GObj *self)
             } else {
                 startOnSofa = 1;
                 sitLayoutDone = 1;
-                sofaWallHit.pos = cw.wallSrc;
-                sofaWallHit.hit = cw.wallHit;
+                sofaWallHit.o = cw.wallSrc;
+                sofaWallHit.n = cw.wallHit;
                 scpBoyControlReadDisable = 0;
                 ActSendMail_WithAdditionalData((void *)self, 0x36, (void *)self, &sofaWallHit);
                 if (BOYINFO.bit32 && girlGObj != 0) {

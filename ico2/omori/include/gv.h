@@ -26,6 +26,7 @@ int _InterRotGV(float *dst, float *cur, float *tgt, int step);
 float _MoveGV(float *dst, float *from, float *to, float step);
 void _OrientGV(float *dst, float *a, float *b);
 void _OrientXZGV(float *dst, float *a, float *b);
+int _RotGV(float *a, float *b);
 float _RotGVF(float *a, float *b);
 int _RotyGV(float *dir, float *base);
 

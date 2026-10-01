@@ -1040,12 +1040,12 @@ typedef struct ClipWork { /* field names derived */
     float pos[4];         /* 0x20 clipped point */
     char pad30[64];
     float radius;              /* 0x70 clip radius */
-    int skipSrc[2];            /* 0x74 the pair _Clip passes with an element, for the element
-                        the search must skip */
+    ObjNode skipSrc;           /* 0x74, the object and node _Clip passes with an element, for
+                                  the element the search must skip */
     int skipElem;              /* 0x7C */
-    int wallSrc[2];            /* 0x80 the same pair for the wall the search hit */
+    ObjNode wallSrc;           /* 0x80, the object and node of the wall the search hit */
     struct FcWallEnt *wallHit; /* 0x88, fieldCollision.h's wall record */
-    int floorSrc[2];           /* 0x8C the same pair for the floor the search hit */
+    ObjNode floorSrc;          /* 0x8C, the object and node of the floor the search hit */
     int floorHit;              /* 0x94 */
     int attr;                  /* 0x98, the attribute of the element hit */
     char pad9C[4];
@@ -1106,10 +1106,14 @@ typedef struct { /* field names derived */
 extern const ExitData exitData[]; /* exit-data, in .rodata */
 
 /* RECONSTRUCTION, PLACED BY INCLUDE PATTERN: one record for 38 TUs that carried 2 divergent local copies; this body is the one the ROM's bytes accept in the most of them. */
-typedef struct ActMail {  /* field names derived */
-    int mail;             /* 0x00 */
-    void (*func)(GObj *); /* 0x04 */
-    char pad8[8];
+/* One row of an actor's mail table (Act.mail, Act.mainMail): the message id
+   the actor listens for and the three entry points it starts.  429 ends a
+   table.  act2.c's BeforeFunc2 walks it. */
+typedef struct ActMail {        /* field names derived */
+    unsigned short mail;        /* 0x00, the message id */
+    void (*func)(GObj *);       /* 0x04, the main the actor changes to */
+    void (*motion)();           /* 0x08, the motion thread it starts */
+    void (*sub)();              /* 0x0C, the sub thread it starts */
 } ActMail; /* derived name */
 
 /* RECONSTRUCTION, PLACED BY INCLUDE PATTERN: one record for 17 TUs that carried 2 divergent local copies; this body is the one the ROM's bytes accept in the most of them. */
@@ -1358,7 +1362,7 @@ typedef struct Act { /* field names derived */
     int doorFlag;     /* 0x454, the game flag of the door script */
     float doorDist;   /* 0x458, the door's travel */
     float doorStep;   /* 0x45C, the door's step */
-    int doorMail;     /* 0x460, the door's main mail list */
+    ActMail *doorMail; /* 0x460, the door's main mail list */
     int doorCamWait;  /* 0x464, frames to wait after the camera move */
     int doorEndWait;  /* 0x468, frames to wait after the move */
     GObj *doorCamera; /* 0x46C, the camera target of the door move, 0 for none */

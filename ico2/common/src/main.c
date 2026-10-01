@@ -25,6 +25,7 @@
 #include "obj_manager.h"
 #include "StageAnimation.h"
 #include "mv_main.h"
+#include "geometryManager.h"
 #include "libgraph.h"
 #include <stdlib.h>
 
@@ -104,8 +105,6 @@ static void idle(void);
 static void scheduler(void);
 /* motionOrientManager.h carries MotOriName and declares no movieFile */
 extern char movieFile[];
-/* geometryManager.h does not declare it */
-extern void MakeCharGObjList(void);
 int movie_abort_check(void);
 
 /* the development build's Main also called debug_Menu, debug_SetBar and

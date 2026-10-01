@@ -547,7 +547,7 @@ static void makeCollisionBlockTable(float *ray)
     }
 }
 
-static inline int _clipWDebug(ClipWork *arg0, int arg1, int arg2)
+static inline int _clipWDebug(ClipWork *work, GObj *obj, int node)
 {
     int ret = 0;
     int i;
@@ -557,11 +557,11 @@ static inline int _clipWDebug(ClipWork *arg0, int arg1, int arg2)
         if (p != 0) {
             while (*p >= 0) {
                 FcWallEnt *e = &curFuzio->walls[*p];
-                if (clip_wall_1(arg0, e, 0, 1) != 0) {
-                    arg0->wallHit = e;
+                if (clip_wall_1(work, e, 0, 1) != 0) {
+                    work->wallHit = e;
                     ret = 1;
-                    arg0->wallSrc[0] = arg1;
-                    arg0->wallSrc[1] = arg2;
+                    work->wallSrc.obj = obj;
+                    work->wallSrc.node = node;
                 }
                 p++;
             }
@@ -570,7 +570,7 @@ static inline int _clipWDebug(ClipWork *arg0, int arg1, int arg2)
     return ret;
 }
 
-static inline int _clipW(ClipWork *arg0, int arg1, int arg2)
+static inline int _clipW(ClipWork *work, GObj *obj, int node)
 {
     int ret = 0;
     int i;
@@ -583,11 +583,11 @@ static inline int _clipW(ClipWork *arg0, int arg1, int arg2)
                 int val = e->attr;
                 if ((val & 0xF0000000) == 0) {
                     if ((val & 0xF0000) != 0x10000) {
-                        if (clip_wall_1(arg0, e, 0, 1) != 0) {
-                            arg0->wallHit = e;
+                        if (clip_wall_1(work, e, 0, 1) != 0) {
+                            work->wallHit = e;
                             ret = 1;
-                            arg0->wallSrc[0] = arg1;
-                            arg0->wallSrc[1] = arg2;
+                            work->wallSrc.obj = obj;
+                            work->wallSrc.node = node;
                         }
                     }
                 }
@@ -598,7 +598,7 @@ static inline int _clipW(ClipWork *arg0, int arg1, int arg2)
     return ret;
 }
 
-static inline int _clipWE(ClipWork *arg0, int arg1, int arg2)
+static inline int _clipWE(ClipWork *work, GObj *obj, int node)
 {
     int ret = 0;
     int i;
@@ -611,13 +611,13 @@ static inline int _clipWE(ClipWork *arg0, int arg1, int arg2)
                 int val = e->attr;
                 if ((val & 0xF0000000) == 0) {
                     if ((val & 0xF0000) != 0x10000) {
-                        if (arg1 != arg0->skipSrc[0] || arg2 != arg0->skipSrc[1] ||
-                            (int)e != arg0->skipElem) {
-                            if (clip_wall_1(arg0, e, 0, 0) != 0) {
-                                arg0->wallHit = e;
+                        if (obj != work->skipSrc.obj || node != work->skipSrc.node ||
+                            (int)e != work->skipElem) {
+                            if (clip_wall_1(work, e, 0, 0) != 0) {
+                                work->wallHit = e;
                                 ret = 1;
-                                arg0->wallSrc[0] = arg1;
-                                arg0->wallSrc[1] = arg2;
+                                work->wallSrc.obj = obj;
+                                work->wallSrc.node = node;
                             }
                         }
                     }
@@ -629,7 +629,7 @@ static inline int _clipWE(ClipWork *arg0, int arg1, int arg2)
     return ret;
 }
 
-static inline int _clipWEField(ClipWork *arg0, int arg1, int arg2)
+static inline int _clipWEField(ClipWork *work, GObj *obj, int node)
 {
     int found = 0;
     int i;
@@ -640,13 +640,13 @@ static inline int _clipWEField(ClipWork *arg0, int arg1, int arg2)
             while (*p >= 0) {
                 FcWallEnt *e = &curFuzio->walls[*p];
                 if ((e->attr & 0xF0000000) == 0) {
-                    if (arg1 != arg0->skipSrc[0] || arg2 != arg0->skipSrc[1] ||
-                        (int)e != arg0->skipElem) {
-                        if (clip_wall_1(arg0, e, 0, 0) != 0) {
-                            arg0->wallHit = e;
+                    if (obj != work->skipSrc.obj || node != work->skipSrc.node ||
+                        (int)e != work->skipElem) {
+                        if (clip_wall_1(work, e, 0, 0) != 0) {
+                            work->wallHit = e;
                             found = 1;
-                            arg0->wallSrc[0] = arg1;
-                            arg0->wallSrc[1] = arg2;
+                            work->wallSrc.obj = obj;
+                            work->wallSrc.node = node;
                         }
                     }
                 }
@@ -657,7 +657,7 @@ static inline int _clipWEField(ClipWork *arg0, int arg1, int arg2)
     return found;
 }
 
-static inline int _clipWR(ClipWork *arg0, int arg1, int arg2)
+static inline int _clipWR(ClipWork *work, GObj *obj, int node)
 {
     int ret = 0;
     int i;
@@ -670,11 +670,11 @@ static inline int _clipWR(ClipWork *arg0, int arg1, int arg2)
                 int val = e->attr;
                 if ((val & 0xF0000000) == 0) {
                     if ((val & 0xF0000) != 0x10000) {
-                        if (clip_wall_1(arg0, e, 1, 1) != 0) {
-                            arg0->wallHit = e;
+                        if (clip_wall_1(work, e, 1, 1) != 0) {
+                            work->wallHit = e;
                             ret = 1;
-                            arg0->wallSrc[0] = arg1;
-                            arg0->wallSrc[1] = arg2;
+                            work->wallSrc.obj = obj;
+                            work->wallSrc.node = node;
                         }
                     }
                 }
@@ -685,7 +685,7 @@ static inline int _clipWR(ClipWork *arg0, int arg1, int arg2)
     return ret;
 }
 
-static inline int _clipWField(ClipWork *arg0, int arg1, int arg2)
+static inline int _clipWField(ClipWork *work, GObj *obj, int node)
 {
     int ret = 0;
     int i;
@@ -696,11 +696,11 @@ static inline int _clipWField(ClipWork *arg0, int arg1, int arg2)
             while (*p >= 0) {
                 FcWallEnt *e = &curFuzio->walls[*p];
                 if ((e->attr & 0xF0000000) == 0) {
-                    if (clip_wall_1(arg0, e, 0, 1) != 0) {
-                        arg0->wallHit = e;
+                    if (clip_wall_1(work, e, 0, 1) != 0) {
+                        work->wallHit = e;
                         ret = 1;
-                        arg0->wallSrc[0] = arg1;
-                        arg0->wallSrc[1] = arg2;
+                        work->wallSrc.obj = obj;
+                        work->wallSrc.node = node;
                     }
                 }
                 p++;
@@ -710,7 +710,7 @@ static inline int _clipWField(ClipWork *arg0, int arg1, int arg2)
     return ret;
 }
 
-static inline int _clipWDitchHangWalkStop(ClipWork *arg0, int arg1, int arg2)
+static inline int _clipWDitchHangWalkStop(ClipWork *work, GObj *obj, int node)
 {
     int ret = 0;
     int i;
@@ -721,11 +721,11 @@ static inline int _clipWDitchHangWalkStop(ClipWork *arg0, int arg1, int arg2)
             while (*p >= 0) {
                 FcWallEnt *e = &curFuzio->walls[*p];
                 if ((e->attr & 0x30000000) != 0) {
-                    if (clip_wall_1(arg0, e, 0, 1) != 0) {
-                        arg0->wallHit = e;
+                    if (clip_wall_1(work, e, 0, 1) != 0) {
+                        work->wallHit = e;
                         ret = 1;
-                        arg0->wallSrc[0] = arg1;
-                        arg0->wallSrc[1] = arg2;
+                        work->wallSrc.obj = obj;
+                        work->wallSrc.node = node;
                     }
                 }
                 p++;
@@ -735,7 +735,7 @@ static inline int _clipWDitchHangWalkStop(ClipWork *arg0, int arg1, int arg2)
     return ret;
 }
 
-static inline int _clipWWaveForce(ClipWork *arg0, int arg1, int arg2)
+static inline int _clipWWaveForce(ClipWork *work, GObj *obj, int node)
 {
     int ret = 0;
     int i;
@@ -746,11 +746,11 @@ static inline int _clipWWaveForce(ClipWork *arg0, int arg1, int arg2)
             while (*p >= 0) {
                 FcWallEnt *e = &curFuzio->walls[*p];
                 if ((e->attr & 0xC0000000) == 0x40000000) {
-                    if (clip_wall_1(arg0, e, 0, 1) != 0) {
-                        arg0->wallHit = e;
+                    if (clip_wall_1(work, e, 0, 1) != 0) {
+                        work->wallHit = e;
                         ret = 1;
-                        arg0->wallSrc[0] = arg1;
-                        arg0->wallSrc[1] = arg2;
+                        work->wallSrc.obj = obj;
+                        work->wallSrc.node = node;
                     }
                 }
                 p++;
@@ -760,7 +760,7 @@ static inline int _clipWWaveForce(ClipWork *arg0, int arg1, int arg2)
     return ret;
 }
 
-static inline int _clipWBoxStop(ClipWork *arg0, int arg1, int arg2)
+static inline int _clipWBoxStop(ClipWork *work, GObj *obj, int node)
 {
     int ret = 0;
     int i;
@@ -773,11 +773,11 @@ static inline int _clipWBoxStop(ClipWork *arg0, int arg1, int arg2)
                 int val = e->attr;
                 if ((val & 0x70000000) == 0) {
                     if ((val & 0xF0000) != 0x10000 || (val & 0xC0000000) == 0x80000000) {
-                        if (clip_wall_1(arg0, e, 0, 1) != 0) {
-                            arg0->wallHit = e;
+                        if (clip_wall_1(work, e, 0, 1) != 0) {
+                            work->wallHit = e;
                             ret = 1;
-                            arg0->wallSrc[0] = arg1;
-                            arg0->wallSrc[1] = arg2;
+                            work->wallSrc.obj = obj;
+                            work->wallSrc.node = node;
                         }
                     }
                 }
@@ -788,7 +788,7 @@ static inline int _clipWBoxStop(ClipWork *arg0, int arg1, int arg2)
     return ret;
 }
 
-static inline int _clipWAdjustPos(ClipWork *arg0, int arg1, int arg2)
+static inline int _clipWAdjustPos(ClipWork *work, GObj *obj, int node)
 {
     int ret = 0;
     int i;
@@ -799,11 +799,11 @@ static inline int _clipWAdjustPos(ClipWork *arg0, int arg1, int arg2)
             while (*p >= 0) {
                 FcWallEnt *e = &curFuzio->walls[*p];
                 if ((e->attr & 0xC0000000) == 0xC0000000) {
-                    if (clip_wall_1(arg0, e, 0, 1) != 0) {
-                        arg0->wallHit = e;
+                    if (clip_wall_1(work, e, 0, 1) != 0) {
+                        work->wallHit = e;
                         ret = 1;
-                        arg0->wallSrc[0] = arg1;
-                        arg0->wallSrc[1] = arg2;
+                        work->wallSrc.obj = obj;
+                        work->wallSrc.node = node;
                     }
                 }
                 p++;
@@ -813,7 +813,7 @@ static inline int _clipWAdjustPos(ClipWork *arg0, int arg1, int arg2)
     return ret;
 }
 
-static inline int _clipF(ClipWork *arg0, int arg1, int arg2)
+static inline int _clipF(ClipWork *work, GObj *obj, int node)
 {
     int ret = 0;
     int i;
@@ -823,12 +823,12 @@ static inline int _clipF(ClipWork *arg0, int arg1, int arg2)
         if (p != 0) {
             while (*p >= 0) {
                 int e = curFuzio->unk14 + (int)*p * 0x70;
-                if (clip_floor_1(arg0, e, 0) != 0) {
-                    arg0->floorHit = e;
+                if (clip_floor_1(work, e, 0) != 0) {
+                    work->floorHit = e;
                     ret = 1;
-                    arg0->floorSrc[0] = arg1;
-                    arg0->floorSrc[1] = arg2;
-                    arg0->wallHit = 0;
+                    work->floorSrc.obj = obj;
+                    work->floorSrc.node = node;
+                    work->wallHit = 0;
                 }
                 p++;
             }
@@ -837,7 +837,7 @@ static inline int _clipF(ClipWork *arg0, int arg1, int arg2)
     return ret;
 }
 
-static inline int _clipFE(ClipWork *arg0, int arg1, int arg2)
+static inline int _clipFE(ClipWork *work, GObj *obj, int node)
 {
     int ret = 0;
     int i;
@@ -847,13 +847,13 @@ static inline int _clipFE(ClipWork *arg0, int arg1, int arg2)
         if (p != 0) {
             while (*p >= 0) {
                 int e = curFuzio->unk14 + (int)*p * 0x70;
-                if (arg1 != arg0->skipSrc[0] || arg2 != arg0->skipSrc[1] || e != arg0->skipElem) {
-                    if (clip_floor_1(arg0, e, 0) != 0) {
-                        arg0->floorHit = e;
+                if (obj != work->skipSrc.obj || node != work->skipSrc.node || e != work->skipElem) {
+                    if (clip_floor_1(work, e, 0) != 0) {
+                        work->floorHit = e;
                         ret = 1;
-                        arg0->floorSrc[0] = arg1;
-                        arg0->floorSrc[1] = arg2;
-                        arg0->wallHit = 0;
+                        work->floorSrc.obj = obj;
+                        work->floorSrc.node = node;
+                        work->wallHit = 0;
                     }
                 }
                 p++;
@@ -863,7 +863,7 @@ static inline int _clipFE(ClipWork *arg0, int arg1, int arg2)
     return ret;
 }
 
-static inline int _clipFIH(ClipWork *arg0, int arg1, int arg2)
+static inline int _clipFIH(ClipWork *work, GObj *obj, int node)
 {
     int ret = 0;
     int i;
@@ -874,12 +874,12 @@ static inline int _clipFIH(ClipWork *arg0, int arg1, int arg2)
             while (*p >= 0) {
                 int e = curFuzio->unk14 + (int)*p * 0x70;
                 if ((*(int *)(e + 0x60) & 0xF0000) != 0x20000) {
-                    if (clip_floor_1(arg0, e, 0) != 0) {
-                        arg0->floorHit = e;
+                    if (clip_floor_1(work, e, 0) != 0) {
+                        work->floorHit = e;
                         ret = 1;
-                        arg0->floorSrc[0] = arg1;
-                        arg0->floorSrc[1] = arg2;
-                        arg0->wallHit = 0;
+                        work->floorSrc.obj = obj;
+                        work->floorSrc.node = node;
+                        work->wallHit = 0;
                     }
                 }
                 p++;
@@ -889,7 +889,7 @@ static inline int _clipFIH(ClipWork *arg0, int arg1, int arg2)
     return ret;
 }
 
-static inline int _clipFR(ClipWork *arg0, int arg1, int arg2)
+static inline int _clipFR(ClipWork *work, GObj *obj, int node)
 {
     int ret = 0;
     int i;
@@ -899,12 +899,12 @@ static inline int _clipFR(ClipWork *arg0, int arg1, int arg2)
         if (p != 0) {
             while (*p >= 0) {
                 int e = curFuzio->unk14 + (int)*p * 0x70;
-                if (clip_floor_1(arg0, e, 1) != 0) {
-                    arg0->floorHit = e;
+                if (clip_floor_1(work, e, 1) != 0) {
+                    work->floorHit = e;
                     ret = 1;
-                    arg0->floorSrc[0] = arg1;
-                    arg0->floorSrc[1] = arg2;
-                    arg0->wallHit = 0;
+                    work->floorSrc.obj = obj;
+                    work->floorSrc.node = node;
+                    work->wallHit = 0;
                 }
                 p++;
             }
@@ -921,7 +921,7 @@ typedef struct { /* field names derived */
     int f_0;
     int f_4;
     int f_8;
-    int (*func)(ClipWork *p, int gobj, int mode);
+    int (*func)(ClipWork *work, GObj *obj, int node);
 } FcClipMode; /* derived name */
 
 /* The clip modes, then the work matrix whose translation row _Clip sets for
@@ -973,7 +973,7 @@ static void _Clip(char *self, int mode)
     float keep[4];
     float m1[16];
     FcPlane keep2;
-    int (*func)(ClipWork *, int, int);
+    int (*func)(ClipWork *, GObj *, int);
     char *obj;
     char *sub;
     char *m;
@@ -1086,7 +1086,7 @@ static void __ClipWall(ClipWork *work, int mode)
     work->slideCount = 0;
     work->floorHit = 0;
     work->wallHit = 0;
-    *(ObjNode *)work->wallSrc = InitialObjPointer;
+    work->wallSrc = InitialObjPointer;
     _Clip(work, mode);
 }
 
@@ -1112,7 +1112,7 @@ static inline void __ClipWallWithDrawRay(char *w, int mode)
 static void __ClipFloor(ClipWork *work, int mode)
 {
     work->floorHit = 0;
-    *(ObjNode *)work->floorSrc = InitialObjPointer;
+    work->floorSrc = InitialObjPointer;
     _Clip(work, mode);
 }
 
@@ -1620,13 +1620,13 @@ int GetEdgeOfFloor(float *out, FcFloorEnt *e, float *p1, float *p2)
     return i;
 }
 
-inline void GetOrientOfWall(void *out, void *wallEnt, int *src)
+inline void GetOrientOfWall(void *out, void *wallEnt, ObjNode *src)
 {
     float buf[4];
     /* NULL on the no-wall path, where the code stores 0 through it: a
        deliberate fault after the message */
     int *trap;
-    void *obj = (void *)src[0];
+    void *obj = src->obj;
 
     if (wallEnt == 0) {
         buf[1] = 0.0f;
@@ -1652,8 +1652,8 @@ inline void GetOrientOfWall(void *out, void *wallEnt, int *src)
         int *sub = (int *)(int)GOBJ_SUB(obj);
         if (sub != 0 && *(int *)((char *)sub + 0xC) != 0) {
             if (*(int *)((char *)sub + 0x78) != 0) {
-                int *p5 = (int *)src[0];
-                int idx = src[1];
+                int *p5 = (int *)src->obj;
+                int idx = src->node;
                 int *o3 = (int *)(int)GOBJ_SUB(p5);
                 sceVu0ApplyMatrix(out, (void *)(*(int *)((char *)o3 + 0xC) + (idx << 6)), buf);
                 return;
@@ -1788,7 +1788,7 @@ void ClipFloorByGObj(char *p, GObj *gobj)
     float buf1[4];
     float mtx[16];
     FcPlane keep;
-    int (*clip)(ClipWork *, int, int);
+    int (*clip)(ClipWork *, GObj *, int);
     char *m;
     char *ep;
     char *pos;

@@ -14,7 +14,7 @@
 typedef struct IOSThread {     /* field names derived */
     struct ThreadParam param;  /* 0x00 the kernel's thread record */
     int id;                    /* 0x30 kernel thread id                */
-    int arg;                   /* 0x34 argument handed to func         */
+    void *arg;                 /* 0x34 argument handed to func         */
     void (*func)();            /* 0x38 body run by iosThreadMain       */
     int flags;                 /* 0x3C, bit 0: the stack was allocated (iosThreadCreateS) */
     int sleeping;              /* 0x40 read by iosThreadMain           */
@@ -38,7 +38,7 @@ typedef struct IosSema {     /* field names derived */
 
 /* thread.c's `inline` functions, in the order of their definitions'
  * out-of-line copies at the end of the object (first-declaration order). */
-void iosThreadCreate(IOSThread *th, int no, void (*func)(), int arg, void *stack, long stackSize,
+void iosThreadCreate(IOSThread *th, int no, void (*func)(), void *arg, void *stack, long stackSize,
                      int pri);
 
 int iosThreadGetPri(IOSThread *th);
@@ -53,7 +53,7 @@ int iosSemaSignal(IosSema *self);
 int iosSemaReferStatus(IosSema *self);
 
 /* The entry points thread.c compiles in place. */
-void iosThreadCreateS(IOSThread *th, int no, void (*func)(), int arg, void *heap, long stackSize,
+void iosThreadCreateS(IOSThread *th, int no, void (*func)(), void *arg, void *heap, long stackSize,
                       int pri);
 
 void iosThreadDestroy(IOSThread *th);

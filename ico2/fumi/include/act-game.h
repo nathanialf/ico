@@ -183,7 +183,7 @@ void ACTGame_SendSoundMail(struct GObj *self, int mail, struct GObj *from, int m
 void ACTGame_LwsEffectInit(struct GObj *self);
 void ACTGame_LwsEffect_Guard(struct GObj *self);
 inline void ActGame_GetOrientQ(void *q, void *v, int deg);
-void _GetRootObjectOrient(void *orient, char *obj);
+void _GetRootObjectOrient(void *orient, struct GObj *obj);
 void ACTItemForceDrop(struct GObj *self);
 inline void GetOtherStageGirlOrient(float *orient, float *root);
 int ACTChkAttackIgnore_BOY(struct GObj *self, struct GObj *actor);

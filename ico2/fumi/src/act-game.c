@@ -53,22 +53,6 @@ typedef struct { /* field names derived */
     long long w;
 } __attribute__((packed)) U64ag;
 
-typedef struct { /* field names derived */
-    char pad0[32];
-    float _20, _24, _28;
-    char pad2C[68];
-    float _70;
-    char pad74[12];
-    int _80;
-    char pad84[4];
-    int _88;
-    int _8c;
-    char pad90[4];
-    int _94;
-    int _98;
-    char pad9C[36];
-} HandWork; /* derived name */
-
 /* The 0x194-byte-per-entry motion record table, indexed by the object's
    current motion id (obj->0x15C->0x4A0). */
 typedef struct { /* field names derived */
@@ -584,30 +568,30 @@ inline int PAIR_IsStatus_BOY_WAIT(void)
 
 inline int ACTCheckCollis_WF(float f, void *p0, void *p1, void *actor, void *posout)
 {
-    HandWork work;
+    ClipWork work;
     int flag;
     int rv;
 
-    memset(&work, 0, 0xC0);
+    memset(&work, 0, sizeof(work));
     rv = 1;
     flag = actor ? GOBJ_SUB(actor)->disp : 0;
-    work._70 = f;
-    sceVu0CopyVector(&work, p0);
-    sceVu0CopyVector((char *)&work + 0x10, p1);
+    work.radius = f;
+    sceVu0CopyVector(work.a, p0);
+    sceVu0CopyVector(work.b, p1);
     if (flag != 0) {
         GOBJ_SUB(actor)->disp = 0;
     }
     ClipWall(&work);
-    if (work._88 == 0) {
+    if (work.wallHit == 0) {
         ClipFloor(&work);
-        if (work._94 == 0) {
+        if (work.floorHit == 0) {
             rv = 0;
         }
     }
     if (posout != 0) {
-        *(float *)((char *)posout + 0) = work._20;
-        *(float *)((char *)posout + 4) = work._24;
-        *(float *)((char *)posout + 8) = work._28;
+        *(float *)((char *)posout + 0) = work.pos[0];
+        *(float *)((char *)posout + 4) = work.pos[1];
+        *(float *)((char *)posout + 8) = work.pos[2];
     }
     if (flag != 0) {
         GOBJ_SUB(actor)->disp = 1;
@@ -618,35 +602,35 @@ inline int ACTCheckCollis_WF(float f, void *p0, void *p1, void *actor, void *pos
 inline int ACTCheckCollis_W(float f, void *hand0, void *hand1, void *actor, void *posout,
                             void *magtarget, int *flagout)
 {
-    HandWork work;
+    ClipWork work;
     int flag;
     int rv;
-    int cnt;
+    struct FcWallEnt *wall;
 
-    memset(&work, 0, 0xC0);
+    memset(&work, 0, sizeof(work));
     rv = 1;
     flag = actor ? GOBJ_SUB(actor)->disp : 0;
-    work._70 = f;
-    sceVu0CopyVector(&work, hand0);
-    sceVu0CopyVector((char *)&work + 0x10, hand1);
+    work.radius = f;
+    sceVu0CopyVector(work.a, hand0);
+    sceVu0CopyVector(work.b, hand1);
     if (flag != 0) {
         GOBJ_SUB(actor)->disp = 0;
     }
     ClipWall(&work);
     if (flagout != 0) {
-        *flagout = work._98;
+        *flagout = work.attr;
     }
-    cnt = work._88;
-    if (cnt == 0) {
+    wall = work.wallHit;
+    if (wall == 0) {
         rv = 0;
     }
     if (posout != 0) {
-        *(float *)((char *)posout + 0) = work._20;
-        *(float *)((char *)posout + 4) = work._24;
-        *(float *)((char *)posout + 8) = work._28;
+        *(float *)((char *)posout + 0) = work.pos[0];
+        *(float *)((char *)posout + 4) = work.pos[1];
+        *(float *)((char *)posout + 8) = work.pos[2];
     }
-    if (cnt != 0 && magtarget != 0) {
-        GetOrientOfWall(magtarget, cnt, &work._80);
+    if (wall != 0 && magtarget != 0) {
+        GetOrientOfWall(magtarget, wall, &work.wallSrc);
     }
     if (flag != 0) {
         GOBJ_SUB(actor)->disp = 1;
@@ -679,59 +663,59 @@ void *wallGObj_ACTCheckCollis_WAY;
 /* the float is the last parameter */
 inline int ACTCheckCollis_WELL(void *p0, void *p1, void *actor, void *posout, float f)
 {
-    HandWork work;
+    ClipWork work;
     int flag;
     int rv;
 
-    memset(&work, 0, 0xC0);
+    memset(&work, 0, sizeof(work));
     rv = 1;
     flag = actor ? GOBJ_SUB(actor)->disp : 0;
-    work._70 = f;
+    work.radius = f;
     floorGObj_ACTCheckCollis_WELL = 0;
-    sceVu0CopyVector(&work, p0);
-    sceVu0CopyVector((char *)&work + 0x10, p1);
+    sceVu0CopyVector(work.a, p0);
+    sceVu0CopyVector(work.b, p1);
     if (flag != 0) {
         GOBJ_SUB(actor)->disp = 0;
     }
     ClipFloor(&work);
-    if (work._94 == 0) {
+    if (work.floorHit == 0) {
         rv = 0;
     } else {
-        floorGObj_ACTCheckCollis_WELL = (void *)work._8c;
+        floorGObj_ACTCheckCollis_WELL = work.floorSrc.obj;
     }
     if (flag != 0) {
         GOBJ_SUB(actor)->disp = 1;
     }
     if (posout != 0) {
-        *(float *)((char *)posout + 0) = work._20;
-        *(float *)((char *)posout + 4) = work._24;
-        *(float *)((char *)posout + 8) = work._28;
+        *(float *)((char *)posout + 0) = work.pos[0];
+        *(float *)((char *)posout + 4) = work.pos[1];
+        *(float *)((char *)posout + 8) = work.pos[2];
     }
     return rv;
 }
 
 inline unsigned char ACTCheckCollis_WAY(float f, void *p0, void *p1, void *actor, void *posout)
 {
-    HandWork work;
+    ClipWork work;
     int flag;
     int attr;
 
-    memset(&work, 0, 0xC0);
+    memset(&work, 0, sizeof(work));
     flag = actor ? GOBJ_SUB(actor)->disp : 0;
-    work._70 = f;
+    work.radius = f;
     wallGObj_ACTCheckCollis_WAY = 0;
-    sceVu0CopyVector(&work, p0);
-    sceVu0CopyVector((char *)&work + 0x10, p1);
+    sceVu0CopyVector(work.a, p0);
+    sceVu0CopyVector(work.b, p1);
     if (flag != 0) {
         GOBJ_SUB(actor)->disp = 0;
     }
     ClipWall(&work);
-    attr = work._98;
+    attr = work.attr;
     if (flag != 0) {
         GOBJ_SUB(actor)->disp = 1;
     }
     /* the wall record is published on both paths */
-    if (work._88 == 0) {
+    if (work.wallHit == 0) {
         if (flag != 0) {
             GOBJ_SUB(actor)->disp = 0;
         }
@@ -739,31 +723,31 @@ inline unsigned char ACTCheckCollis_WAY(float f, void *p0, void *p1, void *actor
         if (flag != 0) {
             GOBJ_SUB(actor)->disp = 1;
         }
-        if (work._88 == 0) {
+        if (work.wallHit == 0) {
             return 0;
         }
-        wallGObj_ACTCheckCollis_WAY = (void *)work._80;
+        wallGObj_ACTCheckCollis_WAY = work.wallSrc.obj;
     } else {
-        wallGObj_ACTCheckCollis_WAY = (void *)work._80;
+        wallGObj_ACTCheckCollis_WAY = work.wallSrc.obj;
     }
     if (CompareAttribute(attr, 0x30000) != 0) {
         return 0;
     }
     if (posout != 0) {
-        *(float *)((char *)posout + 0) = work._20;
-        *(float *)((char *)posout + 4) = work._24;
-        *(float *)((char *)posout + 8) = work._28;
+        *(float *)((char *)posout + 0) = work.pos[0];
+        *(float *)((char *)posout + 4) = work.pos[1];
+        *(float *)((char *)posout + 8) = work.pos[2];
     }
     return 1;
 }
 
 inline unsigned char ACTCheckCollis_VIEW(float f, void *p0, void *p1, void *actor)
 {
-    HandWork work;
+    ClipWork work;
     int flag;
     int rv;
 
-    memset(&work, 0, 0xC0);
+    memset(&work, 0, sizeof(work));
     rv = 1;
     flag = actor ? GOBJ_SUB(actor)->disp : 0;
 
@@ -771,16 +755,16 @@ inline unsigned char ACTCheckCollis_VIEW(float f, void *p0, void *p1, void *acto
         return 1;
     }
 
-    work._70 = f;
-    sceVu0CopyVector(&work, p0);
-    sceVu0CopyVector((char *)&work + 0x10, p1);
+    work.radius = f;
+    sceVu0CopyVector(work.a, p0);
+    sceVu0CopyVector(work.b, p1);
     if (flag != 0) {
         GOBJ_SUB(actor)->disp = 0;
     }
     ClipWall(&work);
-    if (work._88 == 0) {
+    if (work.wallHit == 0) {
         ClipFloor(&work);
-        if (work._94 == 0) {
+        if (work.floorHit == 0) {
             rv = 0;
         }
     }
@@ -1084,7 +1068,7 @@ inline GObj *ACTGame_GetNearestGObj(float *pos, int kind)
     return best;
 }
 
-inline void _GetRootObjectOrient(void *orient, char *obj)
+inline void _GetRootObjectOrient(void *orient, GObj *obj)
 {
     float v[4] = {0.0f, 0.0f, 1.0f, 0.0f};
     sceVu0ApplyMatrix(orient, (void *)GOBJ_SUB(obj)->nodeMtx, v);
@@ -1929,16 +1913,16 @@ static void ACTEnvGetTest(GObj *self, void *dir)
 static void ActOrientTest(GObj *self)
 {
     float v0[4];
-    HandWork w1;
+    ClipWork w1;
     float p1[4];
     float sk1[4];
     float sk2[4];
     float d1[4];
-    HandWork w2;
+    ClipWork w2;
     float p2[4];
     float d2[4];
     float c1[4];
-    HandWork w3;
+    ClipWork w3;
     float sk3[4];
     float sk4[4];
     float d3[4];
@@ -2258,22 +2242,22 @@ static void ActOrientTest(GObj *self)
     }
     if (((&motionKind[GOBJ_SUB(self)->ctrl.motion])->f_190 >> 2) & 1) {
         if (GetMotionFrameFlag1(self)) {
-            memset(&w1, 0, 0xC0);
+            memset(&w1, 0, sizeof(w1));
             GetSkeltonPosition(sk1, self, 0x33);
             GetSkeltonPosition(sk2, self, 0x2F);
             sceVu0AddVector(p1, sk1, sk2);
             sceVu0ScaleVector(p1, p1, 0.5f);
             p1[1] = p1[1] + 50.0f;
             sceVu0ScaleVector(d1, test_CURRENTORIENT(self), 50.0f);
-            sceVu0AddVector(&w1, p1, d1);
+            sceVu0AddVector(w1.a, p1, d1);
             sceVu0ScaleVector(d1, test_CURRENTORIENT(self), -50.0f);
-            sceVu0AddVector((char *)&w1 + 0x10, p1, d1);
-            w1._70 = 0.0f;
+            sceVu0AddVector(w1.b, p1, d1);
+            w1.radius = 0.0f;
             ClipWall(&w1);
-            if (CompareAttribute(w1._98, 0x2000)) {
+            if (CompareAttribute(w1.attr, 0x2000)) {
                 ACTSendMailCorrect(self, 327);
             }
-            if (CompareAttribute(w1._98, 0x20000)) {
+            if (CompareAttribute(w1.attr, 0x20000)) {
                 if (*(int *)((char *)s + 0x68C) != 0) {
                     if (GetMotionFrameFlag1(self)) {
                         char *ext;
@@ -2287,27 +2271,27 @@ static void ActOrientTest(GObj *self)
         }
     }
     if (((&motionKind[GOBJ_SUB(self)->ctrl.motion])->f_190 >> 3) & 1) {
-        memset(&w2, 0, 0xC0);
+        memset(&w2, 0, sizeof(w2));
         near = 0;
         p2[0] = test_CURRENTROOT(self)[0];
         p2[1] = test_CURRENTROOT(self)[1];
         p2[2] = test_CURRENTROOT(self)[2];
         sceVu0ScaleVector(d2, test_CURRENTORIENT(self), -50.0f);
-        sceVu0AddVector(&w2, p2, d2);
+        sceVu0AddVector(w2.a, p2, d2);
         sceVu0ScaleVector(d2, test_CURRENTORIENT(self), 50.0f);
-        sceVu0AddVector((char *)&w2 + 0x10, p2, d2);
+        sceVu0AddVector(w2.b, p2, d2);
         hitA = 0;
-        w2._70 = 0.0f;
+        w2.radius = 0.0f;
         ClipWall(&w2);
         hitB = 0;
-        if (CompareAttribute(w2._98, 0x400)) {
+        if (CompareAttribute(w2.attr, 0x400)) {
             hitA = 1;
         }
-        if (CompareAttribute(w2._98, 0xC000)) {
+        if (CompareAttribute(w2.attr, 0xC000)) {
             hitB = 1;
         }
         if (hitA || hitB) {
-            GetCollisCenterPositionSimple(c1, w2._80, w2._88);
+            GetCollisCenterPositionSimple(c1, w2.wallSrc.obj, w2.wallHit);
             if (_DistxzSqGV(c1, test_CURRENTROOT(self)) < 400.0f) {
                 near = 1;
             }
@@ -2326,7 +2310,7 @@ static void ActOrientTest(GObj *self)
         if (((int)(s->flags20.ll >> 42) & 1) == 0) {
             continue;
         }
-        memset(&w3, 0, 0xC0);
+        memset(&w3, 0, sizeof(w3));
         GetSkeltonPosition(sk3, self, 0x33);
         GetSkeltonPosition(sk4, self, 0x2F);
         sceVu0AddVector(c1, sk3, sk4);
@@ -2334,17 +2318,17 @@ static void ActOrientTest(GObj *self)
         c1[1] = c1[1] + 50.0f;
         sceVu0ScaleVector(d3, test_CURRENTORIENT(self), 50.0f);
         _ApplyRyGV(d3, -1.5707964f);
-        sceVu0AddVector(&w3, c1, d3);
+        sceVu0AddVector(w3.a, c1, d3);
         sceVu0ScaleVector(d3, test_CURRENTORIENT(self), 50.0f);
         _ApplyRyGV(d3, 1.5707964f);
-        sceVu0AddVector((char *)&w3 + 0x10, c1, d3);
+        sceVu0AddVector(w3.b, c1, d3);
         if (i == 1) {
-            SwapGV(&w3, (char *)&w3 + 0x10);
+            SwapGV(w3.a, w3.b);
         }
-        w3._70 = 0.0f;
+        w3.radius = 0.0f;
         ClipWall(&w3);
-        if (w3._88 != 0) {
-            GetOrientOfWall(ow, w3._88, &w3._80);
+        if (w3.wallHit != 0) {
+            GetOrientOfWall(ow, w3.wallHit, &w3.wallSrc);
             SetMotionDirection(self, ow);
             s->flags20.ll &= ~(1ULL << 42);
             return;

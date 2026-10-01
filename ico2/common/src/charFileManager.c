@@ -405,7 +405,7 @@ typedef struct { /* field names derived */
 /* motionOrientManager.h carries MotionDef and declares no motionKind */
 extern MotEnt motionKind[];
 
-void ReadMotionFile(void *h, int name, int size, int id, int kind, int word08, int seg)
+void ReadMotionFile(void *h, char *name, int size, int id, int kind, int word08, int seg)
 {
     systemStatus[8]++;
     if (size == 0) {

@@ -3523,7 +3523,7 @@ void subGirlCollision(GObj *volatile self)
             dir[0] = sub->dir[0];
             dir[1] = sub->dir[1];
             dir[2] = sub->dir[2];
-            GetRootMotionOrient((char *)ori, self);
+            GetRootMotionOrient(ori, self);
             rot = (float)_RotyGV(ori, dir);
             dir[1] = ori[1] = 0.0f;
             sceVu0Normalize(dir, dir);

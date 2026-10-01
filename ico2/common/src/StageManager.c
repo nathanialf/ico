@@ -181,8 +181,8 @@ static void start_stage_Load_thread(int stage)
         iosThreadCancelWakeup(0);
         gsb_SetMotionBlur();
         current_stage_no = stage;
-        iosThreadCreateS(initIcoMiscThread, 1, InitIcoMisc, (int)&stage_no, ios_partition_root,
-                         0x18000, 27);
+        iosThreadCreateS(initIcoMiscThread, 1, InitIcoMisc, &stage_no, ios_partition_root, 0x18000,
+                         27);
         iosThreadStart(initIcoMiscThread);
         flags = initIcoMiscThread[15];
         debug_StdPrintfDummy("auto stack %d\n", (int)flags & 1);
