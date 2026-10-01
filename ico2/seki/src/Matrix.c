@@ -4,10 +4,10 @@
 #include <assert.h>
 
 /* Quadword copy of 64 bytes, parallel form: four lq into four distinct
-   scratch GPRs, then four sq.  The latency-hiding shape the ROM uses in
-   _CopyMatrix.  Only this TU has it, so it is defined here rather than in
-   ../common/include/typedef.h with the wrappers other trees share. */
-#define QCOPY64_PARALLEL(s0, s1, s2, s3)                                                           \
+   scratch GPRs, then four sq.  Only this file has it, so it is defined here
+   rather than in ../common/include/typedef.h with the wrappers other trees
+   share. */
+#define QCOPY64_PARALLEL(s0, s1, s2, s3) /* derived name */                                        \
     __asm__ __volatile__("lq " s0 ", 0($5)" : : : "memory");                                       \
     __asm__ __volatile__("lq " s1 ", 0x10($5)" : : : "memory");                                    \
     __asm__ __volatile__("lq " s2 ", 0x20($5)" : : : "memory");                                    \
@@ -21,7 +21,7 @@
 static float scaleWorkMatrix[4][4] = {{1.0f, 0.0f, 0.0f, 0.0f},
                                       {0.0f, 1.0f, 0.0f, 0.0f},
                                       {0.0f, 0.0f, 1.0f, 0.0f},
-                                      {0.0f, 0.0f, 0.0f, 1.0f}};
+                                      {0.0f, 0.0f, 0.0f, 1.0f}}; /* derived name */
 
 #include "Matrix.h"
 
@@ -408,25 +408,15 @@ inline void _InverseCurrentMatrix(void)
     VU0_V3OP_BC(vmaddw.xyzw, 7, 0, 17, w);
 }
 
-/* .data, 0x200 zero bytes after scaleWorkMatrix (0x290920..0x290B20), which
-   the retail link added to the 0x40 MAIN.MAP gives Matrix.o in January.
-   What the bytes pin: an initialised object of 32 quadwords, the size of
-   the VU0 register file these two routines save, in .data after the scale
-   matrix.  What they cannot: its type and its reader, since no word of the
-   ROM addresses it (the saves go to VU0 memory through vi15). */
+/* 32 quadwords, the size of the VU0 register file the push and pop save;
+   nothing addresses it (the saves go to VU0 memory through vi15). */
 static float vu0RegisterSave[32][4] = {{0.0f}}; /* derived name */
 
-/* RECONSTRUCTION: .bss, 0x200 bytes (VMA 0x67BDD0..0x67BFD0) between Light.o's
-   and MicroCode.o's runs, where Matrix.o sits in the link.  MAIN.MAP gives
-   Matrix.o no .bss in January; retail's Matrix.o also gained the 0x200-byte
-   save area above and the push depth, and this is a second object of the
-   same 32 quadwords.  What the bytes pin: an uninitialised object of that
-   size in that place, with no reference in the ROM.  What they cannot pin:
-   its type, name or reader. */
+/* a second save area of the same 32 quadwords, uninitialised; nothing
+   addresses it */
 static float vu0RegisterSaveWork[32][4]; /* derived name */
 
-/* .sdata, the VU0 register save depth the push and pop check, then the
-   assert text: retail added both (MAIN.MAP gives Matrix.o no .sdata). */
+/* the VU0 register save depth the push and pop check */
 static int vu0PushDepth = 0; /* derived name */
 
 void _PushVu0Registers(void)
@@ -1038,7 +1028,7 @@ inline void _GetRandomVector0(void *p0)
     VU0_LSV(sqc2, 1, 0x0, 4);
 }
 
-static inline void _MakeNormal3(void *dst, void *verts, int i0, int i1, int i2)
+static inline void _MakeNormal3(void *dst, void *verts, int i0, int i1, int i2) /* derived name */
 {
     char *v0 = (char *)((i0 << 4) + (int)verts);
     char *v1 = (char *)((i1 << 4) + (int)verts);
@@ -1068,7 +1058,8 @@ static inline void _MakeNormal3(void *dst, void *verts, int i0, int i1, int i2)
     VU0_LSV_R(sqc2, 26, 0x0, dst);
 }
 
-static inline void _MakeNormal4(void *dst, void *verts, int i0, int i1, int i2, int i3)
+static inline void _MakeNormal4(void *dst, void *verts, int i0, int i1, int i2,
+                                int i3) /* derived name */
 {
     float k;
     char *v0 = (char *)((i0 << 4) + (int)verts);
@@ -1120,7 +1111,8 @@ static inline void _MakeNormal4(void *dst, void *verts, int i0, int i1, int i2, 
     VU0_LSV_R(sqc2, 30, 0x0, dst);
 }
 
-static inline void _MakeNormal5(void *dst, void *verts, int i0, int i1, int i2, int i3, int i4)
+static inline void _MakeNormal5(void *dst, void *verts, int i0, int i1, int i2, int i3,
+                                int i4) /* derived name */
 {
     float k;
     char *v0 = (char *)((i0 << 4) + (int)verts);

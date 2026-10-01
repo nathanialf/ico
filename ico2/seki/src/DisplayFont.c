@@ -1,4 +1,3 @@
-/* .data, carved VMA 0x4EE5F0..0x4EE6F0 (1 symbols), bytes verified against the target ELF */
 #include "DisplayFont.h"
 #include "debug.h"
 #include <string.h>
@@ -50,11 +49,8 @@ inline void font_Init(void)
     fontColorR = 128;
 }
 
-/* SRCFILE places this helper's rows (seki/src/DisplayFont.c:99-103) INSIDE
-   font_CheckAlign's own span (def line 95, body 110-143), i.e. it was a
-   function-local helper in the 2001 source; it is fully inlined at all
-   eight call sites, so the placement emits no bytes of its own. */
-static inline int font_HexDigit(char c)
+/* A hex digit's value; inlined at all eight call sites. */
+static inline int font_HexDigit(char c) /* derived name */
 {
     int r = -1;
 
@@ -111,9 +107,9 @@ int font_CheckAlign(unsigned char *col, unsigned char *str)
     return fontAlign;
 }
 
-typedef struct {
+typedef struct { /* field names derived */
     unsigned char f[4];
-} SprCol;
+} SprCol; /* derived name */
 
 void font_Print(unsigned int color, unsigned char *str, float x, float y, int align, SprCol col)
 {
@@ -127,7 +123,8 @@ void font_Print(unsigned int color, unsigned char *str, float x, float y, int al
     float cy;
     float fw;
 
-    inline float drawOne(float px, float py, int u, int v, int cw, int dp1, int fontw)
+    inline float drawOne(float px, float py, int u, int v, int cw, int dp1,
+                         int fontw) /* derived name */
     {
         float fcw = (float)cw, fh = (float)(fontw * 640 / ScreenWidth);
         int gsofs = 0x8000;
@@ -146,7 +143,7 @@ void font_Print(unsigned int color, unsigned char *str, float x, float y, int al
         return px + fcw + 1.0f;
     }
 
-    inline int measure(unsigned char *s, unsigned char *d)
+    inline int measure(unsigned char *s, unsigned char *d) /* derived name */
     {
         int brace = 0;
         int width = 0;

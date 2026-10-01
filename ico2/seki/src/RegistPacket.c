@@ -17,8 +17,7 @@
 #include "DmaPacket.h"
 #include <assert.h>
 
-/* .sdata, RegistPacket.o's run (MAIN.MAP 0xA): the scissor switch
-   reg_SetScissorSw sets and reg_Init clears, then the assert text. */
+/* the scissor switch reg_SetScissorSw sets and reg_Init clears */
 static int scissorSw = 0; /* derived name */
 
 void reg_setShape(Sub15C *o, int idx, int flag, PacHeader *pkt, char *mat)
@@ -143,14 +142,14 @@ void reg_setShape(Sub15C *o, int idx, int flag, PacHeader *pkt, char *mat)
     }
 }
 
-typedef union {
+typedef union { /* field names derived */
     sceVu0IVECTOR c;
     unsigned long long w[2];
-} RegColor;
+} RegColor; /* derived name */
 
-typedef struct {
+typedef struct { /* field names derived */
     int e[12][2];
-} RegBoxLines;
+} RegBoxLines; /* derived name */
 
 void reg_dispBoxLine(PacHeader *pk)
 {
@@ -223,7 +222,7 @@ int reg_clipPacketBoundingBox(PacHeader *pk)
     return ret;
 }
 
-/* kept local: MicroCode.h does not compile in this TU (too few arguments to function `mc_TransMicroCode') */
+/* MicroCode.h is not included: its mc_TransMicroCode does not agree with this file */
 extern void
 mc_TransMicroCode(); /* K&R: called 1-ary here and 2-ary in reg_DispAccessoryWithShadow */
 
@@ -240,7 +239,7 @@ void reg_transMicroCode(Sub15C *a0, int mask)
     mc_TransMicroCode(2);
 }
 
-/* kept local: MicroCode.h does not compile in this TU (too few arguments to function `mc_TransMicroCode') */
+/* MicroCode.h is not included: its mc_TransMicroCode does not agree with this file */
 extern void mc_SetMicroCode();
 
 void reg_chooseMicroCode(char *self, int b, int c)
@@ -262,26 +261,16 @@ void reg_chooseReflectionMicroCode(int a0, int a1, int a2)
 
 /* One 64-bit slot of a DMA/GIF packet: written either as the whole qword
    (DMAtag, GIFtag, A+D data) or as its two 32-bit halves. */
-typedef union {
+typedef union { /* field names derived */
     long long d;
     int w[2];
-} RegPkWord;
+} RegPkWord; /* derived name */
 
 /* the quadword copy type src/Primitive.c and src/Shadow.c use */
-typedef int Qw128 __attribute__((mode(TI)));
+typedef int Qw128 __attribute__((mode(TI))); /* derived name */
 
 /* PacketBufferStruct (DmaPacket.h): every packet address (dma, ptr, tail,
- * gif, end) is one pointer union, read and written through its members, so
- * each field access is alias set 0 (c-common.c c_get_alias_set: a reference
- * through a union). WHAT THE BYTES PIN (reg_setEMatrixPacket): its typed packet words
- * keep every ptr store alive through flow's dead-store scan and stay in source
- * order with the ptr, tail and gif stores, while the two parameter homes, which
- * no typed packet word of another type may alias, sink below them (measured:
- * char pointer fields leave the ptr stores dead, 116 of 128 words; char
- * pointer tail and gif sink below the packet; union packet words pin the
- * homes above it). WHAT THEY CANNOT PIN: the member names and
- * types beyond one 64-bit packet pointer and one byte pointer. The matched
- * functions of this TU are byte-identical under either field typing. */
+ * gif, end) is one pointer union, read and written through its members. */
 
 char *reg_setNMatrixPacket(Sub15C *o, int idx)
 {
@@ -392,16 +381,16 @@ char *reg_setNMatrixPacket(Sub15C *o, int idx)
     return pkt;
 }
 
-typedef struct {
+typedef struct { /* field names derived */
     float x;
     float y;
     float z;
     float w;
-} RegVec;
+} RegVec; /* derived name */
 
-typedef struct {
+typedef struct { /* field names derived */
     RegVec r[4];
-} RegMtx;
+} RegMtx; /* derived name */
 
 char *reg_setMMatrixPacket(Sub15C *o, int idx)
 {
@@ -624,9 +613,9 @@ void reg_setCMatrixPacket(Sub15C *o, float alpha, int prilist)
         PacketBufferStruct.ptr.c = c + 0xC;
         PacketBufferStruct.gif.c = c + 0xC;
         *(int *)PacketBufferStruct.gif.c = 0x6C088000;
-        /* the two light matrices go in through the cursor post-increment src/Primitive.c's
-         * setLight uses; the listing's line 1217 has no instruction, the c + 0x10 store
-         * being dead under the first increment's store */
+        /* the two light matrices go in through the cursor post-increment
+         * src/Primitive.c's setLight uses; the c + 0x10 store is overwritten
+         * by the first increment's store */
         PacketBufferStruct.ptr.c = c + 0x10;
         _CopyMatrix(((float (*)[16])PacketBufferStruct.ptr.c)++, (char *)o->lightMtx);
         _CopyMatrix(((float (*)[16])PacketBufferStruct.ptr.c)++, (char *)o->lightMtx + 64);
@@ -683,14 +672,7 @@ static const unsigned int regSpecularPacket[5][4] __attribute__((aligned(16))) =
     {0x48, 0x80, 0x42, 0}, {0x15000000, 0, 0, 0},
 };
 
-/* This helper has NO NAME IN THE DISC MAPS, so the name is ours, from what it
-   draws (the specular pass).  The retail object out-of-lines it and tail-calls it from all six
-   reg_disp* functions; the January listing inlines the same block at every site
-   (it cites RegistPacket.c lines 1290-1313 inside reg_dispCObj) and so gives it
-   no label, and MAIN.MAP has no global for it.  A helper the map does not export
-   is a file static, which is what it is here.  Every other function of the TU
-   aligns one-to-one with the listing around it, between reg_setCMatrixPacket and
-   reg_transMaterialPacket. */
+/* The specular pass, a file static all six reg_disp* functions tail-call. */
 static void reg_dispSpecular(PacHeader *a0, int a1, int a2) /* derived name */
 {
     short h;
@@ -796,21 +778,14 @@ void reg_resetDissolve(int a0)
     dl_CloseDma();
 }
 
-/* INTERIM (see the GetSkeltonFocusNode note in src/motionManager2.c): the
-   listing inlines reg_TransTexturePacket (line 1259) into reg_RenderReflection
-   and reg_DispMultiPri, so it is `inline` in the dev's TU; while this tail
-   still has asm members a deferred inline would land at the object end instead
-   of at its ROM slot, so the public body stays a plain definition there and the
-   C callers that inline it call this static stand-in.
-   Collapses to one `inline` definition at layout. */
-static inline void regTransTexturePacket(int tex, int pri)
+/* a file-static copy of reg_TransTexturePacket, which reg_RenderReflection
+   and reg_DispMultiPri inline */
+static inline void regTransTexturePacket(int tex, int pri) /* derived name */
 {
     if (tex >= 0) {
         texturetranssize += tex_TransTexture(tex, pri);
     }
 }
-
-/* ===== su-a sweep begin ===== */
 
 static void reg_dispSpecular(PacHeader *pkt, int r, int c);
 
@@ -823,12 +798,9 @@ static const unsigned int regReflectionPacket[6][4] __attribute__((aligned(16)))
     {0, 0, 0x49, 0},       {0x48, 0x80, 0x42, 0},        {0x15000000, 0, 0, 0},
 };
 
-/* INTERIM, same rule as regTransTexturePacket above: reg_GetShinePri
-   (listing line 705) is `inline` in the dev's TU -- its body is inlined into
-   the whole reg_disp*Obj / reg_Disp* family -- but it also owns a ROM slot,
-   so the public body stays a plain definition at that slot and the C callers
-   that inline it call this static stand-in. */
-static inline int regGetShinePri(int a0)
+/* a file-static copy of reg_GetShinePri, which the reg_disp*Obj and
+   reg_Disp* functions inline */
+static inline int regGetShinePri(int a0) /* derived name */
 {
     switch (a0) {
     case 1:
@@ -841,9 +813,8 @@ static inline int regGetShinePri(int a0)
     return 7;
 }
 
-/* Inline-only helper (listing lines 727-752, no MAIN.MAP symbol): pick the
-   display-list priority for one material and install it. */
-static inline int regMaterialDLPri(int *grp, int nodeIdx, int *ext, float fade)
+/* Pick the display-list priority for one material and install it. */
+static inline int regMaterialDLPri(int *grp, int nodeIdx, int *ext, float fade) /* derived name */
 {
     char *mat = (char *)(*grp + nodeIdx * 0x70);
     int pri = 0;
@@ -943,10 +914,7 @@ void reg_dispNObj(Sub15C *o)
     }
 }
 
-/* The ROM emits this template after the reflection message reg_dispNObj
-   prints: in the listing that message and the reflection packet sit in a
-   helper at lines 1345-1377, above reg_resetDissolve (line 1479), which every
-   reg_disp* function inlines. */
+/* the packet that resets the dissolve state */
 static const unsigned int regDissolveResetPacket[4][4] __attribute__((aligned(16))) = {
     /* derived name */
     {0, 0, 0, 0x6C028000},
@@ -1310,10 +1278,10 @@ void reg_dispPoint(char *node, float alpha, int idx, int flag)
 }
 
 /* a float's bits as the GS ST register takes them */
-typedef union {
+typedef union { /* field names derived */
     float f;
     unsigned int u;
-} RegFloatBits;
+} RegFloatBits; /* derived name */
 
 void reg_dispLine(char *node, float alpha)
 {
@@ -1691,8 +1659,6 @@ void reg_DispAccessoryWithShadow(Sub15C *o, Sub15C *src)
     }
 }
 
-/* ===== su-a sweep end ===== */
-
 void reg_RenderReflection(Sub15C *o, int pri)
 {
     PObjModel *mdl;
@@ -1731,8 +1697,8 @@ void reg_RenderReflection(Sub15C *o, int pri)
 }
 
 /* The sixteen bytes that close the enemy matrix packet: the VIF MSCAL 0x10
-   code and three zero words, copied as one quadword (the ROM's lq/sq pair). */
-static const sceVu0IVECTOR regEnemyEndTag = {0x15000010, 0, 0, 0};
+   code and three zero words, copied as one quadword. */
+static const sceVu0IVECTOR regEnemyEndTag = {0x15000010, 0, 0, 0}; /* derived name */
 
 void reg_DispEnemy(void *sub)
 {
@@ -1755,10 +1721,7 @@ void reg_DispEnemy(void *sub)
             int n;
 
             /* the object's matrix count through the object record, the view
-             * reg_setMMatrixPacket takes of o: an in-struct reference, so the
-             * frame home of i does not wait for the loop test (alias.c
-             * fixed_scalar_and_varying_struct_p); `*(int *)((char *)o + 8)` in the
-             * loop test costs the blez delay slot */
+             * reg_setMMatrixPacket takes of o */
             n = o->nodeNum * 4;
             c = PacketBufferStruct.ptr.c;
             PacketBufferStruct.tail.c = c;

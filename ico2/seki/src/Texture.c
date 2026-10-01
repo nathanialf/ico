@@ -15,23 +15,19 @@
 #include <assert.h>
 #include <stdio.h>
 
-/* One mipmap level of a texture record: the ROM reads addr with lw at +0, dbw
- * and vramSize with lh at +4 and +6, and indexes a 13-entry short table at +8
- * by the display list priority (tex_initTM2's clear loops run j from 12 down
- * to 0). The stride between levels is 0x24. The CLUT gets a record of its own
- * at 0xE4 and the image's mipmap levels an array at 0x108: that split is what
- * makes the ROM multiply the loop index by 0x24 and fold the 0x108 into the
- * displacement instead of adding one to the index. The array length is not
- * pinned by the ROM, only the two bases and the stride; tex_initTM2 clears
- * seven of them and they end at 0x204, below the TIM2 picture header the
- * record keeps at 0x208. */
-typedef struct TexLevel {
+/* One mipmap level of a texture record, 0x24 bytes: the address, the buffer
+ * width and the VRAM size, and a 13-entry short table indexed by the display
+ * list priority (tex_initTM2's clear loops run j from 12 down to 0).  The CLUT
+ * has a record of its own at 0xE4 and the image's mipmap levels an array at
+ * 0x108; tex_initTM2 clears seven of them and they end at 0x204, below the
+ * TIM2 picture header the record keeps at 0x208. */
+typedef struct TexLevel { /* field names derived */
     void *addr;
     short dbw;
     short vramSize;
     short tbp[13];
     short pad22;
-} TexLevel;
+} TexLevel; /* derived name */
 
 /* the 0x40-byte block the ICO tools append to the TIM2 header, recognised by
  * its "ICO" magic and copied whole into the first 0x40 bytes of the record's
@@ -64,7 +60,7 @@ typedef struct Tim2Ext { /* field names derived */
     /* MIPMAPK and MIPMAPL */
     short mipmapK;
     short mipmapL;
-} Tim2Ext;
+} Tim2Ext; /* derived name */
 
 /* the texture's UV packet at 0xA8 of the texture record, three quadwords the
  * record hands the display list: the two scroll offsets tex_textureAnimation
@@ -74,15 +70,15 @@ typedef struct TexUV { /* field names derived */
     float uOfs;
     float vOfs;
     char pad18[24];
-} TexUV;
+} TexUV; /* derived name */
 
 /* the record's own five-quadword GS packet at 0x58 (the GIF tag, TEX1 and
  * TEST_1 with their register addresses, and the closing tag), built word by
  * word and register by register; d[4] is the TEX1 value and d[6] TEST_1 */
-typedef union TexPkt {
+typedef union TexPkt { /* field names derived */
     int w[20];
     long long d[10];
-} TexPkt;
+} TexPkt; /* derived name */
 
 /* the animation record at 0x268 of the texture record. It opens with the
  * 0x40-byte ICO block copied off the TIM2 header and continues with the state
@@ -109,9 +105,9 @@ typedef struct TexExt { /* field names derived */
     unsigned short pad6F : 1;
     short partition; /* the allocator partition the record was built in */
     char pad72[6];
-} TexExt;
+} TexExt; /* derived name */
 
-/* PUBLIC SDK NAMING RUNG: the TIM2 picture header. The fields this TU reads off
+/* the TIM2 picture header.  The fields this file reads off
  * it are clutColors at 0x0E, clutType at 0x12 (masked with 0x3F where the
  * compound bits have to go), imageType at 0x13 and the width and height at
  * 0x14 and 0x16. */
@@ -131,19 +127,19 @@ typedef struct Tim2Picture {
     unsigned long long GsTex1;
     unsigned int GsRegs;
     unsigned int GsTexClut;
-} Tim2Picture;
+} Tim2Picture; /* derived name */
 
-/* PUBLIC SDK NAMING RUNG: the mipmap header that follows the picture header
- * when there is more than one level, two MIPTBP registers and then one image
- * size per level. tex_makeTexturePacket proves the split: it copies 0x30 bytes
- * of picture header into the record and a second 0x30 bytes of mipmap header
- * after it, and it steps over a variable number of size words through the
- * mipmap_header_size table before it reaches the ICO block. */
+/* the TIM2 mipmap header that follows the picture header when there is more
+ * than one level, two MIPTBP registers and then one image size per level.
+ * tex_makeTexturePacket copies 0x30 bytes of picture header into the record
+ * and a second 0x30 bytes of mipmap header after it, and steps over a variable
+ * number of size words through the mipmap_header_size table before it reaches
+ * the ICO block. */
 typedef struct Tim2Mipmap {
     unsigned long long GsMiptbp1;
     unsigned long long GsMiptbp2;
     unsigned int sizes[8];
-} Tim2Mipmap;
+} Tim2Mipmap; /* derived name */
 
 typedef struct CdvdRec { /* field names derived */
     /* the trimmed name tex_GetTextureNo compares against, and behind it the
@@ -169,31 +165,25 @@ typedef struct CdvdRec { /* field names derived */
     /* the animation record, opening with the 0x40-byte ICO block copied
      * whole from the TIM2 header */
     TexExt ext;
-} CdvdRec;
+} CdvdRec; /* derived name */
 
 /* one texture slot, 0x2E8 bytes: eight bytes the record follows. The code
  * passes the record itself around (the address of slot + 8). */
-typedef struct TexEntry {
+typedef struct TexEntry { /* field names derived */
     char head[8];
     CdvdRec rec;
-} TexEntry;
+} TexEntry; /* derived name */
 
-/* .sbss, Texture.o's two words in the ROM's order (MAIN.MAP line 7580 sizes
-   the run 8 and names no symbol in it, so the names are ours): the row
-   tex_Tool has selected, and the number of texture slots in use. */
-static int toolRow;
+/* the row tex_Tool has selected, and the number of texture slots in use */
+static int toolRow; /* derived name */
 
-static int texCount;
+static int texCount; /* derived name */
 
-typedef struct TexClutEnt {
+typedef struct TexClutEnt { /* field names derived */
     int f0;
     int f4;
     int f8;
-} TexClutEnt;
-
-/* .data, Texture.o's whole run in the ROM's order (MAIN.MAP line 5807, 0xB0;
-   the map names mipmap_header_size at +0 and textype at +0x68, the other
-   four are file statics it does not name, so their names are ours). */
+} TexClutEnt; /* derived name */
 
 /* the TIM2 mipmap header size by mipmap level count */
 int mipmap_header_size[] = {0, 0, 32, 32, 32, 48, 48, 48};
@@ -202,40 +192,34 @@ int mipmap_header_size[] = {0, 0, 32, 32, 32, 48, 48, 48};
    factors the buffer width and size arithmetic reads */
 static TexClutEnt psmTable[] = {
     {0, 0, 0}, {2, 4, 4}, {1, 3, 2}, {0, 2, 2}, {20, 1, 1}, {19, 2, 1},
-};
+}; /* derived name */
 
 /* one string per TIM2 image type, printed with %8s */
 char *textype[] = {"NONE", "PSMCT16", "PSMCT24", "PSMCT32", "PSMT4", "PSMT8"};
 
 /* one VRAM slot per display list priority: the free-address cursor, the top of
  * the region and the texture id the slot last had programmed. */
-typedef struct VramPri {
+typedef struct VramPri { /* field names derived */
     short f0;
     short f1;
     short f2;
-} VramPri;
+} VramPri; /* derived name */
 
-/* .bss, Texture.o's run in the ROM's order (MAIN.MAP line 7685 names no symbol
- * in it, so the names are ours; 0x245D0 there is the January object before the
- * retail revision added headTbp): the VRAM slot per display list priority, the
- * 200 texture slots, the head TBP tex_LockHeadTBP holds per priority, and the
- * working copy of the selected texture's ICO block tex_Tool edits. */
-static VramPri vramPri[13];
+/* the VRAM slot per display list priority, the 200 texture slots, the head
+ * TBP tex_LockHeadTBP holds per priority, and the working copy of the
+ * selected texture's ICO block tex_Tool edits */
+static VramPri vramPri[13]; /* derived name */
 
-static TexEntry texTable[200];
+static TexEntry texTable[200]; /* derived name */
 
-static int headTbp[14];
+static int headTbp[14]; /* derived name */
 
-static Tim2Ext toolExt;
+static Tim2Ext toolExt; /* derived name */
 
-/* The two VRAM bump allocators tex_AllocVramAuto dispatches to. The listing
-   attributes them to two separate line runs of Texture.c (533/535 and
-   558/560) whose tails jump.c cross-jumped into the one shared copy at
-   563/565/566, which is what makes tex_AllocVramAuto's two switch arms share
-   everything from the limit test down. Both names are ours: an inlined static
-   leaves no symbol for the map to record. The limits are the texture and CLUT
-   ends of the 16 KB VRAM window the priority table hands out. */
-static inline int texAllocTexVram(int size)
+/* The two VRAM bump allocators tex_AllocVramAuto dispatches to.  The limits
+   are the texture and CLUT ends of the 16 KB VRAM window the priority table
+   hands out. */
+static inline int texAllocTexVram(int size) /* derived name */
 {
     int pri = dl_GetPri();
     int ret;
@@ -248,7 +232,7 @@ static inline int texAllocTexVram(int size)
     return ret;
 }
 
-static inline int texAllocClutVram(int size)
+static inline int texAllocClutVram(int size) /* derived name */
 {
     int pri = dl_GetPri();
     int ret;
@@ -276,11 +260,11 @@ int tex_AllocVramAuto(int kind, int size)
     return ret;
 }
 
-/* kept local: agrees with GifPacket.h, which this TU does not include (gif_SpriteSensitiveOrg differs) */
+/* as in GifPacket.h, which this TU does not include */
 extern void gif_StartPacketPri(int pri);
-/* kept local: agrees with GifPacket.h, which this TU does not include (gif_SpriteSensitiveOrg differs) */
+/* as in GifPacket.h, which this TU does not include */
 extern void gif_SetGsReg(long long reg, long long val);
-/* kept local: agrees with GifPacket.h, which this TU does not include (gif_SpriteSensitiveOrg differs) */
+/* as in GifPacket.h, which this TU does not include */
 extern void gif_EndPacket(void);
 
 /* "0" */
@@ -348,13 +332,10 @@ int tex_loadImage(unsigned int addr, CdvdRec *tex, int idx, short dbp, short dbw
     return size << 4;
 }
 
-/* INTERIM (see the iosThreadCreate note in ios/thread.c): the listing inlines
- * tex_GetTWTH into tex_setTexReg and tex_TransTextureDefocus, so it is a
- * public `inline` of the
- * deferred tail; until tex_Init, which sits between the tail's members, is C,
- * the copy is emitted at its ROM position and the callers inline this static
- * stand-in, which collapses at layout. */
-static inline int getTWTH(int a0)
+/* a file-static copy of tex_GetTWTH, which tex_setTexReg and
+ * tex_TransTextureDefocus inline: the exponent of the smallest power of two
+ * at least a0, -1 past 1024 */
+static inline int getTWTH(int a0) /* derived name */
 {
     int ret = -1;
     int i;
@@ -367,22 +348,16 @@ static inline int getTWTH(int a0)
     return ret;
 }
 
-/* The GS A+D writer this TU expands at every site. It is a MACRO and not the
- * static inline stand-in src/GifPacket.c carries, and the ROM says which:
- * expanded here, the packet cursor is read and bumped BEFORE the register
- * value is computed (`lw 0x10`, save, `addiu 8`, `sw 0x10`, then the forty
- * instructions of the value, then the `sd`), and the second write re-reads
- * the cursor. Through an inline function the value is an argument, so it is
- * computed first and the second write reuses the bumped cursor in a register:
- * two instructions short per packet, measured on all four of them. */
-#define setGsReg(reg, val)                                                                         \
+/* The GS A+D writer, a macro: the packet cursor is bumped before the
+ * register value is computed. */
+#define setGsReg(reg, val) /* derived name */                                                      \
     {                                                                                              \
         *PacketBufferStruct.ptr.d++ = (val);                                                       \
         *PacketBufferStruct.ptr.d++ = (reg);                                                       \
     }
 /* the record carries seven mipmap levels, so a level index is clamped to the
  * last one before it indexes lv[] */
-#define TEXLV(n) ((n) < 7 ? (n) : 6)
+#define TEXLV(n) ((n) < 7 ? (n) : 6) /* derived name */
 
 void tex_setTexReg(Tim2Picture *pic, CdvdRec *t, int levels, int lv, int clut)
 {
@@ -437,10 +412,8 @@ void tex_setTexReg(Tim2Picture *pic, CdvdRec *t, int levels, int lv, int clut)
     gif_EndPacket();
 }
 
-/* listing rows 708-710: a file-static helper with no symbol of its own, so the
- * January-2002 build inlined it at its only call site. It claims one VRAM
- * buffer per level for the current display list priority. */
-static inline void texAllocVram(CdvdRec *t, int levels, int lv)
+/* Claim one VRAM buffer per level for the current display list priority. */
+static inline void texAllocVram(CdvdRec *t, int levels, int lv) /* derived name */
 {
     int i;
 
@@ -450,14 +423,10 @@ static inline void texAllocVram(CdvdRec *t, int levels, int lv)
     }
 }
 
-/* listing rows 677 and 694: the level upload, a second file-static helper
- * inlined at both call sites. Its parameters are ints, so the short loads of
- * the buffer slot, the buffer width and the format word are folded into the
- * narrowing for tex_loadImage's short parameters on row 694, while the address
- * needs no narrowing and is loaded on row 677, the header, where the inlined
- * copy of the argument is made. */
+/* The level upload, inlined at both call sites; its parameters are ints,
+ * narrowed to tex_loadImage's shorts at the call. */
 static inline int texLoadLevel(void *addr, CdvdRec *t, int n, int dbp, int dbw, int dpsm, int w,
-                               int h)
+                               int h) /* derived name */
 {
     return tex_loadImage((unsigned int)addr, t, n, dbp, dbw, dpsm, 0, 0, w, h);
 }
@@ -484,9 +453,8 @@ int tex_transVramClutTex(Tim2Picture *pic, CdvdRec *t, int levels, int lv)
     return total;
 }
 
-/* listing rows 732-733: the same claim loop as texAllocVram's tail without the
- * CLUT, a 2001 copy of it. */
-static inline void texAllocLevels(CdvdRec *t, int levels, int lv)
+/* the same claim loop as texAllocVram's tail without the CLUT */
+static inline void texAllocLevels(CdvdRec *t, int levels, int lv) /* derived name */
 {
     int i;
 
@@ -568,16 +536,12 @@ int tex_transTM2(Tim2Picture *pic, CdvdRec *t, int id, int pri)
     return ret;
 }
 
-/* listing rows 479-500: a file-static helper with no symbol of its own, so the
- * January-2002 build inlined it; it is inlined three times in this TU, twice in
- * tex_initClutTexture and once here, and each copy owns its own jump table. It
- * turns a width in texels into the GS buffer width in units of 64. The case
- * list is read out of the ROM's own table words: the eleven arm-A indices are
- * PSMCT32, PSMCT24, PSMCT16, PSMCT16S, PSMT8H, PSMT4HL, PSMT4HH, PSMZ32,
- * PSMZ24, PSMZ16 and PSMZ16S, and the two arm-B indices are the two
- * half-a-texel-per-byte formats PSMT8 and PSMT4, which round up to an even
- * number of blocks. */
-static inline int texTBW(TexClutEnt *e, int w)
+/* Turn a width in texels into the GS buffer width in units of 64; inlined
+ * twice in tex_initClutTexture and once here.  The first arm's eleven formats
+ * are PSMCT32, PSMCT24, PSMCT16, PSMCT16S, PSMT8H, PSMT4HL, PSMT4HH, PSMZ32,
+ * PSMZ24, PSMZ16 and PSMZ16S; the second arm's PSMT8 and PSMT4 round up to an
+ * even number of blocks. */
+static inline int texTBW(TexClutEnt *e, int w) /* derived name */
 {
     int psm = e->f0;
     int n;
@@ -713,10 +677,7 @@ void tex_setRegisters(Tim2Picture *pic, CdvdRec *t)
         __assert("src/Texture.c", 1066, "FALSE");
     }
 
-    /* listing row 1069 is a second switch on the same field: the case range
-     * 4..5 is what lowers to the ROM's signed slti 6 and slti 4 pair, and gcse
-     * shares the field's load with the switch above, reloading it only after
-     * the default arm's calls. */
+    /* a second switch on the same field */
     switch (pic->imageType) {
     case 4:
     case 5:
@@ -758,9 +719,8 @@ void tex_setRegisters(Tim2Picture *pic, CdvdRec *t)
     }
 }
 
-/* listing rows 970-979: the second file-static helper, inlined here only. It
- * fills in one VRAM size and one buffer width per mipmap level. */
-static inline void texInitMipLevels(Tim2Picture *pic, CdvdRec *t)
+/* Fill in one VRAM size and one buffer width per mipmap level. */
+static inline void texInitMipLevels(Tim2Picture *pic, CdvdRec *t) /* derived name */
 {
     int i;
     int dbw;
@@ -838,11 +798,8 @@ void tex_convertClutCSM2ToCSM1(Tim2Picture *pic)
     }
 }
 
-/* PUBLIC SDK NAMING RUNG: the two transfer packets libgraph fills in. Only
- * their sizes are read from the ROM: sceGsSetDefLoadImage's last store is the
- * sq at 0x50 of its argument, so the load packet is 0x60 bytes, and
- * sceGsSetDefStoreImage's last store is the sd at 0x68, so the store packet is
- * 0x70; the frame's local block is exactly the two of them, 0xD0. */
+/* the two transfer packets libgraph fills in, by their public names: the
+ * load packet is 0x60 bytes and the store packet 0x70. */
 typedef struct sceGsLoadImage {
     long long qw[12];
 } sceGsLoadImage;
@@ -851,12 +808,9 @@ typedef struct sceGsStoreImage {
     long long qw[14];
 } sceGsStoreImage;
 
-/* libgraph.h does not declare the image-transfer calls; these are the
- * signatures of the members that define them (graph015-018), except the
- * store call's int parameters: with graph016's shorts the store call site
- * converts w2 and h, which the ROM does not.  The load call's shorts are what
- * the ROM reads: psmTable's first word with lh there and with lw five
- * instructions later. */
+/* libgraph.h does not declare the image-transfer calls; this file declares
+ * them itself, the load call with short parameters and the store call with
+ * int ones. */
 extern int sceGsSetDefLoadImage(sceGsLoadImage *img, short dbp, short dbw, short dpsm, short dsax,
                                 short dsay, short rrw, short rrh);
 extern int sceGsSetDefStoreImage(sceGsStoreImage *img, int sbp, int sbw, int spsm, int ssax,
@@ -973,17 +927,15 @@ void tex_makeCopyImage(Tim2Picture *pic, CdvdRec *t, char *src, int convert)
 /* "e" */
 /* "0" */
 
-/* listing row 1159: a one-line file-static helper with no symbol of its own,
- * inlined here only. It steps over the 16-byte TIM2 file header. */
-static inline Tim2Picture *tim2Picture(void *file)
+/* Step over the 16-byte TIM2 file header. */
+static inline Tim2Picture *tim2Picture(void *file) /* derived name */
 {
     return (Tim2Picture *)((char *)file + 16);
 }
 
-/* listing rows 1204-1224: the third file-static helper, inlined here only. It
- * is the CLUT twin of tex_makeCopyImage's single-level arm, the same packet
- * header written in front of a copy of the palette. */
-static inline void tim2MakeClutPacket(Tim2Picture *pic, CdvdRec *t, char *clut)
+/* The CLUT counterpart of tex_makeCopyImage's single-level arm: the same
+ * packet header written in front of a copy of the palette. */
+static inline void tim2MakeClutPacket(Tim2Picture *pic, CdvdRec *t, char *clut) /* derived name */
 {
     int *p;
     int *q;
@@ -1082,11 +1034,8 @@ void tex_makeTexturePacket(void *file, CdvdRec *t)
 
 /* "%s" */
 
-/* listing rows 1444-1458 and 1564-1578: the same trimming code, written out in
- * full at both of its call sites (a 2001 copy-paste), so it has no symbol of
- * its own and the January-2002 build emitted it inline in each. It cuts the
- * directory prefix and the extension off the name in place. */
-static inline void texTrimName(char *name)
+/* Cut the directory prefix and the extension off the name in place. */
+static inline void texTrimName(char *name) /* derived name */
 {
     char tmp[256];
     int i;
@@ -1110,9 +1059,7 @@ static inline void texTrimName(char *name)
 
 /* "1:%s\n" */
 
-/* the old-style parameter list is not incidental: tex_InitTexture calls this
- * with NO arguments at all (the ROM's jal has an empty delay slot), which a
- * prototyped definition would reject. */
+/* an old-style definition: tex_InitTexture calls it with no arguments */
 int tex_initTextureSub(name, pkt)
 char *name;
 
@@ -1244,31 +1191,29 @@ int tex_TransTexture(int id, int ret)
     return ret;
 }
 
-/* the same stand-in for tex_GetTextureData, whose body the listing inlines
- * here at row 1642. */
-static inline CdvdRec *getTextureDataDefocus(int idx)
+/* a file-static copy of tex_GetTextureData, inlined here */
+static inline CdvdRec *getTextureDataDefocus(int idx) /* derived name */
 {
     return &texTable[idx].rec;
 }
 
-typedef struct TexColor {
+typedef struct TexColor { /* field names derived */
     unsigned char r;
     unsigned char g;
     unsigned char b;
     unsigned char a;
-} TexColor;
+} TexColor; /* derived name */
 
-/* kept local: agrees with GifPacket.h, which this TU does not include (gif_SpriteSensitiveOrg differs) */
+/* as in GifPacket.h, which this TU does not include */
 extern void gif_SetZTest(int on);
-/* kept local: agrees with GifPacket.h, which this TU does not include (gif_SpriteSensitiveOrg differs) */
+/* as in GifPacket.h, which this TU does not include */
 extern void gif_SetZWrite(int on);
-/* kept local: agrees with GifPacket.h, which this TU does not include (gif_SpriteSensitiveOrg differs) */
+/* as in GifPacket.h, which this TU does not include */
 extern void gif_SetDrawEnviroment(unsigned long long fbp, unsigned long long psm, unsigned int w,
                                   unsigned int h, int useoffset, int clear);
-/* kept local: this TU's one use passes the depth as a 32-bit 0xFFFFFFFF, which
- * the ROM materialises with a bare lui/ori and hands over unextended, so the
- * parameter is 32 bits here and not the long long GifPacket.h carries. */
-/* kept local: void (int *, unsigned int, int *, unsigned char *, int) here, void (int *, long long, int *, unsigned char *, int) in GifPacket.h */
+/* this file's one use passes the depth as a 32-bit 0xFFFFFFFF: void (int *,
+ * unsigned int, int *, unsigned char *, int) here, void (int *, long long,
+ * int *, unsigned char *, int) in GifPacket.h */
 extern void gif_SpriteSensitiveOrg(int *r, unsigned int z, int *uv, unsigned char *col, int prim);
 
 void tex_TransTextureDefocus(int id, int lv)
@@ -1314,15 +1259,14 @@ void tex_TransTextureDefocus(int id, int lv)
  * 16-entry block swapped, so an entry index is swizzled before the entry is
  * touched. A 16-entry CLUT is held straight. tex_dispClut walks the same
  * order. */
-#define CLUT_CSM1(n, i)                                                                            \
+#define CLUT_CSM1(n, i) /* derived name */                                                         \
     ((n) == 16 ? (i)                                                                               \
      : (((i) & 0xF) >= 8 && (((i) >> 4) & 1) == 0)                                                 \
          ? (i) + 8                                                                                 \
          : ((((i) & 0xF) < 8 && (((i) >> 4) & 1) != 0) ? (i) - 8 : (i)))
 
 /* the scroll step and the offset are ints in the ICO block but their sign is
- * taken through a float comparison (Basic.h's ABSF and SIGNF), which is where
- * the ROM's cvt.s.w pairs come from */
+ * taken through a float comparison (Basic.h's ABSF and SIGNF) */
 
 void tex_scrollClut(void *a0, void *a1, void *a2, int a3, int a4, void *a5, int a6, void *a7)
 {
@@ -1355,13 +1299,7 @@ void tex_scrollClut(void *a0, void *a1, void *a2, int a3, int a4, void *a5, int 
     }
 
     /* A swap of start and end whose last line reads lo where the temporary
-     * was meant, so it only clamps start to end (listing rows 1850 to 1854).
-     * What the bytes pin: the then-block held two insns when jump.c tried its
-     * conditional-move conversion (the ROM keeps bnezl plus the annulled
-     * move, not slt plus movn), cse having deleted the no-op `hi = lo`, and
-     * the temporary's store is gone by final. What they cannot pin: which
-     * local served as the temporary; it must be one read elsewhere, since a
-     * fresh one is deleted as trivially dead after cse1 and movn returns. */
+     * was meant, so it only clamps start to end. */
     if (hi < lo) {
         i = lo;
         lo = hi;
@@ -1372,12 +1310,6 @@ void tex_scrollClut(void *a0, void *a1, void *a2, int a3, int a4, void *a5, int 
     rem = a6 % step;
     if (rem == 0) {
         span = hi - lo + 1;
-        /* listing row 1859 is this one statement: fold pushes the products
-         * and the int conversion into the arms of the ABSF and SIGNF
-         * conditionals, which is where the ROM's two remainders, the neg.s
-         * and times-zero arms and the conversion after the last sign step
-         * come from (BgAnimation's rows 2135 to 2137 are the same sign idiom
-         * on one line each) */
         k = ABSF(e->file.csStp) % span * SIGNF(e->file.csSpd) * SIGNF(e->file.csStp);
 
         for (i = lo; i <= hi; i++) {
@@ -1537,12 +1469,9 @@ int tex_FreeTexture(int id)
     return 0;
 }
 
-/* INTERIM (see the iosThreadCreate note in ios/thread.c): the listing inlines
- * tex_ResetVramPri into tex_LockHeadTBP/tex_UnlockHeadTBP, so it is a public `inline` of the
- * deferred tail; until tex_Init, which sits between the tail's members, is C,
- * the copy is emitted here as a plain function at its ROM position and the
- * caller inlines the static stand-in resetVramPri, which collapses at layout. */
-static inline void resetVramPri(int pri)
+/* a file-static copy of tex_ResetVramPri, which tex_LockHeadTBP and
+ * tex_UnlockHeadTBP inline */
+static inline void resetVramPri(int pri) /* derived name */
 {
     int i;
 
@@ -1561,8 +1490,7 @@ static inline void resetVramPri(int pri)
 }
 
 /* tex_Init's first-call flag: the table is marked free once, later calls
-   recount the loaded entries.  The .sdata word follows the defocus colour
-   template and precedes tex_Tool's labels. */
+   recount the loaded entries. */
 static int texTableReady = 0; /* derived name */
 
 void tex_ResetVram(void)
@@ -1579,29 +1507,19 @@ void tex_ResetVram(void)
 }
 
 /* the GS register payloads, spelled as ico2/seki/src/GifPacket.c spells them */
-#define GIF_RGBA(c)                                                                                \
+#define GIF_RGBA(c) /* derived name */                                                             \
     ((long long)(c)[0] | ((long long)(c)[1] << 8) | ((long long)(c)[2] << 16) |                    \
      ((long long)(c)[3] << 24))
-#define GIF_XY0(x, y, z) ((long long)(x) | ((long long)(y) << 16) | ((z) << 32))
-#define GIF_XY(x, y, z)                                                                            \
+#define GIF_XY0(x, y, z) ((long long)(x) | ((long long)(y) << 16) | ((z) << 32)) /* derived name */
+#define GIF_XY(x, y, z) /* derived name */                                                         \
     ((long long)((x) + 0x8000) | ((long long)((y) + 0x8000) << 16) | ((z) << 32))
 /* a 640x224 layout coordinate to the screen, gif_SpriteSensitive's scaling */
-#define DISP_X(v) ((v) * ScreenWidth / 640)
-#define DISP_Y(v) ((v) * ScreenHeight / 224)
+#define DISP_X(v) ((v) * ScreenWidth / 640)  /* derived name */
+#define DISP_Y(v) ((v) * ScreenHeight / 224) /* derived name */
 
 /* The far corner, x + fx with fx = w + 0x8000, the way gif_MakeSpriteNoTexture
- * in GifPacket.c holds it. WHAT THE BYTES PIN: w + 0x8000 is computed on its
- * own and x added to it (`addu v0,v0,s2; addu a3,a3,v0`), where fold turns a
- * textual x + (w + 0x8000) into (x + 0x8000) + w and cse then reuses the near
- * corner's sum; and the trap chain orders the far corner's divisions x, w then
- * y, h. A two-argument helper gives both. WHAT THEY CANNOT PIN: the form of
- * the 2002 construct. The listing gives it no rows of its own (every
- * instruction of the sprite is on 2240 or 2247), which a same-file inline
- * would not do (tex_GetTWTH's rows 513-518 inside tex_setTexReg) and a header
- * inline would not do either (sugiCommon.h and mv_defs.h rows appear inside
- * their callers); GsBase.c's sprite at its line 1026 is the same case and
- * carries the same stand-in. INTERIM, like GsBase.c's gsbSpriteNoTexture. */
-static inline int dispFar(int x, int w)
+ * in GifPacket.c holds it. */
+static inline int dispFar(int x, int w) /* derived name */
 {
     int fx = w + 0x8000;
 
@@ -1609,11 +1527,8 @@ static inline int dispFar(int x, int w)
 }
 
 /* The untextured sprite of gif_SpriteSensitive (uv NULL, prim 0: PRIM 0x406),
- * expanded as a MACRO: the listing puts all four register writes on the line
- * of the use, and the ROM divides the near corner's x and y a second time for
- * the far corner (six divide-by-zero traps for four divisions), which is the
- * textual substitution of the corner coordinates into both corners. */
-#define dispClutSprite(r, col)                                                                     \
+ * as a macro: the corner coordinates are substituted into both corners. */
+#define dispClutSprite(r, col) /* derived name */                                                  \
     {                                                                                              \
         setGsReg(0x00, 0x406);                                                                     \
         setGsReg(0x01, GIF_RGBA(col));                                                             \
@@ -1623,15 +1538,9 @@ static inline int dispFar(int x, int w)
     }
 
 /* The CLUT viewer: mode 0 draws a 256-entry CLUT as a 16x16 grid in CSM1
- * order, mode 1 a 16-entry CLUT as one row. Each cell's rectangle is an
- * initialised block-scope array, rows 2238 and 2246 holding the whole
- * declaration: its BLKmode clobber (expr.c store_constructor) makes loop.c's
- * prescan_loop set unknown_address_altered, so the rectangle is neither
- * hoisted out of the loop nor forwarded into the sprite, and both cells share
- * the frame's first sixteen bytes as the ROM's do. The coordinates are pixels
- * scaled to the GS's sixteenths with `<< 4`; written `* 16`, fold would merge
- * k * 5 * 16 into one multiply by 80, which keeps k live and stops loop.c
- * reversing the inner loop, where the shift of k * 5 is a giv of k. */
+ * order, mode 1 a 16-entry CLUT as one row.  Each cell's rectangle is an
+ * initialised block-scope array; the coordinates are pixels scaled to the
+ * GS's sixteenths with `<< 4`. */
 void tex_dispClut(unsigned char *clut, int mode)
 {
     int i;
@@ -1659,9 +1568,8 @@ void tex_dispClut(unsigned char *clut, int mode)
 }
 
 /* TEX1 and TEST_1 for the record's own five-qword GS packet at 0x58: the tool
- * rebuilds them from the block it just edited. Listing rows 2265-2279, between
- * tex_dispClut and tex_printTexture, inlined only into tex_Tool. */
-static inline void toolMakeRegs(CdvdRec *t, int lv)
+ * rebuilds them from the block it just edited.  Inlined into tex_Tool. */
+static inline void toolMakeRegs(CdvdRec *t, int lv) /* derived name */
 {
     int aref = 96;
     int afail = 1;
@@ -1686,8 +1594,7 @@ static inline void toolMakeRegs(CdvdRec *t, int lv)
 }
 
 /* the shared pad-state array (main.c's PadState): holding the 0x10 button on
- * pad 0 drops alpha blending from the PRIM word. Declared as the array, so the
- * word is reached %hi/%lo as the ROM does, not gp-relative. */
+ * pad 0 drops alpha blending from the PRIM word. */
 
 void tex_printTexture(int id)
 {
@@ -1721,10 +1628,7 @@ void tex_printTexture(int id)
         *PacketBufferStruct.ptr.d++ = (pad[0].now & 0x10) == 0 ? 0x56 : 0x16;
         *PacketBufferStruct.ptr.d++ = 0x00;
         /* Q is the bits of `one`, read unsigned the way gsb_filmNoise in
-         * GsBase.c reads its scale. The ROM pins the unsigned read: cse2 folds
-         * its SImode bit copy to the constant (lui at 2321) and `one` dies in
-         * $f0 after the ST sums; a signed read keeps `one` live across
-         * FlushCache in $f20. */
+         * GsBase.c reads its scale. */
         *PacketBufferStruct.ptr.d++ = GIF_RGBA(&col.r) | ((long long)*(unsigned int *)&one << 32);
         *PacketBufferStruct.ptr.d++ = 0x01;
         *PacketBufferStruct.ptr.d++ =
@@ -1747,7 +1651,7 @@ void tex_printTexture(int id)
 
 /* The texture tool's menu table, one row per tunable. `type` picks how `var`
  * is read back: 0 an int, 1 a float, 2 a short. */
-typedef struct TexToolRow {
+typedef struct TexToolRow { /* field names derived */
     char *label;
     float min;
     float max;
@@ -1755,7 +1659,7 @@ typedef struct TexToolRow {
     int type;
     void *var;
     int _18;
-} TexToolRow;
+} TexToolRow; /* derived name */
 
 int tex_Tool(int *tno)
 {
@@ -1778,29 +1682,25 @@ int tex_Tool(int *tno)
         {"MIPMAPK", -2047.0f, 0.0f, 1.0f, 2, &toolExt.mipmapK},
         {"MIPMAPL", 0.0f, 3.0f, 1.0f, 2, &toolExt.mipmapL},
     };
-    /* the step multiplier the shoulder button scales by ten at a time; the
-       .sdata word follows the row labels and precedes col's template, so it
-       is declared here */
+    /* the step multiplier the shoulder button scales by ten at a time */
     static int stepScale = 1; /* derived name */
     unsigned int col[2] = {0xFFFFFF00, 0xFFC0C000};
 
-    /* One print per row type. The listing carries their bodies on rows 2370,
-     * 2375 and 2380, inside tex_Tool between col (2366) and the counters
-     * (2385), in the order int, short, float, while the row loop reaches them
-     * as case 0, 1, 2: nested inline helpers. The names are ours. */
-    inline void printInt(int i)
+    /* One print per row type, int, short and float, as nested inline
+     * functions. */
+    inline void printInt(int i) /* derived name */
     {
         debug_PrintfDummy(10, i * 9 + 46, col[i == toolRow], (int)"%s:%d", (int)m[i].label,
                           *(int *)m[i].var);
     }
 
-    inline void printShort(int i)
+    inline void printShort(int i) /* derived name */
     {
         debug_PrintfDummy(10, i * 9 + 46, col[i == toolRow], (int)"%s:%d", (int)m[i].label,
                           *(short *)m[i].var);
     }
 
-    inline void printFloat(int i)
+    inline void printFloat(int i) /* derived name */
     {
         debug_PrintfDummy(10, i * 9 + 46, col[i == toolRow], (int)"%s:%f", (int)m[i].label,
                           *(float *)m[i].var);
@@ -1872,9 +1772,7 @@ int tex_Tool(int *tno)
         if (chg != 0) {
             if (toolRow == 0) {
                 /* case -1 breaks and case 1 runs off the end into the one
-                 * return (listing rows 2440 and 2446): reorg then gives the
-                 * second test the return value and the default jump the
-                 * epilogue's first load, as the ROM has them. */
+                 * return */
                 switch (chg) {
                 case -1:
                     while (texTable[*tno].rec.ext.animated == 0) {
@@ -1972,11 +1870,11 @@ int tex_Tool(int *tno)
 
 /* tex_ListTool's short names: per TIM2 image type, per CLUT type and per
    user-header state */
-static char *imageTypeName[] = {"NON", "D16", "D24", "D32", "C-4", "C-8"};
+static char *imageTypeName[] = {"NON", "D16", "D24", "D32", "C-4", "C-8"}; /* derived name */
 
-static char *clutTypeName[] = {"--", "16", "24", "32"};
+static char *clutTypeName[] = {"--", "16", "24", "32"}; /* derived name */
 
-static char *headerName[] = {" ", "\x80"};
+static char *headerName[] = {" ", "\x80"}; /* derived name */
 
 /* tex_ListTool's state: whether a row is open in tex_Tool, and the texture
    number tex_Tool edits. */
@@ -1984,7 +1882,7 @@ static int listEditing = 0; /* derived name */
 
 static int listTexNo = 0; /* derived name */
 
-static inline void remakeSampling(CdvdRec *t)
+static inline void remakeSampling(CdvdRec *t) /* derived name */
 {
     int mmag = 1;
     int mmin = GlobalStageSetting.texSampleMode;
@@ -2116,11 +2014,7 @@ int tex_LoadTexture(void *a0)
     return tex_LoadTexturePart(a0, 0);
 }
 
-/* INTERIM (see the iosThreadCreate note in ios/thread.c): the listing inlines
- * tex_GetTextureNo into tex_SetUVScroll, so it is a public `inline` of the
- * deferred tail; until tex_Init, which sits between the tail's members, is C,
- * the copy is emitted here as a plain function at its ROM position and the
- * caller inlines the static stand-in getTextureNo, which collapses at layout. */
+/* tex_GetTextureNo and the file-static copy tex_SetUVScroll inlines */
 int tex_GetTextureNo(char *name)
 {
     int i;
@@ -2137,7 +2031,7 @@ int tex_GetTextureNo(char *name)
     return ret;
 }
 
-static inline int getTextureNo(char *name)
+static inline int getTextureNo(char *name) /* derived name */
 {
     int i;
     int ret = -1;
@@ -2153,17 +2047,13 @@ static inline int getTextureNo(char *name)
     return ret;
 }
 
-/* INTERIM (see the iosThreadCreate note in ios/thread.c): the listing inlines
- * tex_GetTextureData into tex_SetUVScroll, so it is a public `inline` of the
- * deferred tail; until tex_Init, which sits between the tail's members, is C,
- * the copy is emitted here as a plain function at its ROM position and the
- * caller inlines the static stand-in getTextureData, which collapses at layout. */
+/* tex_GetTextureData and the file-static copy tex_SetUVScroll inlines */
 int *tex_GetTextureData(int idx)
 {
     return (int *)&texTable[idx].rec;
 }
 
-static inline CdvdRec *getTextureData(int idx)
+static inline CdvdRec *getTextureData(int idx) /* derived name */
 {
     return &texTable[idx].rec;
 }
@@ -2248,9 +2138,7 @@ int tex_GetTextureNum(void)
     return texCount;
 }
 
-/* The int flag is the LAST parameter: EABI assigns the same registers either
-   way, but a caller (script.c actSubSekizoSe) shows ROM loading it after the
-   six floats. */
+/* the int flag is the last parameter, after the six floats */
 void tex_SetUVScroll(char *name, float u, float v, float su, float sv, float ou, float ov, int a1)
 {
     int no = getTextureNo(name);

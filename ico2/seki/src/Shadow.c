@@ -11,52 +11,31 @@
 #include "DisplayList.h"
 #include "Basic.h"
 
-/* .bss, Shadow.o's two objects in the ROM's order (MAIN.MAP line 7683 sizes
- * the run 0x1028 and names no symbol in it, so the names are ours).  One
- * skinning matrix per cluster, 64 of 64 bytes, built by
+/* One skinning matrix per cluster, 64 of 64 bytes, built by
  * shadow_EntryClusterShadow. */
-static char clusterMatrix[4096];
+static char clusterMatrix[4096]; /* derived name */
 
-/* .sdata, Shadow.o's run (MAIN.MAP gives 0x38 in January, no symbol named):
-   the shadow switch shadow_Reset applies and the request shadow_KillShadow
-   leaves for it, first in the run. */
+/* the shadow switch shadow_Reset applies and the request shadow_KillShadow
+   leaves for it */
 static int killShadow = 0; /* derived name */
 
 static int killShadowRequest = 0; /* derived name */
 
 /* The shadow display opens, fills and closes a PATH1 packet of its own
  * through PacketBufferStruct (DmaPacket.h), whose packet addresses are one
- * pointer union, so each field access is alias set 0 (c-common.c
- * c_get_alias_set: a reference through a union). WHAT THE BYTES PIN: the open's gif = 0, end = 0 and
- * ptr = c + 8 stores survive flow's dead-store scan, so the int tag word
- * store between them and their second stores may alias them; the screen-size
- * loads wait for that tag store, so it is an int store outside any struct;
- * and the close's end load waits for the last A+D packet store, which only a
- * field read that may alias the unsigned long long packet words does (the
- * ROM's end-tag arithmetic reuses the final cursor's register, so the cursor
- * store precedes it in sched1, and that register file is what leaves t7 to
- * reload for the whole function). WHAT THEY CANNOT PIN: the member names and
- * types beyond one 64-bit packet pointer and one byte pointer, or the names
- * of the union and the record. */
+ * pointer union. */
 /* the screen width and height in pixels */
 
-/* The GS A+D writer, a MACRO as in Texture.c: the listing puts every writer's
- * value and both of its stores on the line of the use (337 carries FRAME,
- * SCISSOR and XYOFFSET together, 340 the whole sprite), where an inlined
- * function would carry its own lines. */
-#define setGsReg(reg, val)                                                                         \
+/* The GS A+D writer, a macro as in Texture.c. */
+#define setGsReg(reg, val) /* derived name */                                                      \
     {                                                                                              \
         *PacketBufferStruct.ptr.d++ = (val);                                                       \
         *PacketBufferStruct.ptr.d++ = (reg);                                                       \
     }
-/* The PATH1 packet open and close, written out here and not called: the
- * listing puts every instruction of each on ONE line of Shadow.c (332 for the
- * open), where an inlined function body would carry src/GifPacket.c's own
- * lines, so both are MACROS in the dev's TU and gif_StartPacketPath1 keeps its
- * out-of-line copy at its own ROM slot. The statements are, one for one, the
- * ones that file's matched gif_StartPacketPath1 and gif_EndPacketPath1 carry
- * (the close, on line 351, is written out at its site below). */
-#define gifStartPacketPath1(c)                                                                     \
+/* The PATH1 packet open, a macro with the statements of GifPacket.c's
+ * gif_StartPacketPath1; the close, gif_EndPacketPath1's statements, is
+ * written out at its site below. */
+#define gifStartPacketPath1(c) /* derived name */                                                  \
     {                                                                                              \
         (c) = PacketBufferStruct.ptr.c;                                                            \
         PacketBufferStruct.gif.c = 0;                                                              \
@@ -72,10 +51,8 @@ static int killShadowRequest = 0; /* derived name */
         PacketBufferStruct.ptr.c = ((c) + 0x20);                                                   \
     }
 /* FRAME_1, SCISSOR_1 and XYOFFSET_1 for a w by h buffer at base fbp, the
- * window centred on the GS's 2048.0 origin and moved by ox, oy sixteenths. A
- * MACRO: the listing puts all six stores of each use on one line (337, 342,
- * 432, 444, 462). */
-#define setFrame(fbp, w, h, ox, oy)                                                                \
+ * window centred on the GS's 2048.0 origin and moved by ox, oy sixteenths. */
+#define setFrame(fbp, w, h, ox, oy) /* derived name */                                             \
     {                                                                                              \
         setGsReg(0x4C, (fbp) | ((long long)(((w) >> 6) & 0x3F) << 16));                            \
         setGsReg(0x40, ((long long)((w) - 1) << 16) | ((long long)((h) - 1) << 48));               \
@@ -83,21 +60,17 @@ static int killShadowRequest = 0; /* derived name */
                            ((((long long)(2048 - (h) / 2) << 4) + (oy)) << 32));                   \
     }
 /* RGBAQ packed from a four-byte colour, as src/GifPacket.c packs it */
-#define GIF_RGBA(c)                                                                                \
+#define GIF_RGBA(c) /* derived name */                                                             \
     ((long long)(c)[0] | ((long long)(c)[1] << 8) | ((long long)(c)[2] << 16) |                    \
      ((long long)(c)[3] << 24))
 /* XYZ2 with the 2048.0-pixel window origin folded in, and without it */
-#define GIF_XY0(x, y, z) ((long long)(x) | ((long long)(y) << 16) | ((z) << 32))
-#define GIF_XY(x, y, z)                                                                            \
+#define GIF_XY0(x, y, z) ((long long)(x) | ((long long)(y) << 16) | ((z) << 32)) /* derived name */
+#define GIF_XY(x, y, z) /* derived name */                                                         \
     ((long long)((x) + 0x8000) | ((long long)((y) + 0x8000) << 16) | ((z) << 32))
 /* The untextured sprite: PRIM, RGBAQ and the two XYZ2 corners of the rect r
- * (x, y, w, h in sixteenths). The far corner is x + fx with fx = w + 0x8000,
- * as GsBase.c's GsBase.c's spriteRect holds it: the ROM adds 0x8000 to w and h
- * first (`addu a2,a2,t3`, `addu a3,a3,t3`) and x and y to those sums, where
- * a textual x + w + 0x8000 is reassociated by fold. A MACRO: the listing puts
- * the whole sprite on the line of the use (340, 345) and shows no rows of a
- * helper. */
-#define spriteRect(r, col, prim)                                                                   \
+ * (x, y, w, h in sixteenths).  The far corner is x + fx with fx = w + 0x8000,
+ * as GsBase.c's spriteRect holds it. */
+#define spriteRect(r, col, prim) /* derived name */                                                \
     {                                                                                              \
         setGsReg(0x00, prim);                                                                      \
         setGsReg(0x01, GIF_RGBA(col));                                                             \
@@ -179,9 +152,8 @@ void shadow_Reset(void)
 }
 
 /* The textured sprite: PRIM, RGBAQ, then a UV and an XYZ2 pair for each
- * corner, the far corner as spriteRect holds it. A MACRO: the listing puts all
- * of it on the line of the use (440 and 457). */
-#define spriteUV(r, uv, col, prim)                                                                 \
+ * corner, the far corner as spriteRect holds it. */
+#define spriteUV(r, uv, col, prim) /* derived name */                                              \
     {                                                                                              \
         setGsReg(0x00, prim);                                                                      \
         setGsReg(0x01, GIF_RGBA(col));                                                             \
@@ -206,26 +178,21 @@ void shadow_Draw(void)
         debug_Printf(500, ScreenHeight / 2 - 8, 0xCCCCCC00u, (int)"S");
     }
     {
-        /* The four level tables are this block's statics: Shadow.o's .rodata
-         * opens with them in this order (0x54FCB0, 0x54FCC0, 0x54FCD0,
-         * 0x54FD10), and the listing leaves rows 382 to 409 code-free between
-         * the label print and the rect initializer. As block statics they
-         * give the ROM's register file and preheader order, where extern
-         * placeholders left the loop-one preheader and the open's cursor
-         * register off (strict 150 against 40 before the switch below). The
-         * names are ours: the map lists none. */
+        /* the four level tables, this block's statics */
         /* the frame buffer pointer of each shadow mipmap level */
-        static const unsigned int levelFbp[4] = {0x142, 0x1C2, 0x1E2, 0x1EA};
+        static const unsigned int levelFbp[4] = {0x142, 0x1C2, 0x1E2, 0x1EA}; /* derived name */
         /* the texture base pointer of each shadow mipmap level */
-        static const unsigned int levelTbp[4] = {0x2840, 0x3840, 0x3C40, 0x3D40};
+        static const unsigned int levelTbp[4] = {0x2840, 0x3840, 0x3C40, 0x3D40}; /* derived name */
         /* the sprite corner and size of each level in 12.4 screen units */
         static const int levelRect[4][4] = {{-4100, -4100, 8192, 8192},
                                             {-2052, -2052, 4096, 4096},
                                             {-1028, -1028, 2048, 2048},
-                                            {-516, -516, 1024, 1024}};
+                                            {-516, -516, 1024, 1024}}; /* derived name */
         /* the sprite texture rectangle of each level at the 512 pixel default */
-        static const int levelUV[4][4] = {
-            {4, 4, 8192, 8192}, {4, 4, 4096, 4096}, {4, 4, 2048, 2048}, {4, 4, 1024, 1024}};
+        static const int levelUV[4][4] = {{4, 4, 8192, 8192},
+                                          {4, 4, 4096, 4096},
+                                          {4, 4, 2048, 2048},
+                                          {4, 4, 1024, 1024}}; /* derived name */
         int rect[4][4] = {{4, 4, ScreenWidth * 16, ScreenHeight * 16},
                           {4, 4, ScreenWidth * 8, ScreenHeight * 8},
                           {4, 4, ScreenWidth * 4, ScreenHeight * 4},
@@ -273,21 +240,7 @@ void shadow_Draw(void)
                                      GlobalStageSetting.shadowColB,
                                      GlobalStageSetting.shadowBlend[i]};
 
-            /* Local debug switch, off. What the bytes pin: the ROM's seven
-               spill slots (ScreenHeight 0x80, ScreenWidth 0x84, the two window
-               offsets 0x88 and 0x90, the rect column addresses 0x98 to 0xA0)
-               are gcse's PRE reaching registers in hash-bucket order, and that
-               order needs an expression table of 391 buckets, so shadow_Draw
-               reached gcse with 780 to 783 insns (781 with this arm, 774
-               without it; the 405-bucket window, 808 to 811, is the other
-               one). Also pinned: the arm is one test around straight-line
-               stores inside the upward loop, since a test that cse's
-               skip-blocks cannot pass (an && chain) or an edge out of the body
-               (a continue) changes PRE's insertions there. cse cannot carry
-               dbg's 0 across the loop label, gcse's constant propagation folds
-               the test and the next jump pass deletes the arm; the listing
-               leaves rows 449 to 453 code-free between the colour and the
-               TEX0 word. What the bytes cannot pin: the arm's text. */
+            /* a local debug switch, off: draw every level in mid grey */
             if (dbg) {
                 col2[0] = col2[1] = col2[2] = col2[3] = 0x80;
             }
@@ -337,10 +290,7 @@ void shadow_getShadowVectorAverage(void *a0, Sub15C *a1);
 
 /* The object's shadow render retired to shadow_RenderVolume; this entry only
    reports that it was reached (p2o_DispShadowVolume still passes the object),
-   and the DEBUG build adds the object's shadow direction through dir.  Retail
-   keeps dir's declaration, the ROM's 16 bytes of vars under the saved $ra; the
-   listing's rows 525-599 after the print carry no code.  The DEBUG report is
-   ours. */
+   and the DEBUG build adds the object's shadow direction through dir. */
 void shadow_Render(Sub15C *o)
 {
     float dir[4];
@@ -363,30 +313,30 @@ void shadow_getShadowVectorAverage(void *a0, Sub15C *a1)
 
 /* the same quadword copy type src/Primitive.c uses: the accumulator reset is
  * one lq/sq pair per vertex */
-typedef int Qw128 __attribute__((mode(TI)));
+typedef int Qw128 __attribute__((mode(TI))); /* derived name */
 
 /* one weighted vertex of a cluster run: the vertex it moves and the weight it
  * moves it by */
-typedef struct ClusterWeight {
+typedef struct ClusterWeight { /* field names derived */
     int idx;
     float w;
     int _8;
     int _C;
-} ClusterWeight;
+} ClusterWeight; /* derived name */
 
 /* one cluster of a shadow volume: the -1 terminated run of weighted vertices
  * and the matrix slot it is skinned through */
-typedef struct ClusterPoly {
+typedef struct ClusterPoly { /* field names derived */
     ClusterWeight *run;
     int matrix;
     int _8;
     int _C;
-} ClusterPoly;
+} ClusterPoly; /* derived name */
 
-/* The listing puts this body at rows 619-620, inside shadow_EntryClusterShadow's
- * own line span. One asm block: the weight goes through $8 by hand and the
- * three vnop runs are scheduled around the multiply and the accumulate. */
-static inline void applyWeightedVtx(void *dst, void *src, float w)
+/* Add src, transformed by the cluster matrix in vf4-vf7 and scaled by the
+ * weight, into dst: one asm block, the weight passed through $8 by hand and
+ * the vnop runs placed around the multiply and the accumulate. */
+static inline void applyWeightedVtx(void *dst, void *src, float w) /* derived name */
 {
     __asm__ __volatile__("lqc2 $vf8, 0(%1)\n\t"
                          "lqc2 $vf9, 0(%0)\n\t"
@@ -451,9 +401,7 @@ void shadow_EntryClusterShadow(Sub15C *a0, float a1)
 
             _SetCurrentMatrix(clusterMatrix + ((ClusterPoly *)p->polys)[k].matrix * 0x40);
             e = ((ClusterPoly *)p->polys)[k].run;
-            /* the listing gives both base loads the run load's row (648) and
-             * the -1 of the loop test the next row (649): they are read once
-             * here, ahead of the loop, not inside it */
+            /* both bases are read once here, ahead of the loop */
             dst = (VECTOR *)p->vtxSave;
             src = (VECTOR *)p->vtx;
             do {
@@ -486,13 +434,10 @@ void shadow_EntryClusterShadow(Sub15C *a0, float a1)
     }
 }
 
-/* The listing puts this body at rows 750-751, inside shadow_EntryNormalShadow's
- * own line span, so the dev wrote it at the head of that function. One asm
- * block because the two vnop runs are hand scheduled around the multiply, and
- * both addresses are "r" operands: the ROM's copy reaches them in $3 and $2,
- * the registers the surrounding loop allocates, not in the argument
- * registers a fixed spelling would force. */
-static inline void applyCurrentMatrixV(void *dst, void *src)
+/* Transform a vertex by the current matrix through VU0: one asm block, the
+ * two vnop runs placed by hand around the multiply, both addresses "r"
+ * operands. */
+static inline void applyCurrentMatrixV(void *dst, void *src) /* derived name */
 {
     __asm__ __volatile__("lqc2 $vf8, 0(%1)\n\t"
                          "vnop\n\t"
@@ -558,25 +503,21 @@ void shadow_EntryNormalShadow(Sub15C *a0, int a1, float a2)
     }
 }
 
-/* The volume renderers below are line-for-line twins in the listing and share
- * one set of static helpers, written here because the listing puts their rows
- * (844 to 1259) above __GetCameraPos and below shadow_EntryNormalShadow.
- * None of them has a symbol of its own: every row run appears only inside
- * shadow_RenderVolume and shadow_RenderVolumeMulti. */
+/* The static helpers shadow_RenderVolume and shadow_RenderVolumeMulti share;
+ * both inline every one of them. */
 
 /* the screen-space origin every projected point is measured from: the centre
- * of the GS's 4096-unit primitive coordinate space.  The name is ours, MAIN.MAP
- * names nothing in Shadow.o's .data. */
-static VECTOR screenOrigin = {2048.0f, 2048.0f, 0.0f, 0.0f};
+ * of the GS's 4096-unit primitive coordinate space */
+static VECTOR screenOrigin = {2048.0f, 2048.0f, 0.0f, 0.0f}; /* derived name */
 
 /* the face normal z of each strip position, read back by the position that
  * shares the face with the one that computed it */
-static float stripFaceZ[10];
+static float stripFaceZ[10]; /* derived name */
 
-/* rows 844-845: the projection matrix and the shadow direction into the VU0
+/* the projection matrix and the shadow direction into the VU0
  * register file, where the edge projector below leaves them for the whole
  * mesh walk */
-static inline void loadVolumeMatrix(void *dir)
+static inline void loadVolumeMatrix(void *dir) /* derived name */
 {
     char *m = matrixptr + 0xC0;
 
@@ -589,9 +530,9 @@ static inline void loadVolumeMatrix(void *dir)
                          : "r"(m), "r"(dir));
 }
 
-/* row 867: the six strip vertices out of the VU register file as integer
+/* the six strip vertices out of the VU register file as integer
  * screen coordinates */
-static inline void storeVolumeVerts(void *dst)
+static inline void storeVolumeVerts(void *dst) /* derived name */
 {
     __asm__ __volatile__("vftoi4.xyzw $vf26, $vf20\n\t"
                          "vftoi4.xyzw $vf27, $vf21\n\t"
@@ -609,24 +550,18 @@ static inline void storeVolumeVerts(void *dst)
                          : "r"(dst));
 }
 
-/* rows 896-1080: project one silhouette edge and clip the projected segment
+/* Project one silhouette edge and clip the projected segment
  * to the screen rectangle. Returns the facing dot times the winding sign, or
  * -1.0f when the edge is wholly off screen, which is also how the caller
  * learns that both ends were marked away.
- * The projection is one hand scheduled block written straight into this body
- * (row 901, five rows below the definition's 896, where the loop's call
- * copies its two vertex addresses). It rolls the six vertex registers of the
- * strip down by one, projects the edge's two ends, divides both by w, takes
- * the facing dot of the new triangle and leaves the two screen points both in
- * the VU registers the emitter reads and in oa/ob for the clipper. Because
- * &oa is this body's own frame address, the block's operand is the frame
- * register itself, which is why the ROM keeps the opening helper's frame copy
- * (`daddu $11,$16,$0`) as the second opening edge's store base. The GPR the
- * dot product passes through is a named $7 (and the slides' is $8), declared
- * clobbered, as Matrix.c and BgAnimation.c write theirs: the ROM keeps $7 and
- * $8 in every copy and allocates round them. The frame vectors precede the
- * origin table in the operand list, which is the order the loop hoists them. */
-static inline float clipVolumeEdge(VECTOR *pa, VECTOR *pb, float sgn)
+ * The projection is one hand-ordered block: it rolls the six vertex
+ * registers of the strip down by one, projects the edge's two ends, divides
+ * both by w, takes the facing dot of the new triangle and leaves the two
+ * screen points both in the VU registers the emitter reads and in oa/ob for
+ * the clipper.  The GPR the dot product passes through is a named $7 (and the
+ * slides' is $8), declared clobbered, as Matrix.c and BgAnimation.c write
+ * theirs. */
+static inline float clipVolumeEdge(VECTOR *pa, VECTOR *pb, float sgn) /* derived name */
 {
     VECTOR oa;
     VECTOR ob;
@@ -691,7 +626,7 @@ static inline float clipVolumeEdge(VECTOR *pa, VECTOR *pb, float sgn)
                          : "$7");
 
     rate[0] = rate[1] = 1.0f;
-    /* rows 977 and 981: a wholly visible edge returns at once */
+    /* a wholly visible edge returns at once */
     if (-ScreenWidth < oa.x && oa.x < ScreenWidth && -ScreenWidth < ob.x && ob.x < ScreenWidth &&
         -ScreenHeight < oa.y && oa.y < ScreenHeight && -ScreenHeight < ob.y &&
         ob.y < ScreenHeight) {
@@ -761,8 +696,8 @@ static inline float clipVolumeEdge(VECTOR *pa, VECTOR *pb, float sgn)
         pa->w = -1.0f;
         return -1.0f;
     }
-    /* rows 1040 and 1060: slide each end of the projected edge to the clip
-     * parameter found for it, both blocks inside this body */
+    /* slide each end of the projected edge to the clip parameter found for
+     * it */
     if (0.0f < rate[0] && rate[0] < 1.0f) {
         __asm__ __volatile__("mfc1 $8, %0\n\t"
                              "qmtc2.ni $8, $vf8\n\t"
@@ -802,10 +737,11 @@ static inline float clipVolumeEdge(VECTOR *pa, VECTOR *pb, float sgn)
     return dot * sgn;
 }
 
-/* rows 1092-1098: the first two edges of a strip, which open it. Returns the
+/* The first two edges of a strip, which open it. Returns the
  * number of strip positions still to skip because an opening vertex was
  * marked away. */
-static inline int clipVolumeHead(VECTOR *ta, VECTOR *ba, VECTOR *tb, VECTOR *bb, float sgn)
+static inline int clipVolumeHead(VECTOR *ta, VECTOR *ba, VECTOR *tb, VECTOR *bb,
+                                 float sgn) /* derived name */
 {
     int state = 0;
 
@@ -818,7 +754,7 @@ static inline int clipVolumeHead(VECTOR *ta, VECTOR *ba, VECTOR *tb, VECTOR *bb,
     return state;
 }
 
-#define VOLUME_EDGE(a, b, c)                                                                       \
+#define VOLUME_EDGE(a, b, c) /* derived name */                                                    \
     VU0_REG("vsub.xy $vf8, $vf" #a ", $vf" #b "\n\t"                                               \
             "vsub.xy $vf9, $vf" #c ", $vf" #b)
 
@@ -826,9 +762,8 @@ static inline int clipVolumeHead(VECTOR *ta, VECTOR *ba, VECTOR *tb, VECTOR *bb,
  * with the position two before them read the facing that one measured back
  * out of stripFaceZ instead of taking the cross product again. The cross
  * product of the two edges left in vf8 and vf9 is written straight into the
- * table (row 1124 carries both the block and the store; row 1134 only the
- * return). */
-static inline float volumeStripFaceZ(int i)
+ * table. */
+static inline float volumeStripFaceZ(int i) /* derived name */
 {
     switch (i) {
     case 0:
@@ -867,15 +802,14 @@ static inline float volumeStripFaceZ(int i)
     return stripFaceZ[i];
 }
 
-/* rows 1197-1202: the strip is dropped whole if any of its six vertices left
+/* the strip is dropped whole if any of its six vertices left
  * the guard band or went behind the eye */
-static inline int volumeVertsOutOfRange(int *vi)
+static inline int volumeVertsOutOfRange(int *vi) /* derived name */
 {
     int n;
     int *v;
 
-    /* row 1198 carries both the count and the cursor, so the cursor is set
-     * in the for and the parameter itself is never stepped */
+    /* the cursor is set in the for; the parameter itself is never stepped */
     for (n = 0, v = vi; n < 6; n++, v += 4) {
         if (v[0] < 0x11 || 0xFFEF < v[0] || v[1] < 0x11 || 0xFFEF < v[1] || v[2] < 0) {
             return 1;
@@ -884,18 +818,19 @@ static inline int volumeVertsOutOfRange(int *vi)
     return 0;
 }
 
-/* rows 1210-1259: one shadow volume strip. Ten positions of a triangle strip
+/* One shadow volume strip. Ten positions of a triangle strip
  * over the six projected vertices, each position carrying the front or the
  * back stencil colour its facing picks. */
-static inline unsigned long long *emitVolumeStrip(unsigned long long *p, float sign)
+static inline unsigned long long *emitVolumeStrip(unsigned long long *p,
+                                                  float sign) /* derived name */
 {
     int order[20] = {0, 1, 3, 4, 5, 1, 2, 0, 5, 3, 3, 4, 0, 1, 2, 4, 5, 3, 2, 0};
     int vi[6][4];
     int i;
     int k;
     int *v;
-    /* row 1221, six rows below the table's 1215: the running sign is a local
-     * copy, so the caller's winding sign is never written */
+    /* the running sign is a local copy, so the caller's winding sign is
+     * never written */
     float sgn = sign;
 
     storeVolumeVerts(vi);
@@ -909,9 +844,8 @@ static inline unsigned long long *emitVolumeStrip(unsigned long long *p, float s
     p[4] = 0x240000000000800ALL;
     p[5] = 0x51;
     p += 6;
-    /* rows 1238-1251: the for line carries the index step, the sign flip and
-     * the vertex word's pointer step; the colour word steps its own pointer
-     * in each arm (row 1245 keeps the merged step) */
+    /* the for steps the index, flips the sign and steps the vertex word's
+     * pointer; the colour word steps its own pointer in each arm */
     for (i = 0; i < 10; i++, sgn = -sgn, p++) {
         k = order[i];
         if (volumeStripFaceZ(i) * sgn < 0.0f) {
@@ -947,7 +881,7 @@ typedef struct ShadowRun { /* field names derived */
     short pad2;
     short vtx;
     char pad6[10];
-} ShadowRun;
+} ShadowRun; /* derived name */
 
 void shadow_RenderVolume(Sub15C *o)
 {
@@ -1152,17 +1086,16 @@ void shadow_RenderVolumeMulti(Sub15C *o, int idx)
 }
 
 /* The three record shapes shadow_MakeObjectData copies out of the model into
- * its own heap. The vertex and polygon records are eight-byte aligned, which
- * is what makes the ROM copy them with ld/sd pairs; the strip record starts
- * with a short count and is only two-byte aligned, so its copy is ldl/ldr. */
-typedef struct ShadowVtx {
+ * its own heap.  The vertex and polygon records are eight-byte aligned; the
+ * strip record starts with a short count and is two-byte aligned. */
+typedef struct ShadowVtx { /* field names derived */
     int _0;
     int _4;
     int _8;
     int _C;
 } __attribute__((aligned(16))) ShadowVtx;
 
-typedef struct ShadowPoly {
+typedef struct ShadowPoly { /* field names derived */
     ShadowVtx *pts;
     int _4;
     int _8;
@@ -1175,8 +1108,7 @@ void shadow_MakeObjectData(PObjModel *a0)
     int j;
     int l;
     /* zeroed here and again after each polygon, so the scan starts from a
-     * value carried round the loop (the ROM clears it in the outer loop's
-     * preheader and in the polygon loop's latch, never before the scan) */
+     * value carried round the loop */
     int m = 0;
     int n;
     int c;
@@ -1222,8 +1154,8 @@ void shadow_MakeObjectData(PObjModel *a0)
         }
 
         s = (ShadowRun **)mallocseki(p->stripCount * 4);
-        /* the strip pass reuses the outer loop's own index, which is what
-         * makes the ROM step the outer loop on from where this one ended */
+        /* the strip pass reuses the outer loop's own index, so the outer
+         * loop steps on from where this one ended */
         for (i = 0; i < p->stripCount; i++) {
             u = ((ShadowRun **)p->strips)[i];
             n = 0;
@@ -1303,12 +1235,12 @@ inline void shadow_Init(void)
 
 /* one row of the shadow tool: the name it prints, the variable it edits and
  * the range it wraps that variable through */
-typedef struct ShadowToolRow {
+typedef struct ShadowToolRow { /* field names derived */
     char *name;
     int *val;
     int min;
     int max;
-} ShadowToolRow;
+} ShadowToolRow; /* derived name */
 
 /* the tool's eight rows, each a word of the stage record: the shadow depth,
  * its colour and the four blend weights */
@@ -1324,20 +1256,14 @@ static const ShadowToolRow shadowToolRows[] = {
     {" Shadow Blend 1/64 ", &GlobalStageSetting.shadowBlend[3], 0, 128},
 };
 
-/* the two menu colours, unselected then selected, ZFog's fogRowColor idiom:
- * the unspecified bound keeps the 8-byte object out of small data under -G 8,
- * which is where the ROM has it */
+/* the two menu colours, unselected then selected, as ZFog's fogRowColor */
 static const unsigned int shadowRowColor[] = {0xFFFFFF00, 0xFF000000}; /* derived name */
 
-/* A word of .sdata between shadow_Draw's "S" and this table's "On": the
-   bytes pin an initialised int of -1 defined after shadow_Draw; nothing in
-   the ROM reads it, so its role is not known. */
+/* an initialised word nothing reads */
 static int shadowUnusedWord = -1; /* derived name */
 
-/* the names a 0/1 row prints instead of its number, ZFog's fogOnOffText
- * idiom; the unspecified bound keeps the 8-byte pointer array out of small data
- * under -G 8, which is where the ROM has it */
-static char *shadowOnOffText[] = {"Off", "On"};
+/* the names a 0/1 row prints instead of its number, as ZFog's fogOnOffText */
+static char *shadowOnOffText[] = {"Off", "On"}; /* derived name */
 
 /* the row the tool has selected */
 static int toolRow = 0; /* derived name */

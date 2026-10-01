@@ -1,28 +1,22 @@
 /*
  * ico2/seki/include/GifPacket.h
  *
- * The disc records no file of this name: SRCFILE.TXT attributes no
- * instruction to it, and a header that only declares leaves no rows in the
- * listing at all, so this file is ours and not the developers' own record.
- * It collects the declarations of what GifPacket.c defines, in the form its
- * users need them; every type here is read from the ROM's calling convention
- * at the call sites and from the spellings the using TUs already carried.
+ * The declarations of what GifPacket.c defines, for the files that use
+ * them.  The file name is derived.
  */
 
 #ifndef GIFPACKET_H
 #define GIFPACKET_H
 
-/* RECONSTRUCTION: the colour gif_DrawStripF and gif_DrawStripFST take by
- * value (name ours).  Rung: ROM bytes: gif_DrawStripFST's prologue homes its
- * third argument with `sw $6,0x0($29)` and reads it back with four `lbu` at
- * 0..3, so the parameter is a four-byte struct; weapon.c's dispBlur and
- * puddle.c's drawRipple build it at their call sites. */
-typedef struct {
+/* the colour gif_DrawStripF and gif_DrawStripFST take by value, four bytes;
+ * weapon.c's dispBlur and puddle.c's drawRipple build it at their call
+ * sites. */
+typedef struct { /* field names derived */
     unsigned char r;
     unsigned char g;
     unsigned char b;
     unsigned char a;
-} GifColor;
+} GifColor; /* derived name */
 
 int _IsInScreen(volatile int *a0);
 int gif_CheckOpen(void);

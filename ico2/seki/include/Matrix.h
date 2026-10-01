@@ -1,20 +1,15 @@
 /*
  * ico2/seki/include/Matrix.h
  *
- * The disc records no file of this name: SRCFILE.TXT attributes no
- * instruction to it, and a header that only declares leaves no rows in the
- * listing at all, so this file is ours and not the developers' own record.
- * It collects the declarations of what Matrix.c defines, in the form its
- * users need them; every type here is read from the ROM's calling convention
- * at the call sites and from the spellings the using TUs already carried.
+ * The declarations of what Matrix.c defines, for the files that use
+ * them.  The file name is derived.
  */
 
 #ifndef MATRIX_H
 #define MATRIX_H
 
-/* The declarations below lead this header because their order is load-bearing:
- * gcc 2.9 emits the deferred out-of-line copy of a plain-inline function in
- * first-declaration order, so this is the order Matrix.c's inline tail has. */
+/* Matrix.c's `inline` functions, in the order of their definitions'
+ * out-of-line copies at the end of the object (first-declaration order). */
 float _Sqrt(float x);
 void _InitCurrentMatrix(void);
 void _UnitCurrentMatrix(void);
@@ -37,19 +32,14 @@ void _RotTransPersCurrentMatrix(void *p0, void *p1);
 void _TransposeCurrentMatrix(void);
 void _TransposeRotationCurrentMatrix(void);
 void _InverseCurrentMatrix(void);
-/* reconstruction corrected: the ROM sets only $4 and $5 at every call site
-   (flyCoreLoop), and every other TU in the tree that calls it declares two
-   parameters; the body reads only those two. */
+/* two parameters: every caller passes two and the body reads only those */
 void _NormalizeVector(void *p0, void *p1);
-/* reconstruction corrected: the ROM calls this with TWO arguments and reads
-   the result out of $f0 (stgmgrNextStagePreLoad does mov.s $f1,$f0 on the
-   return), and every TU in the tree that calls it declares it this way. */
+/* the inner product of two vectors, returned as a float */
 float _InnerProduct(void *a, void *b);
 void _OuterProduct(void *p0, void *p1, void *p2);
 void _AddVector(void *p0, void *p1, void *p2);
 void _AddVectorXYZ(void *p0, void *p1, void *p2);
-/* reconstruction corrected: the ROM sets only $4, $5 and $6 at every call
-   site, and every TU in the tree that calls it declares three parameters. */
+/* dst = a - b */
 void _SubVector(void *dst, void *a, void *b);
 void _SubVectorXYZ(void *p0, void *p1, void *p2);
 void _ScaleVector(void *p0, void *p1, float s);
@@ -77,8 +67,7 @@ void _ScaleMatrixV(void *dst, void *src, void *v);
 void _SetCameraMatrix(void *dst, void *pos, void *dir, void *up);
 void _MakeNormalLightMatrix(void *dst, void *s0, void *s1, void *s2);
 void _MakeLightColorMatrix(void *dst, void *s0, void *s1, void *s2, void *s3);
-/* corrected from the reconstruction: the ROM body reads $f12 (VU0_MFC1(a2, 12)), so
- * the call takes ONE float, which is what ico2/common/src/main.c passes. */
+/* the seed is one float, which is what ico2/common/src/main.c passes */
 void _InitRandom(float seed);
 float _GetRandom(void);
 void _GetRandomVector(void *p0);

@@ -26,27 +26,25 @@ typedef struct {           /* field names derived */
     unsigned long long id; /* 0x18 */
     int start;             /* 0x20 */
     int cur;               /* 0x24 */
-} DlEntry;
+} DlEntry;                 /* derived name */
 
-/* .sbss and .bss, owned by DisplayList.o and reached only from this file
-   (MAIN.MAP names no symbol in either run), each in the ROM's run order: the
-   bank the list is built into and the priority it is building at, then the 13
+/* The bank the list is built into and the priority it is building at, then the 13
    list entries, the two banks of 13 buffer heads they are reloaded from, and
    the eight-deep priority stack. */
-static int dlBank;
+static int dlBank; /* derived name */
 
-static int dlPriority;
+static int dlPriority; /* derived name */
 
-static DlEntry dlEntries[13];
+static DlEntry dlEntries[13]; /* derived name */
 
-static int dlBufferHead[2][13];
+static int dlBufferHead[2][13]; /* derived name */
 
-/* The depth of the priority stack below, the TU's first .sdata object. */
+/* The depth of the priority stack below. */
 static int dlStackDepth = 0; /* derived name */
 
-static int dlPriorityStack[8];
+static int dlPriorityStack[8]; /* derived name */
 
-/* The size of each priority's list buffer, the TU's first .rodata object. */
+/* The size of each priority's list buffer. */
 static const int dlBufferSize[13] = {
     /* derived name */
     81920, 14336, 30720, 4096, 16384, 65536, 40960, 12288, 26624, 14336, 4096, 28672, 86016,
@@ -191,13 +189,9 @@ inline void dl_OpenDma(int id, void *addr, int qwc)
     DlEntry *entry = &dlEntries[dlPriority];
     int old;
 
-    /* Compiled out. What the bytes pin: the ROM keeps this message between
-       dl_Debug's format and dl_CloseDma's table with no reference anywhere,
-       and the listing leaves rows 612 and 613 of dl_OpenDma code-free before
-       the open-tag test, and the TU's .sdata ends in the "e" of the
-       message-assert form this programmer writes (Packet.c, BgAnimation.c)
-       with no reference either.  What they cannot pin: the test the print
-       sat under, its argument, or the assert's line. */
+    /* the buffer overflow check, compiled out (DL_DEBUG is 0); the
+       message-assert form this programmer writes in Packet.c and
+       BgAnimation.c */
     if (DL_DEBUG) {
         debug_StdPrintfDummy("dl_CheckDLOverflow:Display List Buffer [%d] Full.\n", dlPriority);
         __assert(__FILE__, 613, "e");

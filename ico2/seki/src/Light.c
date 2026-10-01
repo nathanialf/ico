@@ -53,29 +53,24 @@ typedef struct AmbientVolume { /* field names derived */
     int shape;                  /* 0x90 */
     struct AmbientVolume *next; /* 0x94 */
     struct AmbientVolume *prev; /* 0x98 */
-} AmbientVolume;
+} AmbientVolume;                /* derived name */
 
-/* .sbss, Light.o's five words in the ROM's order (MAIN.MAP line 7576 sizes
-   the run 0x14 and names no symbol in it, so the names are ours): the cursor
-   debug view's two pad angles, the newest light and the newest ambient volume
+/* The cursor debug view's two pad angles, the newest light and the newest ambient volume
    (each list is walked back through prev), and the light count the retail
    build no longer increments. */
-static int cursorRotY;
+static int cursorRotY; /* derived name */
 
-static int cursorRotX;
+static int cursorRotX; /* derived name */
 
-/* a word, not a Light *: light_setLinkLight's stores keep the ROM's order
-   only with the head an int (a Light * head lets the p->prev store pass it) */
-static int lastLight;
+/* the newest light, kept as a word */
+static int lastLight; /* derived name */
 
-static AmbientVolume *lastAmbient;
+static AmbientVolume *lastAmbient; /* derived name */
 
-static int lightCount;
+static int lightCount; /* derived name */
 
-/* .sdata, Light.o's run (MAIN.MAP line 6990, 0x5D, no symbol named): the
-   count of flat lights light_AddLight has registered, which light_resetFlatLight
-   clears; the assert text and the debug menu's labels follow as literals and
-   the flat-light editor's cursor after the object menu. */
+/* the count of flat lights light_AddLight has registered, which
+   light_resetFlatLight clears */
 static int flatLightNum = 0; /* derived name */
 
 void light_killLinkLight(Light *p)
@@ -122,20 +117,15 @@ void light_killLinkAmbient(AmbientVolume *p)
     freeseki(p);
 }
 
-/* .data, owned by Light.o and read only here (MAIN.MAP names no symbol in the
-   run).  The three flat lights light_AddLight registers, kept so
+/* The three flat lights light_AddLight registers, kept so
    light_resetFlatLight can reload them from the stage setting. */
-static int flatLightSlot[3] = {0, 0, 0};
+static int flatLightSlot[3] = {0, 0, 0}; /* derived name */
 
-/* .bss, owned by Light.o and reached only from this file (MAIN.MAP names no
-   symbol in the run; its Light.o .bss size 0xF0 is exactly these three).  The
-   three flat lights the stage setting is reloaded into. */
-static Light flatLight[3];
+/* The three flat lights the stage setting is reloaded into. */
+static Light flatLight[3]; /* derived name */
 
-/* Light.c lines 382-391: the list head keeps the newest node.  Line 391's
-   counter update is a debug arm the retail build compiles out (the
-   January-2002 listing still has it, three expansions, nine instructions). */
-static inline void light_setLinkLight(Light *p)
+/* The list head keeps the newest node. */
+static inline void light_setLinkLight(Light *p) /* derived name */
 {
     if (lastLight != 0) {
         ((Light *)lastLight)->next = p;
@@ -225,12 +215,8 @@ Light *light_AddLight(GObj *self, int b, int kind)
     return 0;
 }
 
-/* Listing rows 754-964.  The January listing's rows 877-881 (a flag-guarded
-   copy of near[] and its weights into two debug arrays) are absent from the
-   retail build.  Each switch arm writes its own abs and weight store and
-   jump.c cross-jumps the copies (listing lines 802, 841-842); the range tests
-   are nested ifs, since an && pair folds into one unsigned compare where the
-   ROM keeps bltz and slti. */
+/* Each switch arm writes its own abs and weight store; the range tests are
+   nested ifs. */
 void light_getNearLight(Sub15C *self, int idx)
 {
     Light *near[3];
@@ -268,12 +254,9 @@ void light_getNearLight(Sub15C *self, int idx)
             p->strength = d;
             break;
         case 1:
-            /* Listing line 805 reads the dobj's light number and 806 tests
-               it.  The ROM keeps that word in $6, the insert loop's index
-               register, so it is the same variable as j (gcc 2.9 gives one
-               variable one allocno); the bytes pin the sharing, not the
-               name.  GetRootPositionByDObj takes the dobj as its second
-               argument (geometryManager.c), already in $5 from the test. */
+            /* the dobj's light number, in j, the insert loop's index;
+               GetRootPositionByDObj takes the dobj as its second argument
+               (geometryManager.c) */
             j = p->owner->dobj->lightId;
             if (j == 0) {
                 p->falloff = 0.0f;
@@ -366,10 +349,9 @@ void light_getNearLight(Sub15C *self, int idx)
     }
 }
 
-/* Light.c lines 1024-1025 call _GetNorm three times per value (once for the
-   sign test, once in each arm), which is what a macro does to a call
-   argument: ABS is a macro here, not a function. */
-#define LIGHT_ABS(x) ((x) < 0.0f ? -(x) : (x))
+/* a macro, so each use calls _GetNorm once for the sign test and once in
+   each arm */
+#define LIGHT_ABS(x) ((x) < 0.0f ? -(x) : (x)) /* derived name */
 
 void light_getAmbientLight(Sub15C *a, int b)
 {
@@ -383,8 +365,7 @@ void light_getAmbientLight(Sub15C *a, int b)
     float scale;
     /* mx/my carry the largest inner-ellipsoid component and its outer
        partner in the kind-1 arm; the kind-2 arm reuses my as its own blend
-       total, a scratch reuse the ROM's register file proves (both roles are
-       $f20 there, and the two arms' other scratch values are separate). */
+       total. */
     float mx;
     float my;
 
@@ -468,8 +449,7 @@ void light_getAmbientLight(Sub15C *a, int b)
                 sum = s1[0] + s1[1] + s1[2];
                 if (sum < best) {
                     /* the kind-1 arm copies the volume colour here where the
-                       kind-2 arm copies its blended vector; the ROM's $s0
-                       (v + 0x40) at this call site is what it is. */
+                       kind-2 arm copies its blended vector */
                     _CopyVector(a->lightMtx->ambient, v->col);
                     best = sum;
                     scale = v->lightScale + (1.0f - v->lightScale) * mx / (mx + my);
@@ -505,27 +485,11 @@ void light_MakeLightMatrix(Sub15C *a, int b)
                           a->lightMtx->col[2], a->lightMtx->ambient);
 }
 
-/* Light.c lines 1200-1373.  The January-2002 listing carries two debug arms
-   the retail build does not: a kind-0 search of the three editor slots
-   (rows 1211-1217), the same search again before the packet (rows 1241-1258)
-   and the ambient volume's selected-slot blink and print (rows 1323-1324,
-   1363-1364).  Retail keeps neither, so the slot search that sets `i` in the
-   listing is gone and the test below reads what the previous light left in
-   it: the ROM's `li 3` in the gif_EndPacket delay slot is loop.c's final
-   value for the reversed three-step loop, emitted because `i` is still live
-   out of the loop through the back edge.
-   Both lists are walked as `p = head; while (p != 0) { ...; p = p->prev; }`
-   (rows 1202/1203 and 1307/1309, 1313/1314 and 1370/1372: the step is a body
-   statement and the bottom test carries the closing brace's line).  The first
-   block's arrays are declared in its `if` block, so they are freed when it
-   ends and the ambient loop's colour and extents re-take the frame base (the
-   ROM's sp+0 and sp+0x10); a `for` would expand its step at the arrays' own
-   level after their addresses were taken, and stmt.c's preserve_temp_slots
-   would then keep them for the whole function (measured, frame 0x280).
-   Row 1315 is one declaration: the ambient colour is built by its
-   initializer in a temporary (the three conversions, the 128 and the ld/sd
-   copy all sit on that row), and the temporary is the slot the extents
-   re-take. */
+/* The light and ambient volume debug view.  The slot search that would set
+   `i` is not in the retail build, so the test below reads what the previous
+   light left in it.  Both lists are walked as
+   `p = head; while (p != 0) { ...; p = p->prev; }`, and the ambient colour is
+   built by its initializer. */
 
 void light_DispVolume(void)
 {
@@ -614,14 +578,8 @@ void light_DispVolume(void)
             Col4 col = {{av->col[0] * 255.0f, av->col[1] * 255.0f, av->col[2] * 255.0f, 128}};
             float ext[4];
 
-            /* Row 1316.  The null test folds away (the loop test already
-               proved av), but as a loop exit it is what makes stmt.c's
-               expand_end_loop roll the colour with the loop test, so jump.c
-               copies both above the loop: the ROM's two colour blocks.  The
-               bytes pin a loop exit after the initializer and before the
-               switch, not its spelling; the same function re-tests its
-               light pointer the same way in case 1 of the first loop, where
-               the test survives.  Without it the copy is gone (362 of 380). */
+            /* a second null test of av, which the loop test already makes;
+               the first loop re-tests its light pointer the same way */
             if (av == 0) {
                 break;
             }
@@ -660,11 +618,9 @@ void light_DispVolume(void)
     }
 }
 
-/* Light.c line 1388.  Declared `inline`, so ee-gcc expands it into light_Tool
-   (listing rows 1388-1406 sit inside light_Tool's span) and defers the
-   out-of-line copy to the end of the object, which is where the ROM has it
-   (0x00118F58, after light_AddAmbientObject).  light_AddLight sits above this
-   definition and so keeps its out-of-line call. */
+/* Declared `inline`: light_Tool expands it and the out-of-line copy goes to
+   the end of the object.  light_AddLight sits above this definition and so
+   keeps its out-of-line call. */
 inline void light_resetFlatLight(void)
 {
     int i;
@@ -761,10 +717,10 @@ void light_GetColorAnalog(float *col)
 }
 
 /* A cursor vertex or the cursor's RGBA colour, one quadword either way. */
-typedef union LtVec {
+typedef union LtVec { /* field names derived */
     sceVu0FVECTOR f;
     int i[4];
-} LtVec;
+} LtVec; /* derived name */
 
 void light_DrawCursor(float *dir, int mode)
 {
@@ -833,20 +789,16 @@ void light_DrawCursor(float *dir, int mode)
     gif_EndPacket();
 }
 
-/* Light.c lines 1535-1684, the flat-light editor page of the debug menu.
-   Three pages selected by toolPage (colour, direction vector, ambient),
-   each editing light toolLight with component toolItem (3 = all three at
-   once).  The retail build calls debug_PrintfDummy where the January-2002
-   listing calls debug_Printf; everything else is instruction for instruction
-   the same function, so the listing's per-instruction line map is the
-   source-shape oracle here.  The blink guard masks frame_count with an
-   unsigned constant: masked with a plain int 0x1F, gcc knows the value fits
-   0..31 and picks slti, while the ROM has sltiu at all six sites.
-   light_resetFlatLight is expanded at the tail (listing rows 1388-1406). */
-/* .data, owned by Light.o and read only here.  One idle flag per editor page
+/* light_Tool below is the flat-light editor page of the debug menu.  Three
+   pages selected by toolPage (colour, direction vector, ambient), each
+   editing light toolLight with component toolItem (3 = all three at once).
+   The retail build prints through debug_PrintfDummy.  The blink guard masks
+   frame_count with an unsigned constant.  light_resetFlatLight is expanded at
+   the tail. */
+/* One idle flag per editor page
    (0 colour, 1 vector, 2 ambient): 1 while the page is only being shown, 0
    while the analog sticks are driving that page's values. */
-static int pageIdle[3] = {1, 1, 1};
+static int pageIdle[3] = {1, 1, 1}; /* derived name */
 
 static int toolPage = 0; /* derived name */ /* the editor page: 0 colour, 1 vector, 2 ambient */
 
@@ -898,11 +850,8 @@ int light_Tool(void)
             pageIdle[0] ^= 1;
         }
         if (pageIdle[0] == 0 && toolItem == 3) {
-            /* The row pointer is into flatLightDir, so the three stores keep
-               the +0x30 to flatLightCol in the store displacement off one
-               base; spelling the destination as flatLightCol[idx][n] at each
-               of the three sites folds 0x30 onto the symbol and makes gcse PRE
-               insert two reaching-register copies the ROM does not have. */
+            /* the row pointer is into flatLightDir; the three stores reach
+               flatLightCol, 0x30 further on, off the same base */
             c = &GlobalStageSetting.flatLightDir[toolLight];
             c[3][0] = col1[0] / 128.0f;
             c[3][1] = col1[1] / 128.0f;
@@ -1107,7 +1056,7 @@ void light_KillAllAmbient(void)
     }
 }
 
-static inline void light_setLinkAmbient(AmbientVolume *p)
+static inline void light_setLinkAmbient(AmbientVolume *p) /* derived name */
 {
     if (lastAmbient != 0)
         lastAmbient->next = p;

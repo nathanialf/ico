@@ -1,19 +1,14 @@
 /*
  * ico2/seki/include/GsBase.h
  *
- * The disc records no file of this name: SRCFILE.TXT attributes no
- * instruction to it, and a header that only declares leaves no rows in the
- * listing at all, so this file is ours and not the developers' own record.
- * It collects the declarations of what GsBase.c defines, in the form its
- * users need them; every type here is read from the ROM's calling convention
- * at the call sites and from the spellings the using TUs already carried.
+ * The declarations of what GsBase.c defines, for the files that use
+ * them.  The file name is derived.
  */
 
 #ifndef GSBASE_H
 #define GSBASE_H
 
-/* the TU's globals (MAIN.MAP names the first nine; the last four are
-   retail additions and their names are ours) */
+/* GsBase.c's globals */
 extern int currentFocusDistance;
 extern int fbKeep;
 extern int fbClear;

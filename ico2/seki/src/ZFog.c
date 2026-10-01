@@ -10,16 +10,15 @@
 
 /* The fog CLUT upload packet: a VIF code quad (nop, nop, FLUSHA, DIRECT 65),
  * a GIFtag (EOP, NLOOP=64, FLG=IMAGE), the 256-entry 32-bit CLUT itself and a
- * trailing FLUSHA quad: ZFog.o's whole .bss (VMA 0x6AF590..0x6AF9C0). */
-typedef struct FogClutPacket {
-    unsigned int vif[4];    /* 0x000 */
-    long long gif[2];       /* 0x010 */
-    unsigned int clut[256]; /* 0x020 */
-    unsigned int vifEnd[4]; /* 0x420 */
-} FogClutPacket;
+ * trailing FLUSHA quad. */
+typedef struct FogClutPacket { /* field names derived */
+    unsigned int vif[4];       /* 0x000 */
+    long long gif[2];          /* 0x010 */
+    unsigned int clut[256];    /* 0x020 */
+    unsigned int vifEnd[4];    /* 0x420 */
+} FogClutPacket;               /* derived name */
 
-static FogClutPacket
-    fogClutPacket; /* static: fog_DrawFog and fog_MakeFogClut reach it as a local symbol, as the ROM's relocations do */
+static FogClutPacket fogClutPacket; /* derived name */
 
 void fog_MakeFogClut(void)
 {
@@ -86,11 +85,10 @@ void fog_MakeFogClut(void)
     FlushCache(0);
 }
 
-/* RECONSTRUCTION.  The packet writers the listing attributes to their
-   invoking lines in fog_DrawFog (no GifPacket.c rows), so macros; their
-   bodies are gif_StartPacket's, gif_SetGsReg's and gif_EndPacket's own
-   (GifPacket.c), the end one with its DMA kick. */
-#define FOG_START_PACKET()                                                                         \
+/* The packet writers fog_DrawFog uses, as macros: their bodies are
+   gif_StartPacket's, gif_SetGsReg's and gif_EndPacket's own (GifPacket.c),
+   the end one with its DMA kick. */
+#define FOG_START_PACKET() /* derived name */                                                      \
     {                                                                                              \
         char *c = PacketBufferStruct.ptr.c;                                                        \
         PacketBufferStruct.gif.c = 0;                                                              \
@@ -105,12 +103,12 @@ void fog_MakeFogClut(void)
         ((GifPkWord *)(c + 0x18))->d = 0xE;                                                        \
         PacketBufferStruct.ptr.c = c + 0x20;                                                       \
     }
-#define FOG_SET_GSREG(reg, val)                                                                    \
+#define FOG_SET_GSREG(reg, val) /* derived name */                                                 \
     {                                                                                              \
         *PacketBufferStruct.ptr.d++ = (val);                                                       \
         *PacketBufferStruct.ptr.d++ = (reg);                                                       \
     }
-#define FOG_END_PACKET()                                                                           \
+#define FOG_END_PACKET() /* derived name */                                                        \
     {                                                                                              \
         char *p;                                                                                   \
         ((GifPkWord *)PacketBufferStruct.end.c)->d =                                               \
@@ -140,8 +138,8 @@ void fog_MakeFogClut(void)
     }
 /* FRAME_1, SCISSOR_1 and XYOFFSET_1 for a w by h buffer at base fbp, the
    window centred on the GS's 2048.0 origin and moved by ox, oy sixteenths:
-   src/Shadow.c's setFrame, on one line of the use as the listing has it. */
-#define FOG_SET_FRAME(fbp, w, h, ox, oy)                                                           \
+   src/Shadow.c's setFrame. */
+#define FOG_SET_FRAME(fbp, w, h, ox, oy) /* derived name */                                        \
     {                                                                                              \
         FOG_SET_GSREG(0x4C, (fbp) | ((long long)(((w) >> 6) & 0x3F) << 16));                       \
         FOG_SET_GSREG(0x40, ((long long)((w) - 1) << 16) | ((long long)((h) - 1) << 48));          \
@@ -150,16 +148,15 @@ void fog_MakeFogClut(void)
     }
 /* RGBAQ packed from a four-byte colour, and XYZ2 with and without the
    2048.0-pixel window origin folded in, as src/Shadow.c packs them */
-#define GIF_RGBA(c)                                                                                \
+#define GIF_RGBA(c) /* derived name */                                                             \
     ((long long)(c)[0] | ((long long)(c)[1] << 8) | ((long long)(c)[2] << 16) |                    \
      ((long long)(c)[3] << 24))
-#define GIF_XY0(x, y, z) ((long long)(x) | ((long long)(y) << 16) | ((z) << 32))
-#define GIF_XY(x, y, z)                                                                            \
+#define GIF_XY0(x, y, z) ((long long)(x) | ((long long)(y) << 16) | ((z) << 32)) /* derived name */
+#define GIF_XY(x, y, z) /* derived name */                                                         \
     ((long long)((x) + 0x8000) | ((long long)((y) + 0x8000) << 16) | ((z) << 32))
 /* The textured sprite, src/Shadow.c's spriteUV: PRIM, RGBAQ, then a UV and
-   an XYZ2 pair for each corner, the far corner as x + fx with fx = w + 0x8000.
-   A MACRO: the listing puts all of it on the line of the use. */
-#define FOG_SPRITE_UV(r, uv, col, prim, z)                                                         \
+   an XYZ2 pair for each corner, the far corner as x + fx with fx = w + 0x8000. */
+#define FOG_SPRITE_UV(r, uv, col, prim, z) /* derived name */                                      \
     {                                                                                              \
         FOG_SET_GSREG(0x00, prim);                                                                 \
         FOG_SET_GSREG(0x01, GIF_RGBA(col));                                                        \
@@ -176,7 +173,7 @@ void fog_MakeFogClut(void)
     }
 /* The untextured sprite, src/Shadow.c's spriteRect: PRIM, RGBAQ and the two
    XYZ2 corners, the far corner as spriteUV holds it. */
-#define FOG_SPRITE_RECT(r, col, prim, z)                                                           \
+#define FOG_SPRITE_RECT(r, col, prim, z) /* derived name */                                        \
     {                                                                                              \
         FOG_SET_GSREG(0x00, prim);                                                                 \
         FOG_SET_GSREG(0x01, GIF_RGBA(col));                                                        \
@@ -189,20 +186,9 @@ void fog_MakeFogClut(void)
         }                                                                                          \
     }
 
-/* RECONSTRUCTION.  The debug switch dbg and its test after the conversion
-   loop are code the ROM does not contain: cse cannot carry dbg's 0 across the
-   loop label, gcse's constant propagation folds the test and the next jump
-   pass deletes the arm, as in src/Shadow.c shadow_Draw.  What the bytes pin:
-   the six frame slots are gcse PRE reaching registers in hash bucket order,
-   and their offsets and the order of the loads before the loop come out as
-   the ROM's only with a 403-bucket table, i.e. 804 to 807 insns at gcse, 16
-   more than the function without the arm; the arm sits after the loop (before
-   it cse folds the test away) and on the row the listing leaves code-free
-   before the FRAME writes, which re-read the packet cursor; it kills none of
-   the loads PRE moves (so it writes neither rc0 nor rc1) and computes no
-   expression the later code computes.  What they cannot pin: the arm's text.
-   The layer made opaque and TEXA set as src/GsBase.c's full-screen sprites
-   set it is this programmer's setup for such a sprite, sized to that count. */
+/* The depth fog layer.  dbg is a local debug switch, off: it draws the layer
+   opaque with TEXA set as src/GsBase.c's full-screen sprites set it, as in
+   src/Shadow.c shadow_Draw. */
 /* clang-format off */
 void fog_DrawFog(void)
 {
@@ -284,18 +270,17 @@ void fog_DrawFog(void)
 /* clang-format on */
 
 /* one row of the fog debug menu: a label, the int it edits and its range */
-typedef struct FogToolItem {
-    char *name; /* 0x0 */
-    int *val;   /* 0x4 */
-    int min;    /* 0x8 */
-    int max;    /* 0xC */
-} FogToolItem;
+typedef struct FogToolItem { /* field names derived */
+    char *name;              /* 0x0 */
+    int *val;                /* 0x4 */
+    int min;                 /* 0x8 */
+    int max;                 /* 0xC */
+} FogToolItem;               /* derived name */
 
-/* the two labels the 0/1 row prints; the unspecified bound keeps the 8-byte
-   pointer array out of small data under -G 8, which is where the ROM has it */
-static char *fogOnOffText[] = {"Off", "On"};
+/* the two labels the 0/1 row prints */
+static char *fogOnOffText[] = {"Off", "On"}; /* derived name */
 
-/* .rodata: the fog tool's nine rows and their names.  Each row names the stage
+/* the fog tool's nine rows and their names.  Each row names the stage
    setting word it edits; the first row is the only 0/1 one, which is what the
    tool tests to decide between the text and the number format. */
 
@@ -309,12 +294,11 @@ static const FogToolItem fogToolItems[9] = {
     {" Fog Near     ", &GlobalStageSetting.fogNear, 0, 255},
     {" Fog Far      ", &GlobalStageSetting.fogFar, 0, 255},
     {" Fog Strength ", &GlobalStageSetting.fogStrength, 0, 255},
-};
+}; /* derived name */
 
 /* the colour a row is drawn in: white when the cursor is elsewhere, black when
-   it is on this row.  The unspecified bound keeps the 8-byte object out of
-   small data under -G 8, which is where the ROM has it. */
-static const unsigned int fogRowColor[] = {0xFFFFFF00, 0xFF000000};
+   it is on this row. */
+static const unsigned int fogRowColor[] = {0xFFFFFF00, 0xFF000000}; /* derived name */
 
 static int toolRow = 0; /* derived name */ /* highlighted row */
 

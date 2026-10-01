@@ -1,12 +1,8 @@
 /*
  * ico2/seki/include/BgAnimation.h
  *
- * The disc records no file of this name: SRCFILE.TXT attributes no
- * instruction to it, and a header that only declares leaves no rows in the
- * listing at all, so this file is ours and not the developers' own record.
- * It collects the declarations of what BgAnimation.c defines, in the form its
- * users need them; every type here is read from the ROM's calling convention
- * at the call sites and from the spellings the using TUs already carried.
+ * The declarations of what BgAnimation.c defines, for the files that use
+ * them.  The file name is derived.
  */
 
 #ifndef BGANIMATION_H
@@ -27,8 +23,7 @@ void bga_DispLightning(void);
 int bga_InitData(char *data);
 void bga_ResetAnimation(void);
 /* unprototyped, as bga_SetFrame: stage_SetAnimation passes a fourth word
-   (the ROM loads $7 at the call) that the three-parameter definition does not
-   read */
+   that the three-parameter definition does not read */
 void bga_SetCamFrame();
 void bga_SetCameraForceOff(void);
 void bga_SetFrame();

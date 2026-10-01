@@ -12,58 +12,40 @@
 #include "memory.h"
 #include <assert.h>
 
-/* .sdata, Packet.o's run (MAIN.MAP 0x57, no symbol named): the largest
-   packet pac_MakePacket has built so far, then the dump formats, the assert
-   texts and the model name formats as literals. */
+/* the largest packet pac_MakePacket has built so far */
 static int maxPacketSize = 0; /* derived name */
 
-/* A float word written through the union member: the store has alias set 0,
-   so the bounding-box stores of pac_growBounds end what CSE knows about the
-   strip entry and the strip builders re-read the vertex index after it, as the
-   ROM does. */
-typedef union {
+/* A word written as a float through the union member. */
+typedef union { /* field names derived */
     float f;
     unsigned int ui;
-} PacketFloat;
+} PacketFloat; /* derived name */
 
-/* RECONSTRUCTION (name ours): a 16-byte vector copied as two doublewords,
-   the ROM's ld/ld and sd/sd pair for the margin copy out of its template.
-   pacWork.boxMin and boxMax are the 32-byte bounding box, minimum then
-   maximum corner (the ROM reaches the maximum as %lo(pacWork + 0x50) and the
-   minimum with -16). */
-typedef struct {
+/* A 16-byte vector copied as two doublewords.  pacWork.boxMin and boxMax
+   are the 32-byte bounding box, minimum then maximum corner. */
+typedef struct { /* field names derived */
     sceVu0FVECTOR f;
-} PacBoxVec;
+} PacBoxVec; /* derived name */
 
 /* The context's counter pair at +0x30 (w[0] the element count, w[1] the GIF
-   count) and the state word at +0x38: the TU reads each both as 32-bit words
-   and as a 64-bit mask, so both are this union and every access has alias
-   set 0. */
-typedef union {
+   count) and the state word at +0x38, each read both as 32-bit words and as
+   a 64-bit mask. */
+typedef union { /* field names derived */
     unsigned long long ul;
     long long l;
     int w[2];
-} PacState;
+} PacState; /* derived name */
 
-/* RECONSTRUCTION (names ours): the work area's layout, as the TU's accesses
-   read it. The strip builders reach the state and the write cursor as
-   members: the ROM materialises the bare pacWork address at the first access
-   of each region (listing 742 and 749, 911, 921, 933 and 944), which is what
-   a member access of the whole object expands to, where a char offset from
-   pacWork folds into one constant address. The cursor is a union of packet
-   pointers: every access to it has alias set 0, so each typed word store
-   keeps the cursor store before it alive while the int and float loads
-   between them move as the ROM's do, and each word is one post-increment
-   statement (the listing puts a word's value store and its cursor store on
-   one line). */
-typedef union {
+/* The work area's layout.  The cursor is a union of packet pointers, and
+   each word is one post-increment statement. */
+typedef union { /* field names derived */
     int *i;
     float *f;
     unsigned int addr;
     PacBoxVec *v;
-} PacCursor;
+} PacCursor; /* derived name */
 
-typedef struct {
+typedef struct { /* field names derived */
     char name[32];
     unsigned int dmaTag;
     unsigned int vifCode;
@@ -73,13 +55,12 @@ typedef struct {
     PacState state;
     PacketFloat boxMin[4];
     PacketFloat boxMax[4];
-} PacWork;
+} PacWork; /* derived name */
 
-/* the packet builder's work area, the TU's whole .bss (MAIN.MAP Packet.o
- * .bss 0x60, no symbol; the name is ours): the model name the error messages
- * print, the open DMA tag, VIF code and GIF tag, the write cursor, the
- * element counts, the state bits and the bounding box */
-static PacWork pacWork;
+/* the packet builder's work area: the model name the error messages print,
+ * the open DMA tag, VIF code and GIF tag, the write cursor, the element
+ * counts, the state bits and the bounding box */
+static PacWork pacWork; /* derived name */
 
 void pac_DispQW(void *p, int size)
 {
@@ -182,9 +163,9 @@ inline void pac_DispVu1Memory(int idx, int n, int size)
     }
 }
 
-/* listing rows 607-613: grows the context's bounding box by one vertex (the
-   strip builders inline it) */
-static inline void pac_growBounds(PacWork *ctx, char *vtx, int idx)
+/* grows the context's bounding box by one vertex (the strip builders inline
+   it) */
+static inline void pac_growBounds(PacWork *ctx, char *vtx, int idx) /* derived name */
 {
     if (ctx->boxMin[0].f > *(float *)(vtx + idx * 16))
         ctx->boxMin[0].f = *(float *)(vtx + idx * 16);
@@ -213,11 +194,7 @@ void pac_makeBoundingBox(float (*box)[4], int flag)
         _AddVectorXYZ(pacWork.boxMax, pacWork.boxMax, &mrg);
         _SubVectorXYZ(pacWork.boxMin, pacWork.boxMin, &mrg);
     }
-    /* The eight corners are indexed off the box, not walked with a pointer:
-       loop.c reduces the box[i] addresses to one pointer giv, and in that
-       form sched1 schedules each block of the loop alone, the ROM's order; a
-       pointer walk forms a ten-block interblock region and hoists the masks
-       and the call's argument moves into the first block (measured). */
+    /* the eight corners, indexed off the box */
     for (ctx = &pacWork, i = 0; i < 8; i++) {
         if (i & 1)
             box[i][0] = ctx->boxMax[0].f;
@@ -320,10 +297,10 @@ int pac_makeNormalStrip(char *obj, short *strip, int num)
 
 /* one entry of the four-entry cluster weight table pac_getWeight fills: the
  * cluster's bone number and its weight on the vertex */
-typedef struct {
+typedef struct { /* field names derived */
     int no;
     float weight;
-} PacWeight;
+} PacWeight; /* derived name */
 
 /* clang-format off */
 int pac_getWeight(PacWeight *w, char *obj, char *shp, int num)
@@ -377,8 +354,6 @@ int pac_getWeight(PacWeight *w, char *obj, char *shp, int num)
     sum = w[0].weight + w[1].weight;
     if (sum < 0.99f)
         debug_StdPrintfDummy("warning:weight total %f VtxIdx:%d\n", sum, ret);
-    /* the listing has no rows for the 23 lines between the warning and the
-     * return */
 
 
 
@@ -525,18 +500,18 @@ void pac_setVifEndCode(void)
 
 /* GIF tag template for the two texture-mapping modes: per mode the tag's
    FLG/NREG half, then the REGS descriptor. */
-typedef struct {
+typedef struct { /* field names derived */
     unsigned long long w0;
     unsigned long long w1;
-} GifTagTmpl;
+} GifTagTmpl; /* derived name */
 
-/* One packet qword. The TU writes this memory both as 32-bit VIF codes
+/* One packet qword. The file writes this memory both as 32-bit VIF codes
    (pac_setVifCode, pac_setVifEndCode) and as a 64-bit GIF tag, so the
    packet word is a union of the two views. */
-typedef union {
+typedef union { /* field names derived */
     unsigned long long ul;
     unsigned int ui[2];
-} PacketWord;
+} PacketWord; /* derived name */
 
 static const GifTagTmpl gifTagTmpl[2] = {
     /* derived name */
@@ -568,27 +543,23 @@ void pac_setGifTag(char *shp, char *mat, unsigned long long nloop)
 ", nloop);
 }
 
-/* .sbss, owned by Packet.o (MAIN.MAP Packet.o .sbss 0x14; it names no symbol
-   in the run, so the names are ours), in the ROM's run order: the packet
-   bytes pac_closeTag adds up, the polygons pac_makeStrip counts, the tags
+/* the packet bytes pac_closeTag adds up, the polygons pac_makeStrip counts, the tags
    pac_closeTag and pac_continueTag open, the strips of the current chain
    (the "fchain" the divide messages print) and a word only pac_Init
    clears. pac_makePacket clears and reads the first three. */
-static unsigned int pacPacketBytes;
+static unsigned int pacPacketBytes; /* derived name */
 
-static unsigned int pacPolyCount;
+static unsigned int pacPolyCount; /* derived name */
 
-static unsigned int pacTagCount;
+static unsigned int pacTagCount; /* derived name */
 
-static unsigned int pacStripCount;
+static unsigned int pacStripCount; /* derived name */
 
-static int pacUnusedWord;
+static int pacUnusedWord; /* derived name */
 
-/* listing rows 993/995: a static inline sitting between pac_openDmaTag and
-   pac_setVifCode that zeroes the open DMA tag's two words. It reads the
-   context pointer again for the second word because the first store aliases
-   it. */
-static inline void pac_closeDmaTag(void)
+/* Zero the open DMA tag's two words.  The context pointer is read again for
+   the second word: the first store may alias it. */
+static inline void pac_closeDmaTag(void) /* derived name */
 {
     ((unsigned int *)pacWork.dmaTag)[0] = 0;
     ((unsigned int *)pacWork.dmaTag)[1] = 0;
@@ -620,10 +591,8 @@ int pac_closeTag(char *shp, char *mat)
     return qwc * 16;
 }
 
-/* listing rows 1043-1048: a static inline between pac_setVifEndCode and
-   pac_closeTag that closes the VIF list and re-opens the DMA tag one qword
-   further on. */
-static inline void pac_continueDmaTag(void)
+/* Close the VIF list and reopen the DMA tag one qword further on. */
+static inline void pac_continueDmaTag(void) /* derived name */
 {
     PacWork *ctx = &pacWork;
     int *p = ctx->cursor.i;
@@ -653,11 +622,9 @@ void pac_continueTag(char *shp, char *mat)
     pacTagCount += 1;
 }
 
-/* listing rows 1166-1194. 192 is the DMA chain's qword budget; the ROM's
-   compare is against a register, so it is a local and not a literal.
-   "gif over! cut! %d/%d polys:%d/%d fchain:%d vif+gif:%d\n" is "gif over! cut! %d/%d polys:%d/%d fchain:%d vif+gif:%d":
-   the last field is the qword count plus the gif tags the chain already
-   holds plus the one about to be opened. */
+/* 192 is the DMA chain's qword budget.  In the "gif over! cut!" message the
+   last field is the qword count plus the gif tags the chain already holds
+   plus the one about to be opened. */
 void pac_checkDivide(int num, char *shp, char *mat)
 {
     int limit = 192;
@@ -699,15 +666,14 @@ void pac_checkDivide(int num, char *shp, char *mat)
     }
 }
 
-typedef struct {
+typedef struct { /* field names derived */
     unsigned int b0 : 1;
-} ShpFlags;
+} ShpFlags; /* derived name */
 
 extern void malloc_MemCpy(int dst, int src, int n);
 
-/* listing rows 1207-1219: a static inline above pac_countOneVertexPacketSize (1230) that copies a
-   finished packet down into a fresh seki-heap block. */
-static inline int pac_moveToSeki(int src, int size)
+/* Copy a finished packet down into a fresh seki-heap block. */
+static inline int pac_moveToSeki(int src, int size) /* derived name */
 {
     int p;
 
@@ -860,7 +826,7 @@ int pac_makeStrip(char **out, char *obj, char **tbl, int shpno, int matno, int l
 
 /* The material table entry's 64-bit mode word at +0x60: the same qword
    pac_setMaterialPacket reads back as its three mode selectors. */
-typedef struct MatEnt {
+typedef struct MatEnt { /* field names derived */
     char pad0[96];
     unsigned long long b0 : 1;
     unsigned long long b1 : 2;
@@ -870,7 +836,7 @@ typedef struct MatEnt {
     unsigned long long b8 : 1;
     unsigned long long b9 : 1;
     char pad1[8];
-} MatEnt;
+} MatEnt; /* derived name */
 
 void pac_setMaterialPacket(MatEnt *ent)
 {
@@ -941,15 +907,15 @@ void pac_setMaterialPacket(MatEnt *ent)
     *(int *)(p + 4) = 0;
 }
 
-typedef struct MatSrc {
+typedef struct MatSrc { /* field names derived */
     char pad0[5];
     unsigned char f_5;
     unsigned char f_6;
     char pad1[5];
     float f_C;
-} MatSrc;
+} MatSrc; /* derived name */
 
-typedef struct MatObj {
+typedef struct MatObj { /* field names derived */
     char pad0[160];
     int f_A0;
     char pad1[12];
@@ -959,13 +925,13 @@ typedef struct MatObj {
     char pad3[12];
     MatSrc *f_D0;
     unsigned int f_D4;
-} MatObj;
+} MatObj; /* derived name */
 
-typedef struct MatTab {
+typedef struct MatTab { /* field names derived */
     MatEnt *f_0;
     char pad0[12];
     short f_10;
-} MatTab;
+} MatTab; /* derived name */
 
 void pac_makeMaterialTable(MatTab *out, MatObj *obj, int p2, int p3, unsigned int p4)
 {
@@ -999,11 +965,11 @@ void pac_makeMaterialTable(MatTab *out, MatObj *obj, int p2, int p3, unsigned in
     out->f_10 = obj->f_D4;
 }
 
-typedef struct MatLine {
+typedef struct MatLine { /* field names derived */
     MatEnt *f_0;
     char pad0[8];
     short f_C;
-} MatLine;
+} MatLine; /* derived name */
 
 void pac_makeMaterialTableLine(MatLine *out, MatObj *obj, int p2, int p3, unsigned int p4)
 {
@@ -1075,19 +1041,18 @@ void pac_getTextureInfo(char *m, char *info, int idx)
     }
 }
 
-/* One 16-byte shape-table qword. Four ints, so 4-byte aligned: the ROM's
-   copy of it comes out as ldl/ldr plus sdl/sdr. */
-typedef struct {
+/* One 16-byte shape-table qword, four ints. */
+typedef struct { /* field names derived */
     int _0[4];
-} PacQw;
+} PacQw; /* derived name */
 
-/* One 32-byte cluster node. 8-byte aligned (the ROM copies it with ld/sd),
-   terminated by -1 in the word at +0x10. */
-typedef struct {
+/* One 32-byte cluster node, 8-byte aligned; a list of them ends with -1 in
+   the word at +0x10. */
+typedef struct { /* field names derived */
     long long _0[2];
     int f10;
     int _14[3];
-} PacNode;
+} PacNode; /* derived name */
 
 void pac_makeShapeTable(int a0, char *obj)
 {
@@ -1151,17 +1116,14 @@ void pac_makeShapeTable(int a0, char *obj)
     *(int *)(obj + 0x120) = (int)ntbl;
 }
 
-/* RECONSTRUCTION (names ours): the views pac_makePacket writes through.
+/* The views pac_makePacket writes through.
    PacObjMode is the model object's head as far as the builder reads it: the
    sub-object count at 0x2E, the display flag at 0x2F and the 64-bit mode word
-   at 0x30 as unsigned short bitfields (every extraction is `andi 0xFFFF`, and
-   the leading vectors give the view the 16-byte alignment that makes the word
-   a doubleword access). PacLine is a 192-byte line record, PacStrip the
-   160-byte strip node (bounding box, ids, counts, the 24-bit packet size with
-   the lod byte after it, the chain link and the packet address). Bitfield
-   accesses carry alias set 0 (change_address drops it), member stores are
-   in-struct: both are what the ROM's instruction order needs. */
-typedef struct {
+   at 0x30 as unsigned short bitfields. PacLine is a 192-byte line record,
+   PacStrip the 160-byte strip node (bounding box, ids, counts, the 24-bit
+   packet size with the lod byte after it, the chain link and the packet
+   address). */
+typedef struct { /* field names derived */
     sceVu0FVECTOR pad0[2];
     char pad1[14];
     char nsub;
@@ -1170,25 +1132,25 @@ typedef struct {
     unsigned short type : 2;
     unsigned short shade : 4;
     unsigned short lod : 4;
-} PacObjMode;
+} PacObjMode; /* derived name */
 
-typedef struct {
+typedef struct { /* field names derived */
     unsigned char r;
     unsigned char g;
     unsigned char b;
     unsigned char a;
-} PacColor;
+} PacColor; /* derived name */
 
-typedef struct {
+typedef struct { /* field names derived */
     sceVu0FVECTOR pad[11];
     PacColor col0;
     PacColor col1;
     unsigned short tex : 11;
     unsigned short blend : 2;
     short type : 3;
-} PacLine;
+} PacLine; /* derived name */
 
-typedef struct PacStrip {
+typedef struct PacStrip { /* field names derived */
     sceVu0FVECTOR box[8];
     short shape;
     short mat;
@@ -1201,17 +1163,17 @@ typedef struct PacStrip {
     unsigned char lod;
     struct PacStrip *next;
     int packet;
-} PacStrip;
+} PacStrip; /* derived name */
 
-/* listing row 1679: clears the running packet byte counter before a build */
-static inline void pac_resetPacketCount(void)
+/* clears the running packet byte counter before a build */
+static inline void pac_resetPacketCount(void) /* derived name */
 {
     pacPacketBytes = 0;
 }
 
-/* listing rows 1578-1582: allocates and fills a material's texture-info table
+/* allocates and fills a material's texture-info table
    for the strip path */
-static inline void pac_makeTextureTable(char *dst, char *src)
+static inline void pac_makeTextureTable(char *dst, char *src) /* derived name */
 {
     char *tex;
     unsigned int i;
@@ -1223,9 +1185,9 @@ static inline void pac_makeTextureTable(char *dst, char *src)
     *(short *)(dst + 0x12) = *(int *)(src + 0xE4);
 }
 
-/* listing rows 1597-1601: the line-primitive twin; it writes the count into
+/* the line-primitive counterpart; it writes the count into
    the line header's own halfword at +0xE */
-static inline void pac_makeTextureTableLine(char *dst, char *src)
+static inline void pac_makeTextureTableLine(char *dst, char *src) /* derived name */
 {
     char *tex;
     unsigned int i;
@@ -1237,11 +1199,9 @@ static inline void pac_makeTextureTableLine(char *dst, char *src)
     *(short *)(dst + 0xE) = *(int *)(src + 0xE4);
 }
 
-/* One variable per role across the arms, as the ROM's registers show: prev
-   builds the strip chain and then walks it for the clone ($20 for both), j
-   counts the shapes and then the line records ($19 in both arms); out is the
-   packet address pac_makeStrip returns, a pointer (its read may pass the
-   int npoly store, word 192 before 196). */
+/* prev builds the strip chain and then walks it for the clone, j counts the
+   shapes and then the line records; out is the packet address pac_makeStrip
+   returns. */
 void pac_makePacket(void *a0, int a1, int a2)
 {
     char *out;
@@ -1274,9 +1234,7 @@ void pac_makePacket(void *a0, int a1, int a2)
     ((PacObjMode *)obj)->type = 0 < ((PacObjMode *)obj)->disp;
     if (*(int *)(*(char **)(obj + 0x40) + 0x114) != 0)
         ((PacObjMode *)obj)->type = 2;
-    /* The ROM extracts the field here (dsrl 16, andi 0xFFFF, andi 3) where a
-       `->type == 2` would fold to the masked compare row 1714 has: the bytes
-       pin an extraction, not which expression the developer wrote. */
+    /* the display type, bits 16 and 17 of the mode word */
     if (((unsigned short)(*(unsigned long long *)(obj + 0x30) >> 16) & 3) == 2) {
         mtbl = (char *)mallocseki(*(char *)(obj + 0x2E) * 16);
         *(int *)(obj + 0x48) = (int)mtbl;

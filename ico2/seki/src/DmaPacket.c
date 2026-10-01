@@ -1,11 +1,10 @@
 #include "DmaPacket.h"
 #include "ios.h"
 
-/* the double-buffered packet area every packet builder writes into (MAIN.MAP
-   global); each consumer keeps its own view of the record */
+/* the double-buffered packet area every packet builder writes into */
 DpkCtl PacketBufferStruct = {0};
 
-/* the DMA memory use debug's meter draws (MAIN.MAP global, the TU's .sdata) */
+/* the DMA memory use debug's meter draws */
 int used_dma_memory = 0;
 
 void dpk_Init(void)

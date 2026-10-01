@@ -4,9 +4,9 @@
 #include "DmaPacket.h"
 #include "DisplayList.h"
 
-typedef struct {
+typedef struct { /* field names derived */
     int a, b, c, d;
-} GsAlphaEnt;
+} GsAlphaEnt; /* derived name */
 
 /* The display-list packet builder state.  `ptr` is the write cursor; `dma`,
    `tail`, `gif` and `end` are the back-pointers into the packet that
@@ -16,14 +16,8 @@ typedef struct {
 /* One 64-bit slot of a DMA/GIF packet: written either as the whole qword
    (DMA tag, GIF tag, A+D data) or as one of its two 32-bit halves. */
 
-/* INTERIM (same construct as getSkeltonFocusNode in src/motionManager2.c):
-   the listing inlines gif_SetGsReg (body line 233, parameter line 224) into
-   most of this TU, so it is `inline` in the dev's TU; while this tail still
-   has asm members a deferred inline would be emitted at the object end
-   instead of at its ROM slot, so the public body stays a plain definition
-   there and every C caller the listing shows inlining it calls this static
-   stand-in.  Collapses to one `inline` definition at layout. */
-static inline void setGsReg(long long a0, long long a1)
+/* a file-static copy of gif_SetGsReg, which most of this file inlines */
+static inline void setGsReg(long long a0, long long a1) /* derived name */
 {
     *PacketBufferStruct.ptr.d++ = a1;
     *PacketBufferStruct.ptr.d++ = a0;
@@ -32,29 +26,29 @@ static inline void setGsReg(long long a0, long long a1)
 /* The two GS register payloads this file packs over and over: RGBAQ from a
    4-byte colour, and XYZ2 from a 2D screen point plus a 64-bit Z.  The GS
    window origin is 2048.0 pixels, i.e. 0x8000 in 1/16-pixel units. */
-#define GIF_RGBA(c)                                                                                \
+#define GIF_RGBA(c) /* derived name */                                                             \
     ((long long)(c)[0] | ((long long)(c)[1] << 8) | ((long long)(c)[2] << 16) |                    \
      ((long long)(c)[3] << 24))
 /* the same packed XYZ2 word with the window origin already folded into the
    coordinates (the sprite family offsets its size once, then adds the corner) */
-#define GIF_XY0(x, y, z) ((long long)(x) | ((long long)(y) << 16) | ((z) << 32))
+#define GIF_XY0(x, y, z) ((long long)(x) | ((long long)(y) << 16) | ((z) << 32)) /* derived name */
 /* the ST/UV pair the textured-sprite family packs into the UV register */
-#define GIF_UV(u, v) ((long long)(u) | ((long long)(v) << 16))
-#define GIF_XY(x, y, z)                                                                            \
+#define GIF_UV(u, v) ((long long)(u) | ((long long)(v) << 16)) /* derived name */
+#define GIF_XY(x, y, z)                                        /* derived name */                  \
     ((long long)((x) + 0x8000) | ((long long)((y) + 0x8000) << 16) | ((z) << 32))
-#define GIF_XYZ(v, z) GIF_XY((v)[0], (v)[1], z)
+#define GIF_XYZ(v, z) GIF_XY((v)[0], (v)[1], z) /* derived name */
 
 /* The textured-sprite UV rectangle: two GS UV corners, in 1/16-texel units
    like the screen rect beside it. */
-typedef struct {
+typedef struct { /* field names derived */
     int u0, v0, u1, v1;
-} GifUvRect;
+} GifUvRect; /* derived name */
 
 /* The "Offset" family adds the float draw origin (in 1/16-pixel units) instead
    of the fixed 2048.0-pixel window origin. */
-#define GIF_OX ((int)center_X * 16)
-#define GIF_OY ((int)center_Y * 16)
-#define GIF_XYZOFF(v, z) GIF_XY0(GIF_OX + (v)[0], GIF_OY + (v)[1], z)
+#define GIF_OX ((int)center_X * 16)                                   /* derived name */
+#define GIF_OY ((int)center_Y * 16)                                   /* derived name */
+#define GIF_XYZOFF(v, z) GIF_XY0(GIF_OX + (v)[0], GIF_OY + (v)[1], z) /* derived name */
 
 void gif_StartPacket(void)
 {
@@ -74,8 +68,7 @@ void gif_StartPacket(void)
     PacketBufferStruct.ptr.c = c + 0x20;
 }
 
-/* .sdata, GifPacket.o's run (MAIN.MAP 0x14, no symbol named): the open-packet
-   flag gif_EndPacket clears, then the strip drawers' last two on-screen
+/* the open-packet flag gif_EndPacket clears, then the strip drawers' last two on-screen
    flags and the index of the older one. */
 static int packetOpen = 0; /* derived name */
 
@@ -212,9 +205,10 @@ void gif_MakeSpriteWithStrip(int *r, long long z, int *uv, unsigned char *col, i
     setGsReg(0x05, GIF_XY(r[6], r[7], z));
 }
 
-/* gif_MakePoint2DOffset is `inline` too (its lines appear inside gif_PointOffset);
-   same interim stand-in as makePoint2D. */
-static inline void makePoint2DOffset(int *v, long long z, unsigned char *col, int prim)
+/* a file-static copy of gif_MakePoint2DOffset, which gif_PointOffset
+   inlines */
+static inline void makePoint2DOffset(int *v, long long z, unsigned char *col,
+                                     int prim) /* derived name */
 {
     setGsReg(0x00, 0x100 | ((long long)prim << 6));
     setGsReg(0x01, GIF_RGBA(col));
@@ -230,9 +224,9 @@ void gif_PointOffset(int *v, long long z, unsigned char *col, int prim)
     makePoint2DOffset(p, z, col, prim);
 }
 
-/* gif_MakeLine2D is `inline` (its lines appear inside gif_Line); interim stand-in. */
+/* a file-static copy of gif_MakeLine2D, which gif_Line inlines */
 static inline void makeLine2D(int *v0, int *v1, long long z0, long long z1, unsigned char *col,
-                              int prim)
+                              int prim) /* derived name */
 {
     setGsReg(0x00, ((long long)prim << 6) | 0xA);
     setGsReg(0x01, GIF_RGBA(col));
@@ -252,10 +246,10 @@ void gif_Line(int *v0, int *v1, long long z0, long long z1, unsigned char *col, 
     makeLine2D(p0, p1, z0, z1, col, prim);
 }
 
-/* gif_MakeSpriteNoTexture is `inline` and small enough that the Sprite wrappers
-   inline it, while gif_MakeSprite stays a call; interim stand-in. */
+/* a file-static copy of gif_MakeSpriteNoTexture, which the Sprite wrappers
+   inline; gif_MakeSprite stays a call */
 static inline void makeSpriteNoTexture(int x, int y, int w, int h, long long z, unsigned char *col,
-                                       int prim)
+                                       int prim) /* derived name */
 {
     int fx = w + 0x8000;
     int fy = h + 0x8000;
@@ -266,9 +260,9 @@ static inline void makeSpriteNoTexture(int x, int y, int w, int h, long long z, 
     setGsReg(0x05, GIF_XY0(x + fx, y + fy, z));
 }
 
-/* gif_MakeSpriteNoTextureOffset is `inline` too; interim stand-in. */
+/* a file-static copy of gif_MakeSpriteNoTextureOffset */
 static inline void makeSpriteNoTextureOffset(int x, int y, int w, int h, long long z,
-                                             unsigned char *col, int prim)
+                                             unsigned char *col, int prim) /* derived name */
 {
     setGsReg(0x00, (prim << 6) | 0x406);
     setGsReg(0x01, GIF_RGBA(col));
@@ -406,9 +400,8 @@ static int stripVisible[2] = {0, 0}; /* derived name */
 
 static int stripIndex = 0; /* derived name */
 
-/* INTERIM stand-in for the `inline` _IsInScreen (its out-of-line copy sits at
-   its own ROM slot further down this file); same construct as setGsReg. */
-static inline int isInScreen(volatile int *p)
+/* a file-static copy of _IsInScreen, defined further down this file */
+static inline int isInScreen(volatile int *p) /* derived name */
 {
     if (p[2] < 0)
         return 0;
@@ -425,9 +418,8 @@ static inline int isInScreen(volatile int *p)
 
 /* One vertex through the VU0 macro-mode pipeline: transform by the current
    matrix in vf4..vf7, perspective-divide by w and convert to the GS's 12.4
-   fixed-point screen coordinates, stored to dst.  One asm statement: the
-   listing gives lqc2 through sqc2 the single line 831 at every call site. */
-static inline void rotTransPers(volatile int *dst, void *src)
+   fixed-point screen coordinates, stored to dst, in one asm statement. */
+static inline void rotTransPers(volatile int *dst, void *src) /* derived name */
 {
     __asm__ __volatile__(".set noreorder\n\t"
                          "lqc2 $vf8, 0x0(%1)\n\t"
@@ -447,12 +439,9 @@ static inline void rotTransPers(volatile int *dst, void *src)
 }
 
 /* One vertex through the VU0 pipeline into a caller-supplied projected-vertex
-   slot, answering whether the result is on screen.  The destination is a
-   parameter, so its address is materialised at the call site, which is why
-   each `addiu aN,sp,K` sits in the previous visibility test's delay slot.
-   The first vertex lands at frame offset 0, where the address folds to $sp
-   itself and no address register is needed, so it is written out here. */
-static inline int projectVertex(int *d, void *src)
+   slot, answering whether the result is on screen.  The first vertex, at
+   frame offset 0, is written out here. */
+static inline int projectVertex(int *d, void *src) /* derived name */
 {
     rotTransPers(d, src);
     return isInScreen(d);
@@ -604,8 +593,8 @@ void gif_Init(void)
     packetOpen = 0;
 }
 
-/* kept local: DisplayList.h is not included, since this TU's uses of dl_OpenDma
- * do not fit its prototype there */
+/* DisplayList.h is not included: this file's uses of dl_OpenDma do not fit
+ * its prototype there */
 
 void gif_StartPacketPri(int pri)
 {
@@ -632,11 +621,10 @@ int gif_CheckOpen(void)
     return packetOpen;
 }
 
-/* gif_MakePoint2D is `inline` per the listing: its lines 318-320 appear inside
-   gif_Point and the rest of the point family.  While its own out-of-line copy
-   is still asm, the callers the listing shows inlining it call this static
-   stand-in; it collapses to one `inline` definition at layout. */
-static inline void makePoint2D(int *v, long long z, unsigned char *col, long long prim)
+/* a file-static copy of gif_MakePoint2D, which gif_Point and the rest of the
+   point family inline */
+static inline void makePoint2D(int *v, long long z, unsigned char *col,
+                               long long prim) /* derived name */
 {
     setGsReg(0x00, (prim << 6) | 0x100);
     setGsReg(0x01, GIF_RGBA(col));
@@ -706,9 +694,8 @@ void gif_LineOffset(int *v0, int *v1, long long z0, long long z1, unsigned char 
     gif_MakeLine2DOffset(p0, p1, z0, z1, col, prim);
 }
 
-/* .rodata, carved VMA 0x54E0B0..0x54E170; the 12 ALPHA_1/2 blend-parameter
-   quadruples gif_SetAlpha packs into the GS ALPHA register, bytes verified
-   against baserom/pal/baseelf.rom */
+/* the 12 ALPHA_1/2 blend-parameter quadruples gif_SetAlpha packs into the GS
+   ALPHA register */
 static const GsAlphaEnt alphaTable[12] = {
     /* derived name */
     {0, 2, 2, 1}, {2, 0, 2, 1}, {0, 1, 2, 1}, {1, 2, 2, 0}, {0, 1, 0, 1}, {0, 2, 0, 1},

@@ -11,9 +11,8 @@
 #include <sifrpc.h>
 #include <assert.h>
 
-/* libcdvd.h leaves sceCdlFILE incomplete.  This TU's entry is 48 bytes, a
-   32-byte name: file_LoadCDFile's frame holds it at that size (a 16-byte
-   name moves the frame). */
+/* libcdvd.h leaves sceCdlFILE incomplete.  This file's entry is 48 bytes,
+   with a 32-byte name. */
 typedef struct sceCdlFILE {
     unsigned int lsn;
     unsigned int size;
@@ -21,9 +20,8 @@ typedef struct sceCdlFILE {
     unsigned char date[8];
 } sceCdlFILE;
 
-/* SRCFILE puts this pair on seki/src/FileManager.c:184-185, above file_Init's
-   def line 236, and inlines it at all seven wait sites. */
-static inline void file_WaitDisc(void)
+/* Wait for the disc; inlined at all seven wait sites. */
+static inline void file_WaitDisc(void) /* derived name */
 {
     sceCdDiskReady(0);
     while (sceCdStatus() != 10)
@@ -86,11 +84,9 @@ int file_LoadCDFile(void **adr, char *fname, int area)
     int sec;
     int err;
 
-    /* SRCFILE puts this printf on seki/src/FileManager.c:322, i.e. INSIDE
-       file_LoadCDFile's span but above its first body line (326): a nested
-       helper the dev calls from every switch arm.  Capturing fname/adr/size
-       is what forces all three into their stack homes. */
-    inline void PrintLoad(void)
+    /* the load report, a nested function every switch arm calls; it reads
+       fname, adr and size from the enclosing frame */
+    inline void PrintLoad(void) /* derived name */
     {
         debug_StdPrintfDummy(
             "loading:\"\033[33m%s\033[m\" (address:\033[35m%p\033[m/size:\033[35m%d\033[m)", fname,

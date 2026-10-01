@@ -103,10 +103,10 @@ void prim_SetFan2D(Fan2D *f, float r, float *pos, unsigned int cc, unsigned int 
 
 /* One 64-bit slot of a DMA/GIF packet, written either whole or as its two
    32-bit halves. */
-typedef union {
+typedef union { /* field names derived */
     long long d;
     int w[2];
-} PrimPkWord;
+} PrimPkWord; /* derived name */
 
 void prim_DispFan2D(Fan2D *f, int mode)
 {
@@ -240,12 +240,10 @@ void prim_DispFan2D(Fan2D *f, int mode)
     dl_CloseDma();
 }
 
-typedef int Qw128 __attribute__((mode(TI)));
+typedef int Qw128 __attribute__((mode(TI))); /* derived name */
 
 /* The mesh strip's GIF tag template: NLOOP and PRIM are ORed in per strip.
-   prim_makePacketMesh3D reads it by pointer dereference; the bytes pin that
-   (a subscript of the const array is a read-only reference, which gcc
-   schedules above the store before it, where the ROM loads after it). */
+   prim_makePacketMesh3D reads it by pointer dereference. */
 static const long long meshGifTag[2] = {0x3000400000008000LL, 0x512}; /* derived name */
 
 void prim_makePacketMesh3D(Mesh3D *m, void *pkt, int uv)
@@ -356,10 +354,10 @@ Mesh3D *prim_InitMesh3D(int nx, int ny, int rot, long long col, unsigned int col
     return m;
 }
 
-/* Primitive.c lines 635-706.  prim_makeNormal fills the per-vertex normal
-   buffer at Mesh3D+0x70.  The four neighbours of a vertex are walked with one pair of
-   indices, x and y, reassigned for each neighbour (listing rows 645, 651,
-   657 and 663) and wrapped when the mesh is closed in that direction. */
+/* prim_makeNormal fills the per-vertex normal buffer at Mesh3D+0x70.  The
+   four neighbours of a vertex are walked with one pair of indices, x and y,
+   reassigned for each neighbour and wrapped when the mesh is closed in that
+   direction. */
 
 void prim_makeNormal(Mesh3D *m)
 {
@@ -515,23 +513,11 @@ void prim_UpdateMesh3D(Mesh3D *m, int flags, int idx)
     }
 }
 
-/* Primitive.c lines 785-868.  setMatrix, setLight and clearUVOffset are GNU
-   nested functions of prim_DispMesh3D: each consumes the static chain in $2 on
-   entry (the ROM stores it at the top of the frame, and setLight reads the
-   parent's two light arguments through it), and the January-2002 listing names
-   them setMatrix.100, setLight.104 and clearUVOffset.108, gcc's own labels for
-   a nested body.  The retail build drops the three primitive counters the
-   listing carries at rows 860-862.
-   A matrix or vector copied into the packet takes the cursor post-incremented
-   as its destination, `_CopyMatrix(((float (*)[16])dd->ptr.c)++, m)`: the
-   increment is queued (expr.c expand_increment, the MEM path), so the old
-   cursor is copied out first and the add is done in place on the loaded
-   register before the store and the call, which is setLight's second copy in
-   the ROM (listing row 810: move $a0,$v0 then addiu $v0,$v0,64, the store in
-   the call's slot).  A cursor local assigned `r + 0x40` schedules the add
-   before the argument copy and ties the pointer to $a0 (measured, 52 of 53
-   or 16 words).  Rows 809 and 810 are the same statement, so every packet
-   copy here is spelled the same way. */
+/* setMatrix, setLight and clearUVOffset are GNU nested functions of
+   prim_DispMesh3D; setLight reads the parent's two light arguments.  A matrix
+   or vector copied into the packet takes the cursor post-incremented as its
+   destination, `_CopyMatrix(((float (*)[16])dd->ptr.c)++, m)`, and every
+   packet copy here is spelled the same way. */
 
 void prim_DispMesh3D(Mesh3D *m, void *la, void *lb, int tex)
 {
@@ -679,9 +665,9 @@ void prim_DispMesh3D(Mesh3D *m, void *la, void *lb, int tex)
 }
 
 /* One 16-byte constant packet template, copied to the stack. */
-typedef struct {
+typedef struct { /* field names derived */
     long long d[2];
-} PrimQw;
+} PrimQw; /* derived name */
 
 extern void malloc_MemCpy(void *dst, void *src, int n);
 
@@ -833,7 +819,7 @@ void prim_DispWireYCylinder(void *col, int n, int flag, float r, float y0, float
         }
     }
 
-    inline void drawSide(float rr, float ya, float yb)
+    inline void drawSide(float rr, float ya, float yb) /* derived name */
     {
         for (a = 0.0f; a < 65536.0f; a += st) {
             Prim3DVec p0 = {rr * GetTableSin((short)a), ya, rr * GetTableCos((short)a), 1.0f};
@@ -876,9 +862,9 @@ void prim_DispWireSphere(float r, void *col, int nu, int nv)
 }
 
 /* Box corner, a VU0 quadword: DrawLineG takes 16-byte aligned vectors. */
-typedef struct {
+typedef struct { /* field names derived */
     float x, y, z, w;
-} PrimVtx __attribute__((aligned(16)));
+} PrimVtx __attribute__((aligned(16))); /* derived name */
 
 void prim_DispWireBox(float *sz, void *col)
 {

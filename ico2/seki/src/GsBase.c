@@ -25,22 +25,13 @@
 #include <libgraph.h>
 #include <libcdvd.h>
 
-/* Declared here, not through string.h: with newlib's prototype in scope gcc
-   expands gsb_scissorOnDemo's four-byte zero fill as one store, and the ROM
-   calls memset there.  The int count disagrees with the builtin's size_t,
-   which is what keeps the builtin off in this file, as in layout_action.c
-   and puddle.c. */
-/* kept local: declaring it only through string.h moves this TU's bytes */
+/* declared here with an int count, not through string.h, as in
+   layout_action.c and puddle.c */
 extern void *memset(void *p, int c, int n);
 
-/* The TU's globals, MAIN.MAP's GsBase.o .sdata names, then the four words
-   retail added after them (the XYOFFSET adjustment and the frame size
-   gsb_SetVSMatrix records; MAIN.MAP's January object ends at
-   currentScreenHeight, so their names are ours).  Tentative definitions: under
-   -fno-common they land after the rest of the run, in this order.  The two
-   offset names are read by gcse's name hash in their users: Shadow.c's
-   frame layout moves under gsOffsetX/Y, offsetX/Y or dispOffsetX/Y, and
-   screenOffsetX/Y keeps it, so the bytes pin that much of the names. */
+/* GsBase.c's globals, tentative definitions: the frame buffer flags, the
+   screen centre and size, then the XYOFFSET adjustment and the frame size
+   gsb_SetVSMatrix records. */
 int fbKeep;
 
 int fbClear;
@@ -65,9 +56,8 @@ int vsWidth; /* derived name */
 
 int vsHeight; /* derived name */
 
-/* The inline half of the TU's interface, declared in the order its deferred
-   out-of-line copies are emitted (gcc writes them in first-declaration order;
-   the definitions sit at their listing rows below). */
+/* GsBase.c's `inline` functions, in the order of their definitions'
+   out-of-line copies at the end of the object (first-declaration order). */
 void gsb_SetBGColor(void *a0, int r, int g, int b);
 void gsb_GetBGColor(unsigned char *a0);
 void gsb_ResetFilmNoise(void);
@@ -81,9 +71,8 @@ int gsb_TakeSnap(void);
 int lockOtherEditing(void);
 int unlockOtherEditing(void);
 
-/* The head of the TU's .sdata run: the stage lock state, the word gsb_Init
-   clears (read nowhere in the ROM), the
-   GS system flag, the zoom easing (target, current, speed) and the last
+/* The stage lock state, the word gsb_Init clears (nothing reads it), the GS
+   system flag, the zoom easing (target, current, speed) and the last
    projection distance gsb_SetVSMatrix was given. */
 static int otherEditingLocked = 0; /* derived name */
 
@@ -104,7 +93,7 @@ int currentFocusDistance = 1;
 /* libgraph's double buffer as sceGsSetDefDBuff fills it (libgraph.h in this
    tree declares no record for it): the two display environments, then each
    frame's GIF tag, draw environment and clear list */
-typedef struct {
+typedef struct { /* field names derived */
     sceGsDispEnv disp[2];
     long long giftag0[2];
     sceGsDrawEnv draw0;
@@ -127,9 +116,7 @@ void gsb_SetFrame(sceGsDBuff *db, int a1, int a2, int psm, short zbp)
 
     *(int *)&disp1->dispfb &= ~0x1FF;
     *(int *)&db->disp[0].dispfb &= ~0x1FF;
-    /* the four register words are rewritten through GifPkWord's union view:
-       as plain long long members the ROM's li of the mask becomes a reload
-       of the word (measured) */
+    /* the four register words are rewritten through GifPkWord's union view */
     ((GifPkWord *)&db->draw1.frame)->d = (((GifPkWord *)&db->draw1.frame)->d & ~0x1FF) | 0x40;
     ((GifPkWord *)&db->draw0.frame)->d = (((GifPkWord *)&db->draw0.frame)->d & ~0x1FF) | 0x40;
     ((GifPkWord *)&db->draw1.zbuf)->d = ((long long)(psm & 0xF) << 24) | zb;
@@ -138,13 +125,13 @@ void gsb_SetFrame(sceGsDBuff *db, int a1, int a2, int psm, short zbp)
     sceGsSetDefDispEnv(disp1, 0, w, h, 0, 0);
 }
 
-/* kept local: agrees with main.h, which this TU does not include (db differs) */
+/* as in main.h, which this TU does not include */
 extern int systemStatus[];
-/* kept local: agrees with main.h, which this TU does not include (db differs) */
+/* as in main.h, which this TU does not include */
 extern int buffer_ID;
 extern void sceGsSetDefDBuff(void *db, short psm, short w, short h, short ztst, short zpsm,
                              short flag);
-/* kept local: GsBase.h does not compile in this TU (conflicting types for `gsb_PostEffect') */
+/* GsBase.h is not included: its gsb_PostEffect does not agree with this file */
 extern void gsb_SetVSMatrix(int w, int h, float d);
 
 /* Bring the GS up for the frame size the stage record asks for: 512 by 448
@@ -186,10 +173,8 @@ void gsb_Init(void *db)
 }
 
 /* A frame buffer clear packet for the whole screen, 48 doublewords: a GIF tag
-   of 23 A+D writes and the register pairs.  Nothing in the ROM reads it (the
-   bytes pin the table at this row, after gsb_Init's message, and its size,
-   which is gsb_ClearFrameBuffer's frame; they do not pin its role), so the
-   send that copied it is gone from the retail body. */
+   of 23 A+D writes and the register pairs.  Nothing reads it: the send that
+   copied it is gone from the retail body. */
 static const long long clearFramePacket[48] = {
     /* derived name */
     0x1000000000008017LL,
@@ -247,20 +232,19 @@ inline void gsb_ClearFrameBuffer(void)
     volatile int local[96];
 }
 
-/* .sbss, owned by GsBase.o (MAIN.MAP line 7575; it names no symbol in the
-   run, so the names are ours), in the ROM's run order: the reduction tint
-   gsb_Reduction picks each frame and packs into the sprite colour. */
-static int reductionRed;
+/* the reduction tint gsb_Reduction picks each frame and packs into the
+   sprite colour */
+static int reductionRed; /* derived name */
 
-static int reductionGreen;
+static int reductionGreen; /* derived name */
 
-static int reductionBlue;
+static int reductionBlue; /* derived name */
 
-/* kept local: agrees with main.h, which this TU does not include (db differs) */
+/* as in main.h, which this TU does not include */
 extern int optionScreenMode;
-/* kept local: agrees with main.h, which this TU does not include (db differs) */
+/* as in main.h, which this TU does not include */
 extern StageSetting GlobalStageSetting;
-/* kept local: agrees with main.h, which this TU does not include (db differs) */
+/* as in main.h, which this TU does not include */
 extern PadState pad[16];
 
 /* Reduce the frame into the feedback area: one 22 qword GIF packet, built on
@@ -346,46 +330,41 @@ void gsb_Reduction(void)
     }
 }
 
-/* the colour the kept frame is drawn back in, {112, 112, 112, 128} in the
-   TU's .sdata at VMA 0x639F98.  `const` is what the ROM proves: its four
-   byte loads issue ahead of the sprite's first packet store, and a QImode
-   load may pass a store only as an unchanging read (alias.c true_dependence) */
+/* the colour the kept frame is drawn back in */
 static const unsigned char keepFrameColor[4] = {112, 112, 112, 128}; /* derived name */
 
-/* kept local: agrees with GifPacket.h, which this TU does not include (gif_MakeSpriteNoTexture, gif_SetAlpha differ) */
+/* as in GifPacket.h, which this TU does not include */
 extern void gif_EndPacket(void);
-/* kept local: void (int, long long) here, void (long long, long long) in GifPacket.h */
+/* void (int, long long) here, void (long long, long long) in GifPacket.h */
 extern void gif_SetGsReg(int a0, long long a1);
-/* kept local: agrees with GifPacket.h, which this TU does not include (gif_MakeSpriteNoTexture, gif_SetAlpha differ) */
+/* as in GifPacket.h, which this TU does not include */
 extern void gif_StartPacketPriPath1(int a0);
 
 /* A rectangle in 16ths of a pixel, the form the sprite corners are written
-   in.  RECONSTRUCTION: the record is 16 bytes and ROM's ldl/ldr pairs copy
-   it whole out of its initialiser temporary. */
-typedef struct {
+   in. */
+typedef struct { /* field names derived */
     int x;
     int y;
     int w;
     int h;
-} GsbRect;
+} GsbRect; /* derived name */
 
-/* The GS A+D writer, the payload word then the register word, a MACRO as in
- * Shadow.c and Texture.c: the listing puts every writer's stores on the line
- * of the use (GsBase.c:957 carries the whole sprite, 1025 two registers). */
-#define setGsReg(reg, val)                                                                         \
+/* The GS A+D writer, the payload word then the register word, a macro as in
+ * Shadow.c and Texture.c. */
+#define setGsReg(reg, val) /* derived name */                                                      \
     {                                                                                              \
         *PacketBufferStruct.ptr.d++ = (val);                                                       \
         *PacketBufferStruct.ptr.d++ = (reg);                                                       \
     }
 /* RGBAQ packed from a four-byte colour, as Shadow.c packs it */
-#define GIF_RGBA(c)                                                                                \
+#define GIF_RGBA(c) /* derived name */                                                             \
     ((long long)(c)[0] | ((long long)(c)[1] << 8) | ((long long)(c)[2] << 16) |                    \
      ((long long)(c)[3] << 24))
 /* The textured sprite at depth 0: PRIM, RGBAQ, then a UV and an XYZ2 pair for
  * each corner of the rect r (x, y, w, h in sixteenths) and its texture rect
  * uv, the far corner as x + fx with fx = w + 0x8000.  Shadow.c's spriteUV
  * with the depth left out; a MACRO for the same reason. */
-#define spriteUV(r, uv, col, prim)                                                                 \
+#define spriteUV(r, uv, col, prim) /* derived name */                                              \
     {                                                                                              \
         setGsReg(0x00, prim);                                                                      \
         setGsReg(0x01, GIF_RGBA(col));                                                             \
@@ -403,7 +382,7 @@ typedef struct {
  * the rect x, y, w, h, the far corner as x + fx with fx = w + 0x8000.
  * Shadow.c's spriteRect with gif_MakeSpriteNoTexture's parameters; a MACRO
  * for the same reason. */
-#define spriteRect(x, y, w, h, z, col, prim)                                                       \
+#define spriteRect(x, y, w, h, z, col, prim) /* derived name */                                    \
     {                                                                                              \
         setGsReg(0x00, prim);                                                                      \
         setGsReg(0x01, GIF_RGBA(col));                                                             \
@@ -417,10 +396,7 @@ typedef struct {
         }                                                                                          \
     }
 
-/* GsBase.c:942-958 in the listing: the two rect initialisers (942, 946), the
- * packet open and the five register writes (948-953), the whole textured
- * sprite on one line (957) and the close (958).  Draw the whole screen back
- * over itself as one sprite in the kept colour. */
+/* Draw the whole screen back over itself as one sprite in the kept colour. */
 void gsb_KeepFrameBuffer(void)
 {
     GsbRect r0 = {-(ScreenWidth >> 1) * 16 - 12, -(ScreenHeight >> 1) * 16 - 12,
@@ -437,28 +413,21 @@ void gsb_KeepFrameBuffer(void)
     gif_EndPacket();
 }
 
-/* The rest of GsBase.o's .sbss run, after the reduction tint: the fade level
-   gsb_fade steps from 0 to 128 and gsb_PostEffect prints, then one word no
-   instruction in the ROM reads or writes (checked over every gp-relative and
-   absolute access in .text), so that name is positional and ours.  MAIN.MAP
-   line 7575 sizes the January object at 0x10, four words; the retail object
-   has the fifth. */
-static float fadeLevel;
+/* the fade level gsb_fade steps from 0 to 128 and gsb_PostEffect prints,
+   then one word nothing reads or writes */
+static float fadeLevel; /* derived name */
 
-static int gsbUnusedWord;
+static int gsbUnusedWord; /* derived name */
 
-/* kept local: agrees with GifPacket.h, which this TU does not include (gif_MakeSpriteNoTexture, gif_SetAlpha differ) */
+/* as in GifPacket.h, which this TU does not include */
 extern void gif_StartPacketPri(int pri);
-/* kept local: void (int, int, int, int, int, int) here, void (unsigned long long, unsigned long long, unsigned int, unsigned int, int, int) in GifPacket.h */
+/* void (int, int, int, int, int, int) here, void (unsigned long long, unsigned long long, unsigned int, unsigned int, int, int) in GifPacket.h */
 extern void gif_SetDrawEnviroment(int a0, int a1, int w, int h, int a4, int a5);
 
 /* The fade overlay: step the fade level by half the speed each frame, clamp
  * it to 0 to 128, stop or hand over to the continue state at the ends, and
  * draw the whole screen as one sprite in the fade colour.  The two end tests
- * are `&&` chains, not nested ifs: the ROM's short circuit path out of the
- * first condition falls into the SECOND condition's test, which is why the
- * else arm is entered twice and materialises 0.0 again at 0x001130B0, and a
- * nested if would jump past it instead (223 instructions against ROM's 224). */
+ * are `&&` chains. */
 void gsb_fade(void)
 {
     GsbRect r = {-(ScreenWidth >> 1) * 16, -(ScreenHeight >> 1) * 16, ScreenWidth * 16,
@@ -538,19 +507,15 @@ static float scissorLevel = 0.0f; /* derived name */
 
 static float scissorStep = 0.0f; /* derived name */
 
-/* kept local: agrees with GifPacket.h, which this TU does not include (gif_MakeSpriteNoTexture, gif_SetAlpha differ) */
+/* as in GifPacket.h, which this TU does not include */
 extern void gif_EndPacketPath1(void);
 
 /* The letterbox the demo scenes fade in: two black bars, top and bottom,
  * whose alpha eases to 128 while the scene is state 55 and back to 0
  * otherwise.  While the bars are visible they are drawn and the motion blur
  * is left alone; once they are gone the stage record's blur setting is
- * restored.  The listing (GsBase.c:1067-1126) puts the two-bar initialiser on
- * 1067, the two state tests on 1092, the ease and the two clamps on 1097 to
- * 1106, the `&&` window on 1109, and the whole sprite on 1121 inside the
- * two-iteration loop of 1120: a macro, with its first corner written before
- * fx and fy are formed, which is the order the loop's invariants come out
- * in. */
+ * restored.  Each bar is drawn by a macro inside the two-iteration loop,
+ * its first corner written before fx and fy are formed. */
 void gsb_scissorOnDemo(void)
 {
     GsbRect r[2] = {
@@ -597,9 +562,9 @@ void gsb_scissorOnDemo(void)
     }
 }
 
-/* kept local: void (int, int, int) here, void (long long, long long, long long) in GifPacket.h */
+/* void (int, int, int) here, void (long long, long long, long long) in GifPacket.h */
 extern void gif_SetAlpha(int a0, int a1, int a2);
-/* kept local: void (int, int, int, int, unsigned int, unsigned char *, int) here, void (int, int, int, int, long long, unsigned char *, int) in GifPacket.h */
+/* void (int, int, int, int, unsigned int, unsigned char *, int) here, void (int, int, int, int, long long, unsigned char *, int) in GifPacket.h */
 extern void gif_MakeSpriteNoTexture(int x, int y, int w, int h, unsigned int z, unsigned char *col,
                                     int prim);
 
@@ -636,29 +601,25 @@ void gsb_controlBrightness(void)
 
 /* A colour as the sprite family takes it, four bytes in RGBA order; the same
    record as Texture.c's TexColor. */
-typedef struct {
+typedef struct { /* field names derived */
     unsigned char r;
     unsigned char g;
     unsigned char b;
     unsigned char a;
-} GsbColor;
+} GsbColor; /* derived name */
 
-/* kept local: agrees with GifPacket.h, which this TU does not include (gif_MakeSpriteNoTexture, gif_SetAlpha differ) */
+/* as in GifPacket.h, which this TU does not include */
 extern void gif_SetZTest(int on);
-/* kept local: agrees with GifPacket.h, which this TU does not include (gif_MakeSpriteNoTexture, gif_SetAlpha differ) */
+/* as in GifPacket.h, which this TU does not include */
 extern void gif_SetZWrite(int on);
-/* kept local: agrees with GifPacket.h, which this TU does not include (gif_MakeSpriteNoTexture, gif_SetAlpha differ) */
+/* as in GifPacket.h, which this TU does not include */
 extern void gif_SpriteSensitiveOrg(int *r, long long z, int *uv, unsigned char *col, int prim);
 
 /* Soften the frame's edges: the frame is reduced to a 256 square copy and,
  * when the second level is on, a 128 square one, and each level the stage
  * record (or the current sub target's row) turns on is blended back over the
- * 512 square buffer through the sensitive sprite.  The listing
- * (GsBase.c:1181-1247) puts the colour and each rectangle on its own line,
- * the two level reads on two lines per arm, and every TEX0 write on one line
- * in field order, as Texture.c spells it: fold pairs that chain into
- * (TW | TCC) | (TH | TBP and TBW), which leaves the TCC bit a constant of its
- * own that the four writes share in $s1. */
+ * 512 square buffer through the sensitive sprite.  Every TEX0 write is one
+ * expression in field order, as Texture.c spells it. */
 void gsb_antiAlias(void)
 {
     GsbColor col = {128, 128, 128, 128};
@@ -757,9 +718,9 @@ void gsb_setParticleReg(int ctx)
     gif_EndPacketPath1();
 }
 
-/* kept local: agrees with main.h, which this TU does not include (db differs) */
+/* as in main.h, which this TU does not include */
 extern int game_pause;
-/* kept local: agrees with main.h, which this TU does not include (db differs) */
+/* as in main.h, which this TU does not include */
 extern char *matrixptr;
 
 /* the head of the common matrix packet: the three constant rows of the VU
@@ -973,11 +934,11 @@ int gsb_PostEffect(void)
 /* gsb_InitGSSystem's first call brings every module up */
 static int firstGsInit = 1; /* derived name */
 
-/* kept local: agrees with main.h, which this TU does not include (db differs) */
+/* as in main.h, which this TU does not include */
 extern int screen_offset_y;
-/* kept local: agrees with main.h, which this TU does not include (db differs) */
+/* as in main.h, which this TU does not include */
 extern int screen_offset_x;
-/* kept local: sceGsDBuff here, int [140] in main.h */
+/* sceGsDBuff here, int [140] in main.h */
 extern sceGsDBuff db;
 
 void gsb_InitGSSystem(void)
@@ -1013,10 +974,8 @@ void gsb_InitGSSystem(void)
     screenOffsetX = screenOffsetY = 0;
 }
 
-/* Six zero words of .sdata between gsb_InitGSSystem's flag and
-   gsb_SyncGSSystem's counter: nothing in the ROM reads or writes them.  The
-   bytes pin their place, the value and that each is at most eight bytes; they
-   do not pin their types, their split or their role. */
+/* Six zero words between gsb_InitGSSystem's flag and gsb_SyncGSSystem's
+   counter: nothing reads or writes them. */
 static int gsbUnused0 = 0; /* derived name */
 
 static int gsbUnused1 = 0; /* derived name */
@@ -1033,7 +992,7 @@ inline int gsb_ResetSnap(void) {}
 
 inline int gsb_TakeSnap(void) {}
 
-/* kept local: GsBase.h does not compile in this TU (conflicting types for `gsb_PostEffect') */
+/* GsBase.h is not included: its gsb_PostEffect does not agree with this file */
 extern void gsb_ResetGSSystem(void);
 
 /* the frames gsb_SyncGSSystem has waited on the GS */
@@ -1055,11 +1014,11 @@ inline int gsb_SyncGSSystem(void)
     return 0;
 }
 
-/* kept local: agrees with main.h, which this TU does not include (db differs) */
+/* as in main.h, which this TU does not include */
 extern int frame_count;
-/* kept local: agrees with main.h, which this TU does not include (db differs) */
+/* as in main.h, which this TU does not include */
 extern int odd_even;
-/* kept local: agrees with main.h, which this TU does not include (db differs) */
+/* as in main.h, which this TU does not include */
 extern int GlobalTimer;
 /* libgraph.h does not declare it; graph021's signature */
 extern void sceGsSetHalfOffset(void *env, short x, short y, short field);
@@ -1140,11 +1099,8 @@ static const float vsScreenSize[] = {1500.0f, 1500.0f, 0.0f, 0.0f}; /* derived n
  * and vs[6] the depth range, vs[7] and vs[8] the near and far planes): the
  * screen matrix a, the perspective projection b for the 1500 unit screen,
  * the one c for the half size screen, the viewport d, and the pair built on
- * a 500 unit screen at matrixptr+0x640 and +0x680.  The listing
- * (GsBase.c:2009-2134) gives each assignment its own line in this order,
- * except the two rows of three that fill the scale, depth and centre terms;
- * the 500 unit pair's scale terms at 2125-2126 are locals of their own, which
- * is what keeps sx and sy short enough to take $f21 and $f22. */
+ * a 500 unit screen at matrixptr+0x640 and +0x680.  The 500 unit pair's
+ * scale terms are locals of their own. */
 void gsb_SetVSMatrixSub(float *a, float *b, float *c, float *d, float *vs)
 {
     sceVu0FVECTOR v = {ScreenWidth / 2, ScreenHeight / 2, 0.0f, 0.0f};
@@ -1238,9 +1194,8 @@ void gsb_SetVSMatrixSub(float *a, float *b, float *c, float *d, float *vs)
 
 /* The view record gsb_SetVSMatrixSub builds the view and screen matrices
  * from: the zoom, the two aspect terms, the centre, and the near and far
- * planes.  MAIN.MAP names no symbol inside GsBase.o's .bss, so the name is
- * a reconstruction; the extent (10 floats) is the ROM run's. */
-static float vsParam[10];
+ * planes. */
+static float vsParam[10]; /* derived name */
 
 /* Set the view and screen matrices for a frame of w by h at depth d: the
  * centre is the screen middle less the staff roll offset, the zoom eases
@@ -1368,7 +1323,7 @@ typedef struct sceCdCLOCK {
     unsigned char year;
 } sceCdCLOCK;
 
-/* kept local: agrees with main.h, which this TU does not include (db differs) */
+/* as in main.h, which this TU does not include */
 extern int stage_no;
 
 inline int gsb_LoadStageSettings(void)
@@ -1388,9 +1343,8 @@ inline int gsb_LoadStageSettings(void)
 }
 
 /* Scratch for the editing log: first the log file's name, then the line
- * appended to it.  MAIN.MAP names no symbol inside GsBase.o's .bss, so the
- * name is a reconstruction; the extent is the ROM run's. */
-static char logBuf[256];
+ * appended to it. */
+static char logBuf[256]; /* derived name */
 
 void appendLogFile(void)
 {
@@ -1436,16 +1390,16 @@ inline int gsb_SaveStageSettings(void)
    carries for the fog tool): a label, the word it edits, whether that word is
    a float, its range, its default and its step, and the callback to run once
    the value has moved. */
-typedef struct GsbToolItem {
-    char *name;  /* 0x00 */
-    void *val;   /* 0x04 */
-    int isFloat; /* 0x08 */
-    float min;   /* 0x0C */
-    float max;   /* 0x10 */
-    float def;   /* 0x14 */
-    float step;  /* 0x18 */
-    int (*fn)(); /* 0x1C */
-} GsbToolItem;
+typedef struct GsbToolItem { /* field names derived */
+    char *name;              /* 0x00 */
+    void *val;               /* 0x04 */
+    int isFloat;             /* 0x08 */
+    float min;               /* 0x0C */
+    float max;               /* 0x10 */
+    float def;               /* 0x14 */
+    float step;              /* 0x18 */
+    int (*fn)();             /* 0x1C */
+} GsbToolItem;               /* derived name */
 
 /* the four pages of seven rows, one page per render target, each row naming
    a word of the stage record */
@@ -1517,16 +1471,11 @@ static const GsbToolItem filmNoiseItems[4][7] = {
     },
 };
 
-/* the unselected and selected row colours, ZFog's fogRowColor idiom: the
-   unspecified bound keeps the 8-byte object out of small data under -G 8,
-   which is where the ROM has it */
+/* the unselected and selected row colours, as ZFog's fogRowColor */
 static const unsigned int filmNoiseRowColor[] = {0xFFFFFF00, 0xFF000000}; /* derived name */
 
-/* .data, VMA 0x00290810: the word a boolean row prints.  Its two strings are
-   the .sdata run's "On" then "Off": gcc writes an initialiser's string
-   constants after the table, last one first.  MAIN.MAP names no symbol in this
-   run and the array name is ours. */
-static char *filmNoiseOnOffText[] = {"Off", "On"};
+/* the word a boolean row prints */
+static char *filmNoiseOnOffText[] = {"Off", "On"}; /* derived name */
 
 static int filmNoiseRow = 0; /* derived name */ /* the highlighted row */
 
@@ -1699,9 +1648,8 @@ static const GsbToolItem stageSettingItems[] = {
 /* the unselected and selected row colours, as filmNoiseRowColor */
 static const unsigned int stageSettingRowColor[] = {0xFFFFFF00, 0xFF000000}; /* derived name */
 
-/* .data, VMA 0x00290818: the stage setting page's own copy of the same pair.
-   MAIN.MAP names no symbol in this run; the name is ours. */
-static char *stageSettingOnOffText[] = {"Off", "On"};
+/* the stage setting page's own copy of the same pair */
+static char *stageSettingOnOffText[] = {"Off", "On"}; /* derived name */
 
 static int stageSettingRow = 0; /* derived name */ /* the highlighted row */
 
@@ -1824,12 +1772,10 @@ int gsb_StageSettingTool(void)
     return ret;
 }
 
-/* The stage lock file's name, and the owner name read back out of it.
- * MAIN.MAP names no symbol inside GsBase.o's .bss, so both names are
- * reconstructions; the extents are the ROM run's. */
-static char lockFileName[256];
+/* The stage lock file's name, and the owner name read back out of it. */
+static char lockFileName[256]; /* derived name */
 
-static char lockOwner[72];
+static char lockOwner[72]; /* derived name */
 
 void updateOtherEditingLockFlag(void)
 {
@@ -1855,12 +1801,9 @@ void updateOtherEditingLockFlag(void)
     }
 }
 
-/* the line-2873 helper the PAL listing shows inlined at the head of
-   updateOtherEditingLockFlag, createLockFile and removeLockFile */
-/* static helper the listing places at GsBase.c line 2873, inlined at the head of
- * updateOtherEditingLockFlag, createLockFile and removeLockFile; never emitted
- * out of line, so it has no MAIN.MAP symbol and this name is ours. */
-static inline char *makeLockFileName(void)
+/* the lock file's name, built at the head of updateOtherEditingLockFlag,
+ * createLockFile and removeLockFile */
+static inline char *makeLockFileName(void) /* derived name */
 {
     sprintf(lockFileName, "object/stagesetting/%s.lock", stageData[stage_no].key2);
     return lockFileName;
@@ -1900,19 +1843,16 @@ int removeLockFile(void)
     return 1;
 }
 
-typedef struct {
+typedef struct { /* field names derived */
     char *name;  /* 0x0 */
     int (*fn)(); /* 0x4 */
     int arg;     /* 0x8 */
-} GsbMenuItem;
+} GsbMenuItem;   /* derived name */
 
 /* The background colour the display list is cleared to, one component per
  * word of an integer quadword: gsb_SetBGColor writes the four words and
- * gsb_GetBGColor reads them back as bytes.  The quadword's alignment is the
- * one that puts GsBase.o's .bss on a 16-byte boundary (0x67BA60) after
- * tableSin.o's 0x12012-byte run.  MAIN.MAP names no symbol inside GsBase.o's
- * .bss, so the name is a reconstruction; the extent is the ROM run's. */
-static sceVu0IVECTOR bgColor;
+ * gsb_GetBGColor reads them back as bytes. */
+static sceVu0IVECTOR bgColor; /* derived name */
 
 inline void gsb_SetBGColor(void *a0, int r, int g, int b)
 {
@@ -1966,7 +1906,7 @@ inline int unlockOtherEditing(void)
 
 static GsbMenuItem lockedMenu[] = {
     {"LOCK OTHER EDITING", lockOtherEditing, 0},
-};
+}; /* derived name */
 
 static GsbMenuItem stageSettingMenu[] = {
     {"Light Tool", light_Tool, 0},
@@ -1980,7 +1920,7 @@ static GsbMenuItem stageSettingMenu[] = {
     {"Load Settings", gsb_LoadStageSettings, 0},
     {"Save Settings", gsb_SaveStageSettings, 0},
     {"UnLock Quit", unlockOtherEditing, 0},
-};
+}; /* derived name */
 
 /* the unselected and selected row colours, as filmNoiseRowColor */
 static const unsigned int menuRowColor[] = {0xFFFFFF00, 0xFF000000}; /* derived name */

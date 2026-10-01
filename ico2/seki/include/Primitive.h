@@ -1,27 +1,22 @@
 /*
  * ico2/seki/include/Primitive.h
  *
- * The disc records no file of this name: SRCFILE.TXT attributes no
- * instruction to it, and a header that only declares leaves no rows in the
- * listing at all, so this file is ours and not the developers' own record.
- * It collects the declarations of what Primitive.c defines, in the form its
- * users need them; every type here is read from the ROM's calling convention
- * at the call sites and from the spellings the using TUs already carried.
+ * The declarations of what Primitive.c defines, for the files that use
+ * them.  The file name is derived.
  */
 
 #ifndef PRIMITIVE_H
 #define PRIMITIVE_H
 
 /* One vertex-buffer entry of a 3D mesh: a quadword per vertex. */
-typedef struct {
+typedef struct { /* field names derived */
     float x, y, z, w;
-} Prim3DVec __attribute__((aligned(16)));
+} Prim3DVec __attribute__((aligned(16))); /* derived name */
 
-/* RECONSTRUCTION, read from the ROM.  The 144-byte mesh prim_InitMesh3D
-   allocates and returns: the grid counts, the two wrap flags prim_makeNormal
-   tests, the UV placement matrix, the strip counts the packet builder walks,
-   the GIF register word, the colour and the three per-vertex buffers.  The
-   buffer at 0x70 is the normal buffer (prim_makeNormal fills it and
+/* The 144-byte mesh prim_InitMesh3D allocates and returns: the grid counts,
+   the two wrap flags prim_makeNormal tests, the UV placement matrix, the
+   strip counts the packet builder walks, the GIF register word, the colour
+   and the three per-vertex buffers.  The buffer at 0x70 is the normal buffer (prim_makeNormal fills it and
    prim_UpdateMesh3D copies it under flag 4), the one at 0x74 the texture
    coordinates (flag 8; pool, flag and clothAnimation write s and t there). */
 typedef struct { /* field names derived */
@@ -42,10 +37,10 @@ typedef struct { /* field names derived */
     /* 0x78 */ int qwc; /* the size of one packet buffer in quadwords */
     /* 0x7C */ void *bufs[2];
     /* 0x84 */ int pad84[3];
-} Mesh3D;
+} Mesh3D; /* derived name */
 
 /* A 2D fan: n rim vertices round a centre, each a colour and a position. */
-typedef struct {
+typedef struct { /* field names derived */
     /* 0x00 */ int cr;
     /* 0x04 */ int cg;
     /* 0x08 */ int cb;
@@ -54,22 +49,22 @@ typedef struct {
     /* 0x14 */ float y;
     /* 0x18 */ float z;
     /* 0x1C */ float w;
-} Fan2DVtx __attribute__((aligned(16)));
+} Fan2DVtx __attribute__((aligned(16))); /* derived name */
 
 typedef struct { /* field names derived */
     /* 0x00 */ int n;
     /* 0x04 */ int blend; /* set when a vertex colour is not opaque */
     /* 0x08 */ Fan2DVtx *buf;
-} Fan2D;
+} Fan2D; /* derived name */
 
 /* A particle object: two double-buffered packet heads, the counts, the
    texture name and the two object buffers. */
-typedef struct {
+typedef struct { /* field names derived */
     /* 0x00 */ int head[4];
     /* 0x10 */ float mtx[4][4];
     /* 0x50 */ float lmtx[4][4];
     /* 0x90 */ int tail[4];
-} PrimParticleBuf;
+} PrimParticleBuf; /* derived name */
 
 typedef struct { /* field names derived */
     /* 0x000 */ PrimParticleBuf buf[2];
@@ -87,19 +82,14 @@ typedef struct { /* field names derived */
     /* 0x188 */ char *objs[2];
     /* 0x190 */ int vtx;     /* the vertices of the buffer being drawn (objs + 0x70) */
     /* 0x194 */ int vtxNext; /* the vertices of the other buffer */
-} PrimParticle;
+} PrimParticle; /* derived name */
 
 void prim_DeleteParticle(PrimParticle *p);
 void prim_DispFan2D(Fan2D *f, int mode);
 void prim_DispMesh3D(Mesh3D *m, void *la, void *lb, int tex);
 void prim_DispParticle(PrimParticle *p, void *mtx);
 void prim_DispWireBox(float *sz, void *col);
-/* radius first: the calls in box, boy and commonact set $f12 ahead of the
-   colour and the counts, which only this order gives; every other caller
-   compiles the same under either order */
 void prim_DispWireSphere(float r, void *col, int nu, int nv);
-/* the radius second: staticBlur's calls load $f12 ahead of the integer
-   arguments, the evaluation order of this parameter list */
 Fan2D *prim_InitFan2D(int n, float r, float *pos, unsigned int cc, unsigned int rc);
 Mesh3D *prim_InitMesh3D(int nx, int ny, int rot, long long col, unsigned int col2, int lit);
 PrimParticle *prim_InitParticle(int num, float x, float y, float z, int a1, char *name, int a3);

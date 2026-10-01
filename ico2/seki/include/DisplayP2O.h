@@ -1,20 +1,15 @@
 /*
  * ico2/seki/include/DisplayP2O.h
  *
- * The disc records no file of this name: SRCFILE.TXT attributes no
- * instruction to it, and a header that only declares leaves no rows in the
- * listing at all, so this file is ours and not the developers' own record.
- * It collects the declarations of what DisplayP2O.c defines, in the form its
- * users need them; every type here is read from the ROM's calling convention
- * at the call sites and from the spellings the using TUs already carried.
+ * The declarations of what DisplayP2O.c defines, for the files that use
+ * them.  The file name is derived.
  */
 
 #ifndef DISPLAYP2O_H
 #define DISPLAYP2O_H
 
-/* The declarations below lead this header because their order is load-bearing:
- * gcc 2.9 emits the deferred out-of-line copy of a plain-inline function in
- * first-declaration order, so this is the order DisplayP2O.c's inline tail has. */
+/* DisplayP2O.c's `inline` functions, in the order of their definitions'
+ * out-of-line copies at the end of the object (first-declaration order). */
 void p2o_SetDefaultEnviroment(void);
 
 #include "typedef.h"
@@ -54,7 +49,7 @@ typedef struct PObjPart { /* field names derived */
     char *vtxSave; /* 0x174 */
     char *nrmSave; /* 0x178 */
     char pad17C[4];
-} PObjPart;
+} PObjPart; /* derived name */
 
 typedef struct PObjModel { /* field names derived */
     char name[36];         /* 0x00 */
@@ -81,7 +76,7 @@ typedef struct PObjModel { /* field names derived */
     char *groups;       /* 0x48, 48 bytes a part */
     char pad4C[4];
     float box[8][4]; /* 0x50 */
-} PObjModel;
+} PObjModel; /* derived name */
 
 void p2o_DispVU1(GObj *self);
 void p2o_DispVU1DObj(void *req);

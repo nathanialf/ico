@@ -19,27 +19,26 @@
 #include "enemy_act.h"
 #include "gobj.h"
 
-/* .data, carved VMA 0x4EE5B0..0x4EE5F0, bytes verified against
-   baserom/pal/baseelf.rom.  bgaAnimDefault is the 0x30-byte default record
+/* bgaAnimDefault is the 0x30-byte default record
    bga_InitData block-copies into its mallocseki() allocation (two
    (0,0,0,1.0f) vectors then four words); bgaParticlePos is the (0,0,0,1.0f)
    position vector bga_ApplyDObject hands to
    SetParticleEffectActiveSensing. */
-typedef struct BgaAnimDefault {
+typedef struct BgaAnimDefault { /* field names derived */
     /* 0x00 */ VECTOR pos;
     /* 0x10 */ VECTOR quat;
     /* 0x20 */ int obj;
     /* 0x24 */ int idx;
     /* 0x28 */ int root;
     /* 0x2C */ int f2C;
-} BgaAnimDefault;
+} BgaAnimDefault; /* derived name */
 
 static BgaAnimDefault bgaAnimDefault = {
     /* derived name */
     {0.0f, 0.0f, 0.0f, 1.0f}, {0.0f, 0.0f, 0.0f, 1.0f}, 0, -1, 1, 0,
 };
 
-/* RECONSTRUCTION, read from the ROM: the head of a BGA file, its "BGA"
+/* The head of a BGA file, its "BGA"
    magic, the play state (-1 off, 0 held, 1 playing), the camera-cut flag, the
    DObj list and the root list bga_InitData builds from it, the frame range,
    the step and the current frame, and the animation record it allocates. */
@@ -54,19 +53,20 @@ typedef struct BgaHeader { /* field names derived */
     float step;           /* 0x1C */
     float frame;          /* 0x20 */
     BgaAnimDefault *anim; /* 0x24 */
-} BgaHeader;
+} BgaHeader;              /* derived name */
 
 static float bgaParticlePos[4] = {0.0f, 0.0f, 0.0f, 1.0f}; /* derived name */
 
 struct BgaLightEnv;
 
-typedef struct BgaEnvEnt {
+typedef struct BgaEnvEnt { /* field names derived */
     /* 0x00 */ unsigned short type;
     /* 0x02 */ short f02;
     /* 0x04 */ unsigned char *data;
-} BgaEnvEnt;
+} BgaEnvEnt; /* derived name */
 
-typedef struct BgaDObjEnt {
+typedef struct BgaDObjEnt { /* field names derived */
+
     /* 0x00 */ unsigned short type;
     /* 0x02 */ unsigned short num;
     /* 0x04 */ char name[0x20];
@@ -82,28 +82,25 @@ typedef struct BgaDObjEnt {
     /* 0x38 */ char pad38[0xC];
     /* 0x44 */ short parent;
     /* 0x46 */ short f46;
-} BgaDObjEnt;
+} BgaDObjEnt; /* derived name */
 
-typedef struct BgaKey {
+typedef struct BgaKey { /* field names derived */
     /* 0x00 */ float v[6];
     /* 0x18 */ float f18;
     /* 0x1C */ float f1C;
     /* 0x20 */ int f20;
     /* 0x24 */ int time;
-} BgaKey;
+} BgaKey; /* derived name */
 
-typedef struct BgaMotion {
+typedef struct BgaMotion { /* field names derived */
     /* 0x00 */ BgaKey *key;
     /* 0x04 */ int n;
     /* 0x08 */ unsigned int len;
     /* 0x0C */ float frame;
-} BgaMotion;
+} BgaMotion; /* derived name */
 
-/* The .sdata run, in the ROM's order: the six words the file's functions
-   share, then the short literals at their uses.  bgaStreamSync is read and
-   cleared by streamMotionManager.c (_infoUpdate), so it is global; MAIN.MAP
-   lists no .sdata symbol for BgAnimation.o, whose January run is 8 bytes
-   larger than the retail one. */
+/* The six words the file's functions share.  bgaStreamSync is read and
+   cleared by streamMotionManager.c (_infoUpdate), so it is global. */
 int bgaStreamSync = 0; /* derived name */
 
 static int bgaFrame = 0; /* derived name */
@@ -116,11 +113,9 @@ static int bgaCameraForceOff = 0; /* derived name */
 
 static struct BgaLightning *bgaLightningList = 0; /* derived name */
 
-/* Listing rows 806-890 of BgAnimation.c: four static helpers the January
-   link inlines whole into bga_InitData and that carry no symbol of their
-   own.  Their names are ours. */
+/* Four static helpers bga_InitData inlines. */
 
-static inline void bga_addSiblingTail(BgaDObjEnt *c, BgaDObjEnt *d)
+static inline void bga_addSiblingTail(BgaDObjEnt *c, BgaDObjEnt *d) /* derived name */
 {
     while (c->f30 != 0) {
         c = c->f30;
@@ -128,7 +123,7 @@ static inline void bga_addSiblingTail(BgaDObjEnt *c, BgaDObjEnt *d)
     c->f30 = d;
 }
 
-static inline void bga_linkToParent(BgaDObjEnt *q, BgaDObjEnt *d, int no)
+static inline void bga_linkToParent(BgaDObjEnt *q, BgaDObjEnt *d, int no) /* derived name */
 {
     do {
         if (q->num == no) {
@@ -145,7 +140,7 @@ static inline void bga_linkToParent(BgaDObjEnt *q, BgaDObjEnt *d, int no)
     } while (1);
 }
 
-static inline void bga_linkTree(BgaHeader *p)
+static inline void bga_linkTree(BgaHeader *p) /* derived name */
 {
     BgaDObjEnt *d;
     int no;
@@ -163,7 +158,7 @@ static inline void bga_linkTree(BgaHeader *p)
     } while (1);
 }
 
-static inline void bga_makeRootList(BgaHeader *p)
+static inline void bga_makeRootList(BgaHeader *p) /* derived name */
 {
     BgaDObjEnt *d;
     int n;
@@ -192,9 +187,8 @@ static inline void bga_makeRootList(BgaHeader *p)
     } while (1);
 }
 
-/* The functions the ROM places after bga_DispLightning, in that order: the
-   file defines them inline, so gcc defers each out-of-line copy to the end of
-   the file in first-declaration order, which these prototypes fix. */
+/* BgAnimation.c's `inline` functions, in the order of their definitions'
+   out-of-line copies at the end of the object (first-declaration order). */
 void bga_ResetCamera(void);
 int bga_GetCameraMatrix(void *p);
 char *bga_InitSdfCamera(char *a0);
@@ -291,23 +285,23 @@ char *bga_InitData(BgaHeader *p)
     return (char *)p;
 }
 
-typedef struct BgaSdfKey {
+typedef struct BgaSdfKey { /* field names derived */
     /* 0x00 */ int f00;
     /* 0x04 */ float pos[3];
     /* 0x10 */ float at[3];
     /* 0x1C */ float roll;
     /* 0x20 */ float fov;
-} BgaSdfKey;
+} BgaSdfKey; /* derived name */
 
 /* The SDF camera record bga_InitSdfCamera checks and bga_SetCamFrame starts:
  * the "SDF" tag, the key count, the running frame, the play mode and the keys. */
-typedef struct BgaSdfCam {
+typedef struct BgaSdfCam { /* field names derived */
     /* 0x00 */ char id[4];
     /* 0x04 */ int num;
     /* 0x08 */ float frame;
     /* 0x0C */ int mode;
     /* 0x10 */ BgaSdfKey key[1];
-} BgaSdfCam;
+} BgaSdfCam; /* derived name */
 
 inline char *bga_InitSdfCamera(char *a0)
 {
@@ -321,26 +315,24 @@ inline char *bga_InitSdfCamera(char *a0)
     return a0;
 }
 
-typedef struct BgaGeom {
+typedef struct BgaGeom { /* field names derived */
     /* 0x000 */ int f00;
     /* 0x004 */ int f04;
     /* 0x008 */ int f08;
     /* 0x00C */ char pad0C[0x848];
     /* 0x854 */ char *name;
-} BgaGeom;
+} BgaGeom; /* derived name */
 
-typedef struct BgaGObj {
+typedef struct BgaGObj { /* field names derived */
     /* 0x000 */ char pad00[0x15C];
     /* 0x15C */ void *geom;
-} BgaGObj;
+} BgaGObj; /* derived name */
 
 /* The particle entry's word at +0x20 packs three fields: the loop flag in
    bits 0-1, the effect handle in bits 2-16 and the particle id in bits
-   17-31.  The union with the 8-byte word is what the record is: the ROM
-   reads and writes the whole doubleword (ld/sd) at every one of these
-   sites, and the int bitfields inside it give the sign-extending 15-bit
-   extraction the ROM uses for the id. */
-typedef union BgaParticleBits {
+   17-31, read and written as the whole doubleword. */
+typedef union BgaParticleBits { /* field names derived */
+
     struct {
         int loop : 2;
         int eff : 15;
@@ -348,15 +340,15 @@ typedef union BgaParticleBits {
     } b;
 
     long long w;
-} BgaParticleBits;
+} BgaParticleBits; /* derived name */
 
-typedef struct BgaParticleEnt {
+typedef struct BgaParticleEnt { /* field names derived */
     /* 0x00 */ float pos[4];
     /* 0x10 */ int quat[4];
     /* 0x20 */ BgaParticleBits u;
-} BgaParticleEnt;
+} BgaParticleEnt; /* derived name */
 
-typedef struct BgaLightEnv {
+typedef struct BgaLightEnv { /* field names derived */
     /* 0x00 */ char pad00[0x20];
     /* 0x20 */ float col[4];
     /* 0x30 */ char pad30[0x10];
@@ -368,7 +360,7 @@ typedef struct BgaLightEnv {
     /* 0x60 */ float f60;
     /* 0x64 */ float f64;
     /* 0x68 */ float f68;
-} BgaLightEnv;
+} BgaLightEnv; /* derived name */
 
 void bga_initLightEnvelope(BgaDObjEnt *p)
 {
@@ -430,12 +422,7 @@ void bga_initLightEnvelope(BgaDObjEnt *p)
                 break;
             }
             break;
-        /* A third arm above 5 with an empty body: the ROM's dispatch is the
-           three-test tree balance_case_nodes only builds for more than two
-           case values (== 5, then >= 6 to the default, then == 4), and jump
-           optimisation then deletes this arm's own test because its label is
-           the switch end.  That makes the value itself unobservable; 6 is the
-           next envelope type. */
+        /* the next envelope type, nothing to do */
         case 6:
             break;
         }
@@ -511,7 +498,7 @@ void bga_ApplyDObject(BgaDObjEnt *p, void **objs, int n, int no)
     }
 }
 
-static inline int bga_findKey(BgaKey *k, int n, float f)
+static inline int bga_findKey(BgaKey *k, int n, float f) /* derived name */
 {
     int lo = 0;
     int hi = n - 1;
@@ -540,7 +527,8 @@ static inline int bga_findKey(BgaKey *k, int n, float f)
     return 0;
 }
 
-static inline void bga_hermite(float t, float *h0, float *h1, float *h2, float *h3)
+static inline void bga_hermite(float t, float *h0, float *h1, float *h2,
+                               float *h3) /* derived name */
 {
     float s = t * t;
     float c = t * s;
@@ -554,9 +542,9 @@ static inline void bga_hermite(float t, float *h0, float *h1, float *h2, float *
 
 /* The particle motion's key: a position, a rotation in degrees, the three
    colour weights, the two tangent weights, the linear flag and the frame the
-   key sits on.  Field names are ours.  bga_GetMotion, bga_GetMotionParticle
+   key sits on.  bga_GetMotion, bga_GetMotionParticle
    and bga_GetMotionLightning all read this 0x34-byte record. */
-typedef struct BgaPtKey {
+typedef struct BgaPtKey { /* field names derived */
     /* 0x00 */ float pos[3];
     /* 0x0C */ float rot[3];
     /* 0x18 */ float col[3];
@@ -564,16 +552,16 @@ typedef struct BgaPtKey {
     /* 0x28 */ float f28;
     /* 0x2C */ int linear;
     /* 0x30 */ int time;
-} BgaPtKey;
+} BgaPtKey; /* derived name */
 
-typedef struct BgaPtMotion {
+typedef struct BgaPtMotion { /* field names derived */
     /* 0x00 */ BgaPtKey *key;
     /* 0x04 */ int n;
     /* 0x08 */ unsigned int len;
     /* 0x0C */ float frame;
-} BgaPtMotion;
+} BgaPtMotion; /* derived name */
 
-static inline int bga_findPtKey(BgaPtKey *k, int n, float f)
+static inline int bga_findPtKey(BgaPtKey *k, int n, float f) /* derived name */
 {
     int lo = 0;
     int hi = n - 1;
@@ -1020,22 +1008,22 @@ void bga_GetMotionLightning(float *pos, int *rot, float *col, BgaPtMotion *m)
     col[3] = 1.0f;
 }
 
-typedef struct BgaExtKey {
+typedef struct BgaExtKey { /* field names derived */
     /* 0x00 */ float f00;
     /* 0x04 */ float f04;
     /* 0x08 */ float f08;
     /* 0x0C */ int f0C;
     /* 0x10 */ int time;
-} BgaExtKey;
+} BgaExtKey; /* derived name */
 
-typedef struct BgaExtMotion {
+typedef struct BgaExtMotion { /* field names derived */
     /* 0x00 */ BgaExtKey *key;
     /* 0x04 */ int n;
     /* 0x08 */ unsigned int len;
     /* 0x0C */ float frame;
-} BgaExtMotion;
+} BgaExtMotion; /* derived name */
 
-static inline int bga_findExtKey(BgaExtKey *k, int n, float f)
+static inline int bga_findExtKey(BgaExtKey *k, int n, float f) /* derived name */
 {
     int lo = 0;
     int hi = n - 1;
@@ -1221,58 +1209,49 @@ void bga_GetGizmoMotion(BgaMotion *m, float *dst)
    hands its own instance to the light objects when the stage is not lit
    through Light.c, and bga_initLightEnvelope writes only the colour at 0x20.
    The size is the record's (light_AddLight allocates 0x50). */
-typedef struct BgaLight {
+typedef struct BgaLight { /* field names derived */
     /* 0x00 */ char pad00[0x20];
     /* 0x20 */ float col[4];
     /* 0x30 */ char pad30[0x20];
-} BgaLight;
+} BgaLight; /* derived name */
 
-/* .sbss and .bss, owned by BgAnimation.o and reached only from this file
-   (MAIN.MAP names no symbol in either run), each in the ROM's run order:
-   whether an SDF camera is running and the Z roll the object walk has
+/* Whether an SDF camera is running and the Z roll the object walk has
    accumulated; then the camera matrix, the camera position at the last
    frame jump, the pivot the light-vector objects rotate about and the
    matrix built around it, the position, scale and rotation the motion
    readers fill for the object being walked, and the light record the
    light objects use when the stage has none. */
-static int bgaCameraActive;
+static int bgaCameraActive; /* derived name */
 
-static short bgaRollZ;
+static short bgaRollZ; /* derived name */
 
-static float bgaCameraMatrix[4][4];
+static float bgaCameraMatrix[4][4]; /* derived name */
 
-static float bgaLastCameraPos[4];
+static float bgaLastCameraPos[4]; /* derived name */
 
-static float bgaPivot[4];
+static float bgaPivot[4]; /* derived name */
 
-static float bgaPivotMatrix[4][4];
+static float bgaPivotMatrix[4][4]; /* derived name */
 
-static float bgaPos[4];
+static float bgaPos[4]; /* derived name */
 
-static float bgaScale[4];
+static float bgaScale[4]; /* derived name */
 
-static int bgaRot[4];
+static int bgaRot[4]; /* derived name */
 
-static BgaLight bgaDummyLight;
+static BgaLight bgaDummyLight; /* derived name */
 
-/* RECONSTRUCTION: a word read either as an int or as a float, the form this
-   programmer gives such words (StageAnimation.c's AnimWord, Packet.c's
-   PacketFloat).  What the bytes pin: one side of bga_calcEnvelope's pivot
-   case is an alias-set-0 reference, which is what keeps the flag's store
-   behind the pivot's source loads as the ROM has it; the flag itself is a
-   4-aligned word in .sdata, which a union object (8-aligned under
-   DATA_ALIGNMENT) cannot be, so the union is on the envelope data's side.
-   What they cannot pin: the other member, the name, or whether the entry's
-   data pointer carried this type rather than a cast. */
-typedef union {
+/* a word read either as an int or as a float, the form this programmer
+   gives such words (StageAnimation.c's AnimWord, Packet.c's PacketFloat) */
+typedef union { /* field names derived */
     int i;
     float f;
-} BgaWord;
+} BgaWord; /* derived name */
 
 /* The flag bga_CalcObject tests before translating by the pivot. */
 static int bgaPivotFlag = 0; /* derived name */
 
-static inline float bga_palFrame(float f)
+static inline float bga_palFrame(float f) /* derived name */
 {
     if (systemStatus[0]) {
         f *= 0.82812935f;
@@ -1280,11 +1259,11 @@ static inline float bga_palFrame(float f)
     return f;
 }
 
-/* Listing rows 1991-2001: step an envelope's motion by dt and, once it runs
+/* Step an envelope's motion by dt and, once it runs
    past its length (scaled for PAL, as bga_CalcSdfCamera scales it), wrap it
    to 0 when looping or hold it at the end.  The helper reads the entry's data
-   word itself (row 1991).  The name is ours. */
-static inline void bga_stepEnvelope(BgaEnvEnt *e, float dt, int loop)
+   word itself. */
+static inline void bga_stepEnvelope(BgaEnvEnt *e, float dt, int loop) /* derived name */
 {
     BgaExtMotion *m = (BgaExtMotion *)e->data;
 
@@ -1298,7 +1277,7 @@ static inline void bga_stepEnvelope(BgaEnvEnt *e, float dt, int loop)
     }
 }
 
-/* Apply a node's envelopes (listing rows 2034-2121): each entry's type says
+/* Apply a node's envelopes: each entry's type says
  * what its motion drives, the node work record's float for the object, the
  * SDF camera zoom, a light's two parameters, the gizmo, the light vector or
  * the node's object pointer; types 4 and 5 (the colour envelopes
@@ -1404,7 +1383,7 @@ void _RotTransCurrentMatrixYXZ(void *t, int *rot)
 
     /* The rotation pairs go into $vf21..$vf26 while the vmr32 chain builds
        the identity rows in $vf14..$vf17.  The sequence is one asm block
-       because it is hand scheduled: every mfc1 is separated from the qmtc2
+       because it is ordered by hand: every mfc1 is separated from the qmtc2
        that consumes its GPR, and the three vmr32 sit in those gaps. */
     __asm__ __volatile__("vmove.xyzw $vf17, $vf0\n\t"
                          "lqc2 $vf8, 0(%6)\n\t"
@@ -1507,9 +1486,10 @@ void _RotTransCurrentMatrixYXZ(void *t, int *rot)
     VU0_V2OP(vmove.xyzw, 7, 13);
 }
 
-/* Externs and record views bga_CalcObject uses (field names are ours). */
+/* Externs and record views bga_CalcObject uses. */
 
-typedef struct BgaNodeBits {
+typedef struct BgaNodeBits { /* field names derived */
+
     /* 0x00 */ char pad00[0x30];
     /* 0x30 */ float f30;
     /* 0x34 */ int f34;
@@ -1525,9 +1505,9 @@ typedef struct BgaNodeBits {
     } f38;
 
     /* 0x40 */ float f40[4];
-} BgaNodeBits;
+} BgaNodeBits; /* derived name */
 
-typedef struct BgaObj {
+typedef struct BgaObj { /* field names derived */
     /* 0x00 */ short id;
     /* 0x02 */ char pad02[0xA];
     /* 0x0C */ float (*mtx)[16];
@@ -1538,25 +1518,25 @@ typedef struct BgaObj {
     /* 0x70 */ float rscale[3];
     /* 0x7C */ char pad7C[0x7F4];
     /* 0x870 */ BgaNodeBits *work;
-} BgaObj;
+} BgaObj; /* derived name */
 
 extern void SetParamKyomiGObj(void *o, float *pos, float *scale);
 
 /* The lightning record bga_addLightning allocates: ten 0x20-byte segments,
    the live segment count, the two flags, the frame, the definition it was
-   built from and the list link.  Field names are ours. */
-typedef struct BgaLightningSeg {
+   built from and the list link. */
+typedef struct BgaLightningSeg { /* field names derived */
     /* 0x00 */ float v[4];
     /* 0x10 */ int key;
     /* 0x14 */ int f14;
     /* 0x18 */ int f18;
     /* 0x1C */ int f1C;
-} BgaLightningSeg;
+} BgaLightningSeg; /* derived name */
 
 /* The lightning definition the BGA file carries: the kind at +0x02 picks the
    object the bolt is drawn against, the four bytes at +0x04 are its colour
    and the ten floats from +0x08 are DrawLightningN's shape parameters. */
-typedef struct BgaLightningDef {
+typedef struct BgaLightningDef { /* field names derived */
     /* 0x00 */ short f00;
     /* 0x02 */ short kind;
     /* 0x04 */ unsigned char col[4];
@@ -1571,7 +1551,7 @@ typedef struct BgaLightningDef {
     /* 0x28 */ float f28;
     /* 0x2C */ short f2C;
     /* 0x2E */ short f2E;
-} BgaLightningDef;
+} BgaLightningDef; /* derived name */
 
 typedef struct BgaLightning { /* field names derived */
     /* 0x000 */ BgaLightningSeg seg[10];
@@ -1581,12 +1561,12 @@ typedef struct BgaLightning { /* field names derived */
     /* 0x14C */ float frame;
     /* 0x150 */ BgaLightningDef *def;
     /* 0x154 */ struct BgaLightning *next;
-} BgaLightning;
+} BgaLightning; /* derived name */
 
-/* kept local: BgAnimation.h does not compile in this TU (conflicting types for `bga_InitData') */
+/* BgAnimation.h is not included: its bga_InitData does not agree with this file */
 extern void bga_addLightning(int kind, BgaLightningDef *a1, float *vec, int id, int t0, float f);
 
-static inline void bga_checkCameraDistance(void)
+static inline void bga_checkCameraDistance(void) /* derived name */
 {
     if (bgaCameraActive != 0) {
         _InverseCurrentMatrix();
@@ -1600,7 +1580,7 @@ static inline void bga_checkCameraDistance(void)
     }
 }
 
-static inline void bga_stepMotion(BgaExtMotion *m, float dt, int reset)
+static inline void bga_stepMotion(BgaExtMotion *m, float dt, int reset) /* derived name */
 {
     m->frame += dt;
     if ((float)m->len * (systemStatus[0] ? 0.82812935f : 1.0f) < m->frame) {
@@ -1691,12 +1671,8 @@ void bga_CalcObject(BgaDObjEnt *d, float dt, float f13, int a1, int a2, int a3)
             debug_StdPrintfDummy("不明なパーティクル\n");
             break;
         }
-        /* RECONSTRUCTION: the bytes pin one register holding &bgaPos, set before
-           the loop test's join and read by GetCurrentMatrixTrans, _CopyVector and
-           the NTSC SetParticleEffect, while the PAL SetParticleEffect computes the
-           address itself (cse cannot see the value across that join); a local set
-           here and the static spelled in the PAL call is the text that gives it.
-           The local's name is ours. */
+        /* pos is bgaPos for the calls below; the PAL SetParticleEffect call
+           names bgaPos itself */
         pos = bgaPos;
         if (bgaUniqAnimationFlag == 0 && ((BgaParticleEnt *)d->u.obj)->u.b.loop) {
             /* "a PBGA-type animation cannot use looping particles" */
@@ -1787,27 +1763,27 @@ void bga_CalcObject(BgaDObjEnt *d, float dt, float f13, int a1, int a2, int a3)
     bga_stepMotion((BgaExtMotion *)&d->f34, dt, a3);
 }
 
-typedef struct {
+typedef struct { /* field names derived */
     /* 0x00 */ int f00;
     /* 0x04 */ int f04;
     /* 0x08 */ unsigned int f08;
     /* 0x0C */ float f0C;
-} BgaCount;
+} BgaCount; /* derived name */
 
-typedef struct {
+typedef struct { /* field names derived */
     /* 0x00 */ int f00;
     /* 0x04 */ BgaCount *obj;
-} BgaCountEnt;
+} BgaCountEnt; /* derived name */
 
-typedef struct BgaCntNode {
+typedef struct BgaCntNode { /* field names derived */
     /* 0x00 */ char pad00[0x28];
     /* 0x28 */ BgaCountEnt *ents;
     /* 0x2C */ struct BgaCntNode *f2C;
     /* 0x30 */ struct BgaCntNode *f30;
     /* 0x34 */ BgaCount f34;
-} BgaCntNode;
+} BgaCntNode; /* derived name */
 
-static inline void bga_clampCount(BgaCount *o, float f)
+static inline void bga_clampCount(BgaCount *o, float f) /* derived name */
 {
     if (f >= 0.0f) {
         float c = (float)o->f08;
@@ -1849,7 +1825,7 @@ void bga_resetObjectCounter(BgaCntNode *o, float f, int a1)
     bga_clampCount(&o->f34, f);
 }
 
-/* kept local: BgAnimation.h does not compile in this TU (conflicting types for `bga_InitData') */
+/* BgAnimation.h is not included: its bga_InitData does not agree with this file */
 extern void bga_CalcAnimation(BgaHeader *p, int a1, int a2);
 
 void bga_SetFrame(BgaHeader *p, int frame, int mode, int a3)
@@ -1890,26 +1866,26 @@ void bga_SetFrame(BgaHeader *p, int frame, int mode, int a3)
     bga_CalcAnimation(p, a3, 1);
 }
 
-typedef struct BgaAnimGeom {
+typedef struct BgaAnimGeom { /* field names derived */
     /* 0x000 */ char pad00[0xC];
     /* 0x00C */ float (*mtx)[4][4];
     /* 0x010 */ float (*quat)[4];
-} BgaAnimGeom;
+} BgaAnimGeom; /* derived name */
 
-typedef struct BgaAnimObj {
+typedef struct BgaAnimObj { /* field names derived */
     /* 0x000 */ char pad00[0x15C];
     /* 0x15C */ BgaAnimGeom *geom;
-} BgaAnimObj;
+} BgaAnimObj; /* derived name */
 
-typedef struct BgaAnimEnt {
+typedef struct BgaAnimEnt { /* field names derived */
     /* 0x00 */ float pos[4];
     /* 0x10 */ float quat[4];
     /* 0x20 */ BgaAnimObj *obj;
     /* 0x24 */ int idx;
     /* 0x28 */ int root;
-} BgaAnimEnt;
+} BgaAnimEnt; /* derived name */
 
-#define BGA_ANIM_ENT(p) ((BgaAnimEnt *)(p)->anim)
+#define BGA_ANIM_ENT(p) ((BgaAnimEnt *)(p)->anim) /* derived name */
 
 void bga_CalcAnimation(BgaHeader *p, int a1, int a2)
 {
@@ -1993,7 +1969,7 @@ void bga_CalcAnimation(BgaHeader *p, int a1, int a2)
 
 /* the PAL frame counter read back on the 60 Hz timeline: the reciprocal of
    bga_palFrame's 0.82812935f. */
-static inline float bga_ntscFrame(float f)
+static inline float bga_ntscFrame(float f) /* derived name */
 {
     if (systemStatus[0]) {
         f *= 1.2075409f;
@@ -2001,14 +1977,9 @@ static inline float bga_ntscFrame(float f)
     return f;
 }
 
-/* Listing rows 2794-2871.  The record is read through its fields: a field
- * read at a varying address is exempt from the fixed-address bgaCameraActive store
- * (alias.c fixed_scalar_and_varying_struct_p), which is what lets the count
- * load issue ahead of that store as the ROM has it.  Both frame-rate scales are
- * `x * (PAL ? k : 1.0f)`: fold distributes the product over the condition and
- * evaluates x once before the branch (the ROM's shared frame load and the
- * mov.s it copies into the PAL arm).  Rows 2836/2837 read each key's two
- * values into locals of their own, fov first as rows 2841/2842 use them. */
+/* The record is read through its fields.  Both frame-rate scales are
+ * `x * (PAL ? k : 1.0f)`, and each key's two values are read into locals of
+ * their own, fov first. */
 void bga_CalcSdfCamera(char *data, int loop)
 {
     BgaSdfCam *p = (BgaSdfCam *)data;
@@ -2163,18 +2134,18 @@ void bga_addLightning(int kind, BgaLightningDef *a1, float *vec, int id, int t0,
 
 /* DrawLightningN reads the colour as four words, so it is a 16-byte record
    here and not four separate ints. */
-typedef struct BgaLightningCol {
+typedef struct BgaLightningCol { /* field names derived */
     unsigned int c[4];
 } __attribute__((aligned(16))) BgaLightningCol;
 
 extern GenGeo objLayout[];
 
-/* kept local: this TU does not include gobj.h or enemy_act.h, and its use of
+/* this file does not include gobj.h or enemy_act.h, and its use of
    DrawLightningN does not fit the prototype in lightning.h */
 
-/* Listing line 3069: the definition's four colour bytes widened into the
-   16-byte record DrawLightningN reads.  The name is ours. */
-static inline BgaLightningCol bga_lightningColor(BgaLightningDef *g)
+/* the definition's four colour bytes widened into the 16-byte record
+   DrawLightningN reads */
+static inline BgaLightningCol bga_lightningColor(BgaLightningDef *g) /* derived name */
 {
     BgaLightningCol c;
 

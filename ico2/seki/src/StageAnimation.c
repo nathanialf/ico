@@ -16,26 +16,23 @@
 #include <string.h>
 #include <assert.h>
 
-typedef union {
+typedef union { /* field names derived */
     int i;
     float f;
-} AnimWord;
+} AnimWord; /* derived name */
 
-typedef union {
+typedef union { /* field names derived */
     long l;
     short h;
-} PlayWord;
+} PlayWord; /* derived name */
 
-typedef struct {
+typedef struct { /* field names derived */
     char _b[8];
-} Blob8;
+} Blob8; /* derived name */
 
 /* the animation record's packed word: its object count, node count, play
-   count and mode.  WHAT THE BYTES PIN: the mode is tested as the word shifted
-   down 30 (sra), where a bit-field compare against a constant folds to a
-   masked compare, and stage_SetAnimation's loop reads the count as the
-   shifted word (as a field its allocation rotates, measured) */
-typedef union {
+   count and mode, read as the shifted word */
+typedef union { /* field names derived */
     int i;
 
     struct {
@@ -44,26 +41,21 @@ typedef union {
         int play : 10;
         int mode : 2;
     } b;
-} StageFlags;
+} StageFlags; /* derived name */
 
-struct B8 {
+struct B8 { /* field names derived */
     char _b[8];
 };
 
-typedef struct AnimNode {
-    long field0; /* 0x00 */
+typedef struct AnimNode { /* field names derived */
+    long field0;          /* 0x00 */
     char _pad[12];
     struct AnimNode *next; /* 0x14 */
-} AnimNode;
+} AnimNode;                /* derived name */
 
-/* RECONSTRUCTION: the 0x290-byte animation record stageAnimTable holds, laid out
-   from the offsets this TU reads (kind, object and data tables, the three
-   entry pointers, the packed count/mode word). stage_SetScale and
-   stage_SetAnimation read the object table as a member of this record:
-   expand_expr forces the member's address `e + 0x80` into its own register
-   before the index is added, which is the ROM's addiu/addu pair (and in
-   stage_SetScale the k-loop test's own copy of it). */
-typedef struct {
+/* The 0x290-byte animation record stageAnimTable holds: the kind, object and
+   data tables, the three entry pointers and the packed count/mode word. */
+typedef struct {      /* field names derived */
     short kind[64];   /* 0x000 */
     GObj *obj[64];    /* 0x080 */
     int *data[64];    /* 0x180 */
@@ -71,15 +63,12 @@ typedef struct {
     char *entry2;     /* 0x284 */
     char *entry3;     /* 0x288 */
     StageFlags flags; /* 0x28C */
-} StageAnim;
+} StageAnim;          /* derived name */
 
-/* RECONSTRUCTION: the play node stage_MakePlayBgAnimation links into
-   bgaPlayList and stage_DispBgAnimation walks. The ROM reads its first word as
-   int bit-fields in a doubleword unit (ld, then andi 0xFFFF/sll 18/sra 18 for
-   the 14-bit animation number, andi 0x8000 for the kill flag, and 0xFFFFBFFF
-   for the play flag), which is what gcc 2.9 emits for int bit-fields in a
-   16-byte aligned record; the names are this repository's. */
-typedef struct {
+/* The play node stage_MakePlayBgAnimation links into bgaPlayList and
+   stage_DispBgAnimation walks.  Its first word holds int bit-fields: the
+   14-bit animation number, the kill flag and the play flag. */
+typedef struct { /* field names derived */
     int no : 14; /* 0x00 */
     int play : 1;
     int kill : 1;
@@ -92,39 +81,37 @@ typedef struct {
     int _18[2];
     sceVu0FVECTOR pos; /* 0x20 */
     float rot[4];      /* 0x30 */
-} BgaPlayNode;
+} BgaPlayNode;         /* derived name */
 
-/* The TU's own .sbss and .bss, in ROM run order (names ours): the number of
-   loaded animation records, the head of the play-node list, and the record
-   table stage_Init fills, 87 records of 0x290 bytes (0xDEF0, the whole run
-   from Shadow's .bss to Texture's). */
-static int stageAnimCount;
+/* The number of loaded animation records, the head of the play-node list,
+   and the record table stage_Init fills, 87 records of 0x290 bytes. */
+static int stageAnimCount; /* derived name */
 
-static int *bgaPlayList;
+static int *bgaPlayList; /* derived name */
 
-static StageAnim stageAnimTable[87];
+static StageAnim stageAnimTable[87]; /* derived name */
 
 extern GenGeo objLayout[];
 
 /* The layout record a stage object is made with and handed to its init
-   function: position, rotation, scale and a flag word (names ours). */
-typedef struct {
+   function: position, rotation, scale and a flag word. */
+typedef struct {         /* field names derived */
     sceVu0FVECTOR pos;   /* 0x00 */
     sceVu0FVECTOR rot;   /* 0x10 */
     sceVu0FVECTOR scale; /* 0x20 */
     int flag;            /* 0x30 */
-} StageGObjInit;
+} StageGObjInit;         /* derived name */
 
 #include "StageAnimation.h"
 #include "ios.h"
 #include <stdio.h>
 
-/* objAction's row as this TU reads it: the two stage animations the
+/* objAction's row as this file reads it: the two stage animations the
    object plays (typedef.h's OaRecB carries them as baseMode and anim2) */
 typedef struct { /* field names derived */
     int anim[2]; /* 0x00 */
     char pad8[12];
-} StgBgaSet;
+} StgBgaSet; /* derived name */
 
 extern StgBgaSet objAction[];
 extern StageAnimDef stageTable[];
@@ -216,10 +203,8 @@ void stage_ApplyData(char *name, char *data)
     __assert(__FILE__, 617, "e");
 }
 
-/* stage_Init reaches the table's records through a pointer: indexing the
-   array itself folds the table address into each access and moves gcse's
-   expression table (measured) */
-#define STG ((StageAnim *)stageAnimTable)
+/* stage_Init reaches the table's records through a pointer */
+#define STG ((StageAnim *)stageAnimTable) /* derived name */
 
 extern char objKindData[];
 extern void bga_ApplyDObject(char *a0, GObj **a1, int a2, int a3);
@@ -227,32 +212,9 @@ extern void bga_ApplyDObject(char *a0, GObj **a1, int a2, int a3);
 /* an animated object's DObj, its 0x15C word read through AnimWord */
 #define STG_SUB(o) ((Sub15C *)((AnimWord *)((char *)(o) + 0x15C))->i) /* derived name */
 
-/* The stage animation TTY trace (our name and text), built only when DEBUG is
-   defined; the retail build does not define it, so the preprocessor leaves
-   the helper without a body.  A parameterless inline whose body is empty is
-   saved as the single (use (const_int 0)) flow.c:count_basic_blocks gives a
-   function with no insns, so each call emits no byte but leaves that insn,
-   which loop.c and gcse count and flow never deletes (a helper with a
-   parameter saves no USE; its parameter move is an insn).
-   WHAT THE BYTES PIN in stage_PlayBgAnimationDissolve: the ROM keeps the m
-   loop's `li 80` and the `li -1` of the entry2 store inside the second loop,
-   and loop.c's move_movables (threshold 64 with a call in the loop) hoists
-   both into two more callee-saved registers (frame 0xC0 against the ROM's
-   0xA0) unless that loop counts at least 65 real insns at both loop passes.
-   Its statements give 63 and 62, so three or more insns that emit no byte sat
-   in that loop: three or four calls are byte-identical (before the k loop,
-   after the 0x74 store, after the k loop, or two after the store), two let
-   the second pass hoist the stride, and one between d and the m loop changes
-   five words. The January listing has the gp display counter (lw, lw, addu,
-   sw) at line 1453 and no code at 1445, 1452, 1454 and 1455, and the retail
-   .sbss has no counter word. WHAT THEY CANNOT PIN: the trace's text, its
-   lines, or the count beyond three.
-   The same hook at stage_PlayBgAnimation's counter (listing line 1380)
-   changes six words there, so these are not that counter's remnant.
-   stage_Init's uses carry their own pinned/not-pinned comments; the
-   definition sits above stage_Init because gcc 2.9 inlines only a body it
-   has already read. */
-static __inline__ void stageAnimDebugHook(void)
+/* The stage animation TTY trace, built only when DEBUG is defined; the
+   retail build leaves the helper without a body. */
+static __inline__ void stageAnimDebugHook(void) /* derived name */
 {
 #ifdef DEBUG
     scePrintf("stage anim %d\n", stageAnimCount);
@@ -293,18 +255,7 @@ int stage_Init(void)
     for (i = 0; i < 87; i++) {
         STG[i].flags.b.count = 0;
     }
-    /* The DEBUG-build trace (see stageAnimDebugHook), here and at the next two
-       code-free runs. The January listing zeroes a gp counter at line 650
-       (rows 649, 651 to 654, 656 to 660 and 662 to 666 code-free) and the
-       retail build has neither that code nor the .sbss word. WHAT THE BYTES
-       PIN: stage_Init reaches gcse with 656 to 659 insns, six to nine more
-       than its statements give, so the expression table has 329 buckets and
-       puts e + 0x180 ahead of m + 1, which is the ROM's spill slot order
-       (dats base 0x78, m + 1 at 0x7C); at 325 buckets the two slots swap.
-       Three calls here in a row and one in each of these three runs are the
-       same object (cf6, measured). WHAT THEY CANNOT PIN: how many of those
-       insns sat in these runs and how many at the code-free rows 679, 692 and
-       697 below, or the trace's text. */
+    /* the DEBUG-build trace (see stageAnimDebugHook) */
     stageAnimDebugHook();
     bgaPlayList = 0;
     bga_ResetCamera();
@@ -322,12 +273,7 @@ int stage_Init(void)
                     obj = &stageTable[id];
                     if (id != 972) {
                         if (strncmp(obj->data, "BGA", 3) == 0) {
-                            /* Listing row 679, code-free. WHAT THE BYTES PIN: one
-                           insn between the stageAnimCount load and the 0x284 store
-                           at local-alloc, gone by final; without it the flags
-                           address takes $4 and the 0x284 address $3, the
-                           ROM's are the other way round. WHAT THEY CANNOT
-                           PIN: the statement's text. */
+                            /* the DEBUG-build trace */
                             stageAnimDebugHook();
                             STG[stageAnimCount].flags.i &= 0x3FFFFFFF;
                             *(int *)((char *)stageAnimTable + stageAnimCount * 0x290 + 0x284) =
@@ -346,8 +292,7 @@ int stage_Init(void)
                                 stage_MakeGObj((int *)p, stageAnimCount);
                             }
                         } else {
-                            /* listing row 692, code-free: counted in the gcse
-                           window above */
+                            /* the DEBUG-build trace */
                             stageAnimDebugHook();
                             STG[stageAnimCount].flags.i =
                                 (STG[stageAnimCount].flags.i & 0x3FFFFFFF) | 0x40000000;
@@ -355,8 +300,7 @@ int stage_Init(void)
                             *(int *)((char *)stageAnimTable + stageAnimCount * 0x290 + 0x280) =
                                 (int)obj;
                         }
-                        /* listing row 697, code-free: counted in the gcse window
-                       above */
+                        /* the DEBUG-build trace */
                         stageAnimDebugHook();
                         stageAnimCount++;
                         if (stageAnimCount >= 88) {
@@ -422,12 +366,9 @@ int stage_Init(void)
                     ios_partition_seki, STG_SUB(e->obj[k])->nodeNum << 6, __FILE__, 761);
                 STG_SUB(e->obj[k])->nodeQuat = (int)iosMallocDebug(
                     ios_partition_seki, STG_SUB(e->obj[k])->nodeNum << 4, __FILE__, 761);
-                /* The reallocation block's own count line (`X->8 = N;`, as
-                   chain.c, boy.c and box.c spell the same block), here passed
-                   the count field itself (listing 762; all three allocations
-                   pass line 761, one macro invocation). reload_cse deletes it
-                   as a no-op and turns the 0x870 test's load into the ROM's
-                   register copy. */
+                /* the reallocation block's count line, as chain.c, boy.c and
+                   box.c spell the same block, here passed the count field
+                   itself: a store of the field to itself */
                 STG_SUB(e->obj[k])->nodeNum = STG_SUB(e->obj[k])->nodeNum;
                 if ((int)STG_SUB(e->obj[k])->nodes != 0) {
                     iosFree((void *)((int)STG_SUB(e->obj[k])->nodes & 0x0FFFFFFF));
@@ -507,21 +448,7 @@ void stage_SetAnimation(int key, int p1, int p2)
         switch (e->flags.i >> 30) {
         case 0:
             uid = *(int *)(e->entry2 + 4);
-            /* Local debug switch, off. What the bytes pin: the ROM's .rodata
-               keeps "Illegal Group No. %d\n" at 0x550190 with no reference
-               anywhere in the ROM, between stage_Init's data and
-               stage_CheckAnimationFinish's string, so a print of it stood in
-               this function and the optimizer deleted it; and the ROM's
-               allocation needs gcse to see a count outside 96 to 99 insns here
-               (106 with this block, 97 without, whose expression table of 49
-               buckets puts the flags word's PRE register ahead of the object
-               table's and rotates $7/$8/$9). A switch set
-               to 0 outside the loop does both: cse cannot carry the constant
-               across the loop label, gcse's last constant propagation folds
-               the test and the next jump pass deletes the call. The listing
-               leaves rows 847 to 852 code-free around the group number read.
-               What the bytes cannot pin: the switch's name, the test's exact
-               form and which value the line printed. */
+            /* a local debug switch, off: report a bad group number */
             if (dbg) {
                 debug_StdPrintfDummy("Illegal Group No. %d\n", uid);
             }
@@ -994,9 +921,6 @@ float stage_PlayBgAnimation(int key, float t, void *v, void *q)
     return r;
 }
 
-/* This TU's .lit4 holds 1.2075409f twice, one word per owner and no
-   deduplication: stage_PlayBgAnimation's literal above is the first, and
-   this function's own is the second. */
 float stage_PlayBgAnimationDissolve(int key, void *v, void *q, float t, float dv)
 {
     int i;
@@ -1156,11 +1080,9 @@ inline void stage_KillPlayBgAnimationIfOverMaxCount(int a0, int a1)
     }
 }
 
-/* File-static helper the January listing shows at src/StageAnimation.c:1588-1592,
- * inlined twice in stage_DispBgAnimation and twice in stage_DispBgAnimationNoFinish.
- * It has no symbol in MAIN.MAP and no census row: INTERIM, the name below is
- * ours, not the developer's. */
-static inline void stage_SetBgAnimationPlayNode(BgaPlayNode *node, int key)
+/* Inlined twice in stage_DispBgAnimation and twice in
+ * stage_DispBgAnimationNoFinish. */
+static inline void stage_SetBgAnimationPlayNode(BgaPlayNode *node, int key) /* derived name */
 {
     int i;
     int k;
@@ -1241,15 +1163,8 @@ int stage_DispBgAnimationNoFinish(char **slot)
         for (i = 0, e = stageAnimTable; i < stageAnimCount; i++, e++) {
             if ((*self)->no == e->entry1[0x58 / 4]) {
                 if ((e->flags.i >> 30) == 0) {
-                    /* A jump to the function's exit, the way Light.c leaves
-                       its loops (goto found): the ROM keeps this store in a
-                       block loop.c moved out of the loop, with the key and
-                       the bound hoisted, and jumps to the shared `return 0`.
-                       A break (the loop's own exit label) is rolled into the
-                       loop's exit test by stmt.c's expand_end_loop, which
-                       jump then duplicates into a second loop entry; a
-                       return gets its own $2 = 0 before the store. The bytes
-                       pin the target, not the label's name. */
+                    /* a jump to the function's exit, the way Light.c leaves
+                       its loops (goto found) */
                     (*self)->frame = *(float *)(e->entry2 + 0x18);
                     goto end;
                 }

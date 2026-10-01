@@ -4,18 +4,16 @@
 #include "debug.h"
 #include "DmaPacket.h"
 
-/* The five VU1 microprograms this table hands to the DMA; MAIN.MAP pulls
-   cluster.o, mesh.o, normal_c.o, normal_l.o and particle.o into the link
-   for exactly these names (map lines 42-46). */
+/* The five VU1 microprograms this table hands to the DMA, from cluster.o,
+   mesh.o, normal_c.o, normal_l.o and particle.o. */
 extern void ClusterMicroProgram();
 extern void MeshMicroProgram();
 extern void NormalCMicroProgram();
 extern void NormalLMicroProgram();
 extern void ParticleMicroProgram();
 
-/* .data, the whole of MicroCode.o's run (MAIN.MAP line 5804 names it at the
-   run base and sizes the member 0x1C).  Indexed by the microprogram id the
-   mesh and shadow paths pass around; slots 0 and 6 are unused. */
+/* Indexed by the microprogram id the mesh and shadow paths pass around;
+   slots 0 and 6 are unused. */
 int MicroCodeAddress[7] = {
     0,
     (int)NormalCMicroProgram,
@@ -26,13 +24,12 @@ int MicroCodeAddress[7] = {
     0,
 };
 
-/* .sbss and .bss, owned by MicroCode.o and reached only from this file
-   (MAIN.MAP names no symbol in either run): the count of microprogram uploads
+/* The count of microprogram uploads
    this frame, and the program currently resident in each of the 13 VU1
    priority banks. */
-static int mcUploadCount;
+static int mcUploadCount; /* derived name */
 
-static int mcResident[16];
+static int mcResident[16]; /* derived name */
 
 /* The display-list packet builder state and one 64-bit packet slot; same
    objects src/GifPacket.c builds its packets in. */
@@ -122,30 +119,17 @@ inline void mc_TransMicroCode(int a0, int a1)
 }
 
 /* The DEBUG build's trace of the microcode residency on the mode 1, a1 == 0
-   path (names ours), switched by seki's debug-display bit; retail builds the
-   switch as 0, jimaku.c's form.  It takes no argument because it reads the
-   module's own state, which is also what leaves its retail body empty.  WHAT
-   THE BYTES PIN: the listing's rows 212-220 inside that arm carry no code; the
-   ROM's 0x30 frame keeps sixteen bytes of outgoing argument space below its
-   two saves, the trace of a call with nine or ten integer arguments that is
-   expanded and then deleted (inlining carries its argument space into
-   mc_SetMicroCode; a declared local would cost the `j dl_CloseDma` sibling
-   call); no string reaches MicroCode.o's .rodata (the jump table fills it);
-   and the empty body's lone (use (const_int 0)) keeps jump2 from
-   cross-jumping this arm's `code = 20` into mode 2's (the ROM keeps both,
-   rows 221 and 258).  Measured: the block written in the arm itself, or a
-   helper that takes the selection's arguments, has insns at save time, no
-   use, and the arms merge.  WHAT THEY CANNOT PIN: the callee and what it
-   printed; mcTracePut and its arguments are ours. */
+   path, switched by seki's debug-display bit; retail builds the switch as 0,
+   jimaku.c's form.  It takes no argument: it reads the module's own state. */
 #ifdef DEBUG
-#define MC_DEBUG_TRACE (debug_font_flag & 1)
+#define MC_DEBUG_TRACE (debug_font_flag & 1) /* derived name */
 #else
-#define MC_DEBUG_TRACE 0
+#define MC_DEBUG_TRACE 0 /* derived name */
 #endif
 
 extern void mcTracePut(int uploads, int r0, int r1, int r2, int r3, int r4, int r5, int r6, int r7);
 
-static inline void mcTrace(void)
+static inline void mcTrace(void) /* derived name */
 {
     if (MC_DEBUG_TRACE) {
         mcTracePut(mcUploadCount, mcResident[0], mcResident[1], mcResident[2], mcResident[3],
@@ -153,9 +137,8 @@ static inline void mcTrace(void)
     }
 }
 
-/* MicroCode.c:166-280 in the listing: every level of the selection is a
-   switch except the a1 tests, and the three conditional codes are if/else
-   pairs (the else value on its own row, the conditional move on the next). */
+/* Every level of the selection is a switch except the a1 tests, and the
+   three conditional codes are if/else pairs. */
 void mc_SetMicroCode(int mode, int a1, int a2, int a3, int pri)
 {
     int code = 0xFFFF;

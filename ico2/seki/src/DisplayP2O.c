@@ -8,13 +8,11 @@
 #include "Shadow.h"
 #include "Basic.h"
 
-/* The TU's whole .rodata run, VMA 0x54DB10..0x54DB30: debug_PrintFontWindow's
-   format for the display-object counter.  The explicit 32 is the ROM's own
-   object size, so its zero tail belongs to the array rather than to link pad. */
-static const char dispObjFormat[32] = "display object = %d";
+/* debug_PrintFontWindow's format for the display-object counter, in a
+   32-byte array. */
+static const char dispObjFormat[32] = "display object = %d"; /* derived name */
 
-/* .sdata, DisplayP2O.o's one word (MAIN.MAP 0x4): the display-object count
-   p2o_HideDispVU1 records and reports, none yet. */
+/* the display-object count p2o_HideDispVU1 records and reports, none yet */
 static int dispObjCount = -1; /* derived name */
 
 void p2o_MakePacket(Sub15C *a0)

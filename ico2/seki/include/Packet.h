@@ -1,12 +1,8 @@
 /*
  * ico2/seki/include/Packet.h
  *
- * The disc records no file of this name: SRCFILE.TXT attributes no
- * instruction to it, and a header that only declares leaves no rows in the
- * listing at all, so this file is ours and not the developers' own record.
- * It collects the declarations of what Packet.c defines, in the form its
- * users need them; every type here is read from the ROM's calling convention
- * at the call sites and from the spellings the using TUs already carried.
+ * The declarations of what Packet.c defines, for the files that use
+ * them.  The file name is derived.
  */
 
 #ifndef PACKET_H
@@ -14,11 +10,10 @@
 
 #include "typedef.h"
 
-/* RECONSTRUCTION (names ours): the header of one packet pac_MakePacket
-   builds: the bounding box's eight corners, the material, shape and texture
+/* the header of one packet pac_MakePacket builds: the bounding box's eight corners, the material, shape and texture
    numbers, the packet size (the byte count in the low 24 bits, the clip type
    in the top byte), the next packet of the model and its DMA data. */
-typedef struct PacHeader {
+typedef struct PacHeader { /* field names derived */
     float box[8][4];        /* 0x00 */
     short mat;              /* 0x80 */
     short shape;            /* 0x82 */
@@ -29,11 +24,10 @@ typedef struct PacHeader {
     int size;               /* 0x90 */
     struct PacHeader *next; /* 0x94 */
     char *data;             /* 0x98 */
-} PacHeader;
+} PacHeader; /* derived name */
 
-/* The declarations below lead this header because their order is load-bearing:
- * gcc 2.9 emits the deferred out-of-line copy of a plain-inline function in
- * first-declaration order, so this is the order Packet.c's inline tail has. */
+/* Packet.c's `inline` functions, in the order of their definitions'
+ * out-of-line copies at the end of the object (first-declaration order). */
 void pac_Dump(int *a0, int size);
 void pac_Init(void);
 void pac_DispVu1Memory(int idx, int n, int size);

@@ -2,23 +2,23 @@
 #include "Matrix.h"
 #include <assert.h>
 
-/* kept local: declaring it only through string.h moves this TU's bytes */
+/* declared here unprototyped, not through string.h */
 extern void memcpy();
 
-/* The TU's .sdata opens with the allocator's partition (none selected yet)
-   and the running total of what partition 0 has handed out. */
+/* The allocator's partition (none selected yet) and the running total of
+   what partition 0 has handed out. */
 static int mallocPartition = -1; /* derived name */
 
 static int mallocTotal = 0; /* derived name */
 
-/* kept local: memory.h is not included, its iosFree and iosReallocDebug
-   disagree with the calls below (see them); const char * here, char * there */
+/* memory.h is not included: its iosFree and iosReallocDebug disagree with
+   the calls below (see them); const char * here, char * there */
 struct IosMemPart;
 
 extern void *iosMallocDebug(struct IosMemPart *part, int size, const char *file, int line);
-/* kept local: int () here, void * (void *) in memory.h */
+/* int () here, void * (void *) in memory.h */
 extern int iosFree();
-/* kept local: int (int, int, const char *, int) here, void * (void *, unsigned int) in memory.h */
+/* int (int, int, const char *, int) here, void * (void *, unsigned int) in memory.h */
 extern int iosReallocDebug(int size, int align, const char *file, int line);
 
 #include "Basic.h"
@@ -29,7 +29,7 @@ extern int iosReallocDebug(int size, int align, const char *file, int line);
 
 void dma_init(void)
 {
-    union U {
+    union U { /* field names derived */
         int i;
     } *p;
 
@@ -114,9 +114,7 @@ void malloc_MemCpy(int a0, int a1, int a2, int a3)
     memcpy(a0, a1, a2, a3);
 }
 
-/* The DMA channel handles and the screen fade state (MAIN.MAP globals). The
-   ROM's .sdata has them after mallocseki's assert text, so they are defined
-   after the allocator. */
+/* The DMA channel handles and the screen fade state. */
 int *dmaVif = 0;
 
 int *dmaGif = 0;

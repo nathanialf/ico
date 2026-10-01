@@ -1,20 +1,15 @@
 /*
  * ico2/seki/include/MicroCode.h
  *
- * The disc records no file of this name: SRCFILE.TXT attributes no
- * instruction to it, and a header that only declares leaves no rows in the
- * listing at all, so this file is ours and not the developers' own record.
- * It collects the declarations of what MicroCode.c defines, in the form its
- * users need them; every type here is read from the ROM's calling convention
- * at the call sites and from the spellings the using TUs already carried.
+ * The declarations of what MicroCode.c defines, for the files that use
+ * them.  The file name is derived.
  */
 
 #ifndef MICROCODE_H
 #define MICROCODE_H
 
-/* The declarations below lead this header because their order is load-bearing:
- * gcc 2.9 emits the deferred out-of-line copy of a plain-inline function in
- * first-declaration order, so this is the order MicroCode.c's inline tail has. */
+/* MicroCode.c's `inline` functions, in the order of their definitions'
+ * out-of-line copies at the end of the object (first-declaration order). */
 void mc_TransMicroCode(int a0, int a1);
 void mc_Reset(void);
 void mc_Init(void);
@@ -22,8 +17,8 @@ void mc_Init(void);
 void mc_SetMicroCode();
 void mc_setBaseOffset(int base, int pri);
 
-/* MicroCode.c's one .data object (MAIN.MAP line 5804), read from
-   DisplayP2O.c as well: the VU1 microprogram address per microprogram id. */
+/* MicroCode.c's one .data object, read from DisplayP2O.c as well: the VU1
+   microprogram address per microprogram id. */
 extern int MicroCodeAddress[];
 
 #endif /* MICROCODE_H */

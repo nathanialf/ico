@@ -2,43 +2,38 @@
 #include "ios.h"
 #include "memory.h"
 
-/* the number of stages enemy_Initialize sets up (MAIN.MAP global, the TU's
-   .sdata) */
+/* the number of stages enemy_Initialize sets up */
 int EnemyKindNum = 0;
 
-/* .bss, owned by EnemyInit.o and reached only from this file (MAIN.MAP names
-   no symbol in the run, 0x6C bytes): one slot per enemy kind, each holding the
-   position table enemy_Initialize allocates for that kind, or 0. */
-static int enemyPositionTable[27];
+/* One slot per enemy kind, each holding the position table enemy_Initialize
+   allocates for that kind, or 0. */
+static int enemyPositionTable[27]; /* derived name */
 
-typedef int Qw128 __attribute__((mode(TI)));
+typedef int Qw128 __attribute__((mode(TI))); /* derived name */
 
-/* RECONSTRUCTION from the ROM's own addressing: the stage table is a record of
-   a pointer and a count, reached with one e<<3 index off two bases (the ROM
-   keeps `table + 4` in $s7 for the count). */
-typedef struct EnemySet {
-    int **list; /* 0x0 */
-    int n;      /* 0x4 */
-} EnemySet;
+/* the stage table's record: a pointer and a count */
+typedef struct EnemySet { /* field names derived */
+    int **list;           /* 0x0 */
+    int n;                /* 0x4 */
+} EnemySet;               /* derived name */
 
 /* one kind's position list and the kind it places */
-typedef struct EnemyKindRec {
-    int *list; /* 0x0 */
-    int kind;  /* 0x4 */
-} EnemyKindRec;
+typedef struct EnemyKindRec { /* field names derived */
+    int *list;                /* 0x0 */
+    int kind;                 /* 0x4 */
+} EnemyKindRec;               /* derived name */
 
 /* a model file's placement set: its kind lists and its position table */
-typedef struct EnemyModelSet {
-    EnemyKindRec *kinds; /* 0x0 */
-    int kindNum;         /* 0x4 */
-    float (*pos)[4];     /* 0x8 */
-    int posNum;          /* 0xC */
-} EnemyModelSet;
+typedef struct EnemyModelSet { /* field names derived */
+    EnemyKindRec *kinds;       /* 0x0 */
+    int kindNum;               /* 0x4 */
+    float (*pos)[4];           /* 0x8 */
+    int posNum;                /* 0xC */
+} EnemyModelSet;               /* derived name */
 
 /* The stage enemy model set: for each enemy kind, the positions (indices
    into the position table, -1 closing each list) it is placed at, in the
-   order the model file lists the kinds (names ours but the two MAIN.MAP
-   gives). */
+   order the model file lists the kinds. */
 static int enemymodel01Kind16[] = {266, -1}; /* derived name */
 
 static int enemymodel01Kind17[] = {588, -1}; /* derived name */
@@ -831,16 +826,15 @@ static float enemymodel01Pos[676][4] = {
 
 EnemyModelSet enemy_enemymodel01_enemymodel04 = {enemymodel01Kinds, 27, enemymodel01Pos, 676};
 
-/* the sets stage model 01 places, closed by 0; the unspecified bound keeps
-   the 8-byte array out of small data under -G 8, which is where the ROM has it */
+/* the sets stage model 01 places, closed by 0 */
 EnemyModelSet *enemymodel01[] = {&enemy_enemymodel01_enemymodel04, 0};
 
 /* the stages' set lists and their counts, enemy_Initialize's table */
 static EnemySet enemySetTable[] = {{(int **)enemymodel01, 1}}; /* derived name */
 
 /* Debug report of the number of positions enemy_Initialize copied, built only
-   under DEBUG; the name and the text are ours. */
-static __inline__ void enemyInitDebugPrint(int copyNum)
+   under DEBUG. */
+static __inline__ void enemyInitDebugPrint(int copyNum) /* derived name */
 {
 #ifdef DEBUG
     scePrintf("enemy positions copied %d\n", copyNum);
@@ -857,20 +851,10 @@ void enemy_Initialize(void)
     int **tbl;
     int *q;
     float (*dst)[4];
-    /* The slot count lives in a local, not in a literal bound: with 27 written
-       into the tests cse folds the duplicated k tests before gcse, the count
-       loop is then processed by loop.c and its count read is hoisted, which
-       the ROM does not do (listing line 104, between the set store and the
-       e loop, carries no code). */
+    /* the slot count */
     int kindNum = 27;
-    /* Counted once per copied quadword for the DEBUG report at the end (the
-       report builds only under DEBUG, so the retail build never reads it).
-       The ROM pins a real statement after the copy loop's exit test: stmt.c
-       expand_end_loop rolls the test to the bottom only when real code
-       follows it (line notes do not count: jump.c tests prev_active_insn),
-       and jump.c duplicate_loop_exit_test then gives the peeled first copy at
-       0x20BDFC..0x20BE24; cse deletes the statement as dead. The bytes pin
-       that such a statement existed, not its text. */
+    /* counted once per copied quadword for the DEBUG report at the end; the
+       retail build never reads it */
     int copyNum = 0;
 
     EnemyKindNum = 1;
@@ -908,13 +892,7 @@ void enemy_Initialize(void)
                         q = (int *)rec[0];
                         for (;;) {
                             *(Qw128 *)dst++ = ((Qw128 *)tbl[i][2])[*q];
-                            /* The break shares the if's line, as the listing
-                               shows (line 138 carries the q++, the load and
-                               the branch): under -g a break on its own line
-                               leaves its line note between the loop's jump
-                               and its end note, which keeps cse.c
-                               cse_around_loop off and the ROM's index carry
-                               from forming. */
+                            /* the break shares the if's line */
                             /* clang-format off */
                             if (*++q == -1) break;
                             /* clang-format on */

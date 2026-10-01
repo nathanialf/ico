@@ -1,12 +1,8 @@
 /*
  * ico2/seki/include/StageAnimation.h
  *
- * The disc records no file of this name: SRCFILE.TXT attributes no
- * instruction to it, and a header that only declares leaves no rows in the
- * listing at all, so this file is ours and not the developers' own record.
- * It collects the declarations of what StageAnimation.c defines, in the form its
- * users need them; every type here is read from the ROM's calling convention
- * at the call sites and from the spellings the using TUs already carried.
+ * The declarations of what StageAnimation.c defines, for the files that use
+ * them.  The file name is derived.
  */
 
 #ifndef STAGEANIMATION_H
@@ -24,7 +20,7 @@ typedef struct {          /* field names derived */
     int word50; /* 0x50 */
     void *data; /* 0x54, the loaded BGA data or the data pointer */
     int no;     /* 0x58, the row's own index, -1 for none */
-} StageAnimDef;
+} StageAnimDef; /* derived name */
 
 /* stage-anim-model: one stage animation object, 8 bytes, the objTableScene
    range a stage animation's 0x40 and 0x44 words bound: the object kind and
@@ -32,12 +28,11 @@ typedef struct {          /* field names derived */
 typedef struct { /* field names derived */
     int kind;    /* 0x00 */
     int aux;     /* 0x04 */
-} StgObjDat;
+} StgObjDat; /* derived name */
 
 extern const StgObjDat objTableScene[];
-/* The declarations below lead this header because their order is load-bearing:
- * gcc 2.9 emits the deferred out-of-line copy of a plain-inline function in
- * first-declaration order, so this is the order StageAnimation.c's inline tail has. */
+/* StageAnimation.c's `inline` functions, in the order of their definitions'
+ * out-of-line copies at the end of the object (first-declaration order). */
 int stage_CheckAnimationFinish(int a0);
 int stage_CheckAnimationFrame(int a0, int a1, int a2);
 void stage_SetLoopFlag(int key, int a1);
