@@ -24,10 +24,10 @@ extern int vsWidth;
 extern int vsHeight;
 /* GsBase.c's `inline` functions, in the order of their definitions'
  * out-of-line copies at the end of the object (first-declaration order). */
-void gsb_SetBGColor(void *a0, int r, int g, int b);
-void gsb_GetBGColor(unsigned char *a0);
+void gsb_SetBGColor(void *db, int r, int g, int b);
+void gsb_GetBGColor(unsigned char *col);
 void gsb_ResetFilmNoise(void);
-void gsb_SetZoom(float a, float b);
+void gsb_SetZoom(float target, float speed);
 int gsb_SyncGSSystem(void);
 int gsb_LoadStageSettings(void);
 int gsb_SaveStageSettings(void);
@@ -43,8 +43,8 @@ void gsb_MakeCommonMatrix(void);
 void gsb_Reduction(void);
 void gsb_ResetGSSystem(void);
 void gsb_SetMotionBlur(void);
-void gsb_SetVSMatrix(int a0, int a1, float f);
-void gsb_UpdateGSSystem(int a0);
+void gsb_SetVSMatrix(int w, int h, float d);
+void gsb_UpdateGSSystem(int keep);
 int gsb_StageSetting(void);
 
 #endif /* GSBASE_H */

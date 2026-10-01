@@ -285,7 +285,7 @@ void shadow_Draw(void)
 
 #ifdef DEBUG
 
-static void shadow_getShadowVectorAverage(void *a0, Sub15C *a1);
+static void shadow_getShadowVectorAverage(void *dir, Sub15C *o);
 
 #endif
 
@@ -303,13 +303,13 @@ void shadow_Render(Sub15C *o)
 #endif
 }
 
-static void shadow_getShadowVectorAverage(void *a0, Sub15C *a1)
+static void shadow_getShadowVectorAverage(void *dir, Sub15C *o)
 {
-    _CopyVector(a0, a1->shadowDir);
+    _CopyVector(dir, o->shadowDir);
     _SetCurrentMatrix(matrixptr + 0x80);
     _ClearTransCurrentMatrix();
-    _ApplyCurrentMatrix(a0, a0);
-    _NormalizeVector(a0, a0);
+    _ApplyCurrentMatrix(dir, dir);
+    _NormalizeVector(dir, dir);
 }
 
 /* the same quadword copy type src/Primitive.c uses: the accumulator reset is
@@ -364,25 +364,25 @@ static inline void applyWeightedVtx(void *dst, void *src, float w) /* derived na
                          : "$8");
 }
 
-static void shadow_EntryClusterShadow(Sub15C *a0, float a1)
+static void shadow_EntryClusterShadow(Sub15C *o, float len)
 {
     VECTOR zero = {0.0f, 0.0f, 0.0f, 1.0f};
     float v[4];
     float sa[4];
     float sb[4];
-    PObjModel *x = a0->shadow;
+    PObjModel *x = o->shadow;
     PObjPart *p;
     int i;
     unsigned int k;
 
     _InitCurrentMatrix();
-    shadow_getShadowVectorAverage(v, a0);
-    _ScaleVectorXYZ(sa, v, a1);
+    shadow_getShadowVectorAverage(v, o);
+    _ScaleVectorXYZ(sa, v, len);
     _ScaleVectorXYZ(sb, v, 4.0f);
 
-    for (i = 0; i < a0->nodeNum; i++) {
-        _SetCurrentMatrix((char *)a0->nodeMtx + i * 0x40);
-        _MulCurrentMatrixR(a0->clusterMtx + i * 0x40);
+    for (i = 0; i < o->nodeNum; i++) {
+        _SetCurrentMatrix((char *)o->nodeMtx + i * 0x40);
+        _MulCurrentMatrixR(o->clusterMtx + i * 0x40);
         _MulCurrentMatrixL(matrixptr + 0x80);
         _GetCurrentMatrix(clusterMatrix + i * 0x40);
     }
@@ -456,20 +456,20 @@ static inline void applyCurrentMatrixV(void *dst, void *src) /* derived name */
                          : "r"(dst), "r"(src));
 }
 
-static void shadow_EntryNormalShadow(Sub15C *a0, int a1, float a2)
+static void shadow_EntryNormalShadow(Sub15C *o, int idx, float len)
 {
     float v[4];
     float sa[4];
     float sb[4];
-    PObjModel *x = a0->shadow;
+    PObjModel *x = o->shadow;
     int i;
     int j;
     PObjPart *p;
 
-    shadow_getShadowVectorAverage(v, a0);
-    _ScaleVectorXYZ(sa, v, a2);
+    shadow_getShadowVectorAverage(v, o);
+    _ScaleVectorXYZ(sa, v, len);
     _ScaleVectorXYZ(sb, v, 4.0f);
-    _SetCurrentMatrix((char *)a0->nodeMtx + a1 * 0x40);
+    _SetCurrentMatrix((char *)o->nodeMtx + idx * 0x40);
     _MulCurrentMatrixL(matrixptr + 0x80);
 
     p = x->parts;
@@ -860,15 +860,15 @@ static inline unsigned long long *emitVolumeStrip(unsigned long long *p,
     return p;
 }
 
-static void __GetCameraPos(VECTOR *a0)
+static void __GetCameraPos(VECTOR *pos)
 {
     _PushCurrentMatrix();
     _SetCurrentMatrix(matrixptr + 0x80);
     _ClearTransCurrentMatrix();
     _TransposeCurrentMatrix();
-    _ApplyCurrentMatrix(a0, matrixptr + 0xB0);
-    _ScaleVector(a0, a0, -1.0f);
-    a0->w = 1.0f;
+    _ApplyCurrentMatrix(pos, matrixptr + 0xB0);
+    _ScaleVector(pos, pos, -1.0f);
+    pos->w = 1.0f;
     _PopCurrentMatrix();
 }
 
@@ -1103,7 +1103,7 @@ typedef struct ShadowPoly { /* field names derived */
     int _C;
 } __attribute__((aligned(16))) ShadowPoly;
 
-void shadow_MakeObjectData(PObjModel *a0)
+void shadow_MakeObjectData(PObjModel *mdl)
 {
     int i;
     int j;
@@ -1120,9 +1120,9 @@ void shadow_MakeObjectData(PObjModel *a0)
     ShadowRun **s;
     ShadowRun *u;
 
-    for (i = 0; i < a0->partCount; i++) {
-        p = &a0->parts[i];
-        if (a0->disp != 0) {
+    for (i = 0; i < mdl->partCount; i++) {
+        p = &mdl->parts[i];
+        if (mdl->disp != 0) {
             p->vtxSave = mallocseki(p->vtxCount * 16);
             p->nrmSave = mallocseki(p->vtxCount * 16);
             q = (ShadowVtx *)mallocseki(p->vtxCount * 16);
@@ -1183,11 +1183,11 @@ inline void shadow_KillShadow(int val)
     killShadowRequest = val;
 }
 
-inline void shadow_DispCancel(int a0, int a1)
+inline void shadow_DispCancel(int id, int cancel)
 {
     GObj *obj = isysGObjGetExist_begin();
     if (obj != 0) {
-        long long bit = (long long)(a1 & 1) << 26;
+        long long bit = (long long)(cancel & 1) << 26;
         do {
             Sub15C *node = obj->dobj;
             if (node != 0) {
@@ -1195,7 +1195,7 @@ inline void shadow_DispCancel(int a0, int a1)
                 if (dl != 0) {
                     PObjModel *x = node->shadow;
                     if (x != 0) {
-                        if (dl->mode.s.id == a0) {
+                        if (dl->mode.s.id == id) {
                             x->mode.bits = (x->mode.bits & ~0x04000000) | bit;
                         }
                     }
@@ -1206,12 +1206,12 @@ inline void shadow_DispCancel(int a0, int a1)
     }
 }
 
-inline void shadow_SetLength(Sub15C *a0, float f)
+inline void shadow_SetLength(Sub15C *o, float len)
 {
-    if (0.0f < f) {
-        a0->shadow->shadowLength = f;
+    if (0.0f < len) {
+        o->shadow->shadowLength = len;
     } else {
-        a0->shadow->shadowLength = a0->model->shadowLength;
+        o->shadow->shadowLength = o->model->shadowLength;
     }
 }
 

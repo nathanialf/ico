@@ -16,25 +16,25 @@ int sceDeci2Open(unsigned short protocol, void *opt, void *handler)
     return Deci2Call(1, args);
 }
 
-void sceDeci2Close(int a0)
+void sceDeci2Close(int s)
 {
     int args[4];
-    args[0] = a0;
+    args[0] = s;
     Deci2Call(2, args);
 }
 
-int sceDeci2ReqSend(int a0, signed char a1)
+int sceDeci2ReqSend(int s, signed char a1)
 {
     int args[4];
-    args[0] = a0;
+    args[0] = s;
     args[1] = a1;
     return Deci2Call(3, args);
 }
 
-void sceDeci2Poll(int a0)
+void sceDeci2Poll(int s)
 {
     int args[4];
-    args[0] = a0;
+    args[0] = s;
     Deci2Call(4, args);
 }
 
@@ -56,25 +56,25 @@ int sceDeci2ExSend(int s, void *buf, unsigned short len)
     return Deci2Call(-6, args);
 }
 
-void sceDeci2ExReqSend(int a0, signed char a1)
+void sceDeci2ExReqSend(int s, signed char a1)
 {
     int args[4];
-    args[0] = a0;
+    args[0] = s;
     args[1] = a1;
     Deci2Call(-7, args);
 }
 
-void sceDeci2ExLock(int a0)
+void sceDeci2ExLock(int s)
 {
     int args[4];
-    args[0] = a0;
+    args[0] = s;
     Deci2Call(-8, args);
 }
 
-void sceDeci2ExUnLock(int a0)
+void sceDeci2ExUnLock(int s)
 {
     int args[4];
-    args[0] = a0;
+    args[0] = s;
     Deci2Call(-9, args);
 }
 

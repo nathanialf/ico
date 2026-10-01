@@ -100,25 +100,25 @@ static void mc_setBaseOffset(int base, int pri)
     dl_CloseDma();
 }
 
-inline void mc_TransMicroCode(int a0, int a1)
+inline void mc_TransMicroCode(int id, int mask)
 {
-    int *q = &MicroCodeAddress[a0];
+    int *q = &MicroCodeAddress[id];
     int i;
     for (i = 0; i < 13; i++) {
-        if ((a1 >> i) & 1) {
-            if (a0 != mcResident[i]) {
+        if ((mask >> i) & 1) {
+            if (id != mcResident[i]) {
                 mcUploadCount++;
-                mc_setBaseOffset(a0, i);
+                mc_setBaseOffset(id, i);
                 dl_SetDLPriority(i);
                 dl_OpenDma(5, *q, 0);
                 dl_CloseDma();
-                mcResident[i] = a0;
+                mcResident[i] = id;
             }
         }
     }
 }
 
-/* The DEBUG build's trace of the microcode residency on the mode 1, a1 == 0
+/* The DEBUG build's trace of the microcode residency on the mode 1, light == 0
    path, switched by seki's debug-display bit; retail builds the switch as 0,
    jimaku.c's form.  It takes no argument: it reads the module's own state. */
 #ifdef DEBUG
@@ -137,18 +137,18 @@ static inline void mcTrace(void) /* derived name */
     }
 }
 
-/* Every level of the selection is a switch except the a1 tests, and the
+/* Every level of the selection is a switch except the light tests, and the
    three conditional codes are if/else pairs. */
-void mc_SetMicroCode(int mode, int a1, int a2, int a3, int pri)
+void mc_SetMicroCode(int mode, int light, int pass, int clip, int pri)
 {
     int code = 0xFFFF;
     char *c;
 
     switch (mode) {
     case 0:
-        switch (a1) {
+        switch (light) {
         case 0:
-            switch (a3) {
+            switch (clip) {
             case -1:
                 code = 34;
                 break;
@@ -164,9 +164,9 @@ void mc_SetMicroCode(int mode, int a1, int a2, int a3, int pri)
             code = 38;
             break;
         default:
-            switch (a2) {
+            switch (pass) {
             case 0:
-                if (a3 == 2) {
+                if (clip == 2) {
                     code = 36;
                 } else {
                     code = 32;
@@ -183,12 +183,12 @@ void mc_SetMicroCode(int mode, int a1, int a2, int a3, int pri)
         }
         break;
     case 1:
-        if (a1 == 0) {
+        if (light == 0) {
             mcTrace();
             code = 20;
         } else {
-            if (a3 == -1) {
-                switch (a2) {
+            if (clip == -1) {
+                switch (pass) {
                 case 0:
                     if (debug_specular_flag != 1) {
                         code = 20;
@@ -201,7 +201,7 @@ void mc_SetMicroCode(int mode, int a1, int a2, int a3, int pri)
                     break;
                 }
             } else {
-                switch (a2) {
+                switch (pass) {
                 case 0:
                     if (debug_specular_flag != 1) {
                         code = 20;
@@ -217,7 +217,7 @@ void mc_SetMicroCode(int mode, int a1, int a2, int a3, int pri)
         }
         break;
     case 2:
-        if (a1 == 0) {
+        if (light == 0) {
             code = 20;
         } else {
             if (debug_specular_flag == 0) {

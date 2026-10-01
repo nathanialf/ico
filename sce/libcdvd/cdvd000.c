@@ -140,10 +140,10 @@ __asm__(".section .text\n"
         "    .set reorder\n"
         "    .set at\n");
 
-void sceCdDelayThread(unsigned short a0)
+void sceCdDelayThread(unsigned short ticks)
 {
     struct SemaParam buf;
-    unsigned short id = a0;
+    unsigned short id = ticks;
     int r;
     buf.maxCount = 1;
     buf.initCount = 0;
@@ -154,7 +154,7 @@ void sceCdDelayThread(unsigned short a0)
     DeleteSema(r);
 }
 
-int sceCdCallback(int a0)
+int sceCdCallback(int func)
 {
     int ret;
     if (sceCdSync(1) != 0) {
@@ -162,7 +162,7 @@ int sceCdCallback(int a0)
     }
     DIntr();
     ret = cd_cbfunc;
-    cd_cbfunc = a0;
+    cd_cbfunc = func;
     EIntr();
     return ret;
 }
@@ -314,7 +314,7 @@ void cdvd_exit(void)
     EIntr();
 }
 
-int sceCdPOffCallback(int a0, int a1)
+int sceCdPOffCallback(int func, int arg)
 {
     int ret;
     if (poff_bind < 0) {
@@ -322,8 +322,8 @@ int sceCdPOffCallback(int a0, int a1)
     }
     DIntr();
     ret = (int)poff_cbfunc;
-    poff_cbarg = a1;
-    poff_cbfunc = (void (*)(int))a0;
+    poff_cbarg = arg;
+    poff_cbfunc = (void (*)(int))func;
     EIntr();
     return ret;
 }
@@ -535,9 +535,9 @@ int sceCdSync(int mode)
     return 0;
 }
 
-int sceCdSyncS(int a0)
+int sceCdSyncS(int mode)
 {
-    if (!a0) {
+    if (!mode) {
         if (SCE_CD_debug > 0)
             scePrintf("S cmd wait\n");
         while (sceSifCheckStatRpc(&_sceCd_cd_scmd)) {

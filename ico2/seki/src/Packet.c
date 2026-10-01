@@ -98,9 +98,9 @@ static void pac_DispQW(void *p, int size)
 ");
 }
 
-inline void pac_Dump(int *a0, int size)
+inline void pac_Dump(int *data, int size)
 {
-    int *p = a0;
+    int *p = data;
     int count;
     size >>= 4;
     if (size <= 0)
@@ -431,32 +431,32 @@ static int pac_makeClusterStrip(PObjPart *obj, short *strip, int num)
     return num - 2;
 }
 
-static void pac_openDmaTag(int a0)
+static void pac_openDmaTag(int buf)
 {
     register int mask = 0x0FFFFFFF;
     PacWork *ctx = &pacWork;
     float f0 = 16777215.0f;
     float f1 = -16777215.0f;
-    ctx->dmaTag = a0 & mask;
-    ctx->vifCode = (a0 + 0x8) & mask;
-    ctx->gifTag = (a0 + 0x10) & mask;
-    ctx->cursor.addr = a0 + 0x20;
+    ctx->dmaTag = buf & mask;
+    ctx->vifCode = (buf + 0x8) & mask;
+    ctx->gifTag = (buf + 0x10) & mask;
+    ctx->cursor.addr = buf + 0x20;
     ctx->boxMin[2].f = f0;
     ctx->boxMin[1].f = f0;
     ctx->boxMin[0].f = f0;
     ctx->boxMax[2].f = f1;
     ctx->boxMax[1].f = f1;
     ctx->boxMax[0].f = f1;
-    debug_StdPrintfDummy("DMAOPEN   :%p\n", a0 & mask);
+    debug_StdPrintfDummy("DMAOPEN   :%p\n", buf & mask);
 }
 
-static void pac_setVifCode(int a0)
+static void pac_setVifCode(int num)
 {
     PacWork *ctx = &pacWork;
     ((int *)ctx->vifCode)[0] = 0;
-    ((int *)ctx->vifCode)[1] = (a0 << 16) | 0x6C008000;
+    ((int *)ctx->vifCode)[1] = (num << 16) | 0x6C008000;
     debug_StdPrintfDummy("VIFUNPACK :%08x %08x (%p:%d)\n", ((int *)ctx->vifCode)[0],
-                         ((int *)ctx->vifCode)[1], ctx->vifCode, a0);
+                         ((int *)ctx->vifCode)[1], ctx->vifCode, num);
 }
 
 static void pac_setVifEndCode(void)
@@ -1282,10 +1282,10 @@ static void pac_makePacket(PObjModel *obj, int variant, int mode)
     }
 }
 
-void pac_MakePacket(Sub15C *a0)
+void pac_MakePacket(Sub15C *o)
 {
-    PObjModel *p = a0->model;
-    pac_makePacket(p, a0->lightMtx->mode, p->disp > 0);
+    PObjModel *p = o->model;
+    pac_makePacket(p, o->lightMtx->mode, p->disp > 0);
 }
 
 inline void pac_Init(void)

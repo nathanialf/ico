@@ -48,7 +48,7 @@ struct AmbientVolume *light_AddAmbientObject(int obj);
 struct Light *light_AddLight(struct GObj *self, int b, int kind);
 void light_DispVolume(void);
 void light_KillAllFixLight(void);
-void light_MakeLightMatrix(struct Sub15C *a, int b);
+void light_MakeLightMatrix(struct Sub15C *self, int idx);
 void light_resetFlatLight(void);
 int light_Tool(void);
 void light_ResetLight(void);

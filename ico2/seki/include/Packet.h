@@ -84,9 +84,9 @@ struct PObjTexInfo;
 
 /* Packet.c's `inline` functions, in the order of their definitions'
  * out-of-line copies at the end of the object (first-declaration order). */
-void pac_Dump(int *a0, int size);
+void pac_Dump(int *data, int size);
 void pac_Init(void);
 void pac_DispVu1Memory(int idx, int n, int size);
-void pac_MakePacket(Sub15C *a0);
+void pac_MakePacket(Sub15C *o);
 
 #endif /* PACKET_H */

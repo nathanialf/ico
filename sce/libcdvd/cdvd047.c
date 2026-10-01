@@ -27,14 +27,14 @@ int sceCdStStart(int lsn, CdRMode *mode)
     return sceCdStream(lsn, 0, 0, 1, mode);
 }
 
-int sceCdStSeekF(int a0)
+int sceCdStSeekF(int lsn)
 {
-    return sceCdStream(a0, 0, 0, 9, &stMode);
+    return sceCdStream(lsn, 0, 0, 9, &stMode);
 }
 
-int sceCdStSeek(int a0)
+int sceCdStSeek(int lsn)
 {
-    return sceCdStream(a0, 0, 0, 4, &stMode);
+    return sceCdStream(lsn, 0, 0, 4, &stMode);
 }
 
 int sceCdStStop(void)

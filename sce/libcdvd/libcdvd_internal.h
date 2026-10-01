@@ -31,7 +31,7 @@ int _sceCd_scmd_prechk(int cmd);
 void _sceCd_cd_callback(void *data);
 void _sceCd_cd_read_intr(void *pkt);
 int sceCdNcmdDiskReady(void);
-void sceCdDelayThread(unsigned short a0);
+void sceCdDelayThread(unsigned short ticks);
 void CB_DelayTh(int id, unsigned short time, void *arg); /* file-scope asm in cdvd000.c */
 int PowerOffCB(void);
 void _Cdvd_cbLoop(void *arg);

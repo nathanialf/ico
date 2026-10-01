@@ -3,7 +3,7 @@
 #include <libgraph.h>
 #include <eeregs.h>
 
-int sceGsPutDrawEnv(void *a0)
+int sceGsPutDrawEnv(void *pkt)
 {
     unsigned int count;
     int qwc;
@@ -15,12 +15,12 @@ int sceGsPutDrawEnv(void *a0)
             return -1;
         }
     }
-    qwc = *(long long *)a0 & 0x7FFF;
+    qwc = *(long long *)pkt & 0x7FFF;
     *D2_QWC = qwc + 1;
-    if (((unsigned int)a0 & 0x70000000) == 0x70000000)
-        *D2_MADR = ((unsigned int)a0 & 0xFFFFFFF) | 0x80000000;
+    if (((unsigned int)pkt & 0x70000000) == 0x70000000)
+        *D2_MADR = ((unsigned int)pkt & 0xFFFFFFF) | 0x80000000;
     else
-        *D2_MADR = (unsigned int)a0 & 0xFFFFFFF;
+        *D2_MADR = (unsigned int)pkt & 0xFFFFFFF;
     *D2_CHCR = 0x101;
     return 0;
 }

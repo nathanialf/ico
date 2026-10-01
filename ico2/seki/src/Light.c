@@ -353,7 +353,7 @@ static void light_getNearLight(Sub15C *self, int idx)
    each arm */
 #define LIGHT_ABS(x) ((x) < 0.0f ? -(x) : (x)) /* derived name */
 
-static void light_getAmbientLight(Sub15C *a, int b)
+static void light_getAmbientLight(Sub15C *self, int idx)
 {
     float pos[4];
     float p[4];
@@ -371,15 +371,15 @@ static void light_getAmbientLight(Sub15C *a, int b)
 
     scale = 1.0f;
     if (lastAmbient == 0) {
-        _CopyVector(a->lightMtx->ambient, GlobalStageSetting.ambientCol);
+        _CopyVector(self->lightMtx->ambient, GlobalStageSetting.ambientCol);
         return;
     }
-    _CopyVector(a->lightMtx->ambient, GlobalStageSetting.ambientCol);
+    _CopyVector(self->lightMtx->ambient, GlobalStageSetting.ambientCol);
     best = 3.0f;
-    if (a->dispType == 2) {
-        _CopyVector(pos, (char *)a->nodeMtx + (b << 6) + 48);
+    if (self->dispType == 2) {
+        _CopyVector(pos, (char *)self->nodeMtx + (idx << 6) + 48);
     } else {
-        _CopyVector(pos, (char *)a->nodeMtx + 48);
+        _CopyVector(pos, (char *)self->nodeMtx + 48);
     }
     for (v = lastAmbient; v != 0; v = v->prev) {
         if (v->shape == 0) {
@@ -403,7 +403,7 @@ static void light_getAmbientLight(Sub15C *a, int b)
             nx = LIGHT_ABS(_GetNorm(p));
             ny = LIGHT_ABS(_GetNorm(q));
             if (nx <= 1.0f) {
-                _CopyVector(a->lightMtx->ambient, v->col);
+                _CopyVector(self->lightMtx->ambient, v->col);
                 scale = v->lightScale;
                 goto found;
             }
@@ -415,7 +415,7 @@ static void light_getAmbientLight(Sub15C *a, int b)
                 _AddVector(s0, v->col, s0);
                 my = s0[0] + s0[1] + s0[2];
                 if (my < best) {
-                    _CopyVector(a->lightMtx->ambient, s0);
+                    _CopyVector(self->lightMtx->ambient, s0);
                     best = my;
                     scale = v->lightScale + (1.0f - v->lightScale) * rx / (rx + ry);
                 }
@@ -426,7 +426,7 @@ static void light_getAmbientLight(Sub15C *a, int b)
             float sum;
 
             if (LIGHT_ABS(p[0]) <= 1.0f && LIGHT_ABS(p[1]) <= 1.0f && LIGHT_ABS(p[2]) <= 1.0f) {
-                _CopyVector(a->lightMtx->ambient, v->col);
+                _CopyVector(self->lightMtx->ambient, v->col);
                 scale = v->lightScale;
                 goto found;
             }
@@ -450,7 +450,7 @@ static void light_getAmbientLight(Sub15C *a, int b)
                 if (sum < best) {
                     /* the kind-1 arm copies the volume colour here where the
                        kind-2 arm copies its blended vector */
-                    _CopyVector(a->lightMtx->ambient, v->col);
+                    _CopyVector(self->lightMtx->ambient, v->col);
                     best = sum;
                     scale = v->lightScale + (1.0f - v->lightScale) * mx / (mx + my);
                 }
@@ -460,29 +460,30 @@ static void light_getAmbientLight(Sub15C *a, int b)
         }
     }
 found:
-    _ScaleVectorXYZ(a->lightMtx->col[0], a->lightMtx->col[0], scale);
-    _ScaleVectorXYZ(a->lightMtx->col[1], a->lightMtx->col[1], scale);
-    _ScaleVectorXYZ(a->lightMtx->col[2], a->lightMtx->col[2], scale);
-    a->lightMtx->ambient[3] = 1.0f;
+    _ScaleVectorXYZ(self->lightMtx->col[0], self->lightMtx->col[0], scale);
+    _ScaleVectorXYZ(self->lightMtx->col[1], self->lightMtx->col[1], scale);
+    _ScaleVectorXYZ(self->lightMtx->col[2], self->lightMtx->col[2], scale);
+    self->lightMtx->ambient[3] = 1.0f;
 }
 
-void light_MakeLightMatrix(Sub15C *a, int b)
+void light_MakeLightMatrix(Sub15C *self, int idx)
 {
     int i;
 
-    if (a->lightMtx->mode == 0) {
+    if (self->lightMtx->mode == 0) {
         return;
     }
-    light_getNearLight(a, b);
-    light_getAmbientLight(a, b);
+    light_getNearLight(self, idx);
+    light_getAmbientLight(self, idx);
     for (i = 0; i < 3; i++) {
-        _ScaleVectorXYZ(a->lightMtx->col[i], a->lightMtx->col[i], a->model->mode.s.lightScale);
+        _ScaleVectorXYZ(self->lightMtx->col[i], self->lightMtx->col[i],
+                        self->model->mode.s.lightScale);
     }
-    _ScaleVectorXYZ(a->lightMtx->ambient, a->lightMtx->ambient, a->model->ambientScale);
-    _MakeNormalLightMatrix(a->lightMtx->normal, a->lightMtx->dir[0], a->lightMtx->dir[1],
-                           a->lightMtx->dir[2]);
-    _MakeLightColorMatrix(a->lightMtx->color, a->lightMtx->col[0], a->lightMtx->col[1],
-                          a->lightMtx->col[2], a->lightMtx->ambient);
+    _ScaleVectorXYZ(self->lightMtx->ambient, self->lightMtx->ambient, self->model->ambientScale);
+    _MakeNormalLightMatrix(self->lightMtx->normal, self->lightMtx->dir[0], self->lightMtx->dir[1],
+                           self->lightMtx->dir[2]);
+    _MakeLightColorMatrix(self->lightMtx->color, self->lightMtx->col[0], self->lightMtx->col[1],
+                          self->lightMtx->col[2], self->lightMtx->ambient);
 }
 
 /* The light and ambient volume debug view.  The slot search that would set

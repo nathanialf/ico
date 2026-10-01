@@ -294,9 +294,9 @@ static const unsigned char keepFrameColor[4] = {112, 112, 112, 128}; /* derived 
 /* as in GifPacket.h, which this TU does not include */
 extern void gif_EndPacket(void);
 /* void (int, long long) here, void (long long, long long) in GifPacket.h */
-extern void gif_SetGsReg(int a0, long long a1);
+extern void gif_SetGsReg(int reg, long long data);
 /* as in GifPacket.h, which this TU does not include */
-extern void gif_StartPacketPriPath1(int a0);
+extern void gif_StartPacketPriPath1(int pri);
 
 /* A rectangle in 16ths of a pixel, the form the sprite corners are written
    in. */
@@ -380,7 +380,7 @@ static int gsbUnusedWord; /* derived name */
 /* as in GifPacket.h, which this TU does not include */
 extern void gif_StartPacketPri(int pri);
 /* void (int, int, int, int, int, int) here, void (unsigned long long, unsigned long long, unsigned int, unsigned int, int, int) in GifPacket.h */
-extern void gif_SetDrawEnviroment(int a0, int a1, int w, int h, int a4, int a5);
+extern void gif_SetDrawEnviroment(int fbp, int psm, int w, int h, int useoffset, int clear);
 
 /* The fade overlay: step the fade level by half the speed each frame, clamp
  * it to 0 to 128, stop or hand over to the continue state at the ends, and
@@ -521,7 +521,7 @@ static void gsb_scissorOnDemo(void)
 }
 
 /* void (int, int, int) here, void (long long, long long, long long) in GifPacket.h */
-extern void gif_SetAlpha(int a0, int a1, int a2);
+extern void gif_SetAlpha(int alpha, int mode, int fix);
 /* void (int, int, int, int, unsigned int, unsigned char *, int) here, void (int, int, int, int, long long, unsigned char *, int) in GifPacket.h */
 extern void gif_MakeSpriteNoTexture(int x, int y, int w, int h, unsigned int z, unsigned char *col,
                                     int prim);
@@ -1025,17 +1025,18 @@ void gsb_ResetGSSystem(void)
     gsb_SetGsDefault();
 }
 
-/* the 1500 unit screen the projection b is scaled to */
+/* the 1500 unit screen the projection proj is scaled to */
 static const float vsScreenSize[] = {1500.0f, 1500.0f, 0.0f, 0.0f}; /* derived name */
 
 /* Build the view matrices from the record gsb_SetVSMatrix fills (vs[0] the
  * zoom, vs[1] and vs[2] the aspect terms, vs[3] and vs[4] the centre, vs[5]
  * and vs[6] the depth range, vs[7] and vs[8] the near and far planes): the
- * screen matrix a, the perspective projection b for the 1500 unit screen,
- * the one c for the half size screen, the viewport d, and the pair built on
- * a 500 unit screen at matrixptr+0x640 and +0x680.  The 500 unit pair's
+ * screen matrix screen, the perspective projection proj for the 1500 unit
+ * screen, the one projHalf for the half size screen, the viewport viewport,
+ * and the pair built on a 500 unit screen at matrixptr+0x640 and +0x680.  The 500 unit pair's
  * scale terms are locals of their own. */
-static void gsb_SetVSMatrixSub(float *a, float *b, float *c, float *d, float *vs)
+static void gsb_SetVSMatrixSub(float *screen, float *proj, float *projHalf, float *viewport,
+                               float *vs)
 {
     sceVu0FVECTOR v = {ScreenWidth / 2, ScreenHeight / 2, 0.0f, 0.0f};
     float m0[16];
@@ -1059,45 +1060,45 @@ static void gsb_SetVSMatrixSub(float *a, float *b, float *c, float *d, float *vs
 
     zf = vs[8] * vs[7] * (-vs[5] + vs[6]) / (-vs[7] + vs[8]);
 
-    _UnitMatrix(a);
-    a[0] = vs[0];
-    a[5] = vs[0];
-    a[10] = 0.0f;
-    a[15] = 0.0f;
-    a[14] = 1.0f;
-    a[11] = 1.0f;
+    _UnitMatrix(screen);
+    screen[0] = vs[0];
+    screen[5] = vs[0];
+    screen[10] = 0.0f;
+    screen[15] = 0.0f;
+    screen[14] = 1.0f;
+    screen[11] = 1.0f;
 
     _UnitMatrix(m0);
     /* clang-format off */
     m0[0] = vs[1]; m0[5] = vs[2]; m0[10] = zf;
     m0[12] = vs[3]; m0[13] = vs[4]; m0[14] = zn;
     /* clang-format on */
-    _MulMatrix(a, m0, a);
+    _MulMatrix(screen, m0, screen);
 
-    _UnitMatrix(b);
-    b[0] = (vs[7] + vs[7]) / (sx + sx);
-    b[5] = (vs[7] + vs[7]) / (sy + sy);
-    b[10] = (vs[8] + vs[7]) / (vs[8] - vs[7]);
-    b[14] = vs[8] * vs[7] * -2.0f / (vs[8] - vs[7]);
-    b[11] = 1.0f;
-    b[15] = 0.0f;
+    _UnitMatrix(proj);
+    proj[0] = (vs[7] + vs[7]) / (sx + sx);
+    proj[5] = (vs[7] + vs[7]) / (sy + sy);
+    proj[10] = (vs[8] + vs[7]) / (vs[8] - vs[7]);
+    proj[14] = vs[8] * vs[7] * -2.0f / (vs[8] - vs[7]);
+    proj[11] = 1.0f;
+    proj[15] = 0.0f;
 
-    _UnitMatrix(d);
-    d[0] = vs[0] * vs[1] * sx / vs[7];
-    d[5] = vs[0] * vs[2] * sy / vs[7];
-    d[10] = (-vs[6] + vs[5]) * 0.5f;
-    d[12] = vs[3];
-    d[13] = vs[4];
-    d[14] = (vs[6] + vs[5]) * 0.5f;
-    d[15] = 1.0f;
+    _UnitMatrix(viewport);
+    viewport[0] = vs[0] * vs[1] * sx / vs[7];
+    viewport[5] = vs[0] * vs[2] * sy / vs[7];
+    viewport[10] = (-vs[6] + vs[5]) * 0.5f;
+    viewport[12] = vs[3];
+    viewport[13] = vs[4];
+    viewport[14] = (vs[6] + vs[5]) * 0.5f;
+    viewport[15] = 1.0f;
 
-    _UnitMatrix(c);
-    c[0] = (vs[7] + vs[7]) / (cx + cx);
-    c[5] = (vs[7] + vs[7]) / (cy + cy);
-    c[10] = (vs[8] + vs[7]) / (vs[8] - vs[7]);
-    c[14] = vs[8] * vs[7] * -2.0f / (vs[8] - vs[7]);
-    c[11] = 1.0f;
-    c[15] = 0.0f;
+    _UnitMatrix(projHalf);
+    projHalf[0] = (vs[7] + vs[7]) / (cx + cx);
+    projHalf[5] = (vs[7] + vs[7]) / (cy + cy);
+    projHalf[10] = (vs[8] + vs[7]) / (vs[8] - vs[7]);
+    projHalf[14] = vs[8] * vs[7] * -2.0f / (vs[8] - vs[7]);
+    projHalf[11] = 1.0f;
+    projHalf[15] = 0.0f;
 
     _UnitMatrix(m1);
     m1[0] = 500.0f;
@@ -1785,7 +1786,7 @@ typedef struct { /* field names derived */
  * gsb_GetBGColor reads them back as bytes. */
 static sceVu0IVECTOR bgColor; /* derived name */
 
-inline void gsb_SetBGColor(void *a0, int r, int g, int b)
+inline void gsb_SetBGColor(void *db, int r, int g, int b)
 {
     unsigned long long bg = ((long long)b << 16) | ((long long)g << 8);
     unsigned long long v = r | 0x3F80000000000000ULL;
@@ -1795,22 +1796,22 @@ inline void gsb_SetBGColor(void *a0, int r, int g, int b)
     bgColor[1] = g;
     bgColor[2] = b;
     bgColor[3] = 0x80;
-    *(unsigned long long *)((char *)a0 + 0x1F0) = v;
-    *(unsigned long long *)((char *)a0 + 0x100) = v;
+    *(unsigned long long *)((char *)db + 0x1F0) = v;
+    *(unsigned long long *)((char *)db + 0x100) = v;
 }
 
-inline void gsb_GetBGColor(unsigned char *a0)
+inline void gsb_GetBGColor(unsigned char *col)
 {
-    a0[0] = bgColor[0];
-    a0[1] = bgColor[1];
-    a0[2] = bgColor[2];
-    a0[3] = bgColor[3];
+    col[0] = bgColor[0];
+    col[1] = bgColor[1];
+    col[2] = bgColor[2];
+    col[3] = bgColor[3];
 }
 
-inline void gsb_SetZoom(float a, float b)
+inline void gsb_SetZoom(float target, float speed)
 {
-    zoomTarget = a;
-    zoomSpeed = b;
+    zoomTarget = target;
+    zoomSpeed = speed;
 }
 
 inline int lockOtherEditing(void)

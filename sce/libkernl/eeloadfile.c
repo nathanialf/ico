@@ -122,15 +122,15 @@ int _sceSifLoadModuleBuffer(void *addr, int arglen, int args, void *ret)
     return r;
 }
 
-void sceSifLoadModuleBuffer(void *a0, int a1, int a2)
+void sceSifLoadModuleBuffer(void *addr, int arglen, int args)
 {
     int local[4];
-    _sceSifLoadModuleBuffer(a0, a1, a2, &local);
+    _sceSifLoadModuleBuffer(addr, arglen, args, &local);
 }
 
-int sceSifLoadStartModuleBuffer(void *a0, int a1, int a2, void *a3)
+int sceSifLoadStartModuleBuffer(void *addr, int arglen, int args, void *ret)
 {
-    return _sceSifLoadModuleBuffer(a0, a1, a2, a3);
+    return _sceSifLoadModuleBuffer(addr, arglen, args, ret);
 }
 
 int _sceSifLoadModule(void *name, int arglen, int args, int ret, int rpcno)
@@ -167,15 +167,15 @@ int _sceSifLoadModule(void *name, int arglen, int args, int ret, int rpcno)
     return r;
 }
 
-int sceSifLoadModule(void *a0, int a1, int a2)
+int sceSifLoadModule(void *name, int arglen, int args)
 {
     int local;
-    return _sceSifLoadModule(a0, a1, a2, (int)&local, 0);
+    return _sceSifLoadModule(name, arglen, args, (int)&local, 0);
 }
 
-int sceSifLoadStartModule(void *a0, int a1, int a2, int a3)
+int sceSifLoadStartModule(void *name, int arglen, int args, int ret)
 {
-    return _sceSifLoadModule(a0, a1, a2, a3, 0);
+    return _sceSifLoadModule(name, arglen, args, ret, 0);
 }
 
 int _sceSifLoadElfPart(void *name, int sec, int out, int rpcno)
@@ -206,56 +206,56 @@ int _sceSifLoadElfPart(void *name, int sec, int out, int rpcno)
     return 0;
 }
 
-int sceSifLoadElfPart(void *a0, int a1, int a2)
+int sceSifLoadElfPart(void *name, int sec, int out)
 {
-    return _sceSifLoadElfPart(a0, a1, a2, 1);
+    return _sceSifLoadElfPart(name, sec, out, 1);
 }
 
-int sceSifLoadElf(void *a0, int a1)
+int sceSifLoadElf(void *name, int out)
 {
-    return _sceSifLoadElfPart(a0, (int)"all", a1, 1);
+    return _sceSifLoadElfPart(name, (int)"all", out, 1);
 }
 
-int sceSifGetIopAddr(int a0, void *a1, int a2)
+int sceSifGetIopAddr(int addr, void *data, int type)
 {
     int r;
     if (_lf_bind() < 0) {
         return 0xFFFF0000;
     }
-    if ((unsigned int)a2 >= 3) {
+    if ((unsigned int)type >= 3) {
         return 0xFFFEFFFE;
     }
-    *(int *)(lf_buf + 0) = a0;
-    *(int *)(lf_buf + 4) = a2;
+    *(int *)(lf_buf + 0) = addr;
+    *(int *)(lf_buf + 4) = type;
     r = sceSifCallRpc(&lf_cd, 3, 0, lf_buf, 0x20, lf_buf, 0x20, 0, 0);
     if (r < 0) {
         return 0xFFFEFFFF;
     }
-    if (a2 == 0) {
-        *(unsigned char *)a1 = *(unsigned char *)lf_buf;
-    } else if (a2 == 1) {
-        *(unsigned short *)a1 = *(unsigned short *)lf_buf;
-    } else if (a2 == 2) {
-        *(int *)a1 = *(int *)lf_buf;
+    if (type == 0) {
+        *(unsigned char *)data = *(unsigned char *)lf_buf;
+    } else if (type == 1) {
+        *(unsigned short *)data = *(unsigned short *)lf_buf;
+    } else if (type == 2) {
+        *(int *)data = *(int *)lf_buf;
     } else {
         return 0xFFFEFFFE;
     }
     return 0;
 }
 
-int sceSifSetIopAddr(int a0, void *a1, int a2)
+int sceSifSetIopAddr(int addr, void *data, int type)
 {
     if (_lf_bind() < 0) {
         return 0xFFFF0000;
     }
-    *(int *)(lf_buf + 0) = a0;
-    *(int *)(lf_buf + 4) = a2;
-    if (a2 == 0) {
-        *(unsigned char *)(lf_buf + 8) = *(unsigned char *)a1;
-    } else if (a2 == 1) {
-        *(unsigned short *)(lf_buf + 8) = *(unsigned short *)a1;
-    } else if (a2 == 2) {
-        *(int *)(lf_buf + 8) = *(int *)a1;
+    *(int *)(lf_buf + 0) = addr;
+    *(int *)(lf_buf + 4) = type;
+    if (type == 0) {
+        *(unsigned char *)(lf_buf + 8) = *(unsigned char *)data;
+    } else if (type == 1) {
+        *(unsigned short *)(lf_buf + 8) = *(unsigned short *)data;
+    } else if (type == 2) {
+        *(int *)(lf_buf + 8) = *(int *)data;
     } else {
         return 0xFFFEFFFE;
     }

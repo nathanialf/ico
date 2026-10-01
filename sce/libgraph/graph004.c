@@ -2,9 +2,9 @@
 #include <libgraph.h>
 #include <eeregs.h>
 
-void sceGsPutDispEnv(void *a0)
+void sceGsPutDispEnv(void *disp)
 {
-    long *s = (long *)a0;
+    long *s = (long *)disp;
     if (sceGsGetGParam()->version == 1) {
         *GS_PMODE = s[0];
         *GS_DISPFB1 = s[2];

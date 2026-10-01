@@ -44,7 +44,7 @@ int sceCdStStop(void);                                             /* definition
 int sceCdStatus(void);
 int sceCdStream(int lsn, int sectors, void *buf, int cmd, CdRMode *mode); /* definition in sce/ */
 int sceCdSync(int mode);                                                  /* definition in sce/ */
-int sceCdSyncS(int a0);                                                   /* definition in sce/ */
+int sceCdSyncS(int mode);                                                 /* definition in sce/ */
 int sceFsReset(void);                                                     /* definition in sce/ */
 
 #endif /* SCE_LIBCDVD_LIBCDVD_H */

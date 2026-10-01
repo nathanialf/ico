@@ -132,12 +132,12 @@ typedef struct {
 
 sceGsGParam *sceGsGetGParam(void);                                      /* definition in sce/ */
 unsigned long sceGsGetIMR(void);                                        /* definition in sce/ */
-void sceGsPutDispEnv(void *a0);                                         /* definition in sce/ */
-int sceGsPutDrawEnv(void *a0);                                          /* definition in sce/ */
+void sceGsPutDispEnv(void *disp);                                       /* definition in sce/ */
+int sceGsPutDrawEnv(void *pkt);                                         /* definition in sce/ */
 unsigned long sceGsPutIMR(unsigned long imr);                           /* definition in sce/ */
 void sceGsResetGraph(short mode, short inter, short omode, short ffmd); /* definition in sce/ */
 void sceGsResetPath(void);
-int sceGsSetDefAlphaEnv(long long *a0, int a1); /* definition in sce/ */
+int sceGsSetDefAlphaEnv(long long *pkt, int pabe); /* definition in sce/ */
 
 void sceGsSetDefDispEnv(sceGsDispEnv *disp, short psm, short w, short h, short dx,
                         short dy); /* definition in sce/ */
@@ -162,10 +162,10 @@ int sceGsSetDefTexEnv(sceGsTexEnv *env, short flush, short tbp, short tbw, short
                       short th, short tfx, short cbp, short cpsm, short cld,
                       short flt); /* definition in sce/ */
 
-void sceGsSetHalfOffset(void *a0, short a1, short a2, short a3); /* definition in sce/ */
-int sceGsSwapDBuff(void *a0, int a1);                            /* definition in sce/ */
-int sceGsSyncPath(int mode, unsigned short timeout);             /* definition in sce/ */
-int sceGsSyncV(int mode);                                        /* definition in sce/ */
-short sceGszbufaddr(short a0, short a1, short a2);               /* definition in sce/ */
+void sceGsSetHalfOffset(void *draw, short x, short y, short half); /* definition in sce/ */
+int sceGsSwapDBuff(void *db, int id);                              /* definition in sce/ */
+int sceGsSyncPath(int mode, unsigned short timeout);               /* definition in sce/ */
+int sceGsSyncV(int mode);                                          /* definition in sce/ */
+short sceGszbufaddr(short psm, short width, short height);         /* definition in sce/ */
 
 #endif /* SCE_LIBGRAPH_LIBGRAPH_H */

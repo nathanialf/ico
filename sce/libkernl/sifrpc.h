@@ -97,14 +97,14 @@ typedef struct sceSifQueueData {
 } sceSifQueueData;                 /* derived name */
 
 extern char __ps2_klibinfo__[]; /* klib.s's library stamp; bytes 12..15 are the version */
-int _sceSifLoadElfPart(void *a0, int a1, int a2, int a3);
+int _sceSifLoadElfPart(void *name, int sec, int out, int rpcno);
 
-int _sceSifLoadModule(void *a0, int a1, int a2, int a3,
-                      int a4); /* returns the module id or a negative error */
+int _sceSifLoadModule(void *name, int arglen, int args, int ret,
+                      int rpcno); /* returns the module id or a negative error */
 
-int _sceSifLoadModuleBuffer(void *a0, int a1, int a2, void *a3);
+int _sceSifLoadModuleBuffer(void *addr, int arglen, int args, void *ret);
 int _sceSifSendCmd(int cid, int mode, void *pkt, int pktsize, void *src, void *dest, int size);
-int sceSifAllocIopHeap(int a0); /* definition in sce/ */
+int sceSifAllocIopHeap(int size); /* definition in sce/ */
 int sceSifBindRpc(struct sceSifRpcClientData *cd, unsigned int sid, int mode);
 
 int sceSifCallRpc(struct sceSifRpcClientData *cd, unsigned int rpc_number, unsigned int mode,
@@ -114,20 +114,20 @@ int sceSifCallRpc(struct sceSifRpcClientData *cd, unsigned int rpc_number, unsig
 int sceSifCheckStatRpc(struct sceSifRpcClientData *cd); /* definition in sce/ */
 int sceSifDmaStat(int h);
 void sceSifExecRequest(struct sceSifServeData *sd);
-void sceSifExitCmd(void);      /* definition in sce/ */
-int sceSifFreeIopHeap(int a0); /* definition in sce/ */
+void sceSifExitCmd(void);        /* definition in sce/ */
+int sceSifFreeIopHeap(int addr); /* definition in sce/ */
 
 unsigned int
-sceSifGetReg(unsigned int a0); /* the register number is unsigned, see sceSifResetIop */
+sceSifGetReg(unsigned int reg); /* the register number is unsigned, see sceSifResetIop */
 
-int sceSifInitIopHeap(void);                    /* definition in sce/ */
-void sceSifInitRpc(int mode);                   /* definition in sce/ */
-int sceSifLoadFileReset(void);                  /* definition in sce/ */
-int sceSifLoadModule(void *a0, int a1, int a2); /* definition in sce/ */
+int sceSifInitIopHeap(void);                            /* definition in sce/ */
+void sceSifInitRpc(int mode);                           /* definition in sce/ */
+int sceSifLoadFileReset(void);                          /* definition in sce/ */
+int sceSifLoadModule(void *name, int arglen, int args); /* definition in sce/ */
 int sceSifRebootIop(const char *img);
 int sceSifSetDma(struct sceSifDmaData *sdd, int len);
-unsigned int sceSifSetReg(int a0, int a1); /* returns a value */
-int sceSifSyncIop(void);                   /* definition in sce/ */
+unsigned int sceSifSetReg(int reg, int val); /* returns a value */
+int sceSifSyncIop(void);                     /* definition in sce/ */
 void sceSifWriteBackDCache(void *addr, int len);
 void sceSifExitRpc(void);                /* definition in sce/ */
 void sceSifStopDma(void);                /* the spelling at 1 site */

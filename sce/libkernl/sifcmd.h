@@ -37,7 +37,7 @@ unsigned int isceSifSendCmd(int cid, void *pkt, int pktsize, void *src, void *de
                             int size); /* definition in sce/ */
 
 void sceSifAddCmdHandler(int cid, void (*fn)(), void *data); /* definition in sce/ */
-int sceSifGetSreg(int a0);                                   /* definition in sce/ */
+int sceSifGetSreg(int reg);                                  /* definition in sce/ */
 void sceSifInitCmd(void);                                    /* definition in sce/ */
 
 unsigned int sceSifSendCmd(int cid, void *pkt, int pktsize, void *src, void *dest,

@@ -250,13 +250,13 @@ static int reg_clipPacketBoundingBox(PacHeader *pk)
 extern void
 mc_TransMicroCode(); /* K&R: called 1-ary here and 2-ary in reg_DispAccessoryWithShadow */
 
-static void reg_transMicroCode(Sub15C *a0, int mask)
+static void reg_transMicroCode(Sub15C *o, int mask)
 {
-    if (a0->model->disp != 0) {
+    if (o->model->disp != 0) {
         mc_TransMicroCode(3);
         return;
     }
-    if (a0->lightMtx->mode == 0) {
+    if (o->lightMtx->mode == 0) {
         mc_TransMicroCode(1);
         return;
     }
@@ -266,21 +266,21 @@ static void reg_transMicroCode(Sub15C *a0, int mask)
 /* MicroCode.h is not included: its mc_TransMicroCode does not agree with this file */
 extern void mc_SetMicroCode();
 
-static void reg_chooseMicroCode(PObjMaterial *self, int b, int c)
+static void reg_chooseMicroCode(PObjMaterial *self, int clip, int pri)
 {
     long long v_ll = self->attr.bits;
     int v_int = self->attr.word;
-    mc_SetMicroCode(v_int & 1, ((int)(v_ll >> 5)) & 3, 0, b, c);
+    mc_SetMicroCode(v_int & 1, ((int)(v_ll >> 5)) & 3, 0, clip, pri);
 }
 
-static void reg_chooseSpecularMicroCode(int a0, int a1, int a2)
+static void reg_chooseSpecularMicroCode(int mode, int clip, int pri)
 {
-    mc_SetMicroCode(a0, 1, 1, a1, a2);
+    mc_SetMicroCode(mode, 1, 1, clip, pri);
 }
 
-static void reg_chooseReflectionMicroCode(int a0, int a1, int a2)
+static void reg_chooseReflectionMicroCode(int mode, int clip, int pri)
 {
-    mc_SetMicroCode(a0, 1, 2, a1, a2);
+    mc_SetMicroCode(mode, 1, 2, clip, pri);
 }
 
 /* the quadword copy type src/Primitive.c and src/Shadow.c use */
@@ -702,7 +702,7 @@ static const unsigned int regSpecularPacket[5][4] __attribute__((aligned(16))) =
 };
 
 /* The specular pass, a file static all six reg_disp* functions tail-call. */
-static void reg_dispSpecular(PacHeader *pkt, int a1, int a2) /* derived name */
+static void reg_dispSpecular(PacHeader *pkt, int clip, int mode) /* derived name */
 {
     short h;
     dl_SetDLPriority(4);
@@ -712,7 +712,7 @@ static void reg_dispSpecular(PacHeader *pkt, int a1, int a2) /* derived name */
     }
     dl_OpenDma(2, regSpecularPacket, 5);
     dl_CloseDma();
-    reg_chooseSpecularMicroCode(a2, a1, 4);
+    reg_chooseSpecularMicroCode(mode, clip, 4);
     dl_OpenDma(2, pkt->data, pkt->size >> 4);
     dl_CloseDma();
 }
@@ -727,13 +727,13 @@ static void reg_transMaterialPacket(PacHeader *self, PObjGroup *grp)
     }
 }
 
-static int reg_setDissolve(float a, int pri)
+static int reg_setDissolve(float alpha, int pri)
 {
     char *p;
     char *q;
     int v;
 
-    v = (int)((a < 0.0f ? a + 1.0f : 1.0f - a) * 96.0f);
+    v = (int)((alpha < 0.0f ? alpha + 1.0f : 1.0f - alpha) * 96.0f);
     if (v >= 128) {
         v = 127;
     }
@@ -760,7 +760,7 @@ static int reg_setDissolve(float a, int pri)
     PacketBufferStruct.ptr.c = p + 0x28;
     ((GifPkWord *)(p + 0x28))->d = 0x49;
     PacketBufferStruct.ptr.c = p + 0x30;
-    if (0.0f < a) {
+    if (0.0f < alpha) {
         ((GifPkWord *)(p + 0x30))->d = ((long long)v << 32) | 0x68;
         PacketBufferStruct.ptr.c = p + 0x38;
     } else {
@@ -800,9 +800,9 @@ static int reg_setDissolve(float a, int pri)
    dl_OpenDma chains it into the display list as a DMA source. */
 static const unsigned int regDissolveResetPacket[4][4] __attribute__((aligned(16)));
 
-static void reg_resetDissolve(int a0)
+static void reg_resetDissolve(int pri)
 {
-    dl_SetDLPriority(a0);
+    dl_SetDLPriority(pri);
     dl_OpenDma(2, regDissolveResetPacket, 4);
     dl_CloseDma();
 }
@@ -827,9 +827,9 @@ static const unsigned int regReflectionPacket[6][4] __attribute__((aligned(16)))
 
 /* the display-list priority of a shine level, which reg_GetShinePri, the
    reg_disp*Obj and the reg_Disp* functions inline */
-static inline int regGetShinePri(int a0) /* derived name */
+static inline int regGetShinePri(int shine) /* derived name */
 {
-    switch (a0) {
+    switch (shine) {
     case 1:
         return 7;
     case 2:
@@ -1982,7 +1982,7 @@ void reg_Init(void)
     scissorSw = 0;
 }
 
-int reg_GetShinePri(int a0)
+int reg_GetShinePri(int shine)
 {
-    return regGetShinePri(a0);
+    return regGetShinePri(shine);
 }

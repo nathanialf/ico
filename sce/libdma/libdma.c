@@ -33,10 +33,10 @@ static unsigned char stdCode[16] = {0, 2, 3}; /* derived name */
 
 DmaEnv sceDmaCurrentEnv = {0};
 
-DmaChan *sceDmaGetChan(unsigned int a0)
+DmaChan *sceDmaGetChan(unsigned int id)
 {
-    if (a0 < 0xA) {
-        return dch[a0];
+    if (id < 0xA) {
+        return dch[id];
     }
     return 0;
 }
@@ -69,10 +69,10 @@ int sceDmaReset(int mode)
     return old;
 }
 
-int sceDmaDebug(int a0)
+int sceDmaDebug(int mode)
 {
     int old = sceDmaDebugMode;
-    sceDmaDebugMode = a0;
+    sceDmaDebugMode = mode;
     return old;
 }
 
@@ -118,10 +118,10 @@ int sceDmaPutEnv(DmaEnv *env)
     return 0;
 }
 
-DmaEnv *sceDmaGetEnv(DmaEnv *a0)
+DmaEnv *sceDmaGetEnv(DmaEnv *env)
 {
-    *a0 = sceDmaCurrentEnv;
-    return a0;
+    *env = sceDmaCurrentEnv;
+    return env;
 }
 
 /* 0x1000E060 is the DMAC stall address register (D_STADR). */
@@ -347,16 +347,16 @@ int sceDmaWatch(DmaChan *ch, unsigned int addr, int mode, int n)
     return 0;
 }
 
-int sceDmaPause(void *a0)
+int sceDmaPause(void *ch)
 {
-    int v = *(int *)a0;
-    *(int *)a0 = v & ~0x100;
+    int v = *(int *)ch;
+    *(int *)ch = v & ~0x100;
     return ((unsigned int)v >> 8) & 1;
 }
 
-int sceDmaRestart(void *a0)
+int sceDmaRestart(void *ch)
 {
-    int v = *(int *)a0;
-    *(int *)a0 = v & ~0x100;
+    int v = *(int *)ch;
+    *(int *)ch = v & ~0x100;
     return ((unsigned int)v >> 8) & 1;
 }

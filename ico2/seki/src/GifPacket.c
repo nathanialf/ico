@@ -17,10 +17,10 @@ typedef struct { /* field names derived */
    (DMA tag, GIF tag, A+D data) or as one of its two 32-bit halves. */
 
 /* one A+D register write, which gif_SetGsReg and most of this file inline */
-static inline void setGsReg(long long a0, long long a1) /* derived name */
+static inline void setGsReg(long long reg, long long data) /* derived name */
 {
-    *PacketBufferStruct.ptr.d++ = a1;
-    *PacketBufferStruct.ptr.d++ = a0;
+    *PacketBufferStruct.ptr.d++ = data;
+    *PacketBufferStruct.ptr.d++ = reg;
 }
 
 /* The two GS register payloads this file packs over and over: RGBAQ from a
@@ -616,9 +616,9 @@ void gif_StartPacketPriPath1(int pri)
     packetOpen = 1;
 }
 
-void gif_SetGsReg(long long a0, long long a1)
+void gif_SetGsReg(long long reg, long long data)
 {
-    setGsReg(a0, a1);
+    setGsReg(reg, data);
 }
 
 int gif_CheckOpen(void)
@@ -691,28 +691,28 @@ static const GsAlphaEnt alphaTable[12] = {
     {2, 0, 0, 1}, {0, 1, 0, 1}, {0, 2, 1, 1}, {2, 0, 1, 1}, {0, 1, 1, 1}, {1, 2, 0, 1},
 };
 
-void gif_SetAlpha(long long a0, long long a1, long long a2)
+void gif_SetAlpha(long long alpha, long long mode, long long fix)
 {
     unsigned long long *p, *q;
     unsigned long long v;
     int idx;
 
-    idx = (int)a1;
+    idx = (int)mode;
     p = PacketBufferStruct.ptr.d;
-    *(volatile unsigned long long *)p = (a0 == 0);
+    *(volatile unsigned long long *)p = (alpha == 0);
     p++;
     *(unsigned long long *volatile *)&PacketBufferStruct.ptr.d = p;
     *(volatile unsigned long long *)p = 0x49;
     *(unsigned long long *volatile *)&PacketBufferStruct.ptr.d = p + 1;
-    a1 = 0x42;
-    v = (unsigned long long)alphaTable[idx].a | ((unsigned long long)a2 << 32);
+    mode = 0x42;
+    v = (unsigned long long)alphaTable[idx].a | ((unsigned long long)fix << 32);
     v |=
         ((unsigned long long)alphaTable[idx].c << 4) | ((unsigned long long)alphaTable[idx].b << 2);
     v |= (unsigned long long)alphaTable[idx].d << 6;
     *(volatile unsigned long long *)(p + 1) = v;
     *(unsigned long long *volatile *)&PacketBufferStruct.ptr.d = p + 2;
     q = p + 3;
-    *(volatile unsigned long long *)(p + 2) = a1;
+    *(volatile unsigned long long *)(p + 2) = mode;
     PacketBufferStruct.ptr.d = q;
 }
 
@@ -725,17 +725,17 @@ void gif_MoveImage(long long sbp, long long sbw, long long psm, int *rect, long 
     setGsReg(0x53, 2);
 }
 
-void gif_SetZTest(int a0)
+void gif_SetZTest(int on)
 {
-    if (a0)
+    if (on)
         setGsReg(0x47, 0x50000);
     else
         setGsReg(0x47, 0x30000);
 }
 
-void gif_SetZWrite(int a0)
+void gif_SetZWrite(int on)
 {
-    if (a0)
+    if (on)
         setGsReg(0x4E, 0x300000C0);
     else
         setGsReg(0x4E, 0x1300000C0LL);
@@ -747,7 +747,7 @@ void gif_SetHalfOffset(void)
                        ((long long)(((0x800 - ScreenHeight / 2) << 4) + screenOffsetY) << 32));
 }
 
-int _IsInScreen(volatile int *a0)
+int _IsInScreen(volatile int *v)
 {
-    return isInScreen(a0);
+    return isInScreen(v);
 }

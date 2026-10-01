@@ -133,14 +133,14 @@ void dl_Swap(void)
     dl_Clear();
 }
 
-inline void dl_SetDLPriority(int a0)
+inline void dl_SetDLPriority(int pri)
 {
-    if (a0 < 0) {
+    if (pri < 0) {
         dlPriority = 0;
-    } else if (a0 >= 0xD) {
+    } else if (pri >= 0xD) {
         dlPriority = 0xC;
     } else {
-        dlPriority = a0;
+        dlPriority = pri;
     }
 }
 

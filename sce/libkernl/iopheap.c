@@ -37,24 +37,24 @@ int sceSifInitIopHeap(void)
     return 0;
 }
 
-int sceSifAllocIopHeap(int a0)
+int sceSifAllocIopHeap(int size)
 {
     int ret = iopheap_bind;
     if (ret < 0)
         return 0;
-    heapAllocArg = a0;
+    heapAllocArg = size;
     ret = sceSifCallRpc(&heapClient, 1, 0, &heapAllocArg, 4, &heapRecv, 4, 0, 0);
     if (ret >= 0)
         return heapRecv;
     return 0;
 }
 
-int sceSifFreeIopHeap(int a0)
+int sceSifFreeIopHeap(int addr)
 {
     int v2 = iopheap_bind;
     if (v2 < 0)
         return 0;
-    heapFreeArg = a0;
+    heapFreeArg = addr;
     v2 = sceSifCallRpc(&heapClient, 2, 0, &heapFreeArg, 4, &heapRecv, 4, 0, 0);
     if (v2 < 0)
         return -1;

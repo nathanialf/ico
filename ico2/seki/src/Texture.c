@@ -215,7 +215,7 @@ int tex_AllocVramAuto(int kind, int size)
 /* as in GifPacket.h, which this TU does not include */
 extern void gif_StartPacketPri(int pri);
 /* as in GifPacket.h, which this TU does not include */
-extern void gif_SetGsReg(long long reg, long long val);
+extern void gif_SetGsReg(long long reg, long long data);
 /* as in GifPacket.h, which this TU does not include */
 extern void gif_EndPacket(void);
 
@@ -1199,13 +1199,14 @@ static void tex_TransTextureDefocus(int id, int lv)
 /* the scroll step and the offset are ints in the ICO block but their sign is
  * taken through a float comparison (Basic.h's ABSF and SIGNF) */
 
-static void tex_scrollClut(void *a0, void *a1, void *a2, int a3, int a4, void *a5, int a6, void *a7)
+static void tex_scrollClut(void *dstClut, void *curClut, void *srcClut, int sizeDiv, int colors,
+                           void *ext, int frame, void *tex)
 {
-    TexColor buf[a4];
-    TexExt *e = a5;
-    TexColor *dst = a0;
-    TexColor *cur = a1;
-    TexColor *src = a2;
+    TexColor buf[colors];
+    TexExt *e = ext;
+    TexColor *dst = dstClut;
+    TexColor *cur = curClut;
+    TexColor *src = srcClut;
     int lo;
     int hi;
     int step;
@@ -1216,16 +1217,16 @@ static void tex_scrollClut(void *a0, void *a1, void *a2, int a3, int a4, void *a
     int j;
     int n;
 
-    if (a3 != 2) {
+    if (sizeDiv != 2) {
         return;
     }
 
     lo = e->file.csBgn;
     hi = e->file.csEnd;
-    if (a4 < lo || a4 < hi) {
+    if (colors < lo || colors < hi) {
         debug_StdPrintfDummy(
-            "illegal user space data [%s] Clut Scroll (color:%d start:%d end:%d)\n", a7, a4, lo,
-            hi);
+            "illegal user space data [%s] Clut Scroll (color:%d start:%d end:%d)\n", tex, colors,
+            lo, hi);
         return;
     }
 
@@ -1238,13 +1239,13 @@ static void tex_scrollClut(void *a0, void *a1, void *a2, int a3, int a4, void *a
     }
 
     step = ABSF(e->file.csSpd);
-    rem = a6 % step;
+    rem = frame % step;
     if (rem == 0) {
         span = hi - lo + 1;
         k = ABSF(e->file.csStp) % span * SIGNF(e->file.csSpd) * SIGNF(e->file.csStp);
 
         for (i = lo; i <= hi; i++) {
-            cur[CLUT_CSM1(a4, i)] = src[CLUT_CSM1(a4, i)];
+            cur[CLUT_CSM1(colors, i)] = src[CLUT_CSM1(colors, i)];
         }
         for (i = lo; i <= hi; i++) {
             j = i + k;
@@ -1254,14 +1255,14 @@ static void tex_scrollClut(void *a0, void *a1, void *a2, int a3, int a4, void *a
             while (hi < j) {
                 j -= span;
             }
-            buf[CLUT_CSM1(a4, i)] = src[CLUT_CSM1(a4, j)];
+            buf[CLUT_CSM1(colors, i)] = src[CLUT_CSM1(colors, j)];
         }
         for (i = lo; i <= hi; i++) {
-            src[CLUT_CSM1(a4, i)] = buf[CLUT_CSM1(a4, i)];
+            src[CLUT_CSM1(colors, i)] = buf[CLUT_CSM1(colors, i)];
         }
     }
     for (i = lo; i <= hi; i++) {
-        n = CLUT_CSM1(a4, i);
+        n = CLUT_CSM1(colors, i);
         if (step == 1) {
             dst[n] = src[n];
         } else {

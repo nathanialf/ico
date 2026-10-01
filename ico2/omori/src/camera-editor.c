@@ -29,8 +29,8 @@ extern void iosThreadCreateS(void *th, int no, void (*func)(), int arg, void *he
 extern void iosThreadStart(void *th);
 extern void iosThreadSleep(void *th);
 extern void iosThreadDestroy(void *th);
-extern void iosThreadWakeup(void *thread);
-extern void iosThreadMessage(int a0);
+extern void iosThreadWakeup(void *th);
+extern void iosThreadMessage(int msg);
 
 typedef struct CamMgr { /* field names derived */
     int count;          /* 0x00 */

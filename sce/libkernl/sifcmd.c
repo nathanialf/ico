@@ -75,15 +75,15 @@ static SifCmdEntry sysCmdTable[32] __attribute__((aligned(16))); /* derived name
 
 static int cmdSreg[32]; /* derived name */
 
-int sceSifGetSreg(int a0)
+int sceSifGetSreg(int reg)
 {
-    return cmdSreg[a0];
+    return cmdSreg[reg];
 }
 
-int sceSifSetSreg(int a0, int a1)
+int sceSifSetSreg(int reg, int val)
 {
-    cmdSreg[a0] = a1;
-    return a1;
+    cmdSreg[reg] = val;
+    return val;
 }
 
 void *sceSifGetDataTable(void)

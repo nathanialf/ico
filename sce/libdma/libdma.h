@@ -39,7 +39,7 @@ typedef struct DmaChan {
     int tadr; /* 0x30 */
 } DmaChan;
 
-DmaChan *sceDmaGetChan(unsigned int a0);         /* definition in sce/ */
+DmaChan *sceDmaGetChan(unsigned int id);         /* definition in sce/ */
 int sceDmaReset(int mode);                       /* definition in sce/ */
 int sceDmaPutEnv(DmaEnv *env);                   /* definition in sce/ */
 void sceDmaSend(DmaChan *ch, unsigned int addr); /* definition in sce/ */

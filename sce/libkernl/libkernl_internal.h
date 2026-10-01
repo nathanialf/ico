@@ -43,8 +43,8 @@ void kputs(char *s);                        /* definition in sce/ */
 int sceDeci2ExRecv(int s, void *buf, unsigned short len);            /* definition in sce/ */
 int sceDeci2ExSend(int s, void *buf, unsigned short len);            /* definition in sce/ */
 int sceDeci2Open(unsigned short protocol, void *opt, void *handler); /* definition in sce/ */
-void sceDeci2Poll(int a0);                                           /* definition in sce/ */
-int sceDeci2ReqSend(int a0, signed char a1);                         /* definition in sce/ */
+void sceDeci2Poll(int s);                                            /* definition in sce/ */
+int sceDeci2ReqSend(int s, signed char a1);                          /* definition in sce/ */
 int sceFsInit(void);                                                 /* definition in sce/ */
 void sceResetttyinit(void);                                          /* definition in sce/ */
 void sceTtyHandler(int event, int param, void *opt);                 /* definition in sce/ */

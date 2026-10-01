@@ -10,7 +10,7 @@
 #define MFC0_STATUS(dst) __asm__ __volatile__("mfc0 %0, $12" : "=r"(dst))
 #define COP0_STATUS_EIE 0x10000
 
-int DisableIntc(int a0)
+int DisableIntc(int cause)
 {
     int eie;
     int rv;
@@ -19,7 +19,7 @@ int DisableIntc(int a0)
     if (eie) {
         DIntr();
     }
-    rv = _DisableIntc(a0);
+    rv = _DisableIntc(cause);
     SYNC();
     if (eie) {
         EIntr();
@@ -27,7 +27,7 @@ int DisableIntc(int a0)
     return rv;
 }
 
-int EnableIntc(int a0)
+int EnableIntc(int cause)
 {
     int eie;
     int rv;
@@ -36,7 +36,7 @@ int EnableIntc(int a0)
     if (eie) {
         DIntr();
     }
-    rv = _EnableIntc(a0);
+    rv = _EnableIntc(cause);
     SYNC();
     if (eie) {
         EIntr();
@@ -44,7 +44,7 @@ int EnableIntc(int a0)
     return rv;
 }
 
-int DisableDmac(int a0)
+int DisableDmac(int channel)
 {
     int eie;
     int rv;
@@ -53,7 +53,7 @@ int DisableDmac(int a0)
     if (eie) {
         DIntr();
     }
-    rv = _DisableDmac(a0);
+    rv = _DisableDmac(channel);
     SYNC();
     if (eie) {
         EIntr();
@@ -61,7 +61,7 @@ int DisableDmac(int a0)
     return rv;
 }
 
-int EnableDmac(int a0)
+int EnableDmac(int channel)
 {
     int eie;
     int rv;
@@ -70,7 +70,7 @@ int EnableDmac(int a0)
     if (eie) {
         DIntr();
     }
-    rv = _EnableDmac(a0);
+    rv = _EnableDmac(channel);
     SYNC();
     if (eie) {
         EIntr();

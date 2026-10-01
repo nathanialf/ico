@@ -75,7 +75,7 @@ typedef struct {
 
 /* libgraph.h's prototypes, over this member's own field-level record types */
 extern GParam *sceGsGetGParam(void);
-extern short sceGszbufaddr(short psm, short w, short h);
+extern short sceGszbufaddr(short psm, short width, short height);
 extern void sceGsSetDefDispEnv(sceGsDispEnv *disp, short psm, short w, short h, short dx, short dy);
 extern int sceGsSetDefDrawEnv(sceGsDrawEnv *env, short psm, short w, short h, short ztst,
                               short zpsm);

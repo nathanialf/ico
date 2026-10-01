@@ -12,18 +12,18 @@ typedef struct {
     unsigned long long intc; /* 0x8, intcUsed and handler */
 } GParam;
 
-short sceGszbufaddr(short a0, short a1, short a2)
+short sceGszbufaddr(short psm, short width, short height)
 {
     GParam *gp;
     int h;
     int w;
 
     gp = (GParam *)sceGsGetGParam();
-    h = (a1 + 0x3F) / 0x40;
-    if (a0 & 2)
-        w = (a2 + 0x3F) / 0x40;
+    h = (width + 0x3F) / 0x40;
+    if (psm & 2)
+        w = (height + 0x3F) / 0x40;
     else
-        w = (a2 + 0x1F) / 0x20;
+        w = (height + 0x1F) / 0x20;
     if (gp->inter == 1 && gp->ffmd == 0)
         return h * w;
     return h * w * 2;
