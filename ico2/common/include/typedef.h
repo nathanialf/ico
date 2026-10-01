@@ -277,8 +277,8 @@ struct MotRoot {       /* field names derived */
     float
         projHeight; /* 0x1D0, the height above the floor the root keeps (GetRootProjectionPosOfGObj adds it) */
     char _pad1D4[44];
-    int word200;   /* 0x200, set by the jump setup, read by the root update */
-    int word204;   /* 0x204, set while the root update runs the jump */
+    int liftOn; /* 0x200, 1 (the default): the root update lifts the foot pair onto a step node (kind 0x30) */
+    int lifting; /* 0x204, set while that lift is applied; _getFinalMatrix bends the leg nodes by it */
     float lift[2]; /* 0x208 */
     int hand1Mode; /* 0x210, hand record 1 (RequestChangeHandMode mode 1): the mode flag */
     int hand1Obj;  /* 0x214, the object the hand reaches for */
@@ -464,7 +464,7 @@ struct MotCtrl {           /* field names derived */
     float waterDepth;  /* 0x1D4, the depth under the pool surface */
     GObj *pool;        /* 0x1D8, the pool the object stands in */
     int contactFlags;  /* 0x1DC, the field contact bits CheckFieldContact sets */
-    int word1E0;       /* 0x1E0 */
+    int mailDelay; /* 0x1E0, counts the first frame up before the motion orient sends its state mail */
     int noFieldClip; /* 0x1E4, nonzero skips the flying root's wall and field collision (rootUpdateEnemyFly) */
     int word1E8; /* 0x1E8, nonzero mutes the motion SEs (playSE in frameDependSequence.c); the ending (end.c) sets it on its two layout objects 2793 and 2794 */
     char _pad1EC[4];

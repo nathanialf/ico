@@ -33,7 +33,7 @@ typedef struct PEGeo {       /* field names derived */
     float rate;              /* 0x40 */
     char pad44[32];          /* 0x44 */
     int (*proc)(void *);     /* 0x64 */
-    int f68;                 /* 0x68 */
+    int word68;              /* 0x68, setParticleEffect clears it; nothing reads it */
     char pad6C[20];          /* 0x6C */
 } PEGeo;                     /* derived name */
 
@@ -79,13 +79,13 @@ typedef struct PEPackage {  /* field names derived */
     int mode;               /* 0x04 */
     unsigned int alphaMode; /* 0x08, the GS alpha blend dispParticleEffect sets */
     unsigned short spread;  /* 0x0C */
-    short unk_0E;
+    char pad0E[2];
     float speed;     /* 0x10 */
     float speedRand; /* 0x14 */
     float drag;      /* 0x18 */
     float gravity;   /* 0x1C */
     short spinY;     /* 0x20 */
-    short unk_22;
+    char pad22[2];
     float spinYRand;     /* 0x24 */
     float spinYDecay;    /* 0x28 */
     float size;          /* 0x2C */
@@ -96,22 +96,22 @@ typedef struct PEPackage {  /* field names derived */
     int count;           /* 0x40 */
     int emit;            /* 0x44 */
     float emitRand;      /* 0x48 */
-    float unk_4C;
-    float alpha;       /* 0x50 */
-    float alphaRand;   /* 0x54 */
-    int life;          /* 0x58 */
-    float lifeRand;    /* 0x5C */
-    int unk_60[4];     /* 0x60 */
+    float emitStep;      /* 0x4C, the particles emitted a frame */
+    float alpha;         /* 0x50 */
+    float alphaRand;     /* 0x54 */
+    int life;            /* 0x58 */
+    float lifeRand;      /* 0x5C */
+    char pad60[16];
     sceVu0IVECTOR col; /* 0x70 */
     int u;             /* 0x80 */
     int v;             /* 0x84 */
     short spinX;       /* 0x88 */
-    short unk_8A;
+    char pad8A[2];
     float spinXRand; /* 0x8C */
     float wind;      /* 0x90 */
-    int unk_94;      /* 0x94 */
-    int unk_98;      /* 0x98 */
-    int unk_9C;
+    int floorOn;     /* 0x94, nonzero clamps the particles to the floor */
+    int floorDepth;  /* 0x98, the floor height, negated */
+    char pad9C[4];
 } PEPackage; /* derived name */
 
 /* the free-slot search, inlined at its one call site */
@@ -138,9 +138,9 @@ void setParticleEffectGeometry(PEGeo *geo, void *pos, void *quat)
 }
 
 typedef struct PEPartRec { /* field names derived */
-    int unk_00;
-    int spin; /* 0x04 */
-    long long unk_08;
+    int alive;             /* 0x00, 0 once the particle has run out */
+    int spin;              /* 0x04 */
+    long long word08;
     float pos[4];    /* 0x10 */
     float vel[4];    /* 0x20 */
     short spinX;     /* 0x30 */
@@ -150,22 +150,20 @@ typedef struct PEPartRec { /* field names derived */
     float alpha;     /* 0x3C */
     float alphaStep; /* 0x40 */
     int life;        /* 0x44 */
-    int unk_48;
-    int unk_4C;
+    char pad48[8];
     int col[4]; /* 0x50 */
     float u;    /* 0x60 */
     float v;    /* 0x64 */
-    int unk_68;
-    int unk_6C;
+    char pad68[8];
 } PEPartRec; /* derived name */
 
 /* the staging record makeParticle fills before copying it whole into the
    caller's slot, the blank particle peSetVtx writes for an unused vertex, and
    the cleared effect slot InitParticleEffects fills the table with */
 static PEPartRec particleWork = {
-    1,                        /* unk_00 */
+    1,                        /* alive */
     0,                        /* spin */
-    0,                        /* unk_08 */
+    0,                        /* word08 */
     {0.0f, 0.0f, 0.0f, 1.0f}, /* pos */
     {0.0f, 0.0f, 0.0f, 0.0f}, /* vel */
     0,
@@ -175,13 +173,10 @@ static PEPartRec particleWork = {
     1.0f, /* alpha */
     1.0f, /* alphaStep */
     60,   /* life */
-    0,
-    0,
+    {0},
     {128, 128, 128, 128}, /* col */
     0.0f,
     0.0f, /* u, v */
-    0,
-    0,
 }; /* derived name */
 
 static PEPartRec blankParticle = {
@@ -197,13 +192,10 @@ static PEPartRec blankParticle = {
     1.0f,
     1.0f,
     60,
-    0,
-    0,
+    {0},
     {0, 0, 0, 0},
     0.0f,
     0.0f,
-    0,
-    0,
 }; /* derived name */
 
 static PEffect emptyEffect = {0, 0, 1, 0, 0, 0, 0}; /* derived name */
@@ -304,8 +296,8 @@ int setParticleEffect(PEGeo *self, PEPackage *pkg, struct IosMemPart *part)
 
     self->clip = 1;
 
-    self->floorOn = pkg->unk_94;
-    self->floor = (float)(-pkg->unk_98);
+    self->floorOn = pkg->floorOn;
+    self->floor = (float)(-pkg->floorDepth);
     self->rate = 1.0f;
 
     n = pkg->count;
@@ -313,7 +305,7 @@ int setParticleEffect(PEGeo *self, PEPackage *pkg, struct IosMemPart *part)
     self->emitted = 0.0f;
 
     self->proc = 0;
-    self->f68 = 0;
+    self->word68 = 0;
 
     self->prim = prim_InitParticleByPartition(n, 1.0f, 0.25f, 0.25f, 1, "enemy_tex01", 1, part);
     if (self->prim == 0)
@@ -359,7 +351,7 @@ static inline int updateParticle(PEGeo *self, float *m) /* derived name */
     void *wind;
 
     pkg = self->pkg;
-    if (PEWORK.unk_00 == 0) {
+    if (PEWORK.alive == 0) {
         return 0;
     }
     wind = GetWindVector(0, PEWORK.pos);
@@ -398,7 +390,7 @@ static inline int updateParticle(PEGeo *self, float *m) /* derived name */
             _setParticleEffect(&PEWORK, pkg, (char *)m, self->rate);
             MatrixDrive_PopMatrix();
         } else {
-            PEWORK.unk_00 = 0;
+            PEWORK.alive = 0;
         }
     }
     return 1;
@@ -445,7 +437,7 @@ int execParticleEffect(void *a0)
         v0 = (PEVtx *)self->prim->vtx;
         v1 = (PEVtx *)self->prim->vtxNext;
         base = self->parts;
-        next = last + self->pkg->unk_4C;
+        next = last + self->pkg->emitStep;
         n = (int)next;
         if (total < next) {
             n = (int)total;
@@ -695,43 +687,38 @@ void ResetParticleEffectPackages(int *pkg)
 /* the default package a file's record is laid over, then the spread
    vector */
 static PEPackage defaultPackage = {
-    11,  /* version */
-    1,   /* mode */
-    1,   /* alphaMode */
-    360, /* spread */
-    0,
-    2.0f,  /* speed */
-    0.1f,  /* speedRand */
-    0.95f, /* drag */
-    -0.1f, /* gravity */
-    0,     /* spinY */
-    0,
-    0.1f,  /* spinYRand */
-    0.95f, /* spinYDecay */
-    10.0f, /* size */
-    0.1f,  /* sizeRand */
-    0.3f,  /* sizeStep */
-    0.01f, /* sizeStepRand */
-    1.0f,  /* sizeStepDecay */
-    80,    /* count */
-    80,    /* emit */
-    0.1f,  /* emitRand */
-    1.0f,
-    0.2f, /* alpha */
-    0.1f, /* alphaRand */
-    80,   /* life */
-    0.1f, /* lifeRand */
-    {0, 0, 0, 0},
-    {128, 128, 128, 128}, /* col */
-    0,                    /* u */
-    0,                    /* v */
-    0,                    /* spinX */
-    0,
-    0.1f, /* spinXRand */
-    1.0f, /* wind */
-    0,
-    0,
-    0,
+    11,                          /* version */
+    1,                           /* mode */
+    1,                           /* alphaMode */
+    360,                         /* spread */
+    {0},   2.0f,                 /* speed */
+    0.1f,                        /* speedRand */
+    0.95f,                       /* drag */
+    -0.1f,                       /* gravity */
+    0,                           /* spinY */
+    {0},   0.1f,                 /* spinYRand */
+    0.95f,                       /* spinYDecay */
+    10.0f,                       /* size */
+    0.1f,                        /* sizeRand */
+    0.3f,                        /* sizeStep */
+    0.01f,                       /* sizeStepRand */
+    1.0f,                        /* sizeStepDecay */
+    80,                          /* count */
+    80,                          /* emit */
+    0.1f,                        /* emitRand */
+    1.0f,                        /* emitStep */
+    0.2f,                        /* alpha */
+    0.1f,                        /* alphaRand */
+    80,                          /* life */
+    0.1f,                        /* lifeRand */
+    {0},   {128, 128, 128, 128}, /* col */
+    0,                           /* u */
+    0,                           /* v */
+    0,                           /* spinX */
+    {0},   0.1f,                 /* spinXRand */
+    1.0f,                        /* wind */
+    0,                           /* floorOn */
+    0,                           /* floorDepth */
 }; /* derived name */
 
 static sceVu0FVECTOR spreadVector = {0.0f, 0.0f, 1.0f, 0.0f}; /* derived name */

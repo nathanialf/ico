@@ -16,8 +16,8 @@ extern void _ACTWait(int a0);
 typedef struct ClipColWork { /* field names derived */
     int result;              /* 0x00 */
     char _p04[12];
-    float p0[4]; /* 0x10 */
-    float p1[4]; /* 0x20 */
+    float from[4]; /* 0x10, the segment start */
+    float to[4];   /* 0x20, the segment end */
     char _p30[104];
     /* the two clip results the callback fills in: _clipF stores the floor
        record at +0xA4 and _Clip reads the wall record at +0x98 */
@@ -41,7 +41,7 @@ void actClipCollisionCore(volatile unsigned int self)
     int i;
     int clung;
 
-    n = (int)(GetPointDistance(w->p0, w->p1) * 0.01f) + 1;
+    n = (int)(GetPointDistance(w->from, w->to) * 0.01f) + 1;
     step = 1.0f / (float)n;
     i = 0;
     w->hitFloor = 0;
@@ -59,19 +59,19 @@ void actClipCollisionCore(volatile unsigned int self)
         if (w->gobj != 0) {
             clung = GOBJ_SUB(w->gobj)->disp;
         }
-        CopyVector(a, w->p0);
-        CopyVector(b, w->p1);
-        _InterVectorXYZ(w->p0, b, a, (float)i * step);
-        _InterVectorXYZ(w->p1, b, a, (float)(i + 1) * step);
+        CopyVector(a, w->from);
+        CopyVector(b, w->to);
+        _InterVectorXYZ(w->from, b, a, (float)i * step);
+        _InterVectorXYZ(w->to, b, a, (float)(i + 1) * step);
         if (clung != 0) {
             GOBJ_SUB(w->gobj)->disp = 0;
         }
-        w->func(w->p0);
+        w->func(w->from);
         if (clung != 0) {
             GOBJ_SUB(w->gobj)->disp = 1;
         }
-        CopyVector(w->p0, a);
-        CopyVector(w->p1, b);
+        CopyVector(w->from, a);
+        CopyVector(w->to, b);
         if (w->hitFloor != 0 || w->hitWall != 0) {
             break;
         }

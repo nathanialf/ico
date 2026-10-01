@@ -919,7 +919,7 @@ void _getFinalMatrix(int id)
 
     case 45:
     case 49:
-        if (skelRoot->word204 != 0) {
+        if (skelRoot->lifting != 0) {
             int i;
             int flag;
             SkelNode *cn;
@@ -989,7 +989,7 @@ void _getFinalMatrix(int id)
         }
     case 46:
     case 50:
-        if (skelRoot->word204 != 0) {
+        if (skelRoot->lifting != 0) {
             GET_NODE_ROT(q, dq);
             RotQuaternionZ(q, ikBend0 + ikBend1);
             APPLY_ROT(q);
@@ -997,7 +997,7 @@ void _getFinalMatrix(int id)
         }
     case 47:
     case 51:
-        if (skelRoot->word204 != 0) {
+        if (skelRoot->lifting != 0) {
             GET_NODE_ROT(q, dq);
             RotQuaternionZ(q, -ikBend1);
             RotQuaternionY(q, -ikRotY);

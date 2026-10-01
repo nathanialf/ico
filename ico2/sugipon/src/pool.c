@@ -118,7 +118,7 @@ typedef struct {          /* field names derived */
                                layout's x and z angles in degrees */
     int splashNo;         /* 0x20, the next slot of splash */
     char *splash;         /* 0x24, two splash animations */
-    int f_28;             /* 0x28 */
+    int word28;           /* 0x28 */
     char *bga;            /* 0x2C, ten animations PoolDL draws */
     int hasGrid;          /* 0x30 */
     int nx;               /* 0x34 */
@@ -292,7 +292,7 @@ char *InitPoolGeo(char *self, SObjSimpleSetting *lay)
     _UnitMatrix(&GOBJ_SUB(self)->matrix);
     _UnitMatrix((char *)GOBJ_SUB(self)->nodeMtx);
 
-    w->f_28 = 0;
+    w->word28 = 0;
     w->bga = InitMultiBgaManager(10);
 
     w->splashNo = 0;

@@ -289,23 +289,23 @@ int calcDynamicPathGeometry(GObj *g)
 
 /* The collision query ClipCollision fills in: 192 bytes, 16-byte aligned by
    its quadword members. */
-typedef struct {       /* field names derived */
-    sceVu0FVECTOR p0;  /* 0x00 start of the swept segment */
-    sceVu0FVECTOR p1;  /* 0x10 end of the swept segment */
-    char pad20[16];    /* 0x20 */
-    sceVu0FVECTOR d;   /* 0x30 the clipped travel */
-    char pad40[16];    /* 0x40 */
-    sceVu0FVECTOR hit; /* 0x50 */
-    sceVu0FVECTOR dir; /* 0x60 */
-    float f70;         /* 0x70 */
-    char pad74[20];    /* 0x74 */
-    int wall;          /* 0x88 */
-    char pad8C[8];     /* 0x8C */
-    int hit94;         /* 0x94 */
-    char pad98[40];    /* 0x98 */
-} CollWork;            /* derived name */
+typedef struct {        /* field names derived */
+    sceVu0FVECTOR from; /* 0x00 start of the swept segment */
+    sceVu0FVECTOR to;   /* 0x10 end of the swept segment */
+    char pad20[16];     /* 0x20 */
+    sceVu0FVECTOR d;    /* 0x30 the clipped travel */
+    char pad40[16];     /* 0x40 */
+    sceVu0FVECTOR hit;  /* 0x50 */
+    sceVu0FVECTOR dir;  /* 0x60 */
+    float radius;       /* 0x70, the clip radius, 10 */
+    char pad74[20];     /* 0x74 */
+    int wall;           /* 0x88 */
+    char pad8C[8];      /* 0x8C */
+    int hit94;          /* 0x94 */
+    char pad98[40];     /* 0x98 */
+} CollWork;             /* derived name */
 
-/* the query calcDynamicGeometry starts from: all clear but the 0x70 word */
+/* the query calcDynamicGeometry starts from: all clear but the radius */
 static const CollWork collWorkInit = /* derived name */
     {{0.0f}, {0.0f}, {0}, {0.0f}, {0}, {0.0f}, {0.0f}, 10.0f};
 
@@ -355,10 +355,10 @@ void calcDynamicGeometry(GObj *g)
         GetMatrixFromQuaternionPos(m2, (p + 0xD0), rp);
 
         hitOfs[2] = r;
-        _ApplyMatrix(cc.p0, m1, hitOfs);
-        _ApplyMatrix(cc.p1, m2, hitOfs);
-        CopyVector(v1, cc.p1);
-        _SubVector(dir1, cc.p1, cc.p0);
+        _ApplyMatrix(cc.from, m1, hitOfs);
+        _ApplyMatrix(cc.to, m2, hitOfs);
+        CopyVector(v1, cc.to);
+        _SubVector(dir1, cc.to, cc.from);
 
         ClipCollision(&cc);
         if (cc.wall != 0 || cc.hit94 != 0) {
@@ -377,10 +377,10 @@ void calcDynamicGeometry(GObj *g)
         }
 
         hitOfs[2] = -r;
-        _ApplyMatrix(cc.p0, m1, hitOfs);
-        _ApplyMatrix(cc.p1, m2, hitOfs);
-        CopyVector(v2, cc.p1);
-        _SubVector(dir2, cc.p1, cc.p0);
+        _ApplyMatrix(cc.from, m1, hitOfs);
+        _ApplyMatrix(cc.to, m2, hitOfs);
+        CopyVector(v2, cc.to);
+        _SubVector(dir2, cc.to, cc.from);
 
         ClipCollision(&cc);
         if (cc.wall != 0 || cc.hit94 != 0) {

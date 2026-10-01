@@ -85,10 +85,10 @@ typedef struct { /* field names derived */
 } ExW; /* derived name */
 
 typedef struct { /* field names derived */
-    char *p0;
-    char *p4;
-    char *p8;
-    int fC;
+    char *pos;   /* 0x0, the chain's points, 16 bytes each */
+    char *vel;   /* 0x4, their velocities */
+    char *len;   /* 0x8, one float a point, the step down the chain */
+    int word0C;  /* 0xC, InitChains clears it; nothing reads it */
     ExW ex[5];
 } ChainNode; /* derived name */
 
@@ -96,8 +96,8 @@ typedef struct { /* field names derived */
     char *cfg;
     int num;
     ChainNode *nodes;
-    int f3;
-} ChainSet; /* derived name */
+    int oddFrame; /* flipped every GetChainAnimation */
+} ChainSet;       /* derived name */
 
 /* the chain's red debug segment, built only when DEBUG is defined */
 static __inline__ void chainDebugOld(VECTOR *old) /* derived name */
@@ -121,8 +121,8 @@ void GetChainAnimation(ChainSet *sys, GObj *obj, char *mtx)
     for (i = 0; i < sys->num; i++) {
         char *cf = (char *)(i * 0x50 + (int)sys->cfg);
         int n = *(int *)cf;
-        char *pts = (sys->nodes + i)->p0;
-        char *vel = (sys->nodes + i)->p4;
+        char *pts = (sys->nodes + i)->pos;
+        char *vel = (sys->nodes + i)->vel;
         char *cp = cf + 0x10;
         int no;
         int j;
@@ -374,7 +374,7 @@ void GetChainAnimation(ChainSet *sys, GObj *obj, char *mtx)
             }
         }
     }
-    sys->f3 = sys->f3 == 0;
+    sys->oddFrame = sys->oddFrame == 0;
 }
 
 int SetChainExtendedWeight(int *a0, int idx, float w0, float w1)
@@ -892,15 +892,15 @@ ChainSet *InitChains(char *a0)
     r->num = i;
     r->nodes =
         (ChainNode *)iosMallocDebug(ios_partition_sugipon, i * 0x1A0, "src/clothAnimation.c", 1198);
-    r->f3 = 0;
+    r->oddFrame = 0;
     for (i = 0; i < r->num; i++) {
-        r->nodes[i].p0 = iosMallocDebug(ios_partition_sugipon, *(int *)(i * 0x50 + (int)a0) * 16,
-                                        "src/clothAnimation.c", 1202);
-        r->nodes[i].p4 = iosMallocDebug(ios_partition_sugipon, *(int *)(i * 0x50 + (int)a0) * 16,
-                                        "src/clothAnimation.c", 1203);
-        r->nodes[i].p8 = iosMallocDebug(ios_partition_sugipon, *(int *)(i * 0x50 + (int)a0) * 4,
-                                        "src/clothAnimation.c", 1204);
-        r->nodes[i].fC = 0;
+        r->nodes[i].pos = iosMallocDebug(ios_partition_sugipon, *(int *)(i * 0x50 + (int)a0) * 16,
+                                         "src/clothAnimation.c", 1202);
+        r->nodes[i].vel = iosMallocDebug(ios_partition_sugipon, *(int *)(i * 0x50 + (int)a0) * 16,
+                                         "src/clothAnimation.c", 1203);
+        r->nodes[i].len = iosMallocDebug(ios_partition_sugipon, *(int *)(i * 0x50 + (int)a0) * 4,
+                                         "src/clothAnimation.c", 1204);
+        r->nodes[i].word0C = 0;
         for (j = 0; j < 5; j++) {
             r->nodes[i].ex[j].w = -1.0f;
             CopyVector(&r->nodes[i].ex[j].v0, ZeroPoint);
@@ -908,13 +908,13 @@ ChainSet *InitChains(char *a0)
             CopyVector(&r->nodes[i].ex[j].v2, ZeroVector);
         }
         for (j = 0; j < *(int *)(i * 0x50 + (int)r->cfg); j++) {
-            CopyVector(r->nodes[i].p0 + j * 16, a0 + i * 0x50 + 0x20);
-            CopyVector(r->nodes[i].p4 + j * 16, ZeroVector);
+            CopyVector(r->nodes[i].pos + j * 16, a0 + i * 0x50 + 0x20);
+            CopyVector(r->nodes[i].vel + j * 16, ZeroVector);
             step = *(float *)(a0 + i * 0x50 + 0x14);
-            *(float *)(j * 4 + (int)r->nodes[i].p8) = step;
+            *(float *)(j * 4 + (int)r->nodes[i].len) = step;
             if (j != 0) {
-                *(float *)(j * 16 + (int)r->nodes[i].p0 + 4) =
-                    *(float *)(j * 16 + (int)r->nodes[i].p0 - 0xC) + step;
+                *(float *)(j * 16 + (int)r->nodes[i].pos + 4) =
+                    *(float *)(j * 16 + (int)r->nodes[i].pos - 0xC) + step;
             }
         }
     }
@@ -930,19 +930,19 @@ typedef struct { /* field names derived */
 typedef struct Cloth4D { /* field names derived */
     int gobj;
     Mesh3D *mesh;
-    Prim3DVec **p8;
-    Prim3DVec **pC;
-    Prim3DVec **p10;
+    Prim3DVec **pos; /* 0x8, one row a column, into the mesh's positions */
+    Prim3DVec **vel; /* 0xC, one row a column, the points' velocities */
+    Prim3DVec **nrm; /* 0x10, one row a column, into the mesh's normals */
     int pad14;
     TexBlob tex;
     int cfg;
-    int n2E4;
-    char **p2E8;
-    char *p2EC;
-    char *p2F0;
-    int f2F4;
-    int f2F8;
-} Cloth4D; /* derived name */
+    int colNum;     /* 0x2E4, the count of collision cylinders (ClothHangCfg rows) */
+    char **colNode; /* 0x2E8, the focus node each cylinder hangs from */
+    char *colMtx;   /* 0x2EC, one matrix a cylinder */
+    char *col;      /* 0x2F0, the cylinders, scaled by the actor's scale */
+    int word2F4;    /* 0x2F4, InitCloth4D clears it; nothing reads it */
+    int collision;  /* 0x2F8, nonzero while the cylinders collide (girl.c's debug_hair_collision) */
+} Cloth4D;          /* derived name */
 
 typedef struct { /* field names derived */
     int num;
@@ -1152,7 +1152,7 @@ void DispCloth4D(Cloth4D *c, void *a1, void *a2)
     prim_DispMesh3D(c->mesh, a1, a2, t);
     if (debug_cloth_info != 0) {
         m = (int *)c->cfg;
-        DispMeshWire(c->p8, m[0], m[1]);
+        DispMeshWire(c->pos, m[0], m[1]);
     }
 }
 
@@ -1176,7 +1176,7 @@ void DispCloth4DWithAdd(Cloth4D *c, void *a1, void *a2)
     prim_DispMesh3D(c->mesh, a1, a2, t);
     if (debug_cloth_info != 0) {
         m = (int *)c->cfg;
-        DispMeshWire(c->p8, m[0], m[1]);
+        DispMeshWire(c->pos, m[0], m[1]);
     }
 }
 
@@ -1225,15 +1225,15 @@ typedef struct { /* field names derived */
     float weight;
 } Cloth4DLink; /* derived name */
 
-typedef struct { /* field names derived */
-    float f00;
+typedef struct {  /* field names derived */
+    float length; /* 0x00, the column's length */
     char pad04[12];
     float pos[4];
     float dir[4];
     Cloth4DLink link[2]; /* 0x30 */
     float (*uv)[2];
     char pad44[12];
-    float f50[4];
+    float vec50[4];
 } Cloth4DCol; /* derived name */
 
 void getCloth4D_preProcess(void *a0, float g, float damp, float z, float w, int tight, void *qa,
@@ -1279,11 +1279,11 @@ void getCloth4D_preProcess(void *a0, float g, float damp, float z, float w, int 
             if (j == 0) {
                 clothSetPoint(rowsB[i], pt->pos, f);
                 clothSetPoint(rowsD[i], pt->dir, f);
-                clothSetPoint(&va[i], pt->f50, f);
+                clothSetPoint(&va[i], pt->vec50, f);
             } else {
                 clothAddPoint(rowsB[i], pt->pos, f);
                 clothAddPoint(rowsD[i], pt->dir, f);
-                clothAddPoint(&va[i], pt->f50, f);
+                clothAddPoint(&va[i], pt->vec50, f);
             }
         }
         ((VECTOR *)rowsB[i])->w = 1.0f;
@@ -1347,9 +1347,9 @@ typedef struct { /* field names derived */
     float z;
     float r;
     char pad10[16];
-    float v20[4];
-    float f30;
-    float f34;
+    float pos[4];      /* 0x20, the cylinder's place in its node's frame */
+    float float30;     /* 0x30 */
+    float invDiameter; /* 0x34, 1 / (r + r), stored by InitCloth4D */
     char pad38[8];
 } ClothPoint; /* derived name */
 
@@ -1501,7 +1501,7 @@ void getCloth4D(void *a0, int **rows)
     MatrixDrive_ScaleMatrix(inv, inv, inv);
     CopyMatrix(mtx, MatrixDrive_GetMatrix());
     for (i = 0; i < cnt; i++, pD++, pC++, pF++, pE++) {
-        CopyVector(mtx[3], pts[i].v20);
+        CopyVector(mtx[3], pts[i].pos);
         _MulMatrix(
             pD, *(char **)(*(int *)(*(int *)a0 + 0x15C) + 0xC) + ((int *)((int *)a0)[186])[i] * 64,
             mtx);
@@ -1608,12 +1608,12 @@ void getCloth4D(void *a0, int **rows)
                             float sn;
 
                             inv = fSqrtInv_i(len);
-                            e = (len + d) * pts[i].f34 * inv;
+                            e = (len + d) * pts[i].invDiameter * inv;
                             s = FSqrt(1.0f - e * e);
                             ir = r * inv;
                             sy = a.y;
                             *procCosXX = *procCosZZ = e * ir;
-                            sn = k * pts[i].f30 * s * ir;
+                            sn = k * pts[i].float30 * s * ir;
                             *procSinXZ = sn;
                             *procSinZX = -sn;
                             _ApplyMatrix(&a, procMatrix, &b);
@@ -1791,7 +1791,7 @@ void getCloth4D(void *a0, int **rows)
             }
         }
         for (i = 0; i < nx; i++) {
-            float len = ((Cloth4DCol *)cfg[9])[i].f00 * scale;
+            float len = ((Cloth4DCol *)cfg[9])[i].length * scale;
             float linv = 1.0f / len;
             int last = nxArr[i];
 
@@ -1936,7 +1936,7 @@ typedef struct { /* field names derived */
     int b;      /* 0x18 */
     int a;      /* 0x1C */
     void *tex;
-    char *p24;
+    char *cols;
 } Cloth4DCfg; /* derived name */
 
 Cloth4D *InitCloth4D(GObj *a0, Cloth4DCfg *cfg, int tbl)
@@ -1949,31 +1949,31 @@ Cloth4D *InitCloth4D(GObj *a0, Cloth4DCfg *cfg, int tbl)
     r = (Cloth4D *)iosMallocDebug(ios_partition_sugipon, 0x300, "src/clothAnimation.c", 2183);
     r->gobj = a0;
     r->cfg = (int)cfg;
-    r->f2F4 = 0;
+    r->word2F4 = 0;
     if (cfg->tex != 0) {
         r->mesh = prim_InitMesh3D(cfg->ny, cfg->nx, 1, 0x5C, 0x80808080, 1);
         r->tex = *(TexBlob *)tex_GetTextureData(tex_GetTextureNo(cfg->tex));
     } else {
         r->mesh = prim_InitMesh3D(cfg->ny, cfg->nx, 1, 0x4C, 0xFFFFFF80, 1);
     }
-    r->p8 = (Prim3DVec **)iosMallocDebug(ios_partition_sugipon, cfg->nx * 4, "src/clothAnimation.c",
-                                         2218);
-    r->pC = (Prim3DVec **)iosMallocDebug(ios_partition_sugipon, cfg->nx * 4, "src/clothAnimation.c",
-                                         2219);
-    r->p10 = (Prim3DVec **)iosMallocDebug(ios_partition_sugipon, cfg->nx * 4,
+    r->pos = (Prim3DVec **)iosMallocDebug(ios_partition_sugipon, cfg->nx * 4,
+                                          "src/clothAnimation.c", 2218);
+    r->vel = (Prim3DVec **)iosMallocDebug(ios_partition_sugipon, cfg->nx * 4,
+                                          "src/clothAnimation.c", 2219);
+    r->nrm = (Prim3DVec **)iosMallocDebug(ios_partition_sugipon, cfg->nx * 4,
                                           "src/clothAnimation.c", 2220);
     for (i = 0; i < cfg->nx; i++) {
-        r->p8[i] = r->mesh->pos + i * cfg->ny;
-        r->pC[i] = (Prim3DVec *)iosMallocDebug(ios_partition_sugipon, cfg->ny * 16,
-                                               "src/clothAnimation.c", 2224);
-        r->p10[i] = r->mesh->nrm + i * cfg->ny;
+        r->pos[i] = r->mesh->pos + i * cfg->ny;
+        r->vel[i] = (Prim3DVec *)iosMallocDebug(ios_partition_sugipon, cfg->ny * 16,
+                                                "src/clothAnimation.c", 2224);
+        r->nrm[i] = r->mesh->nrm + i * cfg->ny;
         for (j = 0; j < cfg->ny; j++) {
-            CopyVector(&r->p8[i][j], ZeroPoint);
-            CopyVector(&r->pC[i][j], ZeroVector);
+            CopyVector(&r->pos[i][j], ZeroPoint);
+            CopyVector(&r->vel[i][j], ZeroVector);
             r->mesh->st[i * cfg->ny + j].x =
-                *(float *)(j * 8 + *(int *)(i * 0x60 + (int)cfg->p24 + 0x40));
+                *(float *)(j * 8 + *(int *)(i * 0x60 + (int)cfg->cols + 0x40));
             r->mesh->st[i * cfg->ny + j].y =
-                1.0f - *(float *)(j * 8 + *(int *)(i * 0x60 + (int)cfg->p24 + 0x40) + 4);
+                1.0f - *(float *)(j * 8 + *(int *)(i * 0x60 + (int)cfg->cols + 0x40) + 4);
         }
     }
     prim_UpdateMesh3D(r->mesh, 8, buffer_ID);
@@ -1984,29 +1984,29 @@ Cloth4D *InitCloth4D(GObj *a0, Cloth4DCfg *cfg, int tbl)
         while (*(int *)(i * 0x40 + tbl) != -1) {
             i++;
         }
-        r->n2E4 = i;
-        r->p2F0 = iosMallocDebug(ios_partition_sugipon, i * 0x40, "src/clothAnimation.c", 2253);
-        r->p2EC =
-            iosMallocDebug(ios_partition_sugipon, r->n2E4 * 0x40, "src/clothAnimation.c", 2254);
-        r->p2E8 = (char **)iosMallocDebug(ios_partition_sugipon, r->n2E4 * 4,
-                                          "src/clothAnimation.c", 2255);
+        r->colNum = i;
+        r->col = iosMallocDebug(ios_partition_sugipon, i * 0x40, "src/clothAnimation.c", 2253);
+        r->colMtx =
+            iosMallocDebug(ios_partition_sugipon, r->colNum * 0x40, "src/clothAnimation.c", 2254);
+        r->colNode = (char **)iosMallocDebug(ios_partition_sugipon, r->colNum * 4,
+                                             "src/clothAnimation.c", 2255);
         for (i = 0; *(int *)(i * 0x40 + tbl) != -1; i++) {
-            *(Blob64 *)(i * 0x40 + (int)r->p2F0) = *(Blob64 *)(i * 0x40 + tbl);
-            *(float *)(i * 0x40 + (int)r->p2F0 + 0xC) =
-                *(float *)(i * 0x40 + (int)r->p2F0 + 0xC) * sc;
-            *(float *)(i * 0x40 + (int)r->p2F0 + 8) = *(float *)(i * 0x40 + (int)r->p2F0 + 8) * sc;
-            *(float *)(i * 0x40 + (int)r->p2F0 + 4) = *(float *)(i * 0x40 + (int)r->p2F0 + 4) * sc;
-            *(float *)(i * 0x40 + (int)r->p2F0 + 0x34) =
-                1.0f / (*(float *)(i * 0x40 + (int)r->p2F0 + 0xC) +
-                        *(float *)(i * 0x40 + (int)r->p2F0 + 0xC));
-            sceVu0UnitMatrix(r->p2EC + i * 0x40);
-            *(int *)(i * 4 + (int)r->p2E8) =
+            *(Blob64 *)(i * 0x40 + (int)r->col) = *(Blob64 *)(i * 0x40 + tbl);
+            *(float *)(i * 0x40 + (int)r->col + 0xC) =
+                *(float *)(i * 0x40 + (int)r->col + 0xC) * sc;
+            *(float *)(i * 0x40 + (int)r->col + 8) = *(float *)(i * 0x40 + (int)r->col + 8) * sc;
+            *(float *)(i * 0x40 + (int)r->col + 4) = *(float *)(i * 0x40 + (int)r->col + 4) * sc;
+            *(float *)(i * 0x40 + (int)r->col + 0x34) =
+                1.0f / (*(float *)(i * 0x40 + (int)r->col + 0xC) +
+                        *(float *)(i * 0x40 + (int)r->col + 0xC));
+            sceVu0UnitMatrix(r->colMtx + i * 0x40);
+            *(int *)(i * 4 + (int)r->colNode) =
                 GetSkeltonFocusNode(a0, *(int *)(i * 0x40 + tbl + 0x10));
         }
-        r->f2F8 = 1;
+        r->collision = 1;
     } else {
-        r->n2E4 = 0;
-        r->f2F8 = 0;
+        r->colNum = 0;
+        r->collision = 0;
     }
     return r;
 }

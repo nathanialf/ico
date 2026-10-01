@@ -563,8 +563,8 @@ static void setIKAndAdjustRootHeight(char *mv)
                 }
             }
         }
-        if (skelRoot->word200 != 0) {
-            skelRoot->word204 = 1;
+        if (skelRoot->liftOn != 0) {
+            skelRoot->lifting = 1;
             if (skelNode[skelRoot->stepNode].kind == 0x30) {
                 if (0.0f < d1) {
                     skelRoot->lift[0] = 0.0f;
@@ -671,7 +671,7 @@ void floorFitting(int kind)
         _NormalizeVector(floorSlope, floorSlope);
         ang = GetTableArcTan2(floorSlope[1], floorSlope[2]);
         RotQuaternionX(skelRoot->quat, ang);
-        skelRoot->word204 = 0;
+        skelRoot->lifting = 0;
     }
 }
 

@@ -92,8 +92,8 @@ typedef struct {      /* field names derived */
     int padC;         /* 0x00C */
     AP1Part part[4];  /* 0x010 */
     AP1ColHit hit[2]; /* 0x150 */
-    int f_168;        /* 0x168 */
-    int f_16C;        /* 0x16C */
+    int word168;      /* 0x168 */
+    int word16C;      /* 0x16C */
     int focus[9];     /* 0x170, the skeleton nodes of ap1FocusNode: the
                            body's, then each limb's pair; calcSubMission
                            reaches a pair from &focus[1] and &focus[2] */
@@ -101,16 +101,16 @@ typedef struct {      /* field names derived */
     EnemyEye *eye;    /* 0x19C */
     int pad1A0[4];    /* 0x1A0 */
     Vec4A_P_1 up;     /* 0x1B0 */
-    float f_1C0;      /* 0x1C0 */
-    float f_1C4;      /* 0x1C4 */
-    float f_1C8;      /* 0x1C8 */
+    float tilt;       /* 0x1C0, the forward tilt the speed gives */
+    float roll;       /* 0x1C4, the roll the sideways motion gives */
+    float sink;       /* 0x1C8, 0 to 1, how far the body sinks and tips forward */
     int pad1CC;       /* 0x1CC */
     Vec4A_P_1 quat;   /* 0x1D0 */
     Vec4A_P_1 pos;    /* 0x1E0 */
     float mtx[16];    /* 0x1F0 */
     float root[16];   /* 0x230 */
     int blink;        /* 0x270 */
-    int f_274;        /* 0x274 */
+    int settleCount;  /* 0x274, the first 10 frames reset the position info */
     int visible;      /* 0x278 */
     int pad27C;       /* 0x27C */
 } AP1Work;            /* derived name */
@@ -229,14 +229,14 @@ char *InitAP1(GObj *self, SObjSimpleSetting *arg)
     GOBJ_SUB(self)->work = p;
     p->layout = arg->obj;
     p->skel = 1;
-    p->f_16C = 0;
+    p->word16C = 0;
     p->mode = 7;
-    p->f_168 = 0;
-    p->f_1C4 = 0.0f;
-    p->f_1C8 = 0.0f;
-    p->f_1C0 = 0.0f;
+    p->word168 = 0;
+    p->roll = 0.0f;
+    p->sink = 0.0f;
+    p->tilt = 0.0f;
     p->blink = rand() & 0x1F;
-    p->f_274 = 0;
+    p->settleCount = 0;
     p->visible = 1;
     ap1LayoutUp[2] = spiderDef[p->layout].upY;
     CopyVector(&p->up, ap1LayoutUp);
@@ -604,11 +604,11 @@ int walkMot(GObj *a0)
     MatrixDrive_SetTransposeMatrix(tm.m, m.m);
     _ApplyMatrix(&out, &tm, GOBJ_SUB(a0)->root.move);
     /* the two stores go through the file's AP1Val view */
-    ((AP1Val *)&p->f_1C4)->f = out.m[0];
-    ((AP1Val *)&p->f_1C0)->f = VectorLength(GOBJ_SUB(a0)->root.move) * 0.1f;
+    ((AP1Val *)&p->roll)->f = out.m[0];
+    ((AP1Val *)&p->tilt)->f = VectorLength(GOBJ_SUB(a0)->root.move) * 0.1f;
     _AddVectorXYZ(&pos, &pos, GOBJ_SUB(a0)->root.move);
     SetRootPosition(a0, &pos);
-    p->f_1C8 = 0.0f;
+    p->sink = 0.0f;
     return 1;
 }
 
@@ -843,17 +843,17 @@ void updateMatrix(GObj *a0)
     ap1BodyPos[1] = ((float)p->blink * 0.03125f < 0.5f)
                         ? ((float)p->blink * 0.03125f) * 2.0f * 5.0f + -10.0f
                         : (1.0f - (float)p->blink * 0.03125f) * 2.0f * 5.0f + -10.0f;
-    ap1BodyPos[1] -= p->f_1C8 * 25.0f;
-    ap1BodyPos[2] = p->f_1C8 * 50.0f;
+    ap1BodyPos[1] -= p->sink * 25.0f;
+    ap1BodyPos[2] = p->sink * 50.0f;
 
     GetRootPosition(pos, a0);
     GetRootQuaternion(quat, a0);
 
-    RotQuaternionX(quat, (short)(p->f_1C8 * 8192.0f));
-    RotQuaternionX(quat, (short)(p->f_1C0 * 4096.0f));
+    RotQuaternionX(quat, (short)(p->sink * 8192.0f));
+    RotQuaternionX(quat, (short)(p->tilt * 4096.0f));
     GetMatrixFromQuaternionPos(mtx, quat, pos);
     _ApplyMatrix(pos, mtx, ap1BodyPos);
-    RotQuaternionZ(quat, (short)(-p->f_1C4 * 2048.0f));
+    RotQuaternionZ(quat, (short)(-p->roll * 2048.0f));
     _InterVectorXYZ(&p->pos, pos, &p->pos, 0.5f);
     GetSlerpQuaternion(&p->quat, quat, &p->quat, 0.1f);
     GetMatrixFromQuaternionPos(p->mtx, &p->quat, &p->pos);
@@ -886,8 +886,8 @@ void AP1Geo(GObj *a0)
 
     switch (p->mode) {
     default:
-        if (p->f_274 < 10) {
-            p->f_274 = p->f_274 + 1;
+        if (p->settleCount < 10) {
+            p->settleCount = p->settleCount + 1;
             resetPositionInfo(a0);
         }
         p->mode = motFuncList[p->mode][1](a0);
@@ -1038,9 +1038,9 @@ int standMot(GObj *a0)
     int ret = fitToCol(a0, 0);
     if (ret != -1)
         return ret;
-    p->f_1C0 = 0.0f;
-    p->f_1C4 = 0.0f;
-    p->f_1C8 = 0.0f;
+    p->tilt = 0.0f;
+    p->roll = 0.0f;
+    p->sink = 0.0f;
     return 0;
 }
 
@@ -1050,16 +1050,16 @@ int rollingMot(GObj *a0)
     int ret = rolling(a0);
     if (ret != -1)
         return ret;
-    p->f_1C0 = 0.0f;
-    p->f_1C4 = 0.0f;
-    p->f_1C8 = 0.0f;
+    p->tilt = 0.0f;
+    p->roll = 0.0f;
+    p->sink = 0.0f;
     return 2;
 }
 
-typedef struct {   /* field names derived */
-    int state;     /* 0x00 */
-    float frame;   /* 0x04 */
-    int unk8[6];   /* 0x08 */
+typedef struct { /* field names derived */
+    int state;   /* 0x00 */
+    float frame; /* 0x04 */
+    char pad08[24];
     Vec4A_P_1 vec; /* 0x20 */
 } AP1MotCtrl;      /* derived name */
 
@@ -1096,10 +1096,10 @@ int attackMot(GObj *a0)
     int ret = fitToCol(a0, 0);
     if (ret != -1)
         return ret;
-    p->f_1C0 = 0.0f;
-    p->f_1C4 = 0.0f;
-    p->f_1C8 += 0.05f;
-    if (p->f_1C8 > 1.0f) {
+    p->tilt = 0.0f;
+    p->roll = 0.0f;
+    p->sink += 0.05f;
+    if (p->sink > 1.0f) {
         setAP1MotCtrlState((AP1MotCtrl *)&p->part[0], 2);
         setAP1MotCtrlState((AP1MotCtrl *)&p->part[1], 2);
         return 0;

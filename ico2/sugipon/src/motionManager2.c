@@ -23,12 +23,15 @@ struct Pack32 { /* field names derived */
     long long a, b, c, d;
 };
 
+/* The head of one stream motion frame GetStreamShapeMotion reads the shape
+   weights from: the weights follow the 16-byte head and skipNum 8-byte words,
+   shapeNum of them, and only a frame whose shapeMode is 0 carries them. */
 typedef struct { /* field names derived */
-    char _0;
-    signed char f1;
-    unsigned char f2;
-    unsigned char f3;
-} FloorAttr; /* derived name */
+    char pad0[1];
+    signed char shapeMode;
+    unsigned char skipNum;
+    unsigned char shapeNum;
+} StreamShapeHdr; /* derived name */
 
 typedef struct { /* field names derived */
     long long d[2];
@@ -410,98 +413,127 @@ int calcFootIK(SkelNode *skel, char *arg, int node, float scale, float ratio)
 }
 
 /* The motion geometry record the actor sub-object carries at its own +0xA0,
-   and the default every actor starts from.  InitMotionGeoInfo writes the
-   position at 0x0 and the root quaternion at 0x30, SetSimplePlane builds the
-   field plane at 0x130, GetRootPosOfNextFrame reads the next-frame position
-   at 0x90 and AdjustMotionHeightToField projects the field position at 0x1B0
-   onto that plane; the offsets with no reader keep offset names. */
+   and the default every actor starts from: the same block typedef.h's MotRoot
+   describes, and its fields carry MotRoot's names at the same offsets (the
+   readers and writers are motionManager.c's and the rootUpdates').
+   InitMotionGeoInfo writes the position at 0x0 and the root quaternion at
+   0x30, SetSimplePlane builds the field plane at 0x130, GetRootPosOfNextFrame
+   reads the next-frame position at 0x90 and AdjustMotionHeightToField
+   projects the field position at 0x1B0 onto that plane.  The two hand records
+   at 0x210 and 0x270 share one shape.  MotRoot leaves 0x10C to 0x11F and
+   0x1E0 to 0x1FF unread; this default puts -1 and -1.0f there, so those words
+   keep type-and-offset names. */
 typedef struct { /* field names derived */
-    int f_0;     /* 0x0 */
-    int node;    /* 0x4, skeleton node index, -1 when the slot has none */
-} MotionGeoNode; /* derived name */
-
-typedef struct { /* field names derived */
-    int f_0;     /* 0x0 */
-    int f_4;     /* 0x4 */
-    int node;    /* 0x8, skeleton node index, -1 when the limb has none */
-    int f_C;     /* 0xC */
-    Vec4 f_10;   /* 0x10 */
-    Vec4 f_20;   /* 0x20 */
-    Vec4 f_30;   /* 0x30 */
-    Vec4 f_40;   /* 0x40 */
-    float ratio; /* 0x50 */
-    float f_54;  /* 0x54 */
-    float f_58;  /* 0x58 */
-    float f_5C;  /* 0x5C */
+    int mode;    /* 0x0, the mode flag RequestChangeHandMode sets */
+    int obj;     /* 0x4, the object the hand reaches for */
+    int node;    /* 0x8, the node the hand reaches for, -1 for none */
+    char pad0C[4];
+    Vec4 pos;   /* 0x10, the hand target */
+    int ikMode; /* 0x20, the turn IK mode, 0 for off */
+    int ikLock; /* 0x24 */
+    char pad28[8];
+    Vec4 ikDir;    /* 0x30, the turn target */
+    Vec4 ikQuat;   /* 0x40 */
+    float ikRate;  /* 0x50, the slerp rate toward the target */
+    int ikReached; /* 0x54, 1 once the target is reached */
+    int ikFlag;    /* 0x58 */
+    char pad5C[4];
 } MotionGeoLimb; /* derived name */
 
-typedef struct { /* field names derived */
-    Vec4 pos;    /* 0x0, the position InitMotionGeoInfo is handed */
-    Vec4 f_10;
-    Vec4 f_20;
-    Vec4 rot; /* 0x30, the root quaternion */
-    Vec4 f_40;
-    Vec4 f_50;
-    Vec4 f_60;
-    Vec4 f_70; /* takes a copy of the initial position */
-    int f_80;
-    int f_84;
-    int f_88;
-    int f_8C;
-    Vec4 nextPos; /* 0x90, the root position of the next frame */
-    Vec4 f_A0;
-    Vec4 f_B0;
-    Vec4 f_C0;
-    Vec4 f_D0;
-    MotionGeoNode nodes[9]; /* 0xE0 */
-    int f_128;
-    int f_12C;
-    Vec4 plane; /* 0x130, the field plane under the actor */
-    Vec4 f_140;
-    Vec4 f_150; /* takes a copy of the initial position */
-    Vec4 f_160; /* takes a copy of the initial position */
-    Vec4 f_170;
-    int f_180;
-    int f_184;
-    int f_188;
-    int f_18C;
-    Vec4 f_190;
-    Vec4 f_1A0;
-    Vec4 fieldPos; /* 0x1B0, the position projected onto the field plane */
-    Vec4 f_1C0;
-    Vec4 f_1D0;
-    Vec4 f_1E0;
-    Vec4 f_1F0;
-    int f_200;
-    int f_204;
-    int f_208;
-    int f_20C;
-    MotionGeoLimb limbs[2]; /* 0x210 and 0x270 */
-    Vec4 f_2D0;
-    Vec4 f_2E0;
-    Vec4 f_2F0;
-    Vec4 f_300;
-    Vec4 f_310;
-    Vec4 f_320;
-    Vec4 f_330;
-    Vec4 f_340;
-    Vec4 f_350;
-    int f_360;
-    int f_364;
-    int f_368;
-    int f_36C;
-    Vec4 f_370;
-    Vec4 f_380;
-    Vec4 f_390;
-    Vec4 f_3A0;
-    float f_3B0;
-    float f_3B4;
-    float f_3B8;
-    float f_3BC;
-    float f_3C0;
-    float f_3C4;
-    float f_3C8;
-    float f_3CC;
+typedef struct {     /* field names derived */
+    Vec4 pos;        /* 0x0, the position InitMotionGeoInfo is handed */
+    Vec4 trans;      /* 0x10 */
+    Vec4 baseQuat;   /* 0x20 */
+    Vec4 rot;        /* 0x30, the root quaternion */
+    Vec4 motionQuat; /* 0x40 */
+    short twist;     /* 0x50 */
+    char pad52[2];
+    float twistRate; /* 0x54 */
+    char pad58[8];
+    Vec4 up;        /* 0x60 */
+    Vec4 savePos;   /* 0x70, takes a copy of the initial position */
+    ObjNode hitObj; /* 0x80 */
+    char pad88[8];
+    Vec4 nextPos;  /* 0x90, the root position of the next frame */
+    Vec4 step;     /* 0xA0 */
+    Vec4 itemQuat; /* 0xB0 */
+    float height;  /* 0xC0 */
+    char padC4[12];
+    Vec4 delta;         /* 0xD0 */
+    WallCfg wall;       /* 0xE0 */
+    int wallCount;      /* 0xEC */
+    WallCfg cliffWall;  /* 0xF0 */
+    int cliffWallCount; /* 0xFC */
+    WallCfg aheadWall;  /* 0x100 */
+    int word10C;
+    WallCfg wall110;
+    int word11C;
+    WallCfg filter; /* 0x120 */
+    char pad12C[4];
+    Vec4 plane;       /* 0x130, the field plane under the actor */
+    int lastField;    /* 0x140 */
+    void *cliffFloor; /* 0x144 */
+    char pad148[8];
+    Vec4 last;     /* 0x150, takes a copy of the initial position */
+    Vec4 clipFrom; /* 0x160, takes a copy of the initial position */
+    Vec4 stepMove; /* 0x170 */
+    int standNode; /* 0x180, -1 for none */
+    char pad184[12];
+    Vec4 focusPos;    /* 0x190 */
+    Vec4 focusLocal;  /* 0x1A0 */
+    Vec4 fieldPos;    /* 0x1B0, the position projected onto the field plane */
+    Vec4 reservePos;  /* 0x1C0 */
+    float projHeight; /* 0x1D0 */
+    char pad1D4[12];
+    Vec4 vec1E0;
+    Vec4 vec1F0;
+    int liftOn;             /* 0x200 */
+    int lifting;            /* 0x204 */
+    float lift[2];          /* 0x208 */
+    MotionGeoLimb hands[2]; /* 0x210 hand 1, 0x270 hand 0 */
+    Vec4 armTwist;          /* 0x2D0 */
+    int lookMode;           /* 0x2E0 */
+    char pad2E4[12];
+    Vec4 lookPos; /* 0x2F0 */
+    short h;      /* 0x300 */
+    short p;      /* 0x302 */
+    short b;      /* 0x304 */
+    char pad306[2];
+    int noStepSearch; /* 0x308 */
+    int gravity;      /* 0x30C */
+    int slopeIK;      /* 0x310 */
+    int stairStep;    /* 0x314 */
+    int lookIK;       /* 0x318 */
+    int handTurnIK;   /* 0x31C */
+    int fieldWall;    /* 0x320 */
+    int fuchiMode;    /* 0x324 */
+    int cylinder;     /* 0x328 */
+    int avgWallPlane; /* 0x32C */
+    int flag330;      /* 0x330 */
+    int flag334;      /* 0x334 */
+    float radius;     /* 0x338 */
+    float radiusTo;   /* 0x33C */
+    float radiusFrom; /* 0x340 */
+    char pad344[12];
+    Vec4 cliffPlane; /* 0x350 */
+    int handIK;      /* 0x360 */
+    int stepNode;    /* 0x364 */
+    char pad368[8];
+    Vec4 holdPoint; /* 0x370 */
+    int ropeState;  /* 0x380 */
+    int fixObj;     /* 0x384 */
+    int fixNode;    /* 0x388 */
+    char pad38C[4];
+    Vec4 fixQuat;         /* 0x390 */
+    Vec4 fixPos;          /* 0x3A0 */
+    float fixWeight;      /* 0x3B0 */
+    unsigned int fixMode; /* 0x3B4 */
+    float footIKRate;     /* 0x3B8 */
+    float ikRate0;        /* 0x3BC */
+    float handRate;       /* 0x3C0 */
+    float ikRate1;        /* 0x3C4 */
+    float ikRate2;        /* 0x3C8 */
+    char pad3CC[4];
 } MotionGeoInfo; /* derived name */
 
 /* the record InitMotionGeoInfo copies over every new actor's geometry
@@ -512,212 +544,233 @@ static MotionGeoInfo motionGeoInfoTemplate = {
     {{0.0f, 0.0f, 0.0f, 1.0f}},
     {{0.0f, 0.0f, 0.0f, 1.0f}},
     {{0.0f, 0.0f, 0.0f, 1.0f}},
-    {{0.0f, 1.0f, 0.0f, 0.0f}},
-    {{0.0f, 0.0f, 0.0f, 1.0f}},
-    {{0.0f, 0.0f, 0.0f, 1.0f}},
     0,
+    {0},
+    1.0f,
+    {0},
+    {{0.0f, 0.0f, 0.0f, 1.0f}},
+    {{0.0f, 0.0f, 0.0f, 1.0f}},
+    {0, -1},
+    {0},
+    {{0.0f, 0.0f, 0.0f, 0.0f}},
+    {{0.0f, 0.0f, 0.0f, 0.0f}},
+    {{0.0f, 0.0f, 0.0f, 1.0f}},
+    0.0f,
+    {0},
+    {{0.0f, 0.0f, 0.0f, 0.0f}},
+    {{0, -1}, 0},
     -1,
-    0,
-    0,
-    {{0.0f, 0.0f, 0.0f, 0.0f}},
-    {{0.0f, 0.0f, 0.0f, 0.0f}},
-    {{0.0f, 0.0f, 0.0f, 1.0f}},
-    {{0.0f, 0.0f, 0.0f, 0.0f}},
-    {{0.0f, 0.0f, 0.0f, 0.0f}},
-    {{0, -1}, {0, -1}, {0, -1}, {0, -1}, {0, -1}, {0, -1}, {0, -1}, {0, -1}, {0, -1}},
-    0,
-    0,
+    {{0, -1}, 0},
+    -1,
+    {{0, -1}, 0},
+    -1,
+    {{0, -1}, 0},
+    -1,
+    {{0, -1}, 0},
+    {0},
     {{0.0f, -1.0f, 0.0f, 0.0f}},
-    {{0.0f, 0.0f, 0.0f, 0.0f}},
+    0,
+    0,
+    {0},
     {{0.0f, 0.0f, 0.0f, 1.0f}},
     {{0.0f, 0.0f, 0.0f, 0.0f}},
     {{0.0f, 0.0f, 0.0f, 0.0f}},
     -1,
-    0,
-    0,
-    0,
+    {0},
     {{0.0f, 0.0f, 0.0f, 1.0f}},
     {{0.0f, 0.0f, 0.0f, 1.0f}},
     {{0.0f, 0.0f, 0.0f, 1.0f}},
     {{0.0f, 0.0f, 0.0f, 1.0f}},
-    {{0.0f, 0.0f, 0.0f, 0.0f}},
+    0.0f,
+    {0},
     {{0.0f, -1.0f, 0.0f, 0.0f}},
     {{0.0f, -1.0f, 0.0f, 0.0f}},
     1,
     0,
-    0,
-    0,
+    {0.0f, 0.0f},
     {{0,
       0,
       -1,
-      0,
+      {0},
       {{0.0f, 0.0f, 0.0f, 1.0f}},
-      {{0.0f, 0.0f, 0.0f, 0.0f}},
+      0,
+      0,
+      {0},
       {{0.0f, 0.0f, 0.0f, 1.0f}},
       {{0.0f, 0.0f, 0.0f, 1.0f}},
       0.5f,
-      0.0f,
-      0.0f,
-      0.0f},
+      0,
+      0},
      {0,
       0,
       -1,
-      0,
+      {0},
       {{0.0f, 0.0f, 0.0f, 1.0f}},
-      {{0.0f, 0.0f, 0.0f, 0.0f}},
+      0,
+      0,
+      {0},
       {{0.0f, 0.0f, 0.0f, 1.0f}},
       {{0.0f, 0.0f, 0.0f, 1.0f}},
       0.5f,
-      0.0f,
-      0.0f,
-      0.0f}},
+      0,
+      0}},
     {{0.0f, 0.0f, 0.0f, 1.0f}},
-    {{0.0f, 0.0f, 0.0f, 0.0f}},
+    0,
+    {0},
     {{0.0f, 0.0f, 0.0f, 1.0f}},
-    {{0.0f, 0.0f, 0.0f, 0.0f}},
-    {{0.0f, 0.0f, 0.0f, 0.0f}},
-    {{0.0f, 0.0f, 0.0f, 0.0f}},
-    {{0.0f, 0.0f, 0.0f, 0.0f}},
-    {{0.0f, 0.0f, 0.0f, 0.0f}},
+    0,
+    0,
+    0,
+    {0},
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.0f,
+    0.0f,
+    0.0f,
+    {0},
     {{0.0f, -1.0f, 0.0f, 0.0f}},
     1,
     0,
+    {0},
+    {{0.0f, 0.0f, 0.0f, 0.0f}},
     0,
     0,
-    {{0.0f, 0.0f, 0.0f, 0.0f}},
-    {{0.0f, 0.0f, 0.0f, 0.0f}},
+    0,
+    {0},
     {{0.0f, 0.0f, 0.0f, 1.0f}},
     {{0.0f, 0.0f, 0.0f, 1.0f}},
     0.0f,
-    0.0f,
+    0,
     1.0f,
     0.09f,
     0.15f,
     0.1f,
     0.1f,
-    0.0f,
 }; /* derived name */
 
 /* The motion state record the actor sub-object carries at its own +0x470,
-   and the default every actor starts from.  SetMotionDirection writes the
-   direction at 0xB0, SetMotionPlaySpeedRatio the ratio at 0x48,
+   and the default every actor starts from: the block typedef.h's MotCtrl
+   describes, with MotCtrl's names at the same offsets.  SetMotionDirection
+   writes the direction at 0xB0, SetMotionPlaySpeedRatio the ratio at 0x48,
    ForMotionViewer_GetCurrentMotion and ForMotionViewer_GetCurrentAnimationFrame
    read the motion at 0x30 and the frame at 0x3C, CheckPureWallAttribute,
    CheckPureCliffAttribute, CheckWallAttribute and CheckFloorAttribute the four
-   attributes at 0x17C to 0x188, GetHeightOfCliffFromGObj and
-   GetOrientOfCliffOfGObj the cliff pair at 0x110 and 0x120,
-   GetHeightOfWallFromGObj and GetOrientOfWallOfGObj the wall pair at 0x130 and
-   0x150, GetMotionFrameFlag1 and GetMotionFrameFlag2 the flags at 0x190 and
-   0x194, GetRopeHangablePos the height at 0x1A8, and InitMotionStateInfo itself
-   writes the two sound groups at 0x1AC and 0x1B0; the offsets with no reader
-   keep offset names. */
-typedef struct { /* field names derived */
-    int f_0;
-    int f_4;
-    int f_8;
-    int f_C;
-    int f_10;
-    int f_14;
-    int f_18;
-    int f_1C;
-    int f_20;
-    int f_24;
-    int f_28;
-    int f_2C;
-    int currentMotion; /* 0x30 */
-    int f_34;
-    int f_38;
-    float currentFrame; /* 0x3C */
-    float f_40;
-    float f_44;
-    float playSpeedRatio; /* 0x48 */
-    float f_4C;
-    int f_50;
-    int f_54;
-    int f_58;
-    int f_5C;
-    int rootUpdateFixed; /* 0x60, set by DisableChangeRootUpdateMode */
-    int f_64;
-    int f_68;
-    int f_6C;
-    int f_70;
-    int orientUpdateFixed; /* 0x74, set by DisableMotionOrientUpdate */
-    int f_78;
-    int f_7C;
-    int f_80;
-    int f_84;
-    int f_88;
-    int f_8C;
-    int f_90;
-    int f_94;
-    int f_98;
-    int f_9C;
-    int f_A0;
-    int f_A4;
-    int f_A8;
-    int f_AC;
-    Vec4 direction; /* 0xB0, the motion direction */
-    Vec4 f_C0;
-    int f_D0;
-    int f_D4;
-    int f_D8;
-    int f_DC;
-    int f_E0;
-    int f_E4;
-    int f_E8;
-    int f_EC;
-    int f_F0;
-    int f_F4;
-    int f_F8;
-    int f_FC;
-    int f_100;
-    int f_104;
-    int f_108;
-    int f_10C;
-    float cliffHeight; /* 0x110 */
-    float f_114;
-    float f_118;
-    float f_11C;
-    Vec4 cliffOrient; /* 0x120 */
-    float wallHeight; /* 0x130 */
-    float f_134;
-    float f_138;
-    float f_13C;
-    Vec4 f_140;
-    Vec4 wallOrient; /* 0x150 */
-    Vec4 f_160;
-    int f_170;
-    int f_174;
-    int f_178;
-    int pureWallAttr;  /* 0x17C */
-    int pureCliffAttr; /* 0x180 */
-    int wallAttr;      /* 0x184 */
-    int floorAttr;     /* 0x188 */
-    int f_18C;
-    int motionFrameFlag1; /* 0x190 */
-    int motionFrameFlag2; /* 0x194 */
-    int f_198;
-    int f_19C;
-    int f_1A0;
-    int f_1A4;
-    float ropeHangablePos; /* 0x1A8 */
-    int seGroup0;          /* 0x1AC */
-    int seGroup1;          /* 0x1B0 */
-    int f_1B4;
-    int f_1B8;
-    int f_1BC;
-    int f_1C0;
-    int f_1C4;
-    int f_1C8;
-    int f_1CC;
-    int f_1D0;
-    int f_1D4;
-    int f_1D8;
-    int f_1DC;
-    int f_1E0;
-    int f_1E4;
-    int f_1E8;
-    int f_1EC;
+   attributes at 0x17C to 0x188, GetRopeHangablePos the height at 0x1A8, and
+   InitMotionStateInfo itself writes the two sound groups at 0x1AC. */
+typedef struct {           /* field names derived */
+    int stream;            /* 0x0 */
+    int oriFrom;           /* 0x4 */
+    int oriTo;             /* 0x8 */
+    int shifted;           /* 0xC */
+    int ctrlFlags;         /* 0x10 */
+    unsigned int flags;    /* 0x14 */
+    int word18;            /* 0x18 */
+    int *shiftReq;         /* 0x1C */
+    int *shiftNext;        /* 0x20 */
+    int shiftFrom;         /* 0x24 */
+    int shiftMode;         /* 0x28 */
+    int request;           /* 0x2C */
+    int motion;            /* 0x30 */
+    int noAlt;             /* 0x34 */
+    int shiftReady;        /* 0x38 */
+    float animFrame;       /* 0x3C */
+    float lastFrame;       /* 0x40 */
+    float playTime;        /* 0x44 */
+    float speedRatio;      /* 0x48 */
+    float playRate;        /* 0x4C */
+    float frameRatio;      /* 0x50 */
+    int waterDrag;         /* 0x54 */
+    int justShifted;       /* 0x58 */
+    int frameEnd;          /* 0x5C */
+    int keepUpdateMode;    /* 0x60 */
+    int updateModeChanged; /* 0x64 */
+    int rootUpdateMode;    /* 0x68 */
+    int parallelEnded;     /* 0x6C */
+    int parallel;          /* 0x70 */
+    int orientUpdateOff;   /* 0x74 */
+    int noStand;           /* 0x78 */
+    int posReserve;        /* 0x7C */
+    int loopFlag;          /* 0x80 */
+    int reserveBlend;      /* 0x84 */
+    int reserveMoved;      /* 0x88 */
+    int step;              /* 0x8C */
+    int orientReq;         /* 0x90 */
+    int lastMotion;        /* 0x94 */
+    int lastNoAlt;         /* 0x98 */
+    int shiftFrame;        /* 0x9C */
+    int blendCount;        /* 0xA0 */
+    int blendFrames;       /* 0xA4 */
+    char padA8[8];
+    Vec4 dir;           /* 0xB0 */
+    Vec4 lastDir;       /* 0xC0 */
+    int orientKind;     /* 0xD0 */
+    int wordD4;         /* 0xD4 */
+    int wordD8;         /* 0xD8 */
+    int wordDC;         /* 0xDC */
+    int catchBoy;       /* 0xE0 */
+    int sideWallCheck;  /* 0xE4 */
+    int variation;      /* 0xE8 */
+    float fallHeight;   /* 0xEC */
+    float groundHeight; /* 0xF0 */
+    int wallHit;        /* 0xF4 */
+    int cliffEdge;      /* 0xF8 */
+    int cliffWallHit;   /* 0xFC */
+    int cliffBack;      /* 0x100 */
+    int fieldWallHit;   /* 0x104 */
+    int upperWall;      /* 0x108 */
+    int sideWall;       /* 0x10C */
+    float cliffHeight;  /* 0x110 */
+    float cliffDist;    /* 0x114 */
+    char pad118[8];
+    Vec4 cliffNormal;      /* 0x120 */
+    float wallFloorHeight; /* 0x130 */
+    float wallTopHeight;   /* 0x134 */
+    float wallDist;        /* 0x138 */
+    char pad13C[4];
+    Vec4 wallDir;        /* 0x140 */
+    Vec4 wallNormal;     /* 0x150 */
+    Vec4 sideWallNormal; /* 0x160 */
+    float upperWallDist; /* 0x170 */
+    float sideWallDist;  /* 0x174 */
+    float cliffDepth;    /* 0x178 */
+    int pureWallAttr;    /* 0x17C */
+    int pureCliffAttr;   /* 0x180 */
+    int wallAttr;        /* 0x184 */
+    int floorAttr;       /* 0x188 */
+    char pad18C[4];
+    int frameFlag1;    /* 0x190 */
+    int frameFlag2;    /* 0x194 */
+    int trigger1;      /* 0x198 */
+    int trigger1Done;  /* 0x19C */
+    int trigger2;      /* 0x1A0 */
+    int trigger2Done;  /* 0x1A4 */
+    float ropeHangPos; /* 0x1A8 */
+    int seGroup[2];    /* 0x1AC */
+    int slipFlags;     /* 0x1B4 */
+    int lastSlipFlags; /* 0x1B8 */
+    int slipOn;        /* 0x1BC */
+    int pickedWeapon;  /* 0x1C0 */
+    int keepWall;      /* 0x1C4 */
+    int keepStand;     /* 0x1C8 */
+    int landed;        /* 0x1CC */
+    float waterY;      /* 0x1D0 */
+    float waterDepth;  /* 0x1D4 */
+    GObj *pool;        /* 0x1D8 */
+    int contactFlags;  /* 0x1DC */
+    int mailDelay;     /* 0x1E0 */
+    int noFieldClip;   /* 0x1E4 */
+    int word1E8;       /* 0x1E8 */
+    char pad1EC[4];
 } MotionStateInfo; /* derived name */
 
 /* the record InitMotionStateInfo copies over every new actor's motion
@@ -743,7 +796,7 @@ static MotionStateInfo motionStateInfoTemplate = {
     0.0f,
     1.0f,
     1.0f,
-    0,
+    0.0f,
     1,
     0,
     0,
@@ -765,8 +818,7 @@ static MotionStateInfo motionStateInfoTemplate = {
     0,
     1,
     0,
-    0,
-    0,
+    {0},
     {{0.0f, 0.0f, 1.0f, 0.0f}},
     {{0.0f, 0.0f, 1.0f, 0.0f}},
     0,
@@ -776,44 +828,42 @@ static MotionStateInfo motionStateInfoTemplate = {
     1,
     0,
     0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    150.0f,
     0.0f,
     0.0f,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    1.5e+02f,
     0.0f,
+    {0},
     {{0.0f, 0.0f, 1.0f, 1.0f}},
     0.0f,
     0.0f,
-    700.0f,
+    7e+02f,
+    {0},
+    {{0.0f, 0.0f, 1.0f, 1.0f}},
+    {{0.0f, 0.0f, 1.0f, 1.0f}},
+    {{0.0f, 0.0f, 1.0f, 1.0f}},
     0.0f,
-    {{0.0f, 0.0f, 1.0f, 1.0f}},
-    {{0.0f, 0.0f, 1.0f, 1.0f}},
-    {{0.0f, 0.0f, 1.0f, 1.0f}},
+    0.0f,
+    0.0f,
+    0,
+    0,
+    0,
+    0,
+    {0},
     0,
     0,
     0,
     0,
     0,
     0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    100.0f,
-    -1,
-    -1,
+    1e+02f,
+    {-1, -1},
     0,
     0,
     1,
@@ -821,9 +871,8 @@ static MotionStateInfo motionStateInfoTemplate = {
     0,
     0,
     0,
-    0,
-    0,
-    0,
+    0.0f,
+    0.0f,
     0,
     0,
     0,
@@ -1788,8 +1837,8 @@ void ClearMotionBlendlessNode(GObj *a0)
 void InitMotionStateInfo(MotionStateInfo *self)
 {
     *self = motionStateInfoTemplate;
-    self->seGroup0 = soundSeGroupGet();
-    self->seGroup1 = soundSeGroupGet();
+    self->seGroup[0] = soundSeGroupGet();
+    self->seGroup[1] = soundSeGroupGet();
 }
 
 int GetSkeltonFocusNode(GObj *a0, int a1)
@@ -1855,12 +1904,12 @@ int CheckPureCliffAttribute(GObj *self, int attr)
     return CompareAttribute(sub->ctrl.pureCliffAttr, attr);
 }
 
-int GetStreamShapeMotion(float *dst, FloorAttr *a1)
+int GetStreamShapeMotion(float *dst, StreamShapeHdr *a1)
 {
-    int i, n, f2;
+    int i, n, skip;
     float *src, *p;
-    if (a1->f1 == 0 && (f2 = a1->f2, (n = a1->f3)) != 0) {
-        int o = f2 * 8 + 0x10;
+    if (a1->shapeMode == 0 && (skip = a1->skipNum, (n = a1->shapeNum)) != 0) {
+        int o = skip * 8 + 0x10;
         src = (float *)o;
         p = (float *)((char *)a1 + (int)src);
         src = p;

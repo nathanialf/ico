@@ -1144,8 +1144,8 @@ void getMotionGeometry(void *self)
         }
     }
     MatrixDrive_PopMatrix();
-    if (w->word1E0 <= 0) {
-        w->word1E0 = w->word1E0 + 1;
+    if (w->mailDelay <= 0) {
+        w->mailDelay = w->mailDelay + 1;
     } else {
         sendStateMail(self);
     }

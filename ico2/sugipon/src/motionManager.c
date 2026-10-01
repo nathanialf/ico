@@ -822,7 +822,7 @@ void _getGeometryOfMotion(ObjNode *out, int second)
 
     clearCollisionStatus();
     {
-        skelRoot->word204 = 0;
+        skelRoot->lifting = 0;
         skelRoot->lift[0] = 0.0f;
         skelRoot->lift[1] = 0.0f;
         CopyVector(skelRoot->up, skelRoot->pos);
