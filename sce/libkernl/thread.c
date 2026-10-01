@@ -11,8 +11,7 @@
         __asm__ __volatile__("addiu $3, $0, " #num "\n\tsyscall 0" : : : "$3", "memory");          \
     }
 /* The same leaf issued inline, for the members that act on its result.
-   `dst` is bound to $v0 because that is where the kernel ABI leaves the
-   result. */
+   The syscall returns in $2. */
 #define SYSCALL_INLINE(num, dst)                                                                   \
     {                                                                                              \
         register int __sc_ret __asm__("$2");                                                       \

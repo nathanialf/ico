@@ -6,6 +6,8 @@
 #include <eekernel.h>
 #include <string.h>
 
+#define PAD_DEBUG 0 /* derived name */
+
 struct S12 {
     char b[12];
 };
@@ -67,7 +69,7 @@ void _send_to_iop(int a0, int a1)
         int n = *p17 + 1;
         int *v = padSlot[a0][a1].f8 + ((n & 1) << 3); /* the 32-byte half, f8 is int * */
         int r;
-        if (0) {
+        if (PAD_DEBUG) {
             printf("libpad: tPadDma Structure Invalid\n");
         }
         *p17 = n;

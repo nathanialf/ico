@@ -10,6 +10,8 @@
 #include "ios.h"
 #include "debug_exception.h"
 
+#define DL_DEBUG 0 /* derived name */
+
 typedef struct {
     int f_0;                 /* 0x00 */
     int f_4;                 /* 0x04 */
@@ -195,7 +197,7 @@ inline void dl_OpenDma(int a0, int a1, int a2)
        message-assert form this programmer writes (Packet.c, BgAnimation.c)
        with no reference either.  What they cannot pin: the test the print
        sat under, its argument, or the assert's line. */
-    if (0) {
+    if (DL_DEBUG) {
         debug_StdPrintfDummy("dl_CheckDLOverflow:Display List Buffer [%d] Full.\n", dlPriority);
         __assert(__FILE__, 613, "e");
     }

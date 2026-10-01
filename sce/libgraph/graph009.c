@@ -73,18 +73,13 @@ typedef struct {
 
 /* this member's own declaration; libgraph.h declares it as `void *sceGsGetGParam(void)` */
 extern GParam *sceGsGetGParam(void);
-/* this member's own declaration; libgraph.h declares it as `short sceGszbufaddr(short a0, short a1, short a2)` */
-extern int sceGszbufaddr(short psm, short w, short h);
-/* this member's own declaration; libgraph.h declares it as `void sceGsSetDefDispEnv(sceGsDispEnv *disp, short psm,
-   short w, short h, short dx, short dy)` */
-extern int sceGsSetDefDispEnv(void *d, short psm, short w, short h, short dx, short dy);
-/* this member's own declaration; libgraph.h declares it as `int sceGsSetDefDrawEnv(sceGsDrawEnv *env, short psm,
-   short w, short h, short ztst, short zpsm)` */
-extern int sceGsSetDefDrawEnv(void *d, short psm, short w, short h, short ztst, short zpsm);
-/* this member's own declaration; libgraph.h declares it as `int sceGsSetDefClear(sceGsClear *cl, short ztst, short
-   x, short y, short w, short h, unsigned char r, unsigned char g, unsigned char b, unsigned
-   char a, unsigned int z)` */
-extern int sceGsSetDefClear(void *c, short ztst, short x, short y, short w, short h,
+/* libgraph.h's prototypes, declared here because this member views the
+   records through its own field-level types and does not include it. */
+extern short sceGszbufaddr(short psm, short w, short h);
+extern void sceGsSetDefDispEnv(sceGsDispEnv *disp, short psm, short w, short h, short dx, short dy);
+extern int sceGsSetDefDrawEnv(sceGsDrawEnv *env, short psm, short w, short h, short ztst,
+                              short zpsm);
+extern int sceGsSetDefClear(sceGsClear *cl, short ztst, short x, short y, short w, short h,
                             unsigned char r, unsigned char g, unsigned char b, unsigned char a,
                             unsigned int z);
 

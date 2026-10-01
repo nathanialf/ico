@@ -1012,12 +1012,12 @@ inline void _InitRandom(float seed)
 
 inline float _GetRandom(void)
 {
-    register float ret __asm__("$f0");
+    float ret;
     __asm__ __volatile__(".set noreorder\n"
                          "vrnext.x $vf1, R\n"
                          "vsubw.x $vf1, $vf1, $vf0w\n"
                          "qmfc2.ni $7, $vf1\n"
-                         "mtc1 $7, $f0\n"
+                         "mtc1 $7, %0\n"
                          ".set reorder\n"
                          : "=f"(ret)::"$7");
     return ret;
