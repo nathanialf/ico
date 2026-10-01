@@ -12,11 +12,11 @@
  * gcc 2.9 emits the deferred out-of-line copy of a plain-inline function in
  * first-declaration order, so this is the order motionFileManager.c's inline tail has. */
 void ResetDynamicMotionManager(void);
-void ResetStatic2MotionManager(int a0);
+void ResetStatic2MotionManager(int seg);
 int CheckMotionIncludeFacialData(unsigned int *self);
-int AddMotionMemorySize(int a0, int a1);
-int GetMotionMemorySize(int a0);
-void InitMotionFile(void *buf, int a1);
+int AddMotionMemorySize(int size, int seg);
+int GetMotionMemorySize(int seg);
+void InitMotionFile(void *buf, char *name);
 extern int *motionTable[];
 void InitMotionMemorySize(void);
 

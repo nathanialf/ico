@@ -550,7 +550,7 @@ struct Sub15C { /* field names derived */
     char *
         focusNodes; /* 0x840, the skeleton node for each focus point GetSkeltonFocusNode looks up */
     int accessary;  /* 0x844, the object's row in the accessary table */
-    char pad848[4];
+    void (*lodFunc)(int lv); /* 0x848, called with the level SetLodLevel sets, 0 for none (girl.c's cloth setting) */
     unsigned short
         dispType; /* 0x84C, 2 when the object draws its node list, 1 for a cluster model */
     char pad84E[2];

@@ -76,17 +76,17 @@ typedef struct {                        /* field names derived */
 
 static void bombSparkStartSE(GObj *a0)
 {
-    ExecuteSEPackage(a0, 0x32);
+    ExecuteSEPackage(a0, 50);
 }
 
 static void bombSparkSE(GObj *a0)
 {
-    ExecuteSEPackage(a0, 0x33);
+    ExecuteSEPackage(a0, 51);
 }
 
 static void bombExplodeSE(GObj *a0)
 {
-    ExecuteSEPackage(a0, 0x34);
+    ExecuteSEPackage(a0, 52);
 }
 
 /* whether the item is a bomb; HoldItem, StopItemExplodeAnimationAll and
@@ -106,15 +106,15 @@ void HoldItem(GObj *gobj, GObj *holder)
     if (gobj == 0) {
         /* lost sight of the small barrel but is still trying to grab it */
         debug_StdPrintfDummy("小樽を見失ったのにつかもうとしてます。\n");
-        debug_assert(__FILE__, 0x164);
-        __assert(__FILE__, 0x164, "0");
+        debug_assert(__FILE__, 356);
+        __assert(__FILE__, 356, "0");
     }
     p = GOBJ_SUB(gobj)->work;
     p->released = 0;
     p->held = 1;
     p->holder = (int)holder;
     GOBJ_SUB(gobj)->disp = 0;
-    SetIdentityQuaternion((char *)GOBJ_SUB(gobj) + 0x150);
+    SetIdentityQuaternion(GOBJ_SUB(gobj)->root.itemQuat);
     if (IsItemKindBomb(gobj)) {
         SetRootQuaternion(gobj, IdentityQuaternion);
     }
@@ -128,10 +128,10 @@ void HoldItem(GObj *gobj, GObj *holder)
    BreakItemWithAttackHit use it */
 static inline void setItemDead(GObj *gobj) /* derived name */
 {
-    char *w = (char *)*(int *)&gobj->dobj;
-    ItemWork *p = (ItemWork *)*(int *)(w + 0x830);
+    Sub15C *w = GOBJ_SUB(gobj);
+    ItemWork *p = (ItemWork *)*(int *)&w->work;
 
-    *(int *)(w + 0x74) = 0;
+    w->disp = 0;
     p->dead = 1;
     gobj->active = 0;
 }
@@ -185,8 +185,8 @@ void ReleaseItem(GObj *gobj)
     p->holder = 0;
     p->thrown = 0;
     GOBJ_SUB(gobj)->disp = 1;
-    CopyVector((char *)*(int *)&gobj->dobj + 0x130, zeroVelocity);
-    SetIdentityQuaternion((char *)*(int *)&gobj->dobj + 0x150);
+    CopyVector(GOBJ_SUB(gobj)->root.move, zeroVelocity);
+    SetIdentityQuaternion(GOBJ_SUB(gobj)->root.itemQuat);
 }
 
 void ThrowItem(GObj *gobj, void *vel)
@@ -197,7 +197,7 @@ void ThrowItem(GObj *gobj, void *vel)
     p->held = 0;
     p->thrown = 1;
     _ScaleVectorXYZ(*(char **)&gobj->dobj + 0x130, vel,
-                    30.0f / (float)((0x3C - systemStatus[0] * 0xA) / systemStatus[1]));
+                    30.0f / (float)((60 - systemStatus[0] * 10) / systemStatus[1]));
     SetIdentityQuaternion(*(char **)&gobj->dobj + 0x150);
 }
 
@@ -215,22 +215,22 @@ typedef struct ItemLayout { /* field names derived */
 } ItemLayout; /* derived name */
 
 typedef struct { /* field names derived */
-    char *obj;   /* the object LinkParentOfDObj hangs the torch from */
+    GObj *obj;   /* the object LinkParentOfDObj hangs the torch from */
     int node;    /* its node */
     char pad08[8];
 } ItemParentLink; /* derived name */
 
-char *InitItemGeo(char *gobj, ItemLayout *layout)
+char *InitItemGeo(GObj *gobj, ItemLayout *layout)
 {
     ItemParentLink link;
     ItemLayout lay;
-    char *w = (char *)GOBJ_SUB(gobj);
-    ItemWork *p = iosMallocDebug(ios_partition_sugipon, 0xA0, __FILE__, 446);
+    Sub15C *w = GOBJ_SUB(gobj);
+    ItemWork *p = iosMallocDebug(ios_partition_sugipon, sizeof(ItemWork), __FILE__, 446);
 
     GOBJ_SUB(gobj)->work = p;
     *p = emptyItemWork;
     p->kind = layout->kind;
-    *(int *)(w + 0x78) = 0;
+    w->colRotate = 0;
     if (p->kind == 1) {
         ItemWork *rec = GOBJ_SUB(gobj)->work;
         GObj *g;
@@ -239,15 +239,15 @@ char *InitItemGeo(char *gobj, ItemLayout *layout)
         link.node = 0;
         lay = *layout;
         lay.kind = 2;
-        g = CreateLayoutedGObj(10, 0x4B, -1, 1, &lay, -1, 7, 0);
+        g = CreateLayoutedGObj(10, 75, -1, 1, &lay, -1, 7, 0);
         SetTorchChainReactionFlag(g, 1);
         LinkParentOfDObj(g, &link);
         CopyVector(GOBJ_SUB(g)->root.pos, itemDropOfs);
         rec->fuse.torch = g;
         rec->fuse.time =
-            (int)((float)((0x3C - systemStatus[0] * 0xA) / systemStatus[1]) / 60.0f * 300.0f);
+            (int)((float)((60 - systemStatus[0] * 10) / systemStatus[1]) / 60.0f * 300.0f);
     }
-    gamesysObjInfoCls(*(int *)(gobj + 0xC), *(int *)(gobj + 8));
+    gamesysObjInfoCls(gobj->kind, gobj->labelId);
     return (char *)p;
 }
 
@@ -332,7 +332,7 @@ static inline int entryBreakBgAnimation(int id, float *pos, float *dir, int arg)
     float rot[4];
     float d[4];
 
-    if (id != 0x3CC) {
+    if (id != 972) {
         memset(&rot, 0, 16);
         rot[3] = 1.0f;
         CopyVector(d, dir);
@@ -351,8 +351,7 @@ static inline int entryBreakBgAnimation(int id, float *pos, float *dir, int arg)
    whose +0x88 hit flag and +0x20 result position that function already names. */
 /* the per-frame step from the frame-rate pair at systemStatus; ThrowItem
    and InitItemGeo spell the same integer quotient out */
-#define ITEM_DT                                                                                    \
-    (60.0f / (float)((0x3C - systemStatus[0] * 0xA) / systemStatus[1])) /* derived name */
+#define ITEM_DT (60.0f / (float)((60 - systemStatus[0] * 10) / systemStatus[1])) /* derived name */
 
 typedef struct DObjLink { /* field names derived */
     char *obj;            /* the object the clip hit */
@@ -395,7 +394,7 @@ static inline int breakItemOnWallHit(GObj *gobj, float len, float *pos,
     if (5.0f < len) {
         int id = itemKind[p->kind].stayAnim;
 
-        if (id != 0x3CC) {
+        if (id != 972) {
             memset(&rot, 0, 16);
             rot[3] = 1.0f;
             CopyVector(d, vel);
@@ -408,10 +407,10 @@ static inline int breakItemOnWallHit(GObj *gobj, float len, float *pos,
             SetParticleEffect(10, pos, &rot);
         }
         if ((itemKind + p->kind)->flags & 1) {
-            ExecuteSEPackage(gobj, 0x27);
+            ExecuteSEPackage(gobj, 39);
             return 1;
         }
-        ExecuteSEPackage(gobj, 0x25);
+        ExecuteSEPackage(gobj, 37);
     }
     return 0;
 }
@@ -425,17 +424,17 @@ static inline int breakItemOnFloorHit(GObj *gobj, float len, float *pos,
     if (10.0f < len) {
         entryBreakBgAnimation(itemKind[p->kind].breakAnim, pos, vel, itemKind[p->kind].breakMode);
         if ((itemKind + p->kind)->flags & 1) {
-            ExecuteSEPackage(gobj, 0x2B);
+            ExecuteSEPackage(gobj, 43);
             return 1;
         }
     }
     if (p->thrown == 0) {
         p->thrown = 1;
-        ExecuteSEPackage(gobj, 0x30);
+        ExecuteSEPackage(gobj, 48);
         return 0;
     }
     if (5.0f < len) {
-        ExecuteSEPackageWithVolumeRate(gobj, 0x26, 20.0f < len ? 1.0f : len * 0.05f);
+        ExecuteSEPackageWithVolumeRate(gobj, 38, 20.0f < len ? 1.0f : len * 0.05f);
     }
     return 0;
 }
@@ -454,9 +453,9 @@ static void uncarriedItemGeo(GObj *gobj)
 
         _ScaleVector(vel, vel, t);
         _AddVectorXYZ(vel, vel, p->drain);
-        GetSlerpQuaternion((char *)GOBJ_SUB(gobj) + 0x150, (char *)GOBJ_SUB(gobj) + 0x150,
+        GetSlerpQuaternion(GOBJ_SUB(gobj)->root.itemQuat, GOBJ_SUB(gobj)->root.itemQuat,
                            IdentityQuaternion, t);
-        RegularizeQuaternion((char *)GOBJ_SUB(gobj) + 0x150);
+        RegularizeQuaternion(GOBJ_SUB(gobj)->root.itemQuat);
         CopyVector(w.from, pos);
         CopyVector(w.to, w.from);
         w.radius = 200.0f;
@@ -501,18 +500,18 @@ static void uncarriedItemGeo(GObj *gobj)
             if (p->wave == 0) {
                 CopyVector(q, pos);
                 q[1] = GOBJ_SUB(gobj)->ctrl.waterY;
-                EntryStageMultiBgaManager(0x1EC, q, IdentityQuaternion);
+                EntryStageMultiBgaManager(492, q, IdentityQuaternion);
             }
         } else if (0.0f < d) {
             vel[1] -= ITEM_DT * 0.5f * ITEM_DT * 1.2f;
             floatGeo(0.92f);
         }
         vel[1] += GetTableSin(p->wave) * 0.1f;
-        p->wave += 0x400;
+        p->wave += 1024;
     }
     sceVu0AddVector(npos, pos, vel);
     GetRootQuaternion(q, gobj);
-    MultiQuaternion(q, (char *)GOBJ_SUB(gobj) + 0x150, q);
+    MultiQuaternion(q, GOBJ_SUB(gobj)->root.itemQuat, q);
     RegularizeQuaternion(q);
     SetRootQuaternion(gobj, q);
     CopyVector(cw.from, pos);
@@ -551,7 +550,7 @@ static void uncarriedItemGeo(GObj *gobj)
         CopyVector(vel, cw.reflect);
         npos[1] -= 20.0f;
         sceVu0OuterProduct(axis, cw.plane, cw.slide);
-        SetQuaternionByAxisRotate((char *)GOBJ_SUB(gobj) + 0x150,
+        SetQuaternionByAxisRotate(GOBJ_SUB(gobj)->root.itemQuat,
                                   (short)(int)(-VectorLength(cw.slide) * 521.5189209f), axis[0],
                                   axis[1], axis[2]);
         len = VectorLength(cw.bounce);
@@ -614,7 +613,7 @@ static void uncarriedItemGeo(GObj *gobj)
     CopyVector(GOBJ_SUB(gobj)->root.move, vel);
     if (p->holder != 0) {
         if (VectorLengthSquare(vel) > 100.0f) {
-            _AttackCenter((char *)p->holder, 0x12, npos, 0, 20.0f, (int)gobj);
+            _AttackCenter((char *)p->holder, 18, npos, 0, 20.0f, gobj);
         }
     }
     if (p->sleep != 0) {
@@ -668,12 +667,11 @@ static void execBombGeo(GObj *gobj)
         break;
     case 1:
         CopyVector(v, itemDropOfs);
-        v[1] =
-            itemDropOfs[1] *
-            (((float)q->time * (1.0f / ((float)((0x3C - systemStatus[0] * 0xA) / systemStatus[1]) /
-                                        60.0f * 300.0f)) +
-              1.0f) *
-             0.5f);
+        v[1] = itemDropOfs[1] *
+               (((float)q->time * (1.0f / ((float)((60 - systemStatus[0] * 10) / systemStatus[1]) /
+                                           60.0f * 300.0f)) +
+                 1.0f) *
+                0.5f);
         CopyVector(((SubHandle *)&q->torch->dobj)->p + 0xA0, v);
         q->time = q->time - 1;
         if (q->time == 0) {
@@ -683,16 +681,16 @@ static void execBombGeo(GObj *gobj)
     case 2:
         rec->fuse.animMode = 0;
         stage_SetLoopFlag(511, 0);
-        stage_SetFrameStep(0x1FF, 1);
+        stage_SetFrameStep(511, 1);
         GetRootPosition(q->pos, gobj);
-        _AttackCenter(gobj, 0x11, q->pos, 0, 200.0f, 0);
+        _AttackCenter(gobj, 17, q->pos, 0, 200.0f, 0);
         LightTorchOff(q->torch);
         q->torch->active = 0;
         rec->released = 0;
         StopSEPackage(gobj);
         bombExplodeSE(gobj);
-        stage_KillPlayBgAnimationIfOverMaxCount(0x1FF, 1);
-        q->anim = stage_MakePlayBgAnimation(0x1FF);
+        stage_KillPlayBgAnimationIfOverMaxCount(511, 1);
+        q->anim = stage_MakePlayBgAnimation(511);
         *(float *)(q->anim + 4) = 1.0f;
         _CopyVector(q->anim + 0x20, q->pos);
         CopyQuaternion(q->anim + 0x30, IdentityQuaternion);
@@ -723,9 +721,9 @@ void ItemGeo(GObj *gobj)
             GOBJ_SUB(gobj)->disp = 1;
         }
     } else {
-        char *owner = *(char **)*(int *)(((char *)gobj) + 0x15C);
+        GObj *owner = GOBJ_SUB(gobj)->parent.obj;
         if (owner != 0) {
-            if (*(int *)(owner + 0xC) == 0x11) {
+            if (owner->kind == 17) {
                 if (GetBoxMode(owner) == 2) {
                     p->holder = 0;
                     ThrowItem(gobj, GOBJ_SUB(owner)->root.move);
@@ -804,9 +802,9 @@ int BreakItemFromOutside(GObj *gobj)
     } else {
         GetRootPosition(pos, gobj);
         entryBreakBgAnimation(itemKind[p->kind].dropAnim, pos, ZeroVector, 0);
-        ExecuteSEPackage(gobj, 0x2B);
+        ExecuteSEPackage(gobj, 43);
         if (GetItemKindInline(gobj) == 6) {
-            _AttackCenter(gobj, 0x11, pos, 0, 200.0f, 0);
+            _AttackCenter(gobj, 17, pos, 0, 200.0f, 0);
         }
         setItemDead(gobj);
     }
@@ -968,7 +966,7 @@ int BreakItemWithAttackHit(GObj *gobj, float *dir)
     if (!IsItemKindBomb(gobj)) {
         GetRootPosition(pos, gobj);
         if (entryBreakBgAnimation(itemKind[p->kind].hitAnim, pos, dir, itemKind[p->kind].hitMode)) {
-            ExecuteSEPackage(gobj, 0x2B);
+            ExecuteSEPackage(gobj, 43);
             setItemDead(gobj);
         }
     }

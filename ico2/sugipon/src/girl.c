@@ -24,7 +24,7 @@
 #include "DisplayP2O.h"
 #include "sceneManager.h"
 
-static void setGirlClothSetting(int a0);
+static void setGirlClothSetting(int lv);
 
 /* The girl's work record: her kind, the four cloths and the hair she wears
    with the switches SetGirlClothDispSwitch sets (case 0 for cloth0, 1 for
@@ -55,7 +55,7 @@ typedef struct GirlWork { /* field names derived */
 /* file-static: boy.c has a global function of the same name */
 static void execClothes(GObj *gobj)
 {
-    int q[4];
+    float q[4];
     GirlWork *w;
     int n;
 
@@ -109,14 +109,14 @@ static void execClothes(GObj *gobj)
 }
 
 /* file-static: boy.c has a global function of the same name */
-static void dispCrown(GObj *gobj, char *acc)
+static void dispCrown(GObj *gobj, Sub15C *acc)
 {
     GirlWork *w;
     int n;
 
     w = GOBJ_SUB(gobj)->work;
     n = GetSkeltonFocusNode(gobj, 35);
-    CopyMatrix(MatrixDrive_GetMatrix(), (char *)GOBJ_SUB(gobj)->nodeMtx + n * 0x40);
+    CopyMatrix(MatrixDrive_GetMatrix(), (char *)GOBJ_SUB(gobj)->nodeMtx + n * 64);
     MatrixDrive_ScaleMatrix(1.1111112f, 1.1111112f, 1.1111112f);
     if (w->ornamentDisp != 0) {
         CopyMatrix(*(char **)((char *)w->ornament0 + 0xC), MatrixDrive_GetMatrix());
@@ -124,8 +124,8 @@ static void dispCrown(GObj *gobj, char *acc)
         reg_DispAccessoryWithShadow((Sub15C *)w->ornament1, GOBJ_SUB(gobj));
         reg_DispAccessoryWithShadow((Sub15C *)w->ornament0, GOBJ_SUB(gobj));
     } else {
-        CopyMatrix(*(char **)(acc + 0xC), MatrixDrive_GetMatrix());
-        reg_DispAccessoryWithShadow((Sub15C *)acc, GOBJ_SUB(gobj));
+        CopyMatrix((char *)acc->nodeMtx, MatrixDrive_GetMatrix());
+        reg_DispAccessoryWithShadow(acc, GOBJ_SUB(gobj));
     }
 }
 
@@ -140,7 +140,7 @@ static void dispClothes(GObj *gobj)
     x = (char *)GOBJ_SUB(gobj)->lightMtx;
     y = x + 0x40;
     if (w->crown != 0) {
-        dispCrown(gobj, (char *)w->crown);
+        dispCrown(gobj, (Sub15C *)w->crown);
     }
     if (w->cloth12Disp != 0) {
         if (w->ornamentDisp != 0) {
@@ -1707,25 +1707,26 @@ static ClothHangCfg clothHangF20[2] = {
 }; /* derived name */
 
 /* the three cloth and hair setters */
-inline void SetGirlClothDispSwitch(GObj *a0, int a1, int a2)
+inline void SetGirlClothDispSwitch(GObj *gobj, int part, int on)
 {
-    GirlWork *cloth = GOBJ_SUB(a0)->work;
-    switch (a1) {
+    GirlWork *cloth = GOBJ_SUB(gobj)->work;
+    switch (part) {
     case 0:
-        cloth->cloth0Disp = a2;
+        cloth->cloth0Disp = on;
         break;
     case 1:
-        cloth->cloth12Disp = a2;
+        cloth->cloth12Disp = on;
         break;
     case 2:
-        cloth->cloth3Disp = a2;
+        cloth->cloth3Disp = on;
         break;
     }
 }
 
-inline void SetGirlHairDispSwitch(GObj *a0, int a1)
+inline void SetGirlHairDispSwitch(GObj *gobj, int on)
 {
-    *(int *)((char *)GOBJ_SUB(a0)->work + 0x28) = a1;
+    GirlWork *cloth = GOBJ_SUB(gobj)->work;
+    cloth->ornamentDisp = on;
 }
 
 typedef struct { /* field names derived */
@@ -1749,9 +1750,9 @@ static inline void setGirlClothParam(GirlClothSetting *p) /* derived name */
     debug_hair_collision = p->collision;
 }
 
-static inline void setGirlClothSetting(int a0)
+static inline void setGirlClothSetting(int lv)
 {
-    if (a0 == 0) {
+    if (lv == 0) {
         debug_StdPrintfDummy("set cloth demo mode\n");
         setGirlClothParam(&girlClothDemoParam);
     } else {
@@ -1773,7 +1774,7 @@ void *InitGirlGeo(GObj *gobj, SObjSimpleSetting *csv)
     w->hint2Played = 0;
     w->hint1Played = 0;
     w->ornamentDisp = 0;
-    *(int *)(p + 0x848) = (int)setGirlClothSetting;
+    ((Sub15C *)p)->lodFunc = setGirlClothSetting;
     kind = csv->obj;
     w->crown = 0;
     w->ornament1 = 0;
@@ -1800,15 +1801,15 @@ void *InitGirlGeo(GObj *gobj, SObjSimpleSetting *csv)
         w->cloth2 = (int)InitCloth4D(gobj, &clothMeshF14, clothHangF10);
         w->hair = (int)InitCloth4D(gobj, &clothMeshF18, clothHangF18);
         w->cloth3 = (int)InitCloth4D(gobj, &clothMeshF20, clothHangF20);
-        w->crown = (int)CSVSYSTEM_InitDObj(0xC, csv);
-        w->ornament0 = (int)CSVSYSTEM_InitDObj(0xD, csv);
-        w->ornament1 = (int)CSVSYSTEM_InitDObj(0xE, csv);
+        w->crown = (int)CSVSYSTEM_InitDObj(12, csv);
+        w->ornament0 = (int)CSVSYSTEM_InitDObj(13, csv);
+        w->ornament1 = (int)CSVSYSTEM_InitDObj(14, csv);
         break;
     }
-    *(int *)((char *)GOBJ_SUB(gobj)->work + 0x4) = 1;
-    *(int *)((char *)GOBJ_SUB(gobj)->work + 0xC) = 1;
-    *(int *)((char *)GOBJ_SUB(gobj)->work + 0x1C) = 1;
-    InitMotionOrient(gobj, 0x503, 0x84A, 0xC, 0x18, 0x214);
+    ((GirlWork *)GOBJ_SUB(gobj)->work)->cloth0Disp = 1;
+    ((GirlWork *)GOBJ_SUB(gobj)->work)->cloth12Disp = 1;
+    ((GirlWork *)GOBJ_SUB(gobj)->work)->cloth3Disp = 1;
+    InitMotionOrient(gobj, 1283, 2122, 12, 24, 532);
     SetLodLevel(gobj, 2);
     return w;
 }
@@ -1824,7 +1825,7 @@ void GirlGeo(GObj *a0)
 
     HandManager(a0);
     ExecMotionOrient(a0);
-    SetActressLight(a0, 0x23, 0x2C, 0x1D6);
+    SetActressLight(a0, 35, 44, 470);
     if (CylinderCollision(a0, 4, 50.0f, 50.0f, 0.0f)) {
         iosOmSendMail(a0, 6, a0);
     }
@@ -1835,7 +1836,7 @@ void GirlGeo(GObj *a0)
         w = GOBJ_SUB(a0);
         if (w->root.hand0Mode == 4 && w->cylinderOn != 0 && w->root.cylinder != 0) {
             n0 = GetSkeltonFocusNode(boyGObj, 6);
-            n1 = GetSkeltonFocusNode(a0, 0x16);
+            n1 = GetSkeltonFocusNode(a0, 22);
             sceVu0SubVector(v, (char *)GOBJ_SUB(boyGObj)->nodeMtx + n0 * 64 + 0x30,
                             (char *)GOBJ_SUB(a0)->nodeMtx + n1 * 64 + 0x30);
             len = FSqrt(sceVu0InnerProduct(v, v));
@@ -1853,16 +1854,16 @@ void GirlAI(GObj *a0)
 {
     Sub15C *work = GOBJ_SUB(a0);
     int mode = work->ctrl.motion;
-    GirlWork *cloth = *(GirlWork **)((char *)work + 0x830);
-    int hint = *(int *)((char *)work + 0x4C8);
+    GirlWork *cloth = work->work;
+    int shifted = work->ctrl.justShifted;
 
-    if (mode == 0x297) {
-        if (hint != 0) {
+    if (mode == 663) {
+        if (shifted != 0) {
             if (cloth->hint2Ready != 0) {
                 debug_StdPrintfDummy("reset hint2 voice ready\n");
                 scpGirlHintVoiceCancel();
             }
-            scpGirlHintVoiceReady(0x65);
+            scpGirlHintVoiceReady(101);
             cloth->hint1Ready = 1;
             debug_StdPrintfDummy("hint1 voice ready\n");
         }
@@ -1873,13 +1874,13 @@ void GirlAI(GObj *a0)
             debug_StdPrintfDummy("hint1 voice play\n");
         }
     }
-    if (mode == 0x29A) {
-        if (hint != 0) {
+    if (mode == 666) {
+        if (shifted != 0) {
             if (cloth->hint1Ready != 0) {
                 debug_StdPrintfDummy("reset hint1 voice ready\n");
                 scpGirlHintVoiceCancel();
             }
-            scpGirlHintVoiceReady(0x67);
+            scpGirlHintVoiceReady(103);
             cloth->hint2Ready = 1;
             debug_StdPrintfDummy("hint2 voice ready\n");
         }
@@ -1891,7 +1892,7 @@ void GirlAI(GObj *a0)
         }
     }
     if (cloth->hint1Ready != 0) {
-        if (mode != 0x297 && mode != 0x298) {
+        if (mode != 663 && mode != 664) {
             debug_StdPrintfDummy("hint1 voice reset\n");
             cloth->hint1Ready = 0;
             cloth->hint1Played = 0;
@@ -1899,7 +1900,7 @@ void GirlAI(GObj *a0)
         }
     }
     if (cloth->hint2Ready != 0) {
-        if (mode != 0x29A && mode != 0x29B) {
+        if (mode != 666 && mode != 667) {
             debug_StdPrintfDummy("hint2 voice reset\n");
             cloth->hint2Ready = 0;
             cloth->hint2Played = 0;
@@ -1912,16 +1913,16 @@ void GirlAI(GObj *a0)
 static char *girlClothName[4] = {"", "DEVIL", "STONE", 0}; /* derived name */
 
 /* the girl's cloth work */
-static inline int *getGirlCloth(GObj *gobj) /* derived name */
+static inline GirlWork *getGirlCloth(GObj *gobj) /* derived name */
 {
-    return (int *)GOBJ_SUB(gobj)->work;
+    return GOBJ_SUB(gobj)->work;
 }
 
 static void debugWireStringGirl(GObj *a0)
 {
     float m[16];
     float pos[4];
-    int *cloth = getGirlCloth(a0);
+    GirlWork *cloth = getGirlCloth(a0);
 
     GetRootPosition(pos, a0);
     sceVu0TransposeMatrix(m, (void *)(matrixptr + 0x80));
@@ -1931,7 +1932,7 @@ static void debugWireStringGirl(GObj *a0)
     _MulMatrix(MatrixDrive_GetMatrix(), MatrixDrive_GetMatrix(), m);
     MatrixDrive_PushMatrix();
     MatrixDrive_TransMatrix(0.0f, -50.0f, 0.0f);
-    DispWireString(girlClothName[cloth[0]]);
+    DispWireString(girlClothName[cloth->kind]);
     MatrixDrive_PopMatrix();
 }
 
@@ -1939,6 +1940,6 @@ void GirlDL(GObj *a0)
 {
     p2o_SetDefaultEnviroment();
     p2o_DispVU1(a0);
-    dispClothes((char *)a0);
-    return debugWireStringGirl((char *)a0);
+    dispClothes(a0);
+    debugWireStringGirl(a0);
 }

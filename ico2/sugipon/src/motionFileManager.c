@@ -29,11 +29,11 @@ inline void ResetDynamicMotionManager(void)
     motionMemorySizeStatic2 = 0;
 }
 
-inline void ResetStatic2MotionManager(int a0)
+inline void ResetStatic2MotionManager(int seg)
 {
     int i;
     for (i = 0; i <= 1146; i++) {
-        if (motionKind[i].node_id == a0) {
+        if (motionKind[i].node_id == seg) {
             motionTable[i] = 0;
         }
     }
@@ -150,7 +150,7 @@ static inline int relocMotionFile(MotFileHdr *self) /* derived name */
     return 0;
 }
 
-void InitMotionFile(void *buf, int a1)
+void InitMotionFile(void *buf, char *name)
 {
     motionFileBase = (char *)buf;
     relocMotionFile((MotFileHdr *)buf);
@@ -162,20 +162,20 @@ void InitMotionMemorySize(void)
     motionMemorySizeStatic2 = 0;
 }
 
-int AddMotionMemorySize(int a0, int a1)
+int AddMotionMemorySize(int size, int seg)
 {
-    int v0;
-    if (a1 != 0) {
-        v0 = motionMemorySizeStatic2 + a0;
-        motionMemorySizeStatic2 = v0;
+    int total;
+    if (seg != 0) {
+        total = motionMemorySizeStatic2 + size;
+        motionMemorySizeStatic2 = total;
     } else {
-        v0 = motionMemorySize + a0;
-        motionMemorySize = v0;
+        total = motionMemorySize + size;
+        motionMemorySize = total;
     }
-    return v0;
+    return total;
 }
 
-int GetMotionMemorySize(int a0)
+int GetMotionMemorySize(int seg)
 {
-    return a0 ? motionMemorySizeStatic2 : motionMemorySize;
+    return seg ? motionMemorySizeStatic2 : motionMemorySize;
 }

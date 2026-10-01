@@ -43,7 +43,7 @@ void ThrowItem(struct GObj *gobj, void *vel);
 
 struct ItemLayout;
 
-char *InitItemGeo(char *gobj, struct ItemLayout *layout);
+char *InitItemGeo(struct GObj *gobj, struct ItemLayout *layout);
 void ItemGeo(struct GObj *gobj);
 void ItemDL(struct GObj *gobj);
 int IsItemHoldable(struct GObj *a0);

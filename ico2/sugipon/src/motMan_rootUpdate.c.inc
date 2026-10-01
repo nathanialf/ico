@@ -13,8 +13,6 @@ extern ObjNode InitialObjPointer;
 extern void ClipWallAdjustPos(void *a0);
 /* as in fieldCollision.h, which this file does not include */
 extern void ClipWallE(void *a0);
-/* void (void *, void *) here, void (int, int) in geometryManager.h */
-extern void GetRootQuaternion(void *q, void *obj);
 /* the two ints the demo timer keeps: the elapsed count and its divisor. */
 /* WallCfg here, FcColInfo in fieldCollision.h */
 extern WallCfg InitialColInfo;
@@ -25,8 +23,6 @@ extern void GetLowerPlaneCollision(void *work, void *pos);
 extern void ClipWallWaveForce(void *a0);
 /* as in fieldCollision.h, which this file does not include */
 extern int ClipWallEField(void *a0);
-/* as in geometryManager.h, which this file does not include */
-extern float GetProjectionOfPlane(void *out, void *plane, void *pos);
 
 /* _wallHitReaction's helper */
 static inline int getWallSlideDirection(void *dir, void *hit, void *wall) /* derived name */

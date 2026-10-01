@@ -8,9 +8,7 @@
 #ifndef GEOMETRYMANAGER_H
 #define GEOMETRYMANAGER_H
 
-struct GObj;
-
-struct Sub15C;
+#include "typedef.h"
 
 int CylinderCollision(struct GObj *self, int group, float r, float h, float s);
 
@@ -19,23 +17,23 @@ int CylinderCollisionWithControlDynamics(struct GObj *self, int group, int ctrl,
 
 struct GObj **GetCharGObjList(void);
 void GetGlobalDirectionOrient(float *dir, struct GObj *obj, void *src);
-void GetInitialSkeltonMatrixByDObj(char *mdl);
-float GetProjectionOfPlane(void *a0, void *a1, void *a2);
-float GetProjectionOfPlaneWithKeepAway(void *a0, void *a1, void *a2, float f);
-void GetProjectionPosOfPlane(void *a0, void *a1, void *a2);
+void GetInitialSkeltonMatrixByDObj(struct Sub15C *mdl);
+float GetProjectionOfPlane(void *out, void *plane, void *pos);
+float GetProjectionOfPlaneWithKeepAway(void *out, void *plane, void *pos, float keepAway);
+void GetProjectionPosOfPlane(void *out, void *plane, void *pos);
 void GetRootMatrix(void *mtx, struct GObj *obj);
 void GetRootMatrixRotOffset(void *q, struct GObj *obj);
 void GetRootMatrixTransOffset(float *dst, struct GObj *src);
-void GetRootMotionOrient(char *a0, struct GObj *a1);
-void GetRootOrient(char *a0, struct GObj *a1);
+void GetRootMotionOrient(float *dir, struct GObj *obj);
+void GetRootOrient(float *dir, struct GObj *obj);
 void GetRootPosition(void *pos, struct GObj *obj);
 void GetRootPositionByDObj(void *pos, struct Sub15C *src);
 void GetRootQuaternion(void *q, struct GObj *obj);
 void GetRootQuaternionByDObj(void *q, struct Sub15C *dobj);
 void GlobalizeGeometry(struct GObj *gobj);
 int LimitExistGeometry(float *pos, float *move);
-void LocalizeDirectionOrient(struct GObj *self, int *link);
-void LocalizeGeometry(struct GObj *gobj, int *dobj);
+void LocalizeDirectionOrient(struct GObj *self, ObjNode *link);
+void LocalizeGeometry(struct GObj *gobj, ObjNode *link);
 void SetDirectRootPosition(struct GObj *self, void *v);
 void SetDirectRootPositionNoFitting(struct GObj *self, void *v);
 void SetDirectRootPositionNoFittingWithNodePoint(struct GObj *gobj, int node, float *pos, float t);
@@ -69,7 +67,7 @@ void SetRootMatrixWithTransOffsetByDObj(struct Sub15C *dobj, float x, float y, f
 void GetRootMatrixRotOffsetByDObj(void *q, struct Sub15C *dobj);
 void SetRootMatrixRotOffsetByDObj(struct Sub15C *dobj, void *q);
 void GetRootVelocity(float *vel, struct GObj *obj);
-void GetInitialInverseMatrixByDObj(char *mat, char *mdl);
+void GetInitialInverseMatrixByDObj(char *mat, struct Sub15C *mdl);
 void GetInitialInverseMatrix(char *mat, struct GObj *gobj);
 void MakeCharGObjList(void);
 
@@ -77,6 +75,6 @@ int GetCylinderCollision(struct GObj *self, struct GObj *target, float r, float 
                          int ctrl);
 
 void GetRootMatrixByDObj(float *m, struct Sub15C *src);
-void GetRootMatrixTransOffsetByDObj(float *dst, char *src);
+void GetRootMatrixTransOffsetByDObj(float *dst, struct Sub15C *src);
 
 #endif /* GEOMETRYMANAGER_H */

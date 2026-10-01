@@ -5,8 +5,8 @@
 #include "matrixDrive.h"
 #include "gamesys.h"
 
-/* Per-object force-field state, hung off the actor's sub-object by the caller
-   (GirlForceFieldDL reads it back at sub+0x830). */
+/* Per-object force-field state: InitGirlForceFieldGeo returns it, the object
+   creator hangs it at the display object's work and GirlForceFieldDL reads it. */
 typedef struct GirlForceFieldWork { /* field names derived */
     float radius;
     float invRadius;
@@ -23,15 +23,15 @@ typedef struct GirlForceFieldWork { /* field names derived */
    in; nothing reads it */
 static int forceFieldColor[4] = {64, 96, 128, 128}; /* derived name */
 
-inline GirlForceFieldWork *InitGirlForceFieldGeo(char *self, SObjSimpleSetting *param)
+inline GirlForceFieldWork *InitGirlForceFieldGeo(GObj *self, SObjSimpleSetting *param)
 {
-    GirlForceFieldWork *w =
-        (GirlForceFieldWork *)iosMallocDebug(ios_partition_sugipon, 12, "src/girlForceField.c", 23);
+    GirlForceFieldWork *w = (GirlForceFieldWork *)iosMallocDebug(
+        ios_partition_sugipon, sizeof(GirlForceFieldWork), "src/girlForceField.c", 23);
     struct DObjNode *c;
     w->radius = param->scale[2];
     w->invRadius = 1.0f / w->radius;
     w->frame = 0;
-    c = ((SubHandle *)(self + 0x15C))->sub->nodes;
+    c = ((SubHandle *)&self->dobj)->sub->nodes;
     c->scale[0] = c->scale[1] = c->scale[2] = 1.0f;
     return w;
 }

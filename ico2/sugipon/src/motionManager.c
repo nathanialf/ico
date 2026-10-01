@@ -7,6 +7,7 @@
 #include "lineManager.h"
 #include "motionManager2.h"
 #include "motionOrientManager.h"
+#include "geometryManager.h"
 #include "debug.h"
 #include "pool.h"
 #include "weapon.h"

@@ -1017,15 +1017,6 @@ static void _getFinalMatrix(int id)
 
 extern double fptodp(float v);
 
-/* the pad snapshot at pad; only the two words the rotation-emphasis editor
- * uses carry names */
-typedef struct { /* field names derived */
-    int _00[23];
-    int trg; /* 0x5C */
-    int _60;
-    int hold; /* 0x64 */
-} EditPad;    /* derived name */
-
 /* EditRotEmphasys's tuning: the two coefficients it shows and edits, the
    switch that turns the editor on and the coefficient selected. */
 static float emphasysAccel = 0.1f; /* derived name */
@@ -1040,23 +1031,23 @@ void EditRotEmphasys(void)
 {
     int sel;
 
-    if (((EditPad *)pad)->trg & 0x20) {
+    if (pad[1].flags & 0x20) {
         emphasysEdit = emphasysEdit == 0;
     }
     if (emphasysEdit != 0) {
         if (debug_font_flag & 1) {
-            debug_Printf(300, 170, 0xFFFFFF00u, (int)"Emphasys Accel   Velocity");
+            debug_Printf(300, 170, 0xFFFFFF00u, "Emphasys Accel   Velocity");
         }
         if (debug_font_flag & 1) {
             debug_Printf(300, 180, emphasysSelect != 0 ? 0xFFFFFF00u : 0x80808000u,
-                         (int)"         %1.5f ", emphasysAccel);
+                         "         %1.5f ", emphasysAccel);
         }
         if (debug_font_flag & 1) {
             debug_Printf(300, 180, emphasysSelect != 0 ? 0x80808000u : 0xFFFFFF00u,
-                         (int)"                 %1.5f", emphasysVelocity);
+                         "                 %1.5f", emphasysVelocity);
         }
         sel = emphasysSelect;
-        if (((EditPad *)pad)->trg & 0xA000) {
+        if (pad[1].flags & 0xA000) {
             sel++;
             sel &= 1;
             emphasysSelect = sel;
@@ -1064,18 +1055,18 @@ void EditRotEmphasys(void)
         switch (sel) {
         default:
         case 0:
-            if (((EditPad *)pad)->hold & 0x1000) {
+            if (pad[1].rep & 0x1000) {
                 emphasysVelocity = emphasysVelocity + 0.01f;
             }
-            if (((EditPad *)pad)->hold & 0x4000) {
+            if (pad[1].rep & 0x4000) {
                 emphasysVelocity = emphasysVelocity - 0.01f;
             }
             break;
         case 1:
-            if (((EditPad *)pad)->hold & 0x1000) {
+            if (pad[1].rep & 0x1000) {
                 emphasysAccel = emphasysAccel + 0.01f;
             }
-            if (((EditPad *)pad)->hold & 0x4000) {
+            if (pad[1].rep & 0x4000) {
                 emphasysAccel = emphasysAccel - 0.01f;
             }
             break;

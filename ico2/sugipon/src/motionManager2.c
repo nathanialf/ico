@@ -182,7 +182,7 @@ void SetMotionDirection(GObj *self, float *dir)
 {
     Sub15C *base = self->dobj;
     struct MotCtrl *s2 = &base->ctrl;
-    Sub15C *ctrl;
+    Sub15C *sub;
     if (dir[0] == 0.0f && dir[2] == 0.0f) {
         return;
     }
@@ -190,11 +190,11 @@ void SetMotionDirection(GObj *self, float *dir)
     s2->dir[1] = 0.0f;
     s2->dir[3] = 1.0f;
     sceVu0Normalize(s2->dir, s2->dir);
-    ctrl = self->dobj;
-    if (*(int *)ctrl == 0) {
+    sub = self->dobj;
+    if (sub->parent.obj == 0) {
         return;
     }
-    LocalizeDirectionOrient(self, (int *)ctrl);
+    LocalizeDirectionOrient(self, &sub->parent);
 }
 
 void _GetMotionDirection(float *dir, GObj *obj)

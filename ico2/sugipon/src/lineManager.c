@@ -33,12 +33,12 @@ void Draw2DLineSeg_Start(void)
     gif_SetGsReg(0, lineStripPrim);
 }
 
-void Draw2DLineSeg_Loop(int *a0, int *a1, int *a2)
+void Draw2DLineSeg_Loop(int *p1, int *p2, int *color)
 {
-    gif_SetGsReg(1, (long long)a2[0] | ((long long)a2[1] << 8) | ((long long)a2[2] << 16) |
-                        ((long long)a2[3] << 24));
-    gif_SetGsReg(5, (long long)a0[0] | ((long long)a0[1] << 16) | ((long long)a0[2] << 32));
-    gif_SetGsReg(5, (long long)a1[0] | ((long long)a1[1] << 16) | ((long long)a1[2] << 32));
+    gif_SetGsReg(1, (long long)color[0] | ((long long)color[1] << 8) | ((long long)color[2] << 16) |
+                        ((long long)color[3] << 24));
+    gif_SetGsReg(5, (long long)p1[0] | ((long long)p1[1] << 16) | ((long long)p1[2] << 32));
+    gif_SetGsReg(5, (long long)p2[0] | ((long long)p2[1] << 16) | ((long long)p2[2] << 32));
 }
 
 void Draw2DLineG(int *p1, int *c1, int *p2, int *c2, int z)
