@@ -63,7 +63,7 @@ static void execClothes(GObj *gobj)
     w = GOBJ_SUB(gobj)->work;
     SetQuaternionByAxisRotateV(q, -debug_hair_bend_angle * 16, ZUnitVector);
     if ((void *)w->hair != 0) {
-        *(int *)((char *)w->hair + 0x2F8) = debug_hair_collision;
+        ((Cloth4D *)w->hair)->collision = debug_hair_collision;
     }
     switch (w->cloth12Disp) {
     default:

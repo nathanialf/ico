@@ -30,22 +30,6 @@ typedef struct { /* field names derived */
     float x, y, z, w;
 } __attribute__((aligned(16))) WormVec; /* derived name */
 
-typedef struct {  /* field names derived */
-    int node;     /* 0x00, -1: the chain hangs from no skeleton node */
-    float rate;   /* 0x04, the length of one segment */
-    int pad08[2]; /* 0x08 */
-    float p[4];   /* 0x10, where the segment starts */
-    int pad20[4]; /* 0x20 */
-    float weight; /* 0x30, against the extended weights */
-    int pad34[3]; /* 0x34 */
-} WormParam;      /* derived name */
-
-typedef struct {  /* field names derived */
-    int num;      /* 0x00 */
-    int pad04[3]; /* 0x04 */
-    WormParam pm; /* 0x10 */
-} WormSeg;        /* derived name */
-
 typedef struct {    /* field names derived */
     WormVec *pos;   /* 0x00 */
     WormVec *prev;  /* 0x04 */
@@ -53,8 +37,10 @@ typedef struct {    /* field names derived */
     int pad0C[101]; /* 0x0C */
 } WormPnt;          /* derived name */
 
+/* the chain system InitChains returns (ChainSet), with its chains' points
+   read as vectors */
 typedef struct { /* field names derived */
-    WormSeg *seg;
+    ChainCfg *seg;
     int nseg;
     WormPnt *pnt;
 } WormRoute; /* derived name */
@@ -75,7 +61,7 @@ typedef struct { /* field names derived */
 } WormWork; /* derived name */
 
 static void simulate(WormVec *v, int n, float len);
-void GetWormRoute(GObj *act, WormVec *target);
+void GetWormRoute(GObj *act, void *target);
 
 #include "worm.h"
 #include <libvu0.h>
@@ -94,7 +80,7 @@ static void outerProcess(GObj *act)
 
     if ((pad[1].flags & 0x20) != 0) {
         n = GetSkeltonFocusNode(boyGObj, 22);
-        GetWormRoute(act, (WormVec *)((char *)GOBJ_SUB(boyGObj)->nodeMtx + n * 64 + 48));
+        GetWormRoute(act, (char *)GOBJ_SUB(boyGObj)->nodeMtx + n * 64 + 48);
         SetWormReduceRatio(act, 1.0f);
     }
 
@@ -180,7 +166,7 @@ static void getAnimation(GObj *act)
         int num = r->seg[i].num;
         WormVec *pos = r->pnt[i].pos;
         WormVec *prev = r->pnt[i].prev;
-        WormParam *pm = &r->seg[i].pm;
+        ChainParam *pm = &r->seg[i].pm;
 
         for (j = 1; j < num; j++) {
             CopyVector(tmp, &prev[j]);
@@ -188,7 +174,7 @@ static void getAnimation(GObj *act)
             sceVu0AddVector(&pos[j], &pos[j], tmp);
         }
 
-        simulate(pos, num - 1, pm->rate * w->reduce);
+        simulate(pos, num - 1, pm->step * w->reduce);
 
         for (j = 0; j < num - 1; j++) {
             r->pnt[i].len[j] = _GetLength(&pos[j], &pos[j + 1]);
@@ -270,7 +256,7 @@ inline void SetWormReduceRatio(GObj *act, float ratio)
     ((WormFI *)((char *)GOBJ_SUB(act)->work + 8))->f = ratio;
 }
 
-void GetWormRoute(GObj *act, WormVec *target)
+void GetWormRoute(GObj *act, void *target)
 {
     WormVec d;
     WormWork *w = GOBJ_SUB(act)->work;
@@ -347,12 +333,12 @@ static inline void ResetWormRoute(GObj *act, WormWork *w) /* derived name */
         WormVec *prev = r->pnt[i].prev;
 
         for (j = 0; j < num; j++) {
-            CopyVector(&pos[j], r->seg[i].pm.p);
+            CopyVector(&pos[j], r->seg[i].pm.root);
             CopyVector(&prev[j], ZeroVector);
         }
     }
 
-    GetWormRoute(act, (WormVec *)r->seg[0].pm.p);
+    GetWormRoute(act, r->seg[0].pm.root);
     w->ratio = 0.0f;
 }
 
@@ -360,13 +346,13 @@ void *InitWormGeo(GObj *act, WormInit *ini)
 {
     Sub15C *d = GOBJ_SUB(act);
     WormWork *w;
-    WormSeg *seg;
+    ChainCfg *seg;
     int nseg;
     int num;
     int i;
 
     w = (WormWork *)iosMallocDebug(ios_partition_sugipon, 16, __FILE__, 328);
-    seg = (WormSeg *)iosMallocDebug(ios_partition_sugipon, 880, __FILE__, 329);
+    seg = iosMallocDebug(ios_partition_sugipon, 880, __FILE__, 329);
 
     nseg = (int)ini->nseg;
     if (nseg == 0) {
@@ -386,8 +372,8 @@ void *InitWormGeo(GObj *act, WormInit *ini)
 
         seg[i].num = num;
         seg[i].pm.node = -1;
-        CopyVector(seg[i].pm.p, &pos);
-        seg[i].pm.rate = (int)ini->rate != 0 ? ini->rate : 20.0f;
+        CopyVector(seg[i].pm.root, &pos);
+        seg[i].pm.step = (int)ini->rate != 0 ? ini->rate : 20.0f;
         seg[i].pm.weight = 10.0f;
 
         w->src[i] = (WormVec *)iosMallocDebug(ios_partition_sugipon, 160, __FILE__, 350);
@@ -396,7 +382,7 @@ void *InitWormGeo(GObj *act, WormInit *ini)
     seg[nseg].num = -1;
     w->reduce = 1.0f;
     w->ratio = 1.0f;
-    w->route = (WormRoute *)InitChains((char *)seg);
+    w->route = (WormRoute *)InitChains(seg);
 
     /* the first node's angle words cleared as floats; int stores through
        d->nodes->rot move InitWormGeo's schedule (measured) */

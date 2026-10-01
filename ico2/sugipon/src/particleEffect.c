@@ -14,6 +14,8 @@
 #include "windField.h"
 #include "particleEffect.h"
 
+/* memory.h does not declare it */
+void *iosMallocDebugNoAssert(IosMemPart *part, int size, const char *file, int line);
 static int setParticleEffect(struct PEGeo *self, struct PEPackage *pkg, struct IosMemPart *part);
 
 /* The 128-byte per-effect geometry object SetParticleEffectByPartition
@@ -312,8 +314,7 @@ static int setParticleEffect(PEGeo *self, PEPackage *pkg, struct IosMemPart *par
     self->prim = prim_InitParticleByPartition(n, 1.0f, 0.25f, 0.25f, 1, "enemy_tex01", 1, part);
     if (self->prim == 0)
         return 0;
-    self->parts =
-        (PEPartRec *)iosMallocDebugNoAssert(part, self->n * sizeof(PEPartRec), __FILE__, 320);
+    self->parts = iosMallocDebugNoAssert(part, self->n * sizeof(PEPartRec), __FILE__, 320);
     if (self->parts == 0) {
         prim_DeleteParticle(self->prim);
         return 0;

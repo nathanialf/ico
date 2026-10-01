@@ -220,22 +220,22 @@ inline char *CheckTorchChainReaction(GObj *a0, float dist)
 {
     float pos[4];
     float pos2[4];
-    char *o;
+    GObj *o;
     float dist2;
 
     GetRootPosition(pos, a0);
 
-    o = (char *)isysGObjSearchFromObjKindID_begin(10);
+    o = isysGObjSearchFromObjKindID_begin(10);
     dist2 = dist * dist;
     while (o != 0) {
         TorchGeoWork *w = GOBJ_SUB(o)->work;
-        if (o != a0 && IsTorchLightOn(o) && *(int *)(o + 0x16C) != 0 && w->flags != 2) {
+        if (o != a0 && IsTorchLightOn(o) && o->active != 0 && w->flags != 2) {
             GetRootPosition(pos2, o);
             if (distance_squared(pos2, pos) < dist2) {
-                return o;
+                return (char *)o;
             }
         }
-        o = (char *)isysGObjSearchFromObjKindID_next(o);
+        o = isysGObjSearchFromObjKindID_next(o);
     }
     return 0;
 }
@@ -245,7 +245,7 @@ char *CheckTorchChainReactionReverse(GObj *a0, float dist)
     float pos[4];
     float pos2[4];
     GObj *o;
-    char *p;
+    GObj *p;
     int n;
     int lit;
 
@@ -265,16 +265,16 @@ char *CheckTorchChainReactionReverse(GObj *a0, float dist)
 
     dist = dist * dist;
     lit = 0 < n;
-    p = (char *)isysGObjSearchFromObjKindID_begin(10);
+    p = isysGObjSearchFromObjKindID_begin(10);
     while (p != 0) {
-        if (p != a0 && IsTorchLightOn(p) == 0 && *(int *)(p + 0x16C) != 0 &&
-            (((TorchGeoWork *)(char *)GOBJ_SUB(p)->work)->flags != 2 || lit == 0)) {
+        if (p != a0 && IsTorchLightOn(p) == 0 && p->active != 0 &&
+            (((TorchGeoWork *)GOBJ_SUB(p)->work)->flags != 2 || lit == 0)) {
             GetRootPosition(pos2, p);
             if (distance_squared(pos2, pos) < dist) {
-                return p;
+                return (char *)p;
             }
         }
-        p = (char *)isysGObjSearchFromObjKindID_next(p);
+        p = isysGObjSearchFromObjKindID_next(p);
     }
     return 0;
 }

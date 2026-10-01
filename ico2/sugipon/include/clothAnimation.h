@@ -12,6 +12,7 @@ struct GObj;
 
 #include "typedef.h"
 #include "Primitive.h"
+#include <libvu0.h>
 
 /* One extended weight of a chain node: the chain position it sits at (a
    node index plus a fraction, negative while the slot is free), its point,
@@ -37,10 +38,31 @@ typedef struct { /* field names derived */
     ExW ex[5];
 } ChainNode; /* derived name */
 
-/* the chain system InitChains returns: the 80-byte parameter records it was
-   built from (the list ends with num -1), the chain count and the chains */
+/* the parameters of one chain: the skeleton focus node it hangs from, the
+   length of one segment, where it starts and the weight the extended weights
+   are bound against */
 typedef struct { /* field names derived */
-    char *cfg;
+    int node;    /* 0x00, -1 when the chain hangs from no node */
+    float step;  /* 0x04 */
+    int pad08[2];
+    sceVu0FVECTOR root; /* 0x10 */
+    int pad20[4];
+    float weight; /* 0x30 */
+    int pad34[3];
+} ChainParam; /* derived name */
+
+/* one record of the list InitChains walks, 0x50 bytes: the node count (-1
+   ends the list) and the chain's parameters */
+typedef struct { /* field names derived */
+    int num;
+    int pad04[3];
+    ChainParam pm;
+} ChainCfg; /* derived name */
+
+/* the chain system InitChains returns: the parameter records it was built
+   from, the chain count and the chains */
+typedef struct { /* field names derived */
+    ChainCfg *cfg;
     int num;
     ChainNode *nodes;
     int oddFrame; /* flipped every GetChainAnimation */
@@ -91,44 +113,45 @@ void DispClothMesh(ClothRec *rec, void *a1, void *a2);
 void DispMeshWire(Prim3DVec **rows, int nx, int ny);
 void GetChainAnimation(ChainSet *sys, struct GObj *obj, float (*mtx)[4]);
 float GetChainCollision(ChainSet *sys, void *pos, float r);
-float GetChainNodeID(char *cfg, float f);
-void GetCloth4D(void *a0, float x, float y);
-void GetCloth4DWithDetail(void *a0, float x, float y, float z, float w);
-void GetCloth4DWithTight(void *a0, float x, float y, float z, float w, void *a1, void *a2);
+float GetChainNodeID(ChainCfg *cfg, float f);
+void GetCloth4D(Cloth4D *c, float x, float y);
+void GetCloth4DWithDetail(Cloth4D *c, float x, float y, float z, float w);
+void GetCloth4DWithTight(Cloth4D *c, float x, float y, float z, float w, void *a1, void *a2);
 
 void GetClothAnimation(VECTOR **pos, VECTOR **vel, struct GObj *obj, void *m, ClothCfg *cfg,
                        int nwall, int wallOwner, int a7);
 
 void GetClothAnimationFix4Points(VECTOR **pa, VECTOR **pv, ClothCfg *cfg, void *mtx);
-ChainSet *InitChains(char *cfg);
+ChainSet *InitChains(ChainCfg *cfg);
 
-/* One row of the table InitCloth4D's third argument points at: the skeleton
- * node a piece of cloth hangs from and the offsets the init scales by the
- * actor's own scale.  Only enable, node and the offsets are read by
- * InitCloth4D; the cloth step reads the rest through its own record, so
- * float20 to float30 are named by their type.  The tables are boy.c's,
- * girl.c's and queen.c's. */
-typedef struct { /* field names derived */
-    int enable;  /* 0x00, -1 ends the table */
-    float ofsX;  /* 0x04, scaled by the actor scale at init */
-    float ofsY;  /* 0x08, likewise */
-    float ofsZ;  /* 0x0C, likewise */
-    int node;    /* 0x10, the argument GetSkeltonFocusNode is called with */
+/* One row of the table InitCloth4D's third argument points at: a collision
+ * cylinder of the cloth, hung from a skeleton node.  The cylinder runs along
+ * the node's Y from bottom to top; the init scales bottom, top and radius by
+ * the actor's scale and copies the row into the cloth's own cylinder record,
+ * which the cloth step reads: posX, posY, the word at 0x28 (0 in every table)
+ * and posW are the cylinder's place in its node's frame, turn (1 or -1) the
+ * way a point pushed round it turns.  The tables are boy.c's, girl.c's and
+ * queen.c's. */
+typedef struct {  /* field names derived */
+    int enable;   /* 0x00, -1 ends the table */
+    float bottom; /* 0x04 */
+    float top;    /* 0x08 */
+    float radius; /* 0x0C */
+    int node;     /* 0x10, the argument GetSkeltonFocusNode is called with */
     char pad14[12];
-    float float20; /* 0x20 */
-    float float24; /* 0x24 */
+    float posX; /* 0x20 */
+    float posY; /* 0x24 */
     char pad28[4];
-    float float2C;  /* 0x2C */
-    float float30;  /* 0x30 */
-    char pad34[12]; /* 0x34, where the init's scaled copy keeps 1 / (ofsZ + ofsZ) */
+    float posW;     /* 0x2C */
+    float turn;     /* 0x30 */
+    char pad34[12]; /* 0x34, where the copy keeps 1 / (radius + radius) */
 } ClothHangCfg;     /* derived name */
 
 /* The generated cloth mesh InitCloth4D's second argument points at: one
  * column of the cloth, its attachment point and the pair of skeleton nodes the
  * column is blended between, read by index.  InitCloth4D reads the column's ny texture
- * coordinates through uv; the rest are read by the cloth step, so vec50 and
- * the config's word and float members are named by their type.  The tables
- * are boy.c's, girl.c's and queen.c's. */
+ * coordinates through uv; the cloth step reads the rest.  The tables are
+ * boy.c's, girl.c's and queen.c's. */
 /* one skeleton node a column is blended from, and its weight */
 typedef struct { /* field names derived */
     int node;
@@ -143,15 +166,18 @@ typedef struct {  /* field names derived */
     Cloth4DLink link[2]; /* 0x30, the second node -1 when the column hangs from the first alone */
     float (*uv)[2];      /* 0x40, ny texture coordinates */
     char pad44[12];
-    float vec50[4];                        /* 0x50 */
+    float restDir
+        [4]; /* 0x50, the direction the column's segments are pulled toward (GetCloth4DWithDetail's z) */
 } __attribute__((aligned(16))) Cloth4DCol; /* derived name */
 
-/* The head of one generated cloth mesh: the mesh size, the colour
- * prim_InitMesh3D is given, the texture name and the nx columns. */
+/* The head of one generated cloth mesh: the mesh size, a colour nothing
+ * reads (InitCloth4D gives prim_InitMesh3D a constant one), the texture name,
+ * the nx columns and the spacing the collision sweep keeps.  word0C and
+ * word2C are read by nothing. */
 typedef struct { /* field names derived */
     int nx;
     int ny;
-    int word08; /* 0x08 */
+    int wrap;   /* 0x08, nonzero when the last column joins the first */
     int word0C; /* 0x0C */
     int r;      /* 0x10 */
     int g;      /* 0x14 */
@@ -159,9 +185,43 @@ typedef struct { /* field names derived */
     int a;      /* 0x1C */
     const char *tex;
     Cloth4DCol *cols;
-    float float28; /* 0x28 */
-    int word2C;    /* 0x2C */
-} Cloth4DCfg;      /* derived name */
+    float
+        colSpacing; /* 0x28, the distance the collision sweep keeps between neighbouring columns */
+    int word2C;     /* 0x2C */
+} Cloth4DCfg;       /* derived name */
+
+/* one collision cylinder of a cloth: InitCloth4D's copy of a ClothHangCfg row,
+   scaled by the actor's scale */
+typedef struct { /* field names derived */
+    int enable;
+    float bottom; /* 0x04, the cylinder runs along its node's Y from bottom to top */
+    float top;
+    float radius;
+    char pad10[16];
+    float pos[4];      /* 0x20, the cylinder's place in its node's frame */
+    float turn;        /* 0x30, 1 or -1, the way a point pushed round the cylinder turns */
+    float invDiameter; /* 0x34, 1 / (radius + radius), stored by InitCloth4D */
+    char pad38[8];
+} ClothPoint; /* derived name */
+
+/* one cloth InitCloth4D builds: its owner, the mesh it draws and the point
+   rows the cloth step walks */
+struct Cloth4D { /* field names derived */
+    GObj *gobj;
+    Mesh3D *mesh;
+    Prim3DVec **pos; /* 0x8, one row a column, into the mesh's positions */
+    Prim3DVec **vel; /* 0xC, one row a column, the points' velocities */
+    Prim3DVec **nrm; /* 0x10, one row a column, into the mesh's normals */
+    int pad14;
+    TexBlob tex;
+    Cloth4DCfg *cfg;
+    int colNum;            /* 0x2E4, the count of collision cylinders (ClothHangCfg rows) */
+    int *colNode;          /* 0x2E8, the focus node each cylinder hangs from */
+    sceVu0FMATRIX *colMtx; /* 0x2EC, one matrix a cylinder, the node matrices of the last step */
+    ClothPoint *col;       /* 0x2F0, the cylinders */
+    int sweepRight; /* 0x2F4, nonzero runs each row's collision sweep from the far edge first; InitCloth4D clears it and nothing sets it */
+    int collision;  /* 0x2F8, nonzero while the cylinders collide (girl.c's debug_hair_collision) */
+}; /* derived name */
 
 Cloth4D *InitCloth4D(struct GObj *g, Cloth4DCfg *cfg, ClothHangCfg *tbl);
 ClothSet *InitClothes(ClothCfg *cfg);

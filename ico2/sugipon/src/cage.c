@@ -70,7 +70,7 @@ void SetCageFixGeometry(GObj *self, void *pos, void *dir)
 {
     CageWork *w = GOBJ_SUB(self)->work;
 
-    CopyVector(w->chains->cfg + 0x20, pos);
+    CopyVector(w->chains->cfg->pm.root, pos);
     CopyVector(w->rot, dir);
 }
 
@@ -84,49 +84,33 @@ inline int GetCageChainPoint(char *a0, char *a1, GObj *a2)
     return w->rideable;
 }
 
-/* one 80-byte chain-parameter record per chain, the list InitChains walks
- * until num is -1.  The fields are the ones clothAnimation.c reads (count 0x0,
- * focus node 0x10, node spacing 0x14, root 0x20, the length weight 0x40); the
- * root is a homogeneous vector, so the record is 16-byte aligned. */
-typedef struct { /* field names derived */
-    int num;
-    int pad04[3];
-    int node;
-    float step;
-    int pad18[2];
-    sceVu0FVECTOR root;
-    int pad30[4];
-    float length;
-    int pad44[3];
-} CageChainParam; /* derived name */
-
 /* the cage's one chain, 2 nodes 500 apart hanging from the cage root */
-static CageChainParam cageChainParam[2] = {
-    {2, {0, 0, 0}, -1, 500.0f, {0, 0}, {0.0f, 0.0f, 0.0f, 1.0f}, {0, 0, 0, 0}, 100.0f},
+static ChainCfg cageChainParam[2] = {
+    {2, {0, 0, 0}, {-1, 500.0f, {0, 0}, {0.0f, 0.0f, 0.0f, 1.0f}, {0, 0, 0, 0}, 100.0f}},
     {-1},
 }; /* derived name */
 
 char *InitCageGeo(char *self, SObjSimpleSetting *lay)
 {
     CageWork *w;
-    char *ch;
+    ChainCfg *ch;
     int i;
     float one;
 
     w = (CageWork *)iosMallocDebug(ios_partition_sugipon, 80, __FILE__, 97);
-    ch = (char *)iosMallocDebug(ios_partition_sugipon, 160, __FILE__, 98);
+    ch = iosMallocDebug(ios_partition_sugipon, 160, __FILE__, 98);
     w->dobj =
         CSVSYSTEM_InitDObj(accessary[((SubHandle *)(self + 0x15C))->sub->accessary].model, lay);
     w->dobj2 =
         CSVSYSTEM_InitDObj(accessary[((SubHandle *)(self + 0x15C))->sub->accessary].model2, lay);
     w->damping = 0.995f;
     w->mass = lay->scale[0];
-    ((CageChainParam *)ch)[0] = cageChainParam[0];
-    ((CageChainParam *)ch)[1] = cageChainParam[1];
-    *(float *)(ch + 0x20) = lay->pos[0];
-    *(float *)(ch + 0x24) = lay->pos[1];
-    *(float *)(ch + 0x28) = lay->pos[2];
-    *(float *)(ch + 0x14) = lay->scale[1];
+    ch[0] = cageChainParam[0];
+    ch[1] = cageChainParam[1];
+    ch->pm.root[0] = lay->pos[0];
+    ch->pm.root[1] = lay->pos[1];
+    ch->pm.root[2] = lay->pos[2];
+    ch->pm.step = lay->scale[1];
     SetIdentityQuaternion(w->rot);
     w->chains = InitChains(ch);
     w->upperNode = SetChainExtendedWeight(w->chains->nodes, 1, 0.0f, 600.0f);
@@ -236,11 +220,11 @@ void HotInitCageGeo(GObj *self)
     CopyVector(&w->chains->nodes->ex[w->upperNode].v2, ZeroVector);
     CopyVector(&w->chains->nodes->ex[w->lowerNode].v2, ZeroVector);
 
-    CopyVector(&w->chains->nodes->ex[w->upperNode].v1, w->chains->cfg + 0x20);
-    CopyVector(&w->chains->nodes->ex[w->lowerNode].v1, w->chains->cfg + 0x20);
+    CopyVector(&w->chains->nodes->ex[w->upperNode].v1, w->chains->cfg->pm.root);
+    CopyVector(&w->chains->nodes->ex[w->lowerNode].v1, w->chains->cfg->pm.root);
 
-    CopyVector(w->chains->nodes->pos, w->chains->cfg + 0x20);
-    CopyVector(w->chains->nodes->pos + 0x10, w->chains->cfg + 0x20);
+    CopyVector(w->chains->nodes->pos, w->chains->cfg->pm.root);
+    CopyVector(w->chains->nodes->pos + 0x10, w->chains->cfg->pm.root);
 
     *(float *)(w->chains->nodes->pos + 0x14) =
         *(float *)(w->chains->nodes->pos + 0x14) + w->linkLength * (float)w->linkCount;
