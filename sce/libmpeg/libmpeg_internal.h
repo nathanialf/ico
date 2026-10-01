@@ -81,7 +81,7 @@ extern int _f_code[2][2];
 extern int _field_sequence;
 void _flushBuf(int a0);
 
-void _getAllRefs(int x, int y, int mbflags, int motion_type, int *PMV, int *mv_field_sel,
+void _getAllRefs(int x, int y, int mbflags, int motion_type, int PMV[2][2][2], int *mv_field_sel,
                  int *dmvector);
 
 extern int *_forwBot;
@@ -177,7 +177,8 @@ typedef struct {     /* derived name */
     int aux;         /* 0x284 zeroed beside cur, read by no member */
 } MCState;
 
-int _motionComp0(int a0, int a1, int a2, int a3, int *PMV, int *mv_field_sel, int *dmvector);
+int _motionComp0(int a0, int a1, int a2, int a3, int PMV[2][2][2], int *mv_field_sel,
+                 int *dmvector);
 
 void _motionVector(int *PMV, int *dmvector, int h_r_size, int v_r_size, int dmv, int mvscale,
                    int full_pel);
@@ -223,9 +224,9 @@ void _sequenceExtension(void);
 void _sequenceHeader(void);
 void _sequenceScalableExtension(void);
 void _setDefaultQM(int cmd, unsigned char *qm);
-int _skipMB0(int *PMV, int *motion_type, int *mv_field_sel, int *mb_type);
+int _skipMB0(int PMV[2][2][2], int *motion_type, int *mv_field_sel, int *mb_type);
 int _slice0(int a0, int a1);
-int _sliceA0(int a0, int *a1, int *a2, int *a3);
+int _sliceA0(int a0, int *a1, int *a2, int PMV[2][2][2]);
 int _sliceB(void);
 extern int _sp_dcr;
 extern int _sprtag;

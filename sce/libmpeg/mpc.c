@@ -11,7 +11,7 @@
 /* _mbcont as MCState; init.c declares the same words with its own store types */
 extern MCState _mbcont;
 
-int _motionComp0(int a0, int a1, int a2, int a3, int *PMV, int *mv_field_sel, int *dmvector)
+int _motionComp0(int a0, int a1, int a2, int a3, int PMV[2][2][2], int *mv_field_sel, int *dmvector)
 {
     int col = a0 % _widthMB;
     int row = a0 / _widthMB;
@@ -68,7 +68,7 @@ int _motionComp0(int a0, int a1, int a2, int a3, int *PMV, int *mv_field_sel, in
     return 1;
 }
 
-void _getAllRefs(int x, int y, int mbflags, int motion_type, int *PMV, int *mv_field_sel,
+void _getAllRefs(int x, int y, int mbflags, int motion_type, int PMV[2][2][2], int *mv_field_sel,
                  int *dmvector)
 {
     int DMV[4];
@@ -80,15 +80,17 @@ void _getAllRefs(int x, int y, int mbflags, int motion_type, int *PMV, int *mv_f
     if ((mbflags & 8) || _picture_coding_type == 2) {
         if (_picture_structure == 3) {
             if (motion_type == 2 || (mbflags & 8) == 0) {
-                _getRef0(_forwFrame, 0, 0, 0, 16, x, y, PMV[0], PMV[1], 0, 0);
+                _getRef0(_forwFrame, 0, 0, 0, 16, x, y, PMV[0][0][0], PMV[0][0][1], 0, 0);
             } else if (motion_type == 1) {
-                _getRef0(_forwFrame, mv_field_sel[0], 0, 0, 8, x, y, PMV[0], PMV[1] >> 1, fld, 0);
-                _getRef0(_forwFrame, mv_field_sel[2], 1, 0, 8, x, y, PMV[4], PMV[5] >> 1, fld, 0);
+                _getRef0(_forwFrame, mv_field_sel[0], 0, 0, 8, x, y, PMV[0][0][0],
+                         PMV[0][0][1] >> 1, fld, 0);
+                _getRef0(_forwFrame, mv_field_sel[2], 1, 0, 8, x, y, PMV[1][0][0],
+                         PMV[1][0][1] >> 1, fld, 0);
             } else if (motion_type == 3) {
-                _dualPrimeVector(DMV, dmvector, PMV[0], PMV[1] >> 1);
-                _getRef0(_forwFrame, 0, 0, 0, 8, x, y, PMV[0], PMV[1] >> 1, fld, 0);
+                _dualPrimeVector(DMV, dmvector, PMV[0][0][0], PMV[0][0][1] >> 1);
+                _getRef0(_forwFrame, 0, 0, 0, 8, x, y, PMV[0][0][0], PMV[0][0][1] >> 1, fld, 0);
                 _getRef0(_forwFrame, 1, 0, 0, 8, x, y, DMV[0], DMV[1], fld, 1);
-                _getRef0(_forwFrame, 1, 1, 0, 8, x, y, PMV[0], PMV[1] >> 1, fld, 0);
+                _getRef0(_forwFrame, 1, 1, 0, 8, x, y, PMV[0][0][0], PMV[0][0][1] >> 1, fld, 0);
                 _getRef0(_forwFrame, 0, 1, 0, 8, x, y, DMV[2], DMV[3], fld, 1);
             } else {
                 _Error1("(a) invalid motion_type(%d)-0", motion_type);
@@ -109,22 +111,25 @@ void _getAllRefs(int x, int y, int mbflags, int motion_type, int *PMV, int *mv_f
                 sel = 0;
             }
             if (motion_type == 1 || (mbflags & 8) == 0) {
-                _getRef0(fields[sel][mv_field_sel[0]], 0, 0, 0, 16, x, y, PMV[0], PMV[1], 0, 0);
+                _getRef0(fields[sel][mv_field_sel[0]], 0, 0, 0, 16, x, y, PMV[0][0][0],
+                         PMV[0][0][1], 0, 0);
             } else if (motion_type == 2) {
-                _getRef0(fields[sel][mv_field_sel[0]], 0, 0, 0, 8, x, y, PMV[0], PMV[1], 0, 0);
+                _getRef0(fields[sel][mv_field_sel[0]], 0, 0, 0, 8, x, y, PMV[0][0][0], PMV[0][0][1],
+                         0, 0);
                 sel = 0;
                 if (_picture_coding_type == motion_type && _isSecondField != 0 &&
                     fld != mv_field_sel[2]) {
                     sel = 1;
                 }
-                _getRef0(fields[sel][mv_field_sel[2]], 0, 0, 8, 8, x, y, PMV[4], PMV[5], 0, 0);
+                _getRef0(fields[sel][mv_field_sel[2]], 0, 0, 8, 8, x, y, PMV[1][0][0], PMV[1][0][1],
+                         0, 0);
             } else if (motion_type == 3) {
                 sel = 0;
                 if (_isSecondField != 0) {
                     sel = 1;
                 }
-                _dualPrimeVector(DMV, dmvector, PMV[0], PMV[1]);
-                _getRef0(fields[0][fld], 0, 0, 0, 16, x, y, PMV[0], PMV[1], 0, 0);
+                _dualPrimeVector(DMV, dmvector, PMV[0][0][0], PMV[0][0][1]);
+                _getRef0(fields[0][fld], 0, 0, 0, 16, x, y, PMV[0][0][0], PMV[0][0][1], 0, 0);
                 _getRef0(fields[sel][fld ? 0 : 1], 0, 0, 0, 16, x, y, DMV[0], DMV[1], 0, 1);
             } else {
                 _Error1("(b) invalid motion_type(%d)-1", motion_type);
@@ -139,21 +144,21 @@ void _getAllRefs(int x, int y, int mbflags, int motion_type, int *PMV, int *mv_f
             int bfld = 1;
 
             if (motion_type == 2) {
-                _getRef0(_backFrame, 0, 0, 0, 16, x, y, PMV[2], PMV[3], 0, avg);
+                _getRef0(_backFrame, 0, 0, 0, 16, x, y, PMV[0][1][0], PMV[0][1][1], 0, avg);
             } else {
-                _getRef0(_backFrame, mv_field_sel[1], 0, 0, 8, x, y, PMV[2], PMV[3] >> 1, bfld,
-                         avg);
-                _getRef0(_backFrame, mv_field_sel[3], 1, 0, 8, x, y, PMV[6], PMV[7] >> 1, bfld,
-                         avg);
+                _getRef0(_backFrame, mv_field_sel[1], 0, 0, 8, x, y, PMV[0][1][0],
+                         PMV[0][1][1] >> 1, bfld, avg);
+                _getRef0(_backFrame, mv_field_sel[3], 1, 0, 8, x, y, PMV[1][1][0],
+                         PMV[1][1][1] >> 1, bfld, avg);
             }
         } else if (motion_type == 1) {
-            _getRef0(mv_field_sel[1] ? _backBot : _backTop, 0, 0, 0, 16, x, y, PMV[2], PMV[3], 0,
-                     avg);
+            _getRef0(mv_field_sel[1] ? _backBot : _backTop, 0, 0, 0, 16, x, y, PMV[0][1][0],
+                     PMV[0][1][1], 0, avg);
         } else if (motion_type == 2) {
-            _getRef0(mv_field_sel[1] ? _backBot : _backTop, 0, 0, 0, 8, x, y, PMV[2], PMV[3], 0,
-                     avg);
-            _getRef0(mv_field_sel[3] ? _backBot : _backTop, 0, 0, 8, 8, x, y, PMV[6], PMV[7], 0,
-                     avg);
+            _getRef0(mv_field_sel[1] ? _backBot : _backTop, 0, 0, 0, 8, x, y, PMV[0][1][0],
+                     PMV[0][1][1], 0, avg);
+            _getRef0(mv_field_sel[3] ? _backBot : _backTop, 0, 0, 8, 8, x, y, PMV[1][1][0],
+                     PMV[1][1][1], 0, avg);
         } else {
             _Error1("(c) invalid motion_type(%d)-2", motion_type);
         }
@@ -1581,7 +1586,7 @@ int _pictureData0(int a0)
     return r == 0;
 }
 
-int _sliceA0(int a0, int *a1, int *a2, int *a3)
+int _sliceA0(int a0, int *a1, int *a2, int PMV[2][2][2])
 {
     int id;
     int m;
@@ -1605,20 +1610,20 @@ int _sliceA0(int a0, int *a1, int *a2, int *a3)
     *a1 = ((((m << 7) + (id & 0xFF)) - 1) * _widthMB + n) - 1;
     *a2 = 1;
     _sp_dcr = 1;
-    a3[5] = 0;
-    a3[4] = 0;
-    a3[1] = 0;
-    a3[0] = 0;
-    a3[7] = 0;
-    a3[6] = 0;
-    a3[3] = 0;
-    a3[2] = 0;
+    PMV[1][0][1] = 0;
+    PMV[1][0][0] = 0;
+    PMV[0][0][1] = 0;
+    PMV[0][0][0] = 0;
+    PMV[1][1][1] = 0;
+    PMV[1][1][0] = 0;
+    PMV[0][1][1] = 0;
+    PMV[0][1][0] = 0;
     return 0;
 }
 
 int _slice0(int a0, int a1)
 {
-    int PMV[8];
+    int PMV[2][2][2];
     int mv_field_sel[4];
     int dmvector[4];
     int mba;
@@ -1682,7 +1687,7 @@ int _slice0(int a0, int a1)
     }
 }
 
-int _skipMB0(int *PMV, int *motion_type, int *mv_field_sel, int *mb_type)
+int _skipMB0(int PMV[2][2][2], int *motion_type, int *mv_field_sel, int *mb_type)
 {
     int ret = 1;
     MCRecord *p;
@@ -1691,7 +1696,7 @@ int _skipMB0(int *PMV, int *motion_type, int *mv_field_sel, int *mb_type)
     p = &_mbcont.rec[_mbcont.cur];
     p->skip = 1;
     if (_picture_coding_type == 2) {
-        PMV[0] = PMV[1] = PMV[4] = PMV[5] = 0;
+        PMV[0][0][0] = PMV[0][0][1] = PMV[1][0][0] = PMV[1][0][1] = 0;
     }
     if (_picture_structure == 3) {
         motion_type[0] = 2;
