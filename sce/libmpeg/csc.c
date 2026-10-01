@@ -4,15 +4,15 @@
 #include <eeregs.h>
 #include <eekernel.h>
 
-void _doCSC(int a0, int a1)
+void _doCSC(int addr, int n)
 {
     int buf[8];
 
     while (*IPU_CTRL < 0) {}
-    *D3_MADR = a0 & 0x0FFFFFFF;
-    *D3_QWC = a1 << 6;
+    *D3_MADR = addr & 0x0FFFFFFF;
+    *D3_QWC = n << 6;
     *D3_CHCR = 0x100;
-    _sendIpuCommand(a1 | 0x70000000);
+    _sendIpuCommand(n | 0x70000000);
     buf[0] = 4;
     _dispatchMpegCallback(_theSceMpeg, buf);
     while (((*(volatile unsigned int *)D3_CHCR) >> 8) & 1) {}
@@ -71,22 +71,22 @@ int _ch3dmaCSC(int channel)
 /* More than 1023 macroblocks: the conversion runs in 1023-macroblock chunks,
  * the first kicked here and the rest by _ch3dmaCSC.  The first chunk's
  * quadword count is named once at the top. */
-void _doCSC2(int a0, int a1)
+void _doCSC2(int addr, int n)
 {
     int buf[8];
     int id;
     int qwc = 0xFFC0;
 
-    cscChunks = a1 / 1023 + 1;
-    cscRest = a1;
-    cscAddr = (a0 + 0xFFC00) & 0x0FFFFFFF;
+    cscChunks = n / 1023 + 1;
+    cscRest = n;
+    cscAddr = (addr + 0xFFC00) & 0x0FFFFFFF;
     cscError = 0;
     _cscDma[0] = 0;
     while (*IPU_CTRL < 0) {}
     id = AddDmacHandler(3, _ch3dmaCSC, 0);
     *D_STAT = 8;
     EnableDmac(3);
-    *D3_MADR = a0 & 0x0FFFFFFF;
+    *D3_MADR = addr & 0x0FFFFFFF;
     *D3_QWC = qwc;
     *D3_CHCR = 0x100;
     *IPU_CMD = 0x700003FF;

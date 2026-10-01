@@ -328,26 +328,26 @@ static int tlb_syscalls[12] /* derived name */ = {
     87, (int)kGetTLBEntry,     88, (int)kProbeTLBEntry, 89, (int)kExpandScratchPad,
 };
 
-void *SetTLBHandler(void *a0)
+void *SetTLBHandler(void *handler)
 {
-    _kTLBRefillHandler = (int)a0;
+    _kTLBRefillHandler = (int)handler;
     SetVTLBRefillHandler(1, _kTLBException);
     SetVTLBRefillHandler(2, _kTLBException);
     SetVTLBRefillHandler(3, _kTLBException);
-    return a0;
+    return handler;
 }
 
-int SetDebugHandler(int a0, int a1)
+int SetDebugHandler(int cause, int handler)
 {
     int old;
-    int orig = a0;
+    int orig = cause;
     unsigned int err = 0xFFFFFFFF;
-    if ((unsigned)(a0 - 1) >= 13) {
+    if ((unsigned)(cause - 1) >= 13) {
         return (int)err;
     }
     old = _kDebugHandler[orig];
-    _kDebugHandler[orig] = a1;
-    if ((unsigned)(a0 - 1) < 3) {
+    _kDebugHandler[orig] = handler;
+    if ((unsigned)(cause - 1) < 3) {
         SetVTLBRefillHandler(orig, (void *)_kDebugException);
     } else {
         SetVCommonHandler(orig, (void *)_kDebugException);

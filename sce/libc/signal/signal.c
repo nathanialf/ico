@@ -22,22 +22,22 @@ int _init_signal_r(void *ptr)
     return 0;
 }
 
-unsigned int _signal_r(void *a0, int a1, int a2)
+unsigned int _signal_r(void *ptr, int sig, int func)
 {
     unsigned int *base;
     unsigned int old;
-    if ((unsigned int)a1 >= 0x20) {
-        *(int *)a0 = 0x16;
+    if ((unsigned int)sig >= 0x20) {
+        *(int *)ptr = 0x16;
         return 0xFFFFFFFFU;
     }
-    if (*(int *)((char *)a0 + 0x1D4) == 0) {
-        if (_init_signal_r(a0) != 0) {
+    if (*(int *)((char *)ptr + 0x1D4) == 0) {
+        if (_init_signal_r(ptr) != 0) {
             return 0xFFFFFFFFU;
         }
     }
-    base = *(unsigned int **)((char *)a0 + 0x1D4);
-    old = base[a1];
-    base[a1] = a2;
+    base = *(unsigned int **)((char *)ptr + 0x1D4);
+    old = base[sig];
+    base[sig] = func;
     return old;
 }
 
@@ -103,14 +103,14 @@ int __sigtramp_r(void *ptr, int signo)
     return 0;
 }
 
-int raise(int a0)
+int raise(int sig)
 {
-    return _raise_r(_impure_ptr, a0);
+    return _raise_r(_impure_ptr, sig);
 }
 
-int signal(int a0, int a1)
+int signal(int sig, int func)
 {
-    return _signal_r(_impure_ptr, a0, a1);
+    return _signal_r(_impure_ptr, sig, func);
 }
 
 int _init_signal(void)
@@ -118,7 +118,7 @@ int _init_signal(void)
     return _init_signal_r(_impure_ptr);
 }
 
-int __sigtramp(int a0)
+int __sigtramp(int signo)
 {
-    return __sigtramp_r(_impure_ptr, a0);
+    return __sigtramp_r(_impure_ptr, signo);
 }

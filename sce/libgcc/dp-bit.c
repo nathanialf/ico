@@ -264,21 +264,21 @@ fp_number_type_d *_fpadd_parts(fp_number_type_d *a, fp_number_type_d *b, fp_numb
     return tmp;
 }
 
-void dpadd(long a0, long a1)
+void dpadd(long arg_a, long arg_b)
 {
     fp_number_type_d x, y, z;
 
-    __unpack_d(&a0, &x);
-    __unpack_d(&a1, &y);
+    __unpack_d(&arg_a, &x);
+    __unpack_d(&arg_b, &y);
     __pack_d(_fpadd_parts(&x, &y, &z));
 }
 
-long long dpsub(long a0, long a1)
+long long dpsub(long arg_a, long arg_b)
 {
     fp_number_type_d x, y, z;
 
-    __unpack_d(&a0, &x);
-    __unpack_d(&a1, &y);
+    __unpack_d(&arg_a, &x);
+    __unpack_d(&arg_b, &y);
     y.sign ^= 1;
     return __pack_d(_fpadd_parts(&x, &y, &z));
 }
@@ -387,24 +387,24 @@ static __inline__ fp_number_type_d *_fpmul_parts(fp_number_type_d *a, fp_number_
     return tmp;
 }
 
-long long dpmul(long a0, long a1)
+long long dpmul(long arg_a, long arg_b)
 {
     fp_number_type_d x, y, z;
 
-    __unpack_d(&a0, &x);
-    __unpack_d(&a1, &y);
+    __unpack_d(&arg_a, &x);
+    __unpack_d(&arg_b, &y);
     return __pack_d(_fpmul_parts(&x, &y, &z));
 }
 
-void dpdiv(long a0, long a1)
+void dpdiv(long arg_a, long arg_b)
 {
     fp_number_type_d x, y, *p;
 
     void *r;
     unsigned long long m1, m2, bit, q;
 
-    __unpack_d(&a0, &x);
-    __unpack_d(&a1, &y);
+    __unpack_d(&arg_a, &x);
+    __unpack_d(&arg_b, &y);
     p = &x;
     if (x.class >= 2)
         goto op2check;
@@ -537,12 +537,12 @@ int __fpcmp_parts_d(fp_number_type_d *a, fp_number_type_d *b)
     }
 }
 
-int dpcmp(long a0, long a1)
+int dpcmp(long arg_a, long arg_b)
 {
     fp_number_type_d x, y;
 
-    __unpack_d(&a0, &x);
-    __unpack_d(&a1, &y);
+    __unpack_d(&arg_a, &x);
+    __unpack_d(&arg_b, &y);
     return __fpcmp_parts_d(&x, &y);
 }
 
@@ -574,12 +574,12 @@ long long litodp(int arg_a)
     return __pack_d(&in);
 }
 
-int dptoli(long a0)
+int dptoli(long arg_a)
 {
     fp_number_type_d a;
     int tmp;
 
-    __unpack_d(&a0, &a);
+    __unpack_d(&arg_a, &a);
 
     if (iszero_d(&a)) {
         return 0;
@@ -600,11 +600,11 @@ int dptoli(long a0)
     return a.sign ? -tmp : tmp;
 }
 
-unsigned int dptoul(long a0)
+unsigned int dptoul(long arg_a)
 {
     fp_number_type_d a;
 
-    __unpack_d(&a0, &a);
+    __unpack_d(&arg_a, &a);
 
     if (iszero_d(&a)) {
         return 0;
@@ -630,34 +630,34 @@ unsigned int dptoul(long a0)
     return a.fraction.ll >> (60 - a.normal_exp);
 }
 
-void __negdf2(long long a0)
+void __negdf2(long long arg_a)
 {
     fp_number_type_d s;
 
-    long long t = a0;
+    long long t = arg_a;
     __unpack_d(&t, &s);
     s.sign = (s.sign == 0);
     __pack_d(&s);
 }
 
-int __make_dp(int a0, int a1, int a2, long long a3)
+int __make_dp(int class, int sign, int exp, long long frac)
 {
     fp_number_type_d s;
 
-    s.class = a0;
-    s.sign = a1;
-    s.normal_exp = a2;
-    s.fraction.ll = a3;
+    s.class = class;
+    s.sign = sign;
+    s.normal_exp = exp;
+    s.fraction.ll = frac;
     __pack_d(&s);
 }
 
-float dptofp(long a0)
+float dptofp(long arg_a)
 {
     fp_number_type_d buf;
 
     long long m;
     int hi, t;
-    __unpack_d(&a0, &buf);
+    __unpack_d(&arg_a, &buf);
     m = buf.fraction.ll;
     hi = (int)(m >> 30);
     t = hi | 1;

@@ -26,9 +26,9 @@ typedef struct { /* field names derived */
     unsigned int ipuctrl;
 } sceIpuDmaEnv;
 
-void sceIpuStopDMA(sceIpuDmaEnv *env);          /* definition in sce/ */
-void sceIpuInit(void);                          /* definition in sce/ */
-void sceIpuRestartDMA(sceIpuDmaEnv *env);       /* definition in sce/ */
-int sceIpuSync(int a0, unsigned short timeout); /* definition in sce/ */
+void sceIpuStopDMA(sceIpuDmaEnv *env);            /* definition in sce/ */
+void sceIpuInit(void);                            /* definition in sce/ */
+void sceIpuRestartDMA(sceIpuDmaEnv *env);         /* definition in sce/ */
+int sceIpuSync(int mode, unsigned short timeout); /* definition in sce/ */
 
 #endif /* SCE_LIBIPU_LIBIPU_H */

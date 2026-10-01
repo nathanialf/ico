@@ -101,7 +101,7 @@ int open(void)
     return -1;
 }
 
-int close(int a1)
+int close(int fd)
 {
     return -1;
 }

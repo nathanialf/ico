@@ -45,14 +45,14 @@ static int sgHeadContext[16]; /* derived name */
 
 static sceSifRpcClientData sgClient; /* derived name */
 
-void *_SgGetSlotContext(int a0)
+void *_SgGetSlotContext(int slot)
 {
-    return sgSlotContext[a0];
+    return sgSlotContext[slot];
 }
 
-void *_SgGetSeqContext(int a0)
+void *_SgGetSeqContext(int seq)
 {
-    return sgSeqContext[a0];
+    return sgSeqContext[seq];
 }
 
 void *_SgGetComContext(void)
@@ -60,19 +60,19 @@ void *_SgGetComContext(void)
     return sgComContext;
 }
 
-void *_SgGetVabContext(int a0)
+void *_SgGetVabContext(int vab)
 {
-    return sgVabContext[a0];
+    return sgVabContext[vab];
 }
 
-void _SgSetSeVolValue(int a0, int a1)
+void _SgSetSeVolValue(int vab, int vol)
 {
-    sgSeContext[a0] = a1;
+    sgSeContext[vab] = vol;
 }
 
-int _SgGetSeVolValue(int a0)
+int _SgGetSeVolValue(int vab)
 {
-    return sgSeContext[a0];
+    return sgSeContext[vab];
 }
 
 void *_SgSetSeContext(void)
@@ -90,10 +90,10 @@ void *_SgGetIop2EeContext(void)
     return sgIop2EeContext;
 }
 
-void *_SgGetPacketCntext(int a0, int a1)
+void *_SgGetPacketCntext(int page, int index)
 {
-    unsigned char *p = &sgPacketContext[a1 * 0x10];
-    return (void *)(a0 * 0x1000 + (int)p);
+    unsigned char *p = &sgPacketContext[index * 0x10];
+    return (void *)(page * 0x1000 + (int)p);
 }
 
 /* The driver's tick: run every sequence context's event stream up to the next
@@ -246,7 +246,7 @@ void _SgCalledTickProc(void)
  * lives in and c[0x10] the write index _SgGetPacketCntext resolves to a slot.
  * The index is read and bumped through a volatile view because the IOP side
  * polls it while the EE fills the ring. */
-int _SgSetPkAdd(int a0, int a1, int a2, int a3)
+int _SgSetPkAdd(int cmd, int id, int word2, int word3)
 {
     int *c = _SgGetComContext();
     volatile int *n = (volatile int *)&c[0x10];
@@ -255,10 +255,10 @@ int _SgSetPkAdd(int a0, int a1, int a2, int a3)
     if ((unsigned int)*n >= 0xFF) {
         return -1;
     }
-    p[0] = a0;
-    p[1] = a1;
-    p[2] = a2;
-    p[3] = a3;
+    p[0] = cmd;
+    p[1] = id;
+    p[2] = word2;
+    p[3] = word3;
     *n = *n + 1;
     return *n;
 }
@@ -277,9 +277,9 @@ static unsigned short panTable[32] /* derived name */ = {
  * program record, then keyed on through the pitch, volume and two register
  * packets.  A zero velocity is a key-off, a program below the table's base or
  * a full slot table leaves the cursor advanced and nothing else. */
-int _SgSeMain(int *a0)
+int _SgSeMain(int *seq)
 {
-    int *vab = _SgGetVabContext(*(unsigned short *)((char *)a0 + 0x18));
+    int *vab = _SgGetVabContext(*(unsigned short *)((char *)seq + 0x18));
     char *com = _SgGetComContext();
     unsigned char **head = _SgGetHeadContext();
     long long mask = 1;
@@ -289,20 +289,20 @@ int _SgSeMain(int *a0)
     int slot;
 
     if (head[4][2] == 0) {
-        _SgSeKeyOff((char *)a0);
+        _SgSeKeyOff((char *)seq);
         return 0;
     }
     n = head[4][1] - head[0][6];
     if (n < 0) {
-        a0[1] += 4;
+        seq[1] += 4;
         return 0;
     }
     off = n << 4;
     head[1] += off;
-    *(head[2] + (*(unsigned short *)((char *)a0 + 0x4E) << 4) + 0x1A) = 0x40;
-    slot = _SgSeKeyOnSlot(head[1][0], head[1][1], *(unsigned short *)((char *)a0 + 0x18));
+    *(head[2] + (*(unsigned short *)((char *)seq + 0x4E) << 4) + 0x1A) = 0x40;
+    slot = _SgSeKeyOnSlot(head[1][0], head[1][1], *(unsigned short *)((char *)seq + 0x18));
     if (slot == -1) {
-        a0[1] += 4;
+        seq[1] += 4;
         return 0;
     }
     mask <<= slot;
@@ -314,8 +314,8 @@ int _SgSeMain(int *a0)
     }
     *(int *)s = *(volatile int *)s & 0xFFFFFFD7;
     s[0x4E] = head[4][1];
-    s[0x4F] = *(unsigned char *)((char *)a0 + 0x4E);
-    s[0x50] = *(unsigned char *)((char *)a0 + 0x4C);
+    s[0x4F] = *(unsigned char *)((char *)seq + 0x4E);
+    s[0x50] = *(unsigned char *)((char *)seq + 0x4C);
     *(short *)(s + 0xC) = n;
     *(short *)(s + 0x10) = 0;
     *(int *)(s + 4) = *(int *)(com + 0x34);
@@ -323,20 +323,20 @@ int _SgSeMain(int *a0)
     *(int *)(s + 8) = 0;
     s[0x52] = head[1][1];
     s[0x53] = head[1][0];
-    s[0x54] = *(unsigned char *)((char *)a0 + 0x18);
-    s[0x55] = *(unsigned char *)((char *)a0 + 0x1A);
-    s[0x56] = *(unsigned char *)((char *)a0 + 0x1C);
-    *(short *)(s + 0x16) = *(head[2] + (*(unsigned short *)((char *)a0 + 0x4E) << 4) + 0x1E);
+    s[0x54] = *(unsigned char *)((char *)seq + 0x18);
+    s[0x55] = *(unsigned char *)((char *)seq + 0x1A);
+    s[0x56] = *(unsigned char *)((char *)seq + 0x1C);
+    *(short *)(s + 0x16) = *(head[2] + (*(unsigned short *)((char *)seq + 0x4E) << 4) + 0x1E);
     *(short *)(s + 0x18) = head[0][1];
     *(short *)(s + 0x1A) = head[4][2];
     *(short *)(s + 0x1C) = head[1][0xB];
     *(short *)(s + 0x1E) = head[2][0];
     *(short *)(s + 0x20) = panTable[head[1][0xC] >> 2];
-    *(short *)(s + 0x22) = *(head[2] + (*(unsigned short *)((char *)a0 + 0x4E) << 4) + 0x13);
+    *(short *)(s + 0x22) = *(head[2] + (*(unsigned short *)((char *)seq + 0x4E) << 4) + 0x13);
     *(short *)(s + 0x24) = *(char *)(head[1] + 3);
-    *(short *)(s + 0x26) = *(head[2] + (*(unsigned short *)((char *)a0 + 0x4E) << 4) + 0x1A);
+    *(short *)(s + 0x26) = *(head[2] + (*(unsigned short *)((char *)seq + 0x4E) << 4) + 0x1A);
     *(short *)(s + 0x28) = head[1][0xD];
-    *(short *)(s + 0x14) = *(head[2] + (*(unsigned short *)((char *)a0 + 0x4E) << 4) + 0x1C);
+    *(short *)(s + 0x14) = *(head[2] + (*(unsigned short *)((char *)seq + 0x4E) << 4) + 0x1C);
     *(short *)(s + 0x2C) = head[4][3];
     *(short *)(s + 0x2A) = head[1][2];
     *(short *)(s + 0x2E) = head[1][0xA];
@@ -355,12 +355,12 @@ int _SgSeMain(int *a0)
         *(volatile int *)s = *(volatile int *)s & 0xFFFFFFEF;
     }
     _SgPitchTableVag(slot, head[1][2], head[4][1], *(char *)(head[1] + 3),
-                     *(head[2] + (*(unsigned short *)((char *)a0 + 0x4E) << 4) + 0x1A),
-                     head[1][0xD], a0[0x10]);
-    _SgSeqSeVolume(slot, a0);
+                     *(head[2] + (*(unsigned short *)((char *)seq + 0x4E) << 4) + 0x1A),
+                     head[1][0xD], seq[0x10]);
+    _SgSeqSeVolume(slot, seq);
     _SgSetPkAdd(3, slot, (vab[1] + *(unsigned short *)(head[1] + 4)) << vab[2], 0);
     _SgSetPkAdd(2, slot, *(unsigned short *)(head[1] + 6), *(unsigned short *)(head[1] + 8));
-    if (a0[0] & 0x1000) {
+    if (seq[0] & 0x1000) {
         *(long long *)com = *(long long *)com | mask;
     } else if (head[1][0xF] & 0x80) {
         *(long long *)com = *(long long *)com | mask;
@@ -376,7 +376,7 @@ int _SgSeMain(int *a0)
     }
     head[1] -= off;
     *(int *)(com + 0x34) = *(int *)(com + 0x34) + 1;
-    a0[1] += 4;
+    seq[1] += 4;
     return 0;
 }
 
@@ -387,9 +387,9 @@ int _SgSeMain(int *a0)
  * filled from the record, the sequence and the program record, then keyed on
  * through the pan curve, the pitch and volume calls and the two register
  * packets. */
-int _SgBgmMain(int *a0)
+int _SgBgmMain(int *seq)
 {
-    int *vab = _SgGetVabContext(*(unsigned short *)((char *)a0 + 0x18));
+    int *vab = _SgGetVabContext(*(unsigned short *)((char *)seq + 0x18));
     char *com = _SgGetComContext();
     unsigned char **head = _SgGetHeadContext();
     long long mask;
@@ -402,11 +402,11 @@ int _SgBgmMain(int *a0)
     int first;
 
     if (head[4][2] == 0) {
-        _SgSeqKeyOff(a0);
+        _SgSeqKeyOff(seq);
         return -1;
     }
     if (head[0][6] - head[4][1] > 0) {
-        a0[1] += 3;
+        seq[1] += 3;
         return -1;
     }
     if (head[0][0] == 0xFF) {
@@ -446,8 +446,8 @@ int _SgBgmMain(int *a0)
         }
         *(int *)s = *(volatile int *)s & 0xFFFFFFDF;
         s[0x4E] = head[4][1];
-        s[0x4F] = *(unsigned char *)((char *)a0 + 0x4E);
-        s[0x50] = *(unsigned char *)((char *)a0 + 0x4C);
+        s[0x4F] = *(unsigned char *)((char *)seq + 0x4E);
+        s[0x50] = *(unsigned char *)((char *)seq + 0x4C);
         *(short *)(s + 0xC) = i;
         *(short *)(s + 0x10) = 0;
         *(int *)(s + 4) = *(int *)(com + 0x34);
@@ -455,43 +455,43 @@ int _SgBgmMain(int *a0)
         *(int *)(s + 8) = 0;
         s[0x52] = head[1][1];
         s[0x53] = head[1][0];
-        s[0x54] = *(unsigned char *)((char *)a0 + 0x18);
-        *(short *)(s + 0x16) = *(head[2] + (*(unsigned short *)((char *)a0 + 0x4E) << 4) + 0x1E);
+        s[0x54] = *(unsigned char *)((char *)seq + 0x18);
+        *(short *)(s + 0x16) = *(head[2] + (*(unsigned short *)((char *)seq + 0x4E) << 4) + 0x1E);
         *(short *)(s + 0x18) = head[0][1];
         *(short *)(s + 0x1A) = head[4][2];
         *(short *)(s + 0x1C) = head[1][0xB];
         *(short *)(s + 0x1E) = head[2][0];
-        *(short *)(s + 0x20) = panTable[_SgPan(0, *(unsigned short *)((char *)a0 + 0x4E)) >> 2];
-        *(short *)(s + 0x22) = *(head[2] + (*(unsigned short *)((char *)a0 + 0x4E) << 4) + 0x13);
+        *(short *)(s + 0x20) = panTable[_SgPan(0, *(unsigned short *)((char *)seq + 0x4E)) >> 2];
+        *(short *)(s + 0x22) = *(head[2] + (*(unsigned short *)((char *)seq + 0x4E) << 4) + 0x13);
         *(short *)(s + 0x24) = *(char *)(head[1] + 3);
-        *(short *)(s + 0x26) = *(head[2] + (*(unsigned short *)((char *)a0 + 0x4E) << 4) + 0x1A);
+        *(short *)(s + 0x26) = *(head[2] + (*(unsigned short *)((char *)seq + 0x4E) << 4) + 0x1A);
         *(short *)(s + 0x28) = head[1][0xD];
-        *(short *)(s + 0x14) = *(head[2] + (*(unsigned short *)((char *)a0 + 0x4E) << 4) + 0x1C);
+        *(short *)(s + 0x14) = *(head[2] + (*(unsigned short *)((char *)seq + 0x4E) << 4) + 0x1C);
         *(short *)(s + 0x2C) = head[4][3];
         *(short *)(s + 0x2A) = head[1][2];
         *(short *)(s + 0x2E) = head[1][0xA];
-        *(short *)(s + 0x30) = *(head[2] + (*(unsigned short *)((char *)a0 + 0x4E) << 4) + 0x14);
-        if (*(head[2] + (*(unsigned short *)((char *)a0 + 0x4E) << 4) + 0x1B) == 0x7F) {
+        *(short *)(s + 0x30) = *(head[2] + (*(unsigned short *)((char *)seq + 0x4E) << 4) + 0x14);
+        if (*(head[2] + (*(unsigned short *)((char *)seq + 0x4E) << 4) + 0x1B) == 0x7F) {
             *(int *)s = *(volatile int *)s | 8;
         }
         if (head[1][0xF] & 0x20) {
             unsigned char *lfo = head[2] + 0x19;
 
-            if (lfo[*(unsigned short *)((char *)a0 + 0x4E) << 4] == 0) {
+            if (lfo[*(unsigned short *)((char *)seq + 0x4E) << 4] == 0) {
                 goto nolfo;
             }
             *(int *)s = *(volatile int *)s | 0x10;
             *(short *)(s + 0xE) = head[1][0xE];
-            *(short *)(s + 0x12) = lfo[*(unsigned short *)((char *)a0 + 0x4E) << 4];
+            *(short *)(s + 0x12) = lfo[*(unsigned short *)((char *)seq + 0x4E) << 4];
         } else {
         nolfo:
             *(short *)(s + 0x12) = 0;
             *(int *)s = *(volatile int *)s & 0xFFFFFFEF;
         }
         _SgPitchTableVag(slot, head[1][2], head[4][1], *(char *)(head[1] + 3),
-                         *(head[2] + (*(unsigned short *)((char *)a0 + 0x4E) << 4) + 0x1A),
+                         *(head[2] + (*(unsigned short *)((char *)seq + 0x4E) << 4) + 0x1A),
                          head[1][0xD], 0x1000);
-        _SgSeqSeVolume(slot, a0);
+        _SgSeqSeVolume(slot, seq);
         _SgSetPkAdd(3, slot, (vab[1] + *(unsigned short *)(head[1] + 4)) << vab[2], 0);
         _SgSetPkAdd(2, slot, *(unsigned short *)(head[1] + 6), *(unsigned short *)(head[1] + 8));
         *(long long *)(com + 0x20) = *(long long *)(com + 0x20) | mask;
@@ -507,7 +507,7 @@ int _SgBgmMain(int *a0)
             break;
         }
     }
-    a0[1] += 3;
+    seq[1] += 3;
     return 0;
 }
 
@@ -765,7 +765,7 @@ void _SgSetRealtimeTickProc(void)
  * status word is read through a volatile view at each test, as elsewhere in
  * this file. Every matching voice then gets its 0x1E level and, for a keyed
  * voice, its 0x16 channel level, and is re-levelled through _SgSeqSeVolume. */
-int _SgSetRealtimeVolume(int *a0)
+int _SgSetRealtimeVolume(int *seq)
 {
     unsigned char *base;
     unsigned char *s;
@@ -773,35 +773,35 @@ int _SgSetRealtimeVolume(int *a0)
     int i;
     int k;
 
-    if ((*(volatile int *)a0 & 5) == 4) {
-        int v = _SgGetSeVolValue(*(unsigned short *)((char *)a0 + 0x18));
+    if ((*(volatile int *)seq & 5) == 4) {
+        int v = _SgGetSeVolValue(*(unsigned short *)((char *)seq + 0x18));
 
         if (v & 0x80) {
-            *(int *)((char *)a0 + 0x30) = 0xFFFF;
+            *(int *)((char *)seq + 0x30) = 0xFFFF;
             mode = 1;
-            *(int *)((char *)a0 + 0x34) = v & 0x7F;
+            *(int *)((char *)seq + 0x34) = v & 0x7F;
         }
-    } else if ((*(volatile int *)a0 & 5) == 1) {
-        if (*(volatile int *)a0 & 0x200) {
+    } else if ((*(volatile int *)seq & 5) == 1) {
+        if (*(volatile int *)seq & 0x200) {
             mode = 2;
-            a0[0] = *(volatile int *)a0 & 0xFFFFFDFF;
+            seq[0] = *(volatile int *)seq & 0xFFFFFDFF;
         }
     }
     switch (mode) {
     case 1:
         base = (unsigned char *)*(
-            int *)(*(int *)_SgGetVabContext(*(unsigned short *)((char *)a0 + 0x18)) + 0x40);
-        *base = *((unsigned char *)a0 + 0x34);
+            int *)(*(int *)_SgGetVabContext(*(unsigned short *)((char *)seq + 0x18)) + 0x40);
+        *base = *((unsigned char *)seq + 0x34);
         break;
     case 2:
-        base = (unsigned char *)a0[2];
-        if (*(int *)((char *)a0 + 0x30) == 0xFFFF) {
-            *base = *((unsigned char *)a0 + 0x34);
+        base = (unsigned char *)seq[2];
+        if (*(int *)((char *)seq + 0x30) == 0xFFFF) {
+            *base = *((unsigned char *)seq + 0x34);
         }
-        if (*(int *)((char *)a0 + 0x38) != 0) {
+        if (*(int *)((char *)seq + 0x38) != 0) {
             for (i = 0; i < 0x10; i++) {
-                if ((*(int *)((char *)a0 + 0x38) >> i) & 1) {
-                    *(char *)(base + (i << 4) + 0x1E) = *((unsigned char *)a0 + 0x3C);
+                if ((*(int *)((char *)seq + 0x38) >> i) & 1) {
+                    *(char *)(base + (i << 4) + 0x1E) = *((unsigned char *)seq + 0x3C);
                 }
             }
         }
@@ -812,14 +812,14 @@ int _SgSetRealtimeVolume(int *a0)
     s = _SgGetSlotContext(0);
     for (i = 0; i < 0x30; i++, s += 0x58) {
         k = s[0x51];
-        if (k != 0 && k != 3 && s[0x50] == *(unsigned short *)((char *)a0 + 0x4C)) {
+        if (k != 0 && k != 3 && s[0x50] == *(unsigned short *)((char *)seq + 0x4C)) {
             *(short *)(s + 0x1E) = *base;
             if (k == 1) {
                 unsigned char *vp = base + 0x1E;
 
                 *(short *)(s + 0x16) = vp[s[0x4F] << 4];
             }
-            _SgSeqSeVolume(i, a0);
+            _SgSeqSeVolume(i, seq);
         }
     }
     return 0;
@@ -827,7 +827,7 @@ int _SgSetRealtimeVolume(int *a0)
 
 /* Both arms fill the same three head slots from one table pointer (tb) and
  * one data pointer (p, reloaded from the header in the flag-4 arm). */
-int _SgTableEnvAdd(int *a0)
+int _SgTableEnvAdd(int *seq)
 {
     int *head = _SgGetHeadContext();
     int *vab;
@@ -842,15 +842,15 @@ int _SgTableEnvAdd(int *a0)
 
     /* volatile: the vab id at 0x18 is read twice, once for the range check
        and again for the _SgGetVabContext call. */
-    if ((unsigned int)(*(volatile unsigned short *)((char *)a0 + 0x18) - 1) >= 127) {
+    if ((unsigned int)(*(volatile unsigned short *)((char *)seq + 0x18) - 1) >= 127) {
         return -1;
     }
-    vab = _SgGetVabContext(*(unsigned short *)((char *)a0 + 0x18));
+    vab = _SgGetVabContext(*(unsigned short *)((char *)seq + 0x18));
     hdr = (char *)vab[0];
     if (hdr == 0) {
         return -1;
     }
-    p = (char *)a0[2];
+    p = (char *)seq[2];
     if (p == 0) {
         return -1;
     }
@@ -859,21 +859,21 @@ int _SgTableEnvAdd(int *a0)
     if (magic != 0x64685353) {
         return -1;
     }
-    cur = a0[1];
+    cur = seq[1];
     e = (unsigned char *)(p + cur);
     head[4] = (int)e;
     b = *e;
     if (b & 0x80) {
-        *((char *)a0 + 0x50) = b;
-        *((char *)a0 + 0x51) = b;
+        *((char *)seq + 0x50) = b;
+        *((char *)seq + 0x51) = b;
     } else {
-        a0[1] = cur - 1;
-        *((char *)a0 + 0x50) = *((unsigned char *)a0 + 0x51);
+        seq[1] = cur - 1;
+        *((char *)seq + 0x50) = *((unsigned char *)seq + 0x51);
         head[4] = (int)(p + (cur - 1));
     }
     ret = 1;
-    if (a0[0] & 4) {
-        *(short *)((char *)a0 + 0x4E) = *(unsigned short *)((char *)a0 + 0x4C);
+    if (seq[0] & 4) {
+        *(short *)((char *)seq + 0x4E) = *(unsigned short *)((char *)seq + 0x4C);
         tb = *(unsigned char **)(head[3] + 0x44);
         p = *(char **)(head[3] + 0x40);
         head[0] = (int)tb + *(unsigned short *)(tb + *(unsigned char *)(head[4] + 3) * 2 + 2);
@@ -884,22 +884,22 @@ int _SgTableEnvAdd(int *a0)
 
         head[2] = (int)p;
         tb = (unsigned char *)*(int *)(head[3] + 0x30);
-        *(short *)((char *)a0 + 0x4E) = *((unsigned char *)a0 + 0x50) & 0xF;
-        n = *(unsigned char *)(p + (*(unsigned short *)((char *)a0 + 0x4E) << 4) + 0x12);
+        *(short *)((char *)seq + 0x4E) = *((unsigned char *)seq + 0x50) & 0xF;
+        n = *(unsigned char *)(p + (*(unsigned short *)((char *)seq + 0x4E) << 4) + 0x12);
         head[0] = (int)tb + *(unsigned short *)(tb + n * 2 + 2);
         head[1] = head[0] + 8;
-        if (*((unsigned char *)a0 + 0x50) < 0xA0) {
+        if (*((unsigned char *)seq + 0x50) < 0xA0) {
             if (*(unsigned short *)(tb + n * 2 + 2) == 0xFFFF || *(unsigned short *)tb < n ||
                 *(unsigned int *)(head[3] + 0x10) == 0xFFFFFFFF) {
                 ret = 0;
-                a0[1] += 3;
+                seq[1] += 3;
             }
         }
     }
     return ret;
 }
 
-int _SgSeqKeyOnSlot(int a0)
+int _SgSeqKeyOnSlot(int note)
 {
     int *mgr = _SgGetComContext();
     int best_idx = -1;
@@ -943,7 +943,7 @@ int _SgSeqKeyOnSlot(int a0)
  * slot (state 1) wins over a sounding one (state 2), and a sounding slot is
  * only stolen when its 0x52 priority is at or below the caller's.  The
  * rotating cursor mgr[0xC] is what spreads the search over the 48 slots. */
-int _SgSeKeyOnSlot(int a0, int a1, int a2)
+int _SgSeKeyOnSlot(int owner, int pri, int vab)
 {
     int *mgr = _SgGetComContext();
     int off_idx = -1;
@@ -957,13 +957,13 @@ int _SgSeKeyOnSlot(int a0, int a1, int a2)
     int one;
     int two;
 
-    if (a0 != 0) {
+    if (owner != 0) {
         i = 0;
         do {
             idx = (unsigned int)mgr[0xC] % 0x30;
             obj = _SgGetSlotContext(idx);
-            if ((*(int *)obj & 0x100) == 0 && obj[0x51] == 2 && obj[0x53] == a0 &&
-                obj[0x54] == a2) {
+            if ((*(int *)obj & 0x100) == 0 && obj[0x51] == 2 && obj[0x53] == owner &&
+                obj[0x54] == vab) {
                 return idx;
             }
             mgr[0xC]++;
@@ -993,7 +993,7 @@ int _SgSeKeyOnSlot(int a0, int a1, int a2)
                     off_val = v;
                 }
             } else if (obj[0x51] == two) {
-                if (obj[0x52] <= a1) {
+                if (obj[0x52] <= pri) {
                     int v = *(int *)(obj + 4);
                     if ((unsigned int)v < (unsigned int)on_val) {
                         on_idx = idx;
@@ -1013,7 +1013,7 @@ int _SgSeKeyOnSlot(int a0, int a1, int a2)
     return -1;
 }
 
-int _SgSeKeyOff(char *a0)
+int _SgSeKeyOff(char *seq)
 {
     long long mask16 = 0;
     long long mask19 = 0;
@@ -1036,10 +1036,10 @@ int _SgSeKeyOff(char *a0)
         if (*(unsigned char *)(elem + 0x4E) != *(unsigned char *)(q + 1)) {
             continue;
         }
-        if (*(unsigned char *)(elem + 0x54) != *(unsigned short *)(a0 + 0x18)) {
+        if (*(unsigned char *)(elem + 0x54) != *(unsigned short *)(seq + 0x18)) {
             continue;
         }
-        if (*(unsigned char *)(elem + 0x50) == *(unsigned short *)(a0 + 0x4C)) {
+        if (*(unsigned char *)(elem + 0x50) == *(unsigned short *)(seq + 0x4C)) {
             mask16 |= (1LL << i);
         } else {
             mask19 |= (1LL << i);
@@ -1053,7 +1053,7 @@ int _SgSeKeyOff(char *a0)
             *(long long *)(com + 0x28) |= (1LL << i);
         }
     }
-    *(int *)(a0 + 4) += 4;
+    *(int *)(seq + 4) += 4;
     return 0;
 }
 
@@ -1063,7 +1063,7 @@ int _SgSeKeyOff(char *a0)
  * context's 64-bit key-off mask at 0x28.  The slot status word is read through
  * a volatile view at every test because the tick proc updates it while the
  * sequence runs; the write-back is plain. */
-int _SgSeqKeyOff(int *a0)
+int _SgSeqKeyOff(int *seq)
 {
     unsigned char *s = _SgGetSlotContext(0);
     char *com = _SgGetComContext();
@@ -1073,10 +1073,10 @@ int _SgSeqKeyOff(int *a0)
 
     for (i = 0; i < 0x30; i++, s += 0x58) {
         if (s[0x4E] == e[1]) {
-            if (s[0x4F] == *(unsigned short *)((char *)a0 + 0x4E)) {
-                if (s[0x50] == *(unsigned short *)((char *)a0 + 0x4C)) {
+            if (s[0x4F] == *(unsigned short *)((char *)seq + 0x4E)) {
+                if (s[0x50] == *(unsigned short *)((char *)seq + 0x4C)) {
                     if (s[0x51] == 1) {
-                        if (s[0x54] == *(unsigned short *)((char *)a0 + 0x18)) {
+                        if (s[0x54] == *(unsigned short *)((char *)seq + 0x18)) {
                             if ((*(volatile int *)s & 4) == 0) {
                                 *(int *)s = *(volatile int *)s & 0xFFFFFFF7;
                             } else if ((*(volatile int *)s & 8) != 0) {
@@ -1090,34 +1090,35 @@ int _SgSeqKeyOff(int *a0)
             }
         }
     }
-    a0[1] += 3;
+    seq[1] += 3;
     return 0;
 }
 
-int _SgIntoKeyOn(int a0, int a1, int a2)
+int _SgIntoKeyOn(int count, int note, int key)
 {
     int *r = (int *)_SgGetHeadContext();
-    if (a0 == 0xFF) {
-        a0 = 1;
+    if (count == 0xFF) {
+        count = 1;
     } else {
-        int off = a1 << 4;
+        int off = note << 4;
         int base = r[1] + off;
         unsigned char *b = (unsigned char *)base;
         r[1] = base;
-        if (a2 < b[0]) {
-            a0 = 0;
+        if (key < b[0]) {
+            count = 0;
         } else {
             int c = b[1];
-            a0 = (c >= a2);
+            count = (c >= key);
         }
         r[1] = base - off;
     }
-    return a0;
+    return count;
 }
 
-int _SgPitchTableVag(int a0, int a1, int a2, int a3, int a4, int a5, int a6)
+int _SgPitchTableVag(int slot, int step, int note, int fine, int bend, int range, int pitch)
 {
-    _SgSetPkAdd(4, a0, (a1 << 24) | (a2 << 16) | ((a3 & 0xFF) << 8) | a4, (a5 << 24) | a6);
+    _SgSetPkAdd(4, slot, (step << 24) | (note << 16) | ((fine & 0xFF) << 8) | bend,
+                (range << 24) | pitch);
     return 0;
 }
 
@@ -1126,9 +1127,9 @@ int _SgPitchTableVag(int a0, int a1, int a2, int a3, int a4, int a5, int a6)
  * right levels the IOP packet carries.  With the common context's 0x38 flag set
  * both sides take the larger magnitude, and a non-zero 0x2E folds the slot's
  * own attenuation into the top byte. */
-int _SgSeqSeVolume(int a0, int *a1)
+int _SgSeqSeVolume(int voice, int *seq)
 {
-    unsigned char *slot = _SgGetSlotContext(a0);
+    unsigned char *slot = _SgGetSlotContext(voice);
     int *com = _SgGetComContext();
     long long m;
     short l;
@@ -1137,8 +1138,8 @@ int _SgSeqSeVolume(int a0, int *a1)
     m = (long long)*(unsigned short *)(slot + 0x16) * *(unsigned short *)(slot + 0x22);
     m = m * ((long long)*(unsigned short *)(slot + 0x1C) * *(unsigned short *)(slot + 0x1A));
     m = m * ((long long)*(unsigned short *)(slot + 0x18) * *(unsigned short *)(slot + 0x1E));
-    l = (m * (*(unsigned short *)(slot + 0x20) >> 8) * a1[0x11]) >> 46;
-    r = (m * (*(unsigned short *)(slot + 0x20) & 0xFF) * a1[0x12]) >> 46;
+    l = (m * (*(unsigned short *)(slot + 0x20) >> 8) * seq[0x11]) >> 46;
+    r = (m * (*(unsigned short *)(slot + 0x20) & 0xFF) * seq[0x12]) >> 46;
     if (*(unsigned short *)((char *)com + 0x38) == 1) {
         l = (l < 0) ? -l : l;
         r = (r < 0) ? -r : r;
@@ -1154,23 +1155,23 @@ int _SgSeqSeVolume(int a0, int *a1)
         l = (*(unsigned short *)(slot + 0x2E) << 8) | (l >> 7);
         r = (*(unsigned short *)(slot + 0x2E) << 8) | (r >> 7);
     }
-    _SgSetPkAdd(1, a0, l, r);
+    _SgSetPkAdd(1, voice, l, r);
     return 0;
 }
 
 /* The head context's three tables: h[0] the common block, h[1] the slot table
  * and h[2] the sequence table, both indexed by a 16-byte record.  The slot
  * pointer is advanced over the record for the read and put back afterwards. */
-int _SgPan(int a0, int a1)
+int _SgPan(int tone, int ch)
 {
     int *h = _SgGetHeadContext();
-    unsigned char *seq = (unsigned char *)(h[2] + a1 * 16);
+    unsigned char *seq = (unsigned char *)(h[2] + ch * 16);
     int v;
 
-    h[1] += a0 * 16;
+    h[1] += tone * 16;
     v = seq[0x14] + *(unsigned char *)(h[1] + 0xC) - 0x80;
     v += *(unsigned char *)(h[0] + 2);
-    h[1] -= a0 * 16;
+    h[1] -= tone * 16;
     if (v >= 0x80) {
         v = 0x7F;
     }
@@ -1180,69 +1181,69 @@ int _SgPan(int a0, int a1)
     return v;
 }
 
-/* End of sequence: a0 is the sequence context, a0[0] its status word, a0[1] the
- * event cursor, a0[5] the repeat state and 0x4C the sequence id the voices carry
+/* End of sequence: seq is the sequence context, seq[0] its status word, seq[1] the
+ * event cursor, seq[5] the repeat state and 0x4C the sequence id the voices carry
  * at slot offset 0x50.  Every status word here is read through a volatile view
  * (the tick proc and the IOP both touch these while the sequence runs) and
  * written back plainly. */
-void _SgEndSeq(int *a0)
+void _SgEndSeq(int *seq)
 {
     unsigned char *s = _SgGetSlotContext(0);
     int i;
 
-    if (*(volatile int *)a0 & 4) {
-        a0[5] = 0;
-        a0[0] = *(volatile int *)a0 & 0xFFFFEFF7;
+    if (*(volatile int *)seq & 4) {
+        seq[5] = 0;
+        seq[0] = *(volatile int *)seq & 0xFFFFEFF7;
     } else {
-        a0[1] = 0x110;
-        a0[0] = *(volatile int *)a0 & 0xFFFFFFFD;
+        seq[1] = 0x110;
+        seq[0] = *(volatile int *)seq & 0xFFFFFFFD;
     }
-    a0[0] = *(volatile int *)a0 | 0x40;
+    seq[0] = *(volatile int *)seq | 0x40;
     for (i = 0; i < 48; i++, s += 0x58) {
-        if (s[0x50] == *(unsigned short *)((char *)a0 + 0x4C)) {
+        if (s[0x50] == *(unsigned short *)((char *)seq + 0x4C)) {
             if (s[0x51] == 1) {
                 *(int *)s = *(volatile int *)s & 0xFFFFFFEF;
                 *(short *)(s + 0x26) = 0x40;
             }
         }
     }
-    *((char *)a0 + 0x51) = *((unsigned char *)a0 + 0x50);
+    *((char *)seq + 0x51) = *((unsigned char *)seq + 0x50);
 }
 
-void _SgTempoChange(int *a0)
+void _SgTempoChange(int *seq)
 {
-    unsigned char *p = (unsigned char *)(a0[2] + a0[1]);
+    unsigned char *p = (unsigned char *)(seq[2] + seq[1]);
     void *q = _SgGetComContext();
-    *(unsigned short *)((char *)a0 + 0x1E) = p[2] | (p[3] << 8);
-    *(int *)((char *)a0 + 0x10) =
-        ((((int)*(unsigned short *)((char *)a0 + 0x20) * *(unsigned short *)((char *)a0 + 0x1E))
+    *(unsigned short *)((char *)seq + 0x1E) = p[2] | (p[3] << 8);
+    *(int *)((char *)seq + 0x10) =
+        ((((int)*(unsigned short *)((char *)seq + 0x20) * *(unsigned short *)((char *)seq + 0x1E))
           << 12) /
          *(unsigned short *)((char *)q + 0x3A)) /
         0x3C;
-    a0[1] += 4;
+    seq[1] += 4;
 }
 
-void _SgProgChange(int *a0)
+void _SgProgChange(int *seq)
 {
     int *p;
     unsigned short idx;
     char *base;
     char *v2;
-    if ((*(a0 + 0)) & 2) {
+    if ((*(seq + 0)) & 2) {
         p = (int *)_SgGetHeadContext();
-        idx = *((unsigned short *)(((char *)a0) + 0x4E));
+        idx = *((unsigned short *)(((char *)seq) + 0x4E));
         v2 = (char *)(*((int *)(((char *)p) + 0x10)));
         ;
         *((((char *)(*((int *)(((char *)p) + 8)))) + (idx << 4)) + 0x12) =
             *((unsigned char *)(v2 + 1));
-        idx = *((unsigned short *)(((char *)a0) + 0x4E));
+        idx = *((unsigned short *)(((char *)seq) + 0x4E));
         base = ((char *)(*((int *)(((char *)p) + 8)))) + (idx << 4);
         *(base + 0x1A) = 0x40;
-        idx = *((unsigned short *)(((char *)a0) + 0x4E));
+        idx = *((unsigned short *)(((char *)seq) + 0x4E));
         base = ((char *)(*((int *)(((char *)p) + 8)))) + (idx << 4);
         *(base + 0x1B) = 0x40;
     }
-    *(a0 + 1) += 2;
+    *(seq + 1) += 2;
 }
 
 /* Modulation controller: with bit 8 of the status word set the event carries
@@ -1250,19 +1251,19 @@ void _SgProgChange(int *a0)
  * and the cursor advances 5, otherwise the value lands in the program record
  * at 0x19 and the sequence keys the slots itself for a 3 byte event.  Both
  * loops read AND write the slot status word through a volatile view. */
-void _SgContMod(int *a0)
+void _SgContMod(int *seq)
 {
     unsigned char *s = _SgGetSlotContext(0);
     int *head = _SgGetHeadContext();
     int i;
 
-    if (a0[0] & 8) {
+    if (seq[0] & 8) {
         for (i = 0; i < 48; i++, s += 0x58) {
             if (s[0x51] == 2) {
                 if (*(unsigned short *)(s + 0x2C) == *(unsigned char *)(head[4] + 3)) {
                     if (s[0x4E] == *(unsigned char *)(head[4] + 4)) {
-                        if (s[0x54] == *(unsigned short *)((char *)a0 + 0x18)) {
-                            if (s[0x50] == *(unsigned short *)((char *)a0 + 0x4C)) {
+                        if (s[0x54] == *(unsigned short *)((char *)seq + 0x18)) {
+                            if (s[0x50] == *(unsigned short *)((char *)seq + 0x4C)) {
                                 *(short *)(s + 0x12) = *(unsigned char *)(head[4] + 2);
                                 *(volatile int *)s = *(volatile int *)s | 0x10;
                             }
@@ -1271,14 +1272,14 @@ void _SgContMod(int *a0)
                 }
             }
         }
-        a0[1] += 5;
+        seq[1] += 5;
     } else {
-        *(char *)(head[2] + (*(unsigned short *)((char *)a0 + 0x4E) << 4) + 0x19) =
+        *(char *)(head[2] + (*(unsigned short *)((char *)seq + 0x4E) << 4) + 0x19) =
             *(unsigned char *)(head[4] + 2);
         for (i = 0; i < 48; i++, s += 0x58) {
-            if (s[0x4F] == *(unsigned short *)((char *)a0 + 0x4E)) {
-                if (s[0x54] == *(unsigned short *)((char *)a0 + 0x18)) {
-                    if (s[0x50] == *(unsigned short *)((char *)a0 + 0x4C)) {
+            if (s[0x4F] == *(unsigned short *)((char *)seq + 0x4E)) {
+                if (s[0x54] == *(unsigned short *)((char *)seq + 0x18)) {
+                    if (s[0x50] == *(unsigned short *)((char *)seq + 0x4C)) {
                         if (s[0x51] == 1) {
                             *(short *)(s + 0x12) = *(unsigned char *)(head[4] + 2);
                             *(volatile int *)s = *(volatile int *)s | 0x10;
@@ -1287,41 +1288,41 @@ void _SgContMod(int *a0)
                 }
             }
         }
-        a0[1] += 3;
+        seq[1] += 3;
     }
 }
 
 /* Modulation loop-rate controller: the event byte maps to a tick period,
  * 240 / (60 - value * 58 / 127), which is stored as the slot's 0x14 rate and,
  * on the sequence-keyed path, into the program record at 0x1C. */
-void _SgContModLoop(int *a0)
+void _SgContModLoop(int *seq)
 {
     unsigned char *s = _SgGetSlotContext(0);
     int *head = _SgGetHeadContext();
     int v = 240 / (60 - *(unsigned char *)(head[4] + 2) * 58 / 127);
     int i;
 
-    if (a0[0] & 8) {
+    if (seq[0] & 8) {
         for (i = 0; i < 48; i++, s += 0x58) {
-            if (s[0x4F] == *(unsigned short *)((char *)a0 + 0x4E) &&
+            if (s[0x4F] == *(unsigned short *)((char *)seq + 0x4E) &&
                 *(unsigned short *)(s + 0x2C) == *(unsigned char *)(head[4] + 3) &&
                 s[0x4E] == *(unsigned char *)(head[4] + 4) &&
-                s[0x54] == *(unsigned short *)((char *)a0 + 0x18) &&
-                s[0x50] == *(unsigned short *)((char *)a0 + 0x4C) && s[0x51] == 2) {
+                s[0x54] == *(unsigned short *)((char *)seq + 0x18) &&
+                s[0x50] == *(unsigned short *)((char *)seq + 0x4C) && s[0x51] == 2) {
                 *(short *)(s + 0x14) = v;
             }
         }
-        a0[1] += 5;
+        seq[1] += 5;
     } else {
-        *(char *)(head[2] + (*(unsigned short *)((char *)a0 + 0x4E) << 4) + 0x1C) = v;
+        *(char *)(head[2] + (*(unsigned short *)((char *)seq + 0x4E) << 4) + 0x1C) = v;
         for (i = 0; i < 48; i++, s += 0x58) {
-            if (s[0x4F] == *(unsigned short *)((char *)a0 + 0x4E) &&
-                s[0x54] == *(unsigned short *)((char *)a0 + 0x18) &&
-                s[0x50] == *(unsigned short *)((char *)a0 + 0x4C) && s[0x51] == 1) {
+            if (s[0x4F] == *(unsigned short *)((char *)seq + 0x4E) &&
+                s[0x54] == *(unsigned short *)((char *)seq + 0x18) &&
+                s[0x50] == *(unsigned short *)((char *)seq + 0x4C) && s[0x51] == 1) {
                 *(short *)(s + 0x14) = v;
             }
         }
-        a0[1] += 3;
+        seq[1] += 3;
     }
 }
 
@@ -1330,7 +1331,7 @@ void _SgContModLoop(int *a0)
  * times the event's rate over 15 at 0x4C and a per-tick pitch step of the
  * signed or unsigned depth byte over that time at 0x44.  The state and the
  * divisor sit in locals. */
-void _SgContPolta(char *a0)
+void _SgContPolta(char *seq)
 {
     char *p;
     char *mgr;
@@ -1349,11 +1350,11 @@ void _SgContPolta(char *a0)
     i = 47;
     do {
         if (*(unsigned char *)(p + 0x51) == two &&
-            *(unsigned char *)(p + 0x54) == *(unsigned short *)(a0 + 0x18)) {
+            *(unsigned char *)(p + 0x54) == *(unsigned short *)(seq + 0x18)) {
             s = *(char **)(ctx + 0x10);
             if (*(unsigned short *)(p + 0x2C) == *(unsigned char *)(s + 0x4) &&
                 *(unsigned char *)(p + 0x4E) == *(unsigned char *)(s + 0x5) &&
-                *(unsigned char *)(p + 0x50) == *(unsigned short *)(a0 + 0x4C)) {
+                *(unsigned char *)(p + 0x50) == *(unsigned short *)(seq + 0x4C)) {
                 *(int *)p |= 0x20;
                 v = (*(unsigned short *)(mgr + 0x3A) * *(unsigned char *)(s + 0x2)) / n;
                 *(short *)(p + 0x4C) = (short)v;
@@ -1367,7 +1368,7 @@ void _SgContPolta(char *a0)
         i -= 1;
         p += 0x58;
     } while (i >= 0);
-    *(int *)(a0 + 0x4) += 6;
+    *(int *)(seq + 0x4) += 6;
 }
 
 /* Volume controller: with bit 8 of the status word set the event keys the
@@ -1375,20 +1376,20 @@ void _SgContPolta(char *a0)
  * refreshed from the event and the common tempo; otherwise the value lands in
  * the program record at 0x13 and each matching voice is re-levelled through
  * _SgSeqSeVolume. */
-void _SgContVol(int *a0)
+void _SgContVol(int *seq)
 {
     unsigned char *s = _SgGetSlotContext(0);
     char *com = _SgGetComContext();
     int *head = _SgGetHeadContext();
     int i;
 
-    if (a0[0] & 8) {
+    if (seq[0] & 8) {
         for (i = 0; i < 48; i++, s += 0x58) {
-            if (s[0x51] == 2 && s[0x54] == *(unsigned short *)((char *)a0 + 0x18)) {
+            if (s[0x51] == 2 && s[0x54] == *(unsigned short *)((char *)seq + 0x18)) {
                 unsigned char *e = (unsigned char *)head[4];
 
                 if (*(unsigned short *)(s + 0x2C) == e[4] && s[0x4E] == e[5] &&
-                    s[0x50] == *(unsigned short *)((char *)a0 + 0x4C)) {
+                    s[0x50] == *(unsigned short *)((char *)seq + 0x4C)) {
                     int v;
 
                     *(int *)s |= 0x40;
@@ -1400,19 +1401,19 @@ void _SgContVol(int *a0)
                 }
             }
         }
-        a0[1] += 6;
+        seq[1] += 6;
     } else {
-        *(char *)(head[2] + (*(unsigned short *)((char *)a0 + 0x4E) << 4) + 0x13) =
+        *(char *)(head[2] + (*(unsigned short *)((char *)seq + 0x4E) << 4) + 0x13) =
             *(unsigned char *)(head[4] + 2);
         for (i = 0; i < 48; i++, s += 0x58) {
-            if (s[0x51] == 1 && s[0x4F] == *(unsigned short *)((char *)a0 + 0x4E) &&
-                s[0x54] == *(unsigned short *)((char *)a0 + 0x18) &&
-                s[0x50] == *(unsigned short *)((char *)a0 + 0x4C)) {
+            if (s[0x51] == 1 && s[0x4F] == *(unsigned short *)((char *)seq + 0x4E) &&
+                s[0x54] == *(unsigned short *)((char *)seq + 0x18) &&
+                s[0x50] == *(unsigned short *)((char *)seq + 0x4C)) {
                 *(short *)(s + 0x22) = *(unsigned char *)(head[4] + 2);
-                _SgSeqSeVolume(i, a0);
+                _SgSeqSeVolume(i, seq);
             }
         }
-        a0[1] += 3;
+        seq[1] += 3;
     }
 }
 
@@ -1423,21 +1424,21 @@ void _SgContVol(int *a0)
  * panned through _SgPan and the pan curve.  The voice's own pan byte pair at
  * 0xC is read through the slot table entry for the voice's index, not through
  * the walker. */
-void _SgContPan(int *a0)
+void _SgContPan(int *seq)
 {
     unsigned char *s = _SgGetSlotContext(0);
     char *com = _SgGetComContext();
     int *head = _SgGetHeadContext();
     int i;
 
-    if (a0[0] & 8) {
+    if (seq[0] & 8) {
         if (*(unsigned short *)(com + 0x38) != 1) {
             for (i = 0; i < 48; i++, s += 0x58) {
-                if (s[0x51] == 2 && s[0x54] == *(unsigned short *)((char *)a0 + 0x18)) {
+                if (s[0x51] == 2 && s[0x54] == *(unsigned short *)((char *)seq + 0x18)) {
                     unsigned char *e = (unsigned char *)head[4];
 
                     if (*(unsigned short *)(s + 0x2C) == e[4] && s[0x4E] == e[5] &&
-                        s[0x50] == *(unsigned short *)((char *)a0 + 0x4C)) {
+                        s[0x50] == *(unsigned short *)((char *)seq + 0x4C)) {
                         int v;
 
                         *(int *)s |= 0x80;
@@ -1450,27 +1451,27 @@ void _SgContPan(int *a0)
                 }
             }
         }
-        a0[1] += 6;
+        seq[1] += 6;
     } else {
-        *(char *)(head[2] + (*(unsigned short *)((char *)a0 + 0x4E) << 4) + 0x14) =
+        *(char *)(head[2] + (*(unsigned short *)((char *)seq + 0x4E) << 4) + 0x14) =
             *(unsigned char *)(head[4] + 2);
         if (*(unsigned short *)(com + 0x38) != 1) {
             for (i = 0; i < 48; i++, s += 0x58) {
-                if (s[0x4F] == *(unsigned short *)((char *)a0 + 0x4E) &&
-                    s[0x54] == *(unsigned short *)((char *)a0 + 0x18) &&
-                    s[0x50] == *(unsigned short *)((char *)a0 + 0x4C) && s[0x51] == 1) {
+                if (s[0x4F] == *(unsigned short *)((char *)seq + 0x4E) &&
+                    s[0x54] == *(unsigned short *)((char *)seq + 0x18) &&
+                    s[0x50] == *(unsigned short *)((char *)seq + 0x4C) && s[0x51] == 1) {
                     unsigned char *p = sgSlotContext[i];
 
                     *(short *)(s + 0x30) = *(unsigned char *)(head[4] + 2);
                     *(short *)(s + 0x20) =
                         panTable[_SgPan(*(unsigned short *)(p + 0xC),
-                                        *(unsigned short *)((char *)a0 + 0x4E)) >>
+                                        *(unsigned short *)((char *)seq + 0x4E)) >>
                                  2];
-                    _SgSeqSeVolume(i, a0);
+                    _SgSeqSeVolume(i, seq);
                 }
             }
         }
-        a0[1] += 3;
+        seq[1] += 3;
     }
 }
 
@@ -1479,22 +1480,22 @@ void _SgContPan(int *a0)
  * its bit set in the common context's 64-bit key-off mask or, if the damper is
  * still down, is marked 8.  The slot status word is read through a volatile
  * view at both sites. */
-void _SgContDump(int *a0)
+void _SgContDump(int *seq)
 {
     unsigned char *s = _SgGetSlotContext(0);
     char *com = _SgGetComContext();
     int *head = _SgGetHeadContext();
     int i;
 
-    *(char *)(head[2] + (*(unsigned short *)((char *)a0 + 0x4E) << 4) + 0x1B) =
+    *(char *)(head[2] + (*(unsigned short *)((char *)seq + 0x4E) << 4) + 0x1B) =
         *(unsigned char *)(head[4] + 1);
     if (*(unsigned char *)(head[4] + 1) == 0) {
         for (i = 0; i < 0x30; i++, s += 0x58) {
-            if (s[0x4F] == *(unsigned short *)((char *)a0 + 0x4E) &&
-                s[0x54] == *(unsigned short *)((char *)a0 + 0x18) &&
-                s[0x50] == *(unsigned short *)((char *)a0 + 0x4C) &&
+            if (s[0x4F] == *(unsigned short *)((char *)seq + 0x4E) &&
+                s[0x54] == *(unsigned short *)((char *)seq + 0x18) &&
+                s[0x50] == *(unsigned short *)((char *)seq + 0x4C) &&
                 (*(volatile int *)s & 4) != 0) {
-                if (*(unsigned char *)(head[2] + (*(unsigned short *)((char *)a0 + 0x4E) << 4) +
+                if (*(unsigned char *)(head[2] + (*(unsigned short *)((char *)seq + 0x4E) << 4) +
                                        0x1B) == 0) {
                     *(long long *)(com + 0x28) = *(long long *)(com + 0x28) | ((long long)1 << i);
                 } else {
@@ -1503,42 +1504,42 @@ void _SgContDump(int *a0)
             }
         }
     }
-    a0[1] += 3;
+    seq[1] += 3;
 }
 
-/* The SE loop event: a0[0] carries the voice flags, a0[1] the event cursor,
- * a0[2] the sequence data base and a0[3] the loop target offset.  The event
+/* The SE loop event: seq[0] carries the voice flags, seq[1] the event cursor,
+ * seq[2] the sequence data base and seq[3] the loop target offset.  The event
  * bytes are e[2] and e[3] (the 16-bit loop target) and e[4] the repeat count;
  * the running count lives at 0x22 and the byte the loop jumps to at 0x24.
  * The flag word is read and written through a volatile view because the tick
  * proc that runs the voice updates it. */
-void _SgContSeLoop(int *a0)
+void _SgContSeLoop(int *seq)
 {
     int *p = _SgGetHeadContext();
     unsigned char *e = (unsigned char *)*(int *)((char *)p + 0x10);
-    char *tbl = (char *)a0[2];
+    char *tbl = (char *)seq[2];
 
-    *(volatile int *)a0 |= 0x80;
+    *(volatile int *)seq |= 0x80;
     if (e[4] != 0) {
-        if (*(unsigned short *)((char *)a0 + 0x22) == e[4]) {
-            *(short *)((char *)a0 + 0x22) = 0;
-            *(volatile int *)a0 &= 0xFFFFFF7F;
+        if (*(unsigned short *)((char *)seq + 0x22) == e[4]) {
+            *(short *)((char *)seq + 0x22) = 0;
+            *(volatile int *)seq &= 0xFFFFFF7F;
         } else {
             int v;
 
-            a0[3] = (e[3] << 8) + e[2];
-            v = *(unsigned char *)(tbl + a0[3]);
-            *(unsigned short *)((char *)a0 + 0x22) = *(unsigned short *)((char *)a0 + 0x22) + 1;
-            *(short *)((char *)a0 + 0x24) = v;
+            seq[3] = (e[3] << 8) + e[2];
+            v = *(unsigned char *)(tbl + seq[3]);
+            *(unsigned short *)((char *)seq + 0x22) = *(unsigned short *)((char *)seq + 0x22) + 1;
+            *(short *)((char *)seq + 0x24) = v;
         }
     } else {
         int w;
 
-        a0[3] = (e[3] << 8) + e[2];
-        w = *(unsigned char *)(tbl + a0[3]);
-        *(short *)((char *)a0 + 0x24) = w;
+        seq[3] = (e[3] << 8) + e[2];
+        w = *(unsigned char *)(tbl + seq[3]);
+        *(short *)((char *)seq + 0x24) = w;
     }
-    a0[1] += 5;
+    seq[1] += 5;
 }
 
 /* Parameter controller: the event's 0x2A selector picks one of the SPU voice
@@ -1548,18 +1549,18 @@ void _SgContSeLoop(int *a0)
  * global reverb, and the one that only latches the 0x26 value, do not touch
  * any voice and just advance the cursor.  Every field is cleared by storing
  * the masked halfword back before the new bits are ORed in. */
-void _SgContParam(int *a0)
+void _SgContParam(int *seq)
 {
     int *head = _SgGetHeadContext();
     unsigned char *s = _SgGetSlotContext(0);
     int i;
 
-    switch (*(unsigned short *)((char *)a0 + 0x2A)) {
+    switch (*(unsigned short *)((char *)seq + 0x2A)) {
     case 0: {
         unsigned char *e = (unsigned char *)head[4];
 
-        *(short *)((char *)a0 + 0x26) = e[2];
-        *(short *)((char *)a0 + 0x2A) = 0;
+        *(short *)((char *)seq + 0x26) = e[2];
+        *(short *)((char *)seq + 0x2A) = 0;
         goto end;
     }
     case 4: {
@@ -1601,7 +1602,7 @@ void _SgContParam(int *a0)
         *(short *)(r + 8) = *(unsigned short *)(r + 8) & 0x3F;
         *(short *)(r + 8) = *(unsigned short *)(r + 8) | ((0x7F - e[2]) << 6);
         *(short *)(r + 8) =
-            *(unsigned short *)(r + 8) | (0x4000 - *(unsigned short *)((char *)a0 + 0x2E));
+            *(unsigned short *)(r + 8) | (0x4000 - *(unsigned short *)((char *)seq + 0x2E));
         break;
     }
     case 9: {
@@ -1611,7 +1612,7 @@ void _SgContParam(int *a0)
         *(short *)(r + 8) = *(unsigned short *)(r + 8) & 0x3F;
         *(short *)(r + 8) = *(unsigned short *)(r + 8) | ((0x7F - e[2]) << 6) | 0x8000u;
         *(short *)(r + 8) =
-            *(unsigned short *)(r + 8) | (0x4000 - *(unsigned short *)((char *)a0 + 0x2E));
+            *(unsigned short *)(r + 8) | (0x4000 - *(unsigned short *)((char *)seq + 0x2E));
         break;
     }
     case 10: {
@@ -1634,9 +1635,9 @@ void _SgContParam(int *a0)
         unsigned char *e = (unsigned char *)head[4];
 
         if (e[2] >= 0x41) {
-            *(short *)((char *)a0 + 0x2E) = 0x4000;
+            *(short *)((char *)seq + 0x2E) = 0x4000;
         } else {
-            *(short *)((char *)a0 + 0x2E) = 0;
+            *(short *)((char *)seq + 0x2E) = 0;
         }
         break;
     }
@@ -1659,22 +1660,22 @@ void _SgContParam(int *a0)
         goto end;
     }
     for (i = 0; i < 0x30; i++, s += 0x58) {
-        if (s[0x51] == 1 && s[0x4F] == *(unsigned short *)((char *)a0 + 0x4E) &&
-            s[0x50] == *(unsigned short *)((char *)a0 + 0x4C) &&
-            (*(unsigned short *)((char *)a0 + 0x2C) == 0xFF ||
-             *(unsigned short *)(s + 0xC) == *(unsigned short *)((char *)a0 + 0x2C))) {
+        if (s[0x51] == 1 && s[0x4F] == *(unsigned short *)((char *)seq + 0x4E) &&
+            s[0x50] == *(unsigned short *)((char *)seq + 0x4C) &&
+            (*(unsigned short *)((char *)seq + 0x2C) == 0xFF ||
+             *(unsigned short *)(s + 0xC) == *(unsigned short *)((char *)seq + 0x2C))) {
             unsigned char *r = (unsigned char *)head[1];
 
             _SgSetPkAdd(2, i, *(unsigned short *)(r + 6), *(unsigned short *)(r + 8));
         }
     }
 end:
-    a0[1] += 3;
+    seq[1] += 3;
 }
 
-void _SgContLoopCount(void *a0)
+void _SgContLoopCount(void *seq)
 {
-    void *s0 = a0;
+    void *s0 = seq;
     void *p = _SgGetHeadContext();
     int t = *(unsigned short *)((char *)s0 + 0x28);
     int val;
@@ -1714,69 +1715,70 @@ done:
  * 0x1E steps the repeat count against its limit at 0x26 and 0x7F resets.  The
  * status word is read through a volatile view at every update, as elsewhere in
  * this file. */
-void _SgContLoop(int *a0)
+void _SgContLoop(int *seq)
 {
     int *head = _SgGetHeadContext();
     unsigned char *e = (unsigned char *)head[4];
 
     switch (e[2]) {
     case 0 ... 0xF:
-        *(short *)((char *)a0 + 0x2C) = e[2];
-        *(short *)((char *)a0 + 0x28) = 2;
+        *(short *)((char *)seq + 0x2C) = e[2];
+        *(short *)((char *)seq + 0x28) = 2;
         break;
     case 0x14:
-        *(short *)((char *)a0 + 0x24) = *(unsigned char *)((char *)a0 + 0x50);
-        *(int *)((char *)a0 + 0xC) = a0[1];
-        *(short *)((char *)a0 + 0x28) = 0;
-        *(short *)((char *)a0 + 0x2A) = 0;
+        *(short *)((char *)seq + 0x24) = *(unsigned char *)((char *)seq + 0x50);
+        *(int *)((char *)seq + 0xC) = seq[1];
+        *(short *)((char *)seq + 0x28) = 0;
+        *(short *)((char *)seq + 0x2A) = 0;
         break;
     case 0x1E:
-        if (*(unsigned short *)((char *)a0 + 0x26) == 0x7F) {
-            a0[0] = *(volatile int *)a0 | 0x80;
+        if (*(unsigned short *)((char *)seq + 0x26) == 0x7F) {
+            seq[0] = *(volatile int *)seq | 0x80;
         } else {
-            if (*(unsigned short *)((char *)a0 + 0x22) >= *(unsigned short *)((char *)a0 + 0x26)) {
-                *(int *)((char *)a0 + 0xC) = 0;
-                a0[0] = *(volatile int *)a0 & 0xFFFFFF7F;
-                *(short *)((char *)a0 + 0x22) = 0;
-                *(short *)((char *)a0 + 0x28) = 0;
+            if (*(unsigned short *)((char *)seq + 0x22) >=
+                *(unsigned short *)((char *)seq + 0x26)) {
+                *(int *)((char *)seq + 0xC) = 0;
+                seq[0] = *(volatile int *)seq & 0xFFFFFF7F;
+                *(short *)((char *)seq + 0x22) = 0;
+                *(short *)((char *)seq + 0x28) = 0;
                 break;
             }
-            *(short *)((char *)a0 + 0x22) = *(unsigned short *)((char *)a0 + 0x22) + 1;
-            a0[0] = *(volatile int *)a0 | 0x80;
+            *(short *)((char *)seq + 0x22) = *(unsigned short *)((char *)seq + 0x22) + 1;
+            seq[0] = *(volatile int *)seq | 0x80;
         }
-        *(short *)((char *)a0 + 0x28) = 0;
+        *(short *)((char *)seq + 0x28) = 0;
         break;
     case 0x10:
-        *(short *)((char *)a0 + 0x28) = 1;
+        *(short *)((char *)seq + 0x28) = 1;
         break;
     case 0x7F:
-        *(short *)((char *)a0 + 0x28) = 2;
-        *(short *)((char *)a0 + 0x2C) = 0xFF;
+        *(short *)((char *)seq + 0x28) = 2;
+        *(short *)((char *)seq + 0x2C) = 0xFF;
         break;
     }
-    a0[1] += 3;
+    seq[1] += 3;
 }
 
-void _SgBendForm(int *a0)
+void _SgBendForm(int *seq)
 {
     unsigned char *s = _SgGetSlotContext(0);
     int *head = _SgGetHeadContext();
     int i;
 
-    *(char *)(head[2] + (*(unsigned short *)((char *)a0 + 0x4E) << 4) + 0x1A) =
+    *(char *)(head[2] + (*(unsigned short *)((char *)seq + 0x4E) << 4) + 0x1A) =
         *(unsigned char *)(head[4] + 1);
     for (i = 0; i < 0x30; i++, s += 0x58) {
-        if (s[0x4F] == *(unsigned short *)((char *)a0 + 0x4E) &&
-            s[0x54] == *(unsigned short *)((char *)a0 + 0x18) &&
-            s[0x50] == *(unsigned short *)((char *)a0 + 0x4C) && s[0x51] == 1) {
+        if (s[0x4F] == *(unsigned short *)((char *)seq + 0x4E) &&
+            s[0x54] == *(unsigned short *)((char *)seq + 0x18) &&
+            s[0x50] == *(unsigned short *)((char *)seq + 0x4C) && s[0x51] == 1) {
             *(short *)(s + 0x26) = *(unsigned char *)(head[4] + 1);
             _SgPitchTableVag(
                 i, *(unsigned short *)(s + 0x2A), s[0x4E], *(short *)(s + 0x24),
-                *(unsigned char *)(head[2] + (*(unsigned short *)((char *)a0 + 0x4E) << 4) + 0x1A),
+                *(unsigned char *)(head[2] + (*(unsigned short *)((char *)seq + 0x4E) << 4) + 0x1A),
                 *(unsigned short *)(s + 0x28), 0x1000);
         }
     }
-    a0[1] += 2;
+    seq[1] += 2;
 }
 
 void _SgDeltaTime(char *s)
@@ -1804,9 +1806,9 @@ void _SgDeltaTime(char *s)
  * no slot left playing it is cleared.  The status word is read through the
  * file's volatile view at both tests; the slot search reuses s, and the
  * sequence walker is the argument itself, stepped in place. */
-void _SgSeqSeRrEnd(int *a0)
+void _SgSeqSeRrEnd(int *seq)
 {
-    char *q = (char *)a0;
+    char *q = (char *)seq;
     char *iop = _SgGetIop2EeContext();
     unsigned char *s = _SgGetSlotContext(0);
     int i;
@@ -1843,15 +1845,16 @@ void _SgSeqSeRrEnd(int *a0)
     }
 }
 
-int _SgfadeParam(int a0, int a1, int a2, int a3)
+int _SgfadeParam(int target, int start, int total, int left)
 {
-    return ((a0 & 0xFF) + ((a1 & 0xFF) - (a0 & 0xFF)) * (a3 & 0xFF) / (a2 & 0xFF)) & 0xFF;
+    return ((target & 0xFF) + ((start & 0xFF) - (target & 0xFF)) * (left & 0xFF) / (total & 0xFF)) &
+           0xFF;
 }
 
 /* Bring the driver up: hand the IOP side the uncached-accelerated address of
  * the EE to IOP mailbox, clear every context block, mark all 48 slots free and
  * set the common context's default tempo. */
-void _SgInit(int a0)
+void _SgInit(int hot)
 {
     int buf[16];
     void *se = _SgSetSeContext();
@@ -1864,7 +1867,7 @@ void _SgInit(int a0)
 
     sgIop2EeContext = (char *)((int)sgIop2EeBuf | 0x20000000);
     buf[0] = 0x1E;
-    buf[1] = a0;
+    buf[1] = hot;
     buf[4] = 0;
     _SgSndn2Remote(0x65, 0, buf, buf, 0x40, 0x40);
     memset(slot, 0, 0x1080);
@@ -1888,9 +1891,9 @@ void _SgInit(int a0)
     *(volatile int *)(com + 0x40) = 0;
 }
 
-int _SgSndn2Remote(int a0, int a1, void *a2, void *a3, int a4, int a5)
+int _SgSndn2Remote(int rpc_number, int mode, void *sendbuf, void *recvbuf, int ssize, int rsize)
 {
-    return sceSifCallRpc(&sgClient, a0, a1, a2, a4, a3, a5, 0, 0);
+    return sceSifCallRpc(&sgClient, rpc_number, mode, sendbuf, ssize, recvbuf, rsize, 0, 0);
 }
 
 int SgSndn2RemoteInit(void)
@@ -1955,24 +1958,24 @@ void SgCalledTickProc(void)
     }
 }
 
-void SgSetDigitalOutputMode(int a0)
+void SgSetDigitalOutputMode(int mode)
 {
-    _SgSetPkAdd(0x32, 0xA, a0, 0);
+    _SgSetPkAdd(0x32, 0xA, mode, 0);
 }
 
-int SgDmaWrite(unsigned int a0, unsigned int a1, unsigned int a2)
+int SgDmaWrite(unsigned int iop, unsigned int spu, unsigned int size)
 {
-    _SgDmaCommon(0x20, a0, a1, a2);
+    _SgDmaCommon(0x20, iop, spu, size);
     return 0;
 }
 
-int SgDmaRead(unsigned int a0, unsigned int a1, unsigned int a2)
+int SgDmaRead(unsigned int spu, unsigned int iop, unsigned int size)
 {
-    _SgDmaCommon(0x21, a1, a0, a2);
+    _SgDmaCommon(0x21, iop, spu, size);
     return 0;
 }
 
-void _SgDmaCommon(int cmd, unsigned int a1, unsigned int a2, unsigned int a3)
+void _SgDmaCommon(int cmd, unsigned int iop, unsigned int spu, unsigned int size)
 {
     /* the transfer counter at +0x48 is shared with the IOP side */
     volatile int *com = (volatile int *)_SgGetComContext();
@@ -1981,9 +1984,9 @@ void _SgDmaCommon(int cmd, unsigned int a1, unsigned int a2, unsigned int a3)
     unsigned int w3;
 
     com[0x48 / 4] = com[0x48 / 4] + 1;
-    w3 = (a2 << 24) | (a3 & 0xFFFFFF);
-    w2 = (a1 << 16) | ((a2 >> 8) & 0xFFFF);
-    w1 = (com[0x48 / 4] << 8) | ((a1 >> 16) & 0xFF);
+    w3 = (spu << 24) | (size & 0xFFFFFF);
+    w2 = (iop << 16) | ((spu >> 8) & 0xFFFF);
+    w1 = (com[0x48 / 4] << 8) | ((iop >> 16) & 0xFF);
     _SgSetPkAdd(cmd, w1, w2, w3);
 }
 
@@ -2008,61 +2011,61 @@ int SgGetDmaTransferStatus(int mode)
     return ret;
 }
 
-int SgVabOpen(int a0, int *a1, int a2)
+int SgVabOpen(int iop, int *hd, int spu)
 {
     int r;
-    r = SgVabOpenFakeBody(a1, a2);
+    r = SgVabOpenFakeBody(hd, spu);
     if (r != -1) {
-        SgDmaWrite(a0, a2, a1[1]);
+        SgDmaWrite(iop, spu, hd[1]);
     }
     return r;
 }
 
-int SgVabOpenFakeBody(int *a0, int a1)
+int SgVabOpenFakeBody(int *hd, int spu)
 {
     char *v;
     int ret = -1;
     int i;
 
     v = (char *)_SgGetVabContext(1);
-    if (a0[0xC / 4] != 0x64685353) {
+    if (hd[0xC / 4] != 0x64685353) {
         return -1;
     }
     for (i = 1; i < 0x80; i++, v += 0xC) {
         if (*(int *)(v + 8) == 0) {
-            if (*(unsigned int *)((char *)a0 + 0x7C) == 0xFFFFFFFF) {
+            if (*(unsigned int *)((char *)hd + 0x7C) == 0xFFFFFFFF) {
                 *(int *)(v + 8) = 3;
-                *(int *)(v + 4) = (unsigned int)a1 >> 3;
+                *(int *)(v + 4) = (unsigned int)spu >> 3;
             } else {
                 *(int *)(v + 8) = 4;
-                *(int *)(v + 4) = (unsigned int)a1 >> 4;
+                *(int *)(v + 4) = (unsigned int)spu >> 4;
             }
-            *(int *)v = (int)a0;
+            *(int *)v = (int)hd;
             ret = i;
-            a0[0x30 / 4] = a0[0x10 / 4] + (int)a0;
-            a0[0x38 / 4] = a0[0x18 / 4] + (int)a0;
-            a0[0x3C / 4] = a0[0x1C / 4] + (int)a0;
-            a0[0x40 / 4] = a0[0x20 / 4] + (int)a0;
-            a0[0x44 / 4] = a0[0x24 / 4] + (int)a0;
+            hd[0x30 / 4] = hd[0x10 / 4] + (int)hd;
+            hd[0x38 / 4] = hd[0x18 / 4] + (int)hd;
+            hd[0x3C / 4] = hd[0x1C / 4] + (int)hd;
+            hd[0x40 / 4] = hd[0x20 / 4] + (int)hd;
+            hd[0x44 / 4] = hd[0x24 / 4] + (int)hd;
             break;
         }
     }
     return ret;
 }
 
-int SgVabClose(int a0)
+int SgVabClose(int vab)
 {
     void *t;
     char *p;
     int i;
     int rv = -1;
 
-    if ((unsigned int)(a0 - 1) < 0x7F) {
-        t = _SgGetVabContext(a0);
+    if ((unsigned int)(vab - 1) < 0x7F) {
+        t = _SgGetVabContext(vab);
         if (*(int *)((char *)t + 8) != 0) {
             p = (char *)_SgGetSlotContext(0);
             for (i = 0; i < 0x30; i++, p += 0x58) {
-                if (*(unsigned char *)(p + 0x54) == a0 &&
+                if (*(unsigned char *)(p + 0x54) == vab &&
                     (unsigned int)*(unsigned char *)(p + 0x50) < 0x30 &&
                     *(unsigned char *)(p + 0x51) != 3) {
                     int *obj = (int *)_SgGetSeqContext(*(unsigned char *)(p + 0x50));
@@ -2087,7 +2090,7 @@ int SgVabClose(int a0)
     return rv;
 }
 
-int SgBgmOpen(int a0, void *a1)
+int SgBgmOpen(int vab, void *sq)
 {
     char *obj;
     void *mgr;
@@ -2095,21 +2098,21 @@ int SgBgmOpen(int a0, void *a1)
     int i;
     int rv = -1;
 
-    if ((unsigned int)a0 < 0x80) {
+    if ((unsigned int)vab < 0x80) {
         obj = (char *)_SgGetSeqContext(0);
         mgr = _SgGetComContext();
-        t = _SgGetVabContext(a0);
-        if (*(int *)((char *)a1 + 0xC) == 0x71735353 && *(int *)((char *)t + 8) != 0) {
+        t = _SgGetVabContext(vab);
+        if (*(int *)((char *)sq + 0xC) == 0x71735353 && *(int *)((char *)t + 8) != 0) {
             for (i = 0; i < 0x30; i++, obj += 0x54) {
                 *(volatile int *)obj |= 0x2000;
                 if ((*(volatile int *)obj & 0xF) == 0) {
                     *(short *)(obj + 0x4C) = (short)i;
                     rv = i;
-                    *(short *)(obj + 0x18) = (short)a0;
-                    *(int *)(obj + 8) = (int)a1;
-                    *(short *)(obj + 0x20) = *(unsigned short *)((char *)a1 + 2);
+                    *(short *)(obj + 0x18) = (short)vab;
+                    *(int *)(obj + 8) = (int)sq;
+                    *(short *)(obj + 0x20) = *(unsigned short *)((char *)sq + 2);
                     *(volatile int *)obj |= 1;
-                    *(short *)(obj + 0x1E) = *(unsigned short *)((char *)a1 + 4);
+                    *(short *)(obj + 0x1E) = *(unsigned short *)((char *)sq + 4);
                     *(int *)(obj + 4) = 0x110;
                     *(int *)(obj + 0x40) = 0x1000;
                     *(int *)(obj + 0x44) = 0x1000;
@@ -2129,12 +2132,12 @@ int SgBgmOpen(int a0, void *a1)
     return rv;
 }
 
-int SgBgmClose(int a0)
+int SgBgmClose(int id)
 {
     volatile int *p;
     int ret = -1;
-    if ((unsigned int)a0 < 0x30) {
-        p = (volatile int *)_SgGetSeqContext(a0);
+    if ((unsigned int)id < 0x30) {
+        p = (volatile int *)_SgGetSeqContext(id);
         p[0] |= 0x2000;
         if ((p[0] & 3) == 1) {
             memset((char *)p + 4, 0, 0x50);
@@ -2146,41 +2149,41 @@ int SgBgmClose(int a0)
     return ret;
 }
 
-void SgSetReverbEndAddr(int a0, int a1)
+void SgSetReverbEndAddr(int core, int addr)
 {
-    _SgSetPkAdd(0x14, a0, a1, 0);
+    _SgSetPkAdd(0x14, core, addr, 0);
 }
 
-void SgSetReverbType(int a0, int a1)
+void SgSetReverbType(int core, int type)
 {
-    _SgSetPkAdd(0x15, a0, a1, 0);
+    _SgSetPkAdd(0x15, core, type, 0);
 }
 
-void SgSetReverbDepth(int a0, int a1, int a2)
+void SgSetReverbDepth(int core, int left, int right)
 {
-    _SgSetPkAdd(0x16, a0, a1, a2);
+    _SgSetPkAdd(0x16, core, left, right);
 }
 
-void SgSetReverbDelaytime(int a0, int a1)
+void SgSetReverbDelaytime(int core, int time)
 {
-    _SgSetPkAdd(0x17, a0, a1, 0);
+    _SgSetPkAdd(0x17, core, time, 0);
 }
 
-void SgSetReverbFeedback(int a0, int a1)
+void SgSetReverbFeedback(int core, int feedback)
 {
-    _SgSetPkAdd(0x18, a0, a1, 0);
+    _SgSetPkAdd(0x18, core, feedback, 0);
 }
 
-void SgSetOutputMode(int a0)
+void SgSetOutputMode(int mode)
 {
     void *r = _SgGetComContext();
-    *(short *)((char *)r + 0x38) = a0;
+    *(short *)((char *)r + 0x38) = mode;
 }
 
-void SgSetTickMode(int a0)
+void SgSetTickMode(int tick)
 {
     void *r = _SgGetComContext();
-    *(short *)((char *)r + 0x3A) = a0;
+    *(short *)((char *)r + 0x3A) = tick;
 }
 
 int SgGetSlotStatus(int kind, int slot)
@@ -2217,25 +2220,25 @@ int SgGetSlotStatus(int kind, int slot)
     return ret;
 }
 
-void SgSetMasterVol(int a0, int a1, int a2)
+void SgSetMasterVol(int core, int left, int right)
 {
-    _SgSetPkAdd(0x28, a0, a1, a2);
+    _SgSetPkAdd(0x28, core, left, right);
 }
 
-int SgSetBgmVol(unsigned int a0, int a1, int a2)
+int SgSetBgmVol(unsigned int id, int vol, int mask)
 {
     int ret = -1;
-    if (a0 < 0x30 && a1 >= 0 && a1 < 0x80) {
-        int *p = (int *)_SgGetSeqContext(a0);
+    if (id < 0x30 && vol >= 0 && vol < 0x80) {
+        int *p = (int *)_SgGetSeqContext(id);
         *(volatile int *)p |= 0x2000;
-        if (a2 == 0xFFFF) {
+        if (mask == 0xFFFF) {
             ret = p[0x34 / 4];
-            p[0x30 / 4] = a2;
-            p[0x34 / 4] = a1;
+            p[0x30 / 4] = mask;
+            p[0x34 / 4] = vol;
         } else {
-            p[0x38 / 4] = a2;
+            p[0x38 / 4] = mask;
             ret = 0;
-            p[0x3C / 4] = a1;
+            p[0x3C / 4] = vol;
         }
         *(volatile int *)p |= 0x200;
         *(volatile int *)p &= 0xFFFFDFFF;
@@ -2243,30 +2246,30 @@ int SgSetBgmVol(unsigned int a0, int a1, int a2)
     return ret;
 }
 
-int SgSetSeMasterVol(int a0, int a1)
+int SgSetSeMasterVol(int vab, int vol)
 {
     int ret = -1;
-    if ((unsigned int)(a0 - 1) < 0x7F && a1 >= 0) {
-        if (a1 < 0x80) {
-            int *p = (int *)_SgGetVabContext(a0);
+    if ((unsigned int)(vab - 1) < 0x7F && vol >= 0) {
+        if (vol < 0x80) {
+            int *p = (int *)_SgGetVabContext(vab);
             if (p[2] != 0) {
-                ret = _SgGetSeVolValue(a0) & 0x7F;
-                _SgSetSeVolValue(a0, a1 | 0x80);
+                ret = _SgGetSeVolValue(vab) & 0x7F;
+                _SgSetSeVolValue(vab, vol | 0x80);
             }
         }
     }
     return ret;
 }
 
-void SgBgmPlay(unsigned int a0)
+void SgBgmPlay(unsigned int id)
 {
     volatile int *p;
     void *t;
 
-    if (a0 < 0x30) {
+    if (id < 0x30) {
         /* the sequence object's status word is written by the IOP side, so
            every read and write of it is volatile */
-        p = (volatile int *)_SgGetSeqContext(a0);
+        p = (volatile int *)_SgGetSeqContext(id);
         p[0] |= 0x2000;
         if (*(unsigned short *)((char *)p + 0x18) >= 1 &&
             *(unsigned short *)((char *)p + 0x18) <= 127 && (p[0] & 1)) {
@@ -2280,7 +2283,7 @@ void SgBgmPlay(unsigned int a0)
     }
 }
 
-void SgBgmStop(unsigned int a0, int a1)
+void SgBgmStop(unsigned int id, int mode)
 {
     volatile int *seq;
     char *sl;
@@ -2291,10 +2294,10 @@ void SgBgmStop(unsigned int a0, int a1)
     int want;
     int st;
 
-    if (a0 >= 0x30) {
+    if (id >= 0x30) {
         return;
     }
-    seq = (volatile int *)_SgGetSeqContext(a0);
+    seq = (volatile int *)_SgGetSeqContext(id);
     seq[0] |= 0x2000;
     if (*(unsigned short *)((char *)seq + 0x18) < 1 ||
         *(unsigned short *)((char *)seq + 0x18) > 127) {
@@ -2308,17 +2311,17 @@ void SgBgmStop(unsigned int a0, int a1)
     }
     sl = (char *)_SgGetSlotContext(0);
     com = (char *)_SgGetComContext();
-    if (a1 < 0) {
+    if (mode < 0) {
         goto cleanup;
     }
-    if (a1 < 2) {
+    if (mode < 2) {
         seq[0] &= 0xFFFFFFDD;
         *(int *)((char *)seq + 4) = 0x110;
-        want = a1;
+        want = mode;
         *(short *)((char *)seq + 0x22) = 0;
         seq[0] |= 0x10;
     } else {
-        if (a1 >= 4) {
+        if (mode >= 4) {
             goto cleanup;
         }
         if ((seq[0] & 2) == 0) {
@@ -2329,11 +2332,11 @@ void SgBgmStop(unsigned int a0, int a1)
             goto cleanup;
         }
         seq[0] &= 0xFFFFFFFD;
-        want = a1 - 2;
+        want = mode - 2;
         seq[0] |= 0x20;
     }
     for (i = 0; i < 0x30; i++, sl += 0x58) {
-        if (*(unsigned char *)(sl + 0x50) == a0) {
+        if (*(unsigned char *)(sl + 0x50) == id) {
             st = *(unsigned char *)(sl + 0x51);
             if (st == 1) {
                 *(volatile int *)sl |= 0x100;
@@ -2359,12 +2362,12 @@ cleanup:
     seq[0] &= 0xFFFFDFFF;
 }
 
-void SgSetBgmTempo(unsigned int a0, int a1)
+void SgSetBgmTempo(unsigned int id, int tempo)
 {
-    if (a0 < 0x30 && a1 >= 0 && a1 < 0x3C0) {
-        int *p = (int *)_SgGetSeqContext(a0);
+    if (id < 0x30 && tempo >= 0 && tempo < 0x3C0) {
+        int *p = (int *)_SgGetSeqContext(id);
         void *q = _SgGetComContext();
-        *(short *)((char *)p + 0x1E) = a1;
+        *(short *)((char *)p + 0x1E) = tempo;
         *(volatile int *)p |= 0x2000;
         *(int *)((char *)p + 0x10) =
             ((((int)*(unsigned short *)((char *)p + 0x20) * *(unsigned short *)((char *)p + 0x1E))
@@ -2375,22 +2378,22 @@ void SgSetBgmTempo(unsigned int a0, int a1)
     }
 }
 
-int SgGetBgmTempo(unsigned int a0)
+int SgGetBgmTempo(unsigned int id)
 {
     int ret = -1;
-    if (a0 < 0x30) {
-        void *r = _SgGetSeqContext(a0);
+    if (id < 0x30) {
+        void *r = _SgGetSeqContext(id);
         ret = *(unsigned short *)((char *)r + 0x1E);
     }
     return ret;
 }
 
-int SgGetBgmStatus(int a0)
+int SgGetBgmStatus(int id)
 {
     volatile int *p;
     int ret = -1;
-    if ((unsigned int)a0 < 0x30) {
-        p = (volatile int *)_SgGetSeqContext(a0);
+    if ((unsigned int)id < 0x30) {
+        p = (volatile int *)_SgGetSeqContext(id);
         p[0] |= 0x2000;
         if (p[0] & 1) {
             ret = (p[0] >> 1) & 1;
@@ -2403,20 +2406,20 @@ int SgGetBgmStatus(int a0)
     return ret;
 }
 
-int SgGetBgmChStatus(unsigned int a0, int a1, int a2)
+int SgGetBgmChStatus(unsigned int id, int channel, int kind)
 {
     int ret = -1;
     volatile int *p;
     char *ch;
     int v;
 
-    if (a0 < 0x30 && a1 >= 0 && a1 < 0x10) {
-        p = (volatile int *)_SgGetSeqContext(a0);
+    if (id < 0x30 && channel >= 0 && channel < 0x10) {
+        p = (volatile int *)_SgGetSeqContext(id);
         p[0] |= 0x2000;
         if (p[0] & 1) {
             ch = *(char **)((char *)p + 8);
-            if (a2 == 0) {
-                v = *(unsigned char *)(ch + (a1 << 4) + 0x12);
+            if (kind == 0) {
+                v = *(unsigned char *)(ch + (channel << 4) + 0x12);
                 if (v != 0xFF) {
                     ret = v;
                 }
@@ -2427,7 +2430,7 @@ int SgGetBgmChStatus(unsigned int a0, int a1, int a2)
     return ret;
 }
 
-int SgSetBgmPanpot(unsigned int a0, int a1)
+int SgSetBgmPanpot(unsigned int id, int pan)
 {
     int ret = -1;
     volatile int *p;
@@ -2435,14 +2438,14 @@ int SgSetBgmPanpot(unsigned int a0, int a1)
     char *tone;
     int i;
 
-    if (a0 < 0x30 && a1 >= 0 && a1 < 0x80) {
-        p = (volatile int *)_SgGetSeqContext(a0);
+    if (id < 0x30 && pan >= 0 && pan < 0x80) {
+        p = (volatile int *)_SgGetSeqContext(id);
         p[0] |= 0x2000;
         if ((p[0] & 5) == 1) {
             body = *(char **)_SgGetVabContext(*(unsigned short *)((char *)p + 0x18));
             tone = body + *(int *)(body + 0x10);
             for (i = 0; i < *(unsigned short *)tone + 1; i++) {
-                *(char *)(tone + *(unsigned short *)(tone + i * 2 + 2) + 2) = a1;
+                *(char *)(tone + *(unsigned short *)(tone + i * 2 + 2) + 2) = pan;
             }
             ret = 0;
         }
@@ -2451,10 +2454,10 @@ int SgSetBgmPanpot(unsigned int a0, int a1)
     return ret;
 }
 
-int SgSePlay(int a0, int a1, int a2)
+int SgSePlay(int vabflags, int prog, int tone)
 {
     int ret = -1;
-    int vabid = a0 & 0x7F;
+    int vabid = vabflags & 0x7F;
     volatile int *p;
     char *com;
     char *vab;
@@ -2463,7 +2466,7 @@ int SgSePlay(int a0, int a1, int a2)
     unsigned int h;
     int i;
 
-    if ((unsigned int)(vabid - 1) < 0x7F && a1 >= 0 && a1 < 0x80 && a2 >= 0 && a2 < 0x80) {
+    if ((unsigned int)(vabid - 1) < 0x7F && prog >= 0 && prog < 0x80 && tone >= 0 && tone < 0x80) {
         p = (volatile int *)_SgGetSeqContext(0);
         for (i = 0; i < 0x30; i++, p = (volatile int *)((char *)p + 0x54)) {
             p[0] |= 0x2000;
@@ -2474,25 +2477,25 @@ int SgSePlay(int a0, int a1, int a2)
                 tbl = *(unsigned short **)(body + 0x3C);
                 if (*(int *)(vab + 8) == 0 || *(int *)(body + 0xC) != 0x64685353 ||
                     *(unsigned int *)(body + 0x20) == 0xFFFFFFFF ||
-                    (unsigned int)tbl == 0xFFFFFFFF || tbl[0] < a1 || tbl[a1 + 1] == 0xFFFF ||
-                    tbl[h = tbl[a1 + 1] / 2] < a2) {
+                    (unsigned int)tbl == 0xFFFFFFFF || tbl[0] < prog || tbl[prog + 1] == 0xFFFF ||
+                    tbl[h = tbl[prog + 1] / 2] < tone) {
                     p[0] &= 0xFFFFDFFF;
                     return ret;
                 }
                 {
                     p[0] |= 0xC;
-                    *(int *)((char *)p + 8) = (int)((char *)tbl + tbl[a2 + h + 1]);
+                    *(int *)((char *)p + 8) = (int)((char *)tbl + tbl[tone + h + 1]);
                     *(short *)((char *)p + 0x1E) = 0x78;
                     *(short *)((char *)p + 0x18) = vabid;
-                    *(short *)((char *)p + 0x1A) = a1;
-                    *(short *)((char *)p + 0x1C) = a2;
+                    *(short *)((char *)p + 0x1A) = prog;
+                    *(short *)((char *)p + 0x1C) = tone;
                     *(short *)((char *)p + 0x4C) = i;
                     *(int *)((char *)p + 0x40) = 0x1000;
                     *(int *)((char *)p + 0x44) = 0x1000;
                     *(int *)((char *)p + 0x48) = 0x1000;
                     *(int *)((char *)p + 0x10) =
                         ((0x78 * 240) << 12) / 0x3C / *(unsigned short *)(com + 0x3A);
-                    if (a0 & 0x8000) {
+                    if (vabflags & 0x8000) {
                         p[0] |= 0x1000;
                     }
                     ret = i;
@@ -2507,14 +2510,14 @@ int SgSePlay(int a0, int a1, int a2)
     return ret;
 }
 
-void SgSeStop(int a0)
+void SgSeStop(int id)
 {
-    unsigned int idx = a0 & 0x7FFF;
+    unsigned int idx = id & 0x7FFF;
     if (idx < 0x30) {
         volatile int *seq = _SgGetSeqContext(idx);
         *seq |= 0x2000;
         if (*seq & 0x4) {
-            int mask8000 = a0 & 0x8000;
+            int mask8000 = id & 0x8000;
             SgSlot *slot = _SgGetSlotContext(0);
             char *com = _SgGetComContext();
             int i;
@@ -2535,45 +2538,45 @@ void SgSeStop(int a0)
     }
 }
 
-void SgSeStopAll(int a0)
+void SgSeStopAll(int immediate)
 {
     int i;
     volatile int *p = (volatile int *)_SgGetSeqContext(0);
     for (i = 0; i < 0x30; i++) {
         p[0] |= 0x2000;
         if ((p[0] & 5) == 4) {
-            SgSeStop(i | (a0 << 15));
+            SgSeStop(i | (immediate << 15));
         }
         p[0] &= 0xFFFFDFFF;
         p = (volatile int *)((char *)p + 0x54);
     }
 }
 
-void SgSetSeVolDirect(unsigned int a0, int a1, int a2)
+void SgSetSeVolDirect(unsigned int id, int left, int right)
 {
-    if (a0 < 0x30 && a1 >= -0x1000 && a1 < 0x1001 && a2 >= -0x1000 && a2 < 0x1001) {
-        int *p = (int *)_SgGetSeqContext(a0);
-        p[0x44 / 4] = a1;
-        p[0x48 / 4] = a2;
+    if (id < 0x30 && left >= -0x1000 && left < 0x1001 && right >= -0x1000 && right < 0x1001) {
+        int *p = (int *)_SgGetSeqContext(id);
+        p[0x44 / 4] = left;
+        p[0x48 / 4] = right;
         *(volatile int *)p |= 0x2000;
         *(volatile int *)p |= 0x800;
         *(volatile int *)p &= 0xFFFFDFFF;
     }
 }
 
-void SgSetSePitchDirect(unsigned int a0, int a1)
+void SgSetSePitchDirect(unsigned int id, int pitch)
 {
     volatile int *p;
     int v, v2, v3;
-    if (a0 >= 0x30)
+    if (id >= 0x30)
         return;
-    if (a1 < 0)
+    if (pitch < 0)
         return;
-    if (a1 >= 0x4000)
+    if (pitch >= 0x4000)
         return;
-    p = (volatile int *)_SgGetSeqContext(a0);
+    p = (volatile int *)_SgGetSeqContext(id);
     v = p[0];
-    *(int *)((char *)p + 0x40) = a1;
+    *(int *)((char *)p + 0x40) = pitch;
     v |= 0x2000;
     p[0] = v;
     v2 = p[0];
@@ -2584,7 +2587,7 @@ void SgSetSePitchDirect(unsigned int a0, int a1)
     p[0] = v3;
 }
 
-int SgGetSpuSlotMalloc(int a0)
+int SgGetSpuSlotMalloc(int mode)
 {
     char *com;
     char *sl;
@@ -2597,7 +2600,7 @@ int SgGetSpuSlotMalloc(int a0)
     unsigned int t;
 
     com = (char *)_SgGetComContext();
-    switch (a0) {
+    switch (mode) {
     case 0:
         first = 0;
         last = 0x30;
@@ -2650,10 +2653,10 @@ done:
     return found;
 }
 
-int SgSetSpuSlotFree(unsigned int a0)
+int SgSetSpuSlotFree(unsigned int slot)
 {
-    if (a0 < 0x30) {
-        unsigned char *p = (unsigned char *)_SgGetSlotContext(a0);
+    if (slot < 0x30) {
+        unsigned char *p = (unsigned char *)_SgGetSlotContext(slot);
         if (p[0x51] == 3) {
             p[0x51] = 0;
         }
@@ -2671,9 +2674,9 @@ void SgStAdpcmQuit(void)
     _SgSetPkAdd(0x3D, 0, 0, 0);
 }
 
-int SgStAdpcmOpen(void *a0)
+int SgStAdpcmOpen(void *req)
 {
-    char *p = (char *)a0;
+    char *p = (char *)req;
     int c;
     int b0;
     int v4;
@@ -2704,62 +2707,63 @@ int SgStAdpcmOpen(void *a0)
     return 0;
 }
 
-int SgStAdpcmClose(unsigned int a0)
+int SgStAdpcmClose(unsigned int ch)
 {
     int ret = -1;
-    if (a0 < 0x30) {
-        _SgSetPkAdd(0x3F, a0, 0, 0);
+    if (ch < 0x30) {
+        _SgSetPkAdd(0x3F, ch, 0, 0);
         ret = 0;
     }
     return ret;
 }
 
-int SgStAdpcmChannelVolume(unsigned long long a0, unsigned int a1, int a2)
+int SgStAdpcmChannelVolume(unsigned long long mask, unsigned int left, int right)
 {
     int ret = -1;
-    if (a1 < 0x4000 && a2 >= 0 && a2 < 0x4000 && (a0 & 0xFF000000) == 0) {
-        _SgSetPkAdd(0x40, (int)(a0 & 0xFFFFFF), (int)((a0 >> 24) & 0xFFFFFF), (a1 << 16) | a2);
+    if (left < 0x4000 && right >= 0 && right < 0x4000 && (mask & 0xFF000000) == 0) {
+        _SgSetPkAdd(0x40, (int)(mask & 0xFFFFFF), (int)((mask >> 24) & 0xFFFFFF),
+                    (left << 16) | right);
         ret = 0;
     }
     return ret;
 }
 
-int SgStAdpcmChannelPitch(unsigned long long a0, int a1)
+int SgStAdpcmChannelPitch(unsigned long long mask, int pitch)
 {
     int ret = -1;
-    if (((a0 & 0xFF000000) == 0) && (a1 >= 0) && (a1 <= 0x2EE00)) {
-        _SgSetPkAdd(0x41, (int)(a0 & 0xFFFFFF), (int)((a0 >> 24) & 0xFFFFFF), a1);
+    if (((mask & 0xFF000000) == 0) && (pitch >= 0) && (pitch <= 0x2EE00)) {
+        _SgSetPkAdd(0x41, (int)(mask & 0xFFFFFF), (int)((mask >> 24) & 0xFFFFFF), pitch);
         ret = 0;
     }
     return ret;
 }
 
-int SgStAdpcmPlay(unsigned long long a0)
+int SgStAdpcmPlay(unsigned long long mask)
 {
     int ret = -1;
-    if ((a0 & 0xFF000000) == 0) {
-        _SgSetPkAdd(0x42, (int)(a0 & 0xFFFFFF), (int)((a0 >> 24) & 0xFFFFFF), 0);
+    if ((mask & 0xFF000000) == 0) {
+        _SgSetPkAdd(0x42, (int)(mask & 0xFFFFFF), (int)((mask >> 24) & 0xFFFFFF), 0);
         ret = 0;
     }
     return ret;
 }
 
-int SgStAdpcmStop(unsigned long long a0)
+int SgStAdpcmStop(unsigned long long mask)
 {
     int ret = -1;
-    if ((a0 & 0xFF000000) == 0) {
-        _SgSetPkAdd(0x43, (int)(a0 & 0xFFFFFF), (int)((a0 >> 24) & 0xFFFFFF), 0);
+    if ((mask & 0xFF000000) == 0) {
+        _SgSetPkAdd(0x43, (int)(mask & 0xFFFFFF), (int)((mask >> 24) & 0xFFFFFF), 0);
         ret = 0;
     }
     return ret;
 }
 
-int SgStAdpcmIopReadAddr(int a0)
+int SgStAdpcmIopReadAddr(int ch)
 {
     int ret = 0;
-    if ((unsigned int)a0 < 0x30) {
+    if ((unsigned int)ch < 0x30) {
         char *base = _SgGetIop2EeContext();
-        ret = *(int *)(base + (a0 % 0x18) * 4 + (a0 / 0x18) * 0x60 + 0xC0);
+        ret = *(int *)(base + (ch % 0x18) * 4 + (ch / 0x18) * 0x60 + 0xC0);
     }
     return ret;
 }
@@ -2774,22 +2778,22 @@ void SgStPcmQuit(void)
     _SgSetPkAdd(0x47, 0, 0, 0);
 }
 
-int SgStPcmOpen(int *a0)
+int SgStPcmOpen(int *req)
 {
     unsigned int n1, n2;
     int v, v2, ret;
     ret = -1;
-    n1 = a0[2];
+    n1 = req[2];
     if ((unsigned int)0x1FFFFF < n1)
         goto done;
-    n2 = a0[3];
+    n2 = req[3];
     if ((unsigned int)0x1FFFFF < n2)
         goto done;
-    v = a0[0];
+    v = req[0];
     if (v < 0)
         goto done;
     if (v < 0x10) {
-        v2 = a0[1];
+        v2 = req[1];
         _SgSetPkAdd(0x48, (v << 24) | v2, n1, n2);
         ret = 0;
     }
@@ -2797,72 +2801,72 @@ done:
     return ret;
 }
 
-int SgStPcmClose(unsigned int a0)
+int SgStPcmClose(unsigned int ch)
 {
     int ret = -1;
-    if (a0 < 0x10) {
-        _SgSetPkAdd(0x49, a0, 0, 0);
+    if (ch < 0x10) {
+        _SgSetPkAdd(0x49, ch, 0, 0);
         ret = 0;
     }
     return ret;
 }
 
-void SgStPcmSetEffect(int a0)
+void SgStPcmSetEffect(int effect)
 {
-    _SgSetPkAdd(0x4E, a0, 0, 0);
+    _SgSetPkAdd(0x4E, effect, 0, 0);
 }
 
-int SgStPcmPlay(unsigned long long a0)
+int SgStPcmPlay(unsigned long long mask)
 {
-    if ((a0 & 0xFF000000) == 0) {
-        _SgSetPkAdd(0x4B, (int)a0, 0, 0);
+    if ((mask & 0xFF000000) == 0) {
+        _SgSetPkAdd(0x4B, (int)mask, 0, 0);
     }
     return 0;
 }
 
-int SgStPcmStop(unsigned long long a0)
+int SgStPcmStop(unsigned long long mask)
 {
-    if ((a0 & 0xFF000000) == 0) {
-        _SgSetPkAdd(0x4C, (int)a0, 0, 0);
+    if ((mask & 0xFF000000) == 0) {
+        _SgSetPkAdd(0x4C, (int)mask, 0, 0);
     }
     return 0;
 }
 
-int SgStPcmLseek(unsigned int a0, unsigned int a1)
+int SgStPcmLseek(unsigned int ch, unsigned int offset)
 {
     int ret = -1;
-    if (a0 < 0x10) {
-        if (a1 <= 0x1FFFFF) {
-            _SgSetPkAdd(0x4D, (int)a0, (int)a1, 0);
+    if (ch < 0x10) {
+        if (offset <= 0x1FFFFF) {
+            _SgSetPkAdd(0x4D, (int)ch, (int)offset, 0);
             ret = 0;
         }
     }
     return ret;
 }
 
-void SgStPcmVolume(unsigned long long a0, unsigned int a1, int a2)
+void SgStPcmVolume(unsigned long long mask, unsigned int left, int right)
 {
-    if (a1 <= 0x7FFF && a2 >= 0 && a2 <= 0x7FFF && (a0 & 0xFF000000) == 0) {
-        _SgSetPkAdd(0x4A, (int)a0, a1, a2);
+    if (left <= 0x7FFF && right >= 0 && right <= 0x7FFF && (mask & 0xFF000000) == 0) {
+        _SgSetPkAdd(0x4A, (int)mask, left, right);
     }
 }
 
-int SgStPcmIopReadAddr(unsigned int a0)
+int SgStPcmIopReadAddr(unsigned int ch)
 {
     int ret = 0;
-    if (a0 < 0x10) {
+    if (ch < 0x10) {
         char *iop = _SgGetIop2EeContext();
-        ret = *(int *)(iop + (a0 << 2) + 0x180);
+        ret = *(int *)(iop + (ch << 2) + 0x180);
     }
     return ret;
 }
 
-int SgStPcmBufMode(int a0, long a1, int a2)
+int SgStPcmBufMode(int mode, long mask, int addr)
 {
     int ret;
     ret = -1;
-    if ((unsigned int)a0 < 2 && (unsigned int)a2 <= 0x1FFFFF && (a1 & 0xFF000000) == 0) {
-        _SgSetPkAdd(0x4F, a1, a2, a0);
+    if ((unsigned int)mode < 2 && (unsigned int)addr <= 0x1FFFFF && (mask & 0xFF000000) == 0) {
+        _SgSetPkAdd(0x4F, mask, addr, mode);
         ret = 0;
     }
     return ret;

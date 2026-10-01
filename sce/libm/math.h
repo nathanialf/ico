@@ -25,16 +25,16 @@ extern const _LIB_VERSION_TYPE _LIB_VERSION; /* definition in sce/ */
 #define _XOPEN_ __fdlibm_xopen
 #define _POSIX_ __fdlibm_posix
 
-float acosf(float x);                /* definition in sce/ */
-float asinf(float x);                /* definition in sce/ */
-float atan2f(float y, float x);      /* definition in sce/ */
-float atanf(float x);                /* definition in sce/ */
-float fabsf(float a0);               /* definition in sce/ */
-float floorf(float x);               /* definition in sce/ */
-float fmodf(float x, float y);       /* definition in sce/ */
-float sinf(float x);                 /* definition in sce/ */
-float copysignf(float a0, float a1); /* definition in sce/ */
-int isnanf(float x);                 /* definition in sce/ */
+float acosf(float x);              /* definition in sce/ */
+float asinf(float x);              /* definition in sce/ */
+float atan2f(float y, float x);    /* definition in sce/ */
+float atanf(float x);              /* definition in sce/ */
+float fabsf(float x);              /* definition in sce/ */
+float floorf(float x);             /* definition in sce/ */
+float fmodf(float x, float y);     /* definition in sce/ */
+float sinf(float x);               /* definition in sce/ */
+float copysignf(float x, float y); /* definition in sce/ */
+int isnanf(float x);               /* definition in sce/ */
 
 /* newlib's math.h: the record the wrappers hand matherr */
 struct exception {

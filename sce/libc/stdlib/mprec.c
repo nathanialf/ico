@@ -95,28 +95,28 @@ _Bigint *_s2b(Reent *ptr, const char *s, int nd0, int nd, unsigned int y9)
     return b;
 }
 
-int _hi0bits(unsigned int a0)
+int _hi0bits(unsigned int x)
 {
     int n = 0;
-    if ((a0 & 0xFFFF0000) == 0) {
+    if ((x & 0xFFFF0000) == 0) {
         n = 16;
-        a0 <<= 16;
+        x <<= 16;
     }
-    if ((a0 & 0xFF000000) == 0) {
+    if ((x & 0xFF000000) == 0) {
         n += 8;
-        a0 <<= 8;
+        x <<= 8;
     }
-    if ((a0 & 0xF0000000) == 0) {
+    if ((x & 0xF0000000) == 0) {
         n += 4;
-        a0 <<= 4;
+        x <<= 4;
     }
-    if ((a0 & 0xC0000000) == 0) {
+    if ((x & 0xC0000000) == 0) {
         n += 2;
-        a0 <<= 2;
+        x <<= 2;
     }
-    if ((int)a0 >= 0) {
+    if ((int)x >= 0) {
         n += 1;
-        if ((a0 & 0x40000000) == 0) {
+        if ((x & 0x40000000) == 0) {
             return 0x20;
         }
     }

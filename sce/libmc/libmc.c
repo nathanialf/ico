@@ -110,10 +110,10 @@ int sceMcInit(void)
 
 /* The two answer words are stored as integers: typed as pointer stores, the
    mcSema load below moves above the first of them. */
-void *_lmcGetClientPtr(int *a0, int *a1)
+void *_lmcGetClientPtr(int *rdata, int *func)
 {
-    a0[0] = (int)mcRdata;
-    a1[0] = (int)&mcFunc;
+    rdata[0] = (int)mcRdata;
+    func[0] = (int)&mcFunc;
     *(int *)(mcRdata + 0x3C) = mcSema;
     return &mcClient;
 }
@@ -169,7 +169,7 @@ int sceMcGetSlotMax(int arg)
     return *(int *)mcRdata;
 }
 
-int sceMcOpen(int a0, int a1, char *name, int flags)
+int sceMcOpen(int port, int slot, char *name, int flags)
 {
     sceSifRpcClientData *dev;
     int r;
@@ -192,9 +192,9 @@ badname:
     return -0xD2;
 ok:
     strncpy(mcName.name, name, 0x3FF);
-    mcName.port = a0;
+    mcName.port = port;
     mcName.flags = flags;
-    mcName.slot = a1;
+    mcName.slot = slot;
     mcName.name[0x3FF] = 0;
     r = sceSifCallRpc(dev, 2, 1, &mcName, 0x414, mcRdata, 4, 0, 0);
     if (r != 0) {
@@ -208,9 +208,9 @@ done:
     return r;
 }
 
-int sceMcMkdir(int a0, int a1, char *name)
+int sceMcMkdir(int port, int slot, char *name)
 {
-    int ret = sceMcOpen(a0, a1, name, 0x40);
+    int ret = sceMcOpen(port, slot, name, 0x40);
     if (ret == 0) {
         mcFunc = 0xB;
     }
@@ -242,7 +242,7 @@ done:
     return r;
 }
 
-int sceMcSeek(int a0, int a1, int a2)
+int sceMcSeek(int fd, int offset, int origin)
 {
     sceSifRpcClientData *dev;
     int r;
@@ -254,9 +254,9 @@ int sceMcSeek(int a0, int a1, int a2)
         SignalSema(mcSema);
         return -0x64;
     }
-    *(int *)mcCmd = a0;
-    *(int *)(mcCmd + 0x10) = a1;
-    *(int *)(mcCmd + 0x14) = a2;
+    *(int *)mcCmd = fd;
+    *(int *)(mcCmd + 0x10) = offset;
+    *(int *)(mcCmd + 0x14) = origin;
     r = sceSifCallRpc(dev, 4, 1, mcCmd, 0x30, mcRdata, 4, 0, 0);
     if (r != 0) {
         goto unlock;
@@ -314,7 +314,7 @@ typedef struct {
     char head[16];        /* 0x20 */
 } McCmd;
 
-int sceMcRead(int a0, void *buf, int len)
+int sceMcRead(int fd, void *buf, int len)
 {
     sceSifRpcClientData *dev;
     int r;
@@ -326,7 +326,7 @@ int sceMcRead(int a0, void *buf, int len)
         SignalSema(mcSema);
         return -0x64;
     }
-    *(int *)mcCmd = a0;
+    *(int *)mcCmd = fd;
     ((McCmd *)mcCmd)->recv = mcRecv;
     ((McCmd *)mcCmd)->addr = buf;
     *(int *)(mcCmd + 0xC) = len;
@@ -392,20 +392,20 @@ void mcHearAlarm(int id, unsigned short time, void *arg)
     EI();
 }
 
-void mcDelayThread(int a0)
+void mcDelayThread(int time)
 {
-    SetAlarm(a0, mcHearAlarm, (void *)GetThreadId());
+    SetAlarm(time, mcHearAlarm, (void *)GetThreadId());
     SleepThread();
 }
 
-int sceMcSync(int a0, int *a1, int *a2)
+int sceMcSync(int mode, int *cmd, int *result)
 {
     int r;
     if (mcFunc == 0) {
         return 0xFFFFFFFF;
     }
     r = sceSifCheckStatRpc(&mcClient);
-    if (a0 != 0)
+    if (mode != 0)
         goto L050;
     if (r == 0)
         goto L050;
@@ -415,13 +415,13 @@ int sceMcSync(int a0, int *a1, int *a2)
     r = 0;
 L050:
     r = (r == 0);
-    if (a1 != 0) {
-        *a1 = mcFunc;
+    if (cmd != 0) {
+        *cmd = mcFunc;
     }
     if (r != 0) {
         mcFunc = 0;
-        if (a2 != 0) {
-            *a2 = *(int *)mcRdata;
+        if (result != 0) {
+            *result = *(int *)mcRdata;
         }
         SignalSema(mcSema);
     }
@@ -496,7 +496,7 @@ int sceMcGetInfo(int port, int slot, int *type, int *free, int *format)
     return r;
 }
 
-int sceMcGetDir(int a0, int a1, char *name, int a3, int nblk, struct sceMcTblGetDir *table)
+int sceMcGetDir(int port, int slot, char *name, int flags, int nblk, struct sceMcTblGetDir *table)
 {
     sceSifRpcClientData *dev;
     int r;
@@ -518,9 +518,9 @@ badname:
     SignalSema(mcSema);
     return -0xD2;
 ok:
-    mcName.port = a0;
-    mcName.slot = a1;
-    mcName.flags = a3;
+    mcName.port = port;
+    mcName.slot = slot;
+    mcName.flags = flags;
     mcName.maxent = nblk;
     mcName.data = table;
     strncpy(mcName.name, name, 0x3FF);
@@ -555,7 +555,7 @@ void mceStorePwd(void *arg)
     }
 }
 
-int sceMcChdir(int a0, int a1, char *name, char *pwd)
+int sceMcChdir(int port, int slot, char *name, char *pwd)
 {
     sceSifRpcClientData *dev;
     int r;
@@ -577,9 +577,9 @@ badname:
     SignalSema(mcSema);
     return -0xD2;
 ok:
-    mcName.port = a0;
+    mcName.port = port;
     mcName.data = mcPwd;
-    mcName.slot = a1;
+    mcName.slot = slot;
     strncpy(mcName.name, name, 0x3FF);
     mcName.name[0x3FF] = 0;
     sceSifWriteBackDCache(mcPwd, 0x400);
@@ -595,7 +595,7 @@ done:
     return r;
 }
 
-int sceMcFormat(int a0, int a1)
+int sceMcFormat(int port, int slot)
 {
     sceSifRpcClientData *dev;
     char *blk;
@@ -609,8 +609,8 @@ int sceMcFormat(int a0, int a1)
         return -0x64;
     }
     blk = mcCmd;
-    *(int *)(blk + 4) = a0;
-    *(int *)(blk + 8) = a1;
+    *(int *)(blk + 4) = port;
+    *(int *)(blk + 8) = slot;
     r = sceSifCallRpc(dev, 0x10, 1, blk, 0x30, mcRdata, 4, 0, 0);
     if (r != 0) {
         goto unlock;
@@ -623,7 +623,7 @@ done:
     return r;
 }
 
-int sceMcDelete(int a0, int a1, char *name)
+int sceMcDelete(int port, int slot, char *name)
 {
     sceSifRpcClientData *dev;
     int r;
@@ -646,8 +646,8 @@ badname:
     return -0xD2;
 ok:
     strncpy(mcName.name, name, 0x3FF);
-    mcName.port = a0;
-    mcName.slot = a1;
+    mcName.port = port;
+    mcName.slot = slot;
     mcName.name[0x3FF] = 0;
     mcName.flags = 0;
     r = sceSifCallRpc(dev, 0xF, 1, &mcName, 0x414, mcRdata, 4, 0, 0);
@@ -687,7 +687,7 @@ done:
     return r;
 }
 
-int sceMcSetFileInfo(int a0, int a1, char *name, void *src, int flags)
+int sceMcSetFileInfo(int port, int slot, char *name, void *src, int flags)
 {
     sceSifRpcClientData *dev;
     int r;
@@ -710,8 +710,8 @@ badname:
     return -0xD2;
 ok:
     flags &= 7;
-    mcName.port = a0;
-    mcName.slot = a1;
+    mcName.port = port;
+    mcName.slot = slot;
     mcName.flags = flags;
     mcAux = *(AuxReq *)src;
     mcName.data = &mcAux;
@@ -730,7 +730,7 @@ done:
     return r;
 }
 
-int sceMcRename(int a0, int a1, char *name, char *newname)
+int sceMcRename(int port, int slot, char *name, char *newname)
 {
     sceSifRpcClientData *dev;
     int r;
@@ -755,8 +755,8 @@ badname:
     SignalSema(mcSema);
     return -0xD2;
 ok:
-    mcName.port = a0;
-    mcName.slot = a1;
+    mcName.port = port;
+    mcName.slot = slot;
     mcName.flags = 0x10;
     strncpy(mcName.name, name, 0x3FF);
     mcName.name[0x3FF] = 0;
@@ -776,7 +776,7 @@ done:
     return r;
 }
 
-int sceMcUnformat(int a0, int a1)
+int sceMcUnformat(int port, int slot)
 {
     sceSifRpcClientData *dev;
     char *blk;
@@ -790,8 +790,8 @@ int sceMcUnformat(int a0, int a1)
         return -0x64;
     }
     blk = mcCmd;
-    *(int *)(blk + 4) = a0;
-    *(int *)(blk + 8) = a1;
+    *(int *)(blk + 4) = port;
+    *(int *)(blk + 8) = slot;
     r = sceSifCallRpc(dev, 0x11, 1, blk, 0x30, mcRdata, 4, 0, 0);
     if (r != 0) {
         goto unlock;
@@ -804,7 +804,7 @@ done:
     return r;
 }
 
-int sceMcGetEntSpace(int a0, int a1, char *name)
+int sceMcGetEntSpace(int port, int slot, char *name)
 {
     sceSifRpcClientData *dev;
     int r;
@@ -826,8 +826,8 @@ badname:
     SignalSema(mcSema);
     return -0xD2;
 ok:
-    mcName.port = a0;
-    mcName.slot = a1;
+    mcName.port = port;
+    mcName.slot = slot;
     strncpy(mcName.name, name, 0x3FF);
     mcName.name[0x3FF] = 0;
     r = sceSifCallRpc(dev, 0x12, 1, &mcName, 0x414, mcRdata, 4, 0, 0);

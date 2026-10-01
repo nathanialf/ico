@@ -3,10 +3,10 @@
 #include <string.h>
 #include <reent.h>
 
-void srand(int a0)
+void srand(int seed)
 {
     char *p = (char *)_impure_ptr;
-    *(int *)(p + 0x58) = a0;
+    *(int *)(p + 0x58) = seed;
 }
 
 int rand(void)

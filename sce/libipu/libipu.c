@@ -43,10 +43,10 @@ void sceIpuRestartDMA(sceIpuDmaEnv *env)
     }
 }
 
-int sceIpuSync(int a0, unsigned short timeout)
+int sceIpuSync(int mode, unsigned short timeout)
 {
     int r = 0;
-    switch (a0) {
+    switch (mode) {
     case 0:
         while (*IPU_CTRL < 0) {}
         r = 0;

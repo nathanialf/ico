@@ -11,20 +11,20 @@
 #ifndef SCE_LIBPAD_LIBPAD_H
 #define SCE_LIBPAD_LIBPAD_H
 
-int scePadEnterPressMode(int a0, int a1);                  /* definition in sce/ */
-int scePadGetButtonMask(int a0, int a1);                   /* definition in sce/ */
-int scePadGetModVersion(void);                             /* definition in sce/ */
-int scePadGetReqState(int a0, int a1);                     /* definition in sce/ */
-int scePadGetState(int a0, int a1);                        /* definition in sce/ */
-int scePadInfoAct(int a0, int a1, int a2, int a3);         /* definition in sce/ */
-int scePadInfoMode(int a0, int a1, int a2, int a3);        /* definition in sce/ */
-int scePadInfoPressMode(int a0, int a1);                   /* definition in sce/ */
-int scePadInit(int a0);                                    /* definition in sce/ */
-int scePadInit2(int a0);                                   /* definition in sce/ */
-int scePadPortOpen(int a0, int a1, void *a2);              /* definition in sce/ */
-int scePadRead(int a0, int a1, int a2);                    /* definition in sce/ */
-int scePadSetActAlign(int a0, int a1, char *a2);           /* definition in sce/ */
-int scePadSetActDirect(int a0, int a1, unsigned char *a2); /* definition in sce/ */
-int scePadSetMainMode(int a0, int a1, int a2, int a3);     /* definition in sce/ */
+int scePadEnterPressMode(int port, int slot);                    /* definition in sce/ */
+int scePadGetButtonMask(int port, int slot);                     /* definition in sce/ */
+int scePadGetModVersion(void);                                   /* definition in sce/ */
+int scePadGetReqState(int port, int slot);                       /* definition in sce/ */
+int scePadGetState(int port, int slot);                          /* definition in sce/ */
+int scePadInfoAct(int port, int slot, int act, int term);        /* definition in sce/ */
+int scePadInfoMode(int port, int slot, int term, int index);     /* definition in sce/ */
+int scePadInfoPressMode(int port, int slot);                     /* definition in sce/ */
+int scePadInit(int a0);                                          /* definition in sce/ */
+int scePadInit2(int a0);                                         /* definition in sce/ */
+int scePadPortOpen(int port, int slot, void *addr);              /* definition in sce/ */
+int scePadRead(int port, int slot, int data);                    /* definition in sce/ */
+int scePadSetActAlign(int port, int slot, char *act);            /* definition in sce/ */
+int scePadSetActDirect(int port, int slot, unsigned char *act);  /* definition in sce/ */
+int scePadSetMainMode(int port, int slot, int mode, int option); /* definition in sce/ */
 
 #endif /* SCE_LIBPAD_LIBPAD_H */

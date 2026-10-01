@@ -22,18 +22,18 @@ void std(Fil *fp, int flags, int file, Reent *data)
     fp->data = data;
 }
 
-void *__sfmoreglue(void *a0, int a1)
+void *__sfmoreglue(void *ptr, int n)
 {
     int sz;
     char *p;
     char *body;
-    sz = a1 * 0x58;
-    p = (char *)_malloc_r(a0, sz + 0xC);
+    sz = n * 0x58;
+    p = (char *)_malloc_r(ptr, sz + 0xC);
     if (p == 0) {
         return 0;
     }
     body = p + 0xC;
-    *(int *)(p + 0x4) = a1;
+    *(int *)(p + 0x4) = n;
     *(int *)(p + 0x0) = 0;
     *(int *)(p + 0x8) = (int)body;
     memset(body, 0, sz);

@@ -3,11 +3,11 @@
 #include <string.h>
 #include <reent.h>
 
-int strtok_r(int a0, int a1, int a2)
+int strtok_r(int str, int sep, int lastp)
 {
-    char *s = (char *)a0;
-    char *delim = (char *)a1;
-    char **last = (char **)a2;
+    char *s = (char *)str;
+    char *delim = (char *)sep;
+    char **last = (char **)lastp;
     char *spanp;
     char *tok;
     int c;

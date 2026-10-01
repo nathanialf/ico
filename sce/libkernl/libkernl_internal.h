@@ -29,8 +29,8 @@ void _request_rdata(void *pkt, void *data); /* definition in sce/ */
 int _sceCallCode(void *name, int code);     /* definition in sce/ */
 void _sceFsIobSemaMK(void);                 /* definition in sce/ */
 void _sceFsSigSema(void);                   /* definition in sce/ */
-void _sceIDC(int a0, int a1);               /* the spelling at 1 site, asm definition in sce/ */
-void _sceSDC(int a0, int a1);               /* the spelling at 1 site, asm definition in sce/ */
+void _sceIDC(int start, int end);           /* the spelling at 1 site, asm definition in sce/ */
+void _sceSDC(int start, int end);           /* the spelling at 1 site, asm definition in sce/ */
 void deci2Putchar(int c);                   /* definition in sce/ */
 void *get_iob(unsigned int i);              /* definition in sce/ */
 void kExpandScratchPad(void);               /* the spelling at 1 site, asm definition in sce/ */

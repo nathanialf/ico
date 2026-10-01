@@ -18,10 +18,10 @@
         (d) = sf_u.value;                                                                          \
     } while (0)
 
-float fabsf(float a0)
+float fabsf(float x)
 {
     unsigned int ix;
-    GET_FLOAT_WORD(ix, a0);
-    SET_FLOAT_WORD(a0, ix & 0x7fffffff);
-    return a0;
+    GET_FLOAT_WORD(ix, x);
+    SET_FLOAT_WORD(x, ix & 0x7fffffff);
+    return x;
 }

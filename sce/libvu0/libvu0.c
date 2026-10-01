@@ -29,7 +29,7 @@
 
 typedef unsigned int u128 __attribute__((mode(TI)));
 
-void sceVu0ApplyMatrix(void *a0, void *a1, void *a2)
+void sceVu0ApplyMatrix(void *dst, void *m, void *v)
 {
     VU0_LSV(lqc2, 4, 0x0, 5);
     VU0_LSV(lqc2, 5, 0x10, 5);
@@ -43,7 +43,7 @@ void sceVu0ApplyMatrix(void *a0, void *a1, void *a2)
     VU0_LSV(sqc2, 9, 0x0, 4);
 }
 
-void sceVu0MulMatrix(void *a0, void *a1, void *a2)
+void sceVu0MulMatrix(void *dst, void *m0, void *m1)
 {
     __asm__ __volatile__(".set noreorder\n"
                          "lqc2 $vf4, 0x0($5)\n"
@@ -66,7 +66,7 @@ void sceVu0MulMatrix(void *a0, void *a1, void *a2)
                              : "$7", "memory");
 }
 
-void sceVu0OuterProduct(void *a0, void *a1, void *a2)
+void sceVu0OuterProduct(void *dst, void *a, void *b)
 {
     VU0_LSV(lqc2, 4, 0x0, 5);
     VU0_LSV(lqc2, 5, 0x0, 6);
@@ -76,7 +76,7 @@ void sceVu0OuterProduct(void *a0, void *a1, void *a2)
     VU0_LSV(sqc2, 6, 0x0, 4);
 }
 
-float sceVu0InnerProduct(void *a0, void *a1)
+float sceVu0InnerProduct(void *a, void *b)
 {
     float ret;
     __asm__ __volatile__(".set noreorder\n"
@@ -92,7 +92,7 @@ float sceVu0InnerProduct(void *a0, void *a1)
     return ret;
 }
 
-void sceVu0Normalize(void *a0, void *a1)
+void sceVu0Normalize(void *dst, void *src)
 {
     VU0_LSV(lqc2, 4, 0x0, 5);
     VU0_REG("vmul.xyz $vf5, $vf4, $vf4");
@@ -176,7 +176,7 @@ __asm__(".section .text\n"
         "    .set reorder\n"
         "    .set at\n");
 
-void sceVu0DivVector(void *a0, void *a1, float a2)
+void sceVu0DivVector(void *dst, void *src, float q)
 {
     VU0_LSV(lqc2, 4, 0x0, 5);
     VU0_NOREORDER_BEGIN();
@@ -189,7 +189,7 @@ void sceVu0DivVector(void *a0, void *a1, float a2)
     VU0_LSV(sqc2, 4, 0x0, 4);
 }
 
-void sceVu0DivVectorXYZ(void *a0, void *a1, float a2)
+void sceVu0DivVectorXYZ(void *dst, void *src, float q)
 {
     VU0_LSV(lqc2, 4, 0x0, 5);
     VU0_NOREORDER_BEGIN();
@@ -202,7 +202,7 @@ void sceVu0DivVectorXYZ(void *a0, void *a1, float a2)
     VU0_LSV(sqc2, 4, 0x0, 4);
 }
 
-void sceVu0InterVector(void *a0, void *a1, void *a2, float t)
+void sceVu0InterVector(void *dst, void *a, void *b, float t)
 {
     VU0_LSV(lqc2, 4, 0x0, 5);
     VU0_LSV(lqc2, 5, 0x0, 6);
@@ -217,7 +217,7 @@ void sceVu0InterVector(void *a0, void *a1, void *a2, float t)
     VU0_LSV(sqc2, 9, 0x0, 4);
 }
 
-void sceVu0AddVector(void *a0, void *a1, void *a2)
+void sceVu0AddVector(void *dst, void *a, void *b)
 {
     VU0_LSV(lqc2, 4, 0x0, 5);
     VU0_LSV(lqc2, 5, 0x0, 6);
@@ -225,7 +225,7 @@ void sceVu0AddVector(void *a0, void *a1, void *a2)
     VU0_LSV(sqc2, 6, 0x0, 4);
 }
 
-void sceVu0SubVector(void *a0, void *a1, void *a2)
+void sceVu0SubVector(void *dst, void *a, void *b)
 {
     VU0_LSV(lqc2, 4, 0x0, 5);
     VU0_LSV(lqc2, 5, 0x0, 6);
@@ -233,7 +233,7 @@ void sceVu0SubVector(void *a0, void *a1, void *a2)
     VU0_LSV(sqc2, 6, 0x0, 4);
 }
 
-void sceVu0MulVector(void *a0, void *a1, void *a2)
+void sceVu0MulVector(void *dst, void *a, void *b)
 {
     VU0_LSV(lqc2, 4, 0x0, 5);
     VU0_LSV(lqc2, 5, 0x0, 6);
@@ -241,7 +241,7 @@ void sceVu0MulVector(void *a0, void *a1, void *a2)
     VU0_LSV(sqc2, 6, 0x0, 4);
 }
 
-void sceVu0ScaleVector(void *a0, void *a1, float a2)
+void sceVu0ScaleVector(void *dst, void *src, float scale)
 {
     VU0_LSV(lqc2, 4, 0x0, 5);
     __asm__ __volatile__(".set noreorder\n mfc1 $8,$f12\n qmtc2.ni $8,$vf5\n .set reorder" ::
@@ -250,7 +250,7 @@ void sceVu0ScaleVector(void *a0, void *a1, float a2)
     VU0_LSV(sqc2, 6, 0x0, 4);
 }
 
-void sceVu0TransMatrix(void *a0, void *a1, void *a2)
+void sceVu0TransMatrix(void *dst, void *src, void *tv)
 {
     VU0_LSV(lqc2, 4, 0x0, 6);
     VU0_LSV(lqc2, 5, 0x30, 5);
@@ -300,35 +300,35 @@ __asm__(".section .text\n"
         "    .set reorder\n"
         "    .set at\n");
 
-void sceVu0FTOI4Vector(void *a0, void *a1)
+void sceVu0FTOI4Vector(void *dst, void *src)
 {
     VU0_LSV(lqc2, 4, 0x0, 5);
     VU0_V2OP(vftoi4.xyzw, 5, 4);
     VU0_LSV(sqc2, 5, 0x0, 4);
 }
 
-void sceVu0FTOI0Vector(void *a0, void *a1)
+void sceVu0FTOI0Vector(void *dst, void *src)
 {
     VU0_LSV(lqc2, 4, 0x0, 5);
     VU0_V2OP(vftoi0.xyzw, 5, 4);
     VU0_LSV(sqc2, 5, 0x0, 4);
 }
 
-void sceVu0ITOF4Vector(void *a0, void *a1)
+void sceVu0ITOF4Vector(void *dst, void *src)
 {
     VU0_LSV(lqc2, 4, 0x0, 5);
     VU0_V2OP(vitof4.xyzw, 5, 4);
     VU0_LSV(sqc2, 5, 0x0, 4);
 }
 
-void sceVu0ITOF0Vector(void *a0, void *a1)
+void sceVu0ITOF0Vector(void *dst, void *src)
 {
     VU0_LSV(lqc2, 4, 0x0, 5);
     VU0_V2OP(vitof0.xyzw, 5, 4);
     VU0_LSV(sqc2, 5, 0x0, 4);
 }
 
-void sceVu0UnitMatrix(void *a0)
+void sceVu0UnitMatrix(void *m)
 {
     __asm__ __volatile__("vsub.xyzw $vf4, $vf0, $vf0\n"
                          "vadd.w $vf4, $vf4, $vf0\n"
@@ -563,14 +563,14 @@ __asm__(".section .text\n"
         "    .set reorder\n"
         "    .set at\n");
 
-void sceVu0RotMatrix(void *a0, void *a1, float *fa)
+void sceVu0RotMatrix(void *dst, void *src, float *fa)
 {
-    sceVu0RotMatrixZ(a0, a1, fa[2]);
-    sceVu0RotMatrixY(a0, a0, fa[1]);
-    sceVu0RotMatrixX(a0, a0, fa[0]);
+    sceVu0RotMatrixZ(dst, src, fa[2]);
+    sceVu0RotMatrixY(dst, dst, fa[1]);
+    sceVu0RotMatrixX(dst, dst, fa[0]);
 }
 
-void sceVu0ClampVector(void *a0, void *a1, float a2, float a3)
+void sceVu0ClampVector(void *dst, void *src, float min, float max)
 {
     VU0_MFC1(8, 12);
     VU0_MFC1(9, 13);
@@ -582,69 +582,69 @@ void sceVu0ClampVector(void *a0, void *a1, float a2, float a3)
     VU0_LSV(sqc2, 6, 0x0, 4);
 }
 
-void sceVu0CameraMatrix(void *a0, void *a1, void *a2, void *a3)
+void sceVu0CameraMatrix(void *m, void *p, void *zd, void *yd)
 {
     char buf[0x50];
     sceVu0UnitMatrix(buf);
-    sceVu0OuterProduct(buf + 0x40, a3, a2);
+    sceVu0OuterProduct(buf + 0x40, yd, zd);
     sceVu0Normalize(buf, buf + 0x40);
-    sceVu0Normalize(buf + 0x20, a2);
+    sceVu0Normalize(buf + 0x20, zd);
     sceVu0OuterProduct(buf + 0x10, buf + 0x20, buf);
-    sceVu0TransMatrix(buf, buf, a1);
-    sceVu0InversMatrix(a0, buf);
+    sceVu0TransMatrix(buf, buf, p);
+    sceVu0InversMatrix(m, buf);
 }
 
-void sceVu0NormalLightMatrix(void *a0, void *a1, void *a2, void *a3)
+void sceVu0NormalLightMatrix(void *m, void *l0, void *l1, void *l2)
 {
     float buf[4];
-    sceVu0ScaleVector(buf, a1, -1.0f);
-    sceVu0Normalize(a0, buf);
-    sceVu0ScaleVector(buf, a2, -1.0f);
-    sceVu0Normalize((char *)a0 + 0x10, buf);
-    sceVu0ScaleVector(buf, a3, -1.0f);
-    sceVu0Normalize((char *)a0 + 0x20, buf);
+    sceVu0ScaleVector(buf, l0, -1.0f);
+    sceVu0Normalize(m, buf);
+    sceVu0ScaleVector(buf, l1, -1.0f);
+    sceVu0Normalize((char *)m + 0x10, buf);
+    sceVu0ScaleVector(buf, l2, -1.0f);
+    sceVu0Normalize((char *)m + 0x20, buf);
     {
         float fzero = 0.0f;
-        *(float *)((char *)a0 + 0x38) = fzero;
-        *(float *)((char *)a0 + 0x3C) = 1.0f;
-        *(float *)((char *)a0 + 0x34) = fzero;
-        *(float *)((char *)a0 + 0x30) = fzero;
+        *(float *)((char *)m + 0x38) = fzero;
+        *(float *)((char *)m + 0x3C) = 1.0f;
+        *(float *)((char *)m + 0x34) = fzero;
+        *(float *)((char *)m + 0x30) = fzero;
     }
-    sceVu0TransposeMatrix(a0, a0);
+    sceVu0TransposeMatrix(m, m);
 }
 
-void sceVu0LightColorMatrix(void *a0, void *a1, void *a2, void *a3, void *a4)
+void sceVu0LightColorMatrix(void *m, void *c0, void *c1, void *c2, void *c3)
 {
-    sceVu0CopyVector((void *)a0, a1);
-    sceVu0CopyVector((char *)a0 + 0x10, a2);
-    sceVu0CopyVector((char *)a0 + 0x20, a3);
-    sceVu0CopyVector((char *)a0 + 0x30, a4);
+    sceVu0CopyVector((void *)m, c0);
+    sceVu0CopyVector((char *)m + 0x10, c1);
+    sceVu0CopyVector((char *)m + 0x20, c2);
+    sceVu0CopyVector((char *)m + 0x30, c3);
 }
 
-void sceVu0ViewScreenMatrix(float *m, float a1, float a2, float a3, float a4, float a5, float a6,
-                            float a7, float a8, float a9)
+void sceVu0ViewScreenMatrix(float *m, float scrz, float ax, float ay, float cx, float cy,
+                            float zmin, float zmax, float nearz, float farz)
 {
     float t[16];
     float p;
     float q;
 
-    q = ((-a7) * a8 + a6 * a9) / (-a8 + a9);
-    p = ((a9 * a8) * (-a6 + a7)) / (-a8 + a9);
+    q = ((-zmax) * nearz + zmin * farz) / (-nearz + farz);
+    p = ((farz * nearz) * (-zmin + zmax)) / (-nearz + farz);
 
     sceVu0UnitMatrix(m);
-    m[0] = a1;
-    m[5] = a1;
+    m[0] = scrz;
+    m[5] = scrz;
     m[10] = 0.0f;
     m[15] = 0.0f;
     m[14] = 1.0f;
     m[11] = 1.0f;
 
     sceVu0UnitMatrix(t);
-    t[0] = a2;
-    t[5] = a3;
+    t[0] = ax;
+    t[5] = ay;
     t[10] = p;
-    t[12] = a4;
-    t[13] = a5;
+    t[12] = cx;
+    t[13] = cy;
     t[14] = q;
     sceVu0MulMatrix(m, t, m);
 }
@@ -699,7 +699,7 @@ void sceVu0DropShadowMatrix(float *m, float *p, int para, float lx, float ly, fl
     }
 }
 
-void sceVu0RotTransPersN(void *a0, void *a1, void *a2, int a3, int a4)
+void sceVu0RotTransPersN(void *dst, void *m, void *src, int n, int mode)
 {
     __asm__ __volatile__(".set noreorder\n"
                          "lqc2 $vf4, 0x0($5)\n"
@@ -728,7 +728,7 @@ void sceVu0RotTransPersN(void *a0, void *a1, void *a2, int a3, int a4)
                              : "$7", "memory");
 }
 
-void sceVu0RotTransPers(void *a0, void *a1, void *a2, int a3)
+void sceVu0RotTransPers(void *dst, void *m, void *src, int mode)
 {
     VU0_LSV(lqc2, 4, 0x0, 5);
     VU0_LSV(lqc2, 5, 0x10, 5);
@@ -743,20 +743,20 @@ void sceVu0RotTransPers(void *a0, void *a1, void *a2, int a3)
     VU0_WAIT();
     VU0_REG("vmulq.xyz $vf9, $vf9, Q");
     VU0_REG("vftoi4.xyzw $vf10, $vf9");
-    if (a3) {
+    if (mode) {
         VU0_REG("vftoi0.zw $vf10, $vf9");
     }
     VU0_LSV(sqc2, 10, 0x0, 4);
 }
 
-void sceVu0CopyVectorXYZ(void *a0, void *a1)
+void sceVu0CopyVectorXYZ(void *dst, void *src)
 {
-    ((float *)a0)[0] = ((float *)a1)[0];
-    ((float *)a0)[1] = ((float *)a1)[1];
-    ((float *)a0)[2] = ((float *)a1)[2];
+    ((float *)dst)[0] = ((float *)src)[0];
+    ((float *)dst)[1] = ((float *)src)[1];
+    ((float *)dst)[2] = ((float *)src)[2];
 }
 
-void sceVu0InterVectorXYZ(void *a0, void *a1, void *a2, float a3)
+void sceVu0InterVectorXYZ(void *dst, void *a, void *b, float t)
 {
     VU0_LSV(lqc2, 4, 0x0, 5);
     VU0_LSV(lqc2, 5, 0x0, 6);
@@ -772,7 +772,7 @@ void sceVu0InterVectorXYZ(void *a0, void *a1, void *a2, float a3)
     VU0_LSV(sqc2, 9, 0x0, 4);
 }
 
-void sceVu0ScaleVectorXYZ(void *a0, void *a1, float a2)
+void sceVu0ScaleVectorXYZ(void *dst, void *src, float scale)
 {
     VU0_LSV(lqc2, 4, 0x0, 5);
     __asm__ __volatile__(".set noreorder\n mfc1 $8,$f12\n qmtc2.ni $8,$vf5\n .set reorder" ::
@@ -781,7 +781,7 @@ void sceVu0ScaleVectorXYZ(void *a0, void *a1, float a2)
     VU0_LSV(sqc2, 4, 0x0, 4);
 }
 
-int sceVu0ClipScreen(void *a0)
+int sceVu0ClipScreen(void *v)
 {
     int r;
     __asm__ __volatile__(".set noreorder\n"
@@ -806,7 +806,7 @@ int sceVu0ClipScreen(void *a0)
     return r & 0xC0;
 }
 
-int sceVu0ClipScreen3(void *a0, void *a1, void *a2)
+int sceVu0ClipScreen3(void *a, void *b, void *c)
 {
     int ret;
     __asm__ __volatile__(".set noreorder\n"

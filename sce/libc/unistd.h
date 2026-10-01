@@ -9,7 +9,7 @@
 #ifndef SCE_LIBC_UNISTD_H
 #define SCE_LIBC_UNISTD_H
 
-int close(int a1);                            /* definition in sce/ */
+int close(int fd);                            /* definition in sce/ */
 long lseek(int fd, long offset, int whence);  /* definition in sce/ */
 int read(int fd, void *buf, int size);        /* definition in sce/ */
 int write(int fd, const void *buf, int size); /* definition in sce/ */

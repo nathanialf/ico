@@ -25,18 +25,17 @@ typedef struct {
 /* a callback sceMpegAddCallback registers: called with the handle, the
  * callback's data record (its first word the type) and the registered data */
 typedef int (*sceMpegCallback)(sceMpeg *mp, void *cbdata, void *anyData);
-
 sceMpegCallback sceMpegAddCallback(sceMpeg *mp, int type, sceMpegCallback func, void *data);
 int sceMpegAddStrCallback(sceMpeg *mp, int type, int ch, sceMpegCallback func, void *data);
 int sceMpegClearRefBuff(sceMpeg *mp);
 int sceMpegCreate(sceMpeg *mp, void *buf, int size);
 int sceMpegDelete(sceMpeg *m); /* definition in sce/ */
-int sceMpegDemuxPssRing(sceMpeg *mp, void *p, int n, int a3, int p4);
-int sceMpegGetPicture(sceMpeg *mp, unsigned int a1, int a2); /* definition in sce/ */
+int sceMpegDemuxPssRing(sceMpeg *mp, void *buf, int size, int ring, int ringSize);
+int sceMpegGetPicture(sceMpeg *mp, unsigned int buf, int size); /* definition in sce/ */
 void sceMpegInit(void);
 int sceMpegIsEnd(sceMpeg *mp);          /* definition in sce/ */
 int sceMpegIsRefBuffEmpty(sceMpeg *mp); /* definition in sce/ */
-void sceMpegReset(sceMpeg *mp);          /* definition in sce/ */
+void sceMpegReset(sceMpeg *mp);         /* definition in sce/ */
 
 /* The library's internal symbols are in libmpeg_internal.h. */
 

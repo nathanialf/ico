@@ -37,9 +37,9 @@ static char tty_sbuf[320] __attribute__((aligned(64))); /* derived name */
 
 static char tty_rbuf[320] __attribute__((aligned(64))); /* derived name */
 
-void *QueueInit(int a0)
+void *QueueInit(int size)
 {
-    tty_queue.size = a0;
+    tty_queue.size = size;
     tty_queue.count = 0;
     tty_queue.wp = tty_queue.buf;
     tty_queue.rp = tty_queue.buf;

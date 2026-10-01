@@ -3,7 +3,7 @@
 #include <string.h>
 #include <reent.h>
 
-int atoi(void *a0)
+int atoi(void *str)
 {
-    return (int)strtol(a0, 0, 0xA);
+    return (int)strtol(str, 0, 0xA);
 }

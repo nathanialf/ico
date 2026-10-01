@@ -905,9 +905,9 @@ int _sceCallCode(void *name, int code)
     return result;
 }
 
-int sceRemove(void *a0)
+int sceRemove(void *name)
 {
-    return _sceCallCode(a0, 6);
+    return _sceCallCode(name, 6);
 }
 
 int sceMkdir(char *name, int mode)
@@ -958,9 +958,9 @@ int sceMkdir(char *name, int mode)
     return result;
 }
 
-int sceRmdir(void *a0)
+int sceRmdir(void *name)
 {
-    return _sceCallCode(a0, 8);
+    return _sceCallCode(name, 8);
 }
 
 int sceFormat(unsigned char *dev, unsigned char *blockdev, unsigned char *arg, int arglen)
@@ -1033,7 +1033,7 @@ int sceFormat(unsigned char *dev, unsigned char *blockdev, unsigned char *arg, i
     return result;
 }
 
-int sceAddDrv(void *a0)
+int sceAddDrv(void *drv)
 {
     FsAddDrvReq *g = &fsSendBuf.drv;
     int uv;
@@ -1046,7 +1046,7 @@ int sceAddDrv(void *a0)
     if (fs_inited == 0) {
         sceFsInit();
     }
-    g->drv = a0;
+    g->drv = drv;
     buf.maxCount = 1;
     buf.initCount = 0;
     buf.option = 0;
@@ -1070,9 +1070,9 @@ int sceAddDrv(void *a0)
     return result;
 }
 
-int sceDelDrv(void *a0)
+int sceDelDrv(void *name)
 {
-    return _sceCallCode(a0, 0x10);
+    return _sceCallCode(name, 0x10);
 }
 
 int sceDopen(void *name)
@@ -1098,7 +1098,7 @@ int sceDopen(void *name)
     return rc;
 }
 
-int sceDclose(unsigned int a0)
+int sceDclose(unsigned int fd)
 {
     int *g = fsSendBuf.w;
     void *obj;
@@ -1109,7 +1109,7 @@ int sceDclose(unsigned int a0)
     int result;
     struct SemaParam buf;
 
-    obj = get_iob(a0);
+    obj = get_iob(fd);
     _sceFsWaitS(0xA);
     if (fs_inited == 0) {
         _sceFsSigSema();
@@ -1148,7 +1148,7 @@ int sceDclose(unsigned int a0)
     return 0;
 }
 
-int sceDread(unsigned int a0, int a1)
+int sceDread(unsigned int fd, int dbuf)
 {
     int *g = fsSendBuf.w;
     void *obj;
@@ -1158,7 +1158,7 @@ int sceDread(unsigned int a0, int a1)
     int result;
     struct SemaParam buf;
 
-    obj = get_iob(a0);
+    obj = get_iob(fd);
     _sceFsWaitS(0xB);
     if (fs_inited == 0) {
         _sceFsSigSema();
@@ -1169,28 +1169,28 @@ int sceDread(unsigned int a0, int a1)
         return -9;
     }
     f0 = ((int *)obj)[0];
-    g[4] = a1;
+    g[4] = dbuf;
     g[3] = f0;
     buf.maxCount = 1;
     buf.initCount = 0;
     buf.option = 0;
-    fsSendBuf.w[0] = a1 = CreateSema(&buf);
+    fsSendBuf.w[0] = dbuf = CreateSema(&buf);
     *(void **)(g + 1) = &result;
     g[2] = 4;
     rc = sceSifCallRpc(&fsClient, 0xB, 0, g, 0x20, fsRecvBuf, 4, 0, 0);
     if (rc < 0) {
-        WaitSema(a1);
+        WaitSema(dbuf);
         _sceFsSigSema();
         return -0xB;
     }
     uv = *(int *)((int)fsRecvBuf | 0x20000000);
     _sceFsSigSema();
     if (uv == 0) {
-        DeleteSema(a1);
+        DeleteSema(dbuf);
         return -0xB;
     }
-    WaitSema(a1);
-    DeleteSema(a1);
+    WaitSema(dbuf);
+    DeleteSema(dbuf);
     return result;
 }
 
@@ -1356,9 +1356,9 @@ int sceRename(unsigned char *oldname, unsigned char *newname)
     return result;
 }
 
-int sceChdir(void *a0)
+int sceChdir(void *name)
 {
-    return _sceCallCode(a0, 0x12);
+    return _sceCallCode(name, 0x12);
 }
 
 int sceSync(unsigned char *name, int flag)
@@ -1476,9 +1476,9 @@ int sceMount(unsigned char *fsname, unsigned char *devname, int flag, unsigned c
     return result;
 }
 
-int sceUmount(void *a0)
+int sceUmount(void *name)
 {
-    return _sceCallCode(a0, 0x15);
+    return _sceCallCode(name, 0x15);
 }
 
 long long sceLseek64(int fd, long long offset, int whence)

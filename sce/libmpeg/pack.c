@@ -28,13 +28,13 @@ static StrDesc streamDesc[10] /* derived name */ = {
     {0xBD88000000ULL, 0xFFFF000000ULL}, {0xBD90000000ULL, 0xFFFF000000ULL},
 };
 
-long long _type2id(int a0, int a1)
+long long _type2id(int type, int ch)
 {
     long long id = 0;
     int sh = 0;
 
-    if ((unsigned int)a0 < 10) {
-        switch (streamDesc[a0].mask) {
+    if ((unsigned int)type < 10) {
+        switch (streamDesc[type].mask) {
         case 0xFFFFFFFFFFULL:
             sh = 0;
             break;
@@ -45,7 +45,7 @@ long long _type2id(int a0, int a1)
             sh = 32;
             break;
         }
-        id = streamDesc[a0].id | ((long long)a1 << sh);
+        id = streamDesc[type].id | ((long long)ch << sh);
     }
     return id;
 }
@@ -175,7 +175,7 @@ typedef struct StrCb {
 int _pack_header(int *bs, PackHeader *pkt);
 int _PES_packet(int *bs, PesPkt *pkt);
 
-int sceMpegDemuxPssRing(sceMpeg *mp, void *p4, int size, int a3, int a4)
+int sceMpegDemuxPssRing(sceMpeg *mp, void *buf, int size, int ring, int ringSize)
 {
     int bsbuf[12];
     PssPkt pktbuf;
@@ -190,7 +190,7 @@ int sceMpegDemuxPssRing(sceMpeg *mp, void *p4, int size, int a3, int a4)
     int i;
     int cont = 1;
 
-    _sysbitInit(bsbuf, (int)p4, a3, a4);
+    _sysbitInit(bsbuf, (int)buf, ring, ringSize);
     bs = bsbuf;
     i = 0;
     if (p->nStrCb > 0) {
@@ -248,17 +248,17 @@ int sceMpegDemuxPssRing(sceMpeg *mp, void *p4, int size, int a3, int a4)
     return ret;
 }
 
-int sceMpegDemuxPss(void *a0, void *a1, int a2)
+int sceMpegDemuxPss(void *mp, void *buf, int size)
 {
-    return sceMpegDemuxPssRing(a0, a1, a2, 0, -1);
+    return sceMpegDemuxPssRing(mp, buf, size, 0, -1);
 }
 
-int sceMpegAddStrCallback(sceMpeg *mp, int a1, int a2, sceMpegCallback a3, void *a4)
+int sceMpegAddStrCallback(sceMpeg *mp, int type, int ch, sceMpegCallback func, void *data)
 {
     int ret = 0;
     MpegSys *p = mp->sys;
     StrCb *tbl = p->strCb;
-    long long id = _type2id(a1, a2);
+    long long id = _type2id(type, ch);
     int n = p->nStrCb;
     int i;
 
@@ -271,14 +271,14 @@ int sceMpegAddStrCallback(sceMpeg *mp, int a1, int a2, sceMpegCallback a3, void 
     if (i < 0x40) {
         p->nStrCb = n + 1;
         tbl[i].id = id;
-        tbl[i].arg = a4;
-        tbl[i].func = a3;
-        tbl[i].mask = streamDesc[a1].mask;
+        tbl[i].arg = data;
+        tbl[i].func = func;
+        tbl[i].mask = streamDesc[type].mask;
     }
     return ret;
 }
 
-int _system_header(int *a0, PackHeader *pkt);
+int _system_header(int *bs, PackHeader *pkt);
 
 int _pack_header(int *bs, PackHeader *pkt)
 {
@@ -313,12 +313,12 @@ end:
     return 1;
 }
 
-int _system_header(int *a0, PackHeader *pkt)
+int _system_header(int *bs, PackHeader *pkt)
 {
-    _sysbitGet(a0, 0x38);
-    _sysbitGet(a0, 0x28);
-    while (_sysbitNext(a0, 1) == 1) {
-        _sysbitGet(a0, 0x18);
+    _sysbitGet(bs, 0x38);
+    _sysbitGet(bs, 0x28);
+    while (_sysbitNext(bs, 1) == 1) {
+        _sysbitGet(bs, 0x18);
     }
     return 1;
 }

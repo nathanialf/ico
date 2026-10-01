@@ -238,28 +238,28 @@ static fp_number_type *_fpadd_parts(fp_number_type *a, fp_number_type *b, fp_num
     return tmp;
 }
 
-float fpadd(float a0, float a1)
+float fpadd(float arg_a, float arg_b)
 {
     fp_number_type a;
     fp_number_type b;
     fp_number_type tmp;
     fp_number_type *res;
 
-    __unpack_f(&a0, &a);
-    __unpack_f(&a1, &b);
+    __unpack_f(&arg_a, &a);
+    __unpack_f(&arg_b, &b);
     res = _fpadd_parts(&a, &b, &tmp);
     return __pack_f(res);
 }
 
-float fpsub(float a0, float a1)
+float fpsub(float arg_a, float arg_b)
 {
     fp_number_type a;
     fp_number_type b;
     fp_number_type tmp;
     fp_number_type *res;
 
-    __unpack_f(&a0, &a);
-    __unpack_f(&a1, &b);
+    __unpack_f(&arg_a, &a);
+    __unpack_f(&arg_b, &b);
     b.sign ^= 1;
     res = _fpadd_parts(&a, &b, &tmp);
     return __pack_f(res);
@@ -501,13 +501,13 @@ int __fpcmp_parts_f(fp_number_type *a, fp_number_type *b)
     }
 }
 
-int fpcmp(float a0, float a1)
+int fpcmp(float arg_a, float arg_b)
 {
     fp_number_type a;
     fp_number_type b;
 
-    __unpack_f(&a0, &a);
-    __unpack_f(&a1, &b);
+    __unpack_f(&arg_a, &a);
+    __unpack_f(&arg_b, &b);
     return __fpcmp_parts_f(&a, &b);
 }
 
@@ -599,32 +599,32 @@ unsigned int fptoui(float arg_a)
     return a.fraction >> (30 - a.normal_exp);
 }
 
-float __negsf2(float f12)
+float __negsf2(float arg_a)
 {
     fp_number_type o;
     float in[4];
-    in[0] = f12;
+    in[0] = arg_a;
     __unpack_f(in, &o);
     o.sign = (o.sign == 0);
     return __pack_f(&o);
 }
 
-void __make_fp(int a0, int a1, int a2, int a3)
+void __make_fp(int class, int sign, int exp, int frac)
 {
     fp_number_type buf;
-    buf.class = a0;
-    buf.sign = a1;
-    buf.normal_exp = a2;
-    buf.fraction = a3;
+    buf.class = class;
+    buf.sign = sign;
+    buf.normal_exp = exp;
+    buf.fraction = frac;
     __pack_f(&buf);
 }
 
-int fptodp(float f12)
+int fptodp(float arg_a)
 {
     fp_number_type in;
     float local1[4];
     long long a3_val;
-    local1[0] = f12;
+    local1[0] = arg_a;
     __unpack_f(local1, &in);
     a3_val = (long long)in.fraction << 32;
     return __make_dp(in.class, in.sign, in.normal_exp,

@@ -104,46 +104,46 @@ int sceMpegDelete(sceMpeg *m)
     return 1;
 }
 
-void sceMpegAddBs(int a0, int a1, int a2)
+void sceMpegAddBs(int a0, int data, int size)
 {
-    int rounded = (a2 + 0x13) / 16 * 16;
-    _bsDatap = a1;
+    int rounded = (size + 0x13) / 16 * 16;
+    _bsDatap = data;
     _bsDataSize = rounded;
-    _sendDataToIPU(a1, rounded);
+    _sendDataToIPU(data, rounded);
 }
 
-int sceMpegGetPicture(sceMpeg *mp, unsigned int a1, int a2)
+int sceMpegGetPicture(sceMpeg *mp, unsigned int buf, int size)
 {
     MpegSys *p = mp->sys;
-    a1 = (a1 & 0x0FFFFFFF) | 0x20000000;
+    buf = (buf & 0x0FFFFFFF) | 0x20000000;
     p->csc = 1;
-    p->imageBuff = a1;
-    p->buffSize = a2;
+    p->imageBuff = buf;
+    p->buffSize = size;
     p->buffHeight = 0;
     p->buffWidth = 0;
     return _getpic(mp);
 }
 
-int sceMpegGetPictureRAW8(sceMpeg *mp, unsigned int a1, int a2, int a3)
+int sceMpegGetPictureRAW8(sceMpeg *mp, unsigned int buf, int size, int a3)
 {
     MpegSys *p = mp->sys;
-    p->buffSize = a2;
-    p->imageBuff = (a1 & 0x0FFFFFFF) | 0x20000000;
+    p->buffSize = size;
+    p->imageBuff = (buf & 0x0FFFFFFF) | 0x20000000;
     p->csc = 0;
     p->buffHeight = 0;
     p->buffWidth = 0;
     return _getpic(mp);
 }
 
-int sceMpegGetPictureRAW8xy(sceMpeg *mp, unsigned int a1, int a2, int a3)
+int sceMpegGetPictureRAW8xy(sceMpeg *mp, unsigned int buf, int mbw, int mbh)
 {
     MpegSys *p = mp->sys;
     int prod;
-    p->buffHeight = a3 << 4;
-    p->imageBuff = (a1 & 0x0FFFFFFF) | 0x20000000;
-    prod = a2 * a3;
+    p->buffHeight = mbh << 4;
+    p->imageBuff = (buf & 0x0FFFFFFF) | 0x20000000;
+    prod = mbw * mbh;
     p->buffSize = prod;
-    p->buffWidth = a2 << 4;
+    p->buffWidth = mbw << 4;
     p->csc = 0;
     return _getpic(mp);
 }

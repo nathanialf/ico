@@ -103,9 +103,9 @@ __asm__(".section .text\n"
         "    .set reorder\n"
         "    .set at\n");
 
-void iSyncDCache(int a0, int a1)
+void iSyncDCache(int start, int end)
 {
-    _sceSDC(a0 & 0xFFFFFFC0, a1 & 0xFFFFFFC0);
+    _sceSDC(start & 0xFFFFFFC0, end & 0xFFFFFFC0);
 }
 
 __asm__(".section .text\n"
@@ -209,7 +209,7 @@ __asm__(".section .text\n"
         "    .set reorder\n"
         "    .set at\n");
 
-void iInvalidDCache(int a0, int a1)
+void iInvalidDCache(int start, int end)
 {
-    _sceIDC(a0 & 0xFFFFFFC0, a1 & 0xFFFFFFC0);
+    _sceIDC(start & 0xFFFFFFC0, end & 0xFFFFFFC0);
 }

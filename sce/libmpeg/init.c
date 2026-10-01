@@ -13,7 +13,7 @@ void _initSeqAgain(void)
     _ipuSetMPEG1(1);
 }
 
-void _lastFrame(int a0)
+void _lastFrame(int frame)
 {
     int t;
     if (_isSecondField) {
@@ -23,9 +23,9 @@ void _lastFrame(int a0)
     }
     t = _picture_structure;
     if (t == 3) {
-        _dispRefImage(_backFrame, a0 - 1);
+        _dispRefImage(_backFrame, frame - 1);
     } else {
-        _dispRefImageField(_backTop, _backBot, a0 - 1);
+        _dispRefImageField(_backTop, _backBot, frame - 1);
     }
     _isSecondField = 0;
 }
@@ -91,19 +91,19 @@ void _clearEach(void)
     sceIpuSync(0, 0);
 }
 
-void _ErrMessage(char *a0)
+void _ErrMessage(char *msg)
 {
-    printf("[MPEG ERROR]%s\n", a0);
+    printf("[MPEG ERROR]%s\n", msg);
 }
 
-void _Error1(char *fmt, int a1)
+void _Error1(char *fmt, int val)
 {
     char buf[0x100];
-    sprintf(buf, fmt, a1);
+    sprintf(buf, fmt, val);
     _Error(buf);
 }
 
-void _Error(char *a0)
+void _Error(char *msg)
 {
     sceMpeg *mp = _theSceMpeg;
     if (mp != 0) {
@@ -112,20 +112,20 @@ void _Error(char *a0)
             if (p->cb[0].func != 0) {
                 int local[2];
                 local[0] = 0;
-                local[1] = (int)a0;
+                local[1] = (int)msg;
                 _dispatchMpegCallback(mp, local);
                 return;
             }
         }
     }
-    _ErrMessage(a0);
+    _ErrMessage(msg);
 }
 
-void _sendDataToIPU(int a0, int a1)
+void _sendDataToIPU(int data, int size)
 {
     long long *tag = (long long *)((((unsigned int)ipuTags) & 0x0FFFFFFF) | 0x20000000);
-    int p = a0;
-    int n = a1;
+    int p = data;
+    int n = size;
 
     while (n > 0) {
         int len = n > 0xFFF40 ? 0xFFF40 : n;
@@ -145,12 +145,12 @@ void _sendDataToIPU(int a0, int a1)
     *D4_CHCR = 0x105;
 }
 
-int _RefImageInit(int *a0, int a1, int a2)
+int _RefImageInit(int *img, int width, int height)
 {
-    a0[0x4 / 4] = a1;
-    a0[0x8 / 4] = a2;
-    a0[0xC / 4] = a1 >> 4;
-    a0[0x10 / 4] = a2 >> 4;
+    img[0x4 / 4] = width;
+    img[0x8 / 4] = height;
+    img[0xC / 4] = width >> 4;
+    img[0x10 / 4] = height >> 4;
     return 1;
 }
 

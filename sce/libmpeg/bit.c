@@ -24,22 +24,22 @@ typedef struct {
 /* Its record type is this member's own */
 void _sysbitFlush(SysBit *bs, int n);
 
-void _sysbitInit(int *a0, int a1, int a2, int a3)
+void _sysbitInit(int *bs, int base, int wrap, int size)
 {
-    a0[2] = a1;
-    a0[3] = a1;
-    *(long long *)a0 = 0;
-    a0[4] = 0;
-    *(long long *)(a0 + 6) = 0;
-    a0[8] = a2;
-    a0[9] = a2 + a3;
-    a0[0xA] = a3;
-    _sysbitFlush((SysBit *)a0, 0);
+    bs[2] = base;
+    bs[3] = base;
+    *(long long *)bs = 0;
+    bs[4] = 0;
+    *(long long *)(bs + 6) = 0;
+    bs[8] = wrap;
+    bs[9] = wrap + size;
+    bs[0xA] = size;
+    _sysbitFlush((SysBit *)bs, 0);
 }
 
-int _sysbitNext(void *a0, int a1)
+int _sysbitNext(void *bs, int n)
 {
-    return *(unsigned long long *)a0 >> (64 - a1);
+    return *(unsigned long long *)bs >> (64 - n);
 }
 
 void _sysbitFlush(SysBit *bs, int n)
@@ -56,10 +56,10 @@ void _sysbitFlush(SysBit *bs, int n)
     bs->pos += n;
 }
 
-int _sysbitGet(int *self, int a1)
+int _sysbitGet(int *self, int n)
 {
-    int ret = _sysbitNext(self, a1);
-    _sysbitFlush((SysBit *)self, a1);
+    int ret = _sysbitNext(self, n);
+    _sysbitFlush((SysBit *)self, n);
     return ret;
 }
 
@@ -70,26 +70,26 @@ int _sysbitMarker(int *self)
     return ret;
 }
 
-void _sysbitJump(int *a0, int a1)
+void _sysbitJump(int *bs, int bytes)
 {
-    long long x = *(long long *)(a0 + 6) + (a1 << 3);
+    long long x = *(long long *)(bs + 6) + (bytes << 3);
     int v;
-    *(long long *)a0 = 0;
-    a0[4] = 0;
-    *(long long *)(a0 + 6) = x;
-    v = a0[2] + (int)(x >> 3);
-    a0[3] = v;
-    if ((unsigned int)v >= (unsigned int)a0[9]) {
-        a0[3] = v - a0[10];
+    *(long long *)bs = 0;
+    bs[4] = 0;
+    *(long long *)(bs + 6) = x;
+    v = bs[2] + (int)(x >> 3);
+    bs[3] = v;
+    if ((unsigned int)v >= (unsigned int)bs[9]) {
+        bs[3] = v - bs[10];
     }
-    _sysbitFlush((SysBit *)a0, 0);
+    _sysbitFlush((SysBit *)bs, 0);
 }
 
-int _sysbitPtr(int *a0, int a1)
+int _sysbitPtr(int *bs, int bits)
 {
-    int v = a0[2] + (a1 >> 3);
-    if ((unsigned int)v >= (unsigned int)a0[9]) {
-        v -= a0[10];
+    int v = bs[2] + (bits >> 3);
+    if ((unsigned int)v >= (unsigned int)bs[9]) {
+        v -= bs[10];
     }
     return v;
 }

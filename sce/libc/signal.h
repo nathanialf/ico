@@ -9,7 +9,7 @@
 #ifndef SCE_LIBC_SIGNAL_H
 #define SCE_LIBC_SIGNAL_H
 
-int raise(int a0);                      /* definition in sce/ */
+int raise(int sig);                     /* definition in sce/ */
 int _raise_r(void *ptr, int sig);       /* definition in sce/ */
 int _init_signal_r(void *ptr);          /* definition in sce/ */
 int __sigtramp_r(void *ptr, int signo); /* definition in sce/ */

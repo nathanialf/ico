@@ -11,14 +11,14 @@
 /* _mbcont as MCState; init.c declares the same words with its own store types */
 extern MCState _mbcont;
 
-int _motionComp0(int a0, int a1, int a2, int a3, int PMV[2][2][2], int mv_field_sel[2][2],
-                 int *dmvector)
+int _motionComp0(int mba, int inc, int mb_type, int motion_type, int PMV[2][2][2],
+                 int mv_field_sel[2][2], int *dmvector)
 {
-    int col = a0 % _widthMB;
-    int row = a0 / _widthMB;
+    int col = mba % _widthMB;
+    int row = mba / _widthMB;
     int x = col * 16;
     int y = row * 16;
-    int intra = a2 & 1;
+    int intra = mb_type & 1;
 
     if (intra) {
         while (((*(volatile unsigned int *)D9_CHCR) >> 8) & 1) {}
@@ -28,12 +28,12 @@ int _motionComp0(int a0, int a1, int a2, int a3, int PMV[2][2][2], int mv_field_
         int cnt;
         int i;
 
-        if ((unsigned int)(a3 - 1) >= 3) {
-            _Error1("Invalid modion type -- ignored(%d)", a3);
+        if ((unsigned int)(motion_type - 1) >= 3) {
+            _Error1("Invalid modion type -- ignored(%d)", motion_type);
             _isError = 1;
             return 0;
         }
-        _getAllRefs(x, y, a2, a3, PMV, mv_field_sel, dmvector);
+        _getAllRefs(x, y, mb_type, motion_type, PMV, mv_field_sel, dmvector);
         while (((*(volatile unsigned int *)D9_CHCR) >> 8) & 1) {}
         tag = (long long *)((_sprtag & 0x0FFFFFFF) | 0x20000000);
         cnt = _mbcont.rec[_mbcont.cur].count;
@@ -53,8 +53,8 @@ int _motionComp0(int a0, int a1, int a2, int a3, int PMV[2][2][2], int mv_field_
         *D9_CHCR = 0x105;
         _mbcont.rec[_mbcont.cur].busy = 1;
     }
-    if (a1 == 1 && (a2 & 2)) {
-        _mbcont.rec[_mbcont.cur].coded = a1;
+    if (inc == 1 && (mb_type & 2)) {
+        _mbcont.rec[_mbcont.cur].coded = inc;
     } else {
         _mbcont.rec[_mbcont.cur].coded = 0;
     }
@@ -310,25 +310,25 @@ void _getRef0(int *img, int lineOff, int predIdx, int yoff, int h, int x, int y,
 /* Finish record a0: run each reference's luma and chroma copy routines into
  * the prediction buffer, then copy the intra block, the prediction (skipped
  * macroblock) or the prediction plus the residual to the destination. */
-void _doMC(int a0)
+void _doMC(int idx)
 {
     int i;
 
-    if (_mbcont.rec[a0].busy != 0) {
-        for (i = 0; i < _mbcont.rec[a0].count; i++) {
-            _mbcont.rec[a0].lumaFn[i](&_mbcont.rec[a0].luma[i]);
-            _mbcont.rec[a0].chromaFn[i](&_mbcont.rec[a0].chroma[i]);
+    if (_mbcont.rec[idx].busy != 0) {
+        for (i = 0; i < _mbcont.rec[idx].count; i++) {
+            _mbcont.rec[idx].lumaFn[i](&_mbcont.rec[idx].luma[i]);
+            _mbcont.rec[idx].chromaFn[i](&_mbcont.rec[idx].chroma[i]);
         }
     }
-    if (_mbcont.rec[a0].intra != 0 && _mbcont.rec[a0].skip != 0) {
+    if (_mbcont.rec[idx].intra != 0 && _mbcont.rec[idx].skip != 0) {
         _Error("intra && skip MB");
     }
-    if (_mbcont.rec[a0].intra != 0) {
-        _copyRefImage(_mbcont.rec[a0].dst, (void *)_mbcont.rec[a0].ipuBuf);
-    } else if (_mbcont.rec[a0].skip != 0) {
-        _copyRefImage(_mbcont.rec[a0].dst, (void *)_refBlockp);
+    if (_mbcont.rec[idx].intra != 0) {
+        _copyRefImage(_mbcont.rec[idx].dst, (void *)_mbcont.rec[idx].ipuBuf);
+    } else if (_mbcont.rec[idx].skip != 0) {
+        _copyRefImage(_mbcont.rec[idx].dst, (void *)_refBlockp);
     } else {
-        _copyAddRefImage(_mbcont.rec[a0].dst, (void *)_refBlockp, (void *)_mbcont.rec[a0].ipuBuf);
+        _copyAddRefImage(_mbcont.rec[idx].dst, (void *)_refBlockp, (void *)_mbcont.rec[idx].ipuBuf);
     }
 }
 
@@ -1376,7 +1376,7 @@ __asm__(".section .text\n"
         "    .set reorder\n"
         "    .set at\n");
 
-void _copyAddRefImage(void *a0, void *a1, void *a2)
+void _copyAddRefImage(void *dst, void *ref, void *diff)
 {
     __asm__ __volatile__(".set noreorder\n"
                          "addiu $12, $0, 0x18\n"
@@ -1411,7 +1411,7 @@ void _copyAddRefImage(void *a0, void *a1, void *a2)
  * clamp mask its sibling reads as _maxval lives in this function's own
  * text, aligned to a quadword, with the two pad instructions the alignment
  * leaves behind. */
-void _copyRefImage(void *a0, void *a1)
+void _copyRefImage(void *dst, void *src)
 {
     __asm__ __volatile__(".set noreorder\n"
                          "addiu $12, $0, 0x18\n"
@@ -1441,10 +1441,10 @@ void _copyRefImage(void *a0, void *a1)
                              : "$8", "$9", "$10", "$11", "$12", "memory");
 }
 
-void _ipuSetMPEG1(int a0)
+void _ipuSetMPEG1(int on)
 {
     int *reg = (int *)IPU_CTRL;
-    *reg = (*reg & 0xFF7FFFFF) | (a0 << 23);
+    *reg = (*reg & 0xFF7FFFFF) | (on << 23);
 }
 
 int _waitBdecOut(void)
@@ -1560,7 +1560,7 @@ int _mbAddressIncrement(void)
     return sum;
 }
 
-int _pictureData0(int a0)
+int _pictureData0(int frame)
 {
     int n = _widthMB * _heightMB;
     int r;
@@ -1571,7 +1571,7 @@ int _pictureData0(int a0)
         n = n >> 1;
     }
     do {
-        r = _slice0(a0, n);
+        r = _slice0(frame, n);
     } while (r == 1 || r == 3);
     _waitIpuIdle();
     if (_waitBdecOut() == 0) {
@@ -1587,7 +1587,7 @@ int _pictureData0(int a0)
     return r == 0;
 }
 
-int _sliceA0(int a0, int *a1, int *a2, int PMV[2][2][2])
+int _sliceA0(int total, int *mba, int *inc, int PMV[2][2][2])
 {
     int id;
     int m;
@@ -1603,13 +1603,13 @@ int _sliceA0(int a0, int *a1, int *a2, int PMV[2][2][2])
     _flushBuf(0x20);
     m = _sliceB();
     n = _mbAddressIncrement();
-    *a2 = n;
+    *inc = n;
     if (_isError != 0) {
         _Error("_sliceA0(): error happens");
         return 1;
     }
-    *a1 = ((((m << 7) + (id & 0xFF)) - 1) * _widthMB + n) - 1;
-    *a2 = 1;
+    *mba = ((((m << 7) + (id & 0xFF)) - 1) * _widthMB + n) - 1;
+    *inc = 1;
     _sp_dcr = 1;
     PMV[1][0][1] = 0;
     PMV[1][0][0] = 0;
@@ -1622,7 +1622,7 @@ int _sliceA0(int a0, int *a1, int *a2, int PMV[2][2][2])
     return 0;
 }
 
-int _slice0(int a0, int a1)
+int _slice0(int frame, int total)
 {
     int PMV[2][2][2];
     int mv_field_sel[2][2];
@@ -1636,13 +1636,13 @@ int _slice0(int a0, int a1)
 
     mba = 0;
     n = 0;
-    r = _sliceA0(a1, &mba, &n, PMV);
+    r = _sliceA0(total, &mba, &n, PMV);
     if (r != 0) {
         return r;
     }
     _isError = 0;
     for (;;) {
-        if (mba >= a1) {
+        if (mba >= total) {
             return 0;
         }
         _mbcont.rec[_mbcont.cur].skip = 0;
@@ -1660,7 +1660,7 @@ int _slice0(int a0, int a1)
                 return 1;
             }
         }
-        if (mba >= a1) {
+        if (mba >= total) {
             _Error("Too many macroblocks in picture");
             return 2;
         }
@@ -1912,10 +1912,10 @@ c2c:
  * command's opcode (cmd >> 28) */
 static int top32Dirty[10] = {1, 1, 0, 0, 0, 1, 1, 1, 1, 1}; /* derived name */
 
-void _sendIpuCommand(unsigned int a0)
+void _sendIpuCommand(unsigned int cmd)
 {
-    *IPU_CMD = a0;
-    _isTop32dirty = top32Dirty[a0 >> 28];
+    *IPU_CMD = cmd;
+    _isTop32dirty = top32Dirty[cmd >> 28];
 }
 
 void _waitIpuIdle(void)
@@ -1987,9 +1987,9 @@ int _ipuVdec(int tbl)
     return (short)v;
 }
 
-int _peepBit(int a0)
+int _peepBit(int bits)
 {
-    if (_isTop32dirty != 0 || _top32len < a0) {
+    if (_isTop32dirty != 0 || _top32len < bits) {
         int n = 0;
 
         while ((*IPU_CTRL & 0x80004000) == 0x80000000) {
@@ -2003,10 +2003,10 @@ int _peepBit(int a0)
         _top32 = _waitIpuIdle64();
         _top32len = 32;
     }
-    return (unsigned int)_top32 >> (32 - a0);
+    return (unsigned int)_top32 >> (32 - bits);
 }
 
-void _flushBuf(int a0)
+void _flushBuf(int bits)
 {
     int n = 0;
     int cmd;
@@ -2017,14 +2017,14 @@ void _flushBuf(int a0)
             n = 0;
         }
     }
-    cmd = a0 | 0x40000000;
+    cmd = bits | 0x40000000;
     *IPU_CMD = cmd;
     _isTop32dirty = top32Dirty[(unsigned int)cmd >> 28];
     _top32 = _waitIpuIdle64();
     _top32len = 32;
 }
 
-unsigned int _nextBit(int a0)
+unsigned int _nextBit(int bits)
 {
     int n = 0;
     int cmd;
@@ -2036,14 +2036,14 @@ unsigned int _nextBit(int a0)
             n = 0;
         }
     }
-    if (_isTop32dirty != 0 || _top32len < a0) {
+    if (_isTop32dirty != 0 || _top32len < bits) {
         *IPU_CMD = 0x40000000;
         _isTop32dirty = top32Dirty[4];
         _top32 = _waitIpuIdle64();
     }
     _top32len = 32;
-    r = (unsigned int)_top32 >> (32 - a0);
-    cmd = a0 | 0x40000000;
+    r = (unsigned int)_top32 >> (32 - bits);
+    cmd = bits | 0x40000000;
     *IPU_CMD = cmd;
     _isTop32dirty = top32Dirty[(unsigned int)cmd >> 28];
     _top32 = _waitIpuIdle64();
@@ -2316,7 +2316,7 @@ void _copyrightExtension(void)
     _copyright_number_3 = _nextBit(22);
 }
 
-int _decPicture(int a0, int a1)
+int _decPicture(int frame, int refCount)
 {
     int p;
     int r;
@@ -2340,18 +2340,18 @@ int _decPicture(int a0, int a1)
         _Error("unknown picture sutructure");
         break;
     }
-    r = _pictureData0(a0);
+    r = _pictureData0(frame);
     if (r != 0) {
         *(int *)(p + 0x28) = 1;
     }
     return r;
 }
 
-void _outputFrame(int a0, int a1)
+void _outputFrame(int frame, int refCount)
 {
     MpegSys *p = _theSceMpeg->sys;
 
-    if (a1 != 0) {
+    if (refCount != 0) {
         int *top;
         int *bot;
 
@@ -2361,7 +2361,7 @@ void _outputFrame(int a0, int a1)
             } else {
                 top = _forwFrame;
             }
-            _dispRefImage(top, a0 - 1);
+            _dispRefImage(top, frame - 1);
         } else {
             if (_picture_coding_type == 3) {
                 top = _zTop;
@@ -2370,7 +2370,7 @@ void _outputFrame(int a0, int a1)
                 top = _forwTop;
                 bot = _forwBot;
             }
-            _dispRefImageField(top, bot, a0 - 1);
+            _dispRefImageField(top, bot, frame - 1);
         }
     }
     if (p->ptmState == 1) {
@@ -2380,7 +2380,7 @@ void _outputFrame(int a0, int a1)
 
 /* The reference images are record pointers.  The two 64-bit stamps are
    written through the record seen as long longs. */
-int _updateRefImage(int a0)
+int _updateRefImage(int second)
 {
     MpegSys *r = _theSceMpeg->sys;
     int *out = 0;
@@ -2414,7 +2414,7 @@ int _updateRefImage(int a0)
             }
         }
     } else {
-        if (a0 == 0) {
+        if (second == 0) {
             int *t;
             t = _forwFrame;
             _forwFrame = _backFrame;
@@ -2435,7 +2435,7 @@ int _updateRefImage(int a0)
             }
         } else {
             int *q = _picture_structure == 1 ? _backBot : _backTop;
-            if (_picture_coding_type != 2 || (a0 != 0 && q[0x28 / 4] == 1) ||
+            if (_picture_coding_type != 2 || (second != 0 && q[0x28 / 4] == 1) ||
                 (_forwTop[0x28 / 4] == 1 && _forwBot[0x28 / 4] == 1)) {
                 ret = 1;
             }
@@ -2595,7 +2595,7 @@ void _getPtsDtsFlags(int *img, long long *pts, long long *dts, long long *flags)
 /* the display count of a picture by its repeat and field flags */
 unsigned int _showCount[16] = {2, 0, 2, 0, 2, 3, 2, 3, 0, 0, 0, 0, 2, 4, 0, 6};
 
-void _dispRefImage(int *img, int a1)
+void _dispRefImage(int *img, int frame)
 {
     MpegSys *r = _theSceMpeg->sys;
 
@@ -2622,7 +2622,7 @@ void _dispRefImage(int *img, int a1)
 
 /* a field pair goes out as one frame: both fields' stamps on the handle, and
  * the stamp, show count and output geometry in the decoder record */
-void _dispRefImageField(int *top, int *bot, int a2)
+void _dispRefImageField(int *top, int *bot, int frame)
 {
     MpegSys *r = _theSceMpeg->sys;
     int *f;
