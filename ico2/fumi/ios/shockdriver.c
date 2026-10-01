@@ -29,9 +29,9 @@ SHOCKREQUEST ShockRequest[16] = {0};
 
 ShockMgr *System_shock_driver = 0;
 
-char *ShockVoiceSetCommon = 0;
+ShockVoiceSet *ShockVoiceSetCommon = 0;
 
-char *ShockVoiceSetStage = 0;
+ShockVoiceSet *ShockVoiceSetStage = 0;
 
 int ShockVoiceSetBuf[2] = {0};
 

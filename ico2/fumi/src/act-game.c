@@ -41,10 +41,12 @@
 #include "act.h"
 #include "brain.h"
 
+/* weapon.h's WeaponDef, which this TU does not include (CheckWeaponKind
+   differs): the weapon kind's motion orient at 0x1C */
 typedef struct { /* field names derived */
     char pad0[28];
-    int f_1C;
-    char _20[4];
+    int motOrient;
+    char pad20[4];
 } WeaponEntry; /* derived name */
 
 typedef struct { /* field names derived */
@@ -191,7 +193,7 @@ typedef struct { /* field names derived */
 } HandModeCmd; /* derived name */
 
 /* as in weapon.h, which this TU does not include (CheckWeaponKind differs) */
-extern int GetTorchGObjOfWeapon(char *weapon);
+extern int GetTorchGObjOfWeapon(GObj *weapon);
 extern WeaponEntry weaponKind[];
 
 inline void ACTGameCollisionOff(volatile int *self)
@@ -1088,12 +1090,12 @@ inline void _GetRootObjectOrient(void *orient, char *obj)
     sceVu0ApplyMatrix(orient, (void *)GOBJ_SUB(obj)->nodeMtx, v);
 }
 
-inline int ACTGame_isWeaponEnableCatchfire(int *self)
+inline int ACTGame_isWeaponEnableCatchfire(GObj *self)
 {
     int ret = 0;
     unsigned long combustible = ACTGame_isWeaponCombustible();
     if (combustible) {
-        ret = GetTorchGObjOfWeapon((char *)self);
+        ret = GetTorchGObjOfWeapon(self);
     }
     return ret;
 }
@@ -1114,7 +1116,7 @@ inline int ACTGame_GetMotOrientFromWeapon(GObj *weapon)
 {
     int rv;
     if (weapon != 0) {
-        rv = weaponKind[CheckWeaponKind(weapon)].f_1C;
+        rv = weaponKind[CheckWeaponKind(weapon)].motOrient;
     } else {
         rv = 0;
     }
@@ -1123,7 +1125,7 @@ inline int ACTGame_GetMotOrientFromWeapon(GObj *weapon)
 
 inline unsigned char ACTGame_NoWeapon(GObj *self)
 {
-    char *w = (char *)GOBJ_ACT(self)->weapon;
+    GObj *w = GOBJ_ACT(self)->weapon;
     unsigned char r = 0;
     if (w == 0 || CheckWeaponKind(w) == 0)
         r = 1;

@@ -248,7 +248,7 @@ restart:
     case 1:
         tgt = attractSofaParam;
         tgt.obj = cur;
-        GetSofaPosition(girlGObj, (char *)param);
+        GetSofaPosition(girlGObj, (GObj *)param);
         tgt.pos[0] = sub->sofaPos[0];
         tgt.pos[1] = sub->sofaPos[1];
         tgt.pos[2] = sub->sofaPos[2];

@@ -13,7 +13,7 @@ struct GObj;
 /* act-env.c's `inline` functions, in the order of their definitions'
  * out-of-line copies at the end of the object (first-declaration order). */
 void ACTSetEnvAllmighty(struct GObj *self);
-void GetSofaPosition(struct GObj *self, char *sofa);
+void GetSofaPosition(struct GObj *self, struct GObj *sofa);
 void GetCollisCenterPositionSimple(void *out, void *obj, void *corners);
 int CheckWallAttributeEdegWall(int obj);
 
@@ -95,11 +95,11 @@ typedef struct {             /* field names derived */
     int pullObj;       /* 0x14C */
     int pullKind;      /* 0x150 */
     char pad154[4];
-    char *swapWeapon;      /* 0x158 */
+    struct GObj *swapWeapon; /* 0x158 */
     char *frontObj;        /* 0x15C */
     char *cageObj;         /* 0x160 */
-    char *bombObj;         /* 0x164 */
-    char *torchRevObj;     /* 0x168 */
+    struct GObj *bombObj;    /* 0x164 */
+    struct GObj *torchRevObj; /* 0x168 */
     int sofaObj;           /* 0x16C */
     ClipCopy wallContact;  /* 0x170 */
     ClipCopy cliffContact; /* 0x190 */

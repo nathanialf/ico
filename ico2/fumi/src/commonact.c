@@ -602,7 +602,7 @@ static int intrMotion[432] = {
     188, 189, 190, 191, 189, 118, 1,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,
     0,   0,   0,   0,   0,   0,   0,   0,   17,  18,  262, 0,   0,   0}; /* derived name */
 
-int ACTGetOrientFromIntrK(char *self, int k, void *buf, int arg)
+int ACTGetOrientFromIntrK(GObj *self, int k, void *buf, int arg)
 {
     IntrOrient *out = (IntrOrient *)buf;
     Act *s = GOBJ_ACT(self);
@@ -628,7 +628,7 @@ int ACTGetOrientFromIntrK(char *self, int k, void *buf, int arg)
         out->a = out->b = ((IntrOrient *)((char *)s + 0x620))->a =
             ((IntrOrient *)((char *)s + 0x620))->b = tmp;
         s->sofaObj = *(int *)&tmp;
-        GetSofaPosition(self, (char *)s->sofaObj);
+        GetSofaPosition(self, (GObj *)s->sofaObj);
         break;
     case 145:
         out->a = *(IntrVec3 *)((char *)GOBJ_ACT(self)->work + 0x3D8);
@@ -671,7 +671,7 @@ int ACTGetOrientFromIntrK(char *self, int k, void *buf, int arg)
     case 205:
     case 206:
     case 207:
-        if (self == (char *)boyGObj) {
+        if (self == boyGObj) {
             if (ACTGame_NoWeapon(self)) {
                 ret = 42;
             } else {
@@ -783,7 +783,7 @@ void WithMailFunc_AttackFail(GObj *self)
     }
 }
 
-void WithMailFunc_AttackRejectInQueen(char *self)
+void WithMailFunc_AttackRejectInQueen(GObj *self)
 {
     Act *s = GOBJ_ACT(self);
     GObj *w = s->weapon;
@@ -2168,11 +2168,6 @@ static void correctJumpOrientByChain(GObj *self)
     SetMotionDirectionSmooze(self, dir, t);
 }
 
-typedef union { /* field names derived */
-    unsigned long long ll;
-    void *p;
-} ActFlagJ; /* derived name */
-
 typedef struct { /* field names derived */
     char pad0[398];
     unsigned short f18E;
@@ -2186,22 +2181,22 @@ void actCommonJump(GObj *volatile self)
     int hit = 0;
     int n;
 
-    ((ActFlagJ *)((char *)s + 0x18))->ll &= ~(1ULL << 55);
-    ((ActFlagJ *)((char *)s + 0x18))->p = (void *)actAfterJump;
+    s->flags18.ll &= ~(1ULL << 55);
+    s->flags18.afterProc = (void (*)(char *))actAfterJump;
     if (s->intrKind == 82) {
         GOBJ_WORK(self)->jumpTimer = ((60 - systemStatus[0] * 10) / systemStatus[1]) * 10;
     }
     if (s->intrKind == 261) {
-        ((ActFlagJ *)((char *)s + 0x18))->ll |= (1ULL << 55);
+        s->flags18.ll |= (1ULL << 55);
         if (self == girlGObj && boyGObj != 0) {
             _OrientXZGV(dir, test_CURRENTROOT(boyGObj), test_CURRENTROOT((void *)self));
             SetMotionDirection(self, dir);
         }
     }
-    ((ActFlagJ *)((char *)s + 0x18))->ll &= ~(1ULL << 56);
+    s->flags18.ll &= ~(1ULL << 56);
     if (s->intrKind == 197) {
         SetMotionDirection(self, GOBJ_WORK(self)->boyOrient);
-        ((ActFlagJ *)((char *)s + 0x18))->ll |= (1ULL << 56);
+        s->flags18.ll |= (1ULL << 56);
     }
     n = *(int *)((char *)GOBJ_ACT(self)->work + 0x900);
     if (n < 4) {
@@ -2919,8 +2914,8 @@ void actCommonFly(GObj *volatile self)
     GObj *target;
     char *gen = 0;
 
-    ((ActFlagJ *)((char *)s + 0x18))->ll &= ~(1ULL << 57);
-    ((ActFlagJ *)((char *)s + 0x18))->p = (void *)actAfterFly;
+    s->flags18.ll &= ~(1ULL << 57);
+    s->flags18.afterProc = (void (*)(char *))actAfterFly;
 
     ((FlyCtlJ *)(char *)GOBJ_SUB(self))->f5F8 = 0;
 
@@ -3502,8 +3497,8 @@ void actCommonBecarry(GObj *volatile self)
 
     g = *(char **)((char *)s + 0x144);
     ACTGameCollisionOff((volatile int *)self);
-    ((ActFlagJ *)((char *)s + 0x18))->p = (void *)afterCommonBecarry;
-    ((ActFlagJ *)((char *)s + 0x18))->ll &= ~(1ULL << 46);
+    s->flags18.afterProc = (void (*)(char *))afterCommonBecarry;
+    s->flags18.ll &= ~(1ULL << 46);
     _ACTWait(1);
     while (1) {
         _ACTCharStatus_Set(self, 9, -1.0f, 0);
@@ -3512,7 +3507,7 @@ void actCommonBecarry(GObj *volatile self)
         if (old != cur) {
             done = requestBecarryMotion(self, cur, (GOBJ_ACT(g)->actMode == 103) ? 30 : 0, 2118);
             if (!done) {
-                ((ActFlagJ *)((char *)s + 0x18))->ll |= (1ULL << 46);
+                s->flags18.ll |= (1ULL << 46);
             }
         }
         if (6 <= s->modeFrame) {

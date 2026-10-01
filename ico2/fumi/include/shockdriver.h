@@ -80,11 +80,13 @@ typedef struct ShockReq { /* field names derived */
     /* 0x5 */ unsigned char val;
 } ShockReq; /* derived name */
 
+typedef struct ShockVoiceSet ShockVoiceSet; /* derived name */
+
 /* The voice set manager: its slot count, the slot table and the hook the
    decoders call on a 0x3F command (Init_ShockDriver clears it). */
 typedef struct { /* field names derived */
     int count;
-    int *arr;
+    int *arr; /* the voice sets (ShockVoiceSet *), held as words */
     void (*callback)(SHOCKREQUEST *req, unsigned char *cmd);
 } ShockMgr; /* derived name */
 
@@ -92,15 +94,14 @@ typedef struct { /* field names derived */
    the requests through SHOCKREQUEST). */
 extern int ShockDriver[4];
 extern ShockMgr *System_shock_driver;
-extern char *ShockVoiceSetCommon;
-extern char *ShockVoiceSetStage;
+extern ShockVoiceSet *ShockVoiceSetCommon;
+extern ShockVoiceSet *ShockVoiceSetStage;
 extern int ShockVoiceSetBuf[2];
 extern ShockReqAlloc ShockRequestMemory;
 
 void Init_Controler(ShockReq *motor);
 void Init_Player(ShockRequestBox *box);
 void Init_Shock(void);
-typedef struct ShockVoiceSet ShockVoiceSet; /* derived name */
 
 void Init_ShockVoiceSet(ShockVoiceSet *set, int *data);
 SHOCKREQUEST *ShockRequestBox_EndRequestFree(ShockRequestBox *box);

@@ -1297,12 +1297,12 @@ inline void GetWallGlobalInfo(char *pts, void *nrm, char *w, void *m)
     sceVu0ApplyMatrix(nrm, m, &vec);
 }
 
-inline void GetGlobalWallPlane(float *plane, int *r)
+inline void GetGlobalWallPlane(float *plane, WallCfg *wall)
 {
     FcVec pts[4];
 
-    GetWallGlobalInfo((char *)pts, plane, (char *)r[2],
-                      (void *)((r[1] << 6) + *(int *)(*(int *)(r[0] + 0x15C) + 0xC)));
+    GetWallGlobalInfo((char *)pts, plane, wall->n,
+                      (void *)((wall->o.node << 6) + GOBJ_SUB(wall->o.obj)->nodeMtx));
     plane[3] = -sceVu0InnerProduct(plane, pts);
 }
 
@@ -1403,7 +1403,7 @@ typedef struct { /* field names derived */
     char *walls; /* 0x10 */
 } FcWallSet;     /* derived name */
 
-void DrawGObjWallCollision(char *gobj, int col)
+void DrawGObjWallCollision(GObj *gobj, int col)
 {
     FcWallObj *g = (FcWallObj *)gobj;
     FcWallSet *cd;
@@ -1460,7 +1460,7 @@ void DrawGObjWallCollision(char *gobj, int col)
     gif_EndPacket();
 }
 
-void DrawGObjFloorCollision(char *gobj, int col)
+void DrawGObjFloorCollision(GObj *gobj, int col)
 {
     int n;
     char *cd;
@@ -1782,7 +1782,7 @@ inline int PositionOfExit(float *pos, int attr)
     return 1;
 }
 
-void ClipFloorByGObj(char *p, char *gobj)
+void ClipFloorByGObj(char *p, GObj *gobj)
 {
     float buf0[4];
     float buf1[4];
@@ -1798,14 +1798,14 @@ void ClipFloorByGObj(char *p, char *gobj)
     sceVu0CopyVector((int *)buf1, (int *)(p + 0x10));
     pos = p + 0x20;
     sceVu0CopyVector((int *)pos, (int *)(p + 0x10));
-    curFuzio = (FuzioCtx *)*(int *)(((FcSubSlot *)(gobj + 0x15C))->sub + 0x70);
+    curFuzio = (FuzioCtx *)GOBJ_SUB(gobj)->colData;
     ep = pos;
     CopyVector(&keep, ep);
     CopyVector(p, buf0);
     /* pos now names the start point: the DEBUG build traces the segment
      * (pos to ep) once it is in the object's space */
     pos = p;
-    m = *(char **)(((FcSubSlot *)(gobj + 0x15C))->sub + 0xC);
+    m = (char *)GOBJ_SUB(gobj)->nodeMtx;
     MatrixDrive_SetTransposeMatrix(mtx, (float *)m);
     *(float *)(p + 0xC) = *(float *)(p + 0x2C) = 1.0f;
     _ApplyMatrix(p, mtx, p);

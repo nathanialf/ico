@@ -371,15 +371,11 @@ typedef struct { /* field names derived */
     IntrEnt ent[1];
 } IntrList; /* derived name */
 
-typedef struct { /* field names derived */
-    int w[8];
-} IntrOrient; /* derived name */
-
 static IntrMail *act_check_intr_list(void *self, IntrMail *m, void **out)
 {
     IntrList *k = (IntrList *)(self + 0x54);
     Act *w = GOBJ_ACT(self);
-    IntrOrient buf;
+    MotOriReq buf;
     int i;
 
     if (m != 0) {
@@ -395,7 +391,7 @@ static IntrMail *act_check_intr_list(void *self, IntrMail *m, void **out)
                         continue;
                     }
                     mot = ACTGetOrientFromIntrK(self, k->ent[i].id, &buf, i);
-                    p = SetMotionRequest(self, mot, *(MotOriReq *)&buf);
+                    p = SetMotionRequest(self, mot, buf);
                     *(char **)((char *)w + 0x130) = p;
                     if (*(int *)(p + 0xC) == 0 &&
                         (*(unsigned short *)((char *)m + 0x16) & 1) == 0 &&
@@ -405,7 +401,7 @@ static IntrMail *act_check_intr_list(void *self, IntrMail *m, void **out)
                     w->intrMot = mot;
                     *(void **)((char *)w + 0x2C) = k->ent[i].f4;
                     *(char **)((char *)w + 0x30) = GetMailAdditionalData(self, i);
-                    *(IntrOrient *)(*(char **)((int)GOBJ_ACT(self) + 0x688) + 0x8B0) = buf;
+                    *(MotOriReq *)(*(char **)((int)GOBJ_ACT(self) + 0x688) + 0x8B0) = buf;
                     *out = &k->ent[i];
                     return m;
                 }

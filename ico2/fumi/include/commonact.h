@@ -12,7 +12,7 @@ struct GObj;
 
 void ACTAcceptMail(struct GObj *self, int mail);
 void ACTAdjustPlane(struct GObj *self, void *wall); /* wall: the wall record the root is laid against */
-int ACTGetOrientFromIntrK(char *self, int kind, void *buf, int i);
+int ACTGetOrientFromIntrK(struct GObj *self, int kind, void *buf, int i);
 
 struct IntrMail; /* act.h */
 

@@ -15,17 +15,8 @@
 #include "gv.h"
 #include "motionOrientManager.h"
 
-/* the 0x80-byte way-walker work record, the same one ico2/fumi/src/way_kidnap
-   carries as WayWork; the actor keeps its copy at act + 0x360 */
-typedef struct {              /* field names derived */
-    long long _00[7];         /* 0x00 */
-    int _38;                  /* 0x38 */
-    int f3C;                  /* 0x3C */
-    long long _40[4];         /* 0x40 */
-    int _60;                  /* 0x60 */
-    int f64;                  /* 0x64 */
-    long long _68[3];         /* 0x68 */
-} WayWork; /* derived name */ /* 0x80 */
+/* the actor keeps its way-walker work record (way_sys.h's WVTObj) at
+   act + 0x360 */
 
 /* the two-word playback-rate pair the wait counters are scaled by */
 
@@ -169,7 +160,7 @@ static inline void ResumeGirlPullupFloorBox(void) /* derived name */
     }
 }
 
-static inline WayPoint *RequestWayBegin(char *self, float *goal, float *from, WayWork *way,
+static inline WayPoint *RequestWayBegin(char *self, float *goal, float *from, WVTObj *way,
                                         unsigned char sub) /* derived name */
 {
     ActWork *req;
@@ -186,7 +177,7 @@ static inline WayPoint *RequestWayBegin(char *self, float *goal, float *from, Wa
         *(float *)(ws + 0x10) = from[0];
         *(float *)(ws + 0x14) = from[1];
         *(float *)(ws + 0x18) = from[2];
-        *(WayWork *)((char *)req + 0x5A0) = *way;
+        *(WVTObj *)((char *)req + 0x5A0) = *way;
         *(float *)(ws + 0xA0) = goal[0];
         *(float *)(ws + 0xA4) = goal[1];
         *(float *)(ws + 0xA8) = goal[2];
@@ -195,13 +186,13 @@ static inline WayPoint *RequestWayBegin(char *self, float *goal, float *from, Wa
             _ACTWait(1);
         }
         w = *(WayPoint **)(ws + 4);
-        *way = *(WayWork *)(ws + 0x20);
+        *way = *(WVTObj *)(ws + 0x20);
         return w;
     }
     if (self == (char *)girlGObj) {
         SuspendGirlPullupFloorBox();
     }
-    w = GetWay_begin(from, (WVTObj *)way, goal);
+    w = GetWay_begin(from, way, goal);
     if (self == (char *)girlGObj) {
         ResumeGirlPullupFloorBox();
     }
@@ -211,10 +202,10 @@ static inline WayPoint *RequestWayBegin(char *self, float *goal, float *from, Wa
 int ACTWayMove_BeginDetail(GObj *self, float *goal, float *from, void *tgt, void *e,
                            unsigned char sub)
 {
-    WayWork way;
+    WVTObj way;
     Act *act = GOBJ_ACT(self);
-    WayWork *home;
-    WayWork *wp;
+    WVTObj *home;
+    WVTObj *wp;
     int ret = 0;
     WayPoint *w;
 
@@ -222,7 +213,7 @@ int ACTWayMove_BeginDetail(GObj *self, float *goal, float *from, void *tgt, void
     if (0) {
         debug_StdPrintfDummy("WBP <<begin>>\n");
     }
-    home = (WayWork *)((char *)act + 0x360);
+    home = (WVTObj *)((char *)act + 0x360);
     way = *home;
     wp = &way;
     act->wayFlags &= ~0x20000;
@@ -233,10 +224,10 @@ int ACTWayMove_BeginDetail(GObj *self, float *goal, float *from, void *tgt, void
     w = RequestWayBegin(self, goal, from, wp, sub);
     if (w != 0) {
         act->wayState.st[1] = 0;
-        if (wp->f3C == 0) {
+        if (wp->flag3C == 0) {
             if (WayMove_CheckCollis(goal, from, tgt, e) == 0) {
                 act->wayState.st[1] = 1;
-                DeleteGuideWay((WVTObj *)wp);
+                DeleteGuideWay(wp);
                 ret = 3;
             } else {
                 ret = 2;
@@ -278,7 +269,8 @@ typedef struct {     /* field names derived */
 /* the two templates act-way.o keeps in .data: the cleared way-walker record
    (its waypoint id starts at -1) and the cleared way-step record (its two
    distances start at the largest float) */
-static WayWork wayWorkClear = {{0}, 0, 0, {0}, 0, -1}; /* derived name */
+static WVTObj wayWorkClear = {{0}, {0}, {0}, 0,   0,   0, 0,
+                              0,   {0}, 0,   {0}, {0}, 0, -1}; /* derived name */
 
 static WayStep wayStepClear = {
     {0.0f, 0.0f, 0.0f, 0.0f}, 0, 3.4028235e38f, 3.4028235e38f}; /* derived name */
@@ -321,7 +313,7 @@ int ACTWayMove_NextDetail(GObj *self, float *node, float *goal, unsigned char d,
         if (checkPositionIllegal(self, pos) == 0) {
             act->wayState.flags &= ~0x200000;
             DeleteGuideWay((WVTObj *)((char *)act + 0x360));
-            *(WayWork *)((char *)act + 0x360) = wayWorkClear;
+            *(WVTObj *)((char *)act + 0x360) = wayWorkClear;
             if (0) {
                 debug_StdPrintfDummy("WBP recheck first");
             }

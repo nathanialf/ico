@@ -15,6 +15,8 @@
 #include "box.h"
 #include "switch.h"
 #include "queen.h"
+#include "weapon.h"
+#include "item.h"
 
 union ENVIF { /* field names derived */
     int i;
@@ -60,7 +62,7 @@ extern int stage_no;
 #include "fieldCollision.h"
 #include "motionOrientManager.h"
 
-inline void GetSofaPosition(GObj *self, char *sofa)
+inline void GetSofaPosition(GObj *self, GObj *sofa)
 {
     Act *w = GOBJ_ACT(self);
     VECTOR v = sofaSeatOffset;
@@ -317,11 +319,9 @@ typedef struct { /* field names derived */
 
 /* defined in sugipon/src/motionManager2.c, which motionManager2.h does not declare */
 extern void GetOrientOfCliffOfGObj(void *out, void *obj);
-/* same prototype as its definition in weapon.c; no header carries it */
-extern char *CheckSwapableWeapon(char *self, float dist);
-extern char *CheckTorchChainReactionReverse(char *self, float dist);
-extern char *GetBombTorchGObj(char *self);
-extern int GetBoxHoldPoint(float *out, char *self, void *chara);
+/* defined in sugipon/src/torch.c, which torch.h does not declare */
+extern char *CheckTorchChainReactionReverse(GObj *self, float dist);
+extern int GetBoxHoldPoint(float *out, GObj *self, void *chara);
 /* as in main.h */
 extern int girlControlMode;
 /* motionOrientManager.h declares none of the motion tables */
@@ -476,7 +476,7 @@ void ACTGetEnvironment(void *self, void *dir, float *orient, EnvFlag *flags, Act
     /* the two GNU nested functions below read the actor parameter and hgt
        through the static chain */
     Act *sub = GOBJ_ACT(self);
-    char *obj = (char *)GOBJ_SUB(self)->root.wall.o.obj;
+    GObj *obj = GOBJ_SUB(self)->root.wall.o.obj;
     int kind = ((EnvSub *)(char *)GOBJ_SUB(self))->kind;
     float dist = ((EnvMotion *)(char *)sub->motReq)->wallDist;
     float hgt = -((EnvMotion *)(char *)sub->motReq)->height;
@@ -644,7 +644,7 @@ void ACTGetEnvironment(void *self, void *dir, float *orient, EnvFlag *flags, Act
             sub->flags18.ll |= (1ULL << 60);
         if (dist < 300.0f && PosOrFar() <= 250.0f)
             flags[0].w |= 4;
-        if (self == girlGObj && dist < 300.0f && *(int *)(obj + 0xC) == 0x11 &&
+        if (self == girlGObj && dist < 300.0f && obj->kind == 17 &&
             IsThisBoxTruck(obj) == 7 && absRotyFromBack(dir, env->wallOrient) < 45 &&
             absRotyFromBack(orient, env->wallOrient) < 45 && _AbsRotyGV(dir, orient) < 45)
             sub->flags20.ll |= (1ULL << 38);
@@ -672,7 +672,7 @@ void ACTGetEnvironment(void *self, void *dir, float *orient, EnvFlag *flags, Act
             }
         }
         if (stage_no == 16 && dist < 40.0f && 150.0f < (hgt < 0.0f ? -hgt : hgt) &&
-            wallDeg < 45 && *(int *)(obj + 0xC) == 0x11)
+            wallDeg < 45 && obj->kind == 17)
             sub->flags20.ll |= (1ULL << 39);
         if (dist < 40.0f) {
             sub->flags18.ll |= (1ULL << 44);
@@ -716,9 +716,9 @@ void ACTGetEnvironment(void *self, void *dir, float *orient, EnvFlag *flags, Act
                 if (sceVu0InnerProduct(p60, test_CURRENTORIENT(boyGObj)) < 100.0f) {
                     int t = 0;
 
-                    if (*(int *)(obj + 0xC) == 0x11)
-                        t = (*(char **)(char *)GOBJ_SUB(boyGObj) != 0 &&
-                             obj != *(char **)(char *)GOBJ_SUB(boyGObj));
+                    if (obj->kind == 17)
+                        t = (GOBJ_SUB(boyGObj)->parent.obj != 0 &&
+                             obj != GOBJ_SUB(boyGObj)->parent.obj);
                     else
                         t = 0;
                     if (!t)
@@ -753,7 +753,7 @@ void ACTGetEnvironment(void *self, void *dir, float *orient, EnvFlag *flags, Act
                         wallContactPos(self, env->wallOrient, dist, (float *)((char *)sub + 0x590));
                 }
                 if (80.0f < hgt && hgt < 180.0f) {
-                    if (*(int *)(obj + 0xC) == 0x11)
+                    if (obj->kind == 17)
                         flags[1].w |= 0x800000;
                     else
                         flags[1].w |= 0x400000;
@@ -763,7 +763,7 @@ void ACTGetEnvironment(void *self, void *dir, float *orient, EnvFlag *flags, Act
             }
             if (dist < 50.0f) {
                 if (!((int)(sub->flags20.ll >> 12) & 1) &&
-                    *(int *)(obj + 0xC) == 0x10) {
+                    obj->kind == 16) {
                     float rad = (self == boyGObj) ? 30.0f : 10.0f;
 
                     GetSofaPosition(self, obj);
@@ -775,7 +775,7 @@ void ACTGetEnvironment(void *self, void *dir, float *orient, EnvFlag *flags, Act
                 }
             }
     if (self == boyGObj && dist < 50.0f) {
-        if (*(int *)(obj + 0xC) == 0x11 && !CheckPureWallAttribute(self, 0xB00)) {
+        if (obj->kind == 17 && !CheckPureWallAttribute(self, 0xB00)) {
             float p70[4];
 
             flags[2].w |= 0x20;
@@ -785,17 +785,17 @@ void ACTGetEnvironment(void *self, void *dir, float *orient, EnvFlag *flags, Act
                 env->holdBoxObj = (int)obj;
             }
         }
-        if (*(int *)(obj + 0xC) == 0x12 && CheckWallAttribute(self, 0x700)) {
+        if (obj->kind == 18 && CheckWallAttribute(self, 0x700)) {
             flags[2].w |= 0x40;
             env->kind12Obj = (int)obj;
         }
-        if (*(int *)(obj + 0xC) == 0x17 && CheckPureWallAttribute(self, 0x500)) {
+        if (obj->kind == 23 && CheckPureWallAttribute(self, 0x500)) {
             flags[2].w |= 0x80;
             env->pullObj = (int)obj;
             env->pullKind = kind;
             pullPosition(env->pullPos, self, obj, 5.0f);
         }
-        if (*(int *)(obj + 0xC) == 0x16 && CheckWallAttribute(self, 0x500) &&
+        if (obj->kind == 22 && CheckWallAttribute(self, 0x500) &&
             CanFloorLeverPull(obj)) {
             flags[2].w |= 0x100;
             env->pullObj = (int)obj;
@@ -808,13 +808,13 @@ void ACTGetEnvironment(void *self, void *dir, float *orient, EnvFlag *flags, Act
                 sceVu0AddVector(env->pullPos, env->pullPos, p70);
             }
         }
-        if (*(int *)(obj + 0xC) == 0x18 && CheckWallAttribute(self, 0x600) &&
+        if (obj->kind == 24 && CheckWallAttribute(self, 0x600) &&
             CanWallLeverPull(obj)) {
             flags[2].w |= 0x200;
             env->pullObj = (int)obj;
             pullPosition(env->pullPos, self, obj, 30.0f);
         }
-        if (*(int *)(obj + 0xC) == 0x19 && CheckWallAttribute(self, 0x600) &&
+        if (obj->kind == 25 && CheckWallAttribute(self, 0x600) &&
             CanWallLeverPull(obj)) {
             flags[2].w |= 0x400;
             env->pullObj = (int)obj;
@@ -889,12 +889,12 @@ void ACTGetEnvironment(void *self, void *dir, float *orient, EnvFlag *flags, Act
             flags[2].bit.b13 = c130;
             if (debug_no_breast_hang)
                 flags[2].bit.b14 = 0;
-            if (self == boyGObj && *(int *)(obj + 0xC) == 0x2C)
+            if (self == boyGObj && obj->kind == 44)
                 flags[2].bit.b13 = c60c;
         }
     }
     if (dist < 50.0f && absRotyFromBack(orient, env->wallOrient) < 40 &&
-        (self == boyGObj || self == girlGObj || (130.0f < hgt && *(int *)(obj + 0xC) != 0x10)))
+        (self == boyGObj || self == girlGObj || (130.0f < hgt && obj->kind != 16)))
         *(unsigned long long *)((char *)sub + 0x488) |= 8;
     if (((int)(*(unsigned long long *)((char *)sub + 0x488) >> 3) & 1) && 65.0f < PosOrFar() &&
         (float)wallDeg < 30.0f)
@@ -902,14 +902,14 @@ void ACTGetEnvironment(void *self, void *dir, float *orient, EnvFlag *flags, Act
     if (dist < 60.0f) {
         int e = ((float)wallDeg < 30.0f) ? 1 : 0;
 
-        if (*(int *)(obj + 0xC) == 0x36) {
+        if (obj->kind == 54) {
             if (!QueenBarrierInqBreakable())
                 *(unsigned long long *)((char *)sub + 0x478) |= (1ULL << 63);
         } else
             *(unsigned long long *)((char *)sub + 0x478) |= (1ULL << 62);
         if (230.0f < PosOrFar() && !CheckWallAttribute(self, 0x400) &&
-            !CheckWallAttribute(self, 0x8000) && *(int *)(obj + 0xC) != 0x2C &&
-            *(int *)(obj + 0xC) != 0x36) {
+            !CheckWallAttribute(self, 0x8000) && obj->kind != 44 &&
+            obj->kind != 54) {
             if (e) {
                 if (CheckWallAttribute(self, 0xE000))
                     *(unsigned long long *)((char *)sub + 0x480) |= 1;
@@ -1388,10 +1388,10 @@ void ACTGetEnvironment(void *self, void *dir, float *orient, EnvFlag *flags, Act
     if (sub->heldItem.p != 0)
         sub->wish1.ll |= (1ULL << 44);
     if (self == boyGObj && sub->actMode != 14) {
-        char *w;
+        GObj *w;
 
-        if ((char *)sub->weapon != 0)
-            w = CheckSwapableWeapon((char *)sub->weapon, 150.0f);
+        if (sub->weapon != 0)
+            w = CheckSwapableWeapon(sub->weapon, 150.0f);
         else
             w = CheckSwapableWeapon(self, 150.0f);
         if (w != 0) {
@@ -1473,10 +1473,10 @@ void ACTGetEnvironment(void *self, void *dir, float *orient, EnvFlag *flags, Act
     }
     if (self == boyGObj) {
         float p70[4];
-        char *t30 = 0;
-        char *t19 = 0;
-        char *t23 = 0;
-        char *c;
+        GObj *t30 = 0;
+        GObj *t19 = 0;
+        GObj *t23 = 0;
+        GObj *c;
         int x;
         int n;
         float rad;
@@ -1515,7 +1515,7 @@ void ACTGetEnvironment(void *self, void *dir, float *orient, EnvFlag *flags, Act
             }
         }
         if (!ACTGame_NoWeapon(self)) {
-            x = ACTGame_isWeaponEnableCatchfire((int *)sub->weapon);
+            x = ACTGame_isWeaponEnableCatchfire(sub->weapon);
             if (x != 0) {
                 if (!IsTorchLightOn(x)) {
                     if (t30 != 0)
@@ -1527,7 +1527,7 @@ void ACTGetEnvironment(void *self, void *dir, float *orient, EnvFlag *flags, Act
             }
         }
         if (sub->heldItem.p != 0) {
-            char *b = GetBombTorchGObj(sub->heldItem.p);
+            GObj *b = GetBombTorchGObj(sub->heldItem.p);
 
             if (t23 != 0 && b != 0 && !IsTorchLightOn(b)) {
                 env->bombObj = b;

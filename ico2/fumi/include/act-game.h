@@ -147,7 +147,7 @@ int PAIR_IsStatus_BOY_WAIT(void);
 void PAIR_GetPosition_BOY_DITCH(float *pos, float *dir);
 int PAIR_IsStatus_BOY_DITCH(void);
 struct GObj *ACTGame_isHangChain(struct GObj *self);
-int ACTGame_isWeaponEnableCatchfire(int *self);
+int ACTGame_isWeaponEnableCatchfire(struct GObj *self);
 int ACTCheckCollis_WF(float f, void *p0, void *p1, void *actor, void *posout);
 
 int ACTCheckCollis_W(float f, void *hand0, void *hand1, void *actor, void *posout, void *magtarget,

@@ -14,7 +14,7 @@
  * member: 0x80 bytes (the actor record embeds one at +0x360 and
  * waySystemManager's request one at +0x20), and only the words the TU reads
  * or writes are named.  act-way.c copies the actor's with 64-bit moves, so the
- * record is 8-byte aligned; act-way.c keeps its own view of it. */
+ * record is 8-byte aligned. */
 typedef struct WVTObj { /* field names derived */
     char pad00[16];     /* 0x00 */
     int pos[4];         /* 0x10 the current target position */
@@ -38,7 +38,7 @@ typedef struct WVTObj { /* field names derived */
     int pathKind;     /* 0x70 */
     WayPoint *fromWp; /* 0x74 */
     char pad78[8];    /* 0x78 */
-} WVTObj; /* derived name */
+} __attribute__((aligned(8))) WVTObj; /* derived name */
 
 /* way_sys.c's `inline` functions, in the order of their definitions'
  * out-of-line copies at the end of the object (first-declaration order). */

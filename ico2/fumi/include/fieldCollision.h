@@ -71,12 +71,12 @@ float GetYDistanceFromPlane(float *plane, float *pos);
 float GetYProjectionOfPlane(float *plane, float *pos);
 void ResetCollisionPC(void);
 int PositionOfExit(float *pos, int attr);
-void GetGlobalWallPlane(float *plane, int *r);
+void GetGlobalWallPlane(float *plane, WallCfg *wall);
 /* compiled in place */
-void ClipFloorByGObj(char *work, char *gobj);
+void ClipFloorByGObj(char *work, struct GObj *gobj);
 void DrawCollisionRay(char *ray);
-void DrawGObjFloorCollision(char *gobj, int col);
-void DrawGObjWallCollision(char *gobj, int col);
+void DrawGObjFloorCollision(struct GObj *gobj, int col);
+void DrawGObjWallCollision(struct GObj *gobj, int col);
 void GetReflectionElement(char *work, float arg0, float arg1);
 void MakeExitAttributeIndex(void);
 void MakeCollisionDependGObjList(void);

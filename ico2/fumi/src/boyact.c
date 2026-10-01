@@ -3262,9 +3262,8 @@ void SetStatusBoy_OtherStageGirlPinch(void)
 
 void *gopp_subBoyControl;
 
-/* not declared by the headers this TU includes; the act.c entry points as
-   girl_act.c declares them for actGirlStart */
-extern void LightTorchOnOfWeaponWithNoSE(void *w);
+/* defined in sugipon/src/weapon.c, which weapon.h does not declare */
+extern void LightTorchOnOfWeaponWithNoSE(GObj *w);
 
 void actBoyStart(GObj *self)
 {
@@ -3768,11 +3767,11 @@ inline void BoyInfoUpdate_StageChange(void)
 {
     char *g = (char *)boyGObj;
     Act *sub = GOBJ_ACT(g);
-    char *w;
+    GObj *w;
     int x;
 
     BOYINFO.torch = 0;
-    w = (char *)sub->weapon;
+    w = sub->weapon;
     if (w != 0) {
         x = ACTGame_isWeaponEnableCatchfire(w);
         if (x != 0) {

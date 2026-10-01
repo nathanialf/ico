@@ -4505,7 +4505,7 @@ void actGirlStart(void *self)
     _ACTCharStatus_Init(self);
     _ACTWait(1);
     ACTGameView_FirstSet(self);
-    brainInitGirlSet(self, ((int *)boyGObj));
+    brainInitGirlSet(self, boyGObj);
     if (debug_brain_flag != 0) {
         actCreateSubThread(subGirlBrainMain, 20);
     }
