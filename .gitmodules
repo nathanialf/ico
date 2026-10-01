@@ -1,6 +1,0 @@
-[submodule "lib/splat"]
-	path = lib/splat
-	url = https://github.com/ethteck/splat
-[submodule "lib/asm-differ"]
-	path = lib/asm-differ
-	url = https://github.com/simonlindholm/asm-differ
