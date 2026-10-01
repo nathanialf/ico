@@ -986,23 +986,20 @@ inline float GetDistanceOfGObj(void *a0, void *a1)
     return FSqrt(sceVu0InnerProduct(v, v));
 }
 
-extern void GetFloatingMotion(void *mot, void *dir, int *m, int a3, int t0, int t1, float t);
-
 static int playAnimationCore(GObj *a0)
 {
-    float mot[4];
-    float rot[4];
+    StreamElem mot;
     float dir[4];
     float pos[4];
     float q[4];
     BoxWork *p = GOBJ_SUB(a0)->work;
 
-    GetFloatingMotion(mot, dir, motionTable[GOBJ_SUB(a0)->ctrl.motion], 1, 0, 0,
-                      GOBJ_SUB(a0)->ctrl.animFrame);
+    GetFloatingMotion(&mot, GOBJ_SUB(a0)->ctrl.animFrame, dir,
+                      motionTable[GOBJ_SUB(a0)->ctrl.motion], 1, 0, 0);
     dir[3] = 1.0f;
     sceVu0ApplyMatrix(pos, p->mtx[0], dir);
     CopyQuaternion(q, GOBJ_SUB(a0)->root.baseQuat);
-    MultiQuaternion(q, q, rot);
+    MultiQuaternion(q, q, mot.q);
     RotQuaternionX(q, -32768);
     RotQuaternionY(q, -16384);
     MultiQuaternion(q, q, GOBJ_SUB(a0)->root.motionQuat);
@@ -1182,11 +1179,6 @@ static void avoidCharGObj(GObj *a0, GObj *a1)
         }
     }
 }
-
-/* this file's uses of these do not fit the prototypes in motionManager2.h,
-   quaternion.h and stageMultiBgaManager.h */
-extern int GetWaterReaction(void *w, int *hit, void *plane, void *pos, void *vel, float low,
-                            float mid, float high, float k, float acc);
 
 /* the two characters the floating box has to keep clear of, the boy and the
    girl, as sceneManager.c sets them */

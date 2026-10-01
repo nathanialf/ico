@@ -57,12 +57,12 @@ static void moveEndSE(GObj *self)
     ExecuteSEPackage(self, 58);
 }
 
-void RotObjectGeo(GObj *a0)
+void RotObjectGeo(GObj *self)
 {
-    RotObjWork *p = GOBJ_SUB(a0)->work;
-    if (p->saveCount++ >= 0x1F) {
+    RotObjWork *p = GOBJ_SUB(self)->work;
+    if (p->saveCount++ >= 31) {
         p->saveCount = 0;
-        gamesysObjInfoUniqDataSet(a0);
+        gamesysObjInfoUniqDataSet(self);
     }
 }
 
@@ -82,28 +82,28 @@ static inline void getRotObjectDriveMatrix(GObj *gobj, void *dst) /* derived nam
     CopyMatrix(dst, MatrixDrive_GetMatrix());
 }
 
-void GetRotObjectHoldPoint(void *a0, void *a1, void *a2, void *a3)
+void GetRotObjectHoldPoint(void *pos, void *dir, void *wall, void *holder)
 {
     char buf[96];
 
-    GetRootPosition(buf + 0x10, a3);
-    GetGlobalWallPlane(buf, a2);
-    sceVu0ScaleVectorXYZ(a1, buf, -1.0f);
-    *(int *)((char *)a1 + 0xC) = 0;
-    AdjustVerticalSidePlaneOfWall(a0, a2, buf + 0x10, 10.0f);
-    GetProjectionPosOfPlane(a0, buf, a0);
+    GetRootPosition(buf + 0x10, holder);
+    GetGlobalWallPlane(buf, wall);
+    sceVu0ScaleVectorXYZ(dir, buf, -1.0f);
+    *(int *)((char *)dir + 0xC) = 0;
+    AdjustVerticalSidePlaneOfWall(pos, wall, buf + 0x10, 10.0f);
+    GetProjectionPosOfPlane(pos, buf, pos);
     /* the hold point trace, switched off */
     if (0) {
         debug_StdPrintfDummy("%s\n", "GetRotObjectHoldPoint");
-        debug_StdPrintfDummy("\t%f, %f, %f\n", ((float *)a0)[0], ((float *)a0)[1],
-                             ((float *)a0)[2]);
+        debug_StdPrintfDummy("\t%f, %f, %f\n", ((float *)pos)[0], ((float *)pos)[1],
+                             ((float *)pos)[2]);
     }
-    MatrixDrive_SetTransposeMatrix(buf + 0x20, *(int *)(*(char **)(*(int *)a2 + 0x15C) + 0xC) +
-                                                   (*(int *)((char *)a2 + 4) << 6));
-    sceVu0ApplyMatrix(a0, buf + 0x20, a0);
-    sceVu0ApplyMatrix(a1, buf + 0x20, a1);
-    *(float *)((char *)a0 + 4) = -50.0f;
-    sceVu0Normalize(a1, a1);
+    MatrixDrive_SetTransposeMatrix(buf + 0x20, *(int *)(*(char **)(*(int *)wall + 0x15C) + 0xC) +
+                                                   (*(int *)((char *)wall + 4) << 6));
+    sceVu0ApplyMatrix(pos, buf + 0x20, pos);
+    sceVu0ApplyMatrix(dir, buf + 0x20, dir);
+    *(float *)((char *)pos + 4) = -50.0f;
+    sceVu0Normalize(dir, dir);
 }
 
 int MoveRotObjectWithHoldPoint(GObj *bar, void *hold, void *self, void *dir, void *up)
@@ -209,11 +209,11 @@ void ExecRotObjectMoveEndReaction(GObj *self)
     moveEndSE(self);
 }
 
-void SetRotObjectArmRadius(GObj *a0, float f)
+void SetRotObjectArmRadius(GObj *self, float radius)
 {
-    RotObjWork *w = GOBJ_SUB(a0)->work;
+    RotObjWork *w = GOBJ_SUB(self)->work;
 
-    w->armScale = 100.0f / f;
+    w->armScale = 100.0f / radius;
 }
 
 void GetRotObjectGlobalHoldGeometry(void *pos, void *dir, void *gobj, void *posMtx, void *dirMtx)
@@ -264,12 +264,12 @@ RotObjWork *InitRotObjectGeo(GObj *gobj, SObjSimpleSetting *src)
     return p;
 }
 
-void GetRotObjectGameSysObjInfoExtData(short *a0, int *a1, GamesysObjInfo *a2)
+void GetRotObjectGameSysObjInfoExtData(short *angle, int *turnCount, GamesysObjInfo *info)
 {
-    RotObjMemory *m = (RotObjMemory *)a2->work;
+    RotObjMemory *m = (RotObjMemory *)info->work;
 
-    *a0 = m->angle;
-    *a1 = m->turnCount;
+    *angle = m->angle;
+    *turnCount = m->turnCount;
 }
 
 void RotObjectDL(GObj *gobj)
@@ -278,9 +278,9 @@ void RotObjectDL(GObj *gobj)
     p2o_DispVU1(gobj);
 }
 
-float GetRotObjectRotCount(GObj *a0)
+float GetRotObjectRotCount(GObj *self)
 {
-    RotObjWork *w = GOBJ_SUB(a0)->work;
+    RotObjWork *w = GOBJ_SUB(self)->work;
 
     return (float)w->turnCount * (1.0f / 65536.0f);
 }
@@ -305,27 +305,27 @@ int RestoreRotObjectGeo(void)
     return 1;
 }
 
-int RestoreRotObjectExtGeo(GObj *a0, GamesysObjInfo *a1)
+int RestoreRotObjectExtGeo(GObj *self, GamesysObjInfo *info)
 {
-    RotObjWork *p = GOBJ_SUB(a0)->work;
-    RotObjMemory *m = (RotObjMemory *)a1->work;
+    RotObjWork *p = GOBJ_SUB(self)->work;
+    RotObjMemory *m = (RotObjMemory *)info->work;
 
     p->angle = m->angle;
     p->turnCount = m->turnCount;
     return 1;
 }
 
-int MemoryRotObject(RotObjMemory *a0, GObj *a1)
+int MemoryRotObject(RotObjMemory *mem, GObj *self)
 {
-    RotObjWork *p = GOBJ_SUB(a1)->work;
-    a0->angle = p->angle;
-    a0->turnCount = p->turnCount;
+    RotObjWork *p = GOBJ_SUB(self)->work;
+    mem->angle = p->angle;
+    mem->turnCount = p->turnCount;
     return 1;
 }
 
-void SetRotObjectLockFlag(GObj *a0, int a1)
+void SetRotObjectLockFlag(GObj *self, int lock)
 {
-    RotObjWork *w = GOBJ_SUB(a0)->work;
+    RotObjWork *w = GOBJ_SUB(self)->work;
 
-    w->lock = a1;
+    w->lock = lock;
 }

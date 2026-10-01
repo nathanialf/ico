@@ -63,15 +63,15 @@ typedef struct {       /* field names derived */
     float tipPos[4];                      /* 0xD0: the blade tip */
 } __attribute__((aligned(8))) WeaponWork; /* derived name */
 
-void torchOnOfWeaponSE(GObj *a0)
+void torchOnOfWeaponSE(GObj *torch)
 {
-    ExecuteSEPackage(a0, 0x42);
+    ExecuteSEPackage(torch, 66);
 }
 
-void torchOffOfWeaponSE(GObj *a0)
+void torchOffOfWeaponSE(GObj *torch)
 {
-    StopSEPackage(a0);
-    ExecuteSEPackage(a0, 0x43);
+    StopSEPackage(torch);
+    ExecuteSEPackage(torch, 67);
 }
 
 void weaponHitReactionSE(GObj *a0)
@@ -519,23 +519,23 @@ static void getGeometry(GObj *g)
     }
 }
 
-void WeaponCurPos(GObj *a0, void *a1, void *a2, void *a3)
+void WeaponCurPos(GObj *self, void *center, void *from, void *to)
 {
-    WeaponWork *p = GOBJ_SUB(a0)->work;
-    CopyVector(a1, p->hit[1]);
-    CopyVector(a2, p->hit[2]);
-    CopyVector(a3, p->hit[3]);
+    WeaponWork *p = GOBJ_SUB(self)->work;
+    CopyVector(center, p->hit[1]);
+    CopyVector(from, p->hit[2]);
+    CopyVector(to, p->hit[3]);
 }
 
-void WeaponHitEffect(GObj *a0, void *a1)
+void WeaponHitEffect(GObj *self, void *enemy)
 {
-    WeaponWork *p = GOBJ_SUB(a0)->work;
-    CheckEnemyHit(a1, p->hit[1], p->hit[2], p->hit[3]);
+    WeaponWork *p = GOBJ_SUB(self)->work;
+    CheckEnemyHit(enemy, p->hit[1], p->hit[2], p->hit[3]);
 }
 
-void ExecWeaponHitReaction(GObj *a0)
+void ExecWeaponHitReaction(GObj *self)
 {
-    weaponHitReactionSE(a0);
+    weaponHitReactionSE(self);
 }
 
 /* the blade tip in the sword's own frame */
@@ -968,13 +968,13 @@ void WeaponDL(GObj *g)
     }
 }
 
-void PickupWeapon(GObj *a0, GObj *a1, int a2)
+void PickupWeapon(GObj *self, GObj *holder, int focus)
 {
-    WeaponWork *p = GOBJ_SUB(a0)->work;
+    WeaponWork *p = GOBJ_SUB(self)->work;
 
-    p->holder = a1;
-    p->holderId = GetSkeltonFocusNode(a1, a2);
-    GOBJ_SUB(a1)->ctrl.pickedWeapon = a0;
+    p->holder = holder;
+    p->holderId = GetSkeltonFocusNode(holder, focus);
+    GOBJ_SUB(holder)->ctrl.pickedWeapon = self;
 }
 
 GObj *CheckSwapableWeapon(GObj *self, float dist)
@@ -1017,9 +1017,9 @@ GObj *CheckSwapableWeapon(GObj *self, float dist)
     return found;
 }
 
-void ReleaseWeapon(GObj *a0)
+void ReleaseWeapon(GObj *self)
 {
-    WeaponWork *p = GOBJ_SUB(a0)->work;
+    WeaponWork *p = GOBJ_SUB(self)->work;
     if (p->holder) {
         p->holder->dobj->ctrl.pickedWeapon = 0;
     }
@@ -1028,14 +1028,14 @@ void ReleaseWeapon(GObj *a0)
     p->state = 0;
 }
 
-int CheckWeaponKind(GObj *a0)
+int CheckWeaponKind(GObj *self)
 {
-    return ((WeaponWork *)GOBJ_SUB(a0)->work)->kind;
+    return ((WeaponWork *)GOBJ_SUB(self)->work)->kind;
 }
 
-void LightTorchOnOfWeapon(GObj *a0)
+void LightTorchOnOfWeapon(GObj *self)
 {
-    WeaponWork *p = GOBJ_SUB(a0)->work;
+    WeaponWork *p = GOBJ_SUB(self)->work;
     int i;
 
     if (p->count) {
@@ -1059,9 +1059,9 @@ void LightTorchOnOfWeaponWithNoSE(GObj *a0)
     }
 }
 
-void LightTorchOffOfWeapon(GObj *a0)
+void LightTorchOffOfWeapon(GObj *self)
 {
-    WeaponWork *p = GOBJ_SUB(a0)->work;
+    WeaponWork *p = GOBJ_SUB(self)->work;
     int i;
 
     for (i = 0; i < p->count; i++) {
@@ -1069,9 +1069,9 @@ void LightTorchOffOfWeapon(GObj *a0)
     }
 }
 
-int GetTorchGObjOfWeapon(GObj *a0)
+int GetTorchGObjOfWeapon(GObj *self)
 {
-    WeaponWork *p = GOBJ_SUB(a0)->work;
+    WeaponWork *p = GOBJ_SUB(self)->work;
     if (p->count) {
         return (int)p->objs[0];
     }
@@ -1080,11 +1080,11 @@ int GetTorchGObjOfWeapon(GObj *a0)
 
 /* ReleaseWeapon's body is expanded in place here.  LightTorchOnOfWeapon and
  * LightTorchOnOfWeaponWithNoSE come from one source body. */
-void ReleaseWeaponWithFumble(GObj *a0, void *a1, void *a2)
+void ReleaseWeaponWithFumble(GObj *self, float *move, float *quat)
 {
-    Sub15C *e = GOBJ_SUB(a0);
+    Sub15C *e = GOBJ_SUB(self);
     WeaponWork *w = (WeaponWork *)e->work;
-    char *f = (char *)e + 0xA0;
+    struct MotRoot *root = &e->root;
 
     if (w->holder) {
         w->holder->dobj->ctrl.pickedWeapon = 0;
@@ -1093,25 +1093,25 @@ void ReleaseWeaponWithFumble(GObj *a0, void *a1, void *a2)
     w->holderId = -1;
     w->state = 1;
 
-    if (a2) {
-        CopyQuaternion((char *)e + 0x150, a2);
+    if (quat) {
+        CopyQuaternion(root->itemQuat, quat);
     }
-    CopyVector((char *)e + 0x130, a1);
-    *(int *)(f + 0x9C) = 0;
+    CopyVector(root->move, move);
+    root->move[3] = 0.0f;
 }
 
-int InitWeaponFumbleSequence(GObj *a0)
+int InitWeaponFumbleSequence(GObj *self)
 {
-    ((WeaponWork *)GOBJ_SUB(a0)->work)->fumbleSlot = 0;
+    ((WeaponWork *)GOBJ_SUB(self)->work)->fumbleSlot = 0;
     return 1;
 }
 
-float GetWeaponWeight(GObj *a0)
+float GetWeaponWeight(GObj *self)
 {
-    return (float)weaponKind[((WeaponWork *)GOBJ_SUB(a0)->work)->kind].weight;
+    return (float)weaponKind[((WeaponWork *)GOBJ_SUB(self)->work)->kind].weight;
 }
 
-void SetWeaponTorchChainReactionFlagAll(int a0)
+void SetWeaponTorchChainReactionFlagAll(int flag)
 {
     GObj *g;
     WeaponWork *w;
@@ -1121,7 +1121,7 @@ void SetWeaponTorchChainReactionFlagAll(int a0)
         w = GOBJ_SUB(g)->work;
         if (w->kind == 1) {
             for (i = 0; i < w->count; i++) {
-                SetTorchChainReactionFlag(w->objs[i], a0);
+                SetTorchChainReactionFlag(w->objs[i], flag);
             }
         }
     }
@@ -1148,7 +1148,7 @@ void ExecDemoQueensSword(GObj *a0)
     *(int *)(*(char **)(p + 0x5C) + 0x16C) = e->disp;
 }
 
-void SetWeaponOffsetMode(GObj *a0, int a1)
+void SetWeaponOffsetMode(GObj *self, int mode)
 {
-    setWeaponOffsetMode(a0, a1);
+    setWeaponOffsetMode(self, mode);
 }

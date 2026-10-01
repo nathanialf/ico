@@ -18,11 +18,9 @@ extern void GetRootQuaternion(void *q, void *obj);
 /* the two ints the demo timer keeps: the elapsed count and its divisor. */
 /* WallCfg here, FcColInfo in fieldCollision.h */
 extern WallCfg InitialColInfo;
-/* declared as ico2/sugipon/src/box.c declares them; fieldCollision.h is
- * not included here */
+/* declared as ico2/sugipon/src/box.c declares it; fumi's act.c declares it
+ * with another view, so motionManager2.h does not */
 extern void GetLowerPlaneCollision(void *work, void *pos);
-extern int GetWaterReaction(void *w, int *hit, void *plane, void *pos, void *vel, float low,
-                            float mid, float high, float k, float acc);
 /* as in fieldCollision.h, which this file does not include */
 extern void ClipWallWaveForce(void *a0);
 /* as in fieldCollision.h, which this file does not include */

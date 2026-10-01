@@ -1327,11 +1327,11 @@ void SetStaticBlur(int x)
     GlobalStageSetting.postEffect = x;
 }
 
-void SetDepthFadeParam(float f12, float f13, int a0)
+void SetDepthFadeParam(float start, float width, int level)
 {
-    GlobalStageSetting.depthFieldStart = (int)f12;
-    GlobalStageSetting.depthFieldWidth = (int)f13;
-    GlobalStageSetting.depthFieldLevel = a0;
+    GlobalStageSetting.depthFieldStart = (int)start;
+    GlobalStageSetting.depthFieldWidth = (int)width;
+    GlobalStageSetting.depthFieldLevel = level;
 }
 
 void SetAuraInspireParam(float a0)

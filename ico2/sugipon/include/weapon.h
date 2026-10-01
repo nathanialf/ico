@@ -39,35 +39,35 @@ typedef struct {  /* field names derived */
 } FumbleRow;      /* derived name */
 
 struct GObj *CheckSwapableWeapon(struct GObj *self, float dist);
-int CheckWeaponKind(struct GObj *a0);
-void ExecWeaponHitReaction(struct GObj *a0);
-int GetTorchGObjOfWeapon(struct GObj *a0);
-void LightTorchOffOfWeapon(struct GObj *a0);
-void LightTorchOnOfWeapon(struct GObj *a0);
-void PickupWeapon(struct GObj *a0, struct GObj *a1, int a2);
-void ReleaseWeapon(struct GObj *a0);
+int CheckWeaponKind(struct GObj *self);
+void ExecWeaponHitReaction(struct GObj *self);
+int GetTorchGObjOfWeapon(struct GObj *self);
+void LightTorchOffOfWeapon(struct GObj *self);
+void LightTorchOnOfWeapon(struct GObj *self);
+void PickupWeapon(struct GObj *self, struct GObj *holder, int focus);
+void ReleaseWeapon(struct GObj *self);
 int ReleaseWeaponWithFumbleSequential(struct GObj *g);
-void SetWeaponOffsetMode(struct GObj *a0, int a1);
-void SetWeaponTorchChainReactionFlagAll(int a0);
-void WeaponCurPos(struct GObj *a0, void *a1, void *a2, void *a3);
+void SetWeaponOffsetMode(struct GObj *self, int mode);
+void SetWeaponTorchChainReactionFlagAll(int flag);
+void WeaponCurPos(struct GObj *self, void *center, void *from, void *to);
 void dispInsectNet(struct GObj *g);
 /* unprototyped: the third argument is weapon.c's own layout record type. */
 void weaponHitReactionSE(struct GObj *);
-float GetWeaponWeight(struct GObj *a0);
+float GetWeaponWeight(struct GObj *self);
 
 struct QSwordLayout;
 
-void torchOnOfWeaponSE(struct GObj *a0);
-void torchOffOfWeaponSE(struct GObj *a0);
+void torchOnOfWeaponSE(struct GObj *torch);
+void torchOffOfWeaponSE(struct GObj *torch);
 void weaponFumbleSE(struct GObj *a0);
 void weaponStickSE(struct GObj *a0);
 void ReleaseWeaponWithFumbleTargetPos(struct GObj *g, void *pos, void *quat, void *rot, float t);
-void WeaponHitEffect(struct GObj *a0, void *a1);
+void WeaponHitEffect(struct GObj *self, void *enemy);
 void *InitWeaponGeo(struct GObj *g, struct QSwordLayout *lay);
 void WeaponGeo(struct GObj *g);
 void WeaponDL(struct GObj *g);
-void ReleaseWeaponWithFumble(struct GObj *a0, void *a1, void *a2);
-int InitWeaponFumbleSequence(struct GObj *a0);
+void ReleaseWeaponWithFumble(struct GObj *self, float *move, float *quat);
+int InitWeaponFumbleSequence(struct GObj *self);
 void *InitDemoQueensSword(struct GObj *a0, void *a1);
 void ExecDemoQueensSword(struct GObj *a0);
 

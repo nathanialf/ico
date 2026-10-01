@@ -9,6 +9,7 @@
 #define SPIDER_H
 
 struct GObj;
+struct GamesysObjInfo;
 
 /* spider-def: one spider kind, 0x20 bytes, the row a layout object's 0x30
    word picks: the hop act_a_p_1 makes when boxed in, the layout kind of its
@@ -31,10 +32,10 @@ extern int sgInfoLine;
 int CheckSpidersInsideOfReviveRange(int *out, struct GObj *gp, void *center);
 int DeadAllSpiders(struct GObj *gp);
 void DeleteAllSpidersOfLayoutGroup(struct GObj *gp);
-struct GObj *DeleteSpiderFromLayoutGroup(struct GObj *a0, int a1);
+struct GObj *DeleteSpiderFromLayoutGroup(struct GObj *self, int idx);
 void DispAllMemberOfSpider(struct GObj *self, int *col);
 int GetAliveSpiders(struct GObj *gp);
-void SetSpiderGroupReviveStatus(struct GObj *a0);
+void SetSpiderGroupReviveStatus(struct GObj *self);
 void SleepSpiderGroup(struct GObj *gp);
 void WakeUpLayoutedSpiders(struct GObj *self);
 void WakeupSpiderGroup(struct GObj *gp);
@@ -50,7 +51,7 @@ int CallSpidersToReviveEnemy(struct GObj *self);
 void SpiderLayoutGeo(struct GObj *self);
 int GetNearestOfLayoutSpiders(float *dist, struct GObj *gp, void *center);
 int RestoreSpiderLayoutGeo(void);
-int RestoreSpiderLayoutExtGeo(struct GObj *a0, char *a1);
+int RestoreSpiderLayoutExtGeo(struct GObj *self, struct GamesysObjInfo *info);
 int MemorySpiderLayout(struct SpiderMemory *dst, struct GObj *gp);
 void WakeUpSpidersFromGenerator(struct GObj *gp);
 

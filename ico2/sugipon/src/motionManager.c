@@ -992,7 +992,6 @@ static void execPositionReserver(GObj *self, ObjNode m)
     }
 }
 
-extern void dispPlane(void *plane, void *pos);
 void GetMatrixOfMotion(GObj *self, char *tbl, void *ofs);
 
 typedef struct MotHdrTag MotHdr; /* derived name */
@@ -1262,42 +1261,42 @@ static void dispSkelton()
     gif_EndPacket();
 }
 
-void SkelTest(GObj *a0)
+void SkelTest(GObj *self)
 {
-    Sub15C *sub = GOBJ_SUB(a0);
+    Sub15C *sub = GOBJ_SUB(self);
     SkelNode *v;
-    skelGObj = (int)a0;
+    skelGObj = (int)self;
     v = sub->skel;
     skelNode = v;
     if (v != 0) {
         p2o_DispVU1();
         if (debug_skel_flag != 0) {
-            dispSkelton(a0);
+            dispSkelton(self);
         }
     }
 }
 
-void SkelTestGeo(GObj *a0)
+void SkelTestGeo(GObj *self)
 {
-    Sub15C *sub = GOBJ_SUB(a0);
+    Sub15C *sub = GOBJ_SUB(self);
     SkelNode *v;
     int i;
-    skelGObj = (int)a0;
+    skelGObj = (int)self;
     v = sub->skel;
     skelNode = v;
     if (v != 0) {
         Sub15C *s2;
         sceVu0UnitMatrix(MatrixDrive_GetMatrix());
-        MatrixDrive_RotMatrixX(-0x8000);
-        getInitialMatrix(GOBJ_SUB(a0), 0);
-        s2 = GOBJ_SUB(a0);
+        MatrixDrive_RotMatrixX(-32768);
+        getInitialMatrix(GOBJ_SUB(self), 0);
+        s2 = GOBJ_SUB(self);
         for (i = 0; i < s2->skelNodeNum; i++) {
-            int e = s2->nodeMtx + i * 0x40;
+            int e = s2->nodeMtx + i * 64;
             sceVu0MulMatrix(e, &s2->matrix, e);
-            s2 = GOBJ_SUB(a0);
+            s2 = GOBJ_SUB(self);
         }
         if (debug_skel_flag != 0) {
-            dispSkelton(a0);
+            dispSkelton(self);
         }
     }
 }

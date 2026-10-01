@@ -611,10 +611,10 @@ ok:
 inline void CopyBlendMotionDataSource(void *self, short ang)
 {
     char quat[16];
-    char *mot = (char *)MOWORK(self)->blendBuf;
+    StreamElem *mot = MOWORK(self)->blendBuf;
     int i = 0;
 
-    CopyMotion(mot, (char *)MOWORK(self)->motionBuf, MOWORK(self)->skelNodeNum);
+    CopyMotion(mot, MOWORK(self)->motionBuf, MOWORK(self)->skelNodeNum);
     CopyVector(MOWORK(self)->localPos, MOWORK(self)->motionPos);
     CopyVector(MOWORK(self)->localMove, MOWORK(self)->root.move);
     *(struct MotOriFloat *)((char *)MOWORK(self) + 0x808) =
@@ -622,7 +622,7 @@ inline void CopyBlendMotionDataSource(void *self, short ang)
     *(struct MotOriHead8 *)((char *)MOWORK(self) + 0x800) = *(struct MotOriHead8 *)MOWORK(self);
     while (MOWORK(self)->skel[i].parent == -1) {
         SetQuaternionByAxisRotate(quat, ang, 0.0f, 1.0f, 0.0f);
-        MultiQuaternion(mot + i * 0x20 + 0x10, quat, mot + i * 0x20 + 0x10);
+        MultiQuaternion(mot[i].q, quat, mot[i].q);
         i = MOWORK(self)->skel[i].sibling;
     }
 }
@@ -894,33 +894,29 @@ inline void SetParallelMotionTable(void *self, int *next, int *req, int from, in
     }
 }
 
-/* motionManager2.c's, in this file's argument order (the float in its own
-   register); motionManager2.h does not declare it */
-extern void GetFloatingMotion(void *dst, float t, float *v, int *mot, int n, int a5, void *skel);
-
-static void getNodeBlendedFloatingMotion(void *dst, float *root, int id, int n, int a4, void *self,
-                                         float t)
+static void getNodeBlendedFloatingMotion(StreamElem *dst, float *root, int id, int n,
+                                         unsigned char *mask, void *self, float t)
 {
     float v[4];
-    char mot[n * 32];
+    StreamElem mot[n];
     int i;
     int j;
     int prev = -1;
-    void *skel = MOWORK(self)->skel;
+    SkelNode *skel = MOWORK(self)->skel;
 
     for (i = 0, j = motionKind[id].blendKind; blendMotionKind[j].motion != 0x47B; i++, j++) {
         int node = blendMotionKind[j].motion;
 
         checkMotionKind(node, id);
         if (i == 0) {
-            GetFloatingMotion(dst, t, root, motionTable[node], n, a4, skel);
+            GetFloatingMotion(dst, t, root, motionTable[node], n, mask, skel);
             CopyMotion(mot, dst, n);
             prev = node;
         } else {
             int fn;
 
             if (prev != node) {
-                GetFloatingMotion(mot, t * blendMotionKind[j].rate, v, motionTable[node], n, a4,
+                GetFloatingMotion(mot, t * blendMotionKind[j].rate, v, motionTable[node], n, mask,
                                   skel);
                 prev = node;
             }
@@ -940,8 +936,6 @@ static void getNodeBlendedFloatingMotion(void *dst, float *root, int id, int n, 
 
 /* the slope vector getMotionGeometry normalises for its pitch angle */
 static sceVu0FVECTOR slopeVector = {0.0f, 0.0f, 0.0f, 0.0f}; /* derived name */
-
-extern void MakeMirrorMotion(void *dst, int *p);
 
 /* getMotionGeometry is its only caller */
 static inline void getMotionRootPos(struct MotCtrl *w, float *v) /* derived name */
@@ -989,11 +983,11 @@ static inline void assertMotionNodeCount(struct MotCtrl *w, int *md, int n) /* d
 
 static void getMotionGeometry(void *self)
 {
-    int *p = *(int **)((char *)MOWORK(self) + 0x8C);
+    SkelNode *skel = MOWORK(self)->skel;
     struct MotRoot *mo = &MOWORK(self)->root;
     struct MotCtrl *w = &MOWORK(self)->ctrl;
     int n = MOWORK(self)->skelNodeNum;
-    int tbl = *(int *)((char *)MOWORK(self) + 0x820);
+    char *blendless = MOWORK(self)->blendless;
     char mot[n * 32];
     float scale = *(float *)((char *)MOWORK(self)->nodes + 0x20);
     int *md = motionTable[w->motion];
@@ -1009,10 +1003,10 @@ static void getMotionGeometry(void *self)
         Vec16 rv;
 
         if (motionKind[w->motion].blendKind == 320) {
-            GetFloatingMotion(mot, w->animFrame, v.f, md, n, tbl, p);
+            GetFloatingMotion(mot, w->animFrame, v.f, md, n, blendless, skel);
             GetFloatingMotionRootPos(rv.f, md, w->lastFrame);
         } else {
-            getNodeBlendedFloatingMotion(mot, v.f, w->motion, n, tbl, self, w->animFrame);
+            getNodeBlendedFloatingMotion(mot, v.f, w->motion, n, blendless, self, w->animFrame);
             getMotionRootPos(w, rv.f);
         }
         if (w->motion == 102) {
@@ -1026,7 +1020,7 @@ static void getMotionGeometry(void *self)
             sceVu0SubVector(mo->step, &v, &rv);
         }
         if (w->noAlt != 0) {
-            MakeMirrorMotion(mot, p);
+            MakeMirrorMotion(mot, skel);
         }
         if (w->catchBoy != 0) {
             SlopeIKControl(self, mot, v.f, mo->step, n);
@@ -1044,13 +1038,13 @@ static void getMotionGeometry(void *self)
             int k;
 
             /* a nested function, inlined into the arm that uses it */
-            inline void rotateNodes(char *m, int *s, void *q) /* derived name */
+            inline void rotateNodes(char *m, SkelNode *s, void *q) /* derived name */
             {
                 int i = 0;
 
                 do {
-                    MultiQuaternion(m + i * 0x20 + 0x10, q, m + i * 0x20 + 0x10);
-                    i = *(int *)((char *)s + i * 0x40 + 0x34);
+                    MultiQuaternion(m + i * 32 + 16, q, m + i * 32 + 16);
+                    i = s[i].sibling;
                 } while (i != -1);
             }
 
@@ -1106,7 +1100,7 @@ static void getMotionGeometry(void *self)
                 a = GetTableArcTan2(slopeVector[1], slopeVector[2]);
                 SetIdentityQuaternion(&rot);
                 RotQuaternionX(&rot, a);
-                rotateNodes(mot, p, &rot);
+                rotateNodes(mot, skel, &rot);
             }
             flag = 0;
             if (debug_motion_interporate != 0) {
@@ -1117,7 +1111,7 @@ static void getMotionGeometry(void *self)
                 float s = (float)w->blendCount / (float)w->blendFrames;
 
                 GetBlendedMotion(MOWORK(self)->motionBuf, tmp.f, mot, v.f, MOWORK(self)->blendBuf,
-                                 MOWORK(self)->localPos, s, tbl, n);
+                                 MOWORK(self)->localPos, s, blendless, n);
                 mo->radius = mo->radiusFrom * (1.0f - s) + mo->radiusTo * s;
                 GetGeometryOfMotion(self, mot, MOWORK(self)->motionBuf, v.f, s, mo->step, k);
             } else {
@@ -1129,9 +1123,9 @@ static void getMotionGeometry(void *self)
             SetIdentityQuaternion(&tmp);
             RotQuaternionX(&tmp, -32768);
             RotQuaternionY(&tmp, -32768);
-            MultiQuaternion(&tmp, &tmp, (char *)p + 0x20);
+            MultiQuaternion(&tmp, &tmp, skel->quat);
             GetInverseQuaternion(&tmp, &tmp);
-            MultiQuaternion(mo->motionQuat, mot + 0x10, &tmp);
+            MultiQuaternion(mo->motionQuat, mot + 16, &tmp);
             CopyVector(w->lastDir, w->dir);
         }
     }
@@ -1278,7 +1272,7 @@ static inline int getStreamVec(void *self, void *sm, float *v, void *mot) /* der
 static void getStreamMotionGeometry(void *self, void *sm)
 {
     float v[4];
-    char mot[MOWORK(self)->skelNodeNum * 32];
+    StreamElem mot[MOWORK(self)->skelNodeNum];
 
     if (getStreamVec(self, sm, v, mot)) {
         GetGeometryOfMotion(self, mot, mot, v, 1.0f, ZeroVector, -1);
@@ -1294,14 +1288,13 @@ static void getStreamBlendMotionGeometry(void *self, void *sm0, void *sm1, float
     float v1[4];
     float v2[4];
     int n = MOWORK(self)->skelNodeNum;
-    char mot0[n * 32];
+    StreamElem mot0[n];
 
     if (getStreamVec(self, sm0, v0, mot0)) {
-        char mot1[n * 32], mot2[n * 0x20];
+        StreamElem mot1[n], mot2[n];
 
         getStreamVec(self, sm1, v1, mot1);
-        GetBlendedMotion(mot2, v2, mot1, v1, mot0, v0, t, *(int *)((char *)MOWORK(self) + 0x820),
-                         n);
+        GetBlendedMotion(mot2, v2, mot1, v1, mot0, v0, t, MOWORK(self)->blendless, n);
         GetGeometryOfMotion(self, mot2, mot2, v2, 1.0f, ZeroVector, -1);
         CopyMotion(MOWORK(self)->motionBuf, mot2, MOWORK(self)->skelNodeNum);
         CopyVector(MOWORK(self)->motionPos, v2);

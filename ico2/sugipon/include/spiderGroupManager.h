@@ -14,9 +14,9 @@ struct GObj;
  * gcc 2.9 emits the deferred out-of-line copy of a plain-inline function in
  * first-declaration order, so this is the order spiderGroupManager.c's inline tail has. */
 void InitSpiderGroupManager(void);
-void EntryRevivedSpiderGroupManager(int a0);
+void EntryRevivedSpiderGroupManager(int id);
 void DispAllSpiderGroups(void);
-void EntryToSpiderGroupManagerForReviveMaster(struct GObj *a0, struct GObj *a1);
+void EntryToSpiderGroupManagerForReviveMaster(struct GObj *group, struct GObj *master);
 struct GObj *getReviveEnemyGObj(int count);
 void EntrySpiderGroupManager(int gobj);
 void ExecSpiderGroupManager(void);

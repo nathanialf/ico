@@ -8,15 +8,26 @@
 #ifndef MOTIONMANAGER2_H
 #define MOTIONMANAGER2_H
 
-/* the 32-byte motion record CopyMotion and CopyMotionWithNodeHrc copy
-   (motionManager2.c) */
-struct Pack32;
+/* One skeleton node's 32-byte motion element, the record CopyMotion,
+   CopyMotionWithNodeHrc and the blends copy whole: the node's word at 0
+   (250 for a node CopyMotionWithNodeHrc leaves unflagged, blended as a
+   number by GetBlendedMotion) and the rotation quaternion at 0x10.  The
+   copies move it as four doublewords. */
+typedef struct StreamElem { /* field names derived */
+    long long d[2];
+    float q[4];
+} StreamElem; /* derived name */
+
+/* motionManager2.c's other records: the head of a stream motion frame and
+   the motion state block every actor starts from */
+struct StreamShapeHdr;
+struct MotionStateInfo;
 struct ClipBuf;
 
 #include "typedef.h"
 
 int AdjustMotionHeightToNearestField(GObj *self);
-void AdjustRootPositionToVerticalSidePlaneOfWall(void *a0, void *a1, float f);
+void AdjustRootPositionToVerticalSidePlaneOfWall(void *self, void *wall, float dist);
 void AdjustVerticalSidePlaneOfWall(float *out, WallCfg *cfg, float *pos, float t);
 int CheckFieldContact(struct ClipBuf *info, GObj *self, float *pos, float lim);
 /* the GObj and the attribute mask (act_bird.c passes 0x40 and 0x50;
@@ -25,9 +36,9 @@ int CheckFloorAttribute(GObj *self, int attr);
 int CheckPureWallAttribute(GObj *self, int attr);
 int CheckWallAttribute(GObj *self, int attr);
 int CheckPureCliffAttribute(GObj *self, int attr);
-void ClearMotionBlendlessNode(GObj *a0);
+void ClearMotionBlendlessNode(GObj *self);
 void ClearMotionGeometryInfo(GObj *self);
-void CopyMotion(void *dst, void *src, int n);
+void CopyMotion(struct StreamElem *dst, struct StreamElem *src, int n);
 void DebugDisp1Collision(WallCfg *cfg);
 void DebugDisp1CollisionWithColor(WallCfg *cfg, void *color);
 void DisableChangeRootUpdateMode(GObj *self);
@@ -35,16 +46,16 @@ void DisableMotionOrientUpdate(GObj *self);
 void DispSkelton(GObj *self, int motion);
 void EnableChangeRootUpdateMode(GObj *self);
 void EnableMotionOrientUpdate(GObj *self);
-void FeedbackWallWorkInfoToBrainSystem(GObj *a0);
+void FeedbackWallWorkInfoToBrainSystem(GObj *self);
 float ForMotionViewer_GetCurrentAnimationFrame(GObj *self);
 int ForMotionViewer_GetCurrentMotion(GObj *self);
 
-void GetBlendedMotion(void *dst, float *dv, void *m1, float *v1, void *m0, float *v0, float t,
-                      int tbl, int n);
+void GetBlendedMotion(struct StreamElem *dst, float *root, struct StreamElem *a, float *rootA,
+                      struct StreamElem *b, float *rootB, float t, unsigned char *mask, int count);
 
-float GetDifferenceFromLastField(GObj *a0, int a1);
+float GetDifferenceFromLastField(GObj *self, int node);
 float GetDifferenceFromWallLowerPlane(GObj *self, int node);
-float GetDifferenceFromWallUpperField(GObj *a0, int a1);
+float GetDifferenceFromWallUpperField(GObj *self, int node);
 float GetDifferenceFromWallUpperPlane(GObj *self, int node);
 float GetHeightOfFieldPlaneDifference(GObj *a, GObj *b);
 int GetMotionFrameFlag1(GObj *self);
@@ -53,15 +64,15 @@ int GetPureVerticalPlane(void *plane0, void *plane1, float *ptsIn, WallCfg *cfg,
 int GetPureVerticalPlaneOfCurrentPosition(void *plane0, void *plane1, float *ptsIn, WallCfg *cfg,
                                           int flip, float *pos);
 void GetRootProjectionPosOfGObj(float *pos, GObj *obj);
-int GetSkeltonFocusNode(GObj *a0, int a1);
+int GetSkeltonFocusNode(GObj *self, int focus);
 int GetStreamMotion(char *dst, float *out, char *node, char *info);
-int GetStreamShapeMotion(float *dst, void *sm);
+int GetStreamShapeMotion(float *dst, struct StreamShapeHdr *hdr);
 void InitMotionGeoInfo(char *self, float x, float y, float z, float rx, float ry, float rz);
-void InitMotionRotElem(int *a0, int count);
-void InitMotionStateInfo(void *p);
+void InitMotionRotElem(int *elem, int count);
+void InitMotionStateInfo(struct MotionStateInfo *self);
 void LockForceGroundParent(GObj *gobj);
 void SetMotionBlendlessNode(GObj *self, int *node);
-void SetMotionDirection(GObj *a0, float *a1);
+void SetMotionDirection(GObj *self, float *dir);
 void SetMotionDirectionWithLimit(GObj *self, float *dir, float lim0, float lim1);
 
 void SetMotionNodeFixModeParameter(GObj *self, GObj *obj, int mode, int node, void *quat, float x,
@@ -75,9 +86,31 @@ void _GetMotionDirection(float *dir, GObj *obj);
 void _getMotion(void *dst, void *m, int node, int frame);
 void _getS16MotRotElem(void *dst, void *src);
 void SlopeIKControl(GObj *self, char *mot, float *v, Vec4 *vel, int n);
-void CopyMotionWithNodeHrc(struct Pack32 *dst, struct Pack32 *src, char *hrc, int node, int flag);
+void CopyMotionWithNodeHrc(struct StreamElem *dst, struct StreamElem *src, SkelNode *hrc, int node,
+                           int flag);
 void GetFloatingShapeMotion(float *dst, char *m, float t, int count);
 void GetFloatingMotionRootPos(float *dst, void *m, float t);
 void GetOutOutsideOfWall(GObj *obj, float threshold);
+int GetWaterReaction(float *outH, int *outFlag, struct ClipBuf *info, float *pos, float *vel,
+                     float h0, float h1, float h2, float scaleIn, float amp);
+void dispPlane(Vec4 *plane, float *pos);
+void GetOrientOfWallOfGObj(float *dir, GObj *obj);
+void GetRootPosOfNextFrame(float *pos, GObj *obj);
+void AdjustMotionHeightToField(GObj *obj);
+void GetFloatingMotion(struct StreamElem *dst, float t, float *root, void *motion, int count,
+                       unsigned char *mask, SkelNode *hrc);
+void MakeMirrorMotion(struct StreamElem *a, SkelNode *b);
+void *GetMotionPointer(GObj *self);
+int GetCollisionOfLastActiveField(GObj *self);
+float GetRopeHangablePos(GObj *self);
+float GetHeightOfWallFromGObj(GObj *self);
+float GetHeightOfCliffFromGObj(GObj *self);
+void GetMotionRootPos(float *dst, void *motion, int idx);
+void GetMotion(char *dst, float *root, void *motion, int idx, unsigned char *mask, int count,
+               SkelNode *hrc);
+void GetShapeMotion(float *dst, char *motion, int idx, int count);
+void fitYToPlane(long long *src, int *dest);
+void GetBlendedMotionRootPos(float *dst, float *a, float *b, float t);
+void _getMotRotElem(char *dst, char *src);
 
 #endif /* MOTIONMANAGER2_H */

@@ -77,8 +77,8 @@ void SetCageFixGeometry(GObj *self, void *pos, void *dir)
 inline int GetCageChainPoint(char *a0, char *a1, GObj *a2)
 {
     CageWork *w = GOBJ_SUB(a2)->work;
-    CopyVector(a0, w->chains->nodes->pos);
-    CopyVector(a1, w->chains->nodes->pos + 0x10);
+    CopyVector(a0, w->chains->nodes->pos[0]);
+    CopyVector(a1, w->chains->nodes->pos[1]);
     *(float *)(a0 + 4) = *(float *)(a0 + 4) + 50.0f;
     *(float *)(a1 + 4) = *(float *)(a1 + 4) - 150.0f;
     return w->rideable;
@@ -223,11 +223,10 @@ void HotInitCageGeo(GObj *self)
     CopyVector(&w->chains->nodes->ex[w->upperNode].v1, w->chains->cfg->pm.root);
     CopyVector(&w->chains->nodes->ex[w->lowerNode].v1, w->chains->cfg->pm.root);
 
-    CopyVector(w->chains->nodes->pos, w->chains->cfg->pm.root);
-    CopyVector(w->chains->nodes->pos + 0x10, w->chains->cfg->pm.root);
+    CopyVector(w->chains->nodes->pos[0], w->chains->cfg->pm.root);
+    CopyVector(w->chains->nodes->pos[1], w->chains->cfg->pm.root);
 
-    *(float *)(w->chains->nodes->pos + 0x14) =
-        *(float *)(w->chains->nodes->pos + 0x14) + w->linkLength * (float)w->linkCount;
+    w->chains->nodes->pos[1][1] = w->chains->nodes->pos[1][1] + w->linkLength * (float)w->linkCount;
 
     w->chains->nodes->ex[w->upperNode].v1.y =
         w->chains->nodes->ex[w->upperNode].v1.y + w->linkLength * (float)w->linkCount;
@@ -334,9 +333,9 @@ void CageGeo(GObj *self)
     {
         float q[4];
 
-        SetCageChainQuaternion(q, w->chains->nodes->pos + 0x10, w->chains->nodes->pos);
-        GetMatrixFromQuaternionPos(MatrixDrive_GetMatrix(), q, w->chains->nodes->pos);
-        CopyVector(MatrixDrive_GetMatrix()[3], w->chains->nodes->pos + 0x10);
+        SetCageChainQuaternion(q, w->chains->nodes->pos[1], w->chains->nodes->pos[0]);
+        GetMatrixFromQuaternionPos(MatrixDrive_GetMatrix(), q, w->chains->nodes->pos[0]);
+        CopyVector(MatrixDrive_GetMatrix()[3], w->chains->nodes->pos[1]);
     }
     MatrixDrive_TransMatrix(0.0f, -(w->linkLength * 0.5f - 20.0f), 0.0f);
 

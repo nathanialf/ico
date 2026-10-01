@@ -605,8 +605,6 @@ static int lookHeadStep = 0; /* derived name */
 
 static float lookRadius = 100.0f; /* derived name */
 
-extern void dispPlane(MvVec *plane, MvVec *pos);
-
 int MotionViewer(void)
 {
     MvVec v;

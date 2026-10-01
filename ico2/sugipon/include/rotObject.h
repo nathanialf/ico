@@ -12,14 +12,14 @@
 
 struct GObj;
 
-void GetRotObjectGameSysObjInfoExtData(short *a0, int *a1, GamesysObjInfo *a2);
+void GetRotObjectGameSysObjInfoExtData(short *angle, int *turnCount, GamesysObjInfo *info);
 void GetRotObjectGlobalHoldGeometry(void *pos, void *dir, void *gobj, void *posMtx, void *dirMtx);
-void GetRotObjectHoldPoint(void *a0, void *a1, void *a2, void *a3);
-float GetRotObjectRotCount(struct GObj *a0);
+void GetRotObjectHoldPoint(void *pos, void *dir, void *wall, void *holder);
+float GetRotObjectRotCount(struct GObj *self);
 int GetRotObjectZPlusDirection(void *gobj);
 int MoveRotObjectWithHoldPoint(struct GObj *bar, void *hold, void *self, void *dir, void *up);
-void SetRotObjectArmRadius(struct GObj *a0, float f);
-void SetRotObjectLockFlag(struct GObj *a0, int a1);
+void SetRotObjectArmRadius(struct GObj *self, float radius);
+void SetRotObjectLockFlag(struct GObj *self, int lock);
 
 struct RotObjWork;
 
@@ -29,13 +29,13 @@ struct GamesysObjInfo;
 
 struct RotObjMemory;
 
-void RotObjectGeo(struct GObj *a0);
+void RotObjectGeo(struct GObj *self);
 void ExecRotObjectMoveStartReaction(struct GObj *self);
 void ExecRotObjectMoveEndReaction(struct GObj *self);
 struct RotObjWork *InitRotObjectGeo(struct GObj *gobj, struct SObjSimpleSetting *src);
 void RotObjectDL(struct GObj *gobj);
 int RestoreRotObjectGeo(void);
-int RestoreRotObjectExtGeo(struct GObj *a0, struct GamesysObjInfo *a1);
-int MemoryRotObject(struct RotObjMemory *a0, struct GObj *a1);
+int RestoreRotObjectExtGeo(struct GObj *self, struct GamesysObjInfo *info);
+int MemoryRotObject(struct RotObjMemory *mem, struct GObj *self);
 
 #endif /* ROTOBJECT_H */

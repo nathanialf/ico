@@ -332,12 +332,12 @@ void DispAllMemberOfSpider(GObj *self, int *col)
     }
 }
 
-void SetSpiderGroupReviveStatus(GObj *a0)
+void SetSpiderGroupReviveStatus(GObj *self)
 {
-    SpiderWork *p = GOBJ_SUB(a0)->work;
+    SpiderWork *p = GOBJ_SUB(self)->work;
     p->revived = 1;
-    gamesysObjInfoUniqDataSet(a0);
-    debug_StdPrintfDummy("SET %d\n", a0->labelId);
+    gamesysObjInfoUniqDataSet(self);
+    debug_StdPrintfDummy("SET %d\n", self->labelId);
 }
 
 int DeadAllSpiders(GObj *gp)
@@ -395,9 +395,9 @@ static inline GObj *DeleteSpiderFromLayoutGroup_inl(GObj *gp, int idx) /* derive
     return r;
 }
 
-GObj *DeleteSpiderFromLayoutGroup(GObj *a0, int a1)
+GObj *DeleteSpiderFromLayoutGroup(GObj *self, int idx)
 {
-    return DeleteSpiderFromLayoutGroup_inl(a0, a1);
+    return DeleteSpiderFromLayoutGroup_inl(self, idx);
 }
 
 /* clear the dead members out of a spider group */
@@ -467,19 +467,19 @@ int RestoreSpiderLayoutGeo(void)
     return 1;
 }
 
-int RestoreSpiderLayoutExtGeo(GObj *a0, char *a1)
+int RestoreSpiderLayoutExtGeo(GObj *self, GamesysObjInfo *info)
 {
-    SpiderWork *p = GOBJ_SUB(a0)->work;
-    int *ex = (int *)(a1 + 0x30);
+    SpiderWork *p = GOBJ_SUB(self)->work;
+    int *ex = info->work;
 
-    if (*(int *)(a1 + 0x30)) {
+    if (info->work[0]) {
         p->wakeFrom = ex[1];
     }
     if (ex[2]) {
         p->revived = 1;
     }
-    debug_StdPrintfDummy(spiderRestoreFmt, a0);
-    debug_StdPrintfDummy(spiderWakeFmt, *(int *)(a1 + 0x30) ? "YES" : "NO");
+    debug_StdPrintfDummy(spiderRestoreFmt, self);
+    debug_StdPrintfDummy(spiderWakeFmt, info->work[0] ? "YES" : "NO");
     debug_StdPrintfDummy(spiderAliveFmt, ex[1]);
     debug_StdPrintfDummy(spiderReviveFmt, ex[2]);
     return 1;

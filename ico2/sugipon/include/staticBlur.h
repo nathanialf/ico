@@ -21,7 +21,7 @@ void GetSunWorldPos(int a0);
 int InitStaticBlur(void);
 void StaticBlur(void);
 void StaticBlurDL(void);
-void SetDepthFadeParam(float f12, float f13, int a0);
+void SetDepthFadeParam(float start, float width, int level);
 void InitializeStaticBlur(void);
 void _initStaticBlur(void);
 void SetAuraEffect(void);

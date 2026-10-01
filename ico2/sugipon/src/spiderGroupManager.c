@@ -90,11 +90,11 @@ inline GObj *getReviveEnemyGObj(int count)
     return p;
 }
 
-inline void EntryRevivedSpiderGroupManager(int a0)
+inline void EntryRevivedSpiderGroupManager(int id)
 {
     int idx = spiderGroupIdCount;
     spiderGroupIdCount = idx + 1;
-    spiderGroupIds[idx] = a0;
+    spiderGroupIds[idx] = id;
 }
 
 void EntrySpiderGroupManager(int gobj)
@@ -118,10 +118,10 @@ void EntrySpiderGroupManager(int gobj)
     EntryRevivedSpiderGroupManager(gobj);
 }
 
-inline void EntryToSpiderGroupManagerForReviveMaster(GObj *a0, GObj *a1)
+inline void EntryToSpiderGroupManagerForReviveMaster(GObj *group, GObj *master)
 {
-    reviveGroupIds[reviveGroupIdCount++] = a0;
-    reviveMaster = a1;
+    reviveGroupIds[reviveGroupIdCount++] = group;
+    reviveMaster = master;
 }
 
 static int tryToRevive(void)

@@ -52,10 +52,10 @@ void TestDispChainAnimation(ChainSet *sys)
     sceVu0UnitMatrix(MatrixDrive_GetMatrix());
     for (i = 0; i < sys->num; i++) {
         int n = sys->cfg[i].num;
-        char *pts = sys->nodes[i].pos;
+        float (*pts)[4] = sys->nodes[i].pos;
         for (j = 1; j < n; j++) {
-            char *p = pts + j * 16;
-            char *q = pts + (j * 16 - 16);
+            float *p = pts[j];
+            float *q = pts[j - 1];
             LineColor *col = (j & 1) ? &c1 : &c0;
             sceVu0AddVector(&mid, p, q);
             DrawLine(p, q, col, 0);
@@ -98,8 +98,8 @@ void GetChainAnimation(ChainSet *sys, GObj *obj, float (*mtx)[4])
     for (i = 0; i < sys->num; i++) {
         ChainCfg *cf = (ChainCfg *)(i * 0x50 + (int)sys->cfg);
         int n = cf->num;
-        char *pts = (sys->nodes + i)->pos;
-        char *vel = (sys->nodes + i)->vel;
+        float (*pts)[4] = (sys->nodes + i)->pos;
+        float (*vel)[4] = (sys->nodes + i)->vel;
         ChainParam *cp = &cf->pm;
         int no;
         int j;
@@ -122,20 +122,19 @@ void GetChainAnimation(ChainSet *sys, GObj *obj, float (*mtx)[4])
         for (j = 0; j < n; j++) {
 #ifdef DEBUG
             if (j > 0) {
-                DrawLine(pts + k * 16, pts + j * 16, (LineColor *)&chainLineColor1, 0);
+                DrawLine(pts[k], pts[j], (LineColor *)&chainLineColor1, 0);
             }
 #endif
             k = j;
         }
 
         for (j = 0; j < n; j++) {
-            CopyVector(&dv, pts + j * 16);
-            *(float *)(vel + j * 16 + 4) +=
-                60.0f / (float)((0x3C - systemStatus[0] * 0xA) / systemStatus[1]) * 0.5f *
-                (60.0f / (float)((0x3C - systemStatus[0] * 0xA) / systemStatus[1]));
-            AddVectorXYZ(pts + j * 16, pts + j * 16, vel + j * 16);
-            CopyVector(&old[j], pts + j * 16);
-            sceVu0ScaleVector(vel + j * 16, &dv, -1.0f);
+            CopyVector(&dv, pts[j]);
+            vel[j][1] += 60.0f / (float)((0x3C - systemStatus[0] * 0xA) / systemStatus[1]) * 0.5f *
+                         (60.0f / (float)((0x3C - systemStatus[0] * 0xA) / systemStatus[1]));
+            AddVectorXYZ(pts[j], pts[j], vel[j]);
+            CopyVector(&old[j], pts[j]);
+            sceVu0ScaleVector(vel[j], &dv, -1.0f);
         }
 
         for (k = 0; k < 5; k++) {
@@ -180,7 +179,7 @@ void GetChainAnimation(ChainSet *sys, GObj *obj, float (*mtx)[4])
                 wa = cl;
                 wb = *(float *)(ex + 0x44);
 
-                sceVu0InterVector(&vb, pts + id * 16, pts + id1 * 16,
+                sceVu0InterVector(&vb, pts[id], pts[id1],
                                   1.0f - (*(float *)ex - (float)(int)*(float *)ex));
 
                 sceVu0SubVector(&dv, &vb, ex + 0x20);
@@ -189,21 +188,21 @@ void GetChainAnimation(ChainSet *sys, GObj *obj, float (*mtx)[4])
                     sceVu0ScaleVectorXYZ(&dv, &dv, *(float *)(ex + 0x40) / _Sqrt(l));
                     AddVectorXYZ(ex + 0x10, ex + 0x20, &dv);
 
-                    SubVectorXYZ(&dv, ex + 0x10, pts + id * 16);
+                    SubVectorXYZ(&dv, ex + 0x10, pts[id]);
                     l = VectorLengthSquare(&dv);
                     if (ka2 < l) {
                         sceVu0ScaleVectorXYZ(&dv, &dv, ka / _Sqrt(l));
-                        AddVectorXYZ(&dv, pts + id * 16, &dv);
+                        AddVectorXYZ(&dv, pts[id], &dv);
                     } else {
                         CopyVector(&dv, ex + 0x10);
                         wa = wb;
                     }
 
-                    SubVectorXYZ(&va, ex + 0x10, pts + id1 * 16);
+                    SubVectorXYZ(&va, ex + 0x10, pts[id1]);
                     l = VectorLengthSquare(&va);
                     if (kb2 < l) {
                         sceVu0ScaleVectorXYZ(&va, &va, kb / _Sqrt(l));
-                        AddVectorXYZ(&va, pts + id1 * 16, &va);
+                        AddVectorXYZ(&va, pts[id1], &va);
                     } else {
                         CopyVector(&va, ex + 0x10);
                         cl = wb;
@@ -217,18 +216,18 @@ void GetChainAnimation(ChainSet *sys, GObj *obj, float (*mtx)[4])
                     sceVu0ScaleVector(&dv, &dv, 1.0f - wb / (cl + wa + wb));
                     AddVectorXYZ(ex + 0x10, ex + 0x10, &dv);
 
-                    SubVectorXYZ(&dv, pts + id * 16, ex + 0x10);
+                    SubVectorXYZ(&dv, pts[id], ex + 0x10);
                     l = VectorLengthSquare(&dv);
                     if (ka2 < l) {
                         sceVu0ScaleVectorXYZ(&dv, &dv, ka / _Sqrt(l));
-                        AddVectorXYZ(pts + id * 16, ex + 0x10, &dv);
+                        AddVectorXYZ(pts[id], ex + 0x10, &dv);
                     }
 
-                    SubVectorXYZ(&dv, pts + id1 * 16, ex + 0x10);
+                    SubVectorXYZ(&dv, pts[id1], ex + 0x10);
                     l = VectorLengthSquare(&dv);
                     if (kb2 < l) {
                         sceVu0ScaleVectorXYZ(&dv, &dv, kb / _Sqrt(l));
-                        AddVectorXYZ(pts + id1 * 16, ex + 0x10, &dv);
+                        AddVectorXYZ(pts[id1], ex + 0x10, &dv);
                     }
 
                     sceVu0SubVector(&dv, ex + 0x20, ex + 0x10);
@@ -238,11 +237,11 @@ void GetChainAnimation(ChainSet *sys, GObj *obj, float (*mtx)[4])
                         sceVu0AddVector(ex + 0x20, ex + 0x10, &dv);
                     }
                 }
-                sceVu0InterVector(ex + 0x10, pts + id * 16, pts + id1 * 16,
+                sceVu0InterVector(ex + 0x10, pts[id], pts[id1],
                                   1.0f - (*(float *)ex - (float)(int)*(float *)ex));
             }
 
-            void bind2(char *pp, int id, int ip, int in, float t)
+            void bind2(float (*pp)[4], int id, int ip, int in, float t)
             {
                 float ka;
                 float kb;
@@ -262,23 +261,23 @@ void GetChainAnimation(ChainSet *sys, GObj *obj, float (*mtx)[4])
                 wa = cl;
                 wb = cl;
 
-                SubVectorXYZ(&dv, pp + id * 16, pp + ip * 16);
+                SubVectorXYZ(&dv, pp[id], pp[ip]);
                 l = VectorLengthSquare(&dv);
                 if (ka2 < l) {
                     sceVu0ScaleVectorXYZ(&dv, &dv, ka / _Sqrt(l));
-                    AddVectorXYZ(&dv, pp + ip * 16, &dv);
+                    AddVectorXYZ(&dv, pp[ip], &dv);
                 } else {
-                    CopyVector(&dv, pp + id * 16);
+                    CopyVector(&dv, pp[id]);
                     cl = wb;
                 }
 
-                SubVectorXYZ(&tv, pp + id * 16, pp + in * 16);
+                SubVectorXYZ(&tv, pp[id], pp[in]);
                 l = VectorLengthSquare(&tv);
                 if (kb2 < l) {
                     sceVu0ScaleVectorXYZ(&tv, &tv, kb / _Sqrt(l));
-                    AddVectorXYZ(&tv, pp + in * 16, &tv);
+                    AddVectorXYZ(&tv, pp[in], &tv);
                 } else {
-                    CopyVector(&tv, pp + id * 16);
+                    CopyVector(&tv, pp[id]);
                     cl = wb;
                 }
 
@@ -286,26 +285,26 @@ void GetChainAnimation(ChainSet *sys, GObj *obj, float (*mtx)[4])
                 sceVu0ScaleVector(&tv, &tv, cl / (cl + wa));
                 AddVectorXYZ(&dv, &dv, &tv);
 
-                SubVectorXYZ(&dv, &dv, pp + id * 16);
+                SubVectorXYZ(&dv, &dv, pp[id]);
                 sceVu0ScaleVector(&dv, &dv, 1.0f - wb / (cl + wa + wb));
-                AddVectorXYZ(pp + id * 16, pp + id * 16, &dv);
+                AddVectorXYZ(pp[id], pp[id], &dv);
 
-                SubVectorXYZ(&dv, pp + ip * 16, pp + id * 16);
+                SubVectorXYZ(&dv, pp[ip], pp[id]);
                 l = VectorLengthSquare(&dv);
                 if (ka < l) {
                     sceVu0ScaleVectorXYZ(&dv, &dv, ka / _Sqrt(l));
                 }
-                AddVectorXYZ(pp + ip * 16, pp + id * 16, &dv);
+                AddVectorXYZ(pp[ip], pp[id], &dv);
 
-                SubVectorXYZ(&dv, pp + in * 16, pp + id * 16);
+                SubVectorXYZ(&dv, pp[in], pp[id]);
                 l = VectorLengthSquare(&dv);
                 if (kb < l) {
                     sceVu0ScaleVectorXYZ(&dv, &dv, kb / _Sqrt(l));
                 }
-                AddVectorXYZ(pp + in * 16, pp + id * 16, &dv);
+                AddVectorXYZ(pp[in], pp[id], &dv);
             }
 
-            void calc2(char *pp, int lo, int hi)
+            void calc2(float (*pp)[4], int lo, int hi)
             {
                 int m;
                 int q;
@@ -337,8 +336,8 @@ void GetChainAnimation(ChainSet *sys, GObj *obj, float (*mtx)[4])
         sceVu0ApplyMatrix(pts, mtx + no * 4, cp->root);
 
         for (j = 0; j < n; j++) {
-            AddVectorXYZ(vel + j * 16, vel + j * 16, pts + j * 16);
-            *(float *)(vel + j * 16 + 12) = 0.0f;
+            AddVectorXYZ(vel[j], vel[j], pts[j]);
+            vel[j][3] = 0.0f;
         }
 
         for (k = 0; k < 5; k++) {
@@ -367,8 +366,8 @@ int SetChainExtendedWeight(ChainNode *node, int idx, float w0, float w1)
             node->ex[i].len1 = w1;
             ex = &node->ex[i];
             CopyVector(&ex->v2, ZeroVector);
-            CopyVector(&ex->v0, node->pos + idx * 16);
-            CopyVector(&ex->v1, node->pos + idx * 16);
+            CopyVector(&ex->v0, node->pos[idx]);
+            CopyVector(&ex->v1, node->pos[idx]);
             node->ex[i].v1.y = node->ex[i].v1.y + w0;
             node->exNum = node->exNum + 1;
             return i;
@@ -847,8 +846,8 @@ ChainSet *InitChains(ChainCfg *a0)
         i++;
     }
     r->num = i;
-    r->nodes =
-        (ChainNode *)iosMallocDebug(ios_partition_sugipon, i * 0x1A0, "src/clothAnimation.c", 1198);
+    r->nodes = (ChainNode *)iosMallocDebug(ios_partition_sugipon, i * sizeof(ChainNode),
+                                           "src/clothAnimation.c", 1198);
     r->oddFrame = 0;
     for (i = 0; i < r->num; i++) {
         r->nodes[i].pos =
@@ -865,13 +864,12 @@ ChainSet *InitChains(ChainCfg *a0)
             CopyVector(&r->nodes[i].ex[j].v2, ZeroVector);
         }
         for (j = 0; j < r->cfg[i].num; j++) {
-            CopyVector(r->nodes[i].pos + j * 16, a0[i].pm.root);
-            CopyVector(r->nodes[i].vel + j * 16, ZeroVector);
+            CopyVector(r->nodes[i].pos[j], a0[i].pm.root);
+            CopyVector(r->nodes[i].vel[j], ZeroVector);
             step = a0[i].pm.step;
-            *(float *)(j * 4 + (int)r->nodes[i].len) = step;
+            r->nodes[i].len[j] = step;
             if (j != 0) {
-                *(float *)(j * 16 + (int)r->nodes[i].pos + 4) =
-                    *(float *)(j * 16 + (int)r->nodes[i].pos - 0xC) + step;
+                r->nodes[i].pos[j][1] = r->nodes[i].pos[j - 1][1] + step;
             }
         }
     }
@@ -1849,9 +1847,8 @@ void GetChainNodeGlobalQuaternion(void *a0, ChainNode *node, int count)
     ClothBuf buf;
     SetIdentityQuaternion(a0);
     if (count > 0) {
-        char *base = node->pos;
-        int off = count * 16;
-        SubVectorXYZ(&buf, base + off, base + (off - 16));
+        float (*pts)[4] = node->pos;
+        SubVectorXYZ(&buf, pts[count], pts[count - 1]);
         MatrixDrive_GetTurnYAngleXZ(&buf.a, &buf.b, buf.v[0], buf.v[1], buf.v[2]);
         RotQuaternionX(a0, (short)-buf.a);
         RotQuaternionZ(a0, (short)-buf.b);
@@ -1872,7 +1869,7 @@ void InitChainVelocity(ChainSet *sys)
     for (i = 0; i < sys->num; i++) {
         int cnt = sys->cfg[i].num;
         for (j = 0; j < cnt; j++) {
-            CopyVector(sys->nodes[i].vel + j * 16, ZeroVector);
+            CopyVector(sys->nodes[i].vel[j], ZeroVector);
         }
         for (k = 0; k < 5; k++) {
             ExW *w = &sys->nodes[i].ex[k];
@@ -1929,9 +1926,9 @@ float GetChainCollision(ChainSet *sys, void *pos, float r)
 
     r = r * r;
     for (i = 0; i < sys->num; i++) {
-        char *pts = sys->nodes[i].pos;
+        float (*pts)[4] = sys->nodes[i].pos;
         for (j = 0; j < sys->cfg[i].num - 1; j++) {
-            if (distance_squared(pts + j * 16, pos) < r) {
+            if (distance_squared(pts[j], pos) < r) {
                 return (float)j * sys->cfg[i].pm.step;
             }
         }
@@ -2132,7 +2129,7 @@ void LockZAnimation(ChainSet *sys)
     for (i = 0; i < n; i++) {
         int cnt = sys->cfg[i].num;
         for (j = 0; j < cnt; j++) {
-            *(float *)(sys->nodes[i].vel + j * 16 + 8) = 0.0f;
+            sys->nodes[i].vel[j][2] = 0.0f;
         }
     }
 }

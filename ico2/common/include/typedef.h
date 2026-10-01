@@ -471,12 +471,14 @@ struct MotCtrl {           /* field names derived */
 };
 
 /* One 64-byte node of an object's skeleton, the array Sub15C skel points at:
-   the node's kind (the act-point kinds the stand search and the stair step
-   test: 6 and 11 the hand-1 side, 22 and 27 the hand-0 side, 0x30), its rest
-   position and rotation, its first child, its next sibling and its parent,
-   -1 where there is none. */
+   the node its motion mirrors with (MakeMirrorMotion swaps the two nodes'
+   motions, or mirrors a node paired with itself, up to a -1), the node's
+   kind (the act-point kinds the stand search and the stair step test: 6 and
+   11 the hand-1 side, 22 and 27 the hand-0 side, 0x30), its rest position
+   and rotation, its first child, its next sibling and its parent, -1 where
+   there is none. */
 typedef struct SkelNode { /* field names derived */
-    char pad00[4];
+    int mirror; /* 0x0 */
     int kind; /* 0x4 */
     char pad08[8];
     float pos[4];  /* 0x10 */
