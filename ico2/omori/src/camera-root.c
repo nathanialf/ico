@@ -41,7 +41,7 @@ typedef struct { /* field names derived */
    target with, cleared on every mode change. */
 typedef struct CameraSet2 { /* field names derived */
     float pos[3];           /* 0x00 */
-    char pad0c[0x10 - 0x0C];
+    char pad0c[4];
     short rotX; /* 0x10 */
     short rotY; /* 0x12 */
     float fov;  /* 0x14 */
@@ -70,18 +70,18 @@ typedef struct CamCtrl { /* field names derived */
 typedef struct InsertCameraWork { /* field names derived */
     int frames;                   /* 0x00, how long the insert camera runs */
     int count;                    /* 0x04, the frames it has run */
-    char pad08[0x10 - 0x08];
+    char pad08[8];
     float pos[3]; /* 0x10 */
-    char pad1c[0x20 - 0x1C];
+    char pad1c[4];
     float tgt[3]; /* 0x20 */
-    char pad2c[0x30 - 0x2C];
+    char pad2c[4];
     float blend;           /* 0x30 */
     unsigned char enable;  /* 0x34 */
     unsigned char cut;     /* 0x35 */
     unsigned char cutType; /* 0x36 */
     unsigned char zoom;    /* 0x37, the zoom request while it runs */
     unsigned char cutBack; /* 0x38, cut back to the game camera at the end */
-    char pad39[0x40 - 0x39];
+    char pad39[7];
     /* a VU0 quadword record: pos and tgt are quadword vectors */
 } InsertCameraWork __attribute__((aligned(16)));
 
@@ -221,7 +221,7 @@ static void CameraEditManual(CameraSet2 *set, int noLock)
                 set->pos[1] -= (float)(manualCameraSpeed * t) / 78.0f;
             }
             if (d >= 51) {
-                t = (d - 0x32) * 10;
+                t = (d - 50) * 10;
                 set->pos[1] -= (float)(manualCameraSpeed * t) / 78.0f;
             }
         }
@@ -231,7 +231,7 @@ static void CameraEditManual(CameraSet2 *set, int noLock)
                 set->rotX -= (d + 50) * (d + 50) * 5 / 78;
             }
             if (d >= 51) {
-                set->rotX += (d - 0x32) * (d - 0x32) * 5 / 78;
+                set->rotX += (d - 50) * (d - 50) * 5 / 78;
             }
         }
     }
@@ -245,7 +245,7 @@ static void CameraEditManual(CameraSet2 *set, int noLock)
             set->rotY += (d + 50) * (d + 50) * 5 / 78;
         }
         if (d >= 51) {
-            set->rotY -= (d - 0x32) * (d - 0x32) * 5 / 78;
+            set->rotY -= (d - 50) * (d - 50) * 5 / 78;
         }
     }
 
@@ -260,7 +260,7 @@ static void CameraEditManual(CameraSet2 *set, int noLock)
                 mz = (float)(manualCameraSpeed * t) / 78.0f;
             }
             if (d >= 51) {
-                t = (d - 0x32) * 10;
+                t = (d - 50) * 10;
                 mz = (float)(manualCameraSpeed * t) / 78.0f;
             }
         }
@@ -277,7 +277,7 @@ static void CameraEditManual(CameraSet2 *set, int noLock)
                 mx = (float)(manualCameraSpeed * t) / 78.0f;
             }
             if (d >= 51) {
-                t = (d - 0x32) * 10;
+                t = (d - 50) * 10;
                 mx = (float)(manualCameraSpeed * t) / 78.0f;
             }
         }
@@ -441,21 +441,10 @@ typedef struct { /* field names derived */
     int max;     /* 0x04 */
 } CamZoomStep;   /* derived name */
 
-typedef struct { /* field names derived */
-    CamZoomStep e[3];
-} CamZoomTbl; /* derived name */
-
-/* the one scratch quadword-and-a-half the body reuses: the screen test's
-   output point first, then the three zoom steps */
 /* one quadword copied whole out of the const table */
 union CamQuad { /* field names derived */
     float f[4];
     long long q[2];
-};
-
-union CamWork { /* field names derived */
-    float v[4];
-    CamZoomTbl zoom;
 };
 
 /* one step of the camera target queue */
@@ -611,13 +600,13 @@ void SetCameraMatrix(void)
         sceVu0TransposeMatrix(mt, m);
         CopyVector(ofs, &m[12]);
         ofs[3] = 0.0f;
-        sceVu0ApplyMatrix(&cameraSet, mt, ofs);
-        sceVu0ScaleVector(&cameraSet, &cameraSet, -1.0f);
+        sceVu0ApplyMatrix(cameraSet.pos, mt, ofs);
+        sceVu0ScaleVector(cameraSet.pos, cameraSet.pos, -1.0f);
         useDemo = debug_hand_camera != 0;
         if (debug_hand_camera != 0) {
             if (handCameraLimitP != 0 || handCameraLimitV != 0) {
                 union CameraSetIn in;
-                union CameraSetIn set;
+                CameraSet2 set;
                 float stickX;
                 float stickZ;
                 float stickMag;
@@ -628,14 +617,14 @@ void SetCameraMatrix(void)
                 MatrixDrive_SetTransposeMatrix(MatrixDrive_GetMatrix(), MatrixDrive_GetMatrix());
                 eye[3] = 0.0f;
                 sceVu0ApplyMatrix(eye, MatrixDrive_GetMatrix(), eye);
-                sceVu0AddVector(pos, &cameraSet, eye);
+                sceVu0AddVector(pos, cameraSet.pos, eye);
                 MatrixDrive_PopMatrix();
                 GetHandCameraStickInfo(&stickX, &stickZ, &stickMag);
                 if (GlobalTimer != 0) {
                     ClearHandCameraCorrect();
                     debug_zoom_per = zoomBase;
                 }
-                HandCameraCorrect(&cameraSet, pos, 1, stickX, stickZ,
+                HandCameraCorrect(cameraSet.pos, pos, 1, stickX, stickZ,
                                   60.0f / (float)((60 - systemStatus[0] * 10) / systemStatus[1]));
                 in.f[0] = cameraSet.pos[0];
                 in.f[1] = cameraSet.pos[1];
@@ -643,8 +632,8 @@ void SetCameraMatrix(void)
                 in.f[4] = pos[0];
                 in.f[5] = pos[1];
                 in.f[6] = pos[2];
-                ConvertCameraSet((CameraSet2 *)&set, &in);
-                MakeMatrixFromCameraSet2(m, (CameraSet2 *)&set);
+                ConvertCameraSet(&set, &in);
+                MakeMatrixFromCameraSet2(m, &set);
             }
         }
         zoom = cameraZoom;
@@ -690,7 +679,7 @@ void SetCameraMatrix(void)
         static unsigned char zoomBaseInit = 1; /* derived name */
         CamZoomStep zp[3] = {
             {10, 200}, {10, 200}, {(int)_ACTGame_GetParamF(12), (int)_ACTGame_GetParamF(11)}};
-        int padCtx[0x30 / 4];
+        int padCtx[12];
         GObj *ply;
 
         if (useDemo != 0) {
@@ -806,7 +795,7 @@ void CameraChangeTargetParallel(GObj *oldTarget, GObj *newTarget)
         sceVu0SubVector(buf.move, buf.to, buf.from);
     }
     *(CamTgt *)&targetCameraSet = *(CamTgt *)&cameraSet;
-    sceVu0AddVector(&targetCameraSet, &targetCameraSet, buf.move);
+    sceVu0AddVector(targetCameraSet.pos, targetCameraSet.pos, buf.move);
 
     targetCameraSet.moving = 1;
 }
@@ -837,8 +826,8 @@ void CameraGetOtherObjOffset(float *pos, float *outDist, int *outAngle)
 {
     float v[4];
     int ang;
-    *outDist = _DistGV(&cameraSet, pos);
-    sceVu0SubVector(v, pos, &cameraSet);
+    *outDist = _DistGV(cameraSet.pos, pos);
+    sceVu0SubVector(v, pos, cameraSet.pos);
     sceVu0Normalize(v, v);
     ang = (int)(_GetDirection(v) / 3.14159265f * 180.0f) - cameraSet.rotY * 180 / 32768;
     if (ang > 180) {

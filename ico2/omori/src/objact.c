@@ -83,7 +83,7 @@ inline void ObjAction_MailCenter(GObj *gobj, int step)
     }
 }
 
-void ObjectBeforeFunc(char *self)
+void ObjectBeforeFunc(GObj *self)
 {
     BeforeFunc2(self);
 }

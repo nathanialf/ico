@@ -144,7 +144,8 @@ typedef struct PObjGroup {   /* field names derived */
 } PObjGroup;                 /* derived name */
 
 typedef struct PObjModel { /* field names derived */
-    char name[36];         /* 0x00 */
+    char name[32];         /* 0x00 */
+    int serial;            /* 0x20, the load serial charFileManager stamps on the model */
     int pad24;
     Sub15C *dobj; /* 0x28 */
     short pad2C;

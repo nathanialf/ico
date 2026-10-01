@@ -50,4 +50,13 @@ int UpdateHandCameraLimitP(void);
 int UpdateHandCameraLimitV(void);
 int UpdateZoomMaxVallInDemo(void);
 
+void GetCameraInfomationFromGlobalPosition(float *pos, float *outDist, int *outAngle, float *fov,
+                                           float *zoom);
+
+struct GObj *GetCameraDefaultTargetGObj(void);
+void CameraSetCameraPosition(float *src);
+void CameraSetTargetPos(void);
+void GetCameraInfo_tmp(void *dst, float *out);
+void testcamerazoom(void);
+
 #endif /* CAMERA_ROOT_H */

@@ -45,5 +45,10 @@ void SetChainParentGObj(struct GObj *chain, void *parent);
 void SetChainRootUpdateMode(struct GObj *gobj, int mode, float *pos);
 void UnLockChainGeo(struct GObj *chain);
 void UnableChainHang(struct GObj *chain);
+void _GetCorrectOrientOfChain(float *out, struct GObj *gobj, float *dir);
+void correct_vector(float *out, float *v);
+void ChainDL(struct GObj *gobj);
+int isStopChain(struct GObj *chain);
+void InitPendulum(struct GObj *chain);
 
 #endif /* CHAIN_H */

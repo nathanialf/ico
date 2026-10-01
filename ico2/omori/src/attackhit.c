@@ -155,7 +155,7 @@ static inline void GetFocusNodePos(GObj *gobj, int node, float *out) /* derived 
     out[2] = m[14];
 }
 
-static void MakeAttackPack_Actor(AttackPack *pack, GObj *gobj, void *weapon)
+static void MakeAttackPack_Actor(AttackPack *pack, GObj *gobj, GObj *weapon)
 {
     float v0[4];
     float v1[4];
@@ -330,7 +330,7 @@ static void AttackMail(GObj *self, AttackPack *pack)
     Act *aext;
     Act *e;
     float *r0;
-    void *weapon;
+    GObj *weapon;
     int group;
     int kind;
     int hard;
@@ -341,7 +341,7 @@ static void AttackMail(GObj *self, AttackPack *pack)
     group = pack->group;
     weapon = 0;
     if (aext != 0) {
-        weapon = (void *)aext->weapon;
+        weapon = aext->weapon;
     }
     hard = 0;
     if (group < 0) {
@@ -514,11 +514,11 @@ static int AttackCheckHit(AttackPack *pack, GObj *gobj, short *out)
     return j;
 }
 
-static int AttackGenerate(AttackPack *pack)
+static GObj *AttackGenerate(AttackPack *pack)
 {
     GObj *g;
     GObj *hit;
-    int arg;
+    short *nodes;
 
     hit = 0;
     if (pack->active == 0) {
@@ -551,14 +551,14 @@ static int AttackGenerate(AttackPack *pack)
         if (g->kind == 4 && ACTChkAttackIgnore_ENEMY(g, pack->actor) != 0) {
             continue;
         }
-        arg = 0;
+        nodes = 0;
         if (GOBJ_ACT(g) != 0 && &GOBJ_ACT(g)->attacker != 0) {
             if (GOBJ_ACT(g)->enemy != 0) {
-                /* the enemy work's hit record at +0xF0, inside EnemyBattleWork's padding */
-                arg = (int)GOBJ_ACT(g)->enemy + 0xF0;
+                /* the enemy work records the nodes the attack hits */
+                nodes = GOBJ_ACT(g)->enemy->hitNodes;
             }
         }
-        if (AttackCheckHit(pack, g, (short *)arg) == 0) {
+        if (AttackCheckHit(pack, g, nodes) == 0) {
             continue;
         }
         debug_StdPrintfDummy("geometry ok\n");
@@ -575,21 +575,21 @@ static int AttackGenerate(AttackPack *pack)
         hit = g;
         debug_StdPrintfDummy("mail send ok [%d]\n", pack->group2);
         if (GOBJ_ACT(hit) != 0 && GOBJ_ACT(hit)->attacker != 0 && hit->kind == 4) {
-            /* the enemy work's hit direction at +0xE0, inside EnemyBattleWork's padding */
-            _OrientGV((float *)((int)GOBJ_ACT(hit)->enemy + 0xE0), pack->center, pack->from);
+            /* the enemy work records the direction the attack came from */
+            _OrientGV(GOBJ_ACT(hit)->enemy->hitDir, pack->center, pack->from);
         }
     }
-    return (int)hit;
+    return hit;
 }
 
 inline void CommonAttackCenter(GObj *gobj)
 {
     AttackPack pack;
-    MakeAttackPack_Actor(&pack, gobj, (void *)GOBJ_ACT(gobj)->weapon);
+    MakeAttackPack_Actor(&pack, gobj, GOBJ_ACT(gobj)->weapon);
     AttackGenerate(&pack);
 }
 
-inline int _AttackCenter(GObj *gop, int group, float *pos, float *ofs, float radius, GObj *spare)
+inline GObj *_AttackCenter(GObj *gop, int group, float *pos, float *ofs, float radius, GObj *spare)
 {
     AttackPack pack;
 

@@ -20,6 +20,7 @@ float _DistxzGV(void *a, void *b);
 float _DistxzSqGV(void *a, void *b);
 float _GetDirection(float *dir);
 void _InterGV(float *dst, float *a, float *b, float ta, float tb);
+int _InterRotGV(float *dst, float *cur, float *tgt, int step);
 float _MoveGV(float *dst, float *from, float *to, float step);
 void _OrientGV(float *dst, float *a, float *b);
 void _OrientXZGV(float *dst, float *a, float *b);

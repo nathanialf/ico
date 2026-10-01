@@ -31,8 +31,8 @@ struct GObj;
 
 void CommonAttackCenter(struct GObj *gobj);
 
-int _AttackCenter(struct GObj *gop, int group, float *pos, float *ofs, float radius,
-                  struct GObj *spare);
+struct GObj *_AttackCenter(struct GObj *gop, int group, float *pos, float *ofs, float radius,
+                           struct GObj *spare);
 
 void AttackCenter_WithDir(struct GObj *gop, int group, float *pos, float *dir, float radius);
 void EnemyAttackCenter(struct GObj *gobj);

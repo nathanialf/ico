@@ -14,6 +14,7 @@ struct GObj;
 
 void ObjAction_MailCenter(struct GObj *gobj, int step);
 void ObjAction_Init(void);
+void ObjectBeforeFunc(struct GObj *self);
 
 
 /* One row of obj-trigger: the object a trigger belongs to and the row of
