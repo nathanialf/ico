@@ -8,7 +8,7 @@
 #include "thread.h"
 
 /* A debug frame-rate selector that nothing reads any more: the selected entry
-   (.sdata), each entry's wait and its name (.data), in the ROM's order. */
+   (.sdata), each entry's wait and its name (.data). */
 static int omSpeedSel = 0; /* derived name */
 
 static int omSpeedWait[8] = {9999, 60, 30, 20, 12, 8, 4, 2}; /* derived name */
@@ -256,16 +256,16 @@ void iosOmMain(void)
 
 /* the camera list node the DL walk hangs off (gobj_camera_dl_link_head) and the per-kind
    GObj list heads (gobj_dl_link_head) */
-typedef struct OmCam {
+typedef struct OmCam { /* field names derived */
     char pad0[52];
     struct OmCam *next; /* 0x34 */
     char _p38[0x48 - 0x38];
     void (*dl)(struct OmCam *); /* 0x48 */
     int kindMask;               /* 0x4C */
     int drawMask;               /* 0x50 */
-} OmCam;
+} OmCam;                        /* derived name */
 
-typedef struct OmObj {
+typedef struct OmObj { /* field names derived */
     char pad0[52];
     struct OmObj *next; /* 0x34 */
     char _p38[0x48 - 0x38];
@@ -274,7 +274,7 @@ typedef struct OmObj {
     int drawMask; /* 0x50 */
     char _p54[0x16C - 0x54];
     int active; /* 0x16C */
-} OmObj;
+} OmObj;        /* derived name */
 
 void iosOmCreateDL(void)
 {

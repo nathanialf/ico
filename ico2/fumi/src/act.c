@@ -16,17 +16,7 @@
 #include "gobj_process.h"
 #include "main.h"
 
-/* One 0x50-byte record per act status, indexed by the actor status index; the
-   six 12-byte entries at +4 are indexed by the work block's mode at +0x48.
-   The flags word at 0x4C is a bitfield: the ROM keeps 0x4C as the load
-   displacement at every site, which only a bitfield reference produces (an
-   explicit `(x >> 2) & 1` on an `unsigned int` member folds the offset onto
-   the symbol instead).  src/act-game.c reads bits 13 and 14 of the same
-   word. */
-
-/* .sdata, owned by act.o (VMA 0x63BD5C..0x63BD60, 4 B = MAIN.MAP act.o .sdata,
-   which names no symbol in it): one zero word that nothing in the ROM reads,
-   neither gp-relative nor through a %hi/%lo pair. */
+/* one zero word that nothing reads */
 static int actUnusedWord = 0; /* derived name */
 
 #include "act.h"
@@ -215,8 +205,8 @@ void after_func_exec(void *self, int oldst, int newst)
 
 inline void actInitialize_geo(void *self) {}
 
-/* kept local: pad.h cannot declare it while effectTool.c and camera-ico2.c
-   declare it as a char array */
+/* pad.h cannot declare it while effectTool.c and camera-ico2.c declare it as
+   a char array */
 extern PadConf iosPadConfDefault;
 
 void actInitialize_ext_charcter(GObj *self)
@@ -236,24 +226,24 @@ void actInitialize_ext_charcter(GObj *self)
 }
 
 /* The actor object: only the work pointer at +0x164 matters here. */
-typedef struct {
+typedef struct { /* field names derived */
     char pad0[356];
     int work;
-} ActSelf;
+} ActSelf; /* derived name */
 
-typedef union {
+typedef union { /* field names derived */
     float f;
     int i;
-} ActFWord;
+} ActFWord; /* derived name */
 
 /* The extended work block hung off the work block at +0x688; the three
    ten-entry histories at 0x900, 0x928 and 0x950 are read back in BeforeFunc. */
-typedef struct {
+typedef struct { /* field names derived */
     char pad0[2304];
     int a900[10];
     int a928[10];
     int a950[10];
-} ActExt;
+} ActExt; /* derived name */
 
 void actInitialize_only_charcter(char *self)
 {
@@ -340,12 +330,7 @@ Act *actInitialize(GObj *self)
     *(int *)(w + 0x3A4) = 0;
     *(int *)(w + 0x3C4) = -1;
     {
-        /* The chase is read as `int`: the ROM issues it right after the last
-           of the preceding int stores, which only an int-typed load (and its
-           flow dependence on them) produces. ee-gcc then reverses the
-           adjacent pair of independent stores below, so the emitted order is
-           the byte store first with the word store in the alignment test's
-           delay slot. */
+        /* the chase is read as `int` */
         Act *p = GOBJ_ACT(self);
         p->attacker = 0;
         p->hit = 0;
@@ -379,20 +364,20 @@ inline int ACTReserveTarget(GObj *self, void *a1, int a2)
 
 /* The interrupt list lives at self+0x54: a count at +4 and 8-byte entries
    from +8. */
-typedef struct {
+typedef struct { /* field names derived */
     int id;
     void *f4;
-} IntrEnt;
+} IntrEnt; /* derived name */
 
-typedef struct {
+typedef struct { /* field names derived */
     int f0;
     int n;
     IntrEnt ent[1];
-} IntrList;
+} IntrList; /* derived name */
 
-typedef struct {
+typedef struct { /* field names derived */
     int w[8];
-} IntrOrient;
+} IntrOrient; /* derived name */
 
 IntrMail *act_check_intr_list(void *self, IntrMail *m, void **out)
 {
@@ -493,19 +478,19 @@ void act_check_mail(void *self, IntrMail *m)
     }
 }
 
-typedef union {
+typedef union { /* field names derived */
     float f;
     int i;
-} ActFloat;
+} ActFloat; /* derived name */
 
-/* kept local: motionOrientManager.h declares none of the motion tables */
+/* motionOrientManager.h declares none of the motion tables */
 extern MotionDef motionKind[];
 
 /* one flag per mail list: a list whose flag is set is not checked for an
    interrupt while the status record's b11 is set */
-typedef struct {
+typedef struct { /* field names derived */
     unsigned int w[4];
-} IntrSkip;
+} IntrSkip; /* derived name */
 
 void BeforeFunc(GObj *self)
 {
@@ -639,9 +624,9 @@ void BeforeFunc(GObj *self)
 }
 
 /* The floor/wall collision work block: the 0xC0-byte record src/act-env.c
-   and src/girl_act.c carry, with the attribute word at +0x98 that the ROM
-   hands to CompareAttribute. */
-typedef struct {
+   and src/girl_act.c carry, with the attribute word at +0x98 that
+   CompareAttribute takes. */
+typedef struct {  /* field names derived */
     float a[4];   /* 0x00 start point   */
     float b[4];   /* 0x10 end point     */
     float pos[4]; /* 0x20 clipped point */
@@ -653,24 +638,24 @@ typedef struct {
     int f_94;
     int f_98;
     char pad9C[36];
-} ActClipWork;
+} ActClipWork; /* derived name */
 
 /* The stick reading iosPadGetStick fills in: the 0x20-byte record
    omori/src/camera-ico2.c carries, read here through its two direction
    words and its magnitude. */
-typedef struct {
-    int x; /* 0x00 */
-    int y; /* 0x04 */
+typedef struct { /* field names derived */
+    int x;       /* 0x00 */
+    int y;       /* 0x04 */
     char pad8[4];
     float dx;  /* 0x0C */
     float dz;  /* 0x10 */
     float mag; /* 0x14 */
     char pad18[8];
-} ActPadStick;
+} ActPadStick; /* derived name */
 
 extern void GetLowerPlaneCollision(void *work, void *pos);
 
-/* kept local: this TU passes the packet priority that the prototype in
+/* this TU passes the packet priority that the prototype in
    seki/include/GifPacket.h leaves out */
 
 void ACTDebugMove(GObj *a0, int a1)
@@ -816,18 +801,7 @@ void ACTDebugMove(GObj *a0, int a1)
             }
             MatrixDrive_PopMatrix();
             gif_EndPacket();
-            /* Local debug switch, off. What the bytes pin: ACTDebugMove reached
-               gcse with 448..451, 456..459 or 464..479 real insns (476 with
-               this arm, 455 without it): the expression table size orders
-               PRE's reaching registers, whose order is the order of the seven
-               spill slots at 0x334..0x34C. Also pinned: a loop inside this
-               window (the loop test's label is aligned), the arm's block
-               locals (0x120 bytes of the frame) and an expanded colour
-               initializer {0, 64, 255, 128} the ROM keeps unreferenced at
-               0x621D30. cse cannot carry dbg's 0 across the loop label, gcse's
-               constant propagation folds the test and the next jump pass
-               deletes the arm; the listing leaves rows 1599 to 1692 code-free.
-               What the bytes cannot pin: the arm's text. */
+            /* a local debug switch, off: draw the five clip lines in blue */
             if (dbg) {
                 ActClipWork w4;
                 sceVu0IVECTOR col = {0, 64, 255, 128};

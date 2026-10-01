@@ -41,10 +41,10 @@ float fzMagnitudefv(float *v)
 }
 
 /* 8-byte aligned so the initializer's block copy is ld/sd, not ldl/ldr+sdl/sdr */
-typedef union FzVec {
+typedef union FzVec { /* field names derived */
     float f[4];
     long long ll[2];
-} FzVec;
+} FzVec; /* derived name */
 
 float fzMagnitude2fv(float *p0, float *p1)
 {

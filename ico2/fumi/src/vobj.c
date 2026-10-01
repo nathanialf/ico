@@ -9,9 +9,9 @@
 static sceVu0FVECTOR vobjArrow[5] = {
     {-10.0f, -75.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f, 0.0f}, {10.0f, -75.0f, 0.0f, 0.0f},
     {-10.0f, -75.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f, 1.0f},
-};
+}; /* derived name */
 
-static float *vobjList[] = {vobjArrow[0]};
+static float *vobjList[] = {vobjArrow[0]}; /* derived name */
 
 void DrawVObj(int no, int color)
 {

@@ -1,4 +1,4 @@
-/* the hand manager, included inside actGirlHand's body, on the listing's .inc lines */ /* clang-format off */
+/* the hand manager, included inside actGirlHand's body */ /* clang-format off */
 void HandMgr_GetDistHand(float *dist, float *height)
 {
     union GAIF g[4], b[4];

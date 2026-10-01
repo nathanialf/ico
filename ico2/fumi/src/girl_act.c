@@ -38,10 +38,10 @@
 #include "camera-editor.h"
 #include "motionManager2.h"
 
-typedef struct GirlStand {
-    sceVu0FVECTOR prev; /* 0x00 last frame's root position */
-    sceVu0FVECTOR cur;  /* 0x10 this frame's root position */
-    float f_20;         /* 0x20 */
+typedef struct GirlStand { /* field names derived */
+    sceVu0FVECTOR prev;    /* 0x00 last frame's root position */
+    sceVu0FVECTOR cur;     /* 0x10 this frame's root position */
+    float f_20;            /* 0x20 */
     char pad24[12];
     sceVu0FVECTOR sub30; /* 0x30 */
     sceVu0FVECTOR sub40; /* 0x40 */
@@ -54,12 +54,12 @@ typedef struct GirlStand {
     unsigned char f_5C;
     unsigned char f_5D;
     unsigned char f_5E;
-} GirlStand;
+} GirlStand; /* derived name */
 
-union GAIF {
+union GAIF { /* field names derived */
     int i;
     float f;
-};
+}; /* derived name */
 
 void GetEyeDirection(char *dir, char *obj)
 {
@@ -84,10 +84,10 @@ void funcGirlHandDisconnect(void)
 }
 
 /* The three climb headers (omori/include/g50climb.h, g100climb.h,
-   g200climb.h in the listing) textually included here: each defines the
-   hand-off's after-routine and act-routine `inline`, which the compiler
-   emits at the end of the file in girl_act.h's order, and the mot-routine
-   plainly, emitted in place.  Their strings come out here, in this order. */
+   g200climb.h) textually included here: each defines the hand-off's
+   after-routine and act-routine `inline`, which the compiler emits at the
+   end of the file in girl_act.h's order, and the mot-routine plainly,
+   emitted in place.  Their strings come out here, in this order. */
 inline void afterGirlHand50(GObj *volatile a0)
 {
     debug_StdPrintfDummy("girl after func\n");
@@ -297,37 +297,36 @@ held:
     }
 }
 
-/* The ROM's actGirlHand passes two arguments here, so the definition is the
-   unprototyped 2001 form and not `(void)`. */
+/* actGirlHand passes two arguments here, so the definition is unprototyped
+   and not `(void)`. */
 void GirlBrainClearTarget()
 {
     brainClsTargetLevel(&brainGirl);
 }
 
-/* The hide/others/listB/listD object lists.  Layout derived from the ROM:
-   0x30 per entry, 100 entries per list, and the four lists sit exactly 0x12D0
-   apart inside GirlBrainWork (others 0xC90, listB 0x1F60, hide 0x3230,
-   listD 0x4500).  The `long long` at 0x08 is the alignment carrier that makes
-   the record copy come out as six ld/sd pairs rather than ldl/ldr. */
-typedef struct {
-    void *obj; /* 0x00 */
+/* The hide/others/listB/listD object lists: 0x30 per entry, 100 entries per
+   list, the four lists 0x12D0 apart inside GirlBrainWork (others 0xC90,
+   listB 0x1F60, hide 0x3230, listD 0x4500).  The `long long` at 0x08 makes
+   the record 8-byte aligned. */
+typedef struct { /* field names derived */
+    void *obj;   /* 0x00 */
     int _04;
     long long _08;
     float pos[4]; /* 0x10 */
     float dist;   /* 0x20 */
     int flags;    /* 0x24 */
     int _28[2];
-} GirlListEnt;
+} GirlListEnt; /* derived name */
 
-typedef struct {
-    int num; /* 0x00 */
+typedef struct { /* field names derived */
+    int num;     /* 0x00 */
     char pad4[12];
     GirlListEnt ent[100]; /* 0x10 */
-} GirlList;
+} GirlList;               /* derived name */
 
-typedef struct GirlBrainWork {
-    unsigned char f_0; /* 0x00 */
-    unsigned char f_1; /* 0x01 */
+typedef struct GirlBrainWork { /* field names derived */
+    unsigned char f_0;         /* 0x00 */
+    unsigned char f_1;         /* 0x01 */
     char pad2[3214];
     GirlList others;  /* 0x0C90 */
     GirlList listB;   /* 0x1F60 */
@@ -362,34 +361,30 @@ typedef struct GirlBrainWork {
     int f_5910;   /* 0x5910 */
     int f_5914;   /* 0x5914 */
     int _5918[2]; /* 0x5918, to the 0x5920 girlBrainMain_Init clears */
-} GirlBrainWork;
+} GirlBrainWork;  /* derived name */
 
-/* The head of the TU's .data, in ROM run order (VMA 0x29D420..0x29D64C; the
-   brain work record brain_val at 0x29D650 and the hand manager handmgr
-   follow, defined after the last of these): the danger-environment
-   initial value, the
-   brain mode table (the mode's routine and its flag byte), the object kinds
-   the others list gathers (-1 ends it) and their debug names, the run-mode
-   rows ChangeRunMode indexes, the three attract parameter sets, the
-   debug names of the move states, the three escape angles and the debug
-   names of the attract states.  Every array and record is placed on an
-   8-byte boundary, which is where the zero words between them come from.
-   Each is defined beside its reader, where the ROM's .data, .sdata and
-   .rodata orders all put it: the first three here, the rest further down. */
-typedef struct {
+/* The head of the TU's .data (the brain work record brain_val and the hand
+   manager handmgr follow, defined after the last of these): the
+   danger-environment initial value, the brain mode table (the mode's routine
+   and its flag byte), the object kinds the others list gathers (-1 ends it)
+   and their debug names, the run-mode rows ChangeRunMode indexes, the three
+   attract parameter sets, the debug names of the move states, the three
+   escape angles and the debug names of the attract states.  Each is defined
+   beside its reader: the first three here, the rest further down. */
+typedef struct { /* field names derived */
     int kind;
     GObj *obj; /* the danger object, typed like the object globals */
     void *save;
     int count;
-} GirlDangerEnv;
+} GirlDangerEnv; /* derived name */
 
-typedef struct {
+typedef struct { /* field names derived */
     void (*proc)(GObj *a0);
     unsigned char flag;
-} GirlBrainMode;
+} GirlBrainMode; /* derived name */
 
-typedef struct {
-    void *obj; /* 0x00 the object the girl walks to */
+typedef struct { /* field names derived */
+    void *obj;   /* 0x00 the object the girl walks to */
     int _04[3];
     sceVu0FVECTOR pos; /* 0x10 */
     int kind;          /* 0x20 copied into the actor's 0x44 when the state ends */
@@ -403,7 +398,7 @@ typedef struct {
     char pad51[3];
     float f_54;
     char pad58[8];
-} GirlAttractParam;
+} GirlAttractParam; /* derived name */
 
 inline void subGirlBrain_Idle(GObj *volatile a0);
 void subGirlBrain_Attract(GObj *volatile a0);
@@ -424,21 +419,20 @@ static GirlBrainMode girlBrainModeTable[10] = {
     {subGirlBrain_Hide, 1},        {subGirlBrain_Hesitate, 1}, {subGirlBrain_Becarry, 0},
     {subGirlBrain_Busy, 0},        {subGirlBrain_Pulledup, 0}, {subGirlBrain_DangerEnv, 0},
     {subGirlBrain_HideAdvance, 1},
-};
+}; /* derived name */
 
 static int othersKindList[3] = {4, 62, -1}; /* derived name */
 
-/* The TU's .bss, in ROM run order (VMA 0x6C1180..0x6C1E50): sort_list's
-   index/distance pairs and its copy of the sorted positions, CorrectList's
-   compaction scratch and the runaway candidate list (ten positions each),
-   subGirlBrain_Escape's debug string buffer, subGirlCollision's direction
-   request (priority, direction, the vector at +0x10) and the current danger
-   environment (VMA 0x6C1E40..0x6C1E50; subGirlBrainMain copies dangerEnvDefault
-   into it and the Danger_* routines read its object). */
-typedef struct {
+/* The TU's .bss: sort_list's index/distance pairs and its copy of the sorted
+   positions, CorrectList's compaction scratch and the runaway candidate list
+   (ten positions each), subGirlBrain_Escape's debug string buffer,
+   subGirlCollision's direction request (priority, direction, the vector at
+   +0x10) and the current danger environment (subGirlBrainMain copies
+   dangerEnvDefault into it and the Danger_* routines read its object). */
+typedef struct { /* field names derived */
     int idx;
     float dist;
-} GirlSortEnt;
+} GirlSortEnt; /* derived name */
 
 static GirlSortEnt sortList[100]; /* derived name */
 
@@ -450,11 +444,11 @@ static float runawayPointList[10][4]; /* derived name */
 
 static char escapeDebugString[512]; /* derived name */
 
-typedef struct {
+typedef struct {       /* field names derived */
     int prio;          /* 0x00 */
     int dir;           /* 0x04 */
     sceVu0FVECTOR vec; /* 0x10 */
-} GoalTurnReq;
+} GoalTurnReq;         /* derived name */
 
 static GoalTurnReq goalTurnReq; /* derived name */
 
@@ -486,13 +480,9 @@ inline void ACTGame_GirlBeforeFunc(GObj *self)
     }
 }
 
-/* girl_act.c:692-698 in the listing, before the girl_brain_main.c.inc run
-   (its templates below come out ahead of everything the .inc emits):
-   subGirlBrain_Pulledup and subGirlCollision expand it.  The first parameter
-   is unused -- the listing emits the read anyway at every site whose actor
-   is the volatile entry parameter, which is what pins the parameter's
-   existence. */
-static inline void ATGoalTurnSet(void *actor, int prio, int dir, float *v)
+/* Defined before the girl_brain_main.c.inc run; subGirlBrain_Pulledup and
+   subGirlCollision expand it.  The first parameter is unused. */
+static inline void ATGoalTurnSet(void *actor, int prio, int dir, float *v) /* derived name */
 {
     if (prio >= goalTurnReq.prio) {
         goalTurnReq.prio = prio;
@@ -505,24 +495,20 @@ static inline void ATGoalTurnSet(void *actor, int prio, int dir, float *v)
 
 /* the actor record (GOBJ_ACT) viewed for the floats ATGoalTurnSendMail and
    subGirlCollision write: the move ratio at 0x34C and the turn vector at
-   0x5C0.  The stores are member stores (MEM_IN_STRUCT_P), as ActPara's below:
-   alias.c can then tell them from the fixed-address parameter home, which is
-   what lets ROM's reloads of `a0` move ahead of them (GetEyeDirection's
-   argument, the mail call whose delay slot takes the 0x34C store). */
-typedef struct {
+   0x5C0, stored as members as ActPara's below */
+typedef struct { /* field names derived */
     char pad0[844];
     float f_34C; /* 0x34C : move ratio */
     char _350[0x5C0 - 0x350];
     float f_5C0; /* 0x5C0 : turn direction */
     float f_5C4;
     float f_5C8;
-} ActTurn;
+} ActTurn; /* derived name */
 
-/* girl_act.c:707-729 in the listing, the second static inline of the pair:
-   subGirlCollision expands it once.  It reads back the turn request
-   ATGoalTurnSet writes and answers it with the turn mail for the request's
-   priority. */
-static inline void ATGoalTurnSendMail(GObj *self)
+/* The second static inline of the pair: subGirlCollision expands it once.  It
+   reads back the turn request ATGoalTurnSet writes and answers it with the
+   turn mail for the request's priority. */
+static inline void ATGoalTurnSendMail(GObj *self) /* derived name */
 {
     Act *act = GOBJ_ACT(self);
     int mail = -1;
@@ -552,32 +538,16 @@ static inline void ATGoalTurnSendMail(GObj *self)
     }
 }
 
-/* girl_brain_main.c.inc:279-293: the wire-string marker (colour, a
-   MatrixDrive transform of the position, DispWireString, colour reset).
-   The January listing has the body line by line (0x171E04..0x171EA8, the
-   same draw as the escape-mode label below); retail compiles it out, so it
-   builds only under DEBUG, as girlBrainDebugPrint does.  The name is ours.
-   WHAT THE BYTES PIN: the ROM keeps the loop at 559 with no body and the
-   "III" literal at 0x63A8A8 that no retail word loads (the hide-point call
-   passes it; it is emitted after the assert's "0"), and its register
-   allocation needs the chain at cse1/gcse: the switch in
-   girlDispHidePoint keeps a label in that loop's body through cse1, jump2
-   then merges the emptied body into the loop test's block, and gcse finds
-   two (high brain_val) there; the copy it inserts after the second
-   re-sets its reaching register inside the loop, which gives the ROM's
-   `daddu $30,$22,$0` before the countdown, the $30/$22 pair from the
-   prologue on and the base copy before the last loop.  With the loop
-   empty, or with the colour code alone (jump1 turns it into conditional
-   moves), those words are lost.
-   WHAT THEY CANNOT PIN: the switch and colour text beyond the listing's
-   lines, the helpers' parameter order, their names. */
+/* The wire-string marker (colour, a MatrixDrive transform of the position,
+   DispWireString, colour reset), built only under DEBUG, as
+   girlBrainDebugPrint is. */
 #ifdef DEBUG
 
 extern void DefaultColorWireString(void);
 
 #endif
 
-static inline void girlDispWire(int r, int g, int b, float *pos, char *str)
+static inline void girlDispWire(int r, int g, int b, float *pos, char *str) /* derived name */
 {
 #ifdef DEBUG
     float mtx[16];
@@ -598,10 +568,8 @@ static inline void girlDispWire(int r, int g, int b, float *pos, char *str)
 #endif
 }
 
-/* girl_brain_main.c.inc:297-304: the marker colour for a hide point.  The
-   January listing loads the marker text on line 297 beside the position, as
-   the copy of an argument: the caller supplies it. */
-static inline void girlDispHidePoint(float *pos, int c, char *str)
+/* the marker colour for a hide point; the caller supplies the marker text */
+static inline void girlDispHidePoint(float *pos, int c, char *str) /* derived name */
 {
     int r = 0;
     int g = 0;
@@ -650,8 +618,7 @@ void SetTurnSpeedInEscape(char *a0)
     }
 }
 
-/* girl_brain_main.c.inc:366-369 */
-static inline int girlListIsOnBoy(void *gobj)
+static inline int girlListIsOnBoy(void *gobj) /* derived name */
 {
     if (*(int *)((char *)gobj + 0xC) != 4) {
         return 1;
@@ -659,8 +626,7 @@ static inline int girlListIsOnBoy(void *gobj)
     return EnemyBrainStatus_Boy(gobj);
 }
 
-/* girl_brain_main.c.inc:375-378 */
-static inline int girlListIsAlive(void *gobj)
+static inline int girlListIsAlive(void *gobj) /* derived name */
 {
     return (int)(GOBJ_ACT(gobj)->flags18.ll >> 32) & 1;
 }
@@ -671,9 +637,9 @@ inline int enemy_list_compare(int a0, int a1)
     return (int)diff;
 }
 
-/* girl_brain_main.c.inc:408-420: the flag-masked record copy the three
-   sub-lists share */
-static inline int girlListPick(GirlListEnt *src, GirlListEnt *dst, int n, int mask)
+/* the flag-masked record copy the three sub-lists share */
+static inline int girlListPick(GirlListEnt *src, GirlListEnt *dst, int n,
+                               int mask) /* derived name */
 {
     int cnt = 0;
     int i;
@@ -689,9 +655,7 @@ static inline int girlListPick(GirlListEnt *src, GirlListEnt *dst, int n, int ma
 
 void girlBrainMain_MakeOthersList(void)
 {
-    /* girl_brain_main.c.inc:428-456, a GNU nested function: the ROM homes the
-       incoming static chain with `sw $2,0($sp)` and both call sites load it
-       with `daddu $2,$29,$0`. */
+    /* a GNU nested function */
     void sort_list(float *list, int n)
     {
         GirlSortEnt t;
@@ -789,9 +753,9 @@ void girlBrainMain_MakeOthersList(void)
     if (brain_val.listD.num != 0) {
         brain_val.f_1 = 1;
     }
-    /* girl_brain_main.c.inc:559-568: a marker at each hide point, coloured
-       by the others entry's flags; only its drawing is compiled out (see
-       girlDispWire), so the loop stays and counts down empty. */
+    /* a marker at each hide point, coloured by the others entry's flags;
+       only its drawing is compiled out (see girlDispWire), so the loop stays
+       and counts down empty */
     for (k = 0; k < brain_val.hide.num; k++) {
         int c = brain_val.others.ent[k].flags & 2 ? 'B' : 'W';
 
@@ -838,9 +802,7 @@ void girlBrainMain_MakeOthersList(void)
     }
 }
 
-/* The group names.  Defined here, after the list builder: the ROM emits
-   their text after its strings in both sections, last entry first as an
-   initializer's constants come out. */
+/* The group names, defined here after the list builder. */
 static char *groupRelationName[4] = {"FALSE", "OTHERGROUP", "SAMEGROUP",
                                      "DIRECT"}; /* derived name */
 
@@ -889,18 +851,17 @@ int girlBrainHideCheckIntercept(float *from, float *to, char *list, int n)
     return 0;
 }
 
-/* girl_brain_main.c.inc:313-317 (rows outside WayTest's span => static inline) */
-static inline void dispWayMarker(float *p)
+/* a static inline */
+static inline void dispWayMarker(float *p) /* derived name */
 {
     float buf[4];
     sceVu0ScaleVector(buf, p, -1.0f);
     debug_Marker(buf, 0xFF, 0, 0, 70.0f, 0.0f);
 }
 
-/* girl_brain_main.c.inc:325-338 (rows outside every caller's span => static
-   inline; the listing inlines it at two sites).  True when the candidate hide
-   point sits above the girl's floor by more than 100 units. */
-static inline unsigned char isHidePointTooHigh(float *p)
+/* A static inline, inlined at two sites: true when the candidate hide point
+   sits above the girl's floor by more than 100 units. */
+static inline unsigned char isHidePointTooHigh(float *p) /* derived name */
 {
     GirlBrainWork *b;
     float y;
@@ -915,16 +876,16 @@ static inline unsigned char isHidePointTooHigh(float *p)
     return 0;
 }
 
-/* The 0x80-byte way-parameter block the boy's sub-object carries at +0x360; ROM
-   copies it with gcc's 4x ld/sd block-move loop, i.e. a struct assignment whose
-   member type is 8 bytes wide. */
-typedef struct {
+/* The 0x80-byte way-parameter block the boy's sub-object carries at +0x360,
+   copied by struct assignment; its member type is 8 bytes wide. */
+typedef struct { /* field names derived */
     long long d[16];
-} GirlWayParam;
+} GirlWayParam; /* derived name */
 
-/* girl_brain_main.c.inc:620-656, one call site.  `r = 0;` is a STATEMENT after the
-   struct copy, not an initialiser. */
-static inline int girlBrainHide_TryWay(float *pt, char *way, float *goal, float *hit)
+/* One call site.  `r = 0;` is a statement after the struct copy, not an
+   initialiser. */
+static inline int girlBrainHide_TryWay(float *pt, char *way, float *goal,
+                                       float *hit) /* derived name */
 {
     float start[4];
     int r = 0;
@@ -998,9 +959,9 @@ extern void brainGetTarget(Brain *b);
 
 /* the pad record: the button word at +0 */
 
-/* girl_act.c:558-573 in the listing: the brain target pass, inlined into
-   girlBrainMain_DecideMode and into subGirlBrainMain. */
-static inline void *girlBrainGetTarget(void)
+/* the brain target pass, inlined into girlBrainMain_DecideMode and into
+   subGirlBrainMain */
+static inline void *girlBrainGetTarget(void) /* derived name */
 {
     int *flag = &brain_val.targetFlag;
     Brain *b = &brainGirl;
@@ -1016,28 +977,9 @@ static inline void *girlBrainGetTarget(void)
 }
 
 /* The girl brain's TTY trace of its escape target, built only when DEBUG is
-   defined; the retail build does not define it, so the preprocessor leaves
-   the helper without a body.  A parameterless inline whose body is empty is
-   saved as the single (use (const_int 0)) flow.c:count_basic_blocks gives a
-   function with no insns, so each inlined call emits no instruction but
-   leaves that insn for gcse and the live-length counts to see; a helper with
-   a parameter would leave nothing (its parameter move is an insn, so no USE
-   is saved).  The name and the trace text are ours: an inlined empty body
-   leaves no symbol and no listing row.
-   subGirlBrain_Escape's four calls are commented at that function.
-   WHAT THE BYTES PIN in girlBrainMain_DecideMode: one zero-code insn inside
-   the live range of `near`, the boy-proximity flag the ROM spills to 0x30.
-   Without it sched1 leaves the three flags at lengths 315/325/319, which
-   local-alloc doubles, and global's priorities (warned 47, changed 46,
-   near 47) give $30 to near and spill changed, where the ROM keeps changed
-   in $30 and spills near; with it near reaches 640 and ties changed, which
-   wins on its lower allocno.  Measured necessary at this site; a second
-   print at either sibling flag set (`changed = 1`, `warned = 1`), or one
-   at every mode change inside setNext, moves changed below near again,
-   which the ROM rules out.
-   WHAT THEY CANNOT PIN: the text of the print, or its exact statement
-   inside near's range. */
-static __inline__ void girlBrainDebugPrint(void)
+   defined; the retail build leaves the helper without a body.
+   subGirlBrain_Escape's four calls are commented at that function. */
+static __inline__ void girlBrainDebugPrint(void) /* derived name */
 {
 #ifdef DEBUG
     float *t = brain_val.f_5810;
@@ -1046,8 +988,7 @@ static __inline__ void girlBrainDebugPrint(void)
 #endif
 }
 
-/* girl_act.c:577-585 in the listing. */
-static inline float girlBrainGetTargetLevel(void)
+static inline float girlBrainGetTargetLevel(void) /* derived name */
 {
     if (brainGirl.idx == -1) {
         return 0.0f;
@@ -1055,10 +996,9 @@ static inline float girlBrainGetTargetLevel(void)
     return brainGirl.targetLevel;
 }
 
-/* girl_act.c:588-598 in the listing: the kind of the held target, 0 while
-   none is held.  The actor parameter is not read; the listing emits the read
-   of the caller's volatile entry parameter at the site. */
-static inline int girlBrainGetTargetType(void *g)
+/* the kind of the held target, 0 while none is held; the actor parameter is
+   not read */
+static inline int girlBrainGetTargetType(void *g) /* derived name */
 {
     Brain *b = &brainGirl;
 
@@ -1068,8 +1008,8 @@ static inline int girlBrainGetTargetType(void *g)
     return (unsigned short)b->targetType;
 }
 
-/* girl_act.c:613-624: the walk ratio that goes with a target kind. */
-static inline float girlBrainGetTypeRatio(int type)
+/* the walk ratio that goes with a target kind */
+static inline float girlBrainGetTypeRatio(int type) /* derived name */
 {
     float r;
 
@@ -1090,8 +1030,7 @@ static inline float girlBrainGetTypeRatio(int type)
 
 int girlBrainMain_DecideMode(int mode, int *next)
 {
-    /* girl_brain_main.c.inc:848-856: two nested helpers; their reference to
-       `next` is what homes the parameter at 0($sp) and reloads it per use. */
+    /* two nested helpers, reading `next` through the static chain */
     __inline void setNext(int m)
     {
         if ((void *)girlControlMode != 0 && girlBrainModeTable[m].flag != 0) {
@@ -1261,29 +1200,26 @@ static int runModeTable[4][4] = {
     {1, 1, 0, 0},
     {2, 1, 1, 0},
     {3, 2, 1, 1},
-};
+}; /* derived name */
 
-/* kept local: param-escape-run as the bytes of its [t][mode] grid, girl_act.h's
-   EscapeRange rows read t * 16 + mode * 8 bytes in; through the record's index
-   (t * 2 + mode) ChangeRunMode's registers move (measured) */
+/* param-escape-run as the bytes of its [t][mode] grid: girl_act.h's
+   EscapeRange rows read t * 16 + mode * 8 bytes in */
 extern char paramEscapeRun[];
-/* kept local: motionOrientManager.h declares none of the motion tables */
+/* motionOrientManager.h declares none of the motion tables */
 extern MotionDef motionKind[];
 
-/* MAIN.MAP global (declared in girl_act.h): the girl's look timer and its state,
-   a tentative definition the compiler emits at the end of the .sdata run */
+/* declared in girl_act.h: the girl's look timer and its state, a tentative
+   definition */
 int GirlInfo[2];
 
 extern int _FrontGV(void *a, void *b, void *c, int deg);
 extern void *GetBombTorchGObj(void *obj);
 
-/* girl_brain_main.c.inc:44-53 -- a file-scope static helper with no MAIN.MAP
- * symbol of its own; the listing attributes lines 45/50/52 to Danger_Box, to
- * its nested GetSafePosition and to subGirlBrainMain, i.e. it is inlined at
- * every site.  Name chosen here: it asks whether the boy is currently pushing
- * a truck-type box (his sub-object's status 0x34 == 0x31 and the object he
+/* A file-scope static helper, inlined in Danger_Box, its nested
+ * GetSafePosition and subGirlBrainMain: whether the boy is pushing a
+ * truck-type box (his sub-object's status 0x34 == 0x31 and the object he
  * holds at 0x158 is box kind 7). */
-static inline unsigned char isBoyPushBoxTruck(void)
+static inline unsigned char isBoyPushBoxTruck(void) /* derived name */
 {
     char *sub;
     char *box;
@@ -1300,9 +1236,7 @@ static inline unsigned char isBoyPushBoxTruck(void)
    caller's home slot while this thread is parked in _ACTWait. */
 void subGirlBrainMain(GObj *volatile a0)
 {
-    /* girl_brain_main.c.inc:1077-1110, a GNU nested function (the listing's
-       ChangeRunMode.252): its prologue homes the static chain at 0($sp) and
-       the four call sites set it up with `daddu $2,$29,$0`. */
+    /* ChangeRunMode, a GNU nested function */
     void ChangeRunMode(int mode)
     {
         int n;
@@ -1800,11 +1734,9 @@ inline void subGirlBrain_Busy(GObj *volatile a0)
     }
 }
 
-/* girl_brain_main.c.inc:2-8 -- a file-scope static helper with no out-of-line
- * ROM copy (no MAIN.MAP symbol); the listing attributes lines 3/4/5/7 of the
- * .inc inside subGirlBrain_HideAdvance's move arm and inside
- * subGirlBrain_Pulledup's. */
-static inline void girlBrainSetWalkRatio(GObj *g, float ratio)
+/* a file-scope static helper, inlined in subGirlBrain_HideAdvance's move arm
+ * and in subGirlBrain_Pulledup */
+static inline void girlBrainSetWalkRatio(GObj *g, float ratio) /* derived name */
 {
     Act *s = GOBJ_ACT(g);
     float walk = 0.5f;
@@ -1999,14 +1931,10 @@ void girlBrainHide_GoalTurn(float *dir, unsigned char sendMail)
     }
 }
 
-/* girl_brain_main.c.inc:~381-387 (rows outside every caller's span => static
-   inline; the listing tags the two loads 382/383, the ratio store 384 and the
-   direction stores 386).  Hands the girl's sub a move direction at the full
-   run ratio.  `run` is declared ahead of the two loads exactly as this TU's
-   girlBrainSetWalkRatio (.inc:2-8) declares its own run/walk ratios -- ROM
-   hoists the 1.0f out of subGirlBrain_Hide's loop into $f20, which gcc's
-   loop.c only does once the constant's live range spans the two loads. */
-static inline void girlBrainSetMoveDir(float *d)
+/* A static inline: hands the girl's sub a move direction at the full run
+   ratio.  `run` is declared ahead of the two loads, as this TU's
+   girlBrainSetWalkRatio declares its own run/walk ratios. */
+static inline void girlBrainSetMoveDir(float *d) /* derived name */
 {
     float run = 1.0f;
     Act *s;
@@ -2025,16 +1953,12 @@ void subGirlBrain_Hide(GObj *volatile a0)
     int cnt = 0;
     float rad = 80.0f;
     int near;
-    /* the girl object handed in by the actor entry.  ROM reads the parameter
-       home into $a0 BEFORE the ratio store of each arm (branch 1) and before
-       girlBrainSetMoveDir's two loads (branch 2); spelling the argument
-       `(void *)a0` inline cannot reach that order, because ee-gcc gives a
-       volatile MEM read a dependence on every pending store in the block. */
+    /* the girl object handed in by the actor entry, read from the volatile
+       parameter once */
     char *g;
 
-    /* girl_brain_main.c.inc:2066-2096.  A gcc nested function (the PAL listing
-       names it isHideRecheck.300 and its prologue homes the static chain with
-       `sw $2,0($sp)`); it writes the enclosing `rad` through that chain. */
+    /* isHideRecheck, a GNU nested function: it writes the enclosing `rad`
+       through the static chain. */
     int isHideRecheck(float *from, float *to, float *root)
     {
         float v0[4];
@@ -2128,10 +2052,9 @@ inline void subGirlBrain_Hesitate(GObj *volatile a0)
     }
 }
 
-/* girl_brain_main.c.inc:2276-2291 (rows outside every caller's span => static
-   inline; the listing inlines it three times).  True when the straight segment
-   from `from` to `to` clears both the wall and the wall-field collision. */
-static inline int isNoWallBetween(float *from, float *to)
+/* A static inline, inlined three times: true when the straight segment from
+   `from` to `to` clears both the wall and the wall-field collision. */
+static inline int isNoWallBetween(float *from, float *to) /* derived name */
 {
     ClipWork work;
 
@@ -2148,10 +2071,9 @@ static inline int isNoWallBetween(float *from, float *to)
     return 0;
 }
 
-/* girl_brain_main.c.inc:2221-2226 (rows outside its callers' span => static
-   inline).  True when `b` is within 100 units vertically and 100 units in the
-   plane of `a`. */
-static inline unsigned char isNearPoint(float *a, float *b)
+/* A static inline: true when `b` is within 100 units vertically and 100
+   units in the plane of `a`. */
+static inline unsigned char isNearPoint(float *a, float *b) /* derived name */
 {
     if ((a[1] - b[1] < 0.0f ? -(a[1] - b[1]) : a[1] - b[1]) < 100.0f) {
         if (_DistSqGV(a, b) < 10000.0f) {
@@ -2161,11 +2083,10 @@ static inline unsigned char isNearPoint(float *a, float *b)
     return 0;
 }
 
-/* girl_brain_main.c.inc:2300-2327 (rows outside every caller's span => static
-   inline; the listing inlines it twice inside girlBrainRunawaySearchPoint).
-   True when no listB entry lies closer to `p` than the girl does, and no
-   listB entry lies closer to `p` than it lies to the girl. */
-static inline unsigned char isRunawayPointClear(float *p, float *girl)
+/* A static inline, inlined twice inside girlBrainRunawaySearchPoint: true
+   when no listB entry lies closer to `p` than the girl does, and no listB
+   entry lies closer to `p` than it lies to the girl. */
+static inline unsigned char isRunawayPointClear(float *p, float *girl) /* derived name */
 {
     int i;
     float d;
@@ -2189,11 +2110,9 @@ static inline unsigned char isRunawayPointClear(float *p, float *girl)
 
 int girlBrainRunawaySearchPoint(float *goal, float *out, float *p)
 {
-    /* girl_brain_main.c.inc:2429-2443, a GNU nested function: the listing
-       places it inside its parent's body and names it CorrectList.331.  It
-       reads nothing of the parent's frame (its scratch list is a file static),
-       but gcc homes the static chain in every nested function's prologue,
-       which is ROM's `sw $2,0($sp)`. */
+    /* CorrectList, a GNU nested function placed inside its parent's body.  It
+       reads nothing of the parent's frame (its scratch list is a file
+       static). */
     int CorrectList(float (*list)[4], float *p, int n)
     {
         int i;
@@ -2240,12 +2159,7 @@ int girlBrainRunawaySearchPoint(float *goal, float *out, float *p)
             break;
         }
     }
-    /* RECONSTRUCTION: what the bytes pin is a jump over this call to a label
-       right after it, alive through the minimal jump pass of the sibcall
-       stage (so a (use (const_int 0)) is left behind the call) and gone by
-       gcse's constant propagation, which is what keeps `i = 0` below behind
-       the call in the blez slot.  A test of a local holding a constant is the
-       spelling that does that; its name and role are ours, not the disc's. */
+    /* a local switch holding a constant guards the list correction */
     if (correct) {
         n = CorrectList(runawayPointList, p, n);
     }
@@ -2349,10 +2263,9 @@ int girlBrainRunawayMoveByWay(char *self, float *out, float *tgt)
     return 0;
 }
 
-/* girl_brain_main.c.inc:2239-2249 (rows outside its caller's span => static
-   inline).  Points `v` at the first listB entry within 300 units of `p` whose
-   bearing from `dir` is under 45 degrees. */
-static inline void girlBrainEscapeFaceCheck(float *p, float *dir, Vec4u *v)
+/* A static inline: points `v` at the first listB entry within 300 units of
+   `p` whose bearing from `dir` is under 45 degrees. */
+static inline void girlBrainEscapeFaceCheck(float *p, float *dir, Vec4u *v) /* derived name */
 {
     int i;
 
@@ -2368,29 +2281,14 @@ static inline void girlBrainEscapeFaceCheck(float *p, float *dir, Vec4u *v)
     }
 }
 
-/* girlBrainDebugPrint in subGirlBrain_Escape: each call leaves one zero-code
-   insn that gcse counts and sched2 issues.
-   WHAT THE BYTES PIN, site by site (each measured
-   necessary: the function differs from the ROM without it):
-   - arm 1 after `mode = 2`: one more insn in gcse's table, which decides the
-     frame-address homes at 0xA4..0xB4;
-   - arm 1 after `mode = 3`: a second insn in the failed search's branch, so
-     jump1 keeps it a branch (beql) instead of a conditional move;
-   - cases 1 and 2 after girlBrainRunawayMoveByWay: the zero-code insn takes
-     the issue slot ahead of each vector copy.
-   And none at the other mode changes, which the ROM proves: `mode = 4` on
-   the unk34 test and arm 4's `mode = 0` are movz/movn, which a second
-   statement in the if would block; arm 0's `mode = 1` fills its jal slot
-   with the li of mode*4, which a zero-code insn there reorders.
-   WHAT THEY CANNOT PIN: the text of the prints, or whether they were one
-   macro or several. */
+/* girlBrainDebugPrint in subGirlBrain_Escape: called in arm 1 after
+   `mode = 2` and after `mode = 3`, and in cases 1 and 2 after
+   girlBrainRunawayMoveByWay. */
 
-/* The move-state names subGirlBrain_Escape prints.  Defined here, before
-   it: the ROM emits their text just ahead of its "%s", last entry first. */
+/* The move-state names subGirlBrain_Escape prints, defined here before it. */
 static char *moveStateName[5] = {"IDLE", "MOVE START", "MOVE LOOP", "END",
                                  "WAIT"}; /* derived name */
 
-/* girl_brain_main.c.inc:2621-2846 */
 void subGirlBrain_Escape(GObj *volatile a0)
 {
     float pos[4];
@@ -2531,9 +2429,8 @@ void ClipTwinVector(float *out, float *from, float *to, float max)
     }
 }
 
-/* girl_brain_main.c.inc:2868-2909: `inline`, so the four Danger_*
-   GetSafePosition bodies below expand it and its out-of-line copy closes the
-   TU's deferred run (ROM 0x0017C6D0). */
+/* `inline`: the four Danger_* GetSafePosition bodies below expand it and its
+   out-of-line copy closes the TU's deferred run. */
 inline int ACTCheckCollis_SAFE(float height, float *p0, float *p1, void *actor, float *posout,
                                int radius)
 {
@@ -2619,13 +2516,10 @@ inline void subGirlBrain_DangerEnv(GObj *volatile a0)
 
 static void Danger_Bomb(GObj *self)
 {
-    /* girl_brain_main.c.inc:2942 -- a GNU nested function: ROM sets the static
-     * chain with `daddu $2,$29,$0` at the call and the callee homes it with
-     * `sw $2,0($sp)`.  Each Danger_* parent carries its own copy (the listing
-     * names them GetSafePosition.357/.364/.371/.379).  The float radius is the
-     * FIRST parameter (ee-gcc still passes it in $f12 with the four pointers in
-     * $a0-$a3), and the last parameter -- the boy position the callers hand in
-     * and this copy never reads -- is reused as the collision flag. */
+    /* GetSafePosition, a GNU nested function; each Danger_* parent carries
+     * its own copy.  The float radius is the first parameter, and the last
+     * parameter, the boy position the callers hand in and this copy never
+     * reads, is reused as the collision flag. */
     int GetSafePosition(float rad, float *dst, float *center, float *cur, int ok)
     {
         float dir[4];
@@ -2735,10 +2629,9 @@ retry:
 
 static void Danger_Gondola(GObj *self)
 {
-    /* girl_brain_main.c.inc:3077 -- Danger_Gondola's own copy of the nested
-     * GetSafePosition (the listing's GetSafePosition.364): the candidate is
-     * tested from 70 below the current position at the current height, and
-     * ranked by the XZ distance from the centre. */
+    /* Danger_Gondola's own copy of the nested GetSafePosition: the candidate
+     * is tested from 70 below the current position at the current height,
+     * and ranked by the XZ distance from the centre. */
     int GetSafePosition(float rad, float *dst, float *center, float *cur, int ok)
     {
         float dir[4];
@@ -2859,10 +2752,10 @@ static int dangerEscapeAngle[3] = {0, -90, 90}; /* derived name */
 
 static void Danger_Box(GObj *self)
 {
-    /* girl_brain_main.c.inc:3438 -- a GNU nested function (the listing's
-     * GetSafePosition.371); see Danger_Bomb for the parameter-order note.
-     * This copy takes six integer parameters; the fifth (the boy root the
-     * callers hand in) is never read and is reused as the collision flag. */
+    /* GetSafePosition, a GNU nested function; see Danger_Bomb for the
+     * parameter-order note.  This copy takes six integer parameters; the
+     * fifth (the boy root the callers hand in) is never read and is reused
+     * as the collision flag. */
     int GetSafePosition(float *dst, float *way, float *center, float rad, int ok, int mode,
                         float *girl)
     {
@@ -2918,8 +2811,8 @@ static void Danger_Box(GObj *self)
             }
         }
         if (found) {
-            /* ROM evaluates both calls and drops the comparison: the body of
-             * this test is empty in the shipped build. */
+            /* both calls are evaluated and the comparison dropped: the body of
+             * this test is empty in the shipped build */
             if (_DistSqGV(dst, way) < _DistSqGV(center, way)) {}
         } else {
             dst[0] = center[0];
@@ -3033,8 +2926,8 @@ static void Danger_Box(GObj *self)
 
 static void Danger_Rotobject(GObj *self)
 {
-    /* girl_brain_main.c.inc -- a GNU nested function (the listing's
-     * GetSafePosition.379); see Danger_Bomb for the parameter-order note. */
+    /* GetSafePosition, a GNU nested function; see Danger_Bomb for the
+     * parameter-order note. */
     int GetSafePosition(float rad, float *dst, float *center, float *girl, int ok)
     {
         float boy[4];
@@ -3148,10 +3041,9 @@ void subGirlBrain_HideAdvance(GObj *volatile a0)
             continue;
         }
         {
-            /* the actor-entry home is `volatile` (the scheduler rewrites the
-             * GObj slot between waits), so the arm reads it once at its top
-             * and works from the captured pointer -- ROM's `lw $v0,0($sp)`
-             * followed by `move $a0,$v0`. */
+            /* the actor-entry home is `volatile` (the scheduler rewrites the GObj
+             * slot between waits), so the arm reads it once at its top and
+             * works from the captured pointer */
             void *g = (void *)a0;
 
             sub->dir[0] = sub->wayNodeX;
@@ -3252,11 +3144,8 @@ static unsigned char wayTestMoving = 0; /* derived name */
 
 void WayTest(void)
 {
-    /* .sbss, girl_act.o's first word (MAIN.MAP line 7594 names no symbol, so
-       the name is ours): how many frames in a row WayTest has seen the girl's
-       heading swing by more than 90 units.  A local static is written when
-       its function is parsed, ahead of the file's own statics, which is the
-       ROM's order: the attract state's mail datum follows it. */
+    /* .sbss, girl_act.o's first word: how many frames in a row WayTest has
+       seen the girl's heading swing by more than 90 units */
     static int wayTurnFrames;
     float a[4];
     float b[4];
@@ -3301,22 +3190,18 @@ void WayTest(void)
     dispWayMarker((float *)(s->wayStart + 0x10));
 }
 
-/* The attract-state names.  Defined here, after WayTest: the ROM emits
-   their text after its "next error", last entry first.  "IDLE" is the move
-   states' literal; the short names FINISH, ATTRACT and the one at 0x63A900
-   follow WayTest's flag byte in .sdata, which stays a blob, so they keep
-   the blob's labels. */
-static char *wayTestStateName[9] = {"IDLE",    "SEARCHWAY", "LOSTTWAY", "APPROACH", "GOAL",
-                                    "ATTRACT", "LOOKONLY",  "ATTRLOOK", "FINISH"};
+/* The attract-state names, defined here after WayTest. */
+static char *wayTestStateName[9] = {
+    "IDLE",    "SEARCHWAY", "LOSTTWAY", "APPROACH", "GOAL",
+    "ATTRACT", "LOOKONLY",  "ATTRLOOK", "FINISH"}; /* derived name */
 
-/* MAIN.MAP globals of girl_act.o's .data, after the attract-state names:
-   the brain's work record (VMA 0x29D650..0x2A2F70, 0x5920 B), all zero,
-   explicitly initialised since the ROM keeps it in .data. */
+/* girl_act.o's .data global after the attract-state names: the brain's work
+   record, all zero, explicitly initialised so that it stays in .data. */
 GirlBrainWork brain_val = {0};
 
 extern float GetDifferenceFromLowerField(void *obj, int node);
 
-/* MAIN.MAP globals of girl_act.o's .sdata (declared in girl_act.h) */
+/* girl_act.o's .sdata globals (declared in girl_act.h) */
 int hyde_test = 0;
 
 int padtimer_stand = 0;
@@ -3326,36 +3211,28 @@ int padtimer_walk = 0;
 int padtimer_run = 0;
 
 /* the motion-def row of an actor's current motion (boyact.c's CHAINROW) */
-#define MOTDIRROW(self) (GOBJ_SUB(self)->ctrl.motion + motionKind)
+#define MOTDIRROW(self) (GOBJ_SUB(self)->ctrl.motion + motionKind) /* derived name */
 
-/* girl_act.c:1533-2539 in the listing.  Lines 1654-2362 carry no instruction
-   in the January link or in retail: that block is compiled-out debug code,
-   and the strings it printed ("src/girl_act.c", "NOTARGET",
-   "[%s] %4d %4d %4d", "delete wg 2\n") still sit in .rodata between this
+/* The girl's control thread.  A block of compiled-out debug code sits in
+   it; the strings it printed ("src/girl_act.c", "NOTARGET",
+   "[%s] %4d %4d %4d", "delete wg 2\n") stay in .rodata between this
    function's "girl no!!\n" and its jump table. */
 void subGirlControl(GObj *volatile a0)
 {
     float dir[4];
-    /* Unused here: a vector of the compiled-out block.  What the bytes pin:
-       a 16-byte local between dir (0x10) and target (0x30).  What they
-       cannot: its name or type. */
+    /* unused here: a vector of the compiled-out block */
     float vec[4];
 
-    /* The target and the actor pointer as one frame record: its members
-       take their slots in declaration order (target 0x30, p 0x34), which
-       keeps target's zero store and reloads p after every call, as the ROM
-       does.  The target is an object handle, a word like the object's actor
-       slot it is stored beside: the ROM keeps the actor slot's read ahead
-       of its zero store, the order of two accesses in one alias set. */
+    /* the target and the actor pointer as one frame record; the target is
+       an object handle, a word like the object's actor slot it is stored
+       beside */
     struct {
         int target;
         char *p;
     } w;
 
     float mdir[4];
-    /* Unused here: the locals of the compiled-out block.  What the bytes
-       pin: 496 bytes after mdir that set the 0x2E0 frame.  What they cannot:
-       how the block declared them. */
+    /* unused here: the locals of the compiled-out block */
     float work[124];
     int hold;
     int push;
@@ -3369,21 +3246,11 @@ void subGirlControl(GObj *volatile a0)
     }
     iosPadConnect(w.p + 0x2D8, 0, 1, &((Act *)w.p)->padConf);
     girlPad = w.p + 0x2D8;
-    /* A C loop: the January listing pads the loop top (0x179998) to an
-       8-byte boundary with a nop, which final.c does only after a loop-begin
-       note; retail's loop top is already aligned.  The back branch is the
-       closing brace's line 2539. */
     for (;;) {
         if ((int)(*(unsigned long long *)(w.p + 0x18) >> 48) & 1) {
             if (scpBoyControlReadDisable == 0 &&
                 ((void *)a0 == (void *)CurrentTargetGObj || (void *)girlControlMode != 0)) {
-                /* The listing gives the jump out of this arm its own line
-                   1639 after the last store (1637): the do-while's closing
-                   line.  What the bytes pin: the arm's loop notes, which
-                   weigh mdir's two uses and dir's first so that mdir is
-                   allocated first ($20) and dir second ($21); the
-                   declaration-block reading of 1639 leaves them swapped.
-                   What they cannot: what the January code broke out of. */
+                /* the pad read, once */
                 do {
                     iosPadConnect(w.p + 0x2D8, 0, (void *)girlControlMode != 0,
                                   &((Act *)w.p)->padConf);
@@ -3403,12 +3270,7 @@ void subGirlControl(GObj *volatile a0)
             } else {
                 iosPadConnect(w.p + 0x2D8, 0, 1, &((Act *)w.p)->padConf);
             }
-            /* The compiled-out block of the listing's lines 1654-2362.  What the
-           bytes pin: its four texts in .rodata, in this order, after
-           "girl no!!\n" and before this function's jump table, and no
-           instruction.  What they cannot: the code around them, which also
-           used vec and work, or the assert's own line (1654 is the block's
-           first). */
+            /* the compiled-out block */
             if (0) {
                 debug_assert("src/girl_act.c", 1654);
                 __assert("src/girl_act.c", 1654, "0");
@@ -3802,7 +3664,7 @@ void subGirlCollision(GObj *volatile a0)
     }
 }
 
-/* kept local: this TU's uses of GetHeightOfFieldPlaneDifference do not fit the
+/* this TU's uses of GetHeightOfFieldPlaneDifference do not fit the
    prototype in motionManager2.h */
 
 inline int NotNeedBackHand(void)
@@ -3828,9 +3690,8 @@ inline void afterGirlHand(unsigned int a0)
     ACTWay_SetBeginPositionIllegal(local);
 }
 
-/* the hand manager's record (MAIN.MAP global, VMA 0x2A2F70..0x2A2FD0, 0x60 B
-   on its vectors' 16-byte alignment, which leaves 8 zero bytes after
-   brain_val), all zero and explicitly initialised: the ROM keeps it in .data. */
+/* the hand manager's record, all zero and explicitly initialised so that it
+   stays in .data */
 GirlStand handmgr = {0};
 
 void actGirlHand(GObj *volatile a0)
@@ -4218,9 +4079,9 @@ void actGirlPulledReady(GObj *volatile a0)
     }
 }
 
-typedef struct {
+typedef struct { /* field names derived */
     int w[8];
-} GirlPullBlk;
+} GirlPullBlk; /* derived name */
 
 inline void afterGirlPulledGo(void *a0)
 {
@@ -4296,12 +4157,7 @@ inline void actGirlDitch3mExec(GObj *volatile a0)
 
     ACTGame_ConnectHand();
     debug_StdPrintfDummy("ditch3m hand connect\n");
-    /* Disabled in retail: the way-begin report of the ditch jump.  What the
-       bytes pin: its text in .rodata right after "ditch3m hand connect\n"
-       and before actGirlStand's "enter actGirlStand\n", with no instruction;
-       the listing's lines 3612-3614, empty between this function's print
-       (3611) and its loop (3615), are where it fits.  What they cannot: the
-       condition that disabled it. */
+    /* disabled in retail: the way-begin report of the ditch jump */
     if (0) {
         debug_StdPrintfDummy("WBP set [ditch jump]\n");
     }
@@ -4560,9 +4416,8 @@ inline void actGirlSupportGBBegin(GObj *volatile a0)
     }
 }
 
-/* girl_act.c:3933, the status-range test the listing attributes to its own
-   line inside actGirlSupportGBLoop's loop. */
-static inline unsigned char isGirlSupportGBStatus(void)
+/* the status-range test inside actGirlSupportGBLoop's loop */
+static inline unsigned char isGirlSupportGBStatus(void) /* derived name */
 {
     unsigned int st = (unsigned int)GOBJ_ACT(((int *)boyGObj))->actMode;
 
@@ -4705,7 +4560,7 @@ void GirlAct_BoyAndMeCollisionMail(void *a0)
     }
 }
 
-static inline unsigned char isGirlEscortStatus(void)
+static inline unsigned char isGirlEscortStatus(void) /* derived name */
 {
     Act *s = GOBJ_ACT(girlGObj);
     int mode = s->actMode;
@@ -4716,7 +4571,7 @@ static inline unsigned char isGirlEscortStatus(void)
     return 0;
 }
 
-static inline const EscortPoint *searchEscortPoint(int a0, int a1)
+static inline const EscortPoint *searchEscortPoint(int a0, int a1) /* derived name */
 {
     const EscortPoint *p;
     int i;
@@ -4767,15 +4622,14 @@ inline int isMustCheckCylinder(void *a, void *b)
     return 0;
 }
 
-static inline void dispEscortSphere(void *pos, float r, unsigned char in)
+static inline void dispEscortSphere(void *pos, float r, unsigned char in) /* derived name */
 {
     Col4 col;
 
     if (debug_disp_escort_ball) {
         MatrixDrive_PushMatrix();
-        /* the wire sphere colour: a GNU constructor expression, which gcc
-           keeps as an anonymous .rodata constant and copies here (the
-           listing's line 4235, after the push) */
+        /* the wire sphere colour: a GNU constructor expression, which gcc keeps
+           as an anonymous .rodata constant and copies here */
         col = (Col4){{0, 0x10, 0x20, 0x80}};
         if (in) {
             col.c[0] = 0xFF;
@@ -4818,18 +4672,16 @@ void DebugDispAutoEscort(void)
     }
 }
 
-/* the *(sub+0x688) ACT parameter block, viewed as a struct.  Stores through it
-   must be COMPONENT_REFs (MEM_IN_STRUCT_P) and not plain scalar indirections:
-   alias.c can then tell them apart from the fixed-address parameter home, which
-   is what lets ROM's reloads of `a0` move ahead of them. */
-typedef struct {
+/* the *(sub+0x688) ACT parameter block, viewed as a struct whose stores are
+   member stores */
+typedef struct { /* field names derived */
     char pad0[944];
     int f_3B0; /* 0x3B0 : frames left before the "cannot reach" retry */
     char pad3B4[364];
     float f_520; /* 0x520 : hint-point target position */
     float f_524;
     float f_528;
-} ActPara;
+} ActPara; /* derived name */
 
 inline void afterGirlHintPoint(GObj *volatile a0)
 {

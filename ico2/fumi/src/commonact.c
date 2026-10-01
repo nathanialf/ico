@@ -148,13 +148,13 @@ inline void afterCommonTruckLever(GObj *volatile a0);
 #include "chain.h"
 #include "motionManager2.h"
 
-typedef struct {
+typedef struct { /* field names derived */
     int a, b, c;
-} Blob12;
+} Blob12; /* derived name */
 
-typedef struct {
+typedef struct { /* field names derived */
     int w[6];
-} SlowrunRec;
+} SlowrunRec; /* derived name */
 
 void ACTSetPositionWithFitting(void *a0, float *pos)
 {
@@ -233,11 +233,11 @@ int ChangeMailInLadder(GObj *a0, int a1)
 void DamageFunc(char *a0);
 extern int IsAbleChainHang(char *a0);
 extern int EnemyGetNSafeParts(char *a0);
-/* kept local: motionOrientManager.h declares none of the motion tables */
+/* motionOrientManager.h declares none of the motion tables */
 extern MotionDef motionKind[];
 
-/* lines 625-631: a static inline used only by _ACTCorrectMsg */
-static inline int GetHitDirIdx(GObj *self)
+/* a static inline used only by _ACTCorrectMsg */
+static inline int GetHitDirIdx(GObj *self) /* derived name */
 {
     char *p = (char *)GOBJ_ACT(self) + 0x1C0;
     int a = _RotyGV(test_CURRENTORIENT(self), p);
@@ -408,12 +408,8 @@ int _ACTCorrectMsg(GObj *self, int msg, void *param)
 
         if (120.0f < GOBJ_SUB(self)->ctrl.fallHeight) {
             ACTWay_SetBeginPositionIllegal(self);
-            /* Disabled in retail: the way-begin-position (WBP) report of the
-               landing.  What the bytes pin: its text is the first item of
-               this object's .rodata, ahead of "critical hit to boss!!!", with
-               no instruction; the listing's lines 882-884, empty after this
-               call (881), are where it fits.  What they cannot: the condition
-               that disabled it. */
+            /* disabled in retail: the way-begin-position (WBP) report of the
+               landing */
             if (0) {
                 debug_StdPrintfDummy("WBP set [landing]\n");
             }
@@ -562,19 +558,18 @@ int _ACTCorrectMsg(GObj *self, int msg, void *param)
     return msg;
 }
 
-typedef struct {
+typedef struct { /* field names derived */
     float x, y, z;
-} IntrVec3;
+} IntrVec3; /* derived name */
 
-typedef struct {
+typedef struct { /* field names derived */
     IntrVec3 a;
     float aw;
     IntrVec3 b;
     float bw;
-} IntrOrient;
+} IntrOrient; /* derived name */
 
-/* the motion each interrupt kind requests, indexed by the kind; MAIN.MAP
-   names no symbol in commonact.o's .data, so this name is ours */
+/* the motion each interrupt kind requests, indexed by the kind */
 static int intrMotion[432] = {
     0,   0,   0,   0,   0,   0,   117, 117, 61,  0,   1,   0,   0,   0,   0,   222, 223, 0,   0,
     0,   84,  85,  0,   164, 119, 168, 172, 1,   20,  22,  23,  0,   0,   0,   136, 0,   -1,  -1,
@@ -598,7 +593,7 @@ static int intrMotion[432] = {
     232, 233, 229, 240, 8,   1,   241, 247, 248, 248, 249, 250, 251, 252, 253, 255, 256, 175, 176,
     177, 175, 176, 177, 178, 179, 179, 180, 180, 0,   0,   181, 182, 183, 184, 185, 105, 187, 1,
     188, 189, 190, 191, 189, 118, 1,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,
-    0,   0,   0,   0,   0,   0,   0,   0,   17,  18,  262, 0,   0,   0};
+    0,   0,   0,   0,   0,   0,   0,   0,   17,  18,  262, 0,   0,   0}; /* derived name */
 
 int ACTGetOrientFromIntrK(char *self, int k, void *buf, int arg)
 {
@@ -716,7 +711,7 @@ void ACTRunIntrCorrect(GObj *a0, IntrMail *a1, IntrMail *a2)
 {
     char *rec;
     Act *s = GOBJ_ACT(a0);
-    inline void setIntrFlags(void)
+    inline void setIntrFlags(void) /* derived name */
     {
         IntrMail *p;
 
@@ -724,7 +719,7 @@ void ACTRunIntrCorrect(GObj *a0, IntrMail *a1, IntrMail *a2)
             p->flags |= 0x40000;
         }
     }
-    inline void correctIntrList(void)
+    inline void correctIntrList(void) /* derived name */
     {
         IntrMail *ip;
         IntrMail *q;
@@ -760,18 +755,14 @@ void ACTRunIntrCorrect(GObj *a0, IntrMail *a1, IntrMail *a2)
 
 void WithMailFunc_WayBeginPosError(void *a0)
 {
-    /* Disabled in retail: the way-begin-position (WBP) report.  What the
-       bytes pin: its text in .rodata after _ACTCorrectMsg's prints and before
-       afterCommonRope's, with no instruction; the listing gives this
-       function only its call's row (1317), and 1313-1316 are empty.  What
-       they cannot: the condition that disabled it. */
+    /* disabled in retail: the way-begin-position (WBP) report */
     if (0) {
         debug_StdPrintfDummy("WBP set [with mail]\n");
     }
     ACTWay_SetBeginPositionIllegal(a0);
 }
 
-/* kept local: a0 is void * here, int in weapon.h */
+/* a0 is void * here, int in weapon.h */
 extern void ExecWeaponHitReaction(void *a0);
 
 void WithMailFunc_AttackFail(GObj *a0)
@@ -788,7 +779,7 @@ void WithMailFunc_AttackFail(GObj *a0)
     }
 }
 
-/* kept local: agrees with weapon.h, which this TU does not include (ExecWeaponHitReaction differs) */
+/* as in weapon.h, which this TU does not include (ExecWeaponHitReaction differs) */
 extern int ReleaseWeaponWithFumbleSequential(char *g);
 
 void WithMailFunc_AttackRejectInQueen(char *a0)
@@ -830,12 +821,12 @@ void GetCorrectOrientOfChain(void *buf, void *obj)
     }
 }
 
-/* reconstruction: the ClipWall work buffer as this function reads it. RsWork
-   below is the other view of the same 0xC0-byte record and disagrees at 0x80
-   (two floats there, the hit object at 0x88) where this one reads the hit
-   object at 0x80 and the hit flag at 0x88; what ClipWall writes has not been
-   established, so the two views are kept apart rather than merged. */
-typedef struct {
+/* The ClipWall work buffer as this function reads it.  RsWork below is the
+   other view of the same 0xC0-byte record and disagrees at 0x80 (two floats
+   there, the hit object at 0x88) where this one reads the hit object at 0x80
+   and the hit flag at 0x88; what ClipWall writes has not been established,
+   so the two views are kept apart. */
+typedef struct { /* field names derived */
     char pad0[112];
     float f70;
     char pad74[12];
@@ -843,14 +834,12 @@ typedef struct {
     char pad84[4];
     int f88;
     char pad8C[52];
-} RopeWallWork;
+} RopeWallWork; /* derived name */
 
 int CollisCheckInRope(void *a0, GObj *chain)
 {
-    /* reconstruction: the name is ours. The narrow return type is what the ROM
-       proves: with an int the two inlined copies both cross-jump and the flag
-       store-flags to xori/sltu. */
-    inline char ropeWallIsBox(char *p)
+    /* whether p is a box (kind 0x11), as a char */
+    inline char ropeWallIsBox(char *p) /* derived name */
     {
         if (p != 0 && *(int *)(p + 0xC) == 0x11) {
             return 1;
@@ -899,18 +888,18 @@ int CollisCheckInRope(void *a0, GObj *chain)
     return rv;
 }
 
-typedef struct {
+typedef struct { /* field names derived */
     char pad0[860];
     int f35C;
-} RopeSubObj;
+} RopeSubObj; /* derived name */
 
-typedef struct {
+typedef struct { /* field names derived */
     char pad0[148];
     int f94;
     char pad98[40];
-} RopeFloorWork;
+} RopeFloorWork; /* derived name */
 
-static inline int chainFloorHit(GObj *a0, void *w)
+static inline int chainFloorHit(GObj *a0, void *w) /* derived name */
 {
     if (((motionKind + GOBJ_SUB(a0)->ctrl.motion)->flags.word >> 4) & 1) {
         GetSkeltonPosition((float *)w, a0, 0x2C);
@@ -1017,13 +1006,9 @@ void actCommonRope(GObj *volatile a0)
     }
 }
 
-/* INTERIM (see the GetSkeltonFocusNode note in src/motionManager2.c): the
-   listing inlines SetCorrectOrientOfChain (line 1410) here, so it is `inline`
-   in the dev's TU; while this tail still has asm members a deferred inline
-   would land at the object end instead of at its ROM slot, so the public body
-   later in this file stays a plain definition and this caller uses the static
-   stand-in.  Collapses to one `inline` definition at layout. */
-static inline void setCorrectOrientOfChain_inl(void *a0)
+/* a file-static copy of SetCorrectOrientOfChain, defined later in this file,
+   which this caller inlines */
+static inline void setCorrectOrientOfChain_inl(void *a0) /* derived name */
 {
     float local[4];
     GetCorrectOrientOfChain(local, a0);
@@ -1076,21 +1061,21 @@ void motCommonRopeTurnL(GObj *volatile a0)
     }
 }
 
-typedef struct {
+typedef struct { /* field names derived */
     float x, y, z;
-} ClimbVec3;
+} ClimbVec3; /* derived name */
 
-typedef union {
+typedef union { /* field names derived */
     float f[4];
     long long ll[2];
-} ClimbVec4;
+} ClimbVec4; /* derived name */
 
-typedef struct {
+typedef struct { /* field names derived */
     sceVu0FVECTOR v0;
     float v1[4];
     ClimbVec3 v2;
     int obj;
-} ClimbEndRec;
+} ClimbEndRec; /* derived name */
 
 void actCommonRopeClimbEnd1(GObj *volatile a0)
 {
@@ -1185,10 +1170,10 @@ void actCommonRopeClimbEnd1(GObj *volatile a0)
     }
 }
 
-typedef union {
+typedef union { /* field names derived */
     char *p;
     float *f;
-} CagePtr;
+} CagePtr; /* derived name */
 
 void actCommonRopeCliff(GObj *volatile a0)
 {
@@ -1226,24 +1211,22 @@ void actCommonRopeCliff(GObj *volatile a0)
     }
 }
 
-/* SU-E BEGIN TestCageUpDown */
-
-typedef struct {
+typedef struct { /* field names derived */
     float a[4];
     float b[4];
     int cnt;
     int lim;
     int last;
-} CageUD;
+} CageUD; /* derived name */
 
 /* the cage up-down interpolation record TestCageUpDown keeps between frames
-   (start, goal, frame count, limit, last motion); MAIN.MAP names no symbol
-   in commonact.o's .data, so this name is ours */
-static CageUD cageUpDown = {{0.0f, 0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f, 0.0f}, 0, 0, -1};
+   (start, goal, frame count, limit, last motion) */
+static CageUD cageUpDown = {
+    {0.0f, 0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f, 0.0f}, 0, 0, -1}; /* derived name */
 
 void TestCageUpDown(int cage, GObj *gobj)
 {
-    inline void initCage(char *o)
+    inline void initCage(char *o) /* derived name */
     {
         int n;
 
@@ -1262,7 +1245,7 @@ void TestCageUpDown(int cage, GObj *gobj)
     }
 
     inline void cageMove(char *o, float *dst, float *lo, float *hi, float *res, float x, float y,
-                         float z)
+                         float z) /* derived name */
     {
         dst[0] = x;
         dst[1] = y;
@@ -1274,7 +1257,7 @@ void TestCageUpDown(int cage, GObj *gobj)
         ACTSetPositionNodeWithFitting((int)o, 0x23, (int)res, 1.0f);
     }
 
-    inline void putRoot(float *pos, float *lo, float *hi, int clamp)
+    inline void putRoot(float *pos, float *lo, float *hi, int clamp) /* derived name */
     {
         float lim;
         float low;
@@ -1296,7 +1279,7 @@ void TestCageUpDown(int cage, GObj *gobj)
         SetDirectRootPositionNoFitting(boyGObj, pos);
     }
 
-    inline void chainUpdate(float *sk, float *out, float *lo, float *hi)
+    inline void chainUpdate(float *sk, float *out, float *lo, float *hi) /* derived name */
     {
         GetSkeltonPosition(sk, gobj, 22);
         _InterGV(out, lo, hi, sk[1] - lo[1], hi[1] - sk[1]);
@@ -1352,23 +1335,21 @@ void TestCageUpDown(int cage, GObj *gobj)
     cageUpDown.last = mot;
 }
 
-/* SU-E END TestCageUpDown */
-
-typedef struct {
+typedef struct { /* field names derived */
     float x, y;
-} RsVec2;
+} RsVec2; /* derived name */
 
-typedef struct {
+typedef struct { /* field names derived */
     RsVec2 xy;
     void *obj;
-} RsHit;
+} RsHit; /* derived name */
 
-typedef union {
+typedef union { /* field names derived */
     float f[4];
     long long ll[2];
-} RsVec4;
+} RsVec4; /* derived name */
 
-typedef struct {
+typedef struct { /* field names derived */
     char pad0[816];
     char f330[16];
     float f340;
@@ -1377,16 +1358,16 @@ typedef struct {
     char f34C[4];
     RsHit f350;
     int f35C;
-} RsSub;
+} RsSub; /* derived name */
 
-typedef struct {
+typedef struct { /* field names derived */
     char pad0[128];
     RsVec2 h80;
     int f88;
     char pad8C[52];
-} RsWork;
+} RsWork; /* derived name */
 
-static inline unsigned char ropeSpecialWallHit(RsVec4 *p1, RsHit *hit)
+static inline unsigned char ropeSpecialWallHit(RsVec4 *p1, RsHit *hit) /* derived name */
 {
     sceVu0FVECTOR va = {0.0f, 0.0f, -20.0f, 1.0f};
     sceVu0FVECTOR vb = {0.0f, 0.0f, 20.0f, 1.0f};
@@ -1490,20 +1471,16 @@ void SetDirectRootPositionXZ(void *a0, void *a1)
     SetDirectRootPositionNoFitting(a0, a1);
 }
 
-/* INTERIM (see the GetSkeltonFocusNode note in src/motionManager2.c): the
-   listing inlines ACTMotDirToWall (lines 1307-1312) into actCommonLever, so it
-   is `inline` in the dev's TU; while this tail still has asm members a deferred
-   inline would land at the object end instead of at its ROM slot, so the public
-   body below stays a plain definition and this caller uses the static stand-in.
-   Collapses to one `inline` definition at layout. */
-static inline void actMotDirToWall(char *a0)
+/* a file-static copy of ACTMotDirToWall, defined below, which actCommonLever
+   inlines */
+static inline void actMotDirToWall(char *a0) /* derived name */
 {
     float local[4];
     sceVu0ScaleVector(local, *(char **)(a0 + 0x164) + 0x4B0, -1.0f);
     SetMotionDirection(a0, local);
 }
 
-static inline void correctLeverHoldPoint(void *a0, char *lev)
+static inline void correctLeverHoldPoint(void *a0, char *lev) /* derived name */
 {
     float w[4];
     if (*(int *)(lev + 0xC) >= 0x16) {
@@ -1630,10 +1607,8 @@ extern void EnemySetfDisappearAll(GObj *volatile a0);
 
 void actCommonDie(GObj *volatile a0)
 {
-    /* SRCFILE.TXT puts these rows (commonact.c:2619-2631) after the 2650
-       statement, inside actCommonDie's own 2616-2700 span, which is the
-       inlined body of a helper defined at the head of this body. */
-    inline void dieNotifyObjects(void)
+    /* a helper defined at the head of this body */
+    inline void dieNotifyObjects(void) /* derived name */
     {
         void *g;
 
@@ -1704,11 +1679,11 @@ void actCommonDie(GObj *volatile a0)
     }
 }
 
-typedef struct {
+typedef struct { /* field names derived */
     char pad0[540];
     int f21C;
     int f220;
-} ClingSub;
+} ClingSub; /* derived name */
 
 void actCommonCling(GObj *volatile a0)
 {
@@ -1807,10 +1782,10 @@ void actCommonStoneDead(GObj *volatile a0)
     _ACTWait(0);
 }
 
-typedef struct {
+typedef struct { /* field names derived */
     char pad0[20];
     int f14;
-} ReviveSub;
+} ReviveSub; /* derived name */
 
 inline void actCommonRevive(GObj *volatile a0)
 {
@@ -1828,12 +1803,12 @@ inline void actCommonRevive(GObj *volatile a0)
     }
 }
 
-typedef struct {
+typedef struct { /* field names derived */
     char pad0[20];
     int f14;
     char pad18[52];
     int f4C;
-} StoneSub;
+} StoneSub; /* derived name */
 
 void actCommonStone(GObj *volatile a0)
 {
@@ -1872,10 +1847,10 @@ void actCommonStone(GObj *volatile a0)
     }
 }
 
-typedef struct {
+typedef struct { /* field names derived */
     char pad0[592];
     int f250, f254, f258, f25C;
-} SofaObj;
+} SofaObj; /* derived name */
 
 void actCommonSofa(GObj *volatile a0)
 {
@@ -1957,11 +1932,11 @@ extern void GetBoxHoldPoint(void *hold, char *box, void *self);
 extern void AlignBox(char *box, float f);
 extern int MoveBoxWithHoldPoint(char *box, void *hold, void *self, int node, void *dir);
 
-/* reconstruction: the third view of the same 0xC0-byte ClipWall work buffer
-   (RopeWallWork above and RsWork below are the other two). This one reads the
-   two vectors at 0x00 and 0x10, the height at 0x70 and the hit flag at 0x88;
-   the views are kept apart for the reason given at RopeWallWork. */
-typedef struct {
+/* The third view of the same 0xC0-byte ClipWall work buffer (RopeWallWork
+   above and RsWork below are the other two).  This one reads the two vectors
+   at 0x00 and 0x10, the height at 0x70 and the hit flag at 0x88; the views
+   are kept apart for the reason given at RopeWallWork. */
+typedef struct { /* field names derived */
     float p[4];
     float q[4];
     char pad20[80];
@@ -1969,15 +1944,10 @@ typedef struct {
     char pad74[20];
     int f88;
     char pad8C[52];
-} BoxWallWork;
+} BoxWallWork; /* derived name */
 
-/* The height is an int: the ROM materialises 48.0f and 30.0f at the 0x70 store
-   inside each inlined copy, which only happens when the constant reaches that
-   store through a conversion integrate.c can fold there. A float parameter is
-   copied into a pseudo at the top of the inlined body instead, and loop.c then
-   hoists the 30.0f copy out of the loop into a fourth callee-saved FP register
-   the ROM does not save. */
-static inline int boxWallCheck(GObj *a0, char *box, float dist, int h)
+/* the height is an int */
+static inline int boxWallCheck(GObj *a0, char *box, float dist, int h) /* derived name */
 {
     BoxWallWork w;
     float t[4];
@@ -2000,10 +1970,8 @@ static inline int boxWallCheck(GObj *a0, char *box, float dist, int h)
 void actCommonBox(GObj *volatile a0)
 {
     char *box;
-    /* SRCFILE.TXT puts commonact.c:3276-3280 after the 3316 rows and before
-       the 3322 rows, inside actCommonBox's own span: an inlined helper
-       defined at the head of this body, above the 3284 chase. */
-    inline void addGirlLevelForBox(char *b)
+    /* a helper defined at the head of this body */
+    inline void addGirlLevelForBox(char *b) /* derived name */
     {
         if ((char *)girlGObj != 0 && *(char **)((char *)GOBJ_SUB(girlGObj)) == b) {
             brainAddLevelGirl(1000.0f);
@@ -2108,12 +2076,12 @@ inline void afterCommonBar(GObj *volatile a0)
     _boxbar_set_sound(a0, 0);
 }
 
-typedef struct {
+typedef struct { /* field names derived */
     char pad0[448];
     int f1C0;
     int f1C4;
     int f1C8;
-} BarHold;
+} BarHold; /* derived name */
 
 void actCommonBar(GObj *volatile a0)
 {
@@ -2255,15 +2223,15 @@ void correctJumpOrientByChain(GObj *a0)
     SetMotionDirectionSmooze(a0, dir, t);
 }
 
-typedef union {
+typedef union { /* field names derived */
     unsigned long long ll;
     void *p;
-} ActFlagJ;
+} ActFlagJ; /* derived name */
 
-typedef struct {
+typedef struct { /* field names derived */
     char pad0[398];
     unsigned short f18E;
-} MotRecJ;
+} MotRecJ; /* derived name */
 
 void actCommonJump(GObj *volatile a0)
 {
@@ -2324,21 +2292,16 @@ void actCommonJump(GObj *volatile a0)
 extern float GetDifferenceFromLowerField(GObj *volatile a0, int node);
 
 /* The 0x15C slot is the engine's sub-object handle, read here as the SubHandle
- * union the way geometryManager.c's SUBOF reads it: the union read may-alias
- * the float stores to the velocity, so each arm re-walks the slot between them
- * as the ROM does.  GOBJ_SUB's int view is what the other readers need (the
- * union view changes st04a's finishCallBackFunc), so this view stays local. */
-#define FALL_SUB(o) ((Sub15C *)((SubHandle *)((char *)(o) + 0x15C))->p)
+ * union the way geometryManager.c's SUBOF reads it; the other readers use
+ * GOBJ_SUB's int view. */
+#define FALL_SUB(o) ((Sub15C *)((SubHandle *)((char *)(o) + 0x15C))->p) /* derived name */
 
-/* lines 3732-3749 of the January-2002 listing, a static inline that
- * actCommonFall and flyCoreLoop call.  The listing puts the copies of its
- * constant arguments (the state and the time) on the definition line, where
- * the inliner emits them, and the ROM multiplies by that copy of the time
- * while the literal 60s of the rate and the division share one hoisted
- * register.  flyCoreLoop's copy proves the motion test and the count: it
- * passes a motion that is not 418 (so the q[10] compare survives) and needs
- * three hits where actCommonFall needs two. */
-static inline int IsFallStuckOnStep(GObj *a0, int state, int mot, int need, int time)
+/* A static inline that actCommonFall and flyCoreLoop call: whether the
+ * actor has been stuck on a step for `need` hits.  flyCoreLoop passes a
+ * motion that is not 418 and needs three hits where actCommonFall needs
+ * two. */
+static inline int IsFallStuckOnStep(GObj *a0, int state, int mot, int need,
+                                    int time) /* derived name */
 {
     Act *s = GOBJ_ACT(a0);
     int *q;
@@ -2357,8 +2320,7 @@ static inline int IsFallStuckOnStep(GObj *a0, int state, int mot, int need, int 
             n++;
         }
     }
-    /* the not-found path returns the count variable, cleared: the ROM'(char *)s
-       in-place n test and n++ in both callers depend on this set of n */
+    /* the not-found path returns the count variable, cleared */
     n = 0;
     return n;
 }
@@ -2518,32 +2480,26 @@ void actCommonFall(GObj *volatile a0)
     }
 }
 
-/* SU-E END actCommonFall */
-
-/* reconstruction: the sub-object's fly-limit flag at 0x654.  A field
-   reference, not a cast-dereference: flyCoreLoop's ROM keeps the actor
-   argument's frame load available across the store (gcse moves it onto the
-   other arm of the join), which alias analysis allows only when the store is
-   a struct member and the frame slot a scalar. */
-typedef struct {
+/* the sub-object's fly-limit flag at 0x654 */
+typedef struct { /* field names derived */
     char pad0[1620];
     int limit;
-} FlyLimitSub;
+} FlyLimitSub; /* derived name */
 
-/* line 3962: raises the flag that ResetFlyLimit clears */
-static inline void SetFlyLimit(int a0)
+/* raises the flag that ResetFlyLimit clears */
+static inline void SetFlyLimit(int a0) /* derived name */
 {
     ((FlyLimitSub *)FALL_SUB(a0))->limit = 1;
 }
 
-/* lines 3965-3968, used by flyCoreLoop and actAfterFly */
-static inline void ResetFlyLimit(int a0)
+/* used by flyCoreLoop and actAfterFly */
+static inline void ResetFlyLimit(int a0) /* derived name */
 {
     ((FlyLimitSub *)FALL_SUB(a0))->limit = 0;
 }
 
-/* lines 3979-3984: clamp to -1..1 */
-static inline float clampUnit(float x)
+/* clamp to -1..1 */
+static inline float clampUnit(float x) /* derived name */
 {
     if (1.0f < x) {
         x = 1.0f;
@@ -2554,14 +2510,14 @@ static inline float clampUnit(float x)
     return x;
 }
 
-/* line 3988: the vertical pull toward the target height */
-static inline float calcVertAccel(float *a, float *b)
+/* the vertical pull toward the target height */
+static inline float calcVertAccel(float *a, float *b) /* derived name */
 {
     return clampUnit((a[1] - b[1]) * 0.005f);
 }
 
-/* lines 3992-4002: the vertical pull with a term for the horizontal distance */
-static inline float calcFlyAccel(float *a, float *b)
+/* the vertical pull with a term for the horizontal distance */
+static inline float calcFlyAccel(float *a, float *b) /* derived name */
 {
     float d[4];
     float h;
@@ -2573,14 +2529,14 @@ static inline float calcFlyAccel(float *a, float *b)
     return clampUnit(h * 0.005f);
 }
 
-/* reconstruction: the flight-limit marker colour (R, G, B, A), the first of
-   the four colour records at the head of commonact's .data colour run */
-static int flyLimitCol[4] = {128, 192, 255, 128};
+/* the flight-limit marker colour (R, G, B, A), the first of the four colour
+   records at the head of commonact's .data colour run */
+static int flyLimitCol[4] = {128, 192, 255, 128}; /* derived name */
 
-typedef union {
+typedef union { /* field names derived */
     float f[4];
     long long ll[2];
-} FlyPt;
+} FlyPt; /* derived name */
 
 static void debugDispFlyLimit(float *pos, float y0, float y1)
 {
@@ -2616,8 +2572,8 @@ void debugDispSphere(void *a0, void *a1, float f)
     MatrixDrive_PopMatrix();
 }
 
-/* lines 4049-4052: the fly has run for more than 180 seconds */
-static inline unsigned char IsFlyTimeOver(int a0)
+/* the fly has run for more than 180 seconds */
+static inline unsigned char IsFlyTimeOver(int a0) /* derived name */
 {
     if ((60 - systemStatus[0] * 10) / systemStatus[1] * 180 < GOBJ_WORK(a0)->carryGirlFrames) {
         return 1;
@@ -2625,47 +2581,44 @@ static inline unsigned char IsFlyTimeOver(int a0)
     return 0;
 }
 
-/* kept local: no header declares it */
+/* no header declares it */
 extern void GetRootMotionMatrix(void *m, char *obj);
-/* kept local: no header declares it */
+/* no header declares it */
 extern float GetEnemyFlyXZAccel(int a0);
-/* kept local: no header declares it; the ROM passes the position's address */
+/* no header declares it; this call passes the position's address */
 extern void SetDarkVolumeEffect(float *pos, float size);
-/* kept local: info is void * here, FlyLimitInfo * in flyManager.h */
+/* info is void * here, FlyLimitInfo * in flyManager.h */
 extern int GetFlyLimitHeight(void *info, void *pos);
 
-/* reconstruction: GetFlyLimitHeight's result, as flyManager.c fills it */
-typedef struct {
+/* GetFlyLimitHeight's result, as flyManager.c fills it */
+typedef struct { /* field names derived */
     float floorY;
     float limitY;
     float limitOfs;
     int flags;
-} FlyLimit;
+} FlyLimit; /* derived name */
 
-/* reconstruction: the 0xC0-byte ClipWall/ClipFloor work record as the fly
-   code reads it (the other views of it in this TU are kept apart for the
-   reason given at RopeWallWork).  The vectors are FlyPt: the ROM copies
-   FlyStep's initialised record with ld/sd pairs, so the record is 8-byte
-   aligned, and its one initialiser element before the radius is what keeps
-   gcc from clearing it and storing the radius (mostly_zeros_p). */
-typedef struct {
-    FlyPt v[7]; /* 0x00 from, 0x10 to, 0x20 the hit position */
+/* The 0xC0-byte ClipWall/ClipFloor work record as the fly code reads it (the
+   other views of it in this TU are kept apart for the reason given at
+   RopeWallWork).  The vectors are FlyPt, 8-byte aligned. */
+typedef struct { /* field names derived */
+    FlyPt v[7];  /* 0x00 from, 0x10 to, 0x20 the hit position */
     float rad;
     char pad74[20];
     int wall;
     char pad8C[8];
     int floor;
     char pad98[40];
-} FlyClip;
+} FlyClip; /* derived name */
 
-/* reconstruction: the clip request at 0x690 of the actor record */
-typedef struct {
+/* the clip request at 0x690 of the actor record */
+typedef struct { /* field names derived */
     int done;
     char pad4[12];
     FlyClip w;
     int fD0;
     void (*func)();
-} FlyClipReq;
+} FlyClipReq; /* derived name */
 
 void flyCoreLoop(GObj *a0, GObj *target, int a2)
 {
@@ -2737,7 +2690,7 @@ void flyCoreLoop(GObj *a0, GObj *target, int a2)
             return 0;
         }
 
-        inline void RequestFlyClip(FlyClipReq * req, void (*func)())
+        inline void RequestFlyClip(FlyClipReq * req, void (*func)()) /* derived name */
         {
             req->func = func;
             req->w.rad = 50.0f;
@@ -2747,7 +2700,7 @@ void flyCoreLoop(GObj *a0, GObj *target, int a2)
             RequestClipCollision((int *)req);
         }
 
-        inline void FlyStep(void)
+        inline void FlyStep(void) /* derived name */
         {
             if (needInit) {
                 RequestFlyClip((FlyClipReq *)((char *)act + 0x690),
@@ -2890,17 +2843,7 @@ void flyCoreLoop(GObj *a0, GObj *target, int a2)
         dir[1] = 0.0f;
         lenSq = VectorLengthSquare(dir);
         spd = distance_squared(root, mat[3]);
-        /* Local debug switch, off. What the bytes pin: flyCoreLoop reached
-           gcse with 796 to 803 real insns (802 with this block, 791 without
-           it), the extra insns sit in fly-only code and are gone from the
-           final words, and no named declaration was added (the listing's
-           numbered nested names). A switch set to 0 outside the loop is
-           exactly that: cse cannot carry the constant across the loop label,
-           gcse's last constant propagation folds the test and the next jump
-           pass deletes the guarded call. The listing leaves listing rows
-           4345 to 4350 code-free here. What the bytes cannot pin: the text,
-           the switch's name and what the guarded line printed; the print
-           follows emergencyCheck's own "%1.1f " distance print. */
+        /* a local debug switch, off: print the distance */
         if (dbg) {
             debug_StdPrintfDummy("%1.1f ", lenSq);
         }
@@ -3031,10 +2974,10 @@ void flyCoreLoop(GObj *a0, GObj *target, int a2)
     }
 }
 
-typedef struct {
+typedef struct { /* field names derived */
     char pad0[1528];
     int f5F8;
-} FlyCtlJ;
+} FlyCtlJ; /* derived name */
 
 void actCommonFly(GObj *volatile a0)
 {
@@ -3067,7 +3010,7 @@ void actCommonFly(GObj *volatile a0)
                     debug_fly_limit_test != 0);
 }
 
-typedef struct {
+typedef struct { /* field names derived */
     char pad0[656];
     int f290;
     int f294;
@@ -3076,9 +3019,9 @@ typedef struct {
         unsigned long long ll;
         int i[2];
     } f298;
-} LadderWork;
+} LadderWork; /* derived name */
 
-#define LADW ((LadderWork *)*(int *)(a0->act + 0x680))
+#define LADW ((LadderWork *)*(int *)(a0->act + 0x680)) /* derived name */
 
 void actCommonLadder(GObj *volatile a0)
 {
@@ -3197,10 +3140,9 @@ void actCommonLadder(GObj *volatile a0)
     }
 }
 
-/* inline tail members defined where the listing puts them (4761..4838 and,
-   after actCommonEdgeHang, 4967..4994): their strings emit here, between the
-   flyCoreLoop unit's and funcCommonBeginReady's, as the ROM's .rodata has
-   them, while their code still emits at the end of the object */
+/* inline tail members, defined here: their strings come between the
+   flyCoreLoop unit's and funcCommonBeginReady's in .rodata, while their code
+   goes to the end of the object */
 inline void actCommonCliffdown(GObj *volatile a0)
 {
     Act *s = GOBJ_ACT(a0);
@@ -3271,7 +3213,7 @@ inline void actCommonGuard(GObj *volatile a0)
 
 #undef LADW
 
-typedef struct {
+typedef struct { /* field names derived */
     char pad0[32];
     float _20, _24, _28;
     char pad2C[68];
@@ -3285,7 +3227,7 @@ typedef struct {
     int _94;
     int _98;
     char pad9C[36];
-} EdgeHangWork;
+} EdgeHangWork; /* derived name */
 
 void actCommonEdgeHang(GObj *volatile a0)
 {
@@ -3411,7 +3353,7 @@ int SetMotionDirectionSmooze(GObj *a0, float *dir, float s)
     return ret;
 }
 
-/* kept local: motionOrientManager.h declares none of the motion tables */
+/* motionOrientManager.h declares none of the motion tables */
 extern MotOriName motionOriKind[];
 
 void _ACTDebugPrint(GObj *a0)
@@ -3546,7 +3488,7 @@ void _ACTCommonMailTest(GObj *self, int a1, int a2, int a3)
         if (0.1f < s->stickMag && (s->stickMag < 0.99f || (s->padNow & 0x20)) && !(a2 < 4)) {
             ACTSendMailCorrect(self, 0xB5);
         }
-        /* the negated conjunct is the 0xB5 guard'(char *)s whole predicate, repeated;
+        /* the negated conjunct is the 0xB5 guard's whole predicate, repeated;
            it emits a real (dead) branch, so it is in the shipped code. */
         if (0.1f < s->stickMag &&
             !(0.1f < s->stickMag && (s->stickMag < 0.99f || (s->padNow & 0x20))) && !(a3 < 4)) {
@@ -3560,7 +3502,7 @@ void _ACTCommonMailTest(GObj *self, int a1, int a2, int a3)
         if (0.1f < s->stickMag && (s->stickMag < 0.99f || (s->padNow & 0x20)) && !(a2 < 4)) {
             ACTSendMailCorrect(self, 0xB5);
         }
-        /* the negated conjunct is the 0xB5 guard'(char *)s whole predicate, repeated;
+        /* the negated conjunct is the 0xB5 guard's whole predicate, repeated;
            it emits a real (dead) branch, so it is in the shipped code. */
         if (0.1f < s->stickMag &&
             !(0.1f < s->stickMag && (s->stickMag < 0.99f || (s->padNow & 0x20))) && !(a3 < 4)) {
@@ -3582,13 +3524,14 @@ int E3_LeverCheck(GObj *a0)
 
 extern SlowrunRec motionOrient[];
 
-typedef struct {
+typedef struct { /* field names derived */
     char pad0[396];
     unsigned char f18C;
     char pad18D[7];
-} CarryMot;
+} CarryMot; /* derived name */
 
-static __inline__ unsigned char requestBecarryMotion(char *self, int mot, int wait, int n)
+static __inline__ unsigned char requestBecarryMotion(char *self, int mot, int wait,
+                                                     int n) /* derived name */
 {
     Act *sub = GOBJ_ACT(self);
     const BecPair *tbl = pairMotion;
@@ -3670,7 +3613,7 @@ void actCommonBecarry(GObj *volatile a0)
     }
 }
 
-static inline void SetIdleMotionRange(int k, int mot, int mot2)
+static inline void SetIdleMotionRange(int k, int mot, int mot2) /* derived name */
 {
     int n1 = actDataTbl[k].orientRow;
     int n2 = actDataTbl[k].orientRow2;
@@ -3879,19 +3822,16 @@ void actCommonBackhand(GObj *volatile a0)
             _OrientXZGV(dir, test_CURRENTROOT(girlGObj), test_CURRENTROOT((void *)a0));
             SetMotionDirection(a0, dir);
         }
-        /* ROM-proven vestigial: the shipped code still computes this frame
-           budget and drops it -- only systemStatus[1]'s load and gcc's
-           divide-by-zero trap survive (SRCFILE line 6205), which is
-           mechanically unreachable without the division. */
+        /* the frame budget is computed and dropped */
         frame = (0x3C - systemStatus[0] * 10) / systemStatus[1];
         _ACTWait(1);
     }
 }
 
-typedef union {
+typedef union { /* field names derived */
     int i;
     float f;
-} IntFloatSR;
+} IntFloatSR; /* derived name */
 
 void actCommonSlowrun(GObj *volatile a0)
 {
@@ -3918,10 +3858,10 @@ void actCommonSlowrun(GObj *volatile a0)
     }
 }
 
-typedef struct {
+typedef struct { /* field names derived */
     char pad0[20];
     int f14;
-} TruckLeverWork;
+} TruckLeverWork; /* derived name */
 
 void actCommonTruckLever(GObj *volatile a0)
 {
@@ -4037,7 +3977,7 @@ inline void actCommonDelete(GObj *volatile a0)
     _ACTWait(0);
 }
 
-/* kept local: agrees with weapon.h, which this TU does not include (ExecWeaponHitReaction differs) */
+/* as in weapon.h, which this TU does not include (ExecWeaponHitReaction differs) */
 extern void LightTorchOnOfWeapon(char *a0);
 
 inline void actCommonCatchFire(GObj *volatile a0)
@@ -4114,9 +4054,9 @@ inline void actCommonClimb(GObj *volatile a0)
     }
 }
 
-typedef struct {
+typedef struct { /* field names derived */
     float x, y, z;
-} Vec3f;
+} Vec3f; /* derived name */
 
 inline void actCommonLadderBellow(GObj *volatile a0)
 {
@@ -4207,10 +4147,7 @@ inline void actCommonLever2(GObj *volatile a0)
     actMotDirToWall((char *)a0);
     while (1) {
         if (lev != 0) {
-            /* ROM-proven vestigial: an empty guard. SRCFILE line 2443 emits
-               exactly this dead volatile re-read and nothing else; retail
-               dropped the body (actCommonLever keeps correctLeverHoldPoint
-               here). */
+            /* an empty guard: the frame flag is re-read and nothing is done */
             if (GOBJ_SUB(a0)->ctrl.frameFlag2 != 0) {}
             if (GOBJ_SUB(a0)->ctrl.frameFlag1 != 0) {
                 lever_nego1((void *)a0, lev);
@@ -4232,10 +4169,10 @@ inline void actCommonRopeTouchWall(GObj *volatile a0)
     }
 }
 
-typedef struct {
+typedef struct { /* field names derived */
     char pad0[24];
     int f18;
-} RopeSwingWork;
+} RopeSwingWork; /* derived name */
 
 inline void actCommonRopeSwing(GObj *volatile a0)
 {
@@ -4274,7 +4211,7 @@ inline void actCommonRopeTurn(GObj *volatile a0)
     }
 }
 
-typedef struct {
+typedef struct { /* field names derived */
     char pad0[32];
     float _20, _24, _28;
     char pad2C[68];
@@ -4288,9 +4225,9 @@ typedef struct {
     int _94;
     int _98;
     char pad9C[36];
-} FloorWork;
+} FloorWork; /* derived name */
 
-static inline int isRopeDownEndOnFloor(GObj *self)
+static inline int isRopeDownEndOnFloor(GObj *self) /* derived name */
 {
     FloorWork work;
     MotionDef *rec = &motionKind[GOBJ_SUB(self)->ctrl.motion];
@@ -4317,12 +4254,12 @@ inline void actCommonRopeDownEnd(GObj *volatile a0)
     }
 }
 
-typedef struct {
+typedef struct { /* field names derived */
     char pad0[304];
     int f130;
     int f134;
     int f138;
-} RopeJumpWork;
+} RopeJumpWork; /* derived name */
 
 inline void actCommonRopeJump(GObj *volatile a0)
 {
@@ -4348,10 +4285,10 @@ inline void actCommonRopeJumpBefore(GObj *volatile a0)
     }
 }
 
-typedef struct {
+typedef struct { /* field names derived */
     char pad0[24];
     int f18;
-} RopeTurnSpWork;
+} RopeTurnSpWork; /* derived name */
 
 inline void actCommonRopeTurnSpecial(GObj *volatile a0)
 {
@@ -4508,10 +4445,10 @@ inline void motCommonBarPull(GObj *volatile a0)
     _ACTWait(0);
 }
 
-typedef struct {
+typedef struct { /* field names derived */
     char pad0[56];
     int f38;
-} LadderMotWork;
+} LadderMotWork; /* derived name */
 
 inline void motCommonLadderUp(GObj *volatile a0)
 {
@@ -4530,10 +4467,10 @@ inline void motCommonLadderUp(GObj *volatile a0)
     }
 }
 
-typedef struct {
+typedef struct { /* field names derived */
     char pad0[56];
     unsigned int f38;
-} LadderDownMotWork;
+} LadderDownMotWork; /* derived name */
 
 inline void motCommonLadderDown(GObj *volatile a0)
 {
@@ -4699,12 +4636,11 @@ inline int _ACTMotReqResult(GObj *a0, int a1)
 }
 
 /* StartCorrectPosition and IsCorrectPosition precede test_CURRENTORIENT and
-   test_CURRENTROOT, as the listing has them (5928 and 5987 before 6245 and
-   6259): a call after an inline's definition is inlined, and the ROM calls */
-typedef union {
+   test_CURRENTROOT, so their calls to the two accessors stay calls. */
+typedef union { /* field names derived */
     unsigned long long ll;
     int i;
-} CorrFlag;
+} CorrFlag; /* derived name */
 
 inline void StartCorrectPosition(GObj *a0, float *pos, float *dir, int mode, float t)
 {
@@ -4734,12 +4670,10 @@ inline int IsCorrectPosition(GObj *a0)
     return (int)v & 1;
 }
 
-/* .bss, owned by commonact.o and reached only from this file (MAIN.MAP names
-   no symbol in the run), in the ROM's run order: the orient and the position
-   these two accessors hand back. */
-static char commonOrient[16];
+/* the orient and the position these two accessors hand back */
+static char commonOrient[16]; /* derived name */
 
-static float commonPos[4];
+static float commonPos[4]; /* derived name */
 
 inline float *test_CURRENTORIENT(GObj *a0)
 {
@@ -4898,10 +4832,10 @@ inline void actAfterFall(GObj *volatile a0)
     *(unsigned long long *)((int)s + 0x20) = st | (1ULL << 31);
 }
 
-typedef struct {
+typedef struct { /* field names derived */
     char pad0[32];
     unsigned long long status;
-} FlySub;
+} FlySub; /* derived name */
 
 inline void actAfterFly(GObj *volatile a0)
 {
@@ -4931,10 +4865,10 @@ inline int ACTCheckFlagAttack(GObj *a0)
     return GOBJ_ACT(a0)->actMode == 0xF;
 }
 
-typedef struct {
+typedef struct { /* field names derived */
     char pad0[116];
     int coll;
-} BecSub;
+} BecSub; /* derived name */
 
 inline void afterCommonBecarry(GObj *volatile a0)
 {

@@ -120,8 +120,7 @@ int _FUNC_GetWay_begin(void *a0, WVTObj *w, int a2, int a3)
             w->pathKind = 2;
         } else {
             gid = NearestWgFromTarget(g0, g1, work);
-            /* RECONSTRUCTION: a compiled-out print, see the note at the
-               `r < 0` test below. */
+            /* a compiled-out print, see the note at the `r < 0` test below */
             if (0) {
                 debug_StdPrintfDummy("gid:%d = tgid:%d, mgid:%d\n", gid, g1, g0);
             }
@@ -180,16 +179,8 @@ int _FUNC_GetWay_begin(void *a0, WVTObj *w, int a2, int a3)
     }
 
     if (r < 0) {
-        /* RECONSTRUCTION: two strings of the ROM's pool, "gid:%d = tgid:%d,
-           mgid:%d\n" and "!!cant reach!!\n", sit between "other_group\n" and
-           "wp:%p %p\n" with no word of the ROM referencing them: prints the
-           build compiled out, whose literals gcc 2.95 still emitted when it
-           expanded the call.  What the bytes pin: the two strings and their
-           order in the pool.  What they cannot pin: the statements' text,
-           their condition and their arguments; an if (0) arm, as
-           src/fieldCollision.c's compiled-out dump, is the form measured to
-           give the literal and no code, and its place here is the one the
-           format reads as. */
+        /* prints compiled out of the retail build; their strings stay in
+           .rodata */
         if (0) {
             debug_StdPrintfDummy("!!cant reach!!\n");
         }
@@ -215,9 +206,9 @@ inline int GetWay_begin(void *a0, int a1, int a2)
 }
 
 /* The collision query ClipWall / ClipFloorR fill in: 192 bytes, 16-aligned. */
-/* kept local: this TU's bytes only come out with its own view of the record,
-   named apart from typedef.h's ClipWork as act.c names its ActClipWork. */
-typedef struct {
+/* this TU's own view of the record, named apart from typedef.h's ClipWork as
+   act.c names its ActClipWork */
+typedef struct {    /* field names derived */
     float p0[4];    /* 0x00 segment start */
     float p1[4];    /* 0x10 segment end */
     float hit[4];   /* 0x20 the clipped point */
@@ -232,10 +223,10 @@ typedef struct {
     char pad98[40]; /* 0x98 */
 } __attribute__((aligned(16))) WayClipWork;
 
-typedef float WayVec[4] __attribute__((aligned(16)));
+typedef float WayVec[4] __attribute__((aligned(16))); /* derived name */
 
-/* census rows 582-593: a wall probe between two points, both lifted 75 units. */
-static inline int way_probe(float *a, float *b)
+/* a wall probe between two points, both lifted 75 units */
+static inline int way_probe(float *a, float *b) /* derived name */
 {
     WayClipWork cc;
     WayVec off;
@@ -338,16 +329,8 @@ int avoid_obstacle2(float *pos, float *wp, WVTObj *w)
         }
     }
 
-    /* RECONSTRUCTION: the right-hand chain's first probe reads its second
-       corner as box[k += ofs], ofs a zero corner offset.  What the bytes pin:
-       in gcse's RTL a set of k's own pseudo between that probe's first-corner
-       index and its second-corner address, in this chain only (the same set in
-       every probe breaks the left chain's corner reuse), not a register copy
-       (cprop would rewrite it away) and not a self-copy cse1 can see; gcse's
-       constant propagation turns it into k = k, delete_trivially_dead_insns
-       removes it and no instruction is left, while gcse's PRE no longer
-       shares k + 1 and k + 4 into this chain.  What they cannot pin: the text,
-       the variable's role and its name, which are ours. */
+    /* the right-hand chain's first probe reads its second corner as
+       box[k += ofs], ofs a zero corner offset */
     if (way_probe(box[(k + 3) % 4], box[k]) == 0 && way_probe(box[k], box[(k + 1) % 4]) == 0 &&
         way_probe(box[(k + 1) % 4], box[(k + 2) % 4]) == 0) {
         int j;
@@ -469,10 +452,9 @@ void create_box_bridge(char *g)
 
 inline void BridgeBox(void) {}
 
-/* census rows 853-867: a wall probe between `pos` and a way point, both lifted
-   75 units, with a 30-unit radius.  Only ever inlined, so it has no MAIN.MAP
-   symbol and the name is ours. */
-static __inline__ int way_wall_between(float *pos, WayPoint *wp)
+/* a wall probe between `pos` and a way point, both lifted 75 units, with a
+   30-unit radius */
+static __inline__ int way_wall_between(float *pos, WayPoint *wp) /* derived name */
 {
     WayClipWork cc;
     WayVec off;
@@ -546,8 +528,7 @@ int GetWay_next(WVTObj *w, float *pos)
 
     switch (w->avoiding) {
     case 1:
-        /* RECONSTRUCTION: compiled-out prints, see the note before the second
-           switch below. */
+        /* compiled-out prints, see the note before the second switch below */
         if (0) {
             debug_StdPrintfDummy("WGROUP STAT OTHER\n");
         }
@@ -614,16 +595,9 @@ int GetWay_next(WVTObj *w, float *pos)
         return (int)cur;
     }
 
-    /* RECONSTRUCTION: four strings of the ROM's pool have no word of the ROM
-       referencing them: "WGROUP STAT OTHER\n" between "illigal way " and
-       "short cut 2:%p\n", "WGROUP STAT SAME\n", "wp %p myway %p pos %p\n"
-       and "wgroup stat:%d\n" between "short cut 1:%p\n" and "goal wp1\n".
-       They are prints the build compiled out, whose literals gcc 2.95 still
-       emitted when it expanded the calls.  What the bytes pin: the strings
-       and their order in the pool.  What they cannot pin: the statements'
-       text, their condition and their arguments; the two state prints open
-       the first switch's arms (w38 1 is the other-group state, 0 the
-       same-group one), and the if (0) form is src/fieldCollision.c's. */
+    /* prints compiled out of the retail build; their strings stay in .rodata.
+       The two state prints open the first switch's arms (avoiding 1 is the
+       other-group state, 0 the same-group one). */
     if (0) {
         debug_StdPrintfDummy("wp %p myway %p pos %p\n", cur, w->chk.start, pos);
         debug_StdPrintfDummy("wgroup stat:%d\n", w->avoiding);
@@ -659,14 +633,8 @@ int GetWay_next(WVTObj *w, float *pos)
     }
 
     w->chk.cur = waypoint_bidirectional_list(cur, w->direction);
-    /* RECONSTRUCTION: seven short strings of the ROM's small-data pool,
-       "reset\n", "hit\n", "free\n", "fail\n", "ev:%f\n", "dst %p\n" and
-       "->%p\n", follow this TU's wall-debug pointer with no word of the ROM
-       referencing them, and the listing has no code on rows 1082-1117 between
-       this assignment and the "bilist" print: prints the build compiled out.
-       What the bytes pin: the strings and their order.  What they cannot pin:
-       the statements' text, their condition and their arguments; the if (0)
-       form is the one this file's other compiled-out prints use. */
+    /* prints compiled out of the retail build; their strings stay in
+       .sdata */
     if (0) {
         debug_StdPrintfDummy("reset\n");
         debug_StdPrintfDummy("hit\n");
@@ -682,14 +650,14 @@ int GetWay_next(WVTObj *w, float *pos)
 }
 
 /* One candidate escape point: the way point id and the path length to it. */
-typedef struct NigeEnt {
+typedef struct NigeEnt { /* field names derived */
     int id;
     float d;
-} NigeEnt;
+} NigeEnt; /* derived name */
 
 /* The TU's whole .bss: one entry per way point (way_llf's 275), which
    GetNearNigePointN fills and sorts by path length. */
-static NigeEnt nigePointTbl[275];
+static NigeEnt nigePointTbl[275]; /* derived name */
 
 int GetNearNigePointN(void *out, int num, WVTObj *w, float *pos)
 {
@@ -708,8 +676,7 @@ int GetNearNigePointN(void *out, int num, WVTObj *w, float *pos)
     WayPoint *base = visible_waypoint_of_all_except_temp(pos, -1);
     WayGroup *ga = &way_group[base->group];
 
-    /* census rows 1146-1150 */
-    __inline__ void nige_swap(NigeEnt * tbl, int a, int b)
+    __inline__ void nige_swap(NigeEnt * tbl, int a, int b) /* derived name */
     {
         NigeEnt t = tbl[a];
 
@@ -717,8 +684,7 @@ int GetNearNigePointN(void *out, int num, WVTObj *w, float *pos)
         tbl[b] = t;
     }
 
-    /* census rows 1152-1160 */
-    __inline__ int nige_add(NigeEnt * tbl, int n, WayPoint *e, float d)
+    __inline__ int nige_add(NigeEnt * tbl, int n, WayPoint *e, float d) /* derived name */
     {
         if (e->escape != 0) {
             tbl[n].id = e->index;

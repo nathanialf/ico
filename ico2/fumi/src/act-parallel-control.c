@@ -1,22 +1,20 @@
 #include "act-parallel-control.h"
 #include "debug.h"
 
-/* .bss, owned by act-parallel-control.o and reached only from this file
-   (MAIN.MAP names no symbol in the run): the parallel-action ids copied out of
-   the layout table. */
-static int parallelIds[86];
+/* the parallel-action ids copied out of the layout table */
+static int parallelIds[86]; /* derived name */
 
-/* listing lines 23-80.  The helper's rows (28-55) sit INSIDE this function's
-   own line span and below its head, so it is a GNU nested function of the
-   2001 source; gcc inlines it (it is called once), and its reference to the
-   parameter n is what moves n to the frame slot at 0(sp). */
+/* Fill tbl from the parallel-motion table: for each bit set in mask, each
+   row's motion for that bit, resolved by the nested helper (an id above
+   0xFFFF picks one entry of a random-motion run, by n), replaces the row's
+   entry unless it is 0x47B. */
 void ActPara_MakeTbl(int *tbl, unsigned long long mask, int n)
 {
     int i;
     int j;
     int val;
 
-    inline int resolve(int v)
+    inline int resolve(int v) /* derived name */
     {
         if (v > 0xFFFF) {
             int idx = v - 0x10000;
@@ -59,11 +57,8 @@ void ActPara_InitSystem(void)
     for (i = 0; i <= 85; i++) {
         parallelIds[i] = parallelMotionTbl[i].motion[0];
     }
-    /* A compiled-out overflow check.  What the bytes pin: its message and
-       __FILE__ are act-parallel-control.o's whole .rodata and its "0" the
-       whole .sdata, in that order, with no instruction.  What they cannot:
-       the condition that disabled it and its line; the listing's rows
-       101-110, empty after this loop (99-100), are where it fits. */
+    /* a compiled-out overflow check: its message and __FILE__ stay in .rodata
+       and its "0" in .sdata */
     if (0) {
         /* too many parallel motions (way too many) */
         debug_StdPrintfDummy("並列モーションが増えすぎました（大森）");

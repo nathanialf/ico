@@ -5,10 +5,8 @@
 #include "isys.h"
 #include "gobj.h"
 
-/* .bss, owned by gobj.o and reached only from this file (MAIN.MAP names no
-   symbol in the run): the head of the free list for each of the 70 object
-   kinds. */
-static GObj *gobjKindHead[70];
+/* the head of the free list for each of the 70 object kinds */
+static GObj *gobjKindHead[70]; /* derived name */
 
 /* Deferred-`inline` tail: ee-gcc 2.9 emits a plain-`inline` function's
    out-of-line copy at the END of the object in PROTOTYPE order while its
@@ -51,12 +49,10 @@ void isysGObjInit(int n)
     isysGObjKindTableInit();
 }
 
-/* .sbss, owned by gobj.o and reached only from this file (MAIN.MAP names no
-   symbol in the run), in the ROM's run order: the object table and how many
-   0x174-byte entries isysGObjAlloc gave it. */
-static GObj *gobjTable;
+/* the object table and how many 0x174-byte entries isysGObjAlloc gave it */
+static GObj *gobjTable; /* derived name */
 
-static unsigned int gobjMax;
+static unsigned int gobjMax; /* derived name */
 
 inline void isysGObjAlloc(int n)
 {
@@ -102,12 +98,10 @@ void cut_gobj_link(GObj *p)
     }
 }
 
-/* INTERIM: the listing inlines isysGObjRemove here (its own lines 225-231 and,
- * through it, isysGObjKindTableRemove's 138-147, appear inside this function's
- * span).  isysGObjRemove is a MAIN.MAP symbol with its own ROM slot AFTER this
- * one, so it cannot carry `inline` without moving to gcc's inline tail; the
- * caller gets this stand-in instead.  Keep the two bodies identical. */
-static __inline__ void removeGObjEntry(GObj *g)
+/* a file-static copy of isysGObjRemove (and, through it, of
+ * isysGObjKindTableRemove), which isysGObjDelete inlines; the two bodies are
+ * the same */
+static __inline__ void removeGObjEntry(GObj *g) /* derived name */
 {
     int kind = g->kind;
     struct GProc *proc = g->procHead;
@@ -242,9 +236,8 @@ void isysGObjMoveHead(GObj *g, unsigned char a1, int a2)
     return add_gobj_to_head(g, a1, a2);
 }
 
-/* static helper the listing places at gobj.c lines 360-369; never emitted out
- * of line, so it has no MAIN.MAP symbol and this name is ours. */
-static __inline__ void linkGObjAfter(GObj *g, GObj *other)
+/* link g into other's list after other, taking its list and key */
+static __inline__ void linkGObjAfter(GObj *g, GObj *other) /* derived name */
 {
     g->linkId = other->linkId;
     g->key = other->key;
@@ -256,9 +249,8 @@ static __inline__ void linkGObjAfter(GObj *g, GObj *other)
     }
 }
 
-/* static helper the listing places at gobj.c lines 453-467; never emitted out
- * of line, so it has no MAIN.MAP symbol and this name is ours. */
-static __inline__ GObj *allocGObjEntry(void)
+/* the first free entry of the object table, or 0 when the table is full */
+static __inline__ GObj *allocGObjEntry(void) /* derived name */
 {
     unsigned int i;
     GObj *g;
@@ -272,8 +264,7 @@ static __inline__ GObj *allocGObjEntry(void)
         debug_StdPrintfDummy("isys:not enough memory for GObj\n");
         return 0;
     }
-    /* the entry's address as the ROM forms it, the scaled index first:
-       integer arithmetic on the table's address, not &gobjTable[i] */
+    /* the entry's address from the table's address and the scaled index */
     g = (GObj *)(i * sizeof(GObj) + (int)gobjTable);
     g->act = 0;
     g->pauseExempt = 0;
@@ -518,9 +509,8 @@ inline void *isysGObjSearchFromObjLayoutID(int a0)
     return 0;
 }
 
-/* static helper the listing places at gobj.c lines 657-667; never emitted out
- * of line, so it has no MAIN.MAP symbol and this name is ours. */
-static __inline__ GObj *searchGObjOfObjKind(GObj *p, int kind)
+/* the next live object after p of the given kind, or 0 */
+static __inline__ GObj *searchGObjOfObjKind(GObj *p, int kind) /* derived name */
 {
     GObj *end = &gobjTable[gobjMax - 1];
 

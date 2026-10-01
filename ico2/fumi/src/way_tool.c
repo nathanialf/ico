@@ -26,48 +26,40 @@
 
 /* way_tool.o .data +0x00: the scratch world position the tool builds a point
    at; the fourth word is the homogeneous 1.0f. */
-static float wayWorkPos[4] = {0.0f, 0.0f, 0.0f, 1.0f};
+static float wayWorkPos[4] = {0.0f, 0.0f, 0.0f, 1.0f}; /* derived name */
 
 /* the way point the tool has picked, -1 for none: point_delete sets it,
    point_nige moves it and set_way_point_color highlights it */
 static int wayPointSel = -1; /* derived name */
 
-/* .sbss, owned by way_tool.o (MAIN.MAP names no symbol in the run), in the ROM's run order: the way
-   record the tool is showing, the group the selection window is on, the camera
-   target saved while the tool holds the camera, and the cursor object */
-static WayGroup *selectedWay;
+/* the way record the tool is showing, the group the selection window is on,
+   the camera target saved while the tool holds the camera, and the cursor
+   object */
+static WayGroup *selectedWay; /* derived name */
 
-static int wayGroupSel;
+static int wayGroupSel; /* derived name */
 
-static int savedCamTarget;
+static int savedCamTarget; /* derived name */
 
-static char *cursorGObj;
+static char *cursorGObj; /* derived name */
 
-typedef struct {
+typedef struct { /* field names derived */
     int c[4];
-} WayCol;
+} WayCol; /* derived name */
 
-/* .bss, owned by way_tool.o (MAIN.MAP sizes its own link's run 0xD0 and names
-   no symbol in it), in the ROM's run order: the colour packet every way point
-   is drawn through, the pad handle and its read buffer, the stick buffer, and
-   the 32-byte way-point file block quick_save_wpfile writes and
-   quick_load_wpfile reads back. */
-static WayCol wayDrawCol;
+/* the colour packet every way point is drawn through, the pad handle and its
+   read buffer, the stick buffer, and the 32-byte way-point file block
+   quick_save_wpfile writes and quick_load_wpfile reads back */
+static WayCol wayDrawCol; /* derived name */
 
-static char wayToolPad[96];
+static char wayToolPad[96]; /* derived name */
 
-static char wayToolStick[32];
+static char wayToolStick[32]; /* derived name */
 
-static unsigned char wpBuf[32];
+static unsigned char wpBuf[32]; /* derived name */
 
-/* RECONSTRUCTION: the last 0x220 bytes of the TU's .bss (VMA 0x729C10..
-   0x729E30), which nothing in the retail ELF or the January listing reads.
-   What the bytes pin: an uninitialised object of 544 bytes after wpBuf and
-   before access.o's run; the January listing's link lays it out at the same
-   place, and MAIN.MAP sizes way_tool.o's .bss 0x20 above its seven live
-   statics, the same 32-byte buffer this file keeps elsewhere, grown by 0x200
-   in retail.  What they cannot pin: its type, name or the debug code that
-   used it. */
+/* the last 0x220 bytes of the TU's .bss, which nothing in the retail build
+   reads */
 static char wayToolBuf[544]; /* derived name */
 
 /* Deferred-`inline` tail members: a plain `inline` function's out-of-line copy
@@ -126,15 +118,13 @@ int group_create(void)
 
 /* one line of the way-group selector: debug_SelectCsvWindow walks debugWayGroupSelect
    with stride 8 and dereferences the first word */
-typedef struct {
+typedef struct { /* field names derived */
     char *s;
     int _4;
-} WayMenuLine;
+} WayMenuLine; /* derived name */
 
-/* way_tool.o .data +0x10: the way-group selector's 64 lines.  The label text is
-   a 2001 string literal per line (" 0 ( -)  " .. "63 ( -)  ") that
-   relabel_way_groups rewrites in place; until the TU's .rodata run is carved
-   the literals are reached as the externs the blob defines. */
+/* the way-group selector's 64 lines, each label a string literal that
+   relabel_way_groups rewrites in place */
 
 WayMenuLine debugWayGroupSelect[64] = {
     {" 0 ( -)  ", 0}, {" 1 ( -)  ", 0}, {" 2 ( -)  ", 0}, {" 3 ( -)  ", 0}, {" 4 ( -)  ", 0},
@@ -151,10 +141,9 @@ WayMenuLine debugWayGroupSelect[64] = {
     {"55 ( -)  ", 0}, {"56 ( -)  ", 0}, {"57 ( -)  ", 0}, {"58 ( -)  ", 0}, {"59 ( -)  ", 0},
     {"60 ( -)  ", 0}, {"61 ( -)  ", 0}, {"62 ( -)  ", 0}, {"63 ( -)  ", 0}};
 
-/* relabels the way-group selector; the 2001 source has it as a helper between
-   group_create and group_select (SRCFILE.TXT rows 299-311) and group_select
-   inlines it at all three of its call sites */
-static inline void relabel_way_groups(void)
+/* relabels the way-group selector: a helper between group_create and
+   group_select, which inlines it at all three of its call sites */
+static inline void relabel_way_groups(void) /* derived name */
 {
     int n = 0;
     int i;
@@ -170,10 +159,8 @@ static inline void relabel_way_groups(void)
     }
 }
 
-/* census group_select, a file static: MAIN.MAP puts the only global
-   group_select in ico2/omori/src/camera-editor.o.  debugWayMenu below holds
-   its address, which is why this TU kept the global symbol until the table
-   became C. */
+/* a file-static group_select, distinct from camera-editor.o's global of the
+   same name; debugWayMenu below holds its address */
 static int group_select(void)
 {
     static int selectState = 0; /* derived name */
@@ -419,7 +406,7 @@ int quick_load_wpfile(void)
 
 /* the authored way group table: one 0x3C record per group */
 /* the authored way point table: one 0x1C record per point */
-typedef struct {
+typedef struct { /* field names derived */
     float f[4];
 } __attribute__((aligned(8))) WayPos;
 
@@ -480,9 +467,9 @@ void ExtractWayData(int stage_no)
 }
 
 /* the editable way-file base name in .sdata */
-typedef struct {
+typedef struct { /* field names derived */
     char s[8];
-} WpName;
+} WpName; /* derived name */
 
 int wp_print_out(void)
 {
@@ -533,30 +520,30 @@ int wp_print_out(void)
     return -1;
 }
 
-typedef struct {
+typedef struct { /* field names derived */
     float f[4];
 } __attribute__((aligned(8))) WayVec;
 
 /* way_tool.o .data +0x210: the nine RGBA packets the tool draws with. */
-static WayCol wayColorSelected = {{0xFF, 0xFF, 0xFF, 0xFF}};
+static WayCol wayColorSelected = {{0xFF, 0xFF, 0xFF, 0xFF}}; /* derived name */
 
-static WayCol wayColorLinked = {{0xFF, 0x08, 0xFF, 0xFF}};
+static WayCol wayColorLinked = {{0xFF, 0x08, 0xFF, 0xFF}}; /* derived name */
 
-static WayCol wayColorBlink = {{0xFF, 0xFF, 0xFF, 0xFF}};
+static WayCol wayColorBlink = {{0xFF, 0xFF, 0xFF, 0xFF}}; /* derived name */
 
-static WayCol wayColorCursor = {{0x80, 0xFF, 0x1E, 0xFF}};
+static WayCol wayColorCursor = {{0x80, 0xFF, 0x1E, 0xFF}}; /* derived name */
 
-static WayCol wayColorOpenCurrent = {{0x20, 0xFF, 0x20, 0xFF}};
+static WayCol wayColorOpenCurrent = {{0x20, 0xFF, 0x20, 0xFF}}; /* derived name */
 
-static WayCol wayColorOpenOther = {{0x20, 0x80, 0x20, 0x30}};
+static WayCol wayColorOpenOther = {{0x20, 0x80, 0x20, 0x30}}; /* derived name */
 
-static WayCol wayColorClosedCurrent = {{0x40, 0x40, 0x00, 0xFF}};
+static WayCol wayColorClosedCurrent = {{0x40, 0x40, 0x00, 0xFF}}; /* derived name */
 
-static WayCol wayColorClosedOther = {{0x40, 0x40, 0x00, 0x40}};
+static WayCol wayColorClosedOther = {{0x40, 0x40, 0x00, 0x40}}; /* derived name */
 
-static WayCol wayColorBridge = {{0xFF, 0x00, 0xFF, 0xFF}};
+static WayCol wayColorBridge = {{0xFF, 0x00, 0xFF, 0xFF}}; /* derived name */
 
-static inline void set_way_point_color(WayPoint *p, WayCol *col)
+static inline void set_way_point_color(WayPoint *p, WayCol *col) /* derived name */
 {
     WayCol *d = &wayDrawCol;
 
@@ -666,10 +653,10 @@ void way_toolDL(int a0)
     }
 }
 
-typedef struct {
+typedef struct { /* field names derived */
     char *name;
     int (*fn)();
-} WayMenu;
+} WayMenu; /* derived name */
 
 /* way_tool.o .data +0x2A0: the way-tool menu, nine {label, action} lines.
    Line 5's label is the play/stop text the tool rewrites at runtime. */
@@ -680,8 +667,8 @@ WayMenu debugWayMenu[9] = {{"group + create", group_create},  {"      + select",
                            {"quick save", quick_save_wpfile}, {"quick load", quick_load_wpfile},
                            {"save text", wp_print_out}};
 
-/* kept local: pad.h cannot declare it while effectTool.c and camera-ico2.c
-   declare it as a char array */
+/* pad.h cannot declare it while effectTool.c and camera-ico2.c declare it as
+   a char array */
 extern PadConf iosPadConfDefault;
 
 int debug_WayTool(void)

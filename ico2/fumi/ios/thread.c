@@ -7,74 +7,24 @@
 #include "thread.h"
 #include <assert.h>
 
-/* ---------------------------------------------------------------------------
- * EMISSION ORDER / INLINE MODEL of this TU, proven from baserom/pal/SRCFILE.TXT
- * (the retail PAL disc's objdump -dl listing of a January-2002 link; a DIFFERENT
- * link, so no address in it is ever copied here) plus a measurement of the
- * compiler itself.
- *
- * Exactly ONE function of this TU is inlined into another: iosThreadCreate
- * (source lines 111-155).  Its body's lines 119-155 appear inside the listing
- * blocks of iosThreadCreateS (thread.c:171) and iosThreadInit; every other
- * block's line span lies inside its own function.  iosThreadCreate is still a
- * PUBLIC function with 10 external call sites and a real out-of-line copy, so
- * it is a plain `inline`, not `static inline` and not `extern inline`.
- *
- * ee-gcc 2.9 emits a plain-`inline` function's out-of-line copy NOT where it is
- * defined but at the END of the object, and it emits the deferred copies in the
- * order the identifiers were first DECLARED.  Measured on this compiler with a
- * probe TU: prototyped inlines come first, in PROTOTYPE order; the ones with no
- * prototype follow, in definition order.  That is the whole explanation for the
- * ROM object's out-of-source-order tail
- *
- *   ... Resume | iosThreadCreate GetPri GetIOSThreadFromId Wakeup Join
- *       CancelWakeup SemaCreate SemaDelete SemaWait SemaSignal SemaReferStatus
- *       | DestroyMgr AllQuit
- *
- * which is exactly the prototype block below followed by the two functions that
- * have no prototype (DestroyMgr, declared further down for iosThreadInit's use;
- * AllQuit, declared only by its definition, last in the file).  Keep the block's
- * ORDER: it is what places every deferred copy at its ROM address, and the whole
- * object's function offsets are checked against the ROM by nm.
- *
- * This file is now in the dev's SOURCE order, the deferred members interleaved
- * where the listing puts them.  That order is not cosmetic: a string literal is
- * emitted into `.rodata` where the function that first uses it is DEFINED, not
- * where a deferred `inline` copy is finally written out, so the source order is
- * what fixes the order of this TU's seventeen strings.  Measured: with the
- * deferred members parked at the end the run comes out with "th:msg %d\n" ahead
- * of "thr:id out of range\n" and iosThreadDestroyMgr's two strings at the end;
- * in the order below it is byte-identical to the ROM run at 0x551DB0.  The
- * source order the listing gives is:
- *
- *   85 Main | 111 Create | 171 CreateS | 199 Start | 215 Stop | 244 Sleep
- *   | 272 Wakeup | 299 DestroyMgr | 332 Destroy | 397 GetPri | 416 SetPri
- *   | 448 GetIOSThreadFromId | 470 Message | 498 Join | 536 Name | 550 Suspend
- *   | 564 Resume | 580 CancelWakeup | 597 SemaCreate | 619 SemaDelete
- *   | 640 SemaWait | 662 SemaSignal | 683 SemaReferStatus | ~705 Init
- *   | 723 AllQuit
- *
- * (iosThreadInit is NOT at line 111 as an earlier note in this file claimed:
- * 111 is only its first line NOTE, emitted by the inlined callee's parameter
- * copies.  Its own single line is 709, the iosThreadStart tail sibcall, which
- * puts its definition in the 693-722 gap and makes it the last non-deferred
- * function in source order.)
- * ------------------------------------------------------------------------- */
+/* The emission-order note: the `inline` functions of this TU have their
+ * out-of-line copies at the end of the object, in first-declaration order
+ * (thread.h's prototypes, then iosThreadDestroyMgr, declared below, and
+ * iosThreadAllQuit, declared by its definition).  Only iosThreadCreate is
+ * expanded into another function, iosThreadCreateS and iosThreadInit.  The
+ * definitions here are in source order, which fixes the order of the TU's
+ * strings in .rodata. */
 
-/* .bss, owned by thread.o and reached only from this file (MAIN.MAP names no
-   symbol in the run), in the ROM's run order: the IOSThread each thread id
-   maps to, the destroy manager's own message queue, the boot thread and its
-   8 KB stack. */
-static IOSThread *iosThreadTable[256];
+/* the IOSThread each thread id maps to, the destroy manager's own message
+   queue, the boot thread and its 8 KB stack */
+static IOSThread *iosThreadTable[256]; /* derived name */
 
-static IosMsgQueue iosThreadDestroyQueue;
+static IosMsgQueue iosThreadDestroyQueue; /* derived name */
 
-static IOSThread iosBootThread;
+static IOSThread iosBootThread; /* derived name */
 
-/* a thread stack, 16-byte aligned as the kernel's CreateThread requires; the
-   alignment is the ROM's, whose .bss puts 8 B of fill between pad.o's run and
-   this object's */
-static char iosBootStack[8192] __attribute__((aligned(16)));
+/* a thread stack, 16-byte aligned as the kernel's CreateThread requires */
+static char iosBootStack[8192] __attribute__((aligned(16))); /* derived name */
 
 void iosThreadMain(void *arg)
 {
@@ -89,9 +39,9 @@ void iosThreadMain(void *arg)
 }
 
 /* 16-byte guard word stamped at both ends of a thread stack */
-typedef struct {
+typedef struct { /* field names derived */
     char c[16];
-} IosStackMark;
+} IosStackMark; /* derived name */
 
 extern int _gp; /* linker-defined global pointer */
 
@@ -99,15 +49,9 @@ static int n_thread = 0; /* derived name: the number of live IOS threads */
 
 inline void iosThreadDestroyMgr(); /* deferred-tail member; see the emission-order note */
 
-/* thread.c:111 - iosThreadCreate.  It is a PUBLIC function (10 external call
- * sites in the ROM) that gcc 2.9 also inlines into its two in-TU callers,
- * iosThreadCreateS (thread.c:171) and iosThreadInit (thread.c:~705): both of
- * those blocks in baserom/pal/SRCFILE.TXT carry this body's lines 119-155, and
- * its own out-of-line copy sits between iosThreadInit and iosThreadGetPri in
- * BOTH the ROM (0x0013FAE8) and the listing's separate link.  So it is spelled
- * `inline` (not `static inline`, not `extern inline`): gcc 2.9 defers the
- * out-of-line copy of a plain `inline` to the end of the object.  See the
- * emission-order note at the top of this file for why that lands it here. */
+/* iosThreadCreate, a public function that iosThreadCreateS and iosThreadInit
+ * also expand: a plain `inline`, so its out-of-line copy goes to the end of
+ * the object. */
 inline void iosThreadCreate(IOSThread *th, int no, void (*func)(), int arg, void *stack,
                             long stackSize, int pri)
 {
@@ -146,9 +90,9 @@ inline void iosThreadCreate(IOSThread *th, int no, void (*func)(), int arg, void
     th->hasQueue = 0;
 }
 
-/* thread.c:171 - iosThreadCreateS: iosThreadCreate over a malloc'd stack.
- * flags bit 0 marks "this stack came from the heap"; iosThreadDestroyMgr
- * reads it back and frees the stack. */
+/* iosThreadCreateS: iosThreadCreate over a malloc'd stack.  flags bit 0 marks
+ * "this stack came from the heap"; iosThreadDestroyMgr reads it back and
+ * frees the stack. */
 void iosThreadCreateS(IOSThread *th, int no, void (*func)(), int arg, void *heap, long stackSize,
                       int pri)
 {
@@ -187,12 +131,12 @@ inline int iosThreadWakeup(IOSThread *th)
     return WakeupThread(th->id);
 }
 
-/* thread.c:299 - the destroy-manager thread body.  iosThreadInit creates a
- * thread running this; iosThreadDestroy posts the dying IOSThread to its
- * message queue and this loop does the actual teardown.  Never returns. */
+/* The destroy-manager thread body.  iosThreadInit creates a thread running
+ * this; iosThreadDestroy posts the dying IOSThread to its message queue and
+ * this loop does the actual teardown.  Never returns. */
 /* .sbss, owned by thread.o and reached only from this file: the manager
    queue's 2-slot message ring. */
-static int iosThreadDestroyRing[2];
+static int iosThreadDestroyRing[2]; /* derived name */
 
 inline void iosThreadDestroyMgr(void)
 {
@@ -299,7 +243,7 @@ inline int iosThreadJoin(IOSThread *th)
     return buf[0];
 }
 
-/* kept local: agrees with string.h, which this TU does not include */
+/* as in string.h, which this TU does not include */
 extern void strcpy();
 
 void iosThreadName(IOSThread *th)
@@ -399,9 +343,7 @@ void iosThreadInit(void)
     iosThreadStart(&iosBootThread);
 }
 
-/* thread.c:723, the last function of the TU.  Never called anywhere in the
- * retail ELF; the PAL listing puts it last in the object's deferred-`inline`
- * tail, and a plain definition in this file position emits the same bytes. */
+/* The last function of the TU, never called. */
 inline void iosThreadAllQuit(int self)
 {
     int i;

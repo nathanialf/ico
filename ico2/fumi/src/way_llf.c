@@ -4,26 +4,21 @@
 #include "way_llf.h"
 #include "way_util.h"
 
-/* .data, owned by way_llf.o (MAIN.MAP's two globals, in its order): the way
-   groups and the way points, zero-initialised; the points start on the
-   16-byte boundary their position vector gives them. */
+/* the way groups and the way points, zero-initialised; the points start on
+   the 16-byte boundary their position vector gives them */
 WayGroup way_group[94] = {0};
 
 WayPoint way_point[275] = {0};
 
-/* MAIN.MAP globals of way_llf.o's .sdata (declared in way_llf.h), tentative
-   definitions the compiler emits at the end of the file in this order */
+/* way_llf.o's .sdata globals (declared in way_llf.h), tentative definitions */
 int first_waytool;
 
 int n_way_group;
 
 int current_select_gid;
 
-/* gcc 2.9 emits a non-static `inline` function's out-of-line copy at the end of
- * the object, in first-declaration order (way_llf.h's, which lists the whole TU
- * in ROM order); every definition below is `inline`, and these declarations
- * mark the bodies inline before the first call.  That reproduces the ROM's
- * .text layout exactly (see the per-function VMAs in the PAL listing). */
+/* every definition below is `inline`; these declarations mark the bodies
+ * inline before the first call. */
 inline int CreateWayGroup(void);
 inline int CreateTempWayGroup(void);
 inline int DeleteWayGroup(int gno);
@@ -49,10 +44,8 @@ inline WayPoint *waypoint_bidirectional_list(WayPoint *self, int which);
 inline void SetWayGroupActive(int a0, int a1);
 inline int CheckWayGroupActive(int idx);
 
-/* The listing attributes lines 98-121 to CreateWayGroup, CreateTempWayGroup and
- * (in the Jan-2002 link only) CreateBridge: this is the TU's shared group
- * allocator, expanded into both callers.  Must index the table inside the loop
- * (a pointer walk changes the giv). */
+/* The TU's shared group allocator, expanded into CreateWayGroup's and
+ * CreateTempWayGroup's callers: the first free slot of the way-group table. */
 inline int CreateWayGroup(void)
 {
     int i;
@@ -233,12 +226,8 @@ inline int DeleteWayPoint(int pno)
     return 0;
 }
 
-/* The January listing puts CreateBridge at way_llf.c:341-369, between
-   DeleteWayPoint (285-333) and the begin iterators (376+), and it is the one
-   function of the TU too large to inline, so gcc emits it first in the object,
-   ahead of every deferred `inline` body.  Its source position still decides the
-   constant pool: the failure message below is created before waypoint_
-   bidirectional_list's "bidir wp:%p\n" and lands first in .rodata, as in ROM. */
+/* CreateBridge sits between DeleteWayPoint and the begin iterators; it is the
+   one function of the TU too large to inline. */
 int CreateBridge(float *a0, float *a1)
 {
     int gno;
@@ -261,8 +250,8 @@ int CreateBridge(float *a0, float *a1)
     return gno;
 }
 
-/* the begin iterators start one record before the way-group table (the ROM
-   folds that base to 0x4F1E8C) and step before the first test */
+/* the begin iterators start one record before the way-group table and step
+   before the first test */
 
 inline WayGroup *WayGroup_begin(void)
 {
@@ -415,11 +404,10 @@ ret0:
     return 0;
 }
 
-/* The listing gives WayPointList_next's body to lines 507 to 512, a helper
- * defined ahead of WayPointList_begin (517) and never emitted out of line, so
- * a static inline; its name is ours.  The group record is read before the null
- * test, as the ROM's row order (507 then 509) has it. */
-static inline WayPoint *wayPointListNext(WayPoint *wp)
+/* WayPointList_next's body, a helper defined ahead of WayPointList_begin: the
+ * next point of wp's group, or 0 at the end of the ring.  The group record is
+ * read before the null test. */
+static inline WayPoint *wayPointListNext(WayPoint *wp) /* derived name */
 {
     WayGroup *grp = &way_group[wp->group];
 

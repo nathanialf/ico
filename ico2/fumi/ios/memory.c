@@ -7,18 +7,17 @@
 #include <string.h>
 #include <assert.h>
 
-/* kept local: the TUs that call iosMallocDebugNoAssert declare it themselves; it
-   passes its four arguments straight through to _iosMallocDebug. */
+/* the TUs that call iosMallocDebugNoAssert declare it themselves; it passes
+   its four arguments straight through to _iosMallocDebug. */
 void *iosMallocDebugNoAssert(IosMemPart *part, int size, const char *file, int line);
 
-typedef struct IosMemTag {
+typedef struct IosMemTag { /* field names derived */
     char c[16];
-} IosMemTag;
+} IosMemTag; /* derived name */
 
-/* .bss, owned by memory.o (MAIN.MAP sizes the run 0x20 and names no
-   symbol in it): the node name the heap walk copies out before printing it. */
+/* the node name the heap walk copies out before printing it */
 /* */
-static char nodeName[32];
+static char nodeName[32]; /* derived name */
 
 inline IosMemPart *iosMallocInitPartition(unsigned int start, unsigned int end)
 {
@@ -187,25 +186,19 @@ void iosMallocClearPartition(IosMemPart *part)
     *(IosMemTag *)part = *(IosMemTag *)" del partition ";
 }
 
-/* .sdata, memory.o's one word ahead of its short strings (MAIN.MAP names no
-   symbol in the run): set while an allocation is in progress, which the
-   re-entry check tests. */
+/* set while an allocation is in progress, which the re-entry check tests */
 static int mallocBusy = 0; /* derived name */
 
-/* .sbss, memory.o's two words in the ROM's order (MAIN.MAP line 7583 sizes
-   the run 8 and names no symbol in it, so the names are ours): the file and
-   line of the allocation in progress, which the re-entry check prints. */
-static char *mallocFile;
+/* the file and line of the allocation in progress, which the re-entry check
+   prints */
+static char *mallocFile; /* derived name */
 
-static int mallocLine;
+static int mallocLine; /* derived name */
 
 void *_iosMallocDebug(IosMemPart *part, int size, const char *file, int line)
 {
     char buf[1024];
-    /* read only by the DEBUG build's free-list trace at the loop's end, in
-       the listing's code-free rows 705-742 (trace ours); the ROM's frame
-       (0x4B0, where buf and the ten saved doublewords take 0x4A0) keeps its
-       slot after buf */
+    /* read only by the DEBUG build's free-list trace at the loop's end */
     IosMemTag tag;
     IosMemNode *node;
     IosMemNode *best;
@@ -302,10 +295,7 @@ void *_iosMallocDebug(IosMemPart *part, int size, const char *file, int line)
             }
             v = line;
             q = v / 10;
-            /* the subscript through best->name (not name + i + 11): the array
-               reference computes i + 11 first, so loop.c strength-reduces the
-               store address to the ROM's pointer off name + 14 and keeps i as
-               the counter */
+            /* the line number in the last four characters of the node name */
             for (i = 3; i >= 0; i--) {
                 best->name[i + 11] = v - q * 10 + '0';
                 v = q;
@@ -624,9 +614,8 @@ void iosMallocCheckLeak2(int a0, int a1)
     } while (node != 0);
 }
 
-/* the 0x3C-byte node record realloc moves: everything up to the line number,
-   which is the seven ldl/ldr pairs plus the trailing word the ROM emits */
-typedef struct IosMemNodeRec {
+/* the 0x3C-byte node record realloc moves: everything up to the line number */
+typedef struct IosMemNodeRec {    /* field names derived */
     char tag[16];                 /* 0x00 */
     char name[16];                /* 0x10 */
     struct IosMemNode *prev;      /* 0x20 */
@@ -636,7 +625,7 @@ typedef struct IosMemNodeRec {
     struct IosMemPart *part;      /* 0x30 */
     int size;                     /* 0x34 */
     int line;                     /* 0x38 */
-} IosMemNodeRec;
+} IosMemNodeRec;                  /* derived name */
 
 void *iosReallocDebug(void *ptr, unsigned int size)
 {

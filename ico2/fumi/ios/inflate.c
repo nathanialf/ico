@@ -17,7 +17,7 @@ struct huft {
     } v;
 };
 
-typedef struct InflateWork {
+typedef struct InflateWork { /* field names derived */
     char pad0[72];
     int wp;                /* 0x48 window position */
     unsigned int insize;   /* 0x4C */
@@ -37,57 +37,58 @@ typedef struct InflateWork {
     struct huft *w_td;     /* 0x8C */
     int w_bl;              /* 0x90 */
     int w_bd;              /* 0x94 */
-} InflateWork;
+} InflateWork;             /* derived name */
 
-typedef struct InflateHandler {
+typedef struct InflateHandler { /* field names derived */
     char pad0[8];
     unsigned char slide[65536]; /* 0x00008 sliding window */
     unsigned char inbuf[32768]; /* 0x10008 compressed input */
-} InflateHandler;
+} InflateHandler;               /* derived name */
 
-#define IWORK(p) ((InflateWork *)((char *)(p) + 0x18000))
-#define ISLIDE(p) (((InflateHandler *)(p))->slide)
-#define IINBUF(p) (((InflateHandler *)(p))->inbuf)
+#define IWORK(p) ((InflateWork *)((char *)(p) + 0x18000)) /* derived name */
+#define ISLIDE(p) (((InflateHandler *)(p))->slide)        /* derived name */
+#define IINBUF(p) (((InflateHandler *)(p))->inbuf)        /* derived name */
 
 static int fill_inbuf();
 
-#define NEXTBYTE(w)                                                                                \
+#define NEXTBYTE(w) /* derived name */                                                             \
     (IWORK(w)->inptr < IWORK(w)->insize ? IINBUF(w)[IWORK(w)->inptr++] : fill_inbuf(w))
-#define NEEDBITS(w, j)                                                                             \
+#define NEEDBITS(w, j) /* derived name */                                                          \
     {                                                                                              \
         while (k < (j)) {                                                                          \
             b |= (unsigned long long)NEXTBYTE(w) << k;                                             \
             k += 8;                                                                                \
         }                                                                                          \
     }
-#define MASKBITS(j) (((unsigned long long)1 << (j)) - 1)
-#define DUMPBITS(j)                                                                                \
+#define MASKBITS(j) (((unsigned long long)1 << (j)) - 1) /* derived name */
+#define DUMPBITS(j)                                      /* derived name */                        \
     {                                                                                              \
         b >>= (j);                                                                                 \
         k -= (j);                                                                                  \
     }
 
-/* .data, the first four objects of inflate.o's run (MAIN.MAP sizes the member
-   0x14C, which is exactly these four plus the border table below, each one
-   8-aligned).  The deflate code tables: copy length and extra-bit count per
-   literal code 257..285, then copy offset and extra-bit count per distance
-   code 0..29.  99 marks an invalid code. */
+/* The deflate code tables: copy length and extra-bit count per literal code
+   257..285, then copy offset and extra-bit count per distance code 0..29.
+   99 marks an invalid code. */
 static unsigned short cplens[31] = {3,  4,   5,   6,   7,   8,   9,   10, 11, 13, 15,
                                     17, 19,  23,  27,  31,  35,  43,  51, 59, 67, 83,
-                                    99, 115, 131, 163, 195, 227, 258, 0,  0};
+                                    99, 115, 131, 163, 195, 227, 258, 0,  0}; /* derived name */
 
-static unsigned short cplext[31] = {0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 2, 2,  2, 2,
-                                    3, 3, 3, 3, 4, 4, 4, 4, 5, 5, 5, 5, 0, 99, 99};
+static unsigned short cplext[31] = {
+    0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 2, 2,  2, 2,
+    3, 3, 3, 3, 4, 4, 4, 4, 5, 5, 5, 5, 0, 99, 99}; /* derived name */
 
-static unsigned short cpdist[30] = {1,    2,    3,    4,    5,    7,    9,    13,    17,    25,
-                                    33,   49,   65,   97,   129,  193,  257,  385,   513,   769,
-                                    1025, 1537, 2049, 3073, 4097, 6145, 8193, 12289, 16385, 24577};
+static unsigned short cpdist[30] = {1,    2,    3,    4,     5,     7,    9,    13,
+                                    17,   25,   33,   49,    65,    97,   129,  193,
+                                    257,  385,  513,  769,   1025,  1537, 2049, 3073,
+                                    4097, 6145, 8193, 12289, 16385, 24577}; /* derived name */
 
-static unsigned short cpdext[30] = {0, 0, 0, 0, 1, 1, 2, 2,  3,  3,  4,  4,  5,  5,  6,
-                                    6, 7, 7, 8, 8, 9, 9, 10, 10, 11, 11, 12, 12, 13, 13};
+static unsigned short cpdext[30] = {
+    0, 0, 0, 0, 1, 1, 2, 2,  3,  3,  4,  4,  5,  5,  6,
+    6, 7, 7, 8, 8, 9, 9, 10, 10, 11, 11, 12, 12, 13, 13}; /* derived name */
 
-#define BMAX 16
-#define N_MAX 288
+#define BMAX 16   /* derived name */
+#define N_MAX 288 /* derived name */
 
 int huft_build(unsigned int *b, unsigned int n, unsigned int s, unsigned short *d,
                unsigned short *e, struct huft **t, int *m, void *mb)
@@ -267,10 +268,8 @@ int huft_build(unsigned int *b, unsigned int n, unsigned int s, unsigned short *
     return y != 0 && g != 1;
 }
 
-/* huft_free sits at source lines 307-321, ahead of inflate_codes, yet the ROM
- * emits it LAST in the TU and inlines its body into inflate_fixed and
- * inflate_dynamic: it is an `inline` function, so gcc defers the out-of-line
- * copy to the end of the translation unit.  */
+/* huft_free is an `inline` function, inlined into inflate_fixed and
+ * inflate_dynamic, with its out-of-line copy at the end of the file. */
 inline int huft_free(char *p)
 {
     char *next;
@@ -474,9 +473,10 @@ long long inflate_fixed(void *w, unsigned char *out, long long outlen)
 
 /* .data, the last object of inflate.o's run: the order the bit length code
    lengths arrive in. */
-static int border[19] = {16, 17, 18, 0, 8, 7, 9, 6, 10, 5, 11, 4, 12, 3, 13, 2, 14, 1, 15};
+static int border[19] = {16, 17, 18, 0, 8,  7, 9,  6, 10, 5,
+                         11, 4,  12, 3, 13, 2, 14, 1, 15}; /* derived name */
 
-#define IMB(w) ((void *)((char *)(w) + 0x18098))
+#define IMB(w) ((void *)((char *)(w) + 0x18098)) /* derived name */
 
 int inflate_dynamic(void *w, unsigned char *out, long long outlen)
 {
@@ -795,8 +795,8 @@ int open_inflate_handler(int a0, int a1)
  * and the decoder state at +0x18000 (insize at +0x4C, inptr at +0x50); the
  * read callback and the handle it is given live at +0x4 and +0x0.  The
  * callback's 64-bit size/return are the ones inflate_cd_read_func uses.  */
-#define INFLATE_INBUF(p) ((unsigned char *)(p) + 0x10008)
-#define INFLATE_STATE(p) ((unsigned int *)((char *)(p) + 0x18000))
+#define INFLATE_INBUF(p) ((unsigned char *)(p) + 0x10008)          /* derived name */
+#define INFLATE_STATE(p) ((unsigned int *)((char *)(p) + 0x18000)) /* derived name */
 
 typedef long long (*InflateReadFn)(void *buf, long long size, void *handle);
 

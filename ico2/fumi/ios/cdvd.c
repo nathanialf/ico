@@ -18,10 +18,10 @@
 #include <libcdvd.h>
 #include <sound.h>
 
-union U001325D8 {
+union U001325D8 { /* field names derived */
     long long ll;
     int i[2];
-};
+}; /* derived name */
 
 /* The record sceCdSearchFile fills in: it writes 0x24 bytes of it (lsn, size,
  * the name column and the date), and the stack slot it is given is 0x30.  */
@@ -65,11 +65,11 @@ typedef struct IosCdvdHandle { /* field names derived */
     unsigned char buf[32768]; /* 0x180 */
     int stSize;               /* 0x8180 */
     char pad8184[60];
-} IosCdvdHandle;
+} IosCdvdHandle; /* derived name */
 
 /* The streaming request iosCdvdMgrStStart hands to the cdvd thread: the
  * request record stReq and the preload window it describes. */
-typedef struct {
+typedef struct {          /* field names derived */
     IosCdvdHandle *owner; /* 0x00 */
     int f_4;
     int f_8;
@@ -78,16 +78,12 @@ typedef struct {
     int f_14;
     int f_18;
     int f_1C;
-} CdStReq;
+} CdStReq; /* derived name */
 
-/* .data, owned by cdvd.o, in the ROM's run order, 0x290C40..0x29B430, all
-   zero.  MAIN.MAP (line 5812) names iosCdvd, CdvdMsgQ, CdvdMsgQ_LoadEnd and
-   iosCdvdSrhBuff in its January member of 0xA7A0 bytes, at the offsets they
-   have here; the stream manager's acknowledge queue and its request record
-   after them are retail's and not in that link.  iosCdvd is the manager's
-   cdvd handle (33216 bytes, as unifileHandle), the two queues take the
-   48-byte message queue record, iosCdvdSrhBuff is the 200-entry directory
-   cache. */
+/* .data, all zero.  iosCdvd is the manager's cdvd handle (33216 bytes, as
+   unifileHandle), the two queues take the 48-byte message queue record,
+   iosCdvdSrhBuff is the 200-entry directory cache; the stream manager's
+   acknowledge queue and its request record follow them. */
 /* the handle's 32 KB sector buffer at 0x180 is a DMA target, so the handle
    is 64-byte aligned (as jimaku's buffers are); that alignment is the
    48 bytes of fill before this TU's .data */
@@ -103,9 +99,7 @@ static IosMsgQueue stAckQ = {0}; /* derived name */
 
 static CdStReq stReq = {0}; /* derived name */
 
-/* .sdata, owned by cdvd.o, 0x63A368..0x63A3E0 (MAIN.MAP line 7004 names
-   IosCdvdMgrSleep, iosCdvdMediaType, iosCdvdBackGroundMgrRunning and
-   inflateSec).  The objects before the first string: the sleep flag, the
+/* .sdata, the objects before the first string: the sleep flag, the
    directory cache count, the media mode (2, DVD), the disc type the drive
    must report (20, a DVD video disc), the spindle control byte copied into
    each handle's read mode, the background read mode record (a record, so
@@ -127,88 +121,63 @@ static int bgDriveState = 0; /* derived name */
 
 static int stLoadEndWait = 0; /* derived name */
 
-/* .bss, owned by cdvd.o and reached only from this file (MAIN.MAP line 7688
-   gives the member, 0xC38 in its January link, and names no symbol in it), in
-   the ROM's run order, 0x6AF9C0..0x6BC860.  The names are ours.
-   unifileHandle is the cdvd handle iosCdvdUnifileInfoGet loads the unifile
+/* unifileHandle is the cdvd handle iosCdvdUnifileInfoGet loads the unifile
    through (a handle is 33216 bytes: the 0x180 header, the 32 KB sector
    buffer and the size word at 0x8180, the same size iosCdvdManager's reply
    buffer and mv_main's stream file take); bgReqTable the seven 300-byte
    background requests; skipBuf the 1 KB sink iosCdvdHandlerRead reads into
    when the caller passes no buffer; stThread, stStack and stReqQ the stream
    manager's thread record, its 16 KB stack and its request queue. */
-static IosCdvdHandle unifileHandle;
+static IosCdvdHandle unifileHandle; /* derived name */
 
-static CdvdBgReq bgReqTable[7];
+static CdvdBgReq bgReqTable[7]; /* derived name */
 
-static unsigned char skipBuf[1024];
+static unsigned char skipBuf[1024]; /* derived name */
 
-static char stThread[120];
+static char stThread[120]; /* derived name */
 
-static char stStack[16384];
+static char stStack[16384]; /* derived name */
 
-static IosMsgQueue stReqQ;
+static IosMsgQueue stReqQ; /* derived name */
 
-/* .sbss, owned by cdvd.o and reached only from this file (MAIN.MAP names no
-   symbol in the run; its 0x18 is the January object), in the ROM's run order,
-   0x63C168..0x63C18C.  The names are ours.  cdvdMsgRing and cdvdLoadEndRing
-   are the two-slot rings of the manager's request queue and its load-end
-   queue, stPreLoadCnt the preloaded sector count iosCdvdMgrStStart hands the
-   stream, bgRunning the background request iosCdvdBackGroundMgr is running,
-   stReqRing and stAckRing the rings of the stream manager's request and
-   acknowledge queues.  WHAT THE BYTES PIN: stReqRing's queue is created with
-   one slot, yet the ROM keeps eight bytes between it and stAckRing and no
-   instruction reaches the second word; they cannot say whether that word is
-   the ring's or an object of its own. */
-static int cdvdMsgRing[2];
+/* cdvdMsgRing and cdvdLoadEndRing are the two-slot rings of the manager's
+   request queue and its load-end queue, stPreLoadCnt the preloaded sector
+   count iosCdvdMgrStStart hands the stream, bgRunning the background request
+   iosCdvdBackGroundMgr is running, stReqRing and stAckRing the rings of the
+   stream manager's request and acknowledge queues.  stReqRing's queue is
+   created with one slot; no code reads its second word. */
+static int cdvdMsgRing[2]; /* derived name */
 
-static int cdvdLoadEndRing[2];
+static int cdvdLoadEndRing[2]; /* derived name */
 
-static int stPreLoadCnt;
+static int stPreLoadCnt; /* derived name */
 
-static int bgRunning;
+static int bgRunning; /* derived name */
 
-static int stReqRing[2];
+static int stReqRing[2]; /* derived name */
 
-static int stAckRing[1];
+static int stAckRing[1]; /* derived name */
 
-/* The stream's TTY traces of a drive recovery (our names and text), built
-   only when DEBUG is defined; the retail build does not define it, so the
-   preprocessor leaves each helper without a body.  A parameterless inline
-   whose body is empty is saved as the single (use (const_int 0))
-   flow.c:count_basic_blocks gives a function with no insns, so each call
-   emits no byte but leaves that insn for flow's live lengths to count; a
-   helper with a parameter would leave nothing (its parameter move is an
-   insn, so no USE is saved).  The traces read the drive's own state, which
-   is why they take no argument.
-   WHAT THE BYTES PIN: the January listing prints at rows 577 (puts, in the
-   err == -1 block) and 582 (printf of err), and retail keeps both strings
-   ("get error fail", "st cd read error %d\n") in this member's .rodata,
-   right after the assert texts, but has no call: the two prints stand below
-   as disabled blocks, which expand the strings at their rows and leave no
-   insn (the object is the same with and without them, measured); retail's
-   n in $s0 and err in $s1, the reverse of January's, need err's live length
-   at 9 or more, which three such calls after sceCdMmode give and two do not
-   (complete56: deleted lines, if (0), a string-argument or an err-argument
-   empty inline all 16 words, a do-while(0) 63; cf6: one before sceCdInit,
-   one between the calls and one after gives the $s0/$s1 swap back).  WHAT
-   THEY CANNOT PIN: what the three traces printed, or why the retail source
-   has three zero-code insns where January printed once. */
-static __inline__ void stDebugPrintError(void)
+/* The stream's TTY traces of a drive recovery, built only when DEBUG is
+   defined; the retail build leaves each helper without a body.  The traces
+   read the drive's own state, which is why they take no argument.  The two
+   recovery prints below are compiled out; their strings ("get error fail",
+   "st cd read error %d\n") stay in .rodata. */
+static __inline__ void stDebugPrintError(void) /* derived name */
 {
 #ifdef DEBUG
     scePrintf("cd error %d\n", sceCdGetError());
 #endif
 }
 
-static __inline__ void stDebugPrintStatus(void)
+static __inline__ void stDebugPrintStatus(void) /* derived name */
 {
 #ifdef DEBUG
     scePrintf("cd status %d\n", sceCdStatus());
 #endif
 }
 
-static __inline__ void stDebugPrintMode(void)
+static __inline__ void stDebugPrintMode(void) /* derived name */
 {
 #ifdef DEBUG
     scePrintf("cd media mode %d\n", iosCdvdMediaType);
@@ -315,12 +284,11 @@ void iosCdvdStManager(void)
     }
 }
 
-/* Listing rows 701-720, the definition the listing places between the stream
- * manager and the directory search.  Declared inline: the listing expands it
- * in iosCdvdMgrLoad, iosCdvdMgrPackLoad, iosCdvdManager and
- * iosCdvdDirectStOpen, and the stream manager above it calls it, and the
- * compiler emits the out-of-line body at the end of the object.  Defined here
- * its two strings take their .rodata place after the stream manager's.  */
+/* The definition between the stream manager and the directory search.
+ * Declared inline: iosCdvdMgrLoad, iosCdvdMgrPackLoad, iosCdvdManager and
+ * iosCdvdDirectStOpen expand it, the stream manager above calls it, and the
+ * out-of-line body goes to the end of the object.  Its two strings follow the
+ * stream manager's in .rodata. */
 inline void iosCdvdDiskReadyBlock(void)
 {
     if (sceCdDiskReady(1) != 2) {
@@ -335,14 +303,9 @@ inline void iosCdvdDiskReadyBlock(void)
     }
 }
 
-/* INTERIM: the January-2002 listing expands iosCdvdGetFileLsn (cdvd.c rows
- * 739-753) inside iosCdvdBackGroundMgrAdd, so the 2001 source declared it
- * `inline` and the compiler emitted both the inlined copy and the out-of-line
- * body.  While this TU still carries asm members the out-of-line body has to
- * stay at its own ROM slot below, so the inlined copy is spelled here as a
- * static stand-in.  Delete this once the TU is C-complete and mark the real
- * definition `inline`.  */
-static inline int getFileLsnInlined(char *name, int *size)
+/* a file-static copy of iosCdvdGetFileLsn, defined below, which
+ * iosCdvdBackGroundMgrAdd inlines */
+static inline int getFileLsnInlined(char *name, int *size) /* derived name */
 {
     int i;
 
@@ -453,14 +416,9 @@ void iosCdvdMgrStStop(IosCdvdHandle *self)
     close_inflate_handler(self->inflate);
 }
 
-/* INTERIM: the January-2002 listing expands iosCdvdChgFileName (cdvd.c rows
- * 958-967) inside unifile_read_func, so the 2001 source declared it `inline`
- * and the compiler emitted both the inlined copy and the out-of-line body.
- * While this TU still carries asm members the out-of-line body has to stay at
- * its own ROM slot below, so the inlined copy is spelled here as a static
- * stand-in.  Delete this once the TU is C-complete and mark the real
- * definition `inline`.  */
-static inline int chgFileNameInlined(int a0)
+/* a file-static copy of iosCdvdChgFileName, defined below, which
+ * unifile_read_func inlines */
+static inline int chgFileNameInlined(int a0) /* derived name */
 {
     char buf[256];
     char *p = buf;
@@ -500,8 +458,8 @@ void iosCdvdMgrLoad(IosCdvdHandle *self)
     if (self->result != 0) {
         return;
     }
-    /* January row 1013 prints here; retail keeps the string with no
-     * reader. */
+    /* a print compiled out of the retail build; its string stays in
+     * .rodata */
     if (0) {
         debug_StdPrintfDummy("handler");
     }
@@ -529,19 +487,18 @@ void temp_loadfunc(int *self, int name, int size, int a3, int a4, int a5, int se
 
 /* One entry of a .PAK archive's directory: the four words the loader passes
  * on and the member's name, 0x224 bytes per entry. */
-typedef struct PackEnt {
-    int f00;        /* 0x00 */
-    int f04;        /* 0x04 */
-    int f08;        /* 0x08 */
-    int size;       /* 0x0C */
-    char name[532]; /* 0x10 */
-} PackEnt;
+typedef struct PackEnt { /* field names derived */
+    int f00;             /* 0x00 */
+    int f04;             /* 0x04 */
+    int f08;             /* 0x08 */
+    int size;            /* 0x0C */
+    char name[532];      /* 0x10 */
+} PackEnt;               /* derived name */
 
 typedef void (*PackFunc)(char *self, char *name, int size, int a3, int a4, int a5, int seg);
 
-/* INTERIM: the listing expands the extension lookup (cdvd.c rows 1043-1050)
- * inside the scan below, so the 2001 source declared it `inline`. */
-static inline PackFunc findPackKind(char *ext, int *kind)
+/* the extension lookup, expanded inside the scan below */
+static inline PackFunc findPackKind(char *ext, int *kind) /* derived name */
 {
     int i;
 
@@ -555,9 +512,8 @@ static inline PackFunc findPackKind(char *ext, int *kind)
     return 0;
 }
 
-/* INTERIM: the listing expands the loader lookup (cdvd.c rows 1063-1078)
- * inside iosCdvdMgrPackLoad, so the 2001 source declared it `inline` too. */
-static inline PackFunc getPackLoader(char *name, int *kind)
+/* the loader lookup, expanded inside iosCdvdMgrPackLoad */
+static inline PackFunc getPackLoader(char *name, int *kind) /* derived name */
 {
     int len;
     char *p;
@@ -575,16 +531,10 @@ static inline PackFunc getPackLoader(char *name, int *kind)
     return 0;
 }
 
-/* Three of the January listing's prints are compiled out here: row 1169 (the
- * file count, after the n=%d line row 1168 keeps), row 1215 (each member's
- * name) and row 1240 (the load time, from the frame counter read at row 1123
- * and the timer read at row 1234).  WHAT THE BYTES PIN: retail keeps all three
- * format strings in this member's .rodata after "try load %s\n" with no
- * reader, and keeps the timer and DMA status calls whose values only the
- * print used; the disabled blocks expand the strings at their rows and leave
- * no insn (the object is the same with and without them, measured).  WHAT
- * THEY CANNOT PIN: the construct the retail source used for these prints, or
- * the member-name argument (January reads it from a frame slot).  */
+/* Three prints are compiled out here: the file count, each member's name and
+ * the load time.  Their format strings stay in .rodata after "try load %s\n",
+ * and the timer and DMA status calls whose values only the prints used
+ * stay. */
 void iosCdvdMgrPackLoad(IosCdvdHandle *self)
 {
     int start = lock_execIcoMisc;
@@ -717,35 +667,20 @@ int iosCdStRead(unsigned int n, int *buf, int flag, int *result, char *self)
     return total;
 }
 
-/* The read-retry sleep (our name): the listing attributes its statements to
-   cdvd.c:679-680, a static inline between iosCdvdStManager and
-   iosCdvdDiskReadyBlock that is never emitted out of line.  IosCdvdMgrSleep marks
-   the cdvd thread asleep, as cdWait and iosCdvdManager set it around their
-   own sleeps. */
-static inline void cdvdSleep(void)
+/* The read-retry sleep: IosCdvdMgrSleep marks the cdvd thread asleep, as
+   cdWait and iosCdvdManager set it around their own sleeps. */
+static inline void cdvdSleep(void) /* derived name */
 {
     IosCdvdMgrSleep = 1;
     iosThreadSleep();
     IosCdvdMgrSleep = 0;
 }
 
-/* cdvd.c:1365-1501 in the listing.  self is the cdvd handle: the result
-   word iosCdStRead is handed, the bytes consumed, readSectorCnt and buffCnt
-   (the assert format names both), the sectors still to stream and the 32 KB
-   sector buffer.  buf is advanced in place (the listing puts its only copy
-   on the brace row) and left = n is row 1366.  ofs is the byte offset in the
-   buffer the sectors are read to, zero because a read only happens once the
-   buffer is drained.  WHAT THE BYTES PIN: the read's buffer argument is
-   recomputed at the call inside the wait loop (addiu $a1,$s0,0x180 at row
-   1394) while the result argument is hoisted to the loop entry (row 1391); a
-   plain self->buf is hoisted by gcse's PRE like the result pointer (108
-   words, strict 86); with a zero addend whose constant set reaches the call,
-   gcse's const propagation rewrites (plus self ofs) into a copy of self
-   (validate_replace_rtx_1's plus_constant case), the buffer's offset that
-   follows is no longer locally anticipatable, and the three string addresses
-   keep their callee-saved registers.  WHAT THEY
-   CANNOT PIN: the name and row of the offset (rows 1376-1390 are code-free)
-   or why the developer kept a zero offset. */
+/* self is the cdvd handle: the result word iosCdStRead is handed, the bytes
+   consumed, readSectorCnt and buffCnt (the assert format names both), the
+   sectors still to stream and the 32 KB sector buffer.  buf is advanced in
+   place.  ofs is the byte offset in the buffer the sectors are read to, zero
+   because a read only happens once the buffer is drained. */
 void iosCdvdHandlerReadNoInflate(IosCdvdHandle *self, void *buf, int n)
 {
     int left = n;
@@ -853,12 +788,11 @@ int unifile_read_func(IosCdvdHandle *self)
 
 /* The 0x38 name column of a cdvd request is written 16 bytes at a time, so it
  * is typed as an 8-byte-aligned pair: the unifile request always loads the
- * fixed disc path "DFDATAS/DATA.DF", copied as two doublewords (a strcpy
- * there is not aligned and emits ldl/ldr, measured). */
-typedef struct {
+ * fixed disc path "DFDATAS/DATA.DF", copied as two doublewords. */
+typedef struct { /* field names derived */
     long long lo;
     long long hi;
-} CdvdName16;
+} CdvdName16; /* derived name */
 
 void iosCdvdUnifileInfoGet(void)
 {
@@ -870,21 +804,13 @@ void iosCdvdUnifileInfoGet(void)
 
 int iosCdvdBackGroundMgrRunning = 0;
 
-/* kept local: this TU does not include thread.h, whose iosThreadStart and
+/* this TU does not include thread.h, whose iosThreadStart and
    iosThreadCreate take the thread record as an int and a void pointer */
 
-/* cdvd.c:1665-1724 in the listing, with iosCdvdDiskReadyBlock (rows
-   701-708) expanded in case 0.  The frame is the ROM's: the inlined block's
-   fp and file at sp+0 and sp+0x30 (its frame is taken when case 0 is
-   expanded), the reply buffer at sp+0x50, msg at sp+0x8210 (an address-taken
-   local gets its slot last).  The buffer's block opens after the switch: a
-   block's locals take their slot when the block is entered, so declared at
-   the top the buffer takes sp+0 and every later slot moves (measured, 87
-   words).  Its size is what puts msg at 0x8210.  What the bytes cannot pin:
-   the buffer's type and name, or what the developers kept in it (the
-   LoadEnd receivers never read the value).  req is the request the switch
-   dispatches on, held across case 0's calls; the default arm reads msg
-   again, which is the ROM's reload. */
+/* The cdvd manager thread, with iosCdvdDiskReadyBlock expanded in case 0.
+   The reply buffer's block opens after the switch.  req is the request the
+   switch dispatches on, held across case 0's calls; the default arm reads
+   msg again.  The LoadEnd receivers never read the reply value. */
 void iosCdvdManager(void)
 {
     int *msg;
@@ -898,8 +824,7 @@ void iosCdvdManager(void)
     iosThreadStart(stThread);
 
     iosCdvdBackGroundMgrInit();
-    /* January row 1683 prints the start banner (puts); retail keeps the
-     * string in .rodata with no reader, so the print is compiled out here. */
+    /* the start banner, compiled out; its string stays in .rodata */
     if (0) {
         debug_StdPrintfDummy("CD MANAGER START");
     }
@@ -927,8 +852,8 @@ void iosCdvdManager(void)
             req[3] = 0;
             break;
         case 1:
-            /* January row 1708 prints here; retail keeps the string with no
-             * reader. */
+            /* a print compiled out of the retail build; its string stays in
+             * .rodata */
             if (0) {
                 debug_StdPrintfDummy("load");
             }
@@ -983,9 +908,8 @@ CdvdBgReq *iosCdvdBackGroundMgrAdd(const char *name, void *readFunc, int readArg
             goto found;
     }
     for (i = 0; i < 7; i++) {
-        /* the January-2002 listing prints the whole table here (row 1888);
-         * the retail build compiles the print out, keeps its format string
-         * and leaves the empty countdown */
+        /* the table print, compiled out of the retail build: its format string
+         * stays and the countdown is left empty */
         if (0) {
             debug_StdPrintfDummy("** %d %s %p\n", i, bgReqTable[i].name, bgReqTable[i].readFunc);
         }
@@ -1016,8 +940,8 @@ found:
     chgFileNameInlined((int)buf);
     bg->lsn = getFileLsnInlined(buf, &size);
     bg->size = size;
-    /* January row 1922 (the name, the sector and the read function spilled
-     * to the frame); retail keeps the string with no reader. */
+    /* a print compiled out of the retail build; its string stays in
+     * .rodata */
     if (0) {
         debug_StdPrintfDummy("%s lsn:%d handler:%p\n", buf, bg->lsn, readFunc);
     }
@@ -1105,9 +1029,8 @@ int iosCdvdBackGroundRead(CdvdBgReq *self, void *buf, int size)
 {
     int flag;
 
-    /* January row 2127, argument for argument (0x114, 0x110, size, buf, the
-     * request's name); retail keeps the string with no reader.  January's
-     * alignment warning at rows 2131-2132 left neither code nor string. */
+    /* a print compiled out of the retail build; its string stays in
+     * .rodata */
     if (0) {
         debug_StdPrintfDummy("lsn %d cnt %d size %d buf %p %s\n", self->lsn, self->pos, size, buf,
                              self->name);
@@ -1148,8 +1071,7 @@ int iosCdvdBackGroundReadIOPm(CdvdBgReq *self, void *buf, int size)
 {
     int flag;
 
-    /* January row 2210, the same print for the IOP buffer; retail keeps the
-     * string with no reader. */
+    /* the same print for the IOP buffer, compiled out */
     if (0) {
         debug_StdPrintfDummy("lsn %d cnt %d size %d iopbuf %p %s\n", self->lsn, self->pos, size,
                              buf, self->name);
@@ -1210,10 +1132,8 @@ void iosCdvdDirectStOpen(IosCdvdHandle *self)
     iosCdvdMgrSearchFile(self);
     self->sectors = ((unsigned int)(self->file.size - 1) >> 11) + 1;
     mem = iosSifAllocIopHeapDebug(576 * 2048 + 16, __FILE__, 2472);
-    /* The ROM keeps this message between the IOP read's and the stream
-     * read's strings with no reader, and the January listing leaves rows
-     * 2473-2474 after the allocation code-free: a check compiled out in both
-     * builds.  WHAT THE BYTES CANNOT PIN: its condition or its argument. */
+    /* an allocation check compiled out of the retail build; its message
+     * stays in .rodata */
     if (0) {
         debug_StdPrintfDummy("\nCan't alloc cd stream buff %d \n", 576 * 2048 + 16);
     }
@@ -1235,15 +1155,8 @@ void iosCdvdDirectStClose(IosCdvdHandle *self)
     sceSifFreeIopHeap(self->stMem);
 }
 
-/* Listing rows 953-967: the first character load sits on the sprintf row and
- * the loop carries the next character in a register (gcse PRE of `*p` across
- * the back edge, the copy in the bnez delay slot), so the loop reads `*p`
- * directly.  WHAT THE BYTES PIN: this body is the same with `*p` read three
- * times; the inlined copy in iosCdvdMgrPackLoad is not, since three more
- * pseudos move two of that function's gcse pseudos across a hash bucket and
- * swap their spill slots (268/272), which the one `c` the test assigns and
- * toupper reads removes.  WHAT THEY CANNOT PIN: whether `c` was declared
- * here or at the test's line.  */
+/* The loop carries the next character in `c`, which the test assigns and
+ * toupper reads. */
 int iosCdvdChgFileName(int a0)
 {
     char buf[256];

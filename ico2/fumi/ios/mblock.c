@@ -3,7 +3,7 @@
 #include <string.h>
 #include "ios.h"
 
-/* .sdata, owned by mblock.o: the free node list (MAIN.MAP global) */
+/* the free node list */
 int free_mblock_list = 0;
 
 inline void init_mblock(int *a0)
@@ -12,7 +12,6 @@ inline void init_mblock(int *a0)
     a0[1] = 0;
 }
 
-/* listing lines 16-51 */
 MBlockNode *new_mblock_node(unsigned int size)
 {
     MBlockNode *node;
@@ -50,8 +49,7 @@ MBlockNode *new_mblock_node(unsigned int size)
     return node;
 }
 
-/* listing lines 55-66 */
-static inline int enough_space(MBlock *mb, unsigned int size)
+static inline int enough_space(MBlock *mb, unsigned int size) /* derived name */
 {
     MBlockNode *node = mb->head;
     unsigned int end;

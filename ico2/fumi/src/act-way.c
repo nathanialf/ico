@@ -17,20 +17,20 @@
 
 /* the 0x80-byte way-walker work record, the same one ico2/fumi/src/way_kidnap
    carries as WayWork; the actor keeps its copy at act + 0x360 */
-typedef struct {
-    long long _00[7]; /* 0x00 */
-    int _38;          /* 0x38 */
-    int f3C;          /* 0x3C */
-    long long _40[4]; /* 0x40 */
-    int _60;          /* 0x60 */
-    int f64;          /* 0x64 */
-    long long _68[3]; /* 0x68 */
-} WayWork;            /* 0x80 */
+typedef struct {              /* field names derived */
+    long long _00[7];         /* 0x00 */
+    int _38;                  /* 0x38 */
+    int f3C;                  /* 0x3C */
+    long long _40[4];         /* 0x40 */
+    int _60;                  /* 0x60 */
+    int f64;                  /* 0x64 */
+    long long _68[3];         /* 0x68 */
+} WayWork; /* derived name */ /* 0x80 */
 
 /* the two-word playback-rate pair the wait counters are scaled by */
 
 /* the three detour angles DetourCheck sweeps, in degrees, zero-terminated */
-static int detourAngle[4] = {75, -75, 0, 0};
+static int detourAngle[4] = {75, -75, 0, 0}; /* derived name */
 
 void DetourCheck(GObj *self, float *out)
 {
@@ -55,8 +55,7 @@ void DetourCheck(GObj *self, float *out)
         *(int *)((char *)GOBJ_ACT(self)->work + 0x8E0) -= 1;
         return;
     }
-    /* two identical case bodies (listing 133-134 is the one jump2's cross
-       jumping keeps); a shared `case 2: case 3:` body is a range test */
+    /* two identical case bodies */
     switch (act->actMode) {
     case 2:
         ok = 1;
@@ -67,7 +66,7 @@ void DetourCheck(GObj *self, float *out)
         wait = (60 - systemStatus[0] * 10) / systemStatus[1] * 40 / 60;
         break;
     }
-    /* listing line 139: the four tests are one statement */
+    /* the four tests are one statement */
     if (ok == 0 || act->stickMag == 0.0f || (GOBJ_SUB(self)->ctrl.flags & 2) == 0 ||
         ((*(unsigned long long *)((char *)GOBJ_ACT(self)->work + 0x448) >> 33) & 1) == 0) {
         return;
@@ -93,7 +92,7 @@ void DetourCheck(GObj *self, float *out)
     }
 }
 
-/* kept local: motionOrientManager.h declares none of the motion tables */
+/* motionOrientManager.h declares none of the motion tables */
 extern MotionDef motionKind[];
 
 int checkPositionIllegal(GObj *self, float *pos)
@@ -145,19 +144,16 @@ inline unsigned char WayMove_CheckCollis(float *p0, float *p1, void *a2, void *a
     return ACTCheckCollis_WAY(10.0f, a, b, a2, a3);
 }
 
-/* ico2/fumi/src/act-way.c lines 236 to 290: three helpers the January-2002
-   listing inlines into ACTWayMove_BeginDetail and ACTWayMove_NextDetail.
-   None of them carries a symbol of its own in MAIN.MAP, so the names here
-   are ours; the bodies come from the listing's rows 239 to 287. */
+/* three helpers inlined into ACTWayMove_BeginDetail and
+   ACTWayMove_NextDetail */
 
-/* .sbss, owned by act-way.o and reached only from these two helpers (MAIN.MAP
-   names no symbol in the run), in the ROM's run order: the pull-up floor box's
-   saved enable word and the box itself, held across the way search. */
+/* the pull-up floor box's saved enable word and the box itself, held across
+   the way search */
 static int pullupBoxEnable; /* derived name */
 
 static void *pullupBox; /* derived name */
 
-static inline void SuspendGirlPullupFloorBox(void)
+static inline void SuspendGirlPullupFloorBox(void) /* derived name */
 {
     pullupBox = FindGirlPullupFloorBoxGObj();
     pullupBoxEnable = pullupBox != 0 ? GOBJ_SUB(pullupBox)->disp : 0;
@@ -166,7 +162,7 @@ static inline void SuspendGirlPullupFloorBox(void)
     }
 }
 
-static inline void ResumeGirlPullupFloorBox(void)
+static inline void ResumeGirlPullupFloorBox(void) /* derived name */
 {
     if (pullupBoxEnable != 0) {
         GOBJ_SUB(pullupBox)->disp = 1;
@@ -174,7 +170,7 @@ static inline void ResumeGirlPullupFloorBox(void)
 }
 
 static inline int RequestWayBegin(char *self, float *goal, float *from, WayWork *way,
-                                  unsigned char sub)
+                                  unsigned char sub) /* derived name */
 {
     ActWork *req;
     char *ws;
@@ -222,12 +218,7 @@ int ACTWayMove_BeginDetail(GObj *self, float *goal, float *from, void *tgt, void
     int ret = 0;
     int w;
 
-    /* Disabled in retail: the way-begin-position (WBP) report.  What the
-       bytes pin: its text is the first item of this object's .rodata, ahead
-       of ACTWayMove_NextDetail's "no route" trace, with no instruction; the
-       listing gives this function no rows between its declarations (308)
-       and the copy of the way work (313).  What they cannot: the condition
-       that disabled it. */
+    /* disabled in retail: the way-begin-position (WBP) report */
     if (0) {
         debug_StdPrintfDummy("WBP <<begin>>\n");
     }
@@ -277,23 +268,24 @@ int ACTWayMove_BeginDetail(GObj *self, float *goal, float *from, void *tgt, void
 
 /* the 0x20-byte way-step record the actor keeps at act + 0x3E0: the step
    direction, the 64-bit way state word and the two distances to the goal */
-typedef struct {
+typedef struct {     /* field names derived */
     float dir[4];    /* 0x00 */
     long long state; /* 0x10 */
     float dist;      /* 0x18 */
     float dy;        /* 0x1C */
-} WayStep;
+} WayStep;           /* derived name */
 
 /* the two templates act-way.o keeps in .data: the cleared way-walker record
    (its waypoint id starts at -1) and the cleared way-step record (its two
    distances start at the largest float) */
-static WayWork wayWorkClear = {{0}, 0, 0, {0}, 0, -1};
+static WayWork wayWorkClear = {{0}, 0, 0, {0}, 0, -1}; /* derived name */
 
-static WayStep wayStepClear = {{0.0f, 0.0f, 0.0f, 0.0f}, 0, 3.4028235e38f, 3.4028235e38f};
+static WayStep wayStepClear = {
+    {0.0f, 0.0f, 0.0f, 0.0f}, 0, 3.4028235e38f, 3.4028235e38f}; /* derived name */
 
-/* kept local: this TU's uses of the gv distance helpers do not fit the void
-   returns gv.h carries, and its GetRootProjectionPosOfGObj / IsThisBoxTruck
-   call forms do not fit motionManager2.h and box.h */
+/* this TU's uses of the gv distance helpers do not fit the void returns gv.h
+   carries, and its GetRootProjectionPosOfGObj / IsThisBoxTruck call forms do
+   not fit motionManager2.h and box.h */
 
 int ACTWayMove_NextDetail(GObj *self, float *node, float *goal, unsigned char d, unsigned char e)
 {
@@ -318,12 +310,7 @@ int ACTWayMove_NextDetail(GObj *self, float *node, float *goal, unsigned char d,
     GetRootProjectionPosOfGObj(pos, self);
     dy = pos[1] - *(float *)((char *)act + 0x434);
     if (dy < 0.0f ? -dy > 120.0f : dy > 120.0f) {
-        /* WHAT THE BYTES PIN: retail keeps this string and the two recheck
-           strings below in the member's .rodata right after the EUC-JP trace
-           above, in this order, and no instruction reads any of them: disabled
-           prints, expanded here and deleted as dead code, as fumi's cdvd.c
-           keeps its two.  WHAT THEY CANNOT PIN: where in this function the
-           prints stood or how they were switched off. */
+        /* disabled prints, here and at the two rechecks below */
         if (0) {
             debug_StdPrintfDummy("WBP set [height]\n");
         }
@@ -528,10 +515,8 @@ done:
 
 int ACTWayExec_Position(GObj *self, int a1, float *dir, float speed, int a3)
 {
-    /* listing lines 677/678 carry every flag test inside this function's own
-       span: an inline function nested in the body, reading the enclosing a3
-       (which is what gives a3 its frame home at sp+0 and the two reloads) */
-    inline unsigned char way_flag(int mask)
+    /* an inline function nested in the body: whether a3 has the mask's bits */
+    inline unsigned char way_flag(int mask) /* derived name */
     {
         if (a3 & mask) {
             return 1;

@@ -18,80 +18,74 @@
 #include "GifPacket.h"
 #include <assert.h>
 
-typedef struct {
+typedef struct { /* field names derived */
     char pad0[16];
     FcWallEnt *walls; /* 0x10 */
     int unk14;
     short **unk18;
     short **unk1C;
     float *unk20;
-} FuzioCtx;
+} FuzioCtx; /* derived name */
 
 /* One line colour of the collision display: red, green, blue, alpha. */
-typedef struct {
+typedef struct { /* field names derived */
     int rgba[4];
-} FcColor;
+} FcColor; /* derived name */
 
 typedef int (*FcFunc)(void *a0, int a1);
 
-/* fieldCollision.o's .sbss and .bss, each in the ROM's order (MAIN.MAP lines
-   7593 and 7704 size the runs 0x38 and 0x5C0 and name no symbol in either, so
-   every name here is ours).  .sbss: the number of objects in the collision
-   list, the nine collision statistics DispCollisionPC prints (a pair per
-   format, wall, wall R, floor, floor R, with the timer between the two
-   halves; the retail build only resets them), the number of block-table
-   entries, the fuzio context the current object carries, the filter the
-   list builder asks, and the number of exit-attribute slots in use. */
-static int colObjNum;
+/* fieldCollision.o's .sbss and .bss.  .sbss: the number of objects in the
+   collision list, the nine collision statistics DispCollisionPC prints (a
+   pair per format, wall, wall R, floor, floor R, with the timer between the
+   two halves; the retail build only resets them), the number of block-table
+   entries, the fuzio context the current object carries, the filter the list
+   builder asks, and the number of exit-attribute slots in use. */
+static int colObjNum; /* derived name */
 
-static int pcWall0;
+static int pcWall0; /* derived name */
 
-static int pcWallR0;
+static int pcWallR0; /* derived name */
 
-static int pcFloor0;
+static int pcFloor0; /* derived name */
 
-static int pcFloorR0;
+static int pcFloorR0; /* derived name */
 
-static int pcTime;
+static int pcTime; /* derived name */
 
-static int pcWall1;
+static int pcWall1; /* derived name */
 
-static int pcWallR1;
+static int pcWallR1; /* derived name */
 
-static int pcFloor1;
+static int pcFloor1; /* derived name */
 
-static int pcFloorR1;
+static int pcFloorR1; /* derived name */
 
-static int blockNum;
+static int blockNum; /* derived name */
 
-static FuzioCtx *curFuzio;
+static FuzioCtx *curFuzio; /* derived name */
 
 static int (*colFilter)(void *obj);
 
-static int exitAttrNum;
+static int exitAttrNum; /* derived name */
 
 /* .bss: DispCollisionPC's line buffer, the collision object list, the block
    table and the exit-attribute slots. */
-static char pcLine[256];
+static char pcLine[256]; /* derived name */
 
-static void *colObjList[256];
+static void *colObjList[256]; /* derived name */
 
-static short blockTable[64];
+static short blockTable[64]; /* derived name */
 
-static void *exitAttr[16];
+static void *exitAttr[16]; /* derived name */
 
-/* .data, owned by fieldCollision.o, 0x29D1D0..0x29D420 (= MAIN.MAP's 0x250,
-   line 5851, which names InitialColInfo), in the ROM's order: InitialColInfo
-   here, the debug label table in MakeCollisionDependGObjList's disabled
-   block, then the clip mode table, the clip work matrix and the plane point
-   after the clip functions and the wall line colours with the unused unit
-   matrix before DrawGObjWallCollision.
-   .sdata, 0x63A808..0x63A868 (MAIN.MAP line 7083 names collision_pick and
-   InitialObjPointer), in emission order: the four variables here, the
-   assert text "e", the three labels, the two clip function pointers and the
-   wall draw count, then GetEdgeOfFloor's three strings.  The word before
-   collision_pick is reached by no instruction, in retail or in the January
-   listing (whose collision_pick also sits 4 below InitialObjPointer). */
+/* .data: InitialColInfo here, the debug label table in
+   MakeCollisionDependGObjList's disabled block, then the clip mode table, the
+   clip work matrix and the plane point after the clip functions and the wall
+   line colours with the unused unit matrix before DrawGObjWallCollision.
+   .sdata, in emission order: the four variables here, the assert text "e",
+   the three labels, the two clip function pointers and the wall draw count,
+   then GetEdgeOfFloor's three strings.  No code reads the word before
+   collision_pick. */
 WallCfg InitialColInfo = {{0, -1}, 0};
 
 static int fcReserved = 0; /* derived name */
@@ -120,15 +114,8 @@ void MakeCollisionDependGObjList(void)
         debug_assertMessage(__FILE__, 533, "TOO MANY COLLISION DEPEND GOBJS\n");
         __assert(__FILE__, 533, "e");
     }
-    /* The listing's rows 534 to 579 carry no code: a debug dump of the list
-     * compiled out. What the bytes pin: a 33- to 48-byte buffer in the frame
-     * (0x60 with 0x30 of register saves) and the format "%s%d(%d)\n", which
-     * the ROM's .rodata holds right after this function's two strings with no
-     * reader. The block's label table is a static: the .data holds three
-     * pointers to the .sdata labels "GOBJ: ", " MAT: " and " COL: " (emitted
-     * in reverse, after the assert's "e") and zero words to the clip mode
-     * table. What they cannot pin: the rest of the block, or whether the zero
-     * words are the table's (seven or eight slots) or an object of their own. */
+    /* a debug dump of the list, compiled out of the retail build; its label
+     * table and format stay in the data */
     if (0) {
         static char *label[8] = {"GOBJ: ", " MAT: ", " COL: "};
         char buf[48];
@@ -171,8 +158,8 @@ inline void SetSimplePlane(float *self, float a, float b, float c, float d)
     self[3] = d;
 }
 
-/* listing line 628: the absolute value clip_wall_1 inlines five times */
-static __inline__ float FcAbsF(float v)
+/* the absolute value clip_wall_1 inlines five times */
+static __inline__ float FcAbsF(float v) /* derived name */
 {
     if (v < 0.0f) {
         v = -v;
@@ -230,19 +217,12 @@ int clip_wall_1(void *a0, FcWallEnt *wall, int flip, int useh)
     }
     pb[0] = d[0] * nz - d[2] * nx;
     pb[1] = d[1];
-    /* What the bytes pin: the start point (lines 742-745) reads the wall through
-     * a pointer other than the one the end point (716-719) used, set in the
-     * block after line 735's reject. The ROM loads e[0] and e[2] a second time
-     * here and keeps those loads to lines 872/873; through `wall` gcse would
-     * find them redundant with line 716/718's. The pointer is pointer-typed:
-     * both groups schedule the [2] load above the d[] stores. What they cannot
-     * pin: its name or the line between 736 and 741 it sat on. */
+    /* the start point reads the wall through a pointer of its own */
     e = wall;
     d[0] = ray->a[0] - e->pt[0][0];
     d[1] = ray->a[1];
     d[2] = ray->a[2] - e->pt[0][2];
-    /* the ROM reads ray->a[0] before e[0] at line 742, so the wall origin
-     * is taken after the subtraction that reads it */
+    /* the wall origin is taken after the subtraction that reads it */
     ex = e->pt[0][0];
     ez = e->pt[0][2];
     pa[2] = d[0] * nx + d[2] * nz;
@@ -258,14 +238,7 @@ int clip_wall_1(void *a0, FcWallEnt *wall, int flip, int useh)
     if (pa[0] < lo && pb[0] < lo) {
         return 0;
     }
-    /* What the bytes pin: a second read of pa[2], into its own variable, after
-     * line 760's compares and before line 761's. It is outside the cse path
-     * that holds ds, so gcse turns it into a copy of line 752's load ($f9
-     * beside ds in $f7), and the depth tests at 770/825/838 and the pb[2]
-     * stores of the two edge arms read that copy while the far clamp reads
-     * ds. Moved to just before line 770 it shares a block with its first use
-     * and the copy disappears (measured, 22 words). What they cannot pin: its
-     * name, or which of lines 760/761 it shared (no line lies between them). */
+    /* a second read of pa[2], into its own variable */
     sz = pa[2];
     if (hi < pa[0] && hi < pb[0]) {
         return 0;
@@ -348,18 +321,18 @@ int clip_wall_1(void *a0, FcWallEnt *wall, int flip, int useh)
     return 1;
 }
 
-typedef struct {
+typedef struct { /* field names derived */
     float x, y, z, w;
-} FcVec4;
+} FcVec4; /* derived name */
 
-typedef struct {
+typedef struct {            /* field names derived */
     FcVec4 v[4];            /* 0x00: polygon vertices */
     float nx, ny, nz, npad; /* 0x40: plane normal */
     float d;                /* 0x50: plane distance */
     int nex;                /* 0x54: vertices past the first three */
-} FcFloorEnt;
+} FcFloorEnt;               /* derived name */
 
-static __inline__ int FloorPointInside(FcFloorEnt *e, float *pt)
+static __inline__ int FloorPointInside(FcFloorEnt *e, float *pt) /* derived name */
 {
     FcVec4 *v;
     FcVec4 *p2;
@@ -942,14 +915,14 @@ inline int _clipFR(ClipWork *arg0, int arg1, int arg2)
 
 /* The clip-mode table the ClipWall/ClipFloor wrappers index by mode: modes
  * 0..11 are the wall entries, 12 on the floor ones (ClipFloor passes 0xC).
- * VMA 0x0029D200, 16-byte records, func at +0xC (ClipFloorByGObj reads
- * entry 12's directly). */
-typedef struct {
+ * 16-byte records, func at +0xC (ClipFloorByGObj reads entry 12's
+ * directly). */
+typedef struct { /* field names derived */
     int f_0;
     int f_4;
     int f_8;
     int (*func)(ClipWork *p, int gobj, int mode);
-} FcClipMode;
+} FcClipMode; /* derived name */
 
 /* The clip modes, then the work matrix whose translation row _Clip sets for
    an unrotated object, and the plane point of the wall hit arm. */
@@ -964,20 +937,20 @@ static FcClipMode clipMode[17] = {
     {0, 0, 0, _clipF},          {0, 1, 0, _clipFE},
     {0, 0, 0, _clipFR},         {0, 0, 0, _clipFIH},
     {0, 0, 1, _clipF},
-};
+}; /* derived name */
 
 static float clipMatrix[16] = {1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0}; /* derived name */
 
 static float clipPlanePos[4] = {0}; /* derived name */
 
-typedef union {
+typedef union { /* field names derived */
     float f[4];
     int i[4];
     long long ll[2];
-} FcPlane;
+} FcPlane; /* derived name */
 
-/* listing lines 1470-1472: one static inline expanded in both tail arms */
-static __inline__ void setClipPlane(char *self, void *m, void *v)
+/* one static inline expanded in both tail arms */
+static __inline__ void setClipPlane(char *self, void *m, void *v) /* derived name */
 {
     FcPlane *n = (FcPlane *)(self + 0xA0);
 
@@ -985,17 +958,12 @@ static __inline__ void setClipPlane(char *self, void *m, void *v)
     n->f[3] = -sceVu0InnerProduct(n, (self + 0x20));
 }
 
-/* RECONSTRUCTION: the 0x15C sub-object slot of a gobj, read as the union of
- * its pointer and int-handle views. _Clip's wall-hit arm is the proof: the
- * ROM keeps the slot read behind both float stores to clipPlanePos while the
- * int reads of the ClipWork fields move ahead of them. Only an alias-set-0
- * read does that (a union member access, c_get_alias_set), where
- * typedef.h's int-typed GOBJ_SUB read or a plain pointer read lets the
- * scheduler hoist the chase and rotates the arm's registers. */
-typedef union {
+/* the 0x15C sub-object slot of a gobj, read as the union of its pointer and
+ * int-handle views */
+typedef union { /* field names derived */
     char *sub;
     int handle;
-} FcSubSlot;
+} FcSubSlot; /* derived name */
 
 void _Clip(char *self, int mode)
 {
@@ -1170,10 +1138,8 @@ inline void __ClipFloorWithDrawRay(char *w, int a1)
 inline void ClipWallRD(void)
 {
     collision_pick = 1;
-    /* Cast away the (int) prototype so gcc doesn't emit `daddu $a0,$0,$0`
-     * to set up an arg the original call didn't pass. The implementation
-     * happens to read $a0 but the original cross-TU caller didn't bother
-     * to clear it. */
+    /* ClipWall called with no argument, through a cast of its (int)
+     * prototype */
     ((void (*)(void))ClipWall)();
     collision_pick = 0;
 }
@@ -1307,10 +1273,10 @@ inline float GetYDistanceFromPlane(float *a0, float *a1)
     return a1[1] - GetYProjectionOfPlane(a0, a1);
 }
 
-typedef union {
+typedef union { /* field names derived */
     float f[4];
     long long ll[2];
-} FcVec;
+} FcVec; /* derived name */
 
 inline void GetWallGlobalInfo(char *pts, void *nrm, char *w, void *m)
 {
@@ -1393,8 +1359,7 @@ inline void LoadCollision(int *self, int a1)
 static int wallDrawCnt = 0; /* derived name */
 
 /* The wall edge and rim colours for a plain wall, an attributed one and the
-   two exit kinds, then a unit matrix no instruction reaches (in retail or in
-   the January listing). */
+   two exit kinds, then a unit matrix nothing reads. */
 static FcColor wallEdgeColor = {0, 56, 255, 128}; /* derived name */
 
 static FcColor wallEdgeColorAttr = {0, 0, 255, 128}; /* derived name */
@@ -1413,7 +1378,7 @@ static FcColor wallRimColorExit1 = {25, 0, 19, 32}; /* derived name */
 
 static float unitMatrix[16] = {1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0}; /* derived name */
 
-typedef struct {
+typedef struct { /* field names derived */
     char pad0[8];
     int nobj;  /* 0x8  */
     char *mtx; /* 0xC  */
@@ -1423,19 +1388,19 @@ typedef struct {
     int norot; /* 0x78 */
     char pad7C[4];
     int multi; /* 0x80 */
-} FcWallSub;
+} FcWallSub;   /* derived name */
 
-typedef struct {
+typedef struct { /* field names derived */
     char pad0[348];
     FcWallSub *sub; /* 0x15C */
-} FcWallObj;
+} FcWallObj;        /* derived name */
 
-typedef struct {
+typedef struct { /* field names derived */
     char pad0[8];
     int nwall; /* 0x8  */
     char padC[4];
     char *walls; /* 0x10 */
-} FcWallSet;
+} FcWallSet;     /* derived name */
 
 void DrawGObjWallCollision(char *gobj, int col)
 {
@@ -1603,14 +1568,8 @@ int GetEdgeOfFloor(float *out, FcFloorEnt *e, float *p1, float *p2)
         if (d1 > 0.0f && d2 > 0.0f) {
             continue;
         }
-        /* What the bytes pin: the normal reads both vertices through pointers
-         * of its own. The ROM reloads all four coordinates here and rebuilds
-         * the second vertex's address from the shifted index it kept; read
-         * through va/vb, gcse reuses the loads of the two arms instead, and
-         * setting va again here stops loop.c treating it as an induction
-         * variable. The fourth store lands one float past n (sp+0x10, the
-         * inlined helper's cp slot) and the one after the call at out+0x10.
-         * What they cannot pin: the pointers' names or their scope. */
+        /* the normal reads both vertices through pointers of its own; the fourth
+         * store lands one float past n */
         {
             FcVec4 *ca = &e->v[i];
             FcVec4 *cb = &e->v[j];
@@ -1625,11 +1584,9 @@ int GetEdgeOfFloor(float *out, FcFloorEnt *e, float *p1, float *p2)
         }
     }
     if (i == 4) {
-        /* The dump's loop has locals of its own: sharing the main loop's
-         * pointers moves the main loop's second vertex from $a1 to $v0, and
-         * sharing its distances costs a second callee-saved float register.
-         * The fptodp calls below are the float-to-double promotions of the
-         * variadic call's arguments. */
+        /* The dump's loop has locals of its own.  The fptodp calls below are
+         * the float-to-double promotions of the variadic call's
+         * arguments. */
         FcVec4 *da;
         FcVec4 *db;
         float g1;
@@ -1665,9 +1622,8 @@ int GetEdgeOfFloor(float *out, FcFloorEnt *e, float *p1, float *p2)
 inline void GetOrientOfWall(void *a0, void *a1, int *a2)
 {
     float buf[4];
-    /* NULL on the no-wall path, where the ROM stores 0 through it
-       (sw $0,0($s3) at 0x16f3fc, listing row 2036): a deliberate fault after
-       the message, as far as the bytes show. */
+    /* NULL on the no-wall path, where the code stores 0 through it: a
+       deliberate fault after the message */
     int *trap;
     void *obj = (void *)a2[0];
 
@@ -1846,15 +1802,7 @@ void ClipFloorByGObj(char *p, char *gobj)
     CopyVector(&keep, ep);
     CopyVector(p, buf0);
     /* pos now names the start point: the DEBUG build traces the segment
-     * (pos to ep) once it is in the object's space.  Retail builds the
-     * trace out and flow deletes this set (SRCFILE.TXT row 2244 has no
-     * instructions, rows 2252-2255 after the two transforms none either).
-     * What the bytes pin: some set of pos after the ep copy and before the
-     * clip call, because otherwise gcse records `ep = pos` as an available
-     * copy and propagates pos into the if arms; pos then lives past block 0
-     * and local-alloc no longer puts it in $16 ahead of gobj ($17) and clip
-     * ($18). What they cannot pin: the value, the spelling or the line of
-     * that set, or the trace's text (ours, in DBG_VECTOR's terms). */
+     * (pos to ep) once it is in the object's space */
     pos = p;
     m = *(char **)(((FcSubSlot *)(gobj + 0x15C))->sub + 0xC);
     MatrixDrive_SetTransposeMatrix(mtx, (float *)m);

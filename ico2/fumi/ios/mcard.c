@@ -5,21 +5,21 @@
 #include "mcdata.h"
 #include <string.h>
 
-typedef union {
+typedef union { /* field names derived */
     long long ll;
 
     struct {
         int lo, hi;
     } w;
-} McHdr;
+} McHdr; /* derived name */
 
-typedef union {
+typedef union { /* field names derived */
     long long ll;
 
     struct {
         int lo, hi;
     } w;
-} McTestVal;
+} McTestVal; /* derived name */
 
 #include "mcard.h"
 #include <eekernel.h>
@@ -29,22 +29,18 @@ typedef union {
 #include "message.h"
 #include "typedef.h"
 
-/* .bss, owned by mcard.o and reached only from this file (MAIN.MAP names no
-   symbol in the run), in the ROM's run order: the semaphore descriptor the
-   card lock is created from, then the manager queue's 16-slot message ring. */
+/* the semaphore descriptor the card lock is created from, then the manager
+   queue's 16-slot message ring */
 static struct SemaParam mcLockSemaParam;
 
-static int mcMsgRing[16];
+static int mcMsgRing[16]; /* derived name */
 
-/* .data, owned by mcard.o, 0x29B580..0x29BA18 (MAIN.MAP mcard.o .data 0x3C8,
-   line 5819, names all six at these offsets up to IosMcProductFile, whose
-   two records are 0x3E0 here, 0x318 in January): the three icon file names,
-   the save segment names, then after the block handlers the segment table,
-   the two product records, the preview record and the manager's queue.
-   .sdata, 0x63A478..0x63A4D8 (MAIN.MAP line 7033 names IosMcMgrSleep and
-   IosMcLock): the two words, the "game." name (emitted with the segment
-   names, last first, as are the two longer ones in .rodata), the lock
-   count, then the literals in first-use order. */
+/* .data: the three icon file names, the save segment names, then after the
+   block handlers the segment table, the two product records, the preview
+   record and the manager's queue.
+   .sdata: the two words, the "game." name (emitted with the segment names,
+   last first, as are the two longer ones in .rodata), the lock count, then
+   the literals in first-use order. */
 int IosMcMgrSleep = 0;
 
 int IosMcLock = -1;
@@ -180,11 +176,11 @@ inline int iosMcGetBlockSaveInfo(void *a0)
     return iosMsgSend(&McMsgQ, a0, 0);
 }
 
-typedef struct {
+typedef struct { /* field names derived */
     char b[64];
-} McBlk;
+} McBlk; /* derived name */
 
-typedef struct {
+typedef struct { /* field names derived */
     char pad0[400];
     int soundMode;
     int outputMode;
@@ -194,10 +190,9 @@ typedef struct {
     char pad1E0[8];
     int cameraMove;
     int unk1EC;
-} McSaveRec;
+} McSaveRec; /* derived name */
 
-/* defined below, at their ROM slots; the 2001 source called them from here
-   without a prototype, so they keep the non-prototype form. */
+/* defined below; called from here without a prototype */
 extern McSaveRec IosMcProductFile[];
 
 inline int product_write(int *self)
@@ -244,7 +239,7 @@ inline int gameblock_read(int *self, void *buf)
 /* one sceMcTblGetDir record: the file name sits at +0x20 in a 0x40-byte entry
    (the same record src/debug.c spells as McDirEnt). */
 
-typedef struct {
+typedef struct {             /* field names derived */
     long long f0;            /* 0x00 -- the iosMc command/flag word, 64-bit */
     int port;                /* 0x08 */
     int slot;                /* 0x0C */
@@ -271,13 +266,13 @@ typedef struct {
     char name47C[68];        /* 0x47C */
     sceMcTblGetDir dir[20];  /* 0x4C0 */
     long long mask;          /* 0x9C0 */
-} McMgr;
+} McMgr;                     /* derived name */
 
-/* the product directory name, 17 bytes including the terminator: the ROM
-   copies it with ldl/ldr + sdl/sdr, so both sides are byte-aligned. */
-typedef struct {
+/* the product directory name, 17 bytes including the terminator, copied as
+   a byte-aligned record */
+typedef struct { /* field names derived */
     char c[17];
-} McName;
+} McName; /* derived name */
 
 void iosMcMgrGetInfo(McMgr *mp)
 {
@@ -296,10 +291,8 @@ void iosMcMgrGetInfo(McMgr *mp)
     }
 }
 
-/* ios/mcard.c:427-431, 494-495, 512-519, 537-538 and 571-578 in the
-   January-2002 listing: the file-static card helpers the manager entry points
-   inline. None of them has a ROM symbol of its own. */
-static inline void iosMcMgrFormat(McMgr *mp)
+/* the file-static card helpers the manager entry points inline */
+static inline void iosMcMgrFormat(McMgr *mp) /* derived name */
 {
     while (sceMcFormat(mp->port, mp->slot) > 0) {
         debug_StdPrintfDummy("iosMcMgrFormat: request busy\n");
@@ -312,7 +305,7 @@ static inline void iosMcMgrFormat(McMgr *mp)
     }
 }
 
-static inline void iosMcMgrUnformat(McMgr *mp)
+static inline void iosMcMgrUnformat(McMgr *mp) /* derived name */
 {
     while (sceMcUnformat(mp->port, mp->slot) > 0) {
         debug_StdPrintfDummy("iosMcMgrUnformat: request busy\n");
@@ -325,7 +318,7 @@ static inline void iosMcMgrUnformat(McMgr *mp)
     }
 }
 
-static inline void iosMcMgrWrite(McMgr *mp, void *p)
+static inline void iosMcMgrWrite(McMgr *mp, void *p) /* derived name */
 {
     while (sceMcWrite(mp->fd, p, mp->size) > 0) {
         debug_StdPrintfDummy("iosMcMgrWrite: request busy\n");
@@ -334,7 +327,7 @@ static inline void iosMcMgrWrite(McMgr *mp, void *p)
     iosMcMgrSync(mp);
 }
 
-static inline void iosMcMgrRead(McMgr *mp, void *p)
+static inline void iosMcMgrRead(McMgr *mp, void *p) /* derived name */
 {
     while (sceMcRead(mp->fd, p, mp->size) > 0) {
         debug_StdPrintfDummy("iosMcMgrRead: request busy\n");
@@ -343,7 +336,7 @@ static inline void iosMcMgrRead(McMgr *mp, void *p)
     iosMcMgrSync(mp);
 }
 
-static inline void iosMcMgrOpen(McMgr *mp)
+static inline void iosMcMgrOpen(McMgr *mp) /* derived name */
 {
     while (sceMcOpen(mp->port, mp->slot, mp->name47C, mp->f2C) > 0) {
         debug_StdPrintfDummy("sceMcOpen: request busy\n");
@@ -361,7 +354,7 @@ static inline void iosMcMgrOpen(McMgr *mp)
     mp->pos = 0;
 }
 
-static inline void iosMcMgrClose(McMgr *mp)
+static inline void iosMcMgrClose(McMgr *mp) /* derived name */
 {
     while (sceMcClose(mp->fd) > 0) {
         debug_StdPrintfDummy("sceMcClose: request busy\n");
@@ -370,7 +363,7 @@ static inline void iosMcMgrClose(McMgr *mp)
     iosMcMgrSync(mp);
 }
 
-static inline void iosMcMgrChdir(McMgr *mp)
+static inline void iosMcMgrChdir(McMgr *mp) /* derived name */
 {
     while (sceMcChdir(mp->port, mp->slot, mp->name454, mp->pwd468) > 0) {
         debug_StdPrintfDummy("iosMcMgrChdir: request busy\n");
@@ -379,7 +372,7 @@ static inline void iosMcMgrChdir(McMgr *mp)
     iosMcMgrSync(mp);
 }
 
-static inline void iosMcMgrGetDir(McMgr *mp)
+static inline void iosMcMgrGetDir(McMgr *mp) /* derived name */
 {
     while (sceMcGetDir(mp->port, mp->slot, mp->name47C, 0, 20, mp->dir) > 0) {
         debug_StdPrintfDummy("sceMcGetdir: request busy\n");
@@ -394,7 +387,7 @@ static inline void iosMcMgrGetDir(McMgr *mp)
     }
 }
 
-static inline void iosMcMgrMkdir(McMgr *mp)
+static inline void iosMcMgrMkdir(McMgr *mp) /* derived name */
 {
     while (sceMcMkdir(mp->port, mp->slot, mp->name47C) > 0) {
         debug_StdPrintfDummy("iosMcMgrMkdir: request busy\n");
@@ -403,7 +396,7 @@ static inline void iosMcMgrMkdir(McMgr *mp)
     iosMcMgrSync(mp);
 }
 
-static inline void iosMcMgrDelete(McMgr *mp)
+static inline void iosMcMgrDelete(McMgr *mp) /* derived name */
 {
     while (sceMcDelete(mp->port, mp->slot, mp->name47C) > 0) {
         debug_StdPrintfDummy("iosMcMgrDelete: request busy\n");
@@ -412,7 +405,7 @@ static inline void iosMcMgrDelete(McMgr *mp)
     iosMcMgrSync(mp);
 }
 
-static inline void iosMcMgrSum(McMgr *mp, void *q, int n)
+static inline void iosMcMgrSum(McMgr *mp, void *q, int n) /* derived name */
 {
     unsigned char *p = q;
     int i;
@@ -598,11 +591,11 @@ retry:
 }
 
 /* the per-slot segment table: one record per loadable block */
-typedef struct {
+typedef struct {   /* field names derived */
     int id;        /* 0x0 */
     int (*load)(); /* 0x4 */
     int (*save)(); /* 0x8 */
-} McSegEnt;
+} McSegEnt;        /* derived name */
 
 /* mcdata.c's icon writers */
 
@@ -759,22 +752,16 @@ void iosMcMgrLoadSeg(McMgr *mp, char *suffix)
     }
 }
 
-/* ios/mcard.c:1042-1053, 1109-1115 and 1127-1133: the three file-static block
-   helpers the manager dispatch inlines. None has a ROM symbol of its own.
-   The icon save ends with a DEBUG-build report of the card result (name and
-   text ours). What the bytes pin: the helper is inlined, so its final
-   iosMcMgrSaveSeg call was not a sibling call at its own compile (integrate.c
-   refuses to inline a function with one); the report's argument load after
-   the call is what refuses it, and cse deletes the load. The listing (rows
-   1043 '{', 1044 the first store) leaves no line for a local declaration. */
-static __inline__ void iosMcMgrSaveIconDebugResult(int result)
+/* the three file-static block helpers the manager dispatch inlines.  The icon
+   save ends with a DEBUG-build report of the card result. */
+static __inline__ void iosMcMgrSaveIconDebugResult(int result) /* derived name */
 {
 #ifdef DEBUG
     debug_StdPrintfDummy("icon save result %d\n", result);
 #endif
 }
 
-static inline void iosMcMgrSaveIcon(McMgr *mp)
+static inline void iosMcMgrSaveIcon(McMgr *mp) /* derived name */
 {
     mp->f24 = 1;
     mp->f48 = (int)&iconFile[1];
@@ -802,7 +789,7 @@ void iosMcMgrLoadProductBlock(void *a0)
     iosMcMgrLoadSeg(a0, 0);
 }
 
-static inline void iosMcMgrSaveGame(McMgr *mp)
+static inline void iosMcMgrSaveGame(McMgr *mp) /* derived name */
 {
     char buf[16];
 
@@ -811,7 +798,7 @@ static inline void iosMcMgrSaveGame(McMgr *mp)
     iosMcMgrSaveSeg(mp, buf);
 }
 
-static inline void iosMcMgrLoadGame(McMgr *mp)
+static inline void iosMcMgrLoadGame(McMgr *mp) /* derived name */
 {
     char buf[16];
 

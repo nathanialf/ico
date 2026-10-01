@@ -1,20 +1,20 @@
 #include "shockdriver.h"
 #include <libpad.h>
 
-struct PadNode {
+struct PadNode { /* field names derived */
     char pad[48];
     struct PadNode *prev;
     struct PadNode *next;
-};
+}; /* derived name */
 
-typedef struct ShockReq {
+typedef struct ShockReq { /* field names derived */
     /* 0x0 */ unsigned short out;
     /* 0x2 */ unsigned short acc;
     /* 0x4 */ unsigned char type;
     /* 0x5 */ unsigned char val;
-} ShockReq;
+} ShockReq; /* derived name */
 
-typedef struct VibDecode {
+typedef struct VibDecode { /* field names derived */
     /* 0x0 */ unsigned char *buf;
     /* 0x4 */ unsigned short pos;
     /* 0x6 */ unsigned short acc;
@@ -22,9 +22,9 @@ typedef struct VibDecode {
     /* 0xA */ unsigned short len;
     /* 0xC */ short time;
     /* 0xE */ short cnt;
-} VibDecode;
+} VibDecode; /* derived name */
 
-typedef struct SHOCKREQUEST {
+typedef struct SHOCKREQUEST { /* field names derived */
     /* 0x00 */ unsigned char flags;
     /* 0x01 */ unsigned char b1;
     /* 0x02 */ unsigned char b2;
@@ -41,17 +41,15 @@ typedef struct SHOCKREQUEST {
     /* 0x34 */ struct SHOCKREQUEST *next;
     /* 0x38 */ unsigned char voice;
     /* 0x39 */ unsigned char pad39[7];
-} SHOCKREQUEST;
+} SHOCKREQUEST; /* derived name */
 
 /* A voice-set file as ReadShockFile loads it: this 16-byte record, then the
- * file image (charFileManager.c:788-792 in the listing allocate size + 16 and
- * read to p + 16).  The image's halfwords at +2, +6 and +10 are the word
- * offsets of the wave, shot and voice tables, and +8 is the voice count
- * ShockDriver_GetShockVoice bounds by.  Field names are ours.  The image start
- * is a union of views: ROM stores it (shockdriver.c:114) ahead of the three
- * header loads, which needs that store to alias them, and a union member is
- * the alias-set-0 access that gives it (c-common.c:3172-3176). */
-struct ShockVoiceSet {
+ * file image (charFileManager.c allocates size + 16 and reads to p + 16).  The
+ * image's halfwords at +2, +6 and +10 are the word offsets of the wave, shot
+ * and voice tables, and +8 is the voice count ShockDriver_GetShockVoice bounds
+ * by.  The image start is a union of its word and halfword views. */
+struct ShockVoiceSet { /* field names derived */
+
     /* 0x0 */ union {
         int *word;
         unsigned short *half;
@@ -60,29 +58,26 @@ struct ShockVoiceSet {
     /* 0x4 */ int *wave;
     /* 0x8 */ int *shot;
     /* 0xC */ int *voice;
-};
+}; /* derived name */
 
-typedef struct ShockParam {
+typedef struct ShockParam { /* field names derived */
     /* 0x0 */ unsigned char voice;
     /* 0x1 */ unsigned char b1;
     /* 0x2 */ unsigned char b2;
     /* 0x3 */ unsigned char b3;
-} ShockParam;
+} ShockParam; /* derived name */
 
-typedef struct ShockRequestBox {
+typedef struct ShockRequestBox { /* field names derived */
     /* 0x0 */ void *head;
     /* 0x4 */ void *(*alloc)(void *, int);
     /* 0x8 */ void (*free)(SHOCKREQUEST *, void *);
     /* 0xC */ void *arg;
-} ShockRequestBox;
+} ShockRequestBox; /* derived name */
 
-/* .data, owned by shockdriver.o, 0x29C0E0..0x29C4F0 (= MAIN.MAP
-   shockdriver.o .data 0x410, line 5833, which names both), all zero: the
-   voice set manager record and the request pool.
-   .sdata, 0x63A5D0..0x63A5F0 (= MAIN.MAP's 0x20, line 7044, naming all five
-   at these offsets), all zero: the current manager, the common and stage
-   voice sets charFileManager loads, the manager's two-slot voice set table
-   and the request allocator record. */
+/* .data, all zero: the voice set manager record and the request pool.
+   .sdata, all zero: the current manager, the common and stage voice sets
+   charFileManager loads, the manager's two-slot voice set table and the
+   request allocator record. */
 int ShockDriver[4] = {0};
 
 char ShockRequest[1024] = {0};
@@ -279,23 +274,19 @@ int Vibration_WaveDecode(SHOCKREQUEST *p, int level)
     return ret;
 }
 
-/* Declared void ahead of their definitions: Shock_Request's inlined call sets
- * no return value (local-alloc then gives the next byte load $2, as the ROM). */
+/* declared void ahead of its definition */
 extern void ShockRequestBox_Regst(struct PadNode **head, struct PadNode *new_node);
 
-/* INTERIM (see the iosThreadCreate note in ios/thread.c): the listing inlines
- * ShockDriver_GetShockVoice (row 88), with ShockDriver_GetShockVoiceSet (rows 77-79)
- * inlined inside it, and ShockRequestBox_Request into Shock_Request; each keeps its
- * plain definition at its own ROM position and the caller inlines these static
- * stand-ins, which collapse at layout. */
-static inline int getShockVoiceSet(unsigned idx)
+/* file-static copies of ShockDriver_GetShockVoiceSet, ShockDriver_GetShockVoice
+ * and ShockRequestBox_Request, which Shock_Request inlines */
+static inline int getShockVoiceSet(unsigned idx) /* derived name */
 {
     if (idx >= (unsigned)System_shock_driver->count)
         return 0;
     return System_shock_driver->arr[idx];
 }
 
-static inline int getShockVoice(int voice, int n)
+static inline int getShockVoice(int voice, int n) /* derived name */
 {
     int set = getShockVoiceSet(voice);
     return (set != 0 && (unsigned)n < *(unsigned short *)(*(int *)set + 8))
@@ -304,7 +295,7 @@ static inline int getShockVoice(int voice, int n)
 }
 
 static inline SHOCKREQUEST *requestBoxRequest(ShockRequestBox *box, ShockParam *p, ShockParam v,
-                                              int key, int arg)
+                                              int key, int arg) /* derived name */
 {
     ShockVoiceSet *vs;
     SHOCKREQUEST *req;
@@ -461,12 +452,8 @@ void Vibration_SetDecodeData(void *a0, int a1, int a2, unsigned char a3, unsigne
     p[0x24] = 0;
 }
 
-/* INTERIM (see the iosThreadCreate note in ios/thread.c): the listing inlines
- * Init_ShockRequestBox into Init_Player, so it is a public `inline` of the deferred
- * tail; until the tail's asm member (Init_Shock) is C the copy is emitted in
- * place as a plain function at its ROM position and the caller inlines this
- * static stand-in, which collapses at layout. */
-static inline void initShockRequestBox(int *a0, int a1, int a2, int a3)
+/* a file-static copy of Init_ShockRequestBox, which Init_Player inlines */
+static inline void initShockRequestBox(int *a0, int a1, int a2, int a3) /* derived name */
 {
     a0[0] = 0;
     if (a1) {
@@ -560,13 +547,10 @@ SHOCKREQUEST *ShockRequestBox_Request(ShockRequestBox *box, ShockParam *p, Shock
     return req;
 }
 
-/* INTERIM (see the iosThreadCreate note in ios/thread.c): the listing inlines
- * ShockRequestBox_DecodeRequest into Shock_Decode, so it is a public `inline` of the deferred
- * tail; until the tail's asm member (Init_Shock) is C the copy is emitted in
- * place as a plain function at its ROM position and the caller inlines this
- * static stand-in, which collapses at layout. */
+/* a file-static copy of ShockRequestBox_DecodeRequest, which Shock_Decode
+ * inlines */
 static inline int decodeRequestBox(ShockRequestBox *box, unsigned char *pFlags,
-                                   unsigned char *pLevel)
+                                   unsigned char *pLevel) /* derived name */
 {
     SHOCKREQUEST *p;
     int flags = 0;
@@ -732,13 +716,8 @@ int ShockRequestBox_RequestDirectCancel(int *a0, int *a1)
     return 1;
 }
 
-/* What the bytes pin (listing lines 34-43, here and in Init_Shock's inlined
-   copy): after the guards the manager is reached through the global it has
-   just been stored in, which is the copy of the pointer the ROM keeps in a
-   second register ($8 here, $4 in Init_Shock) and the reason Init_Shock
-   reloads the table pointer before its loop. What they cannot pin: whether
-   the store at line 37 and the accesses after it were spelled through the
-   global or through a local the developer loaded from it. */
+/* after the guards the manager is reached through the global it has just
+   been stored in */
 void Init_ShockDriver(ShockMgr *m, int *arr, int num)
 {
     int i;
@@ -863,14 +842,12 @@ unsigned short ShockEmulator_EmulationWave(short *a0, int a1)
     return (unsigned short)a0[0];
 }
 
-/* RECONSTRUCTION (the name is ours): the request pool header ShockRequestMemory
-   holds, a count and the pool's base. The base is a pointer field: its store
-   must not alias the count's, or Init_Shock's inlined copy could not issue it
-   ahead of the count store as the ROM does (listing lines 637-638). */
-typedef struct {
+/* the request pool header ShockRequestMemory holds: a count and the pool's
+   base */
+typedef struct { /* field names derived */
     int num;
     char *buf;
-} ShockReqAlloc;
+} ShockReqAlloc; /* derived name */
 
 void Init_ShockRequestAlloc(ShockReqAlloc *a0, char *a1, int a2)
 {
@@ -943,11 +920,9 @@ Lend:
     return a0;
 }
 
-/* INTERIM (see the iosThreadCreate note in ios/thread.c): the listing inlines
- * Init_ShockDriver and Init_ShockRequestAlloc into Init_Shock, so both are public
- * `inline`s; each keeps its plain definition at its own ROM position above and the
- * caller inlines this static stand-in, which collapses at layout. */
-static inline void initShockDriver(ShockMgr *m, int *arr, int num)
+/* file-static copies of Init_ShockDriver and Init_ShockRequestAlloc, which
+ * Init_Shock inlines */
+static inline void initShockDriver(ShockMgr *m, int *arr, int num) /* derived name */
 {
     int i;
     if (m == 0)
@@ -962,7 +937,7 @@ static inline void initShockDriver(ShockMgr *m, int *arr, int num)
     System_shock_driver->level = 0;
 }
 
-static inline void initShockRequestAlloc(ShockReqAlloc *a0, char *a1, int a2)
+static inline void initShockRequestAlloc(ShockReqAlloc *a0, char *a1, int a2) /* derived name */
 {
     int i;
     if (a0 != 0 && a1 != 0) {

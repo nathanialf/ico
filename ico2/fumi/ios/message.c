@@ -9,10 +9,10 @@
 #include "message.h"
 #include <assert.h>
 
-typedef struct IosMsg {
+typedef struct IosMsg { /* field names derived */
     char pad0[68];
     struct IosMsg *next; /* 0x44 */
-} IosMsg;
+} IosMsg;                /* derived name */
 
 /* the event thread iosMsgSetEvent spawns, one 0x40C0-byte block: the
    IOSThread, its 16 KB stack and three trailing words of its own
@@ -24,14 +24,13 @@ typedef struct MsgEventThread { /* field names derived */
     IosMsgQueue *queue; /* 0x4090 */
     int val;            /* 0x4094 */
     int intc;           /* 0x4098 */
-} MsgEventThread;
+} MsgEventThread;       /* derived name */
 
-/* kept local with message.h's declaration (this TU does not include it): the
-   signal thread's record, defined after the functions whose strings precede it */
+/* as in message.h, which this TU does not include: the signal thread's
+   record, defined after the functions whose strings precede it */
 
-/* .bss, owned by message.o and reached only from this file (MAIN.MAP names no
-   symbol in the run): the queue registered against each semaphore id. */
-static int msgQueueTable[256];
+/* the queue registered against each semaphore id */
+static int msgQueueTable[256]; /* derived name */
 
 void deq_mes_th(IosMsgQueue *self)
 {
@@ -76,11 +75,8 @@ void iosMsgQueueDestroy(IosMsgQueue *q)
     DeleteSema(q->sema);
 }
 
-/* INTERIM (see the iosThreadCreate note in ios/thread.c): the listing inlines
- * iosMsgSend into send_signal_message, so it is a public `inline` whose
- * out-of-line copy is emitted at its own ROM slot; the caller here inlines this
- * static stand-in, which collapses at layout. */
-static inline int msgSend(IosMsgQueue *q, int val, int mode)
+/* a file-static copy of iosMsgSend, which send_signal_message inlines */
+static inline int msgSend(IosMsgQueue *q, int val, int mode) /* derived name */
 {
     struct SemaParam st;
 
@@ -140,8 +136,8 @@ void iosMsgSetEvent(int intc, IosMsgQueue *q, int val)
     debug_StdPrintfDummy("evt:signal added\n");
 }
 
-/* .sdata, after the short strings above: the signal thread's record
-   (MAIN.MAP global), which iosMsgInit's handler wakes. */
+/* .sdata, after the short strings above: the signal thread's record, which
+   iosMsgInit's handler wakes */
 int *th_sig = 0;
 
 void iosMsgInit(void)

@@ -21,7 +21,7 @@
 #include <sound.h>
 
 /* The slot's 0x04 status word, written both as a whole and bit by bit. */
-typedef union SeFlag {
+typedef union SeFlag { /* field names derived */
     unsigned int all;
 
     struct {        /* field names derived */
@@ -37,7 +37,7 @@ typedef union SeFlag {
         unsigned int maxVolumeType : 1; /* the curve past maxVolumeRange */
         unsigned int : 1;
     } bit;
-} SeFlag;
+} SeFlag; /* derived name */
 
 typedef struct SeSlot { /* field names derived */
     unsigned short num; /* 0x00, bumped on each release: the handle's top byte */
@@ -58,39 +58,31 @@ typedef struct SeSlot { /* field names derived */
     int (*proc)();        /* 0x2C, the environment row's proc */
     SqEntry *req;         /* 0x30, the data area it plays from */
     float *pos;           /* 0x34, a position vector: every reader passes it to
-                            sceVu0CopyVector, soundSeEnvPlay stores an allocated
-                            block in it, and _soundSeDefPlay's init schedule needs
-                            its store not to alias the int stage_no load */
+                            sceVu0CopyVector and soundSeEnvPlay stores an
+                            allocated block in it */
     SeDef *src;           /* 0x38 */
     const SeEnvDef *env;  /* 0x3C, the sound-environment row the slot plays */
-} SeSlot;
+} SeSlot;                 /* derived name */
 
-/* The TU's own .sbss and .bss (names ours, role-named). File-scope statics
-   without an initialiser are tentative definitions, which ee-gcc 2.9 writes
-   out at the end of the file in the order they were first declared, after
-   the local statics debug_DispSEInfo writes out as it is compiled: that is
-   the ROM's order, .sbss 0x63C1D0..0x63C1F0 (the page's cursor and solo
-   flag, then these four) and .bss 0x6BF560..0x6C0470 (the page's centre
-   vector, then the two tables). The SPU buffer segments' next free
-   addresses, the ADPCM and SE channel masks, the 16 sound data areas and
-   the 48 SE slots. */
-static int bufSeg1Next;
+/* The TU's own .sbss and .bss, tentative definitions: the SPU buffer
+   segments' next free addresses, the ADPCM and SE channel masks, the 16
+   sound data areas and the 48 SE slots. */
+static int bufSeg1Next; /* derived name */
 
-static int bufSeg2Next;
+static int bufSeg2Next; /* derived name */
 
 static long long adpcmChMask;
 
 static long long seChMask;
 
-static SqEntry soundDataTbl[16];
+static SqEntry soundDataTbl[16]; /* derived name */
 
-static SeSlot seSlotTbl[48];
+static SeSlot seSlotTbl[48]; /* derived name */
 
-/* The TU's .sdata objects ahead of its first short literal, in the ROM's
-   order: the SPU buffer's segment-0 allocation pointer and the top of
-   segment 1 (soundBufAlloc), the reverb depth and output mode the Set/Get
-   pairs keep, the master SE volume rate, the environment-close request and
-   the semi-common load flag. */
+/* the SPU buffer's segment-0 allocation pointer and the top of segment 1
+   (soundBufAlloc), the reverb depth and output mode the Set/Get pairs keep,
+   the master SE volume rate, the environment-close request and the
+   semi-common load flag */
 static int bufSeg0Next = 0x5010; /* derived name */
 
 static int bufSeg1Top = 0x1D9020; /* derived name */
@@ -205,10 +197,9 @@ void soundAllocIopFree(void)
     sceSifFreeIopHeap(soundIopHeapAddrs);
 }
 
-/* A free channel's allocation, which the listing gives to lines 275 to 286 in
-   both of its users (soundDataOpenChk, _soundSeDefPlay): a helper defined there
-   and never emitted out of line, so a static inline (the name is ours). */
-static inline int seChAlloc(SqEntry *req)
+/* A free channel's allocation, shared by soundDataOpenChk and
+   _soundSeDefPlay. */
+static inline int seChAlloc(SqEntry *req) /* derived name */
 {
     long long one = 1;
     long long bit;
@@ -224,18 +215,15 @@ static inline int seChAlloc(SqEntry *req)
 found:
     seChMask |= bit;
     req->seMask |= bit;
-    /* indexed by byte offset: the element form seSlotTbl[i] measured one
-       instruction longer in soundDataOpenChk's inlined copy */
+    /* the slot indexed by byte offset */
     ((SeSlot *)&((char *)seSlotTbl)[i * 64])->flag.all &= 0xFDFFFFFF;
     return i;
 }
 
-/* A slot's request release, which the listing gives to lines 291 to 306 in all
-   three of its users (soundDataOpenChk, soundDataClose, _soundSeDefStop): two
-   helpers defined there and never emitted out of line, so static inlines (the
-   names are ours).  seReqRelease takes the channel, not the slot, because
+/* A slot's request release, shared by soundDataOpenChk, soundDataClose and
+   _soundSeDefStop.  seReqRelease takes the channel, not the slot, because
    _soundSeDefStop's copy recomputes the request word's address from it. */
-static inline void seReqChClear(SqEntry *req, int ch)
+static inline void seReqChClear(SqEntry *req, int ch) /* derived name */
 {
     long long bit = (long long)1 << ch;
 
@@ -247,7 +235,7 @@ static inline void seReqChClear(SqEntry *req, int ch)
     }
 }
 
-static inline void seReqRelease(int ch)
+static inline void seReqRelease(int ch) /* derived name */
 {
     SqEntry *req = seSlotTbl[ch].req;
 
@@ -598,9 +586,8 @@ void soundDataSegAllClose(int a0, int a1)
 {
     int i;
     char *tbl;
-    /* base in the loop header, not in a declaration of its own: the same
-       index for its sibling soundDataSegNextStageNotUseClose carries, and
-       the form the listing's line rows for this function show */
+    /* base in the loop header, as its sibling
+       soundDataSegNextStageNotUseClose carries it */
     for (i = 0, tbl = (char *)soundDataTbl; i < 768; i += 0x30) {
         char *p = tbl + i;
         if (*(int *)p != 0 && *(unsigned short *)(p + 6) == a0 &&
@@ -665,51 +652,27 @@ static void soundSeVolSet(SeSlot *self)
 }
 
 /* The debug SE-info page: one row per editable field of the slot the pad is
-   parked on, walked with the D-pad and nudged by `step`.
-   RECONSTRUCTION (names are the repo's): the row is a label followed by a
-   nested value record. The offsets are the ROM's; the nesting is what the
-   bytes pin. store_constructor emits a CLOBBER for the value record after
-   each row's label store, so the label store sits ahead of a barrier that
-   the step store follows. That issues the 0.1f load between the
-   "max volume range" and "attenuator" label addresses and puts 10.0f, 0.1f,
-   1.0f and 0.05f in $f0..$f3 as the ROM has them; a flat five-field row
-   misses 14 words. */
-typedef struct DbgVal {
-    int ptr;    /* 0x04 */
-    int type;   /* 0x08 : 0 = int cell, 1 = float cell */
-    int mode;   /* 0x0C : 1 = colour the row when the value is past `dist` */
-    float step; /* 0x10 */
-} DbgVal;
+   parked on, walked with the D-pad and nudged by `step`.  The row is a label
+   followed by a nested value record. */
+typedef struct DbgVal { /* field names derived */
+    int ptr;            /* 0x04 */
+    int type;           /* 0x08 : 0 = int cell, 1 = float cell */
+    int mode;           /* 0x0C : 1 = colour the row when the value is past `dist` */
+    float step;         /* 0x10 */
+} DbgVal;               /* derived name */
 
-typedef struct DbgRow {
-    char *label; /* 0x00 */
-    DbgVal v;    /* 0x04 */
-} DbgRow;
+typedef struct DbgRow { /* field names derived */
+    char *label;        /* 0x00 */
+    DbgVal v;           /* 0x04 */
+} DbgRow;               /* derived name */
 
 static inline void soundSeEnvDefaultSet(SeSlot *self);
 
 static void debug_DispSEInfo(void)
 {
-    /* step's initialiser is live (listing row 778). dbg is fumi's local
-       debug switch (boyact.c, commonact.c), set from the debugger to keep
-       the selected slot soloed. cse cannot carry its 0 past the slot search
-       loop's label, gcse's constant propagation folds the test and the next
-       jump pass deletes the arm, so neither emits bytes. What the bytes
-       pin: this function reached gcse with 404..407 (or 388..395) real
-       insns (the switch's set, test and store bring 401 to 405). The
-       expression table size (203 buckets here, 201 at 401) orders PRE's
-       reaching registers, and that order is the order of the five spill
-       slots at 0x194..0x1A4 (&sel, the constructor temp, self+0x1C,
-       self+0x20, self+0x28); at 201 buckets the slots come out permuted.
-       The live spellings measured first (the pad word read at each test,
-       the libcall promotion of the %f arguments, the f29 bitfield store,
-       the flag loop through p, a per-row y local, list[i].label) either
-       keep the count or change the code. What the bytes cannot pin: the
-       switch, its name, what its arm did or where it sat.
-       The page's own state is local static (names ours): the selected row
-       and the solo flag in .sbss, the edited centre in .bss, written out as
-       this function is compiled and so ahead of the file's tentative
-       definitions. */
+    /* dbg is a local debug switch, set from the debugger to keep the selected
+       slot soloed.  The page's own state is local static: the selected row
+       and the solo flag in .sbss, the edited centre in .bss. */
     static sceVu0FVECTOR center;
     static int curRow;
     static int solo;
@@ -963,7 +926,7 @@ static void sound3DParamSet(SeSlot *self)
     soundSeVolSet(self);
 }
 
-/* kept local: the generated sedef member defines the rows const, and this TU
+/* as in the generated sedef member, which defines the rows const; this TU
    writes procRan into them */
 extern SeDef seDef[];
 
@@ -987,11 +950,9 @@ inline void soundSeGroupStop(int arg)
     } while (i < 48);
 }
 
-/* The slot search the listing carries at rows 1075 to 1085, between
-   soundSeGroupStop and soundSeGroupGet, and inlines twice into _soundSeDefPlay:
-   no out-of-line copy is emitted and MAIN.MAP names none, so a file static
-   inline (the name is ours). */
-static inline int se_find_slot(SeDef *src, SeSlot **out)
+/* The slot search between soundSeGroupStop and soundSeGroupGet, which
+   _soundSeDefPlay inlines twice. */
+static inline int se_find_slot(SeDef *src, SeSlot **out) /* derived name */
 {
     SeSlot *p = seSlotTbl;
     int i;
@@ -1055,9 +1016,7 @@ static int _soundSeDefPlay(int kind, unsigned int a1, float *a2, int a3, const S
     unsigned short *kp;
     int cb;
 
-    /* The search key as a bank:num pair written field by field, bank first:
-       the bytes pin the lui/or operand order of the key and the 16-byte stack
-       slot of its never-written word (the 0xD0 frame); the member names are ours. */
+    /* the search key as a bank:num pair written field by field, bank first */
     union {
         int all;
 
@@ -1217,8 +1176,8 @@ void soundSeDefStopNoRelease(int a0)
     _soundSeDefStop(a0, 1);
 }
 
-/* kept local: sound.h leaves it out, because this call passes one argument
-   and the definition takes two */
+/* sound.h leaves it out: this call passes one argument and the definition
+   takes two */
 extern void SgSetSePitchDirect();
 
 void soundSeDefPitchSet(int a0)
@@ -1378,10 +1337,7 @@ void soundSeEnvPlay(void)
     }
 }
 
-/* kept local: &stageData[0].seEnvFirst, the range soundSeEnvNotUseClose
-   walks; reached through the table (stageData[a].seEnvFirst, seEnvLast) the
-   function's registers move (measured: s3/s4 and s6/s7 swap), so it stays
-   its own symbol */
+/* &stageData[0].seEnvFirst, the range soundSeEnvNotUseClose walks */
 extern char D_005F5E60[];
 
 void soundSeEnvNotUseClose(int a, int b)

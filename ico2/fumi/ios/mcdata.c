@@ -2,20 +2,19 @@
 #include "mcdata.h"
 #include "thread.h"
 
-struct McIconWork {
+struct McIconWork { /* field names derived */
     int remain;
     int size;
     void *buf;
-};
+}; /* derived name */
 
-/* .sbss, owned by mcdata.o and reached only from this file (MAIN.MAP names no
-   symbol in the run): the flag the mcard thread raises when the request the
-   caller is spinning on has finished. */
-static int mcDataDone;
+/* the flag the mcard thread raises when the request the caller is spinning
+   on has finished */
+static int mcDataDone; /* derived name */
 
-/* kept local: agrees with mcard.h, which this TU does not include (iosMcHandlerWrite differs) */
+/* as in mcard.h, which this TU does not include (iosMcHandlerWrite differs) */
 extern void iosMcMgrSync(void *mp);
-/* kept local: returns void here, int in mcard.h */
+/* void here, int in mcard.h */
 extern void iosMcHandlerWrite();
 
 /* Background-read callback: pulls the icon file off the disc a chunk at a

@@ -8,16 +8,14 @@
 #include "commonact.h"
 #include "motionManager2.h"
 
-union ENVIF {
+union ENVIF { /* field names derived */
     int i;
     float f;
-};
+}; /* derived name */
 
-/* .data, carved VMA 0x4F1D60..0x4F1E10: the per-stage ditch-distance
-   tables getDitchDistTbl selects between (the first six are ranges
-   terminated by -1.0f, the rest position/orientation vectors).  Values are
-   the shortest decimals that round-trip through binary32; every byte
-   verified against baserom/pal/baseelf.rom. */
+/* the per-stage ditch-distance tables getDitchDistTbl selects between (the
+   first six are ranges terminated by -1.0f, the rest position/orientation
+   vectors) */
 static float ditchDistTbl[4] = {150.0f, 215.0f, 315.0f, -1.0f}; /* derived name */
 
 static float ditchDistTblStage26[4] = {150.0f, 235.0f, 315.0f, -1.0f}; /* derived name */
@@ -41,12 +39,12 @@ static float ditchSofaTarget[4] = {749.0f, -3775.0f, 2650.0f, 1.0f}; /* derived 
 static float ditchSofaPos[4] = {559.0f, -3775.0f, 2503.0f, 1.0f}; /* derived name */
 
 /* The sofa seat offset in the room's local space, the first object of the
-   TU's .rodata run (VMA 0x621A00). */
-static const VECTOR sofaSeatOffset = {30.0f, 0.0f, -50.0f, 0.0f};
+   TU's .rodata. */
+static const VECTOR sofaSeatOffset = {30.0f, 0.0f, -50.0f, 0.0f}; /* derived name */
 
-/* kept local: int here, GObj * in main.h */
+/* int here, GObj * in main.h */
 extern int boyGObj;
-/* kept local: agrees with main.h, which this TU does not include (boyGObj, ((char *)girlGObj) differ) */
+/* as in main.h, which this TU does not include (boyGObj, ((char *)girlGObj) differ) */
 extern int stage_no;
 
 #include "act-env.h"
@@ -69,14 +67,14 @@ inline void GetSofaPosition(GObj *a0, char *a1)
                       *(void **)((char *)((union ENVIF *)((char *)a1 + 0x15C))->i + 0xC), &v);
 }
 
-/* kept local: char * here, GObj * in main.h */
+/* char * here, GObj * in main.h */
 extern GObj *girlGObj;
 
 /* Where the first carrier stands in the stage 8 ditch below the -3000 line
-   (VMA 0x621A10, the run's second object). */
-static const VECTOR ditchCarryPos = {767.0f, -3775.0f, 2621.0f, 1.0f};
+   (the .rodata's second object). */
+static const VECTOR ditchCarryPos = {767.0f, -3775.0f, 2621.0f, 1.0f}; /* derived name */
 
-static inline int getDitchCarryMode(void)
+static inline int getDitchCarryMode(void) /* derived name */
 {
     void *a;
     void *b;
@@ -93,7 +91,7 @@ static inline int getDitchCarryMode(void)
     return 0;
 }
 
-static inline int getDitchCarryModeStage8(void)
+static inline int getDitchCarryModeStage8(void) /* derived name */
 {
     if (stage_no == 8) {
         return getDitchCarryMode();
@@ -168,12 +166,8 @@ int GetDitchPosition(float *out, float *org, float *dir, float d0, float d1, flo
 {
     ClipWork work;
     float tmp[4];
-    /* The ROM frame is 0x1F0 = 0xC0 (work) + 0x10 (tmp) + 0xD0 more of
-       aggregate locals under the register saves; act-env.c:1175-1195, inside
-       the hit branch between the test (1174) and the copy out (1196), emit no
-       instructions in either listing.  work2 and tmp2 are read by the DEBUG
-       build's second probe there (probe and report ours); their sizes are
-       what the frame proves. */
+    /* work2 and tmp2 are read only by the DEBUG build's second probe in the
+       hit branch */
     ClipWork work2;
     float tmp2[4];
 
@@ -226,10 +220,10 @@ inline void GetCollisCenterPositionSimple(void *a0, void *a1, void *a2)
     }
 }
 
-typedef struct {
+typedef struct { /* field names derived */
     int on;
     char *name;
-} OrientFlagRow;
+} OrientFlagRow; /* derived name */
 
 void DebugActOrientFlag(unsigned int *f)
 {
@@ -303,7 +297,7 @@ typedef struct { /* field names derived */
     float height; /* 0x130 */
     char pad134[4];
     float wallDist; /* 0x138 */
-} EnvMotion;
+} EnvMotion;        /* derived name */
 
 typedef struct { /* field names derived */
     int kind;    /* 0x0 */
@@ -311,25 +305,23 @@ typedef struct { /* field names derived */
     char *wallRec; /* 0x574 */
     char pad578[44];
     float wallTop; /* 0x5A4 */
-} EnvSub;
+} EnvSub;          /* derived name */
 
 extern int _FrontGV(float *a0, float *a1, void *ori, int deg);
 extern float GetCorrectDistance(float d, int n);
 extern void GetOrientOfCliffOfGObj(void *out, void *obj);
-/* same prototype as its definition in weapon.c; kept local because no header carries it */
+/* same prototype as its definition in weapon.c; no header carries it */
 extern char *CheckSwapableWeapon(char *a0, float dist);
 extern char *CheckTorchChainReactionReverse(char *a0, float dist);
 extern char *GetBombTorchGObj(char *a0);
 extern int GetBoxHoldPoint(float *out, char *self, void *chara);
-/* kept local: char * here, int in main.h */
+/* char * here, int in main.h */
 extern int girlControlMode;
-/* kept local: motionOrientManager.h declares none of the motion tables */
+/* motionOrientManager.h declares none of the motion tables */
 extern MotionDef motionKind[];
 
-/* act-env.c:949-953: the negated-orient angle, eight call sites.  Interim
-   name: the listing inlines it everywhere, so neither MAIN.MAP nor the
-   census carries one. */
-static inline int H0950(void *o, float *v)
+/* the negated-orient angle, eight call sites */
+static inline int H0950(void *o, float *v) /* derived name */
 {
     float t[4];
 
@@ -337,8 +329,8 @@ static inline int H0950(void *o, float *v)
     return _RotyGV(o, t);
 }
 
-/* act-env.c:958-963: the same with the scale as a parameter, two sites. */
-static inline int H0960(void *o, float *v, float s)
+/* the same with the scale as a parameter, two sites */
+static inline int H0960(void *o, float *v, float s) /* derived name */
 {
     float t[4];
 
@@ -346,23 +338,23 @@ static inline int H0960(void *o, float *v, float s)
     return _RotyGV(o, t);
 }
 
-/* act-env.c:966-969 and 971-974: the absolute values of the two above. */
-static inline int H0968(void *o, float *v)
+/* the absolute values of the two above */
+static inline int H0968(void *o, float *v) /* derived name */
 {
     int r = H0950(o, v);
 
     return (r < 0) ? -r : r;
 }
 
-static inline int H0973(void *o, float *v, float s)
+static inline int H0973(void *o, float *v, float s) /* derived name */
 {
     int r = H0960(o, v, s);
 
     return (r < 0) ? -r : r;
 }
 
-/* act-env.c:999-1019: the ditch-height probe, one site. */
-static inline unsigned char H1000(GObj *o, float h)
+/* the ditch-height probe, one site */
+static inline unsigned char H1000(GObj *o, float h) /* derived name */
 {
     ClipWork work;
     Act *s;
@@ -386,12 +378,10 @@ static inline unsigned char H1000(GObj *o, float h)
     return 1;
 }
 
-/* act-env.c:1226-1243 and 1262-1269: the collision-centre wrapper and the
-   scaled offset around it, four sites with scales 5, 45, 30, 30.  Its rows
-   1228 and 1229 read the wall record (+0x188) and the cliff record (+0x198)
-   of the object's collision data: `cliff` selects between them (the
-   parameter's name is ours). */
-static inline void H1228(float *out, void *ref, void *o, int cliff)
+/* The collision-centre wrapper and the scaled offset around it, four sites
+   with scales 5, 45, 30, 30.  It reads the wall record (+0x188) or the cliff
+   record (+0x198) of the object's collision data, as `cliff` selects. */
+static inline void H1228(float *out, void *ref, void *o, int cliff) /* derived name */
 {
     float *p;
 
@@ -406,14 +396,14 @@ static inline void H1228(float *out, void *ref, void *o, int cliff)
     }
 }
 
-/* act-env.c:1252-1255: the wrapper with no reference object, two sites
-   (the wall and the cliff collision centres). */
-static inline void H1253(float *out, void *o, int cliff)
+/* the wrapper with no reference object, two sites (the wall and the cliff
+   collision centres) */
+static inline void H1253(float *out, void *o, int cliff) /* derived name */
 {
     H1228(out, 0, o, cliff);
 }
 
-static inline void H1263(float *out, void *o, void *ref, float k)
+static inline void H1263(float *out, void *o, void *ref, float k) /* derived name */
 {
     char *s = *(char **)((char *)o + 0x164);
     float t[4];
@@ -422,9 +412,9 @@ static inline void H1263(float *out, void *o, void *ref, float k)
     sceVu0AddVector(out, out, t);
 }
 
-/* act-env.c:1364-1371 and 1377-1384: written out twice in the source, the
-   seed differs only in the -20.0f and 5.0f. */
-static inline void H1366(void *o, float *v, float top, float *out)
+/* written out twice in the source; the two copies differ only in the
+   -20.0f and 5.0f */
+static inline void H1366(void *o, float *v, float top, float *out) /* derived name */
 {
     float p[4], t[4];
     float d = -20.0f;
@@ -434,7 +424,7 @@ static inline void H1366(void *o, float *v, float top, float *out)
     sceVu0AddVector(out, p, t);
 }
 
-static inline void H1379(void *o, float *v, float top, float *out)
+static inline void H1379(void *o, float *v, float top, float *out) /* derived name */
 {
     float p[4], t[4];
     float d = 5.0f;
@@ -445,30 +435,20 @@ static inline void H1379(void *o, float *v, float top, float *out)
 }
 
 /* The environment check's TTY trace, built only when DEBUG is defined; the
-   retail build does not define it, so the preprocessor leaves the helper
-   without a body.  A parameterless inline whose body is empty is saved as the
-   single (use (const_int 0)) flow.c:count_basic_blocks gives a function with
-   no insns, and each call copies it into the caller: it emits no instruction
-   and keeps the if's branch alive past flow, which is what leaves the ROM's
-   bare c.lt.s under the girl-climb bit-20 test (reorg later deletes the
-   branch to the next active insn and keeps the compare).  A helper with a
-   parameter would leave nothing (its parameter move is an insn, so no USE is
-   saved).  The name and the trace text are ours: an inlined empty body
-   leaves no symbol and no listing row. */
-static __inline__ void envDebugPrint(void)
+   retail build leaves the helper without a body. */
+static __inline__ void envDebugPrint(void) /* derived name */
 {
 #ifdef DEBUG
     scePrintf("env: girl climb height over 195\n");
 #endif
 }
 
-/* ACTGetEnvironment is laid out on the listing's rows, and under -g its line
-   breaks are part of the bytes (docs/NOTES.md "-g for the game"), so the
-   formatter leaves it alone. */
+/* ACTGetEnvironment keeps its line breaks as written: under -g a moved line
+   changes the code, so the formatter leaves it alone. */
 /* clang-format off */
-/* act-env.c:2582-2585: the box loop's four sides, one listing line each. */
-#define BOX_DY ((p100[1] - prj[1]) < 0.0f ? -(p100[1] - prj[1]) : (p100[1] - prj[1]))
-#define BOX_SIDE(lo, hi, ofs, ang, cond, to)                                                      \
+/* the box loop's four sides */
+#define BOX_DY ((p100[1] - prj[1]) < 0.0f ? -(p100[1] - prj[1]) : (p100[1] - prj[1])) /* derived name */
+#define BOX_SIDE(lo, hi, ofs, ang, cond, to) /* derived name */ \
     if ((lo) < p120[0] && p120[0] <= (hi)) {                                                     \
         sceVu0ScaleVector(*(char **)(*(char **)(a0 + 0x164) + 0x688) + 0x500, env->cliffOrient,       \
                           (p120[0] < 0.0f ? -p120[0] : p120[0]) - (ofs));                       \
@@ -486,11 +466,8 @@ void ACTGetEnvironment(void *a0, void *a1, float *a2, EnvFlag *flags, ActEnv *en
     float prj[4];
     float pos[4];
     float ori[4];
-    /* The two GNU nested functions below are what put the actor parameter and
-       hgt into the frame at 0x30 and 0x34 (put_var_into_stack): their bodies
-       sit at act-env.c:1432-1445 and 1486-1488, inside this function's span
-       and below its 1403 def line.  `inline` is required or gcc emits
-       out-of-line copies ahead of this function and breaks the TU order. */
+    /* the two GNU nested functions below read the actor parameter and hgt
+       through the static chain */
     Act *sub = GOBJ_ACT(a0);
     char *obj = (char *)GOBJ_SUB(a0)->root.wall.o.obj;
     int kind = ((EnvSub *)(char *)GOBJ_SUB(a0))->kind;
@@ -512,7 +489,7 @@ void ACTGetEnvironment(void *a0, void *a1, float *a2, EnvFlag *flags, ActEnv *en
     float kd;
     int g;
 
-    inline int CheckWallAttributeNotYorda(int attr, int notYorda)
+    inline int CheckWallAttributeNotYorda(int attr, int notYorda) /* derived name */
     {
         int o = (int)a0;
 
@@ -521,7 +498,7 @@ void ACTGetEnvironment(void *a0, void *a1, float *a2, EnvFlag *flags, ActEnv *en
         return CheckWallAttribute(o, attr);
     }
 
-    inline float PosOrFar(void)
+    inline float PosOrFar(void) /* derived name */
     {
         if (hgt < 0.0f)
             return 3.40282347e+38f /* FLT_MAX */;
@@ -1063,11 +1040,7 @@ void ACTGetEnvironment(void *a0, void *a1, float *a2, EnvFlag *flags, ActEnv *en
             if (hh < 20.0f && 1000.0f < f26)
                 flags[2].w |= 0x80000000;
             break;
-        /* Two identical arms, which the post-reload cross-jump merges (as it
-           merges case 116's tail into them): the listing keeps only the
-           second (row 2388) and nothing on rows 2372-2387.  The bytes pin one
-           such extra arm through the f26 variable's reference count (its
-           register against lim's), not which case value it carried. */
+        /* two identical arms */
         case 1:
             if (hh < 40.0f && 1000.0f < f26)
                 flags[2].w |= 0x80000000;
@@ -1400,11 +1373,7 @@ void ACTGetEnvironment(void *a0, void *a1, float *a2, EnvFlag *flags, ActEnv *en
         if (((int)(*(unsigned long long *)((char *)sub + 0x480) >> 20) & 1) && 195.0f < hd)
             envDebugPrint();
     }
-    /* RECONSTRUCTION, ROM-proven deleted-code window: the bytes pin an
-       unconditional read of the actor here whose value flow later finds
-       dead (it keeps the row-2788 copy as GetHeightOfFieldPlaneDifference's
-       argument, `daddu $5,$6`, while nothing of it survives); they do not
-       pin its text.  The assignment to the loop cursor is our spelling. */
+    /* the loop cursor starts at the actor */
     o = a0;
     if (((char *)girlGObj) != 0) {
         sub->wish0.ll |= (1ULL << 47);

@@ -13,7 +13,7 @@
 #include "fieldCollision.h"
 #include <assert.h>
 
-typedef struct {
+typedef struct { /* field names derived */
     float a[4];
     float b[4];
     char pad0[0x70 - 0x20];
@@ -21,40 +21,34 @@ typedef struct {
     char pad1[0x88 - 0x74];
     int f88;
     char pad2[0xC0 - 0x8C];
-} ClipBox;
+} ClipBox; /* derived name */
 
-typedef struct WpSortEnt {
+typedef struct WpSortEnt { /* field names derived */
     WayPoint *wp;
     float d;
-} WpSortEnt;
+} WpSortEnt; /* derived name */
 
 /* the name every iosMallocDebug and assert in this file reports itself under */
-static const char wayUtilFile[] = "src/way_util.c";
+static const char wayUtilFile[] = "src/way_util.c"; /* derived name */
 
-/* set while the way tool loads or saves (MAIN.MAP global) */
+/* set while the way tool loads or saves */
 int load_save_flag = 0;
 
-/* the red, green and blue the waypoint debug draw uses for the three axes.
-   No instruction in the retail ELF reaches the table; it sits between the file
-   name above and this file's format strings, which is how its extent is known.
-   MAIN.MAP names no symbol in way_util.o's .rodata, so the name is ours. */
+/* the red, green and blue the waypoint debug draw uses for the three axes;
+   no retail code reads the table */
 static const int axisColor[3][4] = {
     {128, 0, 0, 128},
     {0, 128, 0, 128},
     {0, 0, 128, 128},
-};
+}; /* derived name */
 
-/* way_util.c:313-356.  The listing gives both visible_waypoint_of_all_except_gid
-   (def line 360) and its _ThreadVersion (def 365) these same rows, the thread
-   build keeping the _ACTWait arms at 329/345/352, so the body is one shared
-   static inline helper taking the thread flag. */
-static inline WayPoint *visible_waypoint_of_all_except_gid_sub(float *pos, int gid, int thread)
+/* The body of visible_waypoint_of_all_except_gid and of its _ThreadVersion,
+   one shared static inline helper taking the thread flag: the thread build
+   keeps the _ACTWait arms. */
+static inline WayPoint *visible_waypoint_of_all_except_gid_sub(float *pos, int gid,
+                                                               int thread) /* derived name */
 {
-    /* wpsort_compfnc is one of this file's deferred inline bodies and the ROM
-       emits it LAST of them; a file-scope prototype up here would make it the
-       first-declared of the group and move its out-of-line copy to the front,
-       so the declaration stays local to the only function that takes its
-       address. */
+    /* declared here, in the only function that takes its address */
     extern int wpsort_compfnc(WpSortEnt * a0, WpSortEnt * a1);
     float buf[4];
     ClipBox cb;
@@ -122,11 +116,10 @@ WayPoint *visible_waypoint_of_all_except_gid_ThreadVersion(float *pos, int gid)
     return visible_waypoint_of_all_except_gid_sub(pos, gid, 1);
 }
 
-/* way_util.c:383-426.  Same two-wrapper shape as the pair above: the listing
-   gives visible_waypoint_of_all_except_temp (def line 430) and its
-   _ThreadVersion (def 435) the same body rows 383-425, the thread build keeping
-   the _ACTWait arms at 401, 416 and 423. */
-static inline WayPoint *visible_waypoint_of_all_except_temp_sub(float *pos, int gid, int thread)
+/* Same two-wrapper shape as the pair above, for
+   visible_waypoint_of_all_except_temp and its _ThreadVersion. */
+static inline WayPoint *visible_waypoint_of_all_except_temp_sub(float *pos, int gid,
+                                                                int thread) /* derived name */
 {
     extern int wpsort_compfnc(WpSortEnt * a0, WpSortEnt * a1);
     float buf[4];
@@ -207,7 +200,7 @@ void ez_circle(void *pos, void *base, unsigned int col, float r)
     volatile int local[12];
 }
 
-/* kept local: void * (void *, int, int) here, void * (void *, int, unsigned int) in string.h */
+/* void * (void *, int, int) here, void * (void *, int, unsigned int) in string.h */
 extern void *memset(void *dst, int c, int n);
 
 int short_direction_between_wp(WayPoint *from, WayPoint *to)
@@ -290,11 +283,9 @@ inline int direction_across_bridge(WayGroup *bridge, int a1)
     return 0;
 }
 
-/* INTERIM stand-in: waybridge_between_group is a real function of this TU whose
-   out-of-line copy sits in the tail at its ROM slot; the compiler inlines it
-   here, and moving the real definition above this caller would reorder the
-   deferred inline group the tail already matches. */
-static inline WayGroup *waybridge_between_groupInline(int a0, int a1)
+/* a file-static copy of waybridge_between_group, defined below, which this
+   caller inlines */
+static inline WayGroup *waybridge_between_groupInline(int a0, int a1) /* derived name */
 {
     WayGroup *p = WayBridge_begin();
     while (p != 0) {
@@ -388,11 +379,10 @@ void WayUtilWorkFree(WgAll *self)
     iosFree(self);
 }
 
-/* way_util.c:899-961.  The listing gives shortest_path (def line 968) and
-   shortest_path_ThreadVersion (def line 973) the same rows, the thread build
-   keeping the _ACTWait arms at 909, 921 and 926, so the body is one shared
-   static inline helper taking the thread flag. */
-static inline int shortest_path_sub(int from, int to, WgAll *w, int thread)
+/* The body of shortest_path and shortest_path_ThreadVersion, one shared
+   static inline helper taking the thread flag: the thread build keeps the
+   _ACTWait arms. */
+static inline int shortest_path_sub(int from, int to, WgAll *w, int thread) /* derived name */
 {
     char *visited = w->visited;
     int *prev = w->prev;
@@ -542,11 +532,11 @@ int GetWgAll(int from, int to, WgAll *w)
     return i;
 }
 
-/* INTERIM stand-ins: waypoint_connect_group_side_me and
-   waypoint_connect_group_side_bridge are real TU functions whose out-of-line
-   copies sit in the tail of this file at their ROM slots; the compiler inlines
-   them here, and the tail copies must keep their emission order. */
-static inline WayPoint *waypoint_connect_group_side_meInline(WayGroup *a0, int a1)
+/* file-static copies of waypoint_connect_group_side_me and
+   waypoint_connect_group_side_bridge, defined below, which this caller
+   inlines */
+static inline WayPoint *waypoint_connect_group_side_meInline(WayGroup *a0,
+                                                             int a1) /* derived name */
 {
     WayPoint *e = &way_point[a0->end[0]];
     if (e->group == a1)
@@ -555,7 +545,8 @@ static inline WayPoint *waypoint_connect_group_side_meInline(WayGroup *a0, int a
     return e->group == a1 ? e : 0;
 }
 
-static inline WayPoint *waypoint_connect_group_side_bridgeInline(WayGroup *a0, int a1)
+static inline WayPoint *waypoint_connect_group_side_bridgeInline(WayGroup *a0,
+                                                                 int a1) /* derived name */
 {
     WayPoint *e = &way_point[a0->end[0]];
     if (e->group == a1)
@@ -587,10 +578,10 @@ void set_check_wp(CheckWp *out, int wp, int gid)
     }
 }
 
-typedef struct WayDist {
+typedef struct WayDist { /* field names derived */
     float d0;
     float d1;
-} WayDist;
+} WayDist; /* derived name */
 
 int set_bridge(int gid)
 {

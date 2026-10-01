@@ -4,9 +4,8 @@
 
 static void add_gobj_to_head(int a0, int a1, int a2);
 
-/* census add_gobj_to_head, a file static, every gobj list TU has its own copy and
-   `static` keeps this one's ELF symbol local so it cannot collide with the
-   ico2/fumi/isys/gobj global of the same name */
+/* a file-static add_gobj_to_head, distinct from the isys/gobj global of the
+   same name; every gobj list TU has its own copy */
 
 inline void isysGObjDlInit(void)
 {
@@ -50,8 +49,8 @@ void isysGObjRemoveObjDL(int *self)
     cut_gobj_dl_link(self);
 }
 
-/* census add_gobj_to_tail, a file static, the global of that name belongs to
-   ico2/fumi/isys/gobj and `static` keeps this one's ELF symbol local */
+/* a file-static add_gobj_to_tail, distinct from the isys/gobj global of the
+   same name */
 static void add_gobj_to_tail(int a0, int a1, int a2)
 {
     DLN *self = (DLN *)a0;

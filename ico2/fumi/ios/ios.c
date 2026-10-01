@@ -9,9 +9,8 @@
 #include "main.h"
 #include <sound.h>
 
-/* .sdata, owned by ios.o in MAIN.MAP's order: the IOP heap shortfall the
-   allocator records, then a word no retail code reads or writes (MAIN.MAP
-   names no symbol for it). */
+/* the IOP heap shortfall the allocator records, then a word no retail code
+   reads or writes */
 int iopBuffOver = 0;
 
 static int iosUnusedWord = 0; /* derived name */
@@ -33,9 +32,7 @@ inline int iosSifAllocIopHeapDebug(int size, char *file, int line)
     return p;
 }
 
-/* .bss, owned by ios.o and reached only from this file (MAIN.MAP names no
-   symbol in the run), in the ROM's run order: the four semaphore descriptors
-   iosInit fills in and hands to CreateSema. */
+/* the four semaphore descriptors iosInit fills in and hands to CreateSema */
 static struct SemaParam cdLockSemaParam;
 
 static struct SemaParam faultSemaParam;
@@ -44,8 +41,7 @@ static struct SemaParam sndLockSemaParam;
 
 static struct SemaParam stgMgrLockSemaParam;
 
-/* kept local: keyInput.h declares InitKeyInput (void), and this call passes
-   the 0 the ROM loads into a0 ahead of it */
+/* keyInput.h declares InitKeyInput (void); this call passes 0 */
 extern void InitKeyInput();
 
 void ios_init_plus(void)
@@ -93,7 +89,6 @@ void iosInitialize(void)
     ios_partition_sound_semi = iosMallocSetPartition(ios_partition_root, 0x5000, 0x10);
     ios_partition_shock = iosMallocSetPartition(ios_partition_root, 0x2800, 0x10);
     ios_partition_hara = iosMallocSetPartition(ios_partition_root, 1, 0x10);
-    /* the chain's store order is what the ROM's four gp stores record */
     ios_partition_isys = ios_partition_seki = ios_partition_sugipon = ios_partition_dmotion =
         iosMallocSetPartition(ios_partition_root, 0xF18000, 0x10);
     iosMallocSetPartitionName(ios_partition_isys, "stage");
@@ -110,8 +105,8 @@ void iosInitialize(void)
     ios_init_plus();
 }
 
-/* .sdata, after iosInitialize's partition names: the partition handles (MAIN.MAP
-   globals, in its order), then global_variable, which no retail code uses. */
+/* .sdata, after iosInitialize's partition names: the partition handles, then
+   global_variable, which no retail code uses. */
 IosMemPart *ios_partition_root = 0;
 
 IosMemPart *ios_partition_event = 0;

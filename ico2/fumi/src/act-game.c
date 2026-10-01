@@ -40,17 +40,17 @@
 #include "poly-flat.h"
 #include "act.h"
 
-typedef struct {
+typedef struct { /* field names derived */
     char pad0[28];
     int f_1C;
     char _20[4];
-} WeaponEntry;
+} WeaponEntry; /* derived name */
 
-typedef struct {
+typedef struct { /* field names derived */
     long long w;
 } __attribute__((packed)) U64ag;
 
-typedef struct {
+typedef struct { /* field names derived */
     char pad0[32];
     float _20, _24, _28;
     char pad2C[68];
@@ -64,11 +64,11 @@ typedef struct {
     int _94;
     int _98;
     char pad9C[36];
-} HandWork;
+} HandWork; /* derived name */
 
 /* The 0x194-byte-per-entry motion record table, indexed by the object's
    current motion id (obj->0x15C->0x4A0). */
-typedef struct {
+typedef struct { /* field names derived */
     char pad0[336];
     int f_150;
     char pad154[44];
@@ -89,83 +89,73 @@ typedef struct {
 
     unsigned int f_18C;
     unsigned int f_190;
-} MotionRec;
+} MotionRec; /* derived name */
 
 extern MotionRec motionKind[];
 
-typedef struct {
+typedef struct { /* field names derived */
     float x, y, z, w;
 } __attribute__((aligned(16))) Vec4S;
 
-/* kept local: agrees with boyact.h, which this TU does not include (PrivInsCamSet differs) */
+/* as in boyact.h, which this TU does not include (PrivInsCamSet differs) */
 extern void SetBoyInfo(int *a0, int *a1);
-/* kept local: agrees with boyact.h, which this TU does not include (PrivInsCamSet differs) */
+/* as in boyact.h, which this TU does not include (PrivInsCamSet differs) */
 extern void BoyInfoUpdate_StageChange(void);
 
 /* One table: a 100-entry object list, two parallel per-entry int arrays
    (the full view result and the simple one), the entry count and the
    round-robin cursor the loop below advances one entry per frame. */
-typedef struct {
+typedef struct {     /* field names derived */
     GObj *obj[100];  /* 0x000 */
     int view[100];   /* 0x190 */
     int simple[100]; /* 0x320 */
     int num;         /* 0x4B0 */
     int cur;         /* 0x4B4 */
-} ActGameViewTbl;
+} ActGameViewTbl;    /* derived name */
 
-/* .bss, owned by act-game.o: the view table described below.  It is the TAIL
-   of act-game.o's .bss run; the 0x440 bytes before it are not reached from
-   anywhere in the ROM and stay in the blob. */
-static ActGameViewTbl actGameView;
+/* the view table described below, the tail of act-game.o's .bss; no code
+   reaches the 0x440 bytes ahead of it */
+static ActGameViewTbl actGameView; /* derived name */
 
 /* One 0x50-byte record per act status, indexed by sub->0x34. */
 
-/* The motion-play-speed-ratio mode at work+0x54 is an enumerated mode, not a
-   plain int: ACTGame_SetMotionPlaySpeedRatio_Exec dispatches on 0..2, and the
-   ROM proves the type here -- only an enum-typed store lets the scheduler
-   hoist the neighbouring +0x37C timer load past it (an `int` store aliases
-   that load and pins it below). */
+/* the motion-play-speed-ratio mode at work+0x54, which
+   ACTGame_SetMotionPlaySpeedRatio_Exec dispatches on */
 typedef enum { MPSR_OFF, MPSR_ONESHOT, MPSR_HOLD } MpsrMode;
 
-/* The 64-bit actor status words are a union view in the dev's TU: the ROM
-   re-reads sub+0x18 after every `int` store to the work block, which only a
-   union whose members include a 32-bit integer produces -- a plain
-   `unsigned long long` load survives an `int` store under TBAA. */
-
-/* self->0x164->0x688 -- the per-actor motion work block.  Every use in this
-   function re-derives the chase (the ROM reloads both links after each
-   store), so it is spelled as one accessor rather than a cached local. */
-#define ACTWORK(g) ((char *)GOBJ_ACT(g)->work)
+/* self->0x164->0x688, the per-actor motion work block, re-derived at every
+   use */
+#define ACTWORK(g) ((char *)GOBJ_ACT(g)->work) /* derived name */
 
 /* The environment work block the actor rebuilds every frame: 464 bytes at
    +0x4B0, plus the four sub-blocks that survive the rebuild. */
-typedef struct {
+typedef struct { /* field names derived */
     long long d[0x1D0 / 8];
-} EnvWork;
+} EnvWork; /* derived name */
 
 /* 8-aligned 16-byte and 4-aligned 32-byte sub-blocks of that work area. */
-typedef struct {
+typedef struct { /* field names derived */
     long long d[2];
-} EnvPair;
+} EnvPair; /* derived name */
 
-typedef struct {
+typedef struct { /* field names derived */
     float f[8];
-} EnvOct;
+} EnvOct; /* derived name */
 
-/* kept local and unprototyped: weapon.h declares CheckWeaponKind(char *), and
+/* unprototyped: weapon.h declares CheckWeaponKind(char *), and
    ACTGame_isWeaponCombustible calls it with no argument */
 extern int CheckWeaponKind();
 
 /* The actor's orient-request bitfield: three 64-bit request words at
    sub+0x478, each paired with the permission mask 16 bytes further on. */
-#define ORQ(s, i) (((ActStatusWord *)((s) + 0x478))[i].q)
-#define ORM(s, i) (((ActStatusWord *)((s) + 0x478))[(i) + 2].q)
-#define ORBIT(w, b) ((int)((w) >> (b)) & 1)
+#define ORQ(s, i) (((ActStatusWord *)((s) + 0x478))[i].q)       /* derived name */
+#define ORM(s, i) (((ActStatusWord *)((s) + 0x478))[(i) + 2].q) /* derived name */
+#define ORBIT(w, b) ((int)((w) >> (b)) & 1)                     /* derived name */
 
 /* The pair of hand-link wall probes the debug overlay draws, mirrored into
    the actor work area at +0x540; handClInfoClear is the cleared template
    each frame starts from. */
-typedef struct {
+typedef struct {        /* field names derived */
     unsigned char on;   /* 0x00 */
     unsigned char hit;  /* 0x01 */
     unsigned char attr; /* 0x02 */
@@ -175,36 +165,36 @@ typedef struct {
     unsigned char attr2; /* 0x21 */
     char pad22[14];
     long long orient2[2]; /* 0x30 */
-} HandClInfo;
+} HandClInfo;             /* derived name */
 
 static HandClInfo handClInfoClear = {0}; /* derived name */
 
 /* The hand-mode rows the motion record's two hand nibbles index: 16 bytes a
    row, the mode RequestChangeHandMode wants in the last word. */
-typedef struct {
+typedef struct { /* field names derived */
     char pad0[12];
     int mode;
-} HandModeRow;
+} HandModeRow; /* derived name */
 
 extern HandModeRow motionIKEffKind[];
-/* kept local: brain.h is not in this TU's include list and does not declare
+/* brain.h is not in this TU's include list and does not declare
    brainAddLevelGirlDetail */
 extern void brainAddLevelGirlDetail(int a0, float f);
 void ACTItemWatchMotion(GObj *self);
-/* kept local: agrees with boyact.h, which this TU does not include (PrivInsCamSet differs) */
+/* as in boyact.h, which this TU does not include (PrivInsCamSet differs) */
 extern void SetBoyInfo(int *a0, int *a1);
-/* kept local: f5 is int here, float in boyact.h; a7 is float here, unsigned char in boyact.h */
+/* f5 is int here, float in boyact.h; a7 is float here, unsigned char in boyact.h */
 extern void PrivInsCamSet(float *pos, float *tgt, int a2, int a3, int a4, int a5, float f6,
                           float f1);
 
 /* The pending hand-mode command record: two ints at +0x314 (connect) and
    +0x31C (disconnect) of the actor's hand work block. */
-typedef struct {
+typedef struct { /* field names derived */
     int f_0;
     int f_4;
-} HandModeCmd;
+} HandModeCmd; /* derived name */
 
-/* kept local: agrees with weapon.h, which this TU does not include (CheckWeaponKind differs) */
+/* as in weapon.h, which this TU does not include (CheckWeaponKind differs) */
 extern int GetTorchGObjOfWeapon(char *a0);
 extern WeaponEntry weaponKind[];
 
@@ -314,8 +304,8 @@ inline void ACTGame_StageChangeGObjDirect(GObj *a0, int a1, void *a2, int a3)
     gamesysObjInfoPosNewStageSet(a0->labelId, a0->kind, a1, buf0, buf1);
 }
 
-/* act-game.c:1069-1075 -- the exit whose f_24 names this stage. */
-static inline int getExitIndexOfStage(int stage)
+/* the exit whose f_24 names this stage */
+static inline int getExitIndexOfStage(int stage) /* derived name */
 {
     int i;
 
@@ -400,12 +390,7 @@ inline int ACTGame_FLAG_LIFEPINCH(GObj *a0)
     return 0;
 }
 
-/* Returns a char-width boolean: the three PAIR_IsStatus_* sites the listing
-   inlines this into all mask the result with `andi 0xff`, which only a
-   narrower-than-int return type produces.  The `int` intermediate keeps the
-   SI->QI conversion at the `return`; folding it into the `& 1` (i.e. writing
-   the expression directly in the return) makes gcc distribute the narrowing
-   over the mask and emit a second `andi`. */
+/* Returns a char-width boolean, through an `int` intermediate. */
 inline unsigned char ACTGame_FLAG_TETSUNAGI(void)
 {
     GObj *g = girlGObj;
@@ -488,11 +473,7 @@ inline int ACTGame_GetCurrentCallStatus(GObj *a0)
         return 0;
     }
     if (((int)(s->wish0.ll >> 46) & 1) && ((int)(s->wish2.ll >> 46) & 1)) {
-        /* The ROM'(char *)s `sltiu 4; beqz` then `st != 0` pair is the decision tree
-           of a switch on an unsigned index (listing row 1298 holds the whole
-           dispatch, rows 1299-1306 are code-free case lines); the cast
-           stands for the status field'(char *)s own unsigned type, which the bytes
-           cannot name. */
+        /* a switch on the status as an unsigned index */
         switch ((unsigned int)s->actMode) {
         case 1:
         case 2:
@@ -699,13 +680,7 @@ void *floorGObj_ACTCheckCollis_WELL;
 
 void *wallGObj_ACTCheckCollis_WAY;
 
-/* the float is the LAST parameter, not the first: girl_act.c's
-   subGirlBrain_Pulledup call site puts `mtc1 $0,$f12` after the fourth
-   pointer's argument move, and load_register_parameters emits the moves in
-   declared order, which is what breaks the scheduler's INSN_LUID tie there
-   (the same class as ACTGame_SetMotionPlaySpeedRatio_Reserve).  The EE ABI
-   puts the single float in $f12 wherever it sits, so this function's own
-   bytes do not change. */
+/* the float is the last parameter */
 inline int ACTCheckCollis_WELL(void *p0, void *p1, void *actor, void *posout, float f)
 {
     HandWork work;
@@ -759,10 +734,7 @@ inline unsigned char ACTCheckCollis_WAY(float f, void *p0, void *p1, void *actor
     if (flag != 0) {
         GOBJ_SUB(actor)->disp = 1;
     }
-    /* The wall record is published on BOTH paths: SRCFILE.TXT rows put the
-       surviving `sw ...%gp_rel(wallGObj_ACTCheckCollis_WAY)` on line 1586 with a seven-line
-       gap (1579-1585) above it, i.e. an else arm; jump.c cross-jumps the two
-       copies back into the one store ROM carries. */
+    /* the wall record is published on both paths */
     if (work._88 == 0) {
         if (flag != 0) {
             GOBJ_SUB(actor)->disp = 0;
@@ -841,9 +813,8 @@ int ACTCheckView(GObj *self, void *a1, void *a2, int range, float f)
     if (range >= 360) {
         return 1;
     }
-    /* SRCFILE.TXT rows put the whole of each arm on ONE source line (1666 /
-       1667) -- a three-component vector set; v[3] is zeroed on the next line.
-       The duplicated v[0]/v[2] stores are cross-jumped back into one copy. */
+    /* each arm a three-component vector set; v[3] is zeroed on the next
+       line */
     if (*(int *)((char *)self + 0xC) == 4) {
         v[0] = 0.0f;
         v[1] = -1.0f;
@@ -913,10 +884,7 @@ inline int ACTCheckViewClDetail(GObj *self, void *a1, void *a2, int range, float
 }
 
 /* actGameView is one table: a 100-entry object list at +0x000, two parallel
-   100-entry int arrays at +0x190 and +0x320, and the entry count at +0x4B0.
-   The list slot holds a pointer, so its store is in a different alias set
-   from the two int stores -- that is what lets ROM schedule the +0x190
-   address ahead of the list address. */
+   100-entry int arrays at +0x190 and +0x320, and the entry count at +0x4B0. */
 inline void ACTGameView_Add(GObj *a0, GObj *a1)
 {
     int n = actGameView.num++;
@@ -948,12 +916,8 @@ inline void ACTGameView_FirstSet(char *self)
     }
 }
 
-/* The view work record is reached as `self->act->view`, and the two chase
-   loads are spelled as int reads: that puts them in the same alias set as the
-   table's own int fields, so the `simple[i]` / `cur` stores in the later arms
-   invalidate the chase and the arm re-reads it, while the record's own
-   pointer slots (the clip callback, the target object, the cleared result
-   pointer) leave it alone. */
+/* The view work record is reached as `self->act->view`, its two chase loads
+   read as int. */
 void ACTGameView_Loop(GObj *self)
 {
     float pos[4];
@@ -1177,9 +1141,7 @@ inline int ACTGame_isWeaponCombustible(void)
     return CheckWeaponKind() == 1;
 }
 
-/* Both absolute values are MACRO-shaped: ROM re-calls test_CURRENTROOT twice
-   per arm of the height test and _RotyGV once per arm of the angle test, i.e.
-   the classic `((x) < 0 ? -(x) : (x))` triple evaluation. */
+/* both absolute values are written as `((x) < 0 ? -(x) : (x))` */
 int _ACTGame_SearchGObj(GObj *self, GObj *tgt, float range, float height, int angle, float *out)
 {
     float buf[4];
@@ -1253,9 +1215,7 @@ int ACTLookTarget_Exec(GObj *a0)
             pos[1] = s->lookPosY;
             pos[2] = s->lookPosZ;
         } else if (t == (char *)boyGObj) {
-            /* the boy's skeleton position read in place: the listing gives
-               the focus-node call line 2243 and all three copies line 2244,
-               not GetSkeltonPosition's lines, which it defines later (2597) */
+            /* the boy's skeleton position read in place */
             int idx = GetSkeltonFocusNode(t, 35) << 6;
             pos[0] = *(float *)(idx + *(int *)(((IntFloat *)(t + 0x15C))->i + 0xC) + 0x30);
             pos[1] = *(float *)(idx + *(int *)(((IntFloat *)(t + 0x15C))->i + 0xC) + 0x34);
@@ -1449,19 +1409,9 @@ inline void ACTGame_SetMotionPlaySpeedRatio_Reserve(GObj *a0, float f, unsigned 
 }
 
 /* The play-speed ratio's debug override, built only when DEBUG is defined:
-   the debug build can pin the ratio from the debugger before it is applied;
-   the retail build does not define DEBUG, so the helper has no body.  The
-   January link runs its own debug check at the same place (listing rows
-   2532-2537: the motion viewer's mode word, which sets the viewed object's
-   speed itself, guards the call).  WHAT THE BYTES PIN: the Exec's text takes
-   one of its locals' address, so the function uses ADDRESSOF and
-   sibcall.c:404-419 keeps the final call a jal with a frame (the plain call
-   is a `j`, and a body with a sibling call is never inlined, integrate.c
-   226-232, where the ROM inlines it into ACTGame_CommonLoop);
-   purge_addressof then returns ratio to its register, so nothing is stored.
-   WHAT THEY CANNOT PIN: which local, the helper's name or its debug body,
-   which are ours. */
-static __inline__ void speedRatioDebugOverride(float *ratio)
+   the debug build can fix the ratio from the debugger before it is applied;
+   the retail build leaves the helper without a body. */
+static __inline__ void speedRatioDebugOverride(float *ratio) /* derived name */
 {
 #ifdef DEBUG
     if (dbgSpeedRatioFix) {
@@ -1540,10 +1490,9 @@ inline void GetSkeltonPosition(float *dst, GObj *obj, int node)
     dst[2] = *(float *)(idx + *(int *)(((IntFloat *)((char *)obj + 0x15C))->i + 0xC) + 0x38);
 }
 
-/* The bird broadcast the listing keeps at lines 2603-2614, between
-   GetSkeltonPosition and ACTGame_InnerVelocityUpdate: a file static with no
-   symbol of its own, so the name here is reconstructed. */
-static inline void actGame_SendMailToBirds(GObj *self)
+/* the bird broadcast, between GetSkeltonPosition and
+   ACTGame_InnerVelocityUpdate */
+static inline void actGame_SendMailToBirds(GObj *self) /* derived name */
 {
     float other[4];
     float mine[4];
@@ -1566,17 +1515,9 @@ static inline void actGame_SendMailToBirds(GObj *self)
     }
 }
 
-/* listing rows fumi/src/act-game.c:2619-2674.  Line 2626 carries the FSqrt
-   call, the speed's copy, both loads of the parameter-block pointer and the
-   store of the speed, and line 2627 the three stores of pos.  WHAT THE BYTES
-   PIN: the speed is computed before the block pointer is fetched (the chase
-   follows the call), and both hops of that fetch go through one pointer
-   variable (a single pseudo set twice, global because the stores and the
-   2649 counter use it, which is the ROM's `lw $3,0x164($16)` then
-   `lw $3,0x688($3)`; the one-assignment spelling gives $2 then $3); the pos
-   stores go through it and the two thresholds test the speed itself.  WHAT
-   THEY CANNOT PIN: whether the 2001 source wrote those steps as separate
-   statements on that one line or through a macro. */
+/* The speed is computed before the parameter block is fetched, both hops of
+   that fetch going through one pointer variable; the pos stores go through
+   it and the two thresholds test the speed itself. */
 void ACTGame_InnerVelocityUpdate(GObj *self)
 {
     float pos[4];
@@ -1807,7 +1748,7 @@ void ACTGame_BeforeFunc(GObj *self)
 }
 
 /* OR the 16 pending-request bytes into the live request bytes. */
-static inline void actEnv_OrRequestBytes(unsigned char *dst, unsigned char *src)
+static inline void actEnv_OrRequestBytes(unsigned char *dst, unsigned char *src) /* derived name */
 {
     int i;
 
@@ -1816,8 +1757,8 @@ static inline void actEnv_OrRequestBytes(unsigned char *dst, unsigned char *src)
     }
 }
 
-/* act-game.c:2853-2859 -- masks the 16-byte request-flag block in place. */
-static inline void andRequestFlags(char *d, char *m)
+/* masks the 16-byte request-flag block in place */
+static inline void andRequestFlags(char *d, char *m) /* derived name */
 {
     int i;
     for (i = 15; i >= 0; i--) {
@@ -2675,9 +2616,7 @@ void ACTGame_CommonLoop(GObj *self)
         brainAddLevelGirlDetail(1, 20.0f);
         brainSetSpMode();
         if (hand_able_connect()) {
-            /* Boy first: the inline'(char *)s first parameter binding is the
-               boyGObj load (listing row 932), and the ROM'(char *)s `and` takes
-               the boy'(char *)s bit as its first operand. */
+            /* boy first */
             if (ACTGame_CheckHandMotion((char *)boyGObj, ((char *)girlGObj))) {
                 connect = 1;
             } else {
@@ -2789,9 +2728,8 @@ void ACTLookTargetSystem_Exec(GObj *self)
 {
     char *s = (char *)((int *)self)[89];
 
-    /* GNU nested function: the listing names it GetTarget.374 and passes
-       ACTLookTargetSystem_Exec's frame as the static chain, from which it
-       reads `self` and `s`. */
+    /* GNU nested function GetTarget: it reads `self` and `s` from
+       ACTLookTargetSystem_Exec's frame through the static chain. */
     int GetTarget(int kind, float *pos, int *pmode)
     {
         float dir[4];
@@ -2891,9 +2829,9 @@ void ACTLookTargetSystem_Exec(GObj *self)
         }
         if (target != 0) {
             if (target == (char *)boyGObj) {
-                /* the listing writes these two statements out at act-game.c
-                   4202-4203 instead of calling GetSkeltonPosition, so the
-                   node comes off `target` and the skeleton off the global. */
+                /* these two statements written out instead of calling
+                   GetSkeltonPosition: the node comes off `target` and the
+                   skeleton off the global */
                 int idx = GetSkeltonFocusNode(target, 35) << 6;
                 ((IntFloat *)pos)[0].f =
                     *(float *)(idx + *(int *)((int)((GObj *)boyGObj)->dobj + 0xC) + 0x30);
@@ -3070,9 +3008,9 @@ void ACTItemWatchMotion(GObj *self)
     int mode = rec->u_188.w >> 19;
     int frame = rec->u_188.b;
 
-    /* Nested inline (dev lines 4456-4464): the "take the pending item"
-       request, expanded at the four motion arms below. */
-    inline void ItemHold(void)
+    /* nested inline: the "take the pending item" request, expanded at the four
+       motion arms below */
+    inline void ItemHold(void) /* derived name */
     {
         if (sub->heldItem.i != 0) {
             return;
@@ -3083,10 +3021,10 @@ void ACTItemWatchMotion(GObj *self)
         HoldItem(sub->heldItem.i, self);
     }
 
-    /* Nested inline (dev lines 4474-4476): drop whatever is held, read
-       through the slots' pointer member, as the head block below compares
-       them against the other actor's pair. */
-    inline void ItemRelease(void)
+    /* nested inline: drop whatever is held, read through the slots' pointer
+       member, as the head block below compares them against the other
+       actor's pair */
+    inline void ItemRelease(void) /* derived name */
     {
         if (sub->heldItem.p == 0) {
             return;
@@ -3095,9 +3033,8 @@ void ACTItemWatchMotion(GObj *self)
         sub->nextItem.p = sub->heldItem.p = 0;
     }
 
-    /* A real GNU nested function: ROM passes the parent's frame in $2
-       (STATIC_CHAIN_REGNUM) and the body reads `(char *)sub` at 0($2) and `self`
-       at 4($2) through it. */
+    /* a GNU nested function, reading `sub` and `self` through the static
+       chain */
     void ACTItemThrow(void)
     {
         float v[4];
@@ -3237,10 +3174,9 @@ void RequestChangeHandMode(char *self, int mode, int pri, int flag, int p5, int 
 {
     HandModeCmd *hmc = 0;
 
-    /* updateHMC is a nested function in the ROM: RequestChangeHandMode
-       passes it a static chain in $2 (STATIC_CHAIN_REGNUM) which it spills
-       to 0(sp), and reads self/mode/pri/flag/p5/p6/p7 and hmc out of the
-       parent frame through it.  The listing names it updateHMC.415. */
+    /* updateHMC is a GNU nested function: it reads self, mode, pri, flag, p5,
+       p6, p7 and hmc out of RequestChangeHandMode's frame through the
+       static chain. */
     void updateHMC(void)
     {
         hmc->f_0 = flag;

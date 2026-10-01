@@ -9,7 +9,7 @@
 #include "boyact.h"
 #include "main.h"
 
-static inline unsigned char chkOrient(char *s, float *dir, float *w, float deg)
+static inline unsigned char chkOrient(char *s, float *dir, float *w, float deg) /* derived name */
 {
     float *q = (float *)(s + 0x4B0);
 
@@ -207,9 +207,7 @@ void ACTGetWish_FromPad(GObj *a0, float *a1)
     }
 
     if (s->padTrg & 0x80) {
-        /* Both arms set the same bit; gcc cross-jumps them and drops the
-           branch, leaving the compare'(char *)s two operands as dead instructions --
-           which is exactly what ROM has here. */
+        /* both arms set the same bit */
         if (a0->kind == 1) {
             s->wish2.ll |= 1ULL << 44;
         } else {

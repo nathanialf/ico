@@ -1,24 +1,19 @@
-/* girl_brain_attract.c.inc -- the girl brain's "attract" state, #included as source into one
- * girl_act.o.  The PAL listing (baserom/pal/SRCFILE.TXT) attributes these bodies to
- * fumi/src/girl_brain_attract.c.inc and links them into girl_act.o; the census in
- * docs/pal_source_tree.json records the include.  Its includer in the 2002 tree is
- * girl_brain_main.c.inc, which is not split out yet (see docs/HEADERS.md), so the include
- * sits at the same point of girl_act.c that girl_brain_main.c.inc's text occupies today.
- * INCLUDE_ASM paths name the INCLUDER's asm directory because splat splits by the
- * translation unit, not by the included file. */
+/* girl_brain_attract.c.inc: the girl brain's "attract" state, #included as
+ * source into girl_act.c.  Its includer in the 2002 tree is
+ * girl_brain_main.c.inc, which is not split out, so the include sits at the
+ * point of girl_act.c that girl_brain_main.c.inc's text occupies. */
 
 int ATGoalTurnMail(void *actor, float *dir, int node);
-/* kept local: void (void *, int, void *, void *) here, int (char *, int, void *, void *) in mail-add-data.h */
+/* void (void *, int, void *, void *) here, int (char *, int, void *, void *) in mail-add-data.h */
 extern void ActSendMail_WithAdditionalData(void *gop, int msg, void *sender, void *data);
 
 static void *attractMailData; /* derived name */
 
-/* girl_brain_attract.c.inc:9-20 in the listing, expanded twice in
-   subGirlBrain_Attract: turn toward the target, and when already facing it
-   send the attract mail with the target attached.  The result (whether a turn
-   was started) is dropped by both callers; it keeps the mail out of tail
-   position, and integrate.c does not inline a body carrying a sibling call. */
-static inline int girlAttractTurnMailL(void *actor, void *obj, float *from, float *to)
+/* expanded twice in subGirlBrain_Attract: turn toward the target, and when
+   already facing it send the attract mail with the target attached.  The
+   result (whether a turn was started) is dropped by both callers. */
+static inline int girlAttractTurnMailL(void *actor, void *obj, float *from,
+                                       float *to) /* derived name */
 {
     float dir[4];
 
@@ -31,9 +26,8 @@ static inline int girlAttractTurnMailL(void *actor, void *obj, float *from, floa
     return 0;
 }
 
-/* girl_brain_attract.c.inc:33-41: the same turn toward the boy, then the
-   plain mail. */
-static inline int girlAttractTurnMailR(void *actor, float *from, float *to)
+/* the same turn toward the boy, then the plain mail */
+static inline int girlAttractTurnMailR(void *actor, float *from, float *to) /* derived name */
 {
     float dir[4];
 
@@ -164,23 +158,18 @@ int checkWaterfallResult(float *out)
     return ret;
 }
 
-/* kept local: brain.h has no row for the target timer; the ROM passes the target object. */
+/* brain.h does not declare the target timer; this call passes the target
+   object */
 extern int brainDecTargetTimer(void *gobj);
-
-/* One 0x50-byte record per act status, indexed by the actor's status at
-   0x34 (act.c reads the same table).  The flags word at 0x4C is a bitfield:
-   the ROM keeps 0x4C as the load displacement at all three sites here, which
-   only a bitfield reference produces.  The field names are ours. */
 
 /* The record Act.enemy points at, as far as this file uses it: the sofa
    position the attract state hands over (copied from the actor's 0x5B0) and
-   the facing _GetRootObjectOrient fills for it.  The ROM's schedule proves
-   these are field references (in-struct MEMs), not casts off an int. */
-typedef struct {
+   the facing _GetRootObjectOrient fills for it. */
+typedef struct { /* field names derived */
     char pad0[560];
     sceVu0FVECTOR pos; /* 0x230 */
     sceVu0FVECTOR dir; /* 0x240 */
-} GirlSofaWork;
+} GirlSofaWork;        /* derived name */
 
 /* the three attract parameter sets */
 static GirlAttractParam attractObjParam = {0, {0}, {0}, 0, 338, 100.0f, 100.0f}; /* derived name */
@@ -209,17 +198,13 @@ void subGirlBrain_Attract(GObj *volatile a0)
     int turnCnt = 0;
     int hintCnt = 0;
 
-    /* girl_brain_attract.c.inc:257-259 and 261-271 in the listing: two
-       nested helpers.  Their references to cnt, sub and cur are what give
-       those three their frame slots at 0x90/0x94/0x98, between the target
-       record and the vectors declared after them, and the kind test reads
-       cur through the static chain (`move $a1,$sp; lw 0x98($a1)`). */
-    __inline__ void setMode(int mode)
+    /* two nested helpers, which read cnt, sub and cur through the static chain */
+    __inline__ void setMode(int mode) /* derived name */
     {
         cnt = 0;
         sub->wayMode = mode;
     }
-    __inline__ int getKind(void)
+    __inline__ int getKind(void) /* derived name */
     {
         if (cur == (void *)boyGObj && GOBJ_ACT(boyGObj)->actMode == 45) {
             return 0;
@@ -405,13 +390,8 @@ restart:
             float v = lo + rate * (hi - lo);
 
             v = (v < lo) ? lo : ((hi < v) ? hi : v);
-            /* A second speed, computed and clamped like the one above and
-               applied only with the debug switch set.  What the bytes pin:
-               the ROM keeps this clamp's compares with nothing reading v
-               (listing rows 497-503, rows 504-507 code-free), and gcse's
-               table size (the spill slots at 0x104..0x11C) counts the
-               switched-off arm.  What they cannot pin: the switch's name or
-               the arm's exact call. */
+            /* a second speed, computed and clamped like the one above and applied only
+               with the debug switch set */
             if (dbg) {
                 ACTGame_SetMotionPlaySpeedRatio_Reserve((void *)a0, v, 1);
             }

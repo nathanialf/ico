@@ -43,25 +43,24 @@
 #include "fieldCollision.h"
 #include "motionManager2.h"
 
-typedef struct {
+typedef struct { /* field names derived */
     int a, b, c;
-} S12;
+} S12; /* derived name */
 
 /* One word of the boy's actor parameter block at gobj->x15C: the motion code
    writes these slots as float and the evaluator reads them as int, so the word
-   itself is a union.  ROM re-loads gobj->x15C before every store through one,
-   which only an alias-set-0 union member does. */
-typedef union BoyVal {
+   itself is a union. */
+typedef union BoyVal { /* field names derived */
     int i;
     float f;
-} BoyVal;
+} BoyVal; /* derived name */
 
-/* kept local: motionOrientManager.h declares none of the motion tables */
+/* motionOrientManager.h declares none of the motion tables */
 extern MotionDef motionKind[];
 extern void GetChainNearestNodePosition(float *out, void *g, float *ref);
 
 /* the motion-def row of an actor's current motion */
-#define CHAINROW(self) (GOBJ_SUB(self)->ctrl.motion + motionKind)
+#define CHAINROW(self) (GOBJ_SUB(self)->ctrl.motion + motionKind) /* derived name */
 
 void findChainInJump(void *self)
 {
@@ -207,8 +206,8 @@ void findChainInJump(void *self)
     }
 }
 
-/* dir: subBoyCollision passes the motion direction (sub + 0x120) in $6; this
-   body never reads it */
+/* dir: subBoyCollision passes the motion direction (sub + 0x120); this body
+   never reads it */
 int CorrectOrient_RopeCliff(float *out, void *gobj, float *dir)
 {
     float pos[4];
@@ -259,11 +258,11 @@ int CorrectOrient_RopeCliff(float *out, void *gobj, float *dir)
 }
 
 /* The three climb headers (omori/include/b50climb.h, b100climb.h,
-   b200climb.h in the listing) textually included here, as girl_act.c does
-   with its own three: each defines the hand-off's after-routine and
-   act-routine `inline`, which the compiler emits at the end of the file in
-   boyact.h's order, and the mot-routine plainly, emitted in place.  Their
-   strings come out here, in this order, at the head of the TU's .rodata. */
+   b200climb.h) textually included here, as girl_act.c does with its own
+   three: each defines the hand-off's after-routine and act-routine `inline`,
+   which the compiler emits at the end of the file in boyact.h's order, and
+   the mot-routine plainly, emitted in place.  Their strings come out here,
+   in this order, at the head of the TU's .rodata. */
 inline void afterBoyHand50(GObj *volatile a0)
 {
     debug_StdPrintfDummy("boy after func\n");
@@ -325,9 +324,9 @@ void motBoyHand50(GObj *volatile a0)
     }
 }
 
-/* boyact.c rows 1522-1529 of the listing: the shared "face the girl" prologue
-   the b100climb.h / b200climb.h climb motions open with. */
-static inline void faceGirlFlat(void)
+/* the shared "face the girl" prologue the b100climb.h / b200climb.h climb
+   motions open with */
+static inline void faceGirlFlat(void) /* derived name */
 {
     float dir[4];
     void *boy = boyGObj;
@@ -524,13 +523,12 @@ done:
 
 /* One 0x50-byte record per act status, indexed by sub->0x34. */
 
-/* boyact.c:1547 and :1562 are one source line each: ABSF applied TWICE to the
-   same height difference (a 2001 copy-paste artefact), which is what produces
-   the eight re-evaluations of the pair of test_CURRENTROOT calls in each copy.
-   The :1562 copy's body is empty in retail (the January-2002 listing shows the
-   same shape), so only the calls the condition makes survive there. */
-#define BOYGIRL_DY() (test_CURRENTROOT(boyGObj)[1] - test_CURRENTROOT(girlGObj)[1])
-#define ABSF(x) ((x) < 0.0f ? -(x) : (x))
+/* Each of the two height tests is one source line applying ABSF twice to the
+   same height difference, so each re-evaluates the pair of test_CURRENTROOT
+   calls.  The second test's body is empty in retail. */
+#define BOYGIRL_DY()                                                                               \
+    (test_CURRENTROOT(boyGObj)[1] - test_CURRENTROOT(girlGObj)[1]) /* derived name */
+#define ABSF(x) ((x) < 0.0f ? -(x) : (x))                          /* derived name */
 
 void handoff_heroin(void)
 {
@@ -560,17 +558,17 @@ static float pinchCameraPos[4]; /* derived name */
 
 static float pinchBoyPosLate[4]; /* derived name */
 
-typedef struct {
+typedef struct { /* field names derived */
     int a;
     int b;
-} CharPos;
+} CharPos; /* derived name */
 
 /* the wall hit actBoyStart hands the boy and the girl with mail 0x36: the
    ClipWall work record's 0x80 pair and its hit flag at 0x88 */
-typedef struct {
+typedef struct { /* field names derived */
     CharPos pos; /* 0x00 */
     int hit;     /* 0x08 */
-} BoyWallHit;
+} BoyWallHit;    /* derived name */
 
 static BoyWallHit sofaWallHit; /* derived name */
 
@@ -629,8 +627,8 @@ void CheckCollisionAttr(void *self)
     }
 }
 
-typedef struct {
-    int id; /* 0x00 */
+typedef struct { /* field names derived */
+    int id;      /* 0x00 */
     float f04;
     float f08;
     unsigned char b0C; /* 0x0C */
@@ -641,21 +639,19 @@ typedef struct {
     char pad14[0x20 - 0x14];
     float f20[4]; /* 0x20 */
     float f30[4]; /* 0x30 */
-} BgaEntry;
+} BgaEntry;       /* derived name */
 
-typedef struct {
+typedef struct { /* field names derived */
     long long w[12];
-} BoyWork;
+} BoyWork; /* derived name */
 
-typedef struct {
+typedef struct { /* field names derived */
     int w[8];
-} BoyKidnapWork;
+} BoyKidnapWork; /* derived name */
 
-/* the private insert-camera record.  16-aligned as the programmer's other
-   vector records (act-game.c Vec4S, way_sys.c WayClipWork): subBoyCollision's
-   whole-record copy is the ROM's doubleword ld/sd loop, which needs a record
-   alignment of at least 8. */
-typedef struct {
+/* the private insert-camera record, 16-aligned as the programmer's other
+   vector records (act-game.c Vec4S, way_sys.c WayClipWork) */
+typedef struct {  /* field names derived */
     float pos[3]; /* 0x00 */
     float unk0C;
     float tgt[3]; /* 0x10 */
@@ -683,30 +679,28 @@ static BgaEntry boyBgaTable[] = {
     {485, 0.0f, 0.0f, 0, 0, 0, 0, -1.0f},
     {486, -10.0f, 23.0f, 1, 70, 1, 1, -1.0f},
     {-1},
-};
+}; /* derived name */
 
-/* PrivInsCam's initial value: subBoyCollision's line 3175 copies it whole into
-   privInsCam (the prologue forms &privInsCamDefault and &privInsCamDefault + 0x40 for it). */
+/* PrivInsCam's initial value: subBoyCollision copies it whole into
+   privInsCam. */
 static PrivInsCam privInsCamDefault = {
     /* derived name */
-    {0.0f, 0.0f, 0.0f}, 0.0f, {0.0f, 0.0f, 0.0f}, 0.0f, 0, 0, 0, 0.5f, 0.2f};
+    {0.0f, 0.0f, 0.0f}, 0.0f, {0.0f, 0.0f, 0.0f}, 0.0f, 0, 0, 0, 0.5f, 0.2f}; /* derived name */
 
-/* MAIN.MAP's two .data globals of boyact.o, the last two quadwords of its
-   .data as here: test_rope_velo, which no code in the ROM names, and
-   add_rope_vec, the boy's orient snapshot SaveBoyOrientForScript writes. */
+/* boyact.o's two .data globals, the last two quadwords of its .data:
+   test_rope_velo, which no code names, and add_rope_vec, the boy's orient
+   snapshot SaveBoyOrientForScript writes. */
 float test_rope_velo[4] = {0.0f, 0.0f, 0.0f, 0.0f};
 
 float add_rope_vec[4] = {0.0f, 0.0f, 0.0f, 0.0f};
 
-/* kept local: key is float here, int in StageAnimation.h; t is int here, float in StageAnimation.h */
+/* key is float here, int in StageAnimation.h; t is int here, float in StageAnimation.h */
 extern float stage_PlayBgAnimation(float frame, int id, void *v, void *q);
 
 void BoyBgaManager(void *self, int id, void *dst)
 {
-    /* UpdateGeo is a NESTED function in the ROM: BoyBgaManager passes it the
-       static chain in $2 (STATIC_CHAIN_REGNUM) and UpdateGeo reads `self` out
-       of the enclosing frame at 0($sp).  The PAL listing names it
-       `UpdateGeo.170`, gcc's mangling for a nested function. */
+    /* UpdateGeo is a GNU nested function: it reads `self` out of
+       BoyBgaManager's frame through the static chain. */
     void UpdateGeo(BgaEntry * p)
     {
         float dir[4];
@@ -864,33 +858,31 @@ int GetChainSlope(void)
     return down;
 }
 
-/* kept local: this TU's uses of these do not fit the prototypes in the headers
-   the rest of the file reaches. */
+/* this TU's uses of these do not fit the prototypes in the headers the rest
+   of the file reaches */
 extern float GetDifferenceFromLowerField(int self, int a1);
 extern void IncreasePdlChain(int id);
 extern void DecreasePdlChain(int id);
-/* kept local: agrees with camera-root.h, which this TU does not include (GetCurrentCameraSet2 differ) */
+/* as in camera-root.h, which this TU does not include (GetCurrentCameraSet2 differ) */
 extern int InsertCameraWorkingFlag;
-/* kept local: agrees with camera-root.h, which this TU does not include (GetCurrentCameraSet2 differ) */
+/* as in camera-root.h, which this TU does not include (GetCurrentCameraSet2 differ) */
 extern int FixViewInGameCameraFlag;
 
 /* the ClipWall work record as this function uses it: the two segment
    endpoints, the radius at 0x70 and the hit flag at 0x88 (commonact.c's
    RopeWallWork is the same 0xC0-byte record). */
-typedef struct {
+typedef struct { /* field names derived */
     char pad0[112];
     float f70;
     char pad74[12];
     CharPos f80;
     int f88;
     char pad8C[52];
-} BoyWallWork;
+} BoyWallWork; /* derived name */
 
-/* The listing gives this one lines 2066-2072 of boyact.c: an inline-only
-   static that snapshots the boy's orient where the script side reads it,
-   inlined into subBoyControl and subBoyCollision.  Name is this
-   repository's. */
-static inline void SaveBoyOrientForScript(void)
+/* An inline-only static that snapshots the boy's orient where the script
+   side reads it, inlined into subBoyControl and subBoyCollision. */
+static inline void SaveBoyOrientForScript(void) /* derived name */
 {
     void *boy = boyGObj;
 
@@ -899,12 +891,8 @@ static inline void SaveBoyOrientForScript(void)
     add_rope_vec[2] = test_CURRENTORIENT(boy)[2];
 }
 
-/* INTERIM: CorrectStickInfo is a file-scope `inline` in the original TU
-   (rows 1634-1638): the listing expands it into subBoyControl (rows
-   1636-1637) and its out-of-line copy sits in the TU's inline tail, where the
-   plain definition stays.  This stand-in carries the body inline; fold it
-   back when the tail is C. */
-static inline int CorrectStickInfo_inl(void *dir, void *stick)
+/* a file-static copy of CorrectStickInfo, which subBoyControl inlines */
+static inline int CorrectStickInfo_inl(void *dir, void *stick) /* derived name */
 {
     int buf[4];
 
@@ -912,8 +900,8 @@ static inline int CorrectStickInfo_inl(void *dir, void *stick)
     return _RotyGV(buf, dir);
 }
 
-/* boyact.c:2082-2092: the private-camera gate. */
-static __inline__ unsigned char boyPrivInsCamInScreen(void)
+/* the private-camera gate */
+static __inline__ unsigned char boyPrivInsCamInScreen(void) /* derived name */
 {
     float scr[4];
 
@@ -926,9 +914,10 @@ static __inline__ unsigned char boyPrivInsCamInScreen(void)
     return 0;
 }
 
-/* boyact.c:1980-2010: the stick snap the boy's walk control applies when the
-   camera-relative wish and the stick agree closely enough. */
-static __inline__ int snapStickToCamera(float *stick, float *wish, float *sabs, float *cam)
+/* the stick snap the boy's walk control applies when the camera-relative
+   wish and the stick agree closely enough */
+static __inline__ int snapStickToCamera(float *stick, float *wish, float *sabs,
+                                        float *cam) /* derived name */
 {
     int rc;
     int rs;
@@ -1023,7 +1012,7 @@ void subBoyControl(GObj *volatile a0)
                 } else {
                     layoutActPushStartNew = 0;
                 }
-                /* the ROM passes the option word'(char *)s low byte (an lbu) */
+                /* the option word's low byte */
                 iosPadGetStick((char *)s + 0x2D8, (char *)s + 0x338, 0, 2, 2,
                                (unsigned char)debug_stick_simulate);
                 if (debug_stick_input) {
@@ -1133,15 +1122,8 @@ void subBoyControl(GObj *volatile a0)
             }
             _ACTWait(1);
         }
-        /* Local debug switch, off.  What the bytes pin: the function reaches
-           gcse with 1548..1567 real insns (1537 without this arm): the
-           expression table size orders PRE'(char *)s reaching registers, whose order
-           is the order of the spill slots at 0x170..0x18C ((char *)s + 0x360 before
-           the 0xB0 vector).  cse cannot carry dbg'(char *)s 0 across the loop labels,
-           gcse'(char *)s constant propagation folds the test and the next jump pass
-           deletes the arm.  What they cannot pin: the arm'(char *)s text, which is
-           the January build'(char *)s live arm at this spot (listing rows 2328-2330),
-           way_tool.c'(char *)s cursor_control idiom. */
+        /* a local debug switch, off: the cursor_control idiom of way_tool.c,
+           moving the current target object */
         if (dbg) {
             if ((void *)a0 == CurrentTargetGObj && (s->padTrg & 1)) {
                 if (s->actMode != 1) {
@@ -1400,12 +1382,8 @@ void subBoyControl(GObj *volatile a0)
             break;
         case 32:
         case 38: {
-            /* RECONSTRUCTION: the bytes pin a volatile read of a0 opening
-               this arm (listing row 2676, its value unused in the retail
-               text) and 39 code-free rows 2689-2727 before the arm'(char *)s break;
-               this local is the form that read takes in fumi'(char *)s actor code,
-               and its reader is the DEBUG build'(char *)s report in that window.
-               The name, type and report are ours. */
+            /* the actor, read at the head of this arm; the DEBUG build's report
+               reads it */
             GObj *self = a0;
 
             if (((int)(*(unsigned long long *)((char *)GOBJ_ACT(a0)->enemy + 0x298) >> 1) & 1) &&
@@ -1619,17 +1597,12 @@ void subBoyControl(GObj *volatile a0)
     }
 }
 
-typedef struct {
+typedef struct {                      /* field names derived */
     int boyID;                        /* 0x00 */
     int girlID;                       /* 0x04 */
     unsigned long long layoutID : 32; /* 0x08 */
-    /* The one-bit flags are declared no wider than short: actBoyStart's truth
-       tests of torch, bit32 and fire are the ROM's ld/mask/and form, which
-       shorten_compare hands to fold's bit-field compare only for a field
-       narrower than int, and its escort read truncates to char before the
-       mask as a char field's extraction does.  torch is a short because
-       ReadCharacterPacket's lhu of its 16-bit packet field survives only a
-       conversion to a type of at least 16 bits. */
+    /* the one-bit flags are declared no wider than short; torch is a
+       short */
     unsigned char bit32 : 1;
     unsigned char fire : 1;
     unsigned short torch : 1;
@@ -1647,12 +1620,12 @@ typedef struct {
     float f48;
     char pad4C[4];
     CharPos f50; /* 0x50 */
-} BoyInfo;
+} BoyInfo;       /* derived name */
 
-#define BOYINFO (*(BoyInfo *)boyInfo)
+#define BOYINFO (*(BoyInfo *)boyInfo) /* derived name */
 /* BoyInfo's +0x50 record as the ef-stage return reads it: a flag byte and the
    camera target id at +4 (BoyInfoUpdate_StageChange copies it whole as f50). */
-#define BOYEFSTAGE ((unsigned char *)boyInfo + 0x50)
+#define BOYEFSTAGE ((unsigned char *)boyInfo + 0x50) /* derived name */
 
 void InitSwapWeapon(void *self)
 {
@@ -1702,9 +1675,8 @@ void PutWeapon(void)
     }
 }
 
-/* boyact.c:3002-3021 in the PAL listing: a static helper with no out-of-line
-   copy in ROM, inlined into SetBoyWeaponGObj and afterBoyTakeWeapon. */
-static inline int SwapBoyWeapon(void *oldW, void *newW, void *boy)
+/* a static helper inlined into SetBoyWeaponGObj and afterBoyTakeWeapon */
+static inline int SwapBoyWeapon(void *oldW, void *newW, void *boy) /* derived name */
 {
     Act *sub = GOBJ_ACT(boy);
 
@@ -1731,7 +1703,7 @@ static inline int SwapBoyWeapon(void *oldW, void *newW, void *boy)
     return 1;
 }
 
-/* kept local: returns float * here, int * in camera-root.h */
+/* returns float * here, int * in camera-root.h */
 extern float *GetCurrentCameraSet2(void);
 
 void OtherStageGirlPinchCamera_After(float t)
@@ -1771,7 +1743,7 @@ static int characterPacket[8]; /* derived name */
 
 static PrivInsCam privInsCam; /* derived name */
 
-/* kept local: agrees with camera-root.h, which this TU does not include (GetCurrentCameraSet2 differs) */
+/* as in camera-root.h, which this TU does not include (GetCurrentCameraSet2 differs) */
 extern void InsertCamera_SetDetail(float *pos, float *tgt, int gobj, int cutType, int b37, int b38,
                                    float blend);
 
@@ -1823,20 +1795,17 @@ void PrivInsCamProcess(void)
     }
 }
 
-/* kept local: poly-flat.h declares IsPointIsInScreen void, the callers here
-   read the float it returns */
+/* poly-flat.h declares IsPointIsInScreen void, the callers here read the
+   float it returns */
 extern float GetDifferenceFromLowerField(int self, int a1);
 extern int isBottomOfChain(void *chain);
-/* kept local: agrees with camera-root.h, which this TU does not include (GetCurrentCameraSet2 differs) */
+/* as in camera-root.h, which this TU does not include (GetCurrentCameraSet2 differs) */
 extern void Camctrl_SetTarget(int a0, int a1, int a2);
 
-/* the boy's work record at Act+0x688.  subBoyCollision's stores through it are
-   member accesses: the ROM moves its a0 reloads ahead of them (the 0x4B0
-   decrement, the 0x33C store), which it may only do past a MEM_IN_STRUCT_P
-   store (girl_act.c's ActPara is the girl's view of the same record).
-   actBoyDitch3mReady's 0x348 store is the same case: the mail's a0 reload
-   goes ahead of it and the store lands in the call's delay slot. */
-typedef struct {
+/* the boy's work record at Act+0x688; subBoyCollision's stores through it are
+   member accesses (girl_act.c's ActPara is the girl's view of the same
+   record) */
+typedef struct { /* field names derived */
     char pad000[828];
     float f33C; /* 0x33C */
     char pad340[0x348 - 0x340];
@@ -1851,32 +1820,29 @@ typedef struct {
     S12 f480; /* 0x480 */
     char pad48C[0x4B0 - 0x48C];
     int f4B0; /* 0x4B0 */
-} HangTarget;
+} HangTarget; /* derived name */
 
-#define HANG_TARGET(o) ((HangTarget *)*(char **)(*(char **)((char *)(o) + 0x164) + 0x688))
+#define HANG_TARGET(o)                                                                             \
+    ((HangTarget *)*(char **)(*(char **)((char *)(o) + 0x164) + 0x688)) /* derived name */
 
 /* the object kinds the proximity scan below walks, terminated by -1 */
-typedef struct {
+typedef struct { /* field names derived */
     int id[4];
-} ObjKindList;
+} ObjKindList; /* derived name */
 
-static const ObjKindList collisionKinds = {{4, 47, 62, -1}};
+static const ObjKindList collisionKinds = {{4, 47, 62, -1}}; /* derived name */
 
-/* The listing gives this one lines 3173-3177 of boyact.c with its whole body
-   on 3175 and no out-of-line copy: it was `inline` in the original and only
-   subBoyCollision calls it.  The name is this repository's. */
-static inline void PrivInsCamInit(void)
+/* reset the private insert camera to its initial value; only
+   subBoyCollision calls it */
+static inline void PrivInsCamInit(void) /* derived name */
 {
     privInsCam = privInsCamDefault;
 }
 
-/* INTERIM: ACTSearchGObj is a file-scope `inline` in the original TU: the
-   listing expands it into subBoyCollision and actBoyAttack (rows 1644-1661)
-   and its out-of-line copy sits in the TU's inline tail, where the plain
-   definition stays.  This stand-in carries the body both inline; fold it back
-   when the tail is C. */
+/* a file-static copy of ACTSearchGObj, which subBoyCollision and
+   actBoyAttack inline */
 static inline void ACTSearchGObj_inl(void *a0, int a1, int a2, int *out_id, float *out_vec,
-                                     float thresh)
+                                     float thresh) /* derived name */
 {
     float buf[4];
     void *node;
@@ -1911,9 +1877,9 @@ static inline void ACTSearchGObj_inl(void *a0, int a1, int a2, int *out_id, floa
     }
 }
 
-/* The DEBUG build's report of subBoyCollision's camera state, built only under
-   DEBUG (name and text ours); its register arguments leave nothing in retail. */
-static __inline__ void boyCamDebugDisp(int camOn, int looking)
+/* the DEBUG build's report of subBoyCollision's camera state, built only
+   under DEBUG */
+static __inline__ void boyCamDebugDisp(int camOn, int looking) /* derived name */
 {
 #ifdef DEBUG
     scePrintf("boy camera on %d looking %d\n", camOn, looking);
@@ -2099,7 +2065,7 @@ void subBoyCollision(GObj *volatile a0)
                 }
             }
             break;
-        /* the listing's table runs from 1, with this arm empty */
+        /* the table runs from 1, with this arm empty */
         case 0x1:
             break;
         }
@@ -2234,11 +2200,9 @@ void subBoyCollision(GObj *volatile a0)
             }
             ACTParaStatus_Exec((void *)a0);
             {
-                /* boyact.c:3689-3699 in the listing, inside this function's own
-                   span: the weapon search is defined here and inlined into the
-                   test below; it has no symbol of its own, so the name is
-                   descriptive. */
-                inline void *searchWeapon(void)
+                /* the weapon search, defined here and inlined into the test
+                   below */
+                inline void *searchWeapon(void) /* derived name */
                 {
                     void *g;
 
@@ -2288,16 +2252,9 @@ void subBoyCollision(GObj *volatile a0)
             if (camOn == 0 && girlGObj == 0) {
                 void *lo = isysGObjSearchFromObjLayoutID(0x4);
 
-                /* RECONSTRUCTION, a deleted-code window (listing row 3748,
-                   code-free between the 3747 lookup and the 3749 tests).  What
-                   the bytes pin: the ROM issues the lookup's result copy before
-                   the 0x2E0 load, which sched1 does only across a block boundary,
-                   so a conditional jump on lo alone sits here over a body that
-                   flow deletes and that jump.c cannot turn into a store-flag (more
-                   than one set); the jump to the next insn then goes in the pass
-                   after sched2.  What they cannot pin: the text.  In retail
-                   camOn and looking are dead from here on; the DEBUG build's
-                   camera report at the end of this block reads them. */
+                /* In retail camOn and looking are dead from here on; the DEBUG
+                   build's camera report at the end of this block reads
+                   them. */
                 if (lo == 0) {
                     camOn = 1;
                     looking = 0;
@@ -2313,19 +2270,8 @@ void subBoyCollision(GObj *volatile a0)
                     sceVu0ScaleVector(ofs, ofs, _DistGV((float *)cam, (float *)broot));
                     sceVu0AddVector(work, cam, ofs);
                     SetRootPosition(lo, work);
-                    /* Local debug switch, off (see dbg in the declarations).
-                       What the bytes pin: subBoyCollision reached gcse with 1228
-                       to 1231 real insns (the order of the seven spilled frame
-                       addresses is pre_delete's hash-bucket walk with 615
-                       buckets; the January build's order and its one extra call
-                       make it 1231), all of them gone from the final words.  A
-                       switch set to 0 outside the loop is that: cse cannot carry
-                       the constant across the loop label, gcse's constant
-                       propagation folds the test and the next jump pass deletes
-                       the guarded call.  What they cannot pin:
-                       the text; the marker is actBoySwim's own debug_NMarker
-                       call on the helper position just set (rows 3769-3771 are
-                       code-free). */
+                    /* a local debug switch, off (see dbg in the declarations): mark
+                       the helper position just set */
                     if (dbg) {
                         debug_NMarker(work, 0xFF, 0, 0, 100.0f);
                     }
@@ -2392,7 +2338,7 @@ extern void MoveFloatingBox(void *box, int self, void *m, void *p, float d);
    touch: the lift level and the lifted object, then the floating-box flag, the
    box GObj and the grip point, a four-float vector sceVu0ApplyMatrix takes
    whole (its w set to 1 before the apply) */
-typedef struct {
+typedef struct { /* field names derived */
     char pad0[204];
     int f_CC; /* 0xCC, the lift level actBoyBelift sets to 10 and clamps */
     char padD0[348];
@@ -2402,23 +2348,17 @@ typedef struct {
     char *f_2C4; /* 0x2C4 */
     char pad2C8[8];
     float f_2D0[4]; /* 0x2D0 */
-} BoyExt;
+} BoyExt;           /* derived name */
 
-#define BOY_EXT(o) (*(BoyExt **)(*(char **)((char *)(o) + 0x164) + 0x680))
+#define BOY_EXT(o) (*(BoyExt **)(*(char **)((char *)(o) + 0x164) + 0x680)) /* derived name */
 
-/* RECONSTRUCTION: GObj's 0x15C slot read through a union (typedef.h 98-104: an
-   int handle the engine casts to a pointer).  Proof, sched1 dump of this TU
-   (-fsched-verbose-5): the ROM's row 3900 order needs the box slot read to
-   depend on the float store to the grip point's w while the 0x164 and 0x680
-   pointer reads do not, and row 3913 needs each slot read to follow the col-info
-   int store before it; under this compiler's TBAA only an alias-set-0 read
-   (a union member) conflicts with both the float and the int store.  Only the
-   pointer member is attested. */
-typedef union {
+/* GObj's 0x15C slot read through a union (typedef.h: an int handle the
+   engine casts to a pointer) */
+typedef union { /* field names derived */
     char *sub;
-} GObjSubSlot;
+} GObjSubSlot; /* derived name */
 
-#define GOBJ_SUBSLOT(o) (((GObjSubSlot *)((char *)(o) + 0x15C))->sub)
+#define GOBJ_SUBSLOT(o) (((GObjSubSlot *)((char *)(o) + 0x15C))->sub) /* derived name */
 
 void actBoySwim(GObj *volatile a0)
 {
@@ -2532,11 +2472,9 @@ inline void actBoyFall(GObj *volatile a0)
 
 extern void BoyAttackCenter(int a0);
 
-/* INTERIM: ACTSearchEnemy is a file-scope `inline` in the original TU (rows
-   1671/1674, around ACTSearchGObj's 1644-1661; see ACTSearchGObj_inl above
-   subBoyCollision); its out-of-line copy sits in the TU's inline tail, where
-   the plain definition stays.  Fold it back when the tail is C. */
-static inline void ACTSearchEnemy_inl(void *a0, int *out_id, float *out_vec)
+/* a file-static copy of ACTSearchEnemy (see ACTSearchGObj_inl above
+   subBoyCollision) */
+static inline void ACTSearchEnemy_inl(void *a0, int *out_id, float *out_vec) /* derived name */
 {
     ACTSearchGObj_inl(a0, (*(int *)((char *)a0 + 0xC) ^ 1) ? 1 : 4, 0x5A, out_id, out_vec, 300.0f);
 }
@@ -2654,7 +2592,7 @@ void actBoyTakeWeapon(GObj *volatile a0)
     }
 }
 
-#define BOY_WALL(o) ((char *)GOBJ_ACT(o)->work)
+#define BOY_WALL(o) ((char *)GOBJ_ACT(o)->work) /* derived name */
 
 void actBoyCliffHesitate(GObj *volatile a0)
 {
@@ -2699,7 +2637,8 @@ inline void actBoyCall(GObj *volatile a0)
     }
 }
 
-#define BOY_GIRL_DY() (test_CURRENTROOT(girlGObj)[1] - test_CURRENTROOT(boyGObj)[1])
+#define BOY_GIRL_DY()                                                                              \
+    (test_CURRENTROOT(girlGObj)[1] - test_CURRENTROOT(boyGObj)[1]) /* derived name */
 
 void ACTSendMail_PULLUP_GO(void)
 {
@@ -2729,10 +2668,8 @@ void ACTSendMail_PULLUP_GO(void)
     }
 }
 
-/* boyact.c:4386-4398 in the listing: the pull-up start mail, inlined into
-   actBoyPullupGo; it has no symbol of its own and no census row, so the name is
-   descriptive. */
-static inline void ACTSendMail_PULLUP_START(void)
+/* the pull-up start mail, inlined into actBoyPullupGo */
+static inline void ACTSendMail_PULLUP_START(void) /* derived name */
 {
     Act *sub = GOBJ_ACT(boyGObj);
 
@@ -2814,10 +2751,8 @@ void actBoyPullupReady(GObj *volatile a0)
 {
     float mv[4];
 
-    /* boyact.c:4478-4483 in the listing, inside this function's own span: the
-       helper is defined here and inlined at the pull-up test; it has no symbol
-       of its own, so the name is descriptive. */
-    inline unsigned char isGirlWithinPullupHeight(void)
+    /* the helper is defined here and inlined at the pull-up test */
+    inline unsigned char isGirlWithinPullupHeight(void) /* derived name */
     {
         float boy[4];
         float girl[4];
@@ -2860,7 +2795,7 @@ void actBoyPullupReady(GObj *volatile a0)
 
 /* the boy is hauling the girl up: moving while the grip ratio is between 0.1
    and 0.99 or the hold flag is set */
-#define BOY_PULLUP_MOVING(sub)                                                                     \
+#define BOY_PULLUP_MOVING(sub) /* derived name */                                                  \
     (0.1f < *(float *)((char *)(sub) + 0x34C) &&                                                   \
      (*(float *)((char *)(sub) + 0x34C) < 0.99f || (*(int *)((char *)(sub) + 0x2E0) & 0x20)))
 
@@ -2889,12 +2824,8 @@ extern void InsertCamera_Set(float *pos, float *tgt, int frames);
 
 void actBoyBelift(GObj *volatile a0)
 {
-    /* RECONSTRUCTION: the quaternion is reached through a union, the form
-       actEnemyKidnapEnd (enemy_act.c) gives the same memset-and-w=1 idiom.
-       Proof, sched1 dump of this TU: the ROM stores q's w before it loads
-       girl->0x164 for line 4603, a true dependence, and under this compiler's
-       TBAA only an alias-set-0 access (a union member) makes a float store to
-       the stack conflict with that load.  Only the float member is attested. */
+    /* the quaternion is reached through a union, the form actEnemyKidnapEnd
+       (enemy_act.c) gives the same memset-and-w=1 idiom */
     union {
         float f[4];
     } q;
@@ -2975,7 +2906,7 @@ void actBoyBelift(GObj *volatile a0)
 
 /* The walk order the boy is executing: sub->0x30 points at the request record
    the caller filled in, and actBoyReadyMove works on a private copy of it. */
-typedef struct {
+typedef struct { /* field names derived */
     float pos[4];
     float dir[4];
     float range;
@@ -3066,22 +2997,14 @@ void actBoyRescueReady(GObj *volatile a0)
             hold = (char *)GOBJ_ACT(girlGObj)->carrier;
             hp = GOBJ_ACT(hold)->modeFrame;
             r = 0;
-            /* ROM-proven vestigial read (listing rows 4809-4810 carry no code):
-               the bytes pin a load of systemStatus here, before the call, into a
-               variable live code reads elsewhere, with no division by
-               systemStatus[1] (a dead divide keeps its trap). Its high part is
-               what loop.c hoists, and that pre-header copy is what gives the
-               entry block the ROM's `li v1,10`. The statement text is not
-               pinned; n1 stands in for the developer's variable. */
+            /* n1 takes systemStatus[0] and is not read on this path */
             n1 = systemStatus[0];
             ACTGame_ConnectHand();
             if ((60 - systemStatus[0] * 10) / systemStatus[1] * 100 / 60 <= hp) {
                 r = hp * ((60 - systemStatus[0] * 10) / systemStatus[1] * 3) /
                     ((60 - systemStatus[0] * 10) / systemStatus[1] * 10);
             }
-            /* ROM-proven vestigial (listing row 4819): only the bltz on r and
-               the divide-by-zero trap on systemStatus[1] survive of this
-               statement; the quotient itself is never read. */
+            /* the quotient is not read */
             if (0 <= r) {
                 r = (60 - systemStatus[0] * 10) / systemStatus[1];
             }
@@ -3173,10 +3096,7 @@ void actBoyDitch3mReady(GObj *volatile a0)
             ACTSendMailCorrect(a0, 0x187);
         }
 
-        /* Two branches with one body: the listing gives the b test a row of
-           its own (4992) and keeps only the second copy (4993-4994); the
-           post-reload cross-jump merges the first into it, after the
-           allocator has counted c's test in both (which puts c in s2). */
+        /* two branches with one body */
         if (a != 0 && (sub->padNow & 8) == 0) {
             ACTSendMailCorrect(a0, 0x189);
             if (c != 0) {
@@ -3313,7 +3233,7 @@ inline int RequestStageChangeKidnapEnd(void *a0, int a1)
     return rv;
 }
 
-/* kept local: agrees with camera-root.h, which this TU does not include (GetCurrentCameraSet2 differs) */
+/* as in camera-root.h, which this TU does not include (GetCurrentCameraSet2 differs) */
 extern void InsertCamera_SetNoraml(float *pos, float *tgt, int gobj, int cutType);
 
 void SetStatusBoy_OtherStageGirlPinch(void)
@@ -3567,7 +3487,7 @@ inline void actBoySupportGBBegin(GObj *volatile a0)
     }
 }
 
-static inline unsigned char IsBoyStatus_SupportGB(void)
+static inline unsigned char IsBoyStatus_SupportGB(void) /* derived name */
 {
     unsigned int st = (unsigned int)GOBJ_ACT(girlGObj)->actMode;
     if (st < 0x6B) {
@@ -3913,7 +3833,7 @@ inline void BoyInfoUpdate_StageChange(void)
     }
 }
 
-typedef struct {
+typedef struct { /* field names derived */
     CharPos pos; /* 0x00 */
     int boyID;   /* 0x08 */
     int girlID;  /* 0x0C */
@@ -3923,7 +3843,7 @@ typedef struct {
     unsigned int b1C : 8; /* 0x1C */
     unsigned int b1D : 8;
     unsigned int h1E : 16; /* 0x1E */
-} CharacterPacket;
+} CharacterPacket;         /* derived name */
 
 inline void ReadCharacterPacket(void)
 {

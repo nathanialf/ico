@@ -17,7 +17,7 @@
 
 /* One sampled pad buffer: the two button bytes the device leaves at +2 and
    +3, active low. */
-typedef struct {
+typedef struct { /* field names derived */
     unsigned char pad0[2];
     unsigned char hi; /* 0x02 */
     unsigned char lo; /* 0x03 */
@@ -26,20 +26,20 @@ typedef struct {
     unsigned char lx; /* 0x06 */
     unsigned char ly; /* 0x07 */
     unsigned char pad8[24];
-} IosPadBuf;
+} IosPadBuf; /* derived name */
 
 /* The device record iosPadDev carries one of per port: the buffer the last
    read filled is chosen by the index at +0xC, and +0x194 is set while the
    port has no controller. */
-typedef struct {
+typedef struct { /* field names derived */
     char pad0[16];
     unsigned char motor0; /* 0x10 */
     unsigned char motor1; /* 0x11 */
     char pad12[2];
-    int f14; /* 0x14 */
-} IosPadShock;
+    int f14;   /* 0x14 */
+} IosPadShock; /* derived name */
 
-typedef struct {
+typedef struct {      /* field names derived */
     int port;         /* 0x00 */
     int slot;         /* 0x04 */
     int f8;           /* 0x08 */
@@ -61,10 +61,10 @@ typedef struct {
     IosPadShock shock; /* 0x1A4 */
     char pad1BC[4];
     unsigned long long f1C0; /* 0x1C0 */
-} IosPadDevRec;
+} IosPadDevRec;              /* derived name */
 
 /* The caller's pad handle, the record iosPadConnect fills in. */
-typedef struct {
+typedef struct {       /* field names derived */
     IosPadDevRec *dev; /* 0x00 */
     PadConf *conf;     /* 0x04 */
     int now;           /* 0x08 */
@@ -75,28 +75,28 @@ typedef struct {
     int trg2;          /* 0x1C */
     int rel2;          /* 0x20 */
     int f24;           /* 0x24 */
-} IosPadCtx;
+} IosPadCtx;           /* derived name */
 
 /* The stick reading iosPadGetStick hands back: the raw pair at +0 and +4 and
    the normalised direction and magnitude the reader wants. */
-typedef struct {
-    int x;     /* 0x00 */
-    int y;     /* 0x04 */
-    int _8;    /* 0x08 */
-    float dx;  /* 0x0C */
-    float dz;  /* 0x10 */
-    float mag; /* 0x14 */
+typedef struct { /* field names derived */
+    int x;       /* 0x00 */
+    int y;       /* 0x04 */
+    int _8;      /* 0x08 */
+    float dx;    /* 0x0C */
+    float dz;    /* 0x10 */
+    float mag;   /* 0x14 */
     char pad18[8];
-} IosPadStick;
+} IosPadStick; /* derived name */
 
-typedef struct {
+typedef struct { /* field names derived */
     unsigned char mode;
     unsigned char b1;
     unsigned char volume;
     unsigned char b3;
-} ShockPrm;
+} ShockPrm; /* derived name */
 
-typedef struct {
+typedef struct {          /* field names derived */
     int key;              /* 0x00 */
     int box;              /* 0x04 */
     int player;           /* 0x08 */
@@ -105,30 +105,26 @@ typedef struct {
     short tick;           /* 0x12 */
     unsigned char volume; /* 0x14 */
     unsigned char pad[3];
-} PadAct;
+} PadAct; /* derived name */
 
-/* kept local, with the two below: shockdriver.c's definitions take its own
-   records, and this TU hands them the box and parameter as its PadAct holds them */
+/* with the two below: shockdriver.c's definitions take its own records, and
+   this TU hands them the box and parameter as its PadAct holds them */
 extern int Shock_Request(int box, int player, ShockPrm prm, int key, int a4);
 
-/* .sbss, pad.o's two words in the ROM's order (MAIN.MAP names no symbol in the
-   run, so the names are ours): the terminal id the reconnect check compares
-   against, which nothing in the retail build writes, and the enable flag
-   iosPadEnable and iosPadDisable set. */
-static int padTermId;
+/* the terminal id the reconnect check compares against, which nothing in the
+   retail build writes, and the enable flag iosPadEnable and iosPadDisable
+   set */
+static int padTermId; /* derived name */
 
-static int padEnabled;
+static int padEnabled; /* derived name */
 
-/* .data, owned by pad.o, 0x29BA40..0x29C0E0 (= MAIN.MAP pad.o .data 0x6A0,
-   line 5827, which names iosPadConfDefault, iosPadConfCustom, iosPadDev,
-   th_iosPadDevManager and padDevMgrMsgQ at these offsets): the default and
-   custom configurations with the scePadGetState name table between them,
-   the two device records, the manager thread record and its queue.
-   .sdata, 0x63A538..0x63A5D0: iosPadActRequestEnable (MAIN.MAP's one pad.o
-   .sdata name), the state names of five bytes or fewer (emitted with the
-   table, last entry first, as are the two longer ones in .rodata), the
-   literals of controler_stable_check and the reads in first-use order, and
-   the vibration request key. */
+/* .data: the default and custom configurations with the scePadGetState name
+   table between them, the two device records, the manager thread record and
+   its queue.
+   .sdata: iosPadActRequestEnable, the state names of five bytes or fewer
+   (emitted with the table, last entry first, as are the two longer ones in
+   .rodata), the literals of controler_stable_check and the reads in
+   first-use order, and the vibration request key. */
 PadConf iosPadConfDefault = {
     {{5, 120},
      {5, 120},
@@ -353,17 +349,8 @@ int controler_stable_check(void *a0)
             return -1;
         }
         if (state == 6 || state == 2) {
-            /* RULING-VESTIGIAL-EXCEPTION (supervisor 2026-09-23, under the user's
-               standing instruction of 2026-09-23): the `id = padTermId;` inside
-               the if is dead, the line after reassigns id. What the bytes pin: listing row 477 carries the
-               reset arm's split-edge `b` with no instruction of its own, so
-               a statement sits there; an arm holding only `phase = 0;` is
-               if-converted by jump.c to xor/movn where the ROM keeps the
-               bnel; and id reaches allocation with seven references, which
-               orders orig ($23) before id ($30). The two-arm live forms
-               (the seed's `else { id = D; }` with f8 = D or f8 = id, the
-               `||` and local-copy forms) each miss the ROM (ledger c2p65).
-               What they cannot pin: the dead line's exact text. */
+            /* the `id = padTermId;` inside the if is dead: the line after reassigns
+               id */
             if (id != 0 && padTermId != id) {
                 phase = 0;
                 id = padTermId;
@@ -412,7 +399,7 @@ int iosPadDevInit(void *a0)
     return 1;
 }
 
-/* the frame counter this TU reads unsigned: the ROM divides it with divu */
+/* the frame counter this TU reads unsigned */
 extern void Shock_Decode(void *box, unsigned char *pFlags, unsigned char *pLevel);
 extern void Shock_SetMotor(int flags, int level, void *box, int port, int slot);
 void iosPadActTickProc(void);
@@ -618,24 +605,18 @@ int iosPadGetStick_func(void *dev, void *out, int mode, int a3, int a4, int a5)
     return 0;
 }
 
-/* The act table search the listing inlines into iosPadActRequest,
-   iosPadActStop and iosPadActVolumeSet alike (pad.c:1038-1045); here the key
-   searched for is 0, so the compare folds to a beqz. */
+/* the device manager's message queue buffer and the sixteen actuator
+   requests iosPadActRequest hands out */
+static int padDevMgrMsgBuf[8]; /* derived name */
 
-/* .bss, owned by pad.o (MAIN.MAP sizes the run 0x1A0 and names no symbol
-   in it), in the ROM's run order: the device manager's message queue buffer and
-   the sixteen actuator requests iosPadActRequest hands out. */
-/* */
-static int padDevMgrMsgBuf[8];
-
-static PadAct padActs[16];
+static PadAct padActs[16]; /* derived name */
 
 static int padActKey = 1; /* derived name */
 
 /* the pad device the request hangs off: only the shock box pointer at +0 is read */
-typedef struct {
+typedef struct { /* field names derived */
     char *box;
-} PadDev;
+} PadDev; /* derived name */
 
 int iosPadActRequest(int port, int id)
 {
@@ -855,13 +836,13 @@ void iosPadDevManager(void)
     }
 }
 
-typedef struct ShockRequest {
-    ShockPrm prm; /* 0x00 */
+typedef struct ShockRequest { /* field names derived */
+    ShockPrm prm;             /* 0x00 */
     unsigned char pad[56];
     struct ShockRequest *org; /* 0x3C */
 } ShockRequest;
 
-static inline void setRequestVolume(ShockRequest *req, unsigned int volume)
+static inline void setRequestVolume(ShockRequest *req, unsigned int volume) /* derived name */
 {
     unsigned int v;
     v = volume * req->org->prm.volume / 255;

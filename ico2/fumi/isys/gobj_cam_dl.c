@@ -2,18 +2,18 @@
 #include "gobj_cam_dl.h"
 #include "isys.h"
 
-typedef struct EnNode {
+typedef struct EnNode { /* field names derived */
     char pad[52];
     struct EnNode *next;
     struct EnNode *prev;
-} EnNode;
+} EnNode; /* derived name */
 
 static void add_gobj_to_tail();
 
-/* listing lines 130-165: sorted insert by key, inlined into
-   isysGObjMoveCameraDLHead and isysGObjLinkCameraDLHead */
+/* sorted insert by key, inlined into isysGObjMoveCameraDLHead and
+   isysGObjLinkCameraDLHead */
 
-static inline void insert_camera_dl_by_key(int *self, int key)
+static inline void insert_camera_dl_by_key(int *self, int key) /* derived name */
 {
     int *head;
     int *tail;
@@ -91,9 +91,8 @@ void isysGObjRemoveCameraDL(void *a0)
     cut_gobj_camera_dl_link((EnNode *)a0);
 }
 
-/* census: fumi/isys/gobj_cam_dl.c 76-118, file-static `add_gobj_to_tail`
- * (the debug link's local symbol table names it; the static keeps the symbol
- * local, so it cannot collide with the isys/gobj global of the same name). */
+/* a file-static add_gobj_to_tail, distinct from the isys/gobj global of the
+ * same name */
 static void add_gobj_to_tail(int *self, unsigned int key)
 {
     int *head;

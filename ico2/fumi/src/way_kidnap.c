@@ -12,49 +12,39 @@
 #include "Matrix.h"
 #include "main.h"
 
-/* .sdata, owned by way_kidnap.o (VMA 0x63BD60..0x63BD6C, then
-   WayPointWithRangeFromPos2's FLT_MAX pool word; 0x10 B = MAIN.MAP), names ours:
-   the count of positions add_wp_pos has collected, the flag that stops it while
-   WayRangeSearch measures a path, and the range search's limit mode. */
+/* the count of positions add_wp_pos has collected, the flag that stops it
+   while WayRangeSearch measures a path, and the range search's limit mode */
 static int wpPosCount = 0; /* derived name */
 
 static int wpPosLock = 0; /* derived name */
 
 static int wayRangeLimit = 0; /* derived name */
 
-static inline void ClearWpPos(void)
+static inline void ClearWpPos(void) /* derived name */
 {
     if (wpPosLock == 0) {
         wpPosCount = 0;
     }
 }
 
-typedef struct WpPosEntry {
+typedef struct WpPosEntry { /* field names derived */
     WayPoint *wp;
     float len;
-} WpPosEntry;
+} WpPosEntry; /* derived name */
 
-/* .bss, owned by way_kidnap.o and reached only from this file (MAIN.MAP line
-   7761 gives the member, 0x11E8 in its January link, and names no symbol in
-   it), in the ROM's run order 0x728610..0x729B60.  The names are ours.
-   searchNodes is the node list WayPointWithRangeFromPos2 grows while it walks
+/* searchNodes is the node list WayPointWithRangeFromPos2 grows while it walks
    the way graph and edgeDone its per-edge visited flags, each sized by the
    count the search clears; wpPosVec and wpPosInfo are the positions and the
-   (waypoint, length) pairs add_wp_pos appends, CopyWpPos reading at most 128.
-   WHAT THE BYTES PIN: the four start offsets (0x0, 0x450, 0x4B0, 0xCB0) and
-   the run's end to 8 bytes; 275 or 276 node slots and 94 or 96 flags lay
-   out the same, but the entry table's count is pinned by the run's end (see
-   its own comment). */
-static WayPoint *searchNodes[275];
+   (waypoint, length) pairs add_wp_pos appends, CopyWpPos reading at most
+   128. */
+static WayPoint *searchNodes[275]; /* derived name */
 
-static char edgeDone[94];
+static char edgeDone[94]; /* derived name */
 
-static float wpPosVec[128][4];
+static float wpPosVec[128][4]; /* derived name */
 
-/* 276 entries, not the loops' 275: the ROM's run ends at 0x729B60 where
-   way_tool's .bss begins, and 275 leaves it 8 bytes early (measured at the
-   SHA-1 gate, 2026-09-25). */
-static WpPosEntry wpPosInfo[276];
+/* 276 entries, one more than the loops' 275 */
+static WpPosEntry wpPosInfo[276]; /* derived name */
 
 void add_wp_pos(WayPoint *wp, float *pos, float len)
 {
@@ -68,10 +58,9 @@ void add_wp_pos(WayPoint *wp, float *pos, float len)
     sceVu0CopyVector(wpPosVec[wpPosCount++], pos);
 }
 
-/* way_kidnap.c:109 and 117-127 in the listing: public inlines, so gcc defers
-   their bodies to the end of the object (the ROM has them after
-   NearestEnemyFromGirl, in the order way_kidnap.h declares them) while the
-   string CopyWpPos prints is entered here, first in the TU's .rodata. */
+/* public inlines, deferred to the end of the object in the order
+   way_kidnap.h declares them; the string CopyWpPos prints comes first in the
+   TU's .rodata. */
 inline int NumOfWpPos(void)
 {
     return wpPosCount;
@@ -173,8 +162,8 @@ found:
     return len;
 }
 
-/* way_kidnap.c:207-212 and 215-219: public inlines, deferred to the end of the
-   object like NumOfWpPos; NearestEnemyFromGirl inlines the pair. */
+/* public inlines, deferred to the end of the object like NumOfWpPos;
+   NearestEnemyFromGirl inlines the pair. */
 inline float WayLengthOfGObj_Pos(void *obj, float *pos)
 {
     float buf[4];
@@ -195,10 +184,9 @@ inline float WayLengthOfGObj_GObj(void *obj0, void *obj1)
     return WayLengthOfGObj_Pos(obj0, pos);
 }
 
-/* census wpsort_compfnc (way_kidnap.c:226-228), a file static: `static` keeps
-   its ELF symbol local so it cannot collide with the ico2/fumi/src/way_util
-   global of the same name.  Only qsort takes its address, so gcc defers the
-   inline body and emits it last, after the header's public inlines. */
+/* a file-static wpsort_compfnc, distinct from the way_util global of the same
+   name; only qsort takes its address, so its body is emitted last, after the
+   header's public inlines. */
 static inline int wpsort_compfnc(float *a, float *b)
 {
     if (a[1] < b[1])
@@ -208,7 +196,8 @@ static inline int wpsort_compfnc(float *a, float *b)
     return 0;
 }
 
-static inline void WayRangeSearch(float *pos, float range, WpPosEntry *e, int limit, int chk)
+static inline void WayRangeSearch(float *pos, float range, WpPosEntry *e, int limit,
+                                  int chk) /* derived name */
 {
     wayRangeLimit = limit;
     ClearWpPos();
@@ -271,7 +260,7 @@ int WayPointWithRangeFromPos(float *pos, float range, int mode)
     return NumOfWpPos();
 }
 
-static inline WayPoint *SearchOpenNode(WayPoint *start)
+static inline WayPoint *SearchOpenNode(WayPoint *start) /* derived name */
 {
     WayPoint *p;
     int wrapped;
@@ -311,10 +300,8 @@ static inline WayPoint *SearchOpenNode(WayPoint *start)
     return p;
 }
 
-/* The DEBUG build's trace of the edge the search opens, by its table index
-   (name and text ours); built only under DEBUG, its register argument
-   leaves nothing in retail. */
-static __inline__ void wayKidnapDebugEdge(int k)
+/* the DEBUG build's trace of the edge the search opens, by its table index */
+static __inline__ void wayKidnapDebugEdge(int k) /* derived name */
 {
 #ifdef DEBUG
     scePrintf("open edge %d\n", k);
@@ -326,19 +313,8 @@ int WayPointWithRangeFromPos2(float *pos, WVTObj *w, float *dst, int chk)
     float v[4];
     WayPoint *found;
     WayPoint *cur;
-    /* RULING-VESTIGIAL-EXCEPTION (supervisor 2026-09-24, under the user's
-       2026-09-21 standard for dead assignments the ROM proves).
-       Deleted-code window (c3p75/c3p76, for the landing audit): the
-       initialiser is dead (edge is set at the top of every pass of the
-       loop before any read) and flow deletes it. What the bytes pin: a
-       second set of edge before cse1, since alias.c record_set then
-       forgets edge's base and the char store edgeDone[k] = 1 kills the
-       edge->end[j] load, which the bridge arm reloads at 0x2157E0; without
-       it the function is 354 words. What they cannot pin: the statement.
-       The declaration form follows this programmer's pointer locals
-       initialised to 0 (`void *nearest = 0;` in NearestEnemyFromGirl here,
-       `HandModeCmd *hmc = 0;` in act-game.c, `char *gen = 0;` in
-       commonact.c). */
+    /* the initialiser is dead: edge is set at the top of every pass of the loop
+       before any read */
     WayGroup *edge = 0;
     WayPoint *nearest;
     float best;
@@ -379,21 +355,9 @@ int WayPointWithRangeFromPos2(float *pos, WVTObj *w, float *dst, int chk)
         searchNodes[i] = 0;
         debug_StdPrintfDummy("active %d\n", edge->active);
         if (edge->active != 0) {
-            /* RULING-VESTIGIAL-EXCEPTION (supervisor 2026-09-24, under the
-               user's 2026-09-21 standard for dead assignments the ROM proves).
-               Deleted-code window (c3p76): k is the
-               index of this edge in the table, as everywhere below, and the
-               DEBUG build's trace reads it; in retail the value is dead (the
-               next read of k follows its reassignment in both loops) so flow
-               deletes it; listing rows 427-429 carry no
-               code. What the bytes pin: a read of the table base in this arm,
-               on cse1's path from the found block, so the base register row
-               419 builds is used outside its block when loop.c runs; the
-               second loop pass then leaves that lo_sum in the block (scan_loop's
-               maybe_never guard) and hoists only the high part, local-alloc
-               cannot tie the two, and combine keeps mult + addu where a
-               hoisted base gives an EE madd (r5900_madd_profitable_p). What
-               they cannot pin: the statement's text. */
+            /* k is the index of this edge in the table, as everywhere below, and
+               the DEBUG build's trace reads it; in retail the value is dead
+               (the next read of k follows its reassignment in both loops) */
             k = edge - way_group;
             wayKidnapDebugEdge(k);
             found = SearchOpenNode(cur);
@@ -479,7 +443,7 @@ ret:
     return 1;
 }
 
-/* way_kidnap.c:522-526: a public inline, deferred like the others. */
+/* a public inline, deferred like the others */
 inline int WayPointWithRangeFromGObj(void *obj, float f)
 {
     float pos[4];

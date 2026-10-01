@@ -5,59 +5,54 @@
 #include "main.h"
 #include <assert.h>
 
-struct jNode {
+struct jNode { /* field names derived */
     char pad0[4];
     int status;
     int field8;
     int fieldC;
     char pad10[4];
     int field14;
-};
+}; /* derived name */
 
-struct jWayGroup { /* jimakuRing element, stride 0x18 */
+struct jWayGroup { /* field names derived */ /* jimakuRing element, stride 0x18 */
     int f0;
     int f4;
     int f8;
     int fC;
     struct jWayGroup *node; /* the next group in the ring */
     char *buf;              /* 0x14 its 0x8C40 read buffer */
-};
+}; /* derived name */
 
-/* The TU's .bss, in ROM run order (VMA 0x6C1E80..0x6E50A4): the four-group
-   read ring, the groups' CD read buffers (64-byte aligned as DMA targets,
-   which puts them at +0x80 past the 0x60-byte ring; MAIN.MAP pads the
-   object's .bss to a 64-byte boundary) and three semaphore records of iosSemaCreate's 13 words:
-   read done (signalled by jimakuHandler), shown five frames (jimakuDisp) and
-   one per frame (jimakuDisp). */
+/* the four-group read ring, the groups' CD read buffers (64-byte aligned as
+   DMA targets) and three semaphore records of iosSemaCreate's 13 words: read
+   done (signalled by jimakuHandler), shown five frames (jimakuDisp) and one
+   per frame (jimakuDisp) */
 static struct jWayGroup jimakuRing[4];
 
-static char jimakuBuf[4][0x8C40] __attribute__((aligned(64)));
+static char jimakuBuf[4][0x8C40] __attribute__((aligned(64))); /* derived name */
 
-static IosSema jimakuReadSema;
+static IosSema jimakuReadSema; /* derived name */
 
-static IosSema jimakuShownSema;
+static IosSema jimakuShownSema; /* derived name */
 
-static IosSema jimakuFrameSema;
+static IosSema jimakuFrameSema; /* derived name */
 
 #include "jimaku.h"
-#include "layout_texture.h" /* texProperty: jimaku owns rows 434 and 435 */
+#include "layout_texture.h" /* texProperty: jimaku's entries are 434 and 435 */
 #include "gflag.h"
 
-typedef struct JimCol {
+typedef struct JimCol { /* field names derived */
     unsigned char r;
     unsigned char g;
     unsigned char b;
     unsigned char a;
-} JimCol;
+} JimCol; /* derived name */
 
-/* .data, owned by jimaku.o, 0x2A2FD0..0x2A50C0 (= MAIN.MAP jimaku.o .data
-   0x20F0, line 5856, which names all four at these offsets), all zero: the
-   subtitle thread's record and its 8 KB stack, the manager's message queue
-   and the request the script actors hand it.
-   .sdata, 0x63A960..0x63A9A0 (= MAIN.MAP's 0x40, line 7097, naming jimakuOn
-   and jimakuMsgBuf): the display time in frames, the display flag, jimakuOn,
-   display_texture's colour initialiser (a 4-byte template, so .sdata,
-   reached by %hi/%lo), then jimakuMgrNext's strings and jimakuMsgBuf. */
+/* .data, all zero: the subtitle thread's record and its 8 KB stack, the
+   manager's message queue and the request the script actors hand it.
+   .sdata: the display time in frames, the display flag, jimakuOn,
+   display_texture's colour initialiser (a 4-byte template), then
+   jimakuMgrNext's strings and jimakuMsgBuf. */
 IOSThread jimakuThread = {0};
 
 char jimakuThreadStack[8192] = {0};
@@ -72,20 +67,20 @@ static int jimakuDispOn = 0; /* derived name */
 
 int jimakuOn = 1;
 
-/* kept local: agrees with GifPacket.h, which this TU does not include (gif_SpriteSensitiveOffset differs) */
+/* as in GifPacket.h, which this TU does not include (gif_SpriteSensitiveOffset differs) */
 extern void gif_StartPacketPri(int pri);
-/* kept local: agrees with GifPacket.h, which this TU does not include (gif_SpriteSensitiveOffset differs) */
+/* as in GifPacket.h, which this TU does not include (gif_SpriteSensitiveOffset differs) */
 extern void gif_SetAlpha(long long a0, long long a1, long long a2);
-/* kept local: agrees with GifPacket.h, which this TU does not include (gif_SpriteSensitiveOffset differs) */
+/* as in GifPacket.h, which this TU does not include (gif_SpriteSensitiveOffset differs) */
 extern void gif_SetGsReg(long long a0, long long a1);
-/* kept local: agrees with GifPacket.h, which this TU does not include (gif_SpriteSensitiveOffset differs) */
+/* as in GifPacket.h, which this TU does not include (gif_SpriteSensitiveOffset differs) */
 extern void gif_SetZWrite(int a0);
-/* kept local: agrees with GifPacket.h, which this TU does not include (gif_SpriteSensitiveOffset differs) */
+/* as in GifPacket.h, which this TU does not include (gif_SpriteSensitiveOffset differs) */
 extern void gif_SetZTest(int a0);
-/* kept local: z is unsigned int here, long long in GifPacket.h */
+/* z is unsigned int here, long long in GifPacket.h */
 extern void gif_SpriteSensitiveOffset(int *r, unsigned int z, int *uv, unsigned char *col,
                                       int prim);
-/* kept local: agrees with GifPacket.h, which this TU does not include (gif_SpriteSensitiveOffset differs) */
+/* as in GifPacket.h, which this TU does not include (gif_SpriteSensitiveOffset differs) */
 extern void gif_EndPacket(void);
 
 void display_texture(LtProperty *t)
@@ -151,14 +146,7 @@ int jimakuHandler(int self, JimakuArg *p)
             g->f4 = 3;
             break;
         }
-        /* WHAT THE BYTES PIN: the read loop tests before its first pass and
-           takes its byte count by copy from a variable set outside the
-           outer loop. cse1 cannot see that value where the entry test
-           stands, so the test's edge past the loop lives through gcse and
-           is folded only after it: gcse then puts %hi(jimakuBuf) in the
-           loop's preheader once per record (0x0017CC0C) and reloads unk34
-           on both exits of the loop, as ROM does. What they cannot pin is
-           the variable's name. */
+        /* read the record in pieces of at most 0x8C40 bytes */
         left = size;
         while (left > 0) {
             n = (0x8C40 < left) ? 0x8C40 : left;
@@ -242,12 +230,12 @@ void jimakuMgrBegin(JimakuArg *p)
     }
 }
 
-/* The DEBUG build's switch to print the way groups' states after each Next
-   (name ours); retail builds it as 0. */
+/* The DEBUG build's switch to print the read ring's states after each Next;
+   retail builds it as 0. */
 #ifdef DEBUG
-#define JIMAKU_DEBUG_DUMP (debug_font_flag & 0x400)
+#define JIMAKU_DEBUG_DUMP (debug_font_flag & 0x400) /* derived name */
 #else
-#define JIMAKU_DEBUG_DUMP 0
+#define JIMAKU_DEBUG_DUMP 0 /* derived name */
 #endif
 
 void jimakuMgrNext(JimakuArg *p)
@@ -284,17 +272,8 @@ void jimakuMgrNext(JimakuArg *p)
     }
     sub->cur = jimakuBuf[sub->n];
     jimakuDispOn = 1;
-    /* The listing's rows 705 to 714 carry no code, and the ROM's second and
-     * third returns take `ld $31` from the epilogue where the build without
-     * this block takes the next statement's constant into the second one's
-     * slot: reorg predicts a branch to the epilogue taken when a loop-begin
-     * note stands just before it (mostly_true_jump), so a loop compiled out
-     * at the end of the function is what the bytes pin: here the DEBUG
-     * build's dump, whose switch retail builds as 0. Its strings are the
-     * .sdata's ">%d", " %d" and "\n" after the assert's "0", which no
-     * instruction reads in retail or in the January listing. What they
-     * cannot pin: the values printed; the four way groups' states and the
-     * mark on the current one are ours. */
+    /* the DEBUG build's dump of the four groups' states, the current one
+     * marked */
     if (JIMAKU_DEBUG_DUMP) {
         int m;
 
@@ -321,8 +300,8 @@ void jimakuMgrJump(JimakuArg *p)
     jimakuMgrNext(p);
 }
 
-/* K&R definition: it declares no prototype, which is what lets jimakuEnd
- * below tail-call this function with no argument, as ROM does. */
+/* K&R definition: it declares no prototype, so jimakuEnd below calls this
+ * function with no argument. */
 void jimakuMgrEnd(p) int *p;
 
 {

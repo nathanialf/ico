@@ -17,7 +17,7 @@ void setMailTarget(GObj *a0, GObj **a1, int *a2)
     a1[v] = a0;
 }
 
-/* kept local: the generated sedef member defines the rows const, and s_init.c
+/* as in the generated sedef member, which defines the rows const; s_init.c
    writes procRan into them */
 extern SeDef seDef[];
 

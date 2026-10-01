@@ -42,10 +42,8 @@ int entesty;
 
 /* The brain-mode table, one 28-byte record per mode: its name, its priority
    against the running mode, the brain function and four parameters
-   (subEnemyBrainMain and BrainMode_Requset read them).  The names are this
-   TU's own string literals ("START" .. "IRREGULAR"), still placeholders here
-   because the .sdata run that holds nine of them is not carved yet. */
-typedef struct {
+   (subEnemyBrainMain and BrainMode_Requset read them). */
+typedef struct { /* field names derived */
     char *name;
     int pri;
     void (*brain)(GObj *);
@@ -53,7 +51,7 @@ typedef struct {
     int f10;
     int f14;
     int f18;
-} EnemyBrainMode;
+} EnemyBrainMode; /* derived name */
 
 inline void subEnemyBrain_Await(GObj *volatile a0);
 void subEnemyBrain_ToBoy(GObj *volatile a0);
@@ -83,77 +81,68 @@ EnemyBrainMode brainModeTable[] = {
     {"PICKUP", 3, subEnemyBrain_Pickup, 0, 1, 1, 4},
     {"BODYSLAM", 3, subEnemyBrain_Bodyslam, 0, 0, 1, 0},
     {"IRREGULAR", 4, subEnemyBrain_Irregular, 0, 0, 1, 0},
-};
+}; /* derived name */
 
 /* The brain-mode default target, read when a mode is set with no target:
    _BrainMode_SetDirect's else arm and the two nested brain-change children
-   read it.  A one-element const array: it is not folded to its value the way
-   a const scalar is (decl_constant_value skips arrays), its reads are
-   unchanging so cse carries them over the mode store, and the ROM's 8-byte
-   slot after the table's names (4 bytes of pad) is gcc's alignment for a
-   4-byte array. */
+   read it.  A one-element const array. */
 static const int brainTargetNone[1] = {0}; /* derived name */
 
-#define BOSS_START_WORK(self) ((int)GOBJ_ACT(self)->enemy)
+#define BOSS_START_WORK(self) ((int)GOBJ_ACT(self)->enemy) /* derived name */
 
-typedef struct {
+typedef struct { /* field names derived */
     char pad00[20];
     int id;
     int timer;
     char busy;
     char alive;
     char pad1E[2];
-} BossPart;
+} BossPart; /* derived name */
 
-#define BOSS_EFFECT_WORK(self) ((char *)*(int *)(*(int *)((self) + 0x164) + 0x680))
-#define BOSS_EFFECT_PARTS(self, i) ((BossPart *)((i) * 0x20 + BOSS_EFFECT_WORK(self) + 0x360))
+#define BOSS_EFFECT_WORK(self)                                                                     \
+    ((char *)*(int *)(*(int *)((self) + 0x164) + 0x680)) /* derived name */
+#define BOSS_EFFECT_PARTS(self, i)                                                                 \
+    ((BossPart *)((i) * 0x20 + BOSS_EFFECT_WORK(self) + 0x360)) /* derived name */
 
-/* kept local: motionOrientManager.h declares none of the motion tables */
+/* motionOrientManager.h declares none of the motion tables */
 extern MotionDef motionKind[];
 
-/* kept local: this TU's uses of _GetMotionDirection do not fit the prototype in
+/* this TU's uses of _GetMotionDirection do not fit the prototype in
    motionManager2.h */
 
 /* The DEBUG build holds the enemy's stick poll while the debug flag word's
    hold bit is set, a frame at a time, the way boyact.c's subBoyControl repeats
-   its stick loop with _ACTWait; retail builds it as 0. Name and bit ours. */
+   its stick loop with _ACTWait; retail builds it as 0. */
 #ifdef DEBUG
-#define ENEMY_DEBUG_HOLD (debug_font_flag & 0x200)
+#define ENEMY_DEBUG_HOLD (debug_font_flag & 0x200) /* derived name */
 #else
-#define ENEMY_DEBUG_HOLD 0
+#define ENEMY_DEBUG_HOLD 0 /* derived name */
 #endif
 
-/* kept local: enemy_act.c does not carry multiBgaManager.h, and this TU reads
-   only the display list pointer it hands the manager. */
-/* The pad record layout_texture.c reconstructs as LtPad; this TU reads only its
-   button word at +0, and the incomplete array type is what keeps ROM's %hi/%lo
-   pair where a small scalar would go gp-relative under -G 8. */
+/* enemy_act.c does not carry multiBgaManager.h, and this TU reads only the
+   display list pointer it hands the manager */
+/* The pad record layout_texture.c reconstructs as LtPad; this TU reads only
+   its button word at +0, declared as an incomplete array. */
 extern void ACTParaStatus_Exec(GObj *self);
 extern float GetEnemyDefParaIndex(void *self);
-/* kept local: void is void * here, void in attackhit.h */
+/* void is void * here, void in attackhit.h */
 extern void EnemyAttackCenter(void *self);
 
-/* The point the lifting enemy turns to.  RECONSTRUCTION: the ROM holds three
-   vectors here (0x30 bytes, the first two equal) and only the first is ever
-   addressed, so the bytes cannot say whether the developer wrote one table or
-   three objects; the 8 bytes of fill after brainModeTable prove the 16-byte
-   alignment. */
+/* The point the lifting enemy turns to: three vectors (the first two equal),
+   of which only the first is addressed. */
 static sceVu0FVECTOR bodyliftTarget[3] = {
     {-311.0f, -89.0f, -147.0f, 0.0f},
     {-311.0f, -89.0f, -147.0f, 0.0f},
     {-770.0f, -1445.0f, -749.0f, 0.0f},
-};
+}; /* derived name */
 
-/* FLT_MAX word in .sdata; the incomplete array type is what keeps the ROM's
-   %hi/%lo pair instead of a gp-relative load. */
+/* FLT_MAX word in .sdata, declared as an incomplete array */
 extern void SetEnemyStonizedVisual(void *self);
 extern void BossEnemyFunc(void *self);
 
-/* RECONSTRUCTION: the listing puts the whole row-3197 test on its own row with
-   no helper rows, and the bytes (lwu, dsll32/dsra32, andi) are a 64-bit
-   shift-and-mask of a 32-bit word, the TU's flag-test shape: a function-like
-   macro.  The name is ours. */
-#define EA_CHKBIT(f, n) (((int)((long long)(f) >> (n))) & 1)
+/* the TU's flag-test shape, a 64-bit shift-and-mask of a 32-bit word, as a
+   function-like macro */
+#define EA_CHKBIT(f, n) (((int)((long long)(f) >> (n))) & 1) /* derived name */
 
 /* GetFlyPosition's points: the four the enemy measures against, the four it
    flies to (paired by index, 200 below), and the one it escapes to. */
@@ -162,35 +151,30 @@ static sceVu0FVECTOR flyCheckPos[4] = {
     {708.0f, 0.0f, -806.0f, 1.0f},
     {-1394.0f, 0.0f, -858.0f, 1.0f},
     {-1383.0f, 0.0f, 645.0f, 1.0f},
-};
+}; /* derived name */
 
 static sceVu0FVECTOR flyDestPos[4] = {
     {842.0f, -200.0f, 1278.0f, 1.0f},
     {734.0f, -200.0f, -1273.0f, 1.0f},
     {-1394.0f, -200.0f, -1291.0f, 1.0f},
     {-1383.0f, -200.0f, 1291.0f, 1.0f},
-};
+}; /* derived name */
 
-static sceVu0FVECTOR flyEscapePos = {1712.0f, -600.0f, 0.0f, 1.0f};
+static sceVu0FVECTOR flyEscapePos = {1712.0f, -600.0f, 0.0f, 1.0f}; /* derived name */
 
 /* The brain-mode target the ChangeBrain_ToAttack and ChangeBrain_ToKidnap
    children hand to _BrainMode_SetDirect: one word shared by the nested
    functions of two parents, so file scope (the TU's whole .sbss). */
-static char *brainTarget;
+static char *brainTarget; /* derived name */
 
-/* "change to kidnap": the string follows subEnemyBrain_ToBoy's two jump tables
-   in the ROM's .rodata (0x5536C8), so it stays in the blob while the TU's own
-   .rodata run ends at the tables. */
-
-/* kept local: enemy_act.c carries none of these owners' headers, and the ROM
-   proves gif_StartPacketPri takes the packet priority its GifPacket.h
-   prototype does not name. */
-/* kept local: agrees with flyManager.h, which this TU does not include */
+/* enemy_act.c carries none of these owners' headers; gif_StartPacketPri takes
+   the packet priority its GifPacket.h prototype does not name */
+/* as in flyManager.h, which this TU does not include */
 extern int GetFlyLimitClearance(void *pos);
 
 /* One start record per motion phase; the four of them are the actor's whole
    start parameter block. */
-typedef struct {
+typedef struct { /* field names derived */
     int mode;
     int f04;
     int f08;
@@ -199,33 +183,27 @@ typedef struct {
     float f14;
     float f18;
     unsigned int f1C;
-} EnemyStartRec;
+} EnemyStartRec; /* derived name */
 
 /* The gobj's sub-object slot at +0x15C, an int handle the engine also reads
-   as the sub record's address (see GOBJ_SUB in typedef.h). Reconstruction:
-   ROM re-reads the slot before each of actEnemyStart's four float stores
-   through it while the int chase through gobj+0x164 survives them, which
-   is what a union view of the slot gives (alias set 0 on the slot, float
-   on the stores); the union's name and members are ours. */
-typedef union {
+   as the sub record's address (see GOBJ_SUB in typedef.h), as a union of the
+   two views. */
+typedef union { /* field names derived */
     int handle;
     char *p;
-} EnemySubSlot;
+} EnemySubSlot; /* derived name */
 
 /* The actor's character kind at act+0x48, the index act.c's after_func_exec
    and BeforeFunc read into the status table's six-entry rows; actInitialize
-   sets it to -1, actGirlStart to 1 and actEnemyStart to 2. Reconstruction:
-   an enumerated type, as the ROM proves here (only a store of a type other
-   than int lets the gFlagGameClear load below issue ahead of it); the names are
-   ours, the values the ROM's. */
+   sets it to -1, actGirlStart to 1 and actEnemyStart to 2. */
 typedef enum { ACT_KIND_NONE = -1, ACT_KIND_GIRL = 1, ACT_KIND_ENEMY = 2 } ActKind;
 
-#define ENEMY_START_WORK(self) ((int)GOBJ_ACT(self)->enemy)
+#define ENEMY_START_WORK(self) ((int)GOBJ_ACT(self)->enemy) /* derived name */
 
-typedef struct {
+typedef struct { /* field names derived */
     char pad00[32];
     long long flags;
-} EnemyBrainWork;
+} EnemyBrainWork; /* derived name */
 
 inline int IsEnemyBrainToGenerator(char *a0, int *out)
 {
@@ -298,10 +276,9 @@ inline void boss_effect_callback(int id)
     }
 }
 
-/* static inline of the 2001 source, listing lines 973-977 -- inlined by both
-   boss_effect_start and boss_effect_process (the rows attributed to 973 are
-   each call's argument setup, which is why they differ between the two). */
-static inline void bossEffectSetNodePos(char *self, float *dst, int idx)
+/* a static inline, inlined by both boss_effect_start and
+   boss_effect_process */
+static inline void bossEffectSetNodePos(char *self, float *dst, int idx) /* derived name */
 {
     Sub15C *g = GOBJ_SUB(self);
 
@@ -438,10 +415,9 @@ end:
     return rv;
 }
 
-/* Static inline of the 2001 source, listing rows 908-915: the rows sit between
-   setBattleStatus and boss_effect_callback, the body has no ROM slot of its own
-   and subEnemyControl is the only place it is expanded, so this name is ours. */
-static inline void enemyPollHitNodes(GObj *self)
+/* A static inline between setBattleStatus and boss_effect_callback, expanded
+   only in subEnemyControl. */
+static inline void enemyPollHitNodes(GObj *self) /* derived name */
 {
     int n = GOBJ_SUB(self)->skelNodeNum;
     int i;
@@ -463,14 +439,8 @@ void subEnemyControl(GObj *volatile a0)
     iosPadConnect((char *)sub + 0x2D8, 0, 1, &sub->padConf);
     while (1) {
         enemyPollHitNodes(a0);
-        /* The stick poll loop, subBoyControl's shape, repeating only under the
-           DEBUG hold (retail breaks after one pass). What the bytes pin: a loop
-           at the flag test (an 8-aligned loop label at the test's shift, and
-           the ((char *)CurrentTargetGObjSub) arm moved by loop.c into the hole after the hit-node
-           loop, which loop.c does only for an arm whose jump leaves a loop)
-           whose exit is unconditional when jump.c first sees it (a condition
-           cse folds later does not thread the arm's jump out, measured). What
-           they cannot pin: the debug build's condition. */
+        /* the stick poll loop, subBoyControl's shape, repeating only under the
+           DEBUG hold (retail breaks after one pass) */
         for (;;) {
             if (((int)(sub->flags18.ll >> 48)) & 1) {
                 if (a0 == (int)((char *)CurrentTargetGObj)) {
@@ -496,8 +466,7 @@ void subEnemyControl(GObj *volatile a0)
             }
             _ACTWait(1);
         }
-        /* The listing gives the whole counter update one row (1580); gcse
-           moves this increment up to both exits of the hit-node test. */
+        /* the whole counter update */
         stopCnt++;
         if (0.1f < sub->stickMag) {
             stopCnt = 0;
@@ -508,8 +477,8 @@ void subEnemyControl(GObj *volatile a0)
             walkCnt = 0;
         }
         /* moving and not walking, with the walking predicate repeated whole
-           inside the negation, as commonact.c's _ACTCommonMailTest writes it;
-           the repeated conjunct is the ROM's dead second branch. */
+           inside the negation, as commonact.c's _ACTCommonMailTest writes
+           it */
         if (0.1f < sub->stickMag &&
             !(0.1f < sub->stickMag && (sub->stickMag < 0.99f || (sub->padNow & 0x20)))) {
             runCnt++;
@@ -537,11 +506,8 @@ void subEnemyControl(GObj *volatile a0)
         case 3:
             ACTSendMailCorrect((void *)a0, 0xBA);
             break;
-        /* RECONSTRUCTION: the ROM dispatches this switch through a 38-entry
-           table (jtbl_005533A0), and ee-gcc builds a table only from five or
-           more case labels, so a fifth label stands here.  Its value is not
-           recoverable: every index from 4 to 37 points at the break label and
-           listing rows 1603-1617 emit no instruction. */
+        /* a fifth case label, its value unknown: every index from 4 to 37 of
+           the jump table goes to the break */
         case 4:
             break;
         case 38:
@@ -558,12 +524,9 @@ void subEnemyControl(GObj *volatile a0)
     }
 }
 
-/* static inline of the 2001 source: the disc listing attributes rows
-   1642-1663 -- which lie outside every function's own line span -- to the
-   bodies of EnemyUtil_TurnToBoy, _ApproachTarget_Boss and subEnemyCollision
-   alike, so this is a helper defined above them and inlined at each call.
-   Name is descriptive, not recovered. */
-static inline unsigned char enemyCheckTurnAngle(GObj *self)
+/* A static inline, a helper defined above EnemyUtil_TurnToBoy,
+   _ApproachTarget_Boss and subEnemyCollision and inlined at each call. */
+static inline unsigned char enemyCheckTurnAngle(GObj *self) /* derived name */
 {
     float mot[4];
     float cur[4];
@@ -594,10 +557,8 @@ static inline unsigned char enemyCheckTurnAngle(GObj *self)
     return 0;
 }
 
-/* Static inline helper of the 2001 source at enemy_act.c:816-826 (it has no
-   symbol of its own and no census row; the disc listing shows its lines inlined
-   here and in subEnemyBrain_Irregular).  Name is descriptive, not recovered. */
-static inline unsigned char isEnemyCarriedByGirl(GObj *self)
+/* a static inline helper, inlined here and in subEnemyBrain_Irregular */
+static inline unsigned char isEnemyCarriedByGirl(GObj *self) /* derived name */
 {
     Act *gsub;
     if (GOBJ_ACT(self)->carried == 0 || (char *)girlGObj == 0) {
@@ -667,10 +628,8 @@ void subEnemyCollision(GObj *volatile a0)
             ACTGame_SaveActorInformation(a0);
         }
         if (sub->actMode != 0x70) {
-            /* The January listing's rows 1761-1770 emit no instruction at all;
-               the only word left of this block is the volatile reload of the
-               actor-entry parameter, whose reader is the DEBUG build's state
-               report (report ours). */
+            /* the actor-entry parameter, reloaded for the DEBUG build's state
+               report */
             GObj *self = a0;
 #ifdef DEBUG
             scePrintf("enemy %08x state %x\n", self, sub->actMode);
@@ -897,14 +856,9 @@ inline int actEnemy_GetClingTarget(GObj *a0)
     return 0;
 }
 
-/* The disc listing attributes rows 2138-2143 -- which lie ABOVE this function's
-   own def line 2151 -- to bodies inside both actEnemyRestart and actEnemyStart,
-   so the 2001 source has a `static inline` here.  `max` really is a local (line
-   2138 is its `li $a1,43`): with the literal 43 written into the compare, fold
-   rewrites `idx <= 43` into `idx < 44` and gcc emits `slti`+`movn`, where ROM
-   has `slt`+`movz` off a register-held 43.  Name derived: a fully-inlined
-   static has no MAIN.MAP symbol. */
-static inline float getEnemyRestartLife(char *self)
+/* A static inline shared by actEnemyRestart and actEnemyStart.  `max` is a
+   local holding 43. */
+static inline float getEnemyRestartLife(char *self) /* derived name */
 {
     int max = 43;
     int idx = gFlagGameClear + 38;
@@ -985,10 +939,8 @@ void actEnemyRestart(GObj *self, float *pos, float *dir, int kind, GObj *mother)
     _BrainMode_SetDirect(self, 0, 0);
 }
 
-/* PairSetGeometry is a NESTED function in the 2001 source: ROM passes it a
-   static chain in $2 (STATIC_CHAIN_REGNUM) which it spills to 0($sp), and the
-   listing names it PairSetGeometry.229, emitting its body ahead of its parent
-   exactly as gcc 2.9 does for a nested definition. */
+/* PairSetGeometry is a GNU nested function, reading its parent's frame
+   through the static chain. */
 int actEnemyForceSwitchToCarry(void *a0)
 {
     void PairSetGeometry(void *me, void *pair, float dist)
@@ -1159,13 +1111,8 @@ void actEnemyKidnapEnd(GObj *volatile a0)
             }
         }
         if (GOBJ_SUB(a0)->ctrl.motion == 952) {
-            /* RECONSTRUCTION (listing row 2486): the girl's record and her
-               action are read before the null test, and the ROM loads 0x6F
-               into a register of its own in that same block and compares the
-               register in the if (a literal is re-materialised in the
-               compare's block, as at this function's four other 0x6F sites).
-               The bytes pin a local holding the value, set with the record;
-               not its name or its declaration layout. */
+            /* the girl's record and her action are read before the null test,
+               with the carried action's id in a local */
             Act *gsub = GOBJ_ACT(girlGObj);
             int act = gsub->actMode;
             int carriedAct = 0x6F;
@@ -1239,14 +1186,10 @@ void actEnemyKidnapEnd(GObj *volatile a0)
     }
 }
 
-/* Static inline of the 2001 source: the listing attributes rows 2609-2614 to a
-   body inside actEnemyKidnapBegin's ROM range but above its own lines, the same
-   construction as enemyPickupCheckGirl above.  Rows 2605-2608 emit nothing and
-   ROM's frame is 0xB0 with a 16-byte slot at sp+0x10 that no retail code
-   reads, so a second vector is declared ahead of buf (drop it and the frame is
-   0xA0); its reader is the DEBUG build's report of the girl's position (report
-   ours). */
-static inline int enemyKidnapCheckGirl(GObj *self)
+/* A static inline inside actEnemyKidnapBegin, the same construction as
+   enemyPickupCheckGirl above.  pos, declared ahead of buf, is read only by
+   the DEBUG build's report of the girl's position. */
+static inline int enemyKidnapCheckGirl(GObj *self) /* derived name */
 {
     float pos[4];
     float buf[4];
@@ -1365,8 +1308,8 @@ inline void afterEnemyBodylift(GObj *volatile a0)
     GOBJ_SUB(x)->root.lookMode = 0;
 }
 
-/* listing rows 2655-2657: a `static inline` outside this function's span. */
-static inline void enemyBodyliftClearBoy(char *self)
+/* a `static inline` defined outside this function */
+static inline void enemyBodyliftClearBoy(char *self) /* derived name */
 {
     GOBJ_SUB(self)->ctrl.catchBoy = 0;
     GOBJ_SUB(self)->root.lookMode = 0;
@@ -1419,12 +1362,8 @@ void actEnemyBodylift(GObj *volatile a0)
                 hit = 1;
             }
         }
-        /* Listing row 167d4c is a volatile read of the actor-entry home whose
-           value nothing consumes, attributed to source line 2785 -- and lines
-           2786..2807 emit no instructions at all, so 2785 is the surviving
-           access of a statement whose remaining 22 lines were compiled out.
-           A volatile access cannot be manufactured by scheduling, so the read
-           has to be written. */
+        /* a volatile read of the actor-entry home whose value nothing
+           consumes: what is left of a compiled-out statement */
         (void)a0;
         if (GetMotionFrameFlag1((void *)a0) != 0 && hit != 0) {
             iosOmSendMail(((void *)boyGObj), 0x170, a0);
@@ -1468,13 +1407,10 @@ inline void actEnemyBodyslam(GObj *volatile a0)
     }
 }
 
-/* Static inline of the 2001 source (listing lines 2889-2892 sit inside
-   actEnemyPickupBegin's ROM range but above its own body lines).  ROM's frame
-   is 0x80 with the 16-byte slot at sp+0x10 no retail code references and buf
-   at sp+0x20, so a second 16-byte vector is declared here ahead of buf; its
-   reader is the DEBUG build's report of the girl's position, as in
-   enemyKidnapCheckGirl (report ours). */
-static inline int enemyPickupCheckGirl(GObj *self)
+/* A static inline inside actEnemyPickupBegin.  A second 16-byte vector is
+   declared ahead of buf; its reader is the DEBUG build's report of the girl's
+   position, as in enemyKidnapCheckGirl. */
+static inline int enemyPickupCheckGirl(GObj *self) /* derived name */
 {
     float pos[4];
     float buf[4];
@@ -1539,8 +1475,8 @@ inline int EnemyBrainStatus_Girl(GObj *a0)
     return GOBJ_ACT(a0)->brainAim == 1;
 }
 
-/* static inline of the 2001 source, listing lines 1148-1164 */
-static inline int getEnemyBrainMes(char *self, int *data)
+/* a static inline */
+static inline int getEnemyBrainMes(char *self, int *data) /* derived name */
 {
     EBSlot *t = eBrainGetTarget(self);
 
@@ -1617,10 +1553,8 @@ inline void _BrainMode_SetDirect(char *a0, int a1, int *a2)
     }
 }
 
-/* Static inline of the 2001 source: the listing puts its body at rows 3064-3065
-   between _BrainMode_SetDirect (3056-3060) and subEnemyBrainMain (3074), and no
-   ROM slot carries it, so it is inline-only. */
-static inline void _BrainMode_Set(char *a0, int mode, int *tgt)
+/* A static inline between _BrainMode_SetDirect and subEnemyBrainMain. */
+static inline void _BrainMode_Set(char *a0, int mode, int *tgt) /* derived name */
 {
     if (brainModeTable[mode].pri < brainModeTable[GOBJ_ACT(a0)->enemy->reqMode].pri) {
         return;
@@ -1635,10 +1569,8 @@ void subEnemyBrainMain(GObj *volatile a0)
     int data;
     int i;
 
-    /* BrainMode_Requset is a nested function in the ROM: subEnemyBrainMain
-       passes it a static chain in $2 (STATIC_CHAIN_REGNUM) which it spills to
-       0(sp) and reads a0 out of the parent frame through.  The listing names it
-       BrainMode_Requset.299 and puts its body at lines 3083-3104. */
+    /* BrainMode_Requset is a GNU nested function: it reads a0 out of
+       subEnemyBrainMain's frame through the static chain. */
     void BrainMode_Requset(int req, int arg)
     {
         switch (req) {
@@ -1886,8 +1818,8 @@ inline void subEnemyBrain_FindGirl(GObj *volatile a0)
 void subEnemyBrain_ToGenerator(GObj *self)
 {
     /* The actor handle is kept in a `volatile` local: this brain thread is
-       resumed by the actor scheduler at every _ACTWait, so the frame slot --
-       not a register -- is the live copy of the handle. */
+       resumed by the actor scheduler at every _ACTWait, so the frame slot,
+       not a register, is the live copy of the handle. */
     GObj *volatile a0 = self;
     Act *sub = GOBJ_ACT(a0);
     char *target = sub->brainTarget;
@@ -1932,12 +1864,9 @@ void subEnemyBrain_ToGenerator(GObj *self)
     }
 }
 
-/* static inline of the 2001 source, listing lines 1985-1997.  `sub` is computed
-   INSIDE the helper (row 1986): in enemy_dodge the caller already holds it so
-   cse deletes the load, which is why that call site shows only rows 1989-1997,
-   while subEnemyBrain_Attack's two expansions carry 1985 and 1986 as real
-   instructions. */
-static inline void enemyDodgeSendMail(GObj *self)
+/* A static inline.  `sub` is computed inside the helper; in enemy_dodge the
+   caller already holds it. */
+static inline void enemyDodgeSendMail(GObj *self) /* derived name */
 {
     Act *sub = GOBJ_ACT(self);
 
@@ -2032,11 +1961,8 @@ void enemy_dodge_to_boy(GObj *self)
     }
 }
 
-/* listing rows 3858-3870: a `static inline` outside this function's span,
-   expanded twice here (each expansion gets its OWN .lit4 0.7f and its own
-   `1.2` .rodata double -- the pool duplication in ROM is what proves it is an
-   inline function and not a shared helper). */
-static inline float battleRangeScale(GObj *self, float v)
+/* a `static inline` defined outside this function, expanded twice here */
+static inline float battleRangeScale(GObj *self, float v) /* derived name */
 {
     EnemyBattleWork *work = GOBJ_ACT(self)->enemy;
 
@@ -2198,17 +2124,7 @@ int GetFlyPosition(float *out, float *me, float *tgt)
                 out[1] = flyEscapePos[1];
                 out[2] = flyEscapePos[2];
             } else {
-                /* The table base is its OWN statement: ROM computes
-                   `addiu $v1,$s5,%lo(flyCheckPos)` BEFORE `sll $v0,$s4,4`, which
-                   only happens when the address is op0 of the PLUS.  Written as
-                   one expression, `fold` sinks the (constant) address to op1 in
-                   every spelling measured -- `flyCheckPos[besti]`,
-                   `(float *)flyCheckPos + besti*4`, `flyCheckPos[0] + besti*4`,
-                   `&flyCheckPos[besti][0]`, `&flyCheckPos[0][besti*4]`,
-                   `besti*4 + flyCheckPos[0]`, a struct-typed row, and `p = base;
-                   p += besti*4;` -- so `sll` is emitted first, both arms' copy
-                   blocks end up in the same registers and jump2 cross-jumps
-                   them into one (6 insns short). */
+                /* the table base is its own statement */
                 float *tbl = flyCheckPos[0];
                 float *p = tbl + besti * 4;
 
@@ -2221,9 +2137,8 @@ int GetFlyPosition(float *out, float *me, float *tgt)
     return ret;
 }
 
-/* An _ApproachTarget callback: the ROM's two call sites (0x0016837C and
-   0x0016876C) set $f12 as well as $a0/$a1, and _ApproachTarget_Way calls its
-   `fn` through (void (*)(char *, void *, float)).  `dist` is unused here. */
+/* An _ApproachTarget callback: _ApproachTarget_Way calls its `fn` through
+   (void (*)(char *, void *, float)).  `dist` is unused here. */
 void NakaBoss(GObj *self, void *tgt, float dist)
 {
     float bpos[4];
@@ -2286,9 +2201,8 @@ void NakaBoss(GObj *self, void *tgt, float dist)
     }
 }
 
-/* Listing rows 3965-3981: a file-scope helper with no ROM slot of its own,
-   expanded once inside subEnemyBrain_ToBoy.  The name is ours. */
-static inline int isNearestEnemyToBoy(int self, GObj *boy, float *pos)
+/* a file-scope helper expanded once inside subEnemyBrain_ToBoy */
+static inline int isNearestEnemyToBoy(int self, GObj *boy, float *pos) /* derived name */
 {
     char *found = 0;
     float best = 3.40282347e+38f /* FLT_MAX */;
@@ -2327,19 +2241,9 @@ void subEnemyBrain_ToBoy(GObj *volatile a0)
             if (GOBJ_ACT(a0)->enemy->sizeClass == 2) {
                 char **tgt = &brainTarget;
 
-                /* RECONSTRUCTION (chain 3 passes 148 to 160): the bytes pin a
-                   read of the default brainTargetNone[0] on this statement's line (the
-                   listing's 4224: the load sits with the boy load and the slot
-                   store, and is held in $s1 across _GetRandom for both
-                   expansions' else arms) that is used when jump1 runs and
-                   leaves no code of its own: this store to the slot, which the
-                   next store overwrites and flow deletes.  What the bytes
-                   cannot pin is the text of that read; the same shape sits in
-                   the other four arms (here and in ChangeBrain_ToKidnap).  The
-                   listing also puts the slot address (`la &brainTarget`) on
-                   that one line in all five arms, i.e. one statement did the
-                   three things; this text spreads them over three lines and
-                   the words are the same. */
+                /* the slot takes the default target, then the boy; the same shape
+                   sits in the other four arms (here and in
+                   ChangeBrain_ToKidnap) */
                 brainTarget = (char *)brainTargetNone[0];
                 brainTarget = boyGObj;
                 if ((int)(random_unit() * 10.0f) % 100 < GOBJ_ACT(a0)->enemy->attackChance2) {
@@ -2348,8 +2252,7 @@ void subEnemyBrain_ToBoy(GObj *volatile a0)
                     _BrainMode_SetDirect((char *)a0, 9, (int *)tgt);
                 }
             } else {
-                /* RECONSTRUCTION: the default read on the statement's line (the
-                   listing's 4235), see the kind == 2 arm above. */
+                /* the default target first, see the kind == 2 arm above */
                 brainTarget = (char *)brainTargetNone[0];
                 brainTarget = boyGObj;
                 _BrainMode_SetDirect((char *)a0, 9, (int *)&brainTarget);
@@ -2517,8 +2420,7 @@ void subEnemyBrain_ToGirl(GObj *volatile a0)
     {
         switch (GOBJ_ACT(a0)->enemy->sizeClass) {
         case 0:
-            /* RECONSTRUCTION: the default read on the statement's line (the
-               listing's 4476, 4480 and 4484), see ChangeBrain_ToAttack. */
+            /* the default target first, see ChangeBrain_ToAttack */
             brainTarget = (char *)brainTargetNone[0];
             brainTarget = girlGObj;
             _BrainMode_SetDirect((char *)a0, 8, (int *)&brainTarget);
@@ -2639,10 +2541,8 @@ inline int FlyMail(void *a0)
     return flyMailCore(a0);
 }
 
-/* static inline of the 2001 source, listing rows 4681-4689, which lie outside
-   every function's own line span; the listing expands them twice inside
-   _ApproachTarget_Way.  Name is descriptive, not recovered. */
-static inline unsigned char waitEnemyFly(GObj *self)
+/* a static inline, expanded twice inside _ApproachTarget_Way */
+static inline unsigned char waitEnemyFly(GObj *self) /* derived name */
 {
     Act *sub = GOBJ_ACT(self);
 
@@ -2655,9 +2555,8 @@ static inline unsigned char waitEnemyFly(GObj *self)
     return 1;
 }
 
-/* static inline of the 2001 source, listing rows 4665-4672.  Name is
-   descriptive, not recovered. */
-static inline int flyLimitMail(GObj *self, float *rp)
+/* a static inline */
+static inline int flyLimitMail(GObj *self, float *rp) /* derived name */
 {
     Act *sub = GOBJ_ACT(self);
 
@@ -2768,13 +2667,7 @@ int _ApproachTarget_Way(GObj *self, void *tgt, void *pos, void *fn, float range,
         }
         _ACTWait(1);
     }
-    /* Disabled in retail: the motion-request timer and mail reports.  What
-       the bytes pin: their three texts in .rodata after subEnemyBrain_ToGirl's
-       "change to kidnap" and before actEnemyStart's trace, with no
-       instruction; the listing gives this function no row between the loop's
-       last statement (4842) and its closing line (5060).  What they cannot:
-       the statements around them, the condition and the mail number the
-       third one printed. */
+    /* disabled in retail: the motion-request timer and mail reports */
     if (0) {
         debug_StdPrintfDummy("_ACTMotReqTimer wait\n");
         debug_StdPrintfDummy("_ACTMotReqTimer error loop\n");
@@ -2820,15 +2713,9 @@ inline GObj *GetMotherGeneratorGObjAskEnemy(GObj *a0)
     return GOBJ_WORK(a0)->motherGObj;
 }
 
-/* Listing rows 5128-5301. What the bytes pin, each read off the scheduler's
- * dependences: the bit-51 store to the actor word is a union access (the
- * gobj+0x164 chase for the ==3 test waits for it); the four 0.05f stores are
- * float stores through a union view of the gobj+0x15C slot (the slot is
- * re-read before each, the int gobj+0x164 load before them survives and
- * gcse reuses it after the if); the character-kind store at act+0x48 is not
- * int-typed (the gFlagGameClear load issues ahead of it); each life pair is one
- * chained assignment (rows 5286 and 5288). What they cannot pin: the names of
- * the union and enum types and their other members. */
+/* the bit-51 store to the actor word is a union access, the four 0.05f
+ * stores go through a union view of the gobj+0x15C slot, and each life pair
+ * is one chained assignment */
 void actEnemyStart(GObj *self)
 {
     char *act;

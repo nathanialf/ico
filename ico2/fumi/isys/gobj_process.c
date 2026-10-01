@@ -3,12 +3,10 @@
 #include "typedef.h"
 #include "gobj_process.h"
 
-/* .sbss, owned by gobj_process.o and reached only from this file (MAIN.MAP
-   names no symbol in the run), in the ROM's run order: the process pool and
-   how many 0x94-byte entries it holds. */
-static char *procPool;
+/* the process pool and how many 0x94-byte entries it holds */
+static char *procPool; /* derived name */
 
-static int procMax;
+static int procMax; /* derived name */
 
 #include "thread.h"
 #include "ios.h"
@@ -29,7 +27,7 @@ inline void isysGObjProcessAlloc(unsigned int a0)
     }
 }
 
-static inline GProc *alloc_gobj_process(void)
+static inline GProc *alloc_gobj_process(void) /* derived name */
 {
     unsigned int i;
     unsigned int j;

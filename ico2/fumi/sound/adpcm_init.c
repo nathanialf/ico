@@ -8,11 +8,9 @@
 #include <assert.h>
 #include <sound.h>
 
-/* .sbss and .bss, owned by adpcm_init.o and reached only from this file
-   (MAIN.MAP names no symbol in either run), in the ROM's run order: the
-   2 KB-aligned base of the IOP stream buffers, the two buffers' in-use
+/* the 2 KB-aligned base of the IOP stream buffers, the two buffers' in-use
    flags, the pause request and the IOP heap block the base was cut from;
-   then the two stream records and the four SPU slots the streams play on. */
+   then the two stream records and the four SPU slots the streams play on */
 static int adpcmIopBase; /* derived name */
 
 static int adpcmIopBuffUsed[2]; /* derived name */
@@ -86,16 +84,16 @@ void adpcmTickProc2(SqEntry *a0)
     }
 }
 
-/* adpcm_init.o's .rodata run opens with these three named objects: the two
+/* adpcm_init.o's .rodata opens with these three named objects: the two
    messages are printed further down the file than the strings that follow
-   them in the ROM run. */
+   them. */
 static const char adpcmSrcFile[] = __FILE__; /* derived name */
 
-static const char adpcmNoAllocMsg[] = "AdpcmIopBuffAlloc not alloc\n";
+static const char adpcmNoAllocMsg[] = "AdpcmIopBuffAlloc not alloc\n"; /* derived name */
 
 /* the IOP area is reserved but unused, so it is being freed */
 static const char adpcmFreeIopMsg[] =
-    "IOP領域が確保されているのにもかかわらず,使われていなので解放します\n";
+    "IOP領域が確保されているのにもかかわらず,使われていなので解放します\n"; /* derived name */
 
 int debugAdpcmOn = 1;
 
@@ -234,7 +232,7 @@ void AdpcmOpen(AdpcmOpenReq *self, int no, int a2, int a3)
     self->loopNum = a3;
 }
 
-static inline void AdpcmIopBuffFree(AdpcmStream *self)
+static inline void AdpcmIopBuffFree(AdpcmStream *self) /* derived name */
 {
     int adr = self->iopBuf;
     int no = (adr - adpcmIopBase) / 0x5C000;
@@ -277,11 +275,11 @@ void AdpcmClose(SqEntry *a0)
     }
 }
 
-/* vol is in the ABI (AdpcmInterLeaveVolumeSet passes it) but the ROM never
-   reads $6: the levels come back out of the record the caller just wrote. */
-/* K&R definition: it declares no prototype, which is what lets
- * AdpcmInterStereoVolumeSetAll below call this function with two arguments,
- * as ROM does. */
+/* vol is passed (AdpcmInterLeaveVolumeSet passes it) but not read: the
+   levels come back out of the record the caller just wrote. */
+/* K&R definition: it declares no prototype, so
+ * AdpcmInterStereoVolumeSetAll below calls this function with two
+ * arguments. */
 void AdpcmInterStereoVolumeSet(a0, ch, vol) char *a0;
 
 int ch;
