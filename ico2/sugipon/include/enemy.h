@@ -51,7 +51,6 @@ void ResetEnemyPositionInfo(struct GObj *self);
 void ReviveEnemyParticle(struct GObj *a0, int a1);
 void SetEnemyDissolve(struct GObj *self, float ratio);
 void SetEnemyFootPrintSwitch(struct GObj *a0, int a1);
-void dispEnemyObject(void *self);
 int isExistEnemyParticle(struct GObj *a0, int a1);
 
 #endif /* ENEMY_H */

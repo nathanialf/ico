@@ -21,8 +21,6 @@ void DispGameOverEffect(void);
 void GetGameOverEffectCenterPosition(float *pos);
 void InitGameOverEffect(void);
 void SetupDarkVolume(void *a0, float a1, float a2);
-void darkVolume(void *a0, float a1, float a2, float a3);
-void sonic(void *pos, float t);
 void SetDarkVolumeEffect(float *pos, float size);
 
 #endif /* DARKVOLUME_H */

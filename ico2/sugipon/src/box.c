@@ -31,6 +31,8 @@
 #include "geometryManager.h"
 #include "ios.h"
 #include "particleEffect.h"
+#include "objact.h"
+#include "gobj.h"
 #include "switch.c.inc"
 
 /* The 416-byte box work block InitBoxGeo allocates and seeds from the
@@ -86,27 +88,27 @@ typedef struct BoxWork { /* field names derived */
     float moveDir[4];                  /* 0x190, the direction of the last push */
 } __attribute__((aligned(8))) BoxWork; /* derived name */
 
-void landingSE(GObj *a0)
+static void landingSE(GObj *a0)
 {
     ExecuteSEPackage(a0, 0x2);
 }
 
-void fallDownStartSE(GObj *a0)
+static void fallDownStartSE(GObj *a0)
 {
     ExecuteSEPackage(a0, 0x24);
 }
 
-void pushStartSE(GObj *a0)
+static void pushStartSE(GObj *a0)
 {
     ExecuteSEPackage(a0, 0x4);
 }
 
-void pullStartSE(GObj *a0)
+static void pullStartSE(GObj *a0)
 {
     ExecuteSEPackage(a0, 0xD);
 }
 
-void wallHitSE(GObj *a0)
+static void wallHitSE(GObj *a0)
 {
     ExecuteSEPackage(a0, 0x1E);
 }
@@ -126,7 +128,7 @@ static inline void stopBoxMoveSE(GObj *self) /* derived name */
     }
 }
 
-void initFallDown(GObj *a0)
+static void initFallDown(GObj *a0)
 {
     float pos[4];
     float pts[16];
@@ -158,7 +160,7 @@ void initFallDown(GObj *a0)
    its own void * extern */
 extern void GetLowerPlaneCollision(void *work, void *pos);
 
-int checkFieldContact(GObj *a0, float lim)
+static int checkFieldContact(GObj *a0, float lim)
 {
     ClipBuf w;
     float pos[4];
@@ -240,7 +242,7 @@ typedef struct { /* field names derived */
     int hit;
 } BoxWallRec; /* derived name */
 
-int execNormalMove(GObj *self, int stop)
+static int execNormalMove(GObj *self, int stop)
 {
     ClipBuf stopWork;
     float pos[4];
@@ -359,7 +361,7 @@ static inline void setBoxStopWallFlag(GObj *self, float *vel) /* derived name */
     }
 }
 
-int execAutoMove(GObj *a0)
+static int execAutoMove(GObj *a0)
 {
     float pos[4];
     BoxWork *p = GOBJ_SUB(a0)->work;
@@ -417,7 +419,7 @@ int AlignBox(GObj *a0, float grid)
    ico2/omori/src/chain.c expands by hand in InitChainGeo: the wheel count is
    2 here, so the three allocation sizes are 2<<6, 2<<4 and 2*80 bytes, and
    the 560 the allocator records is the line of the call. */
-void initWheels(GObj *self, float *lay)
+static void initWheels(GObj *self, SObjSimpleSetting *lay)
 {
     BoxWork *w = GOBJ_SUB(self)->work;
     int i;
@@ -522,7 +524,7 @@ static inline void updateBoxWheelAngle(GObj *self) /* derived name */
     }
 }
 
-void dispWheels(GObj *a0)
+static void dispWheels(GObj *a0)
 {
     BoxWork *p = GOBJ_SUB(a0)->work;
 
@@ -767,7 +769,7 @@ static inline int countPathPoints(int route) /* derived name */
 /* The signed plane distance is what the projection is scaled by and its
    magnitude is what the nearest test keeps.  0.707 is the 45 degree axis
    test. */
-int getNearestPosition(float *out, int *pidx, int *path)
+static int getNearestPosition(float *out, int *pidx, int *path)
 {
     float pos[4];
     float seg[4];
@@ -838,7 +840,7 @@ int getNearestPosition(float *out, int *pidx, int *path)
     return 1;
 }
 
-void onPathInitialize(GObj *a0)
+static void onPathInitialize(GObj *a0)
 {
     BoxWork *p = GOBJ_SUB(a0)->work;
     float front[4];
@@ -880,7 +882,7 @@ static int routeRearColor[4] = {255, 128, 0, 128}; /* derived name */
 /* 10430.378 is 32768 / pi, the radian-to-angle-table factor.  The
    quaternion's initialiser is mostly zero, and each wheel offset is a VECTOR
    record built by an initialiser, as onPathInitialize's are. */
-int onPath(GObj *self)
+static int onPath(GObj *self)
 {
     BoxWork *p = GOBJ_SUB(self)->work;
     Vec4 front;
@@ -986,7 +988,7 @@ inline float GetDistanceOfGObj(void *a0, void *a1)
 
 extern void GetFloatingMotion(void *mot, void *dir, int *m, int a3, int t0, int t1, float t);
 
-int playAnimationCore(GObj *a0)
+static int playAnimationCore(GObj *a0)
 {
     float mot[4];
     float rot[4];
@@ -1145,7 +1147,7 @@ static inline void pushOutFloatingBox(ClipBuf *cw, float *m, float *sv, float *d
 
 /* the same prototype fieldCollision.h gives */
 
-void avoidCharGObj(GObj *a0, GObj *a1)
+static void avoidCharGObj(GObj *a0, GObj *a1)
 {
     ClipBuf w;
     float pos[4];
@@ -1167,7 +1169,7 @@ void avoidCharGObj(GObj *a0, GObj *a1)
         case 10:
         case 15:
         case 16:
-            hit = (char *)GOBJ_SUB(a1)->root.wall.o.obj == a0;
+            hit = GOBJ_SUB(a1)->root.wall.o.obj == a0;
             break;
         default:
             hit = 1;
@@ -1192,7 +1194,7 @@ extern int GetWaterReaction(void *w, int *hit, void *plane, void *pos, void *vel
 /* the world Y axis the box's tilt is measured around */
 static float floatTiltAxis[4] = {0.0f, 1.0f, 0.0f, 0.0f}; /* derived name */
 
-void execFloating(GObj *self)
+static void execFloating(GObj *self)
 {
     ClipBuf fw;
     float pos[4];
@@ -1293,7 +1295,7 @@ void execFloating(GObj *self)
 /* the facing a floating box starts with */
 static float floatInitFacing[4] = {0.0f, 0.0f, 1.0f, 0.0f}; /* derived name */
 
-void initFloating(GObj *a0)
+static void initFloating(GObj *a0)
 {
     BoxWork *p = GOBJ_SUB(a0)->work;
 
@@ -1310,7 +1312,7 @@ void initFloating(GObj *a0)
     execFloating(a0);
 }
 
-int _checkItemBreak(void *pos)
+static int _checkItemBreak(void *pos)
 {
     float p[4];
     float d[4];
@@ -1341,7 +1343,7 @@ int _checkItemBreak(void *pos)
     return 1;
 }
 
-void initLanding(GObj *a0)
+static void initLanding(GObj *a0)
 {
     float pos[4];
     float plane[4];
@@ -1400,7 +1402,7 @@ static inline void attackBoxFallCenter(GObj *self) /* derived name */
     }
 }
 
-void execFallDown(GObj *a0)
+static void execFallDown(GObj *a0)
 {
     BoxWork *p = GOBJ_SUB(a0)->work;
 
@@ -1429,7 +1431,7 @@ void execFallDown(GObj *a0)
     }
 }
 
-void inertiaMove(GObj *a0)
+static void inertiaMove(GObj *a0)
 {
     float pos[4];
     float tmp[4];
@@ -1459,7 +1461,7 @@ inline int IsThisBoxTruck(GObj *a0)
     return p->route;
 }
 
-void action(GObj *a0)
+static void action(GObj *a0)
 {
     /* the float view carries the up vector */
     Vec4u v;
@@ -1794,7 +1796,7 @@ static inline int checkCharGObjs(GObj *obj, GObj *holder, float *dir) /* derived
     return 1;
 }
 
-int _checkItemCollision(void *pos)
+static int _checkItemCollision(void *pos)
 {
     float p[4];
     float d[4];
@@ -1836,7 +1838,7 @@ static inline int checkItemHit(GObj *obj, float *dir) /* derived name */
     return _checkItemCollision(to);
 }
 
-int moveBoxAutoMatic(GObj *a0, int a1)
+static int moveBoxAutoMatic(GObj *a0, int a1)
 {
     float v[4];
     float v2[4];
@@ -2033,18 +2035,8 @@ void ReInitBoxGeo(GObj *a0)
     UpdateRootMatrix(a0);
 }
 
-/* the box serial counter, and the empty layout record the effect DObj is
-   built from */
+/* the box serial counter */
 static unsigned char boxSerial = 0; /* derived name */
-
-/* The 64-byte layout record InitBoxGeo is handed; the word at 0x30 packs the
-   route number in its low half and the sub-box model in its high half. */
-typedef struct { /* field names derived */
-    char pad00[32];
-    float scale[4]; /* 0x20 */
-    int kind;       /* 0x30 */
-    char pad34[12];
-} __attribute__((aligned(8))) BoxLayout; /* derived name */
 
 /* The parent-link record LinkParentOfDObj copies as one word pair: the
    parent GObj and the node index. */
@@ -2053,7 +2045,9 @@ typedef struct { /* field names derived */
     int index;   /* 0x4 */
 } BoxLink;       /* derived name */
 
-BoxWork *InitBoxGeo(GObj *self, BoxLayout *lay)
+/* the layout record's object word packs the route number in its low half
+   and the sub-box model in its high half */
+BoxWork *InitBoxGeo(GObj *self, SObjSimpleSetting *lay)
 {
     BoxWork *w = iosMallocDebug(ios_partition_sugipon, 416, __FILE__, 2017);
     GObj *o;
@@ -2077,7 +2071,7 @@ BoxWork *InitBoxGeo(GObj *self, BoxLayout *lay)
 
     w->effectDObj = CSVSYSTEM_InitDObj(63, &InitialSObjSimpleSetting);
 
-    w->route = lay->kind & 0xFFFF;
+    w->route = lay->obj & 0xFFFF;
     GOBJ_SUB(self)->rideFunc = BoxRideFunc;
 
     g = CreateLayoutedGObj(0, 64, -1, 0, lay, 0, 7, 0);
@@ -2091,12 +2085,12 @@ BoxWork *InitBoxGeo(GObj *self, BoxLayout *lay)
         w->friction = 0.98f;
         onPathInitialize(self);
         onPath(self);
-        initWheels(self, (float *)lay);
+        initWheels(self, lay);
         execNormalMove(self, 1);
         debug_StdPrintfDummy("%d\n", w->pointCount);
 
-        if ((lay->kind & 0xFFFF0000) != 0) {
-            BoxLayout r = *lay;
+        if ((lay->obj & 0xFFFF0000) != 0) {
+            SObjSimpleSetting r = *lay;
             BoxLink lnk = {(int)self, 0};
             Vec4 v;
             Vec4 q;
@@ -2105,7 +2099,7 @@ BoxWork *InitBoxGeo(GObj *self, BoxLayout *lay)
             r.scale[1] = 1.0f;
             r.scale[2] = 1.0f;
             r.scale[3] = 1.0f;
-            r.kind = 1;
+            r.obj = 1;
 
             sub = accessary[GOBJ_SUB(self)->accessary].subModel;
             o = CreateLayoutedGObj(23, accessary[sub].model, sub, 0, &r, 0, 7, 0);

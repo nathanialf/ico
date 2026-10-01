@@ -14,13 +14,13 @@ struct GObj;
  * gcc 2.9 emits the deferred out-of-line copy of a plain-inline function in
  * first-declaration order, so this is the order attackCheckBoundary.c's inline tail has. */
 int InitAttackCheckBoundaryGeo(int unused, void *obj);
-void AttackCheckBoundaryGeo(void *a0);
+void AttackCheckBoundaryGeo(struct GObj *a0);
 void AttackCheckBoundaryDL(struct GObj *obj);
 void actAttackCheckBoundaryStart(struct GObj *self);
 float GetAttackCheckBoundaryRadius(struct GObj *a0);
-char *CreateAttackCheckBoundary(int *obj, float x, float y, float z, float r);
+struct GObj *CreateAttackCheckBoundary(int *obj, float x, float y, float z, float r);
 int GetAttackCheckBoundaryManagerStatus(struct GObj *a0);
-void SetAttackCheckBoundaryAttribute(char *a0, int a1);
+void SetAttackCheckBoundaryAttribute(struct GObj *a0, int a1);
 
 /* the attribute word of a cloth layout record; the table holds 96 and 128
    here */

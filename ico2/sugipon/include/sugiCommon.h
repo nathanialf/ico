@@ -7,11 +7,11 @@
 #ifndef SUGICOMMON_H
 #define SUGICOMMON_H
 
+#include <stdlib.h>
 #include "typedef.h"
+#include "Matrix.h"
 
 /* the engine RNG, 0..1 */
-float _GetRandom(void);
-
 static __inline__ float random_unit(void) /* derived name */
 {
     return _GetRandom();
@@ -22,9 +22,6 @@ static __inline__ float random_signed(void) /* derived name */
 {
     return random_unit() * 2.0f - 1.0f;
 }
-
-/* the libc RNG */
-int rand(void);
 
 /* rand() scaled to 0..1 */
 static __inline__ float crt_random_unit(void) /* derived name */

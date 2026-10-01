@@ -28,7 +28,7 @@ typedef struct PointBlur { /* field names derived */
     /* 0x38 */ char _pad38[8];
 } PointBlur; /* derived name */
 
-extern void moveDataElements(PointBlur *p);
+static void moveDataElements(PointBlur *p);
 
 typedef struct IVec { /* field names derived */
     float x, y, z, w;
@@ -49,7 +49,7 @@ static inline void resetPointBlurTrail(PointBlur *p) /* derived name */
     }
 }
 
-int UpdatePointBlur(PointBlur *p, void *mtx, void *a2, float f)
+int UpdatePointBlur(PointBlur *p, void *mtx, void *tint, float f)
 {
     float a[4];
     float b[4];
@@ -114,12 +114,12 @@ static EnemyFootPrint footPrintVtxTemplate = {-1, 1.0f}; /* derived name */
 
 /* the body of InitPointBlur, which InitEnemyEye inlines and InitPointBlur
    calls */
-static inline PointBlur *initPointBlurAt(int num, int a1, int *col, void *pos) /* derived name */
+static inline PointBlur *initPointBlurAt(int num, int pri, int *col, void *pos) /* derived name */
 {
     PointBlur *p = (PointBlur *)iosMallocDebug(ios_partition_sugipon, 64, "src/enemyParts.c", 16);
     *p = pointBlurTemplate;
 
-    p->pri = a1;
+    p->pri = pri;
     p->strip = iosMallocDebug(ios_partition_sugipon, num << 5, "src/enemyParts.c", 20);
     p->screenPos = iosMallocDebug(ios_partition_sugipon, num << 4, "src/enemyParts.c", 21);
     p->stripCol =
@@ -133,11 +133,11 @@ static inline PointBlur *initPointBlurAt(int num, int a1, int *col, void *pos) /
     return p;
 }
 
-EnemyEye *InitEnemyEye(int num, int a1, int a2)
+EnemyEye *InitEnemyEye(int num, int a1, int pri)
 {
     EnemyEye *p;
 
-    p = iosMallocDebug(ios_partition_sugipon, 0x60, "src/enemyParts.c", 137);
+    p = iosMallocDebug(ios_partition_sugipon, 96, "src/enemyParts.c", 137);
     *p = enemyEyeTemplate;
 
     p->dobj[0] = CSVSYSTEM_InitDObj(1322, &InitialSObjSimpleSetting);
@@ -163,7 +163,7 @@ EnemyEye *InitEnemyEye(int num, int a1, int a2)
 
     if (num != 0) {
         p->blurOn = 1;
-        p->blur = initPointBlurAt(num, a2, enemyEyeBlurColor, enemyEyeBlurRate);
+        p->blur = initPointBlurAt(num, pri, enemyEyeBlurColor, enemyEyeBlurRate);
     }
     return p;
 }
@@ -195,7 +195,7 @@ EnemyFootPrintHead *InitEnemyFootPrint(int num)
     if ((int)p->dobj->nodes != 0) {
         iosFree((int)p->dobj->nodes & 0xFFFFFFF);
     }
-    p->dobj->nodes = iosMallocDebug(ios_partition_seki, num * 0x50, "src/enemyParts.c", 232);
+    p->dobj->nodes = iosMallocDebug(ios_partition_seki, num * 80, "src/enemyParts.c", 232);
     for (i = 0; i < num; i++) {
         p->dobj->nodes[i].flags.ll &= ~1;
         p->dobj->nodes[i].flags.ll &= ~2;
@@ -285,9 +285,9 @@ int DispEnemyFootPrints(EnemyFootPrintHead *a0)
     return 1;
 }
 
-PointBlur *InitPointBlur(int num, int a1, int *col, void *pos)
+PointBlur *InitPointBlur(int num, int pri, int *col, void *pos)
 {
-    return initPointBlurAt(num, a1, col, pos);
+    return initPointBlurAt(num, pri, col, pos);
 }
 
 int DispPointBlur(PointBlur *self)
@@ -333,7 +333,7 @@ int ResetEnemyEye(EnemyEye *self)
  * so it is reached through a plain unsigned char * -- that char store is what
  * kills the cached p->stripCol load for the last statement. */
 
-void moveDataElements(PointBlur *p)
+static void moveDataElements(PointBlur *p)
 {
     int i;
     float step;

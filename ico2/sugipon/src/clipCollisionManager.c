@@ -4,14 +4,10 @@
 #include "matrixDrive.h"
 #include "Matrix.h"
 #include "main.h"
+#include "act.h"
 
 /* the manager object CreateClipCollisionManagerGObj made */
-static int clipCollisionManagerGObj = 0; /* derived name */
-
-/* void * (void *, int) here, void (int, int) in act.h */
-extern void *actCreateSubThreadGOppArg(void *entry, int arg);
-/* as in act.h, which this file does not include */
-extern void _ACTWait(int a0);
+static GObj *clipCollisionManagerGObj = 0; /* derived name */
 
 typedef struct ClipColWork { /* field names derived */
     int result;              /* 0x00 */
@@ -86,7 +82,7 @@ static void actClipCollisionCore(volatile unsigned int self)
 
 inline void *RequestClipCollision(int *a0)
 {
-    void *t = actCreateSubThreadGOppArg(actClipCollisionCore, 0x15);
+    void *t = actCreateSubThreadGOppArg(actClipCollisionCore, 21);
     *(int **)((char *)t + 0x20) = a0;
     a0[0] = 0;
     return t;
@@ -101,9 +97,9 @@ static inline void thStart(void)
     }
 }
 
-int CreateClipCollisionManagerGObj(void)
+GObj *CreateClipCollisionManagerGObj(void)
 {
-    int v = CreateGObjByFuncSet(0, 0, 0, 0, thStart, 0, 0);
+    GObj *v = CreateGObjByFuncSet(0, 0, 0, 0, thStart, 0, 0);
     clipCollisionManagerGObj = v;
     return v;
 }

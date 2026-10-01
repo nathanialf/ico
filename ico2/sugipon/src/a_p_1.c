@@ -115,11 +115,11 @@ typedef struct {      /* field names derived */
     int pad27C;       /* 0x27C */
 } AP1Work;            /* derived name */
 
-int standMot(GObj *a0);
-int walkMot(GObj *a0);
-int rollingMot(GObj *a0);
-void attackMotInit(GObj *a0);
-int attackMot(GObj *a0);
+static int standMot(GObj *a0);
+static int walkMot(GObj *a0);
+static int rollingMot(GObj *a0);
+static void attackMotInit(GObj *a0);
+static int attackMot(GObj *a0);
 
 /* the mode names */
 static char *ap1ModeName[9] = {"ST", "WA", "RO", "AT", "DE",
@@ -219,7 +219,7 @@ typedef union { /* field names derived */
     long long ll;
 } AP1Flag; /* derived name */
 
-char *InitAP1(GObj *self, SObjSimpleSetting *arg)
+AP1Work *InitAP1(GObj *self, SObjSimpleSetting *arg)
 {
     AP1Work *p;
     Sub15C *d;
@@ -262,13 +262,13 @@ char *InitAP1(GObj *self, SObjSimpleSetting *arg)
         }
         p->arm[0]->nodeMtx = 0;
         p->arm[0]->nodeQuat = 0;
-        p->arm[0]->nodeMtx = (int)iosMallocDebug(ios_partition_seki, 0x100, a_p_1File, 261);
-        p->arm[0]->nodeQuat = (int)iosMallocDebug(ios_partition_seki, 0x40, a_p_1File, 261);
+        p->arm[0]->nodeMtx = (int)iosMallocDebug(ios_partition_seki, 256, a_p_1File, 261);
+        p->arm[0]->nodeQuat = (int)iosMallocDebug(ios_partition_seki, 64, a_p_1File, 261);
         p->arm[0]->nodeNum = 4;
         if (p->arm[0]->nodes != 0) {
             iosFree((int)p->arm[0]->nodes & 0xFFFFFFF);
         }
-        p->arm[0]->nodes = iosMallocDebug(ios_partition_seki, 0x140, a_p_1File, 261);
+        p->arm[0]->nodes = iosMallocDebug(ios_partition_seki, 320, a_p_1File, 261);
         {
             int n;
 
@@ -299,13 +299,13 @@ char *InitAP1(GObj *self, SObjSimpleSetting *arg)
         }
         p->arm[1]->nodeMtx = 0;
         p->arm[1]->nodeQuat = 0;
-        p->arm[1]->nodeMtx = (int)iosMallocDebug(ios_partition_seki, 0x100, a_p_1File, 264);
-        p->arm[1]->nodeQuat = (int)iosMallocDebug(ios_partition_seki, 0x40, a_p_1File, 264);
+        p->arm[1]->nodeMtx = (int)iosMallocDebug(ios_partition_seki, 256, a_p_1File, 264);
+        p->arm[1]->nodeQuat = (int)iosMallocDebug(ios_partition_seki, 64, a_p_1File, 264);
         p->arm[1]->nodeNum = 4;
         if (p->arm[1]->nodes != 0) {
             iosFree((int)p->arm[1]->nodes & 0xFFFFFFF);
         }
-        p->arm[1]->nodes = iosMallocDebug(ios_partition_seki, 0x140, a_p_1File, 264);
+        p->arm[1]->nodes = iosMallocDebug(ios_partition_seki, 320, a_p_1File, 264);
         {
             int n;
 
@@ -330,14 +330,14 @@ char *InitAP1(GObj *self, SObjSimpleSetting *arg)
         for (i = 0; i < 9; i++) {
             p->focus[i] = GetSkeltonFocusNode(self, *(int *)((char *)ap1FocusNode + i * 4));
             if (p->focus[i] == -1) {
-                debug_assertMessage(a_p_1File, 0x10D, warningBanner);
-                __assert(a_p_1File, 0x10D, "e");
+                debug_assertMessage(a_p_1File, 269, warningBanner);
+                __assert(a_p_1File, 269, "e");
             }
         }
         p->arm[1] = 0;
         p->arm[0] = 0;
     }
-    p->eye = InitEnemyEye(0xA, 0, 0xA);
+    p->eye = InitEnemyEye(10, 0, 10);
     return p;
 }
 
@@ -347,7 +347,7 @@ extern void GetMatrixFromQuaternion(void *mtx, void *q);
 extern void MultiQuaternion(void *dst, void *a, void *b);
 extern void SetQuaternionByAxisRotateV(void *dst, int ang, void *axis);
 
-void yAxisRotFitting(GObj *self, void *arg2)
+static void yAxisRotFitting(GObj *self, void *arg2)
 {
     Vec4A_P_1 l0;
     Vec4A_P_1 l10;
@@ -371,7 +371,7 @@ void yAxisRotFitting(GObj *self, void *arg2)
     }
 }
 
-void zAxisRotFitting(GObj *self, void *arg2)
+static void zAxisRotFitting(GObj *self, void *arg2)
 {
     Vec4A_P_1 l0;
     Vec4A_P_1 l10;
@@ -465,7 +465,7 @@ static inline void resetPartHit(AP1Part *part, float *orient) /* derived name */
     setPartHit(part);
 }
 
-int fitToCol(GObj *self, int arg1)
+static int fitToCol(GObj *self, int arg1)
 {
     Mtx44 m;
     Vec4A_P_1 posA;
@@ -574,7 +574,7 @@ typedef union { /* field names derived */
     float f;
 } AP1Val; /* derived name */
 
-int walkMot(GObj *a0)
+static int walkMot(GObj *a0)
 {
     Vec4A_P_1 pos;
     Vec4A_P_1 v;
@@ -612,7 +612,7 @@ int walkMot(GObj *a0)
     return 1;
 }
 
-int rolling(GObj *a0)
+static int rolling(GObj *a0)
 {
     AP1ColHit info;
 
@@ -688,7 +688,7 @@ static inline short armCosine(float a, float b, float c) /* derived name */
     return (short)(int)GetTableArcCos((aa + bb - cc) / (2.0f * a * b));
 }
 
-void calcSubMission(GObj *self)
+static void calcSubMission(GObj *self)
 {
     AP1Work *p = GOBJ_SUB(self)->work;
     Vec4A_P_1 base;
@@ -829,7 +829,7 @@ extern void GetMatrixFromQuaternionPos(void *m, void *q, void *pos);
 /* as in quaternion.h, which this file does not include */
 extern void GetSlerpQuaternion(void *dst, void *a, void *b, float t);
 
-void updateMatrix(GObj *a0)
+static void updateMatrix(GObj *a0)
 {
     float pos[4];
     float quat[4];
@@ -860,7 +860,7 @@ void updateMatrix(GObj *a0)
     _MulMatrix((void *)GOBJ_SUB(a0)->nodeMtx, p->mtx, ap1BodyMatrix);
 }
 
-void resetPositionInfo(GObj *a0)
+static void resetPositionInfo(GObj *a0)
 {
     AP1Work *p = GOBJ_SUB(a0)->work;
     GetRootPosition(p->pos.m, a0);
@@ -1032,7 +1032,7 @@ int GetAP1Mode(GObj *a0)
     return (int)ap1ModeName[((AP1Work *)GOBJ_SUB(a0)->work)->mode];
 }
 
-int standMot(GObj *a0)
+static int standMot(GObj *a0)
 {
     AP1Work *p = GOBJ_SUB(a0)->work;
     int ret = fitToCol(a0, 0);
@@ -1044,7 +1044,7 @@ int standMot(GObj *a0)
     return 0;
 }
 
-int rollingMot(GObj *a0)
+static int rollingMot(GObj *a0)
 {
     AP1Work *p = GOBJ_SUB(a0)->work;
     int ret = rolling(a0);
@@ -1076,7 +1076,7 @@ static inline void setAP1MotCtrlVector(AP1MotCtrl *m, Vec4A_P_1 *v) /* derived n
     setAP1MotCtrlState(m, 0);
 }
 
-void attackMotInit(GObj *a0)
+static void attackMotInit(GObj *a0)
 {
     Vec4A_P_1 pos;
     Mtx44 mtx;
@@ -1090,7 +1090,7 @@ void attackMotInit(GObj *a0)
     setAP1MotCtrlVector((AP1MotCtrl *)&p->part[1], &dir);
 }
 
-int attackMot(GObj *a0)
+static int attackMot(GObj *a0)
 {
     AP1Work *p = GOBJ_SUB(a0)->work;
     int ret = fitToCol(a0, 0);

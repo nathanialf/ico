@@ -3,7 +3,7 @@
 #include "main.h"
 
 /* the flying object the manager tracks */
-static int flyGObj = 0; /* derived name */
+static GObj *flyGObj = 0; /* derived name */
 
 #include "flyManager.h"
 #include "debug.h"
@@ -31,25 +31,25 @@ static inline int clipFlyFloor(char *work, void *pos) /* derived name */
     return *(int *)(work + 0x94);
 }
 
-inline int InitFlyInfo(int *self)
+inline int InitFlyInfo(GObj *self)
 {
-    int *p = (int *)self[0x57];
+    Sub15C *d = self->dobj;
     flyGObj = self;
-    p[0x1D] = 0;
+    d->disp = 0;
     return 0;
 }
 
 void DispFlyInfo(void)
 {
-    int v0 = debug_fly_limit_test;
-    int a0 = flyGObj;
-    if (v0 == 0) {
+    int test = debug_fly_limit_test;
+    GObj *g = flyGObj;
+    if (test == 0) {
         return;
     }
-    if (a0 == 0) {
+    if (g == 0) {
         return;
     }
-    return DrawGObjFloorCollision(a0, 0);
+    DrawGObjFloorCollision(g, 0);
 }
 
 inline void InitFlyManager(void)
@@ -62,7 +62,7 @@ inline int GetFlyLimitClearance(void *pos)
     char work[192];
 
     if (flyGObj != 0) {
-        memset(work, 0, 0xC0);
+        memset(work, 0, 192);
         if (clipFlyFloor(work, pos) != 0) {
             return -getFloorLimitValue(*(int *)(work + 0x98));
         }
@@ -75,7 +75,7 @@ inline int GetFlyLimitHeight(FlyLimitInfo *info, void *pos)
     char work[192];
 
     if (flyGObj != 0) {
-        memset(work, 0, 0xC0);
+        memset(work, 0, 192);
         if (clipFlyFloor(work, pos) != 0) {
             info->floorY = *(float *)(work + 0x24);
             info->limitOfs = -getFloorLimitValue(*(int *)(work + 0x98));

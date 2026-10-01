@@ -19,7 +19,7 @@ static unsigned int acbSphereColor[4] = {0, 128, 255, 128}; /* derived name */
 #include "main.h"
 #include "GifPacket.h"
 
-static inline char *createAttackCheckBoundaryGObj(SObjSimpleSetting *lay) /* derived name */
+static inline GObj *createAttackCheckBoundaryGObj(SObjSimpleSetting *lay) /* derived name */
 {
     return CreateLayoutedGObj(63, 0x4B, -1, 0, lay, -1, 7, 1);
 }
@@ -37,7 +37,7 @@ typedef struct { /* field names derived */
 
 inline int InitAttackCheckBoundaryGeo(int unused, void *obj)
 {
-    AcbWork *w = (AcbWork *)iosMallocDebug(ios_partition_sugipon, 0xC, __FILE__, 27);
+    AcbWork *w = (AcbWork *)iosMallocDebug(ios_partition_sugipon, 12, __FILE__, 27);
 
     w->handle = (int *)((SObjSimpleSetting *)obj)->obj;
     w->hit = 0;
@@ -46,14 +46,13 @@ inline int InitAttackCheckBoundaryGeo(int unused, void *obj)
     return (int)w;
 }
 
-inline void AttackCheckBoundaryGeo(void *a0)
+inline void AttackCheckBoundaryGeo(GObj *a0)
 {
-    int *a = *(int **)((char *)a0 + 0x15C);
-    int *b = *(int **)a;
-    if (b == 0)
+    GObj *owner = GOBJ_SUB(a0)->parent.obj;
+    if (owner == 0)
         return;
-    if (*(int *)((char *)b + 0x16C) == 0) {
-        *(int *)((char *)a0 + 0x16C) = 0;
+    if (owner->active == 0) {
+        a0->active = 0;
     }
 }
 
@@ -67,7 +66,7 @@ inline void AttackCheckBoundaryDL(GObj *obj)
     }
     /* the boundary is drawn only while nothing has hit it */
     if (m->hit == 0) {
-        gif_StartPacketPri(0xB);
+        gif_StartPacketPri(11);
 
         gif_SetZTest(1);
         gif_SetAlpha(1, 5, 0x80);
@@ -79,7 +78,7 @@ inline void AttackCheckBoundaryDL(GObj *obj)
     }
 }
 
-inline void SetAttackCheckBoundaryAttribute(char *a0, int a1)
+inline void SetAttackCheckBoundaryAttribute(GObj *a0, int a1)
 {
     /* the work pointer, read through the int-typed sub-object handle */
     AcbWork *w = GOBJ_SUB(a0)->work;
@@ -88,10 +87,10 @@ inline void SetAttackCheckBoundaryAttribute(char *a0, int a1)
 
 inline float GetAttackCheckBoundaryRadius(GObj *a0)
 {
-    return *(float *)((char *)GOBJ_SUB(a0)->nodes + 0x20);
+    return GOBJ_SUB(a0)->nodes->scale[0];
 }
 
-inline char *CreateAttackCheckBoundary(int *obj, float x, float y, float z, float r)
+inline GObj *CreateAttackCheckBoundary(int *obj, float x, float y, float z, float r)
 {
     SObjSimpleSetting lay = InitialSObjSimpleSetting;
 
@@ -162,7 +161,7 @@ void AttackCheckBoundaryBeforeFunc(char *self)
 
 /* the manager's 8-byte roster entries and its work block at sub+0x830 */
 typedef struct AcbEntry { /* field names derived */
-    int obj;              /* 0x00 */
+    int obj;              /* 0x00, the boundary object, kept as a word */
     int hit;              /* 0x04 */
 } AcbEntry;               /* derived name */
 
@@ -176,7 +175,7 @@ typedef struct AcbMgr { /* field names derived */
 /* the blank roster entry each slot starts from */
 static AcbEntry acbBlankEntry = {0, 0}; /* derived name */
 
-AcbMgr *InitAttackCheckBoundaryManagerGeo(int a0, SObjSimpleSetting *a1)
+AcbMgr *InitAttackCheckBoundaryManagerGeo(GObj *a0, SObjSimpleSetting *a1)
 {
     float v0[4];
     float v1[4];
@@ -186,10 +185,10 @@ AcbMgr *InitAttackCheckBoundaryManagerGeo(int a0, SObjSimpleSetting *a1)
     const LayoutClothDef *rec;
     float len;
     int i;
-    char *g;
+    GObj *g;
 
     rec = &layoutClothDef[a1->obj];
-    mgr = (AcbMgr *)iosMallocDebug(ios_partition_sugipon, 0x10, __FILE__, 180);
+    mgr = (AcbMgr *)iosMallocDebug(ios_partition_sugipon, 16, __FILE__, 180);
     mgr->prev = mgr->cur;
     mgr->cur = 0;
     mgr->count = rec->count;
@@ -213,9 +212,9 @@ AcbMgr *InitAttackCheckBoundaryManagerGeo(int a0, SObjSimpleSetting *a1)
         g = CreateAttackCheckBoundary(&mgr->cur, p[0], p[1], p[2], len);
         mgr->list[i].obj = (int)g;
         SetAttackCheckBoundaryAttribute(g, rec->attr);
-        /* the sub-object's first word is its owner (AttackCheckBoundaryGeo
-           reads it as an int pointer) */
-        *(int **)*(int *)(g + 0x15C) = (int *)a0;
+        /* the boundary hangs from the manager: AttackCheckBoundaryGeo
+           deactivates it with its owner */
+        GOBJ_SUB(g)->parent.obj = a0;
     }
     return mgr;
 }
@@ -226,12 +225,12 @@ void AttackCheckBoundaryManagerGeo(GObj *self)
     int i;
 
     for (i = 0; i < m->count; i++) {
-        char *e = (char *)m->list[i].obj;
+        GObj *e = (GObj *)m->list[i].obj;
 
         /* whether the member's work says it has been hit */
-        m->list[i].hit = *(int *)(*(int *)((char *)GOBJ_SUB(e) + 0x830) + 4);
-        *(int *)(*(int *)((char *)GOBJ_SUB(e) + 0x830) + 4) = 0;
-        *(int *)(e + 0x16C) = 1;
+        m->list[i].hit = ((AcbWork *)GOBJ_SUB(e)->work)->hit;
+        ((AcbWork *)GOBJ_SUB(e)->work)->hit = 0;
+        e->active = 1;
     }
     m->prev = m->cur;
     m->cur = 0;

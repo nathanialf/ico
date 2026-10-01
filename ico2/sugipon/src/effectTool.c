@@ -337,7 +337,7 @@ static int paramCursor = 0; /* derived name */
 
 static int fieldDisp = 0; /* derived name */
 
-static int savedTarget = 0; /* derived name */
+static GObj *savedTarget = 0; /* derived name */
 
 int targetMemo = 0;
 

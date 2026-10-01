@@ -8,6 +8,8 @@
 #ifndef FLYMANAGER_H
 #define FLYMANAGER_H
 
+struct GObj;
+
 /* GetFlyLimitHeight's result */
 typedef struct { /* field names derived */
     float floorY;
@@ -19,7 +21,7 @@ typedef struct { /* field names derived */
 /* The declarations below lead this header because their order is load-bearing:
  * gcc 2.9 emits the deferred out-of-line copy of a plain-inline function in
  * first-declaration order, so this is the order flyManager.c's inline tail has. */
-int InitFlyInfo(int *self);
+int InitFlyInfo(struct GObj *self);
 void InitFlyManager(void);
 int GetFlyLimitHeight(FlyLimitInfo *info, void *pos);
 int GetFlyLimitClearance(void *pos);

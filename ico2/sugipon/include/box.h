@@ -47,12 +47,5 @@ void GetFloorLeverGlobalHoldPoint(void *dst, struct GObj *a1);
 void GetWallLeverGlobalHoldPoint(void *out, void *lev);
 int MoveFloatingBox(struct GObj *self, struct GObj *other, float *dst, void *src, float lim);
 void ReInitBoxGeo(struct GObj *a0);
-int _checkItemCollision(void *a0);
-void action(struct GObj *a0);
-int checkFieldContact(struct GObj *a0, float d);
-void dispWheels(struct GObj *a0);
-void execFloating(struct GObj *a0);
-int execNormalMove(struct GObj *a0, int a1);
-int onPath(struct GObj *a0);
 
 #endif /* BOX_H */

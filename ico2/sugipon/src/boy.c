@@ -381,7 +381,7 @@ typedef struct BoyWork { /* field names derived */
     float detail;           /* 0x64 */
 } BoyWork;                  /* derived name */
 
-void dispClothes(GObj *gobj)
+static void dispClothes(GObj *gobj)
 {
     BoyWork *w = GOBJ_SUB(gobj)->work;
     char *x;
@@ -658,7 +658,7 @@ static int boySyncMarkerColor[4] = {255, 96, 64, 128}; /* derived name */
 
 static LightLineExt lightLineExt = {0, 0, 0}; /* derived name */
 
-void synchronizeMotionOutputOriginForGirl(GObj *gobj)
+static void synchronizeMotionOutputOriginForGirl(GObj *gobj)
 {
     float d[4];
     float v[4];
@@ -700,7 +700,7 @@ void synchronizeMotionOutputOriginForGirl(GObj *gobj)
     }
 }
 
-void actionOfWater(GObj *gobj)
+static void actionOfWater(GObj *gobj)
 {
     float pos[4];
     BoyWork *w = GOBJ_SUB(gobj)->work;
@@ -745,7 +745,7 @@ void BoyGeo(GObj *gobj)
     actionOfWater(gobj);
 }
 
-void dispSubParts(GObj *gobj)
+static void dispSubParts(GObj *gobj)
 {
     BoyWork *w = GOBJ_SUB(gobj)->work;
     char *a;
@@ -765,7 +765,7 @@ void dispSubParts(GObj *gobj)
     p2o_DispVU1DObjMulti(w->body);
 }
 
-void dispCrown(GObj *gobj)
+static void dispCrown(GObj *gobj)
 {
     BoyWork *w = GOBJ_SUB(gobj)->work;
     int node = GetSkeltonFocusNode(gobj, 0x23);

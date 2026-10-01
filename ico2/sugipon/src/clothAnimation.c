@@ -848,7 +848,7 @@ static __inline__ float xzLengthSquare(const void *p) /* derived name */
 
 /* bothOverThePlane, nested before `d`, tests both ends of the segment p
    against one plane */
-int clipCylinderCollision(char *p, void *pt)
+static int clipCylinderCollision(char *p, void *pt)
 {
     __inline__ int bothOverThePlane(const void *pl) /* derived name */
     {
@@ -1236,8 +1236,8 @@ typedef struct {  /* field names derived */
     float vec50[4];
 } Cloth4DCol; /* derived name */
 
-void getCloth4D_preProcess(void *a0, float g, float damp, float z, float w, int tight, void *qa,
-                           void *qb)
+static void getCloth4D_preProcess(void *a0, float g, float damp, float z, float w, int tight,
+                                  void *qa, void *qb)
 {
     VECTOR dv;
     float work[4][4];
@@ -1455,7 +1455,7 @@ static __inline__ void setClipCylinder(ClothPoint *pt) /* derived name */
     cylinderRadiusSq = pt->r * pt->r;
 }
 
-void getCloth4D(void *a0, int **rows)
+static void getCloth4D(void *a0, int **rows)
 {
     char **rowsB = (char **)((int *)a0)[2];
     char **rowsC = (char **)((int *)a0)[3];
@@ -1814,7 +1814,7 @@ void getCloth4D(void *a0, int **rows)
     }
 }
 
-void getCloth4D_postProcess(int *a0, int **a1)
+static void getCloth4D_postProcess(int *a0, int **a1)
 {
     float buf[4];
     int i;
@@ -1859,7 +1859,7 @@ void getCloth4D_postProcess(int *a0, int **a1)
    typedef.h, and commonact.c declares the table char [] */
 extern const MotionDef motionKind[];
 
-void _getCloth4D(int *a0, float x, float y, float z, float w, int tight, void *a6, void *a7)
+static void _getCloth4D(int *a0, float x, float y, float z, float w, int tight, void *a6, void *a7)
 {
     float buf[4];
     int i;
@@ -2156,7 +2156,7 @@ float getXZLengthSquare(void *p0)
     VU0_MTC1(2, 0);
 }
 
-float subAndGetInvLength(void *p0, void *p1, void *p2, void *p3)
+float subAndGetInvLength(void *d, const void *a, const void *b)
 {
     VU0_LSV(lqc2, 1, 0x0, 5);
     VU0_LSV(lqc2, 2, 0x0, 6);
@@ -2173,7 +2173,7 @@ float subAndGetInvLength(void *p0, void *p1, void *p2, void *p3)
     VU0_NOREORDER_END();
 }
 
-void scaleAndAddVectorXYZ(void *p0, void *p1, void *p2, void *p3)
+void scaleAndAddVectorXYZ(void *d, const void *a, const void *b, float k)
 {
     VU0_LSV(lqc2, 4, 0x0, 5);
     VU0_LSV(lqc2, 5, 0x0, 6);
@@ -2186,7 +2186,7 @@ void scaleAndAddVectorXYZ(void *p0, void *p1, void *p2, void *p3)
     VU0_LSV(sqc2, 4, 0x0, 4);
 }
 
-void scaleVectorXZ(void *p0, void *p1, void *p2)
+void scaleVectorXZ(void *d, const void *s, float k)
 {
     VU0_LSV(lqc2, 4, 0x0, 5);
     VU0_NOREORDER_BEGIN();

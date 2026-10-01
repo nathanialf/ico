@@ -84,9 +84,6 @@ inline int GetCageChainPoint(char *a0, char *a1, GObj *a2)
     return w->rideable;
 }
 
-/* the game heap handles, declared int as sugipon's other TUs do
-   (girlForceField.c, candle.c) and cast at the allocator calls */
-
 /* one 80-byte chain-parameter record per chain, the list InitChains walks
  * until num is -1.  The fields are the ones clothAnimation.c reads (count 0x0,
  * focus node 0x10, node spacing 0x14, root 0x20, the length weight 0x40); the
@@ -116,8 +113,8 @@ char *InitCageGeo(char *self, SObjSimpleSetting *lay)
     int i;
     float one;
 
-    w = (CageWork *)iosMallocDebug((void *)ios_partition_sugipon, 80, __FILE__, 97);
-    ch = (char *)iosMallocDebug((void *)ios_partition_sugipon, 160, __FILE__, 98);
+    w = (CageWork *)iosMallocDebug(ios_partition_sugipon, 80, __FILE__, 97);
+    ch = (char *)iosMallocDebug(ios_partition_sugipon, 160, __FILE__, 98);
     w->dobj =
         CSVSYSTEM_InitDObj(accessary[((SubHandle *)(self + 0x15C))->sub->accessary].model, lay);
     w->dobj2 =
@@ -160,14 +157,14 @@ char *InitCageGeo(char *self, SObjSimpleSetting *lay)
     }
     *(char **)((char *)w->dobj + 0x10) = *(char **)((char *)w->dobj + 0xC) = 0;
     *(void **)((char *)w->dobj + 0xC) =
-        iosMallocDebug((void *)ios_partition_seki, w->linkCount << 6, __FILE__, 128);
+        iosMallocDebug(ios_partition_seki, w->linkCount << 6, __FILE__, 128);
     *(void **)((char *)w->dobj + 0x10) =
-        iosMallocDebug((void *)ios_partition_seki, w->linkCount << 4, __FILE__, 128);
+        iosMallocDebug(ios_partition_seki, w->linkCount << 4, __FILE__, 128);
     w->dobj->nodeNum = w->linkCount;
     if (w->dobj->nodes != 0) {
         iosFree((void *)((int)w->dobj->nodes & 0x0FFFFFFF));
     }
-    w->dobj->nodes = iosMallocDebug((void *)ios_partition_seki, w->linkCount * 80, __FILE__, 128);
+    w->dobj->nodes = iosMallocDebug(ios_partition_seki, w->linkCount * 80, __FILE__, 128);
     for (i = 0; i < w->linkCount; i++) {
         {
             struct DObjNode *e = (struct DObjNode *)(i * 80 + (int)w->dobj->nodes);

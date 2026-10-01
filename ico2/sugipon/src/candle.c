@@ -12,32 +12,20 @@ typedef struct CandleFlame { /* field names derived */
     int off;                 /* 0x4 */
 } CandleFlame;               /* derived name */
 
-typedef struct CandleWork { /* field names derived */
-    char _pad0[8];
-    int num;   /* 0x8 , flame count */
-    char *mtx; /* 0xC , the per-flame 0x40-byte matrix run */
-    char _pad_10[100];
-    int alive; /* 0x74 */
-    char _pad_78[1976];
-    CandleFlame *flame; /* 0x830 */
-} CandleWork;           /* derived name */
-
-#define CANDLE_WORK(o) ((CandleWork *)*(int *)((char *)(o) + 0x15C)) /* derived name */
-
 #include "candle.h"
 #include "ios.h"
 
 int InitCandleGeo(void *self, void *mtx)
 {
-    CandleWork *w = CANDLE_WORK(self);
+    Sub15C *w = GOBJ_SUB(self);
     CandleFlame *flame;
     int i;
 
-    if (w->num >= 2) {
-        flame =
-            (CandleFlame *)iosMallocDebug(ios_partition_sugipon, w->num * 8, "src/candle.c", 24);
-        for (i = 0; i < w->num; i++) {
-            CopyMatrix(MatrixDrive_GetMatrix(), w->mtx + i * 0x40);
+    if (w->nodeNum >= 2) {
+        flame = (CandleFlame *)iosMallocDebug(ios_partition_sugipon, w->nodeNum * 8, "src/candle.c",
+                                              24);
+        for (i = 0; i < w->nodeNum; i++) {
+            CopyMatrix(MatrixDrive_GetMatrix(), (char *)w->nodeMtx + i * 64);
             MatrixDrive_TransMatrix(0.0f, -40.0f, 0.0f);
             flame[i].effect = SetParticleEffect(4, MatrixDrive_GetMatrix()[3], IdentityQuaternion);
             flame[i].off = 0;
@@ -53,23 +41,23 @@ int InitCandleGeo(void *self, void *mtx)
 
 void CandleGeo(void *self)
 {
-    CandleWork *w = CANDLE_WORK(self);
-    CandleFlame *flame = w->flame;
-    /* the release pass reads the work block through its own handle */
-    CandleWork *cw = CANDLE_WORK(self);
+    Sub15C *w = GOBJ_SUB(self);
+    CandleFlame *flame = w->work;
+    /* the release pass reads the display object through its own handle */
+    Sub15C *cw = GOBJ_SUB(self);
     int i;
 
-    if (w->num >= 2) {
-        for (i = 0; i < w->num; i++) {
-            CopyMatrix(MatrixDrive_GetMatrix(), CANDLE_WORK(self)->mtx + i * 0x40);
+    if (w->nodeNum >= 2) {
+        for (i = 0; i < w->nodeNum; i++) {
+            CopyMatrix(MatrixDrive_GetMatrix(), (char *)GOBJ_SUB(self)->nodeMtx + i * 64);
             MatrixDrive_TransMatrix(0.0f, -40.0f, 0.0f);
             if (flame[i].effect != -1) {
                 SetParticleEffectGeometry(flame[i].effect, MatrixDrive_GetMatrix()[3],
                                           IdentityQuaternion);
             }
         }
-        if (cw->alive == 0) {
-            for (i = 0; i < cw->num; i++) {
+        if (cw->disp == 0) {
+            for (i = 0; i < cw->nodeNum; i++) {
                 if (flame[i].effect != -1) {
                     DeleteParticleEffect(flame[i].effect);
                     flame[i].effect = -1;
@@ -85,9 +73,9 @@ inline void _deleteLayoutedCandleParticleEffect(void *gobj)
     CandleFlame *flame;
     int i;
 
-    flame = CANDLE_WORK(gobj)->flame;
-    if (CANDLE_WORK(gobj)->num >= 2) {
-        for (i = 0; i < CANDLE_WORK(gobj)->num; i++) {
+    flame = GOBJ_SUB(gobj)->work;
+    if (GOBJ_SUB(gobj)->nodeNum >= 2) {
+        for (i = 0; i < GOBJ_SUB(gobj)->nodeNum; i++) {
             if (flame[i].off == 0) {
                 DeleteParticleEffect(flame[i].effect);
                 flame[i].effect = -1;
@@ -110,9 +98,9 @@ inline void DeleteLayoutedCandleParticleEffect(void)
 
 void CandleDL(GObj *a0)
 {
-    int *s0 = a0->dobj;
-    if (s0[0x74 / 4] != 0) {
+    Sub15C *d = a0->dobj;
+    if (d->disp != 0) {
         p2o_SetDefaultEnviroment();
-        return p2o_DispVU1DObjMulti(s0);
+        p2o_DispVU1DObjMulti(d);
     }
 }

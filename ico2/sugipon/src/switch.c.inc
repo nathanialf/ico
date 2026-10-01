@@ -333,7 +333,7 @@ void WallLeverDL(GObj *a0)
 /* the poll loop the four functions below share */
 static inline int checkReadySwitchKind(int kind) /* derived name */
 {
-    char *o;
+    GObj *o;
 
     for (o = isysGObjSearchFromObjKindID_begin(kind); o != 0;
          o = isysGObjSearchFromObjKindID_next(o)) {

@@ -80,7 +80,7 @@ typedef struct {              /* field names derived */
     float flyXZAccel; /* 0x50, the fly XZ acceleration, from the enemyKind row */
 } EnemyWork;          /* derived name */
 
-void setEnemyParticleObject(GObj *self, int pid)
+static void setEnemyParticleObject(GObj *self, int pid)
 {
     Sub15C *sub = GOBJ_SUB(self);
     EnemyWork *w = sub->work;
@@ -171,7 +171,7 @@ static inline int enemyRandomizeID(int kind, int *ctr) /* derived name */
     return randomEnemyVariationKind[id];
 }
 
-int setEnemyObject(GObj *self, int kind, int *ctr)
+static int setEnemyObject(GObj *self, int kind, int *ctr)
 {
     struct DObjNode *p;
     Sub15C *sub;
@@ -221,7 +221,7 @@ typedef struct { /* field names derived */
  * code hold declarations, braces and comments.  The first loop's condition
  * reads the sub-object handle through a volatile int view; the body's own
  * read of the handle is GOBJ_SUB's int view. */
-void dispEnemyObject(void *self)
+static void dispEnemyObject(void *self)
 {
     float m[16];
     EnemyDispEntry *tmp;
@@ -587,14 +587,14 @@ void SetEnemyDissolve(GObj *self, float ratio)
         sub->nodes->fade = 1.0f;
 }
 
-void SetEnemyFlyXZAccel(GObj *a0, float f)
+static void SetEnemyFlyXZAccel(GObj *a0, float f)
 {
     EnemyWork *w = GOBJ_SUB(a0)->work;
 
     w->flyXZAccel = f;
 }
 
-void SetEnemyFlyXZAccelAll(float accel)
+static void SetEnemyFlyXZAccelAll(float accel)
 {
     GObj *g = isysGObjSearchFromObjKindID_begin(4);
     while (g != 0) {

@@ -20,10 +20,5 @@ int GetAP1Mode(struct GObj *a0);
 int GetAP1SpecType(struct GObj *a0);
 struct GObj *MakeAP1GObj(SObjSimpleSetting *a0);
 void SetAP1VisualState(struct GObj *a0, int a1);
-void calcSubMission(struct GObj *a0);
-int fitToCol(struct GObj *a0, int a1);
-int rolling(struct GObj *a0);
-void updateMatrix(struct GObj *a0);
-void yAxisRotFitting(struct GObj *self, void *arg2);
 
 #endif /* A_P_1_H */

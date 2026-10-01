@@ -40,7 +40,7 @@ int DispEnemyEye(EnemyEye *a0);
 int DispEnemyFootPrints(EnemyFootPrintHead *a0);
 int EntryEnemyFootPrint(EnemyFootPrintHead *self, void *pos);
 int ExecEnemyFootPrints(EnemyFootPrintHead *self);
-EnemyEye *InitEnemyEye(int num, int a1, int a2);
+EnemyEye *InitEnemyEye(int num, int a1, int pri);
 EnemyFootPrintHead *InitEnemyFootPrint(int num);
 int ResetEnemyEye(EnemyEye *self);
 int UpdateEnemyEye(EnemyEye *a0, void *m, float f);

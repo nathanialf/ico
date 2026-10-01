@@ -8,11 +8,13 @@
 #ifndef CLIPCOLLISIONMANAGER_H
 #define CLIPCOLLISIONMANAGER_H
 
+struct GObj;
+
 /* The declarations below lead this header because their order is load-bearing:
  * gcc 2.9 emits the deferred out-of-line copy of a plain-inline function in
  * first-declaration order, so this is the order clipCollisionManager.c's inline tail has. */
 void *RequestClipCollision(int *a0);
 
-int CreateClipCollisionManagerGObj(void);
+struct GObj *CreateClipCollisionManagerGObj(void);
 
 #endif /* CLIPCOLLISIONMANAGER_H */

@@ -28,8 +28,8 @@ typedef struct { /* field names derived */
     unsigned char a;
 } DVColor; /* derived name */
 
-void draw(void *v, int n, DVColor col, int neg);
-void drawHT(float *v, int n, DVColor col, int neg);
+static void draw(void *v, int n, DVColor col, int neg);
+static void drawHT(float *v, int n, DVColor col, int neg);
 
 /* drawHT's state: the strip's vertex count, whose parity flips the edge,
    the previous vertex and the edge vector the next vertex is tested
@@ -99,7 +99,7 @@ static __inline__ void drawStrip(int *v, int n, DVColor col) /* derived name */
     }
 }
 
-void draw(void *v, int n, DVColor col, int neg)
+static void draw(void *v, int n, DVColor col, int neg)
 {
     if (neg != 0) {
         drawStrip(v, n, col);
@@ -135,7 +135,7 @@ static __inline__ void drawHalfStrip(DVSeg *b, unsigned int n, DVColor col,
     }
 }
 
-void drawHT(float *v, int n, DVColor col, int neg)
+static void drawHT(float *v, int n, DVColor col, int neg)
 {
     DVSeg buf[n];
     DVSeg *p = buf;
@@ -228,7 +228,7 @@ static __inline__ void addScaledVectorXYZ(void *dst, const void *base, const voi
 
 /* project the view-space sphere around pos, splitting each of the 8 rings
    at the near plane */
-void renderViewCoordZSphere(void *pos, DVColor col, int neg, float r)
+static void renderViewCoordZSphere(void *pos, DVColor col, int neg, float r)
 {
     float v[4];
     int i;
@@ -340,7 +340,7 @@ static const DVColor volumeOuterColor = {255, 255, 255, 128}; /* derived name */
 
 static const DVColor volumeInnerColor = {127, 0, 98, 128}; /* derived name */
 
-void sonic(void *pos, float t)
+static void sonic(void *pos, float t)
 {
     int rect[4] = {-ScreenWidth / 2 * 16, -ScreenHeight / 2 * 16, ScreenWidth * 16,
                    ScreenHeight * 16};
@@ -550,7 +550,7 @@ void sonic(void *pos, float t)
     }
 }
 
-void darkVolume(void *pos, float a1, float a2, float a3)
+static void darkVolume(void *pos, float a1, float a2, float a3)
 {
     int rect[4] = {-ScreenWidth / 2 * 16, -ScreenHeight / 2 * 16, ScreenWidth * 16,
                    ScreenHeight * 16};

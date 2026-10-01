@@ -45,10 +45,10 @@ inline char *GetAP1AIMode(GObj *self)
    two units forward. */
 static AP1Vec ap1BoxedInJump = {0.0f, -20.0f, 2.0f, 0.0f}; /* derived name */
 
-int standAI(GObj *self);
-int walkAI(GObj *self);
-int jumpAI(GObj *);
-int attackAI(GObj *);
+static int standAI(GObj *self);
+static int walkAI(GObj *self);
+static int jumpAI(GObj *);
+static int attackAI(GObj *);
 
 /* one entry per mode; dead and sleep run no AI of their own. */
 static int (*ap1ModeAI[])(GObj *) = {standAI, walkAI, jumpAI, attackAI, 0, 0};
@@ -91,7 +91,7 @@ static AP1Vec lookDeltaFlat; /* derived name */ /* lookDelta with y removed */
 
 static AP1Vec selfPos; /* derived name */ /* this actor's own root position */
 
-int standAI(GObj *self)
+static int standAI(GObj *self)
 {
     Act *p = GOBJ_ACT(self);
 
@@ -142,7 +142,7 @@ int standAI(GObj *self)
     return AP1MotReq(self, 1) ? 1 : -1;
 }
 
-int walkAI(GObj *self)
+static int walkAI(GObj *self)
 {
     Act *p = GOBJ_ACT(self);
 
@@ -397,7 +397,7 @@ void subAP1BrainMain(GObj *volatile self)
     }
 }
 
-void hitProc(GObj *a0)
+static void hitProc(GObj *a0)
 {
     AP1MotReqForce(a0, 5);
 }
@@ -579,12 +579,12 @@ void SetAP1PriorLevel(GObj *self, int val)
     GOBJ_ACT(self)->lookPri = val;
 }
 
-inline int jumpAI(GObj *a0)
+static inline int jumpAI(GObj *a0)
 {
     return AP1MotReq(a0, 0) ? 0 : -1;
 }
 
-inline int attackAI(GObj *a0)
+static inline int attackAI(GObj *a0)
 {
     return AP1MotReq(a0, 0) ? 0 : -1;
 }
