@@ -2585,8 +2585,6 @@ static inline unsigned char IsFlyTimeOver(int a0) /* derived name */
 extern void GetRootMotionMatrix(void *m, char *obj);
 /* no header declares it */
 extern float GetEnemyFlyXZAccel(int a0);
-/* no header declares it; this call passes the position's address */
-extern void SetDarkVolumeEffect(float *pos, float size);
 /* info is void * here, FlyLimitInfo * in flyManager.h */
 extern int GetFlyLimitHeight(void *info, void *pos);
 

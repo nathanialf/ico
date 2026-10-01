@@ -9,13 +9,13 @@
 #include "pad.h"
 #include "StageManager.h"
 #include "main.h"
-#include <eekernel.h>
 #include <stdio.h>
 #include <string.h>
 #include "thread.h"
 #include "ios.h"
 #include <assert.h>
 #include <libcdvd.h>
+#include <sifrpc.h>
 #include <sound.h>
 
 static inline void iosCdvdDiskReadyBlock(void);
@@ -482,7 +482,7 @@ static void iosCdvdMgrLoad(IosCdvdHandle *self)
     }
 }
 
-void temp_loadfunc(int *self, int name, int size, int a3, int a4, int a5, int seg)
+void temp_loadfunc(IosCdvdHandle *self, char *name, int size, int id, int kind, int word08, int seg)
 {
     void *p = (void *)iosMallocDebug(ios_partition_seki, size, __FILE__, 1102);
 
@@ -494,14 +494,14 @@ void temp_loadfunc(int *self, int name, int size, int a3, int a4, int a5, int se
 /* One entry of a .PAK archive's directory: the four words the loader passes
  * on and the member's name, 0x224 bytes per entry. */
 typedef struct PackEnt { /* field names derived */
-    int f00;             /* 0x00 */
-    int f04;             /* 0x04 */
-    int f08;             /* 0x08 */
+    int id;              /* 0x00, the loader's file number */
+    int kind;            /* 0x04, the sound loaders' bank */
+    int word08;          /* 0x08, passed on; no loader reads it */
     int size;            /* 0x0C */
     char name[532];      /* 0x10 */
 } PackEnt;               /* derived name */
 
-typedef void (*PackFunc)(char *self, char *name, int size, int a3, int a4, int a5, int seg);
+typedef void (*PackFunc)(char *self, char *name, int size, int id, int kind, int word08, int seg);
 
 /* the extension lookup, expanded inside the scan below */
 static inline PackFunc findPackKind(char *ext, int *kind) /* derived name */
@@ -599,10 +599,9 @@ static void iosCdvdMgrPackLoad(IosCdvdHandle *self)
                 debug_StdPrintfDummy("load %s\n", pk->name);
             }
             if (f != 0) {
-                f(self, pk->name, pk->size, pk->f00, pk->f04, pk->f08, self->seg);
+                f(self, pk->name, pk->size, pk->id, pk->kind, pk->word08, self->seg);
             } else {
-                temp_loadfunc((int *)self, (int)pk->name, pk->size, pk->f00, pk->f04, pk->f08,
-                              self->seg);
+                temp_loadfunc(self, pk->name, pk->size, pk->id, pk->kind, pk->word08, self->seg);
             }
             debugCdvdLoadInfoSegAdd(self->seg, kind, pk->size);
         }
@@ -750,25 +749,25 @@ void iosCdvdHandlerReadInflate(IosCdvdHandle *self, void *buf, int n)
     }
 }
 
-void iosCdvdHandlerRead(IosCdvdHandle *a0, void *a1, int a2)
+void iosCdvdHandlerRead(IosCdvdHandle *self, void *dst, int size)
 {
-    if (a1 != 0) {
-        if ((a0->ctl.ll & 1) == 1) {
-            iosCdvdHandlerReadInflate(a0, a1, a2);
+    if (dst != 0) {
+        if ((self->ctl.ll & 1) == 1) {
+            iosCdvdHandlerReadInflate(self, dst, size);
         } else {
-            iosCdvdHandlerReadNoInflate(a0, a1, a2);
+            iosCdvdHandlerReadNoInflate(self, dst, size);
         }
         return;
     }
-    while (a2 > 0) {
-        int n = (a2 < 0x401) ? a2 : 0x400;
+    while (size > 0) {
+        int n = (size < 0x401) ? size : 0x400;
         void *buf = skipBuf;
-        if ((a0->ctl.ll & 1) == 1) {
-            iosCdvdHandlerReadInflate(a0, buf, n);
+        if ((self->ctl.ll & 1) == 1) {
+            iosCdvdHandlerReadInflate(self, buf, n);
         } else {
-            iosCdvdHandlerReadNoInflate(a0, buf, n);
+            iosCdvdHandlerReadNoInflate(self, buf, n);
         }
-        a2 -= n;
+        size -= n;
     }
 }
 
@@ -879,19 +878,19 @@ void iosCdvdManager(void)
     }
 }
 
-void iosCdvdDiskReady(int a0)
+void iosCdvdDiskReady(int req)
 {
-    union IosCdvdCtl *p = (union IosCdvdCtl *)a0;
+    union IosCdvdCtl *p = (union IosCdvdCtl *)req;
     p->i[1] = 0;
-    iosMsgSend(&CdvdMsgQ, a0, 0);
+    iosMsgSend(&CdvdMsgQ, req, 0);
 }
 
-void iosCdvdLoad(int a0, int a1)
+void iosCdvdLoad(int req, int inflate)
 {
-    union IosCdvdCtl *p = (union IosCdvdCtl *)a0;
+    union IosCdvdCtl *p = (union IosCdvdCtl *)req;
     p->i[1] = 1;
-    p->ll = (p->ll & ~1LL) | (a1 & 1);
-    iosMsgSend(&CdvdMsgQ, a0, 0);
+    p->ll = (p->ll & ~1LL) | (inflate & 1);
+    iosMsgSend(&CdvdMsgQ, req, 0);
 }
 
 static void iosCdvdPackLoad(void *a0)
@@ -1180,12 +1179,12 @@ int iosCdvdSync(int a0)
     return 1;
 }
 
-void iosCdvdLoadPackFile(int a0, char *name, int a2)
+void iosCdvdLoadPackFile(int inflate, char *name, int seg)
 {
     int buf[4];
-    iosCdvd.ctl.ll = (iosCdvd.ctl.ll & ~1LL) | (a0 & 1);
+    iosCdvd.ctl.ll = (iosCdvd.ctl.ll & ~1LL) | (inflate & 1);
     strcpy(iosCdvd.name, name);
-    iosCdvd.seg = a2;
+    iosCdvd.seg = seg;
     iosCdvd.handler = 0;
     iosCdvd.handlerArg = 0;
     iosCdvdPackLoad(&iosCdvd);
@@ -1203,10 +1202,10 @@ void iosCdvdBackGroundMgrDelete(CdvdBgReq *self)
     self->flags.del = 1;
 }
 
-int iosCdvdBackGroundMgrNotDiskReadyPauseSet(CdvdBgReq *a0, int a1)
+int iosCdvdBackGroundMgrNotDiskReadyPauseSet(CdvdBgReq *req, int on)
 {
-    int *p = (int *)&a0->flags;
-    return *p = (*p & ~0x10) | ((a1 & 1) << 4);
+    int *p = (int *)&req->flags;
+    return *p = (*p & ~0x10) | ((on & 1) << 4);
 }
 
 int iosCdvdBackGroundMgrDeleteRequestGet(void)
@@ -1249,14 +1248,14 @@ int iosCdvdBackGroundMgrGetRunning(void)
     return bgRunning;
 }
 
-int iosCdvdDirectStRead(int a0, void *a1, int a2, int *a3)
+int iosCdvdDirectStRead(int a0, void *dst, int size, int *err)
 {
     int local, result;
-    *a3 = 0;
-    result = sceCdStRead(a2 >> 11, a1, 1, &local) << 11;
+    *err = 0;
+    result = sceCdStRead(size >> 11, dst, 1, &local) << 11;
     if (local != 0) {
         debug_StdPrintfDummy("cd read error %d\n", local);
-        *a3 = 1;
+        *err = 1;
     }
     return result;
 }

@@ -28,21 +28,21 @@ typedef struct GProc {     /* field names derived */
 
 /* gobj_process.c's `inline` functions, in the order of their definitions'
  * out-of-line copies at the end of the object (first-declaration order). */
-inline void isysGObjProcessAlloc(unsigned int a0);
+inline void isysGObjProcessAlloc(unsigned int max);
 GProc *isysGObjProcAdd(GObj *g, void (*fn)(), int noThread, int pri);
 GProc *isysGObjProcAddS(GObj *g, void (*fn)(), int noThread, int pri, long stack);
 GProc *isysGObjProcAddGOppArg(GObj *g, void (*fn)(), int noThread, int pri);
 void isysGObjProcPause(char *self);
 void isysGObjProcPauseAll(struct GObj *p);
-void isysGObjProcPausePtr(void *a0, int a1);
+void isysGObjProcPausePtr(void *gobj, int func);
 void isysGObjProcActive(char *self);
-void isysGObjProcActiveAll(void *a0);
-void isysGObjProcRemoveAll(void *a0);
-void isysGObjProcThreadSleep(int a0);
+void isysGObjProcActiveAll(void *gobj);
+void isysGObjProcRemoveAll(void *gobj);
+void isysGObjProcThreadSleep(int frames);
 GProc *isysGObjProcAddSGOppArg(GObj *g, void (*fn)(), int noThread, int pri, int stack);
-void isysGObjProcActivePtr(void *a0, int a1);
+void isysGObjProcActivePtr(void *gobj, int func);
 void free_gobj_process_resource(char *self);
 void isysGObjProcRemove(GProc *p);
-void isysGObjProcessInit(unsigned int a0);
+void isysGObjProcessInit(unsigned int max);
 
 #endif /* GOBJ_PROCESS_H */

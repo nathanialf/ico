@@ -68,27 +68,27 @@ CdvdBgReq *iosCdvdBackGroundMgrAdd(const char *name, void *readFunc, int readArg
 void iosCdvdBackGroundMgrDelete(CdvdBgReq *self);
 int iosCdvdBackGroundMgrDeleteRequestGet(void);
 int iosCdvdBackGroundMgrEntryNum(void);
-int iosCdvdBackGroundMgrNotDiskReadyPauseSet(CdvdBgReq *a0, int a1);
+int iosCdvdBackGroundMgrNotDiskReadyPauseSet(CdvdBgReq *req, int on);
 void iosCdvdBackGroundMgrSeek(CdvdBgReq *self, int val);
 int iosCdvdBackGroundRead(CdvdBgReq *self, void *buf, int size);
 int iosCdvdBackGroundReadIOPm(CdvdBgReq *self, void *buf, int size);
 int iosCdvdChgFileName(int a0);
 void iosCdvdDirectStClose(struct IosCdvdHandle *self);
 void iosCdvdDirectStOpen(struct IosCdvdHandle *self);
-int iosCdvdDirectStRead(int a0, void *a1, int a2, int *a3);
+int iosCdvdDirectStRead(int a0, void *dst, int size, int *err);
 int iosCdvdDiskStatusGet(void);
 int iosCdvdGetFileLsn(char *name, int *size);
-void iosCdvdHandlerRead(struct IosCdvdHandle *a0, void *a1, int a2);
+void iosCdvdHandlerRead(struct IosCdvdHandle *self, void *dst, int size);
 void iosCdvdHandlerReadInflate(struct IosCdvdHandle *self, void *buf, int n);
 void iosCdvdHandlerReadNoInflate(struct IosCdvdHandle *self, void *buf, int n);
 void iosCdvdManager(void);
-void iosCdvdLoadPackFile(int a0, char *name, int a2);
+void iosCdvdLoadPackFile(int inflate, char *name, int seg);
 
 /* init-func: one file kind and its loader, 0x24 bytes. Reader:
  * ico2/fumi/ios/cdvd.c (PackKind). Owner: ico2/fumi/include/cdvd.h. */
 typedef struct {  /* field names derived */
     char ext[32]; /* 0x00 */
-    void (*func)(char *self, char *name, int size, int a3, int a4, int a5, int seg); /* 0x20 */
+    void (*func)(char *self, char *name, int size, int id, int kind, int word08, int seg); /* 0x20 */
 } PackKind; /* derived name */
 
 extern const PackKind initFunc[]; /* 26 rows */

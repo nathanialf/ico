@@ -33,16 +33,16 @@ void AdpcmStreamFree(void)
     sceSifFreeIopHeap(adpcmIopHeap);
 }
 
-void adpcmTickProc2(SqEntry *a0)
+void adpcmTickProc2(SqEntry *obj)
 {
-    AdpcmStream *self = a0->stream;
+    AdpcmStream *self = obj->stream;
     int i;
 
     if (iosCdvdDiskStatusGet() == 0 && adpcmPause == 0) {
         for (i = 0; i < self->n; i++) {
             char *ch = (char *)self->ch;
             int ofs = i * 4;
-            int no = a0->num;
+            int no = obj->num;
             SgStAdpcmChannelPitch(1LL << *(int *)(ch + ofs), adpcmFile[no].pitch);
         }
     } else {
@@ -70,22 +70,22 @@ void adpcmTickProc2(SqEntry *a0)
                 self->remain += self->dataSize - self->loopStart;
             }
             if (self->loopNum != 0 && self->loopCount >= self->loopNum) {
-                soundDataClose(a0);
+                soundDataClose(obj);
                 return;
             }
         }
     }
     if (self->fadeStep != 0) {
-        int d = AdpcmVolumeGet((char *)a0) - self->fadeStep;
+        int d = AdpcmVolumeGet(obj) - self->fadeStep;
 
         if (d < 0) {
             d = 0;
         }
         if (d == 0) {
-            soundDataClose(a0);
+            soundDataClose(obj);
             return;
         }
-        AdpcmVolumeSet((int)a0, d);
+        AdpcmVolumeSet(obj, d);
     }
 }
 
@@ -102,7 +102,7 @@ static const char adpcmFreeIopMsg[] =
 
 int debugAdpcmOn = 1;
 
-int *adpcmDataSet(int a0, int no, int bank, int a3, int size, int a5, int a6)
+SqEntry *adpcmDataSet(int src, int no, int bank, int ch, int size, int iopBuf, int loopNum)
 {
     AdpcmChReq req;
     SqEntry *obj;
@@ -113,7 +113,7 @@ int *adpcmDataSet(int a0, int no, int bank, int a3, int size, int a5, int a6)
     if (size > 0x5C000) {
         size = 0x5C000;
     }
-    obj = soundDataAreaGet(no, bank, 2, a3);
+    obj = soundDataAreaGet(no, bank, 2, ch);
     for (i = 0; i < 2; i++) {
         int *q = (int *)((char *)adpcmStream + i * 0x58);
         if (q[0] == 0) {
@@ -146,7 +146,7 @@ found:
         req.spuAddr = soundBufAdpcmChAlloc(obj, &req.ch);
         p->ch[j] = req.ch = adpcmSpuSlot[req.ch];
         req.attr = p->chAttr | 2;
-        req.iopAddr = a5 + (0x800 / p->n) * j;
+        req.iopAddr = iopBuf + (0x800 / p->n) * j;
         req.iopSize = 0x5C000;
         req.vol = 0x4000;
         SgStAdpcmOpen(&req);
@@ -171,21 +171,21 @@ found:
         p->seekSize = 0;
     }
     p->pitch = adpcmFile[no].pitch;
-    p->iopBuf = a5;
+    p->iopBuf = iopBuf;
     p->ringSize = 0x5C000;
     p->dataSize = adpcmFile[no].sectors << 11;
     p->loopStart = adpcmFile[no].loopStart << 11;
     p->lastAddr = 0;
     p->remain = adpcmFile[no].sectors << 11;
-    p->loopNum = a6;
+    p->loopNum = loopNum;
     p->loopCount = 0;
     if (size != 0) {
-        Ee2Iop(a0, a5, size);
+        Ee2Iop(src, iopBuf, size);
     }
     p->bg = iosCdvdBackGroundMgrAdd((char *)&adpcmFile[no], adpcmTickProc, obj, adpcmDiskNotReady,
                                     adpcmDiskReturnReady, obj, 0, 0);
     iosCdvdBackGroundMgrSeek(p->bg, size);
-    return (int *)obj;
+    return obj;
 }
 
 void AdpcmPlay(AdpcmStream *self)
@@ -214,7 +214,7 @@ found:
     return adpcmIopBase + i * 0x5C000;
 }
 
-void AdpcmOpen(AdpcmOpenReq *self, int no, int a2, int a3)
+void AdpcmOpen(AdpcmOpenReq *self, int no, int ch, int loopNum)
 {
     int req;
 
@@ -224,7 +224,7 @@ void AdpcmOpen(AdpcmOpenReq *self, int no, int a2, int a3)
         self->bg = 0;
         return;
     }
-    self->ch = a2;
+    self->ch = ch;
     self->id = no;
     self->iopBuf = AdpcmIopBuffAlloc();
     if (self->iopBuf != 0) {
@@ -234,7 +234,7 @@ void AdpcmOpen(AdpcmOpenReq *self, int no, int a2, int a3)
         self->bg = 0;
         debug_StdPrintfDummy("%s\n", (char *)&adpcmFile[no]);
     }
-    self->loopNum = a3;
+    self->loopNum = loopNum;
 }
 
 static inline void AdpcmIopBuffFree(AdpcmStream *self) /* derived name */
@@ -249,9 +249,9 @@ static inline void AdpcmIopBuffFree(AdpcmStream *self) /* derived name */
     adpcmIopBuffUsed[no] = 0;
 }
 
-void AdpcmClose(SqEntry *a0)
+void AdpcmClose(SqEntry *obj)
 {
-    AdpcmStream *self = a0->stream;
+    AdpcmStream *self = obj->stream;
     int i;
     int j;
 
@@ -265,7 +265,7 @@ void AdpcmClose(SqEntry *a0)
             SgStAdpcmClose(*(int *)(ch + ofs));
         }
         AdpcmIopBuffFree(self);
-        soundBufAdpcmFree(a0);
+        soundBufAdpcmFree(obj);
         for (j = 0; j < 2; j++) {
             int *p = (int *)((char *)adpcmStream + j * 0x58);
             if (p[0] != 0 && p == self) {
@@ -285,7 +285,7 @@ void AdpcmClose(SqEntry *a0)
 /* K&R definition: it declares no prototype, so
  * AdpcmInterStereoVolumeSetAll below calls this function with two
  * arguments. */
-void AdpcmInterStereoVolumeSet(a0, ch, vol) char *a0;
+void AdpcmInterStereoVolumeSet(st, ch, vol) char *st;
 
 int ch;
 
@@ -293,8 +293,8 @@ int vol;
 
 {
     int j = ch + 1;
-    short *r = (short *)(a0 + ch * 2);
-    short *q = (short *)(a0 + j * 2);
+    short *r = (short *)(st + ch * 2);
+    short *q = (short *)(st + j * 2);
     short lv = r[0x1E];
     short rv = q[0x20];
 
@@ -302,17 +302,17 @@ int vol;
         rv = 0;
         lv = 0;
     }
-    if (*(int *)(a0 + 0x38) == 0x10000) {
+    if (*(int *)(st + 0x38) == 0x10000) {
         return;
     }
     if (soundOutputModeGet() == 0) {
-        int *p = (int *)(a0 + 8);
+        int *p = (int *)(st + 8);
         int *c = p + ch;
         SgStAdpcmChannelVolume(1LL << *c, lv, 0);
         p += j;
         SgStAdpcmChannelVolume(1LL << *p, 0, rv);
     } else {
-        int *p = (int *)(a0 + 8);
+        int *p = (int *)(st + 8);
         int *c = p + ch;
         SgStAdpcmChannelVolume(1LL << *c, lv, rv);
         p += j;
@@ -320,19 +320,19 @@ int vol;
     }
 }
 
-void AdpcmInterLeaveVolumeSet(int a0, int a1, int a2)
+void AdpcmInterLeaveVolumeSet(SqEntry *self, int idx, int vol)
 {
-    char *b = *(char **)(a0 + 0x2C);
-    short *q = (short *)(b + (a1 * 2 + 1) * 2);
-    short *r = (short *)(b + a1 * 4);
-    q[0x20] = a2;
-    r[0x1E] = a2;
-    AdpcmInterStereoVolumeSet(b, a1 * 2, a2);
+    char *b = (char *)self->stream;
+    short *q = (short *)(b + (idx * 2 + 1) * 2);
+    short *r = (short *)(b + idx * 4);
+    q[0x20] = vol;
+    r[0x1E] = vol;
+    AdpcmInterStereoVolumeSet(b, idx * 2, vol);
 }
 
-void AdpcmVolumeSet(int a0, int a1)
+void AdpcmVolumeSet(SqEntry *self, int vol)
 {
-    AdpcmInterLeaveVolumeSet(a0, 0, a1);
+    AdpcmInterLeaveVolumeSet(self, 0, vol);
 }
 
 inline void adpcmPauseRequest(int val)
@@ -404,31 +404,31 @@ inline int AdpcmNotUseIopAreaFree(void)
     return cnt;
 }
 
-inline int *AdpcmOpenSync(AdpcmOpenReq *self)
+inline SqEntry *AdpcmOpenSync(AdpcmOpenReq *self)
 {
-    int *r;
+    SqEntry *r;
     debug_StdPrintfDummy("AdpcmOpensync\n");
     if (self->bg != 0)
         goto body;
     return 0;
 body:
     if (((int *)self->bg)[0x40] != 0) {
-        return (int *)-1;
+        return (SqEntry *)-1;
     }
     debug_StdPrintfDummy("AdpcmOpensync done\n");
     iosCdvdBackGroundMgrDelete(self->bg);
     r = adpcmDataSet(0, self->id, 0x11, self->ch, 0, self->iopBuf, self->loopNum);
-    iosCdvdBackGroundMgrSeek(((int *)r[11])[10], 0x5C000);
+    iosCdvdBackGroundMgrSeek(r->stream->bg, 0x5C000);
     return r;
 }
 
-inline void AdpcmFadeCloseAll(short a0)
+inline void AdpcmFadeCloseAll(short step)
 {
     int *p = adpcmStream;
     int *end = (int *)((char *)p + 0xB0);
     do {
         if (*p != 0) {
-            *(short *)((char *)p + 0x44) = a0;
+            *(short *)((char *)p + 0x44) = step;
         }
         p = (int *)((char *)p + 0x58);
     } while ((int)p < (int)end);
@@ -485,16 +485,16 @@ inline void AdpcmInterStereoVolumeSetAll(void)
     }
 }
 
-inline short AdpcmInterLeaveVolumeGet(char *self, int idx)
+inline short AdpcmInterLeaveVolumeGet(SqEntry *self, int idx)
 {
-    char *base = *(char **)(self + 0x2C);
+    char *base = (char *)self->stream;
     base += idx * 4;
     return *(short *)(base + 0x3C);
 }
 
-inline short AdpcmVolumeGet(char *self)
+inline short AdpcmVolumeGet(SqEntry *self)
 {
-    return *(short *)(*(char **)(self + 0x2C) + 0x3C);
+    return self->stream->volL[0];
 }
 
 inline int adpcmTickProc(int self, int obj)

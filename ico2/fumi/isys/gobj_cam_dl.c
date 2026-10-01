@@ -2,58 +2,52 @@
 #include "gobj_cam_dl.h"
 #include "isys.h"
 
-typedef struct EnNode { /* field names derived */
-    char pad[52];
-    struct EnNode *next;
-    struct EnNode *prev;
-} EnNode; /* derived name */
-
-static void add_gobj_to_tail(int *self, unsigned int key);
+static void add_gobj_to_tail(DLN *self, unsigned int key);
 
 /* sorted insert by key, inlined into isysGObjMoveCameraDLHead and
    isysGObjLinkCameraDLHead */
 
-static inline void insert_camera_dl_by_key(int *self, int key) /* derived name */
+static inline void insert_camera_dl_by_key(DLN *self, int key) /* derived name */
 {
-    int *head;
-    int *tail;
-    int *cur;
-    int *next;
+    DLN *head;
+    DLN *tail;
+    DLN *cur;
+    DLN *next;
 
-    self[0x11] = key;
+    self->key = key;
     head = gobj_camera_dl_link_head;
     if (head == 0) {
-        *(int *)&gobj_camera_dl_link_tail = (int)self;
-        self[0xE] = 0;
-        self[0xD] = 0;
-        *(int *)&gobj_camera_dl_link_head = (int)self;
-        return;
-    }
-    if ((unsigned int)head[0x11] >= (unsigned int)key) {
-        self[0xE] = 0;
-        self[0xD] = (int)head;
-        head[0xE] = (int)self;
+        gobj_camera_dl_link_tail = self;
+        self->prev = 0;
+        self->next = 0;
         gobj_camera_dl_link_head = self;
         return;
     }
-    tail = (int *)gobj_camera_dl_link_tail;
-    if ((unsigned int)tail[0x11] < (unsigned int)key) {
-        self[0xE] = (int)tail;
-        self[0xD] = 0;
-        tail[0xD] = (int)self;
-        gobj_camera_dl_link_tail = (AdpT *)self;
+    if ((unsigned int)head->key >= (unsigned int)key) {
+        self->prev = 0;
+        self->next = head;
+        head->prev = self;
+        gobj_camera_dl_link_head = self;
+        return;
+    }
+    tail = gobj_camera_dl_link_tail;
+    if ((unsigned int)tail->key < (unsigned int)key) {
+        self->prev = tail;
+        self->next = 0;
+        tail->next = self;
+        gobj_camera_dl_link_tail = self;
         return;
     }
     cur = head;
-    next = (int *)cur[0xD];
-    while ((unsigned int)next[0x11] < (unsigned int)key) {
+    next = cur->next;
+    while ((unsigned int)next->key < (unsigned int)key) {
         cur = next;
-        next = (int *)cur[0xD];
+        next = cur->next;
     }
-    self[0xE] = (int)cur;
-    self[0xD] = cur[0xD];
-    cur[0xD] = (int)self;
-    ((int *)self[0xD])[0xE] = (int)self;
+    self->prev = cur;
+    self->next = cur->next;
+    cur->next = self;
+    self->next->prev = self;
 }
 
 inline void isysGObjCameraDlInit(void)
@@ -62,7 +56,7 @@ inline void isysGObjCameraDlInit(void)
     gobj_camera_dl_link_tail = 0;
 }
 
-static void cut_gobj_camera_dl_link(EnNode *gobj)
+static void cut_gobj_camera_dl_link(DLN *gobj)
 {
     if (gobj == 0) {
         debug_StdPrintfDummy("isys:null GObj\n");
@@ -78,169 +72,171 @@ static void cut_gobj_camera_dl_link(EnNode *gobj)
         gobj->next->prev = gobj->prev;
     }
 head_check:
-    if (gobj == (EnNode *)gobj_camera_dl_link_head) {
-        gobj_camera_dl_link_head = (int *)gobj->next;
+    if (gobj == gobj_camera_dl_link_head) {
+        gobj_camera_dl_link_head = gobj->next;
     }
-    if (gobj == (EnNode *)gobj_camera_dl_link_tail) {
-        gobj_camera_dl_link_tail = (AdpT *)gobj->prev;
+    if (gobj == gobj_camera_dl_link_tail) {
+        gobj_camera_dl_link_tail = gobj->prev;
     }
 }
 
-void isysGObjRemoveCameraDL(void *a0)
+void isysGObjRemoveCameraDL(DLN *self)
 {
-    cut_gobj_camera_dl_link((EnNode *)a0);
+    cut_gobj_camera_dl_link(self);
 }
 
 /* this list's own add_gobj_to_tail, as in isys/gobj */
-static void add_gobj_to_tail(int *self, unsigned int key)
+static void add_gobj_to_tail(DLN *self, unsigned int key)
 {
-    int *head;
-    int *tail;
-    int *cur;
+    DLN *head;
+    DLN *tail;
+    DLN *cur;
 
     debug_StdPrintfDummy("camera gop:%x\n", self);
 
-    self[0x11] = key;
+    self->key = key;
     head = gobj_camera_dl_link_head;
     if (head == 0) {
-        self[0xE] = 0;
-        self[0xD] = 0;
+        self->prev = 0;
+        self->next = 0;
         gobj_camera_dl_link_head = self;
-        gobj_camera_dl_link_tail = (AdpT *)self;
+        gobj_camera_dl_link_tail = self;
         debug_StdPrintfDummy("first entry\n");
         return;
     }
-    if (key < (unsigned int)head[0x11]) {
-        self[0xE] = 0;
-        self[0xD] = (int)head;
-        head[0xE] = (int)self;
+    if (key < (unsigned int)head->key) {
+        self->prev = 0;
+        self->next = head;
+        head->prev = self;
         gobj_camera_dl_link_head = self;
         debug_StdPrintfDummy("entry into head\n");
         return;
     }
-    tail = (int *)gobj_camera_dl_link_tail;
-    if (key >= (unsigned int)tail[0x11]) {
-        self[0xE] = (int)tail;
-        self[0xD] = 0;
-        tail[0xD] = (int)self;
-        gobj_camera_dl_link_tail = (AdpT *)self;
+    tail = gobj_camera_dl_link_tail;
+    if (key >= (unsigned int)tail->key) {
+        self->prev = tail;
+        self->next = 0;
+        tail->next = self;
+        gobj_camera_dl_link_tail = self;
         debug_StdPrintfDummy("entry into tail\n");
         return;
     }
 
     cur = head;
-    while (key >= (unsigned int)((int *)cur[0xD])[0x11]) {
-        cur = (int *)cur[0xD];
+    while (key >= (unsigned int)cur->next->key) {
+        cur = cur->next;
     }
 
-    self[0xE] = (int)cur;
-    self[0xD] = cur[0xD];
-    cur[0xD] = (int)self;
-    ((int *)self[0xD])[0xE] = (int)self;
+    self->prev = cur;
+    self->next = cur->next;
+    cur->next = self;
+    self->next->prev = self;
 }
 
-inline void isysGObjLinkCameraDLHead(int *self, int a1, int key, int a3, int a4)
+inline void isysGObjLinkCameraDLHead(DLN *self, void *dl, int key, int kindMask, int drawMask)
 {
-    self[0x12] = a1;
-    self[0x13] = a3;
-    self[0x14] = a4;
+    self->dl = dl;
+    self->kindMask = kindMask;
+    self->drawMask = drawMask;
     insert_camera_dl_by_key(self, key);
 }
 
-void isysGObjMoveCameraDL(int a0, int a1)
+void isysGObjMoveCameraDL(DLN *self, int key)
 {
-    cut_gobj_camera_dl_link((EnNode *)a0);
-    return add_gobj_to_tail(a0, a1);
+    cut_gobj_camera_dl_link(self);
+    return add_gobj_to_tail(self, key);
 }
 
-inline void isysGObjMoveCameraDLHead(int a0, int a1)
+inline void isysGObjMoveCameraDLHead(DLN *self, int key)
 {
-    cut_gobj_camera_dl_link((EnNode *)a0);
-    insert_camera_dl_by_key((int *)a0, a1);
+    cut_gobj_camera_dl_link(self);
+    insert_camera_dl_by_key(self, key);
 }
 
-inline void isysObjMoveCameraDLAfterGObj(AdpT *a0, AdpT *a1)
+inline void isysObjMoveCameraDLAfterGObj(DLN *self, DLN *obj)
 {
-    cut_gobj_camera_dl_link((EnNode *)a0);
-    a0->dlLink = a1->dlLink;
-    a0->dlPrev = a1;
-    a0->dlNext = a1->dlNext;
-    a1->dlNext = a0;
-    a0->dlKey = a1->dlKey;
-    if (a0->dlNext == 0) {
-        gobj_camera_dl_link_tail = a0;
+    cut_gobj_camera_dl_link(self);
+    self->id = obj->id;
+    self->prev = obj;
+    self->next = obj->next;
+    obj->next = self;
+    self->key = obj->key;
+    if (self->next == 0) {
+        gobj_camera_dl_link_tail = self;
     }
 }
 
-inline void isysObjMoveCameraDLBeforeGObj(char *a0, char *a1)
+inline void isysObjMoveCameraDLBeforeGObj(DLN *self, DLN *obj)
 {
-    int next;
-    cut_gobj_camera_dl_link((EnNode *)a0);
-    *(unsigned char *)(a0 + 0x40) = *(unsigned char *)(a1 + 0x40);
-    next = *(int *)(a1 + 0x38);
-    *(int *)(a0 + 0x34) = (int)a1;
-    *(int *)(a0 + 0x38) = next;
-    *(int *)(a1 + 0x38) = (int)a0;
-    *(int *)(a0 + 0x44) = *(int *)(a1 + 0x44);
-    if (*(int *)(a0 + 0x38) == 0) {
-        gobj_camera_dl_link_head = (int *)a0;
+    DLN *prev;
+    cut_gobj_camera_dl_link(self);
+    self->id = obj->id;
+    prev = obj->prev;
+    self->next = obj;
+    self->prev = prev;
+    obj->prev = self;
+    self->key = obj->key;
+    if (self->prev == 0) {
+        gobj_camera_dl_link_head = self;
     }
 }
 
-void isysGObjLinkCameraDL(char *a0, int a1, int a2, int a3, int a4)
+void isysGObjLinkCameraDL(DLN *self, void *dl, int key, int kindMask, int drawMask)
 {
     debug_StdPrintfDummy("LinkCameraDL in\n");
-    *(int *)(a0 + 0x48) = a1;
-    *(int *)(a0 + 0x4C) = a3;
-    *(int *)(a0 + 0x50) = a4;
-    add_gobj_to_tail(a0, a2);
+    self->dl = dl;
+    self->kindMask = kindMask;
+    self->drawMask = drawMask;
+    add_gobj_to_tail(self, key);
     debug_StdPrintfDummy("LinkCameraDL out\n");
 }
 
-void isysGObjLinkCameraDLAfterGObj(int *self, int a1, int a2, int a3, int *t0)
+void isysGObjLinkCameraDLAfterGObj(DLN *self, void *dl, int kindMask, int drawMask, DLN *obj)
 {
-    register int *t1 = self;
-    int v34, v44;
-    if (t0 == 0) {
+    register DLN *t1 = self;
+    DLN *next;
+    int key;
+    if (obj == 0) {
         debug_StdPrintfDummy("isys:null GObj\n");
         return;
     }
 
-    t1[0x13] = a2;
-    t1[0x14] = a3;
-    t1[0x12] = a1;
-    *((unsigned char *)t1 + 0x40) = *((unsigned char *)t0 + 0x40);
-    t1[0xE] = (int)t0;
-    v34 = t0[0xD];
-    v44 = t0[0x11];
-    t1[0xD] = v34;
-    t0[0xD] = (int)t1;
-    t1[0x11] = v44;
-    if (t1[0xD] == 0) {
-        gobj_camera_dl_link_tail = (AdpT *)t1;
+    t1->kindMask = kindMask;
+    t1->drawMask = drawMask;
+    t1->dl = dl;
+    t1->id = obj->id;
+    t1->prev = obj;
+    next = obj->next;
+    key = obj->key;
+    t1->next = next;
+    obj->next = t1;
+    t1->key = key;
+    if (t1->next == 0) {
+        gobj_camera_dl_link_tail = t1;
     }
 }
 
-void isysGObjLinkCameraDLBeforeGObj(int *self, int a1, int a2, int a3, int *t0)
+void isysGObjLinkCameraDLBeforeGObj(DLN *self, void *dl, int kindMask, int drawMask, DLN *obj)
 {
-    register int *t1 = self;
-    int v34, v44;
-    if (t0 == 0) {
+    register DLN *t1 = self;
+    DLN *next;
+    int key;
+    if (obj == 0) {
         debug_StdPrintfDummy("isys:null GObj\n");
         return;
     }
 
-    t1[0x13] = a2;
-    t1[0x14] = a3;
-    t1[0x12] = a1;
-    *((unsigned char *)t1 + 0x40) = *((unsigned char *)t0 + 0x40);
-    t1[0xE] = (int)t0;
-    v34 = t0[0xD];
-    v44 = t0[0x11];
-    t1[0xD] = v34;
-    t0[0xD] = (int)t1;
-    t1[0x11] = v44;
-    if (t1[0xD] == 0) {
-        gobj_camera_dl_link_tail = (AdpT *)t1;
+    t1->kindMask = kindMask;
+    t1->drawMask = drawMask;
+    t1->dl = dl;
+    t1->id = obj->id;
+    t1->prev = obj;
+    next = obj->next;
+    key = obj->key;
+    t1->next = next;
+    obj->next = t1;
+    t1->key = key;
+    if (t1->next == 0) {
+        gobj_camera_dl_link_tail = t1;
     }
 }

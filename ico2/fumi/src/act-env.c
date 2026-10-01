@@ -315,8 +315,9 @@ typedef struct { /* field names derived */
     float wallTop; /* 0x5A4 */
 } EnvSub;          /* derived name */
 
-extern int _FrontGV(float *a0, float *a1, void *ori, int deg);
-extern float GetCorrectDistance(float d, int n);
+/* defined in omori/src/gv.c, which gv.h does not declare */
+extern int _FrontGV(float *target, float *pos, float *dir, int deg);
+extern float GetCorrectDistance(int deg, float dist);
 extern void GetOrientOfCliffOfGObj(void *out, void *obj);
 /* same prototype as its definition in weapon.c; no header carries it */
 extern char *CheckSwapableWeapon(char *a0, float dist);
@@ -632,9 +633,9 @@ void ACTGetEnvironment(void *a0, void *a1, float *a2, EnvFlag *flags, ActEnv *en
     }
     if (dist != 3.40282347e+38f /* FLT_MAX */ && w564 != 0 && v1D8) {
         void *ori2 = test_CURRENTORIENT(a0);
-        int v1F8;
+        int wallDeg;
 
-        v1F8 = absRotyFromBack(ori2, env->wallOrient);
+        wallDeg = absRotyFromBack(ori2, env->wallOrient);
         env->wallWord = *(int *)(*(char **)((char *)env + 0x178) + 0x48);
         w564 = (char *)(CheckPureWallAttribute(a0, 0x1000) & 0xFF);
         env->wallObj = (int)obj;
@@ -673,7 +674,7 @@ void ACTGetEnvironment(void *a0, void *a1, float *a2, EnvFlag *flags, ActEnv *en
             }
         }
         if (stage_no == 16 && dist < 40.0f && 150.0f < (hgt < 0.0f ? -hgt : hgt) &&
-            v1F8 < 45 && *(int *)(obj + 0xC) == 0x11)
+            wallDeg < 45 && *(int *)(obj + 0xC) == 0x11)
             sub->flags20.ll |= (1ULL << 39);
         if (dist < 40.0f) {
             sub->flags18.ll |= (1ULL << 44);
@@ -854,8 +855,7 @@ void ACTGetEnvironment(void *a0, void *a1, float *a2, EnvFlag *flags, ActEnv *en
         if (CheckWallAttributeEdegWall((int)a0)) {
             kd = 30.0f;
         } else {
-            kd = GetCorrectDistance(motionKind[GOBJ_SUB(a0)->ctrl.motion].clipRadius + 2.0f,
-                                    v1F8);
+            kd = GetCorrectDistance(wallDeg, motionKind[GOBJ_SUB(a0)->ctrl.motion].clipRadius + 2.0f);
         }
         kd = (kd < 0.0f) ? 0.0f : ((30.0f < kd) ? 30.0f : kd);
         break;
@@ -899,10 +899,10 @@ void ACTGetEnvironment(void *a0, void *a1, float *a2, EnvFlag *flags, ActEnv *en
         (a0 == boyGObj || a0 == ((char *)girlGObj) || (130.0f < hgt && *(int *)(obj + 0xC) != 0x10)))
         *(unsigned long long *)((char *)sub + 0x488) |= 8;
     if (((int)(*(unsigned long long *)((char *)sub + 0x488) >> 3) & 1) && 65.0f < PosOrFar() &&
-        (float)v1F8 < 30.0f)
+        (float)wallDeg < 30.0f)
         *(unsigned long long *)((char *)sub + 0x478) |= (1ULL << 42);
     if (dist < 60.0f) {
-        int e = ((float)v1F8 < 30.0f) ? 1 : 0;
+        int e = ((float)wallDeg < 30.0f) ? 1 : 0;
 
         if (*(int *)(obj + 0xC) == 0x36) {
             if (!QueenBarrierInqBreakable())

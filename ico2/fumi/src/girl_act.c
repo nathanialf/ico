@@ -1214,7 +1214,8 @@ extern MotionDef motionKind[];
    definition */
 int GirlInfo[2];
 
-extern int _FrontGV(void *a, void *b, void *c, int deg);
+/* defined in omori/src/gv.c, which gv.h does not declare */
+extern int _FrontGV(float *target, float *pos, float *dir, int deg);
 extern void *GetBombTorchGObj(void *obj);
 
 /* A file-scope static helper, inlined in Danger_Box, its nested

@@ -219,16 +219,16 @@ static void add_gobj_to_head(GObj *g, int a1, int a2)
     g->next->prev = g;
 }
 
-void isysGObjMove(GObj *g, unsigned char a1, int a2)
+void isysGObjMove(GObj *g, unsigned char kind, int prio)
 {
     cut_gobj_link(g);
-    return add_gobj_to_tail(g, a1, a2);
+    return add_gobj_to_tail(g, kind, prio);
 }
 
-void isysGObjMoveHead(GObj *g, unsigned char a1, int a2)
+void isysGObjMoveHead(GObj *g, unsigned char kind, int prio)
 {
     cut_gobj_link(g);
-    return add_gobj_to_head(g, a1, a2);
+    return add_gobj_to_head(g, kind, prio);
 }
 
 /* link g into other's list after other, taking its list and key */
@@ -452,12 +452,12 @@ inline void *isysGObjAddHead(void (*fn)(GObj *), int a1, int a2)
     return g;
 }
 
-inline void *isysGObjSearchFromObjLayoutID(int a0)
+inline void *isysGObjSearchFromObjLayoutID(int layoutId)
 {
     unsigned int i;
     for (i = 0; i < gobjMax; i++) {
         GObj *e = &gobjTable[i];
-        if (e->self != 0 && e->labelType == 1 && e->labelId == a0)
+        if (e->self != 0 && e->labelType == 1 && e->labelId == layoutId)
             return e;
     }
     return 0;
@@ -495,12 +495,12 @@ inline void *isysGObjSearchFromObjKindID_next(GObj *g)
     return g->kindNext;
 }
 
-inline void *isysGObjSearchFromLabelTypeID(int a0)
+inline void *isysGObjSearchFromLabelTypeID(int labelType)
 {
     unsigned int i;
     for (i = 0; i < gobjMax; i++) {
         GObj *e = &gobjTable[i];
-        if (e->self != 0 && e->labelType == a0)
+        if (e->self != 0 && e->labelType == labelType)
             return e;
     }
     return 0;
@@ -541,11 +541,11 @@ set_path:
     active_gobj_link |= (1 << bit);
 }
 
-inline void isysGObjActiveDlLink(int a0, int a1)
+inline void isysGObjActiveDlLink(int link, int on)
 {
-    if (a1 == 0) {
-        active_gobj_dl_link &= ~(1 << a0);
+    if (on == 0) {
+        active_gobj_dl_link &= ~(1 << link);
     } else {
-        active_gobj_dl_link |= (1 << a0);
+        active_gobj_dl_link |= (1 << link);
     }
 }

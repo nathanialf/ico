@@ -14,13 +14,13 @@
  * out-of-line copies at the end of the object (first-declaration order). */
 void iosOmExeEachGObj(int idx, void (*fn)(int *, int), int arg);
 void iosOmExeEachGObjAll(void (*fn)(int *, int), int arg);
-int iosOmReturnExeEachGObj(int a0, int (*fn)(int *, int), int arg, int flag);
+int iosOmReturnExeEachGObj(int link, int (*fn)(int *, int), int arg, int flag);
 void iosOmGetGObjStatus(int *total, int *used);
 int *iosOmSearchGObjId(int idx, int target);
-int *iosOmSearchGObjIdAll(int a0);
+int *iosOmSearchGObjIdAll(int id);
 void iosOmBeforeFuncStandard(void);
 int iosOmSendMail(GObj *g, int type, void *arg);
-int iosOmSendMailLink(int a0, int val5, int val6);
+int iosOmSendMailLink(int link, int val5, int val6);
 int iosOmExeMail(void (*func)(IosMail));
 void iosOmInit(void);
 void iosOmMain(void);

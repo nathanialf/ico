@@ -56,9 +56,9 @@ inline void iosOmExeEachGObjAll(void (*fn)(int *, int), int arg)
     } while (i < 8);
 }
 
-inline int iosOmReturnExeEachGObj(int a0, int (*fn)(int *, int), int arg, int flag)
+inline int iosOmReturnExeEachGObj(int link, int (*fn)(int *, int), int arg, int flag)
 {
-    int *node = gobj_link_head[a0];
+    int *node = gobj_link_head[link];
     int ret = 0;
     if (node != 0) {
         do {
@@ -88,7 +88,7 @@ inline int *iosOmSearchGObjId(int idx, int target)
     return 0;
 }
 
-inline int *iosOmSearchGObjIdAll(int a0)
+inline int *iosOmSearchGObjIdAll(int id)
 {
     int i;
     for (i = 0; i < 8; i++) {
@@ -96,7 +96,7 @@ inline int *iosOmSearchGObjIdAll(int a0)
         int *found;
         if (p != 0) {
             do {
-                if (p[0] == a0) {
+                if (p[0] == id) {
                     found = p;
                     goto check;
                 }
@@ -128,9 +128,9 @@ inline int iosOmSendMail(GObj *g, int type, void *arg)
     return 0;
 }
 
-inline int iosOmSendMailLink(int a0, int val5, int val6)
+inline int iosOmSendMailLink(int link, int val5, int val6)
 {
-    int *node = gobj_link_head[a0];
+    int *node = gobj_link_head[link];
     int ret = 0;
     if (node != 0) {
         do {
@@ -254,17 +254,8 @@ void iosOmMain(void)
     _iosOmMain();
 }
 
-/* the camera list node the DL walk hangs off (gobj_camera_dl_link_head) and the per-kind
-   GObj list heads (gobj_dl_link_head) */
-typedef struct OmCam { /* field names derived */
-    char pad0[52];
-    struct OmCam *next; /* 0x34 */
-    char _p38[0x48 - 0x38];
-    void (*dl)(struct OmCam *); /* 0x48 */
-    int kindMask;               /* 0x4C */
-    int drawMask;               /* 0x50 */
-} OmCam;                        /* derived name */
-
+/* the GObj the per-kind lists (gobj_dl_link_head) hold, as the DL walk under
+   each camera node (gobj_camera_dl_link_head) reads it */
 typedef struct OmObj { /* field names derived */
     char pad0[52];
     struct OmObj *next; /* 0x34 */
@@ -278,7 +269,7 @@ typedef struct OmObj { /* field names derived */
 
 void iosOmCreateDL(void)
 {
-    OmCam *c;
+    DLN *c;
     OmObj *g;
     int i;
 

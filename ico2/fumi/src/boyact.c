@@ -57,7 +57,8 @@ typedef union BoyVal { /* field names derived */
 
 /* motionOrientManager.h declares none of the motion tables */
 extern MotionDef motionKind[];
-extern void GetChainNearestNodePosition(float *out, void *g, float *ref);
+/* defined in omori/src/chain.c, which chain.h does not declare */
+extern int GetChainNearestNodePosition(float *out, GObj *gobj, float *p);
 
 /* the motion-def row of an actor's current motion */
 #define CHAINROW(self) (GOBJ_SUB(self)->ctrl.motion + motionKind) /* derived name */
@@ -1794,7 +1795,8 @@ static void PrivInsCamProcess(void)
     }
 }
 
-extern int isBottomOfChain(void *chain);
+/* defined in omori/src/chain.c, which chain.h does not declare */
+extern int isBottomOfChain(GObj *chain);
 /* as in camera-root.h, which this TU does not include (GetCurrentCameraSet2 differs) */
 extern void Camctrl_SetTarget(int a0, int a1, int a2);
 
@@ -1974,7 +1976,7 @@ void subBoyCollision(GObj *volatile a0)
                     ACTSendMailCorrect(a0, 0x14A);
                 } else if (100 < sub->stickY - 0x80) {
                     ACTSendMailCorrect(a0, 0x14B);
-                    if (isBottomOfChain((void *)sub->chain)) {
+                    if (isBottomOfChain(sub->chain)) {
                         ACTSendMailCorrect(a0, 0x9D);
                     }
                 } else if (GOBJ_SUB(a0)->ctrl.motion == 0x76) {
@@ -2465,9 +2467,6 @@ inline void actBoyFall(GObj *volatile a0)
         _ACTWait(1);
     }
 }
-
-/* as in attackhit.c, whose header does not declare it */
-extern void BoyAttackCenter(GObj *gobj);
 
 /* the nearest enemy in front of the actor, which ACTSearchEnemy and
    actBoyAttack inline */
@@ -3747,8 +3746,8 @@ inline void MakeCharacterPacket(void)
     *(BoyKidnapWork *)characterPacket = characterPacketDefault;
     if (boyGObj != 0) {
         sub = GOBJ_ACT(boyGObj);
-        if ((char *)sub->weapon != 0) {
-            *(int *)(pkt + 0x8) = *(int *)((char *)sub->weapon + 0x8);
+        if (sub->weapon != 0) {
+            *(int *)(pkt + 0x8) = sub->weapon->labelId;
         }
         if (sub->curItem != 0) {
             *(int *)(pkt + 0xC) = *(int *)(sub->curItem + 0x8);
@@ -3866,19 +3865,19 @@ inline void subBoyBrainMain(int a0)
     }
 }
 
-inline void SetBoyInfo(int *a0, int *a1)
+inline void SetBoyInfo(GObj *weapon, GObj *item)
 {
     int n;
     int i;
-    if (a0 != 0) {
-        ((int *)boyInfo)[0] = a0[2];
+    if (weapon != 0) {
+        ((int *)boyInfo)[0] = weapon->labelId;
     } else {
         ((int *)boyInfo)[0] = 0;
     }
     i = 0;
     n = 1;
-    if (a1 != i) {
-        ((int *)boyInfo)[n] = a1[2];
+    if (item != i) {
+        ((int *)boyInfo)[n] = item->labelId;
     } else {
         ((int *)boyInfo)[n] = i;
     }

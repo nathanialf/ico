@@ -1140,7 +1140,7 @@ void actEnemyKidnapEnd(GObj *volatile a0)
                             stage_SetParentOfGObj(502, &q);
                             n = (GetEfStageCameraTargetID() != 0) ? 120 : 300;
                             r = n * ((0x3C - systemStatus[0] * 10) / systemStatus[1]) / 60;
-                            StartGameOverEffect((int)test_CURRENTROOT(target),
+                            StartGameOverEffect(test_CURRENTROOT(target),
                                                 (best < (float)(r * 50)) ? 50.0f : best / (float)r);
                             _ACTRun(r);
                         }

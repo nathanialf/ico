@@ -68,7 +68,7 @@ inline void afterBoyTakeWeapon(GObj *volatile a0);
 inline void afterBoyHangG3M(int x);
 inline void afterBoyRescueGirlBhang(GObj *volatile a0);
 inline void subBoyBrainMain(int a0);
-void SetBoyInfo(int *a0, int *a1);
+void SetBoyInfo(GObj *weapon, GObj *item);
 void GetBoyRootPositionForCamera(float *out, struct GObj *gobj);
 void Boy_Init(void);
 void ACTDispLwsBoyStonize_InQueenStage(void *self);

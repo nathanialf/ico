@@ -99,7 +99,7 @@ typedef struct { /* field names derived */
 } __attribute__((aligned(16))) Vec4S;
 
 /* as in boyact.h, which this TU does not include (PrivInsCamSet differs) */
-extern void SetBoyInfo(int *a0, int *a1);
+extern void SetBoyInfo(GObj *weapon, GObj *item);
 /* as in boyact.h, which this TU does not include (PrivInsCamSet differs) */
 extern void BoyInfoUpdate_StageChange(void);
 
@@ -315,8 +315,8 @@ static inline int getExitIndexOfStage(int stage) /* derived name */
 
 void ACTGame_SetActors_Debug(int stage, unsigned char flag)
 {
-    char *boy;
-    char *girl;
+    GObj *boy;
+    GObj *girl;
     int idx;
 
     boy = 0;
@@ -326,9 +326,9 @@ void ACTGame_SetActors_Debug(int stage, unsigned char flag)
     if (flag != 0) {
         if (boyGObj != 0) {
             Act *s = GOBJ_ACT(boyGObj);
-            boy = (char *)s->weapon;
+            boy = s->weapon;
             girl = s->curItem;
-            SetBoyInfo((int *)boy, (int *)girl);
+            SetBoyInfo(boy, girl);
             BoyInfoUpdate_StageChange();
         }
     }
@@ -366,12 +366,10 @@ void ACTGame_SetActors_Debug(int stage, unsigned char flag)
                 }
                 if (cur == 54) {
                     if (boy != 0) {
-                        gamesysObjInfoPosNewStageSet(*(int *)(boy + 8), *(int *)(boy + 0xC), stage,
-                                                     pos, rot);
+                        gamesysObjInfoPosNewStageSet(boy->labelId, boy->kind, stage, pos, rot);
                     }
                     if (girl != 0) {
-                        gamesysObjInfoPosNewStageSet(*(int *)(girl + 8), *(int *)(girl + 0xC),
-                                                     stage, pos, rot);
+                        gamesysObjInfoPosNewStageSet(girl->labelId, girl->kind, stage, pos, rot);
                     }
                 }
             }
@@ -3108,7 +3106,7 @@ static void ACTItemWatchMotion(GObj *self)
 
     if (self == boyGObj && itemWatchOff == 0) {
         *(int *)((char *)sub + 0x154) = sub->heldItem.i;
-        SetBoyInfo((void *)sub->weapon, (void *)sub->heldItem.p);
+        SetBoyInfo(sub->weapon, (void *)sub->heldItem.p);
     }
     if (self == (girlGObj)) {
         *(int *)((char *)sub + 0x154) = sub->heldItem.i;

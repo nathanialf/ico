@@ -16,8 +16,8 @@ typedef struct DLN { /* field names derived */
     unsigned char id;
     char pad41[3];
     int key;
-    void *dl; /* 0x48, the display function the object manager calls */
-    char pad4C[4];
+    void (*dl)(struct DLN *); /* 0x48, the display function the object manager calls */
+    int kindMask; /* 0x4C, a camera node's object kinds, one bit per gobj_dl_link_head list */
     int drawMask; /* 0x50, ANDed with the camera's mask to pick the cameras that draw it */
 } DLN;            /* derived name */
 
@@ -26,6 +26,6 @@ typedef struct DLN { /* field names derived */
 void isysGObjDlInit(void);
 void isysGObjMoveObjDLAfterGObj(DLN *self, DLN *obj);
 void isysGObjMoveObjDLBeforeGObj(DLN *self, DLN *obj);
-void isysGObjLinkObjDL(void *a0, void *a1, unsigned char a2, int a3, unsigned int a4);
+void isysGObjLinkObjDL(void *self, void *dl, unsigned char kind, int key, unsigned int drawMask);
 
 #endif /* GOBJ_DL_H */

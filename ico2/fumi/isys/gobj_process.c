@@ -11,18 +11,18 @@ static int procMax; /* derived name */
 #include "thread.h"
 #include "ios.h"
 
-void isysGObjProcessInit(unsigned int a0)
+void isysGObjProcessInit(unsigned int max)
 {
-    isysGObjProcessAlloc(a0);
+    isysGObjProcessAlloc(max);
 }
 
-inline void isysGObjProcessAlloc(unsigned int a0)
+inline void isysGObjProcessAlloc(unsigned int max)
 {
-    void *ret = iosMallocDebug(ios_partition_isys, a0 * 0x94, "isys/gobj_process.c", 73);
+    void *ret = iosMallocDebug(ios_partition_isys, max * 0x94, "isys/gobj_process.c", 73);
     unsigned int i;
-    procMax = a0;
+    procMax = max;
     procPool = (char *)ret;
-    for (i = 0; i < a0; i++) {
+    for (i = 0; i < max; i++) {
         ((GProc *)(procPool + i * 0x94))->self = 0;
     }
 }
@@ -50,13 +50,14 @@ static inline GProc *alloc_gobj_process(void) /* derived name */
     return (GProc *)(procPool + i * 0x94);
 }
 
-static GProc *isysGObjProcAdd_(GObj *a0, GObj *a1, void (*a2)(), unsigned char a3, int a4, long a5)
+static GProc *isysGObjProcAdd_(GObj *gobj, GObj *arg, void (*func)(), unsigned char noThread,
+                               int pri, long stackSize)
 {
     GProc *p;
     GProc *h;
     GProc *t;
 
-    if (a2 == 0) {
+    if (func == 0) {
         return 0;
     }
     p = alloc_gobj_process();
@@ -65,37 +66,38 @@ static GProc *isysGObjProcAdd_(GObj *a0, GObj *a1, void (*a2)(), unsigned char a
         return 0;
     }
     p->self = p;
-    if (a3 == 0) {
-        iosThreadCreateS(&p->thread, 1, a2, a1 ? (int)a1 : (int)p, ios_partition_isys, a5, a4);
+    if (noThread == 0) {
+        iosThreadCreateS(&p->thread, 1, func, arg ? (int)arg : (int)p, ios_partition_isys,
+                         stackSize, pri);
         iosThreadStart(&p->thread);
         p->func = 0;
     } else {
-        p->func = a2;
+        p->func = func;
     }
-    p->noThread = a3;
-    p->owner = a0;
+    p->noThread = noThread;
+    p->owner = gobj;
     p->active = 1;
-    p->priority = a4;
-    h = a0->procHead;
+    p->priority = pri;
+    h = gobj->procHead;
     if (h == 0) {
         p->next = 0;
         p->prev = 0;
-        a0->procHead = p;
-        a0->procTail = p;
-    } else if ((unsigned int)a4 < h->priority) {
+        gobj->procHead = p;
+        gobj->procTail = p;
+    } else if ((unsigned int)pri < h->priority) {
         p->next = 0;
-        p->prev = a0->procHead;
+        p->prev = gobj->procHead;
         p->prev->next = p;
-        a0->procHead = p;
+        gobj->procHead = p;
     } else {
-        t = a0->procTail;
-        if (!((unsigned int)a4 < t->priority)) {
+        t = gobj->procTail;
+        if (!((unsigned int)pri < t->priority)) {
             p->next = t;
             p->prev = 0;
             t->prev = p;
-            a0->procTail = p;
+            gobj->procTail = p;
         } else {
-            while (!((unsigned int)a4 < h->prev->priority)) {
+            while (!((unsigned int)pri < h->prev->priority)) {
                 h = h->prev;
             }
             p->next = h;
@@ -107,19 +109,19 @@ static GProc *isysGObjProcAdd_(GObj *a0, GObj *a1, void (*a2)(), unsigned char a
     return p;
 }
 
-inline GProc *isysGObjProcAddGOppArg(GObj *a0, void (*a1)(), int a2, int a3)
+inline GProc *isysGObjProcAddGOppArg(GObj *gobj, void (*func)(), int noThread, int pri)
 {
-    return isysGObjProcAdd_(a0, 0, a1, a2 & 0xFF, a3, 0x1800);
+    return isysGObjProcAdd_(gobj, 0, func, noThread & 0xFF, pri, 0x1800);
 }
 
-inline GProc *isysGObjProcAdd(GObj *a0, void (*a1)(), int a2, int a3)
+inline GProc *isysGObjProcAdd(GObj *gobj, void (*func)(), int noThread, int pri)
 {
-    return isysGObjProcAdd_(a0, a0, a1, a2 & 0xFF, a3, 0x1800);
+    return isysGObjProcAdd_(gobj, gobj, func, noThread & 0xFF, pri, 0x1800);
 }
 
-inline GProc *isysGObjProcAddS(GObj *a0, void (*a1)(), int a2, int a3, long a4)
+inline GProc *isysGObjProcAddS(GObj *gobj, void (*func)(), int noThread, int pri, long stackSize)
 {
-    return isysGObjProcAdd_(a0, a0, a1, a2 & 0xFF, a3, a4);
+    return isysGObjProcAdd_(gobj, gobj, func, noThread & 0xFF, pri, stackSize);
 }
 
 inline GProc *isysGObjProcAddSGOppArg(GObj *a, void (*b)(), int c, int d, int e)
@@ -143,11 +145,11 @@ inline void isysGObjProcPauseAll(GObj *p)
     }
 }
 
-inline void isysGObjProcPausePtr(void *a0, int a1)
+inline void isysGObjProcPausePtr(void *gobj, int func)
 {
-    GProc *p = ((GObj *)a0)->procHead;
+    GProc *p = ((GObj *)gobj)->procHead;
     while (p != 0) {
-        if (p->func == a1) {
+        if (p->func == func) {
             p->active = 0;
         }
         p = p->prev;
@@ -159,20 +161,20 @@ inline void isysGObjProcActive(char *self)
     ((GProc *)self)->active = 1;
 }
 
-inline void isysGObjProcActiveAll(void *a0)
+inline void isysGObjProcActiveAll(void *gobj)
 {
-    GProc *p = ((GObj *)a0)->procHead;
+    GProc *p = ((GObj *)gobj)->procHead;
     while (p != 0) {
         p->active = 1;
         p = p->prev;
     }
 }
 
-inline void isysGObjProcActivePtr(void *a0, int a1)
+inline void isysGObjProcActivePtr(void *gobj, int func)
 {
-    GProc *p = ((GObj *)a0)->procHead;
+    GProc *p = ((GObj *)gobj)->procHead;
     while (p != 0) {
-        if (p->func == a1) {
+        if (p->func == func) {
             p->active = 1;
         }
         p = p->prev;
@@ -220,19 +222,19 @@ void isysGObjProcRemove(GProc *p)
     return iosThreadDestroy(&p->thread);
 }
 
-inline void isysGObjProcRemoveAll(void *a0)
+inline void isysGObjProcRemoveAll(void *gobj)
 {
-    GProc *p = ((GObj *)a0)->procHead;
+    GProc *p = ((GObj *)gobj)->procHead;
     while (p != 0) {
         isysGObjProcRemove(p);
         p = p->prev;
     }
 }
 
-inline void isysGObjProcThreadSleep(int a0)
+inline void isysGObjProcThreadSleep(int frames)
 {
-    while (a0 != 0) {
+    while (frames != 0) {
         iosThreadStop(0);
-        a0--;
+        frames--;
     }
 }

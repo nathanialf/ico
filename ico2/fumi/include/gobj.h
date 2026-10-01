@@ -17,8 +17,8 @@ struct GObj;
    object back return it as the untyped handle every caller takes. */
 void isysGObjInit(int n);
 void isysGObjRemoveAll(void);
-void isysGObjMove(struct GObj *g, unsigned char a1, int a2);
-void isysGObjMoveHead(struct GObj *g, unsigned char a1, int a2);
+void isysGObjMove(struct GObj *g, unsigned char kind, int prio);
+void isysGObjMoveHead(struct GObj *g, unsigned char kind, int prio);
 void *isysGObjAddAfterGObj(void (*fn)(struct GObj *), struct GObj *other);
 void *isysGObjAddBeforeGObj(void (*fn)(struct GObj *), struct GObj *other);
 int isysGetNbAllocedGObjs(void);
@@ -30,14 +30,14 @@ void isysGObjMoveAfterGObj(struct GObj *self, struct GObj *other);
 void isysGObjMoveBeforeGObj(struct GObj *self, struct GObj *other);
 void *isysGObjAdd(void (*fn)(struct GObj *), int a1, int a2);
 void *isysGObjAddHead(void (*fn)(struct GObj *), int a1, int a2);
-void *isysGObjSearchFromObjLayoutID(int a0);
+void *isysGObjSearchFromObjLayoutID(int layoutId);
 void *isysGObjSearchFromObjKindID_begin(int kind);
 void *isysGObjSearchFromObjKindID_next(struct GObj *g);
-void *isysGObjSearchFromLabelTypeID(int a0);
+void *isysGObjSearchFromLabelTypeID(int labelType);
 void *isysGObjGetExist_begin(void);
 void *isysGObjGetExist_next(struct GObj *start);
 void isysGObjActiveLink(int bit, int set);
-void isysGObjActiveDlLink(int a0, int a1);
+void isysGObjActiveDlLink(int link, int on);
 extern int debugKindOld;
 
 #endif /* GOBJ_H */

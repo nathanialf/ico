@@ -17,9 +17,9 @@ int active_gobj_link;
 
 int active_gobj_dl_link;
 
-int *gobj_camera_dl_link_head;
+struct DLN *gobj_camera_dl_link_head;
 
-int *gobj_camera_dl_link_tail;
+struct DLN *gobj_camera_dl_link_tail;
 
 GObj *isysCurrentGObj;
 

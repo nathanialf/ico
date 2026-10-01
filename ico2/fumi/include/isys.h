@@ -18,8 +18,8 @@ extern int *gobj_dl_link_head[8];
 extern int *gobj_dl_link_tail[8];
 extern int active_gobj_link;
 extern int active_gobj_dl_link;
-extern int *gobj_camera_dl_link_head;
-extern int *gobj_camera_dl_link_tail;
+extern struct DLN *gobj_camera_dl_link_head;
+extern struct DLN *gobj_camera_dl_link_tail;
 extern GObj *isysCurrentGObj;
 extern void *isysCurrentGObjProcess;
 

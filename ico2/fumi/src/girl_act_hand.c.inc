@@ -111,7 +111,7 @@ void HandMgr_Speed(float f)
     }
     if (90.0f < handmgr.f_50) {
         float r;
-        if ((int)GOBJ_ACT(boyGObj)->curItem != 0) {
+        if (GOBJ_ACT(boyGObj)->curItem != 0) {
             r = 2.0f;
         } else if (systemStatus[0] == 1) {
             r = (handmgr.f_50 - 90.0f) / 120.0f + 1.1f;

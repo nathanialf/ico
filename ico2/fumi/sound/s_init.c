@@ -257,11 +257,11 @@ found:
     return r;
 }
 
-inline SqEntry *soundDataAreaGet(int a0, int a1, int a2, int a3)
+inline SqEntry *soundDataAreaGet(int no, int bank, int mode, int seg)
 {
     SqEntry *e;
-    int hi = a1 << 16;
-    int key = (a0 & 0xFFFF) | hi;
+    int hi = bank << 16;
+    int key = (no & 0xFFFF) | hi;
 
     e = soundDataAreaSearch(&key);
     if (e == 0) {
@@ -272,10 +272,10 @@ inline SqEntry *soundDataAreaGet(int a0, int a1, int a2, int a3)
             __assert(__FILE__, 334, "0");
         }
         memset(e, 0, 0x30);
-        e->num = a0;
-        e->bank = a1;
-        e->seg = a3;
-        e->mode = a2;
+        e->num = no;
+        e->bank = bank;
+        e->seg = seg;
+        e->mode = mode;
         e->vab = -1;
     }
     return e;
@@ -398,11 +398,11 @@ void soundBufAlloc(SqEntry *self, int size)
     self->spu.buf.size = size;
 }
 
-void soundBufSegFree(int a0, int a1)
+void soundBufSegFree(int seg, int mode)
 {
-    switch (a0) {
+    switch (seg) {
     case 1:
-        switch (a1) {
+        switch (mode) {
         case 1:
             bufSeg1Next = bufSeg0Next;
             return;
@@ -416,7 +416,7 @@ void soundBufSegFree(int a0, int a1)
         __assert(__FILE__, 472, "0");
         return;
     case 2:
-        if (a1 == 0) {
+        if (mode == 0) {
             bufSeg2Next = bufSeg0Next;
             return;
         }
@@ -462,20 +462,20 @@ inline void soundBufAdpcmFree(SqEntry *self)
     self->spu.chMask = 0;
 }
 
-char *soundBDDataSet(int a0, int a1, int a2, int a3, int a4, int a5)
+SqEntry *soundBDDataSet(int bd, int no, int bank, int mode, int seg, int size)
 {
     int off = 0;
     SqEntry *e;
     int chunk;
 
-    e = soundDataAreaGet(a1, a2, a3, a4);
-    e->bd = a0;
-    a5 = (((a5 - 1) / 64) + 1) * 64;
-    soundBufAlloc(e, a5);
-    while (a5 > 0) {
-        chunk = (a5 > 0x78000) ? 0x78000 : a5;
+    e = soundDataAreaGet(no, bank, mode, seg);
+    e->bd = bd;
+    size = (((size - 1) / 64) + 1) * 64;
+    soundBufAlloc(e, size);
+    while (size > 0) {
+        chunk = (size > 0x78000) ? 0x78000 : size;
         SgGetDmaTransferStatus(1);
-        Ee2Iop(a0 + off, soundIopHeapAddrs, chunk);
+        Ee2Iop(bd + off, soundIopHeapAddrs, chunk);
         if (chunk >= 65) {
             SgDmaWrite(soundIopHeapAddrs, e->spu.buf.addr + off, chunk);
         } else {
@@ -484,30 +484,30 @@ char *soundBDDataSet(int a0, int a1, int a2, int a3, int a4, int a5)
         if (e->mode == 1) {
             SgGetDmaTransferStatus(1);
         }
-        a5 = a5 - chunk;
+        size = size - chunk;
         off = off + chunk;
     }
     soundDataOpenChk(e);
-    return (char *)e;
+    return e;
 }
 
-inline char *soundHDDataSet(void *hd, int a1, int a2, int a3, int a4)
+inline SqEntry *soundHDDataSet(void *hd, int no, int bank, int mode, int seg)
 {
-    SqEntry *e = soundDataAreaGet(a1, a2, a3, a4);
+    SqEntry *e = soundDataAreaGet(no, bank, mode, seg);
     e->hd = hd;
     soundDataOpenChk(e);
-    return (char *)e;
+    return e;
 }
 
-inline char *soundSQDataSet(void *sq, int a1, int a2, int a3, int a4)
+inline SqEntry *soundSQDataSet(void *sq, int no, int bank, int mode, int seg)
 {
-    SqEntry *e = soundDataAreaGet(a1, a2, a3, a4);
+    SqEntry *e = soundDataAreaGet(no, bank, mode, seg);
     e->sq = sq;
     soundDataOpenChk(e);
-    return (char *)e;
+    return e;
 }
 
-void soundDataOpen(AdpcmOpenReq *work, int mode, int a2, int a3, int a4)
+void soundDataOpen(AdpcmOpenReq *work, int mode, int no, int ch, int loopNum)
 {
     work->mode = mode;
     switch (mode) {
@@ -520,7 +520,7 @@ void soundDataOpen(AdpcmOpenReq *work, int mode, int a2, int a3, int a4)
         __assert(__FILE__, 617, "0");
         break;
     case 2:
-        AdpcmOpen(work, a2, a3, a4);
+        AdpcmOpen(work, no, ch, loopNum);
         break;
     default:
         debug_assert(__FILE__, 623);
@@ -528,7 +528,7 @@ void soundDataOpen(AdpcmOpenReq *work, int mode, int a2, int a3, int a4)
     }
 }
 
-int *soundDataOpenSync(AdpcmOpenReq *work)
+SqEntry *soundDataOpenSync(AdpcmOpenReq *work)
 {
     switch (work->mode) {
     case 0:
@@ -548,9 +548,8 @@ int *soundDataOpenSync(AdpcmOpenReq *work)
     return 0;
 }
 
-void soundDataClose(char *obj)
+void soundDataClose(SqEntry *self)
 {
-    SqEntry *self = (SqEntry *)obj;
     int i;
     short h;
 
@@ -582,22 +581,21 @@ void soundDataClose(char *obj)
     *(int *)self = 0;
 }
 
-void soundDataSegAllClose(int a0, int a1)
+void soundDataSegAllClose(int seg, int mode)
 {
     int i;
     char *tbl;
     /* base in the loop header, as its sibling
        soundDataSegNextStageNotUseClose carries it */
     for (i = 0, tbl = (char *)soundDataTbl; i < 768; i += 0x30) {
-        char *p = tbl + i;
-        if (*(int *)p != 0 && *(unsigned short *)(p + 6) == a0 &&
-            *(unsigned short *)(p + 4) == a1) {
+        SqEntry *p = (SqEntry *)(tbl + i);
+        if (*(int *)p != 0 && p->seg == seg && p->mode == mode) {
             soundDataClose(p);
         }
     }
-    if (a1 == 2)
+    if (mode == 2)
         return;
-    soundBufSegFree(a0, a1);
+    soundBufSegFree(seg, mode);
 }
 
 static void soundSeVolSet(SeSlot *self)
@@ -1252,8 +1250,8 @@ inline void soundVBlank(void)
 {
     int i;
     for (i = 0; i < 768; i += 0x30) {
-        char *p = (char *)soundDataTbl + i;
-        if (*(unsigned short *)(p + 2) == 0x11) {
+        SqEntry *p = (SqEntry *)((char *)soundDataTbl + i);
+        if (p->bank == 17) {
             adpcmTickProc2(p);
         }
     }
@@ -1450,21 +1448,21 @@ void soundDataSegNextStageNotUseClose(int a0, int a1)
     /* base in the loop header, not in a declaration of its own: that is what
        keeps the walk on the entry pointer and the test against the table end */
     for (i = 0, tbl = (char *)soundDataTbl; i < 768; i += 0x30) {
-        char *p = tbl + i;
-        if (*(int *)p != 0 && *(unsigned short *)(p + 6) == 1 && *(unsigned short *)(p + 4) == a0) {
+        SqEntry *p = (SqEntry *)(tbl + i);
+        if (*(int *)p != 0 && p->seg == 1 && p->mode == a0) {
             found = 1;
             switch (a0) {
             case 0:
                 break;
             case 1:
-                if (stageData[a1].seSegData1 != *(unsigned short *)p) {
+                if (stageData[a1].seSegData1 != p->num) {
                     closed++;
                     soundDataClose(p);
                     soundBufSegFree(1, 1);
                 }
                 break;
             case 2:
-                if (stageData[a1].seSegData2 != *(unsigned short *)p) {
+                if (stageData[a1].seSegData2 != p->num) {
                     soundDataClose(p);
                 }
                 break;
