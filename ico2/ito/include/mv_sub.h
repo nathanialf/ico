@@ -16,7 +16,6 @@
  * gcc 2.9 emits the deferred out-of-line copy of a plain-inline function in
  * first-declaration order, so this is the order mv_sub.c's inline tail has. */
 int copy2area(char *a0, int a1, char *a2, int a3, char *a4, int a5, char *a6, int a7);
-
-void ErrMessage(int a0);
+void ErrMessage(char *a0);
 
 #endif /* MV_SUB_H */

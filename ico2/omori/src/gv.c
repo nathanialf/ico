@@ -3,9 +3,7 @@
 #include <string.h>
 #include <math.h>
 #include "matrixDrive.h"
-
-/* kept local: void (float *, float *, float *, float) here, void (void *, void *, void *, float) in libvu0.h */
-extern void sceVu0InterVector(float *dst, float *a, float *b, float t);
+#include <libvu0.h>
 
 void _InterGV(float *dst, float *a, float *b, float ta, float tb)
 {
@@ -14,11 +12,6 @@ void _InterGV(float *dst, float *a, float *b, float ta, float tb)
     }
     sceVu0InterVector(dst, a, b, tb / (ta + tb));
 }
-
-/* kept local: void (float *) here, void (void *) in libvu0.h */
-extern void sceVu0UnitMatrix(float *m);
-/* kept local: void (float *, float *, float *) here, void (void *, void *, void *) in libvu0.h */
-extern void sceVu0ApplyMatrix(float *dst, float *m, float *src);
 
 void GetMatrixDirectionToZ(float *out, float *dir)
 {
@@ -75,11 +68,6 @@ int _InterRotGV(float *dst, float *cur, float *tgt, int step)
     dst[2] = buf[2];
     return hit;
 }
-
-/* kept local: agrees with libvu0.h, which this TU does not include (sceVu0ApplyMatrix, sceVu0InterVector differ) */
-extern float sceVu0InnerProduct(void *a0, void *a1);
-/* kept local: agrees with libvu0.h, which this TU does not include (sceVu0ApplyMatrix, sceVu0InterVector differ) */
-extern void sceVu0SubVector();
 
 float _DistxzSqGV(void *a0, void *a1)
 {
@@ -150,11 +138,6 @@ int _AbsRotyGV(void *a0, void *a1)
     return (d < 0) ? -d : d;
 }
 
-/* kept local: void (float *, float *, float) here, void (void *, void *, float) in libvu0.h */
-extern void sceVu0RotMatrixY(float *dst, float *src, float a);
-/* kept local: void (float *, float *, float *) here, void (void *, void *, void *) in libvu0.h */
-extern void sceVu0ApplyMatrix(float *dst, float *m, float *v);
-
 void _ApplyRyGV(float *a0, float a1)
 {
     float m0[16];
@@ -167,9 +150,6 @@ void _ApplyRyGV(float *a0, float a1)
     a0[1] = v[1];
     a0[2] = v[2];
 }
-
-/* kept local: agrees with libvu0.h, which this TU does not include (sceVu0ApplyMatrix, sceVu0InterVector differ) */
-extern void sceVu0Normalize(void *dst, void *src);
 
 float _GetDirection(float *a0)
 {

@@ -43,7 +43,8 @@ typedef struct {
     unsigned char c[4];
 } GifCol;
 
-/* kept local: GifDpk here, DpkCtl in DmaPacket.h */
+/* kept local: this TU writes the packet through a doubleword cursor, which
+   DmaPacket.h's DpkCtl types as int * */
 extern GifDpk PacketBufferStruct;
 
 /* INTERIM: the listing inlines gif_SetGsReg here the same way it does across

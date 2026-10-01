@@ -9,46 +9,14 @@
 #include "tableSin.h"
 #include "main.h"
 #include "itou_sub.h"
-
-typedef union {
-    unsigned int c[4];
-    unsigned long long w[2];
-} StructB;
-
-typedef union {
-    float f[4];
-    int i[4];
-    unsigned long long w[2];
-} LightningVtx;
+#include "lightning.h"
+#include "DisplayList.h"
 
 typedef struct {
     LightningVtx v[4];
 } StructC;
 
 typedef float LightningMtx[4][4] __attribute__((aligned(16)));
-
-/* one entry of the caller's node array: a 16-byte position and the sort key
-   `cmpr` compares at +0x10 */
-typedef struct {
-    LightningVtx v; /* 0x00 */
-    int key;        /* 0x10 */
-    int unk14;      /* 0x14 */
-    int unk18;      /* 0x18 */
-    int unk1C;      /* 0x1C */
-} LightningNode;
-
-/* prototypes: their order is the inline tail's emission order */
-void apply_m34(void *out, void *m, void *in);
-
-void DrawLightning(void *p0, void *p1, void *a2, float f0, float f1, float f2, float f3, float f4,
-                   float f5, float f6, float f7, float f8, float f9, int a3);
-
-void lightning_test(void);
-inline int cmpr(int *self, int *other);
-/* kept local: void (int, LightningVtx *, StructB *, float, float, float, float, float, float, float, float, float, float, int) here, void (int, void *, void *, float, float, float, float, float, float, float, float, float, float, int) in lightning.h */
-extern void DrawLightning2(int n, LightningVtx *a, StructB *b, float f0, float f1, float f2,
-                           float f3, float f4, float f5, float f6, float f7, float f8, float f9,
-                           int c);
 
 /* the display-list packet cursor record, with the write cursor seen as a
  * union of the pointer widths the packet code writes through */
@@ -67,7 +35,8 @@ typedef struct {
     char *end;
 } LightningDpk;
 
-/* kept local: LightningDpk here, DpkCtl in DmaPacket.h */
+/* kept local: this TU writes the packet through a doubleword or byte cursor,
+   which DmaPacket.h's DpkCtl types as int * */
 extern LightningDpk PacketBufferStruct;
 
 /* one strip vertex as the three GS register payloads it is sent as */
@@ -104,7 +73,8 @@ static char *stripTag;
 /* vertices set since the draw began */
 static int vtxCount;
 
-extern void sceVu0FTOI4Vector(void *dst, void *src);
+/* kept local: libvu0.h does not declare sceVu0FTOI4Vector */
+extern void sceVu0FTOI4Vector(void *a0, void *a1);
 
 /* the GS RGBAQ register carries Q as the raw float word in bits 63..32 */
 static __inline__ int fbits(float f)
@@ -271,17 +241,9 @@ static __inline__ float random_sign(float x)
     return x;
 }
 
-/* kept local: unsigned int (void) here, int (void) in DmaPacket.h */
+/* kept local: this TU compares the free packet size unsigned, which
+   DmaPacket.h declares int */
 extern unsigned int dpk_CheckBufferSize(void);
-/* kept local: agrees with DisplayList.h, which this TU does not include (dl_OpenDma differs) */
-extern void dl_SetDLPriority(int pri);
-/* kept local: agrees with DisplayList.h, which this TU does not include (dl_OpenDma differs) */
-extern int dl_GetPri(void);
-/* kept local: void (int, void *, int) here, void (int, int, int) in DisplayList.h */
-extern void dl_OpenDma(int chan, void *dma, int flag);
-/* kept local: agrees with DisplayList.h, which this TU does not include (dl_OpenDma differs) */
-extern void dl_CloseDma(void);
-extern void set_vertex(LightningVtx *dir, LightningVtx *pos, float u, int *col, float half);
 
 /* the Catmull-Rom basis, halved, that turns four control points into the
    segment's cubic coefficients */
@@ -519,7 +481,7 @@ end:
     PacketBufferStruct.ptr.c = p + 0x10;
     if (n > 0) {
         dl_SetDLPriority(dl_GetPri());
-        dl_OpenDma(5, PacketBufferStruct.dma, 0);
+        dl_OpenDma(5, (int)PacketBufferStruct.dma, 0);
         dl_CloseDma();
     }
 }
@@ -539,9 +501,9 @@ void DrawLightningN(int num, LightningNode *v, void *col, float f0, float f1, fl
     DrawLightning2(num, (LightningVtx *)buf, col, f0, f1, f2, f3, f4, f5, f6, f7, f8, f9, c);
 }
 
-inline int cmpr(int *self, int *other)
+inline int cmpr(LightningNode *self, LightningNode *other)
 {
-    return *(int *)((char *)self + 0x10) - *(int *)((char *)other + 0x10);
+    return self->key - other->key;
 }
 
 inline void DrawLightning(void *p0, void *p1, void *a2, float f0, float f1, float f2, float f3,

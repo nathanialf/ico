@@ -87,14 +87,14 @@ float _IsInScreen2(int *p)
     return ry;
 }
 
-inline void IsPointIsInScreen(void *a0, void *a1)
+inline float IsPointIsInScreen(void *a0, void *a1)
 {
     float buf[16];
     sceVu0UnitMatrix(buf);
     sceVu0MulMatrix(buf, matrixptr + 0x80, buf);
     sceVu0MulMatrix(buf, matrixptr + 0xC0, buf);
     sceVu0RotTransPers(a0, buf, a1, 1);
-    _IsInScreen2(a0);
+    return _IsInScreen2(a0);
 }
 
 void before_DrawLine(int a0)

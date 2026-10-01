@@ -12,6 +12,7 @@
 #ifndef MV_AUDIODEC_H
 #define MV_AUDIODEC_H
 
+#include "mv_readbuf.h"
 
 /* RECONSTRUCTION, PLACED BY INCLUDE PATTERN: the audio decoder's own record,
  * 0x68 bytes, read back from this member's own loads and stores.  The first
@@ -43,10 +44,10 @@ typedef struct AudioDec {
     int sentTotal;       /* 0x54 */
     char mono;           /* 0x58 */
     char pad59[3];
-    int volume;          /* 0x5C */
-    char pcmInited;      /* 0x60 */
-    char ch0Open;        /* 0x61 */
-    char ch1Open;        /* 0x62 */
+    int volume;     /* 0x5C */
+    char pcmInited; /* 0x60 */
+    char ch0Open;   /* 0x61 */
+    char ch1Open;   /* 0x62 */
     char pad63[5];
 } AudioDec;
 
@@ -59,9 +60,8 @@ int audioDecIsPreset(AudioDec *self);
 void audioDecStart(AudioDec *self);
 int audioDecPause(AudioDec *self);
 void audioDecResume(AudioDec *self);
-
 int audioDecCreate(AudioDec *self, int a1, int a2);
 int audioDecSendToIOP(AudioDec *self);
-int pcmCallback(int a0, int *pkt, int *ctx);
+int pcmCallback(int a0, MvCbStr *pkt, MvCbArg *arg);
 
 #endif /* MV_AUDIODEC_H */

@@ -31,6 +31,11 @@
 #include <string.h>
 #include "main.h"
 #include "Matrix.h"
+#include "itou_common.h"
+#include "itou_sub.h"
+#include "gather_effect.h"
+#include "boyact.h"
+#include "Texture.h"
 
 typedef struct {
     float v[4];
@@ -53,59 +58,56 @@ typedef struct {
    objects hang at their work word.  The queen's (InitQueenGeo): four flag
    bytes (paused by mail 0x2E/0x2F, attacking, hit by the sword this frame,
    dead), the boy's weapon power the gathered souls raise, the two cloths. */
-typedef struct QueenWork {
-    signed char pause;   /* 0x00 */
-    signed char attack;  /* 0x01 */
-    signed char damaged; /* 0x02 */
-    signed char dead;    /* 0x03 */
-    int power;           /* 0x04 */
-    int wait;            /* 0x08, frames before the power counts again */
-    int clothOn;         /* 0x0C */
-    int cloth;           /* 0x10, the cloth handles InitCloth4D returns */
-    int cloth2;          /* 0x14 */
+typedef struct QueenWork { /* field names derived */
+
+    union {
+        int all; /* the four flags read as one word */
+
+        struct {
+            signed char pause;   /* 0x00 */
+            signed char attack;  /* 0x01 */
+            signed char damaged; /* 0x02 */
+            signed char dead;    /* 0x03 */
+        } f;
+    } st;
+
+    int power;   /* 0x04 */
+    int wait;    /* 0x08, frames before the power counts again */
+    int clothOn; /* 0x0C */
+    int cloth;   /* 0x10, the cloth handles InitCloth4D returns */
+    int cloth2;  /* 0x14 */
 } QueenWork;
 
 /* the barrier's (object kind 54, InitQueenBarrierGeo) */
-typedef struct QueenBarrierWork {
-    float pos[4];       /* 0x00 */
-    signed char hit;    /* 0x10, struck this frame */
-    signed char react;  /* 0x11, the queen's reaction motion is pending */
-    signed char active; /* 0x12 */
-    char pad13;
+typedef struct QueenBarrierWork { /* field names derived */
+    float pos[4];                 /* 0x00 */
+    signed char hit;              /* 0x10, struck this frame */
+    signed char react;            /* 0x11, the queen's reaction motion is pending */
+    signed char active;           /* 0x12 */
+    char pad13[1];
     float radius; /* 0x14 */
     int damage;   /* 0x18, hits taken, broken at 5 */
-    int pad1C;
+    char pad1C[4];
     float rot[4]; /* 0x20 */
 } QueenBarrierWork;
 
 /* the ball's (object kind 53, InitQueenBallGeo) */
-typedef struct QueenBallWork {
-    float pos[4];     /* 0x00 */
-    signed char busy; /* 0x10, thrown and not yet over */
-    signed char live; /* 0x11, flying */
+typedef struct QueenBallWork { /* field names derived */
+    float pos[4];              /* 0x00 */
+    signed char busy;          /* 0x10, thrown and not yet over */
+    signed char live;          /* 0x11, flying */
     char pad12[2];
     float scale;          /* 0x14 */
     signed char attacked; /* 0x18, struck by the sword */
     signed char hit;      /* 0x19, has hit the boy */
     signed char cancel;   /* 0x1A */
-    char pad1B;
-    int bga; /* 0x1C, the ball's BG animation */
+    char pad1B[1];
+    int *bga; /* 0x1C, the ball's BG animation */
 } QueenBallWork;
-
-typedef struct QueenMailEntry {
-    /* 0x0 */ unsigned int mail;
-    /* 0x4 */ void *data;
-} QueenMailEntry;
-
-typedef struct QueenMailQueue {
-    /* 0x00 */ int unk0;
-    /* 0x04 */ int num;
-    /* 0x08 */ QueenMailEntry e[1];
-} QueenMailQueue;
 
 /* .bss, owned by queen.o and reached only from this file (MAIN.MAP names no
    symbol in the run): the queen's four ball-ring animations. */
-static int queenBga[4];
+static int *queenBga[4];
 
 /* The texture both of the queen's cloth meshes are drawn with.  Named, not a
    literal at the two use sites, because queen.o's plain .rodata input is the
@@ -122,7 +124,7 @@ static const char queenClothTexture[] = "queen_effect2";
 static Cloth4DCol queenClothMeshCols[15];
 
 static Cloth4DCfg queenClothMesh = {
-    15, 11, 1, 0, 0x0, 0x0, 0x0, 0x80, queenClothTexture, queenClothMeshCols, 17.058f, 0,
+    15, 11, 1, 0, 0, 0, 0, 128, queenClothTexture, queenClothMeshCols, 17.058f, 0,
 };
 
 static float queenClothMeshUv[15][11][2] = {
@@ -464,7 +466,7 @@ static Cloth4DCol queenClothMeshCols[15] = {
 static Cloth4DCol queenClothMesh2Cols[13];
 
 static Cloth4DCfg queenClothMesh2 = {
-    13, 16, 0, 0, 0x0, 0x0, 0x0, 0x80, queenClothTexture, queenClothMesh2Cols, 34.852f, 0,
+    13, 16, 0, 0, 0, 0, 0, 128, queenClothTexture, queenClothMesh2Cols, 34.852f, 0,
 };
 
 static float queenClothMesh2Uv[13][16][2] = {
@@ -847,9 +849,6 @@ static float queenSpawnPos[6][4] = {
    timestamp every wait in her state machine is measured against */
 static int queenFrame;
 
-/* kept local: void (char *) here, void (void *) in boyact.h */
-extern void ACTDispLwsBoyStonize_InQueenStage(char *g);
-
 /* PAL listing rows 87-90: a static identity-3x3 helper, expanded into
  * QueenBarrierGeo (and QueenBallGeo). */
 static inline void UnitMatrix33(QMat3 *m)
@@ -885,16 +884,12 @@ static void effect_end_func(int no)
     char *weapon = (char *)GOBJ_ACT(boyGObj)->f_150;
 
     if (g != 0) {
-        *(int *)((char *)GOBJ_SUB(g)->f_830 + 4) += 1;
+        ((QueenWork *)GOBJ_SUB(g)->f_830)->power += 1;
     }
     if (weapon != 0) {
         LightTorchOnOfWeapon(weapon);
     }
 }
-
-typedef struct {
-    float f[8];
-} QMotBlock;
 
 /* queen.o's .rodata run, in the order the object emits it.  The ten rate
    tables come in two parallel sets of five, the first used when stage_no is
@@ -950,57 +945,54 @@ static const char queenAttackedMsg[] = "queen attacked\n";
 
 static const char enemyDeadMsg[] = "enemy dead %p\n";
 
-/* kept local: int (int, void *, int, void *, void (*)(int), float) here, int (int, char *, float *, char *, float, void *) in gather_effect.h */
-extern int GatherEffect_Set(int no, void *a1, int a2, void *goal, void (*endFunc)(int),
-                            float speed);
-
 void queenBeforeFunc(char *g)
 {
     QVec pos;
     QVec target;
-    QueenMailQueue *q = (QueenMailQueue *)(g + 0x54);
+    GObjMailQueue *q = (GObjMailQueue *)(g + 0x54);
     QueenWork *w = GOBJ_SUB(g)->f_830;
     Act *act = GOBJ_ACT(g);
     int i;
 
     for (i = 0; i < q->num; i++) {
-        QueenMailEntry *e = &q->e[i];
+        GObjMailEntry *e = &q->e[i];
 
         switch (e->mail) {
-        case 0x2E:
-            w->pause = 1;
+        case 46:
+            w->st.f.pause = 1;
             break;
-        case 0x2F:
-            w->pause = 0;
+        case 47:
+            w->st.f.pause = 0;
             break;
-        case 0xD:
+        case 13:
             if (scpGameStat_BoyWeaponkind() == 5) {
                 char *o;
 
                 debug_StdPrintfDummy(queenAttackedMsg);
-                w->damaged = 1;
+                w->st.f.damaged = 1;
                 o = isysGObjSearchFromObjKindID_begin(53);
                 if (o != 0) {
                     ((QueenBallWork *)GOBJ_SUB(o)->f_830)->cancel = 1;
                 }
             }
             break;
-        case 0x12: {
+        case 18: {
             char *boy = (char *)GOBJ_ACT(boyGObj)->f_150;
 
             debug_StdPrintfDummy(enemyDeadMsg, boy);
             if (e->data != 0 && boy != 0) {
                 GetRootPosition(&pos, e->data);
                 GetRootPosition(&target, boy);
-                GatherEffect_Set(0xC, &pos, (int)IdentityQuaternion, &target, effect_end_func,
-                                 2.5f);
+                GatherEffect_Set(12, &pos, IdentityQuaternion, &target, 2.5f, effect_end_func);
             }
             break;
         }
         }
     }
     q->num = 0;
-    *(QMotBlock *)((char *)act + 0x620) = *(QMotBlock *)((int)GOBJ_SUB(g) + 0x180);
+    /* the motion orient request at 0x620 of the actor, filled from the
+       sub-object's at 0x180; neither typedef.h record declares it */
+    *(MotOriReq *)((char *)act + 0x620) = *(MotOriReq *)((int)GOBJ_SUB(g) + 0x180);
 }
 
 /* PAL listing: queen.c lines 300-385 (the disc's objdump -dl line map). */
@@ -1020,9 +1012,6 @@ static const QueenGenTable genEnemyTable[2] = {
 };
 
 static const char genEnemyStatFmt[] = "n_enemy_max:%d n_enemy:%d counter:%d";
-
-/* kept local: agrees with itou_sub.h, which this TU does not include (apply_matrix_w1, ico_m33_to_quat differ) */
-extern void lw_pos_to_ico_pos(float *dst, float *src);
 
 void gene_enemy(volatile int g)
 {
@@ -1046,7 +1035,7 @@ void gene_enemy(volatile int g)
 
     o = isysGObjSearchFromObjKindID_begin(54);
     num = (o != 0) ? ((QueenBarrierWork *)GOBJ_SUB(o)->f_830)->damage : 0;
-    tbl = (stage_no == 0x25) ? &genEnemyTable[0] : &genEnemyTable[1];
+    tbl = (stage_no == 37) ? &genEnemyTable[0] : &genEnemyTable[1];
 
     timer = 0;
     total = 0;
@@ -1057,7 +1046,7 @@ void gene_enemy(volatile int g)
     _ACTWait(1);
 
     for (;;) {
-        if ((*(int *)w & 0xFF0000FF) == 0 && w->attack != 0) {
+        if ((w->st.all & 0xFF0000FF) == 0 && w->st.f.attack != 0) {
             alive = 0;
             e = isysGObjSearchFromObjKindID_begin(4);
             while (e != 0 && isEnemyHyde(e) == 0) {
@@ -1068,9 +1057,9 @@ void gene_enemy(volatile int g)
                 debug_Printf(10, 90, -1, genEnemyStatFmt, total, alive, timer);
             }
             if (alive < total) {
-                if (timer > ((stage_no == 0x25) ? genWaitRateSt25 : genWaitRateDefault)[num] *
+                if (timer > ((stage_no == 37) ? genWaitRateSt25 : genWaitRateDefault)[num] *
                                 ((60 - systemStatus[0] * 10) / systemStatus[1])) {
-                    if (stage_no == 0x25) {
+                    if (stage_no == 37) {
                         obj = (char *)isysGObjSearchFromObjLayoutID(
                             tbl->list[(int)(_GetRandom() * tbl->n)]);
                         if (obj != 0) {
@@ -1107,9 +1096,6 @@ void gene_enemy(volatile int g)
 /* r5 seed (478/478 insns, 7 diff sites / 20 non-reloc rows) at
  * scratchpad/seeds/subQueenBrainMain.r5.rc220_7sites.c (whole-TU snapshot) and
  * .r5.body.c (this block only).  Residual: one scheduling cluster, see LEDGER r5. */
-/* kept local: void (void *, int, float, float, float, float, float, float) here, void (char *, float, float, float, float, float, float, int) in Texture.h */
-extern void tex_SetUVScroll(void *p, int a1, float a2, float a3, float a4, float a5, float a6,
-                            float a7);
 
 /* The position the queen is dropped at outside her own stage. */
 static const QVec queenStartPos = {{0.0f, 800.0f, 0.0f, 1.0f}};
@@ -1231,7 +1217,10 @@ void subQueenBrainMain(volatile int g)
     char *boy;
     QueenUVScroll *uv;
 
-    ext = *(char **)(g + 0x164);
+    /* the actor as words: this TU keeps its motion record at 0x130 as a
+       QueenVal and its motion orient request at 0x620, neither of which
+       typedef.h's Act declares in that form */
+    ext = (char *)GOBJ_ACT(g);
     w = GOBJ_SUB(g)->f_830;
 
     motionOk = 0;
@@ -1240,7 +1229,7 @@ void subQueenBrainMain(volatile int g)
     wait = 1000;
 
     _ACTWait(1);
-    if (stage_no != 0x25) {
+    if (stage_no != 37) {
         pos = queenStartPos;
         SetDirectRootPosition(boyGObj, &pos);
         QueenStartAttack_inl(first);
@@ -1254,7 +1243,7 @@ void subQueenBrainMain(volatile int g)
         if (debug_font_flag & 1) {
             debug_Printf(10, 80, -1, "barr %d", InqQueenBarrierExist());
         }
-        if ((*(int *)w & 0xFF0000FF) == 0 && w->attack != 0 && ball != 0 && barrier != 0) {
+        if ((w->st.all & 0xFF0000FF) == 0 && w->st.f.attack != 0 && ball != 0 && barrier != 0) {
             qw = GOBJ_SUB(g)->f_830;
 
             GetRootPosition(&rootPos, (char *)g);
@@ -1262,22 +1251,22 @@ void subQueenBrainMain(volatile int g)
             ballw = GOBJ_SUB(ball)->f_830;
             barrierw = GOBJ_SUB(barrier)->f_830;
 
-            if (qw->damaged != 0 && barrierw->active == 0) {
-                qw->dead = 1;
+            if (qw->st.f.damaged != 0 && barrierw->active == 0) {
+                qw->st.f.dead = 1;
                 debug_StdPrintfDummy(queenDeadMsg);
             }
 
             if (barrierw->react != 0) {
                 if ((((QueenVal *)(ext + 0x130))->i =
-                         SetMotionRequest((char *)g, 0x146, *(MotOriReq *)(ext + 0x620))) != 0) {
+                         SetMotionRequest((char *)g, 326, *(MotOriReq *)(ext + 0x620))) != 0) {
                     barrierw->react = 0;
                 }
             }
 
             switch (GOBJ_SUB(g)->f_4A0) {
-            case 0x430:
-            case 0x435:
-            case 0x436:
+            case 1072:
+            case 1077:
+            case 1078:
                 GetRootPosition(&target, boyGObj);
                 ((QueenLookAt *)((char *)GOBJ_SUB(g) + 0x380))->pos.f[0] = target.v[0];
                 ((QueenLookAt *)((char *)GOBJ_SUB(g) + 0x380))->pos.f[1] = target.v[1];
@@ -1286,43 +1275,42 @@ void subQueenBrainMain(volatile int g)
             }
 
             switch (GOBJ_SUB(g)->f_4A0) {
-            case 0x431:
-            case 0x432:
-            case 0x433:
-            case 0x434:
+            case 1073:
+            case 1074:
+            case 1075:
+            case 1076:
             default:
                 ((QueenVal *)(ext + 0x130))->i =
                     SetMotionRequest((char *)g, 1, *(MotOriReq *)(ext + 0x620));
                 break;
 
-            case 0x430:
+            case 1072:
                 motionOk = 1;
                 if ((((QueenVal *)(ext + 0x130))->i =
-                         SetMotionRequest((char *)g, 0x144, *(MotOriReq *)(ext + 0x620))) != 0) {
+                         SetMotionRequest((char *)g, 324, *(MotOriReq *)(ext + 0x620))) != 0) {
                     if (first) {
                         startFrame = queenFrame;
-                        wait =
-                            (int)(*((stage_no == 0x25) ? &ballWaitRateSt25[barrierw->damage]
-                                                       : &ballWaitRateDefault[barrierw->damage]) *
-                                  ((60 - systemStatus[0] * 10) / systemStatus[1]));
+                        wait = (int)(*((stage_no == 37) ? &ballWaitRateSt25[barrierw->damage]
+                                                        : &ballWaitRateDefault[barrierw->damage]) *
+                                     ((60 - systemStatus[0] * 10) / systemStatus[1]));
                     }
                     first = 0;
                 }
                 break;
 
-            case 0x435:
+            case 1077:
                 if (ballw->busy == 0 && motionOk != 0 && queenFrame - startFrame >= wait) {
                     ((QueenVal *)(ext + 0x130))->i =
-                        SetMotionRequest((char *)g, 0x145, *(MotOriReq *)(ext + 0x620));
+                        SetMotionRequest((char *)g, 325, *(MotOriReq *)(ext + 0x620));
                 }
                 break;
 
-            case 0x436:
+            case 1078:
                 ((QueenVal *)(ext + 0x130))->i =
                     SetMotionRequest((char *)g, 1, *(MotOriReq *)(ext + 0x620));
                 if (GOBJ_SUB(g)->f_4AC > 15.0f && ballw->busy == 0 && motionOk != 0) {
-                    uv = (stage_no == 0x25) ? &ballUVScrollSt25[barrierw->damage]
-                                            : &ballUVScrollDefault[barrierw->damage];
+                    uv = (stage_no == 37) ? &ballUVScrollSt25[barrierw->damage]
+                                          : &ballUVScrollDefault[barrierw->damage];
 
                     motionOk = 0;
                     sceVu0ScaleVectorXYZ(&target, &dir, 100.0f);
@@ -1333,18 +1321,18 @@ void subQueenBrainMain(volatile int g)
                     ballw->scale = 0.0f;
                     ballw->hit = 0;
                     startFrame = queenFrame;
-                    wait = (int)(*((stage_no == 0x25) ? &ballWaitRateSt25[barrierw->damage]
-                                                      : &ballWaitRateDefault[barrierw->damage]) *
+                    wait = (int)(*((stage_no == 37) ? &ballWaitRateSt25[barrierw->damage]
+                                                    : &ballWaitRateDefault[barrierw->damage]) *
                                  ((60 - systemStatus[0] * 10) / systemStatus[1]));
-                    tex_SetUVScroll(queenBallScrTexture, 1, uv->v[0], uv->v[1], uv->v[2], uv->v[3],
-                                    uv->v[4], uv->v[5]);
+                    tex_SetUVScroll(queenBallScrTexture, uv->v[0], uv->v[1], uv->v[2], uv->v[3],
+                                    uv->v[4], uv->v[5], 1);
                 }
                 break;
 
-            case 0x437:
+            case 1079:
                 startFrame = queenFrame;
-                wait = (int)(*((stage_no == 0x25) ? &ballHoldRateSt25[barrierw->damage]
-                                                  : &ballHoldRateDefault[barrierw->damage]) *
+                wait = (int)(*((stage_no == 37) ? &ballHoldRateSt25[barrierw->damage]
+                                                : &ballHoldRateDefault[barrierw->damage]) *
                              ((60 - systemStatus[0] * 10) / systemStatus[1]));
                 ((QueenVal *)(ext + 0x130))->i =
                     SetMotionRequest((char *)g, 1, *(MotOriReq *)(ext + 0x620));
@@ -1356,13 +1344,10 @@ void subQueenBrainMain(volatile int g)
             GetRootPosition(&target, boy);
             ParticleEffects_SetAllGoal(&target);
         }
-        *(char *)((char *)GOBJ_SUB(g)->f_830 + 2) = 0;
+        ((QueenWork *)GOBJ_SUB(g)->f_830)->st.f.damaged = 0;
         _ACTWait(1);
     }
 }
-
-/* kept local: agrees with boyact.h, which this TU does not include (ACTDispLwsBoyStonize_InQueenStage differs) */
-extern int CorrectStickInfo(void *dir, void *stick);
 
 /* census: static Debug_StickControl; ito/src/act_bird.c holds the public symbol
    of that name, so this copy is a file-static. */
@@ -1398,9 +1383,9 @@ static void Debug_StickControl(char *self)
         iosPadRead(pad);
         iosPadGetStick(pad, stick, 0, 2, 2, 0);
         _GetMotionDirection(&dir, self);
-        *(int *)((char *)ext + 0x340) = CorrectStickInfo(&dir, stick);
-        if (*(float *)((char *)ext + 0x34C) > 0.001f) {
-            ConvertStickToAbsCoord((char *)ext + 0x120, stick);
+        ext->f_340 = CorrectStickInfo(&dir, stick);
+        if (ext->f_34C > 0.001f) {
+            ConvertStickToAbsCoord(ext->dir, stick);
         }
     } else if (self == CurrentTargetGObjSub) {
         iosPadConnect((char *)ext + 0x2D8, 0, 1, (char *)ext + 0x1E8);
@@ -1424,7 +1409,7 @@ void *InitQueenGeo(char *g)
     w->cloth = InitCloth4D(g, &queenClothMesh, queenClothHang);
     w->cloth2 = InitCloth4D(g, &queenClothMesh2, 0);
     ext->f_830 = w;
-    InitMotionOrient(g, 0x967, 0x975, 0xC, 0x18, 0x430);
+    InitMotionOrient(g, 2407, 2421, 12, 24, 1072);
     SetLodLevel(g, 2);
     actInitialize(g);
     actInitialize_ext_charcter(g);
@@ -1439,7 +1424,7 @@ void QueenGeo(char *g)
         queenFrame++;
     }
     ExecMotionOrient(g);
-    SetActressLight(g, 0x23, 0x2C, 0x1D8);
+    SetActressLight(g, 35, 44, 472);
     w = GOBJ_SUB(g)->f_830;
     if (w->clothOn != 0) {
         GetCloth4D((void *)w->cloth, 3.0f, 0.98f);
@@ -1499,7 +1484,7 @@ void QueenBarrierGeo(char *g)
     w = GOBJ_SUB(g)->f_830;
     queen = isysGObjSearchFromObjKindID_begin(47);
     qw = GOBJ_SUB(queen)->f_830;
-    if (stage_no == 0x25) {
+    if (stage_no == 37) {
         tbl = barrierLayoutSt25;
     } else {
         tbl = barrierLayoutDefault;
@@ -1521,14 +1506,14 @@ void QueenBarrierGeo(char *g)
     }
     found = i;
     for (i = 0; i < 1; i++) {
-        if (*(int *)(g + 8) == tbl[i]) {
+        if (((GObj *)g)->f_8 == tbl[i]) {
             mine = i;
             break;
         }
     }
     GetRootPosition(&rootPos, queen);
-    if (w->active == 0 || *(int *)(queen + 0x16C) == 0 || (*(int *)qw & 0xFF0000FF) != 0 ||
-        qw->attack == 0) {
+    if (w->active == 0 || ((GObj *)queen)->f_16C == 0 || (qw->st.all & 0xFF0000FF) != 0 ||
+        qw->st.f.attack == 0) {
         GetRootMatrix(&m1, g);
         sceVu0CopyVector(&m1.w, &pos);
         CopyMatrix((void *)GOBJ_SUB(g)->f_C, &m1);
@@ -1553,19 +1538,19 @@ void QueenBarrierGeo(char *g)
         void *weapon;
 
         qw->power = 0;
-        weapon = (void *)*(int *)(*(int *)((char *)boyGObj + 0x164) + 0x150);
+        weapon = (void *)GOBJ_ACT(boyGObj)->f_150;
         if (weapon != 0) {
             LightTorchOffOfWeapon(weapon);
         }
-        qw->wait = 0x12;
-        ExecuteSEPackage((int)g, 0x5F);
+        qw->wait = 18;
+        ExecuteSEPackage((int)g, 95);
         w->damage = w->damage + 1;
         if (w->damage >= 5) {
             GetRootMatrix(&m3, g);
             sceVu0CopyVector(&m3.w, &pos);
             CopyMatrix((void *)GOBJ_SUB(g)->f_C, &m3);
             w->active = 0;
-            ExecuteSEPackage((int)boyGObj, 0x62);
+            ExecuteSEPackage((int)boyGObj, 98);
         }
     }
     if (qw->wait > 0) {
@@ -1584,12 +1569,6 @@ void QueenBarrierDL(char *g)
 }
 
 /* ROM 0x0012B6F0 never reads $a1: the callee takes (id, scale) only. */
-/* kept local: void (void *, void *) here, int (int) in itou_sub.h */
-extern void ico_m33_to_quat(void *dst, void *m);
-/* kept local: void (int *, int) here, void (int *, int *) in itou_sub.h */
-extern void pbga_start(int *bga, int id);
-/* kept local: void (QVec *, QMat33 *, QVec *) here, void (void *, void *, void *) in itou_sub.h */
-extern void apply_matrix_w1(QVec *dst, QMat33 *m, QVec *src);
 
 /* PAL listing rows 1069-1081: a static helper that QueenBallGeo and QueenBallDL
  * each expand inline. */
@@ -1615,7 +1594,7 @@ static inline void SetQueenBallOrient(char *o, QVec *from, QVec *to)
  * block, incl. the three helpers it alone expands) and .r4.rc55.c (whole-TU).
  * Residual: the FP-constant census, see LEDGER r4. */
 /* PAL listing rows 1092-1093. */
-static inline void StartQueenBallEffect(int *bga, int id, QVec *from, QVec *to)
+static inline void StartQueenBallEffect(int **bga, int id, QVec *from, QVec *to)
 {
     if (*bga == 0) {
         pbga_start(bga, id);
@@ -1624,7 +1603,7 @@ static inline void StartQueenBallEffect(int *bga, int id, QVec *from, QVec *to)
 }
 
 /* PAL listing rows 1105-1116. */
-static inline void CheckQueenBallRing(int *bga, int id, QVec *from, QVec *to, float r)
+static inline void CheckQueenBallRing(int **bga, int id, QVec *from, QVec *to, float r)
 {
     float d = _GetLength(to, from);
     int in = (d < r && r < d + 100.0f);
@@ -1691,8 +1670,8 @@ void QueenBallGeo(char *g)
     char *barrier;
     char *o;
     char *sword;
-    char *act;
-    int *bga;
+    Act *act;
+    int **bga;
     int hit;
     float r;
 
@@ -1704,8 +1683,8 @@ void QueenBallGeo(char *g)
     GetRootMatrix(m, g);
     GetRootPosition(&queenPos, boyGObj);
     i = 0;
-    act = *(char **)((char *)boyGObj + 0x164);
-    hit = (*(int *)(act + 0x34) == 0x31);
+    act = GOBJ_ACT(boyGObj);
+    hit = (act->unk34 == 49);
     if (w->live != 0) {
         for (o = isysGObjSearchFromObjKindID_begin(17); o != 0;
              o = isysGObjSearchFromObjKindID_next(o), i++) {
@@ -1714,7 +1693,7 @@ void QueenBallGeo(char *g)
             GetRootPosition(&objPos, o);
             hit |= CheckQueenBallBox(&objPos, (QVec *)m[3], &queenPos, 130, 300.0f, -120, 600.0f);
             bga = &queenBga[i];
-            CheckQueenBallRing(bga, 0x1E2, (QVec *)m[3], &objPos, r);
+            CheckQueenBallRing(bga, 482, (QVec *)m[3], &objPos, r);
             if (*bga != 0) {
                 SetQueenBallOrient((char *)*bga, (QVec *)m[3], &objPos);
             }
@@ -1727,7 +1706,7 @@ void QueenBallGeo(char *g)
                 GetRootPosition(&objPos, sword);
                 hit |=
                     CheckQueenBallBox(&objPos, (QVec *)m[3], &queenPos, 75, 300.0f, -150, 500.0f);
-                CheckQueenBallRing(&queenBga[2], 0x1E4, (QVec *)m[3], &objPos, r);
+                CheckQueenBallRing(&queenBga[2], 484, (QVec *)m[3], &objPos, r);
             }
         }
     }
@@ -1739,10 +1718,10 @@ void QueenBallGeo(char *g)
     if (w->attacked != 0) {
         w->attacked = 0;
         w->live = 0;
-        pbga_start(&w->bga, 0x1DF);
+        pbga_start(&w->bga, 479);
         _CopyVector((char *)w->bga + 0x20, m[3]);
         CopyQuaternion((char *)w->bga + 0x30, IdentityQuaternion);
-        ExecuteSEPackage((int)g, 0x5E);
+        ExecuteSEPackage((int)g, 94);
     }
     if (w->cancel != 0) {
         w->cancel = 0;
@@ -1753,12 +1732,12 @@ void QueenBallGeo(char *g)
         UnitMatrix33((QMat3 *)m);
         scale_m34((LVec *)m, m, w->scale);
         CopyMatrix((void *)GOBJ_SUB(g)->f_C, m);
-        if (hit == 0 && w->hit == 0 && _AttackCenter(g, 0x10, m[3], 0, r, 0) != 0) {
+        if (hit == 0 && w->hit == 0 && _AttackCenter(g, 16, m[3], 0, r, 0) != 0) {
             w->hit = 1;
             if (weapon != 0) {
-                ExecuteSEPackage((int)boyGObj, 0x61);
+                ExecuteSEPackage((int)boyGObj, 97);
             } else {
-                ExecuteSEPackage((int)boyGObj, 0x5B);
+                ExecuteSEPackage((int)boyGObj, 91);
             }
         }
         if (r > 5000.0f) {
@@ -1771,7 +1750,7 @@ void QueenBallGeo(char *g)
              * both arms, and the address pseudo is the one that survives the join. */
             float *rate;
 
-            if (stage_no == 0x25) {
+            if (stage_no == 37) {
                 rate = &ballSpeedRateSt25[num];
             } else {
                 rate = &ballSpeedRateDefault[num];
@@ -1797,7 +1776,7 @@ void QueenBallDL(char *g)
     QVec queenPos;
     QueenBallWork *w;
     char *o;
-    int *q;
+    int **q;
     int i;
 
     w = GOBJ_SUB(g)->f_830;
@@ -1808,15 +1787,15 @@ void QueenBallDL(char *g)
         p2o_DispVU1Default(g);
     }
     if (w->bga != 0) {
-        stage_SetScale(0x1DF, w->scale);
+        stage_SetScale(479, w->scale);
         if (stage_DispBgAnimation(&w->bga) != 0) {
-            char *act;
+            Act *act;
 
             w->bga = 0;
             w->busy = 0;
-            act = *(char **)(g + 0x164);
-            *(int *)(act + 0x1B0) = 0;
-            *(char *)(act + 0x1DA) = 0;
+            act = GOBJ_ACT(g);
+            act->f_1B0 = 0;
+            act->f_1DA = 0;
         }
     }
     GetRootPosition(&selfPos, g);
@@ -1826,7 +1805,7 @@ void QueenBallDL(char *g)
         if ((o = (char *)*q) != 0) {
             long long id = *(long long *)o & 0x3FFF;
 
-            if (id == 0x1E3 || id == 0x1E5) {
+            if (id == 483 || id == 485) {
                 SetQueenBallOrient(o, &selfPos, &queenPos);
             }
             if (stage_DispBgAnimation(q) != 0) {
@@ -1845,7 +1824,9 @@ void actQueenStart(char *g)
     actCreateSubThread(subQueenBrainMain, 20);
     actCreateSubThread(subQueenControl, 21);
     actCreateSubThread(gene_enemy, 21);
-    *(int *)(sub + 0x130) = SetMotionRequest(g, 0x10E, *(MotOriReq *)(sub + 0x620));
+    /* this TU keeps the actor's motion record at 0x130 as a word (QueenVal),
+       where typedef.h's Act declares a pointer */
+    *(int *)(sub + 0x130) = SetMotionRequest(g, 270, *(MotOriReq *)(sub + 0x620));
     GOBJ_SUB(g)->f_7C = 1;
 }
 
@@ -1854,7 +1835,7 @@ void QueenStartAttack(void)
     char *g;
 
     g = isysGObjSearchFromObjKindID_begin(47);
-    *(char *)((char *)GOBJ_SUB(g)->f_830 + 1) = 1;
+    ((QueenWork *)GOBJ_SUB(g)->f_830)->st.f.attack = 1;
 
     g = isysGObjSearchFromObjKindID_begin(54);
     while (g != 0) {
@@ -1894,15 +1875,15 @@ int QueenBarrierInqBreakable(void)
 
 void queenBarrierBeforeFunc(char *g)
 {
-    QueenMailQueue *q = (QueenMailQueue *)(g + 0x54);
+    GObjMailQueue *q = (GObjMailQueue *)(g + 0x54);
     QueenBarrierWork *w = GOBJ_SUB(g)->f_830;
     char *other;
     int i;
 
     for (i = 0; i < q->num; i++) {
-        QueenMailEntry *e = &q->e[i];
+        GObjMailEntry *e = &q->e[i];
 
-        if (e->mail == 0xD) {
+        if (e->mail == 13) {
             debug_StdPrintfDummy(queenBarrierAttackedMsg);
             w->hit = 1;
             w->react = 1;
@@ -1957,19 +1938,19 @@ float GetQueenBallThickness(void)
 
 void queenBallBeforeFunc(char *g)
 {
-    QueenMailQueue *q = (QueenMailQueue *)(g + 0x54);
+    GObjMailQueue *q = (GObjMailQueue *)(g + 0x54);
     QueenBallWork *w = GOBJ_SUB(g)->f_830;
     int i;
 
     for (i = 0; i < q->num; i++) {
-        QueenMailEntry *e = &q->e[i];
+        GObjMailEntry *e = &q->e[i];
 
-        if (e->mail != 0xD) {
+        if (e->mail != 13) {
             debug_StdPrintfDummy(mailFmt, e->mail);
         } else if (scpGameStat_BoyWeaponkind() == 5) {
             debug_StdPrintfDummy(queenBallAttackedMsg);
             w->attacked = 1;
-            iosOmSendMail(boyGObj, 0x1A9, g);
+            iosOmSendMail(boyGObj, 425, g);
         }
     }
     q->num = 0;
@@ -1997,7 +1978,7 @@ void subQueenControl(volatile int g)
 
     _ACTWait(1);
     for (;;) {
-        if (w->pause == 0) {
+        if (w->st.f.pause == 0) {
             Debug_StickControl((char *)g);
         }
         _ACTWait(1);

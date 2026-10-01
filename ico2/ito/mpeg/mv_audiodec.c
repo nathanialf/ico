@@ -1,22 +1,21 @@
 #include "mv_defs.h"
 #include "debug.h"
 #include "mv_sub.h"
+#include "mv_audiodec.h"
+#include <eekernel.h>
+#include <sifrpc.h>
 
+/* kept local: libsndn2's sound.h does not declare its stream PCM calls */
 extern int SgStPcmClose(unsigned int a0);
 extern void SgStPcmQuit(void);
 extern int SgStPcmStop(unsigned long long a0);
 extern void SgStPcmVolume(unsigned long long a0, unsigned int a1, int a2);
 extern int SgStPcmLseek(unsigned int a0, unsigned int a1);
 extern int SgStPcmPlay(unsigned long long a0);
-
-#include "mv_audiodec.h"
-#include <eekernel.h>
-#include <sifrpc.h>
-
 extern void SgStPcmInit(void);
-extern int SgStPcmOpen(int *param);
+extern int SgStPcmOpen(int *a0);
 extern void SgStPcmSetEffect(int a0);
-extern int SgStPcmIopReadAddr(int ch);
+extern int SgStPcmIopReadAddr(unsigned int a0);
 
 int audioDecCreate(AudioDec *self, int a1, int a2)
 {
@@ -303,27 +302,27 @@ inline void audioDecResume(AudioDec *self)
     audioDecStart(self);
 }
 
-int pcmCallback(int a0, int *pkt, int *ctx)
+int pcmCallback(int a0, MvCbStr *pkt, MvCbArg *arg)
 {
     char *p0;
     int n0;
     char *p1;
     int n1;
-    int *b = (int *)ctx[0];
-    AudioDec *ad = (AudioDec *)ctx[1];
-    unsigned int rd = pkt[2];
-    int base = b[0];
+    ReadBuf *b = arg->rb;
+    AudioDec *ad = arg->dec;
+    unsigned int rd = (unsigned int)pkt->data;
+    int base = (int)b->data;
     int n;
     int first;
     int rest;
     int k;
 
     rd += 4;
-    if (rd >= (unsigned int)(base + b[1])) {
-        rd -= b[1];
+    if (rd >= (unsigned int)(base + b->size)) {
+        rd -= b->size;
     }
-    n = pkt[3] - 4;
-    first = (base + b[1]) - rd;
+    n = pkt->len - 4;
+    first = (base + b->size) - rd;
     if (n < first) {
         first = n;
     }

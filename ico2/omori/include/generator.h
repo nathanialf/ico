@@ -15,7 +15,8 @@
 /* The declarations below lead this header because their order is load-bearing:
  * gcc 2.9 emits the deferred out-of-line copy of a plain-inline function in
  * first-declaration order, so this is the order generator.c's inline tail has. */
-char *InitGeneratorGeo(char *gobj, char *src);
+struct GVGeo2;
+struct GenWork *InitGeneratorGeo(char *gobj, struct GVGeo2 *src);
 void Generator_Call(char *a0);
 void Generator_ResetCount(char *a0);
 void Generator_Mask(char *a0);

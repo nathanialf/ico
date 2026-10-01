@@ -26,19 +26,14 @@
 #include "quaternion.h"
 #include "main.h"
 #include "fieldCollision.h"
+#include "itou_sub.h"
+#include "motionOrientManager.h"
+#include "ios.h"
+#include "debug.h"
+#include "obj_manager.h"
 
-/* kept local: agrees with motionOrientManager.h, which this TU does not include (SetMotionRequest differs) */
-extern void ExecMotionOrient();
-/* kept local: void (void *) here, int (char *, int, int) in obj_manager.h */
-extern void iosOmSendMail(void *a0);
 /* Actor sub-thread body: the actor scheduler resumes this frame after every
    _ACTWait yield, so the entry GObj lives in its stack home, not a register. */
-/* kept local: int (void *, int, void *) here, char * (void *, int, MotOriReq) in motionOrientManager.h */
-extern int SetMotionRequest(void *a0, int id, void *work);
-/* kept local: void * here, int in ios.h */
-extern void *ios_partition_sugipon;
-/* kept local: agrees with motionOrientManager.h, which this TU does not include (SetMotionRequest differs) */
-extern void InitMotionOrient(void *o, int a1, int a2, int a3, int a4, int a5);
 
 inline float vector_angle_degree(void *a0, void *a1)
 {
@@ -77,88 +72,75 @@ void interp_vector_sa(float *dst, float *a, float *b, float sa)
     sceVu0DivVector(dst, sum, GetTableSin((short)(ang * 10430.378f)));
 }
 
-typedef struct BirdMailEntry {
-    /* 0x0 */ unsigned int mail;
-    /* 0x4 */ void *data;
-} BirdMailEntry;
-
-typedef struct BirdMailQueue {
-    /* 0x00 */ int unk0;
-    /* 0x04 */ int num;
-    /* 0x08 */ BirdMailEntry e[1];
-} BirdMailQueue;
-
-typedef struct {
-    float f[8];
-} BirdMotBlock;
-
 void birdBeforeFunc(char *self)
 {
     Act *act = GOBJ_ACT(self);
-    char *w = GOBJ_SUB(self)->f_830;
+    BirdWork *w = GOBJ_SUB(self)->f_830;
     float there[4];
     float here[4];
     int i;
-    BirdMailQueue *q = (BirdMailQueue *)(self + 0x54);
+    GObjMailQueue *q = (GObjMailQueue *)(self + 0x54);
 
     for (i = 0; i < q->num; i++) {
-        BirdMailEntry *e = &q->e[i];
+        GObjMailEntry *e = &q->e[i];
         float len;
 
         GetRootPosition(there, e->data);
         GetRootPosition(here, self);
         len = _GetLengthXZ(there, here);
         switch (e->mail) {
-        case 0x1A7:
+        case 423:
             if (len < 200.0f) {
-                *(char *)(w + 0x10) = 1;
-                GetRootPosition(w + 0x20, e->data);
+                w->scared = 1;
+                GetRootPosition(w->scarer, e->data);
             }
             break;
 
-        case 0x1A8:
+        case 424:
             if (len < 250.0f) {
-                *(int *)((char *)act + 0x130) = SetMotionRequest(self, 0x141, (char *)act + 0x620);
+                act->f_130 = SetMotionRequest(self, 321, *(MotOriReq *)((char *)act + 0x620));
             }
             break;
 
-        case 0xA: {
+        case 10: {
             int st = GOBJ_SUB(self)->f_4A0;
 
-            if (st >= 0x473 && st <= 0x475) {
-                *(int *)((char *)act + 0x130) = SetMotionRequest(self, 0x142, (char *)act + 0x620);
+            if (st >= 1139 && st <= 1141) {
+                act->f_130 = SetMotionRequest(self, 322, *(MotOriReq *)((char *)act + 0x620));
             }
             break;
         }
 
-        case 0x7:
-            *(int *)((char *)act + 0x130) = SetMotionRequest(self, 0x141, (char *)act + 0x620);
+        case 7:
+            act->f_130 = SetMotionRequest(self, 321, *(MotOriReq *)((char *)act + 0x620));
             break;
 
-        case 0x1A:
-        case 0x1B:
-            *(int *)((char *)act + 0x130) = SetMotionRequest(self, 0x141, (char *)act + 0x620);
+        case 26:
+        case 27:
+            act->f_130 = SetMotionRequest(self, 321, *(MotOriReq *)((char *)act + 0x620));
             break;
 
-        case 0x1A3:
-            *(int *)((char *)act + 0x130) = SetMotionRequest(self, 0x141, (char *)act + 0x620);
+        case 419:
+            act->f_130 = SetMotionRequest(self, 321, *(MotOriReq *)((char *)act + 0x620));
             break;
 
-        case 0x1A4:
-            *(int *)((char *)act + 0x130) = SetMotionRequest(self, 0x141, (char *)act + 0x620);
+        case 420:
+            act->f_130 = SetMotionRequest(self, 321, *(MotOriReq *)((char *)act + 0x620));
             break;
 
-        case 0x1A5:
-            *(int *)((char *)act + 0x130) = SetMotionRequest(self, 0x141, (char *)act + 0x620);
+        case 421:
+            act->f_130 = SetMotionRequest(self, 321, *(MotOriReq *)((char *)act + 0x620));
             break;
 
-        case 0x1A6:
-            *(int *)((char *)act + 0x130) = SetMotionRequest(self, 0x141, (char *)act + 0x620);
+        case 422:
+            act->f_130 = SetMotionRequest(self, 321, *(MotOriReq *)((char *)act + 0x620));
             break;
         }
     }
     q->num = 0;
-    *(BirdMotBlock *)((char *)act + 0x620) = *(BirdMotBlock *)((int)GOBJ_SUB(self) + 0x180);
+    /* the motion orient request at 0x620 of the actor, filled from the
+       sub-object's at 0x180; neither typedef.h record declares it */
+    *(MotOriReq *)((char *)act + 0x620) = *(MotOriReq *)((int)GOBJ_SUB(self) + 0x180);
 }
 
 /* --- act_bird.c's own small helpers, census rows 74-107 -----------------
@@ -166,9 +148,6 @@ void birdBeforeFunc(char *self)
  * act_bird.c lines 74/75, 79/80, 86, 91, 96 and 104-106: five helper
  * bodies that are only ever inlined, so none of them has a MAIN.MAP
  * symbol and the names below are ours, chosen for what the rows do. */
-
-/* kept local: agrees with itou_sub.h, which this TU does not include (pbga_start differs) */
-extern void apply_matrix_w1(void *dst, void *m, void *src);
 
 /* rows 74-75: a point 100 units along `dir` from `p`. */
 static __inline__ void point_ahead(float *dst, float *p, float *dir)
@@ -240,11 +219,6 @@ void trans_bird(void *self, float *w)
     SetRootPosition(self, pos);
 }
 
-/* kept local: void (void *, int) here, void (int *, int *) in itou_sub.h */
-extern void pbga_start(void *slot, int n);
-/* kept local: void (const char *, ...) here, void (char *, ...) in debug.h */
-extern void debug_StdPrintfDummy(const char *fmt, ...);
-
 /* rows 256-263: point the bird `ang` radians round from where it faces. */
 static __inline__ void turn_bird(void *self, float ang)
 {
@@ -279,8 +253,8 @@ void subBirdBrainMain(void *volatile gobj)
     float pos[4];
     float dir[4];
     float mtx[4][4];
-    char *bw;
-    char *act;
+    BirdWork *bw;
+    Act *act;
     int frames;
     int lastHit;
     int count;
@@ -309,7 +283,7 @@ void subBirdBrainMain(void *volatile gobj)
 
     away = 0;
 
-    act = *(char **)((char *)gobj + 0x164);
+    act = GOBJ_ACT(gobj);
 
     _ACTWait(1);
 
@@ -360,7 +334,7 @@ void subBirdBrainMain(void *volatile gobj)
         ticks++;
 
         noAvoid = 0;
-        if (bw[0x10] != 0) {
+        if (bw->scared != 0) {
             switch (state) {
             case 1139:
             case 1140:
@@ -464,20 +438,22 @@ void subBirdBrainMain(void *volatile gobj)
             if (hit != 0) {
                 Debug_WireString_Bird(pos, "STOP FIN");
 
-                if (bw[0x10] != 0) {
+                if (bw->scared != 0) {
                     float r = random_unit();
                     if (r < 0.25f) {
                         break;
                     }
                     if (r < 0.28f) {
-                        *(int *)(act + 0x130) = SetMotionRequest(gobj, 321, act + 0x620);
+                        act->f_130 =
+                            SetMotionRequest(gobj, 321, *(MotOriReq *)((char *)act + 0x620));
                         break;
                     }
                     if (random_unit() <= 0.5f) {
-                        *(int *)(act + 0x130) = SetMotionRequest(gobj, 317, act + 0x620);
+                        act->f_130 =
+                            SetMotionRequest(gobj, 317, *(MotOriReq *)((char *)act + 0x620));
                         break;
                     }
-                    *(int *)(act + 0x130) = SetMotionRequest(gobj, 318, act + 0x620);
+                    act->f_130 = SetMotionRequest(gobj, 318, *(MotOriReq *)((char *)act + 0x620));
                     break;
                 } else {
                     float r = random_unit();
@@ -485,22 +461,26 @@ void subBirdBrainMain(void *volatile gobj)
                         break;
                     }
                     if (r < 0.28f) {
-                        *(int *)(act + 0x130) = SetMotionRequest(gobj, 321, act + 0x620);
+                        act->f_130 =
+                            SetMotionRequest(gobj, 321, *(MotOriReq *)((char *)act + 0x620));
                         break;
                     }
                     if (r < 0.4f) {
-                        *(int *)(act + 0x130) = SetMotionRequest(gobj, 320, act + 0x620);
+                        act->f_130 =
+                            SetMotionRequest(gobj, 320, *(MotOriReq *)((char *)act + 0x620));
                         break;
                     }
                     if (r < 0.7f) {
-                        *(int *)(act + 0x130) = SetMotionRequest(gobj, 319, act + 0x620);
+                        act->f_130 =
+                            SetMotionRequest(gobj, 319, *(MotOriReq *)((char *)act + 0x620));
                         break;
                     }
                     if (random_unit() <= 0.7f) {
-                        *(int *)(act + 0x130) = SetMotionRequest(gobj, 317, act + 0x620);
+                        act->f_130 =
+                            SetMotionRequest(gobj, 317, *(MotOriReq *)((char *)act + 0x620));
                         break;
                     }
-                    *(int *)(act + 0x130) = SetMotionRequest(gobj, 318, act + 0x620);
+                    act->f_130 = SetMotionRequest(gobj, 318, *(MotOriReq *)((char *)act + 0x620));
                     break;
                 }
             } else {
@@ -517,12 +497,12 @@ void subBirdBrainMain(void *volatile gobj)
             if (hold != 0) {
                 int q = 3;
 
-                if (bw[0x10] != 0) {
+                if (bw->scared != 0) {
                     float v[4];
 
                     yaw = rand_range_rad(40.0f, 70.0f) / q;
 
-                    sceVu0SubVector(v, pos, bw + 0x20);
+                    sceVu0SubVector(v, pos, bw->scarer);
                     if (sceVu0InnerProduct(mtx[0], v) < 0.0f) {
                         yaw = -yaw;
                     }
@@ -541,15 +521,15 @@ void subBirdBrainMain(void *volatile gobj)
             if (hit == 0) {
                 break;
             }
-            *(int *)(act + 0x130) = SetMotionRequest(gobj, 316, act + 0x620);
+            act->f_130 = SetMotionRequest(gobj, 316, *(MotOriReq *)((char *)act + 0x620));
 
-            bw[0x10] = 0;
+            bw->scared = 0;
             break;
 
         case 1138:
             Debug_WireString_Bird(pos, "GROOM");
 
-            *(int *)(act + 0x130) = SetMotionRequest(gobj, 316, act + 0x620);
+            act->f_130 = SetMotionRequest(gobj, 316, *(MotOriReq *)((char *)act + 0x620));
             break;
 
         case 1139:
@@ -572,16 +552,16 @@ void subBirdBrainMain(void *volatile gobj)
                 trans_bird(gobj, wave);
                 turn_bird(gobj, rot);
             }
-            *(int *)(act + 0x130) = SetMotionRequest(gobj, 321, act + 0x620);
+            act->f_130 = SetMotionRequest(gobj, 321, *(MotOriReq *)((char *)act + 0x620));
             break;
 
         case 1140:
             Debug_WireString_Bird(pos, "FLY");
             if (changed != 0) {
                 if (random_unit() <= 0.5f) {
-                    pbga_start(bw + 0x30, 512);
-                    _CopyVector(*(char **)(bw + 0x30) + 0x20, pos);
-                    CopyQuaternion(*(char **)(bw + 0x30) + 0x30, IdentityQuaternion);
+                    pbga_start(&bw->bga, 512);
+                    _CopyVector((char *)bw->bga + 0x20, pos);
+                    CopyQuaternion((char *)bw->bga + 0x30, IdentityQuaternion);
                 }
             }
             if (changed != 0 || hover >= 80.0f) {
@@ -660,7 +640,7 @@ void subBirdBrainMain(void *volatile gobj)
                 ClipFloor(&cf);
                 attr = GetFloorAttribute(&cf);
                 if (cf.floorHit != 0 && attr != 64 && attr != 80) {
-                    *(int *)(act + 0x130) = SetMotionRequest(gobj, 316, act + 0x620);
+                    act->f_130 = SetMotionRequest(gobj, 316, *(MotOriReq *)((char *)act + 0x620));
                 }
 
                 apply_matrix_w1(sv, (char *)matrixptr + 0x100, pos);
@@ -678,11 +658,10 @@ void subBirdBrainMain(void *volatile gobj)
                     sv2[1] = sv2[1] / sv2[3] - 2048.0f;
                     dy = __builtin_fabsf(sv2[1] - sv[1]) / ScreenHeight;
 
-                    if (dy > 0.5f &&
-                        (*(int *)(bw + 0x30) == 0 || ((float *)*(int *)(bw + 0x30))[1] > 100.0f)) {
-                        pbga_start(bw + 0x30, 512);
-                        _CopyVector(*(char **)(bw + 0x30) + 0x20, pos);
-                        CopyQuaternion(*(char **)(bw + 0x30) + 0x30, IdentityQuaternion);
+                    if (dy > 0.5f && (bw->bga == 0 || ((float *)bw->bga)[1] > 100.0f)) {
+                        pbga_start(&bw->bga, 512);
+                        _CopyVector((char *)bw->bga + 0x20, pos);
+                        CopyQuaternion((char *)bw->bga + 0x30, IdentityQuaternion);
                     }
                 }
             }
@@ -698,16 +677,16 @@ void subBirdBrainMain(void *volatile gobj)
 
                 set_wave(wave, a, b, 1.0f / 7.0f);
                 if (random_unit() <= 0.5f) {
-                    pbga_start(bw + 0x30, 512);
-                    _CopyVector(*(char **)(bw + 0x30) + 0x20, pos);
-                    CopyQuaternion(*(char **)(bw + 0x30) + 0x30, IdentityQuaternion);
+                    pbga_start(&bw->bga, 512);
+                    _CopyVector((char *)bw->bga + 0x20, pos);
+                    CopyQuaternion((char *)bw->bga + 0x30, IdentityQuaternion);
                 }
             }
 
             trans_bird(gobj, wave);
 
             if (count >= 3) {
-                *(int *)(act + 0x130) = SetMotionRequest(gobj, 321, act + 0x620);
+                act->f_130 = SetMotionRequest(gobj, 321, *(MotOriReq *)((char *)act + 0x620));
             }
             break;
 
@@ -746,13 +725,13 @@ void subBirdBrainMain(void *volatile gobj)
             }
 
             if (hit != 0) {
-                *(int *)(act + 0x130) = SetMotionRequest(gobj, 316, act + 0x620);
+                act->f_130 = SetMotionRequest(gobj, 316, *(MotOriReq *)((char *)act + 0x620));
             }
             break;
         }
 
         default:
-            *(int *)(act + 0x130) = SetMotionRequest(gobj, 316, act + 0x620);
+            act->f_130 = SetMotionRequest(gobj, 316, *(MotOriReq *)((char *)act + 0x620));
             break;
         }
 
@@ -764,7 +743,7 @@ void subBirdBrainMain(void *volatile gobj)
                 GetRootPosition(rp, gobj);
                 rp[1] = GOBJ_SUB(gobj)->f_640;
                 SetDirectRootPositionNoFitting(gobj, rp);
-                *(int *)(act + 0x130) = SetMotionRequest(gobj, 172, act + 0x620);
+                act->f_130 = SetMotionRequest(gobj, 172, *(MotOriReq *)((char *)act + 0x620));
                 EntryStageMultiBgaManager(498, rp, IdentityQuaternion);
             }
         }
@@ -786,10 +765,10 @@ void subBirdBrainMain(void *volatile gobj)
             (float)((60 - systemStatus[0] * 10) / systemStatus[1]) * 30.0f < (float)frames &&
             (float)((60 - systemStatus[0] * 10) / systemStatus[1]) * 30.0f < (float)ticks) {
             debug_StdPrintfDummy("bird reset\n");
-            InitMotionOrient(gobj, 0x975, 0x9A3, -1, -1, 0x46E);
+            InitMotionOrient(gobj, 2421, 2467, -1, -1, 1134);
 
             SetDirectRootPosition(gobj, startPos);
-            *(int *)(act + 0x130) = SetMotionRequest(gobj, 316, act + 0x620);
+            act->f_130 = SetMotionRequest(gobj, 316, *(MotOriReq *)((char *)act + 0x620));
         }
 
         lastState = state;
@@ -818,14 +797,14 @@ inline void subBirdCollision(void *volatile gobj)
 
 inline void actBirdStart(void *a0)
 {
-    char *w;
+    Act *act;
 
-    w = (char *)actInitialize(a0);
+    act = (Act *)actInitialize(a0);
     _ACTWait(1);
     actCreateSubThread(subBirdBrainMain, 20);
     actCreateSubThread(subBirdControl, 21);
     actCreateSubThread(subBirdCollision, 21);
-    *(int *)(w + 0x130) = SetMotionRequest(a0, 0x10E, w + 0x620);
+    act->f_130 = SetMotionRequest(a0, 270, *(MotOriReq *)((char *)act + 0x620));
 }
 
 /* libvu0 sceVu0MulMatrix; the repo carries it under its vendor placeholder. */
@@ -833,7 +812,7 @@ inline void actBirdStart(void *a0)
 void Debug_WireString_Bird(float *pos, char *fmt, ...)
 {
     float m[16];
-    char buf[0x100];
+    char buf[256];
     void *args = (char *)__builtin_next_arg(fmt) - 0x30;
 
     MatrixDrive_PushMatrix();
@@ -863,9 +842,9 @@ void Debug_StickControl(char *self)
         iosPadRead(pad);
         iosPadGetStick(pad, stick, 0, 2, 2, 0);
         _GetMotionDirection(dir, self);
-        *(int *)((char *)ext + 0x340) = CorrectStickInfo(dir, stick);
-        if (*(float *)((char *)ext + 0x34C) > 0.001f) {
-            ConvertStickToAbsCoord((char *)ext + 0x120, stick);
+        ext->f_340 = CorrectStickInfo(dir, stick);
+        if (ext->f_34C > 0.001f) {
+            ConvertStickToAbsCoord(ext->dir, stick);
         }
     } else if (self == CurrentTargetGObjSub) {
         iosPadConnect((char *)ext + 0x2D8, 0, 1, (char *)ext + 0x1E8);
@@ -874,42 +853,44 @@ void Debug_StickControl(char *self)
     }
 }
 
-void BirdGeo(int a0, int a1, int a2, int a3)
+void BirdGeo(void *self)
 {
-    ExecMotionOrient(a0, a1, a2, a3);
+    ExecMotionOrient(self);
 }
 
 /* census: ito/src/act_bird.c BirdDL, def line 1024 */
 void BirdDL(void *gobj)
 {
-    char *w;
+    BirdWork *w;
 
     p2o_DispVU1Default(gobj);
     w = GOBJ_SUB(gobj)->f_830;
-    if (*(int *)(w + 0x30) != 0) {
-        if (stage_DispBgAnimation(w + 0x30) != 0) {
-            *(int *)(w + 0x30) = 0;
+    if (w->bga != 0) {
+        if (stage_DispBgAnimation(&w->bga) != 0) {
+            w->bga = 0;
         }
     }
-    if (stage_no == 0x54) {
+    if (stage_no == 84) {
         lightning_test();
     }
 }
 
-inline char *InitBirdGeo(char *a0, void *a1)
+inline BirdWork *InitBirdGeo(char *a0, void *a1)
 {
-    char *w;
+    BirdWork *w;
 
-    w = iosMallocDebug(ios_partition_sugipon, 0x40, __FILE__, 978);
-    memset(w, 0, 0x40);
-    CopyVector(w, a1);
-    w[0x10] = 0;
-    InitMotionOrient(a0, 0x975, 0x9A3, -1, -1, 0x46E);
+    w = iosMallocDebug(ios_partition_sugipon, sizeof(BirdWork), __FILE__, 978);
+    memset(w, 0, sizeof(BirdWork));
+    CopyVector(w->home, a1);
+    w->scared = 0;
+    InitMotionOrient(a0, 2421, 2467, -1, -1, 1134);
 
     GOBJ_SUB(a0)->f_544 = 1;
     GOBJ_SUB(a0)->f_54C = 0;
     GOBJ_SUB(a0)->f_548 = 1;
     GOBJ_SUB(a0)->f_550 = 0;
+    /* the motion clock pair at 0x4AC and 0x4B0, words the sub-object's int
+       and float users share; Sub15C declares no field at 0x4B0 */
     ((IntFloat *)((int)GOBJ_SUB(a0) + 0x4AC))->f = random_unit() * 100.0f;
     ((IntFloat *)((int)GOBJ_SUB(a0) + 0x4B0))->f = ((IntFloat *)((int)GOBJ_SUB(a0) + 0x4AC))->f;
     GOBJ_SUB(a0)->f_4C4 = 0;
@@ -919,16 +900,16 @@ inline char *InitBirdGeo(char *a0, void *a1)
 
 inline void BirdAI(void) {}
 
-void _ACTSendMailToBird(void *a0, void *a1, void *a2)
+void _ACTSendMailToBird(void *obj, int mail, void *data)
 {
-    iosOmSendMail(a0);
+    iosOmSendMail(obj, mail, (int)data);
 }
 
-inline void _ACTSendMailToBirdAll(void *a0, void *a1)
+inline void _ACTSendMailToBirdAll(int mail, void *data)
 {
     void *obj = isysGObjSearchFromObjKindID_begin(32);
     while (obj != 0) {
-        _ACTSendMailToBird(obj, a0, a1);
+        _ACTSendMailToBird(obj, mail, data);
         obj = isysGObjSearchFromObjKindID_next(obj);
     }
 }

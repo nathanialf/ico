@@ -2,27 +2,17 @@
 #include "typedef.h"
 #include "memory.h"
 #include <eekernel.h>
+#include "mv_vobuf.h"
 
 static void Free();
 
 /* census free_buf, a file static, `static` keeps its ELF symbol local so it cannot
    collide with the ico2/ito/mpeg/mv_videodec global of the same name */
-static void free_buf(a0, a1) int *a0;
-
-int a1;
-
+static void free_buf(VoBuf *self)
 {
-    Free(a0[0]);
-    Free(a0[1]);
+    Free((int)self->data);
+    Free((int)self->tag);
 }
-
-typedef struct VoBuf {
-    void *data;
-    void *tag;
-    volatile int idx;
-    volatile int count;
-    int max;
-} VoBuf;
 
 int voBufCreate(VoBuf *self)
 {
@@ -34,9 +24,9 @@ int voBufCreate(VoBuf *self)
     if (data == 0) {
         return -1;
     }
-    self->data = (void *)uncached_accel_addr(data);
+    self->data = (VoData *)uncached_accel_addr(data);
     tag = alloc_zeroed(0x3C1040, 0x40);
-    self->tag = (void *)tag;
+    self->tag = (VoTag *)tag;
     if (tag == 0) {
         return -1;
     }
@@ -44,16 +34,14 @@ int voBufCreate(VoBuf *self)
     self->count = 0;
     self->idx = 0;
     for (i = 0; i < self->max; i++) {
-        *(int *)(tag + i * 0xC0340) = 0;
+        self->tag[i].status = 0;
     }
     return 0;
 }
 
-static void free_buf();
-
-void voBufDelete(void)
+void voBufDelete(VoBuf *self)
 {
-    free_buf();
+    free_buf(self);
 }
 
 /* census Free, this TU's own copy of the mv_defs.h file static, `static` keeps its
@@ -63,10 +51,10 @@ static void Free(int a0)
     iosFree(phys_addr(a0));
 }
 
-void voBufReset(volatile int *self)
+void voBufReset(VoBuf *self)
 {
-    self[3] = 0;
-    self[2] = 0;
+    self->count = 0;
+    self->idx = 0;
 }
 
 /* The listing expands voBufIsFull's line 52 into voBufGetData, so it is a
@@ -75,47 +63,44 @@ void voBufReset(volatile int *self)
  * as a plain function, which is its ROM position, and voBufGetData inlines
  * the static stand-in below; the two collapse into one `inline voBufIsFull`
  * at layout time. */
-int voBufIsFull(int *self)
+int voBufIsFull(VoBuf *self)
 {
-    return self[3] == self[4];
+    return self->count == self->max;
 }
 
-static inline int isFull(int *self)
+static inline int isFull(VoBuf *self)
 {
-    return self[3] == self[4];
+    return self->count == self->max;
 }
 
-void voBufIncCount(int *self)
+void voBufIncCount(VoBuf *self)
 {
     DIntr();
-    *(int *)(self[1] + *(volatile int *)(self + 2) * 0xC0340) = 2;
-    *(volatile int *)(self + 3) = *(volatile int *)(self + 3) + 1;
-    *(volatile int *)(self + 2) = (*(volatile int *)(self + 2) + 1) % self[4];
+    self->tag[self->idx].status = 2;
+    self->count++;
+    self->idx = (self->idx + 1) % self->max;
     SYNC();
     EI();
 }
 
-void *voBufGetData(int *self)
+VoData *voBufGetData(VoBuf *self)
 {
-    return !isFull(self) ? (void *)(self[0] + *(volatile int *)(self + 2) * 0x195000) : 0;
+    return !isFull(self) ? &self->data[self->idx] : 0;
 }
 
-static __inline__ int voBufIsEmpty(int *self)
+static __inline__ int voBufIsEmpty(VoBuf *self)
 {
-    return *(volatile int *)(self + 3) == 0;
+    return self->count == 0;
 }
 
-void *voBufGetTag(int *self)
+VoTag *voBufGetTag(VoBuf *self)
 {
-    return !voBufIsEmpty(self) ? (void *)(self[1] + (*(volatile int *)(self + 2) -
-                                                     *(volatile int *)(self + 3) + self[4]) %
-                                                        self[4] * 0xC0340)
-                               : 0;
+    return !voBufIsEmpty(self) ? &self->tag[(self->idx - self->count + self->max) % self->max] : 0;
 }
 
-void voBufDecCount(int *p)
+void voBufDecCount(VoBuf *self)
 {
-    if (*(volatile int *)(p + 3) > 0) {
-        --(*(volatile int *)(p + 3));
+    if (self->count > 0) {
+        --self->count;
     }
 }

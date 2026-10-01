@@ -14,18 +14,30 @@
 
 /* MAIN.MAP global */
 extern int current_group;
+struct S4C;
+struct CamSetFile;
+
+/* The declarations below lead this header because their order is load-bearing:
+ * gcc 2.9 emits the deferred out-of-line copy of a plain-inline function in
+ * first-declaration order, so this is the order camera-ico2.c's inline tail has. */
+void GetHandCameraStickInfo(float *outX, float *outZ, float *outMag);
+void SetCameraZoomOffsetRatio(float val);
+int GetCameraGroupCurrent(void);
+int GetCameraGroupFromGObj(void *obj);
+int GetCameraGroupFromPosition(float *pos);
 void AddPluralCameraSet(int id, char *name);
+void InitPluralCameraSet(void);
+void *GetPluralCameraSet(int id);
+void MakeCameraSetBinary(struct S4C *src, int count, struct S4C *dst);
+int GetSizeOfCameraSetBinary(struct S4C *p, int n);
+void SetCameraTargetPosition(void *a0, void *a1, float a2);
+
 void CameraMove(int group, float *pos, float *out, float *ofsA, float *ofsB);
 void CameraSetCameraSet(int id);
 void CameraSetCameraSet_Default(void);
-int GetCameraGroupCurrent(void);
 void InitIco2Camera(void);
-void InitPluralCameraSet(void);
-void *ReadCameraSet(char *name, int stage);
-void ReflectCameraSetBinary(int a0, int a1);
-void SetCameraTargetPosition(void *a0, float a1);
-void SetCameraZoomOffsetRatio(float val);
-void GetHandCameraStickInfo(float *outX, float *outZ, float *outMag);
+void *ReadCameraSet(struct CamSetFile *f, int stage);
+void ReflectCameraSetBinary(struct S4C *src, int count);
 void SetCameraMatrix_Ico2(int flag);
 
 #endif /* CAMERA_ICO2_H */

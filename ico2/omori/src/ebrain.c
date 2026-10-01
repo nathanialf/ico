@@ -28,7 +28,7 @@ static void *girlHolder;
 
 static int enemiesWait;
 
-static int ebrainSlots[224];
+static EBSlot ebrainSlots[32];
 
 extern StgPre stageData[];
 extern void __assert(char *file, int line, char *expr);
@@ -36,7 +36,7 @@ extern GenGeo objLayout[];
 
 static inline void eBrainSetStatus(EBSlot *p, int newst)
 {
-    int st = p->f0;
+    int st = p->status;
 
     switch (st) {
     case 1:
@@ -50,13 +50,13 @@ static inline void eBrainSetStatus(EBSlot *p, int newst)
     case 1:
         eBrainBoyChaseCount++;
         if (st != 1)
-            p->f14 = 0;
+            p->chaseFrames = 0;
         break;
     case 2:
         eBrainGirlChaseCount++;
         break;
     }
-    p->f0 = newst;
+    p->status = newst;
 }
 
 static inline EBSlot *eBrainGetPacket(void *gop)
@@ -64,30 +64,25 @@ static inline EBSlot *eBrainGetPacket(void *gop)
     int i;
 
     for (i = 0; i < 32; i++) {
-        if (((EBSlot *)ebrainSlots)[i].f18 == gop)
+        if (ebrainSlots[i].owner == gop)
             break;
     }
-    if (i == 0x20)
+    if (i == 32)
         return 0;
     else
-        return &((EBSlot *)ebrainSlots)[i];
+        return &ebrainSlots[i];
 }
 
 inline void eBrainInit(void)
 {
-    int *p = ebrainSlots;
     int i;
     eBrainGirlChaseCount = 0;
     eBrainBoyChaseCount = 0;
     girlHolder = 0;
-    p = (int *)((char *)p + 0x37C);
     enemiesWait = 0;
-    i = 0x1F;
-    do {
-        *p = 0;
-        p = (int *)((char *)p - 0x1C);
-        i--;
-    } while (i >= 0);
+    for (i = 0; i < 32; i++) {
+        ebrainSlots[i].owner = 0;
+    }
 }
 
 inline int eBrainStatusSet(void *a0, int a1)
@@ -97,20 +92,20 @@ inline int eBrainStatusSet(void *a0, int a1)
     if (a1 != 4)
         return 0;
     for (i = 0; i < 32; i++) {
-        if (((EBSlot *)ebrainSlots)[i].f18 == 0)
+        if (ebrainSlots[i].owner == 0)
             break;
     }
-    if (i < 0x20)
-        slot = &((EBSlot *)ebrainSlots)[i];
+    if (i < 32)
+        slot = &ebrainSlots[i];
     else
         slot = 0;
     if (slot == 0) {
         debug_StdPrintfDummy("eBrainStatusSet: ebrain area over\n");
         return 0;
     }
-    slot->f18 = a0;
-    slot->f0 = 0;
-    slot->f10 = 0;
+    slot->owner = a0;
+    slot->status = 0;
+    slot->message = 0;
     return (int)slot;
 }
 
@@ -164,17 +159,17 @@ void eBrainProcess(void)
     }
 
     for (i = 0; i < 32; i++) {
-        s = &((EBSlot *)ebrainSlots)[i];
-        if (s->f18 == 0)
+        s = &ebrainSlots[i];
+        if (s->owner == 0)
             continue;
 
-        GetRootPosition(epos, s->f18);
+        GetRootPosition(epos, s->owner);
         sceVu0SubVector(d, epos, bpos);
         s->dist[0] = sceVu0InnerProduct(d, d);
         sceVu0SubVector(d, epos, gpos);
         s->dist[1] = sceVu0InnerProduct(d, d);
 
-        if (s->f0 == 0) {
+        if (s->status == 0) {
             if (boyGObj != 0) {
                 eBrainRegistTarget(boyTargets, boyTargetNum, s, 0);
                 boyTargetNum = boyTargetNum + 1;
@@ -183,8 +178,8 @@ void eBrainProcess(void)
                 eBrainRegistTarget(girlTargets, girlTargetNum, s, 1);
                 girlTargetNum = girlTargetNum + 1;
             }
-        } else if (s->f0 == 1) {
-            s->f14++;
+        } else if (s->status == 1) {
+            s->chaseFrames++;
         }
     }
 }
@@ -223,7 +218,7 @@ inline int eBrainGetTargetGeneratorFromLabelStage(int label, int stage)
     st = stage;
     for (i = stageData[st].labelTop; i < stageData[st].labelEnd; i++) {
         GenGeo *g = &objLayout[i];
-        if (g->kind == 0x21) {
+        if (g->kind == 33) {
             f = g->f48 >> 17;
             f &= 1;
             if (pri < f) {
@@ -268,7 +263,7 @@ int eBrainGetTargetGeneratorFromLabel(int label)
     st = stage;
     for (i = stageData[st].labelTop; i < stageData[st].labelEnd; i++) {
         GenGeo *g = &objLayout[i];
-        if (g->kind == 0x21) {
+        if (g->kind == 33) {
             f = g->f48 >> 17;
             f &= 1;
             if (pri < f) {
@@ -305,7 +300,7 @@ EBSlot *eBrainGetTarget(void *gop)
     if (p == 0)
         return 0;
 
-    switch (p->f10) {
+    switch (p->message) {
     case 1:
     case 5:
         eBrainSetStatus(p, 1);
@@ -328,14 +323,14 @@ EBSlot *eBrainGetTarget(void *gop)
         eBrainSetStatus(p, 4);
         break;
     }
-    p->f10 = 0;
-    if (enemiesWait != 0 && p->f0 == 1) {
+    p->message = 0;
+    if (enemiesWait != 0 && p->status == 1) {
         eBrainSetStatus(p, 8);
     }
 
     do {
         changed = 0;
-        switch (p->f0) {
+        switch (p->status) {
         case 0: {
             int n;
             int cnt;
@@ -407,15 +402,15 @@ EBSlot *eBrainGetTarget(void *gop)
                     }
                 }
             }
-            if (p->f0 != 0) {
+            if (p->status != 0) {
                 boyTargets[boyIdx] = girlTargets[girlIdx] = 0;
                 changed = 1;
             }
             break;
         }
         case 1:
-            p->f04 = boyGObj;
-            if (p->f14 >= 181) {
+            p->target = boyGObj;
+            if (p->chaseFrames >= 181) {
                 if (p->dist[1] < p->dist[0] + 250000.0f) {
                     if (eBrainCanSeeTarget(gop, girlGObj)) {
                         eBrainSetStatus(p, 2);
@@ -425,10 +420,10 @@ EBSlot *eBrainGetTarget(void *gop)
             }
             break;
         case 2:
-            p->f04 = girlGObj;
+            p->target = girlGObj;
             break;
         case 5:
-            p->f04 = girlGObj;
+            p->target = girlGObj;
             if (p->dist[0] < 250000.0f) {
                 if (eBrainCanSeeTarget(gop, boyGObj)) {
                     eBrainSetStatus(p, 1);
@@ -441,11 +436,11 @@ EBSlot *eBrainGetTarget(void *gop)
             }
             break;
         case 4:
-            p->f04 = isysGObjSearchFromObjLayoutID(
+            p->target = isysGObjSearchFromObjLayoutID(
                 eBrainGetTargetGeneratorFromLabel(*(int *)((char *)gop + 8)));
             break;
         case 6:
-            p->f04 = 0;
+            p->target = 0;
             break;
         case 3:
             if (eBrainCanSeeTarget(gop, girlGObj)) {
@@ -454,7 +449,7 @@ EBSlot *eBrainGetTarget(void *gop)
             }
             break;
         case 8:
-            p->f04 = boyGObj;
+            p->target = boyGObj;
             if (enemiesWait == 0) {
                 eBrainSetStatus(p, 0);
             }
@@ -462,7 +457,7 @@ EBSlot *eBrainGetTarget(void *gop)
         }
     } while (changed);
 
-    if (girlHolder != 0 && girlHolder != gop && p->f0 == 2) {
+    if (girlHolder != 0 && girlHolder != gop && p->status == 2) {
         eBrainSetStatus(p, 5);
     }
     return p;
@@ -472,7 +467,7 @@ inline void eBrainSendMes(void *gop, int mes)
 {
     EBSlot *p = eBrainGetPacket(gop);
 
-    p->f10 = mes;
+    p->message = mes;
     switch (mes) {
     case 9:
         girlHolder = gop;

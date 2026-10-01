@@ -2,57 +2,28 @@
 #include <libvu0.h>
 #include "Matrix.h"
 #include <math.h>
+#include "gather_effect.h"
 
-struct GEl {
-    int f0;         /* 0x00 */
-    char _4[0xC];   /* 0x04 */
-    float f10[4];   /* 0x10 */
-    float f20[4];   /* 0x20 */
-    char _30[4];    /* 0x30 */
-    float f34;      /* 0x34 */
-    char _38[4];    /* 0x38 */
-    float f3C;      /* 0x3C */
-    char _40[0x30]; /* 0x40 */
-};
-
-struct GGeo {
-    char _0[0x24];
-    struct GEl *f24;
-    char _28[8];
-    int f30;
-    char _34[0x1C];
-    float f50[4];
-    float f60;
-    int (*f64)(struct GGeo *);
-    void (*f68)(int);
-    int f6C;
-};
-
-/* kept local: int (struct GGeo *) here, int (struct GGeo *) in gather_effect.h */
-extern int GatherEffect_Proc(struct GGeo *geo);
-/* prototypes: their order is the inline tail's emission order */
-int GatherEffect_Set(int no, void *a1, int a2, void *goal, void (*endFunc)(int), float speed);
-int GatherEffect_InqEnd(int a0);
-
-inline int GatherEffect_Set(int no, void *a1, int a2, void *goal, void (*endFunc)(int), float speed)
+inline int GatherEffect_Set(int no, void *pos, void *quat, void *goal, float speed,
+                            void (*endFunc)(int))
 {
     struct GGeo *geo;
     int i;
     int id;
 
-    id = SetParticleEffect(no, a1, a2);
+    id = SetParticleEffect(no, pos, quat);
     if (id >= 0) {
-        geo = (struct GGeo *)GetParticleEffectData((void *)id);
+        geo = (struct GGeo *)GetParticleEffectData(id);
         DisableParticleEffectGeometryControl(id);
 
-        sceVu0CopyVector(geo->f50, goal);
-        geo->f60 = speed;
-        geo->f64 = GatherEffect_Proc;
-        geo->f68 = endFunc;
-        geo->f6C = id;
+        sceVu0CopyVector(geo->goal, goal);
+        geo->speed = speed;
+        geo->proc = GatherEffect_Proc;
+        geo->endFunc = endFunc;
+        geo->id = id;
 
-        for (i = 0; i < geo->f30; i++) {
-            geo->f24[i].f0 = 1;
+        for (i = 0; i < geo->n; i++) {
+            geo->parts[i].moving = 1;
         }
     }
     return id;
@@ -61,8 +32,8 @@ inline int GatherEffect_Set(int no, void *a1, int a2, void *goal, void (*endFunc
 void GatherEffect_SetGoal(int a0, void *a1)
 {
     if (a0 >= 0) {
-        char *v = (char *)GetParticleEffectData(a0);
-        sceVu0CopyVector(v + 0x50, a1);
+        struct GGeo *geo = (struct GGeo *)GetParticleEffectData(a0);
+        sceVu0CopyVector(geo->goal, a1);
     }
 }
 
@@ -80,65 +51,65 @@ int GatherEffect_Proc(struct GGeo *geo)
 
     flag = 0;
 
-    for (i = 0; i < geo->f30; i++) {
-        struct GEl *p = &geo->f24[i];
+    for (i = 0; i < geo->n; i++) {
+        struct GEl *p = &geo->parts[i];
         float spd;
         float d;
         float ang;
         float inner;
 
-        sceVu0SubVector(tmp, geo->f50, p->f10);
+        sceVu0SubVector(tmp, geo->goal, p->pos);
         sceVu0Normalize(dir, tmp);
-        inner = sceVu0InnerProduct(dir, p->f20);
-        spd = geo->f60;
+        inner = sceVu0InnerProduct(dir, p->vel);
+        spd = geo->speed;
         if (inner < 0.0f) {
             spd = spd * 1.5f;
         }
         sceVu0ScaleVector(add, dir, spd);
-        sceVu0AddVector(p->f20, p->f20, add);
+        sceVu0AddVector(p->vel, p->vel, add);
 
-        d = sceVu0InnerProduct(dir, p->f20);
+        d = sceVu0InnerProduct(dir, p->vel);
         if (0.0f < d) {
-            float n = _GetNorm(p->f20);
+            float n = _GetNorm(p->vel);
             float t;
             sceVu0ScaleVector(para, dir, d);
-            sceVu0SubVector(perp, p->f20, para);
-            t = _GetLength(p->f10, geo->f50) / (n * 30.0f);
+            sceVu0SubVector(perp, p->vel, para);
+            t = _GetLength(p->pos, geo->goal) / (n * 30.0f);
             if (0.98f < t) {
                 t = 0.98f;
             }
             sceVu0ScaleVector(perp, perp, t);
-            sceVu0AddVector(p->f20, para, perp);
+            sceVu0AddVector(p->vel, para, perp);
         }
 
-        if (p->f0) {
-            sceVu0Normalize(nv, p->f20);
+        if (p->moving) {
+            sceVu0Normalize(nv, p->vel);
             ang = acosf(sceVu0InnerProduct(nv, dir));
-            if (_GetLength(p->f10, geo->f50) <= _GetNorm(p->f20) && ang < 0.5235988f) {
-                p->f0 = 0;
+            if (_GetLength(p->pos, geo->goal) <= _GetNorm(p->vel) && ang < 0.5235988f) {
+                p->moving = 0;
             } else {
-                sceVu0AddVector(p->f10, p->f10, p->f20);
+                sceVu0AddVector(p->pos, p->pos, p->vel);
             }
         }
-        if (p->f0 == 0) {
-            sceVu0CopyVector(p->f10, geo->f50);
-            p->f3C -= 0.02f;
-            if (p->f3C < 0.0f) {
-                p->f3C = 0.0f;
+        if (p->moving == 0) {
+            sceVu0CopyVector(p->pos, geo->goal);
+            p->alpha -= 0.02f;
+            if (p->alpha < 0.0f) {
+                p->alpha = 0.0f;
             }
-            p->f34 -= 2.5f;
-            if (p->f34 < 0.0f) {
-                p->f34 = 0.0f;
+            p->size -= 2.5f;
+            if (p->size < 0.0f) {
+                p->size = 0.0f;
             }
         }
-        flag |= p->f0;
+        flag |= p->moving;
     }
 
     end = (flag == 0);
 
     if (end) {
-        if (geo->f68 != 0) {
-            geo->f68(geo->f6C);
+        if (geo->endFunc != 0) {
+            geo->endFunc(geo->id);
         }
 
         debug_StdPrintfDummy("gather effect end\n");
@@ -159,15 +130,15 @@ inline int GatherEffect_InqEnd(int a0)
 {
     int acc = 0;
     if (a0 >= 0) {
-        struct GGeo *geo = (struct GGeo *)GetParticleEffectData((void *)a0);
+        struct GGeo *geo = (struct GGeo *)GetParticleEffectData(a0);
         if (geo == 0) {
             return 1;
         }
         {
-            int n = geo->f30;
+            int n = geo->n;
             int i;
             for (i = 0; i < n; i++) {
-                acc |= geo->f24[i].f0;
+                acc |= geo->parts[i].moving;
             }
         }
     }

@@ -6,7 +6,11 @@
 #include <libgraph.h>
 #include <libmpeg.h>
 #include "mv_audiodec.h"
+#include "mv_strfile.h"
+#include "mv_readbuf.h"
+#include "mv_videodec.h"
 #include <eeregs.h>
+#include <libcdvd.h>
 
 /* --- the TU's whole .data run, VMA 0x2A7920..0x2A79B8 (0x98, = MAIN.MAP
    mv_main.o .data 0x98).  MAIN.MAP names the last two objects of the run,
@@ -19,38 +23,12 @@ static int movieDmacChannel[] = {0, 1, 2, 3, 4, 8, 9};
 
 static int movieIntcChannel[] = {0, 1, 2, 4, 5, 6, 7};
 
-/* the video-out ring the decoder fills and mv_disp drains: the five fields
-   mv_vobuf.c spells as VoBuf (data, tag, idx, count, max).  RECONSTRUCTION:
-   the ROM shows only zeroes here, the field list comes from mv_vobuf.c. */
-typedef struct {
-    void *data;         /* 0x00 */
-    void *tag;          /* 0x04 */
-    volatile int idx;   /* 0x08 */
-    volatile int count; /* 0x0C */
-    int max;            /* 0x10 */
-} MvVoBuf;
+/* the video-out ring the decoder fills and mv_disp drains (mv_vobuf.h) */
+VoBuf voBuf = {0};
 
-MvVoBuf voBuf = {0};
-
-/* the movie's display environment: the five GS privileged registers
-   sceGsSetDefDispEnv fills (sce/libgraph/graph009.c's sceGsDispEnv) and the
-   six words mv_disp.c's setDispEnv keeps after them.  MAIN.MAP's name;
+/* the movie's display environment (mv_disp.h).  MAIN.MAP's name;
    debug_exception's `display` routine, absent from MAIN.MAP, is that TU's
    file static. */
-typedef struct {
-    long long pmode;   /* 0x00 */
-    long long smode2;  /* 0x08 */
-    long long dispfb;  /* 0x10 */
-    long long display; /* 0x18 */
-    long long bgcolor; /* 0x20 */
-    int f28;           /* 0x28 */
-    int f2C;           /* 0x2C */
-    int width;         /* 0x30 */
-    int height;        /* 0x34 */
-    int f38;           /* 0x38 */
-    int f3C;           /* 0x3C */
-} MvDispEnv;
-
 MvDispEnv display = {0};
 
 /* .sbss, owned by mv_main.o (MAIN.MAP names no symbol in the run), in the ROM's
@@ -60,13 +38,9 @@ MvDispEnv display = {0};
    the caller's own priority, and the GS interrupt mask saved across playback.
    The long long forces the 8-byte alignment that leaves the word before it
    unused, which is what makes the run 0x38 bytes. */
-static int videoCbMgr;
+static MvCbArg videoCbArg;
 
-static int videoCbStream;
-
-static int pcmCbMgr;
-
-static int pcmCbStream;
+static MvCbArg pcmCbArg;
 
 static int decThreadPri;
 
@@ -93,76 +67,7 @@ static int moviePauseCount = 0; /* derived name */
 /* the debug frame counter */
 static int movieFrameNo = 0; /* derived name */
 
-/* kept local: void (char *) here, int (void) in mv_strfile.h */
-extern void strFileClose(char *self);
-/* kept local: this TU's uses of readBufDelete do not fit the prototype in mv_readbuf.h */
-extern void readBufDelete(int *self);
-/* kept local: void (MvVoBuf *) here, void (void) in mv_vobuf.h */
-extern void voBufDelete(MvVoBuf *self);
-/* kept local: int (int *) here, int (int) in mv_videodec.h */
-extern int videoDecDelete(int *self);
-/* kept local: void (MvDispEnv *) here, void (void) in mv_disp.h */
-extern void dispDelete(MvDispEnv *self);
-/* kept local: void (MvDispEnv *, unsigned int) here, void (int *, unsigned int) in mv_disp.h */
-extern void dispClear(MvDispEnv *self, unsigned int col);
 void movie_end(void);
-/* kept local: agrees with libcdvd.h; including it here moves this TU's bytes */
-extern int sceCdStStat(void);
-/* kept local: agrees with mv_disp.h, which this TU does not include (dispClear, dispCreate differ) */
-extern void startDisplay(int on);
-/* kept local: agrees with mv_disp.h, which this TU does not include (dispClear, dispCreate differ) */
-extern void endDisplay(void);
-/* kept local: void (int *) here, void (int) in mv_videodec.h */
-extern void videoDecAbort(int *self);
-/* kept local: int (int *) here, int (int) in mv_videodec.h */
-extern int videoDecGetState(int *self);
-/* kept local: int (int *) here, int (int) in mv_videodec.h */
-extern int videoDecFlush(int *self);
-/* kept local: agrees with mv_videodec.h, which this TU does not include (videoDecAbort, videoDecCreate differ) */
-extern int videoDecIsFlushed(int *self);
-/* kept local: int (int *, void **) here, int (int *, int *) in mv_readbuf.h */
-extern int readBufBeginPut(int *self, void **p);
-/* kept local: agrees with mv_readbuf.h, which this TU does not include (readBufBeginGet, readBufBeginPut differ) */
-extern void readBufEndPut(int *self, int n);
-/* kept local: int (int *, void **) here, int (int *, int *) in mv_readbuf.h */
-extern int readBufBeginGet(int *self, void **p);
-/* kept local: int (int *, int) here, int (int, int) in mv_readbuf.h */
-extern int readBufEndGet(int *self, int n);
-/* kept local: int (char *, void *, int, int *) here, int (void) in mv_strfile.h */
-extern int strFileRead(char *self, void *buf, int n, int *eof);
-/* kept local: int (MvVoBuf *) here, int (int *) in mv_vobuf.h */
-extern int voBufIsFull(MvVoBuf *self);
-/* kept local: void (MvDispEnv *, int, int, int, int) here, void (int *, int, int, int, int) in mv_disp.h */
-extern void dispCreate(MvDispEnv *self, int a1, int a2, int a3, int a4);
-/* kept local: int (char *, int) here, int (char *, char *) in mv_strfile.h */
-extern int strFileOpen(char *self, int name);
-/* kept local: agrees with mv_readbuf.h, which this TU does not include (readBufBeginGet, readBufBeginPut differ) */
-extern int readBufCreate(int *self);
-/* kept local: int (int *) here, int (int) in mv_videodec.h */
-extern int videoDecCreate(int *self);
-/* kept local: int (int *, int, int, void *, void *) here, int (void) in mv_videodec.h */
-extern int videoDecSetStream(int *self, int id, int a2, void *fn, void *arg);
-/* kept local: int (MvVoBuf *) here, int (char *) in mv_vobuf.h */
-extern int voBufCreate(MvVoBuf *self);
-/* kept local: this TU's uses of videoCallback do not fit the prototype in mv_videodec.h */
-extern int videoCallback();
-/* kept local: agrees with mv_videodec.h, which this TU does not include (videoDecAbort, videoDecCreate differ) */
-extern void videoDecMain();
-/* kept local: agrees with mv_disp.h, which this TU does not include (dispClear, dispCreate differ) */
-extern int handler_endimage();
-/* kept local: agrees with mv_disp.h, which this TU does not include (dispClear, dispCreate differ) */
-extern int vblankHandler();
-
-/* Argument block handed to the videoDecMain thread; it reads the three
-   members back as self[0], self[1] and self[2]. */
-typedef struct {
-    int *dec;        /* videoDec, the videoDec object   */
-    MvDispEnv *disp; /* the display env, MAIN.MAP `display` */
-    MvVoBuf *vo;     /* voBuf, the video-out ring          */
-    /* the ROM's .bss run spaces the next object 0x40 on, so the block the
-       developers declared reserves that much; only the three above are used */
-    char reserved[64 - 12];
-} MvThreadArg;
 
 /* .bss, owned by mv_main.o (0x10380, the run, tiled exactly by these eight;
    MAIN.MAP's own link sizes it 0x1037C), in the ROM's run order: the stream
@@ -171,9 +76,9 @@ typedef struct {
    stack, and the DMA and interrupt enables saved per channel. */
 static char mpegStrFile[33216];
 
-static int mpegReadBuf[4];
+static ReadBuf mpegReadBuf;
 
-static int videoDec[50];
+static VideoDec videoDec;
 
 static AudioDec audioDec;
 
@@ -203,7 +108,7 @@ static inline int audioIsPreset(void)
     return movieHasAudio ? audioDecIsPreset(&audioDec) : 1;
 }
 
-int readMpeg(int *dec, int *rb, char *strf, int (*poll)(void))
+int readMpeg(VideoDec *dec, ReadBuf *rb, char *strf, int (*poll)(void))
 {
     void *p;
     int eof;
@@ -216,6 +121,8 @@ int readMpeg(int *dec, int *rb, char *strf, int (*poll)(void))
     int size;
     int len;
 
+    /* the stream's byte count, a word of cdvd.c's stream record, which
+       cdvd.h does not declare */
     left = *(int *)(strf + 0x8180);
     n = left;
 
@@ -224,7 +131,7 @@ int readMpeg(int *dec, int *rb, char *strf, int (*poll)(void))
             debug_StdPrintfDummy("movie pause\n");
             moviePauseCount = 30;
         }
-        if (dec[2] >= 11) {
+        if (dec->frameCount >= 11) {
             if (moviePauseCount == 1) {
                 startDisplay(1);
                 if (movieHasAudio != 0) {
@@ -241,7 +148,7 @@ int readMpeg(int *dec, int *rb, char *strf, int (*poll)(void))
             }
             if (poll() != 0) {
                 abort = 1;
-                videoDecAbort(videoDec);
+                videoDecAbort(&videoDec);
             }
         }
         size = readBufBeginPut(rb, &p);
@@ -256,7 +163,7 @@ int readMpeg(int *dec, int *rb, char *strf, int (*poll)(void))
         switchThread();
         len = readBufBeginGet(rb, &q);
         if (len > 0) {
-            len = sceMpegDemuxPssRing(dec, q, len, rb[0], rb[1]);
+            len = sceMpegDemuxPssRing((int *)dec, q, len, (int)rb->data, rb->size);
             left -= len;
             readBufEndGet(rb, len);
         }
@@ -286,14 +193,14 @@ term:
     return abort;
 }
 
-int initAll(int a0, int a1, int a2, int a3, int p4, int p5, int p6, int p7)
+int initAll(char *a0, int a1, int a2, int a3, int p4, int p5, int p6, int p7)
 {
     struct ThreadParam th;
     int ret = 0;
 
     moviePauseCount = 0;
-    videoDec[0xC4 / 4] = -1;
-    videoDec[0xC0 / 4] = -1;
+    videoDec.intcHandler = -1;
+    videoDec.dmacHandler = -1;
     decThreadStarted = 0;
 
     dispCreate(&display, a1, a2, a3, p4);
@@ -308,11 +215,11 @@ int initAll(int a0, int a1, int a2, int a3, int p4, int p5, int p6, int p7)
     if (strFileOpen(mpegStrFile, a0) == 0) {
         return -1;
     }
-    if (readBufCreate(mpegReadBuf) != 0) {
+    if (readBufCreate(&mpegReadBuf) != 0) {
         return -1;
     }
     sceMpegInit();
-    if (videoDecCreate(videoDec) != 0) {
+    if (videoDecCreate(&videoDec) != 0) {
         return -1;
     }
     if (movieHasAudio != 0) {
@@ -321,13 +228,13 @@ int initAll(int a0, int a1, int a2, int a3, int p4, int p5, int p6, int p7)
         }
     }
 
-    videoCbMgr = (int)mpegReadBuf;
-    videoCbStream = (int)videoDec;
-    videoDecSetStream(videoDec, 0, 0, videoCallback, &videoCbMgr);
+    videoCbArg.rb = &mpegReadBuf;
+    videoCbArg.dec = &videoDec;
+    videoDecSetStream(&videoDec, 0, 0, videoCallback, &videoCbArg);
     if (movieHasAudio != 0) {
-        pcmCbMgr = (int)mpegReadBuf;
-        pcmCbStream = (int)&audioDec;
-        videoDecSetStream(videoDec, 2, 0, pcmCallback, &pcmCbMgr);
+        pcmCbArg.rb = &mpegReadBuf;
+        pcmCbArg.dec = &audioDec;
+        videoDecSetStream(&videoDec, 2, 0, pcmCallback, &pcmCbArg);
     }
 
     if (voBufCreate(&voBuf) != 0) {
@@ -344,7 +251,7 @@ int initAll(int a0, int a1, int a2, int a3, int p4, int p5, int p6, int p7)
     decThreadId = CreateThread(&th);
     debug_StdPrintfDummy("start thread\n");
 
-    decThreadArg.dec = videoDec;
+    decThreadArg.dec = &videoDec;
     decThreadArg.disp = &display;
     decThreadArg.vo = &voBuf;
     StartThread(decThreadId, &decThreadArg);
@@ -352,15 +259,15 @@ int initAll(int a0, int a1, int a2, int a3, int p4, int p5, int p6, int p7)
 
     DIntr();
     debug_StdPrintfDummy("add intc\n");
-    videoDec[0xC4 / 4] = AddIntcHandler(2, vblankHandler, 0);
-    if (videoDec[0xC4 / 4] < 0) {
+    videoDec.intcHandler = AddIntcHandler(2, vblankHandler, 0);
+    if (videoDec.intcHandler < 0) {
         debug_StdPrintfDummy("add intc failed\n");
         ret = -1;
     } else {
         savedIntc = EnableIntc(2);
         debug_StdPrintfDummy("add dmac\n");
-        videoDec[0xC0 / 4] = AddDmacHandler(2, handler_endimage, 0);
-        if (videoDec[0xC0 / 4] < 0) {
+        videoDec.dmacHandler = AddDmacHandler(2, handler_endimage, 0);
+        if (videoDec.dmacHandler < 0) {
             debug_StdPrintfDummy("add dmac failed\n");
             ret = -1;
         } else {
@@ -379,24 +286,24 @@ void termAll(void)
         DisableDmac(2);
     }
     savedDmac = 0;
-    if (videoDec[0xC0 / 4] >= 0) {
-        RemoveDmacHandler(2, videoDec[0xC0 / 4]);
+    if (videoDec.dmacHandler >= 0) {
+        RemoveDmacHandler(2, videoDec.dmacHandler);
     }
     if (savedIntc != 0) {
         DisableIntc(2);
     }
     savedIntc = 0;
-    if (videoDec[0xC4 / 4] >= 0) {
-        RemoveIntcHandler(2, videoDec[0xC4 / 4]);
+    if (videoDec.intcHandler >= 0) {
+        RemoveIntcHandler(2, videoDec.intcHandler);
     }
     EIntr();
     if (decThreadStarted != 0) {
         TerminateThread(decThreadId);
         DeleteThread(decThreadId);
     }
-    readBufDelete(mpegReadBuf);
+    readBufDelete(&mpegReadBuf);
     voBufDelete(&voBuf);
-    videoDecDelete(videoDec);
+    videoDecDelete(&videoDec);
     audioDecDelete(&audioDec);
     dispDelete(&display);
     *D_CTRL = savedDmaCtrl;
@@ -410,7 +317,7 @@ static inline int vu0Stat(void)
     return r;
 }
 
-int movie_init(int a0, int a1, int a2, int a3, int p4, int p5, int p6)
+int movie_init(char *a0, int a1, int a2, int a3, int p4, int p5, int p6)
 {
     struct ThreadParam st;
     unsigned int i;
@@ -474,7 +381,7 @@ int movie_proc(int (*poll)(void))
 {
     int r;
     debug_StdPrintfDummy("= %d =\n", movieFrameNo++);
-    r = readMpeg(videoDec, mpegReadBuf, mpegStrFile, poll);
+    r = readMpeg(&videoDec, &mpegReadBuf, mpegStrFile, poll);
     movie_end();
     return r;
 }

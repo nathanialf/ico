@@ -12,7 +12,7 @@
 #ifndef MV_MAIN_H
 #define MV_MAIN_H
 
-int initAll(int a0, int a1, int a2, int a3, int p4, int p5, int p6, int p7);
+int initAll(char *a0, int a1, int a2, int a3, int p4, int p5, int p6, int p7);
 void switchThread(void);
 
 #endif /* MV_MAIN_H */

@@ -5,6 +5,7 @@
 #include "act-game.h"
 #include "commonact.h"
 #include "camera-editor.h"
+#include "camera-ico2.h"
 #include "camera-set-manager.h"
 #include "hand-camera.h"
 #include "geometryManager.h"
@@ -29,8 +30,6 @@ typedef struct CamSetHdr {
     CamSetItem items[1]; /* 0x10 */
 } CamSetHdr;
 
-/* kept local: void (S4C *, int) here, void (int, int) in camera-ico2.h */
-extern void ReflectCameraSetBinary(S4C *src, int count);
 extern const StgPre stageData[];
 /* kept local: boyact.h does not compile in this TU (too many arguments to function `GetBoyRootPositionForCamera') */
 extern void GetBoyRootPositionForCamera();
@@ -129,11 +128,11 @@ extern void __assert(char *file, int line, char *expr);
 
 /* the camera-set binary: a sixteen byte header, `count` group records of 0x4C
    and `total` item records whose stride is the file version's */
-typedef struct CamSetFile {
-    int magic; /* 0x00 */
-    int ver;   /* 0x04 */
-    int count; /* 0x08 */
-    int total; /* 0x0C */
+typedef struct CamSetFile { /* field names derived */
+    int magic;              /* 0x00 */
+    int ver;                /* 0x04 */
+    int count;              /* 0x08 */
+    int total;              /* 0x0C */
 } CamSetFile;
 
 typedef struct CamGroup { /* 0x4C */
@@ -167,21 +166,7 @@ typedef struct CamItemV2 { /* 0x50 */
     unsigned char _0[0x50];
 } CamItemV2;
 
-/* kept local: void * (CamSetFile *, int) here, void * (char *, int) in camera-ico2.h */
-extern void *ReadCameraSet(CamSetFile *f, int stage);
 extern char D_002AD010[][0x20];
-/* prototypes: their order is the inline tail's emission order */
-void GetHandCameraStickInfo(float *outX, float *outZ, float *outMag);
-void SetCameraZoomOffsetRatio(float val);
-int GetCameraGroupCurrent(void);
-int GetCameraGroupFromGObj(void *obj);
-int GetCameraGroupFromPosition(float *pos);
-void AddPluralCameraSet(int id, char *name);
-void InitPluralCameraSet(void);
-void *GetPluralCameraSet(int id);
-void MakeCameraSetBinary(S4C *src, int count, S4C *dst);
-int GetSizeOfCameraSetBinary(S4C *p, int n);
-void SetCameraTargetPosition(void *a0, float a1);
 
 inline void SetCameraZoomOffsetRatio(float val)
 {
@@ -219,15 +204,13 @@ void GetRootPositionForCamera(int a0, int a1)
     }
 }
 
-inline void SetCameraTargetPosition(void *a0, float a1)
+inline void SetCameraTargetPosition(void *a0, void *a1, float a2)
 {
-    /* ROM never writes $5 before the first jal: this call site passes two
-     * arguments, through a two-parameter view of the same declaration. */
-    ((void (*)(void *, float))sceVu0ScaleVector)((&monitorCamera.work), -1.0f);
+    sceVu0ScaleVector((&monitorCamera.work), a1, -1.0f);
     sceVu0ScaleVector((char *)(&monitorCamera.work) + 0x10, a0, -1.0f);
     sceVu0ScaleVector(targetAPrev, a0, -1.0f);
     sceVu0ScaleVector(targetBPrev, a0, -1.0f);
-    *(float *)((char *)(&monitorCamera.work) + 0x20) = a1;
+    *(float *)((char *)(&monitorCamera.work) + 0x20) = a2;
 }
 
 void ico2camera_GetTargetPos(int a0)
@@ -781,7 +764,7 @@ inline int GetSizeOfCameraSetBinary(S4C *p, int n)
     int size = n * 0x4C;
     int i;
     for (i = 0; i < n; i++) {
-        size += (p->w[15] - p->w[14]) * 0x5C;
+        size += (p->end - p->first) * 0x5C;
         p++;
     }
     return size;
@@ -796,17 +779,17 @@ inline void MakeCameraSetBinary(S4C *src, int count, S4C *dst)
     for (s = src; s != src + count; dst++, s++) {
         S5C *is;
         *dst = *s;
-        dst->w[14] = total;
-        dst->w[18] = outBase;
-        is = ((S5C *)s->w[18]) + s->w[14];
-        while (is != (((S5C *)s->w[18]) + s->w[15])) {
+        dst->first = total;
+        dst->items = outBase;
+        is = ((S5C *)s->items) + s->first;
+        while (is != (((S5C *)s->items) + s->end)) {
             *out = *is;
             out++;
             total++;
             is++;
         }
 
-        dst->w[15] = total;
+        dst->end = total;
     }
 }
 
@@ -899,8 +882,6 @@ inline void GetHandCameraStickInfo(float *outX, float *outZ, float *outMag)
     }
 }
 
-/* kept local: agrees with camera-ico2.h, which this TU does not include (ReadCameraSet, ReflectCameraSetBinary differ) */
-extern void CameraMove(int group, float *pos, float *out, float *ofsA, float *ofsB);
 /* kept local: boyact.h does not compile in this TU (too many arguments to function `GetBoyRootPositionForCamera') */
 extern unsigned char IsAbleBoyControl(void);
 

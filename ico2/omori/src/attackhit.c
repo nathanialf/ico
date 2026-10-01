@@ -10,6 +10,7 @@
 #include "weapon.h"
 #include "debug_exception.h"
 #include "gv.h"
+#include "commonact.h"
 
 typedef struct AttackPack {
     /* 0x00 */ unsigned char active;
@@ -143,8 +144,6 @@ typedef struct {
 } WeaponKindEntry;
 
 extern WeaponKindEntry weaponKind[];
-/* kept local: float * (void *) here, void * (void *) in commonact.h */
-extern float *test_CURRENTROOT(void *gobj);
 
 /* the 0x5C word is written through a union view at this one site: the ROM pins the
    weapon-table flag load behind this store, which only an alias-set-0 store does */
@@ -155,9 +154,9 @@ union PackPowerWord {
 };
 
 /* listing lines 296-308 */
-static inline int GetAttackKindIndex(char *p)
+static inline int GetAttackKindIndex(Sub15C *p)
 {
-    int id = *(int *)(p + 0x4A0);
+    int id = p->f_4A0;
     int i;
 
     for (i = 0; i < 20; i++) {
@@ -183,12 +182,12 @@ void MakeAttackPack_Actor(AttackPack *pack, char *gobj, void *weapon)
 {
     float v0[4];
     float v1[4];
-    char *ext;
+    Act *ext;
     int k;
     int wk;
 
-    ext = *(char **)(gobj + 0x164);
-    k = GetAttackKindIndex((char *)GOBJ_SUB(gobj));
+    ext = GOBJ_ACT(gobj);
+    k = GetAttackKindIndex(GOBJ_SUB(gobj));
     *pack = attackPackInit;
     pack->actor = gobj;
     if (k == 0) {
@@ -198,7 +197,7 @@ void MakeAttackPack_Actor(AttackPack *pack, char *gobj, void *weapon)
         return;
     }
     pack->group = k;
-    pack->group2 = *(int *)(ext + 0x450) | (k << 16);
+    pack->group2 = ext->f_450 | (k << 16);
     switch (attackData[k].b0) {
     case 1:
         if (weapon == 0) {
@@ -244,13 +243,13 @@ void MakeAttackPack_Actor(AttackPack *pack, char *gobj, void *weapon)
         pack->radius1 = attackData[k].f18;
         pack->power = attackData[k].f1C;
         pack->active = 1;
-        if (*(int *)(gobj + 0xC) == 4) {
+        if (((GObj *)gobj)->kind == 4) {
             if (actEnemy_isLargeEnemy(gobj) != 0) {
                 pack->radius0 = pack->radius0 * 4.0f;
                 pack->radius1 = pack->radius1 * 4.0f;
             }
-            if (*(int *)(gobj + 0xC) == 4) {
-                if ((*(int *)((char *)GOBJ_ACT(gobj)->f_680 + 0x210) & 1) != 0) {
+            if (((GObj *)gobj)->kind == 4) {
+                if ((GOBJ_ACT(gobj)->f_680->flags.w.bits & 1) != 0) {
                     pack->f01 = 1;
                 }
             }
@@ -285,7 +284,7 @@ static inline void SetupAttackPack(AttackPack *pack, char *gop, int group, float
 
     pack->radius1 = pack->radius0 = radius;
 
-    if (gop != 0 && *(int *)(gop + 0xC) == 0x35) {
+    if (gop != 0 && ((GObj *)gop)->kind == 53) {
         pack->thickness = pack->radius1 - GetQueenBallThickness();
         if (pack->thickness < 0.0f) {
             pack->thickness = 0.0f;
@@ -321,12 +320,12 @@ int AttackCheckSameGroup(char *self, char *other, char *third)
     if (other == self || other == third) {
         return 1;
     }
-    k = *(int *)(other + 0xC);
+    k = ((GObj *)other)->kind;
     if (k == 19) {
         return 0;
     }
     for (i = 0; tbl.p[i].kind >= 0; i++) {
-        if (*(int *)(self + 0xC) == tbl.p[i].kind) {
+        if (((GObj *)self)->kind == tbl.p[i].kind) {
             g0 = tbl.p[i].cls;
         }
     }
@@ -350,7 +349,7 @@ void AttackMail(char *self, AttackPack *pack)
     float v1[4];
     float v2[4];
     char *attacker;
-    char *aext;
+    Act *aext;
     int e;
     float *r0;
     void *weapon;
@@ -360,11 +359,11 @@ void AttackMail(char *self, AttackPack *pack)
     float power;
 
     attacker = (char *)pack->actor;
-    aext = *(char **)(attacker + 0x164);
+    aext = GOBJ_ACT(attacker);
     group = pack->group;
     weapon = 0;
     if (aext != 0) {
-        weapon = *(void **)(aext + 0x150);
+        weapon = (void *)aext->f_150;
     }
     hard = 0;
     if (group < 0) {
@@ -378,7 +377,7 @@ void AttackMail(char *self, AttackPack *pack)
     }
     iosOmSendMail(self, 13, attacker);
 
-    if (*(int *)(self + 0xC) == 19) {
+    if (((GObj *)self)->kind == 19) {
         if (pack->hasDir != 0) {
             sceVu0ScaleVector(v0, pack->dir, -1.0f);
         } else {
@@ -388,6 +387,7 @@ void AttackMail(char *self, AttackPack *pack)
         BreakItemWithAttackHit(self, v0);
     }
 
+    /* Act's 0x1B0 holds the attacker object, a pointer, where typedef.h's Act has an int */
     e = *(int *)(self + 0x164);
     if (e != 0 && e + 0x1B0 != 0 && *(int *)(e + 0x680) != 0) {
         *(char **)(e + 0x1B0) = attacker;
@@ -397,7 +397,7 @@ void AttackMail(char *self, AttackPack *pack)
         *(char *)(*(int *)(self + 0x164) + 0x1DB) = attackData[group].b2 || hard;
         *(char *)(*(int *)(self + 0x164) + 0x1D9) = attackData[group].b3;
         if (attacker == boyGObj) {
-            *(unsigned long long *)(aext + 0x20) &= ~0x100000000ULL;
+            aext->flags20.ll &= ~0x100000000ULL;
         }
         GetRootPosition(v0, attacker);
         GetRootPosition(v1, self);
@@ -421,7 +421,7 @@ int AttackCheckHit(AttackPack *pack, char *gobj, short *out)
     unsigned char flags[112];
     float v[3][4];
     float acc[4];
-    char *sk;
+    Sub15C *sk;
     int n;
     int i;
     int m;
@@ -430,12 +430,12 @@ int AttackCheckHit(AttackPack *pack, char *gobj, short *out)
     float rad;
     float t;
 
-    sk = (char *)GOBJ_SUB(gobj);
-    n = *(int *)(sk + 0x88);
+    sk = GOBJ_SUB(gobj);
+    n = sk->f_88;
     if (n == 0) {
         n = 1;
     }
-    switch (*(int *)(gobj + 0xC)) {
+    switch (((GObj *)gobj)->kind) {
     case 53:
         rad = QueenBallRadius(gobj);
         rad = rad + _ACTGame_GetParamF(31);
@@ -507,8 +507,8 @@ int AttackCheckHit(AttackPack *pack, char *gobj, short *out)
             sceVu0AddVector(v[m], v[m], acc);
         }
         for (i = 0; i < n; i++) {
-            if (inner_check((float *)(*(int *)(sk + 0xC) + (i << 6) + 0x30), v[0], v[1], v[2], 0.0f,
-                            100.0f) != 0) {
+            if (inner_check((float *)(sk->f_C + (i << 6) + 0x30), v[0], v[1], v[2], 0.0f, 100.0f) !=
+                0) {
                 flags[i] = 1;
             }
         }
@@ -516,9 +516,9 @@ int AttackCheckHit(AttackPack *pack, char *gobj, short *out)
         for (t = 0.0f; t < pack->radius0; t += pack->radius1) {
             _InterGV(w, pack->to, pack->center, t, pack->radius0 - t);
             for (i = 0; i < n; i++) {
-                if (_DistSqGV((float *)(*(int *)(sk + 0xC) + (i << 6) + 0x30), w) <
+                if (_DistSqGV((float *)(sk->f_C + (i << 6) + 0x30), w) <
                     ((float)hitR + pack->radius1) * ((float)hitR + pack->radius1)) {
-                    if (!(_DistSqGV((float *)(*(int *)(sk + 0xC) + (i << 6) + 0x30), w) <
+                    if (!(_DistSqGV((float *)(sk->f_C + (i << 6) + 0x30), w) <
                           ((float)hitR + pack->thickness) * ((float)hitR + pack->thickness))) {
                         flags[i] = 1;
                     }
@@ -546,9 +546,6 @@ extern int ACTChkAttackIgnore_BOY(char *gobj, void *actor);
 extern int ACTChkAttackIgnore_GIRL(char *gobj, void *actor);
 /* kept local: int (char *, void *) here, int (char *) in act-game.h */
 extern int ACTChkAttackIgnore_ENEMY(char *gobj, void *actor);
-extern int AttackCheckHit(AttackPack *pack, char *gobj, short *out);
-
-#define EXT(o) (*(char **)((o) + 0x164))
 
 int AttackGenerate(AttackPack *pack)
 {
@@ -562,19 +559,19 @@ int AttackGenerate(AttackPack *pack)
     }
     debug_StdPrintfDummy("flag ok\n");
     for (g = isysGObjGetExist_begin(); g != 0; g = isysGObjGetExist_next(g)) {
-        if (*(int *)(g + 0x16C) == 0) {
+        if (((GObj *)g)->f_16C == 0) {
             continue;
         }
         if (AttackCheckSameGroup(pack->actor, g, (char *)pack->f08) != 0) {
             continue;
         }
         debug_StdPrintfDummy("group ok\n");
-        if (!((EXT(g) != 0 && EXT(g) + 0x1B0 != 0 && *(int *)(EXT(g) + 0x680) != 0) ||
-              *(int *)(g + 0xC) == 19)) {
+        if (!((GOBJ_ACT(g) != 0 && &GOBJ_ACT(g)->f_1B0 != 0 && GOBJ_ACT(g)->f_680 != 0) ||
+              ((GObj *)g)->kind == 19)) {
             continue;
         }
-        if (EXT(g) != 0 && EXT(g) + 0x1B0 != 0 && *(int *)(EXT(g) + 0x680) != 0 &&
-            *(char *)(EXT(g) + 0x1DA) != 0) {
+        if (GOBJ_ACT(g) != 0 && &GOBJ_ACT(g)->f_1B0 != 0 && GOBJ_ACT(g)->f_680 != 0 &&
+            GOBJ_ACT(g)->f_1DA != 0) {
             continue;
         }
         debug_StdPrintfDummy("invincible ok\n");
@@ -584,33 +581,34 @@ int AttackGenerate(AttackPack *pack)
         if (g == girlGObj && ACTChkAttackIgnore_GIRL(g, pack->actor) != 0) {
             continue;
         }
-        if (*(int *)(g + 0xC) == 4 && ACTChkAttackIgnore_ENEMY(g, pack->actor) != 0) {
+        if (((GObj *)g)->kind == 4 && ACTChkAttackIgnore_ENEMY(g, pack->actor) != 0) {
             continue;
         }
         arg = 0;
-        if (EXT(g) != 0 && EXT(g) + 0x1B0 != 0) {
-            if (*(int *)(EXT(g) + 0x680) != 0) {
-                arg = *(int *)(EXT(g) + 0x680) + 0xF0;
+        if (GOBJ_ACT(g) != 0 && &GOBJ_ACT(g)->f_1B0 != 0) {
+            if (GOBJ_ACT(g)->f_680 != 0) {
+                /* the enemy work's hit record at +0xF0, inside EnemyBattleWork's padding */
+                arg = (int)GOBJ_ACT(g)->f_680 + 0xF0;
             }
         }
         if (AttackCheckHit(pack, g, (short *)arg) == 0) {
             continue;
         }
         debug_StdPrintfDummy("geometry ok\n");
-        if (EXT(g) != 0 && *(int *)(EXT(g) + 0x1B0) != 0 &&
-            *(int *)(EXT(g) + 0x1D4) == pack->group2) {
+        if (GOBJ_ACT(g) != 0 && GOBJ_ACT(g)->f_1B0 != 0 && GOBJ_ACT(g)->f_1D4 == pack->group2) {
             debug_StdPrintfDummy("id equal error\n");
             continue;
         }
-        if (debug_one_hit_only != 0 && pack->actor == boyGObj && *(int *)(g + 0xC) == 4 &&
-            ((int)(*(unsigned long long *)(EXT((char *)pack->actor) + 0x20) >> 32) & 1) == 0) {
+        if (debug_one_hit_only != 0 && pack->actor == boyGObj && ((GObj *)g)->kind == 4 &&
+            ((int)(GOBJ_ACT(pack->actor)->flags20.ll >> 32) & 1) == 0) {
             continue;
         }
         AttackMail(g, pack);
         hit = g;
         debug_StdPrintfDummy("mail send ok [%d]\n", pack->group2);
-        if (EXT(hit) != 0 && *(int *)(EXT(hit) + 0x1B0) != 0 && *(int *)(hit + 0xC) == 4) {
-            _OrientGV((float *)(*(int *)(EXT(hit) + 0x680) + 0xE0), pack->center, pack->from);
+        if (GOBJ_ACT(hit) != 0 && GOBJ_ACT(hit)->f_1B0 != 0 && ((GObj *)hit)->kind == 4) {
+            /* the enemy work's hit direction at +0xE0, inside EnemyBattleWork's padding */
+            _OrientGV((float *)((int)GOBJ_ACT(hit)->f_680 + 0xE0), pack->center, pack->from);
         }
     }
     return (int)hit;

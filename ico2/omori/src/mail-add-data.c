@@ -1,3 +1,4 @@
+#include "typedef.h"
 #include "obj_manager.h"
 #include "debug_exception.h"
 
@@ -24,16 +25,17 @@ static inline int sendMailAndGetIndex(char *gop, int msg, void *sender)
     if (iosOmSendMail(gop, msg, sender) < 0) {
         return -1;
     }
-    return *(int *)(gop + 0x58) - 1;
+    return ((GObj *)gop)->f58 - 1;
 }
 
 static inline MailAdditionalData *getMailAdditionalDataTable(char *gop)
 {
-    if (*(int *)(gop + 0x164) == 0) {
+    if (((GObj *)gop)->act == 0) {
         debug_assert("src/mail-add-data.c", 71);
         __assert("src/mail-add-data.c", 71, "GOBJ_VAL(gop)");
     }
-    return *(MailAdditionalData **)(*(char **)(gop + 0x164) + 0x684);
+    /* Act's 0x684 holds this table's address, an int in typedef.h's Act */
+    return (MailAdditionalData *)GOBJ_ACT(gop)->f_684;
 }
 
 #include "mail-add-data.h"
@@ -75,7 +77,7 @@ inline void *GetMailAdditionalData(char *gop, int mail)
 
 void InitMailAdditionalData(char *a0, int a1)
 {
-    *(int *)(*(char **)(a0 + 0x164) + 0x684) = a1;
+    GOBJ_ACT(a0)->f_684 = a1;
     ClearMailAdditionalData(a0);
 }
 

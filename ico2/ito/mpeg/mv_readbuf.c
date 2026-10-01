@@ -1,68 +1,68 @@
 #include "mv_defs.h"
 #include "mv_readbuf.h"
 
-int readBufCreate(int *self)
+int readBufCreate(ReadBuf *self)
 {
     int buf;
 
-    buf = alloc_zeroed(0x50000, 0x40);
-    self[0] = buf;
+    buf = alloc_zeroed(327680, 0x40);
+    self->data = (unsigned char *)buf;
     if (buf == 0) {
         return -1;
     }
-    self[1] = 0x50000;
-    self[2] = self[3] = 0;
+    self->size = 327680;
+    self->put = self->count = 0;
     return 0;
 }
 
-void readBufDelete(void) {}
+void readBufDelete(ReadBuf *self) {}
 
-int readBufBeginPut(int *a0, int *a1)
+int readBufBeginPut(ReadBuf *self, void **p)
 {
-    int diff = a0[1] - a0[3];
+    int diff = self->size - self->count;
     if (diff != 0) {
-        int pos = a0[2];
-        a1[0] = a0[0] + pos;
+        int pos = self->put;
+        *p = self->data + pos;
     }
     return diff;
 }
 
-void readBufEndPut(int *a0, int a1)
+void readBufEndPut(ReadBuf *self, int n)
 {
     int size;
     int pos;
     int cum;
     int remaining;
     int step;
-    size = a0[1];
-    cum = a0[3];
-    pos = a0[2];
+    size = self->size;
+    cum = self->count;
+    pos = self->put;
     remaining = size - cum;
-    step = (a1 < remaining) ? (a1) : (remaining);
+    step = (n < remaining) ? (n) : (remaining);
     pos += step;
     cum = cum + step;
-    a0[2] = pos % size;
-    a0[3] = cum;
+    self->put = pos % size;
+    self->count = cum;
 }
 
-int readBufBeginGet(int *a0, int *out)
+int readBufBeginGet(ReadBuf *self, void **p)
 {
-    int a2 = a0[3];
-    if (a2 != 0) {
-        int v1 = a0[2] - a2;
-        int divisor = a0[1];
+    int n = self->count;
+    if (n != 0) {
+        int v1 = self->put - n;
+        int divisor = self->size;
         v1 = v1 + divisor;
-        *out = a0[0] + (v1 % divisor);
+        *p = self->data + (v1 % divisor);
     }
-    return a2;
+    return n;
 }
 
-int readBufEndGet(int a0, int a1)
+int readBufEndGet(ReadBuf *self, int n)
 {
-    int rest = *(int *)(a0 + 0xC);
-    if (a1 < rest) {
-        rest = a1;
+    int rest = self->count;
+    if (n < rest) {
+        rest = n;
     }
-    *(int *)(a0 + 0xC) -= rest;
+    self->count -= rest;
     return rest;
 }

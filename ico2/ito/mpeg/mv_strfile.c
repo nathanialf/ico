@@ -1,10 +1,6 @@
 #include "mv_defs.h"
 #include "mv_strfile.h"
-
-/* kept local: cdvd.h does not compile in this TU (too few arguments to function `iosCdvdDirectStClose') */
-extern void iosCdvdDirectStClose();
-/* kept local: cdvd.h does not compile in this TU (too few arguments to function `iosCdvdDirectStClose') */
-extern int iosCdvdDirectStRead();
+#include "cdvd.h"
 
 int strFileOpen(char *a0, char *name)
 {
@@ -13,13 +9,13 @@ int strFileOpen(char *a0, char *name)
     return 1;
 }
 
-int strFileClose(void)
+int strFileClose(char *self)
 {
-    iosCdvdDirectStClose();
+    iosCdvdDirectStClose((int *)self);
     return 1;
 }
 
-int strFileRead(void)
+int strFileRead(char *self, void *buf, int n, int *eof)
 {
-    return iosCdvdDirectStRead();
+    return iosCdvdDirectStRead((int)self, (int)buf, n, eof);
 }

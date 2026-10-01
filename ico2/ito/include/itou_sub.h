@@ -17,9 +17,8 @@
  * first-declaration order, so this is the order itou_sub.c's inline tail has. */
 void lw_pos_to_ico_pos(float *dst, float *src);
 void apply_matrix_w1(void *a0, void *a1, void *a2);
-int ico_m33_to_quat(int a0);
-void pbga_start(int *self, int *q);
-
+int ico_m33_to_quat(void *q, void *m);
+void pbga_start(int **slot, int key);
 int m33_to_quat(float *q, float (*m)[4]);
 
 #endif /* ITOU_SUB_H */

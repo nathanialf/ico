@@ -12,11 +12,12 @@
 #ifndef CHAIN_H
 #define CHAIN_H
 
-void ChainGeo(int a0);
+void ChainGeo(char *gobj);
 void ChainPositionReset(char *a0);
 int CheckChainClimbablePos(char *a0);
 void EnableChainHang(char *a0);
-void GetChainClimbCollision(void *out, int chain);
+struct ClimbCol;
+void GetChainClimbCollision(struct ClimbCol *dst, char *a0);
 void GetChainClimbOrient(float *dst, char *a0);
 int GetChainDirCorrectVal(char *a0, int *a1);
 float GetChainHangRange(char *a0);

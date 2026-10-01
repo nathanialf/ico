@@ -24,7 +24,7 @@ inline int copy2area(char *a0, int a1, char *a2, int a3, char *a4, int a5, char 
     return b;
 }
 
-void ErrMessage(int a0)
+void ErrMessage(char *a0)
 {
     debug_StdPrintfDummy("[ Error ] %s\n", a0);
 }

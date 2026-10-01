@@ -4,6 +4,7 @@
 #include "act-game.h"
 #include "debug_exception.h"
 #include "main.h"
+#include "gamesys.h"
 
 /* set while the fight music is paused */
 static int fightSoundPause = 0; /* derived name */
@@ -18,8 +19,6 @@ static int fightSoundState = 0; /* derived name */
 
 /* set while the girl is held (status 9) or taken off the stage */
 static int fightSoundGirlTaken = 0; /* derived name */
-
-extern int gamesysAnotherStageTsuresari;
 
 void fightSoundProcessMain(void)
 {

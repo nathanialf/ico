@@ -16,6 +16,11 @@
 #include <string.h>
 #include <libvu0.h>
 #include "main.h"
+#include "ios.h"
+#include "particleEffect.h"
+#include "gather_effect.h"
+#include "itou_sub.h"
+#include "itou_common.h"
 
 /* One capsule: its BGA, its state (0 closed, 1 gathering, 2 open), the
    placement InitBossCtrlGeo gives it, its release point, and whether a
@@ -46,11 +51,6 @@ static signed char gflag[16]; /* derived name */
 static CapsuleRec capsule[53]; /* derived name */
 
 static volatile int geneDone[16]; /* derived name */
-
-/* kept local: char * () here, int (int) in particleEffect.h */
-extern char *GetParticleEffectData();
-/* kept local: void (void *, int) here, void (int *, int *) in itou_sub.h */
-extern void pbga_start(void *a0, int a1);
 
 /* The fifty-three capsules' placements and the points their enemies are
    released at: itou_boss.o's two .rodata tables (VMA 0x5557B0, 53 records
@@ -272,29 +272,26 @@ static const float capsuleRelease[53][4] = {
     {-3417.14f, -601.8f, -686.716f, 1.0f},
 };
 
-void effect_end_func(void *a0)
+void effect_end_func(int id)
 {
     CapsuleRec *e;
 
     if (isysGObjSearchFromObjKindID_begin(65) != 0) {
-        e = &capsule[*(int *)(GetParticleEffectData(a0) + 0x70)];
-        pbga_start(e, 0x228);
+        e = &capsule[((struct GGeo *)GetParticleEffectData(id))->user.capsule];
+        pbga_start((int **)&e->bga, 552);
         _CopyVector(e->bga + 0x20, e->pos);
         CopyQuaternion(e->bga + 0x30, e->quat);
         e->state = 2;
-        ExecuteSEPackage(0, 0x65);
+        ExecuteSEPackage(0, 101);
     }
 }
 
-/* kept local: int (int, void *, void *, void *, void *, float) here, int (int, char *, float *, char *, float, void *) in gather_effect.h */
-extern int GatherEffect_Set(int kind, void *pos, void *tmpl, void *v, void *fn, float f);
-
 void bossCtrlBeforeFunc(char *self)
 {
-    int buf[0x35];
+    int buf[53];
     float pos[4];
-    char *p;
-    char *e;
+    GObjMailQueue *q;
+    GObjMailEntry *e;
     int idx;
     CapsuleRec *e2;
     int i;
@@ -302,11 +299,11 @@ void bossCtrlBeforeFunc(char *self)
     int cnt;
     int r;
 
-    p = self + 0x54;
-    for (i = 0; i < *(int *)(p + 4); i++) {
-        e = p + (i * 8 + 8);
-        if (*(int *)e == 18) {
-            if (*(int *)(e + 4) != 0) {
+    q = (GObjMailQueue *)(self + 0x54);
+    for (i = 0; i < q->num; i++) {
+        e = &q->e[i];
+        if (e->mail == 18) {
+            if (e->data != 0) {
                 cnt = 0;
                 for (j = 0; j < 53; j++) {
                     if (capsule[j].state == 0) {
@@ -316,11 +313,11 @@ void bossCtrlBeforeFunc(char *self)
                 if (cnt > 0) {
                     idx = buf[(int)(random_unit() * cnt)];
                     e2 = &capsule[idx];
-                    GetRootPosition(pos, *(int *)(e + 4));
-                    r = GatherEffect_Set(12, pos, IdentityQuaternion, e2->pos,
-                                         (void *)effect_end_func, 1.0f);
+                    GetRootPosition(pos, e->data);
+                    r = GatherEffect_Set(12, pos, IdentityQuaternion, e2->pos, 1.0f,
+                                         effect_end_func);
                     if (r >= 0) {
-                        *(int *)(GetParticleEffectData(r) + 0x70) = idx;
+                        ((struct GGeo *)GetParticleEffectData(r))->user.capsule = idx;
                         e2->state = 1;
                     }
                 }
@@ -328,13 +325,13 @@ void bossCtrlBeforeFunc(char *self)
             ExecuteSEPackage((int)self, 100);
         }
     }
-    *(int *)(p + 4) = 0;
+    q->num = 0;
 }
 
 inline int InqCapsuleGhostBossStage(void)
 {
     int r = 0;
-    if (stage_no == 0x56 || stage_no == 3 || stage_no == 0x2E)
+    if (stage_no == 86 || stage_no == 3 || stage_no == 46)
         r = 1;
     return r;
 }
@@ -370,12 +367,6 @@ void BossEnemyFunc(void *self)
 static int geneCount;
 
 static int geneReleasing;
-
-/* kept local: void (void *, void *) here, int (int) in itou_sub.h */
-extern void ico_m33_to_quat(void *a0, void *a1);
-/* defined in ico2/sugipon/src/particleEffect.c; no header declares it */
-/* kept local: agrees with particleEffect.h, which this TU does not include (GetParticleEffectData differs) */
-extern void SetParticleEffectClipEnableFlag(int a0, int a1);
 
 /* listing lines 157-162: send an enemy off-world and clear its live flag
    (inlined into actBossCtrlStart and into the census gene_enemy below) */
@@ -428,7 +419,7 @@ static void gene_enemy(volatile int a0)
     _ACTWait(1);
 
     i = 0;
-    for (o = (char *)isysGObjSearchFromObjKindID_begin(0x21); o != 0;
+    for (o = (char *)isysGObjSearchFromObjKindID_begin(33); o != 0;
          o = (char *)isysGObjSearchFromObjKindID_next(o), i++) {
         if (i == no) {
             break;
@@ -438,7 +429,7 @@ static void gene_enemy(volatile int a0)
     for (;; _ACTWait(1)) {
         total = 0;
         alive = 0;
-        if (stage_no == 0x56) {
+        if (stage_no == 86) {
             if ((pad[0].flags & 0x40) != 0) {
                 gflag[0] = 1;
             }
@@ -499,13 +490,12 @@ static void gene_enemy(volatile int a0)
                 sel->busy = 1;
                 *flag = 0;
                 if (!GENE_DEBUG_NO_EFFECT) {
-                    r = GatherEffect_Set(12, sel->pos, sel->quat, pos, (void *)gene_eff_end_func,
-                                         1.0f);
+                    r = GatherEffect_Set(12, sel->pos, sel->quat, pos, 1.0f, gene_eff_end_func);
                 }
                 if (r >= 0) {
-                    *(volatile int **)(GetParticleEffectData(r) + 0x70) = flag;
+                    ((struct GGeo *)GetParticleEffectData(r))->user.done = flag;
                     SetParticleEffectClipEnableFlag(r, 0);
-                    ExecuteSEPackage(a0, 0x63);
+                    ExecuteSEPackage(a0, 99);
                     while (*flag == 0) {
                         _ACTWait(1);
                     }
@@ -578,11 +568,6 @@ inline void actBossCtrlStart(void *a0)
     }
 }
 
-/* kept local: void * here, int in ios.h */
-extern void *ios_partition_sugipon;
-/* kept local: void (void *, void *) here, int (int) in itou_sub.h */
-extern void ico_m33_to_quat(void *a0, void *a1);
-
 inline int InitBossCtrlGeo(void *a0)
 {
     int ret;
@@ -594,7 +579,7 @@ inline int InitBossCtrlGeo(void *a0)
     char *q;
     char *r;
 
-    ret = iosMallocDebug(ios_partition_sugipon, 0, __FILE__, 350);
+    ret = (int)iosMallocDebug(ios_partition_sugipon, 0, __FILE__, 350);
     actInitialize(a0);
     actInitialize_ext_charcter(a0);
     debug_StdPrintfDummy("N_CAPSULE %d\n", 53);
@@ -612,13 +597,13 @@ inline int InitBossCtrlGeo(void *a0)
             e->state = 2;
         }
         sceVu0CopyVector(m, q);
-        ico_m33_to_quat(m - 0x10, q - 0x30);
+        ico_m33_to_quat(m - 16, q - 48);
         e->release = (float *)r;
-        q += 0x40;
-        m += 0x40;
-        r += 0x10;
+        q += 64;
+        m += 64;
+        r += 16;
         k++;
-    } while (k < 0x35);
+    } while (k < 53);
     return ret;
 }
 
@@ -640,7 +625,7 @@ void BossCtrlDL(void)
         e = &base[k];
         if (e->state >= 2) {
             if (stage_DispBgAnimation(e) != 0) {
-                pbga_start(e, 0x229);
+                pbga_start((int **)&e->bga, 553);
                 _CopyVector(e->bga + 0x20, e->pos);
                 CopyQuaternion(e->bga + 0x30, e->quat);
             }
@@ -673,7 +658,7 @@ inline int InqCapsuleGhostBossEnd(void)
                 cnt++;
             }
             i++;
-        } while (i < 0x35);
+        } while (i < 53);
     }
     o = isysGObjSearchFromObjKindID_begin(4);
     while (o != 0) {
@@ -682,13 +667,10 @@ inline int InqCapsuleGhostBossEnd(void)
         }
         o = isysGObjSearchFromObjKindID_next(o);
     }
-    return cnt >= 0x35 && no == 0;
+    return cnt >= 53 && no == 0;
 }
 
-/* kept local: char * (void) here, int (int) in particleEffect.h */
-extern char *GetParticleEffectData(void);
-
-inline void gene_eff_end_func(void)
+inline void gene_eff_end_func(int id)
 {
-    **(int **)(GetParticleEffectData() + 0x70) = 1;
+    *((struct GGeo *)GetParticleEffectData(id))->user.done = 1;
 }

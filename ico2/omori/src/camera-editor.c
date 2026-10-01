@@ -16,6 +16,7 @@
 #include "debug_exception.h"
 #include "GifPacket.h"
 #include "poly-flat.h"
+#include <libvu0.h>
 
 typedef struct CamMgr {
     int count;        /* 0x00 */
@@ -49,15 +50,10 @@ typedef struct {
 
 extern int GetSizeOfCameraSetBinary(S4C *p, int n);
 extern void MakeCameraSetBinary(S4C *src, int count, S4C *dst);
+
 /* SRCFILE.TXT rows 369-388: saveEditedDataBinary inlines this, which is why
    the ROM folds the path buffer's frame address straight into $a0 at both the
    sprintf and the debugSceOpen instead of holding it in a register */
-/* kept local: agrees with libvu0.h, which this TU does not include (sceVu0ScaleVector differs) */
-extern void sceVu0ApplyMatrix(void *a0, void *a1, void *a2);
-/* kept local: agrees with libvu0.h, which this TU does not include (sceVu0ScaleVector differs) */
-extern void sceVu0Normalize(void *a0, void *a1);
-/* kept local: agrees with libvu0.h, which this TU does not include (sceVu0ScaleVector differs) */
-extern void sceVu0UnitMatrix(void *a0);
 
 inline void StickToTrans(int a0, int a1, int a2, int a3, float *out, int a5)
 {
@@ -88,10 +84,7 @@ inline void StickToTrans(int a0, int a1, int a2, int a3, float *out, int a5)
     }
 }
 
-inline void debug_Arrow(void) {}
-
-/* kept local: void (int *, int *, float) here, void (void *, void *, float) in libvu0.h */
-extern void sceVu0ScaleVector(int *buf, int *p, float t);
+inline void debug_Arrow(float len, void *from, void *to, int r, int g, int b) {}
 
 inline void debug_NMarker(int *self, int a1, int a2, int a3, float t)
 {
@@ -226,9 +219,6 @@ void gif_test(int *a0, int *a1, int *a2, unsigned char *a3)
     gif_SetGsReg(4, (long)a2[0] | ((long)a2[1] << 16) | ((long)a2[2] << 32));
 }
 
-/* kept local: agrees with libvu0.h, which this TU does not include (sceVu0ScaleVector differs) */
-extern void sceVu0UnitMatrix(void *m);
-
 static inline void dispPinRange(int box, int from, int to)
 {
     sceVu0IVECTOR col = {255, 255, 255, 128};
@@ -275,9 +265,6 @@ typedef union {
     unsigned int c[4];
     unsigned long long w[2];
 } BoxCol4;
-
-/* kept local: agrees with libvu0.h, which this TU does not include (sceVu0ScaleVector differs) */
-extern void sceVu0MulMatrix(void *dst, void *a, void *b);
 
 void DebugDispBox(BoxVec *c, BoxVec *s)
 {
@@ -487,11 +474,6 @@ static AxisPair axisArrows[3] = {
     {{0.0f, -200.0f, 0.0f, 1.0f}, {0.0f, 200.0f, 0.0f, 1.0f}},
     {{0.0f, 0.0f, -200.0f, 1.0f}, {0.0f, 0.0f, 200.0f, 1.0f}},
 };
-
-/* kept local: agrees with libvu0.h, which this TU does not include (sceVu0ScaleVector differs) */
-extern void sceVu0ApplyMatrix(void *dst, void *m, void *v);
-/* kept local: agrees with libvu0.h, which this TU does not include (sceVu0ScaleVector differs) */
-extern void sceVu0Normalize(void *dst, void *src);
 
 void DispAxisArrow(int mask, void *col)
 {
@@ -1136,13 +1118,6 @@ void menuPinSelect(char *m)
     }
 }
 
-/* kept local: agrees with libvu0.h, which this TU does not include (sceVu0ScaleVector differs) */
-extern void sceVu0SubVector(void *dst, void *a, void *b);
-/* kept local: agrees with libvu0.h, which this TU does not include (sceVu0ScaleVector differs) */
-extern void sceVu0Normalize(void *dst, void *src);
-/* kept local: agrees with libvu0.h, which this TU does not include (sceVu0ScaleVector differs) */
-extern void sceVu0ApplyMatrix(void *dst, void *m, void *src);
-
 /* the file static the listing expands at camera-editor.c rows 255-261: the
    heading from the camera's eye to its look-at point, which is the angle the
    pin editor turns the pad stick vector by.  The ROM gives it no symbol and
@@ -1353,8 +1328,8 @@ inline int _CameraEdit_add_box(CamMgr *mgr, S4C *src)
             dst = (S4C *)(mgr->items + mgr->count * 0x4C);
             result = mgr->count;
             *dst = *src;
-            dst->w[0x38 / 4] = 0;
-            dst->w[0x3C / 4] = 0;
+            dst->first = 0;
+            dst->end = 0;
             *(char **)((char *)dst + 0x48) = p;
             mgr->count = mgr->count + 1;
         }
@@ -1389,7 +1364,7 @@ static inline void _CameraEdit_free_box_pool(CamMgr *mgr, int idx)
     char *p = mgr->pool;
     int i;
     for (i = 0; i < 100; i++) {
-        if (p == *(char **)&box->w[0x48 / 4]) {
+        if (p == *(char **)&box->items) {
             mgr->flags[i] = 0;
         }
         p += 0x23F0;
@@ -1418,22 +1393,22 @@ static inline S4C *_CameraEdit_BOX_p(CamMgr *mgr, int i)
 
 static inline S5C *_CameraEdit_PIN_p(CamMgr *mgr, int i, int j)
 {
-    return (S5C *)(_CameraEdit_BOX_p(mgr, i)->w[0x48 / 4] + j * 0x5C);
+    return (S5C *)(_CameraEdit_BOX_p(mgr, i)->items + j * 0x5C);
 }
 
 void _CameraEdit_del_pin(CamMgr *mgr, int box, int pin)
 {
     S5C *p;
-    if (_CameraEdit_BOX_p(mgr, box)->w[0x3C / 4] <= 0) {
+    if (_CameraEdit_BOX_p(mgr, box)->end <= 0) {
         /* "cannot delete any more" */
         debug_StdPrintfDummy("これ以上削除できません");
         return;
     }
     for (p = _CameraEdit_PIN_p(mgr, box, pin);
-         p < _CameraEdit_PIN_p(mgr, box, _CameraEdit_BOX_p(mgr, box)->w[0x3C / 4]); p++) {
+         p < _CameraEdit_PIN_p(mgr, box, _CameraEdit_BOX_p(mgr, box)->end); p++) {
         *p = p[1];
     }
-    _CameraEdit_BOX_p(mgr, box)->w[0x3C / 4] = _CameraEdit_BOX_p(mgr, box)->w[0x3C / 4] - 1;
+    _CameraEdit_BOX_p(mgr, box)->end = _CameraEdit_BOX_p(mgr, box)->end - 1;
 }
 
 int CameraEdit_add_box(S4C *src)
@@ -1658,7 +1633,7 @@ inline void ConvertCameraSetBuffer(int n, S4C *item, char *groups)
     }
     for (i = 0; i < n; i++) {
         CameraEdit_add_box(item);
-        for (j = item->w[0x38 / 4]; j < item->w[0x3C / 4]; j++) {
+        for (j = item->first; j < item->end; j++) {
             CameraEdit_add_pin(i, groups + j * 0x5C);
         }
         item = (S4C *)((char *)item + 0x4C);

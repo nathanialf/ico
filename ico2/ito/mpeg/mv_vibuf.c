@@ -3,34 +3,8 @@
 #include <eekernel.h>
 #include "mv_sub.h"
 #include "typedef.h"
+#include "mv_vibuf.h"
 #include <eeregs.h>
-
-/* One entry of the timestamp ring: the PTS/DTS pair the demuxer read out of a
-   pack header, and the run of ring bytes it applies to. */
-
-/* The video-input ring: a run of 2048-byte sectors that the CD DMA fills and
-   the MPEG demuxer drains.  Byte counts are (sector << 11) + a partial
-   offset into the sector the writer is part way through. */
-typedef struct ViBuf {
-    char *data;          /* 0x00 ring buffer, 2048 bytes per sector */
-    char *dmaTag;        /* 0x04 uncached-accel DMA tag list over the ring */
-    int nSector;         /* 0x08 ring size in sectors */
-    int rdSector;        /* 0x0C sector the reader is on */
-    int nReady;          /* 0x10 whole sectors written but not yet read */
-    int wOffset;         /* 0x14 bytes written into the sector after those */
-    int size;            /* 0x18 ring size in bytes (nSector << 11) */
-    int unk1C[7];        /* 0x1C */
-    unsigned int bitPos; /* 0x38 IPU_BP saved by viBufStopDMA */
-    int unk3C;           /* 0x3C */
-    int sema;            /* 0x40 */
-    int running;         /* 0x44 the ring's DMA chain is armed */
-    long long total;     /* 0x48 bytes handed to the ring since the last reset */
-    ViTs *ts;            /* 0x50 timestamp ring */
-    int tsMax;           /* 0x54 timestamp ring capacity */
-    int tsCount;         /* 0x58 timestamps live in it */
-    int tsWr;            /* 0x5C index the next timestamp goes to */
-    char created;        /* 0x60 */
-} ViBuf;
 
 static void Free();
 
@@ -93,15 +67,12 @@ static __inline__ int getDmaSector(ViBuf *self, unsigned int madr)
 
 /* census free_buf, a file static, `static` keeps its ELF symbol local so it cannot
    collide with the ico2/ito/mpeg/mv_videodec global of the same name */
-static void free_buf(int *a0)
+static void free_buf(ViBuf *self)
 {
-    Free(a0[0]);
-    Free(a0[1]);
-    Free(a0[20]);
+    Free((int)self->data);
+    Free((int)self->dmaTag);
+    Free((int)self->ts);
 }
-
-/* kept local: mv_vibuf.h does not compile in this TU (conflicting types for `viBufCreate') */
-extern int viBufReset(ViBuf *self);
 
 int viBufCreate(ViBuf *self)
 {
@@ -220,13 +191,12 @@ void viBufBeginPut(ViBuf *self, void **addr1, int *size1, void **addr2, int *siz
     SignalSema(self->sema);
 }
 
-void viBufEndPut(int *self, int a1)
+void viBufEndPut(ViBuf *self, int n)
 {
-    WaitSema(self[0x40 / 4]);
-    self[0x14 / 4] = self[0x14 / 4] + a1;
-    *((long long *)(((char *)self) + 0x48)) =
-        ((long long)a1) + (*((long long *)(((char *)self) + 0x48)));
-    SignalSema(self[0x40 / 4]);
+    WaitSema(self->sema);
+    self->wOffset += n;
+    self->total += n;
+    SignalSema(self->sema);
 }
 
 /* Retire the sectors the IPU DMA has consumed and chain the whole sectors
@@ -302,20 +272,20 @@ int viBufStopDMA(ViBuf *self)
     self->running = 0;
     setIpuInChcr(5);
 
-    self->unk1C[0] = *D4_MADR;
-    self->unk1C[1] = *D4_TADR;
-    self->unk1C[2] = *D4_QWC;
-    self->unk1C[3] = *D4_CHCR;
+    self->inMadr = *D4_MADR;
+    self->inTadr = *D4_TADR;
+    self->inQwc = *D4_QWC;
+    self->inChcr = *D4_CHCR;
 
     while (*IPU_CTRL & 0xF0) {}
 
     setIpuOutChcr(0);
 
-    self->unk1C[4] = *D3_MADR;
-    self->unk1C[5] = *D3_QWC;
-    self->unk1C[6] = *D3_CHCR;
+    self->outMadr = *D3_MADR;
+    self->outQwc = *D3_QWC;
+    self->outChcr = *D3_CHCR;
     self->bitPos = *IPU_BP;
-    self->unk3C = *IPU_CTRL;
+    self->ipuCtrl = *IPU_CTRL;
 
     SignalSema(self->sema);
 
@@ -346,10 +316,10 @@ int viBufRestartDMA(ViBuf *self)
     cmd = self->bitPos & 0x7F;
     fifo = (self->bitPos >> 16) & 3;
     ifc = (self->bitPos >> 8) & 0xF;
-    madr = self->unk1C[0] - ((fifo + ifc) << 4);
-    qwc = self->unk1C[2] + (fifo + ifc);
-    tadr = self->unk1C[1];
-    chcr = self->unk1C[3] | 0x100;
+    madr = self->inMadr - ((fifo + ifc) << 4);
+    qwc = self->inQwc + (fifo + ifc);
+    tadr = self->inTadr;
+    chcr = self->inChcr | 0x100;
 
     WaitSema(self->sema);
 
@@ -357,27 +327,27 @@ int viBufRestartDMA(ViBuf *self)
         qwc = ((unsigned int)self->data - madr) / 16;
         madr += self->nSector << 11;
         tadr = phys_addr((int)self->dmaTag);
-        id = (self->unk1C[0] == (int)self->data ||
-              self->unk1C[0] == (int)(self->data + (self->nSector << 11)))
+        id = (self->inMadr == (int)self->data ||
+              self->inMadr == (int)(self->data + (self->nSector << 11)))
                  ? 0
                  : 3;
-        chcr = (self->unk1C[3] & 0x0FFFFFFF) | (id << 28) | 0x100;
+        chcr = (self->inChcr & 0x0FFFFFFF) | (id << 28) | 0x100;
         if ((self->nSector - self->rdSector) % self->nSector < 0 ||
             (self->nSector - self->rdSector) % self->nSector >= self->nReady) {
             self->rdSector = self->nSector - 1;
             self->nReady++;
         }
     } else {
-        if ((now = getDmaSector(self, self->unk1C[0])) != (sector = getDmaSector(self, madr))) {
+        if ((now = getDmaSector(self, self->inMadr)) != (sector = getDmaSector(self, madr))) {
             tadr = phys_addr((int)((QWord *)self->dmaTag + now));
             qwc = ((unsigned int)self->data + (now << 11) - madr) / 16;
             id =
                 ((unsigned int)self->data +
-                     (self->unk1C[0] - (unsigned int)self->data) % (self->nSector << 11) ==
+                     (self->inMadr - (unsigned int)self->data) % (self->nSector << 11) ==
                  (unsigned int)self->data + ((self->rdSector + self->nReady) % self->nSector << 11))
                     ? 0
                     : 3;
-            chcr = (self->unk1C[3] & 0x0FFFFFFF) | (id << 28) | 0x100;
+            chcr = (self->inChcr & 0x0FFFFFFF) | (id << 28) | 0x100;
             if ((sector + self->nSector - self->rdSector) % self->nSector < 0 ||
                 (sector + self->nSector - self->rdSector) % self->nSector >= self->nReady) {
                 self->rdSector = sector;
@@ -386,10 +356,10 @@ int viBufRestartDMA(ViBuf *self)
         }
     }
 
-    if (self->unk1C[4] != 0 && self->unk1C[5] != 0) {
-        *D3_MADR = self->unk1C[4];
-        *D3_QWC = self->unk1C[5];
-        setIpuOutChcr(self->unk1C[6] | 0x100);
+    if (self->outMadr != 0 && self->outQwc != 0) {
+        *D3_MADR = self->outMadr;
+        *D3_QWC = self->outQwc;
+        setIpuOutChcr(self->outChcr | 0x100);
     }
 
     if (self->nReady != 0) {
@@ -405,7 +375,7 @@ int viBufRestartDMA(ViBuf *self)
         setIpuInChcr(chcr);
     }
 
-    *IPU_CTRL = self->unk3C;
+    *IPU_CTRL = self->ipuCtrl;
 
     self->running = 1;
 
@@ -414,11 +384,11 @@ int viBufRestartDMA(ViBuf *self)
     return 1;
 }
 
-void viBufFlush(int *self)
+void viBufFlush(ViBuf *self)
 {
-    WaitSema(self[0x40 / 4]);
-    self[0x14 / 4] = (self[0x14 / 4] + 0x7FF) / 0x800 * 0x800;
-    SignalSema(self[0x40 / 4]);
+    WaitSema(self->sema);
+    self->wOffset = (self->wOffset + 2047) / 2048 * 2048;
+    SignalSema(self->sema);
 }
 
 /* Does the entry's byte position still lie inside the run of ts->len bytes
@@ -568,21 +538,19 @@ int viBufDelete(ViBuf *self)
     }
     self->created = 0;
 
-    free_buf((int *)self);
+    free_buf(self);
 
     return 1;
 }
 
-int viBufCount(int *self)
+int viBufCount(ViBuf *self)
 {
     int ret;
-    WaitSema(self[0x40 / 4]);
-    ret = (self[0x10 / 4] << 11) + self[0x14 / 4];
-    SignalSema(self[0x40 / 4]);
+    WaitSema(self->sema);
+    ret = (self->nReady << 11) + self->wOffset;
+    SignalSema(self->sema);
     return ret;
 }
-
-extern int viBufModifyPts(ViBuf *self, ViTs *ts);
 
 /* Record one PTS/DTS pair against the bytes the caller just wrote.  Returns 0
    only when the timestamp ring is full. */

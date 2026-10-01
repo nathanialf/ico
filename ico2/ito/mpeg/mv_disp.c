@@ -28,7 +28,7 @@ void *setCLAMP_1(int *a0, unsigned int a1, unsigned int a2, unsigned int a3, uns
 int *setBITBLTBUF(int *a0, long long a1, long long a2, long long a3);
 int *setTRXPOS(int *a0, long long a1, int a2, int a3);
 void *setTRXREG(int *a0, int a1, int a2);
-void *setTRXDIR(char *a0, unsigned int a1);
+void *setTRXDIR(int *a0, unsigned int a1);
 
 /* .bss, owned by mv_disp.o and reached only from this file (MAIN.MAP names no
    symbol in the run), in the ROM's run order: the two GIF packets this file
@@ -36,8 +36,6 @@ void *setTRXDIR(char *a0, unsigned int a1);
 static int mvDispPacket[80];
 
 static int mvClearPacket[80];
-
-extern char voBuf[];
 
 /* .sdata, owned by mv_disp.o (VMA 0x63C0B4..0x63C0C8, 0x14 B = MAIN.MAP, which
    names no symbol in it), the display state vblankHandler shares with the
@@ -95,15 +93,15 @@ static inline int *setClearSprite(int *p, MvRect *r, unsigned int col)
     return p;
 }
 
-void dispClear(int *self, unsigned int col)
+void dispClear(MvDispEnv *self, unsigned int col)
 {
     MvRect r;
     int *p;
 
     r.x = 0;
     r.y = 0;
-    r.w = self[0x30 / 4] << 4;
-    r.h = ((self[0x34 / 4] + 31) / 32 * 64 + self[0x34 / 4] * 2) << 4;
+    r.w = self->width << 4;
+    r.h = ((self->height + 31) / 32 * 64 + self->height * 2) << 4;
 
     p = setGIFtag((int *)uncached_accel_addr((int)mvClearPacket), 14, 1, 0, 0, 0, 1, 4);
     setClearSprite(p, &r, col);
@@ -115,54 +113,53 @@ void dispClear(int *self, unsigned int col)
     sceGsSyncPath(0, 0);
 }
 
-void setDispEnv(int *self, int a1, int a2, int a3, int a4)
+void setDispEnv(MvDispEnv *self, int a1, int a2, int a3, int a4)
 {
     int *p;
     int w = 720;
     int h = 288;
 
-    self[0x28 / 4] = 0;
-    self[0x2C / 4] = 0x6C;
-    self[0x30 / 4] = w;
-    self[0x34 / 4] = h;
-    self[0x38 / 4] = a1;
-    self[0x3C / 4] = a2;
+    self->fbp[0] = 0;
+    self->fbp[1] = 108;
+    self->width = w;
+    self->height = h;
+    self->imageWidth = a1;
+    self->imageHeight = a2;
 
-    sceGsSetDefDispEnv((sceGsDispEnv *)self, 0, a1, a2 / 2, 0, 0);
+    sceGsSetDefDispEnv(&self->env.gs, 0, a1, a2 / 2, 0, 0);
 
-    self[0x14 / 4] = (self[0x14 / 4] & ~0x7FF) | (a3 & 0x7FF);
-    self[0x14 / 4] = (self[0x14 / 4] & 0xFFC007FF) | ((a4 & 0x7FF) << 11);
-    self[0x10 / 4] = (self[0x10 / 4] & ~0x7E00) | 0x1800;
+    self->env.w.dispfbDB = (self->env.w.dispfbDB & ~0x7FF) | (a3 & 0x7FF);
+    self->env.w.dispfbDB = (self->env.w.dispfbDB & 0xFFC007FF) | ((a4 & 0x7FF) << 11);
+    self->env.w.dispfb = (self->env.w.dispfb & ~0x7E00) | 0x1800;
 
     p = setGIFtag((int *)uncached_accel_addr((int)mvDispPacket), 14, 1, 0, 0, 0, 1, 6);
     p = setPRMODECONT(p, 1);
-    p = setFRAME_1(p, 0, (self[0x30 / 4] + 63) / 64, 0, 0);
+    p = setFRAME_1(p, 0, (self->width + 63) / 64, 0, 0);
     p = setTEST_1(p, 0, 0, 0, 0, 0, 0, 0, 0);
-    p = setSCISSOR_1(p, 0, self[0x30 / 4] - 1, 0, (self[0x34 / 4] + 31) / 32 * 128 - 1);
+    p = setSCISSOR_1(p, 0, self->width - 1, 0, (self->height + 31) / 32 * 128 - 1);
     p = setXYOFFSET_1(p, 0, 0);
     setCLAMP_1(p, 1, 1, 0, 0, 0, 0);
 }
 
-void setImageSize(int *self, int a1, int a2, int a3, int a4)
+void setImageSize(MvDispEnv *self, int a1, int a2, int a3, int a4)
 {
-    int lim = self[0x3C / 4];
+    int lim = self->imageHeight;
     if (a2 <= lim) {
         a2 = lim;
     }
     setDispEnv(self, a1, a2, a3, a4);
 }
 
-void sendDispEnv(void *a0)
+void sendDispEnv(MvDispEnv *self)
 {
-    sceGsPutDispEnv(a0);
-    a0 = (void *)phys_addr((int)mvDispPacket);
-    *D2_MADR = (unsigned int)a0;
+    sceGsPutDispEnv(&self->env.gs);
+    *D2_MADR = phys_addr((int)mvDispPacket);
     *D2_QWC = 7;
     *D2_CHCR = 0x101;
     sceGsSyncPath(0, 0);
 }
 
-void dispCreate(int *self, int a1, int a2, int a3, int a4)
+void dispCreate(MvDispEnv *self, int a1, int a2, int a3, int a4)
 {
     /* the five display-state words are read and written by vblankHandler on the
        vblank interrupt, so the resets are volatile here exactly as they are at
@@ -179,9 +176,10 @@ void dispCreate(int *self, int a1, int a2, int a3, int a4)
     sendDispEnv(self);
 }
 
-inline void dispDelete(void) {}
+inline void dispDelete(MvDispEnv *self) {}
 
-void dispSetTags(int *self, int src, int a2, int a3, int p4, int p5, int p6, int p7, int p8, int p9)
+void dispSetTags(MvDispEnv *self, int src, int a2, int a3, int p4, int p5, int p6, int p7, int p8,
+                 int p9)
 {
     MvRect r;
     MvRect uv;
@@ -207,8 +205,8 @@ void dispSetTags(int *self, int src, int a2, int a3, int p4, int p5, int p6, int
     uv.h = p9 << 4;
 
     if (a3 == 0) {
-        bh = (self[0x34 / 4] + 31) / 32;
-        bw = (self[0x30 / 4] + 63) / 64;
+        bh = (self->height + 31) / 32;
+        bw = (self->width + 63) / 64;
         dbp = bh * (bw << 6);
         p = setDMAscTag(p, 0, 0, 0, 1, 0, 3);
         p = setGIFtag(p, 14, 1, 0, 0, 0, 0, 2);
@@ -227,36 +225,33 @@ void dispSetTags(int *self, int src, int a2, int a3, int p4, int p5, int p6, int
         }
     } else {
         uv.y = 24;
-        r.y = (p5 + (self[0x34 / 4] + 31) / 32 * 32) << 4;
+        r.y = (p5 + (self->height + 31) / 32 * 32) << 4;
     }
 
     p = setDMAscTag(p, 0, 0, 0, 7, 0, 16);
     p = setGIFtag(p, 14, 1, 0, 0, 0, 1, 15);
     p = setTEXFLUSH(p);
     p = setTEX1_1(p, 0, 0, 1, 1, 0, 0, 0);
-    p = setTEX0_1(p, (self[0x34 / 4] + 31) / 32 * ((self[0x30 / 4] + 63) / 64 << 6),
-                  (self[0x30 / 4] + 63) / 64, 0, 10, 10, 0, 1, 0, 0, 0, 0, 0);
+    p = setTEX0_1(p, (self->height + 31) / 32 * ((self->width + 63) / 64 << 6),
+                  (self->width + 63) / 64, 0, 10, 10, 0, 1, 0, 0, 0, 0, 0);
     setTexSprite(p, &r, &uv);
 }
 
-void dispSwitch(int *a0, int flag)
+void dispSwitch(MvDispEnv *a0, int flag)
 {
     int src;
     if (flag != 0) {
-        src = a0[0x2C / 4];
+        src = a0->fbp[1];
     } else {
-        src = a0[0x28 / 4];
+        src = a0->fbp[0];
     }
-    a0[0x10 / 4] = (a0[0x10 / 4] & ~0x1FF) | (src & 0x1FF);
-    return sceGsPutDispEnv(a0);
+    a0->env.w.dispfb = (a0->env.w.dispfb & ~0x1FF) | (src & 0x1FF);
+    sceGsPutDispEnv(&a0->env.gs);
 }
-
-/* kept local: mv_main.c's MvDispEnv is private to that TU; this TU reads it as words */
-extern int display[];
 
 int vblankHandler(void)
 {
-    int *tag;
+    VoTag *tag;
     int st;
 
     *(volatile int *)&dispField = (int)((*GS_CSR >> 13) & 1);
@@ -266,21 +261,21 @@ int vblankHandler(void)
            foreground code between vblanks, the file's existing idiom */
         *(volatile int *)&dispSyncBusy = sceGsSyncPath(1, 0);
         if (*(volatile int *)&dispSyncBusy == 0) {
-            tag = voBufGetTag(voBuf);
+            tag = voBufGetTag(&voBuf);
             if (tag == 0) {
                 mvFrameCount++;
                 SYNC();
                 EI();
                 return 0;
             }
-            if (*(volatile int *)&dispField == 0 && tag[0] == 2) {
-                dispSwitch(display, 0);
-                loadImage((int)tag + 0x26740);
-                tag[0] = 1;
-            } else if (*(volatile int *)&dispField != 0 && (st = tag[0]) == 1) {
-                dispSwitch(display, 1);
-                loadImage((int)tag + 0x40);
-                tag[0] = 0;
+            if (*(volatile int *)&dispField == 0 && tag->status == 2) {
+                dispSwitch(&display, 0);
+                loadImage((int)tag->packet[1]);
+                tag->status = 1;
+            } else if (*(volatile int *)&dispField != 0 && (st = tag->status) == 1) {
+                dispSwitch(&display, 1);
+                loadImage((int)tag->packet[0]);
+                tag->status = 0;
                 *(volatile int *)&dispImageDone = st;
             }
         }
@@ -293,7 +288,7 @@ int vblankHandler(void)
 inline int handler_endimage(void)
 {
     if (dispImageDone != 0) {
-        voBufDecCount(voBuf);
+        voBufDecCount(&voBuf);
         dispImageDone = 0;
     }
     SYNC();
@@ -338,13 +333,13 @@ inline void *setGIFtag(int *a0, long long a1, int a2, int a3, int p4, int p5, in
     return (char *)a0 + 0x10;
 }
 
-inline char *setTEXFLUSH(char *p)
+inline void *setTEXFLUSH(int *a0)
 {
-    *(int *)(p + 0) = 0;
-    *(int *)(p + 8) = 0x3F;
-    *(int *)(p + 4) = 0;
-    *(int *)(p + 0xC) = 0;
-    return p + 0x10;
+    a0[0] = 0;
+    a0[2] = 63;
+    a0[1] = 0;
+    a0[3] = 0;
+    return a0 + 4;
 }
 
 inline void *setGIFad(int *a0, int a1, long long a2)
@@ -553,12 +548,12 @@ inline void *setTRXREG(int *a0, int a1, int a2)
     return (char *)a0 + 0x10;
 }
 
-inline void *setTRXDIR(char *a0, unsigned int a1)
+inline void *setTRXDIR(int *a0, unsigned int a1)
 {
     unsigned long long v = (unsigned int)a1;
-    *(int *)(a0 + 8) = 0x53;
-    *(int *)(a0 + 0) = (int)v;
-    *(int *)(a0 + 4) = (int)(v >> 32);
-    *(int *)(a0 + 0xC) = 0;
-    return a0 + 0x10;
+    a0[2] = 83;
+    a0[0] = (int)v;
+    a0[1] = (int)(v >> 32);
+    a0[3] = 0;
+    return a0 + 4;
 }

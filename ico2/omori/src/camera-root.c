@@ -1,4 +1,5 @@
 #include "camera-root.h"
+#include "debug.h"
 #include "gobj.h"
 #include "boyact.h"
 #include "camera-editor.h"
@@ -14,6 +15,10 @@
 #include "act-game.h"
 #include "main.h"
 #include "gv.h"
+#include "commonact.h"
+#include "pad.h"
+#include "camera-ico2.h"
+#include "poly-flat.h"
 
 union PendCopy {
     float f[8];
@@ -215,7 +220,7 @@ void CameraEditManual(CameraSet2 *set, int noLock)
     if (pad[1].now & 2) {
         if ((d < 0 ? -d : d) >= 0x33) {
             if (d < 0x32) {
-                t = (d + 0x32) * 10;
+                t = (d + 50) * 10;
                 set->pos[1] -= (float)(manualCameraSpeed * t) / 78.0f;
             }
             if (d >= 0x33) {
@@ -226,7 +231,7 @@ void CameraEditManual(CameraSet2 *set, int noLock)
     } else {
         if ((d < 0 ? -d : d) >= 0x33) {
             if (d < 0x32) {
-                set->rotX -= (d + 0x32) * (d + 0x32) * 5 / 78;
+                set->rotX -= (d + 50) * (d + 50) * 5 / 78;
             }
             if (d >= 0x33) {
                 set->rotX += (d - 0x32) * (d - 0x32) * 5 / 78;
@@ -240,7 +245,7 @@ void CameraEditManual(CameraSet2 *set, int noLock)
     }
     if ((d < 0 ? -d : d) >= 0x33) {
         if (d < 0x32) {
-            set->rotY += (d + 0x32) * (d + 0x32) * 5 / 78;
+            set->rotY += (d + 50) * (d + 50) * 5 / 78;
         }
         if (d >= 0x33) {
             set->rotY -= (d - 0x32) * (d - 0x32) * 5 / 78;
@@ -254,7 +259,7 @@ void CameraEditManual(CameraSet2 *set, int noLock)
     if ((d < 0 ? -d : d) >= 0x33) {
         if (noLock || (pad[0].now & 1) == 0) {
             if (d < 0x32) {
-                t = (d + 0x32) * 10;
+                t = (d + 50) * 10;
                 mz = (float)(manualCameraSpeed * t) / 78.0f;
             }
             if (d >= 0x33) {
@@ -271,7 +276,7 @@ void CameraEditManual(CameraSet2 *set, int noLock)
     if ((d < 0 ? -d : d) >= 0x33) {
         if ((pad[0].now & 0x200) == 0) {
             if (d < 0x32) {
-                t = (d + 0x32) * 10;
+                t = (d + 50) * 10;
                 mx = (float)(manualCameraSpeed * t) / 78.0f;
             }
             if (d >= 0x33) {
@@ -300,8 +305,6 @@ void DebugCameraManual(void)
     MakeCameraMatrix(&cameraSet);
 }
 
-extern void ConvertCameraSet(CameraSet2 *dst, union CameraSetIn *src);
-
 void DebugCameraSemiAuto(void)
 {
     if (targetCameraSet.moving != 0) {
@@ -321,31 +324,32 @@ void DebugCameraSemiAuto(void)
     MakeCameraMatrix(&cameraSet);
 }
 
-/* kept local: void (void *, void *, float) here, void (void *, float) in camera-ico2.h */
-extern void SetCameraTargetPosition(void *, void *, float);
-
 void BackToGameCamera(void)
 {
-    char buf[0x80];
-    float f20v;
-    memset(buf, 0, 0x10);
-    *(float *)(buf + 8) = 1.0f;
-    sceVu0TransposeMatrix(buf + 0x20, matrixptr + 0x80);
-    CopyVector(buf + 0x70, matrixptr + 0xB0);
-    *(int *)(buf + 0x7C) = 0;
-    sceVu0ApplyMatrix(buf + 0x10, buf + 0x20, buf + 0x70);
-    sceVu0ScaleVector(buf + 0x10, buf + 0x10, -1.0f);
-    GetRootPosition(buf + 0x60, default_cameratarget_gobj);
-    f20v = _DistGV(buf + 0x10, buf + 0x60);
-    *(int *)(buf + 0xC) = 0;
-    sceVu0ApplyMatrix(buf, buf + 0x20, buf);
-    sceVu0ScaleVector(buf, buf, f20v);
-    sceVu0AddVector(buf, buf, buf + 0x10);
-    SetCameraTargetPosition(buf, buf + 0x10, cameraFov);
-}
+    struct {             /* field names derived */
+        float target[4]; /* the point the camera looks at */
+        float eye[4];    /* the camera position */
+        float m[16];     /* the view rotation, transposed */
+        float root[4];   /* the target object's root */
+        float trans[4];  /* the view translation */
+    } buf;
 
-/* kept local: agrees with debug.h, which this TU does not include (debug_Printf differs) */
-extern int debug_zoom_per;
+    float f20v;
+    memset(buf.target, 0, 16);
+    buf.target[2] = 1.0f;
+    sceVu0TransposeMatrix(buf.m, matrixptr + 0x80);
+    CopyVector(buf.trans, matrixptr + 0xB0);
+    buf.trans[3] = 0.0f;
+    sceVu0ApplyMatrix(buf.eye, buf.m, buf.trans);
+    sceVu0ScaleVector(buf.eye, buf.eye, -1.0f);
+    GetRootPosition(buf.root, default_cameratarget_gobj);
+    f20v = _DistGV(buf.eye, buf.root);
+    buf.target[3] = 0.0f;
+    sceVu0ApplyMatrix(buf.target, buf.m, buf.target);
+    sceVu0ScaleVector(buf.target, buf.target, f20v);
+    sceVu0AddVector(buf.target, buf.target, buf.eye);
+    SetCameraTargetPosition(buf.target, buf.eye, cameraFov);
+}
 
 void GetCameraInfomationFromGlobalPosition(int a0, int a1, int a2, int a3, int a4)
 {
@@ -397,9 +401,6 @@ static inline void InsertCamera_Clear(void)
 {
     insertCamera = insertCameraClear;
 }
-
-/* kept local: agrees with camera-ico2.h, which this TU does not include (SetCameraTargetPosition differs) */
-extern void InitIco2Camera(void);
 
 int CameraCalclated_f;
 
@@ -465,12 +466,6 @@ union CamWork {
     float v[4];
     CamZoomTbl zoom;
 };
-
-/* kept local: float () here, void (void *, void *) in poly-flat.h */
-extern float IsPointIsInScreen();
-/* same prototype as commonact.h's, kept local: this TU includes no commonact.h */
-/* kept local: agrees with commonact.h, which this TU does not include (test_CURRENTORIENT differs) */
-extern void *test_CURRENTROOT(void *gobj);
 
 /* rows 255-270: one step of the camera target queue.  The name is ours. */
 static inline void Camctrl_Exec(void)
@@ -542,31 +537,7 @@ static inline void cameraSetMode(int x)
 /* set when the monitor camera must start over */
 static int monitorCameraInit = 0; /* derived name */
 
-/* kept local: agrees with debug.h, which this TU does not include (debug_Printf differs) */
-extern int debug_ignore_demo_camera;
-/* kept local: agrees with debug.h, which this TU does not include (debug_Printf differs) */
-extern int debug_font_flag;
-/* kept local: agrees with debug.h, which this TU does not include (debug_Printf differs) */
-extern int debug_font_flag3;
-/* kept local: agrees with debug.h, which this TU does not include (debug_Printf differs) */
-extern int debug_zoom_per;
-/* kept local: agrees with debug.h, which this TU does not include (debug_Printf differs) */
-extern int debug_hand_camera;
 extern char iosPadConfCustom[];
-/* kept local: agrees with camera-ico2.h, which this TU does not include (SetCameraTargetPosition differs) */
-extern void GetHandCameraStickInfo(float *outX, float *outZ, float *outMag);
-/* kept local: agrees with camera-ico2.h, which this TU does not include (SetCameraTargetPosition differs) */
-extern void SetCameraMatrix_Ico2(int cut);
-/* kept local: agrees with camera-ico2.h, which this TU does not include (SetCameraTargetPosition differs) */
-extern void SetCameraZoomOffsetRatio(float r);
-/* kept local: void (int, int, unsigned int, char *, ...) here, void (int, int, unsigned int, int, ...) in debug.h */
-extern void debug_Printf(int x, int y, unsigned int col, char *fmt, ...);
-/* kept local: int (void *, int, int, void *) here, int (void *, int, int, int) in pad.h */
-extern int iosPadConnect(void *pad, int slot, int port, void *conf);
-/* kept local: void (void *) here, int (void *) in pad.h */
-extern void iosPadRead(void *pad);
-/* kept local: int (int) here, void * (char *) in commonact.h */
-extern int test_CURRENTORIENT(int gobj);
 
 void SetCameraMatrix(void)
 {
@@ -606,7 +577,7 @@ void SetCameraMatrix(void)
     case 2:
         DebugCameraSemiAuto();
         if (debug_font_flag3 != 0 || (debug_font_flag & 1) != 0) {
-            debug_Printf(220, 30, 0xFFFFFF00, "FREECAM");
+            debug_Printf(220, 30, 0xFFFFFF00, (int)"FREECAM");
         }
         if ((pad[0].now & 2) != 0 && (pad[0].flags & 0x100) != 0) {
             cameraSetMode(3);
@@ -619,14 +590,14 @@ void SetCameraMatrix(void)
         SetCameraMatrix_Ico2(gamecamCutBack);
         gamecamCutBack = 0;
         if (debug_font_flag3 != 0 || (debug_font_flag & 1) != 0) {
-            debug_Printf(220, 30, 0xFFFFFF00, "GAMECAM");
+            debug_Printf(220, 30, 0xFFFFFF00, (int)"GAMECAM");
         }
         break;
     case 1:
     handCamera:
         DebugCameraManual();
         if (debug_font_flag3 != 0 || (debug_font_flag & 1) != 0) {
-            debug_Printf(220, 30, 0xFFFFFF00, "HANDCAM");
+            debug_Printf(220, 30, 0xFFFFFF00, (int)"HANDCAM");
         }
         if ((pad[0].flags & 0x100) != 0) {
             cameraSetMode(3);
@@ -643,11 +614,11 @@ void SetCameraMatrix(void)
         }
         SetLimitHandCameraCorrect((float)handCameraLimitP, (float)handCameraLimitV);
         if (debug_font_flag3 != 0 || (debug_font_flag & 1) != 0) {
-            debug_Printf(220, 30, 0xFFFFFF00, "PATHCAM");
+            debug_Printf(220, 30, 0xFFFFFF00, (int)"PATHCAM");
         }
         if (debug_font_flag3 != 0 || (debug_font_flag & 1) != 0) {
-            debug_Printf(310, 30, 0xFFFFFF00, "%d,%d,%d %d", (int)m[12], (int)m[13], (int)m[14],
-                         (int)cameraZoom);
+            debug_Printf(310, 30, 0xFFFFFF00, (int)"%d,%d,%d %d", (int)m[12], (int)m[13],
+                         (int)m[14], (int)cameraZoom);
         }
         sceVu0TransposeMatrix(mt, m);
         CopyVector(ofs, &m[12]);
@@ -739,7 +710,7 @@ void SetCameraMatrix(void)
         } else {
             zoomMax = zp[0].max;
         }
-        iosPadConnect(padCtx, 0, 0, iosPadConfCustom);
+        iosPadConnect(padCtx, 0, 0, (int)iosPadConfCustom);
         if (zoomBaseInit != 0) {
             zoomBaseInit = 0;
             zoomBase = debug_zoom_per;
@@ -747,7 +718,7 @@ void SetCameraMatrix(void)
         iosPadRead(padCtx);
         ply = boyGObj;
         if (ply != 0 && useDemo == 0) {
-            ply = *(int *)((char *)ply + 0x164);
+            ply = ((GObj *)ply)->act;
             p = (char *)ply + 0x2D8;
         } else {
             p = (char *)padCtx;

@@ -7,6 +7,7 @@
 #include "ios.h"
 #include "lws_kyomi.h"
 #include "main.h"
+#include "geometryManager.h"
 
 struct HintInfo {
     int _0;
@@ -50,13 +51,13 @@ char *CreateKyomiGObj(int no)
     struct HintInfo *hint;
     int i;
 
-    memset(lay, 0, 0x40);
+    memset(lay, 0, 64);
     lay[8] = 1.0f;
     lay[9] = 1.0f;
     lay[10] = 1.0f;
-    gobj = CreateLayoutedGObj(61, 0x4B, -1, 0, lay, 1, 7, 0);
+    gobj = CreateLayoutedGObj(61, 75, -1, 0, lay, 1, 7, 0);
     hint = (struct HintInfo *)iosMallocDebug(ios_partition_sugipon, 16, "src/lws_kyomi.c", 101);
-    (struct HintInfo *)GOBJ_SUB(gobj)->f_830 = hint;
+    GOBJ_SUB(gobj)->f_830 = hint;
     *hint = hintDefault;
     hint->_0 = no;
     for (i = 0; i < 28; i++) {
@@ -169,16 +170,10 @@ void ReadHintSaveInfo(void)
     READ_HINT_SAVE_BITS(hintWork.save + 4, 1);
 }
 
-/* kept local: void (void *) here, void (char *, void *) in geometryManager.h */
-extern void SetDirectRootPosition(void *gobj);
-/* kept local: void (void *) here, void (int) in geometryManager.h */
-extern void UpdateRootMatrix(void *gobj);
-/* kept local: void (void *, void *) here, void (void *, char *) in geometryManager.h */
-extern void GetRootPosition(void *out, void *gobj);
 /* kept local: void (void *, float, int, int) here, void (int, int, int, float) in brain.h */
 extern void brainSetLevelGop(void *gobj, float lv, int a1, int a2);
 
-void SetParamKyomiGObj(void *gobj, int a1, float *param)
+void SetParamKyomiGObj(void *gobj, float *root, float *param)
 {
     float pos[4];
     float lv;
@@ -199,8 +194,8 @@ void SetParamKyomiGObj(void *gobj, int a1, float *param)
             on1 = 1;
         }
     }
-    SetDirectRootPosition(gobj);
-    UpdateRootMatrix(gobj);
+    SetDirectRootPosition(gobj, root);
+    UpdateRootMatrix((int)gobj);
     GetRootPosition(pos, gobj);
     brainSetLevelGop(gobj, lv, on1, on2);
 }
@@ -222,7 +217,7 @@ void WakeupHint(int no)
 
 int IsTopHint(void *gobj)
 {
-    if (*(int *)((char *)gobj + 0xC) == 61) {
+    if (((GObj *)gobj)->kind == 61) {
         struct HintInfo *hint = GOBJ_SUB(gobj)->f_830;
 
         if (hint->flags & 1) {
@@ -242,7 +237,7 @@ void DebugHintStart(void *gobj)
 
 int GetSizeHintSaveInfo(void)
 {
-    return 0x78;
+    return 120;
 }
 
 char *GetBuffHintSaveInfo(void)

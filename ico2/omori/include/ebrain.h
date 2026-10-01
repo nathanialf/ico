@@ -16,14 +16,14 @@
 extern int eBrainBoyChaseCount;
 extern int eBrainGirlChaseCount;
 
-typedef struct EBSlot {
-    unsigned short f0; /* 0x00 status */
+typedef struct EBSlot { /* field names derived */
+    unsigned short status; /* 0x00, 0 idle, 1 chasing the boy, 2 chasing the girl */
     char pad2[2];
-    void *f04;     /* 0x04 target GObj */
-    float dist[2]; /* 0x08 [0]=to boy, 0x0C [1]=to girl */
-    int f10;       /* 0x10 message */
-    int f14;       /* 0x14 */
-    void *f18;     /* 0x18 owner GObj */
+    void *target;          /* 0x04, the GObj the enemy is sent after */
+    float dist[2];         /* 0x08, [0] to the boy, [1] to the girl */
+    int message;           /* 0x10, the brain message waiting for the enemy */
+    int chaseFrames;       /* 0x14, frames spent chasing the boy */
+    void *owner;           /* 0x18, the enemy GObj the slot belongs to */
 } EBSlot;
 
 /* The declarations below lead this header because their order is load-bearing:

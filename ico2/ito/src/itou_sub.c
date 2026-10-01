@@ -2,9 +2,7 @@
 #include "StageAnimation.h"
 #include "itou_sub.h"
 #include "Matrix.h"
-
-/* kept local: libvu0.h does not compile in this TU (too few arguments to function `sceVu0TransposeMatrix') */
-extern void sceVu0TransposeMatrix();
+#include <libvu0.h>
 
 inline void lw_pos_to_ico_pos(float *dst, float *src)
 {
@@ -66,17 +64,17 @@ int m33_to_quat(float *q, float (*m)[4])
     }
 }
 
-inline int ico_m33_to_quat(int a0)
+inline int ico_m33_to_quat(void *q, void *m)
 {
-    int buf[16];
-    sceVu0TransposeMatrix(buf);
-    return m33_to_quat((float *)a0, (float (*)[4])buf);
+    float buf[4][4];
+    sceVu0TransposeMatrix(buf, m);
+    return m33_to_quat(q, buf);
 }
 
-inline void pbga_start(int *self, int *q)
+inline void pbga_start(int **slot, int key)
 {
-    if (*self != 0) {
-        stage_KillPlayBgAnimation(self);
+    if (*slot != 0) {
+        stage_KillPlayBgAnimation(slot);
     }
-    *self = stage_MakePlayBgAnimation(q);
+    *slot = stage_MakePlayBgAnimation(key);
 }

@@ -12,6 +12,8 @@
 #ifndef ITOU_GFLAG_H
 #define ITOU_GFLAG_H
 
-void itouGFlagInit(int a0, int a1, int a2, int a3);
+void itouGFlagInit(void);
+void itouGflagLoad(void);
+void itouGflagSave(void);
 
 #endif /* ITOU_GFLAG_H */

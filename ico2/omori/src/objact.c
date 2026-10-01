@@ -2,9 +2,8 @@
 #include "obj_manager.h"
 #include "objact.h"
 #include "typedef.h"
+#include "act2.h"
 
-/* kept local: act2.h does not compile in this TU (too many arguments to function `BeforeFunc2') */
-extern void BeforeFunc2();
 extern OaRecA objLayout[];
 extern OaRecB D_002BC6E0[];
 
@@ -20,10 +19,10 @@ static inline OaRecB *objActionRecord(int a0)
 
 inline void ObjAction_Init(void)
 {
-    int *p = (int *)isysGObjGetExist_begin();
+    GObj *p = isysGObjGetExist_begin();
     while (p != 0) {
-        ObjAction_CorrectGeo(p[2], 0);
-        p = (int *)isysGObjGetExist_next(p);
+        ObjAction_CorrectGeo(p->f_8, 0);
+        p = isysGObjGetExist_next(p);
     }
 }
 
@@ -31,13 +30,13 @@ inline void ObjAction_Init(void)
 static inline void objActionCorrectFlag(OaRecB *p)
 {
     if ((p->x10 & 1) == 1u) {
-        p->xC = 0x3CC;
+        p->xC = 972;
     }
 }
 
 static inline void objActionCorrectMode(OaRecB *p)
 {
-    if (p->xC == 0x3CC) {
+    if (p->xC == 972) {
         p->xC = p->x0;
     }
 }
@@ -83,7 +82,7 @@ inline void ObjAction_MailCenter(void *a0, int a1)
     }
 }
 
-void ObjectBeforeFunc(int a0, int a1, int a2, int a3)
+void ObjectBeforeFunc(char *self)
 {
-    BeforeFunc2(a0, a1, a2, a3);
+    BeforeFunc2(self);
 }

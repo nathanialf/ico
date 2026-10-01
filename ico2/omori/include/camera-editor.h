@@ -13,8 +13,12 @@
 #define CAMERA_EDITOR_H
 
 /* RECONSTRUCTION, PLACED BY INCLUDE PATTERN: one record, previously repeated character for character in 2 TUs. */
-typedef struct {
-    int w[19];
+typedef struct S4C { /* field names derived */
+    int pad0[14];
+    int first;    /* 0x38, the group's first item record */
+    int end;      /* 0x3C, one past its last item record */
+    int pad40[2];
+    int items;    /* 0x48, the address of the item records, held as a word */
 } S4C;
 
 /* RECONSTRUCTION, PLACED BY INCLUDE PATTERN: one record, previously repeated character for character in 2 TUs. */
@@ -67,7 +71,7 @@ extern unsigned char exit_f;
  * order. */
 void debug_NMarker(int *self, int a1, int a2, int a3, float t);
 void debug_Marker(int *buf, int a1, int a2, int a3, float f12, float f13);
-void debug_Arrow(void);
+void debug_Arrow(float len, void *from, void *to, int r, int g, int b);
 void InitCameraEditor(void);
 int debug_CameraEditor(void);
 void CameraEdit_reset_box(int a0);
