@@ -167,10 +167,10 @@ int _sceSifLoadModule(void *name, int arglen, int args, int ret, int rpcno)
     return r;
 }
 
-void sceSifLoadModule(void *a0, int a1, int a2)
+int sceSifLoadModule(void *a0, int a1, int a2)
 {
     int local;
-    _sceSifLoadModule(a0, a1, a2, (int)&local, 0);
+    return _sceSifLoadModule(a0, a1, a2, (int)&local, 0);
 }
 
 int sceSifLoadStartModule(void *a0, int a1, int a2, int a3)

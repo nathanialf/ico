@@ -152,12 +152,6 @@ inline int Ee2Iop(int a0, int a1, int a2)
     return (x >= 0) ? 0 : -1;
 }
 
-extern void SgInit(void);
-extern void SgSetDigitalOutputMode(int a0);
-extern void SgSetTickMode(int a0);
-extern void SgSetReverbEndAddr(int a0, int a1);
-extern void SgSetMasterVol(int a0, int a1, int a2);
-
 int soundInit(void)
 {
     int i;
@@ -195,8 +189,6 @@ int soundInit(void)
     seEnvForceClose = 0;
     return 0;
 }
-
-extern void SgSetOutputMode();
 
 void soundOutputModeSet(int a0)
 {
@@ -240,11 +232,6 @@ void soundAllocIopFree(void)
 {
     sceSifFreeIopHeap(soundIopHeapAddrs);
 }
-
-extern void SgSetSeMasterVol(int vab, int vol);
-extern int SgBgmOpen(int vab, int a1);
-extern void SgSetBgmVol(int h, int vol, int pan);
-extern void SgBgmPlay(int h);
 
 /* A free channel's allocation, which the listing gives to lines 275 to 286 in
    both of its users (soundDataOpenChk, _soundSeDefPlay): a helper defined there
@@ -530,9 +517,6 @@ inline void soundBufAdpcmFree(char *self)
     *(long long *)(self + 0x18) = 0;
 }
 
-extern void SgDmaWrite(int heap, int addr, int size);
-extern void SgGetDmaTransferStatus(int a0);
-
 char *soundBDDataSet(int a0, int a1, int a2, int a3, int a4, int a5)
 {
     int off = 0;
@@ -619,9 +603,6 @@ int *soundDataOpenSync(int *work)
     return 0;
 }
 
-extern int SgVabClose(int vab);
-extern void SgBgmStop(unsigned int h, int mode);
-extern int SgBgmClose(int h);
 extern void AdpcmClose(char *self);
 
 void soundDataClose(char *obj)
@@ -678,8 +659,6 @@ void soundDataSegAllClose(int a0, int a1)
         return;
     soundBufSegFree(a0, a1);
 }
-
-extern void SgSetSeVolDirect(int id, int l, int r);
 
 static void soundSeVolSet(SeSlot *self)
 {
@@ -1031,7 +1010,6 @@ static void sound3DParamSet(SeSlot *self)
 }
 
 extern char seDef[];
-extern int SgSePlay(int vab, int a1, int a2);
 
 inline void soundSeGroupStop(int arg)
 {
@@ -1248,8 +1226,6 @@ inline int soundSeDefPlayWithVolumeRate(int a0, int a1, int a2, int a3)
     return idx;
 }
 
-extern void SgSeStop(int a0);
-
 void _soundSeDefStop(int a0, int a1)
 {
     int ch = a0 & 0xFF;
@@ -1334,7 +1310,6 @@ inline void soundSeDefVolumeRateSet(int a0, float f)
 /* The stage table sits in .rodata, so it is declared const: its loads are then
    unchanging and do not order against soundSeEnvNotUseClose's `p = 0` store. */
 extern const StgPre stageData[];
-extern int SgGetSlotStatus(int a0, int a1);
 
 inline void soundReqTickProc(void)
 {

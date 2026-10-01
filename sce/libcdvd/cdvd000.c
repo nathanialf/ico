@@ -381,15 +381,18 @@ int PowerOffCB(void)
     return 1;
 }
 
-/* the 0x24-byte file entry, copied whole */
-typedef struct {
+/* the file entry the call fills in, libcdvd's sceCdlFILE: the first sector,
+   the byte length, the name and the date.  This member copies it whole as
+   0x24 bytes and reads its words by offset; the copy's lwl/lwr pairs show the
+   record it copies is byte-aligned here, so its body is the bytes. */
+typedef struct sceCdlFILE {
     unsigned char b[0x24];
-} CdFileEntry;
+} sceCdlFILE;
 
 /* The bind block is PowerOffCB's (bound flag cleared in the serve arm); the
    semaphore-handle loads are the per-site volatile accesses described above
    _sceCd_cd_callback. */
-int sceCdSearchFile(CdFileEntry *fp, const char *name)
+int sceCdSearchFile(sceCdlFILE *fp, const char *name)
 {
     char *req;
     int w;
@@ -443,7 +446,7 @@ int sceCdSearchFile(CdFileEntry *fp, const char *name)
         SignalSema(*(volatile int *)&_sceCd_ncmd_semid);
         return 0;
     }
-    *fp = *(CdFileEntry *)((int)req | 0x20000000);
+    *fp = *(sceCdlFILE *)((int)req | 0x20000000);
     if (SCE_CD_debug > 0) {
         scePrintf("search name %s\n", (char *)fp + 8);
     }

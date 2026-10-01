@@ -11,11 +11,29 @@
 #ifndef SCE_LIBMC_LIBMC_H
 #define SCE_LIBMC_LIBMC_H
 
+/* a file's date and time as the card stores it */
+typedef struct sceMcStDateTime {
+    unsigned char Resv2;
+    unsigned char Sec;
+    unsigned char Min;
+    unsigned char Hour;
+    unsigned char Day;
+    unsigned char Month;
+    unsigned short Year;
+} sceMcStDateTime;
+
 /* the 64-byte directory entry sceMcGetDir has the IOP fill, one per entry
-   asked for.  Nothing in this tree reads one, so only the tag is declared,
-   which keeps the type out of the debug tables of the game TU that includes
-   this header. */
-struct sceMcTblGetDir;
+   asked for */
+typedef struct sceMcTblGetDir {
+    sceMcStDateTime _Create;     /* 0x00 */
+    sceMcStDateTime _Modify;     /* 0x08 */
+    unsigned int FileSizeByte;   /* 0x10 */
+    unsigned short AttrFile;     /* 0x14 */
+    unsigned short Reserve1;     /* 0x16 */
+    unsigned int Reserve2;       /* 0x18 */
+    unsigned int PdaAplNo;       /* 0x1C */
+    unsigned char EntryName[32]; /* 0x20 */
+} sceMcTblGetDir;
 
 int sceMcChdir(int a0, int a1, char *name, char *pwd); /* definition in sce/ */
 int sceMcClose(int arg);                               /* definition in sce/ */

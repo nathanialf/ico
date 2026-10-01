@@ -51,11 +51,19 @@ int sceCdBreak(void)
     return v;
 }
 
-typedef struct {
-    unsigned char b[8];
-} CdClock;
+/* the real-time clock as sceCdReadClock returns it, the fields in BCD */
+typedef struct sceCdCLOCK {
+    unsigned char stat;
+    unsigned char second;
+    unsigned char minute;
+    unsigned char hour;
+    unsigned char pad;
+    unsigned char day;
+    unsigned char month;
+    unsigned char year;
+} sceCdCLOCK;
 
-int sceCdReadClock(CdClock *clock)
+int sceCdReadClock(sceCdCLOCK *clock)
 {
     int *p;
     int v;
@@ -70,7 +78,7 @@ int sceCdReadClock(CdClock *clock)
         SignalSema(*(volatile int *)&_sceCd_scmd_semid);
         return 0;
     }
-    *clock = *(CdClock *)((int)(p + 1) | 0x20000000);
+    *clock = *(sceCdCLOCK *)((int)(p + 1) | 0x20000000);
     if (SCE_CD_debug > 0) {
         scePrintf("Libcdvd call Clock read 2\n");
     }

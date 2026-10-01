@@ -10,7 +10,7 @@
 #ifndef SCE_LIBCDVD_LIBCDVD_INTERNAL_H
 #define SCE_LIBCDVD_LIBCDVD_INTERNAL_H
 
-#include <sifcmd.h>
+#include <sifrpc.h>
 
 extern int SCE_CD_debug;
 extern int _sceCd_ncmd_semid;
