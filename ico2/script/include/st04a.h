@@ -52,6 +52,6 @@ void actSt04aModelOnChk(GObj *volatile a0);
 void actSt04aTorch1Chk(GObj *volatile a0);
 void actSt04aTorchAllFlagfChk(GObj *volatile a0);
 void actSt04aTorchHintChk(GObj *volatile a0);
-void finishCallBackFunc(int a0);
+void finishCallBackFunc(struct GObj *a0);
 
 #endif /* ST04A_H */

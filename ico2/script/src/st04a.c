@@ -9,6 +9,7 @@
 #include "s_init.h"
 #include "act-game.h"
 #include "act.h"
+#include "gobj_process.h"
 #include "boyact.h"
 #include "commonact.h"
 #include "way_llf.h"
@@ -145,9 +146,9 @@ static int conte09_3Running;
 
 void actSt04aGateChk(GObj *volatile a0)
 {
-    int *th0;
-    int *th1;
-    int *th2;
+    GProc *th0;
+    GProc *th1;
+    GProc *th2;
     int i;
     int n;
 
@@ -161,7 +162,7 @@ void actSt04aGateChk(GObj *volatile a0)
         _ACTWait(1);
     }
 
-    th0 = (int *)actCreateSubThread(actSt04aEnvSe, 21);
+    th0 = actCreateSubThread(actSt04aEnvSe, 21);
 
     lt_switch_layout(55);
 
@@ -198,8 +199,8 @@ void actSt04aGateChk(GObj *volatile a0)
 
     _ACTWait(1);
 
-    th1 = (int *)actCreateSubThread(actSt04aConte06, 21);
-    th2 = (int *)actCreateSubThread(actSt04aConte06Jimaku, 21);
+    th1 = actCreateSubThread(actSt04aConte06, 21);
+    th2 = actCreateSubThread(actSt04aConte06Jimaku, 21);
 
     stage_SetAnimation(269, 1, 0);
 
@@ -235,9 +236,9 @@ void actSt04aGateChk(GObj *volatile a0)
 
     iosPadActStopAll();
 
-    iosThreadSetPri(th1 + 9, 34);
-    iosThreadSetPri(th2 + 9, 34);
-    iosThreadSetPri(th0 + 9, 34);
+    iosThreadSetPri(&th1->thread, 34);
+    iosThreadSetPri(&th2->thread, 34);
+    iosThreadSetPri(&th0->thread, 34);
 
     if (n != 0) {
         {
@@ -655,9 +656,9 @@ extern char D_00618DB0[];
 
 void actSt04aGateOpenChk(GObj *volatile a0)
 {
-    int *th1;
-    int *th2;
-    int *th3;
+    GProc *th1;
+    GProc *th2;
+    GProc *th3;
     int i;
     int n;
 
@@ -709,9 +710,9 @@ void actSt04aGateOpenChk(GObj *volatile a0)
 
     scpDisActivateAllWithKind(0x13);
 
-    th1 = (int *)actCreateSubThread(actConte09, 21);
-    th2 = (int *)actCreateSubThread(actSt04aEnvSeWakare1, 21);
-    th3 = (int *)actCreateSubThread(actConte09Jimaku, 21);
+    th1 = actCreateSubThread(actConte09, 21);
+    th2 = actCreateSubThread(actSt04aEnvSeWakare1, 21);
+    th3 = actCreateSubThread(actConte09Jimaku, 21);
 
     demoEnd = 0;
     while (demoEnd == 0 && ((pad[0].flags & 0x800) == 0 || scpAdpcmPlayRequestNum() != 0)) {
@@ -733,9 +734,9 @@ void actSt04aGateOpenChk(GObj *volatile a0)
 
     iosPadActStopAll();
 
-    iosThreadSetPri(th1 + 9, 34);
-    iosThreadSetPri(th3 + 9, 34);
-    iosThreadSetPri(th2 + 9, 34);
+    iosThreadSetPri(&th1->thread, 34);
+    iosThreadSetPri(&th3->thread, 34);
+    iosThreadSetPri(&th2->thread, 34);
 
     if (n != 0) {
         {
@@ -1451,7 +1452,7 @@ void actConte09_3(GObj *volatile a0)
 
 void actSt04aGateLChk(GObj *volatile a0)
 {
-    int *th;
+    GProc *th;
 
     while (gflagChk(174) == 0) {
         _ACTWait(1);
@@ -1471,7 +1472,7 @@ void actSt04aGateLChk(GObj *volatile a0)
 
     scpFadeIn(16.0f);
 
-    th = (int *)actCreateSubThread(actSt04aGateLSub, 21);
+    th = actCreateSubThread(actSt04aGateLSub, 21);
 
     demoEnd = 0;
 
@@ -1483,7 +1484,7 @@ void actSt04aGateLChk(GObj *volatile a0)
         _ACTWait(1);
     }
 
-    iosThreadSetPri(th + 9, 34);
+    iosThreadSetPri(&th->thread, 34);
 
     if (demoEnd == 0) {
         scpFadeOut(16.0f, 0, 0, 0);
@@ -1508,7 +1509,7 @@ void actSt04aGateLChk(GObj *volatile a0)
 
 void actSt04aGateRChk(GObj *volatile a0)
 {
-    int *th;
+    GProc *th;
     int stage;
 
     while (gflagChk(234) == 0) {
@@ -1548,7 +1549,7 @@ void actSt04aGateRChk(GObj *volatile a0)
 
     scpFadeIn(16.0f);
 
-    th = (int *)actCreateSubThread(actSt04aGateRSub, 21);
+    th = actCreateSubThread(actSt04aGateRSub, 21);
 
     demoEnd = 0;
 
@@ -1560,7 +1561,7 @@ void actSt04aGateRChk(GObj *volatile a0)
         _ACTWait(1);
     }
 
-    iosThreadSetPri(th + 9, 34);
+    iosThreadSetPri(&th->thread, 34);
 
     if (demoEnd == 0) {
         scpFadeOut(16.0f, 0, 0, 0);
@@ -2046,7 +2047,7 @@ typedef struct {
     float m[4];
 } Vec4St04A;
 
-void finishCallBackFunc(int a0)
+void finishCallBackFunc(GObj *a0)
 {
     Vec4St04A v;
     int i;

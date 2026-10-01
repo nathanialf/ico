@@ -31,11 +31,6 @@
 #include "jimaku.h"
 
 typedef struct {
-    int f0;
-    unsigned char pad4[36];
-} StgFile;
-
-typedef struct {
     int stage;
     float dist;
     unsigned char pad8[8];
@@ -49,11 +44,11 @@ typedef struct {
    positions of the fifteen entrances stgmgrNextStagePreLoadEntry collects. */
 char stagePreLoadBuff[896 * 2048] = {0};
 
-int stageMgrMsgQ[12] = {0};
+IosMsgQueue stageMgrMsgQ = {0};
 
 StgSlot stageExitData[15] = {0};
 
-extern StgFile D_0055C53C[];
+extern ExitData exitData[];
 extern const StgPre stageData[];
 extern int stgmgrNextStagePreLoad(CdvdBgReq *bg);
 
@@ -68,7 +63,9 @@ static int stagePreLoadForceStageNo;
 /* .bss, owned by StageManager.o (the retail run is 0x70, the size of thread.c's
    own IOSThread record; MAIN.MAP sizes its own link's 0x80 and names no symbol
    in it): the thread descriptor InitIcoMisc is started through. */
-/* */
+/* kept as words (an IOSThread's 28): InitIcoMisc's flag word at 0x3C is read
+   here as an unsigned word (lwu into the 64-bit flags), where IOSThread's
+   flags is the int ios/thread.c tests */
 static unsigned int initIcoMiscThread[28];
 
 #include "StageManager.h"
@@ -358,7 +355,7 @@ void stgmgrNextStagePreLoadEntry(int stage)
         short s = pre->ent[i];
         if (s != 0) {
             int count = stageExitDataCnt;
-            stageExitData[count].stage = D_0055C53C[s].f0;
+            stageExitData[count].stage = exitData[s].nextStage;
             if (PositionOfExit(stageExitData[count].pos, i + 1) == 0) {
                 stageExitDataCnt = stageExitDataCnt + 1;
             }
@@ -400,14 +397,14 @@ void StageManager(void)
     StgMgrMsg *msg;
 
     debug_StdPrintfDummy("stage manager() in\n");
-    iosMsgQueueCreate(stageMgrMsgQ, &stageMgrMsgBuf, 1);
+    iosMsgQueueCreate(&stageMgrMsgQ, &stageMgrMsgBuf, 1);
     debug_StdPrintfDummy("IosCdLock %d\n", IosCdLock);
     WaitSema(IosCdLock);
     DeleteSema(IosCdLock);
     SignalSema(IosStgMgrLock);
     debug_StdPrintfDummy("STAGE MANAGER START\n");
     while (1) {
-        iosMsgRecv(stageMgrMsgQ, &msg, 1);
+        iosMsgRecv(&stageMgrMsgQ, &msg, 1);
         mpegPlayFadeInSpeed = 128.0f;
         fadeSpeed = 0;
         switch (msg->cmd) {
@@ -506,7 +503,7 @@ void stgmgrForceSwitch(int stage)
     stageMgrMsg.stage = stage;
     graphics_ready = 1;
     stageMgrMsg.fadeOut = 0;
-    iosMsgSend(stageMgrMsgQ, &stageMgrMsg, 1);
+    iosMsgSend(&stageMgrMsgQ, &stageMgrMsg, 1);
 }
 
 void stgmgrForceSwitchWithFade(int stage, float fadeIn, float fadeOut)
@@ -526,5 +523,5 @@ void stgmgrForceSwitchWithFadeColor(int stage, float fadeIn, float fadeOut, unsi
     stageMgrMsg.b = b;
     mpegPlayInitColor = 0x80000000 | (b << 16) | (g << 8) | r;
     graphics_ready = 1;
-    iosMsgSend(stageMgrMsgQ, &stageMgrMsg, 1);
+    iosMsgSend(&stageMgrMsgQ, &stageMgrMsg, 1);
 }

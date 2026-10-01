@@ -45,7 +45,7 @@ static sceVu0FVECTOR nextStagePos;
 
 static sceVu0FVECTOR nextStageRot;
 
-/* kept local: agrees with main.h, which this TU does not include (GlobalStageSetting, boyGObj differ) */
+/* kept local: agrees with main.h, which this TU does not include (boyGObj differs) */
 extern int exit_no;
 
 #include "sceneManager.h"
@@ -167,79 +167,11 @@ plain:
     return *(int *)(gen + 0x2C);
 }
 
-/* sceneManager.c:213-313.  GlobalStageSetting is the StageSettingScenemanager record ico2/seki/src/GsBase.c
-   already names; the fields this TU touches beyond that file's four are spelled by
-   offset.  The stage-preset record is read through the stageData[stage] subscript on
+/* sceneManager.c:213-313.  GlobalStageSetting is the system's StageSetting
+   record (typedef.h).  The stage-preset record is read through the stageData[stage] subscript on
    every line, which is what the listing's per-line pointer copies show. */
-/* kept local: this TU's bytes only come out with its own view of StageSettingScenemanager. */
-/* kept local: this TU's bytes only come out with its own view of StageSetting, so it
-   keeps one under its own name; the shared view is in ico2/common/include/typedef.h. */
-typedef struct StageSettingScenemanager {
-    float flatLightDir[3][4]; /* 0x000 */
-    float flatLightCol[3][4]; /* 0x030 */
-    float ambientCol[4];      /* 0x060 */
-    float bgCol[4];           /* 0x070 */
-    int f080;                 /* 0x080 */
-    int _084[3];              /* 0x084 */
-    int f090[4];              /* 0x090 */
-    int f0A0[3];              /* 0x0A0 */
-    int f0AC;                 /* 0x0AC */
-    int f0B0;                 /* 0x0B0 */
-    int f0B4;                 /* 0x0B4 */
-    int f0B8;                 /* 0x0B8 */
-    int f0BC;                 /* 0x0BC */
-    int f0C0;                 /* 0x0C0 */
-    int f0C4;                 /* 0x0C4 */
-    int f0C8;                 /* 0x0C8 */
-    int _0CC;                 /* 0x0CC */
-    int f0D0;                 /* 0x0D0 */
-    int f0D4;                 /* 0x0D4 */
-    int f0D8;                 /* 0x0D8 */
-    int _0DC;                 /* 0x0DC */
-    int f0E0;                 /* 0x0E0 */
-    int _0E4;                 /* 0x0E4 */
-    int f0E8;                 /* 0x0E8 */
-    int f0EC;                 /* 0x0EC */
-    int f0F0;                 /* 0x0F0 */
-    int motionBlur;           /* 0x0F4 */
-    int _0F8;                 /* 0x0F8 */
-    int f0FC;                 /* 0x0FC */
-    int f100;                 /* 0x100 */
-    int f104;                 /* 0x104 */
-    int _108[2];              /* 0x108 */
-    int f110;                 /* 0x110 */
-    int f114;                 /* 0x114 */
-    int f118;                 /* 0x118 */
-    int f11C;                 /* 0x11C */
-    int f120;                 /* 0x120 */
-    int _124[3];              /* 0x124 */
-
-    struct {
-        int x;
-        int y;
-        int z;
-        int w;
-    } f130[4]; /* 0x130 */
-
-    float f170;  /* 0x170 */
-    int _174[3]; /* 0x174 */
-    int f180;    /* 0x180 */
-    int f184;    /* 0x184 */
-    int _188[2]; /* 0x188 */
-    int f190;    /* 0x190 */
-    int _194[2]; /* 0x194 */
-
-    struct {
-        int a;
-        int b;
-    } f19C[4]; /* 0x19C */
-
-    int subMotionBlur[4]; /* 0x1BC */
-} StageSettingScenemanager;
-
-/* kept local: StageSettingScenemanager here, StageSetting in main.h */
-extern StageSettingScenemanager GlobalStageSetting;
-/* kept local: agrees with main.h, which this TU does not include (GlobalStageSetting, boyGObj differ) */
+extern StageSetting GlobalStageSetting;
+/* kept local: agrees with main.h, which this TU does not include (boyGObj differs) */
 extern int db[];
 /* kept local: Texture.h declares it (void); the callers here pass 0 */
 extern int tex_RemakeRegistersSampleMin(int a);
@@ -280,47 +212,47 @@ void InitStageLight(int stage)
 
     light_AddLight(0, 0, 0);
 
-    GlobalStageSetting.f080 = (int)stageData[stage].fog[0];
-    GlobalStageSetting.f090[0] = (int)stageData[stage].fog[1];
-    GlobalStageSetting.f090[1] = (int)stageData[stage].fog[2];
-    GlobalStageSetting.f090[2] = (int)stageData[stage].fog[3];
-    GlobalStageSetting.f090[3] = (int)stageData[stage].fog[4];
-    GlobalStageSetting.f0A0[0] = (int)stageData[stage].fog[5];
-    GlobalStageSetting.f0A0[1] = (int)stageData[stage].fog[6];
-    GlobalStageSetting.f0A0[2] = (int)stageData[stage].fog[7];
-    GlobalStageSetting.f120 = 128;
+    GlobalStageSetting.fogOn = (int)stageData[stage].fog[0];
+    GlobalStageSetting.fogColR = (int)stageData[stage].fog[1];
+    GlobalStageSetting.fogColG = (int)stageData[stage].fog[2];
+    GlobalStageSetting.fogColB = (int)stageData[stage].fog[3];
+    GlobalStageSetting.fogColA = (int)stageData[stage].fog[4];
+    GlobalStageSetting.fogOffsetA = (int)stageData[stage].fog[5];
+    GlobalStageSetting.fogNear = (int)stageData[stage].fog[6];
+    GlobalStageSetting.fogFar = (int)stageData[stage].fog[7];
+    GlobalStageSetting.fogStrength = 128;
 
     gsb_SetBGColor(db, (int)GlobalStageSetting.bgCol[0], (int)GlobalStageSetting.bgCol[1],
                    (int)GlobalStageSetting.bgCol[2]);
 
-    GlobalStageSetting.f0AC = stageData[stage].shadowDepth;
-    GlobalStageSetting.f0B0 = 0;
-    GlobalStageSetting.f0B4 = 40;
-    GlobalStageSetting.f0B8 = 80;
-    GlobalStageSetting.f0BC = 120;
-    GlobalStageSetting.f0C0 = 0;
-    GlobalStageSetting.f0C4 = 0;
-    GlobalStageSetting.f0C8 = 0;
+    GlobalStageSetting.shadowDepth = stageData[stage].shadowDepth;
+    GlobalStageSetting.shadowBlend[0] = 0;
+    GlobalStageSetting.shadowBlend[1] = 40;
+    GlobalStageSetting.shadowBlend[2] = 80;
+    GlobalStageSetting.shadowBlend[3] = 120;
+    GlobalStageSetting.shadowColR = 0;
+    GlobalStageSetting.shadowColG = 0;
+    GlobalStageSetting.shadowColB = 0;
 
-    GlobalStageSetting.f0D0 = 128;
-    GlobalStageSetting.f0D4 = 128;
-    GlobalStageSetting.f0D8 = 128;
+    GlobalStageSetting.reductionCol[0] = 128;
+    GlobalStageSetting.reductionCol[1] = 128;
+    GlobalStageSetting.reductionCol[2] = 128;
 
-    GlobalStageSetting.f0E0 = 100;
+    GlobalStageSetting.viewScale = 100;
 
-    GlobalStageSetting.f0E8 = 0;
-    GlobalStageSetting.f104 = 2;
-    GlobalStageSetting.f0EC = 100;
-    GlobalStageSetting.f0F0 = 500;
+    GlobalStageSetting.postEffect = 0;
+    GlobalStageSetting.feedbackEffect = 2;
+    GlobalStageSetting.depthFieldStart = 100;
+    GlobalStageSetting.depthFieldWidth = 500;
     GlobalStageSetting.motionBlur = 32;
 
-    GlobalStageSetting.f110 = 64;
-    GlobalStageSetting.f114 = 64;
-    GlobalStageSetting.f118 = 64;
-    GlobalStageSetting.f11C = 128;
+    GlobalStageSetting.feedbackCol[0] = 64;
+    GlobalStageSetting.feedbackCol[1] = 64;
+    GlobalStageSetting.feedbackCol[2] = 64;
+    GlobalStageSetting.feedbackCol[3] = 128;
 
-    GlobalStageSetting.f0FC = 24;
-    GlobalStageSetting.f100 = 24;
+    GlobalStageSetting.antiLevel0 = 24;
+    GlobalStageSetting.antiLevel1 = 24;
 
     for (i = 0; i < 4; i++) {
         int *row = (int *)&GlobalStageSetting + i * 4;
@@ -330,15 +262,15 @@ void InitStageLight(int stage)
         row[0x138 / 4] = 128;
         row[0x13C / 4] = (i + 1) * 8;
         GlobalStageSetting.subMotionBlur[i] = 32;
-        GlobalStageSetting.f19C[i].a = 0;
-        GlobalStageSetting.f19C[i].b = 0;
+        GlobalStageSetting.antiLevel[i].a = 0;
+        GlobalStageSetting.antiLevel[i].b = 0;
     }
 
-    GlobalStageSetting.f170 = 3.0f;
+    GlobalStageSetting.grainScale = 3.0f;
 
-    GlobalStageSetting.f180 = 120;
-    GlobalStageSetting.f184 = 80;
-    GlobalStageSetting.f190 = 200;
+    GlobalStageSetting.handCameraLimitP = 120;
+    GlobalStageSetting.handCameraLimitV = 80;
+    GlobalStageSetting.zoomMaxInDemo = 200;
 
     tex_RemakeRegistersSampleMin(0);
 }
@@ -385,7 +317,7 @@ typedef struct {
     int f30;             /* 0x30 */
 } ActInit;
 
-/* kept local: agrees with main.h, which this TU does not include (GlobalStageSetting, boyGObj differ) */
+/* kept local: agrees with main.h, which this TU does not include (boyGObj differs) */
 extern int stage_no;
 
 /* sceneManager.c:118-127: the static helper that restores the position the

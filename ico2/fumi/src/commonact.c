@@ -5,11 +5,11 @@
 /* prototypes: their order is the inline tail's emission order (gcc emits every
    inline at the end of the object in first-declaration order). They precede
    commonact.h, whose alphabetical list would otherwise fix that order. */
-void ACTAcceptMail(char *a0, int a1);
+void ACTAcceptMail(GObj *a0, int a1);
 int _ACTMotDirSmzDirect(char *a0, float *a1);
-void WithMailFunc_Idling(char *a0);
-void WithMailFunc_BossDamaged(char *a0);
-void WithMailFunc_FallDead(char *a0);
+void WithMailFunc_Idling(GObj *a0);
+void WithMailFunc_BossDamaged(GObj *a0);
+void WithMailFunc_FallDead(GObj *a0);
 void actCommonRevive(GObj *volatile a0);
 void actCommonReviveAir(GObj *volatile a0);
 void actCommonPlay(GObj *volatile a0);
@@ -65,21 +65,21 @@ void motCommonRopeTurnSpecialL(GObj *volatile a0);
 void motCommonTruckLeverLoop(GObj *volatile a0);
 void motCommonTruckLeverPull(GObj *volatile a0);
 void motCommonTruckLeverPush(GObj *volatile a0);
-void funcCommonRopeBefore(char *a0, int a1, int a2);
+void funcCommonRopeBefore(GObj *a0, int a1, int a2);
 void afterCommonRope(GObj *volatile a0);
 void extraCommonNull(GObj *volatile a0);
 void extraCommonCall(GObj *volatile a0);
-void funcCommonWayOn(void *a0);
-void funcCommonSofaWakeup(char *a0);
-int _ACTMotReqResult(char *a0, int a1);
+void funcCommonWayOn(GObj *a0);
+void funcCommonSofaWakeup(GObj *a0);
+int _ACTMotReqResult(GObj *a0, int a1);
 float *test_CURRENTORIENT(GObj *a0);
 float *test_CURRENTROOT(GObj *a0);
 void StartCorrectPosition(GObj *a0, float *pos, float *dir, int mode, float t);
-int IsCorrectPosition(char *a0);
+int IsCorrectPosition(GObj *a0);
 void ControlMotionOrient(int a0, int a1);
-int FloorIsTruck(void *a0);
+int FloorIsTruck(GObj *a0);
 void _ACTMotDir_V(void *a0, void *a1);
-void ACTMotDirToWall(char *a0);
+void ACTMotDirToWall(GObj *a0);
 void SetCorrectOrientOfChain(void *a0);
 void actAfterForceRope(GObj *volatile a0);
 void actAfterForceRopeSwing(GObj *volatile a0);
@@ -98,7 +98,7 @@ void actAfterFall(GObj *volatile a0);
 void actAfterFly(GObj *volatile a0);
 void ClipCollisionWithField(char *a0);
 void afterCommonOneWall(int x);
-int ACTCheckFlagAttack(char *a0);
+int ACTCheckFlagAttack(GObj *a0);
 void afterCommonBecarry(GObj *volatile a0);
 void afterCommonTruckLever(GObj *volatile a0);
 
@@ -729,7 +729,7 @@ typedef struct IntrRec {
 
 extern IntrRec actIntrList[];
 
-void ACTRunIntrCorrect(char *a0, IntrRec *a1, IntrRec *a2)
+void ACTRunIntrCorrect(GObj *a0, IntrRec *a1, IntrRec *a2)
 {
     char *rec;
     Act *s = GOBJ_ACT(a0);
@@ -791,12 +791,12 @@ void WithMailFunc_WayBeginPosError(void *a0)
 /* kept local: a0 is void * here, int in weapon.h */
 extern void ExecWeaponHitReaction(void *a0);
 
-void WithMailFunc_AttackFail(char *a0)
+void WithMailFunc_AttackFail(GObj *a0)
 {
     Act *s = GOBJ_ACT(a0);
     char *p = (char *)s->intrData;
     int v = p != 0 ? *(int *)p : s->wallWord;
-    if (a0 == (char *)boyGObj) {
+    if (a0 == boyGObj) {
         char *t = (char *)s->weapon;
         if (t != 0) {
             GOBJ_SUB(t)->wallAttr = v;
@@ -2072,7 +2072,7 @@ typedef struct {
    copied into a pseudo at the top of the inlined body instead, and loop.c then
    hoists the 30.0f copy out of the loop into a fourth callee-saved FP register
    the ROM does not save. */
-static inline int boxWallCheck(int a0, char *box, float dist, int h)
+static inline int boxWallCheck(GObj *a0, char *box, float dist, int h)
 {
     BoxWallWork w;
     float t[4];
@@ -2288,12 +2288,12 @@ void actCommonBar(GObj *volatile a0)
     }
 }
 
-void funcCommonJumpDircorrect(char *a0)
+void funcCommonJumpDircorrect(GObj *a0)
 {
     SetMotionDirection(a0, (char *)GOBJ_ACT(a0)->work + 0x350);
 }
 
-void funcCommonFallDircorrect(char *a0)
+void funcCommonFallDircorrect(GObj *a0)
 {
     SetMotionDirection(a0, (char *)GOBJ_ACT(a0)->work + 0x360);
 }
@@ -2360,7 +2360,7 @@ void correctJumpOrientByChain(GObj *a0)
     } else if (20.0f < t) {
         t = 20.0f;
     }
-    SetMotionDirectionSmooze((int)a0, dir, t);
+    SetMotionDirectionSmooze(a0, dir, t);
 }
 
 typedef union {
@@ -2447,7 +2447,7 @@ extern float GetDifferenceFromLowerField(GObj *volatile a0, int node);
  * register.  flyCoreLoop's copy proves the motion test and the count: it
  * passes a motion that is not 418 (so the q[10] compare survives) and needs
  * three hits where actCommonFall needs two. */
-static inline int IsFallStuckOnStep(int a0, int state, int mot, int need, int time)
+static inline int IsFallStuckOnStep(GObj *a0, int state, int mot, int need, int time)
 {
     Act *s = GOBJ_ACT(a0);
     int *q;
@@ -3515,7 +3515,7 @@ typedef struct {
     char pad190[4];
 } MotRecSm;
 
-int SetMotionDirectionSmooze(int a0, float *dir, float s)
+int SetMotionDirectionSmooze(GObj *a0, float *dir, float s)
 {
     float v[4];
     Act *sub = GOBJ_ACT(a0);
@@ -3534,21 +3534,21 @@ int SetMotionDirectionSmooze(int a0, float *dir, float s)
     if ((int)(sub->flags20.ll >> 33) & 1) {
         s = ((ActWork *)sub->work)->lockedMaxRotate;
     }
-    r = _RotyGV(test_CURRENTORIENT((char *)a0), dir);
+    r = _RotyGV(test_CURRENTORIENT(a0), dir);
     if ((float)(r < 0 ? -r : r) < s) {
         ret = 1;
         v[0] = dir[0];
         v[1] = dir[1];
         v[2] = dir[2];
     } else if (r > 0) {
-        v[0] = test_CURRENTORIENT((char *)a0)[0];
-        v[1] = test_CURRENTORIENT((char *)a0)[1];
-        v[2] = test_CURRENTORIENT((char *)a0)[2];
+        v[0] = test_CURRENTORIENT(a0)[0];
+        v[1] = test_CURRENTORIENT(a0)[1];
+        v[2] = test_CURRENTORIENT(a0)[2];
         _ApplyRyGV(v, -s * 3.1415927f / 180.0f);
     } else {
-        v[0] = test_CURRENTORIENT((char *)a0)[0];
-        v[1] = test_CURRENTORIENT((char *)a0)[1];
-        v[2] = test_CURRENTORIENT((char *)a0)[2];
+        v[0] = test_CURRENTORIENT(a0)[0];
+        v[1] = test_CURRENTORIENT(a0)[1];
+        v[2] = test_CURRENTORIENT(a0)[2];
         _ApplyRyGV(v, s * 3.1415927f / 180.0f);
     }
     SetMotionDirection(a0, v);
@@ -3569,7 +3569,7 @@ typedef struct {
     short f186;
 } MotRecDP;
 
-void _ACTDebugPrint(char *a0)
+void _ACTDebugPrint(GObj *a0)
 {
     Act *sub;
     char *w;
@@ -3598,7 +3598,7 @@ void _ACTDebugPrint(char *a0)
                     if (debug_font_flag & 1) {
                         debug_Printf(
                             30, 130, 0xFFFFFFF, "maxry = [%d]\n",
-                            a0 == (char *)girlGObj && (void *)girlControlMode != 0
+                            a0 == girlGObj && (void *)girlControlMode != 0
                                 ? ((MotNameRecDP *)(D_0055FF18 + GOBJ_SUB(a0)->motion * 0x194))->fC2
                                 : ((MotRecDP *)(motionKind + GOBJ_SUB(a0)->motion * 0x194))->f186);
                         if (debug_font_flag & 1) {
@@ -4145,12 +4145,12 @@ void ACT_LAYOUT_GAMEOVER(void)
 /* kept local: agrees with motionManager2.h, which this TU does not include (SetMotionDirection, SetMotionNodeFixModeParameter differ) */
 extern void AdjustRootPositionToVerticalSidePlaneOfWall(void *a0, void *a1, float f);
 
-void ACTAdjustPlane(int a0, int a1)
+void ACTAdjustPlane(GObj *a0, void *a1)
 {
     AdjustRootPositionToVerticalSidePlaneOfWall(a0, a1, 30.0f);
 }
 
-inline void ACTAcceptMail(char *a0, int a1)
+inline void ACTAcceptMail(GObj *a0, int a1)
 {
     if (a1 == 0xB1) {
         GOBJ_WORK(a0)->mailB1Timer = ((0x3C - systemStatus[0] * 10) / systemStatus[1]) * 10;
@@ -4171,7 +4171,7 @@ inline int _ACTMotDirSmzDirect(char *a0, float *a1)
                     : ((MotRecSR *)(motionKind + GOBJ_SUB(a0)->motion * 0x194))->f186));
 }
 
-inline void WithMailFunc_Idling(char *a0)
+inline void WithMailFunc_Idling(GObj *a0)
 {
     Act *s = GOBJ_ACT(a0);
     int k = s->actKind;
@@ -4180,13 +4180,13 @@ inline void WithMailFunc_Idling(char *a0)
     SetIdleMotionRange(k, mot, mot);
 }
 
-inline void WithMailFunc_BossDamaged(char *a0)
+inline void WithMailFunc_BossDamaged(GObj *a0)
 {
     EnemyBattleWork *m = GOBJ_ACT(a0)->enemy;
     m->bossLife -= 1;
 }
 
-inline void WithMailFunc_FallDead(char *a0)
+inline void WithMailFunc_FallDead(GObj *a0)
 {
     float v[4];
     Sub15C *s = GOBJ_SUB(a0);
@@ -4866,7 +4866,7 @@ inline void motCommonTruckLeverPush(GObj *volatile a0)
     _ACTWait(0);
 }
 
-inline void funcCommonRopeBefore(char *a0, int a1, int a2)
+inline void funcCommonRopeBefore(GObj *a0, int a1, int a2)
 {
     GOBJ_ACT(a0)->chain = a2;
 }
@@ -4888,19 +4888,19 @@ inline void extraCommonCall(GObj *volatile a0)
     }
 }
 
-inline void funcCommonWayOn(void *a0)
+inline void funcCommonWayOn(GObj *a0)
 {
-    if (a0 == (char *)girlGObj) {
+    if (a0 == girlGObj) {
         girlcalled = 1;
     }
 }
 
-inline void funcCommonSofaWakeup(char *a0)
+inline void funcCommonSofaWakeup(GObj *a0)
 {
     GOBJ_ACT(a0)->enemy->sofaWake = 0;
 }
 
-inline int _ACTMotReqResult(char *a0, int a1)
+inline int _ACTMotReqResult(GObj *a0, int a1)
 {
     Act *s = GOBJ_ACT(a0);
     char *r = SetMotionRequest(a0, a1, *(MotOriReq *)((char *)s + 0x620));
@@ -4938,7 +4938,7 @@ inline void StartCorrectPosition(GObj *a0, float *pos, float *dir, int mode, flo
     ((CorrFlag *)((char *)GOBJ_ACT(a0)->enemy + 0xB8))->ll |= (1ULL << 32);
 }
 
-inline int IsCorrectPosition(char *a0)
+inline int IsCorrectPosition(GObj *a0)
 {
     unsigned long long v = GOBJ_ACT(a0)->enemy->corrFlags;
     return (int)v & 1;
@@ -5000,7 +5000,7 @@ inline void ControlMotionOrient(int a0, int a1)
     motionOrient[a0].w[2] = a1;
 }
 
-inline int FloorIsTruck(void *a0)
+inline int FloorIsTruck(GObj *a0)
 {
     char *p = *(char **)((int)GOBJ_SUB(a0));
     if (p != 0) {
@@ -5020,7 +5020,7 @@ inline void _ACTMotDir_V(void *a0, void *a1)
     SetMotionDirection(a0, local);
 }
 
-inline void ACTMotDirToWall(char *a0)
+inline void ACTMotDirToWall(GObj *a0)
 {
     int local[4];
     sceVu0ScaleVector(local, (char *)GOBJ_ACT(a0) + 0x4B0, -1.0f);
@@ -5142,7 +5142,7 @@ inline void afterCommonOneWall(int x)
     volatile int local = x;
 }
 
-inline int ACTCheckFlagAttack(char *a0)
+inline int ACTCheckFlagAttack(GObj *a0)
 {
     return GOBJ_ACT(a0)->actMode == 0xF;
 }

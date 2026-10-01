@@ -210,14 +210,9 @@ typedef struct {
     char pad8C[52];     /* 0x8C */
 } ClipWorkScript;       /* 0xC0 */
 
-/* the 0x28-byte stage table at exitData and the per-stage 0x194-byte link
-   table at stageData: row [stage_no], entry .ent[no - 1] at +0xA0. */
-struct StgEnt {
-    char pad0[36];
-    int id;
-}; /* 0x28 */
-
-extern struct StgEnt exitData[];
+/* the stage exits at exitData and the per-stage records at stageData: row
+   [stage_no], entry .ent[no - 1]. */
+extern ExitData exitData[];
 extern StgPre stageData[];
 /* kept local: agrees with motionManager2.h, which this TU does not include (SetMotionNodeFixModeParameter differs) */
 extern int GetSkeltonFocusNode(char *a0, int a1);
@@ -1506,7 +1501,7 @@ inline int RequestStageChangeWithColor(int no, GObj *g, GObj *girl, float speed,
         if (girl != 0) {
             ACTGame_StageChangeGObj(girlGObj, next);
         }
-        stgmgrForceSwitchWithFadeColor(exitData[next].id, speed, wait, r, gr, b);
+        stgmgrForceSwitchWithFadeColor(exitData[next].nextStage, speed, wait, r, gr, b);
         ret = 1;
         stageChangeReq = 1;
     }
@@ -1919,7 +1914,7 @@ void preload(int idx)
     short s;
 
     s = stageData[stage_no].ent[idx - 1];
-    stgmgrNextStagePreLoadForceStageSet(exitData[s].id);
+    stgmgrNextStagePreLoadForceStageSet(exitData[s].nextStage);
     stgmgrNextStagePreLoadForceNoCancel(1);
 }
 

@@ -32,13 +32,14 @@ static struct jWayGroup jimakuRing[4];
 
 static char jimakuBuf[4][0x8C40] __attribute__((aligned(64)));
 
-static int jimakuReadSema[13];
+static IosSema jimakuReadSema;
 
-static int jimakuShownSema[13];
+static IosSema jimakuShownSema;
 
-static int jimakuFrameSema[13];
+static IosSema jimakuFrameSema;
 
 #include "jimaku.h"
+#include "layout_texture.h" /* texProperty: jimaku owns rows 434 and 435 */
 #include "gflag.h"
 
 typedef struct JimTex {
@@ -72,11 +73,11 @@ typedef struct JimCol {
    and jimakuMsgBuf): the display time in frames, the display flag, jimakuOn,
    display_texture's colour initialiser (a 4-byte template, so .sdata,
    reached by %hi/%lo), then jimakuMgrNext's strings and jimakuMsgBuf. */
-char jimakuThread[112] = {0};
+IOSThread jimakuThread = {0};
 
 char jimakuThreadStack[8192] = {0};
 
-int jimakuMsgQ[12] = {0};
+IosMsgQueue jimakuMsgQ = {0};
 
 JimakuArg jimaku_msg = {0};
 
@@ -187,9 +188,9 @@ int jimakuHandler(int self, JimakuArg *p)
         sub->ringPos = (sub->ringPos + 1) % 4;
     }
     if (systemStatus[10] != 0) {
-        iosSemaReferStatus(jimakuReadSema);
-        if (jimakuReadSema[9] > 0) {
-            iosSemaSignal(jimakuReadSema);
+        iosSemaReferStatus(&jimakuReadSema);
+        if (jimakuReadSema.status.numWaitThreads > 0) {
+            iosSemaSignal(&jimakuReadSema);
         }
     }
     return 0;
@@ -208,9 +209,9 @@ void jimakuMgrBegin(JimakuArg *p)
         return;
     }
     systemStatus[10] = 1;
-    iosSemaCreate(jimakuReadSema, 0, 1, 0);
-    iosSemaCreate(jimakuShownSema, 0, 1, 0);
-    iosSemaCreate(jimakuFrameSema, 0, 1, 0);
+    iosSemaCreate(&jimakuReadSema, 0, 1, 0);
+    iosSemaCreate(&jimakuShownSema, 0, 1, 0);
+    iosSemaCreate(&jimakuFrameSema, 0, 1, 0);
     for (i = 0; i < 4; i++) {
         g = &jimakuRing[i];
         g->node = &jimakuRing[(i + 1) % 4];
@@ -275,11 +276,11 @@ void jimakuMgrNext(JimakuArg *p)
     struct jWayGroup *g = &jimakuRing[sub->n];
 
     while (g->node->f4 != 4) {
-        if (iosSemaWait(jimakuReadSema) < 0) {
+        if (iosSemaWait(&jimakuReadSema) < 0) {
             return;
         }
     }
-    if (iosSemaWait(jimakuReadSema) < 0) {
+    if (iosSemaWait(&jimakuReadSema) < 0) {
         return;
     }
     g->node->f4 = 1;
@@ -293,7 +294,7 @@ void jimakuMgrNext(JimakuArg *p)
         __assert(__FILE__, 688, "0");
     }
     sub->n = (sub->n + 1) % 4;
-    if (iosSemaWait(jimakuShownSema) < 0) {
+    if (iosSemaWait(&jimakuShownSema) < 0) {
         return;
     }
     g->f4 = 2;
@@ -348,9 +349,9 @@ void jimakuMgrEnd(p) int *p;
     if (val != 0) {
         iosCdvdBackGroundMgrDelete(val);
     }
-    iosSemaDelete(jimakuFrameSema);
-    iosSemaDelete(jimakuShownSema);
-    iosSemaDelete(jimakuReadSema);
+    iosSemaDelete(&jimakuFrameSema);
+    iosSemaDelete(&jimakuShownSema);
+    iosSemaDelete(&jimakuReadSema);
 }
 
 int jimakuMsgBuf[2] = {0};
@@ -359,9 +360,9 @@ inline void jimakuManager(void)
 {
     JimakuArg *msg;
 
-    iosMsgQueueCreate(jimakuMsgQ, jimakuMsgBuf, 2);
+    iosMsgQueueCreate(&jimakuMsgQ, jimakuMsgBuf, 2);
     while (1) {
-        iosMsgRecv(jimakuMsgQ, &msg, 1);
+        iosMsgRecv(&jimakuMsgQ, &msg, 1);
         msg->done = 0;
         switch (msg->cmd) {
         case 0:
@@ -387,14 +388,14 @@ inline void jimakuManager(void)
 void jimakuBegin(JimakuArg *msg)
 {
     msg->cmd = 0;
-    iosMsgSend(jimakuMsgQ, msg, 1);
+    iosMsgSend(&jimakuMsgQ, msg, 1);
 }
 
 void jimakuNext(JimakuArg *msg)
 {
     if (systemStatus[10] != 0) {
         msg->cmd = 1;
-        iosMsgSend(jimakuMsgQ, msg, 0);
+        iosMsgSend(&jimakuMsgQ, msg, 0);
     }
 }
 
@@ -413,7 +414,7 @@ void jimakuJump(JimakuArg *msg)
         }
     }
     msg->cmd = 2;
-    iosMsgSend(jimakuMsgQ, msg, 0);
+    iosMsgSend(&jimakuMsgQ, msg, 0);
 }
 
 void jimakuEnd(JimakuArg *msg)
@@ -422,15 +423,6 @@ void jimakuEnd(JimakuArg *msg)
     jimakuMgrEnd();
 }
 
-/* the 0x70-byte layout-texture property records (LtProperty in
-   src/layout_texture.c); jimaku owns entries 434 and 435. */
-typedef struct {
-    char pad0[28];
-    int f1C; /* 0x1C */
-    char _20[0x70 - 0x20];
-} JimakuLayout;
-
-extern JimakuLayout texProperty[];
 extern char D_00318DD8[];
 extern char D_00318E48[];
 extern void display_texture(JimTex *t);
@@ -448,21 +440,21 @@ void jimakuDisp(JimakuArg *msg)
         jimakuDispOn = 0;
     }
     if ((unsigned int)(c + 5) < (unsigned int)lock_execIcoMisc) {
-        iosSemaReferStatus(jimakuShownSema);
-        if (jimakuShownSema[9] > 0) {
-            iosSemaSignal(jimakuShownSema);
+        iosSemaReferStatus(&jimakuShownSema);
+        if (jimakuShownSema.status.numWaitThreads > 0) {
+            iosSemaSignal(&jimakuShownSema);
         }
     }
     if (systemStatus[10] != 0) {
-        iosSemaReferStatus(jimakuFrameSema);
-        if (jimakuFrameSema[9] > 0) {
-            iosSemaSignal(jimakuFrameSema);
+        iosSemaReferStatus(&jimakuFrameSema);
+        if (jimakuFrameSema.status.numWaitThreads > 0) {
+            iosSemaSignal(&jimakuFrameSema);
         }
     }
     if (jimakuDispOn != 0) {
         int v = g->f8;
-        texProperty[435].f1C = v;
-        texProperty[434].f1C = v;
+        texProperty[435].texNo = v;
+        texProperty[434].texNo = v;
         if (v < 0) {
             return;
         }

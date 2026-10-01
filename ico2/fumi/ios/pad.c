@@ -172,7 +172,7 @@ IosPadDevRec iosPadDev[2] = {0};
 
 char th_iosPadDevManager[112] = {0};
 
-unsigned char padDevMgrMsgQ[48] = {0};
+IosMsgQueue padDevMgrMsgQ = {0};
 
 extern int scePadInfoMode(int port, int slot, int term, int offs);
 extern int scePadSetMainMode(int port, int slot, int offs, int lock);
@@ -696,7 +696,7 @@ go:
 
 int iosPadDevRead(void)
 {
-    iosMsgSend(padDevMgrMsgQ, 0, 0);
+    iosMsgSend(&padDevMgrMsgQ, 0, 0);
     return 0;
 }
 
@@ -862,9 +862,9 @@ end:
 void iosPadDevManager(void)
 {
     int local_buf;
-    iosMsgQueueCreate(padDevMgrMsgQ, padDevMgrMsgBuf, 8);
+    iosMsgQueueCreate(&padDevMgrMsgQ, padDevMgrMsgBuf, 8);
     while (1) {
-        iosMsgRecv(padDevMgrMsgQ, &local_buf, 1);
+        iosMsgRecv(&padDevMgrMsgQ, &local_buf, 1);
         iosPadDevReadFunc();
     }
 }

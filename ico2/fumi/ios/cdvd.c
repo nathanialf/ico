@@ -99,13 +99,13 @@ typedef struct {
    48 bytes of fill before this TU's .data */
 IosCdvdHandle iosCdvd __attribute__((aligned(64))) = {{0}};
 
-unsigned char CdvdMsgQ[48] = {0};
+IosMsgQueue CdvdMsgQ = {0};
 
-int CdvdMsgQ_LoadEnd[12] = {0};
+IosMsgQueue CdvdMsgQ_LoadEnd = {0};
 
 CdSrhEnt iosCdvdSrhBuff[200] = {0};
 
-static char stAckQ[48] = {0}; /* derived name */
+static IosMsgQueue stAckQ = {0}; /* derived name */
 
 static CdStReq stReq = {0}; /* derived name */
 
@@ -153,7 +153,7 @@ static char stThread[120];
 
 static char stStack[16384];
 
-static char stReqQ[48];
+static IosMsgQueue stReqQ;
 
 /* .sbss, owned by cdvd.o and reached only from this file (MAIN.MAP names no
    symbol in the run; its 0x18 is the January object), in the ROM's run order,
@@ -245,8 +245,8 @@ void iosCdvdStManager(void)
     int mode;
 
     stReq.f_4 = 0;
-    iosMsgQueueCreate(stReqQ, stReqRing, 1);
-    iosMsgQueueCreate(stAckQ, stAckRing, 1);
+    iosMsgQueueCreate(&stReqQ, stReqRing, 1);
+    iosMsgQueueCreate(&stAckQ, stAckRing, 1);
 
     while (1) {
         req = &stReq;
@@ -254,7 +254,7 @@ void iosCdvdStManager(void)
         if (req->f_4 != 1) {
             mode = 1;
         }
-        if (iosMsgRecv(stReqQ, (int *)&req, mode) == -1) {
+        if (iosMsgRecv(&stReqQ, (int *)&req, mode) == -1) {
             if (req->f_4 != 1) {
                 sprintf(buf, "stream mode error %d\n", req->f_4);
                 debug_assertMessage(__FILE__, 518, buf);
@@ -306,7 +306,7 @@ void iosCdvdStManager(void)
                     goto retry;
                 }
                 if (stLoadEndWait != 0) {
-                    iosMsgSend(stAckQ, 1, 0);
+                    iosMsgSend(&stAckQ, 1, 0);
                     stLoadEndWait = 0;
                 }
                 req->owner->lsn += n;
@@ -326,7 +326,7 @@ void iosCdvdStManager(void)
                 req->f_4 = 1;
                 break;
             case 1:
-                iosMsgSend(stAckQ, 2, 0);
+                iosMsgSend(&stAckQ, 2, 0);
                 req->f_4 = 0;
                 break;
             }
@@ -450,7 +450,7 @@ void iosCdvdMgrStStart(IosCdvdHandle *self)
     rest = lsn - self->file.lsn - 1;
     self->left = total - rest;
     stReq.f_8 = 0;
-    iosMsgSend(stReqQ, &stReq, 1);
+    iosMsgSend(&stReqQ, &stReq, 1);
     self->inflate = open_inflate_handler(inflate_cd_read_func, self);
 }
 
@@ -468,12 +468,12 @@ void iosCdvdMgrStStop(IosCdvdHandle *self)
     pri = iosThreadGetPri(0);
     iosThreadSetPri(0, 27);
     stReq.f_8 = 1;
-    iosMsgSend(stReqQ, &stReq, 1);
+    iosMsgSend(&stReqQ, &stReq, 1);
     if (stReq.f_4 == 1) {
         sceCdBreak();
     }
     iosThreadSetPri(0, pri);
-    iosMsgRecv(stAckQ, &msg, 1);
+    iosMsgRecv(&stAckQ, &msg, 1);
     if (msg != 2) {
         sprintf(buf, "stream manager stop command error %d\n", msg);
         debug_assertMessage(__FILE__, 906, buf);
@@ -721,7 +721,7 @@ int iosCdStRead(unsigned int n, int *buf, int flag, int *result, char *self)
         } else {
             while (req->f_18 < size) {
                 stLoadEndWait = 1;
-                iosMsgRecv(stAckQ, &msg, 1);
+                iosMsgRecv(&stAckQ, &msg, 1);
                 if (msg != 1) {
                     sprintf(msgbuf, "stream manager load end command error %d\n", msg);
                     debug_assertMessage(__FILE__, 1304, msgbuf);
@@ -743,7 +743,7 @@ int iosCdStRead(unsigned int n, int *buf, int flag, int *result, char *self)
             total += size;
             if (stReq.f_4 == 2) {
                 stReq.f_8 = 2;
-                iosMsgSend(stReqQ, &stReq, 1);
+                iosMsgSend(&stReqQ, &stReq, 1);
             }
         }
         iosThreadSetPri(0, pri);
@@ -941,15 +941,15 @@ void iosCdvdManager(void)
         debug_StdPrintfDummy("CD MANAGER START");
     }
 
-    iosMsgQueueCreate(CdvdMsgQ, cdvdMsgRing, 2);
-    iosMsgQueueCreate(CdvdMsgQ_LoadEnd, cdvdLoadEndRing, 2);
+    iosMsgQueueCreate(&CdvdMsgQ, cdvdMsgRing, 2);
+    iosMsgQueueCreate(&CdvdMsgQ_LoadEnd, cdvdLoadEndRing, 2);
 
     iosCdvdUnifileInfoGet();
 
     SignalSema(IosCdLock);
 
     while (1) {
-        while (iosMsgRecv(CdvdMsgQ, &msg, 0) == -1) {
+        while (iosMsgRecv(&CdvdMsgQ, &msg, 0) == -1) {
             iosCdvdBackGroundMgrRunning = 1;
             iosCdvdBackGroundMgr();
             iosCdvdBackGroundMgrRunning = 0;
@@ -980,7 +980,7 @@ void iosCdvdManager(void)
         }
         {
             char reply[33216];
-            iosMsgSend(CdvdMsgQ_LoadEnd, reply, 0);
+            iosMsgSend(&CdvdMsgQ_LoadEnd, reply, 0);
         }
     }
 }
@@ -989,7 +989,7 @@ void iosCdvdDiskReady(int a0)
 {
     union U001325D8 *p = (union U001325D8 *)a0;
     p->i[1] = 0;
-    iosMsgSend(CdvdMsgQ, a0, 0);
+    iosMsgSend(&CdvdMsgQ, a0, 0);
 }
 
 void iosCdvdLoad(int a0, int a1)
@@ -997,13 +997,13 @@ void iosCdvdLoad(int a0, int a1)
     union U001325D8 *p = (union U001325D8 *)a0;
     p->i[1] = 1;
     p->ll = (p->ll & ~1LL) | (a1 & 1);
-    iosMsgSend(CdvdMsgQ, a0, 0);
+    iosMsgSend(&CdvdMsgQ, a0, 0);
 }
 
 void iosCdvdPackLoad(void *a0)
 {
     *(int *)((char *)a0 + 4) = 2;
-    iosMsgSend(CdvdMsgQ, a0, 0);
+    iosMsgSend(&CdvdMsgQ, a0, 0);
 }
 
 extern char *strrchr(const char *s, int c);
@@ -1339,7 +1339,7 @@ found:
 int iosCdvdSync(int a0)
 {
     int local = a0;
-    iosMsgRecv(CdvdMsgQ_LoadEnd, &local, 1);
+    iosMsgRecv(&CdvdMsgQ_LoadEnd, &local, 1);
     return 1;
 }
 
@@ -1353,7 +1353,7 @@ void iosCdvdLoadPackFile(int a0, char *name, int a2)
     iosCdvd.handlerArg = 0;
     iosCdvdPackLoad(&iosCdvd);
     buf[0] = (int)&iosCdvd;
-    iosMsgRecv(CdvdMsgQ_LoadEnd, buf, 1);
+    iosMsgRecv(&CdvdMsgQ_LoadEnd, buf, 1);
 }
 
 int iosCdvdDiskStatusGet(void)

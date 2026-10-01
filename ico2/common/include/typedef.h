@@ -590,7 +590,7 @@ typedef struct StageSetting { /* field names derived */
     float flatLightDir[3][4]; /* 0x000 */
     float flatLightCol[3][4]; /* 0x030 */
     float ambientCol[4];      /* 0x060 */
-    char pad070[16];          /* 0x070 */
+    float bgCol[4];           /* 0x070, the clear colour (sceneManager) */
     /* the fog words, as ico2/seki/src/ZFog.c reads and edits them */
     int fogOn;       /* 0x080 */
     char pad084[12]; /* 0x084 */
@@ -785,13 +785,14 @@ typedef struct {        /* field names derived */
  * merge of what all of them know.  Field names are this repository's; no disc
  * artefact names a field of this table. */
 typedef struct { /* field names derived */
-    unsigned char pad0[32];
-    char name[64];     /* 0x20, the stage name icoMisc prints */
+    char key[32];      /* 0x00, the stage's short name ("gate"); no C reader */
+    char name[32];     /* 0x20, the stage name icoMisc prints, "st04a (GATE_1ST)" */
+    char key2[32];     /* 0x40, the short name again; no C reader */
     float fog[8];      /* 0x60, the fog switch, colour, offset, near and far
                                 sceneManager casts into the stage setting record */
     char dataFile[32]; /* 0x80, the data file name access.c builds a path from */
-    short ent[24];     /* 0xA0, the stage-manager table entries */
-    unsigned char padD0[8];
+    short ent[20];     /* 0xA0, the stage-manager table entries */
+    float floatC8[4];  /* 0xC8, 1.0 then three zeros in the shipped rows; no C reader */
     float bgCol[3];        /* 0xD8 */
     float ambientCol[3];   /* 0xE4 */
     float flatLightCol[3]; /* 0xF0 */
@@ -801,33 +802,43 @@ typedef struct { /* field names derived */
     int seEnvFirst;        /* 0x110, sound SE environment range */
     int seEnvLast;         /* 0x114 */
     int camSetId;          /* 0x118, the camera set the stage opens with */
-    unsigned char pad11C[12];
+    int word11C;           /* 0x11C, no C reader */
+    int word120;           /* 0x120, no C reader */
+    int word124;           /* 0x124, no C reader */
     int labelTop;    /* 0x128, generator label range */
     int labelEnd;    /* 0x12C */
     int layoutFirst; /* 0x130, layout range */
     int layoutLast;  /* 0x134 */
     int mdl[4];      /* 0x138, the four stage model ids GetRealModelId picks from */
-    unsigned char pad148[4];
+    int word148;     /* 0x148, no C reader */
     int mot;                /* 0x14C, the motion-set id */
     void (*endproc)(void);  /* 0x150 */
     void (*initproc)(void); /* 0x154, the per-stage init hook */
-    unsigned char pad158[12];
+    float float158;  /* 0x158, no C reader */
+    float float15C;  /* 0x15C, no C reader */
+    int word160;     /* 0x160, no C reader */
     int wayGroupEnd; /* 0x164 */
-    unsigned char pad168[8];
+    int word168;     /* 0x168, no C reader */
+    int word16C;     /* 0x16C, no C reader */
     int wayGroupStart; /* 0x170 */
-    unsigned char pad174[12];
+    int word174;       /* 0x174, no C reader */
+    int word178;       /* 0x178, no C reader */
+    int word17C;       /* 0x17C, no C reader */
     float ledgeRange; /* 0x180, how near the girl must be across a ledge (act-env.c squares it) */
     float handCameraRate; /* 0x184 */
     short shadowDepth;    /* 0x188, copied into the stage setting's shadow depth */
     unsigned char pad18A[2];
     /* 0x18C, flag word whose low half is the reverb depth (soundManager reads
-     * that half at this offset).  RECONSTRUCTION: bits 25-30 are a bitfield,
+     * that half at this offset) and whose bits 16-24 carry a count (10 to 300
+     * in the shipped rows: backStage's way-kidnap time in seconds, 0 for no way
+     * kidnap).  RECONSTRUCTION: bits 25-30 are a bitfield,
      * the stage's movie number StageManager copies into mpegPlay, because the
      * ROM reads it as one: a whole-word field makes expand_expr fold the 0x18C
      * into a constant table base (expr.c 6464-6482), where StageManager's three
      * reads keep the table base, add the index product and load at 0x18C,
      * with the const table's unchanging flag on the load. */
-    unsigned int attrLow : 25;
+    unsigned int reverbDepth : 16;
+    unsigned int kidnapSeconds : 9;
     unsigned int mpegNo : 6;
     unsigned int attrTop : 1;
     /* 0x190, a word of one-bit stage switches.  They are bitfields because the
@@ -1264,7 +1275,8 @@ typedef struct { /* field names derived */
 /* RECONSTRUCTION, PLACED BY INCLUDE PATTERN: one record for 2 TUs that carried 2 divergent local copies; this body is the one the ROM's bytes accept in the most of them. */
 typedef struct {  /* field names derived */
     int baseMode; /* 0x00, the mode the record returns to, also its BG animation */
-    char pad4[8];
+    int word4;    /* 0x04, 972 (no animation) in most rows; no C reader */
+    int word8;    /* 0x08, no C reader */
     int mode;  /* 0x0C, 972 while held */
     int flags; /* 0x10, bit 0 holds the mode at 972 */
 } OaRecB;

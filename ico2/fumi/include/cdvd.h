@@ -56,8 +56,8 @@ typedef struct {
 /* cdvd.c's globals: MAIN.MAP's cdvd.o names, and the stream motion late
    count streamMotionManager reads (our name). */
 extern struct IosCdvdHandle iosCdvd;
-extern unsigned char CdvdMsgQ[];
-extern int CdvdMsgQ_LoadEnd[];
+extern struct IosMsgQueue CdvdMsgQ;
+extern struct IosMsgQueue CdvdMsgQ_LoadEnd;
 extern CdSrhEnt iosCdvdSrhBuff[];
 extern int IosCdvdMgrSleep;
 extern int iosCdvdMediaType;

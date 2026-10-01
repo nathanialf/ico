@@ -30,7 +30,7 @@ typedef struct { /* field names derived */
 } StgMgrMsg;
 
 extern StgMgrMsg stageMgrMsg;
-extern int SchedulerMsgQ[12];
+extern struct IosMsgQueue SchedulerMsgQ;
 /* .sdata; the ones marked derived are named by this tree, the rest by MAIN.MAP */
 extern char NetLoadTARGET[];
 extern int buffer_ID;

@@ -131,7 +131,7 @@ typedef struct EnemyBattleWork { /* field names derived */
  * rest of the file in the order they are first declared: this list is the
  * ROM's order of the TU's closing run, from funcEnemyAiGetGirl to
  * afterEnemyBodylift. */
-void funcEnemyAiGetGirl(int a0);
+void funcEnemyAiGetGirl(struct GObj *a0);
 void actEnemyStand(GObj *volatile a0);
 void actEnemyWalk(GObj *volatile a0);
 void actEnemyRun(GObj *volatile a0);
@@ -140,28 +140,28 @@ void actEnemyCarry(GObj *volatile a0);
 void actEnemyBodyslam(GObj *volatile a0);
 void actEnemyBodyslamFail(GObj *volatile a0);
 void actEnemyNest(GObj *volatile a0);
-void funcEnemyCarryFail(char *a0);
+void funcEnemyCarryFail(struct GObj *a0);
 void actEnemyHyde(int *self);
 void actEnemyFlagOnFree(int *a0);
 void afterCommonCarry(GObj *volatile a0);
 void actEnemyFlagOnDead(int *a0);
-int EnemyBrainStatus_Boy(char *a0);
-int EnemyBrainStatus_Girl(char *a0);
+int EnemyBrainStatus_Boy(struct GObj *a0);
+int EnemyBrainStatus_Girl(struct GObj *a0);
 int actEnemyFlagCheckDead(int *a0);
 int actEnemyFlagCheckActive(int *a0);
 int ACTEnemyForceSwitchToCarry(GObj *a0);
-int actEnemy_GetClingTarget(char *a0);
-int actEnemy_isNormalEnemy(char *a0);
-int actEnemy_isLargeEnemy(char *a0);
-int actEnemy_isSmallEnemy(char *a0);
+int actEnemy_GetClingTarget(struct GObj *a0);
+int actEnemy_isNormalEnemy(struct GObj *a0);
+int actEnemy_isLargeEnemy(struct GObj *a0);
+int actEnemy_isSmallEnemy(struct GObj *a0);
 int IsEnemyBrainToGenerator(char *a0, int *out);
-int IsEnemyBrainToBoy(char *self);
-int GetEnemyTypeFromGObj(char *a0);
+int IsEnemyBrainToBoy(struct GObj *self);
+int GetEnemyTypeFromGObj(struct GObj *a0);
 int GetEnemyType(float x, float y, float z);
 int isEnemyKidnapEnable(int *self);
 int isEnemyActive(int *self);
-int GetMotherGeneratorLabelAskEnemy(char *a0);
-int GetMotherGeneratorGObjAskEnemy(char *a0);
+int GetMotherGeneratorLabelAskEnemy(struct GObj *a0);
+int GetMotherGeneratorGObjAskEnemy(struct GObj *a0);
 void subEnemyBrain_Idle(GObj *volatile a0);
 void subEnemyBrain_Await(GObj *volatile a0);
 void subEnemyBrain_FindGirl(GObj *volatile a0);

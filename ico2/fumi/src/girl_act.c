@@ -463,7 +463,7 @@ static GoalTurnReq goalTurnReq; /* derived name */
 
 static GirlDangerEnv dangerEnv; /* derived name */
 
-inline void ACTGame_GirlBeforeFunc(void *self)
+inline void ACTGame_GirlBeforeFunc(GObj *self)
 {
     float boyPos[4];
     float girlPos[4];
@@ -481,7 +481,7 @@ inline void ACTGame_GirlBeforeFunc(void *self)
             s->flags18.ll |= 0x40000000000ULL;
         } else {
             GetSkeltonPosition(boyPos, (boyGObj), 6);
-            GetSkeltonPosition(girlPos, (void *)girlGObj, 22);
+            GetSkeltonPosition(girlPos, girlGObj, 22);
             if (_DistSqGV(boyPos, girlPos) < 900.0f) {
                 s->flags18.ll |= 0x40000000000ULL;
             }
@@ -525,7 +525,7 @@ typedef struct {
    subGirlCollision expands it once.  It reads back the turn request
    ATGoalTurnSet writes and answers it with the turn mail for the request's
    priority. */
-static inline void ATGoalTurnSendMail(void *self)
+static inline void ATGoalTurnSendMail(GObj *self)
 {
     Act *act = GOBJ_ACT(self);
     int mail = -1;
@@ -1815,7 +1815,7 @@ inline void subGirlBrain_Busy(GObj *volatile a0)
  * ROM copy (no MAIN.MAP symbol); the listing attributes lines 3/4/5/7 of the
  * .inc inside subGirlBrain_HideAdvance's move arm and inside
  * subGirlBrain_Pulledup's. */
-static inline void girlBrainSetWalkRatio(void *g, float ratio)
+static inline void girlBrainSetWalkRatio(GObj *g, float ratio)
 {
     Act *s = GOBJ_ACT(g);
     float walk = 0.5f;
@@ -2604,10 +2604,10 @@ no_wall:
     return rv;
 }
 
-static void Danger_Bomb(void *self);
-static void Danger_Gondola(void *self);
-static void Danger_Box(void *self);
-static void Danger_Rotobject(void *self);
+static void Danger_Bomb(GObj *self);
+static void Danger_Gondola(GObj *self);
+static void Danger_Box(GObj *self);
+static void Danger_Rotobject(GObj *self);
 
 inline void subGirlBrain_DangerEnv(GObj *volatile a0)
 {
@@ -2628,7 +2628,7 @@ inline void subGirlBrain_DangerEnv(GObj *volatile a0)
     _ACTWait(0);
 }
 
-static void Danger_Bomb(void *self)
+static void Danger_Bomb(GObj *self)
 {
     /* girl_brain_main.c.inc:2942 -- a GNU nested function: ROM sets the static
      * chain with `daddu $2,$29,$0` at the call and the callee homes it with
@@ -2744,7 +2744,7 @@ retry:
     }
 }
 
-static void Danger_Gondola(void *self)
+static void Danger_Gondola(GObj *self)
 {
     /* girl_brain_main.c.inc:3077 -- Danger_Gondola's own copy of the nested
      * GetSafePosition (the listing's GetSafePosition.364): the candidate is
@@ -2868,7 +2868,7 @@ retry:
 /* the three escape angles Danger_Box's safe-position search tries */
 static int dangerEscapeAngle[3] = {0, -90, 90}; /* derived name */
 
-static void Danger_Box(void *self)
+static void Danger_Box(GObj *self)
 {
     /* girl_brain_main.c.inc:3438 -- a GNU nested function (the listing's
      * GetSafePosition.371); see Danger_Bomb for the parameter-order note.
@@ -3042,7 +3042,7 @@ static void Danger_Box(void *self)
     }
 }
 
-static void Danger_Rotobject(void *self)
+static void Danger_Rotobject(GObj *self)
 {
     /* girl_brain_main.c.inc -- a GNU nested function (the listing's
      * GetSafePosition.379); see Danger_Bomb for the parameter-order note. */
@@ -3486,7 +3486,7 @@ void subGirlControl(GObj *volatile a0)
         default:
             if (*(float *)(w.p + 0x34C) > 0.1f && *(int *)(w.p + 0x34) != 0x73) {
                 SetMotionDirectionSmooze(
-                    (void *)a0, dir,
+                    a0, dir,
                     (float)(((void *)a0 == (void *)girlGObj && (void *)girlControlMode != 0)
                                 ? MOTDIRROW(a0)->f_182
                                 : MOTDIRROW(a0)->f_186));
@@ -4105,7 +4105,7 @@ void actGirlHand(GObj *volatile a0)
             } else {
                 pullTurn = hand;
             }
-            SetMotionDirectionSmooze((void *)a0, dir, pullTurn);
+            SetMotionDirectionSmooze(a0, dir, pullTurn);
             sub->dir[0] = dir[0];
             sub->dir[1] = dir[1];
             sub->dir[2] = dir[2];

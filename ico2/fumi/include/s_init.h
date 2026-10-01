@@ -77,6 +77,37 @@ typedef struct {                                   /* field names derived */
     unsigned int flags;                            /* 0x38 */
 } SeDef;                                           /* derived name */
 
+/* se-env: one stage sound environment, 0x1C bytes, the rows a stage's
+ * seEnvFirst..seEnvLast covers. Reader: ico2/fumi/sound/s_init.c
+ * (soundSeEnvPlay, soundSeEnvDefaultSet, soundSeEnvNotUseClose). The names
+ * of 0x08 to 0x14 and bit 3 are the labels debug_DispSEInfo prints for the
+ * slot fields they are copied into. */
+typedef struct SeEnvDef { /* field names derived */
+    int se;               /* 0x00, the seDef row it plays */
+    int (*proc)();        /* 0x04 */
+    float volumeRate;     /* 0x08, 0 for the seDef's own volume */
+    float maxVolumeRange; /* 0x0C, 0 for 500 */
+    float attenuator;     /* 0x10, 0 for 1000 */
+    float volumeLength;   /* 0x14, 0 for 3000 */
+    /* 0x18, read as bits */
+    unsigned int ownPos : 1;        /* the slot gets a position block of its own */
+    unsigned int levelHeight : 1;   /* the distance is taken at the camera's height */
+    unsigned int stereo : 1;        /* panned by the angle to the camera */
+    unsigned int maxVolumeType : 1; /* the curve past maxVolumeRange */
+    unsigned int : 28;
+} SeEnvDef;
+
+/* sefile: one sound bank, 0x64 bytes, the rows a stage's seSegFirst..
+ * seSegLast covers. Reader: ico2/fumi/sound/s_init.c (soundSeEnvNotUseClose:
+ * the first loaded bank of each stage, compared by name), ico2/common/src/
+ * charFileManager.c (ReadSoundBdFile). */
+typedef struct SeBank { /* field names derived */
+    char hdPath[48];       /* 0x00, the .hd header file */
+    char bdPath[48];       /* 0x30, the .bd body file */
+    unsigned int loaded : 1; /* 0x60 bit 0, set while the bank is loaded */
+    unsigned int : 31;
+} SeBank;
+
 /* selist: one sound kind, 8 bytes. Reader: ico2/fumi/sound/s_init.c
  * (SeKind). Owner: ico2/fumi/include/s_init.h. */
 typedef struct { /* field names derived */

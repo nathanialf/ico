@@ -280,7 +280,7 @@ inline int IsEnemyBrainToGenerator(char *a0, int *out)
     return 1;
 }
 
-inline int IsEnemyBrainToBoy(char *self)
+inline int IsEnemyBrainToBoy(GObj *self)
 {
     Act *sub;
     EnemyBattleWork *sub2;
@@ -294,7 +294,7 @@ inline int IsEnemyBrainToBoy(char *self)
     return sub2->mode == 3;
 }
 
-void setBattleStatus(char *self)
+void setBattleStatus(GObj *self)
 {
     switch (GOBJ_ACT(self)->enemy->battleType) {
     case 0:
@@ -481,13 +481,13 @@ end:
 /* Static inline of the 2001 source, listing rows 908-915: the rows sit between
    setBattleStatus and boss_effect_callback, the body has no ROM slot of its own
    and subEnemyControl is the only place it is expanded, so this name is ours. */
-static inline void enemyPollHitNodes(int self)
+static inline void enemyPollHitNodes(GObj *self)
 {
     int n = GOBJ_SUB(self)->skelNodeNum;
     int i;
 
     for (i = 0; i < n; i++) {
-        GetEnemyHitNodeFlag((char *)self);
+        GetEnemyHitNodeFlag(self);
     }
 }
 
@@ -637,7 +637,7 @@ static inline unsigned char enemyCheckTurnAngle(GObj *self)
 /* Static inline helper of the 2001 source at enemy_act.c:816-826 (it has no
    symbol of its own and no census row; the disc listing shows its lines inlined
    here and in subEnemyBrain_Irregular).  Name is descriptive, not recovered. */
-static inline unsigned char isEnemyCarriedByGirl(int self)
+static inline unsigned char isEnemyCarriedByGirl(GObj *self)
 {
     Act *gsub;
     if (GOBJ_ACT(self)->carried == 0 || (char *)girlGObj == 0) {
@@ -697,7 +697,7 @@ void subEnemyCollision(GObj *volatile a0)
         }
         if ((stage_no == 19 || stage_no == 28) && sub->actMode == 6) {
         } else if (0.1f < sub->stickMag && sub->actMode != 0x73) {
-            SetMotionDirectionSmooze((void *)a0, dir,
+            SetMotionDirectionSmooze(a0, dir,
                                      (float)((a0 == (int)((char *)girlGObj) && girlControlMode != 0)
                                                  ? motionKind[GOBJ_SUB(a0)->motion].f182
                                                  : motionKind[GOBJ_SUB(a0)->motion].f186));
@@ -845,7 +845,7 @@ inline void actEnemyHang(GObj *volatile a0)
     _ACTWait(0);
 }
 
-inline void funcEnemyAiGetGirl(int a0)
+inline void funcEnemyAiGetGirl(GObj *a0)
 {
     Act *sub = GOBJ_ACT(a0);
     if (sub->wayMode == 0) {
@@ -911,22 +911,22 @@ one:
     return 1;
 }
 
-inline int actEnemy_isSmallEnemy(char *a0)
+inline int actEnemy_isSmallEnemy(GObj *a0)
 {
     return GOBJ_ACT(a0)->enemy->sizeClass == 0;
 }
 
-inline int actEnemy_isLargeEnemy(char *a0)
+inline int actEnemy_isLargeEnemy(GObj *a0)
 {
     return GOBJ_ACT(a0)->enemy->sizeClass == 2;
 }
 
-inline int actEnemy_isNormalEnemy(char *a0)
+inline int actEnemy_isNormalEnemy(GObj *a0)
 {
     return GOBJ_ACT(a0)->enemy->sizeClass == 1;
 }
 
-inline int actEnemy_GetClingTarget(char *a0)
+inline int actEnemy_GetClingTarget(GObj *a0)
 {
     Act *b = GOBJ_ACT(a0);
     EnemyBattleWork *e = b->enemy;
@@ -1569,12 +1569,12 @@ inline void actEnemyCarry(GObj *volatile a0)
     __assert("src/enemy_act.c", 0xB75, "0");
 }
 
-inline int EnemyBrainStatus_Boy(char *a0)
+inline int EnemyBrainStatus_Boy(GObj *a0)
 {
     return GOBJ_ACT(a0)->brainAim == 2;
 }
 
-inline int EnemyBrainStatus_Girl(char *a0)
+inline int EnemyBrainStatus_Girl(GObj *a0)
 {
     return GOBJ_ACT(a0)->brainAim == 1;
 }
@@ -1859,7 +1859,7 @@ inline void afterCommonCarry(GObj *volatile a0)
     }
 }
 
-inline void funcEnemyCarryFail(char *a0)
+inline void funcEnemyCarryFail(GObj *a0)
 {
     GOBJ_ACT(a0)->flags20.ll |= (1ULL << 34);
 }
@@ -2077,7 +2077,7 @@ void enemy_dodge_to_boy(GObj *self)
    expanded twice here (each expansion gets its OWN .lit4 0.7f and its own
    `1.2` .rodata double -- the pool duplication in ROM is what proves it is an
    inline function and not a shared helper). */
-static inline float battleRangeScale(char *self, float v)
+static inline float battleRangeScale(GObj *self, float v)
 {
     EnemyBattleWork *work = GOBJ_ACT(self)->enemy;
 
@@ -2683,7 +2683,7 @@ inline int FlyMail(void *a0)
 /* static inline of the 2001 source, listing rows 4681-4689, which lie outside
    every function's own line span; the listing expands them twice inside
    _ApproachTarget_Way.  Name is descriptive, not recovered. */
-static inline unsigned char waitEnemyFly(char *self)
+static inline unsigned char waitEnemyFly(GObj *self)
 {
     Act *sub = GOBJ_ACT(self);
 
@@ -2698,7 +2698,7 @@ static inline unsigned char waitEnemyFly(char *self)
 
 /* static inline of the 2001 source, listing rows 4665-4672.  Name is
    descriptive, not recovered. */
-static inline int flyLimitMail(char *self, float *rp)
+static inline int flyLimitMail(GObj *self, float *rp)
 {
     Act *sub = GOBJ_ACT(self);
 
@@ -2846,17 +2846,17 @@ inline int GetEnemyType(float x, float y, float z)
     return 1;
 }
 
-inline int GetEnemyTypeFromGObj(char *a0)
+inline int GetEnemyTypeFromGObj(GObj *a0)
 {
     return GOBJ_ACT(a0)->enemy->liftKind;
 }
 
-inline int GetMotherGeneratorLabelAskEnemy(char *a0)
+inline int GetMotherGeneratorLabelAskEnemy(GObj *a0)
 {
     return GOBJ_WORK(a0)->motherLabel;
 }
 
-inline int GetMotherGeneratorGObjAskEnemy(char *a0)
+inline int GetMotherGeneratorGObjAskEnemy(GObj *a0)
 {
     return GOBJ_WORK(a0)->motherGObj;
 }

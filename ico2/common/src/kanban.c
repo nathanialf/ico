@@ -1,6 +1,8 @@
+#include "typedef.h"
 #include "debug.h"
 #include "Texture.h"
 #include "debug_exception.h"
+#include "layout_texture.h"
 
 typedef struct { /* field names derived */
     unsigned char b[4];
@@ -46,13 +48,6 @@ static const char kanbanOverMsg[] = "かんばんクエストボックスオー�
    origin, the same rectangle src/staffroll.c uses for the roll. */
 static const Pkt16 kanbanSprite = {{-5120, -1792, 10240, 3584}};
 
-typedef struct {
-    unsigned char pad0[304];
-    int texFirst;
-    int texLast;
-    unsigned char pad1[0x194 - 0x138];
-} KanbanStage;
-
 struct KanbanProp {
     int first;
     int last;
@@ -68,7 +63,7 @@ struct KanbanProp {
     unsigned char pad30[8];
 };
 
-extern KanbanStage stageData[];
+extern StgPre stageData[];
 extern KanbanProp texLayout[];
 
 /* kanban.o's .sdata run (VMA 0x63B498..0x63B4BC, 0x24 B = MAIN.MAP), in the
@@ -80,35 +75,11 @@ int kanbanCommonRead = 0;
 /* the colour a new sign starts with */
 static KanbanCol kanbanStartCol = {{0x80, 0x80, 0x80, 0}}; /* derived name */
 
-typedef struct {
-    unsigned char pad00[24];
-    void *f18;
-    int f1C;
-    unsigned char pad20[16];
-    int f30;
-    int f34;
-    int f38;
-    int f3C;
-    unsigned char pad40[4];
-    int f44;
-    int f48;
-    int f4C;
-    int f50;
-    int f54;
-    int f58;
-    int f5C;
-    int f60;
-    int f64;
-    int f68;
-    unsigned int f6C;
-} LayoutTex;
-
-extern LayoutTex texProperty[];
 extern char D_0030D014[];
 /* census display_texture, a file static; MAIN.MAP carries no global of that
    name, so the twins in ico2/fumi/src/jimaku and ico2/common/src/layout_texture
    are statics too and `static` here keeps this one's ELF symbol local */
-static void display_texture(KanbanProp *pr, LayoutTex *e, KanbanCol *col);
+static void display_texture(KanbanProp *pr, LtProperty *e, KanbanCol *col);
 extern char texFile[][52];
 extern char *strtok(char *s, const char *sep);
 extern char *strrchr(const char *s, int c);
@@ -168,7 +139,7 @@ static inline int get_texture_no_of_property(int idx)
     char *name;
     int no;
 
-    n = texProperty[idx].f58;
+    n = texProperty[idx].texFileNo;
     src = texFile[n];
     name = get_texture_base_name(src);
 
@@ -195,16 +166,16 @@ static inline void init_textures_of_property_range(int first, int last)
 static inline int kanban_layout_key(KanbanProp *pr)
 {
     int ret = 0;
-    LayoutTex *e = &texProperty[pr->f2C];
+    LtProperty *e = &texProperty[pr->f2C];
 
-    if ((pad[0].flags & 0x1000) && e->f3C > 0) {
-        pr->f2C = e->f3C;
-    } else if ((pad[0].flags & 0x4000) && e->f38 > 0) {
-        pr->f2C = e->f38;
-    } else if ((pad[0].flags & 0x8000) && e->f34 > 0) {
-        pr->f2C = e->f34;
-    } else if ((pad[0].flags & 0x2000) && e->f30 > 0) {
-        pr->f2C = e->f30;
+    if ((pad[0].flags & 0x1000) && e->upItem > 0) {
+        pr->f2C = e->upItem;
+    } else if ((pad[0].flags & 0x4000) && e->downItem > 0) {
+        pr->f2C = e->downItem;
+    } else if ((pad[0].flags & 0x8000) && e->leftItem > 0) {
+        pr->f2C = e->leftItem;
+    } else if ((pad[0].flags & 0x2000) && e->rightItem > 0) {
+        pr->f2C = e->rightItem;
     } else {
         unsigned long button = pad[0].flags; /* derived name */
 
@@ -353,7 +324,7 @@ void init_textures_of_specified_property(int first, int last)
 void kanbanInit(int no)
 {
     if (no != 0) {
-        init_textures_of_property_range(stageData[no].texFirst, stageData[no].texLast);
+        init_textures_of_property_range(stageData[no].layoutFirst, stageData[no].layoutLast);
     } else {
         init_textures_of_property_range(0, 1);
         kanbanReqAllDel();
@@ -361,7 +332,7 @@ void kanbanInit(int no)
     }
 }
 
-static void display_texture(KanbanProp *pr, LayoutTex *e, KanbanCol *col)
+static void display_texture(KanbanProp *pr, LtProperty *e, KanbanCol *col)
 {
     int uv[4];
     int r[4];
@@ -369,13 +340,13 @@ static void display_texture(KanbanProp *pr, LayoutTex *e, KanbanCol *col)
     int i;
     int alpha;
 
-    uv[0] = (e->f5C << 4) + 8;
-    uv[1] = (e->f68 << 4) + 8;
-    uv[2] = e->f64 << 4;
-    uv[3] = e->f60 << 4;
+    uv[0] = (e->texU << 4) + 8;
+    uv[1] = (e->texV << 4) + 8;
+    uv[2] = e->texW << 4;
+    uv[3] = e->texH << 4;
 
-    r[2] = e->f4C << 4;
-    r[3] = e->f48 << 3;
+    r[2] = e->dispW << 4;
+    r[3] = e->dispH << 3;
     if (r[2] == 0) {
         r[2] = uv[2];
     }
@@ -383,15 +354,15 @@ static void display_texture(KanbanProp *pr, LayoutTex *e, KanbanCol *col)
         r[3] = uv[3] >> 1;
     }
 
-    if (e->f44) {
+    if (e->centerX) {
         r[0] = (0x2800 - r[2]) / 2 - 0x1400;
     } else {
-        r[0] = (e->f54 - 320) << 4;
+        r[0] = (e->dispX - 320) << 4;
     }
-    r[1] = (e->f50 - 112) << 4;
+    r[1] = (e->dispY - 112) << 4;
 
-    if (((e->f6C >> 4) & 1) == 0) {
-        tex_TransTexture(e->f1C, 11);
+    if (e->masked == 0) {
+        tex_TransTexture(e->texNo, 11);
 
         gif_StartPacketPri(11);
 

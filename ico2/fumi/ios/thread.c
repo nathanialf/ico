@@ -60,23 +60,13 @@
  * function in source order.)
  * ------------------------------------------------------------------------- */
 
-/* --- ios semaphore object: the parameter block CreateSema is handed (and
-   iosSemaWait refers the status into), the status iosSemaReferStatus last
-   read, and the kernel's semaphore id; thread.h's users hand it over as the
-   13 words they declare --- */
-typedef struct IosSema {
-    struct SemaParam param;  /* 0x00 */
-    struct SemaParam status; /* 0x18 */
-    int id;                  /* 0x30 */
-} IosSema;                   /* derived name */
-
 /* .bss, owned by thread.o and reached only from this file (MAIN.MAP names no
    symbol in the run), in the ROM's run order: the IOSThread each thread id
    maps to, the destroy manager's own message queue, the boot thread and its
    8 KB stack. */
 static IOSThread *iosThreadTable[256];
 
-static char iosThreadDestroyQueue[48];
+static IosMsgQueue iosThreadDestroyQueue;
 
 static IOSThread iosBootThread;
 
@@ -212,9 +202,9 @@ inline void iosThreadDestroyMgr(void)
 
     debug_StdPrintfDummy("iosThreadDestroyMgr() in\n");
 
-    iosMsgQueueCreate(iosThreadDestroyQueue, iosThreadDestroyRing, 2);
+    iosMsgQueueCreate(&iosThreadDestroyQueue, iosThreadDestroyRing, 2);
     while (1) {
-        iosMsgRecv(iosThreadDestroyQueue, &th, 1);
+        iosMsgRecv(&iosThreadDestroyQueue, (int *)&th, 1);
 
         id = th->id;
         n_thread--;
@@ -238,7 +228,7 @@ void iosThreadDestroy(IOSThread *th)
     if (th == 0) {
         a1 = iosThreadTable[GetThreadId()];
     }
-    iosMsgSend(iosThreadDestroyQueue, (int)a1, 0);
+    iosMsgSend(&iosThreadDestroyQueue, (int)a1, 0);
 }
 
 inline int iosThreadGetPri(IOSThread *th)
@@ -289,9 +279,9 @@ void iosThreadMessage(int a0)
         obj->hasQueue = 1;
         r = iosMallocDebug(ios_partition_root, 0x50, __FILE__, 478);
         obj->queue = r;
-        iosMsgQueueCreate(r, (char *)r + 0x30, 8);
+        iosMsgQueueCreate(r, (int *)((char *)r + 0x30), 8);
     }
-    q = iosMsgSend((char *)obj->queue, a0, 0);
+    q = iosMsgSend(obj->queue, a0, 0);
     debug_StdPrintfDummy("th:msg %d\n", q);
 }
 
@@ -303,7 +293,7 @@ inline int iosThreadJoin(IOSThread *th)
         th->hasQueue = 1;
         r = iosMallocDebug(ios_partition_root, 0x50, __FILE__, 506);
         th->queue = r;
-        iosMsgQueueCreate(r, (char *)r + 0x30, 8);
+        iosMsgQueueCreate(r, (int *)((char *)r + 0x30), 8);
     }
     iosMsgRecv(th->queue, buf, 1);
     debug_StdPrintfDummy("th:thread joined\n");

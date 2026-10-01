@@ -9,17 +9,17 @@ int eofread(void *cookie, char *buf, int len)
     return 0;
 }
 
-int sscanf(void *a0, void *a1, ...)
+int sscanf(const char *str, const char *fmt, ...)
 {
     Fil f;
     char *va;
     f.flags = 4;
-    f.bf.base = f.p = a0;
-    f.bf.size = f.r = strlen(a0);
+    f.bf.base = f.p = (unsigned char *)str;
+    f.bf.size = f.r = strlen(str);
     f.read = eofread;
     f.ub.base = 0;
     f.lb.base = 0;
     f.data = _impure_ptr;
-    va = (char *)__builtin_next_arg(a1) - 48;
-    return __svfscanf(&f, a1, va);
+    va = (char *)__builtin_next_arg(fmt) - 48;
+    return __svfscanf(&f, fmt, va);
 }

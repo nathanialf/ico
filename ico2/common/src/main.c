@@ -43,7 +43,7 @@ PadState pad[16] = {{0}};
 
 StgMgrMsg stageMgrMsg = {0};
 
-int SchedulerMsgQ[12] = {0};
+IosMsgQueue SchedulerMsgQ = {0};
 
 /* main.c's own .sdata head, VMA 0x00639C80..0x00639CA8, in ROM order (the
    string literals Main, boot and main print land between these as the
@@ -58,7 +58,7 @@ static int frameReady = -1; /* derived name: Main's frame-done flag, -1 before t
 static int lastVsyncCount = 0; /* derived name: movie_abort_check's last seen vsyncCount */
 
 typedef struct {
-    int *th[6];
+    IOSThread *th[6];
 } ThreadTbl;
 
 /* main.c's own .bss, VMA 0x0063D010..0x00667340 (0x2A330 B, MAIN.MAP main.o
@@ -68,31 +68,31 @@ typedef struct {
    jimakuThreadStack. A thread record is the ios thread object, 0x70 bytes, of
    which this file reads only the kernel id word at +0x30.  Each stack is
    16-byte aligned, as the kernel's CreateThread requires. */
-static int idleThread[28]; /* derived name */
+static IOSThread idleThread; /* derived name */
 
 static char idleThreadStack[8192] __attribute__((aligned(16))); /* derived name */
 
-static int mainThread[28]; /* derived name */
+static IOSThread mainThread; /* derived name */
 
 static char mainThreadStack[24576] __attribute__((aligned(16))); /* derived name */
 
-static int schedulerThread[28]; /* derived name */
+static IOSThread schedulerThread; /* derived name */
 
 static char schedulerThreadStack[4096] __attribute__((aligned(16))); /* derived name */
 
-static int mcThread[28]; /* derived name */
+static IOSThread mcThread; /* derived name */
 
 static char mcThreadStack[8192] __attribute__((aligned(16))); /* derived name */
 
-static int cdvdThread[28]; /* derived name */
+static IOSThread cdvdThread; /* derived name */
 
 static char cdvdThreadStack[110592] __attribute__((aligned(16))); /* derived name */
 
-static int stageManagerThread[28]; /* derived name */
+static IOSThread stageManagerThread; /* derived name */
 
 static char stageManagerThreadStack[8192] __attribute__((aligned(16))); /* derived name */
 
-static int soundThread[28]; /* derived name */
+static IOSThread soundThread; /* derived name */
 
 static char soundThreadStack[8192] __attribute__((aligned(16))); /* derived name */
 
@@ -101,8 +101,8 @@ static int schedulerMsgBuff[8]; /* derived name */
 /* the six threads Emergency_DestroyAllThread tears down, every thread boot
    starts except idle; first in this object's .rodata, ahead of Main's
    strings, so it is defined here with the records it points at */
-static const ThreadTbl allThreads = {{mainThread, schedulerThread, mcThread, cdvdThread,
-                                      stageManagerThread, soundThread}}; /* derived name */
+static const ThreadTbl allThreads = {{&mainThread, &schedulerThread, &mcThread, &cdvdThread,
+                                      &stageManagerThread, &soundThread}}; /* derived name */
 
 /* Main, idle, scheduler and boot open the object at VMA 0x00101C80. The
    listing records all four in main.c (lines 1011 to 1502); splat had left
@@ -241,21 +241,21 @@ void idle(void)
 {
     debug_StdPrintfDummy("idle() in\n");
     debug_StdPrintfDummy("--------------------------------------------------------------\n");
-    iosThreadCreate(cdvdThread, 6, iosCdvdManager, 0, cdvdThreadStack, sizeof(cdvdThreadStack),
+    iosThreadCreate(&cdvdThread, 6, iosCdvdManager, 0, cdvdThreadStack, sizeof(cdvdThreadStack),
                     0x1C);
-    iosThreadStart(cdvdThread);
-    iosThreadCreate(stageManagerThread, 7, StageManager, 0, stageManagerThreadStack,
+    iosThreadStart(&cdvdThread);
+    iosThreadCreate(&stageManagerThread, 7, StageManager, 0, stageManagerThreadStack,
                     sizeof(stageManagerThreadStack), 0x1B);
-    iosThreadStart(stageManagerThread);
-    iosThreadCreate(mcThread, 5, iosMcManager, 0, mcThreadStack, sizeof(mcThreadStack), 0x1B);
-    iosThreadStart(mcThread);
-    iosThreadCreate(jimakuThread, 9, jimakuManager, 0, jimakuThreadStack, 0x2000, 0x1B);
-    iosThreadStart(jimakuThread);
-    iosThreadCreate(soundThread, 8, sndManager, 0, soundThreadStack, sizeof(soundThreadStack),
+    iosThreadStart(&stageManagerThread);
+    iosThreadCreate(&mcThread, 5, iosMcManager, 0, mcThreadStack, sizeof(mcThreadStack), 0x1B);
+    iosThreadStart(&mcThread);
+    iosThreadCreate(&jimakuThread, 9, jimakuManager, 0, jimakuThreadStack, 0x2000, 0x1B);
+    iosThreadStart(&jimakuThread);
+    iosThreadCreate(&soundThread, 8, sndManager, 0, soundThreadStack, sizeof(soundThreadStack),
                     0x10);
-    iosThreadStart(soundThread);
-    iosThreadCreate(mainThread, 3, Main, 0, mainThreadStack, sizeof(mainThreadStack), 0x1B);
-    iosThreadStart(mainThread);
+    iosThreadStart(&soundThread);
+    iosThreadCreate(&mainThread, 3, Main, 0, mainThreadStack, sizeof(mainThreadStack), 0x1B);
+    iosThreadStart(&mainThread);
     debug_StdPrintfDummy("--- loop continues infinitely ... ---\n");
     iosThreadSetPri(0, 0x20);
     while (1) {
@@ -278,10 +278,10 @@ void scheduler(void)
 
     debug_StdPrintfDummy("scheduler() in\n");
     sceGsSyncV(0);
-    iosMsgQueueCreate(SchedulerMsgQ, schedulerMsgBuff, 8);
-    iosMsgSetEvent(2, SchedulerMsgQ, 2);
+    iosMsgQueueCreate(&SchedulerMsgQ, schedulerMsgBuff, 8);
+    iosMsgSetEvent(2, &SchedulerMsgQ, 2);
     while (1) {
-        iosMsgRecv(SchedulerMsgQ, msg, 1);
+        iosMsgRecv(&SchedulerMsgQ, msg, 1);
         if (msg[0] == 2) {
             vsyncCount++;
             frameStepCount++;
@@ -307,24 +307,24 @@ void scheduler(void)
                 }
                 frameReady = 0;
             wake:
-                iosThreadCancelWakeup(mainThread);
+                iosThreadCancelWakeup(&mainThread);
                 startStagePauseDisableTimer++;
-                if (iosThreadWakeup(mainThread) < 0) {
+                if (iosThreadWakeup(&mainThread) < 0) {
                     /* failed to start the main thread */
                     debug_StdPrintfDummy("メーンスレッドの起動失敗しました\n");
                 }
                 frameStepCount = 0;
             }
         skip:
-            iosThreadWakeup(soundThread);
+            iosThreadWakeup(&soundThread);
             if (IosMcLock >= 0) {
                 SignalSema(IosMcLock);
             }
             if (IosCdvdMgrSleep != 0 && (mpegPlay == 0 || iosCdvdBackGroundMgrRunning != 0)) {
-                iosThreadWakeup(cdvdThread);
+                iosThreadWakeup(&cdvdThread);
             }
             if (stgMgrWakeupRequest != 0) {
-                iosThreadWakeup(stageManagerThread);
+                iosThreadWakeup(&stageManagerThread);
             }
             la_playtime_count();
         } else {
@@ -348,11 +348,11 @@ void boot(void)
     systemStatus[2] = 1;
     stage_no = 1;
     CheckPoint();
-    iosThreadCreate(idleThread, 1, idle, 0, idleThreadStack, sizeof(idleThreadStack), 0x1B);
-    iosThreadStart(idleThread);
-    iosThreadCreate(schedulerThread, 1, scheduler, 0, schedulerThreadStack,
+    iosThreadCreate(&idleThread, 1, idle, 0, idleThreadStack, sizeof(idleThreadStack), 0x1B);
+    iosThreadStart(&idleThread);
+    iosThreadCreate(&schedulerThread, 1, scheduler, 0, schedulerThreadStack,
                     sizeof(schedulerThreadStack), 0xF);
-    iosThreadStart(schedulerThread);
+    iosThreadStart(&schedulerThread);
     iosThreadSleep();
 }
 
@@ -363,7 +363,7 @@ void Emergency_DestroyAllThread(void)
     unsigned int i;
 
     for (i = 0; i < 6; i++) {
-        if (me != t.th[i][0x30 / 4]) {
+        if (me != t.th[i]->id) {
             iosThreadDestroy(t.th[i]);
         }
     }

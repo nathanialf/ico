@@ -28,7 +28,7 @@ void _ACTWait(int a0);
 void actCreateSubThreadGOppArg(void (*fn)(), int pri);
 void actSetInterrupt(char *self, int val);
 void ConvertStickToAbsCoord(void *a0, float *a1);
-void ActSetStartBrainStatus(char *self, int status);
+void ActSetStartBrainStatus(struct GObj *self, int status);
 void actWaitCondition(int a0, int a1);
 
 /* The declarations below lead this header because their order is load-bearing:

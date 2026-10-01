@@ -31,20 +31,6 @@ typedef struct SqEntry {
     int unk28;                 /* 0x28 */
 } SqEntry;
 
-typedef struct SeEnvDef {
-    float unk0;          /* 0x00 */
-    int (*unk4)();       /* 0x04 */
-    float volume;        /* 0x08 */
-    float unkC;          /* 0x0C */
-    float unk10;         /* 0x10 */
-    float unk14;         /* 0x14 */
-    unsigned int b0 : 1; /* 0x18 bit 0 */
-    unsigned int b1 : 1;
-    unsigned int b2 : 1;
-    unsigned int b3 : 1;
-    unsigned int b4 : 28;
-} SeEnvDef;
-
 /* The SE source definition record (0x3C bytes) a slot plays from: the same
    record `_soundSeDefStop` reaches through the slot's 0x38 pointer. */
 typedef struct SeSrcDef {
@@ -1169,7 +1155,7 @@ static int _soundSeDefPlay(int kind, unsigned int a1, float *a2, int a3, SeEnvDe
         *out = 0;
     }
     if (env != 0) {
-        cb = (int)env->unk4;
+        cb = (int)env->proc;
     }
     if (*kp == 0) {
         return -2;
@@ -1364,7 +1350,7 @@ inline void soundSeDefVolumeRateSet(int a0, float f)
     }
 }
 
-extern char seEnv[];
+extern SeEnvDef seEnv[];
 /* The stage table sits in .rodata, so it is declared const: its loads are then
    unchanging and do not order against soundSeEnvNotUseClose's `p = 0` store. */
 extern const StgPre stageData[];
@@ -1441,29 +1427,29 @@ static inline void soundSeEnvDefaultSet(SeSlot *self)
 {
     SeEnvDef *env = self->unk3C;
 
-    if (env->volume != 0.0f) {
-        self->unk18 = env->volume;
+    if (env->volumeRate != 0.0f) {
+        self->unk18 = env->volumeRate;
     } else {
         self->unk18 = self->unk38->unk24;
     }
-    if (env->unkC != 0.0f) {
-        self->unk24 = env->unkC;
+    if (env->maxVolumeRange != 0.0f) {
+        self->unk24 = env->maxVolumeRange;
     } else {
         self->unk24 = 500.0f;
     }
-    if (env->unk10 != 0.0f) {
-        self->unk20 = env->unk10;
+    if (env->attenuator != 0.0f) {
+        self->unk20 = env->attenuator;
     } else {
         self->unk20 = 1000.0f;
     }
-    if (env->unk14 != 0.0f) {
-        self->unk28 = env->unk14;
+    if (env->volumeLength != 0.0f) {
+        self->unk28 = env->volumeLength;
     } else {
         self->unk28 = 3000.0f;
     }
-    self->flag.bit.f30 = env->b3;
-    self->flag.bit.f26 = env->b1;
-    self->flag.bit.f27 = env->b2;
+    self->flag.bit.f30 = env->maxVolumeType;
+    self->flag.bit.f26 = env->levelHeight;
+    self->flag.bit.f27 = env->stereo;
     self->unk1C = 0.1f;
 }
 
@@ -1473,25 +1459,17 @@ void soundSeEnvPlay(void)
     int i;
 
     for (i = stageData[stage_no].seEnvFirst; i < stageData[stage_no].seEnvLast; i++) {
-        SeEnvDef *e = (SeEnvDef *)&seEnv[i * 0x1C];
-        _soundSeDefPlay(*(int *)e, 0xFFFFFFFF, 0, 0, (SeEnvDef *)e, &slot, -1.0f);
+        SeEnvDef *e = &seEnv[i];
+        _soundSeDefPlay(e->se, 0xFFFFFFFF, 0, 0, e, &slot, -1.0f);
         if (slot != 0) {
             slot->unk3C = e;
             soundSeEnvDefaultSet(slot);
-            if (e->b0 == 1) {
+            if (e->ownPos == 1) {
                 slot->unk34 = iosMallocDebug(ios_partition_sound, 16, __FILE__, 1565);
             }
         }
     }
 }
-
-/* One 100-byte entry of the SE bank table: the name strcmp compares and the
-   "in use" flag the stage lists are filtered on. */
-typedef struct SeBank {
-    char name[96];       /* 0x00 */
-    unsigned int b0 : 1; /* 0x60 bit 0 */
-    unsigned int b1 : 31;
-} SeBank;
 
 extern SeBank seFile[];
 extern SeSrcDef D_005DCEF4[];
@@ -1515,7 +1493,7 @@ void soundSeEnvNotUseClose(int a, int b)
 
     ok = 1;
     for (i = stageData[a].seSegFirst; i < stageData[a].seSegLast; i++) {
-        if (seFile[i].b0 == 1) {
+        if (seFile[i].loaded == 1) {
             p = &seFile[i];
             break;
         }
@@ -1523,8 +1501,8 @@ void soundSeEnvNotUseClose(int a, int b)
     n = i;
     if (p != 0) {
         for (i = stageData[b].seSegFirst; i < stageData[b].seSegLast; i++) {
-            if (seFile[i].b0 == 1) {
-                if (strcmp(p->name, seFile[i].name) == 0) {
+            if (seFile[i].loaded == 1) {
+                if (strcmp(p->hdPath, seFile[i].hdPath) == 0) {
                     ok = 0;
                 }
                 break;
@@ -1555,8 +1533,8 @@ void soundSeEnvNotUseClose(int a, int b)
         first = (int *)&D_005F5E60[a * 404];
         if (req != 0 && req->unk4 == 0 && e->unk8 == 0xFFFFFFFF) {
             for (j = *first; j < *(int *)&D_005F5E60[a * 404 + 4]; j++) {
-                if (e->unk38 == (SeSrcDef *)&seDef[*(int *)&seEnv[j * 0x1C] * 60]) {
-                    if (ok == 0 || seFile[seList[seKind[e->unk38->unk20]].num].b0 != 1) {
+                if (e->unk38 == (SeSrcDef *)&seDef[seEnv[j].se * 60]) {
+                    if (ok == 0 || seFile[seList[seKind[e->unk38->unk20]].num].loaded != 1) {
                         goto next;
                     }
                 }

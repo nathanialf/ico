@@ -53,7 +53,7 @@ extern int stage_no;
 #include "gv.h"
 #include "fieldCollision.h"
 
-inline void GetSofaPosition(char *a0, char *a1)
+inline void GetSofaPosition(GObj *a0, char *a1)
 {
     Act *w = GOBJ_ACT(a0);
     VECTOR v = sofaSeatOffset;
@@ -258,7 +258,7 @@ void DebugActOrientFlag(unsigned int *f)
     }
 }
 
-inline void ACTSetEnvAllmighty(char *a0)
+inline void ACTSetEnvAllmighty(GObj *a0)
 {
     Act *s = GOBJ_ACT(a0);
     s->wish0.ll |= (1ULL << 38);
@@ -389,7 +389,7 @@ static inline int H0973(void *o, float *v, float s)
 }
 
 /* act-env.c:999-1019: the ditch-height probe, one site. */
-static inline unsigned char H1000(void *o, float h)
+static inline unsigned char H1000(GObj *o, float h)
 {
     ClipWork work;
     Act *s;

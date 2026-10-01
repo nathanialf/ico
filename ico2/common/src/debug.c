@@ -727,16 +727,6 @@ extern void sceGsSetDefStoreImage(void *si, short fbp, short fbw, short psm, sho
 extern void sceGsExecStoreImage(void *si, unsigned int addr);
 extern float dptofp(double v);
 
-typedef struct {
-    int _0;
-    int hold;
-    int _8;
-    int trg;
-} DbgReverbPad;
-
-/* kept local: DbgReverbPad [] here, PadState [16] in main.h (pad) */
-extern DbgReverbPad D_0028F8F0[];
-
 /* clang-format on */
 
 extern StgPre stageData[];
@@ -826,8 +816,6 @@ typedef struct {
 extern McReq mc;
 /* kept local: returns void here, int in mcard.h */
 extern void iosMcGetInfo(void *a0);
-/* kept local: char * here, GObj * in main.h (boyGObj) */
-extern char *D_00639EA4;
 extern GsysObjInfo seDef[];
 extern int SgGetSlotStatus(int a0, int slot);
 extern char initFunc[];
@@ -2533,25 +2521,25 @@ int debug_Mode(void)
         j++;
     }
 
-    if (D_0028F8F0[0].trg & 0x4000) {
+    if (pad[0].rep & 0x4000) {
         if (++modeSelect >= 76) modeSelect = 0;
     }
-    if (D_0028F8F0[0].trg & 0x1000) {
+    if (pad[0].rep & 0x1000) {
         if (--modeSelect < 0) modeSelect = 75;
     }
-    if (D_0028F8F0[0].trg & 0x2000) {
+    if (pad[0].rep & 0x2000) {
         if (++*debugOption[modeSelect].val > debugOption[modeSelect].max)
             *debugOption[modeSelect].val = debugOption[modeSelect].min;
         if (debugOption[modeSelect].func != 0)
             debugOption[modeSelect].func(*debugOption[modeSelect].val);
     }
-    if (D_0028F8F0[0].trg & 0x8000) {
+    if (pad[0].rep & 0x8000) {
         if (--*debugOption[modeSelect].val < debugOption[modeSelect].min)
             *debugOption[modeSelect].val = debugOption[modeSelect].max;
         if (debugOption[modeSelect].func != 0)
             debugOption[modeSelect].func(*debugOption[modeSelect].val);
     }
-    if (D_0028F8F0[0].hold & 0x20) {
+    if (pad[0].flags & 0x20) {
         for (i = 0; i < 76; i++) {
             if (debugOption[i].min == 0 && debugOption[i].max == 1)
                 debug_StdPrintfDummy("debug%s => %s\n", debugOption[i].name, modeValueName[*debugOption[i].val]);
@@ -2560,8 +2548,8 @@ int debug_Mode(void)
         }
         ret = 1;
     }
-    if (D_0028F8F0[0].hold & 0x40) ret = -1;
-    if (D_0028F8F0[0].hold & 0x10) debug_SaveDebugOptionFile();
+    if (pad[0].flags & 0x40) ret = -1;
+    if (pad[0].flags & 0x10) debug_SaveDebugOptionFile();
     if (ret != 0) modeSelect = 0;
 
     return ret;
@@ -2606,20 +2594,20 @@ inline int _debug_SelectCsvWindow(char *title, int x, int y, int rows, int base,
 
     sel = *psel;
     debug_PrintfDummy(x, y, 0xFFFFFF00u, (int)"%s", (int)title);
-    if ((D_0028F8F0[0]._0 & 2) == 0) {
-        if (D_0028F8F0[0].hold & 0x80) {
+    if ((pad[0].now & 2) == 0) {
+        if (pad[0].flags & 0x80) {
             debug_font_flag ^= 2;
         }
         if (sel >= n) {
             sel = n - 1;
         }
-        if (D_0028F8F0[0].trg & 0x4000) {
+        if (pad[0].rep & 0x4000) {
             sel++;
             if (sel >= n) {
                 sel = 0;
             }
         }
-        if (D_0028F8F0[0].trg & 0x1000) {
+        if (pad[0].rep & 0x1000) {
             sel--;
             if (sel < 0) {
                 sel = n - 1;
@@ -2668,10 +2656,10 @@ inline int _debug_SelectCsvWindow(char *title, int x, int y, int rows, int base,
             csvScroll += systemStatus[1];
         }
         *psel = sel;
-        if (D_0028F8F0[0].hold & 0x20) {
+        if (pad[0].flags & 0x20) {
             csvScroll = 0;
             return 1;
-        } else if (D_0028F8F0[0].hold & 0x140) {
+        } else if (pad[0].flags & 0x140) {
             csvScroll = 0;
             return -1;
         }
@@ -3240,7 +3228,7 @@ int debug_SETest(int reset)
     r = debug_SelectCsvWindowWithLineColor("SE LIST", 0xA, 0x3C, 0xA, seDef, 0x3C, 0,
                                                0, 0x592, &seSelect, debug_SETest_color);
     if (r > 0) {
-        seHandle = soundSeDefPlay(seSelect, 0, GOBJ_SUB(D_00639EA4)->nodeMtx + 0x30, 1);
+        seHandle = soundSeDefPlay(seSelect, 0, GOBJ_SUB(boyGObj)->nodeMtx + 0x30, 1);
         return 0;
     }
     if (r < 0) {
@@ -3292,17 +3280,17 @@ void debug_SESlotDisp(void)
 inline int debug_reverbTest(void)
 {
     int depth = soundReverbDepthGet();
-    if (D_0028F8F0[0].trg & 0x1000) {
+    if (pad[0].rep & 0x1000) {
         if (depth <= 99) {
             depth++;
         }
     }
-    if (D_0028F8F0[0].trg & 0x4000) {
+    if (pad[0].rep & 0x4000) {
         depth -= (0 < depth);
     }
     soundReverbDepthSet(depth);
     debug_PrintfDummy(10, 80, 0xFFFFFF00u, (int)"REVERB DEPTH %d%%\n", soundReverbDepthGet());
-    return (D_0028F8F0[0].hold & 0x60) != 0;
+    return (pad[0].flags & 0x60) != 0;
 }
 
 static int adpcmSelect = 0; /* derived name */
@@ -3502,8 +3490,8 @@ int debug_DispBox(int on)
     int num;
 
     if (on) {
-        if (D_00639EA4 != 0) {
-            GetRootPosition(boxCentre, D_00639EA4);
+        if (boyGObj != 0) {
+            GetRootPosition(boxCentre, boyGObj);
         } else {
             boxCentre[0] = 0.0f;
             boxCentre[1] = 0.0f;
@@ -3514,16 +3502,16 @@ int debug_DispBox(int on)
         boxWidth[2] = 100.0f;
         dispBoxRow = 0;
     }
-    if (D_0028F8F0[0].trg & 0x1000) {
+    if (pad[0].rep & 0x1000) {
         dispBoxRow--;
     }
-    if (D_0028F8F0[0].trg & 0x4000) {
+    if (pad[0].rep & 0x4000) {
         dispBoxRow++;
     }
     num = 6;
     dispBoxRow = (dispBoxRow + num) % num;
-    step = (D_0028F8F0[0].trg & 0x2000) ? 100 : 0;
-    if (D_0028F8F0[0].trg & 0x8000) {
+    step = (pad[0].rep & 0x2000) ? 100 : 0;
+    if (pad[0].rep & 0x8000) {
         step = -100;
     }
     switch (dispBoxRow) {
@@ -3573,7 +3561,7 @@ int debug_DispBox(int on)
         debug_Printf(10, 160, 0xFFFFFF00u, "[%s] %4d %4d %4d", (int)" width", (int)boxWidth[0],
                      (int)boxWidth[1], (int)boxWidth[2]);
     }
-    return (D_0028F8F0[0].hold & 0x40) ? -1 : 0;
+    return (pad[0].flags & 0x40) ? -1 : 0;
 }
 
 /* debug_DispBall's sphere radius */
@@ -3594,8 +3582,8 @@ int debug_DispBall(int on)
     num = 4;
     hit = 0;
     if (on) {
-        if (D_00639EA4 != 0) {
-            GetRootPosition(ballCentre, D_00639EA4);
+        if (boyGObj != 0) {
+            GetRootPosition(ballCentre, boyGObj);
         } else {
             ballCentre[0] = 0.0f;
             ballCentre[1] = 0.0f;
@@ -3604,15 +3592,15 @@ int debug_DispBall(int on)
         ballRadius = 100.0f;
         dispBallRow = 0;
     }
-    if (D_0028F8F0[0].trg & 0x1000) {
+    if (pad[0].rep & 0x1000) {
         dispBallRow--;
     }
-    if (D_0028F8F0[0].trg & 0x4000) {
+    if (pad[0].rep & 0x4000) {
         dispBallRow++;
     }
     dispBallRow = (dispBallRow + num) % num;
-    step = (D_0028F8F0[0].trg & 0x2000) ? 10 : 0;
-    if (D_0028F8F0[0].trg & 0x8000) {
+    step = (pad[0].rep & 0x2000) ? 10 : 0;
+    if (pad[0].rep & 0x8000) {
         step = -10;
     }
     switch (dispBallRow) {
@@ -3643,8 +3631,8 @@ int debug_DispBall(int on)
         }
     }
     CameraSetMode(1);
-    if (D_00639EA4 != 0) {
-        GetRootPosition(pos, D_00639EA4);
+    if (boyGObj != 0) {
+        GetRootPosition(pos, boyGObj);
         hit = scpTriggerPosBall(pos, ballCentre, ballRadius);
     }
     MatrixDrive_PushMatrix();
@@ -3658,7 +3646,7 @@ int debug_DispBall(int on)
     prim_DispWireSphere(ballRadius, &col, 16, 8);
     gif_EndPacket();
     MatrixDrive_PopMatrix();
-    return (D_0028F8F0[0].hold & 0x40) ? -1 : 0;
+    return (pad[0].flags & 0x40) ? -1 : 0;
 }
 
 /* debug_CollisionTest's ray modes */
@@ -3683,7 +3671,7 @@ int debug_CollisionTest(int reset)
     r = debug_SelectCsvWindow("Collision Test", 10, 50, 11, collisionMoveName, 4, 0, 1, 3,
                               &collisionTestRow);
     if (reset != 0) {
-        GetRootPosition(collisionRay.src, D_00639EA4);
+        GetRootPosition(collisionRay.src, boyGObj);
         CopyVector(collisionRay.dst, collisionRay.src);
         collisionRay.f70 = 0;
         collisionRay.dst[2] += 100.0f;
@@ -3848,8 +3836,8 @@ void debug_Menu(void)
     int r;
     int (*fn)(int);
 
-    if ((D_0028F8F0[0]._0 & 2) == 0) {
-        if (D_0028F8F0[0].hold & 0x100) {
+    if ((pad[0].now & 2) == 0) {
+        if (pad[0].flags & 0x100) {
             if (menuState == 0) {
                 debugBackGroundDisableFlag = 1;
                 menuState = 1;

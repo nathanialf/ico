@@ -13,23 +13,13 @@ typedef struct IosMsg {
     struct IosMsg *next; /* 0x44 */
 } IosMsg;
 
-typedef struct IosMsgQueue {
-    int *buf;             /* 0x00 */
-    int rd;               /* 0x04 */
-    int num;              /* 0x08 */
-    int size;             /* 0x0C */
-    IosMsg *head;         /* 0x10 */
-    struct SemaParam sem; /* 0x14 */
-    int sema;             /* 0x2C */
-} IosMsgQueue;
-
-/* the event thread iosMsgSetEvent spawns: an IOSThread with three trailing
-   words of its own bookkeeping. */
-typedef struct MsgEventThread {
-    char pad0[48];
-    int id;  /* 0x0030 IOSThread.id  */
-    int arg; /* 0x0034 IOSThread.arg */
-    char pad38[16472];
+/* the event thread iosMsgSetEvent spawns, one 0x40C0-byte block: the
+   IOSThread, its 16 KB stack and three trailing words of its own
+   bookkeeping. */
+typedef struct MsgEventThread { /* field names derived */
+    IOSThread th;               /* 0x0000 */
+    char stack[16384];          /* 0x0070, the thread's stack */
+    char pad4070[32];
     IosMsgQueue *queue; /* 0x4090 */
     int val;            /* 0x4094 */
     int intc;           /* 0x4098 */
@@ -120,10 +110,10 @@ static inline int msgSend(IosMsgQueue *q, int val, int mode)
 void send_signal_message(void)
 {
     MsgEventThread *self = (MsgEventThread *)iosGetIOSThreadFromId(GetThreadId());
-    MsgEventThread *th = (MsgEventThread *)self->arg;
+    MsgEventThread *th = (MsgEventThread *)self->th.arg;
 
     th_sig = (int *)self;
-    debug_StdPrintfDummy("%d %d\n", self->id, th->val);
+    debug_StdPrintfDummy("%d %d\n", self->th.id, th->val);
 
     for (;;) {
         iosThreadSleep();
@@ -140,11 +130,11 @@ void iosMsgSetEvent(int intc, IosMsgQueue *q, int val)
         debug_StdPrintfDummy("evt:null message queue\n");
     }
     th = iosMallocDebug(ios_partition_event, 0x40C0, "ios/message.c", 453);
-    iosThreadCreate(th, 4, send_signal_message, (int)th, (char *)th + 0x70, 0x4000, 0xB);
+    iosThreadCreate(&th->th, 4, send_signal_message, (int)th, th->stack, 0x4000, 0xB);
     th->queue = q;
     th->val = val;
     th->intc = intc;
-    iosThreadStart((int)th);
+    iosThreadStart(&th->th);
     debug_StdPrintfDummy("where is here\n");
     AddIntcHandler(intc, signal_handler, -1);
     ret = EnableIntc(intc);
@@ -167,7 +157,7 @@ void iosMsgInit(void)
     }
 }
 
-int iosMsgSend(char *q, int val, int mode)
+int iosMsgSend(IosMsgQueue *q, int val, int mode)
 {
     struct SemaParam st;
     if (q == 0) {
@@ -175,23 +165,23 @@ int iosMsgSend(char *q, int val, int mode)
         debug_assert("ios/message.c", 293);
         __assert("ios/message.c", 293, "0");
     }
-    ReferSemaStatus(*(int *)(q + 0x2C), &st);
-    if (*(int *)(q + 8) == st.maxCount) {
+    ReferSemaStatus(q->sema, &st);
+    if (q->num == st.maxCount) {
         if (mode != 1) {
             debug_StdPrintfDummy("MSG NO SEND\n");
             return -1;
         }
-        WaitSema(*(int *)(q + 0x2C));
+        WaitSema(q->sema);
     }
-    (*(int **)q)[(*(int *)(q + 4) + *(int *)(q + 8)) % st.maxCount] = val;
-    *(int *)(q + 8) += 1;
+    q->buf[(q->rd + q->num) % st.maxCount] = val;
+    q->num += 1;
     if (st.numWaitThreads > 0) {
-        SignalSema(*(int *)(q + 0x2C));
+        SignalSema(q->sema);
     }
     return 0;
 }
 
-int iosMsgRecv(char *q, int *out, int mode)
+int iosMsgRecv(IosMsgQueue *q, int *out, int mode)
 {
     struct SemaParam st;
     if (q == 0) {
@@ -199,18 +189,18 @@ int iosMsgRecv(char *q, int *out, int mode)
         debug_assert("ios/message.c", 329);
         __assert("ios/message.c", 329, "0");
     }
-    ReferSemaStatus(*(int *)(q + 0x2C), &st);
-    if (*(int *)(q + 8) == 0) {
+    ReferSemaStatus(q->sema, &st);
+    if (q->num == 0) {
         if (mode != 1)
             return -1;
-        WaitSema(*(int *)(q + 0x2C));
+        WaitSema(q->sema);
     }
-    *out = (*(int **)q)[*(int *)(q + 4)];
-    *(int *)(q + 4) = (*(int *)(q + 4) + 1) % st.maxCount;
-    *(int *)(q + 8) -= 1;
-    if (*(int *)(q + 8) == st.maxCount) {
+    *out = q->buf[q->rd];
+    q->rd = (q->rd + 1) % st.maxCount;
+    q->num -= 1;
+    if (q->num == st.maxCount) {
         if (st.numWaitThreads > 0) {
-            SignalSema(*(int *)(q + 0x2C));
+            SignalSema(q->sema);
         }
     }
     return 0;

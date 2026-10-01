@@ -19,7 +19,9 @@ clear, the one setting the link merges with the game's EABI64 objects), the
 members config/data_schema.pal.txt lists as C (tools/gen_data_c.py: a zero
 stand-in per member, a layout link with the stand-ins that fixes every other
 address, the member's C written from the base ELF with its pointers named from
-that link, compiled by cc, checked against the ROM range, and the placeholder
+that link, compiled by ccdata (compile_c.sh run on it as a game TU, from a
+programmer directory, so it reaches every ico2 include directory as the game's
+TUs do), checked against the ROM range, and the placeholder
 labels inside it bound by a linker assignment), data (tools/extract_data.py's
 assembly for each data-only row the schema does not type, assembled by as),
 labels (the D_<VMA> placeholders a tracked source spells inside a data
@@ -240,7 +242,16 @@ def main():
              f"ldlayout = $ld -EL --oformat elf32-littlemips -T {LAYOUT_LD} --no-warn-mismatch\n\n")
     w.append(f"rule gen\n  command = $py tools/gen_ninja.py\n  generator = 1\n"
              "  description = GEN $out\n\n"
-             "rule cc\n  command = tools/compile_c.sh $in $out\n  description = CC $out\n\n")
+             "rule cc\n  command = tools/compile_c.sh $in $out\n  description = CC $out\n\n"
+             # A data member's generated C is a game TU and compiles as one:
+             # from inside a programmer directory (common, which owns
+             # typedef.h), so compile_c.sh gives it the game's flags,
+             # assembler and the relative -I list of every ico2 include
+             # directory its headers reach into. No header name repeats
+             # across the include directories, so the directory chosen
+             # changes no lookup.
+             "rule ccdata\n  command = tools/compile_c.sh ico2/common/../../$in $out\n"
+             "  description = CC $out\n\n")
     for r in ("as_old", "as_sdk"):
         w.append(f"rule {r}\n  command = ${r} $asflags -G $gnum -o $out $in\n  description = AS $out\n\n")
     w.append("rule vucpp\n  command = cd ico2 && ../tools/period_env.sh ../$cpp -Ivusrc < $vsm > ../$out\n"
@@ -278,7 +289,7 @@ def main():
                      f"build {stub}: as_old {OUT}/data/stub/{m}.s\n  gnum = 8\n"
                      f"build {alias}: dataalias | {LABELS} {gen_deps}\n  member = {m}\n"
                      f"build {src}: datac | {LAYOUT_ELF} {BASE_ELF} {gen_deps} {cmembers[m]}\n  member = {m}\n"
-                     f"build {obj}: cc {src}\n"
+                     f"build {obj}: ccdata {src}\n"
                      f"build {ok}: datacheck | {obj} {LAYOUT_ELF} {BASE_ELF} {gen_deps}\n"
                      f"  member = {m}\n  obj = {obj}\n")
             link.append(obj)

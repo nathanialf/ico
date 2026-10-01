@@ -65,17 +65,7 @@ typedef struct {
     int work[4];          /* 0x30 */
 } GamesysObjInfoBackstage;
 
-/* the 0x194-byte per-stage record stageData; wayBits is a 9-bit field in the
-   bitfield word at 0x18C, which is why it is read with an lhu at 0x18E */
-typedef struct {
-    char pad000[396];
-    unsigned int pad18C : 16;
-    unsigned int wayBits : 9;
-    unsigned int pad18E_hi : 7;
-    char pad190[0x194 - 0x190];
-} StageInfoRec;
-
-extern char stageData[];
+extern StgPre stageData[];
 
 /* the actor work record a gobj carries at 0x164 (src/enemy_act.c reads the same
    0x444 member off the same 0x164 pointer) */
@@ -202,11 +192,11 @@ void backStageProcessOutStage(void)
                 nestSec = nestDist / 100.0f;
                 carryTime = (int)(nestSec * (float)((60 - systemStatus[0] * 10) / systemStatus[1]));
             }
-        } else if (((StageInfoRec *)(stageData + stage_no * 0x194))->wayBits != 0) {
+        } else if (stageData[stage_no].kidnapSeconds != 0) {
             GetRootProjectionPosOfGObj(a.f, girlGObj);
             wayKidnap = 1;
             kidnapState = 1;
-            enemySec = (float)((StageInfoRec *)(stageData + stage_no * 0x194))->wayBits;
+            enemySec = (float)stageData[stage_no].kidnapSeconds;
             kidnapTime = (int)(enemySec * (float)((60 - systemStatus[0] * 10) / systemStatus[1]));
             if (WayPointWithRangeFromPos2(a.f, (char *)GOBJ_ACT(girlGObj) + 0x360, nestPos, 1) ==
                 0) {

@@ -31,7 +31,7 @@ typedef struct SeRec {
 extern SeRec seDef[];
 void setMailTarget(int a0, int *a1, int *a2);
 
-void seMail(int self, int id)
+void seMail(GObj *self, int id)
 {
     SeRec *rec = &seDef[id];
     int flags = rec->flags & 0xF;

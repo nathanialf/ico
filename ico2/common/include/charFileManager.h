@@ -28,4 +28,21 @@ typedef struct {    /* field names derived */
     int cameraMove; /* 0x30, compared with NonLinearCameraMove */
 } TexRec;           /* derived name */
 
+/* model-path: one model, 0x8C bytes, indexed by the model id. Reader:
+ * ico2/common/src/PObj.c (InitPObj, AllocPObj, MakePacket), charFileManager.c
+ * (ReadSkeltonFile, ReadCollisionFile: the two paths). */
+typedef struct PObjMdl { /* field names derived */
+    char path[48];     /* 0x00, the skeleton file, "NULL" for none */
+    char collPath[64]; /* 0x30, the collision file */
+    float offset[3];   /* 0x70, InitPObj adds it to every vertex and box corner */
+    float float7C;     /* 0x7C, copied into the PObj at 0x34 */
+    float float80;     /* 0x80, copied into the PObj at 0x38 */
+    float float84;     /* 0x84, copied into the PObj at 0x3C */
+    /* 0x88, read as bits */
+    unsigned int pktKind : 4; /* the packet header's kind, 4 for none */
+    unsigned int bits4 : 4;   /* MakePacket's tag bits 18-21 */
+    unsigned int bits8 : 4;   /* MakePacket's tag bits 22-25 */
+    unsigned int : 20;
+} PObjMdl;
+
 #endif /* CHARFILEMANAGER_H */

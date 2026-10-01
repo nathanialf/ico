@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include "debug_exception.h"
 #include "Matrix.h"
+#include "charFileManager.h"
 
 /* RECONSTRUCTION, PUBLIC SDK NAMING RUNG for the shape (libvu0's
    sceVu0FVECTOR, a 16-byte aligned float[4]); the name is ours.  The ROM pins
@@ -13,20 +14,6 @@
    element's alignment is the float's own, which is the four-pointer loop a
    plain float[4] gives. */
 typedef float Vec[4] __attribute__((aligned(16)));
-
-typedef struct PObjMdl {
-    char pad0[112];
-    float f70;           /* 0x70 */
-    float f74;           /* 0x74 */
-    float f78;           /* 0x78 */
-    float f7C;           /* 0x7C */
-    float f80;           /* 0x80 */
-    float f84;           /* 0x84 */
-    unsigned int b0 : 4; /* 0x88 */
-    unsigned int b4 : 4;
-    unsigned int b8 : 4;
-    unsigned int b12 : 20;
-} PObjMdl;
 
 typedef struct PktHdr {
     char pad0[240];
@@ -194,9 +181,7 @@ void MakeBoundingBox(PObj *self)
     }
 }
 
-/* The 0x8C-stride model table this member shares with charFileManager: only
-   the three columns MakePacket reads are spelled out here. */
-
+/* the model table (model-path) */
 extern PObjMdl modelData[];
 
 void MakePacket(PObj *p, int n)
@@ -204,15 +189,15 @@ void MakePacket(PObj *p, int n)
     PObjPkt *q;
 
     p->tag.v.nloop = n;
-    p->tag.ll = (p->tag.ll & ~0x3C0000LL) | ((long long)modelData[n].b4 << 18);
-    p->tag.ll = (p->tag.ll & ~0x3C00000LL) | ((long long)modelData[n].b8 << 22);
-    p->tag.v.f34 = modelData[n].f7C;
-    p->f38 = modelData[n].f80;
+    p->tag.ll = (p->tag.ll & ~0x3C0000LL) | ((long long)modelData[n].bits4 << 18);
+    p->tag.ll = (p->tag.ll & ~0x3C00000LL) | ((long long)modelData[n].bits8 << 22);
+    p->tag.v.f34 = modelData[n].float7C;
+    p->f38 = modelData[n].float80;
 
     q = (PObjPkt *)mallocseki(0x880);
     p->pkt = q;
     q->f874 = (PktHdr *)mallocseki(0x100);
-    q->f874->kind = modelData[n].b0;
+    q->f874->kind = modelData[n].pktKind;
 
     q->owner = p;
     q->f870 = mallocseki(p->f2E * 80);
@@ -300,7 +285,7 @@ static __inline__ void InitPObjHeader(PObj *p, ObjHdr *h, int n)
     p->f2F = h->fC;
     p->tag.ll &= ~0x30000LL;
     p->tag.ll &= ~0x4000000LL;
-    p->f3C = modelData[n].f84;
+    p->f3C = modelData[n].float84;
 }
 
 PObj *AllocPObj(ObjHdr *h, char *name, int n)
@@ -388,7 +373,7 @@ PObj *InitPObj(int a0, int a1, int n)
     int j;
 
     p = AllocPObj((ObjHdr *)a0, (char *)a1, n);
-    SetPObjVector(v, modelData[n].f70, modelData[n].f74, modelData[n].f78);
+    SetPObjVector(v, modelData[n].offset[0], modelData[n].offset[1], modelData[n].offset[2]);
     num = p->f2E;
     for (i = 0; i < num; i++) {
         PObjSub *g = &p->sub[i];

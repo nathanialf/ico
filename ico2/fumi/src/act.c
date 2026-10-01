@@ -58,7 +58,7 @@ static int actUnusedWord = 0; /* derived name */
 #include "ios.h"
 #include "fieldCollision.h"
 
-inline void ActSetStartBrainStatus(char *self, int status)
+inline void ActSetStartBrainStatus(GObj *self, int status)
 {
     Act *brain = GOBJ_ACT(self);
     if (brain != 0) {

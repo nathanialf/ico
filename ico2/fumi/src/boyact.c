@@ -2021,7 +2021,7 @@ void subBoyCollision(GObj *volatile a0)
                 sub->dir[2] = vec[2];
             }
             if (0.1f < sub->stickMag && sub->actMode != 0x73) {
-                SetMotionDirectionSmooze((void *)a0, sub->dir,
+                SetMotionDirectionSmooze(a0, sub->dir,
                                          (float)(((void *)a0 == girlGObj && girlControlMode != 0)
                                                      ? CHAINROW(a0)->f_182
                                                      : CHAINROW(a0)->f_186));
@@ -3083,7 +3083,7 @@ void actBoyReadyMove(GObj *volatile a0)
                        ->f_182
                  : ((BoyMotionRow *)(GOBJ_SUB(a0)->motion * sizeof(BoyMotionRow) + motionKind))
                        ->f_186) == 0) {
-            SetMotionDirectionSmooze((void *)a0, ord.dir, 10.0f);
+            SetMotionDirectionSmooze(a0, ord.dir, 10.0f);
         } else {
             _ACTMotDirSmzDirect((void *)a0, ord.dir);
         }

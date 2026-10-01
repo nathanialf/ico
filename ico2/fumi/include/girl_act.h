@@ -19,7 +19,7 @@ struct GObj;
    ROM's order of the TU's closing run, 0x17B760..0x17C840.  The four
    subGirlBrain_* states, enemy_list_compare and ACTCheckCollis_SAFE follow
    through their first declarations in girl_act.c. */
-void ACTGame_GirlBeforeFunc(void *self);
+void ACTGame_GirlBeforeFunc(struct GObj *self);
 void *FindGirlPullupFloorBoxGObj(void);
 void actGirlSupportGBBegin(struct GObj *volatile a0);
 void actGirlSupportGBLoop(struct GObj *volatile a0);

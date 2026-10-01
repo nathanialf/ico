@@ -438,7 +438,7 @@ static ActMail torch2_1XL_mes[2] = {{430}, {429}};
 
 static ActMail torch2_2XL_mes[2] = {{430}, {429}};
 
-void turnBall(int a0, int a1, int a2, int a3, int a4)
+void turnBall(GObj *a0, int a1, int a2, int a3, int a4)
 {
     /* the 0x164 chase is spelled int-typed: ROM re-chases it in the int
        alias set of the turnFlag.. stores, so it cannot be sunk below them */

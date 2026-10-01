@@ -87,7 +87,7 @@ inline int iosMcGetInfo(void *a0)
     McTestVal *v = (McTestVal *)a0;
     v->w.hi = 0;
     v->ll = v->ll & -2;
-    return iosMsgSend(McMsgQ, a0, 0);
+    return iosMsgSend(&McMsgQ, a0, 0);
 }
 
 inline int iosMcFormat(void *a0)
@@ -95,7 +95,7 @@ inline int iosMcFormat(void *a0)
     McTestVal *v = (McTestVal *)a0;
     v->w.hi = 3;
     v->ll = v->ll & -2;
-    return iosMsgSend(McMsgQ, a0, 0);
+    return iosMsgSend(&McMsgQ, a0, 0);
 }
 
 inline int iosMcUnformat(void *a0)
@@ -103,7 +103,7 @@ inline int iosMcUnformat(void *a0)
     McTestVal *v = (McTestVal *)a0;
     v->w.hi = 4;
     v->ll = v->ll & -2;
-    return iosMsgSend(McMsgQ, a0, 0);
+    return iosMsgSend(&McMsgQ, a0, 0);
 }
 
 inline int iosMcGetDir(void *a0)
@@ -111,7 +111,7 @@ inline int iosMcGetDir(void *a0)
     McHdr *v = (McHdr *)a0;
     v->w.hi = 6;
     v->ll = v->ll & -2;
-    return iosMsgSend(McMsgQ, a0, 0);
+    return iosMsgSend(&McMsgQ, a0, 0);
 }
 
 inline int iosMcDelete(void *a0)
@@ -119,7 +119,7 @@ inline int iosMcDelete(void *a0)
     McHdr *v = (McHdr *)a0;
     v->w.hi = 2;
     v->ll = v->ll & -2;
-    return iosMsgSend(McMsgQ, a0, 0);
+    return iosMsgSend(&McMsgQ, a0, 0);
 }
 
 inline int iosMcSaveIconBlock(void *a0)
@@ -127,7 +127,7 @@ inline int iosMcSaveIconBlock(void *a0)
     McHdr *v = (McHdr *)a0;
     v->w.hi = 7;
     v->ll = v->ll & -2;
-    return iosMsgSend(McMsgQ, a0, 0);
+    return iosMsgSend(&McMsgQ, a0, 0);
 }
 
 inline int iosMcSaveProductBlock(void *a0)
@@ -135,7 +135,7 @@ inline int iosMcSaveProductBlock(void *a0)
     McHdr *v = (McHdr *)a0;
     v->w.hi = 8;
     v->ll = v->ll & -2;
-    return iosMsgSend(McMsgQ, a0, 0);
+    return iosMsgSend(&McMsgQ, a0, 0);
 }
 
 inline int iosMcLoadProductBlock(void *a0)
@@ -143,7 +143,7 @@ inline int iosMcLoadProductBlock(void *a0)
     McHdr *v = (McHdr *)a0;
     v->w.hi = 9;
     v->ll = v->ll & -2;
-    return iosMsgSend(McMsgQ, a0, 0);
+    return iosMsgSend(&McMsgQ, a0, 0);
 }
 
 inline int iosMcSaveGameBlock(void *a0, int a1)
@@ -152,7 +152,7 @@ inline int iosMcSaveGameBlock(void *a0, int a1)
     v->w.hi = 0xA;
     *(int *)((char *)a0 + 0x48) = a1;
     v->ll = v->ll & -2;
-    return iosMsgSend(McMsgQ, a0, 0);
+    return iosMsgSend(&McMsgQ, a0, 0);
 }
 
 inline int iosMcLoadGameBlock(void *a0, int a1)
@@ -161,7 +161,7 @@ inline int iosMcLoadGameBlock(void *a0, int a1)
     v->w.hi = 0xB;
     *(int *)((char *)a0 + 0x48) = a1;
     v->ll = v->ll & -2;
-    return iosMsgSend(McMsgQ, a0, 0);
+    return iosMsgSend(&McMsgQ, a0, 0);
 }
 
 inline int iosMcChdirProduct(void *a0)
@@ -169,7 +169,7 @@ inline int iosMcChdirProduct(void *a0)
     McHdr *v = (McHdr *)a0;
     v->w.hi = 0xC;
     v->ll = v->ll & -2;
-    return iosMsgSend(McMsgQ, a0, 0);
+    return iosMsgSend(&McMsgQ, a0, 0);
 }
 
 inline int iosMcGetBlockSaveInfo(void *a0)
@@ -177,7 +177,7 @@ inline int iosMcGetBlockSaveInfo(void *a0)
     McHdr *v = (McHdr *)a0;
     v->w.hi = 0xD;
     v->ll = v->ll & -2;
-    return iosMsgSend(McMsgQ, a0, 0);
+    return iosMsgSend(&McMsgQ, a0, 0);
 }
 
 typedef struct {
@@ -620,7 +620,7 @@ McSaveRec IosMcProductFile[2] = {0};
 
 int IosMcPreviewInfo[6] = {0};
 
-char McMsgQ[48] = {0};
+IosMsgQueue McMsgQ = {0};
 
 void iosMcMgrSaveSeg(McMgr *mp, char *suffix)
 {
@@ -864,11 +864,11 @@ void iosMcManager(void)
     McMgr **pp;
 
     sceMcInit();
-    iosMsgQueueCreate(McMsgQ, mcMsgRing, 16);
+    iosMsgQueueCreate(&McMsgQ, mcMsgRing, 16);
     pp = &mp;
 
     for (;;) {
-        iosMsgRecv(McMsgQ, pp, 1);
+        iosMsgRecv(&McMsgQ, pp, 1);
         debug_StdPrintfDummy("done 0 %p\n", mp);
 
         mp->f0 = mp->f0 & -2;

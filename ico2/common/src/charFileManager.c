@@ -256,11 +256,7 @@ void ReadTextureFile(void *h, int a1, int size, int a3, int a4, int a5, int a6)
     iosFree(buf);
 }
 
-typedef struct {
-    char name[140];
-} SkelEnt; /* 0x8C */
-
-extern SkelEnt modelData[];
+extern PObjMdl modelData[];
 
 /* sugipon/include/sugiCommon.h: byte checksum helper, inlined at its call site */
 static inline int SumBytes(unsigned char *p, int n)
@@ -290,7 +286,7 @@ void ReadSkeltonFile(void *h, char *name, int size, int a3, int a4, int a5, int 
         malloc_SetPartition(1);
     }
     for (i = 0; i < MAX_CHARS; i++) {
-        if (modelData[i].name != 0 && strcmp(modelData[i].name, name) == 0) {
+        if (modelData[i].path != 0 && strcmp(modelData[i].path, name) == 0) {
             if (p == 0) {
                 if (charFiles[i].pSkel != 0) {
                     debug_StdPrintfDummy("ReadSkeltonFile:Already loaded. %s\n", name);
@@ -324,12 +320,6 @@ void ReadSkeltonFile(void *h, char *name, int size, int a3, int a4, int a5, int 
     }
 }
 
-typedef struct {
-    char name[140];
-} CollEnt; /* 0x8C */
-
-extern CollEnt D_004FBAB0[];
-
 void ReadCollisionFile(void *h, char *name, int size, int a3, int a4, int a5, int a6)
 {
     int i;
@@ -348,7 +338,7 @@ void ReadCollisionFile(void *h, char *name, int size, int a3, int a4, int a5, in
         malloc_SetPartition(1);
     }
     for (i = 0; i < MAX_CHARS; i++) {
-        if (strcmp(D_004FBAB0[i].name, name) == 0) {
+        if (strcmp(modelData[i].collPath, name) == 0) {
             if (charFiles[i].pColl != 0) {
                 debug_StdPrintfDummy("ReadCollisionFile:Already loaded. %s\n", name);
                 iosCdvdHandlerRead(h, 0, size);
@@ -474,12 +464,7 @@ void ReadParticleEffectFile(void *h, int a1, int size, int a3)
     iosFree(buf);
 }
 
-typedef struct {
-    char pad0[96];
-    unsigned int loaded : 1; /* 0x60 bit 0 */
-} SeRec;                     /* 0x64 */
-
-extern SeRec seFile[];
+extern SeBank seFile[];
 
 void ReadSoundBdFile(void *h, int a1, int size, int a3, int kind, int a5, int a6)
 {

@@ -14,8 +14,8 @@
 struct Fil; /* sce/libc/reent.h's stream record */
 
 int printf(const char *fmt, ...);    /* definition in sce/ */
-int sprintf(void *a0, int a1, ...);  /* definition in sce/ */
-int sscanf(void *a0, void *a1, ...); /* definition in sce/ */
+int sprintf(char *str, const char *fmt, ...);  /* definition in sce/ */
+int sscanf(const char *str, const char *fmt, ...); /* definition in sce/ */
 int vfprintf();
 int vsprintf(void *out, void *a1, void *a2);              /* definition in sce/ */
 int fflush(struct Fil *fp);                               /* definition in sce/ */

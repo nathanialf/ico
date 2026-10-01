@@ -14,8 +14,8 @@
 
 struct GObj;
 
-void ACTAcceptMail(char *a0, int a1);
-void ACTAdjustPlane(int a0, int a1);
+void ACTAcceptMail(struct GObj *a0, int a1);
+void ACTAdjustPlane(struct GObj *a0, void *wall); /* wall: the wall record the root is laid against */
 int ACTGetOrientFromIntrK(char *self, int kind, void *buf, int i);
 
 /* Reconstruction: the 0x18-byte actor mail record ico2/fumi/src/act.c
@@ -23,7 +23,7 @@ int ACTGetOrientFromIntrK(char *self, int kind, void *buf, int i);
  * spells its members where the body needs them. */
 struct IntrRec;
 
-void ACTRunIntrCorrect(char *self, struct IntrRec *a1, struct IntrRec *a2);
+void ACTRunIntrCorrect(struct GObj *self, struct IntrRec *a1, struct IntrRec *a2);
 void ACTSendMailCorrect(struct GObj *a0, int a1);
 void ACTSetPositionWithFitting(void *a0, float *pos);
 void ACT_LAYOUT_GAMEOVER(void);
@@ -32,12 +32,12 @@ void ContinueCorrectPosition(void *obj);
 void ControlMotionOrient(int a0, int a1);
 void DamageFunc(char *a0);
 void GetCorrectOrientOfChain(void *buf, void *obj);
-int IsCorrectPosition(char *a0);
-int SetMotionDirectionSmooze(int a0, float *dir, float s);
+int IsCorrectPosition(struct GObj *a0);
+int SetMotionDirectionSmooze(struct GObj *a0, float *dir, float s);
 void StartCorrectPosition(struct GObj *a0, float *pos, float *dir, int mode, float t);
 void TestCageUpDown(int cage, struct GObj *gobj);
 int _ACTCorrectMsg(struct GObj *self, int msg, void *arg);
-void _ACTDebugPrint(char *a0);
+void _ACTDebugPrint(struct GObj *a0);
 int _ACTMotDirSmzDirect(char *a0, float *a1);
 void _boxbar_set_sound(struct GObj *a0, int mode);
 void actAfterDown(struct GObj *volatile a0);
@@ -58,7 +58,7 @@ void subCommonIdle(struct GObj *volatile a0);
 float *test_CURRENTORIENT(struct GObj *a0);
 float *test_CURRENTROOT(struct GObj *a0);
 void DownFunc(char *a0);
-int FloorIsTruck(void *a0);
+int FloorIsTruck(struct GObj *a0);
 void afterCommonRopeCliff(char *a0);
 void afterCommonBox(struct GObj *volatile a0);
 void actAfterFall(struct GObj *volatile a0);

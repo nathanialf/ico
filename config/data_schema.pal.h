@@ -131,89 +131,6 @@ typedef struct { /* field names derived */
     unsigned int flags; /* 0x0C */
 } HintDef; /* derived name */
 
-/* obj-action: one object action, 0x14 bytes, indexed by obj-layout's
- * action. Readers: ico2/omori/src/objact.c (OaRecB), ico2/sugipon/src/
- * girlForceField.c. Owner: ico2/common/include/typedef.h (OaRecB). */
-typedef struct { /* field names derived */
-    int anim;           /* 0x00, the background animation, 972 for none */
-    int word4;          /* 0x04 */
-    int word8;          /* 0x08 */
-    int curAnim;        /* 0x0C, reset to anim; 972 while bit 0 of flags holds */
-    unsigned int flags; /* 0x10 */
-} ObjAction; /* derived name */
-
-/* obj-kind-data: one object kind, 0x64 bytes. Readers:
- * ico2/common/src/gamesys.c, sceneManager.c, debug.c, debug_menu.c,
- * ico2/omori/src/brain.c (ObjKindEnt). Owner: ico2/common/include/typedef.h
- * (ObjKindEnt). */
-typedef struct { /* field names derived */
-    char name[36];                   /* 0x00 */
-    float targetTime;                /* 0x24, brain's target timer, -1.0 = none */
-    float float28;                   /* 0x28 */
-    float float2C;                   /* 0x2C */
-    int word30;                      /* 0x30 */
-    void (*proc34)();                /* 0x34 */
-    void (*proc38)();                /* 0x38 */
-    void (*uniqDataSet)(int *, int); /* 0x3C, gamesys' per-kind unique-data writer */
-    void (*proc40)();                /* 0x40 */
-    int word44;                      /* 0x44 */
-    void (*proc48)();                /* 0x48 */
-    int word4C;                      /* 0x4C */
-    void (*proc50)();                /* 0x50 */
-    void (*hotInit)(int *);          /* 0x54, sceneManager's hot-init hook */
-    int (*create)(char *, int);      /* 0x58, the kind's GObj constructor */
-    void (*proc5C)();                /* 0x5C */
-    void (*mailProc)();              /* 0x60, nonzero means the kind takes mail 47 */
-} ObjKindEnt; /* derived name */
-
-/* tex-property: one layout texture property, 0x70 bytes. Readers:
- * ico2/common/src/layout_texture.c (LtProperty), kanban.c (LayoutTex),
- * ico2/fumi/src/jimaku.c. Owner: ico2/common/include/layout_texture.h. */
-typedef struct { /* field names derived */
-    int word0;          /* 0x00 */
-    int word4;          /* 0x04 */
-    int word8;          /* 0x08 */
-    int wordC;          /* 0x0C */
-    int word10;         /* 0x10 */
-    int word14;         /* 0x14 */
-    void *texData;      /* 0x18, tex_GetTextureData(texNo) */
-    int texNo;          /* 0x1C */
-    int up;             /* 0x20 */
-    int down;           /* 0x24 */
-    int left;           /* 0x28 */
-    int right;          /* 0x2C */
-    int word30;         /* 0x30 */
-    int word34;         /* 0x34 */
-    int link38;         /* 0x38, the property a key moves to */
-    int link3C;         /* 0x3C, the property the other key moves to */
-    int word40;         /* 0x40 */
-    int word44;         /* 0x44 */
-    int word48;         /* 0x48 */
-    int word4C;         /* 0x4C */
-    int word50;         /* 0x50 */
-    int word54;         /* 0x54 */
-    int word58;         /* 0x58 */
-    int word5C;         /* 0x5C */
-    int word60;         /* 0x60 */
-    int word64;         /* 0x64 */
-    int word68;         /* 0x68 */
-    unsigned int flags; /* 0x6C, bit 2: fade_cancel */
-} LtProperty; /* derived name */
-
-/* model-path: one model, 0x8C bytes. Readers: ico2/common/src/PObj.c
- * (PObjMdl), charFileManager.c (SkelEnt, CollEnt at 0x30). Owner:
- * ico2/common/include/charFileManager.h. */
-typedef struct { /* field names derived */
-    char path[48];      /* 0x00, the skeleton file, "NULL" for none */
-    char collPath[64];  /* 0x30, the collision file */
-    float float70;      /* 0x70 */
-    float float74;      /* 0x74 */
-    float float78;      /* 0x78 */
-    float float7C;      /* 0x7C */
-    float float80;      /* 0x80 */
-    float float84;      /* 0x84 */
-    unsigned int flags; /* 0x88, bits 4-7 and 8-11 go into the GS tag */
-} PObjMdl; /* derived name */
 
 /* attack-def: one attack kind, 0x24 bytes. Reader: ico2/omori/src/
  * attackhit.c (AttackKindEntry). Owner: ico2/omori/include/attackhit.h. */
@@ -229,18 +146,6 @@ typedef struct { /* field names derived */
     unsigned int flags; /* 0x20 */
 } AttackKindEntry; /* derived name */
 
-/* exit-data: one stage exit, 0x28 bytes. Readers: ico2/fumi/src/act-game.c
- * (ExitData), ico2/common/src/StageManager.c, ico2/script/src/deja.c (0x24).
- * Owner: ico2/common/include/typedef.h (ExitData). */
-typedef struct { /* field names derived */
-    float pos[3];    /* 0x00, negated into the start position */
-    float rot[3];    /* 0x0C */
-    int startWait1;  /* 0x18, test_nextstage_firstwalk_set's waits */
-    int startWait2;  /* 0x1C */
-    int startWait3;  /* 0x20 */
-    int stage;       /* 0x24, the stage the exit leads to */
-} ExitData; /* derived name */
-
 /* generator-sub-position: one safe position offset, 0x10 bytes. Reader:
  * ico2/omori/src/generator.c (SafePosOffset). Owner:
  * ico2/omori/include/generator.h. */
@@ -251,78 +156,6 @@ typedef struct { /* field names derived */
     int kind; /* 0x0C, matched with GObj+8 */
 } SafePosOffset; /* derived name */
 
-/* se-env: one stage sound environment, 0x1C bytes. Reader: ico2/fumi/sound/
- * s_init.c (SeEnvDef). Owner: ico2/fumi/include/s_init.h. */
-typedef struct { /* field names derived */
-    int se;             /* 0x00, the seDef row it plays */
-    int (*proc)();      /* 0x04 */
-    float volume;       /* 0x08 */
-    float float0C;      /* 0x0C */
-    float float10;      /* 0x10 */
-    float float14;      /* 0x14 */
-    unsigned int flags; /* 0x18 */
-} SeEnvDef; /* derived name */
-
-/* sefile: one sound bank, 0x64 bytes. Readers: ico2/fumi/sound/s_init.c
- * (SeBank), ico2/common/src/charFileManager.c (SeRec). Owner:
- * ico2/fumi/include/s_init.h. */
-typedef struct { /* field names derived */
-    char hdPath[48];    /* 0x00, the .hd header file */
-    char bdPath[48];    /* 0x30, the .bd body file */
-    unsigned int flags; /* 0x60, bit 0: loaded */
-} SeBank; /* derived name */
-
-/* stage-all: one stage, 0x194 bytes, indexed by stage_no. Readers: the
- * StgPre users (ico2/common/src/StageManager.c, sceneManager.c, icoMisc.c,
- * layout_texture.c, ico2/fumi/sound/s_init.c, ico2/fumi/src/act-env.c,
- * act-game.c, commonact.c, way_tool.c). Owner: ico2/common/include/typedef.h
- * (StgPre). */
-typedef struct { /* field names derived */
-    char key[32];          /* 0x00 */
-    char name[32];         /* 0x20, the stage name icoMisc prints */
-    char name2[32];        /* 0x40 */
-    float scene[8];        /* 0x60, the eight scene values */
-    char dataFile[32];     /* 0x80, the data file name access.c builds a path from */
-    short ent[20];         /* 0xA0, the stage-manager table entries */
-    float floatC8[4];      /* 0xC8 */
-    float bgCol[3];        /* 0xD8 */
-    float ambientCol[3];   /* 0xE4 */
-    float flatLightCol[3]; /* 0xF0 */
-    float flatLightDir[3]; /* 0xFC */
-    int seSegFirst;        /* 0x108, sound data segment range */
-    int seSegLast;         /* 0x10C */
-    int seEnvFirst;        /* 0x110, sound SE environment range */
-    int seEnvLast;         /* 0x114 */
-    int camSetId;          /* 0x118, the camera set the stage opens with */
-    int word11C;           /* 0x11C */
-    int word120;           /* 0x120 */
-    int word124;           /* 0x124 */
-    int labelTop;          /* 0x128, generator label range */
-    int labelEnd;          /* 0x12C */
-    int layoutFirst;       /* 0x130, layout range */
-    int layoutLast;        /* 0x134 */
-    int mdl[4];            /* 0x138, the four stage model ids */
-    int word148;           /* 0x148 */
-    int mot;               /* 0x14C, the motion-set id */
-    void (*endproc)(void);  /* 0x150 */
-    void (*initproc)(void); /* 0x154, the per-stage init hook */
-    float float158;        /* 0x158 */
-    float float15C;        /* 0x15C */
-    int word160;           /* 0x160 */
-    int wayGroupEnd;       /* 0x164 */
-    int word168;           /* 0x168 */
-    int word16C;           /* 0x16C */
-    int wayGroupStart;     /* 0x170 */
-    int word174;           /* 0x174 */
-    int word178;           /* 0x178 */
-    int word17C;           /* 0x17C */
-    float envRange;        /* 0x180, act-env.c's range test squares it */
-    float handCameraRate;  /* 0x184 */
-    short short188;        /* 0x188 */
-    char pad18A[2];
-    unsigned int attr;     /* 0x18C, the reverb depth low, the movie number in bits 25-30 */
-    unsigned int flags;    /* 0x190, one-bit stage switches */
-} StgPre; /* derived name */
 
 /* enemy-def: one enemy kind, 0x1C bytes. Reader: ico2/sugipon/src/enemy.c
  * (EnemyDef). Owner: ico2/sugipon/include/enemy.h. */

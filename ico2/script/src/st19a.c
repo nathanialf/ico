@@ -4,6 +4,7 @@
 #include "adpcm_init.h"
 #include "s_init.h"
 #include "act.h"
+#include "gobj_process.h"
 #include "commonact.h"
 #include "camera-root.h"
 #include "gflag.h"
@@ -231,7 +232,7 @@ void actSt19aPipeChk(GObj *volatile a0)
 
 void actSt19aChainDown(GObj *volatile a0)
 {
-    int *th;
+    GProc *th;
 
     lt_switch_layout(55);
     scpAdpcmPlayRequestFunc(97, &pipe19a, 1, 1, 0);
@@ -243,7 +244,7 @@ void actSt19aChainDown(GObj *volatile a0)
         }
         _ACTWait(1);
     }
-    iosThreadSetPri(th + 9, 34);
+    iosThreadSetPri(&th->thread, 34);
     if (demoEnd == 0) {
         scpFadeOut(16.0f, 0, 0, 0);
         while (scpFadeChk() != 0) {

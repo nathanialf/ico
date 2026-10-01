@@ -71,47 +71,6 @@ static unsigned int fadeLength;
 
 static unsigned int fadeCount;
 
-/* The 0x70-byte layout-property records. */
-typedef struct LtProperty {
-    char pad0[16];
-    int f10; /* 0x10 */
-    char pad14[0x1C - 0x14];
-    int f1C;   /* 0x1C */
-    int up;    /* 0x20 */
-    int down;  /* 0x24 */
-    int left;  /* 0x28 */
-    int right; /* 0x2C */
-    int f30;   /* 0x30 */
-    int f34;   /* 0x34 */
-    int f38;   /* 0x38 */
-    int f3C;   /* 0x3C */
-    int f40;   /* 0x40 */
-    int f44;   /* 0x44 */
-    int f48;   /* 0x48 */
-    int f4C;   /* 0x4C */
-    int f50;   /* 0x50 */
-    int f54;   /* 0x54 */
-    int f58;   /* 0x58 */
-    int f5C;   /* 0x5C */
-    int f60;   /* 0x60 */
-    int f64;   /* 0x64 */
-    int f68;   /* 0x68 */
-    /* 0x6C: the flag word, declared as bits.  The ROM's instruction order is
-       the evidence (rung: ROM bytes): gcc 2.9 gives a bitfield reference alias
-       set 0, and only with set 0 does the record's flag load come after the
-       short store in the two chase loops of display_texture_fade_cancel_chk,
-       and the `.last` load before it.  Only bit 2 is touched in this TU; the
-       names of the other bits are unknown, so they stay numbered. */
-    unsigned int f6C_b0 : 1;
-    unsigned int f6C_b1 : 1;
-    unsigned int fade_cancel : 1;
-    unsigned int f6C_b3 : 1;
-    unsigned int f6C_b4 : 1;
-    unsigned int f6C_b5 : 1;
-    unsigned int f6C_b6 : 26;
-} LtProperty;
-
-extern LtProperty texProperty[];
 extern StgPre stageData[];
 
 #include "layout_texture.h"
@@ -172,9 +131,9 @@ void display_texture_fade_cancel_chk(int from, int to)
         for (l = 0; l < n2; l++) {
             LtProperty *q = &texProperty[list2[l]];
 
-            if (p->f58 == q->f58 && p->f5C == q->f5C && p->f68 == q->f68 && p->f64 == q->f64 &&
-                p->f60 == q->f60 && p->f54 == q->f54 && p->f50 == q->f50 && p->f4C == q->f4C &&
-                p->f48 == q->f48) {
+            if (p->texFileNo == q->texFileNo && p->texU == q->texU && p->texV == q->texV &&
+                p->texW == q->texW && p->texH == q->texH && p->dispX == q->dispX &&
+                p->dispY == q->dispY && p->dispW == q->dispW && p->dispH == q->dispH) {
                 q->fade_cancel = 1;
                 p->fade_cancel = 1;
             }
@@ -224,7 +183,7 @@ void lt_analog2Pad(void)
     lastButton = pad.button;
 }
 
-/* kept local: agrees with main.h, which this TU does not include (GlobalStageSetting, pad differ) */
+/* kept local: agrees with main.h, which this TU does not include (pad differs) */
 extern int frame_count;
 /* census display_texture: a file static here (the name is also src/jimaku's
    global and src/kanban's file-local one). */
@@ -258,7 +217,7 @@ static inline void lt_draw_layout(int no)
     }
 }
 
-/* kept local: agrees with main.h, which this TU does not include (GlobalStageSetting, pad differ) */
+/* kept local: agrees with main.h, which this TU does not include (pad differs) */
 extern int systemStatus[];
 
 /* Source lines 441-451.  lt_switch_layout is a real global at its own ROM slot
@@ -322,20 +281,20 @@ void default_item_select(int no)
         lt_analog2Pad();
         prev = p->curItem;
         if ((pad.trigger & 0x50) == 0) {
-            if ((pad.trigger & 0x1000) && e->f3C >= 0) {
-                p->curItem = e->f3C;
+            if ((pad.trigger & 0x1000) && e->upItem >= 0) {
+                p->curItem = e->upItem;
                 while (!lt_property_visible(p->curItem)) {
-                    p->curItem = texProperty[p->curItem].f3C;
+                    p->curItem = texProperty[p->curItem].upItem;
                 }
-            } else if ((pad.trigger & 0x4000) && e->f38 >= 0) {
-                p->curItem = e->f38;
+            } else if ((pad.trigger & 0x4000) && e->downItem >= 0) {
+                p->curItem = e->downItem;
                 while (!lt_property_visible(p->curItem)) {
-                    p->curItem = texProperty[p->curItem].f38;
+                    p->curItem = texProperty[p->curItem].downItem;
                 }
-            } else if ((pad.trigger & 0x8000) && e->f34 >= 0) {
-                p->curItem = e->f34;
-            } else if ((pad.trigger & 0x2000) && e->f30 >= 0) {
-                p->curItem = e->f30;
+            } else if ((pad.trigger & 0x8000) && e->leftItem >= 0) {
+                p->curItem = e->leftItem;
+            } else if ((pad.trigger & 0x2000) && e->rightItem >= 0) {
+                p->curItem = e->rightItem;
             }
         }
         if (p->curItem != prev) {
@@ -496,10 +455,9 @@ extern void gif_EndPacket(void);
 extern void texture_fading(LtProp *p);
 /* The census display_texture body below reads these:
    ltHighlightColor is the second highlight colour, GlobalStageSetting the system record whose
-   bytes at 0xD0/0xD4/0xD8 it inverts, and GetTableSin/gif_SpriteSensitiveOffset/
+   reduction tint it inverts, and GetTableSin/gif_SpriteSensitiveOffset/
    gif_PointOffset/gif_SetGsReg/rand are its callees. */
-/* kept local: unsigned char [] here, StageSetting in main.h */
-extern unsigned char GlobalStageSetting[];
+extern StageSetting GlobalStageSetting;
 /* kept local: z is unsigned int here, long long in GifPacket.h */
 extern void gif_SpriteSensitiveOffset(int *r, unsigned int z, int *uv, unsigned char *col,
                                       int prim);
@@ -546,28 +504,28 @@ static void display_texture(int no, LtProperty *e)
     int sel;
     int i;
 
-    ofs.x = (e->f5C << 4) + 8;
-    ofs.y = (e->f68 << 4) + 8;
-    ofs.w = e->f64 << 4;
-    ofs.h = e->f60 << 4;
+    ofs.x = (e->texU << 4) + 8;
+    ofs.y = (e->texV << 4) + 8;
+    ofs.w = e->texW << 4;
+    ofs.h = e->texH << 4;
 
-    box.w = e->f4C << 4;
-    box.h = e->f48 << 3;
+    box.w = e->dispW << 4;
+    box.h = e->dispH << 3;
     if (box.w == 0) {
         box.w = ofs.w;
     }
     if (box.h == 0) {
         box.h = ofs.h >> 1;
     }
-    if (e->f44 != 0) {
+    if (e->centerX != 0) {
         box.x = (10240 - box.w) / 2 - 5120;
     } else {
-        box.x = (e->f54 - 320) * 16;
+        box.x = (e->dispX - 320) * 16;
     }
-    box.y = (e->f50 - 113) * 16;
+    box.y = (e->dispY - 113) * 16;
 
     sel = (e == &texProperty[texLayout[no].curItem]);
-    if (sel && lt_item_select_disable == 0 && fadeState == 2 && e->f6C_b3 == 0) {
+    if (sel && lt_item_select_disable == 0 && fadeState == 2 && e->selectable == 0) {
         SprCol pcol;
 
         memset(&pcol, 0, sizeof(pcol));
@@ -582,12 +540,12 @@ static void display_texture(int no, LtProperty *e)
         }
         gif_EndPacket();
     }
-    if (e->f6C_b4 == 0) {
+    if (e->masked == 0) {
         int flag;
 
-        flag = (e->f3C >= 0 || e->f38 >= 0 || e->f34 >= 0 || e->f30 >= 0 || e->right >= 0 ||
-                e->left >= 0 || e->down >= 0 || e->up >= 0);
-        tex_TransTexture(e->f1C, 11);
+        flag = (e->upItem >= 0 || e->downItem >= 0 || e->leftItem >= 0 || e->rightItem >= 0 ||
+                e->right >= 0 || e->left >= 0 || e->down >= 0 || e->up >= 0);
+        tex_TransTexture(e->texNo, 11);
 
         gif_StartPacketPri(11);
         gif_SetZTest(0);
@@ -605,9 +563,9 @@ static void display_texture(int no, LtProperty *e)
         } else {
             u.col = *(SprCol *)&ltHighlightColor;
         }
-        u.col.r = ~GlobalStageSetting[0xD0];
-        u.col.g = ~GlobalStageSetting[0xD4];
-        u.col.b = ~GlobalStageSetting[0xD8];
+        u.col.r = ~GlobalStageSetting.reductionCol[0];
+        u.col.g = ~GlobalStageSetting.reductionCol[1];
+        u.col.b = ~GlobalStageSetting.reductionCol[2];
         if (u.col.r < 120 || u.col.g < 120 || u.col.b < 120) {
             if (u.col.r >= 17) {
                 u.col.r = u.col.r - 16;
@@ -625,8 +583,8 @@ static void display_texture(int no, LtProperty *e)
                 u.col.b = 0;
             }
         }
-        if (texLayout[no].curItem != e->f10) {
-            if (e->f6C_b3 != 0 && sel == 0 && (flag != 0 || e->f10 >= 0)) {
+        if (texLayout[no].curItem != e->ownerItem) {
+            if (e->selectable != 0 && sel == 0 && (flag != 0 || e->ownerItem >= 0)) {
                 u.col.r = u.col.r * 0.5f;
                 u.col.g = u.col.g * 0.5f;
                 u.col.b = u.col.b * 0.5f;
@@ -634,12 +592,12 @@ static void display_texture(int no, LtProperty *e)
         }
         gif_SpriteSensitiveOffset(&box, 0xFFFFFF9B, &ofs, &u.col, 1);
 
-        if (e->f6C_b3 != 0 && sel != 0 && fadeState == 8) {
+        if (e->selectable != 0 && sel != 0 && fadeState == 8) {
             float t = (float)fadeCount / (float)fadeLength;
 
             lt_glow_sprite(&box, &ofs, 80, 80, 80, t, 55, 50);
             lt_glow_sprite(&box, &ofs, 30, 30, 30, t, 110, 100);
-        } else if (e->f6C_b3 != 0 && sel != 0 && glowOn != 0) {
+        } else if (e->selectable != 0 && sel != 0 && glowOn != 0) {
             lt_glow_sprite(&box, &ofs, 54, 80, 115, (float)glowCount / (float)glowLength, 32, 32);
         }
         gif_SetZWrite(1);
@@ -677,9 +635,7 @@ void display_primary_texture_layout(int no, int sel)
     lt_draw_primary_sprite(&col);
     if (p->proc != 0 && (fadeState == 1 || fadeState == 2)) {
         if (p->curItem >= 0) {
-            int *e = (int *)((char *)texProperty + p->curItem * 0x70);
-
-            m = e[0x1B] & 3;
+            m = texProperty[p->curItem].selectMode;
         } else {
             m = 0;
         }
@@ -729,7 +685,7 @@ void exec_layout_texture(void)
         for (j = p->first; j < p->last; j++) {
             LtProperty *e = &texProperty[j];
 
-            e->f6C_b4 = e->f6C_b5;
+            e->masked = e->defaultMask;
         }
         if (p->link >= 0) {
             list[n++] = p->link;
@@ -808,7 +764,7 @@ static inline int lt_texture_no_of_property(int idx)
     char *name;
     int no;
 
-    n = texProperty[idx].f58;
+    n = texProperty[idx].texFileNo;
     src = texFile[n];
     name = lt_texture_base_name(src);
 
@@ -938,13 +894,13 @@ inline int lt_next_layout(int stage)
 inline void lt_mask_property(int idx, int flag)
 {
     LtProperty *p = &texProperty[idx];
-    p->f6C_b4 = flag & 1;
+    p->masked = flag & 1;
 }
 
 inline void lt_default_mask_property(int idx, int flag)
 {
     LtProperty *p = &texProperty[idx];
-    p->f6C_b5 = flag & 1;
+    p->defaultMask = flag & 1;
 }
 
 inline int lt_fade_status(void)

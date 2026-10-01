@@ -33,8 +33,9 @@ Four modes, one member each (MEMBER is the name in the schema):
 
 The record type is read from the header the schema row names: a typedef of a
 struct whose fields are integers, floats, pointers (object or function),
-arrays and nested structs, laid out by the EE's rules (4-byte pointers and
-ints, 8-byte long long and double).
+arrays, nested structs and bit-fields, laid out by the EE's rules (4-byte
+pointers and ints, 8-byte long long and double, bit-fields from the low bit
+of their declared type's unit).
 """
 
 import argparse
@@ -317,26 +318,50 @@ class Header:
                 k += 1
                 if t[k - 1] == ";":
                     break
-        off = 0
+        # Laid out in bits, by the EE's rules: a field starts at its type's
+        # alignment; a bit-field takes the next bits of the current unit of
+        # its declared type (from the low bit, little-endian) unless it would
+        # cross that unit's boundary, when it starts the next unit, and a
+        # zero-width one closes the unit. A bit-field's declared type aligns
+        # the record (PCC_BITFIELD_TYPE_MATTERS). An unnamed bit-field holds
+        # no value: an initializer skips it, so its bits must be zero.
+        bit = 0
         size = 0
         align = 1
         laid = []
         for name, ty in fields:
             align = max(align, ty.align)
-            if is_union:
-                laid.append((name, ty, 0))
-                size = max(size, ty.size)
+            unit = 8 * ty.size
+            if ty.kind == "bitfield":
+                if is_union:
+                    bit = 0
+                if ty.width == 0:
+                    bit = -(-bit // unit) * unit
+                    continue
+                if bit % unit + ty.width > unit:
+                    bit = -(-bit // unit) * unit
+                start = bit
+                bit += ty.width
             else:
-                off = -(-off // ty.align) * ty.align
-                laid.append((name, ty, off))
-                off += ty.size
-                size = off
+                if is_union:
+                    bit = 0
+                bit = -(-bit // (8 * ty.align)) * 8 * ty.align
+                start = bit
+                bit += unit
+            if name is not None:
+                laid.append((name, ty, start // 8 if ty.kind != "bitfield" else start // unit * ty.size,
+                             start % unit if ty.kind == "bitfield" else 0))
+            size = max(size, -(-bit // 8))
         size = -(-size // align) * align
         return T("struct", size, align, fields=laid, union=is_union)
 
     def _declarator(self, toks, base):
         if ":" in toks:
-            fail(f"{self.path}: bit-fields are not supported ({' '.join(toks)})")
+            c = toks.index(":")
+            if base.kind != "int" or c > 1:
+                fail(f"{self.path}: cannot read bit-field '{' '.join(toks)}'")
+            width = int(eval(" ".join(toks[c + 1:]), {"__builtins__": {}}))
+            return (toks[0] if c else None), T("bitfield", base.size, base.align, base=base, width=width)
         attrs = [i for i, x in enumerate(toks) if x == "__attribute__"]
         if attrs:
             toks = toks[:attrs[0]]
@@ -489,8 +514,15 @@ class Writer:
                 return c_string(bs[v - lo:nul])
         return None
 
-    def value(self, ty, off, path):
+    def value(self, ty, off, path, bitpos=0):
         d = self.data
+        if ty.kind == "bitfield":
+            v = int.from_bytes(d[off:off + ty.size], "little") >> bitpos & ((1 << ty.width) - 1)
+            if path in self.hexf:
+                return f"0x{v:X}" if v else "0"
+            if ty.base.signed and v >= 1 << (ty.width - 1):
+                v -= 1 << ty.width
+            return str(v)
         if ty.kind == "int":
             v = int.from_bytes(d[off:off + ty.size], "little")
             return int_text(v, ty, path in self.hexf)
@@ -536,17 +568,20 @@ class Writer:
                                    for i in range(ty.n)) + "}"
         if ty.kind == "struct":
             if ty.union:
-                name, f, o = ty.fields[0]
-                return "{" + self.value(f, off + o, f"{path}.{name}" if path else name) + "}"
+                name, f, o, b = ty.fields[0]
+                return "{" + self.value(f, off + o, f"{path}.{name}" if path else name, b) + "}"
             parts = []
-            end = 0
-            for name, f, o in ty.fields:
-                if any(d[off + end:off + o]):
-                    self.errors.append(f"0x{self.base + off + end:08X} {path}: nonzero padding before {name}")
-                parts.append(self.value(f, off + o, f"{path}.{name}" if path else name))
-                end = o + f.size
-            if any(d[off + end:off + ty.size]):
-                self.errors.append(f"0x{self.base + off + end:08X} {path}: nonzero tail padding")
+            held = 0  # the record's bits its named fields hold
+            for name, f, o, b in ty.fields:
+                bits = f.width if f.kind == "bitfield" else 8 * f.size
+                held |= ((1 << bits) - 1) << (8 * o + b)
+                parts.append(self.value(f, off + o, f"{path}.{name}" if path else name, b))
+            loose = int.from_bytes(d[off:off + ty.size], "little") & ~held
+            if loose:
+                at = (loose & -loose).bit_length() - 1
+                after = [n for n, f, o, b in ty.fields if 8 * o + b <= at]
+                self.errors.append(f"0x{self.base + off + at // 8:08X} {path}: nonzero padding" +
+                                   (f" after {after[-1]}" if after else " before the first field"))
             return "{" + ", ".join(parts) + "}"
         fail(f"cannot write a value of kind {ty.kind} ({path})")
 

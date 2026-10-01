@@ -40,9 +40,9 @@ void jimakuBegin(JimakuArg *msg);
 void jimakuEnd(JimakuArg *msg);
 void jimakuJump(JimakuArg *msg);
 /* jimaku.c's globals (MAIN.MAP's jimaku.o names) */
-extern char jimakuThread[];
+extern struct IOSThread jimakuThread;
 extern char jimakuThreadStack[];
-extern int jimakuMsgQ[];
+extern struct IosMsgQueue jimakuMsgQ;
 extern int jimakuOn;
 extern int jimakuMsgBuf[2];
 extern JimakuArg jimaku_msg;

@@ -249,7 +249,7 @@ inline int ACTGame_CheckHandMotion(char *a0, char *a1)
     return b0 & b1;
 }
 
-inline int ACTGame_CheckItemMotion(char *a0)
+inline int ACTGame_CheckItemMotion(GObj *a0)
 {
     MotionRec *rec = &motionKind[GOBJ_SUB(a0)->motion];
     return (rec->u_188.w >> 19) & 7;
@@ -410,7 +410,7 @@ void ACTGame_SetActors_Debug(int stage, unsigned char flag)
     }
 }
 
-inline int ACTGame_FLAG_LIFEPINCH(char *a0)
+inline int ACTGame_FLAG_LIFEPINCH(GObj *a0)
 {
     if (GOBJ_ACT(a0)->life <= 20.0f)
         return 1;
@@ -473,7 +473,7 @@ inline void ACTGame_DisconnectHand(void)
     s->flags18.ll &= ~(1ULL << 40);
 }
 
-inline unsigned char ACTGame_CheckPriInputFrame(char *a0)
+inline unsigned char ACTGame_CheckPriInputFrame(GObj *a0)
 {
     short e;
     short s;
@@ -489,11 +489,11 @@ inline unsigned char ACTGame_CheckPriInputFrame(char *a0)
     return 0;
 }
 
-inline int ACTGame_GetCurrentCallStatus(char *a0)
+inline int ACTGame_GetCurrentCallStatus(GObj *a0)
 {
     Act *s = GOBJ_ACT(a0);
 
-    if (a0 != (char *)boyGObj) {
+    if (a0 != boyGObj) {
         return 0;
     }
     switch (motionKind[GOBJ_SUB(a0)->motion].u_188.h.hi & 7) {
@@ -1068,7 +1068,7 @@ inline int ACTGameViewSimple_Check(int a0, int a1)
     return 0;
 }
 
-void ACTGame_LwsEffectProcess(char *a0)
+void ACTGame_LwsEffectProcess(GObj *a0)
 {
     int m = GOBJ_ACT(a0)->enemy->lwsEffect;
     if (m != 0) {
@@ -1076,7 +1076,7 @@ void ACTGame_LwsEffectProcess(char *a0)
     }
 }
 
-inline void ACTGame_LwsEffectInit(char *a0)
+inline void ACTGame_LwsEffectInit(GObj *a0)
 {
     GOBJ_ACT(a0)->enemy->lwsEffect = InitMultiBgaManager(1);
 }
@@ -1107,14 +1107,14 @@ inline void ActGame_GetOrientQ(void *q, void *v, int deg)
     RotQuaternionY(q, (short)(n * 32768 / 180));
 }
 
-inline void ACTCharctrl_Lock(char *a0)
+inline void ACTCharctrl_Lock(GObj *a0)
 {
     Act *s = GOBJ_ACT(a0);
     s->flags18.ll &= ~(1ULL << 48);
     s->flags18.ll &= ~(1ULL << 49);
 }
 
-inline void ACTCharctrl_Unlock(char *a0)
+inline void ACTCharctrl_Unlock(GObj *a0)
 {
     Act *p = GOBJ_ACT(a0);
     p->flags18.ll |= (1ULL << 48);
@@ -1157,10 +1157,10 @@ inline int ACTGame_isWeaponEnableCatchfire(int *self)
     return ret;
 }
 
-inline int ACTGame_isHangChain(char *a0)
+inline int ACTGame_isHangChain(GObj *a0)
 {
     Act *s = GOBJ_ACT(a0);
-    if (a0 == (char *)boyGObj) {
+    if (a0 == boyGObj) {
         char *attr = actModeTbl + s->actMode * 0x50;
         if ((*(unsigned int *)(attr + 0x4C) >> 2) & 1) {
             return s->chain;
@@ -1180,7 +1180,7 @@ inline int ACTGame_GetMotOrientFromWeapon(int a0)
     return rv;
 }
 
-inline unsigned char ACTGame_NoWeapon(char *a0)
+inline unsigned char ACTGame_NoWeapon(GObj *a0)
 {
     char *w = (char *)GOBJ_ACT(a0)->weapon;
     unsigned char r = 0;
@@ -1221,7 +1221,7 @@ int _ACTGame_SearchGObj(GObj *self, GObj *tgt, float range, float height, int an
     return 0;
 }
 
-inline void ACTLookTarget_Init(char *a0)
+inline void ACTLookTarget_Init(GObj *a0)
 {
     Act *s = GOBJ_ACT(a0);
     s->lookTarget = 0;
@@ -1229,7 +1229,7 @@ inline void ACTLookTarget_Init(char *a0)
     s->lookPri = 0;
 }
 
-inline int _ACTLookTarget_Set(char *a0, int a1, float *a2, int a3, int a4)
+inline int _ACTLookTarget_Set(GObj *a0, int a1, float *a2, int a3, int a4)
 {
     Act *s = GOBJ_ACT(a0);
     int ret = 0;
@@ -1250,7 +1250,7 @@ inline int _ACTLookTarget_Set(char *a0, int a1, float *a2, int a3, int a4)
     return ret;
 }
 
-int ACTLookTarget_Exec(char *a0)
+int ACTLookTarget_Exec(GObj *a0)
 {
     float pos[4];
     Act *s = GOBJ_ACT(a0);
@@ -1290,7 +1290,7 @@ int ACTLookTarget_Exec(char *a0)
     return rv;
 }
 
-inline void ACTParaStatus_Init(char *a0)
+inline void ACTParaStatus_Init(GObj *a0)
 {
     Act *s = GOBJ_ACT(a0);
     ActPara_InitSystem();
@@ -1311,7 +1311,7 @@ inline void _ACTParaStatus_Set(GObj *a0, int bit)
     *(unsigned long long *)((char *)s + 0x90) |= (1ULL << bit) & ~(unsigned long long)s->flags;
 }
 
-inline unsigned long long _ACTParaStatus_Check(char *a0, int bit)
+inline unsigned long long _ACTParaStatus_Check(GObj *a0, int bit)
 {
     Act *s = GOBJ_ACT(a0);
     return ((unsigned long long)s->paraStatus >> bit) & 1;
@@ -1449,14 +1449,14 @@ inline unsigned char _ACTCharStatus_Check(GObj *a0, int bit)
 
 inline void _ACTCharStatus_Exec(void) {}
 
-inline void ACTGame_SetMotionPlaySpeedRatio_Clear(char *a0)
+inline void ACTGame_SetMotionPlaySpeedRatio_Clear(GObj *a0)
 {
     EnemyBattleWork *p = GOBJ_ACT(a0)->enemy;
     p->speedRatio = 1.0f;
     *(MpsrMode *)((char *)p + 0x54) = MPSR_OFF;
 }
 
-inline void ACTGame_SetMotionPlaySpeedRatio_Reserve(char *a0, float f, unsigned int a1)
+inline void ACTGame_SetMotionPlaySpeedRatio_Reserve(GObj *a0, float f, unsigned int a1)
 {
     EnemyBattleWork *p = GOBJ_ACT(a0)->enemy;
     if (p->speedRatioPri <= a1) {
@@ -1487,7 +1487,7 @@ static __inline__ void speedRatioDebugOverride(float *ratio)
 #endif
 }
 
-inline void ACTGame_SetMotionPlaySpeedRatio_Exec(char *a0)
+inline void ACTGame_SetMotionPlaySpeedRatio_Exec(GObj *a0)
 {
     float ratio;
     int keep;
@@ -1560,7 +1560,7 @@ inline void GetSkeltonPosition(float *dst, GObj *obj, int node)
 /* The bird broadcast the listing keeps at lines 2603-2614, between
    GetSkeltonPosition and ACTGame_InnerVelocityUpdate: a file static with no
    symbol of its own, so the name here is reconstructed. */
-static inline void actGame_SendMailToBirds(char *self)
+static inline void actGame_SendMailToBirds(GObj *self)
 {
     float other[4];
     float mine[4];
@@ -1594,7 +1594,7 @@ static inline void actGame_SendMailToBirds(char *self)
    stores go through it and the two thresholds test the speed itself.  WHAT
    THEY CANNOT PIN: whether the 2001 source wrote those steps as separate
    statements on that one line or through a macro. */
-void ACTGame_InnerVelocityUpdate(char *self)
+void ACTGame_InnerVelocityUpdate(GObj *self)
 {
     float pos[4];
     int slow;
@@ -1605,9 +1605,9 @@ void ACTGame_InnerVelocityUpdate(char *self)
 
     slow = 0;
     stop = 0;
-    pos[0] = test_CURRENTROOT((int *)self)[0];
-    pos[1] = test_CURRENTROOT((int *)self)[1];
-    pos[2] = test_CURRENTROOT((int *)self)[2];
+    pos[0] = test_CURRENTROOT(self)[0];
+    pos[1] = test_CURRENTROOT(self)[1];
+    pos[2] = test_CURRENTROOT(self)[2];
     sceVu0SubVector((char *)GOBJ_ACT(self)->work + 0x430, pos,
                     (char *)GOBJ_ACT(self)->work + 0x420);
     speed = FSqrt(GOBJ_WORK(self)->velX * GOBJ_WORK(self)->velX +
@@ -1663,10 +1663,10 @@ void ACTGame_InnerVelocityUpdate(char *self)
     }
 }
 
-inline int ACTNotNeedCameraOffset(char *a0)
+inline int ACTNotNeedCameraOffset(GObj *a0)
 {
     Act *s;
-    if (a0 != 0 && a0 == (char *)boyGObj) {
+    if (a0 != 0 && a0 == boyGObj) {
         s = GOBJ_ACT(a0);
         if ((char *)s != 0) {
             return (int)(s->flags20.ll >> 41) & 1;
@@ -3213,7 +3213,7 @@ void ACTItemWatchMotion(GObj *self)
     }
 }
 
-inline void ACTItemForceDrop(char *a0)
+inline void ACTItemForceDrop(GObj *a0)
 {
     Act *s = GOBJ_ACT(a0);
     int item = s->heldItem.i;
@@ -3313,12 +3313,12 @@ void RequestChangeHandMode(char *self, int mode, int pri, int flag, int p5, int 
     }
 }
 
-inline void _ACTSetEnemyDisappearSpeed(char *a0, float f)
+inline void _ACTSetEnemyDisappearSpeed(GObj *a0, float f)
 {
     GOBJ_WORK(a0)->disappearSpeed = f;
 }
 
-inline int ACTChkAttackIgnore_BOY(char *a0)
+inline int ACTChkAttackIgnore_BOY(GObj *a0)
 {
     Act *s = GOBJ_ACT(a0);
     if (s->actMode == 0x35 ||
@@ -3329,7 +3329,7 @@ inline int ACTChkAttackIgnore_BOY(char *a0)
     return 0;
 }
 
-inline int ACTChkAttackIgnore_GIRL(char *a0, int *a1)
+inline int ACTChkAttackIgnore_GIRL(GObj *a0, int *a1)
 {
     Act *s = GOBJ_ACT(a0);
     switch (s->actMode) {
@@ -3345,7 +3345,7 @@ inline int ACTChkAttackIgnore_GIRL(char *a0, int *a1)
     return 0;
 }
 
-inline int ACTChkAttackIgnore_ENEMY(char *a0)
+inline int ACTChkAttackIgnore_ENEMY(GObj *a0)
 {
     Act *s = GOBJ_ACT(a0);
 
