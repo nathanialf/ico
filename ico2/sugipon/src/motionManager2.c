@@ -15,6 +15,7 @@
 #include "fieldCollision.h"
 #include "GifPacket.h"
 #include "Matrix.h"
+#include "motionManager.h"
 
 struct Pack32 {
     long long a, b, c, d;
@@ -213,7 +214,7 @@ extern void sceVu0Normalize(int *a0, int *a1);
 void SetMotionDirection(void *a0, float *a1)
 {
     char *base = *(char **)((char *)a0 + 0x15C);
-    char *s2 = base + 0x470;
+    struct MotCtrl *s2 = (struct MotCtrl *)(base + 0x470);
     char *m;
     char *ctrl;
     if (a1[0] == 0.0f && a1[2] == 0.0f) {
@@ -221,8 +222,8 @@ void SetMotionDirection(void *a0, float *a1)
     }
     m = base + 0x520;
     CopyVector((int)m, a1);
-    *(float *)(s2 + 0xB4) = 0.0f;
-    *(float *)(s2 + 0xBC) = 1.0f;
+    s2->v0B0[1] = 0.0f;
+    s2->v0B0[3] = 1.0f;
     sceVu0Normalize((int *)m, (int *)m);
     ctrl = *(char **)((char *)a0 + 0x15C);
     if (*(int *)ctrl == 0) {
@@ -274,16 +275,16 @@ void SetMotionDirectionWithLimit(void *self, float *dir, float lim0, float lim1)
 
 void GetRootPosOfNextFrame(int a0, int *a1)
 {
-    char *sub = (char *)((GObj *)(a1))->p_15C + 0xA0;
-    CopyVector(a0, (int)(sub + 0x90));
+    struct MotRoot *sub = (struct MotRoot *)((char *)((GObj *)(a1))->p_15C + 0xA0);
+    CopyVector(a0, (int)(sub->move));
     SubVectorXYZ(a0, a0, (int)sub);
 }
 
 void AdjustMotionHeightToField(int *a0)
 {
     char *o = (char *)a0[0x57];
-    char *sub = o + 0xA0;
-    *(float *)(sub + 0x1B4) = GetYProjectionOfPlane(o + 0x1D0, o + 0x250);
+    struct MotRoot *sub = (struct MotRoot *)(o + 0xA0);
+    sub->v1B0[1] = GetYProjectionOfPlane(o + 0x1D0, o + 0x250);
     debug_StdPrintfDummy("Adjust Motion Height To Field. --------------\n");
 }
 
@@ -303,10 +304,6 @@ void getLowerPlaneCollisionE(int a0, int a1)
     ClipFloorE(a0);
 }
 
-typedef struct {
-    int a, b, c;
-} MotAttr12;
-
 /* kept local: agrees with libvu0.h, which this TU does not include (sceVu0AddVector, sceVu0ApplyMatrix differ) */
 extern void sceVu0CopyVector();
 
@@ -314,24 +311,24 @@ extern void sceVu0CopyVector();
  * InitMotionGeoInfo, no out-of-line copy, so the name is ours. */
 static inline int adjustMotionHeightToNearestField(char *o, float *pos)
 {
-    char buf[0xC0];
+    ClipBuf buf;
     float p[4];
-    char *sub = o + 0xA0;
+    struct MotRoot *sub = (struct MotRoot *)(o + 0xA0);
 
     CopyVector((int)p, (int)pos);
     p[1] = p[1] - 100.0f;
-    if (*(int *)(sub + 0x120) != 0) {
-        *(MotAttr12 *)(buf + 0x74) = *(MotAttr12 *)(o + 0x1C0);
-        getLowerPlaneCollisionE((int)buf, (int)p);
+    if (sub->filter.o.obj != 0) {
+        buf.filter = sub->filter;
+        getLowerPlaneCollisionE((int)&buf, (int)p);
     } else {
-        GetLowerPlaneCollision((int)buf, (int)p);
+        GetLowerPlaneCollision((int)&buf, (int)p);
     }
-    if (*(int *)(buf + 0x94) == 0) {
+    if (buf.floor.n == 0) {
         return 0;
     }
-    CopyVector((int)(sub + 0x130), (int)(buf + 0xA0));
-    sceVu0CopyVector(sub + 0x1B0, buf + 0x20);
-    *(float *)(sub + 0x1BC) = 1.0f;
+    CopyVector((int)(&sub->plane), (int)(&buf.normal));
+    sceVu0CopyVector(sub->v1B0, buf.pt[2]);
+    sub->v1B0[3] = 1.0f;
     return 1;
 }
 
@@ -1016,8 +1013,8 @@ static inline float getSlopeRatio(float d, float rate)
 
 void SlopeIKControl(GObj *self, char *arg, int a2, Vec4 *vel)
 {
-    char *ik;
-    char *sub;
+    struct MotCtrl *ik;
+    struct MotRoot *sub;
     int n0;
     int n1;
     int rec;
@@ -1025,11 +1022,11 @@ void SlopeIKControl(GObj *self, char *arg, int a2, Vec4 *vel)
     float r0 = 1.0f;
     float r1 = 1.0f;
 
-    ik = (char *)GOBJ_SUB(self) + 0x470;
-    sub = (char *)GOBJ_SUB(self) + 0xA0;
-    if (*(int *)(ik + 0x68) < 3) {
-        if (*(int *)(ik + 0x68) > 0) {
-            if (*(int *)(sub + 0x310) != 0) {
+    ik = (struct MotCtrl *)((char *)GOBJ_SUB(self) + 0x470);
+    sub = (struct MotRoot *)((char *)GOBJ_SUB(self) + 0xA0);
+    if (ik->rootUpdateMode < 3) {
+        if (ik->rootUpdateMode > 0) {
+            if (sub->f_310 != 0) {
                 n0 = *(signed char *)(*(int *)((char *)GOBJ_SUB(self) + 0x840) + 0x31);
                 n1 = *(signed char *)(*(int *)((char *)GOBJ_SUB(self) + 0x840) + 0x2D);
                 if (n0 != -1 && n1 != -1) {
@@ -1037,25 +1034,24 @@ void SlopeIKControl(GObj *self, char *arg, int a2, Vec4 *vel)
 
                     calcFootIK(skel, arg, n0,
                                *(float *)(*(int *)((char *)GOBJ_SUB(self) + 0x870) + 0x20),
-                               *(float *)(sub + 0x3B8));
+                               sub->f_3B8);
                     calcFootIK(skel, arg, n1,
                                *(float *)(*(int *)((char *)GOBJ_SUB(self) + 0x870) + 0x20),
-                               *(float *)(sub + 0x3B8));
-                    vel->f[0] = vel->f[0] * *(float *)(sub + 0x3B8);
-                    vel->f[2] = vel->f[2] * *(float *)(sub + 0x3B8);
+                               sub->f_3B8);
+                    vel->f[0] = vel->f[0] * sub->f_3B8;
+                    vel->f[2] = vel->f[2] * sub->f_3B8;
                 }
                 d = getSlopeDifference(self, arg, (char *)GOBJ_SUB(self));
-                rec = *(int *)(ik + 0x30);
+                rec = ik->motion;
                 r1 = getSlopeRatio(d, motionKind[rec].rate0);
                 r0 = getSlopeRatio(d, motionKind[rec].rate1);
             }
         }
     }
-    *(float *)(sub + 0x3B8) =
-        *(float *)(sub + 0x3B8) +
-        (r1 - *(float *)(sub + 0x3B8)) *
-            (60.0f / (float)((60 - systemStatus[0] * 10) / systemStatus[1]) * 0.1f);
-    *(float *)(ik + 0x4C) = (r0 > 1.0f) ? 1.0f : r0;
+    sub->f_3B8 =
+        sub->f_3B8 +
+        (r1 - sub->f_3B8) * (60.0f / (float)((60 - systemStatus[0] * 10) / systemStatus[1]) * 0.1f);
+    ik->f_4C = (r0 > 1.0f) ? 1.0f : r0;
 }
 
 /* kept local: void (float *, float *, float *) here, void (void *, void *, void *) in libvu0.h */
@@ -2010,16 +2006,16 @@ float GetDifferenceFromLastField(char *a0, int a1)
 
 float GetDifferenceFromLowerField(char *a0, int a1)
 {
-    char buf[0xC0];
+    ClipBuf buf;
     char *ctrl;
     int idx;
     ctrl = *(char **)(a0 + 0x15C);
     idx = (*(signed char **)(ctrl + 0x840))[a1];
-    GetLowerPlaneCollision((int)buf, *(int *)(ctrl + 0xC) + (idx << 6) + 0x30);
-    if (*(int *)(buf + 0x94) == 0) {
+    GetLowerPlaneCollision((int)&buf, *(int *)(ctrl + 0xC) + (idx << 6) + 0x30);
+    if (buf.floor.n == 0) {
         return 3.40282347e+38f;
     }
-    return *(float *)(buf + 0x24) - *(float *)(buf + 0x4);
+    return buf.pt[2][1] - buf.pt[0][1];
 }
 
 float GetDifferenceFromWallLowerPlane(char *self, int node)
@@ -2305,16 +2301,16 @@ void GetOutOutsideOfWall(void *obj, float threshold)
 
 void AdjustRootPositionToVerticalSidePlaneOfWall(void *a0, void *a1, float f)
 {
-    char buf[0xC0];
-    memset(buf, 0, 0xC0);
-    GetRootPosition(buf, a0);
-    AdjustVerticalSidePlaneOfWall(buf + 0x10, a1, buf, f);
-    ClipWall(buf);
-    if (*(int *)(buf + 0x88) != 0) {
-        SetDirectRootPosition(a0, buf + 0x20);
+    ClipBuf buf;
+    memset(&buf, 0, 0xC0);
+    GetRootPosition(&buf, a0);
+    AdjustVerticalSidePlaneOfWall(buf.pt[1], a1, &buf, f);
+    ClipWall(&buf);
+    if (buf.wall.n != 0) {
+        SetDirectRootPosition(a0, buf.pt[2]);
         debug_StdPrintfDummy(adjustRootClippedMsg);
     } else {
-        SetDirectRootPosition(a0, buf + 0x10);
+        SetDirectRootPosition(a0, buf.pt[1]);
     }
 }
 

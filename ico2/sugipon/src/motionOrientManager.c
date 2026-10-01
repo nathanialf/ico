@@ -109,58 +109,10 @@ typedef struct MotOriTrigEnt {
     unsigned int : 22;
 } MotOriTrigEnt;
 
-/* The 0x470 motion work area, reconstructed from the ROM's own displacements.
-   The TU reaches it as bytes elsewhere; UpdateFrameCounter needs the record
-   form because a field reference and an `extern int` are in different alias
-   sets, which is what lets the ROM's motionFrameUpdate load schedule above the
-   two preceding work-area stores. */
-
-/* RECONSTRUCTION, the type name is ours: the 0x08C counter (cleared by
-   shiftMotionData, stepped by UpdateFrameCounter) is not an int to the
-   scheduler: in shiftMotionData its store does not precede the inlined int
-   table read the other int stores do, so its lvalue has an alias set of its
-   own, which a 32-bit enumerated type gives. */
-enum MotOriStep { MOTORI_STEP_0 };
-
-typedef struct MotOriWork {
-    /* 0x000 */ char pad000[0xC];
-    /* 0x00C */ int fC;
-    /* 0x010 */ char pad010[0x1C];
-    /* 0x02C */ int f2C;
-    /* 0x030 */ int f30;
-    /* 0x034 */ int f34;
-    /* 0x038 */ int f38;
-    /* 0x03C */ float f3C;
-    /* 0x040 */ float f40;
-    /* 0x044 */ float f44;
-    /* 0x048 */ float f48;
-    /* 0x04C */ float f4C;
-    /* 0x050 */ float f50;
-    /* 0x054 */ int f54;
-    /* 0x058 */ int f58;
-    /* 0x05C */ int f5C;
-    /* 0x060 */ int f60;
-    /* 0x064 */ int f64;
-    /* 0x068 */ int f68;
-    /* 0x06C */ int f6C;
-    /* 0x070 */ int f70;
-    /* 0x074 */ char pad074[0x8];
-    /* 0x07C */ int f7C;
-    /* 0x080 */ int f80;
-    /* 0x084 */ char pad084[0x8];
-    /* 0x08C */ enum MotOriStep f8C;
-    /* 0x090 */ char pad090[0x4];
-    /* 0x094 */ int f94;
-    /* 0x098 */ int f98;
-    /* 0x09C */ int f9C;
-    /* 0x0A0 */ int fA0;
-    /* 0x0A4 */ int fA4;
-    /* 0x0A8 */ char pad0A8[0xE8];
-    /* 0x190 */ int f190;
-    /* 0x194 */ int f194;
-    /* 0x198 */ char pad198[0x44];
-    /* 0x1DC */ int f1DC;
-} MotOriWork;
+/* The 0x470 motion work area is motionManager.h's MotCtrl.  UpdateFrameCounter
+   needs the record form because a field reference and an `extern int` are in
+   different alias sets, which is what lets the ROM's motionFrameUpdate load
+   schedule above the two preceding work-area stores. */
 
 /* .rodata at 0x55FE58 in the ROM: the trigger definition table is read-only. */
 extern const MotOriTrigEnt motionKind[];
@@ -302,31 +254,31 @@ float GetMotionPlaySpeedRatio(int id)
 
 void execFrameTrigger(void *self)
 {
-    char *w = MOWORK(self) + 0x470;
+    struct MotCtrl *w = (struct MotCtrl *)(MOWORK(self) + 0x470);
     float t;
 
-    t = (float)motionKind[*(int *)(w + 0x30)].f144;
+    t = (float)motionKind[w->motion].f144;
     if (0.0f <= t) {
-        if (*(int *)(w + 0x19C) == 0) {
-            if (t < *(float *)(w + 0x3C)) {
-                *(int *)(w + 0x198) = 1;
-                *(int *)(w + 0x19C) = 1;
+        if (w->f_19C == 0) {
+            if (t < w->f_3C) {
+                w->f_198 = 1;
+                w->f_19C = 1;
             } else {
-                *(int *)(w + 0x198) = 0;
+                w->f_198 = 0;
             }
         } else {
-            *(int *)(w + 0x198) = 0;
+            w->f_198 = 0;
         }
     }
-    t = (float)motionKind[*(int *)(w + 0x30)].f14C;
+    t = (float)motionKind[w->motion].f14C;
     if (0.0f <= t) {
-        if (*(int *)(w + 0x1A4) != 0) {
-            *(int *)(w + 0x1A0) = 0;
-        } else if (t < *(float *)(w + 0x3C)) {
-            *(int *)(w + 0x1A0) = 1;
-            *(int *)(w + 0x1A4) = 1;
+        if (w->f_1A4 != 0) {
+            w->f_1A0 = 0;
+        } else if (t < w->f_3C) {
+            w->f_1A0 = 1;
+            w->f_1A4 = 1;
         } else {
-            *(int *)(w + 0x1A0) = 0;
+            w->f_1A0 = 0;
         }
     }
 }
@@ -385,25 +337,25 @@ static __inline__ int checkMotionShiftRange(int mot, float t, float t2)
 int UpdateFrameCounter(void *self)
 {
     char *m = MOWORK(self);
-    MotOriWork *w = (MotOriWork *)(m + 0x470);
-    int nf = GetNbMotionFrames(w->f30);
+    struct MotCtrl *w = (struct MotCtrl *)(m + 0x470);
+    int nf = GetNbMotionFrames(w->motion);
     float t;
     float r;
     float frame;
 
-    if (w->f58 != 0) {
-        w->f58 = 0;
+    if (w->f_58 != 0) {
+        w->f_58 = 0;
     }
-    w->f5C = 0;
-    w->f80 = 0;
+    w->f_5C = 0;
+    w->f_80 = 0;
     if (motionFrameUpdate == 1) {
-        t = w->f48 * motionKind[w->f30].f174 * w->f4C *
+        t = w->f_48 * motionKind[w->motion].f174 * w->f_4C *
             (60.0f / (float)((60 - systemStatus[0] * 10) / systemStatus[1]) * 0.5f);
         if (systemStatus[0] != 0) {
-            t = t * motionKind[w->f30].f15C;
+            t = t * motionKind[w->motion].f15C;
         }
-        if (w->f54 != 0) {
-            switch (w->f68) {
+        if (w->f_54 != 0) {
+            switch (w->rootUpdateMode) {
             case 1:
             case 2:
             case 17:
@@ -423,47 +375,47 @@ int UpdateFrameCounter(void *self)
                 break;
             }
         }
-        w->f40 = w->f3C;
-        w->f3C = w->f3C + t;
-        switch (motionKind[w->f30].f150) {
+        w->f_40 = w->f_3C;
+        w->f_3C = w->f_3C + t;
+        switch (motionKind[w->motion].f150) {
         case 1:
-            if ((float)(nf - 1) <= w->f3C) {
-                w->f3C = w->f3C - (float)(nf - 1);
-                w->f5C = motionKind[w->f30].f150;
+            if ((float)(nf - 1) <= w->f_3C) {
+                w->f_3C = w->f_3C - (float)(nf - 1);
+                w->f_5C = motionKind[w->motion].f150;
                 InitFrameDependSequence(m + 0x740);
                 clearFrameTriggerState(self);
-                if (motionKind[w->f30].f18C_20 != 0) {
-                    w->f80 = 1;
+                if (motionKind[w->motion].f18C_20 != 0) {
+                    w->f_80 = 1;
                 }
             }
             break;
         case 4:
-            r = w->f50;
+            r = w->f_50;
             r = r < 0.0f ? 0.0f : (1.0f < r ? 1.0f : r);
-            w->f3C = (float)(nf - 1) * r;
+            w->f_3C = (float)(nf - 1) * r;
             break;
         default:
-            if ((float)(nf - 1) <= w->f3C) {
-                w->f3C = w->f40;
-                w->f5C = 1;
+            if ((float)(nf - 1) <= w->f_3C) {
+                w->f_3C = w->f_40;
+                w->f_5C = 1;
             }
             break;
         }
-        w->f44 = w->f44 +
-                 w->f48 * (60.0f / (float)((60 - systemStatus[0] * 10) / systemStatus[1]) * 0.5f);
-        w->f8C = w->f8C + 1;
-        if (!(w->fA4 < w->fA0)) {
-            w->fA0 = w->fA0 + 1;
+        w->f_44 = w->f_44 +
+                  w->f_48 * (60.0f / (float)((60 - systemStatus[0] * 10) / systemStatus[1]) * 0.5f);
+        w->f_8C = w->f_8C + 1;
+        if (!(w->f_A4 < w->f_A0)) {
+            w->f_A0 = w->f_A0 + 1;
         }
         /* The two-frame range tests take a second frame value; here it is the
            same frame, held in a local, and the ROM's mov.s of the loaded frame
            into a second register is that local's copy. */
-        frame = w->f3C;
-        w->f190 = checkFrameInRange(w->f30, w->f3C);
-        w->f194 = checkFrameInRange2(w->f30, w->f3C, frame);
-        w->f38 = checkMotionShiftRange(w->f30, w->f3C, frame);
+        frame = w->f_3C;
+        w->f_190 = checkFrameInRange(w->motion, w->f_3C);
+        w->f_194 = checkFrameInRange2(w->motion, w->f_3C, frame);
+        w->f_38 = checkMotionShiftRange(w->motion, w->f_3C, frame);
     }
-    return w->f5C;
+    return w->f_5C;
 }
 
 inline MotionOrientEntry *GetMotionOrient(int i, int n, int id, int kind)
@@ -500,7 +452,7 @@ void sendStateMail(void *self)
 {
     float m[4][4];
     float pos[4];
-    char *w = MOWORK(self) + 0x470;
+    struct MotCtrl *w = (struct MotCtrl *)(MOWORK(self) + 0x470);
 
     if (debug_wire_string != 0) {
         MatrixDrive_PushMatrix();
@@ -511,7 +463,7 @@ void sendStateMail(void *self)
         MatrixDrive_TransMatrixV((char *)pos);
         sceVu0MulMatrix(MatrixDrive_GetMatrix(), MatrixDrive_GetMatrix(), m);
     }
-    if (*(int *)(w + 0x14) & 0x2) {
+    if (w->flags & 0x2) {
         if (debug_wire_string != 0) {
             MatrixDrive_PushMatrix();
             MatrixDrive_TransMatrix(0.0f, 80.0f, 0.0f);
@@ -519,7 +471,7 @@ void sendStateMail(void *self)
             MatrixDrive_PopMatrix();
         }
     }
-    if (*(int *)(w + 0x14) & 0x4) {
+    if (w->flags & 0x4) {
         iosOmSendMail(self, 7, self);
         if (debug_wire_string != 0) {
             MatrixDrive_PushMatrix();
@@ -528,7 +480,7 @@ void sendStateMail(void *self)
             MatrixDrive_PopMatrix();
         }
     }
-    if (*(int *)(w + 0x14) & 0x10) {
+    if (w->flags & 0x10) {
         iosOmSendMail(self, 8, self);
         if (debug_wire_string != 0) {
             MatrixDrive_PushMatrix();
@@ -537,7 +489,7 @@ void sendStateMail(void *self)
             MatrixDrive_PopMatrix();
         }
     }
-    if (*(int *)(w + 0x14) & 0x20) {
+    if (w->flags & 0x20) {
         iosOmSendMail(self, 9, self);
         if (debug_wire_string != 0) {
             MatrixDrive_PushMatrix();
@@ -546,7 +498,7 @@ void sendStateMail(void *self)
             MatrixDrive_PopMatrix();
         }
     }
-    if (*(int *)(w + 0x14) & 0x1000) {
+    if (w->flags & 0x1000) {
         iosOmSendMail(self, 33, self);
         if (debug_wire_string != 0) {
             MatrixDrive_PushMatrix();
@@ -555,7 +507,7 @@ void sendStateMail(void *self)
             MatrixDrive_PopMatrix();
         }
     }
-    if (*(int *)(w + 0x14) & 0x8) {
+    if (w->flags & 0x8) {
         iosOmSendMail(self, 10, self);
         if (debug_wire_string != 0) {
             MatrixDrive_PushMatrix();
@@ -564,7 +516,7 @@ void sendStateMail(void *self)
             MatrixDrive_PopMatrix();
         }
     }
-    if (*(int *)(w + 0x14) & 0x400) {
+    if (w->flags & 0x400) {
         iosOmSendMail(self, 26, self);
         if (debug_wire_string != 0) {
             MatrixDrive_PushMatrix();
@@ -573,13 +525,13 @@ void sendStateMail(void *self)
             MatrixDrive_PopMatrix();
         }
     }
-    if (*(int *)(w + 0x14) & 0x800) {
+    if (w->flags & 0x800) {
         iosOmSendMail(self, 27, self);
     }
-    if (*(int *)(w + 0x14) & 0x100) {
+    if (w->flags & 0x100) {
         iosOmSendMail(self, 15, self);
     }
-    if (*(int *)(w + 0x14) & 0x200) {
+    if (w->flags & 0x200) {
         iosOmSendMail(self, 16, self);
     }
     if (debug_wire_string != 0) {
@@ -593,16 +545,16 @@ void sendStateMail(void *self)
  * and returns the paired entry from the table at 0x20. */
 static inline int searchMotionShift(void *self, int id, int cur)
 {
-    char *m = MOWORK(self) + 0x470;
+    struct MotCtrl *m = (struct MotCtrl *)(MOWORK(self) + 0x470);
     int i;
 
-    if (*(int **)(m + 0x1C) != 0 && *(int **)(m + 0x20) != 0) {
-        for (i = 0; (*(int **)(m + 0x1C))[i] != -1; i++) {
-            if ((*(int **)(m + 0x1C))[i] == id) {
-                if ((*(int **)(m + 0x20))[i] == cur) {
+    if (m->f_1C != 0 && m->f_20 != 0) {
+        for (i = 0; (m->f_1C)[i] != -1; i++) {
+            if ((m->f_1C)[i] == id) {
+                if ((m->f_20)[i] == cur) {
                     return 0x479;
                 }
-                return (*(int **)(m + 0x20))[i];
+                return (m->f_20)[i];
             }
         }
     }
@@ -633,7 +585,7 @@ static __inline__ int searchAltMotion(int req)
 
 /* RECONSTRUCTION, the type and enumerator names are ours: the 0x360 word of the
  * motion block holds the table's 2-bit mode (bits 26-27 of the 0x188 word).
- * The ROM stores it ahead of the int store to w->fA4 while every int store to
+ * The ROM stores it ahead of the int store to w->f_A4 while every int store to
  * the block stays behind that one, so its lvalue has an alias set of its own:
  * an enumerated mode, as debug_bar_flag below. */
 enum MotOriShiftMode { MOTORI_SHIFT_0, MOTORI_SHIFT_1, MOTORI_SHIFT_2, MOTORI_SHIFT_3 };
@@ -641,25 +593,25 @@ enum MotOriShiftMode { MOTORI_SHIFT_0, MOTORI_SHIFT_1, MOTORI_SHIFT_2, MOTORI_SH
 void shiftMotionData(int a0, int a1, int a2, int a3)
 {
     char *m = (char *)*(int *)(a0 + 0x15C);
-    MotOriWork *w = (MotOriWork *)(m + 0x470);
+    struct MotCtrl *w = (struct MotCtrl *)(m + 0x470);
     char *mw = m + 0xA0;
     int mot;
     float frame;
 
-    if (w->f38 != 0) {
+    if (w->f_38 != 0) {
         mot = searchAltMotion(a1);
     } else {
         mot = a1;
     }
-    w->f98 = w->f34;
-    w->f34 = 0;
+    w->f_98 = w->f_34;
+    w->f_34 = 0;
     if (mot == -1) {
-        w->f34 = 1;
+        w->f_34 = 1;
         mot = a1;
     }
-    w->f94 = w->f30;
-    w->f9C = (int)w->f3C;
-    w->fA4 = (int)((float)a3 * ((float)((60 - systemStatus[0] * 10) / systemStatus[1]) / 60.0f));
+    w->f_94 = w->motion;
+    w->f_9C = (int)w->f_3C;
+    w->f_A4 = (int)((float)a3 * ((float)((60 - systemStatus[0] * 10) / systemStatus[1]) / 60.0f));
     *(int *)(mw + 0x180) = -1;
     *(int *)(mw + 0x310) = motionKind[mot].f10C;
     *(int *)(mw + 0x308) = motionKind[mot].f114;
@@ -675,42 +627,42 @@ void shiftMotionData(int a0, int a1, int a2, int a3)
     *(int *)(mw + 0x328) = motionKind[mot].f104;
     *(int *)(mw + 0x32C) = motionKind[mot].f18C_22;
     *(int *)(mw + 0x330) = motionKind[mot].f190_9;
-    w->f64 = 0;
-    if (w->f60 == 0) {
-        if (w->f68 != motionKind[mot].f118) {
-            w->f64 = 1;
-            w->f68 = motionKind[mot].f118;
+    w->f_64 = 0;
+    if (w->f_60 == 0) {
+        if (w->rootUpdateMode != motionKind[mot].f118) {
+            w->f_64 = 1;
+            w->rootUpdateMode = motionKind[mot].f118;
         }
     }
-    w->f6C = 0;
-    if (w->f70 != 0) {
+    w->f_6C = 0;
+    if (w->f_70 != 0) {
         if (motionKind[mot].f18C_17 == 0) {
-            w->f6C = 1;
+            w->f_6C = 1;
         }
     }
-    w->f70 = motionKind[mot].f18C_17;
-    w->f30 = mot;
-    w->f2C = a2;
-    w->fA0 = 1;
-    w->f8C = 0;
-    w->f3C = 0.0f;
-    w->f40 = w->f3C;
-    w->f58 = 1;
-    frame = w->f3C;
-    w->f190 = checkFrameInRange(mot, w->f3C);
-    w->f194 = checkFrameInRange2(w->f30, w->f3C, frame);
-    w->f38 = checkMotionShiftRange(w->f30, w->f3C, frame);
-    w->fC = 1;
-    w->f5C = 0;
-    w->f1DC = 0;
+    w->f_70 = motionKind[mot].f18C_17;
+    w->motion = mot;
+    w->f_2C = a2;
+    w->f_A0 = 1;
+    w->f_8C = 0;
+    w->f_3C = 0.0f;
+    w->f_40 = w->f_3C;
+    w->f_58 = 1;
+    frame = w->f_3C;
+    w->f_190 = checkFrameInRange(mot, w->f_3C);
+    w->f_194 = checkFrameInRange2(w->motion, w->f_3C, frame);
+    w->f_38 = checkMotionShiftRange(w->motion, w->f_3C, frame);
+    w->f_C = 1;
+    w->f_5C = 0;
+    w->f_1DC = 0;
     if (motionKind[mot].f18C_20 != 0) {
-        w->f80 = 1;
-        if (motionKind[w->f94].f18C_20 == 0) {
-            w->f7C = 0;
+        w->f_80 = 1;
+        if (motionKind[w->f_94].f18C_20 == 0) {
+            w->f_7C = 0;
         }
     } else {
-        w->f80 = 0;
-        w->f7C = 0;
+        w->f_80 = 0;
+        w->f_7C = 0;
     }
 }
 
@@ -719,10 +671,10 @@ extern void FeedbackWallWorkInfoToBrainSystem(void *self);
 
 void shiftMotionOrientEndFunc(void *self)
 {
-    char *w = MOWORK(self) + 0x470;
+    struct MotCtrl *w = (struct MotCtrl *)(MOWORK(self) + 0x470);
     int x;
 
-    if (*(int *)(w + 0x1AC) == -1) {
+    if (w->f_1AC == -1) {
         /* EUC-JP: "the SE internal processing seems wrong for some reason; report it to Sugiyama" */
         debug_StdPrintfDummy(
             "何らかの理由でSEの内部処理がおかしいようです。杉山に報告してください。\n");
@@ -731,8 +683,8 @@ void shiftMotionOrientEndFunc(void *self)
     }
     StopSEPackageWithGroupVariation(self, 0);
     StopSEPackageWithGroupVariation(self, 1);
-    *(int *)(w + 0x1B8) = 0;
-    x = *(int *)(w + 0x68);
+    w->f_1B8 = 0;
+    x = w->rootUpdateMode;
     if (x < 9) {
         if (x >= 7) {
             goto ok;
@@ -743,7 +695,7 @@ void shiftMotionOrientEndFunc(void *self)
         return;
     }
 ok:
-    if (motionKind[*(int *)(w + 0x30)].f130 == 0) {
+    if (motionKind[w->motion].f130 == 0) {
         return;
     }
     FeedbackWallWorkInfoToBrainSystem(self);
@@ -835,45 +787,44 @@ void ForTest_ForceShiftMotion(int a0, int a1)
  * the ROM keeps that block and branches to it backward, where a second
  * `return 0` in the arm is the copy jump2's cross-jumping keeps instead (it
  * deletes the first identical block it reaches, jump.c find_cross_jump). */
-static inline int checkMotionShiftReady(char *m, MotionOrientEntry *p)
+static inline int checkMotionShiftReady(struct MotCtrl *m, MotionOrientEntry *p)
 {
     int kind;
 
-    *(int *)(m + 0x10) = 0;
-    *(int *)(m + 0xC) = 0;
-    if (*(int *)(m + 0x74) != 0 || p->kind == -1) {
+    m->f_10 = 0;
+    m->f_C = 0;
+    if (m->f_74 != 0 || p->kind == -1) {
     fail:
         return 0;
     }
     kind = p->nextId;
-    *(int *)(m + 0x90) = kind;
+    m->f_90 = kind;
     if (kind == 0x479) {
-        if (*(int *)(m + 0x5C) == 0) {
+        if (m->f_5C == 0) {
             goto fail;
         }
-        *(int *)(m + 0x10) = 4;
+        m->f_10 = 4;
         return 1;
     }
-    if (*(int *)(m + 0x5C) != 0) {
-        *(float *)(m + 0x3C) = (float)(GetNbMotionFrames(*(int *)(m + 0x30)) - 1) - 1.0e-6f;
-        *(int *)(m + 0x10) |= 0x10;
+    if (m->f_5C != 0) {
+        m->f_3C = (float)(GetNbMotionFrames(m->motion) - 1) - 1.0e-6f;
+        m->f_10 |= 0x10;
         return 1;
     }
-    return p->fC != -1 && (float)p->fC < *(float *)(m + 0x3C);
+    return p->fC != -1 && (float)p->fC < m->f_3C;
 }
 
 int normalMotionShift(void *self, int force)
 {
-    char *w = MOWORK(self) + 0x470;
-    MotionOrientEntry *p = getMotionOrient(*(int *)(w + 0x4), *(int *)(w + 0x8), *(int *)(w + 0x2C),
-                                           *(int *)(w + 0xD0));
+    struct MotCtrl *w = (struct MotCtrl *)(MOWORK(self) + 0x470);
+    MotionOrientEntry *p = getMotionOrient(w->f_4, w->f_8, w->f_2C, w->f_D0);
 
     if (force == 0) {
         if (p->id == 0x47A) {
             return 0;
         }
     }
-    if (checkMotionShiftReady(MOWORK(self) + 0x470, p) != 0) {
+    if (checkMotionShiftReady((struct MotCtrl *)(MOWORK(self) + 0x470), p) != 0) {
         int kind = p->nextId;
         int mode = p->f10;
         int next;
@@ -882,7 +833,7 @@ int normalMotionShift(void *self, int force)
         if (kind == 0x479) {
             kind = p->id;
             mode = 5;
-            r = searchMotionShift(self, kind, *(int *)(w + 0x30));
+            r = searchMotionShift(self, kind, w->motion);
             if (r == -1 || r == 0x479) {
                 return 0;
             }
@@ -936,26 +887,25 @@ static inline MotionOrientEntry *findParallelMotion(int cur, int next)
  * `return 0` for -1 would put a barrier ahead of it. */
 int parallelMotionShift(void *self)
 {
-    char *m = MOWORK(self) + 0x470;
-    int next = searchMotionShift(self, *(int *)(m + 0x2C), *(int *)(m + 0x30));
+    struct MotCtrl *m = (struct MotCtrl *)(MOWORK(self) + 0x470);
+    int next = searchMotionShift(self, m->f_2C, m->motion);
     MotionOrientEntry *p;
 
     if (next != -1) {
-        p = findParallelMotion(*(int *)(m + 0x30), next);
+        p = findParallelMotion(m->motion, next);
 
         if (p != 0) {
-            if (checkMotionShiftReady(MOWORK(self) + 0x470, p) != 0) {
+            if (checkMotionShiftReady((struct MotCtrl *)(MOWORK(self) + 0x470), p) != 0) {
                 shiftMotionOrientEndFunc(self);
-                shiftMotionOrientBeginFunc(self, p->nextId, *(int *)(m + 0x2C), p->f10);
+                shiftMotionOrientBeginFunc(self, p->nextId, m->f_2C, p->f10);
                 return 1;
             }
         } else if (next != 0x479) {
-            MotionOrientEntry e = {*(int *)(m + 0x30), *(int *)(m + 0xD0), next, *(int *)(m + 0x24),
-                                   *(int *)(m + 0x28)};
+            MotionOrientEntry e = {m->motion, m->f_D0, next, m->f_24, m->f_28};
 
-            if (checkMotionShiftReady(MOWORK(self) + 0x470, &e) != 0) {
+            if (checkMotionShiftReady((struct MotCtrl *)(MOWORK(self) + 0x470), &e) != 0) {
                 shiftMotionOrientEndFunc(self);
-                shiftMotionOrientBeginFunc(self, next, *(int *)(m + 0x2C), *(int *)(m + 0x28));
+                shiftMotionOrientBeginFunc(self, next, m->f_2C, m->f_28);
                 return 1;
             }
         }
@@ -1179,14 +1129,14 @@ void getMotionGeometry(void *self)
 {
     int *p = *(int **)(MOWORK(self) + 0x8C);
     char *mo = MOWORK(self) + 0xA0;
-    char *w = MOWORK(self) + 0x470;
+    struct MotCtrl *w = (struct MotCtrl *)(MOWORK(self) + 0x470);
     int n = *(int *)(MOWORK(self) + 0x88);
     int tbl = *(int *)(MOWORK(self) + 0x820);
     char mot[n * 0x20];
     float scale = *(float *)(*(char **)(MOWORK(self) + 0x870) + 0x20);
-    int *md = motionTable[*(int *)(w + 0x30)];
+    int *md = motionTable[w->motion];
 
-    if (motionKind[*(int *)(w + 0x30)].f178 == 0x140) {
+    if (motionKind[w->motion].f178 == 0x140) {
         assertMotionLoaded(w, md);
         assertMotionNodeCount(w, md, n);
     }
@@ -1196,28 +1146,27 @@ void getMotionGeometry(void *self)
         Vec16 v;
         Vec16 rv;
 
-        if (motionKind[*(int *)(w + 0x30)].f178 == 0x140) {
-            GetFloatingMotion(mot, *(float *)(w + 0x3C), v.f, md, n, tbl, p);
-            GetFloatingMotionRootPos(rv.f, md, *(float *)(w + 0x40));
+        if (motionKind[w->motion].f178 == 0x140) {
+            GetFloatingMotion(mot, w->f_3C, v.f, md, n, tbl, p);
+            GetFloatingMotionRootPos(rv.f, md, w->f_40);
         } else {
-            getNodeBlendedFloatingMotion(mot, v.f, *(int *)(w + 0x30), n, tbl, self,
-                                         *(float *)(w + 0x3C));
+            getNodeBlendedFloatingMotion(mot, v.f, w->motion, n, tbl, self, w->f_3C);
             getMotionRootPos(w, rv.f);
         }
-        if (*(int *)(w + 0x30) == 102) {
+        if (w->motion == 102) {
             v.f[0] = v.f[0] + 1.0f;
         }
         sceVu0ScaleVector(&v, &v, scale);
-        if (*(float *)(w + 0x3C) < *(float *)(w + 0x40)) {
+        if (w->f_3C < w->f_40) {
             CopyVector(mo + 0xA0, ZeroVector);
         } else {
             sceVu0ScaleVector(&rv, &rv, scale);
             sceVu0SubVector(mo + 0xA0, &v, &rv);
         }
-        if (*(int *)(w + 0x34) != 0) {
+        if (w->f_34 != 0) {
             MakeMirrorMotion(mot, p);
         }
-        if (*(int *)(w + 0xE0) != 0) {
+        if (w->f_E0 != 0) {
             SlopeIKControl(self, mot, v.f, (float *)(mo + 0xA0), n);
         }
         {
@@ -1247,8 +1196,8 @@ void getMotionGeometry(void *self)
 
             len = VectorLength(mo + 0x90) *
                   ((float)((60 - systemStatus[0] * 10) / systemStatus[1]) / 60.0f);
-            CopyVector(&fv, w + 0xB0);
-            CopyVector(&tv, w + 0xC0);
+            CopyVector(&fv, w->v0B0);
+            CopyVector(&tv, w->v0C0);
             if (*(void **)MOWORK(self) != 0) {
                 sceVu0ApplyMatrix(&fv,
                                   *(char **)(MOWORK(*(void **)MOWORK(self)) + 0xC) +
@@ -1281,7 +1230,7 @@ void getMotionGeometry(void *self)
 
                 *(short *)(mo + 0x50) = (short)((float)*(short *)(mo + 0x50) * (1.0f - t)) + r * t;
             }
-            if (*(int *)(w + 0x68) == 20) {
+            if (w->rootUpdateMode == 20) {
                 Vec16 up;
                 float mtx[4][4];
                 Vec16 rot;
@@ -1301,11 +1250,11 @@ void getMotionGeometry(void *self)
             }
             flag = 0;
             if (debug_motion_interporate != 0) {
-                flag = *(int *)(w + 0xA4) >= *(int *)(w + 0xA0);
+                flag = w->f_A4 >= w->f_A0;
             }
-            k = motionKind[*(int *)(w + 0x30)].f11C;
+            k = motionKind[w->motion].f11C;
             if (flag != 0) {
-                float s = (float)*(int *)(w + 0xA0) / (float)*(int *)(w + 0xA4);
+                float s = (float)w->f_A0 / (float)w->f_A4;
 
                 GetBlendedMotion(*(void **)(MOWORK(self) + 0x7B4), tmp.f, mot, v.f,
                                  *(void **)(MOWORK(self) + 0x7D0), (float *)(MOWORK(self) + 0x7E0),
@@ -1318,7 +1267,7 @@ void getMotionGeometry(void *self)
                 CopyMotion(*(void **)(MOWORK(self) + 0x7B4), mot, n);
                 *(float *)(mo + 0x338) = *(float *)(mo + 0x33C);
                 GetGeometryOfMotion(self, mot, *(void **)(MOWORK(self) + 0x7B4), v.f, 1.0f,
-                                    mo + 0xA0, *(int *)(w + 0x58) ? k : -1);
+                                    mo + 0xA0, w->f_58 ? k : -1);
             }
             SetIdentityQuaternion(&tmp);
             RotQuaternionX(&tmp, -32768);
@@ -1326,12 +1275,12 @@ void getMotionGeometry(void *self)
             MultiQuaternion(&tmp, &tmp, (char *)p + 0x20);
             GetInverseQuaternion(&tmp, &tmp);
             MultiQuaternion(mo + 0x40, mot + 0x10, &tmp);
-            CopyVector(w + 0xC0, w + 0xB0);
+            CopyVector(w->v0C0, w->v0B0);
         }
     }
     MatrixDrive_PopMatrix();
-    if (*(int *)(w + 0x1E0) <= 0) {
-        *(int *)(w + 0x1E0) = *(int *)(w + 0x1E0) + 1;
+    if (w->f_1E0 <= 0) {
+        w->f_1E0 = w->f_1E0 + 1;
     } else {
         sendStateMail(self);
     }

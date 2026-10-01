@@ -10,15 +10,37 @@
 #include "Matrix.h"
 #include "matrixDrive.h"
 
+/* RECONSTRUCTION, names ours: the cage's 80-byte work record, InitCageGeo's
+   allocation, kept at +0x830 of the object's motion work: the cage and chain
+   DObjs, the cage's rotation and turn, the chains InitChains builds and the
+   swing state. */
+typedef struct {
+    char *dobj;  /* 0x00 */
+    char *dobj2; /* 0x04 */
+    char _08[8];
+    float rot[4]; /* 0x10 */
+    char *chains; /* 0x20 */
+    int f_24;     /* 0x24 */
+    int f_28;     /* 0x28 */
+    int f_2C;     /* 0x2C */
+    float f_30;   /* 0x30 */
+    short angle;  /* 0x34 */
+    short _36;
+    float f_38; /* 0x38 */
+    float f_3C; /* 0x3C */
+    int f_40;   /* 0x40 */
+    char _44[0xC];
+} CageWork; /* derived name */
+
 int CageRideFunc(char **self, char *rider)
 {
     float v[4];
     float n[4];
-    char *w;
+    CageWork *w;
     float d;
     float t;
 
-    w = *(char **)(*(char **)(*self + 0x15C) + 0x830);
+    w = *(CageWork **)(*(char **)(*self + 0x15C) + 0x830);
     CopyVector(v, (char *)GOBJ_SUB(rider) + 0xA0);
     v[1] = v[1] - 250.0f;
     sceVu0Normalize(n, v);
@@ -28,35 +50,33 @@ int CageRideFunc(char **self, char *rider)
         t = -t;
     }
     v[1] = 0.0f;
-    sceVu0ScaleVector(v, v, t * 0.06f / *(float *)(w + 0x38));
+    sceVu0ScaleVector(v, v, t * 0.06f / w->f_38);
 
-    sceVu0AddVector((void *)(*(int *)(w + 0x24) * 80 + *(int *)(*(char **)(w + 0x20) + 8) + 0x40),
-                    (void *)(*(int *)(w + 0x24) * 80 + *(int *)(*(char **)(w + 0x20) + 8) + 0x40),
-                    v);
+    sceVu0AddVector((void *)(w->f_24 * 80 + *(int *)(w->chains + 8) + 0x40),
+                    (void *)(w->f_24 * 80 + *(int *)(w->chains + 8) + 0x40), v);
 
-    sceVu0SubVector((void *)(*(int *)(w + 0x28) * 80 + *(int *)(*(char **)(w + 0x20) + 8) + 0x40),
-                    (void *)(*(int *)(w + 0x28) * 80 + *(int *)(*(char **)(w + 0x20) + 8) + 0x40),
-                    v);
+    sceVu0SubVector((void *)(w->f_28 * 80 + *(int *)(w->chains + 8) + 0x40),
+                    (void *)(w->f_28 * 80 + *(int *)(w->chains + 8) + 0x40), v);
 
     return 1;
 }
 
 void SetCageFixGeometry(char *self, void *pos, void *dir)
 {
-    char *w = *(char **)((char *)GOBJ_SUB(self) + 0x830);
+    CageWork *w = *(CageWork **)((char *)GOBJ_SUB(self) + 0x830);
 
-    CopyVector(*(char **)(*(char **)(w + 0x20)) + 0x20, pos);
-    CopyVector(w + 0x10, dir);
+    CopyVector(*(char **)(w->chains) + 0x20, pos);
+    CopyVector(w->rot, dir);
 }
 
 inline int GetCageChainPoint(char *a0, char *a1, char *a2)
 {
-    char *w = *(char **)((char *)GOBJ_SUB(a2) + 0x830);
-    CopyVector(a0, *(char **)(*(char **)(*(char **)(w + 0x20) + 8)));
-    CopyVector(a1, *(char **)(*(char **)(*(char **)(w + 0x20) + 8)) + 0x10);
+    CageWork *w = *(CageWork **)((char *)GOBJ_SUB(a2) + 0x830);
+    CopyVector(a0, *(char **)(*(char **)(w->chains + 8)));
+    CopyVector(a1, *(char **)(*(char **)(w->chains + 8)) + 0x10);
     *(float *)(a0 + 4) = *(float *)(a0 + 4) + 50.0f;
     *(float *)(a1 + 4) = *(float *)(a1 + 4) - 150.0f;
-    return *(int *)(w + 0x40);
+    return w->f_40;
 }
 
 /* kept local: void * (void *, int, char *, int) here, void * (IosMemPart *, int, char *, int) in memory.h */
@@ -110,35 +130,33 @@ typedef union GObjSubSlot {
 /* listing rows sugipon/src/cage.c:96-132 */
 char *InitCageGeo(char *self, char *lay)
 {
-    char *w;
+    CageWork *w;
     char *ch;
     int i;
     float one;
 
-    w = (char *)iosMallocDebug((void *)ios_partition_sugipon, 80, __FILE__, 97);
+    w = (CageWork *)iosMallocDebug((void *)ios_partition_sugipon, 80, __FILE__, 97);
     ch = (char *)iosMallocDebug((void *)ios_partition_sugipon, 160, __FILE__, 98);
-    *(char **)w = CSVSYSTEM_InitDObj(
+    w->dobj = CSVSYSTEM_InitDObj(
         *(int *)(D_002A79B8 + *(int *)(((GObjSubSlot *)(self + 0x15C))->handle + 0x844) * 40),
         (float *)lay);
-    *(char **)(w + 4) = CSVSYSTEM_InitDObj(
+    w->dobj2 = CSVSYSTEM_InitDObj(
         *(int *)(D_002A79B8 + *(int *)(((GObjSubSlot *)(self + 0x15C))->handle + 0x844) * 40 + 4),
         (float *)lay);
-    *(float *)(w + 0x3C) = 0.995f;
-    *(float *)(w + 0x38) = *(float *)(lay + 0x20);
+    w->f_3C = 0.995f;
+    w->f_38 = *(float *)(lay + 0x20);
     ((CageChainParam *)ch)[0] = cageChainParam[0];
     ((CageChainParam *)ch)[1] = cageChainParam[1];
     *(float *)(ch + 0x20) = *(float *)lay;
     *(float *)(ch + 0x24) = *(float *)(lay + 4);
     *(float *)(ch + 0x28) = *(float *)(lay + 8);
     *(float *)(ch + 0x14) = *(float *)(lay + 0x24);
-    SetIdentityQuaternion(w + 0x10);
-    *(char **)(w + 0x20) = (char *)InitChains(ch);
-    *(int *)(w + 0x24) =
-        SetChainExtendedWeight(*(int **)(*(char **)(w + 0x20) + 8), 1, 0.0f, 600.0f);
-    *(int *)(w + 0x28) =
-        SetChainExtendedWeight(*(int **)(*(char **)(w + 0x20) + 8), 1, 500.0f, 1400.0f);
-    *(short *)(w + 0x34) = (short)(-*(float *)(lay + 0x14) * 10430.378f);
-    *(int *)(w + 0x40) = 1;
+    SetIdentityQuaternion(w->rot);
+    w->chains = (char *)InitChains(ch);
+    w->f_24 = SetChainExtendedWeight(*(int **)(w->chains + 8), 1, 0.0f, 600.0f);
+    w->f_28 = SetChainExtendedWeight(*(int **)(w->chains + 8), 1, 500.0f, 1400.0f);
+    w->angle = (short)(-*(float *)(lay + 0x14) * 10430.378f);
+    w->f_40 = 1;
     one = 1.0f;
     {
         char *e = *(char **)(((GObjSubSlot *)(self + 0x15C))->handle + 0x870);
@@ -150,86 +168,86 @@ char *InitCageGeo(char *self, char *lay)
 
         *(int *)(e + 0x0) = *(int *)(e + 0x4) = *(int *)(e + 0x8) = 0;
     }
-    *(float *)(w + 0x30) = *(float *)(lay + 0x28);
-    *(int *)(w + 0x2C) = (int)(*(float *)(lay + 0x24) / *(float *)(w + 0x30));
+    w->f_30 = *(float *)(lay + 0x28);
+    w->f_2C = (int)(*(float *)(lay + 0x24) / w->f_30);
 
     /* listing line 128 carries everything from here to the 0x84C store: one
        macro, the DObj buffer reallocation box.c, boy.c and omori's chain.c
        expand in the same statement order */
-    if (*(void **)(*(char **)w + 0xC) != 0) {
-        iosFree((void *)((int)*(void **)(*(char **)w + 0xC) & 0x0FFFFFFF));
+    if (*(void **)(w->dobj + 0xC) != 0) {
+        iosFree((void *)((int)*(void **)(w->dobj + 0xC) & 0x0FFFFFFF));
     }
-    if (*(void **)(*(char **)w + 0x10) != 0) {
-        iosFree((void *)((int)*(void **)(*(char **)w + 0x10) & 0x0FFFFFFF));
+    if (*(void **)(w->dobj + 0x10) != 0) {
+        iosFree((void *)((int)*(void **)(w->dobj + 0x10) & 0x0FFFFFFF));
     }
-    *(char **)(*(char **)w + 0x10) = *(char **)(*(char **)w + 0xC) = 0;
-    *(void **)(*(char **)w + 0xC) =
-        iosMallocDebug((void *)ios_partition_seki, *(int *)(w + 0x2C) << 6, __FILE__, 128);
-    *(void **)(*(char **)w + 0x10) =
-        iosMallocDebug((void *)ios_partition_seki, *(int *)(w + 0x2C) << 4, __FILE__, 128);
-    *(int *)(*(char **)w + 0x8) = *(int *)(w + 0x2C);
-    if (*(void **)(*(char **)w + 0x870) != 0) {
-        iosFree((void *)((int)*(void **)(*(char **)w + 0x870) & 0x0FFFFFFF));
+    *(char **)(w->dobj + 0x10) = *(char **)(w->dobj + 0xC) = 0;
+    *(void **)(w->dobj + 0xC) =
+        iosMallocDebug((void *)ios_partition_seki, w->f_2C << 6, __FILE__, 128);
+    *(void **)(w->dobj + 0x10) =
+        iosMallocDebug((void *)ios_partition_seki, w->f_2C << 4, __FILE__, 128);
+    *(int *)(w->dobj + 0x8) = w->f_2C;
+    if (*(void **)(w->dobj + 0x870) != 0) {
+        iosFree((void *)((int)*(void **)(w->dobj + 0x870) & 0x0FFFFFFF));
     }
-    *(void **)(*(char **)w + 0x870) =
-        iosMallocDebug((void *)ios_partition_seki, *(int *)(w + 0x2C) * 80, __FILE__, 128);
-    for (i = 0; i < *(int *)(w + 0x2C); i++) {
+    *(void **)(w->dobj + 0x870) =
+        iosMallocDebug((void *)ios_partition_seki, w->f_2C * 80, __FILE__, 128);
+    for (i = 0; i < w->f_2C; i++) {
         {
-            char *e = (char *)(i * 80 + (int)*(char **)(*(char **)w + 0x870));
+            char *e = (char *)(i * 80 + (int)*(char **)(w->dobj + 0x870));
             ((CageNodeFlags *)(e + 0x38))->ll &= ~1;
         }
         {
-            char *e = (char *)(i * 80 + (int)*(char **)(*(char **)w + 0x870));
+            char *e = (char *)(i * 80 + (int)*(char **)(w->dobj + 0x870));
             ((CageNodeFlags *)(e + 0x38))->ll &= ~2;
         }
         {
-            char *e = (char *)(i * 80 + (int)*(char **)(*(char **)w + 0x870));
+            char *e = (char *)(i * 80 + (int)*(char **)(w->dobj + 0x870));
             *(float *)(e + 0x40) = 0.0f;
         }
         {
-            char *e = (char *)(i * 80 + (int)*(char **)(*(char **)w + 0x870));
+            char *e = (char *)(i * 80 + (int)*(char **)(w->dobj + 0x870));
             *(float *)(e + 0x44) = 0.0f;
         }
         {
-            char *e = (char *)(i * 80 + (int)*(char **)(*(char **)w + 0x870));
+            char *e = (char *)(i * 80 + (int)*(char **)(w->dobj + 0x870));
             *(float *)(e + 0x48) = 0.0f;
         }
         {
-            char *e = (char *)(i * 80 + (int)*(char **)(*(char **)w + 0x870));
+            char *e = (char *)(i * 80 + (int)*(char **)(w->dobj + 0x870));
             *(float *)(e + 0x4C) = 1.0f;
         }
         {
-            char *e = (char *)(i * 80 + (int)*(char **)(*(char **)w + 0x870));
+            char *e = (char *)(i * 80 + (int)*(char **)(w->dobj + 0x870));
             ((CageNodeFlags *)(e + 0x38))->ll &= ~4;
         }
         {
-            char *e = (char *)(i * 80 + (int)*(char **)(*(char **)w + 0x870));
+            char *e = (char *)(i * 80 + (int)*(char **)(w->dobj + 0x870));
             *(float *)(e + 0x30) = 0.0f;
         }
         {
-            char *e = (char *)(i * 80 + (int)*(char **)(*(char **)w + 0x870));
+            char *e = (char *)(i * 80 + (int)*(char **)(w->dobj + 0x870));
             *(float *)(e + 0x34) = 1.0f;
         }
         {
-            char *e = (char *)(i * 80 + (int)*(char **)(*(char **)w + 0x870));
+            char *e = (char *)(i * 80 + (int)*(char **)(w->dobj + 0x870));
             *(short *)(e + 0x3A) = 0;
         }
         {
-            char *e = (char *)(i * 80 + (int)*(char **)(*(char **)w + 0x870));
+            char *e = (char *)(i * 80 + (int)*(char **)(w->dobj + 0x870));
             *(float *)(e + 0x20) = 1.0f;
         }
         {
-            char *e = (char *)(i * 80 + (int)*(char **)(*(char **)w + 0x870));
+            char *e = (char *)(i * 80 + (int)*(char **)(w->dobj + 0x870));
             *(float *)(e + 0x24) = 1.0f;
         }
         {
-            char *e = (char *)(i * 80 + (int)*(char **)(*(char **)w + 0x870));
+            char *e = (char *)(i * 80 + (int)*(char **)(w->dobj + 0x870));
             *(float *)(e + 0x28) = 1.0f;
         }
     }
-    *(short *)(*(char **)w + 0x84C) = 2;
+    *(short *)(w->dobj + 0x84C) = 2;
     *(int *)(((GObjSubSlot *)(self + 0x15C))->handle + 0x81C) = (int)CageRideFunc;
-    return w;
+    return (char *)w;
 }
 
 inline void SetCageChainHangableFlag(char *a0, int a1)
@@ -239,34 +257,28 @@ inline void SetCageChainHangableFlag(char *a0, int a1)
 
 void HotInitCageGeo(char *self)
 {
-    char *w = *(char **)((char *)GOBJ_SUB(self) + 0x830);
+    CageWork *w = *(CageWork **)((char *)GOBJ_SUB(self) + 0x830);
 
-    CopyVector((void *)(*(int *)(w + 0x24) * 80 + *(int *)(*(char **)(w + 0x20) + 8) + 0x40),
-               ZeroVector);
-    CopyVector((void *)(*(int *)(w + 0x28) * 80 + *(int *)(*(char **)(w + 0x20) + 8) + 0x40),
-               ZeroVector);
+    CopyVector((void *)(w->f_24 * 80 + *(int *)(w->chains + 8) + 0x40), ZeroVector);
+    CopyVector((void *)(w->f_28 * 80 + *(int *)(w->chains + 8) + 0x40), ZeroVector);
 
-    CopyVector((void *)(*(int *)(w + 0x24) * 80 + *(int *)(*(char **)(w + 0x20) + 8) + 0x30),
-               *(char **)(*(char **)(w + 0x20)) + 0x20);
-    CopyVector((void *)(*(int *)(w + 0x28) * 80 + *(int *)(*(char **)(w + 0x20) + 8) + 0x30),
-               *(char **)(*(char **)(w + 0x20)) + 0x20);
+    CopyVector((void *)(w->f_24 * 80 + *(int *)(w->chains + 8) + 0x30),
+               *(char **)(w->chains) + 0x20);
+    CopyVector((void *)(w->f_28 * 80 + *(int *)(w->chains + 8) + 0x30),
+               *(char **)(w->chains) + 0x20);
 
-    CopyVector(*(void **)(*(int *)(*(char **)(w + 0x20) + 8)),
-               *(char **)(*(char **)(w + 0x20)) + 0x20);
-    CopyVector((void *)(*(int *)(*(int *)(*(char **)(w + 0x20) + 8)) + 0x10),
-               *(char **)(*(char **)(w + 0x20)) + 0x20);
+    CopyVector(*(void **)(*(int *)(w->chains + 8)), *(char **)(w->chains) + 0x20);
+    CopyVector((void *)(*(int *)(*(int *)(w->chains + 8)) + 0x10), *(char **)(w->chains) + 0x20);
 
-    *(float *)(*(int *)(*(int *)(*(char **)(w + 0x20) + 8)) + 0x14) =
-        *(float *)(*(int *)(*(int *)(*(char **)(w + 0x20) + 8)) + 0x14) +
-        *(float *)(w + 0x30) * (float)*(int *)(w + 0x2C);
+    *(float *)(*(int *)(*(int *)(w->chains + 8)) + 0x14) =
+        *(float *)(*(int *)(*(int *)(w->chains + 8)) + 0x14) + w->f_30 * (float)w->f_2C;
 
-    *(float *)(*(int *)(*(char **)(w + 0x20) + 8) + *(int *)(w + 0x24) * 80 + 0x34) =
-        *(float *)(*(int *)(*(char **)(w + 0x20) + 8) + *(int *)(w + 0x24) * 80 + 0x34) +
-        *(float *)(w + 0x30) * (float)*(int *)(w + 0x2C);
+    *(float *)(*(int *)(w->chains + 8) + w->f_24 * 80 + 0x34) =
+        *(float *)(*(int *)(w->chains + 8) + w->f_24 * 80 + 0x34) + w->f_30 * (float)w->f_2C;
 
-    *(float *)(*(int *)(*(char **)(w + 0x20) + 8) + *(int *)(w + 0x28) * 80 + 0x34) =
-        *(float *)(*(int *)(*(char **)(w + 0x20) + 8) + *(int *)(w + 0x28) * 80 + 0x34) +
-        (*(float *)(w + 0x30) * (float)*(int *)(w + 0x2C) + 500.0f);
+    *(float *)(*(int *)(w->chains + 8) + w->f_28 * 80 + 0x34) =
+        *(float *)(*(int *)(w->chains + 8) + w->f_28 * 80 + 0x34) +
+        (w->f_30 * (float)w->f_2C + 500.0f);
 }
 
 inline void StabilizeAllLayoutedCage(void)
@@ -317,92 +329,83 @@ static inline void AddCageWindForce(char *n, float k)
 
 void CageGeo(char *self)
 {
-    char *w;
+    CageWork *w;
     char *n0;
     char *n1;
     int i;
 
-    w = *(char **)((char *)GOBJ_SUB(self) + 0x830);
+    w = *(CageWork **)((char *)GOBJ_SUB(self) + 0x830);
 
-    n0 = *(char **)(*(char **)(w + 0x20) + 8) + (*(int *)(w + 0x24) * 80 + 16);
-    n1 = *(char **)(*(char **)(w + 0x20) + 8) + (*(int *)(w + 0x28) * 80 + 16);
+    n0 = *(char **)(w->chains + 8) + (w->f_24 * 80 + 16);
+    n1 = *(char **)(w->chains + 8) + (w->f_28 * 80 + 16);
     AddCageWindForce(n0, 1.0f);
     AddCageWindForce(n1, 10.0f);
 
     sceVu0UnitMatrix(MatrixDrive_GetMatrix());
-    GetChainAnimation(*(char **)(w + 0x20), 0, MatrixDrive_GetMatrix());
+    GetChainAnimation(w->chains, 0, MatrixDrive_GetMatrix());
 
     {
         float v[4];
         int angle;
         float f;
 
-        sceVu0SubVector(
-            v, (void *)(*(int *)(w + 0x28) * 80 + *(int *)(*(char **)(w + 0x20) + 8) + 0x30),
-            (void *)(*(int *)(w + 0x24) * 80 + *(int *)(*(char **)(w + 0x20) + 8) + 0x30));
+        sceVu0SubVector(v, (void *)(w->f_28 * 80 + *(int *)(w->chains + 8) + 0x30),
+                        (void *)(w->f_24 * 80 + *(int *)(w->chains + 8) + 0x30));
         sceVu0Normalize(v, v);
         angle = GetTableArcTan2(FSqrt(v[0] * v[0] + v[2] * v[2]), v[1]);
         if (angle >= 2731) {
             f = (float)angle / 2730.0f;
             v[1] = 0.0f;
             sceVu0ScaleVector(v, v, f);
-            sceVu0SubVector(
-                (void *)(*(int *)(w + 0x28) * 80 + *(int *)(*(char **)(w + 0x20) + 8) + 0x40),
-                (void *)(*(int *)(w + 0x28) * 80 + *(int *)(*(char **)(w + 0x20) + 8) + 0x40), v);
-            sceVu0AddVector(
-                (void *)(*(int *)(w + 0x24) * 80 + *(int *)(*(char **)(w + 0x20) + 8) + 0x40),
-                (void *)(*(int *)(w + 0x24) * 80 + *(int *)(*(char **)(w + 0x20) + 8) + 0x40), v);
+            sceVu0SubVector((void *)(w->f_28 * 80 + *(int *)(w->chains + 8) + 0x40),
+                            (void *)(w->f_28 * 80 + *(int *)(w->chains + 8) + 0x40), v);
+            sceVu0AddVector((void *)(w->f_24 * 80 + *(int *)(w->chains + 8) + 0x40),
+                            (void *)(w->f_24 * 80 + *(int *)(w->chains + 8) + 0x40), v);
         }
     }
 
-    sceVu0ScaleVectorXYZ(
-        (void *)(*(int *)(w + 0x28) * 80 + *(int *)(*(char **)(w + 0x20) + 8) + 0x40),
-        (void *)(*(int *)(w + 0x28) * 80 + *(int *)(*(char **)(w + 0x20) + 8) + 0x40),
-        *(float *)(w + 0x3C));
-    sceVu0ScaleVectorXYZ(
-        (void *)(*(int *)(w + 0x24) * 80 + *(int *)(*(char **)(w + 0x20) + 8) + 0x40),
-        (void *)(*(int *)(w + 0x24) * 80 + *(int *)(*(char **)(w + 0x20) + 8) + 0x40),
-        *(float *)(w + 0x3C));
+    sceVu0ScaleVectorXYZ((void *)(w->f_28 * 80 + *(int *)(w->chains + 8) + 0x40),
+                         (void *)(w->f_28 * 80 + *(int *)(w->chains + 8) + 0x40), w->f_3C);
+    sceVu0ScaleVectorXYZ((void *)(w->f_24 * 80 + *(int *)(w->chains + 8) + 0x40),
+                         (void *)(w->f_24 * 80 + *(int *)(w->chains + 8) + 0x40), w->f_3C);
 
-    SetCageChainQuaternion(
-        *(char **)((char *)GOBJ_SUB(self) + 0x10),
-        (void *)(*(int *)(w + 0x28) * 80 + *(int *)(*(char **)(w + 0x20) + 8) + 0x30),
-        (void *)(*(int *)(w + 0x24) * 80 + *(int *)(*(char **)(w + 0x20) + 8) + 0x30));
-    RotQuaternionY(*(char **)((char *)GOBJ_SUB(self) + 0x10), *(short *)(w + 0x34));
+    SetCageChainQuaternion(*(char **)((char *)GOBJ_SUB(self) + 0x10),
+                           (void *)(w->f_28 * 80 + *(int *)(w->chains + 8) + 0x30),
+                           (void *)(w->f_24 * 80 + *(int *)(w->chains + 8) + 0x30));
+    RotQuaternionY(*(char **)((char *)GOBJ_SUB(self) + 0x10), w->angle);
     MultiQuaternion(*(char **)((char *)GOBJ_SUB(self) + 0x10),
-                    *(char **)((char *)GOBJ_SUB(self) + 0x10), w + 0x10);
+                    *(char **)((char *)GOBJ_SUB(self) + 0x10), w->rot);
     RegularizeQuaternion(*(char **)((char *)GOBJ_SUB(self) + 0x10));
-    GetMatrixFromQuaternionPos(
-        MatrixDrive_GetMatrix(), *(char **)((char *)GOBJ_SUB(self) + 0x10),
-        (void *)(*(int *)(w + 0x24) * 80 + *(int *)(*(char **)(w + 0x20) + 8) + 0x30));
+    GetMatrixFromQuaternionPos(MatrixDrive_GetMatrix(), *(char **)((char *)GOBJ_SUB(self) + 0x10),
+                               (void *)(w->f_24 * 80 + *(int *)(w->chains + 8) + 0x30));
     MatrixDrive_TransMatrix(0.0f, 0.0f, 0.0f);
     CopyMatrix(*(char **)((char *)GOBJ_SUB(self) + 0x0C), MatrixDrive_GetMatrix());
 
     {
         float q[4];
 
-        SetCageChainQuaternion(q, *(char **)(*(char **)(*(char **)(w + 0x20) + 8)) + 0x10,
-                               *(char **)(*(char **)(*(char **)(w + 0x20) + 8)));
+        SetCageChainQuaternion(q, *(char **)(*(char **)(w->chains + 8)) + 0x10,
+                               *(char **)(*(char **)(w->chains + 8)));
         GetMatrixFromQuaternionPos(MatrixDrive_GetMatrix(), q,
-                                   *(char **)(*(char **)(*(char **)(w + 0x20) + 8)));
+                                   *(char **)(*(char **)(w->chains + 8)));
         CopyVector((char *)MatrixDrive_GetMatrix() + 0x30,
-                   *(char **)(*(char **)(*(char **)(w + 0x20) + 8)) + 0x10);
+                   *(char **)(*(char **)(w->chains + 8)) + 0x10);
     }
-    MatrixDrive_TransMatrix(0.0f, -(*(float *)(w + 0x30) * 0.5f - 20.0f), 0.0f);
+    MatrixDrive_TransMatrix(0.0f, -(w->f_30 * 0.5f - 20.0f), 0.0f);
 
-    for (i = 0; i < *(int *)(w + 0x2C); i++) {
+    for (i = 0; i < w->f_2C; i++) {
         MatrixDrive_PushMatrix();
         MatrixDrive_RotMatrixX(-32768);
-        CopyMatrix(*(char **)(*(char **)w + 0x0C) + i * 64, MatrixDrive_GetMatrix());
+        CopyMatrix(*(char **)(w->dobj + 0x0C) + i * 64, MatrixDrive_GetMatrix());
         MatrixDrive_PopMatrix();
-        MatrixDrive_TransMatrix(0.0f, -*(float *)(w + 0x30), 0.0f);
+        MatrixDrive_TransMatrix(0.0f, -w->f_30, 0.0f);
     }
 }
 
 void CageDL(char *self)
 {
-    char *w = *(char **)((char *)GOBJ_SUB(self) + 0x830);
+    CageWork *w = *(CageWork **)((char *)GOBJ_SUB(self) + 0x830);
 
     p2o_DispVU1(self);
-    p2o_DispVU1DObjMulti(*(void **)w);
+    p2o_DispVU1DObjMulti(w->dobj);
 }
