@@ -30,7 +30,7 @@ typedef struct BgaAnimDefault { /* field names derived */
     /* 0x20 */ int obj;
     /* 0x24 */ int idx;
     /* 0x28 */ int root;
-    /* 0x2C */ int f2C;
+    /* 0x2C */ char pad2C[4];
 } BgaAnimDefault; /* derived name */
 
 static BgaAnimDefault bgaAnimDefault = {
@@ -61,7 +61,7 @@ struct BgaLightEnv;
 
 typedef struct BgaEnvEnt { /* field names derived */
     /* 0x00 */ unsigned short type;
-    /* 0x02 */ short f02;
+    /* 0x02 */ char pad02[2];
     /* 0x04 */ unsigned char *data;
 } BgaEnvEnt; /* derived name */
 
@@ -76,19 +76,19 @@ typedef struct BgaDObjEnt { /* field names derived */
         int next;                  /* the file's flat list, consumed by bga_InitData */
     } u;
     /* 0x28 */ int env;
-    /* 0x2C */ struct BgaDObjEnt *f2C;
-    /* 0x30 */ struct BgaDObjEnt *f30;
-    /* 0x34 */ int f34;
+    /* 0x2C */ struct BgaDObjEnt *child;
+    /* 0x30 */ struct BgaDObjEnt *sibling;
+    /* 0x34 */ int motion;
     /* 0x38 */ char pad38[0xC];
     /* 0x44 */ short parent;
-    /* 0x46 */ short f46;
+    /* 0x46 */ char pad46[2];
 } BgaDObjEnt; /* derived name */
 
 typedef struct BgaKey { /* field names derived */
     /* 0x00 */ float v[6];
-    /* 0x18 */ float f18;
-    /* 0x1C */ float f1C;
-    /* 0x20 */ int f20;
+    /* 0x18 */ float tension;
+    /* 0x1C */ float bias;
+    /* 0x20 */ int linear;
     /* 0x24 */ int time;
 } BgaKey; /* derived name */
 
@@ -117,20 +117,20 @@ static struct BgaLightning *bgaLightningList = 0; /* derived name */
 
 static inline void bga_addSiblingTail(BgaDObjEnt *c, BgaDObjEnt *d) /* derived name */
 {
-    while (c->f30 != 0) {
-        c = c->f30;
+    while (c->sibling != 0) {
+        c = c->sibling;
     }
-    c->f30 = d;
+    c->sibling = d;
 }
 
 static inline void bga_linkToParent(BgaDObjEnt *q, BgaDObjEnt *d, int no) /* derived name */
 {
     do {
         if (q->num == no) {
-            if (q->f2C == 0) {
-                q->f2C = d;
+            if (q->child == 0) {
+                q->child = d;
             } else {
-                bga_addSiblingTail(q->f2C, d);
+                bga_addSiblingTail(q->child, d);
             }
         }
         if (q->u.next == 0) {
@@ -223,7 +223,7 @@ char *bga_InitData(BgaHeader *p)
     *p->anim = bgaAnimDefault;
     d = (BgaDObjEnt *)p->dobjs;
     while (1) {
-        d->f34 += (int)p;
+        d->motion += (int)p;
         if (d->env != 0) {
             i = 0;
             d->env += (int)p;
@@ -286,7 +286,7 @@ char *bga_InitData(BgaHeader *p)
 }
 
 typedef struct BgaSdfKey { /* field names derived */
-    /* 0x00 */ int f00;
+    /* 0x00 */ char pad00[4];
     /* 0x04 */ float pos[3];
     /* 0x10 */ float at[3];
     /* 0x1C */ float roll;
@@ -315,10 +315,12 @@ inline char *bga_InitSdfCamera(char *a0)
     return a0;
 }
 
+/* an object's display object (typedef.h's Sub15C) as bga_ApplyDObject reads
+   it: the node count it hands out node numbers from and the model's name */
 typedef struct BgaGeom { /* field names derived */
-    /* 0x000 */ int f00;
-    /* 0x004 */ int f04;
-    /* 0x008 */ int f08;
+    /* 0x000 */ char pad00[4];
+    /* 0x004 */ int parentNode;
+    /* 0x008 */ int nodeNum;
     /* 0x00C */ char pad0C[0x848];
     /* 0x854 */ char *name;
 } BgaGeom; /* derived name */
@@ -348,18 +350,16 @@ typedef struct BgaParticleEnt { /* field names derived */
     /* 0x20 */ BgaParticleBits u;
 } BgaParticleEnt; /* derived name */
 
+/* the fields the light envelopes write: a light's colour at 0x20 (Light.c's
+   Light), an ambient volume's colour at 0x40 and the inverse extents of its
+   inner and outer shells (Light.c's AmbientVolume) */
 typedef struct BgaLightEnv { /* field names derived */
     /* 0x00 */ char pad00[0x20];
     /* 0x20 */ float col[4];
     /* 0x30 */ char pad30[0x10];
     /* 0x40 */ float col2[4];
-    /* 0x50 */ float f50;
-    /* 0x54 */ float f54;
-    /* 0x58 */ float f58;
-    /* 0x5C */ int f5C;
-    /* 0x60 */ float f60;
-    /* 0x64 */ float f64;
-    /* 0x68 */ float f68;
+    /* 0x50 */ float inner[4];
+    /* 0x60 */ float outer[3];
 } BgaLightEnv; /* derived name */
 
 void bga_initLightEnvelope(BgaDObjEnt *p)
@@ -409,12 +409,12 @@ void bga_initLightEnvelope(BgaDObjEnt *p)
             case 8:
             case 9:
                 if (p->u.light != 0) {
-                    p->u.light->f50 = 1.0f / (((float *)d)[0] * 50.0f);
-                    p->u.light->f54 = 1.0f / (((float *)d)[1] * 50.0f);
-                    p->u.light->f58 = 1.0f / (((float *)d)[2] * 50.0f);
-                    p->u.light->f60 = 1.0f / (((float *)d)[3] * 50.0f);
-                    p->u.light->f64 = 1.0f / (((float *)d)[4] * 50.0f);
-                    p->u.light->f68 = 1.0f / (((float *)d)[5] * 50.0f);
+                    p->u.light->inner[0] = 1.0f / (((float *)d)[0] * 50.0f);
+                    p->u.light->inner[1] = 1.0f / (((float *)d)[1] * 50.0f);
+                    p->u.light->inner[2] = 1.0f / (((float *)d)[2] * 50.0f);
+                    p->u.light->outer[0] = 1.0f / (((float *)d)[3] * 50.0f);
+                    p->u.light->outer[1] = 1.0f / (((float *)d)[4] * 50.0f);
+                    p->u.light->outer[2] = 1.0f / (((float *)d)[5] * 50.0f);
                 } else {
                     debug_assert(__FILE__, 1141);
                     __assert(__FILE__, 1141, "0");
@@ -470,7 +470,7 @@ void bga_ApplyDObject(BgaDObjEnt *p, void **objs, int n, int no)
             }
             if (strcmp(((BgaGeom *)((BgaGObj *)objs[i])->geom)->name, p->name) == 0) {
                 p->u.obj = ((BgaGObj *)objs[i])->geom;
-                p->num = ((BgaGeom *)((BgaGObj *)objs[i])->geom)->f08++;
+                p->num = ((BgaGeom *)((BgaGObj *)objs[i])->geom)->nodeNum++;
             }
         }
         break;
@@ -490,11 +490,11 @@ void bga_ApplyDObject(BgaDObjEnt *p, void **objs, int n, int no)
         p->u.obj = CreateKyomiGObj(no);
         break;
     }
-    if (p->f2C) {
-        bga_ApplyDObject(p->f2C, objs, n, no);
+    if (p->child) {
+        bga_ApplyDObject(p->child, objs, n, no);
     }
-    if (p->f30) {
-        bga_ApplyDObject(p->f30, objs, n, no);
+    if (p->sibling) {
+        bga_ApplyDObject(p->sibling, objs, n, no);
     }
 }
 
@@ -548,8 +548,8 @@ typedef struct BgaPtKey { /* field names derived */
     /* 0x00 */ float pos[3];
     /* 0x0C */ float rot[3];
     /* 0x18 */ float col[3];
-    /* 0x24 */ float f24;
-    /* 0x28 */ float f28;
+    /* 0x24 */ float tension;
+    /* 0x28 */ float bias;
     /* 0x2C */ int linear;
     /* 0x30 */ int time;
 } BgaPtKey; /* derived name */
@@ -644,10 +644,10 @@ void bga_GetMotion(float *pos, int *rot, float *col, BgaPtMotion *m)
         float tc;
         float td;
 
-        ta = (1.0f - k->f24) * (k->f28 + 1.0f);
-        tb = (1.0f - k->f24) * (1.0f - k->f28);
-        tc = (1.0f - k1->f24) * (1.0f - k1->f28);
-        td = (1.0f - k1->f24) * (k1->f28 + 1.0f);
+        ta = (1.0f - k->tension) * (k->bias + 1.0f);
+        tb = (1.0f - k->tension) * (1.0f - k->bias);
+        tc = (1.0f - k1->tension) * (1.0f - k1->bias);
+        td = (1.0f - k1->tension) * (k1->bias + 1.0f);
         bga_hermite(u, &h00, &h01, &h10, &h11);
         if (k->time != 0) {
             s0 = (float)d / (float)(k1->time - k[-1].time);
@@ -802,10 +802,10 @@ void bga_GetMotionParticle(float *pos, int *rot, float *col, BgaPtMotion *m)
         float tc;
         float td;
 
-        ta = (1.0f - k->f24) * (k->f28 + 1.0f);
-        tb = (1.0f - k->f24) * (1.0f - k->f28);
-        tc = (1.0f - k1->f24) * (1.0f - k1->f28);
-        td = (1.0f - k1->f24) * (k1->f28 + 1.0f);
+        ta = (1.0f - k->tension) * (k->bias + 1.0f);
+        tb = (1.0f - k->tension) * (1.0f - k->bias);
+        tc = (1.0f - k1->tension) * (1.0f - k1->bias);
+        td = (1.0f - k1->tension) * (k1->bias + 1.0f);
         bga_hermite(u, &h00, &h01, &h10, &h11);
         if (k->time != 0) {
             s0 = (float)d / (float)(k1->time - k[-1].time);
@@ -928,10 +928,10 @@ void bga_GetMotionLightning(float *pos, int *rot, float *col, BgaPtMotion *m)
         float tc;
         float td;
 
-        ta = (1.0f - k->f24) * (k->f28 + 1.0f);
-        tb = (1.0f - k->f24) * (1.0f - k->f28);
-        tc = (1.0f - k1->f24) * (1.0f - k1->f28);
-        td = (1.0f - k1->f24) * (k1->f28 + 1.0f);
+        ta = (1.0f - k->tension) * (k->bias + 1.0f);
+        tb = (1.0f - k->tension) * (1.0f - k->bias);
+        tc = (1.0f - k1->tension) * (1.0f - k1->bias);
+        td = (1.0f - k1->tension) * (k1->bias + 1.0f);
         bga_hermite(u, &h00, &h01, &h10, &h11);
         if (k->time != 0) {
             s0 = (float)d / (float)(k1->time - k[-1].time);
@@ -1009,10 +1009,10 @@ void bga_GetMotionLightning(float *pos, int *rot, float *col, BgaPtMotion *m)
 }
 
 typedef struct BgaExtKey { /* field names derived */
-    /* 0x00 */ float f00;
-    /* 0x04 */ float f04;
-    /* 0x08 */ float f08;
-    /* 0x0C */ int f0C;
+    /* 0x00 */ float value;
+    /* 0x04 */ float tension;
+    /* 0x08 */ float bias;
+    /* 0x0C */ int linear;
     /* 0x10 */ int time;
 } BgaExtKey; /* derived name */
 
@@ -1070,7 +1070,7 @@ float bga_GetExtMotion(BgaExtMotion *m)
         f *= 1.2075409f;
     }
     if (m->n == 1) {
-        return m->key->f00;
+        return m->key->value;
     }
     s0 = 0.0f;
     s1 = 0.0f;
@@ -1081,9 +1081,9 @@ float bga_GetExtMotion(BgaExtMotion *m)
     f -= (float)k->time;
     d = k1->time - k->time;
     u = f / (float)d;
-    dv = k1->f00 - k->f00;
+    dv = k1->value - k->value;
 
-    if (k1->f0C == 0) {
+    if (k1->linear == 0) {
         float h00;
         float h01;
         float h10;
@@ -1095,10 +1095,10 @@ float bga_GetExtMotion(BgaExtMotion *m)
         float m0;
         float m1;
 
-        ta = (1.0f - k->f04) * (k->f08 + 1.0f);
-        tb = (1.0f - k->f04) * (1.0f - k->f08);
-        tc = (1.0f - k1->f04) * (1.0f - k1->f08);
-        td = (1.0f - k1->f04) * (k1->f08 + 1.0f);
+        ta = (1.0f - k->tension) * (k->bias + 1.0f);
+        tb = (1.0f - k->tension) * (1.0f - k->bias);
+        tc = (1.0f - k1->tension) * (1.0f - k1->bias);
+        td = (1.0f - k1->tension) * (k1->bias + 1.0f);
         bga_hermite(u, &h00, &h01, &h10, &h11);
         if (k->time != 0) {
             s0 = (float)d / (float)(k1->time - k[-1].time);
@@ -1109,17 +1109,17 @@ float bga_GetExtMotion(BgaExtMotion *m)
         if (k->time == 0) {
             m0 = (ta + tb) * dv;
         } else {
-            m0 = s0 * (ta * (k->f00 - k[-1].f00) + tb * dv);
+            m0 = s0 * (ta * (k->value - k[-1].value) + tb * dv);
         }
         if (k1->time >= m->len) {
             m1 = (tc + td) * dv;
         } else {
-            m1 = s1 * (tc * dv + td * (k1[1].f00 - k1->f00));
+            m1 = s1 * (tc * dv + td * (k1[1].value - k1->value));
         }
-        return k->f00 * h00 + k1->f00 * h01 + m0 * h10 + m1 * h11;
+        return k->value * h00 + k1->value * h01 + m0 * h10 + m1 * h11;
     }
     t = u * dv;
-    return k->f00 + t;
+    return k->value + t;
 }
 
 void bga_GetGizmoMotion(BgaMotion *m, float *dst)
@@ -1160,7 +1160,7 @@ void bga_GetGizmoMotion(BgaMotion *m, float *dst)
     d = k1->time - k->time;
     u = f / (float)d;
 
-    if (k1->f20 == 0) {
+    if (k1->linear == 0) {
         float h00;
         float h01;
         float h10;
@@ -1170,10 +1170,10 @@ void bga_GetGizmoMotion(BgaMotion *m, float *dst)
         float tc;
         float td;
 
-        ta = (1.0f - k->f18) * (k->f1C + 1.0f);
-        tb = (1.0f - k->f18) * (1.0f - k->f1C);
-        tc = (1.0f - k1->f18) * (1.0f - k1->f1C);
-        td = (1.0f - k1->f18) * (k1->f1C + 1.0f);
+        ta = (1.0f - k->tension) * (k->bias + 1.0f);
+        tb = (1.0f - k->tension) * (1.0f - k->bias);
+        tc = (1.0f - k1->tension) * (1.0f - k1->bias);
+        td = (1.0f - k1->tension) * (k1->bias + 1.0f);
         bga_hermite(u, &h00, &h01, &h10, &h11);
         if (k->time != 0) {
             s0 = (float)d / (float)(k1->time - k[-1].time);
@@ -1491,20 +1491,20 @@ void _RotTransCurrentMatrixYXZ(void *t, int *rot)
 typedef struct BgaNodeBits { /* field names derived */
 
     /* 0x00 */ char pad00[0x30];
-    /* 0x30 */ float f30;
-    /* 0x34 */ int f34;
+    /* 0x30 */ float fade;
+    /* 0x34 */ int alpha;
     /* 0x38 */ union {
         struct {
             int b0 : 1;
             int b1 : 1;
             int b2 : 1;
-            short f3A;
+            short rotZ;
         } b;
 
         long long w;
-    } f38;
+    } flags;
 
-    /* 0x40 */ float f40[4];
+    /* 0x40 */ float pos[4];
 } BgaNodeBits; /* derived name */
 
 typedef struct BgaObj { /* field names derived */
@@ -1528,29 +1528,29 @@ extern void SetParamKyomiGObj(void *o, float *pos, float *scale);
 typedef struct BgaLightningSeg { /* field names derived */
     /* 0x00 */ float v[4];
     /* 0x10 */ int key;
-    /* 0x14 */ int f14;
-    /* 0x18 */ int f18;
-    /* 0x1C */ int f1C;
+    /* 0x14 */ char pad14[12];
 } BgaLightningSeg; /* derived name */
 
 /* The lightning definition the BGA file carries: the kind at +0x02 picks the
-   object the bolt is drawn against, the four bytes at +0x04 are its colour
-   and the ten floats from +0x08 are DrawLightningN's shape parameters. */
+   object the bolt is drawn against, the four bytes at +0x04 are its colour,
+   and the nine floats from +0x08 and the short at +0x2E are DrawLightningN's
+   parameters, named as lightning.c names them, and the short at +0x2C is the
+   node the bolt starts from. */
 typedef struct BgaLightningDef { /* field names derived */
-    /* 0x00 */ short f00;
+    /* 0x00 */ char pad00[2];
     /* 0x02 */ short kind;
     /* 0x04 */ unsigned char col[4];
-    /* 0x08 */ float f08;
-    /* 0x0C */ float f0C;
-    /* 0x10 */ float f10;
-    /* 0x14 */ float f14;
-    /* 0x18 */ float f18;
-    /* 0x1C */ float f1C;
-    /* 0x20 */ float f20;
-    /* 0x24 */ float f24;
-    /* 0x28 */ float f28;
-    /* 0x2C */ short f2C;
-    /* 0x2E */ short f2E;
+    /* 0x08 */ float stepMin;
+    /* 0x0C */ float stepMax;
+    /* 0x10 */ float swayStepMin;
+    /* 0x14 */ float swayStepMax;
+    /* 0x18 */ float turnMin;
+    /* 0x1C */ float turnMax;
+    /* 0x20 */ float swayLimit;
+    /* 0x24 */ float width;
+    /* 0x28 */ float texLen;
+    /* 0x2C */ short node;
+    /* 0x2E */ short c;
 } BgaLightningDef; /* derived name */
 
 typedef struct BgaLightning { /* field names derived */
@@ -1599,15 +1599,15 @@ void bga_CalcObject(BgaDObjEnt *d, float dt, float f13, int a1, int a2, int a3)
 
     switch (d->type) {
     case 13:
-        bga_GetMotionParticle(bgaPos, bgaRot, bgaScale, (BgaPtMotion *)&d->f34);
+        bga_GetMotionParticle(bgaPos, bgaRot, bgaScale, (BgaPtMotion *)&d->motion);
         break;
     case 14:
     case 15:
     case 16:
-        bga_GetMotionLightning(bgaPos, bgaRot, bgaScale, (BgaPtMotion *)&d->f34);
+        bga_GetMotionLightning(bgaPos, bgaRot, bgaScale, (BgaPtMotion *)&d->motion);
         break;
     default:
-        bga_GetMotion(bgaPos, bgaRot, bgaScale, (BgaPtMotion *)&d->f34);
+        bga_GetMotion(bgaPos, bgaRot, bgaScale, (BgaPtMotion *)&d->motion);
         break;
     }
 
@@ -1735,12 +1735,12 @@ void bga_CalcObject(BgaDObjEnt *d, float dt, float f13, int a1, int a2, int a3)
             } else {
                 _GetCurrentMatrix(&((BgaObj *)d->u.obj)->mtx[d->num]);
             }
-            ((BgaObj *)d->u.obj)->work[d->num].f38.b.b1 = (d->type == 10);
-            if (((BgaObj *)d->u.obj)->work[d->num].f38.b.b1) {
-                _CopyVector(((BgaObj *)d->u.obj)->work[d->num].f40, bgaPos);
+            ((BgaObj *)d->u.obj)->work[d->num].flags.b.b1 = (d->type == 10);
+            if (((BgaObj *)d->u.obj)->work[d->num].flags.b.b1) {
+                _CopyVector(((BgaObj *)d->u.obj)->work[d->num].pos, bgaPos);
             }
-            ((BgaObj *)d->u.obj)->work[d->num].f38.b.b2 = (d->type == 4);
-            ((BgaObj *)d->u.obj)->work[d->num].f38.b.f3A = bgaRollZ;
+            ((BgaObj *)d->u.obj)->work[d->num].flags.b.b2 = (d->type == 4);
+            ((BgaObj *)d->u.obj)->work[d->num].flags.b.rotZ = bgaRollZ;
         }
         if (a1 != 0 && d->type == 2) {
             if (debug_font_flag & 1) {
@@ -1751,46 +1751,46 @@ void bga_CalcObject(BgaDObjEnt *d, float dt, float f13, int a1, int a2, int a3)
         break;
     }
 
-    if (d->f2C != 0) {
-        bga_CalcObject(d->f2C, dt, f13, a1, a2, a3);
+    if (d->child != 0) {
+        bga_CalcObject(d->child, dt, f13, a1, a2, a3);
     }
     bgaRollZ = save;
     _PopCurrentMatrix();
     PopQuaternion();
-    if (d->f30 != 0) {
-        bga_CalcObject(d->f30, dt, f13, a1, a2, a3);
+    if (d->sibling != 0) {
+        bga_CalcObject(d->sibling, dt, f13, a1, a2, a3);
     }
-    bga_stepMotion((BgaExtMotion *)&d->f34, dt, a3);
+    bga_stepMotion((BgaExtMotion *)&d->motion, dt, a3);
 }
 
 typedef struct { /* field names derived */
-    /* 0x00 */ int f00;
-    /* 0x04 */ int f04;
-    /* 0x08 */ unsigned int f08;
-    /* 0x0C */ float f0C;
+    /* 0x00 */ int key;
+    /* 0x04 */ int n;
+    /* 0x08 */ unsigned int len;
+    /* 0x0C */ float frame;
 } BgaCount; /* derived name */
 
 typedef struct { /* field names derived */
-    /* 0x00 */ int f00;
+    /* 0x00 */ char pad00[4];
     /* 0x04 */ BgaCount *obj;
 } BgaCountEnt; /* derived name */
 
 typedef struct BgaCntNode { /* field names derived */
     /* 0x00 */ char pad00[0x28];
     /* 0x28 */ BgaCountEnt *ents;
-    /* 0x2C */ struct BgaCntNode *f2C;
-    /* 0x30 */ struct BgaCntNode *f30;
-    /* 0x34 */ BgaCount f34;
+    /* 0x2C */ struct BgaCntNode *child;
+    /* 0x30 */ struct BgaCntNode *sibling;
+    /* 0x34 */ BgaCount count;
 } BgaCntNode; /* derived name */
 
 static inline void bga_clampCount(BgaCount *o, float f) /* derived name */
 {
     if (f >= 0.0f) {
-        float c = (float)o->f08;
+        float c = (float)o->len;
         float r;
 
         if (systemStatus[0] ? c * 0.82812935f < f : c < f) {
-            float t = (float)o->f08;
+            float t = (float)o->len;
 
             r = t;
             if (systemStatus[0]) {
@@ -1799,9 +1799,9 @@ static inline void bga_clampCount(BgaCount *o, float f) /* derived name */
         } else {
             r = f;
         }
-        o->f0C = r;
+        o->frame = r;
     } else {
-        o->f0C = 0.0f;
+        o->frame = 0.0f;
     }
 }
 
@@ -1816,13 +1816,13 @@ void bga_resetObjectCounter(BgaCntNode *o, float f, int a1)
             e++;
         }
     }
-    if (o->f2C != 0) {
-        bga_resetObjectCounter(o->f2C, f, a1);
+    if (o->child != 0) {
+        bga_resetObjectCounter(o->child, f, a1);
     }
-    if (o->f30 != 0) {
-        bga_resetObjectCounter(o->f30, f, a1);
+    if (o->sibling != 0) {
+        bga_resetObjectCounter(o->sibling, f, a1);
     }
-    bga_clampCount(&o->f34, f);
+    bga_clampCount(&o->count, f);
 }
 
 /* BgAnimation.h is not included: its bga_InitData does not agree with this file */
@@ -2201,15 +2201,16 @@ void bga_DispLightning(void)
                 k = p->n;
                 if (k < 10) {
                     p->n = k + 1;
-                    _CopyVector(&p->seg[k], (char *)GOBJ_SUB(o)->nodeMtx + (g->f2C << 6) + 0x30);
+                    _CopyVector(&p->seg[k], (char *)GOBJ_SUB(o)->nodeMtx + (g->node << 6) + 0x30);
                 }
             }
             col.c[0] = g->col[0];
             col.c[1] = g->col[1];
             col.c[2] = g->col[2];
             col.c[3] = g->col[3];
-            DrawLightningN(p->n, p, &col, g->f08, g->f0C, g->f10, g->f14, g->f18, g->f1C, g->f20,
-                           g->f24, g->f28, p->frame + z, g->f2E);
+            DrawLightningN(p->n, p, &col, g->stepMin, g->stepMax, g->swayStepMin, g->swayStepMax,
+                           g->turnMin, g->turnMax, g->swayLimit, g->width, g->texLen, p->frame + z,
+                           g->c);
             z += 0.01f;
         }
     }
@@ -2236,11 +2237,12 @@ void bga_DispLightning(void)
                 k = p->n;
                 if (k < 10) {
                     p->n = k + 1;
-                    _CopyVector(&p->seg[k], (char *)GOBJ_SUB(o)->nodeMtx + (g->f2C << 6) + 0x30);
+                    _CopyVector(&p->seg[k], (char *)GOBJ_SUB(o)->nodeMtx + (g->node << 6) + 0x30);
                 }
             }
-            DrawLightningN(p->n, p, &col, g->f08, g->f0C, g->f10, g->f14, g->f18, g->f1C, g->f20,
-                           g->f24, g->f28, p->frame, g->f2E);
+            DrawLightningN(p->n, p, &col, g->stepMin, g->stepMax, g->swayStepMin, g->swayStepMax,
+                           g->turnMin, g->turnMax, g->swayLimit, g->width, g->texLen, p->frame,
+                           g->c);
             break;
         case 2:
             for (o = isysGObjGetExist_begin(); o != 0; o = isysGObjGetExist_next(o)) {
@@ -2250,11 +2252,12 @@ void bga_DispLightning(void)
                         if (k < 10) {
                             p->n = k + 1;
                             _CopyVector(&p->seg[k],
-                                        (char *)GOBJ_SUB(o)->nodeMtx + (g->f2C << 6) + 0x30);
+                                        (char *)GOBJ_SUB(o)->nodeMtx + (g->node << 6) + 0x30);
                         }
                     }
-                    DrawLightningN(p->n, p, &col, g->f08, g->f0C, g->f10, g->f14, g->f18, g->f1C,
-                                   g->f20, g->f24, g->f28, p->frame, g->f2E);
+                    DrawLightningN(p->n, p, &col, g->stepMin, g->stepMax, g->swayStepMin,
+                                   g->swayStepMax, g->turnMin, g->turnMax, g->swayLimit, g->width,
+                                   g->texLen, p->frame, g->c);
                 }
             }
             break;
@@ -2266,19 +2269,21 @@ void bga_DispLightning(void)
                         if (k < 10) {
                             p->n = k + 1;
                             _CopyVector(&p->seg[k],
-                                        (char *)GOBJ_SUB(o)->nodeMtx + (g->f2C << 6) + 0x30);
+                                        (char *)GOBJ_SUB(o)->nodeMtx + (g->node << 6) + 0x30);
                         }
                     }
-                    DrawLightningN(p->n, p, &col, g->f08, g->f0C, g->f10, g->f14, g->f18, g->f1C,
-                                   g->f20, g->f24, g->f28, p->frame, g->f2E);
+                    DrawLightningN(p->n, p, &col, g->stepMin, g->stepMax, g->swayStepMin,
+                                   g->swayStepMax, g->turnMin, g->turnMax, g->swayLimit, g->width,
+                                   g->texLen, p->frame, g->c);
                 }
             }
             break;
         case 0:
             break;
         default:
-            DrawLightningN(p->n, p, &col, g->f08, g->f0C, g->f10, g->f14, g->f18, g->f1C, g->f20,
-                           g->f24, g->f28, p->frame, g->f2E);
+            DrawLightningN(p->n, p, &col, g->stepMin, g->stepMax, g->swayStepMin, g->swayStepMax,
+                           g->turnMin, g->turnMax, g->swayLimit, g->width, g->texLen, p->frame,
+                           g->c);
             break;
         }
     }

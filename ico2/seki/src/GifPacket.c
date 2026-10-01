@@ -16,7 +16,7 @@ typedef struct { /* field names derived */
 /* One 64-bit slot of a DMA/GIF packet: written either as the whole qword
    (DMA tag, GIF tag, A+D data) or as one of its two 32-bit halves. */
 
-/* a file-static copy of gif_SetGsReg, which most of this file inlines */
+/* one A+D register write, which gif_SetGsReg and most of this file inline */
 static inline void setGsReg(long long a0, long long a1) /* derived name */
 {
     *PacketBufferStruct.ptr.d++ = a1;
@@ -205,8 +205,8 @@ void gif_MakeSpriteWithStrip(int *r, long long z, int *uv, unsigned char *col, i
     setGsReg(0x05, GIF_XY(r[6], r[7], z));
 }
 
-/* a file-static copy of gif_MakePoint2DOffset, which gif_PointOffset
-   inlines */
+/* a point at an offset position, which gif_MakePoint2DOffset and
+   gif_PointOffset inline */
 static inline void makePoint2DOffset(int *v, long long z, unsigned char *col,
                                      int prim) /* derived name */
 {
@@ -224,7 +224,7 @@ void gif_PointOffset(int *v, long long z, unsigned char *col, int prim)
     makePoint2DOffset(p, z, col, prim);
 }
 
-/* a file-static copy of gif_MakeLine2D, which gif_Line inlines */
+/* a two-point line, which gif_MakeLine2D and gif_Line inline */
 static inline void makeLine2D(int *v0, int *v1, long long z0, long long z1, unsigned char *col,
                               int prim) /* derived name */
 {
@@ -246,8 +246,8 @@ void gif_Line(int *v0, int *v1, long long z0, long long z1, unsigned char *col, 
     makeLine2D(p0, p1, z0, z1, col, prim);
 }
 
-/* a file-static copy of gif_MakeSpriteNoTexture, which the Sprite wrappers
-   inline; gif_MakeSprite stays a call */
+/* an untextured sprite, which gif_MakeSpriteNoTexture and the Sprite
+   wrappers inline; gif_MakeSprite stays a call */
 static inline void makeSpriteNoTexture(int x, int y, int w, int h, long long z, unsigned char *col,
                                        int prim) /* derived name */
 {
@@ -260,7 +260,8 @@ static inline void makeSpriteNoTexture(int x, int y, int w, int h, long long z, 
     setGsReg(0x05, GIF_XY0(x + fx, y + fy, z));
 }
 
-/* a file-static copy of gif_MakeSpriteNoTextureOffset */
+/* an untextured sprite at an offset position, which
+   gif_MakeSpriteNoTextureOffset and the offset Sprite wrappers inline */
 static inline void makeSpriteNoTextureOffset(int x, int y, int w, int h, long long z,
                                              unsigned char *col, int prim) /* derived name */
 {
@@ -400,7 +401,8 @@ static int stripVisible[2] = {0, 0}; /* derived name */
 
 static int stripIndex = 0; /* derived name */
 
-/* a file-static copy of _IsInScreen, defined further down this file */
+/* the on-screen test of a projected vertex, which the strip and polygon
+   functions and _IsInScreen further down this file inline */
 static inline int isInScreen(volatile int *p) /* derived name */
 {
     if (p[2] < 0)
@@ -612,8 +614,7 @@ void gif_StartPacketPriPath1(int pri)
 
 void gif_SetGsReg(long long a0, long long a1)
 {
-    *PacketBufferStruct.ptr.d++ = a1;
-    *PacketBufferStruct.ptr.d++ = a0;
+    setGsReg(a0, a1);
 }
 
 int gif_CheckOpen(void)
@@ -621,8 +622,8 @@ int gif_CheckOpen(void)
     return packetOpen;
 }
 
-/* a file-static copy of gif_MakePoint2D, which gif_Point and the rest of the
-   point family inline */
+/* a point, which gif_MakePoint2D, gif_Point and the rest of the point
+   family inline */
 static inline void makePoint2D(int *v, long long z, unsigned char *col,
                                long long prim) /* derived name */
 {
@@ -633,44 +634,28 @@ static inline void makePoint2D(int *v, long long z, unsigned char *col,
 
 void gif_MakePoint2D(int *v, long long z, unsigned char *col, int prim)
 {
-    setGsReg(0x00, ((long long)prim << 6) | 0x100);
-    setGsReg(0x01, GIF_RGBA(col));
-    setGsReg(0x05, GIF_XYZ(v, z));
+    makePoint2D(v, z, col, prim);
 }
 
 void gif_MakePoint2DOffset(int *v, long long z, unsigned char *col, int prim)
 {
-    setGsReg(0x00, 0x100 | ((long long)prim << 6));
-    setGsReg(0x01, GIF_RGBA(col));
-    setGsReg(0x05, GIF_XYZOFF(v, z));
+    makePoint2DOffset(v, z, col, prim);
 }
 
 void gif_MakeLine2D(int *v0, int *v1, long long z0, long long z1, unsigned char *col, int prim)
 {
-    setGsReg(0x00, ((long long)prim << 6) | 0xA);
-    setGsReg(0x01, GIF_RGBA(col));
-    setGsReg(0x05, GIF_XYZ(v0, z0));
-    setGsReg(0x05, GIF_XYZ(v1, z1));
+    makeLine2D(v0, v1, z0, z1, col, prim);
 }
 
 void gif_MakeSpriteNoTexture(int x, int y, int w, int h, long long z, unsigned char *col, int prim)
 {
-    int fx = w + 0x8000;
-    int fy = h + 0x8000;
-
-    setGsReg(0x00, (prim << 6) | 0x406);
-    setGsReg(0x01, GIF_RGBA(col));
-    setGsReg(0x05, GIF_XY(x, y, z));
-    setGsReg(0x05, GIF_XY0(x + fx, y + fy, z));
+    makeSpriteNoTexture(x, y, w, h, z, col, prim);
 }
 
 void gif_MakeSpriteNoTextureOffset(int x, int y, int w, int h, long long z, unsigned char *col,
                                    int prim)
 {
-    setGsReg(0x00, (prim << 6) | 0x406);
-    setGsReg(0x01, GIF_RGBA(col));
-    setGsReg(0x05, GIF_XY0(GIF_OX + x, GIF_OY + y, z));
-    setGsReg(0x05, GIF_XY0(GIF_OX + x + w, GIF_OY + y + h, z));
+    makeSpriteNoTextureOffset(x, y, w, h, z, col, prim);
 }
 
 void gif_Point(int *v, long long z, unsigned char *col, int prim)
@@ -760,15 +745,5 @@ void gif_SetHalfOffset(void)
 
 int _IsInScreen(volatile int *a0)
 {
-    if (a0[2] < 0)
-        return 0;
-    if (a0[2] > 0x0FFFFFF0)
-        return 0;
-    if (a0[0] < 0)
-        return 0;
-    if (a0[0] > 0xFFF0)
-        return 0;
-    if (a0[1] < 0)
-        return 0;
-    return a0[1] <= 65520;
+    return isInScreen(a0);
 }

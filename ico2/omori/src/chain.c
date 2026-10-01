@@ -1251,24 +1251,13 @@ static inline float *PushChainClimbRoot(GObj *obj, float *pos, float *out, float
     /* pushes the root out from the chain point (fwd along the orientation, side
      * across it) and returns the pushed point, which no caller reads.  Both
      * work vectors are the caller's.
-     *
-     *
      */
     sceVu0ScaleVector(out, test_CURRENTORIENT(obj), fwd);
     sceVu0AddVector(out, pos, out);
 
-
-
     sceVu0ScaleVector(ofs, test_CURRENTORIENT(obj), side);
     _ApplyRyGV(ofs, 1.5707964f);
     sceVu0AddVector(out, out, ofs);
-
-
-
-
-
-
-
 
     debug_NMarker(out, 0, 0, 255, 100.0f);
 
@@ -1282,11 +1271,6 @@ static inline float *PushChainClimbRoot(GObj *obj, float *pos, float *out, float
  * the motion id.  The node-point and push helpers precede the function at
  * file scope.  This region keeps its line layout and is fenced from
  * clang-format.
- *
- *
- *
- *
- *
  */
 static void TestChainUpDown(GObj *gobj, GObj *boy)
 {
@@ -1322,23 +1306,13 @@ static void TestChainUpDown(GObj *gobj, GObj *boy)
     /* Each arm has its own pointer to the climb work, set on the arm's first
      * test, and every read of an extension's 0x15C slot goes through the
      * ChainExtPtr union as in the node-point helper.
-     *
-     *
-     *
      */
-
-
-
-
-
-
 
     int mode = GetChainClimbMode(GOBJ_SUB(boy)->ctrl.motion);
 
     switch (mode) {
     case 4: {
         ChainClimbWork *rec;
-
 
         org[0] = test_CURRENTROOT(boyGObj)[0]; org[1] = test_CURRENTROOT(boyGObj)[1]; org[2] = test_CURRENTROOT(boyGObj)[2];
 
@@ -1351,24 +1325,15 @@ static void TestChainUpDown(GObj *gobj, GObj *boy)
         }
         _InterGV(v, rec->node, rec->target, rec->phase, (float)rec->frames - rec->phase);
 
-
-
         v[1] = v[1] < cw->rootPos[1] ? cw->rootPos[1] : (cw->endPos[1] < v[1] ? cw->endPos[1] : v[1]);
 
         PushChainClimbRoot(boy, v, w, d, -10.0f, 3.0f);
 
         ((ChainClimbWork *)chainClimb)->phase = ((ChainClimbWork *)chainClimb)->phase + 1.0f;
 
-
-
-
         w[0] = test_CURRENTROOT(boyGObj)[0]; w[1] = test_CURRENTROOT(boyGObj)[1]; w[2] = test_CURRENTROOT(boyGObj)[2];
         w[1] = org[1] + *(float *)(((ChainExtPtr *)&boyGObj->dobj)->i + 0x144);
         SetDirectRootPositionNoFitting(boyGObj, w);
-
-
-
-
 
     } break;
 
@@ -1395,15 +1360,10 @@ static void TestChainUpDown(GObj *gobj, GObj *boy)
 
         ((ChainClimbWork *)chainClimb)->phase = ((ChainClimbWork *)chainClimb)->phase + 30.0f / (float)((60 - systemStatus[0] * 10) / systemStatus[1]);
 
-
-
-
         w[0] = test_CURRENTROOT(boyGObj)[0]; w[1] = test_CURRENTROOT(boyGObj)[1]; w[2] = test_CURRENTROOT(boyGObj)[2];
         w[1] = org[1] + *(float *)(((ChainExtPtr *)&boyGObj->dobj)->i + 0x144);
         w[1] = w[1] < cw->rootPos[1] + 150.0f ? cw->rootPos[1] + 150.0f : (cw->endPos[1] < w[1] ? cw->endPos[1] : w[1]);
         SetDirectRootPosition(boyGObj, w);
-
-
 
         PlumbPointUpdateChain(gobj, v);
 
@@ -1417,7 +1377,6 @@ static void TestChainUpDown(GObj *gobj, GObj *boy)
             rec->target[0] = rec->node[0]; rec->target[2] = rec->node[2];
             rec->target[1] = rec->node[1] + 200.0f;
         }
-
 
         _InterGV(v, rec->node, rec->target, rec->phase, (float)rec->frames - rec->phase);
 

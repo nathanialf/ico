@@ -335,8 +335,6 @@ int pac_getWeight(PacWeight *w, char *obj, char *shp, int num)
 
         debug_StdPrintfDummy("vertex has 3 cluster-weights %d(%f) %d(%f) %d(%f)\n", w[0].no, w[0].weight, w[1].no, w[1].weight, w[2].no, w[2].weight);
 
-
-
         for (j = 0; j < n; j++) {
             for (i = j; i < n; i++) {
                 if (j != i)
@@ -354,26 +352,6 @@ int pac_getWeight(PacWeight *w, char *obj, char *shp, int num)
     sum = w[0].weight + w[1].weight;
     if (sum < 0.99f)
         debug_StdPrintfDummy("warning:weight total %f VtxIdx:%d\n", sum, ret);
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
     return ret;
 }

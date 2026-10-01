@@ -778,8 +778,8 @@ void reg_resetDissolve(int a0)
     dl_CloseDma();
 }
 
-/* a file-static copy of reg_TransTexturePacket, which reg_RenderReflection
-   and reg_DispMultiPri inline */
+/* a texture upload counted into texturetranssize, which
+   reg_TransTexturePacket, reg_RenderReflection and reg_DispMultiPri inline */
 static inline void regTransTexturePacket(int tex, int pri) /* derived name */
 {
     if (tex >= 0) {
@@ -798,8 +798,8 @@ static const unsigned int regReflectionPacket[6][4] __attribute__((aligned(16)))
     {0, 0, 0x49, 0},       {0x48, 0x80, 0x42, 0},        {0x15000000, 0, 0, 0},
 };
 
-/* a file-static copy of reg_GetShinePri, which the reg_disp*Obj and
-   reg_Disp* functions inline */
+/* the display-list priority of a shine level, which reg_GetShinePri, the
+   reg_disp*Obj and the reg_Disp* functions inline */
 static inline int regGetShinePri(int a0) /* derived name */
 {
     switch (a0) {
@@ -1955,9 +1955,7 @@ void reg_SetScissorSw(int val)
 
 void reg_TransTexturePacket(int tex, int pri)
 {
-    if (tex >= 0) {
-        texturetranssize += tex_TransTexture(tex, pri);
-    }
+    regTransTexturePacket(tex, pri);
 }
 
 void reg_Init(void)
@@ -1967,13 +1965,5 @@ void reg_Init(void)
 
 int reg_GetShinePri(int a0)
 {
-    switch (a0) {
-    case 1:
-        return 7;
-    case 2:
-        return 8;
-    case 3:
-        return 9;
-    }
-    return 7;
+    return regGetShinePri(a0);
 }

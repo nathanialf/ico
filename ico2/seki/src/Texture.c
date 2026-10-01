@@ -111,7 +111,7 @@ typedef struct TexExt { /* field names derived */
  * it are clutColors at 0x0E, clutType at 0x12 (masked with 0x3F where the
  * compound bits have to go), imageType at 0x13 and the width and height at
  * 0x14 and 0x16. */
-typedef struct Tim2Picture {
+typedef struct Tim2Picture { /* field names derived */
     unsigned int totalSize;
     unsigned int clutSize;
     unsigned int imageSize;
@@ -135,7 +135,7 @@ typedef struct Tim2Picture {
  * and a second 0x30 bytes of mipmap header after it, and steps over a variable
  * number of size words through the mipmap_header_size table before it reaches
  * the ICO block. */
-typedef struct Tim2Mipmap {
+typedef struct Tim2Mipmap { /* field names derived */
     unsigned long long GsMiptbp1;
     unsigned long long GsMiptbp2;
     unsigned int sizes[8];
@@ -180,9 +180,9 @@ static int toolRow; /* derived name */
 static int texCount; /* derived name */
 
 typedef struct TexClutEnt { /* field names derived */
-    int f0;
-    int f4;
-    int f8;
+    int psm;
+    int sizeDiv;
+    int sizeMul;
 } TexClutEnt; /* derived name */
 
 /* the TIM2 mipmap header size by mipmap level count */
@@ -197,12 +197,12 @@ static TexClutEnt psmTable[] = {
 /* one string per TIM2 image type, printed with %8s */
 char *textype[] = {"NONE", "PSMCT16", "PSMCT24", "PSMCT32", "PSMT4", "PSMT8"};
 
-/* one VRAM slot per display list priority: the free-address cursor, the top of
- * the region and the texture id the slot last had programmed. */
+/* one VRAM slot per display list priority: the texture and CLUT free-address
+ * cursors and the texture id the slot last had programmed */
 typedef struct VramPri { /* field names derived */
-    short f0;
-    short f1;
-    short f2;
+    short texAddr;
+    short clutAddr;
+    short lastTex;
 } VramPri; /* derived name */
 
 /* the VRAM slot per display list priority, the 200 texture slots, the head
@@ -224,11 +224,11 @@ static inline int texAllocTexVram(int size) /* derived name */
     int pri = dl_GetPri();
     int ret;
 
-    if (16000 <= vramPri[dl_GetPri()].f0 + size) {
+    if (16000 <= vramPri[dl_GetPri()].texAddr + size) {
         tex_ResetVramPri(pri);
     }
-    ret = vramPri[dl_GetPri()].f0;
-    vramPri[dl_GetPri()].f0 = ret + size;
+    ret = vramPri[dl_GetPri()].texAddr;
+    vramPri[dl_GetPri()].texAddr = ret + size;
     return ret;
 }
 
@@ -237,11 +237,11 @@ static inline int texAllocClutVram(int size) /* derived name */
     int pri = dl_GetPri();
     int ret;
 
-    if (16128 <= vramPri[dl_GetPri()].f1 + size) {
+    if (16128 <= vramPri[dl_GetPri()].clutAddr + size) {
         tex_ResetVramPri(pri);
     }
-    ret = vramPri[dl_GetPri()].f1;
-    vramPri[dl_GetPri()].f1 = ret + size;
+    ret = vramPri[dl_GetPri()].clutAddr;
+    vramPri[dl_GetPri()].clutAddr = ret + size;
     return ret;
 }
 
@@ -332,9 +332,8 @@ int tex_loadImage(unsigned int addr, CdvdRec *tex, int idx, short dbp, short dbw
     return size << 4;
 }
 
-/* a file-static copy of tex_GetTWTH, which tex_setTexReg and
- * tex_TransTextureDefocus inline: the exponent of the smallest power of two
- * at least a0, -1 past 1024 */
+/* the exponent of the smallest power of two at least a0, -1 past 1024,
+ * which tex_setTexReg and tex_TransTextureDefocus inline */
 static inline int getTWTH(int a0) /* derived name */
 {
     int ret = -1;
@@ -371,7 +370,7 @@ void tex_setTexReg(Tim2Picture *pic, CdvdRec *t, int levels, int lv, int clut)
     case 0:
         setGsReg(6, (long long)t->lv[TEXLV(lv)].tbp[dl_GetPri()] |
                         ((long long)t->lv[TEXLV(lv)].dbw << 14) |
-                        ((long long)psmTable[pic->imageType].f0 << 20) |
+                        ((long long)psmTable[pic->imageType].psm << 20) |
                         ((long long)(getTWTH(pic->imageWidth) - lv) << 26) |
                         ((long long)(getTWTH(pic->imageHeight) - lv) << 30) | ((long long)1 << 34) |
                         ((long long)tfx << 35));
@@ -379,11 +378,11 @@ void tex_setTexReg(Tim2Picture *pic, CdvdRec *t, int levels, int lv, int clut)
     case 1:
         setGsReg(6, (long long)t->lv[TEXLV(lv)].tbp[dl_GetPri()] |
                         ((long long)t->lv[TEXLV(lv)].dbw << 14) |
-                        ((long long)psmTable[pic->imageType].f0 << 20) |
+                        ((long long)psmTable[pic->imageType].psm << 20) |
                         ((long long)(getTWTH(pic->imageWidth) - lv) << 26) |
                         ((long long)(getTWTH(pic->imageHeight) - lv) << 30) | ((long long)1 << 34) |
                         ((long long)tfx << 35) | ((long long)t->clut.tbp[dl_GetPri()] << 37) |
-                        ((long long)psmTable[pic->clutType & 0x3F].f0 << 51) |
+                        ((long long)psmTable[pic->clutType & 0x3F].psm << 51) |
                         ((long long)2 << 61));
         break;
     default:
@@ -444,10 +443,10 @@ int tex_transVramClutTex(Tim2Picture *pic, CdvdRec *t, int levels, int lv)
         h = 2;
     }
     total = texLoadLevel(t->clut.addr, t, levels - lv, t->clut.tbp[dl_GetPri()], t->clut.dbw,
-                         psmTable[pic->clutType & 0x3F].f0, w, h);
+                         psmTable[pic->clutType & 0x3F].psm, w, h);
     for (i = lv; i < levels - lv; i++) {
         n = texLoadLevel(t->lv[i].addr, t, i, t->lv[i].tbp[dl_GetPri()], t->lv[i].dbw,
-                         psmTable[pic->imageType].f0, pic->imageWidth >> i, pic->imageHeight >> i);
+                         psmTable[pic->imageType].psm, pic->imageWidth >> i, pic->imageHeight >> i);
         total += n;
     }
     return total;
@@ -472,7 +471,7 @@ int tex_transVramDirectTex(Tim2Picture *pic, CdvdRec *t, int levels, int lv)
     texAllocLevels(t, levels, lv);
     for (i = lv; i < levels - lv; i++) {
         n = texLoadLevel(t->lv[i].addr, t, i, t->lv[i].tbp[dl_GetPri()], t->lv[i].dbw,
-                         psmTable[pic->imageType].f0, pic->imageWidth >> i, pic->imageHeight >> i);
+                         psmTable[pic->imageType].psm, pic->imageWidth >> i, pic->imageHeight >> i);
         total += n;
     }
     return total;
@@ -505,10 +504,10 @@ int tex_transTM2(Tim2Picture *pic, CdvdRec *t, int id, int pri)
         if (texTable[id].rec.ext.transDone[pri] == 0) {
             ret = tex_transVramDirectTex(pic, t, levels, texTable[id].rec.ext.level);
         }
-        if (vramPri[dl_GetPri()].f2 != id) {
+        if (vramPri[dl_GetPri()].lastTex != id) {
             tex_transRegister(t);
             tex_setTexReg(pic, t, levels, texTable[id].rec.ext.level, 0);
-            vramPri[dl_GetPri()].f2 = id;
+            vramPri[dl_GetPri()].lastTex = id;
             texregs++;
         }
         break;
@@ -517,10 +516,10 @@ int tex_transTM2(Tim2Picture *pic, CdvdRec *t, int id, int pri)
         if (texTable[id].rec.ext.transDone[pri] == 0) {
             ret = tex_transVramClutTex(pic, t, levels, texTable[id].rec.ext.level);
         }
-        if (vramPri[dl_GetPri()].f2 != id) {
+        if (vramPri[dl_GetPri()].lastTex != id) {
             tex_transRegister(t);
             tex_setTexReg(pic, t, levels, texTable[id].rec.ext.level, 1);
-            vramPri[dl_GetPri()].f2 = id;
+            vramPri[dl_GetPri()].lastTex = id;
             texregs++;
         }
         break;
@@ -543,7 +542,7 @@ int tex_transTM2(Tim2Picture *pic, CdvdRec *t, int id, int pri)
  * even number of blocks. */
 static inline int texTBW(TexClutEnt *e, int w) /* derived name */
 {
-    int psm = e->f0;
+    int psm = e->psm;
     int n;
     int odd;
 
@@ -579,10 +578,10 @@ void tex_initClutTexture(Tim2Picture *pic, CdvdRec *t)
     t->clut.dbw = texTBW(&psmTable[pic->clutType & 0x3F], pic->imageWidth);
 
     for (i = 0; i < t->levelNum; i++) {
-        t->lv[i].vramSize =
-            ((pic->imageWidth >> i) * (pic->imageHeight >> i) / psmTable[pic->imageType].f4 / 2) *
-                psmTable[pic->imageType].f8 >>
-            6;
+        t->lv[i].vramSize = ((pic->imageWidth >> i) * (pic->imageHeight >> i) /
+                             psmTable[pic->imageType].sizeDiv / 2) *
+                                psmTable[pic->imageType].sizeMul >>
+                            6;
 
         dbw = texTBW(&psmTable[pic->imageType], pic->imageWidth >> i);
 
@@ -727,8 +726,8 @@ static inline void texInitMipLevels(Tim2Picture *pic, CdvdRec *t) /* derived nam
 
     for (i = 0; i < t->levelNum; i++) {
         t->lv[i].vramSize =
-            ((pic->imageWidth >> i) * (pic->imageHeight >> i) / psmTable[pic->imageType].f4) *
-                psmTable[pic->imageType].f8 >>
+            ((pic->imageWidth >> i) * (pic->imageHeight >> i) / psmTable[pic->imageType].sizeDiv) *
+                psmTable[pic->imageType].sizeMul >>
             6;
 
         dbw = texTBW(&psmTable[pic->imageType], pic->imageWidth >> i);
@@ -827,14 +826,14 @@ void tex_convertImage(void *dst, void *src, short fmt, short w, short h)
     int w2 = w;
 
     sceGsSyncPath(0, 0);
-    sceGsSetDefLoadImage(&limg, 0x2800, w >> 6, psmTable[fmt].f0, 0, 0, w2, h);
+    sceGsSetDefLoadImage(&limg, 0x2800, w >> 6, psmTable[fmt].psm, 0, 0, w2, h);
     FlushCache(0);
     if (sceGsExecLoadImage(&limg, src)) {
         debug_assert("src/Texture.c", 1246);
         __assert("src/Texture.c", 1246, "FALSE");
     }
     sceGsSyncPath(0, 0);
-    switch (psmTable[fmt].f0) {
+    switch (psmTable[fmt].psm) {
     case 19:
         w2 = w >> 2;
         break;
@@ -1191,8 +1190,9 @@ int tex_TransTexture(int id, int ret)
     return ret;
 }
 
-/* a file-static copy of tex_GetTextureData, inlined here */
-static inline CdvdRec *getTextureDataDefocus(int idx) /* derived name */
+/* a texture record by index, which tex_TransTextureDefocus and
+ * tex_SetUVScroll inline */
+static inline CdvdRec *getTextureData(int idx) /* derived name */
 {
     return &texTable[idx].rec;
 }
@@ -1226,7 +1226,7 @@ void tex_TransTextureDefocus(int id, int lv)
 
     tex_TransTexture(id, dl_GetPri());
 
-    p = getTextureDataDefocus(id);
+    p = getTextureData(id);
     w = p->pic.imageWidth >> lv;
     h = p->pic.imageHeight >> lv;
 
@@ -1411,7 +1411,7 @@ void tex_textureAnimation(void)
             e->frame++;
 
             if (e->file.csSpd != 0 && e->file.csStp != 0 && e->file.csBgn != e->file.csEnd) {
-                int clut = psmTable[t->pic.clutType & 0x3F].f4;
+                int clut = psmTable[t->pic.clutType & 0x3F].sizeDiv;
                 unsigned int n = t->pic.clutSize >> 2;
 
                 tex_scrollClut((char *)t->clut.addr + 0x20, e->clutA, e->clutB, clut, n, e,
@@ -1428,7 +1428,7 @@ void tex_SetClutAnimation(int id, int frame)
     TexExt *c = &t->ext;
 
     if (c->animated != 0) {
-        int clut = psmTable[t->pic.clutType & 0x3F].f4;
+        int clut = psmTable[t->pic.clutType & 0x3F].sizeDiv;
         unsigned int n = t->pic.clutSize >> 2;
 
         if (frame != -1) {
@@ -1469,8 +1469,8 @@ int tex_FreeTexture(int id)
     return 0;
 }
 
-/* a file-static copy of tex_ResetVramPri, which tex_LockHeadTBP and
- * tex_UnlockHeadTBP inline */
+/* the reset of one priority's VRAM cursor, which tex_ResetVram,
+ * tex_LockHeadTBP and tex_UnlockHeadTBP inline */
 static inline void resetVramPri(int pri) /* derived name */
 {
     int i;
@@ -1478,12 +1478,12 @@ static inline void resetVramPri(int pri) /* derived name */
     dl_SetDLPriority(pri);
 
     if (headTbp[pri] != 0) {
-        vramPri[pri].f0 = headTbp[pri];
+        vramPri[pri].texAddr = headTbp[pri];
     } else {
-        vramPri[pri].f0 = 0x2800;
+        vramPri[pri].texAddr = 0x2800;
     }
-    vramPri[pri].f1 = 0x3E80;
-    vramPri[pri].f2 = -1;
+    vramPri[pri].clutAddr = 0x3E80;
+    vramPri[pri].lastTex = -1;
     for (i = 0; i < texCount; i++) {
         texTable[i].rec.ext.transDone[pri] = 0;
     }
@@ -1993,15 +1993,7 @@ int tex_ListTool(void)
 
 int tex_GetTWTH(int a0)
 {
-    int ret = -1;
-    int i;
-    for (i = 0; i < 11; i++) {
-        if ((1 << i) >= a0) {
-            ret = i;
-            break;
-        }
-    }
-    return ret;
+    return getTWTH(a0);
 }
 
 int tex_InitTexture(void)
@@ -2014,23 +2006,7 @@ int tex_LoadTexture(void *a0)
     return tex_LoadTexturePart(a0, 0);
 }
 
-/* tex_GetTextureNo and the file-static copy tex_SetUVScroll inlines */
-int tex_GetTextureNo(char *name)
-{
-    int i;
-    int ret = -1;
-
-    for (i = 0; i < texCount; i++) {
-        if (texTable[i].rec.ext.used) {
-            if (strcmp(name, texTable[i].rec.name) == 0) {
-                ret = i;
-                break;
-            }
-        }
-    }
-    return ret;
-}
-
+/* the name lookup, which tex_SetUVScroll inlines */
 static inline int getTextureNo(char *name) /* derived name */
 {
     int i;
@@ -2047,15 +2023,14 @@ static inline int getTextureNo(char *name) /* derived name */
     return ret;
 }
 
-/* tex_GetTextureData and the file-static copy tex_SetUVScroll inlines */
-int *tex_GetTextureData(int idx)
+int tex_GetTextureNo(char *name)
 {
-    return (int *)&texTable[idx].rec;
+    return getTextureNo(name);
 }
 
-static inline CdvdRec *getTextureData(int idx) /* derived name */
+int *tex_GetTextureData(int idx)
 {
-    return &texTable[idx].rec;
+    return (int *)getTextureData(idx);
 }
 
 int *tex_GetTextureName(int idx)
@@ -2076,7 +2051,7 @@ int *tex_GetTexExtData(int idx)
 
 short tex_GetVramFreeAddress(int a0)
 {
-    return vramPri[a0].f0;
+    return vramPri[a0].texAddr;
 }
 
 void tex_UpdateMipMapLevel(float lv)
@@ -2117,20 +2092,7 @@ void tex_UnlockHeadTBP(int pri)
 
 void tex_ResetVramPri(int pri)
 {
-    int i;
-
-    dl_SetDLPriority(pri);
-
-    if (headTbp[pri] != 0) {
-        vramPri[pri].f0 = headTbp[pri];
-    } else {
-        vramPri[pri].f0 = 0x2800;
-    }
-    vramPri[pri].f1 = 0x3E80;
-    vramPri[pri].f2 = -1;
-    for (i = 0; i < texCount; i++) {
-        texTable[i].rec.ext.transDone[pri] = 0;
-    }
+    resetVramPri(pri);
 }
 
 int tex_GetTextureNum(void)
