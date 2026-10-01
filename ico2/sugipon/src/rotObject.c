@@ -46,12 +46,12 @@ typedef struct {          /* field names derived */
     int turnCount; /* 0x4 */
 } RotObjMemory;    /* derived name */
 
-void moveStartSE(GObj *a0, int a1, int a2, int a3)
+static void moveStartSE(GObj *a0, int a1, int a2, int a3)
 {
     ExecuteSEPackage(a0, 0x35);
 }
 
-void moveEndSE(GObj *a0, int a1, int a2, int a3)
+static void moveEndSE(GObj *a0, int a1, int a2, int a3)
 {
     StopSEPackage(a0);
     ExecuteSEPackage(a0, 0x3A);

@@ -10,6 +10,10 @@
 #include <string.h>
 #include "thread.h"
 
+static int _closeHander(void);
+static int _handler(struct CdvdBgReq *self);
+static void _deleteStreamMotionManager(void);
+
 /* the stream entry count and state, the background reader's state and id,
    the ring buffer's read and write offsets and buffers, the header parse, the
    owner, the ring use, the idle flag and the frame clock */
@@ -121,7 +125,7 @@ static inline void _advanceRing(int amt) /* derived name */
     }
 }
 
-int _infoUpdate(void)
+static int _infoUpdate(void)
 {
     int top;
     int n;
@@ -238,7 +242,7 @@ void ClearStreamMotionEntry(GObj *gobj)
 /* the cleared entry every slot is reset to */
 static SMotion emptyEntry = {0, 0, -1, -1, -1, 0, 0}; /* derived name */
 
-void _deleteStreamMotionManager(void)
+static void _deleteStreamMotionManager(void)
 {
     int i;
 
@@ -286,7 +290,7 @@ inline int GetDataSizeOfStreamMotion(int no)
     return streamEntry[no].size;
 }
 
-void getStreamMotionData(char *dst, int off, int no)
+static void getStreamMotionData(char *dst, int off, int no)
 {
     int size = streamEntry[no].size;
     int over = off + size - 0x28000;
@@ -301,7 +305,7 @@ void getStreamMotionData(char *dst, int off, int no)
     memcpy(dst, ringBuf + off, size);
 }
 
-void getStreamMotionBlendData(char *dst, int no)
+static void getStreamMotionBlendData(char *dst, int no)
 {
     int size = streamEntry[no].size;
     char a[size];
@@ -340,7 +344,7 @@ inline float GetStreamMotionData(char *dst, int no)
     return (float)framePlayed / 2997.0f;
 }
 
-void _transRingBuf(int *idx_p, char *dst, int size, char *src, int amt)
+static void _transRingBuf(int *idx_p, char *dst, int size, char *src, int amt)
 {
     int old_idx = *idx_p;
     int new_idx = old_idx + amt;
@@ -512,13 +516,13 @@ inline void FreeStreamMotionBuffer(void)
     }
 }
 
-inline int _closeHander(void)
+static inline int _closeHander(void)
 {
     _deleteStreamMotionManager();
     return 1;
 }
 
-inline int _handler(CdvdBgReq *self)
+static inline int _handler(CdvdBgReq *self)
 {
     unsigned int wp = ringWrite;
     unsigned int rp = ringRead;

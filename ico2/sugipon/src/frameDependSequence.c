@@ -12,17 +12,31 @@
 #include "motionManager2.h"
 #include "frameDependSequence.h"
 
+static int execSE(int a0, void *a1);
+static int checkWaterDepth(struct GObj *a0, int a1);
+static int checkModelDataID(struct GObj *a0, int a1);
+static int checkWeaponType(struct GObj *a0, int a1);
+static int execVib(int a0, void *a1);
+static int execWeaponLightOff(void);
 extern GsysObjInfo seDef[];
 /* int (int, unsigned int, int, int) here, int (int, int, int, int) in s_init.h */
 extern int soundSeDefPlay(int se, unsigned int a1, int a2, int a3);
 
+typedef struct FDSFlags { /* field names derived */
+    int vibDone[2];       /* 0x00 */
+    int effDone[12];      /* 0x08 */
+    int seDone[12];       /* 0x38 */
+    int weaponDone;       /* 0x68 */
+    int vibEntry[2];      /* 0x6C */
+} FDSFlags;               /* derived name */
+
 /* the sequence being run: its flag block, work, layout record and motion
    record, its owner, the SE volume rate and the SE group */
-static void *fdsFlags = 0; /* derived name */
+static FDSFlags *fdsFlags = 0; /* derived name */
 
 static void *fdsWork = 0; /* derived name */
 
-static void *fdsLayout = 0; /* derived name */
+static struct MotCtrl *fdsLayout = 0; /* derived name */
 
 static const MotionDef *fdsRecord = 0; /* derived name */
 
@@ -39,13 +53,13 @@ extern int soundSeDefPlayWithVolumeRate(int se, unsigned int a1, int a2, int a3,
 /* seMail has no header; declared as ico2/fumi/src/seMail.c defines it */
 extern void seMail(int self, int id);
 
-int playSE(int no)
+static int playSE(int no)
 {
     int ret;
 
     if (no != 0) {
         if (((GObj *)fdsGObj)->drawMask != 0) {
-            if (fdsLayout != 0 && ((int *)fdsLayout)[0x1E8 / 4] != 0) {
+            if (fdsLayout != 0 && fdsLayout->word1E8 != 0) {
                 /* EUC-JP: "gObj:(%p) has its motion SE stopped" */
                 debug_StdPrintfDummy("gObj:(%p) はモーションSEが停止しています\n", fdsGObj);
                 return 1;
@@ -79,7 +93,7 @@ int playSE(int no)
     return 1;
 }
 
-int playSERandomID(int no, void *entry)
+static int playSERandomID(int no, void *entry)
 {
     float rest;
     float rnd;
@@ -117,7 +131,7 @@ int playSERandomID(int no, void *entry)
     return execSE(randomSEKind[no].se, entry);
 }
 
-int playSEConditionID(int no, void *entry)
+static int playSEConditionID(int no, void *entry)
 {
     int (*fn)(GObj *, int);
     const SECondEntry *p;
@@ -154,7 +168,7 @@ int playSEConditionID(int no, void *entry)
     return 0;
 }
 
-inline int execSE(int a0, void *a1)
+static inline int execSE(int a0, void *a1)
 {
     if (a0 <= 0xFFFF) {
         return playSE(a0);
@@ -170,7 +184,7 @@ inline int execSE(int a0, void *a1)
     }
 }
 
-void playEff(int no)
+static void playEff(int no)
 {
     float q[4];
     float pos[4];
@@ -214,7 +228,7 @@ void playEff(int no)
     }
 }
 
-int execEff(int no, void *entry)
+static int execEff(int no, void *entry)
 {
     int (*fn)(GObj *, int);
     const VibCondEntry *p;
@@ -273,7 +287,7 @@ done:
     return 1;
 }
 
-void execVibCondition(int no, int *entry)
+static void execVibCondition(int no, int *entry)
 {
     if (girlControlMode != 0) {
         /* EUC-JP: "controller-2 vibration condition detect mode" */
@@ -288,14 +302,6 @@ void execVibCondition(int no, int *entry)
     }
 }
 
-typedef struct FDSFlags { /* 0x74 */
-    int vibDone[2];       /* 0x00 */
-    int effDone[12];      /* 0x08 */
-    int seDone[12];       /* 0x38 */
-    int weaponDone;       /* 0x68 */
-    int vibEntry[2];      /* 0x6C */
-} FDSFlags;               /* derived name */
-
 /* declared here: motionOrientManager.h reaches ico2/fumi's files through
    typedef.h, and commonact.c declares the table char [] */
 extern const MotionDef motionKind[];
@@ -306,7 +312,7 @@ static inline void fireFDSSlot(float t, int no, void *entry, int *done,
     if (t < 0.0f) {
         return;
     }
-    if (t < *(float *)((char *)fdsLayout + 0x3C)) {
+    if (t < fdsLayout->animFrame) {
         fn(no, entry);
         *done = 1;
     }
@@ -323,35 +329,32 @@ void ExecFrameDependSequence(GObj *gobj)
     fdsGObj = (char *)gobj;
     fdsLayout = p;
     fdsWork = &w->root;
-    fdsFlags = w->fdsFlags;
+    fdsFlags = (FDSFlags *)w->fdsFlags;
     fdsRecord = &motionKind[p->motion];
     fdsVolume = 1.0f;
 
     for (i = 0; i < 12; i++) {
-        if (((FDSFlags *)fdsFlags)->seDone[i] == 0) {
-            fireFDSSlot(fdsRecord->se[i].t, fdsRecord->se[i].no, 0,
-                        &((FDSFlags *)fdsFlags)->seDone[i], execSE);
+        if (fdsFlags->seDone[i] == 0) {
+            fireFDSSlot(fdsRecord->se[i].t, fdsRecord->se[i].no, 0, &fdsFlags->seDone[i], execSE);
         }
     }
     for (i = 0; i < 2; i++) {
-        if (((FDSFlags *)fdsFlags)->vibDone[i] == 0) {
-            fireFDSSlot(fdsRecord->vib[i].t, fdsRecord->vib[i].no,
-                        &((FDSFlags *)fdsFlags)->vibEntry[i], &((FDSFlags *)fdsFlags)->vibDone[i],
-                        execVib);
+        if (fdsFlags->vibDone[i] == 0) {
+            fireFDSSlot(fdsRecord->vib[i].t, fdsRecord->vib[i].no, &fdsFlags->vibEntry[i],
+                        &fdsFlags->vibDone[i], execVib);
         }
     }
     if (CheckFloorAttribute((GObj *)fdsGObj, 0x40000) == 0) {
         for (i = 0; i < 12; i++) {
-            if (((FDSFlags *)fdsFlags)->effDone[i] == 0) {
-                fireFDSSlot(fdsRecord->eff[i].t, fdsRecord->eff[i].no, 0,
-                            &((FDSFlags *)fdsFlags)->effDone[i], execEff);
+            if (fdsFlags->effDone[i] == 0) {
+                fireFDSSlot(fdsRecord->eff[i].t, fdsRecord->eff[i].no, 0, &fdsFlags->effDone[i],
+                            execEff);
             }
         }
     }
     if (GOBJ_SUB(gobj)->ctrl.pickedWeapon != 0) {
-        if (((FDSFlags *)fdsFlags)->weaponDone == 0) {
-            fireFDSSlot(fdsRecord->weaponFrame, 0, 0, &((FDSFlags *)fdsFlags)->weaponDone,
-                        execWeaponLightOff);
+        if (fdsFlags->weaponDone == 0) {
+            fireFDSSlot(fdsRecord->weaponFrame, 0, 0, &fdsFlags->weaponDone, execWeaponLightOff);
         }
     }
 }
@@ -380,10 +383,10 @@ static inline int setSEEnvironment(GObj *gobj, int id) /* derived name */
         no = *(int *)(w + 0x84);
         p = w + 0x470;
         fdsWork = w + 0xA0;
-        fdsFlags = w + 0x740;
+        fdsFlags = (FDSFlags *)(w + 0x740);
         fdsRecord = &motionKind[*(int *)(p + 0x30)];
         fdsGroup = *(int *)(w + (id << 2) + 0x61C);
-        fdsLayout = p;
+        fdsLayout = (struct MotCtrl *)p;
     } else {
         no = -1;
         fdsLayout = 0;
@@ -395,7 +398,7 @@ static inline int setSEEnvironment(GObj *gobj, int id) /* derived name */
     return no;
 }
 
-void executeSEPackageByGObj(GObj *gobj, int no, int grp)
+static void executeSEPackageByGObj(GObj *gobj, int no, int grp)
 {
     int id;
     int *p;
@@ -408,7 +411,7 @@ void executeSEPackageByGObj(GObj *gobj, int no, int grp)
     }
 }
 
-void executeSEPackageWithNoGObj(int no)
+static void executeSEPackageWithNoGObj(int no)
 {
     int *p;
     int i;
@@ -481,7 +484,7 @@ void InitFrameDependSequence(void *a0)
     }
 }
 
-int ExecuteDirectSEWithGroupVariation(GObj *gobj, int id, int grp)
+static int ExecuteDirectSEWithGroupVariation(GObj *gobj, int id, int grp)
 {
     setSEEnvironment(gobj, id);
     return execSE(id, 0);
@@ -506,17 +509,17 @@ void StopFDSVibration(void *a0)
     }
 }
 
-inline int checkWaterDepth(GObj *a0, int a1)
+static inline int checkWaterDepth(GObj *a0, int a1)
 {
     return (int)GOBJ_SUB(a0)->ctrl.waterDepth < a1;
 }
 
-inline int checkModelDataID(GObj *a0, int a1)
+static inline int checkModelDataID(GObj *a0, int a1)
 {
     return GOBJ_SUB(a0)->modelId == a1;
 }
 
-inline int checkWeaponType(GObj *a0, int a1)
+static inline int checkWeaponType(GObj *a0, int a1)
 {
     GObj *w = GOBJ_SUB(a0)->ctrl.pickedWeapon;
     if (w != 0 && CheckWeaponKind(w) == a1) {
@@ -525,7 +528,7 @@ inline int checkWeaponType(GObj *a0, int a1)
     return 0;
 }
 
-inline int execVib(int a0, void *a1)
+static inline int execVib(int a0, void *a1)
 {
     if (a0 <= 0xFFFF) {
         if (a0 > 0) {
@@ -537,7 +540,7 @@ inline int execVib(int a0, void *a1)
     return 1;
 }
 
-inline int execWeaponLightOff(void)
+static inline int execWeaponLightOff(void)
 {
     Sub15C *p;
     GObj *q;

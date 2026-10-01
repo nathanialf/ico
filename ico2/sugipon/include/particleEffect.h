@@ -17,9 +17,9 @@ struct PEPackage;
 /* particle-effect: one particle effect file, 0x50 bytes. Readers:
  * ico2/common/src/icoMisc.c, ico2/sugipon/src/effectTool.c (the path at
  * 0x20), particleEffect.c. */
-typedef struct {   /* field names derived */
-    char name[32]; /* 0x00 */
-    char path[48]; /* 0x20 */
+typedef struct {      /* field names derived */
+    char name[32];    /* 0x00 */
+    char path[48];    /* 0x20 */
 } ParticleEffectFile; /* derived name */
 
 /* the 61 particle effect files (the particle-effect data member) */
@@ -44,8 +44,6 @@ void SetParticleEffectGeometry(int id, void *pos, void *quat);
 void SetParticleEffectPackage(int a0, int *a1, int a2);
 void SetParticleEffectPauseFlag(int a0, int a1);
 void SetParticleEffectUpperLimit(int no, float f);
-int execParticleEffect(void *a0);
-int setParticleEffect(struct PEGeo *self, struct PEPackage *pkg, struct IosMemPart *part);
 void SetParticleEffectClipEnableFlag(int a0, int a1);
 
 #endif /* PARTICLEEFFECT_H */

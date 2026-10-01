@@ -24,6 +24,9 @@
 #include "GifPacket.h"
 #include "Matrix.h"
 #include "ios.h"
+#include "Texture.h"
+
+static void copyToWork(int pri);
 
 typedef struct { /* field names derived */
     char c[16];
@@ -33,7 +36,7 @@ typedef struct { /* field names derived */
     char c[4];
 } Blob4; /* derived name */
 
-void falldownSE(GObj *a0)
+static void falldownSE(GObj *a0)
 {
     ExecuteSEPackage(a0, 0x56);
 }
@@ -47,16 +50,11 @@ static int workVram = 0; /* derived name */
 
 static int work1Vram = 0; /* derived name */
 
-/* as in Texture.h, which this file does not include */
-extern int tex_AllocVramAuto(int a0, int a1);
-/* void (void) here, void (int) in Texture.h */
-extern void tex_ResetVramPri(void);
-
-void copyToWork(int pri)
+static void copyToWork(int pri)
 {
     int rect[4];
 
-    tex_ResetVramPri();
+    tex_ResetVramPri(pri);
     workVram = tex_AllocVramAuto(0, 0x400);
     gif_SetGsReg(6, ((long long)(ScreenWidth / 64) << 14) | 0x664000800LL);
     gif_SetDrawEnviroment(workVram, 0, 0x100, 0x100, 0, 0);
@@ -78,11 +76,11 @@ void copyToWork(int pri)
     gif_SetGsReg(0x47, 0x5000D);
 }
 
-void flushWork(int pri)
+static void flushWork(int pri)
 {
     char buf[32];
 
-    tex_ResetVramPri();
+    tex_ResetVramPri(pri);
     workVram = tex_AllocVramAuto(0, 0x400);
     work1Vram = tex_AllocVramAuto(0, 0x400);
     gif_SetDrawEnviroment(workVram, 0, 0x100, 0x100, 0, 0);
@@ -154,7 +152,7 @@ static inline void setWaveCell(PoolWork *w, float *pos, PoolRipple *cell, float 
     cell->age = 0.0f;
 }
 
-void setNodePursueParticleEffectWithUpperLimit(char *a0, GObj *a1, int a2, float f)
+static void setNodePursueParticleEffectWithUpperLimit(char *a0, GObj *a1, int a2, float f)
 {
     int ret = GetSkeltonFocusNode(a1, a2);
     if (ret != -1) {
@@ -214,7 +212,7 @@ typedef struct {    /* field names derived */
     PoolQuad scale; /* 0x20 */
 } PoolDisp;         /* derived name */
 
-int poolRideFunc(ObjNode *a0, GObj *a1);
+static int poolRideFunc(ObjNode *a0, GObj *a1);
 
 char *InitPoolGeo(char *self, SObjSimpleSetting *lay)
 {
@@ -402,7 +400,7 @@ static inline void makeWaveGrid(PoolWork *w, float **grid, int ang) /* derived n
 /* The GS drawing-area origin, the centre of the 4096-unit primitive space. */
 static const ConstVec screenOrigin = {{2048.0f, 2048.0f, 0.0f, 0.0f}}; /* derived name */
 
-void updatePoolGeo(GObj *self)
+static void updatePoolGeo(GObj *self)
 {
     ConstVec org;
     float out[4];
@@ -582,7 +580,7 @@ static float workLightNormal[4][4] = {
     {0.0f, 0.0f, 0.0f, 1.0f},
 }; /* derived name */
 
-void dispPool(GObj *self)
+static void dispPool(GObj *self)
 {
     char m0[64];
     char m1[64];
@@ -943,7 +941,7 @@ void InitLayoutedPoolReflactionMesh(PoolMesh *a0, PoolMeshQuad *a1)
     }
 }
 
-int poolRideFunc(ObjNode *a0, GObj *a1)
+static int poolRideFunc(ObjNode *a0, GObj *a1)
 {
     Sub15C *e = GOBJ_SUB(a1);
     PoolWork *p = GOBJ_SUB(a0->obj)->work;

@@ -19,7 +19,7 @@ struct GObj;
    the element, as fieldCollision.h's ClipWork has them.  The block is
    quadword aligned, the alignment of the points it opens with. */
 typedef struct ClipBuf { /* field names derived */
-    float pt[3][4]; /* 0x00 the start, end and clipped points */
+    float pt[3][4];      /* 0x00 the start, end and clipped points */
     char _30[64];
     float rad;      /* 0x70 sweep radius */
     WallCfg filter; /* 0x74 the element the search skips */
@@ -35,8 +35,8 @@ typedef struct ClipBuf { /* field names derived */
    its target, the heading, pitch and pitch step of the look turn, and the
    node's three quaternions */
 typedef struct { /* field names derived */
-    float rate; /* 0x00 */
-    short h;    /* 0x04 */
+    float rate;  /* 0x00 */
+    short h;     /* 0x04 */
     short _6;
     short p; /* 0x08 */
     short _A[2];
@@ -62,16 +62,5 @@ void SetHitCollisionDisplay(int a, int b);
 int ResetMotionProgramInterpInfo(struct GObj *a0, int a1);
 int SetDirectMotionProgramInterpInfo(struct GObj *a0, int a1, float f);
 void GetGeometryOfMotion(void *self, void *m0, void *m1, float *v, float r, float *step, int k);
-void _checkCliffAndWall(void);
-void _getFinalMatrix(int id);
-int adjustSideWall(ClipBuf *w, int a1, Vec16 *wallPlane);
-int checkActPointWithHeight(int kind, float h);
-void checkCliffState(int a0);
-void checkWallSideState(void);
-void checkWallState(int flag);
-void clearCollisionStatus(void);
-int findActPoint(int *list);
-void getFinalMatrixWithNaturalGeometry(int id);
-void _wallHitReaction(ClipBuf *w, void *pos, void *last, int noSlide);
 
 #endif /* MOTIONMANAGER_H */

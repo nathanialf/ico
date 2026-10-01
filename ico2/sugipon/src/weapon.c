@@ -28,6 +28,8 @@
 #include "sceneManager.h"
 #include "DObj.h"
 
+static void calcDynamicGeometry(struct GObj *g);
+
 /* The work record InitWeaponGeo and InitDemoQueensSword allocate and the
    template they initialise it from: 224 bytes, 8-aligned.  The fields are the
    ones this file reads. */
@@ -255,7 +257,7 @@ static inline void subWeaponPathOffset(char *p, char *rp, float d) /* derived na
     _AddVectorXYZ(rp, rp, v);
 }
 
-int calcDynamicPathGeometry(GObj *g)
+static int calcDynamicPathGeometry(GObj *g)
 {
     Sub15C *p = GOBJ_SUB(g);
     WeaponWork *w = (WeaponWork *)p->work;
@@ -320,7 +322,7 @@ static __inline__ void dynGeoDebugHook(void) /* derived name */
 #endif
 }
 
-void calcDynamicGeometry(GObj *g)
+static void calcDynamicGeometry(GObj *g)
 {
     char *p = *(char **)(((char *)g) + 0x15C);
     WeaponWork *w = *(WeaponWork **)(p + 0x830);
@@ -474,7 +476,7 @@ static inline void setWeaponOffsetMode(GObj *g, int v) /* derived name */
     ((WeaponWork *)GOBJ_SUB(g)->work)->offsetMode = v;
 }
 
-void getGeometry(GObj *g)
+static void getGeometry(GObj *g)
 {
     float pos[4];
     float quat[4];
@@ -539,7 +541,7 @@ void ExecWeaponHitReaction(GObj *a0)
 /* the blade tip in the sword's own frame */
 static float swordTip[4] = {0.0f, 0.0f, 80.0f, 1.0f}; /* derived name */
 
-void checkHit(GObj *g)
+static void checkHit(GObj *g)
 {
     float pos[4];
     float quat[4];
@@ -585,7 +587,7 @@ typedef struct { /* field names derived */
 /* the queen's sword offset, its z set per sword */
 static float queenSwordOfs[4] = {0.0f, 0.0f, 0.0f, 1.0f}; /* derived name */
 
-void initializeQueenzSword(GObj *g, int index, QSwordLayout *lay)
+static void initializeQueenzSword(GObj *g, int index, QSwordLayout *lay)
 {
     WeaponWork *w = GOBJ_SUB(g)->work;
     QSwordLink lnk = {(int)g, index};
@@ -683,7 +685,7 @@ void *InitWeaponGeo(GObj *g, QSwordLayout *lay)
     return w;
 }
 
-void dispLaserSword(GObj *g, float t)
+static void dispLaserSword(GObj *g, float t)
 {
     WeaponWork *w = GOBJ_SUB(g)->work;
 
@@ -733,7 +735,7 @@ void dispInsectNet(GObj *g)
     gif_EndPacket();
 }
 
-void dispBlur(GObj *g)
+static void dispBlur(GObj *g)
 {
     WeaponWork *w = GOBJ_SUB(g)->work;
 
@@ -771,7 +773,7 @@ void dispBlur(GObj *g)
     }
 }
 
-void calcBlur(GObj *g, float t)
+static void calcBlur(GObj *g, float t)
 {
     float q1[4];   /* 0x00 */
     float q2[4];   /* 0x10 */

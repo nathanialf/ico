@@ -204,7 +204,7 @@ static inline short limitInterpAngle(MotLimAng *info, short ang) /* derived name
     return 0;
 }
 
-int avoidReverseInterpOnCurrentMatrix(float *q, MotLimAng *info, void *out)
+static int avoidReverseInterpOnCurrentMatrix(float *q, MotLimAng *info, void *out)
 {
     float mtx[16];
     Vec16 up;
@@ -247,8 +247,8 @@ static inline short classifyInterpAngle(MotLimAng *info, short ang, float k) /* 
     return 0;
 }
 
-void avoidReverseInterpOnCurrentMatrixWithLimit(float *q, MotLimAng *info, void *outA, void *outB,
-                                                float k)
+static void avoidReverseInterpOnCurrentMatrixWithLimit(float *q, MotLimAng *info, void *outA,
+                                                       void *outB, float k)
 {
     float mtx[16];
     Vec16 up;
@@ -326,7 +326,7 @@ static inline void getRotOfDir(float *q, float *v) /* derived name */
     MultiCurrentQuaternion(q);                                                                     \
     GetMatrixFromQuaternionRotElem(MatrixDrive_GetMatrix(), GetCurrentQuaternion())
 
-void _getFinalMatrix(int id)
+static void _getFinalMatrix(int id)
 {
     SkelNode *node = &skelNode[id];
     char *elem = skelMotion + id * 0x20;
@@ -1101,7 +1101,7 @@ static inline void getFinalMatrixCore(int id)
     }
 }
 
-void getFinalMatrix(int id)
+static void getFinalMatrix(int id)
 {
     float v[4];
 
@@ -1130,7 +1130,7 @@ static inline void applyNaturalGeometry(int id) /* derived name */
     GetMatrixFromQuaternionRotElem((char *)MatrixDrive_GetMatrix(), (char *)GetCurrentQuaternion());
 }
 
-void getFinalMatrixWithNaturalGeometry(int id)
+static void getFinalMatrixWithNaturalGeometry(int id)
 {
     SkelNode *e = &skelNode[id];
     int child = e->child;
@@ -1151,7 +1151,7 @@ void getFinalMatrixWithNaturalGeometry(int id)
     }
 }
 
-void _calcNaturalGeometry(int a0)
+static void _calcNaturalGeometry(int a0)
 {
     SkelNode *elemA = &skelNode[a0];
     char *elemB = naturalMotion + a0 * 0x20;

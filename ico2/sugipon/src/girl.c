@@ -24,6 +24,8 @@
 #include "DisplayP2O.h"
 #include "sceneManager.h"
 
+static void setGirlClothSetting(int a0);
+
 /* The girl's work record: her kind, the four cloths and the hair she wears
    with the switches SetGirlClothDispSwitch sets (case 0 for cloth0, 1 for
    cloth1, cloth2 and the hair, 2 for cloth3), the crown and the two
@@ -1747,7 +1749,7 @@ static inline void setGirlClothParam(GirlClothSetting *p) /* derived name */
     debug_hair_collision = p->collision;
 }
 
-inline void setGirlClothSetting(int a0)
+static inline void setGirlClothSetting(int a0)
 {
     if (a0 == 0) {
         debug_StdPrintfDummy("set cloth demo mode\n");
@@ -1915,7 +1917,7 @@ static inline int *getGirlCloth(GObj *gobj) /* derived name */
     return (int *)GOBJ_SUB(gobj)->work;
 }
 
-void debugWireStringGirl(GObj *a0)
+static void debugWireStringGirl(GObj *a0)
 {
     float m[16];
     float pos[4];

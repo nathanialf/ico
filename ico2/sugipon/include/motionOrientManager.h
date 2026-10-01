@@ -11,23 +11,23 @@
 /* motion-orient: one orientation row, 0x18 bytes, keyed on the current
    motion and the requested kind.  Readers: motionOrientManager.c,
    motionViewer.c, ico2/fumi/src/commonact.c. */
-typedef struct {   /* field names derived */
-    int id;        /* 0x00 */
-    int kind;      /* 0x04 */
-    int nextId;    /* 0x08, the motion this row chains to */
-    int shiftFrom; /* 0x0C, the frame the shift may start from, -1 for none */
-    int shiftMode; /* 0x10, handed to shiftMotionOrientBeginFunc */
-    int word14;    /* 0x14 */
+typedef struct {     /* field names derived */
+    int id;          /* 0x00 */
+    int kind;        /* 0x04 */
+    int nextId;      /* 0x08, the motion this row chains to */
+    int shiftFrom;   /* 0x0C, the frame the shift may start from, -1 for none */
+    int shiftMode;   /* 0x10, handed to shiftMotionOrientBeginFunc */
+    int word14;      /* 0x14 */
 } MotionOrientEntry; /* derived name */
 
 /* parallel-motion-orient: one parallel orientation row, 0x14 bytes, the
    first five words of a MotionOrientEntry. Reader: findParallelMotion. */
-typedef struct {   /* field names derived */
-    int id;        /* 0x00 */
-    int kind;      /* 0x04 */
-    int nextId;    /* 0x08 */
-    int shiftFrom; /* 0x0C */
-    int shiftMode; /* 0x10 */
+typedef struct {     /* field names derived */
+    int id;          /* 0x00 */
+    int kind;        /* 0x04 */
+    int nextId;      /* 0x08 */
+    int shiftFrom;   /* 0x0C */
+    int shiftMode;   /* 0x10 */
 } MotOriParallelEnt; /* derived name */
 
 /* mirror-motion-def: one alternative motion, 8 bytes; six {request,
@@ -35,14 +35,14 @@ typedef struct {   /* field names derived */
 typedef struct { /* field names derived */
     int req;     /* 0x00 */
     int alt;     /* 0x04, -1 for none */
-} MotOriAlt; /* derived name */
+} MotOriAlt;     /* derived name */
 
 /* motion-orient-def, moviefile: one 0x20-byte name, 4-aligned.  Readers:
    motionOrientManager.c, motionViewer.c, ico2/common/src/main.c
    (movie_init's file). */
 typedef struct { /* field names derived */
     char s[32];  /* 0x00 */
-} MotOriName; /* derived name */
+} MotOriName;    /* derived name */
 
 /* blend-motion-def: one node-blend motion, 0x10 bytes, indexed by the
    motion record's blendKind; the list runs to motion 1147. */
@@ -51,7 +51,7 @@ typedef struct { /* field names derived */
     int node;    /* 0x04, the focus node it is blended on */
     float rate;  /* 0x08, its play rate */
     int frames;  /* 0x0C, the frame count, -1 for the motion's own */
-} MotOriSub; /* derived name */
+} MotOriSub;     /* derived name */
 
 /* a limit triple of motion-limit-def, in degrees */
 typedef struct { /* field names derived */
@@ -68,7 +68,7 @@ typedef struct {      /* field names derived */
     int node;         /* 0x24 */
     float float28;    /* 0x28 */
     int word2C;       /* 0x2C */
-} MotOriLimit; /* derived name */
+} MotOriLimit;        /* derived name */
 
 /* motion-def: one frame-timed trigger of a motion, a frame and a number */
 typedef struct { /* field names derived */
@@ -96,7 +96,8 @@ typedef union { /* field names derived */
         unsigned int carried
             : 1; /* a carried pose: the girl's carry ends on it (commonact.c's becarry check) */
         unsigned int : 3;
-        unsigned int chainHang : 1; /* the boy hangs on a chain: chain.c widens its hang range to 70 */
+        unsigned int chainHang
+            : 1; /* the boy hangs on a chain: chain.c widens its hang range to 70 */
         unsigned int : 4;
         unsigned int jumpHit : 1;  /* actCommonJump's jump has hit and stops on a mode 1 motion */
         unsigned int parallel : 1; /* played as a parallel motion */
@@ -191,7 +192,7 @@ extern const MotOriLimit motionLimitDef[];
  * ico2/fumi/src/act.c has the same record as IntrOrient. */
 typedef struct { /* field names derived */
     int word[8]; /* copied whole, no member read: its eight words */
-} MotOriReq; /* derived name */
+} MotOriReq;     /* derived name */
 
 /* The declarations below lead this header because their order is load-bearing:
  * gcc 2.9 emits the deferred out-of-line copy of a plain-inline function in
@@ -214,14 +215,6 @@ int GetNbMotionFrames(int id);
 int UpdateFrameCounter(void *self);
 char *SetMotionRequest(void *self, int mot, MotOriReq req);
 void SetNodeRotationLimitDataTable(void *self, int a1, int a2);
-void getMotionGeometry(void *self);
-void getShapeGeometry(void *self);
-void getStreamBlendShapeGeometry(void *self, void *m0, void *m1, float t);
-void getStreamShapeGeometry(void *self, void *sm);
-int normalMotionShift(void *self, int a1);
-void orientDebug(void *self, int mode, int col);
-int parallelMotionShift(void *self);
-void shiftMotionData(int a0, int a1, int a2, int a3);
 /* the rope interpolation rate the chain sets (motionOrientManager.c) */
 extern float ropeInterRate;
 

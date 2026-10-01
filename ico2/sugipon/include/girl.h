@@ -15,6 +15,5 @@ struct GObj;
  * first-declaration order, so this is the order girl.c's inline tail has. */
 void SetGirlClothDispSwitch(struct GObj *a0, int a1, int a2);
 void SetGirlHairDispSwitch(struct GObj *a0, int a1);
-void setGirlClothSetting(int a0);
 
 #endif /* GIRL_H */

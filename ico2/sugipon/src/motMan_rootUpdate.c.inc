@@ -48,7 +48,7 @@ static inline int getWallSlideDirection(void *dir, void *hit, void *wall) /* der
     return 1;
 }
 
-void _wallHitReaction(ClipBuf *w, void *pos, void *last, int noSlide)
+static void _wallHitReaction(ClipBuf *w, void *pos, void *last, int noSlide)
 {
     Vec16 mv;
     Vec16 nrm;
@@ -226,7 +226,7 @@ static inline int clipFieldWallAndReset(struct MotRoot *cur, float *last) /* der
     return 0;
 }
 
-void _wallCollisionPreProcess(ClipBuf *w, void *p, void *q, float dy)
+static void _wallCollisionPreProcess(ClipBuf *w, void *p, void *q, float dy)
 {
     Vec16 save;
     float r;
@@ -362,7 +362,7 @@ static inline void checkPoolFloor(ClipBuf *w) /* derived name */
     }
 }
 
-int getFieldCollision(ClipBuf *w)
+static int getFieldCollision(ClipBuf *w)
 {
     float d;
 
@@ -648,7 +648,7 @@ static inline void markPoolContact(ClipBuf *w) /* derived name */
     setPoolHeightOfFloor(w);
 }
 
-void floorFitting(int kind)
+static void floorFitting(int kind)
 {
     Vec16 plane;
     Vec16 dir;
@@ -701,7 +701,7 @@ static inline int getFloorAttributeUnderNode(void) /* derived name */
         waveForceReaction(skelRoot, skelRoot->last, 0.0f);                                         \
     }
 
-ObjNode rootUpdateXZ(int kind, int no)
+static ObjNode rootUpdateXZ(int kind, int no)
 {
     Vec16 mv;
     Vec16 step;
@@ -899,7 +899,7 @@ ObjNode rootUpdateXZ(int kind, int no)
     return ret;
 }
 
-ObjNode rootUpdateXZ_MotPos(int kind, int no)
+static ObjNode rootUpdateXZ_MotPos(int kind, int no)
 {
     ObjNode ret = {0, -1};
     ClipBuf w;
@@ -983,7 +983,7 @@ ObjNode rootUpdateXZ_MotPos(int kind, int no)
     return ret;
 }
 
-int adjustSideWall(ClipBuf *w, int a1, Vec16 *wallPlane)
+static int adjustSideWall(ClipBuf *w, int a1, Vec16 *wallPlane)
 {
     WallCfg cfg = {((WallCfg *)&w->wall)->o, ((WallCfg *)&w->wall)->n};
     Vec16 pl0;
@@ -1012,7 +1012,7 @@ int adjustSideWall(ClipBuf *w, int a1, Vec16 *wallPlane)
     return 0;
 }
 
-int checkSideWall(float *probe, float *mtx, ClipBuf *p, ClipBuf *a3, Vec16 *wallPlane)
+static int checkSideWall(float *probe, float *mtx, ClipBuf *p, ClipBuf *a3, Vec16 *wallPlane)
 {
     char buf[16];
     int flag;
@@ -1071,19 +1071,19 @@ block12:
     return 0;
 }
 
-void forceFallDown(void)
+static void forceFallDown(void)
 {
     iosOmSendMail(skelGObj, 0x18, skelGObj);
     CopyVector(skelRoot->last, skelRoot->pos);
 }
 
-void forceReset(void)
+static void forceReset(void)
 {
     iosOmSendMail(skelGObj, 0x103, skelGObj);
     CopyVector(skelRoot->last, (char *)skelRoot);
 }
 
-void checkWallUpperWall(void)
+static void checkWallUpperWall(void)
 {
     float (*v)[4];
     MatrixDrive_PushMatrix();
@@ -1117,7 +1117,7 @@ static inline void dropWhenFloorTooFar(void) /* derived name */
     }
 }
 
-void calcWallFittingGeometry(void)
+static void calcWallFittingGeometry(void)
 {
     Vec16 v;
     float mtx[16];
@@ -1144,7 +1144,7 @@ void calcWallFittingGeometry(void)
     skelRoot->height = 0.0f;
 }
 
-ObjNode rootUpdateHang(int kind, int a1, int a2)
+static ObjNode rootUpdateHang(int kind, int a1, int a2)
 {
     Vec16 mv;
     Vec16 up;
@@ -1289,7 +1289,7 @@ out:
     return skelRoot->wall.o;
 }
 
-ObjNode rootUpdateSwim(void)
+static ObjNode rootUpdateSwim(void)
 {
     ClipBuf w;
     Vec16 v;
@@ -1377,7 +1377,7 @@ static inline void pushRootAlongSideWall(ClipBuf *w) /* derived name */
     _AddVectorXYZ(skelRoot->pos, skelRoot->pos, &t);
 }
 
-int avoidSideAdjustWall(void)
+static int avoidSideAdjustWall(void)
 {
     float mtx[16];
     /* a 0xD0-byte block, cleared to the clip request's 0xC0 */
@@ -1398,7 +1398,7 @@ int avoidSideAdjustWall(void)
     return 1;
 }
 
-ObjNode rootUpdateStepSolution(int kind)
+static ObjNode rootUpdateStepSolution(int kind)
 {
     Vec16 mv;
     Vec16 up;
@@ -1568,7 +1568,7 @@ ObjNode rootUpdateStepSolution(int kind)
     return cfg.o;
 }
 
-ObjNode rootUpdateTrueMotion(int a0)
+static ObjNode rootUpdateTrueMotion(int a0)
 {
     float mtx[16];
     Vec16 v;
@@ -1589,7 +1589,7 @@ ObjNode rootUpdateTrueMotion(int a0)
     return InitialObjPointer;
 }
 
-ObjNode rootUpdateDirectPlayForStream(void)
+static ObjNode rootUpdateDirectPlayForStream(void)
 {
     float *p;
 
@@ -1609,7 +1609,7 @@ ObjNode rootUpdateDirectPlayForStream(void)
     return InitialObjPointer;
 }
 
-ObjNode rootUpdateDirectPlay(int a0)
+static ObjNode rootUpdateDirectPlay(int a0)
 {
     int kind = a0;
     float *p;
@@ -1641,7 +1641,7 @@ ObjNode rootUpdateDirectPlay(int a0)
     return InitialObjPointer;
 }
 
-ObjNode rootUpdateNodeFix(void)
+static ObjNode rootUpdateNodeFix(void)
 {
     /* a nested function, called once with the parent's static chain */
     void keepVerticalZWithQ(void *q)
@@ -1708,7 +1708,7 @@ ObjNode rootUpdateNodeFix(void)
     return InitialObjPointer;
 }
 
-ObjNode rootUpdateY(void)
+static ObjNode rootUpdateY(void)
 {
     Vec16 mv;
     Vec16 mv2;
@@ -1797,7 +1797,7 @@ ObjNode rootUpdateY(void)
 }
 
 /* the parameter is unused */
-ObjNode rootUpdateY_Rope(int a0)
+static ObjNode rootUpdateY_Rope(int a0)
 {
     float mtx[16];
     Vec16 dir;
@@ -1843,7 +1843,7 @@ ObjNode rootUpdateY_Rope(int a0)
     return InitialObjPointer;
 }
 
-ObjNode rootUpdateFly(void)
+static ObjNode rootUpdateFly(void)
 {
     ObjNode shift = {0, -1};
     ClipBuf w;
@@ -1876,7 +1876,7 @@ ObjNode rootUpdateFly(void)
     return shift;
 }
 
-ObjNode rootUpdateEnemyFly(void)
+static ObjNode rootUpdateEnemyFly(void)
 {
     ObjNode shift = {0, -1};
     ClipBuf w;

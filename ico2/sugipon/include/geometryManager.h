@@ -55,9 +55,6 @@ void UpdateRootMatrixByDObj(struct Sub15C *dobj);
 int cylinderCollisionCheck(struct GObj *self, float *ppos, struct GObj *target, float r, float rr,
                            float h, float s, float t, int ctrl, int exceptOwn);
 
-void getInitialInverseMatrix(char *mat, char *mdl, int no);
-void getInitialMatrix(char *mdl, int no);
-
 /* the GObj's sub-object slot, read as an int, a byte pointer or a Sub15C */
 typedef union SubHandle { /* field names derived */
     int i;

@@ -23,7 +23,7 @@ typedef struct {        /* field names derived */
     int hitAnim;        /* 0x14 */
     int hitMode;        /* 0x18 */
     unsigned int flags; /* 0x1C, bit 0: play SE package 43 */
-} ItemBreakRec; /* derived name */
+} ItemBreakRec;         /* derived name */
 
 extern ItemBreakRec itemKind[];
 int BreakItemFromOutside(struct GObj *gobj);
@@ -40,8 +40,5 @@ int ReviveAllCarryableItemsWithNonSleepFrame(int nonSleepFrame);
 int ReviveAllCarryableItemsWithRandomVelocity(float up, float horz);
 int ReviveCarryableItemsWithBoundary(void *center, float radius);
 void ThrowItem(struct GObj *gobj, void *vel);
-void carriedItemGeo(struct GObj *gobj);
-void execBombGeo(struct GObj *gobj);
-void uncarriedItemGeo(struct GObj *gobj);
 
 #endif /* ITEM_H */

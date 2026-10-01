@@ -28,6 +28,9 @@
 #include "main.h"
 #include "fieldCollision.h"
 #include "debug_exception.h"
+
+static void uncarriedItemGeo(struct GObj *gobj);
+
 #include <assert.h>
 
 /* A bomb's fuse: the torch object that lights it, the frames left to burn,
@@ -71,17 +74,17 @@ typedef struct {                        /* field names derived */
     int pad94[3];                       /* 0x94 */
 } __attribute__((aligned(8))) ItemWork; /* derived name */
 
-void bombSparkStartSE(GObj *a0)
+static void bombSparkStartSE(GObj *a0)
 {
     ExecuteSEPackage(a0, 0x32);
 }
 
-void bombSparkSE(GObj *a0)
+static void bombSparkSE(GObj *a0)
 {
     ExecuteSEPackage(a0, 0x33);
 }
 
-void bombExplodeSE(GObj *a0)
+static void bombExplodeSE(GObj *a0)
 {
     ExecuteSEPackage(a0, 0x34);
 }
@@ -159,7 +162,7 @@ static float carryOfsPlayer[4] = {-3.3333335f, -27.777779f, 0.0f, 1.0f}; /* deri
 
 static float carryOfsOther[4] = {-10.0f, -15.0f, 0.0f, 1.0f}; /* derived name */
 
-void avoidInsideOfWall(void *self, GObj *arg)
+static void avoidInsideOfWall(void *self, GObj *arg)
 {
     char *p;
     if (arg == 0)
@@ -250,7 +253,7 @@ char *InitItemGeo(char *gobj, ItemLayout *layout)
 
 /* The holder's 0x15C sub-handle is read through the SubHandle union at every
    site in this function; q is a plain four-float scratch. */
-void carriedItemGeo(GObj *gobj)
+static void carriedItemGeo(GObj *gobj)
 {
     Vec16 pos;
     sceVu0FVECTOR q;
@@ -437,7 +440,7 @@ static inline int breakItemOnFloorHit(GObj *gobj, float len, float *pos,
     return 0;
 }
 
-void uncarriedItemGeo(GObj *gobj)
+static void uncarriedItemGeo(GObj *gobj)
 {
     DObjLink link; /* 0x00 */
     float pos[4];  /* 0x10 */
@@ -647,7 +650,7 @@ void uncarriedItemGeo(GObj *gobj)
     }
 }
 
-void execBombGeo(GObj *gobj)
+static void execBombGeo(GObj *gobj)
 {
     float v[4];
     ItemWork *rec = GOBJ_SUB(gobj)->work;

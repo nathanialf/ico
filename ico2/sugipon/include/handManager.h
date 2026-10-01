@@ -14,12 +14,10 @@
 typedef struct {  /* field names derived */
     float dir[3]; /* 0x00 */
     int mode;     /* 0x0C */
-} HandModeRow; /* derived name */
+} HandModeRow;    /* derived name */
 
 struct GObj;
 
 void HandManager(struct GObj *obj);
-float _handManager(struct GObj *obj, char *hw, char *vec, char *ref, int node);
-void connectToTarget(struct GObj *obj, char *hw, int na, int nb, int nc);
 
 #endif /* HANDMANAGER_H */

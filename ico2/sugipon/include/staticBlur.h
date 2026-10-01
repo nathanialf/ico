@@ -11,7 +11,6 @@
 void SetAuraInspireParam(float a0);
 void SetMotionBlur(int val);
 void SetStaticBlur(int x);
-void blur(int n, void *col);
 void MotionBlur(void);
 void FullScreenEffectBefore(void);
 void FullScreenEffectAfter(void);

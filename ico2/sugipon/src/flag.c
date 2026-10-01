@@ -67,10 +67,10 @@ void SetFlag4PointFixID(GObj *self, int a1, int id)
     _ApplyMatrix((char *)GOBJ_SUB(self) + 0xA0, MatrixDrive_GetMatrix(),
                  (char *)GOBJ_SUB(self) + 0xA0);
     RotQuaternionZ(GOBJ_SUB(self)->root.quat, ang);
-    setFlag4PointMesh(*(char **)(*(char **)(*(char **)(w + 0x4) + 0x4)), *(char **)(w + 0x8),
+    setFlag4PointMesh(*(Mesh3D **)(*(char **)(*(char **)(w + 0x4) + 0x4)), *(char **)(w + 0x8),
                       a1 * 0.25f, id);
-    prim_UpdateMesh3D(*(char **)(*(char **)(*(char **)(w + 0x4) + 0x4)), 8, 0);
-    prim_UpdateMesh3D(*(char **)(*(char **)(*(char **)(w + 0x4) + 0x4)), 8, 1);
+    prim_UpdateMesh3D(*(Mesh3D **)(*(char **)(*(char **)(w + 0x4) + 0x4)), 8, 0);
+    prim_UpdateMesh3D(*(Mesh3D **)(*(char **)(*(char **)(w + 0x4) + 0x4)), 8, 1);
 }
 
 /* InitFlagGeo builds a cloth from the laid-out object's row of layoutClothDef
@@ -304,12 +304,12 @@ void FlagDL(GObj *self)
     case 0:
         light_MakeLightMatrix(GOBJ_SUB(self), 0);
         m = (char *)GOBJ_SUB(self)->lightMtx;
-        DispClothMesh(*(char **)(o + 0x4), m + 0x40, m);
+        DispClothMesh(*(int **)(o + 0x4), m + 0x40, m);
         break;
     case 4:
         light_MakeLightMatrix(GOBJ_SUB(self), 0);
         m = (char *)GOBJ_SUB(self)->lightMtx;
-        DispClothMesh(*(char **)(o + 0x4), m + 0x40, m);
+        DispClothMesh(*(int **)(o + 0x4), m + 0x40, m);
         break;
     }
 }

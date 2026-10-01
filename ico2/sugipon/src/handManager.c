@@ -10,9 +10,11 @@
 #include "matrixDrive.h"
 #include "quaternion.h"
 
+static void connectToTarget(struct GObj *obj, char *hw, int na, int nb, int nc);
+
 /* getBone is defined as a nested function inside connectToTarget below. */
 
-void connectToTarget(GObj *obj, char *hw, int na, int nb, int nc)
+static void connectToTarget(GObj *obj, char *hw, int na, int nb, int nc)
 {
     /* getBone reads connectToTarget's frame through the static chain, which
      * its prologue saves at 0(sp). */
@@ -171,7 +173,7 @@ static inline int PutHandOnLadder(char *hw, int node) /* derived name */
     return 1;
 }
 
-float _handManager(GObj *obj, char *hw, char *vec, char *ref, int node)
+static float _handManager(GObj *obj, char *hw, char *vec, char *ref, int node)
 {
     switch (*(int *)hw) {
     case 2:

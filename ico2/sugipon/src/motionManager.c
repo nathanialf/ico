@@ -171,19 +171,19 @@ extern float GetYProjectionOfPlane(float *plane, float *pos);
 extern void ClipWallFuchiHangWalkStop(void *a0);
 /* int (void *) here, int (int) in fieldCollision.h */
 extern int GetWallAttribute(void *a0);
-extern ObjNode rootUpdateDirectPlayForStream(void);
-extern ObjNode rootUpdateXZ(int a0, int a1);
-extern ObjNode rootUpdateXZ_MotPos(int a0, int a1);
-extern ObjNode rootUpdateStepSolution(int a0);
-extern ObjNode rootUpdateHang(int a0, int a1, int a2);
-extern ObjNode rootUpdateSwim(void);
-extern ObjNode rootUpdateNodeFix(void);
-extern ObjNode rootUpdateY(void);
-extern ObjNode rootUpdateY_Rope(int a0);
-extern ObjNode rootUpdateTrueMotion(int a0);
-extern ObjNode rootUpdateDirectPlay(int a0);
-extern ObjNode rootUpdateFly(void);
-extern ObjNode rootUpdateEnemyFly(void);
+static ObjNode rootUpdateDirectPlayForStream(void);
+static ObjNode rootUpdateXZ(int a0, int a1);
+static ObjNode rootUpdateXZ_MotPos(int a0, int a1);
+static ObjNode rootUpdateStepSolution(int a0);
+static ObjNode rootUpdateHang(int a0, int a1, int a2);
+static ObjNode rootUpdateSwim(void);
+static ObjNode rootUpdateNodeFix(void);
+static ObjNode rootUpdateY(void);
+static ObjNode rootUpdateY_Rope(int a0);
+static ObjNode rootUpdateTrueMotion(int a0);
+static ObjNode rootUpdateDirectPlay(int a0);
+static ObjNode rootUpdateFly(void);
+static ObjNode rootUpdateEnemyFly(void);
 /* void (int, int) here, void (char *, int) in fieldCollision.h */
 extern void DrawGObjWallCollision(int a0, int a1);
 extern unsigned char objLayout[];
@@ -216,7 +216,7 @@ static inline void dispSquare(int alpha) /* derived name */
     DrawLineG(squareP3, col, squareP0, col, -1);
 }
 
-void dispSquare2(int alpha)
+static void dispSquare2(int alpha)
 {
     DrawLineG(square2P0, square2Color, square2P2, square2Color, -1);
     DrawLineG(square2P2, square2Color, square2P1, square2Color, -1);
@@ -245,7 +245,7 @@ static inline int findActPointOrder(int *list, int kind) /* derived name */
     return 0;
 }
 
-int findActPoint(int *list)
+static int findActPoint(int *list)
 {
     int bestOrder = 255;
     int minVal = 249;
@@ -283,7 +283,7 @@ int findActPoint(int *list)
     return ret;
 }
 
-int checkActPointWithHeight(int kind, float h)
+static int checkActPointWithHeight(int kind, float h)
 {
     int i;
 
@@ -332,7 +332,7 @@ static inline void clearCliffStatus(void) /* derived name */
     skelMotCtrl->cliffDist = 3.40282347e+38f;
 }
 
-void clearCollisionStatus(void)
+static void clearCollisionStatus(void)
 {
     clearCliffStatus();
 
@@ -358,7 +358,7 @@ void clearCollisionStatus(void)
     skelMotCtrl->landed = 0;
 }
 
-void checkUpperWallState(void)
+static void checkUpperWallState(void)
 {
     ClipBuf buf;
     memset(&buf, 0, 0xC0);
@@ -379,7 +379,7 @@ void checkUpperWallState(void)
     }
 }
 
-void checkWallSideState(void)
+static void checkWallSideState(void)
 {
     ClipBuf buf = {{0}, {0}, 50.0f};
     float v[4];
@@ -416,7 +416,7 @@ extern void ClipFloorR(void *a0);
 /* void (void *, void *, void *) here, void (void *, void *, int *) in fieldCollision.h */
 extern void GetOrientOfWall(void *out, void *wall, void *vec);
 
-void checkWallState(int flag)
+static void checkWallState(int flag)
 {
     ClipBuf buf;
     ClipBuf *p;
@@ -513,7 +513,7 @@ extern void ClipWallR(void *a0);
 /* as in fieldCollision.h, which this file does not include */
 extern void ClipFloorIH(void *a0);
 
-void checkCliffState(int a0)
+static void checkCliffState(int a0)
 {
     ClipBuf buf;
     float mv[4];
@@ -647,7 +647,7 @@ void checkCliffState(int a0)
     }
 }
 
-void _checkCliffAndWall(void)
+static void _checkCliffAndWall(void)
 {
     float v[4];
     float d;
@@ -708,7 +708,7 @@ void _checkCliffAndWall(void)
     }
 }
 
-void checkCliffAndWallStateOfLastPlane(void)
+static void checkCliffAndWallStateOfLastPlane(void)
 {
     _UnitMatrix(MatrixDrive_GetMatrix());
     {
@@ -727,7 +727,7 @@ void checkCliffAndWallStateOfLastPlane(void)
     }
 }
 
-void checkCliffAndWallStateAtJump(void)
+static void checkCliffAndWallStateAtJump(void)
 {
     _UnitMatrix(MatrixDrive_GetMatrix());
     {
@@ -738,7 +738,7 @@ void checkCliffAndWallStateAtJump(void)
     _checkCliffAndWall();
 }
 
-void dispActNode(int id)
+static void dispActNode(int id)
 {
     if (id == -1) {
         return;
@@ -755,7 +755,7 @@ void dispActNode(int id)
     gif_EndPacket();
 }
 
-void dispLastNode(void)
+static void dispLastNode(void)
 {
     gif_StartPacketPri(0xB);
     gif_SetAlpha(1, 5, 0x80);
@@ -774,6 +774,11 @@ void dispLastNode(void)
 #include "GifPacket.h"
 #include "DObj.h"
 
+static void _checkCliffAndWall(void);
+static void _getFinalMatrix(int id);
+static void getFinalMatrixWithNaturalGeometry(int id);
+static void _wallHitReaction(ClipBuf *w, void *pos, void *last, int noSlide);
+
 static SkelNode *skelNode = 0; /* derived name */
 
 static int skelGObj = 0; /* derived name */
@@ -789,7 +794,7 @@ static inline void calcMaxNodeHeight(int n) /* derived name */
     }
 }
 
-void _getGeometryOfMotion(ObjNode *out, int second)
+static void _getGeometryOfMotion(ObjNode *out, int second)
 {
     float v[4];
     char q[16];
@@ -922,7 +927,7 @@ inline void getGeometryOfMotion(ObjNode *out, int second)
     }
 }
 
-void execPositionReserver(GObj *self, ObjNode m)
+static void execPositionReserver(GObj *self, ObjNode m)
 {
     Sub15C *ext;
     float buf[4];
@@ -1244,7 +1249,7 @@ static void getInitialMatrix(Sub15C *obj, int idx)
 
 /* K&R definition: it declares no prototype, so SkelTest and SkelTestGeo
  * below call it with one argument. */
-void dispSkelton()
+static void dispSkelton()
 {
     float (*v)[4];
     gif_StartPacketPri(0xB);

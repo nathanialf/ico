@@ -26,6 +26,11 @@
 #include "main.h"
 #include "Matrix.h"
 
+static void getMotionGeometry(void *self);
+static void getStreamBlendShapeGeometry(void *self, void *m0, void *m1, float t);
+static void getStreamShapeGeometry(void *self, void *sm);
+static void shiftMotionData(int a0, int a1, int a2, int a3);
+
 /* The rope's interpolation rate: the chain's geometry sets it from the hang
    height and rootUpdateY_Rope moves the root by it. */
 float ropeInterRate = 0.0f; /* derived name */
@@ -61,7 +66,7 @@ extern const MotionDef motionKind[];
    const, so motionOrientManager.h cannot carry it */
 extern const MotOriName motionOriKind[];
 
-void orientDebug(void *self, int idx, int y)
+static void orientDebug(void *self, int idx, int y)
 {
     char buf[256];
     MotOriName name;
@@ -176,7 +181,7 @@ float GetMotionPlaySpeedRatio(int id)
     return motionKind[m].playSpeedRatio;
 }
 
-void execFrameTrigger(void *self)
+static void execFrameTrigger(void *self)
 {
     struct MotCtrl *w = &MOWORK(self)->ctrl;
     float t;
@@ -370,7 +375,7 @@ inline MotionOrientEntry *getMotionOrient(int i, int n, int id, int kind)
     return &motionOrient[2467];
 }
 
-void sendStateMail(void *self)
+static void sendStateMail(void *self)
 {
     float m[4][4];
     float pos[4];
@@ -494,7 +499,7 @@ static __inline__ int searchAltMotion(int req) /* derived name */
     return req;
 }
 
-void shiftMotionData(int a0, int a1, int a2, int a3)
+static void shiftMotionData(int a0, int a1, int a2, int a3)
 {
     char *m = (char *)GOBJ_SUB(a0);
     struct MotCtrl *w = (struct MotCtrl *)(m + 0x470);
@@ -571,7 +576,7 @@ void shiftMotionData(int a0, int a1, int a2, int a3)
     }
 }
 
-void shiftMotionOrientEndFunc(void *self)
+static void shiftMotionOrientEndFunc(void *self)
 {
     struct MotCtrl *w = &MOWORK(self)->ctrl;
     int x;
@@ -622,7 +627,7 @@ inline void CopyBlendMotionDataSource(void *self, short ang)
     }
 }
 
-void shiftMotionOrientBeginFunc(void *self, int a1, int a2, int a3)
+static void shiftMotionOrientBeginFunc(void *self, int a1, int a2, int a3)
 {
     Vec16 v;
     char *m = (char *)MOWORK(self);
@@ -706,7 +711,7 @@ static inline int checkMotionShiftReady(struct MotCtrl *m, MotionOrientEntry *p)
     return p->shiftFrom != -1 && (float)p->shiftFrom < m->animFrame;
 }
 
-int normalMotionShift(void *self, int force)
+static int normalMotionShift(void *self, int force)
 {
     struct MotCtrl *w = &MOWORK(self)->ctrl;
     MotionOrientEntry *p = getMotionOrient(w->oriFrom, w->oriTo, w->request, w->orientKind);
@@ -762,7 +767,7 @@ static inline MotionOrientEntry *findParallelMotion(int cur, int next) /* derive
 
 /* the -1 test encloses the body and every refusal falls to the one
  * `return 0` at the end */
-int parallelMotionShift(void *self)
+static int parallelMotionShift(void *self)
 {
     struct MotCtrl *m = &MOWORK(self)->ctrl;
     int next = searchMotionShift(self, m->request, m->motion);
@@ -893,8 +898,8 @@ inline void SetParallelMotionTable(void *self, int *next, int *req, int from, in
    register); motionManager2.h does not declare it */
 extern void GetFloatingMotion(void *dst, float t, float *v, int *mot, int n, int a5, void *skel);
 
-void getNodeBlendedFloatingMotion(void *dst, float *root, int id, int n, int a4, void *self,
-                                  float t)
+static void getNodeBlendedFloatingMotion(void *dst, float *root, int id, int n, int a4, void *self,
+                                         float t)
 {
     float v[4];
     char mot[n * 32];
@@ -982,7 +987,7 @@ static inline void assertMotionNodeCount(struct MotCtrl *w, int *md, int n) /* d
     }
 }
 
-void getMotionGeometry(void *self)
+static void getMotionGeometry(void *self)
 {
     int *p = *(int **)((char *)MOWORK(self) + 0x8C);
     struct MotRoot *mo = &MOWORK(self)->root;
@@ -1181,7 +1186,7 @@ enum DebugDisplayMode {
 
 extern enum DebugDisplayMode debug_bar_flag;
 
-void getShapeGeometry(void *self)
+static void getShapeGeometry(void *self)
 {
     struct MotCtrl *m = &GOBJ_SUB(self)->ctrl;
 
@@ -1270,7 +1275,7 @@ static inline int getStreamVec(void *self, void *sm, float *v, void *mot) /* der
     return 0;
 }
 
-void getStreamMotionGeometry(void *self, void *sm)
+static void getStreamMotionGeometry(void *self, void *sm)
 {
     float v[4];
     char mot[MOWORK(self)->skelNodeNum * 32];
@@ -1283,7 +1288,7 @@ void getStreamMotionGeometry(void *self, void *sm)
     }
 }
 
-void getStreamBlendMotionGeometry(void *self, void *sm0, void *sm1, float t)
+static void getStreamBlendMotionGeometry(void *self, void *sm0, void *sm1, float t)
 {
     float v0[4];
     float v1[4];
@@ -1319,7 +1324,7 @@ void getStreamBlendMotionGeometry(void *self, void *sm0, void *sm1, float t)
         }                                                                                          \
     }
 
-void getStreamBlendShapeGeometry(void *self, void *sm0, void *sm1, float t)
+static void getStreamBlendShapeGeometry(void *self, void *sm0, void *sm1, float t)
 {
     int i;
     int n = GOBJ_SUB(self)->morphNum;
@@ -1341,7 +1346,7 @@ void getStreamBlendShapeGeometry(void *self, void *sm0, void *sm1, float t)
     }
 }
 
-void getStreamShapeGeometry(void *self, void *sm)
+static void getStreamShapeGeometry(void *self, void *sm)
 {
     int n = GOBJ_SUB(self)->morphNum;
 
@@ -1362,7 +1367,7 @@ void getStreamShapeGeometry(void *self, void *sm)
     }
 }
 
-void getStreamMotion(void *self)
+static void getStreamMotion(void *self)
 {
     void *s = *(void **)((char *)MOWORK(self) + 0x470);
     char a[GetDataSizeOfStreamMotion(s)];

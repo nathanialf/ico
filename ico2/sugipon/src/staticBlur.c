@@ -9,6 +9,8 @@
 #include "main.h"
 #include "Matrix.h"
 
+static void blur(int n, void *col);
+
 /* workBase: the GS block addresses of the work buffers Work0..Work3 the pass
    names use (FullScreenEffectBefore rewrites them).  sunScreen: calcSun's
    projected sun, integer screen coordinates.  sunView: the sun direction in
@@ -133,13 +135,13 @@ static inline void blurPass(int fb, int tex, int rm, int um, void *col) /* deriv
 
 /* the first pass shrinks the sprite by n + 6 in the blur colour, the second
  * shrinks the texture back in the caller's colour */
-void blur(int n, void *col)
+static void blur(int n, void *col)
 {
     blurPass(workBase[1], workBase[0], n + 6, 0, &blurPassCol);
     blurPass(workBase[0], workBase[1], 0, n + 6, col);
 }
 
-void auraInspireBefore(void)
+static void auraInspireBefore(void)
 {
     int rect[4] = {-ScreenWidth / 2 * 16, -ScreenHeight / 2 * 16, ScreenWidth * 16,
                    ScreenHeight * 16};
@@ -173,7 +175,7 @@ static int blurUv[12]; /* derived name */
 /* the blur sprite's RGBA */
 static SprCol blurCol; /* derived name */
 
-void auraInspireAfter(int mode)
+static void auraInspireAfter(int mode)
 {
     /* halfRect and halfUv are read only by the DEBUG build's half-height
        preview of work buffer 1 */
@@ -768,7 +770,7 @@ void makeFullScreenFlareAfter(int mode)
     gif_EndPacket();
 }
 
-void pasteFullScreenFlare(void)
+static void pasteFullScreenFlare(void)
 {
     int rect[4] = {-ScreenWidth / 2 * 16, -ScreenHeight / 2 * 16, ScreenWidth * 16,
                    ScreenHeight * 16};
@@ -980,7 +982,7 @@ void MotionBlur(void)
     gif_EndPacket();
 }
 
-void calcSun(void)
+static void calcSun(void)
 {
     float buf[4];
     _NormalizeVector(buf, sunDir);
@@ -1010,7 +1012,7 @@ static inline void colorSettingStep(unsigned char *p, int d) /* derived name */
     *p = v;
 }
 
-void colorSetting(void)
+static void colorSetting(void)
 {
     char buf[256];
     int f = pad[1].rep;
@@ -1064,7 +1066,7 @@ static int postInfoTimer = 0; /* derived name */
 
 static int postInfoLast = -1; /* derived name */
 
-void dispPostInfo(void)
+static void dispPostInfo(void)
 {
     char buf[256];
 
@@ -1115,7 +1117,7 @@ static int feedInfoTimer = 0; /* derived name */
 
 static int feedInfoLast = -1; /* derived name */
 
-void dispFeedInfo(void)
+static void dispFeedInfo(void)
 {
     char buf[256];
 

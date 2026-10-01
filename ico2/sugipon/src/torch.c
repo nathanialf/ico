@@ -125,7 +125,7 @@ void LightTorchOff(GObj *gobj)
     }
 }
 
-void torchDrainControl(GObj *gobj, float level)
+static void torchDrainControl(GObj *gobj, float level)
 {
     TorchGeoWork *w = GOBJ_SUB(gobj)->work;
 
@@ -146,7 +146,7 @@ void torchDrainControl(GObj *gobj, float level)
     }
 }
 
-void moveTorch(GObj *gobj, void *mtx)
+static void moveTorch(GObj *gobj, void *mtx)
 {
     TorchGeoWork *w = GOBJ_SUB(gobj)->work;
 
@@ -167,7 +167,7 @@ void moveTorch(GObj *gobj, void *mtx)
     }
 }
 
-void setPauseFlag(GObj *gobj, int flag)
+static void setPauseFlag(GObj *gobj, int flag)
 {
     TorchGeoWork *w = GOBJ_SUB(gobj)->work;
 
@@ -321,7 +321,7 @@ static inline int chainReactionBlocked(char *gobj, char *other) /* derived name 
     return 0;
 }
 
-void procChainReaction(GObj *gobj)
+static void procChainReaction(GObj *gobj)
 {
     TorchGeoWork *w;
     char *o;

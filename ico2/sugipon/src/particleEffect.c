@@ -14,6 +14,8 @@
 #include "windField.h"
 #include "particleEffect.h"
 
+static int setParticleEffect(struct PEGeo *self, struct PEPackage *pkg, struct IosMemPart *part);
+
 /* The 128-byte per-effect geometry object SetParticleEffectByPartition
    allocates: the emitter's position and orientation, its package, the
    particle records and the primitive that draws them, the emission count, the
@@ -131,7 +133,7 @@ static inline int searchFreeParticleEffect(void) /* derived name */
     return -1;
 }
 
-void setParticleEffectGeometry(PEGeo *geo, void *pos, void *quat)
+static void setParticleEffectGeometry(PEGeo *geo, void *pos, void *quat)
 {
     CopyVector(geo->pos, pos);
     CopyQuaternion(geo->quat, quat);
@@ -216,7 +218,7 @@ static inline float sugiSignedRandom(void) /* derived name */
     return sugiRandom() * 2.0f - 1.0f;
 }
 
-void _setParticleEffect(PEPartRec *out, PEPackage *pkg, char *m, float k)
+static void _setParticleEffect(PEPartRec *out, PEPackage *pkg, char *m, float k)
 {
     PEPartRec *w;
     int n;
@@ -283,7 +285,7 @@ static inline void peSetVtx(PEVtx *dst, PEPartRec *pt) /* derived name */
 
 /* The statements follow the developer's line order (287 self->pkg, 289,
    291, 292, 293, 295, 296, 299, 300, 303). */
-int setParticleEffect(PEGeo *self, PEPackage *pkg, struct IosMemPart *part)
+static int setParticleEffect(PEGeo *self, PEPackage *pkg, struct IosMemPart *part)
 {
     float m[16];
     PEPartRec *p;
@@ -396,7 +398,7 @@ static inline int updateParticle(PEGeo *self, float *m) /* derived name */
     return 1;
 }
 
-int execParticleEffect(void *a0)
+static int execParticleEffect(void *a0)
 {
     float m[16];
     PEGeo *self;
@@ -466,7 +468,7 @@ static inline void peSetGsReg(long long a0, long long a1) /* derived name */
     *PacketBufferStruct.ptr.d++ = a0;
 }
 
-void dispParticleEffect(PEGeo *geo)
+static void dispParticleEffect(PEGeo *geo)
 {
     char *c;
     char *p;

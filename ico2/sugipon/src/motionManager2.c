@@ -274,7 +274,7 @@ void GetLowerPlaneCollision(ClipBuf *w, float *pos)
     ClipFloor(w);
 }
 
-void getLowerPlaneCollisionE(ClipBuf *w, float *pos)
+static void getLowerPlaneCollisionE(ClipBuf *w, float *pos)
 {
     CopyVector(w->pt[0], pos);
     CopyVector(w->pt[1], w->pt[0]);
@@ -310,7 +310,7 @@ static inline int adjustMotionHeightToNearestField(char *o, float *pos) /* deriv
    1035 passes the raw GetTableArcSin result with no sign extension, and its 1040
    site sign-extends explicitly.  InitMotionGeoInfo's site carries the (short). */
 
-int calcFootIK(SkelNode *skel, char *arg, int node, float scale, float ratio)
+static int calcFootIK(SkelNode *skel, char *arg, int node, float scale, float ratio)
 {
     float q0[4];
     float q1[4];
@@ -1153,7 +1153,7 @@ int GetPureVerticalPlaneOfCurrentPosition(void *plane0, void *plane1, float *pts
     return bestIdx;
 }
 
-void getVerticalElementOfWallNormal(int *self, int *p, WallCfg *cfg)
+static void getVerticalElementOfWallNormal(int *self, int *p, WallCfg *cfg)
 {
     GObj *obj = cfg->o.obj;
     int sh = cfg->o.node << 6;

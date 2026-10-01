@@ -20,7 +20,5 @@ int GetRotObjectZPlusDirection(void *gobj);
 int MoveRotObjectWithHoldPoint(struct GObj *bar, void *hold, void *self, void *dir, void *up);
 void SetRotObjectArmRadius(struct GObj *a0, float f);
 void SetRotObjectLockFlag(struct GObj *a0, int a1);
-void moveEndSE(struct GObj *a0, int a1, int a2, int a3);
-void moveStartSE(struct GObj *a0, int a1, int a2, int a3);
 
 #endif /* ROTOBJECT_H */

@@ -18,9 +18,7 @@ void EntryRevivedSpiderGroupManager(int a0);
 void DispAllSpiderGroups(void);
 void EntryToSpiderGroupManagerForReviveMaster(struct GObj *a0, struct GObj *a1);
 int *getReviveEnemyGObj(int count);
-
 void EntrySpiderGroupManager(int gobj);
 void ExecSpiderGroupManager(void);
-int tryToRevive(void);
 
 #endif /* SPIDERGROUPMANAGER_H */

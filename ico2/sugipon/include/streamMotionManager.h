@@ -10,8 +10,8 @@
 
 /* stream-motion-def: one stream motion file, 0x30 bytes. Readers:
  * ico2/script/src/st04a.c, st25a.c, e3.c (StandbyStreamMotion's file). */
-typedef struct {   /* field names derived */
-    char path[48]; /* 0x00 */
+typedef struct {    /* field names derived */
+    char path[48];  /* 0x00 */
 } StreamMotionFile; /* derived name */
 
 struct GObj;
@@ -32,16 +32,11 @@ int CheckReadyStreamMotion(void);
 void SetStreamMotionFinishCallBackFunc(int no, void (*func)(struct GObj *));
 void FreeStreamMotionBuffer(void);
 void ClearAllStreamMotionEntry(void);
-int _closeHander(void);
-int _handler(struct CdvdBgReq *self);
 void ClearStreamMotionEntry(struct GObj *gobj);
 void DisableStreamMotionManagerAutomaticDelete(void);
 void ExecStreamMotionManager(void);
 void GetStreamMotionDataNext(char *dst, int no);
 void MallocStreamMotionBuffer(void);
 void PlayStreamMotion(void);
-void _deleteStreamMotionManager(void);
-int _infoUpdate(void);
-void getStreamMotionData(char *dst, int off, int no);
 
 #endif /* STREAMMOTIONMANAGER_H */

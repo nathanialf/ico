@@ -124,7 +124,7 @@ inline void EntryToSpiderGroupManagerForReviveMaster(GObj *a0, GObj *a1)
     reviveMaster = a1;
 }
 
-int tryToRevive(void)
+static int tryToRevive(void)
 {
     float pos[4];
     int k = 0;

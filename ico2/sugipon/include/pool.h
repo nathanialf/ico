@@ -18,7 +18,7 @@ struct GObj;
  * them), the mesh, its per-vertex ripple heights, the rows of the mesh's
  * vertices and the colour prim_InitMesh3D is given.  The record is
  * 4-aligned. */
-typedef struct { /* field names derived */
+typedef struct {        /* field names derived */
     int nrow;           /* 0x00 */
     int ncol;           /* 0x04 */
     float sizeX;        /* 0x08 */
@@ -27,7 +27,7 @@ typedef struct { /* field names derived */
     float **height;     /* 0x14, nrow rows of ncol heights */
     Prim3DVec **row;    /* 0x18, the rows of mesh's vertices */
     unsigned int color; /* 0x1C */
-} PoolMesh; /* derived name */
+} PoolMesh;             /* derived name */
 
 /* The second argument of InitLayoutedPoolReflactionMesh: the layout quad's
  * four corner points.  pool.c interpolates between the quadwords at 0x00 and
@@ -46,8 +46,5 @@ void InitLimitedPoolReflactionMesh(PoolMesh *a0);
 void SetFallDownSplash(GObj *pool, struct GObj *self);
 void SetLayoutedPoolReflactionMesh(PoolMesh *a0);
 void SetLimitedPoolReflactionMesh(PoolMesh *a0, GObj *a1, GObj *a2);
-void copyToWork(int pri);
-void dispPool(GObj *self);
-void updatePoolGeo(GObj *self);
 
 #endif /* POOL_H */

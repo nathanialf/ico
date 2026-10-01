@@ -14,21 +14,21 @@ struct GObj;
 typedef struct { /* field names derived */
     int se[2];   /* 0x00 */
     int id;      /* 0x08 */
-} SePackage; /* derived name */
+} SePackage;     /* derived name */
 
 /* motion-se-random-def: one random sound, 8 bytes: the sound and its share
    of the draw. */
 typedef struct { /* field names derived */
     int se;      /* 0x00 */
     float rate;  /* 0x04 */
-} SERandEntry; /* derived name */
+} SERandEntry;   /* derived name */
 
 /* motion-se-condition-def: one sound condition, 0x0C bytes. */
 typedef struct { /* field names derived */
     int kind;    /* 0x00 */
     int cond;    /* 0x04 */
     int se;      /* 0x08 */
-} SECondEntry; /* derived name */
+} SECondEntry;   /* derived name */
 
 /* motion-eff-def: one motion effect, 0x24 bytes: the offset and turn from
    the node, the particle effect, the node and the flags.  Readers:
@@ -43,7 +43,7 @@ typedef struct {        /* field names derived */
     int eff;            /* 0x18 */
     int node;           /* 0x1C */
     unsigned int flags; /* 0x20 */
-} EffEntry; /* derived name */
+} EffEntry;             /* derived name */
 
 /* motion-eff-condition-def: the shared condition table, 0x0C bytes a row:
    execEff reads its cond and actId pair as an effect id, execVibCondition
@@ -52,7 +52,7 @@ typedef struct { /* field names derived */
     int kind;    /* 0x00 */
     int cond;    /* 0x04 */
     int actId;   /* 0x08 */
-} VibCondEntry; /* derived name */
+} VibCondEntry;  /* derived name */
 
 extern SePackage progSELink[];
 extern const SERandEntry randomSEKind[];
@@ -60,16 +60,6 @@ extern const SECondEntry motSECondKind[];
 extern const EffEntry motionEffKind[];
 extern const VibCondEntry motEffCondKind[];
 extern const int randomEffKind[];
-/* The declarations below lead the prototypes because their order is
- * load-bearing: gcc 2.9 emits the deferred out-of-line copy of a plain-inline
- * function in first-declaration order, so this is the order
- * frameDependSequence.c's inline tail has. */
-int execSE(int a0, void *a1);
-int checkWaterDepth(struct GObj *a0, int a1);
-int checkModelDataID(struct GObj *a0, int a1);
-int checkWeaponType(struct GObj *a0, int a1);
-int execVib(int a0, void *a1);
-int execWeaponLightOff(void);
 int ExecuteDirectSE(struct GObj *gobj, int id);
 void ExecuteSEPackage(struct GObj *a0, int a1);
 void ExecuteSEPackageWithGroupVariation(struct GObj *a0, int a1, int a2);
@@ -78,11 +68,6 @@ void InitFrameDependSequence(void *a0);
 void StopFDSVibration(void *a0);
 void StopSEPackage(struct GObj *a0);
 void StopSEPackageWithGroupVariation(struct GObj *a0, int a1);
-void executeSEPackageByGObj(struct GObj *gobj, int no, int grp);
-void executeSEPackageWithNoGObj(int no);
-int playSE(int no);
-int playSERandomID(int no, void *entry);
 void ExecFrameDependSequence(struct GObj *gobj);
-int ExecuteDirectSEWithGroupVariation(struct GObj *gobj, int id, int grp);
 
 #endif /* FRAMEDEPENDSEQUENCE_H */

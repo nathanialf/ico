@@ -11,6 +11,10 @@
 #include "matrixDrive.h"
 #include "quaternion.h"
 #include "fieldCollision.h"
+
+static void getInitialInverseMatrix(char *mat, char *mdl, int no);
+static void getInitialMatrix(char *mdl, int no);
+
 #include <assert.h>
 
 /* The display object's root block (Sub15C root, typedef.h) holds the root
@@ -799,7 +803,7 @@ GObj **GetCharGObjList(void)
     return charGObjList;
 }
 
-void getInitialInverseMatrix(char *mat, char *mdl, int no)
+static void getInitialInverseMatrix(char *mat, char *mdl, int no)
 {
     SkelNode *nd = (SkelNode *)(*(char **)(mdl + 0x8C) + (no << 6));
     MatrixDrive_PushMatrix();
@@ -815,7 +819,7 @@ void getInitialInverseMatrix(char *mat, char *mdl, int no)
     }
 }
 
-void getInitialMatrix(char *mdl, int no)
+static void getInitialMatrix(char *mdl, int no)
 {
     SkelNode *nd = (SkelNode *)(*(char **)(mdl + 0x8C) + (no << 6));
     MatrixDrive_PushMatrix();

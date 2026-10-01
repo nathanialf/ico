@@ -106,12 +106,12 @@ static inline int makeMotionKindList(MvMenuEnt *ent, int base) /* derived name *
     return n;
 }
 
-void setRootUpdateMode(void)
+static void setRootUpdateMode(void)
 {
     SetRootUpdateMode(viewObj, rootUpdateMode);
 }
 
-void setMotionSpeed(float ratio)
+static void setMotionSpeed(float ratio)
 {
     SetMotionPlaySpeedRatio(viewObj, ratio);
 }
@@ -131,7 +131,7 @@ typedef struct { /* field names derived */
    debug_SelectCsvWindowWithLine takes its rows as void * */
 extern MotionDef motionKind[];
 
-void dispMotFrameProgress(int obj, float cur)
+static void dispMotFrameProgress(int obj, float cur)
 {
     /* a nested function: dispMotFrameProgress passes it a static chain */
     void dispProgressBar(int s, int e, int n, float c, BarCol *col)
@@ -233,7 +233,7 @@ static char *savedMotTbl = 0; /* derived name */
 extern int debug_SelectCsvWindow(char *title, int a1, int a2, int a3, void *tbl, int stride, int a6,
                                  int a7, int count, int *cur);
 
-int objMenuProc(void)
+static int objMenuProc(void)
 {
     int ret =
         debug_SelectCsvWindow("Motion Viewer", 10, 0x32, 0xB, objMenu, 0x18, 0, 1, 5, &objSel);
@@ -298,7 +298,7 @@ extern void debug_PrintfDummy(int x, int y, unsigned int color, const char *fmt,
 extern int debug_SelectCsvWindowWithLine(char *title, int a1, int a2, int a3, void *tbl, int stride,
                                          int a6, int a7, int count, int *cur, int a10);
 
-int motKindMenuProc(void)
+static int motKindMenuProc(void)
 {
     MvMenuEnt *ent = &objMenu[objSel];
     int mot = ForMotionViewer_GetCurrentMotion(viewObj);
@@ -351,7 +351,7 @@ int motKindMenuProc(void)
 
 static int lastOriSel = -1; /* derived name */
 
-int motOriMenuProc(void)
+static int motOriMenuProc(void)
 {
     MvMenuEnt *ent = &objMenu[objSel];
     int cur = motSel + ent->motFirst;
@@ -490,7 +490,7 @@ typedef struct MvCol { /* field names derived */
     int r, g, b, a;
 } __attribute__((aligned(16))) MvCol; /* derived name */
 
-void lookAtTest(MvVec *pos, float rad, void *colAxis, void *colRing, short dy, short ang)
+static void lookAtTest(MvVec *pos, float rad, void *colAxis, void *colRing, short dy, short ang)
 {
     float p0[4];
     float p1[4];

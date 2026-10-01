@@ -46,15 +46,6 @@ typedef struct {    /* field names derived */
     Vec4A_P_1 tip;  /* 0x40 */
 } AP1Part;          /* derived name */
 
-typedef struct { /* field names derived */
-    long long x;
-} __attribute__((packed, aligned(4))) AP1PackedLL;
-
-typedef struct {   /* field names derived */
-    AP1PackedLL p; /* 0x00 */
-    int attr;      /* 0x08 */
-} AP1ColHit;       /* derived name */
-
 /* The clip table the two collision segments are read from: each entry is a
  * pair of endpoints the root matrix is applied to. */
 typedef struct { /* field names derived */
@@ -72,8 +63,8 @@ typedef struct {    /* field names derived */
     char pad30[64];
     float radius; /* 0x70 */
     char pad74[12];
-    AP1ColHit wall;  /* 0x80 */
-    AP1ColHit floor; /* 0x8C */
+    WallCfg wall;  /* 0x80 */
+    WallCfg floor; /* 0x8C */
     char pad98[8];
     Vec4A_P_1 normal; /* 0xA0 */
     char padB0[16];
@@ -85,35 +76,35 @@ typedef struct {    /* field names derived */
  * the two arm objects, the eye, the up vector, three motion parameters, the
  * body's smoothed attitude and position, its matrix and the root matrix, and
  * three counters. */
-typedef struct {      /* field names derived */
-    int layout;       /* 0x000, the row of spiderDef */
-    int skel;         /* 0x004 */
-    int mode;         /* 0x008 */
-    int padC;         /* 0x00C */
-    AP1Part part[4];  /* 0x010 */
-    AP1ColHit hit[2]; /* 0x150 */
-    int word168;      /* 0x168 */
-    int word16C;      /* 0x16C */
-    int focus[9];     /* 0x170, the skeleton nodes of ap1FocusNode: the
+typedef struct {     /* field names derived */
+    int layout;      /* 0x000, the row of spiderDef */
+    int skel;        /* 0x004 */
+    int mode;        /* 0x008 */
+    int padC;        /* 0x00C */
+    AP1Part part[4]; /* 0x010 */
+    WallCfg hit[2];  /* 0x150 */
+    int word168;     /* 0x168 */
+    int word16C;     /* 0x16C */
+    int focus[9];    /* 0x170, the skeleton nodes of ap1FocusNode: the
                            body's, then each limb's pair; calcSubMission
                            reaches a pair from &focus[1] and &focus[2] */
-    Sub15C *arm[2];   /* 0x194, the two arm objects when skel is 0 */
-    EnemyEye *eye;    /* 0x19C */
-    int pad1A0[4];    /* 0x1A0 */
-    Vec4A_P_1 up;     /* 0x1B0 */
-    float tilt;       /* 0x1C0, the forward tilt the speed gives */
-    float roll;       /* 0x1C4, the roll the sideways motion gives */
-    float sink;       /* 0x1C8, 0 to 1, how far the body sinks and tips forward */
-    int pad1CC;       /* 0x1CC */
-    Vec4A_P_1 quat;   /* 0x1D0 */
-    Vec4A_P_1 pos;    /* 0x1E0 */
-    float mtx[16];    /* 0x1F0 */
-    float root[16];   /* 0x230 */
-    int blink;        /* 0x270 */
-    int settleCount;  /* 0x274, the first 10 frames reset the position info */
-    int visible;      /* 0x278 */
-    int pad27C;       /* 0x27C */
-} AP1Work;            /* derived name */
+    Sub15C *arm[2];  /* 0x194, the two arm objects when skel is 0 */
+    EnemyEye *eye;   /* 0x19C */
+    int pad1A0[4];   /* 0x1A0 */
+    Vec4A_P_1 up;    /* 0x1B0 */
+    float tilt;      /* 0x1C0, the forward tilt the speed gives */
+    float roll;      /* 0x1C4, the roll the sideways motion gives */
+    float sink;      /* 0x1C8, 0 to 1, how far the body sinks and tips forward */
+    int pad1CC;      /* 0x1CC */
+    Vec4A_P_1 quat;  /* 0x1D0 */
+    Vec4A_P_1 pos;   /* 0x1E0 */
+    float mtx[16];   /* 0x1F0 */
+    float root[16];  /* 0x230 */
+    int blink;       /* 0x270 */
+    int settleCount; /* 0x274, the first 10 frames reset the position info */
+    int visible;     /* 0x278 */
+    int pad27C;      /* 0x27C */
+} AP1Work;           /* derived name */
 
 static int standMot(GObj *a0);
 static int walkMot(GObj *a0);
@@ -248,7 +239,7 @@ AP1Work *InitAP1(GObj *self, SObjSimpleSetting *arg)
         p->part[i] = ap1PartInit;
     }
     for (i = 0; i < 2; i++) {
-        p->hit[i] = *(AP1ColHit *)&InitialColInfo;
+        p->hit[i] = InitialColInfo;
     }
     applyPartOrients(self);
     if (p->skel == 0) {
@@ -395,17 +386,17 @@ static void zAxisRotFitting(GObj *self, void *arg2)
     }
 }
 
-static inline int clipAndTakeHit(AP1ColHit *dst, char *col) /* derived name */
+static inline int clipAndTakeHit(WallCfg *dst, char *col) /* derived name */
 {
     ClipCollision(col);
     if (*(int *)(col + 0x88) != 0) {
-        dst->attr = *(int *)(col + 0x88);
-        dst->p = *(AP1PackedLL *)(col + 0x80);
+        dst->n = *(void **)(col + 0x88);
+        dst->o = *(ObjNode *)(col + 0x80);
         return 1;
     }
     if (*(int *)(col + 0x94) != 0) {
-        dst->attr = *(int *)(col + 0x94);
-        dst->p = *(AP1PackedLL *)(col + 0x8C);
+        dst->n = *(void **)(col + 0x94);
+        dst->o = *(ObjNode *)(col + 0x8C);
         return 1;
     }
     return 0;
@@ -433,7 +424,7 @@ static inline void fitYawToVector(GObj *self, Vec4A_P_1 *dir) /* derived name */
     SetRootQuaternion(self, &q);
 }
 
-static inline int clipPartPair(AP1ColHit *dst, Mtx44 *m, AP1ColSeg *tbl, Vec4A_P_1 *pos,
+static inline int clipPartPair(WallCfg *dst, Mtx44 *m, AP1ColSeg *tbl, Vec4A_P_1 *pos,
                                Vec4A_P_1 *nrm) /* derived name */
 {
     int i;
@@ -447,7 +438,7 @@ static inline int clipPartPair(AP1ColHit *dst, Mtx44 *m, AP1ColSeg *tbl, Vec4A_P
             return 1;
         }
     }
-    dst->attr = 0;
+    dst->n = 0;
     return 0;
 }
 
@@ -614,7 +605,7 @@ static int walkMot(GObj *a0)
 
 static int rolling(GObj *a0)
 {
-    AP1ColHit info;
+    WallCfg info;
 
     if (*(int *)((char *)GOBJ_SUB(a0)) != 0) {
         UnlinkParentOfDObj(a0);
