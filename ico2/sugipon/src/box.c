@@ -66,8 +66,8 @@ typedef struct BoxWork { /* field names derived */
     int seStopped;        /* 0x114, set once the move sound has been stopped at the path's end */
     short floatPhase;     /* 0x118, the bob's sine phase */
     short pad11A;
-    char *wheelDObj;  /* 0x11C, the wheel DObj dispWheels draws */
-    short wheelAngle; /* 0x120, the wheels' X rotation */
+    Sub15C *wheelDObj; /* 0x11C, the wheel DObj dispWheels draws */
+    short wheelAngle;  /* 0x120, the wheels' X rotation */
     short pad122;
     float wheelRadius; /* 0x124 */
     float wheelHeight; /* 0x128 */
@@ -302,7 +302,7 @@ int execNormalMove(GObj *self, int stop)
 
                 CopyVector(up, pos);
                 up[1] += 50.0f;
-                GetPureVerticalPlane(plTop, plSide, 0, (int *)wn, 0);
+                GetPureVerticalPlane(plTop, plSide, 0, (WallCfg *)wn, 0);
 
                 d = plane_distance(up, plSide);
 
@@ -447,90 +447,77 @@ void initWheels(GObj *self, float *lay)
         w->wheelDObj = 0;
     } else {
         w->wheelDObj = CSVSYSTEM_InitDObj(accessary[GOBJ_SUB(self)->accessary].model, lay);
-        if (*(int *)(w->wheelDObj + 0xC) != 0) {
-            iosFree((void *)(*(int *)(w->wheelDObj + 0xC) & 0x0FFFFFFF));
+        if (w->wheelDObj->nodeMtx != 0) {
+            iosFree((void *)(w->wheelDObj->nodeMtx & 0x0FFFFFFF));
         }
-        if (*(int *)(w->wheelDObj + 0x10) != 0) {
-            iosFree((void *)(*(int *)(w->wheelDObj + 0x10) & 0x0FFFFFFF));
+        if (w->wheelDObj->nodeQuat != 0) {
+            iosFree((void *)(w->wheelDObj->nodeQuat & 0x0FFFFFFF));
         }
-        *(int *)(w->wheelDObj + 0xC) = 0;
-        *(int *)(w->wheelDObj + 0x10) = 0;
-        *(int *)(w->wheelDObj + 0xC) = (int)iosMallocDebug(ios_partition_seki, 128, __FILE__, 560);
-        *(int *)(w->wheelDObj + 0x10) = (int)iosMallocDebug(ios_partition_seki, 32, __FILE__, 560);
-        *(int *)(w->wheelDObj + 0x8) = 2;
-        if (*(int *)(w->wheelDObj + 0x870) != 0) {
-            iosFree((void *)(*(int *)(w->wheelDObj + 0x870) & 0x0FFFFFFF));
+        w->wheelDObj->nodeMtx = 0;
+        w->wheelDObj->nodeQuat = 0;
+        w->wheelDObj->nodeMtx = (int)iosMallocDebug(ios_partition_seki, 128, __FILE__, 560);
+        w->wheelDObj->nodeQuat = (int)iosMallocDebug(ios_partition_seki, 32, __FILE__, 560);
+        w->wheelDObj->nodeNum = 2;
+        if (w->wheelDObj->nodes != 0) {
+            iosFree((void *)((int)w->wheelDObj->nodes & 0x0FFFFFFF));
         }
-        *(int *)(w->wheelDObj + 0x870) =
-            (int)iosMallocDebug(ios_partition_seki, 160, __FILE__, 560);
+        w->wheelDObj->nodes = iosMallocDebug(ios_partition_seki, 160, __FILE__, 560);
 
         for (i = 0; i < 2; i++) {
             {
-                struct DObjNode *e =
-                    (struct DObjNode *)(i * 80 + (int)*(char **)(w->wheelDObj + 0x870));
+                struct DObjNode *e = (struct DObjNode *)(i * 80 + (int)w->wheelDObj->nodes);
                 e->flags.ll &= ~1;
             }
             {
-                struct DObjNode *e =
-                    (struct DObjNode *)(i * 80 + (int)*(char **)(w->wheelDObj + 0x870));
+                struct DObjNode *e = (struct DObjNode *)(i * 80 + (int)w->wheelDObj->nodes);
                 e->flags.ll &= ~2;
             }
             {
-                struct DObjNode *e =
-                    (struct DObjNode *)(i * 80 + (int)*(char **)(w->wheelDObj + 0x870));
+                struct DObjNode *e = (struct DObjNode *)(i * 80 + (int)w->wheelDObj->nodes);
                 e->pos[0] = 0.0f;
             }
             {
-                struct DObjNode *e =
-                    (struct DObjNode *)(i * 80 + (int)*(char **)(w->wheelDObj + 0x870));
+                struct DObjNode *e = (struct DObjNode *)(i * 80 + (int)w->wheelDObj->nodes);
                 e->pos[1] = 0.0f;
             }
             {
-                struct DObjNode *e =
-                    (struct DObjNode *)(i * 80 + (int)*(char **)(w->wheelDObj + 0x870));
+                struct DObjNode *e = (struct DObjNode *)(i * 80 + (int)w->wheelDObj->nodes);
                 e->pos[2] = 0.0f;
             }
             {
-                struct DObjNode *e =
-                    (struct DObjNode *)(i * 80 + (int)*(char **)(w->wheelDObj + 0x870));
+                struct DObjNode *e = (struct DObjNode *)(i * 80 + (int)w->wheelDObj->nodes);
                 e->pos[3] = 1.0f;
             }
             {
-                struct DObjNode *e =
-                    (struct DObjNode *)(i * 80 + (int)*(char **)(w->wheelDObj + 0x870));
+                struct DObjNode *e = (struct DObjNode *)(i * 80 + (int)w->wheelDObj->nodes);
                 e->flags.ll &= ~4;
             }
             {
-                struct DObjNode *e =
-                    (struct DObjNode *)(i * 80 + (int)*(char **)(w->wheelDObj + 0x870));
+                struct DObjNode *e = (struct DObjNode *)(i * 80 + (int)w->wheelDObj->nodes);
                 e->fade = 0;
             }
             {
-                struct DObjNode *e =
-                    (struct DObjNode *)(i * 80 + (int)*(char **)(w->wheelDObj + 0x870));
+                struct DObjNode *e = (struct DObjNode *)(i * 80 + (int)w->wheelDObj->nodes);
                 e->alpha = 1.0f;
             }
             {
-                char *e = (char *)(i * 80 + (int)*(char **)(w->wheelDObj + 0x870));
+                char *e = (char *)(i * 80 + (int)w->wheelDObj->nodes);
                 *(short *)(e + 0x3A) = 0;
             }
             {
-                struct DObjNode *e =
-                    (struct DObjNode *)(i * 80 + (int)*(char **)(w->wheelDObj + 0x870));
+                struct DObjNode *e = (struct DObjNode *)(i * 80 + (int)w->wheelDObj->nodes);
                 e->scale[0] = 1.0f;
             }
             {
-                struct DObjNode *e =
-                    (struct DObjNode *)(i * 80 + (int)*(char **)(w->wheelDObj + 0x870));
+                struct DObjNode *e = (struct DObjNode *)(i * 80 + (int)w->wheelDObj->nodes);
                 e->scale[1] = 1.0f;
             }
             {
-                struct DObjNode *e =
-                    (struct DObjNode *)(i * 80 + (int)*(char **)(w->wheelDObj + 0x870));
+                struct DObjNode *e = (struct DObjNode *)(i * 80 + (int)w->wheelDObj->nodes);
                 e->scale[2] = 1.0f;
             }
         }
-        *(short *)(w->wheelDObj + 0x84C) = 2;
+        w->wheelDObj->dispType = 2;
 
         /* the sub-object handle at 0x15C read through the TU's IntFloat union
            (alias set 0), as the wheel-float stores are: the ROM keeps the first
@@ -570,11 +557,11 @@ void dispWheels(GObj *a0)
     MatrixDrive_PushMatrix();
     MatrixDrive_TransMatrix(0.0f, 0.0f, p->wheelFront);
     MatrixDrive_RotMatrixX(p->wheelAngle);
-    CopyMatrix(*(void **)(p->wheelDObj + 0xC), MatrixDrive_GetMatrix());
+    CopyMatrix((void *)p->wheelDObj->nodeMtx, MatrixDrive_GetMatrix());
     MatrixDrive_PopMatrix();
     MatrixDrive_TransMatrix(0.0f, 0.0f, p->wheelRear);
     MatrixDrive_RotMatrixX((short)(*(unsigned short *)&p->wheelAngle + 0x4000));
-    CopyMatrix((char *)*(void **)(p->wheelDObj + 0xC) + 0x40, MatrixDrive_GetMatrix());
+    CopyMatrix((char *)p->wheelDObj->nodeMtx + 0x40, MatrixDrive_GetMatrix());
     p2o_DispVU1DObjMulti(p->wheelDObj);
 }
 
@@ -1422,7 +1409,7 @@ void initLanding(GObj *a0)
     if (p->wall.n != 0) {
         float d;
 
-        GetPureVerticalPlane(0, plane, 0, (int *)&p->wall, 1);
+        GetPureVerticalPlane(0, plane, 0, &p->wall, 1);
         d = GetDistanceFromPlane(plane, pos);
         plane[3] = 0.0f;
         sceVu0ScaleVectorXYZ(v, plane, -(d - 50.0f));
@@ -1463,7 +1450,7 @@ static inline void attackBoxFallCenter(GObj *self)
     BoxWork *q = GOBJ_SUB(self)->work;
 
     if (q->wall.n != 0) {
-        GetPureVerticalPlane(0, plane, 0, (int *)&q->wall, 1);
+        GetPureVerticalPlane(0, plane, 0, &q->wall, 1);
         plane[3] = 0.0f;
         GetRootPosition(pos, self);
         pos[1] += 50.0f;
@@ -2134,8 +2121,8 @@ typedef struct {
 BoxWork *InitBoxGeo(GObj *self, BoxLayout *lay)
 {
     BoxWork *w = iosMallocDebug(ios_partition_sugipon, 416, __FILE__, 2017);
-    char *o;
-    char *g;
+    GObj *o;
+    GObj *g;
     int sub;
 
     GOBJ_SUB(self)->work = w;
@@ -2162,7 +2149,7 @@ BoxWork *InitBoxGeo(GObj *self, BoxLayout *lay)
     w->subGObj = (int)g;
 
     GOBJ_SUB(g)->disp = 1;
-    *(int *)(g + 0x16C) = 0;
+    g->active = 0;
 
     if (w->route != 0) {
         w->pointCount = countPathPoints(w->route);

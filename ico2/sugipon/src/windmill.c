@@ -29,8 +29,8 @@ typedef struct {
 int InitWindMillGeo(int owner, WmLayout *src)
 {
     WmLayout lay;
-    char *gobj;
-    char *gobj2;
+    GObj *gobj;
+    GObj *gobj2;
     int i;
 
     lay = *src;
@@ -41,8 +41,8 @@ int InitWindMillGeo(int owner, WmLayout *src)
             lay.id = 18;
         }
         gobj = CreateLayoutedGObj(46, 0x290, -1, 0, &lay, -1, 7, 0);
-        ((WmWork *)*(int *)(gobj + 0x15C))->owner = owner;
-        ((WmWork *)*(int *)(gobj + 0x15C))->flag = 0;
+        ((WmWork *)GOBJ_SUB(gobj))->owner = owner;
+        ((WmWork *)GOBJ_SUB(gobj))->flag = 0;
         SetFlag4PointFixID(gobj, i, 0);
 
         if (stage_no == 101) {
@@ -51,8 +51,8 @@ int InitWindMillGeo(int owner, WmLayout *src)
             lay.id = 19;
         }
         gobj2 = CreateLayoutedGObj(46, 0x290, -1, 0, &lay, -1, 7, 0);
-        ((WmWork *)*(int *)(gobj2 + 0x15C))->owner = owner;
-        ((WmWork *)*(int *)(gobj2 + 0x15C))->flag = 0;
+        ((WmWork *)GOBJ_SUB(gobj2))->owner = owner;
+        ((WmWork *)GOBJ_SUB(gobj2))->flag = 0;
         SetFlag4PointFixID(gobj2, i, 1);
     }
     return 0;

@@ -54,7 +54,7 @@ int jumpAI(GObj *);
 int attackAI(GObj *);
 
 /* one entry per mode; dead and sleep run no AI of their own. */
-static int (*ap1ModeAI[])() = {standAI, walkAI, jumpAI, attackAI, 0, 0};
+static int (*ap1ModeAI[])(GObj *) = {standAI, walkAI, jumpAI, attackAI, 0, 0};
 
 /* the spelled-out mode name hehehe() prints. */
 static char *ap1ModeName[] = {"STAND", "WALK", "JUMP", "ATTACK", "DEAD", "SLEEP"};
@@ -97,14 +97,9 @@ static AP1Vec selfPos; /* this actor's own root position */
 
 int standAI(GObj *self)
 {
-    typedef union {
-        int i;
-        long long ll;
-    } U;
+    Act *p = GOBJ_ACT(self);
 
-    char *p = *(char **)(((char *)self) + 0x164);
-
-    if ((int)(((U *)(p + 0x20))->ll >> 21) & 1) {
+    if ((int)(p->flags20.ll >> 21) & 1) {
         short r = boyYaw;
         r = r > 2048 ? 2048 : (r < -2048 ? -2048 : r);
         AP1Turn(self, r);
@@ -112,7 +107,7 @@ int standAI(GObj *self)
     }
 
     if (boyDist < 500.0f) {
-        if (*(int *)(p + 0xAC) != 0) {
+        if (p->lookPri != 0) {
             if (AP1MotReq(self, 1))
                 return 1;
         }
@@ -130,7 +125,7 @@ int standAI(GObj *self)
             return 1;
     }
 
-    if (*(int *)(p + 0xAC) != 0) {
+    if (p->lookPri != 0) {
         if (lookDist < 50.0f) {
             short r = lookYaw;
             r = r > 2048 ? 2048 : (r < -2048 ? -2048 : r);
@@ -153,26 +148,21 @@ int standAI(GObj *self)
 
 int walkAI(GObj *self)
 {
-    typedef union {
-        int i;
-        long long ll;
-    } U;
+    Act *p = GOBJ_ACT(self);
 
-    char *p = *(char **)(((char *)self) + 0x164);
-
-    if ((int)(((U *)(p + 0x20))->ll >> 21) & 1) {
+    if ((int)(p->flags20.ll >> 21) & 1) {
         if (AP1MotReq(self, 0))
             return 0;
     }
 
     if (boyDist < 300.0f) {
-        if (*(int *)(p + 0xDC) == 0 || boySafe == 0 || boyPitch < 16384) {
+        if (p->attack == 0 || boySafe == 0 || boyPitch < 16384) {
             short r;
 
-            if (*(int *)(p + 0x4C) >= 31) {
+            if (p->modeFrame >= 31) {
                 AP1Turn(self, boyYaw);
-                if (AP1JumpReq(self, 2, p + 0xF0)) {
-                    *(int *)(p + 0x4C) = 0;
+                if (AP1JumpReq(self, 2, (char *)p + 0xF0)) {
+                    p->modeFrame = 0;
                     return 2;
                 }
             }
@@ -183,7 +173,7 @@ int walkAI(GObj *self)
         }
     }
 
-    if (*(int *)(p + 0xDC) != 0 && boySafe != 0) {
+    if (p->attack != 0 && boySafe != 0) {
         if ((boyYaw < 0 ? -boyYaw : boyYaw) < 8192) {
             if (boyDist < 150.0f) {
                 short r = boyYaw;
@@ -199,7 +189,7 @@ int walkAI(GObj *self)
     if (boyDelta.y > 100.0f) {
         if (VectorLengthSquare(&boyDeltaFlat) < 10000.0f) {
             if (AP1JumpReq(self, 2, &ap1BoxedInJump)) {
-                *(int *)(p + 0x4C) = 0;
+                p->modeFrame = 0;
                 return 2;
             }
         }
@@ -208,13 +198,13 @@ int walkAI(GObj *self)
     if (lookDelta.y > 100.0f) {
         if (VectorLengthSquare(&lookDeltaFlat) < 10000.0f) {
             if (AP1JumpReq(self, 2, &ap1BoxedInJump)) {
-                *(int *)(p + 0x4C) = 0;
+                p->modeFrame = 0;
                 return 2;
             }
         }
     }
 
-    if (*(int *)(p + 0xAC) != 0) {
+    if (p->lookPri != 0) {
         short r = lookYaw;
 
         r = r > 4096 ? 4096 : (r < -4096 ? -4096 : r);
@@ -231,7 +221,7 @@ int walkAI(GObj *self)
             return 0;
     }
 
-    if (*(int *)(p + 0xDC) != 0 && boySafe != 0 && boyDist < 300.0f) {
+    if (p->attack != 0 && boySafe != 0 && boyDist < 300.0f) {
         short r = boyYaw;
 
         r = r > 512 ? 512 : (r < -512 ? -512 : r);
@@ -254,39 +244,29 @@ void hehehe(char *a0)
 
 void SleepAP1(GObj *a0)
 {
-    typedef union {
-        int i;
-        long long ll;
-    } U;
-
-    int s = ((U *)((char *)a0 + 0x164))->i;
-    *(int *)(s + 0x34) = 5;
-    ((U *)(s + 0x18))->ll &= ~(1LL << 32);
-    *(char *)(((U *)((char *)a0 + 0x164))->i + 0x1DA) = 1;
+    Act *s = GOBJ_ACT(a0);
+    s->actMode = 5;
+    s->flags18.ll &= ~(1LL << 32);
+    GOBJ_ACT(a0)->hit = 1;
     AP1MotReqForce(a0, 7);
 }
 
 void WakeUpAP1(GObj *a0)
 {
-    typedef union {
-        int i;
-        long long ll;
-    } U;
+    Act *s = GOBJ_ACT(a0);
 
-    int s = ((U *)((char *)a0 + 0x164))->i;
-
-    if (*(int *)(s + 0x34) == 4) {
+    if (s->actMode == 4) {
         /* already dead, so it is not woken */
         debug_StdPrintfDummy("既に死んでいるので起こしません\n");
         return;
     }
-    *(int *)(s + 0x34) = 2;
+    s->actMode = 2;
     AP1MotReqForce(a0, 2);
-    ((U *)(s + 0x18))->ll |= 1LL << 32;
+    s->flags18.ll |= 1LL << 32;
     {
-        int t = ((U *)((char *)a0 + 0x164))->i;
-        *(int *)(t + 0x1B0) = 0;
-        *(char *)(t + 0x1DA) = 0;
+        Act *t = GOBJ_ACT(a0);
+        t->attacker = 0;
+        t->hit = 0;
     }
 }
 
@@ -336,29 +316,29 @@ static inline void AP1ToLocal(GObj *self, AP1Vec *v)
 /* `self` is volatile because this is an actor sub-thread entry: _ACTWait
  * yields to the scheduler inside the loop, so the GObj handle is re-read at
  * every use rather than cached in a register. */
-void subAP1BrainMain(volatile int self)
+void subAP1BrainMain(GObj *volatile self)
 {
     AP1Vec smooth = {0.0f, 0.0f, 0.0f, 1.0f};
     AP1Vec boy;
     AP1Vec look;
     int hold = 0;
-    char *p;
+    Act *p;
     GObj *boyObj;
     GObj *host;
     int r;
 
-    p = *(char **)((char *)self + 0x164);
-    *(int *)(p + 0x34) = 5;
-    *(int *)(p + 0x4C) = 0;
+    p = GOBJ_ACT(self);
+    p->actMode = 5;
+    p->modeFrame = 0;
 
     while (1) {
         boyObj = boyGObj;
-        GetRootPosition(&selfPos, (GObj *)self);
+        GetRootPosition(&selfPos, self);
         GetRootPosition(&boy, boyObj);
         boy.y -= GOBJ_SUB(boyObj)->root.height - 10.0f;
         boyDist = AP1GetDirection(&boyLocalDir, &boyDelta, &boy, &selfPos);
         boyPitch = AP1GetVerticalAngle(boyObj, &boyLocalDir);
-        AP1ToLocal((GObj *)self, &boyLocalDir);
+        AP1ToLocal(self, &boyLocalDir);
         CopyVector(&boyLocalFlat, &boyLocalDir);
         boyLocalFlat.y = 0.0f;
         _NormalizeVector(&boyLocalFlat, &boyLocalFlat);
@@ -368,12 +348,12 @@ void subAP1BrainMain(volatile int self)
         boyDeltaFlat.y = 0.0f;
         boySafe = IsBoyStatus_NotDanger() == 0;
 
-        host = *(GObj **)(p + 0xA8);
+        host = p->lookTarget;
         if (host != 0) {
             AP1Vec dest;
 
             GetRootPosition(&dest, host);
-            dest.y -= *(float *)(*(int *)(*(char **)(p + 0xA8) + 0x15C) + 0x160) - 10.0f;
+            dest.y -= GOBJ_SUB(p->lookTarget)->root.height - 10.0f;
             if (hold == 0) {
                 CopyVector(&smooth, &dest);
                 hold = 1;
@@ -401,7 +381,7 @@ void subAP1BrainMain(volatile int self)
         }
 
         lookDist = AP1GetDirection(&lookLocalDir, &lookDelta, &look, &selfPos);
-        AP1ToLocal((GObj *)self, &lookLocalDir);
+        AP1ToLocal(self, &lookLocalDir);
         CopyVector(&lookLocalFlat, &lookLocalDir);
         lookLocalFlat.y = 0.0f;
         _NormalizeVector(&lookLocalFlat, &lookLocalFlat);
@@ -409,22 +389,22 @@ void subAP1BrainMain(volatile int self)
         CopyVector(&lookDeltaFlat, &lookDelta);
         lookDeltaFlat.y = 0.0f;
 
-        if (ap1ModeAI[*(int *)(p + 0x34)] != 0) {
-            r = ap1ModeAI[*(int *)(p + 0x34)]((int)self);
+        if (ap1ModeAI[p->actMode] != 0) {
+            r = ap1ModeAI[p->actMode](self);
             if (r != -1) {
-                *(int *)(p + 0x34) = r;
+                p->actMode = r;
             }
         }
-        if (*(int *)(p + 0x34) == 4) {
+        if (p->actMode == 4) {
             break;
         }
 
         if (CheckFloorAttribute(self, 0x800) || CheckFloorAttribute(self, 0x900)) {
-            iosOmSendMail(self, 0xDF, (int)self);
+            iosOmSendMail(self, 0xDF, self);
             /* forced death */
             debug_StdPrintfDummy("強制死亡\n");
         }
-        *(int *)(p + 0x4C) = *(int *)(p + 0x4C) + 1;
+        p->modeFrame = p->modeFrame + 1;
         _ACTWait(1);
     }
 
@@ -440,15 +420,10 @@ void hitProc(GObj *a0)
 
 void SetAP1DeadStatus(GObj *a0)
 {
-    typedef union {
-        int i;
-        long long ll;
-    } U;
-
-    int s = ((U *)((char *)a0 + 0x164))->i;
-    *(int *)(s + 0x34) = 4;
-    ((U *)(s + 0x18))->ll &= ~(1LL << 32);
-    *(char *)(((U *)((char *)a0 + 0x164))->i + 0x1DA) = 1;
+    Act *s = GOBJ_ACT(a0);
+    s->actMode = 4;
+    s->flags18.ll &= ~(1LL << 32);
+    GOBJ_ACT(a0)->hit = 1;
     AP1MotReqForce(a0, 5);
 }
 
@@ -470,15 +445,10 @@ typedef struct AP1MailQueue {
  * MAIN.MAP symbol and these four names are ours. */
 static inline void AP1SetMode(GObj *self, int mode)
 {
-    typedef union {
-        int i;
-        long long ll;
-    } U;
+    Act *p = GOBJ_ACT(self);
 
-    char *p = *(char **)&self->act;
-
-    *(int *)(p + 0x34) = mode;
-    ((U *)(p + 0x18))->ll &= ~(1LL << 32);
+    p->actMode = mode;
+    p->flags18.ll &= ~(1LL << 32);
     GOBJ_ACT(self)->hit = 1;
 }
 
@@ -520,26 +490,16 @@ static inline void AP1DeadEffectHit(GObj *self)
 
 static inline void AP1SetHold(GObj *self)
 {
-    typedef union {
-        int i;
-        long long ll;
-    } U;
+    Act *p = GOBJ_ACT(self);
 
-    char *p = *(char **)&self->act;
-
-    ((U *)(p + 0x20))->ll |= 0x200000;
+    p->flags20.ll |= 0x200000;
 }
 
 static inline void AP1ClrHold(GObj *self)
 {
-    typedef union {
-        int i;
-        long long ll;
-    } U;
+    Act *p = GOBJ_ACT(self);
 
-    char *p = *(char **)&self->act;
-
-    ((U *)(p + 0x20))->ll &= ~0x200000;
+    p->flags20.ll &= ~0x200000;
 }
 
 void AP1BeforeFunc(GObj *self)
@@ -593,34 +553,29 @@ void subAP1Control(int x);
 
 void actAP1Start(GObj *g)
 {
-    typedef union {
-        int i;
-        long long ll;
-    } U;
-
-    char *s = actInitialize(g);
+    Act *s = actInitialize(g);
 
     actInitialize_ext_charcter(g);
-    ((U *)(s + 0x18))->ll &= ~(1LL << 32);
-    *(int *)(s + 0x34) = 5;
-    *(int *)(s + 0xAC) = 0;
-    *(int *)(s + 0xA8) = 0;
+    s->flags18.ll &= ~(1LL << 32);
+    s->actMode = 5;
+    s->lookPri = 0;
+    s->lookTarget = 0;
     GOBJ_ACT(g)->hit = 1;
 
     ACTGameView_Add(girlGObj, g);
 
     _ACTWait(1);
 
-    *(int *)(s + 0x48) = GetAP1SpecType(g);
+    s->actKind = GetAP1SpecType(g);
 
     {
-        AP1Vec v = {spiderDef[*(int *)(s + 0x48)].jump[0], spiderDef[*(int *)(s + 0x48)].jump[1],
-                    spiderDef[*(int *)(s + 0x48)].jump[2], 0};
+        AP1Vec v = {spiderDef[s->actKind].jump[0], spiderDef[s->actKind].jump[1],
+                    spiderDef[s->actKind].jump[2], 0};
 
-        CopyVector(s + 0xF0, &v);
+        CopyVector((char *)s + 0xF0, &v);
     }
 
-    *(int *)(s + 0xDC) = (unsigned int)spiderDef[*(int *)(s + 0x48)].attack;
+    s->attack = (unsigned int)spiderDef[s->actKind].attack;
     actCreateSubThread(subAP1BrainMain, 20);
     actCreateSubThread(subAP1Control, 21);
 }

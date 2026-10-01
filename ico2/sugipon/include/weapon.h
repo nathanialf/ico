@@ -42,8 +42,9 @@ typedef struct {  /* field names derived */
     float rotZ;   /* 0x14 */
 } FumbleRow;
 
+struct GObj *CheckSwapableWeapon(struct GObj *a0, float dist);
 int CheckWeaponKind(struct GObj *a0);
-void ExecWeaponHitReaction(struct GObj *a0, int a1, int a2, int a3);
+void ExecWeaponHitReaction(struct GObj *a0);
 int GetTorchGObjOfWeapon(struct GObj *a0);
 void LightTorchOffOfWeapon(struct GObj *a0);
 void LightTorchOnOfWeapon(struct GObj *a0);
@@ -60,10 +61,6 @@ void dispInsectNet(struct GObj *g);
 void dispLaserSword(struct GObj *g, float t);
 /* unprototyped: the third argument is weapon.c's own layout record type. */
 void initializeQueenzSword();
-/* Unprototyped: the ROM proves two arities at the two call sites inside
- * weapon.c, one argument from calcDynamicGeometry (0x002015F8 and
- * 0x002016DC set only $4) and four from ExecWeaponHitReaction, so the 2001
- * declaration cannot have carried a parameter list. */
 void weaponHitReactionSE(struct GObj *);
 float GetWeaponWeight(struct GObj *a0);
 

@@ -62,7 +62,7 @@ void LightTorchOn(GObj *gobj)
     switch (w->flags) {
     case 2:
         n = 0;
-        o = (char *)isysGObjSearchFromObjKindID_begin(10);
+        o = isysGObjSearchFromObjKindID_begin(10);
         while (o != 0) {
             TorchGeoWork *ow = GOBJ_SUB(o)->work;
             if (o != gobj && ow->flags == 2) {
@@ -70,7 +70,7 @@ void LightTorchOn(GObj *gobj)
                     n++;
                 }
             }
-            o = (char *)isysGObjSearchFromObjKindID_next(o);
+            o = isysGObjSearchFromObjKindID_next(o);
         }
         if (n > 0) {
             return;
@@ -252,7 +252,7 @@ char *CheckTorchChainReactionReverse(GObj *a0, float dist)
     n = 0;
     GetRootPosition(pos, a0);
 
-    o = (char *)isysGObjSearchFromObjKindID_begin(10);
+    o = isysGObjSearchFromObjKindID_begin(10);
     while (o != 0) {
         TorchGeoWork *w = GOBJ_SUB(o)->work;
         if (w->flags == 2) {
@@ -260,7 +260,7 @@ char *CheckTorchChainReactionReverse(GObj *a0, float dist)
                 n++;
             }
         }
-        o = (char *)isysGObjSearchFromObjKindID_next(o);
+        o = isysGObjSearchFromObjKindID_next(o);
     }
 
     dist = dist * dist;

@@ -13,7 +13,7 @@ void switchReleaseSE(GObj *a0)
     ExecuteSEPackage(a0, 0x40);
 }
 
-inline void SetSwitchTriggerFunc(char *a0, void *a1)
+inline void SetSwitchTriggerFunc(GObj *a0, void *a1)
 {
     ((LeverGeoWork *)GOBJ_SUB(a0)->work)->trigger = a1;
 }

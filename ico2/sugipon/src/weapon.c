@@ -41,7 +41,7 @@ typedef struct {       /* field names derived */
     int count;         /* 0x50 */
     GObj **objs;       /* 0x54, the torch objects the weapon carries */
     char *buf;         /* 0x58 */
-    char *sword;       /* 0x5C */
+    GObj *sword;       /* 0x5C */
     int fumbleTime;    /* 0x60 */
     int fumbleFrame;   /* 0x64 */
     float fumbleSpeed; /* 0x68 */
@@ -565,7 +565,7 @@ void WeaponHitEffect(GObj *a0, void *a1)
     CheckEnemyHit(a1, p->hit[1], p->hit[2], p->hit[3]);
 }
 
-void ExecWeaponHitReaction(GObj *a0, int a1, int a2, int a3)
+void ExecWeaponHitReaction(GObj *a0)
 {
     weaponHitReactionSE(a0);
 }
@@ -626,8 +626,8 @@ void initializeQueenzSword(GObj *g, int index, QSwordLayout *lay)
     QSwordLayout r;
     QSwordLayout r2;
     int i;
-    char *o;
-    char *o2;
+    GObj *o;
+    GObj *o2;
 
     r = *lay;
     r.kind = (lay->kind & 0xFF00) ? 5 : 4;
@@ -646,7 +646,7 @@ void initializeQueenzSword(GObj *g, int index, QSwordLayout *lay)
     r2 = *lay;
     r2.kind = 13;
     o2 = CreateLayoutedGObj(46, 11, -1, 0, &r2, -1, 7, 0);
-    *(QSwordLink *)(char *)GOBJ_SUB(o2) = lnk;
+    *(QSwordLink *)GOBJ_SUB(o2) = lnk;
     w->sword = o2;
 }
 
@@ -670,13 +670,13 @@ void *InitWeaponGeo(GObj *g, QSwordLayout *lay)
         case 1: {
             QSwordLink lnk = {(int)g, i};
             WeaponVec v = {0.0f, 0.0f, weaponKind[w->kind].length, 1.0f};
-            char *o;
+            GObj *o;
             QSwordLayout r = *lay;
 
             r.kind = (lay->kind & 0xFF00) != 0;
             o = CreateLayoutedGObj(10, 75, -1, 1, &r, -1, 7, 1);
             LinkParentOfDObj(o, &lnk);
-            CopyVector(*(char **)(o + 0x15C) + 0xA0, v);
+            CopyVector(GOBJ_SUB(o)->root.pos, v);
             SetTorchLife(o, (60 - systemStatus[0] * 10) / systemStatus[1] * 15,
                          (60 - systemStatus[0] * 10) / systemStatus[1] * 3);
             w->count = 1;
@@ -1011,19 +1011,19 @@ void PickupWeapon(GObj *a0, GObj *a1, int a2)
     GOBJ_SUB(a1)->ctrl.pickedWeapon = (int)a0;
 }
 
-char *CheckSwapableWeapon(GObj *a0, float dist)
+GObj *CheckSwapableWeapon(GObj *a0, float dist)
 {
-    char *found = 0;
+    GObj *found = 0;
     float best = dist * dist;
-    char *g = (char *)isysGObjSearchFromObjKindID_begin(14);
+    GObj *g = isysGObjSearchFromObjKindID_begin(14);
     float pos[4];
     float d;
 
     GetRootPosition(pos, a0);
 
-    for (; g != 0; g = (char *)isysGObjSearchFromObjKindID_next(g)) {
+    for (; g != 0; g = isysGObjSearchFromObjKindID_next(g)) {
         WeaponWork *w;
-        char *wp;
+        float *wp;
 
         if (g == a0)
             continue;
@@ -1035,11 +1035,11 @@ char *CheckSwapableWeapon(GObj *a0, float dist)
         if (w->holder != 0)
             continue;
 
-        if (*(int *)(g + 0x16C) == 0)
+        if (g->active == 0)
             continue;
 
         wp = w->tipPos;
-        if (stage_no == 4 && *(int *)(g + 0x8) != 0x80)
+        if (stage_no == 4 && g->labelId != 0x80)
             continue;
 
         d = distance_squared(pos, wp);

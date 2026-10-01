@@ -21,7 +21,7 @@ struct ClipBuf;
 
 int AdjustMotionHeightToNearestField(GObj *self);
 void AdjustRootPositionToVerticalSidePlaneOfWall(void *a0, void *a1, float f);
-void AdjustVerticalSidePlaneOfWall(float *out, int *cfg, float *pos, float t);
+void AdjustVerticalSidePlaneOfWall(float *out, WallCfg *cfg, float *pos, float t);
 int CheckFieldContact(struct ClipBuf *info, GObj *self, float *pos, float lim);
 /* ROM: two arguments, the GObj and the attribute mask (act_bird.c:806 passes
    0x40 and 0x50 in $5, boyact/script/a_p_1/frameDependSequence do the same). */
@@ -51,7 +51,9 @@ float GetDifferenceFromWallUpperPlane(GObj *self, int node);
 float GetHeightOfFieldPlaneDifference(GObj *a, GObj *b);
 int GetMotionFrameFlag1(GObj *self);
 int GetMotionFrameFlag2(GObj *self);
-int GetPureVerticalPlane(void *plane0, void *plane1, float *ptsIn, int *cfg, int flip);
+int GetPureVerticalPlane(void *plane0, void *plane1, float *ptsIn, WallCfg *cfg, int flip);
+int GetPureVerticalPlaneOfCurrentPosition(void *plane0, void *plane1, float *ptsIn, WallCfg *cfg,
+                                          int flip, float *pos);
 void GetRootProjectionPosOfGObj(float *pos, GObj *obj);
 int GetSkeltonFocusNode(GObj *a0, int a1);
 int GetStreamMotion(char *dst, float *out, char *node, char *info);
@@ -64,8 +66,8 @@ void SetMotionBlendlessNode(GObj *self, int *node);
 void SetMotionDirection(GObj *a0, float *a1);
 void SetMotionDirectionWithLimit(GObj *self, float *dir, float lim0, float lim1);
 
-void SetMotionNodeFixModeParameter(GObj *self, char *obj, float x, float y, float z, int mode,
-                                   int node, float w, void *quat);
+void SetMotionNodeFixModeParameter(GObj *self, char *obj, int mode, int node, void *quat, float x,
+                                   float y, float z, float w);
 
 void SetMotionPlaySpeedRatio(GObj *self, float val);
 void SetRootUpdateMode(GObj *self, int val);

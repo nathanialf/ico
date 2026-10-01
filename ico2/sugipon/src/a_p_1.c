@@ -100,7 +100,7 @@ typedef struct {
                            reaches a pair from &focus[1] and &focus[2] (the
                            bytes pin the 0x174 + i * 8 address, which
                            focus[i * 2 + 1] folds to another giv) */
-    char *arm[2];     /* 0x194, the two arm objects when skel is 0 */
+    Sub15C *arm[2];   /* 0x194, the two arm objects when skel is 0 */
     EnemyEye *eye;    /* 0x19C */
     int pad1A0[4];    /* 0x1A0 */
     Vec4A_P_1 up;     /* 0x1B0 */
@@ -229,7 +229,7 @@ typedef union {
 char *InitAP1(GObj *self, SObjSimpleSetting *arg)
 {
     AP1Work *p;
-    char *d;
+    Sub15C *d;
     int i;
 
     p = iosMallocDebug(ios_partition_sugipon, sizeof(AP1Work), a_p_1File, 228);
@@ -261,80 +261,78 @@ char *InitAP1(GObj *self, SObjSimpleSetting *arg)
     if (p->skel == 0) {
         d = CSVSYSTEM_InitDObj(7, arg);
         p->arm[0] = d;
-        if (*(int *)(d + 0xC) != 0) {
-            iosFree(*(int *)(d + 0xC) & 0xFFFFFFF);
+        if (d->nodeMtx != 0) {
+            iosFree(d->nodeMtx & 0xFFFFFFF);
         }
-        if (*(int *)(p->arm[0] + 0x10) != 0) {
-            iosFree(*(int *)(p->arm[0] + 0x10) & 0xFFFFFFF);
+        if (p->arm[0]->nodeQuat != 0) {
+            iosFree(p->arm[0]->nodeQuat & 0xFFFFFFF);
         }
-        *(int *)(p->arm[0] + 0xC) = 0;
-        *(int *)(p->arm[0] + 0x10) = 0;
-        *(int *)(p->arm[0] + 0xC) = (int)iosMallocDebug(ios_partition_seki, 0x100, a_p_1File, 261);
-        *(int *)(p->arm[0] + 0x10) = (int)iosMallocDebug(ios_partition_seki, 0x40, a_p_1File, 261);
-        *(int *)(p->arm[0] + 0x8) = 4;
-        if (*(int *)(p->arm[0] + 0x870) != 0) {
-            iosFree(*(int *)(p->arm[0] + 0x870) & 0xFFFFFFF);
+        p->arm[0]->nodeMtx = 0;
+        p->arm[0]->nodeQuat = 0;
+        p->arm[0]->nodeMtx = (int)iosMallocDebug(ios_partition_seki, 0x100, a_p_1File, 261);
+        p->arm[0]->nodeQuat = (int)iosMallocDebug(ios_partition_seki, 0x40, a_p_1File, 261);
+        p->arm[0]->nodeNum = 4;
+        if (p->arm[0]->nodes != 0) {
+            iosFree((int)p->arm[0]->nodes & 0xFFFFFFF);
         }
-        *(int *)(p->arm[0] + 0x870) =
-            (int)iosMallocDebug(ios_partition_seki, 0x140, a_p_1File, 261);
+        p->arm[0]->nodes = iosMallocDebug(ios_partition_seki, 0x140, a_p_1File, 261);
         {
             int n;
 
             for (n = 0; n < 4; n++) {
-                ((AP1Flag *)(*(char **)(p->arm[0] + 0x870) + n * 0x50 + 0x38))->ll &= ~1;
-                ((AP1Flag *)(*(char **)(p->arm[0] + 0x870) + n * 0x50 + 0x38))->ll &= ~2;
-                *(float *)(*(char **)(p->arm[0] + 0x870) + n * 0x50 + 0x40) = 0.0f;
-                *(float *)(*(char **)(p->arm[0] + 0x870) + n * 0x50 + 0x44) = 0.0f;
-                *(float *)(*(char **)(p->arm[0] + 0x870) + n * 0x50 + 0x48) = 0.0f;
-                *(float *)(*(char **)(p->arm[0] + 0x870) + n * 0x50 + 0x4C) = 1.0f;
-                ((AP1Flag *)(*(char **)(p->arm[0] + 0x870) + n * 0x50 + 0x38))->ll &= ~4;
-                *(int *)(*(char **)(p->arm[0] + 0x870) + n * 0x50 + 0x30) = 0;
-                *(float *)(*(char **)(p->arm[0] + 0x870) + n * 0x50 + 0x34) = 1.0f;
-                *(short *)(*(char **)(p->arm[0] + 0x870) + n * 0x50 + 0x3A) = 0;
-                *(float *)(*(char **)(p->arm[0] + 0x870) + n * 0x50 + 0x20) = 1.0f;
-                *(float *)(*(char **)(p->arm[0] + 0x870) + n * 0x50 + 0x24) = 1.0f;
-                *(float *)(*(char **)(p->arm[0] + 0x870) + n * 0x50 + 0x28) = 1.0f;
+                p->arm[0]->nodes[n].flags.ll &= ~1;
+                p->arm[0]->nodes[n].flags.ll &= ~2;
+                p->arm[0]->nodes[n].pos[0] = 0.0f;
+                p->arm[0]->nodes[n].pos[1] = 0.0f;
+                p->arm[0]->nodes[n].pos[2] = 0.0f;
+                p->arm[0]->nodes[n].pos[3] = 1.0f;
+                p->arm[0]->nodes[n].flags.ll &= ~4;
+                p->arm[0]->nodes[n].fade = 0;
+                p->arm[0]->nodes[n].alpha = 1.0f;
+                ((short *)&p->arm[0]->nodes[n].flags)[1] = 0;
+                p->arm[0]->nodes[n].scale[0] = 1.0f;
+                p->arm[0]->nodes[n].scale[1] = 1.0f;
+                p->arm[0]->nodes[n].scale[2] = 1.0f;
             }
         }
-        *(short *)(p->arm[0] + 0x84C) = 2;
+        p->arm[0]->dispType = 2;
         d = CSVSYSTEM_InitDObj(8, arg);
         p->arm[1] = d;
-        if (*(int *)(d + 0xC) != 0) {
-            iosFree(*(int *)(d + 0xC) & 0xFFFFFFF);
+        if (d->nodeMtx != 0) {
+            iosFree(d->nodeMtx & 0xFFFFFFF);
         }
-        if (*(int *)(p->arm[1] + 0x10) != 0) {
-            iosFree(*(int *)(p->arm[1] + 0x10) & 0xFFFFFFF);
+        if (p->arm[1]->nodeQuat != 0) {
+            iosFree(p->arm[1]->nodeQuat & 0xFFFFFFF);
         }
-        *(int *)(p->arm[1] + 0xC) = 0;
-        *(int *)(p->arm[1] + 0x10) = 0;
-        *(int *)(p->arm[1] + 0xC) = (int)iosMallocDebug(ios_partition_seki, 0x100, a_p_1File, 264);
-        *(int *)(p->arm[1] + 0x10) = (int)iosMallocDebug(ios_partition_seki, 0x40, a_p_1File, 264);
-        *(int *)(p->arm[1] + 0x8) = 4;
-        if (*(int *)(p->arm[1] + 0x870) != 0) {
-            iosFree(*(int *)(p->arm[1] + 0x870) & 0xFFFFFFF);
+        p->arm[1]->nodeMtx = 0;
+        p->arm[1]->nodeQuat = 0;
+        p->arm[1]->nodeMtx = (int)iosMallocDebug(ios_partition_seki, 0x100, a_p_1File, 264);
+        p->arm[1]->nodeQuat = (int)iosMallocDebug(ios_partition_seki, 0x40, a_p_1File, 264);
+        p->arm[1]->nodeNum = 4;
+        if (p->arm[1]->nodes != 0) {
+            iosFree((int)p->arm[1]->nodes & 0xFFFFFFF);
         }
-        *(int *)(p->arm[1] + 0x870) =
-            (int)iosMallocDebug(ios_partition_seki, 0x140, a_p_1File, 264);
+        p->arm[1]->nodes = iosMallocDebug(ios_partition_seki, 0x140, a_p_1File, 264);
         {
             int n;
 
             for (n = 0; n < 4; n++) {
-                ((AP1Flag *)(*(char **)(p->arm[1] + 0x870) + n * 0x50 + 0x38))->ll &= ~1;
-                ((AP1Flag *)(*(char **)(p->arm[1] + 0x870) + n * 0x50 + 0x38))->ll &= ~2;
-                *(float *)(*(char **)(p->arm[1] + 0x870) + n * 0x50 + 0x40) = 0.0f;
-                *(float *)(*(char **)(p->arm[1] + 0x870) + n * 0x50 + 0x44) = 0.0f;
-                *(float *)(*(char **)(p->arm[1] + 0x870) + n * 0x50 + 0x48) = 0.0f;
-                *(float *)(*(char **)(p->arm[1] + 0x870) + n * 0x50 + 0x4C) = 1.0f;
-                ((AP1Flag *)(*(char **)(p->arm[1] + 0x870) + n * 0x50 + 0x38))->ll &= ~4;
-                *(int *)(*(char **)(p->arm[1] + 0x870) + n * 0x50 + 0x30) = 0;
-                *(float *)(*(char **)(p->arm[1] + 0x870) + n * 0x50 + 0x34) = 1.0f;
-                *(short *)(*(char **)(p->arm[1] + 0x870) + n * 0x50 + 0x3A) = 0;
-                *(float *)(*(char **)(p->arm[1] + 0x870) + n * 0x50 + 0x20) = 1.0f;
-                *(float *)(*(char **)(p->arm[1] + 0x870) + n * 0x50 + 0x24) = 1.0f;
-                *(float *)(*(char **)(p->arm[1] + 0x870) + n * 0x50 + 0x28) = 1.0f;
+                p->arm[1]->nodes[n].flags.ll &= ~1;
+                p->arm[1]->nodes[n].flags.ll &= ~2;
+                p->arm[1]->nodes[n].pos[0] = 0.0f;
+                p->arm[1]->nodes[n].pos[1] = 0.0f;
+                p->arm[1]->nodes[n].pos[2] = 0.0f;
+                p->arm[1]->nodes[n].pos[3] = 1.0f;
+                p->arm[1]->nodes[n].flags.ll &= ~4;
+                p->arm[1]->nodes[n].fade = 0;
+                p->arm[1]->nodes[n].alpha = 1.0f;
+                ((short *)&p->arm[1]->nodes[n].flags)[1] = 0;
+                p->arm[1]->nodes[n].scale[0] = 1.0f;
+                p->arm[1]->nodes[n].scale[1] = 1.0f;
+                p->arm[1]->nodes[n].scale[2] = 1.0f;
             }
         }
-        *(short *)(p->arm[1] + 0x84C) = 2;
+        p->arm[1]->dispType = 2;
     } else {
         for (i = 0; i < 9; i++) {
             p->focus[i] = GetSkeltonFocusNode(self, *(int *)((char *)ap1FocusNode + i * 4));
@@ -806,8 +804,7 @@ void calcSubMission(GObj *self)
             _MulMatrix((char *)GOBJ_SUB(self)->nodeMtx + ((&p->focus[1])[i * 2] << 6),
                        MatrixDrive_GetMatrix(), ap1ArmScale);
         } else {
-            _MulMatrix(*(char **)(p->arm[0] + 0xC) + (i << 6), MatrixDrive_GetMatrix(),
-                       ap1ArmScale);
+            _MulMatrix((char *)p->arm[0]->nodeMtx + (i << 6), MatrixDrive_GetMatrix(), ap1ArmScale);
         }
 
         _ScaleVector(&v2, &dir, 50.0f);
@@ -833,8 +830,7 @@ void calcSubMission(GObj *self)
             _MulMatrix((char *)GOBJ_SUB(self)->nodeMtx + ((&p->focus[2])[i * 2] << 6),
                        MatrixDrive_GetMatrix(), ap1ArmScale);
         } else {
-            _MulMatrix(*(char **)(p->arm[1] + 0xC) + (i << 6), MatrixDrive_GetMatrix(),
-                       ap1ArmScale);
+            _MulMatrix((char *)p->arm[1]->nodeMtx + (i << 6), MatrixDrive_GetMatrix(), ap1ArmScale);
         }
 
         MatrixDrive_PopMatrix();

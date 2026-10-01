@@ -1062,7 +1062,7 @@ static float wallAlignMatrix[16] = {
 /* the half turn about Z every motion node's quaternion is multiplied by */
 static float nodeFlipQuaternion[4] = {0.0f, 0.0f, -1.0f, 0.0f};
 
-int GetPureVerticalPlaneOfCurrentPosition(void *plane0, void *plane1, float *ptsIn, int *cfg,
+int GetPureVerticalPlaneOfCurrentPosition(void *plane0, void *plane1, float *ptsIn, WallCfg *cfg,
                                           int flip, float *pos)
 {
     float local[4][4];
@@ -1078,9 +1078,9 @@ int GetPureVerticalPlaneOfCurrentPosition(void *plane0, void *plane1, float *pts
     int *tbl;
     float bestDist;
     float d;
-    int *obj;
+    GObj *obj;
     int sh;
-    int *p15c;
+    Sub15C *p15c;
     int v_c;
 
     tbl = wallEdgeCorner;
@@ -1089,11 +1089,11 @@ int GetPureVerticalPlaneOfCurrentPosition(void *plane0, void *plane1, float *pts
 
     bestDist = 3.40282347e+38f;
 
-    obj = (int *)cfg[0];
-    sh = cfg[1] << 6;
-    p15c = (int *)((GObj *)(obj))->dobj;
-    v_c = p15c[0xC / 4];
-    GetWallGlobalInfo(pts, nrm, cfg[2], v_c + sh);
+    obj = cfg->o.obj;
+    sh = cfg->o.node << 6;
+    p15c = obj->dobj;
+    v_c = p15c->nodeMtx;
+    GetWallGlobalInfo(pts, nrm, cfg->n, v_c + sh);
     nrm[1] = 0;
     sceVu0Normalize((int *)nrm, (int *)nrm);
     t = tbl;
@@ -1134,19 +1134,19 @@ int GetPureVerticalPlaneOfCurrentPosition(void *plane0, void *plane1, float *pts
     return bestIdx;
 }
 
-void getVerticalElementOfWallNormal(int *self, int *p, int *cfg)
+void getVerticalElementOfWallNormal(int *self, int *p, WallCfg *cfg)
 {
-    int *obj = (int *)cfg[0];
-    int sh = cfg[1] << 6;
-    int *p15c = (int *)((GObj *)(obj))->dobj;
-    int v_c = p15c[0xC / 4];
+    GObj *obj = cfg->o.obj;
+    int sh = cfg->o.node << 6;
+    Sub15C *p15c = obj->dobj;
+    int v_c = p15c->nodeMtx;
 
-    GetWallGlobalInfo(self, p, cfg[2], v_c + sh);
+    GetWallGlobalInfo(self, p, cfg->n, v_c + sh);
     p[1] = 0;
     _NormalizeVector(p, p);
 }
 
-void AdjustVerticalSidePlaneOfWall(float *out, int *cfg, float *pos, float t)
+void AdjustVerticalSidePlaneOfWall(float *out, WallCfg *cfg, float *pos, float t)
 {
     float pts[4][4];
     float nrm[4];
@@ -1208,7 +1208,7 @@ void AdjustVerticalSidePlaneOfWall(float *out, int *cfg, float *pos, float t)
     out[3] = 1.0f;
 }
 
-int GetPureVerticalPlane(void *plane0, void *plane1, float *ptsIn, int *cfg, int flip)
+int GetPureVerticalPlane(void *plane0, void *plane1, float *ptsIn, WallCfg *cfg, int flip)
 {
     float local[4][4];
     float up[4];
@@ -1949,16 +1949,14 @@ float GetDifferenceFromWallUpperField(GObj *a0, int a1)
 {
     Sub15C *e = a0->dobj;
     int idx = (e->focusNodes)[a1];
-    return GetYDistanceFromPlane((char *)e + 0x3F0,
-                                 *(char **)((char *)e + 0xC) + idx * 0x40 + 0x30);
+    return GetYDistanceFromPlane(e->root.cliffPlane, (char *)e->nodeMtx + idx * 0x40 + 0x30);
 }
 
 float GetDifferenceFromLastField(GObj *a0, int a1)
 {
     Sub15C *e = a0->dobj;
     int idx = (e->focusNodes)[a1];
-    return GetYDistanceFromPlane((char *)e + 0x1D0,
-                                 *(char **)((char *)e + 0xC) + idx * 0x40 + 0x30);
+    return GetYDistanceFromPlane(e->root.plane.f, (char *)e->nodeMtx + idx * 0x40 + 0x30);
 }
 
 float GetDifferenceFromLowerField(GObj *a0, int a1)
@@ -1967,7 +1965,7 @@ float GetDifferenceFromLowerField(GObj *a0, int a1)
     Sub15C *ctrl;
     int idx;
     ctrl = a0->dobj;
-    idx = (*(signed char **)((char *)ctrl + 0x840))[a1];
+    idx = ((signed char *)ctrl->focusNodes)[a1];
     GetLowerPlaneCollision(&buf, ctrl->nodeMtx + (idx << 6) + 0x30);
     if (buf.floor.n == 0) {
         return 3.40282347e+38f;
@@ -1982,7 +1980,7 @@ float GetDifferenceFromWallLowerPlane(GObj *self, int node)
     int idx;
 
     idx = getSkeltonFocusNode(self, node);
-    GetPureVerticalPlane(pos, 0, pts, (char *)self->dobj + 0x180, 1);
+    GetPureVerticalPlane(pos, 0, pts, &self->dobj->root.wall, 1);
     return GetYDistanceFromPlane(pos, (char *)GOBJ_SUB(self)->nodeMtx + idx * 0x40 + 0x30);
 }
 
@@ -1993,7 +1991,7 @@ float GetDifferenceFromWallUpperPlane(GObj *self, int node)
     int idx;
 
     idx = getSkeltonFocusNode(self, node);
-    GetPureVerticalPlane(pos, 0, pts, (char *)self->dobj + 0x180, 0);
+    GetPureVerticalPlane(pos, 0, pts, &self->dobj->root.wall, 0);
     return GetYDistanceFromPlane(pos, (char *)GOBJ_SUB(self)->nodeMtx + idx * 0x40 + 0x30);
 }
 
@@ -2072,8 +2070,8 @@ loop:
         goto loop;
 }
 
-void SetMotionNodeFixModeParameter(GObj *self, char *obj, float x, float y, float z, int mode,
-                                   int node, float w, void *quat)
+void SetMotionNodeFixModeParameter(GObj *self, char *obj, int mode, int node, void *quat, float x,
+                                   float y, float z, float w)
 {
     float vec[4] = {x, y, z, 1.0f};
 
@@ -2236,7 +2234,7 @@ void GetOutOutsideOfWall(GObj *obj, float threshold)
     if (GOBJ_SUB(obj)->root.wall.n != 0) {
         float dot;
         GetRootPosition(buf0, obj);
-        GetGlobalWallPlane(buf1, (char *)obj->dobj + 0x180);
+        GetGlobalWallPlane(buf1, &obj->dobj->root.wall);
         /* The listing puts these rows on sugiCommon.h:71, so the dev called
          * the header helper here; it costs nothing since plane_distance
          * became one asm block with the $v0 hop hard-wired. */

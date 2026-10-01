@@ -22,8 +22,6 @@ extern void ClipWallE(void *a0);
 /* kept local: void (void *, void *) here, void (int, int) in geometryManager.h */
 extern void GetRootQuaternion(void *q, void *obj);
 /* the two ints the demo timer keeps: the elapsed count and its divisor. */
-extern int GetPureVerticalPlaneOfCurrentPosition(void *plane0, void *plane1, float *ptsIn, int *cfg,
-                                                 int flip, char *self);
 /* kept local: WallCfg here, FcColInfo in fieldCollision.h */
 extern WallCfg InitialColInfo;
 /* kept local, as ico2/sugipon/src/box.c declares them: fieldCollision.h is
@@ -1059,7 +1057,7 @@ int adjustSideWall(ClipBuf *w, int a1, Vec16 *wallPlane)
     float d;
     float t;
 
-    GetPureVerticalPlane(&pl0, &pl1, pts, (int *)&cfg, 0);
+    GetPureVerticalPlane(&pl0, &pl1, pts, &cfg, 0);
     d = (GetDistanceFromPlane(&pl0, w->pt[2]) < 0.0f ? -GetDistanceFromPlane(&pl0, w->pt[2])
                                                      : GetDistanceFromPlane(&pl0, w->pt[2])) -
         30.0f;
@@ -1254,7 +1252,7 @@ ObjNode rootUpdateHang(int kind, int a1, int a2)
             if (w.wall.n != 0) {
                 WallCfg rec = {((WallCfg *)&w.wall)->o, ((WallCfg *)&w.wall)->n};
 
-                n = GetPureVerticalPlaneOfCurrentPosition(&skelRoot->plane, &pl, 0, (int *)&rec, 0,
+                n = GetPureVerticalPlaneOfCurrentPosition(&skelRoot->plane, &pl, 0, &rec, 0,
                                                           skelRoot->pos);
                 if (-0.25f < skelRoot->plane.f[1]) {
                     /* EUC-JP: "the wall angle is steep, so fall" */
@@ -1284,7 +1282,7 @@ ObjNode rootUpdateHang(int kind, int a1, int a2)
             }
         } else {
             skelMotCtrl->updateModeChanged = 0;
-            GetPureVerticalPlane(&skelRoot->plane, &pl, 0, (int *)&skelRoot->wall, 0);
+            GetPureVerticalPlane(&skelRoot->plane, &pl, 0, &skelRoot->wall, 0);
             hit = 1;
             CopyVector(&pl2, &pl);
         }
@@ -1517,24 +1515,24 @@ ObjNode rootUpdateStepSolution(int kind)
     case 9:
         cfg = skelRoot->cliffWall;
         dir = 1.0f;
-        GetPureVerticalPlane(&skelRoot->plane, pl, (float *)corner, (int *)&cfg, 0);
+        GetPureVerticalPlane(&skelRoot->plane, pl, (float *)corner, &cfg, 0);
         break;
     case 13:
         cfg = skelRoot->cliffWall;
         dir = 1.0f;
-        GetPureVerticalPlane(&skelRoot->plane, pl, (float *)corner, (int *)&cfg, 1);
+        GetPureVerticalPlane(&skelRoot->plane, pl, (float *)corner, &cfg, 1);
         break;
     case 7:
     case 16:
     default:
         cfg = skelRoot->wall;
         dir = -1.0f;
-        GetPureVerticalPlane(&skelRoot->plane, pl, (float *)corner, (int *)&cfg, 0);
+        GetPureVerticalPlane(&skelRoot->plane, pl, (float *)corner, &cfg, 0);
         break;
     case 8:
         cfg = skelRoot->wall;
         dir = -1.0f;
-        GetPureVerticalPlane(&skelRoot->plane, pl, (float *)corner, (int *)&cfg, 1);
+        GetPureVerticalPlane(&skelRoot->plane, pl, (float *)corner, &cfg, 1);
         break;
     }
 
@@ -1626,7 +1624,7 @@ ObjNode rootUpdateStepSolution(int kind)
 
             if (cw.wall.n != 0) {
                 skelRoot->aheadWall = rec;
-                GetPureVerticalPlane(&wp, 0, 0, (int *)&rec, 0);
+                GetPureVerticalPlane(&wp, 0, 0, &rec, 0);
                 skelMotCtrl->cliffDepth = GetDistanceFromPlane(&wp, skelRoot->pos) - rootMove[1];
             }
         }
@@ -1816,7 +1814,7 @@ ObjNode rootUpdateY(void)
     sceVu0AddVector(skelRoot->pos, skelRoot->pos, skelRoot->move);
     CopyVector(skelRoot->footPos, skelRoot->pos);
 
-    GetPureVerticalPlane(0, vp, (float *)corner, (int *)&skelRoot->wall, 0);
+    GetPureVerticalPlane(0, vp, (float *)corner, &skelRoot->wall, 0);
     CopyVector(plane, vp);
     plane[3] = 0.0f;
 

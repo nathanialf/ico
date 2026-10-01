@@ -40,7 +40,7 @@ typedef struct {     /* field names derived */
 int InitSwitchGeo(void);
 void SwitchGeo(void);
 void SwitchDL(void);
-void SetSwitchTriggerFunc(char *a0, void *a1);
+void SetSwitchTriggerFunc(struct GObj *a0, void *a1);
 void SetSwitchState(char *a0, int a1);
 void SetFloorLeverWithNodePoint(struct GObj *a0, struct GObj *a1, int a2);
 int CanFloorLeverPull(char *a0);

@@ -502,7 +502,7 @@ void checkWallState(int flag)
                 float v2[4];
                 float plane[4];
 
-                GetPureVerticalPlane(plane, 0, 0, (int *)&cfg, 0);
+                GetPureVerticalPlane(plane, 0, 0, &cfg, 0);
                 skelMotCtrl->wallTopHeight = -GetYDistanceFromPlane(plane, p) + -40.0f;
                 sceVu0ScaleVector(v2, wv, -10.0f);
                 AddVectorXYZ(p, p->pt[2], v2);
@@ -570,7 +570,7 @@ void checkCliffState(int a0)
             sceVu0AddVector(fp.pt[1], p->pt[2], sc);
             CopyVector(&fp, fp.pt[1]);
             pl = (t.o = p->wall.o, t.n = p->wall.n, t);
-            GetPureVerticalPlane(plane, 0, 0, (int *)&pl, 0);
+            GetPureVerticalPlane(plane, 0, 0, &pl, 0);
             d = GetDistanceFromPlane(plane, p->pt[2]);
             fp.pt[0][1] += d - 10.0f;
             ClipFloor(&fp);

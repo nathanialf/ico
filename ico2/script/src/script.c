@@ -475,7 +475,7 @@ inline void scpPlayMotNode(void *a0, int a1, void *a2, int a3)
     float buf[4];
     memset(buf, 0, 0x10);
     buf[3] = 1.0f;
-    SetMotionNodeFixModeParameter(a0, a2, 0.0f, 0.0f, 0.0f, 0, a3, 1.0f, buf);
+    SetMotionNodeFixModeParameter(a0, a2, 0, a3, buf, 0.0f, 0.0f, 0.0f, 1.0f);
     scpPlayMot(a0, a1);
 }
 

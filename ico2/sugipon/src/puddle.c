@@ -21,7 +21,7 @@ typedef struct {
 } __attribute__((aligned(16))) Ripple;
 
 typedef struct {
-    int pad0;
+    Sub15C *reflect; /* the reflection display object */
     int idx;
     int pad8[2];
     Ripple rip[6];
@@ -89,7 +89,7 @@ static float savedMatrix340[16]; /* derived name */
 extern void memset(void *p, int c, int n);
 void PuddleGeo(GObj *a0);
 void EntryRippleToPuddle(GObj *a0, void *vec);
-int puddleRideFunc(char **a0, char *a1);
+int puddleRideFunc(GObj **a0, GObj *a1);
 
 PuddleWork *InitPuddleGeo(GObj *a0, SObjSimpleSetting *a1)
 {
@@ -97,7 +97,7 @@ PuddleWork *InitPuddleGeo(GObj *a0, SObjSimpleSetting *a1)
     float *v;
     int i;
 
-    *(char **)w = CSVSYSTEM_InitDObj(accessary[GOBJ_SUB(a0)->accessary].model, a1);
+    w->reflect = CSVSYSTEM_InitDObj(accessary[GOBJ_SUB(a0)->accessary].model, a1);
 
     v = spokeDir;
     for (i = 0; i < 9; i++) {
@@ -345,7 +345,7 @@ void drawRipple(float t, void *pos)
 
 void drawRipples(GObj *a0, int pri)
 {
-    PuddleWork *w = (PuddleWork *)(char *)GOBJ_SUB(a0)->work;
+    PuddleWork *w = GOBJ_SUB(a0)->work;
     Ripple *p;
     float *t;
     int i;
@@ -381,13 +381,13 @@ void drawRipples(GObj *a0, int pri)
 
 void PuddleDL(GObj *a0)
 {
-    char *p = *(char **)(char *)GOBJ_SUB(a0)->work;
+    Sub15C *p = ((PuddleWork *)GOBJ_SUB(a0)->work)->reflect;
 
     baseSetup(a0);
     drawAreaSetup();
     _UnitMatrix(MatrixDrive_GetMatrix());
-    CopyMatrix(*(void **)(p + 0xC), MatrixDrive_GetMatrix());
-    reg_RenderReflection((Sub15C *)p, 4);
+    CopyMatrix((void *)p->nodeMtx, MatrixDrive_GetMatrix());
+    reg_RenderReflection(p, 4);
     drawAreaRestore();
     leveldown(4);
     drawRipples(a0, 4);
@@ -422,17 +422,17 @@ inline void EntryRippleToPuddle(GObj *a0, void *vec)
     }
 }
 
-inline int puddleRideFunc(char **a0, char *a1)
+inline int puddleRideFunc(GObj **a0, GObj *a1)
 {
     float v[4];
-    char *e;
+    Sub15C *e;
     int n;
 
-    e = *(char **)(a1 + 0x15C);
-    if (*(int *)(e + 0x63C) != 0) {
-        n = *(int *)(e + 0x220);
+    e = a1->dobj;
+    if (e->ctrl.word1CC != 0) {
+        n = e->root.standNode;
         if (n != -1) {
-            CopyVector(v, *(char **)(e + 0xC) + n * 0x40 + 0x30);
+            CopyVector(v, (char *)e->nodeMtx + n * 0x40 + 0x30);
             EntryRippleToPuddle(*a0, v);
         }
     }
