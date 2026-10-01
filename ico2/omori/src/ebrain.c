@@ -15,20 +15,18 @@ int eBrainBoyChaseCount;
 
 int eBrainGirlChaseCount;
 
-/* .sbss and .bss, owned by ebrain.o and reached only from this file (MAIN.MAP
-   names no symbol in either run), each in the ROM's run order: how many
-   enemies are registered against the boy and against the girl, the enemy
-   holding the girl, and whether the boy's state makes every enemy wait; then
-   the slot pool and the two registration lists. */
-static int boyTargetNum;
+/* How many enemies are registered against the boy and against the girl, the
+   enemy holding the girl, and whether the boy's state makes every enemy
+   wait; then the slot pool and the two registration lists. */
+static int boyTargetNum; /* derived name */
 
-static int girlTargetNum;
+static int girlTargetNum; /* derived name */
 
-static void *girlHolder;
+static void *girlHolder; /* derived name */
 
-static int enemiesWait;
+static int enemiesWait; /* derived name */
 
-static EBSlot ebrainSlots[32];
+static EBSlot ebrainSlots[32]; /* derived name */
 
 extern StgPre stageData[];
 extern void __assert(char *file, int line, char *expr);
@@ -109,9 +107,9 @@ inline int eBrainStatusSet(void *a0, int a1)
     return (int)slot;
 }
 
-static EBSlot *boyTargets[32];
+static EBSlot *boyTargets[32]; /* derived name */
 
-static EBSlot *girlTargets[32];
+static EBSlot *girlTargets[32]; /* derived name */
 
 static inline void eBrainRegistTarget(EBSlot **list, int n, EBSlot *e, int w)
 {

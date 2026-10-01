@@ -8,9 +8,8 @@
 
 static void Free();
 
-/* The same for the IPU output channel's CHCR (0x1000B000): listing rows
-   56-61. Our name. */
-static __inline__ void setIpuOutChcr(int chcr)
+/* The same for the IPU output channel's CHCR (0x1000B000). */
+static __inline__ void setIpuOutChcr(int chcr) /* derived name */
 {
     DIntr();
     *D_ENABLEW = *D_ENABLER | 0x10000;
@@ -21,9 +20,8 @@ static __inline__ void setIpuOutChcr(int chcr)
 }
 
 /* Write the IPU input channel's CHCR (0x1000B400) with the DMA controller
-   held (D_ENABLER/D_ENABLEW bit 16) and interrupts off: listing rows 66-71,
-   inlined into every caller, the shape libmpeg's setD4_CHCR has with the
-   SYNC/EI pair where that one calls EIntr. Our name. */
+   held (D_ENABLER/D_ENABLEW bit 16) and interrupts off, the shape libmpeg's
+   setD4_CHCR has with the SYNC/EI pair where that one calls EIntr. */
 static __inline__ void setIpuInChcr(int chcr)
 {
     DIntr();
@@ -34,29 +32,21 @@ static __inline__ void setIpuInChcr(int chcr)
     EI();
 }
 
-/* RECONSTRUCTION: one quadword of the DMA tag list, written through a union
-   member. The ROM reloads self->data, self->nSector and self->dmaTag after
-   every tag store and does not strength-reduce the tag loop, which is what
-   an alias-set-0 store gives (gcc 2.9's c_get_alias_set returns 0 for an
-   access directly through a union member); a plain `unsigned long` store
-   lets loop.c hoist all three. Our names. */
-typedef union {
+/* one quadword of the DMA tag list, as two doublewords or four words */
+typedef union { /* field names derived */
     unsigned long ul[2];
     int w[4];
 } QWord;
 
 /* One 16-byte DMA source-chain tag: the data address in the upper word, the
-   tag id and quadword count below. Listing rows 80-81. Our name. */
+   tag id and quadword count below. */
 static __inline__ void setDmaTag(char *tag, int i, int addr, int qwc, int id)
 {
     ((QWord *)tag)[i].ul[0] = ((unsigned long)addr << 32) | ((unsigned long)id << 28) | qwc;
 }
 
 /* The ring sector a DMA address points into, or 0 once the chain has run
-   onto the tag after the last one. Listing rows 46-50. The address comes in
-   by value: the inliner copies a memory argument into its register after the
-   helper's first line note, which is why the caller's line keeps only the
-   MADR register's address (line 305) and row 46 carries the load. Our name. */
+   onto the tag after the last one. */
 static __inline__ int getDmaSector(ViBuf *self, unsigned int madr)
 {
     if (madr == phys_addr((int)((QWord *)self->dmaTag + self->nSector + 1))) {
@@ -65,8 +55,7 @@ static __inline__ int getDmaSector(ViBuf *self, unsigned int madr)
     return (madr - (unsigned int)self->data) / 2048;
 }
 
-/* census free_buf, a file static, `static` keeps its ELF symbol local so it cannot
-   collide with the ico2/ito/mpeg/mv_videodec global of the same name */
+/* this file's own free_buf; mv_videodec.c defines a global of the same name */
 static void free_buf(ViBuf *self)
 {
     Free((int)self->data);
@@ -80,11 +69,8 @@ int viBufCreate(ViBuf *self)
     int data;
     int tag;
     int ts;
-    /* The ring geometry is held in locals: 256 sectors of 2048 bytes, and a
-       512-entry timestamp ring.  Keep them as locals - each is set here and
-       read exactly once at the bottom, so local-alloc's update_equiv_regs
-       moves the constant load down next to its store and all three share $v0
-       (writing the literals at the store sites instead costs 17 insns). */
+    /* the ring geometry: 256 sectors of 2048 bytes, and a 512-entry
+       timestamp ring */
     int nSector = 0x100;
     int tsMax = 0x200;
 
@@ -201,10 +187,9 @@ void viBufEndPut(ViBuf *self, int n)
 
 /* Retire the sectors the IPU DMA has consumed and chain the whole sectors
    written since the last call onto the tag list, restarting the channel when
-   it had run dry.  Listing rows 272-361.  One variable carries the DMA's
-   current sector and then walks the new tags (the ROM keeps both in one
-   register); the write position of line 314 is its own variable, handed to
-   the walk on the for line. */
+   it had run dry.  One variable carries the DMA's current sector and then
+   walks the new tags; the write position is its own variable, handed to the
+   walk on the for line. */
 int viBufAddDMA(ViBuf *self)
 {
     int chcr;
@@ -264,7 +249,7 @@ int viBufAddDMA(ViBuf *self)
 
 /* Stop both IPU DMA channels and keep their registers and the IPU's bit
    position for viBufRestartDMA: the shape of libipu's sceIpuStopDMA over the
-   ring's save area.  Listing rows 369-396. */
+   ring's save area. */
 int viBufStopDMA(ViBuf *self)
 {
     WaitSema(self->sema);
@@ -295,11 +280,8 @@ int viBufStopDMA(ViBuf *self)
 /* Restart the IPU input DMA saved by viBufStopDMA, rewound by the bytes still
    sitting in the IPU FIFO (the fifo and ifc fields of IPU_BP), re-chaining
    from the tag of the sector the rewound address falls in: libipu's
-   sceIpuRestartDMA over the ring.  Listing rows 404-483.  Each range test on
-   lines 432 and 447 repeats its modulo (the ROM keeps the second divide's
-   zero trap); in the else arm the tag address is set on line 438, ahead of
-   the quadword count, which is the order that gives the ROM's registers
-   (the listing leaves that statement's own line code-free). */
+   sceIpuRestartDMA over the ring.  Each range test repeats its modulo; in
+   the else arm the tag address is set ahead of the quadword count. */
 int viBufRestartDMA(ViBuf *self)
 {
     int cmd;
@@ -516,15 +498,14 @@ int viBufGetTs(ViBuf *self, ViTs *out)
     return 1;
 }
 
-/* census Free, this TU's own copy of the mv_defs.h file static, `static` keeps its
-   ELF symbol local so it cannot collide with the mv_videodec global of that name */
+/* this file's own Free (mv_defs.h); mv_videodec.c defines a global of the
+   same name */
 static void Free(int a0)
 {
     iosFree(phys_addr(a0));
 }
 
-/* Stop the IPU input DMA, clear its registers and release the ring.
-   Listing rows 155-166. */
+/* Stop the IPU input DMA, clear its registers and release the ring. */
 int viBufDelete(ViBuf *self)
 {
     setIpuInChcr(5);

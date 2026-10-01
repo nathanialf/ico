@@ -1,12 +1,8 @@
 /*
  * ico2/ito/include/gather_effect.h
  *
- * The disc records no file of this name: SRCFILE.TXT attributes no
- * instruction to it, and a header that only declares leaves no rows in the
- * listing at all, so this file is ours and not the developers' own record.
- * It collects the declarations of what gather_effect.c defines, in the form its
- * users need them; every type here is read from the ROM's calling convention
- * at the call sites and from the spellings the using TUs already carried.
+ * The declarations of what gather_effect.c defines, for the files that use
+ * them.  The file name is derived.
  */
 
 #ifndef GATHER_EFFECT_H
@@ -47,9 +43,6 @@ struct GGeo {                   /* field names derived */
     } user;                 /* 0x70, the gather effect's caller's word */
 };
 
-/* The declarations below lead this header because their order is load-bearing:
- * gcc 2.9 emits the deferred out-of-line copy of a plain-inline function in
- * first-declaration order, so this is the order gather_effect.c's inline tail has. */
 int GatherEffect_Set(int no, void *pos, void *quat, void *goal, float speed, void (*endFunc)(int));
 int GatherEffect_InqEnd(int a0);
 void GatherEffect_SetGoal(int a0, void *a1);

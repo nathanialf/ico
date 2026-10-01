@@ -1,18 +1,14 @@
 /*
  * ico2/omori/include/ebrain.h
  *
- * The disc records no file of this name: SRCFILE.TXT attributes no
- * instruction to it, and a header that only declares leaves no rows in the
- * listing at all, so this file is ours and not the developers' own record.
- * It collects the declarations of what ebrain.c defines, in the form its
- * users need them; every type here is read from the ROM's calling convention
- * at the call sites and from the spellings the using TUs already carried.
+ * The declarations of what ebrain.c defines, for the files that use
+ * them.  The file name is derived.
  */
 
 #ifndef EBRAIN_H
 #define EBRAIN_H
 
-/* MAIN.MAP globals: how many enemies chase the boy and the girl */
+/* how many enemies chase the boy and the girl */
 extern int eBrainBoyChaseCount;
 extern int eBrainGirlChaseCount;
 
@@ -26,9 +22,6 @@ typedef struct EBSlot { /* field names derived */
     void *owner;           /* 0x18, the enemy GObj the slot belongs to */
 } EBSlot;
 
-/* The declarations below lead this header because their order is load-bearing:
- * gcc 2.9 emits the deferred out-of-line copy of a plain-inline function in
- * first-declaration order, so this is the order ebrain.c's inline tail has. */
 void eBrainInit(void);
 int eBrainStatusSet(void *a0, int a1);
 void eBrainSendMes(void *gop, int mes);

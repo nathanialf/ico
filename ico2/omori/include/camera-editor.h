@@ -1,18 +1,15 @@
 /*
  * ico2/omori/include/camera-editor.h
  *
- * The disc records no file of this name: SRCFILE.TXT attributes no
- * instruction to it, and a header that only declares leaves no rows in the
- * listing at all, so this file is ours and not the developers' own record.
- * It collects the declarations of what camera-editor.c defines, in the form its
- * users need them; every type here is read from the ROM's calling convention
- * at the call sites and from the spellings the using TUs already carried.
+ * The declarations of what camera-editor.c defines, for the files that use
+ * them.  The file name is derived.
  */
 
 #ifndef CAMERA_EDITOR_H
 #define CAMERA_EDITOR_H
 
-/* RECONSTRUCTION, PLACED BY INCLUDE PATTERN: one record, previously repeated character for character in 2 TUs. */
+/* a camera-set group record as the editor converts it: its item range and
+   the address of its item records */
 typedef struct S4C { /* field names derived */
     int pad0[14];
     int first;    /* 0x38, the group's first item record */
@@ -21,7 +18,7 @@ typedef struct S4C { /* field names derived */
     int items;    /* 0x48, the address of the item records, held as a word */
 } S4C;
 
-/* RECONSTRUCTION, PLACED BY INCLUDE PATTERN: one record, previously repeated character for character in 2 TUs. */
+/* a camera-set item record, 0x5C bytes, copied whole */
 typedef struct {
     int w[23];
 } S5C;
@@ -59,16 +56,20 @@ typedef struct {
     float f50, f54, f58;      /* 0x50 */
 } PinRec;
 
-/* MAIN.MAP globals */
 extern PinRec cameraPinDefault;
 extern BoxRec cameraGroupDefault;
 extern int curmenu;
 extern int print_y;
 extern unsigned char exit_f;
-/* The functions camera-editor.c defines `inline`, in the order the ROM emits
- * their out-of-line copies: gcc 2.9 writes deferred functions at the end of
- * the file in the order of their first declaration, so this block is that
- * order. */
+/* A menu of the camera editor: its thread record, then the menu that opened
+   it, which it wakes and hands back to on exit, and the menu's argument. */
+typedef struct MenuThread { /* field names derived */
+    char thread[0x70];
+    char *parent; /* 0x70 */
+    int arg;      /* 0x74 */
+} MenuThread;
+
+/* the functions camera-editor.c defines `inline` */
 void debug_NMarker(int *self, int a1, int a2, int a3, float t);
 void debug_Marker(int *buf, int a1, int a2, int a3, float f12, float f13);
 void debug_Arrow(float len, void *from, void *to, int r, int g, int b);
@@ -86,23 +87,23 @@ int CameraEdit_PIN(int a0, int a1);
 void CameraEdit_DispPin(int box, int pin);
 void ConvertCameraSetBuffer(int n, S4C *item, char *groups);
 void StickToTrans(int a0, int a1, int a2, int a3, float *out, int a5);
-void menu_2(char *m);
-void group_select(char *m);
+void menu_2(MenuThread *m);
+void group_select(MenuThread *m);
 /* compiled in place */
 int CameraEdit_add_pin(int box, char *src);
 void DispCameraGroup(int box, unsigned char sel);
 void EnterMenu(void *a0, int a1, void *a2);
 void dispCameraGroupType2(int box, unsigned char sel);
 void dispCameraPinType2(int box, int from, int to, int type);
-void menuGroupEdit(char *m);
-void menuGroupSelect(char *m);
-void menuPinEdit(char *m);
-void menuPinSelect(char *m);
+void menuGroupEdit(MenuThread *m);
+void menuGroupSelect(MenuThread *m);
+void menuPinEdit(MenuThread *m);
+void menuPinSelect(MenuThread *m);
 void saveEditedDataBinary(int no, int a1, int a2);
 void test_camedit(void);
 void wakeup_cameraedit(void);
 
-/* RECONSTRUCTION, PLACED BY INCLUDE PATTERN: one record, previously repeated character for character in 2 TUs. */
+/* a quadword read as four floats or as two doublewords */
 typedef union Mat4 {
     float f[4];
     long long q[2];

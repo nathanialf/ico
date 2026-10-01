@@ -18,20 +18,24 @@
 #include "main.h"
 #include "gv.h"
 
-typedef struct CamSetItem {
-    char pad[0x48];
-    void *end;
+/* a group record of a loaded camera set, as CameraSetCameraSet reads it */
+typedef struct CamSetItem { /* field names derived */
+    char pad0[0x48];
+    void *items; /* 0x48, the set's item records */
 } CamSetItem;
 
-typedef struct CamSetHdr {
-    char pad0[8];
-    int count; /* 0x08 */
-    char pad0c[4];
-    CamSetItem items[1]; /* 0x10 */
+/* a loaded camera set: the file header, then the group records */
+typedef struct CamSetHdr { /* field names derived */
+    int magic;
+    int ver;
+    int count;            /* 0x08, the number of groups */
+    int total;            /* 0x0C, the number of items */
+    CamSetItem groups[1]; /* 0x10 */
 } CamSetHdr;
 
 extern const StgPre stageData[];
-/* kept local: boyact.h does not compile in this TU (too many arguments to function `GetBoyRootPositionForCamera') */
+/* boyact.h is not included: this file passes GetBoyRootPositionForCamera
+   more arguments than boyact.h declares */
 extern void GetBoyRootPositionForCamera();
 
 typedef struct PluralCameraSet {
@@ -57,60 +61,55 @@ typedef struct CameraState {
     char padA8[0x8]; /* 0xA8: the run gives the record 0xB0 */
 } CameraState;
 
-/* .bss, owned by camera-ico2.o and reached only from this file (MAIN.MAP names
-   no symbol in the run), declared here as one block in the ROM's run order,
-   which is the order gcc emits them in: the per-group distance and weight
-   arrays the group chooser scores, the monitor camera's whole state record,
-   the two smoothed camera targets with the raw and previous copies the filter
-   runs on, the position the group search is done at, and the plural camera
-   sets.  Only the first three words of groupProbePos are reached; the run
-   gives it 0x90. */
-static float cameraDist[100];
+/* The per-group distance and weight arrays the group chooser scores, the
+   monitor camera's whole state record, the two smoothed camera targets with
+   the raw and previous copies the filter runs on, the position the group
+   search is done at, and the plural camera sets.  Only the first three words
+   of groupProbePos are used. */
+static float cameraDist[100]; /* derived name */
 
-static float cameraWeight[100];
+static float cameraWeight[100]; /* derived name */
 
-static CameraState monitorCamera;
+static CameraState monitorCamera; /* derived name */
 
-static float targetAStart[3];
+static float targetAStart[3]; /* derived name */
 
-static float targetASmooth[3];
+static float targetASmooth[3]; /* derived name */
 
-static float targetBSmooth[3];
+static float targetBSmooth[3]; /* derived name */
 
-static float groupProbePos[36];
+static float groupProbePos[36]; /* derived name */
 
-static float targetAPrev[3];
+static float targetAPrev[3]; /* derived name */
 
-static float targetBPrev[3];
+static float targetBPrev[3]; /* derived name */
 
-static PluralCameraSet pluralCameraSet
-    [10]; /* ten sets, the AddPluralCameraSet limit; MAIN.MAP camera-ico2.o .bss 0x500 ends here */
+/* ten sets, the AddPluralCameraSet limit */
+static PluralCameraSet pluralCameraSet[10]; /* derived name */
 
-/* .sbss, owned by camera-ico2.o (MAIN.MAP names no symbol in the run), in the
-   ROM's run order: the camera-set binary this file reads in and the group
-   window into it, the frame counter the warp guard tests, the current group,
+/* The camera-set binary this file reads in and the group window into it, the frame counter the warp guard tests, the current group,
    the two hand-camera correction rates setHandCameraRates scales by the frame
    budget, the "group changed this frame" flag, and the number of plural camera
    sets held in pluralCameraSet. */
-static char *cameraSetBuf;
+static char *cameraSetBuf; /* derived name */
 
-static char *cameraSetGroups;
+static char *cameraSetGroups; /* derived name */
 
-static char *cameraSetGroupsEnd;
+static char *cameraSetGroupsEnd; /* derived name */
 
-static int cameraSetGroupNum;
+static int cameraSetGroupNum; /* derived name */
 
-static int cameraFrames;
+static int cameraFrames; /* derived name */
 
-static int cameraGroupCurrent;
+static int cameraGroupCurrent; /* derived name */
 
-static float handCameraEyeRate;
+static float handCameraEyeRate; /* derived name */
 
-static float handCameraAtRate;
+static float handCameraAtRate; /* derived name */
 
-static unsigned char cameraGroupChanged;
+static unsigned char cameraGroupChanged; /* derived name */
 
-static int pluralCameraSetNum;
+static int pluralCameraSetNum; /* derived name */
 
 typedef struct IosPadStick {
     int x; /* 0x00 */
@@ -135,11 +134,15 @@ typedef struct CamSetFile { /* field names derived */
     int total;              /* 0x0C */
 } CamSetFile;
 
-typedef struct CamGroup { /* 0x4C */
-    unsigned char _0[0x38];
-    int first; /* 0x38 */
-    int last;  /* 0x3C */
-    unsigned char _40[0xC];
+typedef struct CamGroup { /* field names derived */
+    char name[0x20];
+    float center[3]; /* 0x20 */
+    float range[3];  /* 0x2C, the box's half-size */
+    int first;       /* 0x38, the group's first item */
+    int last;        /* 0x3C */
+    char pad40[4];
+    int kind; /* 0x44 */
+    char pad48[4];
 } CamGroup;
 
 typedef struct CamItem { /* 0x5C, the version 3 record */
@@ -181,11 +184,11 @@ void CameraSetCameraSet(int id)
     int i;
 
     TopCameraSetDataOfCurrentStage = GetPluralCameraSet(id);
-    NumOfGroup = n = *(int *)((char *)TopCameraSetDataOfCurrentStage + 8);
-    p = (CamSetItem *)((char *)TopCameraSetDataOfCurrentStage + 0x10);
+    NumOfGroup = n = ((CamSetHdr *)TopCameraSetDataOfCurrentStage)->count;
+    p = ((CamSetHdr *)TopCameraSetDataOfCurrentStage)->groups;
     end = &p[n];
     for (i = 0; i < n; i++) {
-        p[i].end = end;
+        p[i].items = end;
     }
     ReflectCameraSetBinary((S4C *)p, n);
 }
@@ -207,10 +210,10 @@ void GetRootPositionForCamera(int a0, int a1)
 inline void SetCameraTargetPosition(void *a0, void *a1, float a2)
 {
     sceVu0ScaleVector((&monitorCamera.work), a1, -1.0f);
-    sceVu0ScaleVector((char *)(&monitorCamera.work) + 0x10, a0, -1.0f);
+    sceVu0ScaleVector(&monitorCamera.work.at, a0, -1.0f);
     sceVu0ScaleVector(targetAPrev, a0, -1.0f);
     sceVu0ScaleVector(targetBPrev, a0, -1.0f);
-    *(float *)((char *)(&monitorCamera.work) + 0x20) = a2;
+    monitorCamera.work.ext.f[0] = a2;
 }
 
 void ico2camera_GetTargetPos(int a0)
@@ -295,9 +298,9 @@ int ico2camera_GetGroupNearest(float *query)
     int i;
     for (i = 0; i < cameraSetGroupNum; i++) {
         float buf[4];
-        char *entry = cameraSetGroups + i * 0x4C;
-        float *center = (float *)(entry + 0x20);
-        float *range = (float *)(entry + 0x2C);
+        CamGroup *entry = (CamGroup *)(cameraSetGroups + i * 0x4C);
+        float *center = entry->center;
+        float *range = entry->range;
         int k;
         memset(buf, 0, 0x10);
         for (k = 0; k < 3; k++) {
@@ -335,12 +338,10 @@ void initMonitorCamera(unsigned char init)
         SetMonitorCameraInitializeFlag();
 }
 
-/* The retail build compiles out this function's debug arms (listing lines
- * 1033-1063 and 1109-1131 carry no instructions), which is why `vDbg` is read
- * at the writeback with nothing having written it, `vDiff` is written and never
- * read, `vSpare` is read only by the DEBUG build's report in the second arm
- * (report ours; retail keeps its frame slot, 0x130 against 0x120 without it),
- * and the 1098 loop keeps its counter with an empty body. */
+/* The retail build compiles out this function's debug arms, which is why
+ * `vDbg` is read at the writeback with nothing having written it, `vDiff` is
+ * written and never read, `vSpare` is read only by the DEBUG build's report in
+ * the second arm, and one loop keeps its counter with an empty body. */
 void monitorMonitorCamera(CamWork *cam, CamWork *out)
 {
     float vDiff[4];
@@ -531,13 +532,10 @@ void ChaseCamera(float *a0, float *a1)
     a1[8] = 50.0f;
 }
 
-/* Static helper at camera-ico2.c lines 149-158 of the listing, hosted by both
- * InitIco2Camera and CameraMove, so the name is ours: it scales the two
- * hand-camera correction rates by the frame budget and reports the frame step.
- * The divisor is spelled out at every use, as the same idiom is in
- * src/hand-camera.c, so cse keeps a single `div` and the redundant div_trap
- * insns survive with no encoding of their own. */
-static inline int setHandCameraRates(float a, float b)
+/* Scale the two hand-camera correction rates by the frame budget and report
+ * the frame step, for InitIco2Camera and CameraMove.  The divisor is spelled
+ * out at every use, as the same idiom is in hand-camera.c. */
+static inline int setHandCameraRates(float a, float b) /* derived name */
 {
     handCameraEyeRate = a * 60.0f / (float)((60 - systemStatus[0] * 10) / systemStatus[1]);
     handCameraAtRate = b * 60.0f / (float)((60 - systemStatus[0] * 10) / systemStatus[1]);
@@ -575,9 +573,10 @@ typedef struct CamSetGroup { /* 0x4C */
 /* the debug markers' pulse, two steps a frame */
 static int markerPulse = 0; /* derived name */
 
-/* camera-ico2.c lines 362-380 of the listing: the mean and the standard
- * deviation of the first `n` weights, written back through two pointers. */
-static inline void cameraWeightStat(float *arr, int n, float *outSd, float *outMean)
+/* the mean and the standard deviation of the first `n` weights, written back
+ * through two pointers */
+static inline void cameraWeightStat(float *arr, int n, float *outSd,
+                                    float *outMean) /* derived name */
 {
     float var;
     int j;
@@ -819,10 +818,9 @@ void InitIco2Camera(void)
     InitHandCameraCorrect();
 }
 
-/* .data, owned by camera-ico2.o and read only here (MAIN.MAP names no symbol
-   in the run): the target offset the smoothing test measures the new one
-   against, reset whenever the actor asks for no offset. */
-static float lastTargetOffset[3] = {0.0f, 0.0f, 0.0f};
+/* the target offset the smoothing test measures the new one against, reset
+   whenever the actor asks for no offset */
+static float lastTargetOffset[3] = {0.0f, 0.0f, 0.0f}; /* derived name */
 
 void GetTargetOffset(char *gobj, float *v, unsigned char flag)
 {
@@ -882,21 +880,20 @@ inline void GetHandCameraStickInfo(float *outX, float *outZ, float *outMag)
     }
 }
 
-/* kept local: boyact.h does not compile in this TU (too many arguments to function `GetBoyRootPositionForCamera') */
+/* boyact.h's, which this file does not include */
 extern unsigned char IsAbleBoyControl(void);
 
-/* The camera-group search the listing places at camera-ico2.c lines 921-946:
- * a static helper shared by GetCameraGroupFromGObj, GetCameraGroupFromPosition
- * and SetCameraMatrix_Ico2. */
-static inline int findCameraGroupContaining(float *pos)
+/* the camera-group search GetCameraGroupFromGObj, GetCameraGroupFromPosition
+ * and SetCameraMatrix_Ico2 share */
+static inline int findCameraGroupContaining(float *pos) /* derived name */
 {
     int result = -1;
     int i;
     for (i = 0; i < cameraSetGroupNum; i++) {
         int k = 0;
-        char *entry = cameraSetGroups + i * 0x4C;
-        float *range = (float *)(entry + 0x2C);
-        float *center = (float *)(entry + 0x20);
+        CamGroup *entry = (CamGroup *)(cameraSetGroups + i * 0x4C);
+        float *range = entry->range;
+        float *center = entry->center;
         float *p = pos;
         do {
             if (*p < *center - *range) {
@@ -956,8 +953,8 @@ void SetCameraMatrix_Ico2(int flag)
         sceVu0AddVector(cw.at.f, cw.at.f, vA);
     } else {
         if (flag != 0 || (cameraGroupCurrent != -1 &&
-                          *(int *)(cameraSetGroups + group * 0x4C + 0x44) !=
-                              *(int *)(cameraSetGroups + cameraGroupCurrent * 0x4C + 0x44))) {
+                          ((CamGroup *)cameraSetGroups)[group].kind !=
+                              ((CamGroup *)cameraSetGroups)[cameraGroupCurrent].kind)) {
             initMonitorCamera(1);
             f8 = 1;
         }
@@ -1043,12 +1040,9 @@ inline void InitPluralCameraSet(void)
     pluralCameraSetNum = 0;
 }
 
-/* camera-ico2.c:2162-2173: the reallocator, written inside ReadCameraSet's own
-   declaration list in the dev's source (its listing rows sit above the
-   function's first statement and below its def line) and inlined at all four
-   call sites; there is no out of line copy between ReadCameraSet and
-   GetHandCameraStickInfo in the symbol file. */
-static inline CamSetFile *allocCameraSet(CamSetFile *f)
+/* the camera-set reallocator: a block sized for the set's groups and items,
+   for ReadCameraSet's four call sites */
+static inline CamSetFile *allocCameraSet(CamSetFile *f) /* derived name */
 {
     CamSetFile *p;
 
@@ -1210,9 +1204,9 @@ inline int GetCameraGroupFromGObj(void *obj)
     result = -1;
     for (i = 0; i < cameraSetGroupNum; i++) {
         int k = 0;
-        char *entry = cameraSetGroups + i * 0x4C;
-        float *range = (float *)(entry + 0x2C);
-        float *center = (float *)(entry + 0x20);
+        CamGroup *entry = (CamGroup *)(cameraSetGroups + i * 0x4C);
+        float *range = entry->range;
+        float *center = entry->center;
         float *p = bp;
         do {
             if (*p < *center - *range) {
@@ -1244,9 +1238,9 @@ inline int GetCameraGroupFromPosition(float *pos)
     result = -1;
     for (i = 0; i < cameraSetGroupNum; i++) {
         int k = 0;
-        char *entry = cameraSetGroups + i * 0x4C;
-        float *range = (float *)(entry + 0x2C);
-        float *center = (float *)(entry + 0x20);
+        CamGroup *entry = (CamGroup *)(cameraSetGroups + i * 0x4C);
+        float *range = entry->range;
+        float *center = entry->center;
         float *p = bp;
         do {
             if (*p < *center - *range) {
@@ -1267,9 +1261,7 @@ inline int GetCameraGroupFromPosition(float *pos)
     return result;
 }
 
-/* Nothing in the ROM reads the three words below. The bytes pin their size
-   (a word each), their place (after the inline tail's "0") and their value
-   (zero); MAIN.MAP names the middle one. */
+/* three zero words; nothing reads them */
 static int cameraIco2Word0 = 0; /* derived name */
 
 int current_group = 0;

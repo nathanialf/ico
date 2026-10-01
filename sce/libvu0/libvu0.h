@@ -28,6 +28,7 @@ void sceVu0CopyMatrix(void *a0, void *a1);
 void sceVu0CopyVector(void *dst, void *src);
 void sceVu0DivVector(void *a0, void *a1, float a2);                /* definition in sce/ */
 void sceVu0FTOI0Vector(void *a0, void *a1);                        /* definition in sce/ */
+void sceVu0FTOI4Vector(void *a0, void *a1);                        /* definition in sce/ */
 void sceVu0ITOF0Vector(void *a0, void *a1);                        /* definition in sce/ */
 float sceVu0InnerProduct(void *a0, void *a1);                      /* definition in sce/ */
 void sceVu0InterVector(void *a0, void *a1, void *a2, float t);     /* definition in sce/ */

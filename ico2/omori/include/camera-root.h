@@ -1,18 +1,13 @@
 /*
  * ico2/omori/include/camera-root.h
  *
- * The disc records no file of this name: SRCFILE.TXT attributes no
- * instruction to it, and a header that only declares leaves no rows in the
- * listing at all, so this file is ours and not the developers' own record.
- * It collects the declarations of what camera-root.c defines, in the form its
- * users need them; every type here is read from the ROM's calling convention
- * at the call sites and from the spellings the using TUs already carried.
+ * The declarations of what camera-root.c defines, for the files that use
+ * them.  The file name is derived.
  */
 
 #ifndef CAMERA_ROOT_H
 #define CAMERA_ROOT_H
 
-/* MAIN.MAP globals, then the two words the retail link adds after them */
 extern int CameraCalclated_f;
 extern int default_cameratarget_gobj;
 extern int InsertCameraWorkingFlag;

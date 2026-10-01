@@ -7,8 +7,8 @@
 extern OaRecA objLayout[];
 extern OaRecB D_002BC6E0[];
 
-/* listing lines 30-34: the object's action record, or none */
-static inline OaRecB *objActionRecord(int a0)
+/* the object's action record, or none */
+static inline OaRecB *objActionRecord(int a0) /* derived name */
 {
     int e = objLayout[a0].x34;
     if (e != 0) {
@@ -26,8 +26,7 @@ inline void ObjAction_Init(void)
     }
 }
 
-/* listing lines 50-51 and 56-57 */
-static inline void objActionCorrectFlag(OaRecB *p)
+static inline void objActionCorrectFlag(OaRecB *p) /* derived name */
 {
     if ((p->x10 & 1) == 1u) {
         p->xC = 972;

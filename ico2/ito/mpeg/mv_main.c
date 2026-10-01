@@ -12,51 +12,43 @@
 #include <eeregs.h>
 #include <libcdvd.h>
 
-/* --- the TU's whole .data run, VMA 0x2A7920..0x2A79B8 (0x98, = MAIN.MAP
-   mv_main.o .data 0x98).  MAIN.MAP names the last two objects of the run,
-   voBuf at member offset 0x40 and `display` at 0x58; the two channel lists
-   ahead of them carry no map symbol, so those names are ours. */
-
 /* the DMA and interrupt channels the player takes over for the length of the
    stream and hands back one by one in movie_end. */
-static int movieDmacChannel[] = {0, 1, 2, 3, 4, 8, 9};
+static int movieDmacChannel[] = {0, 1, 2, 3, 4, 8, 9}; /* derived name */
 
-static int movieIntcChannel[] = {0, 1, 2, 4, 5, 6, 7};
+static int movieIntcChannel[] = {0, 1, 2, 4, 5, 6, 7}; /* derived name */
 
 /* the video-out ring the decoder fills and mv_disp drains (mv_vobuf.h) */
 VoBuf voBuf = {0};
 
-/* the movie's display environment (mv_disp.h).  MAIN.MAP's name;
-   debug_exception's `display` routine, absent from MAIN.MAP, is that TU's
-   file static. */
+/* the movie's display environment (mv_disp.h); debug_exception's `display`
+   routine is that file's own static */
 MvDispEnv display = {0};
 
-/* .sbss, owned by mv_main.o (MAIN.MAP names no symbol in the run), in the ROM's
-   run order: the two callback argument pairs videoDecSetStream is handed by
-   address, the priority the decode thread is created at and its id, the started
-   flag, the interrupt and DMA enables and the D_CTRL word saved across playback,
-   the caller's own priority, and the GS interrupt mask saved across playback.
-   The long long forces the 8-byte alignment that leaves the word before it
-   unused, which is what makes the run 0x38 bytes. */
-static MvCbArg videoCbArg;
+/* The two callback argument pairs videoDecSetStream is handed by address,
+   the priority the decode thread is created at and its id, the started flag,
+   the interrupt and DMA enables and the D_CTRL word saved across playback,
+   the caller's own priority, and the GS interrupt mask saved across
+   playback (a 64-bit register). */
+static MvCbArg videoCbArg; /* derived name */
 
-static MvCbArg pcmCbArg;
+static MvCbArg pcmCbArg; /* derived name */
 
-static int decThreadPri;
+static int decThreadPri; /* derived name */
 
-static int decThreadId;
+static int decThreadId; /* derived name */
 
-static int decThreadStarted;
+static int decThreadStarted; /* derived name */
 
-static int savedIntc;
+static int savedIntc; /* derived name */
 
-static int savedDmac;
+static int savedDmac; /* derived name */
 
-static int savedDmaCtrl;
+static int savedDmaCtrl; /* derived name */
 
-static int callerPri;
+static int callerPri; /* derived name */
 
-static long long savedIMR;
+static long long savedIMR; /* derived name */
 
 /* set once the movie has an audio stream */
 static int movieHasAudio = 1; /* derived name */
@@ -69,11 +61,10 @@ static int movieFrameNo = 0; /* derived name */
 
 void movie_end(void);
 
-/* .bss, owned by mv_main.o (0x10380, the run, tiled exactly by these eight;
-   MAIN.MAP's own link sizes it 0x1037C), in the ROM's run order: the stream
-   file the movie is read through, the read buffer, the video and audio decoder
-   objects, the argument block the decode thread is started with, its 0x8000
-   stack, and the DMA and interrupt enables saved per channel. */
+/* The stream file the movie is read through, the read buffer, the video and
+   audio decoder objects, the argument block the decode thread is started
+   with, its 32 KB stack, and the DMA and interrupt enables saved per
+   channel. */
 static char mpegStrFile[33216];
 
 static ReadBuf mpegReadBuf;
@@ -309,7 +300,7 @@ void termAll(void)
     *D_CTRL = savedDmaCtrl;
 }
 
-/* mv_main.c:425 - the VU0 status register, read back into C */
+/* the VU0 status register */
 static inline int vu0Stat(void)
 {
     int r;

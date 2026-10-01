@@ -5,7 +5,7 @@
 #include <eekernel.h>
 #include <sifrpc.h>
 
-/* kept local: libsndn2's sound.h does not declare its stream PCM calls */
+/* libsndn2's stream PCM calls (sound.h is not on the game's include path) */
 extern int SgStPcmClose(unsigned int a0);
 extern void SgStPcmQuit(void);
 extern int SgStPcmStop(unsigned long long a0);
@@ -328,9 +328,9 @@ int pcmCallback(int a0, MvCbStr *pkt, MvCbArg *arg)
     }
     rest = n - first;
 
-    /* INTERIM: the listing inlines the mv_audiodec.c:205-232 begin-put helper
-       here; written out because a pointer-output helper forces its four results
-       into stack slots that ROM does not have */
+    /* the two spans the next put fills: the rest of the header and the
+       ring, or the free run of the ring up to its end and the part that
+       wraps to its start */
     if (ad->state == 0) {
         p0 = (char *)ad + (ad->headerBytes + 4);
         n0 = 40 - ad->headerBytes;

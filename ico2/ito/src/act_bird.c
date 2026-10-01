@@ -52,9 +52,7 @@ void interp_vector_sa(float *dst, float *a, float *b, float sa)
     float vb[4];
     float sum[4];
     float ang;
-    /* fraction of the full angle that the `sa` step covers; a separate local
-       from the parameter is what ROM's register file shows (`sa` dies at the
-       divide, and this one lives on through the three GetTableSin calls). */
+    /* fraction of the full angle that the `sa` step covers */
     float rate;
 
     sceVu0Normalize(na, a);
@@ -143,14 +141,10 @@ void birdBeforeFunc(char *self)
     *(MotOriReq *)((char *)act + 0x620) = *(MotOriReq *)((int)GOBJ_SUB(self) + 0x180);
 }
 
-/* --- act_bird.c's own small helpers, census rows 74-107 -----------------
- * SRCFILE.TXT attributes instructions inside subBirdBrainMain to
- * act_bird.c lines 74/75, 79/80, 86, 91, 96 and 104-106: five helper
- * bodies that are only ever inlined, so none of them has a MAIN.MAP
- * symbol and the names below are ours, chosen for what the rows do. */
+/* --- act_bird.c's own small helpers, inlined into subBirdBrainMain --- */
 
-/* rows 74-75: a point 100 units along `dir` from `p`. */
-static __inline__ void point_ahead(float *dst, float *p, float *dir)
+/* a point 100 units along `dir` from `p` */
+static __inline__ void point_ahead(float *dst, float *p, float *dir) /* derived name */
 {
     float v[4];
 
@@ -158,14 +152,12 @@ static __inline__ void point_ahead(float *dst, float *p, float *dir)
     sceVu0AddVector(dst, p, v);
 }
 
-/* row 80 */
-static __inline__ float rand_range(float a, float b)
+static __inline__ float rand_range(float a, float b) /* derived name */
 {
     return random_unit() * (b - a) + a;
 }
 
-/* row 86 */
-static __inline__ float rand_flip(float v)
+static __inline__ float rand_flip(float v) /* derived name */
 {
     if (random_unit() <= 0.5f) {
         v = -v;
@@ -173,20 +165,18 @@ static __inline__ float rand_flip(float v)
     return v;
 }
 
-/* row 91 */
-static __inline__ float rand_range_rad(float a, float b)
+static __inline__ float rand_range_rad(float a, float b) /* derived name */
 {
     return degrees_to_radians(rand_range(a, b));
 }
 
-/* row 96 */
-static __inline__ float rand_small_turn(void)
+static __inline__ float rand_small_turn(void) /* derived name */
 {
     return degrees_to_radians(rand_flip(rand_range(1.0f, 2.0f)));
 }
 
-/* rows 104-106: turn `v` about Y by `ang` radians. */
-static __inline__ void rotate_y(float *v, float ang)
+/* turn `v` about Y by `ang` radians */
+static __inline__ void rotate_y(float *v, float ang) /* derived name */
 {
     float m[16];
     float mr[16];
@@ -219,8 +209,8 @@ void trans_bird(void *self, float *w)
     SetRootPosition(self, pos);
 }
 
-/* rows 256-263: point the bird `ang` radians round from where it faces. */
-static __inline__ void turn_bird(void *self, float ang)
+/* point the bird `ang` radians round from where it faces */
+static __inline__ void turn_bird(void *self, float ang) /* derived name */
 {
     float d[4];
 
@@ -229,8 +219,8 @@ static __inline__ void turn_bird(void *self, float ang)
     SetMotionDirection(self, d);
 }
 
-/* rows 279-288: restart the flap wave from where it currently stands. */
-static __inline__ void set_wave(float *w, float a, float b, float step)
+/* restart the flap wave from where it currently stands */
+static __inline__ void set_wave(float *w, float a, float b, float step) /* derived name */
 {
     w[0] = a;
     w[1] = b;
@@ -241,8 +231,7 @@ static __inline__ void set_wave(float *w, float a, float b, float step)
     w[6] = 0.0f;
 }
 
-/* census: ito/src/act_bird.c subBirdBrainMain, def line 314.
-   Actor sub-thread body: the actor scheduler resumes this frame after every
+/* Actor sub-thread body: the actor scheduler resumes this frame after every
    _ACTWait yield, so the entry GObj lives in its stack home, not a register. */
 void subBirdBrainMain(void *volatile gobj)
 {
@@ -291,11 +280,7 @@ void subBirdBrainMain(void *volatile gobj)
     GetRootPosition(lastPos, gobj);
 
     lastState = GOBJ_SUB(gobj)->f_4A0;
-    /* Vestigial in the shipped build: the loop opens by reading the same field
-       into `state`, so everything but the volatile GObj load is dead here.  The
-       ROM keeps that load (act_bird.c:349 in SRCFILE.TXT, the second
-       `lw $v1,0($sp)` of the loop preheader), which is what proves the second
-       read was written. */
+    /* the loop opens by reading the same field into `state` again */
     state = GOBJ_SUB(gobj)->f_4A0;
     while (1) {
         int changed;
@@ -714,9 +699,7 @@ void subBirdBrainMain(void *volatile gobj)
                 float lim = -6.0f;
 
                 float y = cd.pos[1] + lim;
-                /* Nothing reads `q` again; the ROM emits the store all the
-                   same (act_bird.c:793, `swc1 $f0,0x364($sp)`), so the 2001
-                   source carried it. */
+                /* nothing reads `q` after this */
                 q[1] = lim;
                 if (y < p[1]) {
                     p[1] = y;
@@ -858,7 +841,6 @@ void BirdGeo(void *self)
     ExecMotionOrient(self);
 }
 
-/* census: ito/src/act_bird.c BirdDL, def line 1024 */
 void BirdDL(void *gobj)
 {
     BirdWork *w;

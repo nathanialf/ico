@@ -10,8 +10,8 @@
 #include "ios.h"
 #include "mv_main.h"
 
-/* kept local: libmpeg.h declares sceMpegDelete (void), and this TU hands it
-   the decoder; the other libmpeg calls follow libmpeg.h */
+/* libmpeg's calls, declared here because sceMpegDelete is handed the
+   decoder, where libmpeg.h declares it (void) */
 extern int sceMpegCreate(void *self, void *buf, int size);
 extern int sceMpegAddCallback(void *a0, int a1, int a2, int a3);
 extern int sceMpegAddStrCallback();
@@ -167,8 +167,7 @@ int decBitStrm0(VideoDec *dec, MvDispEnv *disp, VoBuf *vo)
     int j;
 
     while (!sceMpegIsEnd((int **)dec)) {
-        /* videoDecGetState is defined below this function in ROM order, so its
-           one-line body is written out here (INTERIM: the dev's file had it above) */
+        /* the decoder's state, as videoDecGetState reads it */
         if (dec->state == 1) {
             ret = -1;
             debug_StdPrintfDummy("decode thread: aborted\n");

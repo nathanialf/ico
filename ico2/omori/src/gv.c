@@ -36,9 +36,8 @@ void GetMatrixDirectionToZ(float *out, float *dir)
     MatrixDrive_PopMatrix();
 }
 
-/* kept local: agrees with gv.h; including it here moves this TU's bytes */
+/* as gv.h declares them; this file does not include gv.h */
 extern int _RotyGV(float *a0, float *a1);
-/* kept local: agrees with gv.h; including it here moves this TU's bytes */
 extern void _ApplyRyGV(float *a0, float a1);
 
 int _InterRotGV(float *dst, float *cur, float *tgt, int step)
@@ -99,7 +98,7 @@ float _DistxzGV(void *a0, void *a1)
     return FSqrt(sceVu0InnerProduct(buf, buf));
 }
 
-/* kept local: agrees with gv.h; including it here moves this TU's bytes */
+/* as gv.h declares it */
 extern void _InterGV(float *a0, float *a1, float *a2, float a3, float a4);
 
 float _MoveGV(float *a0, float *a1, float *a2, float a3)

@@ -1,19 +1,15 @@
 /*
  * ico2/omori/include/camera-set-manager.h
  *
- * The disc records no file of this name: SRCFILE.TXT attributes no
- * instruction to it, and a header that only declares leaves no rows in the
- * listing at all, so this file is ours and not the developers' own record.
- * It collects the declarations of what camera-set-manager.c defines, in the form its
- * users need them; every type here is read from the ROM's calling convention
- * at the call sites and from the spellings the using TUs already carried.
+ * The declarations of what camera-set-manager.c defines, for the files that use
+ * them.  The file name is derived.
  */
 
 #ifndef CAMERA_SET_MANAGER_H
 #define CAMERA_SET_MANAGER_H
 
-/* MAIN.MAP globals: the current stage's camera set, its group count, and its
-   group and pin tables */
+/* the current stage's camera set, its group count, and its group and pin
+   tables */
 extern void *TopCameraSetDataOfCurrentStage;
 extern int NumOfGroup;
 extern void *TopOfCameraGroup;

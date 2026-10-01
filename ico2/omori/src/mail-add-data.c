@@ -2,12 +2,10 @@
 #include "obj_manager.h"
 #include "debug_exception.h"
 
-/* PAL listing (omori/src/mail-add-data.c): two static inline helpers,
- * lines 48-57 (send the mail, return its index or -1) and lines 68-74
- * (assert the actor has a work block, return its additional-data table),
- * expand into the three inline tail members; InitMailAdditionalData is
- * the TU's only plain function and calls ClearMailAdditionalData out of
- * line because that body is defined after it. */
+/* Two static helpers, one sending the mail and returning its index or -1,
+ * the other asserting the actor has a work block and returning its
+ * additional-data table.  InitMailAdditionalData calls
+ * ClearMailAdditionalData, which is defined after it. */
 extern void __assert(char *file, int line, char *expr);
 
 typedef struct MailAddEntry {
@@ -20,7 +18,7 @@ typedef struct MailAdditionalData {
     /* 0x04 */ MailAddEntry e[10];
 } MailAdditionalData;
 
-static inline int sendMailAndGetIndex(char *gop, int msg, void *sender)
+static inline int sendMailAndGetIndex(char *gop, int msg, void *sender) /* derived name */
 {
     if (iosOmSendMail(gop, msg, sender) < 0) {
         return -1;
@@ -28,7 +26,7 @@ static inline int sendMailAndGetIndex(char *gop, int msg, void *sender)
     return ((GObj *)gop)->f58 - 1;
 }
 
-static inline MailAdditionalData *getMailAdditionalDataTable(char *gop)
+static inline MailAdditionalData *getMailAdditionalDataTable(char *gop) /* derived name */
 {
     if (((GObj *)gop)->act == 0) {
         debug_assert("src/mail-add-data.c", 71);

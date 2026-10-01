@@ -1,17 +1,15 @@
 #include "sugiCommon.h"
 #include "enemy-control.h"
 
-/* .sbss and .bss, owned by enemy-control.o and reached only from this file
-   (MAIN.MAP names no symbol in either run), each in the ROM's run order: how
-   many enemies asked to act this round, which one was picked, the round
+/* How many enemies asked to act this round, which one was picked, the round
    counter, and the ids that asked. */
-static int enemyReqNum;
+static int enemyReqNum; /* derived name */
 
-static int enemyPicked;
+static int enemyPicked; /* derived name */
 
-static int enemyRound;
+static int enemyRound; /* derived name */
 
-static int enemyReqIds[100];
+static int enemyReqIds[100]; /* derived name */
 
 inline int InitEnemyCtrlGeo(void)
 {

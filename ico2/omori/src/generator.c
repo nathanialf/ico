@@ -33,11 +33,10 @@ typedef struct GenBga { /* field names derived */
     char pad5[3];
 } GenBga;
 
-/* RECONSTRUCTION, read from the ROM.  The generator's work record: whether
-   the stage needs it hard, three state bytes, the enemy kind it calls, the
-   direction it sends enemies off in, its four multi-BGA managers (each with
-   its active byte), the main status, the current animation slot and the
-   timers.  The direction is three floats: the byte at 0x2C follows it, and
+/* The generator's work record: whether the stage needs it hard, three state
+   bytes, the enemy kind it calls, the direction it sends enemies off in, its
+   four multi-BGA managers (each with its active byte), the main status, the
+   current animation slot and the timers.  The direction is three floats: the byte at 0x2C follows it, and
    sceVu0ApplyMatrix writes a whole quadword there. */
 typedef struct GenWork {        /* field names derived */
     int count;                  /* 0x00, frames since the generator started */
@@ -67,11 +66,9 @@ extern GVGeo2 objLayout[];
 /* objLayout[3757], the kidnap enemy's layout record */
 extern GVGeo2 D_00308924;
 
-/* .bss, owned by generator.o (0x2C10, the run, tiled exactly; the packet
-   read into it is 11277 bytes, which is what GetsizeGeneratorPacket returns,
-   three under the buffer): the generator packet. */
-/* */
-static int generatorPacket[2820];
+/* the generator packet: 11277 bytes are read into it, which is what
+   GetsizeGeneratorPacket returns, three under the buffer */
+static int generatorPacket[2820]; /* derived name */
 
 #include "generator.h"
 #include <string.h>
@@ -129,11 +126,8 @@ int CheckGeneratorCollision(char *gobj, float *dir)
     return 1;
 }
 
-/* generator.c:366-381, a static inline helper of this TU: the listing gives
-   GetGeneratorSafePosition the rows 367-381 twice, outside its own 386-422
-   span.  The result is truncated to a byte at both call sites, so the helper
-   returns an 8-bit type. */
-typedef struct SafePosOffset {
+/* the offsets GetGeneratorSafePosition tries around a generator */
+typedef struct SafePosOffset { /* field names derived */
     float x;
     float y;
     float z;
@@ -142,7 +136,9 @@ typedef struct SafePosOffset {
 
 extern SafePosOffset generatorSubPosition[];
 
-static inline unsigned char IsGeneratorSafePosition(float *pos)
+/* whether no live enemy stands close to pos; GetGeneratorSafePosition uses it
+   twice and reads the result as a byte */
+static inline unsigned char IsGeneratorSafePosition(float *pos) /* derived name */
 {
     char *g;
 
@@ -241,16 +237,14 @@ void switch_MainStatus(char *gobj, unsigned char st)
 
 extern void __assert(char *file, int line, char *expr);
 
-/* generator.c:467-473 and 475-479, two static inline helpers of this TU: the
-   listing gives endfunc_BGA rows 468-478, outside its own 489-505 span. */
-static inline char *ResetCurrentBga(char *gobj)
+/* stop the current animation slot's manager (ResetCurrentBga) and start the
+   manager of a slot (EntryBga), for endfunc_BGA and GeneratorGeo */
+static inline char *ResetCurrentBga(char *gobj) /* derived name */
 {
     GenWork *w = GOBJ_SUB(gobj)->f_830;
 
     if (w->cur != -1) {
-        /* the slot is reached as a byte offset from the record: the ROM's
-           addu takes the record as its first operand and folds the table
-           offset into the store, which the subscript does not give */
+        /* the slot, as a byte offset from the record */
         char *e = (char *)w + w->cur * 8;
         char *q;
 
@@ -261,7 +255,7 @@ static inline char *ResetCurrentBga(char *gobj)
     return (char *)w;
 }
 
-static inline void EntryBga(char *gobj, GenWork *w, int slot)
+static inline void EntryBga(char *gobj, GenWork *w, int slot) /* derived name */
 {
     float mtx[4];
 
@@ -763,10 +757,8 @@ inline int MemoryGenerator(short *a0, char *a1)
 }
 
 /* The pending-BGA request queue of the generator actor: the count lives at
-   gobj+0x58 and the entries run from gobj+0x5C.  `kind` is unsigned: the
-   switch below has no slti range test, which is what an unsigned switch
-   operand does to ee-gcc's case tree. */
-typedef struct GenReqEntry {
+   gobj+0x58 and the entries run from gobj+0x5C. */
+typedef struct GenReqEntry { /* field names derived */
     unsigned int kind;
     int f4;
 } GenReqEntry;
@@ -854,9 +846,9 @@ inline GenWork *InitGeneratorGeo(char *gobj, GVGeo2 *src)
     return p;
 }
 
-/* generator.c:1259-1270, a static inline helper of this TU: the listing gives
-   GeneratorGeo the rows 1262-1268, outside its own 1274-1410 span. */
-static inline void SetGeneratorAimVector(char *gobj)
+/* for GeneratorGeo: the generator's forward axis, the direction it sends
+   enemies off in */
+static inline void SetGeneratorAimVector(char *gobj) /* derived name */
 {
     GenWork *w = GOBJ_SUB(gobj)->f_830;
     float m[16];
@@ -871,10 +863,8 @@ static inline void SetGeneratorAimVector(char *gobj)
     sceVu0ApplyMatrix(w->dir, m, v);
 }
 
-/* generator.c:481-486, a static inline helper of this TU: the listing gives
-   GeneratorGeo the rows 469-485, i.e. ResetCurrentBga and EntryBga inlined
-   inside this wrapper. */
-static inline void EntryGeneratorBga2(char *gobj)
+/* for GeneratorGeo: reset the current slot and start slot 2 */
+static inline void EntryGeneratorBga2(char *gobj) /* derived name */
 {
     GenWork *cur = (GenWork *)ResetCurrentBga(gobj);
 
@@ -882,10 +872,9 @@ static inline void EntryGeneratorBga2(char *gobj)
     cur->cur = 2;
 }
 
-/* generator.c:636-648, a static inline helper of this TU: the listing gives
-   GeneratorGeo the rows 639-647.  The result is truncated to a byte at the
-   call site, so the helper returns an 8-bit type. */
-static inline unsigned char IsGeneratorCalling(void)
+/* whether any live hard-stage generator is calling, for GeneratorGeo, which
+   reads the result as a byte */
+static inline unsigned char IsGeneratorCalling(void) /* derived name */
 {
     char *g;
 
@@ -905,9 +894,9 @@ static inline unsigned char IsGeneratorCalling(void)
     return 0;
 }
 
-/* generator.c:758-779, a static inline helper of this TU: the listing gives
-   GeneratorGeo the rows 761-776. */
-static inline void CallEnemyFromGenerator(char *gobj, float *pos, float *dir)
+/* call an enemy out of the generator and start its call animation, for
+   GeneratorGeo */
+static inline void CallEnemyFromGenerator(char *gobj, float *pos, float *dir) /* derived name */
 {
     GenWork *w = GOBJ_SUB(gobj)->f_830;
 
@@ -1036,9 +1025,8 @@ void GeneratorGeo(char *gobj)
     w->count = w->count + 1;
 }
 
-/* generator.c:1414-1420, a static inline helper of this TU: the listing gives
-   its rows 1417-1419 to GeneratorDL, outside GeneratorDL's own line span. */
-static inline void SetGeneratorBgaRootPosition(char *gobj, GenBga *tbl)
+/* for GeneratorDL: put the animation managers at the generator's root */
+static inline void SetGeneratorBgaRootPosition(char *gobj, GenBga *tbl) /* derived name */
 {
     float pos[3];
     int i;

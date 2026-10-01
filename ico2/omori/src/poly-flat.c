@@ -3,10 +3,8 @@
 #include "GsBase.h"
 #include "main.h"
 
-/* the TU's whole .data run, VMA 0x2A6030..0x2A6070 (0x40, = MAIN.MAP
-   poly-flat.o .data 0x40, which names this object at offset 0): the
-   world-space matrix before_DrawLine copies the caller's into and every
-   line transform reads back. */
+/* the world-space matrix before_DrawLine copies the caller's into and every
+   line transform reads back */
 float drawline_ws_matrix[16] = {0};
 
 #include "poly-flat.h"

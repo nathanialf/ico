@@ -28,16 +28,17 @@ struct HintDef {
 
 extern struct HintDef hintTable[]; /* derived name */
 
-/* The TU's .bss: the two 4-byte hint flag sets the save block carries, then
-   one timer per hint; Hint_Init clears the whole record. */
+/* The two 4-byte hint flag sets the save block carries, then one timer per
+   hint; Hint_Init clears the whole record. */
 static struct {
     char save[8];    /* 0x00 */
     float timer[28]; /* 0x08 */
 } hintWork;          /* derived name */
 
-/* kept local: agrees with brain.h, which this TU does not include (brainSetLevelGop, brainStatusDefaultSet differ) */
+/* brain.h's, which this file does not include: it passes brainSetLevelGop
+   and brainStatusDefaultSet other argument types (brain.h declares
+   brainStatusDefaultSet (Brain *, int, int)) */
 extern Brain brainGirl;
-/* kept local: void (void *, int, int) here, void (Brain *, int, int) in brain.h */
 extern void brainStatusDefaultSet(void *b, int gobj, int idx);
 
 /* the record a new hint GObj starts from: no stage, no hint, no time, no
@@ -71,11 +72,10 @@ char *CreateKyomiGObj(int no)
     return gobj;
 }
 
-/* .sbss, owned by lws_kyomi.o (MAIN.MAP names no symbol in the run): the hint timers, a window onto the
-   per-hint elapsed-time array */
-static float *hintTimers;
+/* the hint timers, a window onto the per-hint elapsed-time array */
+static float *hintTimers; /* derived name */
 
-/* kept local: void (void *, float) here, void (int, float) in brain.h */
+/* brain.h declares it (int, float) */
 extern void brainSubLevelGop(void *gobj, float lv);
 
 void LwsKyomiGeo(void *gobj)
@@ -112,10 +112,10 @@ void LwsKyomiGeo(void *gobj)
     brainSubLevelGop(gobj, 0.1f);
 }
 
-/* lws_kyomi.c:264 and :265 are one source line each, so the clear-then-pack
- * pair of loops is a macro; the name is ours.  `buf` is the 4-byte half of the
- * save block being packed and `off` its byte offset inside it. */
-#define MAKE_HINT_SAVE_BITS(buf, off, bit)                                                         \
+/* Clear one 4-byte half of the save block, then pack one flag bit of every
+ * hint into it.  `buf` is the half being packed and `off` its byte offset
+ * inside the block. */
+#define MAKE_HINT_SAVE_BITS(buf, off, bit) /* derived name */                                      \
     for (i = 0; i < 4; i++) {                                                                      \
         hintWork.save[(off) + i] = 0;                                                              \
     }                                                                                              \
@@ -134,9 +134,9 @@ void MakeHintSaveInfo(void)
     MAKE_HINT_SAVE_BITS(hintWork.save + 4, 4, 1);
 }
 
-/* lws_kyomi.c:305 and :306 are one source line each: the inverse of
- * MAKE_HINT_SAVE_BITS, unpacking one 4-byte half back into the flag bit. */
-#define READ_HINT_SAVE_BITS(buf, bit)                                                              \
+/* the inverse of MAKE_HINT_SAVE_BITS, unpacking one 4-byte half back into the
+ * flag bit */
+#define READ_HINT_SAVE_BITS(buf, bit) /* derived name */                                           \
     end = 0;                                                                                       \
     for (k = 0; k < 28; k++) {                                                                     \
         (hintTable + k)->flags &= ~(1 << (bit));                                                   \
@@ -170,7 +170,7 @@ void ReadHintSaveInfo(void)
     READ_HINT_SAVE_BITS(hintWork.save + 4, 1);
 }
 
-/* kept local: void (void *, float, int, int) here, void (int, int, int, float) in brain.h */
+/* brain.h declares it (int, int, int, float) */
 extern void brainSetLevelGop(void *gobj, float lv, int a1, int a2);
 
 void SetParamKyomiGObj(void *gobj, float *root, float *param)

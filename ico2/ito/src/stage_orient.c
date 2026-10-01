@@ -10,8 +10,8 @@ typedef struct {
     float pos2[3];
 } StageOrientDef;
 
-/* the stage names in stageData's records (StgPre.name) */
-extern char D_005F5D70[][404];
+/* the per-stage preset records; each carries the stage's name */
+extern const StgPre stageData[];
 
 static const StageOrientDef stageOrientDefs[41] = {
     {"st47a", 0.0f, {200.0f, -350.0f, -950.0f}, {0.0f, -1750.0f, 0.0f}},
@@ -57,10 +57,8 @@ static const StageOrientDef stageOrientDefs[41] = {
     {"E3_st13b", 3.14159f, {-24850.0f, -430.0f, 450.0f}, {-24850.0f, -900.0f, 450.0f}},
 };
 
-/* .bss, owned by stage_orient.o and reached only from this file (MAIN.MAP
-   names no symbol in the run): the orient index each stage resolves to, -1
-   where the stage has none. */
-static short stageOrientIdx[128];
+/* the orient index each stage resolves to, -1 where the stage has none */
+static short stageOrientIdx[128]; /* derived name */
 
 #include "stage_orient.h"
 #include <stdio.h>
@@ -72,7 +70,7 @@ inline void StageOrientInit(void)
     char buf[64];
 
     for (i = 0; i < 106; i++) {
-        sscanf(D_005F5D70[i], "%s", buf);
+        sscanf(stageData[i].name, "%s", buf);
         stageOrientIdx[i] = -1;
         for (j = 0; j < sizeof(stageOrientDefs) / sizeof(stageOrientDefs[0]); j++) {
             if (strcmp(buf, stageOrientDefs[j].name) == 0) {
@@ -83,21 +81,13 @@ inline void StageOrientInit(void)
     }
 }
 
-/* census: the rows 52-63 that appear twice inside GetStageDifferenceMatrix and
-   again in StageOrientGet2 are a static inline with no standalone copy in the
-   listing, so the listing carries no name for it. */
-static inline void MakeStageOrientMatrix(float *m, StageOrientDef *p)
+/* the matrix that places a stage at its orient record's anchor and angle,
+   for GetStageDifferenceMatrix and StageOrientGet2 */
+static inline void MakeStageOrientMatrix(float *m, StageOrientDef *p) /* derived name */
 {
     /* The DEBUG build reports how far the stage's second anchor (pos2) sits
        from the one the matrix is built on, through ofs; retail keeps only the
-       declaration (report and names ours).  WHAT THE BYTES PIN: ROM's frame
-       carries 240 bytes of vars where the three matrices, `v` and the
-       aggregate temp account for only 224; the inlined body's frame block
-       starts at sp+0xC0 with an unwritten 16-byte object, then v (0xD0) and the
-       temp (0xE0), and gcc keeps the block's base in $s2 (listing row 84) as
-       the base of the temp's `w` store, so the object is this function's first
-       local.  Measured earlier: a nested inline's VECTOR in its place puts v
-       at 0xC0; writing v field by field loses ROM's ld/sd copy. */
+       declaration. */
     VECTOR ofs;
     VECTOR v = {p->pos[0], p->pos[1], p->pos[2], 1.0f};
 

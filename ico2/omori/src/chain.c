@@ -29,8 +29,7 @@ typedef struct {
 
 /* One word of a chain record or of a chain vector: the chain code writes these
  * slots as float and reads them as int (and the other way round), so the word
- * itself is a union.  ROM re-loads the record pointer before every store
- * through one, which only an alias-set-0 union member does. */
+ * itself is a union. */
 typedef union ChainVal {
     int i;
     float f;
@@ -53,8 +52,7 @@ typedef struct { /* field names derived */
     /* 0x50 */ unsigned char swing;
 } ChainPendulum;
 
-/* The head of a chain record, 0xE0 bytes, the node array following it.
- * Reconstructed from the offsets the chain code uses. */
+/* The head of a chain record, 0xE0 bytes, the node array following it. */
 typedef struct { /* field names derived */
     /* 0x00 */ int root;
     /* 0x04 */ int rootNode;
@@ -116,12 +114,8 @@ int UpdateRootPosition(char *gobj)
 extern void __assert(char *file, int line, char *expr);
 void _GetCorrectOrientOfChain(float *out, char *gobj, float *dir);
 
-/* INTERIM (same shape as GetChainDirCorrectVal below): the listing inlines
- * InitPendulum's lines 517-538 into StartPendulum, so InitPendulum is a public
- * `inline` whose out-of-line copy sits at its own ROM position further down;
- * until then the caller inlines this static stand-in, which collapses at
- * layout. */
-static inline void initPendulum(char *gobj)
+/* InitPendulum's body, for StartPendulum above its definition */
+static inline void initPendulum(char *gobj) /* derived name */
 {
     ChainRecord *cw = GOBJ_SUB(gobj)->f_830;
     float a = (float)debug_chain_cycle_speed * -0.2f + 2.0f;
@@ -181,9 +175,8 @@ float *pos;
 }
 
 /* the debug trace line: every chain trace steps it by 10 and ChainGeo resets
- * it; chain.o's one .sbss word, MAIN.MAP names nothing there, so the name is
- * ours */
-static int chainDebugY;
+ * it */
+static int chainDebugY; /* derived name */
 
 /* The wall-clip request the chain hands to ClipWall: the segment endpoints, the
  * clip radius at 0x70 and the hit result at 0x88. */
@@ -231,8 +224,8 @@ int collisionCheck(char *gobj)
     return 0;
 }
 
-/* The sixth integer parameter is passed by both ROM call sites (always 0) and
- * never read by the body; it keeps $9 in the argument sequence. */
+/* The sixth integer parameter is passed by both call sites (always 0) and
+ * never read by the body. */
 extern void chain_sub_simulate(int a0, ChainNode *nd, int from, int to, unsigned char flag,
                                int flag2, float grav, float len, float damp);
 
@@ -558,9 +551,7 @@ typedef struct {
     /* 0x30 */ unsigned char f30;
 } PdlWork;
 
-/* K&R definition: ROM zero-extends the flag on entry, which a prototyped int
- * parameter cannot do, and the file-scope extern above (int) is compatible
- * with the promoted unsigned char. */
+/* K&R definition: the flag is an unsigned char promoted to int. */
 void pendulum_Process(p, flag) void *p;
 
 unsigned char flag;
@@ -626,12 +617,13 @@ unsigned char flag;
 }
 
 /* the two templates a new chain geometry starts from, the pendulum block and
- * the record head; MAIN.MAP names nothing in chain.o's .data, so both names
- * are ours */
+ * the record head */
 static ChainPendulum chainPendulumDefault = {
+    /* derived name */
     {0.0f, 0.0f, 0.0f, 0.0f}, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 360.0f, 45.0f, 1};
 
 static ChainRecord chainRecordDefault = {
+    /* derived name */
     0,
     0,
     {0.0f, 0.0f, 0.0f, 0.0f},
@@ -685,8 +677,7 @@ typedef struct {
     float w[2];
 } ChainHitPos;
 
-/* the gobj extension pointer, read as a union member: every store through the
- * extension has to force the reload the ROM does */
+/* the gobj extension pointer, read as a pointer or as a word */
 typedef union {
     char *p;
     int i;
@@ -944,9 +935,10 @@ static inline int GetChainSimulateMode(char *gobj)
     return mode;
 }
 
-/* chain.c lines 441-487: the hand-proximity probe down the chain, inlined into
- * ChainGeo by its single call site; the caller reads the result as one byte. */
-static inline unsigned char isChainHitByHand(char *gobj, float *p, float *v, float *o, float lim)
+/* the hand-proximity probe down the chain, for ChainGeo; the caller reads the
+ * result as one byte */
+static inline unsigned char isChainHitByHand(char *gobj, float *p, float *v, float *o,
+                                             float lim) /* derived name */
 {
     ChainRecord *cw = GOBJ_SUB(gobj)->f_830;
     float d[4];
@@ -1032,9 +1024,6 @@ void ChainGeo(char *gobj)
     if (debug_font_flag & 1) {
         debug_Printf(10, chainDebugY += 10, 0x0FFFFFFF, "%d\n", mode);
     }
-    /* the plumb index is read as the record's member: ROM loads it ahead of
-     * the counter store, which alias.c allows only for a struct member
-     * against a fixed scalar */
     if (debug_font_flag & 1) {
         debug_Printf(10, chainDebugY += 10, 0x0FFFFFFF, "plumb = %d\n",
                      ((ChainRecord *)cw)->holdNode);
@@ -1136,7 +1125,6 @@ void ChainGeo(char *gobj)
         }
     }
 
-    /* no node-pointer local: ROM re-reads cw->0xD0 after the first fptodp */
     if (cw->hold != 0) {
         if (debug_font_flag & 1) {
             debug_Printf(10, chainDebugY += 10, 0x0FFFFFFF, "%f/%f, %d\n", cw->pdl.length,
@@ -1287,33 +1275,36 @@ typedef struct {
 } ChainClimbWork;
 
 /* the climb work's storage, twelve words reached through ChainClimbWork
- * casts (the phase updates and the mode store in TestChainUpDown rebuild the
- * pointer from the symbol each time, which a cast of storage of another type
- * gives and a ChainClimbWork object would fold away); the mode word at 0x28
- * starts at -1.  MAIN.MAP names nothing in chain.o's .data, so the name is
- * ours */
-static int chainClimb[12] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -1, 0};
+ * casts; the mode word at 0x28 starts at -1 */
+static int chainClimb[12] = {/* derived name */ 0,
+                             0,
+                             0,
+                             0,
+                             0,
+                             0,
+                             0,
+                             0,
+                             0,
+                             0,
+                             -1,
+                             0};
 
-/* the per-motion frame-count records, indexed by the motion id at ext + 0x4A0 */
-/* kept local: this TU's uses of these do not fit the prototypes their own
- * headers carry */
-
-/* chain.c:1777-1987 in the listing: the two climb helpers and TestChainUpDown, laid out on its lines */
+/* the two climb helpers and TestChainUpDown */
 /* clang-format off */
-static inline void SetChainClimbNodePoint(char *obj, ChainClimbWork *rec)
+static inline void SetChainClimbNodePoint(char *obj, ChainClimbWork *rec) /* derived name */
 {
     int n = GetSkeltonFocusNode(obj, 0x23);
     rec->node[0] = *(float *)(n * 64 + ((ChainExtPtr *)(((ChainExtPtr *)(obj + 0x15C))->p + 0xC))->i + 0x30); rec->node[1] = *(float *)(n * 64 + ((ChainExtPtr *)(((ChainExtPtr *)(obj + 0x15C))->p + 0xC))->i + 0x34); rec->node[2] = *(float *)(n * 64 + ((ChainExtPtr *)(((ChainExtPtr *)(obj + 0x15C))->p + 0xC))->i + 0x38);
 }
 
-static inline float *PushChainClimbRoot(char *obj, float *pos, float *out, float *ofs, float fwd, float side)
+static inline float *PushChainClimbRoot(char *obj, float *pos, float *out, float *ofs, float fwd, float side) /* derived name */
 {
     /* pushes the root out from the chain point (fwd along the orientation, side
-     * across it) and returns the pushed point.  Both work vectors are the
-     * caller's: ROM's frame has sp+0x30/0x40 and sp+0x50/0x60 and no other slot.
-     * RECONSTRUCTION: the bytes pin only that the last call is not a sibling call
-     * (a void helper ending in one is never inlined); they cannot tell this
-     * returned point, unused by every caller, from a once-run loop around it */
+     * across it) and returns the pushed point, which no caller reads.  Both
+     * work vectors are the caller's.
+     *
+     *
+     */
     sceVu0ScaleVector(out, test_CURRENTORIENT(obj), fwd);
     sceVu0AddVector(out, pos, out);
 
@@ -1337,20 +1328,20 @@ static inline float *PushChainClimbRoot(char *obj, float *pos, float *out, float
 }
 
 /* Climbing the chain: moves the boy's root between the chain's node points.
- * TestChainUpDown's own brace is on the listing's line 1826 (the gobj
- * parameter copy's row), so the climb-mode selector (1827-1849) is a nested
- * function at its head, after the brace and before the parent's first
- * declarations: it reads the action record's 0x34 state through the captured
- * boy, and that capture is what gives boy its home at sp+0, below the six
- * vectors (a file-scope helper cannot: nothing else allocates a parameter's
- * slot before the locals).  Its parameter is the motion id, whose load lands
- * on the helper's brace line (1828) while the extension load stays on the
- * call line (1869).  The node-point and push helpers (1777-1811) precede the
- * function at file scope.  The region is laid on the listing's lines, one
- * offset from 1777 to 1987, and fenced from clang-format. */
+ * The climb-mode selector is a nested function at its head: it reads the
+ * action record's 0x34 state through the captured boy, and its parameter is
+ * the motion id.  The node-point and push helpers precede the function at
+ * file scope.  This region keeps its line layout and is fenced from
+ * clang-format.
+ *
+ *
+ *
+ *
+ *
+ */
 void TestChainUpDown(char *gobj, char *boy)
 {
-    inline int GetChainClimbMode(int motion)
+    inline int GetChainClimbMode(int motion) /* derived name */
     {
         int mode = -1;
         switch (motion) {
@@ -1380,12 +1371,12 @@ void TestChainUpDown(char *gobj, char *boy)
     Act *sub = GOBJ_ACT(boy);
 
     /* Each arm has its own pointer to the climb work, set on the arm's first
-     * test (ROM rebuilds it there in every arm and lets it die before the
-     * phase update: one set per pointer gives it the symbol as its known
-     * value), and every read of an extension's 0x15C slot goes through the
-     * ChainExtPtr union as in the node-point helper.  The listing's lines
-     * without rows (1854-1868, 1874-1875, 1886-1888, 1894-1897, 1901-1905,
-     * 1930-1933, 1938-1940) held nothing the object records. */
+     * test, and every read of an extension's 0x15C slot goes through the
+     * ChainExtPtr union as in the node-point helper.
+     *
+     *
+     *
+     */
 
 
 
@@ -1610,7 +1601,7 @@ typedef struct ClimbCol { /* field names derived */
 
 void GetChainClimbCollision(ClimbCol *dst, char *a0)
 {
-    *dst = *(ClimbCol *)((char *)GOBJ_SUB(a0)->f_830 + 0xA4);
+    *dst = *(ClimbCol *)((ChainRecord *)GOBJ_SUB(a0)->f_830)->wallPos;
 }
 
 void SetChainParentGObj(char *a0, void *a1)
@@ -1618,11 +1609,8 @@ void SetChainParentGObj(char *a0, void *a1)
     *(void **)((char *)GOBJ_SUB(a0)->f_830) = a1;
 }
 
-/* INTERIM (see the iosThreadCreate note in ios/thread.c): the listing inlines
- * GetChainDirCorrectVal's lines into _GetCorrectOrientOfChain, so it is a
- * public `inline` of the deferred tail; until the tail's asm members are C the
- * copy is emitted here as a plain function at its ROM position and the caller
- * inlines the static stand-in getChainDirCorrectVal, which collapses at layout. */
+/* the chain's direction correction in degrees, and whether it has one;
+ * getChainDirCorrectVal below is the same body, for _GetCorrectOrientOfChain */
 int GetChainDirCorrectVal(char *a0, int *a1)
 {
     ChainRecord *p = GOBJ_SUB(a0)->f_830;
@@ -1630,7 +1618,7 @@ int GetChainDirCorrectVal(char *a0, int *a1)
     return p->hasDirCorrect;
 }
 
-static inline int getChainDirCorrectVal(char *a0, int *a1)
+static inline int getChainDirCorrectVal(char *a0, int *a1) /* derived name */
 {
     ChainRecord *p = GOBJ_SUB(a0)->f_830;
     *a1 = (int)(p->dirCorrect * 180.0f / 3.1415927f);

@@ -1,12 +1,8 @@
 /*
  * ico2/ito/include/mv_videodec.h
  *
- * The disc records no file of this name: SRCFILE.TXT attributes no
- * instruction to it, and a header that only declares leaves no rows in the
- * listing at all, so this file is ours and not the developers' own record.
- * It collects the declarations of what mv_videodec.c defines, in the form its
- * users need them; every type here is read from the ROM's calling convention
- * at the call sites and from the spellings the using TUs already carried.
+ * The declarations of what mv_videodec.c defines, for the files that use
+ * them.  The file name is derived.
  */
 
 #ifndef MV_VIDEODEC_H
@@ -53,8 +49,7 @@ typedef struct MvThreadArg { /* field names derived */
     VideoDec *dec;
     MvDispEnv *disp;
     VoBuf *vo;
-    /* the ROM's .bss run spaces the next object 0x40 on, so the block the
-       developers declared reserves that much; only the three above are used */
+    /* the block is 64 bytes; only the three above are used */
     char reserved[64 - 12];
 } MvThreadArg;
 

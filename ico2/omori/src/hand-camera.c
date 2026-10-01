@@ -8,18 +8,15 @@
 #include <libvu0.h>
 #include "main.h"
 
-/* .sbss, owned by hand-camera.o (MAIN.MAP names no symbol in the run), in the ROM's run order: the
-   correction rate scaled by the frame budget, and the correction mode
+/* the correction rate scaled by the frame budget, and the correction mode
    HandCameraCorrect is called with */
-static float handCameraRate;
+static float handCameraRate; /* derived name */
 
-static unsigned char handCameraMode;
+static unsigned char handCameraMode; /* derived name */
 
-/* .bss, owned by hand-camera.o (MAIN.MAP sizes the run 0x1C and names
-   no symbol in it): the correction work area, two angles and the two limits
-   SetLimitHandCameraCorrect writes. */
-/* */
-static float handCameraWork[7];
+/* the correction work area, two angles and the two limits
+   SetLimitHandCameraCorrect writes */
+static float handCameraWork[7]; /* derived name */
 
 void RotateAccordingToStick_PatternThree(float *a, float *b, float x, float y)
 {

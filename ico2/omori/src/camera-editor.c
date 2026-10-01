@@ -29,10 +29,10 @@ int curmenu;
 
 void EnterMenu(void *a0, int a1, void *a2)
 {
-    char *m = iosMallocDebug(ios_partition_oomori, 0x78, __FILE__, 217);
+    MenuThread *m = iosMallocDebug(ios_partition_oomori, sizeof(MenuThread), __FILE__, 217);
     iosThreadCreateS(m, 1, a0, m, ios_partition_oomori, 0x1000, 0x17);
-    *(int *)(m + 0x74) = a1;
-    *(void **)(m + 0x70) = a2;
+    m->arg = a1;
+    m->parent = a2;
     iosThreadStart(m);
     curmenu = (int)m;
     if (a2 != 0) {
@@ -50,10 +50,6 @@ typedef struct {
 
 extern int GetSizeOfCameraSetBinary(S4C *p, int n);
 extern void MakeCameraSetBinary(S4C *src, int count, S4C *dst);
-
-/* SRCFILE.TXT rows 369-388: saveEditedDataBinary inlines this, which is why
-   the ROM folds the path buffer's frame address straight into $a0 at both the
-   sprintf and the debugSceOpen instead of holding it in a register */
 
 inline void StickToTrans(int a0, int a1, int a2, int a3, float *out, int a5)
 {
@@ -116,10 +112,9 @@ static inline void writeCameraSetFile(int no, void *buf, int size)
 
 void saveEditedDataBinary(int no, int a1, int a2)
 {
-    /* the header record: the body writes the four words straight into buf at
-       rows 407-410, and only the DEBUG build reads them back through it, in
-       the code-free rows after the file write (report ours); retail keeps its
-       16-byte slot in the frame (0xF0; 0xE0 without it) */
+    /* the header record: the body writes the four words straight into buf,
+       and only the DEBUG build reads them back through it after the file
+       write */
     CamSetBinHdr hdr;
     int size;
     int *buf;
@@ -147,14 +142,13 @@ static int *cameraSetOrg = (int *)0x3000000; /* derived name */
 
 static int *cameraSetEdit = (int *)0x30E27E0; /* derived name */
 
-/* .bss, owned by camera-editor.o (MAIN.MAP line 7711 gives the member 0x800
-   and names no symbol in the run, so the name is this pass's), in the ROM at
-   VMA 0x6E5990..0x6E6190: the line buffer every row of the dump is formatted
-   into before it is written and echoed. */
-static char dumpLine[2048];
+/* the line buffer every row of the dump is formatted into before it is
+   written and echoed */
+static char dumpLine[2048]; /* derived name */
 
 extern void __assert(char *file, int line, char *expr);
-/* kept local: agrees with thread.h, which this TU does not include (iosThreadDestroy, iosThreadSleep differ) */
+/* as thread.h declares it; thread.h is not included because this file
+   calls iosThreadDestroy and iosThreadSleep with a thread pointer */
 extern void iosThreadMessage(int a0);
 
 void saveEditedData(int *range)
@@ -200,12 +194,8 @@ void saveEditedData(int *range)
     iosThreadMessage(2);
 }
 
-/* The listing's rows 478 to 504 carry no code. What the bytes pin: the
-   format "illegal message %d\n", which the ROM's .rodata holds between
-   saveEditedData's strings and dispPinRange's colour with no reader, so a
-   function that read it here was compiled but never emitted. What they
-   cannot pin: its name or its body beyond the one print. */
-static inline void illegalMessage(int msg)
+/* the report for a message the editor does not handle; nothing calls it */
+static inline void illegalMessage(int msg) /* derived name */
 {
     debug_StdPrintfDummy("illegal message %d\n", msg);
 }
@@ -247,8 +237,8 @@ typedef struct {
     float x, y, z;
 } BoxVec;
 
-/* the two index tables and the line colour are .rodata constructor templates
-   the compiler shares with DispCameraGroup, so they are read as objects */
+/* the box's two index tables and its line colour, initialised as whole
+   objects here and in DispCameraGroup */
 typedef struct {
     int e[6][4];
 } BoxIdx6;
@@ -429,21 +419,19 @@ typedef struct {
     float x, y, z, w;
 } ArrowVtx __attribute__((aligned(16)));
 
-/* The head, barb and shaft ends of the arrow drawXZArrow draws, in the ROM's
-   run order: the head runs from the origin out to +-50, the barbs join +-25 to
-   the head, and the shaft runs from +-25 back to the caller's length.  MAIN.MAP
-   names none of camera-editor.o's .data, so these names are ours. */
-static ArrowVtx arrowHeadLeft = {-50.0f, 0.0f, -50.0f, 1.0f};
+/* The head, barb and shaft ends of the arrow drawXZArrow draws: the head runs from the origin out to +-50, the barbs join +-25 to
+   the head, and the shaft runs from +-25 back to the caller's length. */
+static ArrowVtx arrowHeadLeft = {-50.0f, 0.0f, -50.0f, 1.0f}; /* derived name */
 
-static ArrowVtx arrowBarbLeft = {-25.0f, 0.0f, -50.0f, 1.0f};
+static ArrowVtx arrowBarbLeft = {-25.0f, 0.0f, -50.0f, 1.0f}; /* derived name */
 
-static ArrowVtx arrowShaftLeft = {-25.0f, 0.0f, -50.0f, 1.0f};
+static ArrowVtx arrowShaftLeft = {-25.0f, 0.0f, -50.0f, 1.0f}; /* derived name */
 
-static ArrowVtx arrowHeadRight = {50.0f, 0.0f, -50.0f, 1.0f};
+static ArrowVtx arrowHeadRight = {50.0f, 0.0f, -50.0f, 1.0f}; /* derived name */
 
-static ArrowVtx arrowBarbRight = {25.0f, 0.0f, -50.0f, 1.0f};
+static ArrowVtx arrowBarbRight = {25.0f, 0.0f, -50.0f, 1.0f}; /* derived name */
 
-static ArrowVtx arrowShaftRight = {25.0f, 0.0f, -50.0f, 1.0f};
+static ArrowVtx arrowShaftRight = {25.0f, 0.0f, -50.0f, 1.0f}; /* derived name */
 
 void drawXZArrow(void *col, int f, float z)
 {
@@ -710,7 +698,7 @@ void dispCameraGroupType2(int box, unsigned char sel)
 }
 
 /* dispBox is defined as a nested function inside
- * CameraEdit_DispBoxType2_Plane below (the listing names it dispBox.152). */
+ * CameraEdit_DispBoxType2_Plane below. */
 /* Box corner, a VU0 quadword: _InterGV / DrawPolygon / DrawLineG all take
  * 16-byte aligned vectors. */
 typedef struct {
@@ -734,9 +722,9 @@ static int planeEdgeCorner[12][2] = {
     {0, 1}, {1, 3}, {3, 2}, {2, 0}, {0, 4}, {1, 5}, {2, 6}, {3, 7}, {4, 5}, {5, 7}, {7, 6}, {6, 4},
 };
 
-/* the plane editor's edge colours.  It always draws the bright pair, so the dim
-   pair after it is reached by no instruction in the ROM; it is the same pair as
-   boxEdgeColor / boxHiddenEdgeColor above and is named for that. */
+/* the plane editor's edge colours.  It always draws the bright pair; the dim
+   pair after it is the same pair as boxEdgeColor / boxHiddenEdgeColor above
+   and nothing reads it. */
 static unsigned int planeEdgeColorSel[4] = {224, 224, 224, 128};
 
 static unsigned int planeHiddenEdgeColorSel[4] = {32, 32, 32, 128};
@@ -771,9 +759,8 @@ void CameraEdit_DispBoxType2_Plane(int box, int sel)
         unsigned int *c1;
         int i;
 
-        /* dispBox is a nested function in the ROM: the parent passes it a
-         * static chain in $2 (STATIC_CHAIN_REGNUM), which dispBox spills to
-         * 0(sp) and uses to reach the parent's v[], m[][], n and sel. */
+        /* dispBox is nested: it reaches the parent's v[], m[][], n and sel
+         * directly. */
         void dispBox(unsigned char *ca, unsigned char *cb)
         {
             float e0[4], e1[4], e2[4], e3[4];
@@ -843,20 +830,21 @@ void CameraEdit_DispBoxType2(int a0, int a1)
 /* the shared pad-state array (op.c's PadState, GsBase.c's GsbPad): 0x58 per
    pad, trg at 0x4 */
 
-/* kept local: Pad [] here, PadState [16] in main.h (pad; Pad has the stick bytes at 0x54) */
+/* the pad table (main.h's pad), read through the Pad view with the stick
+   bytes at 0x54 */
 extern Pad D_0028F8F0[];
 
 int print_y;
 
 unsigned char exit_f;
 
-/* kept local: void (void *) here, void (void) in thread.h */
+/* thread.h declares it (void) */
 extern void iosThreadSleep(void *th);
 
-void menuGroupSelect(char *m)
+void menuGroupSelect(MenuThread *m)
 {
     Pad *pad;
-    int *box = (int *)(m + 0x74);
+    int *box = &m->arg;
     int i;
     int n;
     int start;
@@ -867,10 +855,10 @@ void menuGroupSelect(char *m)
     pad = D_0028F8F0;
     while (1) {
         if (pad[1].trg & 0x1000) {
-            (*(int *)(m + 0x74))--;
+            m->arg--;
         }
         if (pad[1].trg & 0x4000) {
-            (*(int *)(m + 0x74))++;
+            m->arg++;
         }
         for (i = 0; i < CameraEdit_BOX_NUMBER(); i++) {
             DispCameraGroup(i, i == *box);
@@ -925,12 +913,12 @@ typedef struct {
     char pad48[0x4C - 0x48];
 } EditRec;
 
-/* kept local: void (void *) here, void (int) in thread.h */
+/* thread.h declares it (int) */
 extern void iosThreadDestroy(void *th);
 
-void menuGroupEdit(char *m)
+void menuGroupEdit(MenuThread *m)
 {
-    EditRec *rec = (EditRec *)(cameraSetEdit[1] + *(int *)(m + 0x74) * 0x4C);
+    EditRec *rec = (EditRec *)(cameraSetEdit[1] + m->arg * 0x4C);
     int cur = 0;
     int i;
 
@@ -946,7 +934,7 @@ void menuGroupEdit(char *m)
         cur = (cur < 0) ? 7 : ((cur > 7) ? 0 : cur);
 
         for (i = 0; i < CameraEdit_BOX_NUMBER(); i++) {
-            DispCameraGroup(i, i == *(int *)(m + 0x74));
+            DispCameraGroup(i, i == m->arg);
         }
         {
             EditItem item[7] = {
@@ -998,7 +986,7 @@ void menuGroupEdit(char *m)
             rec->sz = (float)item[6].val;
         }
         if (D_0028F8F0[1].trg & 0x10) {
-            curmenu = *(int *)(m + 0x70);
+            curmenu = (int)m->parent;
             iosThreadDestroy(m);
         }
         iosThreadSleep(m);
@@ -1006,11 +994,7 @@ void menuGroupEdit(char *m)
 }
 
 /* the camera work SetWSMatrix converts: eye at 0x00, look-at at 0x10 and the
-   field of view at 0x20, the same record camera-ico2.c hands it.  The two
-   points are plain 16-byte float vectors: their three-element initialisers are
-   cleared with the ROM's two 16-byte memset calls and emit no union CLOBBER,
-   which menuPinEdit's loop count needs (its -1.0f is hoisted by loop.c's second
-   pass only at 448 insns or fewer) */
+   field of view at 0x20, the same record camera-ico2.c hands it */
 typedef struct CamWork {
     float eye[4]; /* 0x00 */
     float at[4];  /* 0x10 */
@@ -1025,36 +1009,27 @@ typedef struct BoxPins {
     int last;  /* 0x3C */
 } BoxPins;
 
-/* .sbss, camera-editor.o's one word (MAIN.MAP line 7598, no symbol named, so
-   the name is ours): the pin the pin editor was opened on. */
-static int editPinNo;
+/* the pin the pin editor was opened on */
+static int editPinNo; /* derived name */
 
-/* The DEBUG build's trace of the pin window the list shows (name and text
-   ours); retail builds it empty. */
+/* The DEBUG build's trace of the pin window the list shows; retail builds it
+   empty. */
 #ifdef DEBUG
 #define PIN_WINDOW_TRACE(from, to) scePrintf("pin window %d..%d\n", (from), (to))
 #else
 #define PIN_WINDOW_TRACE(from, to)
 #endif
 
-void menuPinSelect(char *m)
+void menuPinSelect(MenuThread *m)
 {
-    int no = *(int *)(m + 0x74);
+    int no = m->arg;
     int cur = ((BoxPins *)(cameraSetEdit[1] + no * 0x4C))->first;
     int min;
     int max;
     int i;
     int n;
     /* start and end are the window the list shows; the DEBUG build traces
-       it at the top of every pass, so the first pass reads these zeros.
-       Retail builds the trace empty and flow deletes the two initialisers
-       (no bytes).  What the bytes pin: 284 to 287 real insns at gcse entry,
-       a 143-bucket expression table, which orders the PRE reaching
-       registers of the four hoisted frame addresses (sp+16, sp+32, sp+64,
-       sp+80) into the ROM's spill slots; without two such initialisers the
-       count is 282, the table 141 buckets, and the slots rotate.  What they
-       cannot pin: which locals carry them or the trace's text (SRCFILE.TXT
-       has code-free rows 1272-1273 at the top of the loop). */
+       it at the top of every pass, so the first pass reads these zeros. */
     int start = 0;
     int end = 0;
 
@@ -1084,12 +1059,12 @@ void menuPinSelect(char *m)
             if (i == cur) {
                 if (debug_font_flag & 1) {
                     debug_Printf(40, print_y += 10, 0xFFFFFF00, ">>%s %d",
-                                 *(int *)(CameraEdit_PIN(no, cur) + 0x24) ? "ON " : "OFF", k);
+                                 ((PinRec *)CameraEdit_PIN(no, cur))->type ? "ON " : "OFF", k);
                 }
             } else {
                 if (debug_font_flag & 1) {
                     debug_Printf(40, print_y += 10, 0xFFFFFF00, "  %s %d",
-                                 *(int *)(CameraEdit_PIN(no, i) + 0x24) ? "ON " : "OFF", k);
+                                 ((PinRec *)CameraEdit_PIN(no, i))->type ? "ON " : "OFF", k);
                 }
             }
         }
@@ -1108,7 +1083,7 @@ void menuPinSelect(char *m)
             SetWSMatrix(&cw);
         }
         if (D_0028F8F0[1].trg & 0x10) {
-            curmenu = *(int *)(m + 0x70);
+            curmenu = (int)m->parent;
             iosThreadDestroy(m);
         } else if (D_0028F8F0[1].trg & 0x20) {
             editPinNo = no;
@@ -1118,11 +1093,9 @@ void menuPinSelect(char *m)
     }
 }
 
-/* the file static the listing expands at camera-editor.c rows 255-261: the
-   heading from the camera's eye to its look-at point, which is the angle the
-   pin editor turns the pad stick vector by.  The ROM gives it no symbol and
-   the census no row, so the name is descriptive. */
-static inline int camHeading(float *at, float *eye)
+/* the heading from the camera's eye to its look-at point, which is the angle
+   the pin editor turns the pad stick vector by */
+static inline int camHeading(float *at, float *eye) /* derived name */
 {
     float v[4] = {0.0f, 0.0f, 0.0f, 1.0f};
     float len;
@@ -1133,9 +1106,9 @@ static inline int camHeading(float *at, float *eye)
     return GetTableArcTan2(v[0], -v[2] / len);
 }
 
-void menuPinEdit(char *m)
+void menuPinEdit(MenuThread *m)
 {
-    PinRec *pin = (PinRec *)CameraEdit_PIN(editPinNo, *(int *)(m + 0x74));
+    PinRec *pin = (PinRec *)CameraEdit_PIN(editPinNo, m->arg);
     int cur = 0;
     int i;
 
@@ -1229,7 +1202,7 @@ void menuPinEdit(char *m)
             }
         }
         if (D_0028F8F0[1].trg & 0x10) {
-            curmenu = *(int *)(m + 0x70);
+            curmenu = (int)m->parent;
             iosThreadDestroy(m);
         }
         iosThreadSleep(m);
@@ -1238,7 +1211,7 @@ void menuPinEdit(char *m)
 
 extern char D_002AD010[];
 
-inline void menu_2(char *m)
+inline void menu_2(MenuThread *m)
 {
     Pad *pad;
 
@@ -1246,19 +1219,18 @@ inline void menu_2(char *m)
 
     pad = D_0028F8F0;
     while (1) {
-        debug_StdPrintfDummy("menu_2, arg=%d\n", *(int *)(m + 0x74));
+        debug_StdPrintfDummy("menu_2, arg=%d\n", m->arg);
         if (pad[1].trg & 0x20) {
-            curmenu = *(int *)(m + 0x70);
+            curmenu = (int)m->parent;
             iosThreadDestroy(m);
         }
         iosThreadSleep(m);
     }
 }
 
-/* group_select: MAIN.MAP puts the only global of the name in camera-editor.o at
-   base+0x5180, this address; ico2/fumi/src/way_tool holds a file static of the
-   same name, reached through its own menu table. */
-inline void group_select(char *m)
+/* the global group_select; way_tool.c has a static of the same name, reached
+   through its own menu table */
+inline void group_select(MenuThread *m)
 {
     Pad *pad;
 
@@ -1266,7 +1238,7 @@ inline void group_select(char *m)
 
     pad = D_0028F8F0;
     while (1) {
-        debug_StdPrintfDummy("menu_1, arg=%d\n", *(int *)(m + 0x74));
+        debug_StdPrintfDummy("menu_1, arg=%d\n", m->arg);
         if (pad[1].trg & 0x20) {
             EnterMenu(menu_2, 3, m);
         }
@@ -1275,7 +1247,7 @@ inline void group_select(char *m)
 }
 
 extern StgPre stageData[];
-/* kept local: void (void *) here, int (int *) in thread.h */
+/* thread.h declares it int (int *) */
 extern void iosThreadWakeup(void *thread);
 
 void wakeup_cameraedit(void)
@@ -1330,7 +1302,7 @@ inline int _CameraEdit_add_box(CamMgr *mgr, S4C *src)
             *dst = *src;
             dst->first = 0;
             dst->end = 0;
-            *(char **)((char *)dst + 0x48) = p;
+            *(char **)&dst->items = p;
             mgr->count = mgr->count + 1;
         }
         return result;
@@ -1343,14 +1315,14 @@ inline int _CameraEdit_add_box(CamMgr *mgr, S4C *src)
 inline int _CameraEdit_add_pin(void *a0, int a1, S5C *src)
 {
     int base = a1 * 0x4C + *(int *)((char *)a0 + 4);
-    int n = *(int *)(base + 0x3C);
+    int n = ((S4C *)base)->end;
     int result = -1;
     if (n < 0x64) {
         int base2;
-        *(S5C *)(*(int *)(base + 0x48) + n * 0x5C) = *src;
+        *(S5C *)(((S4C *)base)->items + n * 0x5C) = *src;
         base2 = a1 * 0x4C + *(int *)((char *)a0 + 4);
-        result = *(int *)(base2 + 0x3C);
-        *(int *)(base2 + 0x3C) = result + 1;
+        result = ((S4C *)base2)->end;
+        ((S4C *)base2)->end = result + 1;
     } else {
         /* "cannot add any more" */
         debug_StdPrintfDummy("これ以上追加できません");
@@ -1380,7 +1352,7 @@ void _CameraEdit_del_box(CamMgr *mgr, int idx)
     }
     _CameraEdit_free_box_pool(mgr, idx);
     while (idx < mgr->count) {
-        *(S4C *)(mgr->items + idx * 0x4C) = *(S4C *)(mgr->items + idx * 0x4C + 0x4C);
+        ((S4C *)mgr->items)[idx] = ((S4C *)mgr->items)[idx + 1];
         idx++;
     }
     mgr->count = mgr->count - 1;
@@ -1492,7 +1464,7 @@ inline void CameraEdit_reset_box(int a0)
     *dst = *src;
     *(void **)((char *)dst + 0x48) = saved;
     i = 0;
-    while (i < *(int *)(CameraEdit_BOX(a0) + 0x3C) - *(int *)(CameraEdit_BOX(a0) + 0x38)) {
+    while (i < ((S4C *)CameraEdit_BOX(a0))->end - ((S4C *)CameraEdit_BOX(a0))->first) {
         CameraEdit_reset_pin(a0, i);
         i++;
     }
@@ -1500,8 +1472,8 @@ inline void CameraEdit_reset_box(int a0)
 
 inline void CameraEdit_reset_pin(int a0, int a1)
 {
-    S5C *dst = (S5C *)(*(int *)(cameraSetEdit[1] + a0 * 0x4C + 0x48) + a1 * 0x5C);
-    S5C *src = (S5C *)(*(int *)(cameraSetOrg[1] + a0 * 0x4C + 0x48) + a1 * 0x5C);
+    S5C *dst = (S5C *)(((S4C *)(cameraSetEdit[1] + a0 * 0x4C))->items + a1 * 0x5C);
+    S5C *src = (S5C *)(((S4C *)(cameraSetOrg[1] + a0 * 0x4C))->items + a1 * 0x5C);
     *dst = *src;
 }
 
@@ -1509,12 +1481,12 @@ inline void CameraEdit_reflect_box(int a0)
 {
     S4C *dst = (S4C *)(cameraSetOrg[1] + a0 * 0x4C);
     S4C *src = (S4C *)(cameraSetEdit[1] + a0 * 0x4C);
-    void *saved = *(void **)((char *)dst + 0x48);
+    int saved = dst->items;
     int i;
     *dst = *src;
-    *(void **)((char *)dst + 0x48) = saved;
+    dst->items = saved;
     i = 0;
-    while (i < *(int *)(CameraEdit_BOX(a0) + 0x3C) - *(int *)(CameraEdit_BOX(a0) + 0x38)) {
+    while (i < ((S4C *)CameraEdit_BOX(a0))->end - ((S4C *)CameraEdit_BOX(a0))->first) {
         CameraEdit_reflect_pin(a0, i);
         i++;
     }
@@ -1522,8 +1494,8 @@ inline void CameraEdit_reflect_box(int a0)
 
 inline void CameraEdit_reflect_pin(int a0, int a1)
 {
-    S5C *dst = (S5C *)(*(int *)(cameraSetOrg[1] + a0 * 0x4C + 0x48) + a1 * 0x5C);
-    S5C *src = (S5C *)(*(int *)(cameraSetEdit[1] + a0 * 0x4C + 0x48) + a1 * 0x5C);
+    S5C *dst = (S5C *)(((S4C *)(cameraSetOrg[1] + a0 * 0x4C))->items + a1 * 0x5C);
+    S5C *src = (S5C *)(((S4C *)(cameraSetEdit[1] + a0 * 0x4C))->items + a1 * 0x5C);
     *dst = *src;
 }
 
@@ -1536,7 +1508,7 @@ inline int CameraEdit_PIN_NUMBER(int a0)
 {
     int r1 = CameraEdit_BOX(a0);
     int r2 = CameraEdit_BOX(a0);
-    return *(int *)(r1 + 0x3C) - *(int *)(r2 + 0x38);
+    return ((S4C *)r1)->end - ((S4C *)r2)->first;
 }
 
 inline int CameraEdit_PIN_NUMBER_ALL(int *a0, int a1)
@@ -1556,7 +1528,7 @@ inline int CameraEdit_BOX(int a0)
 
 inline int CameraEdit_PIN(int a0, int a1)
 {
-    return *(int *)(cameraSetEdit[1] + a0 * 0x4C + 0x48) + a1 * 0x5C;
+    return ((S4C *)(cameraSetEdit[1] + a0 * 0x4C))->items + a1 * 0x5C;
 }
 
 inline void CameraEdit_DispPin(int box, int pin)
@@ -1565,7 +1537,7 @@ inline void CameraEdit_DispPin(int box, int pin)
 }
 
 /* the pin a new pin starts from; ConvertCameraSetBuffer gives it the stage's
-   hand-camera rate (MAIN.MAP global) */
+   hand-camera rate */
 PinRec cameraPinDefault = {{0.0f, -500.0f, 0.0f},
                            {0.0f, 300.0f, 300.0f},
                            300.0f,
@@ -1583,19 +1555,15 @@ PinRec cameraPinDefault = {{0.0f, -500.0f, 0.0f},
                            120.0f,
                            80.0f};
 
-/* Nothing in the ROM reads the next object. The bytes pin its size (16), its
-   place (8-aligned, between the two defaults) and its contents (zero); they
-   pin neither its type nor its role. */
+/* sixteen zero bytes between the two defaults; nothing reads them */
 static float cameraEditVec[4] = {0.0f}; /* derived name */
 
-/* the group a new group starts from: named "0", a 100-unit box at the origin
-   (MAIN.MAP global) */
+/* the group a new group starts from: named "0", a 100-unit box at the
+   origin */
 BoxRec cameraGroupDefault = {"0", 0.0f, 0.0f, 0.0f, 100.0f, 100.0f, 100.0f};
 
-/* Nothing in the ROM reads the next object either. The bytes pin its size
-   (0x80), its 8-byte alignment after the group default and its contents
-   (-1 at 0x40, 50.0 at 0x64, 1 at 0x68, zero elsewhere); the field types
-   are read off those values, and the role is not pinned. */
+/* a 128-byte record after the group default, -1 at 0x40, 50.0 at 0x64 and
+   1 at 0x68; nothing reads it */
 static struct {
     int w00[16];
     int w40;
@@ -1636,7 +1604,7 @@ inline void ConvertCameraSetBuffer(int n, S4C *item, char *groups)
         for (j = item->first; j < item->end; j++) {
             CameraEdit_add_pin(i, groups + j * 0x5C);
         }
-        item = (S4C *)((char *)item + 0x4C);
+        item++;
     }
 }
 

@@ -24,9 +24,8 @@
 
 /* One capsule: its BGA, its state (0 closed, 1 gathering, 2 open), the
    placement InitBossCtrlGeo gives it, its release point, and whether a
-   gene_enemy thread is releasing from it.  The record and field names are
-   ours; every width is the ROM's load or store at the field. */
-typedef struct {
+   gene_enemy thread is releasing from it. */
+typedef struct {        /* field names derived */
     char *bga;          /* 0x00 */
     signed char state;  /* 0x04 */
     sceVu0FVECTOR quat; /* 0x10 */
@@ -35,17 +34,10 @@ typedef struct {
     signed char busy;   /* 0x34 */
 } CapsuleRec;
 
-/* The TU's .bss (VMA 0x6E9A30, 0xD90 B = MAIN.MAP itou_boss.o .bss), in the
-   ROM's order: the boss flags, whose first byte is the capsule-ghost stage
-   flag, the fifty-three capsules, and the gene_enemy threads' done flags,
-   which each thread polls while its gather effect's end callback sets it.
-   RECONSTRUCTION: what the bytes pin: the flags are a run of more than 8
-   bytes (they are in .bss, not .sbss) and 16 long, the capsules are an
-   object of their own (every function addresses them from their own base
-   register, where a member of an enclosing record is folded into the
-   record's symbol offset), and itou_boss_gflag_init clears 0xD50 bytes from
-   the flags, i.e. the flags and the capsules together.  What they cannot
-   pin: the flag array's other bytes, or the names. */
+/* The boss flags, whose first byte is the capsule-ghost stage flag, the
+   fifty-three capsules, and the gene_enemy threads' done flags, which each
+   thread polls while its gather effect's end callback sets it.
+   itou_boss_gflag_init clears the flags and the capsules together. */
 static signed char gflag[16]; /* derived name */
 
 static CapsuleRec capsule[53]; /* derived name */
@@ -53,21 +45,16 @@ static CapsuleRec capsule[53]; /* derived name */
 static volatile int geneDone[16]; /* derived name */
 
 /* The fifty-three capsules' placements and the points their enemies are
-   released at: itou_boss.o's two .rodata tables (VMA 0x5557B0, 53 records
-   of 64 bytes, then 0x5564F0, 53 points), ahead of the TU's strings in the
-   ROM.  InitBossCtrlGeo copies each position and turns each rotation into
-   the record's quaternion, and gene_enemy puts a released enemy at the
-   capsule's release point.  The listing gives the .c no rows for these 106
-   records before effect_end_func (line 56), so the developers' text most
-   likely came from an included generated file that no disc map names; the
-   ROM's order places them here.  RECONSTRUCTION: the record and the names
-   are ours. */
-typedef struct {
+   released at.  InitBossCtrlGeo copies each position and turns each rotation
+   into the record's quaternion, and gene_enemy puts a released enemy at the
+   capsule's release point. */
+typedef struct {     /* field names derived */
     float rot[3][4]; /* the rotation rows, w zero */
     float pos[4];
 } CapsulePlace;
 
 static const CapsulePlace capsulePlace[53] = {
+    /* derived name */
     {{{1.0f, 0.0f, 0.0f, 0.0f}, {0.0f, 1.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 1.0f, 0.0f}},
      {1100.0f, -763.8f, 1641.22f, 1.0f}},
     {{{1.0f, 0.0f, 0.0f, 0.0f}, {0.0f, 1.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 1.0f, 0.0f}},
@@ -243,6 +230,7 @@ static const CapsulePlace capsulePlace[53] = {
 };
 
 static const float capsuleRelease[53][4] = {
+    /* derived name */
     {1100.0f, -601.8f, 1554.22f, 1.0f},    {800.0f, -601.8f, 1554.2f, 1.0f},
     {1100.0f, -201.8f, 1354.2f, 1.0f},     {800.0f, -201.8f, 1354.2f, 1.0f},
     {499.998f, -601.8f, 1554.22f, 1.0f},   {199.998f, -601.8f, 1554.2f, 1.0f},
@@ -361,16 +349,14 @@ void BossEnemyFunc(void *self)
     }
 }
 
-/* The TU's .sbss (VMA 0x63C2EC, 8 B, MAIN.MAP itou_boss.o .sbss 0x8): the
-   number of gene_enemy threads started, which indexes their done flags, and
-   the number of releases under way.  The names are ours. */
-static int geneCount;
+/* the number of gene_enemy threads started, which indexes their done
+   flags, and the number of releases under way */
+static int geneCount; /* derived name */
 
-static int geneReleasing;
+static int geneReleasing; /* derived name */
 
-/* listing lines 157-162: send an enemy off-world and clear its live flag
-   (inlined into actBossCtrlStart and into the census gene_enemy below) */
-static inline void sendEnemyAway(char *o)
+/* send an enemy off-world and clear its live flag */
+static inline void sendEnemyAway(char *o) /* derived name */
 {
     float pos[4];
     pos[2] = pos[1] = pos[0] = 4294967296.0f;
@@ -379,28 +365,25 @@ static inline void sendEnemyAway(char *o)
     GOBJ_SUB(o)->f_74 = 0;
 }
 
-/* listing lines 150-155: drop an enemy at a position and mark its actor live
-   (inlined only into the census gene_enemy below) */
-static inline void putEnemyAt(char *o, float *pos)
+/* drop an enemy at a position and mark its actor live */
+static inline void putEnemyAt(char *o, float *pos) /* derived name */
 {
     SetRootPosition(o, pos);
     GOBJ_SUB(o)->f_74 = 1;
 }
 
 /* The DEBUG build's switch to release the enemies without their gather
-   effect (name ours); retail builds it as 0. */
+   effect; retail builds it as 0. */
 #ifdef DEBUG
 
-extern int geneDebugNoEffect;
+extern int geneDebugNoEffect; /* derived name */
 
 #define GENE_DEBUG_NO_EFFECT geneDebugNoEffect
 #else
 #define GENE_DEBUG_NO_EFFECT 0
 #endif
 
-/* census gene_enemy, a file static (MAIN.MAP puts the only global gene_enemy in
-   queen.o), so it is spelled `static gene_enemy` here; the global of that name
-   lives in ico2/ito/src/queen at 0x001A2A10. Do not make it global. */
+/* this file's own gene_enemy; queen.c defines a global of the same name */
 static void gene_enemy(volatile int a0)
 {
     int no = geneCount;
@@ -468,20 +451,8 @@ static void gene_enemy(volatile int a0)
                 CapsuleRec *sel;
                 /* r starts as "no effect" (-1): the DEBUG build can release the
                    enemy without its gather effect, and then the r >= 0 block is
-                   skipped. Retail builds the switch as 0, so the call always
-                   sets r and flow deletes the -1 after loop (no bytes). What
-                   the bytes pin: the outer loop reached loop.c's first pass
-                   with 231 or more real insns (230 without the -1). The
-                   threshold is 1 + 63 non-fixed registers = 64, less 3 per
-                   move, so after six moves the q copy (life 5) needs
-                   46 * 5 >= insns; at 230 it moves in the first pass ahead of
-                   the inline pos copy and the preheader reads `daddu $30,$17`
-                   before `daddu $21,$16`, at 231 or more it is left for the
-                   second pass and follows it as in the ROM. What they cannot
-                   pin: the switch itself (SRCFILE.TXT rows 240 to 245 are
-                   code-free declarations and the call starts at row 253 right
-                   after `*flag = 0;` at 252, so January's test, if any, shares
-                   the call's first row); the switch's name is ours. */
+                   skipped.  Retail builds the switch as 0, so the call always
+                   sets r. */
                 int r = -1;
 
                 sel = buf[(int)(random_unit() * num)];
@@ -511,8 +482,6 @@ static void gene_enemy(volatile int a0)
                 m[1][3] = 0.0f;
                 sceVu0CopyVector(m[2], dir);
                 sceVu0OuterProduct(m[0], m[1], m[2]);
-                /* SRCFILE.TXT rows 277-278 and 281 are code-free around the two
-                   q statements (279, 280): q has its own block */
                 {
                     float q[4];
                     ico_m33_to_quat(q, m);
@@ -539,8 +508,8 @@ void BossCtrlGeo(void *self)
         scpSleepEnemyAll();
 }
 
-/* listing lines 327-333: the boss controller's actor start */
-static inline void bossCtrlInit(void *a0)
+/* the boss controller's actor start */
+static inline void bossCtrlInit(void *a0) /* derived name */
 {
     actInitialize(a0);
     _ACTWait(1);

@@ -1,12 +1,8 @@
 /*
  * ico2/ito/include/mv_audiodec.h
  *
- * The disc records no file of this name: SRCFILE.TXT attributes no
- * instruction to it, and a header that only declares leaves no rows in the
- * listing at all, so this file is ours and not the developers' own record.
- * It collects the declarations of what mv_audiodec.c defines, in the form its
- * users need them; every type here is read from the ROM's calling convention
- * at the call sites and from the spellings the using TUs already carried.
+ * The declarations of what mv_audiodec.c defines, for the files that use
+ * them.  The file name is derived.
  */
 
 #ifndef MV_AUDIODEC_H
@@ -14,12 +10,11 @@
 
 #include "mv_readbuf.h"
 
-/* RECONSTRUCTION, PLACED BY INCLUDE PATTERN: the audio decoder's own record,
- * 0x68 bytes, read back from this member's own loads and stores.  The first
- * 40 bytes after the state word are the two stream-file chunk headers the IOP
- * callback copies in verbatim, which is why they are laid out field by field
- * and printed as one block when the last of them arrives. */
-typedef struct AudioDec {
+/* The audio decoder's record, 0x68 bytes.  The first 40 bytes after the state
+ * word are the two stream-file chunk headers the IOP callback copies in
+ * verbatim, which is why they are laid out field by field and printed as one
+ * block when the last of them arrives. */
+typedef struct AudioDec { /* field names derived */
     int state;           /* 0x00, 0 collecting the header, 1 preset, 2 playing, 3 paused */
     char id[4];          /* 0x04, the stream file's chunk tag */
     int headerSize;      /* 0x08 */
@@ -51,9 +46,6 @@ typedef struct AudioDec {
     char pad63[5];
 } AudioDec;
 
-/* The declarations below lead this header because their order is load-bearing:
- * gcc 2.9 emits the deferred out-of-line copy of a plain-inline function in
- * first-declaration order, so this is the order mv_audiodec.c's inline tail has. */
 int audioDecDelete(AudioDec *self);
 void audioDecReset(AudioDec *self);
 int audioDecIsPreset(AudioDec *self);

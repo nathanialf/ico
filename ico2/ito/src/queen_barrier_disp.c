@@ -12,15 +12,13 @@
 #include "main.h"
 #include "Matrix.h"
 
-/* .sbss, queen_barrier_disp.o's three words in the ROM's order (MAIN.MAP line
-   7608 sizes the run 0xC and names no symbol in it, so the names are ours):
-   the barrier mesh, the damage flash timer queen_barrier_set_damage starts at
-   60, and the ripple phase the animation advances each frame. */
-static Mesh3D *barrierMesh;
+/* The barrier mesh, the damage flash timer queen_barrier_set_damage starts
+   at 60, and the ripple phase the animation advances each frame. */
+static Mesh3D *barrierMesh; /* derived name */
 
-static int damageTimer;
+static int damageTimer; /* derived name */
 
-static int ripplePhase;
+static int ripplePhase; /* derived name */
 
 /* The screen rectangle and the texture rectangle this packet draws, in the
    1/16-unit form the GS registers take. */
@@ -43,13 +41,11 @@ typedef struct {
     unsigned char c[4];
 } GifCol;
 
-/* kept local: this TU writes the packet through a doubleword cursor, which
-   DmaPacket.h's DpkCtl types as int * */
+/* this file's view of the packet buffer: it writes through a doubleword
+   cursor, where DmaPacket.h's DpkCtl has an int * */
 extern GifDpk PacketBufferStruct;
 
-/* INTERIM: the listing inlines gif_SetGsReg here the same way it does across
-   GifPacket.c; while that TU's own out-of-line copy is still asm the callers
-   the listing shows inlining it call this static stand-in. */
+/* gif_SetGsReg's body: one GS register write, data then address */
 static inline void setGsReg(long long a0, long long a1)
 {
     *PacketBufferStruct.ptr++ = a1;
@@ -78,7 +74,7 @@ void MakeRefractTexture(int frame)
     setGsReg(0x03, GIF_UV(uv.u0, uv.v0));
     setGsReg(0x05, GIF_XY(r.x0, r.y0));
     /* the far corner is offset once and the near corner added to it, the
-       gif_MakeSprite idiom: the ROM adds 0x8000 to the size, not to the sum */
+       gif_MakeSprite idiom: the offset goes on the size, not on the sum */
     fx = r.x1 + 0x8000;
     fy = r.y1 + 0x8000;
     setGsReg(0x03, GIF_UV(uv.u0 + uv.u1, uv.v0 + uv.v1));
@@ -150,17 +146,15 @@ void makeRefractST(float k)
     }
 }
 
-/* rows 86 and 93 to 105: the barrier tint, faded from a to b across the
-   damage timer and packed into the mesh colour word.
-   Row 105 carries the three float-to-int conversions and the mesh pointer
-   load and row 86 only the masks, shifts and ors, so the packing helper
-   takes ints converted at its call (names ours). */
-static __inline__ int packBarrierColor(int r, int g, int b)
+/* the barrier tint, faded from a to b across the damage timer and packed
+   into the mesh colour word; the packing helper takes ints converted at its
+   call */
+static __inline__ int packBarrierColor(int r, int g, int b) /* derived name */
 {
     return ((r & 0xFF) << 24) | ((g & 0xFF) << 16) | ((b & 0xFF) << 8) | 0x80;
 }
 
-static __inline__ void updateBarrierColor(void)
+static __inline__ void updateBarrierColor(void) /* derived name */
 {
     QVec c;
     sceVu0FVECTOR a = {250.0f, 150.0f, 200.0f, 0.0f};
@@ -225,9 +219,7 @@ void queen_barrier_disp_init(void)
     float y;
     float step;
 
-    /* The 14-step angular increment. It is a local, not a repeated literal:
-       the listing carries its .lit4 load on row 215, ahead of every other
-       hoisted constant, which is where a declaration puts it. */
+    /* the 14-step angular increment */
     step = 32768.0f / 14.0f;
 
     barrierMesh = prim_InitMesh3D(15, 15, 1, 0x1C, 0x64787380, 0);

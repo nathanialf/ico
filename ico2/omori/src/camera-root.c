@@ -48,7 +48,7 @@ typedef struct CameraSet2 {
 } CameraSet2;
 
 /* What SetWSMatrix / DebugCameraSemiAuto hand in: eye (0x00) and look-at
-   (0x10) points plus the field of view at 0x20, copied 8 bytes at a time. */
+   (0x10) points plus the field of view at 0x20, copied as doublewords. */
 union CameraSetIn {
     float f[12];
     long long q[6];
@@ -80,63 +80,56 @@ typedef struct InsertCameraWork {
     unsigned char b37;     /* 0x37 */
     unsigned char b38;     /* 0x38 */
     char pad39[0x40 - 0x39];
-    /* a VU0 quadword record: pos and tgt are quadword vectors and the ROM's own
-       copy of it moves 8 bytes at a time */
+    /* a VU0 quadword record: pos and tgt are quadword vectors */
 } InsertCameraWork __attribute__((aligned(16)));
 
-/* .bss, owned by camera-root.o and reached only from this file (MAIN.MAP line
-   7713 sizes the run at 0xC0 and names no symbol in it), in the ROM's run
-   order: the camera set the default mode interpolates away from, the live
-   camera, the set the semi-auto camera is running to, the target request and
-   the insert-camera request. */
-static union CameraSetIn prevCameraSet;
+/* The camera set the default mode interpolates away from, the live camera,
+   the set the semi-auto camera is running to, the target request and the
+   insert-camera request. */
+static union CameraSetIn prevCameraSet; /* derived name */
 
-static CameraSet2 cameraSet;
+static CameraSet2 cameraSet; /* derived name */
 
-static CameraSet2 targetCameraSet;
+static CameraSet2 targetCameraSet; /* derived name */
 
-static CamCtrl camctrl;
+static CamCtrl camctrl; /* derived name */
 
-static InsertCameraWork insertCamera;
+static InsertCameraWork insertCamera; /* derived name */
 
-/* .sbss, owned by camera-root.o and reached only from this file, in the ROM's
-   run order: the two ends of the zoom range, the target object and its sub
-   object, the two cut-back requests, the zoom blend ratio, the camera mode,
-   the zoom distance and field of view, the lws cut-back request and the four
-   demo limits.  MAIN.MAP line 7600 sizes this member's .sbss at 0x25, which
-   is the block down to lwsCutBack; the retail revision added the four demo
-   limits after it and the run the ROM carries is 0x38.  MAIN.MAP names no
-   symbol here, so every name is ours; handCameraLimitP and handCameraLimitV
-   take the P and V of their own exported setters. */
-static int zoomRangeMin;
+/* The two ends of the zoom range, the target object and its sub object, the
+   two cut-back requests, the zoom blend ratio, the camera mode, the zoom
+   distance and field of view, the lws cut-back request and the four demo
+   limits; handCameraLimitP and handCameraLimitV take the P and V of their
+   own exported setters. */
+static int zoomRangeMin; /* derived name */
 
-static int zoomRangeMax;
+static int zoomRangeMax; /* derived name */
 
-static int cameraTargetGObj;
+static int cameraTargetGObj; /* derived name */
 
-static int cameraTargetSubGObj;
+static int cameraTargetSubGObj; /* derived name */
 
-static unsigned char gamecamCutBack;
+static unsigned char gamecamCutBack; /* derived name */
 
-static unsigned char zoomRequest;
+static unsigned char zoomRequest; /* derived name */
 
-static float zoomBlend;
+static float zoomBlend; /* derived name */
 
-static int cameraMode;
+static int cameraMode; /* derived name */
 
-static float cameraZoom;
+static float cameraZoom; /* derived name */
 
-static float cameraFov;
+static float cameraFov; /* derived name */
 
-static unsigned char lwsCutBack;
+static unsigned char lwsCutBack; /* derived name */
 
-static int handCameraLimitP;
+static int handCameraLimitP; /* derived name */
 
-static int handCameraLimitV;
+static int handCameraLimitV; /* derived name */
 
-static int zoomMaxInDemo;
+static int zoomMaxInDemo; /* derived name */
 
-static int zoomBase;
+static int zoomBase; /* derived name */
 
 void SetWSMatrix(void *a0)
 {
@@ -358,7 +351,8 @@ void GetCameraInfomationFromGlobalPosition(int a0, int a1, int a2, int a3, int a
     CameraGetOtherObjOffset(a0, a1, a2);
 }
 
-static inline int getCameraDefaultTargetGObj(void)
+/* GetCameraDefaultTargetGObj's body, for InitCamera and the camera step */
+static inline int getCameraDefaultTargetGObj(void) /* derived name */
 {
     int id = GetEfStageCameraTargetID();
     if (id != 0) {
@@ -370,34 +364,33 @@ static inline int getCameraDefaultTargetGObj(void)
     return boyGObj;
 }
 
-/* The listing shows these two bodies inlined (rows at camera-root.c:227-230
-   and :241) into Camctrl_ExitEveRock and InitCamera; neither has a symbol in
-   baserom/pal/MAIN.MAP, so both names are ours. */
-static inline void Camctrl_ForceTarget(int gobj)
+/* hand the camera to gobj at no priority, for Camctrl_ExitEveRock and
+   InitCamera */
+static inline void Camctrl_ForceTarget(int gobj) /* derived name */
 {
     camctrl.pri = 0;
     camctrl.gobj = gobj;
     camctrl.subGObj = 0;
 }
 
-static inline void Camctrl_Init(int gobj)
+static inline void Camctrl_Init(int gobj) /* derived name */
 {
     camctrl.lastPri = 0;
     Camctrl_ForceTarget(gobj);
 }
 
 /* the pair InitCamera starts every stage from: the camera one metre up,
-   looking at a point just over half a metre up.  MAIN.MAP names no symbol in
-   camera-root.o's .data, so both names here are ours. */
-static CamTgt cameraTargetDefault = {{0.0f, 100.0f, 0.0f, 0.0f}, {0.0f, 52.0f, 0.0f, 0.0f}};
+   looking at a point just over half a metre up */
+static CamTgt cameraTargetDefault =
+    /* derived name */ {{0.0f, 100.0f, 0.0f, 0.0f}, {0.0f, 52.0f, 0.0f, 0.0f}};
 
 /* the cleared insert-camera request: no target, no blend, one cut pending */
 static InsertCameraWork insertCameraClear = {
+    /* derived name */
     0, 0, {0}, {0.0f, 0.0f, 0.0f}, {0}, {0.0f, 0.0f, 0.0f}, {0}, -1.0f, 0, 1, 0, 0, 1, {0}};
 
-/* camera-root.c:443 in the listing, inlined into InitCamera; it has no symbol
-   in baserom/pal/MAIN.MAP, so this name is ours. */
-static inline void InsertCamera_Clear(void)
+/* clear the insert-camera request */
+static inline void InsertCamera_Clear(void) /* derived name */
 {
     insertCamera = insertCameraClear;
 }
@@ -438,13 +431,6 @@ void InitCamera(void)
     zoomMaxInDemo = GlobalStageSetting.zoomMaxInDemo;
 }
 
-/* camera-root.c lines 1051-1352.  The listing inlines five helpers into this
-   body: GetCameraDefaultTargetGObj (rows 970-978), the camera-control step at
-   rows 255-270, InsertCamera_isEnable (428-431) with the insert-camera step at
-   rows 455-471, CameraSetMode (547-548) and the target release at row 281.
-   Only the first and the last two have census names; the two insert/control
-   steps sit inside coalesced spans and their names here are ours. */
-
 typedef struct {
     int step; /* 0x00 */
     int max;  /* 0x04 */
@@ -467,8 +453,8 @@ union CamWork {
     CamZoomTbl zoom;
 };
 
-/* rows 255-270: one step of the camera target queue.  The name is ours. */
-static inline void Camctrl_Exec(void)
+/* one step of the camera target queue */
+static inline void Camctrl_Exec(void) /* derived name */
 {
     float pos[4];
     int last;
@@ -488,18 +474,17 @@ static inline void Camctrl_Exec(void)
     camctrl.lastPri = camctrl.pri;
 }
 
-/* row 281: release the target once its priority drops below the demo level.
-   The name is ours; Camctrl_ExitEveRock is the same shape with 4. */
-static inline void Camctrl_ExitNormal(void)
+/* release the target once its priority drops below the demo level;
+   Camctrl_ExitEveRock is the same shape with 4 */
+static inline void Camctrl_ExitNormal(void) /* derived name */
 {
     if (camctrl.pri < 3) {
         Camctrl_ForceTarget(default_cameratarget_gobj);
     }
 }
 
-/* rows 428-431, inlined here; the out-of-line body the earlier InsertCamera_*
-   setters call lives at its ROM address. */
-static inline unsigned char insertCamera_isEnable(void)
+/* InsertCamera_isEnable's body, for the camera step below */
+static inline unsigned char insertCamera_isEnable(void) /* derived name */
 {
     if (camctrl.pri < 2) {
         return 1;
@@ -507,8 +492,8 @@ static inline unsigned char insertCamera_isEnable(void)
     return 0;
 }
 
-/* rows 455-471: one step of the insert camera.  The name is ours. */
-static inline void InsertCamera_Step(void)
+/* one step of the insert camera */
+static inline void InsertCamera_Step(void) /* derived name */
 {
     if (insertCamera_isEnable() == 0) {
         insertCamera.enable = 0;
@@ -751,8 +736,7 @@ void SetCameraMatrix(void)
         SetCameraZoomOffsetRatio(1.0f - (float)(debug_zoom_per - zoomRangeMin) /
                                             (float)(zoomRangeMax - zoomRangeMin));
     }
-    /* the ROM holds this word after the mode names above, so it is declared
-       here, in the block that uses it, and not at the top of the function */
+    /* the mode the last frame ran in */
     {
         static int lastCameraMode = 3; /* derived name */
 
@@ -782,12 +766,8 @@ void Camctrl_SetTarget(int a0, int a1, int a2)
     camctrl.pri = a2;
 }
 
-/* INTERIM (see the iosThreadCreate note in ios/thread.c): the listing inlines
-   GetCameraDefaultTargetGObj into InitCamera, so it is `inline` in the dev's
-   TU; while SetCameraMatrix is still asm a deferred inline would land at the
-   object end instead of here, so the public body stays a plain definition at
-   its ROM position and InitCamera calls the static stand-in below. Collapses
-   to one `inline` definition at layout. */
+/* the object the camera follows by default: the stage's camera target, or
+   the boy */
 int GetCameraDefaultTargetGObj(void)
 {
     int id = GetEfStageCameraTargetID();

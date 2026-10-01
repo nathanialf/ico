@@ -48,8 +48,8 @@ extern void __assert(char *file, int line, char *expr);
 #include <libvu0.h>
 #include "main.h"
 
-/* listing lines 174-185 */
-static inline int inner_check_core(float *d0, float *d1, float *d2)
+/* whether d1 and d2 lie on opposite sides of d0, both ahead of it */
+static inline int inner_check_core(float *d0, float *d1, float *d2) /* derived name */
 {
     float c1[4];
     float c2[4];
@@ -64,15 +64,13 @@ static inline int inner_check_core(float *d0, float *d1, float *d2)
     return 0;
 }
 
-/* listing lines 186-202 */
-static inline int inner_check_sub(float *p, float *o, float *a, float *b)
+static inline int inner_check_sub(float *p, float *o, float *a, float *b) /* derived name */
 {
     float d0[4];
     float d1[4];
     float d2[4];
-    /* the 0x40 frame slot no retail code reads: the fourth difference vector,
-       computed and reported only by the DEBUG build in the listing's
-       code-free rows 193-201 (report ours) */
+    /* the fourth difference vector, computed and reported only by the DEBUG
+       build */
     float d3[4];
 
     sceVu0SubVector(d0, p, o);
@@ -145,16 +143,15 @@ typedef struct {
 
 extern WeaponKindEntry weaponKind[];
 
-/* the 0x5C word is written through a union view at this one site: the ROM pins the
-   weapon-table flag load behind this store, which only an alias-set-0 store does */
+/* the 0x5C word as a float or an int, written through this view at one site */
 union PackPowerWord {
     float f;
     int i;
     int m;
 };
 
-/* listing lines 296-308 */
-static inline int GetAttackKindIndex(Sub15C *p)
+/* the attack table row of the actor's current motion, 0 when none matches */
+static inline int GetAttackKindIndex(Sub15C *p) /* derived name */
 {
     int id = p->f_4A0;
     int i;
@@ -167,8 +164,7 @@ static inline int GetAttackKindIndex(Sub15C *p)
     return 0;
 }
 
-/* listing lines 315-319 */
-static inline void GetFocusNodePos(char *gobj, int node, float *out)
+static inline void GetFocusNodePos(char *gobj, int node, float *out) /* derived name */
 {
     int idx = GetSkeltonFocusNode(gobj, node);
     float *m = (float *)((idx << 6) + GOBJ_SUB(gobj)->f_C);
@@ -258,9 +254,9 @@ void MakeAttackPack_Actor(AttackPack *pack, char *gobj, void *weapon)
     }
 }
 
-/* listing lines ~405-435: shared by _AttackCenter and AttackCenter_WithDir */
+/* shared by _AttackCenter and AttackCenter_WithDir */
 static inline void SetupAttackPack(AttackPack *pack, char *gop, int group, float *pos, float *ofs,
-                                   float radius)
+                                   float radius) /* derived name */
 {
     *pack = attackPackInit;
 
@@ -412,7 +408,8 @@ void AttackMail(char *self, AttackPack *pack)
     }
 }
 
-/* kept local: agrees with act-game.h, which this TU does not include (ACTChkAttackIgnore_BOY, ACTChkAttackIgnore_ENEMY differ) */
+/* as act-game.h declares it; act-game.h is not included because this file
+   calls the ACTChkAttackIgnore_ functions with the actor as well */
 extern float _ACTGame_GetParamF(int idx);
 
 int AttackCheckHit(AttackPack *pack, char *gobj, short *out)
@@ -540,11 +537,10 @@ int AttackCheckHit(AttackPack *pack, char *gobj, short *out)
     return j;
 }
 
-/* kept local: int (char *, void *) here, int (char *) in act-game.h */
+/* act-game.h declares these with the object alone (and the girl's with an
+   int pointer); this file passes the actor as well */
 extern int ACTChkAttackIgnore_BOY(char *gobj, void *actor);
-/* kept local: int (char *, void *) here, int (char *, int *) in act-game.h */
 extern int ACTChkAttackIgnore_GIRL(char *gobj, void *actor);
-/* kept local: int (char *, void *) here, int (char *) in act-game.h */
 extern int ACTChkAttackIgnore_ENEMY(char *gobj, void *actor);
 
 int AttackGenerate(AttackPack *pack)

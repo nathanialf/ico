@@ -122,9 +122,7 @@ void brainStatusDefaultSet(Brain *b, int gobj, int idx)
     }
 }
 
-/* RECONSTRUCTION: listing brain.c:450-456 is a file-static helper the ROM only
- * ever expands; MAIN.MAP has no symbol for it, so the name is ours. */
-static inline void brainLevelUp(BrainTarget *t)
+static inline void brainLevelUp(BrainTarget *t) /* derived name */
 {
     float d = t->f10;
 
@@ -142,9 +140,7 @@ static inline void brainLevelUp(BrainTarget *t)
     }
 }
 
-/* INTERIM stand-in for brainCheckView (listing brain.c:266-270), which the ROM
- * expands here; the out-of-line definition keeps its ROM slot below until the
- * TU is put back in its source order (every member is C, so that is open). */
+/* brainCheckView's body, for the caller above its definition */
 static inline int brainCheckView_INTERIM(Brain *b, BrainTarget *t)
 {
     if (t->b19 != 0) {
@@ -178,10 +174,7 @@ void brainLevelProcess(Brain *b)
         if (t != b->cur && t->level > 1.9 && girlGObj != 0 &&
             ((int)(*(long long *)(*(int *)((char *)girlGObj + 0x164) + 0x20) >> 27) & 1)) {
             float r;
-            /* 3.40282347e+38f is FLT_MAX: outside mips_const_double_ok's li.s
-               range, so each function that uses it gets its own constant-pool
-               word in this TU's .sdata (0x63AA6C here, 0x63AA70 for
-               brainSubLevelGop) */
+            /* 3.40282347e+38f is FLT_MAX */
             if (ACTGameViewSimple_Check(b->girl, t->gobj) != 0) {
                 t->level = t->level - 0.002;
             } else {
@@ -216,9 +209,7 @@ void brainLevelProcess(Brain *b)
     }
 }
 
-/* INTERIM stand-in for brainGetLevel (listing brain.c:541-545), which the ROM
- * expands into brainGetTarget; the out-of-line definition keeps its ROM slot
- * below until the TU is put back in its source order. */
+/* brainGetLevel's body, for brainGetTarget above its definition */
 static inline float brainGetLevel_INTERIM(Brain *b, BrainTarget *t)
 {
     if (b->cur == t) {
@@ -232,10 +223,7 @@ void brainGetTarget(Brain *b)
     BrainTarget *best = 0;
     BrainTarget *t;
     float r;
-    /* volatile: ROM keeps the winner index in its frame slot (0(sp)) and
-       re-reads it, where a plain local is register-allocated; the same
-       memory-resident scalar pattern recurs in setEnemyParticleObject and
-       dispEnemyObject (volatile locals are an accepted shape, 2026-09-07). */
+    /* the winner index */
     volatile int idx;
     int n;
     int lv;
@@ -321,8 +309,6 @@ void brainStatusDel(char *self)
     *(int *)(self + 0x0) = 0;
 }
 
-/* expanded into brainGetTarget in ROM; a plain definition at its ROM slot
-   until the TU is put back in its source order */
 float brainGetLevel(Brain *b, BrainTarget *t)
 {
     if (b->cur == t) {
@@ -406,7 +392,7 @@ void brainSubLevelGop(int gobj, float lv)
         if (((BrainTarget *)tgt)[i].gobj == gobj) {
             float r;
             ((BrainTarget *)tgt)[i].level = ((BrainTarget *)tgt)[i].level - lv;
-            /* 3.40282347e+38f is FLT_MAX, a constant-pool word (see brainLevelProcess) */
+            /* 3.40282347e+38f is FLT_MAX */
             if (((BrainTarget *)tgt)[i].level < 0.0f) {
                 r = 0.0f;
             } else if (((BrainTarget *)tgt)[i].level > 3.40282347e+38f) {

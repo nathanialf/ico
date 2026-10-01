@@ -1,12 +1,8 @@
 /*
  * ico2/ito/include/lightning.h
  *
- * The disc records no file of this name: SRCFILE.TXT attributes no
- * instruction to it, and a header that only declares leaves no rows in the
- * listing at all, so this file is ours and not the developers' own record.
- * It collects the declarations of what lightning.c defines, in the form its
- * users need them; every type here is read from the ROM's calling convention
- * at the call sites and from the spellings the using TUs already carried.
+ * The declarations of what lightning.c defines, for the files that use
+ * them.  The file name is derived.
  */
 
 #ifndef LIGHTNING_H
@@ -34,9 +30,6 @@ typedef struct {      /* field names derived */
     char pad14[12];   /* 0x14 */
 } LightningNode;
 
-/* The declarations below lead this header because their order is load-bearing:
- * gcc 2.9 emits the deferred out-of-line copy of a plain-inline function in
- * first-declaration order, so this is the order lightning.c's inline tail has. */
 void apply_m34(void *out, void *m, void *in);
 
 void DrawLightning(void *p0, void *p1, void *a2, float f0, float f1, float f2, float f3, float f4,

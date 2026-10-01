@@ -30,18 +30,15 @@ int *setTRXPOS(int *a0, long long a1, int a2, int a3);
 void *setTRXREG(int *a0, int a1, int a2);
 void *setTRXDIR(int *a0, unsigned int a1);
 
-/* .bss, owned by mv_disp.o and reached only from this file (MAIN.MAP names no
-   symbol in the run), in the ROM's run order: the two GIF packets this file
-   builds, one per display path. */
-static int mvDispPacket[80];
+/* the two GIF packets this file builds, one per display path */
+static int mvDispPacket[80]; /* derived name */
 
-static int mvClearPacket[80];
+static int mvClearPacket[80]; /* derived name */
 
-/* .sdata, owned by mv_disp.o (VMA 0x63C0B4..0x63C0C8, 0x14 B = MAIN.MAP, which
-   names no symbol in it), the display state vblankHandler shares with the
-   foreground code, in the ROM's order: the vblanks counted while displaying,
-   the displaying flag, the image-done flag handler_endimage clears, the field
-   the GS reports, and the path-sync result. */
+/* The display state vblankHandler shares with the foreground code: the
+   vblanks counted while displaying, the displaying flag, the image-done flag
+   handler_endimage clears, the field the GS reports, and the path-sync
+   result. */
 static int dispVblankCount = 0; /* derived name */
 
 static int dispRunning = 0; /* derived name */
@@ -52,9 +49,8 @@ static int dispField = 0; /* derived name */
 
 static int dispSyncBusy = 0; /* derived name */
 
-/* .sbss, owned by mv_disp.o and reached only from this file: the frame
-   counter the display loop keeps. */
-static int mvFrameCount;
+/* the frame counter the display loop keeps */
+static int mvFrameCount; /* derived name */
 
 inline void loadImage(int a0)
 {
@@ -70,9 +66,8 @@ typedef struct MvRect {
     int h;
 } MvRect;
 
-/* file-static: ROM carries no out-of-line copy, the listing inlines its body
-   (mv_disp.c:29-44) into dispSetTags */
-static inline int *setTexSprite(int *p, MvRect *r, MvRect *uv)
+/* a textured sprite over r, sampling uv */
+static inline int *setTexSprite(int *p, MvRect *r, MvRect *uv) /* derived name */
 {
     p = setPRIM(p, 6, 0, 1, 0, 0, 0, 1, 0, 0);
     p = setUV(p, uv->x, uv->y);
@@ -82,9 +77,8 @@ static inline int *setTexSprite(int *p, MvRect *r, MvRect *uv)
     return p;
 }
 
-/* file-static: ROM carries no out-of-line copy, the listing inlines its body
-   (mv_disp.c:54-70) into dispClear */
-static inline int *setClearSprite(int *p, MvRect *r, unsigned int col)
+/* a flat sprite of colour col over r */
+static inline int *setClearSprite(int *p, MvRect *r, unsigned int col) /* derived name */
 {
     p = setPRIM(p, 6, 0, 0, 0, 0, 0, 1, 0, 0);
     p = setXYZ2(p, r->x, r->y, 0);

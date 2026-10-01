@@ -9,10 +9,9 @@
 /* set while the fight music is paused */
 static int fightSoundPause = 0; /* derived name */
 
-/* .bss, owned by fightSound.o and reached only from this file (MAIN.MAP names
-   no symbol in the run): the fight loop's ADPCM handle at [0], its volume at
-   [1] and the open request at [2]. */
-static int fightSnd[8];
+/* the fight loop's ADPCM handle at [0], its volume at [1] and the open
+   request at [2] */
+static int fightSnd[8]; /* derived name */
 
 /* the fight music's step: 1 once the open is requested, 2 after it */
 static int fightSoundState = 0; /* derived name */

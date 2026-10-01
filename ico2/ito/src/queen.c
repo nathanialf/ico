@@ -54,10 +54,10 @@ typedef struct {
     QVec z;
 } QMat3;
 
-/* RECONSTRUCTION, read from the ROM.  The work records the queen's three
-   objects hang at their work word.  The queen's (InitQueenGeo): four flag
-   bytes (paused by mail 0x2E/0x2F, attacking, hit by the sword this frame,
-   dead), the boy's weapon power the gathered souls raise, the two cloths. */
+/* The work records the queen's three objects hang at their work word.  The
+   queen's (InitQueenGeo): four flag bytes (paused by mail 0x2E/0x2F,
+   attacking, hit by the sword this frame, dead), the boy's weapon power the
+   gathered souls raise, the two cloths. */
 typedef struct QueenWork { /* field names derived */
 
     union {
@@ -105,21 +105,16 @@ typedef struct QueenBallWork { /* field names derived */
     int *bga; /* 0x1C, the ball's BG animation */
 } QueenBallWork;
 
-/* .bss, owned by queen.o and reached only from this file (MAIN.MAP names no
-   symbol in the run): the queen's four ball-ring animations. */
-static int *queenBga[4];
+/* the queen's four ball-ring animations */
+static int *queenBga[4]; /* derived name */
 
-/* The texture both of the queen's cloth meshes are drawn with.  Named, not a
-   literal at the two use sites, because queen.o's plain .rodata input is the
-   (0, 1, 0, 1) template at the end of the run and one input cannot hold both
-   ends of it. */
-static const char queenClothTexture[] = "queen_effect2";
+/* the texture both of the queen's cloth meshes are drawn with */
+static const char queenClothTexture[] = "queen_effect2"; /* derived name */
 
 /* The queen's two generated cloth meshes, in the order InitQueenGeo hands them
    to InitCloth4D: the cape, which hangs from queenClothHang, and the second
-   cloth, which hangs from nothing.  MAIN.MAP names no symbol in queen.o's
-   .data, so these names are ours.  The floats are the generator's own
-   three-decimal output, read back from the ROM. */
+   cloth, which hangs from nothing.  The floats are the mesh generator's own
+   three-decimal output. */
 
 static Cloth4DCol queenClothMeshCols[15];
 
@@ -826,8 +821,7 @@ static Cloth4DCol queenClothMesh2Cols[13] = {
      {2.297f, 0.913f, -0.543f, 0.0f}},
 };
 
-/* the five points the queen's cape hangs from.  MAIN.MAP names no symbol in
-   queen.o's .data, so this name is ours. */
+/* the five points the queen's cape hangs from */
 static ClothHangCfg queenClothHang[6] = {
     {1, -5.0f, 45.0f, 10.0f, 49, {0}, 0.0f, 0.0f, {0}, 1.0f, 1.0f, {0}},
     {1, -5.0f, 60.0f, 10.0f, 50, {0}, 0.0f, 0.0f, {0}, 1.0f, 1.0f, {0}},
@@ -845,13 +839,12 @@ static float queenSpawnPos[6][4] = {
     {600.0f, -900.0f, -200.0f, 0.0f},  {400.0f, -900.0f, 100.0f, 0.0f},
 };
 
-/* .sbss, owned by queen.o (MAIN.MAP names no symbol in the run): the queen's own frame counter, the
-   timestamp every wait in her state machine is measured against */
-static int queenFrame;
+/* the queen's own frame counter, the timestamp every wait in her state
+   machine is measured against */
+static int queenFrame; /* derived name */
 
-/* PAL listing rows 87-90: a static identity-3x3 helper, expanded into
- * QueenBarrierGeo (and QueenBallGeo). */
-static inline void UnitMatrix33(QMat3 *m)
+/* the 3x3 identity, for QueenBarrierGeo and QueenBallGeo */
+static inline void UnitMatrix33(QMat3 *m) /* derived name */
 {
     m->x.f[0] = 1.0f;
     m->x.f[1] = 0.0f;
@@ -875,8 +868,8 @@ void scale_m34(LVec *a0, void *a1, float f)
     return sceVu0ScaleVector(a0 + 2, a0 + 2, f);
 }
 
-/* census: static effect_end_func (ito/src/itou_boss.c holds the public symbol
-   of the same name, so this copy stays file-static). */
+/* this file's own effect_end_func; itou_boss.c defines a global of the same
+   name */
 
 static void effect_end_func(int no)
 {
@@ -891,8 +884,7 @@ static void effect_end_func(int no)
     }
 }
 
-/* queen.o's .rodata run, in the order the object emits it.  The ten rate
-   tables come in two parallel sets of five, the first used when stage_no is
+/* The ten rate tables come in two parallel sets of five, the first used when stage_no is
    0x25 (the queen's own stage, st25a) and the second everywhere else; each is
    indexed by the ball's phase counter at ballw+0x18, which runs 0 to 10. */
 typedef struct QueenUVScroll {
@@ -995,7 +987,6 @@ void queenBeforeFunc(char *g)
     *(MotOriReq *)((char *)act + 0x620) = *(MotOriReq *)((int)GOBJ_SUB(g) + 0x180);
 }
 
-/* PAL listing: queen.c lines 300-385 (the disc's objdump -dl line map). */
 typedef struct QueenGenTable {
     /* 0x0 */ int n;
     /* 0x4 */ const int *list;
@@ -1093,10 +1084,6 @@ void gene_enemy(volatile int g)
     }
 }
 
-/* r5 seed (478/478 insns, 7 diff sites / 20 non-reloc rows) at
- * scratchpad/seeds/subQueenBrainMain.r5.rc220_7sites.c (whole-TU snapshot) and
- * .r5.body.c (this block only).  Residual: one scheduling cluster, see LEDGER r5. */
-
 /* The position the queen is dropped at outside her own stage. */
 static const QVec queenStartPos = {{0.0f, 800.0f, 0.0f, 1.0f}};
 
@@ -1107,9 +1094,7 @@ static const char queenBallScrTexture[] = "queen_ball_scr";
 /* The queen's per-frame motion-status record, refreshed from the actor
  * extension at gobj->x15C every tick. */
 /* One status slot: the motion-parameter words the actor extension keeps are
- * read as a float here and as an int elsewhere, so the record stores them in a
- * union (ROM re-loads gobj->x15C after every write to one, which only an
- * alias-set-0 union member does). */
+ * read as a float here and as an int elsewhere. */
 typedef union QueenVal {
     int i;
     float f;
@@ -1141,8 +1126,7 @@ typedef struct QueenStatus {
     /* 0x2C */ int unk2C;
 } QueenStatus;
 
-/* PAL listing rows 402-424. */
-static inline void QueenStatusUpdate(char *g, QueenStatus *st)
+static inline void QueenStatusUpdate(char *g, QueenStatus *st) /* derived name */
 {
     st->prevMotion = st->motion;
     st->prevRatio.f = st->ratio.f;
@@ -1164,8 +1148,7 @@ static inline void QueenStatusUpdate(char *g, QueenStatus *st)
     st->active = (st->changed != 0 || st->step != 0) ? 1 : 0;
 }
 
-/* PAL listing rows 426-433. */
-static inline void QueenStatusRestart(char *g, QueenStatus *st)
+static inline void QueenStatusRestart(char *g, QueenStatus *st) /* derived name */
 {
     QueenStatusUpdate(g, st);
     st->changed = 0;
@@ -1173,11 +1156,8 @@ static inline void QueenStatusRestart(char *g, QueenStatus *st)
     st->count = 1;
 }
 
-/* INTERIM: the PAL listing shows QueenStartAttack (queen.c:164-169) expanded
- * inline here, but the tail of this TU still holds asm members, so the public
- * definition stays at its own ROM slot below and this stand-in serves the C
- * caller.  Fold the two together once the TU is fully C. */
-static inline void QueenStartAttack_inl(int flag)
+/* QueenStartAttack's body, for the caller above its definition */
+static inline void QueenStartAttack_inl(int flag) /* derived name */
 {
     char *g;
 
@@ -1194,7 +1174,7 @@ static inline void QueenStartAttack_inl(int flag)
 /* The queen's brain thread.  `g` is volatile because this body is an actor
  * coroutine: _ACTWait() unwinds and resumes it, and the actor system can move
  * the GObj between resumes, so the thread's own copy in its frame is re-read at
- * every use rather than cached in a register (ROM reloads 0(sp) at every use).
+ * every use rather than cached in a register.
  */
 void subQueenBrainMain(volatile int g)
 {
@@ -1349,17 +1329,13 @@ void subQueenBrainMain(volatile int g)
     }
 }
 
-/* census: static Debug_StickControl; ito/src/act_bird.c holds the public symbol
-   of that name, so this copy is a file-static. */
-/* The rest of queen.o's .rodata run: it follows subQueenBrainMain's switch
-   table, which the compiler emits after that function's body. */
+/* this file's own Debug_StickControl; act_bird.c defines a global of the
+   same name */
 static const char queenFile[] = __FILE__;
 
 static const char queenBarrierAttackedMsg[] = "queen barrier attacked\n";
 
-/* The barrier's own spawn layout id, one per stage set.  The bound is left
-   unspecified: under -G 8 a sized 4-byte const array is small enough for
-   .sdata, and the ROM has both in .rodata. */
+/* the barrier's own spawn layout id, one per stage set */
 static const int barrierLayoutSt25[] = {2150};
 
 static const int barrierLayoutDefault[] = {3527};
@@ -1449,8 +1425,8 @@ void QueenDL(char *g)
     DispCloth4D((int *)w->cloth2, (char *)GOBJ_SUB(g)->p_874 + 0x40, (char *)GOBJ_SUB(g)->p_874);
 }
 
-/* PAL listing rows 871-873 belong to a static angle-wrap helper. */
-static inline float WrapRad(float a)
+/* an angle wrapped into one turn */
+static inline float WrapRad(float a) /* derived name */
 {
     a = fmodf(a, 6.2831854820251465f);
     if (a > 3.1415927410125732f) {
@@ -1568,11 +1544,9 @@ void QueenBarrierDL(char *g)
     }
 }
 
-/* ROM 0x0012B6F0 never reads $a1: the callee takes (id, scale) only. */
-
-/* PAL listing rows 1069-1081: a static helper that QueenBallGeo and QueenBallDL
- * each expand inline. */
-static inline void SetQueenBallOrient(char *o, QVec *from, QVec *to)
+/* put the effect at `to`, its z axis level and pointing back at `from`;
+ * for QueenBallGeo and QueenBallDL */
+static inline void SetQueenBallOrient(char *o, QVec *from, QVec *to) /* derived name */
 {
     QVec side;
     QVec up = {{0.0f, 1.0f, 0.0f, 1.0f}};
@@ -1590,11 +1564,7 @@ static inline void SetQueenBallOrient(char *o, QVec *from, QVec *to)
     ico_m33_to_quat(o + 0x30, &m);
 }
 
-/* r4/r5 seed (rc55 / 36 sites) at scratchpad/seeds/QueenBallGeo.r5.body.c (this
- * block, incl. the three helpers it alone expands) and .r4.rc55.c (whole-TU).
- * Residual: the FP-constant census, see LEDGER r4. */
-/* PAL listing rows 1092-1093. */
-static inline void StartQueenBallEffect(int **bga, int id, QVec *from, QVec *to)
+static inline void StartQueenBallEffect(int **bga, int id, QVec *from, QVec *to) /* derived name */
 {
     if (*bga == 0) {
         pbga_start(bga, id);
@@ -1602,8 +1572,8 @@ static inline void StartQueenBallEffect(int **bga, int id, QVec *from, QVec *to)
     }
 }
 
-/* PAL listing rows 1105-1116. */
-static inline void CheckQueenBallRing(int **bga, int id, QVec *from, QVec *to, float r)
+static inline void CheckQueenBallRing(int **bga, int id, QVec *from, QVec *to,
+                                      float r) /* derived name */
 {
     float d = _GetLength(to, from);
     int in = (d < r && r < d + 100.0f);
@@ -1613,20 +1583,12 @@ static inline void CheckQueenBallRing(int **bga, int id, QVec *from, QVec *to, f
     }
 }
 
-/* PAL listing rows 1131-1151: the parameterised box test.  Builds the frame that
- * looks from `from` towards `pos`, transforms `target` into it and reports whether
- * the target sits inside the box around `pos`.
- *
- * The half-width and the near plane are ints and the half-height and the far plane
- * floats: that asymmetry is what ROM's register census shows.  A float parameter is
- * bound by a movsf at the top of the inlined body (the listing attributes 300.0f and
- * 600.0f to queen.c:1131, the helper's own first line) and inside the object loop it
- * can never be sunk to its use, so it takes a callee-saved FP register; an int
- * parameter is substituted as a CONST_INT by integrate.c's const_equiv_map, the
- * int->float conversion folds to a CONST_DOUBLE at the compare itself, and ROM
- * materialises 130.0f/-120.0f there in a call-clobbered register (queen.c:1150). */
+/* The parameterised box test.  Builds the frame that looks from `from`
+ * towards `pos`, transforms `target` into it and reports whether the target
+ * sits inside the box around `pos`.  The half-width and the near plane are
+ * ints, the half-height and the far plane floats. */
 static inline int CheckQueenBallBox(QVec *pos, QVec *from, QVec *target, int xl, float yl, int zmin,
-                                    float zmax)
+                                    float zmax) /* derived name */
 {
     QVec side;
     QVec up = {{0.0f, 1.0f, 0.0f, 1.0f}};
@@ -1657,10 +1619,7 @@ static inline int CheckQueenBallBox(QVec *pos, QVec *from, QVec *target, int xl,
 
 void QueenBallGeo(char *g)
 {
-    /* The root matrix is a plain float matrix, not a QMat33 of the (union) QVec:
-     * ROM's scheduler hoists the CopyMatrix destination load above the far-position
-     * stores of the else arm below, which a store through a union member -- alias
-     * set 0, conflicting with every load -- would forbid. */
+    /* the root matrix */
     float m[4][4];
     QVec queenPos;
     int num;
@@ -1745,9 +1704,7 @@ void QueenBallGeo(char *g)
             w->live = 0;
         }
         {
-            /* Per-barrier-index growth rate, one table per stage.  ROM selects the
-             * table ENTRY, not the table: the sll/addu that index it are shared by
-             * both arms, and the address pseudo is the one that survives the join. */
+            /* per-barrier-index growth rate, one table per stage */
             float *rate;
 
             if (stage_no == 37) {
@@ -1766,9 +1723,6 @@ void QueenBallGeo(char *g)
     }
 }
 
-/* The loop is written ASCENDING: gcc's check_dbra_loop reverses it into ROM's
- * `addiu $18,$18,-1` / `bgez $18` countdown, which is what puts the counter's
- * initial value after loop.c's hoisted 0x1E3/0x1E5 constants. */
 void QueenBallDL(char *g)
 {
     QVec ballPos;

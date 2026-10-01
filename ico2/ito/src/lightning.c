@@ -35,8 +35,8 @@ typedef struct {
     char *end;
 } LightningDpk;
 
-/* kept local: this TU writes the packet through a doubleword or byte cursor,
-   which DmaPacket.h's DpkCtl types as int * */
+/* this file's view of the packet buffer: it writes through a doubleword or
+   a byte cursor, where DmaPacket.h's DpkCtl has an int * */
 extern LightningDpk PacketBufferStruct;
 
 /* one strip vertex as the three GS register payloads it is sent as */
@@ -46,13 +46,11 @@ typedef struct {
     unsigned long long xyz;
 } LightningGsVtx;
 
-/* the strip's last two vertices, resent when a clipped strip reopens; the
-   names in this block are ours, MAIN.MAP names nothing in lightning.o's small
-   data or bss */
-static LightningGsVtx lastVtx[2];
+/* the strip's last two vertices, resent when a clipped strip reopens */
+static LightningGsVtx lastVtx[2]; /* derived name */
 
 /* nonzero while the open strip is being written */
-static int stripOn;
+static int stripOn; /* derived name */
 
 typedef struct {
     unsigned long long NLOOP : 15;
@@ -68,13 +66,10 @@ typedef struct {
 } sceGifTag;
 
 /* the GIFtag that opened the current strip, whose NLOOP close_strip fills */
-static char *stripTag;
+static char *stripTag; /* derived name */
 
 /* vertices set since the draw began */
-static int vtxCount;
-
-/* kept local: libvu0.h does not declare sceVu0FTOI4Vector */
-extern void sceVu0FTOI4Vector(void *a0, void *a1);
+static int vtxCount; /* derived name */
 
 /* the GS RGBAQ register carries Q as the raw float word in bits 63..32 */
 static __inline__ int fbits(float f)
@@ -156,17 +151,7 @@ void set_vertex(LightningVtx *dir, LightningVtx *pos, float u, int *col, float h
             /* The strip-state reset DrawLightning2 opens with, then the
                reopened strip unless restrip was cleared from the debugger
                (the strip then stays closed: close_strip() finds no tag and
-               nothing more is written).  restrip is never cleared by the
-               code, so gcse's constant propagation folds the test and flow
-               deletes the reset, which the reopen overwrites; neither emits
-               bytes. What the bytes pin: 248 to 259 real insns at gcse entry
-               (the switch's set and test and the two stores bring 245 to
-               249), which gives a 125 to 129 bucket expression table and
-               orders the PRE reaching registers of &t and &xyz into the ROM's
-               spill slots 0xA0 and 0xA4; at 245 insns the two slots swap.
-               What they cannot pin: the switch, its name or the lines
-               (SRCFILE.TXT line 168 is code-free, as a deleted statement's
-               or a folded test's is). */
+               nothing more is written).  The code never clears restrip. */
             stripOn = 0;
             stripTag = 0;
             if (restrip) {
@@ -241,8 +226,8 @@ static __inline__ float random_sign(float x)
     return x;
 }
 
-/* kept local: this TU compares the free packet size unsigned, which
-   DmaPacket.h declares int */
+/* declared unsigned here: this file compares the free packet size unsigned,
+   where DmaPacket.h declares it int */
 extern unsigned int dpk_CheckBufferSize(void);
 
 /* the Catmull-Rom basis, halved, that turns four control points into the
