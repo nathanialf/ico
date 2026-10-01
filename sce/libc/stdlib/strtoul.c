@@ -4,11 +4,6 @@
 #include <reent.h>
 #include <ctype.h>
 
-struct D520 {
-    char pad0[8];
-    PObjBlk *blk; /* 0x8 */
-};
-
 struct _reent {
     int _errno; /* 0x00 */
 };

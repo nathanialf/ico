@@ -24,11 +24,11 @@ typedef struct {
     unsigned char timeNotation;
 } sceScfT10KConfig;
 
-static char sceScfVersion[16] = "PsIIlibscf  2200";
+static char sceScfVersion[16] = "PsIIlibscf  2200"; /* derived name */
 
-static sceScfT10KConfig t10kConfig = {540, 0, 0, 0, 0, 0, 0};
+static sceScfT10KConfig t10kConfig = {540, 0, 0, 0, 0, 0, 0}; /* derived name */
 
-static char romName[16] = {0};
+static char romName[16] = {0}; /* derived name */
 
 /* The OSD configuration word the kernel's GetOsdConfigParam syscall returns.
  * Every bit position below is the shift/mask pair this file's getters use;

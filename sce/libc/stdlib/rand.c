@@ -3,11 +3,6 @@
 #include <string.h>
 #include <reent.h>
 
-struct D520 {
-    char pad0[8];
-    PObjBlk *blk; /* 0x8 */
-};
-
 void srand(int a0)
 {
     char *p = (char *)_impure_ptr;

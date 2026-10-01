@@ -19,7 +19,6 @@ typedef struct {
     unsigned char pad;
 } CdRMode;
 
-void _sceFsSigSema(void); /* definition in sce/ */
 int sceCdBreak(void);
 int sceCdDiskReady(int mode);
 int sceCdGetDiskType(void);
@@ -31,7 +30,7 @@ int sceCdReadIOPm(int lsn, int sectors, void *buf, CdRMode *mode); /* definition
 int sceCdStRead(int sectors, void *buf, int mode, int *err);       /* definition in sce/ */
 int sceCdStStat(void);                                             /* definition in sce/ */
 int sceCdStatus(void);
-int sceCdStream(int a0, int a1, int a2, int cmd, CdRMode *mode); /* definition in sce/ */
+int sceCdStream(int lsn, int sectors, void *buf, int cmd, CdRMode *mode); /* definition in sce/ */
 int sceCdSync(int mode);                                         /* definition in sce/ */
 int sceCdSyncS(int a0);                                          /* definition in sce/ */
 int sceFsReset(void);                                            /* definition in sce/ */

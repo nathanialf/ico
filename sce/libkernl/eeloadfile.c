@@ -6,9 +6,9 @@
 /* eeloadfile.o's .data: -1 until _lf_bind has bound the loadfile server, then
    the stamp _lf_version accepts besides the library's own (its four dots are
    the member's first .rodata, 0x636710). */
-static int lf_bind_state = -1;
+static int lf_bind_state = -1; /* derived name */
 
-static char *lf_stamp = "....";
+static char *lf_stamp = "...."; /* derived name */
 
 /* the member's .bss: the loadfile RPC buffer (0x200 bytes sent), the
    server's client record and the IOP module's version stamp */

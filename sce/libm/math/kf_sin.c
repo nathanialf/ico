@@ -28,8 +28,6 @@ static const float half = 5.0000000000e-01, /* 0x3f000000 */
     S5 = -2.5050759689e-08,                 /* 0xb2d72f34 */
     S6 = 1.5896910177e-10;                  /* 0x2f2ec9d3 */
 
-float __kernel_sinf(float x, float y, int iy);
-
 float __kernel_sinf(float x, float y, int iy)
 {
     float z, r, v;

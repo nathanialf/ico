@@ -5,11 +5,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-struct D520 {
-    char pad0[8];
-    PObjBlk *blk; /* 0x8 */
-};
-
 /* newlib's struct __sbuf / struct __sFILE, laid out from this member's own
    field offsets, with the newlib member names.  Only this member needs the
    typed form: the loop below copies fp->ubuf[i] through the real array

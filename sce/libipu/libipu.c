@@ -5,13 +5,13 @@
 
 void sceIpuStopDMA(void *a0)
 {
-    setD4_CHCR((int *)1);
+    setD4_CHCR(1);
     ((int *)a0)[0] = *D4_MADR;
     ((int *)a0)[1] = *D4_TADR;
     ((int *)a0)[2] = *D4_QWC;
     ((int *)a0)[3] = *D4_CHCR;
     while (*IPU_CTRL & 0xF0) {}
-    setD3_CHCR((int *)0);
+    setD3_CHCR(0);
     ((int *)a0)[4] = *D3_MADR;
     ((int *)a0)[5] = *D3_QWC;
     ((int *)a0)[6] = *D3_CHCR;
@@ -31,7 +31,7 @@ void sceIpuRestartDMA(void *a0)
     if (p[4] != 0 && p[5] != 0) {
         *D3_MADR = p[4];
         *D3_QWC = p[5];
-        setD3_CHCR((int *)(p[6] | 0x100));
+        setD3_CHCR(p[6] | 0x100);
     }
     while (*IPU_CTRL < 0) {}
     *IPU_CMD = cmd;
@@ -40,7 +40,7 @@ void sceIpuRestartDMA(void *a0)
         *D4_MADR = madr;
         *D4_TADR = p[1];
         *D4_QWC = qwc;
-        setD4_CHCR((int *)(p[3] | 0x100));
+        setD4_CHCR(p[3] | 0x100);
     }
 }
 

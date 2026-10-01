@@ -6,7 +6,7 @@
    BASE 0, OFFSET 0, ITOP 0.  VIF codes are register fields, so they are
    spelled in hex.  16-aligned because the code moves the two quadwords with
    lq/sq. */
-static unsigned int sceGsResetPathPacket[8] __attribute__((aligned(16))) = {
+static unsigned int sceGsResetPathPacket[8] /* derived name */ __attribute__((aligned(16))) = {
     0x01000404, 0x20000000, 0x00000000, 0x05000000, 0x06000000, 0x03000000, 0x02000000, 0x04000000};
 
 __asm__(".section .text\n"

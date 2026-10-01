@@ -3,9 +3,15 @@
 #include <libmpeg.h>
 #include <libmpeg_internal.h>
 
-typedef struct {
-    int unk0, unk4, unk8, unkC;
-} P24D418;
+/* the pack header fields _pack_header keeps: the 9-bit SCR extension, the
+ * low 32 bits and the top bit of the 33-bit SCR base, and whether a system
+ * header follows */
+typedef struct {   /* derived name */
+    int scrExt;    /* 0x0 */
+    int scrBase;   /* 0x4 */
+    int scrBase32; /* 0x8 */
+    int hasSysHdr; /* 0xC */
+} PackHeader;
 
 /* the ten PSS stream descriptors: the id template of the stream and the mask
  * of the bits its stream number occupies */
@@ -127,12 +133,10 @@ typedef struct {
 /* the packet the demuxer walks: the pack header _pack_header fills, then the
  * PES packet header _PES_packet fills */
 typedef struct {
-    P24D418 pack;
-    int unk10;
-    int unk14;
+    PackHeader pack;
+    int pad10[2];
     PesPkt pes;
-    int unk48;
-    int unk4C;
+    int pad48[2];
 } PssPkt;
 
 /* the kinds of callback the decoder makes; a demuxed stream packet is the last */
@@ -171,7 +175,7 @@ typedef struct {
 } StrCb;
 
 /* Their record types are this member's own */
-int _pack_header(int *bs, P24D418 *pkt);
+int _pack_header(int *bs, PackHeader *pkt);
 int _PES_packet(int *bs, PesPkt *pkt);
 
 int sceMpegDemuxPssRing(int *dec, void *p4, int size, int a3, int a4)
@@ -277,9 +281,9 @@ int sceMpegAddStrCallback(int *a0, int a1, int a2, MpegStrCallback a3, void *a4)
     return ret;
 }
 
-int _system_header(int *a0, P24D418 *pkt);
+int _system_header(int *a0, PackHeader *pkt);
 
-int _pack_header(int *bs, P24D418 *pkt)
+int _pack_header(int *bs, PackHeader *pkt)
 {
     unsigned int i = 0;
     unsigned int a, b, c, n;
@@ -292,27 +296,27 @@ int _pack_header(int *bs, P24D418 *pkt)
     _sysbitMarker(bs);
     c = _sysbitGet(bs, 0xF);
     _sysbitMarker(bs);
-    pkt->unk0 = _sysbitGet(bs, 0x9);
+    pkt->scrExt = _sysbitGet(bs, 0x9);
     _sysbitGet(bs, 0x1E);
     n = _sysbitGet(bs, 0x3);
-    pkt->unk8 = (a >> 2) & 1;
-    pkt->unk4 = (a << 30) | (b << 15) | c;
+    pkt->scrBase32 = (a >> 2) & 1;
+    pkt->scrBase = (a << 30) | (b << 15) | c;
     for (i = 0; i < n; i++) {
         _sysbitGet(bs, 0x8);
     }
     last = _sysbitNext(bs, 0x20);
     if (last != 0x1BB)
         goto unset;
-    pkt->unkC = 1;
+    pkt->hasSysHdr = 1;
     _system_header(bs, pkt);
     goto end;
 unset:
-    pkt->unkC = 0;
+    pkt->hasSysHdr = 0;
 end:
     return 1;
 }
 
-int _system_header(int *a0, P24D418 *pkt)
+int _system_header(int *a0, PackHeader *pkt)
 {
     _sysbitGet(a0, 0x38);
     _sysbitGet(a0, 0x28);

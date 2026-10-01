@@ -5,8 +5,9 @@
 #include <libdma.h>
 #include <libvu0_internal.h>
 
-/* The member's .data in link order (0xAC): the three globals dch,
- * sceDmaDebugMode and sceDmaCurrentEnv. */
+/* The member's .data in link order (0xAC): the globals dch and
+ * sceDmaDebugMode, the build stamp, sceDmaReset's channel list and
+ * sceDmaPutEnv's three D_CTRL code tables, then the global sceDmaCurrentEnv. */
 /* The ten channel register blocks, VIF0 to toSPR. */
 int dch[10] = {
     (int)D0_CHCR, (int)D1_CHCR, (int)D2_CHCR, (int)D3_CHCR, (int)D4_CHCR,
@@ -16,18 +17,18 @@ int dch[10] = {
 int sceDmaDebugMode = 0;
 
 /* libdma.a's build stamp, exactly sixteen characters with no terminator. */
-static char sceDmaVersion[16] = "PsIIlibdma  2200";
+static char sceDmaVersion[16] = "PsIIlibdma  2200"; /* derived name */
 
 /* Which channels sceDmaReset clears: all but the three SIF channels. */
-static int resetChan[10] = {1, 1, 1, 1, 1, 0, 0, 0, 1, 1};
+static int resetChan[10] = {1, 1, 1, 1, 1, 0, 0, 0, 1, 1}; /* derived name */
 
 /* sceDmaPutEnv's lookups from the DmaEnv's first three bytes to the D_CTRL
  * MFD, STS and STD field codes. */
-static unsigned char mfdCode[16] = {0, 0, 0, 3, 0, 1, 0, 0, 2};
+static unsigned char mfdCode[16] = {0, 0, 0, 3, 0, 1, 0, 0, 2}; /* derived name */
 
-static unsigned char stsCode[16] = {0, 1, 2, 0, 0, 0, 3};
+static unsigned char stsCode[16] = {0, 1, 2, 0, 0, 0, 3}; /* derived name */
 
-static unsigned char stdCode[16] = {0, 2, 3};
+static unsigned char stdCode[16] = {0, 2, 3}; /* derived name */
 
 DmaEnv sceDmaCurrentEnv = {0};
 
@@ -82,29 +83,29 @@ int sceDmaPutEnv(DmaEnv *env)
     int rbor = *D_RBOR;
     int rbsr = *D_RBSR;
 
-    if (env->chan >= 10) {
+    if (env->mfd >= 10) {
         return -1;
     }
-    if (env->b01 >= 10) {
+    if (env->sts >= 10) {
         return -2;
     }
-    if (env->b02 >= 10) {
+    if (env->std >= 10) {
         return -3;
     }
-    if (env->b03 >= 7) {
+    if (env->rcyc >= 7) {
         return -4;
     }
-    ctrl = (ctrl & 0xFFFFFFCF) | (mfdCode[env->chan] << 4);
-    ctrl = (ctrl & 0xFFFFFF3F) | (stsCode[env->b01] << 6);
-    ctrl = (ctrl & 0xFFFFFFF3) | (stdCode[env->b02] << 2);
-    if (env->b03 != 0) {
+    ctrl = (ctrl & 0xFFFFFFCF) | (mfdCode[env->mfd] << 4);
+    ctrl = (ctrl & 0xFFFFFF3F) | (stsCode[env->sts] << 6);
+    ctrl = (ctrl & 0xFFFFFFF3) | (stdCode[env->std] << 2);
+    if (env->rcyc != 0) {
         ctrl |= 2;
-        ctrl = (ctrl & 0xFFFFFCFF) | ((env->b03 - 1) << 8);
+        ctrl = (ctrl & 0xFFFFFCFF) | ((env->rcyc - 1) << 8);
     } else {
         ctrl &= 0xFFFFFFFD;
     }
-    pcr = (env->h04 << 16) | env->h06;
-    sqwc = (env->h0A << 16) | env->h08;
+    pcr = (env->cde << 16) | env->cpc;
+    sqwc = (env->tqwc << 16) | env->sqwc;
     rbor = (int)env->rbadr;
     rbsr = env->rbsize;
     *D_CTRL = ctrl;

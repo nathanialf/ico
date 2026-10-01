@@ -5,11 +5,6 @@
 #include <reent.h>
 #include <libc_internal.h>
 
-struct D520 {
-    char pad0[8];
-    PObjBlk *blk; /* 0x8 */
-};
-
 int _printf_r(Reent *ptr, const char *fmt, ...)
 {
     char *ap = (char *)__builtin_next_arg(fmt) - 0x30;

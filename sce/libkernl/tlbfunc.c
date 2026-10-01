@@ -323,7 +323,7 @@ int _kTLBRefillHandler = 0;
 
 int _kDebugHandler[16] = {0};
 
-static int tlb_syscalls[12] = {
+static int tlb_syscalls[12] /* derived name */ = {
     84, (int)_kExitTLBHandler, 85, (int)kPutTLBEntry,   86, (int)kSetTLBEntry,
     87, (int)kGetTLBEntry,     88, (int)kProbeTLBEntry, 89, (int)kExpandScratchPad,
 };

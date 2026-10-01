@@ -2,12 +2,14 @@
 
 typedef int u_int128 __attribute__((mode(TI)));
 
+/* libgraph.h's sceGsGParam as this member reads it: the INTC pair as one
+   doubleword, whose 8-byte alignment the member's code shows. */
 typedef struct {
-    short f0;     /* 0x00 */
-    short f2;     /* 0x02 */
-    short f4;     /* 0x04 */
-    short f6;     /* 0x06 */
-    long long f8; /* 0x08 */
+    short inter;    /* 0x0 */
+    short omode;    /* 0x2 */
+    short ffmd;     /* 0x4 */
+    short version;  /* 0x6 */
+    long long intc; /* 0x8, intcUsed and handler */
 } GParam;
 
 /* GS privileged-register fields this member rewrites in place. */
@@ -71,9 +73,8 @@ typedef struct {
     sceGsClear clear1;  /* 0x1D0 */
 } sceGsDBuff;
 
-/* returns this member's own GParam record; libgraph.h returns void * */
+/* libgraph.h's prototypes, over this member's own field-level record types */
 extern GParam *sceGsGetGParam(void);
-/* libgraph.h's prototypes over this member's own field-level record types */
 extern short sceGszbufaddr(short psm, short w, short h);
 extern void sceGsSetDefDispEnv(sceGsDispEnv *disp, short psm, short w, short h, short dx, short dy);
 extern int sceGsSetDefDrawEnv(sceGsDrawEnv *env, short psm, short w, short h, short ztst,
@@ -112,7 +113,7 @@ void sceGsSetDefDBuff(sceGsDBuff *db, short psm, short w, short h, short ztst, s
     db->giftag1.REGS0 = 0xE;
 
     zb = sceGszbufaddr(psm, w, h);
-    if ((gp->f0 == 1 && gp->f4 == 1) || gp->f0 == 0) {
+    if ((gp->inter == 1 && gp->ffmd == 1) || gp->inter == 0) {
         fbp = zb >> 1;
         db->disp1.dispfb.FBP = fbp;
         db->draw0.frame.FBP = zb >> 1;

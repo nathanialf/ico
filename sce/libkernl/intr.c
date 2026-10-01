@@ -3,25 +3,6 @@
 #include <eeregs.h>
 #include <libkernl_internal.h>
 
-/* EE syscall leaf wrappers, defined in this member.  Body is the
-   four-instruction leaf `addiu $3,$zero,NUM; syscall 0; jr $31; nop`, the
-   last two supplied by gcc's epilogue. */
-#define SYSCALL_WRAPPER(name, num)                                                                 \
-    void name(void)                                                                                \
-    {                                                                                              \
-        __asm__ __volatile__("addiu $3, $0, " #num "\n\tsyscall 0" : : : "$3", "memory");          \
-    }
-/* The same leaf issued inline, for the members that act on its result.
-   The syscall returns in $2. */
-#define SYSCALL_INLINE(num, dst)                                                                   \
-    {                                                                                              \
-        register int __sc_ret __asm__("$2");                                                       \
-        __asm__ __volatile__("addiu $3, $0, " #num "\n\tsyscall 0"                                 \
-                             : "=r"(__sc_ret)                                                      \
-                             :                                                                     \
-                             : "$3", "memory");                                                    \
-        (dst) = __sc_ret;                                                                          \
-    }
 /* R5900 opcodes with no C spelling.  Defined in this member. */
 #define SYNC() __asm__ __volatile__("sync" : : : "memory")
 /* COP0 Status ($12), bit 16 = interrupts enabled.  Taken as an lvalue: the
@@ -149,8 +130,9 @@ int kCopy(int *dst, int *src, unsigned int n)
     return 0;
 }
 
-/* The same leaf as SYSCALL_WRAPPER, spelled out because this one takes an
-   argument and returns the kernel's $v0: syscall 91 is GetEntryAddress(num). */
+/* An EE syscall leaf (`addiu $3,$zero,NUM; syscall 0`, the `jr $31; nop`
+   from gcc's epilogue) that takes an argument and returns the kernel's $v0:
+   syscall 91 is GetEntryAddress(num). */
 int GetEntryAddress(int num)
 {
     __asm__ __volatile__("addiu $3, $0, 91\n\tsyscall 0" : : : "$3", "memory");

@@ -1,18 +1,10 @@
 /* libpkt.a member vifpk027.o */
 #include <libpkt.h>
 
-typedef unsigned int u128_241778 __attribute__((mode(TI)));
-
-typedef struct {
-    int *end;
-    int pad[2];
-    int *cur;
-} Pool241748;
-
-int *sceVif1PkTerminate(int **a0)
+unsigned int *sceVif1PkTerminate(sceVif1Packet *pkt)
 {
-    int *p = a0[0];
-    int *q = (int *)a0[2];
+    unsigned int *p = pkt->cur;
+    unsigned int *q = pkt->dmaTag;
     while ((int)p & 0xC) {
         *p = 0;
         p++;
@@ -21,7 +13,7 @@ int *sceVif1PkTerminate(int **a0)
         int n = (((char *)p - (char *)q) >> 4) - 1;
         *q += n;
     }
-    a0[0] = p;
-    a0[2] = 0;
+    pkt->cur = p;
+    pkt->dmaTag = 0;
     return p;
 }

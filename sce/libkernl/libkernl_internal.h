@@ -14,7 +14,6 @@
 int Deci2Call(int req, void *args);     /* the spelling at 1 site */
 void InitAlarm(void);                   /* definition in sce/ */
 int InitThread(void);                   /* definition in sce/ */
-int _EnableIntc();                      /* the spelling at 1 site */
 int _iSuspendThread(void);              /* the spelling at 1 site */
 int _iWakeupThread(void);               /* the spelling at 1 site */
 extern char _kDebugException[];         /* the spelling at 1 site */

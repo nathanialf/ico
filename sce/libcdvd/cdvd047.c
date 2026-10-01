@@ -7,33 +7,24 @@
 #include <libcdvd.h>
 #include <libcdvd_internal.h>
 
-typedef struct {
-    int f0;
-    int *f4;
-    int f8;
-    int fC;
-    int f10;
-    char pad14[0x8];
-} PObjA8B8Ent;
-
 /* The member's own .data word: set by sceCdStStart and sceCdStResume, cleared
  * by sceCdStInit, sceCdStStop and sceCdStPause, and tested by sceCdStRead
  * (explicit zero initialiser, so it stays in .data). */
-static int stStarted = 0;
+static int stStarted = 0; /* derived name */
 
 /* The member's own .bss: the mode record every call but sceCdStStart passes. */
-static CdRMode stMode;
+static CdRMode stMode; /* derived name */
 
-int sceCdStInit(int a0, int a1, int a2)
+int sceCdStInit(int bufmax, int bankmax, void *buf)
 {
     stStarted = 0;
-    return sceCdStream(a0, a1, a2, 5, &stMode);
+    return sceCdStream(bufmax, bankmax, buf, 5, &stMode);
 }
 
-int sceCdStStart(int a0, void *a1)
+int sceCdStStart(int lsn, CdRMode *mode)
 {
     stStarted = 1;
-    return sceCdStream(a0, 0, 0, 1, a1);
+    return sceCdStream(lsn, 0, 0, 1, mode);
 }
 
 int sceCdStSeekF(int a0)
@@ -126,17 +117,17 @@ int sceCdStStat(void)
 }
 
 typedef struct {
-    int f0;
-    int f4;
-    int f8;
-    int cmd;
+    int lsn;     /* 0x0, the sector, or the buffer size for the init command */
+    int sectors; /* 0x4, the count, or the bank count for the init command */
+    void *buf;   /* 0x8 */
+    int cmd;     /* 0xC */
     unsigned char trycount;
     unsigned char spindlctrl;
     unsigned char datapattern;
     unsigned char pad;
 } CdStreamCmd;
 
-int sceCdStream(int a0, int a1, int a2, int cmd, CdRMode *mode)
+int sceCdStream(int lsn, int sectors, void *buf, int cmd, CdRMode *mode)
 {
     CdStreamCmd *sd = (CdStreamCmd *)_sceCd_ncmdsdata;
     int *p;
@@ -148,9 +139,9 @@ int sceCdStream(int a0, int a1, int a2, int cmd, CdRMode *mode)
     if (SCE_CD_debug > 0) {
         scePrintf("call cdreadstm call\n");
     }
-    sd->f0 = a0;
-    sd->f4 = a1;
-    sd->f8 = a2;
+    sd->lsn = lsn;
+    sd->sectors = sectors;
+    sd->buf = buf;
     sd->cmd = cmd;
     if (mode != 0) {
         sd->trycount = mode->trycount;

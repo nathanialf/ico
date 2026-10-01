@@ -7,7 +7,7 @@
 #include <libkernl_internal.h>
 
 /* sifrpc.o's .data: set once sceSifInitRpc has run, cleared by sceSifExitRpc */
-static int rpc_inited = 0;
+static int rpc_inited = 0; /* derived name */
 
 /* sifrpc.o's RPC state record.  Field names follow the public SDK naming of
    this record; the packet table is a void *, the two byte tables unsigned
@@ -30,13 +30,13 @@ typedef struct {
    32 receive-data slots and the 32 client slots sceSifInitRpc hands the
    record (each table a cache line per entry, and 64-aligned for the SIF DMA),
    then the record itself. */
-static int rpc_pkt_table[512] __attribute__((aligned(64)));
+static int rpc_pkt_table[512] __attribute__((aligned(64))); /* derived name */
 
-static int rpc_rdata_table[512] __attribute__((aligned(64)));
+static int rpc_rdata_table[512] __attribute__((aligned(64))); /* derived name */
 
-static int rpc_client_table[512] __attribute__((aligned(64)));
+static int rpc_client_table[512] __attribute__((aligned(64))); /* derived name */
 
-static SifRpcData rpc_data;
+static SifRpcData rpc_data; /* derived name */
 
 void sceSifInitRpc(int mode)
 {

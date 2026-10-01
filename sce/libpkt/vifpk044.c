@@ -1,20 +1,12 @@
 /* libpkt.a member vifpk044.o */
 #include <libpkt.h>
 
-typedef unsigned int u128_241778 __attribute__((mode(TI)));
-
-typedef struct {
-    int *end;
-    int pad[2];
-    int *cur;
-} Pool241748;
-
-void sceVif1PkAlign(int *a0, int a1, int a2)
+void sceVif1PkAlign(sceVif1Packet *pkt, int bit, int pos)
 {
-    unsigned int m = 0xFFFFFFFF >> (32 - ((a1 + 2) & 31));
-    int *p = (int *)a0[0];
-    int *q;
-    unsigned int a = ((unsigned int)p & ~m) + a2 * 4;
+    unsigned int m = 0xFFFFFFFF >> (32 - ((bit + 2) & 31));
+    unsigned int *p = pkt->cur;
+    unsigned int *q;
+    unsigned int a = ((unsigned int)p & ~m) + pos * 4;
 
     if (a < (unsigned int)p) {
         /* one past the wrapped address, then up by the block mask */
@@ -29,7 +21,7 @@ void sceVif1PkAlign(int *a0, int a1, int a2)
         fill:
             q = p + 1;
             *p = 0;
-            a0[0] = (int)q;
+            pkt->cur = q;
         } while ((unsigned int)q < a);
     }
 }

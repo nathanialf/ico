@@ -2,16 +2,8 @@
 #include <eekernel.h>
 #include <libkernl_internal.h>
 
-/* EE syscall leaf wrappers, defined in this member.  Body is the
-   four-instruction leaf `addiu $3,$zero,NUM; syscall 0; jr $31; nop`, the
-   last two supplied by gcc's epilogue. */
-#define SYSCALL_WRAPPER(name, num)                                                                 \
-    void name(void)                                                                                \
-    {                                                                                              \
-        __asm__ __volatile__("addiu $3, $0, " #num "\n\tsyscall 0" : : : "$3", "memory");          \
-    }
-/* The same leaf issued inline, for the members that act on its result.
-   The syscall returns in $2. */
+/* An EE syscall leaf (`addiu $3,$zero,NUM; syscall 0`) issued inline, for
+   the calls that act on its result.  The syscall returns in $2. */
 #define SYSCALL_INLINE(num, dst)                                                                   \
     {                                                                                              \
         register int __sc_ret __asm__("$2");                                                       \
@@ -28,7 +20,7 @@ typedef struct {
 } KernEvent;
 
 typedef struct {
-    int f0;
+    int ridx;
     int widx;
     KernEvent ent[512];
 } KernEventRing;
@@ -49,8 +41,8 @@ void topThread(void *arg)
 
     while (1) {
         WaitSema(kernEventSema);
-        i = ring->f0 & 0x1FF;
-        ring->f0 = i + 1;
+        i = ring->ridx & 0x1FF;
+        ring->ridx = i + 1;
         switch (ring->ent[i].code) {
         case 0:
             WakeupThread(ring->ent[i].id);
@@ -69,7 +61,7 @@ void topThread(void *arg)
 }
 
 /* the kernel event thread's id, zero until InitKernEvent creates it */
-static int kernEventThreadId = 0;
+static int kernEventThreadId = 0; /* derived name */
 
 /* The link's small-data base, which no header declares */
 extern char _gp[];
@@ -103,7 +95,7 @@ int InitThread(void)
         return -1;
     }
 
-    kernEventRing.f0 = 0;
+    kernEventRing.ridx = 0;
     kernEventRing.widx = 0;
     StartThread(tid, &kernEventRing);
     ChangeThreadPriority(GetThreadId(), 1);

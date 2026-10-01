@@ -26,35 +26,35 @@ typedef struct {
 /* The member's .data in link order: the build stamp, the number of the call
    in flight that sceMcSync completes, and the semaphore every entry point
    takes, -1 until sceMcInit creates it. */
-static char sceMcVersion[16] = "PsIIlibmc   2240";
+static char sceMcVersion[16] = "PsIIlibmc   2240"; /* derived name */
 
-static int mcFunc = 0;
+static int mcFunc = 0; /* derived name */
 
-static int mcSema = -1;
+static int mcSema = -1; /* derived name */
 
 /* The member's .bss in link order, all file statics: the mcserv client
    record, the three answer pointers sceMcGetInfo leaves for its end
    callback, and the RPC buffers, each SIF buffer on its own 64-byte cache
    line. */
-static char mcClient[0x28] __attribute__((aligned(64)));
+static char mcClient[0x28] __attribute__((aligned(64))); /* derived name */
 
-static int *mcInfoType;
+static int *mcInfoType; /* derived name */
 
-static int *mcInfoFree;
+static int *mcInfoFree; /* derived name */
 
-static int *mcInfoFormat;
+static int *mcInfoFormat; /* derived name */
 
-static AuxReq mcAux __attribute__((aligned(64)));
+static AuxReq mcAux __attribute__((aligned(64))); /* derived name */
 
-static char mcCmd[0x30] __attribute__((aligned(64)));
+static char mcCmd[0x30] __attribute__((aligned(64))); /* derived name */
 
-static NameReq mcName;
+static NameReq mcName; /* derived name */
 
-static char mcRecv[0xC0] __attribute__((aligned(64)));
+static char mcRecv[0xC0] __attribute__((aligned(64))); /* derived name */
 
-static char mcPwd[0x1000] __attribute__((aligned(64)));
+static char mcPwd[0x1000] __attribute__((aligned(64))); /* derived name */
 
-static char mcRdata[0x40] __attribute__((aligned(64)));
+static char mcRdata[0x40] __attribute__((aligned(64))); /* derived name */
 
 int sceMcInit(void)
 {

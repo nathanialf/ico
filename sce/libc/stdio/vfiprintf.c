@@ -6,11 +6,6 @@
 #include <stdio.h>
 #include <unistd.h>
 
-struct D520 {
-    char pad0[8];
-    PObjBlk *blk; /* 0x8 */
-};
-
 struct __siov {
     const void *iov_base; /* 0x0 */
     int iov_len;          /* 0x4 */

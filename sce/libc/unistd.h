@@ -15,7 +15,7 @@ int read(int fd, void *buf, int size);        /* definition in sce/ */
 int write(int fd, const void *buf, int size); /* definition in sce/ */
 int isatty(int fd);                           /* definition in sce/ */
 int getpid(void);                             /* definition in sce/ */
-unsigned int sbrk(int a0);                    /* the spelling at 1 site, asm definition in sce/ */
+void *sbrk(int incr);                         /* asm definition in sce/ (glue.c) */
 void _exit(int a0);                           /* the spelling at 1 site */
 
 #endif /* SCE_LIBC_UNISTD_H */

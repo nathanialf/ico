@@ -1,22 +1,14 @@
 /* libpkt.a member vifpk039.o */
 #include <libpkt.h>
 
-typedef unsigned int u128_241778 __attribute__((mode(TI)));
-
-typedef struct {
-    int *end;
-    int pad[2];
-    int *cur;
-} Pool241748;
-
-void sceVif1PkOpenDirectCode(void *a0, int a1)
+void sceVif1PkOpenDirectCode(sceVif1Packet *pkt, int irq)
 {
-    int *v;
-    int w;
-    sceVif1PkAlign(a0, 2, 3);
-    v = *(int **)a0;
-    w = a1 ? 0xD0000000 : 0x50000000;
+    unsigned int *v;
+    unsigned int w;
+    sceVif1PkAlign(pkt, 2, 3);
+    v = pkt->cur;
+    w = irq ? 0xD0000000 : 0x50000000;
     *v = w;
-    *(int **)((char *)a0 + 0xC) = v;
-    *(int **)a0 = v + 1;
+    pkt->vifCode = v;
+    pkt->cur = v + 1;
 }

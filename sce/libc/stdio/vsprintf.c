@@ -4,11 +4,6 @@
 #include <string.h>
 #include <reent.h>
 
-struct D520 {
-    char pad0[8];
-    PObjBlk *blk; /* 0x8 */
-};
-
 int vsprintf(void *out, void *a1, void *a2)
 {
     char s[0x60];

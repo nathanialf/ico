@@ -94,20 +94,20 @@ int _sysbitPtr(int *a0, int a1)
     return v;
 }
 
-void setD3_CHCR(int *a0)
+void setD3_CHCR(int chcr)
 {
     DIntr();
     *D_ENABLEW = *D_ENABLER | 0x10000;
-    *D3_CHCR = (int)a0;
+    *D3_CHCR = chcr;
     *D_ENABLEW = *D_ENABLER & 0xFFFEFFFF;
     EIntr();
 }
 
-void setD4_CHCR(int *a0)
+void setD4_CHCR(int chcr)
 {
     DIntr();
     *D_ENABLEW = *D_ENABLER | 0x10000;
-    *D4_CHCR = (int)a0;
+    *D4_CHCR = chcr;
     *D_ENABLEW = *D_ENABLER & 0xFFFEFFFF;
     EIntr();
 }

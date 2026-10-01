@@ -11,19 +11,21 @@
 #ifndef SCE_LIBDMA_LIBDMA_H
 #define SCE_LIBDMA_LIBDMA_H
 
-/* The channel-environment record sceDmaPutEnv writes to D_CTRL, D_RBOR
-   and D_RBSR. */
-typedef struct {
-    unsigned char chan; /* 0x00 channel number */
-    unsigned char b01;  /* 0x01 */
-    unsigned char b02;  /* 0x02 */
-    unsigned char b03;  /* 0x03 release level, 0 = off */
-    unsigned short h04; /* 0x04 */
-    unsigned short h06; /* 0x06 */
-    unsigned short h08; /* 0x08 */
-    unsigned short h0A; /* 0x0A */
-    void *rbadr;        /* 0x0C ring buffer address, to D_RBOR */
-    int rbsize;         /* 0x10 ring buffer size, to D_RBSR */
+/* The channel-environment record sceDmaPutEnv writes to D_CTRL, D_PCR,
+   D_SQWC, D_RBOR and D_RBSR: the first three bytes select the D_CTRL MFD,
+   STS and STD fields through sceDmaPutEnv's code tables, the fourth is the
+   release cycle (0 = off). */
+typedef struct {         /* field names derived */
+    unsigned char mfd;   /* 0x00 */
+    unsigned char sts;   /* 0x01 */
+    unsigned char std;   /* 0x02 */
+    unsigned char rcyc;  /* 0x03 */
+    unsigned short cde;  /* 0x04, D_PCR's upper half */
+    unsigned short cpc;  /* 0x06, D_PCR's lower half */
+    unsigned short sqwc; /* 0x08, D_SQWC's lower half */
+    unsigned short tqwc; /* 0x0A, D_SQWC's upper half */
+    void *rbadr;         /* 0x0C ring buffer address, to D_RBOR */
+    int rbsize;          /* 0x10 ring buffer size, to D_RBSR */
 } DmaEnv;
 
 /* A channel's register block, CHCR to TADR. */

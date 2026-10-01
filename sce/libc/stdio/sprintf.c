@@ -4,11 +4,6 @@
 #include <string.h>
 #include <reent.h>
 
-struct D520 {
-    char pad0[8];
-    PObjBlk *blk; /* 0x8 */
-};
-
 int _sprintf_r(void *a0, int a1, int a2, ...)
 {
     char buf[0x60];

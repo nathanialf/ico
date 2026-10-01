@@ -4,19 +4,13 @@
 
 typedef long long s_long128;
 
-typedef struct {
-    short f0; /* 0x00 */
-    short f2; /* 0x02 */
-    short f4; /* 0x04 */
-} GParam;
-
 void sceGsSetDefDispEnv(sceGsDispEnv *disp, short psm, short w, short h, short dx, short dy)
 {
-    GParam *gp = sceGsGetGParam();
+    sceGsGParam *gp = sceGsGetGParam();
 
     disp->pmode = 0x66;
-    if (gp->f0 != 0) {
-        if (gp->f4 != 0) {
+    if (gp->inter != 0) {
+        if (gp->ffmd != 0) {
             disp->smode2 = 3;
         } else {
             disp->smode2 = 1;
@@ -26,8 +20,8 @@ void sceGsSetDefDispEnv(sceGsDispEnv *disp, short psm, short w, short h, short d
     }
     disp->dispfb = ((s_long128)(psm & 0xF) << 15) | ((s_long128)(((w + 0x3F) >> 6) & 0x3F) << 9);
 
-    if (gp->f2 == 2) {
-        if (gp->f0 == 1) {
+    if (gp->omode == 2) {
+        if (gp->inter == 1) {
             /* RECONSTRUCTION: the empty asm stands in for Sony's text, presumed
              * the plain `(dy + 50) & 0xFFF`.  The object reads the sum once
              * between the add and the mask, which places this arm's
@@ -46,7 +40,7 @@ void sceGsSetDefDispEnv(sceGsDispEnv *disp, short psm, short w, short h, short d
             s_long128 dw = (s_long128)(q * w - 1) << 32;
             s_long128 display;
 
-            if (gp->f4) {
+            if (gp->ffmd) {
                 display = magh | dw | (ddx | (s_long128)(h * 2 - 1) << 44) | ddy;
             } else {
                 display = magh | dw | (ddx | (s_long128)(h - 1) << 44) | ddy;
@@ -60,8 +54,8 @@ void sceGsSetDefDispEnv(sceGsDispEnv *disp, short psm, short w, short h, short d
                             ((((s_long128)(dx * q) + 0x27C) & 0xFFF) | dh) |
                             (s_long128)((dy + 0x19) & 0xFFF) << 12;
         }
-    } else if (gp->f2 == 3) {
-        if (gp->f0 == 1) {
+    } else if (gp->omode == 3) {
+        if (gp->inter == 1) {
             /* RECONSTRUCTION: as in the f2 == 2 arm, the empty asm stands in
              * for Sony's text, presumed the plain `(dy + 72) & 0xFFF`. */
             s_long128 ddy = (s_long128)(({
@@ -77,7 +71,7 @@ void sceGsSetDefDispEnv(sceGsDispEnv *disp, short psm, short w, short h, short d
             s_long128 dw = (s_long128)(q * w - 1) << 32;
             s_long128 display;
 
-            if (gp->f4) {
+            if (gp->ffmd) {
                 display = magh | dw | (ddx | (s_long128)(h * 2 - 1) << 44) | ddy;
             } else {
                 display = magh | dw | (ddx | (s_long128)(h - 1) << 44) | ddy;
@@ -92,7 +86,7 @@ void sceGsSetDefDispEnv(sceGsDispEnv *disp, short psm, short w, short h, short d
                             (s_long128)((dy + 0x24) & 0xFFF) << 12;
         }
     } else {
-        printf("sceGsDefDispEnv:Not support displaymode for %d!!\n", gp->f2);
+        printf("sceGsDefDispEnv:Not support displaymode for %d!!\n", gp->omode);
     }
     disp->bgcolor = 0;
 }

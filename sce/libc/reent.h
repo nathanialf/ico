@@ -8,20 +8,10 @@
 #ifndef SCE_LIBC_REENT_H
 #define SCE_LIBC_REENT_H
 
-typedef struct PObjBlk {
-    char pad0[4];
-    unsigned int size; /* 0x4 */
-} PObjBlk;
-
 typedef struct {
     unsigned char *base; /* 0x0 */
     int size;            /* 0x4 */
 } Sbuf;
-
-typedef struct {
-    char *pos; /* 0x0 */
-    int len;   /* 0x4 */
-} StreamBuf;
 
 /* The reentrancy record every member
  * of this archive reaches through the stream record's data field, defined after
@@ -107,7 +97,7 @@ long _lseek_r(Reent *ptr, int fd, long pos, int whence);     /* definition in sc
 struct stat;
 
 int _fstat_r(Reent *ptr, int fd, struct stat *pstat); /* definition in sce/ */
-int _sbrk_r(Reent *ptr, int incr);                    /* definition in sce/ */
+void *_sbrk_r(Reent *ptr, int incr);                  /* definition in sce/ */
 int _kill_r(Reent *ptr, int pid, int sig);            /* definition in sce/ */
 int _getpid_r(Reent *ptr);                            /* definition in sce/ */
 

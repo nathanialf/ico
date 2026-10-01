@@ -1,11 +1,6 @@
 /* libc.a member qsort.o */
 #include <reent.h>
 
-struct D520 {
-    char pad0[8];
-    PObjBlk *blk; /* 0x8 */
-};
-
 typedef int (*QCmp)();
 
 #define qswapcode(TYPE, parmi, parmj, n)                                                           \

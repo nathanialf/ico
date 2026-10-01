@@ -3,8 +3,8 @@
  *
  * The SIF command records this archive's sifrpc, iopreset and sifcmd members
  * share, under the PS2 SDK's public name for the SIF command interface's
- * header.  Nothing here is copied from an SDK header.  Only libkernl's
- * members include it.
+ * header.  Nothing here is copied from an SDK header.  libkernl's members
+ * include it, and libcdvd's cdvd000.o for sceSifAddCmdHandler.
  */
 #ifndef SCE_LIBKERNL_SIFCMD_H
 #define SCE_LIBKERNL_SIFCMD_H
@@ -46,7 +46,7 @@ typedef struct {
 
 void sceSifRemoveCmdHandler(int a0);                                /* definition in sce/ */
 int isceSifSendCmd(int a0, int a1, int a2, int a3, int t0, int t1); /* definition in sce/ */
-int sceSifAddCmdHandler(int a0, int a1, int a2);                    /* definition in sce/ */
+void sceSifAddCmdHandler(int a0, int a1, int a2);                   /* definition in sce/ */
 int sceSifGetSreg(int a0);                                          /* definition in sce/ */
 void sceSifInitCmd(void);                                           /* definition in sce/ */
 int sceSifSendCmd(int a0, int a1, int a2, int a3, int t0, int t1);  /* definition in sce/ */

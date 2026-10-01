@@ -1,12 +1,6 @@
 /* libc.a member s_isinf.o */
 /* newlib's libm/math source, built into libc.a. */
-#include "reent.h"
 #include <math.h>
-
-struct D520 {
-    char pad0[8];
-    PObjBlk *blk; /* 0x8 */
-};
 
 int isinf(long long x)
 {

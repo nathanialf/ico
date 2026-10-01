@@ -398,10 +398,7 @@ long long dpmul(long a0, long a1)
 
 void dpdiv(long a0, long a1)
 {
-    struct {
-        int a, b, c, pad;
-        long long d;
-    } x, y, *p;
+    fp_number_type_d x, y, *p;
 
     void *r;
     unsigned long long m1, m2, bit, q;
@@ -409,45 +406,45 @@ void dpdiv(long a0, long a1)
     __unpack_d(&a0, &x);
     __unpack_d(&a1, &y);
     p = &x;
-    if ((unsigned int)x.a >= 2)
+    if (x.class >= 2)
         goto op2check;
     r = &x;
     goto pack;
 op2check:
-    if ((unsigned int)y.a < 2) {
+    if (y.class < 2) {
         r = &y;
         goto pack;
     }
-    x.b = x.b ^ y.b;
-    if ((x.a ^ 4) == 0)
+    x.sign = x.sign ^ y.sign;
+    if ((x.class ^ 4) == 0)
         goto chk_same;
-    if ((x.a ^ 2) != 0)
+    if ((x.class ^ 2) != 0)
         goto op1_normal;
 chk_same:
     r = &x;
-    if (x.a != y.a)
+    if (x.class != y.class)
         goto pack;
     r = nan_d();
     goto pack;
 op1_normal:
-    if ((y.a ^ 4) != 0)
+    if ((y.class ^ 4) != 0)
         goto chk_zero;
-    x.d = 0;
-    x.c = 0;
+    x.fraction.ll = 0;
+    x.normal_exp = 0;
     r = &x;
     goto pack;
 chk_zero:
-    if ((y.a ^ 2) != 0)
+    if ((y.class ^ 2) != 0)
         goto divide;
-    x.a = 4;
+    x.class = 4;
     r = &x;
     goto pack;
 divide:
-    m1 = (unsigned long long)x.d;
-    m2 = (unsigned long long)y.d;
-    x.c = x.c - y.c;
+    m1 = x.fraction.ll;
+    m2 = y.fraction.ll;
+    x.normal_exp = x.normal_exp - y.normal_exp;
     if (m1 < m2) {
-        x.c = x.c - 1;
+        x.normal_exp = x.normal_exp - 1;
         m1 <<= 1;
     }
     q = 0;
@@ -461,14 +458,14 @@ divide:
         m1 <<= 1;
     } while (bit != 0);
     if ((q & 0xFF) != 0x80) {
-        p->d = q;
+        p->fraction.ll = q;
     } else {
         if (q & 0x100) {
             q += 0x80;
         } else {
             q = (m1 != 0) ? (q + 0x80) : q;
         }
-        p->d = q;
+        p->fraction.ll = q;
     }
     r = p;
 pack:
@@ -635,48 +632,36 @@ unsigned int dptoul(long a0)
 
 void __negdf2(long long a0)
 {
-    struct {
-        int a, b, c, pad;
-        long long d;
-    } s;
+    fp_number_type_d s;
 
     long long t = a0;
     __unpack_d(&t, &s);
-    s.b = (s.b == 0);
+    s.sign = (s.sign == 0);
     __pack_d(&s);
 }
 
 int __make_dp(int a0, int a1, int a2, long long a3)
 {
-    struct {
-        int a, b, c, pad;
-        long long d;
-    } s;
+    fp_number_type_d s;
 
-    s.a = a0;
-    s.b = a1;
-    s.c = a2;
-    s.d = a3;
+    s.class = a0;
+    s.sign = a1;
+    s.normal_exp = a2;
+    s.fraction.ll = a3;
     __pack_d(&s);
 }
 
 float dptofp(long a0)
 {
-    struct {
-        int f0;
-        int f4;
-        int f8;
-        int fC;
-        long long f10;
-    } buf;
+    fp_number_type_d buf;
 
     long long m;
     int hi, t;
     __unpack_d(&a0, &buf);
-    m = buf.f10;
+    m = buf.fraction.ll;
     hi = (int)(m >> 30);
     t = hi | 1;
     if ((m & 0x3FFFFFFF) == 0)
         t = hi;
-    __make_fp(buf.f0, buf.f4, buf.f8, t);
+    __make_fp(buf.class, buf.sign, buf.normal_exp, t);
 }

@@ -5,11 +5,6 @@
 #include <stdlib.h>
 #include <unistd.h>
 
-struct D520 {
-    char pad0[8];
-    PObjBlk *blk; /* 0x8 */
-};
-
 /* Only st_mode is reached here, at 0x04; the record is 0x70 bytes, the size
    of the stat buffer in this member's frame.  The trailing bytes are
    padding, not a known field layout. */

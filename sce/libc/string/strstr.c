@@ -2,11 +2,6 @@
 #include <reent.h>
 #include <string.h>
 
-struct D520 {
-    char pad0[8];
-    PObjBlk *blk; /* 0x8 */
-};
-
 char *strstr(const char *searchee, const char *lookfor)
 {
     if (*searchee == 0) {

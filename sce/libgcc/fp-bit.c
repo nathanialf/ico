@@ -472,28 +472,28 @@ int __fpcmp_parts_f(fp_number_type *a, fp_number_type *b)
         return a->sign ? -1 : 1;
     }
     {
-        int af4 = a->sign;
-        int bf4 = b->sign;
-        if (af4 != bf4) {
-            return af4 ? -1 : 1;
+        int asign = a->sign;
+        int bsign = b->sign;
+        if (asign != bsign) {
+            return asign ? -1 : 1;
         }
         {
-            int af8 = a->normal_exp;
-            int bf8 = b->normal_exp;
-            if (bf8 < af8) {
-                return af4 ? -1 : 1;
+            int aexp = a->normal_exp;
+            int bexp = b->normal_exp;
+            if (bexp < aexp) {
+                return asign ? -1 : 1;
             }
-            if (af8 < bf8) {
-                return af4 ? 1 : -1;
+            if (aexp < bexp) {
+                return asign ? 1 : -1;
             }
             {
-                unsigned int afC = a->fraction;
-                unsigned int bfC = b->fraction;
-                if (bfC < afC) {
-                    return af4 ? -1 : 1;
+                unsigned int afrac = a->fraction;
+                unsigned int bfrac = b->fraction;
+                if (bfrac < afrac) {
+                    return asign ? -1 : 1;
                 }
-                if (afC < bfC) {
-                    return af4 ? 1 : -1;
+                if (afrac < bfrac) {
+                    return asign ? 1 : -1;
                 }
                 return 0;
             }
@@ -601,31 +601,32 @@ unsigned int fptoui(float arg_a)
 
 float __negsf2(float f12)
 {
-    int o[4];
+    fp_number_type o;
     float in[4];
     in[0] = f12;
-    __unpack_f(in, o);
-    o[1] = (o[1] == 0);
-    return __pack_f(o);
+    __unpack_f(in, &o);
+    o.sign = (o.sign == 0);
+    return __pack_f(&o);
 }
 
 void __make_fp(int a0, int a1, int a2, int a3)
 {
-    int buf[4];
-    buf[0] = a0;
-    buf[1] = a1;
-    buf[2] = a2;
-    buf[3] = a3;
-    __pack_f(buf);
+    fp_number_type buf;
+    buf.class = a0;
+    buf.sign = a1;
+    buf.normal_exp = a2;
+    buf.fraction = a3;
+    __pack_f(&buf);
 }
 
 int fptodp(float f12)
 {
-    int local0[4];
+    fp_number_type in;
     float local1[4];
     long long a3_val;
     local1[0] = f12;
-    __unpack_f(local1, local0);
-    a3_val = (long long)(unsigned int)local0[3] << 32;
-    return __make_dp(local0[0], local0[1], local0[2], (long long)((unsigned long long)a3_val >> 2));
+    __unpack_f(local1, &in);
+    a3_val = (long long)in.fraction << 32;
+    return __make_dp(in.class, in.sign, in.normal_exp,
+                     (long long)((unsigned long long)a3_val >> 2));
 }

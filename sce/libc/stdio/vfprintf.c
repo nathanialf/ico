@@ -7,11 +7,6 @@
 #include <libc_internal.h>
 #include <locale.h>
 
-struct D520 {
-    char pad0[8];
-    PObjBlk *blk; /* 0x8 */
-};
-
 /* The stdio stream, as this libc lays it out: __sbprintf builds one on its own
    stack so a line-buffered stream is written through a full-size buffer. */
 #define __SNBF 0x0002

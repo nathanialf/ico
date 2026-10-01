@@ -2,62 +2,58 @@
 #include <eekernel.h>
 #include <libkernl_internal.h>
 
-typedef struct {
-    int f0;
-    int f4;
-    char *f8;
-} RingBuf_241C80;
-
-typedef struct {
-    int f0;
-    int f4;
-    char *f8;
-    char *fC;
+/* the receive queue: a 16-byte header (the ring's size, the bytes queued,
+   the read and write pointers) and the ring */
+typedef struct { /* derived name */
+    int size;
+    int count;
+    char *rp;
+    char *wp;
     char buf[256];
-} PrintSink;
+} TtyQueue;
 
 /* tty.o's .bss, in link order: the receive queue QueueInit sets up (a
    16-byte header and a 256-byte ring), the DECI2 socket record, then the send
    and receive packets (320 bytes each, 64-aligned for the DECI2 transfer). */
-static PrintSink tty_queue;
+static TtyQueue tty_queue; /* derived name */
 
-static int tty_rec[7];
+static int tty_rec[7]; /* derived name */
 
-static char tty_sbuf[320] __attribute__((aligned(64)));
+static char tty_sbuf[320] __attribute__((aligned(64))); /* derived name */
 
-static char tty_rbuf[320] __attribute__((aligned(64)));
+static char tty_rbuf[320] __attribute__((aligned(64))); /* derived name */
 
 void *QueueInit(int a0)
 {
-    tty_queue.f0 = a0;
-    tty_queue.f4 = 0;
-    tty_queue.fC = tty_queue.buf;
-    tty_queue.f8 = tty_queue.buf;
+    tty_queue.size = a0;
+    tty_queue.count = 0;
+    tty_queue.wp = tty_queue.buf;
+    tty_queue.rp = tty_queue.buf;
     return &tty_queue;
 }
 
-void QueuePeekWriteDone(int *q)
+void QueuePeekWriteDone(TtyQueue *q)
 {
-    int count = q[1] + 1;
-    char *wp = (char *)q[3] + 1;
-    int cap = q[0];
-    q[1] = count;
+    int count = q->count + 1;
+    char *wp = q->wp + 1;
+    int cap = q->size;
+    q->count = count;
     cap += 0x10;
     {
         char *end = (char *)q + cap;
-        q[3] = (int)wp;
+        q->wp = wp;
         if (wp == end) {
-            q[3] = (int)q + 0x10;
+            q->wp = q->buf;
         }
     }
 }
 
-void QueuePeekReadDone(RingBuf_241C80 *a0)
+void QueuePeekReadDone(TtyQueue *q)
 {
-    a0->f4--;
-    a0->f8++;
-    if (a0->f8 == (char *)a0 + (a0->f0 + 0x10)) {
-        a0->f8 = (char *)a0 + 0x10;
+    q->count--;
+    q->rp++;
+    if (q->rp == (char *)q + (q->size + 0x10)) {
+        q->rp = q->buf;
     }
 }
 
@@ -72,7 +68,7 @@ typedef struct {
     volatile int busy; /* 0x0C set while a send is outstanding */
     char *wbuf;        /* 0x10 */
     char *rbuf;        /* 0x14 */
-    int *q;            /* 0x18 the receive queue */
+    TtyQueue *q;       /* 0x18 the receive queue */
 } TtyRec;
 
 void sceTtyHandler(int event, int param, void *opt)
@@ -98,7 +94,7 @@ void sceTtyHandler(int event, int param, void *opt)
         }
         hdr = tty->rbuf;
         for (i = 12; i < *(unsigned short *)hdr; i++) {
-            *(char *)tty->q[3] = tty->rbuf[i];
+            *tty->q->wp = tty->rbuf[i];
             QueuePeekWriteDone(tty->q);
         }
         tty->rlen = 0;
@@ -189,8 +185,8 @@ int sceTtyRead(void *buf, int size)
         /* the queue's count, which the tty handler raises from interrupt
            level */
         while (((volatile int *)tty_rec[6])[1] == 0) {}
-        *p = *((RingBuf_241C80 *)tty_rec[6])->f8;
-        QueuePeekReadDone((RingBuf_241C80 *)tty_rec[6]);
+        *p = *((TtyQueue *)tty_rec[6])->rp;
+        QueuePeekReadDone((TtyQueue *)tty_rec[6]);
         if (*p == '\n' || *p == '\r') {
             return i + 1;
         }

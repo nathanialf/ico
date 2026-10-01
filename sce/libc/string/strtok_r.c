@@ -3,11 +3,6 @@
 #include <string.h>
 #include <reent.h>
 
-struct D520 {
-    char pad0[8];
-    PObjBlk *blk; /* 0x8 */
-};
-
 int strtok_r(int a0, int a1, int a2)
 {
     char *s = (char *)a0;

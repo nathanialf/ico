@@ -1,18 +1,10 @@
 /* libpkt.a member vifpk053.o */
 #include <libpkt.h>
 
-typedef unsigned int u128_241778 __attribute__((mode(TI)));
-
-typedef struct {
-    int *end;
-    int pad[2];
-    int *cur;
-} Pool241748;
-
-void sceVif1PkAddGsData(int **a0, long long a1)
+void sceVif1PkAddGsData(sceVif1Packet *pkt, long long data)
 {
-    int *p = *a0;
-    *p++ = (int)a1;
-    *a0 = p + 1;
-    *p = (int)(a1 >> 32);
+    unsigned int *p = pkt->cur;
+    *p++ = (int)data;
+    pkt->cur = p + 1;
+    *p = (int)(data >> 32);
 }

@@ -73,7 +73,7 @@ void *sceSifGetDataTable(void)
 }
 
 /* sifcmd.o's .data: set once sceSifInitCmd has run, cleared by sceSifExitCmd */
-static int cmd_inited = 0;
+static int cmd_inited = 0; /* derived name */
 
 void sceSifInitCmd(void)
 {
@@ -159,7 +159,7 @@ SifCmdEntry *sceSifSetSysCmdBuffer(SifCmdEntry *tbl, int n)
     return old;
 }
 
-int sceSifAddCmdHandler(int a0, int a1, int a2)
+void sceSifAddCmdHandler(int a0, int a1, int a2)
 {
     int off = a0 * 8;
     int *p;

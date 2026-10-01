@@ -5,19 +5,19 @@
 
 int sceGsSyncV(int mode)
 {
-    char *p = (char *)sceGsGetGParam();
+    sceGsGParam *gp = sceGsGetGParam();
     long c;
 
-    if (*(int *)(p + 8) == 0) {
+    if (gp->intcUsed == 0) {
         VSync();
-        if (*(short *)p != 1) {
+        if (gp->inter != 1) {
             return 1;
         }
         return (int)((*GS_CSR >> 13) & 1);
     }
     c = VSync2();
     c = (c >> 13) & 1;
-    if (*(short *)p != 1) {
+    if (gp->inter != 1) {
         return 1;
     }
     return (int)c;

@@ -1,21 +1,13 @@
 /* libpkt.a member vifpk030.o */
 #include <libpkt.h>
 
-typedef unsigned int u128_241778 __attribute__((mode(TI)));
-
-typedef struct {
-    int *end;
-    int pad[2];
-    int *cur;
-} Pool241748;
-
-void sceVif1PkCnt(void *a0, int a1)
+void sceVif1PkCnt(sceVif1Packet *pkt, int code)
 {
-    int *p;
-    *(int **)((char *)a0 + 8) = sceVif1PkTerminate(a0);
-    p = *(int **)a0;
-    *p++ = a1 | 0x10000000;
-    *(int *)((char *)a0 + 0xC) = 0;
-    *(int **)a0 = p + 1;
+    unsigned int *p;
+    pkt->dmaTag = sceVif1PkTerminate(pkt);
+    p = pkt->cur;
+    *p++ = code | 0x10000000;
+    pkt->vifCode = 0;
+    pkt->cur = p + 1;
     *p = 0;
 }

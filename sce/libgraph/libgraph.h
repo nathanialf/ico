@@ -11,6 +11,18 @@
 #ifndef SCE_LIBGRAPH_LIBGRAPH_H
 #define SCE_LIBGRAPH_LIBGRAPH_H
 
+/* The record sceGsGetGParam hands back (graph001.o's .data), laid out from
+   the offsets sceGsResetGraph writes; graph003, graph004, graph005, graph009
+   and graph011 read it. */
+typedef struct {
+    short inter;   /* 0x0 */
+    short omode;   /* 0x2 */
+    short ffmd;    /* 0x4 */
+    short version; /* 0x6, the GS revision out of CSR bits 16..23 */
+    int intcUsed;  /* 0x8, set while graph001 owns the INTC 2 handler */
+    int handler;   /* 0xC, the handler id RemoveIntcHandler takes */
+} sceGsGParam;
+
 /* PMODE / SMODE2 / DISPFB / DISPLAY / BGCOLOR, one qword each. */
 typedef struct {
     long long pmode;   /* 0x00 */
@@ -70,7 +82,7 @@ typedef struct {
     unsigned long long test_1r_addr; /* 0x58 */
 } sceGsClear;
 
-void *sceGsGetGParam(void);                                             /* definition in sce/ */
+sceGsGParam *sceGsGetGParam(void);                                      /* definition in sce/ */
 unsigned long sceGsGetIMR(void);                                        /* definition in sce/ */
 void sceGsPutDispEnv(void *a0);                                         /* definition in sce/ */
 int sceGsPutDrawEnv(void *a0);                                          /* definition in sce/ */

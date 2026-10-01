@@ -8,12 +8,12 @@
  * so the linker puts it in the small common section. */
 int errno;
 
-int _sbrk_r(Reent *ptr, int incr)
+void *_sbrk_r(Reent *ptr, int incr)
 {
-    unsigned int ret;
+    char *ret;
     errno = 0;
     ret = sbrk(incr);
-    if (ret == 0xFFFFFFFF) {
+    if (ret == (void *)-1) {
         if (errno != 0) {
             ptr->err = errno;
         }

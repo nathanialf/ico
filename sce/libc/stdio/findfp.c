@@ -43,8 +43,6 @@ void *__sfmoreglue(void *a0, int a1)
 #define ENOMEM 12
 #define NDYNAMIC 4
 
-void __sinit(Reent *s);
-
 Fil *__sfp(Reent *d)
 {
     Fil *fp;
@@ -84,8 +82,6 @@ found:
     fp->lb.size = 0;
     return fp;
 }
-
-int _fwalk(Reent *ptr, int (*function)());
 
 void _cleanup_r(Reent *ptr)
 {

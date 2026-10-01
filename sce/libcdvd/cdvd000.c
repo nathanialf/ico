@@ -20,19 +20,19 @@ typedef struct {
    bind to are globals; the rest are statics named for their role.  Every SIF
    RPC buffer is 64-byte aligned, a cache line.  The bind states are -1 until
    the server is bound and 0 after. */
-static char sceCdvdVersion[16] = "PsIIlibcdvd 2240";
+static char sceCdvdVersion[16] = "PsIIlibcdvd 2240"; /* derived name */
 
 int SCE_CD_debug = 0;
 
-static int cb_thread_id = 0;
+static int cb_thread_id = 0; /* derived name */
 
-static int scmd_keep_cmd = 0;
+static int scmd_keep_cmd = 0; /* derived name */
 
-static int ncmd_keep_cmd = 0;
+static int ncmd_keep_cmd = 0; /* derived name */
 
-static int cb_semid = -1;
+static int cb_semid = -1; /* derived name */
 
-static int poff_busy = 0;
+static int poff_busy = 0; /* derived name */
 
 int _sceCd_ncmd_semid = -1;
 
@@ -42,19 +42,19 @@ int _sceCd_c_cb_sem = 0;
 
 volatile int _sceCd_ee_read_mode = 0;
 
-static int ncmd_bind = -1;
+static int ncmd_bind = -1; /* derived name */
 
-static int poff_bind = -1;
+static int poff_bind = -1; /* derived name */
 
-static int search_bind = -1;
+static int search_bind = -1; /* derived name */
 
-static int diskready_bind = -1;
+static int diskready_bind = -1; /* derived name */
 
-static int scmd_bind = -1;
+static int scmd_bind = -1; /* derived name */
 
-static int init_bind = -1;
+static int init_bind = -1; /* derived name */
 
-static int init_count = 0;
+static int init_count = 0; /* derived name */
 
 /* The command number the SIF RPC end interrupt writes and the callback thread
    polls: read back after every store, in every function of the member. */
@@ -84,36 +84,36 @@ char _sceCd_cd_scmd[40] = {0};
    callback thread, and each bound server's client record and buffers (the
    RPC buffers on the SIF DMA's alignment: a 64-byte line, or a quadword for
    diskready's send word). */
-static int cd_cbfunc;
+static int cd_cbfunc; /* derived name */
 
-static void (*poff_cbfunc)(int);
+static void (*poff_cbfunc)(int); /* derived name */
 
-static int poff_cbarg;
+static int poff_cbarg; /* derived name */
 
-static int cb_thread_word;
+static int cb_thread_word; /* derived name */
 
-static int cd_thread_id;
+static int cd_thread_id; /* derived name */
 
 static struct ThreadParam cd_thread_stat;
 
 static struct ThreadParam cb_thread_param;
 
-static int poff_cd[10];
+static int poff_cd[10]; /* derived name */
 
-static int poff_sdata;
+static int poff_sdata; /* derived name */
 
-static CdSearchReq search_req __attribute__((aligned(64)));
+static CdSearchReq search_req __attribute__((aligned(64))); /* derived name */
 
-static int search_rdata[16] __attribute__((aligned(64)));
+static int search_rdata[16] __attribute__((aligned(64))); /* derived name */
 
-static int search_cd[10];
+static int search_cd[10]; /* derived name */
 
-static int init_cd[10];
+static int init_cd[10]; /* derived name */
 
-static int diskready_cd[10];
+static int diskready_cd[10]; /* derived name */
 
-static int init_sdata __attribute__((aligned(64)));
-static int diskready_sdata __attribute__((aligned(16)));
+static int init_sdata __attribute__((aligned(64)));      /* derived name */
+static int diskready_sdata __attribute__((aligned(16))); /* derived name */
 
 /* CB_DelayTh is the member's first function; its first word sits in the delay
    slot of the jr that ends libkernl.a's sceSifWriteBackDCache, the previous

@@ -13,19 +13,20 @@ struct S12 {
 };
 
 /* The per-port, per-slot state record (0x1C bytes, padSlot[2][4]).  The
- * pointer fields are typed by what scePadPortOpen stores in them: f0 the EE
- * pad DMA area the caller passes, f4 this slot's command buffer (read back as
- * an int pointer by scePadSetActDirect), f8 the IOP-side buffer address the
- * open RPC returns, with f4's own type.  The field names stay placeholders. */
-typedef struct {
-    void *f0;
-    int *f4;
-    int *f8;
-    int fC;
-    int f10;
-    int f14;
-    int f18;
-} PObjA8B8Ent;
+ * pointer fields are typed by what scePadPortOpen stores in them: the EE pad
+ * DMA area the caller passes, this slot's command buffer (read back as an int
+ * pointer by scePadSetActDirect), and the IOP-side buffer address the open
+ * RPC returns, with the command buffer's type.  scePadInit clears the two
+ * words at 0x14 and 0x18, which nothing else in the run reads. */
+typedef struct {   /* derived name */
+    void *dmaArea; /* 0x00 */
+    int *cmdBuf;   /* 0x04 */
+    int *iopBuf;   /* 0x08 */
+    int dmaId;     /* 0x0C, the sceSifSetDma id _send_to_iop polls */
+    int opened;    /* 0x10 */
+    int word14;    /* 0x14 */
+    int word18;    /* 0x18 */
+} PadSlot;
 
 /* the member's .data: the build stamp, the init flag scePadInit sets and
    scePadEnd clears, the flag every diagnostic print tests, and the names
@@ -40,7 +41,7 @@ static int padDebug = 1; /* derived name */
    records, each slot's 64-byte command buffer and the RPC buffer */
 static int padClient[20]; /* derived name */
 
-static PObjA8B8Ent padSlot[2][4]; /* derived name */
+static PadSlot padSlot[2][4]; /* derived name */
 
 static int padCmd[2][4][16] __attribute__((aligned(64))); /* derived name */
 
@@ -51,40 +52,40 @@ static int padRpcBuf[32] __attribute__((aligned(64))); /* derived name */
 void _send_to_iop(int a0, int a1)
 {
     struct {
-        int *f0;
-        int f4;
-        int f8;
-        int fC;
+        int *src;
+        int dest;
+        int size;
+        int attr;
         char rest[0xF0];
     } buf;
 
-    int *p17 = padSlot[a0][a1].f4;
-    int ret = sceSifDmaStat(padSlot[a0][a1].fC);
+    int *cmd = padSlot[a0][a1].cmdBuf;
+    int ret = sceSifDmaStat(padSlot[a0][a1].dmaId);
 
     if (ret >= 0) {
         if (padDebug != 0) {
             printf("libpad: sceSifSetDma faild\n");
         }
     } else {
-        int n = *p17 + 1;
-        int *v = padSlot[a0][a1].f8 + ((n & 1) << 3); /* the 32-byte half, f8 is int * */
+        int n = *cmd + 1;
+        int *v = padSlot[a0][a1].iopBuf + ((n & 1) << 3); /* the 32-byte half, iopBuf is int * */
         int r;
         if (PAD_DEBUG) {
             printf("libpad: tPadDma Structure Invalid\n");
         }
-        *p17 = n;
-        SyncDCache(p17, (char *)p17 + 0x20);
-        buf.f0 = p17;
-        buf.f4 = (int)v;
-        buf.f8 = 0x20;
-        buf.fC = 0;
+        *cmd = n;
+        SyncDCache(cmd, (char *)cmd + 0x20);
+        buf.src = cmd;
+        buf.dest = (int)v;
+        buf.size = 0x20;
+        buf.attr = 0;
         r = sceSifSetDma(&buf, 1);
         if (r == 0) {
             if (padDebug != 0) {
                 printf("libpad: sceSifSetDma faild\n");
             }
         }
-        padSlot[a0][a1].fC = r;
+        padSlot[a0][a1].dmaId = r;
     }
 }
 
@@ -127,12 +128,12 @@ int scePadInit2(int a0)
     int i;
 
     for (i = 0; i < 4; i++) {
-        padSlot[0][i].f10 = 0;
-        padSlot[0][i].f18 = 0;
-        padSlot[0][i].f14 = 0;
-        padSlot[1][i].f10 = 0;
-        padSlot[1][i].f18 = 0;
-        padSlot[1][i].f14 = 0;
+        padSlot[0][i].opened = 0;
+        padSlot[0][i].word18 = 0;
+        padSlot[0][i].word14 = 0;
+        padSlot[1][i].opened = 0;
+        padSlot[1][i].word18 = 0;
+        padSlot[1][i].word14 = 0;
     }
     padRpcBuf[0] = 0x10;
     padRpcBuf[4] = 0;
@@ -173,7 +174,7 @@ int scePadPortOpen(int a0, int a1, void *a2)
         }
         return 0;
     }
-    if (padSlot[a0][a1].f10 == 1) {
+    if (padSlot[a0][a1].opened == 1) {
         if (padDebug != 0) {
             printf("libpad: pad port is already open [%d][%d]\n", a0, a1);
         }
@@ -201,12 +202,12 @@ int scePadPortOpen(int a0, int a1, void *a2)
      * the IOP buffer address, read as a pointer. */
     q = padCmd[a0][a1];
     val = (int)*(void **)&padRpcBuf[5];
-    padSlot[a0][a1].f10 = 1;
-    padSlot[a0][a1].f8 = (int *)val;
-    padSlot[a0][a1].f0 = a2;
-    padSlot[a0][a1].f4 = q;
+    padSlot[a0][a1].opened = 1;
+    padSlot[a0][a1].iopBuf = (int *)val;
+    padSlot[a0][a1].dmaArea = a2;
+    padSlot[a0][a1].cmdBuf = q;
     q[0] = 0;
-    padSlot[a0][a1].fC = 0;
+    padSlot[a0][a1].dmaId = 0;
     return padRpcBuf[3];
 }
 
@@ -214,7 +215,7 @@ int scePadPortClose(int a0, int a1)
 {
     int ret;
 
-    if (padSlot[a0][a1].f10 == 0) {
+    if (padSlot[a0][a1].opened == 0) {
         return 0;
     }
     padRpcBuf[0] = 0xE;
@@ -225,7 +226,7 @@ int scePadPortClose(int a0, int a1)
     if (ret < 0) {
         return 0;
     }
-    padSlot[a0][a1].f10 = 0;
+    padSlot[a0][a1].opened = 0;
     return padRpcBuf[3];
 }
 
@@ -244,7 +245,7 @@ int scePadGetDmaStr(int a0, int a1)
 int scePadGetFrameCount(int a0, int a1)
 {
     int ret = 0;
-    if (padSlot[a0][a1].f10 == 0) {
+    if (padSlot[a0][a1].opened == 0) {
         return ret;
     }
     return *(int *)(scePadGetDmaStr(a0, a1) + 0x58);
@@ -253,7 +254,7 @@ int scePadGetFrameCount(int a0, int a1)
 int scePadRead(int a0, int a1, int a2)
 {
     int s0;
-    if (padSlot[a0][a1].f10 == 0) {
+    if (padSlot[a0][a1].opened == 0) {
         return 0;
     }
     s0 = scePadGetDmaStr(a0, a1);
@@ -264,7 +265,7 @@ int scePadRead(int a0, int a1, int a2)
 int scePadGetState(int a0, int a1)
 {
     unsigned char *p;
-    if (padSlot[a0][a1].f10 == 0)
+    if (padSlot[a0][a1].opened == 0)
         return 0x63;
     p = (unsigned char *)scePadGetDmaStr(a0, a1);
     if (p[0x70] != 6)
@@ -288,7 +289,7 @@ void scePadStateIntToStr(unsigned int a0, char *a1)
 
 int scePadSetReqState(int a0, int a1, int a2)
 {
-    if (padSlot[a0][a1].f10 == 0) {
+    if (padSlot[a0][a1].opened == 0) {
         return 0;
     }
     ((unsigned char *)scePadGetDmaStr(a0, a1))[0x71] = a2;
@@ -297,7 +298,7 @@ int scePadSetReqState(int a0, int a1, int a2)
 
 int scePadGetReqState(int a0, int a1)
 {
-    if (padSlot[a0][a1].f10 == 0) {
+    if (padSlot[a0][a1].opened == 0) {
         return 0;
     }
     return ((unsigned char *)scePadGetDmaStr(a0, a1))[0x71];
@@ -335,7 +336,7 @@ int scePadInfoAct(int a0, int a1, int a2, int a3)
 {
     PadDmaStr *p;
 
-    if (padSlot[a0][a1].f10 == 0) {
+    if (padSlot[a0][a1].opened == 0) {
         return 0;
     }
     p = (PadDmaStr *)scePadGetDmaStr(a0, a1);
@@ -368,7 +369,7 @@ int scePadInfoComb(int a0, int a1, int a2, int a3)
 {
     PadDmaStr *p;
 
-    if (padSlot[a0][a1].f10 == 0) {
+    if (padSlot[a0][a1].opened == 0) {
         return 0;
     }
     p = (PadDmaStr *)scePadGetDmaStr(a0, a1);
@@ -403,7 +404,7 @@ int scePadInfoMode(int a0, int a1, int a2, int a3)
     int t72;
     int v;
 
-    if (padSlot[a0][a1].f10 == 0) {
+    if (padSlot[a0][a1].opened == 0) {
         return 0;
     }
     q = scePadGetDmaStr(a0, a1);
@@ -490,7 +491,7 @@ int scePadSetActDirect(int a0, int a1, unsigned char *a2)
     if (((unsigned char *)scePadGetDmaStr(a0, a1))[0x72] != 1) {
         return 0;
     }
-    p = padSlot[a0][a1].f4;
+    p = padSlot[a0][a1].cmdBuf;
     q = (unsigned char *)p + 0xC;
     for (i = 0; i < 6; i++) {
         q[i] = a2[i];
@@ -531,7 +532,7 @@ int scePadGetButtonMask(int a0, int a1)
 {
     unsigned char *p;
 
-    if (padSlot[a0][a1].f10 == 0) {
+    if (padSlot[a0][a1].opened == 0) {
         return 0;
     }
     p = (unsigned char *)scePadGetDmaStr(a0, a1);
@@ -568,7 +569,7 @@ int scePadSetButtonInfo(int a0, int a1, int a2)
 
 int scePadInfoPressMode(int a0, int a1)
 {
-    if (padSlot[a0][a1].f10 == 0) {
+    if (padSlot[a0][a1].opened == 0) {
         return 0;
     }
     return scePadGetButtonMask(a0, a1) == 0x3FFFF;
@@ -576,7 +577,7 @@ int scePadInfoPressMode(int a0, int a1)
 
 int scePadEnterPressMode(int a0, int a1)
 {
-    if (padSlot[a0][a1].f10 == 0) {
+    if (padSlot[a0][a1].opened == 0) {
         return 0;
     }
     return scePadSetButtonInfo(a0, a1, 0xFFF);
@@ -584,7 +585,7 @@ int scePadEnterPressMode(int a0, int a1)
 
 int scePadExitPressMode(int a0, int a1)
 {
-    if (padSlot[a0][a1].f10 == 0) {
+    if (padSlot[a0][a1].opened == 0) {
         return 0;
     }
     return scePadSetButtonInfo(a0, a1, 0);

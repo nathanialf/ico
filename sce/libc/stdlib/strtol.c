@@ -4,11 +4,6 @@
 #include <reent.h>
 #include <ctype.h>
 
-struct D520 {
-    char pad0[8];
-    PObjBlk *blk; /* 0x8 */
-};
-
 /* libc.a member strtol.o: this is the reentrant worker `strtol` calls, i.e.
    newlib's _strtol_r; the ELF has no symbol for it.  _strtoul_r sits in the
    strtoul.o member. */

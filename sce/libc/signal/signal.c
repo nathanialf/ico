@@ -4,11 +4,6 @@
 #include <reent.h>
 #include <signal.h>
 
-struct D520 {
-    char pad0[8];
-    PObjBlk *blk; /* 0x8 */
-};
-
 int _init_signal_r(void *ptr)
 {
     int i;

@@ -14,9 +14,9 @@
 /* The link's end of .bss, which no header declares */
 extern char _end[];
 
-static int tty_opened = 0;
+static int tty_opened = 0; /* derived name */
 
-static char *heap_ptr = _end;
+static char *heap_ptr = _end; /* derived name */
 
 void sceResetttyinit(void)
 {

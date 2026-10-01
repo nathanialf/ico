@@ -3,11 +3,6 @@
 #include <libc_internal.h>
 #include <stdio.h>
 
-struct D520 {
-    char pad0[8];
-    PObjBlk *blk; /* 0x8 */
-};
-
 #define __SLBF 0x0001
 #define __SNBF 0x0002
 #define __SWR 0x0008

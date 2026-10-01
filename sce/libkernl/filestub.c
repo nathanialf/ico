@@ -5,7 +5,6 @@
 #include <string.h>
 #include <libkernl_internal.h>
 #include <sifcmd.h>
-#include <libcdvd.h>
 
 /* filestub.o's .data, in link order.  _sceFs_q is the async request slot
    table _sceFs_Rcv_Intr matches a reply against, read and written under
@@ -20,13 +19,13 @@ volatile int _sceFs_q[32] = {
     -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
 };
 
-static int fs_inited = 0;
+static int fs_inited = 0; /* derived name */
 
-static int fs_sema = -1;
+static int fs_sema = -1; /* derived name */
 
-static int iob_sema = -1;
+static int iob_sema = -1; /* derived name */
 
-static int q_sema = -1;
+static int q_sema = -1; /* derived name */
 
 /* the member's .bss: the ioctl caller's argument pointer, the 64-aligned RPC
    send buffer, receive buffer and reply packet the IOP writes (the handler
@@ -260,7 +259,7 @@ int sceFsInit(void)
    after _sceFs_Rcv_Intr, its four dots follow that function's jump table in
    the member's .rodata, and the pointer is still the member's last .data
    word. */
-static char *fs_stamp = "....";
+static char *fs_stamp = "...."; /* derived name */
 
 int _fs_version(void)
 {

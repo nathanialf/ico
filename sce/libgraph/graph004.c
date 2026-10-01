@@ -5,7 +5,7 @@
 void sceGsPutDispEnv(void *a0)
 {
     long *s = (long *)a0;
-    if (*(short *)((char *)sceGsGetGParam() + 6) == 1) {
+    if (sceGsGetGParam()->version == 1) {
         *GS_PMODE = s[0];
         *GS_DISPFB1 = s[2];
         *GS_DISPLAY1 = s[3];

@@ -10,12 +10,14 @@
 #include <string.h>
 #include "sound.h"
 
-typedef struct {
-    char _0[0x50];
-    unsigned char f50;
-    unsigned char f51;
-    char _52[6];
-} P16Ent;
+/* one 0x58-byte voice slot as SgSeStop walks them: the sequence or SE that
+   keyed it and its state (0 free, 1 keyed off, 2 sounding) */
+typedef struct { /* derived name */
+    char pad0[0x50];
+    unsigned char owner; /* 0x50 */
+    unsigned char state; /* 0x51 */
+    char pad52[6];
+} SgSlot;
 
 /* the member's .bss, in address order: the 128 vab headers, the 48 voice
    slots, the 48 sequence contexts, the common context the IOP side polls,
@@ -34,7 +36,7 @@ static unsigned char sgPacketContext[2 * 4096] __attribute__((aligned(64))); /* 
 
 static unsigned char sgIop2EeBuf[512]; /* derived name */
 
-static int sgIop2EeContext; /* derived name */
+static char *sgIop2EeContext; /* derived name */
 
 static int sgSeContext[128] __attribute__((aligned(64))); /* derived name */
 
@@ -82,7 +84,7 @@ void *_SgGetHeadContext(void)
     return sgHeadContext;
 }
 
-int _SgGetIop2EeContext(void)
+void *_SgGetIop2EeContext(void)
 {
     return sgIop2EeContext;
 }
@@ -106,7 +108,7 @@ void _SgCalledTickProc(void)
     void *seq = _SgGetSeqContext(0);
     char *com = _SgGetComContext();
     unsigned char **head = _SgGetHeadContext();
-    int iop = _SgGetIop2EeContext();
+    char *iop = _SgGetIop2EeContext();
     int i;
 
     _SgSeqSeRrEnd(seq);
@@ -896,7 +898,7 @@ int _SgTableEnvAdd(int *a0)
     return ret;
 }
 
-int _SgSeqKeyOnSlot(void)
+int _SgSeqKeyOnSlot(int a0)
 {
     int *mgr = _SgGetComContext();
     int best_idx = -1;
@@ -1014,8 +1016,8 @@ int _SgSeKeyOff(char *a0)
 {
     long long mask16 = 0;
     long long mask19 = 0;
-    char *p18 = (char *)_SgGetComContext();
-    char *p20 = (char *)_SgGetHeadContext();
+    char *com = (char *)_SgGetComContext();
+    char *head = (char *)_SgGetHeadContext();
     char *elem = (char *)_SgGetSlotContext(0);
     int i;
     for (i = 0; i < 0x30; i++, elem += 0x58) {
@@ -1026,7 +1028,7 @@ int _SgSeKeyOff(char *a0)
         if (!(*(int *)elem & 4)) {
             continue;
         }
-        q = *(char **)(p20 + 0x10);
+        q = *(char **)(head + 0x10);
         if (*(unsigned short *)(elem + 0x2C) != *(unsigned char *)(q + 3)) {
             continue;
         }
@@ -1047,7 +1049,7 @@ int _SgSeKeyOff(char *a0)
     }
     for (i = 0; i < 0x30; i++) {
         if ((mask16 >> i) & 1) {
-            *(long long *)(p18 + 0x28) |= (1LL << i);
+            *(long long *)(com + 0x28) |= (1LL << i);
         }
     }
     *(int *)(a0 + 4) += 4;
@@ -1751,7 +1753,6 @@ void _SgContLoop(int *a0)
         *(short *)((char *)a0 + 0x2C) = 0xFF;
         break;
     }
-end:
     a0[1] += 3;
 }
 
@@ -1805,7 +1806,7 @@ void _SgDeltaTime(char *s)
 void _SgSeqSeRrEnd(int *a0)
 {
     char *q = (char *)a0;
-    int iop = _SgGetIop2EeContext();
+    char *iop = _SgGetIop2EeContext();
     unsigned char *s = _SgGetSlotContext(0);
     int i;
     int j;
@@ -1860,17 +1861,17 @@ void _SgInit(int a0)
     void *seq = _SgGetSeqContext(0);
     int i;
 
-    sgIop2EeContext = (int)sgIop2EeBuf | 0x20000000;
+    sgIop2EeContext = (char *)((int)sgIop2EeBuf | 0x20000000);
     buf[0] = 0x1E;
     buf[1] = a0;
     buf[4] = 0;
-    _SgSndn2Remote(0x65, 0, (int)buf, (int)buf, 0x40, 0x40);
+    _SgSndn2Remote(0x65, 0, buf, buf, 0x40, 0x40);
     memset(slot, 0, 0x1080);
     memset(vab, 0, 0x600);
     memset(seq, 0, 0xFC0);
     memset(com, 0, 0x50);
     memset(pk, 0, 0x1000);
-    memset((void *)sgIop2EeContext, 0, 0x200);
+    memset(sgIop2EeContext, 0, 0x200);
     memset(se, 0, 0x200);
     for (i = 0; i < 48; i++, slot += 0x58) {
         slot[0x50] = 0xFF;
@@ -1886,7 +1887,7 @@ void _SgInit(int a0)
     *(volatile int *)(com + 0x40) = 0;
 }
 
-int _SgSndn2Remote(int a0, int a1, int a2, int a3, int a4, int a5)
+int _SgSndn2Remote(int a0, int a1, void *a2, void *a3, int a4, int a5)
 {
     return sceSifCallRpc(sgClient, a0, a1, a2, a4, a3, a5, 0, 0);
 }
@@ -2509,27 +2510,27 @@ void SgSeStop(int a0)
 {
     unsigned int idx = a0 & 0x7FFF;
     if (idx < 0x30) {
-        volatile int *p17 = _SgGetSeqContext(idx);
-        *p17 |= 0x2000;
-        if (*p17 & 0x4) {
+        volatile int *seq = _SgGetSeqContext(idx);
+        *seq |= 0x2000;
+        if (*seq & 0x4) {
             int mask8000 = a0 & 0x8000;
-            P16Ent *p16 = _SgGetSlotContext(0);
-            char *p19 = _SgGetComContext();
+            SgSlot *slot = _SgGetSlotContext(0);
+            char *com = _SgGetComContext();
             int i;
-            *p17 &= 0xFFFFFF77;
-            *p17 |= 0x40;
-            for (i = 0; i < 0x30; i++, p16++) {
-                if (p16->f51 != 2)
+            *seq &= 0xFFFFFF77;
+            *seq |= 0x40;
+            for (i = 0; i < 0x30; i++, slot++) {
+                if (slot->state != 2)
                     continue;
-                if (p16->f50 != idx)
+                if (slot->owner != idx)
                     continue;
                 if (mask8000) {
                     _SgSetPkAdd(2, i, 0, 0);
                 }
-                *(long long *)(p19 + 0x28) |= 1LL << i;
+                *(long long *)(com + 0x28) |= 1LL << i;
             }
         }
-        *p17 &= 0xFFFFDFFF;
+        *seq &= 0xFFFFDFFF;
     }
 }
 
@@ -2756,7 +2757,7 @@ int SgStAdpcmIopReadAddr(int a0)
 {
     int ret = 0;
     if ((unsigned int)a0 < 0x30) {
-        int base = _SgGetIop2EeContext();
+        char *base = _SgGetIop2EeContext();
         ret = *(int *)(base + (a0 % 0x18) * 4 + (a0 / 0x18) * 0x60 + 0xC0);
     }
     return ret;
@@ -2849,7 +2850,7 @@ int SgStPcmIopReadAddr(unsigned int a0)
 {
     int ret = 0;
     if (a0 < 0x10) {
-        int iop = _SgGetIop2EeContext();
+        char *iop = _SgGetIop2EeContext();
         ret = *(int *)(iop + (a0 << 2) + 0x180);
     }
     return ret;

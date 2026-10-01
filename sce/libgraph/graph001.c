@@ -3,18 +3,6 @@
 #include <eeregs.h>
 #include <eekernel.h>
 
-/* the record sceGsGetGParam hands back, laid out from the offsets this
-   function writes.  The name follows the accessor's.  It stays local to this
-   file until another TU reaches the record by field. */
-typedef struct {
-    short inter;   /* 0x0 */
-    short omode;   /* 0x2 */
-    short ffmd;    /* 0x4 */
-    short version; /* 0x6, the GS revision out of CSR bits 16..23 */
-    int intcUsed;  /* 0x8, set while this member owns the INTC 2 handler */
-    int handler;   /* 0xC, the handler id RemoveIntcHandler takes */
-} sceGsGParam;
-
 /* the member's .data: its build stamp and the record, interlaced NTSC frame
    mode until sceGsResetGraph sets it.  The stamp is 16-aligned in Sony's
    object; as the member's first object its alignment is the section's. */
@@ -28,7 +16,7 @@ void sceGsResetGraph(short mode, short inter, short omode, short ffmd)
 
     switch (mode) {
     case 0:
-        g = (sceGsGParam *)sceGsGetGParam();
+        g = sceGsGetGParam();
         *GS_CSR = 0x200;
         g->inter = inter;
         g->omode = omode;
@@ -49,7 +37,7 @@ void sceGsResetGraph(short mode, short inter, short omode, short ffmd)
     }
 }
 
-void *sceGsGetGParam(void)
+sceGsGParam *sceGsGetGParam(void)
 {
     return &gsGParam;
 }
