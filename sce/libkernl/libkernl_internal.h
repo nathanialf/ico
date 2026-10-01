@@ -51,7 +51,7 @@ void sceResetttyinit(void);                                          /* definiti
 void sceTtyHandler(int event, int param, void *opt);                 /* definition in sce/ */
 int sceTtyInit(void);                                                /* definition in sce/ */
 int sceTtyRead(void *buf, int size);                                 /* definition in sce/ */
-int sceTtyWrite(char *buf, int len);                                 /* definition in sce/ */
+int sceTtyWrite(const char *buf, int len);                           /* definition in sce/ */
 void topThread(void *arg);                                           /* definition in sce/ */
 
 #endif /* SCE_LIBKERNL_LIBKERNL_INTERNAL_H */

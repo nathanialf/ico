@@ -42,7 +42,7 @@ int __srefill(Fil *fp)
         fp->flags |= 0x4;
     } else {
         if (fp->ub.base != 0) {
-            if (fp->ub.base != (char *)fp->ubuf)
+            if (fp->ub.base != fp->ubuf)
                 _free_r(fp->data, fp->ub.base);
             fp->ub.base = 0;
             if ((fp->r = fp->ur) != 0) {

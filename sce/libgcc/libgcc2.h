@@ -1,27 +1,12 @@
 /*
  * sce/libgcc/libgcc2.h
  *
- * The record shapes this archive's members share, under the public name the
- * archive's own sources use for this header.  The shapes follow the members'
- * loads and stores; nothing here is copied from an SDK header.
+ * The declarations this archive's members share, under the public name the
+ * archive's own sources use for this header.  Nothing here is copied from an
+ * SDK header.
  */
 #ifndef SCE_LIBGCC_LIBGCC2_H
 #define SCE_LIBGCC_LIBGCC2_H
-
-typedef struct {
-    unsigned int type;
-    int f4;
-    int f8;
-    int fC;
-} PCmpV;
-
-typedef struct {
-    unsigned int type;
-    int f4;
-    int f8;
-    int fC;
-    unsigned long long f10;
-} PCmpV2;
 
 typedef void (*func_ptr)(void);
 /* _ctors.o's constructor and destructor lists, which __main.o walks. */

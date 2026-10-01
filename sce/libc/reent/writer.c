@@ -5,7 +5,7 @@
 #include <unistd.h>
 #include <errno.h>
 
-long _write_r(Reent *ptr, int fd, void *buf, int cnt)
+long _write_r(Reent *ptr, int fd, const void *buf, int cnt)
 {
     long ret;
     errno = 0;

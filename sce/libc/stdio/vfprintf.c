@@ -21,8 +21,8 @@ struct D520 {
 
 /* fvwrite.h */
 struct __siov {
-    void *iov_base; /* 0x0 */
-    int iov_len;    /* 0x4 */
+    const void *iov_base; /* 0x0 */
+    int iov_len;          /* 0x4 */
 };
 
 struct __suio {

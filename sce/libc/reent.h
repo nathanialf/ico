@@ -46,19 +46,19 @@ typedef struct Fil {
     Sbuf bf;          /* 0x10 */
     int lbfsize;      /* 0x18 */
     void *cookie;     /* 0x1C, the argument the four stream calls below take */
-    int (*read)(void *cookie, char *buf, int n);      /* 0x20 */
-    int (*write)(void *cookie, char *buf, int n);     /* 0x24 */
-    long (*seek)(void *cookie, long off, int whence); /* 0x28 */
-    int (*close)(void *cookie);                       /* 0x2C */
-    Sbuf ub;                                          /* 0x30 */
-    unsigned char *up;                                /* 0x38 */
-    int ur;                                           /* 0x3C */
-    unsigned char ubuf[3];                            /* 0x40 */
-    unsigned char nbuf[1];                            /* 0x43 */
-    Sbuf lb;                                          /* 0x44 */
-    int blksize;                                      /* 0x4C */
-    int offset;                                       /* 0x50 */
-    struct Reent *data;                               /* 0x54 */
+    int (*read)(void *cookie, char *buf, int n);        /* 0x20 */
+    int (*write)(void *cookie, const char *buf, int n); /* 0x24 */
+    long (*seek)(void *cookie, long off, int whence);   /* 0x28 */
+    int (*close)(void *cookie);                         /* 0x2C */
+    Sbuf ub;                                            /* 0x30 */
+    unsigned char *up;                                  /* 0x38 */
+    int ur;                                             /* 0x3C */
+    unsigned char ubuf[3];                              /* 0x40 */
+    unsigned char nbuf[1];                              /* 0x43 */
+    Sbuf lb;                                            /* 0x44 */
+    int blksize;                                        /* 0x4C */
+    int offset;                                         /* 0x50 */
+    struct Reent *data;                                 /* 0x54 */
 } Fil;
 
 /* newlib's big integer (sys/reent.h): mprec's Balloc keeps a free list of
@@ -98,11 +98,11 @@ typedef struct Reent {
     Fil sf[3];                  /* 0x1E4 */
 } Reent;
 
-extern Reent *_impure_ptr;                               /* definition in sce/ (reent/impure.c) */
-int _close_r(Reent *ptr, int fd);                        /* definition in sce/ */
-long _read_r(Reent *ptr, int fd, void *buf, int cnt);    /* definition in sce/ */
-long _write_r(Reent *ptr, int fd, void *buf, int cnt);   /* definition in sce/ */
-long _lseek_r(Reent *ptr, int fd, long pos, int whence); /* definition in sce/ */
+extern Reent *_impure_ptr;                            /* definition in sce/ (reent/impure.c) */
+int _close_r(Reent *ptr, int fd);                     /* definition in sce/ */
+long _read_r(Reent *ptr, int fd, void *buf, int cnt); /* definition in sce/ */
+long _write_r(Reent *ptr, int fd, const void *buf, int cnt); /* definition in sce/ */
+long _lseek_r(Reent *ptr, int fd, long pos, int whence);     /* definition in sce/ */
 
 struct stat;
 

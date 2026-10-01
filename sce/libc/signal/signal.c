@@ -36,7 +36,7 @@ unsigned int _signal_r(void *a0, int a1, int a2)
         return 0xFFFFFFFFU;
     }
     if (*(int *)((char *)a0 + 0x1D4) == 0) {
-        if (_init_signal_r((int)a0) != 0) {
+        if (_init_signal_r(a0) != 0) {
             return 0xFFFFFFFFU;
         }
     }
@@ -110,20 +110,20 @@ int __sigtramp_r(void *ptr, int signo)
 
 int raise(int a0)
 {
-    return _raise_r((int)_impure_ptr, a0);
+    return _raise_r(_impure_ptr, a0);
 }
 
 int signal(int a0, int a1)
 {
-    return _signal_r((int)_impure_ptr, a0, a1);
+    return _signal_r(_impure_ptr, a0, a1);
 }
 
-void *_init_signal(void)
+int _init_signal(void)
 {
-    return _init_signal_r((int)_impure_ptr);
+    return _init_signal_r(_impure_ptr);
 }
 
 int __sigtramp(int a0)
 {
-    return __sigtramp_r((int)_impure_ptr, a0);
+    return __sigtramp_r(_impure_ptr, a0);
 }

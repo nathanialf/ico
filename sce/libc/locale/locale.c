@@ -13,22 +13,22 @@ static const struct lconv lconv = {
     ".", "", "", "", "", "", "", "", "", "", 127, 127, 127, 127, 127, 127, 127, 127,
 };
 
-int _setlocale_r(void *a0, int a1, const char *a2)
+char *_setlocale_r(struct Reent *data, int category, const char *locale)
 {
     static char lc_ctype[8] = "C";
     static char last_lc_ctype[8] = "C";
 
-    if (a2 == 0)
+    if (locale == 0)
         goto no_check;
-    if (strcmp(a2, "C") == 0)
+    if (strcmp(locale, "C") == 0)
         goto found;
-    if (strcmp(a2, "") != 0)
+    if (strcmp(locale, "") != 0)
         return 0;
 found:
-    *(int *)((char *)a0 + 0x30) = a1;
-    *(int *)((char *)a0 + 0x34) = (int)a2;
+    data->current_category = category;
+    data->current_locale = locale;
 no_check:
-    return (int)"C";
+    return "C";
 }
 
 struct lconv *_localeconv_r(struct Reent *data)
@@ -36,9 +36,9 @@ struct lconv *_localeconv_r(struct Reent *data)
     return (struct lconv *)&lconv;
 }
 
-int setlocale(int a0, int a1)
+char *setlocale(int category, const char *locale)
 {
-    return _setlocale_r((int)_impure_ptr, a0, a1);
+    return _setlocale_r(_impure_ptr, category, locale);
 }
 
 struct lconv *localeconv(void)

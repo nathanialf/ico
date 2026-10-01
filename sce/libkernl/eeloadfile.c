@@ -55,7 +55,7 @@ int _lf_version(void)
     void *s1 = lf_iopVersion;
     int s2 = 0;
     char *v;
-    if (memcmp(s1, (int)s3, 4) == 0)
+    if (memcmp(s1, s3, 4) == 0)
         goto done;
     v = lf_stamp;
     if (memcmp(s1, v, 4) == 0)

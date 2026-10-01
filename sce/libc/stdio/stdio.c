@@ -22,7 +22,7 @@ int __sread(void *cookie, char *buf, int n)
     return ret;
 }
 
-int __swrite(void *cookie, char *buf, int n)
+int __swrite(void *cookie, const char *buf, int n)
 {
     Fil *fp = (Fil *)cookie;
 

@@ -91,7 +91,7 @@ void _clearEach(void)
     sceIpuSync(0, 0);
 }
 
-void _ErrMessage(int a0)
+void _ErrMessage(char *a0)
 {
     printf("[MPEG ERROR]%s\n", a0);
 }
@@ -103,7 +103,7 @@ void _Error1(int a0, int a1)
     _Error(buf);
 }
 
-void _Error(void *a0)
+void _Error(char *a0)
 {
     char *p = (char *)_theSceMpeg;
     if (p != 0) {
@@ -114,7 +114,7 @@ void _Error(void *a0)
                 int local[2];
                 local[0] = 0;
                 local[1] = (int)a0;
-                _dispatchMpegCallback((int)p, local);
+                _dispatchMpegCallback(p, local);
                 return;
             }
         }

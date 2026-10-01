@@ -240,29 +240,29 @@ static fp_number_type *_fpadd_parts(fp_number_type *a, fp_number_type *b, fp_num
 
 float fpadd(float a0, float a1)
 {
-    char buf[0x40];
-    int ret;
-    *(float *)(buf + 0x30) = a0;
-    *(float *)(buf + 0x34) = a1;
-    __unpack_f(buf + 0x30, buf);
-    __unpack_f(buf + 0x34, buf + 0x10);
-    ret = (int)_fpadd_parts((fp_number_type *)buf, (fp_number_type *)(buf + 0x10),
-                            (fp_number_type *)(buf + 0x20));
-    return __pack_f(ret);
+    fp_number_type a;
+    fp_number_type b;
+    fp_number_type tmp;
+    fp_number_type *res;
+
+    __unpack_f(&a0, &a);
+    __unpack_f(&a1, &b);
+    res = _fpadd_parts(&a, &b, &tmp);
+    return __pack_f(res);
 }
 
 float fpsub(float a0, float a1)
 {
-    char buf[0x40];
-    int ret;
-    *(float *)(buf + 0x30) = a0;
-    *(float *)(buf + 0x34) = a1;
-    __unpack_f(buf + 0x30, buf);
-    __unpack_f(buf + 0x34, buf + 0x10);
-    *(int *)(buf + 0x14) ^= 1;
-    ret = (int)_fpadd_parts((fp_number_type *)buf, (fp_number_type *)(buf + 0x10),
-                            (fp_number_type *)(buf + 0x20));
-    return __pack_f(ret);
+    fp_number_type a;
+    fp_number_type b;
+    fp_number_type tmp;
+    fp_number_type *res;
+
+    __unpack_f(&a0, &a);
+    __unpack_f(&a1, &b);
+    b.sign ^= 1;
+    res = _fpadd_parts(&a, &b, &tmp);
+    return __pack_f(res);
 }
 
 static __inline__ fp_number_type *_fpmul_parts(fp_number_type *a, fp_number_type *b,
@@ -436,25 +436,25 @@ float fpdiv(float arg_a, float arg_b)
     return __pack_f(_fpdiv_parts(&a, &b));
 }
 
-int __fpcmp_parts_f(PCmpV *a, PCmpV *b)
+int __fpcmp_parts_f(fp_number_type *a, fp_number_type *b)
 {
-    unsigned int at = a->type;
+    unsigned int at = a->class;
     unsigned int bt;
     if (at < 2) {
         return 1;
     }
-    bt = b->type;
+    bt = b->class;
     if (bt < 2) {
         return 1;
     }
     if ((at ^ 4) == 0) {
         if ((bt ^ 4) == 0) {
-            return b->f4 - a->f4;
+            return b->sign - a->sign;
         }
-        return a->f4 ? -1 : 1;
+        return a->sign ? -1 : 1;
     }
     if ((bt ^ 4) == 0) {
-        if (b->f4 == 0) {
+        if (b->sign == 0) {
             return -1;
         }
         return 1;
@@ -463,23 +463,23 @@ int __fpcmp_parts_f(PCmpV *a, PCmpV *b)
         if ((bt ^ 2) == 0) {
             return 0;
         }
-        if (b->f4 != 0) {
+        if (b->sign != 0) {
             return 1;
         }
         return -1;
     }
     if ((bt ^ 2) == 0) {
-        return a->f4 ? -1 : 1;
+        return a->sign ? -1 : 1;
     }
     {
-        int af4 = a->f4;
-        int bf4 = b->f4;
+        int af4 = a->sign;
+        int bf4 = b->sign;
         if (af4 != bf4) {
             return af4 ? -1 : 1;
         }
         {
-            int af8 = a->f8;
-            int bf8 = b->f8;
+            int af8 = a->normal_exp;
+            int bf8 = b->normal_exp;
             if (bf8 < af8) {
                 return af4 ? -1 : 1;
             }
@@ -487,8 +487,8 @@ int __fpcmp_parts_f(PCmpV *a, PCmpV *b)
                 return af4 ? 1 : -1;
             }
             {
-                unsigned int afC = a->fC;
-                unsigned int bfC = b->fC;
+                unsigned int afC = a->fraction;
+                unsigned int bfC = b->fraction;
                 if (bfC < afC) {
                     return af4 ? -1 : 1;
                 }
@@ -503,12 +503,12 @@ int __fpcmp_parts_f(PCmpV *a, PCmpV *b)
 
 int fpcmp(float a0, float a1)
 {
-    char buf[0x30];
-    *(float *)(buf + 0x20) = a0;
-    *(float *)(buf + 0x24) = a1;
-    __unpack_f(buf + 0x20, buf);
-    __unpack_f(buf + 0x24, buf + 0x10);
-    return __fpcmp_parts_f(buf, buf + 0x10);
+    fp_number_type a;
+    fp_number_type b;
+
+    __unpack_f(&a0, &a);
+    __unpack_f(&a1, &b);
+    return __fpcmp_parts_f(&a, &b);
 }
 
 float sitofp(int arg_a)

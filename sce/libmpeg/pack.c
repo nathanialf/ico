@@ -247,7 +247,7 @@ int sceMpegDemuxPssRing(int *dec, void *p4, int size, int a3, int a4)
     return ret;
 }
 
-int sceMpegDemuxPss(void *a0, int a1, int a2)
+int sceMpegDemuxPss(void *a0, void *a1, int a2)
 {
     return sceMpegDemuxPssRing(a0, a1, a2, 0, -1);
 }

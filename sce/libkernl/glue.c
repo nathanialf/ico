@@ -67,7 +67,7 @@ long long VSync2(void)
     return val;
 }
 
-int write(int fd, void *buf, int size)
+int write(int fd, const void *buf, int size)
 {
     if (fd - 1 < 2U) {
         if (tty_opened == 0) {

@@ -126,7 +126,7 @@ void sceTtyHandler(int event, int param, void *opt)
     tty->busy = 0;
 }
 
-int sceTtyWrite(char *buf, int len)
+int sceTtyWrite(const char *buf, int len)
 {
     /* the tty handler owns this record from interrupt level: it clears the
        busy flag at +0xC when the send completes and writes the length at

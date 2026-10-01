@@ -29,8 +29,8 @@ typedef struct {
     struct MpegOut *sys;      /* 0x40 */
 } MpegHandle;                 /* derived name */
 
-void _ErrMessage(int a0);
-void _Error(void *a0);
+void _ErrMessage(char *a0);
+void _Error(char *a0);
 void _Error1(int a0, int a1);
 int _alalcAlloc(unsigned int *a0, int a1, unsigned int a2);
 void _alalcFree(int *a0);

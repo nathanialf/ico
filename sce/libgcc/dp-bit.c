@@ -266,10 +266,7 @@ fp_number_type_d *_fpadd_parts(fp_number_type_d *a, fp_number_type_d *b, fp_numb
 
 void dpadd(long a0, long a1)
 {
-    struct {
-        int a, b, c, pad;
-        long long d;
-    } x, y, z;
+    fp_number_type_d x, y, z;
 
     __unpack_d(&a0, &x);
     __unpack_d(&a1, &y);
@@ -278,14 +275,11 @@ void dpadd(long a0, long a1)
 
 long long dpsub(long a0, long a1)
 {
-    struct {
-        int a, b, c, pad;
-        long long d;
-    } x, y, z;
+    fp_number_type_d x, y, z;
 
     __unpack_d(&a0, &x);
     __unpack_d(&a1, &y);
-    y.b ^= 1;
+    y.sign ^= 1;
     return __pack_d(_fpadd_parts(&x, &y, &z));
 }
 
@@ -481,25 +475,25 @@ pack:
     __pack_d(r);
 }
 
-int __fpcmp_parts_d(PCmpV2 *a, PCmpV2 *b)
+int __fpcmp_parts_d(fp_number_type_d *a, fp_number_type_d *b)
 {
-    unsigned int at = a->type;
+    unsigned int at = a->class;
     unsigned int bt;
     if (at < 2) {
         return 1;
     }
-    bt = b->type;
+    bt = b->class;
     if (bt < 2) {
         return 1;
     }
     if ((at ^ 4) == 0) {
         if ((bt ^ 4) == 0) {
-            return b->f4 - a->f4;
+            return b->sign - a->sign;
         }
-        return a->f4 ? -1 : 1;
+        return a->sign ? -1 : 1;
     }
     if ((bt ^ 4) == 0) {
-        if (b->f4 == 0) {
+        if (b->sign == 0) {
             return -1;
         }
         return 1;
@@ -508,23 +502,23 @@ int __fpcmp_parts_d(PCmpV2 *a, PCmpV2 *b)
         if ((bt ^ 2) == 0) {
             return 0;
         }
-        if (b->f4 != 0) {
+        if (b->sign != 0) {
             return 1;
         }
         return -1;
     }
     if ((bt ^ 2) == 0) {
-        return a->f4 ? -1 : 1;
+        return a->sign ? -1 : 1;
     }
     {
-        int af4 = a->f4;
-        int bf4 = b->f4;
+        int af4 = a->sign;
+        int bf4 = b->sign;
         if (af4 != bf4) {
             return af4 ? -1 : 1;
         }
         {
-            int af8 = a->f8;
-            int bf8 = b->f8;
+            int af8 = a->normal_exp;
+            int bf8 = b->normal_exp;
             if (bf8 < af8) {
                 return af4 ? -1 : 1;
             }
@@ -532,8 +526,8 @@ int __fpcmp_parts_d(PCmpV2 *a, PCmpV2 *b)
                 return af4 ? 1 : -1;
             }
             {
-                unsigned long long af10 = a->f10;
-                unsigned long long bf10 = b->f10;
+                unsigned long long af10 = a->fraction.ll;
+                unsigned long long bf10 = b->fraction.ll;
                 if (bf10 < af10) {
                     return af4 ? -1 : 1;
                 }
@@ -548,10 +542,7 @@ int __fpcmp_parts_d(PCmpV2 *a, PCmpV2 *b)
 
 int dpcmp(long a0, long a1)
 {
-    struct {
-        int a, b, c, pad;
-        long long d;
-    } x, y;
+    fp_number_type_d x, y;
 
     __unpack_d(&a0, &x);
     __unpack_d(&a1, &y);

@@ -93,11 +93,6 @@ void *_SgGetPacketCntext(int a0, int a1)
     return (void *)(a0 * 0x1000 + (int)p);
 }
 
-/* _SgDeltaTime is defined at the foot of this file; the tick needs its real
- * void return type here, since an implicit int declaration would make every
- * call set the return register. */
-void _SgDeltaTime(char *s);
-
 /* The driver's tick: run every sequence context's event stream up to the next
  * delta time, then flush the four 64-bit key-on, key-off and dump masks the
  * events built to the IOP side and hand it the packet page the tick filled.
@@ -108,7 +103,7 @@ void _SgDeltaTime(char *s);
  * page this call just handed it. */
 void _SgCalledTickProc(void)
 {
-    char *seq = _SgGetSeqContext(0);
+    void *seq = _SgGetSeqContext(0);
     char *com = _SgGetComContext();
     unsigned char **head = _SgGetHeadContext();
     int iop = _SgGetIop2EeContext();
@@ -2854,8 +2849,8 @@ int SgStPcmIopReadAddr(unsigned int a0)
 {
     int ret = 0;
     if (a0 < 0x10) {
-        int *p = _SgGetIop2EeContext();
-        ret = *(int *)((char *)p + (a0 << 2) + 0x180);
+        int iop = _SgGetIop2EeContext();
+        ret = *(int *)(iop + (a0 << 2) + 0x180);
     }
     return ret;
 }

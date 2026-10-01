@@ -44,7 +44,7 @@ struct mallinfo {
 };
 
 int __sread(void *cookie, char *buf, int n);                                /* definition in sce/ */
-int __swrite(void *cookie, char *buf, int n);                               /* definition in sce/ */
+int __swrite(void *cookie, const char *buf, int n);                         /* definition in sce/ */
 long __sseek(void *cookie, long offset, int whence);                        /* definition in sce/ */
 int __sclose(void *cookie);                                                 /* definition in sce/ */
 void __sinit(Reent *s);                                                     /* definition in sce/ */

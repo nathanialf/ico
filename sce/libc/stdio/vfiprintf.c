@@ -11,17 +11,29 @@ struct D520 {
     PObjBlk *blk; /* 0x8 */
 };
 
-int __sprint(int a0, int *a1)
+struct __siov {
+    const void *iov_base; /* 0x0 */
+    int iov_len;          /* 0x4 */
+};
+
+struct __suio {
+    struct __siov *uio_iov; /* 0x0 */
+    int uio_iovcnt;         /* 0x4 */
+    int uio_resid;          /* 0x8 */
+};
+
+int __sprint(Fil *fp, struct __suio *uio)
 {
-    int ret;
-    if (a1[2] == 0) {
-        a1[1] = 0;
+    int err;
+
+    if (uio->uio_resid == 0) {
+        uio->uio_iovcnt = 0;
         return 0;
     }
-    ret = __sfvwrite(a0, a1);
-    a1[2] = 0;
-    a1[1] = 0;
-    return ret;
+    err = __sfvwrite(fp, uio);
+    uio->uio_resid = 0;
+    uio->uio_iovcnt = 0;
+    return err;
 }
 
 /* newlib's struct __sFILE for this build; the tail padding is what puts
@@ -78,17 +90,6 @@ typedef unsigned long u_long;
 typedef unsigned short u_short;
 
 typedef unsigned int u_int;
-
-struct __siov {
-    void *iov_base; /* 0x0 */
-    int iov_len;    /* 0x4 */
-};
-
-struct __suio {
-    struct __siov *uio_iov; /* 0x0 */
-    int uio_iovcnt;         /* 0x4 */
-    int uio_resid;          /* 0x8 */
-};
 
 #define NULL 0
 #define _REENT ((void *)_impure_ptr)
@@ -165,7 +166,7 @@ int _vfiprintf_r(void *data, Fil *fp, const char *fmt0, char *ap)
         uio.uio_resid += (len);                                                                    \
         iovp++;                                                                                    \
         if (++uio.uio_iovcnt >= NIOV) {                                                            \
-            if (__sprint((int)fp, (int *)&uio))                                                    \
+            if (__sprint(fp, &uio))                                                                \
                 goto error;                                                                        \
             iovp = iov;                                                                            \
         }                                                                                          \
@@ -182,7 +183,7 @@ int _vfiprintf_r(void *data, Fil *fp, const char *fmt0, char *ap)
     }
 #define FLUSH()                                                                                    \
     {                                                                                              \
-        if (uio.uio_resid && __sprint((int)fp, (int *)&uio))                                       \
+        if (uio.uio_resid && __sprint(fp, &uio))                                                   \
             goto error;                                                                            \
         uio.uio_iovcnt = 0;                                                                        \
         iovp = iov;                                                                                \
@@ -366,7 +367,7 @@ int _vfiprintf_r(void *data, Fil *fp, const char *fmt0, char *ap)
              *	-- ANSI X3J11
              */
             /* NOSTRICT */
-            _ulong = (u_long)va_arg(ap, void *);
+            _ulong = (u_long)(unsigned long)va_arg(ap, void *);
             base = HEX;
             xdigs = "0123456789abcdef";
             flags |= HEXPREFIX;
