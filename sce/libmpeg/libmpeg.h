@@ -27,7 +27,7 @@ typedef struct {
 typedef int (*sceMpegCallback)(sceMpeg *mp, void *cbdata, void *anyData);
 
 sceMpegCallback sceMpegAddCallback(sceMpeg *mp, int type, sceMpegCallback func, void *data);
-int sceMpegAddStrCallback();                              /* definition in sce/ */
+int sceMpegAddStrCallback(sceMpeg *mp, int type, int ch, sceMpegCallback func, void *data);
 int sceMpegClearRefBuff(sceMpeg *mp);
 int sceMpegCreate(sceMpeg *mp, void *buf, int size);
 int sceMpegDelete(sceMpeg *m); /* definition in sce/ */

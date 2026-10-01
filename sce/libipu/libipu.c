@@ -3,44 +3,43 @@
 #include <libipu.h>
 #include <libipu_internal.h>
 
-void sceIpuStopDMA(void *a0)
+void sceIpuStopDMA(sceIpuDmaEnv *env)
 {
     setD4_CHCR(1);
-    ((int *)a0)[0] = *D4_MADR;
-    ((int *)a0)[1] = *D4_TADR;
-    ((int *)a0)[2] = *D4_QWC;
-    ((int *)a0)[3] = *D4_CHCR;
+    env->d4madr = *D4_MADR;
+    env->d4tadr = *D4_TADR;
+    env->d4qwc = *D4_QWC;
+    env->d4chcr = *D4_CHCR;
     while (*IPU_CTRL & 0xF0) {}
     setD3_CHCR(0);
-    ((int *)a0)[4] = *D3_MADR;
-    ((int *)a0)[5] = *D3_QWC;
-    ((int *)a0)[6] = *D3_CHCR;
-    ((int *)a0)[7] = *IPU_BP;
-    ((int *)a0)[8] = *IPU_CTRL;
+    env->d3madr = *D3_MADR;
+    env->d3qwc = *D3_QWC;
+    env->d3chcr = *D3_CHCR;
+    env->ipubp = *IPU_BP;
+    env->ipuctrl = *IPU_CTRL;
 }
 
-void sceIpuRestartDMA(void *a0)
+void sceIpuRestartDMA(sceIpuDmaEnv *env)
 {
-    int *p = (int *)a0;
-    unsigned int bp = p[7];
+    unsigned int bp = env->ipubp;
     int cmd = bp & 0x7F;
     int n = ((bp >> 16) & 3) + ((bp >> 8) & 0xF);
-    int madr = p[0] - (n << 4);
-    int qwc = p[2] + n;
+    int madr = env->d4madr - (n << 4);
+    int qwc = env->d4qwc + n;
 
-    if (p[4] != 0 && p[5] != 0) {
-        *D3_MADR = p[4];
-        *D3_QWC = p[5];
-        setD3_CHCR(p[6] | 0x100);
+    if (env->d3madr != 0 && env->d3qwc != 0) {
+        *D3_MADR = env->d3madr;
+        *D3_QWC = env->d3qwc;
+        setD3_CHCR(env->d3chcr | 0x100);
     }
     while (*IPU_CTRL < 0) {}
     *IPU_CMD = cmd;
     while (*IPU_CTRL < 0) {}
     if (madr != 0 && qwc != 0) {
         *D4_MADR = madr;
-        *D4_TADR = p[1];
+        *D4_TADR = env->d4tadr;
         *D4_QWC = qwc;
-        setD4_CHCR(p[3] | 0x100);
+        setD4_CHCR(env->d4chcr | 0x100);
     }
 }
 

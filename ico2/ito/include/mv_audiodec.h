@@ -8,6 +8,7 @@
 #ifndef MV_AUDIODEC_H
 #define MV_AUDIODEC_H
 
+#include <libmpeg.h>
 #include "mv_readbuf.h"
 
 /* The audio decoder's record, 0x68 bytes.  The first 40 bytes after the state
@@ -54,6 +55,6 @@ int audioDecPause(AudioDec *self);
 void audioDecResume(AudioDec *self);
 int audioDecCreate(AudioDec *self, int mono, int volume);
 int audioDecSendToIOP(AudioDec *self);
-int pcmCallback(int mp, MvCbStr *pkt, MvCbArg *arg);
+int pcmCallback(sceMpeg *mp, void *cbdata, void *anyData);
 
 #endif /* MV_AUDIODEC_H */

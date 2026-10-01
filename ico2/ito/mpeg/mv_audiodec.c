@@ -159,16 +159,16 @@ inline void audioDecStart(AudioDec *self)
 /* one DMA transfer of n bytes from EE memory to IOP memory, waited out */
 static inline void sendToIOP(char *src, char *dst, int n) /* derived name */
 {
-    int dma[4];
+    sceSifDmaData dma;
     int id;
 
     if (n > 0) {
-        dma[0] = (int)src;
-        dma[1] = (int)dst;
-        dma[2] = n;
-        dma[3] = 0;
+        dma.src = (unsigned int)src;
+        dma.dest = (unsigned int)dst;
+        dma.size = n;
+        dma.u.attr = 0;
         FlushCache(0);
-        id = sceSifSetDma(dma, 1);
+        id = sceSifSetDma(&dma, 1);
         while (sceSifDmaStat(id) >= 0) {}
     }
 }
@@ -292,8 +292,10 @@ inline void audioDecResume(AudioDec *self)
     audioDecStart(self);
 }
 
-int pcmCallback(int mp, MvCbStr *pkt, MvCbArg *arg)
+int pcmCallback(sceMpeg *mp, void *cbdata, void *anyData)
 {
+    MvCbStr *pkt = cbdata;
+    MvCbArg *arg = anyData;
     char *p0;
     int n0;
     char *p1;

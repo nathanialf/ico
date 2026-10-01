@@ -216,9 +216,9 @@ void _initSeq(sceMpeg *mp)
         heap = &r->heap;
         size = (unsigned int)(_picWidth * 0x180 * _picHeight) >> 8;
         _alalcFree(heap);
-        r->frameBuff[0] = _alalcAlloc(heap, size, 0x40);
-        r->frameBuff[1] = _alalcAlloc(heap, size, 0x40);
-        r->frameBuff[2] = _alalcAlloc(heap, size, 0x40);
+        r->frameBuff[0] = _alalcAlloc(heap, size, 64);
+        r->frameBuff[1] = _alalcAlloc(heap, size, 64);
+        r->frameBuff[2] = _alalcAlloc(heap, size, 64);
         _initRefImages(_refFrame0, _refFrame1, _refFrame2, _refTop0, _refTop1, _refTop2, _refBot0,
                        _refBot1, _refBot2, r->frameBuff[0], r->frameBuff[1], r->frameBuff[2]);
         _RefImageInit(_refFrame0, _picWidth, _picHeight);

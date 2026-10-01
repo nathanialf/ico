@@ -10,6 +10,8 @@
 #ifndef SCE_LIBMPEG_LIBMPEG_INTERNAL_H
 #define SCE_LIBMPEG_LIBMPEG_INTERNAL_H
 
+#include <libipu.h>
+
 /* one entry of the callback table, by callback type */
 typedef struct { /* derived name */
     sceMpegCallback func;
@@ -36,7 +38,7 @@ typedef struct MpegSys {     /* derived name */
     MpegCb cb[7];            /* 0x00C by callback type */
     struct StrCb *strCb;     /* 0x044 sceMpegAddStrCallback's table, 64 entries */
     int nStrCb;              /* 0x048 */
-    int dmaEnv[9];           /* 0x04C what sceIpuStopDMA saves */
+    sceIpuDmaEnv dmaEnv;     /* 0x04C what sceIpuStopDMA saves */
     int usePtsGap;           /* 0x070 sceMpegSetDefaultPtsGap */
     int pad74;               /* 0x074 */
     long long ptsGap;        /* 0x078 */

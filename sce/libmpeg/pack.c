@@ -162,15 +162,12 @@ typedef struct {
     long long dts;
 } DemuxRec;
 
-/* a stream callback: the decoder, the packet record and the user argument */
-typedef int (*MpegStrCallback)(sceMpeg *mp, DemuxRec *cbdata, void *arg);
-
 /* one demux callback: the stream id it matches, the mask of the id bits that
  * take part in the match, and the handler with its user argument */
 typedef struct StrCb {
     long long id;
     unsigned long long mask;
-    MpegStrCallback func;
+    sceMpegCallback func;
     void *arg;
 } StrCb;
 
@@ -186,7 +183,7 @@ int sceMpegDemuxPssRing(sceMpeg *mp, void *p4, int size, int a3, int a4)
     PssPkt *pkt = &pktbuf;
     DemuxRec rec;
     MpegSys *p = mp->sys;
-    MpegStrCallback func = 0;
+    sceMpegCallback func = 0;
     void *arg = 0;
     StrCb *tbl = p->strCb;
     int ret = 0;
@@ -256,7 +253,7 @@ int sceMpegDemuxPss(void *a0, void *a1, int a2)
     return sceMpegDemuxPssRing(a0, a1, a2, 0, -1);
 }
 
-int sceMpegAddStrCallback(sceMpeg *mp, int a1, int a2, MpegStrCallback a3, void *a4)
+int sceMpegAddStrCallback(sceMpeg *mp, int a1, int a2, sceMpegCallback a3, void *a4)
 {
     int ret = 0;
     MpegSys *p = mp->sys;

@@ -51,7 +51,7 @@ typedef struct MvThreadArg { /* field names derived */
     char reserved[64 - 12];
 } MvThreadArg;
 
-int videoCallback(int mp, MvCbStr *pkt, MvCbArg *arg);
+int videoCallback(sceMpeg *mp, void *cbdata, void *anyData);
 void videoDecAbort(VideoDec *self);
 int videoDecCreate(VideoDec *self);
 int videoDecDelete(VideoDec *self);
@@ -59,6 +59,6 @@ int videoDecFlush(VideoDec *self);
 int videoDecGetState(VideoDec *self);
 int videoDecIsFlushed(VideoDec *self);
 void videoDecMain(void *thArg);
-int videoDecSetStream(VideoDec *self, int type, int ch, void *fn, void *data);
+int videoDecSetStream(VideoDec *self, int type, int ch, sceMpegCallback fn, void *data);
 
 #endif /* MV_VIDEODEC_H */

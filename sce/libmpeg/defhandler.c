@@ -7,10 +7,10 @@
 
 int _defStopDMA(sceMpeg *mp, void *cbdata, void *data)
 {
-    sceIpuStopDMA(mp->sys->dmaEnv);
+    sceIpuStopDMA(&mp->sys->dmaEnv);
 }
 
 int _defRestartDMA(sceMpeg *mp, void *cbdata, void *data)
 {
-    sceIpuRestartDMA(mp->sys->dmaEnv);
+    sceIpuRestartDMA(&mp->sys->dmaEnv);
 }

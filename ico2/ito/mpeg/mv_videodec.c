@@ -15,34 +15,45 @@
 static void Free(int addr);
 
 /* the MPEG library's callbacks, which videoDecCreate registers */
-static inline int mpegError(int mp, MvCbErr *cb)
+static inline int mpegError(sceMpeg *mp, void *cbdata, void *anyData)
 {
+    MvCbErr *cb = cbdata;
+
     debug_StdPrintfDummy("%s\n", cb->message);
     return 1;
 }
 
-static inline int mpegNodata(int mp, int cbdata, VideoDec *dec)
+static inline int mpegNodata(sceMpeg *mp, void *cbdata, void *anyData)
 {
+    VideoDec *dec = anyData;
+
     switchThread();
     viBufAddDMA(&dec->vibuf);
     return 1;
 }
 
-static inline int mpegStopDMA(int a0_unused, int a1_unused, VideoDec *dec)
+static inline int mpegStopDMA(sceMpeg *mp, void *cbdata, void *anyData)
 {
+    VideoDec *dec = anyData;
+
     viBufStopDMA(&dec->vibuf);
     return 1;
 }
 
-static inline int mpegRestartDMA(int a0_unused, int a1_unused, VideoDec *dec)
+static inline int mpegRestartDMA(sceMpeg *mp, void *cbdata, void *anyData)
 {
+    VideoDec *dec = anyData;
+
     viBufRestartDMA(&dec->vibuf);
     return 1;
 }
 
-static inline int mpegTS(int a0_unused, MvCbTs *cb, VideoDec *dec)
+static inline int mpegTS(sceMpeg *mp, void *cbdata, void *anyData)
 {
+    MvCbTs *cb = cbdata;
+    VideoDec *dec = anyData;
     ViTs ts;
+
     viBufGetTs(&dec->vibuf, &ts);
     cb->pts = ts.pts;
     cb->dts = ts.dts;
@@ -63,12 +74,12 @@ int videoDecCreate(VideoDec *self)
     if (p == 0) {
         return -1;
     }
-    sceMpegCreate(self, (void *)p, 1868288);
-    sceMpegAddCallback(self, 0, (int)mpegError, 0);
-    sceMpegAddCallback(self, 1, (int)mpegNodata, (int)self);
-    sceMpegAddCallback(self, 2, (int)mpegStopDMA, (int)self);
-    sceMpegAddCallback(self, 3, (int)mpegRestartDMA, (int)self);
-    sceMpegAddCallback(self, 5, (int)mpegTS, (int)self);
+    sceMpegCreate(&self->mpeg, (void *)p, 1868288);
+    sceMpegAddCallback(&self->mpeg, 0, mpegError, 0);
+    sceMpegAddCallback(&self->mpeg, 1, mpegNodata, self);
+    sceMpegAddCallback(&self->mpeg, 2, mpegStopDMA, self);
+    sceMpegAddCallback(&self->mpeg, 3, mpegRestartDMA, self);
+    sceMpegAddCallback(&self->mpeg, 5, mpegTS, self);
     self->state = 0;
     return viBufCreate(&self->vibuf) == 0 ? 0 : -1;
 }
@@ -108,8 +119,10 @@ int videoDecFlush(VideoDec *self)
     return 1;
 }
 
-int videoCallback(int mp, MvCbStr *pkt, MvCbArg *arg)
+int videoCallback(sceMpeg *mp, void *cbdata, void *anyData)
 {
+    MvCbStr *pkt = cbdata;
+    MvCbArg *arg = anyData;
     ViTs ts;
     void *p0;
     int n0;
@@ -156,7 +169,7 @@ static int decBitStrm0(VideoDec *dec, MvDispEnv *disp, VoBuf *vo)
     int i;
     int j;
 
-    while (!sceMpegIsEnd((int **)dec)) {
+    while (!sceMpegIsEnd(&dec->mpeg)) {
         /* the decoder's state, as videoDecGetState reads it */
         if (dec->state == 1) {
             ret = -1;
@@ -166,7 +179,7 @@ static int decBitStrm0(VideoDec *dec, MvDispEnv *disp, VoBuf *vo)
         while ((p = voBufGetData(vo)) == 0) {
             switchThread();
         }
-        if (sceMpegGetPicture((int *)dec, (unsigned int)p, 1620) < 0) {
+        if (sceMpegGetPicture(&dec->mpeg, (unsigned int)p, 1620) < 0) {
             ErrMessage("sceMpegGetPicture() decode error");
             ret = -1;
             break;
@@ -188,7 +201,7 @@ static int decBitStrm0(VideoDec *dec, MvDispEnv *disp, VoBuf *vo)
         voBufIncCount(vo);
         switchThread();
     }
-    sceMpegReset((int *)dec);
+    sceMpegReset(&dec->mpeg);
     return ret;
 }
 
@@ -208,9 +221,9 @@ int videoDecDelete(VideoDec *self)
     return 1;
 }
 
-int videoDecSetStream(VideoDec *self, int type, int ch, void *fn, void *data)
+int videoDecSetStream(VideoDec *self, int type, int ch, sceMpegCallback fn, void *data)
 {
-    sceMpegAddStrCallback(self, type, ch, fn, data);
+    sceMpegAddStrCallback(&self->mpeg, type, ch, fn, data);
     return 1;
 }
 
@@ -228,7 +241,7 @@ int videoDecIsFlushed(VideoDec *self)
 {
     int ret = 0;
     if (viBufCount(&self->vibuf) == 0) {
-        ret = sceMpegIsRefBuffEmpty(self) != 0;
+        ret = sceMpegIsRefBuffEmpty(&self->mpeg) != 0;
     }
     return ret;
 }

@@ -155,7 +155,7 @@ static int readMpeg(VideoDec *dec, ReadBuf *rb, char *strf, int (*poll)(void))
         switchThread();
         len = readBufBeginGet(rb, &q);
         if (len > 0) {
-            len = sceMpegDemuxPssRing((int *)dec, q, len, (int)rb->data, rb->size);
+            len = sceMpegDemuxPssRing(&dec->mpeg, q, len, (int)rb->data, rb->size);
             left -= len;
             readBufEndGet(rb, len);
         }
