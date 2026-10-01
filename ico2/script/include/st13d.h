@@ -1,20 +1,15 @@
 /*
  * ico2/script/include/st13d.h
  *
- * The disc records no file of this name: SRCFILE.TXT attributes no
- * instruction to it, and a header that only declares leaves no rows in the
- * listing at all, so this file is ours and not the developers' own record.
- * It collects the declarations of what st13d.c.inc defines, in the order the
- * coalescing TU's prototype block carried them; every type here is read from
- * the ROM's calling convention at the call sites.
+ * The declarations of what st13d.c.inc defines, for the files that use
+ * them.  The file name is derived.
  */
 
 #ifndef ST13D_H
 #define ST13D_H
 
-/* The declarations below lead this header because their order is load-bearing:
- * gcc 2.9 emits the deferred out-of-line copy of a plain-inline function in
- * first-declaration order, so this is the order st13d.c's inline tail has. */
+/* st13d.c's `inline` functions, in the order of their definitions'
+ * out-of-line copies at the end of the object (first-declaration order). */
 void actSt13dInit(void);
 
 #endif /* ST13D_H */

@@ -1,12 +1,8 @@
 /*
  * ico2/script/include/st01b.h
  *
- * The disc records no file of this name: SRCFILE.TXT attributes no
- * instruction to it, and a header that only declares leaves no rows in the
- * listing at all, so this file is ours and not the developers' own record.
- * It collects the declarations of what st01b.c defines, in the form its
- * users need them; every type here is read from the ROM's calling convention
- * at the call sites and from the spellings the using TUs already carried.
+ * The declarations of what st01b.c defines, for the files that use
+ * them.  The file name is derived.
  */
 
 #ifndef ST01B_H
@@ -14,7 +10,7 @@
 
 #include "typedef.h"
 
-/* st01b.o's .sdata globals (MAIN.MAP); st01b_floor is declared with its record in st01b.c */
+/* st01b.o's .sdata globals; st01b_floor is declared with its record in st01b.c */
 extern unsigned int st01b_yure;
 extern unsigned char st01b_yure_vol;
 void actSt01bEneChk(GObj *volatile a0);

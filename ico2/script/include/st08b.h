@@ -1,12 +1,8 @@
 /*
  * ico2/script/include/st08b.h
  *
- * The disc records no file of this name: SRCFILE.TXT attributes no
- * instruction to it, and a header that only declares leaves no rows in the
- * listing at all, so this file is ours and not the developers' own record.
- * It collects the declarations of what st08b.c defines, in the form its
- * users need them; every type here is read from the ROM's calling convention
- * at the call sites and from the spellings the using TUs already carried.
+ * The declarations of what st08b.c defines, for the files that use
+ * them.  The file name is derived.
  */
 
 #ifndef ST08B_H
@@ -14,9 +10,8 @@
 
 #include "typedef.h"
 
-/* The declarations below lead this header because their order is load-bearing:
- * gcc 2.9 emits the deferred out-of-line copy of a plain-inline function in
- * first-declaration order, so this is the order st08b.c's inline tail has. */
+/* st08b.c's `inline` functions, in the order of their definitions'
+ * out-of-line copies at the end of the object (first-declaration order). */
 void actSt08bKuren(GObj *volatile a0);
 void actSt08bEne(GObj *volatile a0);
 void actSt08bEnemy1(GObj *volatile a0);

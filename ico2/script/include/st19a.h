@@ -1,12 +1,8 @@
 /*
  * ico2/script/include/st19a.h
  *
- * The disc records no file of this name: SRCFILE.TXT attributes no
- * instruction to it, and a header that only declares leaves no rows in the
- * listing at all, so this file is ours and not the developers' own record.
- * It collects the declarations of what st19a.c defines, in the form its
- * users need them; every type here is read from the ROM's calling convention
- * at the call sites and from the spellings the using TUs already carried.
+ * The declarations of what st19a.c defines, for the files that use
+ * them.  The file name is derived.
  */
 
 #ifndef ST19A_H
@@ -14,7 +10,7 @@
 
 #include "typedef.h"
 
-/* st19a.o's .sdata globals (MAIN.MAP) */
+/* st19a.o's .sdata globals */
 extern char *fence_up_19a;
 extern char *fence_down_19a;
 extern char *hgrm_19a;

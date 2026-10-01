@@ -1,12 +1,8 @@
 /*
  * ico2/script/include/st02a.h
  *
- * The disc records no file of this name: SRCFILE.TXT attributes no
- * instruction to it, and a header that only declares leaves no rows in the
- * listing at all, so this file is ours and not the developers' own record.
- * It collects the declarations of what st02a.c defines, in the form its
- * users need them; every type here is read from the ROM's calling convention
- * at the call sites and from the spellings the using TUs already carried.
+ * The declarations of what st02a.c defines, for the files that use
+ * them.  The file name is derived.
  */
 
 #ifndef ST02A_H
@@ -14,7 +10,7 @@
 
 #include "typedef.h"
 
-/* st02a.o's .sdata globals (MAIN.MAP) */
+/* st02a.o's .sdata globals */
 extern char *st02a_fence;
 extern char *gondola;
 extern char *gondola_test;

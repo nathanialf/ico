@@ -1,12 +1,8 @@
 /*
  * ico2/script/include/script.h
  *
- * The disc records no file of this name: SRCFILE.TXT attributes no
- * instruction to it, and a header that only declares leaves no rows in the
- * listing at all, so this file is ours and not the developers' own record.
- * It collects the declarations of what script.c defines, in the form its
- * users need them; every type here is read from the ROM's calling convention
- * at the call sites and from the spellings the using TUs already carried.
+ * The declarations of what script.c defines, for the files that use
+ * them.  The file name is derived.
  */
 
 #ifndef SCRIPT_H
@@ -14,7 +10,7 @@
 
 struct GObj;
 
-/* script.o's .sdata globals (MAIN.MAP): the boy-control read lock the
+/* script.o's .sdata globals: the boy-control read lock the
    scripts raise, the sound-environment master volume rate, the statue's
    common ADPCM handle, two dummy GObj words and the statue's pad vibration
    handle and volume. */
@@ -25,10 +21,9 @@ extern char *scpDummyGObj;
 extern char *scpDummyGObj2;
 extern int sekizo_yure;
 extern unsigned char sekizo_yure_vol;
-/* The entry points script.o defines inline, in the order its end-of-file
- * block emits them: ee-gcc 2.9 defers every inline definition to the end of
- * the object and writes it out in first-declaration order, so this block is
- * read from the ROM (script.o's .text from scpDispOffAllWithKind on). */
+/* script.c's `inline` functions, in the order of their definitions'
+ * out-of-line copies at the end of the object (first-declaration order),
+ * from scpDispOffAllWithKind on. */
 void scpDispOffAllWithKind(int kind);
 void scpDispOnAllWithKind(int x);
 void scpActivateAllWithKind(int kind);
@@ -143,8 +138,8 @@ void scpKillSpiderGroup(int id);
 void preload(int idx);
 void scpSetBoyWeaponGObj(void *w);
 
-/* girl-warp-list: one girl warp, 0x58 bytes. Reader: ico2/script/src/
- * warpGirl.c (WarpRec). Owner: ico2/script/include/script.h. */
+/* one entry of girlWarpList, the girl's warp table, 0x58 bytes; warpGirl.c
+ * reads it */
 typedef struct {         /* field names derived */
     float arrive2[4];    /* 0x00, the arrival in to2: y angle, then z, y, x */
     float arrive1[4];    /* 0x10, the arrival in to1 */

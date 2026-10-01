@@ -1,12 +1,8 @@
 /*
  * ico2/script/include/st04l.h
  *
- * The disc records no file of this name: SRCFILE.TXT attributes no
- * instruction to it, and a header that only declares leaves no rows in the
- * listing at all, so this file is ours and not the developers' own record.
- * It collects the declarations of what st04l.c defines, in the form its
- * users need them; every type here is read from the ROM's calling convention
- * at the call sites and from the spellings the using TUs already carried.
+ * The declarations of what st04l.c defines, for the files that use
+ * them.  The file name is derived.
  */
 
 #ifndef ST04L_H
@@ -14,7 +10,7 @@
 
 #include "typedef.h"
 
-/* st04l.o's .sdata globals (MAIN.MAP) */
+/* st04l.o's .sdata globals */
 extern unsigned int ball1_4l;
 extern char *ball2_4l;
 extern char *ball3_4l;

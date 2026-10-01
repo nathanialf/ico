@@ -1,12 +1,8 @@
 /*
  * ico2/script/include/end.h
  *
- * The disc records no file of this name: SRCFILE.TXT attributes no
- * instruction to it, and a header that only declares leaves no rows in the
- * listing at all, so this file is ours and not the developers' own record.
- * It collects the declarations of what end.c defines, in the form its
- * users need them; every type here is read from the ROM's calling convention
- * at the call sites and from the spellings the using TUs already carried.
+ * The declarations of what end.c defines, for the files that use
+ * them.  The file name is derived.
  */
 
 #ifndef END_H
@@ -14,7 +10,7 @@
 
 #include "typedef.h"
 
-/* end.o's .sdata globals (MAIN.MAP) */
+/* end.o's .sdata globals */
 extern char *ed1;
 extern char *ed2;
 extern char *ed3;

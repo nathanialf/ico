@@ -1,12 +1,8 @@
 /*
  * ico2/script/include/st04r.h
  *
- * The disc records no file of this name: SRCFILE.TXT attributes no
- * instruction to it, and a header that only declares leaves no rows in the
- * listing at all, so this file is ours and not the developers' own record.
- * It collects the declarations of what st04r.c defines, in the form its
- * users need them; every type here is read from the ROM's calling convention
- * at the call sites and from the spellings the using TUs already carried.
+ * The declarations of what st04r.c defines, for the files that use
+ * them.  The file name is derived.
  */
 
 #ifndef ST04R_H
@@ -14,7 +10,7 @@
 
 #include "typedef.h"
 
-/* st04r.o's .sdata globals (MAIN.MAP) */
+/* st04r.o's .sdata globals */
 extern char *solar4r;
 extern int ball1_4r;
 extern int ball2_4r;

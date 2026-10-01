@@ -1,12 +1,8 @@
 /*
  * ico2/script/include/st04c.h
  *
- * The disc records no file of this name: SRCFILE.TXT attributes no
- * instruction to it, and a header that only declares leaves no rows in the
- * listing at all, so this file is ours and not the developers' own record.
- * It collects the declarations of what st04c.c defines, in the form its
- * users need them; every type here is read from the ROM's calling convention
- * at the call sites and from the spellings the using TUs already carried.
+ * The declarations of what st04c.c defines, for the files that use
+ * them.  The file name is derived.
  */
 
 #ifndef ST04C_H
@@ -21,10 +17,10 @@ void actSt04cIntroChk(GObj *volatile a0);
 void actSt04cIntroChkSub(GObj *volatile a0);
 void actSt04lDoorChk(GObj *volatile a0);
 
-/* RECONSTRUCTION, PLACED BY INCLUDE PATTERN: one record, previously repeated character for character in 3 TUs. */
-typedef union StVec {
+/* a vector: four floats, or the same 16 bytes as two doublewords */
+typedef union StVec { /* field names derived */
     float f[4];
     long long ll[2];
-} StVec;
+} StVec; /* derived name */
 
 #endif /* ST04C_H */

@@ -1,12 +1,8 @@
 /*
  * ico2/script/include/e3.h
  *
- * The disc records no file of this name: SRCFILE.TXT attributes no
- * instruction to it, and a header that only declares leaves no rows in the
- * listing at all, so this file is ours and not the developers' own record.
- * It collects the declarations of what e3.c defines, in the form its
- * users need them; every type here is read from the ROM's calling convention
- * at the call sites and from the spellings the using TUs already carried.
+ * The declarations of what e3.c defines, for the files that use
+ * them.  The file name is derived.
  */
 
 #ifndef E3_H
@@ -14,14 +10,13 @@
 
 #include "typedef.h"
 
-/* e3.o's .sdata globals (MAIN.MAP) */
+/* e3.o's .sdata globals */
 extern char *e3capsule;
 extern char *e3gate1st;
 extern char *sekizo_e3;
 extern int sekizo_e3_vol;
-/* The declarations below lead this header because their order is load-bearing:
- * gcc 2.9 emits the deferred out-of-line copy of a plain-inline function in
- * first-declaration order, so this is the order e3.c's inline tail has. */
+/* e3.c's `inline` functions, in the order of their definitions'
+ * out-of-line copies at the end of the object (first-declaration order). */
 inline void actE3CapsuleDemoEnd(GObj *volatile a0);
 inline void actE3DoorMain(GObj *volatile a0);
 inline void actE3DoorSwitch(GObj *volatile a0);
@@ -48,14 +43,14 @@ void actE3TitleFrameChk(GObj *volatile a0);
 
 #include "jimaku.h"
 
-/* RECONSTRUCTION, PLACED BY INCLUDE PATTERN: one record for 3 TUs that carried 2 divergent local copies; this body is the one the ROM's bytes accept in the most of them. */
-typedef union EffectArg {
+/* an effect argument: four floats, or the same 16 bytes as two doublewords */
+typedef union EffectArg { /* field names derived */
     float f[4];
 
     struct {
         long long lo; /* 0x00 */
         long long hi; /* 0x08 */
     } d;
-} EffectArg;
+} EffectArg; /* derived name */
 
 #endif /* E3_H */

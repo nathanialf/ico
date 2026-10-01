@@ -1,24 +1,19 @@
 /*
  * ico2/script/include/warpGirl.h
  *
- * The disc records no file of this name: SRCFILE.TXT attributes no
- * instruction to it, and a header that only declares leaves no rows in the
- * listing at all, so this file is ours and not the developers' own record.
- * It collects the declarations of what warpGirl.c defines, in the form its
- * users need them; every type here is read from the ROM's calling convention
- * at the call sites and from the spellings the using TUs already carried.
+ * The declarations of what warpGirl.c defines, for the files that use
+ * them.  The file name is derived.
  */
 
 #ifndef WARPGIRL_H
 #define WARPGIRL_H
 
-/* MAIN.MAP globals */
+/* warpGirl.o's globals */
 extern int warpGirlInStageSet;
 extern int warpGirlId;
 
-/* The declarations below lead this header because their order is load-bearing:
- * gcc 2.9 emits the deferred out-of-line copy of a plain-inline function in
- * first-declaration order, so this is the order warpGirl.c's inline tail has. */
+/* warpGirl.c's `inline` functions, in the order of their definitions'
+ * out-of-line copies at the end of the object (first-declaration order). */
 void warpGirlInit(void);
 
 void warpGirlInStage(int stageNo);
