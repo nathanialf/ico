@@ -4,7 +4,7 @@ An index of this directory: what each file is for.
 
 | file | what it is |
 | --- | --- |
-| [`BUILDING.md`](BUILDING.md) | the full build: host packages, what `./build.sh`, `tools/setup.sh` and each build step do, the hooks, the dashboard, running the ELF in PCSX2 |
+| [`BUILDING.md`](BUILDING.md) | the full build: host packages, what `./build.sh`, `tools/setup.sh` and each build step do, the hooks, the dashboard, running the ELF in a PS2 emulator |
 | [`LEGAL.md`](LEGAL.md) | what the repository may and may not contain, why the data tables are generated from the user's ELF at build time, and which references were used. Read it before contributing |
 | [`HEADERS.md`](HEADERS.md) | which headers the disc attests, the code includes, and how the other headers were placed and named |
 | [`PROGRAMMERS.md`](PROGRAMMERS.md) | the `ico2/` directories, what each holds, and who wrote them |

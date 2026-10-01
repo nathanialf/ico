@@ -2,9 +2,7 @@
 # build.sh: build the PAL boot ELF from a clean clone in one command.
 #
 #   1. tools/setup.sh, when the toolchain under tools/cc/ or the venv is
-#      missing (Ghidra and pcsx2 are skipped here; run tools/setup.sh by hand
-#      for them).
-#      Then a check for mips-linux-gnu-objcopy, a host package.
+#      missing. Then a check for mips-linux-gnu-objcopy, a host package.
 #   2. tools/extract_elf.sh, when baserom/pal/baseelf.elf is missing. It reads
 #      baserom/Ico_PAL.iso, the user's own image of the PAL disc.
 #   3. tools/build.sh setup when build.ninja is missing (delete build/, verify
@@ -38,7 +36,7 @@ toolchain_ok() {
 
 if ! toolchain_ok; then
     echo "==> build.sh: toolchain incomplete, running tools/setup.sh"
-    ICO_FROM_BUILD_SH=1 SKIP_GHIDRA="${SKIP_GHIDRA:-1}" SKIP_PCSX2="${SKIP_PCSX2:-1}" tools/setup.sh
+    ICO_FROM_BUILD_SH=1 tools/setup.sh
     if ! toolchain_ok; then
         echo "build.sh: tools/setup.sh finished but the toolchain is still incomplete;" >&2
         echo "  see its output above (32-bit host libraries, network access)." >&2

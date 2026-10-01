@@ -9,8 +9,6 @@
 *.md text eol=lf
 *.yaml text eol=lf
 *.yml text eol=lf
-*.toml text eol=lf
-Makefile text eol=lf
 
 # Binary patterns — never touched by anyone, but keep diff sensible if
 # something does land in the tree.

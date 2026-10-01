@@ -2,15 +2,15 @@
 
 Every file in this directory, with what it does. The tools work on the
 branch's target as `ico_version.py` reports it (`main` is PAL retail, slug
-`pal`). `tools/cc/` and `tools/ghidra/` are fetched or built by `setup.sh`
-and are not tracked. `../build.sh` at the repository root runs `setup.sh` and
+`pal`). `tools/cc/` is fetched and built by `setup.sh` and is
+not tracked. `../build.sh` at the repository root runs `setup.sh` and
 `extract_elf.sh` when their output is missing, then `build.sh setup` (or
 `build.sh verify` once `build.ninja` exists) and ninja, whose last step is the
 gate.
 
 | tool | what it does |
 |---|---|
-| `setup.sh` | idempotent host setup: the venv from `requirements.txt`; the period compilers ee-gcc 2.9-991111 and ee-gcc 2.96 (for its SCE 2.10 assembler) from decompme/compilers into `tools/cc/`; a check for a MIPS `objcopy`; GNU ld 2.10 with the two patches below and ps2dev's dvp-as, built from public source; optionally Ghidra and pcsx2; the git hooks |
+| `setup.sh` | idempotent host setup: the venv from `requirements.txt`; the period compilers ee-gcc 2.9-991111 and ee-gcc 2.96 (for its SCE 2.10 assembler) from decompme/compilers into `tools/cc/`; a check for a MIPS `objcopy`; GNU ld 2.10 with the two patches below and ps2dev's dvp-as, built from public source; the git hooks |
 | `requirements.txt` | the venv's Python packages: pyelftools, pycdlib, ninja, clang-format |
 | `binutils-2.10-ee.patch` | the R5900 machine and the DVP overlay section types for GNU ld 2.10, backported from ps2dev's `binutils-2.14-PS2.patch`; applied by `setup.sh` |
 | `binutils-2.10-dvp-ld.patch` | the Cygnus "sky" ld's DVP rule for GNU ld 2.10: each `.DVP.overlay.*` orphan gets its own output section at address 0 (from the GPL ee-gcc 2.9-991111 combined tree's `ld/emultempl/elf32.em`); applied by `setup.sh` after the first |

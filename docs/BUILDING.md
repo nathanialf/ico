@@ -40,15 +40,15 @@ cp "/path/to/Ico (Europe).iso" baserom/Ico_PAL.iso
 
 `./build.sh` runs the steps below that are not already done, in order, and
 stops with a non-zero exit at the first failure. From a fresh clone on a
-four-core host, with the downloads, the whole run took 94 s and ended with
-`check_elf: gate PASS`. The sections below describe each step; each can also
-be run on its own.
+four-core host, with the downloads, the whole run took 197 s and ended with
+`check_elf: gate PASS`. A second `./build.sh` on the built tree rebuilds
+nothing (`ninja: no work to do.`) and prints the gate again. The sections
+below describe each step; each can also be run on its own.
 
 ## 1. Host setup: `tools/setup.sh`
 
 `./build.sh` runs it when the venv, ninja or any of the four tools under
-`tools/cc/` is missing, with `SKIP_GHIDRA=1 SKIP_PCSX2=1`. Run by hand, it
-does all of the following. It is idempotent: a second run finds each tool and
+`tools/cc/` is missing. It is idempotent: a second run finds each tool and
 skips it.
 
 1. Creates `.venv/` and installs `tools/requirements.txt`: pyelftools (ELF
@@ -64,10 +64,9 @@ skips it.
 4. Builds the linker and the VU assembler from public GPL source (next
    section). On a four-core host the fetch takes about 20 s, dvp-as about
    30 s and ld 2.10 about 17 s (`tools/setup.sh` comments).
-5. Optionally fetches a pinned Ghidra release into `tools/ghidra/` and tries
-   to install pcsx2. The build uses neither. `SKIP_GHIDRA=1` and
-   `SKIP_PCSX2=1` skip them; `SKIP_TOOLCHAIN=1` skips steps 2 to 4.
-6. Installs the git hooks (`tools/install_hooks.sh`, below).
+5. Installs the git hooks (`tools/install_hooks.sh`, below).
+
+`SKIP_TOOLCHAIN=1` skips steps 2 to 4.
 
 ### The linker and the DVP assembler
 
@@ -113,14 +112,18 @@ gitignored.
 
 ## 3. `tools/build.sh setup`
 
-Deletes `build/` and ninja's state, verifies the SHA-1s of the base ELF and
-ROM (`tools/verify_elf.py`), and writes `build.ninja` with
-`tools/gen_ninja.py` from three inputs:
+`./build.sh` runs it when `build.ninja` is missing, and otherwise runs
+`tools/build.sh verify`, which only checks the two SHA-1s; `build.ninja`
+rewrites itself when `tools/gen_ninja.py` or one of its inputs changes.
+
+`setup` deletes `build/` and ninja's state, verifies the SHA-1s of the base
+ELF and ROM (`tools/verify_elf.py`), and writes `build.ninja` with
+`tools/gen_ninja.py` from these inputs:
 
 - `config/link_order.pal.txt`: every object of the link in the retail link's
   order, one source per line, with the data-only members as `data:` lines.
-  `tools/gen_ninja.py` fails if a tracked `.c`, `.s` or `.dsm` under `ico2/`
-  or `sce/` is missing from it.
+  `tools/gen_ninja.py` fails if a tracked `.c`, `.s`, `.S` or `.dsm` under
+  `ico2/` or `sce/` is missing from it.
 - `config/link.pal.ld`: the hand-written linker script, which places each
   section at the base ELF's addresses and defines the symbols the link needs.
 - `config/data_members.pal.txt`: the data-only members (member, section,
@@ -130,9 +133,9 @@ ROM (`tools/verify_elf.py`), and writes `build.ninja` with
   MAIN.MAP's names), with `config/data_schema.pal.h` for the record types no
   game header defines yet.
 
-`tools/build.sh` also has `regen` (rewrite `build.ninja` only), `clean`
-(delete `build/`), `distclean` (also `build.ninja` and ninja's state) and
-`progress` (below).
+`tools/build.sh` also has `verify` (the SHA-1s only), `regen` (rewrite
+`build.ninja` only), `clean` (delete `build/`), `distclean` (also
+`build.ninja` and ninja's state) and `progress` (below).
 
 ## 4. `ninja`
 
@@ -170,9 +173,11 @@ ROM (`tools/verify_elf.py`), and writes `build.ninja` with
   like any `ico2/` source, each section of the object is checked against the
   member's ROM range with its relocations applied, and a label a source
   spells inside the member (`D_<VMA>`) is bound to the member's symbol plus
-  its offset by `build/data/<member>.alias.ld`. The other row (the
-  transitional `.sbss` word) is written as assembly by
-  `tools/extract_data.py` and checked against its ROM range;
+  its offset by `build/data/<member>.alias.ld`. The other row, the
+  transitional `.sbss` word at 0x63C204 (four zero bytes before
+  `enemy_act.o`'s 8-aligned `.sbss`), is written as assembly by
+  `tools/extract_data.py` and checked against its ROM range; it goes when
+  `ico2/fumi/src/enemy_act.c`'s `.sbss` carries that alignment;
 - links with ld 2.10 and `config/link.pal.ld`, once to `build/ico.syms.elf`
   (symbols kept, with the map `build/ico.pal.map`) and once stripped to
   `build/ico.elf`, as the base is;
@@ -201,10 +206,12 @@ byte equals the base's; bytes from `build/data/` are counted separately as
 extracted tables.
 
 The dashboard is `docs/index.html`, which reads `progress.json`. On a push
-that changes `docs/index.html`, `docs/progress.json`, `docs/PROGRESS.md` or
-the workflow, `.github/workflows/pages.yml` runs
-`.github/scripts/build_pages_site.sh`, which assembles one site from the
-three branches' copies of those files and deploys it to GitHub Pages.
+that changes `docs/index.html`, `docs/progress.json`, `docs/PROGRESS.md`,
+the workflow or its script, `.github/workflows/pages.yml` runs
+`.github/scripts/build_pages_site.sh`, which assembles one site and deploys
+it to GitHub Pages. The page is `main`'s `docs/index.html` (read from
+`origin/main` on the other branches); each of the three branches supplies
+only its `progress.json` and `PROGRESS.md`.
 
 ## Hooks
 
@@ -219,8 +226,9 @@ three branches' copies of those files and deploys it to GitHub Pages.
   `tools/check_elf.py --progress`, and adds the refreshed progress files to
   the commit.
 - **pre-push**: for each pushed ref whose commits touch the build, requires
-  the working tree to be at that ref's tip and runs `tools/build.sh setup`
-  and `ninja` on it.
+  the working tree to be at that ref's tip with no uncommitted changes under
+  `ico2/`, `sce/`, `config/` or `tools/`, and runs `tools/build.sh setup` and
+  `ninja` on it.
 
 `tools/format.sh` formats the tracked C with the tracked `.clang-format` and
 then `tools/format_layout.py`'s top-level blank-line layout. The game
@@ -229,8 +237,5 @@ gate after formatting.
 
 ## Running the rebuilt ELF (optional)
 
-PCSX2 (`tools/setup.sh` tries to install it unless `SKIP_PCSX2=1`) can start
-an ELF file directly. It needs a BIOS dumped from your own console, and the
-game reads its data files from the disc, so load `baserom/Ico_PAL.iso` as the
-disc as well. The build never runs this. It is a sanity check by eye: the gate
-already shows every allocated section of `build/ico.elf` equal to the base.
+Any PS2 emulator can run `build/ico.elf` as a sanity check, with
+`baserom/Ico_PAL.iso` as the disc for the game's data files.

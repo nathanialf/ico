@@ -8,19 +8,14 @@
 #   2. Fetch the period compilers (ee-gcc 2.9-991111 and ee-gcc 2.96, for its
 #      SCE 2.10 assembler), check for a MIPS objcopy, and build the period
 #      linker (GNU ld 2.10) and dvp-as from public source.
-#   3. Optional: fetch a pinned Ghidra release into tools/ghidra/, for
-#      interactive reverse engineering. Nothing in the build uses it.
-#   4. Optional: best-effort install of pcsx2, to boot the rebuilt ELF.
-#   5. Install the git hooks (tools/install_hooks.sh).
+#   3. Install the git hooks (tools/install_hooks.sh).
 #
 # This script downloads no disc data, no assets, and no ICO-specific files.
 # Everything pulled is from open-source projects (GNU binutils, ps2dev,
-# decompme/compilers, Ghidra).
+# decompme/compilers).
 #
-# Skip flags:
+# Skip flag:
 #   SKIP_TOOLCHAIN=1   skip step 2
-#   SKIP_GHIDRA=1      skip step 3
-#   SKIP_PCSX2=1       skip step 4
 # =============================================================================
 set -euo pipefail
 
@@ -228,45 +223,7 @@ else
     build_dvp_as && build_ld210 || echo "==> linker / dvp-as build incomplete" >&2
 fi
 
-# --- 3. Ghidra (optional, interactive RE only) --------------------------------
-
-GHIDRA_VER="${GHIDRA_VER:-11.2.1}"
-GHIDRA_REL="${GHIDRA_REL:-PUBLIC_20241105}"
-GHIDRA_URL="https://github.com/NationalSecurityAgency/ghidra/releases/download/Ghidra_${GHIDRA_VER}_build/ghidra_${GHIDRA_VER}_${GHIDRA_REL}.zip"
-
-if [[ "${SKIP_GHIDRA:-0}" == "1" ]]; then
-    echo "==> SKIP_GHIDRA=1; not fetching Ghidra"
-elif [[ -d "tools/ghidra/ghidra_${GHIDRA_VER}_PUBLIC" ]]; then
-    echo "==> Ghidra ${GHIDRA_VER} already present"
-elif command -v curl >/dev/null 2>&1; then
-    echo "==> fetching Ghidra ${GHIDRA_VER}"
-    mkdir -p tools/ghidra
-    if curl -fsSL --output "tools/ghidra/ghidra.zip" "$GHIDRA_URL"; then
-        ( cd tools/ghidra && python -c "import zipfile; zipfile.ZipFile('ghidra.zip').extractall('.')" && rm -f ghidra.zip )
-        echo "==> Ghidra extracted to tools/ghidra/ghidra_${GHIDRA_VER}_PUBLIC/"
-    else
-        echo "==> Ghidra download failed; install manually if needed" >&2
-        rm -f tools/ghidra/ghidra.zip
-    fi
-else
-    echo "==> curl not available; skipping Ghidra"
-fi
-
-# --- 4. pcsx2 (optional) -----------------------------------------------------
-
-if [[ "${SKIP_PCSX2:-0}" == "1" ]]; then
-    echo "==> SKIP_PCSX2=1; not installing pcsx2"
-elif command -v pcsx2 >/dev/null 2>&1 || command -v pcsx2-qt >/dev/null 2>&1; then
-    echo "==> pcsx2 already on PATH"
-elif command -v apt-get >/dev/null 2>&1; then
-    echo "==> attempting apt-get install pcsx2 (may fail on non-Debian hosts)"
-    sudo apt-get update -qq || true
-    sudo apt-get install -y pcsx2 || echo "==> pcsx2 install failed; grab the AppImage from https://pcsx2.net" >&2
-else
-    echo "==> non-apt host; install pcsx2 manually from https://pcsx2.net"
-fi
-
-# --- 5. git hooks --------------------------------------------------------------
+# --- 3. git hooks --------------------------------------------------------------
 
 if [[ -d .git ]]; then
     bash tools/install_hooks.sh

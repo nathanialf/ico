@@ -83,9 +83,9 @@ Thumbs.db
 .env.local
 config/local.*
 
-# --- Local toolchain (tools/setup.sh: the period compilers and binutils, Ghidra) ---
-tools/ghidra/
+# --- Local toolchain (tools/setup.sh: the period compilers and binutils) ---
 tools/cc/
+tools/ghidra/
 
 # --- Agent guidance / local-only ---
 # CLAUDE.md is auto-loaded by Claude Code and is the agent's local preamble;
