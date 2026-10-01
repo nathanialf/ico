@@ -312,21 +312,34 @@ void scePadReqIntToStr(unsigned int state, char *str)
 }
 
 /* the pad DMA buffer scePadGetDmaStr hands back, laid out from the offsets
-   this TU's members use.  The actuator and combination tables are arrays of
-   four-byte records.  Only the members these functions touch are named; the
-   rest is padding. */
-typedef struct { /* field names derived */
-    unsigned char f00[48];
-    unsigned char act[4][4];  /* 0x30 */
-    unsigned char comb[4][4]; /* 0x40 */
-    unsigned char f50[20];
-    unsigned char f64;
-    unsigned char f65[5];
-    unsigned char nact;  /* 0x6A */
-    unsigned char ncomb; /* 0x6B */
-    unsigned char f6C[6];
-    unsigned char f72;
-} PadDmaStr; /* derived name */
+   this TU's members use: the input data scePadRead copies out (scePadPortOpen
+   fills its first 32 bytes with 0xFF), the actuator and combination tables of
+   four-byte records, the mode table scePadInfoMode indexes, the frame count
+   and data size, the levels of information the pad has answered with, and the
+   state bytes scePadGetState and scePadSetReqState use.  A byte nothing reads
+   is padding. */
+typedef struct {               /* field names derived */
+    unsigned char data[32];    /* 0x00 */
+    unsigned char pad20[16];   /* 0x20 */
+    unsigned char act[4][4];   /* 0x30 */
+    unsigned char comb[4][4];  /* 0x40 */
+    unsigned short modeTbl[4]; /* 0x50 */
+    int frame;                 /* 0x58 */
+    unsigned char pad5C[4];    /* 0x5C */
+    int size;                  /* 0x60 */
+    unsigned char infoLevel;   /* 0x64, 2 or more once the act and comb tables are filled */
+    unsigned char modeId;      /* 0x65, the pad's id, 0xF3 for none */
+    unsigned char maskLevel;   /* 0x66, 2 or more once the button mask is filled */
+    unsigned char pad67;       /* 0x67 */
+    unsigned char nmode;       /* 0x68 */
+    unsigned char curMode;     /* 0x69 */
+    unsigned char nact;        /* 0x6A */
+    unsigned char ncomb;       /* 0x6B */
+    unsigned char pad6C[4];    /* 0x6C */
+    unsigned char state;       /* 0x70 */
+    unsigned char reqState;    /* 0x71 */
+    unsigned char infoValid;   /* 0x72, 1 when the pad's information is valid */
+} PadDmaStr;                   /* derived name */
 
 int scePadInfoAct(int port, int slot, int act, int term)
 {
@@ -336,10 +349,10 @@ int scePadInfoAct(int port, int slot, int act, int term)
         return 0;
     }
     p = (PadDmaStr *)scePadGetDmaStr(port, slot);
-    if (p->f72 != 1) {
+    if (p->infoValid != 1) {
         return 0;
     }
-    if (p->f64 < 2) {
+    if (p->infoLevel < 2) {
         return 0;
     }
     if (act >= p->nact) {
@@ -369,10 +382,10 @@ int scePadInfoComb(int port, int slot, int comb, int term)
         return 0;
     }
     p = (PadDmaStr *)scePadGetDmaStr(port, slot);
-    if (p->f72 != 1) {
+    if (p->infoValid != 1) {
         return 0;
     }
-    if (p->f64 < 2) {
+    if (p->infoLevel < 2) {
         return 0;
     }
     if (comb == -1) {

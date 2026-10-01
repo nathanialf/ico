@@ -43,8 +43,8 @@ stops with a non-zero exit at the first failure. On a four-core host with
 the toolchain already installed and `baserom/pal/` already extracted,
 `rm -rf build build.ninja && tools/build.sh setup && .venv/bin/ninja` took
 22 s and 39 s in two runs and ended with
-`check_elf: gate PASS`; a fresh clone adds the toolchain downloads of
-section 1. A second `./build.sh` on the built tree rebuilds
+`check_elf: gate PASS`; a fresh clone of the public repository, with the
+toolchain downloads of section 1, took 92 s on the same host. A second `./build.sh` on the built tree rebuilds
 nothing (`ninja: no work to do.`) and prints the gate again. The sections
 below describe each step; each can also be run on its own.
 

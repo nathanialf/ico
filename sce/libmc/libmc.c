@@ -10,8 +10,10 @@
 #define SYNC() __asm__ __volatile__("sync" : : : "memory")
 #define EI() __asm__ __volatile__(".word 0x42000038" : : : "memory")
 
+/* the auxiliary block of a file call: the file information sceMcSetFileInfo
+   copies whole from its caller, and the new name sceMcRename gives */
 typedef struct { /* field names derived */
-    char f0[0x20];
+    char info[0x20];
     char name[0x20];
 } AuxReq; /* derived name */
 
@@ -301,13 +303,15 @@ void mceIntrReadFixAlign(void *arg)
 
 /* the 0x30-byte RPC command block sceMcWrite sends: the unaligned head of
    the caller's buffer travels in the block itself, the 16-byte aligned rest
-   by address. */
+   by address.  The words sceMcWrite leaves alone are named after the other
+   calls that fill the same block: the card sceMcGetSlotMax, sceMcFormat and
+   sceMcUnformat put at 0x04 and 0x08, the offset sceMcSeek puts at 0x10. */
 typedef struct {          /* field names derived */
     int fd;               /* 0x00 */
-    int f4;               /* 0x04 */
-    int f8;               /* 0x08 */
+    int port;             /* 0x04 */
+    int slot;             /* 0x08 */
     int size;             /* 0x0C */
-    int f10;              /* 0x10 */
+    int offset;           /* 0x10 */
     unsigned int headLen; /* 0x14 */
     void *addr;           /* 0x18 */
     void *recv;           /* 0x1C */
@@ -440,15 +444,17 @@ void mceGetInfoApdx(void *arg)
 }
 
 /* sceMcGetInfo's view of the same 0x30-byte command block: the card to ask,
-   a flag per answer wanted, and the result buffer. */
+   a flag per answer wanted, and the result buffer.  The file and buffer words
+   at 0x00 and 0x18, which sceMcGetInfo leaves alone, are named as sceMcWrite's
+   view names them. */
 typedef struct {    /* field names derived */
-    int f0;         /* 0x00 */
+    int fd;         /* 0x00 */
     int port;       /* 0x04 */
     int slot;       /* 0x08 */
     int wantFormat; /* 0x0C */
     int wantFree;   /* 0x10 */
     int wantType;   /* 0x14 */
-    int f18;        /* 0x18 */
+    void *addr;     /* 0x18 */
     char *result;   /* 0x1C */
 } McInfoCmd;        /* derived name */
 

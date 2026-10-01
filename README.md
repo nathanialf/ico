@@ -36,10 +36,12 @@ cp "/path/to/Ico (Europe).iso" baserom/Ico_PAL.iso
 ./build.sh
 ```
 
-`./build.sh` runs `tools/setup.sh` when the toolchain under `tools/cc/` is
-missing, extracts `baserom/pal/baseelf.elf` from the disc image when it is
-missing (`tools/extract_elf.sh`), then runs `tools/build.sh setup`, `ninja`,
-and `tools/check_elf.py --gate`, and exits non-zero if any step fails. The
+`./build.sh` runs `tools/setup.sh` when the Python environment or the
+toolchain under `tools/cc/` is missing, extracts `baserom/pal/baseelf.elf`
+from the disc image when it is missing (`tools/extract_elf.sh`), then runs
+`tools/build.sh setup` (or `verify` when `build.ninja` already exists),
+`ninja` and `tools/check_elf.py --gate`, and exits non-zero if any step
+fails. The
 host needs a 64-bit Linux with 32-bit libraries, a host gcc,
 `mips-linux-gnu-objcopy` and network access for the first run; [`docs/BUILDING.md`](docs/BUILDING.md)
 lists the packages and describes each step.
