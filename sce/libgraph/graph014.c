@@ -1,5 +1,6 @@
 /* libgraph.a member graph014.o.  MAIN.MAP member spans tile this run exactly and
  * this member starts at an 8-aligned function start of the shipped ELF. */
+#include <libgraph.h>
 
 /* R5900 opcodes with no C spelling.  This member's uses stand for a
    Sony-internal header this tree cannot name: MAIN.MAP attests archives and

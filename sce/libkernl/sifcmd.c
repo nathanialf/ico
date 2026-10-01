@@ -7,11 +7,16 @@
 #include <string.h>
 #include <sifcmd.h>
 #include <eeregs.h>
+#include <libkernl_internal.h>
 
+/* kept local: this member cannot include eekernel.h, whose RemoveDmacHandler conflicts with its
+   own */
 extern int DIntr();
 extern int EIntr();
 /* eekernel.h's spelling: a void call leaves no value register set after it,
    which sceSifInitCmd's allocation after its FlushCache call shows. */
+/* kept local: this member cannot include eekernel.h, whose RemoveDmacHandler conflicts with its
+   own */
 extern void FlushCache(int a0);
 
 void _set_sreg(int *a0, int *a1)
@@ -81,12 +86,6 @@ void *sceSifGetDataTable(void)
 /* sifcmd.o's .data: set once sceSifInitCmd has run, cleared by sceSifExitCmd */
 static int cmd_inited = 0;
 
-extern void sceSifSetDChain(void);
-extern void _sceSifCmdIntrHdlr();
-extern void _change_addr(int *a0, int *a1);
-extern void _set_sreg(int *a0, int *a1);
-extern int sceSifSendCmd(int a0, int a1, int a2, int a3, int t0, int t1);
-
 void sceSifInitCmd(void)
 {
     SifCmdEntry *h;
@@ -149,7 +148,10 @@ void sceSifInitCmd(void)
     sceSifSendCmd(0x80000002, (int)cmdInitPkt, 0x14, 0, 0, 0);
 }
 
+/* kept local: this member cannot include eekernel.h, whose RemoveDmacHandler conflicts with its
+   own */
 extern int DisableDmac(int a0);
+/* kept local: eekernel.h declares it as `void RemoveDmacHandler()` */
 extern int RemoveDmacHandler(int a0, int a1);
 
 void sceSifExitCmd(void)
@@ -203,8 +205,6 @@ void sceSifRemoveCmdHandler(int a0)
     off += a0;
     *(int *)off = 0;
 }
-
-extern int isceSifSetDma(int p, int a);
 
 int _sceSifSendCmd(int cid, int mode, int pkt, int pktsize, int src, int dest, int size)
 {

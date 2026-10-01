@@ -5,14 +5,20 @@
  * member's .text is 16-aligned by _copyRefImage's `.align 4` before _maxval,
  * which is what places the 12 bytes of fill after defhandler.o. */
 #include <libmpeg.h>
+#include <libmpeg_internal.h>
 #include <eeregs.h>
+#include <eekernel.h>
+#include <stdio.h>
 
+/* kept local: libmpeg_internal.h leaves it out: the members read this scalar of var.c through
+   an array declaration */
+extern int _isMpeg2[];
+extern int _isSecondField[];
+extern int _totalFrames[];
 extern int _widthMB[];
 extern int _isError[];
-extern int _picture_structure;
-extern int *_curFrame;
-extern int *_curTop;
-extern int *_curBot;
+/* kept local: libmpeg_internal.h leaves it out: its callers' arguments do not fit the
+   definition's prototype */
 extern void _getAllRefs();
 
 int _motionComp0(int a0, int a1, int a2, int a3, int *a4, int *a5, int *a6)
@@ -80,9 +86,9 @@ int _motionComp0(int a0, int a1, int a2, int a3, int *a4, int *a5, int *a6)
     return 1;
 }
 
-extern int _picture_coding_type;
+/* kept local: libmpeg_internal.h leaves it out: its callers' arguments do not fit the
+   definition's prototype */
 extern void _getRef0();
-extern void _dualPrimeVector(int *DMV, int *dmvector, int mvx, int mvy);
 
 void _getAllRefs(int x, int y, int mbflags, int motion_type, int *PMV, int *mv_field_sel,
                  int *dmvector)
@@ -325,9 +331,6 @@ void _getRef0(int *img, int lineOff, int predIdx, int yoff, int h, int x, int y,
     ((void (**)())((char *)_mbcont + n * 4 + idx * 0x140))[14] = chromaCopy[chromaCmd];
     *(int *)((char *)_mbcont + idx * 0x140 + 0x12C) += 1;
 }
-
-extern void _copyRefImage(void *a0, void *a1);
-extern void _copyAddRefImage(void *a0, void *a1, void *a2);
 
 /* One macroblock's motion-compensation record, 0x140 bytes, as the members of
  * this file fill it: _motionComp0 sets the IPU output base, the destination and
@@ -1426,8 +1429,6 @@ __asm__(".section .text\n"
         "    .set reorder\n"
         "    .set at\n");
 
-extern int _maxval; /* the clamp mask at the end of _copyRefImage, named as the listing names it */
-
 void _copyAddRefImage(void *a0, void *a1, void *a2)
 {
     __asm__ __volatile__(".set noreorder\n"
@@ -1499,11 +1500,6 @@ void _ipuSetMPEG1(int a0)
     *reg = (*reg & 0xFF7FFFFF) | (a0 << 23);
 }
 
-extern int _top32;
-extern int _top32len;
-extern void DIntr();
-extern int EIntr(void);
-
 int _waitBdecOut(void)
 {
     int a[8];
@@ -1545,14 +1541,10 @@ int _waitBdecOut(void)
     return ret;
 }
 
-extern int _ipuVdec(int a0);
-
 int _dmVector(void)
 {
     return _ipuVdec(3);
 }
-
-extern int _top_field_first;
 
 void _dualPrimeVector(int *DMV, int *dmvector, int mvx, int mvy)
 {
@@ -1584,9 +1576,9 @@ void _dualPrimeVector(int *DMV, int *dmvector, int mvx, int mvy)
     }
 }
 
+/* kept local: libmpeg_internal.h leaves it out: the members read this scalar of var.c through
+   an array declaration */
 extern int _isError[];
-extern void _flushBuf(int a0);
-extern int _peepBit(int a0);
 
 int _mbAddressIncrement(void)
 {
@@ -1625,12 +1617,10 @@ int _mbAddressIncrement(void)
     return sum;
 }
 
+/* kept local: libmpeg_internal.h leaves it out: the members read this scalar of var.c through
+   an array declaration */
 extern int _widthMB[];
 extern int _heightMB[];
-extern void _waitIpuIdle(void);
-extern int _slice0(int a0, int a1);
-extern int _waitBdecOut(void);
-extern void _doMC(int a0);
 
 int _pictureData0(int a0)
 {
@@ -1659,10 +1649,10 @@ int _pictureData0(int a0)
     return r == 0;
 }
 
+/* kept local: libmpeg_internal.h leaves it out: the members read this scalar of var.c through
+   an array declaration */
 extern int _widthMB[];
 extern int _sp_dcr[];
-extern void _nextStartCode(void);
-extern int _sliceB(void);
 
 int _sliceA0(int a0, int *a1, int *a2, int *a3)
 {
@@ -1698,12 +1688,6 @@ int _sliceA0(int a0, int *a1, int *a2, int *a3)
     a3[2] = 0;
     return 0;
 }
-
-extern int _sliceA0(int a0, int *a1, int *a2, int *a3);
-extern int _mbAddressIncrement(void);
-extern int _decMB0(int *a0, int *a1, int *a2, int a3[2][2][2], int *a4, int *a5);
-extern int _skipMB0(int *a0, int *a1, int *a2, int *a3);
-extern int _motionComp0(int a0, int a1, int a2, int a3, int *a4, int *a5, int *a6);
 
 int _slice0(int a0, int a1)
 {
@@ -1771,8 +1755,6 @@ int _slice0(int a0, int a1)
     }
 }
 
-extern int _picture_coding_type;
-
 int _skipMB0(int *a0, int *a1, int *a2, int *a3)
 {
     int ret = 1;
@@ -1798,15 +1780,11 @@ int _skipMB0(int *a0, int *a1, int *a2, int *a3)
     return ret;
 }
 
-extern int _frame_pred_frame_dct;
-extern int _concealment_motion_vectors;
+/* kept local: libmpeg_internal.h leaves it out: var.c defines it as int[2][2], the members read
+   it flat */
 extern int _f_code[];
-extern int _forward_f_code;
-extern int _backward_f_code;
-extern int _full_pel_forward_vector;
-extern int _full_pel_backward_vector;
-extern int _qscqsc;
-extern unsigned int _nextBit(int a0);
+/* kept local: libmpeg_internal.h leaves it out: its callers' arguments do not fit the
+   definition's prototype */
 extern void _motionVectors();
 extern void _motionVector();
 
@@ -1941,7 +1919,8 @@ void _decode_motion_vector(int *pred, int r_size, int motion_code, int motion_r,
     *pred = full_pel ? vec * 2 : vec;
 }
 
-extern unsigned int _nextBit(int a0);
+/* kept local: libmpeg_internal.h leaves it out: its callers' arguments do not fit the
+   definition's prototype */
 extern void _motionVector();
 
 void _motionVectors(int PMV[2][2][2], int *dmvector, int mv_field_sel[2][2], int s, int mv_count,
@@ -1961,9 +1940,6 @@ void _motionVectors(int PMV[2][2][2], int *dmvector, int mv_field_sel[2][2], int
         _motionVector(PMV[1][s], dmvector, h_r_size, v_r_size, dmv, mvscale, 0);
     }
 }
-
-extern void _decode_motion_vector();
-extern unsigned int _nextBit(int a0);
 
 void _motionVector(char *a0, char *a1, void *a2, void *a3, int a4, int a5, int a6)
 {
@@ -2010,6 +1986,8 @@ c2c:
     }
 }
 
+/* kept local: libmpeg_internal.h leaves it out: the members read this scalar of var.c through
+   an array declaration */
 extern int _isTop32dirty[];
 
 /* whether the top of the bit buffer is stale after each IPU command, by the
@@ -2052,8 +2030,8 @@ long long _waitIpuIdle64(void)
     return v;
 }
 
-extern int _top32;
-extern int _top32len;
+/* kept local: libmpeg_internal.h leaves it out: the members read this scalar of var.c through
+   an array declaration */
 extern int _isError[];
 
 int _ipuVdec(int tbl)
@@ -2096,10 +2074,6 @@ int _ipuVdec(int tbl)
     return (short)v;
 }
 
-extern int _top32;
-extern int _top32len;
-extern long long _waitIpuIdle64(void);
-
 int _peepBit(int a0)
 {
     if (_isTop32dirty[0] != 0 || _top32len < a0) {
@@ -2118,10 +2092,6 @@ int _peepBit(int a0)
     }
     return (unsigned int)_top32 >> (32 - a0);
 }
-
-extern int _top32;
-extern int _top32len;
-extern long long _waitIpuIdle64(void);
 
 void _flushBuf(int a0)
 {
@@ -2167,8 +2137,6 @@ unsigned int _nextBit(int a0)
     return r;
 }
 
-extern void _waitIpuIdle(void);
-
 void _nextStartCode(void)
 {
     int v;
@@ -2180,11 +2148,6 @@ void _nextStartCode(void)
         _flushBuf(8);
     }
 }
-
-extern void _extrainfo(void);
-extern int _qscqsc;
-extern int _intra_slice;
-extern void _extrainfo(void);
 
 int _sliceB(void)
 {
@@ -2198,15 +2161,6 @@ int _sliceB(void)
     }
     return 0;
 }
-
-extern void _groupOfPicturesHeader(void);
-extern void _pictureHeader(void);
-extern void _sequenceHeader(void);
-extern long long _headerPts;
-extern long long _headerDts;
-extern void _sequenceHeader(void);
-extern void _groupOfPicturesHeader(void);
-extern void _pictureHeader(void);
 
 int _nextHeader(void)
 {
@@ -2237,15 +2191,6 @@ int _nextHeader(void)
         }
     }
 }
-
-extern int _temporal_reference;
-extern int _vbv_delay;
-extern int _full_pel_forward_vector;
-extern int _forward_f_code;
-extern int _full_pel_backward_vector;
-extern int _backward_f_code;
-extern void _extensionAndUserData(void);
-extern void _updateTempTackData(void);
 
 void _pictureHeader(void)
 {
@@ -2313,23 +2258,9 @@ void _extensionAndUserData(void)
     }
 }
 
+/* kept local: libmpeg_internal.h leaves it out: var.c defines it as int[2][2], the members read
+   it flat */
 extern int _f_code[];
-extern int _intra_dc_precision;
-extern int _top_field_first;
-extern int _frame_pred_frame_dct;
-extern int _concealment_motion_vectors;
-extern int _q_scale_type;
-extern int _intra_vlc_format;
-extern int _alternate_scan;
-extern int _repeat_first_field;
-extern int _chroma_420_type;
-extern int _progressive_frame;
-extern int _composite_display_flag;
-extern int _v_axis;
-extern int _field_sequence;
-extern int _sub_carrier;
-extern int _burst_amplitude;
-extern int _sub_carrier_phase;
 
 void _pictureCodingExtension(void)
 {
@@ -2374,8 +2305,6 @@ void _extrainfo(void)
     }
 }
 
-extern int _trFrameNumber;
-
 void _updateTempTackData(void)
 {
     static int wrapped = 0; /* derived name */
@@ -2399,14 +2328,6 @@ void _updateTempTackData(void)
     _trFrameNumberA = _trFrameNumberA < _trFrameNumber ? _trFrameNumber : _trFrameNumberA;
 }
 
-extern int _drop_frame_flag;
-extern int _time_code_hours;
-extern int _time_code_minutes;
-extern int _time_code_seconds;
-extern int _time_code_pictures;
-extern int _closed_gop;
-extern int _broken_link;
-
 /* The handle is read as an int here: the ROM issues its load ahead of the
  * register saves, which sched2 does only when that load shares int's alias
  * set with the +0xE8 store (the store's anti dependence breaks the tie). */
@@ -2428,9 +2349,6 @@ void _groupOfPicturesHeader(void)
     _extensionAndUserData();
 }
 
-extern int _load_intra_quantizer_matrix;
-extern int _load_non_intra_quantizer_matrix;
-
 void _quantMatrixExtension(void)
 {
     if ((_load_intra_quantizer_matrix = _nextBit(1)) != 0) {
@@ -2450,12 +2368,6 @@ void _quantMatrixExtension(void)
         _Error("load_chroma_non_intra_quantizer_matrix == 1");
     }
 }
-
-extern int _progressive_sequence;
-extern int _repeat_first_field;
-extern int _top_field_first;
-extern int _frame_center_horizontal_offset[];
-extern int _frame_center_vertical_offset[];
 
 void _pictureDisplayExtension(void)
 {
@@ -2483,13 +2395,6 @@ void _pictureDisplayExtension(void)
     }
 }
 
-extern int _copyright_flag;
-extern int _copyright_identifier;
-extern int _original_or_copy;
-extern int _copyright_number_1;
-extern int _copyright_number_2;
-extern int _copyright_number_3;
-
 void _copyrightExtension(void)
 {
     _copyright_flag = _nextBit(1);
@@ -2504,11 +2409,6 @@ void _copyrightExtension(void)
     _nextBit(1);
     _copyright_number_3 = _nextBit(22);
 }
-
-extern int *_curFrame;
-extern int *_curTop;
-extern int *_curBot;
-extern int _pictureData0(int a0);
 
 int _decPicture(int a0, int a1)
 {
@@ -2541,7 +2441,8 @@ int _decPicture(int a0, int a1)
     return r;
 }
 
-extern int _picture_coding_type;
+/* kept local: libmpeg_internal.h leaves it out: the members read this pointer of var.c through
+   an array declaration */
 extern int _zFrame[];
 extern int _zTop[];
 extern int _zBot[];
@@ -2576,9 +2477,6 @@ void _outputFrame(int a0, int a1)
         p[0xF8 / 4] = 2;
     }
 }
-
-extern int _display_horizontal_size;
-extern int _display_vertical_size;
 
 /* The reference images are record pointers: their loads and stores sit in
    their own alias set, apart from the int fields read and written through
@@ -2678,8 +2576,6 @@ int _updateRefImage(int a0)
     return ret;
 }
 
-extern void sprintf();
-
 int _isOutSizeOK(char *p)
 {
     char *c = *(char **)((char *)_theSceMpeg + 0x40);
@@ -2698,8 +2594,6 @@ int _isOutSizeOK(char *p)
     }
     return flag;
 }
-
-extern int _picture_structure;
 
 void _cpr8(char *im)
 {
@@ -2753,6 +2647,8 @@ void _cpr8(char *im)
     }
 }
 
+/* kept local: libmpeg_internal.h leaves it out: the members read this scalar of var.c through
+   an array declaration */
 extern int _isOutputPicture[];
 
 int _markOutput(void)
@@ -2810,12 +2706,6 @@ void _getPtsDtsFlags(char *a0, void *a1, void *a2, void *a3)
 /* the display count of a picture by its repeat and field flags */
 unsigned int _showCount[16] = {2, 0, 2, 0, 2, 3, 2, 3, 0, 0, 0, 0, 2, 4, 0, 6};
 
-extern void _getPtsDtsFlags(char *a0, void *a1, void *a2, void *a3);
-extern int _isOutSizeOK(char *p);
-extern void _csc_storeRefImage(char *p);
-extern void _cpr8(char *p);
-extern int _markOutput(void);
-
 void _dispRefImage(char *a0, int a1)
 {
     char *q = (char *)_theSceMpeg;
@@ -2842,13 +2732,6 @@ void _dispRefImage(char *a0, int a1)
         _markOutput();
     }
 }
-
-extern int _picture_structure;
-extern void _getPtsDtsFlags(char *a0, void *a1, void *a2, void *a3);
-extern int _isOutSizeOK(char *p);
-extern void _csc_storeRefImage(char *p);
-extern void _cpr8(char *p);
-extern int _markOutput(void);
 
 /* the display record the handle's sys field points at: the stamp and show
  * count of the picture going out and its output geometry */

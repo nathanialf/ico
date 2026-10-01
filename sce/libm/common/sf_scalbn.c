@@ -1,10 +1,7 @@
 /* libm.a member sf_scalbn.o.  MAIN.MAP member spans tile this run exactly and
  * this member starts at an 8-aligned function start of the shipped ELF. */
 #include <math_private.h>
-
-extern int __ieee754_rem_pio2f(float x, float *y);
-extern float __kernel_cosf(float x, float y);
-extern float __kernel_sinf(float x, float y, int iy);
+#include <math.h>
 
 /* Float<->word access, the public-domain fdlibm idiom (netlib's fdlibm),
    re-derived, not copied from any SDK.  This member's use stands for a
@@ -29,8 +26,6 @@ extern float __kernel_sinf(float x, float y, int iy);
 static const float two25 = 3.355443200e+07, /* 0x4c000000 */
     twom25 = 2.9802322388e-08,              /* 0x33000000 */
     huge = 1.0e+30, tiny = 1.0e-30;
-
-extern float copysignf(float x, float y);
 
 float scalbnf(float x, int n)
 {

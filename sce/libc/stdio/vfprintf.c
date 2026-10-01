@@ -4,17 +4,15 @@
 #include <stdio.h>
 #include <string.h>
 #include <reent.h>
+#include <unistd.h>
 
 struct D520 {
     char pad0[8];
     PObjBlk *blk; /* 0x8 */
 };
 
-extern char D_00637E38[];
-extern void fiprintf();
-extern void abort(void);
+/* kept local: this member cannot include libc_internal.h, whose __sinit conflicts with its own */
 extern int _vfprintf_r();
-extern int strtok_r(int a0, int a1, int a2);
 extern int __sfvwrite();
 
 /* The stdio stream, as this libc lays it out: __sbprintf builds one on its own
@@ -23,8 +21,6 @@ extern int __sfvwrite();
 #define __SERR 0x0040
 #define BUFSIZ 1024
 #define EOF (-1)
-
-extern int fflush(Fil *fp);
 
 /* fvwrite.h */
 struct __siov {
@@ -113,13 +109,19 @@ typedef int wchar_t;
 #define __SERR 0x0040
 #define NULL 0
 
+/* kept local: this member cannot include libc_internal.h, whose __sinit conflicts with its own */
 extern int __sfvwrite(Fil *fp, struct __suio *uio);
 extern int __swsetup(Fil *fp);
+/* kept local: libc_internal.h declares it as `void __sinit(char *a0)` */
 extern void __sinit(Reent *ptr);
+/* kept local: stdlib.h leaves it out: its definition's argument list does not fit this member's
+   calls */
 extern int _mbtowc_r(Reent *ptr, wchar_t *pwc, const char *s, int n, int *state);
-extern void *memchr(const void *s, int c, int n);
+/* kept local: math.h declares it as `int isinf(long long x)` */
 extern int isinf(double d);
+/* kept local: math.h declares it as `int isnan(long long x)` */
 extern int isnan(double d);
+/* kept local: stdlib.h leaves it out: its definition takes dtoa.c's own DtoaReent record */
 extern char *_dtoa_r(Reent *ptr, double d, int mode, int ndigits, int *decpt, int *sign,
                      char **rve);
 
@@ -128,6 +130,7 @@ struct lconv {
     char *decimal_point; /* 0x0 */
 };
 
+/* kept local: no header declares it; its definition in sce/libc/locale returns void * */
 extern struct lconv *localeconv(void);
 
 #define _REENT (_impure_ptr)
@@ -737,24 +740,3 @@ int exp, fmtch;
     }
     return (p - p0);
 }
-
-extern int __sread(void *a0, int a1, int a2);
-extern long __swrite(void *a0, int a1, int a2);
-extern long __sseek(void *a0, int a1, int a2);
-extern void *_malloc_r(void *a0, int a1);
-extern void _fwalk(int a0, void *a1);
-extern long long __muldi3(long long a0, long long a1);
-extern long long __udivdi3(long long a0, long long a1);
-extern int *_Balloc(void *a0, int a1);
-extern int *_multadd(void *a0, int *a1, int a2, int a3);
-extern int _raise_r(int a0, int a1);
-extern int __sigtramp_r(int a0, int a1);
-extern int kill(int a0, void *a1);
-extern int _read_r(int *self, int a1, int a2, int a3);
-extern int _lseek_r(int *self, int a1, int a2, int a3);
-extern int _write_r(int *self, int a1, int a2, int a3);
-extern long long _strtoul_r(void *a0, void *a1, int a2, int a3);
-extern int write(int a1, int a2, int a3);
-extern int fstat(void *a0, void *a1);
-extern int lseek(int a1, int a2, int a3);
-extern int read(int a1, int a2, int a3);

@@ -3,6 +3,7 @@
  * boundary a retail function start; VMA 0x100A08..0x100D68, 13 functions. */
 #include <eekernel.h>
 #include <eeregs.h>
+#include <libkernl_internal.h>
 
 /* EE syscall leaf wrappers.  This member's uses stand for a Sony-internal
    header this tree cannot name: MAIN.MAP attests archives and their members,
@@ -37,8 +38,6 @@
 #define MFC0_STATUS(dst) __asm__ __volatile__("mfc0 %0, $12" : "=r"(dst))
 #define COP0_STATUS_EIE 0x10000
 
-extern void DIntr(void);
-
 int DisableIntc(int a0)
 {
     int eie;
@@ -55,8 +54,6 @@ int DisableIntc(int a0)
     }
     return rv;
 }
-
-extern int _EnableIntc();
 
 int EnableIntc(int a0)
 {

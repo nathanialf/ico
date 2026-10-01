@@ -3,15 +3,21 @@
 #include <eeregs.h>
 
 typedef unsigned int u_long128 __attribute__((mode(TI)));
-/* The GIF FIFO's reset value.  Read-only: its load is hoisted above the
-   0x12001000 store at the end, which alias.c's true_dependence allows only for
-   an unchanging MEM. */
-extern const u_long128 D_0054A2E0;
-/* kept local: sce/libc/stdio.h declares printf void; the call's value register
-   is live at each error print here (the ROM's temporaries after it avoid $2),
-   which needs the int-returning libc prototype. */
+/* The member's .data (MAIN.MAP graph018.o .data 0x10, no map symbol, so a
+   static of Sony's): one VIF1 quadword, MSKPATH3 0 then three NOPs, written
+   to the VIF1 FIFO to unmask PATH3 again.  Read-only: its load is hoisted
+   above the 0x12001000 store at the end, which alias.c's true_dependence
+   allows only for an unchanging MEM.
+   kept local: the member's own object, still bytes of the cod/44A2E0 blob;
+   it becomes this file's static when its .data row is carved. */
+/* kept local: the member's own object, still bytes of the cod/44A2E0 blob; it becomes this
+   file's static when its .data row is carved */
+extern const u_long128 sceGsUnmaskPath3Packet; /* derived name */
+/* kept local: sce/libc/stdio.h declares printf void */
 extern int printf(const char *fmt, ...);
+/* kept local: eekernel.h declares it as `int GsGetIMR(void)` */
 extern unsigned long GsGetIMR(void);
+/* kept local: eekernel.h declares it as `int GsPutIMR(int a0)` */
 extern unsigned long GsPutIMR(unsigned long a0);
 
 /* RECONSTRUCTION.  What the bytes pin: the allocator's order i, n1, n8, rem,
@@ -164,7 +170,7 @@ int sceGsExecStoreImage(void *pkt, void *img)
     while ((*GS_CSR & 2) == 0) {
         if (i++ > 0x1000000) {
             printf("sceGsExecStoreImage: GS does not terminate\r\n");
-            *(volatile u_long128 *)VIF1_FIFO = D_0054A2E0;
+            *(volatile u_long128 *)VIF1_FIFO = sceGsUnmaskPath3Packet;
             return -1;
         }
     }
@@ -240,6 +246,6 @@ int sceGsExecStoreImage(void *pkt, void *img)
     *GS_BUSDIR = 0;
     GsPutIMR(imr);
     *GS_CSR = 2;
-    *(volatile u_long128 *)VIF1_FIFO = D_0054A2E0;
+    *(volatile u_long128 *)VIF1_FIFO = sceGsUnmaskPath3Packet;
     return 0;
 }

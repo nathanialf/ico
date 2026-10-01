@@ -1,15 +1,12 @@
 /* libc.a member fflush.o.  MAIN.MAP member spans tile this run exactly and
  * this member starts at an 8-aligned function start of the shipped ELF. */
 #include <reent.h>
+#include <stdio.h>
 
 struct D520 {
     char pad0[8];
     PObjBlk *blk; /* 0x8 */
 };
-
-extern char D_00637E38[];
-extern void fiprintf();
-extern void abort(void);
 
 #define __SLBF 0x0001
 #define __SNBF 0x0002
@@ -17,9 +14,10 @@ extern void abort(void);
 #define __SERR 0x0040
 #define EOF (-1)
 
+/* kept local: libc_internal.h declares it as `int _fwalk(Reent *ptr, int (*function)())` */
 extern int _fwalk(Reent *r, int (*func)());
+/* kept local: libc_internal.h declares it as `void __sinit(char *a0)` */
 extern void __sinit(Reent *r);
-extern int fflush(Fil *fp);
 
 int fflush(Fil *fp)
 {

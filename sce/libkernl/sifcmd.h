@@ -62,4 +62,13 @@ typedef struct {
     } u;
 } SifDmaTransfer;
 
+void sceSifRemoveCmdHandler(int a0);                                /* definition in sce/ */
+int isceSifSendCmd(int a0, int a1, int a2, int a3, int t0, int t1); /* definition in sce/ */
+int sceSifAddCmdHandler(int a0, int a1, int a2);                    /* definition in sce/ */
+int sceSifGetSreg(int a0);                                          /* definition in sce/ */
+void sceSifInitCmd(void);                                           /* definition in sce/ */
+int sceSifSendCmd(int a0, int a1, int a2, int a3, int t0, int t1);  /* definition in sce/ */
+void sceSifSetDChain(void);                                         /* the spelling at 1 site */
+int isceSifSetDma(int p, int a);                                    /* the spelling at 1 site */
+
 #endif /* SCE_LIBKERNL_SIFCMD_H */

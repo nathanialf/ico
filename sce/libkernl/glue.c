@@ -3,10 +3,16 @@
  * retail function start to the next; VMA 0x25EF18..0x25F250,
  * 16 functions. */
 #include <eeregs.h>
+#include <eekernel.h>
+#include <errno.h>
+#include <signal.h>
+#include <sys/stat.h>
+#include <unistd.h>
 
 /* glue.o's .data: whether the tty is open (write and read open it on first
    use), then sbrk's current break, which starts at the end of the program's
    bss (the linker's _end).  MAIN.MAP names neither, so both are statics. */
+/* kept local: the link's end of .bss, which no header declares */
 extern char _end[];
 
 static int tty_opened = 0;
@@ -14,6 +20,7 @@ static int tty_opened = 0;
 static char *heap_ptr = _end;
 
 /* unprototyped: sceResetttyinit passes the port, write and read call it bare */
+/* kept local: not yet moved to libkernl_internal.h */
 extern int sceTtyInit();
 
 void sceResetttyinit(int a0)
@@ -60,8 +67,6 @@ __asm__(".section .text\n"
         "    .set reorder\n"
         "    .set at\n");
 
-extern void SetVSyncFlag(void *a0, void *a1);
-
 long long VSync2(void)
 {
     volatile int flag;
@@ -76,6 +81,7 @@ long long VSync2(void)
     return val;
 }
 
+/* kept local: not yet moved to libkernl_internal.h */
 extern int sceTtyWrite(char *buf, int len);
 extern int sceTtyRead(void *buf, int size);
 
@@ -106,8 +112,6 @@ int read(int fd, void *buf, int size)
     }
     return -1;
 }
-
-extern int __errno(void);
 
 int open(void)
 {
@@ -207,8 +211,6 @@ int getpid(void)
 {
     return 1;
 }
-
-extern void Exit(void *a0);
 
 int kill(int a0, void *a1)
 {

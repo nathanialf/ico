@@ -1,10 +1,7 @@
 /* libm.a member kf_rem_pio2.o.  MAIN.MAP member spans tile this run exactly and
  * this member starts at an 8-aligned function start of the shipped ELF. */
 #include <math.h>
-
-extern int __ieee754_rem_pio2f(float x, float *y);
-extern float __kernel_cosf(float x, float y);
-extern float __kernel_sinf(float x, float y, int iy);
+#include <math_private.h>
 
 /* The member's own static tables, fdlibm's init_jk (three ints), PIo2 (eleven
    floats) and its four scalar constants, in declaration order: the member's
@@ -31,8 +28,6 @@ static const float PIo2[] = {
 
 static const float zero = 0.0, one = 1.0, two8 = 2.5600000000e+02, /* 0x43800000 */
     twon8 = 3.9062500000e-03;                                      /* 0x3b800000 */
-
-extern float scalbnf(float x, int n);
 
 int __kernel_rem_pio2f(float *x, float *y, int e0, int nx, int prec, const int *ipio2)
 {

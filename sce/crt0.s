@@ -4,8 +4,8 @@
 # and ei have no C spelling either.  Transcribed from the shipped instruction
 # stream (rungs: ROM bytes for the instructions, the listing rows for the
 # source file).  The eight zero bytes the listing labels <_start-0x8> are
-# crt0.s's pre-entry pad, not a function, and are emitted here as data so the
-# run starts at the same address.  The module ends after _root's syscall at
+# crt0.s's pre-entry pad, not a function and carrying no symbol of its own,
+# and are emitted here as data so the run starts at the same address.  The module ends after _root's syscall at
 # 0x1000C8, as the listing shows; the zero fill to 0x100100 is klib.o's 64-byte
 # alignment (sce/libkernl/klib.s), not part of crt0.
 # The module's .bss (MAIN.MAP crt0.o 0x144): the argument block _start hands
@@ -24,8 +24,6 @@ _args: /* derived name */
     .set at
     .set noreorder
     .align 3
-    .global D_00100000
-D_00100000:
     .word 0, 0
     .set reorder
     .set at

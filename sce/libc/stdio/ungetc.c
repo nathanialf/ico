@@ -2,16 +2,13 @@
  * this member starts at an 8-aligned function start of the shipped ELF. */
 #include <string.h>
 #include <reent.h>
+#include <stdio.h>
+#include <stdlib.h>
 
 struct D520 {
     char pad0[8];
     PObjBlk *blk; /* 0x8 */
 };
-
-extern void fiprintf();
-extern void abort(void);
-extern void *_malloc_r(void *r, int n);
-extern void *_realloc_r(void *r, void *p, int n);
 
 /* newlib's struct __sbuf / struct __sFILE, reconstructed from the ROM's own
    field offsets in this member (evidence rung: ROM bytes; the newlib member
@@ -49,8 +46,9 @@ int __submore(char *fp0)
     return 0;
 }
 
+/* kept local: libc_internal.h declares it as `void __sinit(char *a0)` */
 extern void __sinit(void *r);
-extern int fflush();
+/* kept local: this member cannot include libc_internal.h, whose __sinit conflicts with its own */
 extern int __submore(char *fp);
 
 int ungetc(int c, Fil *fp)

@@ -1,10 +1,7 @@
 /* libm.a member wf_atan2.o.  MAIN.MAP member spans tile this run exactly and
  * this member starts at an 8-aligned function start of the shipped ELF. */
 #include <math.h>
-
-extern int __ieee754_rem_pio2f(float x, float *y);
-extern float __kernel_cosf(float x, float y);
-extern float __kernel_sinf(float x, float y, int iy);
+#include <math_private.h>
 
 /* newlib's wrapper layer: struct exception and the _LIB_VERSION guard.  The
    member's own copies stand for the Sony/newlib math.h this tree cannot name. */
@@ -17,9 +14,7 @@ struct exception {
     int err;       /* 0x20 */
 };
 
-extern float __ieee754_atan2f(float y, float x);
-extern int isnanf(float x);
-extern int matherr(struct exception *e);
+/* kept local: errno.h declares it as its definition, returning int, where these uses take int * */
 extern int *__errno(void);
 
 float atan2f(float y, float x)

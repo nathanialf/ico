@@ -47,6 +47,11 @@
 // into the preload buffer, so these addresses may not be referenced and the blobs
 // keep the raw words (finishing pass P1-1).
 
+// The same for the integer 0x00100000 (beside 0x0011FFFF and 1.0f in cod/1A79B8,
+// beside 0xFFFF in cod/4577D0): the address is crt0.s's unlabelled pre-entry
+// pad, which nothing points at.
+
+D_00100000 = 0x00100000; // can_be_referenced:False
 D_00320000 = 0x00320000; // can_be_referenced:False
 D_00340000 = 0x00340000; // can_be_referenced:False
 D_00350000 = 0x00350000; // can_be_referenced:False
@@ -127,6 +132,7 @@ stageExitData = 0x004D9A30; // size:0x10  // ico2/common/src/StageManager  // ma
 mc = 0x004E3BC0; // size:0x8  // ico2/common/src/layout_action  // map-size 1of1 from layout_action.o
 motFuncList = 0x004E5930; // size:0x40  // ico2/sugipon/src/a_p_1  // map-size 1of1 from a_p_1.o
 objMenu = 0x004ECBF0; // size:0x80  // ico2/sugipon/src/motionViewer  // map-size 1of1 from motionViewer.o
+sceGsUnmaskPath3Packet = 0x0054A2E0; // size:0x10  // sce/libgraph/graph018  // derived name, graph018.o whole .data (= MAIN.MAP 0x10, no map symbol), the MSKPATH3 0 quadword sceGsExecStoreImage writes to the VIF1 FIFO, still blob bytes (cod/44A2E0)
 SCE_CD_debug = 0x0054A550; // size:0x4  // (vendor)  // map-anchor 15of15 from cdvd000.o
 _sceCd_ncmd_semid = 0x0054A568; // size:0x4  // (vendor)  // map-anchor 15of15 from cdvd000.o
 _sceCd_scmd_semid = 0x0054A56C; // size:0x4  // (vendor)  // map-anchor 15of15 from cdvd000.o

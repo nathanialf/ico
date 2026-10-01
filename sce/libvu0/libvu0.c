@@ -3,6 +3,7 @@
  * this archive, so its member spans do not tile this run: the per-member
  * partition is NOT verified, and this file is the whole run. */
 #include <eeregs.h>
+#include <libvu0.h>
 
 /* VU0 / COP2 macro-mode opcodes, one instruction per __asm__ block.  This
    run's uses stand for a Sony-internal header this tree cannot name: MAIN.MAP
@@ -29,10 +30,6 @@
 #define VU0_NOREORDER_END() __asm__ __volatile__(".set reorder")
 
 typedef unsigned int u128 __attribute__((mode(TI)));
-
-/* libvu0.h's float quadword; this file does not include the header, whose
-   declarations spell some of these entry points differently */
-typedef float sceVu0FVECTOR[4] __attribute__((aligned(16)));
 
 void sceVu0ApplyMatrix(void *a0, void *a1, void *a2)
 {
@@ -567,11 +564,7 @@ __asm__(".section .text\n"
         "    .set reorder\n"
         "    .set at\n");
 
-extern void sceVu0RotMatrixZ(int a, int b, float f);
-extern void sceVu0RotMatrixX(int a, int b, float f);
-extern void sceVu0RotMatrixY(int a, int b, float f);
-
-void sceVu0RotMatrix(int a0, int a1, float *fa)
+void sceVu0RotMatrix(void *a0, void *a1, float *fa)
 {
     sceVu0RotMatrixZ(a0, a1, fa[2]);
     sceVu0RotMatrixY(a0, a0, fa[1]);
@@ -590,8 +583,6 @@ void sceVu0ClampVector(void *a0, void *a1, float a2, float a3)
     VU0_LSV(sqc2, 6, 0x0, 4);
 }
 
-extern void sceVu0InversMatrix(void *a0, void *a1);
-
 void sceVu0CameraMatrix(void *a0, void *a1, void *a2, void *a3)
 {
     char buf[0x50];
@@ -603,8 +594,6 @@ void sceVu0CameraMatrix(void *a0, void *a1, void *a2, void *a3)
     sceVu0TransMatrix(buf, buf, a1);
     sceVu0InversMatrix(a0, buf);
 }
-
-extern void sceVu0TransposeMatrix(void *a0, void *a1);
 
 void sceVu0NormalLightMatrix(void *a0, void *a1, void *a2, void *a3)
 {
@@ -624,8 +613,6 @@ void sceVu0NormalLightMatrix(void *a0, void *a1, void *a2, void *a3)
     }
     sceVu0TransposeMatrix(a0, a0);
 }
-
-extern void sceVu0CopyVector(void *buf, int x);
 
 void sceVu0LightColorMatrix(void *a0, void *a1, void *a2, void *a3, void *a4)
 {

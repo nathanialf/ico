@@ -17,10 +17,17 @@
 #ifndef SCE_LIBC_STDIO_H
 #define SCE_LIBC_STDIO_H
 
-void printf(void *a0, ...);                                            /* definition in sce/ */
-int sprintf(void *a0, int a1, ...);                                    /* definition in sce/ */
-int sscanf(void *a0, void *a1, ...);                                   /* definition in sce/ */
-int vfprintf();                                                        /* dominant spelling at 4 sites */
-int vsprintf(void *out, void *a1, void *a2);                           /* definition in sce/ */
+struct Fil; /* sce/libc/reent.h's stream record */
+
+void printf(void *a0, ...);                               /* definition in sce/ */
+int sprintf(void *a0, int a1, ...);                       /* definition in sce/ */
+int sscanf(void *a0, void *a1, ...);                      /* definition in sce/ */
+int vfprintf();                                           /* dominant spelling at 4 sites */
+int vsprintf(void *out, void *a1, void *a2);              /* definition in sce/ */
+int fflush(struct Fil *fp);                               /* definition in sce/ */
+int fiprintf(void *fp, void *fmt, ...);                   /* definition in sce/ */
+int vfiprintf(char *fp, char *fmt0, void *ap);            /* definition in sce/ */
+int fread(char *dst, int size, int count, struct Fil *s); /* definition in sce/ */
+int ungetc(int c, struct Fil *fp);                        /* definition in sce/ */
 
 #endif /* SCE_LIBC_STDIO_H */

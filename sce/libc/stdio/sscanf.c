@@ -2,20 +2,19 @@
  * this member starts at an 8-aligned function start of the shipped ELF. */
 #include <string.h>
 #include <reent.h>
+#include <stdio.h>
 
 struct D520 {
     char pad0[8];
     PObjBlk *blk; /* 0x8 */
 };
 
-extern void fiprintf();
-extern void abort(void);
-
 int eofread(void)
 {
     return 0;
 }
 
+/* kept local: libc_internal.h leaves it out: its definition takes vfscanf.c's own va_list */
 extern int __svfscanf(void *a0, void *a1, void *a2);
 
 int sscanf(void *a0, void *a1, ...)

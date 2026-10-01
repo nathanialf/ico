@@ -1,6 +1,7 @@
 /* Vendor SCE library member: libkernl.a(diei.o).  MAIN.MAP places this member at
  * the same address as the shipped ELF and its size tiles the run exactly, every
  * boundary a retail function start; VMA 0x101A40..0x101AA0, 2 functions. */
+#include <eekernel.h>
 
 /* R5900 opcodes with no C spelling.  This member's uses stand for a
    Sony-internal header this tree cannot name: MAIN.MAP attests archives and

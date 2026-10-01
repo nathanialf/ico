@@ -17,20 +17,80 @@
 #ifndef SCE_LIBGRAPH_LIBGRAPH_H
 #define SCE_LIBGRAPH_LIBGRAPH_H
 
-void *sceGsGetGParam(void);                                            /* definition in sce/ */
-int sceGsGetIMR(void);                                             /* definition in sce/ */
-void sceGsPutDispEnv(void *a0);                                        /* definition in sce/ */
-int sceGsPutDrawEnv(void *a0);                                         /* definition in sce/ */
-int sceGsPutIMR(void *a0);                                             /* definition in sce/ */
-void sceGsResetGraph(short mode, short inter, short omode, short ffmd); /* definition in sce/; the ROM sign-extends all four with sll/sra */
-void sceGsResetPath(void);                                             /* dominant spelling at 4 sites */
-int sceGsSetDefAlphaEnv(long long *a0, int a1);                        /* definition in sce/ */
-void sceGsSetDefDispEnv(int *env, int psm, short w, short h, short dx, short dy); /* dominant spelling at 2 sites */
-int sceGsSetDefDrawEnv();                                              /* dominant spelling at 2 sites */
-int sceGsSetDefTexEnv();                                               /* dominant spelling at 1 sites */
-int sceGsSwapDBuff(void *a0, int a1);                                  /* definition in sce/ */
-void sceGsSyncPath(int a, int b);                                      /* dominant spelling at 5 sites */
-int sceGsSyncV(void);                                                  /* definition in sce/ */
-short sceGszbufaddr(short a0, short a1, short a2);                     /* definition in sce/ */
+/* PMODE / SMODE2 / DISPFB / DISPLAY / BGCOLOR, one qword each. */
+typedef struct {
+    long long pmode;   /* 0x00 */
+    long long smode2;  /* 0x08 */
+    long long dispfb;  /* 0x10 */
+    long long display; /* 0x18 */
+    long long bgcolor; /* 0x20 */
+} sceGsDispEnv;
+
+/* Eight (register-address, data) pairs: FRAME_1, ZBUF_1, XYOFFSET_1, SCISSOR_1,
+   PRMODECONT, COLCLAMP, DTHE, TEST_1.  Same pair convention as graph007. */
+typedef struct {
+    long long frame;           /* 0x00 */
+    long long frame_addr;      /* 0x08 */
+    long long zbuf;            /* 0x10 */
+    long long zbuf_addr;       /* 0x18 */
+    long long xyoffset;        /* 0x20 */
+    long long xyoffset_addr;   /* 0x28 */
+    long long scissor;         /* 0x30 */
+    long long scissor_addr;    /* 0x38 */
+    long long prmodecont;      /* 0x40 */
+    long long prmodecont_addr; /* 0x48 */
+    long long colclamp;        /* 0x50 */
+    long long colclamp_addr;   /* 0x58 */
+    long long dthe;            /* 0x60 */
+    long long dthe_addr;       /* 0x68 */
+    long long test;            /* 0x70 */
+    long long test_addr;       /* 0x78 */
+} sceGsDrawEnv;
+
+/* The (data, address) register pair list sceGsSetDefClear fills: six GS
+   register writes, TEST_1 / PRIM / RGBAQ / XYZ2 / XYZ2 / TEST_1. */
+typedef struct {
+    unsigned long long test_1;       /* 0x00 */
+    unsigned long long test_1_addr;  /* 0x08 */
+    unsigned long long prim;         /* 0x10 */
+    unsigned long long prim_addr;    /* 0x18 */
+    unsigned long long rgbaq;        /* 0x20 */
+    unsigned long long rgbaq_addr;   /* 0x28 */
+    unsigned long long xyz2_0;       /* 0x30 */
+    unsigned long long xyz2_0_addr;  /* 0x38 */
+    unsigned long long xyz2_1;       /* 0x40 */
+    unsigned long long xyz2_1_addr;  /* 0x48 */
+    unsigned long long test_1r;      /* 0x50 */
+    unsigned long long test_1r_addr; /* 0x58 */
+} sceGsClear;
+
+void *sceGsGetGParam(void);     /* definition in sce/ */
+int sceGsGetIMR(void);          /* definition in sce/ */
+void sceGsPutDispEnv(void *a0); /* definition in sce/ */
+int sceGsPutDrawEnv(void *a0);  /* definition in sce/ */
+int sceGsPutIMR(void *a0);      /* definition in sce/ */
+
+void sceGsResetGraph(
+    short mode, short inter, short omode,
+    short ffmd); /* definition in sce/; the ROM sign-extends all four with sll/sra */
+
+void sceGsResetPath(void);                      /* dominant spelling at 4 sites */
+int sceGsSetDefAlphaEnv(long long *a0, int a1); /* definition in sce/ */
+
+void sceGsSetDefDispEnv(sceGsDispEnv *disp, short psm, short w, short h, short dx,
+                        short dy); /* definition in sce/ */
+
+int sceGsSetDefClear(sceGsClear *cl, short ztst, short x, short y, short w, short h,
+                     unsigned char r, unsigned char g, unsigned char b, unsigned char a,
+                     unsigned int z); /* definition in sce/ */
+
+int sceGsSetDefDrawEnv(sceGsDrawEnv *env, short psm, short w, short h, short ztst,
+                       short zpsm); /* definition in sce/ */
+
+int sceGsSetDefTexEnv();                           /* dominant spelling at 1 sites */
+int sceGsSwapDBuff(void *a0, int a1);              /* definition in sce/ */
+void sceGsSyncPath(int a, int b);                  /* dominant spelling at 5 sites */
+int sceGsSyncV(void);                              /* definition in sce/ */
+short sceGszbufaddr(short a0, short a1, short a2); /* definition in sce/ */
 
 #endif /* SCE_LIBGRAPH_LIBGRAPH_H */

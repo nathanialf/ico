@@ -2,9 +2,6 @@
  * this member starts at an 8-aligned function start of the shipped ELF. */
 #include "libgcc2.h"
 
-extern void __unpack_d(void *in, void *out);
-extern void __make_fp(int a0, int a1, int a2, int a3);
-
 #define CLASS_SNAN 0
 #define CLASS_QNAN 1
 #define CLASS_ZERO 2
@@ -149,9 +146,6 @@ void __unpack_f(void *in, void *out)
         dst->fraction = (fraction << 7) | IMPLICIT_1;
     }
 }
-
-extern float __pack_f(void *s);
-extern void __unpack_f(void *in, void *out);
 
 static fp_number_type *_fpadd_parts(fp_number_type *a, fp_number_type *b, fp_number_type *tmp)
 {

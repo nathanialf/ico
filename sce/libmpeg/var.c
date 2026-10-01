@@ -7,11 +7,7 @@
  * default intra matrix is 64-byte aligned for its DMA to the IPU, which is
  * what starts the member 64-aligned after init.o's .data. */
 #include <eeregs.h>
-
-/* the reference-frame records the frame pointers start on, defined below */
-extern int _refFrame0[], _refFrame1[], _refFrame2[];
-extern int _refTop0[], _refTop1[], _refTop2[];
-extern int _refBot0[], _refBot1[], _refBot2[];
+#include <libmpeg_internal.h>
 
 int *_forwFrame = _refFrame0;
 

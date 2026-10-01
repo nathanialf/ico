@@ -3,24 +3,12 @@
 #include <stdlib.h>
 #include <string.h>
 #include <reent.h>
+#include <libc_internal.h>
 
 struct D520 {
     char pad0[8];
     PObjBlk *blk; /* 0x8 */
 };
-
-extern char D_00637E38[];
-extern void fiprintf();
-extern void abort(void);
-extern int _vfprintf_r(int *self, int subj, int b, void *args);
-extern int strtok_r(int a0, int a1, int a2);
-extern int __sread(void *a0, int a1, int a2);
-extern long __swrite(void *a0, int a1, int a2);
-extern long __sseek(void *a0, int a1, int a2);
-extern void *_malloc_r(void *a0, int a1);
-extern void _fwalk(int a0, void *a1);
-extern long long __muldi3(long long a0, long long a1);
-extern long long __udivdi3(long long a0, long long a1);
 
 /* newlib Bigint: _next, _k, _maxwds, _sign, _wds, then the word array. */
 typedef struct _Bigint {
@@ -31,8 +19,6 @@ typedef struct _Bigint {
     int wds;              /* 0x10 */
     unsigned int x[1];    /* 0x14 */
 } Bigint;
-
-extern void *_calloc_r(void *ptr, int n, int size);
 
 /* the _reent slot the Bigint free list hangs off, at 0x4C */
 typedef struct {
@@ -111,9 +97,6 @@ int *_multadd(void *ptr, Bigint *b, int m, int a)
     }
     return (int *)b;
 }
-
-extern int *_Balloc(void *a0, int a1);
-extern int *_multadd(void *a0, Bigint *a1, int a2, int a3);
 
 int _s2b(void *a0, char *a1, int a2, int a3, int a4)
 {
@@ -307,8 +290,6 @@ int *_multiply(void *ptr, Bigint *a, Bigint *b)
     c->wds = wc;
     return (int *)c;
 }
-
-extern int *_multiply(void *ptr, Bigint *a, Bigint *b);
 
 int *_pow5mult(void *ptr, Bigint *b, int k)
 {
@@ -572,8 +553,6 @@ int *_d2b(void *ptr, double dd, int *e, int *bits)
     return (int *)b;
 }
 
-extern double _b2d(Bigint *a, int *e);
-
 double _ratio(Bigint *a, Bigint *b)
 {
     MpDouble da;
@@ -601,6 +580,8 @@ const double __mprec_bigtens[] = {1e16, 1e32, 1e64, 1e128, 1e256};
 
 const double __mprec_tinytens[] = {1e-16, 1e-32, 1e-64, 1e-128, 1e-256};
 
+/* kept local: libgcc's soft-float entry point (dp-bit.c, long arguments), and libgcc2.h is not
+   on this archive's include path */
 extern long dpmul(long a, long b);
 
 long _mprec_log10(int n)
@@ -617,15 +598,3 @@ long _mprec_log10(int n)
     }
     return acc;
 }
-
-extern int _raise_r(int a0, int a1);
-extern int __sigtramp_r(int a0, int a1);
-extern int kill(int a0, void *a1);
-extern int _read_r(int *self, int a1, int a2, int a3);
-extern int _lseek_r(int *self, int a1, int a2, int a3);
-extern int _write_r(int *self, int a1, int a2, int a3);
-extern long long _strtoul_r(void *a0, void *a1, int a2, int a3);
-extern int write(int a1, int a2, int a3);
-extern int fstat(void *a0, void *a1);
-extern int lseek(int a1, int a2, int a3);
-extern int read(int a1, int a2, int a3);

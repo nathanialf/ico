@@ -1,6 +1,7 @@
 /* Vendor SCE library member: libkernl.a(kprintf.o).  MAIN.MAP places this member at
  * the same address as the shipped ELF and its size tiles the run exactly, every
  * boundary a retail function start; VMA 0x1010C8..0x101A40, 8 functions. */
+#include <eekernel.h>
 
 int kputchar(int c)
 {
@@ -15,7 +16,10 @@ int kputchar(int c)
 }
 
 typedef void (*PutcharFn)(int c);
+/* kept local: this member cannot include libkernl_internal.h, whose kputs conflicts with its
+   own */
 extern void deci2Putchar(int c);
+/* kept local: libkernl_internal.h declares it as `void kputs(int a0)` */
 extern void kputs(char *s);
 
 /* deci2Putchar's line buffer and its fill count; kputs sends a full line. */
@@ -89,11 +93,16 @@ int ftoi(unsigned long long a)
     return (int)m;
 }
 
+/* kept local: libgcc's soft-float entry point (dp-bit.c, long arguments), and libgcc2.h is not
+   on this archive's include path */
 extern int dpcmp(double a, double b);
 extern double dpsub(double a, double b);
 extern double dpmul(double a, double b);
 extern double dpdiv(double a, double b);
+/* kept local: libgcc's, and libgcc2.h is not on this archive's include path */
 extern unsigned long long __fixunsdfdi(double a);
+/* kept local: this member cannot include libkernl_internal.h, whose kputs conflicts with its
+   own */
 extern void kprintf(char *fmt, ...);
 
 void printfloat(double v)

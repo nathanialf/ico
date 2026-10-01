@@ -2,10 +2,7 @@
  * member and its .text size (0x51C), which tiles the shipped ELF from one
  * retail function start to the next; VMA 0x25F250..0x25F76C,
  * 7 functions. */
-
-/* eekernel.h's spelling, the one sifcmd.o's sceSifInitCmd proves (a void call
-   leaves no value register set after it). */
-extern void FlushCache(int a0);
+#include <eekernel.h>
 
 typedef struct {
     int f0;
@@ -68,8 +65,14 @@ void QueuePeekReadDone(RingBuf_241C80 *a0)
 
 /* unprototyped: the ROM passes a second argument in a register at two of the
    four call sites */
+/* kept local: this member cannot include libkernl_internal.h, whose sceDeci2ExRecv,
+   sceDeci2ExSend, sceDeci2ReqSend conflict with its own */
 extern void kprintf();
+/* kept local: libkernl_internal.h declares it as `void sceDeci2ExRecv(int a0, int a1, unsigned
+   short a2)` */
 extern int sceDeci2ExRecv(int s, int buf, unsigned short len);
+/* kept local: libkernl_internal.h declares it as `void sceDeci2ExSend(int a0, int a1, unsigned
+   short a2)` */
 extern int sceDeci2ExSend(int s, int buf, unsigned short len);
 
 /* RECONSTRUCTION: the tty socket record at tty_rec as the handler sees it.
@@ -138,9 +141,10 @@ void sceTtyHandler(int event, int param, void *opt)
     tty->busy = 0;
 }
 
-extern int DIntr();
-extern int EIntr();
+/* kept local: libkernl_internal.h declares it as `void sceDeci2ReqSend(int a0, signed char a1)` */
 extern int sceDeci2ReqSend(int s, int c);
+/* kept local: this member cannot include libkernl_internal.h, whose sceDeci2ExRecv,
+   sceDeci2ExSend, sceDeci2ReqSend conflict with its own */
 extern void sceDeci2Poll(int s);
 
 int sceTtyWrite(char *buf, int len)
@@ -215,6 +219,8 @@ int sceTtyRead(void *buf, int size)
     return i;
 }
 
+/* kept local: this member cannot include libkernl_internal.h, whose sceDeci2ExRecv,
+   sceDeci2ExSend, sceDeci2ReqSend conflict with its own */
 extern int sceDeci2Open(unsigned short protocol, void *opt, void *handler);
 extern void sceTtyHandler(int event, int param, void *opt);
 

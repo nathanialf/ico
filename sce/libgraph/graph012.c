@@ -2,6 +2,7 @@
  * this member starts at an 8-aligned function start of the shipped ELF. */
 #include <eeregs.h>
 
+/* kept local: sce/libc/stdio.h declares printf void */
 extern int printf(const char *fmt, ...);
 
 #define GS_SYNCPATH_DUMP()                                                                         \

@@ -1,9 +1,10 @@
 /* libm.a member s_matherr.o.  MAIN.MAP member spans tile this run exactly and
  * this member starts at an 8-aligned function start of the shipped ELF. */
 
-extern int __ieee754_rem_pio2f(float x, float *y);
-extern float __kernel_cosf(float x, float y);
-extern float __kernel_sinf(float x, float y, int iy);
+#include <math.h>
+
+/* kept local: libgcc's soft-float entry point (dp-bit.c, long arguments), and libgcc2.h is not
+   on this archive's include path */
 extern int dpcmp(long a0, long a1);
 
 int matherr(void *a0)

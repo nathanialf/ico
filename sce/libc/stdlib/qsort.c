@@ -7,8 +7,6 @@ struct D520 {
     PObjBlk *blk; /* 0x8 */
 };
 
-extern void fiprintf();
-extern void abort(void);
 typedef int (*QCmp)();
 
 #define qswapcode(TYPE, parmi, parmj, n)                                                           \

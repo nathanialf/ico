@@ -8,6 +8,8 @@
 #include <eekernel.h>
 #include <stdio.h>
 #include <sifrpc.h>
+#include <libcdvd.h>
+#include <libcdvd_internal.h>
 
 typedef struct {
     int f0;
@@ -18,21 +20,6 @@ typedef struct {
     char pad14[0x8];
 } PObjA8B8Ent;
 
-extern int SCE_CD_debug;
-extern int _sceCd_cd_ncmd[];
-extern int _sceCd_ncmd_semid;
-extern int _sceCd_ncmdrdata[];
-extern int _sceCd_ncmd_prechk(int a0);
-extern int sceSifCallRpc();
-extern void sceSifWriteBackDCache(void *p, int n);
-
-typedef struct {
-    unsigned char trycount;
-    unsigned char spindlctrl;
-    unsigned char datapattern;
-    unsigned char pad;
-} CdRMode;
-
 /* The member's own .data word: set by sceCdStStart and sceCdStResume, cleared
  * by sceCdStInit, sceCdStStop and sceCdStPause, and tested by sceCdStRead
  * (explicit zero initialiser: the ROM keeps it in .data, not .bss). */
@@ -40,8 +27,6 @@ static int stStarted = 0;
 
 /* The member's own .bss: the mode record every call but sceCdStStart passes. */
 static CdRMode stMode;
-
-extern int sceCdStream(int a0, int a1, int a2, int a3, CdRMode *mode);
 
 int sceCdStInit(int a0, int a1, int a2)
 {
@@ -70,8 +55,6 @@ int sceCdStStop(void)
     stStarted = 0;
     return sceCdStream(0, 0, 0, 3, &stMode);
 }
-
-extern void sceCdDelayThread(unsigned short a0);
 
 int sceCdStRead(int sectors, void *buf, int mode, int *err)
 {
@@ -145,8 +128,6 @@ int sceCdStStat(void)
     }
     return sceCdStream(0, 0, 0, 6, &stMode);
 }
-
-extern int _sceCd_ncmdsdata[];
 
 typedef struct {
     int f0;

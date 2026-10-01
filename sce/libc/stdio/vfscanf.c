@@ -2,15 +2,13 @@
  * this member starts at an 8-aligned function start of the shipped ELF. */
 #include <reent.h>
 #include <ctype.h>
+#include <libc_internal.h>
+#include <stdio.h>
 
 struct D520 {
     char pad0[8];
     PObjBlk *blk; /* 0x8 */
 };
-
-extern char D_00637E38[];
-extern void fiprintf();
-extern void abort(void);
 
 /* newlib's struct __sbuf / struct __sFILE, reconstructed from the ROM's own
    field offsets in this member (evidence rung: ROM bytes; the newlib member
@@ -52,13 +50,12 @@ typedef int wchar_t;
 #define BUF (MAXEXP + MAXFRACT + 3)
 #define EOF (-1)
 
-extern int __srefill(Fil *fp);
-extern int ungetc(int c, Fil *fp);
-extern unsigned int fread(void *buf, int size, int count, Fil *fp);
-extern u_char *__sccl(char *tab, u_char *fmt);
+/* kept local: stdlib.h declares it as `long long strtol(void *a0, int a1, int a2)` */
 extern long strtol();
+/* kept local: stdlib.h declares it as `long long strtoul(void *a0, int a1, int a2)` */
 extern unsigned long strtoul();
 /* newlib atof (sce/libc/stdlib/atof): strtod with a null end pointer. */
+/* kept local: stdlib.h declares it as `double atof(const char *ascii)` */
 extern double atof(char *nptr);
 
 #define BufferEmpty (fp->r <= 0 && __srefill(fp))

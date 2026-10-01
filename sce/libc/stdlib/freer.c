@@ -9,14 +9,6 @@ struct D520 {
     PObjBlk *blk; /* 0x8 */
 };
 
-extern void fiprintf();
-extern void abort(void);
-extern int _vfprintf_r(int *self, int subj, int b, void *args);
-extern int strtok_r(int a0, int a1, int a2);
-extern int __sread(void *a0, int a1, int a2);
-extern long __swrite(void *a0, int a1, int a2);
-extern long __sseek(void *a0, int a1, int a2);
-
 typedef unsigned int INTERNAL_SIZE_T;
 
 #define SIZE_SZ (sizeof(INTERNAL_SIZE_T))
@@ -44,6 +36,8 @@ typedef struct malloc_chunk *mchunkptr;
 
 /* The bin array of the shipped allocator (mallocr.o owns it; MAIN.MAP map
    line 6262 names it __malloc_av_). */
+/* kept local: this member cannot include libc_internal.h, whose __malloc_current_mallinfo,
+   __malloc_sbrk_base, __malloc_top_pad conflict with its own */
 extern mchunkptr __malloc_av_[];
 
 #define bin_at(i) ((mchunkptr)((char *)&(__malloc_av_[2 * (i) + 2]) - 2 * SIZE_SZ))
@@ -100,8 +94,13 @@ extern mchunkptr __malloc_av_[];
         }                                                                                          \
     }
 
+/* kept local: this member cannot include libc_internal.h, whose __malloc_current_mallinfo,
+   __malloc_sbrk_base, __malloc_top_pad conflict with its own */
 extern unsigned long __malloc_trim_threshold;
+/* kept local: libc_internal.h declares it as `unsigned long __malloc_top_pad` */
 extern unsigned int __malloc_top_pad;
+/* kept local: this member cannot include libc_internal.h, whose __malloc_current_mallinfo,
+   __malloc_sbrk_base, __malloc_top_pad conflict with its own */
 extern void __malloc_lock(void);
 extern void __malloc_unlock();
 extern int _malloc_trim_r(int *self, unsigned int pad);
@@ -188,11 +187,13 @@ void _free_r(int *self, void *mem)
 
 /* kept in the array spelling the matched code needs: a plain scalar makes
    gcc address them differently */
+/* kept local: libc_internal.h declares it as `char *__malloc_sbrk_base` */
 extern int __malloc_sbrk_base[];
+/* kept local: libc_internal.h declares it as `struct mallinfo __malloc_current_mallinfo` */
 extern int __malloc_current_mallinfo[];
+/* kept local: libgcc's, and libgcc2.h is not on this archive's include path */
 extern long long __muldi3(long long a0, long long a1);
 extern long long __udivdi3(long long a0, long long a1);
-extern int _sbrk_r(int *self, int a1);
 
 int _malloc_trim_r(int *self, unsigned int a1)
 {
@@ -229,13 +230,3 @@ adjust:
     __malloc_unlock(self);
     return 1;
 }
-
-extern int *_multadd(void *a0, int *a1, int a2, int a3);
-extern int _read_r(int *self, int a1, int a2, int a3);
-extern int _lseek_r(int *self, int a1, int a2, int a3);
-extern int _write_r(int *self, int a1, int a2, int a3);
-extern int _close_r(int *self, int a1);
-extern long long _strtoul_r(void *a0, void *a1, int a2, int a3);
-extern int write(int a1, int a2, int a3);
-extern int lseek(int a1, int a2, int a3);
-extern int read(int a1, int a2, int a3);

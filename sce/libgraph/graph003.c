@@ -1,5 +1,7 @@
 /* libgraph.a member graph003.o.  MAIN.MAP member spans tile this run exactly and
  * this member starts at an 8-aligned function start of the shipped ELF. */
+#include <stdio.h>
+#include <libgraph.h>
 
 typedef long long s_long128;
 
@@ -8,18 +10,6 @@ typedef struct {
     short f2; /* 0x02 */
     short f4; /* 0x04 */
 } GParam;
-
-/* PMODE / SMODE2 / DISPFB / DISPLAY / BGCOLOR, one qword each. */
-typedef struct {
-    s_long128 pmode;   /* 0x00 */
-    s_long128 smode2;  /* 0x08 */
-    s_long128 dispfb;  /* 0x10 */
-    s_long128 display; /* 0x18 */
-    s_long128 bgcolor; /* 0x20 */
-} sceGsDispEnv;
-
-extern GParam *sceGsGetGParam(void);
-extern void printf(const char *fmt, ...);
 
 void sceGsSetDefDispEnv(sceGsDispEnv *disp, short psm, short w, short h, short dx, short dy)
 {

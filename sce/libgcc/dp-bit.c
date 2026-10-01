@@ -272,11 +272,6 @@ fp_number_type_d *_fpadd_parts(fp_number_type_d *a, fp_number_type_d *b, fp_numb
     return tmp;
 }
 
-extern long long __pack_d(void *s);
-extern void __unpack_d(void *in, void *out);
-extern fp_number_type_d *_fpadd_parts(fp_number_type_d *a, fp_number_type_d *b,
-                                      fp_number_type_d *tmp);
-
 void dpadd(long a0, long a1)
 {
     struct {
@@ -571,8 +566,6 @@ int dpcmp(long a0, long a1)
     return __fpcmp_parts_d(&x, &y);
 }
 
-extern long long __pack_d(void *s);
-
 long long litodp(int arg_a)
 {
     fp_number_type_d in;
@@ -683,8 +676,6 @@ int __make_dp(int a0, int a1, int a2, long long a3)
     s.d = a3;
     __pack_d(&s);
 }
-
-extern void __make_fp(int a0, int a1, int a2, int a3);
 
 float dptofp(long a0)
 {

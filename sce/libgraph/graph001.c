@@ -2,6 +2,7 @@
  * this member starts at an 8-aligned function start of the shipped ELF. */
 #include <libgraph.h>
 #include <eeregs.h>
+#include <eekernel.h>
 
 /* RECONSTRUCTION: the record sceGsGetGParam hands back, read off the offsets
    this function writes.  The name follows the accessor's; MAIN.MAP names no
@@ -21,13 +22,6 @@ typedef struct {
 static char sceGsVersion[16] = "PsIIlibgraph2200"; /* derived name */
 
 static sceGsGParam gsGParam = {1, 2, 1, 3, 0, 0}; /* derived name */
-
-/* syscall 113 (sce/libkernl/klib.c): it returns the previous IMR, which the
-   ROM proves by keeping $2 live across the call here */
-extern int GsPutIMR(int a0);
-extern void DisableIntc(int a0);
-extern void RemoveIntcHandler(int a0, int a1);
-extern void SetGsCrt(int a0, int a1, int a2);
 
 void sceGsResetGraph(short mode, short inter, short omode, short ffmd)
 {

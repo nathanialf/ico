@@ -6,8 +6,6 @@
 #include <sifrpc.h>
 #include <string.h>
 
-extern int memcmp();
-
 /* eeloadfile.o's .data: -1 until _lf_bind has bound the loadfile server, then
    the stamp _lf_version accepts besides the library's own (its four dots are
    the member's first .rodata, 0x636710). */

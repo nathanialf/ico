@@ -17,30 +17,40 @@
 #ifndef SCE_LIBKERNL_SIFRPC_H
 #define SCE_LIBKERNL_SIFRPC_H
 
-extern char __ps2_klibinfo__[];                                       /* klib.s's library stamp; bytes 12..15 are the version */
-int _sceSifLoadElfPart(void *a0, int a1, int a2, int a3);              /* dominant spelling at 1 sites */
-int _sceSifLoadModule(void *a0, int a1, int a2, int a3, int a4);       /* dominant spelling at 1 sites; returns the module id or a negative error */
-int _sceSifLoadModuleBuffer(void *a0, int a1, int a2, void *a3);       /* dominant spelling at 1 sites */
-int _sceSifSendCmd(int a0, int a1, int a2, int a3, int t0, int t1, int t2); /* dominant spelling at 1 sites */
-int sceSifAllocIopHeap(int a0);                                        /* definition in sce/ */
-int sceSifBindRpc(void *cd, unsigned int sid, int mode);               /* dominant spelling at 3 sites */
-int sceSifCallRpc();                                                   /* dominant spelling at 6 sites */
-int sceSifCheckStatRpc(char *a0);                                      /* definition in sce/ */
-int sceSifDmaStat(int h);                                              /* dominant spelling at 3 sites */
-void sceSifExecRequest(int *item);                                     /* dominant spelling at 1 sites */
-void sceSifExitCmd(void);                                              /* definition in sce/ */
-int sceSifFreeIopHeap(int a0);                                         /* definition in sce/ */
-unsigned int sceSifGetReg(unsigned int a0);                             /* dominant spelling at 1 sites; the argument's
+extern char __ps2_klibinfo__[]; /* klib.s's library stamp; bytes 12..15 are the version */
+int _sceSifLoadElfPart(void *a0, int a1, int a2, int a3); /* dominant spelling at 1 sites */
+
+int _sceSifLoadModule(
+    void *a0, int a1, int a2, int a3,
+    int a4); /* dominant spelling at 1 sites; returns the module id or a negative error */
+
+int _sceSifLoadModuleBuffer(void *a0, int a1, int a2, void *a3); /* dominant spelling at 1 sites */
+
+int _sceSifSendCmd(int a0, int a1, int a2, int a3, int t0, int t1,
+                   int t2); /* dominant spelling at 1 sites */
+
+int sceSifAllocIopHeap(int a0);                          /* definition in sce/ */
+int sceSifBindRpc(void *cd, unsigned int sid, int mode); /* dominant spelling at 3 sites */
+int sceSifCallRpc();                                     /* dominant spelling at 6 sites */
+int sceSifCheckStatRpc(char *a0);                        /* definition in sce/ */
+int sceSifDmaStat(int h);                                /* dominant spelling at 3 sites */
+void sceSifExecRequest(int *item);                       /* dominant spelling at 1 sites */
+void sceSifExitCmd(void);                                /* definition in sce/ */
+int sceSifFreeIopHeap(int a0);                           /* definition in sce/ */
+unsigned int sceSifGetReg(unsigned int a0);      /* dominant spelling at 1 sites; the argument's
                                                                           unsignedness is ROM-proven, see sceSifResetIop */
-int sceSifInitIopHeap(void);                                           /* definition in sce/ */
-void sceSifInitRpc(int mode);                                          /* definition in sce/ */
-int sceSifLoadFileReset(void);                                         /* definition in sce/ */
-void sceSifLoadModule(void *a0, int a1, int a2);                       /* definition in sce/ */
-int sceSifRebootIop(const char *img);                                  /* dominant spelling at 1 sites */
-int sceSifSetDma(int p, int a);                                        /* dominant spelling at 3 sites */
-unsigned int sceSifSetReg(int a0, int a1);                             /* returns a value: sceSifInitCmd's allocation
+int sceSifInitIopHeap(void);                     /* definition in sce/ */
+void sceSifInitRpc(int mode);                    /* definition in sce/ */
+int sceSifLoadFileReset(void);                   /* definition in sce/ */
+void sceSifLoadModule(void *a0, int a1, int a2); /* definition in sce/ */
+int sceSifRebootIop(const char *img);            /* dominant spelling at 1 sites */
+int sceSifSetDma(int p, int a);                  /* dominant spelling at 3 sites */
+unsigned int sceSifSetReg(int a0, int a1);       /* returns a value: sceSifInitCmd's allocation
                                                                           after its last call proves a call_value */
-int sceSifSyncIop(void);                                               /* definition in sce/ */
-void sceSifWriteBackDCache(void *addr, int len);                       /* dominant spelling at 2 sites */
+int sceSifSyncIop(void);                         /* definition in sce/ */
+void sceSifWriteBackDCache(void *addr, int len); /* dominant spelling at 2 sites */
+void sceSifExitRpc(void);                        /* definition in sce/ */
+void sceSifStopDma(void);                        /* the spelling at 1 site */
+int sceSifResetIop(char *arg, int mode);         /* definition in sce/ */
 
 #endif /* SCE_LIBKERNL_SIFRPC_H */

@@ -2,7 +2,9 @@
  * tiles the retail run, VMA 0x271938..0x272054, 5 functions, then 4 bytes of
  * link fill to bit.o: the IPU colour space conversion and its DMA feeders. */
 #include <libmpeg.h>
+#include <libmpeg_internal.h>
 #include <eeregs.h>
+#include <eekernel.h>
 
 void _doCSC(int a0, int a1)
 {
@@ -68,11 +70,6 @@ int _ch3dmaCSC(void)
     return 0;
 }
 
-extern int AddDmacHandler(int a0, int (*a1)(void), int a2);
-extern int EnableDmac(int a0);
-extern int DisableDmac(int a0);
-extern int RemoveDmacHandler(int a0, int a1);
-
 /* More than 1023 macroblocks: the conversion runs in 1023-macroblock chunks,
  * the first kicked here and the rest by _ch3dmaCSC.  The first chunk's
  * quadword count is named once at the top; the compiler re-materialises it
@@ -132,12 +129,6 @@ int _ch4dma(void)
     }
     return 0;
 }
-
-extern void _doCSC2(int a0, int a1);
-extern int AddDmacHandler(int a0, int (*a1)(void), int a2);
-extern int EnableDmac(int a0);
-extern int DisableDmac(int a0);
-extern int RemoveDmacHandler(int a0, int a1);
 
 void _csc_storeRefImage(char *p)
 {

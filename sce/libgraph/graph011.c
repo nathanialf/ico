@@ -2,9 +2,7 @@
  * this member starts at an 8-aligned function start of the shipped ELF. */
 #include <libgraph.h>
 #include <eeregs.h>
-
-extern void VSync(void);
-extern long VSync2(void);
+#include <eekernel.h>
 
 int sceGsSyncV(void)
 {

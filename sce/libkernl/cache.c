@@ -1,5 +1,7 @@
 /* libkernl.a member cache.o.  MAIN.MAP member spans tile this run exactly and
  * this member starts at an 8-aligned function start of the shipped ELF. */
+#include <libkernl_internal.h>
+#include <eekernel.h>
 
 __asm__(".section .text\n"
         "    .set noat\n"
@@ -101,8 +103,6 @@ __asm__(".section .text\n"
         "    nop\n"
         "    .set reorder\n"
         "    .set at\n");
-
-extern void _sceSDC(int a0, int a1);
 
 void iSyncDCache(int a0, int a1)
 {
@@ -209,8 +209,6 @@ __asm__(".section .text\n"
         "    nop\n"
         "    .set reorder\n"
         "    .set at\n");
-
-extern void _sceIDC(int a0, int a1);
 
 void iInvalidDCache(int a0, int a1)
 {

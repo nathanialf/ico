@@ -9,8 +9,6 @@ typedef struct {
     int *cur;
 } Pool241748;
 
-extern void sceVif1PkAlign(void *a0, int a1, int a2);
-
 int sceVif1PkCloseDirectCode(Pool241748 *a0)
 {
     int n = (int)a0->end - 4;

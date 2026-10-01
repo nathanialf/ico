@@ -1,10 +1,7 @@
 /* libm.a member sf_floor.o.  MAIN.MAP member spans tile this run exactly and
  * this member starts at an 8-aligned function start of the shipped ELF. */
 #include <math_private.h>
-
-extern int __ieee754_rem_pio2f(float x, float *y);
-extern float __kernel_cosf(float x, float y);
-extern float __kernel_sinf(float x, float y, int iy);
+#include <math.h>
 
 /* Float<->word access, the public-domain fdlibm idiom (netlib's fdlibm),
    re-derived, not copied from any SDK.  This member's use stands for a

@@ -3,6 +3,7 @@
  * bytes of link fill to mpc.o's 16-aligned start: the default DMA stop and
  * restart handlers sceMpegCreate installs. */
 #include <libmpeg.h>
+#include <libmpeg_internal.h>
 #include <libipu.h>
 
 void _defStopDMA(int **a0)

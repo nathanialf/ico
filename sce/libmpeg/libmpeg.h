@@ -23,7 +23,7 @@ int sceMpegCreate(void *self, void *buf, int size);       /* dominant spelling a
 int sceMpegDelete(void);                                  /* definition in sce/ */
 
 int sceMpegDemuxPssRing(int *dec, void *p, int n, int a3,
-                        int p4);                         /* dominant spelling at 2 sites */
+                        int p4); /* dominant spelling at 2 sites */
 
 int sceMpegGetPicture(int *a0, unsigned int a1, int a2); /* definition in sce/ */
 void sceMpegInit(void);                                  /* dominant spelling at 1 sites */
@@ -31,72 +31,6 @@ int sceMpegIsEnd(int **a0);                              /* definition in sce/ *
 int sceMpegIsRefBuffEmpty(void *a0);                     /* definition in sce/ */
 void sceMpegReset(int *a0);                              /* definition in sce/ */
 
-/*
- * The library's internal symbols that one member of libmpeg.a defines and
- * another uses: they were globals across the archive's .o files in Sony's
- * link, so each is declared once here with the signature of its defining
- * member, the declaration every later member saw when the run was one file.
- */
-void _Error(void *a0);                                  /* init.o */
-void _Error1(int a0, int a1);                           /* init.o */
-void *_dispatchMpegCallback(void *a0, void *a1);        /* mpeg.o */
-void _dispatchMpegCbNodata(void *a0);                   /* mpeg.o */
-void _alalcFree(int *a0);                               /* mpeg.o */
-int _alalcAlloc(unsigned int *a0, int a1, unsigned int a2); /* mpeg.o */
-void _sendIpuCommand(unsigned int a0);                  /* mpc.o */
-int _sysbitNext(void *a0, int a1);                      /* bit.o */
-void _unknown_extension(void);                          /* init.o */
-void _sequenceExtension(void);                          /* init.o */
-void _sequenceDisplayExtension(void);                   /* init.o */
-void _sequenceScalableExtension(void);                  /* init.o */
-void _pictureSpatialScalableExtension(void);            /* init.o */
-void _pictureTemporalScalableExtension(void);           /* init.o */
-
-/* one of the 8-byte time-stamp slots the decoder handle carries for each
- * field: _getPtsDtsFlags fills the pair as a 64-bit word and the display
- * record takes its low half back as an int */
-typedef union {
-    long long d;
-    int w[2];
-} MpegStamp;
-
-/* the decoder handle sceMpegCreate registers: the picture size and count,
- * the two fields' time stamps and flags, and its internal record */
-typedef struct {
-    int width, height, frameCount, pad0C;
-    MpegStamp pts, dts;       /* 0x10, 0x18 */
-    long long flags;          /* 0x20 */
-    MpegStamp pts2nd, dts2nd; /* 0x28, 0x30 */
-    long long flags2nd;       /* 0x38 */
-    struct MpegOut *sys;      /* 0x40 */
-} MpegHandle; /* derived name */
-
-/* the decoder state more than one member reads, spelled as the members that
- * first declared it spell it (the objects themselves are still in the data
- * blob) */
-extern MpegHandle *_theSceMpeg; /* init.o */
-extern int _sprtag;               /* init.o */
-extern int _refBlockp;            /* init.o */
-extern int _bsDatap;              /* init.o */
-extern int _picture_structure;
-extern int _isMpeg2[];
-extern int _isSecondField[];
-extern int _totalFrames[];
-extern int _mbcont[];
-extern int _refFrame0[];
-extern int _refFrame1[];
-extern int _refFrame2[];
-extern int _refTop0[];
-extern int _refTop1[];
-extern int _refTop2[];
-extern int _refBot0[];
-extern int _refBot1[];
-extern int _refBot2[];
-extern int *_forwFrame;
-extern int *_backFrame;
-extern int *_forwTop;
-extern int *_backTop;
-extern int *_forwBot;
-extern int *_backBot;
+/* The library's internal symbols are in libmpeg_internal.h. */
 
 #endif /* SCE_LIBMPEG_LIBMPEG_H */

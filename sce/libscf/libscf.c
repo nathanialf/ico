@@ -100,21 +100,21 @@ typedef struct {
     unsigned char year;
 } sceCdCLOCK;
 
+/* kept local: no libc header in this tree declares __assert, and its definition in
+   sce/libc/stdlib/assert.c takes three ints */
 extern void __assert(char *file, int line, char *expr);
-extern void AdjustTime(sceCdCLOCK *prtc, int diff);
-extern void convertfrombcd(sceCdCLOCK *prtc);
-extern void converttobcd(sceCdCLOCK *prtc);
-extern void adddate(sceCdCLOCK *prtc);
-extern void subdate(sceCdCLOCK *prtc);
-extern void addhour(sceCdCLOCK *prtc);
-extern void subhour(sceCdCLOCK *prtc);
-extern unsigned char tobcd(unsigned char c);
-extern unsigned char frombcd(unsigned char c);
-extern int sceScfGetSummerTime(void);
-extern int sceRead(int fd, void *buf, int size);
-extern int sceClose(int fd);
-extern char *GetRomName(void);
-extern int IsT10K(void);
+void AdjustTime(sceCdCLOCK *prtc, int diff);
+void convertfrombcd(sceCdCLOCK *prtc);
+void converttobcd(sceCdCLOCK *prtc);
+void adddate(sceCdCLOCK *prtc);
+void subdate(sceCdCLOCK *prtc);
+void addhour(sceCdCLOCK *prtc);
+void subhour(sceCdCLOCK *prtc);
+unsigned char tobcd(unsigned char c);
+unsigned char frombcd(unsigned char c);
+char *GetRomName(void);
+int IsT10K(void);
+/* kept local: the kernel's records are typed in this member (asserts pin its line count) */
 extern void GetOsdConfigParam(ConfigParam *param);
 extern int GetOsdConfigParam2(ConfigParam2 *param, int count, int offset);
 

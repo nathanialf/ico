@@ -2,15 +2,12 @@
  * this member starts at an 8-aligned function start of the shipped ELF. */
 #include <stdlib.h>
 #include <reent.h>
+#include <string.h>
 
 struct D520 {
     char pad0[8];
     PObjBlk *blk; /* 0x8 */
 };
-
-extern char D_00637E38[];
-extern void fiprintf();
-extern void abort(void);
 
 /* newlib Bigint: _next, _k, _maxwds, _sign, _wds, then the word array. */
 typedef struct _Bigint {
@@ -22,6 +19,7 @@ typedef struct _Bigint {
     unsigned int x[1];    /* 0x14 */
 } Bigint;
 
+/* kept local: libc_internal.h declares it as `int __mcmp(unsigned int *a, unsigned int *b)` */
 extern int __mcmp(Bigint *a, Bigint *b);
 
 static int quorem(Bigint *b, Bigint *S)
@@ -122,17 +120,33 @@ union double_union {
 #define Sign_bit 0x80000000
 #define n_bigtens 5
 
+/* kept local: libc_internal.h declares it as `void _Bfree(char *a0, int *a1)` */
 extern void _Bfree(void *ptr, Bigint *v);
+/* kept local: libc_internal.h declares it as `int *_Balloc(void *ptr, int k)` */
 extern Bigint *_Balloc(void *ptr, int k);
+/* kept local: libc_internal.h declares it as `int *_d2b(void *ptr, double dd, int *e, int
+   *bits)` */
 extern Bigint *_d2b(void *ptr, double d, int *e, int *bits);
+/* kept local: libc_internal.h declares it as `void *_i2b(void *a0, int a1)` */
 extern Bigint *_i2b(void *ptr, int i);
+/* kept local: libc_internal.h declares it as `int *_pow5mult(void *ptr, struct _Bigint *b, int
+   k)` */
 extern Bigint *_pow5mult(void *ptr, Bigint *b, int k);
+/* kept local: libc_internal.h declares it as `int *_multiply(void *ptr, struct _Bigint *a,
+   struct _Bigint *b)` */
 extern Bigint *_multiply(void *ptr, Bigint *a, Bigint *b);
+/* kept local: libc_internal.h declares it as `int *_lshift(void *ptr, struct _Bigint *b, int
+   k)` */
 extern Bigint *_lshift(void *ptr, Bigint *b, int k);
+/* kept local: libc_internal.h declares it as `int *__mdiff(void *ptr, struct _Bigint *a, struct
+   _Bigint *b)` */
 extern Bigint *__mdiff(void *ptr, Bigint *a, Bigint *b);
+/* kept local: libc_internal.h declares it as `int *_multadd(void *ptr, struct _Bigint *b, int
+   m, int a)` */
 extern Bigint *_multadd(void *ptr, Bigint *b, int m, int a);
+/* kept local: this member cannot include libc_internal.h, whose _Balloc, _Bfree, __mcmp,
+   __mdiff, _d2b, _i2b, _lshift, _multadd, _multiply, _pow5mult conflict with its own */
 extern int _hi0bits(unsigned int x);
-extern void *memcpy(void *dst, const void *src, unsigned int n);
 
 /* the reentrancy record's cached result string */
 typedef struct {

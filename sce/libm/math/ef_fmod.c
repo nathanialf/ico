@@ -21,10 +21,6 @@
         (d) = sf_u.value;                                                                          \
     } while (0)
 
-extern int __ieee754_rem_pio2f(float x, float *y);
-extern float __kernel_cosf(float x, float y);
-extern float __kernel_sinf(float x, float y, int iy);
-
 static const float one = 1.0, Zero[] = {
                                   0.0,
                                   -0.0,

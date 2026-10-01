@@ -5,8 +5,6 @@
  * section, so they sit in .sbss after every object's own .sbss. */
 #include "libgcc2.h"
 
-typedef void (*func_ptr)(void);
-
 /* Provide default definitions for the lists of constructors and
    destructors, so that we don't get linker errors.  These symbols are
    intentionally bss symbols, so that gld and/or collect will provide

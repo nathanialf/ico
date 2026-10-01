@@ -16,7 +16,6 @@ static int heapClient[10] __attribute__((aligned(64))); /* derived name */
 static int heapRecv __attribute__((aligned(64)));     /* derived name */
 static int heapAllocArg __attribute__((aligned(64))); /* derived name */
 static int heapFreeArg __attribute__((aligned(64)));  /* derived name */
-extern char D_FFFFF[];
 
 int sceSifInitIopHeap(void)
 {

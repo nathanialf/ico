@@ -21,10 +21,6 @@
         (d) = sf_u.value;                                                                          \
     } while (0)
 
-extern int __ieee754_rem_pio2f(float x, float *y);
-extern float __kernel_cosf(float x, float y);
-extern float __kernel_sinf(float x, float y, int iy);
-
 /* the 24 bits of 2/pi the large-argument path hands to __kernel_rem_pio2f */
 static const int two_over_pi[] = {
     0xA2, 0xF9, 0x83, 0x6E, 0x4E, 0x44, 0x15, 0x29, 0xFC, 0x27, 0x57, 0xD1, 0xF5, 0x34, 0xDD, 0xC0,
@@ -49,8 +45,6 @@ static const int npio2_hw[] = {
     0x41D5A000, 0x41E23100, 0x41EEC200, 0x41FB5300, 0x4203F200, 0x420A3A00, 0x42108300, 0x4216CB00,
     0x421D1400, 0x42235C00, 0x4229A500, 0x422FED00, 0x42363600, 0x423C7E00, 0x4242C700, 0x42490F00,
 };
-
-extern int __kernel_rem_pio2f(float *x, float *y, int e0, int nx, int prec, const int *ipio2);
 
 static const float zero = 0.0000000000e+00, /* 0x00000000 */
     half = 5.0000000000e-01,                /* 0x3F000000 */

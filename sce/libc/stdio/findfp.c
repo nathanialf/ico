@@ -3,18 +3,20 @@
 #include <stdlib.h>
 #include <string.h>
 #include <reent.h>
+#include <stdio.h>
 
 struct D520 {
     char pad0[8];
     PObjBlk *blk; /* 0x8 */
 };
 
-extern void fiprintf();
-extern void abort(void);
-extern int strtok_r(int a0, int a1, int a2);
+/* kept local: libc_internal.h declares it as `int __sread(Fil *a0, int a1, int a2)` */
 extern int __sread(void *a0, int a1, int a2);
+/* kept local: libc_internal.h declares it as `long __swrite(Fil *a0, int a1, int a2)` */
 extern long __swrite(void *a0, int a1, int a2);
+/* kept local: libc_internal.h declares it as `long __sseek(Fil *a0, int a1, int a2)` */
 extern long __sseek(void *a0, int a1, int a2);
+/* kept local: libc_internal.h declares it as `int __sclose(Fil *a0)` */
 extern int __sclose(void *a0);
 
 void std(char *fp, int flags, int file, void *data)
@@ -33,8 +35,6 @@ void std(char *fp, int flags, int file, void *data)
     *(void **)(fp + 0x2C) = (void *)__sclose;
     *(void **)(fp + 0x54) = data;
 }
-
-extern void *_malloc_r(void *a0, int a1);
 
 void *__sfmoreglue(void *a0, int a1)
 {
@@ -59,6 +59,8 @@ Reent;
 #define ENOMEM 12
 #define NDYNAMIC 4
 
+/* kept local: this member cannot include libc_internal.h, whose __sclose, __sread, __sseek,
+   __swrite, _fwalk conflict with its own */
 extern void __sinit(char *a0);
 
 Fil *__sfp(Reent *d)
@@ -101,14 +103,16 @@ found:
     return fp;
 }
 
+/* kept local: libc_internal.h declares it as `int _fwalk(Reent *ptr, int (*function)())` */
 extern void _fwalk(int a0, void *a1);
-extern int fflush(void);
 
 void _cleanup_r(int a0)
 {
     _fwalk(a0, fflush);
 }
 
+/* kept local: this member cannot include libc_internal.h, whose __sclose, __sread, __sseek,
+   __swrite, _fwalk conflict with its own */
 extern void _cleanup_r(int a0);
 
 void _cleanup(void)
@@ -116,6 +120,8 @@ void _cleanup(void)
     _cleanup_r((int)_impure_ptr);
 }
 
+/* kept local: this member cannot include libc_internal.h, whose __sclose, __sread, __sseek,
+   __swrite, _fwalk conflict with its own */
 extern void std();
 
 void __sinit(char *a0)
@@ -130,20 +136,3 @@ void __sinit(char *a0)
     *(int *)(a0 + 0x1DC) = 3;
     *(int *)(a0 + 0x1D8) = 0;
 }
-
-extern long long __muldi3(long long a0, long long a1);
-extern long long __udivdi3(long long a0, long long a1);
-extern int *_Balloc(void *a0, int a1);
-extern int *_multadd(void *a0, int *a1, int a2, int a3);
-extern int fflush(void);
-extern int _raise_r(int a0, int a1);
-extern int __sigtramp_r(int a0, int a1);
-extern int kill(int a0, void *a1);
-extern int _read_r(int *self, int a1, int a2, int a3);
-extern int _lseek_r(int *self, int a1, int a2, int a3);
-extern int _write_r(int *self, int a1, int a2, int a3);
-extern long long _strtoul_r(void *a0, void *a1, int a2, int a3);
-extern int write(int a1, int a2, int a3);
-extern int fstat(void *a0, void *a1);
-extern int lseek(int a1, int a2, int a3);
-extern int read(int a1, int a2, int a3);

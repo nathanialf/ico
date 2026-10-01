@@ -3,10 +3,6 @@
 #include <math.h>
 #include <math_private.h>
 
-extern int __ieee754_rem_pio2f(float x, float *y);
-extern float __kernel_cosf(float x, float y);
-extern float __kernel_sinf(float x, float y, int iy);
-
 /* Float<->word access, the public-domain fdlibm idiom (netlib's fdlibm),
    re-derived, not copied from any SDK.  This member's use stands for a
    Sony/newlib-internal math_private.h this tree cannot name: the listing

@@ -1,15 +1,12 @@
 /* libc.a member mallocr.o.  MAIN.MAP member spans tile this run exactly and
  * this member starts at an 8-aligned function start of the shipped ELF. */
 #include <reent.h>
+#include <stdlib.h>
 
 struct D520 {
     char pad0[8];
     PObjBlk *blk; /* 0x8 */
 };
-
-extern void fiprintf();
-extern void abort(void);
-extern void *_malloc_r(void *a0, int a1);
 
 typedef unsigned int INTERNAL_SIZE_T;
 
@@ -178,10 +175,11 @@ struct mallinfo __malloc_current_mallinfo = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 #define MORECORE(size) _sbrk_r(reent_ptr, (size))
 #define MORECORE_FAILURE -1
 
-extern char *_sbrk_r(void *r, int size);
+/* kept local: libc_internal.h declares it as `void __malloc_lock(void)` */
 extern void __malloc_lock(void *r);
+/* kept local: this member cannot include libc_internal.h, whose __malloc_lock conflicts with
+   its own */
 extern void __malloc_unlock(void *r);
-extern void _free_r(void *r, void *mem);
 
 static void malloc_extend_top(void *reent_ptr, INTERNAL_SIZE_T nb)
 {

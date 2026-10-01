@@ -8,10 +8,6 @@ struct D520 {
     PObjBlk *blk; /* 0x8 */
 };
 
-extern char D_00637E38[];
-extern void fiprintf();
-extern void abort(void);
-
 /* newlib's mprec.h configuration for this build, spelled out in the member
    that uses it.  Evidence rung: the SRCFILE.TXT line map of _strtod_r picks
    the arm of every switch below (lines 273..278 absent and 276/277 present
@@ -94,6 +90,7 @@ union __dmath {
     double d;
 };
 
+/* kept local: its definition in sce/libc/s_infconst.c is one union, not this member's array */
 extern const union __dmath __infinity[1];
 
 #define HUGE_VAL (__infinity[0].d)
@@ -101,17 +98,37 @@ extern const union __dmath __infinity[1];
 #define bigtens __mprec_bigtens
 #define tinytens __mprec_tinytens
 
+/* kept local: libc_internal.h declares it as `int *_Balloc(void *ptr, int k)` */
 extern _Bigint *_Balloc(struct _reent *p, int k);
+/* kept local: libc_internal.h declares it as `void _Bfree(char *a0, int *a1)` */
 extern void _Bfree(struct _reent *p, _Bigint *v);
+/* kept local: libc_internal.h declares it as `int _s2b(void *a0, char *a1, int a2, int a3, int
+   a4)` */
 extern _Bigint *_s2b(struct _reent *p, const char *s, int nd0, int nd, ULong y9);
+/* kept local: libc_internal.h declares it as `void *_i2b(void *a0, int a1)` */
 extern _Bigint *_i2b(struct _reent *p, int i);
+/* kept local: libc_internal.h declares it as `int *_multiply(void *ptr, struct _Bigint *a,
+   struct _Bigint *b)` */
 extern _Bigint *_multiply(struct _reent *p, _Bigint *a, _Bigint *b);
+/* kept local: libc_internal.h declares it as `int *_pow5mult(void *ptr, struct _Bigint *b, int
+   k)` */
 extern _Bigint *_pow5mult(struct _reent *p, _Bigint *b, int k);
+/* kept local: libc_internal.h declares it as `int *_lshift(void *ptr, struct _Bigint *b, int
+   k)` */
 extern _Bigint *_lshift(struct _reent *p, _Bigint *b, int k);
+/* kept local: libc_internal.h declares it as `int *__mdiff(void *ptr, struct _Bigint *a, struct
+   _Bigint *b)` */
 extern _Bigint *__mdiff(struct _reent *p, _Bigint *a, _Bigint *b);
+/* kept local: libc_internal.h declares it as `int __mcmp(unsigned int *a, unsigned int *b)` */
 extern int __mcmp(_Bigint *a, _Bigint *b);
+/* kept local: this member cannot include libc_internal.h, whose _Balloc, _Bfree, __mcmp,
+   __mdiff, _d2b, _i2b, _lshift, _multiply, _pow5mult, _s2b conflict with its own */
 extern double _ulp(double x);
+/* kept local: libc_internal.h declares it as `int *_d2b(void *ptr, double dd, int *e, int
+   *bits)` */
 extern _Bigint *_d2b(struct _reent *p, double d, int *e, int *bits);
+/* kept local: this member cannot include libc_internal.h, whose _Balloc, _Bfree, __mcmp,
+   __mdiff, _d2b, _i2b, _lshift, _multiply, _pow5mult, _s2b conflict with its own */
 extern double _ratio(_Bigint *a, _Bigint *b);
 
 #define Balloc _Balloc

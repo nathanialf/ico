@@ -3,12 +3,14 @@
  * link fill to defhandler.o's 8-aligned start: the decoder state resets, the
  * error reporting, the bitstream DMA and the sequence-level header parsers. */
 #include <libmpeg.h>
+#include <libmpeg_internal.h>
 #include <eeregs.h>
+#include <eekernel.h>
+#include <stdio.h>
 
-extern void DIntr();
-extern int EIntr(void);
+/* kept local: libmpeg_internal.h leaves it out: the members read this scalar of var.c through
+   an array declaration */
 extern int _isMpeg2[];
-extern void _ipuSetMPEG1(int a0);
 
 void _initSeqAgain(void)
 {
@@ -16,7 +18,11 @@ void _initSeqAgain(void)
     _ipuSetMPEG1(1);
 }
 
+/* kept local: libmpeg_internal.h leaves it out: the members read this scalar of var.c through
+   an array declaration */
 extern int _isSecondField[];
+/* kept local: libmpeg_internal.h leaves it out: its callers' arguments do not fit the
+   definition's prototype */
 extern void _dispRefImage();
 extern void _dispRefImageField();
 
@@ -55,8 +61,6 @@ MpegHandle *_theSceMpeg = 0;
 
 int _bsDatap = 0;
 
-extern int _mbcont[];
-
 void _clearOnce(void)
 {
     int v;
@@ -69,8 +73,11 @@ void _clearOnce(void)
     *(float *)((char *)_mbcont + 0x280) = 0.0f;
 }
 
+/* kept local: libmpeg_internal.h leaves it out: the members read this scalar of var.c through
+   an array declaration */
 extern int _sp_dcr[];
 extern int _isTop32dirty[];
+/* kept local: libipu.h declares sceIpuSync(int); this member passes two arguments */
 extern int sceIpuSync();
 
 /* Same hardware-register rule as sceMpegInit: volatile everywhere, and the
@@ -94,14 +101,10 @@ void _clearEach(void)
     sceIpuSync(0, 0);
 }
 
-extern void printf(void *a0, ...);
-
 void _ErrMessage(int a0)
 {
     printf("[MPEG ERROR]%s\n", a0);
 }
-
-extern void sprintf(void *a0, int a1, ...);
 
 void _Error1(int a0, int a1)
 {
@@ -109,8 +112,6 @@ void _Error1(int a0, int a1)
     sprintf(buf, a0, a1);
     _Error(buf);
 }
-
-extern void _ErrMessage(int a0);
 
 void _Error(void *a0)
 {
@@ -164,23 +165,10 @@ int _RefImageInit(int *a0, int a1, int a2)
     return 1;
 }
 
-extern unsigned int _nextBit(int n);
-extern int _frame_rate_code;
-extern int _aspect_ratio_information;
-extern int _horizontal_size;
-extern int _vertical_size;
-extern int _constrained_parameters_flag;
-extern int _vbv_buffer_size_value;
-extern int _bit_rate_value;
-extern int _load_intra_quantizer_matrix;
-extern int _load_non_intra_quantizer_matrix;
+/* kept local: libmpeg_internal.h leaves it out: var.c defines it as unsigned char[64], the
+   members read it as an int array */
 extern int _defIQM[];
 extern int _defNIQM[];
-extern void _setDefaultQM(int a0, int *a1);
-extern void _sendIpuCommand(unsigned int a0);
-extern void _waitIpuIdle(void);
-extern void _extensionAndUserData(void);
-extern void _initSeq(void *a0);
 
 void _sequenceHeader(void)
 {
@@ -217,21 +205,11 @@ void _sequenceHeader(void)
     _initSeq(_theSceMpeg);
 }
 
+/* kept local: libmpeg_internal.h leaves it out: the members read this scalar of var.c through
+   an array declaration */
 extern int _isMpeg2[];
-extern int _picture_structure;
-extern int _frame_pred_frame_dct;
-extern int _matrix_coefficients;
-extern int _progressive_sequence;
-extern int _chroma_format;
-extern int _progressive_frame;
 extern int _widthMB[];
 extern int _heightMB[];
-extern int _picWidth;
-extern int _picHeight;
-extern int _cWidth;
-extern int _cHeight;
-extern void _initRefImages(int *frame0, int *frame1, int *frame2, int *top0, int *top1, int *top2,
-                           int *bot0, int *bot1, int *bot2, int y, int cb, int cr);
 
 /* the stream record _initSeq re-sizes: the picture size the decoder was last
  * set up for, and at 0x40 the decoder the three frame buffers are allocated
@@ -334,14 +312,6 @@ void _setDefaultQM(int a0, int *a1)
     _dispatchMpegCallback(_theSceMpeg, buf);
 }
 
-extern int _chroma_format;
-extern int _progressive_sequence;
-extern int _profile_and_level_indication;
-extern int _low_delay;
-extern int _frame_rate_extension_n;
-extern int _frame_rate_extension_d;
-extern void _ipuSetMPEG1(int a0);
-
 void _sequenceExtension(void)
 {
     unsigned int v;
@@ -375,17 +345,6 @@ void _sequenceExtension(void)
     _bit_rate_value = _bit_rate_value + (bit_rate_ext << 18);
     _vbv_buffer_size_value = _vbv_buffer_size_value + (vbv_ext << 10);
 }
-
-extern unsigned int _nextBit(int n);
-/* the sequence_display_extension fields, all of them in the vendor's own
- * variable object */
-extern int _video_format;
-extern int _color_description;
-extern int _color_primaries;
-extern int _transfer_characteristics;
-extern int _matrix_coefficients;
-extern int _display_horizontal_size;
-extern int _display_vertical_size;
 
 void _sequenceDisplayExtension(void)
 {

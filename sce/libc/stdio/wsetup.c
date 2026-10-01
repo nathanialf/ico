@@ -7,10 +7,11 @@ struct D520 {
     PObjBlk *blk; /* 0x8 */
 };
 
-extern void fiprintf();
-extern void abort(void);
+/* kept local: libc_internal.h declares it as `void __sinit(char *a0)` */
 extern void __sinit(void *a0);
+/* kept local: stdlib.h declares it as `void _free_r(int *self, void *mem)` */
 extern void _free_r(void *a0, void *a1);
+/* kept local: libc_internal.h declares it as `void __smakebuf(Fil *fp)` */
 extern void __smakebuf(void *a0);
 
 int __swsetup(Fil *fp)

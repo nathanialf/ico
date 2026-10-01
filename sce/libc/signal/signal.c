@@ -3,27 +3,12 @@
 #include <stdlib.h>
 #include <string.h>
 #include <reent.h>
+#include <signal.h>
 
 struct D520 {
     char pad0[8];
     PObjBlk *blk; /* 0x8 */
 };
-
-extern void fiprintf();
-extern void abort(void);
-extern int strtok_r(int a0, int a1, int a2);
-extern long long func_0027FEA8(void *a0, void *a1, int a2, int a3);
-extern int raise(int a0);
-extern int __sread(void *a0, int a1, int a2);
-extern long __swrite(void *a0, int a1, int a2);
-extern long __sseek(void *a0, int a1, int a2);
-extern void *_malloc_r(void *a0, int a1);
-extern void _fwalk(int a0, void *a1);
-extern long long __muldi3(long long a0, long long a1);
-extern long long __udivdi3(long long a0, long long a1);
-extern int *_Balloc(void *a0, int a1);
-extern int *_multadd(void *a0, int *a1, int a2, int a3);
-extern int _init_signal_r(void *ptr);
 
 int _init_signal_r(void *ptr)
 {
@@ -62,7 +47,11 @@ unsigned int _signal_r(void *a0, int a1, int a2)
     return old;
 }
 
+/* kept local: reent.h leaves it out: its definition takes no reentrancy pointer, which this
+   member passes */
 extern int _getpid_r(void *ptr);
+/* kept local: reent.h leaves it out: its definition's argument types do not fit this member's
+   calls */
 extern int _kill_r(void *ptr, int pid, int sig);
 
 int _raise_r(void *ptr, int sig)
@@ -127,8 +116,6 @@ int __sigtramp_r(void *ptr, int signo)
     return 0;
 }
 
-extern int _raise_r(void *ptr, int sig);
-
 int raise(int a0)
 {
     return _raise_r((int)_impure_ptr, a0);
@@ -144,19 +131,7 @@ void *_init_signal(void)
     return _init_signal_r((int)_impure_ptr);
 }
 
-extern int __sigtramp_r(void *ptr, int signo);
-
 int __sigtramp(int a0)
 {
     return __sigtramp_r((int)_impure_ptr, a0);
 }
-
-extern int kill(int a0, void *a1);
-extern int _read_r(int *self, int a1, int a2, int a3);
-extern int _lseek_r(int *self, int a1, int a2, int a3);
-extern int _write_r(int *self, int a1, int a2, int a3);
-extern long long _strtoul_r(void *a0, void *a1, int a2, int a3);
-extern int write(int a1, int a2, int a3);
-extern int fstat(void *a0, void *a1);
-extern int lseek(int a1, int a2, int a3);
-extern int read(int a1, int a2, int a3);

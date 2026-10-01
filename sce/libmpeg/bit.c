@@ -5,7 +5,9 @@
  * functions in the listing, where libipu.o begins after bit.o's 4 bytes of
  * link fill; they stay in this file until libipu's row is moved to take them. */
 #include <libmpeg.h>
+#include <libmpeg_internal.h>
 #include <eeregs.h>
+#include <libipu_internal.h>
 
 /* the bitstream reader state: the 64 bit accumulator this file shifts bits out
  * of, the ring of bytes the IPU feeds it from, and the bit position */
@@ -20,6 +22,7 @@ typedef struct {
     int size;            /* 0x28 */
 } SysBit;
 
+/* kept local: its record type is this member's own */
 extern void _sysbitFlush(SysBit *bs, int n);
 
 void _sysbitInit(int *a0, int a1, int a2, int a3)
@@ -92,7 +95,9 @@ int _sysbitPtr(int *a0, int a1)
     return v;
 }
 
+/* kept local: eekernel.h declares it as `int DIntr(void)` */
 extern void DIntr(int *self);
+/* kept local: this member cannot include eekernel.h, whose DIntr conflicts with its own */
 extern int EIntr(void);
 
 void setD3_CHCR(int *a0)

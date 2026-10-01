@@ -6,6 +6,9 @@
 #include <eekernel.h>
 #include <stdio.h>
 #include <sifrpc.h>
+#include <libcdvd.h>
+#include <libcdvd_internal.h>
+#include <sifcmd.h>
 
 /* RECONSTRUCTION: the search RPC's request record, read off sceCdSearchFile's
    offsets: the 0x24-byte file entry the reply fills, the 256-byte name, then
@@ -142,8 +145,6 @@ __asm__(".section .text\n"
         "    .set reorder\n"
         "    .set at\n");
 
-extern void CB_DelayTh(void);
-
 void sceCdDelayThread(unsigned short a0)
 {
     int buf[8];
@@ -158,17 +159,13 @@ void sceCdDelayThread(unsigned short a0)
     DeleteSema(r);
 }
 
-extern void DIntr(int *self);
-extern int EIntr(void);
-extern int sceCdSync(int a0);
-
 int sceCdCallback(int a0)
 {
     int ret;
     if (sceCdSync(1) != 0) {
         return 0;
     }
-    (*(int (*)(void))DIntr)();
+    DIntr();
     ret = cd_cbfunc;
     cd_cbfunc = a0;
     EIntr();
@@ -210,8 +207,6 @@ void _sceCd_cd_callback(int *data)
     sceCdCbfunc_num = 0;
 }
 
-extern void ExitDeleteThread(void);
-
 /* The callback number is written by the interrupt-side _sceCd_cd_callback and
  * the loop reads it per access at the guard and again for the argument; the
  * loop-closing release of _sceCd_c_cb_sem is a per-access store as in the
@@ -242,8 +237,10 @@ void _Cdvd_cbLoop(void)
     }
 }
 
+/* kept local: the link's small-data base, which no header declares */
 extern char _gp[];
-extern void _Cdvd_cbLoop(void);
+/* kept local: eekernel.h leaves CreateThread out until one type serves its callers' thread
+   parameter blocks */
 extern int CreateThread(int *param);
 
 int sceCdInitEeCB(int priority, void *stack, int stackSize)
@@ -323,8 +320,6 @@ void cmd_sem_init(void)
     }
 }
 
-extern void sceSifRemoveCmdHandler(unsigned int cid);
-
 void cdvd_exit(void)
 {
     if (cb_thread_id != 0) {
@@ -340,12 +335,10 @@ void cdvd_exit(void)
     DeleteSema(_sceCd_ncmd_semid);
     DeleteSema(_sceCd_scmd_semid);
     DeleteSema(cb_semid);
-    (*(int (*)(void))DIntr)();
+    DIntr();
     sceSifRemoveCmdHandler(0x80000012);
     EIntr();
 }
-
-extern int PowerOffCB(void);
 
 int sceCdPOffCallback(int a0, int a1)
 {
@@ -353,7 +346,7 @@ int sceCdPOffCallback(int a0, int a1)
     if (poff_bind < 0) {
         PowerOffCB();
     }
-    (*(int (*)(void))DIntr)();
+    DIntr();
     ret = (int)poff_cbfunc;
     poff_cbarg = a1;
     poff_cbfunc = (void (*)(int))a0;
@@ -386,7 +379,7 @@ int PowerOffCB(void)
 
     sceSifInitRpc(0);
     poff_busy = 1;
-    (*(int (*)(void))DIntr)();
+    DIntr();
     sceSifAddCmdHandler(0x80000012, _sceCd_Poff_Intr, 0);
     EIntr();
     if (poff_bind < 0) {
@@ -420,10 +413,6 @@ int PowerOffCB(void)
     *(volatile int *)&poff_busy = 0;
     return 1;
 }
-
-extern void cmd_sem_init(void);
-extern void sceSifWriteBackDCache(void *p, int n);
-extern int sceSifCallRpc();
 
 /* RECONSTRUCTION: the 0x24-byte file entry, copied whole (the ROM's ldl/ldr
    and sdl/sdr run). */
@@ -543,9 +532,6 @@ int _sceCd_ncmd_prechk(int cmd)
     return 1;
 }
 
-extern int _sceCd_ncmd_prechk(int a0);
-extern int sceSifCallRpc();
-
 int sceCdNcmdDiskReady(void)
 {
     int *p;
@@ -562,8 +548,6 @@ int sceCdNcmdDiskReady(void)
     SignalSema(_sceCd_ncmd_semid);
     return v;
 }
-
-extern int sceSifCheckStatRpc(char *a0);
 
 int sceCdSync(int mode)
 {
@@ -593,8 +577,6 @@ int sceCdSyncS(int a0)
     }
     return sceSifCheckStatRpc(_sceCd_cd_scmd);
 }
-
-extern int sceCdSyncS(int a0);
 
 /* The scmd twin of _sceCd_ncmd_prechk. */
 int _sceCd_scmd_prechk(int cmd)
@@ -635,8 +617,6 @@ int _sceCd_scmd_prechk(int cmd)
     }
     return 1;
 }
-
-extern void cdvd_exit(void);
 
 /* Binds the init RPC and reads the IOP module's version reply. The busy flag
  * set and the ee_read_mode reset are volatile accesses: the busy word is read
@@ -776,9 +756,6 @@ int sceCdDiskReady(int mode)
     SignalSema(_sceCd_scmd_semid);
     return v;
 }
-
-extern int _sceCd_scmd_prechk(int a0);
-extern void sceSifWriteBackDCache(void *p, int n);
 
 int sceCdMmode(int media)
 {

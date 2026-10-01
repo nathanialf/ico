@@ -5,12 +5,8 @@
 #include <eekernel.h>
 #include <stdio.h>
 #include <sifrpc.h>
-
-extern char _sceCd_cd_scmd[];
-extern int _sceCd_scmdrdata[];
-extern int _sceCd_scmd_semid;
-extern int _sceCd_scmd_prechk(int a0);
-extern int sceSifCallRpc();
+#include <libcdvd_internal.h>
+#include <libcdvd.h>
 
 int sceCdGetError(void)
 {

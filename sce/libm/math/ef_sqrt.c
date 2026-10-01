@@ -20,10 +20,6 @@
         (d) = sf_u.value;                                                                          \
     } while (0)
 
-extern int __ieee754_rem_pio2f(float x, float *y);
-extern float __kernel_cosf(float x, float y);
-extern float __kernel_sinf(float x, float y, int iy);
-
 static const float one = 1.0, tiny = 1.0e-30;
 
 float __ieee754_sqrtf(float x)

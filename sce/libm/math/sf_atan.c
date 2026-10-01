@@ -21,10 +21,6 @@
         (d) = sf_u.value;                                                                          \
     } while (0)
 
-extern int __ieee754_rem_pio2f(float x, float *y);
-extern float __kernel_cosf(float x, float y);
-extern float __kernel_sinf(float x, float y, int iy);
-
 static const float atanhi[] = {
     0.46364760398864746f,
     0.7853981256484985f,

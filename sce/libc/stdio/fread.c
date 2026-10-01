@@ -2,15 +2,13 @@
  * this member starts at an 8-aligned function start of the shipped ELF. */
 #include <string.h>
 #include <reent.h>
+#include <libc_internal.h>
+#include <stdio.h>
 
 struct D520 {
     char pad0[8];
     PObjBlk *blk; /* 0x8 */
 };
-
-extern void fiprintf();
-extern void abort(void);
-extern int __srefill(Fil *s);
 
 int fread(char *dst, int size, int count, Fil *s)
 {

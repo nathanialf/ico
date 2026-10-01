@@ -1,10 +1,7 @@
 /* libm.a member wf_asin.o.  MAIN.MAP member spans tile this run exactly and
  * this member starts at an 8-aligned function start of the shipped ELF. */
 #include <math.h>
-
-extern int __ieee754_rem_pio2f(float x, float *y);
-extern float __kernel_cosf(float x, float y);
-extern float __kernel_sinf(float x, float y, int iy);
+#include <math_private.h>
 
 /* newlib's math wrapper machinery.  The listing attributes no row to a header,
    so the shapes are kept per member; _LIB_VERSION comes from math.h. */
@@ -20,9 +17,7 @@ struct exception {
 #define DOMAIN 1
 #define EDOM 33
 
-extern float __ieee754_asinf(float x);
-extern int isnanf(float x);
-extern int matherr(void *a0);
+/* kept local: errno.h declares it as its definition, returning int, where these uses take int * */
 extern int *__errno(void);
 
 float asinf(float x)

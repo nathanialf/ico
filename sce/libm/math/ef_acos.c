@@ -15,10 +15,6 @@
         (d) = sf_u.value;                                                                          \
     } while (0)
 
-extern int __ieee754_rem_pio2f(float x, float *y);
-extern float __kernel_cosf(float x, float y);
-extern float __kernel_sinf(float x, float y, int iy);
-
 static const float one = 1.0000000000e+00;
 
 static const float pi = 3.1415925026e+00;
@@ -46,8 +42,6 @@ static const float qS2 = 2.0209457874e+00;
 static const float qS3 = -6.8828397989e-01;
 
 static const float qS4 = 7.7038154006e-02;
-
-extern float __ieee754_sqrtf(float x);
 
 float __ieee754_acosf(float x)
 {

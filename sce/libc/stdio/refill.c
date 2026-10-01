@@ -7,14 +7,18 @@ struct D520 {
     PObjBlk *blk; /* 0x8 */
 };
 
-extern void fiprintf();
-extern void abort(void);
 /* fflush is reached both with and without an argument in this member, exactly
    as the shipped code does; the declaration is left unprototyped. */
+/* kept local: not yet moved to stdio.h */
 extern int fflush();
+/* kept local: libc_internal.h declares it as `void __sinit(char *a0)` */
 extern void __sinit(Reent *r);
+/* kept local: stdlib.h declares it as `void _free_r(int *self, void *mem)` */
 extern void _free_r(Reent *r, void *p);
+/* kept local: this member cannot include libc_internal.h, whose __sinit, _fwalk conflict with
+   its own */
 extern void __smakebuf(Fil *fp);
+/* kept local: libc_internal.h declares it as `int _fwalk(Reent *ptr, int (*function)())` */
 extern void _fwalk(Reent *r, int (*f)());
 
 int lflush(void)

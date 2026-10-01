@@ -2,14 +2,13 @@
  * this member starts at an 8-aligned function start of the shipped ELF. */
 #include <string.h>
 #include <reent.h>
+#include <libc_internal.h>
+#include <stdio.h>
 
 struct D520 {
     char pad0[8];
     PObjBlk *blk; /* 0x8 */
 };
-
-extern void fiprintf();
-extern void abort(void);
 
 struct __siov {
     const char *iov_base; /* 0x0 */
@@ -29,11 +28,6 @@ struct __suio {
 #define __SERR 0x0040
 #define EOF (-1)
 #define BUFSIZ 1024
-
-extern int __swsetup(Fil *fp);
-extern int fflush(Fil *fp);
-extern void *memchr(const void *s, int c, int n);
-
 #define MIN(a, b) ((a) < (b) ? (a) : (b))
 #define COPY(n) (void)memmove((void *)fp->p, (void *)p, (int)(n))
 #define GETIOV(extra_work)                                                                         \

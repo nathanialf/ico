@@ -12,6 +12,7 @@
 #include <eekernel.h>
 #include <sifrpc.h>
 #include <string.h>
+#include "sound.h"
 
 typedef struct {
     char _0[0x50];
@@ -538,6 +539,7 @@ int _SgBgmMain(int *a0)
  * the field it fetches; those and the names are ours. */
 #ifdef DEBUG
 
+/* kept local: the DEBUG build's trace voice, defined nowhere in this tree */
 extern int sgTraceVoice;
 
 #define SG_TRACE_VOICE sgTraceVoice
@@ -917,8 +919,6 @@ int _SgTableEnvAdd(int *a0)
     return ret;
 }
 
-extern void *_SgGetComContext(void);
-
 int _SgSeqKeyOnSlot(void)
 {
     int *mgr = _SgGetComContext();
@@ -1032,8 +1032,6 @@ int _SgSeKeyOnSlot(int a0, int a1, int a2)
     }
     return -1;
 }
-
-extern void *_SgGetHeadContext(void);
 
 int _SgSeKeyOff(char *a0)
 {
@@ -1566,11 +1564,6 @@ void _SgContSeLoop(int *a0)
     a0[1] += 5;
 }
 
-extern void SgSetReverbType(int a0, int a1);
-extern void SgSetReverbDepth(int a0, int a1, int a2);
-extern void SgSetReverbDelaytime(int a0, int a1);
-extern void SgSetReverbFeedback(int a0, int a1);
-
 /* Parameter controller: the event's 0x2A selector picks one of the SPU voice
  * register fields in the head context's register block at head[1], packs the
  * event byte into it and then pushes the two packed words to every voice the
@@ -1991,8 +1984,6 @@ void SgSetDigitalOutputMode(int a0)
     _SgSetPkAdd(0x32, 0xA, a0, 0);
 }
 
-extern void _SgDmaCommon(int a0, int a1, void *a2, void *a3);
-
 int SgDmaWrite(int a0, void *a1, void *a2)
 {
     _SgDmaCommon(0x20, a0, a1, a2);
@@ -2040,8 +2031,6 @@ int SgGetDmaTransferStatus(int mode)
     }
     return ret;
 }
-
-extern int SgVabOpenFakeBody(int *a0, int a1);
 
 int SgVabOpen(int a0, int *a1, int a2)
 {

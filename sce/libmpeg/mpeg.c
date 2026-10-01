@@ -3,14 +3,13 @@
  * sceMpeg entry points, the callback dispatch, the arena allocator and the
  * picture loop. */
 #include <libmpeg.h>
+#include <libmpeg_internal.h>
 #include <eeregs.h>
+#include <eekernel.h>
+#include <libipu.h>
 
 /* the library's build stamp, the member's first .data */
 static char sceMpegVersion[16] = "PsIIlibmpeg 2200"; /* derived name */
-
-extern void DIntr();
-extern int EIntr(void);
-extern int sceIpuInit();
 
 /* The DMAC and IPU registers are hardware the DMAC itself updates, so every
    access is volatile. The second write of the enable register at 0x1000F590 is
@@ -29,31 +28,13 @@ void sceMpegInit(void)
     sceIpuInit();
 }
 
-extern void _Error(void *a0);
-extern void _alalcInit(int *a0, int a1, int a2);
-extern int _alalcAlloc(unsigned int *a0, int a1, unsigned int a2);
-extern void _alalcSetDynamic(int *a0);
-extern void _clearOnce(void);
+/* kept local: libmpeg.h leaves it out: this member passes an argument its definition does not
+   take */
 extern int sceMpegClearRefBuff();
-extern void _defStopDMA();
-extern void _defRestartDMA();
-extern int _refFrame0[];
-extern int _refFrame1[];
-extern int _refFrame2[];
-extern int _refTop0[];
-extern int _refTop1[];
-extern int _refTop2[];
-extern int _refBot0[];
-extern int _refBot1[];
-extern int _refBot2[];
-extern int *_forwFrame;
-extern int *_backFrame;
+/* kept local: libmpeg_internal.h leaves it out: the members read this pointer of var.c through
+   an array declaration */
 extern int _zFrame[];
-extern int *_forwTop;
-extern int *_backTop;
 extern int _zTop[];
-extern int *_forwBot;
-extern int *_backBot;
 extern int _zBot[];
 
 int sceMpegCreate(void *self, void *buf, int size)
@@ -135,8 +116,9 @@ int sceMpegDelete(void)
     return 1;
 }
 
+/* kept local: libmpeg_internal.h leaves it out: the members read this scalar of var.c through
+   an array declaration */
 extern int _bsDataSize[];
-extern void _sendDataToIPU(int a0, int a1);
 
 void sceMpegAddBs(int a0, int a1, int a2)
 {
@@ -145,8 +127,6 @@ void sceMpegAddBs(int a0, int a1, int a2)
     _bsDataSize[0] = rounded;
     _sendDataToIPU(a1, rounded);
 }
-
-extern int _getpic(int self);
 
 int sceMpegGetPicture(int *a0, unsigned int a1, int a2)
 {
@@ -211,9 +191,9 @@ int sceMpegIsRefBuffEmpty(void *a0)
     return *(int *)((char *)p + 0x4) == 0;
 }
 
+/* kept local: libmpeg_internal.h leaves it out: the members read this scalar of var.c through
+   an array declaration */
 extern int _totalFrames[];
-extern void _clearEach(void);
-extern void _initSeqAgain(void);
 
 void sceMpegReset(int *a0)
 {
@@ -228,13 +208,6 @@ void sceMpegReset(int *a0)
     _totalFrames[0] = 0;
     _initSeqAgain();
 }
-
-extern int *_forwFrame;
-extern int *_backFrame;
-extern int *_forwTop;
-extern int *_backTop;
-extern int *_forwBot;
-extern int *_backBot;
 
 int sceMpegClearRefBuff(void)
 {
@@ -364,8 +337,6 @@ void _alalcFree(int *a0)
     a0[2] = a0[3];
 }
 
-extern void _Error(void *a0);
-
 int _alalcAlloc(unsigned int *a0, int a1, unsigned int a2)
 {
     unsigned int rounded;
@@ -385,13 +356,10 @@ int _alalcRest(int *a0)
     return a0[0] + a0[1] - a0[2];
 }
 
+/* kept local: libmpeg_internal.h leaves it out: the members read this scalar of var.c through
+   an array declaration */
 extern int _isOutputPicture[];
-extern int _picture_structure;
 extern int _isMpeg2[];
-extern void _Error1(int a0, int a1);
-extern int _decodeOrSkip(int a0, int a1, int a2);
-extern int _nextHeader(void);
-extern int _sceMpegFlush(int *self);
 
 int _getpic(int a0)
 {
@@ -439,10 +407,9 @@ int _getpic(int a0)
     return 1;
 }
 
+/* kept local: libmpeg_internal.h leaves it out: the members read this scalar of var.c through
+   an array declaration */
 extern int _isSecondField[];
-extern int _updateRefImage(int a0);
-extern int _decPicture(int a0, int a1);
-extern void _outputFrame(int a0, int a1);
 
 int _decodeOrSkipFrame(int a0, int a1, int a2)
 {
@@ -488,10 +455,6 @@ int _decodeOrSkipFrame(int a0, int a1, int a2)
     return ret;
 }
 
-extern int _picture_structure;
-extern int _decodeOrSkipField(int a0, int a1, int a2);
-extern int _decodeOrSkipFrame(int a0, int a1, int a2);
-
 int _decodeOrSkip(int a0, int a1, int a2)
 {
     if (_picture_structure != 3) {
@@ -500,12 +463,9 @@ int _decodeOrSkip(int a0, int a1, int a2)
     return _decodeOrSkipFrame(a0, a1, a2);
 }
 
+/* kept local: libmpeg_internal.h leaves it out: the members read this scalar of var.c through
+   an array declaration */
 extern int _isSecondField[];
-extern int _updateRefImage(int a0);
-extern int _decPicture(int a0, int a1);
-extern int _nextHeader(void);
-extern int _sceMpegFlush(int *self);
-extern void _outputFrame(int a0, int a1);
 
 int _decodeOrSkipField(int a0, int a1, int a2)
 {
@@ -564,8 +524,6 @@ int _decodeOrSkipField(int a0, int a1, int a2)
     }
     return ret;
 }
-
-extern void _lastFrame(int a0);
 
 int _sceMpegFlush(int *self)
 {

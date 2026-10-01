@@ -2,6 +2,7 @@
  * tiles the retail run exactly, VMA 0x26A630..0x26B408, 8 functions: the PSS
  * demultiplexer and its pack, system and PES header parsers. */
 #include <libmpeg.h>
+#include <libmpeg_internal.h>
 
 typedef struct {
     int unk0, unk4, unk8, unkC;
@@ -170,9 +171,7 @@ typedef struct {
     void *arg;
 } StrCb;
 
-extern void _sysbitInit(int *a0, int a1, int a2, int a3);
-extern int _sysbitNext(void *a0, int a1);
-extern int _sysbitPtr(int *a0, int a1);
+/* kept local: its record type is this member's own */
 extern int _pack_header(int *bs, P24D418 *pkt);
 extern int _PES_packet(int *bs, PesPkt *pkt);
 
@@ -254,8 +253,6 @@ int sceMpegDemuxPss(void *a0, int a1, int a2)
     return sceMpegDemuxPssRing(a0, a1, a2, 0, -1);
 }
 
-extern long long _type2id(int a0, int a1);
-
 int sceMpegAddStrCallback(int *a0, int a1, int a2, MpegStrCallback a3, void *a4)
 {
     int ret = 0;
@@ -281,9 +278,8 @@ int sceMpegAddStrCallback(int *a0, int a1, int a2, MpegStrCallback a3, void *a4)
     return ret;
 }
 
-extern int _sysbitGet(int *bs, int nbits);
-extern int _sysbitMarker(int *bs);
-extern int _sysbitNext(void *a0, int a1);
+/* kept local: libmpeg_internal.h leaves it out: its callers' arguments do not fit the
+   definition's prototype */
 extern int _system_header();
 
 int _pack_header(int *bs, P24D418 *pkt)
@@ -328,11 +324,6 @@ int _system_header(int *a0)
     }
     return 1;
 }
-
-extern int _sysbitGet(int *bs, int nbits);
-extern int _sysbitMarker(int *bs);
-extern void _sysbitJump(int *bs, int n);
-extern void _Error(void *a0);
 
 /* the bit count each combination of the four header flags adds */
 static unsigned char headerBits[16] /* derived name */ = {

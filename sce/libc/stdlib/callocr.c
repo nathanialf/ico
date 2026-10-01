@@ -2,14 +2,12 @@
  * this member starts at an 8-aligned function start of the shipped ELF. */
 #include <string.h>
 #include <reent.h>
+#include <stdlib.h>
 
 struct D520 {
     char pad0[8];
     PObjBlk *blk; /* 0x8 */
 };
-
-extern void fiprintf();
-extern void abort(void);
 
 typedef unsigned int INTERNAL_SIZE_T;
 
@@ -50,8 +48,6 @@ typedef struct malloc_chunk *mchunkptr;
         } else                                                                                     \
             memset((charp), 0, mzsz);                                                              \
     } while (0)
-
-extern void *_malloc_r(void *rptr, unsigned int nbytes);
 
 void *_calloc_r(void *rptr, unsigned int n, unsigned int elem_size)
 {

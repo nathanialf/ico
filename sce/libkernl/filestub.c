@@ -5,7 +5,11 @@
 
 #include <sifrpc.h>
 #include <string.h>
+#include <libkernl_internal.h>
+#include <sifcmd.h>
+#include <libcdvd.h>
 
+/* kept local: this member cannot include eekernel.h, whose SignalSema conflicts with its own */
 extern int DIntr();
 extern int EIntr();
 extern int iSignalSema(int a0);
@@ -55,6 +59,8 @@ static char fsCmdBuf[0x40]; /* derived name */
 
 void _sceFsIobSemaMK(void)
 {
+    /* kept local: this member cannot include eekernel.h, whose SignalSema conflicts with its
+       own */
     extern int CreateSema(int *a0);
     int args[8];
     if (iob_sema == -1) {
@@ -66,7 +72,9 @@ void _sceFsIobSemaMK(void)
     }
 }
 
+/* kept local: eekernel.h declares it as `void SignalSema(int sema)` */
 extern int SignalSema(int a0);
+/* kept local: this member cannot include eekernel.h, whose SignalSema conflicts with its own */
 extern int WaitSema(int a0);
 
 int new_iob(void)
@@ -233,10 +241,8 @@ void _sceFsSigSema(void)
     SignalSema(fs_sema);
 }
 
-extern void _sceFsIobSemaMK(void);
+/* kept local: eekernel.h declares it as `void SignalSema(int sema)` */
 extern int SignalSema(int a0);
-extern int sceSifAddCmdHandler(int a0, int a1, int a2);
-extern int sceSifBindRpc(void *cd, unsigned int sid, int mode);
 
 int sceFsInit(void)
 {
@@ -278,8 +284,6 @@ int sceFsInit(void)
     return 0;
 }
 
-extern int memcmp();
-
 /* the stamp _fs_version accepts besides the library's own.  Defined here, after
    _sceFs_Rcv_Intr, its four dots follow that function's jump table in the
    member's .rodata as the ROM has them (0x636708), and the pointer is still
@@ -320,11 +324,10 @@ typedef struct {
     int _8[2];
 } SceIob;
 
+/* kept local: this member cannot include eekernel.h, whose SignalSema conflicts with its own */
 extern int CreateSema(int *self);
 extern int WaitSema(int a0);
 extern int DeleteSema(int a0);
-extern void _sceFsSigSema(void);
-extern void *get_iob(unsigned int a0);
 
 /* Varargs: the mode is the first anonymous argument, read from gcc's own
    save area after the new_iob() check (the ROM's lw $7,0x120($29)).  One
@@ -910,8 +913,6 @@ int _sceCallCode(void *name, int code)
     return result;
 }
 
-extern int _sceCallCode(void *a0, int a1);
-
 int sceRemove(void *a0)
 {
     return _sceCallCode(a0, 6);
@@ -1040,11 +1041,10 @@ int sceFormat(unsigned char *dev, unsigned char *blockdev, unsigned char *arg, i
     return result;
 }
 
+/* kept local: this member cannot include eekernel.h, whose SignalSema conflicts with its own */
 extern int CreateSema(int *a0);
 extern int WaitSema(int a0);
 extern int DeleteSema(int a0);
-extern void _sceFsSigSema(void);
-extern int sceFsInit(void);
 
 int sceAddDrv(void *a0)
 {
@@ -1111,12 +1111,13 @@ int sceDopen(void *name)
     return rc;
 }
 
+/* kept local: this member cannot include eekernel.h, whose SignalSema conflicts with its own */
 extern int DeleteSema(int a0);
-extern void _sceFsSigSema(void);
-extern void *get_iob(unsigned int a0);
 
 int sceDclose(unsigned int a0)
 {
+    /* kept local: this member cannot include eekernel.h, whose SignalSema conflicts with its
+       own */
     extern int CreateSema(int *a0);
     extern int WaitSema(int a0);
     int *g = fsSendBuf;
@@ -1169,6 +1170,8 @@ int sceDclose(unsigned int a0)
 
 int sceDread(unsigned int a0, int a1)
 {
+    /* kept local: this member cannot include eekernel.h, whose SignalSema conflicts with its
+       own */
     extern int CreateSema(int *a0);
     extern int WaitSema(int a0);
     int *g = fsSendBuf;

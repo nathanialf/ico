@@ -2,14 +2,12 @@
  * this member starts at an 8-aligned function start of the shipped ELF. */
 /* The listing puts this source under newlib libm/math; the archive is libc.a. */
 #include "reent.h"
+#include <math.h>
 
 struct D520 {
     char pad0[8];
     PObjBlk *blk; /* 0x8 */
 };
-
-extern void fiprintf();
-extern void abort(void);
 
 int isinf(long long x)
 {

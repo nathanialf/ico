@@ -6,13 +6,11 @@
 #include <sifrpc.h>
 #include <string.h>
 #include <sifcmd.h>
+#include <libkernl_internal.h>
 
-/* sifrpc.o's definition: a void call, no value register after it */
-extern void sceSifExitRpc(void);
 /* the reset command packet sceSifSendCmd DMAs to the IOP, on its own 64-byte
    line */
 static SifCmdResetData resetData __attribute__((aligned(64))); /* derived name */
-extern void sceSifStopDma(void);
 
 int sceSifResetIop(char *arg, int mode)
 {
@@ -52,8 +50,6 @@ int sceSifIsAliveIop(void)
     return t != 0;
 }
 
-extern void sceResetttyinit();
-
 int sceSifSyncIop(void)
 {
     if (sceSifGetReg(4) & 0x40000) {
@@ -64,8 +60,8 @@ int sceSifSyncIop(void)
     return 0;
 }
 
+/* kept local: sce/libc/stdio.h declares printf void */
 extern int printf(const char *fmt, ...);
-extern int sceSifResetIop(char *arg, int mode);
 
 int sceSifRebootIop(const char *arg)
 {

@@ -8,21 +8,17 @@
 #include <eekernel.h>
 #include <stdio.h>
 #include <sifrpc.h>
+#include <libcdvd_internal.h>
+#include <libcdvd.h>
 
-extern int SCE_CD_debug;
-extern char _sceCd_cd_scmd[];
-extern int _sceCd_scmdrdata[];
-/* The S-command semaphore handle cmd_sem_init creates at run time (cdvd000
- * defines it), read through a volatile cast as cdvd000's own sites read it.
+/* _sceCd_scmd_semid, the S-command semaphore handle cmd_sem_init creates at
+ * run time (cdvd000 defines it), is read through a volatile cast as cdvd000's own sites read it.
  * sceCdBreak's two SignalSema reads are volatile loads in the ROM (neither is
  * moved into a delay slot by the compiler, and the success-path read waits on
  * the store to sceCdCbfunc_num). In sceCdStatus and sceCdReadClock a plain
  * read gives the same text (the compiler fills the call's delay slot where
  * the SDK assembler otherwise does) but a different relocation order, so the
  * member keeps every read volatile, as it was. */
-extern int _sceCd_scmd_semid;
-extern int _sceCd_scmd_prechk(int a0);
-extern int sceSifCallRpc();
 
 int sceCdStatus(void)
 {
@@ -43,10 +39,6 @@ int sceCdStatus(void)
     }
     return v;
 }
-
-/* volatile: the pending-callback id the callback thread polls and clears, as
- * cdvd000.c declares it. */
-extern volatile int sceCdCbfunc_num;
 
 int sceCdBreak(void)
 {

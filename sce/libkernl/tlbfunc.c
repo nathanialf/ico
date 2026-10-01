@@ -2,6 +2,8 @@
  * member and its .text size (0x548), which tiles the shipped ELF from one
  * retail function start to the next; VMA 0x264AE8..0x265030,
  * 19 functions. */
+#include <eekernel.h>
+#include <libkernl_internal.h>
 
 /* the member's .rodata (MAIN.MAP 0x70): _DumpTLB's two format strings, named
    here because the function below is assembled and reaches them by name */
@@ -319,12 +321,6 @@ __asm__(".section .text\n"
    names (the TLB exception entry calls _kTLBRefillHandler, the debug
    exception entry calls _kDebugHandler by cause code), then the six kernel
    calls InitTLBFunctions installs, each a syscall number and its handler. */
-extern void _kExitTLBHandler(void);
-extern void kPutTLBEntry(void);
-extern void kSetTLBEntry(void);
-extern void kGetTLBEntry(void);
-extern void kProbeTLBEntry(void);
-extern void kExpandScratchPad(void);
 
 int _kTLBRefillHandler = 0;
 
@@ -335,9 +331,6 @@ static int tlb_syscalls[12] = {
     87, (int)kGetTLBEntry,     88, (int)kProbeTLBEntry, 89, (int)kExpandScratchPad,
 };
 
-extern void SetVTLBRefillHandler();
-extern void _kTLBException(void);
-
 void *SetTLBHandler(void *a0)
 {
     _kTLBRefillHandler = (int)a0;
@@ -346,9 +339,6 @@ void *SetTLBHandler(void *a0)
     SetVTLBRefillHandler(3, _kTLBException);
     return a0;
 }
-
-extern char _kDebugException[];
-extern void SetVCommonHandler();
 
 int SetDebugHandler(int a0, int a1)
 {

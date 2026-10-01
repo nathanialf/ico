@@ -20,10 +20,6 @@
         (d) = sf_u.value;                                                                          \
     } while (0)
 
-extern int __ieee754_rem_pio2f(float x, float *y);
-extern float __kernel_cosf(float x, float y);
-extern float __kernel_sinf(float x, float y, int iy);
-
 /* fdlibm's coefficient table: the member's whole .rodata (MAIN.MAP kf_sin.o
  * .rodata 0x1c, seven words in declaration order).  The code loads every one
  * of them as an immediate, so the table is referenced by nothing. */

@@ -2,11 +2,6 @@
  * this member starts at an 8-aligned function start of the shipped ELF. */
 #include "libgcc2.h"
 
-typedef void (*func_ptr)(void);
-/* libgcc.a(_ctors.o)'s common lists, MAIN.MAP line 7656. */
-extern func_ptr __CTOR_LIST__[];
-extern func_ptr __DTOR_LIST__[];
-
 void __do_global_dtors(void)
 {
     static func_ptr *p = __DTOR_LIST__ + 1;
@@ -36,8 +31,6 @@ void __do_global_ctors(void)
             __CTOR_LIST__[i]();
     } while (0);
 }
-
-extern void __do_global_ctors();
 
 /* libgcc2.c's SYMBOL__MAIN: the flag is the member's whole .bss, VMA 0x736168, 4 B. */
 void __main(void)

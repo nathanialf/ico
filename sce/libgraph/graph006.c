@@ -1,30 +1,8 @@
 /* libgraph.a member graph006.o.  MAIN.MAP member spans tile this run exactly and
  * this member starts at an 8-aligned function start of the shipped ELF. */
+#include <libgraph.h>
 
 typedef long long s_long128;
-
-/* Eight (register-address, data) pairs: FRAME_1, ZBUF_1, XYOFFSET_1, SCISSOR_1,
-   PRMODECONT, COLCLAMP, DTHE, TEST_1.  Same pair convention as graph007. */
-typedef struct {
-    s_long128 frame;           /* 0x00 */
-    s_long128 frame_addr;      /* 0x08 */
-    s_long128 zbuf;            /* 0x10 */
-    s_long128 zbuf_addr;       /* 0x18 */
-    s_long128 xyoffset;        /* 0x20 */
-    s_long128 xyoffset_addr;   /* 0x28 */
-    s_long128 scissor;         /* 0x30 */
-    s_long128 scissor_addr;    /* 0x38 */
-    s_long128 prmodecont;      /* 0x40 */
-    s_long128 prmodecont_addr; /* 0x48 */
-    s_long128 colclamp;        /* 0x50 */
-    s_long128 colclamp_addr;   /* 0x58 */
-    s_long128 dthe;            /* 0x60 */
-    s_long128 dthe_addr;       /* 0x68 */
-    s_long128 test;            /* 0x70 */
-    s_long128 test_addr;       /* 0x78 */
-} sceGsDrawEnv;
-
-extern int sceGszbufaddr(short psm, short w, short h);
 
 int sceGsSetDefDrawEnv(sceGsDrawEnv *env, short psm, short w, short h, short ztst, short zpsm)
 {

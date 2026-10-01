@@ -17,25 +17,29 @@
 #ifndef SCE_LIBCDVD_LIBCDVD_H
 #define SCE_LIBCDVD_LIBCDVD_H
 
-int _sceCd_cd_ncmd[];                                                  /* dominant spelling at 1 sites */
-char _sceCd_cd_scmd[];                                                 /* dominant spelling at 1 sites */
-int _sceCd_ncmd_prechk(int a0);                                        /* dominant spelling at 1 sites */
-extern int _sceCd_ncmd_semid;                                          /* definition in sce/ */
-int _sceCd_ncmdrdata[];                                                /* dominant spelling at 1 sites */
-void _sceFsSigSema(void);                                              /* definition in sce/ */
-int sceCdBreak(void);                                                  /* dominant spelling at 1 sites */
-int sceCdDiskReady(int mode);                                          /* dominant spelling at 3 sites */
-int sceCdGetDiskType(void);                                            /* dominant spelling at 2 sites */
-int sceCdGetError(void);                                               /* dominant spelling at 2 sites */
-int sceCdInit(int mode);                                               /* dominant spelling at 1 sites */
-int sceCdMmode(int media);                                             /* dominant spelling at 1 sites */
-int sceCdRead(int lsn, int sectors, void *buf, int *mode);             /* dominant spelling at 2 sites */
-int sceCdReadIOPm(int lsn, int sectors, void *buf, int *mode);         /* dominant spelling at 1 sites */
-int sceCdStRead(int a0, int a1, int a2, void *a3);                     /* dominant spelling at 1 sites */
-int sceCdStStat(void);                                                 /* definition in sce/ */
-int sceCdStatus(void);                                                 /* dominant spelling at 3 sites */
-int sceCdStream(int a0, int a1, int a2, int a3, void *a4);             /* dominant spelling at 1 sites */
-int sceCdSync(int mode);                                               /* dominant spelling at 4 sites */
-int sceFsReset(void);                                                  /* definition in sce/ */
+/* The read mode sceCdRead and sceCdStream take. */
+typedef struct {
+    unsigned char trycount;
+    unsigned char spindlctrl;
+    unsigned char datapattern;
+    unsigned char pad;
+} CdRMode;
+
+void _sceFsSigSema(void);                                      /* definition in sce/ */
+int sceCdBreak(void);                                          /* dominant spelling at 1 sites */
+int sceCdDiskReady(int mode);                                  /* dominant spelling at 3 sites */
+int sceCdGetDiskType(void);                                    /* dominant spelling at 2 sites */
+int sceCdGetError(void);                                       /* dominant spelling at 2 sites */
+int sceCdInit(int mode);                                       /* dominant spelling at 1 sites */
+int sceCdMmode(int media);                                     /* dominant spelling at 1 sites */
+int sceCdRead(int lsn, int sectors, void *buf, CdRMode *mode); /* definition in sce/ */
+int sceCdReadIOPm(int lsn, int sectors, void *buf, CdRMode *mode); /* definition in sce/ */
+int sceCdStRead(int sectors, void *buf, int mode, int *err);       /* definition in sce/ */
+int sceCdStStat(void);                                             /* definition in sce/ */
+int sceCdStatus(void);                                           /* dominant spelling at 3 sites */
+int sceCdStream(int a0, int a1, int a2, int cmd, CdRMode *mode); /* definition in sce/ */
+int sceCdSync(int mode);                                         /* definition in sce/ */
+int sceCdSyncS(int a0);                                          /* definition in sce/ */
+int sceFsReset(void);                                            /* definition in sce/ */
 
 #endif /* SCE_LIBCDVD_LIBCDVD_H */

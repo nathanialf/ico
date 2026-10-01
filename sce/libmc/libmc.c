@@ -66,10 +66,13 @@ static char mcPwd[0x1000] __attribute__((aligned(64)));
 
 static char mcRdata[0x40] __attribute__((aligned(64)));
 
+/* kept local: eekernel.h declares it as `int CreateSema(int *self)` */
 extern int CreateSema(SemaParam *param);
+/* kept local: this member cannot include eekernel.h, whose CreateSema, SetAlarm, iWakeupThread
+   conflict with its own */
 extern int WaitSema(int sema);
 extern void SignalSema(int sema);
-extern int sceMcSync();
+/* kept local: sce/libc/stdio.h declares printf void */
 extern int printf(const char *fmt, ...);
 
 int sceMcInit(void)
@@ -128,6 +131,8 @@ void *_lmcGetClientPtr(int *a0, int *a1)
     return mcClient;
 }
 
+/* kept local: this member cannot include eekernel.h, whose CreateSema, SetAlarm, iWakeupThread
+   conflict with its own */
 extern int PollSema(int sema);
 
 int sceMcChangeThreadPriority(int arg)
@@ -311,8 +316,6 @@ void mceIntrReadFixAlign(void *arg)
     }
 }
 
-extern void mceIntrReadFixAlign();
-
 int sceMcRead(int a0, void *buf, int len)
 {
     char *dev;
@@ -343,6 +346,8 @@ done:
     return r;
 }
 
+/* kept local: this member cannot include eekernel.h, whose CreateSema, SetAlarm, iWakeupThread
+   conflict with its own */
 extern void FlushCache(int a0);
 
 /* RECONSTRUCTION: the 0x30-byte RPC command block sceMcWrite sends, as the
@@ -401,6 +406,7 @@ done:
     return r;
 }
 
+/* kept local: eekernel.h declares it as `int iWakeupThread(int id)` */
 extern void iWakeupThread(int a0);
 
 void mcHearAlarm(int a0, int a1, int a2)
@@ -410,8 +416,13 @@ void mcHearAlarm(int a0, int a1, int a2)
     EI();
 }
 
+/* kept local: this member cannot include eekernel.h, whose CreateSema, SetAlarm, iWakeupThread
+   conflict with its own */
 extern int GetThreadId(void);
+/* kept local: eekernel.h declares it as `int SetAlarm(int a0, void *a1, int a2)` */
 extern void SetAlarm(int a0, void *a1, int a2);
+/* kept local: this member cannot include eekernel.h, whose CreateSema, SetAlarm, iWakeupThread
+   conflict with its own */
 extern void SleepThread(void);
 
 void mcDelayThread(int a0)
@@ -419,9 +430,6 @@ void mcDelayThread(int a0)
     SetAlarm((unsigned short)a0, mcHearAlarm, GetThreadId());
     SleepThread();
 }
-
-extern void SignalSema(int sema);
-extern void mcDelayThread(int a0);
 
 int sceMcSync(int a0, int *a1, int *a2)
 {

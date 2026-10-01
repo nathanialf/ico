@@ -2,14 +2,12 @@
  * this member starts at an 8-aligned function start of the shipped ELF. */
 #include <string.h>
 #include <reent.h>
+#include <stdlib.h>
 
 struct D520 {
     char pad0[8];
     PObjBlk *blk; /* 0x8 */
 };
-
-extern void fiprintf();
-extern void abort(void);
 
 typedef unsigned int INTERNAL_SIZE_T;
 
@@ -49,6 +47,8 @@ typedef struct malloc_chunk *mchunkptr;
 #define set_head(p, s) ((p)->size = (s))
 
 /* The bin array of the shipped allocator. */
+/* kept local: this member cannot include libc_internal.h, whose __malloc_lock conflicts with
+   its own */
 extern mchunkptr __malloc_av_[];
 
 #define bin_at(i) ((mchunkptr)((char *)&(__malloc_av_[2 * (i) + 2]) - 2 * SIZE_SZ))
@@ -86,10 +86,11 @@ extern mchunkptr __malloc_av_[];
             memcpy(dest, src, mcsz);                                                               \
     } while (0)
 
+/* kept local: libc_internal.h declares it as `void __malloc_lock(void)` */
 extern void __malloc_lock(void *r);
+/* kept local: this member cannot include libc_internal.h, whose __malloc_lock conflicts with
+   its own */
 extern void __malloc_unlock(void *r);
-extern void *_malloc_r(void *r, unsigned int bytes);
-extern void _free_r(void *r, void *mem);
 
 void *_realloc_r(void *reent_ptr, void *oldmem, unsigned int bytes)
 {

@@ -4,19 +4,7 @@
  * partition is NOT verified, and this file is the whole run. */
 #include <stdio.h>
 #include <eeregs.h>
-
-typedef struct {
-    unsigned char chan; /* 0x00 channel number */
-    unsigned char b01;  /* 0x01 */
-    unsigned char b02;  /* 0x02 */
-    unsigned char b03;  /* 0x03 release level, 0 = off */
-    unsigned short h04; /* 0x04 */
-    unsigned short h06; /* 0x06 */
-    unsigned short h08; /* 0x08 */
-    unsigned short h0A; /* 0x0A */
-    void *rbadr;        /* 0x0C ring buffer address, to D_RBOR */
-    int rbsize;         /* 0x10 ring buffer size, to D_RBSR */
-} DmaEnv;
+#include <libdma.h>
 
 /* The member's .data in ROM order (= MAIN.MAP libdma.o .data 0xAC, which
  * names the three globals dch, sceDmaDebugMode and sceDmaCurrentEnv). */
@@ -52,8 +40,8 @@ int sceDmaGetChan(unsigned int a0)
     return 0;
 }
 
+/* kept local: libvu0's memclr takes unsigned char *, and this member passes its DmaEnv */
 extern void memclr(void *p, int n);
-extern int sceDmaPutEnv(DmaEnv *env);
 
 int sceDmaReset(int mode)
 {
@@ -148,16 +136,6 @@ int sceDmaPutStallAddr(unsigned int addr)
     }
     return old;
 }
-
-typedef struct DmaChan {
-    volatile int chcr; /* 0x00 */
-    int pad0[3];
-    int madr; /* 0x10 */
-    int pad1[3];
-    int qwc; /* 0x20 */
-    int pad2[3];
-    int tadr; /* 0x30 */
-} DmaChan;
 
 void sceDmaSend(DmaChan *ch, unsigned int addr)
 {

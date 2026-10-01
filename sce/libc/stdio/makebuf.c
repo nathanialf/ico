@@ -1,14 +1,13 @@
 /* libc.a member makebuf.o.  MAIN.MAP member spans tile this run exactly and
  * this member starts at an 8-aligned function start of the shipped ELF. */
 #include <reent.h>
+#include <libc_internal.h>
+#include <stdlib.h>
 
 struct D520 {
     char pad0[8];
     PObjBlk *blk; /* 0x8 */
 };
-
-extern void fiprintf();
-extern void abort(void);
 
 /* Only st_mode is reached here, at 0x04; the 0x70 size is what the ROM's
    0xB0 frame proves (locals 0x00..0x70, callee-saved homes above it).  The
@@ -30,11 +29,11 @@ struct stat {
 #define S_IFREG 0x8000
 #define BUFSIZ 1024
 
+/* kept local: reent.h leaves it out: its definition's argument types do not fit this member's
+   calls */
 extern int _fstat_r(Reent *ptr, int fd, struct stat *st);
-extern void *_malloc_r(Reent *ptr, unsigned int size);
+/* kept local: unistd.h declares it as `int isatty(void)` */
 extern int isatty(int fd);
-extern long __sseek(void *a0, int a1, int a2);
-extern void _cleanup_r(Reent *ptr);
 
 void __smakebuf(Fil *fp)
 {

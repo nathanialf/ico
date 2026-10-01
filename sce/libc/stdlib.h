@@ -17,14 +17,16 @@
 #ifndef SCE_LIBC_STDLIB_H
 #define SCE_LIBC_STDLIB_H
 
-double atof(const char *ascii);                                        /* definition in sce/ */
-int atoi(void *a0);                                                    /* definition in sce/ */
-void qsort(void *base, int n, int size, int (*cmp)());                 /* dominant spelling at 3 sites */
-int rand(void);                                                        /* definition in sce/ */
-double strtod(const char *s00, char **se);                             /* definition in sce/ */
-long long strtol(void *a0, int a1, int a2);                            /* definition in sce/ */
+struct _reent;
 
-extern int __mb_cur_max;                                               /* definition in sce/ (locale.c) */
+double atof(const char *ascii);                        /* definition in sce/ */
+int atoi(void *a0);                                    /* definition in sce/ */
+void qsort(void *base, int n, int size, int (*cmp)()); /* dominant spelling at 3 sites */
+int rand(void);                                        /* definition in sce/ */
+double strtod(const char *s00, char **se);             /* definition in sce/ */
+long long strtol(void *a0, int a1, int a2);            /* definition in sce/ */
+extern int __mb_cur_max;                               /* definition in sce/ (locale.c) */
+
 #define MB_CUR_MAX __mb_cur_max
 
 /* mprec.o's power-of-ten tables (newlib mprec.h names them tens, bigtens and
@@ -32,5 +34,14 @@ extern int __mb_cur_max;                                               /* defini
 extern const double __mprec_tens[];
 extern const double __mprec_bigtens[];
 extern const double __mprec_tinytens[];
+void abort(void);                                                    /* definition in sce/ */
+long long strtoul(void *a0, int a1, int a2);                         /* definition in sce/ */
+void *_malloc_r(void *reent_ptr, int bytes);                         /* definition in sce/ */
+void _free_r(int *self, void *mem);                                  /* definition in sce/ */
+void *_realloc_r(void *reent_ptr, void *oldmem, unsigned int bytes); /* definition in sce/ */
+void *_calloc_r(void *rptr, unsigned int n, unsigned int elem_size); /* definition in sce/ */
+
+unsigned long _strtoul_r(struct _reent *rptr, const char *nptr, char **endptr,
+                         int base); /* definition in sce/ */
 
 #endif /* SCE_LIBC_STDLIB_H */

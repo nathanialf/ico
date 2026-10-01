@@ -31,13 +31,19 @@ extern const _LIB_VERSION_TYPE _LIB_VERSION; /* definition in sce/ */
 #define _XOPEN_ __fdlibm_xopen
 #define _POSIX_ __fdlibm_posix
 
-float acosf(float x);                                                  /* definition in sce/ */
-float asinf(float x);                                                  /* definition in sce/ */
-float atan2f(float y, float x);                                        /* definition in sce/ */
-float atanf(float x);                                                  /* definition in sce/ */
-float fabsf(float a0);                                                 /* definition in sce/ */
-float floorf(float x);                                                 /* definition in sce/ */
-float fmodf(float x, float y);                                         /* definition in sce/ */
-float sinf(float x);                                                   /* definition in sce/ */
+float acosf(float x);                /* definition in sce/ */
+float asinf(float x);                /* definition in sce/ */
+float atan2f(float y, float x);      /* definition in sce/ */
+float atanf(float x);                /* definition in sce/ */
+float fabsf(float a0);               /* definition in sce/ */
+float floorf(float x);               /* definition in sce/ */
+float fmodf(float x, float y);       /* definition in sce/ */
+float sinf(float x);                 /* definition in sce/ */
+float copysignf(float a0, float a1); /* definition in sce/ */
+int isnanf(float x);                 /* definition in sce/ */
+int matherr(void *a0);               /* definition in sce/ */
+float scalbnf(float x, int n);       /* definition in sce/ */
+int isinf(long long x);              /* definition in sce/ */
+int isnan(long long x);              /* definition in sce/ */
 
 #endif /* SCE_LIBM_MATH_H */
