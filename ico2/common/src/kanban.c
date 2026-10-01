@@ -43,9 +43,9 @@ extern char *strtok(char *s, const char *sep);
 /* GifPacket.h's entry points, which this TU does not include; the sprite
    calls take z as an unsigned int here, a long long in the header */
 extern void gif_EndPacket(void);
-extern void gif_SetAlpha(long long a0, long long a1, long long a2);
-extern void gif_SetZTest(int a0);
-extern void gif_SetZWrite(int a0);
+extern void gif_SetAlpha(long long alpha, long long mode, long long fix);
+extern void gif_SetZTest(int on);
+extern void gif_SetZWrite(int on);
 extern void gif_SpriteSensitive(int *r, unsigned int z, int *uv, unsigned char *col, int prim);
 extern void gif_SpriteSensitiveOffset(int *r, unsigned int z, int *uv, unsigned char *col,
                                       int prim);

@@ -14,8 +14,8 @@
 extern char *deja;
 /* deja.c's `inline` functions, in the order of their definitions'
  * out-of-line copies at the end of the object (first-declaration order). */
-void actDeja(GObj *volatile a0);
-void actEnemySleep(GObj *volatile a0);
-void actDejaChk(GObj *volatile a0);
+void actDeja(GObj *volatile self);
+void actEnemySleep(GObj *volatile self);
+void actDejaChk(GObj *volatile self);
 
 #endif /* DEJA_H */

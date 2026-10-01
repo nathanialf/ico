@@ -14,11 +14,11 @@
  * out-of-line copies at the end of the object (first-declaration order). */
 GObj *CreateGObjByFuncSet(void (*before)(GObj *), void (*ai)(GObj *), void (*geo)(GObj *),
                           void (*afterGeo)(GObj *), void (*start)(), void (*dl)(GObj *), int key);
-GObj *CreateGObj(ObjKindEnt *kind, int id, int a2, int a3, int a4);
+GObj *CreateGObj(ObjKindEnt *p, int kind, int label, int key, int useStart);
 int GetGObjId(GObj *gobj);
 GObj *GetGObjP(int idx);
 int GetMaxGObj(void);
-GObj *InitCameraGObjs(int stage, int a1, int a2);
+GObj *InitCameraGObjs(int stage, int from, int to);
 void ResetGObjProc(void);
 void PrintGObjID(GObj *gobj);
 

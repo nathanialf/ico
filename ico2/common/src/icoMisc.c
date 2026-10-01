@@ -69,7 +69,7 @@ static int partitionUsedColor[4] = {64, 128, 255, 128}; /* derived name */
    passes gif_MakeSpriteNoTexture's z as a 32-bit unsigned int, where the
    header takes a long long */
 extern void gif_StartPacketPri(int pri);
-extern void gif_SetAlpha(long long a0, long long a1, long long a2);
+extern void gif_SetAlpha(long long alpha, long long mode, long long fix);
 extern void gif_EndPacket(void);
 extern void gif_MakeSpriteNoTexture(int x, int y, int w, int h, unsigned int z, unsigned char *col,
                                     int prim);

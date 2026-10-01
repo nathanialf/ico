@@ -30,14 +30,14 @@ typedef union {
 } GamesysObjInfoFlag;
 
 static void gamesysVersionLoad(int *self);
-static void gamesysVersionSave(int a0);
+static void gamesysVersionSave(int self);
 void gamesysObjInfoLoad(void *h);
 void gamesysObjInfoSave(void *h);
-static void gamesysGeneratorInfoLoad(int *a0);
+static void gamesysGeneratorInfoLoad(int *self);
 static void gamesysGeneratorInfoSave(int *self);
-static void gamesysHintInfoLoad(int *a0);
+static void gamesysHintInfoLoad(int *self);
 static void gamesysHintInfoSave(int *self);
-static void gamesysCharacterInfoLoad(int *a0);
+static void gamesysCharacterInfoLoad(int *self);
 static void gamesysCharacterInfoSave(int *self);
 
 /* .data: the build stamp written into the save area and compared against
@@ -287,14 +287,14 @@ static void gamesysGeneratorInfoSave(int *self)
     gamesysMemoryHandlerWrite(self, buf, size);
 }
 
-static void gamesysGeneratorInfoLoad(int *a0)
+static void gamesysGeneratorInfoLoad(int *self)
 {
     int *s1 = GetbufpGeneratorPacket();
     int s2 = GetsizeGeneratorPacket();
     if (s1 != 0) {
-        memcpy(s1, a0[0] + a0[1], s2);
+        memcpy(s1, self[0] + self[1], s2);
     }
-    a0[1] += s2;
+    self[1] += s2;
     return ReadGeneratorPacket();
 }
 
@@ -309,14 +309,14 @@ static void gamesysHintInfoSave(int *self)
     gamesysMemoryHandlerWrite(self, buf, size);
 }
 
-static void gamesysHintInfoLoad(int *a0)
+static void gamesysHintInfoLoad(int *self)
 {
     char *s1 = GetBuffHintSaveInfo();
     int s2 = GetSizeHintSaveInfo();
     if (s1 != 0) {
-        memcpy(s1, a0[0] + a0[1], s2);
+        memcpy(s1, self[0] + self[1], s2);
     }
-    a0[1] += s2;
+    self[1] += s2;
     return ReadHintSaveInfo();
 }
 
@@ -331,14 +331,14 @@ static void gamesysCharacterInfoSave(int *self)
     gamesysMemoryHandlerWrite(self, buf, size);
 }
 
-static void gamesysCharacterInfoLoad(int *a0)
+static void gamesysCharacterInfoLoad(int *self)
 {
     int *s1 = GetbufpCharacterPacket();
     int s2 = GetsizeCharacterPacket();
     if (s1 != 0) {
-        memcpy(s1, a0[0] + a0[1], s2);
+        memcpy(s1, self[0] + self[1], s2);
     }
-    a0[1] += s2;
+    self[1] += s2;
     return ReadCharacterPacket();
 }
 
@@ -380,27 +380,27 @@ void gamesysObjInfoStageInitPosSaveUnlock(void)
     } while (i >= 0);
 }
 
-GamesysObjInfo *gamesysObjInfoPosSetStage(GObj *self, int a1, int a2, int a3)
+GamesysObjInfo *gamesysObjInfoPosSetStage(GObj *self, int infoPos, int work1, int stage)
 {
-    GamesysObjInfo *p = gamesysObjInfoBaseSet(self, a3);
-    p->work[0] = a1;
-    p->work[1] = a2;
+    GamesysObjInfo *p = gamesysObjInfoBaseSet(self, stage);
+    p->work[0] = infoPos;
+    p->work[1] = work1;
     return p;
 }
 
-GamesysObjInfo *gamesysObjInfoUniqDataSet(GObj *a0)
+GamesysObjInfo *gamesysObjInfoUniqDataSet(GObj *self)
 {
     GamesysObjInfo *p;
     void (*fn)(int *, GObj *);
     ObjKindEnt *elem;
     int idx;
 
-    p = gamesysObjInfoBaseSet(a0, stage_no);
-    idx = a0->kind;
+    p = gamesysObjInfoBaseSet(self, stage_no);
+    idx = self->kind;
     elem = &objKindData[idx];
     fn = elem->uniqDataSet;
     if (fn != 0) {
-        fn(p->work, a0);
+        fn(p->work, self);
     }
     return p;
 }
@@ -495,9 +495,9 @@ int gamesysGetGirlStageIDAndPosition(int *pos)
     return 4;
 }
 
-void gamesysStageExitTimeSet(int a0)
+void gamesysStageExitTimeSet(int stage)
 {
-    gamesysStageExitTime[a0] = gamesysTimeCount;
+    gamesysStageExitTime[stage] = gamesysTimeCount;
 }
 
 void gamesysMemoryHandlerRead(int *self, void *dst, int size)
@@ -510,24 +510,24 @@ void gamesysMemoryHandlerRead(int *self, void *dst, int size)
 
 /* The same table gamesysMemoryLoad walks (both are called with gameSysMemoryFuncList):
    each entry is a load handler and a save handler. */
-void gamesysMemorySave(void **tbl, void *a1, void *a2)
+void gamesysMemorySave(void **tbl, void *mem, void *arg)
 {
     int buf[2];
-    buf[0] = a1;
+    buf[0] = mem;
     buf[1] = 0;
     while (tbl[1] != 0) {
-        ((void (*)(void *, void *))tbl[1])(buf, a2);
+        ((void (*)(void *, void *))tbl[1])(buf, arg);
         tbl += 2;
     }
 }
 
-void gamesysMemoryLoad(void **tbl, void *a1, void *a2)
+void gamesysMemoryLoad(void **tbl, void *mem, void *arg)
 {
     int buf[2];
-    buf[0] = a1;
+    buf[0] = mem;
     buf[1] = 0;
     while (tbl[0] != 0) {
-        ((void (*)(void *, void *))tbl[0])(buf, a2);
+        ((void (*)(void *, void *))tbl[0])(buf, arg);
         tbl += 2;
     }
     gflagOn(394);
@@ -548,15 +548,15 @@ static void gamesysVersionLoad(int *self)
     }
 }
 
-static void gamesysVersionSave(int a0)
+static void gamesysVersionSave(int self)
 {
     if (gamesysVersionDiff == 0) {
-        gamesysMemoryHandlerWrite((int *)a0, stamp_str, 18);
+        gamesysMemoryHandlerWrite((int *)self, stamp_str, 18);
         return;
     }
     {
         char buf[32];
         memset(buf, 0, 18);
-        gamesysMemoryHandlerWrite((int *)a0, buf, 18);
+        gamesysMemoryHandlerWrite((int *)self, buf, 18);
     }
 }

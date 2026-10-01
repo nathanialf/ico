@@ -52,7 +52,7 @@ static void debug_DrawBar(void);
 static void debug_MakeFont(void);
 static int debug_Mode(void);
 static void debug_PrintCharacter(char *str, int x, int y, int r, int g, int b, int sz);
-static void debug_PrintFont(int a0, int a1, int a2, char *a3);
+static void debug_PrintFont(int x, int y, int col, char *str);
 static int debug_selectFile(McMgr *mc);
 static void debug_makeBackImage(void);
 
@@ -621,9 +621,9 @@ typedef int Qw128 __attribute__((mode(TI)));
 extern int gif_CheckOpen(void);
 extern void gif_EndPacket(void);
 /* GifPacket.h's parameter list: debug_DrawBar passes its 64-bit alpha untruncated */
-extern void gif_SetAlpha(long long a0, long long a1, long long a2);
-extern void gif_SetZTest(int a0);
-extern void gif_SetZWrite(int a0);
+extern void gif_SetAlpha(long long alpha, long long mode, long long fix);
+extern void gif_SetZTest(int on);
+extern void gif_SetZWrite(int on);
 extern void gif_Sprite(int *r, unsigned int z, int *uv, unsigned char *col, int prim);
 extern void gif_Line(int *v0, int *v1, unsigned int z0, unsigned int z1, unsigned char *col,
                      int prim);
@@ -721,19 +721,19 @@ typedef struct {
 /* mcard.c's request entry points return iosMsgSend's result; this TU never
    reads it and declares them void, which its calls pin, so it does not
    include mcard.h */
-extern void iosMcChdirProduct(void *a0);
-extern void iosMcGetDir(void *a0);
-extern int iosMcSync(unsigned long *a0);
-extern void iosMcGetBlockSaveInfo(void *a0);
-extern void iosMcSaveIconBlock(void *a0);
-extern void iosMcSaveProductBlock(void *a0);
-extern void iosMcSaveGameBlock(void *a0, int a1);
-extern void iosMcLoadProductBlock(void *a0);
-extern void iosMcLoadGameBlock(void *a0, int a1);
-extern void iosMcDelete(void *a0);
-extern void iosMcGetInfo(void *a0);
-extern void iosMcFormat(void *a0);
-extern void iosMcUnformat(void *a0);
+extern void iosMcChdirProduct(void *req);
+extern void iosMcGetDir(void *req);
+extern int iosMcSync(unsigned long *req);
+extern void iosMcGetBlockSaveInfo(void *req);
+extern void iosMcSaveIconBlock(void *req);
+extern void iosMcSaveProductBlock(void *req);
+extern void iosMcSaveGameBlock(void *req, int arg);
+extern void iosMcLoadProductBlock(void *req);
+extern void iosMcLoadGameBlock(void *req, int arg);
+extern void iosMcDelete(void *req);
+extern void iosMcGetInfo(void *req);
+extern void iosMcFormat(void *req);
+extern void iosMcUnformat(void *req);
 extern void iosMcTest(void);
 
 /* the default save-file name "game." lives in .sdata as 6 bytes */
@@ -809,14 +809,14 @@ extern void DebugDisp1Collision(void *hit);
 
 /* Profiler bar table: 0x400 entries of 0x1C bytes; debugBarCount = live count.
    Callers pass (label, colour, __FILE__, __LINE__) -- see the call sites in
-   main.c and motionManager2.c, where a3 is literally the caller's line number.
+   main.c and motionManager2.c, where the fourth argument is literally the caller's line number.
    +0x14 samples the EE timer T0_COUNT at 0x10000000, volatile because it is a
    hardware counter. */
 
-inline void ChangeGirlControlMode(int a0)
+inline void ChangeGirlControlMode(int mode)
 {
-    if (a0 == 1) {
-        girlControlMode = a0;
+    if (mode == 1) {
+        girlControlMode = mode;
     }
 }
 
@@ -1091,10 +1091,10 @@ void debug_Init(void)
     debug_makeBackImage();
 }
 
-inline void debug_BeginTimer(int a0)
+inline void debug_BeginTimer(int mode)
 {
     *T1_COUNT = 0;
-    *T1_MODE = a0 | 0x80;
+    *T1_MODE = mode | 0x80;
 }
 
 inline float debug_GetTimerSec(void)
@@ -1368,14 +1368,14 @@ static void debug_PrintCharacter(char *str, int x, int y, int r, int g, int b, i
 /* debug_PrintFont's backdrop colour */
 static DbgCol fontBackCol = {0x00, 0x00, 0x00, 0x80}; /* derived name */
 
-static void debug_PrintFont(int a0, int a1, int a2, char *a3)
+static void debug_PrintFont(int x, int y, int col, char *str)
 {
     FR buf[2];
     int r;
 
-    buf[1].x = a0 - 0x142;
-    buf[1].y = a1 - 0x71;
-    r = strlen(a3);
+    buf[1].x = x - 0x142;
+    buf[1].y = y - 0x71;
+    r = strlen(str);
     buf[1].h = 9;
     buf[1].w = r * 0xC + 4;
     buf[0] = buf[1];
@@ -1396,8 +1396,8 @@ static void debug_PrintFont(int a0, int a1, int a2, char *a3)
         gif_SetAlpha(1, 2, 0x80);
         gif_EndPacket();
     }
-    debug_PrintCharacter(a3, a0, a1, (unsigned)a2 >> 24, ((unsigned)a2 >> 16) & 0xFF,
-                         ((unsigned)a2 >> 8) & 0xFF, 0x70);
+    debug_PrintCharacter(str, x, y, (unsigned)col >> 24, ((unsigned)col >> 16) & 0xFF,
+                         ((unsigned)col >> 8) & 0xFF, 0x70);
 }
 
 int charNumH = 10;
@@ -2162,9 +2162,9 @@ void debug_DispQW(void *p, int size)
     debug_StdPrintfDummy("\n");
 }
 
-inline void debug_DispMatrix(int *a0)
+inline void debug_DispMatrix(int *m)
 {
-    int *p = a0;
+    int *p = m;
     int i;
     for (i = 3; i >= 0; i--) {
         debug_DispQW(p, 0);
@@ -2234,7 +2234,7 @@ inline void debug_SetBarDummy(void) {}
 
 void debug_PrintfDummy(int x, int y, unsigned int col, const char *fmt, ...) {}
 
-void debug_PrintFontWindowDummy(int a0, int a1, ...) {}
+void debug_PrintFontWindowDummy(int col, int fmt, ...) {}
 
 void debug_StdPrintfDummy(const char *fmt, ...)
 {
@@ -2380,7 +2380,7 @@ inline void debug_DispVu1SReg(int no)
     }
 }
 
-inline int gsResetFunc(int a0)
+inline int gsResetFunc(int val)
 {
     gsb_Init(&db);
     return 1;
@@ -2567,9 +2567,9 @@ inline int _debug_SelectCsvWindow(char *title, int x, int y, int rows, int base,
     return 0;
 }
 
-static void getLineBuffer(int a0, int a1, int a2)
+static void getLineBuffer(int buf, int line, int str)
 {
-    sprintf(a0, "%02d:%s", a1, a2);
+    sprintf(buf, "%02d:%s", line, str);
 }
 
 inline int debug_SelectCsvWindowWithLine(char *title, int x, int y, int rows, const void *base, int stride,
@@ -2586,9 +2586,9 @@ inline int debug_SelectCsvWindowWithLineColor(char *title, int x, int y, int row
                                       getLineBuffer, colfunc);
 }
 
-static void getBuffer(int a0)
+static void getBuffer(int buf)
 {
-    sprintf(a0, "%s");
+    sprintf(buf, "%s");
 }
 
 int debug_SelectCsvWindow(char *title, int x, int y, int rows, const void *base, int stride, int off,
@@ -2819,9 +2819,9 @@ static int debug_selectFile(McMgr *mc)
     return r;
 }
 
-inline void *debug_saveNumFunc(int a0, void *a1)
+inline void *debug_saveNumFunc(int no, void *mc)
 {
-    if ((1 << a0) & ((McMgr *)a1)->mask) {
+    if ((1 << no) & ((McMgr *)mc)->mask) {
         return "SAVED";
     }
     return "NEW";
@@ -3196,10 +3196,10 @@ static int adpcmSelect = 0; /* derived name */
 
 static int adpcmHandle = -1; /* derived name */
 
-inline int debug_AdpcmTest(int a0)
+inline int debug_AdpcmTest(int first)
 {
     int r;
-    if (a0 != 0) {
+    if (first != 0) {
         adpcmHandle = -1;
     }
     r = debug_SelectCsvWindow("ADPCM LIST", 10, 0x3C, 10, adpcmFile, 0x40, 0, 0, 0x69, &adpcmSelect);
@@ -3638,9 +3638,9 @@ static int debug_CollisionTest(int reset)
     return r;
 }
 
-static inline int debug_FreeCamera(int a0)
+static inline int debug_FreeCamera(int first)
 {
-    if (a0 != 0) {
+    if (first != 0) {
         CameraSetMode(1);
     }
     CameraSetMode(1);
@@ -3794,12 +3794,12 @@ inline int debugSceOpen(const char *name, int mode)
     return sceFd = sceOpen(sceOpenPath, mode);
 }
 
-inline int debugSceClose(int a0)
+inline int debugSceClose(int fd)
 {
-    if (a0 == sceFd) {
+    if (fd == sceFd) {
         sceFd = -1;
     }
-    return sceClose(a0);
+    return sceClose(fd);
 }
 
 inline int debugSceCloseFdNew(void)

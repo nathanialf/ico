@@ -10,14 +10,14 @@
 
 #include "typedef.h"
 
-void actSt03tEneChk(GObj *volatile a0);
-void actSt03tGirlCamEndChk(GObj *volatile a0);
-void actSt03tGirlCamStartChk(GObj *volatile a0);
-void actSt03tSwitchLChk(GObj *volatile a0);
-void actSt03tSwitchLUpChk(GObj *volatile a0);
-void actSt03tSwitchRChk(GObj *volatile a0);
-void actSt03tSwitchRUpChk(GObj *volatile a0);
-void actSt03tWayOffChk(GObj *volatile a0);
-void actSt03tWayOnChk(GObj *volatile a0);
+void actSt03tEneChk(GObj *volatile self);
+void actSt03tGirlCamEndChk(GObj *volatile self);
+void actSt03tGirlCamStartChk(GObj *volatile self);
+void actSt03tSwitchLChk(GObj *volatile self);
+void actSt03tSwitchLUpChk(GObj *volatile self);
+void actSt03tSwitchRChk(GObj *volatile self);
+void actSt03tSwitchRUpChk(GObj *volatile self);
+void actSt03tWayOffChk(GObj *volatile self);
+void actSt03tWayOnChk(GObj *volatile self);
 
 #endif /* ST03T_H */

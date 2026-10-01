@@ -29,11 +29,11 @@ typedef struct SObjSimpleSetting { /* field names derived */
 extern SObjSimpleSetting InitialSObjSimpleSetting;
 /* sceneManager.c's `inline` functions, in the order of their definitions'
  * out-of-line copies at the end of the object (first-declaration order). */
-void ChangeStageStartInfo(int a0, int a1, int a2, int a3, int t0);
-struct GObj *CreateLayoutedGObj(int id, int a1, int a2, int a3, void *lay, int a5, int a6, int a7);
-void MoveNextStage_Set(float *a0, float *a1, int a2, int a3, int a4, int a5);
-void test_nextstage_firstwalk_set(int unused, int a, int b, int c);
-int GetStageStartInfo(struct GObj *a0, int a1, int a2, int *p, int *q, int *r);
+void ChangeStageStartInfo(int a0, int a1, int wait1, int wait2, int wait3);
+struct GObj *CreateLayoutedGObj(int id, int model, int accessary, int light, void *lay, int label, int key, int useStart);
+void MoveNextStage_Set(float *pos, float *rot, int wait1, int wait2, int wait3, int stage);
+void test_nextstage_firstwalk_set(int unused, int wait1, int wait2, int wait3);
+int GetStageStartInfo(struct GObj *self, int a1, int a2, int *wait1, int *wait2, int *wait3);
 void MoveNextStage_Clear(void);
 void InitStageLight(int stage);
 void InitSceneObjects(int stage);

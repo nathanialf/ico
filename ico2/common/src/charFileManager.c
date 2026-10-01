@@ -100,10 +100,10 @@ void ResetCharFileManager(void)
 }
 
 /* PObj.c has no header; the definition is (int, int, int) */
-extern PObjModel *InitPObj(void *buf, int a1, int id);
+extern PObjModel *InitPObj(void *buf, int name, int id);
 
 /* "Illegal Model ID number: %d (\"%s\")\n" / "ReadModelFile:Already loaded. (id:%d)%s\n" / "ReadModelFile:loaded::(id:%d)%s(addr:%p/size:%d)\n" / sprintf above belong to ReadModelFile. */
-void ReadModelFile(void *h, int a1, int size, int id, int a4, int a5, int part)
+void ReadModelFile(void *h, int name, int size, int id, int kind, int word08, int part)
 {
     char buf[256];
     char *p;
@@ -114,7 +114,7 @@ void ReadModelFile(void *h, int a1, int size, int id, int a4, int a5, int part)
     }
 
     if (id >= MAX_CHARS) {
-        sprintf(buf, "Illegal Model ID number: %d (\"%s\")\n", id, a1);
+        sprintf(buf, "Illegal Model ID number: %d (\"%s\")\n", id, name);
         /* please raise MAX_CHARS in commmon/include/charFileName.h */
         debug_StdPrintfDummy("commmon/include/charFileName.hのMAX_CHARSを増やしてください\n");
         debug_assertMessage(__FILE__, 130, buf);
@@ -122,7 +122,7 @@ void ReadModelFile(void *h, int a1, int size, int id, int a4, int a5, int part)
     }
 
     if (charFiles[id].pObj != 0) {
-        debug_StdPrintfDummy("ReadModelFile:Already loaded. (id:%d)%s\n", id, a1);
+        debug_StdPrintfDummy("ReadModelFile:Already loaded. (id:%d)%s\n", id, name);
         iosCdvdHandlerRead(h, 0, size);
         return;
     }
@@ -136,13 +136,13 @@ void ReadModelFile(void *h, int a1, int size, int id, int a4, int a5, int part)
     charFiles[id].state = part;
     p = iosMallocDebug(ios_partition_seki, size, __FILE__, 145);
     iosCdvdHandlerRead(h, p, size);
-    debug_StdPrintfDummy("ReadModelFile:loaded::(id:%d)%s(addr:%p/size:%d)\n", id, a1, p, size);
-    charFiles[id].pObj = InitPObj(p, a1, id);
+    debug_StdPrintfDummy("ReadModelFile:loaded::(id:%d)%s(addr:%p/size:%d)\n", id, name, p, size);
+    charFiles[id].pObj = InitPObj(p, name, id);
     charFiles[id].pObj->serial = objSerial++;
     iosFree(p);
 }
 
-void ReadVolumeModelFile(void *h, int a1, int size, int id, int a4, int a5, int a6)
+void ReadVolumeModelFile(void *h, int name, int size, int id, int kind, int word08, int seg)
 {
     char *buf;
 
@@ -150,7 +150,7 @@ void ReadVolumeModelFile(void *h, int a1, int size, int id, int a4, int a5, int 
     if (size == 0) {
         return;
     }
-    if (a6 == 0) {
+    if (seg == 0) {
         malloc_SetPartition(0);
     } else {
         malloc_SetPartition(1);
@@ -163,22 +163,22 @@ void ReadVolumeModelFile(void *h, int a1, int size, int id, int a4, int a5, int 
         __assert(__FILE__, 195, "0");
     }
     if (charFiles[id].pObj != 0) {
-        debug_StdPrintfDummy("ReadVolumeModelFile:Already loaded. (id:%d)%s\n", id, a1);
+        debug_StdPrintfDummy("ReadVolumeModelFile:Already loaded. (id:%d)%s\n", id, name);
         iosCdvdHandlerRead(h, 0, size);
         return;
     }
     iosCdvdHandlerRead(h, buf, size);
-    debug_StdPrintfDummy("ReadVolumeModelFile:loaded::(id:%d)%s(addr:%p/size:%d)\n", id, a1, buf,
+    debug_StdPrintfDummy("ReadVolumeModelFile:loaded::(id:%d)%s(addr:%p/size:%d)\n", id, name, buf,
                          size);
-    charFiles[id].pObj = InitPObj(buf, a1, id);
+    charFiles[id].pObj = InitPObj(buf, name, id);
     charFiles[id].pObj->serial = objSerial++;
     iosFree(buf);
 }
 
 /* PObj.c has no header; the definition is (ObjHdr *, char *, int) */
-extern PObjModel *AllocPObj(void *buf, int a1, int id);
+extern PObjModel *AllocPObj(void *buf, int name, int id);
 
-void ReadShadowModelFile(void *h, int a1, int size, int id, int a4, int a5, int a6)
+void ReadShadowModelFile(void *h, int name, int size, int id, int kind, int word08, int seg)
 {
     char *buf;
 
@@ -186,7 +186,7 @@ void ReadShadowModelFile(void *h, int a1, int size, int id, int a4, int a5, int 
     if (size == 0) {
         return;
     }
-    if (a6 == 0) {
+    if (seg == 0) {
         malloc_SetPartition(0);
     } else {
         malloc_SetPartition(1);
@@ -199,27 +199,27 @@ void ReadShadowModelFile(void *h, int a1, int size, int id, int a4, int a5, int 
     }
     buf = iosMallocDebug(ios_partition_seki, size, __FILE__, 239);
     if (charFiles[id].pShadow != 0) {
-        debug_StdPrintfDummy("ReadShadowModelFile:Already loaded. (id:%d)%s\n", id, a1);
+        debug_StdPrintfDummy("ReadShadowModelFile:Already loaded. (id:%d)%s\n", id, name);
         iosCdvdHandlerRead(h, 0, size);
         return;
     }
     iosCdvdHandlerRead(h, buf, size);
-    debug_StdPrintfDummy("ReadShadowModelFile:loaded::(id:%d)%s(addr:%p/size:%d)\n", id, a1, buf,
+    debug_StdPrintfDummy("ReadShadowModelFile:loaded::(id:%d)%s(addr:%p/size:%d)\n", id, name, buf,
                          size);
-    charFiles[id].pShadow = AllocPObj(buf, a1, id);
+    charFiles[id].pShadow = AllocPObj(buf, name, id);
     charFiles[id].pShadow->serial = objSerial++;
     shadow_MakeObjectData(charFiles[id].pShadow);
     iosFree(buf);
 }
 
-void ReadTextureFile(void *h, char *name, int size, int a3, int a4, int a5, int a6)
+void ReadTextureFile(void *h, char *name, int size, int id, int kind, int word08, int seg)
 {
     int rv = 0;
     char *buf;
     int flag = 0;
 
     systemStatus[8]++;
-    if (a6 == 0) {
+    if (seg == 0) {
         malloc_SetPartition(0);
     } else {
         malloc_SetPartition(1);
@@ -231,9 +231,9 @@ void ReadTextureFile(void *h, char *name, int size, int a3, int a4, int a5, int 
         return;
     }
     iosCdvdHandlerRead(h, buf, size);
-    if (a4 == 55 && a6 == 1 && texFile[a3].cameraMove != 0) {
-        if (texFile[a3].cameraMove != NonLinearCameraMove) {
-            flag = a6;
+    if (kind == 55 && seg == 1 && texFile[id].cameraMove != 0) {
+        if (texFile[id].cameraMove != NonLinearCameraMove) {
+            flag = seg;
         }
     }
     if (flag == 0) {
@@ -255,7 +255,7 @@ static inline int SumBytes(unsigned char *p, int n) /* derived name */
     return sum;
 }
 
-void ReadSkeltonFile(void *h, char *name, int size, int a3, int a4, int a5, int a6)
+void ReadSkeltonFile(void *h, char *name, int size, int id, int kind, int word08, int seg)
 {
     char *p = 0;
     int sum = 0;
@@ -265,7 +265,7 @@ void ReadSkeltonFile(void *h, char *name, int size, int a3, int a4, int a5, int 
     if (size == 0) {
         return;
     }
-    if (a6 == 0) {
+    if (seg == 0) {
         malloc_SetPartition(0);
     } else {
         malloc_SetPartition(1);
@@ -305,7 +305,7 @@ void ReadSkeltonFile(void *h, char *name, int size, int a3, int a4, int a5, int 
     }
 }
 
-void ReadCollisionFile(void *h, char *name, int size, int a3, int a4, int a5, int a6)
+void ReadCollisionFile(void *h, char *name, int size, int id, int kind, int word08, int seg)
 {
     int i;
     int j;
@@ -317,7 +317,7 @@ void ReadCollisionFile(void *h, char *name, int size, int a3, int a4, int a5, in
     if (size == 0) {
         return;
     }
-    if (a6 == 0) {
+    if (seg == 0) {
         malloc_SetPartition(0);
     } else {
         malloc_SetPartition(1);
@@ -375,7 +375,7 @@ void ReadCollisionFile(void *h, char *name, int size, int a3, int a4, int a5, in
     __assert(__FILE__, 466, "FALSE");
 }
 
-void ReadStageAnimationFile(void *h, char *name, int size, int a3, int a4, int a5, int a6)
+void ReadStageAnimationFile(void *h, char *name, int size, int id, int kind, int word08, int seg)
 {
     char *buf;
 
@@ -383,7 +383,7 @@ void ReadStageAnimationFile(void *h, char *name, int size, int a3, int a4, int a
     if (size == 0) {
         return;
     }
-    if (a6 == 0) {
+    if (seg == 0) {
         malloc_SetPartition(0);
         debug_assert(__FILE__, 487);
         __assert(__FILE__, 487, "0");
@@ -392,7 +392,7 @@ void ReadStageAnimationFile(void *h, char *name, int size, int a3, int a4, int a
     }
     buf = mallocseki(size);
     iosCdvdHandlerRead(h, buf, size);
-    debug_StdPrintfDummy("ReadStageAnimationFile:loaded::[%d]%s (size:%d)\n", a3, name, size);
+    debug_StdPrintfDummy("ReadStageAnimationFile:loaded::[%d]%s (size:%d)\n", id, name, size);
     stage_ApplyData(name, buf);
 }
 
@@ -405,7 +405,7 @@ typedef struct {
 /* motionOrientManager.h carries MotionDef and declares no motionKind */
 extern MotEnt motionKind[];
 
-void ReadMotionFile(void *h, int a1, int size, int id, int a4, int a5, int a6)
+void ReadMotionFile(void *h, int name, int size, int id, int kind, int word08, int seg)
 {
     systemStatus[8]++;
     if (size == 0) {
@@ -435,22 +435,22 @@ void ReadMotionFile(void *h, int a1, int size, int id, int a4, int a5, int a6)
         break;
     }
     iosCdvdHandlerRead(h, motionTable[id], size);
-    InitMotionFile(motionTable[id], a1);
-    AddMotionMemorySize(size, a6);
-    debug_StdPrintfDummy("ReadMotionFile:[%d]%s (size:%d): \033[33m%1.2fMB\033[m\n", id, a1, size,
-                         (float)GetMotionMemorySize(a6) / 1024.0f / 1024.0f);
+    InitMotionFile(motionTable[id], name);
+    AddMotionMemorySize(size, seg);
+    debug_StdPrintfDummy("ReadMotionFile:[%d]%s (size:%d): \033[33m%1.2fMB\033[m\n", id, name, size,
+                         (float)GetMotionMemorySize(seg) / 1024.0f / 1024.0f);
 }
 
-void ReadParticleEffectFile(void *h, int a1, int size, int a3)
+void ReadParticleEffectFile(void *h, int name, int size, int id)
 {
     int *buf = iosMallocDebug(ios_partition_sugipon, size, __FILE__, 552);
     systemStatus[8]++;
     iosCdvdHandlerRead(h, buf, size);
-    SetParticleEffectPackage(a3, buf, size);
+    SetParticleEffectPackage(id, buf, size);
     iosFree(buf);
 }
 
-void ReadSoundBdFile(void *h, int a1, int size, int a3, int kind, int a5, int a6)
+void ReadSoundBdFile(void *h, int name, int size, int id, int kind, int word08, int seg)
 {
     char *buf;
 
@@ -464,19 +464,19 @@ void ReadSoundBdFile(void *h, int a1, int size, int a3, int kind, int a5, int a6
     case 11: {
         int ok = 1;
 
-        if (seFile[a3].loaded == 1) {
-            a6 = 2;
+        if (seFile[id].loaded == 1) {
+            seg = 2;
             if (soundSeSemiCommonLoadChk() == 1) {
                 ok = 0;
             }
         }
         if (ok != 0) {
-            soundBDDataSet(buf, a3, 11, 0, a6, size);
+            soundBDDataSet(buf, id, 11, 0, seg, size);
         }
     } break;
     case 10:
         if (sndInitBgmCancelFlag == 0) {
-            soundBDDataSet(buf, a3, 10, 1, a6, size);
+            soundBDDataSet(buf, id, 10, 1, seg, size);
         }
         break;
     default:
@@ -484,7 +484,7 @@ void ReadSoundBdFile(void *h, int a1, int size, int a3, int kind, int a5, int a6
         __assert(__FILE__, 606, "0");
     }
     iosFree(buf);
-    debug_StdPrintfDummy("ReadSoundBdFile:loaded::[%d]%s  (size:%d)\n", a3, a1, size);
+    debug_StdPrintfDummy("ReadSoundBdFile:loaded::[%d]%s  (size:%d)\n", id, name, size);
 }
 
 typedef struct {
@@ -496,7 +496,7 @@ typedef struct {
    load */
 static char *semiCommonHdBuf = 0; /* derived name */
 
-void ReadSoundHdFile(void *h, int a1, int size, int a3, int kind, int a5, int a6)
+void ReadSoundHdFile(void *h, int name, int size, int id, int kind, int word08, int seg)
 {
     /* the sound bank/mode pair the switch fills in and soundHDDataSet reads
        back */
@@ -521,14 +521,14 @@ void ReadSoundHdFile(void *h, int a1, int size, int a3, int kind, int a5, int a6
         __assert(__FILE__, 642, "0");
     }
     if (info.bank == 0) {
-        if (seFile[a3].loaded != 1) {
-            if (a6 == 0) {
+        if (seFile[id].loaded != 1) {
+            if (seg == 0) {
                 buf = iosMallocDebug(ios_partition_smotion, size, __FILE__, 650);
             } else {
                 buf = iosMallocDebug(ios_partition_sound, size, __FILE__, 652);
             }
         } else {
-            a6 = 2;
+            seg = 2;
             if (soundSeSemiCommonLoadChk() == 1) {
                 buf = 0;
             } else {
@@ -544,9 +544,9 @@ void ReadSoundHdFile(void *h, int a1, int size, int a3, int kind, int a5, int a6
     }
     iosCdvdHandlerRead(h, buf, size);
     if (buf != 0) {
-        soundHDDataSet(buf, a3, kind, info.mode, a6);
+        soundHDDataSet(buf, id, kind, info.mode, seg);
     }
-    debug_StdPrintfDummy("ReadSoundHdFile:loaded::[%d]%s  (size:%d)\n", a3, a1, size);
+    debug_StdPrintfDummy("ReadSoundHdFile:loaded::[%d]%s  (size:%d)\n", id, name, size);
 }
 
 typedef struct {
@@ -558,7 +558,7 @@ typedef struct {
    ReadShockFile; they are plain `inline`, so their out-of-line bodies come
    out at the end of the object. */
 
-inline void ReadSoundSqFile(void *h, int a1, int size, int a3, int kind, int a5, int a6)
+inline void ReadSoundSqFile(void *h, int name, int size, int id, int kind, int word08, int seg)
 {
     /* the sound bank/mode pair the switch fills in and soundSQDataSet reads
        back */
@@ -583,7 +583,7 @@ inline void ReadSoundSqFile(void *h, int a1, int size, int a3, int kind, int a5,
         __assert(__FILE__, 709, "0");
     }
     if (info.bank == 0) {
-        if (a6 == 0) {
+        if (seg == 0) {
             buf = iosMallocDebug(ios_partition_smotion, size, __FILE__, 715);
         } else {
             buf = iosMallocDebug(ios_partition_sound, size, __FILE__, 717);
@@ -593,12 +593,12 @@ inline void ReadSoundSqFile(void *h, int a1, int size, int a3, int kind, int a5,
     }
     iosCdvdHandlerRead(h, buf, size);
     if (buf != 0) {
-        soundSQDataSet(buf, a3, kind, info.mode, a6);
+        soundSQDataSet(buf, id, kind, info.mode, seg);
     }
-    debug_StdPrintfDummy("ReadSoundSqFile:loaded::[%d]%s  (size:%d)\n", a3, a1, size);
+    debug_StdPrintfDummy("ReadSoundSqFile:loaded::[%d]%s  (size:%d)\n", id, name, size);
 }
 
-inline void ReadSoundAdpcmFile(void *h, int a1, int size, int a3, int a4, int a5, int a6)
+inline void ReadSoundAdpcmFile(void *h, int name, int size, int id, int kind, int word08, int seg)
 {
     int key;
     int hi;
@@ -608,13 +608,13 @@ inline void ReadSoundAdpcmFile(void *h, int a1, int size, int a3, int a4, int a5
     systemStatus[8]++;
     if (size > 0x5C000)
         size = 0x5C000;
-    hi = a4 << 16;
-    key = (a3 & 0xFFFF) | hi;
+    hi = kind << 16;
+    key = (id & 0xFFFF) | hi;
     if (soundDataAreaSearch(&key) == 0) {
         p = iosMallocDebug(ios_partition_smotion, size, __FILE__, 757);
         iosCdvdHandlerRead(h, p, size);
-        debug_StdPrintfDummy("ReadAdpcmFile:loaded::[%d]%s  (size:%d)\n", a3, a1, size);
-        q = adpcmDataSet(p, a3, a4, a6, size, AdpcmIopBuffAlloc(), 0);
+        debug_StdPrintfDummy("ReadAdpcmFile:loaded::[%d]%s  (size:%d)\n", id, name, size);
+        q = adpcmDataSet(p, id, kind, seg, size, AdpcmIopBuffAlloc(), 0);
         iosFree(p);
         AdpcmPlay(((AdpcmObj *)q)->stream);
     } else {
@@ -622,12 +622,12 @@ inline void ReadSoundAdpcmFile(void *h, int a1, int size, int a3, int a4, int a5
     }
 }
 
-void ReadShockFile(void *h, int a1, int size, int a3, int a4, int a5, int a6)
+void ReadShockFile(void *h, int name, int size, int id, int kind, int word08, int seg)
 {
     char *p;
 
     systemStatus[8]++;
-    if (a6 == 0) {
+    if (seg == 0) {
         malloc_SetPartition(0);
         if (size == 0) {
             p = 0;
@@ -648,10 +648,10 @@ void ReadShockFile(void *h, int a1, int size, int a3, int a4, int a5, int a6)
         }
         ShockVoiceSetStage = p;
     }
-    debug_StdPrintfDummy("ReadShockData:loaded::[%d]%s  (size:%d)\n", a3, a1, size);
+    debug_StdPrintfDummy("ReadShockData:loaded::[%d]%s  (size:%d)\n", id, name, size);
 }
 
-void ReadCamerasetFile(void *h, int a1, int size, int a3)
+void ReadCamerasetFile(void *h, int name, int size, int id)
 {
     char *buf;
 
@@ -664,11 +664,11 @@ void ReadCamerasetFile(void *h, int a1, int size, int a3)
     }
     systemStatus[8]++;
     iosCdvdHandlerRead(h, buf, size);
-    AddPluralCameraSet(a3, buf);
+    AddPluralCameraSet(id, buf);
     iosFree(buf);
 }
 
-void ReadEndCheckFile(void *h, int a1, int size)
+void ReadEndCheckFile(void *h, int name, int size)
 {
     char *buf = iosMallocDebug(ios_partition_oomori, size, __FILE__, 854);
     systemStatus[8]++;
@@ -676,7 +676,7 @@ void ReadEndCheckFile(void *h, int a1, int size)
     iosFree(buf);
 }
 
-void ReadStageSettingFile(void *h, int a1, int size)
+void ReadStageSettingFile(void *h, int name, int size)
 {
     char *buf;
 

@@ -16,7 +16,7 @@ void debugExceptionInit(void *workBuf);
 void debugIOPExceptionInit(void);
 void debug_assertMessage(char *file, int line, char *mes);
 void debug_assert(char *file, int line);
-void RestoreNormalDrawEnvironment(sceGsDBuff *db, int a1, int a2);
+void RestoreNormalDrawEnvironment(sceGsDBuff *db, int id, int field);
 void SetDrawEnvironment(int mode);
 
 #endif /* DEBUG_EXCEPTION_H */

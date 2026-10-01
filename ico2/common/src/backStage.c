@@ -53,7 +53,7 @@ static float nestPos[4]; /* derived name */
 static int wayKidnap; /* derived name */
 
 /* as in generator.h, which this TU does not include */
-extern void SetInfoSpKidnapGenerator(short *a0);
+extern void SetInfoSpKidnapGenerator(short *info);
 /* this TU passes an int *; generator.h declares a short * */
 extern void SetInfoSpKidnapEnemy(int *work);
 
@@ -398,30 +398,30 @@ void backStageProcessInStage(float arg)
     }
 }
 
-void backStageSave(void *a0)
+void backStageSave(void *h)
 {
-    gamesysMemoryHandlerWrite(a0, &backStageGirlTargetEnemyGop, 4);
-    gamesysMemoryHandlerWrite(a0, &kidnapState, 4);
-    gamesysMemoryHandlerWrite(a0, &kidnapTime, 4);
-    gamesysMemoryHandlerWrite(a0, &carryTime, 4);
-    gamesysMemoryHandlerWrite(a0, &kidnapObjIdx, 4);
-    gamesysMemoryHandlerWrite(a0, &enemyDist, 4);
-    gamesysMemoryHandlerWrite(a0, &nestDist, 4);
-    gamesysMemoryHandlerWrite(a0, &enemySec, 4);
-    gamesysMemoryHandlerWrite(a0, &nestSec, 4);
+    gamesysMemoryHandlerWrite(h, &backStageGirlTargetEnemyGop, 4);
+    gamesysMemoryHandlerWrite(h, &kidnapState, 4);
+    gamesysMemoryHandlerWrite(h, &kidnapTime, 4);
+    gamesysMemoryHandlerWrite(h, &carryTime, 4);
+    gamesysMemoryHandlerWrite(h, &kidnapObjIdx, 4);
+    gamesysMemoryHandlerWrite(h, &enemyDist, 4);
+    gamesysMemoryHandlerWrite(h, &nestDist, 4);
+    gamesysMemoryHandlerWrite(h, &enemySec, 4);
+    gamesysMemoryHandlerWrite(h, &nestSec, 4);
 }
 
-void backStageLoad(void *a0)
+void backStageLoad(void *h)
 {
-    gamesysMemoryHandlerRead(a0, &backStageGirlTargetEnemyGop, 4);
-    gamesysMemoryHandlerRead(a0, &kidnapState, 4);
-    gamesysMemoryHandlerRead(a0, &kidnapTime, 4);
-    gamesysMemoryHandlerRead(a0, &carryTime, 4);
-    gamesysMemoryHandlerRead(a0, &kidnapObjIdx, 4);
-    gamesysMemoryHandlerRead(a0, &enemyDist, 4);
-    gamesysMemoryHandlerRead(a0, &nestDist, 4);
-    gamesysMemoryHandlerRead(a0, &enemySec, 4);
-    gamesysMemoryHandlerRead(a0, &nestSec, 4);
+    gamesysMemoryHandlerRead(h, &backStageGirlTargetEnemyGop, 4);
+    gamesysMemoryHandlerRead(h, &kidnapState, 4);
+    gamesysMemoryHandlerRead(h, &kidnapTime, 4);
+    gamesysMemoryHandlerRead(h, &carryTime, 4);
+    gamesysMemoryHandlerRead(h, &kidnapObjIdx, 4);
+    gamesysMemoryHandlerRead(h, &enemyDist, 4);
+    gamesysMemoryHandlerRead(h, &nestDist, 4);
+    gamesysMemoryHandlerRead(h, &enemySec, 4);
+    gamesysMemoryHandlerRead(h, &nestSec, 4);
 }
 
 inline void backStageTsuresariReturn(void) {}

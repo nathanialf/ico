@@ -130,12 +130,12 @@ inline void OpenVif1DirectPacket(void *packet)
     vif1PacketSide = (vif1PacketSide + 1) & 1;
 }
 
-void CloseVif1DirectPacket(int a0)
+void CloseVif1DirectPacket(int pkt)
 {
-    sceVif1PkCloseGifTag(a0);
-    sceVif1PkCloseDirectCode(a0);
-    sceVif1PkEnd(a0, 0);
-    sceVif1PkTerminate(a0);
+    sceVif1PkCloseGifTag(pkt);
+    sceVif1PkCloseDirectCode(pkt);
+    sceVif1PkEnd(pkt, 0);
+    sceVif1PkTerminate(pkt);
 }
 
 void SendVif1DirectPacket(int *self)
@@ -147,14 +147,14 @@ void SendVif1DirectPacket(int *self)
     sceDmaSend(p, (self[0x4 / 4] & 0x3FF0) | 0x80000000);
 }
 
-void RestoreNormalDrawEnvironment(sceGsDBuff *db, int a1, int a2)
+void RestoreNormalDrawEnvironment(sceGsDBuff *db, int id, int field)
 {
     sceGsDBuff *u = (sceGsDBuff *)((unsigned int)db | 0x20000000);
-    if (a1 != 0) {
-        sceGsSetHalfOffset(&u->draw1, 0x800, 0x800, (short)a2);
+    if (id != 0) {
+        sceGsSetHalfOffset(&u->draw1, 0x800, 0x800, (short)field);
         sceGsPutDrawEnv(u->giftag1);
     } else {
-        sceGsSetHalfOffset(&u->draw0, 0x800, 0x800, (short)a2);
+        sceGsSetHalfOffset(&u->draw0, 0x800, 0x800, (short)field);
         sceGsPutDrawEnv(u->giftag0);
     }
 }

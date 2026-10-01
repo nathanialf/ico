@@ -397,15 +397,15 @@ static void texture_fading(LtProp *p)
    the sprites' z as a 32-bit unsigned int, where the header takes a long
    long */
 extern void gif_StartPacketPri(int pri);
-extern void gif_SetZTest(int a0);
-extern void gif_SetZWrite(int a0);
-extern void gif_SetAlpha(long long a0, long long a1, long long a2);
+extern void gif_SetZTest(int on);
+extern void gif_SetZWrite(int on);
+extern void gif_SetAlpha(long long alpha, long long mode, long long fix);
 extern void gif_SpriteSensitive(int *r, unsigned int z, int *uv, unsigned char *col, int prim);
 extern void gif_EndPacket(void);
 extern void gif_SpriteSensitiveOffset(int *r, unsigned int z, int *uv, unsigned char *col,
                                       int prim);
 extern void gif_PointOffset(int *v, long long z, unsigned char *col, int prim);
-extern void gif_SetGsReg(long long a0, long long a1);
+extern void gif_SetGsReg(long long reg, long long data);
 
 /* the pulsing highlight sprite, inlined three times by display_texture */
 static inline void lt_glow_sprite(SprRect *box, SprRect *ofs, int r, int g, int b, float t, int dx,

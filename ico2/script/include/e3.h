@@ -17,27 +17,27 @@ extern char *sekizo_e3;
 extern int sekizo_e3_vol;
 /* e3.c's `inline` functions, in the order of their definitions'
  * out-of-line copies at the end of the object (first-declaration order). */
-inline void actE3CapsuleDemoEnd(GObj *volatile a0);
-inline void actE3DoorMain(GObj *volatile a0);
-inline void actE3DoorSwitch(GObj *volatile a0);
-inline void actE3DoorUp(GObj *volatile a0);
-inline void actE3St13cIntroChk(GObj *volatile a0);
-inline void actE3CageFallReadyChk(GObj *volatile a0);
-inline void actE3St01bEneChk(GObj *volatile a0);
-void actE3St09aGirlWay(GObj *volatile a0);
-inline void actE3St09aBrgMain(GObj *volatile a0);
-void actE3CageFallChk(GObj *volatile a0);
-void actE3CageFallDemo(GObj *volatile a0);
-void actE3CageFallEffect(GObj *volatile a0);
-void actE3CapsuleChk(GObj *volatile a0);
-void actE3CapsuleDemo(GObj *volatile a0);
-void actE3GateChk(GObj *volatile a0);
-void actE3GateDemo(GObj *volatile a0);
-void actE3GateJimaku(GObj *volatile a0);
-void actE3Inst1Chk(GObj *volatile a0);
-void actE3St09aSekizoChk(GObj *volatile a0);
-void actE3TitleChk(GObj *volatile a0);
-void actE3TitleFrameChk(GObj *volatile a0);
+inline void actE3CapsuleDemoEnd(GObj *volatile self);
+inline void actE3DoorMain(GObj *volatile self);
+inline void actE3DoorSwitch(GObj *volatile self);
+inline void actE3DoorUp(GObj *volatile self);
+inline void actE3St13cIntroChk(GObj *volatile self);
+inline void actE3CageFallReadyChk(GObj *volatile self);
+inline void actE3St01bEneChk(GObj *volatile self);
+void actE3St09aGirlWay(GObj *volatile self);
+inline void actE3St09aBrgMain(GObj *volatile self);
+void actE3CageFallChk(GObj *volatile self);
+void actE3CageFallDemo(GObj *volatile self);
+void actE3CageFallEffect(GObj *volatile self);
+void actE3CapsuleChk(GObj *volatile self);
+void actE3CapsuleDemo(GObj *volatile self);
+void actE3GateChk(GObj *volatile self);
+void actE3GateDemo(GObj *volatile self);
+void actE3GateJimaku(GObj *volatile self);
+void actE3Inst1Chk(GObj *volatile self);
+void actE3St09aSekizoChk(GObj *volatile self);
+void actE3TitleChk(GObj *volatile self);
+void actE3TitleFrameChk(GObj *volatile self);
 
 #include "jimaku.h"
 

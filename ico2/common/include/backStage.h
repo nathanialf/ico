@@ -34,7 +34,7 @@ typedef struct GamesysObjInfo { /* field names derived */
     int work[4];
 } GamesysObjInfo;
 
-void backStageSave(void *a0);
-void backStageLoad(void *a0);
+void backStageSave(void *h);
+void backStageLoad(void *h);
 
 #endif /* BACKSTAGE_H */

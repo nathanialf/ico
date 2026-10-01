@@ -22,15 +22,15 @@ static ActMail after_mes[2] = {{430}, {429}}; /* derived name */
    is spinning for. */
 static int demoEnd;
 
-void actDejaDemo(GObj *volatile a0);
-void actDejaAfterChk(GObj *volatile a0);
+void actDejaDemo(GObj *volatile self);
+void actDejaAfterChk(GObj *volatile self);
 
 /* .sdata: the scene's stream handle */
 char *deja = 0;
 
 static const Vec16 afterChkPos = {{-1000.0f, 0.0f, -2200.0f, 1.0f}}; /* derived name */
 
-inline void actEnemySleep(GObj *volatile a0)
+inline void actEnemySleep(GObj *volatile self)
 {
     while (1) {
         scpSleepEnemyAll();
@@ -38,10 +38,10 @@ inline void actEnemySleep(GObj *volatile a0)
     }
 }
 
-inline void actDeja(GObj *volatile a0)
+inline void actDeja(GObj *volatile self)
 {
-    GObj *x = a0;
-    Act *self = actInitialize(a0);
+    GObj *x = self;
+    Act *act = actInitialize(self);
     _ACTWait(1);
 
     if (gflagChk(6) == 0) {
@@ -50,13 +50,13 @@ inline void actDeja(GObj *volatile a0)
         scpFadeOut(255.0f, 0, 0, 0);
         stage_SetAnimation(72, 0, 0);
         _mes[0].func = actDejaChk;
-        self->mail = _mes;
-        ACTSendMailCorrect(a0, 430);
+        act->mail = _mes;
+        ACTSendMailCorrect(self, 430);
         _ACTWait(0);
     }
 }
 
-void actDejaChk(GObj *volatile a0)
+void actDejaChk(GObj *volatile self)
 {
     gflagOn(6);
     scpSearchGobj(2548)->active = 0;
@@ -84,7 +84,7 @@ void actDejaChk(GObj *volatile a0)
     RequestStageChange(1, boyGObj, 0, 0.025f, 1.0f);
 }
 
-void actDejaDemo(GObj *volatile a0)
+void actDejaDemo(GObj *volatile self)
 {
     stgmgrNextStagePreLoadForceStageSet(exitData[stageData[stage_no].ent[0]].nextStage);
     scpPlayStart(boyGObj);
@@ -165,10 +165,10 @@ void actDejaDemo(GObj *volatile a0)
     demoEnd = 1;
 }
 
-void actDejaAfter(GObj *volatile a0)
+void actDejaAfter(GObj *volatile self)
 {
-    GObj *x = a0;
-    Act *self = actInitialize(a0);
+    GObj *x = self;
+    Act *act = actInitialize(self);
     _ACTWait(1);
 
     ScpCallCameraOff();
@@ -180,8 +180,8 @@ void actDejaAfter(GObj *volatile a0)
         stage_SetAnimation(36, 0, 0);
         stage_SetAnimation(38, 0, 0);
         after_mes[0].func = actDejaAfterChk;
-        self->mail = after_mes;
-        ACTSendMailCorrect(a0, 430);
+        act->mail = after_mes;
+        ACTSendMailCorrect(self, 430);
         _ACTWait(0);
     } else {
         stage_SetAnimation(32, 0, -1);
@@ -193,7 +193,7 @@ void actDejaAfter(GObj *volatile a0)
     }
 }
 
-void actDejaAfterChk(GObj *volatile a0)
+void actDejaAfterChk(GObj *volatile self)
 {
     Vec16 target;
     Vec16 dir;

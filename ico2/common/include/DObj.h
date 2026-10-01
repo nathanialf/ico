@@ -21,8 +21,8 @@ typedef struct {
 /* DObj.c's `inline` functions, in the order of their definitions'
  * out-of-line copies at the end of the object (first-declaration order). */
 void FreeDObj(void);
-void LinkParentOfDObj(void *a0, PackedLL_19CAF0 *a1);
-void UnlinkParentOfDObj(void *a0);
+void LinkParentOfDObj(void *obj, PackedLL_19CAF0 *link);
+void UnlinkParentOfDObj(void *obj);
 struct Sub15C *CSVSYSTEM_InitDObj(int id, SObjSimpleSetting *lay);
 
 #endif /* DOBJ_H */

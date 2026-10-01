@@ -10,8 +10,8 @@
 
 /* charFileManager.c's `inline` functions, in the order of their definitions'
  * out-of-line copies at the end of the object (first-declaration order). */
-void ReadSoundSqFile(void *h, int a1, int size, int a3, int kind, int a5, int a6);
-void ReadSoundAdpcmFile(void *h, int a1, int size, int a3, int a4, int a5, int a6);
+void ReadSoundSqFile(void *h, int name, int size, int id, int kind, int word08, int seg);
+void ReadSoundAdpcmFile(void *h, int name, int size, int id, int kind, int word08, int seg);
 void InitCharFileManager(void);
 void ResetCharFileManager(void);
 

@@ -34,14 +34,14 @@ static int opDemoMode = 0; /* derived name */
 
 static int opDemoNextMode = 0; /* derived name */
 
-void actTitleCamera2(GObj *volatile a0)
+void actTitleCamera2(GObj *volatile self)
 {
-    GObj *x = a0;
+    GObj *x = self;
 
     enable_game_pause = 1;
 
     opTitleLogoMode = 0;
-    actInitialize(a0);
+    actInitialize(self);
     _ACTWait(1);
 
     while (1) {
@@ -82,16 +82,16 @@ void actTitleCamera2(GObj *volatile a0)
     }
 }
 
-void actTitleReadTimeDemo0(GObj *volatile a0);
-void actTitleShortCut(GObj *volatile a0);
+void actTitleReadTimeDemo0(GObj *volatile self);
+void actTitleShortCut(GObj *volatile self);
 
 /* The timer countdown is a GNU nested function declared inline at the head
    of the body: it reads and writes the parent's `t` and is inlined at both of
    its calls.  The tail after each demo (the thread priority and the fade out)
    is written out in case 0 and again in case 1. */
-void actOpDemo01(GObj *volatile a0)
+void actOpDemo01(GObj *volatile self)
 {
-    GObj *x = a0;
+    GObj *x = self;
     GProc *th;
     int t = (60 - systemStatus[0] * 10) / systemStatus[1] * 10;
 
@@ -109,7 +109,7 @@ void actOpDemo01(GObj *volatile a0)
         return 0;
     }
 
-    actInitialize(a0);
+    actInitialize(self);
     _ACTWait(1);
 
     gFlagGameClear = 0;
@@ -235,12 +235,12 @@ int opTitleLogoMode = 0;
 
 char *titleAdpcm = 0;
 
-void actTitleShortCut(GObj *volatile a0)
+void actTitleShortCut(GObj *volatile self)
 {
-    GObj *x = a0;
+    GObj *x = self;
 
     monitorCameraHold = 1;
-    actInitialize(a0);
+    actInitialize(self);
     _ACTWait(1);
 
     if (boyGObj != 0) {
@@ -283,14 +283,14 @@ static ActMail opDemo02_mes[2] = {{430}, {429}}; /* derived name */
 
 static ActMail opDemo03_mes[2] = {{430}, {429}}; /* derived name */
 
-inline void actSubMpegReturnPreload(GObj *volatile a0)
+inline void actSubMpegReturnPreload(GObj *volatile self)
 {
     _ACTWait((int)((float)((60 - systemStatus[0] * 10) / systemStatus[1]) * 5.0f));
     stgmgrNextStagePreLoadForceStageSet(1);
     stgmgrNextStagePreLoadForceNoCancel(1);
 }
 
-void actTitleReadTimeDemo0(GObj *volatile a0)
+void actTitleReadTimeDemo0(GObj *volatile self)
 {
     debug_StdPrintfDummy("realtime demo %d\n", frame_count);
 
@@ -481,7 +481,7 @@ void actTitleReadTimeDemo0(GObj *volatile a0)
     _ACTWait(0);
 }
 
-inline void actSt26aConte01_1_newgame(GObj *volatile a0)
+inline void actSt26aConte01_1_newgame(GObj *volatile self)
 {
     _ACTWait(1);
 
@@ -498,10 +498,10 @@ inline void actSt26aConte01_1_newgame(GObj *volatile a0)
     RequestStageChange(1, boyGObj, 0, 0.25f, 2.0f);
 }
 
-void actOpDemo01_2(GObj *volatile a0)
+void actOpDemo01_2(GObj *volatile self)
 {
-    GObj *x = a0;
-    actInitialize(a0);
+    GObj *x = self;
+    actInitialize(self);
     _ACTWait(1);
 
     scpFadeOut(255.0f, 0, 0, 0);
@@ -535,7 +535,7 @@ void actOpDemo01_2(GObj *volatile a0)
     RequestStageChangeWithColor(1, boyGObj, 0, 1.0f, 4.0f, 255, 255, 255);
 }
 
-void actOpDemo01_2Chk(GObj *volatile a0)
+void actOpDemo01_2Chk(GObj *volatile self)
 {
     stgmgrNextStagePreLoadForceStageSet(0);
 
@@ -612,10 +612,10 @@ void actOpDemo01_2Chk(GObj *volatile a0)
     demoSubEnd = 1;
 }
 
-void actOpDemo02(GObj *volatile a0)
+void actOpDemo02(GObj *volatile self)
 {
-    GObj *x = a0;
-    Act *self = actInitialize(a0);
+    GObj *x = self;
+    Act *act = actInitialize(self);
     _ACTWait(1);
 
     if (boyGObj != 0) {
@@ -637,12 +637,12 @@ void actOpDemo02(GObj *volatile a0)
     }
 
     opDemo02_mes[0].func = actOpDemo02Chk;
-    self->mail = opDemo02_mes;
-    ACTSendMailCorrect(a0, 430);
+    act->mail = opDemo02_mes;
+    ACTSendMailCorrect(self, 430);
     _ACTWait(0);
 }
 
-inline void actOpDemo02Chk(GObj *volatile a0)
+inline void actOpDemo02Chk(GObj *volatile self)
 {
     gflagOn(3);
 
@@ -670,7 +670,7 @@ inline void actOpDemo02Chk(GObj *volatile a0)
     RequestStageChange(2, boyGObj, 0, 0.5f, 4.0f);
 }
 
-void actSt24aConte01_2(GObj *volatile a0)
+void actSt24aConte01_2(GObj *volatile self)
 {
     stgmgrNextStagePreLoadForceStageSet(exitData[stageData[stage_no].ent[1]].nextStage);
 
@@ -759,7 +759,7 @@ void actSt24aConte01_2(GObj *volatile a0)
     demoSubEnd = 1;
 }
 
-inline void actSt24aConte01_2_Jimaku(GObj *volatile a0)
+inline void actSt24aConte01_2_Jimaku(GObj *volatile self)
 {
     float t;
     float tn;
@@ -790,10 +790,10 @@ inline void actSt24aConte01_2_Jimaku(GObj *volatile a0)
     } while (t < 2700.0f);
 }
 
-inline void actOpDemo03(GObj *volatile a0)
+inline void actOpDemo03(GObj *volatile self)
 {
-    GObj *x = a0;
-    Act *self = actInitialize(a0);
+    GObj *x = self;
+    Act *act = actInitialize(self);
     _ACTWait(1);
 
     lt_switch_layout(55);
@@ -803,12 +803,12 @@ inline void actOpDemo03(GObj *volatile a0)
     stage_SetAnimation(172, 0, 0);
 
     opDemo03_mes[0].func = actOpDemo03Chk;
-    self->mail = opDemo03_mes;
-    ACTSendMailCorrect(a0, 430);
+    act->mail = opDemo03_mes;
+    ACTSendMailCorrect(self, 430);
     _ACTWait(0);
 }
 
-void actOpDemo03Chk(GObj *volatile a0)
+void actOpDemo03Chk(GObj *volatile self)
 {
     float t = 4.0f;
 
@@ -847,7 +847,7 @@ void actOpDemo03Chk(GObj *volatile a0)
     RequestStageChange(4, boyGObj, 0, 255.0f, 2.0f);
 }
 
-void actSt13aConte01_3(GObj *volatile a0)
+void actSt13aConte01_3(GObj *volatile self)
 {
     stgmgrNextStagePreLoadForceStageSet(exitData[stageData[stage_no].ent[3]].nextStage);
 

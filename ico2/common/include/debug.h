@@ -115,7 +115,7 @@ extern int debug_no_breast_hang;
    the end of the object (first-declaration order).  Callers after a
    definition inline it; the out-of-line copies serve the rest of the game
    and the menu tables. */
-void debug_BeginTimer(int a0);
+void debug_BeginTimer(int mode);
 float debug_GetTimerSec(void);
 float debug_GetTimerCount(void);
 inline void debug_ClearFontWindow(void);
@@ -125,7 +125,7 @@ void debug_SetBar2(char *name, unsigned int col, char *file, int line);
 void debug_ResetBar(void);
 void debug_DispVu1IReg(int no);
 void debug_DispVu1SReg(int no);
-void debug_DispMatrix(int *a0);
+void debug_DispMatrix(int *m);
 void debug_SetBarDummy(void);
 
 int debug_SelectCsvWindowWithLine(char *title, int x, int y, int rows, const void *base, int stride,
@@ -133,14 +133,14 @@ int debug_SelectCsvWindowWithLine(char *title, int x, int y, int rows, const voi
 
 int debug_TryToGetStartStage(void);
 inline int debugSceOpen(const char *name, int mode);
-inline int debugSceClose(int a0);
+inline int debugSceClose(int fd);
 int debugSceCloseFdNew(void);
 void debug_closeLog(void);
 void debugCdvdLoadInfoSegInit(int page);
 void debugCdvdLoadInfoSegAdd(int page, int idx, int delta);
 void debugCdvdLoadInfoSegCls(int page, int idx);
-inline int gsResetFunc(int a0);
-inline void ChangeGirlControlMode(int a0);
+inline int gsResetFunc(int val);
+inline void ChangeGirlControlMode(int mode);
 inline int debug_CallbackGsFinish(int channel);
 void debug_SaveStartStageFile(int stage);
 
@@ -153,12 +153,12 @@ int debug_SelectCsvWindowWithLineColor(char *title, int x, int y, int rows, cons
 
 int debug_mcFormat(int port);
 int debug_mcUnformat(int port);
-void *debug_saveNumFunc(int a0, void *a1);
+void *debug_saveNumFunc(int no, void *mc);
 int debug_mcTest(void);
 int debug_STAFFROLLTest(void);
 int debug_SETest_color(int idx);
 int debug_reverbTest(void);
-int debug_AdpcmTest(int a0);
+int debug_AdpcmTest(int first);
 int debugCdvdLoadInfoSegDisp(void);
 int debug_GameOver(void);
 int debug_EndingDemo(void);

@@ -23,8 +23,8 @@
 #include "typedef.h"
 #include "main.h"
 
-static int _la_set_current_port_2(void *p, int a1);
-static int _la_set_current_port_lock_2(void *p, int a1);
+static int _la_set_current_port_2(void *p, int first);
+static int _la_set_current_port_lock_2(void *p, int first);
 static void _la_set_preview_info(void);
 
 /* the custom key map's sixteen pad button codes (iosPadConfCustom.bit),
@@ -161,22 +161,22 @@ McMgr mc = {{0}};
 /* mcard.c's request entry points; they return iosMsgSend's result, which
    this TU reads only from iosMcSync: it declares the others void, which its
    calls pin, so it does not include mcard.h */
-extern int iosMcSync(unsigned long *a0);
-extern void iosMcGetInfo(void *a0);
-extern void iosMcLoadProductBlock(void *a0);
-extern void iosMcGetBlockSaveInfo(void *a0);
-extern void iosMcLoadGameBlock(void *a0, int a1);
-extern void iosMcFormat(void *a0);
-extern void iosMcSaveIconBlock(void *a0);
-extern void iosMcSaveProductBlock(void *a0);
-extern void iosMcSaveGameBlock(void *a0, int a1);
-extern void iosMcDelete(void *a0);
+extern int iosMcSync(unsigned long *req);
+extern void iosMcGetInfo(void *req);
+extern void iosMcLoadProductBlock(void *req);
+extern void iosMcGetBlockSaveInfo(void *req);
+extern void iosMcLoadGameBlock(void *req, int arg);
+extern void iosMcFormat(void *req);
+extern void iosMcSaveIconBlock(void *req);
+extern void iosMcSaveProductBlock(void *req);
+extern void iosMcSaveGameBlock(void *req, int arg);
+extern void iosMcDelete(void *req);
 /* mcard.c's preview record */
 extern int IosMcPreviewInfo[];
 
-static int _la_mcard_error_check(void *a0)
+static int _la_mcard_error_check(void *req)
 {
-    char *w = (char *)a0;
+    char *w = (char *)req;
 
     if (*(int *)(w + 0x10) >= 0) {
         return 1;
@@ -213,7 +213,7 @@ static int _la_mcard_error_check(void *a0)
 }
 
 /* file-local: nothing outside this TU calls it */
-static int _la_memory_card_check(McMgr *p, int a1);
+static int _la_memory_card_check(McMgr *p, int step);
 
 /* .sdata: these ten statics and the three globals after them, then each
    function's own statics before it */
@@ -243,13 +243,13 @@ int layout_boot_flag = 0;
 
 int enable_game_pause = 1;
 
-static int _la_memory_card_check(McMgr *p, int a1)
+static int _la_memory_card_check(McMgr *p, int step)
 {
     int r;
     int i;
 
     curPortInfo = &mcPortInfo[p->port];
-    switch (a1) {
+    switch (step) {
     case 0:
         curPortInfo->fileMask = 0;
         p->slot = 0;
@@ -259,41 +259,41 @@ static int _la_memory_card_check(McMgr *p, int a1)
         mcLastResult = 0;
         (IosMcProductFile + p->port)->serial = 0;
         (IosMcProductFile + p->port)->fileNo = 0;
-        a1++;
+        step++;
         break;
     case 10:
         iosMcLoadProductBlock(p);
-        a1++;
+        step++;
         break;
     case 20:
         strcpy((char *)p + 0x47C, "game.");
         iosMcGetBlockSaveInfo(p);
-        a1++;
+        step++;
         break;
     case 1:
     case 11:
     case 21:
         if (iosMcSync((unsigned long *)p)) {
-            a1++;
+            step++;
         }
         break;
     case 12:
     case 22:
         r = _la_mcard_error_check(p);
         if (r > 0) {
-            a1++;
+            step++;
         }
         switch (p->result) {
         case -16:
         case -15:
         case -4:
             p->result = -14;
-            a1 = 99;
+            step = 99;
             r = 0;
             break;
         }
         if (r >= 0) {
-            return a1;
+            return step;
         }
         mcLastResult = p->result;
         if (p->result == -9 || r == -2) {
@@ -303,7 +303,7 @@ static int _la_memory_card_check(McMgr *p, int a1)
         }
         /* falls through */
     case 2:
-        a1++;
+        step++;
         break;
     case 3:
         switch (p->type) {
@@ -329,10 +329,10 @@ static int _la_memory_card_check(McMgr *p, int a1)
         } else {
             curPortInfo->flags.w = (int)curPortInfo->flags.w & ~0x10;
         }
-        a1 = 10;
+        step = 10;
         break;
     case 13:
-        a1 = 20;
+        step = 20;
         break;
     case 23:
         if (p->dirCount >= 11) {
@@ -344,7 +344,7 @@ static int _la_memory_card_check(McMgr *p, int a1)
                 break;
             }
         }
-        a1 = 99;
+        step = 99;
         if (i == 10) {
             break;
         }
@@ -361,7 +361,7 @@ static int _la_memory_card_check(McMgr *p, int a1)
         }
         break;
     }
-    return a1;
+    return step;
 }
 
 /* the current port's lock state: 1 when its record's bit 1 is set and bits
@@ -380,13 +380,13 @@ static int port2Changed = 0; /* derived name */
 
 static int port2Locked = 0; /* derived name */
 
-static int _la_set_current_port_2(void *p, int a1)
+static int _la_set_current_port_2(void *p, int first)
 {
     McPortInfo tmp;
     int r;
     int q = 0;
 
-    if (a1 != 0) {
+    if (first != 0) {
         *(int *)((char *)p + 8) = 0;
         port2Step = 0;
         port2SubStep = 0;
@@ -489,14 +489,14 @@ static int lock2Changed = 0; /* derived name */
 
 static int lock2Locked = 0; /* derived name */
 
-static int _la_set_current_port_lock_2(void *p, int a1)
+static int _la_set_current_port_lock_2(void *p, int first)
 {
     McPortInfo tmp;
     int r;
     int a;
     int q;
 
-    if (a1 != 0 || lock2Restart != 0) {
+    if (first != 0 || lock2Restart != 0) {
         *(int *)((char *)p + 8) = curPort;
         lock2Step = 0;
         lock2Restart = 0;
@@ -545,12 +545,12 @@ static int portNewStep = 0; /* derived name */
 
 static int portNewRestart = 1; /* derived name */
 
-static int _la_set_current_port_new(McMgr *p, int a1)
+static int _la_set_current_port_new(McMgr *p, int first)
 {
     int r = 0;
     int v;
 
-    if (a1) {
+    if (first) {
         portNewStep = 0;
         curPort = -1;
     }
@@ -621,16 +621,16 @@ inline int la_boot_memory_card_check(void)
     return 0x37;
 }
 
-inline int la_boot_no_memory_card(int a0, int a1)
+inline int la_boot_no_memory_card(int first, int item)
 {
     debug_StdPrintfDummy("no memoca\n");
-    return a1;
+    return item;
 }
 
-inline int la_boot_no_free_area(int a0, int a1)
+inline int la_boot_no_free_area(int first, int item)
 {
     debug_StdPrintfDummy("no free\n");
-    return a1;
+    return item;
 }
 
 inline int la_boot_confirm_memory_card(void)
@@ -683,9 +683,9 @@ int la_vibe_select(void)
     return 0xC;
 }
 
-inline int la_scei_logo(int a0)
+inline int la_scei_logo(int first)
 {
-    if (a0) {
+    if (first) {
         stgmgrNextStagePreLoadForceStageSet(0);
         logoIcoMiscLock = lock_execIcoMisc;
         systemStatus[5] = 1;
@@ -708,9 +708,9 @@ inline int la_title_demo(void)
 
 static int continueDecided = 0; /* derived name */
 
-int la_title_continue_or_new(int a0)
+int la_title_continue_or_new(int first)
 {
-    if (a0) {
+    if (first) {
         opTitleLogoMode = 1;
         continueIcoMiscLock = lock_execIcoMisc;
         iosPadEnable();
@@ -749,7 +749,7 @@ int la_title_continue_or_new(int a0)
             return 9;
         }
     }
-    switch (_la_set_current_port_2(&mc, a0)) {
+    switch (_la_set_current_port_2(&mc, first)) {
     case 0:
         break;
     case 1:
@@ -770,9 +770,9 @@ int la_title_continue_or_new(int a0)
 
 static int newGameDecided = 0; /* derived name */
 
-int la_title_new_game_only(int a0)
+int la_title_new_game_only(int first)
 {
-    if (a0) {
+    if (first) {
         opTitleLogoMode = 1;
         newGameIcoMiscLock = lock_execIcoMisc;
         iosPadEnable();
@@ -802,7 +802,7 @@ int la_title_new_game_only(int a0)
         actionStarted = 0;
         return 9;
     }
-    switch (_la_set_current_port_2(&mc, a0)) {
+    switch (_la_set_current_port_2(&mc, first)) {
     case 0:
         break;
     case -1:
@@ -832,9 +832,9 @@ static int fileMoved = 0; /* derived name */
 
 static int fileFirst = 1; /* derived name */
 
-static inline int la_mc_saved_file_select(int a0)
+static inline int la_mc_saved_file_select(int item)
 {
-    int i = a0 - 0x3E;
+    int i = item - 0x3E;
     int old = i;
 
     lt_analog2Pad();
@@ -886,13 +886,13 @@ static inline int mcFileNoOfPort(void) /* derived name */
     return mcCurrentFileNo();
 }
 
-int la_mc_file_select(int a0)
+int la_mc_file_select(int first)
 {
     int i;
 
     curFile = lt_current_property_item() - 62;
 
-    if (a0) {
+    if (first) {
         fileFirst = 1;
         fileMoved = 0;
     }
@@ -1046,13 +1046,13 @@ static inline void setLoadGameStartItem(void) /* derived name */
     }
 }
 
-int la_load_game_memory_card_check(int a0)
+int la_load_game_memory_card_check(int first)
 {
     _la_mask_preview_info();
     mcLoadMode = 1;
     lt_mask_property(0xB0, 1);
     lt_mask_property(0xB1, 1);
-    switch (_la_set_current_port_2(&mc, a0)) {
+    switch (_la_set_current_port_2(&mc, first)) {
     case 0:
         if (mcLastResult == 0 || mcLastResult == -14) {
             return -1;
@@ -1113,11 +1113,11 @@ static int loadCardChanged = 1; /* derived name */
 
 static int loadFileChosen = 0; /* derived name */
 
-int la_mc_load_file_select(int a0, int a1)
+int la_mc_load_file_select(int first, int item)
 {
     int r;
 
-    if (a0) {
+    if (first) {
         fileMask = 0;
         lastPort = filePort = curPort;
         loadFileChosen = 0;
@@ -1147,8 +1147,8 @@ int la_mc_load_file_select(int a0, int a1)
 
     if ((fileMask != 0 || loadFileChosen != 0) && (pad[0].flags & 0x40)) {
         POSITIVE_SE();
-        if (IosMcProductFile[filePort].file[a1].stage != 0xFFFFFFFF) {
-            selectFile = a1;
+        if (IosMcProductFile[filePort].file[item].stage != 0xFFFFFFFF) {
+            selectFile = item;
             lastPort = filePort;
             lt_set_item_select_func(0);
             actionStarted = 0;
@@ -1156,7 +1156,7 @@ int la_mc_load_file_select(int a0, int a1)
         }
     }
 
-    r = _la_set_current_port_lock_2(&mc, a0);
+    r = _la_set_current_port_lock_2(&mc, first);
     switch (r) {
     case -1:
         if (((curPortInfo->flags.w >> 1) & 1) == 0) {
@@ -1207,9 +1207,9 @@ int la_mc_load_file_select(int a0, int a1)
     return -1;
 }
 
-int la_load_confirm_no_memory_card(int a0)
+int la_load_confirm_no_memory_card(int first)
 {
-    if (a0) {
+    if (first) {
         _la_mask_preview_info();
     }
     if (PSH_POSITIVE_OR_NEGATIVE(0)) {
@@ -1218,7 +1218,7 @@ int la_load_confirm_no_memory_card(int a0)
         actionStarted = 0;
         return 0xD;
     }
-    switch (_la_set_current_port_lock_2(&mc, a0)) {
+    switch (_la_set_current_port_lock_2(&mc, first)) {
     case 0:
         break;
     case -1:
@@ -1250,9 +1250,9 @@ int la_load_confirm_no_memory_card(int a0)
     return -1;
 }
 
-int la_load_confirm_no_data(int a0)
+int la_load_confirm_no_data(int first)
 {
-    if (a0) {
+    if (first) {
         _la_mask_preview_info();
     }
     if (PSH_POSITIVE_OR_NEGATIVE(0)) {
@@ -1261,7 +1261,7 @@ int la_load_confirm_no_data(int a0)
         actionStarted = 0;
         return 0xD;
     }
-    switch (_la_set_current_port_lock_2(&mc, a0)) {
+    switch (_la_set_current_port_lock_2(&mc, first)) {
     case 0:
         break;
     case -1:
@@ -1283,9 +1283,9 @@ int la_load_confirm_no_data(int a0)
     return -1;
 }
 
-int la_load_start_check(int a0)
+int la_load_start_check(int first)
 {
-    switch (_la_set_current_port_lock_2(&mc, a0)) {
+    switch (_la_set_current_port_lock_2(&mc, first)) {
     case 0:
         fileMask = 0x3FF;
         if (mcLastResult == 0 || mcLastResult == -14) {
@@ -1360,7 +1360,7 @@ static inline void gflagRestoreState(void) /* derived name */
 
 static int loadStep = 0; /* derived name */
 
-int la_load_processing(int a0)
+int la_load_processing(int first)
 {
     int err;
     int hour;
@@ -1368,7 +1368,7 @@ int la_load_processing(int a0)
     int sec;
 
     debug_StdPrintfDummy("load processing\n");
-    if (a0) {
+    if (first) {
         loadStep = 0;
     }
 
@@ -1490,14 +1490,14 @@ static int saveVoiceOpened = 0; /* derived name */
 
 static int saveVoiceWait = 0; /* derived name */
 
-int la_mc_confirm_save_file(int a0, int a1)
+int la_mc_confirm_save_file(int first, int item)
 {
     int i;
 
     _la_mask_preview_info();
     lt_mask_property(0xB0, 1);
     lt_mask_property(0xB1, 1);
-    if (a0) {
+    if (first) {
         systemStatus[5] = 1;
         fightSoundProcessRequestPause();
         fightSoundStopped = 1;
@@ -1541,7 +1541,7 @@ int la_mc_confirm_save_file(int a0, int a1)
         }
         {
             if (lt_fade_status() == 2) {
-                switch (a1) {
+                switch (item) {
                 case 214:
                     POSITIVE_SE();
                     lt_set_item_select_func(0);
@@ -1584,14 +1584,14 @@ static inline void setSaveGameStartItem(void) /* derived name */
     }
 }
 
-int la_save_game_memory_card_check(int a0)
+int la_save_game_memory_card_check(int first)
 {
     _la_mask_preview_info();
     mcLoadMode = 0;
     lt_mask_property(0xB0, 1);
     lt_mask_property(0xB1, 1);
     debug_StdPrintfDummy("save game check port %d\n", curPort);
-    switch (_la_set_current_port_new(&mc, a0)) {
+    switch (_la_set_current_port_new(&mc, first)) {
     case 0:
         break;
     case -1:
@@ -1672,9 +1672,9 @@ typedef struct {
 /* GifPacket.h's entry points, which this TU does not include; gif_Sprite
    takes z as an unsigned int here, a long long in the header */
 extern void gif_StartPacketPri(int pri);
-extern void gif_SetZTest(int a0);
-extern void gif_SetZWrite(int a0);
-extern void gif_SetAlpha(long long a0, long long a1, long long a2);
+extern void gif_SetZTest(int on);
+extern void gif_SetZWrite(int on);
+extern void gif_SetAlpha(long long alpha, long long mode, long long fix);
 extern void gif_Sprite(int *r, unsigned int z, int *uv, unsigned char *col, int prim);
 extern void gif_EndPacket(void);
 
@@ -1728,11 +1728,11 @@ static void progressive_bar(void)
 
 static int saveCardChanged = 1; /* derived name */
 
-int la_mc_save_file_select(int a0, int a1)
+int la_mc_save_file_select(int first, int item)
 {
     int r;
 
-    if (a0) {
+    if (first) {
         fileMask = 0;
         lastPort = filePort = curPort;
         saveSelectReady = 0;
@@ -1764,13 +1764,13 @@ int la_mc_save_file_select(int a0, int a1)
 
     if ((fileMask != 0 || saveSelectReady != 0) && (pad[0].flags & 0x40)) {
         POSITIVE_SE();
-        selectFile = a1;
+        selectFile = item;
         lt_set_item_select_func(0);
         actionStarted = 0;
         return 34;
     }
 
-    r = _la_set_current_port_lock_2(&mc, a0);
+    r = _la_set_current_port_lock_2(&mc, first);
     switch (r) {
     case -1:
         if (((curPortInfo->flags.w >> 1) & 1) == 0) {
@@ -1823,7 +1823,7 @@ int la_mc_save_file_select(int a0, int a1)
     return -1;
 }
 
-inline int la_save_confirm_no_memory_card(int a0)
+inline int la_save_confirm_no_memory_card(int first)
 {
     if (PSH_POSITIVE_OR_NEGATIVE(0)) {
         NEGATIVE_SE();
@@ -1831,7 +1831,7 @@ inline int la_save_confirm_no_memory_card(int a0)
         actionStarted = 0;
         return 0x1C;
     }
-    switch (_la_set_current_port_lock_2(&mc, a0)) {
+    switch (_la_set_current_port_lock_2(&mc, first)) {
     case 0:
         break;
     case -1:
@@ -1853,7 +1853,7 @@ inline int la_save_confirm_no_memory_card(int a0)
     return -1;
 }
 
-inline int la_save_confirm_no_free_area(int a0)
+inline int la_save_confirm_no_free_area(int first)
 {
     if (PSH_POSITIVE_OR_NEGATIVE(0)) {
         NEGATIVE_SE();
@@ -1861,7 +1861,7 @@ inline int la_save_confirm_no_free_area(int a0)
         actionStarted = 0;
         return 0x1C;
     }
-    switch (_la_set_current_port_lock_2(&mc, a0)) {
+    switch (_la_set_current_port_lock_2(&mc, first)) {
     case 0:
         break;
     case -1:
@@ -1883,9 +1883,9 @@ inline int la_save_confirm_no_free_area(int a0)
     return -1;
 }
 
-int la_save_start_check(int a0)
+int la_save_start_check(int first)
 {
-    switch (_la_set_current_port_lock_2(&mc, a0)) {
+    switch (_la_set_current_port_lock_2(&mc, first)) {
     case 0:
         break;
     case -1:
@@ -1929,9 +1929,9 @@ int la_save_start_check(int a0)
     return -1;
 }
 
-int la_save_confirm_overwrite(int a0, int a1)
+int la_save_confirm_overwrite(int first, int item)
 {
-    if (a0) {
+    if (first) {
         filePort = curPort;
     }
     fileMask = 0x3FF;
@@ -1942,7 +1942,7 @@ int la_save_confirm_overwrite(int a0, int a1)
         actionStarted = 0;
         return 0x21;
     }
-    switch (a1) {
+    switch (item) {
     case 214:
     case 218:
         POSITIVE_SE();
@@ -1956,7 +1956,7 @@ int la_save_confirm_overwrite(int a0, int a1)
         actionStarted = 0;
         return 0x21;
     }
-    switch (_la_set_current_port_lock_2(&mc, a0)) {
+    switch (_la_set_current_port_lock_2(&mc, first)) {
     case 0:
         break;
     case -1:
@@ -1986,9 +1986,9 @@ int la_save_confirm_overwrite(int a0, int a1)
     return -1;
 }
 
-int la_format_confirm(int a0, int a1)
+int la_format_confirm(int first, int item)
 {
-    if (a0) {
+    if (first) {
         filePort = curPort;
     }
     if (lt_fade_status() == 2 && (pad[0].flags & 0x10)) {
@@ -1997,7 +1997,7 @@ int la_format_confirm(int a0, int a1)
         actionStarted = 0;
         return 0x21;
     }
-    switch (a1) {
+    switch (item) {
     case 214:
     case 218:
         POSITIVE_SE();
@@ -2011,7 +2011,7 @@ int la_format_confirm(int a0, int a1)
         actionStarted = 0;
         return 0x21;
     }
-    switch (_la_set_current_port_lock_2(&mc, a0)) {
+    switch (_la_set_current_port_lock_2(&mc, first)) {
     case 0:
         break;
     case -1:
@@ -2043,9 +2043,9 @@ int la_format_confirm(int a0, int a1)
 
 static int formatStep = 0; /* derived name */
 
-inline int la_format_processing(int a0)
+inline int la_format_processing(int first)
 {
-    if (a0) {
+    if (first) {
         formatStep = 0;
     }
     switch (formatStep) {
@@ -2108,7 +2108,7 @@ static inline int mcMakeSerial(void) /* derived name */
 
 static int systemSaveStep = 0; /* derived name */
 
-int la_system_save_processing(int a0)
+int la_system_save_processing(int first)
 {
     int err;
     int i;
@@ -2117,7 +2117,7 @@ int la_system_save_processing(int a0)
     int sec;
 
     curPortInfo = &mcPortInfo[mc.port];
-    if (a0) {
+    if (first) {
         systemSaveStep = 0;
         systemSaveRetry = 0;
         barTotal = 14;
@@ -2202,7 +2202,7 @@ static inline void mcSetSavedFile(void) /* derived name */
 
 static int saveStep = 0; /* derived name */
 
-int la_save_processing(int a0)
+int la_save_processing(int first)
 {
     int err;
     int hour;
@@ -2210,7 +2210,7 @@ int la_save_processing(int a0)
     int sec;
 
     curPortInfo = &mcPortInfo[mc.port];
-    if (a0) {
+    if (first) {
         fileMask = 0;
         saveStep = 0;
     }
@@ -2290,18 +2290,18 @@ int la_save_processing(int a0)
     return -1;
 }
 
-inline int la_save_confirm_complete(int a0, int a1)
+inline int la_save_confirm_complete(int first, int item)
 {
-    if (a0) {
+    if (first) {
         previewInfo = *(struct McPreview *)IosMcPreviewInfo;
         fileMask = 0x3FF;
         _la_set_preview_info();
         debug_StdPrintfDummy("save complete %d %d\n", fileMask, curFile);
     }
-    if (a1 != -1) {
-        debug_StdPrintfDummy("%d %d %d\n", 0x108, 0x109, a1);
+    if (item != -1) {
+        debug_StdPrintfDummy("%d %d %d\n", 0x108, 0x109, item);
     }
-    switch (a1) {
+    switch (item) {
     case 0x108:
         systemStatus[5] = 0;
         lt_set_item_select_func(0);
@@ -2384,9 +2384,9 @@ inline int la_format_confirm_fail(void)
     return -1;
 }
 
-inline int la_delete_start_check(int a0)
+inline int la_delete_start_check(int first)
 {
-    switch (_la_set_current_port_2(&mc, a0)) {
+    switch (_la_set_current_port_2(&mc, first)) {
     case 0:
         break;
     case -1:
@@ -2406,9 +2406,9 @@ inline int la_delete_start_check(int a0)
     return -1;
 }
 
-inline int la_delete_confirm(int a0, int a1)
+inline int la_delete_confirm(int first, int item)
 {
-    switch (a1) {
+    switch (item) {
     case 0xD6:
         lt_set_item_select_func(0);
         actionStarted = 0;
@@ -2423,9 +2423,9 @@ inline int la_delete_confirm(int a0, int a1)
 
 static int deleteStep = 0; /* derived name */
 
-int la_delete_processing(int a0)
+int la_delete_processing(int first)
 {
-    if (a0) {
+    if (first) {
         mc.fileNo = selectFile;
         deleteStep = 2;
     }
@@ -2475,9 +2475,9 @@ inline int la_delete_confirm_fail(void)
     return -1;
 }
 
-inline int la_game_loading(int a0)
+inline int la_game_loading(int first)
 {
-    if (a0 != 0) {
+    if (first != 0) {
         systemStatus[6] = 1;
     }
     return -1;
@@ -2501,9 +2501,9 @@ static inline void releaseGameLoopCursor(void) /* derived name */
 
 int laoutActionPauseRequest = 0;
 
-int la_game_loop(int a0)
+int la_game_loop(int first)
 {
-    if (a0) {
+    if (first) {
         if (fightSoundStopped != 0) {
             fightSoundProcessRequestStart();
             fightSoundStopped = 0;
@@ -2539,9 +2539,9 @@ int la_game_loop(int a0)
     return -1;
 }
 
-inline int la_game_demo_pause(int a0)
+inline int la_game_demo_pause(int first)
 {
-    if (a0) {
+    if (first) {
         systemStatus[5] = 1;
     }
     if ((pad[0].flags & 0x800) == 0) {
@@ -2552,9 +2552,9 @@ inline int la_game_demo_pause(int a0)
     return 0x37;
 }
 
-inline int la_game_demo(int a0)
+inline int la_game_demo(int first)
 {
-    if (a0) {
+    if (first) {
         if (stage_no == 1) {
             iosPadDisable();
         }
@@ -2575,9 +2575,9 @@ inline int la_game_demo(int a0)
     return -1;
 }
 
-inline int la_game_pause(int a0)
+inline int la_game_pause(int first)
 {
-    if (a0) {
+    if (first) {
         systemStatus[5] = 1;
         iosPadActStopAll();
         texLayout[58].defaultItem = 308;
@@ -2599,9 +2599,9 @@ static int gameOverVoice = 0; /* derived name */
 
 static int gameOverVoiceOpened = 0; /* derived name */
 
-int la_game_over_continue(int a0)
+int la_game_over_continue(int first)
 {
-    if (a0) {
+    if (first) {
         if (fadeStatus != 0) {
             scpFadeIn(3.0f);
         }
@@ -2719,7 +2719,7 @@ static inline int keyAssignIndex(int v) /* derived name */
 
 static int keyConfigMask = 0xFF; /* derived name */
 
-int la_key_config(int a0)
+int la_key_config(int first)
 {
     int i;
     int sel;
@@ -2728,7 +2728,7 @@ int la_key_config(int a0)
     int n;
 
     sel = lt_current_property_item() - 336;
-    if (a0) {
+    if (first) {
         texLayout[58].defaultItem = 323;
         for (i = 0; i < 16; i++) {
             if ((keyConfigMask >> i) & 1) {

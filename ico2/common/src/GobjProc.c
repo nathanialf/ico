@@ -12,8 +12,8 @@ static int gobjCount = 0; /* derived name */
 /* .bss: the table of created game objects, 208 entries */
 static GObj *gobj_table[208]; /* derived name */
 
-/* this TU passes a4 as unsigned int; gobj_cam_dl.h declares an int */
-extern void isysGObjLinkCameraDL(char *a0, int a1, int a2, int a3, unsigned int a4);
+/* this TU passes drawMask as unsigned int; gobj_cam_dl.h declares an int */
+extern void isysGObjLinkCameraDL(char *self, int dl, int key, int kindMask, unsigned int drawMask);
 
 void ResetGObjProc(void)
 {
@@ -51,7 +51,7 @@ void PrintGObjID(GObj *gobj)
     }
 }
 
-GObj *InitCameraGObjs(int a0, int from, int to)
+GObj *InitCameraGObjs(int stage, int from, int to)
 {
     GObj *g = 0;
     GObj *cam;
@@ -97,16 +97,16 @@ inline GObj *CreateGObjByFuncSet(void (*before)(GObj *), void (*ai)(GObj *), voi
     return g;
 }
 
-GObj *CreateGObj(ObjKindEnt *p, int a1, int a2, int a3, int a4)
+GObj *CreateGObj(ObjKindEnt *p, int kind, int label, int key, int useStart)
 {
     GObj *g;
     void (*start)() = 0;
 
-    if (a4 != 0) {
+    if (useStart != 0) {
         start = p->start;
     }
-    g = CreateGObjByFuncSet(p->before, p->ai, p->geo, p->afterGeo, start, p->dl, a3);
-    g->labelId = a2;
-    isysGObjKindTableAdd(g, a1);
+    g = CreateGObjByFuncSet(p->before, p->ai, p->geo, p->afterGeo, start, p->dl, key);
+    g->labelId = label;
+    isysGObjKindTableAdd(g, kind);
     return g;
 }

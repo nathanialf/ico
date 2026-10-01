@@ -23,7 +23,7 @@
 #include "script.h"
 #include "staffroll.h"
 
-static void actEndingSave(GObj *volatile a0);
+static void actEndingSave(GObj *volatile self);
 
 /* .sdata: the ending scenes' stream handles (ed5 and happy_end unused), then
    the staff roll's, the fourteenth demo's and the st27a ending's. */
@@ -85,10 +85,10 @@ static ActMail logo_mes[2] = {{430}, {429}}; /* derived name */
 
 static ActMail end_mes[2] = {{430}, {429}}; /* derived name */
 
-void actEndDemo01(GObj *volatile a0)
+void actEndDemo01(GObj *volatile self)
 {
-    GObj *x = a0;
-    Act *self = actInitialize(a0);
+    GObj *x = self;
+    Act *act = actInitialize(self);
 
     _ACTWait(1);
 
@@ -105,13 +105,13 @@ void actEndDemo01(GObj *volatile a0)
         stage_SetAnimation(36, 0, 0);
         stage_SetAnimation(38, 0, 0);
         demo01_mes[0].func = actEndDemo01Chk;
-        self->mail = demo01_mes;
-        ACTSendMailCorrect(a0, 430);
+        act->mail = demo01_mes;
+        ACTSendMailCorrect(self, 430);
         _ACTWait(0);
     }
 }
 
-void actConte14_1(GObj *volatile a0)
+void actConte14_1(GObj *volatile self)
 {
     scpPlayStart(boyGObj);
 
@@ -187,10 +187,10 @@ void actConte14_1(GObj *volatile a0)
     RequestStageChange(2, boyGObj, 0, 1.0f, 8.0f);
 }
 
-void actEndDemo02(GObj *volatile a0)
+void actEndDemo02(GObj *volatile self)
 {
-    GObj *x = a0;
-    Act *self = actInitialize(a0);
+    GObj *x = self;
+    Act *act = actInitialize(self);
 
     _ACTWait(1);
 
@@ -212,12 +212,12 @@ void actEndDemo02(GObj *volatile a0)
     stage_SetAnimation(561, 0, -1);
     SelectBoyCrown(boyGObj, 2);
     demo02_mes[0].func = actEndDemo02Chk;
-    self->mail = demo02_mes;
-    ACTSendMailCorrect(a0, 430);
+    act->mail = demo02_mes;
+    ACTSendMailCorrect(self, 430);
     _ACTWait(0);
 }
 
-void actConte14_2(GObj *volatile a0)
+void actConte14_2(GObj *volatile self)
 {
     scpPlayStart(boyGObj);
 
@@ -289,10 +289,10 @@ void actConte14_2(GObj *volatile a0)
     RequestStageChange(3, boyGObj, 0, 1.0f, 8.0f);
 }
 
-void actEndDemo06(GObj *volatile a0)
+void actEndDemo06(GObj *volatile self)
 {
-    GObj *x = a0;
-    Act *self = actInitialize(a0);
+    GObj *x = self;
+    Act *act = actInitialize(self);
 
     _ACTWait(1);
 
@@ -313,13 +313,13 @@ void actEndDemo06(GObj *volatile a0)
         stage_SetAnimation(38, 0, 0);
         SelectBoyCrown(boyGObj, 2);
         demo06_mes[0].func = actEndDemo06Chk;
-        self->mail = demo06_mes;
-        ACTSendMailCorrect(a0, 430);
+        act->mail = demo06_mes;
+        ACTSendMailCorrect(self, 430);
         _ACTWait(0);
     }
 }
 
-void actConte14_6(GObj *volatile a0)
+void actConte14_6(GObj *volatile self)
 {
     preload(3);
 
@@ -353,10 +353,10 @@ void actConte14_6(GObj *volatile a0)
     RequestStageChange(3, boyGObj, girlGObj, 1.0f, 8.0f);
 }
 
-void actEndDemo07(GObj *volatile a0)
+void actEndDemo07(GObj *volatile self)
 {
-    GObj *x = a0;
-    Act *self = actInitialize(a0);
+    GObj *x = self;
+    Act *act = actInitialize(self);
 
     _ACTWait(1);
 
@@ -371,8 +371,8 @@ void actEndDemo07(GObj *volatile a0)
     if (gflagChk(345) == 0) {
         SelectBoyCrown(boyGObj, 2);
         demo07_mes[0].func = actEndDemo07Chk;
-        self->mail = demo07_mes;
-        ACTSendMailCorrect(a0, 430);
+        act->mail = demo07_mes;
+        ACTSendMailCorrect(self, 430);
         _ACTWait(0);
     }
 }
@@ -386,7 +386,7 @@ static const ConstVec staff3DemoPos = {{-800.0f, 0.0f, -1000.0f, 1.0f}}; /* deri
 
 static const ConstVec conte14_14Pos = {{16975.0f, 71.0f, -4332.0f, 1.0f}}; /* derived name */
 
-void actConte14_7(GObj *volatile a0)
+void actConte14_7(GObj *volatile self)
 {
     long long ofs[2];
     float dir[4];
@@ -431,10 +431,10 @@ void actConte14_7(GObj *volatile a0)
     RequestStageChange(6, boyGObj, girlGObj, 1.0f, 8.0f);
 }
 
-void actEndDemo10(GObj *volatile a0)
+void actEndDemo10(GObj *volatile self)
 {
-    GObj *x = a0;
-    Act *self = actInitialize(a0);
+    GObj *x = self;
+    Act *act = actInitialize(self);
 
     _ACTWait(1);
 
@@ -448,12 +448,12 @@ void actEndDemo10(GObj *volatile a0)
     SelectBoyCrown(boyGObj, 2);
     stage_SetAnimation(850, 0, 0);
     demo10_mes[0].func = actEndDemo10Chk;
-    self->mail = demo10_mes;
-    ACTSendMailCorrect(a0, 430);
+    act->mail = demo10_mes;
+    ACTSendMailCorrect(self, 430);
     _ACTWait(0);
 }
 
-void actConte14_10(GObj *volatile a0)
+void actConte14_10(GObj *volatile self)
 {
     preload(3);
 
@@ -557,7 +557,7 @@ void actConte14_10(GObj *volatile a0)
     RequestStageChange(3, boyGObj, girlGObj, 1.0f, 8.0f);
 }
 
-void actConte14_13(GObj *volatile a0)
+void actConte14_13(GObj *volatile self)
 {
     scpPlayStart(boyGObj);
 
@@ -589,10 +589,10 @@ void actConte14_13(GObj *volatile a0)
     RequestStageChange(6, boyGObj, girlGObj, 1.0f, 8.0f);
 }
 
-void actStaff1(GObj *volatile a0)
+void actStaff1(GObj *volatile self)
 {
-    GObj *x = a0;
-    Act *self = actInitialize(a0);
+    GObj *x = self;
+    Act *act = actInitialize(self);
 
     _ACTWait(1);
 
@@ -606,12 +606,12 @@ void actStaff1(GObj *volatile a0)
     stage_SetAnimation(38, 0, 0);
     stage_SetAnimation(35, 0, 0);
     staff1_mes[0].func = actStaff1Chk;
-    self->mail = staff1_mes;
-    ACTSendMailCorrect(a0, 430);
+    act->mail = staff1_mes;
+    ACTSendMailCorrect(self, 430);
     _ACTWait(0);
 }
 
-void actStaff1Demo(GObj *volatile a0)
+void actStaff1Demo(GObj *volatile self)
 {
     preload(1);
 
@@ -709,7 +709,7 @@ void actStaff1Demo(GObj *volatile a0)
     RequestStageChange(1, boyGObj, girlGObj, 0.0f, 8.0f);
 }
 
-void actStaff2Demo(GObj *volatile a0)
+void actStaff2Demo(GObj *volatile self)
 {
     preload(1);
 
@@ -823,7 +823,7 @@ void actStaff2Demo(GObj *volatile a0)
     RequestStageChange(1, boyGObj, girlGObj, 0.0f, 8.0f);
 }
 
-void actStaff3Demo(GObj *volatile a0)
+void actStaff3Demo(GObj *volatile self)
 {
     long long ofs[2];
     float dir[4];
@@ -911,10 +911,10 @@ void actStaff3Demo(GObj *volatile a0)
     scpFadeOut(6.0f, 0, 0, 0);
 }
 
-void actEndDemo14(GObj *volatile a0)
+void actEndDemo14(GObj *volatile self)
 {
-    GObj *x = a0;
-    Act *self = actInitialize(a0);
+    GObj *x = self;
+    Act *act = actInitialize(self);
 
     _ACTWait(1);
 
@@ -939,12 +939,12 @@ void actEndDemo14(GObj *volatile a0)
     SelectBoyCrown(boyGObj, 2);
     SetGirlClothDispSwitch(scpSearchGobj(2253), 1, 2);
     ed_demo14_mes[0].func = actEndDemo14Chk;
-    self->mail = ed_demo14_mes;
-    ACTSendMailCorrect(a0, 430);
+    act->mail = ed_demo14_mes;
+    ACTSendMailCorrect(self, 430);
     _ACTWait(0);
 }
 
-void actConte14_14(GObj *volatile a0)
+void actConte14_14(GObj *volatile self)
 {
     long long ofs[2];
     float dir[4];
@@ -1018,10 +1018,10 @@ void actConte14_14(GObj *volatile a0)
     gflagOff(338);
 }
 
-void actSt27aEnd(GObj *volatile a0)
+void actSt27aEnd(GObj *volatile self)
 {
-    GObj *x = a0;
-    Act *self = actInitialize(a0);
+    GObj *x = self;
+    Act *act = actInitialize(self);
 
     _ACTWait(1);
 
@@ -1038,13 +1038,13 @@ void actSt27aEnd(GObj *volatile a0)
 
     if (gflagChk(355) == 0) {
         st27aEnd_mes[0].func = actSt27aEndChk;
-        self->mail = st27aEnd_mes;
-        ACTSendMailCorrect(a0, 430);
+        act->mail = st27aEnd_mes;
+        ACTSendMailCorrect(self, 430);
         _ACTWait(0);
     }
 }
 
-void actSt27aEndChk(GObj *volatile a0)
+void actSt27aEndChk(GObj *volatile self)
 {
     float max;
     float t;
@@ -1083,7 +1083,7 @@ void actSt27aEndChk(GObj *volatile a0)
     scpSeEnvMasterVolRate = 0;
 }
 
-void actSt27aEndDemo(GObj *volatile a0)
+void actSt27aEndDemo(GObj *volatile self)
 {
     stage_SetAnimation(866, 1, 0);
 
@@ -1189,10 +1189,10 @@ void actSt27aEndDemo(GObj *volatile a0)
     }
 }
 
-void actEndLogoChk(GObj *volatile a0)
+void actEndLogoChk(GObj *volatile self)
 {
-    GObj *x = a0;
-    Act *self = actInitialize(a0);
+    GObj *x = self;
+    Act *act = actInitialize(self);
     int id = 60;
 
     _ACTWait(1);
@@ -1238,15 +1238,15 @@ void actEndLogoChk(GObj *volatile a0)
     scpFadeIn(6.0f);
 
     end_mes[0].func = actEndingSave;
-    self->mail = end_mes;
-    ACTSendMailCorrect(a0, 430);
+    act->mail = end_mes;
+    ACTSendMailCorrect(self, 430);
     _ACTWait(0);
 }
 
-void actEndDemo03(GObj *volatile a0)
+void actEndDemo03(GObj *volatile self)
 {
-    GObj *x = a0;
-    Act *self = actInitialize(a0);
+    GObj *x = self;
+    Act *act = actInitialize(self);
 
     _ACTWait(1);
 
@@ -1261,15 +1261,15 @@ void actEndDemo03(GObj *volatile a0)
     stage_SetAnimation(75, 0, -1);
     stage_SetAnimation(77, 0, -1);
     demo03_mes[0].func = actEndDemo03Chk;
-    self->mail = demo03_mes;
-    ACTSendMailCorrect(a0, 430);
+    act->mail = demo03_mes;
+    ACTSendMailCorrect(self, 430);
     _ACTWait(0);
 }
 
-void actEndDemo04(GObj *volatile a0)
+void actEndDemo04(GObj *volatile self)
 {
-    GObj *x = a0;
-    Act *self = actInitialize(a0);
+    GObj *x = self;
+    Act *act = actInitialize(self);
 
     _ACTWait(1);
 
@@ -1281,30 +1281,30 @@ void actEndDemo04(GObj *volatile a0)
     scpBoyControlReadDisable = 1;
     scpFadeOut(255.0f, 0, 0, 0);
     demo04_mes[0].func = actEndDemo04Chk;
-    self->mail = demo04_mes;
-    ACTSendMailCorrect(a0, 430);
+    act->mail = demo04_mes;
+    ACTSendMailCorrect(self, 430);
     _ACTWait(0);
 }
 
-void actEndDemo05(GObj *volatile a0)
+void actEndDemo05(GObj *volatile self)
 {
-    GObj *x = a0;
-    Act *self = actInitialize(a0);
+    GObj *x = self;
+    Act *act = actInitialize(self);
 
     _ACTWait(1);
 
     lt_switch_layout(55);
     scpBoyControlReadDisable = 1;
     demo05_mes[0].func = actEndDemo05Chk;
-    self->mail = demo05_mes;
-    ACTSendMailCorrect(a0, 430);
+    act->mail = demo05_mes;
+    ACTSendMailCorrect(self, 430);
     _ACTWait(0);
 }
 
-void actEndDemo11(GObj *volatile a0)
+void actEndDemo11(GObj *volatile self)
 {
-    GObj *x = a0;
-    Act *self = actInitialize(a0);
+    GObj *x = self;
+    Act *act = actInitialize(self);
 
     _ACTWait(1);
 
@@ -1312,15 +1312,15 @@ void actEndDemo11(GObj *volatile a0)
     scpBoyControlReadDisable = 1;
     SelectBoyCrown(boyGObj, 2);
     demo11_mes[0].func = actEndDemo11Chk;
-    self->mail = demo11_mes;
-    ACTSendMailCorrect(a0, 430);
+    act->mail = demo11_mes;
+    ACTSendMailCorrect(self, 430);
     _ACTWait(0);
 }
 
-void actEndDemo12(GObj *volatile a0)
+void actEndDemo12(GObj *volatile self)
 {
-    GObj *x = a0;
-    Act *self = actInitialize(a0);
+    GObj *x = self;
+    Act *act = actInitialize(self);
 
     _ACTWait(1);
 
@@ -1328,15 +1328,15 @@ void actEndDemo12(GObj *volatile a0)
     scpBoyControlReadDisable = 1;
     stage_SetAnimation(80, 0, -1);
     demo12_mes[0].func = actEndDemo12Chk;
-    self->mail = demo12_mes;
-    ACTSendMailCorrect(a0, 430);
+    act->mail = demo12_mes;
+    ACTSendMailCorrect(self, 430);
     _ACTWait(0);
 }
 
-void actEndDemo13(GObj *volatile a0)
+void actEndDemo13(GObj *volatile self)
 {
-    GObj *x = a0;
-    Act *self = actInitialize(a0);
+    GObj *x = self;
+    Act *act = actInitialize(self);
 
     _ACTWait(1);
 
@@ -1345,15 +1345,15 @@ void actEndDemo13(GObj *volatile a0)
     scpFadeOut(255.0f, 255, 255, 255);
     SelectBoyCrown(boyGObj, 2);
     demo13_mes[0].func = actEndDemo13Chk;
-    self->mail = demo13_mes;
-    ACTSendMailCorrect(a0, 430);
+    act->mail = demo13_mes;
+    ACTSendMailCorrect(self, 430);
     _ACTWait(0);
 }
 
-void actStaff2(GObj *volatile a0)
+void actStaff2(GObj *volatile self)
 {
-    GObj *x = a0;
-    Act *self = actInitialize(a0);
+    GObj *x = self;
+    Act *act = actInitialize(self);
 
     _ACTWait(1);
 
@@ -1364,15 +1364,15 @@ void actStaff2(GObj *volatile a0)
     scpSearchGobj(2794)->dobj->ctrl.word1E8 = 1;
     stage_SetAnimation(269, 0, 0);
     staff2_mes[0].func = actStaff2Chk;
-    self->mail = staff2_mes;
-    ACTSendMailCorrect(a0, 430);
+    act->mail = staff2_mes;
+    ACTSendMailCorrect(self, 430);
     _ACTWait(0);
 }
 
-void actStaff3(GObj *volatile a0)
+void actStaff3(GObj *volatile self)
 {
-    GObj *x = a0;
-    Act *self = actInitialize(a0);
+    GObj *x = self;
+    Act *act = actInitialize(self);
 
     _ACTWait(1);
 
@@ -1383,25 +1383,25 @@ void actStaff3(GObj *volatile a0)
     stage_SetAnimation(72, 0, 0);
     stage_SetAnimation(77, 0, 0);
     staff3_mes[0].func = actStaff3Chk;
-    self->mail = staff3_mes;
-    ACTSendMailCorrect(a0, 430);
+    act->mail = staff3_mes;
+    ACTSendMailCorrect(self, 430);
     _ACTWait(0);
 }
 
-void actEndLogo(GObj *volatile a0)
+void actEndLogo(GObj *volatile self)
 {
-    GObj *x = a0;
-    Act *self = actInitialize(a0);
+    GObj *x = self;
+    Act *act = actInitialize(self);
 
     _ACTWait(1);
 
     logo_mes[0].func = actEndLogoChk;
-    self->mail = logo_mes;
-    ACTSendMailCorrect(a0, 430);
+    act->mail = logo_mes;
+    ACTSendMailCorrect(self, 430);
     _ACTWait(0);
 }
 
-void actEndDemo01Chk(GObj *volatile a0)
+void actEndDemo01Chk(GObj *volatile self)
 {
     scpAdpcmPlayRequestFunc(43, &ed1, 0, 1, 1);
 
@@ -1424,7 +1424,7 @@ void actEndDemo01Chk(GObj *volatile a0)
     actCreateSubThread(actConte14_1, 21);
 }
 
-void actEndDemo02Chk(GObj *volatile a0)
+void actEndDemo02Chk(GObj *volatile self)
 {
     scpAdpcmPlayRequestFunc(44, &ed2, 0, 1, 1);
 
@@ -1441,7 +1441,7 @@ void actEndDemo02Chk(GObj *volatile a0)
     actCreateSubThread(actConte14_2, 21);
 }
 
-void actEndDemo03Chk(GObj *volatile a0)
+void actEndDemo03Chk(GObj *volatile self)
 {
     scpAdpcmPlayRequestFunc(45, &ed3, 0, 1, 1);
 
@@ -1458,7 +1458,7 @@ void actEndDemo03Chk(GObj *volatile a0)
     actCreateSubThread(actConte14_3, 21);
 }
 
-void actConte14_3(GObj *volatile a0)
+void actConte14_3(GObj *volatile self)
 {
     stage_SetAnimation(833, 1, 0);
 
@@ -1470,7 +1470,7 @@ void actConte14_3(GObj *volatile a0)
     RequestStageChange(2, boyGObj, 0, 1.0f, 8.0f);
 }
 
-void actEndDemo04Chk(GObj *volatile a0)
+void actEndDemo04Chk(GObj *volatile self)
 {
     scpAdpcmPlayRequestFunc(46, &ed4, 0, 1, 1);
 
@@ -1487,7 +1487,7 @@ void actEndDemo04Chk(GObj *volatile a0)
     actCreateSubThread(actConte14_4, 21);
 }
 
-void actConte14_4(GObj *volatile a0)
+void actConte14_4(GObj *volatile self)
 {
     stage_SetAnimation(834, 1, 0);
 
@@ -1499,14 +1499,14 @@ void actConte14_4(GObj *volatile a0)
     RequestStageChange(5, boyGObj, girlGObj, 1.0f, 8.0f);
 }
 
-void actEndDemo05Chk(GObj *volatile a0)
+void actEndDemo05Chk(GObj *volatile self)
 {
     gflagOn(343);
 
     actCreateSubThread(actConte14_5, 21);
 }
 
-void actConte14_5(GObj *volatile a0)
+void actConte14_5(GObj *volatile self)
 {
     preload(6);
 
@@ -1520,7 +1520,7 @@ void actConte14_5(GObj *volatile a0)
     RequestStageChange(6, boyGObj, girlGObj, 1.0f, 8.0f);
 }
 
-void actEndDemo06Chk(GObj *volatile a0)
+void actEndDemo06Chk(GObj *volatile self)
 {
     scpAdpcmPlayRequestFunc(47, &sea, 0, 1, 1);
 
@@ -1537,7 +1537,7 @@ void actEndDemo06Chk(GObj *volatile a0)
     actCreateSubThread(actConte14_6, 21);
 }
 
-void actEndDemo07Chk(GObj *volatile a0)
+void actEndDemo07Chk(GObj *volatile self)
 {
     _ACTWait(30);
 
@@ -1548,7 +1548,7 @@ void actEndDemo07Chk(GObj *volatile a0)
     actCreateSubThread(actConte14_7, 21);
 }
 
-void actEndDemo10Chk(GObj *volatile a0)
+void actEndDemo10Chk(GObj *volatile self)
 {
     scpAdpcmPlayRequestFunc(48, &ed6, 0, 1, 0);
 
@@ -1565,7 +1565,7 @@ void actEndDemo10Chk(GObj *volatile a0)
     actCreateSubThread(actConte14_10_Jimaku, 21);
 }
 
-void actConte14_10_Jimaku(GObj *volatile a0)
+void actConte14_10_Jimaku(GObj *volatile self)
 {
     float t;
     float tn;
@@ -1596,14 +1596,14 @@ void actConte14_10_Jimaku(GObj *volatile a0)
     } while (t < 1800.0f);
 }
 
-void actEndDemo11Chk(GObj *volatile a0)
+void actEndDemo11Chk(GObj *volatile self)
 {
     gflagOn(349);
 
     actCreateSubThread(actConte14_11, 21);
 }
 
-void actConte14_11(GObj *volatile a0)
+void actConte14_11(GObj *volatile self)
 {
     preload(2);
 
@@ -1619,14 +1619,14 @@ void actConte14_11(GObj *volatile a0)
     RequestStageChange(2, boyGObj, girlGObj, 1.0f, 8.0f);
 }
 
-void actEndDemo12Chk(GObj *volatile a0)
+void actEndDemo12Chk(GObj *volatile self)
 {
     gflagOn(350);
 
     actCreateSubThread(actConte14_12, 21);
 }
 
-void actConte14_12(GObj *volatile a0)
+void actConte14_12(GObj *volatile self)
 {
     stage_SetAnimation(853, 1, 0);
 
@@ -1640,19 +1640,19 @@ void actConte14_12(GObj *volatile a0)
     RequestStageChangeWithColor(4, boyGObj, girlGObj, 16.0f, 16.0f, 255, 255, 255);
 }
 
-void actEndDemo13Chk(GObj *volatile a0)
+void actEndDemo13Chk(GObj *volatile self)
 {
     gflagOn(351);
 
     actCreateSubThread(actConte14_13, 21);
 }
 
-void actStaff1Chk(GObj *volatile a0)
+void actStaff1Chk(GObj *volatile self)
 {
     actCreateSubThread(actStaff1Demo, 21);
 }
 
-void actStaff2Chk(GObj *volatile a0)
+void actStaff2Chk(GObj *volatile self)
 {
     reg_SetScissorSw(1);
 
@@ -1661,7 +1661,7 @@ void actStaff2Chk(GObj *volatile a0)
     actCreateSubThread(actStaff2Demo, 21);
 }
 
-void actStaff3Chk(GObj *volatile a0)
+void actStaff3Chk(GObj *volatile self)
 {
     scpAdpcmPlayRequestFunc(49, &staff3, 0, 1, 1);
 
@@ -1676,7 +1676,7 @@ void actStaff3Chk(GObj *volatile a0)
     actCreateSubThread(actStaff3RollChk, 21);
 }
 
-void actStaff3RollChk(GObj *volatile a0)
+void actStaff3RollChk(GObj *volatile self)
 {
     preload(1);
 
@@ -1691,14 +1691,14 @@ void actStaff3RollChk(GObj *volatile a0)
     RequestStageChange(1, boyGObj, 0, 16.0f, 0.001f);
 }
 
-void actEndDemo14Chk(GObj *volatile a0)
+void actEndDemo14Chk(GObj *volatile self)
 {
     gflagOn(352);
 
     actCreateSubThread(actConte14_14, 21);
 }
 
-static void actEndingSave(GObj *volatile a0)
+static void actEndingSave(GObj *volatile self)
 {
     if (gFlagGameClear == 0) {
         int save;

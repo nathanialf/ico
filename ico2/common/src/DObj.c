@@ -284,11 +284,11 @@ static void allocObjectData(char *self, SObjSimpleSetting *lay, int n)
     }
 }
 
-static void initInitialInverseMatrix(char *a0)
+static void initInitialInverseMatrix(char *d)
 {
-    char *m = iosMallocDebug(ios_partition_sugipon, *(int *)(a0 + 0x88) << 6, __FILE__, 333);
-    *(char **)(a0 + 0x90) = m;
-    GetInitialInverseMatrixByDObj(m, a0);
+    char *m = iosMallocDebug(ios_partition_sugipon, *(int *)(d + 0x88) << 6, __FILE__, 333);
+    *(char **)(d + 0x90) = m;
+    GetInitialInverseMatrixByDObj(m, d);
 }
 
 typedef struct {
@@ -458,16 +458,16 @@ Sub15C *CSVSYSTEM_InitDObj(int id, SObjSimpleSetting *lay)
     return (Sub15C *)d;
 }
 
-inline void LinkParentOfDObj(void *a0, PackedLL_19CAF0 *a1)
+inline void LinkParentOfDObj(void *obj, PackedLL_19CAF0 *link)
 {
     PackedLL_19CAF0 *p;
-    LocalizeGeometry(a0, a1);
-    p = (PackedLL_19CAF0 *)GOBJ_SUB(a0);
-    *p = *a1;
+    LocalizeGeometry(obj, link);
+    p = (PackedLL_19CAF0 *)GOBJ_SUB(obj);
+    *p = *link;
 }
 
-inline void UnlinkParentOfDObj(void *a0)
+inline void UnlinkParentOfDObj(void *obj)
 {
-    GlobalizeGeometry(a0);
-    GOBJ_SUB(a0)->parent = InitialObjPointer;
+    GlobalizeGeometry(obj);
+    GOBJ_SUB(obj)->parent = InitialObjPointer;
 }

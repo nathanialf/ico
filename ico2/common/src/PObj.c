@@ -346,7 +346,7 @@ PObj *AllocPObj(ObjHdr *h, char *name, int n)
     return p;
 }
 
-PObj *InitPObj(int a0, int a1, int n)
+PObj *InitPObj(int h, int name, int n)
 {
     PObj *p;
     Vec v;
@@ -354,7 +354,7 @@ PObj *InitPObj(int a0, int a1, int n)
     int i;
     int j;
 
-    p = AllocPObj((ObjHdr *)a0, (char *)a1, n);
+    p = AllocPObj((ObjHdr *)h, (char *)name, n);
     SetPObjVector(v, modelData[n].offset[0], modelData[n].offset[1], modelData[n].offset[2]);
     num = p->f2E;
     for (i = 0; i < num; i++) {

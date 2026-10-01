@@ -58,62 +58,62 @@ SObjSimpleSetting InitialSObjSimpleSetting = {
     0,
 };
 
-inline void MoveNextStage_Set(float *a0, float *a1, int a2, int a3, int a4, int a5)
+inline void MoveNextStage_Set(float *pos, float *rot, int wait1, int wait2, int wait3, int stage)
 {
-    nextStagePos[0] = a0[0];
-    nextStagePos[1] = a0[1];
-    nextStagePos[2] = a0[2];
-    stageStartWait1 = a2;
-    stageStartWait2 = a3;
-    stageStartWait3 = a4;
-    nextStageNo = a5;
-    nextStageRot[0] = a1[0];
-    nextStageRot[1] = a1[1];
-    nextStageRot[2] = a1[2];
+    nextStagePos[0] = pos[0];
+    nextStagePos[1] = pos[1];
+    nextStagePos[2] = pos[2];
+    stageStartWait1 = wait1;
+    stageStartWait2 = wait2;
+    stageStartWait3 = wait3;
+    nextStageNo = stage;
+    nextStageRot[0] = rot[0];
+    nextStageRot[1] = rot[1];
+    nextStageRot[2] = rot[2];
     nextStageSet = 1;
 }
 
-inline void test_nextstage_firstwalk_set(int unused, int a, int b, int c)
+inline void test_nextstage_firstwalk_set(int unused, int wait1, int wait2, int wait3)
 {
-    stageStartWait1 = a;
-    stageStartWait2 = b;
-    stageStartWait3 = c;
+    stageStartWait1 = wait1;
+    stageStartWait2 = wait2;
+    stageStartWait3 = wait3;
 }
 
-inline int GetStageStartInfo(GObj *a0, int a1, int a2, int *p, int *q, int *r)
+inline int GetStageStartInfo(GObj *self, int a1, int a2, int *wait1, int *wait2, int *wait3)
 {
     int ret = 1;
     if (exit_no == 0) {
-        *r = 1;
-        *q = 1;
-        *p = 1;
+        *wait3 = 1;
+        *wait2 = 1;
+        *wait1 = 1;
     } else {
-        *p = stageStartWait1;
-        *q = stageStartWait2;
-        *r = stageStartWait3;
-        if (*q == 0)
+        *wait1 = stageStartWait1;
+        *wait2 = stageStartWait2;
+        *wait3 = stageStartWait3;
+        if (*wait2 == 0)
             ret = 0;
-        if (*p == 0)
-            *p = 1;
-        if (*q == 0)
-            *q = 1;
-        if (*r == 0)
-            *r = 1;
+        if (*wait1 == 0)
+            *wait1 = 1;
+        if (*wait2 == 0)
+            *wait2 = 1;
+        if (*wait3 == 0)
+            *wait3 = 1;
     }
-    *q = 0x32;
+    *wait2 = 0x32;
     return ret;
 }
 
-inline void ChangeStageStartInfo(int a0, int a1, int a2, int a3, int t0)
+inline void ChangeStageStartInfo(int a0, int a1, int wait1, int wait2, int wait3)
 {
-    if (a2 >= 0) {
-        stageStartWait1 = a2;
+    if (wait1 >= 0) {
+        stageStartWait1 = wait1;
     }
-    if (a3 >= 0) {
-        stageStartWait2 = a3;
+    if (wait2 >= 0) {
+        stageStartWait2 = wait2;
     }
-    if (t0 >= 0) {
-        stageStartWait3 = t0;
+    if (wait3 >= 0) {
+        stageStartWait3 = wait3;
     }
 }
 
@@ -260,18 +260,19 @@ void InitStageLight(int stage)
     tex_RemakeRegistersSampleMin(0);
 }
 
-inline GObj *CreateLayoutedGObj(int id, int a1, int a2, int a3, void *lay, int a5, int a6, int a7)
+inline GObj *CreateLayoutedGObj(int id, int model, int accessary, int light, void *lay, int label,
+                                int key, int useStart)
 {
     ObjKindEnt *layout = &objKindData[id];
-    GObj *gobj = CreateGObj(layout, id, a5, a6, a7);
-    Sub15C *dobj = CSVSYSTEM_InitDObj(a1, lay);
+    GObj *gobj = CreateGObj(layout, id, label, key, useStart);
+    Sub15C *dobj = CSVSYSTEM_InitDObj(model, lay);
     int (*fn)(GObj *, void *);
 
     /* the 0x15C slot is the int handle GOBJ_SUB reads (typedef.h) */
     *(int *)&gobj->dobj = (int)dobj;
-    dobj->accessary = a2;
+    dobj->accessary = accessary;
 
-    light_AddLight(gobj, a3, 1);
+    light_AddLight(gobj, light, 1);
 
     fn = layout->create;
     if (fn != 0) {
