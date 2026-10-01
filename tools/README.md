@@ -10,7 +10,7 @@ gate.
 
 | tool | what it does |
 |---|---|
-| `setup.sh` | idempotent host setup: the venv from `requirements.txt`; the period compilers ee-gcc 2.9-991111 and ee-gcc 2.96 (for its SCE 2.10 assembler) from decompme/compilers into `tools/cc/`; a check for a MIPS `objcopy`; GNU ld 2.10 with the two patches below and ps2dev's dvp-as, built from public source; the git hooks |
+| `setup.sh` | idempotent host setup: the venv from `requirements.txt`; the period compilers ee-gcc 2.9-991111 and ee-gcc 2.96 (for its SCE 2.10 assembler) from decompme/compilers into `tools/cc/`; a check for `mips-linux-gnu-objcopy`; GNU ld 2.10 with the two patches below and ps2dev's dvp-as, built from public source; the git hooks |
 | `requirements.txt` | the venv's Python packages: pyelftools, pycdlib, ninja, clang-format |
 | `binutils-2.10-ee.patch` | the R5900 machine and the DVP overlay section types for GNU ld 2.10, backported from ps2dev's `binutils-2.14-PS2.patch`; applied by `setup.sh` |
 | `binutils-2.10-dvp-ld.patch` | the Cygnus "sky" ld's DVP rule for GNU ld 2.10: each `.DVP.overlay.*` orphan gets its own output section at address 0 (from the GPL ee-gcc 2.9-991111 combined tree's `ld/emultempl/elf32.em`); applied by `setup.sh` after the first |
@@ -25,5 +25,5 @@ gate.
 | `verify_elf.py` | checks a file's SHA-1 against `config/sha1sums.txt` |
 | `check_elf.py` | `--gate`: every allocated section of the built ELF against the base by address, the NOBITS ranges allocated, the ROM SHA-1 and, with `--require-elf-sha` (the build's verify step), the ELF SHA-1; `--progress`: README.md's badges, `docs/PROGRESS.md` and `docs/progress.json` from the same comparison and the link map, with the bytes from the tracked sources and those generated from the user's disc counted apart; `--full-diff`: the whole file side by side |
 | `check_no_rom.sh` | IP guard: refuses disc images, PS2 executables, the disc's reference files (`MAIN.MAP`, `SRCFILE.TXT`, ...), extracted assets, large binaries and raw byte-array initializers in tracked C |
-| `check_dev_native.py` / `dev_native_allow.txt` | refuses constructs a developer did not write (K&R definitions, empty `do { } while (0)`, empty asm, symbol aliases, register pins and asm blocks in functions the listing shows were compiled C) and checks that `compile_c.sh` selects the assembler by archive only; the allowlist holds the ROM-proven exceptions with their reasons |
+| `check_dev_native.py` / `dev_native_allow.txt` | refuses constructs a developer did not write (K&R definitions, empty `do { } while (0)`, empty asm, symbol aliases, register pins and asm blocks in functions the listing shows were compiled C, file-scope asm that defines such a function) and checks that `compile_c.sh` selects the assembler by archive only; the allowlist holds the ROM-proven exceptions with their reasons |
 | `format.sh` / `format_layout.py` | clang-format with the tracked `.clang-format`, then the top-level blank-line layout; `--check` for the pre-commit hook. Under `-g` a line break can move bytes, so the byte gate runs after it |

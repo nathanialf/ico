@@ -40,8 +40,8 @@ cp "/path/to/Ico (Europe).iso" baserom/Ico_PAL.iso
 missing, extracts `baserom/pal/baseelf.elf` from the disc image when it is
 missing (`tools/extract_elf.sh`), then runs `tools/build.sh setup`, `ninja`,
 and `tools/check_elf.py --gate`, and exits non-zero if any step fails. The
-host needs a 64-bit Linux with 32-bit libraries, a host gcc, a MIPS `objcopy`
-and network access for the first run; [`docs/BUILDING.md`](docs/BUILDING.md)
+host needs a 64-bit Linux with 32-bit libraries, a host gcc,
+`mips-linux-gnu-objcopy` and network access for the first run; [`docs/BUILDING.md`](docs/BUILDING.md)
 lists the packages and describes each step.
 
 The build checks the SHA-1s from `config/sha1sums.txt`: the extracted ELF
@@ -156,7 +156,7 @@ DVP overlay sections from ps2dev's `binutils-2.14-PS2.patch`; the second
 places each VU overlay at address 0, the rule of the Cygnus linker shipped
 with the GPL ee-gcc 2.9-991111 sources. The licence notices are the tools'
 own (`--version` for the assemblers and ld; the source trees for the rest).
-A MIPS `objcopy` from the host writes `build/ico.rom`.
+The host's `mips-linux-gnu-objcopy` writes `build/ico.rom`.
 
 ## Branches
 

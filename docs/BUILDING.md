@@ -60,10 +60,11 @@ skips it.
    (2.10-ee-001003-1), which assembles Sony's SDK archives; that compiler is
    never run. The script warns when a compiler is present but does not run
    (missing 32-bit libraries).
-3. Checks for a MIPS `objcopy`.
+3. Checks for `mips-linux-gnu-objcopy`.
 4. Builds the linker and the VU assembler from public GPL source (next
-   section). On a four-core host the fetch takes about 20 s, dvp-as about
-   30 s and ld 2.10 about 17 s (`tools/setup.sh` comments).
+   section). On a four-core host the dvp-as source fetch takes about 20 s,
+   the dvp-as build about 30 s and ld 2.10 about 17 s (`tools/setup.sh`
+   comments).
 5. Installs the git hooks (`tools/install_hooks.sh`, below).
 
 `SKIP_TOOLCHAIN=1` skips steps 2 to 4.
@@ -191,6 +192,15 @@ ELF and ROM (`tools/verify_elf.py`), and writes `build.ninja` with
 track header or `.c.inc` dependencies (the VU includes under `ico2/vusrc/`
 are listed on the cpp step): after editing one, run
 `tools/build.sh clean` before `ninja`.
+
+## EUC-JP sources
+
+Some game sources carry Japanese text in EUC-JP, and their string literals
+are the ROM's bytes. `.gitattributes` lists each of them with
+`working-tree-encoding=EUC-JP`: git stores the file as UTF-8 and checks it
+out as EUC-JP, which is what the compiler reads. An editor or a pipe that
+rewrites one of these files as UTF-8 changes its bytes; change them with an
+ASCII patch and `git apply`.
 
 ## Progress and the dashboard
 

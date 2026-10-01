@@ -6,15 +6,15 @@ how that maps onto the `ico2/` directories.
 ## The directories
 
 The game's source tree is the one the PAL disc's listing (`SRCFILE.TXT`)
-records, file by file: `ico2/<dir>/<kind>/<file>`. Five of the seven
-top-level directories are named after a programmer; the other two are
-shared.
+records, file by file: `ico2/<dir>/<kind>/<file>`. Five of the eight
+top-level directories are named after a programmer; `common` and `script`
+are shared, and `vusrc` holds the VU1 microprograms.
 
 | dir | contents |
 | --- | --- |
 | `seki` | the GS drawing layer: `GsBase`, `GifPacket`, `DmaPacket`, `Packet`, `Primitive`, `Texture`, `Light`, `Shadow`, `ZFog`, `Matrix`, the display lists and fonts |
 | `sugipon` | the draw engine and object behaviour: `matrixDrive`, `motionManager`, `geometryManager`, `quaternion`, cloth, rope, wind, particles, Yorda (`girl`), the enemies and the stage objects (box, cage, torch, switch, ...) |
-| `omori` | the cameras, the brains (`brain`, `ebrain`), attack hits, enemy control, the chain, the object action mail (`objact`) and the climb tables (`*climb.h`) |
+| `omori` | the cameras, the brains (`brain`, `ebrain`), attack hits, enemy control, the chain, the object action mail (`objact`) and the climb headers (`*climb.h`, whose handlers are written in fumi's `boyact.c` and `girl_act.c`) |
 | `ito` | the queen and boss scenes (`itou_boss`, `itou_sub`, `itou_gflag`), effects, and the movie player (`mpeg/`, the IPU layer) |
 | `fumi` | the action layer (`boyact`, `girl_act`, `commonact`, `enemy_act`, the `act-*` files, the way-point system), the I/O layer (`ios/`: CD, memory card, pad, threads, memory), the object system (`isys/`) and sound (`sound/`) |
 | `common` | the main loop, the game system, stage and scene management, debug menus, the staff roll |
@@ -54,9 +54,8 @@ Caveats:
 
 The engine's object records are defined once, in
 `ico2/common/include/typedef.h`, and read from every programmer directory:
-the game object (`GObj`), the per-object state it points at (`Sub15C`,
-reached through `GOBJ_SUB`), the geometry object that state holds
-(`Obj7F0`) and the action state (`Act`, reached through `GOBJ_ACT`). They
-belong to the engine rather than to any one programmer. What the geometry
-and action pointers lead to differs by object type, so some files declare
-their own view of it.
+the game object (`GObj`), its display object (`Sub15C`, reached through
+`GOBJ_SUB`) and its action state (`Act`, reached through `GOBJ_ACT`). They
+belong to the engine rather than to any one programmer. A few files declare
+their own view of one of them, under a comment saying so (`script/src/st04a.c`
+for `Act` and `GObj`).

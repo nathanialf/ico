@@ -21,10 +21,10 @@ the listing records for it, under the programmer directory that owns it.
 | `ico2/sugipon/include/sugiCommon.h` | 84 inlined expansions in callers across six programmer directories | nine `static` inline helpers: random numbers, plane distance, squared distances, a byte checksum |
 | `ico2/ito/include/itou_common.h` | inlined expansions in five `ito` functions | degree and radian conversion |
 | `ico2/ito/include/mv_defs.h` | inlined expansions in the movie player, and three out-of-line copies of `Free` | address masks and a zeroing allocator; `Free`, its release, is defined in each of `mv_vibuf.c`, `mv_videodec.c` and `mv_vobuf.c` |
-| `ico2/common/include/typedef.h` | one helper at line 74, inlined twice into `avoid_obstacle2` | the engine's shared object records (`GObj`, `Sub15C`, `Obj7F0`, ...) and the game's VU0 asm templates |
+| `ico2/common/include/typedef.h` | one helper at line 74, inlined twice into `avoid_obstacle2` | the engine's shared object records (`GObj`, `Sub15C`, `Act`, ...) and the game's VU0 asm templates |
 | `ico2/omori/include/{b50,b100,b200}climb.h` | whole functions, emitted into `fumi/src/boyact.c`'s object | the boy's climb handlers |
 | `ico2/omori/include/{g50,g100,g200}climb.h` | whole functions, emitted into `fumi/src/girl_act.c`'s object | the girl's climb handlers |
-| `ico2/common/include/charFileName.h` | no listing rows; the ROM's message at `0x00619370` names `commmon/include/charFileName.h` (the typo is the message's) | `MAX_CHARS`, the bound three call sites compare against (1637) |
+| `ico2/common/include/charFileName.h` | no listing rows; the ROM's message at `0x00619370` names `commmon/include/charFileName.h` (the typo is the message's) | `MAX_CHARS` (1637), the size of `charFileManager.c`'s character-file table and the bound its four id checks compare against |
 
 Things a reader of these files should know:
 
@@ -32,11 +32,13 @@ Things a reader of these files should know:
   developer's only when the listing shows it emitted out of line somewhere.
   That holds for `Free` and for the eighteen climb functions
   (`after*Hand*`, `act*Hand*`, `mot*Hand*`). Every other helper name is a
-  descriptive one, and the header says so (a `/* derived name */` token at
-  the definition, or the header's opening comment).
-- **Two pairs of identical helpers.** `sugiCommon.h` lines 53-56 and 63-66,
-  and lines 85-88 and 95-98, compile to the same instructions. The listing
-  cites the lines separately, so both of each pair are written out.
+  descriptive one, marked as described under "Derived names" below.
+- **Two pairs of identical helpers.** The listing cites lines 53-56 and
+  63-66, and lines 85-88 and 95-98, of the developer's `sugiCommon.h` for
+  expansions with the same instructions, so both of each pair are written
+  out, the second under a `_b` name (`random_signed_b`,
+  `distance_squared_b`). The tracked file's line numbers are not the
+  listing's.
 - **Line numbers that are part of the bytes.** `mv_defs.h`'s allocator bakes
   `__FILE__` and `__LINE__` into the ROM (`"../ito/include/mv_defs.h"`, lines
   43 and 44), and `typedef.h`'s helper must stay on line 74. Neither file may
@@ -71,28 +73,37 @@ the point the listing puts it, and its assert strings still name it
 
 ## Headers placed by this project
 
-**One header per game file.** The other 216 headers under
+**One header per game file.** The other 217 headers under
 `ico2/<programmer>/include/` are each named after the source file whose
-definitions they declare (`gobj.h` for `isys/gobj.c`); the disc records none
-of them. They hold one prototype per function and one `extern` per object,
-with the types the definitions and their callers use. Shared records are
+definitions they declare (`gobj.h` for `isys/gobj.c`, `switch.h` for
+`switch.c.inc`); the disc records none of them. They hold one prototype
+per function and one `extern` per object, with the types the definitions
+and their callers use. Shared records are
 defined in the owner's header or, for the engine's records (`GObj`,
-`Sub15C`, `Obj7F0`, `Act`, ...), in `typedef.h`. A few files define a local,
-partial view of a shared record (`ClothCfg` in `clothAnimation.c` and
-`clothTest.c`, for example). Records only one file uses stay in that file. A
-file that keeps a local declaration instead of including the owner's header
-says why in a `kept local` comment.
+`Sub15C`, `Act`, ...), in `typedef.h`. A few files declare their own view of
+a shared record under a comment saying so (`st04a.c`'s `Act` and `GObj`,
+`item.c`'s `ClipWork`). Records only one file uses stay in that file.
 
 **Sony's and newlib's headers.** The headers under `sce/<archive>/` carry the
 SDK's public header names (`eekernel.h`, `libgraph.h`, `libdma.h`, ...) and
-newlib's (`stdio.h`, `math.h`, ...). The declarations follow the signatures
-the open-source ps2sdk headers and newlib's own headers give; where a header
-follows one, its opening comment names the file. Files named
-`*_internal.h` hold declarations that are not public API, and their names
+newlib's (`stdio.h`, `math.h`, ...). Each declaration is the signature of the
+member under `sce/` that defines the symbol; `eekernel.h`, whose calls the
+kernel defines, gives the public signatures of ps2sdk's
+`ee/kernel/include/kernel.h`. Each header's opening comment says which.
+Files named `*_internal.h` hold declarations that are not public API, and their names
 are this project's, as is `sce/libsndn2/sound.h`, named after its member
 `sound.o`; the movie player's audio decoder takes the stream PCM calls from
 it. The listing attributes no rows to `/usr/local/sce/ee/include`, so no SDK
 header compiled code into the game.
+
+## Derived names
+
+The disc records no field names and no names for inlined helpers. A name
+derived from context instead of read from the disc's maps is marked with a
+`/* derived name */` token on its definition line. A record of the game
+whose field names are derived carries one `/* field names derived */` token
+on its opening line rather than one per field. Sony's public types keep
+their public names.
 
 ## Search order
 

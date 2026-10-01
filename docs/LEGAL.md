@@ -20,6 +20,12 @@ respective owners.
   how the rebuilt ELF is linked: the link order, the linker script, the
   data-table index, the data-table schema (record types and counts, no
   values) and the SHA-1s of the expected files.
+- `config/ico.pal.yaml`, `config/symbol_addrs.pal.txt` and
+  `config/symbol_addrs.pal.data.txt`, kept as a record of the old split
+  layout; nothing in the build reads them. The two symbol lists hold the
+  names this tree defines and the addresses the link places them at, the
+  same facts `nm` prints over `build/ico.elf`; they are a record of the
+  rebuilt ELF, not a copy of a disc file.
 
 ## What is not in this repository, and must never be added
 
@@ -79,9 +85,10 @@ names into this repository.
 
 Public source code under an open licence is used the same way. Sony's
 libraries in `sce/` were written from the shipped instructions; their header
-names follow the SDK's public naming, and their declarations the signatures
-the open-source ps2sdk headers give (the header comments name the files they
-follow). The newlib and libgcc members follow newlib's and GCC's published
+names follow the SDK's public naming, and each declaration is the signature
+of the member under `sce/` that defines it; the kernel calls in `eekernel.h`
+follow the public ps2sdk `kernel.h` (each header's opening comment says
+which). The newlib and libgcc members follow newlib's and GCC's published
 source, whose licences permit it.
 
 ## Identifiers as references: facts, not expression
