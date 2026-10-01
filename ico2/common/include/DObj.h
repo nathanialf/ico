@@ -14,9 +14,9 @@ struct Sub15C;
 
 /* The parent-link word LinkParentOfDObj copies: one long long at a 4-byte
  * aligned address, so the struct is packed. */
-typedef struct {
+typedef struct { /* field names derived */
     long long x;
-} __attribute__((packed, aligned(4))) PackedLL_19CAF0;
+} __attribute__((packed, aligned(4))) PackedLL_19CAF0; /* derived name */
 
 /* DObj.c's `inline` functions, in the order of their definitions'
  * out-of-line copies at the end of the object (first-declaration order). */

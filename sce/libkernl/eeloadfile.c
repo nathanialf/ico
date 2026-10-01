@@ -77,17 +77,17 @@ int sceSifLoadFileReset(void)
 /* The request's 0xFC-byte argument block.  The oversize copy below is a record
    assignment, which gcc expands inline through movstrsi; memcpy stays a call at
    -fno-builtin, so the inline ldl/ldr run can only come from a record. */
-typedef struct {
+typedef struct { /* field names derived */
     char v[0xFC];
-} SceLfArgBuf;
+} SceLfArgBuf; /* derived name */
 
 /* The loadfile RPC send buffer at lf_buf (0x200 bytes sent, 8 read back). */
-typedef struct {
+typedef struct { /* field names derived */
     int addr;
     int arglen;
     char name[0xFC];
     SceLfArgBuf args;
-} SceLfRpcBuf;
+} SceLfRpcBuf; /* derived name */
 
 int _sceSifLoadModuleBuffer(void *addr, int arglen, int args, void *ret)
 {

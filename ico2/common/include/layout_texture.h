@@ -70,7 +70,7 @@ typedef struct LtProperty { /* field names derived */
     unsigned int defaultMask
         : 1; /* the mask restored on a layout switch (lt_default_mask_property) */
     unsigned int : 26;
-} LtProperty;
+} LtProperty; /* derived name */
 
 extern LtProperty texProperty[];
 

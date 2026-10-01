@@ -6,19 +6,19 @@
 /* the pack header fields _pack_header keeps: the 9-bit SCR extension, the
  * low 32 bits and the top bit of the 33-bit SCR base, and whether a system
  * header follows */
-typedef struct {   /* derived name */
+typedef struct {   /* field names derived */
     int scrExt;    /* 0x0 */
     int scrBase;   /* 0x4 */
     int scrBase32; /* 0x8 */
     int hasSysHdr; /* 0xC */
-} PackHeader;
+} PackHeader;      /* derived name */
 
 /* the ten PSS stream descriptors: the id template of the stream and the mask
  * of the bits its stream number occupies */
-typedef struct {
+typedef struct { /* field names derived */
     unsigned long long id;
     unsigned long long mask;
-} StrDesc;
+} StrDesc; /* derived name */
 
 static StrDesc streamDesc[10] /* derived name */ = {
     {0xE000000000ULL, 0xFF00000000ULL}, {0xBDFFC00000ULL, 0xFFFFFFFFFFULL},
@@ -119,7 +119,7 @@ int _id2type(int *type, int *num, unsigned long long id)
 /* one PES packet header: the 64-bit stream id the demux matches against, the
  * packet and payload lengths, the two timestamps and the bit positions the
  * ring buffer is rewound to */
-typedef struct {
+typedef struct { /* field names derived */
     long long id;
     int length;
     int scramble;
@@ -128,16 +128,16 @@ typedef struct {
     int pos;
     int datalen;
     int startpos;
-} PesPkt;
+} PesPkt; /* derived name */
 
 /* the packet the demuxer walks: the pack header _pack_header fills, then the
  * PES packet header _PES_packet fills */
-typedef struct {
+typedef struct { /* field names derived */
     PackHeader pack;
     int pad10[2];
     PesPkt pes;
     int pad48[2];
-} PssPkt;
+} PssPkt; /* derived name */
 
 /* the kinds of callback the decoder makes; a demuxed stream packet is the last */
 typedef enum {
@@ -153,23 +153,23 @@ typedef enum {
 /* what a stream callback is handed (sceMpegCbDataStr): the callback type, the
  * ring addresses of the packet header and payload, the payload length and the
  * two time stamps */
-typedef struct {
+typedef struct { /* field names derived */
     MpegCbType type;
     unsigned char *header;
     unsigned char *data;
     unsigned int len;
     long long pts;
     long long dts;
-} DemuxRec;
+} DemuxRec; /* derived name */
 
 /* one demux callback: the stream id it matches, the mask of the id bits that
  * take part in the match, and the handler with its user argument */
-typedef struct StrCb {
+typedef struct StrCb { /* field names derived */
     long long id;
     unsigned long long mask;
     sceMpegCallback func;
     void *arg;
-} StrCb;
+} StrCb; /* derived name */
 
 /* Their record types are this member's own */
 int _pack_header(int *bs, PackHeader *pkt);

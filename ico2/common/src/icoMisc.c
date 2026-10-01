@@ -80,12 +80,12 @@ static char printBuf[128]; /* derived name */
 inline void ExitIcoMisc(void) {}
 
 /* two-dimensional screen position handed to Draw2DLine */
-typedef struct {
+typedef struct { /* field names derived */
     int x;
     int y;
     int z;
     int w;
-} D2Pos;
+} D2Pos; /* derived name */
 
 /* The partition bar's TTY trace, built only when DEBUG is defined; the
    retail build does not define it, so the helper has no body there (the
@@ -331,7 +331,8 @@ void ExecIcoMisc(void)
 }
 
 /* per-scene preset: twelve (time, effect id) pairs then the scene label at 0xC0 */
-typedef struct {
+typedef struct { /* field names derived */
+
     struct {
         float t;
         int id;
@@ -339,17 +340,17 @@ typedef struct {
 
     char _60[0xC0 - 0x60];
     char name[0x194 - 0xC0];
-} ScnPre;
+} ScnPre; /* derived name */
 
 /* particle-effect entry: package id at 0x18, attribute word at 0x20 whose
    bit 0 marks the entry as already handled */
-typedef struct {
+typedef struct { /* field names derived */
     char pad0[24];
     int pkg; /* 0x18 */
     char pad1C[4];
     unsigned int done : 1; /* 0x20 */
     unsigned int _21 : 31;
-} EffEnt;
+} EffEnt; /* derived name */
 
 /* motionOrientManager.h carries MotionDef and declares no motionKind */
 extern const ScnPre motionKind[];

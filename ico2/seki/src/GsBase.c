@@ -679,7 +679,7 @@ static void gsb_setParticleReg(int ctx)
 /* the head of the common matrix packet: the three constant rows of the VU
    parameter block (the unit w, the clip extents and a zero row) and the GIF
    tag of the strip the microcode sends */
-static const struct {
+static const struct { /* field names derived */
     sceVu0FVECTOR row[3];
     sceVu0IVECTOR tag;
 } commonMatrixHead = {

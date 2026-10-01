@@ -39,7 +39,7 @@ typedef struct ViBuf {   /* field names derived */
     int tsCount;         /* 0x58 timestamps live in it */
     int tsWr;            /* 0x5C index the next timestamp goes to */
     char created;        /* 0x60 */
-} ViBuf;
+} ViBuf; /* derived name */
 
 int viBufAddDMA(ViBuf *self);
 void viBufBeginPut(ViBuf *self, void **addr1, int *size1, void **addr2, int *size2);

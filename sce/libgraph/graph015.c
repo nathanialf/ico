@@ -6,7 +6,7 @@
 
 typedef unsigned int u128 __attribute__((mode(TI)));
 
-typedef struct {
+typedef struct { /* field names derived */
     unsigned long long nloop : 15;
     unsigned long long eop : 1;
     unsigned long long pad1 : 30;
@@ -16,9 +16,9 @@ typedef struct {
     unsigned long long nreg : 4;
     unsigned long long regs0 : 4;
     unsigned long long regs1 : 60;
-} GifTag;
+} GifTag; /* derived name */
 
-typedef struct {
+typedef struct {          /* field names derived */
     GifTag gif;           /* 0x00 */
     long long bitbltbuf;  /* 0x10 */
     long long abitbltbuf; /* 0x18 */
@@ -29,7 +29,7 @@ typedef struct {
     long long trxdir;     /* 0x40 */
     long long atrxdir;    /* 0x48 */
     GifTag gif2;          /* 0x50 */
-} LoadImage;
+} LoadImage;              /* derived name */
 
 int sceGsSetDefLoadImage(LoadImage *di, short dbp, short dbw, short dpsm, short dsax, short dsay,
                          short rrw, short rrh)

@@ -38,7 +38,7 @@ static void *fsIoctlArg; /* derived name */
    reply's result goes to and the reply mode; the rest is the call's
    arguments, with the descriptor's index in the iob table where the call
    names a descriptor. */
-typedef struct {
+typedef struct { /* field names derived */
     int sema;
     int *result;
     int mode;
@@ -51,7 +51,7 @@ typedef struct {
 
 /* the write request carries the unaligned head of the caller's buffer, the
    rest goes by DMA from its 16-byte aligned address */
-typedef struct {
+typedef struct { /* field names derived */
     int sema;
     int *result;
     int mode;
@@ -63,14 +63,14 @@ typedef struct {
     int iob;
 } FsWriteReq; /* derived name */
 
-typedef struct {
+typedef struct { /* field names derived */
     int sema;
     int *result;
     int mode;
     void *drv;
 } FsAddDrvReq; /* derived name */
 
-typedef struct {
+typedef struct { /* field names derived */
     int sema;
     int *result;
     int mode;
@@ -78,7 +78,7 @@ typedef struct {
     unsigned char name[0x400];
 } FsGetstatReq; /* derived name */
 
-typedef struct {
+typedef struct { /* field names derived */
     int sema;
     int *result;
     int mode;
@@ -87,7 +87,7 @@ typedef struct {
     char name[0x400];
 } FsReadlinkReq; /* derived name */
 
-static union {
+static union { /* field names derived */
     int w[0x310];
     FsReadReq rd;
     FsWriteReq wr;
@@ -159,22 +159,22 @@ ok:
 /* The four-byte filesystem version stamp the IOP hands back
    in the RPC receive buffer; _fs_version() memcmps it against the two
    built-in stamps. */
-typedef struct {
+typedef struct { /* field names derived */
     char v[4];
-} SceFsVersion;
+} SceFsVersion; /* derived name */
 
 /* the FS reply packet the IOP leaves in fsRcvPkt; the handler reads it
    through the uncached accelerated window, so every record copy below is a
    byte-array assignment and gcc expands each one inline with the unaligned
    pairs the window forces. */
 /* the readdir reply record and the 0x40-byte stat record */
-typedef struct {
+typedef struct { /* field names derived */
     char v[0x144];
-} SceFsDirent;
+} SceFsDirent; /* derived name */
 
-typedef struct {
+typedef struct { /* field names derived */
     char v[0x40];
-} SceFsStatRec;
+} SceFsStatRec; /* derived name */
 
 /* The SIF command handler for the FS reply.  Each reply word is its own
    local (the header's request id, command, buffer and size, then a
@@ -350,11 +350,11 @@ int sceFsReset(void)
 /* The 16-byte file-descriptor record new_iob() hands out of
    the fsIobTab table; field 0 is the driver handle _sceCallCode returns and
    field 4 the in-use flag new_iob() sets to 0x10000000. */
-typedef struct {
+typedef struct { /* field names derived */
     int fd;
     int inuse;
     int _8[2];
-} SceIob;
+} SceIob; /* derived name */
 
 /* Varargs: the mode is the first anonymous argument, read after the
    new_iob() check.  One status local, rc, carries the RPC result, the
@@ -712,9 +712,9 @@ int sceWrite(int fd, void *buf, int nbyte)
 /* the ioctl argument pointer the request-0x1 arm reads back */
 /* the 8-byte status word the IOP leaves for requests 0x2 and 0x3 */
 
-typedef struct {
+typedef struct { /* field names derived */
     char b[1024];
-} SceIoctlArg;
+} SceIoctlArg; /* derived name */
 
 int sceIoctl(unsigned int fd, int request, void *argp)
 {
@@ -1245,9 +1245,9 @@ int sceGetstat(unsigned char *name, void *stat)
 /* the 0x40-byte stat record the request carries; the copy below is a record
    assignment, which gcc expands inline, since memcpy stays a call at
    -fno-builtin */
-typedef struct {
+typedef struct { /* field names derived */
     char v[0x40];
-} SceFsStat;
+} SceFsStat; /* derived name */
 
 int sceChstat(unsigned char *name, void *stat, int mask)
 {

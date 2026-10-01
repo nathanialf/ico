@@ -37,7 +37,7 @@ static __inline__ void setIpuInChcr(int chcr) /* derived name */
 typedef union { /* field names derived */
     unsigned long ul[2];
     int w[4];
-} QWord;
+} QWord; /* derived name */
 
 /* One 16-byte DMA source-chain tag: the data address in the upper word, the
    tag id and quadword count below. */

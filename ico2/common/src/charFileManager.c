@@ -22,14 +22,14 @@
 #include "ios.h"
 #include <assert.h>
 
-typedef struct {
+typedef struct { /* field names derived */
     char pad0[68];
     short unk_44; /* 0x44 */
     char pad46[6];
     float *unk_4C; /* 0x4C */
-} Bone;            /* 0x50 */
+} Bone; /* 0x50 */ /* derived name */
 
-typedef struct {
+typedef struct { /* field names derived */
     char pad0[8];
     int count; /* 0x08 */
     char padC[4];
@@ -38,16 +38,16 @@ typedef struct {
     int unk_18; /* 0x18 */
     int unk_1C; /* 0x1C */
     int unk_20; /* 0x20 */
-} Coll;
+} Coll;         /* derived name */
 
-typedef struct {
+typedef struct {        /* field names derived */
     PObjModel *pObj;    /* 0x00 */
     PObjModel *pShadow; /* 0x04 */
     char *pSkel;        /* 0x08 */
     int skelSum;        /* 0x0C */
     Coll *pColl;        /* 0x10 */
     int state;          /* 0x14 */
-} CharFile;
+} CharFile;             /* derived name */
 
 /* .bss: the character file table, MAX_CHARS entries of 0x18 bytes */
 static CharFile charFiles[MAX_CHARS]; /* derived name */
@@ -396,11 +396,11 @@ void ReadStageAnimationFile(void *h, char *name, int size, int id, int kind, int
     stage_ApplyData(name, buf);
 }
 
-typedef struct {
+typedef struct { /* field names derived */
     char pad0[308];
     int unk_134; /* 0x134 */
     char pad138[92];
-} MotEnt; /* 0x194 */
+} MotEnt; /* 0x194 */ /* derived name */
 
 /* motionOrientManager.h carries MotionDef and declares no motionKind */
 extern MotEnt motionKind[];
@@ -487,10 +487,10 @@ void ReadSoundBdFile(void *h, int name, int size, int id, int kind, int word08, 
     debug_StdPrintfDummy("ReadSoundBdFile:loaded::[%d]%s  (size:%d)\n", id, name, size);
 }
 
-typedef struct {
+typedef struct { /* field names derived */
     int mode;
     int bank;
-} HdInfo;
+} HdInfo; /* derived name */
 
 /* the semi-common sound bank's header buffer, freed and reallocated on each
    load */
@@ -549,10 +549,10 @@ void ReadSoundHdFile(void *h, int name, int size, int id, int kind, int word08, 
     debug_StdPrintfDummy("ReadSoundHdFile:loaded::[%d]%s  (size:%d)\n", id, name, size);
 }
 
-typedef struct {
+typedef struct { /* field names derived */
     int mode;
     int bank;
-} SqInfo;
+} SqInfo; /* derived name */
 
 /* ReadSoundSqFile and ReadSoundAdpcmFile, between ReadSoundHdFile and
    ReadShockFile; they are plain `inline`, so their out-of-line bodies come
@@ -688,7 +688,7 @@ void ReadStageSettingFile(void *h, int name, int size)
     tex_RemakeRegistersSampleMin(0);
 }
 
-typedef struct {
+typedef struct { /* field names derived */
     char pad0[112];
     int unk_70; /* 0x70 */
     char pad74[16];
@@ -700,7 +700,7 @@ typedef struct {
     char pad838[28];
     PObjModel *unk_854; /* 0x854 */
     PObjModel *unk_858; /* 0x858 */
-} CsvChar;
+} CsvChar;              /* derived name */
 
 void CSVSYSTEM_ReadCharFiles(CsvChar *rec, int id)
 {

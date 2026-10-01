@@ -14,16 +14,16 @@
         (dst) = __sc_ret;                                                                          \
     }
 
-typedef struct {
+typedef struct { /* field names derived */
     unsigned char code;
     unsigned char id;
-} KernEvent;
+} KernEvent; /* derived name */
 
-typedef struct {
+typedef struct { /* field names derived */
     int ridx;
     int widx;
     KernEvent ent[512];
-} KernEventRing;
+} KernEventRing; /* derived name */
 
 /* the kernel event thread's stack (16-byte aligned, as CreateThread
    requires), the semaphore that wakes it and the ring of events the

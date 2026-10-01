@@ -19,7 +19,7 @@ struct HintInfo { /* field names derived */
 
 /* The two 4-byte hint flag sets the save block carries, then one timer per
    hint; Hint_Init clears the whole record. */
-static struct {
+static struct {      /* field names derived */
     char save[8];    /* 0x00 */
     float timer[28]; /* 0x08 */
 } hintWork;          /* derived name */

@@ -24,13 +24,13 @@ typedef struct VideoDec { /* field names derived */
     char padBC[4];        /* 0xBC */
     int dmacHandler;      /* 0xC0, the image-done DMA handler mv_main installs */
     int intcHandler;      /* 0xC4, the vblank handler mv_main installs */
-} VideoDec;
+} VideoDec; /* derived name */
 
 /* libmpeg's error callback data. */
 typedef struct MvCbErr { /* field names derived */
     int type;            /* 0x00 */
     char *message;       /* 0x04 */
-} MvCbErr;
+} MvCbErr; /* derived name */
 
 /* libmpeg's time stamp callback data: the PTS and DTS of the picture about
    to be decoded, filled in by the callback. */
@@ -39,7 +39,7 @@ typedef struct MvCbTs { /* field names derived */
     char pad4[4];       /* 0x04 */
     long long pts;      /* 0x08 */
     long long dts;      /* 0x10 */
-} MvCbTs;
+} MvCbTs; /* derived name */
 
 /* The block the decode thread is started with: the decoder, the display it
    draws to and the video-out ring between them. */
@@ -49,7 +49,7 @@ typedef struct MvThreadArg { /* field names derived */
     VoBuf *vo;
     /* the block is 64 bytes; only the three above are used */
     char reserved[64 - 12];
-} MvThreadArg;
+} MvThreadArg; /* derived name */
 
 int videoCallback(sceMpeg *mp, void *cbdata, void *anyData);
 void videoDecAbort(VideoDec *self);

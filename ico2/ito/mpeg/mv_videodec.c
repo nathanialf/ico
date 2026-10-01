@@ -96,7 +96,7 @@ static void videoDecEndPut(VideoDec *self, int n)
 
 typedef struct Code4 { /* field names derived */
     char b[4];
-} Code4;
+} Code4; /* derived name */
 
 int videoDecFlush(VideoDec *self)
 {

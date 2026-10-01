@@ -11,12 +11,12 @@
 
 /* the two system commands sceSifInitCmd installs handlers for: the IOP moving
    its command buffer, and the IOP setting one of the software registers */
-typedef struct {
+typedef struct { /* field names derived */
     SifCmdHeader header;
     int newaddr;        /* the IOP buffer address, the number iopbuf holds */
 } SifCmdChangeAddrData; /* derived name */
 
-typedef struct {
+typedef struct { /* field names derived */
     SifCmdHeader header;
     int rno;
     int value;
@@ -24,14 +24,14 @@ typedef struct {
 
 /* The 32-entry SIF command handler table, a
    handler function and the data pointer handed to it. */
-typedef struct {
+typedef struct { /* field names derived */
     void (*fn)();
     void *data;
-} SifCmdEntry;
+} SifCmdEntry; /* derived name */
 
 /* The SIF command data record (fields 3/4 and 5/6
    are what sceSifSetSysCmdBuffer and sceSifSetCmdBuffer swap). */
-typedef struct {
+typedef struct { /* field names derived */
     int sendbuf; /* the uncached alias of cmdSendBuf, its address OR 0x20000000 */
     int ackbuf;  /* the same for cmdAckBuf */
     int iopbuf;  /* the IOP's buffer address, read from and written to a SIF register */
@@ -40,7 +40,7 @@ typedef struct {
     SifCmdEntry *usrtbl;
     int nusr;
     int *sreg;
-} SifCmdData;
+} SifCmdData; /* derived name */
 
 void _set_sreg(void *pkt, void *data)
 {

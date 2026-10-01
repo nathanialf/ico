@@ -19,6 +19,6 @@ void queen_barrier_set_damage(void);
 typedef union { /* field names derived */
     float f[4];
     long long ll[2];
-} __attribute__((aligned(16))) QVec;
+} __attribute__((aligned(16))) QVec; /* derived name */
 
 #endif /* QUEEN_BARRIER_DISP_H */

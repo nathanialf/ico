@@ -4,19 +4,19 @@
 
 /* the receive queue: a 16-byte header (the ring's size, the bytes queued,
    the read and write pointers) and the ring */
-typedef struct { /* derived name */
+typedef struct { /* field names derived */
     int size;
     int count;
     char *rp;
     char *wp;
     char buf[256];
-} TtyQueue;
+} TtyQueue; /* derived name */
 
 /* the tty socket record sceTtyInit hands DECI2 for sceTtyHandler.  The four
    header words are volatile: the handler writes them from interrupt level
    while sceTtyWrite and sceTtyInit poll them.  The buffer and queue pointers
    below them are plain.  The names are ours. */
-typedef struct {
+typedef struct {       /* field names derived */
     volatile int s;    /* 0x00 the DECI2 socket */
     volatile int wlen; /* 0x04 bytes left to send */
     volatile int rlen; /* 0x08 bytes received into rbuf */
@@ -24,7 +24,7 @@ typedef struct {
     char *wbuf;        /* 0x10 */
     char *rbuf;        /* 0x14 */
     TtyQueue *q;       /* 0x18 the receive queue */
-} TtyRec;
+} TtyRec;              /* derived name */
 
 /* tty.o's .bss, in link order: the receive queue QueueInit sets up (a
    16-byte header and a 256-byte ring), the DECI2 socket record, then the send

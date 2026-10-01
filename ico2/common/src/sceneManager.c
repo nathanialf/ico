@@ -281,10 +281,10 @@ inline GObj *CreateLayoutedGObj(int id, int model, int accessary, int light, voi
     return gobj;
 }
 
-typedef union {
+typedef union { /* field names derived */
     long long flag;
     GamesysObjInfo info;
-} GamesysObjInfoFlag;
+} GamesysObjInfoFlag; /* derived name */
 
 /* restores the position the previous stage stored through MoveNextStage_Set;
    named after its siblings MoveNextStage_Set and MoveNextStage_Clear */

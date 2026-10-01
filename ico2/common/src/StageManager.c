@@ -31,12 +31,12 @@
 #include "ios.h"
 #include "jimaku.h"
 
-typedef struct {
+typedef struct { /* field names derived */
     int stage;
     float dist;
     unsigned char pad8[8];
     float pos[4];
-} StgSlot;
+} StgSlot; /* derived name */
 
 /* .data, all zero: the preload buffer, 896 sectors of 2048
    bytes, the cap stgmgrNextStagePreLoad clamps a read to and the ring cdvd.c's
@@ -159,11 +159,11 @@ static void exit_stage(int *self)
 
 /* The mpeg-restart record the stream side owns; the two fields this arm
    clears are at +0x14 and +0x18 of it. */
-typedef struct MpegRec {
+typedef struct MpegRec { /* field names derived */
     int _0[5];
     int f14;
     int f18;
-} MpegRec;
+} MpegRec; /* derived name */
 
 static void start_stage_Load_thread(int stage)
 {

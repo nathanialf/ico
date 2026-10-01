@@ -26,7 +26,7 @@ typedef struct { /* field names derived */
     unsigned char r;
     unsigned char g;
     unsigned char b;
-} StgMgrMsg;
+} StgMgrMsg; /* derived name */
 
 extern StgMgrMsg stageMgrMsg;
 extern struct IosMsgQueue SchedulerMsgQ;

@@ -525,7 +525,7 @@ void SetCameraMatrix(void)
     int zoomMax;
     int target;
     int step;
-    char *p; /* derived name */
+    char *p;
     float zoom;
 
     useDemo = 0;

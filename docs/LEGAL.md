@@ -130,17 +130,21 @@ disc does not:
   function label and the source path and line number it came from. It
   contains no source statements.
 - `TRFILE.TXT` / `TRTABLE.BIN`: an address-to-function/file/line table.
+  `TRFILE.TXT` has one text line per address (111515 lines);
+  `TRTABLE.BIN` is a binary index of 111515 eight-byte entries, each an
+  address from `TRFILE.TXT` and a 32-bit offset.
 
 These are officially distributed retail media that every buyer received.
 Symbol names, file boundaries and file paths read out of them are used as
 references in the source tree, the same way as any other fact in the disc.
 The listing's line data was used to recover names, file boundaries and the
 order of functions in each file. It is not a licence to reconstruct source
-statements, and it contains none. The files themselves are copied into
-gitignored `baserom/pal/` by `tools/extract_elf.sh` and are never committed
-or bulk-copied. Because the listing comes from a different link than the
-shipped ELF, names were attached to shipped functions by instruction-stream
-correlation, never by copying an address.
+statements, and it contains none. `tools/extract_elf.sh` copies `MAIN.MAP`,
+`SRCFILE.TXT`, `TRFILE.TXT` and `SYSTEM.CNF` into gitignored `baserom/pal/`;
+it does not copy `TRTABLE.BIN`, which nothing in the build reads. None of
+them is ever committed or bulk-copied. Because the listing comes from a
+different link than the shipped ELF, names were attached to shipped
+functions by instruction-stream correlation, never by copying an address.
 
 ## Prototype symbol maps (`aug6`)
 

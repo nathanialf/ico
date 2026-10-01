@@ -13,25 +13,25 @@
 #include <libipu.h>
 
 /* one entry of the callback table, by callback type */
-typedef struct { /* derived name */
+typedef struct { /* field names derived */
     sceMpegCallback func;
     void *data;
-} MpegCb;
+} MpegCb; /* derived name */
 
 /* the arena the frame buffers and the stream-callback table are allocated
  * out of: the work area after the decoder record.  Allocations past the
  * dynamic mark are released by _alalcFree on each new sequence size. */
-typedef struct {          /* derived name */
+typedef struct {          /* field names derived */
     unsigned int base;    /* 0x00 */
     unsigned int size;    /* 0x04 */
     unsigned int cur;     /* 0x08 the next free byte */
     unsigned int dynamic; /* 0x0C where the per-sequence allocations start */
-} MpegHeap;
+} MpegHeap; /* derived name */
 
 /* the decoder's own record, 0x118 bytes at the head of the work area
  * sceMpegCreate is given; the handle's sys field points at it.  Every field
  * name here, in MpegCb and in MpegHeap is ours. */
-typedef struct MpegSys { /* derived name */
+typedef struct MpegSys { /* field names derived */
     int isEnd;           /* 0x000 the stream's end was reached */
     int refCount;        /* 0x004 pictures decoded since the last flush */
     int outState;        /* 0x008 0 none yet, 1 decoding, 2 output started */
@@ -67,7 +67,7 @@ typedef struct MpegSys { /* derived name */
     int ptmState;        /* 0x0F8 1 set, 2 armed, 0 used */
     int frameBuff[3];    /* 0x0FC the three reference frames */
     MpegHeap heap;       /* 0x108 */
-} MpegSys;
+} MpegSys; /* derived name */
 
 void _ErrMessage(char *msg);
 void _Error(char *msg);
@@ -196,7 +196,7 @@ int _mbAddressIncrement(void);
  * routine takes: where the prediction goes, the horizontal fraction, the rows
  * read from the first and the second source block, the source row step and
  * the two source blocks (the second is the next block down) */
-typedef struct { /* derived name */
+typedef struct { /* field names derived */
     void *dst;   /* 0x00 */
     int xoff;    /* 0x04 */
     int rows0;   /* 0x08 */
@@ -204,14 +204,14 @@ typedef struct { /* derived name */
     int stride;  /* 0x10 */
     void *src0;  /* 0x14 */
     void *src1;  /* 0x18 */
-} MCRefDesc;
+} MCRefDesc; /* derived name */
 
 /* one macroblock's motion-compensation record, 0x140 bytes: _motionComp0 sets
  * the flags and the destination, _getRef0 appends one reference per call
  * (the two source addresses DMA'd into refBuf, the copy routines and their
  * descriptors), _decMB0 has the IPU write its output (the intra block or the
  * residual) into ipuBuf and _doMC finishes it.  Every field name is ours. */
-typedef struct {           /* derived name */
+typedef struct {           /* field names derived */
     int refBuf;            /* 0x000 scratchpad area the references land in */
     int ipuBuf;            /* 0x004 scratchpad area the IPU writes into */
     void *srcAddr[2][4];   /* 0x008 */
@@ -225,16 +225,16 @@ typedef struct {           /* derived name */
     int coded;             /* 0x134 */
     int busy;              /* 0x138 the reference DMA is under way */
     int skip;              /* 0x13C no residual: the prediction is the block */
-} MCRecord;
+} MCRecord; /* derived name */
 
 /* var.o's _mbcont, as var.c defines it and mpc.c declares it: two records,
  * double-buffered (one is filled while the other is finished), and the
  * index of the current one.  init.c declares its own view. */
-typedef struct {     /* derived name */
+typedef struct {     /* field names derived */
     MCRecord rec[2]; /* 0x000 */
     int cur;         /* 0x280 */
     int aux;         /* 0x284 zeroed beside cur, read by no member */
-} MCState;
+} MCState; /* derived name */
 
 int _motionComp0(int mba, int inc, int mb_type, int motion_type, int PMV[2][2][2],
                  int mv_field_sel[2][2], int *dmvector);

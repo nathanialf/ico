@@ -5,10 +5,10 @@
 #include "main.h"
 
 /* The EE exceptions the debug monitor traps: {cause code, printable name}. */
-typedef struct {
-    int code;   /* 0x0 */
-    char *name; /* 0x4 */
-} DebugExcEntry;
+typedef struct { /* field names derived */
+    int code;    /* 0x0 */
+    char *name;  /* 0x4 */
+} DebugExcEntry; /* derived name */
 
 /* This file's .rodata starts with the report font: 256 characters of eight
    rows, one byte per row; PutFont draws a pixel for each set bit. */
@@ -145,10 +145,10 @@ static const unsigned char dbgFont[2048] = {
 
 /* One TRTABLE.BIN record: a code address and the byte offset of its line
    inside TRFILE.TXT.  Eight bytes, which is initLineTraceTable's size / 8. */
-typedef struct {
+typedef struct {       /* field names derived */
     unsigned int addr; /* 0x0 */
     int pos;           /* 0x4 */
-} TraceEntry;
+} TraceEntry;          /* derived name */
 
 /* This file's .sdata starts with the trace table: the source-listing work
    buffer handed in at init, which initLineTraceTable fills from TRTABLE.BIN
@@ -256,12 +256,12 @@ static __inline__ void debugExcDebugDisp(void) /* derived name */
    the code address, the byte offset of the source line, the frame size and
    the offset of the saved return address, read with the format at
    "%08x:%010d:%04x:%04x\n". */
-typedef struct {
+typedef struct {       /* field names derived */
     unsigned int addr; /* 0x0 */
     int offset;        /* 0x4 */
     int stack;         /* 0x8 */
     int ra;            /* 0xC */
-} SrcRef;
+} SrcRef;              /* derived name */
 
 /* Turns a code address into a source-line
    reference by binary-searching TRTABLE.BIN for the last entry at or below it,
@@ -508,9 +508,9 @@ static void display(int code, unsigned int cause, unsigned int epc, unsigned int
 
 /* One saved EE general register: the whole 128-bit quadword the exception
    entry hands over, of which only the low word is reported. */
-typedef struct {
+typedef struct { /* field names derived */
     unsigned int w[4];
-} EeReg128;
+} EeReg128; /* derived name */
 
 /* libkernl's tlbfunc.c defines it; eekernel.h does not declare it */
 extern int SetDebugHandler();

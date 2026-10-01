@@ -10,22 +10,22 @@
 #define SYNC() __asm__ __volatile__("sync" : : : "memory")
 #define EI() __asm__ __volatile__(".word 0x42000038" : : : "memory")
 
-typedef struct {
+typedef struct { /* field names derived */
     char f0[0x20];
     char name[0x20];
-} AuxReq;
+} AuxReq; /* derived name */
 
 /* the request block of the calls that name a file: the card, the call's
    flags, the directory-entry count sceMcGetDir asks for, and the buffer the
    answer goes to */
-typedef struct {
+typedef struct { /* field names derived */
     int port;
     int slot;
     int flags;
     int maxent;
     void *data;
     char name[0x400];
-} NameReq; /* field names derived */
+} NameReq; /* derived name */
 
 /* The member's .data in link order: the build stamp, the number of the call
    in flight that sceMcSync completes, and the semaphore every entry point
@@ -269,14 +269,14 @@ done:
     return r;
 }
 
-typedef struct {
+typedef struct {   /* field names derived */
     int n0;        /* 0x00 */
     int n1;        /* 0x04 */
     char *d0;      /* 0x08 */
     char *d1;      /* 0x0C */
     char b0[0x40]; /* 0x10 */
     char b1[0x70]; /* 0x50 */
-} FixAlign;
+} FixAlign;        /* derived name */
 
 void mceIntrReadFixAlign(void *arg)
 {
@@ -302,7 +302,7 @@ void mceIntrReadFixAlign(void *arg)
 /* the 0x30-byte RPC command block sceMcWrite sends: the unaligned head of
    the caller's buffer travels in the block itself, the 16-byte aligned rest
    by address. */
-typedef struct {
+typedef struct {          /* field names derived */
     int fd;               /* 0x00 */
     int f4;               /* 0x04 */
     int f8;               /* 0x08 */
@@ -312,7 +312,7 @@ typedef struct {
     void *addr;           /* 0x18 */
     void *recv;           /* 0x1C */
     char head[16];        /* 0x20 */
-} McCmd;
+} McCmd;                  /* derived name */
 
 int sceMcRead(int fd, void *buf, int len)
 {
@@ -441,7 +441,7 @@ void mceGetInfoApdx(void *arg)
 
 /* sceMcGetInfo's view of the same 0x30-byte command block: the card to ask,
    a flag per answer wanted, and the result buffer. */
-typedef struct {
+typedef struct {    /* field names derived */
     int f0;         /* 0x00 */
     int port;       /* 0x04 */
     int slot;       /* 0x08 */
@@ -450,7 +450,7 @@ typedef struct {
     int wantType;   /* 0x14 */
     int f18;        /* 0x18 */
     char *result;   /* 0x1C */
-} McInfoCmd;
+} McInfoCmd;        /* derived name */
 
 int sceMcGetInfo(int port, int slot, int *type, int *free, int *format)
 {

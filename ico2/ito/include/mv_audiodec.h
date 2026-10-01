@@ -45,7 +45,7 @@ typedef struct AudioDec { /* field names derived */
     char ch0Open;   /* 0x61 */
     char ch1Open;   /* 0x62 */
     char pad63[5];
-} AudioDec;
+} AudioDec; /* derived name */
 
 int audioDecDelete(AudioDec *self);
 void audioDecReset(AudioDec *self);

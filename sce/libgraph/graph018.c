@@ -16,7 +16,7 @@ static unsigned int sceGsUnmaskPath3Packet[4]
    were written with a macro, are not known. */
 int sceGsExecStoreImage(void *pkt, void *img)
 {
-    union {
+    union { /* field names derived */
         u_long128 q;
         char c[16];
     } buf;

@@ -5,7 +5,7 @@
 #include <libcdvd.h>
 #include <libcdvd_internal.h>
 
-typedef struct {
+typedef struct { /* field names derived */
     int lsn;
     int sectors;
     void *buf;
@@ -15,7 +15,7 @@ typedef struct {
     unsigned char pad;
     int *intr_data;
     int *cur_pos;
-} CdReadCmd;
+} CdReadCmd; /* derived name */
 
 /* volatile here; cdvd000 defines it plain and releases it with plain stores */
 extern volatile int _sceCd_c_cb_sem;

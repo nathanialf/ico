@@ -39,20 +39,20 @@
 
 typedef struct { /* field names derived */
     float v[4];
-} LVec;
+} LVec; /* derived name */
 
 typedef struct { /* field names derived */
     QVec x;
     QVec y;
     QVec z;
     QVec w;
-} QMat44;
+} QMat44; /* derived name */
 
 typedef struct { /* field names derived */
     QVec x;
     QVec y;
     QVec z;
-} QMat3;
+} QMat3; /* derived name */
 
 /* The work records the queen's three objects hang at their work word.  The
    queen's (InitQueenGeo): four flag bytes (paused by mail 0x2E/0x2F,
@@ -76,7 +76,7 @@ typedef struct QueenWork { /* field names derived */
     int clothOn;     /* 0x0C */
     Cloth4D *cloth;  /* 0x10, the cloths InitCloth4D returns */
     Cloth4D *cloth2; /* 0x14 */
-} QueenWork;
+} QueenWork;         /* derived name */
 
 /* the barrier's (object kind 54, InitQueenBarrierGeo) */
 typedef struct QueenBarrierWork { /* field names derived */
@@ -88,8 +88,8 @@ typedef struct QueenBarrierWork { /* field names derived */
     float radius; /* 0x14 */
     int damage;   /* 0x18, hits taken, broken at 5 */
     char pad1C[4];
-    float rot[4]; /* 0x20 */
-} QueenBarrierWork;
+    float rot[4];   /* 0x20 */
+} QueenBarrierWork; /* derived name */
 
 /* the ball's (object kind 53, InitQueenBallGeo) */
 typedef struct QueenBallWork { /* field names derived */
@@ -102,8 +102,8 @@ typedef struct QueenBallWork { /* field names derived */
     signed char hit;      /* 0x19, has hit the boy */
     signed char cancel;   /* 0x1A */
     char pad1B[1];
-    int *bga; /* 0x1C, the ball's BG animation */
-} QueenBallWork;
+    int *bga;    /* 0x1C, the ball's BG animation */
+} QueenBallWork; /* derived name */
 
 /* the queen's four ball-ring animations */
 static int *queenBga[4]; /* derived name */
@@ -896,7 +896,7 @@ static void effect_end_func(int no)
    indexed by the ball's phase counter at ballw+0x18, which runs 0 to 10. */
 typedef struct QueenUVScroll { /* field names derived */
     float v[6];
-} QueenUVScroll;
+} QueenUVScroll; /* derived name */
 
 static const float genWaitRateSt25[11] /* derived name */ = {1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f,
                                                              1.0f, 1.0f, 1.0f, 1.0f, 1.0f};
@@ -999,7 +999,7 @@ void queenBeforeFunc(GObj *g)
 typedef struct QueenGenTable { /* field names derived */
     /* 0x0 */ int n;
     /* 0x4 */ const int *list;
-} QueenGenTable;
+} QueenGenTable; /* derived name */
 
 /* The layout ids gene_enemy picks a spawn point from, one list per stage set. */
 static const int genEnemyLayoutSt25[6] = {2152, 2153, 2154, 2155, 2156, 2157}; /* derived name */
@@ -1016,7 +1016,7 @@ static const char genEnemyStatFmt[] = "n_enemy_max:%d n_enemy:%d counter:%d"; /*
 
 void gene_enemy(volatile int g)
 {
-    union {
+    union { /* field names derived */
         float f[4];
         int i[4];
     } pos;
@@ -1107,7 +1107,7 @@ typedef union QueenVal { /* field names derived */
     int i;
     float f;
     char *motReq; /* the actor's 0x130: the motion record SetMotionRequest returns */
-} QueenVal;
+} QueenVal;       /* derived name */
 
 /* The look-at block the queen's motion system keeps in her actor parameter
  * area (gobj->x15C): a world-space target the head and body steer toward, and
@@ -1118,7 +1118,7 @@ typedef struct QueenLookAt { /* field names derived */
     /* 0x00 */ QueenVal on;
     /* 0x04 */ QueenVal pad04[3];
     /* 0x10 */ QVec pos;
-} QueenLookAt;
+} QueenLookAt; /* derived name */
 
 /* The queen's per-frame motion-status record, refreshed from the actor
  * extension at gobj->x15C every tick. */
@@ -1133,7 +1133,7 @@ typedef struct QueenStatus { /* field names derived */
     /* 0x1C */ int active;
     /* 0x20 */ int count;
     /* 0x24 */ char pad24[12];
-} QueenStatus;
+} QueenStatus; /* derived name */
 
 static inline void QueenStatusUpdate(GObj *g, QueenStatus *st) /* derived name */
 {

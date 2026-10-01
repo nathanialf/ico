@@ -10,7 +10,7 @@
 static int rpc_inited = 0; /* derived name */
 
 /* The words every RPC packet carries after the command header. */
-typedef struct {
+typedef struct {         /* field names derived */
     SifCmdHeader header; /* 0x00 */
     int recId;           /* 0x10, the slot index << 16 | 5; bit 0 marks the slot taken */
     void *pktAddr;       /* 0x14, the packet's own address on the sending side */
@@ -19,20 +19,20 @@ typedef struct {
 
 /* a 64-byte packet slot: the header, then the command's own words (the
    records below) */
-typedef struct {
+typedef struct { /* field names derived */
     SifRpcPktHeader rpch;
     char body[36];
 } SifRpcPkt; /* derived name */
 
 /* the bind request */
-typedef struct {
+typedef struct { /* field names derived */
     SifRpcPktHeader rpch;
     void *client;     /* 0x1C */
     unsigned int sid; /* 0x20 */
 } SifRpcBindPkt;      /* derived name */
 
 /* the request for data from the other side */
-typedef struct {
+typedef struct { /* field names derived */
     SifRpcPktHeader rpch;
     void *receive;    /* 0x1C, the requester's receive record */
     void *src;        /* 0x20 */
@@ -42,7 +42,7 @@ typedef struct {
 
 /* the answer that finishes a request: cid is the request's command, and a
    bind answer carries the server's record and buffers */
-typedef struct {
+typedef struct { /* field names derived */
     SifRpcPktHeader rpch;
     void *client;        /* 0x1C */
     unsigned int cid;    /* 0x20 */
@@ -54,7 +54,7 @@ typedef struct {
 /* sifrpc.o's RPC state record.  Field names follow the public SDK naming of
    this record; the packet table is a void *, the two byte tables unsigned
    char *. */
-typedef struct {
+typedef struct { /* field names derived */
     int pid;
     void *pkt_table;
     int pkt_table_len;
@@ -66,7 +66,7 @@ typedef struct {
     int client_table_len;
     int rdata_table_idx;
     sceSifQueueData *active_queue;
-} SifRpcData;
+} SifRpcData; /* derived name */
 
 /* sifrpc.o's .bss, in link order: the 32 64-byte command packets, the
    32 receive-data slots and the 32 client slots sceSifInitRpc hands the

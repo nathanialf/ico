@@ -37,7 +37,7 @@ typedef struct Light { /* field names derived */
     char pad46[2];
     struct Light *next; /* 0x48 */
     struct Light *prev; /* 0x4C */
-} Light;
+} Light;                /* derived name */
 
 /* one ambient volume: its placement matrix, the ambient colour inside it,
    the inverse extents of its inner and outer shells, the scale of the volume,

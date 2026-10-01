@@ -58,13 +58,13 @@ static void debug_makeBackImage(void);
 
 static int debug_girl_pad_control;
 
-typedef struct {
+typedef struct { /* field names derived */
     int x, y;
     unsigned int w, h;
-} FR;
+} FR; /* derived name */
 
 /* the debug-option table: 76 records of 0x1C bytes */
-typedef struct {
+typedef struct { /* field names derived */
     /* 0x00 */ char *name;
     /* 0x04 */ unsigned int col;
     /* 0x08 */ int *val;
@@ -72,7 +72,7 @@ typedef struct {
     /* 0x10 */ int max;
     /* 0x14 */ char **strs;
     /* 0x18 */ void (*func)(int);
-} DbgOpt;
+} DbgOpt; /* derived name */
 
 /* the collision ray display option, the one debug option word that is not
    a global (ChangeFieldCollisionDebugMode reads it through the table) */
@@ -486,24 +486,24 @@ int debugBackGroundDisableFlag = 0;
 
 /* one glyph's image packet, built by debug_MakeFont and sent by
    debug_PrintCharacter: its size in quadwords and its address */
-typedef struct {
+typedef struct { /* field names derived */
     int qwc;
     void *packet;
-} DbgGlyphPacket;
+} DbgGlyphPacket; /* derived name */
 
 /* the on-screen font window's line table: 26 records of 0x38 bytes, the colour
    word at +0 and the text at +4 (the strncpy below bounds it at 50) */
-typedef struct {
+typedef struct { /* field names derived */
     int col;
     char text[52];
-} DbgFontLine;
+} DbgFontLine; /* derived name */
 
 /* The bar colours are 4-byte GS colour records this TU only sees as far
    (incomplete-array) symbols; their byte alignment is what makes every copy
    an lwl/lwr pair. */
-typedef struct {
+typedef struct { /* field names derived */
     unsigned char r, g, b, a;
-} DbgCol;
+} DbgCol; /* derived name */
 
 /* declared ahead with no size; the sized definitions are below */
 static DbgCol markCol[];
@@ -523,32 +523,32 @@ static DbgCol barScaleCol[];
 static DbgCol barLabelCol[];
 
 /* the profiler ring: 0x400 entries of 28 bytes, filled by debug_SetBar. */
-typedef struct {
+typedef struct {   /* field names derived */
     char name[12]; /* 0x00 */
     DbgCol col;    /* 0x0C */
     char *file;    /* 0x10 */
     short count;   /* 0x14 */
     short pad16;   /* 0x16 */
     int line;      /* 0x18 */
-} DebugBar;
+} DebugBar;        /* derived name */
 
 /* the wall record ClipCollision leaves at +0x80 of the ray: the polygon it hit,
    the triangle within it and the hit flag, exactly the three words
    DebugDisp1Collision reads back */
-typedef struct {
+typedef struct { /* field names derived */
     void *poly;
     int tri;
-} DbgWallRef;
+} DbgWallRef; /* derived name */
 
-typedef struct {
+typedef struct { /* field names derived */
     DbgWallRef ref;
     int hit;
-} DbgWallHit;
+} DbgWallHit; /* derived name */
 
 /* the ray debug_CollisionTest drives through ClipCollision: the two end points,
    the hit point it fills in, and the wall and floor results it reports; the
    whole 0xC0 work record ClipCollision takes (ClipWork in typedef.h) */
-typedef struct {
+typedef struct {     /* field names derived */
     float src[4];    /* 0x00 */
     float dst[4];    /* 0x10 */
     float hit[4];    /* 0x20 */
@@ -559,7 +559,7 @@ typedef struct {
     char pad8C[8];   /* 0x8C */
     int floorHit;    /* 0x94 */
     char pad98[40];  /* 0x98 */
-} DbgRay;
+} DbgRay;            /* derived name */
 
 /* .bss: debug_MakeBarString's string, debug_PrintFontf's line, the load
    info line, the debug box and ball, the collision ray, debugSceOpen's path,
@@ -600,11 +600,11 @@ static DebugBar debugBars[1024]; /* derived name */
 static int loadInfoSeg[2][26][2]; /* derived name */
 
 /* one 64-bit packet slot, written whole or as its two 32-bit halves */
-typedef union {
+typedef union { /* field names derived */
     long long d;
     int w[2];
     float f[2];
-} DbgPkWord;
+} DbgPkWord; /* derived name */
 
 /* a whole quadword, for the vertex copies */
 typedef int Qw128 __attribute__((mode(TI)));
@@ -631,13 +631,13 @@ extern void gif_StartPacketPri(int pri);
 extern void gif_SetDrawEnviroment(unsigned long long fbp, unsigned long long psm, unsigned int w,
                                   unsigned int h, int useoffset, int clear);
 
-typedef struct {
+typedef struct { /* field names derived */
     int x, y, z;
-} DbgPos;
+} DbgPos; /* derived name */
 
-typedef struct {
+typedef struct { /* field names derived */
     int x, y, z, w;
-} DbgVtx;
+} DbgVtx; /* derived name */
 
 /* .sbss: the rows debug_DispBox, debug_DispBall and debug_CollisionTest
    select, and the profiler's bar count. */
@@ -656,15 +656,15 @@ static int debugBarCount; /* derived name */
 
 /* TIM2 image file: a 16-byte file header followed by one 48-byte picture
    header and the raw 32-bit image, one row per write */
-typedef struct {
-    char id[4]; /* "TIM2" */
+typedef struct { /* field names derived */
+    char id[4];  /* "TIM2" */
     unsigned char ver;
     unsigned char fmt;
     short nPictures;
     long long pad;
-} Tim2FileHdr;
+} Tim2FileHdr; /* derived name */
 
-typedef struct {
+typedef struct {                  /* field names derived */
     int totalSize;                /* 0x00 */
     int clutSize;                 /* 0x04 */
     int imageSize;                /* 0x08 */
@@ -680,11 +680,11 @@ typedef struct {
     long long gsTex1;             /* 0x20 */
     int gsRegs;                   /* 0x28 */
     int gsTexClut;                /* 0x2C */
-} Tim2PicHdr;
+} Tim2PicHdr;                     /* derived name */
 
 /* 24-bit BMP file header, offset by two pad bytes so the 32-bit fields land
    4-aligned on the stack; the file image starts at &hdr.bfType. */
-typedef struct {
+typedef struct {             /* field names derived */
     unsigned char pad[2];    /* 0x00 */
     unsigned char bfType[2]; /* 0x02 */
     int bfSize;              /* 0x04 */
@@ -701,7 +701,7 @@ typedef struct {
     int biYPelsPerMeter;     /* 0x2C */
     int biClrUsed;           /* 0x30 */
     int biClrImportant;      /* 0x34 */
-} BmpHeader;
+} BmpHeader;                 /* derived name */
 
 /* libgraph.h leaves it out for Texture.c's int view; this TU takes the
    library's short parameters */
@@ -714,9 +714,9 @@ extern float dptofp(double v);
 
 /* the "*" wildcard pattern "*" is copied into the request block's name
    field as a 2-byte object, not by strcpy */
-typedef struct {
+typedef struct { /* field names derived */
     char c[2];
-} McPat;
+} McPat; /* derived name */
 
 /* mcard.c's request entry points return iosMsgSend's result; this TU never
    reads it and declares them void, which its calls pin, so it does not
@@ -737,49 +737,49 @@ extern void iosMcUnformat(void *req);
 extern void iosMcTest(void);
 
 /* the default save-file name "game." lives in .sdata as 6 bytes */
-typedef struct {
+typedef struct { /* field names derived */
     char c[6];
-} McName6;
+} McName6; /* derived name */
 
 /* one line of the memory-card menu: the label debug_SelectCsvWindow prints and
    the state machine it hands control to */
-typedef struct {
+typedef struct { /* field names derived */
     char *label;
     int (*fn)();
-} McMenuItem;
+} McMenuItem; /* derived name */
 
 /* the card-state line: the iosMc state code, its colour and its caption */
-typedef struct {
+typedef struct { /* field names derived */
     int type;
     unsigned int col;
     char *msg;
-} McTypeMsg;
+} McTypeMsg; /* derived name */
 
 /* the generated sedef member's rows; s_init.h declares no seDef, since s_init.c
    writes procRan into them */
 extern const SeDef seDef[];
 
 /* the sibling of debug_ListPadControlGobj that lists the actor GObjs the debug menu can print (kinds 1, 2, 4 and 0x2F). */
-typedef struct {
+typedef struct { /* field names derived */
     char *name;
     void *obj;
-} DbgGobjEnt;
+} DbgGobjEnt; /* derived name */
 
 /* one editable row of the debug box: its label and the value shown */
-typedef struct {
+typedef struct { /* field names derived */
     char *name;
     int val;
-} DbgBoxVal;
+} DbgBoxVal; /* derived name */
 
 /* one editable value of the debug ball: its label and the cell it moves */
-typedef struct {
+typedef struct { /* field names derived */
     char *name;
     float *val;
-} DbgBallVal;
+} DbgBallVal; /* derived name */
 
-typedef struct {
+typedef struct { /* field names derived */
     DbgBallVal v[4];
-} DbgBallList;
+} DbgBallList; /* derived name */
 
 /* the four-row initialiser template (centerX, centerY, centerZ, radius), blob-owned
    by address until the TU's plain .rodata run closes up */
@@ -787,7 +787,7 @@ typedef struct {
 /* iosPadGetStick's output block: the raw pair at +0 and +4, the camera-space
    pair at +0xC/+0x10 and the stick deflection at +0x14 (the same record
    effectTool.c and camera-ico2.c read) */
-typedef struct {
+typedef struct {   /* field names derived */
     int x;         /* 0x00 */
     int y;         /* 0x04 */
     int unk08;     /* 0x08 */
@@ -795,7 +795,7 @@ typedef struct {
     float fz;      /* 0x10 */
     float mag;     /* 0x14 */
     char pad18[8]; /* 0x18 */
-} DbgPadStick;
+} DbgPadStick;     /* derived name */
 
 /* The strings these tables point at stay blob-owned by address until the
    TU's plain .rodata and .sdata runs close up. */
@@ -1227,7 +1227,7 @@ static GifTag debugFontTag = {0x2000400000008000LL, 0x51}; /* derived name */
 static void debug_MakeFont(void)
 {
     int on = 1, off = 0;
-    struct { float v[4]; char *volatile ptr; } w; /* the cursor is re-read from the frame at every push */
+    struct { /* field names derived */ float v[4]; char *volatile ptr; } w; /* the cursor is re-read from the frame at every push */
     char *base;
     unsigned short *a, *b; unsigned short m0, m1; int i, j, k, n;
     base = iosMallocDebug(ios_partition_seki, 1, "src/debug.c", 2069); w.ptr = base;

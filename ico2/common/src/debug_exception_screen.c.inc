@@ -27,12 +27,12 @@ typedef struct { /* field names derived */
     unsigned long long test_addr;
     long long alpha[8];
     sceGsTexEnv tex;
-} DbgTexPacket;
+} DbgTexPacket; /* derived name */
 
 typedef struct { /* field names derived */
     unsigned long long giftag[2];
     sceGsDrawEnv draw;
-} DbgDrawPacket;
+} DbgDrawPacket; /* derived name */
 
 static DbgTexPacket texFrameEnv
     __attribute__((aligned(16))) = {{0x1000000000008009LL, 0xE}}; /* derived name */
@@ -55,7 +55,7 @@ typedef unsigned long long GifTag[2] __attribute__((aligned(16))); /* derived na
 /* sceVif1Packet: 0x20 bytes (two per drawSprite frame at sp+0x00 / sp+0x20).
  * Field offsets 0x00/0x04/0x0C/0x14 are the ones the libpkt bodies in
  * src/cod/vendor_25EC00.c touch; 0x08/0x10/0x18 are unused here. */
-typedef struct {
+typedef struct { /* field names derived */
     int *cur;
     int *base;
     int *f_8;
@@ -63,7 +63,7 @@ typedef struct {
     int *f_10;
     int *gifTag;
     int f_18[2];
-} Vif1Packet;
+} Vif1Packet; /* derived name */
 
 /* as in libpkt.h, which this TU does not include */
 extern void sceVif1PkInit();
@@ -100,10 +100,10 @@ static int fontB = 255; /* derived name */
 /* The font's tag: XYZ2 pairs, one sprite per lit pixel. */
 static GifTag fontTag = {0x1400000000008000LL, 0x4}; /* derived name */
 
-typedef struct {
+typedef struct { /* field names derived */
     int col;
     char ch;
-} DbgChar;
+} DbgChar; /* derived name */
 
 /* The 26-line, 256-column character screen the report is printed into. */
 static DbgChar charScreen[26][256]; /* derived name */

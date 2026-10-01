@@ -116,7 +116,7 @@ int sceCdStStat(void)
     return sceCdStream(0, 0, 0, 6, &stMode);
 }
 
-typedef struct {
+typedef struct { /* field names derived */
     int lsn;     /* 0x0, the sector, or the buffer size for the init command */
     int sectors; /* 0x4, the count, or the bank count for the init command */
     void *buf;   /* 0x8 */
@@ -125,7 +125,7 @@ typedef struct {
     unsigned char spindlctrl;
     unsigned char datapattern;
     unsigned char pad;
-} CdStreamCmd;
+} CdStreamCmd; /* derived name */
 
 int sceCdStream(int lsn, int sectors, void *buf, int cmd, CdRMode *mode)
 {

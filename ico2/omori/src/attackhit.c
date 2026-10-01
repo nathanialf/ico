@@ -34,7 +34,7 @@ typedef struct AttackPack { /* field names derived */
     /* 0x61 */ unsigned char hasDir;
     /* 0x62 */ char pad62[14];
     /* 0x70 */ float dir[4];
-} __attribute__((aligned(16))) AttackPack;
+} __attribute__((aligned(16))) AttackPack; /* derived name */
 
 /* the zeroed template every pack starts from; group and group2 start at -1 */
 static const AttackPack attackPackInit = {0, 0, {0, 0}, 0, 0, -1, -1}; /* derived name */

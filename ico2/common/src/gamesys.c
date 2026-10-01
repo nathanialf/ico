@@ -17,17 +17,17 @@
 #include <string.h>
 #include "main.h"
 
-typedef struct {
+typedef struct { /* field names derived */
     int start;
     int end;
     int no;
     int stage;
-} GamesysObjInfoReq;
+} GamesysObjInfoReq; /* derived name */
 
-typedef union {
+typedef union { /* field names derived */
     long long flag;
     GamesysObjInfo info;
-} GamesysObjInfoFlag;
+} GamesysObjInfoFlag; /* derived name */
 
 static void gamesysVersionLoad(int *self);
 static void gamesysVersionSave(int self);

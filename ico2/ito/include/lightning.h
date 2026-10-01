@@ -20,7 +20,7 @@ typedef union { /* field names derived */
     float f[4];
     int i[4];
     unsigned long long w[2];
-} LightningVtx;
+} LightningVtx; /* derived name */
 
 /* one entry of the caller's node array: a 16-byte position and the sort key
    cmpr compares */
@@ -28,7 +28,7 @@ typedef struct {      /* field names derived */
     LightningVtx pos; /* 0x00 */
     int key;          /* 0x10 */
     char pad14[12];   /* 0x14 */
-} LightningNode;
+} LightningNode; /* derived name */
 
 void apply_m34(void *out, void *m, void *in);
 

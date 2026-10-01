@@ -12,48 +12,48 @@
 #include "ios.h"
 #include "DObj.h"
 
-typedef union {
+typedef union { /* field names derived */
     char *p;
     int i;
     float f;
-} DObjWord;
+} DObjWord; /* derived name */
 
-typedef struct {
+typedef struct { /* field names derived */
     char pad[348];
     DObjWord data;
     char pad2[32];
-} DObjGObj;
+} DObjGObj; /* derived name */
 
-typedef union {
+typedef union { /* field names derived */
     int i[8];
     long long w[4];
-} DObjBlk20;
+} DObjBlk20; /* derived name */
 
-typedef struct {
+typedef struct { /* field names derived */
     long long w[2];
-} DObjBlk10;
+} DObjBlk10; /* derived name */
 
 /* The unit +Z direction the motion state starts from, with a long long view
    for its 8-byte copy. */
-typedef union {
+typedef union { /* field names derived */
     float f[4];
     long long w[2];
-} DObjVec;
+} DObjVec; /* derived name */
 
-typedef union {
+typedef union { /* field names derived */
     float q[4][4];
     long long w[8];
-} DObjBlk40;
+} DObjBlk40; /* derived name */
 
-typedef struct {
+typedef struct { /* field names derived */
     long long w[24];
-} DObjBlkC0;
+} DObjBlkC0; /* derived name */
 
 /* The four DObj templates (names derived).  The record is 0x880 bytes, the
    size CSVSYSTEM_InitDObj allocates before the copy; the slot table pointer
    at 0x840 and the character file id at 0x84 are its named fields.  The long
    long pads give the record the 8-byte alignment its copy loop uses. */
-typedef struct {
+typedef struct { /* field names derived */
     int f00;
     int f04;
     long long pad08[13];
@@ -67,7 +67,7 @@ typedef struct {
     char *slotTable;
     int f844;
     long long pad848[7];
-} DObjRecord;
+} DObjRecord; /* derived name */
 
 static DObjRecord emptyDObj = {
     0, -1, {0}, 0, 1, 1, 1, 0, 1552, {0}, 0, -1, {0},
@@ -212,12 +212,12 @@ static void initMatrixDObj(char *self, SObjSimpleSetting *lay)
     MatrixDrive_PopMatrix();
 }
 
-typedef struct DObjNode DObjNode;
+typedef struct DObjNode DObjNode; /* derived name */
 
-typedef union {
+typedef union { /* field names derived */
     long long ll;
     int i[2];
-} DObjFlags;
+} DObjFlags; /* derived name */
 
 static void allocObjectData(char *self, SObjSimpleSetting *lay, int n)
 {
@@ -291,10 +291,10 @@ static void initInitialInverseMatrix(char *d)
     GetInitialInverseMatrixByDObj(m, d);
 }
 
-typedef struct {
+typedef struct { /* field names derived */
     unsigned long long lo : 16;
     unsigned long long kind : 2;
-} PolyFlags;
+} PolyFlags; /* derived name */
 
 static inline void initPolyHead(char *d) /* derived name */
 {

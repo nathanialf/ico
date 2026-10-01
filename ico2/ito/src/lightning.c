@@ -25,7 +25,7 @@ typedef struct { /* field names derived */
     unsigned long long rgbaq;
     unsigned long long uv;
     unsigned long long xyz;
-} LightningGsVtx;
+} LightningGsVtx; /* derived name */
 
 /* the strip's last two vertices, resent when a clipped strip reopens */
 static LightningGsVtx lastVtx[2]; /* derived name */

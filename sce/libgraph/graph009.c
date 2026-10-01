@@ -4,13 +4,13 @@ typedef int u_int128 __attribute__((mode(TI)));
 
 /* libgraph.h's sceGsGParam as this member reads it: the INTC pair as one
    doubleword, whose 8-byte alignment the member's code shows. */
-typedef struct {
+typedef struct {    /* field names derived */
     short inter;    /* 0x0 */
     short omode;    /* 0x2 */
     short ffmd;     /* 0x4 */
     short version;  /* 0x6 */
     long long intc; /* 0x8, intcUsed and handler */
-} GParam;
+} GParam;           /* derived name */
 
 /* GS privileged-register fields this member rewrites in place. */
 typedef struct {

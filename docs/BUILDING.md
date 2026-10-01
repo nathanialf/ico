@@ -39,9 +39,12 @@ cp "/path/to/Ico (Europe).iso" baserom/Ico_PAL.iso
 ```
 
 `./build.sh` runs the steps below that are not already done, in order, and
-stops with a non-zero exit at the first failure. From a fresh clone on a
-four-core host, with the downloads, the whole run took 197 s and ended with
-`check_elf: gate PASS`. A second `./build.sh` on the built tree rebuilds
+stops with a non-zero exit at the first failure. On a four-core host with
+the toolchain already installed and `baserom/pal/` already extracted,
+`rm -rf build build.ninja && tools/build.sh setup && .venv/bin/ninja` took
+22 s and 39 s in two runs and ended with
+`check_elf: gate PASS`; a fresh clone adds the toolchain downloads of
+section 1. A second `./build.sh` on the built tree rebuilds
 nothing (`ninja: no work to do.`) and prints the gate again. The sections
 below describe each step; each can also be run on its own.
 

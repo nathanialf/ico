@@ -8,7 +8,7 @@ typedef struct { /* field names derived */
     float angle;
     float pos[3];
     float pos2[3];
-} StageOrientDef;
+} StageOrientDef; /* derived name */
 
 static const StageOrientDef stageOrientDefs[41] = {
     /* derived name */

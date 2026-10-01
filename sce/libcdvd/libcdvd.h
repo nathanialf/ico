@@ -17,7 +17,7 @@ typedef struct {
     unsigned char spindlctrl;
     unsigned char datapattern;
     unsigned char pad;
-} CdRMode;
+} CdRMode; /* derived name */
 
 /* the records sceCdSearchFile and sceCdReadClock fill in.  Their bodies are
    in the members that define those calls, and seki's FileManager.c carries

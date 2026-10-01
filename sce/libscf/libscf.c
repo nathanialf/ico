@@ -35,7 +35,7 @@ static char romName[16] = {0}; /* derived name */
  * Every bit position below is the shift/mask pair this file's getters use;
  * the field names follow the public sceScfGet* entry points that read
  * them. */
-typedef struct {
+typedef struct {                   /* field names derived */
     unsigned int spdif : 1;        /* bit 0     sceScfGetSpdif */
     unsigned int aspect : 2;       /* bits 1-2  sceScfGetAspect */
     unsigned int videoOutput : 1;  /* bit 3 */
@@ -44,17 +44,17 @@ typedef struct {
     unsigned int version : 3;      /* bits 13-15 */
     unsigned int language : 5;     /* bits 16-20 */
     int timezone : 11;             /* bits 21-31, signed */
-} ConfigParam;
+} ConfigParam;                     /* derived name */
 
 /* The second configuration record, read by GetOsdConfigParam2 with count 1 and
  * offset 1.  Only its first byte is touched here, read as one unsigned byte,
  * so the three flags below sit in one storage unit. */
-typedef struct {
+typedef struct {                    /* field names derived */
     unsigned char reserved : 4;     /* bits 0-3 */
     unsigned char summerTime : 1;   /* bit 4    sceScfGetSummerTime */
     unsigned char timeNotation : 1; /* bit 5    sceScfGetTimeNotation */
     unsigned char dateNotation : 2; /* bits 6-7 sceScfGetDateNotation */
-} ConfigParam2;
+} ConfigParam2;                     /* derived name */
 
 /* The strings this member emits.  The developer wrote them as literals at the
  * use sites; the compiler interns each one on first use, which fixes the

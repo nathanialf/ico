@@ -17,7 +17,7 @@ typedef struct BirdWork { /* field names derived */
     int *bga;             /* 0x30, the take-off's play node; StageAnimation.c keeps
                         its position at 0x20 and its orientation at 0x30 */
     char pad34[12];       /* 0x34 */
-} BirdWork;
+} BirdWork; /* derived name */
 
 float vector_angle_degree(void *a, void *b);
 void subBirdControl(void *volatile gobj);

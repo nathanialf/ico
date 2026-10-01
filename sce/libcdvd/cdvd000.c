@@ -10,11 +10,11 @@
 
 /* the search RPC's request record: the 0x24-byte file entry the reply fills,
    the 256-byte name, then the request's own address. */
-typedef struct {
+typedef struct { /* field names derived */
     unsigned char file[0x24];
     char name[0x100];
     void *addr;
-} CdSearchReq;
+} CdSearchReq; /* derived name */
 
 /* The member's .data in link order.  The names the other libcdvd members
    bind to are globals; the rest are statics named for their role.  Every SIF
@@ -246,14 +246,14 @@ int sceCdInitEeCB(int priority, void *stack, int stackSize)
 
 /* the read RPC's reply record: the byte counts and destinations of the
    unaligned head and tail of a read, then the two 64-byte bounce buffers. */
-typedef struct {
+typedef struct { /* field names derived */
     int size1;
     int size2;
     char *dest1;
     char *dest2;
     char buf1[64];
     char buf2[64];
-} CdReadEnd;
+} CdReadEnd; /* derived name */
 
 void _sceCd_cd_read_intr(void *pkt)
 {

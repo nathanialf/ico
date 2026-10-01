@@ -2077,7 +2077,7 @@ static void bga_addLightning(int kind, BgaLightningDef *def, float *vec, int id,
    here and not four separate ints. */
 typedef struct BgaLightningCol { /* field names derived */
     unsigned int c[4];
-} __attribute__((aligned(16))) BgaLightningCol;
+} __attribute__((aligned(16))) BgaLightningCol; /* derived name */
 
 /* the definition's four colour bytes widened into the 16-byte record
    DrawLightningN reads */

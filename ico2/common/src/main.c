@@ -55,9 +55,9 @@ static int frameReady = -1; /* derived name */
 
 static int lastVsyncCount = 0; /* derived name */ /* movie_abort_check's last seen vsyncCount */
 
-typedef struct {
+typedef struct { /* field names derived */
     IOSThread *th[6];
-} ThreadTbl;
+} ThreadTbl; /* derived name */
 
 /* .bss: the record and the stack of every thread this file starts, then the
    scheduler's message buffer, named after jimaku.c's jimakuThread and

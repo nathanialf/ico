@@ -9,7 +9,7 @@
 
 #define PAD_DEBUG 0 /* derived name */
 
-struct S12 {
+struct S12 { /* field names derived */
     char b[12];
 };
 
@@ -19,7 +19,7 @@ struct S12 {
  * pointer by scePadSetActDirect), and the IOP-side buffer address the open
  * RPC returns, with the command buffer's type.  scePadInit clears the two
  * words at 0x14 and 0x18, which nothing else in the run reads. */
-typedef struct {   /* derived name */
+typedef struct {   /* field names derived */
     void *dmaArea; /* 0x00 */
     int *cmdBuf;   /* 0x04 */
     int *iopBuf;   /* 0x08 */
@@ -27,7 +27,7 @@ typedef struct {   /* derived name */
     int opened;    /* 0x10 */
     int word14;    /* 0x14 */
     int word18;    /* 0x18 */
-} PadSlot;
+} PadSlot;         /* derived name */
 
 /* the member's .data: the build stamp, the init flag scePadInit sets and
    scePadEnd clears, the flag every diagnostic print tests, and the names
@@ -315,7 +315,7 @@ void scePadReqIntToStr(unsigned int state, char *str)
    this TU's members use.  The actuator and combination tables are arrays of
    four-byte records.  Only the members these functions touch are named; the
    rest is padding. */
-typedef struct {
+typedef struct { /* field names derived */
     unsigned char f00[48];
     unsigned char act[4][4];  /* 0x30 */
     unsigned char comb[4][4]; /* 0x40 */
@@ -326,7 +326,7 @@ typedef struct {
     unsigned char ncomb; /* 0x6B */
     unsigned char f6C[6];
     unsigned char f72;
-} PadDmaStr;
+} PadDmaStr; /* derived name */
 
 int scePadInfoAct(int port, int slot, int act, int term)
 {

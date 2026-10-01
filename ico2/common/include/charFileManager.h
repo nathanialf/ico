@@ -38,7 +38,7 @@ typedef struct PObjMdl { /* field names derived */
     unsigned int bits4 : 4;   /* MakePacket's tag bits 18-21 */
     unsigned int bits8 : 4;   /* MakePacket's tag bits 22-25 */
     unsigned int : 20;
-} PObjMdl;
+} PObjMdl; /* derived name */
 
 /* the data-only members texture-path and model-path */
 extern TexRec texFile[];

@@ -25,11 +25,11 @@ static int ripplePhase; /* derived name */
    1/16-unit form the GS registers take. */
 typedef struct { /* field names derived */
     int x0, y0, x1, y1;
-} GifRect;
+} GifRect; /* derived name */
 
 typedef struct { /* field names derived */
     int u0, v0, u1, v1;
-} GifUvRect;
+} GifUvRect; /* derived name */
 
 #define GIF_RGBA(c)                                                                                \
     ((long long)(c)[0] | ((long long)(c)[1] << 8) | ((long long)(c)[2] << 16) |                    \
@@ -40,7 +40,7 @@ typedef struct { /* field names derived */
 
 typedef struct { /* field names derived */
     unsigned char c[4];
-} GifCol;
+} GifCol; /* derived name */
 
 /* gif_SetGsReg's body: one GS register write, data then address */
 static inline void setGsReg(long long addr, long long data) /* derived name */

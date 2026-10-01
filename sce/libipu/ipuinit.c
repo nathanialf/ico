@@ -24,7 +24,7 @@ static char sceIpuVersion[16] = "PsIIlibipu  2200"; /* derived name */
    quadwords of the MPEG default INTRA matrix, then one quadword of 16 that
    is written four times to fill the flat NON-INTRA matrix.  The byte view
    carries the values, the quadword view the 16-byte alignment. */
-static union {
+static union { /* field names derived */
     unsigned char b[80];
     volatile u128_ipu q[5]; /* volatile: q[4] is read afresh for each of its four FIFO writes */
 } ipuQuantMatrix /* derived name */ = {
@@ -34,7 +34,7 @@ static union {
      58, 69, 69, 83, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16}};
 
 /* The sixteen-entry RGBA5551 colour table that follows it. */
-static union {
+static union { /* field names derived */
     unsigned short c[16];
     u128_ipu q[2];
 } ipuColorTable /* derived name */ = {{0x0000, 0x0421, 0x0842, 0x03E0, 0x1084, 0x14A5, 0x18C6,

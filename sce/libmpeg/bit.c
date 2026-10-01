@@ -10,7 +10,7 @@
 
 /* the bitstream reader state: the 64 bit accumulator this file shifts bits out
  * of, the ring of bytes the IPU feeds it from, and the bit position */
-typedef struct {
+typedef struct {         /* field names derived */
     long long buf;       /* 0x00 */
     unsigned char *base; /* 0x08 */
     unsigned char *p;    /* 0x0C */
@@ -19,7 +19,7 @@ typedef struct {
     unsigned char *wrap; /* 0x20 */
     unsigned char *end;  /* 0x24 */
     int size;            /* 0x28 */
-} SysBit;
+} SysBit;                /* derived name */
 
 /* Its record type is this member's own */
 void _sysbitFlush(SysBit *bs, int n);

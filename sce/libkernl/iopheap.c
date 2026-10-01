@@ -65,10 +65,10 @@ int sceSifFreeIopHeap(int addr)
  * module name copied in at offset 4, and i + 5 bytes sent, so the record is
  * one int followed by a 252-byte name and the sent length is the name length
  * plus the int plus the terminator. */
-typedef struct {
+typedef struct {    /* field names derived */
     int addr;       /* 0x00 */
     char name[252]; /* 0x04 */
-} SifHeapReq;
+} SifHeapReq;       /* derived name */
 
 /* the LoadIopHeap RPC's send buffer, on its own 64-byte DMA line like the
    buffers above */

@@ -7,10 +7,10 @@
 #include "charFileManager.h"
 #include "kanban.h"
 
-typedef union {
+typedef union { /* field names derived */
     int i[4];
     char b[16];
-} Pkt16;
+} Pkt16; /* derived name */
 
 /* The list head and the sign the layout key follows (.sbss), and the pool
    (.bss) of thirty signs that kanbanReqAdd and kanbanReqAllDel walk. */
@@ -126,7 +126,7 @@ static inline int kanban_layout_key(LtProp *pr) /* derived name */
     } else if ((pad[0].flags & 0x2000) && e->rightItem > 0) {
         pr->curItem = e->rightItem;
     } else {
-        unsigned long button = pad[0].flags; /* derived name */
+        unsigned long button = pad[0].flags;
 
         if (button & 0x40) {
             ret = 1;

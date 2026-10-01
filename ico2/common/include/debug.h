@@ -14,11 +14,11 @@
    used_dl_memory is .data, the rest .sdata. */
 /* one debug-menu entry: the label the selector prints, the handler, and a
    "stay in the menu" flag */
-typedef struct {
+typedef struct { /* field names derived */
     char *label;
     int (*fn)(int);
     int stay;
-} DbgMenuItem;
+} DbgMenuItem; /* derived name */
 
 /* the debug menu debug_Menu runs (.data) */
 extern DbgMenuItem debugMenu[];

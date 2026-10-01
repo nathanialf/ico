@@ -11,13 +11,13 @@
    running scroll position. */
 static int staffRollArea[4] = {-5120, -1792, 10240, 3584}; /* derived name */
 
-typedef struct {
-    char **str;   /* 0x00 */
-    float y;      /* 0x04 */
-    char align;   /* 0x08, font_CheckAlign's result for the line */
-    SprCol col;   /* 0x09 */
-    char pad[3];  /* 0x0D */
-} StaffRollEntry; /* 0x10 */
+typedef struct {             /* field names derived */
+    char **str;              /* 0x00 */
+    float y;                 /* 0x04 */
+    char align;              /* 0x08, font_CheckAlign's result for the line */
+    SprCol col;              /* 0x09 */
+    char pad[3];             /* 0x0D */
+} StaffRollEntry; /* 0x10 */ /* derived name */
 
 /* .sbss */
 static float rollSpeed; /* derived name */ /* lines the roll climbs per frame */

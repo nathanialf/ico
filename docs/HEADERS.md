@@ -18,8 +18,8 @@ the listing records for it, under the programmer directory that owns it.
 
 | header | evidence | what it holds |
 | --- | --- | --- |
-| `ico2/sugipon/include/sugiCommon.h` | 84 inlined expansions in callers across six programmer directories | nine `static` inline helpers: random numbers, plane distance, squared distances, a byte checksum |
-| `ico2/ito/include/itou_common.h` | inlined expansions in five `ito` functions | degree and radian conversion |
+| `ico2/sugipon/include/sugiCommon.h` | listing rows in 84 caller functions in six directories (`sugipon` 63, `fumi` 11, `ito` 5, `common` 3, `omori` 1, `script` 1) | nine `static` inline helpers: random numbers, plane distance, squared distances, a byte checksum |
+| `ico2/ito/include/itou_common.h` | listing rows in five `ito` functions (`DrawLightning2`, `GatherEffect_Proc`, `QueenBarrierGeo`, `subBirdBrainMain`, `vector_angle_degree`) | degree and radian conversion |
 | `ico2/ito/include/mv_defs.h` | inlined expansions in the movie player, and three out-of-line copies of `Free` | address masks and a zeroing allocator; `Free`, its release, is defined in each of `mv_vibuf.c`, `mv_videodec.c` and `mv_vobuf.c` |
 | `ico2/common/include/typedef.h` | one helper at line 74, inlined twice into `avoid_obstacle2` | the engine's shared object records (`GObj`, `Sub15C`, `Act`, ...) and the game's VU0 asm templates |
 | `ico2/omori/include/{b50,b100,b200}climb.h` | whole functions, emitted into `fumi/src/boyact.c`'s object | the boy's climb handlers |
@@ -33,12 +33,13 @@ Things a reader of these files should know:
   That holds for `Free` and for the eighteen climb functions
   (`after*Hand*`, `act*Hand*`, `mot*Hand*`). Every other helper name is a
   descriptive one, marked as described under "Derived names" below.
-- **Two pairs of identical helpers.** The listing cites lines 53-56 and
-  63-66, and lines 85-88 and 95-98, of the developer's `sugiCommon.h` for
-  expansions with the same instructions, so both of each pair are written
-  out, the second under a `_b` name (`random_signed_b`,
-  `distance_squared_b`). The tracked file's line numbers are not the
-  listing's.
+- **Two pairs of identical helpers.** The listing cites line 55 and line 65
+  of the developer's `sugiCommon.h` for the same instructions (the
+  `* 2.0f - 1.0f` of a -1..+1 random number), and lines 85 and 87 and line 97
+  for the same VU0 squared distance. Both of each pair are written out:
+  `random_signed` (line 55) and `random_signed_b` (line 65), and
+  `distance_squared` (lines 85 and 87) and `distance_squared_b` (line 97).
+  The tracked file's line numbers are not the listing's.
 - **Line numbers that are part of the bytes.** `mv_defs.h`'s allocator bakes
   `__FILE__` and `__LINE__` into the ROM (`"../ito/include/mv_defs.h"`, lines
   43 and 44), and `typedef.h`'s helper must stay on line 74. Neither file may

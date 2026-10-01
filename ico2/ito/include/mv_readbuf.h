@@ -14,14 +14,14 @@ typedef struct ReadBuf { /* field names derived */
     int size;            /* 0x04 */
     int put;             /* 0x08, where the next read lands */
     int count;           /* 0x0C, the bytes read and not yet demuxed */
-} ReadBuf;
+} ReadBuf; /* derived name */
 
 /* What a demux callback is handed with each packet: the read ring the
    packet sits in and the decoder it feeds. */
 typedef struct MvCbArg { /* field names derived */
     ReadBuf *rb;
     void *dec;
-} MvCbArg;
+} MvCbArg; /* derived name */
 
 /* libmpeg's stream callback data: one demuxed packet's payload in the read
    ring and its time stamps. */
@@ -32,7 +32,7 @@ typedef struct MvCbStr { /* field names derived */
     unsigned int len;    /* 0x0C */
     long long pts;       /* 0x10 */
     long long dts;       /* 0x18 */
-} MvCbStr;
+} MvCbStr; /* derived name */
 
 int readBufBeginGet(ReadBuf *self, void **p);
 int readBufBeginPut(ReadBuf *self, void **p);

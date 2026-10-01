@@ -32,7 +32,7 @@ typedef struct MvDispEnv { /* field names derived */
     int height;      /* 0x34 */
     int imageWidth;  /* 0x38, the movie picture's size */
     int imageHeight; /* 0x3C */
-} MvDispEnv;
+} MvDispEnv; /* derived name */
 
 extern MvDispEnv display;
 void dispDelete(MvDispEnv *self);

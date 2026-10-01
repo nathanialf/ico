@@ -23,7 +23,7 @@ inline void warpGirlInit(void)
 typedef union WarpVec { /* derived name */ /* field names derived */
     float f[4];
     long long q[2];
-} WarpVec;
+} WarpVec; /* derived name */
 
 /* .sbss: set when a warp destination has been found. */
 static int warpFound; /* derived name */

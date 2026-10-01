@@ -10,27 +10,27 @@
 /* a 16-byte aligned float[4], the shape of libvu0's sceVu0FVECTOR */
 typedef float Vec[4] __attribute__((aligned(16))); /* derived name */
 
-typedef struct PktHdr {
+typedef struct PktHdr { /* field names derived */
     char pad0[240];
     int kind; /* 0xF0 */
-} PktHdr;
+} PktHdr;     /* derived name */
 
-typedef struct PObjPkt {
+typedef struct PObjPkt { /* field names derived */
     char pad0[2132];
     struct PObj *owner; /* 0x854 */
     char pad858[24];
     void *f870;   /* 0x870 */
     PktHdr *f874; /* 0x874 */
-} PObjPkt;
+} PObjPkt;        /* derived name */
 
-typedef struct PObjSub { /* 0x180 stride, hung off the PObj at 0x40 */
+typedef struct PObjSub { /* field names derived */ /* 0x180 stride, hung off the PObj at 0x40 */
     long long _0[18];
     Vec *f90;         /* 0x90 */
     unsigned int f94; /* 0x94 */
     long long _98[(0x180 - 0x98) / 8];
-} PObjSub;
+} PObjSub; /* derived name */
 
-typedef struct PObj {
+typedef struct PObj { /* field names derived */
     char pad0[36];
     int f24;      /* 0x24 */
     PObjPkt *pkt; /* 0x28 */
@@ -56,7 +56,7 @@ typedef struct PObj {
     Vec (*f44)[8]; /* 0x44 */
     char pad48[8];
     Vec bb[8]; /* 0x50 */
-} PObj;
+} PObj;        /* derived name */
 
 /* the file's own name tidier, inlined once, into AllocPObj */
 static __inline__ void TidyPObjName(char *name) /* derived name */
@@ -204,21 +204,21 @@ static __inline__ void SetPObjVector(Vec v, float x, float y, float z) /* derive
     v[3] = 0.0f;
 }
 
-typedef struct ObjHdr { /* the loaded model file image */
+typedef struct ObjHdr { /* field names derived */ /* the loaded model file image */
     char pad0[4];
     int f4;           /* 0x4  object table, file offset then pointer */
     unsigned int f8;  /* 0x8  objnum */
     unsigned int fC;  /* 0xC  clstnum */
     int f10;          /* 0x10 texture table, file offset then pointer */
     unsigned int f14; /* 0x14 */
-} ObjHdr;
+} ObjHdr;             /* derived name */
 
-typedef struct ObjEnt { /* the 0x10 stride records the 0xF0 table holds */
-    void *p;            /* 0x0 */
+typedef struct ObjEnt { /* field names derived */ /* the 0x10 stride records the 0xF0 table holds */
+    void *p;                                      /* 0x0 */
     char pad4[12];
-} ObjEnt;
+} ObjEnt; /* derived name */
 
-typedef struct ObjRec {
+typedef struct ObjRec { /* field names derived */
     char pad0[128];
     int f80; /* 0x80 */
     char pad84[12];
@@ -244,7 +244,7 @@ typedef struct ObjRec {
     char pad114[12];
     char *f120;        /* 0x120 */
     unsigned int f124; /* 0x124 */
-} ObjRec;
+} ObjRec;              /* derived name */
 
 /* the sub-record table allocate and copy, inlined once */
 static __inline__ void AllocPObjSubs(PObj *p, int *list) /* derived name */

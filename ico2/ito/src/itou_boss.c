@@ -32,7 +32,7 @@ typedef struct {        /* field names derived */
     sceVu0FVECTOR pos;  /* 0x20 */
     float *release;     /* 0x30, a row of capsuleRelease */
     signed char busy;   /* 0x34 */
-} CapsuleRec;
+} CapsuleRec;           /* derived name */
 
 /* The boss flags, whose first byte is the capsule-ghost stage flag, the
    fifty-three capsules, and the gene_enemy threads' done flags, which each
@@ -51,7 +51,7 @@ static volatile int geneDone[16]; /* derived name */
 typedef struct {     /* field names derived */
     float rot[3][4]; /* the rotation rows, w zero */
     float pos[4];
-} CapsulePlace;
+} CapsulePlace; /* derived name */
 
 static const CapsulePlace capsulePlace[53] = {
     /* derived name */

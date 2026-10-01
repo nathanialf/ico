@@ -4,13 +4,13 @@
 /* libgraph.h's sceGsGParam as this member reads it: the modes unsigned
    (lhu), and the INTC pair as one doubleword, whose 8-byte alignment the
    member's code shows. */
-typedef struct {
+typedef struct {             /* field names derived */
     unsigned short inter;    /* 0x0 */
     unsigned short omode;    /* 0x2 */
     unsigned short ffmd;     /* 0x4 */
     unsigned short version;  /* 0x6 */
     unsigned long long intc; /* 0x8, intcUsed and handler */
-} GParam;
+} GParam;                    /* derived name */
 
 short sceGszbufaddr(short psm, short width, short height)
 {

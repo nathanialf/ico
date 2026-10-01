@@ -70,7 +70,7 @@ typedef struct MvRect { /* field names derived */
     int y;
     int w;
     int h;
-} MvRect;
+} MvRect; /* derived name */
 
 /* a textured sprite over r, sampling uv */
 static inline int *setTexSprite(int *p, MvRect *r, MvRect *uv) /* derived name */

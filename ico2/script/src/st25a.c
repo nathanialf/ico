@@ -56,7 +56,7 @@ extern StreamMotionFile streamMotion[];
 typedef union Vec4St25A { /* derived name */ /* field names derived */
     float f[4];
     long long d[2];
-} __attribute__((aligned(16))) Vec4St25A;
+} __attribute__((aligned(16))) Vec4St25A; /* derived name */
 
 typedef struct AnimSet18 { /* field names derived */
     int anim[18];          /* 0x00 */
@@ -200,7 +200,7 @@ void actConte11(GObj *volatile self)
 typedef union TalkWork { /* derived name */ /* field names derived */
     AnimSet18 a;
     Vec4St25A v[3];
-} TalkWork;
+} TalkWork; /* derived name */
 
 /* .sbss: the flag the demo raises when it is over, and the one its inner event
    raises when that has run. */

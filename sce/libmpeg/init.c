@@ -49,14 +49,14 @@ sceMpeg *_theSceMpeg = 0;
 int _bsDatap = 0;
 
 /* _mbcont as _clearOnce's stores type it: record 1's buffers as pointers, the index as a float */
-extern struct mbcontInit { /* derived name */
-    int refBuf0;           /* 0x000 */
-    int ipuBuf0;           /* 0x004 */
-    int rest0[78];         /* 0x008 */
-    void *refBuf1;         /* 0x140 */
-    void *ipuBuf1;         /* 0x144 */
-    int rest1[78];         /* 0x148 */
-    float cur;             /* 0x280 */
+extern struct mbcontInit { /* field names derived */ /* derived name */
+    int refBuf0;                                     /* 0x000 */
+    int ipuBuf0;                                     /* 0x004 */
+    int rest0[78];                                   /* 0x008 */
+    void *refBuf1;                                   /* 0x140 */
+    void *ipuBuf1;                                   /* 0x144 */
+    int rest1[78];                                   /* 0x148 */
+    float cur;                                       /* 0x280 */
 } _mbcont;
 
 void _clearOnce(void)

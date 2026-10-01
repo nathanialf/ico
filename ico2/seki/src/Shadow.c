@@ -1094,14 +1094,14 @@ typedef struct ShadowVtx { /* field names derived */
     int _4;
     int _8;
     int _C;
-} __attribute__((aligned(16))) ShadowVtx;
+} __attribute__((aligned(16))) ShadowVtx; /* derived name */
 
 typedef struct ShadowPoly { /* field names derived */
     ShadowVtx *pts;
     int _4;
     int _8;
     int _C;
-} __attribute__((aligned(16))) ShadowPoly;
+} __attribute__((aligned(16))) ShadowPoly; /* derived name */
 
 void shadow_MakeObjectData(PObjModel *mdl)
 {

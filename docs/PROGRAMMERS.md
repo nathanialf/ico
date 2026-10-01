@@ -1,7 +1,8 @@
 # Programmers and subsystems
 
-Who wrote which part of the game, as far as public information shows, and
-how that maps onto the `ico2/` directories.
+Who wrote which part of the game, as far as the game's own staff roll and
+its per-developer strings show, and how that maps onto the `ico2/`
+directories.
 
 ## The directories
 
@@ -26,29 +27,47 @@ directory they lived in is not recorded.
 
 ## Who the programmer directories belong to
 
-The mapping comes from public information: the game's published staff roll
-(its ending credits), cross-checked against what each directory contains and
-against per-developer asset paths in the ELF (`camdata/<name>.gcm`,
-`object/sdf/<name>_test/`). No credit text or other disc data is committed,
-only this reading of it.
+The source for the names is the game's own staff roll: the ending credits'
+text in the user's boot ELF (a table of string pointers at `0x004E4610`, read
+in table order, each role line followed by its names). Its programmers
+section reads:
 
-| dir | programmer (credit) | credited role | corroboration | confidence |
-| --- | --- | --- | --- | --- |
-| `seki` | Takuya Seki | Tools / Visual Program | GS and drawing code | high |
-| `sugipon` | Hajime Sugiyama ("Sugipon") | Draw Engine / YORDA A.I. Program | matrix, motion, geometry and Yorda code | high |
-| `omori` | Shotaro Omori | Motion System Program | camera, brains, attack hits | high |
-| `ito` | Toshihiro Ito | Scripting | the `itou_*` files carry his name | high |
-| `fumi` | Fumiaki Hara (candidate) | System Program | I/O and object system fit the role; the action files less so | low |
+| credited role | names, in the roll's order |
+| --- | --- |
+| System Program | Jinji Horagai, Fumiaki Hara |
+| Characters&Objects Program | Shotaro Omori, Hajime Sugiyama, Toshihiro Ito |
+| Motion System Program | Hajime Sugiyama |
+| YORDA A.I. Program | Shotaro Omori, Jinji Horagai |
+| Draw Engine Program | Takuya Seki |
+| Visual Program | Hajime Sugiyama, Takuya Seki |
+| Tools Program | Toshihiro Ito |
+| Scripting | Junichi Hosono |
+
+The roll does not say who wrote which directory. Each directory is matched to
+a name by the per-developer strings in the same ELF: the camera files
+`camdata/seki.gcm`, `camdata/sugiyama.gcm`, `camdata/omori.gcm` and
+`camdata/itoh.gcm`, the test directory `object/sdf/sekitest/`, and the
+memory-area messages printed by `seki/src/FileManager.c` and
+`common/src/debug.c` (`seki area`, `sugi area`, `hara-area`, `oomori area`,
+`horagai-area`). No credit text or other disc data is committed, only this
+reading of it.
+
+| dir | programmer | evidence in the ELF besides the roll |
+| --- | --- | --- |
+| `seki` | Takuya Seki | `camdata/seki.gcm`, `object/sdf/sekitest/`, `seki area` |
+| `sugipon` | Hajime Sugiyama | `camdata/sugiyama.gcm`, `sugi area` |
+| `omori` | Shotaro Omori | `camdata/omori.gcm`, `oomori area` |
+| `ito` | Toshihiro Ito | `camdata/itoh.gcm`, the `itou_*` file and stage names |
+| `fumi` | Fumiaki Hara (candidate) | `hara-area`; the directory name matches his given name only |
 
 Caveats:
 
-- The candidate for `fumi` is Fumiaki Hara, whom MobyGames lists under System
-  Program in the PlayStation 2 credits
-  (<https://www.mobygames.com/game/5158/ico/credits/ps2/>). It is a plausible
-  name match, not proof.
-- Raw `strings` hits for "seki" are mostly the Japanese word *seki*, stone
-  (`sekizo`, stone statue; `sekika`, petrification), not the name. The
-  credit block is the reliable source.
+- `fumi` to Fumiaki Hara is a name match, not proof. Jinji Horagai, credited
+  beside him under System Program, has a memory area (`horagai-area`) but no
+  directory in the listing.
+- The roll names two other Sekis (Yoshiyuki and Masamichi), and most `seki`
+  strings in the ELF are the Japanese word *seki*, stone (`sekizo`, stone
+  statue; `sekika`, petrification), not the name.
 
 ## Shared records
 

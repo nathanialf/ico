@@ -976,11 +976,11 @@ void menuGroupEdit(MenuThread *m)
 
 /* the camera work SetWSMatrix converts: eye at 0x00, look-at at 0x10 and the
    field of view at 0x20, the same record camera-ico2.c hands it */
-typedef struct CamWork { /* field names derived */
-    float eye[4];        /* 0x00 */
-    float at[4];         /* 0x10 */
-    float fov;           /* 0x20 */
-} __attribute__((aligned(16))) CamWork;
+typedef struct CamWork {                /* field names derived */
+    float eye[4];                       /* 0x00 */
+    float at[4];                        /* 0x10 */
+    float fov;                          /* 0x20 */
+} __attribute__((aligned(16))) CamWork; /* derived name */
 
 /* the pin the pin editor was opened on */
 static int editPinNo; /* derived name */

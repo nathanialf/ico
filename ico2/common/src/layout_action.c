@@ -29,9 +29,9 @@ static void _la_set_preview_info(void);
 
 /* the custom key map's sixteen pad button codes (iosPadConfCustom.bit),
    the default one bit per button */
-typedef struct {
+typedef struct { /* field names derived */
     int code[16];
-} KeyConf;
+} KeyConf; /* derived name */
 
 /* A card port's state as _la_memory_card_check finds it, read whole and
    through a one-bit view: currentPortLockState tests bits 1 and 3..5 of the
@@ -1655,19 +1655,19 @@ inline int la_mc_save_current_slot_select(void)
 
 /* the sprite rectangle and colour the gif helpers take, the same pair
    layout_texture.c declares */
-typedef struct {
+typedef struct { /* field names derived */
     int x;
     int y;
     int w;
     int h;
-} SprRect;
+} SprRect; /* derived name */
 
-typedef struct {
+typedef struct { /* field names derived */
     unsigned char r;
     unsigned char g;
     unsigned char b;
     unsigned char a;
-} SprCol;
+} SprCol; /* derived name */
 
 /* GifPacket.h's entry points, which this TU does not include; gif_Sprite
    takes z as an unsigned int here, a long long in the header */

@@ -32,7 +32,7 @@ typedef struct GamesysObjInfo { /* field names derived */
     float rot[3];
     float pad2C;
     int work[4];
-} GamesysObjInfo;
+} GamesysObjInfo; /* derived name */
 
 void backStageSave(void *h);
 void backStageLoad(void *h);

@@ -16,20 +16,20 @@
    developers' list of command ids is not recoverable from this member. */
 typedef enum { SIF_CMD_DIAG = 0 } SifCmdId;
 
-typedef struct {
+typedef struct { /* field names derived */
     unsigned int psize : 8;
     unsigned int dsize : 24;
     void *dest;
     SifCmdId cid;
     unsigned int opt;
-} SifCmdHeader;
+} SifCmdHeader; /* derived name */
 
-typedef struct {
+typedef struct { /* field names derived */
     SifCmdHeader header;
     int arglen;
     int mode;
     char arg[80];
-} SifCmdResetData;
+} SifCmdResetData; /* derived name */
 
 void sceSifRemoveCmdHandler(int cid); /* definition in sce/ */
 

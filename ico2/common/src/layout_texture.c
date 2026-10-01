@@ -13,12 +13,12 @@
 #include "charFileManager.h"
 #include "main.h"
 
-typedef struct {
+typedef struct { /* field names derived */
     unsigned char r;
     unsigned char g;
     unsigned char b;
     unsigned char a;
-} SprCol;
+} SprCol; /* derived name */
 
 /* .sdata: the continue screen's decided flag, which
    layout_action sets and op's countdown waits on; the two highlight colours;
@@ -80,12 +80,12 @@ extern void *memset(void *dst, int c, int n);
 static void default_item_select(int no);
 
 /* The sprite rectangle the gif helpers take: origin and size, in 1/16 pixels. */
-typedef struct {
+typedef struct { /* field names derived */
     int x;
     int y;
     int w;
     int h;
-} SprRect;
+} SprRect; /* derived name */
 
 /* the screen rectangle lt_draw_primary_sprite draws, in 1/16 pixels: 640 x 226
    pixels centred on the origin */
@@ -432,7 +432,7 @@ static void display_texture(int no, LtProperty *e)
     SprRect ofs;
     SprRect box;
 
-    union {
+    union { /* field names derived */
         int pt[2];
         SprCol col;
     } u;

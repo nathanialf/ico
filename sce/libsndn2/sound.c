@@ -13,12 +13,12 @@
 
 /* one 0x58-byte voice slot as SgSeStop walks them: the sequence or SE that
    keyed it and its state (0 free, 1 keyed off, 2 sounding) */
-typedef struct { /* derived name */
+typedef struct { /* field names derived */
     char pad0[0x50];
     unsigned char owner; /* 0x50 */
     unsigned char state; /* 0x51 */
     char pad52[6];
-} SgSlot;
+} SgSlot; /* derived name */
 
 /* the member's .bss, in address order: the 128 vab headers, the 48 voice
    slots, the 48 sequence contexts, the common context the IOP side polls,

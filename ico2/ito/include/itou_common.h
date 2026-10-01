@@ -23,12 +23,12 @@ static __inline__ float radians_to_degrees(float rad) /* derived name */
 typedef struct GObjMailEntry { /* field names derived */
     unsigned int mail;         /* 0x0 */
     void *data;                /* 0x4 */
-} GObjMailEntry;
+} GObjMailEntry; /* derived name */
 
 typedef struct GObjMailQueue { /* field names derived */
     char pad0[4];              /* 0x00 */
     int num;                   /* 0x04 */
     GObjMailEntry e[1];        /* 0x08 */
-} GObjMailQueue;
+} GObjMailQueue; /* derived name */
 
 #endif /* ITOU_COMMON_H */
