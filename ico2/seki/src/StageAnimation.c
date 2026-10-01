@@ -362,10 +362,10 @@ int stage_Init(void)
                         stageAnimCount++;
                         if (stageAnimCount >= 88) {
                             /* "stgBgas has %d, over MAX_ANIM_KIND %d" */
-                            debug_StdPrintfDummy("stgBgas ¤¬%dÍ­¤ê MAX_ANIM_KIND %d¤ò±Û¤¨¤Ş¤·¤¿\n",
+                            debug_StdPrintfDummy("stgBgas ãŒ%dæœ‰ã‚Š MAX_ANIM_KIND %dã‚’è¶Šãˆã¾ã—ãŸ\n",
                                                  stageAnimCount, 87);
                             /* "too many BgAnimation kinds in one stage" */
-                            debug_StdPrintfDummy("1¥¹¥Æ¡¼¥¸Ãæ¤Î BgAnimation ¤Î¼ïÎà¤¬Â¿¤¹¤®¤Ş¤¹\n");
+                            debug_StdPrintfDummy("1ã‚¹ãƒ†ãƒ¼ã‚¸ä¸­ã® BgAnimation ã®ç¨®é¡ãŒå¤šã™ãã¾ã™\n");
                             debug_assert(__FILE__, 702);
                             __assert(__FILE__, 702, "0");
                         }
@@ -377,7 +377,7 @@ int stage_Init(void)
     for (i = 0; i < stageAnimCount; i++) {
         if (STG[i].flags.b.count >= 64) {
             /* "stgBgas has %d, over MAX_ANIM_GOBJ %d" */
-            debug_StdPrintfDummy("stgBgas ¤¬%dÍ­¤ê MAX_ANIM_GOBJ %d¤ò±Û¤¨¤Ş¤·¤¿\n",
+            debug_StdPrintfDummy("stgBgas ãŒ%dæœ‰ã‚Š MAX_ANIM_GOBJ %dã‚’è¶Šãˆã¾ã—ãŸ\n",
                                  STG[i].flags.b.count, 64);
             debug_assert(__FILE__, 712);
             __assert(__FILE__, 712, "0");
@@ -1090,14 +1090,14 @@ int *stage_MakePlayBgAnimation(int key)
 
     if (found == -1) {
         /* "the given ID does not exist, or its animation is not loaded" */
-        debug_StdPrintfDummy("»ØÄê¤·¤¿ID¤¬Â¸ºß¤·¤Ê¤¤¤«¡¢¥¢¥Ë¥á¡¼¥·¥ç¥ó¤¬ÆÉ¤ß¹ş¤Ş¤ì¤Æ¤¤¤Ş¤»¤ó.\n");
+        debug_StdPrintfDummy("æŒ‡å®šã—ãŸIDãŒå­˜åœ¨ã—ãªã„ã‹ã€ã‚¢ãƒ‹ãƒ¡ãƒ¼ã‚·ãƒ§ãƒ³ãŒèª­ã¿è¾¼ã¾ã‚Œã¦ã„ã¾ã›ã‚“.\n");
         return 0;
     }
 
     p = (int *)iosMallocDebug(ios_partition_seki, 0x40, __FILE__, 1494);
     if (p == 0) {
         /* "cannot allocate memory for the stage segment (heap exhausted)" */
-        debug_StdPrintfDummy("¥¹¥Æ¡¼¥¸¥»¥°¥á¥ó¥È¤Ë¥á¥â¥ê¤¬³ÎÊİ¤Ç¤­¤Ş¤»¤ó.(¥Ò¡¼¥×¥á¥â¥êÉÔÂ­)\n");
+        debug_StdPrintfDummy("ã‚¹ãƒ†ãƒ¼ã‚¸ã‚»ã‚°ãƒ¡ãƒ³ãƒˆã«ãƒ¡ãƒ¢ãƒªãŒç¢ºä¿ã§ãã¾ã›ã‚“.(ãƒ’ãƒ¼ãƒ—ãƒ¡ãƒ¢ãƒªä¸è¶³)\n");
         return 0;
     }
 

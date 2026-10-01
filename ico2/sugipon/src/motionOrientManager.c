@@ -150,7 +150,7 @@ static inline void checkMotionKind(int i, int j)
 
         /* EUC-JP: "the node-blending motion (%s) uses a node-blending motion again" */
         debug_StdPrintfDummy(
-            "¥Î¡¼¥É¤òº®¤¼¤ë¥â¡¼¥·¥ç¥ó(%s)¤¬¡¢\nºÆÅÙ¥Î¡¼¥É¤òº®¤¼¤ë¥â¡¼¥·¥ç¥ó¤òÍøÍÑ¤·¤Æ¤¤¤Ş¤¹¡£\n",
+            "ãƒãƒ¼ãƒ‰ã‚’æ··ãœã‚‹ãƒ¢ãƒ¼ã‚·ãƒ§ãƒ³(%s)ãŒã€\nå†åº¦ãƒãƒ¼ãƒ‰ã‚’æ··ãœã‚‹ãƒ¢ãƒ¼ã‚·ãƒ§ãƒ³ã‚’åˆ©ç”¨ã—ã¦ã„ã¾ã™ã€‚\n",
             motionKind[j].name);
         sprintf(buf, "NODE BLEND MOTION \"%s\" REFERS\nNODE BLEND MOTION RECURSIVELY.\n",
                 motionKind[j].name);
@@ -600,7 +600,7 @@ void shiftMotionOrientEndFunc(void *self)
     if (w->word1AC == -1) {
         /* EUC-JP: "the SE internal processing seems wrong for some reason; report it to Sugiyama" */
         debug_StdPrintfDummy(
-            "²¿¤é¤«¤ÎÍıÍ³¤ÇSE¤ÎÆâÉô½èÍı¤¬¤ª¤«¤·¤¤¤è¤¦¤Ç¤¹¡£¿ù»³¤ËÊó¹ğ¤·¤Æ¤¯¤À¤µ¤¤¡£\n");
+            "ä½•ã‚‰ã‹ã®ç†ç”±ã§SEã®å†…éƒ¨å‡¦ç†ãŒãŠã‹ã—ã„ã‚ˆã†ã§ã™ã€‚æ‰å±±ã«å ±å‘Šã—ã¦ãã ã•ã„ã€‚\n");
         debug_assert(__FILE__, 745);
         __assert(__FILE__, 745, "0");
     }
@@ -966,7 +966,7 @@ void getNodeBlendedFloatingMotion(void *dst, float *root, int id, int n, int a4,
     }
     if (i == 0) {
         /* EUC-JP: "(%s) the motion to blend is not defined" */
-        debug_StdPrintfDummy("(%s)º®¤¼¤ë¥â¡¼¥·¥ç¥ó¤¬ÄêµÁ¤µ¤ì¤Æ¤¤¤Ş¤»¤ó¡£\n", motionKind[id].name);
+        debug_StdPrintfDummy("(%s)æ··ãœã‚‹ãƒ¢ãƒ¼ã‚·ãƒ§ãƒ³ãŒå®šç¾©ã•ã‚Œã¦ã„ã¾ã›ã‚“ã€‚\n", motionKind[id].name);
         debug_assert(__FILE__, 1228);
         __assert(__FILE__, 1228, "0");
     }
@@ -1264,7 +1264,7 @@ void getShapeGeometry(void *self)
                     if (cnt != n) {
                         /* EUC-JP: "the shape motion data and the number of targets differ; motion: %d target: %d" */
                         debug_StdPrintfDummy(
-                            "¥·¥§¥¤¥×¥â¡¼¥·¥ç¥ó¥Ç¡¼¥¿¤È¥¿¡¼¥²¥Ã¥È¤Î¿ô¤¬°ã¤¤¤Ş¤¹¡£\n¥â¡¼¥·¥ç¥ó:%d ¥¿¡¼¥²¥Ã¥È:%d\n",
+                            "ã‚·ã‚§ã‚¤ãƒ—ãƒ¢ãƒ¼ã‚·ãƒ§ãƒ³ãƒ‡ãƒ¼ã‚¿ã¨ã‚¿ãƒ¼ã‚²ãƒƒãƒˆã®æ•°ãŒé•ã„ã¾ã™ã€‚\nãƒ¢ãƒ¼ã‚·ãƒ§ãƒ³:%d ã‚¿ãƒ¼ã‚²ãƒƒãƒˆ:%d\n",
                             n, cnt);
                     }
                     for (i = 0; i < n; i++) {
@@ -1287,7 +1287,7 @@ void getShapeGeometry(void *self)
                     }
                 } else {
                     /* EUC-JP: "no place is reserved to store the handover data" */
-                    debug_StdPrintfDummy("¼õÅÏ¤·¥Ç¡¼¥¿¤ò³ÊÇ¼¤¹¤ë¾ì½ê¤¬³ÎÊİ¤µ¤ì¤Æ¤¤¤Ş¤»¤ó¡£\n");
+                    debug_StdPrintfDummy("å—æ¸¡ã—ãƒ‡ãƒ¼ã‚¿ã‚’æ ¼ç´ã™ã‚‹å ´æ‰€ãŒç¢ºä¿ã•ã‚Œã¦ã„ã¾ã›ã‚“ã€‚\n");
                 }
                 if (debug_bar_flag != 0) {
                     gif_StartPacketPri(11);
@@ -1470,7 +1470,7 @@ void ExecMotionOrient(void *self)
 
     if (*(int *)(w + 0x18) != 0) {
         /* EUC-JP: "the motion replacement function is stopped" */
-        debug_StdPrintfDummy("\033[36m¥â¡¼¥·¥ç¥óÃÖ¤­´¹¤¨µ¡Ç½¤¬Ää»ß¤·¤Æ¤¤¤Ş¤¹¡£\033[m: %p\n", self);
+        debug_StdPrintfDummy("\033[36mãƒ¢ãƒ¼ã‚·ãƒ§ãƒ³ç½®ãæ›ãˆæ©Ÿèƒ½ãŒåœæ­¢ã—ã¦ã„ã¾ã™ã€‚\033[m: %p\n", self);
     }
     if (*(int *)w == -1) {
         if (*(int *)(w + 0xD0) != 0x10D) {
@@ -1517,7 +1517,7 @@ void SetNodeRotationLimitDataTable(void *self, int a1, int a2)
         if (node < 0) {
             /* EUC-JP: "the node the node rotation limit data names is not in the skeleton" */
             debug_StdPrintfDummy(
-                "¥Î¡¼¥É²óÅ¾¥ê¥ß¥Ã¥È¥Ç¡¼¥¿¤Î¼¨¤¹¥Î¡¼¥É¤¬¥¹¥±¥ë¥È¥óÃæ¤Ë¤¢¤ê¤Ş¤»¤ó¡£\n");
+                "ãƒãƒ¼ãƒ‰å›è»¢ãƒªãƒŸãƒƒãƒˆãƒ‡ãƒ¼ã‚¿ã®ç¤ºã™ãƒãƒ¼ãƒ‰ãŒã‚¹ã‚±ãƒ«ãƒˆãƒ³ä¸­ã«ã‚ã‚Šã¾ã›ã‚“ã€‚\n");
             debug_assert(__FILE__, 1838);
             __assert(__FILE__, 1838, "0");
         }

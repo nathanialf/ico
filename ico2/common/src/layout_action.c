@@ -400,7 +400,7 @@ int _la_memory_card_check(McWork *p, int a1)
     case 23:
         if (p->_44 >= 11) {
             debug_StdPrintfDummy(
-                "debug_mcLoadMainBlock:´û¤ËÀßÄê¤µ¤ì¤¿¿ô°Ê¾å¤Î¥Ç¡¼¥¿¤òÊİÂ¸¤·¤Æ¤ë\n");
+                "debug_mcLoadMainBlock:æ—¢ã«è¨­å®šã•ã‚ŒãŸæ•°ä»¥ä¸Šã®ãƒ‡ãƒ¼ã‚¿ã‚’ä¿å­˜ã—ã¦ã‚‹\n");
         }
         for (i = 0; i < 10; i++) {
             if ((1 << i) & p->_9C0) {
@@ -1620,10 +1620,10 @@ int la_mc_confirm_save_file(int a0, int a1)
             saveVoice = openLayoutVoice(0x16);
             saveVoiceOpened = 1;
         } else {
-            debug_StdPrintfDummy("ADPCM°ìÇÕ¤Ç³«¤±¤Ş¤»¤ó¤Ç¤·¤¿¡£\n");
+            debug_StdPrintfDummy("ADPCMä¸€æ¯ã§é–‹ã‘ã¾ã›ã‚“ã§ã—ãŸã€‚\n");
             if (AdpcmNotUseIopAreaFree() != 0) {
                 debug_StdPrintfDummy(
-                    "¥ª¡¼¥×¥ó¤µ¤ì¤Æ¤¤¤Ê¤¤¤Î¤Ë¤â´Ø¤ï¤é¤º»È¤ï¤ì¤Æ¤¤¤Ê¤¤IOPÎÎ°èÈ¯¸«&¶¯À©²òÊü\n");
+                    "ã‚ªãƒ¼ãƒ—ãƒ³ã•ã‚Œã¦ã„ãªã„ã®ã«ã‚‚é–¢ã‚ã‚‰ãšä½¿ã‚ã‚Œã¦ã„ãªã„IOPé ˜åŸŸç™ºè¦‹&å¼·åˆ¶è§£æ”¾\n");
                 return -1;
             }
             if (saveVoiceWait-- < 0) {

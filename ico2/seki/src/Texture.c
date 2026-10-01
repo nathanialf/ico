@@ -326,13 +326,13 @@ int tex_loadImage(unsigned int addr, CdvdRec *tex, int idx, short dbp, short dbw
         break;
     default:
         /* "tex_loadImage:" + EUC-JP "the texture format cannot be told apart" + ".\n" */
-        debug_StdPrintfDummy("tex_loadImage:È½ÊÌ¤Ç¤­¤Ê¤¤¥Æ¥¯¥¹¥Á¥ã¥Õ¥©¡¼¥Ş¥Ã¥È¤Ç¤¹.\n");
+        debug_StdPrintfDummy("tex_loadImage:åˆ¤åˆ¥ã§ããªã„ãƒ†ã‚¯ã‚¹ãƒãƒ£ãƒ•ã‚©ãƒ¼ãƒãƒƒãƒˆã§ã™.\n");
         debug_assert("src/Texture.c", 645);
         __assert("src/Texture.c", 645, "0");
     }
     if (size > 0x20000) {
         /* "tex_loadImage:" + EUC-JP "the texture size is too large" + ".\n" */
-        debug_StdPrintfDummy("tex_loadImage:¥Æ¥¯¥¹¥Á¥ã¤Î¥µ¥¤¥º¤¬Âç¤­¤¹¤®¤Ş¤¹.\n");
+        debug_StdPrintfDummy("tex_loadImage:ãƒ†ã‚¯ã‚¹ãƒãƒ£ã®ã‚µã‚¤ã‚ºãŒå¤§ãã™ãã¾ã™.\n");
         debug_assert("src/Texture.c", 650);
         __assert("src/Texture.c", 650, "0");
     }
@@ -413,7 +413,7 @@ void tex_setTexReg(Tim2Picture *pic, CdvdRec *t, int levels, int lv, int clut)
         break;
     default:
         /* EUC-JP: "a texture type that is neither DIRECT nor CLUT was specified" + ".\n" */
-        debug_StdPrintfDummy("DIRECT¤Ç¤âCLUT¤Ç¤â¤Ê¤¤¥Æ¥¯¥¹¥Á¥ã¥¿¥¤¥×¤¬»ØÄê¤µ¤ì¤Ş¤·¤¿.\n");
+        debug_StdPrintfDummy("DIRECTã§ã‚‚CLUTã§ã‚‚ãªã„ãƒ†ã‚¯ã‚¹ãƒãƒ£ã‚¿ã‚¤ãƒ—ãŒæŒ‡å®šã•ã‚Œã¾ã—ãŸ.\n");
         debug_assert("src/Texture.c", 788);
         __assert("src/Texture.c", 788, "0");
         break;
@@ -525,7 +525,7 @@ int tex_transTM2(Tim2Picture *pic, CdvdRec *t, int id, int pri)
 
     if (8 <= levels) {
         /* "tex_transTM2:" + EUC-JP "there are too many mipmap textures" + ".\n" */
-        debug_StdPrintfDummy("tex_transTM2:¥ß¥Ã¥×¥Ş¥Ã¥×¥Æ¥¯¥¹¥Á¥ã¤ÎËç¿ô¤¬Â¿¤¹¤®¤Ş¤¹.\n");
+        debug_StdPrintfDummy("tex_transTM2:ãƒŸãƒƒãƒ—ãƒãƒƒãƒ—ãƒ†ã‚¯ã‚¹ãƒãƒ£ã®æšæ•°ãŒå¤šã™ãã¾ã™.\n");
         debug_assert("src/Texture.c", 886);
         __assert("src/Texture.c", 886, "FALSE");
     }
@@ -558,7 +558,7 @@ int tex_transTM2(Tim2Picture *pic, CdvdRec *t, int id, int pri)
         break;
     default:
         /* EUC-JP "the texture is corrupt" + ".\"%s\"I:%d C:%d iadr:%p cadr:%p hadr:%p\n" */
-        debug_StdPrintfDummy("¥Æ¥¯¥¹¥Á¥ã¤¬²õ¤ì¤Æ¤¤¤Ş¤¹.\"%s\"I:%d C:%d iadr:%p cadr:%p hadr:%p\n",
+        debug_StdPrintfDummy("ãƒ†ã‚¯ã‚¹ãƒãƒ£ãŒå£Šã‚Œã¦ã„ã¾ã™.\"%s\"I:%d C:%d iadr:%p cadr:%p hadr:%p\n",
                              t, pic->imageType, pic->clutType, t->lv[0].addr, t->clut.addr, t);
         debug_assert("src/Texture.c", 919);
         __assert("src/Texture.c", 919, "FALSE");
@@ -707,7 +707,7 @@ void tex_setRegisters(Tim2Picture *pic, CdvdRec *t)
         ch = 16;
         break;
     default:
-        debug_StdPrintfDummy("¥Æ¥¯¥¹¥Á¥ã¤¬²õ¤ì¤Æ¤¤¤Ş¤¹.\"%s\"I:%d C:%d iadr:%p cadr:%p hadr:%p\n",
+        debug_StdPrintfDummy("ãƒ†ã‚¯ã‚¹ãƒãƒ£ãŒå£Šã‚Œã¦ã„ã¾ã™.\"%s\"I:%d C:%d iadr:%p cadr:%p hadr:%p\n",
                              t, pic->imageType, pic->clutType, t->lv[0].addr, t->clut.addr, t);
         debug_assert("src/Texture.c", 1066);
         __assert("src/Texture.c", 1066, "FALSE");
@@ -805,7 +805,7 @@ void tex_initTM2(Tim2Picture *pic, CdvdRec *t)
         texInitMipLevels(pic, t);
         break;
     default:
-        debug_StdPrintfDummy("¥Æ¥¯¥¹¥Á¥ã¤¬²õ¤ì¤Æ¤¤¤Ş¤¹.\"%s\"I:%d C:%d iadr:%p cadr:%p hadr:%p\n",
+        debug_StdPrintfDummy("ãƒ†ã‚¯ã‚¹ãƒãƒ£ãŒå£Šã‚Œã¦ã„ã¾ã™.\"%s\"I:%d C:%d iadr:%p cadr:%p hadr:%p\n",
                              t, pic->imageType, pic->clutType, t->lv[0].addr, t->clut.addr, t);
         debug_assert("src/Texture.c", 1143);
         __assert("src/Texture.c", 1143, "FALSE");
@@ -1046,7 +1046,7 @@ void tex_makeTexturePacket(void *file, CdvdRec *t)
             /* "tex_makeTexturePacket:" + EUC-JP "the texture user header is an unknown
              * format" + ".'%s'\n" */
             debug_StdPrintfDummy(
-                "tex_makeTexturePacket:¥Æ¥¯¥¹¥Á¥ã¤Î¥æ¡¼¥¶¡¼¥¹¥Ú¡¼¥¹¥Õ¥©¡¼¥Ş¥Ã¥È¤¬°Û¾ï¤Ç¤¹.'%s'\n",
+                "tex_makeTexturePacket:ãƒ†ã‚¯ã‚¹ãƒãƒ£ã®ãƒ¦ãƒ¼ã‚¶ãƒ¼ã‚¹ãƒšãƒ¼ã‚¹ãƒ•ã‚©ãƒ¼ãƒãƒƒãƒˆãŒç•°å¸¸ã§ã™.'%s'\n",
                 t);
             debug_assert("src/Texture.c", 1392);
             __assert("src/Texture.c", 1392, "0");
@@ -1133,7 +1133,7 @@ void *pkt;
     if (no != -1) {
         if (strcmp(name, texTable[no].rec.file) != 0) {
             /* "\x1b[31m" + EUC-JP "a texture of the same name was read from another path" + ".\n" */
-            debug_StdPrintfDummy("\033[31m¥Ñ¥¹¤Î°ã¤¦Æ±Ì¾¤Î¥Æ¥¯¥¹¥Á¥ã¤òÆÉ¤ß¹ş¤â¤¦¤È¤·¤Ş¤·¤¿.\n");
+            debug_StdPrintfDummy("\033[31mãƒ‘ã‚¹ã®é•ã†åŒåã®ãƒ†ã‚¯ã‚¹ãƒãƒ£ã‚’èª­ã¿è¾¼ã‚‚ã†ã¨ã—ã¾ã—ãŸ.\n");
             debug_StdPrintfDummy("1:%s
 ", name);
             debug_StdPrintfDummy("2:%s\033[0m\n", texTable[no].rec.file);
@@ -1179,7 +1179,7 @@ void *pkt;
     texCount++;
     if (200 <= texCount) {
         /* EUC-JP "there are too many textures, make the texture list region bigger" */
-        debug_StdPrintfDummy("¥Æ¥¯¥¹¥Á¥ã¤¬Â¿¤¹¤®¤Ş¤¹.¥Æ¥¯¥¹¥Á¥ã¥ê¥¹¥ÈÎÎ°è¤òÁı¤ä¤·¤Æ¤¯¤À¤µ¤¤\n");
+        debug_StdPrintfDummy("ãƒ†ã‚¯ã‚¹ãƒãƒ£ãŒå¤šã™ãã¾ã™.ãƒ†ã‚¯ã‚¹ãƒãƒ£ãƒªã‚¹ãƒˆé ˜åŸŸã‚’å¢—ã‚„ã—ã¦ãã ã•ã„\n");
         debug_assert("src/Texture.c", 1523);
         __assert("src/Texture.c", 1523, "0");
     }
@@ -1202,7 +1202,7 @@ int tex_LoadTexturePart(void *name, int a1)
         return tex_initTextureSub(buf, size);
     } else {
         /* EUC-JP: texture "%s" not found. */
-        debug_StdPrintfDummy("¥Æ¥¯¥¹¥Á¥ã \"%s\" ¤¬¤ß¤Ä¤«¤ê¤Ş¤»¤ó.\n", buf);
+        debug_StdPrintfDummy("ãƒ†ã‚¯ã‚¹ãƒãƒ£ \"%s\" ãŒã¿ã¤ã‹ã‚Šã¾ã›ã‚“.\n", buf);
         debug_assert("src/Texture.c", 1590);
         __assert("src/Texture.c", 1590, "FALSE");
         return -1;
@@ -1228,10 +1228,10 @@ int tex_TransTexture(int id, int ret)
     if (ret < 0) {
         if (t == 0) {
             /* "tex_TransTexture:" + EUC-JP "texture transfer failed" + ". %d\n" */
-            debug_StdPrintfDummy("tex_TransTexture:¥Æ¥¯¥¹¥Á¥ã¤ÎÅ¾Á÷¤Ë¼ºÇÔ¤·¤Ş¤·¤¿. %d\n", id);
+            debug_StdPrintfDummy("tex_TransTexture:ãƒ†ã‚¯ã‚¹ãƒãƒ£ã®è»¢é€ã«å¤±æ•—ã—ã¾ã—ãŸ. %d\n", id);
         } else {
             /* the same message with ". %d:%s\n" */
-            debug_StdPrintfDummy("tex_TransTexture:¥Æ¥¯¥¹¥Á¥ã¤ÎÅ¾Á÷¤Ë¼ºÇÔ¤·¤Ş¤·¤¿. %d:%s\n", id, t);
+            debug_StdPrintfDummy("tex_TransTexture:ãƒ†ã‚¯ã‚¹ãƒãƒ£ã®è»¢é€ã«å¤±æ•—ã—ã¾ã—ãŸ. %d:%s\n", id, t);
         }
         debug_assert("src/Texture.c", 1685);
         __assert("src/Texture.c", 1685, "FALSE");

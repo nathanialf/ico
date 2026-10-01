@@ -175,11 +175,11 @@ int ReleaseWeaponWithFumbleSequential(GObj *g)
         }
         /* "point %d, candidate %d overlaps a box; checking the next candidate" */
         debug_StdPrintfDummy(
-            "    Âè%d¥Ý¥¤¥ó¥È¤ÎÂè%d¸õÊä¤ÏÈ¢¤È½Å¤Ê¤Ã¤Æ¤¤¤Þ¤¹¡£¼¡¤Î¸õÊä¤ò¥Á¥§¥Ã¥¯¤·¤Þ¤¹\n",
+            "    ç¬¬%dãƒã‚¤ãƒ³ãƒˆã®ç¬¬%då€™è£œã¯ç®±ã¨é‡ãªã£ã¦ã„ã¾ã™ã€‚æ¬¡ã®å€™è£œã‚’ãƒã‚§ãƒƒã‚¯ã—ã¾ã™\n",
             w->fumbleSlot, i);
     }
     /* "decided: point %d, candidate %d" */
-    debug_StdPrintfDummy("·èÄê: Âè%d¥Ý¥¤¥ó¥È Âè%d¸õÊä %f, %f, %f\n", w->fumbleSlot, i,
+    debug_StdPrintfDummy("æ±ºå®š: ç¬¬%dãƒã‚¤ãƒ³ãƒˆ ç¬¬%då€™è£œ %f, %f, %f\n", w->fumbleSlot, i,
                          FUMBLE_ROW(i, w)->pos[0], FUMBLE_ROW(i, w)->pos[1],
                          FUMBLE_ROW(i, w)->pos[2]);
     {

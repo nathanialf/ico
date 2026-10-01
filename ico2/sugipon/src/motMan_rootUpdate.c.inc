@@ -523,7 +523,7 @@ static void setIKAndAdjustRootHeight(char *mv)
         skelRoot->last[1] = skelRoot->pos[1];
         /* retail links debug_StdPrintfDummy in place of the listing's printf. */
         /* EUC-JP: "PLANE limit %f, it is steep so it is dropped" */
-        debug_StdPrintfDummy("PLANE•Í•ﬂ•√•»§«§π %f µﬁ§ §Œ§«ÕÓ≤º§µ§ª§ﬁ§π\n", fptodp(h));
+        debug_StdPrintfDummy("PLANE„É™„Éü„ÉÉ„Éà„Åß„Åô %f ÊÄ•„Å™„ÅÆ„ÅßËêΩ‰∏ã„Åï„Åõ„Åæ„Åô\n", fptodp(h));
 
         return;
     }
@@ -935,7 +935,7 @@ ObjNode rootUpdateXZ(int kind, int no)
                cannot: the arm's form and the condition that disabled it. */
             if (0) {
                 debug_StdPrintfDummy(
-                    "§≥§Œ•·•√•ª°º•∏§Ú∏´§øøÕ§œƒæ§¡§À§π§Æ§‰§ﬁ§À Ûπ§∑§∆§Ø§Ï°º:NOWALLHITPROC\n");
+                    "„Åì„ÅÆ„É°„ÉÉ„Çª„Éº„Ç∏„ÇíË¶ã„Åü‰∫∫„ÅØÁõ¥„Å°„Å´„Åô„Åé„ÇÑ„Åæ„Å´Â†±Âëä„Åó„Å¶„Åè„Çå„Éº:NOWALLHITPROC\n");
             }
             break;
         }
@@ -1258,7 +1258,7 @@ ObjNode rootUpdateHang(int kind, int a1, int a2)
                                                           skelRoot->pos);
                 if (-0.25f < skelRoot->plane.f[1]) {
                     /* EUC-JP: "the wall angle is steep, so fall" */
-                    debug_StdPrintfDummy(" …§Œ≥—≈Ÿ§¨µﬁ§ §Œ§«ÕÓ≤º\n");
+                    debug_StdPrintfDummy("Â£Å„ÅÆËßíÂ∫¶„ÅåÊÄ•„Å™„ÅÆ„ÅßËêΩ‰∏ã\n");
                     forceFallDown();
                     goto out;
                 }
@@ -1273,12 +1273,12 @@ ObjNode rootUpdateHang(int kind, int a1, int a2)
                 if (attr == 768) {
                     forceFallDown();
                     /* EUC-JP: "fall by the wall attribute" */
-                    debug_StdPrintfDummy(" …¬∞¿≠§À§Ë§ÍÕÓ≤º\n");
+                    debug_StdPrintfDummy("Â£ÅÂ±ûÊÄß„Å´„Çà„ÇäËêΩ‰∏ã\n");
                     goto out;
                 }
             } else {
                 /* EUC-JP: "no wall, so fall" */
-                debug_StdPrintfDummy(" …§¨§ §Ø§∆ÕÓ≤º\n");
+                debug_StdPrintfDummy("Â£Å„Åå„Å™„Åè„Å¶ËêΩ‰∏ã\n");
                 forceFallDown();
                 goto out;
             }
@@ -1307,7 +1307,7 @@ ObjNode rootUpdateHang(int kind, int a1, int a2)
             if (hit == 0) {
                 if (d < 0.0f ? 30.0f < -d : 30.0f < d) {
                     /* EUC-JP: "no hold point on the wall, so fall (step: %f)" */
-                    debug_StdPrintfDummy(" …§Œ§ƒ§´§ﬁ§Í¿Ë§¨§ §Ø§∆ÕÓ≤º (√ ∫π:%f)\n", fptodp(d));
+                    debug_StdPrintfDummy("Â£Å„ÅÆ„Å§„Åã„Åæ„ÇäÂÖà„Åå„Å™„Åè„Å¶ËêΩ‰∏ã (ÊÆµÂ∑Æ:%f)\n", fptodp(d));
                     forceFallDown();
                     goto out;
                 }
@@ -1326,7 +1326,7 @@ ObjNode rootUpdateHang(int kind, int a1, int a2)
             r2 = checkSideWall(hangRight, mtx2, &sw2, &w, &pl2);
             if (r1 == -1 || r2 == -1) {
                 /* EUC-JP: "hit a forced-fall wall, so fall" */
-                debug_StdPrintfDummy("∂Ø¿©ÕÓ≤º§Œ …§À≈ˆ§ø§√§ø§Œ§«ÕÓ≤º\n");
+                debug_StdPrintfDummy("Âº∑Âà∂ËêΩ‰∏ã„ÅÆÂ£Å„Å´ÂΩì„Åü„Å£„Åü„ÅÆ„ÅßËêΩ‰∏ã\n");
                 forceFallDown();
                 goto out;
             }
@@ -1396,7 +1396,7 @@ ObjNode rootUpdateSwim(void)
         /* retail links debug_StdPrintfDummy in place of the listing's printf. */
         /* EUC-JP: "there is no DWATER water bottom below.  If this message keeps coming, it has not left the swim state" */
         debug_StdPrintfDummy(
-            "≤º§ÀDWATER§ŒøÂƒÏ§¨§ §§§«§π°£§≥§Œ•·•√•ª°º•∏§¨œ¢¬≥§«\nΩ–§∆§Î§ §È°¢±À§Æ§´§È¡´∞‹§∑§∆§§§ §§æı¬÷§«§π\n\n");
+            "‰∏ã„Å´DWATER„ÅÆÊ∞¥Â∫ï„Åå„Å™„ÅÑ„Åß„Åô„ÄÇ„Åì„ÅÆ„É°„ÉÉ„Çª„Éº„Ç∏„ÅåÈÄ£Á∂ö„Åß\nÂá∫„Å¶„Çã„Å™„Çâ„ÄÅÊ≥≥„Åé„Åã„ÇâÈÅ∑Áßª„Åó„Å¶„ÅÑ„Å™„ÅÑÁä∂ÊÖã„Åß„Åô\n\n");
     }
     if (w.floor.n != 0) {
         skelMotCtrl->floorAttr = GetFloorAttribute(&w);
@@ -1602,7 +1602,7 @@ ObjNode rootUpdateStepSolution(int kind)
     if (clipFuchiWallAndReact(skelRoot, skelRoot->last, skelRoot->fuchiMode, skelRoot->radius) !=
         0) {
         /* EUC-JP: "hit an extension wall" */
-        debug_StdPrintfDummy("≥»ƒ• …§À≈ˆ§ø§√§ø\n");
+        debug_StdPrintfDummy("Êã°ÂºµÂ£Å„Å´ÂΩì„Åü„Å£„Åü\n");
     }
     if (skelRoot->fieldWall != 0) {
         if (clipFieldWallAndReset(skelRoot, skelRoot->last) != 0) {

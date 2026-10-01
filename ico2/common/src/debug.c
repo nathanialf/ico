@@ -2961,7 +2961,7 @@ int debug_mcSaveMainBlock(McReq *mc)
         break;
     case 3:
         if (mc->num >= 11) {
-            debug_StdPrintfDummy("debug_mcSaveMainBlock:´û¤ËÀßÄê¤µ¤ì¤¿¿ô°Ê¾å¤Î¥Ç¡¼¥¿¤òÊİÂ¸¤·¤Æ¤ë\n");
+            debug_StdPrintfDummy("debug_mcSaveMainBlock:æ—¢ã«è¨­å®šã•ã‚ŒãŸæ•°ä»¥ä¸Šã®ãƒ‡ãƒ¼ã‚¿ã‚’ä¿å­˜ã—ã¦ã‚‹\n");
         }
         r = debug_SelectCsvWindowVal((int)"SAVE NO.", 0x50, 0x46, 0xA, 0xA, (int)&mc->sel,
                                      (int (*)(int, int))debug_saveNumFunc, (int)mc);
@@ -3031,7 +3031,7 @@ int debug_mcLoadMainBlock(McReq *mc)
         break;
     case 3:
         if (mc->num >= 11) {
-            debug_StdPrintfDummy("debug_mcLoadMainBlock:´û¤ËÀßÄê¤µ¤ì¤¿¿ô°Ê¾å¤Î¥Ç¡¼¥¿¤òÊİÂ¸¤·¤Æ¤ë\n");
+            debug_StdPrintfDummy("debug_mcLoadMainBlock:æ—¢ã«è¨­å®šã•ã‚ŒãŸæ•°ä»¥ä¸Šã®ãƒ‡ãƒ¼ã‚¿ã‚’ä¿å­˜ã—ã¦ã‚‹\n");
         }
         r = debug_SelectCsvWindowVal((int)"SAVE NO.", 0x50, 0x46, 0xA, 0xA, (int)&mc->sel,
                                      (int (*)(int, int))debug_saveNumFunc, (int)mc);

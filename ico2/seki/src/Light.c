@@ -82,7 +82,7 @@ void light_killLinkLight(Light *p)
 {
     if (p == 0) {
         /* "the light is NULL" */
-        debug_StdPrintfDummy("Light:NULL�ˤʤäƤ��\n");
+        debug_StdPrintfDummy("Light:NULLになってんで\n");
         debug_assert("src/Light.c", 424);
         __assert("src/Light.c", 424, "0");
     }
@@ -104,7 +104,7 @@ void light_killLinkAmbient(AmbientVolume *p)
 {
     if (p == 0) {
         /* "the ambient volume is NULL" */
-        debug_StdPrintfDummy("AmbientVolume:NULL�ˤʤäƤ��\n");
+        debug_StdPrintfDummy("AmbientVolume:NULLになってんで\n");
         debug_assert("src/Light.c", 451);
         __assert("src/Light.c", 451, "0");
     }

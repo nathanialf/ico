@@ -373,7 +373,7 @@ void scpSetCageVelocityFriction(int id, float friction)
         SetCageVelocityFriction(v, friction);
     }
     /* no hanging object found */
-    debug_StdPrintfDummy("¤Ö¤é²¼¤¬¤ê¥ª¥Ö¥¸¥§¥¯¥È¤¬¸«¤Ä¤«¤ê¤Ş¤»¤ó¡£(scpSetCageVelocityFriction)\n");
+    debug_StdPrintfDummy("ã¶ã‚‰ä¸‹ãŒã‚Šã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆãŒè¦‹ã¤ã‹ã‚Šã¾ã›ã‚“ã€‚(scpSetCageVelocityFriction)\n");
 }
 
 inline float scpGetRotObjectRotCount(int id)
@@ -383,7 +383,7 @@ inline float scpGetRotObjectRotCount(int id)
         return GetRotObjectRotCount(v);
     }
     /* no push-turn object found */
-    debug_StdPrintfDummy("²¡¤·²ó¤·¥ª¥Ö¥¸¥§¥¯¥È¤¬¸«¤Ä¤«¤ê¤Ş¤»¤ó¡£(scpGetRotObjectRotCount)\n");
+    debug_StdPrintfDummy("æŠ¼ã—å›ã—ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆãŒè¦‹ã¤ã‹ã‚Šã¾ã›ã‚“ã€‚(scpGetRotObjectRotCount)\n");
     return 0.0f;
 }
 
@@ -416,7 +416,7 @@ inline int scpIsRotObjectZPlusDirInclude(int a0, int a1, int a2)
         return 0;
     }
     /* no push-turn object found */
-    debug_StdPrintfDummy("²¡¤·²ó¤·¥ª¥Ö¥¸¥§¥¯¥È¤¬¸«¤Ä¤«¤ê¤Ş¤»¤ó¡£(scpGetRotObjectZDirInclude)\n");
+    debug_StdPrintfDummy("æŠ¼ã—å›ã—ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆãŒè¦‹ã¤ã‹ã‚Šã¾ã›ã‚“ã€‚(scpGetRotObjectZDirInclude)\n");
     return 0;
 }
 
@@ -441,7 +441,7 @@ inline void scpLinkBGAtoLayoutedTargetSkeltonWithLocalRotationFlag(int a0, int a
         if (copy.b == -1)
             /* LWS skeleton parenting: the node was not found */
             debug_StdPrintfDummy(
-                "LWS¤Î¥¹¥±¥ë¥È¥ó¥Ú¥¢¥ì¥ó¥È½èÍı¤Ë¤ª¤¤¤Æ,¥Î¡¼¥É¤¬¸«¤Ä¤«¤ê¤Ş¤»¤ó¤Ç¤·¤¿\n");
+                "LWSã®ã‚¹ã‚±ãƒ«ãƒˆãƒ³ãƒšã‚¢ãƒ¬ãƒ³ãƒˆå‡¦ç†ã«ãŠã„ã¦,ãƒãƒ¼ãƒ‰ãŒè¦‹ã¤ã‹ã‚Šã¾ã›ã‚“ã§ã—ãŸ\n");
         else
             stage_SetParentOfGObjWithLocalRotationFlag(a2, &copy, a3);
     }
@@ -459,7 +459,7 @@ inline void scpLinkBGAtoKindTargetSkeltonWithLocalRotationFlag(int a0, int a1, i
         if (copy.b == -1)
             /* LWS skeleton parenting: the node was not found */
             debug_StdPrintfDummy(
-                "LWS¤Î¥¹¥±¥ë¥È¥ó¥Ú¥¢¥ì¥ó¥È½èÍı¤Ë¤ª¤¤¤Æ,¥Î¡¼¥É¤¬¸«¤Ä¤«¤ê¤Ş¤»¤ó¤Ç¤·¤¿\n");
+                "LWSã®ã‚¹ã‚±ãƒ«ãƒˆãƒ³ãƒšã‚¢ãƒ¬ãƒ³ãƒˆå‡¦ç†ã«ãŠã„ã¦,ãƒãƒ¼ãƒ‰ãŒè¦‹ã¤ã‹ã‚Šã¾ã›ã‚“ã§ã—ãŸ\n");
         else
             stage_SetParentOfGObjWithLocalRotationFlag(a2, &copy, a3);
     }
@@ -477,7 +477,7 @@ inline void scpLinkBGAtoLayoutedTargetSkelton(int a0, int a1, int a2)
         if (copy.b == -1)
             /* LWS skeleton parenting: the node was not found */
             debug_StdPrintfDummy(
-                "LWS¤Î¥¹¥±¥ë¥È¥ó¥Ú¥¢¥ì¥ó¥È½èÍı¤Ë¤ª¤¤¤Æ,¥Î¡¼¥É¤¬¸«¤Ä¤«¤ê¤Ş¤»¤ó¤Ç¤·¤¿\n");
+                "LWSã®ã‚¹ã‚±ãƒ«ãƒˆãƒ³ãƒšã‚¢ãƒ¬ãƒ³ãƒˆå‡¦ç†ã«ãŠã„ã¦,ãƒãƒ¼ãƒ‰ãŒè¦‹ã¤ã‹ã‚Šã¾ã›ã‚“ã§ã—ãŸ\n");
         else
             stage_SetParentOfGObjWithLocalRotationFlag(a2, &copy, 1);
     }
@@ -503,7 +503,7 @@ inline struct WallCol *scpGetWallCollision(float x0, float y0, float z0, float x
     if (work.res.f08 == 0) {
         /* no wall collision found */
         debug_StdPrintfDummy(
-            "scpGetWallCollision: (%4.3f, %4.3f, %4.3f) => (%4.3f, %4.3f, %4.3f)\n\tÊÉ¥³¥ê¥¸¥ç¥ó¤¬¸«¤Ä¤«¤ê¤Ş¤»¤ó¡£\n",
+            "scpGetWallCollision: (%4.3f, %4.3f, %4.3f) => (%4.3f, %4.3f, %4.3f)\n\tå£ã‚³ãƒªã‚¸ãƒ§ãƒ³ãŒè¦‹ã¤ã‹ã‚Šã¾ã›ã‚“ã€‚\n",
             x0, y0, z0, x1, y1, z1);
     }
     return &wallColResult;
@@ -997,15 +997,15 @@ void scpSubAdpcmPlay(GObj *volatile a0)
 
                 while (AdpcmFreeAreaGet() == 0) {
                     /* could not open: ADPCM is full */
-                    debug_StdPrintfDummy("ADPCM°ìÇÕ¤Ç³«¤±¤Ş¤»¤ó¤Ç¤·¤¿¡£\n");
+                    debug_StdPrintfDummy("ADPCMä¸€æ¯ã§é–‹ã‘ã¾ã›ã‚“ã§ã—ãŸã€‚\n");
                     if (AdpcmNotUseIopAreaFree() != 0) {
                         /* an IOP area in use although nothing is open: found and forced free */
                         debug_StdPrintfDummy(
-                            "¥ª¡¼¥×¥ó¤µ¤ì¤Æ¤¤¤Ê¤¤¤Î¤Ë¤â´Ø¤ï¤é¤º»È¤ï¤ì¤Æ¤¤¤Ê¤¤IOPÎÎ°èÈ¯¸«&¶¯À©²òÊü\n");
+                            "ã‚ªãƒ¼ãƒ—ãƒ³ã•ã‚Œã¦ã„ãªã„ã®ã«ã‚‚é–¢ã‚ã‚‰ãšä½¿ã‚ã‚Œã¦ã„ãªã„IOPé ˜åŸŸç™ºè¦‹&å¼·åˆ¶è§£æ”¾\n");
                     } else if (fightSoundPlayChk() != 0) {
                         /* stop the battle music and request instead; no battle music until the stage changes */
                         debug_StdPrintfDummy(
-                            "ÀïÆ®¶Ê¤ò»ß¤á¤Æ,ÊÑ¤ï¤ê¤Ë¥ê¥¯¥¨¥¹¥È¤·¤Ş¤¹¡£°Ê¹ß¥¹¥Æ¡¼¥¸ÀÚ¤ê´¹¤¨¤Ş¤ÇÀïÆ®¶Ê¤Ê¤ê¤Ş¤»¤ó¡£\n");
+                            "æˆ¦é—˜æ›²ã‚’æ­¢ã‚ã¦,å¤‰ã‚ã‚Šã«ãƒªã‚¯ã‚¨ã‚¹ãƒˆã—ã¾ã™ã€‚ä»¥é™ã‚¹ãƒ†ãƒ¼ã‚¸åˆ‡ã‚Šæ›ãˆã¾ã§æˆ¦é—˜æ›²ãªã‚Šã¾ã›ã‚“ã€‚\n");
                         fightSoundProcessRequestPause();
                         while (fightSoundPlayChk() != 0) {
                             _ACTWait(1);
@@ -1013,7 +1013,7 @@ void scpSubAdpcmPlay(GObj *volatile a0)
                     } else {
                         /* the battle music is not playing, so to keep the program running stop every tune and request instead */
                         debug_StdPrintfDummy(
-                            "ÀïÆ®¶Ê¤Ê¤Ã¤Æ¤¤¤Ê¤¤¤Î¤Ç,¥×¥í¥°¥é¥à¤ò»ß¤á¤Ê¤¤¤¿¤á¤Ë\nÁ´Éô¶Ê¤ò»ß¤á¤Æ,ÊÑ¤ï¤ê¤Ë¥ê¥¯¥¨¥¹¥È¤·¤Ş¤¹¡£\n");
+                            "æˆ¦é—˜æ›²ãªã£ã¦ã„ãªã„ã®ã§,ãƒ—ãƒ­ã‚°ãƒ©ãƒ ã‚’æ­¢ã‚ãªã„ãŸã‚ã«\nå…¨éƒ¨æ›²ã‚’æ­¢ã‚ã¦,å¤‰ã‚ã‚Šã«ãƒªã‚¯ã‚¨ã‚¹ãƒˆã—ã¾ã™ã€‚\n");
                         AdpcmFadeCloseAll(0x3FFF);
                         _ACTWait(1);
                     }
@@ -1119,11 +1119,11 @@ void scpGirlHintVoiceReady(int kind)
 
     if (girlHintVoice != 0) {
         /* a hint voice is playing, so a new one cannot be READY */
-        debug_StdPrintfDummy("¥Ò¥ó¥È¥İ¥¤¥¹ºÆÀ¸Ãæ¤Ê¤Î¤Ç¿·¤ËREADY¤Ç¤­¤Ş¤»¤ó\n");
+        debug_StdPrintfDummy("ãƒ’ãƒ³ãƒˆãƒã‚¤ã‚¹å†ç”Ÿä¸­ãªã®ã§æ–°ã«READYã§ãã¾ã›ã‚“\n");
     }
     if (AdpcmFreeAreaGet() == 0) {
         /* hint voice: could not open, ADPCM is full */
-        debug_StdPrintfDummy("¥Ò¥ó¥È¥İ¥¤¥¹ADPCM°ìÇÕ¤Ç³«¤±¤Ş¤»¤ó¤Ç¤·¤¿¡£\n");
+        debug_StdPrintfDummy("ãƒ’ãƒ³ãƒˆãƒã‚¤ã‚¹ADPCMä¸€æ¯ã§é–‹ã‘ã¾ã›ã‚“ã§ã—ãŸã€‚\n");
         return;
     }
     if (boyGObj == 0) {
@@ -1157,7 +1157,7 @@ void scpGirlHintVoicePlay(void)
         AdpcmPlay(((AdpcmObj *)p)->stream);
     } else {
         /* the hint voice is not prepared yet, so it could not play */
-        debug_StdPrintfDummy("¥Ò¥ó¥È¥İ¥¤¥¹¤Î½àÈ÷Ì¤½ªÎ»¤Î¾õÂÖ¤Ê¤Î¤Ç¤Ê¤é¤»¤Ş¤»¤ó¤Ç¤·¤¿¡£\n");
+        debug_StdPrintfDummy("ãƒ’ãƒ³ãƒˆãƒã‚¤ã‚¹ã®æº–å‚™æœªçµ‚äº†ã®çŠ¶æ…‹ãªã®ã§ãªã‚‰ã›ã¾ã›ã‚“ã§ã—ãŸã€‚\n");
     }
 }
 
@@ -1956,12 +1956,12 @@ inline int scpCheckExistAliveEnemy(void)
          g = (char *)isysGObjSearchFromObjKindID_next(g)) {
         if (actEnemyFlagCheckDead(g) == 0) {
             /* found a living enemy */
-            debug_StdPrintfDummy("scpCheckExistAliveEnemy: À¸¤­¤Æ¤¤¤ëÅ¨¤òÈ¯¸«\n");
+            debug_StdPrintfDummy("scpCheckExistAliveEnemy: ç”Ÿãã¦ã„ã‚‹æ•µã‚’ç™ºè¦‹\n");
             return 1;
         }
     }
     /* no living enemy */
-    debug_StdPrintfDummy("scpCheckExistAliveEnemy: À¸¤­¤Æ¤¤¤ëÅ¨¤Ï¤¤¤Ş¤»¤ó\n");
+    debug_StdPrintfDummy("scpCheckExistAliveEnemy: ç”Ÿãã¦ã„ã‚‹æ•µã¯ã„ã¾ã›ã‚“\n");
     return 0;
 }
 
@@ -1972,12 +1972,12 @@ inline int scpCheckExistAliveSpider(void)
          g = (char *)isysGObjSearchFromObjKindID_next(g)) {
         if (IsActCharDead(g) == 0) {
             /* found a living spider */
-            debug_StdPrintfDummy("scpCheckExistAliveSpider: À¸¤­¤Æ¤¤¤ëÃØéá¤òÈ¯¸«\n");
+            debug_StdPrintfDummy("scpCheckExistAliveSpider: ç”Ÿãã¦ã„ã‚‹èœ˜è››ã‚’ç™ºè¦‹\n");
             return 1;
         }
     }
     /* no living spider */
-    debug_StdPrintfDummy("scpCheckExistAliveSpider: À¸¤­¤Æ¤¤¤ëÃØéá¤Ï¤¤¤Ş¤»¤ó\n");
+    debug_StdPrintfDummy("scpCheckExistAliveSpider: ç”Ÿãã¦ã„ã‚‹èœ˜è››ã¯ã„ã¾ã›ã‚“\n");
     return 0;
 }
 

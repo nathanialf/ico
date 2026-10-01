@@ -318,7 +318,7 @@ void scheduler(void)
                 startStagePauseDisableTimer++;
                 if (iosThreadWakeup(&mainThread) < 0) {
                     /* failed to start the main thread */
-                    debug_StdPrintfDummy("¥á¡¼¥ó¥¹¥ì¥Ã¥É¤Îµ¯Æ°¼ºÇÔ¤·¤Þ¤·¤¿\n");
+                    debug_StdPrintfDummy("ãƒ¡ãƒ¼ãƒ³ã‚¹ãƒ¬ãƒƒãƒ‰ã®èµ·å‹•å¤±æ•—ã—ã¾ã—ãŸ\n");
                 }
                 frameStepCount = 0;
             }
@@ -336,7 +336,7 @@ void scheduler(void)
             la_playtime_count();
         } else {
             /* an unknown message arrived */
-            debug_StdPrintfDummy("ÉÔÌÀ¤Ê¥á¥Ã¥»¡¼¥¸¤ÎÃå¿®¤ò³ÎÇ§¤·¤Þ¤·¤¿ in Scheduler\n");
+            debug_StdPrintfDummy("ä¸æ˜Žãªãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ã®ç€ä¿¡ã‚’ç¢ºèªã—ã¾ã—ãŸ in Scheduler\n");
         }
     }
     /* the loop never ends, so this report is dead code the compiler drops; its
