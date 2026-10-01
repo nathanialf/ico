@@ -36,13 +36,13 @@ typedef struct EnemyFootPrintHead { /* field names derived */
     EnemyFootPrint *buf;            /* 0x0C */
 } EnemyFootPrintHead; /* derived name */
 
-int DispEnemyEye(EnemyEye *a0);
-int DispEnemyFootPrints(EnemyFootPrintHead *a0);
+int DispEnemyEye(EnemyEye *self);
+int DispEnemyFootPrints(EnemyFootPrintHead *self);
 int EntryEnemyFootPrint(EnemyFootPrintHead *self, void *pos);
 int ExecEnemyFootPrints(EnemyFootPrintHead *self);
-EnemyEye *InitEnemyEye(int num, int a1, int pri);
+EnemyEye *InitEnemyEye(int num, int unused, int pri);
 EnemyFootPrintHead *InitEnemyFootPrint(int num);
 int ResetEnemyEye(EnemyEye *self);
-int UpdateEnemyEye(EnemyEye *a0, void *m, float f);
+int UpdateEnemyEye(EnemyEye *self, void *m, float rate);
 
 #endif /* ENEMYPARTS_H */

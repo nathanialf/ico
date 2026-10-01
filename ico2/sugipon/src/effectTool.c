@@ -269,12 +269,12 @@ static EffCol circleColorXY = {0x00, 0xFF, 0x20, 0x1C}; /* derived name */
 /* Used by dispXZYZCircle (three times, with three different colours),
  * dispCircle2 and dispEffectToolField: draw the edge once solid and once with
  * a 1/16 colour over the top. */
-static inline void drawEdge(EffVec *p0, EffVec *p1, EffCol *c) /* derived name */
+static inline void drawEdge(EffVec *from, EffVec *to, EffCol *c) /* derived name */
 {
     EffCol dim = {c->r >> 4, c->g >> 4, c->b >> 4, c->a};
 
-    DrawLineG(p0, c, p1, c, 0);
-    DrawLineG(p0, &dim, p1, &dim, -1);
+    DrawLineG(from, c, to, c, 0);
+    DrawLineG(from, &dim, to, &dim, -1);
 }
 
 static void dispXZYZCircle(float rad, int from, int to, int step)

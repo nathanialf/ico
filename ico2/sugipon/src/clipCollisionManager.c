@@ -80,11 +80,11 @@ static void actClipCollisionCore(volatile unsigned int self)
     w->result = 1;
 }
 
-inline void *RequestClipCollision(int *a0)
+inline void *RequestClipCollision(int *req)
 {
     void *t = actCreateSubThreadGOppArg(actClipCollisionCore, 21);
-    *(int **)((char *)t + 0x20) = a0;
-    a0[0] = 0;
+    *(int **)((char *)t + 0x20) = req;
+    req[0] = 0;
     return t;
 }
 

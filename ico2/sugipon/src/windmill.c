@@ -2,7 +2,7 @@
 #include "main.h"
 
 /* int (void *, int, int) here, void (struct GObj *, int, int) in flag.h */
-extern int SetFlag4PointFixID(void *gobj, int idx, int a2);
+extern int SetFlag4PointFixID(void *gobj, int turns, int id);
 
 /* The 0x40-byte layout record CreateLayoutedGObj takes: three 16-byte vectors
    and the model id the loader resolves (sceneManager.h's SObjSimpleSetting

@@ -8,10 +8,7 @@
 #include <stdlib.h>
 #include "ios.h"
 #include "main.h"
-
-/* declared without a prototype: DisplayP2O.h's p2o_DispVU1 takes fewer
-   arguments than this file passes */
-extern void p2o_DispVU1();
+#include "DisplayP2O.h"
 
 inline short *InitMoveColTestGeo(int gobj, int *layout)
 {
@@ -82,7 +79,7 @@ void MoveColTestGeo(GObj *self)
     }
 }
 
-void MoveColTestDL(int a0, int a1, int a2, int a3)
+void MoveColTestDL(GObj *self)
 {
-    p2o_DispVU1(a0, a1, a2, a3);
+    p2o_DispVU1(self);
 }

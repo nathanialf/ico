@@ -11,11 +11,11 @@
 struct GObj;
 
 char *GetAP1AIMode(struct GObj *self);
-int IsActCharDead(struct GObj *a0);
-void SetAP1DeadStatus(struct GObj *a0);
+int IsActCharDead(struct GObj *self);
+void SetAP1DeadStatus(struct GObj *self);
 void SetAP1HostGObj(struct GObj *self, struct GObj *host);
 void SetAP1PriorLevel(struct GObj *self, int val);
-void WakeUpAP1(struct GObj *a0);
+void WakeUpAP1(struct GObj *self);
 void subAP1BrainMain(struct GObj *volatile self);
 
 #endif /* ACT_A_P_1_H */

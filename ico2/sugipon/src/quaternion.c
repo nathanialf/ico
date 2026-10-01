@@ -199,7 +199,7 @@ void RegularizeQuaternion(void *q)
     _ScaleVector(q, q, 1.0f / _Sqrt(d));
 }
 
-inline float GetQuaternionCosRadian(void *p0, void *p1)
+inline float GetQuaternionCosRadian(void *qa, void *qb)
 {
     float r;
     __asm__ __volatile__(".set noreorder\n"
@@ -213,7 +213,7 @@ inline float GetQuaternionCosRadian(void *p0, void *p1)
                          "mtc1 $2, %0\n"
                          ".set reorder\n"
                          : "=f"(r)
-                         : "r"(p0), "r"(p1)
+                         : "r"(qa), "r"(qb)
                          : "$2");
     return r;
 }
@@ -355,7 +355,7 @@ inline void SetQuaternionByAxisRotateEAngle(float *out, float *in, float x, floa
     SetQuaternionByAxisRotateVEAngle(out, in, v);
 }
 
-inline void MultiQuaternion(void *p0, void *p1, void *p2)
+inline void MultiQuaternion(void *out, void *qa, void *qb)
 {
     VU0_LSV(lqc2, 11, 0x0, 5);
     VU0_LSV(lqc2, 12, 0x0, 6);

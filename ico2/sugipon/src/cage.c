@@ -74,13 +74,13 @@ void SetCageFixGeometry(GObj *self, void *pos, void *dir)
     CopyVector(w->rot, dir);
 }
 
-inline int GetCageChainPoint(char *a0, char *a1, GObj *a2)
+inline int GetCageChainPoint(float *root, float *tip, GObj *self)
 {
-    CageWork *w = GOBJ_SUB(a2)->work;
-    CopyVector(a0, w->chains->nodes->pos[0]);
-    CopyVector(a1, w->chains->nodes->pos[1]);
-    *(float *)(a0 + 4) = *(float *)(a0 + 4) + 50.0f;
-    *(float *)(a1 + 4) = *(float *)(a1 + 4) - 150.0f;
+    CageWork *w = GOBJ_SUB(self)->work;
+    CopyVector(root, w->chains->nodes->pos[0]);
+    CopyVector(tip, w->chains->nodes->pos[1]);
+    root[1] = root[1] + 50.0f;
+    tip[1] = tip[1] - 150.0f;
     return w->rideable;
 }
 
@@ -208,9 +208,9 @@ char *InitCageGeo(char *self, SObjSimpleSetting *lay)
     return (char *)w;
 }
 
-inline void SetCageChainHangableFlag(GObj *a0, int a1)
+inline void SetCageChainHangableFlag(GObj *self, int flag)
 {
-    *(int *)((char *)GOBJ_SUB(a0)->work + 0x40) = a1;
+    ((CageWork *)GOBJ_SUB(self)->work)->rideable = flag;
 }
 
 void HotInitCageGeo(GObj *self)
@@ -246,9 +246,9 @@ inline void StabilizeAllLayoutedCage(void)
     }
 }
 
-inline void SetCageVelocityFriction(GObj *a0, float a1)
+inline void SetCageVelocityFriction(GObj *self, float friction)
 {
-    *(float *)((char *)GOBJ_SUB(a0)->work + 0x3C) = a1;
+    ((CageWork *)GOBJ_SUB(self)->work)->damping = friction;
 }
 
 /* the world down axis the chain's swing axis is taken against */

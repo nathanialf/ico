@@ -28,13 +28,13 @@ struct GObj;
 /* The declarations below lead this header because their order is load-bearing:
  * gcc 2.9 emits the deferred out-of-line copy of a plain-inline function in
  * first-declaration order, so this is the order box.c's inline tail has. */
-int CanHoldBox(struct GObj *a0);
-void BoxDL(struct GObj *a0);
-void GetBoxGlobalHoldPoint(void *a0, void *a1, void *a2);
-int IsThisBoxTruck(struct GObj *a0);
-void ExecBoxMoveStartReaction(struct GObj *a0, int a1);
-void ExecBoxMoveEndReaction(struct GObj *a0);
-int BoxGeoRestore(float *a0, float *a1);
+int CanHoldBox(struct GObj *self);
+void BoxDL(struct GObj *self);
+void GetBoxGlobalHoldPoint(void *out, void *self, void *local);
+int IsThisBoxTruck(struct GObj *self);
+void ExecBoxMoveStartReaction(struct GObj *self, int dir);
+void ExecBoxMoveEndReaction(struct GObj *self);
+int BoxGeoRestore(float *dst, float *src);
 int BoxExtGeoRestore(void);
 int BoxMemoryFunc(void);
 
@@ -42,10 +42,10 @@ int BoxMemoryFunc(void);
 #include "switch.h"
 
 int CheckReadyAllSwitches();
-int GetBoxMode(struct GObj *a0);
+int GetBoxMode(struct GObj *self);
 void GetFloorLeverGlobalHoldPoint(void *dst, struct GObj *lev);
 void GetWallLeverGlobalHoldPoint(void *dst, struct GObj *lev);
 int MoveFloatingBox(struct GObj *self, struct GObj *other, float *dst, void *src, float lim);
-void ReInitBoxGeo(struct GObj *a0);
+void ReInitBoxGeo(struct GObj *self);
 
 #endif /* BOX_H */

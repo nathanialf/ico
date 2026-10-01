@@ -74,19 +74,19 @@ typedef struct {                        /* field names derived */
     int pad94[3];                       /* 0x94 */
 } __attribute__((aligned(8))) ItemWork; /* derived name */
 
-static void bombSparkStartSE(GObj *a0)
+static void bombSparkStartSE(GObj *gobj)
 {
-    ExecuteSEPackage(a0, 50);
+    ExecuteSEPackage(gobj, 50);
 }
 
-static void bombSparkSE(GObj *a0)
+static void bombSparkSE(GObj *gobj)
 {
-    ExecuteSEPackage(a0, 51);
+    ExecuteSEPackage(gobj, 51);
 }
 
-static void bombExplodeSE(GObj *a0)
+static void bombExplodeSE(GObj *gobj)
 {
-    ExecuteSEPackage(a0, 52);
+    ExecuteSEPackage(gobj, 52);
 }
 
 /* whether the item is a bomb; HoldItem, StopItemExplodeAnimationAll and
@@ -777,9 +777,9 @@ void ItemDL(GObj *gobj)
 
 /* the body of GetItemKind, which BreakItemFromOutside inlines and
    GetItemKind calls */
-static inline int GetItemKindInline(GObj *a0) /* derived name */
+static inline int GetItemKindInline(GObj *gobj) /* derived name */
 {
-    ItemWork *p = GOBJ_SUB(a0)->work;
+    ItemWork *p = GOBJ_SUB(gobj)->work;
 
     return p->kind;
 }
@@ -805,11 +805,11 @@ int BreakItemFromOutside(GObj *gobj)
 
 /* the body of CheckCarryableItem, which the four Revive walkers inline and
    CheckCarryableItem calls */
-static inline int CheckCarryableItemInline(GObj *a0) /* derived name */
+static inline int CheckCarryableItemInline(GObj *gobj) /* derived name */
 {
     int r = 0;
-    ItemWork *p = GOBJ_SUB(a0)->work;
-    if (a0->active != 0) {
+    ItemWork *p = GOBJ_SUB(gobj)->work;
+    if (gobj->active != 0) {
         if (*(long long *)&p->released == 0) {
             if (p->fuse.state < 2) {
                 r = 1;
@@ -819,37 +819,37 @@ static inline int CheckCarryableItemInline(GObj *a0) /* derived name */
     return r;
 }
 
-int CheckCarryableItem(GObj *a0)
+int CheckCarryableItem(GObj *gobj)
 {
-    return CheckCarryableItemInline(a0);
+    return CheckCarryableItemInline(gobj);
 }
 
-int GetItemKind(GObj *a0)
+int GetItemKind(GObj *gobj)
 {
-    return GetItemKindInline(a0);
+    return GetItemKindInline(gobj);
 }
 
-int GetCharHeldItem(GObj *a0)
+int GetCharHeldItem(GObj *chara)
 {
-    char *w;
-    if (a0 == 0)
+    GObj *w;
+    if (chara == 0)
         return -1;
-    w = GOBJ_ACT(a0)->curItem;
+    w = GOBJ_ACT(chara)->curItem;
     if (w == 0)
         return -1;
     return ((ItemWork *)GOBJ_SUB(w)->work)->kind;
 }
 
-int IsItemHoldable(GObj *a0)
+int IsItemHoldable(GObj *gobj)
 {
-    ItemWork *p = GOBJ_SUB(a0)->work;
+    ItemWork *p = GOBJ_SUB(gobj)->work;
 
     return p->dead == 0;
 }
 
-int IsBombExplode(GObj *a0)
+int IsBombExplode(GObj *gobj)
 {
-    ItemWork *p = GOBJ_SUB(a0)->work;
+    ItemWork *p = GOBJ_SUB(gobj)->work;
 
     return p->fuse.state == 2;
 }
@@ -920,12 +920,12 @@ int ReviveAllCarryableItemsWithRandomVelocity(float up, float horz)
     return 1;
 }
 
-int CheckItemDead(GObj *a0)
+int CheckItemDead(GObj *gobj)
 {
     int r = 0;
-    ItemWork *p = GOBJ_SUB(a0)->work;
+    ItemWork *p = GOBJ_SUB(gobj)->work;
 
-    if (p->dead == 1 || a0->active == 0) {
+    if (p->dead == 1 || gobj->active == 0) {
         r = 1;
     }
     return r;

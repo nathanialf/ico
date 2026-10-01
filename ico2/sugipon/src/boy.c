@@ -42,6 +42,7 @@ typedef struct { /* 0x10 */
 #include "GifPacket.h"
 #include "lineManager.h"
 #include "ios.h"
+#include "StageAnimation.h"
 
 /* The boy's five generated cloth meshes, in the order InitBoyGeo hands them
    to InitCloth4D: the mantle, the tape belt and the three loose tape strips,
@@ -555,9 +556,9 @@ void LightLineDL(void)
     gif_EndPacket();
 }
 
-inline void SelectBoyCrown(GObj *a0, int a1)
+inline void SelectBoyCrown(GObj *self, int crown)
 {
-    ((BoyWork *)GOBJ_SUB(a0)->work)->crown = a1;
+    ((BoyWork *)GOBJ_SUB(self)->work)->crown = crown;
 }
 
 /* The display-list record's 0x38 word carries single bits set and cleared with
@@ -737,7 +738,7 @@ void BoyGeo(GObj *gobj)
     synchronizeMotionOutputOriginForGirl(gobj);
     execClothes(gobj);
     ExecuteSlipProc(gobj);
-    SetActressLight(gobj, 0x23, 0x2C, 0x1D7);
+    SetActressLight(gobj, 35, 44, 471);
     if (CylinderCollision(gobj, 4, 50.0f, 50.0f, 0.7f) != 0) {
         iosOmSendMail(gobj, 6, gobj);
     }
@@ -788,17 +789,14 @@ static void dispCrown(GObj *gobj)
     reg_DispAccessoryWithShadow((Sub15C *)obj, GOBJ_SUB(gobj));
 }
 
-inline void SetBoyStonizedVisual(GObj *a0)
+inline void SetBoyStonizedVisual(GObj *self)
 {
-    BoyWork *crown = GOBJ_SUB(a0)->work;
-    AdjustMotionHeightToNearestField(a0);
+    BoyWork *crown = GOBJ_SUB(self)->work;
+    AdjustMotionHeightToNearestField(self);
     crown->stone = 1;
     crown->stoneAnim = 0;
-    GOBJ_SUB(a0)->ctrl.slipOn = 0;
+    GOBJ_SUB(self)->ctrl.slipOn = 0;
 }
-
-/* float (int, void *, void *, float) here, float (int, float, void *, void *) in StageAnimation.h */
-extern float stage_PlayBgAnimation(int obj, void *a1, void *a2, float f);
 
 void BoyDL(GObj *gobj)
 {
@@ -813,8 +811,8 @@ void BoyDL(GObj *gobj)
     if (w->stone != 0) {
         GetRootPosition(pos, gobj);
         GetRootQuaternion(quat, gobj);
-        RotQuaternionY(quat, -0x8000);
-        r = (int)stage_PlayBgAnimation(0x1E8, pos, quat, (float)w->stoneAnim);
+        RotQuaternionY(quat, -32768);
+        r = (int)stage_PlayBgAnimation(488, (float)w->stoneAnim, pos, quat);
         if (systemStatus[5] == 0 && r != -1) {
             w->stoneAnim = r;
         }

@@ -13,14 +13,14 @@
 #include "frameDependSequence.h"
 
 static int execSE(int a0, void *a1);
-static int checkWaterDepth(struct GObj *a0, int a1);
-static int checkModelDataID(struct GObj *a0, int a1);
-static int checkWeaponType(struct GObj *a0, int a1);
-static int execVib(int a0, void *a1);
+static int checkWaterDepth(struct GObj *gobj, int depth);
+static int checkModelDataID(struct GObj *gobj, int id);
+static int checkWeaponType(struct GObj *gobj, int kind);
+static int execVib(int no, void *entry);
 static int execWeaponLightOff(void);
 extern GsysObjInfo seDef[];
 /* int (int, unsigned int, int, int) here, int (int, int, int, int) in s_init.h */
-extern int soundSeDefPlay(int se, unsigned int a1, int a2, int a3);
+extern int soundSeDefPlay(int se, unsigned int owner, int pos, int playMode);
 
 typedef struct FDSFlags { /* field names derived */
     int vibDone[2];       /* 0x00 */
@@ -49,7 +49,8 @@ static float fdsVolume = 1.0f; /* derived name */
 static int fdsGroup = 0; /* derived name */
 
 /* int (int, unsigned int, int, int, float) here, int (int, int, int, int) in s_init.h */
-extern int soundSeDefPlayWithVolumeRate(int se, unsigned int a1, int a2, int a3, float rate);
+extern int soundSeDefPlayWithVolumeRate(int se, unsigned int owner, int pos, int playMode,
+                                        float rate);
 /* seMail has no header; declared as ico2/fumi/src/seMail.c defines it */
 extern void seMail(int self, int id);
 
@@ -428,45 +429,45 @@ static void executeSEPackageWithNoGObj(int no)
     }
 }
 
-void ExecuteSEPackageWithGroupVariation(GObj *a0, int a1, int a2)
+void ExecuteSEPackageWithGroupVariation(GObj *gobj, int id, int grp)
 {
     fdsVolume = 1.0f;
-    if (a0 != 0) {
-        executeSEPackageByGObj(a0, a1, a2);
+    if (gobj != 0) {
+        executeSEPackageByGObj(gobj, id, grp);
     } else {
-        executeSEPackageWithNoGObj(a1);
+        executeSEPackageWithNoGObj(id);
     }
 }
 
-void ExecuteSEPackage(GObj *a0, int a1)
+void ExecuteSEPackage(GObj *gobj, int id)
 {
-    ExecuteSEPackageWithGroupVariation(a0, a1, 0);
+    ExecuteSEPackageWithGroupVariation(gobj, id, 0);
 }
 
-void ExecuteSEPackageWithVolumeRate(GObj *a0, int a1, float f)
+void ExecuteSEPackageWithVolumeRate(GObj *gobj, int id, float rate)
 {
-    fdsVolume = f;
-    executeSEPackageByGObj(a0, a1, 0);
+    fdsVolume = rate;
+    executeSEPackageByGObj(gobj, id, 0);
 }
 
 /* as in s_init.h, which this file does not include */
-extern void soundSeGroupStop(int a0);
+extern void soundSeGroupStop(int arg);
 
-void StopSEPackageWithGroupVariation(GObj *a0, int a1)
+void StopSEPackageWithGroupVariation(GObj *gobj, int grp)
 {
-    int *p = (int *)GOBJ_SUB(a0);
-    p += a1;
+    int *p = (int *)GOBJ_SUB(gobj);
+    p += grp;
     soundSeGroupStop(p[0x187]);
 }
 
-void StopSEPackage(GObj *a0)
+void StopSEPackage(GObj *gobj)
 {
-    StopSEPackageWithGroupVariation(a0, 0);
+    StopSEPackageWithGroupVariation(gobj, 0);
 }
 
-void InitFrameDependSequence(void *a0)
+void InitFrameDependSequence(void *flags)
 {
-    FDSFlags *f = a0;
+    FDSFlags *f = flags;
     int i;
 
     for (i = 0; i < 2; i++) {
@@ -496,9 +497,9 @@ int ExecuteDirectSE(GObj *gobj, int id)
     return execSE(id, 0);
 }
 
-void StopFDSVibration(void *a0)
+void StopFDSVibration(void *flags)
 {
-    int *p = ((FDSFlags *)a0)->vibEntry;
+    int *p = ((FDSFlags *)flags)->vibEntry;
     int i;
 
     for (i = 0; i < 2; i++) {
@@ -509,33 +510,33 @@ void StopFDSVibration(void *a0)
     }
 }
 
-static inline int checkWaterDepth(GObj *a0, int a1)
+static inline int checkWaterDepth(GObj *gobj, int depth)
 {
-    return (int)GOBJ_SUB(a0)->ctrl.waterDepth < a1;
+    return (int)GOBJ_SUB(gobj)->ctrl.waterDepth < depth;
 }
 
-static inline int checkModelDataID(GObj *a0, int a1)
+static inline int checkModelDataID(GObj *gobj, int id)
 {
-    return GOBJ_SUB(a0)->modelId == a1;
+    return GOBJ_SUB(gobj)->modelId == id;
 }
 
-static inline int checkWeaponType(GObj *a0, int a1)
+static inline int checkWeaponType(GObj *gobj, int kind)
 {
-    GObj *w = GOBJ_SUB(a0)->ctrl.pickedWeapon;
-    if (w != 0 && CheckWeaponKind(w) == a1) {
+    GObj *w = GOBJ_SUB(gobj)->ctrl.pickedWeapon;
+    if (w != 0 && CheckWeaponKind(w) == kind) {
         return 1;
     }
     return 0;
 }
 
-static inline int execVib(int a0, void *a1)
+static inline int execVib(int no, void *entry)
 {
-    if (a0 <= 0xFFFF) {
-        if (a0 > 0) {
-            iosPadActRequest(boyPad, a0);
+    if (no <= 0xFFFF) {
+        if (no > 0) {
+            iosPadActRequest(boyPad, no);
         }
-    } else if (a0 > 0x1FFFF) {
-        execVibCondition(a0 - 0x20000, a1);
+    } else if (no > 0x1FFFF) {
+        execVibCondition(no - 0x20000, entry);
     }
     return 1;
 }

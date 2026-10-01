@@ -1814,7 +1814,7 @@ void *InitGirlGeo(GObj *gobj, SObjSimpleSetting *csv)
     return w;
 }
 
-void GirlGeo(GObj *a0)
+void GirlGeo(GObj *gobj)
 {
     float v[4];
     int n0;
@@ -1823,22 +1823,22 @@ void GirlGeo(GObj *a0)
     float ratio;
     Sub15C *w;
 
-    HandManager(a0);
-    ExecMotionOrient(a0);
-    SetActressLight(a0, 35, 44, 470);
-    if (CylinderCollision(a0, 4, 50.0f, 50.0f, 0.0f)) {
-        iosOmSendMail(a0, 6, a0);
+    HandManager(gobj);
+    ExecMotionOrient(gobj);
+    SetActressLight(gobj, 35, 44, 470);
+    if (CylinderCollision(gobj, 4, 50.0f, 50.0f, 0.0f)) {
+        iosOmSendMail(gobj, 6, gobj);
     }
-    if (CylinderCollision(a0, 1, ACTGame_FLAG_TETSUNAGI() ? 15.0f : 30.0f, 50.0f, 0.3f)) {
-        iosOmSendMail(a0, 6, a0);
-        GirlAct_BoyAndMeCollisionMail(a0);
+    if (CylinderCollision(gobj, 1, ACTGame_FLAG_TETSUNAGI() ? 15.0f : 30.0f, 50.0f, 0.3f)) {
+        iosOmSendMail(gobj, 6, gobj);
+        GirlAct_BoyAndMeCollisionMail(gobj);
     } else {
-        w = GOBJ_SUB(a0);
+        w = GOBJ_SUB(gobj);
         if (w->root.hand0Mode == 4 && w->cylinderOn != 0 && w->root.cylinder != 0) {
             n0 = GetSkeltonFocusNode(boyGObj, 6);
-            n1 = GetSkeltonFocusNode(a0, 22);
-            sceVu0SubVector(v, (char *)GOBJ_SUB(boyGObj)->nodeMtx + n0 * 64 + 0x30,
-                            (char *)GOBJ_SUB(a0)->nodeMtx + n1 * 64 + 0x30);
+            n1 = GetSkeltonFocusNode(gobj, 22);
+            sceVu0SubVector(v, (char *)GOBJ_SUB(boyGObj)->nodeMtx + n0 * 64 + 48,
+                            (char *)GOBJ_SUB(gobj)->nodeMtx + n1 * 64 + 48);
             len = FSqrt(sceVu0InnerProduct(v, v));
             if (10.0f < len) {
                 ratio = 1.0f - len / 50.0f;
@@ -1847,12 +1847,12 @@ void GirlGeo(GObj *a0)
             }
         }
     }
-    execClothes(a0);
+    execClothes(gobj);
 }
 
-void GirlAI(GObj *a0)
+void GirlAI(GObj *gobj)
 {
-    Sub15C *work = GOBJ_SUB(a0);
+    Sub15C *work = GOBJ_SUB(gobj);
     int mode = work->ctrl.motion;
     GirlWork *cloth = work->work;
     int shifted = work->ctrl.justShifted;
@@ -1868,7 +1868,7 @@ void GirlAI(GObj *a0)
             debug_StdPrintfDummy("hint1 voice ready\n");
         }
         if (cloth->hint1Ready != 0 && cloth->hint1Played == 0 &&
-            47.0f < GOBJ_SUB(a0)->ctrl.animFrame) {
+            47.0f < GOBJ_SUB(gobj)->ctrl.animFrame) {
             scpGirlHintVoicePlay();
             cloth->hint1Played = 1;
             debug_StdPrintfDummy("hint1 voice play\n");
@@ -1885,7 +1885,7 @@ void GirlAI(GObj *a0)
             debug_StdPrintfDummy("hint2 voice ready\n");
         }
         if (cloth->hint2Ready != 0 && cloth->hint2Played == 0 &&
-            107.0f < GOBJ_SUB(a0)->ctrl.animFrame) {
+            107.0f < GOBJ_SUB(gobj)->ctrl.animFrame) {
             scpGirlHintVoicePlay();
             cloth->hint2Played = 1;
             debug_StdPrintfDummy("hint2 voice play\n");
@@ -1918,13 +1918,13 @@ static inline GirlWork *getGirlCloth(GObj *gobj) /* derived name */
     return GOBJ_SUB(gobj)->work;
 }
 
-static void debugWireStringGirl(GObj *a0)
+static void debugWireStringGirl(GObj *gobj)
 {
     float m[16];
     float pos[4];
-    GirlWork *cloth = getGirlCloth(a0);
+    GirlWork *cloth = getGirlCloth(gobj);
 
-    GetRootPosition(pos, a0);
+    GetRootPosition(pos, gobj);
     sceVu0TransposeMatrix(m, (void *)(matrixptr + 0x80));
     m[3] = m[7] = m[11] = 0.0f;
     _UnitMatrix(MatrixDrive_GetMatrix());
@@ -1936,10 +1936,10 @@ static void debugWireStringGirl(GObj *a0)
     MatrixDrive_PopMatrix();
 }
 
-void GirlDL(GObj *a0)
+void GirlDL(GObj *gobj)
 {
     p2o_SetDefaultEnviroment();
-    p2o_DispVU1(a0);
-    dispClothes(a0);
-    debugWireStringGirl(a0);
+    p2o_DispVU1(gobj);
+    dispClothes(gobj);
+    debugWireStringGirl(gobj);
 }

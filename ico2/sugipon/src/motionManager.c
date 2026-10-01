@@ -165,13 +165,13 @@ static int hitColRayDisp = 0; /* derived name */
 static float skelScale = 1.0f; /* derived name */
 
 /* as in fieldCollision.h, which this file does not include */
-extern void ClipWall(void *a0);
+extern void ClipWall(void *work);
 /* as in fieldCollision.h, which this file does not include */
 extern float GetYProjectionOfPlane(float *plane, float *pos);
 /* as in fieldCollision.h, which this file does not include */
-extern void ClipWallFuchiHangWalkStop(void *a0);
+extern void ClipWallFuchiHangWalkStop(void *work);
 /* int (void *) here, int (int) in fieldCollision.h */
-extern int GetWallAttribute(void *a0);
+extern int GetWallAttribute(void *w);
 static ObjNode rootUpdateDirectPlayForStream(void);
 static ObjNode rootUpdateXZ(int kind, int no);
 static ObjNode rootUpdateXZ_MotPos(int kind, int no);
@@ -186,7 +186,7 @@ static ObjNode rootUpdateDirectPlay(int mode);
 static ObjNode rootUpdateFly(void);
 static ObjNode rootUpdateEnemyFly(void);
 /* void (int, int) here, void (char *, int) in fieldCollision.h */
-extern void DrawGObjWallCollision(int a0, int a1);
+extern void DrawGObjWallCollision(int gobj, int col);
 extern unsigned char objLayout[];
 
 typedef struct { /* field names derived */
@@ -195,9 +195,9 @@ typedef struct { /* field names derived */
 } ActPt; /* derived name */
 
 /* as in fieldCollision.h, which this file does not include */
-extern void ClipWallField(void *a0);
+extern void ClipWallField(void *work);
 /* void (void *) here, void (char *) in fieldCollision.h */
-extern void DrawCollisionRay(void *a0);
+extern void DrawCollisionRay(void *ray);
 /* declared here: DisplayP2O.h does not compile in this file (too few arguments to function `p2o_DispVU1') */
 extern void p2o_DispVU1();
 static void getInitialMatrix(Sub15C *obj, int idx);
@@ -413,7 +413,7 @@ extern float GetYDistanceFromPlane(void *plane, void *pos);
 /* void (void *, float, float, float, float) here, void (float *, float, float, float, float) in fieldCollision.h */
 extern void SetSimplePlane(void *plane, float x, float y, float z, float d);
 /* as in fieldCollision.h, which this file does not include */
-extern void ClipFloorR(void *a0);
+extern void ClipFloorR(void *work);
 /* void (void *, void *, void *) here, void (void *, void *, int *) in fieldCollision.h */
 extern void GetOrientOfWall(void *out, void *wall, void *vec);
 
@@ -510,11 +510,11 @@ static void checkWallState(int flag)
 /* as in fieldCollision.h, which this file does not include */
 extern float GetDistanceFromPlane(void *plane, void *pos);
 /* as in fieldCollision.h, which this file does not include */
-extern void ClipWallR(void *a0);
+extern void ClipWallR(void *work);
 /* as in fieldCollision.h, which this file does not include */
-extern void ClipFloorIH(void *a0);
+extern void ClipFloorIH(void *work);
 
-static void checkCliffState(int a0)
+static void checkCliffState(int first)
 {
     ClipBuf buf;
     float mv[4];
@@ -613,7 +613,7 @@ static void checkCliffState(int a0)
                     dd = distance_squared(p->pt[2], p);
                     skelMotCtrl->cliffBack = 1;
                     d = FSqrt(dd);
-                    if (a0 == 0) {
+                    if (first == 0) {
                         if (d < skelMotCtrl->wallDist) {
                             skelMotCtrl->wallDist = d;
                         }

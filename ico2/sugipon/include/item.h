@@ -28,12 +28,12 @@ typedef struct {        /* field names derived */
 extern ItemBreakRec itemKind[];
 int BreakItemFromOutside(struct GObj *gobj);
 int BreakItemWithAttackHit(struct GObj *gobj, float *dir);
-int CheckCarryableItem(struct GObj *a0);
-int CheckItemDead(struct GObj *a0);
-int GetCharHeldItem(struct GObj *a0);
-int GetItemKind(struct GObj *a0);
+int CheckCarryableItem(struct GObj *gobj);
+int CheckItemDead(struct GObj *gobj);
+int GetCharHeldItem(struct GObj *chara);
+int GetItemKind(struct GObj *gobj);
 void HoldItem(struct GObj *gobj, struct GObj *holder);
-int IsBombExplode(struct GObj *a0);
+int IsBombExplode(struct GObj *gobj);
 void ReleaseItem(struct GObj *gobj);
 int ReviveAllCarryableItems(void);
 int ReviveAllCarryableItemsWithNonSleepFrame(int nonSleepFrame);
@@ -46,7 +46,7 @@ struct ItemLayout;
 char *InitItemGeo(struct GObj *gobj, struct ItemLayout *layout);
 void ItemGeo(struct GObj *gobj);
 void ItemDL(struct GObj *gobj);
-int IsItemHoldable(struct GObj *a0);
+int IsItemHoldable(struct GObj *gobj);
 void *GetBombTorchGObj(struct GObj *item);
 void StopItemExplodeAnimationAll(void);
 

@@ -37,20 +37,23 @@ typedef struct {    /* field names derived */
 extern const EnemyDef enemyKind[];
 extern const EnemyKindRange randomEnemyKind[];
 extern const int randomEnemyVariationKind[];
-int CanThisEnemyFly(struct GObj *a0);
+int CanThisEnemyFly(struct GObj *self);
 int CheckEnemyHit(struct GObj *self, float *pos, float *a, float *b);
 void EnemyDeleteParticle(struct GObj *self, float *dir, short *list);
 void EnemySetfAppearAll(struct GObj *self);
 void EnemySetfDisappearAll(struct GObj *self);
-int GetEnemyBattleType(struct GObj *a0);
-float GetEnemyDefDodgeRange(struct GObj *a0);
-float GetEnemyDefLife(struct GObj *a0);
-int *GetEnemyHitNodeFlag(struct GObj *a0);
+int EnemyGetNSafeParts(struct GObj *self);
+void enemySetParticleDie(void *root, float *dir);
+int GetEnemyBattleType(struct GObj *self);
+float GetEnemyDefDodgeRange(struct GObj *self);
+float GetEnemyDefLife(struct GObj *self);
+float GetEnemyFlyXZAccel(struct GObj *self);
+int *GetEnemyHitNodeFlag(struct GObj *self);
 int RandomizeEnemy(struct GObj *self);
 void ResetEnemyPositionInfo(struct GObj *self);
-void ReviveEnemyParticle(struct GObj *a0, int a1);
+void ReviveEnemyParticle(struct GObj *self, int node);
 void SetEnemyDissolve(struct GObj *self, float ratio);
-void SetEnemyFootPrintSwitch(struct GObj *a0, int a1);
-int isExistEnemyParticle(struct GObj *a0, int a1);
+void SetEnemyFootPrintSwitch(struct GObj *self, int on);
+int isExistEnemyParticle(struct GObj *self, int node);
 
 #endif /* ENEMY_H */

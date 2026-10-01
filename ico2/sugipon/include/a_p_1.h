@@ -12,13 +12,13 @@
 
 struct GObj;
 
-int AP1JumpReq(struct GObj *a0, int a1, void *a2);
-int AP1MotReq(struct GObj *a0, int a1);
-int AP1MotReqForce(struct GObj *a0, int a1);
-int AP1Turn(struct GObj *a0, short a1);
-int GetAP1Mode(struct GObj *a0);
-int GetAP1SpecType(struct GObj *a0);
-struct GObj *MakeAP1GObj(SObjSimpleSetting *a0);
-void SetAP1VisualState(struct GObj *a0, int a1);
+int AP1JumpReq(struct GObj *self, int mode, void *vel);
+int AP1MotReq(struct GObj *self, int mode);
+int AP1MotReqForce(struct GObj *self, int mode);
+int AP1Turn(struct GObj *self, short angle);
+int GetAP1Mode(struct GObj *self);
+int GetAP1SpecType(struct GObj *self);
+struct GObj *MakeAP1GObj(SObjSimpleSetting *setting);
+void SetAP1VisualState(struct GObj *self, int visible);
 
 #endif /* A_P_1_H */

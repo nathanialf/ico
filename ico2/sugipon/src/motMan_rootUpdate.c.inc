@@ -1,27 +1,27 @@
 /* motMan_rootUpdate.c.inc: the motion manager's root update, the wall, floor and water passes; motionManager.c includes this file. */
 /* as in fieldCollision.h, which this file does not include */
-extern int ClipFloorE(void *a0);
+extern int ClipFloorE(void *work);
 /* int (void *) here, int (int) in fieldCollision.h */
-extern int GetFloorAttribute(void *a0);
+extern int GetFloorAttribute(void *w);
 /* as in fieldCollision.h, which this file does not include */
 extern int CompareAttribute(unsigned int a, unsigned int b);
 /* void (int, void *, int, char *) here, void (char *, void *, char *, void *) in fieldCollision.h */
-extern void GetWallGlobalInfo(int a0, void *v, int a2, char *node);
+extern void GetWallGlobalInfo(int pts, void *v, int w, char *node);
 /* ObjNode here, FcBlk8 in fieldCollision.h */
 extern ObjNode InitialObjPointer;
 /* as in fieldCollision.h, which this file does not include */
-extern void ClipWallAdjustPos(void *a0);
+extern void ClipWallAdjustPos(void *work);
 /* as in fieldCollision.h, which this file does not include */
-extern void ClipWallE(void *a0);
+extern void ClipWallE(void *work);
 /* WallCfg here, FcColInfo in fieldCollision.h */
 extern WallCfg InitialColInfo;
 /* declared as ico2/sugipon/src/box.c declares it; fumi's act.c declares it
  * with another view, so motionManager2.h does not */
 extern void GetLowerPlaneCollision(void *work, void *pos);
 /* as in fieldCollision.h, which this file does not include */
-extern void ClipWallWaveForce(void *a0);
+extern void ClipWallWaveForce(void *work);
 /* as in fieldCollision.h, which this file does not include */
-extern int ClipWallEField(void *a0);
+extern int ClipWallEField(void *work);
 
 /* _wallHitReaction's helper */
 static inline int getWallSlideDirection(void *dir, void *hit, void *wall) /* derived name */

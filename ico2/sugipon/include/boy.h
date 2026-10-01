@@ -26,9 +26,9 @@ extern MotSyncPair motSyncPairs[]; /* derived name */
 struct LightLineExt;
 
 extern struct LightLineExt *llExtGeo;
-void SelectBoyCrown(struct GObj *a0, int a1);
+void SelectBoyCrown(struct GObj *self, int crown);
 void LightLineGeo(void);
-void SetBoyStonizedVisual(struct GObj *a0);
+void SetBoyStonizedVisual(struct GObj *self);
 
 
 #endif /* BOY_H */

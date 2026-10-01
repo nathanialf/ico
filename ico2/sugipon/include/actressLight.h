@@ -10,6 +10,6 @@
 
 struct GObj;
 
-void SetActressLight(struct GObj *a0, int a1, int a2, int a3);
+void SetActressLight(struct GObj *self, int rotFocus, int posFocus, int anim);
 
 #endif /* ACTRESSLIGHT_H */

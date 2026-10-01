@@ -61,13 +61,13 @@ extern const EffEntry motionEffKind[];
 extern const VibCondEntry motEffCondKind[];
 extern const int randomEffKind[];
 int ExecuteDirectSE(struct GObj *gobj, int id);
-void ExecuteSEPackage(struct GObj *a0, int a1);
-void ExecuteSEPackageWithGroupVariation(struct GObj *a0, int a1, int a2);
-void ExecuteSEPackageWithVolumeRate(struct GObj *a0, int a1, float f);
-void InitFrameDependSequence(void *a0);
-void StopFDSVibration(void *a0);
-void StopSEPackage(struct GObj *a0);
-void StopSEPackageWithGroupVariation(struct GObj *a0, int a1);
+void ExecuteSEPackage(struct GObj *gobj, int id);
+void ExecuteSEPackageWithGroupVariation(struct GObj *gobj, int id, int grp);
+void ExecuteSEPackageWithVolumeRate(struct GObj *gobj, int id, float rate);
+void InitFrameDependSequence(void *flags);
+void StopFDSVibration(void *flags);
+void StopSEPackage(struct GObj *gobj);
+void StopSEPackageWithGroupVariation(struct GObj *gobj, int grp);
 void ExecFrameDependSequence(struct GObj *gobj);
 
 #endif /* FRAMEDEPENDSEQUENCE_H */

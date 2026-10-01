@@ -394,7 +394,7 @@ static __inline__ void pushInsidePlane(void *p, const void *plane) /* derived na
    wall owner is an object handle passed as an int, the form the wall-plane
    query GetGlobalWallPlane takes (fieldCollision.h). */
 void GetClothAnimation(VECTOR **pos, VECTOR **vel, GObj *obj, void *m, ClothCfg *cfg, int nwall,
-                       int wallOwner, int a7)
+                       int wallOwner, int fixEnd)
 {
     VECTOR dv;
     float pw;
@@ -409,7 +409,7 @@ void GetClothAnimation(VECTOR **pos, VECTOR **vel, GObj *obj, void *m, ClothCfg 
     char **rowsB = (char **)vel;
     int n0 = cfg->num;
     float seg = cfg->segLength;
-    int nx = cfg->div - (a7 != 0);
+    int nx = cfg->div - (fixEnd != 0);
     float rnx = 1.0f / (float)nx;
     char *pts = (char *)cfg->anchors;
     int wrap = cfg->wrap;
@@ -441,7 +441,7 @@ void GetClothAnimation(VECTOR **pos, VECTOR **vel, GObj *obj, void *m, ClothCfg 
         } else {
             if (m != 0) {
                 _ApplyMatrix(((char **)pos)[i], m, pts + i * 48 + 16);
-                if (a7 != 0) {
+                if (fixEnd != 0) {
                     _ApplyMatrix(((char **)pos)[i] + nx * 16, m, pts + i * 48 + 32);
                 }
             }
@@ -487,7 +487,7 @@ void GetClothAnimation(VECTOR **pos, VECTOR **vel, GObj *obj, void *m, ClothCfg 
             }
         }
     }
-    if (a7 == 0) {
+    if (fixEnd == 0) {
         for (i = 0; i < n0; i++) {
             float len = *(float *)(pts + i * 48 + 4);
             float lim = len * len;
@@ -759,17 +759,17 @@ static float cylinderRadiusSq = 1.0f; /* derived name */
    getCloth4D inline and the exported functions further down call, and a
    file-static copy of checkFrontAcross (a call of the inline would return
    through a temporary) */
-static __inline__ int checkOverThePlane_i(void *a0, void *a1) /* derived name */
+static __inline__ int checkOverThePlane_i(void *pt, void *plane) /* derived name */
 {
-    if (0.0f < plane_distance(a0, a1))
+    if (0.0f < plane_distance(pt, plane))
         return 1;
     return 0;
 }
 
-static __inline__ int checkFrontAcross_i(void *a0, void *a1) /* derived name */
+static __inline__ int checkFrontAcross_i(void *seg, void *plane) /* derived name */
 {
-    if (0.0f <= plane_distance(a0, a1)) {
-        if (plane_distance((char *)a0 + 0x10, a1) < 0.0f)
+    if (0.0f <= plane_distance(seg, plane)) {
+        if (plane_distance((char *)seg + 0x10, plane) < 0.0f)
             return 1;
     }
     return 0;
@@ -833,7 +833,7 @@ static int clipCylinderCollision(char *p, void *pt)
     return -1;
 }
 
-ChainSet *InitChains(ChainCfg *a0)
+ChainSet *InitChains(ChainCfg *cfg)
 {
     ChainSet *r;
     int i = 0;
@@ -841,8 +841,8 @@ ChainSet *InitChains(ChainCfg *a0)
     float step;
 
     r = (ChainSet *)iosMallocDebug(ios_partition_sugipon, 0x10, "src/clothAnimation.c", 1192);
-    r->cfg = a0;
-    while (a0[i].num != -1) {
+    r->cfg = cfg;
+    while (cfg[i].num != -1) {
         i++;
     }
     r->num = i;
@@ -851,11 +851,11 @@ ChainSet *InitChains(ChainCfg *a0)
     r->oddFrame = 0;
     for (i = 0; i < r->num; i++) {
         r->nodes[i].pos =
-            iosMallocDebug(ios_partition_sugipon, a0[i].num * 16, "src/clothAnimation.c", 1202);
+            iosMallocDebug(ios_partition_sugipon, cfg[i].num * 16, "src/clothAnimation.c", 1202);
         r->nodes[i].vel =
-            iosMallocDebug(ios_partition_sugipon, a0[i].num * 16, "src/clothAnimation.c", 1203);
+            iosMallocDebug(ios_partition_sugipon, cfg[i].num * 16, "src/clothAnimation.c", 1203);
         r->nodes[i].len =
-            iosMallocDebug(ios_partition_sugipon, a0[i].num * 4, "src/clothAnimation.c", 1204);
+            iosMallocDebug(ios_partition_sugipon, cfg[i].num * 4, "src/clothAnimation.c", 1204);
         r->nodes[i].exNum = 0;
         for (j = 0; j < 5; j++) {
             r->nodes[i].ex[j].w = -1.0f;
@@ -864,9 +864,9 @@ ChainSet *InitChains(ChainCfg *a0)
             CopyVector(&r->nodes[i].ex[j].v2, ZeroVector);
         }
         for (j = 0; j < r->cfg[i].num; j++) {
-            CopyVector(r->nodes[i].pos[j], a0[i].pm.root);
+            CopyVector(r->nodes[i].pos[j], cfg[i].pm.root);
             CopyVector(r->nodes[i].vel[j], ZeroVector);
-            step = a0[i].pm.step;
+            step = cfg[i].pm.step;
             r->nodes[i].len[j] = step;
             if (j != 0) {
                 r->nodes[i].pos[j][1] = r->nodes[i].pos[j - 1][1] + step;
@@ -980,7 +980,7 @@ ClothSet *InitClothesNoShade(ClothCfg *cfg)
     return r;
 }
 
-void DispClothMesh(ClothRec *rec, void *a1, void *a2)
+void DispClothMesh(ClothRec *rec, void *la, void *lb)
 {
     int t;
     dl_SetDLPriority(2);
@@ -996,7 +996,7 @@ void DispClothMesh(ClothRec *rec, void *a1, void *a2)
     } else {
         t = -1;
     }
-    prim_DispMesh3D(rec->mesh, a1, a2, t);
+    prim_DispMesh3D(rec->mesh, la, lb, t);
 }
 
 /* the wire mesh's three line colours, one word per channel, RGBA: the cross
@@ -1041,7 +1041,7 @@ void DispMeshWire(Prim3DVec **rows, int nx, int ny)
     gif_EndPacket();
 }
 
-void DispCloth4D(Cloth4D *c, void *a1, void *a2)
+void DispCloth4D(Cloth4D *c, void *la, void *lb)
 {
     int t;
     dl_SetDLPriority(1);
@@ -1057,13 +1057,13 @@ void DispCloth4D(Cloth4D *c, void *a1, void *a2)
     gif_SetGsReg(8, 0);
     gif_EndPacket();
     _SetCurrentMatrix(matrixptr + 0x100);
-    prim_DispMesh3D(c->mesh, a1, a2, t);
+    prim_DispMesh3D(c->mesh, la, lb, t);
     if (debug_cloth_info != 0) {
         DispMeshWire(c->pos, c->cfg->nx, c->cfg->ny);
     }
 }
 
-void DispCloth4DWithAdd(Cloth4D *c, void *a1, void *a2)
+void DispCloth4DWithAdd(Cloth4D *c, void *la, void *lb)
 {
     int t;
     dl_SetDLPriority(1);
@@ -1079,7 +1079,7 @@ void DispCloth4DWithAdd(Cloth4D *c, void *a1, void *a2)
     gif_SetGsReg(8, 0);
     gif_EndPacket();
     _SetCurrentMatrix(matrixptr + 0x100);
-    prim_DispMesh3D(c->mesh, a1, a2, t);
+    prim_DispMesh3D(c->mesh, la, lb, t);
     if (debug_cloth_info != 0) {
         DispMeshWire(c->pos, c->cfg->nx, c->cfg->ny);
     }
@@ -1708,8 +1708,8 @@ static void getCloth4D_postProcess(Cloth4D *c, int **rows)
    typedef.h, and commonact.c declares the table char [] */
 extern const MotionDef motionKind[];
 
-static void _getCloth4D(Cloth4D *c, float x, float y, float z, float w, int tight, void *a6,
-                        void *a7)
+static void _getCloth4D(Cloth4D *c, float x, float y, float z, float w, int tight, void *qa,
+                        void *qb)
 {
     float buf[4];
     int i;
@@ -1733,7 +1733,7 @@ static void _getCloth4D(Cloth4D *c, float x, float y, float z, float w, int tigh
             rows[i][j] = -1;
         }
     }
-    getCloth4D_preProcess(c, x, y, z, w, tight, a6, a7);
+    getCloth4D_preProcess(c, x, y, z, w, tight, qa, qb);
     getCloth4D(c, rows);
     obj = GOBJ_SUB(c->gobj);
     if (motionKind[obj->ctrl.motion].flags.bits.clothPlane) {
@@ -1767,16 +1767,16 @@ void GetCloth4DWithDetail(Cloth4D *c, float x, float y, float z, float w)
 }
 
 /* the two pointers follow the four floats, like _getCloth4D's own tail */
-void GetCloth4DWithTight(Cloth4D *c, float x, float y, float z, float w, void *a1, void *a2)
+void GetCloth4DWithTight(Cloth4D *c, float x, float y, float z, float w, void *qa, void *qb)
 {
-    _getCloth4D(c, x, y, z, w, 1, a1, a2);
+    _getCloth4D(c, x, y, z, w, 1, qa, qb);
 }
 
 typedef struct { /* field names derived */
     long long q[8];
 } Blob64; /* derived name */
 
-Cloth4D *InitCloth4D(GObj *a0, Cloth4DCfg *cfg, ClothHangCfg *tbl)
+Cloth4D *InitCloth4D(GObj *gobj, Cloth4DCfg *cfg, ClothHangCfg *tbl)
 {
     Cloth4D *r;
     int i;
@@ -1784,7 +1784,7 @@ Cloth4D *InitCloth4D(GObj *a0, Cloth4DCfg *cfg, ClothHangCfg *tbl)
     float sc;
 
     r = (Cloth4D *)iosMallocDebug(ios_partition_sugipon, 0x300, "src/clothAnimation.c", 2183);
-    r->gobj = a0;
+    r->gobj = gobj;
     r->cfg = cfg;
     r->sweepRight = 0;
     if (cfg->tex != 0) {
@@ -1832,7 +1832,7 @@ Cloth4D *InitCloth4D(GObj *a0, Cloth4DCfg *cfg, ClothHangCfg *tbl)
             r->col[i].bottom = r->col[i].bottom * sc;
             r->col[i].invDiameter = 1.0f / (r->col[i].radius + r->col[i].radius);
             sceVu0UnitMatrix(r->colMtx[i]);
-            r->colNode[i] = GetSkeltonFocusNode(a0, tbl[i].node);
+            r->colNode[i] = GetSkeltonFocusNode(gobj, tbl[i].node);
         }
         r->collision = 1;
     } else {
@@ -1842,22 +1842,22 @@ Cloth4D *InitCloth4D(GObj *a0, Cloth4DCfg *cfg, ClothHangCfg *tbl)
     return r;
 }
 
-void GetChainNodeGlobalQuaternion(void *a0, ChainNode *node, int count)
+void GetChainNodeGlobalQuaternion(void *q, ChainNode *node, int count)
 {
     ClothBuf buf;
-    SetIdentityQuaternion(a0);
+    SetIdentityQuaternion(q);
     if (count > 0) {
         float (*pts)[4] = node->pos;
         SubVectorXYZ(&buf, pts[count], pts[count - 1]);
         MatrixDrive_GetTurnYAngleXZ(&buf.a, &buf.b, buf.v[0], buf.v[1], buf.v[2]);
-        RotQuaternionX(a0, (short)-buf.a);
-        RotQuaternionZ(a0, (short)-buf.b);
+        RotQuaternionX(q, (short)-buf.a);
+        RotQuaternionZ(q, (short)-buf.b);
     }
 }
 
-void MoveChainExtendedWeight(ChainNode *node, int a1, float f)
+void MoveChainExtendedWeight(ChainNode *node, int slot, float f)
 {
-    node->ex[a1].w = f;
+    node->ex[slot].w = f;
 }
 
 void InitChainVelocity(ChainSet *sys)
@@ -1878,9 +1878,9 @@ void InitChainVelocity(ChainSet *sys)
     }
 }
 
-void DeleteChainExtendedWeight(ChainNode *node, int a1)
+void DeleteChainExtendedWeight(ChainNode *node, int slot)
 {
-    node->ex[a1].w = -1.0f;
+    node->ex[slot].w = -1.0f;
     node->exNum = node->exNum - 1;
 }
 
@@ -1950,7 +1950,7 @@ void FSqrtInv(void)
     VU0_NOREORDER_END();
 }
 
-float getXZLength(void *p0)
+float getXZLength(void *v)
 {
     VU0_LSV(lqc2, 4, 0x0, 4);
     VU0_V3OP(vmul.xz, 4, 4, 4);
@@ -1963,7 +1963,7 @@ float getXZLength(void *p0)
     VU0_NOREORDER_END();
 }
 
-float getXZInvLength(void *p0)
+float getXZInvLength(void *v)
 {
     VU0_LSV(lqc2, 4, 0x0, 4);
     VU0_V3OP(vmul.xz, 4, 4, 4);
@@ -1976,7 +1976,7 @@ float getXZInvLength(void *p0)
     VU0_NOREORDER_END();
 }
 
-float getXZLengthSquare(void *p0)
+float getXZLengthSquare(void *v)
 {
     VU0_LSV(lqc2, 4, 0x0, 4);
     VU0_V3OP(vmul.xz, 4, 4, 4);
@@ -2026,7 +2026,7 @@ void scaleVectorXZ(void *d, const void *s, float k)
     VU0_LSV(sqc2, 4, 0x0, 4);
 }
 
-void tensionMoveNoReduce(void *a0, void *a1, void *a2, float f12)
+void tensionMoveNoReduce(void *out, void *a, void *b, float k)
 {
     int buf[4];
     VU0_LSV(lqc2, 1, 0x0, 5);
@@ -2061,7 +2061,7 @@ void tensionMoveNoReduce(void *a0, void *a1, void *a2, float f12)
     VU0_LSV(sqc2, 4, 0x0, 4);
 }
 
-void tensionMove(void *a0, void *a1, void *a2, float f12, float f13)
+void tensionMove(void *out, void *a, void *b, float k, float lim)
 {
     int buf[4];
     float inv;
@@ -2083,8 +2083,8 @@ void tensionMove(void *a0, void *a1, void *a2, float f12, float f13)
                          "mtc1 $2, %0\n"
                          ".set reorder\n"
                          : "=f"(inv)::"$2");
-    if (inv < f13) {
-        scale = f12 * inv;
+    if (inv < lim) {
+        scale = k * inv;
         VU0_LSV(lqc2, 4, 0x0, 6);
         __asm__ __volatile__(".set noreorder\n\tlqc2 $vf5, %0\n\t.set reorder"
                              :
@@ -2106,15 +2106,15 @@ void getCrossPoint(void *out, void *seg, void *plane)
     getCrossPoint_i(out, seg, plane);
 }
 
-int checkOverThePlane(void *a0, void *a1)
+int checkOverThePlane(void *pt, void *plane)
 {
-    return checkOverThePlane_i(a0, a1);
+    return checkOverThePlane_i(pt, plane);
 }
 
-int checkFrontAcross(void *a0, void *a1)
+int checkFrontAcross(void *seg, void *plane)
 {
-    if (0.0f <= plane_distance(a0, a1)) {
-        if (plane_distance((char *)a0 + 0x10, a1) < 0.0f)
+    if (0.0f <= plane_distance(seg, plane)) {
+        if (plane_distance((char *)seg + 0x10, plane) < 0.0f)
             return 1;
     }
     return 0;

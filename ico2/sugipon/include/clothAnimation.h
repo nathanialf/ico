@@ -107,19 +107,19 @@ typedef struct { /* field names derived */
 /* one cloth InitCloth4D builds (clothAnimation.c) */
 typedef struct Cloth4D Cloth4D;
 
-void DispCloth4D(Cloth4D *c, void *a1, void *a2);
-void DispCloth4DWithAdd(Cloth4D *c, void *a1, void *a2);
-void DispClothMesh(ClothRec *rec, void *a1, void *a2);
+void DispCloth4D(Cloth4D *c, void *la, void *lb);
+void DispCloth4DWithAdd(Cloth4D *c, void *la, void *lb);
+void DispClothMesh(ClothRec *rec, void *la, void *lb);
 void DispMeshWire(Prim3DVec **rows, int nx, int ny);
 void GetChainAnimation(ChainSet *sys, struct GObj *obj, float (*mtx)[4]);
 float GetChainCollision(ChainSet *sys, void *pos, float r);
 float GetChainNodeID(ChainCfg *cfg, float f);
 void GetCloth4D(Cloth4D *c, float x, float y);
 void GetCloth4DWithDetail(Cloth4D *c, float x, float y, float z, float w);
-void GetCloth4DWithTight(Cloth4D *c, float x, float y, float z, float w, void *a1, void *a2);
+void GetCloth4DWithTight(Cloth4D *c, float x, float y, float z, float w, void *qa, void *qb);
 
 void GetClothAnimation(VECTOR **pos, VECTOR **vel, struct GObj *obj, void *m, ClothCfg *cfg,
-                       int nwall, int wallOwner, int a7);
+                       int nwall, int wallOwner, int fixEnd);
 
 void GetClothAnimationFix4Points(VECTOR **pa, VECTOR **pv, ClothCfg *cfg, void *mtx);
 ChainSet *InitChains(ChainCfg *cfg);
@@ -223,14 +223,14 @@ struct Cloth4D { /* field names derived */
     int collision;  /* 0x2F8, nonzero while the cylinders collide (girl.c's debug_hair_collision) */
 }; /* derived name */
 
-Cloth4D *InitCloth4D(struct GObj *g, Cloth4DCfg *cfg, ClothHangCfg *tbl);
+Cloth4D *InitCloth4D(struct GObj *gobj, Cloth4DCfg *cfg, ClothHangCfg *tbl);
 ClothSet *InitClothes(ClothCfg *cfg);
 ClothSet *InitClothesNoShade(ClothCfg *cfg);
 int SetChainExtendedWeight(ChainNode *node, int idx, float w0, float w1);
 void TestDispChainAnimation(ChainSet *sys);
-float getXZLength(void *p0);
-float getXZInvLength(void *p0);
-float getXZLengthSquare(void *p0);
+float getXZLength(void *v);
+float getXZInvLength(void *v);
+float getXZLengthSquare(void *v);
 float subAndGetInvLength(void *d, const void *a, const void *b);
 
 #endif /* CLOTHANIMATION_H */

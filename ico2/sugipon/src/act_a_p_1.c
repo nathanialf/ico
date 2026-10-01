@@ -233,23 +233,23 @@ static int walkAI(GObj *self)
     return AP1MotReq(self, 1) ? 1 : -1;
 }
 
-void hehehe(char *a0)
+void hehehe(GObj *self)
 {
-    debug_StdPrintfDummy(ap1ModeName[GOBJ_ACT(a0)->actMode]);
+    debug_StdPrintfDummy(ap1ModeName[GOBJ_ACT(self)->actMode]);
 }
 
-void SleepAP1(GObj *a0)
+void SleepAP1(GObj *self)
 {
-    Act *s = GOBJ_ACT(a0);
+    Act *s = GOBJ_ACT(self);
     s->actMode = 5;
     s->flags18.ll &= ~(1LL << 32);
-    GOBJ_ACT(a0)->hit = 1;
-    AP1MotReqForce(a0, 7);
+    GOBJ_ACT(self)->hit = 1;
+    AP1MotReqForce(self, 7);
 }
 
-void WakeUpAP1(GObj *a0)
+void WakeUpAP1(GObj *self)
 {
-    Act *s = GOBJ_ACT(a0);
+    Act *s = GOBJ_ACT(self);
 
     if (s->actMode == 4) {
         /* already dead, so it is not woken */
@@ -257,10 +257,10 @@ void WakeUpAP1(GObj *a0)
         return;
     }
     s->actMode = 2;
-    AP1MotReqForce(a0, 2);
+    AP1MotReqForce(self, 2);
     s->flags18.ll |= 1LL << 32;
     {
-        Act *t = GOBJ_ACT(a0);
+        Act *t = GOBJ_ACT(self);
         t->attacker = 0;
         t->hit = 0;
     }
@@ -397,18 +397,18 @@ void subAP1BrainMain(GObj *volatile self)
     }
 }
 
-static void hitProc(GObj *a0)
+static void hitProc(GObj *self)
 {
-    AP1MotReqForce(a0, 5);
+    AP1MotReqForce(self, 5);
 }
 
-void SetAP1DeadStatus(GObj *a0)
+void SetAP1DeadStatus(GObj *self)
 {
-    Act *s = GOBJ_ACT(a0);
+    Act *s = GOBJ_ACT(self);
     s->actMode = 4;
     s->flags18.ll &= ~(1LL << 32);
-    GOBJ_ACT(a0)->hit = 1;
-    AP1MotReqForce(a0, 5);
+    GOBJ_ACT(self)->hit = 1;
+    AP1MotReqForce(self, 5);
 }
 
 typedef struct AP1MailEntry { /* field names derived */
@@ -562,9 +562,9 @@ void actAP1Start(GObj *g)
     actCreateSubThread(subAP1Control, 21);
 }
 
-int IsActCharDead(GObj *a0)
+int IsActCharDead(GObj *self)
 {
-    int *v1 = (int *)a0->act;
+    int *v1 = (int *)self->act;
     long x = *(unsigned int *)((char *)v1 + 0x1C);
     return (((int)x) & 1) ^ 1;
 }
@@ -579,14 +579,14 @@ void SetAP1PriorLevel(GObj *self, int val)
     GOBJ_ACT(self)->lookPri = val;
 }
 
-static inline int jumpAI(GObj *a0)
+static inline int jumpAI(GObj *self)
 {
-    return AP1MotReq(a0, 0) ? 0 : -1;
+    return AP1MotReq(self, 0) ? 0 : -1;
 }
 
-static inline int attackAI(GObj *a0)
+static inline int attackAI(GObj *self)
 {
-    return AP1MotReq(a0, 0) ? 0 : -1;
+    return AP1MotReq(self, 0) ? 0 : -1;
 }
 
 inline void subAP1Control(int x)

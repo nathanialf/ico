@@ -20,7 +20,7 @@ void SetQuaternionByAxisRotateWithNoRegularize(float *self, short ang, float x, 
 void SetQuaternionByAxisRotateEAngle(float *out, float *in, float x, float y, float z);
 void SetQuaternionByAxisRotateV(float *self, short ang, float *src);
 void SetQuaternionByAxisRotateVWithNoRegularize(float *self, short ang, float *src);
-void MultiQuaternion(void *p0, void *p1, void *p2);
+void MultiQuaternion(void *out, void *qa, void *qb);
 void DivQuaternion(void *self, void *qa, void *qb);
 void GetMatrixFromQuaternionRotElem(void *mtx, void *q);
 void GetMatrixFromQuaternionPos(void *mtx, void *q, void *pos);
@@ -39,7 +39,7 @@ float GetQuaternionMagnitude(void *q);
 void SetQuaternionByCosineAxisRotateVWithNoRegularize(void *out, void *axis, float angle);
 void SetQuaternionByCosineAxisRotateV(void *out, void *axis, float angle);
 void SetQuaternionByAxisRotateVEAngle(void *out, float *cosAngle, void *axis);
-float GetQuaternionCosRadian(void *p0, void *p1);
+float GetQuaternionCosRadian(void *qa, void *qb);
 void CopyQuaternion(void *dst, void *src);
 void GetInverseQuaternion(void *dst, void *src);
 void GetMatrixFromQuaternion(void *mtx, void *q);

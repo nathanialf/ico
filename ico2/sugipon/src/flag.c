@@ -27,7 +27,7 @@ static float flag4PointFix[2][4][4] = {
 
 /* Set a four-point flag's mesh: each vertex is interpolated between the
    corners of the id's row of flag4PointFix, its height raised by k.
-   SetFlag4PointFixID is the one caller, passing a1 * 0.25f as k.
+   SetFlag4PointFixID is the one caller, passing turns * 0.25f as k.
  */
 static inline void setFlag4PointMesh(Mesh3D *mesh, ClothCfg *cl, float k, int id) /* derived name */
 {
@@ -54,21 +54,21 @@ static inline void setFlag4PointMesh(Mesh3D *mesh, ClothCfg *cl, float k, int id
     }
 }
 
-void SetFlag4PointFixID(GObj *self, int a1, int id)
+void SetFlag4PointFixID(GObj *self, int turns, int id)
 {
     FlagWork *w;
     short ang;
 
     w = GOBJ_SUB(self)->work;
-    w->turns = a1;
+    w->turns = turns;
     _UnitMatrix(MatrixDrive_GetMatrix());
-    ang = -a1 * 0x4000;
+    ang = -turns * 0x4000;
     MatrixDrive_RotMatrixZ(ang);
     _ApplyMatrix((char *)GOBJ_SUB(self) + 0xA0, MatrixDrive_GetMatrix(),
                  (char *)GOBJ_SUB(self) + 0xA0);
     RotQuaternionZ(GOBJ_SUB(self)->root.quat, ang);
     /* the clothes' one cloth: its mesh, and the config's rows and columns */
-    setFlag4PointMesh(w->clothes->rec->mesh, w->cfg, a1 * 0.25f, id);
+    setFlag4PointMesh(w->clothes->rec->mesh, w->cfg, turns * 0.25f, id);
     prim_UpdateMesh3D(w->clothes->rec->mesh, 8, 0);
     prim_UpdateMesh3D(w->clothes->rec->mesh, 8, 1);
 }

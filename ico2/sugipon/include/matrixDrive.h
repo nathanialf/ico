@@ -8,12 +8,12 @@
 #ifndef MATRIXDRIVE_H
 #define MATRIXDRIVE_H
 
-void AddVectorXYZ(void *p0, void *p1, void *p2);
+void AddVectorXYZ(void *d, void *a, void *b);
 void CopyIVector(void *dst, void *src);
 void CopyMatrix(void *dst, void *src);
 void CopyVector(void *dst, void *src);
 float FSqrt(float x);
-float GetPointDistance(void *p1, void *p2);
+float GetPointDistance(void *a, void *b);
 void InitMatrixDrive(void);
 
 float (*MatrixDrive_GetLastMatrix(void))[4];
@@ -36,10 +36,10 @@ void MatrixDrive_TransMatrix(float x, float y, float z);
 void MatrixDrive_TransMatrixV(void *v);
 void MatrixDrive_TurnObjectMatrix(float x, float y, float z);
 void MatrixDrive_TurnYObjectMatrixXZ(float x, float y, float z);
-void SubVectorXYZ(void *p0, void *p1, void *p2);
+void SubVectorXYZ(void *d, void *a, void *b);
 void UnitRotation(void *m);
-float VectorLength(void *p0);
-float VectorLengthSquare(void *p0);
+float VectorLength(void *v);
+float VectorLengthSquare(void *v);
 extern float XUnitVector[4];
 extern float YUnitVector[4];
 extern float ZUnitVector[4];

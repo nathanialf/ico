@@ -133,7 +133,7 @@ static inline PointBlur *initPointBlurAt(int num, int pri, int *col, void *pos) 
     return p;
 }
 
-EnemyEye *InitEnemyEye(int num, int a1, int pri)
+EnemyEye *InitEnemyEye(int num, int unused, int pri)
 {
     EnemyEye *p;
 
@@ -279,9 +279,9 @@ int EntryEnemyFootPrint(EnemyFootPrintHead *self, void *pos)
     return 0;
 }
 
-int DispEnemyFootPrints(EnemyFootPrintHead *a0)
+int DispEnemyFootPrints(EnemyFootPrintHead *self)
 {
-    p2o_DispVU1DObj(a0->dobj);
+    p2o_DispVU1DObj(self->dobj);
     return 1;
 }
 
@@ -293,29 +293,29 @@ PointBlur *InitPointBlur(int num, int pri, int *col, void *pos)
 int DispPointBlur(PointBlur *self)
 {
     gif_StartPacketPri(self->pri);
-    gif_SetAlpha(1, self->alpha, 0x80);
+    gif_SetAlpha(1, self->alpha, 128);
     gif_Draw2DStripG(self->strip, self->stripCol, self->num * 2, 1);
     gif_EndPacket();
     return 1;
 }
 
-int UpdateEnemyEye(EnemyEye *a0, void *m, float f)
+int UpdateEnemyEye(EnemyEye *self, void *m, float rate)
 {
-    _MulMatrix(a0->mtx, m, enemyEyeScaleMatrix);
-    if (a0->blurOn != 0) {
-        UpdatePointBlur(a0->blur, a0->mtx[3], enemyEyeBlurTint, f * 3.0f);
+    _MulMatrix(self->mtx, m, enemyEyeScaleMatrix);
+    if (self->blurOn != 0) {
+        UpdatePointBlur(self->blur, self->mtx[3], enemyEyeBlurTint, rate * 3.0f);
     }
     return 1;
 }
 
-int DispEnemyEye(EnemyEye *a0)
+int DispEnemyEye(EnemyEye *self)
 {
-    _CopyMatrix(a0->dobj[0]->nodeMtx, a0->mtx);
-    reg_DispMultiPri(a0->dobj[0], 10);
-    if (a0->blurOn != 0) {
-        PointBlur *fobj = a0->blur;
+    _CopyMatrix(self->dobj[0]->nodeMtx, self->mtx);
+    reg_DispMultiPri(self->dobj[0], 10);
+    if (self->blurOn != 0) {
+        PointBlur *fobj = self->blur;
         gif_StartPacketPri(fobj->pri);
-        gif_SetAlpha(1, fobj->alpha, 0x80);
+        gif_SetAlpha(1, fobj->alpha, 128);
         gif_Draw2DStripG(fobj->strip, fobj->stripCol, fobj->num << 1, 1);
         gif_EndPacket();
     }

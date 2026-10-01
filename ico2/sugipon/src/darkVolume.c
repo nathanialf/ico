@@ -550,7 +550,7 @@ static void sonic(void *pos, float t)
     }
 }
 
-static void darkVolume(void *pos, float a1, float a2, float a3)
+static void darkVolume(void *pos, float radius, float ratio, float edge)
 {
     int rect[4] = {-ScreenWidth / 2 * 16, -ScreenHeight / 2 * 16, ScreenWidth * 16,
                    ScreenHeight * 16};
@@ -620,9 +620,9 @@ static void darkVolume(void *pos, float a1, float a2, float a3)
                      volumeOuterColor.g - volumeInnerColor.g - 1,
                      volumeOuterColor.b - volumeInnerColor.b - 1, 128};
 
-        renderViewCoordZSphere(pos, volumeOuterColor, 1, a1 + a3);
-        renderViewCoordZSphere(pos, volumeInnerColor, 0, a1 * a2 + a3 * 0.6666667f);
-        renderViewCoordZSphere(pos, c, 0, a1 * a2 * a2);
+        renderViewCoordZSphere(pos, volumeOuterColor, 1, radius + edge);
+        renderViewCoordZSphere(pos, volumeInnerColor, 0, radius * ratio + edge * 0.6666667f);
+        renderViewCoordZSphere(pos, c, 0, radius * ratio * ratio);
         gif_EndPacket();
     }
     dl_SetDLPriority(10);
@@ -852,23 +852,23 @@ void InitGameOverEffect(void)
     CopyVector(darkVolumeCenter, ZeroPoint);
 }
 
-inline int InitDarkVolumeGeo(char *a0)
+inline int InitDarkVolumeGeo(GObj *self)
 {
-    **(int **)(*(char **)(a0 + 0x15C) + 0xC) = 0;
+    *(int *)GOBJ_SUB(self)->nodeMtx = 0;
     return 0;
 }
 
-void SetupDarkVolume(void *a0, float a1, float a2)
+void SetupDarkVolume(void *pos, float radius, float edge)
 {
-    darkVolume(a0, a1, 1.0f, a2);
+    darkVolume(pos, radius, 1.0f, edge);
 }
 
-void DarkVolumeGeo(GObj *a0)
+void DarkVolumeGeo(GObj *self)
 {
     float *p;
 
-    GOBJ_SUB(a0)->disp = 0;
-    p = (float *)GOBJ_SUB(a0)->nodeMtx;
+    GOBJ_SUB(self)->disp = 0;
+    p = (float *)GOBJ_SUB(self)->nodeMtx;
     if (1e-05f < *p) {
         SetupDarkVolume((char *)p + 0x30, *p * 50.0f, 10.0f);
     }

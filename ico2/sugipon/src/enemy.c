@@ -587,11 +587,11 @@ void SetEnemyDissolve(GObj *self, float ratio)
         sub->nodes->fade = 1.0f;
 }
 
-static void SetEnemyFlyXZAccel(GObj *a0, float f)
+static void SetEnemyFlyXZAccel(GObj *self, float accel)
 {
-    EnemyWork *w = GOBJ_SUB(a0)->work;
+    EnemyWork *w = GOBJ_SUB(self)->work;
 
-    w->flyXZAccel = f;
+    w->flyXZAccel = accel;
 }
 
 static void SetEnemyFlyXZAccelAll(float accel)
@@ -605,20 +605,20 @@ static void SetEnemyFlyXZAccelAll(float accel)
     }
 }
 
-float GetEnemyFlyXZAccel(GObj *a0)
+float GetEnemyFlyXZAccel(GObj *self)
 {
-    EnemyWork *w = GOBJ_SUB(a0)->work;
+    EnemyWork *w = GOBJ_SUB(self)->work;
 
     return w->flyXZAccel;
 }
 
 void EnemyAI(void) {}
 
-void SetEnemyFootPrintSwitch(GObj *a0, int a1)
+void SetEnemyFootPrintSwitch(GObj *self, int on)
 {
-    EnemyWork *w = GOBJ_SUB(a0)->work;
+    EnemyWork *w = GOBJ_SUB(self)->work;
 
-    w->footSwitch = a1;
+    w->footSwitch = on;
 }
 
 void EnemySetfAppearAll(GObj *self)
@@ -649,35 +649,35 @@ void EnemySetfDisappear(GObj *self, float *dir)
     for (i = 0; i < n; i++) {
         if ((w->broken)[i] == 0) {
             (w->broken)[i] = 1;
-            enemySetParticle(8, *(char **)((char *)sub + 0xC) + i * 0x40 + 0x30, dir);
+            enemySetParticle(8, *(char **)((char *)sub + 12) + i * 64 + 48, dir);
             return;
         }
     }
 }
 
-void enemySetParticleDie(void *a0, float *a1)
+void enemySetParticleDie(void *root, float *dir)
 {
     float q[4];
     unsigned short ax, ay;
-    MatrixDrive_GetTurnZAngleXY(&ax, &ay, a1[0], a1[1], -a1[2]);
+    MatrixDrive_GetTurnZAngleXY(&ax, &ay, dir[0], dir[1], -dir[2]);
     SetIdentityQuaternion(q);
     RotQuaternionX(q, (short)-ax);
     RotQuaternionY(q, (short)-ay);
-    SetParticleEffect(0xC, a0, q);
+    SetParticleEffect(12, root, q);
 }
 
-void ReviveEnemyParticle(GObj *a0, int a1)
+void ReviveEnemyParticle(GObj *self, int node)
 {
-    EnemyWork *w = GOBJ_SUB(a0)->work;
+    EnemyWork *w = GOBJ_SUB(self)->work;
 
-    w->broken[a1] = 0;
+    w->broken[node] = 0;
 }
 
-int isExistEnemyParticle(GObj *a0, int a1)
+int isExistEnemyParticle(GObj *self, int node)
 {
-    EnemyWork *w = GOBJ_SUB(a0)->work;
+    EnemyWork *w = GOBJ_SUB(self)->work;
 
-    return w->broken[a1] == 0;
+    return w->broken[node] == 0;
 }
 
 int EnemyGetNSafeParts(GObj *self)
@@ -703,20 +703,20 @@ void EnemyDeleteParticle(GObj *self, float *dir, short *list)
 
     n = 2;
     for (i = 0; list[i] >= 0 && n > 0; i++, n--) {
-        enemySetParticle(8, (char *)sub->nodeMtx + list[i] * 0x40 + 0x30, dir);
+        enemySetParticle(8, (char *)sub->nodeMtx + list[i] * 64 + 48, dir);
     }
 }
 
-void SetEnemyHitGeometryAction(GObj *a0, int a1)
+void SetEnemyHitGeometryAction(GObj *self, int on)
 {
-    EnemyWork *w = GOBJ_SUB(a0)->work;
+    EnemyWork *w = GOBJ_SUB(self)->work;
 
-    w->loaded = a1;
+    w->loaded = on;
 }
 
 int InitDemoMotionGeo(GObj *self)
 {
-    InitMotionOrient(self, 0x84A, 0x967, -1, -1, 0x3D7);
+    InitMotionOrient(self, 2122, 2407, -1, -1, 983);
     SetLodLevel(self, 0);
     self->active = 0;
     return 0;
@@ -724,14 +724,14 @@ int InitDemoMotionGeo(GObj *self)
 
 void HotInitDemoMotionGeo(GObj *self)
 {
-    InitMotionOrient(self, 0x84A, 0x967, -1, -1, 0x3D7);
+    InitMotionOrient(self, 2122, 2407, -1, -1, 983);
     SetLodLevel(self, 0);
     self->active = 0;
 }
 
-int *GetEnemyHitNodeFlag(GObj *a0)
+int *GetEnemyHitNodeFlag(GObj *self)
 {
-    EnemyWork *w = GOBJ_SUB(a0)->work;
+    EnemyWork *w = GOBJ_SUB(self)->work;
 
     return w->broken;
 }
@@ -746,34 +746,34 @@ int RandomizeEnemy(GObj *self)
     return setEnemyObject(self, kind, &w->ctr);
 }
 
-void SetEnemyWingRatio(GObj *a0, float f)
+void SetEnemyWingRatio(GObj *self, float ratio)
 {
-    ((EnemyWork *)GOBJ_SUB(a0)->work)->wing = f;
+    ((EnemyWork *)GOBJ_SUB(self)->work)->wing = ratio;
 }
 
-int CanThisEnemyFly(GObj *a0)
+int CanThisEnemyFly(GObj *self)
 {
-    return enemyKind[((EnemyWork *)GOBJ_SUB(a0)->work)->def].flyType;
+    return enemyKind[((EnemyWork *)GOBJ_SUB(self)->work)->def].flyType;
 }
 
-int GetEnemyBattleType(GObj *a0)
+int GetEnemyBattleType(GObj *self)
 {
-    return enemyKind[((EnemyWork *)GOBJ_SUB(a0)->work)->def].battleType;
+    return enemyKind[((EnemyWork *)GOBJ_SUB(self)->work)->def].battleType;
 }
 
-float GetEnemyDefLife(GObj *a0)
+float GetEnemyDefLife(GObj *self)
 {
-    return enemyKind[((EnemyWork *)GOBJ_SUB(a0)->work)->def].life;
+    return enemyKind[((EnemyWork *)GOBJ_SUB(self)->work)->def].life;
 }
 
-float GetEnemyDefDodgeRange(GObj *a0)
+float GetEnemyDefDodgeRange(GObj *self)
 {
-    return enemyKind[((EnemyWork *)GOBJ_SUB(a0)->work)->def].dodge;
+    return enemyKind[((EnemyWork *)GOBJ_SUB(self)->work)->def].dodge;
 }
 
-float GetEnemyDefParaIndex(GObj *a0)
+float GetEnemyDefParaIndex(GObj *self)
 {
-    return enemyKind[((EnemyWork *)GOBJ_SUB(a0)->work)->def].paraIndex;
+    return enemyKind[((EnemyWork *)GOBJ_SUB(self)->work)->def].paraIndex;
 }
 
 void ResetEnemyPositionInfo(GObj *self)

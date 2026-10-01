@@ -25,26 +25,26 @@ typedef struct {      /* field names derived */
 /* the 61 particle effect files (the particle-effect data member) */
 extern const ParticleEffectFile particleEffectFile[];
 void DeleteParticleEffect(int no);
-void DisableParticleEffectGeometryControl(int a0);
+void DisableParticleEffectGeometryControl(int id);
 void DispParticleEffects(void);
 void ExecParticleEffect(int no);
 void ExecParticleEffects(void);
-int GetParticleEffectData(int a0);
+int GetParticleEffectData(int id);
 int *GetParticleEffectPackage(int idx);
 int GetParticleIDWithName(char *name);
-int GetParticleLoopFlag(int a0);
+int GetParticleLoopFlag(int id);
 void InitParticleEffects(void);
 void ParticleEffects_SetAllGoal(void *goal);
 void ResetParticleEffectPackages(int *pkg);
 int SetParticleEffect(int id, void *pos, void *quat);
 int SetParticleEffectActiveSensing(int id, void *pos, void *quat);
 int SetParticleEffectByPartition(int id, void *pos, void *quat, struct IosMemPart *part);
-void SetParticleEffectDrainLevel(int a0, float f);
+void SetParticleEffectDrainLevel(int id, float level);
 void SetParticleEffectGeometry(int id, void *pos, void *quat);
 void SetParticleEffectPackage(int no, int *data, int size);
-void SetParticleEffectPauseFlag(int a0, int a1);
+void SetParticleEffectPauseFlag(int id, int pause);
 void SetParticleEffectUpperLimit(int no, float f);
-void SetParticleEffectClipEnableFlag(int a0, int a1);
+void SetParticleEffectClipEnableFlag(int id, int on);
 void DeleteParticleEffectsByPackage(int *pkg);
 void DeleteParticleEffectsByID(int id);
 

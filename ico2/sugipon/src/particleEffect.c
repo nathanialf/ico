@@ -768,9 +768,9 @@ void DeleteParticleEffect(int no)
     }
 }
 
-void SetParticleEffectPauseFlag(int a0, int a1)
+void SetParticleEffectPauseFlag(int id, int pause)
 {
-    particleEffects[a0].pause = a1;
+    particleEffects[id].pause = pause;
 }
 
 /* the body of SetParticleEffect, which SetParticleEffectActiveSensing
@@ -833,14 +833,14 @@ void DeleteParticleEffectsByID(int id)
     DeleteParticleEffectsByPackage_inl(GetParticleEffectPackage_inl(id));
 }
 
-int GetParticleEffectData(int a0)
+int GetParticleEffectData(int id)
 {
-    return (int)particleEffects[a0].geo;
+    return (int)particleEffects[id].geo;
 }
 
-void DisableParticleEffectGeometryControl(int a0)
+void DisableParticleEffectGeometryControl(int id)
 {
-    particleEffects[a0].geoCtrl = 0;
+    particleEffects[id].geoCtrl = 0;
 }
 
 int GetParticleIDWithName(char *name)
@@ -854,13 +854,13 @@ int GetParticleIDWithName(char *name)
     return -1;
 }
 
-int GetParticleLoopFlag(int a0)
+int GetParticleLoopFlag(int id)
 {
     int *p;
-    if (a0 < 0) {
+    if (id < 0) {
         return -1;
     }
-    p = (int *)((char *)particleParams + a0 * 160);
+    p = (int *)((char *)particleParams + id * 160);
     return p[1] == 1;
 }
 
@@ -878,16 +878,16 @@ void ParticleEffects_SetAllGoal(void *goal)
     }
 }
 
-void SetParticleEffectClipEnableFlag(int a0, int a1)
+void SetParticleEffectClipEnableFlag(int id, int on)
 {
-    if (a0 >= 0) {
-        particleEffects[a0].geo->clip = a1;
+    if (id >= 0) {
+        particleEffects[id].geo->clip = on;
     }
 }
 
-void SetParticleEffectDrainLevel(int a0, float f)
+void SetParticleEffectDrainLevel(int id, float level)
 {
-    if (a0 >= 0) {
-        particleEffects[a0].geo->rate = f;
+    if (id >= 0) {
+        particleEffects[id].geo->rate = level;
     }
 }

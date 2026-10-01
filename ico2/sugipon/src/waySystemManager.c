@@ -7,7 +7,7 @@ static GObj *waySystemManagerGObj = 0; /* derived name */
 /* void * (void *, int) here, void (int, int) in act.h */
 extern void *actCreateSubThreadGOppArg(void *entry, int arg);
 /* as in act.h, which this file does not include */
-extern void _ACTWait(int a0);
+extern void _ACTWait(int frames);
 
 #include "waySystemManager.h"
 

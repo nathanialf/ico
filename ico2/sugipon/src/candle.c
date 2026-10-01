@@ -96,9 +96,9 @@ inline void DeleteLayoutedCandleParticleEffect(void)
     }
 }
 
-void CandleDL(GObj *a0)
+void CandleDL(GObj *self)
 {
-    Sub15C *d = a0->dobj;
+    Sub15C *d = self->dobj;
     if (d->disp != 0) {
         p2o_SetDefaultEnviroment();
         p2o_DispVU1DObjMulti(d);

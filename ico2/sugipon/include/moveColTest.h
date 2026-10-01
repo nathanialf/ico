@@ -16,6 +16,6 @@ short *InitMoveColTestGeo(int gobj, int *layout);
 struct GObj;
 
 void MoveColTestGeo(struct GObj *self);
-void MoveColTestDL(int a0, int a1, int a2, int a3);
+void MoveColTestDL(struct GObj *self);
 
 #endif /* MOVECOLTEST_H */

@@ -19,8 +19,8 @@ void SetGirlHairDispSwitch(struct GObj *gobj, int on);
 struct SObjSimpleSetting;
 
 void *InitGirlGeo(struct GObj *gobj, struct SObjSimpleSetting *csv);
-void GirlGeo(struct GObj *a0);
-void GirlAI(struct GObj *a0);
-void GirlDL(struct GObj *a0);
+void GirlGeo(struct GObj *gobj);
+void GirlAI(struct GObj *gobj);
+void GirlDL(struct GObj *gobj);
 
 #endif /* GIRL_H */

@@ -14,17 +14,18 @@ static int lineStripPrim = 0x189; /* derived name */
 
 static int lineGouraudPrim = 0x18A; /* derived name */
 
-void Draw2DLine(int *p1, int *p2, int *color, int z)
+void Draw2DLine(int *from, int *to, int *color, int z)
 {
     gif_SetGsReg(0, linePrim);
     gif_SetGsReg(1, (long long)color[0] | ((long long)color[1] << 8) | ((long long)color[2] << 16) |
                         ((long long)color[3] << 24));
     if (z == 0) {
-        gif_SetGsReg(5, (long long)p1[0] | ((long long)p1[1] << 16) | ((long long)p1[2] << 32));
-        gif_SetGsReg(5, (long long)p2[0] | ((long long)p2[1] << 16) | ((long long)p2[2] << 32));
+        gif_SetGsReg(5,
+                     (long long)from[0] | ((long long)from[1] << 16) | ((long long)from[2] << 32));
+        gif_SetGsReg(5, (long long)to[0] | ((long long)to[1] << 16) | ((long long)to[2] << 32));
     } else {
-        gif_SetGsReg(5, (long long)p1[0] | ((long long)p1[1] << 16) | ((long long)z << 32));
-        gif_SetGsReg(5, (long long)p2[0] | ((long long)p2[1] << 16) | ((long long)z << 32));
+        gif_SetGsReg(5, (long long)from[0] | ((long long)from[1] << 16) | ((long long)z << 32));
+        gif_SetGsReg(5, (long long)to[0] | ((long long)to[1] << 16) | ((long long)z << 32));
     }
 }
 
@@ -33,31 +34,32 @@ void Draw2DLineSeg_Start(void)
     gif_SetGsReg(0, lineStripPrim);
 }
 
-void Draw2DLineSeg_Loop(int *p1, int *p2, int *color)
+void Draw2DLineSeg_Loop(int *from, int *to, int *color)
 {
     gif_SetGsReg(1, (long long)color[0] | ((long long)color[1] << 8) | ((long long)color[2] << 16) |
                         ((long long)color[3] << 24));
-    gif_SetGsReg(5, (long long)p1[0] | ((long long)p1[1] << 16) | ((long long)p1[2] << 32));
-    gif_SetGsReg(5, (long long)p2[0] | ((long long)p2[1] << 16) | ((long long)p2[2] << 32));
+    gif_SetGsReg(5, (long long)from[0] | ((long long)from[1] << 16) | ((long long)from[2] << 32));
+    gif_SetGsReg(5, (long long)to[0] | ((long long)to[1] << 16) | ((long long)to[2] << 32));
 }
 
-void Draw2DLineG(int *p1, int *c1, int *p2, int *c2, int z)
+void Draw2DLineG(int *from, int *fromColor, int *to, int *toColor, int z)
 {
     gif_SetGsReg(0, lineGouraudPrim);
     if (z == 0) {
-        gif_SetGsReg(1, (long long)c1[0] | ((long long)c1[1] << 8) | ((long long)c1[2] << 16) |
-                            ((long long)c1[3] << 24));
-        gif_SetGsReg(5, (long long)p1[0] | ((long long)p1[1] << 16) | ((long long)p1[2] << 32));
-        gif_SetGsReg(1, (long long)c2[0] | ((long long)c2[1] << 8) | ((long long)c2[2] << 16) |
-                            ((long long)c2[3] << 24));
-        gif_SetGsReg(5, (long long)p2[0] | ((long long)p2[1] << 16) | ((long long)p2[2] << 32));
+        gif_SetGsReg(1, (long long)fromColor[0] | ((long long)fromColor[1] << 8) |
+                            ((long long)fromColor[2] << 16) | ((long long)fromColor[3] << 24));
+        gif_SetGsReg(5,
+                     (long long)from[0] | ((long long)from[1] << 16) | ((long long)from[2] << 32));
+        gif_SetGsReg(1, (long long)toColor[0] | ((long long)toColor[1] << 8) |
+                            ((long long)toColor[2] << 16) | ((long long)toColor[3] << 24));
+        gif_SetGsReg(5, (long long)to[0] | ((long long)to[1] << 16) | ((long long)to[2] << 32));
     } else {
-        gif_SetGsReg(1, (long long)c1[0] | ((long long)c1[1] << 8) | ((long long)c1[2] << 16) |
-                            ((long long)c1[3] << 24));
-        gif_SetGsReg(5, (long long)p1[0] | ((long long)p1[1] << 16) | ((long long)z << 32));
-        gif_SetGsReg(1, (long long)c2[0] | ((long long)c2[1] << 8) | ((long long)c2[2] << 16) |
-                            ((long long)c2[3] << 24));
-        gif_SetGsReg(5, (long long)p2[0] | ((long long)p2[1] << 16) | ((long long)z << 32));
+        gif_SetGsReg(1, (long long)fromColor[0] | ((long long)fromColor[1] << 8) |
+                            ((long long)fromColor[2] << 16) | ((long long)fromColor[3] << 24));
+        gif_SetGsReg(5, (long long)from[0] | ((long long)from[1] << 16) | ((long long)z << 32));
+        gif_SetGsReg(1, (long long)toColor[0] | ((long long)toColor[1] << 8) |
+                            ((long long)toColor[2] << 16) | ((long long)toColor[3] << 24));
+        gif_SetGsReg(5, (long long)to[0] | ((long long)to[1] << 16) | ((long long)z << 32));
     }
 }
 
@@ -66,7 +68,7 @@ void Draw2DLineG(int *p1, int *c1, int *p2, int *c2, int z)
  * helpers are nested inline functions, as in boy.c and staticBlur.c; one of
  * them does both the near clip and the projection.  The four VU0 blocks carry
  * no memory clobber, like sugiCommon.h's distance_squared. */
-int _getLine(float *o1, float *o2, float *p1, float *p2)
+int _getLine(float *o1, float *o2, float *from, float *to)
 {
     inline void swapVector(float *a, float *b) /* derived name */
     {
@@ -192,8 +194,8 @@ int _getLine(float *o1, float *o2, float *p1, float *p2)
     float r0[4];
     float r1[4];
     int rev = 0;
-    VECTOR w0 = {p1[0], p1[1], p1[2], 1.0f};
-    VECTOR w1 = {p2[0], p2[1], p2[2], 1.0f};
+    VECTOR w0 = {from[0], from[1], from[2], 1.0f};
+    VECTOR w1 = {to[0], to[1], to[2], 1.0f};
 
     _SetCurrentMatrix(MatrixDrive_GetMatrix());
     _MulCurrentMatrixL(matrixptr + 0x80);
@@ -231,20 +233,20 @@ int _getLine(float *o1, float *o2, float *p1, float *p2)
     return rev;
 }
 
-void DrawLine(void *p1, void *p2, void *color, int z)
+void DrawLine(void *from, void *to, void *color, int z)
 {
     float t0[4];
     float t1[4];
     int t2[4];
     int t3[4];
-    if (_getLine(t0, t1, p1, p2) < 0)
+    if (_getLine(t0, t1, from, to) < 0)
         return;
     _FTOI4Vector(t2, t0);
     _FTOI4Vector(t3, t1);
     Draw2DLine(t2, t3, color, z);
 }
 
-void DrawLineG(void *p0, void *c0, void *p1, void *c1, int z)
+void DrawLineG(void *from, void *fromColor, void *to, void *toColor, int z)
 {
     float t0[4];
     float t1[4];
@@ -253,15 +255,15 @@ void DrawLineG(void *p0, void *c0, void *p1, void *c1, int z)
     int r;
 
     _InitCurrentMatrix();
-    r = _getLine(t0, t1, p0, p1);
+    r = _getLine(t0, t1, from, to);
     if (r == -1) {
         return;
     }
     _FTOI4Vector(t2, t0);
     _FTOI4Vector(t3, t1);
     if (r != 0) {
-        Draw2DLineG(t3, c0, t2, c1, z);
+        Draw2DLineG(t3, fromColor, t2, toColor, z);
     } else {
-        Draw2DLineG(t2, c0, t3, c1, z);
+        Draw2DLineG(t2, fromColor, t3, toColor, z);
     }
 }

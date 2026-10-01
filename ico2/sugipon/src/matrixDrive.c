@@ -464,7 +464,7 @@ void CopyMatrixUncached(void *dst, void *src)
     QCOPY64_SERIAL("$6");
 }
 
-void AddVectorXYZ(void *p0, void *p1, void *p2)
+void AddVectorXYZ(void *d, void *a, void *b)
 {
     VU0_LSV(lqc2, 4, 0x0, 5);
     VU0_LSV(lqc2, 5, 0x0, 6);
@@ -472,7 +472,7 @@ void AddVectorXYZ(void *p0, void *p1, void *p2)
     VU0_LSV(sqc2, 4, 0x0, 4);
 }
 
-void SubVectorXYZ(void *p0, void *p1, void *p2)
+void SubVectorXYZ(void *d, void *a, void *b)
 {
     VU0_LSV(lqc2, 4, 0x0, 5);
     VU0_LSV(lqc2, 5, 0x0, 6);
@@ -506,7 +506,7 @@ float FSqrt(float x)
     VU0_NOREORDER_END();
 }
 
-float VectorLength(void *p0)
+float VectorLength(void *v)
 {
     VU0_LSV(lqc2, 4, 0x0, 4);
     VU0_V3OP(vmul.xyz, 4, 4, 4);
@@ -520,7 +520,7 @@ float VectorLength(void *p0)
     VU0_NOREORDER_END();
 }
 
-float VectorLengthSquare(void *p0)
+float VectorLengthSquare(void *v)
 {
     VU0_LSV(lqc2, 3, 0x0, 4);
     VU0_V3OP(vmul.xyz, 3, 3, 3);
@@ -530,11 +530,11 @@ float VectorLengthSquare(void *p0)
     VU0_MTC1(2, 0);
 }
 
-float GetPointDistance(void *p1, void *p2)
+float GetPointDistance(void *a, void *b)
 {
     sceVu0FVECTOR v;
     float r;
-    sceVu0SubVector(v, p1, p2);
+    sceVu0SubVector(v, a, b);
     __asm__ __volatile__(".set noreorder\n"
                          "lqc2 $vf4, 0x0(%1)\n"
                          "vmul.xyz $vf4, $vf4, $vf4\n"
