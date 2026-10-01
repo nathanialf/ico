@@ -80,8 +80,7 @@ typedef struct {             /* field names derived */
     /* 0x80 */ sceVu0FVECTOR node2Pos;
     /* 0x90 */ sceVu0FVECTOR endPos;
     /* 0xA0 */ unsigned char wallHit;
-    /* 0xA4 */ float wallPos[2];
-    /* 0xAC */ char *wall;
+    /* 0xA4 */ ClimbCol climb; /* the wall the chain hangs against */
     /* 0xB0 */ sceVu0FVECTOR wallOrient;
     /* 0xC0 */ unsigned char stopped;
     /* 0xC4 */ int count;
@@ -185,22 +184,9 @@ static void StartPendulum(GObj *gobj, GObj *owner, float *pos)
  * it */
 static int chainDebugY; /* derived name */
 
-/* The wall-clip request the chain hands to ClipWall: the segment endpoints, the
- * clip radius at 0x70 and the hit result at 0x88. */
-typedef struct { /* field names derived */
-    /* 0x00 */ float from[4];
-    /* 0x10 */ float to[4];
-    /* 0x20 */ char pad20[80];
-    /* 0x70 */ float radius;
-    /* 0x74 */ char pad74[12];
-    /* 0x80 */ float hitPos[2];
-    /* 0x88 */ int hit; /* the wall hit, 0 for none */
-    /* 0x8C */ char pad8C[52];
-} ChainClipWork;
-
 static int collisionCheck(GObj *gobj)
 {
-    ChainClipWork w;
+    ClipWork w;
     float v[4];
     ChainRecord *cw = GOBJ_SUB(gobj)->work;
 
@@ -215,13 +201,13 @@ static int collisionCheck(GObj *gobj)
     sceVu0Normalize(v, v);
     debug_Arrow(200.0f, &cw->node[cw->holdNode], v, 0xFF, 0, 0xFF);
     sceVu0ScaleVector(v, v, 140.0f);
-    w.from[0] = cw->node[cw->holdNode].x;
-    w.from[1] = cw->node[cw->holdNode].y;
-    w.from[2] = cw->node[cw->holdNode].z;
-    sceVu0AddVector(w.to, w.from, v);
+    w.a[0] = cw->node[cw->holdNode].x;
+    w.a[1] = cw->node[cw->holdNode].y;
+    w.a[2] = cw->node[cw->holdNode].z;
+    sceVu0AddVector(w.b, w.a, v);
     w.radius = 10.0f;
     ClipWall(&w);
-    if (w.hit) {
+    if (w.wallHit) {
         if (debug_font_flag & 1) {
             chainDebugY = chainDebugY + 10;
             debug_Printf(10, chainDebugY, 0x0FFFFFFF, "collision!!!\n");
@@ -626,8 +612,7 @@ static ChainRecord chainRecordDefault = {
     {0.0f, 0.0f, 0.0f, 0.0f},
     {0.0f, 0.0f, 0.0f, 0.0f},
     0,
-    {0.0f, 0.0f},
-    0,
+    {{0, 0}, 0},
     {0.0f, 0.0f, 0.0f, 0.0f},
     1,
     0,
@@ -659,11 +644,6 @@ typedef struct { /* field names derived */
 typedef struct { /* field names derived */
     long long words[8];
 } ChainPendTemplate;
-
-/* the wall hit point, written into a word-aligned slot of the record */
-typedef struct { /* field names derived */
-    float pos[2];
-} ChainHitPos;
 
 /* the gobj extension pointer, read as a pointer or as a word */
 typedef union { /* field names derived */
@@ -714,29 +694,28 @@ ChainRecord *InitChainGeo(GObj *gobj, ChainGeoReq *req)
     if (req->wallCheck != 0.0f) {
         sceVu0FVECTOR p0 = {0.0f, 0.0f, -25.0f, 1.0f};
         sceVu0FVECTOR p1 = {0.0f, 0.0f, 25.0f, 1.0f};
-        ChainClipWork w;
+        ClipWork w;
         sceVu0UnitMatrix(MatrixDrive_GetMatrix());
         MatrixDrive_TransMatrix(req->pos[0], req->pos[1] + 10.0f, req->pos[2]);
         MatrixDrive_RotMatrixY((short)(req->wallDir * 32768.0f / 3.1415927f));
-        sceVu0ApplyMatrix(w.from, MatrixDrive_GetMatrix(), p0);
-        sceVu0ApplyMatrix(w.to, MatrixDrive_GetMatrix(), p1);
+        sceVu0ApplyMatrix(w.a, MatrixDrive_GetMatrix(), p0);
+        sceVu0ApplyMatrix(w.b, MatrixDrive_GetMatrix(), p1);
         ClipWall(&w);
-        if (w.hit == 0) {
+        if (w.wallHit == 0) {
             /* "cannot find the wall above the chain. / is the direction wrong, or is
              * it placed where there is no wall?" (in yellow) */
             debug_StdPrintfDummy(
                 "\033[33m鎖の上の壁を見付けることができません。\n方向が間違っているか、壁が無いところに置いていませんか?\033[m\n");
         } else {
-            *(ChainHitPos *)cw->wallPos = *(ChainHitPos *)w.hitPos;
-            cw->wall = (char *)w.hit;
-            GetOrientOfWall(cw->wallOrient, w.hit, w.hitPos);
+            memcpy(cw->climb.wallSrc, w.wallSrc, sizeof(w.wallSrc));
+            cw->climb.wall = w.wallHit;
+            GetOrientOfWall(cw->wallOrient, w.wallHit, w.wallSrc);
             cw->wallHit = 1;
         }
     } else {
-        /* no wall: the hit position is cleared as two words */
-        *(int *)&cw->wallPos[0] = 0;
-        *(int *)&cw->wallPos[1] = 0;
-        cw->wall = 0;
+        cw->climb.wallSrc[0] = 0;
+        cw->climb.wallSrc[1] = 0;
+        cw->climb.wall = 0;
         cw->wallHit = 0;
     }
 
@@ -1502,14 +1481,9 @@ int CheckChainClimbablePos(GObj *chain)
     return 0;
 }
 
-typedef struct ClimbCol { /* field names derived */
-    int hitPos[2];        /* the wall hit point */
-    int wall;             /* the wall hit */
-} ClimbCol;
-
 void GetChainClimbCollision(ClimbCol *dst, GObj *chain)
 {
-    *dst = *(ClimbCol *)((ChainRecord *)GOBJ_SUB(chain)->work)->wallPos;
+    *dst = ((ChainRecord *)GOBJ_SUB(chain)->work)->climb;
 }
 
 void SetChainParentGObj(GObj *chain, void *parent)

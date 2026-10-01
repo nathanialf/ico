@@ -8,6 +8,7 @@
 #include "lws_kyomi.h"
 #include "main.h"
 #include "geometryManager.h"
+#include "brain.h"
 
 struct HintInfo { /* field names derived */
     int anim;     /* the stage animation the hint plays */
@@ -34,16 +35,6 @@ static struct {
     char save[8];    /* 0x00 */
     float timer[28]; /* 0x08 */
 } hintWork;          /* derived name */
-
-/* brain.c's, declared here and not through brain.h: this file puts
-   brainSetLevelGop's level second where brain.c's definition has it last.
-   The level travels in $f12 in either order; the ROM's call loads it before
-   the two flags, which is the order this declaration gives (brain.h's order
-   moves .text at 0x608). */
-extern Brain brainGirl;
-extern void brainStatusDefaultSet(Brain *b, GObj *gobj, int idx);
-extern void brainSubLevelGop(GObj *gobj, float lv);
-extern void brainSetLevelGop(GObj *gobj, float lv, int lookOnly, int alwaysSeen);
 
 /* the record a new hint GObj starts from: no stage, no hint, no time, no
    flags */

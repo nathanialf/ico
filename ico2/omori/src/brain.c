@@ -400,7 +400,7 @@ void brainSubLevelGop(GObj *gobj, float lv)
     }
 }
 
-void brainSetLevelGop(GObj *gobj, int lookOnly, int alwaysSeen, float lv)
+void brainSetLevelGop(GObj *gobj, float lv, int lookOnly, int alwaysSeen)
 {
     int brain = (int)&brainGirl;
     int tgt = brain + 0x28;

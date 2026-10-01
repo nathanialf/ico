@@ -75,7 +75,7 @@ typedef struct PObjPart { /* field names derived */
     void *strips;            /* 0x100 */
     unsigned int stripCount; /* 0x104 */
     char pad108[8];
-    char *lines;            /* 0x110, 80 bytes a line */
+    struct PObjLine *lines; /* 0x110 */
     unsigned int lineCount; /* 0x114 */
     char pad118[8];
     PObjMorph **morphs;      /* 0x120 */

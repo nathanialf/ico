@@ -26,6 +26,7 @@ void *GetCameraPos(void);
 int *GetCurrentCameraSet2(void);
 void InitCamera(void);
 void InsertCamera_Exec(float *cam, int *cut, int *cutType, int *enable);
+void InsertCamera_Set(float *pos, float *tgt, int frames);
 
 void InsertCamera_SetDetail(float *pos, float *tgt, int frames, int cutType, int zoom, int cutBack,
                             float blend);

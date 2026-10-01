@@ -10,13 +10,23 @@
 
 struct GObj;
 
+/* the wall a chain hangs against: the element pair and the wall record
+   ClipWall returned for it (a FcWallEnt record; held as void *, the type
+   moves .text in InitChainGeo) */
+typedef struct ClimbCol { /* field names derived */
+    int wallSrc[2];
+    void *wall;
+} ClimbCol;
+
 void ChainGeo(struct GObj *gobj);
 void ChainPositionReset(struct GObj *chain);
 int CheckChainClimbablePos(struct GObj *chain);
 void EnableChainHang(struct GObj *chain);
-struct ClimbCol;
+
 struct ChainNode;
+
 struct ChainPendulum;
+
 void GetChainClimbCollision(struct ClimbCol *dst, struct GObj *chain);
 void GetChainClimbOrient(float *dst, struct GObj *chain);
 int GetChainDirCorrectVal(struct GObj *chain, int *deg);

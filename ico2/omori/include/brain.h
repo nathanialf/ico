@@ -14,12 +14,16 @@
 extern Brain brainGirl;
 void OverrideBrainStatusByGObj(Brain *b, GObj *gobj, float levelCap, float rate, float capStep);
 void brainAddLevelGirl(float lv);
+void brainAddLevelGirlDetail(int flag, float lv);
 int brainCheckView(Brain *b, BrainTarget *t);
 void brainClsTargetLevel(Brain *b);
+float brainGetLevel(Brain *b, BrainTarget *t);
+void brainGetTarget(Brain *b);
 void brainInit(void);
 void brainInitGirlSet(void *girl, int cur);
+void brainLevelProcess(Brain *b);
 void brainLockGirl(void);
-void brainSetLevelGop(GObj *gobj, int lookOnly, int alwaysSeen, float lv);
+void brainSetLevelGop(GObj *gobj, float lv, int lookOnly, int alwaysSeen);
 void brainSetSpMode(void);
 void brainStatusDefaultSet(Brain *b, GObj *gobj, int idx);
 void brainSubLevelGop(GObj *gobj, float lv);

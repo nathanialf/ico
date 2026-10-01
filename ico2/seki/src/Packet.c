@@ -647,7 +647,10 @@ typedef struct { /* field names derived */
     unsigned int mode : 1;
 } PacMatMode; /* derived name */
 
-/* Copy a finished packet down into a fresh seki-heap block. */
+/* Copy a finished packet down into a fresh seki-heap block.  The packet
+   builder holds its packet addresses as words (pacWork's tags and cursor,
+   pac_makeStrip's pkt and dst) and masks the segment bits off them, so the
+   heap's pointers are kept as ints here and there. */
 static inline int pac_moveToSeki(int src, int size) /* derived name */
 {
     int p;
@@ -868,7 +871,7 @@ void pac_setMaterialPacket(PObjMaterial *ent)
     *(int *)(p + 4) = 0;
 }
 
-void pac_makeMaterialTable(PObjGroup *out, PObjPart *obj, int p2, int p3, unsigned int p4)
+void pac_makeMaterialTable(PObjGroup *out, PObjPart *obj, int variant, int blend, unsigned int mode)
 {
     PObjMaterial *tbl;
     PObjMaterial *ent;
@@ -887,13 +890,13 @@ void pac_makeMaterialTable(PObjGroup *out, PObjPart *obj, int p2, int p3, unsign
         flag = src->alpha >= 0.501960814f;
         a = src->wrap;
         x = src->fbaOff == 0;
-        if (p4 != 0)
+        if (mode != 0)
             x = debug_shadow_flag == 1;
-        ent->attr.b.mode = p4;
-        ent->attr.b.blend = flag * p3;
+        ent->attr.b.mode = mode;
+        ent->attr.b.blend = flag * blend;
         ent->attr.b.wrap = (a < 4) ? a : 3;
         ent->attr.b.fba = x;
-        ent->attr.b.variant = obj->nrm ? p2 : 0;
+        ent->attr.b.variant = obj->nrm ? variant : 0;
         ent->attr.b.hasUv = obj->uv != 0;
         ent->attr.b.hasCol = obj->col != 0;
         pac_setMaterialPacket(ent);
@@ -912,7 +915,8 @@ typedef struct MatLine {        /* field names derived */
     short texCount;             /* 0x0E */
 } MatLine;                      /* derived name */
 
-void pac_makeMaterialTableLine(MatLine *out, PObjPart *obj, int p2, int p3, unsigned int p4)
+void pac_makeMaterialTableLine(MatLine *out, PObjPart *obj, int variant, int blend,
+                               unsigned int mode)
 {
     PObjMaterial *tbl;
     PObjMaterial *ent;
@@ -929,13 +933,13 @@ void pac_makeMaterialTableLine(MatLine *out, PObjPart *obj, int p2, int p3, unsi
         flag = src->alpha >= 0.501960814f;
         a = src->wrap;
         x = src->fbaOff == 0;
-        ent->attr.b.mode = p4;
-        ent->attr.b.blend = flag * p3;
+        ent->attr.b.mode = mode;
+        ent->attr.b.blend = flag * blend;
         if (a >= 4)
             a = 3;
         ent->attr.b.wrap = a;
         ent->attr.b.fba = x;
-        ent->attr.b.variant = obj->nrm ? p2 : 0;
+        ent->attr.b.variant = obj->nrm ? variant : 0;
         ent->attr.b.hasUv = obj->uv != 0;
         ent->attr.b.hasCol = obj->col != 0;
         pac_setMaterialPacket(ent);
@@ -1057,6 +1061,22 @@ void pac_makeShapeTable(PObjGroup *grp, PObjPart *obj)
     obj->morphs = (PObjMorph **)ntbl;
 }
 
+/* one line of a line part, 80 bytes: its two vertex indices, two uv indices
+   and two colour indices, the vertex count (1 a point, 2 a line), the
+   material and the texture slot (-1 for none) */
+typedef struct PObjLine { /* field names derived */
+    int vtx[2];           /* 0x00 */
+    char pad08[24];
+    int uv[2]; /* 0x20 */
+    char pad28[8];
+    int col[2]; /* 0x30 */
+    char pad38[8];
+    int num; /* 0x40 */
+    char pad44[4];
+    int mat; /* 0x48 */
+    int tex; /* 0x4C */
+} PObjLine;  /* derived name */
+
 /* The views pac_makePacket writes through. PacLine is a 192-byte line
    record; the strips are Packet.h's PacHeader. */
 typedef struct { /* field names derived */
@@ -1066,8 +1086,11 @@ typedef struct { /* field names derived */
     unsigned char a;
 } PacColor; /* derived name */
 
-typedef struct { /* field names derived */
-    sceVu0FVECTOR pad[11];
+typedef struct {          /* field names derived */
+    sceVu0FVECTOR pos[2]; /* 0x00, the two vertices */
+    sceVu0FVECTOR pad20;
+    sceVu0FVECTOR uv[2]; /* 0x30, the two texture coordinates */
+    sceVu0FVECTOR pad50[6];
     PacColor col0;
     PacColor col1;
     unsigned short tex : 11;
@@ -1079,7 +1102,7 @@ typedef struct { /* field names derived */
    at +0xC, which RegistPacket.c's line display walks */
 typedef struct PacLineSet { /* field names derived */
     char pad00[12];
-    char *lines; /* 0x0C */
+    PacLine *lines; /* 0x0C */
     char pad10[128];
 } PacLineSet; /* derived name */
 
@@ -1120,7 +1143,7 @@ static inline void pac_makeTextureTableLine(MatLine *dst, PObjPart *src) /* deri
 /* prev builds the strip chain and then walks it for the clone, j counts the
    materials, m the texture slots, and j then the line records; out is the packet address pac_makeStrip
    returns. */
-void pac_makePacket(PObjModel *obj, int a1, int a2)
+void pac_makePacket(PObjModel *obj, int variant, int mode)
 {
     char *out;
     int lod;
@@ -1132,8 +1155,8 @@ void pac_makePacket(PObjModel *obj, int a1, int a2)
     PacHeader *prev;
     PacHeader *p;
     PacHeader *last;
-    char *top;
-    char *line;
+    PacLine *top;
+    PObjLine *line;
     char *vtx;
     char *uv;
     char *idx;
@@ -1166,7 +1189,7 @@ void pac_makePacket(PObjModel *obj, int a1, int a2)
             src = &obj->parts[i];
             ntex = src->texCount;
             nmat = src->matCount;
-            pac_makeMaterialTable(tbl, src, a1, lod, a2);
+            pac_makeMaterialTable(tbl, src, variant, lod, mode);
             pac_makeTextureTable(tbl, src);
             if (src->morphCount != 0)
                 pac_makeShapeTable(tbl, src);
@@ -1230,54 +1253,54 @@ void pac_makePacket(PObjModel *obj, int a1, int a2)
         }
     } else {
         PObjPart *src;
-        char *p;
+        PacLine *p;
 
         for (i = 0; i < obj->partCount; i++) {
             src = &obj->parts[i];
             line = src->lines;
-            p = (char *)mallocseki((src->lineCount + 1) * 192);
+            p = mallocseki((src->lineCount + 1) * 192);
             vtx = src->vtx;
             uv = src->uv;
             idx = src->col;
-            pac_makeMaterialTableLine(mtbl, src, a1, lod, a2);
+            pac_makeMaterialTableLine(mtbl, src, variant, lod, mode);
             pac_makeTextureTableLine(mtbl, src);
             obj->mode.s.type = 2;
             top = p;
             for (j = 0; j < src->lineCount; j++) {
-                ((PacLine *)p)->type = *(unsigned short *)(line + 0x40);
-                switch (((PacLine *)p)->type) {
+                p->type = line->num;
+                switch (p->type) {
                 case 1:
-                    _CopyVector(p, vtx + *(int *)line * 16);
-                    ((PacLine *)p)->col0 = ((PacColor *)idx)[*(int *)(line + 0x30)];
-                    ((PacLine *)p)->blend = 0.5019608f <= src->mats[*(int *)(line + 0x48)].alpha;
+                    _CopyVector(p->pos[0], vtx + line->vtx[0] * 16);
+                    p->col0 = ((PacColor *)idx)[line->col[0]];
+                    p->blend = 0.5019608f <= src->mats[line->mat].alpha;
                     break;
                 case 2:
-                    _CopyVector(p, vtx + *(int *)line * 16);
-                    _CopyVector(p + 16, vtx + *(int *)(line + 4) * 16);
-                    *(float *)(p + 0x30) = *(float *)(uv + *(int *)(line + 0x20) * 16);
-                    *(float *)(p + 0x34) = *(float *)(uv + *(int *)(line + 0x20) * 16 + 4);
-                    *(float *)(p + 0x40) = *(float *)(uv + *(int *)(line + 0x24) * 16);
-                    *(float *)(p + 0x44) = *(float *)(uv + *(int *)(line + 0x24) * 16 + 4);
-                    *(float *)(p + 0x38) = 1.0f;
-                    *(float *)(p + 0x4C) = 0.0f;
-                    ((PacLine *)p)->col0 = ((PacColor *)idx)[*(int *)(line + 0x30)];
-                    ((PacLine *)p)->col1 = ((PacColor *)idx)[*(int *)(line + 0x34)];
-                    ((PacLine *)p)->blend = 0.5019608f <= src->mats[*(int *)(line + 0x48)].alpha;
-                    if (*(int *)(line + 0x4C) >= 0)
-                        ((PacLine *)p)->tex = mtbl->texs[*(int *)(line + 0x4C)].tex;
+                    _CopyVector(p->pos[0], vtx + line->vtx[0] * 16);
+                    _CopyVector(p->pos[1], vtx + line->vtx[1] * 16);
+                    p->uv[0][0] = *(float *)(uv + line->uv[0] * 16);
+                    p->uv[0][1] = *(float *)(uv + line->uv[0] * 16 + 4);
+                    p->uv[1][0] = *(float *)(uv + line->uv[1] * 16);
+                    p->uv[1][1] = *(float *)(uv + line->uv[1] * 16 + 4);
+                    p->uv[0][2] = 1.0f;
+                    p->uv[1][3] = 0.0f;
+                    p->col0 = ((PacColor *)idx)[line->col[0]];
+                    p->col1 = ((PacColor *)idx)[line->col[1]];
+                    p->blend = 0.5019608f <= src->mats[line->mat].alpha;
+                    if (line->tex >= 0)
+                        p->tex = mtbl->texs[line->tex].tex;
                     else
-                        ((PacLine *)p)->tex = -1;
+                        p->tex = -1;
                     break;
                 default:
-                    debug_StdPrintfDummy("illegal vertex num %d\n", *(int *)(line + 0x40));
+                    debug_StdPrintfDummy("illegal vertex num %d\n", line->num);
                     debug_assert("src/Packet.c", 1845);
                     __assert("src/Packet.c", 1845, "0");
                     break;
                 }
-                line += 80;
-                p += 192;
+                line++;
+                p++;
             }
-            ((PacLine *)(p + src->lineCount * 192))->type = 0;
+            p[src->lineCount].type = 0;
             mtbl->lineSet = mallocseki(144);
             mtbl->lineSet->lines = top;
             mtbl++;

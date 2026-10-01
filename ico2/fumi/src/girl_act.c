@@ -1366,7 +1366,7 @@ void subGirlBrainMain(GObj *volatile a0)
             lv = (float)GOBJ_WORK(a0)->brainTimer * 10.0f /
                  (_ACTGame_GetParamF(0) * (float)((60 - systemStatus[0] * 10) / systemStatus[1]));
             if (lv > 2.0f) {
-                brainSetLevelGop((int)((int *)boyGObj), 0, 1, lv);
+                brainSetLevelGop(boyGObj, lv, 0, 1);
             } else {
                 GOBJ_WORK(a0)->brainTimer = 0;
             }

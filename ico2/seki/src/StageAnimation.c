@@ -93,15 +93,6 @@ static int *bgaPlayList; /* derived name */
 
 static StageAnim stageAnimTable[87]; /* derived name */
 
-/* The layout record a stage object is made with and handed to its init
-   function: position, rotation, scale and a flag word. */
-typedef struct {         /* field names derived */
-    sceVu0FVECTOR pos;   /* 0x00 */
-    sceVu0FVECTOR rot;   /* 0x10 */
-    sceVu0FVECTOR scale; /* 0x20 */
-    int flag;            /* 0x30 */
-} StageGObjInit;         /* derived name */
-
 #include "ios.h"
 #include <stdio.h>
 
@@ -117,10 +108,10 @@ extern StageAnimDef stageTable[];
 
 void stage_MakeGObj(int *dat, int no)
 {
-    StageGObjInit init = {{0.0f, 0.0f, 0.0f, 1.0f}, {0.0f}, {1.0f, 1.0f, 1.0f, 1.0f}};
+    SObjSimpleSetting init = {{0.0f, 0.0f, 0.0f, 1.0f}, {0.0f}, {1.0f, 1.0f, 1.0f, 1.0f}};
     int i;
     GObj *g;
-    char *d;
+    Sub15C *d;
     int w;
     int kind = dat[0];
     int aux = dat[1];
@@ -146,11 +137,11 @@ void stage_MakeGObj(int *dat, int no)
     isysGObjProcAdd(g, 0, 1, 0x17);
     isysGObjProcAdd(g, 0, 1, 0x18);
     isysGObjLinkObjDL(g, 0, 0, 7, 0xFFFFFFFF);
-    *(int *)((char *)g + 0x24) = 0;
+    g->word24 = 0;
     e->obj[e->flags.b.count] = g;
     d = CSVSYSTEM_InitDObj(kind, &init);
     *(int *)&g->dobj = (int)d;
-    *(int *)(d + 0x80) = 1;
+    d->colPerNode = 1;
     e->data[e->flags.b.count] = dat;
     w = (e->flags.i & ~0x3FF) | ((e->flags.b.count + 1) & 0x3FF);
     e->flags.i = w;
@@ -220,7 +211,7 @@ int stage_Init(void)
 {
     const StgObjDat *p = 0;
     const int *tbl[2] = {&stageData[stage_no].animLayoutFirst, &stageData[stage_no].labelTop};
-    StageGObjInit arg;
+    SObjSimpleSetting arg;
     int max = 0;
     int m;
     int i;
@@ -400,7 +391,7 @@ int stage_Init(void)
                 continue;
             }
             for (k = 0; k < e->flags.b.count; k++) {
-                static const StageGObjInit stageGObjArg = /* derived name */
+                static const SObjSimpleSetting stageGObjArg = /* derived name */
                     {{0.0f, 0.0f, 0.0f, 1.0f}, {0.0f}, {1.0f, 1.0f, 1.0f, 1.0f}, 1};
 
                 g = e->obj[k];
