@@ -32,6 +32,8 @@
 #include "item.h"
 #include "commonact.h"
 #include "obj_manager.h"
+#include "gv.h"
+#include "fieldCollision.h"
 
 typedef struct {
     char _0[0x1C];
@@ -100,8 +102,6 @@ typedef struct {
 
 /* kept local: char * here, GObj * in main.h */
 extern char *girlGObj;
-/* kept local: void (void *, float) here, void (float *, float) in gv.h */
-extern void _ApplyRyGV(void *v, float ry);
 /* kept local: char * here, GObj * in main.h */
 extern char *boyGObj;
 /* kept local: agrees with boyact.h, which this TU does not include (PrivInsCamSet differ) */
@@ -111,10 +111,6 @@ extern void BoyInfoUpdate_StageChange(void);
 extern const StgPre stageData[];
 /* kept local: char * here, GObj * in main.h */
 extern char *boyGObj;
-/* kept local: float (void *, void *) here, void (void *, void *) in gv.h */
-extern float _DistGV(void *a, void *b);
-/* kept local: int (void *, void *) here, int (float *, float *) in gv.h */
-extern int _RotyGV(void *a, void *b);
 
 /* One table: a 100-entry object list, two parallel per-entry int arrays
    (the full view result and the simple one), the entry count and the
@@ -132,12 +128,6 @@ typedef struct {
    anywhere in the ROM and stay in the blob. */
 static ActGameViewTbl actGameView;
 
-/* kept local: void (void *) here, int (void *) in fieldCollision.h */
-extern void ClipWall(void *);
-/* kept local: void (void *) here, int (void *) in fieldCollision.h */
-extern void ClipFloor(void *);
-/* kept local: float (void *, void *) here, void (void *, void *) in gv.h */
-extern float _DistxzSqGV(void *a, void *b);
 /* kept local: agrees with main.h, which this TU does not include (boyGObj, girlControlMode differ) */
 extern int systemStatus[];
 extern char actModeTbl[];
@@ -178,12 +168,6 @@ typedef struct {
 
 /* kept local: agrees with weapon.h, which this TU does not include (GetTorchGObjOfWeapon differ) */
 extern int CheckWeaponKind();
-/* kept local: int (int, int) here, int (unsigned int, unsigned int) in fieldCollision.h */
-extern int CompareAttribute(int attr, int mask);
-/* kept local: void (void *, int, void *) here, void (void *, void *, int *) in fieldCollision.h */
-extern void GetOrientOfWall(void *out, int n, void *vec);
-/* kept local: void (void *, void *) here, void (float *, float *) in gv.h */
-extern void SwapGV(void *a, void *b);
 /* kept local: char * here, int in main.h */
 extern char *girlControlMode;
 
@@ -221,12 +205,6 @@ typedef struct {
 } HandModeRow;
 
 extern HandModeRow motionIKEffKind[];
-/* kept local: float (int *, int) here, void (void *, void *) in gv.h */
-extern float _DistSqGV(int *a0, int a1);
-/* kept local: void (void *, void *, void *) here, void (int) in gv.h */
-extern void _OrientXZGV(void *dst, void *a, void *b);
-/* kept local: agrees with gv.h, which this TU does not include (_ApplyRyGV, _DistGV differ) */
-extern int _AbsRotyGV(void *a, void *b);
 /* kept local: brain.h is not in this TU's include list and does not declare
    brainAddLevelGirlDetail */
 extern void brainAddLevelGirlDetail(int a0, float f);
@@ -256,13 +234,7 @@ typedef struct {
 
 /* kept local: int (int *) here, int (char *) in weapon.h */
 extern int GetTorchGObjOfWeapon(int *self);
-/* kept local: void (void *) here, int (void *) in fieldCollision.h */
-extern void ClipWallField(void *);
 extern WeaponEntry weaponKind[];
-/* kept local: float (void *) here, float (float *) in gv.h */
-extern float _GetDirection(void *v);
-/* kept local: void (float *, float *, float *) here, void (int) in gv.h */
-extern void _OrientGV(float *dst, float *a, float *b);
 
 inline void ACTGameCollisionOff(volatile int *self)
 {

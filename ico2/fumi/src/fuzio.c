@@ -35,7 +35,7 @@ float fzMagnitude3f(float x, float y, float z)
     return FSqrt(x * x + y * y + z * z);
 }
 
-float fzMagnitudefv(int v)
+float fzMagnitudefv(float *v)
 {
     return FSqrt(sceVu0InnerProduct(v, v));
 }

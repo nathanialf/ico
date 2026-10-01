@@ -17,6 +17,7 @@
 #include "layout_texture.h"
 #include "Matrix.h"
 #include "gobj.h"
+#include "way_kidnap.h"
 
 /* .sdata, owned by backStage.o (VMA 0x63ACF0..0x63ACFC): the enemy the heroine is
    carried off by, then backStageProcessOutStage's "%d\n" (MAIN.MAP global). */
@@ -114,22 +115,10 @@ extern GamesysObjInfoBackstage *gamesysObjInfoPosNewStageSet(int no, int kind, i
 extern void SetInfoSpKidnapGenerator(int *work);
 /* kept local: void (int *) here, void (void) in generator.h */
 extern void SetInfoSpKidnapEnemy(int *work);
-/* kept local: int (float *) here, void * (float *) in way_kidnap.h */
-extern int NearestEnemyFromGirl(float *dist);
 /* kept local: agrees with gamesys.h, which this TU does not include (gameSysObjInfo, gamesysMemoryHandlerRead differ) */
 extern int *gamesysObjInfoPosSetStage(int *self, int a1, int a2, int a3);
-/* kept local: agrees with way_kidnap.h, which this TU does not include (CopyWpPos, NearestEnemyFromGirl differ) */
-extern float WayLengthOfPos_Pos(float *a, float *b);
-/* kept local: int (float *, void *, float *, int) here, int (float *, struct WayWork *, float *, int) in way_kidnap.h */
-extern int WayPointWithRangeFromPos2(float *pos, void *a1, float *out, int flag);
 /* kept local: agrees with gamesys.h, which this TU does not include (gameSysObjInfo, gamesysMemoryHandlerRead differ) */
 extern void gamesysObjInfoCls(int kind, int no);
-/* kept local: agrees with way_kidnap.h, which this TU does not include (CopyWpPos, NearestEnemyFromGirl differ) */
-extern float WayLengthOfGObj_GObj(void *obj0, void *obj1);
-/* kept local: agrees with way_kidnap.h, which this TU does not include (CopyWpPos, NearestEnemyFromGirl differ) */
-extern int NumOfWpPos(void);
-/* kept local: void (float *, int, int) here, int (float [][4], int, int) in way_kidnap.h */
-extern void CopyWpPos(float *out, int i, int j);
 /* kept local: agrees with main.h, which this TU does not include (girlGObj differ) */
 extern int systemStatus[];
 /* kept local with gamesys.h's declaration, which this TU does not include */
@@ -139,8 +128,6 @@ extern int gamesysStageExitTime[];
 extern unsigned int gamesysTimeCount;
 /* kept local: int here, GObj * in main.h */
 extern int girlGObj;
-/* kept local: void (float *, float, int) here, int (float *, int, float) in way_kidnap.h */
-extern void WayPointWithRangeFromPos(float *pos, float range, int flag);
 
 inline void backStageProcessInit(void)
 {

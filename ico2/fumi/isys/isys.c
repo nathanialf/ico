@@ -6,9 +6,9 @@
    ends in .data, the active masks, the camera display list ends and the
    current object and process in .sdata.  All are tentative definitions, which
    the compiler emits at the end of the file in this order. */
-int *gobj_link_head[8];
+GObj *gobj_link_head[8];
 
-int *gobj_link_tail[8];
+GObj *gobj_link_tail[8];
 
 int *gobj_dl_link_head[8];
 

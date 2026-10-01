@@ -10,71 +10,25 @@
 #include "tableSin.h"
 #include "fuzio.h"
 #include "way_util.h"
-
-typedef struct {
-    int pad[8];
-    int f20;
-    int pad2[7];
-} WVTElem;
-
-typedef struct Nd {
-    /* 0x00 */ int _0;
-    /* 0x04 */ int f4;
-    /* 0x08 */ struct Nd *f8;
-    /* 0x0C */ struct Nd *fC;
-    /* 0x10 */ float pos[4];
-    /* 0x20 */ int f20;
-    /* 0x24 */ int f24;
-    /* 0x28 */ int f28;
-    /* 0x2C */ char pad2C[0x14];
-} Nd;
-
-/* One way group record, 52 bytes; only the words this TU reads or writes are
-   named. */
-typedef struct {
-    char pad00[0x8]; /* 0x00 */
-    char *f8;        /* 0x08 */
-    char *fC;        /* 0x0C */
-    int f10;         /* 0x10 */
-    int f14;         /* 0x14 */
-    int f18;         /* 0x18 */
-    int f1C;         /* 0x1C */
-    int f20;         /* 0x20 */
-    int f24;         /* 0x24 */
-    int f28;         /* 0x28 */
-    char pad2C[0x8]; /* 0x2C */
-} WayGroup;
-
-extern WayGroup way_group[];
-extern Nd way_point[];
-
-typedef struct WgAll2 {
-    int f0, f4, f8, fC, f10, f14, f18;
-} WgAll2;
-
-extern int shortest_path(int from, int to, WgAll2 *w);
-extern int shortest_path_ThreadVersion(int from, int to, WgAll2 *w);
-extern int GetWgAll(int from, int to, WgAll2 *w);
-extern int NearestWgFromTarget(int cur, int end, WgAll2 *w);
-extern void set_check_wp(void *out, int wp, int gid);
+#include "fieldCollision.h"
 
 int _FUNC_GetWay_begin(void *a0, WVTObj *w, int a2, int a3)
 {
-    char *(*findTemp)(void *, int);
-    char *(*findGid)(void *, int);
-    int (*findPath)(int, int, WgAll2 *);
-    char *ret;
-    WgAll2 *work;
-    char *wp0;
-    char *wp;
+    WayPoint *(*findTemp)(float *, int);
+    WayPoint *(*findGid)(float *, int);
+    int (*findPath)(int, int, WgAll *);
+    WayPoint *ret;
+    WgAll *work;
+    WayPoint *wp0;
+    WayPoint *wp;
     int g0;
     int g1;
     int r;
     int gid;
-    char *wpn;
+    WayPoint *wpn;
 
     ret = 0;
-    work = (WgAll2 *)WayUtilWorkAlloc();
+    work = WayUtilWorkAlloc();
     if (a3) {
         findTemp = visible_waypoint_of_all_except_temp_ThreadVersion;
 
@@ -94,7 +48,7 @@ int _FUNC_GetWay_begin(void *a0, WVTObj *w, int a2, int a3)
 
     if ((unsigned int)w->w30 < (unsigned int)(lock_execIcoMisc - 1) || w->w2C == 0) {
         if (w->w64 >= 0) {
-            wp = findTemp((void *)a2, ((WVTElem *)way_point)[w->w64].f20);
+            wp = findTemp((void *)a2, way_point[w->w64].f20);
         } else {
             wp = findTemp((void *)a2, -1);
         }
@@ -102,9 +56,9 @@ int _FUNC_GetWay_begin(void *a0, WVTObj *w, int a2, int a3)
         w->w2C = wp;
     } else {
         if (w->w64 >= 0) {
-            wp = findTemp(w->w2C + 0x10, ((WVTElem *)way_point)[w->w64].f20);
+            wp = findTemp(w->w2C->pos, way_point[w->w64].f20);
         } else {
-            wp = findTemp(w->w2C + 0x10, -1);
+            wp = findTemp(w->w2C->pos, -1);
         }
     }
 
@@ -112,8 +66,8 @@ int _FUNC_GetWay_begin(void *a0, WVTObj *w, int a2, int a3)
         goto out;
     }
 
-    if (way_group[*(int *)(wp + 0x20)].f28 == 0) {
-        wp = findGid((void *)a2, *(int *)(wp + 0x20));
+    if (way_group[wp->f20].f28 == 0) {
+        wp = findGid((void *)a2, wp->f20);
         if (wp == 0) {
             goto out;
         }
@@ -124,13 +78,13 @@ int _FUNC_GetWay_begin(void *a0, WVTObj *w, int a2, int a3)
     w->w30 = lock_execIcoMisc;
     DeleteGuideWay(w);
     debug_StdPrintfDummy("GetWay_begin\n");
-    debug_StdPrintfDummy("gid t:%d m:%d\n", *(int *)(wp0 + 0x20), *(int *)(wp + 0x20));
+    debug_StdPrintfDummy("gid t:%d m:%d\n", wp0->f20, wp->f20);
 
-    w->w60 = *(int *)(wp + 0x20);
+    w->w60 = wp->f20;
     sceVu0CopyVector(w->pos, a0);
 
-    g0 = *(int *)(wp0 + 0x20);
-    g1 = *(int *)(wp + 0x20);
+    g0 = wp0->f20;
+    g1 = wp->f20;
 
     w->w44 = 0;
     w->w64 = -1;
@@ -144,9 +98,9 @@ int _FUNC_GetWay_begin(void *a0, WVTObj *w, int a2, int a3)
         if (w->w34 == -2) {
             goto out;
         }
-        w->w20 = wp;
-        w->w24 = wp0;
-        w->w28 = 0;
+        w->chk.f0 = wp;
+        w->chk.f4 = wp0;
+        w->chk.f8 = 0;
 
         ret = wp;
         goto out;
@@ -174,7 +128,7 @@ int _FUNC_GetWay_begin(void *a0, WVTObj *w, int a2, int a3)
 
             g0 = gid;
             wp0 = wpn;
-            sceVu0CopyVector(w->pos, wp0 + 0x10);
+            sceVu0CopyVector(w->pos, wp0->pos);
             if (g0 == g1) {
                 debug_StdPrintfDummy("same_group\n");
                 w->w38 = 0;
@@ -183,9 +137,9 @@ int _FUNC_GetWay_begin(void *a0, WVTObj *w, int a2, int a3)
                 if (w->w34 == -2) {
                     goto out;
                 }
-                w->w20 = wp;
-                w->w24 = wp0;
-                w->w28 = 0;
+                w->chk.f0 = wp;
+                w->chk.f4 = wp0;
+                w->chk.f8 = 0;
 
                 w->w6C = 1;
 
@@ -198,26 +152,26 @@ int _FUNC_GetWay_begin(void *a0, WVTObj *w, int a2, int a3)
     w->w38 = 1;
     w->w3C = 1;
     if (r == g0) {
-        WayGroup *a = &way_group[*(int *)(wp + 0x20)];
-        WayGroup *b = &way_group[*(int *)(wp0 + 0x20)];
+        WayGroup *a = &way_group[wp->f20];
+        WayGroup *b = &way_group[wp0->f20];
 
         switch (a->f18) {
         case 1:
             if (wp == a->f8) {
-                if (((WVTElem *)way_point)[a->f20].f20 == r) {
+                if (way_point[a->end[0]].f20 == r) {
                     w->w3C = 0;
                 }
             } else if (wp == a->fC) {
-                if (((WVTElem *)way_point)[a->f24].f20 == r) {
+                if (way_point[a->end[1]].f20 == r) {
                     w->w3C = 0;
                 }
             }
             break;
 
         case 0:
-            if (*(int *)(wp + 4) == b->f20) {
+            if (wp->f4 == b->end[0]) {
                 w->w3C = 0;
-            } else if (*(int *)(wp + 4) == b->f24) {
+            } else if (wp->f4 == b->end[1]) {
                 w->w3C = 0;
             }
             break;
@@ -240,14 +194,14 @@ int _FUNC_GetWay_begin(void *a0, WVTObj *w, int a2, int a3)
         }
         goto out;
     }
-    set_check_wp(&w->w20, r, g1);
-    w->w20 = wp;
+    set_check_wp(&w->chk, r, g1);
+    w->chk.f0 = wp;
 
-    debug_StdPrintfDummy("wp:%p %p\n", w->w24, wp);
-    debug_StdPrintfDummy("gid:%d %d\n", *(int *)(w->w24 + 0x20), *(int *)(wp + 0x20));
-    w->w34 = short_direction_between_wp(w->w24, wp);
+    debug_StdPrintfDummy("wp:%p %p\n", w->chk.f4, wp);
+    debug_StdPrintfDummy("gid:%d %d\n", w->chk.f4->f20, wp->f20);
+    w->w34 = short_direction_between_wp(w->chk.f4, wp);
     debug_StdPrintfDummy("direction:%d\n", w->w34);
-    ret = w->w20;
+    ret = w->chk.f0;
 
 out:
     WayUtilWorkFree(work);
@@ -278,11 +232,6 @@ typedef struct {
 } __attribute__((aligned(16))) WayClipWork;
 
 typedef float WayVec[4] __attribute__((aligned(16)));
-
-/* kept local: void (void *) here, int (void *) in fieldCollision.h */
-extern void ClipWall(void *cc);
-/* kept local: void (void *) here, int (void *) in fieldCollision.h */
-extern void ClipFloorR(void *cc);
 
 /* The scene's generated-geometry record, 0x4C bytes; this TU reads only the
    kind byte at 0x46 (the same record ico2/common/src/sceneManager.c carves). */
@@ -330,7 +279,7 @@ int avoid_obstacle2(float *pos, float *wp, WVTObj *w)
 
     hold = 0;
     sceVu0CopyVector(cc.p0, pos);
-    sceVu0CopyVector(cc.p1, w->w20 + 0x10);
+    sceVu0CopyVector(cc.p1, w->chk.f0->pos);
     cc.f70 = 20.0f;
     ClipWall(&cc);
     if (cc.wall == 0) {
@@ -350,7 +299,7 @@ int avoid_obstacle2(float *pos, float *wp, WVTObj *w)
             }
             debug_StdPrintfDummy("skip wp\n");
 
-            if (w->w20 != w->w24 || w->w38 != 0) {
+            if (w->chk.f0 != w->chk.f4 || w->w38 != 0) {
                 return 1;
             }
 
@@ -361,7 +310,7 @@ int avoid_obstacle2(float *pos, float *wp, WVTObj *w)
     if (w->w64 >= 0) {
         debug_StdPrintfDummy("delete guide point at avoid\n");
 
-        DeleteWayGroup(((WVTElem *)way_point)[w->w64].f20);
+        DeleteWayGroup(way_point[w->w64].f20);
         w->w64 = -1;
     }
 
@@ -414,7 +363,7 @@ int avoid_obstacle2(float *pos, float *wp, WVTObj *w)
 
         g = CreateTempWayGroup();
         for (j = 0; j < 3; j++) {
-            ids[j] = CreateWayPoint((int)box[(k + j) % 4]);
+            ids[j] = CreateWayPoint(box[(k + j) % 4]);
             AddWayPoint(g, ids[j]);
         }
         debug_StdPrintfDummy("left way %d\n", g);
@@ -426,7 +375,7 @@ int avoid_obstacle2(float *pos, float *wp, WVTObj *w)
 
         g = CreateTempWayGroup();
         for (j = 0; j < 3; j++) {
-            ids[j] = CreateWayPoint((int)box[(k + 4 - j) % 4]);
+            ids[j] = CreateWayPoint(box[(k + 4 - j) % 4]);
             AddWayPoint(g, ids[j]);
         }
         debug_StdPrintfDummy("right way %d\n", g);
@@ -438,22 +387,22 @@ int avoid_obstacle2(float *pos, float *wp, WVTObj *w)
         off[3] = 0.0f;
         sceVu0AddVector(off, off, rp);
         g = CreateTempWayGroup();
-        ids[0] = CreateWayPoint((int)off);
+        ids[0] = CreateWayPoint(off);
         AddWayPoint(g, ids[0]);
         ids[2] = ids[0];
         debug_StdPrintfDummy("up way %d\n", g);
     }
 
     w->w64 = ids[0];
-    w->w28 = w->w20;
-    w->w24 = (char *)&way_point[ids[2]];
-    w->w20 = (char *)&way_point[ids[0]];
+    w->chk.f8 = w->chk.f0;
+    w->chk.f4 = &way_point[ids[2]];
+    w->chk.f0 = &way_point[ids[0]];
 
     w->w38 = 1;
     w->w34 = 1;
 
     if (hold == 1) {
-        w->w28 = 0;
+        w->chk.f8 = 0;
         w->w38 = 0;
     }
 
@@ -517,8 +466,8 @@ void create_box_bridge(char *g)
         if (way_group[id].f18 == 0) {
             DeleteWayGroup(id);
         } else {
-            WVTElem *a = &((WVTElem *)way_point)[way_group[id].f20];
-            WVTElem *b = &((WVTElem *)way_point)[way_group[id].f24];
+            WayPoint *a = &way_point[way_group[id].end[0]];
+            WayPoint *b = &way_point[way_group[id].end[1]];
 
             if (a->f20 == b->f20) {
                 DeleteWayGroup(id);
@@ -529,17 +478,14 @@ void create_box_bridge(char *g)
 
 inline void BridgeBox(void) {}
 
-/* kept local: void (void *) here, int (void *) in fieldCollision.h */
-extern void ClipWallField(void *cc);
-
 /* census rows 853-867: a wall probe between `pos` and a way point, both lifted
    75 units, with a 30-unit radius.  Only ever inlined, so it has no MAIN.MAP
    symbol and the name is ours. */
-static __inline__ int way_wall_between(float *pos, char *wp)
+static __inline__ int way_wall_between(float *pos, WayPoint *wp)
 {
     WayClipWork cc;
     WayVec off;
-    float *p = (float *)(wp + 0x10);
+    float *p = (float *)(wp->pos);
 
     off[0] = 0.0f;
     off[1] = -75.0f;
@@ -560,16 +506,12 @@ inline void DeleteGuideWay(WVTObj *o)
     if (o->w64 >= 0) {
         debug_StdPrintfDummy("delete guide point group:%d\n", o->w64);
         {
-            WVTElem *e = &((WVTElem *)way_point)[o->w64];
+            WayPoint *e = &way_point[o->w64];
             DeleteWayGroup(e->f20);
         }
         o->w64 = -1;
     }
 }
-
-/* kept local: void (void *, int) here, void (char *, int) in fieldCollision.h */
-extern void DrawGObjWallCollision(void *gobj, int col);
-extern char *waypoint_bidirectional_list(char *wp, int dir);
 
 /* the object whose wall collision GetWay_next draws, for debugging */
 static void *wayDebugWallGObj = 0; /* derived name */
@@ -577,39 +519,39 @@ static void *wayDebugWallGObj = 0; /* derived name */
 int GetWay_next(WVTObj *w, float *pos)
 {
     WayVec dv;
-    char *cur;
-    char *nxt;
-    char *p;
+    WayPoint *cur;
+    WayPoint *nxt;
+    float *p;
     int blocked;
     float lim;
 
     w->w30 = lock_execIcoMisc;
-    if (w->w20 == 0 || *(int *)w->w20 == 0) {
+    if (w->chk.f0 == 0 || w->chk.f0->f0 == 0) {
         debug_StdPrintfDummy("illigal way ");
         return 0;
     }
-    ez_circle(w->w2C + 0x10, pos, 0x80800000, 30.0f);
+    ez_circle(w->w2C->pos, pos, 0x80800000, 30.0f);
 
     if (wayDebugWallGObj != 0) {
         DrawGObjWallCollision(wayDebugWallGObj, 0x800000);
     }
 
-    if (w->w20 != 0) {
-        ez_line(pos, w->w20 + 0x10, 0);
-        ez_circle(w->w20 + 0x10, pos, 0x80000080, *(float *)(w->w20 + 0x24));
+    if (w->chk.f0 != 0) {
+        ez_line(pos, w->chk.f0->pos, 0);
+        ez_circle(w->chk.f0->pos, pos, 0x80000080, w->chk.f0->f24);
     }
 
-    if (w->w24 != 0) {
-        ez_line(pos, w->w24 + 0x10, 1);
-        ez_circle(w->w24 + 0x10, pos, 0x80008000, *(float *)(w->w24 + 0x24));
+    if (w->chk.f4 != 0) {
+        ez_line(pos, w->chk.f4->pos, 1);
+        ez_circle(w->chk.f4->pos, pos, 0x80008000, w->chk.f4->f24);
     }
 
-    if (w->w28 != 0) {
-        ez_line(pos, w->w28 + 0x10, 2);
-        ez_circle(w->w28 + 0x10, pos, 0x80800000, *(float *)(w->w28 + 0x24));
+    if (w->chk.f8 != 0) {
+        ez_line(pos, w->chk.f8->pos, 2);
+        ez_circle(w->chk.f8->pos, pos, 0x80800000, w->chk.f8->f24);
     }
 
-    blocked = avoid_obstacle2(pos, w->w20 + 0x10, w);
+    blocked = avoid_obstacle2(pos, w->chk.f0->pos, w);
 
     switch (w->w38) {
     case 1:
@@ -618,22 +560,22 @@ int GetWay_next(WVTObj *w, float *pos)
         if (0) {
             debug_StdPrintfDummy("WGROUP STAT OTHER\n");
         }
-        if (w->w20 != w->w28 && way_group[*(int *)(w->w20 + 0x20)].f18 == 0) {
-            if (way_wall_between(pos, w->w28) == 0) {
-                w->w20 = w->w28;
+        if (w->chk.f0 != w->chk.f8 && way_group[w->chk.f0->f20].f18 == 0) {
+            if (way_wall_between(pos, w->chk.f8) == 0) {
+                w->chk.f0 = w->chk.f8;
                 blocked = 0;
-                debug_StdPrintfDummy("short cut 2:%p\n", w->w20);
+                debug_StdPrintfDummy("short cut 2:%p\n", w->chk.f0);
                 if (w->w64 >= 0) {
                     debug_StdPrintfDummy("delete guide point\n");
-                    DeleteWayGroup(((WVTElem *)way_point)[w->w64].f20);
+                    DeleteWayGroup(way_point[w->w64].f20);
                     w->w64 = -1;
                 }
                 break;
             }
-            nxt = w->w24;
-            while (nxt != w->w20 && w->w64 < 0) {
+            nxt = w->chk.f4;
+            while (nxt != w->chk.f0 && w->w64 < 0) {
                 if (way_wall_between(pos, nxt) == 0) {
-                    w->w20 = nxt;
+                    w->chk.f0 = nxt;
                     blocked = 0;
                     debug_StdPrintfDummy("short cut 1:%p\n", nxt);
                     break;
@@ -647,34 +589,34 @@ int GetWay_next(WVTObj *w, float *pos)
         if (0) {
             debug_StdPrintfDummy("WGROUP STAT SAME\n");
         }
-        nxt = w->w24;
-        while (nxt != w->w20) {
+        nxt = w->chk.f4;
+        while (nxt != w->chk.f0) {
             if (way_wall_between(pos, nxt) == 0) {
-                w->w20 = nxt;
+                w->chk.f0 = nxt;
                 blocked = 0;
                 debug_StdPrintfDummy("short cut 1:%p\n", nxt);
                 break;
             }
             nxt = waypoint_bidirectional_list(nxt, w->w34 ^ 1);
             if (nxt == 0) {
-                nxt = w->w20;
+                nxt = w->chk.f0;
             }
         }
         break;
     }
 
-    cur = w->w20;
-    p = cur + 0x10;
+    cur = w->chk.f0;
+    p = cur->pos;
     ez_line(p, pos, 0xFF000080);
-    ez_line(p, w->w24 + 0x10, 0xFF80);
+    ez_line(p, w->chk.f4->pos, 0xFF80);
 
     sceVu0SubVector(dv, p, pos);
     sceVu0Normalize(w->nrm, dv);
 
-    if (*(float *)(cur + 0x24) == 0.0f) {
+    if (cur->f24 == 0.0f) {
         lim = 50.0f;
     } else {
-        lim = *(float *)(cur + 0x24) * 1.5f;
+        lim = cur->f24 * 1.5f;
     }
 
     if (blocked == 0 && lim < fzMagnitudefv(dv)) {
@@ -692,12 +634,12 @@ int GetWay_next(WVTObj *w, float *pos)
        the first switch's arms (w38 1 is the other-group state, 0 the
        same-group one), and the if (0) form is src/fieldCollision.c's. */
     if (0) {
-        debug_StdPrintfDummy("wp %p myway %p pos %p\n", cur, w->w24, pos);
+        debug_StdPrintfDummy("wp %p myway %p pos %p\n", cur, w->chk.f4, pos);
         debug_StdPrintfDummy("wgroup stat:%d\n", w->w38);
     }
     switch (w->w38) {
     case 0:
-        if (cur == w->w24) {
+        if (cur == w->chk.f4) {
             w->w44 = 1;
             DeleteGuideWay(w);
             return (int)cur;
@@ -705,27 +647,27 @@ int GetWay_next(WVTObj *w, float *pos)
         break;
 
     case 1:
-        if (cur == w->w28) {
+        if (cur == w->chk.f8) {
             w->w44 = 1;
             DeleteGuideWay(w);
-            w->w2C = w->w28;
+            w->w2C = w->chk.f8;
             return (int)cur;
         }
-        if (cur == w->w24) {
+        if (cur == w->chk.f4) {
             debug_StdPrintfDummy("goal wp1\n");
-            w->w20 = w->w28;
+            w->chk.f0 = w->chk.f8;
             if (w->w64 >= 0) {
                 debug_StdPrintfDummy("delete guide point\n");
-                DeleteWayGroup(((WVTElem *)way_point)[w->w64].f20);
+                DeleteWayGroup(way_point[w->w64].f20);
                 w->w64 = -1;
             }
-            w->w2C = w->w24;
-            return (int)w->w20;
+            w->w2C = w->chk.f4;
+            return (int)w->chk.f0;
         }
         break;
     }
 
-    w->w20 = waypoint_bidirectional_list(cur, w->w34);
+    w->chk.f0 = waypoint_bidirectional_list(cur, w->w34);
     /* RECONSTRUCTION: seven short strings of the ROM's small-data pool,
        "reset\n", "hit\n", "free\n", "fail\n", "ev:%f\n", "dst %p\n" and
        "->%p\n", follow this TU's wall-debug pointer with no word of the ROM
@@ -740,11 +682,11 @@ int GetWay_next(WVTObj *w, float *pos)
         debug_StdPrintfDummy("free\n");
         debug_StdPrintfDummy("fail\n");
         debug_StdPrintfDummy("ev:%f\n", lim);
-        debug_StdPrintfDummy("dst %p\n", w->w20);
+        debug_StdPrintfDummy("dst %p\n", w->chk.f0);
         debug_StdPrintfDummy("->%p\n", cur);
     }
-    debug_StdPrintfDummy("bilist:%p\n", w->w20);
-    w->w2C = w->w20;
+    debug_StdPrintfDummy("bilist:%p\n", w->chk.f0);
+    w->w2C = w->chk.f0;
     return (int)w->w2C;
 }
 
@@ -758,15 +700,12 @@ typedef struct NigeEnt {
    GetNearNigePointN fills and sorts by path length. */
 static NigeEnt nigePointTbl[275];
 
-extern WayGroup *WayBridge_begin(void);
-extern WayGroup *WayBridge_next(WayGroup *g);
-
 int GetNearNigePointN(void *out, int num, WVTObj *w, float *pos)
 {
-    Nd *n;
+    WayPoint *n;
     WayGroup *gb;
-    Nd *m;
-    Nd *a;
+    WayPoint *m;
+    WayPoint *a;
     float *bp;
     float d;
     float da;
@@ -775,7 +714,7 @@ int GetNearNigePointN(void *out, int num, WVTObj *w, float *pos)
 
     int cnt = 0;
 
-    Nd *base = (Nd *)visible_waypoint_of_all_except_temp(pos, -1);
+    WayPoint *base = visible_waypoint_of_all_except_temp(pos, -1);
     WayGroup *ga = &way_group[base->f20];
 
     /* census rows 1146-1150 */
@@ -788,7 +727,7 @@ int GetNearNigePointN(void *out, int num, WVTObj *w, float *pos)
     }
 
     /* census rows 1152-1160 */
-    __inline__ int nige_add(NigeEnt * tbl, int n, Nd *e, float d)
+    __inline__ int nige_add(NigeEnt * tbl, int n, WayPoint *e, float d)
     {
         if (e->f28 != 0) {
             tbl[n].id = e->f4;
@@ -811,8 +750,8 @@ int GetNearNigePointN(void *out, int num, WVTObj *w, float *pos)
             n = n->f8;
         }
 
-        m = &way_point[gb->f20];
-        d += _GetLength((char *)gb->f8 + 0x10, m->pos);
+        m = &way_point[gb->end[0]];
+        d += _GetLength(gb->f8->pos, m->pos);
         cnt = nige_add(nigePointTbl, cnt, m, d);
 
         n = base;
@@ -828,8 +767,8 @@ int GetNearNigePointN(void *out, int num, WVTObj *w, float *pos)
             n = n->fC;
         }
 
-        m = &way_point[gb->f24];
-        d += _GetLength((char *)gb->fC + 0x10, m->pos);
+        m = &way_point[gb->end[1]];
+        d += _GetLength(gb->fC->pos, m->pos);
         cnt = nige_add(nigePointTbl, cnt, m, d);
     } else {
         switch (ga->f14) {
@@ -881,18 +820,18 @@ int GetNearNigePointN(void *out, int num, WVTObj *w, float *pos)
         }
 
         for (gb = WayBridge_begin(); gb != 0; gb = WayBridge_next(gb)) {
-            if (gb->f20 == base->f4 || gb->f24 == base->f4) {
-                d = _GetLength(base->pos, gb->f8 + 0x10);
-                m = (Nd *)gb->f8;
+            if (gb->end[0] == base->f4 || gb->end[1] == base->f4) {
+                d = _GetLength(base->pos, gb->f8->pos);
+                m = gb->f8;
                 while (m->fC != 0) {
                     d += _GetLength(m->pos, m->fC->pos);
                     m = m->fC;
                 }
-                d += _GetLength(gb->fC + 0x10, way_point[gb->f24].pos);
-                if (gb->f20 == base->f4) {
-                    cnt = nige_add(nigePointTbl, cnt, &way_point[gb->f24], d);
+                d += _GetLength(gb->fC->pos, way_point[gb->end[1]].pos);
+                if (gb->end[0] == base->f4) {
+                    cnt = nige_add(nigePointTbl, cnt, &way_point[gb->end[1]], d);
                 } else {
-                    cnt = nige_add(nigePointTbl, cnt, &way_point[gb->f20], d);
+                    cnt = nige_add(nigePointTbl, cnt, &way_point[gb->end[0]], d);
                 }
                 w->w68 = 1;
             }

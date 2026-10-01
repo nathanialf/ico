@@ -47,6 +47,7 @@
 #include "boyact.h"
 #include "act-game.h"
 #include "commonact.h"
+#include "fieldCollision.h"
 
 /* script.o's .sdata, in the ROM's order.  MAIN.MAP lists all but the three
    hint-voice words, which the retail build added after scpSeEnvMasterVolRate
@@ -210,8 +211,6 @@ struct WoodBoxEnt {
 extern char *boyPad;
 /* kept local: void (void *) here, void (int *) in motionManager2.h */
 extern void ClearMotionGeometryInfo(void *a0);
-/* kept local: void (void *) here, int (void *) in fieldCollision.h */
-extern void ClipWall(void *w);
 
 /* the wall-collision result the ClipWall work area hands back at +0x80 */
 

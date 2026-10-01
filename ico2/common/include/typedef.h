@@ -127,21 +127,30 @@ typedef struct GeoSub GeoSub; /* *(GeoNode + 0x8)  */
  * words).  Rungs: ROM bytes for every offset, the reading translation units for
  * the roles; names are this repository's. */
 struct GObj {
-    char _pad0[0x4];
-    int f04;                /* 0x4   */
-    int f_8;                /* 0x8   */
-    int kind;               /* 0xC, the object-kind id, -1 when the object has
+    GObj *f0;             /* 0x0, the object itself while its table entry is
+                               in use, 0 when free (gobj.c) */
+    int f04;              /* 0x4   */
+    int f_8;              /* 0x8   */
+    int kind;             /* 0xC, the object-kind id, -1 when the object has
                                  none; it indexes the ObjKindEnt table */
-    char _pad10[0x1C];      /* 0x10 .. 0x2B */
+    GObj *next;           /* 0x10, next object on its run list */
+    GObj *prev;           /* 0x14, previous object on its run list */
+    unsigned char linkId; /* 0x18, which of the eight run lists */
+    char _pad19[0x3];
+    unsigned int key;       /* 0x1C, the run list's sort key */
+    char _pad20[0x8];       /* 0x20 .. 0x27 */
+    void (*fn)(GObj *);     /* 0x28, the object's per-frame function */
     struct GProc *procHead; /* 0x2C, head of the object's process list */
     struct GProc *procTail; /* 0x30, tail of the same list */
-    char _pad34[0xC];       /* 0x34 .. 0x3F */
+    char _pad34[0x8];       /* 0x34 .. 0x3B */
+    GObj *kindNext;         /* 0x3C, next object of the same kind */
     int f40;                /* 0x40  */
     char _pad44[0x4];
-    int f48; /* 0x48  */
-    int f4C; /* 0x4C  */
-    int f50; /* 0x50  */
-    char _pad54[0x8];
+    int f48;           /* 0x48  */
+    int f4C;           /* 0x4C  */
+    int f50;           /* 0x50  */
+    int f54;           /* 0x54  */
+    int f58;           /* 0x58, the count of mails queued from 0x5C */
     int f5C;           /* 0x5C  */
     int f60;           /* 0x60  */
     char _pad64[0xF8]; /* 0x64 .. 0x15B */
@@ -153,6 +162,7 @@ struct GObj {
                                 translation units hang their own record there */
     char _pad168[0x4];
     int f_16C; /* 0x16C */
+    int f_170; /* 0x170 */
 };
 
 struct Sub15C {
@@ -842,11 +852,6 @@ typedef struct ViTs {
     int len;       /* 0x14 bytes the pair covers, 0 when the slot is free */
 } ViTs;
 
-/* RECONSTRUCTION, PLACED BY INCLUDE PATTERN: one record, previously repeated character for character in 2 TUs. */
-typedef struct {
-    int w[13];
-} WayRec;
-
 /* RECONSTRUCTION, PLACED BY INCLUDE PATTERN: one record for 10 TUs that carried 4 divergent local copies; this body is the one the ROM's bytes accept in the most of them. */
 typedef struct Pad {
     int unk00;            /* 0x00 */
@@ -881,20 +886,28 @@ typedef union {
 
 /* RECONSTRUCTION, PLACED BY INCLUDE PATTERN: one record for 30 TUs that carried 8 divergent local copies; this body is the one the ROM's bytes accept in the most of them. */
 typedef struct PObjGObj {
-    char pad00[0x4]; /* 0x000 */
-    int f04;         /* 0x004 */
-    int f08;         /* 0x008 */
-    int kind;        /* 0x00C, the object-kind id, -1 when the object has none */
-    char pad10[0x1C];
+    int f0;               /* 0x000 */
+    int f04;              /* 0x004 */
+    int f08;              /* 0x008 */
+    int kind;             /* 0x00C, the object-kind id, -1 when the object has none */
+    int next;             /* 0x010 */
+    int prev;             /* 0x014 */
+    unsigned char linkId; /* 0x018 */
+    char pad19[0x3];
+    unsigned int key; /* 0x01C */
+    char pad20[0x8];
+    int fn;                 /* 0x028 */
     struct GProc *procHead; /* 0x02C, head of the object's process list */
     struct GProc *procTail; /* 0x030, tail of the same list */
-    char pad34[0xC];
-    int f40; /* 0x040 */
+    char pad34[0x8];
+    int kindNext; /* 0x03C */
+    int f40;      /* 0x040 */
     char pad44[0x4];
     int f48; /* 0x048 */
     int f4C; /* 0x04C */
     int f50; /* 0x050 */
-    char pad54[0x8];
+    int f54; /* 0x054 */
+    int f58; /* 0x058 */
     int f5C; /* 0x05C */
     int f60; /* 0x060 */
     char pad64[0xF8];
@@ -903,6 +916,7 @@ typedef struct PObjGObj {
     int act; /* 0x164, the actor/action-state object */
     char pad168[0x4];
     int f16C; /* 0x16C */
+    int f170; /* 0x170 */
 } PObjGObj;
 
 /* RECONSTRUCTION, PLACED BY INCLUDE PATTERN: one record for 38 TUs that carried 6 divergent local copies; this body is the one the ROM's bytes accept in the most of them. */

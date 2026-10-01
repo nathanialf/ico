@@ -14,7 +14,7 @@
 
 float fzMagnitude2fv(float *p0, float *p1);
 float fzMagnitudeByLineSeg(float *p0, float *p1, float *p2);
-float fzMagnitudefv(int v);
+float fzMagnitudefv(float *v);
 void fzShowV(float *p);
 
 #endif /* FUZIO_H */

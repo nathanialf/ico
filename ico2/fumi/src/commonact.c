@@ -137,6 +137,9 @@ void afterCommonTruckLever(volatile int a0);
 #include "gamesys.h"
 #include "generator.h"
 #include "debug_exception.h"
+#include "gv.h"
+#include "box.h"
+#include "quaternion.h"
 
 typedef struct {
     int a, b, c;
@@ -165,8 +168,6 @@ void ACTSetPositionNodeWithFitting(int a0, int a1, int a2, float a3)
 extern char *boyGObj;
 /* kept local: char * here, GObj * in main.h */
 extern char *girlGObj;
-/* kept local: float (void *, void *) here, void (void *, void *) in gv.h */
-extern float _DistxzSqGV(void *a, void *b);
 
 int ChangeMailInLadder(char *a0, int a1)
 {
@@ -227,10 +228,6 @@ int ChangeMailInLadder(char *a0, int a1)
     return ret;
 }
 
-/* kept local: int (void *, void *) here, int (float *, float *) in gv.h */
-extern int _RotyGV(void *a0, void *a1);
-/* kept local: agrees with gv.h, which this TU does not include (_DistxzSqGV, _GetDirection differ) */
-extern int _AbsRotyGV(void *a0, void *a1);
 void DamageFunc(char *a0);
 
 typedef struct {
@@ -867,14 +864,6 @@ void WithMailFunc_AttackRejectInQueen(char *a0)
 
 /* kept local: int (int, int *) here, int (char *, int *) in chain.h */
 extern int GetChainDirCorrectVal(int chain, int *out);
-/* kept local: float (void *) here, float (float *) in gv.h */
-extern float _GetDirection(void *p);
-/* kept local: agrees with gv.h, which this TU does not include (_DistxzSqGV, _GetDirection differ) */
-extern int RoundDegGV(int deg);
-/* kept local: agrees with gv.h, which this TU does not include (_DistxzSqGV, _GetDirection differ) */
-extern int AlignDegGV(int deg);
-/* kept local: void (void *, float) here, void (float *, float) in gv.h */
-extern void _ApplyRyGV(void *a0, float a1);
 
 void GetCorrectOrientOfChain(void *buf, void *obj)
 {
@@ -902,8 +891,6 @@ void GetCorrectOrientOfChain(void *buf, void *obj)
 
 /* kept local: void (void *) here, int (void *) in fieldCollision.h */
 extern void ClipWall(void *a0);
-/* kept local: void (void *, void *) here, void (float *, float *) in gv.h */
-extern void SwapGV(void *a0, void *a1);
 
 /* reconstruction: the ClipWall work buffer as this function reads it. RsWork
    below is the other view of the same 0xC0-byte record and disagrees at 0x80
@@ -995,8 +982,6 @@ extern void ClipFloor(void *a0);
 extern char motionKind[];
 /* kept local: agrees with main.h, which this TU does not include (boyGObj, girlControlMode differ) */
 extern int systemStatus[];
-/* kept local: int (void *, void *) here, int (float *, float *) in gv.h */
-extern int _RotyGV(void *a0, void *a1);
 /* kept local: agrees with motionManager2.h, which this TU does not include (GetMotionFrameFlag1, GetSkeltonFocusNode differ) */
 extern void SetMotionDirection();
 
@@ -1191,8 +1176,6 @@ void motCommonRopeTurnL(volatile int a0)
     }
 }
 
-/* kept local: agrees with gv.h, which this TU does not include (_DistxzSqGV, _GetDirection differ) */
-extern int _AbsRotyGV(void *a0, void *a1);
 /* kept local: void (void *, int, float *) here, void (char *, int, float *) in chain.h */
 extern void SetChainRootUpdateMode(void *a0, int mode, float *p);
 
@@ -1310,8 +1293,6 @@ typedef union {
     float *f;
 } CagePtr;
 
-/* kept local: void (void *, void *, void *, float, float) here, void (float *, float *, float *, float, float) in gv.h */
-extern void _InterGV(void *dst, void *a, void *b, float ta, float tb);
 /* kept local: void (void *, int, float *) here, void (char *, int, float *) in chain.h */
 extern void SetChainRootUpdateMode(void *a0, int mode, float *p);
 
@@ -1353,8 +1334,6 @@ void actCommonRopeCliff(volatile int a0)
 }
 
 /* SU-E BEGIN TestCageUpDown */
-/* kept local: void (void *, void *, void *, float, float) here, void (float *, float *, float *, float, float) in gv.h */
-extern void _InterGV(void *dst, void *a, void *b, float ta, float tb);
 /* kept local: int (void *, void *) here, int (char *, int) in motionManager2.h */
 extern int GetSkeltonFocusNode(void *a0, void *a1);
 
@@ -1602,11 +1581,6 @@ void actCommonRopeSpecial(volatile int a0)
     }
 }
 
-/* kept local: this TU's uses of SetFloorLeverWithNodePoint do not fit the prototype in box.h */
-extern void SetFloorLeverWithNodePoint(void *a0, void *a1, int a2);
-/* kept local: this TU's uses of SetWallLeverWithNodePoint do not fit the prototype in box.h */
-extern void SetWallLeverWithNodePoint(void *a0, void *a1, int a2);
-
 void lever_nego1(void *a0, void *a1)
 {
     int m = *(int *)((char *)a1 + 0xC);
@@ -1636,11 +1610,6 @@ typedef struct {
     char _0[0x394];
     int f394;
 } LeverAnim;
-
-/* kept local: void (void *, void *) here, void (void *, char *) in box.h */
-extern void GetFloorLeverGlobalHoldPoint(void *out, void *lev);
-/* kept local: agrees with box.h, which this TU does not include (GetFloorLeverGlobalHoldPoint, SetFloorLeverWithNodePoint differ) */
-extern void GetWallLeverGlobalHoldPoint(void *out, void *lev);
 
 /* INTERIM (see the GetSkeltonFocusNode note in src/motionManager2.c): the
    listing inlines ACTMotDirToWall (lines 1307-1312) into actCommonLever, so it
@@ -1861,12 +1830,6 @@ void actCommonDie(volatile int a0)
     }
 }
 
-/* kept local: void (float *, short) here, void (void *, int) in quaternion.h */
-extern void RotQuaternionX(float *q, short a);
-/* kept local: void (float *, short) here, void (void *, int) in quaternion.h */
-extern void RotQuaternionY(float *q, short a);
-/* kept local: void (float *, short) here, void (void *, int) in quaternion.h */
-extern void RotQuaternionZ(float *q, short a);
 /* kept local: void (void *, void *, int, int, float *, float, float, float, float) here, void (char *, char *, float, float, float, int, int, float, void *) in motionManager2.h */
 extern void SetMotionNodeFixModeParameter(void *a, void *b, int c, int d, float *q, float x,
                                           float y, float z, float w);
@@ -1964,9 +1927,6 @@ void actCommonSlip(volatile int a0)
         _ACTWait(1);
     }
 }
-
-/* kept local: void (void *, void *, void *) here, void (int) in gv.h */
-extern void _OrientXZGV(void *out, void *a, void *b);
 
 void actCommonStoneDead(volatile int a0)
 {
@@ -2150,10 +2110,6 @@ typedef void (*BoxAfterFn)(volatile int);
 extern void GetBoxHoldPoint(void *hold, char *box, void *self);
 extern void AlignBox(char *box, float f);
 extern int MoveBoxWithHoldPoint(char *box, void *hold, void *self, int node, void *dir);
-/* kept local: void (void *, char *, void *) here, void (void *, void *, void *) in box.h */
-extern void GetBoxGlobalHoldPoint(void *out, char *box, void *hold);
-/* kept local: agrees with box.h, which this TU does not include (GetFloorLeverGlobalHoldPoint, SetFloorLeverWithNodePoint differ) */
-extern int GetBoxMode(char *box);
 
 /* reconstruction: the third view of the same 0xC0-byte ClipWall work buffer
    (RopeWallWork above and RsWork below are the other two). This one reads the
@@ -2402,8 +2358,6 @@ void funcCommonFallDircorrect(char *a0)
     SetMotionDirection(a0, *(char **)(*(char **)(a0 + 0x164) + 0x688) + 0x360);
 }
 
-/* kept local: void (void *, void *) here, void (float *, float *) in gv.h */
-extern void GetMatrixDirectionToZ(void *m, void *orient);
 /* kept local: float (void *) here, float (char *) in chain.h */
 extern float GetChainHangRange(void *o);
 /* kept local: float (void *) here, float (char *) in chain.h */
@@ -3303,8 +3257,6 @@ extern float GetDifferenceFromLastField(void *a0, int node);
 extern float GetDifferenceFromWallUpperPlane(void *a0, int node);
 /* kept local: float (void *, int) here, float (char *, int) in motionManager2.h */
 extern float GetDifferenceFromWallLowerPlane(void *a0, int node);
-/* kept local: float (void *, void *) here, void (void *, void *) in gv.h */
-extern float _DistSqGV(void *a, void *b);
 
 typedef struct {
     char _0[0x290];
@@ -4834,9 +4786,6 @@ inline void actCommonOneWall(volatile int a0)
     _ACTWait(0);
 }
 
-/* kept local: int (void *) here, int (char *) in box.h */
-extern int IsThisBoxTruck(void *a0);
-
 inline void motCommonBoxPush(volatile int a0)
 {
     Act *s = GOBJ_ACT(a0);
@@ -4999,9 +4948,6 @@ inline void motCommonRopeTurnSpecialL(volatile int a0)
         _ACTWait(1);
     }
 }
-
-/* kept local: this TU's uses of SetSwitchState do not fit the prototype in box.h */
-extern void SetSwitchState(int a0, int a1);
 
 inline void motCommonTruckLeverLoop(volatile int a0)
 {

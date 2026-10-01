@@ -59,6 +59,7 @@ static int actUnusedWord = 0; /* derived name */
 #include <string.h>
 #include "typedef.h"
 #include "ios.h"
+#include "fieldCollision.h"
 
 inline void ActSetStartBrainStatus(char *self, int status)
 {
@@ -735,14 +736,6 @@ typedef struct {
 /* kept local: char * here, GObj * in main.h */
 extern char *CurrentTargetGObj;
 extern void GetLowerPlaneCollision(void *work, void *pos);
-/* kept local: void (void *) here, int (void *) in fieldCollision.h */
-extern void ClipFloor(void *work);
-/* kept local: void (void *) here, int (void *) in fieldCollision.h */
-extern void ClipFloorR(void *work);
-/* kept local: agrees with fieldCollision.h, which this TU does not include (ClipFloor, ClipFloorR differ) */
-extern int CompareAttribute(unsigned int a, unsigned int b);
-/* kept local: agrees with fieldCollision.h, which this TU does not include (ClipFloor, ClipFloorR differ) */
-extern void SetSimplePlane(float *plane, float a, float b, float c, float d);
 
 /* kept local: this TU passes the packet priority that the prototype in
    seki/include/GifPacket.h leaves out */

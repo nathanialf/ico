@@ -12,26 +12,39 @@
 #ifndef GOBJ_H
 #define GOBJ_H
 
-void add_gobj_to_head(char *g, int a1, int a2);
-void add_gobj_to_tail(int a0, int a1, int a2);
-void cut_gobj_link(int a0);
-void isysGObjActiveLink(int bit, int set);
-char *isysGObjAdd(char *owner, int a1, int a2);
-void isysGObjAlloc(int n);
-void *isysGObjGetExist_begin(void);
-void *isysGObjGetExist_next(void *gobj);
-void isysGObjInit(int n);
-void isysGObjKindTableAdd(char *g, int kind);
-void isysGObjKindTableRemove(char *g);
-void isysGObjMoveAfterGObj(char *self, char *other);
-void isysGObjRemove(char *g);
-void isysGObjRemoveAll(void);
-void *isysGObjSearchFromObjKindID_begin(int kind);
-void *isysGObjSearchFromObjKindID_next(char *g);
-void *isysGObjSearchFromObjLayoutID(int a0);
-int isysGetNbAllocedGObjs(void);
+struct GObj;
 
-/* MAIN.MAP global of gobj.o's .sdata */
+/* gobj.c's functions in the order the ROM emits them: gcc 2.9 writes the
+   out-of-line copies of the file's plain-inline functions in first-declaration
+   order, and these are their first declarations.  The functions that hand an
+   object back return it as the untyped handle every caller takes. */
+void isysGObjKindTableInit(void);
+void isysGObjInit(int n);
+void cut_gobj_link(struct GObj *p);
+void isysGObjRemoveAll(void);
+void add_gobj_to_tail(struct GObj *g, int a1, int a2);
+void add_gobj_to_head(struct GObj *g, int a1, int a2);
+void isysGObjMove(struct GObj *g, unsigned char a1, int a2);
+void isysGObjMoveHead(struct GObj *g, unsigned char a1, int a2);
+void *isysGObjAddAfterGObj(void (*fn)(struct GObj *), struct GObj *other);
+void *isysGObjAddBeforeGObj(void (*fn)(struct GObj *), struct GObj *other);
+int isysGetNbAllocedGObjs(void);
+void isysGObjAlloc(int n);
+void isysGObjRemove(struct GObj *g);
+void isysGObjKindTableAdd(struct GObj *g, int kind);
+void isysGObjKindTableRemove(struct GObj *g);
+void isysGObjMoveAfterGObj(struct GObj *self, struct GObj *other);
+void isysGObjMoveBeforeGObj(struct GObj *self, struct GObj *other);
+void *isysGObjAdd(void (*fn)(struct GObj *), int a1, int a2);
+void *isysGObjAddHead(void (*fn)(struct GObj *), int a1, int a2);
+void *isysGObjSearchFromObjLayoutID(int a0);
+void *isysGObjSearchFromObjKindID_begin(int kind);
+void *isysGObjSearchFromObjKindID_next(struct GObj *g);
+void *isysGObjSearchFromLabelTypeID(int a0);
+void *isysGObjGetExist_begin(void);
+void *isysGObjGetExist_next(struct GObj *start);
+void isysGObjActiveLink(int bit, int set);
+void isysGObjActiveDlLink(int a0, int a1);
 extern int debugKindOld;
 
 #endif /* GOBJ_H */

@@ -33,6 +33,7 @@
 #include "enemy-control.h"
 #include "Primitive.h"
 #include "multiBgaManager.h"
+#include "gv.h"
 
 int entesty;
 
@@ -190,8 +191,6 @@ typedef struct {
 } EnemyParaRow;
 
 extern EnemyParaRow motionKind[];
-/* kept local: float (float *, float *) here, void (void *, void *) in gv.h */
-extern float _DistxzSqGV(float *a0, float *a1);
 /* kept local: char * here, GObj * in main.h */
 extern char *CurrentTargetGObj;
 /* kept local: char * here, GObj * in main.h */
@@ -217,8 +216,6 @@ extern void _ACTCommonMailTest(int self, int a1, int a2, int a3);
 extern int stage_no;
 /* kept local: agrees with main.h, which this TU does not include (CurrentTargetGObj, boyGObj differ) */
 extern int girlControlMode;
-/* kept local: int (float *, void *) here, int (float *, float *) in gv.h */
-extern int _RotyGV(float *a0, void *a1);
 extern void ACTGame_CommonLoop(void *self);
 /* kept local: enemy_act.c does not carry multiBgaManager.h, and this TU reads
    only the display list pointer it hands the manager. */
@@ -229,8 +226,6 @@ extern void ACTGame_CommonLoop(void *self);
 extern int pad[];
 extern void ACTParaStatus_Exec(void *self);
 extern float GetEnemyDefParaIndex(void *self);
-/* kept local: void (float *, float *, float *) here, void (int) in gv.h */
-extern void _OrientXZGV(float *dst, float *a, float *b);
 /* kept local: agrees with motionManager2.h, which this TU does not include (GetMotionFrameFlag2, SetMotionNodeFixModeParameter differ) */
 extern void SetMotionDirection(void *self, float *dir);
 /* kept local: int (void *) here, int (char *) in motionManager2.h */
@@ -259,18 +254,8 @@ extern void SetMotionNodeFixModeParameter(void *a, void *b, int c, int d, float 
                                           float f, float g, float h);
 /* kept local: agrees with main.h, which this TU does not include (CurrentTargetGObj, boyGObj differ) */
 extern int gameover_flag;
-/* kept local: agrees with gv.h, which this TU does not include (_DistxzSqGV, _OrientXZGV differ) */
-extern void _InterGV(float *dst, float *a, float *b, float t, float u);
-/* kept local: float (void *, void *) here, void (void *, void *) in gv.h */
-extern float _DistGV(void *a, void *b);
 /* kept local: void (float *, char *) here, void (int, int) in motionManager2.h */
 extern void GetRootProjectionPosOfGObj(float *dst, char *gobj);
-/* kept local: agrees with gv.h, which this TU does not include (_DistxzSqGV, _OrientXZGV differ) */
-extern void _ApplyRyGV(float *v, float ang);
-/* kept local: void (float *, void *) here, void (float *, float *) in gv.h */
-extern void GetMatrixDirectionToZ(float *dst, void *ori);
-/* kept local: float (float *, float *) here, void (void *, void *) in gv.h */
-extern float _DistSqGV(float *a, float *b);
 /* kept local: int (void *) here, int (char *) in motionManager2.h */
 extern int GetMotionFrameFlag1(void *self);
 
@@ -297,13 +282,6 @@ extern void BossEnemyFunc(void *self);
    shift-and-mask of a 32-bit word, the TU's flag-test shape: a function-like
    macro.  The name is ours. */
 #define EA_CHKBIT(f, n) (((int)((long long)(f) >> (n))) & 1)
-
-/* kept local: float (void *, void *) here, void (void *, void *) in gv.h */
-extern float _DistGV(void *a, void *b);
-/* kept local: float (float *, void *) here, void (void *, void *) in gv.h */
-extern float _DistxzGV(float *a, void *b);
-/* kept local: int (float *, float *) here, int (void *, void *) in gv.h */
-extern int _AbsRotyGV(float *a, float *b);
 
 /* GetFlyPosition's points: the four the enemy measures against, the four it
    flies to (paired by index, 200 below), and the one it escapes to. */
@@ -375,9 +353,6 @@ typedef union {
 typedef enum { ACT_KIND_NONE = -1, ACT_KIND_GIRL = 1, ACT_KIND_ENEMY = 2 } ActKind;
 
 #define ENEMY_START_WORK(self) (*(int *)(*(int *)((self) + 0x164) + 0x680))
-
-/* kept local: void (float *, float *, float *) here, void (int) in gv.h */
-extern void _OrientXZGV(float *out, float *a, float *b);
 
 typedef struct {
     char pad00[0x20];

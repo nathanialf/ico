@@ -1,42 +1,34 @@
 #include "debug.h"
 #include "memory.h"
 #include "ios.h"
-
-struct GObj__p4 {
-    int unk0;
-    int unk4;
-    int unk8;
-    char pad[0x150];
-    int unk15C;
-    char pad2[0x14];
-};
+#include "typedef.h"
+#include "isys.h"
+#include "gobj.h"
 
 /* .bss, owned by gobj.o and reached only from this file (MAIN.MAP names no
    symbol in the run): the head of the free list for each of the 70 object
    kinds. */
-static char *gobjKindHead[70];
+static GObj *gobjKindHead[70];
 
 /* Deferred-`inline` tail: ee-gcc 2.9 emits a plain-`inline` function's
    out-of-line copy at the END of the object in PROTOTYPE order while its
    string literals are emitted where it is DEFINED.  That is what puts the
    __FILE__ string, first used by isysGObjAlloc, at the head of this TU's
    .rodata run even though its code sits in the object's tail. */
-struct GObj__p4;
-
 inline void isysGObjAlloc(int n);
-inline void isysGObjRemove(char *g);
-inline void isysGObjKindTableAdd(char *g, int kind);
-inline void isysGObjKindTableRemove(char *g);
-inline void isysGObjMoveAfterGObj(char *self, char *other);
-inline void isysGObjMoveBeforeGObj(int self, int other);
-inline char *isysGObjAdd(char *owner, int a1, int a2);
-inline char *isysGObjAddHead(char *owner, int a1, int a2);
+inline void isysGObjRemove(GObj *g);
+inline void isysGObjKindTableAdd(GObj *g, int kind);
+inline void isysGObjKindTableRemove(GObj *g);
+inline void isysGObjMoveAfterGObj(GObj *self, GObj *other);
+inline void isysGObjMoveBeforeGObj(GObj *self, GObj *other);
+inline void *isysGObjAdd(void (*fn)(GObj *), int a1, int a2);
+inline void *isysGObjAddHead(void (*fn)(GObj *), int a1, int a2);
 inline void *isysGObjSearchFromObjLayoutID(int a0);
 inline void *isysGObjSearchFromObjKindID_begin(int kind);
-inline void *isysGObjSearchFromObjKindID_next(char *g);
+inline void *isysGObjSearchFromObjKindID_next(GObj *g);
 inline void *isysGObjSearchFromLabelTypeID(int a0);
-inline struct GObj__p4 *isysGObjGetExist_begin(void);
-inline struct GObj__p4 *isysGObjGetExist_next(struct GObj__p4 *start);
+inline void *isysGObjGetExist_begin(void);
+inline void *isysGObjGetExist_next(GObj *start);
 inline void isysGObjActiveLink(int bit, int set);
 inline void isysGObjActiveDlLink(int a0, int a1);
 
@@ -45,23 +37,12 @@ void isysGObjKindTableInit(void)
     memset(gobjKindHead, 0, sizeof(gobjKindHead));
 }
 
-/* kept local: char [] here, int * [8] in isys.h */
-extern char gobj_link_head[];
-/* kept local: char * [] here, int * [8] in isys.h */
-extern char *gobj_link_tail[];
-/* kept local: agrees with isys.h, which this TU does not include (active_gobj_dl_link, gobj_link_head differ) */
-extern int active_gobj_link;
-/* kept local: unsigned int here, int in isys.h */
-extern unsigned int active_gobj_dl_link;
-/* kept local: agrees with gobj.h, which this TU does not include */
-extern void isysGObjAlloc(int n);
-
 void isysGObjInit(int n)
 {
     int i;
 
     for (i = 0; i < 8; i++) {
-        *(int *)(gobj_link_head + i * 4) = 0;
+        gobj_link_head[i] = 0;
         gobj_link_tail[i] = 0;
     }
     isysGObjAlloc(n);
@@ -73,41 +54,30 @@ void isysGObjInit(int n)
 /* .sbss, owned by gobj.o and reached only from this file (MAIN.MAP names no
    symbol in the run), in the ROM's run order: the object table and how many
    0x174-byte entries isysGObjAlloc gave it. */
-static struct GObj__pn *gobjTable;
+static GObj *gobjTable;
 
 static unsigned int gobjMax;
 
 inline void isysGObjAlloc(int n)
 {
-    struct GObj__p4 *tbl;
+    GObj *tbl;
     unsigned int i;
 
-    gobjTable = iosMallocDebug(ios_partition_isys, n * sizeof(struct GObj__p4), __FILE__, 174);
+    gobjTable = iosMallocDebug(ios_partition_isys, n * sizeof(GObj), __FILE__, 174);
     gobjMax = n;
-    tbl = (struct GObj__p4 *)gobjTable;
+    tbl = gobjTable;
     for (i = 0; i < n; i++) {
-        tbl[i].unk0 = 0;
-        tbl[i].unk15C = 0;
-        tbl[i].unk8 = -1;
-        tbl[i].unk4 = -1;
+        tbl[i].f0 = 0;
+        tbl[i].p_15C = 0;
+        tbl[i].f_8 = -1;
+        tbl[i].f04 = -1;
     }
 }
 
-typedef struct GLNode {
-    char _p0[0x10];
-    struct GLNode *next;
-    struct GLNode *prev;
-    unsigned char id;
-    char _p1[0x3];
-    int key;
-} GLNode;
-
 int debugKindOld = 0;
 
-void cut_gobj_link(int a0)
+void cut_gobj_link(GObj *p)
 {
-    GLNode *p = (GLNode *)a0;
-
     if (p == 0) {
         debug_StdPrintfDummy("isys:null GObj\n");
         return;
@@ -124,11 +94,11 @@ void cut_gobj_link(int a0)
         }
     }
 
-    if (p == ((GLNode **)gobj_link_head)[p->id]) {
-        ((GLNode **)gobj_link_head)[p->id] = p->next;
+    if (p == gobj_link_head[p->linkId]) {
+        gobj_link_head[p->linkId] = p->next;
     }
-    if (p == ((GLNode **)gobj_link_tail)[p->id]) {
-        ((GLNode **)gobj_link_tail)[p->id] = p->prev;
+    if (p == gobj_link_tail[p->linkId]) {
+        gobj_link_tail[p->linkId] = p->prev;
     }
 }
 
@@ -137,31 +107,31 @@ void cut_gobj_link(int a0)
  * span).  isysGObjRemove is a MAIN.MAP symbol with its own ROM slot AFTER this
  * one, so it cannot carry `inline` without moving to gcc's inline tail; the
  * caller gets this stand-in instead.  Keep the two bodies identical. */
-static __inline__ void removeGObjEntry(char *g)
+static __inline__ void removeGObjEntry(GObj *g)
 {
-    int kind = *(int *)(g + 0xC);
-    char *proc = *(char **)(g + 0x2C);
-    char *p;
-    if ((unsigned int)(kind - 1) < 0x45) {
+    int kind = g->kind;
+    struct GProc *proc = g->procHead;
+    GObj *p;
+    if ((unsigned int)(kind - 1) < 69) {
         p = gobjKindHead[kind];
         if (p == g) {
-            gobjKindHead[kind] = *(char **)(g + 0x3C);
+            gobjKindHead[kind] = g->kindNext;
         } else if (p != 0) {
-            while (*(char **)(p + 0x3C) != g) {
+            while (p->kindNext != g) {
                 if (p == 0) {
-                    debug_assert(__FILE__, 0x92);
-                    __assert(__FILE__, 0x92, "0");
+                    debug_assert(__FILE__, 146);
+                    __assert(__FILE__, 146, "0");
                 }
-                p = *(char **)(p + 0x3C);
+                p = p->kindNext;
             }
-            *(char **)(p + 0x10) = *(char **)(g + 0x3C);
+            p->next = g->kindNext;
         }
     }
-    cut_gobj_link((int)g);
-    *(int *)g = 0;
+    cut_gobj_link(g);
+    g->f0 = 0;
     while (proc != 0) {
         isysGObjProcRemove(proc);
-        proc = *(char **)(g + 0x2C);
+        proc = g->procHead;
     }
 }
 
@@ -170,140 +140,131 @@ void isysGObjRemoveAll(void)
     unsigned int i;
 
     for (i = 0; i < gobjMax; i++) {
-        if (*(int *)((char *)gobjTable + i * 0x174) != 0)
-            removeGObjEntry((char *)gobjTable + i * 0x174);
+        if (gobjTable[i].f0 != 0)
+            removeGObjEntry(&gobjTable[i]);
     }
     isysGObjKindTableInit();
 }
 
-void add_gobj_to_tail(int a0, int a1, int a2)
-{
-    char *g = (char *)a0;
-    unsigned char kind = a1;
-    unsigned int val = a2;
-    char *head;
-    char *tail;
-    char *p;
-    g[0x18] = kind;
-    *(unsigned int *)(g + 0x1C) = val;
-    head = *(char **)(gobj_link_head + kind * 4);
-    if (head == 0) {
-        *(char **)(gobj_link_head + kind * 4) = g;
-        *(char **)(g + 0x14) = 0;
-        *(char **)(g + 0x10) = 0;
-        gobj_link_tail[kind] = g;
-        return;
-    }
-    if (val < *(unsigned int *)(head + 0x1C)) {
-        *(char **)(g + 0x14) = 0;
-        *(char **)(g + 0x10) = head;
-        *(char **)(gobj_link_head + kind * 4) = g;
-        *(char **)(head + 0x14) = g;
-        return;
-    }
-    tail = gobj_link_tail[kind];
-    if (!(val < *(unsigned int *)(tail + 0x1C))) {
-        *(char **)(g + 0x14) = tail;
-        *(char **)(g + 0x10) = 0;
-        gobj_link_tail[kind] = g;
-        *(char **)(tail + 0x10) = g;
-        return;
-    }
-    p = head;
-    while (!(val < *(unsigned int *)(*(char **)(p + 0x10) + 0x1C))) {
-        p = *(char **)(p + 0x10);
-    }
-    *(char **)(g + 0x14) = p;
-    *(char **)(g + 0x10) = *(char **)(p + 0x10);
-    *(char **)(p + 0x10) = g;
-    *(char **)(*(char **)(g + 0x10) + 0x14) = g;
-}
-
-void add_gobj_to_head(char *g, int a1, int a2)
+void add_gobj_to_tail(GObj *g, int a1, int a2)
 {
     unsigned char kind = a1;
     unsigned int val = a2;
-    char *head;
-    char *tail;
-    char *p;
-    g[0x18] = kind;
-    *(unsigned int *)(g + 0x1C) = val;
-    head = *(char **)(gobj_link_head + kind * 4);
+    GObj *head;
+    GObj *tail;
+    GObj *p;
+    g->linkId = kind;
+    g->key = val;
+    head = gobj_link_head[kind];
     if (head == 0) {
-        *(char **)(gobj_link_head + kind * 4) = g;
-        *(char **)(g + 0x14) = 0;
-        *(char **)(g + 0x10) = 0;
+        gobj_link_head[kind] = g;
+        g->prev = 0;
+        g->next = 0;
         gobj_link_tail[kind] = g;
         return;
     }
-    if (!(*(unsigned int *)(head + 0x1C) < val)) {
-        *(char **)(g + 0x14) = 0;
-        *(char **)(g + 0x10) = head;
-        *(char **)(gobj_link_head + kind * 4) = g;
-        *(char **)(head + 0x14) = g;
+    if (val < head->key) {
+        g->prev = 0;
+        g->next = head;
+        gobj_link_head[kind] = g;
+        head->prev = g;
         return;
     }
     tail = gobj_link_tail[kind];
-    if (*(unsigned int *)(tail + 0x1C) < val) {
-        *(char **)(g + 0x14) = tail;
-        *(char **)(g + 0x10) = 0;
+    if (!(val < tail->key)) {
+        g->prev = tail;
+        g->next = 0;
         gobj_link_tail[kind] = g;
-        *(char **)(tail + 0x10) = g;
+        tail->next = g;
         return;
     }
     p = head;
-    while (*(unsigned int *)(*(char **)(p + 0x10) + 0x1C) < val) {
-        p = *(char **)(p + 0x10);
+    while (!(val < p->next->key)) {
+        p = p->next;
     }
-    *(char **)(g + 0x14) = p;
-    *(char **)(g + 0x10) = *(char **)(p + 0x10);
-    *(char **)(p + 0x10) = g;
-    *(char **)(*(char **)(g + 0x10) + 0x14) = g;
+    g->prev = p;
+    g->next = p->next;
+    p->next = g;
+    g->next->prev = g;
 }
 
-/* kept local: agrees with gobj.h, which this TU does not include */
-extern void add_gobj_to_tail(int a0, int a1, int a2);
-/* kept local: agrees with gobj.h, which this TU does not include */
-extern void cut_gobj_link(int a0);
-
-void isysGObjMove(int a0, unsigned char a1, int a2)
+void add_gobj_to_head(GObj *g, int a1, int a2)
 {
-    cut_gobj_link(a0);
-    return add_gobj_to_tail(a0, a1, a2);
+    unsigned char kind = a1;
+    unsigned int val = a2;
+    GObj *head;
+    GObj *tail;
+    GObj *p;
+    g->linkId = kind;
+    g->key = val;
+    head = gobj_link_head[kind];
+    if (head == 0) {
+        gobj_link_head[kind] = g;
+        g->prev = 0;
+        g->next = 0;
+        gobj_link_tail[kind] = g;
+        return;
+    }
+    if (!(head->key < val)) {
+        g->prev = 0;
+        g->next = head;
+        gobj_link_head[kind] = g;
+        head->prev = g;
+        return;
+    }
+    tail = gobj_link_tail[kind];
+    if (tail->key < val) {
+        g->prev = tail;
+        g->next = 0;
+        gobj_link_tail[kind] = g;
+        tail->next = g;
+        return;
+    }
+    p = head;
+    while (p->next->key < val) {
+        p = p->next;
+    }
+    g->prev = p;
+    g->next = p->next;
+    p->next = g;
+    g->next->prev = g;
 }
 
-/* kept local: agrees with gobj.h, which this TU does not include */
-extern void add_gobj_to_head(char *a0, int a1, int a2);
-
-void isysGObjMoveHead(int a0, unsigned char a1, int a2)
+void isysGObjMove(GObj *g, unsigned char a1, int a2)
 {
-    cut_gobj_link(a0);
-    return add_gobj_to_head(a0, a1, a2);
+    cut_gobj_link(g);
+    return add_gobj_to_tail(g, a1, a2);
+}
+
+void isysGObjMoveHead(GObj *g, unsigned char a1, int a2)
+{
+    cut_gobj_link(g);
+    return add_gobj_to_head(g, a1, a2);
 }
 
 /* static helper the listing places at gobj.c lines 360-369; never emitted out
  * of line, so it has no MAIN.MAP symbol and this name is ours. */
-static __inline__ void linkGObjAfter(GLNode *g, GLNode *other)
+static __inline__ void linkGObjAfter(GObj *g, GObj *other)
 {
-    g->id = other->id;
+    g->linkId = other->linkId;
     g->key = other->key;
     g->prev = other;
     g->next = other->next;
     other->next = g;
     if (g->next == 0) {
-        ((GLNode **)gobj_link_tail)[g->id] = g;
+        gobj_link_tail[g->linkId] = g;
     }
 }
 
 /* static helper the listing places at gobj.c lines 453-467; never emitted out
  * of line, so it has no MAIN.MAP symbol and this name is ours. */
-static __inline__ char *allocGObjEntry(void)
+static __inline__ GObj *allocGObjEntry(void)
 {
     unsigned int i;
-    char *g;
+    GObj *g;
 
     for (i = 0; i < gobjMax; i++) {
-        if (*(int *)((char *)gobjTable + i * 0x174) == 0) {
+        if (gobjTable[i].f0 == 0) {
             break;
         }
     }
@@ -311,15 +272,17 @@ static __inline__ char *allocGObjEntry(void)
         debug_StdPrintfDummy("isys:not enough memory for GObj\n");
         return 0;
     }
-    g = (char *)(i * 0x174 + (int)gobjTable);
-    *(int *)(g + 0x164) = 0;
-    *(int *)(g + 0x170) = 0;
+    /* the entry's address as the ROM forms it, the scaled index first:
+       integer arithmetic on the table's address, not &gobjTable[i] */
+    g = (GObj *)(i * sizeof(GObj) + (int)gobjTable);
+    g->p_164 = 0;
+    g->f_170 = 0;
     return g;
 }
 
-char *isysGObjAddAfterGObj(char *owner, char *other)
+void *isysGObjAddAfterGObj(void (*fn)(GObj *), GObj *other)
 {
-    char *g = allocGObjEntry();
+    GObj *g = allocGObjEntry();
 
     if (g == 0) {
         debug_StdPrintfDummy("isys:not enough memory for GObj\n");
@@ -329,23 +292,23 @@ char *isysGObjAddAfterGObj(char *owner, char *other)
         debug_StdPrintfDummy("isys:null GObj\n");
         return 0;
     }
-    *(int *)g = (int)g;
-    *(char **)(g + 0x28) = owner;
-    linkGObjAfter((GLNode *)g, (GLNode *)other);
-    *(int *)(g + 0x15C) = 0;
-    *(int *)(g + 0x8) = -1;
-    *(int *)(g + 0x4) = -1;
-    *(int *)(g + 0x2C) = 0;
-    *(int *)(g + 0x30) = 0;
-    *(int *)(g + 0x58) = 0;
+    g->f0 = g;
+    g->fn = fn;
+    linkGObjAfter(g, other);
+    g->p_15C = 0;
+    g->f_8 = -1;
+    g->f04 = -1;
+    g->procHead = 0;
+    g->procTail = 0;
+    g->f58 = 0;
     return g;
 }
 
-char *isysGObjAddBeforeGObj(char *owner, char *other)
+void *isysGObjAddBeforeGObj(void (*fn)(GObj *), GObj *other)
 {
     unsigned char t;
-    int u;
-    char *g = allocGObjEntry();
+    GObj *u;
+    GObj *g = allocGObjEntry();
 
     if (g == 0) {
         debug_StdPrintfDummy("isys:not enough memory for GObj\n");
@@ -355,24 +318,24 @@ char *isysGObjAddBeforeGObj(char *owner, char *other)
         debug_StdPrintfDummy("isys:null GObj\n");
         return 0;
     }
-    *(int *)g = (int)g;
-    *(char **)(g + 0x28) = owner;
-    t = *(unsigned char *)(other + 0x18);
-    *(unsigned char *)(g + 0x18) = t;
-    u = *(int *)(other + 0x14);
-    *(int *)(g + 0x10) = (int)other;
-    *(int *)(g + 0x14) = u;
-    *(int *)(other + 0x14) = (int)g;
-    *(int *)(g + 0x1C) = *(int *)(other + 0x1C);
-    if (*(int *)(g + 0x14) == 0) {
-        *(int *)(gobj_link_head + *(unsigned char *)(g + 0x18) * 4) = (int)g;
+    g->f0 = g;
+    g->fn = fn;
+    t = other->linkId;
+    g->linkId = t;
+    u = other->prev;
+    g->next = other;
+    g->prev = u;
+    other->prev = g;
+    g->key = other->key;
+    if (g->prev == 0) {
+        gobj_link_head[g->linkId] = g;
     }
-    *(int *)(g + 0x15C) = 0;
-    *(int *)(g + 0x8) = -1;
-    *(int *)(g + 0x4) = -1;
-    *(int *)(g + 0x2C) = 0;
-    *(int *)(g + 0x30) = 0;
-    *(int *)(g + 0x58) = 0;
+    g->p_15C = 0;
+    g->f_8 = -1;
+    g->f04 = -1;
+    g->procHead = 0;
+    g->procTail = 0;
+    g->f58 = 0;
     return g;
 }
 
@@ -381,173 +344,166 @@ int isysGetNbAllocedGObjs(void)
     int result = 0;
     unsigned int i;
     for (i = 0; i < gobjMax; i++) {
-        if (*(int *)((char *)gobjTable + i * 0x174) != 0) {
+        if (gobjTable[i].f0 != 0) {
             result++;
         }
     }
     return result;
 }
 
-inline void isysGObjRemove(char *g)
+inline void isysGObjRemove(GObj *g)
 {
-    int kind = *(int *)(g + 0xC);
-    char *proc = *(char **)(g + 0x2C);
-    char *p;
-    if ((unsigned int)(kind - 1) < 0x45) {
+    int kind = g->kind;
+    struct GProc *proc = g->procHead;
+    GObj *p;
+    if ((unsigned int)(kind - 1) < 69) {
         p = gobjKindHead[kind];
         if (p == g) {
-            gobjKindHead[kind] = *(char **)(g + 0x3C);
+            gobjKindHead[kind] = g->kindNext;
         } else if (p != 0) {
-            while (*(char **)(p + 0x3C) != g) {
+            while (p->kindNext != g) {
                 if (p == 0) {
-                    debug_assert(__FILE__, 0x92);
-                    __assert(__FILE__, 0x92, "0");
+                    debug_assert(__FILE__, 146);
+                    __assert(__FILE__, 146, "0");
                 }
-                p = *(char **)(p + 0x3C);
+                p = p->kindNext;
             }
-            *(char **)(p + 0x10) = *(char **)(g + 0x3C);
+            p->next = g->kindNext;
         }
     }
-    cut_gobj_link((int)g);
-    *(int *)g = 0;
+    cut_gobj_link(g);
+    g->f0 = 0;
     while (proc != 0) {
         isysGObjProcRemove(proc);
-        proc = *(char **)(g + 0x2C);
+        proc = g->procHead;
     }
 }
 
-/* kept local: agrees with gobj.h, which this TU does not include */
-extern void *isysGObjSearchFromObjKindID_begin(int kind);
-/* kept local: agrees with gobj.h, which this TU does not include */
-extern void *isysGObjSearchFromObjKindID_next(char *g);
-/* kept local: agrees with gobj.h, which this TU does not include */
-extern void isysGObjKindTableRemove(char *g);
-
-inline void isysGObjKindTableAdd(char *g, int kind)
+inline void isysGObjKindTableAdd(GObj *g, int kind)
 {
-    char *p;
+    GObj *p;
 
     if (debugKindOld != 0) {
-        *(int *)(g + 0xC) = kind;
+        g->kind = kind;
         return;
     }
-    for (p = isysGObjSearchFromObjKindID_begin(*(int *)(g + 0xC)); p != 0;
+    for (p = isysGObjSearchFromObjKindID_begin(g->kind); p != 0;
          isysGObjSearchFromObjKindID_next(p)) {
         if (p == g) {
             isysGObjKindTableRemove(g);
             break;
         }
     }
-    *(int *)(g + 0xC) = kind;
-    if ((unsigned int)kind < 0x46) {
+    g->kind = kind;
+    if ((unsigned int)kind < 70) {
         if (gobjKindHead[kind] == 0) {
             gobjKindHead[kind] = g;
         } else {
             p = gobjKindHead[kind];
-            while (*(char **)(p + 0x3C) != 0) {
-                p = *(char **)(p + 0x3C);
+            while (p->kindNext != 0) {
+                p = p->kindNext;
             }
-            *(char **)(p + 0x3C) = g;
+            p->kindNext = g;
         }
-        *(char **)(g + 0x3C) = 0;
+        g->kindNext = 0;
     }
 }
 
-inline void isysGObjKindTableRemove(char *g)
+inline void isysGObjKindTableRemove(GObj *g)
 {
-    int kind = *(int *)(g + 0xC);
-    char *p;
-    if ((unsigned int)(kind - 1) < 0x45) {
+    int kind = g->kind;
+    GObj *p;
+    if ((unsigned int)(kind - 1) < 69) {
         p = gobjKindHead[kind];
         if (p == g) {
-            gobjKindHead[kind] = *(char **)(g + 0x3C);
+            gobjKindHead[kind] = g->kindNext;
             return;
         }
         if (p == 0)
             return;
-        while (*(char **)(p + 0x3C) != g) {
+        while (p->kindNext != g) {
             if (p == 0) {
-                debug_assert(__FILE__, 0x92);
-                __assert(__FILE__, 0x92, "0");
+                debug_assert(__FILE__, 146);
+                __assert(__FILE__, 146, "0");
             }
-            p = *(char **)(p + 0x3C);
+            p = p->kindNext;
         }
-        *(char **)(p + 0x10) = *(char **)(g + 0x3C);
+        p->next = g->kindNext;
     }
 }
 
-inline void isysGObjMoveAfterGObj(char *self, char *other)
+inline void isysGObjMoveAfterGObj(GObj *self, GObj *other)
 {
-    cut_gobj_link((int)self);
-    *(unsigned char *)(self + 0x18) = *(unsigned char *)(other + 0x18);
-    *(char **)(self + 0x14) = other;
-    *(char **)(self + 0x10) = *(char **)(other + 0x10);
-    *(char **)(other + 0x10) = self;
-    *(int *)(self + 0x1C) = *(int *)(other + 0x1C);
-    if (*(char **)(self + 0x10) == 0) {
-        gobj_link_tail[*(unsigned char *)(self + 0x18)] = self;
+    cut_gobj_link(self);
+    self->linkId = other->linkId;
+    self->prev = other;
+    self->next = other->next;
+    other->next = self;
+    self->key = other->key;
+    if (self->next == 0) {
+        gobj_link_tail[self->linkId] = self;
     }
 }
 
-inline void isysGObjMoveBeforeGObj(int self, int other)
+inline void isysGObjMoveBeforeGObj(GObj *self, GObj *other)
 {
     unsigned char t;
-    int u;
+    GObj *u;
     cut_gobj_link(self);
-    t = *(unsigned char *)(other + 0x18);
-    *(unsigned char *)(self + 0x18) = t;
-    u = *(int *)(other + 0x14);
-    *(int *)(self + 0x10) = other;
-    *(int *)(self + 0x14) = u;
-    *(int *)(other + 0x14) = self;
-    *(int *)(self + 0x1C) = *(int *)(other + 0x1C);
-    if (*(int *)(self + 0x14) == 0) {
-        *(int *)(gobj_link_head + *(unsigned char *)(self + 0x18) * 4) = self;
+    t = other->linkId;
+    self->linkId = t;
+    u = other->prev;
+    self->next = other;
+    self->prev = u;
+    other->prev = self;
+    self->key = other->key;
+    if (self->prev == 0) {
+        gobj_link_head[self->linkId] = self;
     }
 }
 
-inline char *isysGObjAdd(char *owner, int a1, int a2)
+inline void *isysGObjAdd(void (*fn)(GObj *), int a1, int a2)
 {
     int kind = a1 & 0xFF;
     int prio = a2;
-    char *g = allocGObjEntry();
+    GObj *g = allocGObjEntry();
 
     if (g == 0) {
         debug_StdPrintfDummy("isys:not enough memory for GObj\n");
         return 0;
     }
-    *(char **)(g + 0x28) = owner;
-    *(int *)g = (int)g;
-    add_gobj_to_tail((int)g, kind, prio);
-    *(int *)(g + 0x15C) = 0;
-    *(int *)(g + 0x8) = -1;
-    *(int *)(g + 0x4) = -1;
-    *(int *)(g + 0x2C) = 0;
-    *(int *)(g + 0x30) = 0;
-    *(int *)(g + 0x58) = 0;
-    *(int *)(g + 0xC) = 0;
+    g->fn = fn;
+    g->f0 = g;
+    add_gobj_to_tail(g, kind, prio);
+    g->p_15C = 0;
+    g->f_8 = -1;
+    g->f04 = -1;
+    g->procHead = 0;
+    g->procTail = 0;
+    g->f58 = 0;
+    g->kind = 0;
     return g;
 }
 
-inline char *isysGObjAddHead(char *owner, int a1, int a2)
+inline void *isysGObjAddHead(void (*fn)(GObj *), int a1, int a2)
 {
     int kind = a1 & 0xFF;
     int prio = a2;
-    char *g = allocGObjEntry();
+    GObj *g = allocGObjEntry();
 
     if (g == 0) {
         debug_StdPrintfDummy("isys:not enough memory for GObj\n");
         return 0;
     }
-    *(char **)(g + 0x28) = owner;
-    *(int *)g = (int)g;
+    g->fn = fn;
+    g->f0 = g;
     add_gobj_to_head(g, kind, prio);
-    *(int *)(g + 0x15C) = 0;
-    *(int *)(g + 0x8) = -1;
-    *(int *)(g + 0x4) = -1;
-    *(int *)(g + 0x2C) = 0;
-    *(int *)(g + 0x30) = 0;
-    *(int *)(g + 0x58) = 0;
+    g->p_15C = 0;
+    g->f_8 = -1;
+    g->f04 = -1;
+    g->procHead = 0;
+    g->procTail = 0;
+    g->f58 = 0;
     return g;
 }
 
@@ -555,8 +511,8 @@ inline void *isysGObjSearchFromObjLayoutID(int a0)
 {
     unsigned int i;
     for (i = 0; i < gobjMax; i++) {
-        char *e = (char *)gobjTable + i * 0x174;
-        if (*(int *)e != 0 && *(int *)(e + 4) == 1 && *(int *)(e + 8) == a0)
+        GObj *e = &gobjTable[i];
+        if (e->f0 != 0 && e->f04 == 1 && e->f_8 == a0)
             return e;
     }
     return 0;
@@ -564,13 +520,13 @@ inline void *isysGObjSearchFromObjLayoutID(int a0)
 
 /* static helper the listing places at gobj.c lines 657-667; never emitted out
  * of line, so it has no MAIN.MAP symbol and this name is ours. */
-static __inline__ void *searchGObjOfObjKind(char *p, int kind)
+static __inline__ GObj *searchGObjOfObjKind(GObj *p, int kind)
 {
-    char *end = (char *)gobjTable + (gobjMax * 0x174 - 0x174);
+    GObj *end = &gobjTable[gobjMax - 1];
 
     while (p != end) {
-        p += 0x174;
-        if (*(int *)(p + 4) == 1 && *(int *)(p + 0xC) == kind)
+        p++;
+        if (p->f04 == 1 && p->kind == kind)
             return p;
     }
     return 0;
@@ -579,52 +535,52 @@ static __inline__ void *searchGObjOfObjKind(char *p, int kind)
 inline void *isysGObjSearchFromObjKindID_begin(int kind)
 {
     if (debugKindOld != 0) {
-        return searchGObjOfObjKind((char *)gobjTable - 0x174, kind);
+        return searchGObjOfObjKind(gobjTable - 1, kind);
     }
-    if ((unsigned int)(kind - 1) < 0x45) {
+    if ((unsigned int)(kind - 1) < 69) {
         return gobjKindHead[kind];
     }
     return 0;
 }
 
-inline void *isysGObjSearchFromObjKindID_next(char *g)
+inline void *isysGObjSearchFromObjKindID_next(GObj *g)
 {
     if (debugKindOld != 0) {
-        return searchGObjOfObjKind(g, *(int *)(g + 0xC));
+        return searchGObjOfObjKind(g, g->kind);
     }
-    return *(char **)(g + 0x3C);
+    return g->kindNext;
 }
 
 inline void *isysGObjSearchFromLabelTypeID(int a0)
 {
     unsigned int i;
     for (i = 0; i < gobjMax; i++) {
-        char *e = (char *)gobjTable + i * 0x174;
-        if (*(int *)e != 0 && *(int *)(e + 4) == a0)
+        GObj *e = &gobjTable[i];
+        if (e->f0 != 0 && e->f04 == a0)
             return e;
     }
     return 0;
 }
 
-inline struct GObj__p4 *isysGObjGetExist_begin(void)
+inline void *isysGObjGetExist_begin(void)
 {
-    struct GObj__p4 *start = (struct GObj__p4 *)gobjTable - 1;
-    struct GObj__p4 *end = (struct GObj__p4 *)((char *)gobjTable + (gobjMax * 0x174 - 0x174));
+    GObj *start = gobjTable - 1;
+    GObj *end = &gobjTable[gobjMax - 1];
     while (start != end) {
         start++;
-        if (start->unk0 != 0) {
+        if (start->f0 != 0) {
             return start;
         }
     }
     return 0;
 }
 
-inline struct GObj__p4 *isysGObjGetExist_next(struct GObj__p4 *start)
+inline void *isysGObjGetExist_next(GObj *start)
 {
-    struct GObj__p4 *end = (struct GObj__p4 *)((char *)gobjTable + (gobjMax * 0x174 - 0x174));
+    GObj *end = &gobjTable[gobjMax - 1];
     while (start != end) {
         start++;
-        if (start->unk0 != 0) {
+        if (start->f0 != 0) {
             return start;
         }
     }

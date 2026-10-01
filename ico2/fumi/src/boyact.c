@@ -36,6 +36,7 @@
 #include "script.h"
 #include "commonact.h"
 #include "act.h"
+#include "gv.h"
 
 typedef struct {
     int a, b, c;
@@ -51,14 +52,6 @@ typedef union BoyVal {
 } BoyVal;
 
 extern char motionKind[];
-/* kept local: float (void *, void *) here, void (void *, void *) in gv.h */
-extern float _DistxzSqGV(void *a, void *b);
-/* kept local: void (void *, void *, void *) here, void (int) in gv.h */
-extern void _OrientXZGV(void *dst, void *a, void *b);
-/* kept local: agrees with gv.h, which this TU does not include (GetMatrixDirectionToZ, _DistxzSqGV differ) */
-extern int _RotyGV();
-/* kept local: void (void *, void *) here, void (float *, float *) in gv.h */
-extern void GetMatrixDirectionToZ(void *dst, void *orient);
 extern void GetChainNearestNodePosition(float *out, void *g, float *ref);
 
 /* one 0x194-byte motion row per motion id; 0x182/0x186 are the halfwords
@@ -224,12 +217,6 @@ void findChainInJump(void *self)
 
 /* kept local: void (void *, void *) here, void (int, int) in motionManager2.h */
 extern void GetRootProjectionPosOfGObj(void *out, void *obj);
-/* kept local: void (void *, void *, void *) here, void (int) in gv.h */
-extern void _OrientXZGV(void *dst, void *a, void *b);
-/* kept local: float (void *, void *) here, void (void *, void *) in gv.h */
-extern float _DistxzSqGV(void *a, void *b);
-/* kept local: agrees with gv.h, which this TU does not include (GetMatrixDirectionToZ, _DistxzSqGV differ) */
-extern int _AbsRotyGV(void *a, void *b);
 
 /* dir: subBoyCollision passes the motion direction (sub + 0x120) in $6; this
    body never reads it */
@@ -550,8 +537,6 @@ done:
 }
 
 extern char actModeTbl[];
-/* kept local: float (void *, void *) here, void (void *, void *) in gv.h */
-extern float _DistxzGV(void *a, void *b);
 /* kept local: float (void *, void *) here, float (int *, int *) in motionManager2.h */
 extern float GetHeightOfFieldPlaneDifference(void *boy, void *girl);
 
@@ -734,8 +719,6 @@ float test_rope_velo[4] = {0.0f, 0.0f, 0.0f, 0.0f};
 
 float add_rope_vec[4] = {0.0f, 0.0f, 0.0f, 0.0f};
 
-/* kept local: void (void *, float) here, void (float *, float) in gv.h */
-extern void _ApplyRyGV(void *v, float ry);
 /* kept local: float (float, int, void *, void *) here, float (int, float, void *, void *) in StageAnimation.h */
 extern float stage_PlayBgAnimation(float frame, int id, void *a, void *b);
 extern void __assert(char *file, int line, char *expr);
@@ -905,8 +888,6 @@ int GetChainSlope(void)
 
 /* kept local: this TU's uses of these do not fit the prototypes in the headers
    the rest of the file reaches. */
-/* kept local: float (void *, void *) here, void (void *, void *) in gv.h */
-extern float _DistSqGV(void *a, void *b);
 /* kept local: void (void *) here, int (void *) in fieldCollision.h */
 extern void ClipWall(void *w);
 /* kept local: float (void *, void *) here, void (void *, void *) in poly-flat.h */
@@ -1876,8 +1857,6 @@ static int characterPacket[8]; /* derived name */
 
 static PrivInsCam privInsCam; /* derived name */
 
-/* kept local: void (void *, void *, void *, float, float) here, void (float *, float *, float *, float, float) in gv.h */
-extern void _InterGV(void *dst, void *a, void *b, float t, float u);
 /* kept local: agrees with camera-root.h, which this TU does not include (GetCurrentCameraSet2 differ) */
 extern void InsertCamera_SetDetail(float *cam, float *p, int a2, int a3, int a4, int a5, float f);
 
@@ -1929,8 +1908,6 @@ void PrivInsCamProcess(void)
     }
 }
 
-/* kept local: float (float *, float *) here, void (void *, void *) in gv.h */
-extern float _DistGV(float *a, float *b);
 /* kept local: poly-flat.h declares IsPointIsInScreen void, the callers here
    read the float it returns */
 /* kept local: float (void *, void *) here, void (void *, void *) in poly-flat.h */
@@ -2521,8 +2498,6 @@ extern S12 InitialColInfo;
 /* kept local: agrees with motionManager2.h, which this TU does not include (CheckFloorAttribute, GetHeightOfFieldPlaneDifference differ) */
 extern int GetSkeltonFocusNode(char *a0, int a1);
 extern void MoveFloatingBox(void *box, int self, void *m, void *p, float d);
-/* kept local: float (void *, void *) here, void (void *, void *) in gv.h */
-extern float _DistSqGV(void *a, void *b);
 
 /* the record Act+0x680 points at, with the fields actBoyBelift and actBoySwim
    touch: the lift level and the lifted object, then the floating-box flag, the
@@ -2905,9 +2880,6 @@ static inline void ACTSendMail_PULLUP_START(void)
     }
 }
 
-/* kept local: float (void *, void *) here, void (void *, void *) in gv.h */
-extern float _DistSqGV(void *a, void *b);
-
 int pullup_check_heroin_position(void)
 {
     float buf[4];
@@ -2963,8 +2935,6 @@ int ditch_check_heroin_position(void)
 }
 
 extern char D_0055FFA8[];
-/* kept local: void (float *, float *, float *, float) here, float (float *, float *, float *, float) in gv.h */
-extern void _MoveGV(float *dst, float *from, float *to, float d);
 
 void actBoyPullupReady(volatile int a0)
 {
@@ -3418,8 +3388,6 @@ void actBoyDitch3mReady(volatile int a0)
 }
 
 extern char D_0055FFA8[];
-/* kept local: void (float *, float *, float *, float) here, float (float *, float *, float *, float) in gv.h */
-extern void _MoveGV(float *dst, float *from, float *to, float d);
 
 void actBoyRescueGirlBhang(volatile int a0)
 {
@@ -3668,9 +3636,6 @@ void actBoyStart(int a0)
     }
     _ACTWait(0);
 }
-
-/* kept local: agrees with gv.h, which this TU does not include (GetMatrixDirectionToZ, _DistxzSqGV differ) */
-extern int _RotyGV();
 
 inline int CorrectStickInfo(void *dir, void *stick)
 {

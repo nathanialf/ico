@@ -12,9 +12,7 @@
 #include "girl_act.h"
 #include "box.h"
 #include "commonact.h"
-
-/* kept local: float (void *, void *) here, void (void *, void *) in gv.h */
-extern float _DistxzSqGV(void *a, void *b);
+#include "gv.h"
 
 /* act + 0x438: the way-state word, which the ROM reads and writes both as one
    64-bit flag word and as the two status bytes at 0x438 and 0x439 */
@@ -39,9 +37,6 @@ typedef struct {
 
 /* the three detour angles DetourCheck sweeps, in degrees, zero-terminated */
 static int detourAngle[4] = {75, -75, 0, 0};
-
-/* kept local: agrees with gv.h, which this TU does not include (_DistGV, _DistSqGV differ) */
-extern void _ApplyRyGV(float *v, float ry);
 
 void DetourCheck(char *self, float *out)
 {
@@ -318,14 +313,6 @@ static WayStep wayStepClear = {{0.0f, 0.0f, 0.0f, 0.0f}, 0, 3.4028235e38f, 3.402
 /* kept local: this TU's uses of the gv distance helpers do not fit the void
    returns gv.h carries, and its GetRootProjectionPosOfGObj / IsThisBoxTruck
    call forms do not fit motionManager2.h and box.h */
-/* kept local: float (void *, void *) here, void (void *, void *) in gv.h */
-extern float _DistGV(void *a, void *b);
-/* kept local: float (void *, void *) here, void (void *, void *) in gv.h */
-extern float _DistSqGV(void *a, void *b);
-/* kept local: float (void *, void *) here, void (void *, void *) in gv.h */
-extern float _DistxzGV(void *a, void *b);
-/* kept local: void (float *, float *, float *) here, void (int) in gv.h */
-extern void _OrientXZGV(float *dst, float *a, float *b);
 
 int ACTWayMove_NextDetail(char *self, float *node, float *goal, unsigned char d, unsigned char e)
 {

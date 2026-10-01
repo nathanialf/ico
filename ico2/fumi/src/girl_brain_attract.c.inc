@@ -47,8 +47,6 @@ static inline int girlAttractTurnMailR(void *actor, float *from, float *to)
 
 /* kept local: agrees with act-game.h, which this TU does not include */
 extern void GetSkeltonOrient(float *out, void *obj, int node);
-/* kept local: int (void *, void *) here, int (float *, float *) in gv.h */
-extern int _RotyGV(void *buf, void *vec);
 
 int ATGoalTurnMail(void *actor, float *dir, int node)
 {

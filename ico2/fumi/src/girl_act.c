@@ -31,6 +31,7 @@
 #include <stdio.h>
 #include "act-game.h"
 #include "commonact.h"
+#include "gv.h"
 
 typedef struct GirlStand {
     sceVu0FVECTOR prev; /* 0x00 last frame's root position */
@@ -473,8 +474,6 @@ static GirlDangerEnv dangerEnv; /* derived name */
 
 /* kept local: void * here, GObj * in main.h */
 extern void *girlGObj;
-/* kept local: float (void *, void *) here, void (void *, void *) in gv.h */
-extern float _DistSqGV(void *a, void *b);
 
 inline void ACTGame_GirlBeforeFunc(void *self)
 {
@@ -568,8 +567,6 @@ static inline void ATGoalTurnSendMail(void *self)
     }
 }
 
-/* kept local: float (void *, void *) here, void (void *, void *) in gv.h */
-extern float _DistGV(void *a, void *b);
 /* kept local: void (void *, void *) here, void (int, int) in motionManager2.h */
 extern void GetRootProjectionPosOfGObj(void *out, void *obj);
 extern void __assert(char *file, int line, char *expr);
@@ -868,9 +865,6 @@ void girlBrainMain_MakeOthersList(void)
 static char *groupRelationName[4] = {"FALSE", "OTHERGROUP", "SAMEGROUP",
                                      "DIRECT"}; /* derived name */
 
-/* kept local: void (void *, void *) here, void (float *, float *) in gv.h */
-extern void GetMatrixDirectionToZ(void *m, void *dir);
-
 int girlBrainHideCheckIntercept(float *from, float *to, char *list, int n)
 {
     float d[4];
@@ -1028,8 +1022,6 @@ out:
 
 /* kept local: void * here, int in main.h */
 extern void *girlControlMode;
-/* kept local: float (void *, void *) here, void (void *, void *) in gv.h */
-extern float _DistxzSqGV(void *a, void *b);
 extern void brainGetTarget(Brain *b);
 /* the pad record: the button word at +0 */
 /* kept local: int [] here, PadState [16] in main.h */
@@ -1307,15 +1299,7 @@ extern char motionKind[];
    a tentative definition the compiler emits at the end of the .sdata run */
 int GirlInfo[2];
 
-/* kept local: void (void *, void *, void *) here, void (int) in gv.h */
-extern void _OrientGV(void *out, void *a, void *b);
-/* kept local: this TU's uses of _RotGV do not fit the prototype in gv.h */
-extern int _RotGV(void *a, void *b);
-/* kept local: agrees with gv.h, which this TU does not include (GetMatrixDirectionToZ, _DistGV differ) */
-extern int _AbsRotyGV(void *a, void *b);
 extern int _FrontGV(void *a, void *b, void *c, int deg);
-/* kept local: void (void *, void *, void *) here, void (int) in gv.h */
-extern void _OrientXZGV(void *out, void *a, void *b);
 extern void *GetBombTorchGObj(void *obj);
 
 /* girl_brain_main.c.inc:44-53 -- a file-scope static helper with no MAIN.MAP
@@ -1811,12 +1795,6 @@ void subGirlBrainMain(volatile int a0)
 
 /* kept local: void (void *, int, int, int, float) here, void (int *, int, int, int, float) in camera-editor.h */
 extern void debug_NMarker(void *pos, int r, int g, int b, float size);
-/* kept local: float (void *, void *) here, void (void *, void *) in gv.h */
-extern float _DistxzGV(void *a, void *b);
-/* kept local: void (void *, void *, void *) here, void (int) in gv.h */
-extern void _OrientXZGV(void *out, void *a, void *b);
-/* kept local: int (void *, void *) here, int (float *, float *) in gv.h */
-extern int _RotyGV(void *buf, void *vec);
 
 inline void subGirlBrain_Idle(volatile int a0)
 {
@@ -2061,9 +2039,6 @@ void girlBrainHide_GoalTurn(float *dir, unsigned char sendMail)
         }
     }
 }
-
-/* kept local: float (void *, void *) here, void (void *, void *) in gv.h */
-extern float _DistxzSqGV(void *a, void *b);
 
 /* girl_brain_main.c.inc:~381-387 (rows outside every caller's span => static
    inline; the listing tags the two loads 382/383, the ratio store 384 and the
@@ -2422,8 +2397,6 @@ int girlBrainRunawayMoveByWay(char *self, float *out, float *tgt)
     return 0;
 }
 
-/* kept local: this TU's uses of _RotGV do not fit the prototype in gv.h */
-extern int _RotGV(void *a, void *b);
 /* kept local: float * here, char * in main.h */
 extern float *matrixptr;
 
@@ -2593,9 +2566,6 @@ void subGirlBrain_Escape(volatile int a0)
     }
 }
 
-/* kept local: agrees with gv.h, which this TU does not include (GetMatrixDirectionToZ, _DistGV differ) */
-extern void _InterGV(float *dst, float *a, float *b, float t0, float t1);
-
 void ClipTwinVector(float *out, float *from, float *to, float max)
 {
     float d;
@@ -2697,9 +2667,6 @@ inline void subGirlBrain_DangerEnv(volatile int a0)
     }
     _ACTWait(0);
 }
-
-/* kept local: agrees with gv.h, which this TU does not include (GetMatrixDirectionToZ, _DistGV differ) */
-extern void _ApplyRyGV(float *v, float ang);
 
 static void Danger_Bomb(void *self)
 {
@@ -2936,9 +2903,6 @@ retry:
         }
     }
 }
-
-/* kept local: float (void *) here, float (float *) in gv.h */
-extern float _GetDirection(void *orient);
 
 /* the three escape angles Danger_Box's safe-position search tries */
 static int dangerEscapeAngle[3] = {0, -90, 90}; /* derived name */
@@ -3250,9 +3214,6 @@ void subGirlBrain_HideAdvance(volatile int a0)
     }
 }
 
-/* kept local: agrees with gv.h, which this TU does not include (GetMatrixDirectionToZ, _DistGV differ) */
-extern int _AbsRotyGV(void *a, void *b);
-
 int isEnterHideadv_EnemyLocation(float *bpos, float *gpos)
 {
     float o1[4];
@@ -3288,8 +3249,6 @@ int isEnterHideadv_EnemyLocation(float *bpos, float *gpos)
 }
 
 extern void *D_00629DE4;
-/* kept local: float (void *, void *) here, void (void *, void *) in gv.h */
-extern float _DistxzSqGV(void *, void *);
 
 int isEnterHideadv(void)
 {
@@ -4689,9 +4648,6 @@ void actGirlRescueDst(volatile int a0)
         _ACTWait(1);
     }
 }
-
-/* kept local: agrees with gv.h, which this TU does not include (GetMatrixDirectionToZ, _DistGV differ) */
-extern float _MoveGV(float *dst, float *from, float *to, float t);
 
 inline void actGirlSupportGBBegin(volatile int a0)
 {

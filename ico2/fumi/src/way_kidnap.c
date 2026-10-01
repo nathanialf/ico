@@ -29,13 +29,6 @@ static inline void ClearWpPos(void)
     }
 }
 
-typedef struct WayPoint {
-    char unk00[0x10];
-    float pos[4];
-    char unk20[0x10];
-    int f30;
-} WayPoint;
-
 typedef struct WpPosEntry {
     WayPoint *wp;
     float len;
@@ -52,7 +45,7 @@ typedef struct WpPosEntry {
    the run's end to 8 bytes; 275 or 276 node slots and 94 or 96 flags lay
    out the same, but the entry table's count is pinned by the run's end (see
    its own comment). */
-static struct WpNode *searchNodes[275];
+static WayPoint *searchNodes[275];
 
 static char edgeDone[94];
 
@@ -99,37 +92,11 @@ inline int CopyWpPos(float dst[][4], int from, int to)
     return 0;
 }
 
-typedef struct WpNode {
-    int f0;
-    int _4;
-    struct WpNode *f8;
-    struct WpNode *fC;
-    float pos[4];
-    int f20;
-    int f24;
-    int _28;
-    int _2C;
-    int f30;
-    int _34[3];
-} WpNode;
-
-typedef struct WayWork {
-    char unk00[0x2C];
-    WpNode *f2C;
-    char unk30[0x14];
-    int f44;
-    char unk48[0x1C];
-    int f64;
-    char unk68[0x8];
-    int f70;
-    char unk74[0xC];
-} WayWork;
-
 float WayLengthOfPos_Pos(float *pos0, float *pos1)
 {
     float cur[4];
     float dst[4];
-    WayWork w;
+    WVTObj w;
     WayPoint *wp;
     WayPoint *wp0;
     WayPoint *wp1;
@@ -138,8 +105,8 @@ float WayLengthOfPos_Pos(float *pos0, float *pos1)
 
     len = 0.0f;
 
-    w.f64 = -1;
-    w.f2C = 0;
+    w.w64 = -1;
+    w.w2C = 0;
     sceVu0CopyVector(cur, pos0);
     sceVu0CopyVector(dst, pos1);
     wp0 = visible_waypoint_of_all(cur);
@@ -155,10 +122,10 @@ float WayLengthOfPos_Pos(float *pos0, float *pos1)
     if (wp == wp1) {
         goto found;
     }
-    if (w.f70 == 2) {
+    if (w.w70 == 2) {
         goto fail;
     }
-    if (wayRangeLimit == 0 && w.f70 == 1) {
+    if (wayRangeLimit == 0 && w.w70 == 1) {
         goto fail;
     }
 
@@ -173,7 +140,7 @@ float WayLengthOfPos_Pos(float *pos0, float *pos1)
         }
         wp = GetWay_next(&w, cur);
 
-        if (w.f44 != 0) {
+        if (w.w44 != 0) {
             if (wp == wp1) {
                 goto found;
             }
@@ -264,7 +231,7 @@ static inline void WayRangeSearch(float *pos, float range, WpPosEntry *e, int li
     wayRangeLimit = 0;
 }
 
-int WayPointWithRangeFromPos(float *pos, int mode, float range)
+int WayPointWithRangeFromPos(float *pos, float range, int mode)
 {
     WpPosEntry e;
     int n;
@@ -280,7 +247,7 @@ int WayPointWithRangeFromPos(float *pos, int mode, float range)
         WayRangeSearch(pos, range, &e, 0, 1);
 
         n = NumOfWpPos();
-        qsort(wpPosInfo, n, 8, wpsort_compfnc);
+        qsort(wpPosInfo, n, sizeof(WpPosEntry), wpsort_compfnc);
         for (i = 0; i < n; i++) {
             sceVu0CopyVector(wpPosVec[i], wpPosInfo[i].wp->pos);
         }
@@ -294,7 +261,7 @@ int WayPointWithRangeFromPos(float *pos, int mode, float range)
         WayRangeSearch(pos, range, &e, 1, 1);
 
         n = NumOfWpPos();
-        qsort(wpPosInfo, n, 8, wpsort_compfnc);
+        qsort(wpPosInfo, n, sizeof(WpPosEntry), wpsort_compfnc);
         for (i = 0; i < n; i++) {
             sceVu0CopyVector(wpPosVec[i], wpPosInfo[i].wp->pos);
         }
@@ -304,28 +271,9 @@ int WayPointWithRangeFromPos(float *pos, int mode, float range)
     return NumOfWpPos();
 }
 
-extern WpNode way_point[];
-
-/* One entry of the way-edge table: the pair of waypoint nodes an edge joins
-   (f8/fC), the two node indices it spans (f20[]) and its enable flags. */
-typedef struct WayEdge {
-    int f0;
-    int _4;
-    WpNode *f8;
-    WpNode *fC;
-    int _10[2];
-    int f18;
-    int _1C;
-    int f20[2];
-    int f28;
-    int _2C[2];
-} WayEdge;
-
-extern WayEdge way_group[];
-
-static inline WpNode *SearchOpenNode(WpNode *start)
+static inline WayPoint *SearchOpenNode(WayPoint *start)
 {
-    WpNode *p;
+    WayPoint *p;
     int wrapped;
     int hit;
 
@@ -373,11 +321,11 @@ static __inline__ void wayKidnapDebugEdge(int k)
 #endif
 }
 
-int WayPointWithRangeFromPos2(float *pos, WayWork *w, float *dst, int chk)
+int WayPointWithRangeFromPos2(float *pos, WVTObj *w, float *dst, int chk)
 {
     float v[4];
-    WpNode *found;
-    WpNode *cur;
+    WayPoint *found;
+    WayPoint *cur;
     /* RULING-VESTIGIAL-EXCEPTION (supervisor 2026-09-24, under the user's
        2026-09-21 standard for dead assignments the ROM proves).
        Deleted-code window (c3p75/c3p76, for the landing audit): the
@@ -385,14 +333,14 @@ int WayPointWithRangeFromPos2(float *pos, WayWork *w, float *dst, int chk)
        loop before any read) and flow deletes it. What the bytes pin: a
        second set of edge before cse1, since alias.c record_set then
        forgets edge's base and the char store edgeDone[k] = 1 kills the
-       edge->f20[j] load, which the bridge arm reloads at 0x2157E0; without
+       edge->end[j] load, which the bridge arm reloads at 0x2157E0; without
        it the function is 354 words. What they cannot pin: the statement.
        The declaration form follows this programmer's pointer locals
        initialised to 0 (`void *nearest = 0;` in NearestEnemyFromGirl here,
        `HandModeCmd *hmc = 0;` in act-game.c, `char *gen = 0;` in
        commonact.c). */
-    WayEdge *edge = 0;
-    WpNode *nearest;
+    WayGroup *edge = 0;
+    WayPoint *nearest;
     float best;
     float d;
     int n = 0;
@@ -408,7 +356,7 @@ int WayPointWithRangeFromPos2(float *pos, WayWork *w, float *dst, int chk)
     }
     GetWay_begin(pos, w, pos);
     found = 0;
-    cur = w->f2C;
+    cur = w->w2C;
     if (cur == 0) {
         /* my own WAY was not found */
         debug_StdPrintfDummy("自分のWAYが見付からなかった");
@@ -462,7 +410,7 @@ int WayPointWithRangeFromPos2(float *pos, WayWork *w, float *dst, int chk)
                     continue;
                 }
                 for (j = 0; j < 2; j++) {
-                    if (cur->f20 != ((WpNode *)way_point)[way_group[k].f20[j]].f20) {
+                    if (cur->f20 != way_point[way_group[k].end[j]].f20) {
                         continue;
                     }
                     if (edgeDone[k] != 0) {
@@ -482,7 +430,7 @@ int WayPointWithRangeFromPos2(float *pos, WayWork *w, float *dst, int chk)
             }
         } else {
             for (j = 0; j < 2; j++) {
-                k = ((WpNode *)way_point)[edge->f20[j]].f20;
+                k = way_point[edge->end[j]].f20;
                 if (edgeDone[k] != 0) {
                     continue;
                 }
@@ -490,7 +438,7 @@ int WayPointWithRangeFromPos2(float *pos, WayWork *w, float *dst, int chk)
                 if (chk && way_group[k].f28 == 0) {
                     continue;
                 }
-                searchNodes[n++] = &way_point[edge->f20[j]];
+                searchNodes[n++] = &way_point[edge->end[j]];
                 debug_StdPrintfDummy("add bridge wp %p %d %d\n", searchNodes[n - 1], j, k);
             }
         }
@@ -539,7 +487,7 @@ inline int WayPointWithRangeFromGObj(void *obj, float f)
         return -1;
     }
     GetRootPosition(pos, obj);
-    return WayPointWithRangeFromPos(pos, 0, f);
+    return WayPointWithRangeFromPos(pos, f, 0);
 }
 
 void *NearestEnemyFromGirl(float *len)

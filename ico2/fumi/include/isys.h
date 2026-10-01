@@ -12,11 +12,12 @@
 #ifndef ISYS_H
 #define ISYS_H
 
-void isysInitialize(void);
+#include "typedef.h"
 
+void isysInitialize(void);
 /* MAIN.MAP globals of isys.o (defined in isys.c in this order) */
-extern int *gobj_link_head[8];
-extern int *gobj_link_tail[8];
+extern GObj *gobj_link_head[8];
+extern GObj *gobj_link_tail[8];
 extern int *gobj_dl_link_head[8];
 extern int *gobj_dl_link_tail[8];
 extern int active_gobj_link;

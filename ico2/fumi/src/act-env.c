@@ -66,6 +66,8 @@ extern void GetRootProjectionPosOfGObj(int a0, int a1);
 extern int stage_no;
 
 #include "act-env.h"
+#include "gv.h"
+#include "fieldCollision.h"
 
 inline void GetSofaPosition(char *a0, char *a1)
 {
@@ -88,13 +90,6 @@ extern char *girlGObj;
 /* Where the first carrier stands in the stage 8 ditch below the -3000 line
    (VMA 0x621A10, the run's second object). */
 static const Vec4 ditchCarryPos = {767.0f, -3775.0f, 2621.0f, 1.0f};
-
-/* kept local: float (void *) here, float (float *) in gv.h */
-extern float _GetDirection(void *orient);
-/* kept local: void (void *, float) here, void (float *, float) in gv.h */
-extern void _ApplyRyGV(void *v, float ry);
-/* kept local: void (void *, void *, void *) here, void (int) in gv.h */
-extern void _OrientXZGV(void *out, void *a, void *b);
 
 static inline int getDitchCarryMode(void)
 {
@@ -197,9 +192,6 @@ typedef struct {
     int f_94;
     char _98[0x28];
 } ClipWork;
-
-/* kept local: void (void *) here, int (void *) in fieldCollision.h */
-extern void ClipFloor(void *a0);
 
 int GetDitchPosition(float *out, float *org, float *dir, float d0, float d1, float h)
 {
@@ -359,10 +351,6 @@ typedef struct {
     float f_5A4; /* 0x5A4 */
 } EnvSub;
 
-/* kept local: float (void *, void *) here, void (void *, void *) in gv.h */
-extern float _DistxzSqGV(void *a0, void *a1);
-/* kept local: float (void *, void *) here, void (void *, void *) in gv.h */
-extern float _DistSqGV(void *a0, void *a1);
 extern int _FrontGV(float *a0, float *a1, void *ori, int deg);
 extern int CheckPureCliffAttribute(void *a0, int attr);
 extern float GetCorrectDistance(float d, int n);

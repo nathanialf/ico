@@ -31,14 +31,13 @@ static float wayWorkPos[4] = {0.0f, 0.0f, 0.0f, 1.0f};
    point_nige moves it and set_way_point_color highlights it */
 static int wayPointSel = -1; /* derived name */
 
-extern WayRec way_group[];
 /* kept local: int here, GObj * in main.h */
 extern int boyGObj;
 
 /* .sbss, owned by way_tool.o (MAIN.MAP names no symbol in the run), in the ROM's run order: the way
    record the tool is showing, the group the selection window is on, the camera
    target saved while the tool holds the camera, and the cursor object */
-static WayRec *selectedWay;
+static WayGroup *selectedWay;
 
 static int wayGroupSel;
 
@@ -102,7 +101,7 @@ int group_create(void)
         return 0;
     }
     if (debug_font_flag & 1) {
-        debug_Printf(26, 66, 0xFF808000, "pt.%d", selectedWay->w[4]);
+        debug_Printf(26, 66, 0xFF808000, "pt.%d", selectedWay->f10);
     }
     f = *(int *)&wayToolPad[12];
     if (f & 0x20) {
@@ -113,7 +112,7 @@ int group_create(void)
         return 0;
     }
     if (f & 0x40) {
-        if (selectedWay->w[4] == 0) {
+        if (selectedWay->f10 == 0) {
             DeleteWayGroup(current_select_gid);
         }
         createState = 0;
@@ -163,9 +162,9 @@ static inline void relabel_way_groups(void)
     int i;
 
     for (i = 0; i < 94; i++) {
-        if (way_group[i].w[0] == 1) {
-            sprintf(debugWayGroupSelect[n].s, "% 2d (% 2d) ", n, way_group[i].w[4]);
-            if (way_group[i].w[6] == 1) {
+        if (way_group[i].f0 == 1) {
+            sprintf(debugWayGroupSelect[n].s, "% 2d (% 2d) ", n, way_group[i].f10);
+            if (way_group[i].f18 == 1) {
                 strcat(debugWayGroupSelect[n].s, "b");
             }
             n++;
@@ -180,7 +179,7 @@ static inline void relabel_way_groups(void)
 static int group_select(void)
 {
     static int selectState = 0; /* derived name */
-    WayRec *e;
+    WayGroup *e;
     int state;
     int i;
     int r;
@@ -190,7 +189,7 @@ static int group_select(void)
         relabel_way_groups();
         for (i = 0; i < 94; i++) {
             e = &way_group[i];
-            if (e->w[0] == 1) {
+            if (e->f0 == 1) {
                 if (i == current_select_gid) {
                     wayGroupSel = i;
                     break;
@@ -203,7 +202,7 @@ static int group_select(void)
             set_bridge(current_select_gid);
             relabel_way_groups();
         } else if ((*(int *)&wayToolPad[12]) & 0x8000) {
-            way_group[current_select_gid].w[6] = 0;
+            way_group[current_select_gid].f18 = 0;
             relabel_way_groups();
         }
         r = debug_SelectCsvWindow("group + select", 0x12, 0x36, 0xB, debugWayGroupSelect, 8, 0, 1,
@@ -229,29 +228,29 @@ static int group_select(void)
 
 int point_delete(void)
 {
-    WayRec *entry = &way_group[current_select_gid];
+    WayGroup *entry = &way_group[current_select_gid];
     int f;
 
     if (debug_font_flag & 1) {
         debug_Printf(18, 54, 0xFF000000, "point + delete\n");
         if (debug_font_flag & 1) {
-            debug_Printf(26, 66, 0xFF808000, "pt.%d", entry->w[4]);
+            debug_Printf(26, 66, 0xFF808000, "pt.%d", entry->f10);
         }
     }
     f = *(int *)&wayToolPad[12];
     if (f & 0x20) {
-        char *res = waypoint_with_range((int *)wayWorkPos, 60.0f);
+        WayPoint *res = waypoint_with_range(wayWorkPos, 60.0f);
 
         if (res == 0) {
             return 0;
         }
         {
-            int n = *(int *)(res + 4);
+            int n = res->f4;
 
             wayPointSel = n;
             if (n >= 0) {
                 DeleteWayPoint(n);
-                if (entry->w[4] == 0) {
+                if (entry->f10 == 0) {
                     DeleteWayGroup(current_select_gid);
                 }
                 debug_StdPrintfDummy("delete waypoint %d\n", wayPointSel);
@@ -267,13 +266,13 @@ int point_delete(void)
 int point_insert(void)
 {
     static int insertState = 0; /* derived name */
-    WayRec *entry = &way_group[current_select_gid];
+    WayGroup *entry = &way_group[current_select_gid];
     int f;
 
     if (debug_font_flag & 1) {
         debug_Printf(18, 54, 0xFF000000, "point + insert\n");
         if (debug_font_flag & 1) {
-            debug_Printf(26, 66, 0xFF808000, "pt.%d", entry->w[4]);
+            debug_Printf(26, 66, 0xFF808000, "pt.%d", entry->f10);
         }
     }
     insertState = 1;
@@ -286,14 +285,14 @@ int point_insert(void)
         return 0;
     }
     {
-        void *res = nearest_waypoint_by_lineseg(wayWorkPos);
-        if (*(int *)((char *)res + 0xC) == 0) {
+        WayPoint *res = nearest_waypoint_by_lineseg(wayWorkPos);
+        if (res->fC == 0) {
             return 0;
         }
         {
             int n = CreateWayPoint(wayWorkPos);
-            InsertWayPointAfter(current_select_gid, *(int *)((char *)res + 4), n);
-            entry->w[4] = entry->w[4] + 1;
+            InsertWayPointAfter(current_select_gid, res->f4, n);
+            entry->f10 = entry->f10 + 1;
             debug_StdPrintfDummy("insert waypoint %d\n", n);
         }
     }
@@ -335,7 +334,7 @@ inline int play_way(void)
 
 inline int point_nige(void)
 {
-    int *p;
+    WayPoint *p;
     int v;
 
     if (debug_font_flag & 1) {
@@ -344,13 +343,13 @@ inline int point_nige(void)
     }
     v = *(int *)&wayToolPad[12];
     if (v & 0x20) {
-        p = (int *)waypoint_with_range((int *)wayWorkPos, 60.0f);
+        p = waypoint_with_range(wayWorkPos, 60.0f);
         if (p == 0) {
             return 0;
         }
-        wayPointSel = p[1];
-        if (p[1] >= 0) {
-            p[10] ^= 1;
+        wayPointSel = p->f4;
+        if (p->f4 >= 0) {
+            p->f28 ^= 1;
         }
     } else if (v & 0x40) {
         return -1;
@@ -443,24 +442,6 @@ typedef struct {
     int f18;
 } WaySrcPt;
 
-/* the runtime way point node, 0x40 bytes */
-typedef struct {
-    int _0[4];
-    float pos[4];
-    int _20;
-    float f24;
-    int f28;
-    float f2C;
-    int f30;
-    int _34[3];
-} WayNode;
-
-/* the way bridge list node */
-typedef struct WayBridge {
-    int f0;
-    int f4;
-} WayBridge;
-
 typedef struct {
     float f[4];
 } __attribute__((aligned(8))) WayPos;
@@ -468,17 +449,14 @@ typedef struct {
 extern StgPre stageData[];
 extern WaySrcGrp wayGroupSheet[];
 extern WaySrcPt wayPointSheet[];
-extern WayNode way_point[];
-extern WayBridge *WayBridgeAll_begin(void);
-extern WayBridge *WayBridgeAll_next(WayBridge *p);
 
 void ExtractWayData(int stage_no)
 {
     WayPos v;
     WaySrcGrp *e;
     WaySrcPt *q;
-    WayNode *w;
-    WayBridge *b;
+    WayPoint *w;
+    WayGroup *b;
     int start;
     int end;
     int i;
@@ -492,10 +470,10 @@ void ExtractWayData(int stage_no)
     for (i = start; i < end; i++) {
         e = &wayGroupSheet[i];
         g = CreateWayGroup();
-        way_group[g].w[6] = e->f2C;
-        way_group[g].w[8] = e->f30;
-        way_group[g].w[9] = e->f34;
-        way_group[g].w[10] = e->f38;
+        way_group[g].f18 = e->f2C;
+        way_group[g].end[0] = e->f30;
+        way_group[g].end[1] = e->f34;
+        way_group[g].f28 = e->f38;
         for (j = e->firstPoint; j < e->lastPoint; j++) {
             q = &wayPointSheet[j];
             {
@@ -507,7 +485,7 @@ void ExtractWayData(int stage_no)
                 t.f[2] = -q->z;
                 v = t;
             }
-            p = CreateWayPoint(&v);
+            p = CreateWayPoint(v.f);
             AddWayPoint(g, p);
             w = &way_point[p];
             w->f24 = q->fC;
@@ -533,16 +511,13 @@ typedef struct {
     char s[8];
 } WpName;
 
-extern WayRec *WayGroup_begin(void);
-extern WayRec *WayGroup_next(WayRec *p);
-
 int wp_print_out(void)
 {
     WpName name = {"way0000"};
     char line[0x100];
     char fname[0x70];
-    WayRec *g;
-    WayNode *p;
+    WayGroup *g;
+    WayPoint *p;
     int fd;
     int n;
 
@@ -557,9 +532,9 @@ int wp_print_out(void)
     sprintf(line, "equn\t\t%s_start\n", name.s);
     sceWrite(fd, line, strlen(line));
     for (n = 0, g = WayGroup_begin(); g != 0; g = WayGroup_next(g)) {
-        if (g->w[7] != 1) {
+        if (g->f1C != 1) {
             sprintf(line, "\t%d\t%d\t%s_%d_start\t%s_%d_end\t%d\t%d\t%d\t%d\n", n, n, name.s, n,
-                    name.s, n, g->w[5], g->w[6], -1, -1);
+                    name.s, n, g->f14, g->f18, -1, -1);
             sceWrite(fd, line, strlen(line));
             n++;
         }
@@ -567,10 +542,10 @@ int wp_print_out(void)
     sprintf(line, "equn\t\t%s_end\n", name.s);
     sceWrite(fd, line, strlen(line));
     for (n = 0, g = WayGroup_begin(); g != 0; g = WayGroup_next(g)) {
-        if (g->w[7] != 1) {
+        if (g->f1C != 1) {
             sprintf(line, "equn\t%s_%d_start\n", name.s, n);
             sceWrite(fd, line, strlen(line));
-            for (p = WayPointList_begin(g->w[1]); p != 0; p = WayPointList_next(p)) {
+            for (p = WayPointList_begin(g->f4); p != 0; p = WayPointList_next(p)) {
                 sprintf(line, "\t\t\t%d\t%d\t%d\t\t%d\t%d\n", (int)-p->pos[0], (int)-p->pos[1],
                         (int)-p->pos[2], (int)p->f24, p->f28);
                 sceWrite(fd, line, strlen(line));
@@ -611,50 +586,50 @@ static WayCol wayColorBridge = {{0xFF, 0x00, 0xFF, 0xFF}};
 /* kept local: unsigned int here, int in main.h */
 extern unsigned int frame_count;
 
-static inline void set_way_point_color(char *p, WayCol *col)
+static inline void set_way_point_color(WayPoint *p, WayCol *col)
 {
     WayCol *d = &wayDrawCol;
 
-    if (*(int *)(p + 0x28) != 0) {
+    if (p->f28 != 0) {
         *d = wayColorLinked;
-    } else if (*(int *)(p + 0x4) == wayPointSel) {
+    } else if (p->f4 == wayPointSel) {
         *d = wayColorSelected;
     } else {
         *d = *col;
     }
-    if (*(int *)(p + 0x30) != 0 && (frame_count & 0x10)) {
+    if (p->f30 != 0 && (frame_count & 0x10)) {
         *d = wayColorBlink;
     }
 }
 
 void draw_way_group(int g, WayCol *col)
 {
-    WayRec *e = &way_group[g];
+    WayGroup *e = &way_group[g];
     WayVec m;
     WayVec blink;
-    char *p;
-    char *q;
+    WayPoint *p;
+    float *q;
 
     memset(&blink, 0, 16);
     blink.f[1] = (float)frame_count * 0.116355285f;
     m = blink;
 
-    p = *(char **)&e->w[2];
+    p = e->f8;
     while (p != 0) {
-        q = p + 0x10;
+        q = p->pos;
         SetVObjRT(&m, q);
         set_way_point_color(p, col);
         DrawVObj(0, &wayDrawCol);
-        if (*(int *)(p + 0xC) != 0) {
+        if (p->fC != 0) {
             gif_StartPacketPri(11);
             sceVu0UnitMatrix(MatrixDrive_GetMatrix());
-            DrawLine(q, *(char **)(p + 0xC) + 0x10, col, 0x800000);
+            DrawLine(q, p->fC->pos, col, 0x800000);
             gif_EndPacket();
         }
-        if (*(char **)(p + 0xC) == *(char **)&e->w[2]) {
+        if (p->fC == e->f8) {
             break;
         }
-        p = *(char **)(p + 0xC);
+        p = p->fC;
     }
 }
 
@@ -663,8 +638,8 @@ void way_toolDL(int a0)
     WayVec m;
     WayVec blink;
     WayVec pp;
-    WayRec *e;
-    char *w;
+    WayGroup *e;
+    WayPoint *w;
     int i;
 
     if (debug_wayline == 0) {
@@ -686,8 +661,8 @@ void way_toolDL(int a0)
 
     for (i = 0; i < 94; i++) {
         e = &way_group[i];
-        if (e->w[0] == 1) {
-            if (e->w[10] != 0) {
+        if (e->f0 == 1) {
+            if (e->f28 != 0) {
                 if (i == current_select_gid) {
                     draw_way_group(i, &wayColorOpenCurrent);
                 } else {
@@ -700,14 +675,12 @@ void way_toolDL(int a0)
                     draw_way_group(i, &wayColorClosedOther);
                 }
             }
-            if (e->w[6] == 1) {
+            if (e->f18 == 1) {
                 sceVu0UnitMatrix(MatrixDrive_GetMatrix());
                 gif_StartPacketPri(11);
-                if (e->w[8] != -1) {
-                    DrawLine(*(char **)&e->w[2] + 0x10, way_point[e->w[8]].pos, &wayColorBridge,
-                             0x800000);
-                    DrawLine(*(char **)&e->w[3] + 0x10, way_point[e->w[9]].pos, &wayColorBridge,
-                             0x800000);
+                if (e->end[0] != -1) {
+                    DrawLine(e->f8->pos, way_point[e->end[0]].pos, &wayColorBridge, 0x800000);
+                    DrawLine(e->fC->pos, way_point[e->end[1]].pos, &wayColorBridge, 0x800000);
                 }
                 gif_EndPacket();
             }
@@ -719,7 +692,7 @@ void way_toolDL(int a0)
     GetRootProjectionPosOfGObj(&pp, boyGObj);
     w = visible_waypoint_of_all(&pp);
     if (w != 0) {
-        ez_circle(w + 0x10, &blink, 0x80800080, 20.0f);
+        ez_circle(w->pos, &blink, 0x80800080, 20.0f);
     }
 }
 

@@ -23,11 +23,11 @@ int CopyWpPos(float dst[][4], int from, int to);
 float WayLengthOfPos_Pos(float *pos0, float *pos1);
 float WayLengthOfGObj_Pos(void *obj, float *pos);
 float WayLengthOfGObj_GObj(void *obj0, void *obj1);
-int WayPointWithRangeFromPos(float *pos, int mode, float range);
+int WayPointWithRangeFromPos(float *pos, float range, int mode);
 
-struct WayWork;
+struct WVTObj;
 
-int WayPointWithRangeFromPos2(float *pos, struct WayWork *w, float *out, int flag);
+int WayPointWithRangeFromPos2(float *pos, struct WVTObj *w, float *out, int flag);
 int WayPointWithRangeFromGObj(void *obj, float f);
 void *NearestEnemyFromGirl(float *len);
 
