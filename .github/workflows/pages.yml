@@ -16,8 +16,8 @@ name: Deploy progress dashboard
 on:
   push:
     branches: [main, ntsc, aug6]
-    # Only the files the site actually serves. docs/ also holds this project's
-    # working documentation, and a ledger edit is not a reason to redeploy.
+    # Only the files the site actually serves. docs/ also holds the project's
+    # documentation, and a documentation edit is not a reason to redeploy.
     paths:
       - docs/index.html
       - docs/progress.json

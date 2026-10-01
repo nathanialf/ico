@@ -1,0 +1,63 @@
+#!/usr/bin/env bash
+# build.sh: build the PAL boot ELF from a clean clone in one command.
+#
+#   1. tools/setup.sh, when the toolchain under tools/cc/ or the venv is
+#      missing (Ghidra and pcsx2 are skipped here; run tools/setup.sh by hand
+#      for them).
+#   2. tools/extract_elf.sh, when baserom/pal/baseelf.elf is missing. It reads
+#      baserom/Ico_PAL.iso, the user's own image of the PAL disc.
+#   3. tools/build.sh setup: verify the base ELF and ROM SHA-1s, write
+#      build.ninja.
+#   4. ninja: compile, assemble, link, and run tools/check_elf.py --gate.
+#   5. Print check_elf's gate table once more, as the last thing on screen.
+#
+# Exits non-zero when any step fails. tools/build.sh keeps the individual
+# subcommands (setup, regen, clean, distclean, progress).
+set -euo pipefail
+
+ROOT="$(cd "$(dirname "$0")" && pwd)"
+cd "$ROOT"
+
+ISO="baserom/Ico_PAL.iso"
+BASEELF="baserom/pal/baseelf.elf"
+NINJA=".venv/bin/ninja"
+
+toolchain_ok() {
+    [[ -x .venv/bin/python && -x "$NINJA" ]] &&
+    [[ -x tools/cc/ee-gcc2.9-991111/ee-gcc ]] &&
+    [[ -x tools/cc/ee-gcc2.96/bin/as ]] &&
+    [[ -x tools/cc/binutils-2.10-ee/bin/ld ]] &&
+    [[ -x tools/cc/dvp-as/bin/dvp-as ]]
+}
+
+if ! toolchain_ok; then
+    echo "==> build.sh: toolchain incomplete, running tools/setup.sh"
+    SKIP_GHIDRA="${SKIP_GHIDRA:-1}" SKIP_PCSX2="${SKIP_PCSX2:-1}" tools/setup.sh
+    if ! toolchain_ok; then
+        echo "build.sh: tools/setup.sh finished but the toolchain is still incomplete;" >&2
+        echo "  see its output above (32-bit host libraries, network access)." >&2
+        exit 1
+    fi
+fi
+
+if [[ ! -f "$BASEELF" ]]; then
+    if [[ ! -f "$ISO" ]]; then
+        cat >&2 <<EOF
+build.sh: $BASEELF is missing and there is no disc image to extract it from.
+  Copy your own image of the PAL disc (SCES-50760) to $ISO:
+    mkdir -p baserom
+    cp "/path/to/Ico (Europe).iso" $ISO
+  then run ./build.sh again. Nothing under baserom/ is ever committed.
+EOF
+        exit 1
+    fi
+    echo "==> build.sh: extracting the base ELF from $ISO"
+    tools/extract_elf.sh
+fi
+
+tools/build.sh setup
+"$NINJA"
+
+echo
+echo "==> build.sh: gate"
+.venv/bin/python tools/check_elf.py --gate

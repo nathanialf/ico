@@ -27,10 +27,11 @@
 # after the January link, and their exact end inside trailing zero fill is not
 # recoverable (the bytes are identical either way).
 #
-# Rows that are C today (not a splat blob): motion-random-def's bytes are
+# Members whose bytes are C today: motion-random-def's bytes are
 # ico2/fumi/src/act-parallel-control.c's actPara_MakeTblTbl, obj-trigger-def's
 # and obj-trigger's are ico2/omori/src/objact.c's objActMailId and
-# objActMailTable. Those carves predate the 2026-09-30 decision.
+# objActMailTable. They were written as C before the data-only members were
+# taken from the user's disc instead.
 
 # ---- .data: after 0x2a79b8, before 0x319020 (DObj.o .data (C))
 # accessary: C:box.c D_002A79B8 (row base); pool/cage/puddle geo inits. ROM span 0x410 != MAIN.MAP 0x348 (+200 B); the last 16 B are zero (fill or table tail)

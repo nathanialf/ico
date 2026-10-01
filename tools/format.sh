@@ -3,8 +3,8 @@
 #   tools/format.sh            # rewrite every tracked .c under the source roots
 #   tools/format.sh --check    # exit 1 if any tracked .c is not formatted (pre-commit)
 #   tools/format.sh FILE...    # format just these files
-# Whitespace and line breaks only: the SHA-1 gate proves formatting never
-# changes the ROM. The binary is the `clang-format` wheel in the venv
+# Whitespace and line breaks only. The game compiles with -g, where a moved
+# line break can change the code, so run the byte gate after formatting. The binary is the `clang-format` wheel in the venv
 # (tools/setup.sh installs it); without it the check is skipped with a note.
 set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
@@ -33,7 +33,7 @@ if [[ "$mode" == check ]]; then
             bad=1
         fi
     done
-    # top-level blank-line layout (include / extern / INCLUDE_ASM blocks)
+    # top-level blank-line layout (include, declaration and preprocessor blocks)
     "$PY" "$LAYOUT" --check "${files[@]}" || bad=1
     exit $bad
 fi

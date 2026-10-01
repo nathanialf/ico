@@ -87,9 +87,8 @@ def main(argv: list[str] | None = None) -> int:
         f"  target:   {target}\n"
         f"  expected: {recorded}\n"
         f"  actual:   {actual}\n"
-        f"  localize: a .text divergence is the per-function asm diff's "
-        f"domain (quick_diff / match_diff); for a DATA divergence compare the "
-        f"built and base ELF bytes over the owning symbol's range.",
+        f"  localize: tools/check_elf.py --gate names the section that "
+        f"differs, and build/ico.pal.map names the object at that address.",
         file=sys.stderr,
     )
     return 1

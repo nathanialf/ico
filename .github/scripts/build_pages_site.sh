@@ -26,10 +26,10 @@
 #   _site/aug6/             `aug6`'s dashboard files  — Aug-6-2001 prototype
 #
 # Only the dashboard files listed in SITE_FILES are published, not all of
-# docs/. docs/ is also this project's working documentation directory (ledgers,
-# policy notes, the matching knowledge base), and a Pages deploy is public:
-# publishing the whole directory would put every working note online as a side
-# effect of a progress push. Add a file here to serve it.
+# docs/. docs/ also holds the project's documentation (docs/README.md indexes
+# it), which the dashboard does not serve; a Pages deploy is public, so the
+# served set is named rather than taken as a directory. Add a file here to
+# serve it.
 #   _site/progress.json     COMPAT COPY — holds the *aug6* data. A browser
 #                           holding a cached pre-toggle index.html fetches bare
 #                           `progress.json`; back when those pages were served,
@@ -55,8 +55,7 @@ VERSION_OF_ntsc=us
 VERSION_OF_aug6=aug6
 BRANCHES="main ntsc aug6"
 
-# The dashboard's served file set. Everything else in docs/ is working
-# documentation and stays unpublished.
+# The dashboard's served file set. Everything else in docs/ stays unpublished.
 SITE_FILES="index.html progress.json PROGRESS.md"
 
 version_of() { eval "printf '%s\n' \"\${VERSION_OF_$1-}\""; }

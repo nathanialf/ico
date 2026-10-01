@@ -50,7 +50,7 @@ DISC_DIR = REPO_ROOT / "baserom"
 # otherwise — see tools/ico_version.py.
 OUT_DIR = baserom_dir(REPO_ROOT, VERSION)
 ELF = baseelf_path(REPO_ROOT, VERSION)
-ROM = rom_path(REPO_ROOT, VERSION)     # objcopy -O binary view, splat's input
+ROM = rom_path(REPO_ROOT, VERSION)     # objcopy -O binary view, the ROM SHA-1's subject
 SHA1SUMS = REPO_ROOT / "config" / "sha1sums.txt"
 
 # Per-target disc recipe.
@@ -353,7 +353,7 @@ def main() -> int:
         return 4
     print(f"==> SHA-1 recorded/verified in {SHA1SUMS.relative_to(REPO_ROOT)}")
 
-    # 4. produce baseelf.rom (objcopy -O binary view) — splat's input
+    # 4. produce baseelf.rom (objcopy -O binary view), whose SHA-1 the build checks
     if not ROM.exists() or ROM.stat().st_mtime < ELF.stat().st_mtime:
         import shutil as _sh
         import subprocess as _sp

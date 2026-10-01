@@ -2,12 +2,12 @@
 #
 # The order is the retail link's object order as MAIN.MAP gives it: every
 # output section of config/link.pal.ld takes its inputs in this one order.
-# Until the cut-over it is re-derived from the splat link (config/ico.pal.ld and
-# build/ico.pal.map, last on 2026-10-01): the .text object order, each object
-# with no .text and each data-only member placed where its other sections and
-# MAIN.MAP's member order put it, the five VU microprograms as their sources. tools/gen_ninja_plain.py reads it and fails
-# on any tracked .c/.s/.dsm under ico2/ or sce/ that is missing here, and on any
-# listed file that does not exist.
+# Each object with no .text and each data-only member sits where its other
+# sections and MAIN.MAP's member order put it; the five VU microprograms are
+# listed as their sources. tools/gen_ninja.py reads this file and fails on any
+# tracked .c/.s/.dsm under ico2/ or sce/ that is missing here, and on any
+# listed file that does not exist. tools/ico_version.{py,sh} detect the
+# target (pal) by this file's existence.
 #
 # Line forms:
 #   <path>             a source file (.c compiled by tools/compile_c.sh, .s
@@ -18,25 +18,22 @@
 #                      run of them the order is MAIN.MAP's: its sections keep
 #                      their ROM order and interleave by member name.
 #
-# Transitional forms, all gone at the cut-over (the generator counts them):
-#   blob:cod/<name>    a splat blob, asm/data/cod/<name>.s, not carved yet
-#   part:<path>        a later run of <path>'s sections, placed here
-#   <sec>=<sel>,...    this line's input-section selectors for output section
-#                      <sec> (data or rodata) instead of the whole section;
-#                      "-" places none of them here
-#   align.<sec>=16     the ROM starts this object's <sec> 16-aligned after fill
-#                      that its own section alignment does not produce
-# While any line carries a part: or a <sec> token, the generator lists .data
-# and .rodata input by input (build/plain/<sec>.inputs.ld, INCLUDEd by the
-# script); with none, those files are empty and the script's wildcards alone
-# place the sections.
+# Token after a path:
+#   align.<sec>=16     the ROM starts this object's <sec> (data or rodata)
+#                      16-aligned after fill that its own section alignment
+#                      does not produce. While any line carries one,
+#                      tools/gen_ninja.py lists that output section input by
+#                      input (build/<sec>.inputs.ld, which the script
+#                      INCLUDEs) with an ALIGN before the object; otherwise
+#                      the file is empty and the script's wildcards alone
+#                      place the section.
 #
-# Not listed: splat's cod/18ECB0 (the 80 zero bytes after .vutext; .reginfo is
-# not allocated, the gap is fill), cod/44D320.data (zero bytes past the end of
-# .data), cod/539C54.lit4 (zero bytes past the end of .lit4), cod/538848.rodata
-# (no bytes), and eight zero pads that the next object's own section alignment
-# reproduces (cod/44A3CC.data, 44DB0C, 51EEC2, 51F182, 51F218, 51FA18 and
-# 51FBD8 .rodata, 53B8D9.sdata).
+# No object owns these zero runs (ROM offsets, VMA minus 0x100000): 0x18ECB0,
+# the 80 bytes after .vutext (.reginfo is not allocated, the gap is fill);
+# 0x44D320, past the end of .data; 0x539C54, past the end of .lit4; and eight
+# pads that the next object's own section alignment reproduces (0x44A3CC in
+# .data; 0x44DB0C, 0x51EEC2, 0x51F182, 0x51F218, 0x51FA18 and 0x51FBD8 in
+# .rodata; 0x53B8D9 in .sdata). The run at 0x538848 in .rodata is empty.
 
 sce/crt0.s
 sce/libkernl/klib.s

@@ -3,8 +3,8 @@
 ; whose hash the base's overlay section .DVP.overlay..0x0.<hash>.11.0
 ; carries (tc-dvp.c vuoverlay_section_name), assembled from ico2/.
 ;
-; Assembled by tools/cc/dvp-as (ps2dev dvp-v2.45.1) through the vu rule of
-; tools/gen_ninja_plain.py and, for splat's hasm row, by tools/build.sh.
+; Assembled by tools/cc/dvp-as (ps2dev dvp-v2.45.1) through the vu rule
+; that tools/gen_ninja.py writes into build.ninja, run from ico2/.
 	.global ClusterMicroProgram
 ClusterMicroProgram:
 	DMAret *

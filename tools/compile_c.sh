@@ -23,27 +23,23 @@ else
 fi
 OBJCOPY="${MIPS_PREFIX}objcopy"
 
-# TWO ASSEMBLERS, SELECTED PER ARCHIVE BY THE DISC'S LINK (user ruling 2026-09-27,
-# docs/NOTES.md "Assembler per archive"). MAIN.MAP takes libc.a, libm.a and
-# libgcc.a from the studio's ee-gcc 2.9-991111-01 install and every other archive
-# from Sony's SDK install (/usr/local/sce/ee/lib, version strings PsIIlib* 2200
-# and 2240 in the ELF). The game and the compiler-install libraries were
-# assembled by the assembler bundled with that compiler, EE_AS_OLD: 142 game TUs
-# and 12 libc/libm TUs only match under it. The SDK-install archives were
-# compiled by a compiler code-identical to it (SCE's later 2.96 is ruled out by
-# size) but assembled by a later gas that fills reorder-mode branch delay slots:
-# sceGsSyncPath, sceScfSetT10kConfig and cmd_sem_init are the compiler's own
-# output plus that swap, and all 58 matched archive TUs are byte-identical under
-# both. EE_AS_SDK is SCE's own 2.10-ee-001003-1 assembler (tools/setup.sh
-# fetches it), which reproduces all three; the bytes prove the behaviour, not
-# which gas binary Sony's library build ran. The selection is by ARCHIVE only:
-# never per TU, never per function, never a config opt-in (config/use_as296.txt,
-# a per-TU opt-in, was tried and reverted 2026-08-05 for exactly that reason).
-# Compiler-install assembler, whose delay-slot reorder is LESS aggressive than 2.10: it
-# does not hoist a preceding unaligned store (sdl/sdr/...) into a `j <func>`
-# tail-call delay slot, matching the original ICO toolchain (verified universal:
-# 0 of 783 ROM tail-calls carry an unaligned store in the delay). It is THE
-# assembler for every C TU — there is no per-TU selection and no fallback.
+# TWO ASSEMBLERS, SELECTED PER ARCHIVE BY THE DISC'S LINK. MAIN.MAP takes
+# libc.a, libm.a and libgcc.a from the studio's ee-gcc 2.9-991111-01 install and
+# every other archive from Sony's SDK install (/usr/local/sce/ee/lib, version
+# strings PsIIlib* 2200 and 2240 in the ELF). The game and the compiler-install
+# libraries were assembled by the assembler bundled with that compiler,
+# EE_AS_OLD: 142 game TUs and 12 libc/libm TUs only match under it. The
+# SDK-install archives were compiled by a compiler code-identical to it (SCE's
+# later 2.96 is ruled out by size) but assembled by a later gas that fills
+# reorder-mode branch delay slots: sceGsSyncPath, sceScfSetT10kConfig and
+# cmd_sem_init are the compiler's own output plus that swap, and all 58 archive
+# TUs measured are byte-identical under both. EE_AS_SDK is SCE's own
+# 2.10-ee-001003-1 assembler (tools/setup.sh fetches it), which reproduces all
+# three; the bytes prove the behaviour, not which gas binary Sony's library
+# build ran. The selection is by archive only, never per TU or per function.
+# EE_AS_OLD's delay-slot reorder is less aggressive than 2.10's: it does not
+# hoist a preceding unaligned store (sdl/sdr/...) into a `j <func>` tail-call
+# delay slot, and 0 of the ROM's 783 tail calls carry one there.
 EE_AS_OLD="${ROOT}/tools/cc/ee-gcc2.9-991111/bin/as"
 # SDK-install archive assembler (see the paragraph above).
 EE_AS_SDK="${ROOT}/tools/cc/ee-gcc2.96/bin/as"
@@ -68,8 +64,7 @@ EE_AS_SDK="${ROOT}/tools/cc/ee-gcc2.96/bin/as"
 # (72 .c files, measured 2026-09-30 with objdump -dr) is byte-identical
 # either way. The game compiled plain, which is what expands the aligned
 # six-byte memcpy in layout_action (measured 2026-09-18).
-# The same split decides -g (user ruling 2026-09-27, docs/NOTES.md "-g for the
-# game"): the studio compiled the game with line information and Sony's
+# The same split decides -g: the studio compiled the game with line information and Sony's
 # archives were built without it. Measured: Info-ZIP's plain huft_build text,
 # the shape the listing's line map shows, gives the ROM's 498 words only with
 # -g (a line note left after the deleted break keeps cse_around_loop off the
@@ -187,47 +182,20 @@ if [ -n "${DUMP_DIR:-}" ]; then
     echo "compile_c.sh: dumps in ${DUMP_DIR}" >&2
 fi
 
-# No rewrite of compiler output is left. The last one was the inline-asm return
-# wrap: ee-as 2.9-991111 swaps the final instruction of a gcc inline-asm block
-# into the following `jr $31` delay slot, and the ROM has a `nop` there in all
-# 69 ico2 sites. That is a source fact, not an assembler fact, and the ROM says
-# so: sce/libvu0 carries `sqc2` in 26 of its own return slots, the raw
-# toolchain's output, so the SDK and the game were built from differently
-# spelled VU0 asm templates. The game side's template now spells `.set
-# noreorder` / `.set reorder` around its body, in ico2/common/include/typedef.h
-# and in the four hand-written blocks of ico2/seki/src/Matrix.c, which
-# reproduces all six objects byte-identical with no rewrite at all. libvu0's
-# own copy of the macros stays raw.
+# The assembler reads cc1's .s as it is: no step rewrites compiler or assembler
+# output. The ROM's encodings that once looked like rewrites are the period
+# assembler's own: ee-as 2.9-991111 encodes `move` as `daddu $r,$s,$0`, puts a
+# single-operand `break N` code in the low field, emits `cvt.w.s` as the ROM's
+# COP1 word (function 0x24, which modern objdump prints as trunc.w.s), and takes
+# the VU0 registers ACC, Q and R spelled bare. The `nop` the ROM has in the
+# `jr $31` slot after a game inline-asm block comes from the source: the game's
+# VU0 template wraps its body in `.set noreorder` / `.set reorder`
+# (ico2/common/include/typedef.h, ico2/seki/src/Matrix.c), while sce/libvu0's
+# own templates do not and carry `sqc2` in 26 of their return slots.
 
-# `move` and `break N` need no rewrite: ee-as 2.9-991111 already encodes `move`
-# as `daddu $r,$s,$0` and puts a single-operand `break N` code in the LOW field,
-# both the ROM's encodings. The two sed rewrites that forced them (24057 and 349
-# sites) were measured byte-dead on the whole tree and dropped 2026-09-15.
-
-# `cvt.w.s` is assembled by the period assembler itself: ee-as 2.9-991111 emits the
-# ROM's COP1 word (function 0x24, which modern objdump prints as trunc.w.s). The
-# former `.word` rewrite (a modern-gas parity shim, retired with that fallback)
-# made gas flush pending hazards at the data directive and emitted nops the ROM
-# does not have (after mfc1, and after a store two insns past a c.lt.s); dropped
-# 2026-09-05, whole ROM re-verified byte-identical.
-
-# NOTE: the r5900 special VU0 registers ACC / Q / R need no translation here:
-# the inline asm spells them bare, the period assembler's dialect (converted at
-# source on 2026-08-01).
-
-# Assembler, selected per ARCHIVE by the disc's link (the paragraph at EE_AS_OLD
-# and docs/NOTES.md "Assembler per archive"): the game and the compiler-install
-# libraries (libc, libm, libgcc) on the assembler bundled with the compiler, the
-# SDK-install archives on SCE's 2.10-ee assembler that fills reorder-mode delay
-# slots as Sony's library build did. The assembler reads cc1's .s as it is:
-# with every function in C there is nothing to flatten (the former
-# preprocess_old_as.py step was measured a no-op on all 371 .s files before it
-# was deleted, 2026-09-30).
-# There is no per-TU and no per-function selection and no config opt-in
-# (config/use_as296.txt was tried and reverted 2026-08-05; config/use_old_as.txt
-# retired 2026-09-04), and no modern-gas path at all (retired 2026-08-05: it
-# manufactured 8 false delay-slot matches in GAME code, where the ROM proves the
-# slots bare).
+# Assembler by archive, as described at EE_AS_OLD above: the game and the
+# compiler-install libraries (libc, libm, libgcc) on the assembler bundled with
+# the compiler, the SDK-install archives on SCE's 2.10-ee assembler.
 case "${SRC}" in
     sce/libc/*|*/sce/libc/*|sce/libm/*|*/sce/libm/*|sce/libgcc/*|*/sce/libgcc/*)
         SELECTED_EE_AS="${EE_AS_OLD}" ;;   # compiler-install archives (MAIN.MAP)
@@ -237,22 +205,10 @@ case "${SRC}" in
         SELECTED_EE_AS="${EE_AS_OLD}" ;;   # the game
 esac
 
-# THE SELECTED ASSEMBLER IS THE ONLY ASSEMBLER FOR THIS TU. There is no modern-gas
-# path here any more — no allowlist, no failure fallback. Retired 2026-08-05.
-#
-# WHY (do not reinstate either one):
-#   Modern gas fills delay slots that ee-as 2.9-991111 leaves bare, so a GAME TU
-#   that reached it could "match" on the ASSEMBLER's scheduling rather than on
-#   source shape. That produced 8 false matches (1 enemy, 2 Packet, 5
-#   vendor_2418A0), every one of which had to be reverted to INCLUDE_ASM on
-#   2026-08-01 and re-derived in C. The game's slots are bare in the ROM; only the
-#   SDK-install archives carry the fill, and those get it by the archive rule
-#   above, never by a fallback.
-#
-# If the selected assembler rejects this TU, that is a REAL defect in the .s to be
-# fixed at the source (a past cause: the $ACC/$Q/$R sigil dialect, now spelled
-# bare at source). Hard-fail so ninja
-# stops on it instead of silently producing an object from a different assembler.
+# The selected assembler is the only one for this source, with no fallback. A
+# modern gas fills delay slots that ee-as 2.9-991111 leaves bare, and the
+# game's slots are bare in the ROM. If the assembler rejects the .s, the defect
+# is in the source; fail so ninja stops.
 # shellcheck disable=SC2086
 if "${ROOT}/tools/period_env.sh" "${SELECTED_EE_AS}" ${EE_ASFLAGS} -o "${OUT}" "${S}" 2>"${OUT}.aserr"; then
     rm -f "${OUT}.aserr"
@@ -261,8 +217,6 @@ else
     echo "compile_c.sh: assembler ${SELECTED_EE_AS} REJECTED ${S}" >&2
     grep -iE 'error' "${OUT}.aserr" | head -20 >&2 || head -20 "${OUT}.aserr" >&2
     rm -f "${OUT}.aserr" "${OUT}"
-    echo "  This is a source defect to FIX, not an assembler to swap: there is no" >&2
-    echo "  modern-gas fallback (retired 2026-08-05 — it manufactured 8 false" >&2
-    echo "  delay-slot matches). See docs/NOTES.md \"Assembler\"." >&2
+    echo "  Fix the source; the assembler is chosen by archive and has no fallback." >&2
     exit 1
 fi

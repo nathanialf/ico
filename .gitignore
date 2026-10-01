@@ -91,8 +91,7 @@ tools/cc/
 
 # --- Agent guidance / local-only ---
 # CLAUDE.md is auto-loaded by Claude Code and is the agent's local preamble;
-# kept out of the public repo to match the snap project's convention.
-# docs/MATCH.md is the public, user-facing matching prompt.
+# it stays out of the public repo.
 CLAUDE.md
 .claude/
 docs/RUN_LOG.md
@@ -100,19 +99,12 @@ docs/RUN_LOG.md
 # config/link_order.pal.txt on every `tools/build.sh setup`. The .ninja_log
 # and .ninja_deps are runtime state.
 build.ninja
-build.plain.ninja
 .ninja_log
 .ninja_deps
 
-# --- Cross-target knowledge docs — shared across branches, local-only ---
-# These are the accumulated, target-INDEPENDENT matching wisdom (cookbook,
-# notes, matching guides, legal/build references). They apply equally to the
-# PAL retail target (this branch, `main`), the USA retail target (`ntsc`) and
-# the Aug-6-2001 prototype (`aug6`). To avoid divergence/merge pain and keep a
-# single physical copy that `git checkout` never clobbers, they are gitignored +
-# untracked (same convention as CLAUDE.md / .claude/). Edit them freely on any
-# branch; the one working-tree copy is shared. History up to the untrack commit
-# lives in the repo; go-forward changes are local-only.
+# --- The matching era's working notes: local-only, not part of the repository ---
+# Cookbook, notes and matching guides kept on the maintainer's machine and
+# shared by the three branches' working trees. docs/README.md lists them.
 docs/COOKBOOK.md
 docs/NOTES.md
 docs/ARCHIVE_retired_notes.md
@@ -126,8 +118,6 @@ docs/header_candidates.md
 docs/RODATA_PHASE3D.md
 docs/RODATA_ROADMAP.md
 docs/multi_tu_slices.md
-docs/LEGAL.md
-docs/BUILDING.md
 docs/MATCHING_NOTES.md
 
 # Retail->aug6 port-audit artifacts (normalized-asm twin map, 2026-06-08).

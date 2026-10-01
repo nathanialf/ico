@@ -289,5 +289,5 @@ case "$ICO_VERSION" in
     us)   echo "  1. Place your disc image at baserom/Ico_USA.bin (+ .cue)" ;;
     *)    echo "  1. Place your $ICO_VERSION disc image under baserom/" ;;
 esac
-echo "  2. Run 'tools/extract_elf.sh' to extract $ICO_BASEELF and record SHA-1"
-echo "  3. Run 'tools/build.sh setup && .venv/bin/ninja' to verify and build"
+echo "  2. Run './build.sh' (or 'tools/extract_elf.sh', then"
+echo "     'tools/build.sh setup && .venv/bin/ninja') to extract $ICO_BASEELF and build"
