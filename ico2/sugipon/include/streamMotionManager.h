@@ -21,10 +21,10 @@ struct CdvdBgReq;
 /* The declarations below lead this header because their order is load-bearing:
  * gcc 2.9 emits the deferred out-of-line copy of a plain-inline function in
  * first-declaration order, so this is the order streamMotionManager.c's inline tail has. */
-void StandbyStreamMotion(char *self);
+void StandbyStreamMotion(char *file);
 void StopStreamMotion(void);
 void DeleteStreamMotionManager(void);
-int EntryStreamMotion(struct GObj *a0);
+int EntryStreamMotion(struct GObj *gobj);
 int GetDataSizeOfStreamMotion(int no);
 float GetStreamMotionData(char *dst, int no);
 void InitStreamMotionManager(void);

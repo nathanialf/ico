@@ -273,9 +273,9 @@ static float *wireLetterGlyphs[48] = {
     0,
 }; /* derived name */
 
-static int wireStringColorDefault[4] = {0x80, 0xC8, 0xFF, 0x80}; /* derived name */
+static int wireStringColorDefault[4] = {128, 200, 255, 128}; /* derived name */
 
-static int wireStringColor[4] = {0x80, 0xC8, 0xFF, 0x80}; /* derived name */
+static int wireStringColor[4] = {128, 200, 255, 128}; /* derived name */
 
 inline void Draw2DBox(float x0, float y0, float x1, float y1)
 {
@@ -283,15 +283,13 @@ inline void Draw2DBox(float x0, float y0, float x1, float y1)
     WLBoxPnt b = {x0, y1, 0};
     WLBoxPnt c = {x1, y1, 0};
     WLBoxPnt d = {x1, y0, 0};
-    gif_StartPacketPri(0xB);
+    gif_StartPacketPri(11);
     DrawLineG(&a, wireStringColor, &b, wireStringColor, -1);
     DrawLineG(&b, wireStringColor, &c, wireStringColor, -1);
     DrawLineG(&c, wireStringColor, &d, wireStringColor, -1);
     DrawLineG(&d, wireStringColor, &a, wireStringColor, -1);
     gif_EndPacket();
 }
-
-void DispWireLetter(int c);
 
 void DispWireLetter(int c)
 {
@@ -303,7 +301,7 @@ void DispWireLetter(int c)
         p = wireLetterGlyphs[idx];
         if (p != 0) {
             MatrixDrive_PushMatrix();
-            gif_StartPacketPri(0xB);
+            gif_StartPacketPri(11);
             gif_SetAlpha(1, 5, 0);
             for (i = 0; p[i * 4] < 100.0f; i++) {
                 WLPnt a = {p[i * 4 + 0], -p[i * 4 + 1], 0};
@@ -339,11 +337,11 @@ void DispWireString(char *s)
         }
 }
 
-inline void ChangeColorWireString(int a0, int a1, int a2)
+inline void ChangeColorWireString(int r, int g, int b)
 {
-    wireStringColor[0] = a0;
-    wireStringColor[1] = a1;
-    wireStringColor[2] = a2;
+    wireStringColor[0] = r;
+    wireStringColor[1] = g;
+    wireStringColor[2] = b;
 }
 
 void DefaultColorWireString(void)

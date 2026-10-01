@@ -2,7 +2,7 @@
 #include "way_sys.h"
 
 /* the manager object */
-static int waySystemManagerGObj = 0; /* derived name */
+static GObj *waySystemManagerGObj = 0; /* derived name */
 
 /* void * (void *, int) here, void (int, int) in act.h */
 extern void *actCreateSubThreadGOppArg(void *entry, int arg);
@@ -24,11 +24,11 @@ static inline void actWaySystemCore(volatile unsigned int self)
     s[0xB0 / 4] = 0;
 }
 
-inline void *RequestGetWayBegin(int *a0)
+inline void *RequestGetWayBegin(int *req)
 {
-    void *t = actCreateSubThreadGOppArg(actWaySystemCore, 0x15);
-    *(int **)((char *)t + 0x20) = a0;
-    a0[0] = 0;
+    void *t = actCreateSubThreadGOppArg(actWaySystemCore, 21);
+    *(int **)((char *)t + 0x20) = req;
+    req[0] = 0;
     return t;
 }
 
@@ -39,9 +39,9 @@ static inline void thStart(void)
     }
 }
 
-int CreateWaySystemManagerGObj(void)
+GObj *CreateWaySystemManagerGObj(void)
 {
-    int v = CreateGObjByFuncSet(0, 0, 0, 0, (int)&thStart, 0, 0);
+    GObj *v = CreateGObjByFuncSet(0, 0, 0, 0, thStart, 0, 0);
     waySystemManagerGObj = v;
     return v;
 }

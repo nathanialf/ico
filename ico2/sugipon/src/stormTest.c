@@ -67,7 +67,8 @@ StormPackage *InitStormPackage(int mode, int num, int flag)
     float t[4];
     int i;
 
-    pkg = (StormPackage *)iosMallocDebug(ios_partition_sugipon, 0x1C, "src/stormTest.c", 67);
+    pkg = (StormPackage *)iosMallocDebug(ios_partition_sugipon, sizeof(StormPackage),
+                                         "src/stormTest.c", 67);
     pkg->mode = mode;
     pkg->num = num;
     pkg->pos = (float (*)[4])iosMallocDebug(ios_partition_sugipon, num * 16, "src/stormTest.c", 71);
@@ -239,7 +240,7 @@ void DispStormPackage(StormPackage *pkg, void *color)
                 float dx;
                 float dy;
 
-                d[0] += 0x20;
+                d[0] += 32;
                 dx = (float)(sv[0] - d[0]);
                 dy = (float)(sv[1] - d[1]);
                 sceVu0ScaleVectorXYZ(col, color,
@@ -257,9 +258,10 @@ void DispStormPackage(StormPackage *pkg, void *color)
 
 inline StormTestWork *InitStormTestGeo(GObj *self, SObjSimpleSetting *lay)
 {
-    StormTestWork *obj = iosMallocDebug(ios_partition_sugipon, 0x30, "src/stormTest.c", 283);
-    register int v = lay->obj;
-    register int flag = 1;
+    StormTestWork *obj =
+        iosMallocDebug(ios_partition_sugipon, sizeof(StormTestWork), "src/stormTest.c", 283);
+    int v = lay->obj;
+    int flag = 1;
     obj->num = v;
     if (!(0.0f < lay->pos[0]))
         flag = 0;
@@ -271,14 +273,14 @@ inline StormTestWork *InitStormTestGeo(GObj *self, SObjSimpleSetting *lay)
     return obj;
 }
 
-void StormTestGeo(GObj *a0)
+void StormTestGeo(GObj *self)
 {
-    StormTestWork *p = GOBJ_SUB(a0)->work;
+    StormTestWork *p = GOBJ_SUB(self)->work;
     UpdateStormPackage(p->pkg);
 }
 
-void StormTestDL(GObj *a0)
+void StormTestDL(GObj *self)
 {
-    StormTestWork *p = GOBJ_SUB(a0)->work;
+    StormTestWork *p = GOBJ_SUB(self)->work;
     DispStormPackage(p->pkg, p->color);
 }

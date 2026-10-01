@@ -26,7 +26,7 @@ typedef struct WaterDotWork { /* field names derived */
     /* 0x0C */ int num2;       /* the second ring's size */
     /* 0x10 */ int cur2;       /* the second ring's slot */
     /* 0x14 */ WaterDot *dot2; /* num2 entries */
-    /* 0x18 */ int gobj;       /* the emitter the splash follows */
+    /* 0x18 */ struct GObj *gobj; /* the emitter the splash follows */
 } WaterDotWork; /* derived name */
 
 /* The declarations below lead this header because their order is load-bearing:
@@ -34,7 +34,7 @@ typedef struct WaterDotWork { /* field names derived */
  * first-declaration order, so this is the order waterDot.c's inline tail has. */
 void InitializeWaterDot(void);
 void EntryWaterDot(WaterDotWork *w, void *pos, void *vel, float range);
-WaterDotWork *AllocWaterDot(int gobj, int num, int num2);
+WaterDotWork *AllocWaterDot(struct GObj *gobj, int num, int num2);
 void DispWaterDot(WaterDotWork *w);
 void ExecWaterDot(WaterDotWork *w);
 void setWaterDot(WaterDot *dot, VECTOR *pos, VECTOR *vel);

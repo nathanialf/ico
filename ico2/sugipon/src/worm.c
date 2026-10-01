@@ -24,26 +24,11 @@ typedef union { /* field names derived */
 /* The worm tip highlight: the line's far endpoint and its colour. */
 static const Vec16 tipLineTo = {{0.0f, 10.0f, 0.0f, 1.0f}}; /* derived name */
 
-static const Color16 tipLineColor = {{0x80, 0x80, 0x80, 0x80}}; /* derived name */
+static const Color16 tipLineColor = {{128, 128, 128, 128}}; /* derived name */
 
 typedef struct { /* field names derived */
     float x, y, z, w;
 } __attribute__((aligned(16))) WormVec; /* derived name */
-
-typedef struct {    /* field names derived */
-    WormVec *pos;   /* 0x00 */
-    WormVec *prev;  /* 0x04 */
-    float *len;     /* 0x08 */
-    int pad0C[101]; /* 0x0C */
-} WormPnt;          /* derived name */
-
-/* the chain system InitChains returns (ChainSet), with its chains' points
-   read as vectors */
-typedef struct { /* field names derived */
-    ChainCfg *seg;
-    int nseg;
-    WormPnt *pnt;
-} WormRoute; /* derived name */
 
 typedef struct WormInit { /* field names derived */
     float pos[3];         /* 0x00 */
@@ -53,14 +38,14 @@ typedef struct WormInit { /* field names derived */
     float num;            /* 0x18 */
 } WormInit;               /* derived name */
 
-typedef struct { /* field names derived */
-    WormRoute *route;
+typedef struct {     /* field names derived */
+    ChainSet *route; /* the worm's chains (InitChains) */
     WormVec **src;
     float reduce;
     float ratio;
 } WormWork; /* derived name */
 
-static void simulate(WormVec *v, int n, float len);
+static void simulate(float (*v)[4], int n, float len);
 void GetWormRoute(GObj *act, void *target);
 
 #include "worm.h"
@@ -97,7 +82,7 @@ static void outerProcess(GObj *act)
     }
 }
 
-static void simulate(WormVec *v, int n, float len)
+static void simulate(float (*v)[4], int n, float len)
 {
     float d[4];
     float acc[4];
@@ -159,30 +144,30 @@ static void getAnimation(GObj *act)
 {
     float tmp[4];
     WormWork *w = GOBJ_SUB(act)->work;
-    WormRoute *r = w->route;
+    ChainSet *r = w->route;
     int i, j;
 
-    for (i = 0; i < r->nseg; i++) {
-        int num = r->seg[i].num;
-        WormVec *pos = r->pnt[i].pos;
-        WormVec *prev = r->pnt[i].prev;
-        ChainParam *pm = &r->seg[i].pm;
+    for (i = 0; i < r->num; i++) {
+        int num = r->cfg[i].num;
+        float (*pos)[4] = r->nodes[i].pos;
+        float (*vel)[4] = r->nodes[i].vel;
+        ChainParam *pm = &r->cfg[i].pm;
 
         for (j = 1; j < num; j++) {
-            CopyVector(tmp, &prev[j]);
-            sceVu0ScaleVector(&prev[j], &pos[j], -1.0f);
+            CopyVector(tmp, &vel[j]);
+            sceVu0ScaleVector(&vel[j], &pos[j], -1.0f);
             sceVu0AddVector(&pos[j], &pos[j], tmp);
         }
 
         simulate(pos, num - 1, pm->step * w->reduce);
 
         for (j = 0; j < num - 1; j++) {
-            r->pnt[i].len[j] = _GetLength(&pos[j], &pos[j + 1]);
+            r->nodes[i].len[j] = _GetLength(&pos[j], &pos[j + 1]);
         }
 
         for (j = 1; j < num; j++) {
-            sceVu0AddVector(&prev[j], &prev[j], &pos[j]);
-            sceVu0ScaleVector(&prev[j], &prev[j], 0.8f);
+            sceVu0AddVector(&vel[j], &vel[j], &pos[j]);
+            sceVu0ScaleVector(&vel[j], &vel[j], 0.8f);
         }
     }
 }
@@ -192,17 +177,17 @@ static void disp(GObj *act)
     unsigned short ax;
     unsigned short az;
     WormWork *w = GOBJ_SUB(act)->work;
-    WormRoute *r = w->route;
+    ChainSet *r = w->route;
     int i;
     int j;
     int k;
 
     p2o_SetDefaultEnviroment();
 
-    for (i = 0; i < r->nseg; i++) {
-        int num = r->seg[i].num;
-        float (*pos)[4] = (float (*)[4])r->pnt[i].pos;
-        float *len = r->pnt[i].len;
+    for (i = 0; i < r->num; i++) {
+        int num = r->cfg[i].num;
+        float (*pos)[4] = r->nodes[i].pos;
+        float *len = r->nodes[i].len;
 
         for (j = 1; j < num; j++) {
             sceVu0UnitMatrix(MatrixDrive_GetMatrix());
@@ -213,7 +198,7 @@ static void disp(GObj *act)
             MatrixDrive_RotMatrixZ(-az);
             MatrixDrive_PushMatrix();
             MatrixDrive_ScaleMatrix(2.0f, len[j - 1] * 0.02f, 2.0f);
-            MatrixDrive_RotMatrixX(-0x8000);
+            MatrixDrive_RotMatrixX(-32768);
             CopyMatrix((char *)GOBJ_SUB(act)->nodeMtx + (j * 64 - 64), MatrixDrive_GetMatrix());
             MatrixDrive_PopMatrix();
 
@@ -228,7 +213,7 @@ static void disp(GObj *act)
                 c1 = tipLineTo;
                 c2 = tipLineColor;
                 MatrixDrive_TransMatrix(0.0f, len[num - 2] * 0.02f, 0.0f);
-                for (k = 0; k <= 65535; k += 0x4000) {
+                for (k = 0; k <= 65535; k += 16384) {
                     MatrixDrive_PushMatrix();
                     MatrixDrive_RotMatrixY(k);
                     MatrixDrive_TransMatrix(0.0f, 0.0f, -5.0f);
@@ -260,13 +245,13 @@ void GetWormRoute(GObj *act, void *target)
 {
     WormVec d;
     WormWork *w = GOBJ_SUB(act)->work;
-    WormRoute *r = w->route;
+    ChainSet *r = w->route;
     int i;
     int j;
     float len;
 
-    for (i = 0; i < r->nseg; i++) {
-        CopyVector(w->src[i], r->pnt[i].pos);
+    for (i = 0; i < r->num; i++) {
+        CopyVector(w->src[i], r->nodes[i].pos);
         CopyVector(&w->src[i][9], target);
 
         for (j = 1; j < 9; j++) {
@@ -291,13 +276,13 @@ void GetWormRoute(GObj *act, void *target)
 inline void SetDirectWormTargetPos(GObj *act, void *pos)
 {
     WormWork *w = GOBJ_SUB(act)->work;
-    WormRoute *r = w->route;
+    ChainSet *r = w->route;
     int i;
 
-    for (i = 0; i < r->nseg; i++) {
-        int n = r->seg[i].num;
-        CopyVector(&r->pnt[i].pos[n - 1], pos);
-        r->pnt[i].pos[n - 1].w = 1.0f;
+    for (i = 0; i < r->num; i++) {
+        int n = r->cfg[i].num;
+        CopyVector(&r->nodes[i].pos[n - 1], pos);
+        r->nodes[i].pos[n - 1][3] = 1.0f;
     }
     w->ratio = 1.0f;
 }
@@ -305,17 +290,17 @@ inline void SetDirectWormTargetPos(GObj *act, void *pos)
 inline void TraceWormRoute(GObj *act, float t)
 {
     WormWork *w = GOBJ_SUB(act)->work;
-    WormRoute *r = w->route;
+    ChainSet *r = w->route;
     int i, j;
     float step = t * 8.99999f;
 
-    for (i = 0; i < r->nseg; i++) {
-        int n = r->seg[i].num;
+    for (i = 0; i < r->num; i++) {
+        int n = r->cfg[i].num;
         for (j = 1; j < n; j++) {
             float f = step * (float)j / (float)(n - 1);
-            sceVu0InterVectorXYZ(&r->pnt[i].pos[j], &w->src[i][(int)f + 1], &w->src[i][(int)f],
+            sceVu0InterVectorXYZ(&r->nodes[i].pos[j], &w->src[i][(int)f + 1], &w->src[i][(int)f],
                                  f - (float)(int)f);
-            r->pnt[i].pos[j].w = 1.0f;
+            r->nodes[i].pos[j][3] = 1.0f;
         }
     }
 }
@@ -323,22 +308,22 @@ inline void TraceWormRoute(GObj *act, float t)
 /* restart the worm's route; used only by WormGeo */
 static inline void ResetWormRoute(GObj *act, WormWork *w) /* derived name */
 {
-    WormRoute *r = w->route;
+    ChainSet *r = w->route;
     int i;
     int j;
 
-    for (i = 0; i < r->nseg; i++) {
-        int num = r->seg[i].num;
-        WormVec *pos = r->pnt[i].pos;
-        WormVec *prev = r->pnt[i].prev;
+    for (i = 0; i < r->num; i++) {
+        int num = r->cfg[i].num;
+        float (*pos)[4] = r->nodes[i].pos;
+        float (*vel)[4] = r->nodes[i].vel;
 
         for (j = 0; j < num; j++) {
-            CopyVector(&pos[j], r->seg[i].pm.root);
-            CopyVector(&prev[j], ZeroVector);
+            CopyVector(&pos[j], r->cfg[i].pm.root);
+            CopyVector(&vel[j], ZeroVector);
         }
     }
 
-    GetWormRoute(act, r->seg[0].pm.root);
+    GetWormRoute(act, r->cfg[0].pm.root);
     w->ratio = 0.0f;
 }
 
@@ -382,7 +367,7 @@ void *InitWormGeo(GObj *act, WormInit *ini)
     seg[nseg].num = -1;
     w->reduce = 1.0f;
     w->ratio = 1.0f;
-    w->route = (WormRoute *)InitChains(seg);
+    w->route = InitChains(seg);
 
     /* the first node's angle words cleared as floats; int stores through
        d->nodes->rot move InitWormGeo's schedule (measured) */
@@ -463,7 +448,7 @@ void WormGeo(GObj *act)
     getAnimation(act);
 }
 
-void WormDL(void *act)
+void WormDL(GObj *act)
 {
     disp(act);
 }

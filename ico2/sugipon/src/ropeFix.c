@@ -9,19 +9,19 @@ inline int InitRopeFixGeo(void)
     return 0;
 }
 
-void RopeFixGeo(int a0)
+void RopeFixGeo(GObj *fix)
 {
-    int v0 = isysGObjSearchFromObjKindID_begin(21);
-    if (v0 != 0) {
-        return SetChainParentGObj(v0, a0);
+    GObj *chain = isysGObjSearchFromObjKindID_begin(21);
+    if (chain != 0) {
+        SetChainParentGObj(chain, fix);
     }
 }
 
-void RopeFixDL(GObj *a0)
+void RopeFixDL(GObj *fix)
 {
-    int *s0 = a0->dobj;
-    if (s0[0x74 / 4] != 0) {
+    Sub15C *sub = fix->dobj;
+    if (sub->disp != 0) {
         p2o_SetDefaultEnviroment();
-        return p2o_DispVU1DObjMulti(s0);
+        p2o_DispVU1DObjMulti(sub);
     }
 }

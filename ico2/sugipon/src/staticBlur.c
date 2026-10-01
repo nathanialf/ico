@@ -940,9 +940,9 @@ void depthField(float depth, float alpha, float rate)
     gif_EndPacket();
 }
 
-void GetSunWorldPos(int a0)
+void GetSunWorldPos(float *pos)
 {
-    _NormalizeVector(a0, sunDir);
+    _NormalizeVector(pos, sunDir);
 }
 
 static int motionBlurAlpha = 0; /* derived name */
@@ -961,8 +961,7 @@ void MotionBlur(void)
         return;
     }
     if (debug_font_flag & 1) {
-        /* "MBLUR %d" is "MBLUR %d": the blur strength is the value printed */
-        debug_Printf(300, 40, 0xFFFFFF00, (int)"MBLUR %d", motionBlurAlpha);
+        debug_Printf(300, 40, 0xFFFFFF00, "MBLUR %d", motionBlurAlpha);
     }
 
     gif_StartPacketPri(7);
@@ -1334,9 +1333,9 @@ void SetDepthFadeParam(float start, float width, int level)
     GlobalStageSetting.depthFieldLevel = level;
 }
 
-void SetAuraInspireParam(float a0)
+void SetAuraInspireParam(float z)
 {
-    auraInspireZ = a0;
+    auraInspireZ = z;
 }
 
 void InitializeStaticBlur(void)

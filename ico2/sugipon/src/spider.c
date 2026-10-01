@@ -119,18 +119,12 @@ static inline void setSpiderGroupHost(GObj *self, GObj *host) /* derived name */
     }
 }
 
-typedef union { /* field names derived */
-    char *p;
-    int i;
-} SpiderWord; /* derived name */
-
-/* the prior-level pass reads the actor extension through a union view */
 static inline void setSpiderGroupPrior(GObj *self) /* derived name */
 {
     SpiderWork *w;
     int i;
 
-    w = (SpiderWork *)((SpiderWord *)(((SpiderWord *)&self->dobj)->p + 0x830))->p;
+    w = GOBJ_SUB(self)->work;
     for (i = 0; i < w->n; i++) {
         if (w->members[i] != 0) {
             SetAP1PriorLevel(w->members[i], 1);
@@ -138,14 +132,14 @@ static inline void setSpiderGroupPrior(GObj *self) /* derived name */
     }
 }
 
-static inline void callSpidersToGirl(GObj *self) /* derived name */
+static inline void callSpidersToBoy(GObj *self) /* derived name */
 {
     if (boyGObj != 0) {
         setSpiderGroupHost(self, boyGObj);
     }
 }
 
-static inline int callSpidersToBoy(GObj *self) /* derived name */
+static inline int callSpidersToGirl(GObj *self) /* derived name */
 {
     if (girlGObj != 0) {
         setSpiderGroupHost(self, girlGObj);
@@ -160,12 +154,12 @@ int CallSpidersToReviveEnemy(GObj *self)
 
     w = GOBJ_SUB(self)->work;
     if (w->state == 1) {
-        if (callSpidersToBoy(self)) {
+        if (callSpidersToGirl(self)) {
             EntryToSpiderGroupManagerForReviveMaster(self, girlGObj);
             w->state = 2;
             setSpiderGroupPrior(self);
         } else {
-            callSpidersToGirl(self);
+            callSpidersToBoy(self);
         }
     }
     return 1;
@@ -194,16 +188,16 @@ void SpiderLayoutGeo(GObj *self)
     int i;
 
     w = GOBJ_SUB(self)->work;
-    switch (*(int *)w) {
+    switch (w->state) {
     case -1: {
-        GObj *host = *(GObj **)self->dobj;
+        GObj *host = self->dobj->parent.obj;
 
         if (host != 0 && host->kind != 33) {
             setSpiderGroupHost(self, host);
         } else {
-            callSpidersToGirl(self);
-            if (spiderDef[w->kind].targetBoy == 1) {
-                if (callSpidersToBoy(self) == 0) {
+            callSpidersToBoy(self);
+            if (spiderDef[w->kind].targetGirl == 1) {
+                if (callSpidersToGirl(self) == 0) {
                     /* an order came to target the heroine, but this stage has no heroine */
                     debug_StdPrintfDummy(
                         "蜘蛛のターゲットをヒロインにせよと言う命令がありましたが\nこのステージにヒロインはいません。\n");
@@ -232,7 +226,7 @@ void SpiderLayoutGeo(GObj *self)
             }
             w->state = 1;
         } else {
-            GObj *gen = *(GObj **)*(char **)&self->dobj;
+            GObj *gen = self->dobj->parent.obj;
 
             if (gen != 0 && gen->kind != 33 && IsActCharDead(gen) == 0) {
                 if (GOBJ_ACT(gen)->mother != 0) {
@@ -249,7 +243,7 @@ void SpiderLayoutGeo(GObj *self)
         break;
     case 1:
     default: {
-        GObj *dead = *(GObj **)*(char **)&self->dobj;
+        GObj *dead = self->dobj->parent.obj;
 
         if (dead != 0 && dead->kind != 33) {
             if (IsActCharDead(dead) != 0) {
@@ -270,7 +264,7 @@ void SpiderLayoutGeo(GObj *self)
 int sgSelLine = 0;
 
 /* the white the debug wire sphere is drawn in */
-static int spiderWireColor[4] = {0xFF, 0xFF, 0xFF, 0xFF}; /* derived name */
+static int spiderWireColor[4] = {255, 255, 255, 255}; /* derived name */
 
 /* the debug display's formats */
 static const char spiderStatusFmt[] = "%c SE:%s AI:%s"; /* derived name */
@@ -317,10 +311,10 @@ void DispAllMemberOfSpider(GObj *self, int *col)
         }
     }
 
-    p = *(GObj **)*(char **)&self->dobj;
+    p = self->dobj->parent.obj;
     if (p != 0 && p->kind != 33) {
         _UnitMatrix(MatrixDrive_GetMatrix());
-        GetRootPosition(MatrixDrive_GetMatrix()[3], *(void **)*(char **)&self->dobj);
+        GetRootPosition(MatrixDrive_GetMatrix()[3], self->dobj->parent.obj);
         MatrixDrive_RotMatrixX((short)rand());
         MatrixDrive_RotMatrixY((short)rand());
         MatrixDrive_RotMatrixZ((short)rand());
@@ -347,7 +341,7 @@ int DeadAllSpiders(GObj *gp)
     for (i = 0; i < sg->n; i++) {
         GObj *o = sg->members[i];
         if (o != 0) {
-            iosOmSendMail(o, 0x26, o);
+            iosOmSendMail(o, 38, o);
         }
     }
     return 0;
@@ -374,9 +368,9 @@ int GetAliveSpiders(GObj *gp)
 {
     Sub15C *oi = gp->dobj;
     SpiderWork *sg = oi->work;
-    GObj *own = *(GObj **)oi;
+    GObj *own = oi->parent.obj;
 
-    if (own != 0 && own->kind != 0x21 && IsActCharDead(own) == 0) {
+    if (own != 0 && own->kind != 33 && IsActCharDead(own) == 0) {
         return sg->n;
     }
     if (sg->awake) {
@@ -517,7 +511,7 @@ static inline void SetLayoutedSpidersRootPosition(GObj *gp, void *pos) /* derive
 void WakeUpSpidersFromGenerator(GObj *gp)
 {
     float pos[4];
-    GObj *gen = *(GObj **)gp->dobj;
+    GObj *gen = gp->dobj->parent.obj;
 
     if (gen != 0) {
         if (gen->kind != 33) {
@@ -554,7 +548,7 @@ void SleepSpiderGroup(GObj *gp)
     for (i = 0; i < sg->n; i++) {
         GObj *o = sg->members[i];
         if (o != 0) {
-            iosOmSendMail(o, 0x20, o);
+            iosOmSendMail(o, 32, o);
         }
     }
 }
@@ -566,7 +560,7 @@ void WakeupSpiderGroup(GObj *gp)
     for (i = 0; i < sg->n; i++) {
         GObj *o = sg->members[i];
         if (o != 0) {
-            iosOmSendMail(o, 0x1F, o);
+            iosOmSendMail(o, 31, o);
         }
     }
 }

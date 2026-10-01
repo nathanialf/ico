@@ -43,8 +43,8 @@ int BoxMemoryFunc(void);
 
 int CheckReadyAllSwitches();
 int GetBoxMode(struct GObj *a0);
-void GetFloorLeverGlobalHoldPoint(void *dst, struct GObj *a1);
-void GetWallLeverGlobalHoldPoint(void *out, void *lev);
+void GetFloorLeverGlobalHoldPoint(void *dst, struct GObj *lev);
+void GetWallLeverGlobalHoldPoint(void *dst, struct GObj *lev);
 int MoveFloatingBox(struct GObj *self, struct GObj *other, float *dst, void *src, float lim);
 void ReInitBoxGeo(struct GObj *a0);
 

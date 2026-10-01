@@ -9,9 +9,9 @@
 
 inline short *InitSugiLeafGeo(void)
 {
-    short *h = iosMallocDebug(ios_partition_sugipon, 2, (void *)"src/sugiTree.c", 12);
+    short *h = iosMallocDebug(ios_partition_sugipon, sizeof(short), "src/sugiTree.c", 12);
     int r = rand();
-    *h = r % 0x10000;
+    *h = r % 65536;
     return h;
 }
 
@@ -24,18 +24,18 @@ inline void SugiLeafGeo(GObj *gobj)
     MatrixDrive_RotMatrixY(GetTableSin(*ang) * 256.0f);
     MatrixDrive_RotMatrixX(GetTableSin(*ang * 2) * 256.0f);
     CopyMatrix((void *)p->nodeMtx, MatrixDrive_GetMatrix());
-    *ang += 0x80;
+    *ang += 128;
 }
 
 inline short *InitSugiLeafGeo2(GObj *gobj)
 {
     Sub15C *p = GOBJ_SUB(gobj);
     int n = p->model->partCount;
-    short *buf = iosMallocDebug(ios_partition_sugipon, n * 2, (void *)"src/sugiTree.c", 35);
+    short *buf = iosMallocDebug(ios_partition_sugipon, n * 2, "src/sugiTree.c", 35);
     int i;
 
     for (i = 0; i < n; i++) {
-        buf[i] = rand() % 0x10000;
+        buf[i] = rand() % 65536;
     }
     return buf;
 }
@@ -55,8 +55,8 @@ void SugiLeafGeo2(GObj *gobj)
             CopyMatrix(MatrixDrive_GetMatrix(), (char *)p->model->parts[i].mtx);
             p->nodes[i].rot[0] = (int)(GetTableCos((short)((ang[i / 3] * 9 + i) * 10)) * 768.0f);
             p->nodes[i].rot[1] = (int)(GetTableSin((short)((ang[i / 3] * 6 + i) * 16)) * 768.0f);
-            MatrixDrive_RotMatrixY(*(short *)(*(char **)((char *)p + 0x870) + i * 0x50 + 4));
-            MatrixDrive_RotMatrixX(*(short *)(*(char **)((char *)p + 0x870) + i * 0x50));
+            MatrixDrive_RotMatrixY(*(short *)&p->nodes[i].rot[1]);
+            MatrixDrive_RotMatrixX(*(short *)&p->nodes[i].rot[0]);
             sceVu0MulMatrix((char *)p->nodeMtx + i * 64, (char *)p->nodeMtx + i * 64,
                             MatrixDrive_GetMatrix());
             ang[i / 3]++;
@@ -83,7 +83,7 @@ void SugiLeafDL2(GObj *gobj)
         sceVu0UnitMatrix(MatrixDrive_GetMatrix());
         MatrixDrive_TransMatrix(0.0f, -0.5f, 0.0f);
         MatrixDrive_ScaleMatrix(1.0f, 0.0f, 1.0f);
-        MatrixDrive_RotMatrixX(0x2000);
+        MatrixDrive_RotMatrixX(8192);
         sceVu0MulMatrix(m, MatrixDrive_GetMatrix(), m);
     }
     for (i = 0; i < n; i++) {

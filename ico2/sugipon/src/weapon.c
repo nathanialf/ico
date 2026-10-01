@@ -54,9 +54,9 @@ typedef struct {       /* field names derived */
     int bladeOn;         /* 0xA4: the laser blade is out */
     float bladeLength;   /* 0xA8: the blade's drawn length */
     float bladeTimer;    /* 0xAC: frames the blade has been growing */
-    char *net;           /* 0xB0 */
-    char *model0;        /* 0xB4 */
-    char *model1;        /* 0xB8 */
+    float *net;          /* 0xB0, the insect net's sway, two floats */
+    Sub15C *model0;      /* 0xB4, the blade's DObj */
+    Sub15C *model1;      /* 0xB8, the blade tip's DObj */
     int humAnim;         /* 0xBC: the blade's BG animation handle */
     int offsetMode;      /* 0xC0: SetWeaponOffsetMode */
     char padC4[12];
@@ -74,19 +74,19 @@ void torchOffOfWeaponSE(GObj *torch)
     ExecuteSEPackage(torch, 67);
 }
 
-void weaponHitReactionSE(GObj *a0)
+void weaponHitReactionSE(GObj *g)
 {
-    ExecuteSEPackage(a0, 0x44);
+    ExecuteSEPackage(g, 68);
 }
 
-void weaponFumbleSE(GObj *a0)
+void weaponFumbleSE(GObj *g)
 {
-    ExecuteSEPackage(a0, 0x5C);
+    ExecuteSEPackage(g, 92);
 }
 
-void weaponStickSE(GObj *a0)
+void weaponStickSE(GObj *g)
 {
-    ExecuteSEPackage(a0, 0x5D);
+    ExecuteSEPackage(g, 93);
 }
 
 static inline void releaseWeaponHolder(WeaponWork *w) /* derived name */
@@ -106,7 +106,7 @@ void ReleaseWeaponWithFumbleTargetPos(GObj *g, void *pos, void *quat, void *rot,
     w->state = 2;
     w->holder = 0;
     if (rot != 0) {
-        CopyQuaternion((char *)p + 0x150, rot);
+        CopyQuaternion(p->root.itemQuat, rot);
     }
     w->fumbleTime = (int)((float)((60 - systemStatus[0] * 10) / systemStatus[1]) * t);
     w->fumbleFrame = 0;
@@ -233,28 +233,28 @@ static float pathOfsFwd[4] = {0.0f, 0.0f, 1.0f, 1.0f}; /* derived name */
 
 static float pathOfsBack[4] = {0.0f, 0.0f, 1.0f, 1.0f}; /* derived name */
 
-static inline void addWeaponPathOffset(char *p, char *rp, float d) /* derived name */
+static inline void addWeaponPathOffset(Sub15C *p, struct MotRoot *rp, float d) /* derived name */
 {
     float m[16];
     float v[4];
-    char *q = p + 0xD0;
+    float *q = p->root.quat;
 
     GetMatrixFromQuaternion(m, q);
     pathOfsFwd[2] = d;
     _ApplyMatrix(v, m, pathOfsFwd);
-    _AddVectorXYZ(rp, rp, v);
+    _AddVectorXYZ(rp->pos, rp->pos, v);
 }
 
-static inline void subWeaponPathOffset(char *p, char *rp, float d) /* derived name */
+static inline void subWeaponPathOffset(Sub15C *p, struct MotRoot *rp, float d) /* derived name */
 {
     float m[16];
     float v[4];
-    char *q = p + 0xD0;
+    float *q = p->root.quat;
 
     GetMatrixFromQuaternion(m, q);
     pathOfsBack[2] = -d;
     _ApplyMatrix(v, m, pathOfsBack);
-    _AddVectorXYZ(rp, rp, v);
+    _AddVectorXYZ(rp->pos, rp->pos, v);
 }
 
 static int calcDynamicPathGeometry(GObj *g)
@@ -262,7 +262,7 @@ static int calcDynamicPathGeometry(GObj *g)
     Sub15C *p = GOBJ_SUB(g);
     WeaponWork *w = (WeaponWork *)p->work;
     float d = weaponKind[w->kind].grip;
-    char *rp = (char *)p + 0xA0;
+    struct MotRoot *rp = &p->root;
     float a;
     float b;
     float t;
@@ -271,16 +271,16 @@ static int calcDynamicPathGeometry(GObj *g)
     a = (float)w->fumbleFrame;
     b = (float)w->fumbleTime;
     t = a / (float)((60 - systemStatus[0] * 10) / systemStatus[1]);
-    _InterVectorXYZ(rp, w->fumbleTo, w->fumbleFrom, a / b);
-    *(float *)(rp + 4) = w->fumbleFrom[1] + w->fumbleSpeed * t + t * 490.0f * t;
-    MultiQuaternion((char *)p + 0xD0, (char *)p + 0xD0, (char *)p + 0x150);
+    _InterVectorXYZ(rp->pos, w->fumbleTo, w->fumbleFrom, a / b);
+    rp->pos[1] = w->fumbleFrom[1] + w->fumbleSpeed * t + t * 490.0f * t;
+    MultiQuaternion(p->root.quat, p->root.quat, p->root.itemQuat);
     subWeaponPathOffset(p, rp, d);
     w->fumbleFrame = w->fumbleFrame + 1;
     if (w->fumbleFrame >= w->fumbleTime) {
         w->state = 0;
-        CopyVector(rp, w->fumbleTo);
-        CopyVector((char *)p + 0x130, ZeroVector);
-        CopyQuaternion((char *)p + 0xD0, w->fumbleQuat);
+        CopyVector(rp->pos, w->fumbleTo);
+        CopyVector(p->root.move, ZeroVector);
+        CopyQuaternion(p->root.quat, w->fumbleQuat);
         UpdateRootMatrix(g);
         weaponStickSE(g);
         return 1;
@@ -324,9 +324,9 @@ static __inline__ void dynGeoDebugHook(void) /* derived name */
 
 static void calcDynamicGeometry(GObj *g)
 {
-    char *p = *(char **)(((char *)g) + 0x15C);
-    WeaponWork *w = *(WeaponWork **)(p + 0x830);
-    char *rp = p + 0xA0;
+    Sub15C *p = g->dobj;
+    WeaponWork *w = p->work;
+    struct MotRoot *rp = &p->root;
     float d = weaponKind[w->kind].grip;
     float r = weaponKind[w->kind].length - d;
     CollWork cc = collWorkInit;
@@ -347,14 +347,13 @@ static void calcDynamicGeometry(GObj *g)
 
         hitA = 0;
         hitB = 0;
-        GetMatrixFromQuaternionPos(m1, (p + 0xD0), rp);
-        *(float *)(rp + 0x94) =
-            *(float *)(rp + 0x94) +
-            60.0f / (float)((60 - systemStatus[0] * 10) / systemStatus[1]) * 0.5f *
-                (60.0f / (float)((60 - systemStatus[0] * 10) / systemStatus[1]));
-        _AddVectorXYZ(rp, rp, rp + 0x90);
-        MultiQuaternion((p + 0xD0), rp + 0xB0, (p + 0xD0));
-        GetMatrixFromQuaternionPos(m2, (p + 0xD0), rp);
+        GetMatrixFromQuaternionPos(m1, p->root.quat, rp->pos);
+        rp->move[1] =
+            rp->move[1] + 60.0f / (float)((60 - systemStatus[0] * 10) / systemStatus[1]) * 0.5f *
+                              (60.0f / (float)((60 - systemStatus[0] * 10) / systemStatus[1]));
+        _AddVectorXYZ(rp->pos, rp->pos, rp->move);
+        MultiQuaternion(p->root.quat, rp->itemQuat, p->root.quat);
+        GetMatrixFromQuaternionPos(m2, p->root.quat, rp->pos);
 
         hitOfs[2] = r;
         _ApplyMatrix(cc.from, m1, hitOfs);
@@ -402,21 +401,21 @@ static void calcDynamicGeometry(GObj *g)
 
         if (cc.hit94) {
             w->state = 0;
-            CopyVector(rp + 0x90, ZeroVector);
-            CopyQuaternion((p + 0xD0), IdentityQuaternion);
+            CopyVector(rp->move, ZeroVector);
+            CopyQuaternion(p->root.quat, IdentityQuaternion);
         } else {
             dynGeoDebugHook();
             if (hitA || hitB) {
-                _InterVector(rp + 0x90, dir1, dir2, 0.5f);
-                _InterVector(rp, v1, v2, 0.5f);
-                *(int *)(rp + 0x9C) = 0;
-                *(float *)(rp + 0xC) = 1.0f;
+                _InterVector(rp->move, dir1, dir2, 0.5f);
+                _InterVector(rp->pos, v1, v2, 0.5f);
+                *(int *)&rp->move[3] = 0;
+                rp->pos[3] = 1.0f;
                 if (hitA) {
-                    _SubVector(tan, dir1, rp + 0x90);
+                    _SubVector(tan, dir1, rp->move);
                 } else {
-                    _SubVector(tan, rp + 0x90, dir2);
+                    _SubVector(tan, rp->move, dir2);
                 }
-                _SubVector(nrm, v1, rp);
+                _SubVector(nrm, v1, rp->pos);
                 _NormalizeVector(nrm, nrm);
                 _OuterProduct(axis, nrm, tan);
                 {
@@ -428,8 +427,8 @@ static void calcDynamicGeometry(GObj *g)
                         _NormalizeVector(sc, sc);
                         SetQuaternionByAxisRotateV(qr, (short)-GetTableArcTan2(sc[1], sc[2]), axis);
                     }
-                    CopyQuaternion(rp + 0xB0, qr);
-                    MultiQuaternion((p + 0xD0), qr, (p + 0xD0));
+                    CopyQuaternion(rp->itemQuat, qr);
+                    MultiQuaternion(p->root.quat, qr, p->root.quat);
                     {
                         sceVu0FMATRIX m3;
                         sceVu0FVECTOR v5;
@@ -440,7 +439,7 @@ static void calcDynamicGeometry(GObj *g)
 
                         eA = 0.0f;
                         eB = 0.0f;
-                        GetMatrixFromQuaternionPos(m3, (p + 0xD0), rp);
+                        GetMatrixFromQuaternionPos(m3, p->root.quat, rp->pos);
                         hitOfs[2] = r;
                         _ApplyMatrix(v5, m3, hitOfs);
                         if (v5[1] > v1[1]) {
@@ -453,15 +452,16 @@ static void calcDynamicGeometry(GObj *g)
                         }
                         e = (eB < eA) ? eA : eB;
                         if (0.0f < e) {
-                            *(float *)(rp + 0x4) = *(float *)(rp + 0x4) - (e + 1.0f);
-                            GetSlerpQuaternion(rp + 0xB0, rp + 0xB0, IdentityQuaternion, 0.9f);
+                            rp->pos[1] = rp->pos[1] - (e + 1.0f);
+                            GetSlerpQuaternion(rp->itemQuat, rp->itemQuat, IdentityQuaternion,
+                                               0.9f);
                         }
                     }
                 }
             }
             dynGeoDebugHook();
-            RegularizeQuaternion((p + 0xD0));
-            VectorLengthSquare(rp + 0x90);
+            RegularizeQuaternion(p->root.quat);
+            VectorLengthSquare(rp->move);
             dynGeoDebugHook();
         }
         subWeaponPathOffset(p, rp, d);
@@ -482,25 +482,25 @@ static void getGeometry(GObj *g)
     float quat[4];
     Sub15C *p = GOBJ_SUB(g);
     WeaponWork *w = (WeaponWork *)p->work;
-    char *rp = (char *)p + 0xA0;
+    struct MotRoot *rp = &p->root;
 
     if (w->holder != 0) {
-        char *d = *(char **)&w->holder->dobj;
+        Sub15C *d = w->holder->dobj;
         int n = w->holderId;
 
-        CopyMatrix(MatrixDrive_GetMatrix(), *(char **)(d + 0xC) + n * 0x40);
+        CopyMatrix(MatrixDrive_GetMatrix(), (char *)d->nodeMtx + n * 64);
         MatrixDrive_TransMatrix(7.0f, -3.0f, 0.0f);
         CopyVector(pos, MatrixDrive_GetMatrix()[3]);
-        CopyQuaternion(quat, *(char **)(d + 0x10) + n * 0x10);
+        CopyQuaternion(quat, (char *)d->nodeQuat + n * 16);
         if (GOBJ_SUB(w->holder)->skel[n].kind == 22) {
             RotQuaternionY(quat, -32768);
         }
-        sceVu0SubVector((char *)p + 0x130, pos, rp);
+        sceVu0SubVector(p->root.move, pos, rp->pos);
         {
-            char *rq = (char *)p + 0xD0;
+            float *rq = p->root.quat;
 
-            DivQuaternion((char *)p + 0x150, quat, rq);
-            CopyVector(rp, pos);
+            DivQuaternion(p->root.itemQuat, quat, rq);
+            CopyVector(rp->pos, pos);
             CopyQuaternion(rq, quat);
         }
         UpdateRootMatrix(g);
@@ -554,28 +554,23 @@ static void checkHit(GObj *g)
         return;
     }
     MatrixDrive_PushMatrix();
-    GetMatrixFromQuaternionPos(MatrixDrive_GetMatrix(), (char *)p + 0xD0, (char *)p + 0xA0);
+    GetMatrixFromQuaternionPos(MatrixDrive_GetMatrix(), p->root.quat, p->root.pos);
     MatrixDrive_TransMatrixV((char *)swordTip);
     CopyVector(v0, MatrixDrive_GetMatrix()[3]);
-    GetInverseQuaternion(quat, (char *)p + 0x150);
-    MultiQuaternion(quat, (char *)p + 0xD0, quat);
-    SubVectorXYZ(pos, (char *)p + 0xA0, (char *)p + 0x130);
+    GetInverseQuaternion(quat, p->root.itemQuat);
+    MultiQuaternion(quat, p->root.quat, quat);
+    SubVectorXYZ(pos, p->root.pos, p->root.move);
     GetMatrixFromQuaternionPos(MatrixDrive_GetMatrix(), quat, pos);
     MatrixDrive_TransMatrixV((char *)swordTip);
     CopyVector(v1, MatrixDrive_GetMatrix()[3]);
     MatrixDrive_PopMatrix();
     CopyVector(w->hit[1], v0);
     CopyVector(w->hit[2], v1);
-    CopyVector(w->hit[3], (char *)p + 0xA0);
+    CopyVector(w->hit[3], p->root.pos);
 }
 
 /* The parent-link record CreateLayoutedGObj's caller hands to
    LinkParentOfDObj: two words, 4-aligned. */
-typedef struct { /* field names derived */
-    int gobj;    /* 0x0 */
-    int index;   /* 0x4 */
-} QSwordLink;    /* derived name */
-
 /* The 64-byte layout record InitDemoQueensSword passes through; only the
    word at 0x30 is ever named here. */
 typedef struct QSwordLayout { /* field names derived */
@@ -590,7 +585,7 @@ static float queenSwordOfs[4] = {0.0f, 0.0f, 0.0f, 1.0f}; /* derived name */
 static void initializeQueenzSword(GObj *g, int index, QSwordLayout *lay)
 {
     WeaponWork *w = GOBJ_SUB(g)->work;
-    QSwordLink lnk = {(int)g, index};
+    ObjNode lnk = {g, index};
     QSwordLayout r;
     QSwordLayout r2;
     int i;
@@ -614,7 +609,7 @@ static void initializeQueenzSword(GObj *g, int index, QSwordLayout *lay)
     r2 = *lay;
     r2.kind = 13;
     o2 = CreateLayoutedGObj(46, 11, -1, 0, &r2, -1, 7, 0);
-    *(QSwordLink *)GOBJ_SUB(o2) = lnk;
+    GOBJ_SUB(o2)->parent = lnk;
     w->sword = o2;
 }
 
@@ -622,7 +617,7 @@ typedef float WeaponVec[4] __attribute__((aligned(8))); /* derived name */
 
 void *InitWeaponGeo(GObj *g, QSwordLayout *lay)
 {
-    WeaponWork *w = iosMallocDebug(ios_partition_sugipon, 0xE0, __FILE__, 820);
+    WeaponWork *w = iosMallocDebug(ios_partition_sugipon, sizeof(WeaponWork), __FILE__, 820);
     int i;
 
     GOBJ_SUB(g)->work = w;
@@ -636,7 +631,7 @@ void *InitWeaponGeo(GObj *g, QSwordLayout *lay)
             break;
 
         case 1: {
-            QSwordLink lnk = {(int)g, i};
+            ObjNode lnk = {g, i};
             WeaponVec v = {0.0f, 0.0f, weaponKind[w->kind].length, 1.0f};
             GObj *o;
             QSwordLayout r = *lay;
@@ -650,35 +645,34 @@ void *InitWeaponGeo(GObj *g, QSwordLayout *lay)
             w->count = 1;
             w->objs = iosMallocDebug(ios_partition_sugipon, 1 * 4, __FILE__, 848);
             w->objs[0] = o;
-            w->buf = iosMallocDebug(ios_partition_sugipon, 0x160, __FILE__, 856);
+            w->buf = iosMallocDebug(ios_partition_sugipon, 352, __FILE__, 856);
             break;
         }
 
         case 5:
             initializeQueenzSword(g, i, lay);
-            w->buf = iosMallocDebug(ios_partition_sugipon, 0x160, __FILE__, 861);
+            w->buf = iosMallocDebug(ios_partition_sugipon, 352, __FILE__, 861);
             break;
 
         case 7:
-            w->buf = iosMallocDebug(ios_partition_sugipon, 0x160, __FILE__, 865);
+            w->buf = iosMallocDebug(ios_partition_sugipon, 352, __FILE__, 865);
             break;
 
         case 8:
         case 9:
-            w->buf = iosMallocDebug(ios_partition_sugipon, 0x160, __FILE__, 870);
+            w->buf = iosMallocDebug(ios_partition_sugipon, 352, __FILE__, 870);
             w->net = iosMallocDebug(ios_partition_sugipon, 8, __FILE__, 871);
             w->model0 = CSVSYSTEM_InitDObj(
                 accessary[((SubHandle *)(((char *)g) + 0x15C))->sub->accessary].model, lay);
             w->model1 = CSVSYSTEM_InitDObj(
                 accessary[((SubHandle *)(((char *)g) + 0x15C))->sub->accessary].model2, lay);
-            CopyQuaternion(*(char **)(((char *)g) + 0x15C) + 0xD0,
-                           *(char **)(((char *)g) + 0x15C) + 0x60);
+            CopyQuaternion(g->dobj->root.quat, g->dobj->quat);
             UpdateRootMatrix(g);
             setWeaponOffsetMode(g, 1);
             break;
 
         default:
-            w->buf = iosMallocDebug(ios_partition_sugipon, 0x160, __FILE__, 884);
+            w->buf = iosMallocDebug(ios_partition_sugipon, 352, __FILE__, 884);
             break;
         }
     }
@@ -694,11 +688,10 @@ static void dispLaserSword(GObj *g, float t)
         CopyMatrix(MatrixDrive_GetMatrix(), (void *)GOBJ_SUB(g)->nodeMtx);
         MatrixDrive_TransMatrix(0.0f, 0.0f, 7.5f);
         MatrixDrive_ScaleMatrix(1.0f, 1.0f, t / 100.0f);
-        CopyMatrix(*(void **)(w->model0 + 0xC), MatrixDrive_GetMatrix());
+        CopyMatrix((void *)w->model0->nodeMtx, MatrixDrive_GetMatrix());
         p2o_DispVU1DObj(w->model0);
-        MatrixDrive_TransMatrix(*(float *)(w->net + 0x0) * 0.1f, *(float *)(w->net + 0x4) * 0.1f,
-                                0.0f);
-        CopyMatrix(*(void **)(w->model1 + 0xC), MatrixDrive_GetMatrix());
+        MatrixDrive_TransMatrix(w->net[0] * 0.1f, w->net[1] * 0.1f, 0.0f);
+        CopyMatrix((void *)w->model1->nodeMtx, MatrixDrive_GetMatrix());
         p2o_DispVU1DObj(w->model1);
     }
 }
@@ -800,16 +793,16 @@ static void calcBlur(GObj *g, float t)
     float ang;
     float r;
 
-    GetInverseQuaternion(q1, (char *)e + 0x150);
-    MultiQuaternion(q1, (char *)e + 0xD0, q1);
-    SubVectorXYZ(d, (char *)e + 0xA0, (char *)e + 0x130);
+    GetInverseQuaternion(q1, e->root.itemQuat);
+    MultiQuaternion(q1, e->root.quat, q1);
+    SubVectorXYZ(d, e->root.pos, e->root.move);
     if (weaponKind[w->kind].blur == -1) {
         return;
     }
     base = w->buf;
     GetMatrixFromQuaternion(m, q1);
     _ApplyMatrix(a, m, ZUnitVector);
-    GetMatrixFromQuaternion(m, (char *)e + 0xD0);
+    GetMatrixFromQuaternion(m, e->root.quat);
     _ApplyMatrix(b, m, ZUnitVector);
     _OuterProduct(n, b, a);
     _NormalizeVector(n, n);
@@ -820,7 +813,7 @@ static void calcBlur(GObj *g, float t)
         float rr = (float)i / 10.0f;
 
         SetQuaternionByAxisRotateVWithNoRegularize(q2, (short)(ang * (float)i / 10.0f), n);
-        sceVu0InterVector(p, (char *)e + 0xA0, d, rr);
+        sceVu0InterVector(p, e->root.pos, d, rr);
         GetMatrixFromQuaternionPos(m, q2, p);
         CopyVector(base + i * 32, (char *)m + 0x30);
         sceVu0ApplyMatrix(base + (i * 32 + 0x10), m, a);
@@ -832,7 +825,7 @@ static void calcBlur(GObj *g, float t)
         return;
     }
     if (t > 12.0f) {
-        h = SetParticleEffect(50, (char *)e + 0xA0, IdentityQuaternion);
+        h = SetParticleEffect(50, e->root.pos, IdentityQuaternion);
         if (h != -1) {
             pd = GetParticleEffectData(h);
             vtx = *(char **)(pd + 0x24);
@@ -894,7 +887,7 @@ void WeaponGeo(GObj *g)
     } else {
         weaponKind[kind].length = 40.0f;
         for (i = 0; i < 2; i++) {
-            ((float *)w->net)[i] = random_signed_b();
+            w->net[i] = random_signed_b();
         }
         if (w->holder != 0) {
             if (w->holder == boyGObj && ACTGame_FLAG_TETSUNAGI_VISUAL()) {
@@ -1005,7 +998,7 @@ GObj *CheckSwapableWeapon(GObj *self, float dist)
             continue;
 
         wp = w->tipPos;
-        if (stage_no == 4 && g->labelId != 0x80)
+        if (stage_no == 4 && g->labelId != 128)
             continue;
 
         d = distance_squared(pos, wp);
@@ -1046,9 +1039,9 @@ void LightTorchOnOfWeapon(GObj *self)
     }
 }
 
-void LightTorchOnOfWeaponWithNoSE(GObj *a0)
+void LightTorchOnOfWeaponWithNoSE(GObj *self)
 {
-    WeaponWork *p = GOBJ_SUB(a0)->work;
+    WeaponWork *p = GOBJ_SUB(self)->work;
     int i;
 
     if (p->count) {
@@ -1127,25 +1120,25 @@ void SetWeaponTorchChainReactionFlagAll(int flag)
     }
 }
 
-void *InitDemoQueensSword(GObj *a0, void *a1)
+void *InitDemoQueensSword(GObj *g, QSwordLayout *lay)
 {
     WeaponWork *w;
     int i;
 
-    w = (WeaponWork *)iosMallocDebug(ios_partition_sugipon, 0xE0, __FILE__, 802);
-    (WeaponWork *)GOBJ_SUB(a0)->work = w;
+    w = (WeaponWork *)iosMallocDebug(ios_partition_sugipon, sizeof(WeaponWork), __FILE__, 802);
+    GOBJ_SUB(g)->work = w;
     *w = swordWorkTemplate;
-    for (i = 0; i < GOBJ_SUB(a0)->nodeNum; i++) {
-        initializeQueenzSword(a0, i, a1);
+    for (i = 0; i < GOBJ_SUB(g)->nodeNum; i++) {
+        initializeQueenzSword(g, i, lay);
     }
     return w;
 }
 
-void ExecDemoQueensSword(GObj *a0)
+void ExecDemoQueensSword(GObj *g)
 {
-    Sub15C *e = GOBJ_SUB(a0);
-    char *p = *(char **)((char *)e + 0x830);
-    *(int *)(*(char **)(p + 0x5C) + 0x16C) = e->disp;
+    Sub15C *e = GOBJ_SUB(g);
+    WeaponWork *w = e->work;
+    w->sword->active = e->disp;
 }
 
 void SetWeaponOffsetMode(GObj *self, int mode)

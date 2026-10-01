@@ -8,7 +8,8 @@
 #include "main.h"
 #include "GifPacket.h"
 
-/* the field mode, the wind vector function and the fan blade angle */
+/* the field mode: 0 the radial cells, any other the parallel plane, -1
+   before the first InitWindField */
 static int windFieldMode = -1; /* derived name */
 
 /* the wind field's geometry and tables */
@@ -72,7 +73,7 @@ static short fanAngle = 0; /* derived name */
 
 /* RGBA of every line this file draws, in the int-per-channel form DrawLineG
    takes */
-static int lineColor[4] = {0x40, 0x40, 0x80, 0x80}; /* derived name */
+static int lineColor[4] = {64, 64, 128, 128}; /* derived name */
 
 /* Vertex pairs, one line segment per two rows, terminated by a vertex whose
    x is the -10000 sentinel the draw loops test. */
@@ -93,9 +94,9 @@ static float guardLines[12][4] = {
 
 /* the body of drawLines, which the function below inlines twice and
    drawLines further down calls */
-static inline void drawLinesInline(char *a0) /* derived name */
+static inline void drawLinesInline(char *lines) /* derived name */
 {
-    char *cur = a0;
+    char *cur = lines;
 
     if (-1000.0f < *(float *)cur) {
         do {
@@ -112,7 +113,7 @@ void drawSenpuukiHaneUnit(float scale)
     MatrixDrive_PushMatrix();
 
     for (i = 0; i < 16; i++) {
-        MatrixDrive_RotMatrixZ(0x1000);
+        MatrixDrive_RotMatrixZ(4096);
         drawLinesInline((char *)guardLines);
     }
 
@@ -155,7 +156,7 @@ void drawSenpuuki(float scale)
 {
     char *cur;
 
-    gif_StartPacketPri(0xB);
+    gif_StartPacketPri(11);
     gif_SetAlpha(1, 5, 0);
     cur = (char *)baseLines;
     if (-1000.0f < *(float *)cur) {
@@ -243,9 +244,9 @@ static float *getParallelWindVector(float *power, float *pos)
     if (d < 0.0f)
         d = -d;
 
-    n = (int)(d * 0.1f * ((float)((0x3C - systemStatus[0] * 0xA) / systemStatus[1]) / 60.0f));
+    n = (int)(d * 0.1f * ((float)((60 - systemStatus[0] * 10) / systemStatus[1]) / 60.0f));
     i = n < 256 ? n : 255;
-    s = windStrength[i] * (60.0f / (float)((0x3C - systemStatus[0] * 0xA) / systemStatus[1]));
+    s = windStrength[i] * (60.0f / (float)((60 - systemStatus[0] * 10) / systemStatus[1]));
     if (power)
         *power = s;
     sceVu0ScaleVector(windVector, windDir, s);
@@ -271,9 +272,9 @@ void StopWindField(void)
     windVectorFunc = dummyGetWindVector;
 }
 
-void drawLines(char *a0)
+void drawLines(char *lines)
 {
-    drawLinesInline(a0);
+    drawLinesInline(lines);
 }
 
 void drawSenpuukiHane(void)

@@ -15,21 +15,22 @@
 /* The chain functions are declared here, not through clothAnimation.h:
    HoldRope calls GetChainNodeID with the parameter record alone (it writes
    no $f12 before the call), where the definition takes the length as a
-   second argument.  The chain system is held as an int (RopeGeoWork). */
-extern float GetChainCollision(void *a0, void *a1, float w);
-extern int InitChains(void *c);
+   second argument.  The chain system is held as a void * (RopeGeoWork). */
+extern float GetChainCollision(void *sys, void *pos, float r);
+extern void *InitChains(void *c);
 
-/* The chain template the rope starts from: two 0x50-byte records, the
-   halves of the chain system record below, copied whole with doubleword
+/* The chain list the rope starts from, in clothAnimation.h's ChainCfg
+   layout (unreachable here, above): two 0x50-byte records, the second
+   ending the list, copied whole into the allocated list with doubleword
    moves, so the record carries 8-byte alignment (its zero doubleword at
    0x18 is spelled as one, as particleEffect.c's staging record does). */
 typedef struct { /* field names derived */
-    int n;       /* 0x00, the node count */
+    int num;     /* 0x00, the node count, -1 ends the list */
     int pad04[3];
     int node;        /* 0x10, the skeleton node the chain hangs from, -1 for none */
     float step;      /* 0x14, the length of one segment */
     long long pad18; /* 0x18 */
-    float pos[4];    /* 0x20, where the chain starts */
+    float root[4];   /* 0x20, where the chain starts */
     int pad30[4];
     float weight; /* 0x40, against the extended weights */
     int pad44[3];
@@ -50,18 +51,6 @@ typedef struct { /* field names derived */
     int b;
 } RopePair; /* derived name */
 
-/* The chain system record the rope allocates (0xA0 bytes, two template halves). */
-typedef struct { /* field names derived */
-    /* 0x00 */ int n;
-    /* 0x04 */ int pad04[4];
-    /* 0x14 */ float step;
-    /* 0x18 */ int pad18[2];
-    /* 0x20 */ float pos[4];
-    /* 0x30 */ int pad30[4];
-    /* 0x40 */ float weight;
-    /* 0x44 */ int pad44[23];
-} RopeChainSys; /* derived name */
-
 /* The wall-clip request, the same record ico2/omori/src/chain.c hands to
    ClipWall (endpoints at 0x00 and 0x10, hit flag at 0x88); the rope also reads
    the 8 bytes at 0x80. */
@@ -75,7 +64,7 @@ typedef struct { /* field names derived */
 } RopeClipWork; /* derived name */
 
 typedef struct {                       /* field names derived */
-    /* 0x00 */ int chains;             /* InitChains' chain system */
+    /* 0x00 */ void *chains;           /* InitChains' chain system */
     /* 0x04 */ int upperWallClimbable; /* a wall was found above the rope */
     /* 0x08 */ RopePair wallSrc;       /* that wall's slot pair */
     /* 0x10 */ void *wall;             /* that wall */
@@ -83,24 +72,24 @@ typedef struct {                       /* field names derived */
 
 void *InitRopeGeo(GObj *o, const float *p)
 {
-    RopeChainSys *c;
+    RopeTemplate *c;
     Sub15C *sub;
     RopeGeoWork *w;
     int i;
 
     sub = o->dobj;
-    w = (RopeGeoWork *)iosMallocDebug(ios_partition_sugipon, 0x14, __FILE__, 38);
-    c = (RopeChainSys *)iosMallocDebug(ios_partition_sugipon, 0xA0, __FILE__, 39);
+    w = (RopeGeoWork *)iosMallocDebug(ios_partition_sugipon, sizeof(RopeGeoWork), __FILE__, 38);
+    c = (RopeTemplate *)iosMallocDebug(ios_partition_sugipon, sizeof(ropeChainInit), __FILE__, 39);
 
-    ((RopeTemplate *)c)[0] = ropeChainInit[0];
-    ((RopeTemplate *)c)[1] = ropeChainInit[1];
-    c->pos[0] = p[0];
-    c->pos[1] = p[1];
-    c->pos[2] = p[2];
+    c[0] = ropeChainInit[0];
+    c[1] = ropeChainInit[1];
+    c->root[0] = p[0];
+    c->root[1] = p[1];
+    c->root[2] = p[2];
     c->step = p[10];
     c->weight = p[8];
-    c->n = (int)(p[9] / c->step);
-    if (c->n == 0) {
+    c->num = (int)(p[9] / c->step);
+    if (c->num == 0) {
         /* "The rope is too short. Change scale-y in the table." (EUC-JP) */
         debug_StdPrintfDummy("ロープの長さが短"
                              "すぎます。表のscale-y"
@@ -149,18 +138,20 @@ void *InitRopeGeo(GObj *o, const float *p)
     if (sub->nodeQuat != 0) {
         iosFree((void *)(sub->nodeQuat & 0x0FFFFFFF));
     }
+    /* the matrix and quaternion buffers stored as pointers: int stores
+       through sub->nodeMtx and nodeQuat reload c->num after each (measured) */
     *(void **)((char *)sub + 0xC) = 0;
     *(void **)((char *)sub + 0x10) = 0;
     *(void **)((char *)sub + 0xC) =
-        iosMallocDebug(ios_partition_seki, (c->n - 1) * 64, __FILE__, 82);
+        iosMallocDebug(ios_partition_seki, (c->num - 1) * 64, __FILE__, 82);
     *(void **)((char *)sub + 0x10) =
-        iosMallocDebug(ios_partition_seki, (c->n - 1) * 16, __FILE__, 82);
-    sub->nodeNum = *(int *)c - 1;
+        iosMallocDebug(ios_partition_seki, (c->num - 1) * 16, __FILE__, 82);
+    sub->nodeNum = c->num - 1;
     if ((int)sub->nodes != 0) {
         iosFree((void *)((int)sub->nodes & 0x0FFFFFFF));
     }
-    sub->nodes = iosMallocDebug(ios_partition_seki, (c->n - 1) * 80, __FILE__, 82);
-    for (i = 0; i < c->n - 1; i++) {
+    sub->nodes = iosMallocDebug(ios_partition_seki, (c->num - 1) * 80, __FILE__, 82);
+    for (i = 0; i < c->num - 1; i++) {
         {
             struct DObjNode *e = (struct DObjNode *)(i * 80 + (int)sub->nodes);
             e->flags.ll &= ~1;
@@ -223,9 +214,11 @@ void *InitRopeGeo(GObj *o, const float *p)
     return w;
 }
 
-inline int CheckRopeUpperWallClimbable(int a0, GObj *a1)
+inline int CheckRopeUpperWallClimbable(int unused, GObj *rope)
 {
-    return *(int *)((char *)GOBJ_SUB(a1)->work + 4);
+    RopeGeoWork *w = GOBJ_SUB(rope)->work;
+
+    return w->upperWallClimbable;
 }
 
 void SetRopeFixPoint(GObj *rope, void *pos, int flag)
@@ -233,29 +226,21 @@ void SetRopeFixPoint(GObj *rope, void *pos, int flag)
     CopyVector(**(char ***)((char *)GOBJ_SUB(rope)->work) + 0x20, pos);
 }
 
-/* The actor's 0x15C sub-object slot: the engine stores a different per-actor
-   struct pointer in it depending on the actor, so it is a union of pointers. */
-typedef union { /* field names derived */
-    char *b;
-    float *f;
-    int *i;
-} Sub15CRef; /* derived name */
+extern float GetChainNodeID(void *cfg);
+extern int SetChainExtendedWeight(void *node, int idx, float w0, float w1);
 
-extern float GetChainNodeID(void *n);
-extern int SetChainExtendedWeight(void *a0, int a1, float f12, float f13);
-
-void HoldRope(void *a0, void *a1)
+void HoldRope(GObj *rope, GObj *holder)
 {
     float v[4];
     float u[4];
-    void **p = *(void ***)((char *)*(void **)((char *)a0 + 0x15C) + 0x830);
-    void **sys = (void **)p[0];
+    RopeGeoWork *w = GOBJ_SUB(rope)->work;
+    void **sys = w->chains;
     int n = (int)GetChainNodeID(sys[0]);
     int w1 = SetChainExtendedWeight(sys[2], n, 0.0f, 100.0f);
     int w2 = SetChainExtendedWeight(sys[2], n, 100.0f, 300.0f);
 
-    GetRootPosition(v, a1);
-    CopyVector(u, GOBJ_SUB(a1)->root.move);
+    GetRootPosition(v, holder);
+    CopyVector(u, GOBJ_SUB(holder)->root.move);
     CopyVector((float *)((char *)sys[2] + (w1 * 0x50 + 0x10)) + 12, u);
     CopyVector((float *)((char *)sys[2] + (w2 * 0x50 + 0x10)) + 12, u);
     CopyVector((float *)((char *)sys[2] + (w1 * 0x50 + 0x10)) + 4, v);
@@ -267,7 +252,9 @@ void HoldRope(void *a0, void *a1)
         q[9] -= 100.0f;
         q[13] -= 100.0f;
     }
-    CopyVector(((Sub15CRef *)((char *)a1 + 0x15C))->b + 0x130, ropeZeroVector);
+    /* read through the SubHandle union: GOBJ_SUB's int read is hoisted
+       above the float stores (measured) */
+    CopyVector(((SubHandle *)&holder->dobj)->sub->root.move, ropeZeroVector);
     debug_StdPrintfDummy("HOLD ROPE\n");
 }
 
@@ -275,27 +262,27 @@ inline void ReleaseRope(void) {}
 
 extern void GetChainAnimation(void *sys, int obj, void *mtx);
 
-static void ropeGeo(void *a0)
+static void ropeGeo(GObj *rope)
 {
-    void **obj = *(void ***)((char *)*(void **)((char *)a0 + 0x15C) + 0x830);
+    RopeGeoWork *w = GOBJ_SUB(rope)->work;
 
     sceVu0UnitMatrix(MatrixDrive_GetMatrix());
-    if (**(int **)((char *)a0 + 0x15C) != 0) {
+    if (GOBJ_SUB(rope)->parent.obj != 0) {
         sceVu0MulMatrix(MatrixDrive_GetMatrix(),
-                        *(char **)(*(char **)(**(char ***)((char *)a0 + 0x15C) + 0x15C) + 0xC) +
-                            (*(int *)(*(char **)((char *)a0 + 0x15C) + 4) << 6),
+                        (char *)GOBJ_SUB(GOBJ_SUB(rope)->parent.obj)->nodeMtx +
+                            (GOBJ_SUB(rope)->parent.node << 6),
                         MatrixDrive_GetMatrix());
     }
-    GetChainAnimation(obj[0], 0, MatrixDrive_GetMatrix());
+    GetChainAnimation(w->chains, 0, MatrixDrive_GetMatrix());
 }
 
 /* extra chains hung from the rope; none in the release build */
 #define ROPE_EXTRA_CHAINS 0 /* derived name */
 
-static inline void ropeChainCollision(void *a0) /* derived name */
+static inline void ropeChainCollision(GObj *rope) /* derived name */
 {
-    void *g = boyGObj;
-    void **obj = *(void ***)((char *)*(void **)((char *)a0 + 0x15C) + 0x830);
+    GObj *g = boyGObj;
+    void **obj = GOBJ_SUB(rope)->work;
     float m[4];
     float w;
     int i;
@@ -303,7 +290,7 @@ static inline void ropeChainCollision(void *a0) /* derived name */
     GetRootPosition(m, g);
     w = GetChainCollision(obj[0], m, 200.0f);
     if (0.0f < w) {
-        *(float *)((char *)*(void **)((char *)g + 0x15C) + 0x618) = w;
+        GOBJ_SUB(g)->ctrl.ropeHangPos = w;
         /* the rope's extra chains, none in the release build */
         for (i = 0; i < ROPE_EXTRA_CHAINS; i++) {
             w = GetChainCollision(obj[i + 1], m, w);
@@ -311,21 +298,21 @@ static inline void ropeChainCollision(void *a0) /* derived name */
     }
 }
 
-inline void RopeGeo(void *a0)
+inline void RopeGeo(GObj *rope)
 {
-    ropeGeo(a0);
-    ropeChainCollision(a0);
+    ropeGeo(rope);
+    ropeChainCollision(rope);
 }
 
-extern void TestDispChainAnimation(void *a0);
+extern void TestDispChainAnimation(void *sys);
 
-void RopeDL(GObj *a0)
+void RopeDL(GObj *rope)
 {
     unsigned short ax;
     unsigned short az;
-    Sub15C *sub = a0->dobj;
-    void **p = *(void ***)((char *)sub + 0x830);
-    char *set = (char *)p[0];
+    Sub15C *sub = rope->dobj;
+    RopeGeoWork *w = sub->work;
+    char *set = w->chains;
     int i;
     int j;
     int n;
@@ -344,11 +331,11 @@ void RopeDL(GObj *a0)
             MatrixDrive_RotMatrixZ(-az);
             MatrixDrive_RotMatrixX(-0x8000);
             MatrixDrive_ScaleMatrix(1.0f, 1.0f, 1.0f);
-            CopyMatrix(*(char **)((char *)sub + 0xC) + (j * 0x40 - 0x40), MatrixDrive_GetMatrix());
+            CopyMatrix((char *)sub->nodeMtx + (j * 64 - 64), MatrixDrive_GetMatrix());
         }
         p2o_DispVU1DObjMulti(sub);
     }
     if (debug_skel_flag != 0) {
-        TestDispChainAnimation(p[0]);
+        TestDispChainAnimation(w->chains);
     }
 }

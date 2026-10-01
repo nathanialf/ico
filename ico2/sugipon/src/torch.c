@@ -15,7 +15,7 @@ typedef struct TorchGeoWork { /* field names derived */
     /* 0x20 */ int lightOn;
     /* 0x24 */ int burnTime; /* frames the torch has been alight */
     /* 0x28 */ int life;
-    /* 0x2C */ int lifeMax;
+    /* 0x2C */ int fadeStart; /* the burn time the flame starts to fade at */
     /* 0x30 */ int chainFlag;
     /* 0x34 */ int effect[5]; /* the particle effects a lit torch runs, -1 when off */
     /* 0x48 */ int pad48[2];
@@ -34,17 +34,17 @@ static TorchGeoWork emptyTorchWork = {
 #include "main.h"
 #include "sceneManager.h"
 
-inline void SetTorchChainReactionFlag(GObj *a0, int a1)
+inline void SetTorchChainReactionFlag(GObj *torch, int flag)
 {
-    TorchGeoWork *w = GOBJ_SUB(a0)->work;
+    TorchGeoWork *w = GOBJ_SUB(torch)->work;
 
-    w->chainFlag = a1;
+    w->chainFlag = flag;
 }
 
-void torchOffSE(GObj *a0)
+void torchOffSE(GObj *torch)
 {
-    StopSEPackage(a0);
-    ExecuteSEPackage(a0, 0x43);
+    StopSEPackage(torch);
+    ExecuteSEPackage(torch, 67);
 }
 
 void LightTorchOn(GObj *gobj)
@@ -76,20 +76,20 @@ void LightTorchOn(GObj *gobj)
             return;
         }
         w->effect[1] =
-            SetParticleEffectByPartition(0x15, pos, IdentityQuaternion, ios_partition_seki);
+            SetParticleEffectByPartition(21, pos, IdentityQuaternion, ios_partition_seki);
         w->effect[4] =
-            SetParticleEffectByPartition(0x13, pos, IdentityQuaternion, ios_partition_seki);
+            SetParticleEffectByPartition(19, pos, IdentityQuaternion, ios_partition_seki);
         break;
     case 4:
         w->effect[0] =
-            SetParticleEffectByPartition(0x17, pos, IdentityQuaternion, ios_partition_seki);
+            SetParticleEffectByPartition(23, pos, IdentityQuaternion, ios_partition_seki);
         break;
     default:
         w->effect[3] = SetParticleEffectByPartition(7, pos, IdentityQuaternion, ios_partition_seki);
         w->effect[0] = SetParticleEffectByPartition(5, pos, IdentityQuaternion, ios_partition_seki);
         w->effect[1] = SetParticleEffectByPartition(9, pos, IdentityQuaternion, ios_partition_seki);
         w->effect[4] =
-            SetParticleEffectByPartition(0x13, pos, IdentityQuaternion, ios_partition_seki);
+            SetParticleEffectByPartition(19, pos, IdentityQuaternion, ios_partition_seki);
         break;
     }
     w->burnTime = 0;
@@ -188,48 +188,53 @@ static void setPauseFlag(GObj *gobj, int flag)
     }
 }
 
-inline int IsTorchLightOn(GObj *a0)
+inline int IsTorchLightOn(GObj *torch)
 {
-    return *(int *)((char *)GOBJ_SUB(a0)->work + 0x20);
+    TorchGeoWork *w = GOBJ_SUB(torch)->work;
+
+    return w->lightOn;
 }
 
-inline void SetTorchLife(GObj *a0, int a1, int a2)
+inline void SetTorchLife(GObj *torch, int life, int fadeTime)
 {
-    char *p = GOBJ_SUB(a0)->work;
-    *(int *)(p + 0x28) = a1;
-    *(int *)(p + 0x2C) = a1 - a2;
+    TorchGeoWork *p = GOBJ_SUB(torch)->work;
+    p->life = life;
+    p->fadeStart = life - fadeTime;
 }
 
-inline char *InitTorchGeo(GObj *a0, SObjSimpleSetting *a1)
+inline TorchGeoWork *InitTorchGeo(GObj *self, SObjSimpleSetting *lay)
 {
-    TorchGeoWork *p = (TorchGeoWork *)iosMallocDebug(ios_partition_sugipon, 0x50, __FILE__, 232);
+    TorchGeoWork *p = iosMallocDebug(ios_partition_sugipon, sizeof(TorchGeoWork), __FILE__, 232);
     *p = emptyTorchWork;
-    sceVu0UnitMatrix((char *)*(void **)(((char *)a0) + 0x15C) + 0x20);
-    *(void **)((char *)*(void **)(((char *)a0) + 0x15C) + 0x830) = p;
-    if (a1->obj & 1) {
-        LightTorchOn(a0);
+    /* the display object read through the SubHandle union each time: the
+       light store reads the slot again after the work store, which three
+       Sub15C * reads of it do not (measured) */
+    sceVu0UnitMatrix(&((SubHandle *)&self->dobj)->sub->matrix);
+    ((SubHandle *)&self->dobj)->sub->work = p;
+    if (lay->obj & 1) {
+        LightTorchOn(self);
     } else {
-        *(int *)((char *)*(void **)(((char *)a0) + 0x15C) + 0x83C) = 0;
+        ((SubHandle *)&self->dobj)->sub->lightId = 0;
     }
-    p->flags = a1->obj & ~1;
-    GetRootPosition(p->pos, a0);
-    return (char *)p;
+    p->flags = lay->obj & ~1;
+    GetRootPosition(p->pos, self);
+    return p;
 }
 
-inline char *CheckTorchChainReaction(GObj *a0, float dist)
+inline char *CheckTorchChainReaction(GObj *self, float dist)
 {
     float pos[4];
     float pos2[4];
     GObj *o;
     float dist2;
 
-    GetRootPosition(pos, a0);
+    GetRootPosition(pos, self);
 
     o = isysGObjSearchFromObjKindID_begin(10);
     dist2 = dist * dist;
     while (o != 0) {
         TorchGeoWork *w = GOBJ_SUB(o)->work;
-        if (o != a0 && IsTorchLightOn(o) && o->active != 0 && w->flags != 2) {
+        if (o != self && IsTorchLightOn(o) && o->active != 0 && w->flags != 2) {
             GetRootPosition(pos2, o);
             if (distance_squared(pos2, pos) < dist2) {
                 return (char *)o;
@@ -279,15 +284,15 @@ char *CheckTorchChainReactionReverse(GObj *self, float dist)
     return 0;
 }
 
-inline void UpdateRealTimeGeometryValue(GObj *a0)
+inline void UpdateRealTimeGeometryValue(GObj *self)
 {
     int buf[4];
-    char *sub;
-    GetRootPosition(buf, a0);
-    sub = *(char **)(((char *)a0) + 0x15C);
-    sceVu0SubVector(sub + 0x130, buf, sub + 0x1F0);
-    sub = *(char **)(((char *)a0) + 0x15C);
-    CopyVector(sub + 0x1F0, buf);
+    Sub15C *sub;
+    GetRootPosition(buf, self);
+    sub = self->dobj;
+    sceVu0SubVector(sub->root.move, buf, sub->root.last);
+    sub = self->dobj;
+    CopyVector(sub->root.last, buf);
 }
 
 /* nonzero when lighting `other`'s torch from `gobj` must not happen: the
@@ -339,16 +344,16 @@ static void procChainReaction(GObj *gobj)
 void TorchGeo(GObj *gobj)
 {
     TorchGeoWork *w;
-    char *sub;
-    char *o;
+    Sub15C *sub;
+    GObj *o;
     float drain;
     int id;
 
-    sub = *(char **)(((char *)gobj) + 0x15C);
-    o = *(char **)sub;
-    w = *(TorchGeoWork **)(sub + 0x830);
+    sub = gobj->dobj;
+    o = sub->parent.obj;
+    w = sub->work;
     if (o != 0) {
-        if (*(int *)(o + 0x16C) == 0) {
+        if (o->active == 0) {
             LightTorchOff(gobj);
             return;
         }
@@ -358,12 +363,12 @@ void TorchGeo(GObj *gobj)
         procChainReaction(gobj);
         return;
     }
-    if (*(int *)(((char *)gobj) + 0x50) != 0) {
+    if (gobj->drawMask != 0) {
         setPauseFlag(gobj, 0);
     } else {
         setPauseFlag(gobj, 1);
     }
-    if (w->burnTime < 0xFFFF) {
+    if (w->burnTime < 65535) {
         w->burnTime = w->burnTime + 1;
     }
     if (o != 0) {
@@ -375,11 +380,11 @@ void TorchGeo(GObj *gobj)
         procChainReaction(gobj);
         return;
     }
-    if (w->chainFlag == 0 && w->lifeMax < w->burnTime) {
-        drain = (float)(w->burnTime - w->lifeMax) / (float)(w->life - w->lifeMax);
+    if (w->chainFlag == 0 && w->fadeStart < w->burnTime) {
+        drain = (float)(w->burnTime - w->fadeStart) / (float)(w->life - w->fadeStart);
         torchDrainControl(gobj, 1.0f - drain);
         if (w->burnTime == w->life - 1) {
-            id = SetParticleEffectActiveSensing(0x36, w->pos, IdentityQuaternion);
+            id = SetParticleEffectActiveSensing(54, w->pos, IdentityQuaternion);
             if (id != -1) {
                 ExecParticleEffect(id);
             }

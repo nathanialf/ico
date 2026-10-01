@@ -34,7 +34,7 @@ void ClipStormByVolume(struct StormPackage *pkg);
 void ClipStormByCamera(struct StormPackage *pkg);
 void UpdateStormPackage(struct StormPackage *pkg);
 void DispStormPackage(struct StormPackage *pkg, void *color);
-void StormTestGeo(struct GObj *a0);
-void StormTestDL(struct GObj *a0);
+void StormTestGeo(struct GObj *self);
+void StormTestDL(struct GObj *self);
 
 #endif /* STORMTEST_H */

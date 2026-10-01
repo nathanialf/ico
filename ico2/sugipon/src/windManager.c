@@ -52,7 +52,7 @@ inline void InitWindManager(int no)
 void ExecWindManager(void)
 {
     gustTimer++;
-    if (gustTimer >= 0x33) {
+    if (gustTimer >= 51) {
         float r = random_unit();
         gustTimer = 0;
         gustAim = windSpeed * ((r + r - 1.0f) * windVariance + 1.0f);
@@ -69,7 +69,7 @@ inline float GetRegularizedWindSpeed(void *pos)
         return 1.0f;
     }
     GetWindVector(&s, pos);
-    return (s / (60.0f / (float)((0x3C - systemStatus[0] * 0xA) / systemStatus[1])) * windSpeedInv -
+    return (s / (60.0f / (float)((60 - systemStatus[0] * 10) / systemStatus[1])) * windSpeedInv -
             (1.0f - windVariance)) *
            0.5f * windVarianceInv;
 }

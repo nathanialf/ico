@@ -11,6 +11,7 @@
 #include "sceneManager.h"
 
 struct GObj;
+struct Sub15C;
 
 /* The floor and wall lever geometry block InitFloorLeverGeo returns: eight
  * words, read back as such at box.c's own call sites.  It is not called
@@ -21,7 +22,7 @@ typedef struct {     /* field names derived */
     int state;       /* 0x04, 0 at rest, 1 or -1 once thrown */
     int timer;       /* 0x08, frames since the lever was thrown */
     int base;        /* 0x0C, the base DObj, kept as a word */
-    char *handle;    /* 0x10, the handle DObj, drawn turned by the two angles */
+    struct Sub15C *handle; /* 0x10, the handle DObj, drawn turned by the two angles */
     int linked;      /* 0x14, nonzero once the lever is parented to the floor under it */
     int linkWait;    /* 0x18, frames counted before the parenting probe */
     int (*trigger)(struct GObj *, int); /* 0x1C, called with the parent object and the state */
@@ -33,16 +34,16 @@ typedef struct {     /* field names derived */
 int InitSwitchGeo(void);
 void SwitchGeo(void);
 void SwitchDL(void);
-void SetSwitchTriggerFunc(struct GObj *a0, int (*a1)(struct GObj *, int));
-void SetSwitchState(char *a0, int a1);
-void SetFloorLeverWithNodePoint(struct GObj *a0, struct GObj *a1, int a2);
-int CanFloorLeverPull(char *a0);
-LeverGeoWork *InitFloorLeverGeo(char *a0, SObjSimpleSetting *a1);
-int GetFloorLeverAngle(char *a0);
-void SetWallLeverWithNodePoint(struct GObj *a0, struct GObj *a1, int a2);
-int CanWallLeverPull(char *a0);
-int IsWallLeverStatus(char *a0);
-LeverGeoWork *InitWallLeverGeo(char *a0, SObjSimpleSetting *a1);
-int GetWallLeverAngle(char *a0);
+void SetSwitchTriggerFunc(struct GObj *lever, int (*func)(struct GObj *, int));
+void SetSwitchState(struct GObj *lev, int state);
+void SetFloorLeverWithNodePoint(struct GObj *lev, struct GObj *actor, int focus);
+int CanFloorLeverPull(struct GObj *lev);
+LeverGeoWork *InitFloorLeverGeo(struct GObj *self, SObjSimpleSetting *lay);
+int GetFloorLeverAngle(struct GObj *lev);
+void SetWallLeverWithNodePoint(struct GObj *lev, struct GObj *actor, int focus);
+int CanWallLeverPull(struct GObj *lev);
+int IsWallLeverStatus(struct GObj *lev);
+LeverGeoWork *InitWallLeverGeo(struct GObj *self, SObjSimpleSetting *lay);
+int GetWallLeverAngle(struct GObj *lev);
 
 #endif /* SWITCH_H */

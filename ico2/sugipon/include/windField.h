@@ -14,7 +14,7 @@ void InitWindField(int mode, float str, void *center, void *dir);
 void drawSenpuukiHaneUnit(float scale);
 void drawSenpuuki(float scale);
 void StopWindField(void);
-void drawLines(char *a0);
+void drawLines(char *lines);
 void drawSenpuukiHane(void);
 void drawSenpuukiUnit(void);
 void drawSenpuukiBase(void);

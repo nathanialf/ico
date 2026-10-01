@@ -75,7 +75,7 @@ typedef struct {  /* field names derived */
    emptyEntry */
 static SMotion streamEntry[10]; /* derived name */
 
-/* The ring is 0x28000 bytes; the check asks whether the write pointer has run
+/* The ring is 163840 bytes; the check asks whether the write pointer has run
  * far enough ahead of the read pointer for `room` more bytes to be there. */
 static inline int _checkRing(int room) /* derived name */
 {
@@ -85,7 +85,7 @@ static inline int _checkRing(int room) /* derived name */
     int r;
 
     if (q < p) {
-        q += 0x28000;
+        q += 163840;
     }
     r = 1;
     if (!(q < p) && (int)q < (int)end) {
@@ -100,7 +100,7 @@ static inline void _setEntryOffsets(void) /* derived name */
     int i;
 
     for (i = 0; i < streamNum; i++) {
-        streamEntry[i].cur = streamEntry[i].next = (ringRead + off) % 0x28000;
+        streamEntry[i].cur = streamEntry[i].next = (ringRead + off) % 163840;
         off += streamEntry[i].size;
     }
 }
@@ -111,7 +111,7 @@ static inline void _setNextEntryOffsets(unsigned int base) /* derived name */
     int i;
 
     for (i = 0; i < streamNum; i++) {
-        streamEntry[i].next = (base + off) % 0x28000;
+        streamEntry[i].next = (base + off) % 163840;
         off += streamEntry[i].size;
     }
 }
@@ -120,8 +120,8 @@ static inline void _advanceRing(int amt) /* derived name */
 {
     ringUsed += amt;
     ringRead += amt;
-    if ((unsigned int)ringRead > 0x27FFF) {
-        ringRead -= 0x28000;
+    if ((unsigned int)ringRead > 163839) {
+        ringRead -= 163840;
     }
 }
 
@@ -132,19 +132,19 @@ static int _infoUpdate(void)
     int i;
 
     if (headerRead == 0) {
-        if (_checkRing(0x1000)) {
+        if (_checkRing(4096)) {
             headerSize = 0;
             for (i = 0; i < streamNum; i++) {
                 int a = ringRead + headerSize;
 
-                streamEntry[i].nodeNum = *(unsigned char *)(ringBuf + (a + 2) % 0x28000);
-                streamEntry[i].shapeNum = *(unsigned char *)(ringBuf + (a + 3) % 0x28000);
+                streamEntry[i].nodeNum = *(unsigned char *)(ringBuf + (a + 2) % 163840);
+                streamEntry[i].shapeNum = *(unsigned char *)(ringBuf + (a + 3) % 163840);
                 streamEntry[i].size = 16 + streamEntry[i].nodeNum * 8 + streamEntry[i].shapeNum * 4;
                 headerSize += streamEntry[i].size;
             }
-            n = 0xE23;
+            n = 3619;
             if (systemStatus[0] == 0) {
-                n = 0xBB5;
+                n = 2997;
             }
             headerRead = 1;
             frameTime = n;
@@ -209,7 +209,7 @@ static int _infoUpdate(void)
         bgaStreamSync = 0;
     }
     framePlayed = frameTime;
-    frameTime += systemStatus[0] == 0 ? 0xBB5 : 0xE23;
+    frameTime += systemStatus[0] == 0 ? 2997 : 3619;
     return 0;
 }
 
@@ -227,7 +227,7 @@ void PlayStreamMotion(void)
  * switched off */
 void ClearStreamMotionEntry(GObj *gobj)
 {
-    *(int *)((char *)GOBJ_SUB(gobj) + 0x470) = -1;
+    GOBJ_SUB(gobj)->ctrl.stream = -1;
     GOBJ_SUB(gobj)->streamScale = 1;
     CopyVector(GOBJ_SUB(gobj)->streamOfs, ZeroVector);
     GOBJ_SUB(gobj)->ctrl.catchBoy = 1;
@@ -240,7 +240,7 @@ void ClearStreamMotionEntry(GObj *gobj)
 }
 
 /* the cleared entry every slot is reset to */
-static SMotion emptyEntry = {0, 0, -1, -1, -1, 0, 0}; /* derived name */
+static SMotion emptyEntry = {0, 0, -1, -1, -1, {0}, 0}; /* derived name */
 
 static void _deleteStreamMotionManager(void)
 {
@@ -293,10 +293,10 @@ inline int GetDataSizeOfStreamMotion(int no)
 static void getStreamMotionData(char *dst, int off, int no)
 {
     int size = streamEntry[no].size;
-    int over = off + size - 0x28000;
+    int over = off + size - 163840;
 
     if (over > 0) {
-        int first = 0x28000 - off;
+        int first = 163840 - off;
 
         memcpy(dst, ringBuf + off, first);
         memcpy(dst + first, ringBuf, over);
@@ -397,11 +397,11 @@ void ExecStreamMotionManager(void)
         unsigned int rp = ringRead;
 
         if (wp < rp) {
-            pct = wp + 0x28000 - rp;
+            pct = wp + 163840 - rp;
         } else {
             pct = wp - rp;
         }
-        pct = pct * 100 / 0x28000;
+        pct = pct * 100 / 163840;
         if (debug_font_flag & 1) {
             debug_Printf(0, ScreenHeight / 2 - 16, 0xFF404000, " %d%%", pct);
         }
@@ -414,9 +414,9 @@ void ExecStreamMotionManager(void)
 
 void MallocStreamMotionBuffer(void)
 {
-    ringBuf = iosMallocDebug(ios_partition_sugipon, 0x28000, "src/streamMotionManager.c", 602);
-    readBufRaw = iosMallocDebug(ios_partition_sugipon, 0x28040, "src/streamMotionManager.c", 604);
-    readBuf = (char *)((int)(readBufRaw + 0x3F) & 0xFFFFFFC0);
+    ringBuf = iosMallocDebug(ios_partition_sugipon, 163840, "src/streamMotionManager.c", 602);
+    readBufRaw = iosMallocDebug(ios_partition_sugipon, 163904, "src/streamMotionManager.c", 604);
+    readBuf = (char *)((int)(readBufRaw + 63) & 0xFFFFFFC0);
     if (ringBuf == 0 || readBuf == 0) {
         /* "could not allocate the stream buffer memory" */
         debug_StdPrintfDummy("ストリーム用のバッファメモリが確保できませんでした\n");
@@ -449,15 +449,15 @@ inline void DeleteStreamMotionManager(void)
     ClearAllStreamMotionEntry();
 }
 
-inline void StandbyStreamMotion(char *self)
+inline void StandbyStreamMotion(char *file)
 {
     DeleteStreamMotionManager();
     while (bgMgrId != 0) {
         debug_StdPrintfDummy("\033[36mWait!!!\033[m\n");
         iosThreadSleep();
     }
-    bgMgrId = iosCdvdBackGroundMgrAdd(self, _handler, 0, 0, 0, 0, _closeHander, 0);
-    streamOwner = self;
+    bgMgrId = iosCdvdBackGroundMgrAdd(file, _handler, 0, 0, 0, 0, _closeHander, 0);
+    streamOwner = file;
 }
 
 inline void StopStreamMotion(void)
@@ -465,16 +465,16 @@ inline void StopStreamMotion(void)
     streamState = 0;
 }
 
-inline int EntryStreamMotion(GObj *a0)
+inline int EntryStreamMotion(GObj *gobj)
 {
     int no = streamNum;
 
-    streamEntry[no].obj.p = a0;
+    streamEntry[no].obj.p = gobj;
 
-    *(int *)((char *)GOBJ_SUB(a0) + 0x470) = no;
-    GOBJ_SUB(a0)->ctrl.loopFlag = 0;
-    GOBJ_SUB(a0)->ctrl.posReserve = 0;
-    GOBJ_SUB(a0)->ctrl.catchBoy = 0;
+    GOBJ_SUB(gobj)->ctrl.stream = no;
+    GOBJ_SUB(gobj)->ctrl.loopFlag = 0;
+    GOBJ_SUB(gobj)->ctrl.posReserve = 0;
+    GOBJ_SUB(gobj)->ctrl.catchBoy = 0;
     streamNum = no + 1;
     return no;
 }
@@ -490,10 +490,10 @@ inline int CheckReadyStreamMotion(void)
 {
     unsigned int p = ringRead;
     unsigned int q = ringWrite;
-    unsigned int end = p + 0x1000;
+    unsigned int end = p + 4096;
     int r;
     if (q < p)
-        q += 0x28000;
+        q += 163840;
     r = 1;
     if (!(q < p) && (int)q < (int)end)
         r = 0;
@@ -530,22 +530,22 @@ static inline int _handler(CdvdBgReq *self)
     int size;
 
     if (wp < rp) {
-        rest = wp + 0x28000 - rp;
+        rest = wp + 163840 - rp;
     } else {
         rest = wp - rp;
     }
     switch (readState) {
     default:
     case 0:
-        if (rest > 0x13FFF) {
+        if (rest > 81919) {
             break;
         }
         readState = 1;
     case 1:
-        size = 0x28000 - rest;
+        size = 163840 - rest;
         size = ((size - 1) / 2048) * 2048;
         iosCdvdBackGroundRead(self, readBuf, size);
-        _transRingBuf(&ringWrite, ringBuf, 0x28000, readBuf, size);
+        _transRingBuf(&ringWrite, ringBuf, 163840, readBuf, size);
         readState = 0;
         break;
     }

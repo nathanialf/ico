@@ -10,13 +10,6 @@
 #include "ios.h"
 #include "windField.h"
 
-/* One dot of the splash: 0x30 bytes, sized by AllocWaterDot's `mult ,0x30`. */
-/* 0x30 */
-
-/* The per-emitter work AllocWaterDot mallocs (0x1C bytes) and registers in
- * waterDots[waterDotCount++]. */
-/* 0x1C */
-
 /* the registered emitters; InitializeWaterDot clears all five */
 static WaterDotWork *waterDots[5]; /* derived name */
 
@@ -42,7 +35,7 @@ static WaterDot initWaterDot = {
 static WaterDot initWaterDot2 = {
     0, 0, 0, 0.0f, {0.0f, 0.0f, 0.0f, 1.0f}, {0.0f, 0.0f, 0.0f, 0.0f}}; /* derived name */
 
-WaterDotWork *AllocWaterDot(int gobj, int num, int num2)
+WaterDotWork *AllocWaterDot(GObj *gobj, int num, int num2)
 {
     WaterDotWork *w;
     int i;
@@ -117,7 +110,7 @@ void ExecWaterDot(WaterDotWork *w)
     int i;
 
     GetRootPosition(&pos, w->gobj);
-    _ScaleVectorXYZ(&wind, GetWindVector(0, &pos), 0.2f);
+    _ScaleVectorXYZ(&wind, GetWindVector(0, &pos.x), 0.2f);
 
     p = w->dot;
     for (i = 0; i < w->num; i++) {
@@ -159,20 +152,20 @@ void DispWaterDot(WaterDotWork *w)
     WaterDot *p;
     int i;
 
-    gif_StartPacketPri(0xB);
+    gif_StartPacketPri(11);
 
     p = w->dot;
     gif_SetGsReg(0, waterDotPrim);
     gif_SetZTest(1);
     gif_SetZWrite(0);
-    gif_SetAlpha(1, 5, 0x80);
+    gif_SetAlpha(1, 5, 128);
 
     for (i = 0; i < w->num; i++, p++) {
         if (p->used != 0) {
             getWaterDotScreenPos(ip, &p->pos);
 
-            if (ip[0] >= 0x6700 && ip[0] <= 0x9900) {
-                if (ip[1] >= 0x7380 && ip[1] <= 0x8C80) {
+            if (ip[0] >= 26368 && ip[0] <= 39168) {
+                if (ip[1] >= 29568 && ip[1] <= 35968) {
                     gif_SetGsReg(1, 0x80LL | (0x80LL << 8) | (0x80LL << 16) |
                                         ((long long)p->life << 24) | (0x3F800000LL << 32));
                     gif_SetGsReg(5, (long long)ip[0] | ((long long)ip[1] << 16) |

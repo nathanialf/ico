@@ -15,7 +15,7 @@ int InitRopeFixGeo(void);
 
 struct GObj;
 
-void RopeFixGeo(int a0);
-void RopeFixDL(struct GObj *a0);
+void RopeFixGeo(struct GObj *fix);
+void RopeFixDL(struct GObj *fix);
 
 #endif /* ROPEFIX_H */

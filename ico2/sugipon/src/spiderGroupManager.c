@@ -33,9 +33,9 @@ typedef struct { /* field names derived */
     int spider;  /* 0x04, the spider's index in the group */
 } SpiderPair;    /* derived name */
 
-typedef struct {  /* field names derived */
-    GObj *gobj;   /* 0x00 */
-    int rev;      /* 0x04, the enemy layout object locked for the revive, held as a word */
+typedef struct { /* field names derived */
+    GObj *gobj;  /* 0x00 */
+    int rev; /* 0x04, the enemy layout object locked for the revive, held as a word: typed GObj *, the store order of EntrySpiderGroupManager moves (measured) */
 } SpiderGroupEnt; /* derived name */
 
 /* the spiders found inside a revive range, the pairs picked out of them,
@@ -45,18 +45,18 @@ static int spidersInRange[100]; /* derived name */
 
 static SpiderPair spiderPairs[5]; /* derived name */
 
-/* the registered groups' GObj handles, held as words */
+/* the registered groups' GObj handles, held as words: typed GObj *, the
+   store order of EntrySpiderGroupManager moves (measured) */
 static int spiderGroupIds[64]; /* derived name */
 
 static SpiderGroupEnt spiderGroups[64]; /* derived name */
 
 static GObj *reviveGroupIds[64]; /* derived name */
 
-/* one RGBA tint per spider group, alpha 0x80 throughout */
-static int spiderGroupColors[7][4] = {{0x7F, 0x00, 0x00, 0x80}, {0x40, 0x7F, 0x00, 0x80},
-                                      {0x00, 0x40, 0x7F, 0x80}, {0x00, 0x7F, 0x00, 0x80},
-                                      {0x40, 0x00, 0x7F, 0x80}, {0x7F, 0x40, 0x00, 0x80},
-                                      {0x40, 0x40, 0x40, 0x80}}; /* derived name */
+/* one RGBA tint per spider group, alpha 128 throughout */
+static int spiderGroupColors[7][4] = {{127, 0, 0, 128}, {64, 127, 0, 128}, {0, 64, 127, 128},
+                                      {0, 127, 0, 128}, {64, 0, 127, 128}, {127, 64, 0, 128},
+                                      {64, 64, 64, 128}}; /* derived name */
 
 inline void InitSpiderGroupManager(void)
 {
@@ -90,18 +90,18 @@ inline GObj *getReviveEnemyGObj(int count)
     return p;
 }
 
-inline void EntryRevivedSpiderGroupManager(int id)
+inline void EntryRevivedSpiderGroupManager(GObj *group)
 {
     int idx = spiderGroupIdCount;
     spiderGroupIdCount = idx + 1;
-    spiderGroupIds[idx] = id;
+    spiderGroupIds[idx] = (int)group;
 }
 
-void EntrySpiderGroupManager(int gobj)
+void EntrySpiderGroupManager(GObj *gobj)
 {
     GObj *p;
 
-    spiderGroups[spiderGroupCount].gobj = (GObj *)gobj;
+    spiderGroups[spiderGroupCount].gobj = gobj;
     p = getReviveEnemyGObj(spiderGroupIdCount);
     if (p != 0) {
         debug_StdPrintfDummy("LOCK %p for LABEL %d, ID:%d\n", p, p->labelId, spiderGroupCount);

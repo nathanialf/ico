@@ -229,7 +229,7 @@ AP1Work *InitAP1(GObj *self, SObjSimpleSetting *arg)
     p->blink = rand() & 0x1F;
     p->settleCount = 0;
     p->visible = 1;
-    ap1LayoutUp[2] = spiderDef[p->layout].upY;
+    ap1LayoutUp[2] = spiderDef[p->layout].upZ;
     CopyVector(&p->up, ap1LayoutUp);
     _UnitMatrix(p->mtx);
     _UnitMatrix(p->root);

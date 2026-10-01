@@ -43,7 +43,7 @@ int InitWindMillGeo(int owner, WmLayout *src)
         } else {
             lay.id = 18;
         }
-        gobj = CreateLayoutedGObj(46, 0x290, -1, 0, &lay, -1, 7, 0);
+        gobj = CreateLayoutedGObj(46, 656, -1, 0, &lay, -1, 7, 0);
         ((WmWork *)GOBJ_SUB(gobj))->owner = owner;
         ((WmWork *)GOBJ_SUB(gobj))->node = 0;
         SetFlag4PointFixID(gobj, i, 0);
@@ -53,7 +53,7 @@ int InitWindMillGeo(int owner, WmLayout *src)
         } else {
             lay.id = 19;
         }
-        gobj2 = CreateLayoutedGObj(46, 0x290, -1, 0, &lay, -1, 7, 0);
+        gobj2 = CreateLayoutedGObj(46, 656, -1, 0, &lay, -1, 7, 0);
         ((WmWork *)GOBJ_SUB(gobj2))->owner = owner;
         ((WmWork *)GOBJ_SUB(gobj2))->node = 0;
         SetFlag4PointFixID(gobj2, i, 1);

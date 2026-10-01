@@ -4,12 +4,12 @@
    short, while this definition returns int.  The declarations below repeat
    the header's order, which is load-bearing: gcc 2.9 emits the deferred
    out-of-line copies of plain-inline functions in first-declaration order. */
-float GetTableSin(short a0);
-float GetTableCos(short a0);
+float GetTableSin(short angle);
+float GetTableCos(short angle);
 void InitTableSin(void);
 short GetTableArcSin(float x);
 short GetTableArcCos(float x);
-int GetTableArcTan2(float f12, float f13);
+int GetTableArcTan2(float y, float x);
 
 /* the two lookup tables: a quarter-turn of sine at 16385 steps, then the
    arc-sine table at 4097 steps.  The sine table is declared 16388 long; the
@@ -69,9 +69,9 @@ static inline void arcClamp(float *x, int *neg) /* derived name */
     }
 }
 
-inline int GetTableArcTan2(float f12, float f13)
+inline int GetTableArcTan2(float y, float x)
 {
-    return f12 < 0.0f ? (short)-GetTableArcCos(f13) : GetTableArcCos(f13);
+    return y < 0.0f ? (short)-GetTableArcCos(x) : GetTableArcCos(x);
 }
 
 inline short GetTableArcSin(float x)
@@ -90,21 +90,21 @@ inline short GetTableArcCos(float x)
     int hi;
 
     arcClamp(&x, &neg);
-    hi = (short)(arcSinTable[(int)(x * 4096.0f)] + 0x4000);
+    hi = (short)(arcSinTable[(int)(x * 4096.0f)] + 16384);
     if (neg == 0) {
-        return (short)(0x8000 - hi);
+        return (short)(32768 - hi);
     }
     return hi;
 }
 
-inline float GetTableSin(short a0)
+inline float GetTableSin(short angle)
 {
-    int idx = __builtin_abs(a0);
+    int idx = __builtin_abs(angle);
     int s;
     float v;
-    s = (unsigned int)a0 >> 31;
-    if (idx >= 0x4000) {
-        idx = 0x8000 - idx;
+    s = (unsigned int)angle >> 31;
+    if (idx >= 16384) {
+        idx = 32768 - idx;
     }
     v = sinTable[idx];
     if (s == 0)
@@ -114,8 +114,8 @@ done:
     return v;
 }
 
-inline float GetTableCos(short a0)
+inline float GetTableCos(short angle)
 {
-    short t = a0;
-    return GetTableSin(t + 0x4000);
+    short t = angle;
+    return GetTableSin(t + 16384);
 }

@@ -8,11 +8,13 @@
 #ifndef WAYSYSTEMMANAGER_H
 #define WAYSYSTEMMANAGER_H
 
+struct GObj;
+
 /* The declarations below lead this header because their order is load-bearing:
  * gcc 2.9 emits the deferred out-of-line copy of a plain-inline function in
  * first-declaration order, so this is the order waySystemManager.c's inline tail has. */
-void *RequestGetWayBegin(int *a0);
+void *RequestGetWayBegin(int *req);
 
-int CreateWaySystemManagerGObj(void);
+struct GObj *CreateWaySystemManagerGObj(void);
 
 #endif /* WAYSYSTEMMANAGER_H */

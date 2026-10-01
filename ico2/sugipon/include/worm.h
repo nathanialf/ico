@@ -14,13 +14,13 @@ struct GObj;
  * gcc 2.9 emits the deferred out-of-line copy of a plain-inline function in
  * first-declaration order, so this is the order worm.c's inline tail has. */
 void SetDirectWormTargetPos(struct GObj *act, void *pos);
-void SetWormReduceRatio(struct GObj *a0, float f12);
+void SetWormReduceRatio(struct GObj *act, float ratio);
 void TraceWormRoute(struct GObj *act, float t);
 
 struct WormInit;
 
 void *InitWormGeo(struct GObj *act, struct WormInit *ini);
 void WormGeo(struct GObj *act);
-void WormDL(void *act);
+void WormDL(struct GObj *act);
 
 #endif /* WORM_H */

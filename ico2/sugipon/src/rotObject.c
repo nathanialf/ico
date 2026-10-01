@@ -82,37 +82,37 @@ static inline void getRotObjectDriveMatrix(GObj *gobj, void *dst) /* derived nam
     CopyMatrix(dst, MatrixDrive_GetMatrix());
 }
 
-void GetRotObjectHoldPoint(void *pos, void *dir, void *wall, void *holder)
+void GetRotObjectHoldPoint(void *pos, void *dir, WallCfg *wall, GObj *holder)
 {
-    char buf[96];
+    struct {
+        float plane[4];
+        float pos[4];
+        float mtx[4][4];
+    } buf;
 
-    GetRootPosition(buf + 0x10, holder);
-    GetGlobalWallPlane(buf, wall);
-    sceVu0ScaleVectorXYZ(dir, buf, -1.0f);
+    GetRootPosition(buf.pos, holder);
+    GetGlobalWallPlane(buf.plane, wall);
+    sceVu0ScaleVectorXYZ(dir, buf.plane, -1.0f);
     *(int *)((char *)dir + 0xC) = 0;
-    AdjustVerticalSidePlaneOfWall(pos, wall, buf + 0x10, 10.0f);
-    GetProjectionPosOfPlane(pos, buf, pos);
+    AdjustVerticalSidePlaneOfWall(pos, wall, buf.pos, 10.0f);
+    GetProjectionPosOfPlane(pos, buf.plane, pos);
     /* the hold point trace, switched off */
     if (0) {
         debug_StdPrintfDummy("%s\n", "GetRotObjectHoldPoint");
         debug_StdPrintfDummy("\t%f, %f, %f\n", ((float *)pos)[0], ((float *)pos)[1],
                              ((float *)pos)[2]);
     }
-    MatrixDrive_SetTransposeMatrix(buf + 0x20, *(int *)(*(char **)(*(int *)wall + 0x15C) + 0xC) +
-                                                   (*(int *)((char *)wall + 4) << 6));
-    sceVu0ApplyMatrix(pos, buf + 0x20, pos);
-    sceVu0ApplyMatrix(dir, buf + 0x20, dir);
+    MatrixDrive_SetTransposeMatrix(buf.mtx,
+                                   (char *)GOBJ_SUB(wall->o.obj)->nodeMtx + (wall->o.node << 6));
+    sceVu0ApplyMatrix(pos, buf.mtx, pos);
+    sceVu0ApplyMatrix(dir, buf.mtx, dir);
     *(float *)((char *)pos + 4) = -50.0f;
     sceVu0Normalize(dir, dir);
 }
 
-int MoveRotObjectWithHoldPoint(GObj *bar, void *hold, void *self, void *dir, void *up)
+int MoveRotObjectWithHoldPoint(GObj *bar, float *hold, void *self, float *dir, float *up)
 {
     RotObjWork *w = GOBJ_SUB(bar)->work;
-    char *gobj = (char *)bar;
-    float *a1 = (float *)hold;
-    float *a3 = (float *)dir;
-    float *a4 = (float *)up;
     float q[4];
     float m[16];
     float tm[16];
@@ -126,26 +126,26 @@ int MoveRotObjectWithHoldPoint(GObj *bar, void *hold, void *self, void *dir, voi
 
     if (w->lock != 0)
         return 0;
-    if (*(int *)(gobj + 0x16C) == 0) {
+    if (bar->active == 0) {
         w->turnCount = 0;
         return 0;
     }
-    getRotObjectDriveMatrix(gobj, m);
+    getRotObjectDriveMatrix(bar, m);
     {
         float v[4];
         float o[4];
         MatrixDrive_SetTransposeMatrix(tm, m);
-        sceVu0ApplyMatrix(q, tm, a3);
-        CopyVector(p, a4);
+        sceVu0ApplyMatrix(q, tm, dir);
+        CopyVector(p, up);
         p[1] = 0.0f;
         p[3] = 0.0f;
         _ApplyMatrix(p, tm, p);
-        _OuterProduct(v, p, a1);
+        _OuterProduct(v, p, hold);
         vy = v[1];
-        len = FSqrt(a1[0] * a1[0] + a1[2] * a1[2]);
+        len = FSqrt(hold[0] * hold[0] + hold[2] * hold[2]);
         sceVu0ScaleVector(q, q, len / FSqrt(q[0] * q[0] + q[2] * q[2]));
-        sceVu0OuterProduct(o, q, a1);
-        sl = _GetLengthXZ(q, a1);
+        sceVu0OuterProduct(o, q, hold);
+        sl = _GetLengthXZ(q, hold);
         if (o[1] < 0.0f)
             sl = -sl;
         if (sl * vy < 0.0f)
@@ -165,26 +165,23 @@ int MoveRotObjectWithHoldPoint(GObj *bar, void *hold, void *self, void *dir, voi
             return 0;
         break;
     case 3:
-        if (*(int *)*(char **)(gobj + 0x15C) != 0) {
+        if (GOBJ_SUB(bar)->parent.obj != 0) {
             float r;
 
-            h = *(char **)(*(char **)(*(int *)*(char **)(gobj + 0x15C) + 0x15C) + 0xC);
+            h = (char *)GOBJ_SUB(GOBJ_SUB(bar)->parent.obj)->nodeMtx;
             ((Vec4 *)(h + 0x30))->f[1] += ang * 31.83098793f;
-            CopyVector(*(char **)(*(int *)*(char **)(gobj + 0x15C) + 0x15C) + 0xA0,
-                       *(char **)(*(char **)(*(int *)*(char **)(gobj + 0x15C) + 0x15C) + 0xC) +
-                           0x30);
+            CopyVector(GOBJ_SUB(GOBJ_SUB(bar)->parent.obj)->root.pos,
+                       (char *)GOBJ_SUB(GOBJ_SUB(bar)->parent.obj)->nodeMtx + 0x30);
             r = -((Vec4 *)(h + 0x30))->f[1];
             if (w->limitMax < r) {
                 ((Vec4 *)(h + 0x30))->f[1] = -w->limitMax;
-                CopyVector(*(char **)(*(int *)*(char **)(gobj + 0x15C) + 0x15C) + 0xA0,
-                           *(char **)(*(char **)(*(int *)*(char **)(gobj + 0x15C) + 0x15C) + 0xC) +
-                               0x30);
+                CopyVector(GOBJ_SUB(GOBJ_SUB(bar)->parent.obj)->root.pos,
+                           (char *)GOBJ_SUB(GOBJ_SUB(bar)->parent.obj)->nodeMtx + 0x30);
                 return 0;
             } else if (r < w->limitMin) {
                 ((Vec4 *)(h + 0x30))->f[1] = -w->limitMin;
-                CopyVector(*(char **)(*(int *)*(char **)(gobj + 0x15C) + 0x15C) + 0xA0,
-                           *(char **)(*(char **)(*(int *)*(char **)(gobj + 0x15C) + 0x15C) + 0xC) +
-                               0x30);
+                CopyVector(GOBJ_SUB(GOBJ_SUB(bar)->parent.obj)->root.pos,
+                           (char *)GOBJ_SUB(GOBJ_SUB(bar)->parent.obj)->nodeMtx + 0x30);
                 return 0;
             }
         }
@@ -216,28 +213,22 @@ void SetRotObjectArmRadius(GObj *self, float radius)
     w->armScale = 100.0f / radius;
 }
 
-void GetRotObjectGlobalHoldGeometry(void *pos, void *dir, void *gobj, void *posMtx, void *dirMtx)
+void GetRotObjectGlobalHoldGeometry(void *pos, void *dir, GObj *bar, void *holdPos, void *holdDir)
 {
     float m[16];
 
-    getRotObjectDriveMatrix(gobj, m);
-    sceVu0ApplyMatrix(pos, m, posMtx);
-    sceVu0ApplyMatrix(dir, m, dirMtx);
+    getRotObjectDriveMatrix(bar, m);
+    sceVu0ApplyMatrix(pos, m, holdPos);
+    sceVu0ApplyMatrix(dir, m, holdDir);
     /* the function's name trace, switched off */
     if (0) {
         debug_StdPrintfDummy("%s\n", "GetRotObjectGlobalHoldGeometry");
     }
 }
 
-/* a GObj slot read as an int but written elsewhere as a float */
-typedef union RotObjWord { /* field names derived */
-    int i;
-    float f;
-} RotObjWord; /* derived name */
-
 RotObjWork *InitRotObjectGeo(GObj *gobj, SObjSimpleSetting *src)
 {
-    RotObjWork *p = iosMallocDebug(ios_partition_sugipon, 64, (void *)rotObjectFile, 57);
+    RotObjWork *p = iosMallocDebug(ios_partition_sugipon, sizeof(RotObjWork), rotObjectFile, 57);
 
     p->saveCount = rotObjectPhase;
     rotObjectPhase = (rotObjectPhase + 1) % 30;
@@ -255,7 +246,7 @@ RotObjWork *InitRotObjectGeo(GObj *gobj, SObjSimpleSetting *src)
     if (p->kind == 3) {
         p->limitMax = src->scale[2];
         p->limitMin = src->scale[0];
-        CopyVector((char *)((RotObjWord *)&gobj->dobj)->i + 0xA0, ZeroPoint);
+        CopyVector(((SubHandle *)&gobj->dobj)->sub->root.pos, ZeroPoint);
     }
     {
         struct DObjNode *q = GOBJ_SUB(gobj)->nodes;
@@ -288,7 +279,7 @@ float GetRotObjectRotCount(GObj *self)
 /* the +Z unit vector the drive matrix is applied to */
 static float zPlusVector[4] = {0.0f, 0.0f, 1.0f, 0.0f}; /* derived name */
 
-int GetRotObjectZPlusDirection(void *gobj)
+int GetRotObjectZPlusDirection(GObj *gobj)
 {
     float m[16];
     float v[4];

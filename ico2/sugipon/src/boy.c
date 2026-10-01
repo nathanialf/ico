@@ -642,7 +642,7 @@ BoyWork *InitBoyGeo(GObj *gobj, void *csv)
     w->refl.sizeZ = 300.0f;
     w->refl.color = 0x80808080;
     InitLimitedPoolReflactionMesh(&w->refl);
-    w->waterDot = AllocWaterDot((int)gobj, 30, 5);
+    w->waterDot = AllocWaterDot(gobj, 30, 5);
     w->wet = 0;
     w->dripVel = 0.0f;
     w->drip = 0.0f;

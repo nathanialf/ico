@@ -59,8 +59,8 @@ struct QSwordLayout;
 
 void torchOnOfWeaponSE(struct GObj *torch);
 void torchOffOfWeaponSE(struct GObj *torch);
-void weaponFumbleSE(struct GObj *a0);
-void weaponStickSE(struct GObj *a0);
+void weaponFumbleSE(struct GObj *g);
+void weaponStickSE(struct GObj *g);
 void ReleaseWeaponWithFumbleTargetPos(struct GObj *g, void *pos, void *quat, void *rot, float t);
 void WeaponHitEffect(struct GObj *self, void *enemy);
 void *InitWeaponGeo(struct GObj *g, struct QSwordLayout *lay);
@@ -68,7 +68,7 @@ void WeaponGeo(struct GObj *g);
 void WeaponDL(struct GObj *g);
 void ReleaseWeaponWithFumble(struct GObj *self, float *move, float *quat);
 int InitWeaponFumbleSequence(struct GObj *self);
-void *InitDemoQueensSword(struct GObj *a0, void *a1);
-void ExecDemoQueensSword(struct GObj *a0);
+void *InitDemoQueensSword(struct GObj *g, struct QSwordLayout *lay);
+void ExecDemoQueensSword(struct GObj *g);
 
 #endif /* WEAPON_H */
