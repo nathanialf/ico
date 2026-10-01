@@ -92,6 +92,8 @@ committed. The build generates them from the user's own
 array of its record type compiled with the game's flags
 (`tools/gen_data_c.py`); the schema holds only the record type, its header,
 the element count, MAIN.MAP's symbol names and which fields are masks.
+A count derived from a table is a fact about it, not content: the staff
+roll's line count is written by the generator as `sizeof` over the table.
 Every other member is written
 as assembly that the period assembler turns back into the same bytes
 (`tools/extract_data.py`). [`docs/LEGAL.md`](docs/LEGAL.md) has the

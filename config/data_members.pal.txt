@@ -204,4 +204,5 @@ rodata way-group 0x62b648 0x635fc0 wayGroupSheet@0x0
 
 # ---- .sdata: after 0x63b670, before 0x63b678 (a_p_1 .sdata (C))
 # staffroll_dat: pointer targets: 780 staffRollNameData words point at 0x63b670; a_p_1's .data points at 0x63b678; staffRollNameOut's gp load at 0x63b674. ROM span 0x8 != MAIN.MAP 0x10 (-8 B); staffRollNameDataNum: MAIN.MAP offset 0xc, ROM 0x4 (staffRollNameOut gp load at 0x63b674)
+# +0 is the pool's one short literal (" ", 2 B and 2 B fill); +4 is staffRollNameDataNum, which the generated C computes from the table (count-of in config/data_schema.pal.txt); the row stays for the check
 sdata staffroll_dat 0x63b670 0x63b678 staffRollNameDataNum@0x4

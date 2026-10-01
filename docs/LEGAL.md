@@ -56,12 +56,18 @@ The build reads them from the user's own `baserom/pal/baseelf.elf` and
 writes them under `build/data/`, which is gitignored. A member that
 `config/data_schema.pal.txt` lists is written as `build/data/<member>.c`, an
 initialized array of its record type that compiles with the game's flags
-(`tools/gen_data_c.py`). The committed schema and its record types
-(`config/data_schema.pal.h`, or the owner's header) hold only types, element
-counts and symbol names. Every other member is written as assembly
-(`tools/extract_data.py`). The configuration files hold member names,
-address ranges, record types and the names MAIN.MAP gives the symbols, and
-nothing of the tables' content.
+(`tools/gen_data_c.py`). The committed schema and the record types in the
+owners' headers hold only types, element counts and symbol names. Every
+other member is written as assembly (`tools/extract_data.py`). The
+configuration files hold member names, address ranges, record types and the
+names MAIN.MAP gives the symbols, and nothing of the tables' content.
+
+The line drawn is between content and facts about its shape. The names,
+tables and strings are content and are never committed. A count or size
+derived from a table is an ordinary fact about it, as its element count is:
+the staff roll's line count, `staffRollNameDataNum`, is the table's element
+count less its two null entries, recorded in the schema and written by the
+generator as `sizeof` over the table, not read from the disc.
 
 ## Public reverse-engineering material (allowed as references)
 

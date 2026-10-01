@@ -24,10 +24,15 @@
 #             it gives none)
 #   hex=      fields spelled in hex because they hold masks (dotted paths for
 #             nested fields); every other number is decimal
+#   count-of= <array>[-<k>]: a single int whose value is derived, not read
+#             from the disc: the element count of an array the member
+#             defines before it, less k, written as sizeof over that array
 #
 # A table row of the member with no schema row here is its own string pool
 # (staffroll_dat's .rodata, and the head of its .sdata): the char pointers
 # into it are written as string literals and the compiler lays the pool out.
+# staffroll_dat's count, staffRollNameDataNum, is the table's 964 entries
+# less its two null entries at the end.
 #
 # A label some source spells inside the member (build/data_labels.txt, the
 # D_<VMA> placeholders) is not an array of its own: gen_data_c.py binds it to
@@ -106,4 +111,4 @@ parallel-motion-orient rodata MotOriParallelEnt ico2/sugipon/include/motionOrien
 particle-effect rodata ParticleEffectFile ico2/sugipon/include/particleEffect.h 61 particleEffectFile@0
 spider-def rodata SpiderKindRec ico2/sugipon/include/spider.h 6 spiderDef@0
 way-group rodata WaySrcGrp ico2/fumi/include/way_tool.h 723 wayGroupSheet@0
-staffroll_dat sdata int ico2/common/include/staffroll.h - staffRollNameDataNum@0
+staffroll_dat sdata int ico2/common/include/staffroll.h - staffRollNameDataNum@0 count-of=staffRollNameData-2

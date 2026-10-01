@@ -166,7 +166,9 @@ ELF and ROM (`tools/verify_elf.py`), and writes `build.ninja` with
   with every pointer named after the symbol at its address, floats as the
   shortest decimal that reads back to the same bits and names as string
   literals; a member's own string pool (staffroll_dat's) is written as the
-  literals its pointers name, and the compiler lays it out. The addresses
+  literals its pointers name, and the compiler lays it out; a count the
+  schema marks `count-of=` (staffroll_dat's line count) is written as
+  `sizeof` over the table, not read from the ELF. The addresses
   come from a first link, `build/ico.layout.elf`, in which a zero stand-in of
   the member's size takes its place. The C compiles with the game's flags
   like any `ico2/` source, each section of the object is checked against the
@@ -202,7 +204,9 @@ rewrites the README's badge block, the table in `docs/PROGRESS.md` and
 symbols of `build/ico.syms.elf`. A byte counts for its section when the map
 row that places it belongs to an object built from `ico2/` or `sce/` and the
 byte equals the base's; bytes from `build/data/` are counted separately as
-extracted tables.
+extracted tables. The count is by object, so `staffroll_dat`'s count word
+(4 bytes of `.sdata`) counts as from the disc although the generator
+computes it from the table's element count.
 
 The dashboard is `docs/index.html`, which reads `progress.json`. On a push
 that changes `docs/index.html`, `docs/progress.json`, `docs/PROGRESS.md`,

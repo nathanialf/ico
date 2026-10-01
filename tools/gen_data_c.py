@@ -10,7 +10,9 @@ committed (docs/LEGAL.md); the schema rows and the records' header hold only
 types. A member row with no schema row is the member's own string pool: the
 char pointers into it are written as string literals, and the compiler lays
 the pool out (8-aligned literals, in .rodata, or .sdata under -G 8 when they
-are 8 bytes or less, in the order it emits them).
+are 8 bytes or less, in the order it emits them). A row marked count-of= is
+a count of an array the member defines before it, written as sizeof over that
+array, so its value is computed by the compiler and not read from the ROM.
 
 Four modes, one member each (MEMBER is the name in the schema):
 
@@ -72,7 +74,7 @@ def parse_schema(path=SCHEMA):
         if not f:
             continue
         if len(f) not in (6, 7) or f[1] not in ("data", "rodata", "sdata"):
-            fail(f"{path}:{n}: expected '<member> <section> <type> <header> <count> <symbols> [hex=...]'")
+            fail(f"{path}:{n}: expected '<member> <section> <type> <header> <count> <symbols> [hex=... | count-of=...]'")
         syms = []
         for x in f[5].split(","):
             name, idx = x.split("@")
@@ -81,13 +83,17 @@ def parse_schema(path=SCHEMA):
             fail(f"{path}:{n}: symbols must start at element 0 and ascend")
         if f[4] == "-" and len(syms) != 1:
             fail(f"{path}:{n}: a single object ('-' count) takes one symbol")
-        hexf = set()
-        if len(f) == 7:
-            if not f[6].startswith("hex="):
-                fail(f"{path}:{n}: bad column '{f[6]}'")
+        hexf, count_of = set(), None
+        if len(f) == 7 and f[6].startswith("hex="):
             hexf = set(f[6][4:].split(","))
+        elif len(f) == 7:
+            m = re.fullmatch(r"count-of=(\w+)(?:-(\d+))?", f[6])
+            if not m or f[2] != "int" or f[4] != "-":
+                fail(f"{path}:{n}: bad column '{f[6]}' (count-of= takes a single int)")
+            count_of = (m.group(1), int(m.group(2) or 0))
         r = dict(member=f[0], section=f[1], type=f[2], header=f[3],
-                 count=None if f[4] == "-" else int(f[4]), syms=syms, hex=hexf, line=n)
+                 count=None if f[4] == "-" else int(f[4]), syms=syms, hex=hexf,
+                 count_of=count_of, line=n)
         if any(o["section"] == r["section"] for o in rows.get(f[0], [])):
             fail(f"{path}:{n}: {f[0]} has a second .{f[1]} row")
         rows.setdefault(f[0], []).append(r)
@@ -645,8 +651,22 @@ def c_type(ty, spelled):
 def write_c(member, rows, datas, layout):
     pool = [(r["lo"], r["hi"], datas[r["section"]]) for _, r in rows]
     defs, headers, funcs, objs = [], [], {}, {}
+    arrays = {}
     for s, row in rows:
         if s is None:
+            continue
+        if s["count_of"]:
+            # A count of a table the member defines before it: the compiler
+            # computes it from the array's declared size, so the word is not
+            # read from the ROM (the check still compares it).
+            arr, less = s["count_of"]
+            if arr not in arrays:
+                fail(f"{member}: count-of={arr} names no array defined before {s['syms'][0][0]}")
+            defs.append(f"int {s['syms'][0][0]} = sizeof({arr}) / sizeof({arr}[0])"
+                        + (f" - {less};" if less else ";"))
+            defs.append("")
+            if s["header"] not in headers:
+                headers.append(s["header"])
             continue
         data = datas[row["section"]]
         ty = Header(s["header"]).typedef(s["type"])
@@ -666,6 +686,7 @@ def write_c(member, rows, datas, layout):
             if s["count"] is None:
                 defs.append(f"{const}{tname} {star}{name}{dims} = {w.value(ty, 0, '')};")
             else:
+                arrays[name] = last - first
                 defs.append(f"{const}{tname} {star}{name}[{last - first}]{dims} = {{")
                 defs.extend(f"    {w.value(ty, i * ty.size, '')}," for i in range(first, last))
                 defs.append("};")
