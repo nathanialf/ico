@@ -1,53 +1,43 @@
-/* motMan_rootUpdate.c.inc -- #included by motionManager.c into one motionManager.o (PAL listing SRCFILE.TXT). */
-/* kept local: this TU's uses of these do not fit the prototypes in
- * fieldCollision.h / pool.h. */
-/* kept local: agrees with fieldCollision.h, which this TU does not include (ClipFloor, ClipFloorIH differ) */
+/* motMan_rootUpdate.c.inc: the motion manager's root update, the wall, floor and water passes; motionManager.c includes this file. */
+/* as in fieldCollision.h, which this file does not include */
 extern int ClipFloorE(void *a0);
-/* kept local: int (void *) here, int (int) in fieldCollision.h */
+/* int (void *) here, int (int) in fieldCollision.h */
 extern int GetFloorAttribute(void *a0);
-/* kept local: agrees with fieldCollision.h, which this TU does not include (ClipFloor, ClipFloorIH differ) */
+/* as in fieldCollision.h, which this file does not include */
 extern int CompareAttribute(unsigned int a, unsigned int b);
-/* kept local: this TU's uses of these do not fit the prototypes in
- * fieldCollision.h / math.h. */
-/* kept local: void (int, void *, int, char *) here, void (char *, void *, char *, void *) in fieldCollision.h */
+/* void (int, void *, int, char *) here, void (char *, void *, char *, void *) in fieldCollision.h */
 extern void GetWallGlobalInfo(int a0, void *v, int a2, char *node);
-/* kept local: this TU does not include fieldCollision.h (its prototypes
-   conflict here) and reads the pair as its own ObjNode */
-/* kept local: ObjNode here, FcBlk8 in fieldCollision.h */
+/* ObjNode here, FcBlk8 in fieldCollision.h */
 extern ObjNode InitialObjPointer;
-/* kept local: agrees with fieldCollision.h, which this TU does not include (InitialColInfo, InitialObjPointer differ) */
+/* as in fieldCollision.h, which this file does not include */
 extern void ClipWallAdjustPos(void *a0);
-/* kept local: agrees with fieldCollision.h, which this TU does not include (ClipFloor, ClipFloorIH differ) */
+/* as in fieldCollision.h, which this file does not include */
 extern void ClipWallE(void *a0);
-/* kept local: void (void *, void *) here, void (int, int) in geometryManager.h */
+/* void (void *, void *) here, void (int, int) in geometryManager.h */
 extern void GetRootQuaternion(void *q, void *obj);
 /* the two ints the demo timer keeps: the elapsed count and its divisor. */
-/* kept local: WallCfg here, FcColInfo in fieldCollision.h */
+/* WallCfg here, FcColInfo in fieldCollision.h */
 extern WallCfg InitialColInfo;
-/* kept local, as ico2/sugipon/src/box.c declares them: fieldCollision.h is
- * not included here. */
+/* declared as ico2/sugipon/src/box.c declares them; fieldCollision.h is
+ * not included here */
 extern void GetLowerPlaneCollision(void *work, void *pos);
 extern int GetWaterReaction(void *w, int *hit, void *plane, void *pos, void *vel, float low,
                             float mid, float high, float k, float acc);
-/* kept local: agrees with fieldCollision.h, which this TU does not include (InitialColInfo, InitialObjPointer differ) */
+/* as in fieldCollision.h, which this file does not include */
 extern void ClipWallWaveForce(void *a0);
-/* kept local: agrees with fieldCollision.h, which this TU does not include (ClipFloor, ClipFloorIH differ) */
+/* as in fieldCollision.h, which this file does not include */
 extern int ClipWallEField(void *a0);
-/* kept local: this TU's uses of these do not fit the prototypes in
- * fieldCollision.h / geometryManager.h. */
-/* kept local: agrees with fieldCollision.h, which this TU does not include (ClipFloor, ClipFloorIH differ) */
+/* as in fieldCollision.h, which this file does not include */
 extern float GetDistanceFromPlane(void *plane, void *pos);
-/* kept local: agrees with geometryManager.h, which this TU does not include (GetRootQuaternion differs) */
+/* as in geometryManager.h, which this file does not include */
 extern float GetProjectionOfPlane(void *out, void *plane, void *pos);
 /* motionManager2's debug draws read the three words of a WallCfg through
  * their first argument. */
 extern void DebugDisp1Collision(void *hit);
 extern void DebugDisp1CollisionWithColor(void *hit, void *colour);
 
-/* RECONSTRUCTED NAME: the PAL listing shows this body only inlined into
- * _wallHitReaction (rows 31-41, above its def line 51), so it carries no
- * symbol in MAIN.MAP. */
-static inline int getWallSlideDirection(void *dir, void *hit, void *wall)
+/* _wallHitReaction's helper */
+static inline int getWallSlideDirection(void *dir, void *hit, void *wall) /* derived name */
 {
     Vec16 t;
 
@@ -102,9 +92,7 @@ void _wallHitReaction(ClipBuf *w, void *pos, void *last, int noSlide)
             ClipWallE(&cw);
         }
         if (debug_wallhitcoldisp != 0) {
-            /* An initialised record whose address is taken: gcc fills a
-               temporary a member at a time and copies it whole, the two
-               copies the listing puts on this one row. */
+            /* an initialised record whose address is taken */
             WallCfg disp = {((WallCfg *)&w->wall)->o, ((WallCfg *)&w->wall)->n};
 
             DebugDisp1Collision(&disp);
@@ -168,13 +156,10 @@ void _wallHitReaction(ClipBuf *w, void *pos, void *last, int noSlide)
     }
 }
 
-/* RECONSTRUCTED NAMES: the PAL listing shows these three bodies only inlined
- * into rootUpdateStepSolution (rows 163-205, 213-241 and 247-258, between
- * _wallHitReaction and _wallCollisionPreProcess), so none of them carries a
- * symbol in MAIN.MAP.  The caller passes the position, the last position, the
- * radius and the fuchi mode: rows 163 and 213 hold their copies, as row 306
- * holds wallCollisionAndFloorFit's. */
-static inline void clipStepWallAndReact(struct MotRoot *cur, float *last, float rad, WallCfg *col)
+/* rootUpdateStepSolution's three helpers; the caller passes the position,
+ * the last position, the radius and the fuchi mode */
+static inline void clipStepWallAndReact(struct MotRoot *cur, float *last, float rad,
+                                        WallCfg *col) /* derived name */
 {
     ClipBuf w;
 
@@ -192,7 +177,8 @@ static inline void clipStepWallAndReact(struct MotRoot *cur, float *last, float 
     }
 }
 
-static inline int clipFuchiWallAndReact(struct MotRoot *cur, float *last, int mode, float rad)
+static inline int clipFuchiWallAndReact(struct MotRoot *cur, float *last, int mode,
+                                        float rad) /* derived name */
 {
     ClipBuf w;
 
@@ -227,7 +213,7 @@ static inline int clipFuchiWallAndReact(struct MotRoot *cur, float *last, int mo
     return 0;
 }
 
-static inline int clipFieldWallAndReset(struct MotRoot *cur, float *last)
+static inline int clipFieldWallAndReset(struct MotRoot *cur, float *last) /* derived name */
 {
     ClipBuf w;
 
@@ -282,10 +268,7 @@ void _wallCollisionPreProcess(ClipBuf *w, void *p, void *q, float dy)
     }
 }
 
-/* RECONSTRUCTED NAME: the PAL listing shows this body only inlined into its
- * callers (rows 306-320, above wallCollisionAndReact's 331), so it carries no
- * symbol in MAIN.MAP. */
-static inline int wallCollisionAndFloorFit(float *pos, float *last, float dy)
+static inline int wallCollisionAndFloorFit(float *pos, float *last, float dy) /* derived name */
 {
     ClipBuf w;
     Vec16 t;
@@ -304,11 +287,8 @@ static inline int wallCollisionAndFloorFit(float *pos, float *last, float dy)
     return 0;
 }
 
-/* RECONSTRUCTED NAME: the PAL listing shows this body only inlined into its
- * callers (rows 331-335), so it carries no symbol in MAIN.MAP.  Row 331 is
- * where the two work-block locals are attributed, and dy is a parameter: row
- * 331 carries the caller's constant. */
-static inline void wallCollisionAndReact(float dy)
+/* dy is the caller's constant */
+static inline void wallCollisionAndReact(float dy) /* derived name */
 {
     ClipBuf w;
     struct MotRoot *g = skelRoot;
@@ -320,13 +300,10 @@ static inline void wallCollisionAndReact(float dy)
     }
 }
 
-/* RECONSTRUCTED NAME: the PAL listing shows this body only inlined into
- * rootUpdateSwim (rows 342-363, between wallCollisionAndReact's 331-335 and
- * upperFieldCheck's 370), so it carries no symbol in MAIN.MAP.  It is the
- * wave-force twin of _wallCollisionPreProcess: the same work-block head, then
- * ClipWallWaveForce and the horizontal push it reports.  Row 342 holds the
- * copy of dy, the caller's constant. */
-static inline void waveForceReaction(struct MotRoot *cur, float *last, float dy)
+/* The wave-force twin of _wallCollisionPreProcess: the same work-block head,
+ * then ClipWallWaveForce and the horizontal push it reports.  rootUpdateSwim
+ * uses it. */
+static inline void waveForceReaction(struct MotRoot *cur, float *last, float dy) /* derived name */
 {
     ClipBuf w;
     float d;
@@ -349,9 +326,8 @@ static inline void waveForceReaction(struct MotRoot *cur, float *last, float dy)
         d = d + w.rad;
         if (d > 0.0f) {
             k = 1.0f / (d + 50.0f);
-            /* the wall normal read through Vec16, as sugipon's motionOrientManager
-             * writes vector components: the ROM schedules the flag store after the
-             * second normal load, which only a union access orders. */
+            /* the wall normal read through Vec16, as motionOrientManager.c
+             * writes vector components */
             cur->pos[0] = cur->pos[0] + ((Vec16 *)&w.normal)->f[0] * 100.0f * k;
             cur->pos[2] = cur->pos[2] + ((Vec16 *)&w.normal)->f[2] * 100.0f * k;
             skelMotCtrl->flags |= 0x2000;
@@ -369,10 +345,8 @@ inline int upperFieldCheck(float *a0, float f)
     return buf.floor.n;
 }
 
-/* RECONSTRUCTED NAMES: the PAL listing shows these two bodies only inlined
- * into getFieldCollision (rows 381-383 and 389-394, both above its def line
- * 407), so neither carries a symbol in MAIN.MAP. */
-static inline void setPoolHeightOfFloor(ClipBuf *w)
+/* getFieldCollision's two helpers */
+static inline void setPoolHeightOfFloor(ClipBuf *w) /* derived name */
 {
     /* &w->floor is the floor's owning object: ico2/sugipon/src/box.c reads the
      * same word of the same work block as `char **`. */
@@ -383,7 +357,7 @@ static inline void setPoolHeightOfFloor(ClipBuf *w)
     skelMotCtrl->waterDepth = w->pt[2][1] - skelMotCtrl->waterY;
 }
 
-static inline void checkPoolFloor(ClipBuf *w)
+static inline void checkPoolFloor(ClipBuf *w) /* derived name */
 {
     int attr = GetFloorAttribute(w);
 
@@ -418,9 +392,7 @@ int getFieldCollision(ClipBuf *w)
     return 0;
 }
 
-/* RECONSTRUCTED NAMES for two helpers the PAL listing shows only inlined into
- * setIKAndAdjustRootHeight (rows 439-483 and 492-517, both above its def line
- * 548), so neither carries a symbol in MAIN.MAP. */
+/* setIKAndAdjustRootHeight's two helpers */
 
 /* "PLANE<EUC-JP riMItto desu> %f <EUC-JP abunai node rakka sasemasu>\n":
  * the plane limit was exceeded, so the actor is dropped. */
@@ -428,7 +400,7 @@ int getFieldCollision(ClipBuf *w)
 /* Builds the plane the root height is measured against out of the floor plane
  * the motion block carries, and reports whether the floor was steep enough to
  * need one. */
-static inline int makeRootFitPlane(float *pl, struct MotRoot *o)
+static inline int makeRootFitPlane(float *pl, struct MotRoot *o) /* derived name */
 {
     float *fl = o->plane.f;
     Vec16 pos;
@@ -456,7 +428,7 @@ static inline int makeRootFitPlane(float *pl, struct MotRoot *o)
 
 /* Drops a probe from v onto the floor and returns how far the root has to move
  * to sit on it. */
-static inline float getFloorDropAt(float *v, float *pl, float *o)
+static inline float getFloorDropAt(float *v, float *pl, float *o) /* derived name */
 {
     ClipBuf w;
     float d;
@@ -503,11 +475,7 @@ static void setIKAndAdjustRootHeight(char *mv)
     }
     steep = makeRootFitPlane(pl.f, skelRoot);
     h = GetYProjectionOfPlane(pl.f, skelRoot->pos) + *(float *)(mv + 4) - skelRoot->pos[1];
-    /* Disabled in retail: the root height report.  What the bytes pin: its
-       text in .rodata after _checkCliffAndWall's messages and before this
-       function's PLANE message (row 571), with no instruction; rows 559-561
-       after the height (558) are empty.  What they cannot: the row, the
-       condition that disabled it and its two arguments. */
+    /* the root height report, switched off */
     if (0) {
         debug_StdPrintfDummy("regular height: %f (%f)\n", fptodp(h), fptodp(skelRoot->pos[1]));
     }
@@ -519,7 +487,7 @@ static void setIKAndAdjustRootHeight(char *mv)
         }
         skelMotCtrl->flags = skelMotCtrl->flags | 4;
         skelRoot->last[1] = skelRoot->pos[1];
-        /* retail links debug_StdPrintfDummy in place of the listing's printf. */
+        /* the release build's printf is debug_StdPrintfDummy */
         /* EUC-JP: "PLANE limit %f, it is steep so it is dropped" */
         debug_StdPrintfDummy("PLANEリミットです %f 急なので落下させます\n", fptodp(h));
 
@@ -625,11 +593,8 @@ static void setIKAndAdjustRootHeight(char *mv)
     skelRoot->pos[1] = skelRoot->pos[1] - dy;
 }
 
-/* RECONSTRUCTED NAME: the PAL listing shows this body only inlined into
- * rootUpdateFly and rootUpdateEnemyFly (rows 736-756, which sit between
- * setIKAndAdjustRootHeight's def line 548 and landingFieldAction's 809), so it
- * carries no symbol in MAIN.MAP. */
-static inline int getFlyFieldCollision(ClipBuf *w)
+/* shared by rootUpdateFly and rootUpdateEnemyFly */
+static inline int getFlyFieldCollision(ClipBuf *w) /* derived name */
 {
     float y;
 
@@ -646,11 +611,8 @@ static inline int getFlyFieldCollision(ClipBuf *w)
     return CheckFieldContact(w, (GObj *)skelGObj, skelRoot->pos, skelRoot->projHeight);
 }
 
-/* RECONSTRUCTED NAME: the PAL listing shows this body only inlined into
- * landingFieldAction (rows 787-801, above its def line 809), so it carries no
- * symbol in MAIN.MAP.  Row 787 is the declaration line, which is where the
- * caller's `&w->normal` address arithmetic is attributed. */
-static inline void adjustRootByLandingPlane(Vec16 *plane, float rate)
+/* landingFieldAction's helper */
+static inline void adjustRootByLandingPlane(Vec16 *plane, float rate) /* derived name */
 {
     Vec16 push;
     Vec16 half;
@@ -685,11 +647,8 @@ void landingFieldAction(ClipBuf *w)
     skelMotCtrl->flags |= 8;
 }
 
-/* RECONSTRUCTED NAME: the PAL listing shows this body only inlined into
- * rootUpdateFly and rootUpdateEnemyFly (row 832 followed by
- * setPoolHeightOfFloor's rows 381-383), between landingFieldAction's def line
- * 809 and floorFitting's 861, so it carries no symbol in MAIN.MAP. */
-static inline void markPoolContact(ClipBuf *w)
+/* shared by rootUpdateFly and rootUpdateEnemyFly */
+static inline void markPoolContact(ClipBuf *w) /* derived name */
 {
     skelMotCtrl->flags |= 0x400;
     setPoolHeightOfFloor(w);
@@ -716,10 +675,8 @@ void floorFitting(int kind)
     }
 }
 
-/* RECONSTRUCTED NAME: the PAL listing shows this body only inlined into
- * rootUpdateXZ (rows 889-899, between floorFitting's def line 861 and
- * rootUpdateXZ's 905), so it carries no symbol in MAIN.MAP. */
-static inline int getFloorAttributeUnderNode(void)
+/* rootUpdateXZ's helper */
+static inline int getFloorAttributeUnderNode(void) /* derived name */
 {
     ClipBuf w;
     int node;
@@ -737,11 +694,9 @@ static inline int getFloorAttributeUnderNode(void)
     return -1;
 }
 
-/* The wall pass after a horizontal move: the listing gives the two
- * wallCollisionAndFloorFit expansions, both 0xD8 tests and the
- * waveForceReaction expansion ONE row at each of rootUpdateXZ's three uses
- * (1037, 1120, 1133), where rootUpdateXZ_MotPos's written-out copy has three. */
-#define WALL_COLLISION_AND_WAVE_FORCE()                                                            \
+/* the wall pass after a horizontal move, used three times by rootUpdateXZ;
+ * rootUpdateXZ_MotPos writes it out */
+#define WALL_COLLISION_AND_WAVE_FORCE() /* derived name */                                         \
     if (wallCollisionAndFloorFit(skelRoot->pos, skelRoot->last, skelRoot->projHeight + -30.0f) ==  \
         0) {                                                                                       \
         if (skelMotCtrl->wordD8 != 0) {                                                            \
@@ -783,10 +738,8 @@ ObjNode rootUpdateXZ(int kind, int no)
             float keep = 1.0f;
             float give = 0.0f;
 
-            /* The slope work is a block of its own: the ROM frees pos, fall
-             * and n (sp+0xB0..0xE0) before the wall pass reuses that space,
-             * which needs their block to close with the slope test as its
-             * last statement; dir (sp+0x80, read below) sits one level out. */
+            /* the slope work is a block of its own, closing with the slope
+             * test; dir sits one level out */
             {
                 Vec16 nodePos, pl, pos, fall, n;
                 float rate, d;
@@ -842,9 +795,7 @@ ObjNode rootUpdateXZ(int kind, int no)
             CopyVector(skelRoot->move, &step);
         }
         WALL_COLLISION_AND_WAVE_FORCE();
-        /* The ROM keeps this work block (sp+0xB0) out of reach of the else
-         * arm, whose own block is fresh at sp+0x1B0: the block closes after
-         * setIKAndAdjustRootHeight and before the arm's next statement. */
+        /* the work block closes after setIKAndAdjustRootHeight */
         {
             ClipBuf w;
             int attr;
@@ -925,12 +876,8 @@ ObjNode rootUpdateXZ(int kind, int no)
             markPoolContact(&w);
             break;
         default:
-            /* Disabled in retail: the unknown-reaction report ("whoever sees
-               this message, report it to Sugiyama at once").  What the bytes
-               pin: its text in .rodata after setIKAndAdjustRootHeight's PLANE
-               message and before rootUpdateXZ_MotPos's, with no instruction;
-               rows 1159-1167, after case 2 (1158), are empty.  What they
-               cannot: the arm's form and the condition that disabled it. */
+            /* the unknown-reaction report ("whoever sees this message, report
+               it to Sugiyama at once"), switched off */
             if (0) {
                 debug_StdPrintfDummy(
                     "このメッセージを見た人は直ちにすぎやまに報告してくれー:NOWALLHITPROC\n");
@@ -985,7 +932,7 @@ ObjNode rootUpdateXZ_MotPos(int kind, int no)
             lim = -(60.0f / (float)((60 - systemStatus[0] * 10) / systemStatus[1]) * 10.0f);
             if (skelRoot->delta[1] < lim) {
                 skelRoot->delta[1] = lim;
-                /* retail links debug_StdPrintfDummy in place of the listing's printf. */
+                /* the release build's printf is debug_StdPrintfDummy */
                 debug_StdPrintfDummy("inertia cancel.\n");
             }
         }
@@ -1042,9 +989,7 @@ ObjNode rootUpdateXZ_MotPos(int kind, int no)
     return ret;
 }
 
-/* kept local: this TU's uses of GetDistanceFromPlane do not fit the prototype
- * in fieldCollision.h */
-/* kept local: agrees with fieldCollision.h, which this TU does not include (ClipFloor, ClipFloorIH differ) */
+/* as in fieldCollision.h, which this file does not include */
 extern float GetDistanceFromPlane(void *a0, void *a1);
 
 int adjustSideWall(ClipBuf *w, int a1, Vec16 *wallPlane)
@@ -1162,10 +1107,8 @@ void checkWallUpperWall(void)
     MatrixDrive_PopMatrix();
 }
 
-/* RECONSTRUCTED NAME: the PAL listing shows this body only inlined into
- * rootUpdateHang (rows 1553-1573, between checkWallUpperWall's 1536 and
- * calcWallFittingGeometry's 1581), so it carries no symbol in MAIN.MAP. */
-static inline void dropWhenFloorTooFar(void)
+/* rootUpdateHang's helper */
+static inline void dropWhenFloorTooFar(void) /* derived name */
 {
     ClipBuf w;
 
@@ -1239,10 +1182,7 @@ ObjNode rootUpdateHang(int kind, int a1, int a2)
     sceVu0ApplyMatrix((int *)w.pt[1], mtx2, (char *)hangFront);
     w.rad = 0.0f;
 
-    /* The frame pins two block levels around the work records (not their
-       text): a block local whose address a statement of its own block takes
-       is released only when the enclosing block ends, and the ROM gives
-       sp+0x190..0x350 back to both inlined helpers below. */
+    /* the work records, in a block of their own */
     {
         int n;
         int attr;
@@ -1380,8 +1320,6 @@ ObjNode rootUpdateSwim(void)
                          60.0f / (float)((60 - systemStatus[0] * 10) / systemStatus[1]) * -0.1f *
                              (60.0f / (float)((60 - systemStatus[0] * 10) / systemStatus[1]))) !=
         0) {
-        /* listing row 1884 holds only the load of this constant; the
-         * subtractions are on the rows that use it. */
         float depth = 10.0f;
 
         if (w.pt[2][1] - depth < skelRoot->pos[1]) {
@@ -1391,7 +1329,7 @@ ObjNode rootUpdateSwim(void)
         setPoolHeightOfFloor(&w);
     } else {
         skelMotCtrl->flags |= 0x800;
-        /* retail links debug_StdPrintfDummy in place of the listing's printf. */
+        /* the release build's printf is debug_StdPrintfDummy */
         /* EUC-JP: "there is no DWATER water bottom below.  If this message keeps coming, it has not left the swim state" */
         debug_StdPrintfDummy(
             "下にDWATERの水底がないです。このメッセージが連続で\n出てるなら、泳ぎから遷移していない状態です\n\n");
@@ -1415,11 +1353,8 @@ ObjNode rootUpdateSwim(void)
     return shift;
 }
 
-/* RECONSTRUCTED NAME: the PAL listing shows this body only inlined into
- * rootUpdateStepSolution and rootUpdateY (rows 1936-1942, between
- * rootUpdateSwim and avoidSideAdjustWall), so it carries no symbol in
- * MAIN.MAP. */
-static inline void clipWallAhead(ClipBuf *w)
+/* shared by rootUpdateStepSolution and rootUpdateY */
+static inline void clipWallAhead(ClipBuf *w) /* derived name */
 {
     float mtx[16];
 
@@ -1430,10 +1365,8 @@ static inline void clipWallAhead(ClipBuf *w)
     ClipWall(w);
 }
 
-/* RECONSTRUCTED NAMES: both bodies appear in the PAL listing only inlined into
- * avoidSideAdjustWall (rows 1950-1952 and 1983-1987, above its def line 1993),
- * so neither carries a symbol in MAIN.MAP. */
-static inline int clipSideWallAndHit(ClipBuf *w)
+/* avoidSideAdjustWall's two helpers */
+static inline int clipSideWallAndHit(ClipBuf *w) /* derived name */
 {
     int hit = 1;
 
@@ -1442,7 +1375,7 @@ static inline int clipSideWallAndHit(ClipBuf *w)
     return w->wall.n != 0 ? hit : 0;
 }
 
-static inline void pushRootAlongSideWall(ClipBuf *w)
+static inline void pushRootAlongSideWall(ClipBuf *w) /* derived name */
 {
     Vec16 t;
 
@@ -1456,8 +1389,7 @@ static inline void pushRootAlongSideWall(ClipBuf *w)
 int avoidSideAdjustWall(void)
 {
     float mtx[16];
-    /* a 0xD0-byte block cleared to the clip request's 0xC0: the ROM's frame
-       is 16 bytes larger than a ClipBuf local gives (measured) */
+    /* a 0xD0-byte block, cleared to the clip request's 0xC0 */
     char w[208];
 
     memset(w, 0, 0xC0);
@@ -1479,8 +1411,7 @@ ObjNode rootUpdateStepSolution(int kind)
 {
     Vec16 mv;
     Vec16 up;
-    /* every arm of the switch below reassigns it, but the ROM copies the
-       initial record (listing row 2025) all the same. */
+    /* every arm of the switch below reassigns it */
     WallCfg cfg = {{0, -1}, 0};
     float mtx[16];
     Vec16 d1;
@@ -1612,7 +1543,7 @@ ObjNode rootUpdateStepSolution(int kind)
     switch (kind) {
     case 16:
         calcWallFittingGeometry();
-        /* falls through: the ROM runs the kind-7/8 wall probe after it. */
+        /* falls through to the kind-7/8 wall probe */
     case 7:
     case 8: {
         ClipBuf cw;
@@ -1721,11 +1652,7 @@ ObjNode rootUpdateDirectPlay(int a0)
 
 ObjNode rootUpdateNodeFix(void)
 {
-    /* NESTED FUNCTION: the PAL listing emits it as keepVerticalZWithQ.377
-     * immediately before rootUpdateNodeFix and its prologue spills the static
-     * chain ($2) at sp+0, so the 2001 source defines it inside this body
-     * (listing rows 2374-2400, above the parent's first statement at 2407).
-     * The single call site passes the parent frame in $2. */
+    /* a nested function, called once with the parent's static chain */
     void keepVerticalZWithQ(void *q)
     {
         float mtx[16];
@@ -1878,7 +1805,7 @@ ObjNode rootUpdateY(void)
     return skelRoot->wall.o;
 }
 
-/* The parameter is unused: the ROM overwrites $4 with the first load. */
+/* the parameter is unused */
 ObjNode rootUpdateY_Rope(int a0)
 {
     float mtx[16];

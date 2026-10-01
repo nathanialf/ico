@@ -3,21 +3,19 @@
 #include "motionOrientManager.h"
 #include <eekernel.h>
 
-/* .sbss, owned by motionFileManager.o and reached only from this file
-   (MAIN.MAP names no symbol in the run), in the ROM's run order: the two
-   running totals AddMotionMemorySize keeps, one per motion class (its second
-   argument picks the class; the second total is the one the node_id 4 reset
-   clears). */
-static int motionMemorySize;
+/* the two running totals AddMotionMemorySize keeps, one per motion class
+   (its second argument picks the class; the node_id 4 reset clears the
+   second) */
+static int motionMemorySize; /* derived name */
 
-static int motionMemorySizeStatic2;
+static int motionMemorySizeStatic2; /* derived name */
 
-/* kept local: motionOrientManager.h reaches ico2/fumi's TUs through
+/* declared here: motionOrientManager.h reaches ico2/fumi's files through
    typedef.h, and commonact.c declares the table char [] */
 extern const MotionDef motionKind[];
 
-/* every motion's loaded data, indexed by motion number (MAIN.MAP global);
-   charFileManager fills the entries, the resets clear them */
+/* every motion's loaded data, indexed by motion number; charFileManager
+   fills the entries, the resets clear them */
 int *motionTable[1150] = {0};
 
 inline void ResetDynamicMotionManager(void)
@@ -41,23 +39,15 @@ inline void ResetStatic2MotionManager(int a0)
     }
 }
 
-/* This TU's own .sdata word (MAIN.MAP line 7327, 4 bytes, no symbol named in
-   the run; ROM value 0): the top of the motion file InitMotionFile relocates,
-   the base every stored offset in it is added to.  In the source it is an
-   initialised static; it stays a placeholder extern here because a named
-   initialised small object lands in .sdata.<name> under -fdata-sections,
-   which the period assembler does not address gp-relative.  The ROM pins its
-   type only through alias sets (see relocMotionFile): the set of the header's
-   first pointer field, not int's and not the facial table's void * entries;
-   char * is our choice within that. */
+/* the top of the motion file InitMotionFile relocates, the base every
+   stored offset in it is added to */
 static char *motionFileBase = 0; /* derived name */
 
-typedef struct {
-    int f0; /* 0x00 */
-    int f4; /* 0x04 */
-} NodeRec;
+typedef struct { /* field names derived */
+    int f0;      /* 0x00 */
+    int f4;      /* 0x04 */
+} NodeRec;       /* derived name */
 
-/* listing rows sugipon/src/motionFileManager.c:32-86 */
 void pursueNodeList(void **node, unsigned char *type)
 {
     int i;
@@ -107,28 +97,27 @@ inline int CheckMotionIncludeFacialData(unsigned int *self)
     return r;
 }
 
-/* The optional facial block (reconstruction; names ours): a count and the
-   table of per-entry offsets, relocated in place like the header. */
-typedef struct {
-    int count;  /* 0x0 */
-    void **tbl; /* 0x4 */
-} FacialRec;
+/* The optional facial block: a count and the table of per-entry offsets,
+   relocated in place like the header. */
+typedef struct { /* field names derived */
+    int count;   /* 0x0 */
+    void **tbl;  /* 0x4 */
+} FacialRec;     /* derived name */
 
 /* The motion file header as InitMotionFile leaves it, every offset turned
-   into a pointer (reconstruction; field names ours, from their users here:
-   pursueNodeList walks nodeList against typeList, the facial block exists
-   when typeList does not start right after the 16-byte header). */
-typedef struct {
+   into a pointer: pursueNodeList walks nodeList against typeList, and the
+   facial block exists when typeList does not start right after the 16-byte
+   header. */
+typedef struct {             /* field names derived */
     int f0;                  /* 0x00 */
     char *f4;                /* 0x04 */
     unsigned char *typeList; /* 0x08 */
     void **nodeList;         /* 0x0C */
     FacialRec *facial;       /* 0x10 */
-} MotFileHdr;
+} MotFileHdr;                /* derived name */
 
-/* listing rows sugipon/src/motionFileManager.c:93-105, inlined into
- * InitMotionFile and nowhere else. */
-static inline void relocFacialTable(FacialRec *p)
+/* relocate the facial table in place */
+static inline void relocFacialTable(FacialRec *p) /* derived name */
 {
     int i;
 
@@ -142,19 +131,10 @@ static inline void relocFacialTable(FacialRec *p)
     }
 }
 
-/* listing rows sugipon/src/motionFileManager.c:125-142, inlined into
- * InitMotionFile and nowhere else.  Each offset is read through the file's
+/* Relocate the header in place.  Each offset is read through the file's
  * word view (the one CheckMotionIncludeFacialData reads) and the pointer
- * written through the typed header.  The bytes pin that split, not its
- * spelling: the loads must sit in another alias set from motionFileBase so
- * sched2 can issue the top's store ahead of them, while the f4 store must
- * share its set so sched1 keeps the store ahead of it (the order local-alloc
- * reads to give f4 $a1), and the facial load and store must differ so the
- * top's load is issued first; one type for a field's load and store reaches
- * none of the three.  The int return is not pinned either: a void helper ends
- * in a tail call, calls.c emits a sibcall placeholder and integrate.c then
- * declines to inline the body the listing places inside InitMotionFile. */
-static inline int relocMotionFile(MotFileHdr *self)
+ * written through the typed header. */
+static inline int relocMotionFile(MotFileHdr *self) /* derived name */
 {
     self->f4 = (char *)self + ((unsigned int *)self)[1];
     self->typeList = (unsigned char *)self + ((unsigned int *)self)[2];
@@ -168,7 +148,6 @@ static inline int relocMotionFile(MotFileHdr *self)
     return 0;
 }
 
-/* listing rows sugipon/src/motionFileManager.c:147-148 */
 void InitMotionFile(void *buf, int a1)
 {
     motionFileBase = (char *)buf;

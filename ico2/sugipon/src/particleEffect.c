@@ -14,12 +14,12 @@
 #include "windField.h"
 #include "particleEffect.h"
 
-/* RECONSTRUCTION, read from the ROM.  The 128-byte per-effect geometry
-   object SetParticleEffectByPartition allocates: the emitter's position and
-   orientation, its package, the particle records and the primitive that draws
-   them, the emission count, the floor clamp and the rate, and the callback a
-   geometry-controlled effect runs instead of the integrator. */
-typedef struct PEGeo {
+/* The 128-byte per-effect geometry object SetParticleEffectByPartition
+   allocates: the emitter's position and orientation, its package, the
+   particle records and the primitive that draws them, the emission count, the
+   floor clamp and the rate, and the callback a geometry-controlled effect
+   runs instead of the integrator. */
+typedef struct PEGeo {       /* field names derived */
     float pos[4];            /* 0x00 */
     float quat[4];           /* 0x10 */
     struct PEPackage *pkg;   /* 0x20 */
@@ -35,27 +35,27 @@ typedef struct PEGeo {
     int (*proc)(void *);     /* 0x64 */
     int f68;                 /* 0x68 */
     char pad6C[20];          /* 0x6C */
-} PEGeo;
+} PEGeo;                     /* derived name */
 
 /* one vertex of the particle primitive's buffers */
-typedef struct PEVtx {
-    float pos[3]; /* 0x00 */
-    float size;   /* 0x0C */
-    float u;      /* 0x10 */
-    float v;      /* 0x14 */
-    float q;      /* 0x18 */
-    float alpha;  /* 0x1C */
-} PEVtx;
+typedef struct PEVtx { /* field names derived */
+    float pos[3];      /* 0x00 */
+    float size;        /* 0x0C */
+    float u;           /* 0x10 */
+    float v;           /* 0x14 */
+    float q;           /* 0x18 */
+    float alpha;       /* 0x1C */
+} PEVtx;               /* derived name */
 
-typedef struct {
+typedef struct { /* field names derived */
     float v[4];
-} PEVector;
+} PEVector; /* derived name */
 
-typedef struct {
+typedef struct { /* field names derived */
     float v[4];
-} PEQuaternion;
+} PEQuaternion; /* derived name */
 
-typedef struct {
+typedef struct {            /* field names derived */
     int used;               /* 0x00 */
     int pause;              /* 0x04 */
     int geoCtrl;            /* 0x08 */
@@ -63,22 +63,18 @@ typedef struct {
     PEVector *sensPos;      /* 0x10 */
     PEQuaternion *sensQuat; /* 0x14 */
     PEGeo *geo;             /* 0x18 */
-} PEffect;
+} PEffect;                  /* derived name */
 
-/* .bss, owned by particleEffect.o and reached only from this file (MAIN.MAP
-   names no symbol in the run), in the ROM's run order: 128 effect slots of
-   0x1C bytes, then 61 parameter records of 160 bytes (the PE160 pool the
-   effect slots index into). */
-static PEffect particleEffects[128];
+/* 128 effect slots of 0x1C bytes, then 61 parameter records of 160 bytes
+   (the PE160 pool the effect slots index into) */
+static PEffect particleEffects[128]; /* derived name */
 
-static int particleParams[61 * 40];
+static int particleParams[61 * 40]; /* derived name */
 
-/* RECONSTRUCTION: one particle package, 0xA0 bytes, the record an effect
-   file supplies per particle kind (SetParticleEffectPackage copies the file's
-   over the default below).  Field types are the accessors' in this file; the
-   colour is a quadword, which makes the record 16-byte aligned as the ROM's
-   default is (0x4ECDF0). */
-typedef struct PEPackage {
+/* One particle package, 0xA0 bytes, the record an effect file supplies per
+   particle kind (SetParticleEffectPackage copies the file's over the default
+   below).  The colour is a quadword, so the record is 16-byte aligned. */
+typedef struct PEPackage {  /* field names derived */
     int version;            /* 0x00 */
     int mode;               /* 0x04 */
     unsigned int alphaMode; /* 0x08, the GS alpha blend dispParticleEffect sets */
@@ -116,15 +112,10 @@ typedef struct PEPackage {
     int unk_94;      /* 0x94 */
     int unk_98;      /* 0x98 */
     int unk_9C;
-} PEPackage;
+} PEPackage; /* derived name */
 
-/* the listing's lines 129-137: a static free-slot search with no out-of-line
- * copy, inlined at its one call site. It sits here, ahead of
- * setParticleEffectGeometry (the listing's 141), because the listing's line
- * attribution puts it there and because gcc 2.9 enters a string constant into
- * the output pool when the function that uses it is read, so its message is
- * the first word of the TU's .rodata run in the ROM. */
-static inline int searchFreeParticleEffect(void)
+/* the free-slot search, inlined at its one call site */
+static inline int searchFreeParticleEffect(void) /* derived name */
 {
     int i;
 
@@ -146,7 +137,7 @@ void setParticleEffectGeometry(PEGeo *geo, void *pos, void *quat)
     CopyQuaternion(geo->quat, quat);
 }
 
-typedef struct PEPartRec {
+typedef struct PEPartRec { /* field names derived */
     int unk_00;
     int spin; /* 0x04 */
     long long unk_08;
@@ -166,13 +157,11 @@ typedef struct PEPartRec {
     float v;    /* 0x64 */
     int unk_68;
     int unk_6C;
-} PEPartRec;
+} PEPartRec; /* derived name */
 
-/* .data, the head of particleEffect.o's run, VMA 0x4ECCF0..0x4ECDF0, in the
-   ROM's run order: the staging record makeParticle fills before copying it
-   whole into the caller's slot, the blank particle peSetVtx writes for an
-   unused vertex, and the cleared effect slot InitParticleEffects fills the
-   table with. */
+/* the staging record makeParticle fills before copying it whole into the
+   caller's slot, the blank particle peSetVtx writes for an unused vertex, and
+   the cleared effect slot InitParticleEffects fills the table with */
 static PEPartRec particleWork = {
     1,                        /* unk_00 */
     0,                        /* spin */
@@ -193,7 +182,7 @@ static PEPartRec particleWork = {
     0.0f, /* u, v */
     0,
     0,
-};
+}; /* derived name */
 
 static PEPartRec blankParticle = {
     1,
@@ -215,24 +204,22 @@ static PEPartRec blankParticle = {
     0.0f,
     0,
     0,
-};
+}; /* derived name */
 
-static PEffect emptyEffect = {0, 0, 1, 0, 0, 0, 0};
+static PEffect emptyEffect = {0, 0, 1, 0, 0, 0, 0}; /* derived name */
 
-/* The scratch vector the spread offset is written into and the current matrix
-   is applied to.  Declared here for makeParticle; its definition follows the
-   default package, after it in the TU's .data. */
+/* The scratch vector the spread offset is written into and the current
+   matrix is applied to; its definition follows the default package. */
 static sceVu0FVECTOR spreadVector; /* derived name */
 
-/* sugiCommon.h:47 and :55 in the PAL listing: two nested static helpers, the
-   inner one the raw 0..1 draw and the outer one the same draw mapped onto
-   -1..1. Both are inlined at every site here. */
-static inline float sugiRandom(void)
+/* the 0..1 draw and the same draw mapped onto -1..1, as sugiCommon.h's
+   random_unit and random_signed */
+static inline float sugiRandom(void) /* derived name */
 {
     return _GetRandom();
 }
 
-static inline float sugiSignedRandom(void)
+static inline float sugiSignedRandom(void) /* derived name */
 {
     return sugiRandom() * 2.0f - 1.0f;
 }
@@ -275,11 +262,9 @@ void _setParticleEffect(PEPartRec *out, PEPackage *pkg, char *m, float k)
     *out = particleWork;
 }
 
-/* particleEffect.c:358-367 in the PAL listing, rows outside dispParticleEffect's
-   own span (443-484): a static helper with no out-of-line copy, inlined at the
-   one call site. It projects the effect's origin through the current camera
-   matrix and reports whether the result falls outside the screen box. */
-static inline int particleEffectOffScreen(PEGeo *geo)
+/* Project the effect's origin through the current camera matrix and report
+   whether the result falls outside the screen box. */
+static inline int particleEffectOffScreen(PEGeo *geo) /* derived name */
 {
     float v[4];
 
@@ -293,9 +278,8 @@ static inline int particleEffectOffScreen(PEGeo *geo)
     return 0;
 }
 
-/* particleEffect.c:159-164: the vertex writer, a static helper with no
-   out-of-line copy, inlined at every site in this TU. */
-static inline void peSetVtx(PEVtx *dst, PEPartRec *pt)
+/* the vertex writer */
+static inline void peSetVtx(PEVtx *dst, PEPartRec *pt) /* derived name */
 {
     CopyVector(dst, pt->pos);
     dst->size = pt->size;
@@ -305,10 +289,8 @@ static inline void peSetVtx(PEVtx *dst, PEPartRec *pt)
     dst->q = 128.0f;
 }
 
-/* listing rows 286-354. The statement order here is the listing's own line
-   attribution (287 self->pkg, 289, 291, 292, 293, 295, 296, 299, 300, 303),
-   not the order the ROM issues them in: gcc 2.9 carries each insn's line
-   note through scheduling (haifa-sched.c restore_line_notes). */
+/* The statements follow the developer's line order (287 self->pkg, 289,
+   291, 292, 293, 295, 296, 299, 300, 303). */
 int setParticleEffect(PEGeo *self, PEPackage *pkg, struct IosMemPart *part)
 {
     float m[16];
@@ -366,12 +348,11 @@ int setParticleEffect(PEGeo *self, PEPackage *pkg, struct IosMemPart *part)
 }
 
 /* the EE scratchpad holds the particle being updated */
-#define PEWORK (*(PEPartRec *)0x70000000)
+#define PEWORK (*(PEPartRec *)0x70000000) /* derived name */
 
-/* particleEffect.c:217-276 in the PAL listing, rows outside execParticleEffect's
-   own span (383-427): the per-particle integrator, inlined at its one call site.
-   It returns 0 for a slot that is already dead and 1 otherwise. */
-static inline int updateParticle(PEGeo *self, float *m)
+/* the per-particle integrator: 0 for a slot that is already dead, 1
+   otherwise */
+static inline int updateParticle(PEGeo *self, float *m) /* derived name */
 {
     float wv[4];
     PEPackage *pkg;
@@ -485,11 +466,9 @@ int execParticleEffect(void *a0)
 
 /* One 64-bit slot of a DMA/GIF packet, written either whole or as one half. */
 
-/* INTERIM (the same construct src/GifPacket.c uses for its own gif_SetGsReg):
-   the listing inlines the GS-register writer at every site in this TU, so it is
-   `inline` in the dev's TU; the out-of-line copy lives in src/GifPacket.c and
-   stays at its own ROM slot. */
-static inline void peSetGsReg(long long a0, long long a1)
+/* the GS-register writer, a file-static copy of gif_SetGsReg (the same
+   construct src/GifPacket.c uses); the out-of-line copy is in src/GifPacket.c */
+static inline void peSetGsReg(long long a0, long long a1) /* derived name */
 {
     *PacketBufferStruct.ptr.d++ = a1;
     *PacketBufferStruct.ptr.d++ = a0;
@@ -598,9 +577,8 @@ int SetParticleEffectByPartition(int no, void *pos, void *quat, struct IosMemPar
     return id;
 }
 
-/* INTERIM: the listing's lines 430-435 (a static helper with no out-of-line
- * copy) are inlined into every deleter in this TU. */
-static inline void deleteParticleEffectGeo(int no)
+/* free one effect's geometry; every deleter in this file inlines it */
+static inline void deleteParticleEffectGeo(int no) /* derived name */
 {
     prim_DeleteParticle(particleEffects[no].geo->prim);
     *(int *)((char *)particleEffects[no].geo + 0x28) = 0;
@@ -632,10 +610,9 @@ void SetParticleEffectUpperLimit(int no, float f)
     }
 }
 
-/* the listing's lines 159-164: the per-particle vector setup, a static helper
- * with no out-of-line copy shared by setParticleEffect / execParticleEffect /
- * ExecParticleEffect. */
-static inline void setParticleVector(PEVtx *d, PEPartRec *s)
+/* the per-particle vector setup, shared by setParticleEffect,
+ * execParticleEffect and ExecParticleEffect */
+static inline void setParticleVector(PEVtx *d, PEPartRec *s) /* derived name */
 {
     CopyVector(d, s->pos);
     d->size = s->size;
@@ -645,8 +622,7 @@ static inline void setParticleVector(PEVtx *d, PEPartRec *s)
     d->q = 128.0f;
 }
 
-/* the listing's lines 374-378. */
-static inline void updateParticleVectors(int no)
+static inline void updateParticleVectors(int no) /* derived name */
 {
     PEGeo *g;
     PEVtx *d;
@@ -716,8 +692,8 @@ void ResetParticleEffectPackages(int *pkg)
     }
 }
 
-/* .data, the tail of particleEffect.o's run: the default package a file's
-   record is laid over, then the spread vector. */
+/* the default package a file's record is laid over, then the spread
+   vector */
 static PEPackage defaultPackage = {
     11,  /* version */
     1,   /* mode */
@@ -756,9 +732,9 @@ static PEPackage defaultPackage = {
     0,
     0,
     0,
-};
+}; /* derived name */
 
-static sceVu0FVECTOR spreadVector = {0.0f, 0.0f, 1.0f, 0.0f};
+static sceVu0FVECTOR spreadVector = {0.0f, 0.0f, 1.0f, 0.0f}; /* derived name */
 
 void SetParticleEffectPackage(int a0, int *a1, int a2)
 {
@@ -816,12 +792,9 @@ int SetParticleEffect(int no, void *pos, void *quat)
     return SetParticleEffectByPartition(no, pos, quat, ios_partition_oomori);
 }
 
-/* INTERIM (see the iosThreadCreate note in ios/thread.c): the listing inlines
- * SetParticleEffect's line 532 into SetParticleEffectActiveSensing, so it is a
- * public `inline` of the deferred tail; until the tail's asm members are C its
- * out-of-line copy stays the plain definition above and this caller inlines the
- * static stand-in SetParticleEffect_inl, which collapses at layout. */
-static inline int SetParticleEffect_inl(int no, void *pos, void *quat)
+/* a file-static copy of SetParticleEffect, which
+ * SetParticleEffectActiveSensing inlines */
+static inline int SetParticleEffect_inl(int no, void *pos, void *quat) /* derived name */
 {
     return SetParticleEffectByPartition(no, pos, quat, ios_partition_oomori);
 }
@@ -856,18 +829,14 @@ void DeleteParticleEffectsByPackage(int *pkg)
     }
 }
 
-/* INTERIM (see the iosThreadCreate note in ios/thread.c): the listing inlines
- * GetParticleEffectPackage's line 118 and DeleteParticleEffectsByPackage's
- * lines 673-676 into DeleteParticleEffectsByID, so both are public `inline`s of
- * the deferred tail; until the tail's asm members are C their out-of-line copies
- * stay the plain definitions above and this caller inlines the static stand-ins,
- * which collapse at layout. */
-static inline int *GetParticleEffectPackage_inl(int idx)
+/* file-static copies of GetParticleEffectPackage and
+ * DeleteParticleEffectsByPackage, which DeleteParticleEffectsByID inlines */
+static inline int *GetParticleEffectPackage_inl(int idx) /* derived name */
 {
     return (int *)((char *)particleParams + idx * 160);
 }
 
-static inline void DeleteParticleEffectsByPackage_inl(int *pkg)
+static inline void DeleteParticleEffectsByPackage_inl(int *pkg) /* derived name */
 {
     int i;
 

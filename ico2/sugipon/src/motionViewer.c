@@ -21,35 +21,33 @@
 
 struct MvObj;
 
-typedef struct MvMenuEnt {
-    char *name;   /* 0x00, csv window title */
-    int kind;     /* 0x04, isys object kind */
-    int motFirst; /* 0x08, first motion id of this object's block */
-    int motLast;  /* 0x0C */
-    int oriFrom;  /* 0x10, first motionOrient row */
-    int oriTo;    /* 0x14, one past the last motionOrient row */
-} MvMenuEnt;
+typedef struct MvMenuEnt { /* field names derived */
+    char *name;            /* 0x00, csv window title */
+    int kind;              /* 0x04, isys object kind */
+    int motFirst;          /* 0x08, first motion id of this object's block */
+    int motLast;           /* 0x0C */
+    int oriFrom;           /* 0x10, first motionOrient row */
+    int oriTo;             /* 0x14, one past the last motionOrient row */
+} MvMenuEnt;               /* derived name */
 
 /* one row of the orient csv the viewer browses: name + the kind it selects */
-typedef struct OriRow {
-    const char *name; /* 0x00 */
-    int kind;         /* 0x04 */
-} OriRow;
+typedef struct OriRow { /* field names derived */
+    const char *name;   /* 0x00 */
+    int kind;           /* 0x04 */
+} OriRow;               /* derived name */
 
-typedef struct OriCsv {
+typedef struct OriCsv { /* field names derived */
     int sel;
     OriRow *rows;
-} OriCsv;
+} OriCsv; /* derived name */
 
-/* The TU's .data opens with objMenu (MAIN.MAP motionViewer.o), the five objects
-   the viewer can target; its names are the first strings of the TU's .rodata. */
+/* objMenu: the five objects the viewer can target */
 MvMenuEnt objMenu[] = {
     {"BoyMotion", 1, 0, 532, 0, 1283},           {"GirlMotion", 2, 532, 834, 1283, 2122},
     {"Enemy1Motion", 4, 834, 983, 2122, 2407},   {"BirdMotion", 32, 1134, 1143, 2421, 2467},
     {"QueenMotion", 47, 1072, 1134, 2407, 2421},
 };
 
-/* The TU's .sdata head, in ROM order (MAIN.MAP names nothing in it). */
 static int objSel = 0; /* derived name */
 
 static int motSel = 0; /* derived name */
@@ -65,11 +63,11 @@ static int rootUpdateMode = 0; /* derived name */
 static float motionSpeed = 1.0f; /* derived name */
 
 extern MotionOrientEntry motionOrient[];
-/* kept local: ico2/fumi/src/commonact.c declares the table without const, so
-   motionOrientManager.h cannot carry it */
+/* declared here: ico2/fumi/src/commonact.c declares the table without
+   const, so motionOrientManager.h cannot carry it */
 extern const MotOriName motionOriKind[];
 
-static inline int countMotionKinds(int id, int from, int to)
+static inline int countMotionKinds(int id, int from, int to) /* derived name */
 {
     int n = 0;
     int i;
@@ -82,7 +80,7 @@ static inline int countMotionKinds(int id, int from, int to)
     return n;
 }
 
-static inline int makeMotionKindList(MvMenuEnt *ent, int base)
+static inline int makeMotionKindList(MvMenuEnt *ent, int base) /* derived name */
 {
     OriRow *list;
     int id = ent->motFirst + base, from = ent->oriFrom, to = ent->oriTo;
@@ -117,26 +115,24 @@ void setMotionSpeed(float ratio)
     SetMotionPlaySpeedRatio(viewObj, ratio);
 }
 
-/* dispProgressBar is defined as a nested function inside dispMotFrameProgress
- * below (the listing names it dispProgressBar.108). */
-typedef struct {
+/* the colour and rectangle of dispProgressBar, the function nested in
+ * dispMotFrameProgress below */
+typedef struct { /* field names derived */
     unsigned char r, g, b, a;
-} BarCol;
+} BarCol; /* derived name */
 
-typedef struct {
+typedef struct { /* field names derived */
     int x, y, w, h;
-} BarRect;
+} BarRect; /* derived name */
 
-/* kept local: motionOrientManager.h reaches ico2/fumi's TUs through
-   typedef.h, and commonact.c declares the table char []; not const here,
-   since debug_SelectCsvWindowWithLine takes its rows as void * */
+/* declared here: motionOrientManager.h reaches ico2/fumi's files through
+   typedef.h, and commonact.c declares the table char []; not const, since
+   debug_SelectCsvWindowWithLine takes its rows as void * */
 extern MotionDef motionKind[];
 
 void dispMotFrameProgress(int obj, float cur)
 {
-    /* dispProgressBar is a nested function in the ROM: dispMotFrameProgress
-     * passes it a static chain in $2 (STATIC_CHAIN_REGNUM), which it spills
-     * to 0(sp).  The listing names it dispProgressBar.108. */
+    /* a nested function: dispMotFrameProgress passes it a static chain */
     void dispProgressBar(int s, int e, int n, float c, BarCol *col)
     {
         float r0 = (float)s / (float)n;
@@ -192,7 +188,7 @@ void dispMotFrameProgress(int obj, float cur)
     }
 }
 
-typedef struct MvSub {
+typedef struct MvSub { /* field names derived */
     char pad000[12];
     char *nodes; /* 0x00C, per-node 0x40 matrices */
     char pad010[124];
@@ -212,31 +208,27 @@ typedef struct MvSub {
     float headAt[4]; /* 0x340 */
     char pad350[48];
 
-    /* 0x380. Reconstruction: an enumerated type, not int. MotionViewer's
-       gcse needs this store outside int's alias set so the in-block read of
-       testMode stays available and the join's reload moves onto the skip
-       edge; typed int, the ROM's one-load modulus block is unreachable
-       (measured 0x814 against 0x810). Enumerator names are ours. */
-    enum { TEST_OFF, TEST_PAD, TEST_RANDOM } testMode;
+    /* 0x380, the test mode */
+    enum { TEST_OFF, TEST_PAD, TEST_RANDOM } testMode; /* derived name */
 
     char pad384[12];
     float testAt[4]; /* 0x390 */
     char pad3A0[232];
     int select; /* 0x488, "this object is the viewer target" */
-} MvSub;
+} MvSub;        /* derived name */
 
-typedef struct MvObj {
+typedef struct MvObj { /* field names derived */
     char pad00[40];
     void *motTbl; /* 0x28, parallel motion table, parked while viewing */
     char pad2C[304];
     MvSub *sub; /* 0x15C */
-} MvObj;
+} MvObj;        /* derived name */
 
 static int lastObjSel = -1; /* derived name */
 
 static char *savedMotTbl = 0; /* derived name */
 
-/* kept local: agrees with debug.h, which this TU does not include (debug_PrintfDummy, debug_SelectCsvWindowWithLine differ) */
+/* as in debug.h, which this file does not include */
 extern int debug_SelectCsvWindow(char *title, int a1, int a2, int a3, void *tbl, int stride, int a6,
                                  int a7, int count, int *cur);
 
@@ -293,19 +285,15 @@ int objMenuProc(void)
     return ret;
 }
 
-/* motionOrientManager's table row (same object as src/motionOrientManager.c) */
-
 static int lastMotSel = -1; /* derived name */
 
-/* MAIN.MAP line 7628 gives motionViewer.o a 4-byte .sbss and names no symbol in it,
- * so this object is a file static and the role name is ours: it is the number of
- * motion-kind rows makeMotionKindList built, and the row count motOriMenuProc hands
- * to debug_SelectCsvWindow. Evidence rung: ROM bytes plus the MAIN.MAP member row. */
-static int motionKindCount;
+/* the number of motion-kind rows makeMotionKindList built, the row count
+ * motOriMenuProc hands to debug_SelectCsvWindow */
+static int motionKindCount; /* derived name */
 
-/* kept local: void (int, int, unsigned int, const char *, ...) here, void (int, int, unsigned int, int, ...) in debug.h */
+/* void (int, int, unsigned int, const char *, ...) here, void (int, int, unsigned int, int, ...) in debug.h */
 extern void debug_PrintfDummy(int x, int y, unsigned int color, const char *fmt, ...);
-/* kept local: int (char *, int, int, int, void *, int, int, int, int, int *, int) here, int (char *, int, int, int, void *, int, int, int, int, int *) in debug.h */
+/* int (char *, int, int, int, void *, int, int, int, int, int *, int) here, int (char *, int, int, int, void *, int, int, int, int, int *) in debug.h */
 extern int debug_SelectCsvWindowWithLine(char *title, int a1, int a2, int a3, void *tbl, int stride,
                                          int a6, int a7, int count, int *cur, int a10);
 
@@ -374,10 +362,8 @@ int motOriMenuProc(void)
     int i;
     MotionOrientEntry *ori;
 
-    /* the listing places this at motionViewer.c lines 382-385, INSIDE
-     * motOriMenuProc's own span and expanded at both of its call sites:
-     * a nested function, always inlined (it has no ROM slot of its own). */
-    inline void initOrient(void)
+    /* a nested function, expanded at both of its call sites */
+    inline void initOrient(void) /* derived name */
     {
         DisableMotionOrientUpdate(viewObj);
         InitMotionOrient(viewObj, motSel + ent->oriFrom, motSel + ent->oriTo, -1, -1,
@@ -448,12 +434,7 @@ void modeMessage(void)
         break;
     }
     debug_PrintfDummy(470, 66, 0xFFFFFF00, " \203: %s", buf);
-    /* The speed goes to the variadic call as a plain float: the default
-       argument promotion is the compiler's own fptodp libcall, whose load of
-       the float sits ahead of the lui of the format address as the ROM has
-       it.  This replaced the approved pointer carrier `float *pf` (re-audit,
-       completeness pass 57), with the whole object byte-identical; an
-       explicit fptodp call on the plain global reverses the pair. */
+    /* the speed goes to the variadic call as a plain float */
     debug_PrintfDummy(470, 74, 0xFFFFFF00, "\206\207: x%1.2f", motionSpeed);
     if (pad[0].flags & 0x80) {
         switch (rootUpdateMode) {
@@ -500,13 +481,13 @@ void modeMessage(void)
     }
 }
 
-typedef struct MvVec {
+typedef struct MvVec { /* field names derived */
     float x, y, z, w;
-} __attribute__((aligned(16))) MvVec;
+} __attribute__((aligned(16))) MvVec; /* derived name */
 
-typedef struct MvCol {
+typedef struct MvCol { /* field names derived */
     int r, g, b, a;
-} __attribute__((aligned(16))) MvCol;
+} __attribute__((aligned(16))) MvCol; /* derived name */
 
 void lookAtTest(MvVec *pos, float rad, void *colAxis, void *colRing, short dy, short ang)
 {
@@ -582,30 +563,29 @@ void lookAtTest(MvVec *pos, float rad, void *colAxis, void *colRing, short dy, s
     gif_EndPacket();
 }
 
-/* The rest of the TU's .data: the test lines' colours, after objMenu. */
+/* the test lines' colours */
 static MvCol testAxisColor = {128, 192, 255, 128}; /* derived name */
 
 static MvCol testRingColor = {0, 64, 128, 128}; /* derived name */
 
 static MvCol focusColor = {0, 0, 0, 128}; /* derived name */
 
-/* The look-at and head test colours. They are integer colours that MotionViewer
-   copies into its vector locals whole; the ROM's copy reads them as a const
-   object of the vector type (its loads carry the read-only flag a const decl
-   gives, which a cast of the address does not), hence the union. */
-typedef union MvColVec {
+/* The look-at and head test colours: integer colours MotionViewer copies
+   into its vector locals whole, read as a const object of the vector type,
+   hence the union. */
+typedef union MvColVec { /* field names derived */
     MvCol c;
     MvVec v;
-} MvColVec;
+} MvColVec; /* derived name */
 
 static const MvColVec lookAxisColor = {{128, 64, 32, 128}}; /* derived name */
 
 static const MvColVec lookRingColor = {{64, 16, 0, 128}}; /* derived name */
 
-/* kept local: agrees with debug.h, which this TU does not include (debug_PrintfDummy, debug_SelectCsvWindowWithLine differ) */
+/* as in debug.h, which this file does not include */
 extern int debug_now_motion_viewer;
 
-/* The TU's .sdata tail: MotionViewer's state, in ROM order. */
+/* MotionViewer's state */
 static int menuLevel = 0; /* derived name */
 
 static int testMode = 0; /* derived name */

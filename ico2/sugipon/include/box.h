@@ -1,12 +1,8 @@
 /*
  * ico2/sugipon/include/box.h
  *
- * The disc records no file of this name: SRCFILE.TXT attributes no
- * instruction to it, and a header that only declares leaves no rows in the
- * listing at all, so this file is ours and not the developers' own record.
- * It collects the declarations of what box.c defines, in the form its
- * users need them; every type here is read from the ROM's calling convention
- * at the call sites and from the spellings the using TUs already carried.
+ * The declarations of what box.c defines, for the files that use
+ * them.  The file name is derived.
  */
 
 #ifndef BOX_H
@@ -23,7 +19,7 @@ typedef struct {     /* field names derived */
     float pivot[3];  /* 0x0C, pool.c places the model at its negation */
     float subPos[3]; /* 0x18, the sub-box's offset */
     float subRotY;   /* 0x24, the sub-box's facing in degrees */
-} AccessaryRec;
+} AccessaryRec; /* derived name */
 
 extern AccessaryRec accessary[];
 
@@ -42,9 +38,7 @@ int BoxGeoRestore(float *a0, float *a1);
 int BoxExtGeoRestore(void);
 int BoxMemoryFunc(void);
 
-/* switch.c.inc is coalesced into box.c; its declarations follow this TU's own,
-   which is the order the two headers were included in and therefore the order
-   the deferred inline tail is emitted in. */
+/* box.c includes switch.c, so switch.h's declarations follow box.c's own */
 #include "switch.h"
 
 int CheckReadyAllSwitches();

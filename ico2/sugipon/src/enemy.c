@@ -26,7 +26,7 @@
 #include <assert.h>
 #include "sceneManager.h"
 
-/* kept local: int (float, float, float, int, int, char *, int) here, int (int, int, int, int) in Primitive.h */
+/* int (float, float, float, int, int, char *, int) here, int (int, int, int, int) in Primitive.h */
 extern int prim_InitParticle(float f12, float f13, float f14, int num, int a1, char *tag, int a3);
 
 typedef struct { /* field names derived */
@@ -34,35 +34,29 @@ typedef struct { /* field names derived */
     float y;
     float z;
     float w;
-} EnemyPosEntry;
+} EnemyPosEntry; /* derived name */
 
-/* static helper the listing places at enemy.c lines 99-100, expanded only into
- * setEnemyParticleObject; never emitted out of line, so it has no MAIN.MAP
- * symbol and this name is ours. */
-static inline void clearEnemyParticleFlags(int *p, int n)
+static inline void clearEnemyParticleFlags(int *p, int n) /* derived name */
 {
     int i;
     for (i = 0; i < n; i++)
         p[i] = 0;
 }
 
-/* .data, the whole of enemy.o's run (MAIN.MAP sizes the member 0x40): a unit
-   matrix with the translation (10, 0, 0).  No instruction in the retail ELF
-   reaches it and MAIN.MAP names no symbol in the run, so the role is not
-   recoverable; the object itself is, and this is where the member emits it. */
+/* a unit matrix with the translation (10, 0, 0); nothing in the file reads
+   it */
 static float offsetMatrix[4][4] = {
     {1.0f, 0.0f, 0.0f, 0.0f},
     {0.0f, 1.0f, 0.0f, 0.0f},
     {0.0f, 0.0f, 1.0f, 0.0f},
     {10.0f, 0.0f, 0.0f, 1.0f},
-};
+}; /* derived name */
 
-/* RECONSTRUCTION, read from the ROM.  The 84-byte work record InitEnemyGeo
-   allocates into the object's work word: the variation kind and the counter
-   setEnemyObject randomises it with, the enemy-table row, the particle and
-   broken-part tables, the two eyes, the footprints, the per-node particle
-   flags, the object-loaded flag, the wing and stone parameters and the
-   scale. */
+/* The 84-byte work record InitEnemyGeo allocates into the object's work
+   word: the variation kind and the counter setEnemyObject randomises it with,
+   the enemy-table row, the particle and broken-part tables, the two eyes, the
+   footprints, the per-node particle flags, the object-loaded flag, the wing
+   and stone parameters and the scale. */
 typedef struct {              /* field names derived */
     int kind;                 /* 0x00 */
     int ctr;                  /* 0x04, setEnemyObject's randomiser state */
@@ -85,7 +79,7 @@ typedef struct {              /* field names derived */
     float scale;    /* 0x48 */
     int timer;      /* 0x4C */
     float flyXZAccel; /* 0x50, the fly XZ acceleration, from the enemyKind row */
-} EnemyWork;
+} EnemyWork;          /* derived name */
 
 void setEnemyParticleObject(GObj *self, int pid)
 {
@@ -164,10 +158,7 @@ void setEnemyParticleObject(GObj *self, int pid)
     }
 }
 
-/* static helper the listing places at enemy.c lines 223-233, expanded only into
- * setEnemyObject; never emitted out of line, so it has no MAIN.MAP symbol and
- * this name is ours. */
-static inline int enemyRandomizeID(int kind, int *ctr)
+static inline int enemyRandomizeID(int kind, int *ctr) /* derived name */
 {
     int lo = randomEnemyKind[kind - 0x10000].first;
     int n = randomEnemyKind[kind - 0x10000].last - lo;
@@ -225,23 +216,12 @@ typedef struct { /* field names derived */
     int y;
     int z;
     int w;
-} EnemyDispEntry;
+} EnemyDispEntry; /* derived name */
 
-/* dispEnemyObject sits on the January listing's lines (SRCFILE.TXT 295 to 373):
- * every row of code is at the listing's offset from the opening brace, and the
- * lines the listing shows without code hold declarations, braces and comments.
- * WHAT THE BYTES PIN: the first loop's condition reads the sub-object handle
- * through a volatile int view. The ROM keeps the body's own read of the handle
- * at the loop top (line 314, `lw $3,348($20)`, run on entry only because reorg
- * skips it on the back edge), which happens only when neither cse1 nor gcse
- * records the condition's read: cse's HASH and gcse's hash_expr_1 both refuse
- * a volatile MEM, so cse_around_loop finds nothing to copy into the top and PRE
- * finds no available computation to delete it with. The plain int view gives
- * the copy and a strict count of 12 (measured). The int view itself is the
- * file's own (GOBJ_SUB): it shares the idx store's alias set, which holds the
- * latch's read behind that store, so i++ issues first as in the ROM.
- * WHAT THEY CANNOT PIN: why the developer's accessor was volatile there, and
- * the text of the lines without code. */
+/* dispEnemyObject keeps the developer's own line layout: the lines without
+ * code hold declarations, braces and comments.  The first loop's condition
+ * reads the sub-object handle through a volatile int view; the body's own
+ * read of the handle is GOBJ_SUB's int view. */
 void dispEnemyObject(void *self)
 {
     float m[16];
@@ -328,12 +308,9 @@ void dispEnemyObject(void *self)
     /* clang-format on */
 }
 
-/* static helper the listing places at enemy.c lines 382-392, expanded into
- * EnemyCheckHit, enemySetParticleDie, EnemySetfDisappear and EnemyDeleteParticle;
- * never emitted out of line, so it has no MAIN.MAP symbol and this name is ours.
- * It returns SetParticleEffect's result: the discarded value register is what
- * EnemyCheckHit's allocation after the call shows (chain 2 pass 8). */
-static inline int enemySetParticle(int kind, void *obj, float *dir)
+/* expanded into EnemyCheckHit, enemySetParticleDie, EnemySetfDisappear and
+ * EnemyDeleteParticle; it returns SetParticleEffect's result */
+static inline int enemySetParticle(int kind, void *obj, float *dir) /* derived name */
 {
     float q[4];
     unsigned short ax, ay;
@@ -365,14 +342,7 @@ int EnemyCheckHit(GObj *self, float *pos, float *dir)
                 enemySetParticle(8, (char *)sub->nodeMtx + i * 64 + 0x30, dir);
                 /* The hand-written form the helper call replaced, the way
                    CheckEnemyHit still spells it, switched off by a local effect
-                   switch, CheckEnemyHit's own `eff` with the other value.
-                   WHAT THE BYTES PIN: a 4-byte stack object at sp+0x20 that
-                   nothing reads, above the helper's freed 0x20 block and below
-                   the pos/n/cnt spills; only promoted locals whose address is
-                   taken after the call give it (put_var_into_stack runs when
-                   the `&` is parsed, and q reuses the helper's block), and the
-                   listing's lines 497-512 emit nothing.  WHAT THEY CANNOT PIN:
-                   this text. */
+                   switch, CheckEnemyHit's own `eff` with the other value. */
                 if (eff) {
                     float q[4];
                     short rx;
@@ -401,23 +371,10 @@ int EnemyCheckHit(GObj *self, float *pos, float *dir)
     return flags;
 }
 
-/* CheckEnemyHit sits on the January listing's lines (SRCFILE.TXT 531 to 572):
- * every row of code is at the listing's offset from the opening brace, and the
- * lines the listing shows without code hold declarations, braces and comments.
- * WHAT THE BYTES PIN: the counter starts at 0 in a statement of its own ahead of
- * a test on n alone, and the for has no initialiser. The ROM's blez is that
- * test and `move $9,$0` fills its delay slot; i is coloured after pos, the list
- * pointer and the entity pointer ($9), which only a first set of i that keeps
- * cse1's REG_EQUAL 0 through combine gives (update_equiv_regs doubles its live
- * length), and it keeps it only when nothing in its block reads i: gcse folds
- * the for's copied entry test from the `i = 0` and cse2 drops it under the
- * `n > 0` test. The listing prints the blez, its slot, the list load and the
- * latch on one line (548), so the test and the for share it. The particle
- * calls sit under a test of a local constant only gcse resolves: the store's
- * list reload after them is a PRE insertion at the end of the call block (line
- * 563), which needs the store's block to be a join when PRE runs.
- * WHAT THEY CANNOT PIN: how the test on n and the flag were spelled, and the
- * text of the lines without code. */
+/* CheckEnemyHit keeps the developer's own line layout: the lines without
+ * code hold declarations, braces and comments.  The counter starts at 0 in a
+ * statement of its own ahead of a test on n alone, and the for has no
+ * initialiser; the particle calls sit under a test of a local constant. */
 int CheckEnemyHit(GObj *self, float *pos, float *a, float *b)
 {
     int eff = 1;
@@ -429,11 +386,9 @@ int CheckEnemyHit(GObj *self, float *pos, float *a, float *b)
     if (2500.0f < distance_squared(pos, a)) {
         /* Walk the parts still alive and take the first one within reach
            of all three points: mark it hit, spawn the hit effect facing
-           along a - pos, and report the hit.  The counter is cleared
-           before the test on n, which shares its line with the for (see
-           the comment above the function); the fence keeps that line, the
-           braceless for and the condition below as the listing has them,
-           one row of code per line. */
+           along a - pos, and report the hit.  The test on n shares its line
+           with the for; the fence keeps that line, the braceless for and the
+           condition below one statement to a line. */
         /* clang-format off */
         i = 0;
         if (n > 0) for (; i < n; i++)
@@ -468,16 +423,13 @@ int CheckEnemyHit(GObj *self, float *pos, float *a, float *b)
  * reads it back as a pointer, so every read of it is a union view, the same
  * spelling ico2/sugipon/src/geometryManager.c uses for the same slot. */
 
-#define SUBOF(o) (((SubHandle *)&((GObj *)(o))->dobj)->sub)
+#define SUBOF(o) (((SubHandle *)&((GObj *)(o))->dobj)->sub) /* derived name */
 
-/* the TU's one named .sdata object (after the two literals): the variation
-   number the next enemy takes, stepped by two modulo ten */
+/* the variation number the next enemy takes, stepped by two modulo ten */
 static int enemyVariation = 0; /* derived name */
 
-/* static helper the listing places at enemy.c lines 281-290, expanded only into
- * InitEnemyGeo; never emitted out of line, so it has no MAIN.MAP symbol and this
- * name is ours.  Its own body inlines the lines 99-100 clear loop. */
-static inline int enemyInitPartsList(GObj *self, SObjSimpleSetting *param)
+/* InitEnemyGeo's parts list; its body inlines clearEnemyParticleFlags */
+static inline int enemyInitPartsList(GObj *self, SObjSimpleSetting *param) /* derived name */
 {
     int kind = param->obj;
     EnemyWork *w;
@@ -485,9 +437,7 @@ static inline int enemyInitPartsList(GObj *self, SObjSimpleSetting *param)
     int *parts;
 
     n = SUBOF(self)->skelNodeNum;
-    /* The work-record entry is chased as an int and cast: the ROM orders every
-     * store of InitEnemyGeo's setup group ahead of this load, which only an int
-     * view of the slot produces (evidence rung: ROM bytes). */
+    /* the work-record entry is read as an int and cast */
     w = (EnemyWork *)*(int *)&SUBOF(self)->work;
 
     parts = (int *)iosMallocDebug(ios_partition_sugipon, n * 4, "src/enemy.c", 285);
@@ -606,7 +556,7 @@ void DisplayEnemy(GObj *self)
     }
 }
 
-/* kept local: act_a_p_1.h does not compile in this TU (too few arguments to function `IsActCharDead') */
+/* declared here: act_a_p_1.h does not compile in this file (too few arguments to function `IsActCharDead') */
 extern int IsActCharDead();
 
 void EnemyDL(GObj *self)

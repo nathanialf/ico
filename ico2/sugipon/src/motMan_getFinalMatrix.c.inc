@@ -1,4 +1,4 @@
-/* motMan_getFinalMatrix.c.inc -- #included by motionManager.c into one motionManager.o (PAL listing SRCFILE.TXT). */
+/* motMan_getFinalMatrix.c.inc: the motion manager's final node matrices and their angle limits; motionManager.c includes this file. */
 inline int SetDirectMotionProgramInterpInfo(GObj *a0, int a1, float f)
 {
     int n = GetSkeltonFocusNode(a0, a1);
@@ -23,11 +23,10 @@ inline int ResetMotionProgramInterpInfo(GObj *a0, int a1)
     return 1;
 }
 
-/* RECONSTRUCTED NAMES: listing rows 62-71 and 76-82, only ever inlined into
- * _getFinalMatrix.  The first gives a point relative to the root placed at
- * the matrix's translation, the second the same vector in the current
- * matrix's local axes. */
-static inline void getRootRelativePos(float *out, sceVu0FVECTOR *mtx, float *pos)
+/* Only _getFinalMatrix uses these two.  The first gives a point relative to
+ * the root placed at the matrix's translation, the second the same vector in
+ * the current matrix's local axes. */
+static inline void getRootRelativePos(float *out, sceVu0FVECTOR *mtx, float *pos) /* derived name */
 {
     float w[4];
 
@@ -36,7 +35,7 @@ static inline void getRootRelativePos(float *out, sceVu0FVECTOR *mtx, float *pos
     out[3] = 0.0f;
 }
 
-static inline void getLocalTargetDir(float *out, float *pos)
+static inline void getLocalTargetDir(float *out, float *pos) /* derived name */
 {
     float tmp[4];
 
@@ -47,13 +46,10 @@ static inline void getLocalTargetDir(float *out, float *pos)
     MatrixDrive_PopMatrix();
 }
 
-/* RECONSTRUCTED spellings.  The PAL listing gives every instruction of
-   limitHPAngleAndSetB the line of its call site, so the repeated degree
-   conversion and the repeated clamped ratio are macros in the 2001 source and
-   not inline functions (gcc 2.9 copies an inlined body's own line notes,
-   integrate.c:2092-2103).  32768 units are 180 degrees. */
-#define ANG_OF_DEG(x) ((x) * 32768.0f / 180.0f)
-#define ANG_RATE(v, lim)                                                                           \
+/* the degree conversion and the clamped ratio limitHPAngleAndSetB repeats;
+   32768 units are 180 degrees */
+#define ANG_OF_DEG(x) ((x) * 32768.0f / 180.0f) /* derived name */
+#define ANG_RATE(v, lim)                        /* derived name */                                 \
     ((lim) == 0.0f ? 0.0f : ((v) / (lim) < 0.0f ? -((v) / (lim)) : (v) / (lim)))
 
 /* lim is the motion program's interp record, the same one limitInterpAngle
@@ -80,9 +76,6 @@ static void limitHPAngleAndSetB(short *hp, short *pp, short *bp, MotLimAng *lim,
         float rp;
 
         if (kind < 0 && *hp > 0) {
-            /* base and d share one listing line (both are line 159, resp. 170):
-               the subtraction has to be its own object or fold folds 32768 onto
-               the heading instead, and the ROM recomputes it in each arm. */
             int base = rev - 32768;
             short d = (-*hp - base) / rate;
 
@@ -125,9 +118,8 @@ static void limitHPAngleAndSetB(short *hp, short *pp, short *bp, MotLimAng *lim,
             uplim = ANG_OF_DEG(pup) + (ANG_OF_DEG(lim[2].p) - ANG_OF_DEG(pup)) * t;
 
         } else {
-            /* The guard is the +0x48 limit and not the +0x30 one the division uses:
-               the listing computes both here, so the 2001 line was copied from the
-               positive arm above and only its divisor changed. */
+            /* the guard is the +0x48 limit, the division the +0x30 one, as in the
+               positive arm above */
             t = ANG_OF_DEG(lim[6].h) == 0.0f ? 0.0f
                                              : ((float)*hp / ANG_OF_DEG(lim[4].h) < 0.0f
                                                     ? -((float)*hp / ANG_OF_DEG(lim[4].h))
@@ -192,11 +184,9 @@ static void limitHPAngleAndSetB(short *hp, short *pp, short *bp, MotLimAng *lim,
     }
 }
 
-/* RECONSTRUCTED NAME: the PAL listing shows this body only inlined (rows
- * 104-133, above every def line in this file), so it carries no symbol in
- * MAIN.MAP.  It clamps a turn angle to the motion-program interp range and
- * returns 0 when the angle is already inside it. */
-static inline short limitInterpAngle(MotLimAng *info, short ang)
+/* Clamp a turn angle to the motion-program interp range; 0 when the angle
+ * is already inside it. */
+static inline short limitInterpAngle(MotLimAng *info, short ang) /* derived name */
 {
     float lo;
     float hi;
@@ -234,11 +224,10 @@ int avoidReverseInterpOnCurrentMatrix(float *q, MotLimAng *info, void *out)
     return 0;
 }
 
-/* RECONSTRUCTED NAME: rows 296-306, inlined only into
- * avoidReverseInterpOnCurrentMatrixWithLimit (def line 314), no MAIN.MAP
- * symbol.  0 = inside the range, 1 = outside the plain range, 2 = outside the
- * range scaled by the limit factor. */
-static inline short classifyInterpAngle(MotLimAng *info, short ang, float k)
+/* 0 = inside the range, 1 = outside the plain range, 2 = outside the range
+ * scaled by the limit factor; avoidReverseInterpOnCurrentMatrixWithLimit's
+ * helper. */
+static inline short classifyInterpAngle(MotLimAng *info, short ang, float k) /* derived name */
 {
     float lo;
     float hi;
@@ -282,7 +271,7 @@ void avoidReverseInterpOnCurrentMatrixWithLimit(float *q, MotLimAng *info, void 
     }
 }
 
-/* kept local: float (int) here, float (char *) in weapon.h */
+/* float (int) here, float (char *) in weapon.h */
 extern float GetWeaponWeight(int w);
 
 /* The arm IK's angles: the shoulder's turns about Z and Y and the two
@@ -295,23 +284,22 @@ static short ikBend0 = 0; /* derived name */
 
 static short ikBend1 = 0; /* derived name */
 
-/* kept local: motionOrientManager.h reaches ico2/fumi's TUs through
+/* declared here: motionOrientManager.h reaches ico2/fumi's files through
    typedef.h, and commonact.c declares the table char [] */
 extern const MotionDef motionKind[];
 
 /* The frame-rate factors every blend in _getFinalMatrix scales by: the
  * frame counter pair gives the frames per second of the current mode. */
-#define MOT_FPS ((float)((60 - systemStatus[0] * 10) / systemStatus[1]))
-#define MOT_SPEED                                                                                  \
+#define MOT_FPS ((float)((60 - systemStatus[0] * 10) / systemStatus[1])) /* derived name */
+#define MOT_SPEED                                                        /* derived name */        \
     (debug_now_motion_viewer != 0 ? (float)debug_face_rot_w_ratio * 0.01f                          \
                                   : skelMotDef->faceRotRatio)
-#define MOT_RATE(f) (skelRoot->f * (60.0f / MOT_FPS))
-#define MOT_BLEND(off) (MOT_RATE(off) + (1.0f - MOT_RATE(off)) * MOT_SPEED)
+#define MOT_RATE(f) (skelRoot->f * (60.0f / MOT_FPS))                       /* derived name */
+#define MOT_BLEND(off) (MOT_RATE(off) + (1.0f - MOT_RATE(off)) * MOT_SPEED) /* derived name */
 
-/* RECONSTRUCTED NAMES: listing rows 370-376 and 380-385, only ever inlined
- * into _getFinalMatrix.  A unit direction from a heading and a pitch, and
- * the rotation that turns the x axis onto a direction. */
-static inline void getDirOfAngle(float *v, short h, short p)
+/* Only _getFinalMatrix uses these two: a unit direction from a heading and
+ * a pitch, and the rotation that turns the x axis onto a direction. */
+static inline void getDirOfAngle(float *v, short h, short p) /* derived name */
 {
     float c = GetTableCos(p);
 
@@ -321,7 +309,7 @@ static inline void getDirOfAngle(float *v, short h, short p)
     v[3] = 0.0f;
 }
 
-static inline void getRotOfDir(float *q, float *v)
+static inline void getRotOfDir(float *q, float *v) /* derived name */
 {
     float axis[4];
     short ang = GetTableArcCos(_InnerProduct(v, XUnitVector));
@@ -332,12 +320,12 @@ static inline void getRotOfDir(float *q, float *v)
 
 /* The motion's own rotation for the node, the matrix rebuilt from it, and
  * the stream's offset from the skeleton's rest rotation. */
-#define GET_NODE_ROT(q, dq)                                                                        \
+#define GET_NODE_ROT(q, dq) /* derived name */                                                     \
     MultiQuaternion(GetCurrentQuaternion(), GetLastQuaternion(), node->quat);                      \
     GetMatrixFromQuaternionRotElem(MatrixDrive_GetMatrix(), GetCurrentQuaternion());               \
     CopyQuaternion(q, IdentityQuaternion);                                                         \
     DivQuaternion(dq, elem + 0x10, node->quat)
-#define APPLY_ROT(q)                                                                               \
+#define APPLY_ROT(q) /* derived name */                                                            \
     MultiCurrentQuaternion(q);                                                                     \
     GetMatrixFromQuaternionRotElem(MatrixDrive_GetMatrix(), GetCurrentQuaternion())
 
@@ -400,10 +388,7 @@ void _getFinalMatrix(int id)
     }
 
     case 35: {
-        /* A 16-byte block array no retail instruction references.  The bytes
-           pin its frame slot (without it strict 2511 of 2835 words change,
-           the frame and every later slot moving); its reader is the DEBUG
-           build's report of the rolled quaternion (report ours). */
+        /* read only by the DEBUG build's report of the rolled quaternion */
         float work[4];
 
         GET_NODE_ROT(q, dq);
@@ -490,10 +475,8 @@ void _getFinalMatrix(int id)
             SetIdentityQuaternion(ik->q30);
             CopyQuaternion(ik->q20, ik->q30);
         } else {
-            /* work0 and work1 are referenced by no retail instruction.  The
-               bytes pin their two 16-byte frame slots around out (without them
-               393 words change); their reader is the DEBUG build's report of
-               the interpolation's two quaternions (report ours). */
+            /* work0 and work1 are read only by the DEBUG build's report of the
+               interpolation's two quaternions */
             float work0[4];
             float out[4];
             float work1[4];
@@ -606,17 +589,9 @@ void _getFinalMatrix(int id)
 
             memset(qa, 0, 16);
             qa[3] = 1.0f;
-            /* RECONSTRUCTION: listing lines 727-734 carry no word, yet the
-             * frame holds two 16-byte vectors whose address escapes (work0,
-             * work1: they stay live to the end of the block, function.c's
-             * temp-slot rules) and a 4-byte permanent slot of address-taken
-             * scalars at sp+0x100, allocated ahead of a0/a1 and never read
-             * or written by the ROM.  What the bytes pin: those two vectors
-             * and those four bytes, made in that window.  What they cannot
-             * pin: the window's text and condition; a turn computed from the
-             * work vectors, as the next line computes it from out, under the
-             * function's local debug switch, is ours (case 3 has the same
-             * window with one vector). */
+            /* a turn computed from the work vectors, under the function's
+             * local debug switch (case 3 has the same window with one
+             * vector) */
             if (dbg) {
                 short w0, w1;
 
@@ -826,11 +801,7 @@ void _getFinalMatrix(int id)
 
             memset(qa, 0, 16);
             qa[3] = 1.0f;
-            /* RECONSTRUCTION: listing lines 1020-1027, case 19's window
-             * (727-734) again, carry no word; the frame holds one escaping
-             * 16-byte vector (work) there.  What the bytes pin: that vector.
-             * What they cannot pin: the window's text and condition, ours
-             * here. */
+            /* case 19's debug window again, with one work vector */
             if (dbg) {
                 CopyVector(work, out);
             }
@@ -1049,14 +1020,14 @@ void _getFinalMatrix(int id)
 
 extern double fptodp(float v);
 
-/* RECONSTRUCTION: the pad snapshot at pad as this TU reads it; only the
- * two words the rotation-emphasis editor uses carry names. */
-typedef struct {
+/* the pad snapshot at pad; only the two words the rotation-emphasis editor
+ * uses carry names */
+typedef struct { /* field names derived */
     int _00[23];
     int trg; /* 0x5C */
     int _60;
     int hold; /* 0x64 */
-} EditPad;
+} EditPad;    /* derived name */
 
 /* EditRotEmphasys's tuning: the two coefficients it shows and edits, the
    switch that turns the editor on and the coefficient selected. */
@@ -1148,9 +1119,8 @@ void getFinalMatrix(int id)
     getFinalMatrixCore(id);
 }
 
-/* RECONSTRUCTED NAME: rows 1440-1447, inlined only into
- * getFinalMatrixWithNaturalGeometry (def line 1452), no MAIN.MAP symbol. */
-static inline void applyNaturalGeometry(int id)
+/* getFinalMatrixWithNaturalGeometry's helper */
+static inline void applyNaturalGeometry(int id) /* derived name */
 {
     SkelNode *e = &skelNode[id];
     Vec16 t;

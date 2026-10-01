@@ -1,12 +1,8 @@
 /*
  * ico2/sugipon/include/quaternion.h
  *
- * The disc records no file of this name: SRCFILE.TXT attributes no
- * instruction to it, and a header that only declares leaves no rows in the
- * listing at all, so this file is ours and not the developers' own record.
- * It collects the declarations of what quaternion.c defines, in the form its
- * users need them; every type here is read from the ROM's calling convention
- * at the call sites and from the spellings the using TUs already carried.
+ * The declarations of what quaternion.c defines, for the files that use
+ * them.  The file name is derived.
  */
 
 #ifndef QUATERNION_H
@@ -47,10 +43,9 @@ float GetQuaternionCosRadian(void *p0, void *p1);
 void CopyQuaternion(void *a0, void *a1);
 void GetInverseQuaternion(void *a0, void *a1);
 void GetMatrixFromQuaternion(void *mtx, void *a1);
-/* The ROM proves the arity: GetSlerpQuaternion is a forwarder that saves a0,
- * calls GetSlerpQuaternionNoRegularize and tail-calls RegularizeQuaternion,
- * so its other three arguments reach the callee untouched in $5, $6 and $f12
- * (0x0010DA40). Its callers pass four. */
+/* GetSlerpQuaternion passes its arguments on to
+ * GetSlerpQuaternionNoRegularize and regularizes the result; its callers
+ * pass four. */
 void GetSlerpQuaternion(void *out, void *qa, void *qb, float t);
 void GetSlerpQuaternionNoRegularize(void *out, void *qa, void *qb, float t);
 extern float IdentityQuaternion[4];

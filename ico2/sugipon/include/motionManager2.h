@@ -1,12 +1,8 @@
 /*
  * ico2/sugipon/include/motionManager2.h
  *
- * The disc records no file of this name: SRCFILE.TXT attributes no
- * instruction to it, and a header that only declares leaves no rows in the
- * listing at all, so this file is ours and not the developers' own record.
- * It collects the declarations of what motionManager2.c defines, in the form its
- * users need them; every type here is read from the ROM's calling convention
- * at the call sites and from the spellings the using TUs already carried.
+ * The declarations of what motionManager2.c defines, for the files that use
+ * them.  The file name is derived.
  */
 
 #ifndef MOTIONMANAGER2_H
@@ -23,8 +19,8 @@ int AdjustMotionHeightToNearestField(GObj *self);
 void AdjustRootPositionToVerticalSidePlaneOfWall(void *a0, void *a1, float f);
 void AdjustVerticalSidePlaneOfWall(float *out, WallCfg *cfg, float *pos, float t);
 int CheckFieldContact(struct ClipBuf *info, GObj *self, float *pos, float lim);
-/* ROM: two arguments, the GObj and the attribute mask (act_bird.c:806 passes
-   0x40 and 0x50 in $5, boyact/script/a_p_1/frameDependSequence do the same). */
+/* the GObj and the attribute mask (act_bird.c passes 0x40 and 0x50;
+   boyact, script, a_p_1 and frameDependSequence do the same) */
 int CheckFloorAttribute(GObj *self, int attr);
 int CheckPureWallAttribute(GObj *self, int attr);
 int CheckWallAttribute(GObj *self, int attr);

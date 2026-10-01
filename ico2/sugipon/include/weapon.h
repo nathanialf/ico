@@ -1,12 +1,8 @@
 /*
  * ico2/sugipon/include/weapon.h
  *
- * The disc records no file of this name: SRCFILE.TXT attributes no
- * instruction to it, and a header that only declares leaves no rows in the
- * listing at all, so this file is ours and not the developers' own record.
- * It collects the declarations of what weapon.c defines, in the form its
- * users need them; every type here is read from the ROM's calling convention
- * at the call sites and from the spellings the using TUs already carried.
+ * The declarations of what weapon.c defines, for the files that use
+ * them.  The file name is derived.
  */
 
 #ifndef WEAPON_H
@@ -30,7 +26,7 @@ typedef struct {            /* field names derived */
     unsigned char color[4]; /* 0x18, the blur's colour */
     int word1C;             /* 0x1C */
     int word20;             /* 0x20 */
-} WeaponDef;
+} WeaponDef; /* derived name */
 
 /* weapon-fumble-def: one fumble placement, 0x18 bytes, three to a weapon
    slot: the target position and the three turns the dropped weapon is given,
@@ -40,7 +36,7 @@ typedef struct {  /* field names derived */
     float rotY;   /* 0x0C */
     float rotX;   /* 0x10 */
     float rotZ;   /* 0x14 */
-} FumbleRow;
+} FumbleRow; /* derived name */
 
 struct GObj *CheckSwapableWeapon(struct GObj *a0, float dist);
 int CheckWeaponKind(struct GObj *a0);

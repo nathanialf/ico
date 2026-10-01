@@ -30,11 +30,10 @@
 #include "debug_exception.h"
 #include <assert.h>
 
-/* RECONSTRUCTION, read from the ROM.  A bomb's fuse: the torch object that
-   lights it, the frames left to burn, the fuse state (0 unlit, 1 burning,
-   2 exploding, 3 spent), where the explosion is centred and its animation
-   slot. */
-typedef struct {
+/* A bomb's fuse: the torch object that lights it, the frames left to burn,
+   the fuse state (0 unlit, 1 burning, 2 exploding, 3 spent), where the
+   explosion is centred and its animation slot. */
+typedef struct {  /* field names derived */
     GObj *torch;  /* 0x00 */
     int time;     /* 0x04 */
     int state;    /* 0x08 */
@@ -42,37 +41,35 @@ typedef struct {
     float pos[4]; /* 0x10 */
     char *anim;   /* 0x20 */
     int animMode; /* 0x24 */
-} ItemFuse;
+} ItemFuse;       /* derived name */
 
-/* RECONSTRUCTION, read from the ROM.  The 160-byte work record InitItemGeo
-   allocates and fills from emptyItemWork: the dead flag, the kind (1 a bomb),
-   the carry state and holder, the rotation relative to the holder, the
-   bobbing spin, the fuse, the explosion's animation slot, the pool drift and
-   the wave phase.  8-aligned: the template copy is ld/sd pairs. */
-typedef struct {
-    int dead;       /* 0x00 */
-    int kind;       /* 0x04 */
-    int released;   /* 0x08 */
-    int held;       /* 0x0C */
-    int thrown;     /* 0x10 */
-    int holder;     /* 0x14, the holding object: an int, ItemGeo's store
-                          of 0 must share the int alias set of the object-sub
-                          load after it */
-    int pad18[2];   /* 0x18 */
-    float rot[4];   /* 0x20 */
-    float spin;     /* 0x30 */
-    int spinCount;  /* 0x34 */
-    int pad38[2];   /* 0x38 */
-    ItemFuse fuse;  /* 0x40 */
-    int pad68[2];   /* 0x68 */
-    int inPool;     /* 0x70 */
-    int sleep;      /* 0x74 */
-    int pad78[2];   /* 0x78 */
-    float drain[4]; /* 0x80 */
-    short wave;     /* 0x90 */
-    short pad92;    /* 0x92 */
-    int pad94[3];   /* 0x94 */
-} __attribute__((aligned(8))) ItemWork;
+/* The 160-byte work record InitItemGeo allocates and fills from
+   emptyItemWork: the dead flag, the kind (1 a bomb), the carry state and
+   holder, the rotation relative to the holder, the bobbing spin, the fuse,
+   the explosion's animation slot, the pool drift and the wave phase.
+   8-aligned. */
+typedef struct {                        /* field names derived */
+    int dead;                           /* 0x00 */
+    int kind;                           /* 0x04 */
+    int released;                       /* 0x08 */
+    int held;                           /* 0x0C */
+    int thrown;                         /* 0x10 */
+    int holder;                         /* 0x14, the holding object */
+    int pad18[2];                       /* 0x18 */
+    float rot[4];                       /* 0x20 */
+    float spin;                         /* 0x30 */
+    int spinCount;                      /* 0x34 */
+    int pad38[2];                       /* 0x38 */
+    ItemFuse fuse;                      /* 0x40 */
+    int pad68[2];                       /* 0x68 */
+    int inPool;                         /* 0x70 */
+    int sleep;                          /* 0x74 */
+    int pad78[2];                       /* 0x78 */
+    float drain[4];                     /* 0x80 */
+    short wave;                         /* 0x90 */
+    short pad92;                        /* 0x92 */
+    int pad94[3];                       /* 0x94 */
+} __attribute__((aligned(8))) ItemWork; /* derived name */
 
 void bombSparkStartSE(GObj *a0)
 {
@@ -89,10 +86,9 @@ void bombExplodeSE(GObj *a0)
     ExecuteSEPackage(a0, 0x34);
 }
 
-/* src/item.c:346-350 in the January-2002 listing: a static inline predicate
-   whose body (the 0x15C/0x830 chain at line 348, the kind test at line 349)
-   is inlined into HoldItem, StopItemExplodeAnimationAll and GetBombTorchGObj. */
-static inline int IsItemKindBomb(GObj *gobj)
+/* whether the item is a bomb; HoldItem, StopItemExplodeAnimationAll and
+   GetBombTorchGObj use it */
+static inline int IsItemKindBomb(GObj *gobj) /* derived name */
 {
     ItemWork *p = (ItemWork *)(char *)GOBJ_SUB(gobj)->work;
     return p->kind == 1;
@@ -125,11 +121,9 @@ void HoldItem(GObj *gobj, GObj *holder)
     MultiQuaternion(p->rot, hq, q);
 }
 
-/* src/item.c:266-271 in the January-2002 listing: a static helper with no
-   out-of-line copy of its own, inlined into uncarriedItemGeo, ItemDL,
-   BreakItemFromOutside and BreakItemWithAttackHit (rows 267 to 270).
-   The NAME is a reconstruction; the listing carries no symbol for it. */
-static inline void setItemDead(GObj *gobj)
+/* mark the item dead; uncarriedItemGeo, ItemDL, BreakItemFromOutside and
+   BreakItemWithAttackHit use it */
+static inline void setItemDead(GObj *gobj) /* derived name */
 {
     char *w = (char *)*(int *)&gobj->dobj;
     ItemWork *p = (ItemWork *)*(int *)(w + 0x830);
@@ -139,15 +133,14 @@ static inline void setItemDead(GObj *gobj)
     gobj->active = 0;
 }
 
-/* item.o's whole .data run, in the order the object emits it. */
 static ItemWork emptyItemWork = {0,    0, 0,   0,       0, 0, {0}, {0.0f, 0.0f, 0.0f, 1.0f},
-                                 0.0f, 0, {0}, {0, 300}};
+                                 0.0f, 0, {0}, {0, 300}}; /* derived name */
 
 /* The velocity a released item starts from. */
-static float zeroVelocity[4] = {0.0f, 0.0f, 0.0f, 0.0f};
+static float zeroVelocity[4] = {0.0f, 0.0f, 0.0f, 0.0f}; /* derived name */
 
 /* The offset a dropped item is placed at, below the holder's hand. */
-static float itemDropOfs[4] = {0.0f, -50.0f, 0.0f, 1.0f};
+static float itemDropOfs[4] = {0.0f, -50.0f, 0.0f, 1.0f}; /* derived name */
 
 /* The shared item scratch buffer.  avoidInsideOfWall builds the wall-push
    layout in its first three vectors; the 20.0f at offset 0x70 is the only
@@ -158,13 +151,13 @@ static float itemWork[12][4] = {
     {0.0f, 0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f, 0.0f},  {0.0f, 0.0f, 0.0f, 0.0f},
     {0.0f, 0.0f, 0.0f, 0.0f}, {20.0f, 0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f, 0.0f},
     {0.0f, 0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f, 0.0f},  {0.0f, 0.0f, 0.0f, 0.0f},
-};
+}; /* derived name */
 
 /* Where a carried item sits relative to the focus node, the boy's hand and
    every other carrier's. */
-static float carryOfsPlayer[4] = {-3.3333335f, -27.777779f, 0.0f, 1.0f};
+static float carryOfsPlayer[4] = {-3.3333335f, -27.777779f, 0.0f, 1.0f}; /* derived name */
 
-static float carryOfsOther[4] = {-10.0f, -15.0f, 0.0f, 1.0f};
+static float carryOfsOther[4] = {-10.0f, -15.0f, 0.0f, 1.0f}; /* derived name */
 
 void avoidInsideOfWall(void *self, GObj *arg)
 {
@@ -205,15 +198,12 @@ void ThrowItem(GObj *gobj, void *vel)
     SetIdentityQuaternion(*(char **)&gobj->dobj + 0x150);
 }
 
-typedef union {
+typedef union { /* field names derived */
     float f[4];
     long long ll[2];
-} ItemVec;
+} ItemVec; /* derived name */
 
-/* 0xA0: the item record's .data initialiser, copied over the fresh
-   allocation.  The listing attributes the block move to line 262. */
-
-typedef struct {
+typedef struct {   /* field names derived */
     ItemVec pos;   /* 0x00 */
     ItemVec rot;   /* 0x10 */
     ItemVec scale; /* 0x20 */
@@ -221,14 +211,14 @@ typedef struct {
     int f_34;
     int f_38;
     int f_3C;
-} ItemLayout;
+} ItemLayout; /* derived name */
 
-typedef struct {
+typedef struct { /* field names derived */
     char *p_0;
     int f_4;
     int f_8;
     int f_C;
-} ItemParentLink;
+} ItemParentLink; /* derived name */
 
 char *InitItemGeo(char *gobj, ItemLayout *layout)
 {
@@ -262,10 +252,7 @@ char *InitItemGeo(char *gobj, ItemLayout *layout)
 }
 
 /* The holder's 0x15C sub-handle is read through the SubHandle union at every
-   site in this function: the ROM keeps the three-load chain of line 511 below
-   the `q[2] = 0` store, which only happens when the 0x15C read carries alias
-   set 0.  `q` itself is a plain four-float scratch, so its store does NOT
-   carry alias set 0 and the `rec->f_14` load above it is free to move. */
+   site in this function; q is a plain four-float scratch. */
 void carriedItemGeo(GObj *gobj)
 {
     Vec16 pos;
@@ -338,11 +325,9 @@ void carriedItemGeo(GObj *gobj)
     SetDirectRootPosition(gobj, &pos);
 }
 
-/* src/item.c:184-215 in the January-2002 listing: a static helper with no
-   out-of-line copy, inlined into BreakItemFromOutside (rows 185-193, 214) and
-   BreakItemWithAttackHit (same rows).  Listing lines 195-213 emit nothing in
-   either host.  The NAME is a reconstruction. */
-static inline int entryBreakBgAnimation(int id, float *pos, float *dir, int arg)
+/* start the break animation of a broken item; BreakItemFromOutside and
+   BreakItemWithAttackHit use it */
+static inline int entryBreakBgAnimation(int id, float *pos, float *dir, int arg) /* derived name */
 {
     float rot[4];
     float d[4];
@@ -364,26 +349,27 @@ static inline int entryBreakBgAnimation(int id, float *pos, float *dir, int arg)
    192-byte workspace ClipWall / ClipFloor / ClipWallWaveForce / CheckFieldContact
    fill in.  It is the same record avoidInsideOfWall drives through itemWork,
    whose +0x88 hit flag and +0x20 result position that function already names. */
-/* The per-frame step this TU derives from the frame-rate pair at systemStatus;
-   ThrowItem and InitItemGeo spell the same integer quotient out. */
-#define ITEM_DT (60.0f / (float)((0x3C - systemStatus[0] * 0xA) / systemStatus[1]))
+/* the per-frame step from the frame-rate pair at systemStatus; ThrowItem
+   and InitItemGeo spell the same integer quotient out */
+#define ITEM_DT                                                                                    \
+    (60.0f / (float)((0x3C - systemStatus[0] * 0xA) / systemStatus[1])) /* derived name */
 
-typedef struct DObjLink {
+typedef struct DObjLink { /* field names derived */
     char *p_0;
     int f_4;
-} DObjLink;
+} DObjLink; /* derived name */
 
-/* kept local: this TU's bytes only come out with its own view of ClipWork, so it
-   keeps one under its own name; the shared view is in ico2/common/include/typedef.h. */
-typedef struct ClipWorkItem {
-    float from[4]; /* 0x00 */
-    float to[4];   /* 0x10 */
-    float pos[4];  /* 0x20 */
-    float f_30[4]; /* 0x30 */
-    float f_40[4]; /* 0x40 */
-    float f_50[4]; /* 0x50 */
-    float f_60[4]; /* 0x60 */
-    float radius;  /* 0x70 */
+/* this file's own view of ClipWork; the shared one is in
+   ico2/common/include/typedef.h */
+typedef struct ClipWorkItem { /* field names derived */
+    float from[4];            /* 0x00 */
+    float to[4];              /* 0x10 */
+    float pos[4];             /* 0x20 */
+    float f_30[4];            /* 0x30 */
+    float f_40[4];            /* 0x40 */
+    float f_50[4];            /* 0x50 */
+    float f_60[4];            /* 0x60 */
+    float radius;             /* 0x70 */
     int f_74;
     int f_78;
     int f_7C;
@@ -396,12 +382,11 @@ typedef struct ClipWorkItem {
     int f_9C;
     float plane[4]; /* 0xA0 */
     float f_B0[4];  /* 0xB0 */
-} ClipWorkItem;
+} ClipWorkItem;     /* derived name */
 
-/* src/item.c:135-178 in the January-2002 listing: a static helper with no
-   out-of-line copy, inlined only into uncarriedItemGeo's wall-hit arm.
-   The NAME is a reconstruction; the listing carries no symbol for it. */
-static inline int breakItemOnWallHit(GObj *gobj, float len, float *pos, float *vel)
+/* the wall-hit arm of uncarriedItemGeo */
+static inline int breakItemOnWallHit(GObj *gobj, float len, float *pos,
+                                     float *vel) /* derived name */
 {
     float rot[4];
     float d[4];
@@ -432,10 +417,9 @@ static inline int breakItemOnWallHit(GObj *gobj, float len, float *pos, float *v
     return 0;
 }
 
-/* src/item.c:218-242 in the January-2002 listing: a static helper with no
-   out-of-line copy, inlined only into uncarriedItemGeo's floor-hit arm.  It
-   calls entryBreakBgAnimation (rows 186-193).  The NAME is a reconstruction. */
-static inline int breakItemOnFloorHit(GObj *gobj, float len, float *pos, float *vel)
+/* the floor-hit arm of uncarriedItemGeo; it calls entryBreakBgAnimation */
+static inline int breakItemOnFloorHit(GObj *gobj, float len, float *pos,
+                                      float *vel) /* derived name */
 {
     ItemWork *p = GOBJ_SUB(gobj)->work;
 
@@ -756,10 +740,8 @@ void ItemGeo(GObj *gobj)
     }
 }
 
-/* src/item.c:919-932 in the listing: a second static helper with no
-   out-of-line copy, inlined only into ItemDL (rows 920, 922, 929, 931).
-   The NAME is a reconstruction. */
-static inline void checkBombExplodeEnd(GObj *gobj)
+/* ItemDL's check for the end of a bomb's explosion */
+static inline void checkBombExplodeEnd(GObj *gobj) /* derived name */
 {
     ItemWork *p = GOBJ_SUB(gobj)->work;
     ItemFuse *q = &p->fuse;
@@ -804,10 +786,8 @@ void ItemDL(GObj *gobj)
     p2o_DispVU1(gobj);
 }
 
-/* INTERIM stand-in: GetItemKind is a real TU function with its own ROM slot
-   (matched below), but the compiler inlines it into BreakItemFromOutside.
-   Delete it and mark the real definition `inline` once this TU is C-complete. */
-static inline int GetItemKindInline(GObj *gobj)
+/* a file-static copy of GetItemKind, which BreakItemFromOutside inlines */
+static inline int GetItemKindInline(GObj *gobj) /* derived name */
 {
     return ((ItemWork *)*(int *)(*(int *)&gobj->dobj + 0x830))->kind;
 }
@@ -886,11 +866,8 @@ void *GetBombTorchGObj(GObj *a0)
     return 0;
 }
 
-/* INTERIM stand-in: CheckCarryableItem is a real TU function with its own ROM
-   slot (matched above), but the compiler inlines it into the four Revive
-   walkers.  Delete it and mark the real definition `inline` once this TU is
-   C-complete. */
-static inline int CheckCarryableItemInline(GObj *a0)
+/* a file-static copy of CheckCarryableItem, which the four Revive walkers inline */
+static inline int CheckCarryableItemInline(GObj *a0) /* derived name */
 {
     int r = 0;
     ItemWork *p = GOBJ_SUB(a0)->work;
@@ -972,10 +949,8 @@ int CheckItemDead(GObj *a0)
     return r;
 }
 
-/* explosion animation stop handling planned.  It is a named object, not a
-   literal at the use site: the compiler emits it after execBombGeo's switch
-   table, which is where the ROM has it. */
-static const char bombAnimStopMsg[] = "爆発アニメーション停止処理予定\n";
+/* explosion animation stop handling planned */
+static const char bombAnimStopMsg[] = "爆発アニメーション停止処理予定\n"; /* derived name */
 
 void StopItemExplodeAnimationAll(void)
 {

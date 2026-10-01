@@ -18,13 +18,12 @@
 #include <libvu0.h>
 #include <assert.h>
 
-typedef struct {
+typedef struct { /* field names derived */
     char b[32];
-} ShiftBlk;
+} ShiftBlk; /* derived name */
 
-/* .sbss, owned by motionManager.o (0x38, the run and MAIN.MAP's own size; MAIN.MAP
-   names no symbol in it, so all fourteen words are file statics), in the ROM's run
-   order. */
+/* the motion being computed: its IK slerp rate, motions, quaternions, node
+   positions, root and motion control, and the natural-geometry buffers */
 static float ikSlerpRate; /* derived name */
 
 static char *skelMotion; /* derived name */
@@ -51,14 +50,10 @@ static char *naturalNodePos; /* derived name */
 
 static char *naturalMotion; /* derived name */
 
-/* the current motion's motionKind record, held as a byte pointer: the blend
-   factor _getFinalMatrix reads at 0x158 schedules as the ROM has it only as a
-   byte-offset float load (a MotionDef pointer moves 88 bytes) */
+/* the current motion's motionKind record, read through a byte pointer */
 static const MotionDef *skelMotDef; /* derived name */
 
-/* .data, owned by motionManager.o (VMA 0x4EC950..0x4ECBE0), in the ROM's run
-   order, which is the source order of each object's first user. MAIN.MAP names
-   none of them. */
+/* in the order of each object's first user */
 static float squareP0[4] = {-3.0f, 0.0f, -3.0f, 0.0f}; /* derived name */
 
 static float squareP1[4] = {3.0f, 0.0f, 3.0f, 0.0f}; /* derived name */
@@ -128,14 +123,12 @@ static float rootHeightVec[4] = {0.0f, 1.0f, 0.0f, 0.0f}; /* derived name */
 static float scaleMatrix[16] = {
     /* derived name */
     1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f,
-};
+}; /* derived name */
 
 static sceVu0IVECTOR dirColor = {0xFF, 0x60, 0x40, 0x80}; /* derived name */
 
 static sceVu0IVECTOR dirColor2 = {0x00, 0x60, 0xFF, 0x80}; /* derived name */
 
-/* .bss, owned by motionManager.o (0xA0 = MAIN.MAP's), in the ROM's run order;
-   MAIN.MAP names none of them, so they are file statics. */
 static float ikXAxis[4]; /* derived name */
 
 static float ikBendQuat[4]; /* derived name */
@@ -152,8 +145,7 @@ static float rootDelta[4]; /* derived name */
 
 /* The skeleton the motion being computed belongs to: its node array and its
    object.  Declared here for the functions above; the definitions follow
-   motMan_rootUpdate.c.inc, where the TU's .sdata has them, after that file's
-   ObjNode template. */
+   motMan_rootUpdate.c.inc's ObjNode template. */
 static SkelNode *skelNode; /* derived name */
 
 /* the object being skeletonised, held as a word: GetMatrixOfMotion's store
@@ -161,25 +153,22 @@ static SkelNode *skelNode; /* derived name */
    (a GObj pointer lets two of them pass it), so its uses convert it */
 static int skelGObj; /* derived name */
 
-/* The TU's .sdata opens with the collision display switches
-   SetHitCollisionDisplay sets (the second one draws the wall and cliff rays)
-   and the skeleton's scale. */
+/* the collision display switches SetHitCollisionDisplay sets (the second
+   one draws the wall and cliff rays) and the skeleton's scale */
 static int hitColDisp = 0; /* derived name */
 
 static int hitColRayDisp = 0; /* derived name */
 
-/* a plain float (GetGeometryOfMotion and GetMatrixOfMotion write it):
- * _getFinalMatrix reloads it after calls; setIKAndAdjustRootHeight keeps it
- * across its stores to the geo block because those are structure members. */
+/* GetGeometryOfMotion and GetMatrixOfMotion write it */
 static float skelScale = 1.0f; /* derived name */
 
-/* kept local: agrees with fieldCollision.h, which this TU does not include (InitialColInfo, InitialObjPointer differ) */
+/* as in fieldCollision.h, which this file does not include */
 extern void ClipWall(void *a0);
-/* kept local: agrees with fieldCollision.h, which this TU does not include (InitialColInfo, InitialObjPointer differ) */
+/* as in fieldCollision.h, which this file does not include */
 extern float GetYProjectionOfPlane(float *plane, float *pos);
-/* kept local: agrees with fieldCollision.h, which this TU does not include (InitialColInfo, InitialObjPointer differ) */
+/* as in fieldCollision.h, which this file does not include */
 extern void ClipWallFuchiHangWalkStop(void *a0);
-/* kept local: int (void *) here, int (int) in fieldCollision.h */
+/* int (void *) here, int (int) in fieldCollision.h */
 extern int GetWallAttribute(void *a0);
 extern ObjNode rootUpdateDirectPlayForStream(void);
 extern ObjNode rootUpdateXZ(int a0, int a1);
@@ -194,30 +183,30 @@ extern ObjNode rootUpdateTrueMotion(int a0);
 extern ObjNode rootUpdateDirectPlay(int a0);
 extern ObjNode rootUpdateFly(void);
 extern ObjNode rootUpdateEnemyFly(void);
-/* kept local: void (int, int) here, void (char *, int) in fieldCollision.h */
+/* void (int, int) here, void (char *, int) in fieldCollision.h */
 extern void DrawGObjWallCollision(int a0, int a1);
 extern unsigned char objLayout[];
 
-typedef struct {
+typedef struct { /* field names derived */
     int obj;
     int node;
-} ActPt;
+} ActPt; /* derived name */
 
-/* kept local: agrees with fieldCollision.h, which this TU does not include (InitialColInfo, InitialObjPointer differ) */
+/* as in fieldCollision.h, which this file does not include */
 extern void ClipWallField(void *a0);
-/* kept local: void (void *) here, void (char *) in fieldCollision.h */
+/* void (void *) here, void (char *) in fieldCollision.h */
 extern void DrawCollisionRay(void *a0);
-/* kept local: DisplayP2O.h does not compile in this TU (too few arguments to function `p2o_DispVU1') */
+/* declared here: DisplayP2O.h does not compile in this file (too few arguments to function `p2o_DispVU1') */
 extern void p2o_DispVU1();
 static void getInitialMatrix(Sub15C *a0, int a1);
-/* kept local: void () here, void (void *) in fieldCollision.h */
+/* void () here, void (void *) in fieldCollision.h */
 extern void ClipFloor();
 
 #include <string.h>
 #include <math.h>
 #include <stdio.h>
 
-static inline void dispSquare(int alpha)
+static inline void dispSquare(int alpha) /* derived name */
 {
     int col[4] = {0, 128 * alpha / 255, alpha, 128};
     DrawLineG(squareP0, col, squareP2, col, -1);
@@ -242,7 +231,7 @@ inline void SetHitCollisionDisplay(int a, int b)
     hitColRayDisp = b;
 }
 
-static inline int findActPointOrder(int *list, int kind)
+static inline int findActPointOrder(int *list, int kind) /* derived name */
 {
     int *p = list;
     int i = 1;
@@ -329,10 +318,9 @@ inline void GetWallVector(float *v, ClipBuf *w)
     v[3] = 0.0f;
 }
 
-/* listing lines 203-209: inlined here and into _checkCliffAndWall, never emitted out of
-   line (name ours). The float limit is a literal: ee-gcc keeps a single-precision
-   constant above 1.0e38 in the function's .sdata constant pool. */
-static inline void clearCliffStatus(void)
+/* inlined here and into _checkCliffAndWall; the float limit is a
+   literal */
+static inline void clearCliffStatus(void) /* derived name */
 {
     skelMotCtrl->flags &= ~0x10;
     skelMotCtrl->fieldWallHit = 0;
@@ -418,13 +406,13 @@ void checkWallSideState(void)
     }
 }
 
-/* kept local: float (void *, void *) here, float (float *, float *) in fieldCollision.h */
+/* float (void *, void *) here, float (float *, float *) in fieldCollision.h */
 extern float GetYDistanceFromPlane(void *plane, void *pos);
-/* kept local: void (void *, float, float, float, float) here, void (float *, float, float, float, float) in fieldCollision.h */
+/* void (void *, float, float, float, float) here, void (float *, float, float, float, float) in fieldCollision.h */
 extern void SetSimplePlane(void *plane, float x, float y, float z, float d);
-/* kept local: agrees with fieldCollision.h, which this TU does not include (InitialColInfo, InitialObjPointer differ) */
+/* as in fieldCollision.h, which this file does not include */
 extern void ClipFloorR(void *a0);
-/* kept local: void (void *, void *, void *) here, void (void *, void *, int *) in fieldCollision.h */
+/* void (void *, void *, void *) here, void (void *, void *, int *) in fieldCollision.h */
 extern void GetOrientOfWall(void *out, void *wall, void *vec);
 
 void checkWallState(int flag)
@@ -438,8 +426,7 @@ void checkWallState(int flag)
     WallCfg cfg2;
 
     memset(&buf, 0, 0xC0);
-    p = &buf; /* after the memset: the ROM's copy of $sp is the insn
-                           the assembler pulls into PushMatrix's delay slot */
+    p = &buf;
     MatrixDrive_PushMatrix();
     MatrixDrive_TransMatrixV(wallCheckBase);
     CopyVector((void *)p, (void *)(MatrixDrive_GetMatrix()[3]));
@@ -474,9 +461,8 @@ void checkWallState(int flag)
             if (hitColRayDisp != 0) {
                 DrawCollisionRay(p);
             }
-            /* One statement, SRCFILE.TXT line 387: the record is filled a
-               member at a time (an eight-byte block move, then a word) and
-               the whole twelve bytes are then copied out as one unit. */
+            /* one statement: the record is filled a member at a time, then
+               the whole twelve bytes are copied out as one unit */
             cfg = (cfg2.o = ((WallCfg *)&p->wall)->o, cfg2.n = ((WallCfg *)&p->wall)->n, cfg2);
             if (flag & 1) {
                 float v[4];
@@ -519,11 +505,11 @@ void checkWallState(int flag)
     }
 }
 
-/* kept local: agrees with fieldCollision.h, which this TU does not include (ClipFloor, ClipFloorIH differ) */
+/* as in fieldCollision.h, which this file does not include */
 extern float GetDistanceFromPlane(void *plane, void *pos);
-/* kept local: agrees with fieldCollision.h, which this TU does not include (InitialColInfo, InitialObjPointer differ) */
+/* as in fieldCollision.h, which this file does not include */
 extern void ClipWallR(void *a0);
-/* kept local: agrees with fieldCollision.h, which this TU does not include (InitialColInfo, InitialObjPointer differ) */
+/* as in fieldCollision.h, which this file does not include */
 extern void ClipFloorIH(void *a0);
 
 void checkCliffState(int a0)
@@ -590,9 +576,8 @@ void checkCliffState(int a0)
                 ip = _InnerProduct(nv, mv);
                 skelMotCtrl->cliffDist = GetPointDistance(p->pt[2], p) + k * ip;
                 skelMotCtrl->cliffWallHit = 1;
-                /* The wall-hit word is copied as the pointer it is (checkWallState
-                   reads it the same way): its load issues ahead of the int store
-                   above it, as in the ROM. */
+                /* the wall-hit word is copied as the pointer it is, as
+                   checkWallState reads it */
                 skelRoot->cliffWall.n = p->wall.n;
                 skelRoot->cliffWall.o = p->wall.o;
                 skelRoot->cliffWallCount = -1;
@@ -783,17 +768,16 @@ void dispLastNode(void)
 }
 
 #include "motMan_rootUpdate.c.inc"
-/* GifPacket.h is read here, after dispActNode: that function calls the gif
-   packet functions undeclared, as the ROM's argument setup shows (with
-   gif_SetAlpha's long long prototype in scope its registers change) */
+/* GifPacket.h is read here, after dispActNode, which calls the gif packet
+   functions undeclared */
 #include "GifPacket.h"
 #include "DObj.h"
 
-static SkelNode *skelNode = 0;
+static SkelNode *skelNode = 0; /* derived name */
 
-static int skelGObj = 0;
+static int skelGObj = 0; /* derived name */
 
-static inline void calcMaxNodeHeight(int n)
+static inline void calcMaxNodeHeight(int n) /* derived name */
 {
     int i;
     skelRoot->projHeight = 0.0f;
@@ -1005,20 +989,17 @@ void execPositionReserver(GObj *self, ObjNode m)
 extern void dispPlane(void *plane, void *pos);
 void GetMatrixOfMotion(GObj *self, char *tbl, void *ofs);
 
-typedef struct MotHdrTag MotHdr;
+typedef struct MotHdrTag MotHdr; /* derived name */
 
-/* RECONSTRUCTION, the type and macro names are ours (motionOrientManager.c
-   spells the same work-pointer read this way): the object's work pointer at
-   0x15C is read through a union member, so the read has alias set 0 and every
-   float store through it orders against it, while a store to a work field
-   leaves the loads of the D_ pointer globals alone. */
-typedef union MotWorkRef {
+/* the object's work pointer at 0x15C, read through a union member, as
+   motionOrientManager.c reads it */
+typedef union MotWorkRef { /* field names derived */
     char *p;
     int i;
     Sub15C *sub;
-} MotWorkRef;
+} MotWorkRef; /* derived name */
 
-#define MOWORK(self) (((MotWorkRef *)((char *)(self) + 0x15C))->sub)
+#define MOWORK(self) (((MotWorkRef *)((char *)(self) + 0x15C))->sub) /* derived name */
 
 void GetGeometryOfMotion(void *self, void *m0, void *m1, float *v, float r, float *step, int k)
 {
@@ -1108,11 +1089,8 @@ void GetGeometryOfMotion(void *self, void *m0, void *m1, float *v, float r, floa
 
 /* GObj+8 is the index into objLayout, the 0x4C-byte GenGeo table (ebrain.c
    types that array `GenGeo objLayout[]`; enemy_act.c indexes it with the same
-   `obj[2]` field).  ROM proves the field is NOT read in the `int` alias set:
-   the load is issued ABOVE the line-1484 `int` store to skelNodeNum, which an
-   int-typed read cannot cross.  An enumerated kind is the type that both fits
-   the data model and reproduces the hoist. */
-typedef enum { GENGEO_KIND_0 = 0 } GenGeoKind;
+   `obj[2]` field), read as an enumerated kind. */
+typedef enum { GENGEO_KIND_0 = 0 } GenGeoKind; /* derived name */
 
 void GetMatrixOfMotion(GObj *self, char *tbl, void *ofs)
 {
@@ -1122,10 +1100,7 @@ void GetMatrixOfMotion(GObj *self, char *tbl, void *ofs)
     float p2[4];
     int i;
 
-    /* The sub-object fields are read as `int` addresses (not `char **`): as
-       pointer-typed reads they share the alias set of the five pointer globals
-       stored just below, and gcc can no longer issue every load ahead of the
-       nine gp stores the way ROM does. */
+    /* the sub-object fields are read as int addresses */
     skelMotion = tbl;
     skelQuat = (char *)GOBJ_SUB(self)->nodeQuat;
     skelNode = GOBJ_SUB(self)->skel;
@@ -1197,8 +1172,8 @@ void GetMatrixOfMotion(GObj *self, char *tbl, void *ofs)
     }
 }
 
-/* census file static (def line 1592); ico2/sugipon/src/motionManager2 holds the
-   other static of that name. */
+/* a file static; ico2/sugipon/src/motionManager2.c has its own of the same
+   name */
 static void dispSkeltonHierarchy(int node)
 {
     if (skelNode[node].parent != -1) {
@@ -1235,10 +1210,8 @@ static void dispSkeltonHierarchy(int node)
     }
 }
 
-/* census sugipon/src/motionManager.c getInitialMatrix, def line 1625 (1625-1647),
-   a file static: MAIN.MAP carries no global of that name, so the twin in
-   ico2/sugipon/src/geometryManager is a static too and `static` here keeps this
-   one's ELF symbol local.  No INCLUDE_ASM sibling in this TU calls it. */
+/* a file static; ico2/sugipon/src/geometryManager.c has its own of the
+   same name */
 
 static void getInitialMatrix(Sub15C *obj, int idx)
 {
@@ -1268,8 +1241,8 @@ static void getInitialMatrix(Sub15C *obj, int idx)
     }
 }
 
-/* K&R definition: it declares no prototype, which is what lets SkelTest and
- * SkelTestGeo below call this function with one argument, as ROM does. */
+/* K&R definition: it declares no prototype, so SkelTest and SkelTestGeo
+ * below call it with one argument. */
 void dispSkelton()
 {
     float (*v)[4];

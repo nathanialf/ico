@@ -22,19 +22,19 @@
 
 typedef struct { /* 0x10 */
     float x, y, z, w;
-} __attribute__((aligned(16))) LLVec;
+} __attribute__((aligned(16))) LLVec; /* derived name */
 
-typedef struct LightLineExt {
-    float *phase; /* 0x00 */
-    float *speed; /* 0x04 */
-    LLVec **line; /* 0x08 */
-} LightLineExt;
+typedef struct LightLineExt { /* field names derived */
+    float *phase;             /* 0x00 */
+    float *speed;             /* 0x04 */
+    LLVec **line;             /* 0x08 */
+} LightLineExt;               /* derived name */
 
-/* The colour record LightLineDL builds for DrawLineG: four 32-bit components,
-   and the ROM's frame places both of them on a 16-byte boundary. */
+/* The colour record LightLineDL builds for DrawLineG: four 32-bit
+   components, 16-byte aligned. */
 typedef struct { /* 0x10 */
     int r, g, b, a;
-} __attribute__((aligned(16))) LLColor;
+} __attribute__((aligned(16))) LLColor; /* derived name */
 
 #include "boy.h"
 #include "debug.h"
@@ -43,17 +43,16 @@ typedef struct { /* 0x10 */
 #include "lineManager.h"
 #include "ios.h"
 
-/* The boy's five generated cloth meshes, in the order InitBoyGeo hands them to
-   InitCloth4D: the mantle, the tape belt and the three loose tape strips.
-   MAIN.MAP names no symbol in boy.o's .data, so these names are ours, taken
-   from the texture each mesh is drawn with.  The floats are the generator's
-   own three-decimal output, read back from the ROM. */
+/* The boy's five generated cloth meshes, in the order InitBoyGeo hands them
+   to InitCloth4D: the mantle, the tape belt and the three loose tape strips,
+   each named from the texture it is drawn with.  The floats are the
+   generator's own three-decimal output. */
 
 static Cloth4DCol mantleMeshCols[5];
 
 static Cloth4DCfg mantleMesh = {
     5, 6, 0, 0, 0x59, 0x59, 0x59, 0x80, "b_mantle", mantleMeshCols, 11.239f, 0,
-};
+}; /* derived name */
 
 static float mantleMeshUv[5][6][2] = {
     {{0.992f, 0.617f},
@@ -86,7 +85,7 @@ static float mantleMeshUv[5][6][2] = {
      {0.255f, 0.867f},
      {0.254f, 0.933f},
      {0.254f, 1.0f}},
-};
+}; /* derived name */
 
 static Cloth4DCol mantleMeshCols[5] = {
     {5.908f,
@@ -144,13 +143,13 @@ static Cloth4DCol mantleMeshCols[5] = {
      mantleMeshUv[1],
      {0},
      {-0.32f, -5.877f, 0.505f, 0.0f}},
-};
+}; /* derived name */
 
 static Cloth4DCol tapeMeshCols[5];
 
 static Cloth4DCfg tapeMesh = {
     5, 6, 0, 0, 0x59, 0x59, 0x59, 0x80, "b_mantle", tapeMeshCols, 11.352f, 0,
-};
+}; /* derived name */
 
 static float tapeMeshUv[5][6][2] = {
     {{0.004f, 0.466f},
@@ -183,7 +182,7 @@ static float tapeMeshUv[5][6][2] = {
      {0.255f, 0.189f},
      {0.254f, 0.096f},
      {0.254f, 0.004f}},
-};
+}; /* derived name */
 
 static Cloth4DCol tapeMeshCols[5] = {
     {8.261f,
@@ -241,22 +240,21 @@ static Cloth4DCol tapeMeshCols[5] = {
      tapeMeshUv[1],
      {0},
      {0.671f, -7.233f, -3.933f, 0.0f}},
-};
+}; /* derived name */
 
 static Cloth4DCol tapeBMeshCols[2];
 
 static Cloth4DCfg tapeBMesh = {
     2, 5, 0, 0, 0x59, 0x59, 0x59, 0x80, "tape_b", tapeBMeshCols, 2.48f, 0,
-};
+}; /* derived name */
 
-/* the light-line work LightLineGeo sets up (MAIN.MAP boy.o .sdata), after the
-   third mesh's texture name in the TU's .sdata */
+/* the light-line work LightLineGeo sets up */
 LightLineExt *llExtGeo = 0;
 
 static float tapeBMeshUv[2][5][2] = {
     {{0.005f, 0.992f}, {0.251f, 0.992f}, {0.497f, 0.991f}, {0.743f, 0.99f}, {0.99f, 0.99f}},
     {{0.01f, 0.008f}, {0.257f, 0.008f}, {0.503f, 0.008f}, {0.749f, 0.008f}, {0.995f, 0.008f}},
-};
+}; /* derived name */
 
 static Cloth4DCol tapeBMeshCols[2] = {
     {1.825f,
@@ -281,18 +279,18 @@ static Cloth4DCol tapeBMeshCols[2] = {
      tapeBMeshUv[1],
      {0},
      {0.486f, -0.719f, -1.305f, 0.0f}},
-};
+}; /* derived name */
 
 static Cloth4DCol tapeBoro1MeshCols[2];
 
 static Cloth4DCfg tapeBoro1Mesh = {
     2, 5, 0, 0, 0x59, 0x59, 0x59, 0x80, "tape_boro", tapeBoro1MeshCols, 2.277f, 0,
-};
+}; /* derived name */
 
 static float tapeBoro1MeshUv[2][5][2] = {
     {{0.023f, 0.008f}, {0.26f, 0.009f}, {0.496f, 0.01f}, {0.732f, 0.012f}, {0.969f, 0.013f}},
     {{0.117f, 0.987f}, {0.333f, 0.987f}, {0.548f, 0.987f}, {0.764f, 0.987f}, {0.979f, 0.987f}},
-};
+}; /* derived name */
 
 static Cloth4DCol tapeBoro1MeshCols[2] = {
     {2.166f,
@@ -317,18 +315,18 @@ static Cloth4DCol tapeBoro1MeshCols[2] = {
      tapeBoro1MeshUv[1],
      {0},
      {-1.632f, -0.648f, -1.309f, 0.0f}},
-};
+}; /* derived name */
 
 static Cloth4DCol tapeBoro2MeshCols[2];
 
 static Cloth4DCfg tapeBoro2Mesh = {
     2, 5, 0, 0, 0x59, 0x59, 0x59, 0x80, "tape_boro", tapeBoro2MeshCols, 3.186f, 0,
-};
+}; /* derived name */
 
 static float tapeBoro2MeshUv[2][5][2] = {
     {{0.117f, 0.987f}, {0.313f, 0.988f}, {0.509f, 0.988f}, {0.705f, 0.989f}, {0.901f, 0.99f}},
     {{0.211f, 0.008f}, {0.406f, 0.007f}, {0.6f, 0.007f}, {0.795f, 0.006f}, {0.99f, 0.005f}},
-};
+}; /* derived name */
 
 static Cloth4DCol tapeBoro2MeshCols[2] = {
     {1.891f,
@@ -353,13 +351,13 @@ static Cloth4DCol tapeBoro2MeshCols[2] = {
      tapeBoro2MeshUv[0],
      {0},
      {1.58f, -0.946f, -1.463f, 0.0f}},
-};
+}; /* derived name */
 
-/* RECONSTRUCTION, read from the ROM.  The 104-byte work record InitBoyGeo
-   allocates and hangs at the object's work word: the crown in use and the
-   head, body and three crown display objects, the stonized state and its BG
-   animation, the five cloths, the pool reflection mesh, the water drops and
-   the drip state actionOfWater runs. */
+/* The 104-byte work record InitBoyGeo allocates and hangs at the object's
+   work word: the crown in use and the head, body and three crown display
+   objects, the stonized state and its BG animation, the five cloths, the
+   pool reflection mesh, the water drops and the drip state actionOfWater
+   runs. */
 typedef struct BoyWork { /* field names derived */
     int crown;           /* 0x00, 1 or 2 picks crown1 or crown2, else crown0 */
     Sub15C *head;        /* 0x04 */
@@ -369,8 +367,7 @@ typedef struct BoyWork { /* field names derived */
     char *crown2;        /* 0x14 */
     int stone;           /* 0x18 */
     int stoneAnim;       /* 0x1C */
-    /* the cloth handles InitCloth4D returns, held as char *: typed Cloth4D * or
-       void * their stores in InitBoyGeo move across the 0x554 store (measured) */
+    /* the cloth handles InitCloth4D returns, held as char * */
     char *mantle;           /* 0x20 */
     char *tape;             /* 0x24 */
     char *tapeBoro1;        /* 0x28 */
@@ -382,7 +379,7 @@ typedef struct BoyWork { /* field names derived */
     float dripVel;          /* 0x5C */
     float drip;             /* 0x60 */
     float detail;           /* 0x64 */
-} BoyWork;
+} BoyWork;                  /* derived name */
 
 void dispClothes(GObj *gobj)
 {
@@ -401,14 +398,9 @@ void dispClothes(GObj *gobj)
     DispCloth4D((Cloth4D *)w->tapeBoro2, x + 0x40, x);
 }
 
-/* census execClothes, a file static: girl.c has its own static twin of this name.
- * Listing rows 103-126. The five else-arm calls are one nested inline helper
- * (row 116 is its body, rows 118-122 its code-free calls), the construct this
- * programmer's clothAnimation.c uses for interHalf: each inlined copy
- * rematerialises the 0.98f literal at its own call, which is why the ROM loads
- * that constant five times, and the two arm-scoped values the helper reads are
- * homed in the frame and reloaded after every call. The helper's name and the
- * two locals' names are ours (a nested inline leaves no symbol). */
+/* A file static; girl.c has its own of the same name.  The five else-arm
+ * calls go through one nested inline helper, as clothAnimation.c's
+ * interHalf does. */
 static void execClothes(GObj *gobj)
 {
     BoyWork *w = GOBJ_SUB(gobj)->work;
@@ -424,7 +416,7 @@ static void execClothes(GObj *gobj)
         float f = w->detail;
         float x = f * 5.0f + 3.0f;
         float wt = 1.0f - f;
-        __inline__ void setClothDetail(void *cloth)
+        __inline__ void setClothDetail(void *cloth) /* derived name */
         {
             GetCloth4DWithDetail(cloth, x, 0.98f, 1.0f, wt);
         }
@@ -438,8 +430,7 @@ static void execClothes(GObj *gobj)
     }
 }
 
-/* the one LightLineExt InitLightLineGeo fills; its definition closes the
-   TU's .data, after the sync marker colours */
+/* the one LightLineExt InitLightLineGeo fills */
 static LightLineExt lightLineExt; /* derived name */
 
 LightLineExt *InitLightLineGeo(GObj *gobj, float *pos)
@@ -495,12 +486,9 @@ inline void LightLineGeo(void)
 void LightLineDL(void)
 {
     int i;
-    /* The ROM gives i a frame slot of its own at 0x0, ahead of the five
-       16-byte records: this helper reads the enclosing loop's index rather
-       than taking it as an argument, which puts i in the parent's frame at
-       the point the helper is declared.  It is inlined at both call sites,
-       so no static chain is built. */
-    inline int LightLineVtx(LLVec * dst, float ph)
+    /* this helper reads the enclosing loop's index i rather than taking it
+       as an argument; it is inlined at both call sites */
+    inline int LightLineVtx(LLVec * dst, float ph) /* derived name */
     {
         float f = ph * 18.99998f;
         LLVec *p = llExtGeo->line[i];
@@ -576,19 +564,18 @@ inline void SelectBoyCrown(GObj *a0, int a1)
    ld/or/sd and ld/and/sd, and a 16-bit field two bytes into the same
    container reached with a plain sh; the same union src/enemyParts.c uses. */
 
-/* The two points the boy's mantle hangs from, once for each cloth.  MAIN.MAP
-   names no symbol in boy.o's .data, so these names are ours. */
+/* the two points the boy's mantle hangs from, once for each cloth */
 static ClothHangCfg mantleHang[3] = {
     {1, -5.0f, 30.0f, 20.0f, 1, {0}, 0.0f, -10.0f, {0}, 1.0f, -1.0f, {0}},
     {1, -15.0f, 15.0f, 20.0f, 0, {0}, 0.0f, -10.0f, {0}, 1.0f, -1.0f, {0}},
     {-1, 0.0f, 0.0f, 0.0f, 0, {0}, 0.0f, 0.0f, {0}, 0.0f, 0.0f, {0}},
-};
+}; /* derived name */
 
 static ClothHangCfg tapeHang[3] = {
     {1, -5.0f, 30.0f, 20.0f, 1, {0}, 0.0f, 13.0f, {0}, 1.0f, -1.0f, {0}},
     {1, -15.0f, 15.0f, 20.0f, 0, {0}, 0.0f, 13.0f, {0}, 1.0f, -1.0f, {0}},
     {-1, 0.0f, 0.0f, 0.0f, 0, {0}, 0.0f, 0.0f, {0}, 0.0f, 0.0f, {0}},
-};
+}; /* derived name */
 
 BoyWork *InitBoyGeo(GObj *gobj, void *csv)
 {
@@ -597,8 +584,7 @@ BoyWork *InitBoyGeo(GObj *gobj, void *csv)
     int i;
 
     w = iosMallocDebug(ios_partition_sugipon, sizeof(BoyWork), "src/boy.c", 280);
-    /* the work word stored and read back as char *: the bytes pin that alias
-       set here (the cloth stores below must stay ordered against the reload) */
+    /* the work word, stored and read back as char * */
     *(char **)(*(char **)(((char *)gobj) + 0x15C) + 0x830) = (char *)w;
     p = (BoyWork *)*(char **)(*(char **)(((char *)gobj) + 0x15C) + 0x830);
     p->mantle = (char *)InitCloth4D(gobj, &mantleMesh, mantleHang);
@@ -666,11 +652,11 @@ BoyWork *InitBoyGeo(GObj *gobj, void *csv)
 
 /* the two wire spheres the girl-to-boy position sync draws when the debug flag
    is on: blue for the girl, orange for the boy */
-static int girlSyncMarkerColor[4] = {64, 96, 128, 128};
+static int girlSyncMarkerColor[4] = {64, 96, 128, 128}; /* derived name */
 
-static int boySyncMarkerColor[4] = {255, 96, 64, 128};
+static int boySyncMarkerColor[4] = {255, 96, 64, 128}; /* derived name */
 
-static LightLineExt lightLineExt = {0, 0, 0};
+static LightLineExt lightLineExt = {0, 0, 0}; /* derived name */
 
 void synchronizeMotionOutputOriginForGirl(GObj *gobj)
 {
@@ -814,7 +800,7 @@ inline void SetBoyStonizedVisual(GObj *a0)
     GOBJ_SUB(a0)->ctrl.slipOn = 0;
 }
 
-/* kept local: float (int, void *, void *, float) here, float (int, float, void *, void *) in StageAnimation.h */
+/* float (int, void *, void *, float) here, float (int, float, void *, void *) in StageAnimation.h */
 extern float stage_PlayBgAnimation(int obj, void *a1, void *a2, float f);
 void dispSubParts(GObj *gobj);
 

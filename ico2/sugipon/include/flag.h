@@ -1,12 +1,8 @@
 /*
  * ico2/sugipon/include/flag.h
  *
- * The disc records no file of this name: SRCFILE.TXT attributes no
- * instruction to it, and a header that only declares leaves no rows in the
- * listing at all, so this file is ours and not the developers' own record.
- * It collects the declarations of what flag.c defines, in the form its
- * users need them; every type here is read from the ROM's calling convention
- * at the call sites and from the spellings the using TUs already carried.
+ * The declarations of what flag.c defines, for the files that use
+ * them.  The file name is derived.
  */
 
 #ifndef FLAG_H
@@ -16,13 +12,13 @@ struct GObj;
 
 void SetFlag4PointFixID(struct GObj *self, int a1, int id);
 
-typedef struct {
+typedef struct { /* field names derived */
     float m[4];
-} Vec4Flag;
+} Vec4Flag; /* derived name */
 
 /* The InitClothes config record, the same 0x1C-byte layout clothTest.c
    carries (rows, spacing, columns, anchors, texture, weight). */
-typedef struct ClothCfg {
+typedef struct ClothCfg { /* field names derived */
     int num;         /* 0x00  rows, and -1 ends the array */
     float segLength; /* 0x04  the spacing between rows */
     int div;         /* 0x08  columns */
@@ -30,28 +26,23 @@ typedef struct ClothCfg {
     void *anchors;   /* 0x10 */
     void *tex;       /* 0x14  null means the untextured mesh */
     float weight;    /* 0x18  the fall added to each point a step */
-} ClothCfg;
+} ClothCfg; /* derived name */
 
-/* one word of a record reached through a union member (alias set 0): the
-   node flags' bit clears, and the stores the ROM keeps ahead of later loads
-   (InitFlagGeo lines 103, 182 and 221) */
-typedef union {
+/* one word of a record, read and written through a union member: the
+   node flags' bit clears and InitFlagGeo's float stores */
+typedef union { /* field names derived */
     long long ll;
     int i;
     float f;
     short h;
-} FlagNodeWord;
+} FlagNodeWord; /* derived name */
 
-/* RECONSTRUCTION.  The sub record's display-list buffers (0xC the matrices,
-   0x10 the vectors, 0x870 the 80-byte nodes) freed and reallocated for n
-   nodes, the nodes reset.  The listing attributes the whole block to the one
-   line that invokes it (flag.c:132, every allocation passing that line), the
-   mark of a macro; worm.c and boy.c carry the same block.  Its counter is
-   the block's own, which is why the ROM keeps it in a caller-saved
-   register; each node's 0.0f words come from one float set at the top of
-   the loop body, which is why the ROM stores them from an FPR (`mtc1 $0`)
-   where a constant 0.0f store is `sw $0`. */
-#define FLAG_ALLOC_NODES(o, num)                                                                   \
+/* The sub record's display-list buffers (0xC the matrices, 0x10 the
+   vectors, 0x870 the 80-byte nodes) freed and reallocated for n nodes, and
+   the nodes reset; worm.c and boy.c carry the same block.  The block has its
+   own counter, and each node's 0.0f words are stored from one float set at
+   the top of the loop body. */
+#define FLAG_ALLOC_NODES(o, num) /* derived name */ \
     {                                                                                              \
         int n;                                                                                     \
         if ((o)->nodeMtx != 0) {                                                                   \

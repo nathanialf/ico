@@ -1,12 +1,8 @@
 /*
  * ico2/sugipon/include/motionOrientManager.h
  *
- * The disc records no file of this name: SRCFILE.TXT attributes no
- * instruction to it, and a header that only declares leaves no rows in the
- * listing at all, so this file is ours and not the developers' own record.
- * It collects the declarations of what motionOrientManager.c defines, in the form its
- * users need them; every type here is read from the ROM's calling convention
- * at the call sites and from the spellings the using TUs already carried.
+ * The declarations of what motionOrientManager.c defines, for the files that use
+ * them.  The file name is derived.
  */
 
 #ifndef MOTIONORIENTMANAGER_H
@@ -22,7 +18,7 @@ typedef struct {   /* field names derived */
     int shiftFrom; /* 0x0C, the frame the shift may start from, -1 for none */
     int shiftMode; /* 0x10, handed to shiftMotionOrientBeginFunc */
     int word14;    /* 0x14 */
-} MotionOrientEntry;
+} MotionOrientEntry; /* derived name */
 
 /* parallel-motion-orient: one parallel orientation row, 0x14 bytes, the
    first five words of a MotionOrientEntry. Reader: findParallelMotion. */
@@ -32,22 +28,21 @@ typedef struct {   /* field names derived */
     int nextId;    /* 0x08 */
     int shiftFrom; /* 0x0C */
     int shiftMode; /* 0x10 */
-} MotOriParallelEnt;
+} MotOriParallelEnt; /* derived name */
 
 /* mirror-motion-def: one alternative motion, 8 bytes; six {request,
    substitute} pairs. */
 typedef struct { /* field names derived */
     int req;     /* 0x00 */
     int alt;     /* 0x04, -1 for none */
-} MotOriAlt;
+} MotOriAlt; /* derived name */
 
-/* motion-orient-def, moviefile: one 0x20-byte name.  The ROM copies a row
-   with ldl/ldr, so the record is 4-aligned and not 8-aligned.  Readers:
+/* motion-orient-def, moviefile: one 0x20-byte name, 4-aligned.  Readers:
    motionOrientManager.c, motionViewer.c, ico2/common/src/main.c
    (movie_init's file). */
 typedef struct { /* field names derived */
     char s[32];  /* 0x00 */
-} MotOriName;
+} MotOriName; /* derived name */
 
 /* blend-motion-def: one node-blend motion, 0x10 bytes, indexed by the
    motion record's blendKind; the list runs to motion 1147. */
@@ -56,12 +51,12 @@ typedef struct { /* field names derived */
     int node;    /* 0x04, the focus node it is blended on */
     float rate;  /* 0x08, its play rate */
     int frames;  /* 0x0C, the frame count, -1 for the motion's own */
-} MotOriSub;
+} MotOriSub; /* derived name */
 
 /* a limit triple of motion-limit-def, in degrees */
 typedef struct { /* field names derived */
     float x, y, z;
-} MotOriLimit3;
+} MotOriLimit3; /* derived name */
 
 /* motion-limit-def: one node's rotation limits, 0x30 bytes: the lower, the
    middle and the upper limit, the focus node, and two words nothing reads.
@@ -73,7 +68,7 @@ typedef struct {      /* field names derived */
     int node;         /* 0x24 */
     float float28;    /* 0x28 */
     int word2C;       /* 0x2C */
-} MotOriLimit;
+} MotOriLimit; /* derived name */
 
 /* motion-def: one frame-timed trigger of a motion, a frame and a number */
 typedef struct { /* field names derived */
@@ -82,7 +77,7 @@ typedef struct { /* field names derived */
 } FDSSlot;       /* derived name */
 
 /* motion-def's three flag words, read whole or by bit */
-typedef union {
+typedef union { /* field names derived */
     unsigned int word;
 
     struct {
@@ -93,7 +88,7 @@ typedef union {
     } bits;
 } MotionModeBits; /* derived name */
 
-typedef union {
+typedef union { /* field names derived */
     unsigned int word;
 
     struct {
@@ -116,7 +111,7 @@ typedef union {
     } bits;
 } MotionFlags; /* derived name */
 
-typedef union {
+typedef union { /* field names derived */
     unsigned int word;
 
     struct {
@@ -190,14 +185,11 @@ extern MotOriAlt mirrorMotionTable[];
 extern const MotOriSub blendMotionKind[];
 extern const MotOriLimit motionLimitDef[];
 
-/* Reconstruction: the 32-byte orient record an actor hands to
- * SetMotionRequest by value (the EE ABI passes it by reference and the callee
- * copies it into its frame, which is what the ROM's prologue does). The same
- * record is reconstructed in ico2/fumi/src/act.c as IntrOrient, whose matched
- * uses fix the member spelling. */
+/* The 32-byte orient record an actor hands to SetMotionRequest by value.
+ * ico2/fumi/src/act.c has the same record as IntrOrient. */
 typedef struct { /* field names derived */
     int word[8]; /* copied whole, no member read: its eight words */
-} MotOriReq;
+} MotOriReq; /* derived name */
 
 /* The declarations below lead this header because their order is load-bearing:
  * gcc 2.9 emits the deferred out-of-line copy of a plain-inline function in

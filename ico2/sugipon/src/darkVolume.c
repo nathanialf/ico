@@ -13,52 +13,48 @@
 #include "GifPacket.h"
 #include "DmaPacket.h"
 
-/* The TU's .data, in ROM run order (names ours): the centre the game-over
-   dark volume and its shock ring spread from, and the position of the
-   ordinary dark volume, both homogeneous points. */
-static sceVu0FVECTOR gameOverCenter = {0.0f, 0.0f, 0.0f, 1.0f};
+/* the centre the game-over dark volume and its shock ring spread from, and
+   the position of the ordinary dark volume, both homogeneous points */
+static sceVu0FVECTOR gameOverCenter = {0.0f, 0.0f, 0.0f, 1.0f}; /* derived name */
 
-static sceVu0FVECTOR darkVolumeCenter = {0.0f, 0.0f, 0.0f, 1.0f};
+static sceVu0FVECTOR darkVolumeCenter = {0.0f, 0.0f, 0.0f, 1.0f}; /* derived name */
 
-/* The colour draw and drawHT take by value: four bytes in one register, which
-   is why every call site masks the parameter home to 32 bits. */
-typedef struct {
+/* the colour draw and drawHT take by value: four bytes in one register */
+typedef struct { /* field names derived */
     unsigned char r;
     unsigned char g;
     unsigned char b;
     unsigned char a;
-} DVColor;
+} DVColor; /* derived name */
 
 void draw(void *v, int n, DVColor col, int neg);
 void drawHT(float *v, int n, DVColor col, int neg);
 
-/* .sbss, owned by darkVolume.o (0x14, the run and MAIN.MAP's own size; MAIN.MAP
-   names no symbol in it), in the ROM's run order, all drawHT's: the strip's
-   vertex count, whose parity flips the edge, the previous vertex and the edge
-   vector the next vertex is tested against (names ours). */
-static int stripCount;
+/* drawHT's state: the strip's vertex count, whose parity flips the edge,
+   the previous vertex and the edge vector the next vertex is tested
+   against */
+static int stripCount; /* derived name */
 
-static float prevX;
+static float prevX; /* derived name */
 
-static float prevY;
+static float prevY; /* derived name */
 
-static float edgeX;
+static float edgeX; /* derived name */
 
-static float edgeY;
+static float edgeY; /* derived name */
 
-/* The TU's .sdata opens with draw and drawHT's state (MAIN.MAP names nothing in
-   the run): the two strip halves' written flags, the half being filled, and the
-   GS PRIM value the strips are drawn with. */
+/* draw and drawHT's state: the two strip halves' written flags, the half
+   being filled, and the GS PRIM value the strips are drawn with */
 static int stripHalfDone[2] = {0, 0}; /* derived name */
 
 static int stripHalf = 0; /* derived name */
 
 static long stripPrim = 0x144; /* derived name */
 
-/* listing line 80: project one object-space vertex through the VU0 matrix in
-   vf4 to vf7, clamp it to the screen limits vf12 and vf13 carry and store the
-   12.4 fixed point result. */
-static __inline__ void projectVertex(void *dst, const void *src)
+/* project one object-space vertex through the VU0 matrix in vf4 to vf7,
+   clamp it to the screen limits vf12 and vf13 carry and store the 12.4 fixed
+   point result */
+static __inline__ void projectVertex(void *dst, const void *src) /* derived name */
 {
     __asm__ __volatile__("lqc2 $vf8, 0x0(%1)\n\t"
                          "vmulax.xyzw ACC, $vf4, $vf8x\n\t"
@@ -76,8 +72,8 @@ static __inline__ void projectVertex(void *dst, const void *src)
                          : "r"(dst), "r"(src));
 }
 
-/* listing lines 153-173: emit one triangle strip of n projected vertices. */
-static __inline__ void drawStrip(int *v, int n, DVColor col)
+/* emit one triangle strip of n projected vertices */
+static __inline__ void drawStrip(int *v, int n, DVColor col) /* derived name */
 {
     int xy[4];
     int idx;
@@ -102,7 +98,6 @@ static __inline__ void drawStrip(int *v, int n, DVColor col)
     }
 }
 
-/* listing lines 176-182 */
 void draw(void *v, int n, DVColor col, int neg)
 {
     if (neg != 0) {
@@ -115,15 +110,16 @@ void draw(void *v, int n, DVColor col, int neg)
 }
 
 /* one screen-space segment of the half-tone pass */
-typedef struct {
+typedef struct { /* field names derived */
     int on;
     int side;
     long long xy;
-} DVSeg;
+} DVSeg; /* derived name */
 
-/* listing lines 190-203: one pass over the prepared segments, emitting the
-   segments whose side flag is not the one this pass draws. */
-static __inline__ void drawHalfStrip(DVSeg *b, unsigned int n, DVColor col, int side)
+/* one pass over the prepared segments, emitting the segments whose side
+   flag is not the one this pass draws */
+static __inline__ void drawHalfStrip(DVSeg *b, unsigned int n, DVColor col,
+                                     int side) /* derived name */
 {
     gif_SetGsReg(0, stripPrim);
     gif_SetGsReg(1, (long)col.r | ((long)col.g << 8) | ((long)col.b << 16) | ((long)col.a << 24) |
@@ -138,7 +134,6 @@ static __inline__ void drawHalfStrip(DVSeg *b, unsigned int n, DVColor col, int 
     }
 }
 
-/* listing lines 206-239 */
 void drawHT(float *v, int n, DVColor col, int neg)
 {
     DVSeg buf[n];
@@ -187,26 +182,23 @@ void drawHT(float *v, int n, DVColor col, int neg)
     }
 }
 
-/* .bss, owned by darkVolume.o (0x13A0, the run and MAIN.MAP's own size,
-   tiled exactly by these six), in the ROM's run order: one 136-float hatch row,
-   the eight rows the volume is built from, and the four cosine and sine tables
-   the ring is stepped with. */
-/* */
-static float hatchRow[136];
+/* one 136-float hatch row, the eight rows the volume is built from, and the
+   four cosine and sine tables the ring is stepped with */
+static float hatchRow[136]; /* derived name */
 
-static float hatchRows[8 * 136];
+static float hatchRows[8 * 136]; /* derived name */
 
-static float cosB[8];
+static float cosB[8]; /* derived name */
 
-static float cosA[8];
+static float cosA[8]; /* derived name */
 
-static float sinB[8];
+static float sinB[8]; /* derived name */
 
-static float sinA[8];
+static float sinA[8]; /* derived name */
 
-/* listing lines 62-65: load the VU0 screen clamp limits vmaxx and vminix read
-   out of vf13 and vf12 in the projection block at line 80. */
-static __inline__ void setScreenClamp(float hi, float lo)
+/* load the VU0 screen clamp limits vmaxx and vminix read out of vf13 and
+   vf12 in projectVertex */
+static __inline__ void setScreenClamp(float hi, float lo) /* derived name */
 {
     __asm__ __volatile__("mfc1 $8, %0\n\t"
                          "qmtc2.ni $8, $vf12\n\t"
@@ -217,8 +209,9 @@ static __inline__ void setScreenClamp(float hi, float lo)
                          : "$8");
 }
 
-/* listing line 117: dst = base + v * s over xyz, keeping base's w. */
-static __inline__ void addScaledVectorXYZ(void *dst, const void *base, const void *v, float s)
+/* dst = base + v * s over xyz, keeping base's w */
+static __inline__ void addScaledVectorXYZ(void *dst, const void *base, const void *v,
+                                          float s) /* derived name */
 {
     __asm__ __volatile__("lqc2 $vf14, 0x0(%1)\n\t"
                          "lqc2 $vf15, 0x0(%2)\n\t"
@@ -232,10 +225,8 @@ static __inline__ void addScaledVectorXYZ(void *dst, const void *base, const voi
                          : "$8");
 }
 
-/* listing lines 242-293: project the view-space sphere around pos, splitting each
-   of the 8 rings at the near plane. The first arm's counter is not read in its
-   body, so loop.c reverses that loop and the ROM counts it down with bgez; the
-   second and third read n and stay ascending. */
+/* project the view-space sphere around pos, splitting each of the 8 rings
+   at the near plane */
 void renderViewCoordZSphere(void *pos, DVColor col, int neg, float r)
 {
     float v[4];
@@ -287,33 +278,14 @@ void renderViewCoordZSphere(void *pos, DVColor col, int neg, float r)
 
 inline void ExecGameOverEffect(void) {}
 
-/* WHAT THE BYTES PIN (PacketBufferStruct's union fields, DmaPacket.h): the
-   open's gif = 0, end = 0 and ptr = c + 8 stores survive flow, and the
-   screen-size load waits for the tag store. */
 void dl_SetDLPriority(int a0);
 void dl_OpenDma(int a0, int a1, int a2);
 void dl_CloseDma(void);
 void gif_EndPacket(void);
 
-/* The packet writer's cursor check (our name and test), built only when
-   DEBUG is defined; the retail build does not define it, so the preprocessor
-   leaves the helper without a body, and each call still evaluates its
-   argument into the parameter's copy, which is dead and emits no byte.
-   RECONSTRUCTION. WHAT THE
-   BYTES PIN: darkVolume's RTL at cse1's input is 57 to 74 insns longer, before
-   the second packet's XYZ2 write at +272, than its statements give, all of it
-   deleted by cse1 (cse.c 8739-8761 flushes its table every 1000 insns, and only
-   a flush between that write's cursor load and the next write's address puts
-   the tail on the ROM's c + 288 base); two insns per GS write (the argument's
-   high/load pair, dead once cse1 forwards the cursor) is 64 there, and the
-   check at the head of each packet open and close adds 8, 72 in all. In sonic
-   the same check at the open and the close is what puts cse1's flush on the
-   ROM's insn (UV1's cursor store in the second packet). WHAT THEY
-   CANNOT PIN: that the developer's writer carried this check, its name, test
-   or argument; any straight-line code of that size that cse1 deletes before
-   that write, and that gives no load an earlier equivalent, gives the same
-   bytes. */
-static __inline__ void dvCheckPacket(char *p)
+/* the packet writer's cursor check, built only when DEBUG is defined; the
+   retail build leaves the helper without a body */
+static __inline__ void dvCheckPacket(char *p) /* derived name */
 {
 #ifdef DEBUG
     if (p < (char *)PacketBufferStruct.buf[PacketBufferStruct.cur]) {
@@ -322,17 +294,14 @@ static __inline__ void dvCheckPacket(char *p)
 #endif
 }
 
-/* the GS-register writer: the listing gives each write the row of its call
-   (sonic's rows 313, 314, 331 ...), not rows of its own, so it is a macro */
-#define dvSetGsReg(reg, val)                                                                       \
+/* the GS-register writer, a macro */
+#define dvSetGsReg(reg, val) /* derived name */                                                    \
     dvCheckPacket(PacketBufferStruct.ptr.c);                                                       \
     *PacketBufferStruct.ptr.d++ = (val);                                                           \
     *PacketBufferStruct.ptr.d++ = (reg)
-/* FRAME_1, SCISSOR_1 and XYOFFSET_1 for a w by h buffer at base fbp, moved by
-   ox, oy sixteenths (ico2/seki/src/Shadow.c's setFrame). A MACRO: the listing
-   gives the three writes of each packet the rows of one call over three lines
-   (442-444, 498-500), the write after it resuming on the next line */
-#define dvSetFrame(fbp, w, h, ox, oy)                                                              \
+/* FRAME_1, SCISSOR_1 and XYOFFSET_1 for a w by h buffer at base fbp, moved
+   by ox, oy sixteenths (ico2/seki/src/Shadow.c's setFrame) */
+#define dvSetFrame(fbp, w, h, ox, oy) /* derived name */                                           \
     {                                                                                              \
         dvSetGsReg(0x4C, (fbp) | ((long long)(((w) >> 6) & 0x3F) << 16));                          \
         dvSetGsReg(0x40, ((long long)((w) - 1) << 16) | ((long long)((h) - 1) << 48));             \
@@ -340,7 +309,7 @@ static __inline__ void dvCheckPacket(char *p)
                              ((((long long)(2048 - (h) / 2) << 4) + (oy)) << 32));                 \
     }
 /* the packet open: every insn carries the row of its call (311, 347, 392) */
-#define dvOpenPacket()                                                                             \
+#define dvOpenPacket() /* derived name */                                                          \
     {                                                                                              \
         char *c;                                                                                   \
                                                                                                    \
@@ -359,19 +328,15 @@ static __inline__ void dvCheckPacket(char *p)
         PacketBufferStruct.ptr.c = c + 0x20;                                                       \
     }
 
-/* sonic's three colours, one record each. The packet colours are const like
-   darkVolume's: the ROM issues their byte loads above the packet stores through
-   the cursor, which only an unchanging read allows (a char read aliases every
-   store otherwise). The sphere colour is not: the ROM loads it again for the
-   second renderViewCoordZSphere call, where a const load would be kept across
-   the first call. */
+/* sonic's three colours, one record each; the packet colours are const like
+   darkVolume's, the sphere colour is not */
 static const DVColor sonicPacketColor = {0, 0, 0, 0}; /* derived name */
 
 static DVColor sonicSphereColor = {255, 255, 255, 128}; /* derived name */
 
 static const DVColor sonicRingColor = {0, 0, 0, 128}; /* derived name */
 
-/* darkVolume's four colours, after sonic's in the TU's .sdata */
+/* darkVolume's four colours */
 static const DVColor volumePacketColor = {0, 0, 0, 0}; /* derived name */
 
 static const DVColor volumeEdgeColor = {128, 128, 128, 80}; /* derived name */
@@ -729,8 +694,8 @@ void darkVolume(void *pos, float a1, float a2, float a3)
     }
 }
 
-/* The rest of the TU's .sdata: the game-over effect's state and the ordinary
-   dark volume's radius and target radius. */
+/* the game-over effect's state and the ordinary dark volume's radius and
+   target radius */
 static int gameOverActive = 0; /* derived name */
 
 static float gameOverRadius = 0; /* derived name */
@@ -745,9 +710,9 @@ static float darkVolumeRadius = 0; /* derived name */
 
 static float darkVolumeTarget = 0; /* derived name */
 
-/* listing lines 526-533: arm the game-over dark volume, shared by
-   StartGameOverEffect and StartQueenAttackEffect */
-static inline void setGameOverEffect(int a0, float t)
+/* arm the game-over dark volume, shared by StartGameOverEffect and
+   StartQueenAttackEffect */
+static inline void setGameOverEffect(int a0, float t) /* derived name */
 {
     gameOverActive = 1;
     gameOverRadius = 0;
@@ -788,8 +753,8 @@ void SetDarkVolumeEffect(int a0, float a1)
     CopyVector(darkVolumeCenter, (void *)a0);
 }
 
-/* listing lines 566-568: the per-object hit test, inlined at all three sites */
-static inline void sendGameOverMail(void *gobj, float r2)
+/* the per-object hit test, inlined at all three sites */
+static inline void sendGameOverMail(void *gobj, float r2) /* derived name */
 {
     float pos[4];
 
@@ -843,11 +808,11 @@ void GetGameOverEffectCenterPosition(float *pos)
     CopyVector(pos, gameOverCenter);
 }
 
-/* listing lines 647-676: build the 8 by 17 sphere vertex table renderViewCoordZSphere
-   walks 34 vectors at a time, then reset the effect state. Each entry is the pair
-   of vectors for ring i and ring i+1, so the row holds 17 pairs of 8 floats and the
-   ring stride is 136 floats. Angles are the 16 bit binary turn the sin and cos
-   tables take, 0x1000 per step. */
+/* Build the 8 by 17 sphere vertex table renderViewCoordZSphere walks 34
+   vectors at a time, then reset the effect state.  Each entry is the pair of
+   vectors for ring i and ring i+1, so the row holds 17 pairs of 8 floats and
+   the ring stride is 136 floats.  Angles are the 16 bit binary turn the sin
+   and cos tables take, 0x1000 per step. */
 void InitGameOverEffect(void)
 {
     int i;

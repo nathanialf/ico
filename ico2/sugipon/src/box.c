@@ -34,9 +34,7 @@
 #include "switch.c.inc"
 
 /* The 416-byte box work block InitBoxGeo allocates and seeds from the
-   template below (VMA 0x4E6030).  RECONSTRUCTION: the record and every name
-   are ours, from what box.c does at each offset.  aligned(8) because the
-   seeding copy is the ROM's doubleword loop. */
+   template below, aligned(8). */
 typedef struct BoxWork { /* field names derived */
     int serial;          /* 0x000, the box's number, mod 30 */
     GObj *holder;        /* 0x004, the character holding the box, mailed 25 when it falls */
@@ -83,11 +81,10 @@ typedef struct BoxWork { /* field names derived */
     int charHit;        /* 0x164, set when a character pushed the floating box this frame */
     char pad168[8];
     float floatAnchor[4]; /* 0x170, the floating box's resting X and Z */
-    int subGObj;          /* 0x180, the layouted sub GObj, held as a word: InitBoxGeo's store of it
-                    precedes the sub object's disp store, which a GObj * store is scheduled past */
+    int subGObj;          /* 0x180, the layouted sub GObj, held as a word */
     char pad184[12];
-    float moveDir[4]; /* 0x190, the direction of the last push */
-} __attribute__((aligned(8))) BoxWork;
+    float moveDir[4];                  /* 0x190, the direction of the last push */
+} __attribute__((aligned(8))) BoxWork; /* derived name */
 
 void landingSE(GObj *a0)
 {
@@ -114,10 +111,8 @@ void wallHitSE(GObj *a0)
     ExecuteSEPackage(a0, 0x1E);
 }
 
-/* box.c:232-241 in the listing: inlined into onPath and into
-   ExecBoxMoveEndReaction, so it is a static inline here; it has no symbol of
-   its own in the ROM and no census row, and the name is descriptive. */
-static inline void stopBoxMoveSE(GObj *self)
+/* inlined into onPath and into ExecBoxMoveEndReaction */
+static inline void stopBoxMoveSE(GObj *self) /* derived name */
 {
     BoxWork *q = GOBJ_SUB(self)->work;
 
@@ -159,8 +154,8 @@ void initFallDown(GObj *a0)
     }
 }
 
-/* kept local: this TU does not include matrixDrive.h, whose FSqrt and
-   AddVectorXYZ prototypes do not fit this TU's uses of them. */
+/* this file does not include matrixDrive.h, whose FSqrt and AddVectorXYZ
+   prototypes do not fit its uses of them */
 extern void GetLowerPlaneCollision(void *work, void *pos);
 
 int checkFieldContact(GObj *a0, float lim)
@@ -198,18 +193,17 @@ int checkFieldContact(GObj *a0, float lim)
     return 0;
 }
 
-/* kept local: this TU does not include geometryManager.h, whose GetRootMatrix and
-   GetCharGObjList prototypes do not fit this TU's uses of them. */
+/* this file does not include geometryManager.h, whose GetRootMatrix and
+   GetCharGObjList prototypes do not fit its uses of them */
 
-/* box.c:343-360 in the listing: inlined into execNormalMove twice (once with
-   ClipWall, once with ClipWallBoxStop) and into inertiaMove once, so it is a
-   static inline here; it has no symbol of its own in the ROM and no census
-   row, and the name is descriptive.  The two constant arguments fold, which is
-   why each inlining carries only one of the two clip calls.  The work buffer
-   and the root-position scratch are the CALLER's: the ROM's frames place them
-   among the caller's own locals, and execNormalMove's two expansions get two
-   separate work buffers while sharing one output vector. */
-static inline void checkBoxWallHit(GObj *self, ClipBuf *w, float *base, float *out, int stop)
+/* Inlined into execNormalMove twice (once with ClipWall, once with
+   ClipWallBoxStop) and into inertiaMove once; the two constant arguments
+   fold, so each inlining carries only one of the two clip calls.  The work
+   buffer and the root-position scratch are the caller's: execNormalMove's
+   two expansions get two separate work buffers and share one output
+   vector. */
+static inline void checkBoxWallHit(GObj *self, ClipBuf *w, float *base, float *out,
+                                   int stop) /* derived name */
 {
     BoxWork *p = GOBJ_SUB(self)->work;
 
@@ -229,29 +223,26 @@ static inline void checkBoxWallHit(GObj *self, ClipBuf *w, float *base, float *o
     w->pt[2][1] -= 40.0f;
 }
 
-/* kept local: this TU's uses of these do not fit the prototypes in the headers
-   that declare them */
+/* this file's uses of these do not fit the prototypes in the headers that
+   declare them */
 
-/* the two debug lines the wall fit prints, rodata VMA 0x61EF20 and 0x61EF48;
-   the second is EUC-JP, "this terrain is wrong (it is not cut to 100cm)" */
+/* the two debug lines the wall fit prints; the second is EUC-JP, "this
+   terrain is wrong (it is not cut to 100cm)" */
 
-/* the record the clip work reports at +0x80: the contact point's x and z, and
-   the hit flag the caller has just tested at +0x88.  The point and the flag
-   are separate members and the staging copy fills them with two assignments,
-   which is why the ROM emits the point's ldl/ldr/sdl/sdr as a block move of
-   its own and the flag's lw/sw after it; the read back is one assignment of
-   the whole record and comes out as a single twelve-byte move. */
-typedef struct {
+/* the record the clip work reports at +0x80: the contact point's x and z,
+   and the hit flag the caller has just tested at +0x88.  The staging copy
+   fills the point and the flag with two assignments; the read back is one
+   assignment of the whole record. */
+typedef struct { /* field names derived */
     float x;
     float z;
-} BoxWallPt;
+} BoxWallPt; /* derived name */
 
-typedef struct {
+typedef struct { /* field names derived */
     BoxWallPt pt;
     int hit;
-} BoxWallRec;
+} BoxWallRec; /* derived name */
 
-/* box.c:362-457 in the listing. */
 int execNormalMove(GObj *self, int stop)
 {
     ClipBuf stopWork;
@@ -351,9 +342,8 @@ int execNormalMove(GObj *self, int stop)
     return ret;
 }
 
-/* box.c:461-478 in the listing: inlined once, into execAutoMove, so it has no
-   symbol of its own in the ROM and no census row; the name is descriptive. */
-static inline void setBoxStopWallFlag(GObj *self, float *vel)
+/* inlined once, into execAutoMove */
+static inline void setBoxStopWallFlag(GObj *self, float *vel) /* derived name */
 {
     ClipBuf w;
     float dir[4];
@@ -396,7 +386,7 @@ static inline float getAlign(float v, float g)
     return -getAlign(-v, g);
 }
 
-static inline void alignPosition(GObj *self, float *dst, float *src, float grid)
+static inline void alignPosition(GObj *self, float *dst, float *src, float grid) /* derived name */
 {
     float npos[4];
     char *n = (char *)(int)GOBJ_SUB(self);
@@ -428,15 +418,14 @@ int AlignBox(GObj *a0, float grid)
 
 /* declared here: box.c includes no header that declares the ios allocators
    (ico2/fumi/include/memory.h has them with an IosMemPart * partition) */
-/* kept local: this TU's view of ios.c's partition handle is a pointer, which
-   initWheels' schedule needs (ios.h declares the handles int) */
+/* this file's view of ios.c's partition handle is a pointer (ios.h
+   declares the handles int) */
 extern GenGeo objLayout[];
 
-/* box.c:546-565 in the listing.  Lines 558 to 560 are one call-site line in
-   the listing, the same DObj-buffer setup ico2/omori/src/chain.c expands by
-   hand at its own line 1245 (InitChainGeo, matched): the wheel count is 2
-   here, so the three allocation sizes are 2<<6, 2<<4 and 2*80 bytes and the
-   560 the allocator records is the dev source line. */
+/* Lines 558 to 560 are one call-site line, the same DObj-buffer setup
+   ico2/omori/src/chain.c expands by hand in InitChainGeo: the wheel count is
+   2 here, so the three allocation sizes are 2<<6, 2<<4 and 2*80 bytes, and
+   the 560 the allocator records is the line of the call. */
 void initWheels(GObj *self, float *lay)
 {
     BoxWork *w = GOBJ_SUB(self)->work;
@@ -519,10 +508,8 @@ void initWheels(GObj *self, float *lay)
         }
         w->wheelDObj->dispType = 2;
 
-        /* the sub-object handle at 0x15C read through the TU's IntFloat union
-           (alias set 0), as the wheel-float stores are: the ROM keeps the first
-           handle load behind the 0x84C store above, which a plain int read,
-           free to move past a short store, does not give */
+        /* the sub-object handle at 0x15C read through the file's IntFloat
+           union, as the wheel-float stores are */
         ((IntFloat *)&w->wheelHeight)->f =
             accessary[*(int *)(((IntFloat *)&self->dobj)->i + 0x844)].pivot[0];
         ((IntFloat *)&w->wheelFront)->f =
@@ -532,11 +519,10 @@ void initWheels(GObj *self, float *lay)
     }
 }
 
-/* box.c:567-572 in the listing: inlined once, into action's case 0, so it is a
-   static inline here; it has no symbol of its own in the ROM and no census row,
-   and the name is descriptive.  10430.3779f is 65536 / (2 * pi), the repo's
-   spelling of the radian-to-angle-table factor (ico2/seki/src/Primitive.c). */
-static inline void updateBoxWheelAngle(GObj *self)
+/* inlined once, into action's case 0.  10430.3779f is 65536 / (2 * pi),
+   the radian-to-angle-table factor (ico2/seki/src/Primitive.c spells it the
+   same way). */
+static inline void updateBoxWheelAngle(GObj *self) /* derived name */
 {
     BoxWork *p = GOBJ_SUB(self)->work;
 
@@ -566,137 +552,135 @@ void dispWheels(GObj *a0)
 }
 
 /* one 16-byte route point */
-typedef float PathPt[4];
+typedef float PathPt[4]; /* derived name */
 
-/* The routes a box can be pushed along, box.o's .data after switch.c's
-   lever template (VMA 0x4E5AB0..0x4E5F30): each a list of points ending in
-   one whose fourth word is the largest float (countPathPoints stops at a
-   fourth word of 10.0f or more).  Routes 9 and 18 to 29 are empty.  The
-   names are ours: MAIN.MAP gives box.o's .data no symbols. */
+/* The routes a box can be pushed along: each a list of points ending in one
+   whose fourth word is the largest float (countPathPoints stops at a fourth
+   word of 10.0f or more).  Routes 9 and 18 to 29 are empty. */
 static PathPt route1[] = {
     {-3380.0f, -3500.0f, 100.0f, 1.0f},  {-3380.0f, -3500.0f, 5700.0f, 1.0f},
     {-3337.0f, -3500.0f, 5890.0f, 1.0f}, {-3200.0f, -3500.0f, 6050.0f, 1.0f},
     {-3150.0f, -3500.0f, 6090.0f, 1.0f}, {-2930.0f, -3500.0f, 6150.0f, 1.0f},
     {-1000.0f, -3500.0f, 6150.0f, 1.0f}, {0.0f, 0.0f, 0.0f, 3.40282347e+38f},
-};
+}; /* derived name */
 
 static PathPt route2[] = {
     {0.0f, -50.0f, 0.0f, 1.0f},          {-300.0f, -50.0f, 0.0f, 1.0f},
     {-1000.0f, -50.0f, 700.0f, 1.0f},    {-1000.0f, -50.0f, 1400.0f, 1.0f},
     {0.0f, 0.0f, 0.0f, 3.40282347e+38f},
-};
+}; /* derived name */
 
 static PathPt route3[] = {
     {-525.0f, 1450.0f, -1650.0f, 1.0f},
     {-1700.0f, 1450.0f, -1650.0f, 1.0f},
     {0.0f, 0.0f, 0.0f, 3.40282347e+38f},
-};
+}; /* derived name */
 
 static PathPt route4[] = {
     {6500.0f, -3470.0f, -1450.0f, 1.0f},
     {6500.0f, -3470.0f, 3400.0f, 1.0f},
     {0.0f, 0.0f, 0.0f, 3.40282347e+38f},
-};
+}; /* derived name */
 
 static PathPt route5[] = {
     {500.0f, 2650.0f, -2050.0f, 1.0f},
     {500.0f, 2650.0f, -2600.0f, 1.0f},
     {0.0f, 0.0f, 0.0f, 3.40282347e+38f},
-};
+}; /* derived name */
 
 static PathPt route6[] = {
     {-2890.0f, -3510.0f, 6150.0f, 1.0f},
     {1000.0f, -3510.0f, 6150.0f, 1.0f},
     {0.0f, 0.0f, 0.0f, 3.40282347e+38f},
-};
+}; /* derived name */
 
 static PathPt route7[] = {
     {-3400.0f, -3450.0f, -2300.0f, 1.0f}, {-3400.0f, -3450.0f, 5680.0f, 1.0f},
     {-3290.0f, -3450.0f, 6000.0f, 1.0f},  {-3000.0f, -3450.0f, 6150.0f, 1.0f},
     {1100.0f, -3450.0f, 6150.0f, 1.0f},   {0.0f, 0.0f, 0.0f, 3.40282347e+38f},
-};
+}; /* derived name */
 
 static PathPt route8[] = {
     {-4750.0f, 650.0f, 3300.0f, 1.0f},
     {-4750.0f, 650.0f, 3900.0f, 1.0f},
     {0.0f, 0.0f, 0.0f, 3.40282347e+38f},
-};
+}; /* derived name */
 
 static PathPt route9[] = {
     {0.0f, 0.0f, 0.0f, 3.40282347e+38f},
-};
+}; /* derived name */
 
 static PathPt route10[] = {
     {-380.0f, -50.0f, -570.0f, 1.0f},
     {-220.0f, -50.0f, -570.0f, 1.0f},
     {0.0f, 0.0f, 0.0f, 3.40282347e+38f},
-};
+}; /* derived name */
 
 static PathPt route11[] = {
     {-380.0f, -50.0f, -1370.0f, 1.0f},
     {-220.0f, -50.0f, -1370.0f, 1.0f},
     {0.0f, 0.0f, 0.0f, 3.40282347e+38f},
-};
+}; /* derived name */
 
 static PathPt route12[] = {
     {-380.0f, -50.0f, -2170.0f, 1.0f},
     {-220.0f, -50.0f, -2170.0f, 1.0f},
     {0.0f, 0.0f, 0.0f, 3.40282347e+38f},
-};
+}; /* derived name */
 
 static PathPt route13[] = {
     {-380.0f, -50.0f, -2970.0f, 1.0f},
     {-220.0f, -50.0f, -2970.0f, 1.0f},
     {0.0f, 0.0f, 0.0f, 3.40282347e+38f},
-};
+}; /* derived name */
 
 static PathPt route14[] = {
     {380.0f, -50.0f, -570.0f, 1.0f},
     {220.0f, -50.0f, -570.0f, 1.0f},
     {0.0f, 0.0f, 0.0f, 3.40282347e+38f},
-};
+}; /* derived name */
 
 static PathPt route15[] = {
     {380.0f, -50.0f, -1370.0f, 1.0f},
     {220.0f, -50.0f, -1370.0f, 1.0f},
     {0.0f, 0.0f, 0.0f, 3.40282347e+38f},
-};
+}; /* derived name */
 
 static PathPt route16[] = {
     {380.0f, -50.0f, -2170.0f, 1.0f},
     {220.0f, -50.0f, -2170.0f, 1.0f},
     {0.0f, 0.0f, 0.0f, 3.40282347e+38f},
-};
+}; /* derived name */
 
 static PathPt route17[] = {
     {380.0f, -50.0f, -2970.0f, 1.0f},
     {220.0f, -50.0f, -2970.0f, 1.0f},
     {0.0f, 0.0f, 0.0f, 3.40282347e+38f},
-};
+}; /* derived name */
 
-static PathPt route18[] = {{0.0f, 0.0f, 0.0f, 3.40282347e+38f}};
+static PathPt route18[] = {{0.0f, 0.0f, 0.0f, 3.40282347e+38f}}; /* derived name */
 
-static PathPt route19[] = {{0.0f, 0.0f, 0.0f, 3.40282347e+38f}};
+static PathPt route19[] = {{0.0f, 0.0f, 0.0f, 3.40282347e+38f}}; /* derived name */
 
-static PathPt route20[] = {{0.0f, 0.0f, 0.0f, 3.40282347e+38f}};
+static PathPt route20[] = {{0.0f, 0.0f, 0.0f, 3.40282347e+38f}}; /* derived name */
 
-static PathPt route21[] = {{0.0f, 0.0f, 0.0f, 3.40282347e+38f}};
+static PathPt route21[] = {{0.0f, 0.0f, 0.0f, 3.40282347e+38f}}; /* derived name */
 
-static PathPt route22[] = {{0.0f, 0.0f, 0.0f, 3.40282347e+38f}};
+static PathPt route22[] = {{0.0f, 0.0f, 0.0f, 3.40282347e+38f}}; /* derived name */
 
-static PathPt route23[] = {{0.0f, 0.0f, 0.0f, 3.40282347e+38f}};
+static PathPt route23[] = {{0.0f, 0.0f, 0.0f, 3.40282347e+38f}}; /* derived name */
 
-static PathPt route24[] = {{0.0f, 0.0f, 0.0f, 3.40282347e+38f}};
+static PathPt route24[] = {{0.0f, 0.0f, 0.0f, 3.40282347e+38f}}; /* derived name */
 
-static PathPt route25[] = {{0.0f, 0.0f, 0.0f, 3.40282347e+38f}};
+static PathPt route25[] = {{0.0f, 0.0f, 0.0f, 3.40282347e+38f}}; /* derived name */
 
-static PathPt route26[] = {{0.0f, 0.0f, 0.0f, 3.40282347e+38f}};
+static PathPt route26[] = {{0.0f, 0.0f, 0.0f, 3.40282347e+38f}}; /* derived name */
 
-static PathPt route27[] = {{0.0f, 0.0f, 0.0f, 3.40282347e+38f}};
+static PathPt route27[] = {{0.0f, 0.0f, 0.0f, 3.40282347e+38f}}; /* derived name */
 
-static PathPt route28[] = {{0.0f, 0.0f, 0.0f, 3.40282347e+38f}};
+static PathPt route28[] = {{0.0f, 0.0f, 0.0f, 3.40282347e+38f}}; /* derived name */
 
-static PathPt route29[] = {{0.0f, 0.0f, 0.0f, 3.40282347e+38f}};
+static PathPt route29[] = {{0.0f, 0.0f, 0.0f, 3.40282347e+38f}}; /* derived name */
 
 /* the route a box's layout names (the low half of its kind word) indexes
    this table; route 0 is no route and the last two slots are empty */
@@ -704,7 +688,7 @@ static PathPt *routeTable[32] = {
     0,       route1,  route2,  route3,  route4,  route5,  route6,  route7,  route8,  route9,
     route10, route11, route12, route13, route14, route15, route16, route17, route18, route19,
     route20, route21, route22, route23, route24, route25, route26, route27, route28, route29,
-};
+}; /* derived name */
 
 /* GetBoxHoldPoint's four hold-point candidates in the box's local frame and
    the four offsets added back after they are scaled by the box's half
@@ -714,14 +698,14 @@ static float holdPointLocal[4][4] = {
     {50.0f, 0.0f, 0.0f, 1.0f},
     {0.0f, 0.0f, -50.0f, 1.0f},
     {-50.0f, 0.0f, 0.0f, 1.0f},
-};
+}; /* derived name */
 
 static float holdPointOffset[4][4] = {
     {0.0f, 0.0f, 10.0f, 1.0f},
     {10.0f, 0.0f, 0.0f, 1.0f},
     {0.0f, 0.0f, -10.0f, 1.0f},
     {-10.0f, 0.0f, 0.0f, 1.0f},
-};
+}; /* derived name */
 
 static BoxWork boxWorkInit = {
     0,
@@ -772,16 +756,14 @@ static BoxWork boxWorkInit = {
     0,
     {0},
     {0.0f, 0.0f, 1.0f, 0.0f},
-};
+}; /* derived name */
 
 /* the Y axis the side plane is built from */
-static float yAxis[4] = {0.0f, 1.0f, 0.0f, 0.0f};
+static float yAxis[4] = {0.0f, 1.0f, 0.0f, 0.0f}; /* derived name */
 
-/* box.c:595-600 in the listing: inlined once, into InitBoxGeo, so it is a
-   static inline here; it has no symbol of its own in the ROM and no census
-   row, and the name is ours.  A route array ends at the first point whose
-   fourth word is 10.0f or more. */
-static inline int countPathPoints(int route)
+/* inlined once, into InitBoxGeo; a route array ends at the first point
+   whose fourth word is 10.0f or more */
+static inline int countPathPoints(int route) /* derived name */
 {
     PathPt *pts = routeTable[route];
     int i;
@@ -791,10 +773,9 @@ static inline int countPathPoints(int route)
     return i;
 }
 
-/* box.c:603-672 in the listing.  The signed plane distance is what the
-   projection is scaled by and its magnitude is what the nearest test keeps,
-   which is why the ROM copies the value into the argument register before it
-   negates it.  0.707 is the ROM's spelling of the 45 degree axis test. */
+/* The signed plane distance is what the projection is scaled by and its
+   magnitude is what the nearest test keeps.  0.707 is the 45 degree axis
+   test. */
 int getNearestPosition(float *out, int *pidx, int *path)
 {
     float pos[4];
@@ -871,12 +852,7 @@ void onPathInitialize(GObj *a0)
     BoxWork *p = GOBJ_SUB(a0)->work;
     float front[4];
     float rear[4];
-    /* The wheel offset is one variable assigned on each wheel's line. What the
-       bytes pin: 50.0f and -50.0f share one register, the -50.0f load waits
-       for the front multiply (listing rows 680 and 681), which two separate
-       constants never give (measured: 50.0f in $f1, 1.0f in $f2, -50.0f
-       hoisted into $f3; `-ofs` gives a neg.s). What they cannot pin: the
-       variable's name and the row its declaration sat on. */
+    /* the wheel offset, one variable assigned on each wheel's line */
     float ofs;
     Vec16 fv = {{0.0f, 0.0f, p->scaleZ * (ofs = 50.0f), 1.0f}};
     Vec16 rv = {{0.0f, 0.0f, p->scaleZ * (ofs = -50.0f), 1.0f}};
@@ -897,26 +873,22 @@ void onPathInitialize(GObj *a0)
     }
 }
 
-/* kept local: this TU's uses of these do not fit the prototypes in the headers
-   that declare them */
+/* this file's uses of these do not fit the prototypes in the headers that
+   declare them */
 
 /* the debug switch the wall-fit trace is printed under */
 
-/* the four trace lines, rodata VMA 0x61EFC0, 0x61EFD0, 0x61EFE0 and 0x61EFF0 */
+/* the four trace lines */
 
 /* the two route colours onPath draws the route and its end points in, one
    word per channel, RGBA */
-static int routeFrontColor[4] = {0, 128, 255, 128};
+static int routeFrontColor[4] = {0, 128, 255, 128}; /* derived name */
 
-static int routeRearColor[4] = {255, 128, 0, 128};
+static int routeRearColor[4] = {255, 128, 0, 128}; /* derived name */
 
-/* box.c:710-813 in the listing.  10430.378 is 32768 / pi, the repo's spelling
-   of the radian-to-angle-table factor.  Rows 718, 720 and 721 are the three
-   initialised declarations: the quaternion's mostly-zero initialiser clears
-   with memset and stores w, and each wheel offset is built in a temporary and
-   block-copied, as onPathInitialize's are; the offsets are VECTOR records, whose
-   one clobber (a union initialiser emits two) lets the stores clear early
-   enough for the ROM's schedule. */
+/* 10430.378 is 32768 / pi, the radian-to-angle-table factor.  The
+   quaternion's initialiser is mostly zero, and each wheel offset is a VECTOR
+   record built by an initialiser, as onPathInitialize's are. */
 int onPath(GObj *self)
 {
     BoxWork *p = GOBJ_SUB(self)->work;
@@ -1010,7 +982,7 @@ int onPath(GObj *self)
     return hitFront | hitRear;
 }
 
-/* No caller in the ROM, so the bytes cannot decide the return type: float as sugipon's scalar getters. */
+/* no caller; float as sugipon's scalar getters */
 inline float GetDistanceOfGObj(void *a0, void *a1)
 {
     float v[4];
@@ -1049,11 +1021,9 @@ int playAnimationCore(GObj *a0)
     return UpdateFrameCounter(a0);
 }
 
-/* box.c:867-877 in the listing: inlined once, into execFallDown's case 3, so it
-   is a static inline here; it has no symbol of its own in the ROM and no census
-   row, and the name is descriptive.  The frame-rate divisor is the one
-   moveBoxAutoMatic uses, written twice and shared by cse. */
-static inline void execBoxFall(GObj *self)
+/* inlined once, into execFallDown's case 3; the frame-rate divisor is the
+   one moveBoxAutoMatic uses */
+static inline void execBoxFall(GObj *self) /* derived name */
 {
     float v[4];
 
@@ -1069,11 +1039,9 @@ static inline void execBoxFall(GObj *self)
 }
 
 /* the local Z axis the floating box's facing is rebuilt from */
-static float floatFacingAxis[4] = {0.0f, 0.0f, 1.0f, 0.0f};
+static float floatFacingAxis[4] = {0.0f, 0.0f, 1.0f, 0.0f}; /* derived name */
 
-/* box.c:882-951 in the listing.  0.31830987 is 1 / pi and the ROM keeps two
-   copies of it, one per arm of the sign test, the way it keeps two copies of
-   every other constant that appears once in each arm. */
+/* 0.31830987 is 1 / pi */
 int MoveFloatingBox(GObj *self, GObj *other, float *dst, void *src, float lim)
 {
     float pos[4];
@@ -1153,24 +1121,20 @@ static float floatPushDir[8][4] = {
     {0.0f, 0.0f, 1.0f, 1.0f},  {0.0f, 0.0f, -1.0f, 1.0f},  {1.0f, 0.0f, 0.0f, 1.0f},
     {-1.0f, 0.0f, 0.0f, 1.0f}, {-1.0f, 0.0f, -1.0f, 1.0f}, {1.0f, 0.0f, -1.0f, 1.0f},
     {1.0f, 0.0f, 1.0f, 1.0f},  {-1.0f, 0.0f, 1.0f, 1.0f},
-};
+}; /* derived name */
 
-/* box.c:965-988 in the listing: inlined once, into execFloating, so it is a
-   static inline here; it has no symbol of its own in the ROM and no census
-   row, and the name is descriptive.  The clip work, the matrix and the two
-   scratch vectors are the CALLER's: the ROM's frame places them among
-   execFloating's own locals, ahead of the word whose address goes to
-   GetWaterReaction. */
+/* inlined once, into execFloating; the clip work, the matrix and the two
+   scratch vectors are the caller's */
 static inline void pushOutFloatingBox(ClipBuf *cw, float *m, float *sv, float *dv, float *pos,
-                                      float *q, float r)
+                                      float *q, float r) /* derived name */
 {
     float *dir;
     float len;
     int i;
 
     memset(cw, 0, sizeof(ClipBuf));
-    /* the counter is only read by the test, so loop.c reverses it: the ROM
-       counts down from 7 while the direction pointer still walks up. */
+    /* the counter is only read by the test; the direction pointer walks
+       up */
     for (i = 0, dir = floatPushDir[0]; i < 8; i++, dir += 4) {
         CopyVector(cw->pt[0], pos);
         GetMatrixFromQuaternionPos(m, q, pos);
@@ -1188,8 +1152,7 @@ static inline void pushOutFloatingBox(ClipBuf *cw, float *m, float *sv, float *d
     }
 }
 
-/* The same prototype fieldCollision.h gives; dropping this redeclaration moves
-   avoidCharGObj's w+0x88 load from $2 to $3 (measured, complete66 row). */
+/* the same prototype fieldCollision.h gives */
 
 void avoidCharGObj(GObj *a0, GObj *a1)
 {
@@ -1227,8 +1190,8 @@ void avoidCharGObj(GObj *a0, GObj *a1)
     }
 }
 
-/* kept local: this TU's uses of these do not fit the prototypes in
-   motionManager2.h, quaternion.h and stageMultiBgaManager.h */
+/* this file's uses of these do not fit the prototypes in motionManager2.h,
+   quaternion.h and stageMultiBgaManager.h */
 extern int GetWaterReaction(void *w, int *hit, void *plane, void *pos, void *vel, float low,
                             float mid, float high, float k, float acc);
 
@@ -1236,7 +1199,7 @@ extern int GetWaterReaction(void *w, int *hit, void *plane, void *pos, void *vel
    girl, as sceneManager.c sets them */
 
 /* the world Y axis the box's tilt is measured around */
-static float floatTiltAxis[4] = {0.0f, 1.0f, 0.0f, 0.0f};
+static float floatTiltAxis[4] = {0.0f, 1.0f, 0.0f, 0.0f}; /* derived name */
 
 void execFloating(GObj *self)
 {
@@ -1277,9 +1240,7 @@ void execFloating(GObj *self)
     if (100.0f < len) {
         _ScaleVectorXYZ(GOBJ_SUB(self)->root.move, GOBJ_SUB(self)->root.move, 3.0f / _Sqrt(len));
     }
-    /* the three water-probe heights are written as additions of the offset, not
-       as subtractions: the ROM adds -50.0f and -25.0f and gcc 2.9 emits sub.s
-       for a written subtraction (line 1128 below is one). */
+    /* the three water-probe heights are additions of a negative offset */
     if (GetWaterReaction(w->waterHeight, &hit, &fw, pos, GOBJ_SUB(self)->root.move, pos[1] + -50.0f,
                          pos[1] + -25.0f, pos[1] + 50.0f, 0.9f,
                          60.0f / (float)((60 - systemStatus[0] * 10) / systemStatus[1]) * -0.1f *
@@ -1290,8 +1251,7 @@ void execFloating(GObj *self)
         }
         _SubVector(d, pos, w->floatAnchor);
         d[1] = 0.0f;
-        /* 0.1f * 0.1f, not 0.01f: the pool word is 0x3C23D70B, one ulp above
-           the float nearest 0.01. */
+        /* 0.1f * 0.1f, written as the square, not 0.01f */
         if (0.1f * 0.1f < VectorLengthSquare(d)) {
             _SubVector(d, pos, w->floatAnchor);
             w->floatAnchor[0] = pos[0];
@@ -1340,7 +1300,7 @@ void execFloating(GObj *self)
 }
 
 /* the facing a floating box starts with */
-static float floatInitFacing[4] = {0.0f, 0.0f, 1.0f, 0.0f};
+static float floatInitFacing[4] = {0.0f, 0.0f, 1.0f, 0.0f}; /* derived name */
 
 void initFloating(GObj *a0)
 {
@@ -1365,14 +1325,9 @@ int _checkItemBreak(void *pos)
     float d[4];
     GObj *o;
 
-    /* listing lines 1259 and 1263 sit inside this function's own span, so
-       the test is a nested inline function (the name is ours). What the
-       bytes pin: the range is an integer argument converted at each compare,
-       so fold evaluates the converted limit once per axis ahead of the
-       ternary's two arms (the ROM's three 50.0f loads, none hoisted out of
-       the loop), and only the helper's result is materialised. What they
-       cannot pin: the parameter's integer type or its name. */
-    inline int isNearItem(float *v, int r)
+    /* a nested inline: the range test, the range an integer converted at
+       each compare */
+    inline int isNearItem(float *v, int r) /* derived name */
     {
         if ((v[0] < 0.0f ? -v[0] : v[0]) < r && (v[1] < 0.0f ? -v[1] : v[1]) < r &&
             (v[2] < 0.0f ? -v[2] : v[2]) < r) {
@@ -1419,18 +1374,16 @@ void initLanding(GObj *a0)
     GetMatrixFromQuaternionPos(p->mtx[0], GOBJ_SUB(a0)->root.baseQuat, (char *)pos);
 }
 
-/* box.c:1308-1313 and 1315-1321 in the listing: both are inlined once, into
-   action's case 4 (the inner one inside the outer one), so they are static
-   inlines here; neither has a symbol of its own in the ROM or a census row, and
-   the names are descriptive. */
-static inline void resetBoxRootQuaternion(GObj *self, float *q)
+/* both are inlined once, into action's case 4, the inner one inside the
+   outer one */
+static inline void resetBoxRootQuaternion(GObj *self, float *q) /* derived name */
 {
     GetInverseQuaternion(q, (char *)GOBJ_SUB(self) + 0x60);
     SetRootQuaternion(self, q);
     GOBJ_SUB(self)->colRotate = 1;
 }
 
-static inline void playBoxAnimation(GObj *self, float *q)
+static inline void playBoxAnimation(GObj *self, float *q) /* derived name */
 {
     if (playAnimationCore(self) != 0) {
         BoxWork *p = GOBJ_SUB(self)->work;
@@ -1440,10 +1393,8 @@ static inline void playBoxAnimation(GObj *self, float *q)
     }
 }
 
-/* box.c:1325-1339 in the listing: inlined once, into execFallDown, so it is a
-   static inline here; it has no symbol of its own in the ROM and no census row,
-   and the name is descriptive. */
-static inline void attackBoxFallCenter(GObj *self)
+/* inlined once, into execFallDown */
+static inline void attackBoxFallCenter(GObj *self) /* derived name */
 {
     float plane[4];
     float pos[4];
@@ -1519,8 +1470,7 @@ inline int IsThisBoxTruck(GObj *a0)
 
 void action(GObj *a0)
 {
-    /* the float view carries the up vector; the union is what the ROM's
-       schedule needs, its alias-set-0 store keeping the matrix read after it */
+    /* the float view carries the up vector */
     Vec4u v;
     BoxWork *p = GOBJ_SUB(a0)->work;
 
@@ -1571,12 +1521,9 @@ inline void GetBoxGlobalHoldPoint(void *a0, void *a1, void *a2)
     sceVu0ApplyMatrix(a0, buf, a2);
 }
 
-/* box.c:1477-1520 in the listing.  The clip work buffer is declared in a block
-   of its own after the candidate loop: the ROM's frame puts it at sp+0x60,
-   above the 64-byte matrix the inlined GetBoxGlobalHoldPoint keeps at sp+0x20,
-   so it is allocated after the first inlining and not with the function's
-   top-level locals.  The two squared-distance spellings are the listing's:
-   sugiCommon.h:97 in the first iteration, sugiCommon.h:87 in the rest. */
+/* The clip work buffer is declared in a block of its own after the
+   candidate loop.  The first iteration measures with sugiCommon.h's
+   distance_squared_b, the rest with distance_squared. */
 int GetBoxHoldPoint(float *out, GObj *self, void *chara)
 {
     float pos[4];
@@ -1630,7 +1577,8 @@ inline int CanHoldBox(GObj *a0)
     return p->mode == 0;
 }
 
-static inline void setupClipWork(ClipBuf *w, GObj *obj, float *dir, float len, float h)
+static inline void setupClipWork(ClipBuf *w, GObj *obj, float *dir, float len,
+                                 float h) /* derived name */
 {
     float t[4];
 
@@ -1640,7 +1588,7 @@ static inline void setupClipWork(ClipBuf *w, GObj *obj, float *dir, float len, f
     _AddVectorXYZ(w->pt[1], w->pt[0], t);
 }
 
-static inline int checkBoxStopWall(GObj *obj, float *dir)
+static inline int checkBoxStopWall(GObj *obj, float *dir) /* derived name */
 {
     ClipBuf w;
     int r = 1;
@@ -1654,7 +1602,7 @@ static inline int checkBoxStopWall(GObj *obj, float *dir)
     return r;
 }
 
-static inline int checkMoveWall(GObj *obj, float *dir)
+static inline int checkMoveWall(GObj *obj, float *dir) /* derived name */
 {
     ClipBuf w;
     int r = 1;
@@ -1820,7 +1768,7 @@ end:
     return rv;
 }
 
-static inline int checkCharGObjs(GObj *obj, GObj *holder, float *dir)
+static inline int checkCharGObjs(GObj *obj, GObj *holder, float *dir) /* derived name */
 {
     float pos[4];
     float pos2[4];
@@ -1861,9 +1809,8 @@ int _checkItemCollision(void *pos)
     float d[4];
     GObj *o;
 
-    /* listing lines 1735 and 1739: the same nested range test as
-       _checkItemBreak's (see the comment there for what the bytes pin) */
-    inline int isNearItem(float *v, int r)
+    /* the same nested range test as _checkItemBreak's */
+    inline int isNearItem(float *v, int r) /* derived name */
     {
         if ((v[0] < 0.0f ? -v[0] : v[0]) < r && (v[1] < 0.0f ? -v[1] : v[1]) < r &&
             (v[2] < 0.0f ? -v[2] : v[2]) < r) {
@@ -1886,7 +1833,7 @@ int _checkItemCollision(void *pos)
     return 1;
 }
 
-static inline int checkItemHit(GObj *obj, float *dir)
+static inline int checkItemHit(GObj *obj, float *dir) /* derived name */
 {
     float pos[4];
     float d[4];
@@ -2095,29 +2042,26 @@ void ReInitBoxGeo(GObj *a0)
     UpdateRootMatrix(a0);
 }
 
-/* the box serial counter, the TU's one named .sdata object (after
-   getNearestPosition's FLT_MAX pool word, before InitBoxGeo's "%d\n"), and the
-   empty layout record the effect DObj is built from (sceneManager's data at
-   VMA 0x4E45C0) */
+/* the box serial counter, and the empty layout record the effect DObj is
+   built from */
 static unsigned char boxSerial = 0; /* derived name */
 
 /* The 64-byte layout record InitBoxGeo is handed; the word at 0x30 packs the
    route number in its low half and the sub-box model in its high half. */
-typedef struct {
+typedef struct { /* field names derived */
     char pad00[32];
     float scale[4]; /* 0x20 */
     int kind;       /* 0x30 */
     char pad34[12];
-} __attribute__((aligned(8))) BoxLayout;
+} __attribute__((aligned(8))) BoxLayout; /* derived name */
 
 /* The parent-link record LinkParentOfDObj copies as one word pair: the
    parent GObj and the node index. */
-typedef struct {
-    int gobj;  /* 0x0 */
-    int index; /* 0x4 */
-} BoxLink;
+typedef struct { /* field names derived */
+    int gobj;    /* 0x0 */
+    int index;   /* 0x4 */
+} BoxLink;       /* derived name */
 
-/* box.c:2014-2102 in the listing. */
 BoxWork *InitBoxGeo(GObj *self, BoxLayout *lay)
 {
     BoxWork *w = iosMallocDebug(ios_partition_sugipon, 416, __FILE__, 2017);

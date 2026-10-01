@@ -23,21 +23,20 @@
 #include "spider.h"
 #include <assert.h>
 
-/* kept local: int (float) here, short (float) in tableSin.h: under the short return
-   calcSubMission spills its frame addresses in another order */
+/* int (float) here, short (float) in tableSin.h */
 extern int GetTableArcCos(float x);
-/* kept local: agrees with tableSin.h, which this TU does not include (GetTableArcCos differs) */
+/* as in tableSin.h, which this file does not include */
 extern short GetTableArcTan2(float f12, float f13);
 
-typedef struct {
+typedef struct { /* field names derived */
     float m[4];
-} __attribute__((aligned(16))) Vec4A_P_1;
+} __attribute__((aligned(16))) Vec4A_P_1; /* derived name */
 
-/* RECONSTRUCTION, read from the ROM.  One of the four limbs: its motion state
- * (0 at rest, 1 stepping, 2 swinging), the frame of that motion, the foot's
- * current point, the point it rests at in the body frame, and the knee and the
- * tip the arm solver places. */
-typedef struct {
+/* One of the four limbs: its motion state (0 at rest, 1 stepping, 2
+ * swinging), the frame of that motion, the foot's current point, the point it
+ * rests at in the body frame, and the knee and the tip the arm solver
+ * places. */
+typedef struct {    /* field names derived */
     int state;      /* 0x00 */
     int count;      /* 0x04 */
     int pad8[2];    /* 0x08 */
@@ -45,28 +44,28 @@ typedef struct {
     Vec4A_P_1 home; /* 0x20 */
     Vec4A_P_1 knee; /* 0x30 */
     Vec4A_P_1 tip;  /* 0x40 */
-} AP1Part;
+} AP1Part;          /* derived name */
 
-typedef struct {
+typedef struct { /* field names derived */
     long long x;
 } __attribute__((packed, aligned(4))) AP1PackedLL;
 
-typedef struct {
+typedef struct {   /* field names derived */
     AP1PackedLL p; /* 0x00 */
     int attr;      /* 0x08 */
-} AP1ColHit;
+} AP1ColHit;       /* derived name */
 
 /* The clip table the two collision segments are read from: each entry is a
  * pair of endpoints the root matrix is applied to. */
-typedef struct {
+typedef struct { /* field names derived */
     Vec4A_P_1 a; /* 0x00 */
     Vec4A_P_1 b; /* 0x10 */
-} AP1ColSeg;
+} AP1ColSeg;     /* derived name */
 
 /* ClipCollision's work record as this file reaches it: the segment to clip,
  * the clipped point, the probe radius, the wall and floor hits and the hit
  * normal (0xC0 bytes, the stride of the two records below). */
-typedef struct {
+typedef struct {    /* field names derived */
     Vec4A_P_1 from; /* 0x00 */
     Vec4A_P_1 to;   /* 0x10 */
     Vec4A_P_1 pos;  /* 0x20 */
@@ -78,15 +77,15 @@ typedef struct {
     char pad98[8];
     Vec4A_P_1 normal; /* 0xA0 */
     char padB0[16];
-} AP1Clip;
+} AP1Clip; /* derived name */
 
-/* RECONSTRUCTION, read from the ROM.  The 0x280-byte work record InitAP1
- * allocates into the object's work word: the layout row, whether the body is
- * its own skeleton (1) or two arm objects (0), the mode, the four limbs, the
- * two collision hits, the nine focus nodes, the two arm objects, the eye, the
- * up vector, three motion parameters, the body's smoothed attitude and
- * position, its matrix and the root matrix, and three counters. */
-typedef struct {
+/* The 0x280-byte work record InitAP1 allocates into the object's work word:
+ * the layout row, whether the body is its own skeleton (1) or two arm objects
+ * (0), the mode, the four limbs, the two collision hits, the nine focus nodes,
+ * the two arm objects, the eye, the up vector, three motion parameters, the
+ * body's smoothed attitude and position, its matrix and the root matrix, and
+ * three counters. */
+typedef struct {      /* field names derived */
     int layout;       /* 0x000, the row of spiderDef */
     int skel;         /* 0x004 */
     int mode;         /* 0x008 */
@@ -97,9 +96,7 @@ typedef struct {
     int f_16C;        /* 0x16C */
     int focus[9];     /* 0x170, the skeleton nodes of ap1FocusNode: the
                            body's, then each limb's pair; calcSubMission
-                           reaches a pair from &focus[1] and &focus[2] (the
-                           bytes pin the 0x174 + i * 8 address, which
-                           focus[i * 2 + 1] folds to another giv) */
+                           reaches a pair from &focus[1] and &focus[2] */
     Sub15C *arm[2];   /* 0x194, the two arm objects when skel is 0 */
     EnemyEye *eye;    /* 0x19C */
     int pad1A0[4];    /* 0x1A0 */
@@ -116,7 +113,7 @@ typedef struct {
     int f_274;        /* 0x274 */
     int visible;      /* 0x278 */
     int pad27C;       /* 0x27C */
-} AP1Work;
+} AP1Work;            /* derived name */
 
 int standMot(GObj *a0);
 int walkMot(GObj *a0);
@@ -124,9 +121,7 @@ int rollingMot(GObj *a0);
 void attackMotInit(GObj *a0);
 int attackMot(GObj *a0);
 
-/* The TU's .data, one block in the ROM's order (VMA 0x4E5520..0x4E5A30, 0x510 B
- * = MAIN.MAP a_p_1.o .data); MAIN.MAP names only motFuncList, so every other
- * name is ours. The mode names are the TU's .sdata strings. */
+/* the mode names */
 static char *ap1ModeName[9] = {"ST", "WA", "RO", "AT", "DE",
                                "D1", "D2", "TH", "SL"}; /* derived name */
 
@@ -137,7 +132,7 @@ static AP1Part ap1PartInit = {0,
                               {{0.0f, 0.0f, 0.0f, 1.0f}},
                               {{0.0f, 0.0f, 0.0f, 1.0f}},
                               {{0.0f, 0.0f, 0.0f, 1.0f}},
-                              {{0.0f, 0.0f, 0.0f, 0.0f}}};
+                              {{0.0f, 0.0f, 0.0f, 0.0f}}}; /* derived name */
 
 /* the skeleton nodes InitAP1 looks the nine focus points up by */
 static int ap1FocusNode[9] = {44, 3, 4, 19, 20, 45, 46, 49, 50}; /* derived name */
@@ -149,17 +144,17 @@ static Vec4A_P_1 ap1AttackAxis = {{-1.0f, 0.0f, 0.0f, 0.0f}}; /* derived name */
 /* the two segment pairs fitToCol clips the body against */
 static AP1ColSeg ap1ColSegA[2] = {
     {{{0.0f, -40.0f, 0.0f, 1.0f}}, {{0.0f, 0.0f, 40.0f, 1.0f}}}, /* derived name */
-    {{{0.0f, 0.0f, 40.0f, 1.0f}}, {{0.0f, 40.0f, 0.0f, 1.0f}}}};
+    {{{0.0f, 0.0f, 40.0f, 1.0f}}, {{0.0f, 40.0f, 0.0f, 1.0f}}}}; /* derived name */
 
 static AP1ColSeg ap1ColSegB[2] = {
     {{{0.0f, -40.0f, 0.0f, 1.0f}}, {{0.0f, 0.0f, -40.0f, 1.0f}}}, /* derived name */
-    {{{0.0f, 0.0f, -40.0f, 1.0f}}, {{0.0f, 40.0f, 0.0f, 1.0f}}}};
+    {{{0.0f, 0.0f, -40.0f, 1.0f}}, {{0.0f, 40.0f, 0.0f, 1.0f}}}}; /* derived name */
 
 /* the part offsets in the body frame */
 static Vec4A_P_1 ap1PartOffset[6] = {{{20.0f, 0.0f, 80.0f, 1.0f}}, /* derived name */
                                      {{-20.0f, 0.0f, 80.0f, 1.0f}},  {{50.0f, 0.0f, -20.0f, 1.0f}},
                                      {{-50.0f, 0.0f, -20.0f, 1.0f}}, {{-50.0f, 0.0f, 0.0f, 1.0f}},
-                                     {{-50.0f, 0.0f, 0.0f, 1.0f}}};
+                                     {{-50.0f, 0.0f, 0.0f, 1.0f}}}; /* derived name */
 
 static float ap1LayoutUp[4] = {0.0f, 0.0f, 1.0f, 0.0f}; /* derived name */
 
@@ -179,7 +174,7 @@ static float ap1BodyPos[4] = {0.0f, 0.0f, 0.0f, 1.0f}; /* derived name */
 static float ap1BodyMatrix[16] = {1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, /* derived name */
                                   0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f};
 
-/* per motion kind: the entry and the per-frame function (MAIN.MAP a_p_1.o) */
+/* per motion kind: the entry and the per-frame function */
 int (*motFuncList[8][2])(GObj *) = {
     {0, standMot},
     {0, walkMot},
@@ -189,19 +184,17 @@ int (*motFuncList[8][2])(GObj *) = {
 
 /* the eye offset UpdateEnemyEye is handed, then an alternative nothing reads */
 static float ap1EyeMatrix[16] = {
-    1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f,   0.0f,  0.0f, /* derived name */
-    0.0f, 0.0f, 1.0f, 0.0f, 0.0f, -20.0f, 30.0f, 1.0f};
+    1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f,   0.0f,  0.0f,  /* derived name */
+    0.0f, 0.0f, 1.0f, 0.0f, 0.0f, -20.0f, 30.0f, 1.0f}; /* derived name */
 
 static float ap1EyeMatrixAlt[16] = {
-    1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f,   0.0f,  0.0f, /* derived name */
-    0.0f, 0.0f, 1.0f, 0.0f, 0.0f, -10.0f, 35.0f, 1.0f};
+    1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f,   0.0f,  0.0f,  /* derived name */
+    0.0f, 0.0f, 1.0f, 0.0f, 0.0f, -10.0f, 35.0f, 1.0f}; /* derived name */
 
 static float ap1HeadScale[16] = {2.0f, 0.0f, 0.0f, 0.0f, 0.0f, 2.0f, 0.0f, 0.0f, /* derived name */
                                  0.0f, 0.0f, 2.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f};
 
-/* static helper the listing places at a_p_1.c lines 156-165, above InitAP1's
- * def line 227, so the name is ours. */
-static inline void applyPartOrients(GObj *g)
+static inline void applyPartOrients(GObj *g) /* derived name */
 {
     char *tbl = (char *)ap1PartOffset;
     Mtx44 m;
@@ -216,15 +209,15 @@ static inline void applyPartOrients(GObj *g)
 }
 
 /* the name every iosMallocDebug and assert in this file reports itself under */
-static const char a_p_1File[] = "src/a_p_1.c";
+static const char a_p_1File[] = "src/a_p_1.c"; /* derived name */
 
 /* the banner the failed-node assert prints above its message */
-static const char warningBanner[] = "--- WARNING!! ----\n";
+static const char warningBanner[] = "--- WARNING!! ----\n"; /* derived name */
 
-typedef union {
+typedef union { /* field names derived */
     int i;
     long long ll;
-} AP1Flag;
+} AP1Flag; /* derived name */
 
 char *InitAP1(GObj *self, SObjSimpleSetting *arg)
 {
@@ -348,8 +341,8 @@ char *InitAP1(GObj *self, SObjSimpleSetting *arg)
     return p;
 }
 
-/* kept local: quaternion.h is not included in this TU, whose SetQuaternionByAxisRotateV and
- * RotQuaternionY calls pass the angle as an int (quaternion.h: short), unextended in the ROM */
+/* quaternion.h is not included here: this file's SetQuaternionByAxisRotateV
+ * and RotQuaternionY calls pass the angle as an int (quaternion.h: short) */
 extern void GetMatrixFromQuaternion(void *mtx, void *q);
 extern void MultiQuaternion(void *dst, void *a, void *b);
 extern void SetQuaternionByAxisRotateV(void *dst, int ang, void *axis);
@@ -402,9 +395,7 @@ void zAxisRotFitting(GObj *self, void *arg2)
     }
 }
 
-/* Two static helpers the listing places at a_p_1.c lines 283-292 and 156-165,
- * above the def lines of fitToCol and InitAP1, so both names are ours. */
-static inline int clipAndTakeHit(AP1ColHit *dst, char *col)
+static inline int clipAndTakeHit(AP1ColHit *dst, char *col) /* derived name */
 {
     ClipCollision(col);
     if (*(int *)(col + 0x88) != 0) {
@@ -420,11 +411,10 @@ static inline int clipAndTakeHit(AP1ColHit *dst, char *col)
     return 0;
 }
 
-/* kept local: void (void *, void *) here, void (float *, float *) in quaternion.h */
+/* void (void *, void *) here, void (float *, float *) in quaternion.h */
 extern void GetInverseQuaternion(void *dst, void *src);
 
-/* Listing lines 322-332, above fitToCol's def line, so the name is ours. */
-static inline void fitYawToVector(GObj *self, Vec4A_P_1 *dir)
+static inline void fitYawToVector(GObj *self, Vec4A_P_1 *dir) /* derived name */
 {
     Vec4A_P_1 q;
     Vec4A_P_1 qi;
@@ -443,9 +433,8 @@ static inline void fitYawToVector(GObj *self, Vec4A_P_1 *dir)
     SetRootQuaternion(self, &q);
 }
 
-/* Listing lines 360-373, above fitToCol's def line, so the name is ours. */
 static inline int clipPartPair(AP1ColHit *dst, Mtx44 *m, AP1ColSeg *tbl, Vec4A_P_1 *pos,
-                               Vec4A_P_1 *nrm)
+                               Vec4A_P_1 *nrm) /* derived name */
 {
     int i;
 
@@ -462,17 +451,15 @@ static inline int clipPartPair(AP1ColHit *dst, Mtx44 *m, AP1ColSeg *tbl, Vec4A_P
     return 0;
 }
 
-/* Two static helpers above fitToCol's def line, so both names are ours. The
-   listing runs a_p_1.c:392 (the CopyVector) before 386 and 387 (the two field
-   writes), so the writes cannot sit below the call in one function: they are
-   their own helper at listing lines 385-388, called from the one at 390-393. */
-static inline void setPartHit(AP1Part *part)
+/* a limb's hit: setPartHit marks it, resetPartHit first puts the limb back
+   at its rest point */
+static inline void setPartHit(AP1Part *part) /* derived name */
 {
     part->state = 1;
     part->count = 0;
 }
 
-static inline void resetPartHit(AP1Part *part, float *orient)
+static inline void resetPartHit(AP1Part *part, float *orient) /* derived name */
 {
     CopyVector(&part->home, orient);
     setPartHit(part);
@@ -515,10 +502,8 @@ int fitToCol(GObj *self, int arg1)
 
                 MatrixDrive_SetTransposeMatrix(tm.m, m.m);
                 tbl = (char *)ap1PartOffset;
-                /* part, tbl, lim and z are our names: the listing carries no
-                   symbols for locals. ROM holds every bound of the test in one
-                   FP scratch and the component under test in another, which is
-                   what lim and z spell. */
+                /* lim holds each bound of the test in turn, z the component
+                   under test */
                 for (i = 0; i < 4; i++) {
                     AP1Part *part = &p->part[i];
                     float lim;
@@ -584,10 +569,10 @@ int fitToCol(GObj *self, int arg1)
     return 2;
 }
 
-typedef union {
+typedef union { /* field names derived */
     int i;
     float f;
-} AP1Val;
+} AP1Val; /* derived name */
 
 int walkMot(GObj *a0)
 {
@@ -618,8 +603,7 @@ int walkMot(GObj *a0)
     _AddVectorXYZ(GOBJ_SUB(a0)->root.move, GOBJ_SUB(a0)->root.move, &v);
     MatrixDrive_SetTransposeMatrix(tm.m, m.m);
     _ApplyMatrix(&out, &tm, GOBJ_SUB(a0)->root.move);
-    /* the two stores go through the TU's AP1Val view: the ROM keeps the
-       object-sub load after them, which only an alias-set-0 store gives */
+    /* the two stores go through the file's AP1Val view */
     ((AP1Val *)&p->f_1C4)->f = out.m[0];
     ((AP1Val *)&p->f_1C0)->f = VectorLength(GOBJ_SUB(a0)->root.move) * 0.1f;
     _AddVectorXYZ(&pos, &pos, GOBJ_SUB(a0)->root.move);
@@ -691,12 +675,11 @@ int rolling(GObj *a0)
 }
 
 /* the point the spider's bite attack is centred on, 50 units down its own arm */
-static const Vec4A_P_1 attackCenterOffset = {50.0f, 0.0f, 0.0f, 1.0f};
+static const Vec4A_P_1 attackCenterOffset = {50.0f, 0.0f, 0.0f, 1.0f}; /* derived name */
 
-/* static helper the listing places at a_p_1.c lines 628-631, above
- * calcSubMission's def line 637, so the name is ours: the law of cosines for
- * the two arm segments, one named local per listing line. */
-static inline short armCosine(float a, float b, float c)
+/* the law of cosines for the two arm segments, one named local per
+ * line */
+static inline short armCosine(float a, float b, float c) /* derived name */
 {
     float aa = a * a;
     float bb = b * b;
@@ -837,13 +820,13 @@ void calcSubMission(GObj *self)
     }
 }
 
-/* kept local: agrees with quaternion.h, which this TU does not include (GetMatrixFromQuaternion, SetQuaternionByAxisRotateV differ) */
+/* as in quaternion.h, which this file does not include */
 extern void RotQuaternionX(void *q, short ang);
-/* kept local: agrees with quaternion.h, which this TU does not include (GetMatrixFromQuaternion, SetQuaternionByAxisRotateV differ) */
+/* as in quaternion.h, which this file does not include */
 extern void RotQuaternionZ(void *q, short ang);
-/* kept local: void (void *, void *, void *) here, void (float *, float *, float *) in quaternion.h */
+/* void (void *, void *, void *) here, void (float *, float *, float *) in quaternion.h */
 extern void GetMatrixFromQuaternionPos(void *m, void *q, void *pos);
-/* kept local: agrees with quaternion.h, which this TU does not include (GetMatrixFromQuaternion, SetQuaternionByAxisRotateV differ) */
+/* as in quaternion.h, which this file does not include */
 extern void GetSlerpQuaternion(void *dst, void *a, void *b, float t);
 
 void updateMatrix(GObj *a0)
@@ -885,9 +868,7 @@ void resetPositionInfo(GObj *a0)
     ResetEnemyEye(p->eye);
 }
 
-/* static helper the listing places at a_p_1.c lines 889-891, expanded only
- * into AP1Geo, so this name is ours. */
-static inline void stepAP1BlinkTimer(GObj *g)
+static inline void stepAP1BlinkTimer(GObj *g) /* derived name */
 {
     AP1Work *q = GOBJ_SUB(g)->work;
     int t = q->blink + 1;
@@ -973,9 +954,9 @@ void SetAP1VisualState(GObj *a0, int a1)
     ((AP1Work *)GOBJ_SUB(a0)->work)->visible = a1;
 }
 
-/* kept local: the angle passes as an int here (quaternion.h: short), unextended in the ROM */
+/* the angle passes as an int here (quaternion.h: short) */
 extern void RotQuaternionY(void *q, int ang);
-/* kept local: quaternion.h is not included in this TU (see RotQuaternionY above) */
+/* quaternion.h is not included in this file (see RotQuaternionY above) */
 extern void RegularizeQuaternion(void *q);
 
 int AP1Turn(GObj *a0, short a1)
@@ -1075,23 +1056,21 @@ int rollingMot(GObj *a0)
     return 2;
 }
 
-typedef struct {
+typedef struct {   /* field names derived */
     int state;     /* 0x00 */
     float frame;   /* 0x04 */
     int unk8[6];   /* 0x08 */
     Vec4A_P_1 vec; /* 0x20 */
-} AP1MotCtrl;
+} AP1MotCtrl;      /* derived name */
 
-/* Two static helpers the listing places at a_p_1.c lines 384-393 (the census
- * gap between 353 and 397), expanded twice each into attackMotInit and
- * attackMot; neither is emitted out of line, so both names are ours. */
-static inline void setAP1MotCtrlState(AP1MotCtrl *m, int state)
+/* two helpers, each expanded twice into attackMotInit and attackMot */
+static inline void setAP1MotCtrlState(AP1MotCtrl *m, int state) /* derived name */
 {
     m->state = state;
     m->frame = 0.0f;
 }
 
-static inline void setAP1MotCtrlVector(AP1MotCtrl *m, Vec4A_P_1 *v)
+static inline void setAP1MotCtrlVector(AP1MotCtrl *m, Vec4A_P_1 *v) /* derived name */
 {
     CopyVector(&m->vec, v);
     setAP1MotCtrlState(m, 0);

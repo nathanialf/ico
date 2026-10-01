@@ -1,12 +1,8 @@
 /*
  * ico2/sugipon/include/particleEffect.h
  *
- * The disc records no file of this name: SRCFILE.TXT attributes no
- * instruction to it, and a header that only declares leaves no rows in the
- * listing at all, so this file is ours and not the developers' own record.
- * It collects the declarations of what particleEffect.c defines, in the form its
- * users need them; every type here is read from the ROM's calling convention
- * at the call sites and from the spellings the using TUs already carried.
+ * The declarations of what particleEffect.c defines, for the files that use
+ * them.  The file name is derived.
  */
 
 #ifndef PARTICLEEFFECT_H
@@ -24,7 +20,7 @@ struct PEPackage;
 typedef struct {   /* field names derived */
     char name[32]; /* 0x00 */
     char path[48]; /* 0x20 */
-} ParticleEffectFile;
+} ParticleEffectFile; /* derived name */
 
 /* the 61 particle effect files (the particle-effect data member) */
 extern const ParticleEffectFile particleEffectFile[];

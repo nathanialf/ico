@@ -22,54 +22,40 @@
 #include "Matrix.h"
 
 /* The rope's interpolation rate: the chain's geometry sets it from the hang
-   height and rootUpdateY_Rope moves the root by it.  The first word of the
-   TU's .sdata; MAIN.MAP's January link has neither the word nor its name. */
+   height and rootUpdateY_Rope moves the root by it. */
 float ropeInterRate = 0.0f; /* derived name */
 
 extern MotionOrientEntry motionOrient[];
-/* kept local: this declaration is identical to the motionManager2.h prototype, but the
- * TU cannot include that header while its GetStreamMotion, DispSkelton and
- * FeedbackWallWorkInfoToBrainSystem uses still need declarations of their own. */
-/* kept local: agrees with motionManager2.h, which this TU does not include (CopyMotionWithNodeHrc, DispSkelton differ) */
+/* as in motionManager2.h, which this file does not include */
 extern void CopyMotion(void *dst, void *src, int n);
 
-struct MotOriHead8 {
+struct MotOriHead8 { /* field names derived */
     long long v;
 } __attribute__((packed));
 
-struct MotOriFloat {
+struct MotOriFloat { /* field names derived */
     float frame;
 };
 
-/* RECONSTRUCTION, the type and member names are ours: the object's work
-   pointer at 0x15C is read through a union member, so the read has alias set
-   0 and every store orders against it.  getMotionGeometry's bytes pin that:
-   the ROM keeps the else arm's 0x338 float store ahead of the next work
-   pointer read, which a plain char * read is scheduled past (chain 3 pass
-   144, measured both ways).  Every other function of the TU is
-   byte-identical either way (chain 3 pass 144).  The bytes cannot show the
-   union's other members. */
-typedef union MotWorkRef {
+/* the object's work pointer at 0x15C, read through a union member */
+typedef union MotWorkRef { /* field names derived */
     char *p;
     int i;
     Sub15C *sub;
-} MotWorkRef;
+} MotWorkRef; /* derived name */
 
-#define MOWORK(self) (((MotWorkRef *)((char *)(self) + 0x15C))->sub)
+#define MOWORK(self) (((MotWorkRef *)((char *)(self) + 0x15C))->sub) /* derived name */
 
-/* The 0x470 motion work area is motionManager.h's MotCtrl.  UpdateFrameCounter
-   needs the record form because a field reference and an `extern int` are in
-   different alias sets, which is what lets the ROM's motionFrameUpdate load
-   schedule above the two preceding work-area stores. */
+/* The 0x470 motion work area is motionManager.h's MotCtrl. */
 
-/* .rodata at 0x55FE58 in the ROM: the trigger definition table is read-only. */
+/* the trigger definition table, read-only */
 extern const MotionDef motionKind[];
 
 /* the seventeen fixed captions the orientation debug window prints, one per
-   trigger kind, plus the window's own format at 0x6201C8 */
+   trigger kind, plus the window's own format */
 
-/* kept local: ico2/fumi/src/commonact.c declares the table without const, so
-   motionOrientManager.h cannot carry it */
+/* declared here: ico2/fumi/src/commonact.c declares the table without
+   const, so motionOrientManager.h cannot carry it */
 extern const MotOriName motionOriKind[];
 
 void orientDebug(void *self, int idx, int y)
@@ -142,7 +128,7 @@ void orientDebug(void *self, int idx, int y)
     }
 }
 
-static inline void checkMotionKind(int i, int j)
+static inline void checkMotionKind(int i, int j) /* derived name */
 {
     if (motionKind[i].blendKind != 320) {
         char buf[256];
@@ -218,10 +204,9 @@ void execFrameTrigger(void *self)
     }
 }
 
-/* No symbol and no census row: the listing gives it lines 230 to 237, between
- * GetMotionPlaySpeedRatio (219 to 229) and execFrameTrigger (241), and inlines
- * it here and in UpdateFrameCounter. The store order is the source's own. */
-static __inline__ void clearFrameTriggerState(void *self)
+/* inlined here and in UpdateFrameCounter; the store order is the
+ * source's own */
+static __inline__ void clearFrameTriggerState(void *self) /* derived name */
 {
     GOBJ_SUB(self)->ctrl.trigger1 = 0;
     GOBJ_SUB(self)->ctrl.trigger2 = 0;
@@ -229,9 +214,9 @@ static __inline__ void clearFrameTriggerState(void *self)
     GOBJ_SUB(self)->ctrl.trigger2Done = 0;
 }
 
-/* Three range tests with no symbol and no census row, listing lines 156 to 193;
- * shiftMotionData and UpdateFrameCounter both inline them. */
-static __inline__ int checkFrameInRange(int mot, float t)
+/* three range tests; shiftMotionData and UpdateFrameCounter both inline
+ * them */
+static __inline__ int checkFrameInRange(int mot, float t) /* derived name */
 {
     if ((float)motionKind[mot].triggerStart <= t && t <= (float)motionKind[mot].triggerEnd) {
         return 1;
@@ -239,7 +224,7 @@ static __inline__ int checkFrameInRange(int mot, float t)
     return 0;
 }
 
-static __inline__ int checkFrameInRange2(int mot, float t, float t2)
+static __inline__ int checkFrameInRange2(int mot, float t, float t2) /* derived name */
 {
     if ((float)motionKind[mot].trigger2Start <= t2 && t <= (float)motionKind[mot].trigger2End) {
         return 1;
@@ -247,7 +232,7 @@ static __inline__ int checkFrameInRange2(int mot, float t, float t2)
     return 0;
 }
 
-static __inline__ int checkMotionShiftRange(int mot, float t, float t2)
+static __inline__ int checkMotionShiftRange(int mot, float t, float t2) /* derived name */
 {
     const MotionDef *e = &motionKind[mot];
     float a = (float)e->shiftStart;
@@ -342,9 +327,8 @@ int UpdateFrameCounter(void *self)
         if (!(w->blendFrames < w->blendCount)) {
             w->blendCount = w->blendCount + 1;
         }
-        /* The two-frame range tests take a second frame value; here it is the
-           same frame, held in a local, and the ROM's mov.s of the loaded frame
-           into a second register is that local's copy. */
+        /* the two-frame range tests take a second frame value; here it is
+           the same frame, held in a local */
         frame = w->animFrame;
         w->frameFlag1 = checkFrameInRange(w->motion, w->animFrame);
         w->frameFlag2 = checkFrameInRange2(w->motion, w->animFrame, frame);
@@ -474,11 +458,9 @@ void sendStateMail(void *self)
     }
 }
 
-/* Listing lines 413-425: a static inline both shift functions absorb, with no
- * symbol and no census row, so its name is not on the disc; searchMotionShift
- * is this repo's spelling. It walks the request table at the work area's 0x1C
- * and returns the paired entry from the table at 0x20. */
-static inline int searchMotionShift(void *self, int id, int cur)
+/* Both shift functions inline it: it walks the request table at the work
+ * area's 0x1C and returns the paired entry from the table at 0x20. */
+static inline int searchMotionShift(void *self, int id, int cur) /* derived name */
 {
     struct MotCtrl *m = &MOWORK(self)->ctrl;
     int i;
@@ -496,10 +478,8 @@ static inline int searchMotionShift(void *self, int id, int cur)
     return -1;
 }
 
-/* No symbol and no census row: the listing gives it lines 563 to 566, above
- * shiftMotionData's own first line. mirrorMotionTable is six {request,
- * substitute} pairs. */
-static __inline__ int searchAltMotion(int req)
+/* mirrorMotionTable is six {request, substitute} pairs */
+static __inline__ int searchAltMotion(int req) /* derived name */
 {
     int i;
 
@@ -588,7 +568,7 @@ void shiftMotionData(int a0, int a1, int a2, int a3)
     }
 }
 
-/* kept local: void (void *) here, void (char *) in motionManager2.h */
+/* void (void *) here, void (char *) in motionManager2.h */
 extern void FeedbackWallWorkInfoToBrainSystem(void *self);
 
 void shiftMotionOrientEndFunc(void *self)
@@ -642,9 +622,7 @@ inline void CopyBlendMotionDataSource(void *self, short ang)
     }
 }
 
-/* kept local: GetOutOutsideOfWall is defined in src/motionManager2 and no header of
- * this tree declares it */
-/* kept local: agrees with motionManager2.h, which this TU does not include (CopyMotionWithNodeHrc, DispSkelton differ) */
+/* void (void *, float) here, void (GObj *, float) in motionManager2.h */
 extern void GetOutOutsideOfWall(void *self, float d);
 
 void shiftMotionOrientBeginFunc(void *self, int a1, int a2, int a3)
@@ -702,14 +680,9 @@ void ForTest_ForceShiftMotion(int a0, int a1)
     shiftMotionData(a0, a1, a1, 0);
 }
 
-/* Listing lines 877-920: a static inline with no symbol and no census row, so
- * its name is not on the disc; checkMotionShiftReady is this repo's spelling.
- * It clears the pending-shift words and reports whether the entry may start.
- * The 0x479 arm's refusal jumps back to the guard's `return 0` (listing 886):
- * the ROM keeps that block and branches to it backward, where a second
- * `return 0` in the arm is the copy jump2's cross-jumping keeps instead (it
- * deletes the first identical block it reaches, jump.c find_cross_jump). */
-static inline int checkMotionShiftReady(struct MotCtrl *m, MotionOrientEntry *p)
+/* Clear the pending-shift words and report whether the entry may start.
+ * The 0x479 arm's refusal goes to the guard's `return 0`. */
+static inline int checkMotionShiftReady(struct MotCtrl *m, MotionOrientEntry *p) /* derived name */
 {
     int kind;
 
@@ -771,11 +744,9 @@ int normalMotionShift(void *self, int force)
     return 0;
 }
 
-/* Listing lines 432-441: a static inline with no symbol and no census row, so
- * its name is not on the disc; findParallelMotion is this repo's spelling.
- * parallelMotionOrient is 54 rows of five words, keyed on the current and the
- * requested motion. */
-static inline MotionOrientEntry *findParallelMotion(int cur, int next)
+/* parallelMotionOrient is 54 rows of five words, keyed on the current and
+ * the requested motion. */
+static inline MotionOrientEntry *findParallelMotion(int cur, int next) /* derived name */
 {
     int i;
 
@@ -792,11 +763,8 @@ static inline MotionOrientEntry *findParallelMotion(int cur, int next)
     return 0;
 }
 
-/* Listing 998 to 1032: the -1 test encloses the body and every refusal falls
- * to the one `return 0` at the end.  loop.c (find_and_verify_loops) moves the
- * inlined search's found-block to the first barrier after its loop, which the
- * ROM has after findParallelMotion's cur == next return; an early
- * `return 0` for -1 would put a barrier ahead of it. */
+/* the -1 test encloses the body and every refusal falls to the one
+ * `return 0` at the end */
 int parallelMotionShift(void *self)
 {
     struct MotCtrl *m = &MOWORK(self)->ctrl;
@@ -832,9 +800,9 @@ static int ignoreCount = 0; /* derived name */
 static int ignoreMotion = 0; /* derived name */
 
 /* The four one-character spinners the debug line cycles with the frame count. */
-typedef struct MotOriSpin {
+typedef struct MotOriSpin { /* field names derived */
     char *s[4];
-} MotOriSpin;
+} MotOriSpin; /* derived name */
 
 char *SetMotionRequest(void *self, int mot, MotOriReq req)
 {
@@ -924,11 +892,9 @@ inline void SetParallelMotionTable(void *self, int *next, int *req, int from, in
     }
 }
 
-/* kept local: this TU's uses of GetFloatingMotion do not fit the prototype in motionManager2.h */
+/* this file's uses of GetFloatingMotion do not fit the prototype in motionManager2.h */
 extern void GetFloatingMotion(void *dst, float t, float *v, int *mot, int n, int a5, void *skel);
-/* kept local: this TU's uses of CopyMotionWithNodeHrc do not fit the prototype in
- * motionManager2.h */
-/* kept local: void (void *, void *, void *, int, int) here, void (struct Pack32 *, struct Pack32 *, char *, int, int) in motionManager2.h */
+/* void (void *, void *, void *, int, int) here, void (struct Pack32 *, struct Pack32 *, char *, int, int) in motionManager2.h */
 extern void CopyMotionWithNodeHrc(void *dst, void *src, void *skel, int node, int a4);
 
 void getNodeBlendedFloatingMotion(void *dst, float *root, int id, int n, int a4, void *self,
@@ -971,26 +937,22 @@ void getNodeBlendedFloatingMotion(void *dst, float *root, int id, int n, int a4,
     }
 }
 
-/* The slope vector getMotionGeometry normalises for its pitch angle: an
- * initialised object, so it lives in .data. */
-static sceVu0FVECTOR slopeVector = {0.0f, 0.0f, 0.0f, 0.0f};
+/* the slope vector getMotionGeometry normalises for its pitch angle */
+static sceVu0FVECTOR slopeVector = {0.0f, 0.0f, 0.0f, 0.0f}; /* derived name */
 
-/* kept local: void (void *, void *) here, void (GObj *, int) in motionManager2.h */
+/* void (void *, void *) here, void (GObj *, int) in motionManager2.h */
 extern void DispSkelton(void *self, void *m);
-/* kept local: agrees with motionManager2.h, which this TU does not include (CopyMotionWithNodeHrc, DispSkelton differ) */
+/* as in motionManager2.h, which this file does not include */
 extern void GetBlendedMotion(void *dst, float *dv, void *m1, float *v1, void *m0, float *v0,
                              float t, int tbl, int n);
-/* kept local: void (float *, int *, float) here, void (float *, void *, float) in motionManager2.h */
+/* void (float *, int *, float) here, void (float *, void *, float) in motionManager2.h */
 extern void GetFloatingMotionRootPos(float *v, int *md, float f);
 extern void MakeMirrorMotion(void *dst, int *p);
-/* kept local: void (void *, void *, float *, float *, int) here, void (GObj *, char *, int, Vec4 *) in motionManager2.h */
+/* void (void *, void *, float *, float *, int) here, void (GObj *, char *, int, Vec4 *) in motionManager2.h */
 extern void SlopeIKControl(void *self, void *m, float *v, float *r, int n);
 
-/* Listing lines 1150 to 1160: a static inline with no symbol and no census row,
- * between SetParallelMotionTable (last line 1145) and getNodeBlendedFloatingMotion
- * (def line 1172).  getMotionGeometry is its only caller here; the name is this
- * repo's spelling. */
-static inline void getMotionRootPos(struct MotCtrl *w, float *v)
+/* getMotionGeometry is its only caller */
+static inline void getMotionRootPos(struct MotCtrl *w, float *v) /* derived name */
 {
     int m = blendMotionKind[motionKind[w->motion].blendKind].motion;
     float t = w->lastFrame;
@@ -999,13 +961,9 @@ static inline void getMotionRootPos(struct MotCtrl *w, float *v)
     GetFloatingMotionRootPos(v, motionTable[m], t);
 }
 
-/* Listing lines 1266 to 1288, inside getMotionGeometry's span: the motion-loaded
- * assert and the node-count assert.  Each 1024-byte message buffer lands at frame
- * offset 0, so each is an inlined body of its own (a block-scoped array of the
- * function's own body is promoted out of its level the moment its address is
- * passed to a call, and is then never reused, and two buffers inside one inlined
- * body cannot share either); the names are this repo's spelling. */
-static inline void assertMotionLoaded(struct MotCtrl *w, int *md)
+/* The motion-loaded assert and the node-count assert, each an inlined body
+ * of its own with its own 1024-byte message buffer. */
+static inline void assertMotionLoaded(struct MotCtrl *w, int *md) /* derived name */
 {
     if (md == 0) {
         char buf[1024];
@@ -1017,7 +975,7 @@ static inline void assertMotionLoaded(struct MotCtrl *w, int *md)
     }
 }
 
-static inline void assertMotionNodeCount(struct MotCtrl *w, int *md, int n)
+static inline void assertMotionNodeCount(struct MotCtrl *w, int *md, int n) /* derived name */
 {
     int *e = (int *)md[3];
     int i = 0;
@@ -1093,10 +1051,8 @@ void getMotionGeometry(void *self)
             int flag;
             int k;
 
-            /* The listing places this at lines 1407-1411, inside
-             * getMotionGeometry's span and ahead of the arm that uses it:
-             * a nested function, always inlined (no ROM slot of its own). */
-            inline void rotateNodes(char *m, int *s, void *q)
+            /* a nested function, inlined into the arm that uses it */
+            inline void rotateNodes(char *m, int *s, void *q) /* derived name */
             {
                 int i = 0;
 
@@ -1219,28 +1175,25 @@ void getMotionGeometry(void *self)
     }
 }
 
-/* The two line colours the debug bar graph draws with: 16-byte records the ROM
- * copies into the frame with ld/sd, so the type is 8-byte aligned; the union
- * spelling is the one ico2/omori/src/camera-editor.c already carries (BoxCol4). */
-typedef union {
+/* The two line colours the debug bar graph draws with: 16-byte records,
+ * 8-byte aligned; ico2/omori/src/camera-editor.c spells the union the same
+ * way (BoxCol4). */
+typedef union { /* field names derived */
     unsigned int c[4];
     unsigned long long w[2];
-} MotOriCol4;
+} MotOriCol4; /* derived name */
 
-/* RECONSTRUCTION, the type and enumerator names are ours: debug_bar_flag is debug.o's
- * debug bar mode (MAIN.MAP line 7189 names the word debug_bar_flag by position),
- * which ico2/common/src/debug.c clears and debug_DrawBar dispatches on 1 and 2.
- * The ROM proves it is not read as a plain int here: its load sits in the clamp
- * loop's preheader, and gcse only places it there when the loop body is
- * transparent for it, which the loop's int store to the shape weight makes false
- * for any int-typed global (gcse's mems_conflict_for_gcse_p asks
- * true_dependence, and DIFFERENT_ALIAS_SETS_P is its only exit). An enumerated
- * mode has an alias set of its own; the act-game MpsrMode record is the same
- * proof in another TU. */
-enum DebugDisplayMode { DEBUG_DISPLAY_OFF, DEBUG_DISPLAY_ON, DEBUG_DISPLAY_FULL };
+/* debug_bar_flag is debug.o's debug bar mode, which ico2/common/src/debug.c
+ * clears and debug_DrawBar dispatches on 1 and 2; this file reads it as an
+ * enumerated mode. */
+enum DebugDisplayMode {
+    DEBUG_DISPLAY_OFF,
+    DEBUG_DISPLAY_ON,
+    DEBUG_DISPLAY_FULL
+}; /* derived name */
 
 extern enum DebugDisplayMode debug_bar_flag;
-/* kept local: void (float *, void *, int, float) here, void (float *, char *, float, int) in motionManager2.h */
+/* void (float *, void *, int, float) here, void (float *, char *, float, int) in motionManager2.h */
 extern void GetFloatingShapeMotion(float *dst, void *mot, int n, float frame);
 
 void getShapeGeometry(void *self)
@@ -1315,13 +1268,11 @@ void getShapeGeometry(void *self)
     }
 }
 
-/* kept local: int (void *, float *, void *, int) here, int (char *, float *, char *, char *) in motionManager2.h */
+/* int (void *, float *, void *, int) here, int (char *, float *, char *, char *) in motionManager2.h */
 extern int GetStreamMotion(void *dst, float *v, void *sm, SkelNode *skel);
 
-/* Listing lines 1640-1647: a static inline both stream-geometry functions absorb
- * (once and twice), with no symbol and no census row, so its name is not on
- * the disc; getStreamVec is this repo's spelling. */
-static inline int getStreamVec(void *self, void *sm, float *v, void *mot)
+/* both stream-geometry functions inline it (once and twice) */
+static inline int getStreamVec(void *self, void *sm, float *v, void *mot) /* derived name */
 {
     float s = *(float *)((char *)MOWORK(self)->nodes + 0x20);
 
@@ -1350,10 +1301,6 @@ void getStreamMotionGeometry(void *self, void *sm)
     }
 }
 
-/* kept local: this declaration is identical to the motionManager2.h prototype, but the
- * TU cannot include that header while its GetStreamMotion, DispSkelton and
- * FeedbackWallWorkInfoToBrainSystem uses still need declarations of their own. */
-
 void getStreamBlendMotionGeometry(void *self, void *sm0, void *sm1, float t)
 {
     float v0[4];
@@ -1375,17 +1322,11 @@ void getStreamBlendMotionGeometry(void *self, void *sm0, void *sm1, float t)
     }
 }
 
-/* Reconstruction, this repo's name: the listing gives the whole clamp AND its own
- * `int *p` declaration on one physical source line, at 1711 in
- * getStreamBlendShapeGeometry and again at 1729 in getStreamShapeGeometry, so the
- * developer's source held a macro with a block body shared by both functions. The test
- * is this programmer's absolute-value idiom (box.c, geometryManager.c, motionManager.c):
- * fold moves the compare into both arms of the ?:, so the ROM's two compares and four
- * stores come from one store per value (reorg copies them into the delay slots), and
- * the shorter pre-reload loop keeps `n`'s live length low enough for global.c's
- * allocno_compare to give it $s0 ahead of the alloca size in
- * getStreamBlendShapeGeometry. */
-#define SET_SHAPE_VALUE(self, i, x)                                                                \
+/* The clamp and its own `int *p` declaration, a macro with a block body
+ * shared by getStreamBlendShapeGeometry and getStreamShapeGeometry.  The test
+ * is this programmer's absolute-value idiom (box.c, geometryManager.c,
+ * motionManager.c). */
+#define SET_SHAPE_VALUE(self, i, x) /* derived name */                                             \
     {                                                                                              \
         int *p = (int *)((i) * 4 + *(int *)((char *)*(int *)((char *)(self) + 0x15C) + 0x838));    \
                                                                                                    \
@@ -1396,10 +1337,7 @@ void getStreamBlendMotionGeometry(void *self, void *sm0, void *sm1, float t)
         }                                                                                          \
     }
 
-/* kept local: this declaration is identical to the motionManager2.h prototype, but the
- * TU cannot include that header while its GetStreamMotion, DispSkelton and
- * FeedbackWallWorkInfoToBrainSystem uses still need declarations of their own. */
-/* kept local: agrees with motionManager2.h, which this TU does not include (CopyMotionWithNodeHrc, DispSkelton differ) */
+/* as in motionManager2.h, which this file does not include */
 extern int GetStreamShapeMotion(float *dst, void *sm);
 
 void getStreamBlendShapeGeometry(void *self, void *sm0, void *sm1, float t)

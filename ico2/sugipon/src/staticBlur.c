@@ -9,81 +9,73 @@
 #include "main.h"
 #include "Matrix.h"
 
-/* .data, owned by staticBlur.o and reached only from this file (MAIN.MAP line
-   5986 gives the member, 0x100 in its link, and names no symbol in the run):
-   the TU's whole run in ROM order, 0x4ED020..0x4ED0F0, 208 B.  The names are
-   ours.  workBase: the GS block addresses of the work buffers Work0..Work3 the
-   pass names use (FullScreenEffectBefore rewrites them).  sunScreen: calcSun's
+/* workBase: the GS block addresses of the work buffers Work0..Work3 the pass
+   names use (FullScreenEffectBefore rewrites them).  sunScreen: calcSun's
    projected sun, integer screen coordinates.  sunView: the sun direction in
    view space, its z the in-front test.  sunDir: the world sun direction
    GetSunWorldPos hands out.  sunScreenOffset: the drawing-offset correction
    calcSun adds after the projection.  The int[4] runs are sprite rectangles
    in 12.4 fixed point and the float[4] points get their z written before the
    projection that yields a Z value. */
-static int workBase[4] = {0x2800, 0x2C00, 0x3000, 0x3400};
+static int workBase[4] = {0x2800, 0x2C00, 0x3000, 0x3400}; /* derived name */
 
-static int sunScreen[4] = {0, 0, 0, 0};
+static int sunScreen[4] = {0, 0, 0, 0}; /* derived name */
 
-static float sunView[4] = {0.0f, 0.0f, 0.0f, 1.0f};
+static float sunView[4] = {0.0f, 0.0f, 0.0f, 1.0f}; /* derived name */
 
-static float sunDir[4] = {1.0f, -1.5f, -1.0f, 1.0f};
+static float sunDir[4] = {1.0f, -1.5f, -1.0f, 1.0f}; /* derived name */
 
-static float sunScreenOffset[4] = {-2048.0f, -2048.0f, 0.0f, 0.0f};
+static float sunScreenOffset[4] = {-2048.0f, -2048.0f, 0.0f, 0.0f}; /* derived name */
 
-static int work0ToFeedBackRect[4] = {-1024, -1024, 2048, 2048};
+static int work0ToFeedBackRect[4] = {-1024, -1024, 2048, 2048}; /* derived name */
 
-static int feedBackToWork0Rect[4] = {-1024, -1024, 2048, 2048};
+static int feedBackToWork0Rect[4] = {-1024, -1024, 2048, 2048}; /* derived name */
 
-static float subWork1Point[4] = {0.0f, 0.0f, 0.0f, 1.0f};
+static float subWork1Point[4] = {0.0f, 0.0f, 0.0f, 1.0f}; /* derived name */
 
-static int eyeGhostRect[4] = {-2048, -1024, 4096, 2048};
+static int eyeGhostRect[4] = {-2048, -1024, 4096, 2048}; /* derived name */
 
-static int eyeShrinkRect[4] = {-2048, -1024, 1024, 512};
+static int eyeShrinkRect[4] = {-2048, -1024, 1024, 512}; /* derived name */
 
-static int eyeTintRect[4] = {-2048, -1024, 4096, 2048};
+static int eyeTintRect[4] = {-2048, -1024, 4096, 2048}; /* derived name */
 
-static int copyToWorkRect[4] = {-2044, -2044, 4096, 4096};
+static int copyToWorkRect[4] = {-2044, -2044, 4096, 4096}; /* derived name */
 
-static float pasteToFBPoint[4] = {0.0f, 0.0f, 0.0f, 1.0f};
+static float pasteToFBPoint[4] = {0.0f, 0.0f, 0.0f, 1.0f}; /* derived name */
 
-/* kept local: agrees with GifPacket.h, which this TU does not include (gif_SetAlpha, gif_SetDrawEnviroment differ) */
+/* as in GifPacket.h, which this file does not include */
 extern void gif_EndPacket(void);
-/* kept local: void (int, int, int) here, void (long long, long long, long long) in GifPacket.h */
+/* void (int, int, int) here, void (long long, long long, long long) in GifPacket.h */
 extern void gif_SetAlpha(int a, int b, int c);
-/* kept local: void (int, int, int, int, int, int) here, void (unsigned long long, unsigned long long, unsigned int, unsigned int, int, int) in GifPacket.h */
+/* void (int, int, int, int, int, int) here, void (unsigned long long, unsigned long long, unsigned int, unsigned int, int, int) in GifPacket.h */
 extern void gif_SetDrawEnviroment(int fb, int b, int w, int h, int e, int f);
-/* kept local: void (int, long long) here, void (long long, long long) in GifPacket.h */
+/* void (int, long long) here, void (long long, long long) in GifPacket.h */
 extern void gif_SetGsReg(int reg, long long val);
-/* kept local: agrees with GifPacket.h, which this TU does not include (gif_SetAlpha, gif_SetDrawEnviroment differ) */
+/* as in GifPacket.h, which this file does not include */
 extern void gif_SetZTest(int on);
-/* kept local: agrees with GifPacket.h, which this TU does not include (gif_SetAlpha, gif_SetDrawEnviroment differ) */
+/* as in GifPacket.h, which this file does not include */
 extern void gif_SetZWrite(int on);
-/* kept local: void (void *, unsigned int, void *, void *, int) here, void (int *, long long, int *, unsigned char *, int) in GifPacket.h */
+/* void (void *, unsigned int, void *, void *, int) here, void (int *, long long, int *, unsigned char *, int) in GifPacket.h */
 extern void gif_SpriteSensitiveOrg(void *rect, unsigned int z, void *uv, void *col, int e);
-/* kept local: agrees with GifPacket.h, which this TU does not include (gif_SetAlpha, gif_SetDrawEnviroment differ) */
+/* as in GifPacket.h, which this file does not include */
 extern void gif_StartPacketPri(int pri);
 
-typedef struct {
+typedef struct { /* field names derived */
     int x, y, w, h;
-} SprUV;
+} SprUV; /* derived name */
 
-typedef struct {
+typedef struct { /* field names derived */
     unsigned char f[4];
-} SprCol;
+} SprCol; /* derived name */
 
-/* .rodata: the texture rectangle of a whole 256x128 work buffer, half a
-   texel in from each edge, read by eyeBlur and pasteFullScreenFlare.  It is
-   the TU's first .rodata object, ahead of the templates of every local
-   initialiser, where no code-bearing row before copyCurrentFBToFeedBackArea
-   reads it, so it is a file-scope constant and not a third template. */
+/* the texture rectangle of a whole 256x128 work buffer, half a texel in
+   from each edge, read by eyeBlur and pasteFullScreenFlare */
 static const SprUV workBufferUv = {8, 8, 4088, 2040}; /* derived name */
 
-/* .sdata, owned by staticBlur.o and reached only from this file (MAIN.MAP
-   line 7344 gives the member, 0xE4 in its link, and names no symbol in the
-   run), in ROM order.  The post effect and aura feed modes FullScreenEffect*
-   dispatch on and the requests the stage parameters make, the flare switch,
-   the two sun fans, the sun switch, the depth fade depth and alpha, the aura
-   subtraction depth, then the sprite colours of the passes. */
+/* The post effect and aura feed modes FullScreenEffect* dispatch on and the
+   requests the stage parameters make, the flare switch, the two sun fans,
+   the sun switch, the depth fade depth and alpha, the aura subtraction depth,
+   then the sprite colours of the passes. */
 static int postMode = 1; /* derived name */
 
 static int postModeRequest = 1; /* derived name */
@@ -120,15 +112,10 @@ static SprCol flareCol = {{139, 136, 132, 40}}; /* derived name */
 
 static SprCol auraClearCol = {{0, 0, 0, 0}}; /* derived name */
 
-/* staticBlur.c:141-164 in the listing, inlined twice into blur: one pass of
- * the blur, the buffer fb drawn from the texture buffer tex as one sprite,
- * the sprite rect or the texture rect shrunk by rm or um.  A file-scope
- * inline ahead of blur, not a nested function: its rows (142-163) precede
- * blur's own (168-172).  Row 142 is the parameter binding, which is where
- * the listing puts the tex load and the n + 6 of the first call, and the
- * rect and uv rows (154, 160) hold the subtractions, so the shrink is
- * applied here and not at the call.  The name is ours. */
-static inline void blurPass(int fb, int tex, int rm, int um, void *col)
+/* One pass of the blur, inlined twice into blur: the buffer fb drawn from
+ * the texture buffer tex as one sprite, the sprite rect or the texture rect
+ * shrunk by rm or um. */
+static inline void blurPass(int fb, int tex, int rm, int um, void *col) /* derived name */
 {
     gif_SetDrawEnviroment(fb, 0, 256, 128, 0, 0);
 
@@ -144,8 +131,8 @@ static inline void blurPass(int fb, int tex, int rm, int um, void *col)
     }
 }
 
-/* staticBlur.c:168-172: the first pass shrinks the sprite by n + 6 in the
- * blur colour, the second shrinks the texture back in the caller's colour. */
+/* the first pass shrinks the sprite by n + 6 in the blur colour, the second
+ * shrinks the texture back in the caller's colour */
 void blur(int n, void *col)
 {
     blurPass(workBase[1], workBase[0], n + 6, 0, &blurPassCol);
@@ -179,21 +166,17 @@ void auraInspireBefore(void)
     gif_EndPacket();
 }
 
-/* .bss, owned by staticBlur.o (0x30, the run): the twelve texture and
-   rectangle coordinates the two blur sprites are built from. */
-/* */
-static int blurUv[12];
+/* the twelve texture and rectangle coordinates the two blur sprites are
+   built from */
+static int blurUv[12]; /* derived name */
 
-/* .sbss, owned by staticBlur.o and reached only from this file (MAIN.MAP names
-   no symbol in the run): the blur sprite's RGBA, whose alpha byte the ROM also
-   addresses on its own. */
-static SprCol blurCol;
+/* the blur sprite's RGBA */
+static SprCol blurCol; /* derived name */
 
 void auraInspireAfter(int mode)
 {
-    /* halfRect and halfUv (rows 245 and 254, both initialised in the ROM) are
-       read only by the DEBUG build's half-height preview of work buffer 1 in
-       the code-free rows 542-619 ahead of the switch (preview ours). */
+    /* halfRect and halfUv are read only by the DEBUG build's half-height
+       preview of work buffer 1 */
     int halfRect[4] = {-ScreenWidth / 2 * 16, -ScreenHeight / 4 * 16, ScreenWidth * 16,
                        ScreenHeight / 2 * 16};
     int uv[4] = {8, 8, ScreenWidth * 16, ScreenHeight * 16};
@@ -229,7 +212,7 @@ void auraInspireAfter(int mode)
         gif_SpriteSensitiveOrg(srect, 0, suv, &alphaCopyCol, 1);
     }
 
-    inline void pasteFeedBackAreaToFB(void)
+    inline void pasteFeedBackAreaToFB(void) /* derived name */
     {
         int suv[4] = {8, 8, 2048, systemStatus[0] ? 2048 : 1792};
 
@@ -280,7 +263,7 @@ void auraInspireAfter(int mode)
             gif_SpriteSensitiveOrg(srect, 0, &a, &blurCol, 1);
         }
 
-        inline void copyFeedBackAreaToWork0(void)
+        inline void copyFeedBackAreaToWork0(void) /* derived name */
         {
             SprUV a = {-1024, -1024, 2048, 2048};
 
@@ -292,7 +275,7 @@ void auraInspireAfter(int mode)
 
         void parallelAddFeedBackAreaToWork0(void)
         {
-            inline void addTap(int x, int y)
+            inline void addTap(int x, int y) /* derived name */
             {
                 SprUV a = {8, 8, 2048, 2048};
                 int srect[4] = {x, y, 2048, 2048};
@@ -316,7 +299,7 @@ void auraInspireAfter(int mode)
         blendWork0ToWork1();
     }
 
-    inline void pasteWork0ToFeedBackArea(void)
+    inline void pasteWork0ToFeedBackArea(void) /* derived name */
     {
         gif_SetGsReg(6, workBase[1] | ((long long)(ScreenWidth / 64) << 14) | 0x664000000LL);
 
@@ -326,7 +309,7 @@ void auraInspireAfter(int mode)
         gif_SpriteSensitiveOrg(work0ToFeedBackRect, 0, uv, &whiteCol, 0);
     }
 
-    inline void pasteFeedBackAreaToWork0(void)
+    inline void pasteFeedBackAreaToWork0(void) /* derived name */
     {
         gif_SetDrawEnviroment(0x3F00, 0, 0x80, 0x80, 0, 0);
 
@@ -334,7 +317,7 @@ void auraInspireAfter(int mode)
         gif_SpriteSensitiveOrg(feedBackToWork0Rect, 0, (void *)0, &alphaCopyCol, 0);
     }
 
-    inline void pasteWork1ToFB(void)
+    inline void pasteWork1ToFB(void) /* derived name */
     {
         gif_SetGsReg(6, workBase[1] | ((long long)(ScreenWidth / 64) << 14) | 0x664000000LL);
 
@@ -361,7 +344,7 @@ void auraInspireAfter(int mode)
         }
     }
 
-    inline void addWork1ToFB(void)
+    inline void addWork1ToFB(void) /* derived name */
     {
         gif_SetGsReg(6, workBase[1] | ((long long)(ScreenWidth / 64) << 14) | 0x664000000LL);
 
@@ -371,7 +354,7 @@ void auraInspireAfter(int mode)
         gif_SpriteSensitiveOrg(rect, 0, uv, &whiteCol, 1);
     }
 
-    inline void addWork1ToFBWithZ(void)
+    inline void addWork1ToFBWithZ(void) /* derived name */
     {
         gif_SetGsReg(6, workBase[1] | ((long long)(ScreenWidth / 64) << 14) | 0x664000000LL);
 
@@ -735,7 +718,7 @@ void makeFullScreenFlareAfter(int mode)
         }
     }
 
-    inline void pasteWork0ToFB(void)
+    inline void pasteWork0ToFB(void) /* derived name */
     {
         gif_SetDrawEnviroment(workBase[0], 0, 0x100, 0x80, 0, 0);
 
@@ -823,7 +806,7 @@ static SprCol depthPassCol = {{128, 128, 128, 0}}; /* derived name */
 /* One blend pass of the depth-of-field chain: shrink the work buffer named by
    `n` into its twin, taking the previous pass's shrink (`pre`) as the source
    rectangle and this pass's (`cur`) as the destination. */
-static inline int depthFieldPass(int n, int cur, int pre)
+static inline int depthFieldPass(int n, int cur, int pre) /* derived name */
 {
     int tex = workBase[n];
 
@@ -1012,10 +995,8 @@ void calcSun(void)
 
 static int colorSettingItem = 0; /* derived name */
 
-/* staticBlur.c:1401-1405 in the PAL listing: rows outside colorSetting's own
-   span (1410-1455), i.e. a static helper the listing inlines at all four
-   switch arms. */
-static inline void colorSettingStep(unsigned char *p, int d)
+/* one step of colorSetting, inlined at all four switch arms */
+static inline void colorSettingStep(unsigned char *p, int d) /* derived name */
 {
     int v = *p;
 
@@ -1308,19 +1289,14 @@ void FullScreenEffectAfter(void)
     tex_UnlockHeadTBP(8);
 }
 
-/* kept local: matrixDrive.h, which this TU does not include: InitStaticBlur
-   calls CopyVector with one argument (the ROM sets only $a0), which the
-   header's prototype refuses */
+/* declared here: matrixDrive.h is not included, since InitStaticBlur calls
+   CopyVector with one argument, which the header's prototype refuses */
 extern float ZeroPoint[4];
 extern void CopyVector();
 
-/* INTERIM (same pattern as GetSkeltonFocusNode in src/motionManager2.c): the
-   listing inlines _initStaticBlur (staticBlur.c:1310-1311) into InitStaticBlur,
-   so it is `inline` in the dev's TU; while this tail still has asm members a
-   deferred inline would land at the object end instead of at its ROM slot, so
-   the public body below stays a plain definition and this static stand-in
-   serves the C caller.  Collapses to one `inline` definition at layout. */
-static inline void initStaticBlur(void)
+/* a file-static copy of _initStaticBlur, which InitStaticBlur inlines (as
+   GetSkeltonFocusNode in src/motionManager2.c) */
+static inline void initStaticBlur(void) /* derived name */
 {
     sunGlowFan = prim_InitFan2D(16, 80.0f, ZeroPoint, 0xFFFFFF80u, 0);
     sunCoreFan = prim_InitFan2D(16, 80.0f, ZeroPoint, 0xFFFFFF80u, 0);

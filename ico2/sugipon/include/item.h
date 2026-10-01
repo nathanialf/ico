@@ -1,12 +1,8 @@
 /*
  * ico2/sugipon/include/item.h
  *
- * The disc records no file of this name: SRCFILE.TXT attributes no
- * instruction to it, and a header that only declares leaves no rows in the
- * listing at all, so this file is ours and not the developers' own record.
- * It collects the declarations of what item.c defines, in the form its
- * users need them; every type here is read from the ROM's calling convention
- * at the call sites and from the spellings the using TUs already carried.
+ * The declarations of what item.c defines, for the files that use
+ * them.  The file name is derived.
  */
 
 #ifndef ITEM_H
@@ -27,7 +23,7 @@ typedef struct {        /* field names derived */
     int hitAnim;        /* 0x14 */
     int hitMode;        /* 0x18 */
     unsigned int flags; /* 0x1C, bit 0: play SE package 43 */
-} ItemBreakRec;
+} ItemBreakRec; /* derived name */
 
 extern ItemBreakRec itemKind[];
 int BreakItemFromOutside(struct GObj *gobj);

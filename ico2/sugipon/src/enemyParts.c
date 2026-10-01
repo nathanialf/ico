@@ -14,12 +14,10 @@
 #include "Matrix.h"
 #include "ios.h"
 
-/* The packed colour word.  ROM copies it with lwl/lwr + swl/swr, which is
-   gcc's unaligned block move: the type is a four-byte record of chars, so
-   its alignment is 1 and the compiler cannot use lw/sw. */
-typedef struct Rgba {
+/* the packed colour word: a four-byte record of chars, aligned to 1 */
+typedef struct Rgba { /* field names derived */
     unsigned char r, g, b, a;
-} Rgba;
+} Rgba; /* derived name */
 
 typedef struct PointBlur { /* field names derived */
     /* 0x00 */ int pri;
@@ -28,24 +26,20 @@ typedef struct PointBlur { /* field names derived */
     /* 0x0C */ void *strip;
     /* 0x10 */ Rgba *stripCol;
     /* 0x14 */ Rgba col;
-    /* 0x18 */ long long _pad18; /* ROM proves 8-byte struct alignment: the
-                                     0x40-byte template copy is ld/sd, not lw/sw */
+    /* 0x18 */ long long _pad18; /* gives the record 8-byte alignment */
     /* 0x20 */ float pos[4];
     /* 0x30 */ int dirty;
     /* 0x34 */ int alpha;
     /* 0x38 */ char _pad38[8];
-} PointBlur;
+} PointBlur; /* derived name */
 
 extern void moveDataElements(PointBlur *p);
 
-typedef struct IVec {
+typedef struct IVec { /* field names derived */
     float x, y, z, w;
-} IVec;
+} IVec; /* derived name */
 
-/* Listing rows 66-70 sit inside UpdatePointBlur's span with no census entry
-   and no out-of-line body of their own, so they are a helper above it that
-   gcc inlined whole. */
-static inline void resetPointBlurTrail(PointBlur *p)
+static inline void resetPointBlurTrail(PointBlur *p) /* derived name */
 {
     int i;
     Rgba *q;
@@ -100,41 +94,31 @@ int UpdatePointBlur(PointBlur *p, void *mtx, void *a2, float f)
     return 1;
 }
 
-/* enemyParts.o's whole .data run, in ROM order: the templates the loops and
-   struct assignments copy out of. */
+/* the templates the loops and struct assignments copy out of */
 
 static PointBlur pointBlurTemplate = {2, 1, 0, 0, 0, {0, 0, 0, 0}, 0, {1.0f, 1.0f, 1.0f, 1.0f},
-                                      1, 5};
+                                      1, 5}; /* derived name */
 
-static EnemyEye enemyEyeTemplate = {0};
+static EnemyEye enemyEyeTemplate = {0}; /* derived name */
 
-static int enemyEyeBlurColor[4] = {0x32, 0x62, 0x80, 0x80};
+static int enemyEyeBlurColor[4] = {0x32, 0x62, 0x80, 0x80}; /* derived name */
 
-static float enemyEyeBlurRate[4] = {0.3f, 0.7f, 1.0f, 0.0f};
+static float enemyEyeBlurRate[4] = {0.3f, 0.7f, 1.0f, 0.0f}; /* derived name */
 
 static float enemyEyeScaleMatrix[4][4] = {{3.0f, 0.0f, 0.0f, 0.0f},
                                           {0.0f, 3.0f, 0.0f, 0.0f},
                                           {0.0f, 0.0f, 3.0f, 0.0f},
-                                          {0.0f, 0.0f, 0.0f, 1.0f}};
+                                          {0.0f, 0.0f, 0.0f, 1.0f}}; /* derived name */
 
-static int enemyEyeBlurTint[4] = {0x00, 0x80, 0xFF, 0x80};
+static int enemyEyeBlurTint[4] = {0x00, 0x80, 0xFF, 0x80}; /* derived name */
 
-/* 0x10 bytes of zero at 4-byte alignment: ROM copies it with ldl/ldr plus
-   sdl/sdr, gcc's unaligned block move. */
-static EnemyFootPrintHead footPrintHeadTemplate = {0, 0, 0, 0};
+/* 0x10 bytes of zero at 4-byte alignment */
+static EnemyFootPrintHead footPrintHeadTemplate = {0, 0, 0, 0}; /* derived name */
 
-static EnemyFootPrint footPrintVtxTemplate = {-1, 1.0f};
+static EnemyFootPrint footPrintVtxTemplate = {-1, 1.0f}; /* derived name */
 
-/* The display row's flag word is 64 bits wide: ROM sets and clears single
-   bits in it with ld/or/sd and ld/and/sd, and reaches the 16-bit field two
-   bytes into the same container with a plain sh. */
-
-/* InitPointBlur is a public member of this TU with its own out-of-line body
-   further down at its ROM slot; the January listing shows its rows (15-28)
-   inlined whole into InitEnemyEye.  INTERIM: while the out-of-line copy has
-   to stay where the ROM puts it, the call site gets this static stand-in,
-   which carries the same body and emits no out-of-line code of its own. */
-static inline PointBlur *initPointBlurAt(int num, int a1, int *col, void *pos)
+/* a file-static copy of InitPointBlur, which InitEnemyEye inlines */
+static inline PointBlur *initPointBlurAt(int num, int a1, int *col, void *pos) /* derived name */
 {
     PointBlur *p = (PointBlur *)iosMallocDebug(ios_partition_sugipon, 0x40, "src/enemyParts.c", 16);
     *p = pointBlurTemplate;
@@ -251,16 +235,8 @@ int ExecEnemyFootPrints(EnemyFootPrintHead *self)
     for (i = 0; i < self->num; i++) {
         EnemyFootPrint *fp = &base[i];
         struct DObjNode *dl; /* the node address as an int sum, as EntryEnemyFootPrint's slot */
-        /* The free marker is a statement of its own, not a constant folded
-           into the store below.  ROM materialises it as `addiu $21,$0,-1`
-           in THIS block, above all three calls, which costs a callee-saved
-           register and its sd/ld pair.  A plain `fp->life = -1;` cannot
-           produce that row: emit_move_insn on a `(mem) <- (const_int -1)`
-           forces the constant into a register AT the store, so the `li`
-           would land inside the `if` block.  The January listing puts the
-           row at enemyParts.c:281, which is the line of the
-           SetQuaternionByAxisRotateVWithNoRegularize call below, and that
-           is where the assignment sits here. */
+        /* the free marker, set before the calls below and stored when the
+           footprint runs out */
         int dead;
 
         if (fp->life < 0) {
@@ -277,7 +253,7 @@ int ExecEnemyFootPrints(EnemyFootPrintHead *self)
         fp->life = fp->life + 1;
         if (fp->life == 30) {
             fp->life = dead;
-            /* node 1's fade, whichever footprint ran out (the ROM's fixed 0x80) */
+            /* node 1's fade, whichever footprint ran out */
             self->dobj->nodes[1].fade = 1.0f;
         }
     }
@@ -287,8 +263,7 @@ int ExecEnemyFootPrints(EnemyFootPrintHead *self)
 int EntryEnemyFootPrint(EnemyFootPrintHead *self, void *pos)
 {
     int i = self->idx;
-    /* the slot address as an int sum, offset first: the ROM's addu takes the
-       scaled index as its first operand, which the subscript does not give */
+    /* the slot address as an int sum */
     EnemyFootPrint *fp = (EnemyFootPrint *)(i * 32 + (int)self->buf);
     struct DObjNode *vt;
 

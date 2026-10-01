@@ -1,12 +1,8 @@
 /*
  * ico2/sugipon/include/enemy.h
  *
- * The disc records no file of this name: SRCFILE.TXT attributes no
- * instruction to it, and a header that only declares leaves no rows in the
- * listing at all, so this file is ours and not the developers' own record.
- * It collects the declarations of what enemy.c defines, in the form its
- * users need them; every type here is read from the ROM's calling convention
- * at the call sites and from the spellings the using TUs already carried.
+ * The declarations of what enemy.c defines, for the files that use
+ * them.  The file name is derived.
  */
 
 #ifndef ENEMY_H
@@ -20,7 +16,7 @@ struct GObj;
 typedef struct { /* field names derived */
     int first;   /* 0x00 */
     int last;    /* 0x04 */
-} EnemyKindRange;
+} EnemyKindRange; /* derived name */
 
 /* enemy-def: one enemy kind, 0x1C bytes, by kind: the model and the particle
    object it is drawn with, its life, the scale its model is drawn at, the

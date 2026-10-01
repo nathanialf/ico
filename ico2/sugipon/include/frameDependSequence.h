@@ -1,12 +1,8 @@
 /*
  * ico2/sugipon/include/frameDependSequence.h
  *
- * The disc records no file of this name: SRCFILE.TXT attributes no
- * instruction to it, and a header that only declares leaves no rows in the
- * listing at all, so this file is ours and not the developers' own record.
- * It collects the declarations of what frameDependSequence.c defines, in the form its
- * users need them; every type here is read from the ROM's calling convention
- * at the call sites and from the spellings the using TUs already carried.
+ * The declarations of what frameDependSequence.c defines, for the files that use
+ * them.  The file name is derived.
  */
 
 #ifndef FRAMEDEPENDSEQUENCE_H
@@ -18,21 +14,21 @@ struct GObj;
 typedef struct { /* field names derived */
     int se[2];   /* 0x00 */
     int id;      /* 0x08 */
-} SePackage;
+} SePackage; /* derived name */
 
 /* motion-se-random-def: one random sound, 8 bytes: the sound and its share
    of the draw. */
 typedef struct { /* field names derived */
     int se;      /* 0x00 */
     float rate;  /* 0x04 */
-} SERandEntry;
+} SERandEntry; /* derived name */
 
 /* motion-se-condition-def: one sound condition, 0x0C bytes. */
 typedef struct { /* field names derived */
     int kind;    /* 0x00 */
     int cond;    /* 0x04 */
     int se;      /* 0x08 */
-} SECondEntry;
+} SECondEntry; /* derived name */
 
 /* motion-eff-def: one motion effect, 0x24 bytes: the offset and turn from
    the node, the particle effect, the node and the flags.  Readers:
@@ -47,7 +43,7 @@ typedef struct {        /* field names derived */
     int eff;            /* 0x18 */
     int node;           /* 0x1C */
     unsigned int flags; /* 0x20 */
-} EffEntry;
+} EffEntry; /* derived name */
 
 /* motion-eff-condition-def: the shared condition table, 0x0C bytes a row:
    execEff reads its cond and actId pair as an effect id, execVibCondition
@@ -56,7 +52,7 @@ typedef struct { /* field names derived */
     int kind;    /* 0x00 */
     int cond;    /* 0x04 */
     int actId;   /* 0x08 */
-} VibCondEntry;
+} VibCondEntry; /* derived name */
 
 extern SePackage progSELink[];
 extern const SERandEntry randomSEKind[];

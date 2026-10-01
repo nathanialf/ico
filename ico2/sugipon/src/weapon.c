@@ -29,9 +29,8 @@
 #include "DObj.h"
 
 /* The work record InitWeaponGeo and InitDemoQueensSword allocate and the
-   template they initialise it from: 224 bytes, 8-aligned (ROM copies it 32
-   bytes at a time with ld/sd pairs).  The fields are the ones this file
-   reads; the names are ours. */
+   template they initialise it from: 224 bytes, 8-aligned.  The fields are the
+   ones this file reads. */
 typedef struct {       /* field names derived */
     int kind;          /* 0x00: the switch in InitWeaponGeo */
     int state;         /* 0x04: 2 while the weapon falls from a fumble */
@@ -59,8 +58,8 @@ typedef struct {       /* field names derived */
     int humAnim;         /* 0xBC: the blade's BG animation handle */
     int offsetMode;      /* 0xC0: SetWeaponOffsetMode */
     char padC4[12];
-    float tipPos[4]; /* 0xD0: the blade tip */
-} __attribute__((aligned(8))) WeaponWork;
+    float tipPos[4];                      /* 0xD0: the blade tip */
+} __attribute__((aligned(8))) WeaponWork; /* derived name */
 
 void torchOnOfWeaponSE(GObj *a0)
 {
@@ -88,10 +87,7 @@ void weaponStickSE(GObj *a0)
     ExecuteSEPackage(a0, 0x5D);
 }
 
-/* INTERIM NAME, chosen and not recovered: the PAL listing carries this
-   file-static helper at weapon.c:262-265 and inlines it here, so it has no
-   census row and no name of its own in any map. */
-static inline void releaseWeaponHolder(WeaponWork *w)
+static inline void releaseWeaponHolder(WeaponWork *w) /* derived name */
 {
     if (w->holder != 0) {
         w->holder->dobj->ctrl.pickedWeapon = 0;
@@ -119,18 +115,13 @@ void ReleaseWeaponWithFumbleTargetPos(GObj *g, void *pos, void *quat, void *rot,
     weaponFumbleSE(g);
 }
 
-/* RECONSTRUCTION: the position vector this function builds and hands on. The
-   ROM copies it with two ld/sd pairs, so the type is 8-byte aligned; it is
-   built by aggregate initialisers, whose stores into the initialiser's
-   temporary are what make every component re-read the slot index. */
-typedef struct {
+/* the position vector this function builds and hands on: 8-byte aligned,
+   built by aggregate initialisers */
+typedef struct { /* field names derived */
     float x, y, z, w;
-} __attribute__((aligned(8))) FumbleVec;
+} __attribute__((aligned(8))) FumbleVec; /* derived name */
 
-/* INTERIM NAME, chosen and not recovered: the PAL listing carries this file
-   static at weapon.c:310-320 and inlines it here, so it has no census row and
-   no name of its own in any map. */
-static inline int fumbleTargetBlocked(FumbleVec *p)
+static inline int fumbleTargetBlocked(FumbleVec *p) /* derived name */
 {
     GObj *o;
     FumbleVec tmp;
@@ -152,14 +143,14 @@ static inline int fumbleTargetBlocked(FumbleVec *p)
     return 0;
 }
 
-/* kept local: ico2/omori/src/attackhit.c declares the table with its own
-   record and includes weapon.h */
+/* declared here: ico2/omori/src/attackhit.c declares the table with its
+   own record and includes weapon.h */
 extern WeaponDef weaponKind[];
-/* kept local: the table is three rows to a weapon slot and is read as such;
-   the definition (weapon-fumble-def) is the flat row array */
+/* declared here as three rows to a weapon slot, the way it is read; the
+   definition (weapon-fumble-def) is the flat row array */
 extern FumbleRow weaponFumbleGeo[][3];
 
-#define FUMBLE_ROW(i, w) (&weaponFumbleGeo[(w)->fumbleSlot][i])
+#define FUMBLE_ROW(i, w) (&weaponFumbleGeo[(w)->fumbleSlot][i]) /* derived name */
 
 int ReleaseWeaponWithFumbleSequential(GObj *g)
 {
@@ -202,8 +193,6 @@ int ReleaseWeaponWithFumbleSequential(GObj *g)
     return 0;
 }
 
-/* This file's .data, in the ROM's order; MAIN.MAP names nothing in weapon.o's
-   .data, so every name here is ours. */
 static WeaponWork swordWorkTemplate = {
     0,
     0,
@@ -235,17 +224,14 @@ static WeaponWork swordWorkTemplate = {
     0,
     {0},
     {0.0f, 0.0f, 0.0f, 1.0f},
-};
+}; /* derived name */
 
 /* the offsets the two path helpers below set the z of and push along */
-static float pathOfsFwd[4] = {0.0f, 0.0f, 1.0f, 1.0f};
+static float pathOfsFwd[4] = {0.0f, 0.0f, 1.0f, 1.0f}; /* derived name */
 
-static float pathOfsBack[4] = {0.0f, 0.0f, 1.0f, 1.0f};
+static float pathOfsBack[4] = {0.0f, 0.0f, 1.0f, 1.0f}; /* derived name */
 
-/* INTERIM NAMES, chosen and not recovered: the PAL listing carries these two
-   file-static helpers at weapon.c:362-373 and 375-385 and inlines them here,
-   so neither has a census row or a name in any map. */
-static inline void addWeaponPathOffset(char *p, char *rp, float d)
+static inline void addWeaponPathOffset(char *p, char *rp, float d) /* derived name */
 {
     float m[16];
     float v[4];
@@ -257,7 +243,7 @@ static inline void addWeaponPathOffset(char *p, char *rp, float d)
     _AddVectorXYZ(rp, rp, v);
 }
 
-static inline void subWeaponPathOffset(char *p, char *rp, float d)
+static inline void subWeaponPathOffset(char *p, char *rp, float d) /* derived name */
 {
     float m[16];
     float v[4];
@@ -301,10 +287,9 @@ int calcDynamicPathGeometry(GObj *g)
     return 0;
 }
 
-/* The collision query ClipCollision fills in (reconstruction; names ours):
-   192 bytes, its quadword members giving it the 16-byte alignment the ROM's
-   template copy relies on (32 bytes at a time with ld/sd pairs). */
-typedef struct {
+/* The collision query ClipCollision fills in: 192 bytes, 16-byte aligned by
+   its quadword members. */
+typedef struct {       /* field names derived */
     sceVu0FVECTOR p0;  /* 0x00 start of the swept segment */
     sceVu0FVECTOR p1;  /* 0x10 end of the swept segment */
     char pad20[16];    /* 0x20 */
@@ -318,30 +303,18 @@ typedef struct {
     char pad8C[8];     /* 0x8C */
     int hit94;         /* 0x94 */
     char pad98[40];    /* 0x98 */
-} CollWork;
+} CollWork;            /* derived name */
 
 /* the query calcDynamicGeometry starts from: all clear but the 0x70 word */
 static const CollWork collWorkInit = /* derived name */
     {{0.0f}, {0.0f}, {0}, {0.0f}, {0}, {0.0f}, {0.0f}, 10.0f};
 
 /* the offset the wall test pushes the blade tip along, its z set per test */
-static float hitOfs[4] = {0.0f, 0.0f, 1.0f, 1.0f};
+static float hitOfs[4] = {0.0f, 0.0f, 1.0f, 1.0f}; /* derived name */
 
 /* calcDynamicGeometry's TTY trace, built only when DEBUG is defined; the
-   retail build does not define it, so the preprocessor leaves the helper
-   without a body.  A parameterless inline whose body is empty is saved as the
-   single (use (const_int 0)) flow.c:count_basic_blocks gives a function with
-   no insns, so each call emits no byte but leaves that insn until flow (a
-   helper with a parameter saves no USE; its parameter move is an insn).  The
-   name and the trace text are ours.
-   WHAT THE BYTES PIN: the three spill slots at sp+0x23C..0x248 hold gcse PRE
-   reaching registers in expression-hash bucket order, which puts gcse's
-   max_cuid in a window this body reaches only with three to four more insns
-   than its statements give (complete56: none 18 words, three or four hooks
-   byte-identical, a hook between 536 and 557 six words); the calls sit in the
-   listing's code-free runs 499-516, 580-585 and 590-597.  WHAT THEY CANNOT
-   PIN: the trace's text, or its lines inside those runs. */
-static __inline__ void dynGeoDebugHook(void)
+   retail build leaves the helper without a body */
+static __inline__ void dynGeoDebugHook(void) /* derived name */
 {
 #ifdef DEBUG
     scePrintf("calcDynamicGeometry\n");
@@ -495,15 +468,10 @@ void calcDynamicGeometry(GObj *g)
     }
 }
 
-/* INTERIM: a stand-in for SetWeaponOffsetMode, which the PAL listing inlines
-   here (its rows at weapon.c:196 and 197 appear inside getGeometry and
-   InitWeaponGeo) while keeping its own out-of-line copy at its ROM slot
-   further down this file.  The work pointer is read as Sub15C's int field
-   f_830, so the chase loads and the offset-mode store share the int alias
-   set: the store kills the chase load for gcse and cse2, and InitWeaponGeo's
-   loop latch reloads the sub-object pointer on its own, the ROM's second
-   `lw $a1,0x15C($s7)` and the register order it decides (measured). */
-static inline void setWeaponOffsetMode(GObj *g, int v)
+/* a file-static copy of SetWeaponOffsetMode, which getGeometry and
+   InitWeaponGeo inline; the work pointer is read as Sub15C's int field
+   f_830 */
+static inline void setWeaponOffsetMode(GObj *g, int v) /* derived name */
 {
     *(int *)(GOBJ_SUB(g)->work + 0xC0) = v;
 }
@@ -571,7 +539,7 @@ void ExecWeaponHitReaction(GObj *a0)
 }
 
 /* the blade tip in the sword's own frame */
-static float swordTip[4] = {0.0f, 0.0f, 80.0f, 1.0f};
+static float swordTip[4] = {0.0f, 0.0f, 80.0f, 1.0f}; /* derived name */
 
 void checkHit(GObj *g)
 {
@@ -601,23 +569,23 @@ void checkHit(GObj *g)
     CopyVector(w->hit[3], (char *)p + 0xA0);
 }
 
-/* The parent-link record CreateLayoutedGObj's caller hands to LinkParentOfDObj:
-   two words, 4-aligned (ROM copies it with an ldl/ldr, sdl/sdr pair). */
-typedef struct {
-    int gobj;  /* 0x0 */
-    int index; /* 0x4 */
-} QSwordLink;
+/* The parent-link record CreateLayoutedGObj's caller hands to
+   LinkParentOfDObj: two words, 4-aligned. */
+typedef struct { /* field names derived */
+    int gobj;    /* 0x0 */
+    int index;   /* 0x4 */
+} QSwordLink;    /* derived name */
 
 /* The 64-byte layout record InitDemoQueensSword passes through; only the
    word at 0x30 is ever named here. */
-typedef struct {
+typedef struct { /* field names derived */
     char pad00[48];
     int kind; /* 0x30 */
     char pad34[12];
-} __attribute__((aligned(8))) QSwordLayout;
+} __attribute__((aligned(8))) QSwordLayout; /* derived name */
 
 /* the queen's sword offset, its z set per sword */
-static float queenSwordOfs[4] = {0.0f, 0.0f, 0.0f, 1.0f};
+static float queenSwordOfs[4] = {0.0f, 0.0f, 0.0f, 1.0f}; /* derived name */
 
 void initializeQueenzSword(GObj *g, int index, QSwordLayout *lay)
 {
@@ -650,7 +618,7 @@ void initializeQueenzSword(GObj *g, int index, QSwordLayout *lay)
     w->sword = o2;
 }
 
-typedef float WeaponVec[4] __attribute__((aligned(8)));
+typedef float WeaponVec[4] __attribute__((aligned(8))); /* derived name */
 
 void *InitWeaponGeo(GObj *g, QSwordLayout *lay)
 {
@@ -736,15 +704,15 @@ void dispLaserSword(GObj *g, float t)
 }
 
 /* the insect net's line colour and its handle, end to end */
-static int netColor[4] = {128, 128, 128, 128};
+static int netColor[4] = {128, 128, 128, 128}; /* derived name */
 
-static float netHandleStart[4] = {0.0f, 0.0f, -50.0f, 1.0f};
+static float netHandleStart[4] = {0.0f, 0.0f, -50.0f, 1.0f}; /* derived name */
 
-static float netHandleEnd[4] = {0.0f, 0.0f, 100.0f, 1.0f};
+static float netHandleEnd[4] = {0.0f, 0.0f, 100.0f, 1.0f}; /* derived name */
 
-typedef struct {
+typedef struct { /* field names derived */
     float f[4];
-} __attribute__((aligned(16))) NetVec;
+} __attribute__((aligned(16))) NetVec; /* derived name */
 
 void dispInsectNet(GObj *g)
 {
@@ -892,18 +860,16 @@ void calcBlur(GObj *g, float t)
     }
 }
 
-/* kept local: motionOrientManager.h reaches ico2/fumi's TUs through
+/* declared here: motionOrientManager.h reaches ico2/fumi's files through
    typedef.h, and commonact.c declares the table char [] */
 extern const MotionDef motionKind[];
 
 /* The MatrixDrive matrix, viewed as the union of float and int arrays this
-   codebase uses for VU0 data.  The union member reference is what puts the
-   0x34 store in alias set 0, which is why the following gobj-extension load
-   stays behind it instead of hoisting above the store (measured: 6 -> 3). */
-typedef union {
+   codebase uses for VU0 data. */
+typedef union { /* field names derived */
     float f[4][4];
     int i[4][4];
-} WeaponMatrix;
+} WeaponMatrix; /* derived name */
 
 void WeaponGeo(GObj *g)
 {
@@ -1112,12 +1078,8 @@ int GetTorchGObjOfWeapon(GObj *a0)
     return 0;
 }
 
-/* INTERIM (see the iosThreadCreate note in ios/thread.c): the listing inlines
- * ReleaseWeapon's lines 262-265 here, so ReleaseWeapon is a public `inline` of
- * the deferred tail; its body is expanded in place until the tail's asm
- * members are C, when it collapses into a call.  LightTorchOnOfWeapon and
- * LightTorchOnOfWeaponWithNoSE are one source body (both symbols carry
- * weapon.c:173-177); their shared form is decided at layout. */
+/* ReleaseWeapon's body is expanded in place here.  LightTorchOnOfWeapon and
+ * LightTorchOnOfWeaponWithNoSE come from one source body. */
 void ReleaseWeaponWithFumble(GObj *a0, void *a1, void *a2)
 {
     Sub15C *e = GOBJ_SUB(a0);

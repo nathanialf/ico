@@ -24,13 +24,13 @@
 #include "Matrix.h"
 #include "ios.h"
 
-typedef struct {
+typedef struct { /* field names derived */
     char c[16];
-} Blob16;
+} Blob16; /* derived name */
 
-typedef struct {
+typedef struct { /* field names derived */
     char c[4];
-} Blob4;
+} Blob4; /* derived name */
 
 void falldownSE(GObj *a0)
 {
@@ -38,21 +38,17 @@ void falldownSE(GObj *a0)
 }
 
 /* The whole drawing area as a sprite rectangle in GS primitive coordinates,
-   {x0, y0, x1, y1}: copyToWork and flushWork blit the frame through it.  A
-   quadword: the member's .rodata starts on a 16-byte boundary in both the
-   retail link (8 bytes of fill after motionManager2's run) and MAIN.MAP. */
-static const sceVu0IVECTOR workRect = {-2048, -2048, 4096, 4096};
+   {x0, y0, x1, y1}: copyToWork and flushWork blit the frame through it. */
+static const sceVu0IVECTOR workRect = {-2048, -2048, 4096, 4096}; /* derived name */
 
-/* The TU's .sdata opens with the two work-area VRAM addresses (MAIN.MAP names
-   nothing in the run); the two colour constants after them are copyToWork's and
-   flushWork's anonymous initialisers. */
+/* the two work-area VRAM addresses */
 static int workVram = 0; /* derived name */
 
 static int work1Vram = 0; /* derived name */
 
-/* kept local: agrees with Texture.h, which this TU does not include (tex_ResetVramPri differs) */
+/* as in Texture.h, which this file does not include */
 extern int tex_AllocVramAuto(int a0, int a1);
-/* kept local: void (void) here, void (int) in Texture.h */
+/* void (void) here, void (int) in Texture.h */
 extern void tex_ResetVramPri(void);
 
 void copyToWork(int pri)
@@ -69,13 +65,7 @@ void copyToWork(int pri)
     gif_SetGsReg(0x47, 0x30000);
     gif_SetGsReg(0x14, 0x60);
     *(Blob16 *)rect = *(Blob16 *)workRect;
-    /* The inner block is what the frame proves.  uv's initialiser is built in
-       a 16-byte stack temp and block-copied into uv (safe_from_p rejects the
-       array as the constructor target once its address is live), and col is
-       declared after that statement so assign_temp hands it the freed temp
-       slot.  That is why the ROM writes 8, 8, w and h at sp+0x20, copies them
-       to sp+0x10, then overwrites sp+0x20 with the four colour bytes and
-       passes sp+0x20 as the colour pointer, all inside a 0x40 frame. */
+    /* the frame, through the work rectangle, at full colour */
     {
         int uv[4] = {8, 8, ScreenWidth * 16, ScreenHeight * 16};
         Blob4 col = {128, 128, 128, 128};
@@ -104,30 +94,25 @@ void flushWork(int pri)
     gif_SetZTest(1);
 }
 
-/* RECONSTRUCTION, read from the ROM.  One ripple of the pool's surface: the
-   grid cell it started in and the remainder inside that cell on each of the
-   two horizontal axes, its amplitude (negative when the slot is free) and its
-   age.  InitPoolGeo clears five of them, SetFallDownSplash starts the next
-   one in turn. */
-typedef struct {
-    int ix;    /* 0x00 */
-    float fx;  /* 0x04 */
-    int iz;    /* 0x08 */
-    float fz;  /* 0x0C */
-    float amp; /* 0x10 */
-    float age; /* 0x14 */
-} PoolRipple;
+/* One ripple of the pool's surface: the grid cell it started in and the
+   remainder inside that cell on each of the two horizontal axes, its
+   amplitude (negative when the slot is free) and its age.  InitPoolGeo
+   clears five of them, SetFallDownSplash starts the next one in turn. */
+typedef struct { /* field names derived */
+    int ix;      /* 0x00 */
+    float fx;    /* 0x04 */
+    int iz;      /* 0x08 */
+    float fz;    /* 0x0C */
+    float amp;   /* 0x10 */
+    float age;   /* 0x14 */
+} PoolRipple;    /* derived name */
 
-/* RECONSTRUCTION, read from the ROM.  The pool's work record, the 224 bytes
-   InitPoolGeo allocates and leaves in the object's work word (Sub15C+0x830):
-   the surface's position (its y is the water height every reader takes) and
-   drain vector, the two splash managers, the height grid and its two meshes, the
-   ripples, the wave phase and the reflected stage object.  The two multi-BGA
-   managers are char *: InitPoolGeo's store of the second must share the
-   char * alias set of the object-sub load after it, which the ROM keeps
-   below the store (measured: BgaDisp *, void * and int all let sched1 lift
-   the load and swap $a0/$v1 at the last store). */
-typedef struct {
+/* The pool's work record, the 224 bytes InitPoolGeo allocates and leaves in
+   the object's work word (Sub15C+0x830): the surface's position (its y is
+   the water height every reader takes) and drain vector, the two splash
+   managers, the height grid and its two meshes, the ripples, the wave phase
+   and the reflected stage object. */
+typedef struct {          /* field names derived */
     float pos[4];         /* 0x00 */
     float drain[4];       /* 0x10, GetPoolGlobalDrainVector's vector: the
                                layout's x and z angles in degrees */
@@ -148,19 +133,14 @@ typedef struct {
     short phase;          /* 0xCC */
     char *dobj;           /* 0xD0, the reflected stage object or 0 */
     int spin;             /* 0xD4 */
-} PoolWork;
+} PoolWork;               /* derived name */
 
-/* The listing gives this body rows 178 to 186 and attributes those rows to
-   both SetFallDownSplash and InitPoolGeo, so it is a static of this file that
-   the compiler inlines into each of them and it has no symbol of its own.  It
-   plants one cell of the pool's ripple grid at a world position: the grid
+/* Plant one cell of the pool's ripple grid at a world position: the grid
    index and the in-cell remainder on each of the two horizontal axes, then
-   the amplitude the caller asks for and a zero age.  The cell address, the
-   cell step and the two grid counts arrive as parameters: in both callers
-   the listing puts their loads and the cell arithmetic on row 178 with the
-   amplitude, the row integrate.c gives an inline's parameter set-up. */
+   the amplitude the caller asks for and a zero age.  SetFallDownSplash and
+   InitPoolGeo use it. */
 static inline void setWaveCell(PoolWork *w, float *pos, PoolRipple *cell, float step, int nx,
-                               int ny, float amp)
+                               int ny, float amp) /* derived name */
 {
     float d[4];
 
@@ -222,16 +202,16 @@ void GetPoolGlobalDrainVector(void *dst, GObj *a0)
     CopyVector(dst, ((PoolWork *)GOBJ_SUB(a0)->work)->drain);
 }
 
-typedef union {
+typedef union { /* field names derived */
     int i[4];
     float f[4];
-} PoolQuad;
+} PoolQuad; /* derived name */
 
-typedef struct {
+typedef struct {    /* field names derived */
     PoolQuad pos;   /* 0x00 */
     PoolQuad rot;   /* 0x10 */
     PoolQuad scale; /* 0x20 */
-} PoolDisp;
+} PoolDisp;         /* derived name */
 
 int poolRideFunc(ObjNode *a0, GObj *a1);
 
@@ -323,7 +303,7 @@ char *InitPoolGeo(char *self, SObjSimpleSetting *lay)
     return (char *)w;
 }
 
-static inline void decayRipple(PoolRipple *c)
+static inline void decayRipple(PoolRipple *c) /* derived name */
 {
     if (c->amp < 0.0f) {
         return;
@@ -332,7 +312,7 @@ static inline void decayRipple(PoolRipple *c)
     c->amp -= 60.0f / (float)((60 - systemStatus[0] * 10) / systemStatus[1]) * 0.0005f;
 }
 
-static inline void addRippleToGrid(PoolWork *w, PoolRipple *c, float **grid)
+static inline void addRippleToGrid(PoolWork *w, PoolRipple *c, float **grid) /* derived name */
 {
     float step = w->step;
     int nx = w->nx;
@@ -401,7 +381,7 @@ static inline void addRippleToGrid(PoolWork *w, PoolRipple *c, float **grid)
     }
 }
 
-static inline void makeWaveGrid(PoolWork *w, float **grid, int ang)
+static inline void makeWaveGrid(PoolWork *w, float **grid, int ang) /* derived name */
 {
     int i;
     int j;
@@ -419,7 +399,7 @@ static inline void makeWaveGrid(PoolWork *w, float **grid, int ang)
 }
 
 /* The GS drawing-area origin, the centre of the 4096-unit primitive space. */
-static const ConstVec screenOrigin = {{2048.0f, 2048.0f, 0.0f, 0.0f}};
+static const ConstVec screenOrigin = {{2048.0f, 2048.0f, 0.0f, 0.0f}}; /* derived name */
 
 void updatePoolGeo(GObj *self)
 {
@@ -568,39 +548,38 @@ void updatePoolGeo(GObj *self)
     prim_UpdateMesh3D(mesh0, 9, buffer_ID);
 }
 
-/* .data, owned by pool.o and read only here (MAIN.MAP names no symbol in the
-   run).  The fixed lighting the pool surface is drawn under, in the two
-   matrices light_MakeLightMatrix otherwise builds at +0x40 and +0x00 of the
-   object's light work: a colour matrix (a row per colour channel, a column per
-   light) and a normal matrix (a column per light direction).  The first pair
-   goes straight to prim_DispMesh3D, the second is copied into the work. */
+/* The fixed lighting the pool surface is drawn under, in the two matrices
+   light_MakeLightMatrix otherwise builds at +0x40 and +0x00 of the object's
+   light work: a colour matrix (a row per colour channel, a column per light)
+   and a normal matrix (a column per light direction).  The first pair goes
+   straight to prim_DispMesh3D, the second is copied into the work. */
 static float dispLightColor[4][4] = {
     {1.0f, 0.0f, 0.0f, 0.0f},
     {1.0f, 0.0f, 0.0f, 0.0f},
     {1.0f, 0.0f, 0.0f, 0.0f},
     {1.0f, 1.0f, 1.0f, 0.0f},
-};
+}; /* derived name */
 
 static float dispLightNormal[4][4] = {
     {1.0f, 0.0f, 0.0f, 0.0f},
     {0.0f, 1.0f, 0.0f, 0.0f},
     {0.0f, 0.0f, 1.0f, 0.0f},
     {0.0f, 0.0f, 0.0f, 1.0f},
-};
+}; /* derived name */
 
 static float workLightColor[4][4] = {
     {0.707f, 0.707f, 0.0f, 0.0f},
     {0.707f, 0.707f, 0.0f, 0.0f},
     {0.707f, 0.707f, 0.0f, 0.0f},
     {0.0f, 0.0f, 0.0f, 0.0f},
-};
+}; /* derived name */
 
 static float workLightNormal[4][4] = {
     {1.0f, 1.0f, 1.0f, 0.0f},
     {1.0f, 1.0f, 1.0f, 0.0f},
     {1.0f, 1.0f, 1.0f, 0.0f},
     {0.0f, 0.0f, 0.0f, 1.0f},
-};
+}; /* derived name */
 
 void dispPool(GObj *self)
 {

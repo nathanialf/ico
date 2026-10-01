@@ -19,28 +19,28 @@
 #include <libvu0.h>
 #include <assert.h>
 
-struct Pack32 {
+struct Pack32 { /* field names derived */
     long long a, b, c, d;
 };
 
-typedef struct {
+typedef struct { /* field names derived */
     char _0;
     signed char f1;
     unsigned char f2;
     unsigned char f3;
-} FloorAttr;
+} FloorAttr; /* derived name */
 
-typedef struct {
+typedef struct { /* field names derived */
     long long d[2];
     float q[4];
-} StreamElem;
+} StreamElem; /* derived name */
 
-typedef struct {
+typedef struct { /* field names derived */
     int idx;
     char pad[28];
     float q[4];
     char pad2[16];
-} StreamNode;
+} StreamNode; /* derived name */
 
 int GetWaterReaction(float *outH, int *outFlag, ClipBuf *info, float *pos, float *vel, float h0,
                      float h1, float h2, float scaleIn, float amp)
@@ -97,32 +97,18 @@ int GetWaterReaction(float *outH, int *outFlag, ClipBuf *info, float *pos, float
     return 0;
 }
 
-/* 8-aligned float quad: ROM copies the {0,1,0,1} and plane templates with one
-   ld/sd pair, which a plain float[4] (alignment 4) cannot emit. */
+#define ABSF(x) ((x) < 0.0f ? -(x) : (x)) /* derived name */
 
-/* 8-aligned RGBA quad, for the same reason; the components are signed (the
-   colour scaling in dispPlane is cvt.s.w). */
-
-#define ABSF(x) ((x) < 0.0f ? -(x) : (x))
-
-/* dev line 427: a one-line by-value wrapper, so each of the six call sites
-   copies the plane into its own frame slot and passes that address. */
-static inline float getPlaneY(Vec4 pl, float *p)
+/* a one-line by-value wrapper: each of the six call sites copies the plane
+   into its own frame slot and passes that address */
+static inline float getPlaneY(Vec4 pl, float *p) /* derived name */
 {
     return GetYProjectionOfPlane(&pl, p);
 }
 
-/* dev lines 431 to 500.  The loop counts 0..10 and offsets by 5: the ROM's
-   $s7 (-5, +1 each turn) is loop.c's giv for `i - 5`, and its down counter in
-   the 0x1A0 spill slot is check_dbra_loop reversing the original biv once the
-   giv took every use of i.  Writing the loop as `for (i = -5; i <= 5; i++)`
-   instead makes gcse PRE fold the three `(float)i` conversions into one,
-   because all three then share one pseudo; with `i - 5` each conversion has
-   its own operand pseudo and PRE (MAX_PASSES 1) only commons the subtraction.
-   `plane` is retargeted at the local copy, so the six by-value argument
-   copies and the CopyVector read through one pointer register the way the ROM
-   does.  buf is twelve quads because only that size puts the line-451
-   CopyVector destination at sp+0xE0 and sets the ROM's 640-byte frame. */
+/* The loop counts 0..10 and offsets by 5.  `plane` is retargeted at the
+   local copy, so the six by-value argument copies and the CopyVector read
+   through one pointer. */
 void dispPlane(Vec4 *plane, float *pos)
 {
     Vec4 pl = *plane;
@@ -293,9 +279,8 @@ void getLowerPlaneCollisionE(ClipBuf *w, float *pos)
     ClipFloorE(w);
 }
 
-/* static inline in the ROM: inlined into AdjustMotionHeightToNearestField and
- * InitMotionGeoInfo, no out-of-line copy, so the name is ours. */
-static inline int adjustMotionHeightToNearestField(char *o, float *pos)
+/* inlined into AdjustMotionHeightToNearestField and InitMotionGeoInfo */
+static inline int adjustMotionHeightToNearestField(char *o, float *pos) /* derived name */
 {
     ClipBuf buf;
     float p[4];
@@ -424,21 +409,18 @@ int calcFootIK(SkelNode *skel, char *arg, int node, float scale, float ratio)
     return ang;
 }
 
-/* RECONSTRUCTION: the motion geometry record the actor sub-object carries at
-   its own +0xA0, and the default every actor starts from.  Rungs: ROM bytes
-   for every offset, width and value; this TU's own code for the roles it
-   names (InitMotionGeoInfo writes the position at 0x0 and the root
-   quaternion at 0x30, SetSimplePlane builds the field plane at 0x130,
-   GetRootPosOfNextFrame reads the next-frame position at 0x90 and
-   AdjustMotionHeightToField projects the field position at 0x1B0 onto that
-   plane); the offsets with no reader keep offset names.  MAIN.MAP names no
-   symbol in the member, so both names here are ours. */
-typedef struct {
-    int f_0;  /* 0x0 */
-    int node; /* 0x4, skeleton node index, -1 when the slot has none */
-} MotionGeoNode;
+/* The motion geometry record the actor sub-object carries at its own +0xA0,
+   and the default every actor starts from.  InitMotionGeoInfo writes the
+   position at 0x0 and the root quaternion at 0x30, SetSimplePlane builds the
+   field plane at 0x130, GetRootPosOfNextFrame reads the next-frame position
+   at 0x90 and AdjustMotionHeightToField projects the field position at 0x1B0
+   onto that plane; the offsets with no reader keep offset names. */
+typedef struct { /* field names derived */
+    int f_0;     /* 0x0 */
+    int node;    /* 0x4, skeleton node index, -1 when the slot has none */
+} MotionGeoNode; /* derived name */
 
-typedef struct {
+typedef struct { /* field names derived */
     int f_0;     /* 0x0 */
     int f_4;     /* 0x4 */
     int node;    /* 0x8, skeleton node index, -1 when the limb has none */
@@ -451,10 +433,10 @@ typedef struct {
     float f_54;  /* 0x54 */
     float f_58;  /* 0x58 */
     float f_5C;  /* 0x5C */
-} MotionGeoLimb;
+} MotionGeoLimb; /* derived name */
 
-typedef struct {
-    Vec4 pos; /* 0x0, the position InitMotionGeoInfo is handed */
+typedef struct { /* field names derived */
+    Vec4 pos;    /* 0x0, the position InitMotionGeoInfo is handed */
     Vec4 f_10;
     Vec4 f_20;
     Vec4 rot; /* 0x30, the root quaternion */
@@ -520,11 +502,10 @@ typedef struct {
     float f_3C4;
     float f_3C8;
     float f_3CC;
-} MotionGeoInfo;
+} MotionGeoInfo; /* derived name */
 
-/* .data, owned by motionManager2.o: the record InitMotionGeoInfo copies over
-   every new actor's geometry state.  It is defined here, ahead of the wall
-   tables below, because the ROM emits it first in the member's .data. */
+/* the record InitMotionGeoInfo copies over every new actor's geometry
+   state */
 static MotionGeoInfo motionGeoInfoTemplate = {
     {{0.0f, 0.0f, 0.0f, 1.0f}},
     {{0.0f, 0.0f, 0.0f, 1.0f}},
@@ -615,24 +596,22 @@ static MotionGeoInfo motionGeoInfoTemplate = {
     0.1f,
     0.1f,
     0.0f,
-};
+}; /* derived name */
 
-/* RECONSTRUCTION: the motion state record the actor sub-object carries at its
-   own +0x470, and the default every actor starts from.  Rungs: ROM bytes for
-   every offset, width and value; this TU's own accessors for the roles
-   (SetMotionDirection writes the direction at 0xB0, SetMotionPlaySpeedRatio
-   the ratio at 0x48, ForMotionViewer_GetCurrentMotion and
-   ForMotionViewer_GetCurrentAnimationFrame the motion at 0x30 and the frame
-   at 0x3C, CheckPureWallAttribute, CheckPureCliffAttribute,
-   CheckWallAttribute and CheckFloorAttribute the four attributes at 0x17C to
-   0x188, GetHeightOfCliffFromGObj and GetOrientOfCliffOfGObj the cliff pair
-   at 0x110 and 0x120, GetHeightOfWallFromGObj and GetOrientOfWallOfGObj the
-   wall pair at 0x130 and 0x150, GetMotionFrameFlag1 and GetMotionFrameFlag2
-   the flags at 0x190 and 0x194, GetRopeHangablePos the height at 0x1A8 and
-   InitMotionStateInfo itself the two sound groups at 0x1AC and 0x1B0); the
-   offsets with no reader keep offset names.  MAIN.MAP names no symbol in the
-   member, so both names here are ours. */
-typedef struct {
+/* The motion state record the actor sub-object carries at its own +0x470,
+   and the default every actor starts from.  SetMotionDirection writes the
+   direction at 0xB0, SetMotionPlaySpeedRatio the ratio at 0x48,
+   ForMotionViewer_GetCurrentMotion and ForMotionViewer_GetCurrentAnimationFrame
+   read the motion at 0x30 and the frame at 0x3C, CheckPureWallAttribute,
+   CheckPureCliffAttribute, CheckWallAttribute and CheckFloorAttribute the four
+   attributes at 0x17C to 0x188, GetHeightOfCliffFromGObj and
+   GetOrientOfCliffOfGObj the cliff pair at 0x110 and 0x120,
+   GetHeightOfWallFromGObj and GetOrientOfWallOfGObj the wall pair at 0x130 and
+   0x150, GetMotionFrameFlag1 and GetMotionFrameFlag2 the flags at 0x190 and
+   0x194, GetRopeHangablePos the height at 0x1A8, and InitMotionStateInfo itself
+   writes the two sound groups at 0x1AC and 0x1B0; the offsets with no reader
+   keep offset names. */
+typedef struct { /* field names derived */
     int f_0;
     int f_4;
     int f_8;
@@ -739,12 +718,10 @@ typedef struct {
     int f_1E4;
     int f_1E8;
     int f_1EC;
-} MotionStateInfo;
+} MotionStateInfo; /* derived name */
 
-/* .data, owned by motionManager2.o: the record InitMotionStateInfo copies over
-   every new actor's motion state.  Like the geometry template above it is
-   defined ahead of the wall tables below, which is the order the ROM emits
-   the member's .data in. */
+/* the record InitMotionStateInfo copies over every new actor's motion
+   state */
 static MotionStateInfo motionStateInfoTemplate = {
     -1,
     -1,
@@ -852,7 +829,7 @@ static MotionStateInfo motionStateInfoTemplate = {
     0,
     0,
     0,
-};
+}; /* derived name */
 
 void InitMotionGeoInfo(char *self, float x, float y, float z, float rx, float ry, float rz)
 {
@@ -872,20 +849,17 @@ void InitMotionGeoInfo(char *self, float x, float y, float z, float rx, float ry
     CopyVector((self + 0x1B0), self);
 }
 
-/* .sbss, owned by motionManager2.o (MAIN.MAP names no symbol in the run): the
-   skeleton-display state DispSkelton hands to dispSkeltonHierarchy through file
-   scope. The two store types are the developer's TBAA: int for the flag, which
-   pairs it with the int-typed 0x15C read, void * for the object, which pairs it
-   with the 0x8C read, and that is what orders the four gp memory ops in
-   DispSkelton. Nothing in the ROM reads skelDispFlag back. */
-static void *skelGObj;
+/* The skeleton-display state DispSkelton hands to dispSkeltonHierarchy
+   through file scope: the object, the flag and the nodes.  Nothing reads
+   skelDispFlag back. */
+static void *skelGObj; /* derived name */
 
-static int skelDispFlag;
+static int skelDispFlag; /* derived name */
 
-static SkelNode *skelNodes;
+static SkelNode *skelNodes; /* derived name */
 
-/* census file static; ico2/sugipon/src/motionManager holds the other static of
-   that name. */
+/* a file static; ico2/sugipon/src/motionManager.c has its own of the same
+   name */
 static void dispSkeltonHierarchy(int node)
 {
     if (skelNodes[node].parent != -1) {
@@ -922,14 +896,12 @@ static void dispSkeltonHierarchy(int node)
     }
 }
 
-/* the TU's first .sdata word: SetSkeltonDispSwitch's switch for DispSkelton's debug draw */
+/* SetSkeltonDispSwitch's switch for DispSkelton's debug draw */
 static int skeltonDispSwitch = 0; /* derived name */
 
 void DispSkelton(GObj *self, int a1)
 {
-    /* the skeleton is read as a void * word: read as the skel member
-       (SkelNode *), the skelGObj store is issued first, where the ROM stores
-       skelNodes, skelDispFlag and then skelGObj */
+    /* the skeleton, read as a void * word */
     skelNodes = *(void **)((char *)GOBJ_SUB(self) + 0x8C);
     skelDispFlag = a1;
     skelGObj = self;
@@ -945,15 +917,14 @@ void DispSkelton(GObj *self, int a1)
     }
 }
 
-/* the motion record table SlopeIKControl indexes by the IK block's 0x30 word;
-   the two slope rates are the only fields this TU reaches. */
-/* kept local: motionOrientManager.h reaches ico2/fumi's TUs through
-   typedef.h, and commonact.c declares the table char [] */
+/* the motion record table SlopeIKControl indexes by the IK block's 0x30
+   word; the two slope rates are the only fields this file reaches.  Declared
+   here: motionOrientManager.h reaches ico2/fumi's files through typedef.h,
+   and commonact.c declares the table char []. */
 extern const MotionDef motionKind[];
 
-/* dev lines 1175-1196 and 1201-1218: two helpers with no out-of-line copy in
-   the listing, so the names here are ours. */
-static inline float getSlopeDifference(GObj *self, char *arg, char *p)
+/* SlopeIKControl's two slope helpers */
+static inline float getSlopeDifference(GObj *self, char *arg, char *p) /* derived name */
 {
     char *q = arg + 0x10;
     float v[4];
@@ -970,7 +941,7 @@ static inline float getSlopeDifference(GObj *self, char *arg, char *p)
     return y1 - y0;
 }
 
-static inline float getSlopeRatio(float d, float rate)
+static inline float getSlopeRatio(float d, float rate) /* derived name */
 {
     float t = d * rate;
     float r = 1.0f;
@@ -1026,44 +997,39 @@ void SlopeIKControl(GObj *self, char *arg, int a2, Vec4 *vel)
     ik->playRate = (r0 > 1.0f) ? 1.0f : r0;
 }
 
-/* The tail of motionManager2.o's .rodata run: four named objects, in the
-   order the ROM has them, which is not the order their use sites come in. */
-static const char motMan2File[] = __FILE__;
+static const char motMan2File[] = __FILE__; /* derived name */
 
 /* AdjustRootPositionToVerticalSidePlaneOfWall was about to push into the
    wall, so the position was clipped */
 static const char adjustRootClippedMsg[] =
-    "AdjustRootPositionToVerticalSidePlaneOfWallが壁の中に突入させようとしたのでクリップしました\n";
+    "AdjustRootPositionToVerticalSidePlaneOfWallが壁の中に突入させようとしたのでクリップしました\n"; /* derived name */
 
 /* AdjustVerticalSidePlaneOfWall: the vertical walls are close together, so
    the corrected position was set to their midpoint */
 static const char adjustWallMidpointMsg[] =
-    "AdjustVerticalSidePlaneOfWall:垂直壁が近接しているので補正位置をその中点としました\n";
+    "AdjustVerticalSidePlaneOfWall:垂直壁が近接しているので補正位置をその中点としました\n"; /* derived name */
 
-static const char illegalCompressMsg[] = "Illegal compress formatID(%d) appeard... ignore.\n";
-
-/* The five small objects at the tail of motionManager2.o's .data run, declared
-   as one block in the ROM's run order.  MAIN.MAP names none of them, so the
-   names are ours and read off what the code does with them. */
+static const char illegalCompressMsg[] =
+    "Illegal compress formatID(%d) appeard... ignore.\n"; /* derived name */
 
 /* the four wall corners in edge order, closed back onto corner 0, so a walk of
    i = 0..3 takes the pair (corner[i], corner[i+1]) */
-static int wallLineCorner[8] = {0, 1, 3, 2, 0, 0, 0, 0};
+static int wallLineCorner[8] = {0, 1, 3, 2, 0, 0, 0, 0}; /* derived name */
 
 /* the colour DebugDisp1Collision draws a wall outline in: white, half alpha */
-static int wallLineColor[4] = {255, 255, 255, 128};
+static int wallLineColor[4] = {255, 255, 255, 128}; /* derived name */
 
 /* the same closed corner walk, used to pick the wall edge a position sits on */
-static int wallEdgeCorner[8] = {0, 1, 3, 2, 0, 0, 0, 0};
+static int wallEdgeCorner[8] = {0, 1, 3, 2, 0, 0, 0, 0}; /* derived name */
 
 /* the matrix that turns a wall into the XY plane: the identity with the wall
    normal's X and Z written into the four rotation slots before every use */
 static float wallAlignMatrix[16] = {
     1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f,
-};
+}; /* derived name */
 
 /* the half turn about Z every motion node's quaternion is multiplied by */
-static float nodeFlipQuaternion[4] = {0.0f, 0.0f, -1.0f, 0.0f};
+static float nodeFlipQuaternion[4] = {0.0f, 0.0f, -1.0f, 0.0f}; /* derived name */
 
 int GetPureVerticalPlaneOfCurrentPosition(void *plane0, void *plane1, float *ptsIn, WallCfg *cfg,
                                           int flip, float *pos)
@@ -1252,19 +1218,19 @@ int GetPureVerticalPlane(void *plane0, void *plane1, float *ptsIn, WallCfg *cfg,
     return bestIdx;
 }
 
-typedef struct {
+typedef struct { /* field names derived */
     float x, y, z, w;
-} __attribute__((aligned(16))) Vec4f;
+} __attribute__((aligned(16))) Vec4f; /* derived name */
 
-typedef struct {
+typedef struct { /* field names derived */
     unsigned char n;
     signed char adj : 7;
     unsigned char neg : 1;
-} MotS16Hdr;
+} MotS16Hdr; /* derived name */
 
-/* dev lines 1588-1605: 2^e as a float, built by repeated multiply/divide so the
-   exponent can exceed a single shift's range. */
-static inline float motPow2(int e)
+/* 2^e as a float, built by repeated multiply/divide so the exponent can
+   exceed a single shift's range */
+static inline float motPow2(int e) /* derived name */
 {
     float s = 1.0f;
 
@@ -1285,8 +1251,8 @@ static inline float motPow2(int e)
     return s;
 }
 
-/* dev lines 1608-1622: one 16-bit mini-float (sign:1 exp:5 mantissa:10). */
-static inline float motDecodeS16(int h)
+/* one 16-bit mini-float (sign:1 exp:5 mantissa:10) */
+static inline float motDecodeS16(int h) /* derived name */
 {
     float m = (float)(h & 0x3FF) + 1024.0f;
     float s = motPow2(-((h >> 10) & 0x1F) - 10);
@@ -1297,9 +1263,9 @@ static inline float motDecodeS16(int h)
     return m * s;
 }
 
-/* dev lines 1623-1627 / 1636-1639: the VU0 square root split in two so the
-   Q-pipeline latency is covered by the vector copy in between. */
-static inline void motSqrtStart(float d)
+/* the VU0 square root split in two so the Q-pipeline latency is covered by
+   the vector copy in between */
+static inline void motSqrtStart(float d) /* derived name */
 {
     float t = 1.0f - d;
 
@@ -1312,7 +1278,7 @@ static inline void motSqrtStart(float d)
     VU0_WORD(0x4A0103BD);
 }
 
-static inline float motSqrtEnd(void)
+static inline float motSqrtEnd(void) /* derived name */
 {
     float r;
 
@@ -1345,25 +1311,20 @@ void _getS16MotRotElem(void *dst, void *src)
     *(float *)((char *)dst + 0x1C) += (float)((MotS16Hdr *)src)->adj * 0.001f;
 }
 
-typedef struct {
+typedef struct { /* field names derived */
     unsigned char n;
     unsigned char s;
     float x, y, z;
-} MotElemF;
+} MotElemF; /* derived name */
 
-typedef struct {
+typedef struct { /* field names derived */
     unsigned char n;
     unsigned char s;
     unsigned short a, b, c;
-} MotElemS;
+} MotElemS; /* derived name */
 
-/* INTERIM (see the getSkeltonFocusNode note below): the listing inlines
-   _getMotRotElem (dev line 1667) into _getMotion, so it is `inline` in the dev's
-   TU; while this tail still has asm members a deferred inline would land at the
-   object end instead of at its ROM slot, so the public body stays a plain
-   definition there and this static stand-in is used here.
-   Collapses to one `inline` definition at layout. */
-static inline void getMotRotElem(char *dst, char *src)
+/* a file-static copy of _getMotRotElem, which _getMotion inlines */
+static inline void getMotRotElem(char *dst, char *src) /* derived name */
 {
     float sum;
 
@@ -1436,10 +1397,9 @@ void _getMotion(void *dst, void *m, int node, int frame)
     }
 }
 
-/* dev lines 1552-1558: the shared root-position helper GetMotionRootPos (1564)
-   and GetStreamMotion (1815) both expand.  INTERIM stand-in, see
-   getSkeltonFocusNode above. */
-static inline void getRootPos(float *dst, float *src)
+/* a file-static copy of the root-position helper GetMotionRootPos and
+   GetStreamMotion both expand */
+static inline void getRootPos(float *dst, float *src) /* derived name */
 {
     dst[0] = src[0];
     dst[1] = src[1];
@@ -1482,9 +1442,9 @@ int GetStreamMotion(char *dst, float *out, char *node, char *info)
     return 0;
 }
 
-/* copyMotionWithNodeHrc is a nested function inside CopyMotionWithNodeHrc: the
- * parent passes it a static chain in $2 (STATIC_CHAIN_REGNUM) which the nested
- * function spills to 0(sp) and uses to reach dst/src/flag/hrc. */
+/* copyMotionWithNodeHrc is a nested function inside CopyMotionWithNodeHrc:
+ * the parent passes it a static chain, through which it reaches
+ * dst/src/flag/hrc. */
 void CopyMotionWithNodeHrc(struct Pack32 *dst, struct Pack32 *src, char *hrc, int node, int flag)
 {
     inline void copyMotionWithNodeHrc(int n)
@@ -1510,19 +1470,16 @@ void CopyMotionWithNodeHrc(struct Pack32 *dst, struct Pack32 *src, char *hrc, in
     }
 }
 
-/* INTERIM (same reason as getSkeltonFocusNode above): the listing inlines
-   GetMotionRootPos and GetBlendedMotionRootPos into their callers, so both are
-   `inline` in the dev's TU; while this tail still has asm members a deferred
-   inline would land at the object end instead of at its ROM slot, so the public
-   bodies stay plain definitions there and the callers use these stand-ins.
-   Collapses to one `inline` definition each at layout. */
-static inline void getMotionRootPos(float *dst, void *a1, int idx)
+/* file-static copies of GetMotionRootPos and GetBlendedMotionRootPos, which
+   their callers inline */
+static inline void getMotionRootPos(float *dst, void *a1, int idx) /* derived name */
 {
     float *src = (float *)(*(int *)((char *)a1 + 4) + idx * 0xC);
     getRootPos(dst, src);
 }
 
-static inline void getBlendedMotionRootPos(float *dst, float *a, float *b, float t)
+static inline void getBlendedMotionRootPos(float *dst, float *a, float *b,
+                                           float t) /* derived name */
 {
     float u = 1.0f - t;
     dst[0] = a[0] * t + b[0] * u;
@@ -1530,14 +1487,10 @@ static inline void getBlendedMotionRootPos(float *dst, float *a, float *b, float
     dst[2] = a[2] * t + b[2] * u;
 }
 
-/* INTERIM (same reason as getSkeltonFocusNode above): the listing shows the dev's
-   TU inlining GetMotion (five sites) and GetBlendedMotion (one) into
-   GetFloatingMotion, so both are `inline` there; while this tail still has asm
-   members a deferred inline would land at the object end instead of at its ROM
-   slot, so the public bodies stay plain definitions further down and this caller
-   uses these stand-ins.  Collapses to one `inline` definition each at layout. */
+/* file-static copies of GetMotion (five sites) and GetBlendedMotion (one),
+   which GetFloatingMotion inlines */
 static inline void getMotion(char *dst, float *root, void *motion, int idx, unsigned char *mask,
-                             int count, char *hrc)
+                             int count, char *hrc) /* derived name */
 {
     int i;
 
@@ -1571,7 +1524,7 @@ static inline void getMotion(char *dst, float *root, void *motion, int idx, unsi
 
 static inline void getBlendedMotion(StreamElem *dst, float *root, StreamElem *a, float *rootA,
                                     StreamElem *b, float *rootB, unsigned char *mask, int count,
-                                    float t)
+                                    float t) /* derived name */
 {
     int i;
     float u = 1.0f - t;
@@ -1658,13 +1611,9 @@ int MakeMirrorMotion(StreamElem *a, StreamNode *b)
     }
 }
 
-/* INTERIM (same reason as getSkeltonFocusNode above): the listing inlines
-   GetShapeMotion (line 2052) into GetFloatingShapeMotion, so it is `inline` in
-   the dev's TU; while this tail still has asm members a deferred inline would
-   land at the object end instead of at its ROM slot, so the public body stays a
-   plain definition there and this caller uses the stand-in.
-   Collapses to one `inline` definition at layout. */
-static inline void getShapeMotion(float *dst, char *a1, int idx, int count)
+/* a file-static copy of GetShapeMotion, which GetFloatingShapeMotion
+   inlines */
+static inline void getShapeMotion(float *dst, char *a1, int idx, int count) /* derived name */
 {
     int i = 0;
     int m = *(int *)a1 - 1;
@@ -1700,11 +1649,11 @@ void GetFloatingShapeMotion(float *dst, char *m, float t, int count)
     }
 }
 
-typedef struct {
+typedef struct { /* field names derived */
     int a;
     int b;
     int c;
-} WallWork;
+} WallWork; /* derived name */
 
 void FeedbackWallWorkInfoToBrainSystem(GObj *a0)
 {
@@ -1766,14 +1715,9 @@ int CheckFieldContact(ClipBuf *info, GObj *self, float *pos, float lim)
     return 0;
 }
 
-/* INTERIM (same reason as getSkeltonFocusNode above): the listing inlines
-   DebugDisp1CollisionWithColor (its body carries DebugDisp1Collision's rows)
-   so it is `inline` in the dev's TU; while this tail still has asm members a
-   deferred inline would land at the object end instead of at its ROM slot
-   right after this function, so the public body stays a plain definition there
-   and this caller uses the static stand-in.
-   Collapses to one `inline` definition at layout. */
-static inline void debugDisp1CollisionWithColor(int *cfg, void *color)
+/* a file-static copy of DebugDisp1CollisionWithColor, which this caller
+   inlines */
+static inline void debugDisp1CollisionWithColor(int *cfg, void *color) /* derived name */
 {
     float pts[5][4];
     int i;
@@ -1820,21 +1764,14 @@ void DebugDisp1CollisionWithColor(int *cfg, void *color)
     gif_EndPacket();
 }
 
-/* INTERIM (see the iosThreadCreate note in ios/thread.c): the listing inlines
-   GetSkeltonFocusNode (line 534) into SetMotionBlendlessNode, so it is `inline`
-   in the dev's TU; while this tail still has asm members a deferred inline
-   would land at the object end instead of at its ROM slot (between
-   AdjustMotionHeightToNearestField's neighbours), so the public body stays a
-   plain definition there and every C caller the listing shows inlining it
-   (SetMotionBlendlessNode, the two GetDifferenceFromWall*Plane, the node fix
-   mode setter) calls this static stand-in.
-   Collapses to one `inline` definition at layout. */
-static inline int getSkeltonFocusNode(GObj *a0, int a1)
+/* a file-static copy of GetSkeltonFocusNode, which SetMotionBlendlessNode,
+   the two GetDifferenceFromWall*Plane and the node fix mode setter inline */
+static inline int getSkeltonFocusNode(GObj *a0, int a1) /* derived name */
 {
     return GOBJ_SUB(a0)->focusNodes[a1];
 }
 
-/* kept local: motionManager2.h does not compile in this TU (conflicting types for `CopyMotionWithNodeHrc') */
+/* declared here: motionManager2.h does not compile in this file (conflicting types for `CopyMotionWithNodeHrc') */
 extern void ClearMotionBlendlessNode(GObj *a0);
 
 void SetMotionBlendlessNode(GObj *self, int *node)
@@ -2127,9 +2064,7 @@ void CopyMotion(struct Pack32 *dst, struct Pack32 *src, int n)
     } while (n != 0);
 }
 
-void GetMotionRootPos(
-    float *dst, void *a1,
-    int idx) /* `inline` once GetFloatingMotionRootPos, which the listing shows inlining it, is C; plain until then (deferred inlines land at the object end) */
+void GetMotionRootPos(float *dst, void *a1, int idx)
 {
     float *src = (float *)(*(int *)((char *)a1 + 4) + idx * 0xC);
     getRootPos(dst, src);
@@ -2225,7 +2160,7 @@ void GetShapeMotion(float *dst, char *a1, int idx, int count)
     }
 }
 
-/* Retail bodies are empty; every call site passes the actor's GObj. */
+/* the release bodies are empty; every call site passes the actor's GObj */
 void LockForceGroundParent(GObj *gobj) {}
 
 void UnlockForceGroundParent(GObj *gobj) {}
@@ -2238,9 +2173,7 @@ void GetOutOutsideOfWall(GObj *obj, float threshold)
         float dot;
         GetRootPosition(buf0, obj);
         GetGlobalWallPlane(buf1, &obj->dobj->root.wall);
-        /* The listing puts these rows on sugiCommon.h:71, so the dev called
-         * the header helper here; it costs nothing since plane_distance
-         * became one asm block with the $v0 hop hard-wired. */
+        /* sugiCommon.h's plane_distance */
         dot = plane_distance(buf0, buf1);
         if (dot < threshold) {
             GetProjectionOfPlaneWithKeepAway(buf0, buf1, buf0, threshold);

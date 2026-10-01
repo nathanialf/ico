@@ -13,12 +13,11 @@
 #include "frameDependSequence.h"
 
 extern GsysObjInfo seDef[];
-/* kept local: int (int, unsigned int, int, int) here, int (int, int, int, int) in s_init.h */
+/* int (int, unsigned int, int, int) here, int (int, int, int, int) in s_init.h */
 extern int soundSeDefPlay(int se, unsigned int a1, int a2, int a3);
 
-/* The TU's .sdata (MAIN.MAP names nothing in it), in ROM order: the sequence
-   being run's flag block, work, layout record and motion record, its owner, the
-   SE volume rate and the SE group. */
+/* the sequence being run: its flag block, work, layout record and motion
+   record, its owner, the SE volume rate and the SE group */
 static void *fdsFlags = 0; /* derived name */
 
 static void *fdsWork = 0; /* derived name */
@@ -27,20 +26,17 @@ static void *fdsLayout = 0; /* derived name */
 
 static const MotionDef *fdsRecord = 0; /* derived name */
 
-/* the sequence's owner object, held as a char pointer: setSEEnvironment's
-   store of it keeps its place behind the owner's display-object reads only as
-   a char pointer store (a GObj pointer, a void pointer or a union all let it
-   rise), so the TU's uses convert it */
+/* the sequence's owner object, held as a char pointer; the file's uses
+   convert it */
 static char *fdsGObj = 0; /* derived name */
 
 static float fdsVolume = 1.0f; /* derived name */
 
 static int fdsGroup = 0; /* derived name */
 
-/* kept local: int (int, unsigned int, int, int, float) here, int (int, int, int, int) in s_init.h */
+/* int (int, unsigned int, int, int, float) here, int (int, int, int, int) in s_init.h */
 extern int soundSeDefPlayWithVolumeRate(int se, unsigned int a1, int a2, int a3, float rate);
-/* kept local: seMail has no header; this matches its definition in
- * ico2/fumi/src/seMail.c, one prototype per symbol. */
+/* seMail has no header; declared as ico2/fumi/src/seMail.c defines it */
 extern void seMail(int self, int id);
 
 int playSE(int no)
@@ -167,11 +163,7 @@ inline int execSE(int a0, void *a1)
     } else {
         return playSEConditionID(a0 - 0x20000, a1);
     }
-    /* Disabled in retail: the bad-ID report.  What the bytes pin: its text in
-       .rodata after playSEConditionID's jump table and before playEff's
-       print, with no instruction; the listing gives execSE rows 249-255 and
-       its closing brace 259, and 256-258 are empty.  What they cannot: the
-       condition that disabled it. */
+    /* the bad-ID report, switched off */
     if (0) {
         /* EUC-JP: "an SE with a strange ID(%d) was called" */
         debug_StdPrintfDummy("おかしなID(%d)のSEがコールされました\n", a0);
@@ -207,9 +199,6 @@ void playEff(int no)
     RotQuaternionY(q, motionEffKind[no].ry * -32768.0f / 180.0f);
     RotQuaternionX(q, motionEffKind[no].rx * -32768.0f / 180.0f);
     RotQuaternionZ(q, motionEffKind[no].rz * -32768.0f / 180.0f);
-    /* The record pointer is taken here, and gcc shares its `addu` with the
-     * position read above: ROM keeps that one address in $16 across the six
-     * calls and reads the flag word off it. */
     p = &motionEffKind[no];
     flags = p->flags;
     if ((flags >> 1) & 1) {
@@ -305,15 +294,14 @@ typedef struct FDSFlags { /* 0x74 */
     int seDone[12];       /* 0x38 */
     int weaponDone;       /* 0x68 */
     int vibEntry[2];      /* 0x6C */
-} FDSFlags;
+} FDSFlags;               /* derived name */
 
-/* kept local: motionOrientManager.h reaches ico2/fumi's TUs through
+/* declared here: motionOrientManager.h reaches ico2/fumi's files through
    typedef.h, and commonact.c declares the table char [] */
 extern const MotionDef motionKind[];
 
-/* static helper the listing places at frameDependSequence.c lines 414-421; never
- * emitted out of line, so it has no MAIN.MAP symbol and this name is ours. */
-static inline void fireFDSSlot(float t, int no, void *entry, int *done, int (*fn)())
+static inline void fireFDSSlot(float t, int no, void *entry, int *done,
+                               int (*fn)()) /* derived name */
 {
     if (t < 0.0f) {
         return;
@@ -368,9 +356,7 @@ void ExecFrameDependSequence(GObj *gobj)
     }
 }
 
-/* static helper the listing places at frameDependSequence.c lines 533-542; never
- * emitted out of line, so it has no MAIN.MAP symbol and this name is ours. */
-static inline int *findSEPackage(int no, int id)
+static inline int *findSEPackage(int no, int id) /* derived name */
 {
     while (progSELink[no].id != -1 && progSELink[no].id != id) {
         no++;
@@ -381,17 +367,13 @@ static inline int *findSEPackage(int no, int id)
     return progSELink[no].se;
 }
 
-/* static helper the listing places at frameDependSequence.c lines 549-564; never
- * emitted out of line, so it has no MAIN.MAP symbol and this name is ours. */
-static inline int setSEEnvironment(GObj *gobj, int id)
+static inline int setSEEnvironment(GObj *gobj, int id) /* derived name */
 {
     char *w;
     char *p;
     int no;
 
-    /* the display object is read as a char pointer, the type of the fdsGObj
-       store after it: read as the dobj member (Sub15C *), that store rises
-       above the stores the ROM issues first */
+    /* the display object, read as a char pointer like fdsGObj */
     w = *(char **)((char *)gobj + 0x15C);
     fdsGObj = (char *)gobj;
     if (w != 0) {
@@ -464,7 +446,7 @@ void ExecuteSEPackageWithVolumeRate(GObj *a0, int a1, float f)
     executeSEPackageByGObj(a0, a1, 0);
 }
 
-/* kept local: agrees with s_init.h, which this TU does not include (soundSeDefPlay, soundSeDefPlayWithVolumeRate differ) */
+/* as in s_init.h, which this file does not include */
 extern void soundSeGroupStop(int a0);
 
 void StopSEPackageWithGroupVariation(GObj *a0, int a1)

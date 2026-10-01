@@ -4,15 +4,12 @@
 #include "matrixDrive.h"
 #include "Matrix.h"
 
-/* the TU's one .sdata word (MAIN.MAP quaternion.o .sdata 0x4, no symbol): the
-   current depth of the quaternion stack below */
+/* the current depth of the quaternion stack below */
 static int quatStackIndex = -1; /* derived name */
 
-/* .bss, owned by quaternion.o and reached only from this file (MAIN.MAP names
-   no symbol in the run; its quaternion.o .bss size 0x400 fixes the length).
-   The 64-deep quaternion stack; GetLastQuaternion reads one slot below the
-   current one, which is the ROM's second %hi/%lo base. */
-static float quatStack[64][4];
+/* The 64-deep quaternion stack; GetLastQuaternion reads the slot below the
+   current one. */
+static float quatStack[64][4]; /* derived name */
 
 void MultiCurrentQuaternion(void *a0)
 {
@@ -73,9 +70,6 @@ void InitQuaternionDrive(void)
     SetIdentityQuaternion(quatStack);
 }
 
-/* quaternion.o's whole .data run, in source order.  MAIN.MAP names the
-   first object IdentityQuaternion (map line 5797, quaternion.o .data at
-   member offset 0); the two that follow are this file's own constants. */
 float IdentityQuaternion[4] = {0.0f, 0.0f, 0.0f, 1.0f};
 
 void SetIdentityQuaternion(void *a0)
@@ -84,7 +78,7 @@ void SetIdentityQuaternion(void *a0)
 }
 
 /* the {1, 1, 1, sqrt(2)} multiplier GetMatrixFromQuaternion feeds $vf12 */
-static float quatToMatrixScale[4] = {1.0f, 1.0f, 1.0f, 1.41421356f};
+static float quatToMatrixScale[4] = {1.0f, 1.0f, 1.0f, 1.41421356f}; /* derived name */
 
 void GetMatrixFromQuaternion(void *mtx, void *a1)
 {
@@ -127,9 +121,9 @@ void GetMatrixFromQuaternion(void *mtx, void *a1)
 }
 
 /* the file's `nxt` permutation table */
-static int nxt[3] = {1, 2, 0};
+static int nxt[3] = {1, 2, 0}; /* derived name */
 
-/* No caller in the ROM, so the bytes cannot decide the return type: void as sugipon's output-parameter getters. */
+/* no caller; void as sugipon's output-parameter getters */
 void GetQuaternionFromMatrix(void *a0, void *a1)
 {
     auto void getQuaternionFromMatrix(float *q, float (*m)[4]);
@@ -224,9 +218,9 @@ inline float GetQuaternionCosRadian(void *p0, void *p1)
     return r;
 }
 
-/* kept local: int (float) here, short (float) in tableSin.h */
+/* int (float) here, short (float) in tableSin.h */
 extern int GetTableArcCos(float c);
-/* kept local: float (int) here, float (short) in tableSin.h */
+/* float (int) here, float (short) in tableSin.h */
 extern float GetTableSin(int x);
 
 void GetSlerpQuaternionNoRegularize(void *out, void *qa, void *qb, float t)
@@ -302,7 +296,7 @@ inline void PopQuaternion(void)
     }
 }
 
-/* kept local: float (int) here, float (short) in tableSin.h */
+/* float (int) here, float (short) in tableSin.h */
 extern float GetTableCos(int x);
 
 inline void SetQuaternionByAxisRotateVWithNoRegularize(float *self, short a1, float *src)
@@ -382,9 +376,7 @@ inline void DivQuaternion(void *self, void *a1, void *a2)
 {
     float buf[4];
     GetInverseQuaternion(buf, a2);
-    /* ROM calls MultiQuaternion out of line here; the call goes through a
-       cast of the existing declaration because this TU's definition still
-       carries the coalescing `inline` marker. */
+    /* the call goes through a cast of MultiQuaternion's declaration */
     ((void (*)(int, int, int))MultiQuaternion)(self, buf, a1);
 }
 
@@ -703,7 +695,7 @@ inline void GetDifferencialQuaternionWithNoRegularize(void *out, void *a, void *
     SetQuaternionByCosineAxisRotateV(out, v, c);
 }
 
-/* No caller in the ROM, so the bytes cannot decide the return type: float as sugipon's scalar getters. */
+/* no caller; float as sugipon's scalar getters */
 inline float GetQuaternionMagnitude(void *a0)
 {
     float r;

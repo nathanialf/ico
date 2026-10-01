@@ -12,8 +12,8 @@
 #include "quaternion.h"
 #include <string.h>
 
-/* flag.o's .data opens with the corners (x, y) of each half of a fixed
-   four-point flag, one row per id; January's 0x1C-byte .data is flagCfg alone. */
+/* the corners (x, y) of each half of a fixed four-point flag, one row
+   per id */
 static float flag4PointFix[2][4][4] = {
     {{0.0f, 0.0f, 0.0f, 0.0f},
      {0.48f, 0.02f, 0.0f, 0.0f},
@@ -23,13 +23,13 @@ static float flag4PointFix[2][4][4] = {
      {1.0f, 0.0f, 0.0f, 0.0f},
      {0.5f, 0.2f, 0.0f, 0.0f},
      {1.0f, 0.25f, 0.0f, 0.0f}},
-};
+}; /* derived name */
 
-/* The January listing puts these rows at flag.c:28-37, inside
-   SetFlag4PointFixID's own span and below its def line, with no out-of-line
-   body of their own: a helper gcc inlined whole into its single call site
-   at line 70. */
-static inline void setFlag4PointMesh(Mesh3D *mesh, char *cl, float k, int id)
+/* Set a four-point flag's mesh: each vertex is interpolated between the
+   corners of the id's row of flag4PointFix, its height raised by k.
+   SetFlag4PointFixID is the one caller, passing a1 * 0.25f as k.
+ */
+static inline void setFlag4PointMesh(Mesh3D *mesh, char *cl, float k, int id) /* derived name */
 {
     float *tbl = flag4PointFix[id][0];
     Prim3DVec *v = mesh->st;
@@ -77,9 +77,9 @@ void SetFlag4PointFixID(GObj *self, int a1, int id)
    (attackCheckBoundary.h): its corners, the cloth type in the low four bits,
    the rows and columns, the length shared out over the columns and the fall. */
 
-/* the flag's cloth template, copied into every new config; InitFlagGeo below
-   sits on the listing's own lines (85-226), fenced from clang-format */
-static ClothCfg flagCfg = {8, 50.0f, 10, 0, 0, 0, 5.0f};
+/* the flag's cloth template, copied into every new config; InitFlagGeo
+   passes __LINE__, so its lines below are kept out of clang-format */
+static ClothCfg flagCfg = {8, 50.0f, 10, 0, 0, 0, 5.0f}; /* derived name */
 
 /* clang-format off */
 char *InitFlagGeo(char *self, char *arg)
@@ -101,8 +101,8 @@ char *InitFlagGeo(char *self, char *arg)
 
     mesh = iosMallocDebug(ios_partition_sugipon, *(int *)(cl + 0x0) * 48, __FILE__, __LINE__);
     ((FlagNodeWord *)(cl + 0x10))->i = (int)mesh;
-    /* a union member store (alias set 0): the ROM's schedule keeps it, and
-       line 126's store, ahead of every ent load below */
+    /* the four corners of the layout entry, with y negated and w set
+       to 1 */
     v[0].m[0] = ent->pt[0][0];
     v[0].m[1] = -ent->pt[0][1];
     v[0].m[2] = ent->pt[0][2];
@@ -137,10 +137,10 @@ char *InitFlagGeo(char *self, char *arg)
         *(float *)(mesh + 4) = k;
         *(int *)(p + 4) = InitClothes(cl);
         break;
-        /* 132-133 read the 0x15C slot through SubHandle, as cage.c and
-           girlForceField.c do: an alias-set-0 read, so each store in the
-           block forces the re-read the ROM does and the buffer words keep
-           their pointer types; the other slot reads here are GOBJ_SUB's */
+        /* types 1 and 2 above reach the 0x15C slot through SubHandle, as
+           cage.c and girlForceField.c do; the other slot reads here are
+           GOBJ_SUB's.  Type 0 hangs the cloth along the line between the
+           first two corners. */
     case 0:
         *(char **)(cl + 0x14) = iosMallocDebug(ios_partition_sugipon, strlen(ent->name) + 1, __FILE__, __LINE__);
         strcpy(*(char **)(cl + 0x14), ent->name);
@@ -171,10 +171,10 @@ char *InitFlagGeo(char *self, char *arg)
     case 4:
         *(char **)(cl + 0x14) = iosMallocDebug(ios_partition_sugipon, strlen(ent->name) + 1, __FILE__, __LINE__);
         strcpy(*(char **)(cl + 0x14), ent->name);
-        /* 179 and 191 index v, the walking pointer being loop.c's giv (the
-           ROM initialises it after gcse's preheader insertions); 191 and 196
-           count with j, which the ROM keeps in a register of its own apart
-           from i's */
+        /* type 4: the object's root is the mean of the four corners, the
+           corners are made relative to it, and each column's length is
+           shared out between the lengths of the two sides
+         */
         CopyVector(GOBJ_SUB(self)->root.pos, ZeroPoint);
         for (i = 0; i < 4; i++)
             _AddVectorXYZ(GOBJ_SUB(self)->root.pos, GOBJ_SUB(self)->root.pos, &v[i]);
