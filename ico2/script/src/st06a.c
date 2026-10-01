@@ -6,6 +6,7 @@
 #include "adpcm_init.h"
 #include "s_init.h"
 #include "act.h"
+#include "gobj_process.h"
 #include "commonact.h"
 #include "way_llf.h"
 #include "camera-root.h"
@@ -46,10 +47,10 @@ static const ConstVec farPos = {{0.0f, 0.0f, -1000000.0f, 1.0f}};
    string constants are emitted where the function is DEFINED.  That pair of
    rules is what puts "FALLDOWN..." first in this TU's .rodata run while
    actSt06aPistonRideOffChk's code sits near the end of its .text. */
-inline void actSt06aPistonRideOffChk(volatile int a0);
-inline void actSt06aPistonFlagOffChk(volatile int a0);
-inline void actSt06aSoundChk(volatile int a0);
-inline void actSt06aSound2Chk(volatile int a0);
+inline void actSt06aPistonRideOffChk(GObj *volatile a0);
+inline void actSt06aPistonFlagOffChk(GObj *volatile a0);
+inline void actSt06aSoundChk(GObj *volatile a0);
+inline void actSt06aSound2Chk(GObj *volatile a0);
 
 static ActMail suimon_mes[2] = {{430}, {429}};
 
@@ -183,9 +184,9 @@ void actSt06aInit(void)
     }
 }
 
-void actSt06aSuimon(volatile int a0)
+void actSt06aSuimon(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     Act *self = actInitialize(a0);
 
     _ACTWait(1);
@@ -210,16 +211,16 @@ void actSt06aSuimon(volatile int a0)
 }
 
 /* .sdata, owned by st06a.o, in the ROM's order: the sluice, shutter and spike stream handles. */
-int suimon = 0;
+char *suimon = 0;
 
 char *shutter = 0;
 
-int toge = 0;
+char *toge = 0;
 
-void actSt06aSuimonChk(volatile int a0)
+void actSt06aSuimonChk(GObj *volatile a0)
 {
-    int he;
-    int hs;
+    GProc *he;
+    GProc *hs;
 
     while ((scpGetRotObjectRotCount(0x6EE) < -2.0f) == 0) {
         _ACTWait(1);
@@ -260,8 +261,8 @@ void actSt06aSuimonChk(volatile int a0)
 
     demoSkipped = demoEnd ^ 1;
 
-    iosThreadSetPri(hs + 0x24, 34);
-    iosThreadSetPri(he + 0x24, 34);
+    iosThreadSetPri(&hs->thread, 34);
+    iosThreadSetPri(&he->thread, 34);
 
     if (demoEnd == 0) {
         scpFadeOut(16.0f, 0, 0, 0);
@@ -291,9 +292,9 @@ void actSt06aSuimonChk(volatile int a0)
     SetWayGroupActive(10, 1);
 }
 
-void actSt06aDoor(volatile int a0)
+void actSt06aDoor(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     Act *self = actInitialize(a0);
 
     _ACTWait(1);
@@ -315,9 +316,9 @@ void actSt06aDoor(volatile int a0)
     }
 }
 
-void actSt06aDoorUpChk(volatile int a0)
+void actSt06aDoorUpChk(GObj *volatile a0)
 {
-    Act *sub = (Act *)((PObjGObj *)a0)->act;
+    Act *sub = GOBJ_ACT(a0);
     long long buf[2];
 
     while (scpTriggerFloorAttrTargetMan(a0, 0x1000000) == 0) {
@@ -350,9 +351,9 @@ void actSt06aDoorUpChk(volatile int a0)
     _ACTWait(0);
 }
 
-void actSt06aDoorDownChk(volatile int a0)
+void actSt06aDoorDownChk(GObj *volatile a0)
 {
-    Act *sub = (Act *)((PObjGObj *)a0)->act;
+    Act *sub = GOBJ_ACT(a0);
     long long buf[2];
 
     while (scpTriggerFloorAttrTargetMan(a0, 0x1000000) != 0) {
@@ -385,16 +386,16 @@ void actSt06aDoorDownChk(volatile int a0)
     _ACTWait(0);
 }
 
-void actSt06aShutterOpen(volatile int a0)
+void actSt06aShutterOpen(GObj *volatile a0)
 {
-    int h;
+    GProc *h;
 
     lt_switch_layout(55);
     gflagOn(107);
     WakeupHint(19);
     scpSleepEnemyAll();
 
-    scpAdpcmPlayRequestFunc(83, (int *)&shutter, 1, 1, 0);
+    scpAdpcmPlayRequestFunc(83, &shutter, 1, 1, 0);
 
     h = actCreateSubThread(actSt06aShutterOpenSub, 21);
 
@@ -404,7 +405,7 @@ void actSt06aShutterOpen(volatile int a0)
         _ACTWait(1);
     }
 
-    iosThreadSetPri(h + 0x24, 34);
+    iosThreadSetPri(&h->thread, 34);
 
     if (demoEnd == 0) {
         scpFadeOut(16.0f, 0, 0, 0);
@@ -413,7 +414,7 @@ void actSt06aShutterOpen(volatile int a0)
             _ACTWait(1);
         }
 
-        scpAdpcmFadeCloseFunc((int *)&shutter, 0x200);
+        scpAdpcmFadeCloseFunc(&shutter, 0x200);
 
         while (scpFadeChk() != 0) {
             _ACTWait(1);
@@ -435,9 +436,9 @@ void actSt06aShutterOpen(volatile int a0)
     SetWayGroupActive(12, 1);
 }
 
-void actSt06aBoxChk(volatile int a0)
+void actSt06aBoxChk(GObj *volatile a0)
 {
-    int h;
+    GProc *h;
 
     while (scpTriggerBall(a0, scpSearchGobj(1773), 300.0f) == 0 || gflagChk(106) != 0) {
         _ACTWait(1);
@@ -456,7 +457,7 @@ void actSt06aBoxChk(volatile int a0)
         _ACTWait(1);
     }
 
-    iosThreadSetPri(h + 0x24, 34);
+    iosThreadSetPri(&h->thread, 34);
 
     if (demoEnd == 0) {
         scpFadeOut(16.0f, 0, 0, 0);
@@ -483,7 +484,7 @@ void actSt06aBoxChk(volatile int a0)
     lt_switch_layout(54);
 }
 
-void actSt06aStatueChk(volatile int a0)
+void actSt06aStatueChk(GObj *volatile a0)
 {
     int handle;
 
@@ -536,7 +537,7 @@ void actSt06aStatueChk(volatile int a0)
     gflagOn(113);
 }
 
-void actSt06aHeadChk(volatile int a0)
+void actSt06aHeadChk(GObj *volatile a0)
 {
     while (scpTriggerBall(a0, scpSearchGobj(1770), 70.0f) == 0 || gflagChk(113) == 0) {
         _ACTWait(1);
@@ -626,9 +627,9 @@ void actSt06aHeadChk(volatile int a0)
     lt_switch_layout(54);
 }
 
-void actSt06aJumpMove(volatile int a0)
+void actSt06aJumpMove(GObj *volatile a0)
 {
-    int h;
+    GProc *h;
 
     lt_switch_layout(55);
     scpSleepEnemyAll();
@@ -641,7 +642,7 @@ void actSt06aJumpMove(volatile int a0)
         _ACTWait(1);
     }
 
-    iosThreadSetPri(h + 0x24, 34);
+    iosThreadSetPri(&h->thread, 34);
 
     if (demoEnd == 0) {
         scpFadeOut(16.0f, 0, 0, 0);
@@ -670,14 +671,14 @@ void actSt06aJumpMove(volatile int a0)
     lt_switch_layout(54);
 }
 
-inline void actSt06aPistonRideOffChk(volatile int a0)
+inline void actSt06aPistonRideOffChk(GObj *volatile a0)
 {
-    Act *sub = (Act *)((PObjGObj *)a0)->act;
+    Act *sub = GOBJ_ACT(a0);
 
     while (scpTriggerFloorAttr(boyGObj, 0x6000000) != 0) {
         if (gflagChk(117) != 0) {
             debug_StdPrintfDummy("FALLDOWN!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n");
-            iosOmSendMail(boyGObj, 7, boyGObj);
+            iosOmSendMail(boyGObj, 7, (int)boyGObj);
         }
         _ACTWait(1);
     }
@@ -688,9 +689,9 @@ inline void actSt06aPistonRideOffChk(volatile int a0)
     _ACTWait(0);
 }
 
-void actSt06aPistonFlagOnChk(volatile int a0)
+void actSt06aPistonFlagOnChk(GObj *volatile a0)
 {
-    Act *sub = (Act *)((PObjGObj *)a0)->act;
+    Act *sub = GOBJ_ACT(a0);
 
     while (gflagChk(116) == 0 || gflagChk(106) != 0) {
         _ACTWait(1);
@@ -716,9 +717,9 @@ void actSt06aPistonFlagOnChk(volatile int a0)
     _ACTWait(0);
 }
 
-void actSt06aShutter(volatile int a0)
+void actSt06aShutter(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     Act *self = actInitialize(a0);
 
     _ACTWait(1);
@@ -737,9 +738,9 @@ void actSt06aShutter(volatile int a0)
     }
 }
 
-void actSt06aExit(volatile int a0)
+void actSt06aExit(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     Act *self = actInitialize(a0);
 
     _ACTWait(1);
@@ -750,9 +751,9 @@ void actSt06aExit(volatile int a0)
     _ACTWait(0);
 }
 
-void actSt06aExitGirl(volatile int a0)
+void actSt06aExitGirl(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     Act *self = actInitialize(a0);
 
     _ACTWait(1);
@@ -763,9 +764,9 @@ void actSt06aExitGirl(volatile int a0)
     _ACTWait(0);
 }
 
-void actSt06aBox(volatile int a0)
+void actSt06aBox(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     Act *self = actInitialize(a0);
 
     _ACTWait(1);
@@ -780,9 +781,9 @@ void actSt06aBox(volatile int a0)
     }
 }
 
-void actSt06aBox2(volatile int a0)
+void actSt06aBox2(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     Act *self = actInitialize(a0);
 
     _ACTWait(1);
@@ -795,9 +796,9 @@ void actSt06aBox2(volatile int a0)
     }
 }
 
-void actSt06aBox3(volatile int a0)
+void actSt06aBox3(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     Act *self = actInitialize(a0);
 
     _ACTWait(1);
@@ -810,9 +811,9 @@ void actSt06aBox3(volatile int a0)
     }
 }
 
-void actSt06aBoxEvent2(volatile int a0)
+void actSt06aBoxEvent2(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     Act *self = actInitialize(a0);
 
     _ACTWait(1);
@@ -830,9 +831,9 @@ void actSt06aBoxEvent2(volatile int a0)
     }
 }
 
-void actSt06aWay(volatile int a0)
+void actSt06aWay(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     Act *self = actInitialize(a0);
 
     _ACTWait(1);
@@ -843,9 +844,9 @@ void actSt06aWay(volatile int a0)
     _ACTWait(0);
 }
 
-void actSt06aWallWay(volatile int a0)
+void actSt06aWallWay(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     Act *self = actInitialize(a0);
 
     _ACTWait(1);
@@ -865,9 +866,9 @@ void actSt06aWallWay(volatile int a0)
     }
 }
 
-void actSt06aWallWay2(volatile int a0)
+void actSt06aWallWay2(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     Act *self = actInitialize(a0);
 
     _ACTWait(1);
@@ -887,9 +888,9 @@ void actSt06aWallWay2(volatile int a0)
     }
 }
 
-void actSt06aStatue(volatile int a0)
+void actSt06aStatue(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     Act *self = actInitialize(a0);
 
     _ACTWait(1);
@@ -907,9 +908,9 @@ void actSt06aStatue(volatile int a0)
     }
 }
 
-void actSt06aHead(volatile int a0)
+void actSt06aHead(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     Act *self = actInitialize(a0);
 
     _ACTWait(1);
@@ -931,9 +932,9 @@ void actSt06aHead(volatile int a0)
     }
 }
 
-void actSt06aTree(volatile int a0)
+void actSt06aTree(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     Act *self = actInitialize(a0);
 
     _ACTWait(1);
@@ -949,9 +950,9 @@ void actSt06aTree(volatile int a0)
     }
 }
 
-void actSt06aBallDelete(volatile int a0)
+void actSt06aBallDelete(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     Act *self = actInitialize(a0);
 
     _ACTWait(1);
@@ -962,9 +963,9 @@ void actSt06aBallDelete(volatile int a0)
     _ACTWait(0);
 }
 
-void actSt06aKyomi(volatile int a0)
+void actSt06aKyomi(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     Act *self = actInitialize(a0);
 
     _ACTWait(1);
@@ -975,9 +976,9 @@ void actSt06aKyomi(volatile int a0)
     _ACTWait(0);
 }
 
-void actSt06aJump(volatile int a0)
+void actSt06aJump(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     Act *self = actInitialize(a0);
 
     _ACTWait(1);
@@ -996,9 +997,9 @@ void actSt06aJump(volatile int a0)
     }
 }
 
-void actSt06aPiston(volatile int a0)
+void actSt06aPiston(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     Act *self = actInitialize(a0);
 
     _ACTWait(1);
@@ -1009,9 +1010,9 @@ void actSt06aPiston(volatile int a0)
     _ACTWait(0);
 }
 
-void actSt06aPistonFlag(volatile int a0)
+void actSt06aPistonFlag(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     Act *self = actInitialize(a0);
 
     _ACTWait(1);
@@ -1022,9 +1023,9 @@ void actSt06aPistonFlag(volatile int a0)
     _ACTWait(0);
 }
 
-void actSt06aSound(volatile int a0)
+void actSt06aSound(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     Act *self = actInitialize(a0);
 
     _ACTWait(1);
@@ -1037,9 +1038,9 @@ void actSt06aSound(volatile int a0)
     }
 }
 
-void actSt06aSound2(volatile int a0)
+void actSt06aSound2(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     Act *self = actInitialize(a0);
 
     _ACTWait(1);
@@ -1057,7 +1058,7 @@ void actSt06aSuimonEvent(int x)
     volatile int local = x;
 }
 
-void actSt06aSuimonEffect(volatile int a0)
+void actSt06aSuimonEffect(GObj *volatile a0)
 {
     long long b1[2];
     long long b2[2];
@@ -1087,7 +1088,7 @@ void actSt06aSuimonEffect(volatile int a0)
     _ACTWait(0);
 }
 
-void actSt06aSuimonFlagOn(volatile int a0)
+void actSt06aSuimonFlagOn(GObj *volatile a0)
 {
     int i = (0x3C - systemStatus[0] * 0xA) / systemStatus[1] * 7.0;
 
@@ -1103,7 +1104,7 @@ void actSt06aSuimonFlagOn(volatile int a0)
     gflagOn(106);
 }
 
-void actSt06aSuimonSub(volatile int a0)
+void actSt06aSuimonSub(GObj *volatile a0)
 {
     stage_SetAnimation(107, 1, 0);
     stage_SetAnimation(109, 1, 0);
@@ -1122,7 +1123,7 @@ void actSt06aDoorEvent(int x)
     volatile int local = x;
 }
 
-void actSt06aDoorUpEffect(volatile int a0)
+void actSt06aDoorUpEffect(GObj *volatile a0)
 {
     long long b1[2];
     long long b2[2];
@@ -1146,7 +1147,7 @@ void actSt06aDoorUpEffect(volatile int a0)
     }
 }
 
-void actSt06aDoorDownEffect(volatile int a0)
+void actSt06aDoorDownEffect(GObj *volatile a0)
 {
     long long b1[2];
     long long b2[2];
@@ -1170,9 +1171,9 @@ void actSt06aDoorDownEffect(volatile int a0)
     }
 }
 
-void actSt06aShutterMain(volatile int a0)
+void actSt06aShutterMain(GObj *volatile a0)
 {
-    Act *sub = (Act *)((PObjGObj *)a0)->act;
+    Act *sub = GOBJ_ACT(a0);
 
     scpBoyControlReadDisable = 0;
 
@@ -1183,9 +1184,9 @@ void actSt06aShutterMain(volatile int a0)
     }
 }
 
-void actSt06aShutterSwitch(volatile int a0)
+void actSt06aShutterSwitch(GObj *volatile a0)
 {
-    Act *sub = (Act *)((PObjGObj *)a0)->act;
+    Act *sub = GOBJ_ACT(a0);
 
     scpBoyControlReadDisable = 1;
 
@@ -1197,7 +1198,7 @@ void actSt06aShutterSwitch(volatile int a0)
     _ACTWait(0);
 }
 
-void actSt06aShutterOpenSub(volatile int a0)
+void actSt06aShutterOpenSub(GObj *volatile a0)
 {
     _ACTWait(60);
 
@@ -1218,7 +1219,7 @@ void actSt06aShutterOpenSub(volatile int a0)
     _ACTWait(0);
 }
 
-void actSt06aExitChk(volatile int a0)
+void actSt06aExitChk(GObj *volatile a0)
 {
     while (gflagChk(106) != 0 || scpTriggerBall(a0, boyGObj, 400.0f) == 0) {
         _ACTWait(1);
@@ -1228,7 +1229,7 @@ void actSt06aExitChk(volatile int a0)
     RequestStageChange(3, boyGObj, 0, 16.0f, 16.0f);
 }
 
-void actSt06aExitGirlChk(volatile int a0)
+void actSt06aExitGirlChk(GObj *volatile a0)
 {
     long long buf1[2];
     long long buf2[2];
@@ -1252,7 +1253,7 @@ void actSt06aExitGirlChk(volatile int a0)
     ScpCallCameraSetTarget(-800.0f, -500.0f, 2200.0f);
 }
 
-void actSt06aBoxSub(volatile int a0)
+void actSt06aBoxSub(GObj *volatile a0)
 {
     _ACTWait(60);
 
@@ -1271,7 +1272,7 @@ void actSt06aBoxSub(volatile int a0)
     _ACTWait(0);
 }
 
-void actSt06aBox2Chk(volatile int a0)
+void actSt06aBox2Chk(GObj *volatile a0)
 {
     while (scpTriggerBall(a0, scpSearchGobj(1773), 200.0f) == 0 || gflagChk(106) == 0) {
         _ACTWait(1);
@@ -1281,14 +1282,14 @@ void actSt06aBox2Chk(volatile int a0)
     scpSearchGobj(1773)->active = 0;
 }
 
-void actSt06aBox3Chk(volatile int a0)
+void actSt06aBox3Chk(GObj *volatile a0)
 {
     while (scpTriggerBall(a0, scpSearchGobj(1773), 200.0f) == 0 || gflagChk(106) != 0) {
         _ACTWait(1);
     }
 }
 
-void actSt06aBallDeleteChk(volatile int a0)
+void actSt06aBallDeleteChk(GObj *volatile a0)
 {
     while (scpTriggerBall(a0, scpSearchGobj(1770), 200.0f) == 0 || gflagChk(106) != 0) {
         _ACTWait(1);
@@ -1297,9 +1298,9 @@ void actSt06aBallDeleteChk(volatile int a0)
     scpSearchGobj(1770)->active = 0;
 }
 
-void actSt06aBoxEvent2InChk(volatile int a0)
+void actSt06aBoxEvent2InChk(GObj *volatile a0)
 {
-    Act *sub = (Act *)((PObjGObj *)a0)->act;
+    Act *sub = GOBJ_ACT(a0);
 
     while (scpTriggerFloorAttr(scpSearchGobj(1773), 0x2000000) == 0) {
         _ACTWait(1);
@@ -1313,9 +1314,9 @@ void actSt06aBoxEvent2InChk(volatile int a0)
     _ACTWait(0);
 }
 
-void actSt06aBoxEvent2OutChk(volatile int a0)
+void actSt06aBoxEvent2OutChk(GObj *volatile a0)
 {
-    Act *sub = (Act *)((PObjGObj *)a0)->act;
+    Act *sub = GOBJ_ACT(a0);
 
     while (scpTriggerFloorAttr(scpSearchGobj(1773), 0x2000000) != 0) {
         _ACTWait(1);
@@ -1329,9 +1330,9 @@ void actSt06aBoxEvent2OutChk(volatile int a0)
     _ACTWait(0);
 }
 
-void actSt06aWayOnChk(volatile int a0)
+void actSt06aWayOnChk(GObj *volatile a0)
 {
-    Act *sub = (Act *)((PObjGObj *)a0)->act;
+    Act *sub = GOBJ_ACT(a0);
 
     if (girlGObj == 0) {
         _ACTWait(0);
@@ -1349,9 +1350,9 @@ void actSt06aWayOnChk(volatile int a0)
     _ACTWait(0);
 }
 
-void actSt06aWayOffChk(volatile int a0)
+void actSt06aWayOffChk(GObj *volatile a0)
 {
-    Act *sub = (Act *)((PObjGObj *)a0)->act;
+    Act *sub = GOBJ_ACT(a0);
 
     if (girlGObj == 0) {
         _ACTWait(0);
@@ -1369,9 +1370,9 @@ void actSt06aWayOffChk(volatile int a0)
     _ACTWait(0);
 }
 
-void actSt06aWallWayOnChk(volatile int a0)
+void actSt06aWallWayOnChk(GObj *volatile a0)
 {
-    Act *sub = (Act *)((PObjGObj *)a0)->act;
+    Act *sub = GOBJ_ACT(a0);
 
     while (scpIsRotObjectZPlusDirInclude(1775, 0xF0, 0x12C) == 0) {
         _ACTWait(1);
@@ -1392,9 +1393,9 @@ void actSt06aWallWayOnChk(volatile int a0)
    (430 the actor post, 429 the trailing entry); .func is filled in at
    run time. Named for the thread that owns and posts it. */
 
-void actSt06aWallWayOffChk(volatile int a0)
+void actSt06aWallWayOffChk(GObj *volatile a0)
 {
-    Act *sub = (Act *)((PObjGObj *)a0)->act;
+    Act *sub = GOBJ_ACT(a0);
 
     while (scpIsRotObjectZPlusDirInclude(1775, 0xF0, 0x12C) != 0) {
         _ACTWait(1);
@@ -1410,9 +1411,9 @@ void actSt06aWallWayOffChk(volatile int a0)
     _ACTWait(0);
 }
 
-void actSt06aWallWay2OnChk(volatile int a0)
+void actSt06aWallWay2OnChk(GObj *volatile a0)
 {
-    Act *sub = (Act *)((PObjGObj *)a0)->act;
+    Act *sub = GOBJ_ACT(a0);
 
     while (scpIsRotObjectZPlusDirInclude(1775, 0x3C, 0x78) == 0) {
         _ACTWait(1);
@@ -1428,9 +1429,9 @@ void actSt06aWallWay2OnChk(volatile int a0)
     _ACTWait(0);
 }
 
-void actSt06aWallWay2OffChk(volatile int a0)
+void actSt06aWallWay2OffChk(GObj *volatile a0)
 {
-    Act *sub = (Act *)((PObjGObj *)a0)->act;
+    Act *sub = GOBJ_ACT(a0);
 
     while (scpIsRotObjectZPlusDirInclude(1775, 0x3C, 0x78) != 0) {
         _ACTWait(1);
@@ -1446,7 +1447,7 @@ void actSt06aWallWay2OffChk(volatile int a0)
     _ACTWait(0);
 }
 
-void actSt06aTreeChk(volatile int a0)
+void actSt06aTreeChk(GObj *volatile a0)
 {
     while (scpTriggerBall(a0, boyGObj, 150.0f) == 0 ||
            (ForMotionViewer_GetCurrentMotion(boyGObj) != 0x2F &&
@@ -1460,9 +1461,9 @@ void actSt06aTreeChk(volatile int a0)
     ReviveAllCarryableItems();
 }
 
-void actSt06aKyomiOnChk(volatile int a0)
+void actSt06aKyomiOnChk(GObj *volatile a0)
 {
-    Act *sub = (Act *)((PObjGObj *)a0)->act;
+    Act *sub = GOBJ_ACT(a0);
 
     if (girlGObj == 0) {
         _ACTWait(0);
@@ -1484,9 +1485,9 @@ void actSt06aKyomiOnChk(volatile int a0)
     _ACTWait(0);
 }
 
-void actSt06aKyomiOffChk(volatile int a0)
+void actSt06aKyomiOffChk(GObj *volatile a0)
 {
-    Act *sub = (Act *)((PObjGObj *)a0)->act;
+    Act *sub = GOBJ_ACT(a0);
 
     if (girlGObj == 0) {
         _ACTWait(0);
@@ -1508,9 +1509,9 @@ void actSt06aKyomiOffChk(volatile int a0)
     _ACTWait(0);
 }
 
-void actSt06aJumpMain(volatile int a0)
+void actSt06aJumpMain(GObj *volatile a0)
 {
-    Act *sub = (Act *)((PObjGObj *)a0)->act;
+    Act *sub = GOBJ_ACT(a0);
 
     scpBoyControlReadDisable = 0;
 
@@ -1521,9 +1522,9 @@ void actSt06aJumpMain(volatile int a0)
     }
 }
 
-void actSt06aJumpSwitch(volatile int a0)
+void actSt06aJumpSwitch(GObj *volatile a0)
 {
-    Act *sub = (Act *)((PObjGObj *)a0)->act;
+    Act *sub = GOBJ_ACT(a0);
 
     scpBoyControlReadDisable = 1;
 
@@ -1535,7 +1536,7 @@ void actSt06aJumpSwitch(volatile int a0)
     _ACTWait(0);
 }
 
-void actSt06aJumpSub(volatile int a0)
+void actSt06aJumpSub(GObj *volatile a0)
 {
     stage_SetAnimation(114, 1, 0);
 
@@ -1561,9 +1562,9 @@ void actSt06aJumpSub(volatile int a0)
 /* The piston-ride-on watcher's own mail record (installs
    actSt06aPistonRideOffChk). */
 
-void actSt06aPistonRideOnChk(volatile int a0)
+void actSt06aPistonRideOnChk(GObj *volatile a0)
 {
-    Act *sub = (Act *)((PObjGObj *)a0)->act;
+    Act *sub = GOBJ_ACT(a0);
 
     while (gflagChk(116) == 0 || scpTriggerFloorAttr(boyGObj, 0x6000000) == 0) {
         _ACTWait(1);
@@ -1575,9 +1576,9 @@ void actSt06aPistonRideOnChk(volatile int a0)
     _ACTWait(0);
 }
 
-inline void actSt06aPistonFlagOffChk(volatile int a0)
+inline void actSt06aPistonFlagOffChk(GObj *volatile a0)
 {
-    Act *sub = (Act *)((PObjGObj *)a0)->act;
+    Act *sub = GOBJ_ACT(a0);
 
     while (stage_CheckAnimationFrame(113, 125, 0) == 0) {
         _ACTWait(1);
@@ -1598,7 +1599,7 @@ inline void actSt06aPistonFlagOffChk(volatile int a0)
     _ACTWait(0);
 }
 
-inline void actSt06aSoundChk(volatile int a0)
+inline void actSt06aSoundChk(GObj *volatile a0)
 {
     int handle = soundSeDefPlay(1358, 0, sound_chk_pos, 1);
 
@@ -1609,7 +1610,7 @@ inline void actSt06aSoundChk(volatile int a0)
     soundSeDefStop(handle);
 }
 
-inline void actSt06aSound2Chk(volatile int a0)
+inline void actSt06aSound2Chk(GObj *volatile a0)
 {
     int handle;
 

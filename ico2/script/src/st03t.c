@@ -59,9 +59,9 @@ static ActMail hint1OffChk_mes[2] = {{430}, {429}};
 
 static ActMail hint1OnChk_mes[2] = {{430}, {429}};
 
-void actSt03tSwitchL(volatile int a0)
+void actSt03tSwitchL(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     Act *self = actInitialize(a0);
 
     _ACTWait(1);
@@ -85,9 +85,9 @@ void actSt03tSwitchL(volatile int a0)
     }
 }
 
-void actSt03tSwitchLChk(volatile int a0)
+void actSt03tSwitchLChk(GObj *volatile a0)
 {
-    Act *self = (Act *)((PObjGObj *)a0)->act;
+    Act *self = GOBJ_ACT(a0);
     int i;
 
     i = 0;
@@ -145,9 +145,9 @@ void actSt03tSwitchLChk(volatile int a0)
     _ACTWait(0);
 }
 
-void actSt03tSwitchLUpChk(volatile int a0)
+void actSt03tSwitchLUpChk(GObj *volatile a0)
 {
-    Act *self = (Act *)((PObjGObj *)a0)->act;
+    Act *self = GOBJ_ACT(a0);
 
     while (scpTriggerFloorAttrTargetMan(a0, 0x1000000) != 0) {
         _ACTWait(1);
@@ -168,7 +168,7 @@ void actSt03tSwitchLUpChk(volatile int a0)
     stage_SetAnimation(367, 1, 0);
 
     if (girlGObj != 0) {
-        scpCheckDisconnectWallStart((char *)girlGObj);
+        scpCheckDisconnectWallStart(girlGObj);
     }
 
     SetWayGroupActive(7, 0);
@@ -185,7 +185,7 @@ void actSt03tSwitchLUpChk(volatile int a0)
     _ACTWait(1);
 
     if (girlGObj != 0) {
-        scpCheckDisconnectWallEnd((char *)girlGObj);
+        scpCheckDisconnectWallEnd(girlGObj);
     }
 
     switchLUpChk_mes[0].func = actSt03tSwitchLChk;
@@ -194,9 +194,9 @@ void actSt03tSwitchLUpChk(volatile int a0)
     _ACTWait(0);
 }
 
-void actSt03tSwitchR(volatile int a0)
+void actSt03tSwitchR(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     Act *self = actInitialize(a0);
 
     _ACTWait(1);
@@ -220,9 +220,9 @@ void actSt03tSwitchR(volatile int a0)
     }
 }
 
-void actSt03tSwitchRChk(volatile int a0)
+void actSt03tSwitchRChk(GObj *volatile a0)
 {
-    Act *self = (Act *)((PObjGObj *)a0)->act;
+    Act *self = GOBJ_ACT(a0);
     int i;
 
     i = 0;
@@ -268,9 +268,9 @@ void actSt03tSwitchRChk(volatile int a0)
     _ACTWait(0);
 }
 
-void actSt03tSwitchRUpChk(volatile int a0)
+void actSt03tSwitchRUpChk(GObj *volatile a0)
 {
-    Act *self = (Act *)((PObjGObj *)a0)->act;
+    Act *self = GOBJ_ACT(a0);
 
     while (scpTriggerFloorAttrTargetMan(a0, 0x2000000) != 0) {
         _ACTWait(1);
@@ -307,9 +307,9 @@ void actSt03tSwitchRUpChk(volatile int a0)
     _ACTWait(0);
 }
 
-void actSt03tGene(volatile int a0)
+void actSt03tGene(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
 
     actInitialize(a0);
     _ACTWait(1);
@@ -333,9 +333,9 @@ void actSt03tGene(volatile int a0)
     Generator_Call((int)scpSearchGobj(878));
 }
 
-void actSt03tBoxA(volatile int a0)
+void actSt03tBoxA(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
 
     actInitialize(a0);
     _ACTWait(1);
@@ -353,9 +353,9 @@ void actSt03tBoxA(volatile int a0)
     }
 }
 
-void actSt03tBoxB(volatile int a0)
+void actSt03tBoxB(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
 
     actInitialize(a0);
     _ACTWait(1);
@@ -390,9 +390,9 @@ void actSt03tInit(void)
     }
 }
 
-void actSt03tGirlUp(volatile int a0)
+void actSt03tGirlUp(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     Act *self = actInitialize(a0);
 
     _ACTWait(1);
@@ -407,9 +407,9 @@ void actSt03tGirlUp(volatile int a0)
     }
 }
 
-void actSt03tGirlCam(volatile int a0)
+void actSt03tGirlCam(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     Act *self = actInitialize(a0);
 
     _ACTWait(1);
@@ -420,9 +420,9 @@ void actSt03tGirlCam(volatile int a0)
     _ACTWait(0);
 }
 
-void actSt03tSekizo(volatile int a0)
+void actSt03tSekizo(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
 
     actInitialize(a0);
     _ACTWait(1);
@@ -430,9 +430,9 @@ void actSt03tSekizo(volatile int a0)
     scpSekizou(a0, 0x5F, 0x50, 0, 0x12, -913.0f, -400.0f, 605.0f, -1000.0f, -400.0f, 550.0f);
 }
 
-void actSt03tWay(volatile int a0)
+void actSt03tWay(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     Act *self = actInitialize(a0);
 
     _ACTWait(1);
@@ -450,9 +450,9 @@ void actSt03tWay(volatile int a0)
     }
 }
 
-void actSt03tEne(volatile int a0)
+void actSt03tEne(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     Act *self = actInitialize(a0);
 
     _ACTWait(1);
@@ -465,9 +465,9 @@ void actSt03tEne(volatile int a0)
     }
 }
 
-void actSt03tGirlPos(volatile int a0)
+void actSt03tGirlPos(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     Act *self = actInitialize(a0);
 
     _ACTWait(1);
@@ -482,9 +482,9 @@ void actSt03tGirlPos(volatile int a0)
     }
 }
 
-void actSt03tHint1Sleep(volatile int a0)
+void actSt03tHint1Sleep(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     Act *self = actInitialize(a0);
 
     _ACTWait(1);
@@ -500,9 +500,9 @@ void actSt03tGirlCamEvent(int x)
     volatile int local = x;
 }
 
-void actSt03tGirlCamStartChk(volatile int a0)
+void actSt03tGirlCamStartChk(GObj *volatile a0)
 {
-    Act *sub = (Act *)((PObjGObj *)a0)->act;
+    Act *sub = GOBJ_ACT(a0);
 
     while (scpTriggerBall(a0, boyGObj, 100.0f) == 0 ||
            ForMotionViewer_GetCurrentMotion(boyGObj) != 0xCA) {
@@ -520,9 +520,9 @@ void actSt03tGirlCamStartChk(volatile int a0)
     _ACTWait(0);
 }
 
-void actSt03tGirlCamEndChk(volatile int a0)
+void actSt03tGirlCamEndChk(GObj *volatile a0)
 {
-    Act *sub = (Act *)((PObjGObj *)a0)->act;
+    Act *sub = GOBJ_ACT(a0);
 
     while (scpTriggerBall(a0, boyGObj, 100.0f) == 0 ||
            ForMotionViewer_GetCurrentMotion(boyGObj) == 0xCA) {
@@ -545,7 +545,7 @@ void actSt03tSekizoEvent(int x)
     volatile int local = x;
 }
 
-void actSt03tEneChk(volatile int a0)
+void actSt03tEneChk(GObj *volatile a0)
 {
     if (girlGObj == 0) {
         _ACTWait(0);
@@ -576,9 +576,9 @@ void actSt03tEneChk(volatile int a0)
    actor post, 429 the trailing entry); .func is filled in at run time.
    Named for the thread that owns and posts it. */
 
-void actSt03tWayOnChk(volatile int a0)
+void actSt03tWayOnChk(GObj *volatile a0)
 {
-    Act *sub = (Act *)((PObjGObj *)a0)->act;
+    Act *sub = GOBJ_ACT(a0);
 
     if (girlGObj == 0) {
         _ACTWait(0);
@@ -598,9 +598,9 @@ void actSt03tWayOnChk(volatile int a0)
 
 /* The way-off watcher's own mail record (installs actSt03tWayOnChk). */
 
-void actSt03tWayOffChk(volatile int a0)
+void actSt03tWayOffChk(GObj *volatile a0)
 {
-    Act *sub = (Act *)((PObjGObj *)a0)->act;
+    Act *sub = GOBJ_ACT(a0);
 
     if (girlGObj == 0) {
         _ACTWait(0);
@@ -618,7 +618,7 @@ void actSt03tWayOffChk(volatile int a0)
     _ACTWait(0);
 }
 
-void actSt03tGirlPosChk(volatile int a0)
+void actSt03tGirlPosChk(GObj *volatile a0)
 {
     while (girlGObj == 0 || scpTriggerFloorAttr(girlGObj, 0x5000000) == 0) {
         _ACTWait(1);
@@ -628,7 +628,7 @@ void actSt03tGirlPosChk(volatile int a0)
     WakeupHint(12);
 }
 
-void actSt03tGirlUpChk(volatile int a0)
+void actSt03tGirlUpChk(GObj *volatile a0)
 {
     while (girlGObj == 0 || scpTriggerFloorAttr(girlGObj, 0x4000000) == 0) {
         _ACTWait(1);
@@ -639,9 +639,9 @@ void actSt03tGirlUpChk(volatile int a0)
     FinishHint(12);
 }
 
-void actSt03tHint1OnChk(volatile int a0)
+void actSt03tHint1OnChk(GObj *volatile a0)
 {
-    Act *sub = (Act *)((PObjGObj *)a0)->act;
+    Act *sub = GOBJ_ACT(a0);
 
     _ACTWait((0x3C - systemStatus[0] * 0xA) / systemStatus[1] * 0x3C);
     WakeupHint(12);
@@ -652,9 +652,9 @@ void actSt03tHint1OnChk(volatile int a0)
     _ACTWait(0);
 }
 
-void actSt03tHint1OffChk(volatile int a0)
+void actSt03tHint1OffChk(GObj *volatile a0)
 {
-    Act *sub = (Act *)((PObjGObj *)a0)->act;
+    Act *sub = GOBJ_ACT(a0);
 
     while (gflagChk(102) == 0) {
         _ACTWait(1);

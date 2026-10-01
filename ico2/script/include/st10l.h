@@ -12,29 +12,30 @@
 #ifndef ST10L_H
 #define ST10L_H
 
-/* st10l.o's .sdata globals (MAIN.MAP) */
-extern int floor10l;
-extern int st10l_gondola_up;
-extern int st10l_gondola_down;
-extern int chain10l;
+#include "typedef.h"
 
-void actSt10lBoxAChk(volatile int a0);
-void actSt10lBoxBChk(volatile int a0);
-void actSt10lBoxChk(volatile int a0);
-void actSt10lChainMain(volatile int a0);
-void actSt10lChainMove(volatile int a0);
-void actSt10lChainSwitch(volatile int a0);
-void actSt10lEneCam1Chk(volatile int a0);
-void actSt10lEneCam2Chk(volatile int a0);
-void actSt10lEneCam3Chk(volatile int a0);
-void actSt10lEneKillChk(volatile int a0);
-void actSt10lFloorLeft(volatile int a0);
-void actSt10lFloorMain(volatile int a0);
-void actSt10lFloorRight(volatile int a0);
-void actSt10lFloorSwitch(volatile int a0);
-void actSt10lGondolaDown(volatile int a0);
-void actSt10lGondolaMain(volatile int a0);
-void actSt10lGondolaSwitch(volatile int a0);
-void actSt10lGondolaUp(volatile int a0);
+/* st10l.o's .sdata globals (MAIN.MAP) */
+extern char *floor10l;
+extern char *st10l_gondola_up;
+extern char *st10l_gondola_down;
+extern char *chain10l;
+void actSt10lBoxAChk(GObj *volatile a0);
+void actSt10lBoxBChk(GObj *volatile a0);
+void actSt10lBoxChk(GObj *volatile a0);
+void actSt10lChainMain(GObj *volatile a0);
+void actSt10lChainMove(GObj *volatile a0);
+void actSt10lChainSwitch(GObj *volatile a0);
+void actSt10lEneCam1Chk(GObj *volatile a0);
+void actSt10lEneCam2Chk(GObj *volatile a0);
+void actSt10lEneCam3Chk(GObj *volatile a0);
+void actSt10lEneKillChk(GObj *volatile a0);
+void actSt10lFloorLeft(GObj *volatile a0);
+void actSt10lFloorMain(GObj *volatile a0);
+void actSt10lFloorRight(GObj *volatile a0);
+void actSt10lFloorSwitch(GObj *volatile a0);
+void actSt10lGondolaDown(GObj *volatile a0);
+void actSt10lGondolaMain(GObj *volatile a0);
+void actSt10lGondolaSwitch(GObj *volatile a0);
+void actSt10lGondolaUp(GObj *volatile a0);
 
 #endif /* ST10L_H */

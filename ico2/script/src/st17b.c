@@ -10,17 +10,17 @@ static ActMail check_mes[2] = {{430}, {429}};
 /* .sdata, owned by st17b.o, in the ROM's order: the lightning stream handle. */
 int lightning2 = 0;
 
-void actSt17bTest(volatile int a0)
+void actSt17bTest(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
 
     actInitialize(a0);
     _ACTWait(1);
 }
 
-void actSt17bCheck(volatile int a0)
+void actSt17bCheck(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     Act *self = (Act *)actInitialize(a0);
 
     _ACTWait(1);
@@ -35,7 +35,7 @@ void actSt17bCheck(volatile int a0)
     }
 }
 
-void actSt17bCheckChk(volatile int a0)
+void actSt17bCheckChk(GObj *volatile a0)
 {
     _ACTWait(1);
     CheckPoint();

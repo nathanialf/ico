@@ -12,9 +12,10 @@
 #ifndef ST17B_H
 #define ST17B_H
 
+#include "typedef.h"
+
 /* st17b.o's .sdata globals (MAIN.MAP) */
 extern int lightning2;
-
-void actSt17bCheckChk(volatile int a0);
+void actSt17bCheckChk(GObj *volatile a0);
 
 #endif /* ST17B_H */

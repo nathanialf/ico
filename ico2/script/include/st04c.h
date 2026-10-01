@@ -12,12 +12,14 @@
 #ifndef ST04C_H
 #define ST04C_H
 
-void actSt04cDoorDownChk(volatile int a0);
-void actSt04cDoorDownEffect(volatile int a0);
-void actSt04cEneChk(volatile int a0);
-void actSt04cIntroChk(volatile int a0);
-void actSt04cIntroChkSub(volatile int a0);
-void actSt04lDoorChk(volatile int a0);
+#include "typedef.h"
+
+void actSt04cDoorDownChk(GObj *volatile a0);
+void actSt04cDoorDownEffect(GObj *volatile a0);
+void actSt04cEneChk(GObj *volatile a0);
+void actSt04cIntroChk(GObj *volatile a0);
+void actSt04cIntroChkSub(GObj *volatile a0);
+void actSt04lDoorChk(GObj *volatile a0);
 
 /* RECONSTRUCTION, PLACED BY INCLUDE PATTERN: one record, previously repeated character for character in 3 TUs. */
 typedef union StVec {

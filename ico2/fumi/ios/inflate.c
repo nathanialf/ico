@@ -779,7 +779,7 @@ long long inflate(void *w, unsigned char *out, long long outlen)
 
 int open_inflate_handler(int a0, int a1)
 {
-    int g = ios_partition_oomori;
+    struct IosMemPart *g = ios_partition_oomori;
     int *s1;
     ios_partition_inflate = g;
     free_mblock_list = 0;

@@ -3,6 +3,7 @@
 #include "thread.h"
 #include "s_init.h"
 #include "act.h"
+#include "gobj_process.h"
 #include "commonact.h"
 #include "way_llf.h"
 #include "fightSound.h"
@@ -17,7 +18,7 @@
 
 /* .sdata, owned by st00a.o (MAIN.MAP globals): the prototype stair's stream
    handle, its shake and the shake's volume. */
-int proto = 0;
+char *proto = 0;
 
 unsigned int proto_yure = 0;
 
@@ -102,7 +103,7 @@ void actSt00aEnd(void)
     }
 }
 
-void actSt00aEneChk(volatile int a0)
+void actSt00aEneChk(GObj *volatile a0)
 {
     if (girlGObj == 0) {
         _ACTWait(0);
@@ -138,14 +139,14 @@ void actSt00aEneChk(volatile int a0)
    is over, which the wait loop below spins for. */
 static int demoEnd;
 
-void actSt00aStairChkSub(volatile int a0);
+void actSt00aStairChkSub(GObj *volatile a0);
 
-void actSt00aStairChk(volatile int a0)
+void actSt00aStairChk(GObj *volatile a0)
 {
-    int th;
+    GProc *th;
     int fade;
 
-    while (scpTriggerBall(a0, (int)scpSearchGobj(276), 90.0f) != 0 || gflagChk(39) != 0) {
+    while (scpTriggerBall(a0, scpSearchGobj(276), 90.0f) != 0 || gflagChk(39) != 0) {
         _ACTWait(1);
     }
     gflagOn(38);
@@ -181,7 +182,7 @@ void actSt00aStairChk(volatile int a0)
             _ACTWait(1);
         }
     }
-    iosThreadSetPri(th + 0x24, 34);
+    iosThreadSetPri(&th->thread, 34);
     if (fade) {
         stage_SetAnimation(90, 1, -1);
         stage_SetAnimation(87, 0, -1);
@@ -205,17 +206,17 @@ void actSt00aStairChk(volatile int a0)
     fightSoundProcessRequestStart();
 }
 
-void actSt00aDoor2DownChk(int a0);
-void actSt00aDoor2UpChk(int a0);
+void actSt00aDoor2DownChk(GObj *a0);
+void actSt00aDoor2UpChk(GObj *a0);
 
-void actSt00aDoor2(volatile int a0)
+void actSt00aDoor2(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     Act *self = actInitialize(a0);
     _ACTWait(1);
 
     if (scpTriggerBall(a0, boyGObj, 200.0f) != 0 ||
-        (girlGObj != 0 && scpTriggerBall(a0, (int)girlGObj, 400.0f) != 0)) {
+        (girlGObj != 0 && scpTriggerBall(a0, girlGObj, 400.0f) != 0)) {
         stage_SetAnimation(94, 0, 0);
         _ACTWait(60);
         door2Down_mes[0].func = actSt00aDoor2DownChk;
@@ -231,11 +232,11 @@ void actSt00aDoor2(volatile int a0)
     }
 }
 
-void actSt00aDoor2UpEffect(volatile int a0);
+void actSt00aDoor2UpEffect(GObj *volatile a0);
 
-void actSt00aDoor2UpChk(volatile int a0)
+void actSt00aDoor2UpChk(GObj *volatile a0)
 {
-    Act *sub = (Act *)((PObjGObj *)a0)->act;
+    Act *sub = GOBJ_ACT(a0);
     long long buf[2];
     int h;
 
@@ -272,11 +273,11 @@ void actSt00aDoor2UpChk(volatile int a0)
     _ACTWait(0);
 }
 
-void actSt00aDoor2DownEffect(volatile int a0);
+void actSt00aDoor2DownEffect(GObj *volatile a0);
 
-void actSt00aDoor2DownChk(volatile int a0)
+void actSt00aDoor2DownChk(GObj *volatile a0)
 {
-    Act *sub = (Act *)((PObjGObj *)a0)->act;
+    Act *sub = GOBJ_ACT(a0);
     ConstVec pos;
     int h;
 
@@ -314,17 +315,17 @@ void actSt00aDoor2DownChk(volatile int a0)
     _ACTWait(0);
 }
 
-void actSt00aDoor1DownChk(int a0);
-void actSt00aDoor1UpChk(int a0);
+void actSt00aDoor1DownChk(GObj *a0);
+void actSt00aDoor1UpChk(GObj *a0);
 
-void actSt00aDoor1(volatile int a0)
+void actSt00aDoor1(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     Act *self = actInitialize(a0);
     _ACTWait(1);
 
     if (scpTriggerBall(a0, boyGObj, 200.0f) != 0 ||
-        (girlGObj != 0 && scpTriggerBall(a0, (int)girlGObj, 400.0f) != 0)) {
+        (girlGObj != 0 && scpTriggerBall(a0, girlGObj, 400.0f) != 0)) {
         stage_SetAnimation(92, 0, 0);
         _ACTWait(60);
         door1Down_mes[0].func = actSt00aDoor1DownChk;
@@ -340,11 +341,11 @@ void actSt00aDoor1(volatile int a0)
     }
 }
 
-void actSt00aDoor1UpEffect(volatile int a0);
+void actSt00aDoor1UpEffect(GObj *volatile a0);
 
-void actSt00aDoor1UpChk(volatile int a0)
+void actSt00aDoor1UpChk(GObj *volatile a0)
 {
-    Act *sub = (Act *)((PObjGObj *)a0)->act;
+    Act *sub = GOBJ_ACT(a0);
     ConstVec pos;
     int h;
 
@@ -380,11 +381,11 @@ void actSt00aDoor1UpChk(volatile int a0)
     _ACTWait(0);
 }
 
-void actSt00aDoor1DownEffect(volatile int a0);
+void actSt00aDoor1DownEffect(GObj *volatile a0);
 
-void actSt00aDoor1DownChk(volatile int a0)
+void actSt00aDoor1DownChk(GObj *volatile a0)
 {
-    Act *sub = (Act *)((PObjGObj *)a0)->act;
+    Act *sub = GOBJ_ACT(a0);
     long long buf[2];
     int h;
 
@@ -419,11 +420,11 @@ void actSt00aDoor1DownChk(volatile int a0)
     _ACTWait(0);
 }
 
-void actSt00aEneChk(int a0);
+void actSt00aEneChk(GObj *a0);
 
-void actSt00aEne(volatile int a0)
+void actSt00aEne(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     Act *self = actInitialize(a0);
     _ACTWait(1);
 
@@ -435,9 +436,9 @@ void actSt00aEne(volatile int a0)
     }
 }
 
-void actSt00aEnemy1(volatile int a0)
+void actSt00aEnemy1(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     actInitialize(a0);
     _ACTWait(1);
     Generator_Mask(a0);
@@ -453,9 +454,9 @@ void actSt00aEnemy1(volatile int a0)
     Generator_Call(a0);
 }
 
-void actSt00aEnemy2(volatile int a0)
+void actSt00aEnemy2(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     actInitialize(a0);
     _ACTWait(1);
     Generator_Mask(a0);
@@ -469,11 +470,11 @@ void actSt00aEnemy2(volatile int a0)
     Generator_Call(a0);
 }
 
-void actSt00aStairChk(int a0);
+void actSt00aStairChk(GObj *a0);
 
-void actSt00aStair(volatile int a0)
+void actSt00aStair(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     Act *self = actInitialize(a0);
     _ACTWait(1);
 
@@ -488,11 +489,11 @@ void actSt00aStair(volatile int a0)
     }
 }
 
-void actSt00aAtr2Chk(volatile int a0);
+void actSt00aAtr2Chk(GObj *volatile a0);
 
-void actSt00aAtr2(volatile int a0)
+void actSt00aAtr2(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     Act *self = actInitialize(a0);
     _ACTWait(1);
 
@@ -504,7 +505,7 @@ void actSt00aAtr2(volatile int a0)
     }
 }
 
-void actSt00aAtr2Chk(volatile int a0)
+void actSt00aAtr2Chk(GObj *volatile a0)
 {
     if (girlGObj == 0) {
         _ACTWait(0);
@@ -515,7 +516,7 @@ void actSt00aAtr2Chk(volatile int a0)
     gflagOn(42);
 }
 
-void actSt00aStairChkSub(volatile int a0)
+void actSt00aStairChkSub(GObj *volatile a0)
 {
     _ACTWait(90);
     iosPadActRequest(boyPad, 0x11);
@@ -538,7 +539,7 @@ void actSt00aDoor2Event(int x)
     volatile int local = x;
 }
 
-void actSt00aDoor2UpEffect(volatile int a0)
+void actSt00aDoor2UpEffect(GObj *volatile a0)
 {
     long long b1[2];
     long long b2[2];
@@ -562,7 +563,7 @@ void actSt00aDoor2UpEffect(volatile int a0)
     }
 }
 
-void actSt00aDoor2DownEffect(volatile int a0)
+void actSt00aDoor2DownEffect(GObj *volatile a0)
 {
     long long b1[2];
     long long b2[2];
@@ -591,7 +592,7 @@ void actSt00aDoor1Event(int x)
     volatile int local = x;
 }
 
-void actSt00aDoor1UpEffect(volatile int a0)
+void actSt00aDoor1UpEffect(GObj *volatile a0)
 {
     long long b1[2];
     long long b2[2];
@@ -615,7 +616,7 @@ void actSt00aDoor1UpEffect(volatile int a0)
     }
 }
 
-void actSt00aDoor1DownEffect(volatile int a0)
+void actSt00aDoor1DownEffect(GObj *volatile a0)
 {
     long long b1[2];
     long long b2[2];

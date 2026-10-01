@@ -49,7 +49,7 @@ typedef union FzVec {
 float fzMagnitude2fv(float *p0, float *p1)
 {
     FzVec d = {{p1[0] - p0[0], p1[1] - p0[1], p1[2] - p0[2]}};
-    return FSqrt(sceVu0InnerProduct((int)&d, (int)&d));
+    return FSqrt(sceVu0InnerProduct(&d, &d));
 }
 
 float fzMagnitudeByLine(float *p0, float *p1, float *p2)

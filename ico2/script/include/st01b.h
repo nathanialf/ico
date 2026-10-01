@@ -12,14 +12,15 @@
 #ifndef ST01B_H
 #define ST01B_H
 
+#include "typedef.h"
+
 /* st01b.o's .sdata globals (MAIN.MAP); st01b_floor is declared with its record in st01b.c */
 extern unsigned int st01b_yure;
 extern unsigned char st01b_yure_vol;
-
-void actSt01bEneChk(volatile int a0);
-void actSt01bFloorChk(volatile int a0);
-void actSt01bFloorChkSub(volatile int a0);
-void actSt01bWayOffChk(volatile int a0);
-void actSt01bWayOnChk(volatile int a0);
+void actSt01bEneChk(GObj *volatile a0);
+void actSt01bFloorChk(GObj *volatile a0);
+void actSt01bFloorChkSub(GObj *volatile a0);
+void actSt01bWayOffChk(GObj *volatile a0);
+void actSt01bWayOnChk(GObj *volatile a0);
 
 #endif /* ST01B_H */

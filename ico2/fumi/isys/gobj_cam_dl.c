@@ -164,12 +164,12 @@ inline void isysGObjMoveCameraDLHead(int a0, int a1)
 inline void isysObjMoveCameraDLAfterGObj(AdpT *a0, AdpT *a1)
 {
     cut_gobj_camera_dl_link((EnNode *)a0);
-    a0->f40 = a1->f40;
-    a0->f38 = a1;
-    a0->f34 = a1->f34;
-    a1->f34 = a0;
-    a0->f44 = a1->f44;
-    if (a0->f34 == 0) {
+    a0->dlLink = a1->dlLink;
+    a0->dlPrev = a1;
+    a0->dlNext = a1->dlNext;
+    a1->dlNext = a0;
+    a0->dlKey = a1->dlKey;
+    if (a0->dlNext == 0) {
         gobj_camera_dl_link_tail = a0;
     }
 }

@@ -60,23 +60,6 @@
  * function in source order.)
  * ------------------------------------------------------------------------- */
 
-/* --- ios thread object (SCE ee_thread_t at offset 0 + ICO bookkeeping) --- */
-typedef struct IOSThread {
-    struct ThreadParam param; /* 0x00 the kernel's thread record */
-    int id;                   /* 0x30 kernel thread id                */
-    int arg;                  /* 0x34 argument handed to func         */
-    void (*func)();           /* 0x38 body run by iosThreadMain       */
-    int flags;                /* 0x3C */
-    int sleeping;             /* 0x40 read by iosThreadMain           */
-    int pad44;                /* 0x44 */
-    int hasQueue;             /* 0x48 */
-    void *queue;              /* 0x4C */
-    char name[16];            /* 0x50 */
-    char pad60[16];           /* 0x60: the record is 0x70 bytes, which is the gap
-                            between the boot thread and its stack in the ROM's
-                            own .bss run */
-} IOSThread;
-
 /* --- ios semaphore object: the parameter block CreateSema is handed (and
    iosSemaWait refers the status into), the status iosSemaReferStatus last
    read, and the kernel's semaphore id; thread.h's users hand it over as the
@@ -91,7 +74,7 @@ typedef struct IosSema {
    symbol in the run), in the ROM's run order: the IOSThread each thread id
    maps to, the destroy manager's own message queue, the boot thread and its
    8 KB stack. */
-static int iosThreadTable[256];
+static IOSThread *iosThreadTable[256];
 
 static char iosThreadDestroyQueue[48];
 
@@ -105,12 +88,12 @@ static char iosBootStack[8192] __attribute__((aligned(16)));
 void iosThreadMain(void *arg)
 {
     int idx = GetThreadId();
-    IOSThread *obj = (IOSThread *)iosThreadTable[idx];
+    IOSThread *obj = iosThreadTable[idx];
     obj->func(arg);
     if (obj->sleeping == 0) {
-        iosThreadSetPri((int *)obj, 33);
+        iosThreadSetPri(obj, 33);
     } else {
-        iosThreadSetPri((int *)obj, 34);
+        iosThreadSetPri(obj, 34);
     }
 }
 
@@ -164,7 +147,7 @@ inline void iosThreadCreate(IOSThread *th, int no, void (*func)(), int arg, void
         debug_assert(__FILE__, 145);
         __assert(__FILE__, 145, "0");
     } else {
-        iosThreadTable[th->id] = (int)th;
+        iosThreadTable[th->id] = th;
     }
 
     n_thread++;
@@ -191,17 +174,17 @@ void iosThreadCreateS(IOSThread *th, int no, void (*func)(), int arg, void *heap
     th->flags |= 1;
 }
 
-void iosThreadStart(int a0)
+void iosThreadStart(IOSThread *th)
 {
-    StartThread(*(int *)(a0 + 0x30), *(void **)(a0 + 0x34));
+    StartThread(th->id, (void *)th->arg);
 }
 
-void iosThreadStop(int a0)
+void iosThreadStop(IOSThread *th)
 {
-    if (a0 == 0) {
+    if (th == 0) {
         ExitThread();
     } else {
-        TerminateThread(*(int *)(a0 + 0x30));
+        TerminateThread(th->id);
     }
 }
 
@@ -210,9 +193,9 @@ void iosThreadSleep(void)
     SleepThread();
 }
 
-inline int iosThreadWakeup(int *self)
+inline int iosThreadWakeup(IOSThread *th)
 {
-    return WakeupThread(self[0x30 / 4]);
+    return WakeupThread(th->id);
 }
 
 /* thread.c:299 - the destroy-manager thread body.  iosThreadInit creates a
@@ -239,7 +222,7 @@ inline void iosThreadDestroyMgr(void)
         TerminateThread(id);
         DeleteThread(id);
         if ((th->flags & 1) == (unsigned)1)
-            iosFree(((IOSThread *)iosThreadTable[id])->param.stack);
+            iosFree(iosThreadTable[id]->param.stack);
 
         if (th->hasQueue) {
             iosMsgQueueDestroy(th->queue);
@@ -249,43 +232,43 @@ inline void iosThreadDestroyMgr(void)
     }
 }
 
-void iosThreadDestroy(int a0)
+void iosThreadDestroy(IOSThread *th)
 {
-    int a1 = a0;
-    if (a0 == 0) {
+    IOSThread *a1 = th;
+    if (th == 0) {
         a1 = iosThreadTable[GetThreadId()];
     }
-    iosMsgSend(iosThreadDestroyQueue, a1, 0);
+    iosMsgSend(iosThreadDestroyQueue, (int)a1, 0);
 }
 
-inline int iosThreadGetPri(int *a0)
+inline int iosThreadGetPri(IOSThread *th)
 {
-    int **base;
-    if (a0 == 0) {
+    IOSThread **base;
+    if (th == 0) {
         int idx;
         base = iosThreadTable;
         idx = GetThreadId();
-        a0 = base[idx];
+        th = base[idx];
     }
-    return a0[0x18 / 4];
+    return th->param.currentPriority;
 }
 
-void iosThreadSetPri(int *a0, int a1)
+void iosThreadSetPri(IOSThread *th, int pri)
 {
-    int *v;
-    v = a0;
+    IOSThread *v;
+    v = th;
     if (v == 0) {
-        v = (int *)iosThreadTable[GetThreadId()];
+        v = iosThreadTable[GetThreadId()];
     } else {
-        v = a0;
+        v = th;
     }
-    v[0x18 / 4] = a1;
-    ChangeThreadPriority(v[0x30 / 4], a1);
+    v->param.currentPriority = pri;
+    ChangeThreadPriority(v->id, pri);
 }
 
-inline int iosGetIOSThreadFromId(unsigned int a0)
+inline IOSThread *iosGetIOSThreadFromId(unsigned int a0)
 {
-    int ret;
+    IOSThread *ret;
     if (a0 < 0x101)
         goto valid;
     debug_StdPrintfDummy("thr:id out of range\n");
@@ -299,7 +282,7 @@ out:
 
 void iosThreadMessage(int a0)
 {
-    IOSThread *obj = (IOSThread *)iosThreadTable[GetThreadId()];
+    IOSThread *obj = iosThreadTable[GetThreadId()];
     int q;
     if (obj->hasQueue == 0) {
         void *r;
@@ -312,17 +295,17 @@ void iosThreadMessage(int a0)
     debug_StdPrintfDummy("th:msg %d\n", q);
 }
 
-inline int iosThreadJoin(void *a0)
+inline int iosThreadJoin(IOSThread *th)
 {
     int buf[4];
-    if (((IOSThread *)a0)->hasQueue == 0) {
+    if (th->hasQueue == 0) {
         void *r;
-        ((IOSThread *)a0)->hasQueue = 1;
+        th->hasQueue = 1;
         r = iosMallocDebug(ios_partition_root, 0x50, __FILE__, 506);
-        ((IOSThread *)a0)->queue = r;
+        th->queue = r;
         iosMsgQueueCreate(r, (char *)r + 0x30, 8);
     }
-    iosMsgRecv(((IOSThread *)a0)->queue, buf, 1);
+    iosMsgRecv(th->queue, buf, 1);
     debug_StdPrintfDummy("th:thread joined\n");
     return buf[0];
 }
@@ -330,28 +313,28 @@ inline int iosThreadJoin(void *a0)
 /* kept local: agrees with string.h, which this TU does not include */
 extern void strcpy();
 
-void iosThreadName(int a0)
+void iosThreadName(IOSThread *th)
 {
-    strcpy(a0 + 0x50);
+    strcpy(th->name);
 }
 
-void iosThreadSuspend(int a0)
+void iosThreadSuspend(IOSThread *th)
 {
-    SuspendThread(*(int *)(a0 + 0x30));
+    SuspendThread(th->id);
 }
 
-void iosThreadResume(int a0)
+void iosThreadResume(IOSThread *th)
 {
-    ResumeThread(*(int *)(a0 + 0x30));
+    ResumeThread(th->id);
 }
 
-inline int iosThreadCancelWakeup(int *self)
+inline int iosThreadCancelWakeup(IOSThread *th)
 {
     int v;
-    if (self == 0) {
+    if (th == 0) {
         v = GetThreadId();
     } else {
-        v = self[0x30 / 4];
+        v = th->id;
     }
     return CancelWakeupThread(v);
 }
@@ -424,7 +407,7 @@ inline int iosSemaReferStatus(IosSema *self)
 void iosThreadInit(void)
 {
     iosThreadCreate(&iosBootThread, 0, iosThreadDestroyMgr, 0, iosBootStack, 8192, 13);
-    iosThreadStart((int)&iosBootThread);
+    iosThreadStart(&iosBootThread);
 }
 
 /* thread.c:723, the last function of the TU.  Never called anywhere in the

@@ -56,7 +56,7 @@ void iosMallocCheckLeak(IosMemPart *part);
    passes, so the header cannot commit to either spelling. */
 IosMemPart *iosMallocResetPartition(IosMemPart *part);
 IosMemPart *iosMallocSetPartition(IosMemPart *part, int size, int align);
-int iosMallocSetPartitionName(int *a0, int a1);
+int iosMallocSetPartitionName(IosMemPart *part, char *name);
 void *iosReallocDebug(void *ptr, unsigned int size);
 
 #endif /* MEMORY_H */

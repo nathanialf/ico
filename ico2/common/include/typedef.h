@@ -134,6 +134,21 @@ struct DObjNode {   /* field names derived */
     float pos[4]; /* 0x40, reset to 0 0 0 1 */
 };
 
+/* One mail in a game object's mail box (obj_manager.c): the mail type and its
+ * argument word, which is a number or an object as the type says. */
+typedef struct IosMail { /* field names derived */
+    int type;
+    int arg;
+} IosMail;
+
+/* A game object's mail box, the 0x108 bytes at GObj + 0x54: obj_manager.c
+ * queues and runs the mails through this record. */
+typedef struct IosMailBox { /* field names derived */
+    int queue;              /* never read */
+    int num;                /* the count of queued mails */
+    IosMail mail[32];
+} IosMailBox;
+
 /* GObj and PObjGObj below are two views of ONE record: the game object.  GObj
  * types the run-list links, the display object pointer and the run function;
  * PObjGObj carries them as words.  The names are this repository's. */
@@ -160,12 +175,10 @@ struct GObj {   /* field names derived */
     int dl; /* 0x48, the object's display function */
     char pad4C[4];
     int drawMask; /* 0x50, ANDed with a camera's mask to pick the cameras that draw it; all ones while shown */
-    int mailQueue; /* 0x54, the mail box (obj_manager.c's IosMailBox), this word unread */
-    int mailNum;   /* 0x58, the count of mails queued from 0x5C */
-    int mailType;  /* 0x5C, the first queued mail's type; 31 more type and argument pairs follow */
-    int mailArg;   /* 0x60, the first queued mail's argument */
-    char pad64[248]; /* 0x64 .. 0x15B */
-    Sub15C *dobj;    /* 0x15C, the display object (CSVSYSTEM_InitDObj) */
+    int mailQueue;    /* 0x54, the mail box (obj_manager.c's IosMailBox), this word unread */
+    int mailNum;      /* 0x58, the count of mails queued from 0x5C */
+    IosMail mail[32]; /* 0x5C, the queued mails, mailNum of them */
+    Sub15C *dobj;     /* 0x15C, the display object (CSVSYSTEM_InitDObj) */
     char pad160[4];
     int act; /* 0x164, the actor/action-state object, held as a word like
                 0x15C: the actor and script translation units read it as Act
@@ -339,7 +352,8 @@ struct Sub15C { /* field names derived */
     int contactFlags; /* 0x64C, the field contact bits CheckFieldContact sets */
     char pad650[4];
     int word654; /* 0x654 */
-    char pad658[8];
+    int word658; /* 0x658, set to 1 by the ending (end.c) on its two layout objects 2793 and 2794 */
+    char pad65C[4];
     int streamScale; /* 0x660, nonzero to scale the stream motion by the node scale */
     char pad664[12];
     float streamOfs[3]; /* 0x670, the stream motion offset */
@@ -902,9 +916,9 @@ typedef struct { /* field names derived */
 } ExitData;
 
 /* RECONSTRUCTION, PLACED BY INCLUDE PATTERN: one record for 38 TUs that carried 2 divergent local copies; this body is the one the ROM's bytes accept in the most of them. */
-typedef struct ActMail {        /* field names derived */
-    int mail;                   /* 0x00 */
-    void (*func)(volatile int); /* 0x04 */
+typedef struct ActMail {  /* field names derived */
+    int mail;             /* 0x00 */
+    void (*func)(GObj *); /* 0x04 */
     char pad8[8];
 } ActMail;
 

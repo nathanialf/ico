@@ -4,6 +4,7 @@
 #include "thread.h"
 #include "s_init.h"
 #include "act.h"
+#include "gobj_process.h"
 #include "commonact.h"
 #include "way_llf.h"
 #include "brain.h"
@@ -57,19 +58,19 @@ void actSt47aEnd(void)
 /* .sdata, owned by st47a.o, in the ROM's order: the statue and wing stream handles and the statue's shake. */
 int sekizo47a = 0;
 
-int hane1up = 0;
+char *hane1up = 0;
 
-int hane2up = 0;
+char *hane2up = 0;
 
-int hane1down = 0;
+char *hane1down = 0;
 
-int hane2down = 0;
+char *hane2down = 0;
 
 int sekizo_47a = 0;
 
 unsigned char sekizo_47a_vol = 0;
 
-void actSt47aSekizo1Chk(volatile int a0)
+void actSt47aSekizo1Chk(GObj *volatile a0)
 {
     /* sound handle owned by the sound subsystem: ROM homes it at 4(sp) across
        the whole cutscene and reloads it for soundSeDefStop. */
@@ -215,9 +216,9 @@ static ActMail ene_mes[2] = {{430}, {429}};
 
 static ActMail hint2On_mes[2] = {{430}, {429}};
 
-void actSt47aHane1Down(volatile int a0)
+void actSt47aHane1Down(GObj *volatile a0)
 {
-    Act *self = ((PObjGObj *)a0)->act;
+    Act *self = GOBJ_ACT(a0);
 
     scpAdpcmPlayRequestFunc(64, &hane1down, 1, 1, 1);
 
@@ -265,9 +266,9 @@ void actSt47aHane1Down(volatile int a0)
     _ACTWait(0);
 }
 
-void actSt47aHane1Up(volatile int a0)
+void actSt47aHane1Up(GObj *volatile a0)
 {
-    Act *self = ((PObjGObj *)a0)->act;
+    Act *self = GOBJ_ACT(a0);
 
     if (girlGObj != 0) {
         if (scpTriggerFloorAttr(girlGObj, 0x2000000) != 0) {
@@ -324,9 +325,9 @@ void actSt47aHane1Up(volatile int a0)
     _ACTWait(0);
 }
 
-void actSt47aHane2Down(volatile int a0)
+void actSt47aHane2Down(GObj *volatile a0)
 {
-    Act *self = ((PObjGObj *)a0)->act;
+    Act *self = GOBJ_ACT(a0);
 
     scpAdpcmPlayRequestFunc(65, &hane2down, 1, 1, 1);
 
@@ -374,9 +375,9 @@ void actSt47aHane2Down(volatile int a0)
     _ACTWait(0);
 }
 
-void actSt47aHane2Up(volatile int a0)
+void actSt47aHane2Up(GObj *volatile a0)
 {
-    Act *self = ((PObjGObj *)a0)->act;
+    Act *self = GOBJ_ACT(a0);
 
     if (girlGObj != 0 && scpTriggerFloorAttr(girlGObj, 0x3000000) != 0) {
         actCreateSubThread(actSt47aHane2Girl, 21);
@@ -428,9 +429,9 @@ void actSt47aHane2Up(volatile int a0)
     _ACTWait(0);
 }
 
-void actSt47aRope(volatile int a0)
+void actSt47aRope(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     Act *self = actInitialize(a0);
 
     _ACTWait(1);
@@ -455,10 +456,10 @@ void actSt47aRope(volatile int a0)
    subthread the wait loop below spins for. */
 static int demoEnd;
 
-void actSt47aRopeChk(volatile int a0)
+void actSt47aRopeChk(GObj *volatile a0)
 {
-    int x = a0;
-    int th;
+    GObj *x = a0;
+    GProc *th;
 
     actInitialize(a0);
     _ACTWait(1);
@@ -493,7 +494,7 @@ void actSt47aRopeChk(volatile int a0)
                 _ACTWait(1);
             }
 
-            iosThreadSetPri(th + 0x24, 34);
+            iosThreadSetPri(&th->thread, 34);
 
             if (demoEnd == 0) {
                 scpFadeOut(16.0f, 0, 0, 0);
@@ -516,9 +517,9 @@ void actSt47aRopeChk(volatile int a0)
     }
 }
 
-void actSt47aBarricadeChk(volatile int a0)
+void actSt47aBarricadeChk(GObj *volatile a0)
 {
-    int n;
+    GObj *n;
 
     while ((n = scpIsBombExplode(19)) == 0 || scpTriggerBall(a0, n, 350.0f) == 0) {
         _ACTWait(1);
@@ -553,9 +554,9 @@ void actSt47aBarricadeChk(volatile int a0)
     scpWakeupEnemyAll();
 }
 
-void actSt47aEnemy1(volatile int a0)
+void actSt47aEnemy1(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
 
     actInitialize(a0);
     _ACTWait(1);
@@ -581,9 +582,9 @@ void actSt47aEnemy1(volatile int a0)
     Generator_Call((int)scpSearchGobj(513));
 }
 
-void actSt47aTorch(volatile int a0)
+void actSt47aTorch(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
 
     actInitialize(a0);
     _ACTWait(1);
@@ -606,9 +607,9 @@ void actSt47aTorch(volatile int a0)
     }
 }
 
-void actSt47aSekizo1(volatile int a0)
+void actSt47aSekizo1(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     Act *self = actInitialize(a0);
 
     _ACTWait(1);
@@ -627,9 +628,9 @@ void actSt47aSekizo1(volatile int a0)
     }
 }
 
-void actSt47aSekizo2(volatile int a0)
+void actSt47aSekizo2(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
 
     actInitialize(a0);
     _ACTWait(1);
@@ -637,9 +638,9 @@ void actSt47aSekizo2(volatile int a0)
     scpSekizou(a0, 0x2C, 0xA4, 0, 0x12, -2450.0f, -1372.0f, -1150.0f, -2450.0f, -1372.0f, -1250.0f);
 }
 
-void actSt47aHane1(volatile int a0)
+void actSt47aHane1(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     Act *self = actInitialize(a0);
 
     _ACTWait(1);
@@ -652,9 +653,9 @@ void actSt47aHane1(volatile int a0)
     _ACTWait(0);
 }
 
-void actSt47aHane2(volatile int a0)
+void actSt47aHane2(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     Act *self = actInitialize(a0);
 
     _ACTWait(1);
@@ -665,9 +666,9 @@ void actSt47aHane2(volatile int a0)
     _ACTWait(0);
 }
 
-void actSt47aBarricade(volatile int a0)
+void actSt47aBarricade(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     Act *self = actInitialize(a0);
 
     _ACTWait(1);
@@ -685,9 +686,9 @@ void actSt47aBarricade(volatile int a0)
     }
 }
 
-void actSt47aExit(volatile int a0)
+void actSt47aExit(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     Act *self = actInitialize(a0);
 
     _ACTWait(1);
@@ -698,9 +699,9 @@ void actSt47aExit(volatile int a0)
     _ACTWait(0);
 }
 
-void actSt47aExit2(volatile int a0)
+void actSt47aExit2(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     Act *self = actInitialize(a0);
 
     _ACTWait(1);
@@ -713,9 +714,9 @@ void actSt47aExit2(volatile int a0)
     }
 }
 
-void actSt47aEne(volatile int a0)
+void actSt47aEne(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     Act *self = actInitialize(a0);
 
     _ACTWait(1);
@@ -728,9 +729,9 @@ void actSt47aEne(volatile int a0)
     }
 }
 
-void actSt47aEnemy2(volatile int a0)
+void actSt47aEnemy2(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
 
     actInitialize(a0);
     _ACTWait(1);
@@ -750,9 +751,9 @@ void actSt47aEnemy2(volatile int a0)
     Generator_Call(a0);
 }
 
-void actSt47aEnemy3(volatile int a0)
+void actSt47aEnemy3(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
 
     actInitialize(a0);
     _ACTWait(1);
@@ -772,9 +773,9 @@ void actSt47aEnemy3(volatile int a0)
     Generator_Call(a0);
 }
 
-void actSt47aEnemy4(volatile int a0)
+void actSt47aEnemy4(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
 
     actInitialize(a0);
     _ACTWait(1);
@@ -788,9 +789,9 @@ void actSt47aEnemy4(volatile int a0)
     Generator_MaskOff(a0);
 }
 
-void actSt47aHint2On(volatile int a0)
+void actSt47aHint2On(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     Act *self = actInitialize(a0);
 
     _ACTWait(1);
@@ -822,7 +823,7 @@ static const ConstVec hane1_2GirlPos = {{1028.0f, -1972.0f, 744.0f, 0.0f}};
 
 static const ConstVec hane2GirlPos = {{-1031.0f, -1972.0f, -747.0f, 0.0f}};
 
-void actSt47aGirlWay(volatile int a0)
+void actSt47aGirlWay(GObj *volatile a0)
 {
     long long buf[2];
     long long way[2];
@@ -841,9 +842,9 @@ void actSt47aSekizo2Event(int x)
     volatile int local = x;
 }
 
-void actSt47aHane1Main(volatile int a0)
+void actSt47aHane1Main(GObj *volatile a0)
 {
-    Act *sub = ((PObjGObj *)a0)->act;
+    Act *sub = GOBJ_ACT(a0);
 
     sub->mainMail = hane1Main_mes;
     while (1) {
@@ -851,9 +852,9 @@ void actSt47aHane1Main(volatile int a0)
     }
 }
 
-void actSt47aHane1Switch(volatile int a0)
+void actSt47aHane1Switch(GObj *volatile a0)
 {
-    Act *sub = ((PObjGObj *)a0)->act;
+    Act *sub = GOBJ_ACT(a0);
 
     sub->mainMail = 0;
     lt_switch_layout(55);
@@ -873,7 +874,7 @@ void actSt47aHane1Switch(volatile int a0)
     _ACTWait(0);
 }
 
-void actSt47aHane1_1Girl(volatile int a0)
+void actSt47aHane1_1Girl(GObj *volatile a0)
 {
     long long buf[2];
     buf[0] = hane1_1GirlPos.d[0];
@@ -881,7 +882,7 @@ void actSt47aHane1_1Girl(volatile int a0)
     _SCPMoveCharactorByWay(girlGObj, 0, (float *)buf, 100.0f, 0);
 }
 
-void actSt47aHane1_2Girl(volatile int a0)
+void actSt47aHane1_2Girl(GObj *volatile a0)
 {
     long long buf[2];
     buf[0] = hane1_2GirlPos.d[0];
@@ -889,9 +890,9 @@ void actSt47aHane1_2Girl(volatile int a0)
     _SCPMoveCharactorByWay(girlGObj, 0, (float *)buf, 100.0f, 0);
 }
 
-void actSt47aHane2Main(volatile int a0)
+void actSt47aHane2Main(GObj *volatile a0)
 {
-    Act *sub = ((PObjGObj *)a0)->act;
+    Act *sub = GOBJ_ACT(a0);
 
     sub->mainMail = hane2Main_mes;
     while (1) {
@@ -899,9 +900,9 @@ void actSt47aHane2Main(volatile int a0)
     }
 }
 
-void actSt47aHane2Switch(volatile int a0)
+void actSt47aHane2Switch(GObj *volatile a0)
 {
-    Act *sub = ((PObjGObj *)a0)->act;
+    Act *sub = GOBJ_ACT(a0);
 
     sub->mainMail = 0;
     lt_switch_layout(55);
@@ -921,7 +922,7 @@ void actSt47aHane2Switch(volatile int a0)
     _ACTWait(0);
 }
 
-void actSt47aHane2Girl(volatile int a0)
+void actSt47aHane2Girl(GObj *volatile a0)
 {
     long long buf[2];
     buf[0] = hane2GirlPos.d[0];
@@ -929,7 +930,7 @@ void actSt47aHane2Girl(volatile int a0)
     _SCPMoveCharactorByWay(girlGObj, 0, (float *)buf, 100.0f, 0);
 }
 
-void actSt47aRopeSub(volatile int a0)
+void actSt47aRopeSub(GObj *volatile a0)
 {
     _ACTWait(15);
 
@@ -956,7 +957,7 @@ void actSt47aBarricadeEvent(int x)
     volatile int local = x;
 }
 
-void actSt47aExitChk(volatile int a0)
+void actSt47aExitChk(GObj *volatile a0)
 {
     scpSearchGobj(481)->active = 0;
 
@@ -969,13 +970,13 @@ void actSt47aExitChk(volatile int a0)
     scpSearchGobj(481)->active = 1;
 }
 
-void actSt47aExit2Chk(volatile int a0)
+void actSt47aExit2Chk(GObj *volatile a0)
 {
     scpSearchGobj(480)->active = 1;
     scpSearchGobj(481)->active = 0;
 }
 
-void actSt47aEneChk(volatile int a0)
+void actSt47aEneChk(GObj *volatile a0)
 {
     if (girlGObj == 0) {
         _ACTWait(0);
@@ -991,7 +992,7 @@ void actSt47aEneChk(volatile int a0)
     gflagOn(53);
 }
 
-void actSt47aHint2OnChk(volatile int a0)
+void actSt47aHint2OnChk(GObj *volatile a0)
 {
     while (gflagChk(47) == 0) {
         _ACTWait(1);

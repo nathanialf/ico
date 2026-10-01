@@ -2,6 +2,7 @@
 #include "layout_texture.h"
 #include "thread.h"
 #include "act.h"
+#include "gobj_process.h"
 #include "commonact.h"
 #include "way_llf.h"
 #include "lws_kyomi.h"
@@ -33,9 +34,9 @@ static int demoEnd;
 static int demoSkipped;
 
 /* listing lines 228-270 */
-void actSt05eWaterStop(volatile int a0)
+void actSt05eWaterStop(GObj *volatile a0)
 {
-    int th;
+    GProc *th;
 
     lt_switch_layout(55);
 
@@ -50,7 +51,7 @@ void actSt05eWaterStop(volatile int a0)
         _ACTWait(1);
     }
     demoSkipped = demoEnd ^ 1;
-    iosThreadSetPri(th + 0x24, 34);
+    iosThreadSetPri(&th->thread, 34);
 
     if (demoEnd == 0) {
         scpFadeOut(16.0f, 0, 0, 0);
@@ -77,10 +78,10 @@ void actSt05eWaterStop(volatile int a0)
 }
 
 /* .sdata, owned by st05e.o, in the ROM's order: the solar stream handle. */
-int solar = 0;
+char *solar = 0;
 
 /* listing lines 319-389 */
-void actSt05eSolarChk(volatile int a0)
+void actSt05eSolarChk(GObj *volatile a0)
 {
     while (scpIsRotObjectZPlusDirInclude(1556, 0x10D, 0x10F) == 0) {
         _ACTWait(1);
@@ -137,9 +138,9 @@ void actSt05eSolarChk(volatile int a0)
     gflagOn(232);
 }
 
-void actSt05eWater(volatile int a0)
+void actSt05eWater(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     Act *self = actInitialize(a0);
     _ACTWait(1);
 
@@ -157,9 +158,9 @@ void actSt05eWater(volatile int a0)
     }
 }
 
-void actSt05eSolar(volatile int a0)
+void actSt05eSolar(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     Act *self = actInitialize(a0);
     _ACTWait(1);
 
@@ -179,9 +180,9 @@ void actSt05eSolar(volatile int a0)
     }
 }
 
-void actSt05eWaterMain(volatile int a0)
+void actSt05eWaterMain(GObj *volatile a0)
 {
-    Act *sub = ((PObjGObj *)a0)->act;
+    Act *sub = GOBJ_ACT(a0);
 
     sub->mainMail = waterMain_mes;
     while (1) {
@@ -189,9 +190,9 @@ void actSt05eWaterMain(volatile int a0)
     }
 }
 
-void actSt05eWaterSwitch(volatile int a0)
+void actSt05eWaterSwitch(GObj *volatile a0)
 {
-    Act *sub = ((PObjGObj *)a0)->act;
+    Act *sub = GOBJ_ACT(a0);
 
     scpBoyControlReadDisable = 1;
 
@@ -202,7 +203,7 @@ void actSt05eWaterSwitch(volatile int a0)
     _ACTWait(0);
 }
 
-void actSt05eWaterFlagOn(volatile int a0)
+void actSt05eWaterFlagOn(GObj *volatile a0)
 {
     int i = (0x3C - systemStatus[0] * 0xA) / systemStatus[1] * 6.0;
 
@@ -218,7 +219,7 @@ void actSt05eWaterFlagOn(volatile int a0)
     gflagOn(231);
 }
 
-void actSt05eWaterStopSub(volatile int a0)
+void actSt05eWaterStopSub(GObj *volatile a0)
 {
     _ACTWait(60);
 

@@ -127,17 +127,6 @@ typedef struct { /* field names derived */
     float subRotY;  /* 0x24, the sub-box's facing in degrees */
 } AccessaryRec; /* derived name */
 
-/* act-data-tbl: one idle-motion range, 0x14 bytes, indexed by Act+0x48.
- * Reader: ico2/fumi/src/commonact.c (SetIdleMotionRange, subCommonIdle).
- * Owner: ico2/fumi/include/commonact.h. */
-typedef struct { /* field names derived */
-    int idleMotion;  /* 0x00 */
-    int orientRow;   /* 0x04, the motionOrient row whose nextId takes the motion */
-    int orientRow2;  /* 0x08, the row that takes the second motion */
-    int orientFirst; /* 0x0C, the rows whose id takes the motion */
-    int orientEnd;   /* 0x10 */
-} IdleRangeRec; /* derived name */
-
 /* camera-set: one camera data file name, 0x20 bytes. Readers:
  * ico2/omori/src/camera-ico2.c and camera-editor.c. Owner:
  * ico2/omori/include/camera-ico2.h. */
@@ -167,17 +156,6 @@ typedef struct { /* field names derived */
     int shiftMode; /* 0x10, handed to shiftMotionOrientBeginFunc */
     int word14;    /* 0x14 */
 } MotionOrientEntry; /* derived name */
-
-/* node-fix-ofs: one cling pose, 0x24 bytes. Reader:
- * ico2/fumi/src/commonact.c (ClingRec, SetMotionNodeFixModeParameter's
- * arguments). Owner: ico2/fumi/include/commonact.h. */
-typedef struct { /* field names derived */
-    int rot[3];   /* 0x00, degrees about x, y, z */
-    float pos[3]; /* 0x0C */
-    int mode;     /* 0x18 */
-    int motion;   /* 0x1C, the motion the cling plays */
-    int node;     /* 0x20 */
-} ClingRec; /* derived name */
 
 /* obj-action: one object action, 0x14 bytes, indexed by obj-layout's
  * action. Readers: ico2/omori/src/objact.c (OaRecB), ico2/sugipon/src/
@@ -213,13 +191,6 @@ typedef struct { /* field names derived */
     void (*proc5C)();                /* 0x5C */
     void (*mailProc)();              /* 0x60, nonzero means the kind takes mail 47 */
 } ObjKindEnt; /* derived name */
-
-/* parallel-motion-tbl: one parallel action's motions, 0xB0 bytes; motion[0]
- * is its id. Reader: ico2/fumi/src/act-parallel-control.c. Owner:
- * ico2/fumi/include/act-parallel-control.h. */
-typedef struct { /* field names derived */
-    int motion[44]; /* 0x00, one per status bit */
-} ParallelMotionRow; /* derived name */
 
 /* tex-property: one layout texture property, 0x70 bytes. Readers:
  * ico2/common/src/layout_texture.c (LtProperty), kanban.c (LayoutTex),
@@ -321,45 +292,6 @@ typedef struct { /* field names derived */
     int boy;  /* 0x04 */
 } MotSyncPair; /* derived name */
 
-/* texture-layout: one texture layout, 0x38 bytes. Readers:
- * ico2/common/src/layout_texture.c (LtProp), kanban.c (KanbanProp),
- * kanbanBoot.c, layout_action.c. Owner: ico2/common/include/layout_texture.h. */
-typedef struct { /* field names derived */
-    int first;        /* 0x00, the first tex-property row */
-    int last;         /* 0x04 */
-    float float08;    /* 0x08 */
-    float float0C;    /* 0x0C */
-    float float10;    /* 0x10 */
-    float float14;    /* 0x14 */
-    float float18;    /* 0x18 */
-    float float1C;    /* 0x1C */
-    void (*proc)();   /* 0x20 */
-    int word24;       /* 0x24 */
-    int defaultItem;  /* 0x28, copied into curItem */
-    int curItem;      /* 0x2C */
-    int link;         /* 0x30, the next layout, -1 for none */
-    int word34;       /* 0x34 */
-} LtProp; /* derived name */
-
-/* texture-path: one texture file, 0x34 bytes. Readers:
- * ico2/common/src/charFileManager.c (TexRec), kanban.c, layout_texture.c.
- * Owner: ico2/common/include/charFileManager.h. */
-typedef struct { /* field names derived */
-    char path[48];  /* 0x00 */
-    int cameraMove; /* 0x30, compared with NonLinearCameraMove */
-} TexRec; /* derived name */
-
-/* way-point: one source way point, 0x1C bytes. Reader:
- * ico2/fumi/src/way_tool.c (WaySrcPt, ExtractWayData into WayPoint). Owner:
- * ico2/fumi/include/way_tool.h. */
-typedef struct { /* field names derived */
-    float pos[3];  /* 0x00, negated into the way point */
-    float float0C; /* 0x0C, WayPoint+0x24 */
-    int word10;    /* 0x10, WayPoint+0x28 */
-    float float14; /* 0x14, WayPoint+0x2C */
-    int bridgeEnd; /* 0x18, WayPoint+0x30 */
-} WaySrcPt; /* derived name */
-
 /* weapon-fumble-def: one fumble placement, 0x18 bytes, three per slot.
  * Reader: ico2/sugipon/src/weapon.c (FumbleRow). Owner:
  * ico2/sugipon/include/weapon.h. */
@@ -369,32 +301,6 @@ typedef struct { /* field names derived */
     float rotX;   /* 0x10 */
     float rotZ;   /* 0x14 */
 } FumbleRow; /* derived name */
-
-/* act-mode-def: one act mode, 0x50 bytes, indexed by Act+0x34. Readers:
- * ico2/fumi/src/act.c (StatusAttrAct: the act per actor kind, the mail, the
- * intr-list start, the flag bits), commonact.c (CarryRec: name, flags).
- * Owner: ico2/fumi/include/act.h. */
-typedef struct { /* field names derived */
-    struct {
-        void (*act)(); /* +0x00, the mode's act function */
-        int word4;     /* +0x04, compared across a mode change */
-        int word8;     /* +0x08 */
-    } ent[3];           /* 0x00, one per actor kind (Act+0x48) */
-    char name[32];      /* 0x24, the debug name */
-    int intrList;       /* 0x44, the first actIntrList row */
-    int mail;           /* 0x48, ACTSendMailCorrect's mail */
-    unsigned int flags; /* 0x4C */
-} ActModeRec; /* derived name */
-
-/* adpcmfile: one ADPCM stream, 0x40 bytes. Reader: ico2/fumi/sound/
- * adpcm_init.c (AdpcmDataRec). Owner: ico2/fumi/include/adpcm_init.h. */
-typedef struct { /* field names derived */
-    char path[48]; /* 0x00 */
-    int word30;    /* 0x30 */
-    int sectors;   /* 0x34, shifted left 11 for the size */
-    int pitch;     /* 0x38 */
-    int channels;  /* 0x3C */
-} AdpcmDataRec; /* derived name */
 
 /* attack-def: one attack kind, 0x24 bytes. Reader: ico2/omori/src/
  * attackhit.c (AttackKindEntry). Owner: ico2/omori/include/attackhit.h. */
@@ -409,16 +315,6 @@ typedef struct { /* field names derived */
     float power;        /* 0x1C */
     unsigned int flags; /* 0x20 */
 } AttackKindEntry; /* derived name */
-
-/* auto-escort: one escort point, 0x1C bytes. Reader: ico2/fumi/src/
- * girl_act.c (EscortPoint). Owner: ico2/fumi/include/girl_act.h. */
-typedef struct { /* field names derived */
-    float pos[3];   /* 0x00 */
-    int area;       /* 0x0C, matched with the first key */
-    int point;      /* 0x10, matched with the second key */
-    float range;    /* 0x14, the distance under which it applies */
-    float rate;     /* 0x18, the distance factor into the girl's 0x330 */
-} EscortPoint; /* derived name */
 
 /* exit-data: one stage exit, 0x28 bytes. Readers: ico2/fumi/src/act-game.c
  * (ExitData), ico2/common/src/StageManager.c, ico2/script/src/deja.c (0x24).
@@ -441,56 +337,6 @@ typedef struct { /* field names derived */
     float z;  /* 0x08 */
     int kind; /* 0x0C, matched with GObj+8 */
 } SafePosOffset; /* derived name */
-
-/* girl-warp-list: one girl warp, 0x58 bytes. Reader: ico2/script/src/
- * warpGirl.c (WarpRec). Owner: ico2/script/include/script.h. */
-typedef struct { /* field names derived */
-    float p0[4];         /* 0x00 */
-    float p1[4];         /* 0x10 */
-    float p2[4];         /* 0x20 */
-    int gflag;           /* 0x30 */
-    float box0[3];       /* 0x34 */
-    float box1[3];       /* 0x40 */
-    unsigned short to0;  /* 0x4C */
-    unsigned short to1;  /* 0x4E */
-    unsigned short to2;  /* 0x50 */
-    unsigned short from; /* 0x52 */
-    unsigned char kind;  /* 0x54 */
-    char pad55[3];
-} WarpRec; /* derived name */
-
-/* iconfile: one memory card icon file, 0x24 bytes. Reader: ico2/fumi/ios/
- * mcard.c (row 1). Owner: ico2/fumi/include/mcard.h. */
-typedef struct { /* field names derived */
-    char name[32]; /* 0x00 */
-    int size;      /* 0x20 */
-} IconFile; /* derived name */
-
-/* idle-mot-def: one idling motion per actor kind, 0x0C bytes. Reader:
- * ico2/fumi/src/commonact.c (int [][3]). Owner: ico2/fumi/include/commonact.h. */
-typedef struct { /* field names derived */
-    int motion[3]; /* 0x00, indexed by Act+0x48 */
-} IdlingDef; /* derived name */
-
-/* init-func: one file kind and its loader, 0x24 bytes. Reader:
- * ico2/fumi/ios/cdvd.c (PackKind). Owner: ico2/fumi/include/cdvd.h. */
-typedef struct { /* field names derived */
-    char ext[32]; /* 0x00 */
-    void (*func)(char *self, char *name, int size, int a3, int a4, int a5, int seg); /* 0x20 */
-} PackKind; /* derived name */
-
-/* unmapped_0055FBD0: one subtitle file name, 0x20 bytes. Reader:
- * ico2/fumi/src/jimaku.c (char [][32]). Owner: ico2/fumi/include/jimaku.h. */
-typedef struct { /* field names derived */
-    char path[32]; /* 0x00, "text/data_EG01.jim" ... */
-} JimakuFileName; /* derived name */
-
-/* look-target-data: the look target kinds of one entry, 0x0C bytes.
- * Reader: ico2/fumi/src/act-game.c (int [][3]). Owner:
- * ico2/fumi/include/act-game.h. */
-typedef struct { /* field names derived */
-    int kind[3]; /* 0x00, one per column */
-} LookTarget; /* derived name */
 
 /* motion-ik-eff-def: one hand IK mode, 0x10 bytes, indexed by a nibble of
  * MotionRec's modeBits. Readers: ico2/sugipon/src/handManager.c (the vec
@@ -516,21 +362,6 @@ typedef struct { /* field names derived */
     float range;   /* 0x0C */
 } ObjLight; /* derived name */
 
-/* pair-motion: one paired motion, 8 bytes. Reader: ico2/fumi/src/
- * commonact.c (BecPair). Owner: ico2/fumi/include/commonact.h. */
-typedef struct { /* field names derived */
-    int mot; /* 0x00 */
-    int req; /* 0x04 */
-} BecPair; /* derived name */
-
-/* param-escape-run: one escape-run timer range, 8 bytes, [t][mode]. Reader:
- * ico2/fumi/src/girl_act.c (brain_val.limit). Owner:
- * ico2/fumi/include/girl_act.h. */
-typedef struct { /* field names derived */
-    int lo; /* 0x00 */
-    int hi; /* 0x04 */
-} EscapeRange; /* derived name */
-
 /* se-env: one stage sound environment, 0x1C bytes. Reader: ico2/fumi/sound/
  * s_init.c (SeEnvDef). Owner: ico2/fumi/include/s_init.h. */
 typedef struct { /* field names derived */
@@ -543,22 +374,6 @@ typedef struct { /* field names derived */
     unsigned int flags; /* 0x18 */
 } SeEnvDef; /* derived name */
 
-/* sedef: one sound effect, 0x3C bytes. Readers: ico2/fumi/sound/s_init.c
- * (SeSrcDef), ico2/fumi/src/seMail.c (SeRec: mail, check, 0x34, flags),
- * ico2/common/src/debug.c, ico2/sugipon/src/frameDependSequence.c (0x20).
- * Owner: ico2/fumi/include/s_init.h. */
-typedef struct { /* field names derived */
-    char name[32];                              /* 0x00 */
-    int kind;                                   /* 0x20, the seKind row */
-    float volume;                               /* 0x24 */
-    int mail;                                   /* 0x28 */
-    int (*check)(int target, int self, void *rec); /* 0x2C */
-    int word30;                                 /* 0x30 */
-    unsigned short mailArg;                     /* 0x34, ACTGame_SendSoundMail's argument */
-    unsigned short half36;                      /* 0x36 */
-    unsigned int flags;                         /* 0x38 */
-} SeDef; /* derived name */
-
 /* sefile: one sound bank, 0x64 bytes. Readers: ico2/fumi/sound/s_init.c
  * (SeBank), ico2/common/src/charFileManager.c (SeRec). Owner:
  * ico2/fumi/include/s_init.h. */
@@ -567,24 +382,6 @@ typedef struct { /* field names derived */
     char bdPath[48];    /* 0x30, the .bd body file */
     unsigned int flags; /* 0x60, bit 0: loaded */
 } SeBank; /* derived name */
-
-/* selist: one sound kind, 8 bytes. Reader: ico2/fumi/sound/s_init.c
- * (SeKind). Owner: ico2/fumi/include/s_init.h. */
-typedef struct { /* field names derived */
-    short num;    /* 0x00 */
-    short half2;  /* 0x02 */
-    short half4;  /* 0x04 */
-    short idx;    /* 0x06 */
-} SeKind; /* derived name */
-
-/* shocklist: one pad vibration, 8 bytes. Readers: ico2/fumi/ios/pad.c
- * (PadActDef), ico2/fumi/sound/s_init.c (SeInfo). Owner:
- * ico2/fumi/include/pad.h. */
-typedef struct { /* field names derived */
-    int word0;           /* 0x00 */
-    short player;        /* 0x04 */
-    unsigned short life; /* 0x06 */
-} PadActDef; /* derived name */
 
 /* stage-all: one stage, 0x194 bytes, indexed by stage_no. Readers: the
  * StgPre users (ico2/common/src/StageManager.c, sceneManager.c, icoMisc.c,
@@ -674,15 +471,6 @@ typedef struct { /* field names derived */
     float dodge;       /* 0x14 */
     unsigned int attr; /* 0x18, paraIndex in bits 0-7, flyType 8-9, battleType 10-11 */
 } EnemyDef; /* derived name */
-
-/* enemy-model-grp: one enemy model group, 0x28 bytes. Reader:
- * ico2/common/src/sceneManager.c (EnemyMdlRec). Owner:
- * ico2/common/include/sceneManager.h. */
-typedef struct { /* field names derived */
-    char name[32]; /* 0x00 */
-    int first;     /* 0x20, the enemymodelTable range */
-    int last;      /* 0x24 */
-} EnemyMdlRec; /* derived name */
 
 /* enemy-random-def: one random enemy kind range, 8 bytes. Reader:
  * ico2/sugipon/src/enemy.c (EnemyKindRange). Owner:
@@ -797,19 +585,6 @@ typedef struct { /* field names derived */
     float upY;     /* 0x18, ap1LayoutUp[2] */
     int word1C;    /* 0x1C */
 } SpiderKindRec; /* derived name */
-
-/* way-group: one source way group, 0x3C bytes. Reader: ico2/fumi/src/
- * way_tool.c (WaySrcGrp, ExtractWayData into WayGroup). Owner:
- * ico2/fumi/include/way_tool.h. */
-typedef struct { /* field names derived */
-    char name[32];    /* 0x00 */
-    int firstPoint;   /* 0x20 */
-    int lastPoint;    /* 0x24 */
-    int closed;       /* 0x28 */
-    int bridge;       /* 0x2C, WayGroup+0x18 */
-    int bridgeEnd[2]; /* 0x30, WayGroup+0x20 */
-    int active;       /* 0x38, WayGroup+0x28 */
-} WaySrcGrp; /* derived name */
 
 /* stage-anim: one stage animation, 0x5C bytes. Reader: ico2/seki/src/
  * StageAnimation.c (stage_ApplyData, the BGA set-up, (r - table) / 0x5C).

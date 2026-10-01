@@ -34,19 +34,19 @@
    object is 0x14), in the ROM's order: the ADPCM request slots the scenes
    hand scpAdpcmPlayRequestFunc and wait on (conte12, sd2 and dead are
    MAIN.MAP globals), and conte12's flag. */
-static int conte11 = 0; /* derived name */
+static char *conte11 = 0; /* derived name */
 
-int conte12 = 0;
+char *conte12 = 0;
 
-int sd2 = 0;
+char *sd2 = 0;
 
 static int conte12Flag = 0; /* derived name */
 
-int dead = 0;
+char *dead = 0;
 
-static int elevAgain = 0; /* derived name */
+static char *elevAgain = 0; /* derived name */
 
-static int elevFirst = 0; /* derived name */
+static char *elevFirst = 0; /* derived name */
 
 extern char D_00618ED0[];
 
@@ -108,13 +108,13 @@ static ActMail elev_chara_mes[2] = {{430}, {429}};
 
 static ActMail elev_end_mes[2] = {{430}, {429}};
 
-void actSt25aQueenBeforeChk(volatile int a0);
-void actSt25aQueenDeadReadyChk(volatile int a0);
-void actItouQueenAttackChk(volatile int a0);
-void actConte11(volatile int a0);
-void actConte11Jimaku(volatile int a0);
+void actSt25aQueenBeforeChk(GObj *volatile a0);
+void actSt25aQueenDeadReadyChk(GObj *volatile a0);
+void actItouQueenAttackChk(GObj *volatile a0);
+void actConte11(GObj *volatile a0);
+void actConte11Jimaku(GObj *volatile a0);
 
-void actSt25aQueenAppearChk(volatile int a0)
+void actSt25aQueenAppearChk(GObj *volatile a0)
 {
     while (scpTriggerFloorAttr(boyGObj, 0x2000000) == 0 || gflagChk(331) == 0) {
         _ACTWait(1);
@@ -131,7 +131,7 @@ void actSt25aQueenAppearChk(volatile int a0)
     actCreateSubThread(actConte11, 21);
 }
 
-void actConte11(volatile int a0)
+void actConte11(GObj *volatile a0)
 {
     Vec4St25A ofs;
     float dir[4];
@@ -143,7 +143,7 @@ void actConte11(volatile int a0)
 
     scpPlayMot(boyGObj, 400);
     scpSearchGobj(2149)->active = 1;
-    scpPlayMot((int)scpSearchGobj(2149), 1104);
+    scpPlayMot(scpSearchGobj(2149), 1104);
 
     _ACTWait(1);
     stage_SetAnimation(156, 1, 0);
@@ -167,7 +167,7 @@ void actConte11(volatile int a0)
     tex_SetUVScroll(faceShadowTex, 0.0f, 0.0f, 0.25f, 0.0625f, 0.8f, 0.8f, 1);
     tex_SetUVScroll(faceShadowTex00, 0.0f, 0.0f, 0.25f, 0.0625f, 0.45f, 0.45f, 1);
 
-    scpPlayMot((int)scpSearchGobj(2149), 1105);
+    scpPlayMot(scpSearchGobj(2149), 1105);
 
     scpPlayMot(boyGObj, 0);
     ofs = sekikaOfs;
@@ -209,14 +209,14 @@ static int demoEnd;
 
 static int eventDone;
 
-void actSt25aQueenTalkChk(volatile int a0)
+void actSt25aQueenTalkChk(GObj *volatile a0)
 {
     TalkWork w;
     unsigned int i;
     unsigned int n;
     int cancel;
-    int th1;
-    int th2;
+    GProc *th1;
+    GProc *th2;
 
     conte12 = sd2 = 0;
 
@@ -269,8 +269,8 @@ void actSt25aQueenTalkChk(volatile int a0)
 
     DeleteStreamMotionManager();
     iosPadActStopAll();
-    iosThreadSetPri((int *)((GProc *)th1)->thread, 34);
-    iosThreadSetPri((int *)((GProc *)th2)->thread, 34);
+    iosThreadSetPri(&((GProc *)th1)->thread, 34);
+    iosThreadSetPri(&((GProc *)th2)->thread, 34);
 
     if (cancel != 0) {
         w.a = cancelAnimSet;
@@ -309,14 +309,14 @@ void actSt25aQueenTalkChk(volatile int a0)
 
     gflagOn(335);
 
-    scpPlayMot((int)scpSearchGobj(2149), 1072);
-    scpPlayPosSet((int)scpSearchGobj(2149), 1650.0f, 625.0f, 0.0f);
+    scpPlayMot(scpSearchGobj(2149), 1072);
+    scpPlayPosSet(scpSearchGobj(2149), 1650.0f, 625.0f, 0.0f);
 
     memset(w.v[1].f, 0, 16);
     w.v[1].f[3] = 1.0f;
-    sceVu0SubVector(w.v[2].f, w.v[1].f, test_CURRENTROOT((int)scpSearchGobj(2149)));
-    scpPlayMotDir((int)scpSearchGobj(2149), w.v[2].f);
-    scpPlayEnd((int)scpSearchGobj(2149));
+    sceVu0SubVector(w.v[2].f, w.v[1].f, test_CURRENTROOT(scpSearchGobj(2149)));
+    scpPlayMotDir(scpSearchGobj(2149), w.v[2].f);
+    scpPlayEnd(scpSearchGobj(2149));
 
     scpPlayMot(boyGObj, 0);
     scpPlayEnd(boyGObj);
@@ -338,7 +338,7 @@ void actSt25aQueenTalkChk(volatile int a0)
     stage_SetAnimation(160, 1, 0);
 }
 
-void actConte12(volatile int a0)
+void actConte12(GObj *volatile a0)
 {
     conte12Flag = 0;
 
@@ -463,7 +463,7 @@ void actConte12(volatile int a0)
     _ACTWait(0);
 }
 
-void actConte12Jimaku(volatile int a0)
+void actConte12Jimaku(GObj *volatile a0)
 {
     float t;
     float tn;
@@ -476,56 +476,56 @@ void actConte12Jimaku(volatile int a0)
             jimakuBegin(&jimaku_msg);
             break;
         case 341:
-            jimaku_msg.sub.unk2C = 96;
-            jimaku_msg.sub.unk38 = -1;
+            jimaku_msg.sub.block = 96;
+            jimaku_msg.sub.jump = -1;
             jimakuOn = 1;
             jimakuJump(&jimaku_msg);
             break;
         case 521:
-            jimaku_msg.sub.unk2C = 97;
-            jimaku_msg.sub.unk38 = -1;
+            jimaku_msg.sub.block = 97;
+            jimaku_msg.sub.jump = -1;
             jimakuOn = 1;
             jimakuJump(&jimaku_msg);
             break;
         case 801:
-            jimaku_msg.sub.unk2C = 98;
-            jimaku_msg.sub.unk38 = -1;
+            jimaku_msg.sub.block = 98;
+            jimaku_msg.sub.jump = -1;
             jimakuOn = 1;
             jimakuJump(&jimaku_msg);
             break;
         case 1031:
-            jimaku_msg.sub.unk2C = 99;
-            jimaku_msg.sub.unk38 = -1;
+            jimaku_msg.sub.block = 99;
+            jimaku_msg.sub.jump = -1;
             jimakuOn = 1;
             jimakuJump(&jimaku_msg);
             break;
         case 1301:
-            jimaku_msg.sub.unk2C = 100;
-            jimaku_msg.sub.unk38 = 200;
+            jimaku_msg.sub.block = 100;
+            jimaku_msg.sub.jump = 200;
             jimakuOn = 1;
             jimakuJump(&jimaku_msg);
             break;
         case 1781:
-            jimaku_msg.sub.unk2C = 104;
-            jimaku_msg.sub.unk38 = 200;
+            jimaku_msg.sub.block = 104;
+            jimaku_msg.sub.jump = 200;
             jimakuOn = 1;
             jimakuJump(&jimaku_msg);
             break;
         case 2261:
-            jimaku_msg.sub.unk2C = 105;
-            jimaku_msg.sub.unk38 = 150;
+            jimaku_msg.sub.block = 105;
+            jimaku_msg.sub.jump = 150;
             jimakuOn = 1;
             jimakuJump(&jimaku_msg);
             break;
         case 2561:
-            jimaku_msg.sub.unk2C = 106;
-            jimaku_msg.sub.unk38 = -1;
+            jimaku_msg.sub.block = 106;
+            jimaku_msg.sub.jump = -1;
             jimakuOn = 1;
             jimakuJump(&jimaku_msg);
             break;
         case 3780:
-            jimaku_msg.sub.unk2C = 109;
-            jimaku_msg.sub.unk38 = 180;
+            jimaku_msg.sub.block = 109;
+            jimaku_msg.sub.jump = 180;
             jimakuOn = 1;
             jimakuJump(&jimaku_msg);
             break;
@@ -546,7 +546,7 @@ void actConte12Jimaku(volatile int a0)
 extern const StgPre stageData[];
 extern const ExitData exitData[];
 
-void actSt25aQueenDeadChk(volatile int a0)
+void actSt25aQueenDeadChk(GObj *volatile a0)
 {
     while (QueenInqDead() == 0) {
         _ACTWait(1);
@@ -557,7 +557,7 @@ void actSt25aQueenDeadChk(volatile int a0)
     lt_switch_layout(55);
     scpBoyControlReadDisable = 1;
     scpPlayStart(boyGObj);
-    scpPlayStart((int)scpSearchGobj(2149));
+    scpPlayStart(scpSearchGobj(2149));
 
     if (sd2 != 0) {
         scpAdpcmFadeCloseFunc(&sd2, 0x100);
@@ -662,7 +662,7 @@ void actSt25aQueenDeadChk(volatile int a0)
     RequestStageChange(4, boyGObj, 0, 1.0f, 8.0f);
 }
 
-void actConte13Jimaku(volatile int a0)
+void actConte13Jimaku(GObj *volatile a0)
 {
     float t;
     float tn;
@@ -675,14 +675,14 @@ void actConte13Jimaku(volatile int a0)
             jimakuBegin(&jimaku_msg);
             break;
         case 600:
-            jimaku_msg.sub.unk2C = 110;
-            jimaku_msg.sub.unk38 = 400;
+            jimaku_msg.sub.block = 110;
+            jimaku_msg.sub.jump = 400;
             jimakuOn = 1;
             jimakuJump(&jimaku_msg);
             break;
         case 1320:
-            jimaku_msg.sub.unk2C = 111;
-            jimaku_msg.sub.unk38 = 200;
+            jimaku_msg.sub.block = 111;
+            jimaku_msg.sub.jump = 200;
             jimakuOn = 1;
             jimakuJump(&jimaku_msg);
             break;
@@ -704,9 +704,9 @@ void BoySekikaTexScroll(void)
     tex_SetUVScroll(sekikaBoyTexture, 0.0f, 0.0f, 0.0f, 0.01f, 0.0f, 0.5f, 1);
 }
 
-void actSt25aElevChk(volatile int a0)
+void actSt25aElevChk(GObj *volatile a0)
 {
-    Act *sub = ((PObjGObj *)a0)->act;
+    Act *sub = GOBJ_ACT(a0);
 
     while (scpTriggerFloorAttr(boyGObj, 0x4000000) == 0) {
         _ACTWait(1);
@@ -757,9 +757,9 @@ void actSt25aGenerator(volatile unsigned int a0)
     Generator_Mask(a0);
 }
 
-void actSt25aQueenBefore(volatile int a0)
+void actSt25aQueenBefore(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     Act *sub = actInitialize(a0);
 
     _ACTWait(1);
@@ -774,9 +774,9 @@ void actSt25aQueenBefore(volatile int a0)
     }
 }
 
-void actSt25aQueenTalk(volatile int a0)
+void actSt25aQueenTalk(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     Act *sub = actInitialize(a0);
 
     _ACTWait(1);
@@ -792,9 +792,9 @@ void actSt25aQueenTalk(volatile int a0)
     }
 }
 
-void actSt25aQueenDeadReady(volatile int a0)
+void actSt25aQueenDeadReady(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     Act *sub = actInitialize(a0);
 
     _ACTWait(1);
@@ -805,9 +805,9 @@ void actSt25aQueenDeadReady(volatile int a0)
     _ACTWait(0);
 }
 
-void actSt25aQueenDead(volatile int a0)
+void actSt25aQueenDead(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     Act *sub = actInitialize(a0);
 
     _ACTWait(1);
@@ -818,9 +818,9 @@ void actSt25aQueenDead(volatile int a0)
     _ACTWait(0);
 }
 
-void actItouQueenAttack(volatile int a0)
+void actItouQueenAttack(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     Act *sub = actInitialize(a0);
 
     _ACTWait(1);
@@ -831,9 +831,9 @@ void actItouQueenAttack(volatile int a0)
     _ACTWait(0);
 }
 
-void actSt25aElev(volatile int a0)
+void actSt25aElev(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     Act *sub = actInitialize(a0);
 
     _ACTWait(1);
@@ -853,9 +853,9 @@ void actSt25aElev(volatile int a0)
     }
 }
 
-void actSwordEff(volatile int a0)
+void actSwordEff(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
 
     actInitialize(a0);
     _ACTWait(1);
@@ -863,9 +863,9 @@ void actSwordEff(volatile int a0)
     scpLinkBGAtoLayoutedTarget(0x832, 0x1E7);
 }
 
-void actSwordEffXL(volatile int a0)
+void actSwordEffXL(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
 
     actInitialize(a0);
     _ACTWait(1);
@@ -877,7 +877,7 @@ void actSwordEffXL(volatile int a0)
     }
 }
 
-void actSt25aQueenBeforeChk(volatile int a0)
+void actSt25aQueenBeforeChk(GObj *volatile a0)
 {
     conte11 = 0;
     while (scpTriggerFloorAttr(boyGObj, 0x1000000) == 0) {
@@ -888,7 +888,7 @@ void actSt25aQueenBeforeChk(volatile int a0)
     scpAdpcmPlayRequestFunc(39, &conte11, 1, 1, 0);
 }
 
-void actConte11Jimaku(volatile int a0)
+void actConte11Jimaku(GObj *volatile a0)
 {
     float t;
     float tn;
@@ -900,8 +900,8 @@ void actConte11Jimaku(volatile int a0)
         case 1:
             break;
         case 10:
-            jimaku_msg.sub.unk2C = 0x5D;
-            jimaku_msg.sub.unk38 = -1;
+            jimaku_msg.sub.block = 0x5D;
+            jimaku_msg.sub.jump = -1;
             jimakuOn = 1;
             jimakuJump(&jimaku_msg);
             break;
@@ -918,7 +918,7 @@ void actConte11Jimaku(volatile int a0)
     } while (t < 1500.0f);
 }
 
-void actSt25aQueenDeadReadyChk(volatile int a0)
+void actSt25aQueenDeadReadyChk(GObj *volatile a0)
 {
     int i;
 
@@ -941,7 +941,7 @@ void actSt25aQueenDeadEvent(int x)
     volatile int local = x;
 }
 
-void actItouQueenAttackChk(volatile int a0)
+void actItouQueenAttackChk(GObj *volatile a0)
 {
     while (1) {
         while (ForMotionViewer_GetCurrentMotion((char *)scpSearchGobj(3526)) != 0x436) {
@@ -952,9 +952,9 @@ void actItouQueenAttackChk(volatile int a0)
     }
 }
 
-void actSt25aElevCharaChk(volatile int a0)
+void actSt25aElevCharaChk(GObj *volatile a0)
 {
-    Act *sub = ((PObjGObj *)a0)->act;
+    Act *sub = GOBJ_ACT(a0);
 
     while (scpTriggerFloorAttr(boyGObj, 0x4000000) != 0) {
         _ACTWait(1);

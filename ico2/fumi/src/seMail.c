@@ -38,7 +38,7 @@ void seMail(int self, int id)
     int targets[16];
     int n = 0;
     int i;
-    int o;
+    void *o;
     int r;
 
     if (flags != 0) {

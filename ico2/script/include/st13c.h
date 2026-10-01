@@ -12,33 +12,34 @@
 #ifndef ST13C_H
 #define ST13C_H
 
-/* st13c.o's .sdata globals (MAIN.MAP) */
-extern int bmg;
-extern int hand;
+#include "typedef.h"
 
-void actSt13cBmg1Chk(volatile int a0);
-void actSt13cBukiChk(volatile int a0);
-void actSt13cCage1stDown(volatile int a0);
-void actSt13cCage1stDownDemo(volatile int a0);
-void actSt13cCage1stDownDemoCancel(volatile int a0);
-void actSt13cCageDownMain(volatile int a0);
-void actSt13cCageDownSwitch(volatile int a0);
-void actSt13cCageFallChk(volatile int a0);
-void actSt13cCageFallEffect(volatile int a0);
-void actSt13cCageFallReadyChk(volatile int a0);
-void actSt13cConte04(volatile int a0);
-void actSt13cConte04Jimaku(volatile int a0);
-void actSt13cConte05(volatile int a0);
-void actSt13cConte05Jimaku(volatile int a0);
-void actSt13cGirlCarryAgainChk(volatile int a0);
-void actSt13cGirlCarryChk(volatile int a0);
-void actSt13cHandChk(volatile int a0);
-void actSt13cHandJimaku(volatile int a0);
-void actSt13cHandSub(volatile int a0);
-void actSt13cRescueChk(volatile int a0);
-void actSt13cSekizoChk(volatile int a0);
-void actSt13cSekizoJimakuChk(volatile int a0);
-void actSt13cSekizoJimakuEff(volatile int a0);
-void actSt13cSleepChk(volatile int a0);
+/* st13c.o's .sdata globals (MAIN.MAP) */
+extern char *bmg;
+extern char *hand;
+void actSt13cBmg1Chk(GObj *volatile a0);
+void actSt13cBukiChk(GObj *volatile a0);
+void actSt13cCage1stDown(GObj *volatile a0);
+void actSt13cCage1stDownDemo(GObj *volatile a0);
+void actSt13cCage1stDownDemoCancel(GObj *volatile a0);
+void actSt13cCageDownMain(GObj *volatile a0);
+void actSt13cCageDownSwitch(GObj *volatile a0);
+void actSt13cCageFallChk(GObj *volatile a0);
+void actSt13cCageFallEffect(GObj *volatile a0);
+void actSt13cCageFallReadyChk(GObj *volatile a0);
+void actSt13cConte04(GObj *volatile a0);
+void actSt13cConte04Jimaku(GObj *volatile a0);
+void actSt13cConte05(GObj *volatile a0);
+void actSt13cConte05Jimaku(GObj *volatile a0);
+void actSt13cGirlCarryAgainChk(GObj *volatile a0);
+void actSt13cGirlCarryChk(GObj *volatile a0);
+void actSt13cHandChk(GObj *volatile a0);
+void actSt13cHandJimaku(GObj *volatile a0);
+void actSt13cHandSub(GObj *volatile a0);
+void actSt13cRescueChk(GObj *volatile a0);
+void actSt13cSekizoChk(GObj *volatile a0);
+void actSt13cSekizoJimakuChk(GObj *volatile a0);
+void actSt13cSekizoJimakuEff(GObj *volatile a0);
+void actSt13cSleepChk(GObj *volatile a0);
 
 #endif /* ST13C_H */

@@ -51,7 +51,7 @@ static inline int _iosMcIconWriteIconsys(int self, struct McIconWork *p)
 inline int iosMcIconWriteIconsys(int self, int *p)
 {
     struct McIconWork work;
-    int hdl;
+    CdvdBgReq *hdl;
     int total = 0;
     int size;
     int len;

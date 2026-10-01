@@ -20,9 +20,9 @@ static ActMail spider_mes[2] = {{430}, {429}};
 
 static ActMail st17aTest_mes[2] = {{430}, {429}};
 
-void actExplode(volatile int a0)
+void actExplode(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     Act *self = actInitialize(a0);
     _ACTWait(1);
 
@@ -32,9 +32,9 @@ void actExplode(volatile int a0)
     _ACTWait(0);
 }
 
-void actSplash1(volatile int a0)
+void actSplash1(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     Act *self = actInitialize(a0);
     _ACTWait(1);
 
@@ -44,9 +44,9 @@ void actSplash1(volatile int a0)
     _ACTWait(0);
 }
 
-void actSplash2(volatile int a0)
+void actSplash2(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     Act *self = actInitialize(a0);
     _ACTWait(1);
 
@@ -56,9 +56,9 @@ void actSplash2(volatile int a0)
     _ACTWait(0);
 }
 
-void actWave(volatile int a0)
+void actWave(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     Act *self = actInitialize(a0);
     _ACTWait(1);
 
@@ -68,9 +68,9 @@ void actWave(volatile int a0)
     _ACTWait(0);
 }
 
-void actSpider(volatile int a0)
+void actSpider(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     Act *self = actInitialize(a0);
     _ACTWait(1);
 
@@ -83,27 +83,27 @@ void actSpider(volatile int a0)
     _ACTWait(0);
 }
 
-void actDevilLightning(volatile int a0)
+void actDevilLightning(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     actInitialize(a0);
     _ACTWait(1);
 
     scpLinkBGAtoLayoutedTargetSkeltonWithLocalRotationFlag(0xDB9, 0, 0x22A, 0);
 }
 
-void actQueenLightning(volatile int a0)
+void actQueenLightning(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     actInitialize(a0);
     _ACTWait(1);
 
     scpLinkBGAtoLayoutedTargetSkeltonWithLocalRotationFlag(0xDB8, 0, 0x22B, 0);
 }
 
-void actSt17aTest(volatile int a0)
+void actSt17aTest(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     Act *self = actInitialize(a0);
     _ACTWait(1);
 
@@ -115,9 +115,9 @@ void actSt17aTest(volatile int a0)
     _ACTWait(0);
 }
 
-void actSt27aWave(volatile int a0)
+void actSt27aWave(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     Act *self = actInitialize(a0);
     _ACTWait(1);
 
@@ -127,7 +127,7 @@ void actSt27aWave(volatile int a0)
     _ACTWait(0);
 }
 
-void actExplodeChk(volatile int a0)
+void actExplodeChk(GObj *volatile a0)
 {
     GOBJ_SUB(scpSearchGobj(3014))->word4E8 = 1;
     GOBJ_SUB(scpSearchGobj(3014))->word4E8 = 0;
@@ -141,7 +141,7 @@ void actExplodeChk(volatile int a0)
     _ACTWait(1);
 }
 
-void actSplash1Chk(volatile int a0)
+void actSplash1Chk(GObj *volatile a0)
 {
     GOBJ_SUB(scpSearchGobj(3015))->word4E8 = 1;
     GOBJ_SUB(scpSearchGobj(3015))->word4E8 = 0;
@@ -155,7 +155,7 @@ void actSplash1Chk(volatile int a0)
     _ACTWait(1);
 }
 
-void actSplash2Chk(volatile int a0)
+void actSplash2Chk(GObj *volatile a0)
 {
     GOBJ_SUB(scpSearchGobj(3016))->word4E8 = 1;
     GOBJ_SUB(scpSearchGobj(3016))->word4E8 = 0;
@@ -169,14 +169,14 @@ void actSplash2Chk(volatile int a0)
     _ACTWait(1);
 }
 
-void actWaveChk(volatile int a0)
+void actWaveChk(GObj *volatile a0)
 {
     actCreateSubThread(actWave1, 21);
 }
 
-void actWave1(volatile int a0)
+void actWave1(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     actInitialize(a0);
     while (1) {
         stage_SetAnimation(519, 1, 0);
@@ -190,14 +190,14 @@ void actWave1(volatile int a0)
     }
 }
 
-void actSt27aWaveChk(volatile int a0)
+void actSt27aWaveChk(GObj *volatile a0)
 {
     actCreateSubThread(actSt27aWave1, 21);
 }
 
-void actSt27aWave1(volatile int a0)
+void actSt27aWave1(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     actInitialize(a0);
     while (1) {
         stage_SetAnimation(194, 1, 0);
@@ -211,7 +211,7 @@ void actSt27aWave1(volatile int a0)
     }
 }
 
-void actSpiderChk(volatile int a0)
+void actSpiderChk(GObj *volatile a0)
 {
     while (1) {
         while ((GOBJ_ACT(boyGObj)->padTrg & 0x400) == 0) {
@@ -222,7 +222,7 @@ void actSpiderChk(volatile int a0)
     }
 }
 
-void actSt17aTestChk(volatile int a0)
+void actSt17aTestChk(GObj *volatile a0)
 {
     while (1) {
         while ((pad[1].flags & 0x20) == 0) {

@@ -5,6 +5,7 @@
 #include "thread.h"
 #include "s_init.h"
 #include "act.h"
+#include "gobj_process.h"
 #include "commonact.h"
 #include "lws_kyomi.h"
 #include "gflag.h"
@@ -52,7 +53,7 @@ static ActMail hint1_mes[2] = {{430}, {429}};
 static ActMail hint2_mes[2] = {{430}, {429}};
 
 /* .sdata, owned by st09a.o, in the ROM's order: the bridge stream handle. */
-int st09a_brg = 0;
+char *st09a_brg = 0;
 
 void actSt09aInit(void)
 {
@@ -63,9 +64,9 @@ void actSt09aInit(void)
     }
 }
 
-void actSt09aElvDown(volatile int a0)
+void actSt09aElvDown(GObj *volatile a0)
 {
-    Act *self = (Act *)((PObjGObj *)a0)->act;
+    Act *self = GOBJ_ACT(a0);
     /* sound handle owned by the sound subsystem: ROM homes it at 4(sp)
        across the animation wait and reloads it for soundSeDefStop. */
     volatile int se;
@@ -96,9 +97,9 @@ void actSt09aElvDown(volatile int a0)
     _ACTWait(0);
 }
 
-void actSt09aBrgDown(volatile int a0)
+void actSt09aBrgDown(GObj *volatile a0)
 {
-    int th;
+    GProc *th;
 
     lt_switch_layout(55);
     gflagOn(86);
@@ -115,7 +116,7 @@ void actSt09aBrgDown(volatile int a0)
         _ACTWait(1);
     }
 
-    iosThreadSetPri(th + 0x24, 34);
+    iosThreadSetPri(&th->thread, 34);
 
     if (demoEnd == 0) {
         scpFadeOut(16.0f, 0, 0, 0);
@@ -140,9 +141,9 @@ void actSt09aBrgDown(volatile int a0)
     lt_switch_layout(54);
 }
 
-void actSt09aElv(volatile int a0)
+void actSt09aElv(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     Act *self = actInitialize(a0);
 
     _ACTWait(1);
@@ -159,9 +160,9 @@ void actSt09aElv(volatile int a0)
     _ACTWait(0);
 }
 
-void actSt09aSekizo(volatile int a0)
+void actSt09aSekizo(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
 
     actInitialize(a0);
     _ACTWait(1);
@@ -173,9 +174,9 @@ void actSt09aSekizo(volatile int a0)
     scpSekizou(a0, 0x54, 0x178, 0, 0x12, -1350.0f, -100.0f, 1515.0f, -1450.0f, -100.0f, 1515.0f);
 }
 
-void actSt09aIntro(volatile int a0)
+void actSt09aIntro(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     Act *self = actInitialize(a0);
 
     _ACTWait(1);
@@ -188,9 +189,9 @@ void actSt09aIntro(volatile int a0)
     }
 }
 
-void actSt09aBrg(volatile int a0)
+void actSt09aBrg(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     Act *self = actInitialize(a0);
 
     _ACTWait(1);
@@ -203,9 +204,9 @@ void actSt09aBrg(volatile int a0)
     }
 }
 
-void actSt09aHint1(volatile int a0)
+void actSt09aHint1(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     Act *self = actInitialize(a0);
 
     _ACTWait(1);
@@ -220,9 +221,9 @@ void actSt09aHint1(volatile int a0)
     }
 }
 
-void actSt09aHint2(volatile int a0)
+void actSt09aHint2(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     Act *self = actInitialize(a0);
 
     _ACTWait(1);
@@ -237,9 +238,9 @@ void actSt09aHint2(volatile int a0)
     }
 }
 
-void actSt09aElvMain(volatile int a0)
+void actSt09aElvMain(GObj *volatile a0)
 {
-    Act *sub = (Act *)((PObjGObj *)a0)->act;
+    Act *sub = GOBJ_ACT(a0);
 
     scpBoyControlReadDisable = 0;
 
@@ -250,9 +251,9 @@ void actSt09aElvMain(volatile int a0)
     }
 }
 
-void actSt09aElvSwitch(volatile int a0)
+void actSt09aElvSwitch(GObj *volatile a0)
 {
-    Act *sub = (Act *)((PObjGObj *)a0)->act;
+    Act *sub = GOBJ_ACT(a0);
 
     scpBoyControlReadDisable = 1;
 
@@ -271,9 +272,9 @@ void actSt09aElvSwitch(volatile int a0)
     _ACTWait(0);
 }
 
-void actSt09aElvUp(volatile int a0)
+void actSt09aElvUp(GObj *volatile a0)
 {
-    Act *self = (Act *)((PObjGObj *)a0)->act;
+    Act *self = GOBJ_ACT(a0);
     /* sound handle owned by the sound subsystem: ROM homes it at 4(sp)
        across the animation wait and reloads it for soundSeDefStop. */
     volatile int se;
@@ -306,7 +307,7 @@ void actSt09aSekizoEvent(int x)
     volatile int local = x;
 }
 
-void actSt09aIntroChk(volatile int a0)
+void actSt09aIntroChk(GObj *volatile a0)
 {
     lt_switch_layout(55);
     gflagOn(85);
@@ -326,9 +327,9 @@ void actSt09aIntroChk(volatile int a0)
     scpBoyControlReadDisable = 0;
 }
 
-void actSt09aBrgMain(volatile int a0)
+void actSt09aBrgMain(GObj *volatile a0)
 {
-    Act *sub = (Act *)((PObjGObj *)a0)->act;
+    Act *sub = GOBJ_ACT(a0);
 
     sub->mainMail = brgMain_mes;
 
@@ -337,9 +338,9 @@ void actSt09aBrgMain(volatile int a0)
     }
 }
 
-void actSt09aBrgSwitch(volatile int a0)
+void actSt09aBrgSwitch(GObj *volatile a0)
 {
-    Act *sub = (Act *)((PObjGObj *)a0)->act;
+    Act *sub = GOBJ_ACT(a0);
 
     scpBoyControlReadDisable = 1;
 
@@ -351,7 +352,7 @@ void actSt09aBrgSwitch(volatile int a0)
     _ACTWait(0);
 }
 
-void actSt09aBrgDownSub(volatile int a0)
+void actSt09aBrgDownSub(GObj *volatile a0)
 {
     stage_SetAnimation(378, 1, 0);
 
@@ -378,7 +379,7 @@ void actSt09aBrgDownSub(volatile int a0)
     _ACTWait(0);
 }
 
-void actSt09aHint1Chk(volatile int a0)
+void actSt09aHint1Chk(GObj *volatile a0)
 {
     while (scpTriggerFloorAttr(boyGObj, 0x1000000) == 0) {
         _ACTWait(1);
@@ -390,7 +391,7 @@ void actSt09aHint1Chk(volatile int a0)
     FinishHint(10);
 }
 
-void actSt09aHint2Chk(volatile int a0)
+void actSt09aHint2Chk(GObj *volatile a0)
 {
     while (scpTriggerBall(a0, boyGObj, 400.0f) == 0) {
         _ACTWait(1);

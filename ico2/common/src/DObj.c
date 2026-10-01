@@ -244,7 +244,7 @@ void allocObjectData(char *self, char *lay, int n)
     int k;
 
     *(DObjNode **)(self + 0x870) =
-        (DObjNode *)iosMallocDebug((int)ios_partition_seki, n * 80, __FILE__, 299);
+        (DObjNode *)iosMallocDebug(ios_partition_seki, n * 80, __FILE__, 299);
     for (i = 0; i < n; i++) {
         {
             char *e = (char *)(i * 80 + (int)*(DObjNode **)(self + 0x870));
@@ -322,7 +322,7 @@ static inline void initPolyHead(char *d)
 
     h = *(char **)(d + 0x854);
     q = *(char **)(h + 0x28);
-    *(char **)(d + 0x874) = iosMallocDebug((int)ios_partition_seki, 0x100, __FILE__, 238);
+    *(char **)(d + 0x874) = iosMallocDebug(ios_partition_seki, 0x100, __FILE__, 238);
     *(int *)(*(char **)(d + 0x874) + 0xF0) = *(int *)(*(char **)(q + 0x874) + 0xF0);
     if (*(int *)(*(char **)(d + 0x874) + 0xF0) == 4) {
         ((PolyFlags *)(h + 0x30))->kind = 3;
@@ -339,8 +339,8 @@ static inline void allocMatrixArrays(char *d, int n)
 {
     int i;
 
-    *(char **)(d + 0xC) = iosMallocDebug((int)ios_partition_seki, n * 64, __FILE__, 259);
-    *(char **)(d + 0x10) = iosMallocDebug((int)ios_partition_seki, n * 16, __FILE__, 259);
+    *(char **)(d + 0xC) = iosMallocDebug(ios_partition_seki, n * 64, __FILE__, 259);
+    *(char **)(d + 0x10) = iosMallocDebug(ios_partition_seki, n * 16, __FILE__, 259);
     *(int *)(d + 0x8) = n;
     for (i = 0; i < n; i++) {
         _CopyMatrix(*(char **)(d + 0xC) + i * 64, d + 0x20);
@@ -364,7 +364,7 @@ static inline void allocIntTable(char *d, int n)
 {
     int i;
 
-    *(char **)(d + 0x838) = iosMallocDebug((int)ios_partition_seki, n * 4, __FILE__, 283);
+    *(char **)(d + 0x838) = iosMallocDebug(ios_partition_seki, n * 4, __FILE__, 283);
     for (i = 0; i < n; i++) {
         *(int *)(*(char **)(d + 0x838) + i * 4) = 0;
     }
@@ -458,7 +458,7 @@ char *CSVSYSTEM_InitDObj(int id, float *lay)
 {
     char *d;
 
-    d = iosMallocDebug((int)ios_partition_seki, sizeof(DObjRecord), __FILE__, 463);
+    d = iosMallocDebug(ios_partition_seki, sizeof(DObjRecord), __FILE__, 463);
     *(DObjRecord *)d = emptyDObj;
     if (id != 0x610) {
         CSVSYSTEM_ReadCharFiles(d, id);

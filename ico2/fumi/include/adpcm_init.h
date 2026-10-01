@@ -16,56 +16,57 @@
  * gcc 2.9 emits the deferred out-of-line copy of a plain-inline function in
  * first-declaration order, so this is the order adpcm_init.c's inline tail has. */
 void adpcmPauseRequest(int val);
+
 /* RECONSTRUCTION, PLACED BY INCLUDE PATTERN: the six-word open request
    soundDataOpen fills in and soundDataOpenSync reads back. */
-typedef struct AdpcmOpenReq {
-    int mode;   /* 0x00, soundDataOpen's mode, 2 for ADPCM */
-    int id;     /* 0x04, the sound id */
-    int ch;     /* 0x08 */
-    int iopBuf; /* 0x0C */
-    int f10;    /* 0x10 */
-    int bg;     /* 0x14, the background loader handle */
+typedef struct AdpcmOpenReq { /* field names derived */
+    int mode;                 /* 0x00, soundDataOpen's mode, 2 for ADPCM */
+    int id;                   /* 0x04, the sound id */
+    int ch;                   /* 0x08 */
+    int iopBuf;               /* 0x0C */
+    int loopNum;              /* 0x10 */
+    int bg;                   /* 0x14, the background loader handle */
 } AdpcmOpenReq;
 
 struct AdpcmStreamTag;
 
-typedef struct {
-    char _0[0x2C];
+typedef struct { /* field names derived */
+    char pad0[44];
     struct AdpcmStreamTag *stream; /* 0x2C */
 } AdpcmObj;
 
-typedef struct {
-    int ch;  /* 0x00 */
-    int f4;  /* 0x04 */
-    int f8;  /* 0x08 */
-    int fC;  /* 0x0C */
-    int f10; /* 0x10 */
-    int f14; /* 0x14 */
+typedef struct { /* field names derived */
+    int ch;      /* 0x00 */
+    int attr;    /* 0x04 */
+    int iopAddr; /* 0x08 */
+    int iopSize; /* 0x0C */
+    int spuAddr; /* 0x10 */
+    int vol;     /* 0x14 */
 } AdpcmChReq;
 
-typedef struct AdpcmStreamTag {
-    int used;       /* 0x00 */
-    int n;          /* 0x04 */
-    int ch[2];      /* 0x08 */
-    int f10;        /* 0x10 */
-    int f14;        /* 0x14 */
-    int f18;        /* 0x18 */
-    int f1C;        /* 0x1C */
-    int f20;        /* 0x20 */
-    int f24;        /* 0x24 */
-    int f28;        /* 0x28 */
-    int f2C;        /* 0x2C */
-    long long mask; /* 0x30 */
-    int f38;        /* 0x38 */
-    short f3C[2];   /* 0x3C */
-    short f40[2];   /* 0x40 */
-    short f44;      /* 0x44 */
-    short f46;      /* 0x46 */
-    short f48;      /* 0x48 */
-    short f4A;      /* 0x4A */
-    int f4C;        /* 0x4C */
-    int f50;        /* 0x50 */
-    int f54;        /* 0x54 */
+typedef struct AdpcmStreamTag { /* field names derived */
+    int used;                   /* 0x00 */
+    int n;                      /* 0x04 */
+    int ch[2];                  /* 0x08 */
+    int seekSize;               /* 0x10 */
+    int pitch;                  /* 0x14 */
+    int iopBuf;                 /* 0x18 */
+    int ringSize;               /* 0x1C */
+    int loopStart;              /* 0x20 */
+    int dataSize;               /* 0x24 */
+    int bg;                     /* 0x28 */
+    char pad2C[4];
+    long long mask;  /* 0x30 */
+    int chAttr;      /* 0x38 */
+    short volL[2];   /* 0x3C */
+    short volR[2];   /* 0x40 */
+    short fadeStep;  /* 0x44 */
+    short loopNum;   /* 0x46 */
+    short loopCount; /* 0x48 */
+    char pad4A[2];
+    int lastAddr; /* 0x4C */
+    int remain;   /* 0x50 */
+    char pad54[4];
 } AdpcmStream;
 
 void AdpcmStreamHeap(void);
@@ -84,17 +85,24 @@ void adpcmDiskNotReady(void);
 void adpcmDiskReturnReady(void);
 int adpcmOpenProc(int a0, int a1);
 void adpcmOpenDiskNotReady(void);
-
 void AdpcmInterStereoVolumeSet();
 void AdpcmOpen(AdpcmOpenReq *self, int no, int a2, int a3);
 void AdpcmPlay(void *a0);
 void AdpcmVolumeSet(int a0, int a1);
 int *adpcmDataSet(int a0, int no, int bank, int a3, int size, int a5, int a6);
 void adpcmTickProc2(int *a0);
-
 /* MAIN.MAP global of adpcm_init.o's .sdata */
 extern int debugAdpcmOn;
-
 void AdpcmStreamFree(void);
+
+/* adpcmfile: one ADPCM stream, 0x40 bytes. Reader: ico2/fumi/sound/
+ * adpcm_init.c (AdpcmDataRec). Owner: ico2/fumi/include/adpcm_init.h. */
+typedef struct {   /* field names derived */
+    char path[48]; /* 0x00 */
+    int word30;    /* 0x30 */
+    int sectors;   /* 0x34, shifted left 11 for the size */
+    int pitch;     /* 0x38 */
+    int channels;  /* 0x3C */
+} AdpcmDataRec;    /* derived name */
 
 #endif /* ADPCM_INIT_H */

@@ -15,9 +15,9 @@
 
 static ActMail sekizo_mes[2] = {{430}, {429}};
 
-void actSt05bCrest01XL(volatile int a0)
+void actSt05bCrest01XL(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
 
     actInitialize(a0);
     _ACTWait(1);
@@ -51,7 +51,7 @@ int sekizo_5b = 0;
 
 unsigned char sekizo_5b_vol = 0;
 
-void actSt05bSekizoChk(volatile int a0)
+void actSt05bSekizoChk(GObj *volatile a0)
 {
     volatile int h;
     float d[4];
@@ -117,9 +117,9 @@ void actSt05bSekizoChk(volatile int a0)
     scpBoyControlReadDisable = 0;
 }
 
-void actSt05bDoorXL(volatile int a0)
+void actSt05bDoorXL(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
 
     actInitialize(a0);
     _ACTWait(1);
@@ -131,9 +131,9 @@ void actSt05bDoorXL(volatile int a0)
     }
 }
 
-void actSt05bMonyoDoorXL(volatile int a0)
+void actSt05bMonyoDoorXL(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
 
     actInitialize(a0);
     _ACTWait(1);
@@ -145,9 +145,9 @@ void actSt05bMonyoDoorXL(volatile int a0)
     }
 }
 
-void actSt05bSekizo(volatile int a0)
+void actSt05bSekizo(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     Act *self = actInitialize(a0);
     _ACTWait(1);
 
@@ -165,9 +165,9 @@ void actSt05bSekizo(volatile int a0)
     }
 }
 
-void actSt05bBallXL(volatile int a0)
+void actSt05bBallXL(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
 
     actInitialize(a0);
     _ACTWait(1);
@@ -179,9 +179,9 @@ void actSt05bBallXL(volatile int a0)
     }
 }
 
-void actSt05bSolarXL(volatile int a0)
+void actSt05bSolarXL(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
 
     actInitialize(a0);
     _ACTWait(1);
@@ -208,7 +208,7 @@ static const ConstVec girlWay2Pos = {{139.0f, -177.0f, 1670.0f, 0.0f}};
 /* Returns int: st04b.c carries the same prototype, and the live $2 at the
  * call boundary is what puts the second way record's %hi in $3. */
 
-void actSt05bGirlWay(volatile int a0)
+void actSt05bGirlWay(GObj *volatile a0)
 {
     long long buf[2];
     long long way[2];

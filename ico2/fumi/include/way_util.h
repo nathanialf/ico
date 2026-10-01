@@ -19,23 +19,23 @@ extern int load_save_flag;
 
 /* The path-search work block WayUtilWorkAlloc allocates: per-group flags,
    a 94-by-94 cost matrix with its row pointers, and two predecessor and two
-   distance arrays (shortest_path uses fC and f14, GetWgAll f10 and f18). */
-typedef struct WgAll {
-    char *f0; /* 0x00 visited flag per group */
-    int *f4;  /* 0x04 the cost matrix's storage */
-    int **f8; /* 0x08 the cost matrix's rows */
-    int *fC;  /* 0x0C */
-    int *f10; /* 0x10 */
-    int *f14; /* 0x14 */
-    int *f18; /* 0x18 */
+   distance arrays (shortest_path uses prev and dist, GetWgAll prev2 and dist2). */
+typedef struct WgAll { /* field names derived */
+    char *visited;     /* 0x00 visited flag per group */
+    int *costBuf;      /* 0x04 the cost matrix's storage */
+    int **cost;        /* 0x08 the cost matrix's rows */
+    int *prev;         /* 0x0C */
+    int *prev2;        /* 0x10 */
+    int *dist;         /* 0x14 */
+    int *dist2;        /* 0x18 */
 } WgAll;
 
 /* The three way points set_check_wp fills: the current one and the two ends
    of the crossing between a group and a bridge. */
-typedef struct CheckWp {
-    WayPoint *f0;
-    WayPoint *f4;
-    WayPoint *f8;
+typedef struct CheckWp { /* field names derived */
+    WayPoint *cur;
+    WayPoint *start;
+    WayPoint *cross;
 } CheckWp;
 
 /* way_util.c's functions in the order the ROM emits them: gcc 2.9 writes the

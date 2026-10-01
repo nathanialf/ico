@@ -140,7 +140,7 @@ static const ConstVec crestFacePos = {{0.0f, 0.0f, -5000.0f, 1.0f}};
    pad, trg at 0x4. */
 
 /* .sdata, owned by st04r.o, in the ROM's order: the room's stream handles and shakes (the three balls and crest2_4r unused by the retail code). */
-int solar4r = 0;
+char *solar4r = 0;
 
 int ball1_4r = 0;
 
@@ -148,13 +148,13 @@ int ball2_4r = 0;
 
 int ball3_4r = 0;
 
-int crest1_4r = 0;
+char *crest1_4r = 0;
 
 int crest2_4r = 0;
 
-int crest3_4r = 0;
+char *crest3_4r = 0;
 
-int stair5d = 0;
+char *stair5d = 0;
 
 char *sekizo5c = 0;
 
@@ -352,9 +352,9 @@ void actSt05eInit(void)
     }
 }
 
-void actSt04rCrest02(volatile int a0)
+void actSt04rCrest02(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     Act *self = actInitialize(a0);
     _ACTWait(1);
 
@@ -380,7 +380,7 @@ void actSt04rCrest02(volatile int a0)
     }
 }
 
-void openGateSub(volatile int a0)
+void openGateSub(GObj *volatile a0)
 {
     stage_SetAnimation(gateAnim, 1, 0);
 
@@ -411,7 +411,7 @@ void openGateSub(volatile int a0)
 
 void openGate(int a0)
 {
-    int th;
+    GProc *th;
 
     lt_switch_layout(55);
 
@@ -433,7 +433,7 @@ void openGate(int a0)
         _ACTWait(1);
     }
 
-    iosThreadSetPri((int *)((GProc *)th)->thread, 34);
+    iosThreadSetPri(&((GProc *)th)->thread, 34);
 
     if (demoEnd == 0) {
         scpFadeOut(16.0f, 0, 0, 0);
@@ -463,7 +463,7 @@ void openGate(int a0)
     scpBoyControlReadDisable = 0;
 }
 
-void actSt04rCrest2Main(volatile int a0)
+void actSt04rCrest2Main(GObj *volatile a0)
 {
     int anim;
 
@@ -503,7 +503,7 @@ void actSt04rCrest2Main(volatile int a0)
     gflagOff(233);
 }
 
-void actSt04rCrest3Main(volatile int a0)
+void actSt04rCrest3Main(GObj *volatile a0)
 {
     while (scpIsTorchLightOn(1489) == 0 || scpIsTorchLightOn(1490) == 0 || gflagChk(252) == 0) {
         _ACTWait(1);
@@ -536,9 +536,9 @@ void actSt04rCrest3Main(volatile int a0)
     gflagOff(233);
 }
 
-void actSt04rSolarBeam(volatile int a0)
+void actSt04rSolarBeam(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     Act *self = actInitialize(a0);
     _ACTWait(1);
 
@@ -575,7 +575,7 @@ void actSt04rSolarBeam(volatile int a0)
     }
 }
 
-void actSt04rSolarBeamChk(volatile int a0)
+void actSt04rSolarBeamChk(GObj *volatile a0)
 {
     while (gflagChk(243) == 0 || gflagChk(244) == 0 || gflagChk(245) == 0 || gflagChk(232) == 0) {
         _ACTWait(1);
@@ -627,7 +627,7 @@ void actSt04rSolarBeamChk(volatile int a0)
     RequestStageChange(0xF, boyGObj, 0, 2.0f, 8.0f);
 }
 
-void actSt04rStairSub(volatile int a0)
+void actSt04rStairSub(GObj *volatile a0)
 {
     long long buf[2];
     float dir[4];
@@ -690,9 +690,9 @@ void actSt04rStairSub(volatile int a0)
     _ACTWait(0);
 }
 
-void actSt04rStairChk(volatile int a0)
+void actSt04rStairChk(GObj *volatile a0)
 {
-    int th;
+    GProc *th;
 
     if (girlGObj == 0) {
         _ACTWait(0);
@@ -741,7 +741,7 @@ void actSt04rStairChk(volatile int a0)
             _ACTWait(1);
         }
 
-        iosThreadSetPri((int *)((GProc *)th)->thread, 34);
+        iosThreadSetPri(&((GProc *)th)->thread, 34);
 
         while (scpFadeChk() != 0) {
             _ACTWait(1);
@@ -762,11 +762,11 @@ void actSt04rStairChk(volatile int a0)
 
         _ACTWait(1);
 
-        iosOmSendMail(girlGObj, 0x3E, boyGObj);
+        iosOmSendMail(girlGObj, 0x3E, (int)boyGObj);
 
         scpFadeIn(3.0f);
     } else {
-        iosThreadSetPri((int *)((GProc *)th)->thread, 34);
+        iosThreadSetPri(&((GProc *)th)->thread, 34);
     }
 
     if (padAct >= 0) {
@@ -786,7 +786,7 @@ void actSt04rStairChk(volatile int a0)
     lt_switch_layout(54);
 }
 
-void actSt04rSekizoChk(volatile int a0)
+void actSt04rSekizoChk(GObj *volatile a0)
 {
     float dir[4];
 
@@ -865,16 +865,16 @@ void actSt04rSekizoChk(volatile int a0)
     scpPlayEnd(boyGObj);
     _ACTWait(1);
 
-    iosOmSendMail(girlGObj, 0x3F, boyGObj);
+    iosOmSendMail(girlGObj, 0x3F, (int)boyGObj);
 
     lt_switch_layout(54);
 
     scpBoyControlReadDisable = 0;
 }
 
-void actSt04rRope1Chk(volatile int a0)
+void actSt04rRope1Chk(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     actInitialize(a0);
     _ACTWait(1);
 
@@ -907,9 +907,9 @@ void actSt04rRope1Chk(volatile int a0)
     }
 }
 
-void actSt04rRope2Chk(volatile int a0)
+void actSt04rRope2Chk(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     actInitialize(a0);
     _ACTWait(1);
 
@@ -942,16 +942,16 @@ void actSt04rRope2Chk(volatile int a0)
     }
 }
 
-void actSt04rBrgCommon(volatile int a0)
+void actSt04rBrgCommon(GObj *volatile a0)
 {
-    int th;
+    GProc *th;
 
     lt_switch_layout(55);
 
     scpBoyControlReadDisable = 1;
     scpSleepEnemyAll();
 
-    scpAdpcmPlayRequestFunc(86, (int *)&sekizo5c, 1, 1, 0);
+    scpAdpcmPlayRequestFunc(86, &sekizo5c, 1, 1, 0);
 
     th = actCreateSubThread(actSt04rBrg1Sub, 21);
 
@@ -961,12 +961,12 @@ void actSt04rBrgCommon(volatile int a0)
         _ACTWait(1);
     }
 
-    iosThreadSetPri((int *)((GProc *)th)->thread, 34);
+    iosThreadSetPri(&((GProc *)th)->thread, 34);
 
     if (demoEnd == 0) {
         scpFadeOut(16.0f, 0, 0, 0);
 
-        scpAdpcmFadeCloseFunc((int *)&sekizo5c, 0x100);
+        scpAdpcmFadeCloseFunc(&sekizo5c, 0x100);
 
         while (scpFadeChk() != 0) {
             _ACTWait(1);
@@ -987,9 +987,9 @@ void actSt04rBrgCommon(volatile int a0)
     lt_switch_layout(54);
 }
 
-void actSt04rRope3Chk(volatile int a0)
+void actSt04rRope3Chk(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     actInitialize(a0);
     _ACTWait(1);
 
@@ -1022,9 +1022,9 @@ void actSt04rRope3Chk(volatile int a0)
     }
 }
 
-void actSt04rRope4Chk(volatile int a0)
+void actSt04rRope4Chk(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     actInitialize(a0);
     _ACTWait(1);
 
@@ -1057,7 +1057,7 @@ void actSt04rRope4Chk(volatile int a0)
     }
 }
 
-void actSt04rMonyou01Chk(volatile int a0)
+void actSt04rMonyou01Chk(GObj *volatile a0)
 {
     if (girlGObj == 0) {
         _ACTWait(0);
@@ -1103,13 +1103,13 @@ void actSt04rMonyou01Chk(volatile int a0)
     _ACTWait(1);
 
     if (ACTGame_FLAG_TETSUNAGI() != 0) {
-        iosOmSendMail(girlGObj, 0x3F, boyGObj);
+        iosOmSendMail(girlGObj, 0x3F, (int)boyGObj);
     }
 
     scpBoyControlReadDisable = 0;
 }
 
-void actSt04rMonyou02Chk(volatile int a0)
+void actSt04rMonyou02Chk(GObj *volatile a0)
 {
     if (girlGObj == 0) {
         _ACTWait(0);
@@ -1155,13 +1155,13 @@ void actSt04rMonyou02Chk(volatile int a0)
     _ACTWait(1);
 
     if (ACTGame_FLAG_TETSUNAGI() != 0) {
-        iosOmSendMail(girlGObj, 0x3F, boyGObj);
+        iosOmSendMail(girlGObj, 0x3F, (int)boyGObj);
     }
 
     scpBoyControlReadDisable = 0;
 }
 
-void actSt04rMonyou03Chk(volatile int a0)
+void actSt04rMonyou03Chk(GObj *volatile a0)
 {
     if (girlGObj == 0) {
         _ACTWait(0);
@@ -1207,13 +1207,13 @@ void actSt04rMonyou03Chk(volatile int a0)
     _ACTWait(1);
 
     if (ACTGame_FLAG_TETSUNAGI() != 0) {
-        iosOmSendMail(girlGObj, 0x3F, boyGObj);
+        iosOmSendMail(girlGObj, 0x3F, (int)boyGObj);
     }
 
     scpBoyControlReadDisable = 0;
 }
 
-void actSt04rMonyou04Chk(volatile int a0)
+void actSt04rMonyou04Chk(GObj *volatile a0)
 {
     if (girlGObj == 0) {
         _ACTWait(0);
@@ -1259,13 +1259,13 @@ void actSt04rMonyou04Chk(volatile int a0)
     _ACTWait(1);
 
     if (ACTGame_FLAG_TETSUNAGI() != 0) {
-        iosOmSendMail(girlGObj, 0x3F, boyGObj);
+        iosOmSendMail(girlGObj, 0x3F, (int)boyGObj);
     }
 
     scpBoyControlReadDisable = 0;
 }
 
-void actSt04rMonyou05Chk(volatile int a0)
+void actSt04rMonyou05Chk(GObj *volatile a0)
 {
     if (girlGObj == 0) {
         _ACTWait(0);
@@ -1311,13 +1311,13 @@ void actSt04rMonyou05Chk(volatile int a0)
     _ACTWait(1);
 
     if (ACTGame_FLAG_TETSUNAGI() != 0) {
-        iosOmSendMail(girlGObj, 0x3F, boyGObj);
+        iosOmSendMail(girlGObj, 0x3F, (int)boyGObj);
     }
 
     scpBoyControlReadDisable = 0;
 }
 
-void actSt04rMonyou06Chk(volatile int a0)
+void actSt04rMonyou06Chk(GObj *volatile a0)
 {
     if (girlGObj == 0) {
         _ACTWait(0);
@@ -1363,13 +1363,13 @@ void actSt04rMonyou06Chk(volatile int a0)
     _ACTWait(1);
 
     if (ACTGame_FLAG_TETSUNAGI() != 0) {
-        iosOmSendMail(girlGObj, 0x3F, boyGObj);
+        iosOmSendMail(girlGObj, 0x3F, (int)boyGObj);
     }
 
     scpBoyControlReadDisable = 0;
 }
 
-void actSt04rMonyou07Chk(volatile int a0)
+void actSt04rMonyou07Chk(GObj *volatile a0)
 {
     if (girlGObj == 0) {
         _ACTWait(0);
@@ -1415,13 +1415,13 @@ void actSt04rMonyou07Chk(volatile int a0)
     _ACTWait(1);
 
     if (ACTGame_FLAG_TETSUNAGI() != 0) {
-        iosOmSendMail(girlGObj, 0x3F, boyGObj);
+        iosOmSendMail(girlGObj, 0x3F, (int)boyGObj);
     }
 
     scpBoyControlReadDisable = 0;
 }
 
-void actSt04rBarricadeChk(volatile int a0)
+void actSt04rBarricadeChk(GObj *volatile a0)
 {
     int n;
 
@@ -1468,9 +1468,9 @@ void actSt04rBarricadeChk(volatile int a0)
     lt_switch_layout(54);
 }
 
-void actSt04rGondolaChk(volatile int a0)
+void actSt04rGondolaChk(GObj *volatile a0)
 {
-    Act *sub = ((PObjGObj *)a0)->act;
+    Act *sub = GOBJ_ACT(a0);
 
     while (scpTriggerFloorAttr(boyGObj, 0xA000000) == 0) {
         _ACTWait(1);
@@ -1574,9 +1574,9 @@ void actSt04rGondolaChk(volatile int a0)
     _ACTWait(0);
 }
 
-void actSt04rSolarStageChange(volatile int a0)
+void actSt04rSolarStageChange(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     Act *self = actInitialize(a0);
     _ACTWait(1);
 
@@ -1588,9 +1588,9 @@ void actSt04rSolarStageChange(volatile int a0)
     }
 }
 
-void actSt04rCrest01(volatile int a0)
+void actSt04rCrest01(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     Act *self = actInitialize(a0);
     _ACTWait(1);
 
@@ -1607,9 +1607,9 @@ void actSt04rCrest01(volatile int a0)
     }
 }
 
-void actSt04rCrest03(volatile int a0)
+void actSt04rCrest03(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     Act *self = actInitialize(a0);
     _ACTWait(1);
 
@@ -1626,9 +1626,9 @@ void actSt04rCrest03(volatile int a0)
     }
 }
 
-void actSt04rC1Ball(volatile int a0)
+void actSt04rC1Ball(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     Act *self = actInitialize(a0);
     _ACTWait(1);
 
@@ -1647,9 +1647,9 @@ void actSt04rC1Ball(volatile int a0)
     }
 }
 
-void actSt04rC2Ball(volatile int a0)
+void actSt04rC2Ball(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     Act *self = actInitialize(a0);
     _ACTWait(1);
 
@@ -1668,9 +1668,9 @@ void actSt04rC2Ball(volatile int a0)
     }
 }
 
-void actSt04rC3Ball(volatile int a0)
+void actSt04rC3Ball(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     Act *self = actInitialize(a0);
     _ACTWait(1);
 
@@ -1689,9 +1689,9 @@ void actSt04rC3Ball(volatile int a0)
     }
 }
 
-void actSt04rStair(volatile int a0)
+void actSt04rStair(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     Act *self = actInitialize(a0);
     _ACTWait(1);
 
@@ -1709,9 +1709,9 @@ void actSt04rStair(volatile int a0)
     }
 }
 
-void actSt04rBrg1(volatile int a0)
+void actSt04rBrg1(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     Act *self = actInitialize(a0);
     _ACTWait(1);
 
@@ -1723,9 +1723,9 @@ void actSt04rBrg1(volatile int a0)
     }
 }
 
-void actSt04rBrg2(volatile int a0)
+void actSt04rBrg2(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     Act *self = actInitialize(a0);
     _ACTWait(1);
 
@@ -1737,9 +1737,9 @@ void actSt04rBrg2(volatile int a0)
     }
 }
 
-void actSt04rBrg1Way(volatile int a0)
+void actSt04rBrg1Way(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     Act *self = actInitialize(a0);
     _ACTWait(1);
 
@@ -1751,9 +1751,9 @@ void actSt04rBrg1Way(volatile int a0)
     }
 }
 
-void actSt04rBrg2Way(volatile int a0)
+void actSt04rBrg2Way(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     Act *self = actInitialize(a0);
     _ACTWait(1);
 
@@ -1765,9 +1765,9 @@ void actSt04rBrg2Way(volatile int a0)
     }
 }
 
-void actSt04rRope1(volatile int a0)
+void actSt04rRope1(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     Act *self = actInitialize(a0);
     _ACTWait(1);
 
@@ -1785,9 +1785,9 @@ void actSt04rRope1(volatile int a0)
     }
 }
 
-void actSt04rRope2(volatile int a0)
+void actSt04rRope2(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     Act *self = actInitialize(a0);
     _ACTWait(1);
 
@@ -1805,9 +1805,9 @@ void actSt04rRope2(volatile int a0)
     }
 }
 
-void actSt04rRope3(volatile int a0)
+void actSt04rRope3(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     Act *self = actInitialize(a0);
     _ACTWait(1);
 
@@ -1825,9 +1825,9 @@ void actSt04rRope3(volatile int a0)
     }
 }
 
-void actSt04rRope4(volatile int a0)
+void actSt04rRope4(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     Act *self = actInitialize(a0);
     _ACTWait(1);
 
@@ -1845,9 +1845,9 @@ void actSt04rRope4(volatile int a0)
     }
 }
 
-void actSt04rSekizo(volatile int a0)
+void actSt04rSekizo(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     Act *self = actInitialize(a0);
     _ACTWait(1);
 
@@ -1863,9 +1863,9 @@ void actSt04rSekizo(volatile int a0)
     }
 }
 
-void actSt04rBarricade(volatile int a0)
+void actSt04rBarricade(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     Act *self = actInitialize(a0);
     _ACTWait(1);
 
@@ -1881,9 +1881,9 @@ void actSt04rBarricade(volatile int a0)
     }
 }
 
-void actSt04rGondola(volatile int a0)
+void actSt04rGondola(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     Act *self = actInitialize(a0);
     _ACTWait(1);
 
@@ -1904,9 +1904,9 @@ void actSt04rGondola(volatile int a0)
     }
 }
 
-void actSt04rCrest01XL(volatile int a0)
+void actSt04rCrest01XL(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
 
     actInitialize(a0);
     _ACTWait(1);
@@ -1918,9 +1918,9 @@ void actSt04rCrest01XL(volatile int a0)
     }
 }
 
-void actSt04rCrest02XL(volatile int a0)
+void actSt04rCrest02XL(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
 
     actInitialize(a0);
     _ACTWait(1);
@@ -1932,9 +1932,9 @@ void actSt04rCrest02XL(volatile int a0)
     }
 }
 
-void actSt04rCrest03XL(volatile int a0)
+void actSt04rCrest03XL(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
 
     actInitialize(a0);
     _ACTWait(1);
@@ -1946,9 +1946,9 @@ void actSt04rCrest03XL(volatile int a0)
     }
 }
 
-void actSt04rC2BallXL(volatile int a0)
+void actSt04rC2BallXL(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
 
     actInitialize(a0);
     _ACTWait(1);
@@ -1963,9 +1963,9 @@ void actSt04rC2BallXL(volatile int a0)
     }
 }
 
-void actSt04rC3BallXL(volatile int a0)
+void actSt04rC3BallXL(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
 
     actInitialize(a0);
     _ACTWait(1);
@@ -1980,9 +1980,9 @@ void actSt04rC3BallXL(volatile int a0)
     }
 }
 
-void actSt04rTorch1_1(volatile int a0)
+void actSt04rTorch1_1(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     Act *self = actInitialize(a0);
     _ACTWait(1);
 
@@ -1997,9 +1997,9 @@ void actSt04rTorch1_1(volatile int a0)
     }
 }
 
-void actSt04rTorch1_2(volatile int a0)
+void actSt04rTorch1_2(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     Act *self = actInitialize(a0);
     _ACTWait(1);
 
@@ -2014,9 +2014,9 @@ void actSt04rTorch1_2(volatile int a0)
     }
 }
 
-void actSt04rTorch2_1(volatile int a0)
+void actSt04rTorch2_1(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     Act *self = actInitialize(a0);
     _ACTWait(1);
 
@@ -2030,9 +2030,9 @@ void actSt04rTorch2_1(volatile int a0)
     }
 }
 
-void actSt04rTorch2_2(volatile int a0)
+void actSt04rTorch2_2(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     Act *self = actInitialize(a0);
     _ACTWait(1);
 
@@ -2046,9 +2046,9 @@ void actSt04rTorch2_2(volatile int a0)
     }
 }
 
-void actSt04rTorch3_1(volatile int a0)
+void actSt04rTorch3_1(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     Act *self = actInitialize(a0);
     _ACTWait(1);
 
@@ -2062,9 +2062,9 @@ void actSt04rTorch3_1(volatile int a0)
     }
 }
 
-void actSt04rTorch3_2(volatile int a0)
+void actSt04rTorch3_2(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     Act *self = actInitialize(a0);
     _ACTWait(1);
 
@@ -2078,9 +2078,9 @@ void actSt04rTorch3_2(volatile int a0)
     }
 }
 
-void actSt04rTorch2_1XL(volatile int a0)
+void actSt04rTorch2_1XL(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     Act *self = actInitialize(a0);
     _ACTWait(1);
 
@@ -2095,9 +2095,9 @@ void actSt04rTorch2_1XL(volatile int a0)
     }
 }
 
-void actSt04rTorch2_2XL(volatile int a0)
+void actSt04rTorch2_2XL(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     Act *self = actInitialize(a0);
     _ACTWait(1);
 
@@ -2112,9 +2112,9 @@ void actSt04rTorch2_2XL(volatile int a0)
     }
 }
 
-void actSt04rTorch3_1XL(volatile int a0)
+void actSt04rTorch3_1XL(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
 
     actInitialize(a0);
     _ACTWait(1);
@@ -2124,9 +2124,9 @@ void actSt04rTorch3_1XL(volatile int a0)
     }
 }
 
-void actSt04rTorch3_2XL(volatile int a0)
+void actSt04rTorch3_2XL(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
 
     actInitialize(a0);
     _ACTWait(1);
@@ -2136,9 +2136,9 @@ void actSt04rTorch3_2XL(volatile int a0)
     }
 }
 
-void actSt04rMonyou01(volatile int a0)
+void actSt04rMonyou01(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     Act *self = actInitialize(a0);
     _ACTWait(1);
 
@@ -2154,9 +2154,9 @@ void actSt04rMonyou01(volatile int a0)
     }
 }
 
-void actSt04rMonyou02(volatile int a0)
+void actSt04rMonyou02(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     Act *self = actInitialize(a0);
     _ACTWait(1);
 
@@ -2172,9 +2172,9 @@ void actSt04rMonyou02(volatile int a0)
     }
 }
 
-void actSt04rMonyou03(volatile int a0)
+void actSt04rMonyou03(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     Act *self = actInitialize(a0);
     _ACTWait(1);
 
@@ -2190,9 +2190,9 @@ void actSt04rMonyou03(volatile int a0)
     }
 }
 
-void actSt04rMonyou04(volatile int a0)
+void actSt04rMonyou04(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     Act *self = actInitialize(a0);
     _ACTWait(1);
 
@@ -2208,9 +2208,9 @@ void actSt04rMonyou04(volatile int a0)
     }
 }
 
-void actSt04rMonyou05(volatile int a0)
+void actSt04rMonyou05(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     Act *self = actInitialize(a0);
     _ACTWait(1);
 
@@ -2226,9 +2226,9 @@ void actSt04rMonyou05(volatile int a0)
     }
 }
 
-void actSt04rMonyou06(volatile int a0)
+void actSt04rMonyou06(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     Act *self = actInitialize(a0);
     _ACTWait(1);
 
@@ -2244,9 +2244,9 @@ void actSt04rMonyou06(volatile int a0)
     }
 }
 
-void actSt04rMonyou07(volatile int a0)
+void actSt04rMonyou07(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     Act *self = actInitialize(a0);
     _ACTWait(1);
 
@@ -2262,9 +2262,9 @@ void actSt04rMonyou07(volatile int a0)
     }
 }
 
-void actSt05cDoorInit(volatile int a0)
+void actSt05cDoorInit(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
 
     actInitialize(a0);
     _ACTWait(1);
@@ -2278,9 +2278,9 @@ void actSt05cDoorInit(volatile int a0)
     }
 }
 
-void actSt04rC1BallMain(volatile int a0)
+void actSt04rC1BallMain(GObj *volatile a0)
 {
-    Act *sub = ((PObjGObj *)a0)->act;
+    Act *sub = GOBJ_ACT(a0);
 
     sub->mainMail = c1_ball_main_mes;
     while (1) {
@@ -2288,9 +2288,9 @@ void actSt04rC1BallMain(volatile int a0)
     }
 }
 
-void actSt04rC1BallSwitch(volatile int a0)
+void actSt04rC1BallSwitch(GObj *volatile a0)
 {
-    Act *sub = ((PObjGObj *)a0)->act;
+    Act *sub = GOBJ_ACT(a0);
 
     scpBoyControlReadDisable = 1;
 
@@ -2302,14 +2302,14 @@ void actSt04rC1BallSwitch(volatile int a0)
     _ACTWait(0);
 }
 
-void actSt04rC1BallTurn(volatile int a0)
+void actSt04rC1BallTurn(GObj *volatile a0)
 {
     turnBall(a0, 0xFA, 0x13D, 0x57C, 0x57D);
 }
 
-void actSt04rC2BallMain(volatile int a0)
+void actSt04rC2BallMain(GObj *volatile a0)
 {
-    Act *sub = ((PObjGObj *)a0)->act;
+    Act *sub = GOBJ_ACT(a0);
 
     sub->mainMail = c2_ball_main_mes;
     while (1) {
@@ -2317,9 +2317,9 @@ void actSt04rC2BallMain(volatile int a0)
     }
 }
 
-void actSt04rC2BallSwitch(volatile int a0)
+void actSt04rC2BallSwitch(GObj *volatile a0)
 {
-    Act *sub = ((PObjGObj *)a0)->act;
+    Act *sub = GOBJ_ACT(a0);
 
     scpBoyControlReadDisable = 1;
 
@@ -2331,14 +2331,14 @@ void actSt04rC2BallSwitch(volatile int a0)
     _ACTWait(0);
 }
 
-void actSt04rC2BallTurn(volatile int a0)
+void actSt04rC2BallTurn(GObj *volatile a0)
 {
     turnBall(a0, 0xFB, 0x13E, 0x5CF, 0x5D0);
 }
 
-void actSt04rC3BallMain(volatile int a0)
+void actSt04rC3BallMain(GObj *volatile a0)
 {
-    Act *sub = ((PObjGObj *)a0)->act;
+    Act *sub = GOBJ_ACT(a0);
 
     sub->mainMail = c3_ball_main_mes;
     while (1) {
@@ -2346,9 +2346,9 @@ void actSt04rC3BallMain(volatile int a0)
     }
 }
 
-void actSt04rC3BallSwitch(volatile int a0)
+void actSt04rC3BallSwitch(GObj *volatile a0)
 {
-    Act *sub = ((PObjGObj *)a0)->act;
+    Act *sub = GOBJ_ACT(a0);
 
     scpBoyControlReadDisable = 1;
 
@@ -2360,12 +2360,12 @@ void actSt04rC3BallSwitch(volatile int a0)
     _ACTWait(0);
 }
 
-void actSt04rC3BallTurn(volatile int a0)
+void actSt04rC3BallTurn(GObj *volatile a0)
 {
     turnBall(a0, 0xFC, 0x13F, 0x5D1, 0x5D2);
 }
 
-void actSt04rCrestMain(volatile int a0)
+void actSt04rCrestMain(GObj *volatile a0)
 {
     while (scpIsTorchLightOn(1404) == 0 || scpIsTorchLightOn(1405) == 0 || gflagChk(250) == 0) {
         _ACTWait(1);
@@ -2384,7 +2384,7 @@ void actSt04rCrestMain(volatile int a0)
     gflagOff(233);
 }
 
-void actSt04rSolarStageChangeChk(volatile int a0)
+void actSt04rSolarStageChangeChk(GObj *volatile a0)
 {
     while (gflagChk(243) == 0 || gflagChk(244) == 0 || gflagChk(245) == 0 || gflagChk(232) == 0) {
         _ACTWait(1);
@@ -2413,9 +2413,9 @@ void actSt04rBrg1Event(int x)
     volatile int local = x;
 }
 
-void actSt04rBrg1Chk(volatile int a0)
+void actSt04rBrg1Chk(GObj *volatile a0)
 {
-    Act *sub = ((PObjGObj *)a0)->act;
+    Act *sub = GOBJ_ACT(a0);
 
     while (gflagChk(261) == 0 || gflagChk(262) == 0) {
         _ACTWait(1);
@@ -2431,7 +2431,7 @@ void actSt04rBrg1Chk(volatile int a0)
     _ACTWait(0);
 }
 
-void actSt04rBrg1Sub(volatile int a0)
+void actSt04rBrg1Sub(GObj *volatile a0)
 {
     _ACTWait(60);
 
@@ -2474,9 +2474,9 @@ void actSt04rBrg2Event(int x)
     volatile int local = x;
 }
 
-void actSt04rBrg2Chk(volatile int a0)
+void actSt04rBrg2Chk(GObj *volatile a0)
 {
-    Act *sub = ((PObjGObj *)a0)->act;
+    Act *sub = GOBJ_ACT(a0);
 
     while (gflagChk(263) == 0 || gflagChk(264) == 0) {
         _ACTWait(1);
@@ -2492,7 +2492,7 @@ void actSt04rBrg2Chk(volatile int a0)
     _ACTWait(0);
 }
 
-void actSt04rBrg1WayChk(volatile int a0)
+void actSt04rBrg1WayChk(GObj *volatile a0)
 {
     while (gflagChk(259) == 0) {
         _ACTWait(1);
@@ -2501,7 +2501,7 @@ void actSt04rBrg1WayChk(volatile int a0)
     SetWayGroupActive(3, 1);
 }
 
-void actSt04rBrg2WayChk(volatile int a0)
+void actSt04rBrg2WayChk(GObj *volatile a0)
 {
     while (gflagChk(259) == 0 || gflagChk(260) == 0) {
         _ACTWait(1);
@@ -2550,9 +2550,9 @@ void actSt04rBarricadeEvent(int x)
     volatile int local = x;
 }
 
-void actSt04rGondolaCharaChk(volatile int a0)
+void actSt04rGondolaCharaChk(GObj *volatile a0)
 {
-    Act *sub = ((PObjGObj *)a0)->act;
+    Act *sub = GOBJ_ACT(a0);
 
     while (scpTriggerFloorAttr(boyGObj, 0xA000000) != 0 &&
            (gflagChk(286) == 0 || scpTriggerFloorAttr(girlGObj, 0xA000000) == 0)) {
@@ -2565,7 +2565,7 @@ void actSt04rGondolaCharaChk(volatile int a0)
     _ACTWait(0);
 }
 
-void actSt04rTorch1_1Chk(volatile int a0)
+void actSt04rTorch1_1Chk(GObj *volatile a0)
 {
     while (scpIsTorchLightOn(1404) == 0) {
         _ACTWait(1);
@@ -2575,7 +2575,7 @@ void actSt04rTorch1_1Chk(volatile int a0)
     stage_SetAnimation(210, 1, 0);
 }
 
-void actSt04rTorch1_2Chk(volatile int a0)
+void actSt04rTorch1_2Chk(GObj *volatile a0)
 {
     while (scpIsTorchLightOn(1405) == 0) {
         _ACTWait(1);
@@ -2585,7 +2585,7 @@ void actSt04rTorch1_2Chk(volatile int a0)
     stage_SetAnimation(211, 1, 0);
 }
 
-void actSt04rTorch2_1Chk(volatile int a0)
+void actSt04rTorch2_1Chk(GObj *volatile a0)
 {
     while (scpIsTorchLightOn(1487) == 0) {
         _ACTWait(1);
@@ -2594,7 +2594,7 @@ void actSt04rTorch2_1Chk(volatile int a0)
     gflagOn(268);
 }
 
-void actSt04rTorch2_2Chk(volatile int a0)
+void actSt04rTorch2_2Chk(GObj *volatile a0)
 {
     while (scpIsTorchLightOn(1488) == 0) {
         _ACTWait(1);
@@ -2603,7 +2603,7 @@ void actSt04rTorch2_2Chk(volatile int a0)
     gflagOn(269);
 }
 
-void actSt04rTorch3_1Chk(volatile int a0)
+void actSt04rTorch3_1Chk(GObj *volatile a0)
 {
     while (scpIsTorchLightOn(1489) == 0) {
         _ACTWait(1);
@@ -2612,7 +2612,7 @@ void actSt04rTorch3_1Chk(volatile int a0)
     gflagOn(272);
 }
 
-void actSt04rTorch3_2Chk(volatile int a0)
+void actSt04rTorch3_2Chk(GObj *volatile a0)
 {
     while (scpIsTorchLightOn(1490) == 0) {
         _ACTWait(1);
@@ -2621,7 +2621,7 @@ void actSt04rTorch3_2Chk(volatile int a0)
     gflagOn(273);
 }
 
-void actSt04rTorch2_1XLChk(volatile int a0)
+void actSt04rTorch2_1XLChk(GObj *volatile a0)
 {
     while (scpIsTorchLightOn(1408) == 0) {
         _ACTWait(1);
@@ -2631,7 +2631,7 @@ void actSt04rTorch2_1XLChk(volatile int a0)
     stage_SetAnimation(212, 1, 0);
 }
 
-void actSt04rTorch2_2XLChk(volatile int a0)
+void actSt04rTorch2_2XLChk(GObj *volatile a0)
 {
     while (scpIsTorchLightOn(1409) == 0) {
         _ACTWait(1);

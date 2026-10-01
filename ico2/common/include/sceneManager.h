@@ -24,7 +24,6 @@ typedef struct {
 
 /* sceneManager.c's .data (MAIN.MAP's sceneManager.o global) */
 extern SObjSimpleSetting InitialSObjSimpleSetting;
-
 /* The declarations below lead this header because their order is load-bearing:
  * gcc 2.9 emits the deferred out-of-line copy of a plain-inline function in
  * first-declaration order, so this is the order sceneManager.c's inline tail has. */
@@ -34,11 +33,18 @@ void MoveNextStage_Set(float *a0, float *a1, int a2, int a3, int a4, int a5);
 void test_nextstage_firstwalk_set(int unused, int a, int b, int c);
 int GetStageStartInfo(int a0, int a1, int a2, int *p, int *q, int *r);
 void MoveNextStage_Clear(void);
-
 void InitStageLight(int stage);
 void initParentLink(int id);
 void initSceneGObj(int stage, int id);
-
 void InitSceneObjects(int stage);
+
+/* enemy-model-grp: one enemy model group, 0x28 bytes. Reader:
+ * ico2/common/src/sceneManager.c (EnemyMdlRec). Owner:
+ * ico2/common/include/sceneManager.h. */
+typedef struct {   /* field names derived */
+    char name[32]; /* 0x00 */
+    int first;     /* 0x20, the enemymodelTable range */
+    int last;      /* 0x24 */
+} EnemyMdlRec;     /* derived name */
 
 #endif /* SCENEMANAGER_H */

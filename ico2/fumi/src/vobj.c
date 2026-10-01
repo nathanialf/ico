@@ -44,5 +44,5 @@ void SetVObjRT(int a0, void *a1)
 {
     sceVu0UnitMatrix(MatrixDrive_GetMatrix());
     *(float *)((char *)a1 + 0xC) = 1.0f;
-    MatrixDrive_TransMatrixV((int)a1);
+    MatrixDrive_TransMatrixV(a1);
 }

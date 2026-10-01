@@ -12,27 +12,28 @@
 #ifndef ST07A_H
 #define ST07A_H
 
-/* st07a.o's .sdata globals (MAIN.MAP) */
-extern int bridge;
-extern int sekizo7a;
-extern int sekizo_7a;
-extern int sekizo_7a_vol;
+#include "typedef.h"
 
-void actSt07aChanChainChk(volatile int a0);
-void actSt07aChanChk(volatile int a0);
-void actSt07aChanEffect(volatile int a0);
-void actSt07aChanFall(volatile int a0);
-void actSt07aChanMot(volatile int a0);
-void actSt07aChanReadyChk(volatile int a0);
+/* st07a.o's .sdata globals (MAIN.MAP) */
+extern char *bridge;
+extern char *sekizo7a;
+extern char *sekizo_7a;
+extern int sekizo_7a_vol;
+void actSt07aChanChainChk(GObj *volatile a0);
+void actSt07aChanChk(GObj *volatile a0);
+void actSt07aChanEffect(GObj *volatile a0);
+void actSt07aChanFall(GObj *volatile a0);
+void actSt07aChanMot(GObj *volatile a0);
+void actSt07aChanReadyChk(GObj *volatile a0);
 void actSt07aChanWay1(volatile unsigned int a0);
 void actSt07aChanWay2(volatile unsigned int a0);
-void actSt07aEne2Chk(volatile int a0);
-void actSt07aEneChk(volatile int a0);
+void actSt07aEne2Chk(GObj *volatile a0);
+void actSt07aEneChk(GObj *volatile a0);
 void actSt07aGirlWay(volatile unsigned int a0);
-void actSt07aIntroChk(volatile int a0);
-void actSt07aSekizoChk(volatile int a0);
-void actSt07aTsuroChk(volatile int a0);
-void actSt07aTsuroConte(volatile int a0);
-void actSt07aTsuroEffect(volatile int a0);
+void actSt07aIntroChk(GObj *volatile a0);
+void actSt07aSekizoChk(GObj *volatile a0);
+void actSt07aTsuroChk(GObj *volatile a0);
+void actSt07aTsuroConte(GObj *volatile a0);
+void actSt07aTsuroEffect(GObj *volatile a0);
 
 #endif /* ST07A_H */

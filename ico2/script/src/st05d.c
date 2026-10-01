@@ -22,10 +22,10 @@ static const ConstVec door2UpEffectPos = {{-704.0f, -1700.0f, -5679.0f, 1.0f}};
 
 static const ConstVec door2UpEffect2Pos = {{-704.0f, -1955.0f, -5679.0f, 1.0f}};
 
-void actSt05dDoor2UpEffect(volatile int a0);
-void actSt05dDoor2DownEffect(volatile int a0);
-void actSt05dEneChk(volatile int a0);
-void actSt05dCrestHintChk(volatile int a0);
+void actSt05dDoor2UpEffect(GObj *volatile a0);
+void actSt05dDoor2DownEffect(GObj *volatile a0);
+void actSt05dEneChk(GObj *volatile a0);
+void actSt05dCrestHintChk(GObj *volatile a0);
 
 static ActMail door2Down_mes[2] = {{430}, {429}};
 
@@ -39,12 +39,12 @@ static ActMail ene_mes[2] = {{430}, {429}};
 
 static ActMail crestHint_mes[2] = {{430}, {429}};
 
-void actSt05dDoor2DownChk(volatile int a0);
-void actSt05dDoor2UpChk(volatile int a0);
+void actSt05dDoor2DownChk(GObj *volatile a0);
+void actSt05dDoor2UpChk(GObj *volatile a0);
 
-void actSt05dDoor2(volatile int a0)
+void actSt05dDoor2(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     Act *self = actInitialize(a0);
 
     _ACTWait(1);
@@ -66,9 +66,9 @@ void actSt05dDoor2(volatile int a0)
     }
 }
 
-void actSt05dDoor2UpChk(volatile int a0)
+void actSt05dDoor2UpChk(GObj *volatile a0)
 {
-    Act *sub = (Act *)((PObjGObj *)a0)->act;
+    Act *sub = GOBJ_ACT(a0);
     long long buf[2];
 
     while (scpTriggerFloorAttrTargetMan(a0, 0x2000000) == 0) {
@@ -101,9 +101,9 @@ void actSt05dDoor2UpChk(volatile int a0)
     _ACTWait(0);
 }
 
-void actSt05dDoor2DownChk(volatile int a0)
+void actSt05dDoor2DownChk(GObj *volatile a0)
 {
-    Act *sub = (Act *)((PObjGObj *)a0)->act;
+    Act *sub = GOBJ_ACT(a0);
     long long buf[2];
 
     while (scpTriggerFloorAttrTargetMan(a0, 0x2000000) != 0) {
@@ -136,9 +136,9 @@ void actSt05dDoor2DownChk(volatile int a0)
     _ACTWait(0);
 }
 
-void actSt05dEne(volatile int a0)
+void actSt05dEne(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     Act *self = actInitialize(a0);
     int g;
     short rot;
@@ -161,9 +161,9 @@ void actSt05dEne(volatile int a0)
     }
 }
 
-void actSt05dEnemy1(volatile int a0)
+void actSt05dEnemy1(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     actInitialize(a0);
     _ACTWait(1);
     Generator_Mask(a0);
@@ -182,9 +182,9 @@ void actSt05dEnemy1(volatile int a0)
     Generator_Call(scpSearchGobj(1478));
 }
 
-void actSt05dEnemy2(volatile int a0)
+void actSt05dEnemy2(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     actInitialize(a0);
     _ACTWait(1);
     Generator_Mask(a0);
@@ -198,9 +198,9 @@ void actSt05dEnemy2(volatile int a0)
     Generator_Call(a0);
 }
 
-void actSt05dCrestHint(volatile int a0)
+void actSt05dCrestHint(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     Act *self = actInitialize(a0);
 
     _ACTWait(1);
@@ -219,7 +219,7 @@ void actSt05dDoor2Event(int x)
     volatile int local = x;
 }
 
-void actSt05dDoor2UpEffect(volatile int a0)
+void actSt05dDoor2UpEffect(GObj *volatile a0)
 {
     long long b1[2];
     long long b2[2];
@@ -243,7 +243,7 @@ void actSt05dDoor2UpEffect(volatile int a0)
     }
 }
 
-void actSt05dDoor2DownEffect(volatile int a0)
+void actSt05dDoor2DownEffect(GObj *volatile a0)
 {
     long long b1[2];
     long long b2[2];
@@ -267,7 +267,7 @@ void actSt05dDoor2DownEffect(volatile int a0)
     }
 }
 
-void actSt05dEneChk(volatile int a0)
+void actSt05dEneChk(GObj *volatile a0)
 {
     if (girlGObj == 0) {
         _ACTWait(0);
@@ -280,7 +280,7 @@ void actSt05dEneChk(volatile int a0)
     gflagOn(172);
 }
 
-void actSt05dCrestHintChk(volatile int a0)
+void actSt05dCrestHintChk(GObj *volatile a0)
 {
     while (gflagChk(243) == 0 || gflagChk(244) == 0 || gflagChk(245) == 0 || gflagChk(232) != 0) {
         _ACTWait(1);

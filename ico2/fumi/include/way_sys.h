@@ -21,29 +21,29 @@
  * developers' record was 8-byte aligned; which member made it so is not known,
  * and act-way.c keeps its own view of it until that is found.
  * Every offset here is read off the ROM's own loads and stores. */
-typedef struct WVTObj {
-    char pad00[0x10]; /* 0x00 */
-    int pos[4];       /* 0x10 the current target position */
-    CheckWp chk;      /* 0x20 the way point being walked to (f0), the start
-                          of the walk (f4) and the far end of a crossing (f8),
+typedef struct WVTObj { /* field names derived */
+    char pad00[16];     /* 0x00 */
+    int pos[4];         /* 0x10 the current target position */
+    CheckWp chk;        /* 0x20 the way point being walked to (cur), the start
+                          of the walk (start) and the far end of a crossing (cross),
                           the record set_check_wp fills */
-    WayPoint *w2C;    /* 0x2C */
-    int w30;          /* 0x30 */
-    int w34;          /* 0x34 */
-    int w38;          /* 0x38 */
-    int w3C;          /* 0x3C */
-    int w40;          /* 0x40 */
-    int w44;          /* 0x44 */
-    char pad48[0x8];  /* 0x48 */
+    WayPoint *nearWp;   /* 0x2C */
+    int stampFrame;     /* 0x30 */
+    int direction;      /* 0x34 */
+    int avoiding;       /* 0x38 */
+    int flag3C;         /* 0x3C */
+    char pad40[4];
+    int reached;      /* 0x44 */
+    char pad48[8];    /* 0x48 */
     float nrm[4];     /* 0x50 the unit direction to the current way point */
-    int w60;          /* 0x60 */
-    int w64;          /* 0x64 the first point of the guide way avoid_obstacle2
+    int group;        /* 0x60 */
+    int guideFirst;   /* 0x64 the first point of the guide way avoid_obstacle2
                           lays round an obstacle, -1 when none */
-    int w68;          /* 0x68 */
-    int w6C;          /* 0x6C */
-    int w70;          /* 0x70 */
-    WayPoint *w74;    /* 0x74 */
-    char pad78[0x8];  /* 0x78 */
+    int escapeFound;  /* 0x68 */
+    int flag6C;       /* 0x6C */
+    int pathKind;     /* 0x70 */
+    WayPoint *fromWp; /* 0x74 */
+    char pad78[8];    /* 0x78 */
 } WVTObj;
 
 /* The declarations below lead this header because their order is load-bearing:

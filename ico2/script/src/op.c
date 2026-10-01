@@ -31,11 +31,11 @@
    demoAdpcm the stream handles scpAdpcmPlayRequestFunc fills. */
 static int titleSubEnd;
 
-static int titleSubAdpcm;
+static char *titleSubAdpcm;
 
 static int demoSubEnd;
 
-static int demoAdpcm;
+static char *demoAdpcm;
 
 /* .sdata, owned by op.o: the opening demo's step and the step it returns to,
    ahead of the demo's "mode" traces; the globals follow the demo below. */
@@ -43,9 +43,9 @@ static int opDemoMode = 0; /* derived name */
 
 static int opDemoNextMode = 0; /* derived name */
 
-void actTitleCamera2(volatile int a0)
+void actTitleCamera2(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
 
     enable_game_pause = 1;
 
@@ -94,8 +94,8 @@ void actTitleCamera2(volatile int a0)
 /* kept local, the sibling script TUs' spelling: this TU's uses of
    scpAdpcmCloseFunc and scpAdpcmCloseChkFunc do not fit script.h's */
 /* thread.h's prototype; op.c does not include thread.h */
-void actTitleReadTimeDemo0(volatile int a0);
-void actTitleShortCut(volatile int a0);
+void actTitleReadTimeDemo0(GObj *volatile a0);
+void actTitleShortCut(GObj *volatile a0);
 
 /* op.c:605-736 in the listing.  The timer countdown at 617-623 is a GNU
    nested function declared inline at the head of the body: it reads and
@@ -110,10 +110,10 @@ void actTitleShortCut(volatile int a0);
    the cross-jump.  The duplicated tail also sets the outer loop's size at
    loop time, which is what keeps the 60 of the timer out of the outer loop's
    preheader (move_movables' threshold test). */
-void actOpDemo01(volatile int a0)
+void actOpDemo01(GObj *volatile a0)
 {
-    int x = a0;
-    int th;
+    GObj *x = a0;
+    GProc *th;
     int t = (60 - systemStatus[0] * 10) / systemStatus[1] * 10;
 
     inline int tick(void)
@@ -201,7 +201,7 @@ void actOpDemo01(volatile int a0)
             if (titleSubAdpcm != 0) {
                 scpAdpcmCloseFunc(&titleSubAdpcm);
             }
-            iosThreadSetPri((int *)((GProc *)th)->thread, 34);
+            iosThreadSetPri(&((GProc *)th)->thread, 34);
             scpFadeOut(16.0f, 0, 0, 0);
             break;
 
@@ -221,7 +221,7 @@ void actOpDemo01(volatile int a0)
                     break;
                 }
             }
-            iosThreadSetPri((int *)((GProc *)th)->thread, 34);
+            iosThreadSetPri(&((GProc *)th)->thread, 34);
             scpFadeOut(16.0f, 0, 0, 0);
             break;
 
@@ -248,17 +248,17 @@ void actOpDemo01(volatile int a0)
 /* .sdata, after actOpDemo01's traces: MAIN.MAP's four op.o globals, the
    second demo's and the first scene's stream handles, the title logo's step
    and the title's stream handle (declared in op.h). */
-int op2 = 0;
+char *op2 = 0;
 
-int adpcm_conte01_sea = 0;
+char *adpcm_conte01_sea = 0;
 
 int opTitleLogoMode = 0;
 
 char *titleAdpcm = 0;
 
-void actTitleShortCut(volatile int a0)
+void actTitleShortCut(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
 
     monitorCameraHold = 1;
     actInitialize(a0);
@@ -316,19 +316,19 @@ static ActMail opDemo03_mes[2] = {{430}, {429}};
 /* Both tables live in the ELF's .rodata run, so `const` is what they are, and
    on stageData it is load-bearing: only a reference rooted at a const object
    makes the `ent` load unchanging, and only then is that load free of the
-   `volatile int a0` parameter home's memory dependence, which is what lets the
+   `GObj *volatile a0` parameter home's memory dependence, which is what lets the
    home store issue three slots later. */
 extern const StgPre stageData[];
 extern const ExitData exitData[];
 
-inline void actSubMpegReturnPreload(volatile int a0)
+inline void actSubMpegReturnPreload(GObj *volatile a0)
 {
     _ACTWait((int)((float)((0x3C - systemStatus[0] * 0xA) / systemStatus[1]) * 5.0f));
     stgmgrNextStagePreLoadForceStageSet(1);
     stgmgrNextStagePreLoadForceNoCancel(1);
 }
 
-void actTitleReadTimeDemo0(volatile int a0)
+void actTitleReadTimeDemo0(GObj *volatile a0)
 {
     debug_StdPrintfDummy("realtime demo %d\n", frame_count);
 
@@ -519,7 +519,7 @@ void actTitleReadTimeDemo0(volatile int a0)
     _ACTWait(0);
 }
 
-inline void actSt26aConte01_1_newgame(volatile int a0)
+inline void actSt26aConte01_1_newgame(GObj *volatile a0)
 {
     _ACTWait(1);
 
@@ -536,9 +536,9 @@ inline void actSt26aConte01_1_newgame(volatile int a0)
     RequestStageChange(1, boyGObj, 0, 0.25f, 2.0f);
 }
 
-void actOpDemo01_2(volatile int a0)
+void actOpDemo01_2(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     actInitialize(a0);
     _ACTWait(1);
 
@@ -573,7 +573,7 @@ void actOpDemo01_2(volatile int a0)
     RequestStageChangeWithColor(1, boyGObj, 0, 1.0f, 4.0f, 255, 255, 255);
 }
 
-void actOpDemo01_2Chk(volatile int a0)
+void actOpDemo01_2Chk(GObj *volatile a0)
 {
     stgmgrNextStagePreLoadForceStageSet(0);
 
@@ -650,9 +650,9 @@ void actOpDemo01_2Chk(volatile int a0)
     demoSubEnd = 1;
 }
 
-void actOpDemo02(volatile int a0)
+void actOpDemo02(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     Act *self = actInitialize(a0);
     _ACTWait(1);
 
@@ -680,7 +680,7 @@ void actOpDemo02(volatile int a0)
     _ACTWait(0);
 }
 
-inline void actOpDemo02Chk(volatile int a0)
+inline void actOpDemo02Chk(GObj *volatile a0)
 {
     gflagOn(3);
 
@@ -708,7 +708,7 @@ inline void actOpDemo02Chk(volatile int a0)
     RequestStageChange(2, boyGObj, 0, 0.5f, 4.0f);
 }
 
-void actSt24aConte01_2(volatile int a0)
+void actSt24aConte01_2(GObj *volatile a0)
 {
     stgmgrNextStagePreLoadForceStageSet(exitData[stageData[stage_no].ent[1]].nextStage);
 
@@ -797,7 +797,7 @@ void actSt24aConte01_2(volatile int a0)
     demoSubEnd = 1;
 }
 
-inline void actSt24aConte01_2_Jimaku(volatile int a0)
+inline void actSt24aConte01_2_Jimaku(GObj *volatile a0)
 {
     float t;
     float tn;
@@ -810,8 +810,8 @@ inline void actSt24aConte01_2_Jimaku(volatile int a0)
             jimakuBegin(&jimaku_msg);
             break;
         case 2400:
-            jimaku_msg.sub.unk2C = 0;
-            jimaku_msg.sub.unk38 = -1;
+            jimaku_msg.sub.block = 0;
+            jimaku_msg.sub.jump = -1;
             jimakuOn = 1;
             jimakuJump(&jimaku_msg);
             break;
@@ -828,9 +828,9 @@ inline void actSt24aConte01_2_Jimaku(volatile int a0)
     } while (t < 2700.0f);
 }
 
-inline void actOpDemo03(volatile int a0)
+inline void actOpDemo03(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     Act *self = actInitialize(a0);
     _ACTWait(1);
 
@@ -846,7 +846,7 @@ inline void actOpDemo03(volatile int a0)
     _ACTWait(0);
 }
 
-void actOpDemo03Chk(volatile int a0)
+void actOpDemo03Chk(GObj *volatile a0)
 {
     float t = 4.0f;
 
@@ -885,7 +885,7 @@ void actOpDemo03Chk(volatile int a0)
     RequestStageChange(4, boyGObj, 0, 255.0f, 2.0f);
 }
 
-void actSt13aConte01_3(volatile int a0)
+void actSt13aConte01_3(GObj *volatile a0)
 {
     stgmgrNextStagePreLoadForceStageSet(exitData[stageData[stage_no].ent[3]].nextStage);
 

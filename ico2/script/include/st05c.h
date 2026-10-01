@@ -12,13 +12,15 @@
 #ifndef ST05C_H
 #define ST05C_H
 
-void actSt04rDoor2Chk(volatile int a0);
-void actSt04rDoor2Sub(volatile int a0);
-void actSt04rDoorChk(volatile int a0);
-void actSt04rDoorSub(volatile int a0);
-void actSt05cCrestHintChk(volatile int a0);
-void actSt05cDoorDownChk(volatile int a0);
-void actSt05cDoorDownEffect(volatile int a0);
-void actSt05cEneChk(volatile int a0);
+#include "typedef.h"
+
+void actSt04rDoor2Chk(GObj *volatile a0);
+void actSt04rDoor2Sub(GObj *volatile a0);
+void actSt04rDoorChk(GObj *volatile a0);
+void actSt04rDoorSub(GObj *volatile a0);
+void actSt05cCrestHintChk(GObj *volatile a0);
+void actSt05cDoorDownChk(GObj *volatile a0);
+void actSt05cDoorDownEffect(GObj *volatile a0);
+void actSt05cEneChk(GObj *volatile a0);
 
 #endif /* ST05C_H */

@@ -21,9 +21,9 @@ static ActMail door1_down_mes[2] = {{430}, {429}};
 
 static ActMail door1_up_mes[2] = {{430}, {429}};
 
-void actSt04dDoor1(volatile int a0)
+void actSt04dDoor1(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     Act *self = actInitialize(a0);
 
     _ACTWait(1);
@@ -45,7 +45,7 @@ void actSt04dDoor1(volatile int a0)
     }
 }
 
-inline void actSt04dDoor1UpEffect(volatile int a0);
+inline void actSt04dDoor1UpEffect(GObj *volatile a0);
 
 static const ConstVec door1SoundPos = {{-498.0f, -1418.0f, -5663.0f, 0.0f}};
 
@@ -55,9 +55,9 @@ static const ConstVec door1DownEffectPos = {{-505.0f, -1447.0f, -5671.0f, 1.0f}}
 
 static ActMail door1_up_chk_mes[2] = {{430}, {429}};
 
-void actSt04dDoor1UpChk(volatile int a0)
+void actSt04dDoor1UpChk(GObj *volatile a0)
 {
-    Act *sub = (Act *)((PObjGObj *)a0)->act;
+    Act *sub = GOBJ_ACT(a0);
     long long buf[2];
 
     while (scpTriggerFloorAttrTargetMan(a0, 0x1000000) == 0) {
@@ -88,7 +88,7 @@ void actSt04dDoor1UpChk(volatile int a0)
     _ACTWait(0);
 }
 
-inline void actSt04dDoor1UpEffect(volatile int a0)
+inline void actSt04dDoor1UpEffect(GObj *volatile a0)
 {
     long long b1[2];
     long long b2[2];
@@ -112,7 +112,7 @@ inline void actSt04dDoor1UpEffect(volatile int a0)
     }
 }
 
-inline void actSt04dDoor1DownEffect(volatile int a0)
+inline void actSt04dDoor1DownEffect(GObj *volatile a0)
 {
     long long b1[2];
     long long b2[2];
@@ -138,9 +138,9 @@ inline void actSt04dDoor1DownEffect(volatile int a0)
 
 static ActMail door1_down_chk_mes[2] = {{430}, {429}};
 
-void actSt04dDoor1DownChk(volatile int a0)
+void actSt04dDoor1DownChk(GObj *volatile a0)
 {
-    Act *sub = (Act *)((PObjGObj *)a0)->act;
+    Act *sub = GOBJ_ACT(a0);
     long long buf[2];
 
     while (scpTriggerFloorAttrTargetMan(a0, 0x1000000) != 0) {
@@ -180,9 +180,9 @@ static ActMail door2_down_mes[2] = {{430}, {429}};
 
 static ActMail door2_up_mes[2] = {{430}, {429}};
 
-void actSt04dDoor2(volatile int a0)
+void actSt04dDoor2(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     Act *self = actInitialize(a0);
 
     _ACTWait(1);
@@ -204,7 +204,7 @@ void actSt04dDoor2(volatile int a0)
     }
 }
 
-inline void actSt04dDoor2UpEffect(volatile int a0);
+inline void actSt04dDoor2UpEffect(GObj *volatile a0);
 
 static const ConstVec door2SoundPos = {{702.0f, -1886.0f, -5680.0f, 0.0f}};
 
@@ -214,9 +214,9 @@ static const ConstVec door2DownEffectPos = {{704.0f, -1955.0f, -5679.0f, 1.0f}};
 
 static ActMail door2_up_chk_mes[2] = {{430}, {429}};
 
-void actSt04dDoor2UpChk(volatile int a0)
+void actSt04dDoor2UpChk(GObj *volatile a0)
 {
-    Act *sub = (Act *)((PObjGObj *)a0)->act;
+    Act *sub = GOBJ_ACT(a0);
     long long buf[2];
 
     while (scpTriggerFloorAttrTargetMan(a0, 0x2000000) == 0) {
@@ -247,7 +247,7 @@ void actSt04dDoor2UpChk(volatile int a0)
     _ACTWait(0);
 }
 
-inline void actSt04dDoor2UpEffect(volatile int a0)
+inline void actSt04dDoor2UpEffect(GObj *volatile a0)
 {
     long long b1[2];
     long long b2[2];
@@ -271,7 +271,7 @@ inline void actSt04dDoor2UpEffect(volatile int a0)
     }
 }
 
-inline void actSt04dDoor2DownEffect(volatile int a0)
+inline void actSt04dDoor2DownEffect(GObj *volatile a0)
 {
     long long b1[2];
     long long b2[2];
@@ -297,9 +297,9 @@ inline void actSt04dDoor2DownEffect(volatile int a0)
 
 static ActMail door2_down_chk_mes[2] = {{430}, {429}};
 
-void actSt04dDoor2DownChk(volatile int a0)
+void actSt04dDoor2DownChk(GObj *volatile a0)
 {
-    Act *sub = (Act *)((PObjGObj *)a0)->act;
+    Act *sub = GOBJ_ACT(a0);
     long long buf[2];
 
     while (scpTriggerFloorAttrTargetMan(a0, 0x2000000) != 0) {

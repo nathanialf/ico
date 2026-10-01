@@ -37,11 +37,11 @@ extern int collision_pick;
  * stride). The corners are what GetWallGlobalInfo transforms, the height
  * and normal are what clip_wall_1 reads, the angle is GetWallGlobalInfo's
  * 0x44 short and the attribute is the word the _clipW filters test. */
-typedef struct FcWallEnt {
-    float pt[4][4]; /* 0x00 corners */
-    float height;   /* 0x40 */
-    short angle;    /* 0x44 */
-    short _46;
+typedef struct FcWallEnt { /* field names derived */
+    float pt[4][4];        /* 0x00 corners */
+    float height;          /* 0x40 */
+    short angle;           /* 0x44 */
+    char pad46[2];
     int attr;      /* 0x48 */
     float *normal; /* 0x4C */
 } FcWallEnt;

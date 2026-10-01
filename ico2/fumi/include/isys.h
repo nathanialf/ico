@@ -24,7 +24,7 @@ extern int active_gobj_link;
 extern int active_gobj_dl_link;
 extern int *gobj_camera_dl_link_head;
 extern int *gobj_camera_dl_link_tail;
-extern char *isysCurrentGObj;
+extern GObj *isysCurrentGObj;
 extern void *isysCurrentGObjProcess;
 
 #endif /* ISYS_H */

@@ -20,7 +20,6 @@ extern char *iconName[];
 extern char *iOSMcSaveSeg[];
 extern int IosMcPreviewInfo[];
 extern char McMsgQ[];
-
 /* The declarations below lead this header because their order is load-bearing:
  * gcc 2.9 emits the deferred out-of-line copy of a plain-inline function in
  * first-declaration order, so this is the order mcard.c's inline tail has. */
@@ -43,10 +42,15 @@ int product_write(int *self);
 int product_read(int *self);
 int gameblock_write(int self, void *buf);
 int gameblock_read(int *self, void *buf);
-
 int iosMcHandlerRead();
 int iosMcHandlerWrite();
-
 void iosMcManager(void);
+
+/* iconfile: one memory card icon file, 0x24 bytes. Reader: ico2/fumi/ios/
+ * mcard.c (row 1). Owner: ico2/fumi/include/mcard.h. */
+typedef struct {   /* field names derived */
+    char name[32]; /* 0x00 */
+    int size;      /* 0x20 */
+} IconFile;        /* derived name */
 
 #endif /* MCARD_H */

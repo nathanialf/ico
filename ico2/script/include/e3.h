@@ -12,39 +12,39 @@
 #ifndef E3_H
 #define E3_H
 
-/* e3.o's .sdata globals (MAIN.MAP) */
-extern int e3capsule;
-extern int e3gate1st;
-extern int sekizo_e3;
-extern int sekizo_e3_vol;
+#include "typedef.h"
 
+/* e3.o's .sdata globals (MAIN.MAP) */
+extern char *e3capsule;
+extern char *e3gate1st;
+extern char *sekizo_e3;
+extern int sekizo_e3_vol;
 /* The declarations below lead this header because their order is load-bearing:
  * gcc 2.9 emits the deferred out-of-line copy of a plain-inline function in
  * first-declaration order, so this is the order e3.c's inline tail has. */
-void actE3CapsuleDemoEnd(volatile int a0);
-void actE3DoorMain(volatile int a0);
-void actE3DoorSwitch(volatile int a0);
-void actE3DoorUp(volatile int a0);
-void actE3St13cIntroChk(volatile int a0);
-void actE3CageFallReadyChk(volatile int a0);
-void actE3St01bEneChk(volatile int a0);
-void actE3St09aGirlWay(volatile int a0);
-void actE3St09aBrgMain(volatile int a0);
-void actE3St09aBrgSwitch(volatile int a0);
-
-void actE3CageFallChk(volatile int a0);
-void actE3CageFallDemo(volatile int a0);
-void actE3CageFallEffect(volatile int a0);
-void actE3CapsuleChk(volatile int a0);
-void actE3CapsuleDemo(volatile int a0);
-void actE3GateChk(volatile int a0);
-void actE3GateDemo(volatile int a0);
-void actE3GateJimaku(volatile int a0);
-void actE3Inst1Chk(volatile int a0);
-void actE3St09aBrgDown(volatile int a0);
-void actE3St09aSekizoChk(volatile int a0);
-void actE3TitleChk(volatile int a0);
-void actE3TitleFrameChk(volatile int a0);
+void actE3CapsuleDemoEnd(GObj *volatile a0);
+void actE3DoorMain(GObj *volatile a0);
+void actE3DoorSwitch(GObj *volatile a0);
+void actE3DoorUp(GObj *volatile a0);
+void actE3St13cIntroChk(GObj *volatile a0);
+void actE3CageFallReadyChk(GObj *volatile a0);
+void actE3St01bEneChk(GObj *volatile a0);
+void actE3St09aGirlWay(GObj *volatile a0);
+void actE3St09aBrgMain(GObj *volatile a0);
+void actE3St09aBrgSwitch(GObj *volatile a0);
+void actE3CageFallChk(GObj *volatile a0);
+void actE3CageFallDemo(GObj *volatile a0);
+void actE3CageFallEffect(GObj *volatile a0);
+void actE3CapsuleChk(GObj *volatile a0);
+void actE3CapsuleDemo(GObj *volatile a0);
+void actE3GateChk(GObj *volatile a0);
+void actE3GateDemo(GObj *volatile a0);
+void actE3GateJimaku(GObj *volatile a0);
+void actE3Inst1Chk(GObj *volatile a0);
+void actE3St09aBrgDown(GObj *volatile a0);
+void actE3St09aSekizoChk(GObj *volatile a0);
+void actE3TitleChk(GObj *volatile a0);
+void actE3TitleFrameChk(GObj *volatile a0);
 
 #include "jimaku.h"
 

@@ -13,20 +13,20 @@
 #define JIMAKU_H
 
 /* RECONSTRUCTION, PLACED BY INCLUDE PATTERN: one record for jimaku.c and the 7 script TUs that queue subtitles; jimaku.c's own copy (jSub/jArg) had the same layout. */
-typedef struct JimakuSub {
-    char unk00[0x2C]; /* 0x0C */
-    int unk2C;        /* 0x38 */
-    int n;            /* 0x3C */
-    int unk34;        /* 0x40 */
-    int unk38;        /* 0x44 */
-    void *unk3C;      /* 0x48 */
-    void *unk40;      /* 0x4C */
+typedef struct JimakuSub { /* field names derived */
+    char pad0[44];         /* 0x0C */
+    int block;             /* 0x38 */
+    int n;                 /* 0x3C */
+    int ringPos;           /* 0x40 */
+    int jump;              /* 0x44 */
+    void *cur;             /* 0x48 */
+    void *bg;              /* 0x4C */
 } JimakuSub;
 
 /* RECONSTRUCTION, PLACED BY INCLUDE PATTERN: one record for jimaku.c and the 7 script TUs that queue subtitles; jimaku.c's own copy (jSub/jArg) had the same layout. */
-typedef struct JimakuArg {
-    int cmd;       /* 0x00 */
-    int unk04;     /* 0x04 */
+typedef struct JimakuArg { /* field names derived */
+    int cmd;               /* 0x00 */
+    char pad4[4];
     int done;      /* 0x08 */
     JimakuSub sub; /* 0x0C */
 } JimakuArg;
@@ -36,11 +36,9 @@ typedef struct JimakuArg {
  * first-declaration order, so this is the order jimaku.c's inline tail has. */
 void jimakuManager(void);
 void jimakuUndisp(JimakuArg *msg);
-
 void jimakuBegin(JimakuArg *msg);
 void jimakuEnd(JimakuArg *msg);
 void jimakuJump(JimakuArg *msg);
-
 /* jimaku.c's globals (MAIN.MAP's jimaku.o names) */
 extern char jimakuThread[];
 extern char jimakuThreadStack[];
@@ -48,9 +46,14 @@ extern int jimakuMsgQ[];
 extern int jimakuOn;
 extern int jimakuMsgBuf[2];
 extern JimakuArg jimaku_msg;
-
 void jimakuMgrBegin(JimakuArg *p);
 void jimakuMgrNext(JimakuArg *p);
 void jimakuDisp(JimakuArg *msg);
+
+/* unmapped_0055FBD0: one subtitle file name, 0x20 bytes. Reader:
+ * ico2/fumi/src/jimaku.c (char [][32]). Owner: ico2/fumi/include/jimaku.h. */
+typedef struct {   /* field names derived */
+    char path[32]; /* 0x00, "text/data_EG01.jim" ... */
+} JimakuFileName;  /* derived name */
 
 #endif /* JIMAKU_H */

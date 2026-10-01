@@ -1948,7 +1948,7 @@ void debug_DrawBar(void)
     }
 
     if (debug_font_flag & 1) debug_Printf(ScreenWidth + 70, ScreenHeight / 2 - 14, 0xFFFFFF00u,
-                         (int)(sh > 0 ? "/%d" : "x%d"), sh > 0 ? (1 << sh) : (1 << -sh));
+                         (sh > 0 ? "/%d" : "x%d"), sh > 0 ? (1 << sh) : (1 << -sh));
     if (debug_font_flag & 1) debug_Printf(ScreenWidth + 30, ScreenHeight / 2 - 24, 0xFFFFFF00u, "%.2f%%",
                          sh > 0 ? (float)(100 << sh) : (float)(10000 >> -sh) * 0.01f);
 }
@@ -2412,10 +2412,10 @@ void debug_PrintMatrix(float *arg)
 {
     int i;
     for (i = 3; i >= 0; i--) {
-        debug_StdPrintfDummy((int)"%f %f %f %f\n", arg[0], arg[1], arg[2], arg[3]);
+        debug_StdPrintfDummy("%f %f %f %f\n", arg[0], arg[1], arg[2], arg[3]);
         arg += 4;
     }
-    debug_StdPrintfDummy((int)"\n");
+    debug_StdPrintfDummy("\n");
 }
 
 void debug_DispVu1FReg(int no, int mode)
@@ -2581,7 +2581,7 @@ int debug_SelectCsvWindowVal(int a0, int a1, int a2, int a3, int count, int a5, 
         }
         if ((unsigned int)strlen(buf[i]) >= 0x26) {
             buf[i][0x24] = 0;
-            debug_StdPrintfDummy((int)"debug_SelectCsvWindowVal: func return string length over\n");
+            debug_StdPrintfDummy("debug_SelectCsvWindowVal: func return string length over\n");
         }
     }
     return debug_SelectCsvWindow(a0, a1, a2, a3, (char *)buf, 0x25, 0, 0, count, a5);
@@ -3423,7 +3423,7 @@ static inline int debug_ListActGobj(DbgGobjEnt *list)
     void *g;
     int n = 0;
     for (g = isysGObjGetExist_begin(); g != 0; g = isysGObjGetExist_next(g)) {
-        int kind = ((PObjGObj *)g)->kind;
+        int kind = ((GObj *)g)->kind;
         switch (kind) {
         case 1:
         case 2:
@@ -3444,7 +3444,7 @@ static inline int debug_ListPadControlGobj(DbgGobjEnt *list)
     void *g;
     int n = 0;
     for (g = isysGObjGetExist_begin(); g != 0; g = isysGObjGetExist_next(g)) {
-        int kind = ((PObjGObj *)g)->kind;
+        int kind = ((GObj *)g)->kind;
         if (kind == 2 || kind == 4) {
             list[n].obj = g;
             list[n].name = ((ObjKindEnt *)((char *)objKindData + kind * 0x64))->name;

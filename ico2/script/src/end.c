@@ -27,27 +27,27 @@
    (MAIN.MAP globals, ed5 and happy_end unused by the retail code), then the
    three the retail object adds for the staff roll, the fourteenth demo and
    the st27a ending. */
-int ed1 = 0;
+char *ed1 = 0;
 
-int ed2 = 0;
+char *ed2 = 0;
 
-int ed3 = 0;
+char *ed3 = 0;
 
-int ed4 = 0;
+char *ed4 = 0;
 
 int ed5 = 0;
 
-int ed6 = 0;
+char *ed6 = 0;
 
-int sea = 0;
+char *sea = 0;
 
 int happy_end = 0;
 
-static int staff3 = 0; /* derived name */
+static char *staff3 = 0; /* derived name */
 
-static int endDemo14 = 0; /* derived name */
+static char *endDemo14 = 0; /* derived name */
 
-static int st27aEnd = 0; /* derived name */
+static char *st27aEnd = 0; /* derived name */
 
 static ActMail demo01_mes[2] = {{430}, {429}};
 
@@ -85,9 +85,9 @@ static ActMail logo_mes[2] = {{430}, {429}};
 
 static ActMail end_mes[2] = {{430}, {429}};
 
-void actEndDemo01(volatile int a0)
+void actEndDemo01(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     Act *self = actInitialize(a0);
 
     _ACTWait(1);
@@ -111,13 +111,13 @@ void actEndDemo01(volatile int a0)
     }
 }
 
-void actConte14_1(volatile int a0)
+void actConte14_1(GObj *volatile a0)
 {
     scpPlayStart(boyGObj);
 
     stage_SetAnimation(814, 1, 0);
 
-    scpPlayMot((int)scpSearchGobj(2515), 809);
+    scpPlayMot(scpSearchGobj(2515), 809);
 
     scpSearchGobj(2515)->active = 1;
 
@@ -143,7 +143,7 @@ void actConte14_1(volatile int a0)
         _ACTWait(1);
     }
 
-    scpPlayMot((int)scpSearchGobj(2515), 810);
+    scpPlayMot(scpSearchGobj(2515), 810);
 
     while (stage_ContinueAnimation(819, 820) == 0) {
         _ACTWait(1);
@@ -151,7 +151,7 @@ void actConte14_1(volatile int a0)
 
     scpSearchGobj(2515)->active = 0;
 
-    scpPlayMot((int)scpSearchGobj(2516), 811);
+    scpPlayMot(scpSearchGobj(2516), 811);
 
     scpSearchGobj(2516)->active = 1;
 
@@ -165,19 +165,19 @@ void actConte14_1(volatile int a0)
         _ACTWait(1);
     }
 
-    scpPlayMot((int)scpSearchGobj(2516), 812);
+    scpPlayMot(scpSearchGobj(2516), 812);
 
     while (stage_ContinueAnimation(821, 822) == 0) {
         _ACTWait(1);
     }
 
-    scpPlayMot((int)scpSearchGobj(2516), 813);
+    scpPlayMot(scpSearchGobj(2516), 813);
 
     while (stage_ContinueAnimation(822, 823) == 0) {
         _ACTWait(1);
     }
 
-    scpPlayMot((int)scpSearchGobj(2516), 814);
+    scpPlayMot(scpSearchGobj(2516), 814);
 
     while (stage_CheckAnimationFinish(823) == 0) {
         _ACTWait(1);
@@ -187,9 +187,9 @@ void actConte14_1(volatile int a0)
     RequestStageChange(2, boyGObj, 0, 1.0f, 8.0f);
 }
 
-void actEndDemo02(volatile int a0)
+void actEndDemo02(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     Act *self = actInitialize(a0);
 
     _ACTWait(1);
@@ -217,7 +217,7 @@ void actEndDemo02(volatile int a0)
     _ACTWait(0);
 }
 
-void actConte14_2(volatile int a0)
+void actConte14_2(GObj *volatile a0)
 {
     scpPlayStart(boyGObj);
 
@@ -233,7 +233,7 @@ void actConte14_2(volatile int a0)
         _ACTWait(1);
     }
 
-    scpPlayMot((int)scpSearchGobj(2686), 815);
+    scpPlayMot(scpSearchGobj(2686), 815);
 
     scpSearchGobj(2686)->active = 1;
 
@@ -247,7 +247,7 @@ void actConte14_2(volatile int a0)
 
     scpPlayMot(boyGObj, 442);
 
-    scpPlayMot((int)scpSearchGobj(2686), 816);
+    scpPlayMot(scpSearchGobj(2686), 816);
 
     while (stage_ContinueAnimation(828, 829) == 0) {
         _ACTWait(1);
@@ -255,7 +255,7 @@ void actConte14_2(volatile int a0)
 
     scpPlayMot(boyGObj, 443);
 
-    scpPlayMot((int)scpSearchGobj(2686), 817);
+    scpPlayMot(scpSearchGobj(2686), 817);
 
     while (stage_ContinueAnimation(829, 830) == 0) {
         _ACTWait(1);
@@ -263,7 +263,7 @@ void actConte14_2(volatile int a0)
 
     scpPlayMot(boyGObj, 444);
 
-    scpPlayMot((int)scpSearchGobj(2686), 818);
+    scpPlayMot(scpSearchGobj(2686), 818);
 
     while (stage_ContinueAnimation(830, 831) == 0) {
         _ACTWait(1);
@@ -271,7 +271,7 @@ void actConte14_2(volatile int a0)
 
     scpPlayMot(boyGObj, 445);
 
-    scpPlayMot((int)scpSearchGobj(2686), 819);
+    scpPlayMot(scpSearchGobj(2686), 819);
 
     _ACTWait(1);
 
@@ -289,9 +289,9 @@ void actConte14_2(volatile int a0)
     RequestStageChange(3, boyGObj, 0, 1.0f, 8.0f);
 }
 
-void actEndDemo06(volatile int a0)
+void actEndDemo06(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     Act *self = actInitialize(a0);
 
     _ACTWait(1);
@@ -319,7 +319,7 @@ void actEndDemo06(volatile int a0)
     }
 }
 
-void actConte14_6(volatile int a0)
+void actConte14_6(GObj *volatile a0)
 {
     preload(3);
 
@@ -333,7 +333,7 @@ void actConte14_6(volatile int a0)
 
     scpPlayMot(boyGObj, 446);
 
-    scpPlayMot((int)scpSearchGobj(2516), 820);
+    scpPlayMot(scpSearchGobj(2516), 820);
 
     scpSearchGobj(2516)->active = 1;
 
@@ -343,7 +343,7 @@ void actConte14_6(volatile int a0)
 
     scpPlayMot(boyGObj, 447);
 
-    scpPlayMot((int)scpSearchGobj(2516), 821);
+    scpPlayMot(scpSearchGobj(2516), 821);
 
     while (stage_CheckAnimationFinish(839) == 0) {
         _ACTWait(1);
@@ -353,9 +353,9 @@ void actConte14_6(volatile int a0)
     RequestStageChange(3, boyGObj, girlGObj, 1.0f, 8.0f);
 }
 
-void actEndDemo07(volatile int a0)
+void actEndDemo07(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     Act *self = actInitialize(a0);
 
     _ACTWait(1);
@@ -387,7 +387,7 @@ static const ConstVec staff3DemoPos = {{-800.0f, 0.0f, -1000.0f, 1.0f}};
 
 static const ConstVec conte14_14Pos = {{16975.0f, 71.0f, -4332.0f, 1.0f}};
 
-void actConte14_7(volatile int a0)
+void actConte14_7(GObj *volatile a0)
 {
     long long ofs[2];
     float dir[4];
@@ -404,7 +404,7 @@ void actConte14_7(volatile int a0)
 
     scpPlayPosSet(boyGObj, -4757.0f, -660.0f, 2646.0f);
 
-    scpPlayPosSet((int)scpSearchGobj(2388), -4757.0f, -664.0f, 2646.0f);
+    scpPlayPosSet(scpSearchGobj(2388), -4757.0f, -664.0f, 2646.0f);
 
     _ACTWait(1);
 
@@ -415,12 +415,12 @@ void actConte14_7(volatile int a0)
 
     ofs[0] = conte14_7Pos.d[0];
     ofs[1] = conte14_7Pos.d[1];
-    sceVu0SubVector(dir, ofs, test_CURRENTROOT((int)scpSearchGobj(2388)));
-    scpPlayMotDir((int)scpSearchGobj(2388), dir);
+    sceVu0SubVector(dir, ofs, test_CURRENTROOT(scpSearchGobj(2388)));
+    scpPlayMotDir(scpSearchGobj(2388), dir);
 
-    scpPlayMotNode(boyGObj, 0x1C0, (int)scpSearchGobj(2388), 0x2C);
+    scpPlayMotNode(boyGObj, 0x1C0, scpSearchGobj(2388), 0x2C);
 
-    scpPlayMot((int)scpSearchGobj(2388), 822);
+    scpPlayMot(scpSearchGobj(2388), 822);
 
     scpSearchGobj(2388)->active = 1;
 
@@ -432,9 +432,9 @@ void actConte14_7(volatile int a0)
     RequestStageChange(6, boyGObj, girlGObj, 1.0f, 8.0f);
 }
 
-void actEndDemo10(volatile int a0)
+void actEndDemo10(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     Act *self = actInitialize(a0);
 
     _ACTWait(1);
@@ -454,7 +454,7 @@ void actEndDemo10(volatile int a0)
     _ACTWait(0);
 }
 
-void actConte14_10(volatile int a0)
+void actConte14_10(GObj *volatile a0)
 {
     preload(3);
 
@@ -464,7 +464,7 @@ void actConte14_10(volatile int a0)
 
     scpPlayMot(boyGObj, 449);
 
-    scpPlayMot((int)scpSearchGobj(2122), 823);
+    scpPlayMot(scpSearchGobj(2122), 823);
 
     scpSearchGobj(2122)->active = 1;
 
@@ -480,7 +480,7 @@ void actConte14_10(volatile int a0)
 
     scpPlayMot(boyGObj, 450);
 
-    scpPlayMot((int)scpSearchGobj(2122), 824);
+    scpPlayMot(scpSearchGobj(2122), 824);
 
     _ACTWait(1);
 
@@ -492,7 +492,7 @@ void actConte14_10(volatile int a0)
 
     scpPlayMot(boyGObj, 451);
 
-    scpPlayMot((int)scpSearchGobj(2122), 825);
+    scpPlayMot(scpSearchGobj(2122), 825);
 
     _ACTWait(1);
 
@@ -506,7 +506,7 @@ void actConte14_10(volatile int a0)
 
     scpPlayMot(boyGObj, 452);
 
-    scpPlayMot((int)scpSearchGobj(2122), 826);
+    scpPlayMot(scpSearchGobj(2122), 826);
 
     _ACTWait(1);
 
@@ -518,7 +518,7 @@ void actConte14_10(volatile int a0)
 
     scpPlayMot(boyGObj, 453);
 
-    scpPlayMot((int)scpSearchGobj(2122), 827);
+    scpPlayMot(scpSearchGobj(2122), 827);
 
     _ACTWait(1);
 
@@ -558,7 +558,7 @@ void actConte14_10(volatile int a0)
     RequestStageChange(3, boyGObj, girlGObj, 1.0f, 8.0f);
 }
 
-void actConte14_13(volatile int a0)
+void actConte14_13(GObj *volatile a0)
 {
     scpPlayStart(boyGObj);
 
@@ -590,9 +590,9 @@ void actConte14_13(volatile int a0)
     RequestStageChange(6, boyGObj, girlGObj, 1.0f, 8.0f);
 }
 
-void actStaff1(volatile int a0)
+void actStaff1(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     Act *self = actInitialize(a0);
 
     _ACTWait(1);
@@ -612,7 +612,7 @@ void actStaff1(volatile int a0)
     _ACTWait(0);
 }
 
-void actStaff1Demo(volatile int a0)
+void actStaff1Demo(GObj *volatile a0)
 {
     preload(1);
 
@@ -710,7 +710,7 @@ void actStaff1Demo(volatile int a0)
     RequestStageChange(1, boyGObj, girlGObj, 0.0f, 8.0f);
 }
 
-void actStaff2Demo(volatile int a0)
+void actStaff2Demo(GObj *volatile a0)
 {
     preload(1);
 
@@ -720,7 +720,7 @@ void actStaff2Demo(volatile int a0)
 
     scpPlayMot(boyGObj, 327);
 
-    scpPlayMot((int)scpSearchGobj(2789), 737);
+    scpPlayMot(scpSearchGobj(2789), 737);
 
     scpSearchGobj(2789)->active = 1;
 
@@ -730,7 +730,7 @@ void actStaff2Demo(volatile int a0)
 
     scpPlayMot(boyGObj, 328);
 
-    scpPlayMot((int)scpSearchGobj(2789), 738);
+    scpPlayMot(scpSearchGobj(2789), 738);
 
     while (stage_ContinueAnimation(908, 909) == 0) {
         _ACTWait(1);
@@ -738,7 +738,7 @@ void actStaff2Demo(volatile int a0)
 
     scpPlayMot(boyGObj, 329);
 
-    scpPlayMot((int)scpSearchGobj(2789), 739);
+    scpPlayMot(scpSearchGobj(2789), 739);
 
     while (stage_ContinueAnimation(909, 910) == 0) {
         _ACTWait(1);
@@ -750,7 +750,7 @@ void actStaff2Demo(volatile int a0)
 
     scpPlayMot(boyGObj, 330);
 
-    scpPlayMot((int)scpSearchGobj(2789), 740);
+    scpPlayMot(scpSearchGobj(2789), 740);
 
     while (stage_ContinueAnimation(911, 912) == 0) {
         _ACTWait(1);
@@ -758,7 +758,7 @@ void actStaff2Demo(volatile int a0)
 
     scpPlayMot(boyGObj, 331);
 
-    scpPlayMot((int)scpSearchGobj(2789), 741);
+    scpPlayMot(scpSearchGobj(2789), 741);
 
     while (stage_ContinueAnimation(912, 913) == 0) {
         _ACTWait(1);
@@ -766,7 +766,7 @@ void actStaff2Demo(volatile int a0)
 
     scpPlayMot(boyGObj, 332);
 
-    scpPlayMot((int)scpSearchGobj(2789), 742);
+    scpPlayMot(scpSearchGobj(2789), 742);
 
     while (stage_ContinueAnimation(913, 914) == 0) {
         _ACTWait(1);
@@ -780,7 +780,7 @@ void actStaff2Demo(volatile int a0)
 
     scpPlayMot(boyGObj, 341);
 
-    scpPlayMot((int)scpSearchGobj(2789), 748);
+    scpPlayMot(scpSearchGobj(2789), 748);
 
     while (stage_ContinueAnimation(929, 930) == 0) {
         _ACTWait(1);
@@ -788,7 +788,7 @@ void actStaff2Demo(volatile int a0)
 
     scpPlayMot(boyGObj, 342);
 
-    scpPlayMot((int)scpSearchGobj(2789), 749);
+    scpPlayMot(scpSearchGobj(2789), 749);
 
     while (stage_ContinueAnimation(930, 931) == 0) {
         _ACTWait(1);
@@ -796,7 +796,7 @@ void actStaff2Demo(volatile int a0)
 
     scpPlayMot(boyGObj, 343);
 
-    scpPlayMot((int)scpSearchGobj(2789), 750);
+    scpPlayMot(scpSearchGobj(2789), 750);
 
     while (stage_ContinueAnimation(931, 932) == 0) {
         _ACTWait(1);
@@ -804,7 +804,7 @@ void actStaff2Demo(volatile int a0)
 
     scpPlayMot(boyGObj, 344);
 
-    scpPlayMot((int)scpSearchGobj(2789), 751);
+    scpPlayMot(scpSearchGobj(2789), 751);
 
     while (stage_CheckAnimationFrame(932, 200, 0) == 0) {
         _ACTWait(1);
@@ -824,21 +824,21 @@ void actStaff2Demo(volatile int a0)
     RequestStageChange(1, boyGObj, girlGObj, 0.0f, 8.0f);
 }
 
-void actStaff3Demo(volatile int a0)
+void actStaff3Demo(GObj *volatile a0)
 {
     long long ofs[2];
     float dir[4];
 
     stage_SetAnimation(884, 1, 0);
 
-    scpPlayPosSet((int)scpSearchGobj(2841), -7.0f, -5725.0f, 18.0f);
+    scpPlayPosSet(scpSearchGobj(2841), -7.0f, -5725.0f, 18.0f);
 
     ofs[0] = staff3DemoPos.d[0];
     ofs[1] = staff3DemoPos.d[1];
-    sceVu0SubVector(dir, ofs, test_CURRENTROOT((int)scpSearchGobj(2841)));
-    scpPlayMotDir((int)scpSearchGobj(2841), dir);
+    sceVu0SubVector(dir, ofs, test_CURRENTROOT(scpSearchGobj(2841)));
+    scpPlayMotDir(scpSearchGobj(2841), dir);
 
-    scpPlayMot((int)scpSearchGobj(2841), 551);
+    scpPlayMot(scpSearchGobj(2841), 551);
 
     scpSearchGobj(2841)->active = 1;
 
@@ -870,7 +870,7 @@ void actStaff3Demo(volatile int a0)
 
     scpPlayMot(boyGObj, 318);
 
-    scpPlayMot((int)scpSearchGobj(2841), 728);
+    scpPlayMot(scpSearchGobj(2841), 728);
 
     while (stage_ContinueAnimation(895, 896) == 0) {
         _ACTWait(1);
@@ -878,7 +878,7 @@ void actStaff3Demo(volatile int a0)
 
     scpPlayMot(boyGObj, 318);
 
-    scpPlayMot((int)scpSearchGobj(2841), 729);
+    scpPlayMot(scpSearchGobj(2841), 729);
 
     while (stage_ContinueAnimation(896, 897) == 0) {
         _ACTWait(1);
@@ -886,7 +886,7 @@ void actStaff3Demo(volatile int a0)
 
     scpPlayMot(boyGObj, 318);
 
-    scpPlayMot((int)scpSearchGobj(2841), 730);
+    scpPlayMot(scpSearchGobj(2841), 730);
 
     while (stage_ContinueAnimation(897, 898) == 0) {
         _ACTWait(1);
@@ -894,7 +894,7 @@ void actStaff3Demo(volatile int a0)
 
     scpPlayMot(boyGObj, 319);
 
-    scpPlayMot((int)scpSearchGobj(2841), 731);
+    scpPlayMot(scpSearchGobj(2841), 731);
 
     while (stage_ContinueAnimation(898, 900) == 0) {
         _ACTWait(1);
@@ -902,7 +902,7 @@ void actStaff3Demo(volatile int a0)
 
     scpPlayMot(boyGObj, 320);
 
-    scpPlayMot((int)scpSearchGobj(2841), 732);
+    scpPlayMot(scpSearchGobj(2841), 732);
 
     while (stage_CheckAnimationFrame(900, 200, 0) == 0) {
         _ACTWait(1);
@@ -918,9 +918,9 @@ void actStaff3Demo(volatile int a0)
    this TU's own terse snake_case house style (its MAIN.MAP globals are
    ed1..ed6, sea, happy_end) for the ending demo it belongs to. */
 
-void actEndDemo14(volatile int a0)
+void actEndDemo14(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     Act *self = actInitialize(a0);
 
     _ACTWait(1);
@@ -951,7 +951,7 @@ void actEndDemo14(volatile int a0)
     _ACTWait(0);
 }
 
-void actConte14_14(volatile int a0)
+void actConte14_14(GObj *volatile a0)
 {
     long long ofs[2];
     float dir[4];
@@ -998,7 +998,7 @@ void actConte14_14(volatile int a0)
 
     scpPlayMot(boyGObj, 466);
 
-    scpPlayMot((int)scpSearchGobj(2253), 829);
+    scpPlayMot(scpSearchGobj(2253), 829);
 
     scpSearchGobj(2253)->active = 1;
 
@@ -1025,9 +1025,9 @@ void actConte14_14(volatile int a0)
     gflagOff(338);
 }
 
-void actSt27aEnd(volatile int a0)
+void actSt27aEnd(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     Act *self = actInitialize(a0);
 
     _ACTWait(1);
@@ -1052,7 +1052,7 @@ void actSt27aEnd(volatile int a0)
 }
 
 /* listing lines 2614-2661 */
-void actSt27aEndChk(volatile int a0)
+void actSt27aEndChk(GObj *volatile a0)
 {
     float max;
     float t;
@@ -1091,7 +1091,7 @@ void actSt27aEndChk(volatile int a0)
     scpSeEnvMasterVolRate = 0;
 }
 
-void actSt27aEndDemo(volatile int a0)
+void actSt27aEndDemo(GObj *volatile a0)
 {
     stage_SetAnimation(866, 1, 0);
 
@@ -1101,7 +1101,7 @@ void actSt27aEndDemo(volatile int a0)
         scpPlayMot(boyGObj, 470);
     }
 
-    scpPlayMot((int)scpSearchGobj(2253), 830);
+    scpPlayMot(scpSearchGobj(2253), 830);
 
     scpSearchGobj(2253)->active = 1;
 
@@ -1115,7 +1115,7 @@ void actSt27aEndDemo(volatile int a0)
         scpPlayMot(boyGObj, 471);
     }
 
-    scpPlayMot((int)scpSearchGobj(2253), 831);
+    scpPlayMot(scpSearchGobj(2253), 831);
 
     while (stage_ContinueAnimation(867, 868) == 0) {
         _ACTWait(1);
@@ -1131,7 +1131,7 @@ void actSt27aEndDemo(volatile int a0)
         scpPlayMot(boyGObj, 472);
     }
 
-    scpPlayMot((int)scpSearchGobj(2253), 832);
+    scpPlayMot(scpSearchGobj(2253), 832);
 
     if (gflagChk(354) == 0) {
         while (stage_CheckAnimationFinish(868) == 0) {
@@ -1174,7 +1174,7 @@ void actSt27aEndDemo(volatile int a0)
 
         scpPlayMot(boyGObj, 473);
 
-        scpPlayMot((int)scpSearchGobj(2253), 833);
+        scpPlayMot(scpSearchGobj(2253), 833);
 
         while (stage_CheckAnimationFrame(869, 390, 0) == 0) {
             _ACTWait(1);
@@ -1205,9 +1205,9 @@ void actSt27aEndDemo(volatile int a0)
    belongs to; among the role-plausible spellings this is one that also puts
    the record ahead of the handler in gcc's expression-hash order. */
 
-void actEndLogoChk(volatile int a0)
+void actEndLogoChk(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     Act *self = actInitialize(a0);
     int id = 0x3C;
 
@@ -1259,9 +1259,9 @@ void actEndLogoChk(volatile int a0)
     _ACTWait(0);
 }
 
-void actEndDemo03(volatile int a0)
+void actEndDemo03(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     Act *self = actInitialize(a0);
 
     _ACTWait(1);
@@ -1282,9 +1282,9 @@ void actEndDemo03(volatile int a0)
     _ACTWait(0);
 }
 
-void actEndDemo04(volatile int a0)
+void actEndDemo04(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     Act *self = actInitialize(a0);
 
     _ACTWait(1);
@@ -1302,9 +1302,9 @@ void actEndDemo04(volatile int a0)
     _ACTWait(0);
 }
 
-void actEndDemo05(volatile int a0)
+void actEndDemo05(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     Act *self = actInitialize(a0);
 
     _ACTWait(1);
@@ -1317,9 +1317,9 @@ void actEndDemo05(volatile int a0)
     _ACTWait(0);
 }
 
-void actEndDemo11(volatile int a0)
+void actEndDemo11(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     Act *self = actInitialize(a0);
 
     _ACTWait(1);
@@ -1333,9 +1333,9 @@ void actEndDemo11(volatile int a0)
     _ACTWait(0);
 }
 
-void actEndDemo12(volatile int a0)
+void actEndDemo12(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     Act *self = actInitialize(a0);
 
     _ACTWait(1);
@@ -1349,9 +1349,9 @@ void actEndDemo12(volatile int a0)
     _ACTWait(0);
 }
 
-void actEndDemo13(volatile int a0)
+void actEndDemo13(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     Act *self = actInitialize(a0);
 
     _ACTWait(1);
@@ -1366,9 +1366,9 @@ void actEndDemo13(volatile int a0)
     _ACTWait(0);
 }
 
-void actStaff2(volatile int a0)
+void actStaff2(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     Act *self = actInitialize(a0);
 
     _ACTWait(1);
@@ -1376,8 +1376,8 @@ void actStaff2(volatile int a0)
     lt_switch_layout(55);
     scpBoyControlReadDisable = 1;
     scpSetBoyWeaponGObj(scpSearchGobj(2795));
-    *(int *)(scpSearchGobj(2793)->sub + 0x658) = 1;
-    *(int *)(scpSearchGobj(2794)->sub + 0x658) = 1;
+    scpSearchGobj(2793)->dobj->word658 = 1;
+    scpSearchGobj(2794)->dobj->word658 = 1;
     stage_SetAnimation(269, 0, 0);
     staff2_mes[0].func = actStaff2Chk;
     self->mail = staff2_mes;
@@ -1385,9 +1385,9 @@ void actStaff2(volatile int a0)
     _ACTWait(0);
 }
 
-void actStaff3(volatile int a0)
+void actStaff3(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     Act *self = actInitialize(a0);
 
     _ACTWait(1);
@@ -1404,9 +1404,9 @@ void actStaff3(volatile int a0)
     _ACTWait(0);
 }
 
-void actEndLogo(volatile int a0)
+void actEndLogo(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     Act *self = actInitialize(a0);
 
     _ACTWait(1);
@@ -1417,7 +1417,7 @@ void actEndLogo(volatile int a0)
     _ACTWait(0);
 }
 
-void actEndDemo01Chk(volatile int a0)
+void actEndDemo01Chk(GObj *volatile a0)
 {
     scpAdpcmPlayRequestFunc(43, &ed1, 0, 1, 1);
 
@@ -1440,7 +1440,7 @@ void actEndDemo01Chk(volatile int a0)
     actCreateSubThread(actConte14_1, 21);
 }
 
-void actEndDemo02Chk(volatile int a0)
+void actEndDemo02Chk(GObj *volatile a0)
 {
     scpAdpcmPlayRequestFunc(44, &ed2, 0, 1, 1);
 
@@ -1457,7 +1457,7 @@ void actEndDemo02Chk(volatile int a0)
     actCreateSubThread(actConte14_2, 21);
 }
 
-void actEndDemo03Chk(volatile int a0)
+void actEndDemo03Chk(GObj *volatile a0)
 {
     scpAdpcmPlayRequestFunc(45, &ed3, 0, 1, 1);
 
@@ -1474,7 +1474,7 @@ void actEndDemo03Chk(volatile int a0)
     actCreateSubThread(actConte14_3, 21);
 }
 
-void actConte14_3(volatile int a0)
+void actConte14_3(GObj *volatile a0)
 {
     stage_SetAnimation(833, 1, 0);
 
@@ -1486,7 +1486,7 @@ void actConte14_3(volatile int a0)
     RequestStageChange(2, boyGObj, 0, 1.0f, 8.0f);
 }
 
-void actEndDemo04Chk(volatile int a0)
+void actEndDemo04Chk(GObj *volatile a0)
 {
     scpAdpcmPlayRequestFunc(46, &ed4, 0, 1, 1);
 
@@ -1503,7 +1503,7 @@ void actEndDemo04Chk(volatile int a0)
     actCreateSubThread(actConte14_4, 21);
 }
 
-void actConte14_4(volatile int a0)
+void actConte14_4(GObj *volatile a0)
 {
     stage_SetAnimation(834, 1, 0);
 
@@ -1515,14 +1515,14 @@ void actConte14_4(volatile int a0)
     RequestStageChange(5, boyGObj, girlGObj, 1.0f, 8.0f);
 }
 
-void actEndDemo05Chk(volatile int a0)
+void actEndDemo05Chk(GObj *volatile a0)
 {
     gflagOn(343);
 
     actCreateSubThread(actConte14_5, 21);
 }
 
-void actConte14_5(volatile int a0)
+void actConte14_5(GObj *volatile a0)
 {
     preload(6);
 
@@ -1536,7 +1536,7 @@ void actConte14_5(volatile int a0)
     RequestStageChange(6, boyGObj, girlGObj, 1.0f, 8.0f);
 }
 
-void actEndDemo06Chk(volatile int a0)
+void actEndDemo06Chk(GObj *volatile a0)
 {
     scpAdpcmPlayRequestFunc(47, &sea, 0, 1, 1);
 
@@ -1553,7 +1553,7 @@ void actEndDemo06Chk(volatile int a0)
     actCreateSubThread(actConte14_6, 21);
 }
 
-void actEndDemo07Chk(volatile int a0)
+void actEndDemo07Chk(GObj *volatile a0)
 {
     _ACTWait(30);
 
@@ -1564,7 +1564,7 @@ void actEndDemo07Chk(volatile int a0)
     actCreateSubThread(actConte14_7, 21);
 }
 
-void actEndDemo10Chk(volatile int a0)
+void actEndDemo10Chk(GObj *volatile a0)
 {
     scpAdpcmPlayRequestFunc(48, &ed6, 0, 1, 0);
 
@@ -1581,7 +1581,7 @@ void actEndDemo10Chk(volatile int a0)
     actCreateSubThread(actConte14_10_Jimaku, 21);
 }
 
-void actConte14_10_Jimaku(volatile int a0)
+void actConte14_10_Jimaku(GObj *volatile a0)
 {
     float t;
     float tn;
@@ -1594,8 +1594,8 @@ void actConte14_10_Jimaku(volatile int a0)
             jimakuBegin(&jimaku_msg);
             break;
         case 1500:
-            jimaku_msg.sub.unk2C = 0x70;
-            jimaku_msg.sub.unk38 = -1;
+            jimaku_msg.sub.block = 0x70;
+            jimaku_msg.sub.jump = -1;
             jimakuOn = 1;
             jimakuJump(&jimaku_msg);
             break;
@@ -1612,14 +1612,14 @@ void actConte14_10_Jimaku(volatile int a0)
     } while (t < 1800.0f);
 }
 
-void actEndDemo11Chk(volatile int a0)
+void actEndDemo11Chk(GObj *volatile a0)
 {
     gflagOn(349);
 
     actCreateSubThread(actConte14_11, 21);
 }
 
-void actConte14_11(volatile int a0)
+void actConte14_11(GObj *volatile a0)
 {
     preload(2);
 
@@ -1635,14 +1635,14 @@ void actConte14_11(volatile int a0)
     RequestStageChange(2, boyGObj, girlGObj, 1.0f, 8.0f);
 }
 
-void actEndDemo12Chk(volatile int a0)
+void actEndDemo12Chk(GObj *volatile a0)
 {
     gflagOn(350);
 
     actCreateSubThread(actConte14_12, 21);
 }
 
-void actConte14_12(volatile int a0)
+void actConte14_12(GObj *volatile a0)
 {
     stage_SetAnimation(853, 1, 0);
 
@@ -1656,19 +1656,19 @@ void actConte14_12(volatile int a0)
     RequestStageChangeWithColor(4, boyGObj, girlGObj, 16.0f, 16.0f, 0xFF, 0xFF, 0xFF);
 }
 
-void actEndDemo13Chk(volatile int a0)
+void actEndDemo13Chk(GObj *volatile a0)
 {
     gflagOn(351);
 
     actCreateSubThread(actConte14_13, 21);
 }
 
-void actStaff1Chk(volatile int a0)
+void actStaff1Chk(GObj *volatile a0)
 {
     actCreateSubThread(actStaff1Demo, 21);
 }
 
-void actStaff2Chk(volatile int a0)
+void actStaff2Chk(GObj *volatile a0)
 {
     reg_SetScissorSw(1);
 
@@ -1677,7 +1677,7 @@ void actStaff2Chk(volatile int a0)
     actCreateSubThread(actStaff2Demo, 21);
 }
 
-void actStaff3Chk(volatile int a0)
+void actStaff3Chk(GObj *volatile a0)
 {
     scpAdpcmPlayRequestFunc(49, &staff3, 0, 1, 1);
 
@@ -1692,7 +1692,7 @@ void actStaff3Chk(volatile int a0)
     actCreateSubThread(actStaff3RollChk, 21);
 }
 
-void actStaff3RollChk(volatile int a0)
+void actStaff3RollChk(GObj *volatile a0)
 {
     preload(1);
 
@@ -1707,14 +1707,14 @@ void actStaff3RollChk(volatile int a0)
     RequestStageChange(1, boyGObj, 0, 16.0f, 0.001f);
 }
 
-void actEndDemo14Chk(volatile int a0)
+void actEndDemo14Chk(GObj *volatile a0)
 {
     gflagOn(352);
 
     actCreateSubThread(actConte14_14, 21);
 }
 
-void actEndingSave(volatile int a0)
+void actEndingSave(GObj *volatile a0)
 {
     if (gFlagGameClear == 0) {
         int save;

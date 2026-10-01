@@ -114,28 +114,10 @@ typedef struct LtProperty {
 extern LtProperty texProperty[];
 extern StgPre stageData[];
 
-/* The 0x38-byte layout property records this TU shares with src/kanban. */
-typedef struct LtProp {
-    int first; /* 0x00 */
-    int last;  /* 0x04 */
-    float f8;  /* 0x08 */
-    float fC;  /* 0x0C */
-    float f10; /* 0x10 */
-    float f14; /* 0x14 */
-    float f18; /* 0x18 */
-    float f1C; /* 0x1C */
-    void *f20; /* 0x20 */
-    int f24;   /* 0x24 */
-    int f28;   /* 0x28 */
-    int f2C;   /* 0x2C */
-    int link;  /* 0x30 */
-    char pad34[0x38 - 0x34];
-} LtProp;
-
-extern LtProp texLayout[];
-
 #include "layout_texture.h"
 
+/* The 0x38-byte layout property records this TU shares with src/kanban. */
+extern LtProp texLayout[];
 /* No <string.h>: display_texture's 4-byte zero fill is a `jal memset` in the
    ROM, so newlib's builtin-compatible prototype was not in scope; memset is
    declared as layout_action.c (same directory) declares it. */
@@ -324,10 +306,10 @@ static inline void lt_switch_layout_3(int no)
 void default_item_select(int no)
 {
     LtProp *p = &texLayout[no];
-    LtProperty *e = &texProperty[p->f2C];
+    LtProperty *e = &texProperty[p->curItem];
     int prev;
 
-    if (p->f2C < 0) {
+    if (p->curItem < 0) {
         return;
     }
     if (lt_item_select_disable != 0) {
@@ -338,25 +320,25 @@ void default_item_select(int no)
     }
     if (fadeCallback == 0) {
         lt_analog2Pad();
-        prev = p->f2C;
+        prev = p->curItem;
         if ((pad.trigger & 0x50) == 0) {
             if ((pad.trigger & 0x1000) && e->f3C >= 0) {
-                p->f2C = e->f3C;
-                while (!lt_property_visible(p->f2C)) {
-                    p->f2C = texProperty[p->f2C].f3C;
+                p->curItem = e->f3C;
+                while (!lt_property_visible(p->curItem)) {
+                    p->curItem = texProperty[p->curItem].f3C;
                 }
             } else if ((pad.trigger & 0x4000) && e->f38 >= 0) {
-                p->f2C = e->f38;
-                while (!lt_property_visible(p->f2C)) {
-                    p->f2C = texProperty[p->f2C].f38;
+                p->curItem = e->f38;
+                while (!lt_property_visible(p->curItem)) {
+                    p->curItem = texProperty[p->curItem].f38;
                 }
             } else if ((pad.trigger & 0x8000) && e->f34 >= 0) {
-                p->f2C = e->f34;
+                p->curItem = e->f34;
             } else if ((pad.trigger & 0x2000) && e->f30 >= 0) {
-                p->f2C = e->f30;
+                p->curItem = e->f30;
             }
         }
-        if (p->f2C != prev) {
+        if (p->curItem != prev) {
             soundSeDefPlay(411, 0xFFFFFFFE, 0, 0);
             glowOn = 1;
             glowLength = (unsigned int)((60 - systemStatus[0] * 10) / systemStatus[1] * 0.25f);
@@ -364,11 +346,11 @@ void default_item_select(int no)
             glowCount = 0;
         }
     } else {
-        p->f2C = ((int (*)(void))fadeCallback)();
+        p->curItem = ((int (*)(void))fadeCallback)();
         fadeCallback = 0;
     }
 
-    e = &texProperty[p->f2C];
+    e = &texProperty[p->curItem];
     if (pad.trigger & 0x40) {
         if (e->right >= 0) {
             if (fadeState == 2) {
@@ -395,8 +377,8 @@ static inline void lt_reset_property_chain(int no)
 
     while (i >= 0) {
         p = &texLayout[i];
-        p->f2C = p->f28;
-        p->f24 = 1;
+        p->curItem = p->defaultItem;
+        p->word24 = 1;
         i = p->link;
     }
 }
@@ -425,12 +407,12 @@ void texture_fading(LtProp *p)
     case 0:
         switch (fadeState) {
         case 0:
-            if (p->f8 == 0.0f) {
+            if (p->fadeInTime == 0.0f) {
                 fadeState = 2;
             }
             break;
         case 3:
-            if (p->fC == 0.0f) {
+            if (p->fadeOutTime == 0.0f) {
                 fadeState = 6;
                 col[3] = 127;
             }
@@ -441,7 +423,7 @@ void texture_fading(LtProp *p)
     switch (fadeState) {
     case 0:
         fadeState = 1;
-        ltBlinkLength = (int)(p->f8 * ((60 - systemStatus[0] * 10) / systemStatus[1]));
+        ltBlinkLength = (int)(p->fadeInTime * ((60 - systemStatus[0] * 10) / systemStatus[1]));
         ltBlinkCount = ltBlinkLength;
         /* fall through */
     case 1:
@@ -466,7 +448,7 @@ void texture_fading(LtProp *p)
         break;
     case 3:
         fadeState = 4;
-        ltBlinkLength = (int)(p->fC * ((60 - systemStatus[0] * 10) / systemStatus[1]));
+        ltBlinkLength = (int)(p->fadeOutTime * ((60 - systemStatus[0] * 10) / systemStatus[1]));
         ltBlinkCount = ltBlinkLength;
         break;
     case 4:
@@ -481,11 +463,11 @@ void texture_fading(LtProp *p)
         /* fall through */
     case 6:
         current_layout_id = nextLayout;
-        cur = &texLayout[current_layout_id].f2C;
-        *cur = texLayout[current_layout_id].f28;
+        cur = &texLayout[current_layout_id].curItem;
+        *cur = texLayout[current_layout_id].defaultItem;
         ltSelectFlag = 1;
         fadeState = 0;
-        if (texLayout[current_layout_id].f8 == 0.0f) {
+        if (texLayout[current_layout_id].fadeInTime == 0.0f) {
             lt_item_select_disable = 1;
             fadeState = 2;
         }
@@ -584,7 +566,7 @@ static void display_texture(int no, LtProperty *e)
     }
     box.y = (e->f50 - 113) * 16;
 
-    sel = (e == &texProperty[texLayout[no].f2C]);
+    sel = (e == &texProperty[texLayout[no].curItem]);
     if (sel && lt_item_select_disable == 0 && fadeState == 2 && e->f6C_b3 == 0) {
         SprCol pcol;
 
@@ -643,7 +625,7 @@ static void display_texture(int no, LtProperty *e)
                 u.col.b = 0;
             }
         }
-        if (texLayout[no].f2C != e->f10) {
+        if (texLayout[no].curItem != e->f10) {
             if (e->f6C_b3 != 0 && sel == 0 && (flag != 0 || e->f10 >= 0)) {
                 u.col.r = u.col.r * 0.5f;
                 u.col.g = u.col.g * 0.5f;
@@ -688,20 +670,20 @@ void display_primary_texture_layout(int no, int sel)
     int m;
     int flag;
 
-    col.r = (int)(p->f10 * 255.0f);
-    col.g = (int)(p->f14 * 255.0f);
-    col.b = (int)(p->f18 * 255.0f);
-    col.a = (int)(p->f1C * 127.0f);
+    col.r = (int)(p->colR * 255.0f);
+    col.g = (int)(p->colG * 255.0f);
+    col.b = (int)(p->colB * 255.0f);
+    col.a = (int)(p->colA * 127.0f);
     lt_draw_primary_sprite(&col);
-    if (p->f20 != 0 && (fadeState == 1 || fadeState == 2)) {
-        if (p->f2C >= 0) {
-            int *e = (int *)((char *)texProperty + p->f2C * 0x70);
+    if (p->proc != 0 && (fadeState == 1 || fadeState == 2)) {
+        if (p->curItem >= 0) {
+            int *e = (int *)((char *)texProperty + p->curItem * 0x70);
 
             m = e[0x1B] & 3;
         } else {
             m = 0;
         }
-        sel = ((int (*)(int, int))p->f20)(ltSelectFlag, sel);
+        sel = ((int (*)(int, int))p->proc)(ltSelectFlag, sel);
         if (sel != -1) {
             flag = 0;
             if ((pad.trigger & 0x40) != 0) {
@@ -759,12 +741,12 @@ void exec_layout_texture(void)
     list[n] = -1;
     for (n--; n != -1; n--) {
         p = &texLayout[list[n]];
-        v = p->f2C;
+        v = p->curItem;
         ltCurrentItem = v;
-        if (p->f20 != 0 && (fadeState == 1 || fadeState == 2)) {
-            ret = ((int (*)(int, int))p->f20)(p->f24, ret);
-            p->f24 = 0;
-            v = p->f2C;
+        if (p->proc != 0 && (fadeState == 1 || fadeState == 2)) {
+            ret = ((int (*)(int, int))p->proc)(p->word24, ret);
+            p->word24 = 0;
+            v = p->curItem;
         } else {
             ret = -1;
         }
@@ -773,9 +755,9 @@ void exec_layout_texture(void)
         }
     }
     p = &texLayout[current_layout_id];
-    ltCurrentItem = p->f2C;
+    ltCurrentItem = p->curItem;
     display_primary_texture_layout(current_layout_id, ret);
-    if (p->f2C >= 0 && lt_item_select_disable == 0) {
+    if (p->curItem >= 0 && lt_item_select_disable == 0) {
         default_item_select(current_layout_id);
     }
     for (k = 0; list[k] >= 0; k++) {
@@ -865,7 +847,7 @@ static inline void lt_init_stage_textures(int stage)
     for (; i < last; i++) {
         init_textures_of_specified_property(texLayout[i].first, texLayout[i].last);
     }
-    ltCurrentItem = texLayout[current_layout_id].f28;
+    ltCurrentItem = texLayout[current_layout_id].defaultItem;
 }
 
 void init_layout_texture(int stage)
@@ -893,7 +875,7 @@ void init_layout_texture(int stage)
         current_layout_id = 54;
     }
     lt_init_stage_textures(stage);
-    texLayout[current_layout_id].f2C = texLayout[current_layout_id].f28;
+    texLayout[current_layout_id].curItem = texLayout[current_layout_id].defaultItem;
     ltSelectFlag = 1;
     fadeState = 0;
     lt_reset_property_chain(current_layout_id);

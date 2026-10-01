@@ -12,51 +12,52 @@
 #ifndef END_H
 #define END_H
 
-/* end.o's .sdata globals (MAIN.MAP) */
-extern int ed1;
-extern int ed2;
-extern int ed3;
-extern int ed4;
-extern int ed5;
-extern int ed6;
-extern int sea;
-extern int happy_end;
+#include "typedef.h"
 
-void actConte14_1(volatile int a0);
-void actConte14_10(volatile int a0);
-void actConte14_10_Jimaku(volatile int a0);
-void actConte14_11(volatile int a0);
-void actConte14_12(volatile int a0);
-void actConte14_13(volatile int a0);
-void actConte14_14(volatile int a0);
-void actConte14_2(volatile int a0);
-void actConte14_3(volatile int a0);
-void actConte14_4(volatile int a0);
-void actConte14_5(volatile int a0);
-void actConte14_6(volatile int a0);
-void actConte14_7(volatile int a0);
-void actEndDemo01Chk(volatile int a0);
-void actEndDemo02Chk(volatile int a0);
-void actEndDemo03Chk(volatile int a0);
-void actEndDemo04Chk(volatile int a0);
-void actEndDemo05Chk(volatile int a0);
-void actEndDemo06Chk(volatile int a0);
-void actEndDemo07Chk(volatile int a0);
-void actEndDemo10Chk(volatile int a0);
-void actEndDemo11Chk(volatile int a0);
-void actEndDemo12Chk(volatile int a0);
-void actEndDemo13Chk(volatile int a0);
-void actEndDemo14Chk(volatile int a0);
-void actEndLogoChk(volatile int a0);
-void actEndingSave(volatile int a0);
-void actSt27aEndChk(volatile int a0);
-void actSt27aEndDemo(volatile int a0);
-void actStaff1Chk(volatile int a0);
-void actStaff1Demo(volatile int a0);
-void actStaff2Chk(volatile int a0);
-void actStaff2Demo(volatile int a0);
-void actStaff3Chk(volatile int a0);
-void actStaff3Demo(volatile int a0);
-void actStaff3RollChk(volatile int a0);
+/* end.o's .sdata globals (MAIN.MAP) */
+extern char *ed1;
+extern char *ed2;
+extern char *ed3;
+extern char *ed4;
+extern int ed5;
+extern char *ed6;
+extern char *sea;
+extern int happy_end;
+void actConte14_1(GObj *volatile a0);
+void actConte14_10(GObj *volatile a0);
+void actConte14_10_Jimaku(GObj *volatile a0);
+void actConte14_11(GObj *volatile a0);
+void actConte14_12(GObj *volatile a0);
+void actConte14_13(GObj *volatile a0);
+void actConte14_14(GObj *volatile a0);
+void actConte14_2(GObj *volatile a0);
+void actConte14_3(GObj *volatile a0);
+void actConte14_4(GObj *volatile a0);
+void actConte14_5(GObj *volatile a0);
+void actConte14_6(GObj *volatile a0);
+void actConte14_7(GObj *volatile a0);
+void actEndDemo01Chk(GObj *volatile a0);
+void actEndDemo02Chk(GObj *volatile a0);
+void actEndDemo03Chk(GObj *volatile a0);
+void actEndDemo04Chk(GObj *volatile a0);
+void actEndDemo05Chk(GObj *volatile a0);
+void actEndDemo06Chk(GObj *volatile a0);
+void actEndDemo07Chk(GObj *volatile a0);
+void actEndDemo10Chk(GObj *volatile a0);
+void actEndDemo11Chk(GObj *volatile a0);
+void actEndDemo12Chk(GObj *volatile a0);
+void actEndDemo13Chk(GObj *volatile a0);
+void actEndDemo14Chk(GObj *volatile a0);
+void actEndLogoChk(GObj *volatile a0);
+void actEndingSave(GObj *volatile a0);
+void actSt27aEndChk(GObj *volatile a0);
+void actSt27aEndDemo(GObj *volatile a0);
+void actStaff1Chk(GObj *volatile a0);
+void actStaff1Demo(GObj *volatile a0);
+void actStaff2Chk(GObj *volatile a0);
+void actStaff2Demo(GObj *volatile a0);
+void actStaff3Chk(GObj *volatile a0);
+void actStaff3Demo(GObj *volatile a0);
+void actStaff3RollChk(GObj *volatile a0);
 
 #endif /* END_H */

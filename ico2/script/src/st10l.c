@@ -27,7 +27,7 @@ typedef struct ActSt10L {
     ActMail *mail;     /* 0xD4 */
 } ActSt10L;
 
-/* kept local: this TU's bytes only come out with its own view of PObjGObj, so it
+/* kept local: this TU's bytes only come out with its own view of GObj, so it
    keeps one under its own name; the shared view is in ico2/common/include/typedef.h. */
 typedef struct PObjGObjSt10L {
     char pad00[356]; /* 0x000 */
@@ -94,13 +94,13 @@ static ActMail chainSwitch_mes[2] = {{430}, {429}};
 static ActMail eneKill_mes[2] = {{430}, {429}};
 
 /* .sdata, owned by st10l.o, in the ROM's order: the floor, gondola and chain stream handles. */
-int floor10l = 0;
+char *floor10l = 0;
 
-int st10l_gondola_up = 0;
+char *st10l_gondola_up = 0;
 
-int st10l_gondola_down = 0;
+char *st10l_gondola_down = 0;
 
-int chain10l = 0;
+char *chain10l = 0;
 
 void actSt10lInit(void)
 {
@@ -116,7 +116,7 @@ void actSt10lInit(void)
 }
 
 /*SWEEPactSt10lFloorLeft*/
-void actSt10lFloorLeft(volatile int a0)
+void actSt10lFloorLeft(GObj *volatile a0)
 {
     ActSt10L *sub = ((PObjGObjSt10L *)a0)->act;
 
@@ -178,7 +178,7 @@ void actSt10lFloorLeft(volatile int a0)
 }
 
 /*SWEEP-ENDactSt10lFloorLeft*/
-void actSt10lFloorRight(volatile int a0)
+void actSt10lFloorRight(GObj *volatile a0)
 {
     ActSt10L *sub = ((PObjGObjSt10L *)a0)->act;
 
@@ -224,7 +224,7 @@ void actSt10lFloorRight(volatile int a0)
     _ACTWait(0);
 }
 
-void actSt10lGondolaUp(volatile int a0)
+void actSt10lGondolaUp(GObj *volatile a0)
 {
     ActSt10L *sub = ((PObjGObjSt10L *)a0)->act;
 
@@ -268,7 +268,7 @@ void actSt10lGondolaUp(volatile int a0)
     _ACTWait(0);
 }
 
-void actSt10lGondolaDown(volatile int a0)
+void actSt10lGondolaDown(GObj *volatile a0)
 {
     ActSt10L *sub = ((PObjGObjSt10L *)a0)->act;
 
@@ -316,7 +316,7 @@ void actSt10lGondolaDown(volatile int a0)
     _ACTWait(0);
 }
 
-void actSt10lEneCam2Chk(volatile int a0)
+void actSt10lEneCam2Chk(GObj *volatile a0)
 {
     int save;
 
@@ -366,7 +366,7 @@ void actSt10lEneCam2Chk(volatile int a0)
     scpWakeupSpiderGroupOne(0x3EF);
 }
 
-void actSt10lEneCam3Chk(volatile int a0)
+void actSt10lEneCam3Chk(GObj *volatile a0)
 {
     long long buf[2];
 
@@ -397,7 +397,7 @@ void actSt10lEneCam3Chk(volatile int a0)
     scpWakeupEnemyAll();
 }
 
-void actSt10lChainMove(volatile int a0)
+void actSt10lChainMove(GObj *volatile a0)
 {
     lt_switch_layout(55);
     scpSleepEnemyAll();
@@ -446,10 +446,10 @@ void actSt10lChainMove(volatile int a0)
     scpSearchGobj(985)->active = 1;
 }
 
-void actSt10lChain(volatile int a0)
+void actSt10lChain(GObj *volatile a0)
 {
-    int x = a0;
-    ActSt10L *self = actInitialize(a0);
+    GObj *x = a0;
+    Act *self = actInitialize(a0);
 
     _ACTWait(1);
 
@@ -468,10 +468,10 @@ void actSt10lChain(volatile int a0)
     }
 }
 
-void actSt10lFloor(volatile int a0)
+void actSt10lFloor(GObj *volatile a0)
 {
-    int x = a0;
-    ActSt10L *self = actInitialize(a0);
+    GObj *x = a0;
+    Act *self = actInitialize(a0);
 
     _ACTWait(1);
 
@@ -481,10 +481,10 @@ void actSt10lFloor(volatile int a0)
     _ACTWait(0);
 }
 
-void actSt10lGondola(volatile int a0)
+void actSt10lGondola(GObj *volatile a0)
 {
-    int x = a0;
-    ActSt10L *self = actInitialize(a0);
+    GObj *x = a0;
+    Act *self = actInitialize(a0);
 
     _ACTWait(1);
 
@@ -502,9 +502,9 @@ void actSt10lGondola(volatile int a0)
     _ACTWait(0);
 }
 
-void actSt10lSekizo(volatile int a0)
+void actSt10lSekizo(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
 
     actInitialize(a0);
     _ACTWait(1);
@@ -512,10 +512,10 @@ void actSt10lSekizo(volatile int a0)
     scpSekizou(a0, 0x120, 0x17F, 0, 0x13, 0.0f, -72.0f, 1274.0f, 76.0f, -72.0f, 1274.0f);
 }
 
-void actSt10lBox(volatile int a0)
+void actSt10lBox(GObj *volatile a0)
 {
-    int x = a0;
-    ActSt10L *self = actInitialize(a0);
+    GObj *x = a0;
+    Act *self = actInitialize(a0);
 
     _ACTWait(1);
 
@@ -525,9 +525,9 @@ void actSt10lBox(volatile int a0)
     _ACTWait(0);
 }
 
-void actSt10lEnemy1_1(volatile int a0)
+void actSt10lEnemy1_1(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
 
     actInitialize(a0);
 
@@ -546,9 +546,9 @@ void actSt10lEnemy1_1(volatile int a0)
     Generator_Call((int)scpSearchGobj(997));
 }
 
-void actSt10lEnemy1_2(volatile int a0)
+void actSt10lEnemy1_2(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
 
     actInitialize(a0);
 
@@ -565,9 +565,9 @@ void actSt10lEnemy1_2(volatile int a0)
     Generator_MaskOff(a0);
 }
 
-void actSt10lEnemy2_1(volatile int a0)
+void actSt10lEnemy2_1(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
 
     actInitialize(a0);
 
@@ -584,9 +584,9 @@ void actSt10lEnemy2_1(volatile int a0)
     Generator_MaskOff(a0);
 }
 
-void actSt10lEnemy2_2(volatile int a0)
+void actSt10lEnemy2_2(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
 
     actInitialize(a0);
 
@@ -603,9 +603,9 @@ void actSt10lEnemy2_2(volatile int a0)
     Generator_MaskOff(a0);
 }
 
-void actSt10lEnemy2_3(volatile int a0)
+void actSt10lEnemy2_3(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
 
     actInitialize(a0);
 
@@ -622,9 +622,9 @@ void actSt10lEnemy2_3(volatile int a0)
     Generator_MaskOff(a0);
 }
 
-void actSt10lEnemy3_1(volatile int a0)
+void actSt10lEnemy3_1(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
 
     actInitialize(a0);
 
@@ -641,9 +641,9 @@ void actSt10lEnemy3_1(volatile int a0)
     Generator_MaskOff(a0);
 }
 
-void actSt10lEnemy3_2(volatile int a0)
+void actSt10lEnemy3_2(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
 
     actInitialize(a0);
 
@@ -660,10 +660,10 @@ void actSt10lEnemy3_2(volatile int a0)
     Generator_MaskOff(a0);
 }
 
-void actSt10lEneCam1(volatile int a0)
+void actSt10lEneCam1(GObj *volatile a0)
 {
-    int x = a0;
-    ActSt10L *self = actInitialize(a0);
+    GObj *x = a0;
+    Act *self = actInitialize(a0);
 
     _ACTWait(1);
 
@@ -675,10 +675,10 @@ void actSt10lEneCam1(volatile int a0)
     }
 }
 
-void actSt10lEneCam2(volatile int a0)
+void actSt10lEneCam2(GObj *volatile a0)
 {
-    int x = a0;
-    ActSt10L *self = actInitialize(a0);
+    GObj *x = a0;
+    Act *self = actInitialize(a0);
 
     _ACTWait(1);
 
@@ -690,10 +690,10 @@ void actSt10lEneCam2(volatile int a0)
     }
 }
 
-void actSt10lEneCam3(volatile int a0)
+void actSt10lEneCam3(GObj *volatile a0)
 {
-    int x = a0;
-    ActSt10L *self = actInitialize(a0);
+    GObj *x = a0;
+    Act *self = actInitialize(a0);
 
     _ACTWait(1);
 
@@ -707,10 +707,10 @@ void actSt10lEneCam3(volatile int a0)
     }
 }
 
-void actSt10lEneKill(volatile int a0)
+void actSt10lEneKill(GObj *volatile a0)
 {
-    int x = a0;
-    ActSt10L *self = actInitialize(a0);
+    GObj *x = a0;
+    Act *self = actInitialize(a0);
 
     _ACTWait(1);
 
@@ -722,10 +722,10 @@ void actSt10lEneKill(volatile int a0)
     }
 }
 
-void actSt10lBoxA(volatile int a0)
+void actSt10lBoxA(GObj *volatile a0)
 {
-    int x = a0;
-    ActSt10L *self = actInitialize(a0);
+    GObj *x = a0;
+    Act *self = actInitialize(a0);
 
     _ACTWait(1);
 
@@ -739,10 +739,10 @@ void actSt10lBoxA(volatile int a0)
     }
 }
 
-void actSt10lBoxB(volatile int a0)
+void actSt10lBoxB(GObj *volatile a0)
 {
-    int x = a0;
-    ActSt10L *self = actInitialize(a0);
+    GObj *x = a0;
+    Act *self = actInitialize(a0);
 
     _ACTWait(1);
 
@@ -756,9 +756,9 @@ void actSt10lBoxB(volatile int a0)
     }
 }
 
-void actSt10lGateXL(volatile int a0)
+void actSt10lGateXL(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
 
     actInitialize(a0);
     _ACTWait(1);
@@ -770,7 +770,7 @@ void actSt10lGateXL(volatile int a0)
     }
 }
 
-void actSt10lFloorMain(volatile int a0)
+void actSt10lFloorMain(GObj *volatile a0)
 {
     ActSt10L *sub = ((PObjGObjSt10L *)a0)->act;
 
@@ -780,7 +780,7 @@ void actSt10lFloorMain(volatile int a0)
     }
 }
 
-void actSt10lFloorSwitch(volatile int a0)
+void actSt10lFloorSwitch(GObj *volatile a0)
 {
     ActSt10L *sub = ((PObjGObjSt10L *)a0)->act;
 
@@ -802,7 +802,7 @@ void actSt10lFloorSwitch(volatile int a0)
     _ACTWait(0);
 }
 
-void actSt10lGondolaMain(volatile int a0)
+void actSt10lGondolaMain(GObj *volatile a0)
 {
     ActSt10L *sub = ((PObjGObjSt10L *)a0)->act;
 
@@ -812,7 +812,7 @@ void actSt10lGondolaMain(volatile int a0)
     }
 }
 
-void actSt10lGondolaSwitch(volatile int a0)
+void actSt10lGondolaSwitch(GObj *volatile a0)
 {
     ActSt10L *sub = ((PObjGObjSt10L *)a0)->act;
 
@@ -834,7 +834,7 @@ void actSt10lGondolaSwitch(volatile int a0)
     _ACTWait(0);
 }
 
-void actSt10lEneCam1Chk(volatile int a0)
+void actSt10lEneCam1Chk(GObj *volatile a0)
 {
     if (girlGObj == 0) {
         _ACTWait(0);
@@ -849,13 +849,13 @@ void actSt10lEneCam1Chk(volatile int a0)
     gflagOn(293);
 }
 
-void actSt10lBoxChk(volatile int a0)
+void actSt10lBoxChk(GObj *volatile a0)
 {
     if (girlGObj == 0) {
         _ACTWait(0);
     }
 
-    while (scpTriggerFloorAttr((int)scpSearchGobj(988), 0x1000000) == 0) {
+    while (scpTriggerFloorAttr(scpSearchGobj(988), 0x1000000) == 0) {
         _ACTWait(1);
     }
 
@@ -867,9 +867,9 @@ void actSt10lSekizoEvent(int x)
     volatile int local = x;
 }
 
-void actSt10lBoxAChk(volatile int a0)
+void actSt10lBoxAChk(GObj *volatile a0)
 {
-    while (scpTriggerBall(a0, (int)scpSearchGobj(977), 100.0f) == 0) {
+    while (scpTriggerBall(a0, scpSearchGobj(977), 100.0f) == 0) {
         _ACTWait(1);
     }
 
@@ -879,9 +879,9 @@ void actSt10lBoxAChk(volatile int a0)
     soundSeDefPlay(1270, 0, 0, 1);
 }
 
-void actSt10lBoxBChk(volatile int a0)
+void actSt10lBoxBChk(GObj *volatile a0)
 {
-    while (scpTriggerBall(a0, (int)scpSearchGobj(978), 100.0f) == 0) {
+    while (scpTriggerBall(a0, scpSearchGobj(978), 100.0f) == 0) {
         _ACTWait(1);
     }
 
@@ -891,7 +891,7 @@ void actSt10lBoxBChk(volatile int a0)
     soundSeDefPlay(1271, 0, 0, 1);
 }
 
-void actSt10lChainMain(volatile int a0)
+void actSt10lChainMain(GObj *volatile a0)
 {
     ActSt10L *sub = ((PObjGObjSt10L *)a0)->act;
 
@@ -901,7 +901,7 @@ void actSt10lChainMain(volatile int a0)
     }
 }
 
-void actSt10lChainSwitch(volatile int a0)
+void actSt10lChainSwitch(GObj *volatile a0)
 {
     ActSt10L *sub = ((PObjGObjSt10L *)a0)->act;
 
@@ -914,11 +914,11 @@ void actSt10lChainSwitch(volatile int a0)
     _ACTWait(0);
 }
 
-void actSt10lEneKillChk(volatile int a0)
+void actSt10lEneKillChk(GObj *volatile a0)
 {
     int save;
 
-    while (scpTriggerBall(a0, (int)boyGObj, 500.0f) == 0) {
+    while (scpTriggerBall(a0, boyGObj, 500.0f) == 0) {
         _ACTWait(1);
     }
 

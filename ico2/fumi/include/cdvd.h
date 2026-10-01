@@ -95,4 +95,11 @@ void iosCdvdManager(void);
 void iosCdvdLoadPackFile(int a0, char *name, int a2);
 void iosCdvdBackGroundMgrInit(void);
 
+/* init-func: one file kind and its loader, 0x24 bytes. Reader:
+ * ico2/fumi/ios/cdvd.c (PackKind). Owner: ico2/fumi/include/cdvd.h. */
+typedef struct {  /* field names derived */
+    char ext[32]; /* 0x00 */
+    void (*func)(char *self, char *name, int size, int a3, int a4, int a5, int seg); /* 0x20 */
+} PackKind; /* derived name */
+
 #endif /* CDVD_H */

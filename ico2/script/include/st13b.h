@@ -12,41 +12,42 @@
 #ifndef ST13B_H
 #define ST13B_H
 
+#include "typedef.h"
+
 /* st13b.o's .sdata globals (MAIN.MAP) */
-extern int sekizo13b;
-extern int sekizo13b2;
-extern int meets_again;
-extern int boss;
-extern int sd;
-extern int boss_dead;
-extern int st13b_up;
-extern int st13b_down;
-extern int sekizo_13b;
-extern int sekizo_13b_vol;
+extern char *sekizo13b;
+extern char *sekizo13b2;
+extern char *meets_again;
+extern char *boss;
+extern char *sd;
+extern char *boss_dead;
+extern char *st13b_up;
+extern char *st13b_down;
+extern char *sekizo_13b;
+extern char *sekizo_13b_vol;
 extern int st13b_yure;
 extern unsigned char st13b_yure_vol;
-
-void actConte10c(volatile int a0);
-void actSt13bBossAfterChk(volatile int a0);
-void actSt13bBossChk(volatile int a0);
-void actSt13bConte02(volatile int a0);
-void actSt13bConte02Jimaku(volatile int a0);
-void actSt13bDoorMain(volatile int a0);
-void actSt13bDoorSwitch(volatile int a0);
-void actSt13bDoorUp(volatile int a0);
-void actSt13bDoorUpSub(volatile int a0);
-void actSt13bElev2CharaChk(volatile int a0);
-void actSt13bElev2Chk(volatile int a0);
-void actSt13bElevDown(volatile int a0);
-void actSt13bElevDownSub(volatile int a0);
-void actSt13bElevMain(volatile int a0);
-void actSt13bElevSwitch(volatile int a0);
-void actSt13bElevUpChk(volatile int a0);
-void actSt13bElevUpSub(volatile int a0);
-void actSt13bFloorChk(volatile int a0);
-void actSt13bMeetAgainChk(volatile int a0);
-void actSt13bMeetAgainSub(volatile int a0);
-void actSt13bSekizo2Chk(volatile int a0);
-void actSt13bSekizoChk(volatile int a0);
+void actConte10c(GObj *volatile a0);
+void actSt13bBossAfterChk(GObj *volatile a0);
+void actSt13bBossChk(GObj *volatile a0);
+void actSt13bConte02(GObj *volatile a0);
+void actSt13bConte02Jimaku(GObj *volatile a0);
+void actSt13bDoorMain(GObj *volatile a0);
+void actSt13bDoorSwitch(GObj *volatile a0);
+void actSt13bDoorUp(GObj *volatile a0);
+void actSt13bDoorUpSub(GObj *volatile a0);
+void actSt13bElev2CharaChk(GObj *volatile a0);
+void actSt13bElev2Chk(GObj *volatile a0);
+void actSt13bElevDown(GObj *volatile a0);
+void actSt13bElevDownSub(GObj *volatile a0);
+void actSt13bElevMain(GObj *volatile a0);
+void actSt13bElevSwitch(GObj *volatile a0);
+void actSt13bElevUpChk(GObj *volatile a0);
+void actSt13bElevUpSub(GObj *volatile a0);
+void actSt13bFloorChk(GObj *volatile a0);
+void actSt13bMeetAgainChk(GObj *volatile a0);
+void actSt13bMeetAgainSub(GObj *volatile a0);
+void actSt13bSekizo2Chk(GObj *volatile a0);
+void actSt13bSekizoChk(GObj *volatile a0);
 
 #endif /* ST13B_H */

@@ -4,6 +4,7 @@
 #include "thread.h"
 #include "s_init.h"
 #include "act.h"
+#include "gobj_process.h"
 #include "commonact.h"
 #include "way_llf.h"
 #include "lws_kyomi.h"
@@ -44,9 +45,9 @@ static float seChkPos[4] = {0.0f, -171.0f, -8000.0f, 0.0f};
 
 static ActMail hint1WakeUp_mes[2] = {{430}, {429}};
 
-void actSt04eWaterStop(volatile int a0)
+void actSt04eWaterStop(GObj *volatile a0)
 {
-    int th;
+    GProc *th;
 
     lt_switch_layout(55);
 
@@ -63,7 +64,7 @@ void actSt04eWaterStop(volatile int a0)
     }
 
     demoSkipped = demoEnd ^ 1;
-    iosThreadSetPri(th + 0x24, 34);
+    iosThreadSetPri(&th->thread, 34);
 
     if (demoEnd == 0) {
         scpFadeOut(16.0f, 0, 0, 0);
@@ -92,9 +93,9 @@ void actSt04eWaterStop(volatile int a0)
     SetWayGroupActive(5, 1);
 }
 
-void actSt04eHint1(volatile int a0)
+void actSt04eHint1(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     Act *self = actInitialize(a0);
     _ACTWait(1);
 
@@ -108,9 +109,9 @@ void actSt04eHint1(volatile int a0)
     }
 }
 
-void actSt04eHint1WakeUp(volatile int a0)
+void actSt04eHint1WakeUp(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     Act *self = actInitialize(a0);
     _ACTWait(1);
 
@@ -123,9 +124,9 @@ void actSt04eHint1WakeUp(volatile int a0)
     }
 }
 
-void actSt04eFuchi1(volatile int a0)
+void actSt04eFuchi1(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     Act *self = actInitialize(a0);
     _ACTWait(1);
 
@@ -140,9 +141,9 @@ void actSt04eFuchi1(volatile int a0)
     }
 }
 
-void actSt04eFuchi2(volatile int a0)
+void actSt04eFuchi2(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     Act *self = actInitialize(a0);
     _ACTWait(1);
 
@@ -157,9 +158,9 @@ void actSt04eFuchi2(volatile int a0)
     }
 }
 
-void actSt04eFuchi3(volatile int a0)
+void actSt04eFuchi3(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     Act *self = actInitialize(a0);
     _ACTWait(1);
 
@@ -174,9 +175,9 @@ void actSt04eFuchi3(volatile int a0)
     }
 }
 
-void actSt04eSe(volatile int a0)
+void actSt04eSe(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     Act *self = actInitialize(a0);
     _ACTWait(1);
 
@@ -186,9 +187,9 @@ void actSt04eSe(volatile int a0)
     _ACTWait(0);
 }
 
-void actSt04eWater(volatile int a0)
+void actSt04eWater(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     Act *self = actInitialize(a0);
     _ACTWait(1);
 
@@ -206,9 +207,9 @@ void actSt04eWater(volatile int a0)
     }
 }
 
-void actSt04eWaterMain(volatile int a0)
+void actSt04eWaterMain(GObj *volatile a0)
 {
-    Act *sub = ((PObjGObj *)a0)->act;
+    Act *sub = GOBJ_ACT(a0);
 
     sub->mainMail = waterMain_mes;
     while (1) {
@@ -216,9 +217,9 @@ void actSt04eWaterMain(volatile int a0)
     }
 }
 
-void actSt04eWaterSwitch(volatile int a0)
+void actSt04eWaterSwitch(GObj *volatile a0)
 {
-    Act *sub = ((PObjGObj *)a0)->act;
+    Act *sub = GOBJ_ACT(a0);
 
     scpBoyControlReadDisable = 1;
 
@@ -230,7 +231,7 @@ void actSt04eWaterSwitch(volatile int a0)
     _ACTWait(0);
 }
 
-void actSt04eWaterFlagOn(volatile int a0)
+void actSt04eWaterFlagOn(GObj *volatile a0)
 {
     int t = (0x3C - systemStatus[0] * 10) / systemStatus[1] * 6.0;
 
@@ -247,7 +248,7 @@ void actSt04eWaterFlagOn(volatile int a0)
     gflagOn(230);
 }
 
-void actSt04eWaterStopSub(volatile int a0)
+void actSt04eWaterStopSub(GObj *volatile a0)
 {
     _ACTWait(60);
 
@@ -263,7 +264,7 @@ void actSt04eWaterStopSub(volatile int a0)
     _ACTWait(0);
 }
 
-void actSt04eHint1Chk(volatile int a0)
+void actSt04eHint1Chk(GObj *volatile a0)
 {
     while (scpTriggerBall(a0, boyGObj, 1000.0f) == 0 ||
            ForMotionViewer_GetCurrentMotion(boyGObj) != 0x91) {
@@ -275,7 +276,7 @@ void actSt04eHint1Chk(volatile int a0)
     FinishHint(18);
 }
 
-void actSt04eFuchi1Chk(volatile int a0)
+void actSt04eFuchi1Chk(GObj *volatile a0)
 {
     while (scpTriggerBall(a0, boyGObj, 100.0f) == 0) {
         _ACTWait(1);
@@ -293,7 +294,7 @@ void actSt04eFuchi1Chk(volatile int a0)
     _ACTWait(1);
 }
 
-void actSt04eFuchi2Chk(volatile int a0)
+void actSt04eFuchi2Chk(GObj *volatile a0)
 {
     while (scpTriggerBall(a0, boyGObj, 100.0f) == 0) {
         _ACTWait(1);
@@ -311,7 +312,7 @@ void actSt04eFuchi2Chk(volatile int a0)
     _ACTWait(1);
 }
 
-void actSt04eFuchi3Chk(volatile int a0)
+void actSt04eFuchi3Chk(GObj *volatile a0)
 {
     while (scpTriggerBall(a0, boyGObj, 100.0f) == 0) {
         _ACTWait(1);
@@ -329,7 +330,7 @@ void actSt04eFuchi3Chk(volatile int a0)
     _ACTWait(1);
 }
 
-void actSt04eSeChk(volatile int a0)
+void actSt04eSeChk(GObj *volatile a0)
 {
     int h;
 
@@ -349,7 +350,7 @@ void actSt04eSeChk(volatile int a0)
     }
 }
 
-void actSt04eHint1WakeUpChk(volatile int a0)
+void actSt04eHint1WakeUpChk(GObj *volatile a0)
 {
     while (scpTriggerFloorAttr(boyGObj, 0x3000000) == 0) {
         _ACTWait(1);

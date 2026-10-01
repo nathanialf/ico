@@ -5,6 +5,7 @@
 #include "adpcm_init.h"
 #include "s_init.h"
 #include "act.h"
+#include "gobj_process.h"
 #include "commonact.h"
 #include "way_llf.h"
 #include "chain.h"
@@ -44,7 +45,7 @@ void actSt01bInit(void)
     return FinishHint(9);
 }
 
-void actSt01bEneChk(volatile int a0)
+void actSt01bEneChk(GObj *volatile a0)
 {
     if (girlGObj == 0) {
         _ACTWait(0);
@@ -100,7 +101,7 @@ static int seHandle;
 
 static const ConstVec floorChkSubPos = {{-101.0f, -381.0f, -398.0f, 0.0f}};
 
-void actSt01bFloorChkSub(volatile int a0)
+void actSt01bFloorChkSub(GObj *volatile a0)
 {
     long long pos[2];
 
@@ -129,9 +130,9 @@ void actSt01bFloorChkSub(volatile int a0)
     _ACTWait(0);
 }
 
-void actSt01bFloorChk(volatile int a0)
+void actSt01bFloorChk(GObj *volatile a0)
 {
-    int th;
+    GProc *th;
     int notdone;
 
     while (scpIsHangChainOptional(boyGObj, 0x325) == 0) {
@@ -172,7 +173,7 @@ void actSt01bFloorChk(volatile int a0)
         }
     }
 
-    iosThreadSetPri(th + 0x24, 34);
+    iosThreadSetPri(&th->thread, 34);
 
     if (notdone) {
         stage_SetAnimation(181, 1, -1);
@@ -194,9 +195,9 @@ void actSt01bFloorChk(volatile int a0)
     lt_switch_layout(54);
 }
 
-void actSt01bSekizo(volatile int a0)
+void actSt01bSekizo(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
 
     actInitialize(a0);
     _ACTWait(1);
@@ -204,9 +205,9 @@ void actSt01bSekizo(volatile int a0)
     scpSekizou(a0, 0x41, 0xB2, 0, 0x12, 1000.0f, 528.0f, -150.0f, 1000.0f, 528.0f, -100.0f);
 }
 
-void actSt01bEne(volatile int a0)
+void actSt01bEne(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     Act *self = actInitialize(a0);
 
     _ACTWait(1);
@@ -219,9 +220,9 @@ void actSt01bEne(volatile int a0)
     }
 }
 
-void actSt01bEnemy1(volatile int a0)
+void actSt01bEnemy1(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
 
     actInitialize(a0);
     _ACTWait(1);
@@ -242,9 +243,9 @@ void actSt01bEnemy1(volatile int a0)
     Generator_MaskOff(a0);
 }
 
-void actSt01bEnemy2(volatile int a0)
+void actSt01bEnemy2(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
 
     actInitialize(a0);
     _ACTWait(1);
@@ -263,9 +264,9 @@ void actSt01bEnemy2(volatile int a0)
     Generator_MaskOff(a0);
 }
 
-void actSt01bEnemy3(volatile int a0)
+void actSt01bEnemy3(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
 
     actInitialize(a0);
     _ACTWait(1);
@@ -282,9 +283,9 @@ void actSt01bEnemy3(volatile int a0)
     Generator_MaskOff(a0);
 }
 
-void actSt01bEnemy4(volatile int a0)
+void actSt01bEnemy4(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
 
     actInitialize(a0);
     _ACTWait(1);
@@ -298,9 +299,9 @@ void actSt01bEnemy4(volatile int a0)
     Generator_Call(a0);
 }
 
-void actSt01bEnemy5(volatile int a0)
+void actSt01bEnemy5(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
 
     actInitialize(a0);
     _ACTWait(1);
@@ -314,9 +315,9 @@ void actSt01bEnemy5(volatile int a0)
     Generator_Call(a0);
 }
 
-void actSt01bEnemy6(volatile int a0)
+void actSt01bEnemy6(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
 
     actInitialize(a0);
     _ACTWait(1);
@@ -330,9 +331,9 @@ void actSt01bEnemy6(volatile int a0)
     Generator_Call(a0);
 }
 
-void actSt01bFloor(volatile int a0)
+void actSt01bFloor(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     Act *self = actInitialize(a0);
 
     _ACTWait(1);
@@ -345,9 +346,9 @@ void actSt01bFloor(volatile int a0)
     }
 }
 
-void actSt01bWay(volatile int a0)
+void actSt01bWay(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     Act *self = actInitialize(a0);
 
     _ACTWait(1);
@@ -370,9 +371,9 @@ void actSt01bFloorEvent(int x)
     volatile int local = x;
 }
 
-void actSt01bWayOnChk(volatile int a0)
+void actSt01bWayOnChk(GObj *volatile a0)
 {
-    Act *sub = (Act *)((PObjGObj *)a0)->act;
+    Act *sub = GOBJ_ACT(a0);
 
     if (girlGObj == 0) {
         _ACTWait(0);
@@ -389,9 +390,9 @@ void actSt01bWayOnChk(volatile int a0)
     _ACTWait(0);
 }
 
-void actSt01bWayOffChk(volatile int a0)
+void actSt01bWayOffChk(GObj *volatile a0)
 {
-    Act *sub = (Act *)((PObjGObj *)a0)->act;
+    Act *sub = GOBJ_ACT(a0);
 
     if (girlGObj == 0) {
         _ACTWait(0);

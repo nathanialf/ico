@@ -4,6 +4,7 @@
 #include "thread.h"
 #include "s_init.h"
 #include "act.h"
+#include "gobj_process.h"
 #include "commonact.h"
 #include "way_llf.h"
 #include "camera-root.h"
@@ -26,8 +27,8 @@
  * post, except in the two main-mail records, which answer 406 and 407 with
  * their switch threads.  Each record is named for the thread that owns and
  * posts it; where one thread owns two, for the watcher it installs. */
-void actSt02aFenceSwitch(volatile int a0);
-void actSt02aGondolaSwitch(volatile int a0);
+void actSt02aFenceSwitch(GObj *volatile a0);
+void actSt02aGondolaSwitch(GObj *volatile a0);
 
 static ActMail door_down_start_mail[2] = {{430}, {429}}; /* derived name */
 
@@ -85,13 +86,13 @@ void actSt02aInit(void)
     }
 }
 
-void actSt02aDoor(volatile int a0)
+void actSt02aDoor(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     Act *self = actInitialize(a0);
 
     _ACTWait(1);
-    if (scpTriggerBall(a0, (int)boyGObj, 200.0f) != 0 ||
+    if (scpTriggerBall(a0, boyGObj, 200.0f) != 0 ||
         (girlGObj != 0 && scpTriggerBall(a0, girlGObj, 400.0f) != 0)) {
         stage_SetAnimation(98, 0, 0);
         _ACTWait(60);
@@ -147,9 +148,9 @@ static const PoolMeshQuad poolReflactionQuad = {{{650.0f, 0.0f, 700.0f, 1.0f},
                                                  {920.0f, 0.0f, 700.0f, 1.0f},
                                                  {920.0f, 0.0f, 1200.0f, 1.0f}}};
 
-void actSt02aDoorUpChk(volatile int a0)
+void actSt02aDoorUpChk(GObj *volatile a0)
 {
-    Act *sub = ((PObjGObj *)a0)->act;
+    Act *sub = GOBJ_ACT(a0);
     long long pos[2];
     int h;
 
@@ -178,9 +179,9 @@ void actSt02aDoorUpChk(volatile int a0)
     _ACTWait(0);
 }
 
-void actSt02aDoorDownChk(volatile int a0)
+void actSt02aDoorDownChk(GObj *volatile a0)
 {
-    Act *sub = ((PObjGObj *)a0)->act;
+    Act *sub = GOBJ_ACT(a0);
     long long pos[2];
     int h;
 
@@ -211,16 +212,16 @@ void actSt02aDoorDownChk(volatile int a0)
 
 /* .sdata, owned by st02a.o (MAIN.MAP global, as are gondola and gondola_test
    below) */
-int st02a_fence = 0;
+char *st02a_fence = 0;
 
 /* .sbss, owned by st02a.o and reached only from this file (MAIN.MAP names no
    symbol in the run): the demo's own end flag, raised by the
    subthread the wait loop below spins for. */
 static int demoEnd;
 
-void actSt02aFenceOpen(volatile int a0)
+void actSt02aFenceOpen(GObj *volatile a0)
 {
-    int th;
+    GProc *th;
 
     scpSleepEnemyAll();
     gflagOn(118);
@@ -232,7 +233,7 @@ void actSt02aFenceOpen(volatile int a0)
         _ACTWait(1);
     }
 
-    iosThreadSetPri(th + 0x24, 34);
+    iosThreadSetPri(&th->thread, 34);
 
     if (demoEnd == 0) {
         scpFadeOut(16.0f, 0, 0, 0);
@@ -260,7 +261,7 @@ void actSt02aFenceOpen(volatile int a0)
     scpWakeupEnemyAll();
 }
 
-void actSt02WaterFallBoySplashCheck(volatile int a0)
+void actSt02WaterFallBoySplashCheck(GObj *volatile a0)
 {
     long long buf[4];
     long long buf2[2];
@@ -285,7 +286,7 @@ void actSt02WaterFallBoySplashCheck(volatile int a0)
     }
 }
 
-void actSt02aWaterFallReflactionEffect(volatile int a0)
+void actSt02aWaterFallReflactionEffect(GObj *volatile a0)
 {
     PoolMesh m0 = fallReflactionMesh;
     PoolMesh m1 = poolReflactionMesh;
@@ -303,9 +304,9 @@ void actSt02aWaterFallReflactionEffect(volatile int a0)
     }
 }
 
-void actSt02aWaterFallChk(volatile int a0)
+void actSt02aWaterFallChk(GObj *volatile a0)
 {
-    Act *act = ((PObjGObj *)boyGObj)->act;
+    Act *act = GOBJ_ACT(boyGObj);
 
     act->flags20.ll &= ~0x80000000000LL;
     scpSearchGobj(1713)->active = 1;
@@ -325,11 +326,11 @@ void actSt02aWaterFallChk(volatile int a0)
     ReInitBoxGeo(scpSearchGobj(1707));
 }
 
-int gondola = 0;
+char *gondola = 0;
 
-void actSt02aGondolaUp(volatile int a0)
+void actSt02aGondolaUp(GObj *volatile a0)
 {
-    Act *sub = ((PObjGObj *)a0)->act;
+    Act *sub = GOBJ_ACT(a0);
 
     scpAdpcmPlayRequestFunc(87, &gondola, 1, 1, 1);
 
@@ -368,11 +369,11 @@ void actSt02aGondolaUp(volatile int a0)
     _ACTWait(0);
 }
 
-int gondola_test = 0;
+char *gondola_test = 0;
 
-void actSt02aGondolaDown(volatile int a0)
+void actSt02aGondolaDown(GObj *volatile a0)
 {
-    Act *sub = ((PObjGObj *)a0)->act;
+    Act *sub = GOBJ_ACT(a0);
 
     scpAdpcmPlayRequestFunc(87, &gondola_test, 1, 1, 1);
 
@@ -410,9 +411,9 @@ void actSt02aGondolaDown(volatile int a0)
     _ACTWait(0);
 }
 
-void actSt02aBox(volatile int a0)
+void actSt02aBox(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
 
     actInitialize(a0);
     _ACTWait(1);
@@ -436,9 +437,9 @@ void actSt02aBox(volatile int a0)
     }
 }
 
-void actSt02aGondola(volatile int a0)
+void actSt02aGondola(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     Act *self = actInitialize(a0);
 
     _ACTWait(1);
@@ -457,9 +458,9 @@ void actSt02aGondola(volatile int a0)
     _ACTWait(0);
 }
 
-void actSt02aFence(volatile int a0)
+void actSt02aFence(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     Act *self = actInitialize(a0);
 
     _ACTWait(1);
@@ -472,9 +473,9 @@ void actSt02aFence(volatile int a0)
     }
 }
 
-void actSt02aWaterFall(volatile int a0)
+void actSt02aWaterFall(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     Act *self = actInitialize(a0);
 
     _ACTWait(1);
@@ -492,9 +493,9 @@ void actSt02aWaterFall(volatile int a0)
     actCreateSubThread(actSt02aWaterFallReflactionEffect, 21);
 }
 
-void actSt02aBoxEvent2(volatile int a0)
+void actSt02aBoxEvent2(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
 
     actInitialize(a0);
 
@@ -505,9 +506,9 @@ void actSt02aBoxEvent2(volatile int a0)
     }
 }
 
-void actSt02aEne(volatile int a0)
+void actSt02aEne(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     Act *self = actInitialize(a0);
 
     _ACTWait(1);
@@ -520,9 +521,9 @@ void actSt02aEne(volatile int a0)
     }
 }
 
-void actSt02aEnemy1(volatile int a0)
+void actSt02aEnemy1(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
 
     actInitialize(a0);
 
@@ -541,9 +542,9 @@ void actSt02aEnemy1(volatile int a0)
     Generator_Call(a0);
 }
 
-void actSt02aEnemy2(volatile int a0)
+void actSt02aEnemy2(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
 
     actInitialize(a0);
 
@@ -564,9 +565,9 @@ void actSt02aEnemy2(volatile int a0)
     Generator_Call((int)scpSearchGobj(1703));
 }
 
-void actSt02aSekizo(volatile int a0)
+void actSt02aSekizo(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
 
     actInitialize(a0);
     _ACTWait(1);
@@ -574,9 +575,9 @@ void actSt02aSekizo(volatile int a0)
     scpSekizou(a0, 0x7B, 0x66, 0, 0x12, 900.0f, 1828.0f, 1150.0f, 800.0f, 1828.0f, 1150.0f);
 }
 
-void actSt02aWay(volatile int a0)
+void actSt02aWay(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     Act *self = actInitialize(a0);
 
     _ACTWait(1);
@@ -594,9 +595,9 @@ void actSt02aWay(volatile int a0)
     }
 }
 
-void actSt02aTakiWay(volatile int a0)
+void actSt02aTakiWay(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     Act *self = actInitialize(a0);
 
     _ACTWait(1);
@@ -609,9 +610,9 @@ void actSt02aTakiWay(volatile int a0)
     }
 }
 
-void actSt02aSecretItem(volatile int a0)
+void actSt02aSecretItem(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     Act *self = actInitialize(a0);
 
     _ACTWait(1);
@@ -629,7 +630,7 @@ void actSt02aDoorEvent(int x)
     volatile int local = x;
 }
 
-void actSt02aDoorUpEffect(volatile int a0)
+void actSt02aDoorUpEffect(GObj *volatile a0)
 {
     long long b1[2];
     long long b2[2];
@@ -653,7 +654,7 @@ void actSt02aDoorUpEffect(volatile int a0)
     }
 }
 
-void actSt02aDoorDownEffect(volatile int a0)
+void actSt02aDoorDownEffect(GObj *volatile a0)
 {
     long long b1[2];
     long long b2[2];
@@ -677,9 +678,9 @@ void actSt02aDoorDownEffect(volatile int a0)
     }
 }
 
-void actSt02aFenceMain(volatile int a0)
+void actSt02aFenceMain(GObj *volatile a0)
 {
-    Act *sub = ((PObjGObj *)a0)->act;
+    Act *sub = GOBJ_ACT(a0);
 
     sub->mainMail = fence_main_mail;
     while (1) {
@@ -687,9 +688,9 @@ void actSt02aFenceMain(volatile int a0)
     }
 }
 
-void actSt02aFenceSwitch(volatile int a0)
+void actSt02aFenceSwitch(GObj *volatile a0)
 {
-    Act *sub = ((PObjGObj *)a0)->act;
+    Act *sub = GOBJ_ACT(a0);
 
     sub->mainMail = 0;
     lt_switch_layout(55);
@@ -701,7 +702,7 @@ void actSt02aFenceSwitch(volatile int a0)
     _ACTWait(0);
 }
 
-void actSt02aFenceOpenSub(volatile int a0)
+void actSt02aFenceOpenSub(GObj *volatile a0)
 {
     while (st02a_fence == 0) {
         _ACTWait(1);
@@ -717,9 +718,9 @@ void actSt02aFenceOpenSub(volatile int a0)
     _ACTWait(0);
 }
 
-void actSt02aGondolaMain(volatile int a0)
+void actSt02aGondolaMain(GObj *volatile a0)
 {
-    Act *sub = ((PObjGObj *)a0)->act;
+    Act *sub = GOBJ_ACT(a0);
 
     sub->mainMail = gondola_main_mail;
     while (1) {
@@ -727,9 +728,9 @@ void actSt02aGondolaMain(volatile int a0)
     }
 }
 
-void actSt02aGondolaSwitch(volatile int a0)
+void actSt02aGondolaSwitch(GObj *volatile a0)
 {
-    Act *sub = ((PObjGObj *)a0)->act;
+    Act *sub = GOBJ_ACT(a0);
 
     sub->mainMail = 0;
     lt_switch_layout(55);
@@ -749,7 +750,7 @@ void actSt02aGondolaSwitch(volatile int a0)
     _ACTWait(0);
 }
 
-void actSt02aEneChk(volatile int a0)
+void actSt02aEneChk(GObj *volatile a0)
 {
     if (girlGObj == 0) {
         _ACTWait(0);
@@ -768,9 +769,9 @@ void actSt02aSekizoEvent(int x)
     volatile int local = x;
 }
 
-void actSt02aWayOnChk(volatile int a0)
+void actSt02aWayOnChk(GObj *volatile a0)
 {
-    Act *sub = ((PObjGObj *)a0)->act;
+    Act *sub = GOBJ_ACT(a0);
 
     if (girlGObj == 0) {
         _ACTWait(0);
@@ -791,9 +792,9 @@ void actSt02aWayOnChk(volatile int a0)
     _ACTWait(0);
 }
 
-void actSt02aWayOffChk(volatile int a0)
+void actSt02aWayOffChk(GObj *volatile a0)
 {
-    Act *sub = ((PObjGObj *)a0)->act;
+    Act *sub = GOBJ_ACT(a0);
 
     if (girlGObj == 0) {
         _ACTWait(0);
@@ -814,9 +815,9 @@ void actSt02aWayOffChk(volatile int a0)
     _ACTWait(0);
 }
 
-void actSt02aTakiWayOnChk(volatile int a0)
+void actSt02aTakiWayOnChk(GObj *volatile a0)
 {
-    Act *sub = ((PObjGObj *)a0)->act;
+    Act *sub = GOBJ_ACT(a0);
 
     if (girlGObj == 0) {
         _ACTWait(0);
@@ -834,9 +835,9 @@ void actSt02aTakiWayOnChk(volatile int a0)
     _ACTWait(0);
 }
 
-void actSt02aTakiWayOffChk(volatile int a0)
+void actSt02aTakiWayOffChk(GObj *volatile a0)
 {
-    Act *sub = ((PObjGObj *)a0)->act;
+    Act *sub = GOBJ_ACT(a0);
 
     if (girlGObj == 0) {
         _ACTWait(0);
@@ -854,7 +855,7 @@ void actSt02aTakiWayOffChk(volatile int a0)
     _ACTWait(0);
 }
 
-void actSt02aSecretItemChk(volatile int a0)
+void actSt02aSecretItemChk(GObj *volatile a0)
 {
     while (scpSearchGobj(1770) == 0) {
         _ACTWait(1);

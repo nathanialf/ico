@@ -22,7 +22,7 @@ int *gobj_camera_dl_link_head;
 
 int *gobj_camera_dl_link_tail;
 
-char *isysCurrentGObj;
+GObj *isysCurrentGObj;
 
 void *isysCurrentGObjProcess;
 

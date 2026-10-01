@@ -66,10 +66,10 @@ inline void ActSetStartBrainStatus(char *self, int status)
     }
 }
 
-void actChangeActBrain(int a0, int a1, int *a2)
+void actChangeActBrain(GObj *a0, void (*a1)(), GProc **a2)
 {
-    int old = *a2;
-    int n = actCreateSubThread(a1, 20);
+    GProc *old = *a2;
+    GProc *n = actCreateSubThread(a1, 20);
     *a2 = n;
     if (old != 0) {
         debug_StdPrintfDummy("--b-- %p:act brain del %p\n", a0, n);
@@ -79,18 +79,18 @@ void actChangeActBrain(int a0, int a1, int *a2)
     }
 }
 
-void actChangeActMain(void *a0, void *a1, void **a2)
+void actChangeActMain(GObj *a0, void (*a1)(), GProc **a2)
 {
-    char *e = objLayout + *(int *)((char *)a0 + 8) * 0x4C;
+    char *e = objLayout + a0->labelId * 0x4C;
     unsigned short fld = *(unsigned short *)(e + 0x40);
-    void *old = *a2;
-    int ret;
+    GProc *old = *a2;
+    GProc *ret;
     if (((long long)fld << 10) == 0) {
-        ret = isysGObjProcAdd(a0, a1, 0, (void *)0x13);
+        ret = isysGObjProcAdd(a0, a1, 0, 0x13);
     } else {
-        ret = isysGObjProcAddS(a0, a1, 0, (void *)0x13, (long long)fld << 10);
+        ret = isysGObjProcAddS(a0, a1, 0, 0x13, (long long)fld << 10);
     }
-    *a2 = (void *)ret;
+    *a2 = ret;
     if (old != 0) {
         debug_StdPrintfDummy("--m-- %p:act main del %p\n", a0, ret);
         isysGObjProcRemove(old);
@@ -99,11 +99,11 @@ void actChangeActMain(void *a0, void *a1, void **a2)
     }
 }
 
-void actCreateMotionThread(void *a0, void *a1, void **a2)
+void actCreateMotionThread(void (*a0)(), int a1, GProc **a2)
 {
-    void *old = *a2;
-    int ret = isysGObjProcAdd(isysCurrentGObj, a0, 0, a1);
-    *a2 = (void *)ret;
+    GProc *old = *a2;
+    GProc *ret = isysGObjProcAdd(isysCurrentGObj, a0, 0, a1);
+    *a2 = ret;
     if (old != 0) {
         debug_StdPrintfDummy("--t-- %p:act mot del %p\n", *(int *)((char *)old + 4), ret);
         isysGObjProcRemove(old);
@@ -112,36 +112,36 @@ void actCreateMotionThread(void *a0, void *a1, void **a2)
     }
 }
 
-int actCreateSubThread(void *a0, void *a1)
+GProc *actCreateSubThread(void (*a0)(), int a1)
 {
     char *e;
     unsigned short fld;
-    char *p;
+    GProc *p;
 
     if (debug_act_sub_thread) {
         Act *lval = GOBJ_ACT(isysCurrentGObj);
         debug_StdPrintfDummy("acst[%p]\n", isysCurrentGObj);
-        debug_StdPrintfDummy("    [%d]\n", *(int *)(isysCurrentGObj + 8));
-        debug_StdPrintfDummy("    [%d]\n", *(int *)(isysCurrentGObj + 0xC));
+        debug_StdPrintfDummy("    [%d]\n", isysCurrentGObj->labelId);
+        debug_StdPrintfDummy("    [%d]\n", isysCurrentGObj->kind);
         if (lval != 0) {
             debug_StdPrintfDummy("lval[%p]\n", lval);
             debug_StdPrintfDummy("    [%d]\n", lval->actMode);
         }
     }
-    e = objLayout + *(int *)(isysCurrentGObj + 8) * 0x4C;
+    e = objLayout + isysCurrentGObj->labelId * 0x4C;
     fld = *(unsigned short *)(e + 0x40);
     if (((long long)fld << 10) == 0) {
-        p = (char *)isysGObjProcAdd(isysCurrentGObj, a0, 0, a1);
+        p = isysGObjProcAdd(isysCurrentGObj, a0, 0, a1);
     } else {
-        p = (char *)isysGObjProcAddS(isysCurrentGObj, a0, 0, a1, (long long)fld << 10);
+        p = isysGObjProcAddS(isysCurrentGObj, a0, 0, a1, (long long)fld << 10);
     }
-    *(int *)(p + 0x64) = 1;
-    return (int)p;
+    p->thread.sleeping = 1;
+    return p;
 }
 
-inline void actCreateSubThreadGOppArg(int a0, int a1)
+inline void actCreateSubThreadGOppArg(void (*a0)(), int a1)
 {
-    *(int *)((char *)isysGObjProcAddGOppArg(isysCurrentGObj, a0, 0, a1) + 0x64) = 1;
+    isysGObjProcAddGOppArg(isysCurrentGObj, a0, 0, a1)->thread.sleeping = 1;
 }
 
 inline void actSetInterrupt(char *self, int val)
@@ -246,7 +246,7 @@ void actInitialize_ext_charcter(char *self)
     memset(p, 0, 0x400);
     *(char **)((char *)g + 0x680) = p;
     *(float *)(*(char **)((int)GOBJ_ACT(self) + 0x680) + 0x58) = 1.0f;
-    GOBJ_ACT(self)->enemy->f_2A0 = -1;
+    GOBJ_ACT(self)->enemy->stonePair = -1;
     *(int *)(*(char **)((int)GOBJ_ACT(self) + 0x680) + 0x2A4) = -1;
     *(int *)(*(char **)((int)GOBJ_ACT(self) + 0x680) + 0x2A8) = -1;
     *(int *)(*(char **)((int)GOBJ_ACT(self) + 0x680) + 0x2AC) = -1;
@@ -298,11 +298,11 @@ void actInitialize_only_charcter(char *self)
     }
 }
 
-char *actInitialize(char *self)
+Act *actInitialize(GObj *self)
 {
     char *w = (char *)iosMallocDebug(ios_partition_seki, 0x850, __FILE__, 934);
 
-    *(char **)(self + 0x164) = w;
+    *(char **)((char *)self + 0x164) = w;
     memset(w, 0, 0x850);
 
     *(void **)(w + 0x4) = isysCurrentGObjProcess;
@@ -381,16 +381,16 @@ char *actInitialize(char *self)
     memset(w + 0x2D8, 0, 0x60);
     memset(w + 0x338, 0, 0x18);
 
-    return w;
+    return (Act *)w;
 }
 
-inline int ACTReserveTarget(char *self, void *a1, int a2)
+inline int ACTReserveTarget(GObj *self, void *a1, int a2)
 {
     Act *g = GOBJ_ACT(self);
     if (g->reserved == 0) {
         *(char **)((char *)g + 0x13C) = self;
         g->reservedMail = a2;
-        iosOmSendMail(self, a2, a1);
+        iosOmSendMail(self, a2, (int)a1);
         return 1;
     }
     return 0;
@@ -492,7 +492,7 @@ void act_check_mail(char *self, IntrMail *m)
             w->flags18.ll |= 0x8000LL << 47;
             break;
         case 0x1A9:
-            GOBJ_ACT(self)->enemy->f_2B0 = 0;
+            GOBJ_ACT(self)->enemy->word2B0 = 0;
             break;
         case 0xF:
             w->flags20.ll |= 1;
@@ -545,10 +545,10 @@ typedef struct {
     unsigned int w[4];
 } IntrSkip;
 
-void BeforeFunc(char *self)
+void BeforeFunc(GObj *self)
 {
     Act *w = GOBJ_ACT(self);
-    char *mb = self + 0x54;
+    char *mb = (char *)self + 0x54;
     IntrMail *intr;
     char *g;
     void *act;
@@ -587,9 +587,9 @@ void BeforeFunc(char *self)
     if (self == (void *)boyGObj) {
         ActWork *p = GOBJ_WORK(self);
 
-        ((ActFloat *)((char *)GOBJ_SUB(self) + 0x45C))->f = p->f_320;
-        ((ActFloat *)((char *)GOBJ_SUB(self) + 0x464))->f = p->f_324;
-        ((ActFloat *)((char *)GOBJ_SUB(self) + 0x468))->f = p->f_328;
+        ((ActFloat *)((char *)GOBJ_SUB(self) + 0x45C))->f = p->defIkRate0;
+        ((ActFloat *)((char *)GOBJ_SUB(self) + 0x464))->f = p->defIkRate1;
+        ((ActFloat *)((char *)GOBJ_SUB(self) + 0x468))->f = p->defIkRate2;
     }
     if (w->msgBlockTimer != 0) {
         w->msgBlockTimer -= 1;
@@ -618,9 +618,9 @@ void BeforeFunc(char *self)
             }
         }
     }
-    g = *(char **)(self + 0x15C);
+    g = *(char **)((char *)self + 0x15C);
     *(char **)((char *)w + 0x40) = *(char **)(g + 0x540);
-    if ((((&motionKind[*(int *)(*(char **)(self + 0x15C) + 0x4A0)])->f18C >> 1) & 1) != 0 &&
+    if ((((&motionKind[*(int *)(*(char **)((char *)self + 0x15C) + 0x4A0)])->f18C >> 1) & 1) != 0 &&
         GOBJ_SUB(self)->animFrame < 3.0f) {
         w->flags20.ll |= 1LL << 18;
     }
@@ -657,10 +657,10 @@ void BeforeFunc(char *self)
         }
         if (intr->f0 != 0) {
             *(int *)((char *)w + 0x38) = 0;
-            actCreateMotionThread(intr->f0, (void *)21, (void **)((char *)w + 8));
+            actCreateMotionThread(intr->f0, 21, ((char *)w + 8));
         }
         if (intr->f4 != 0) {
-            actCreateMotionThread(intr->f4, (void *)22, (void **)((char *)w + 0xC));
+            actCreateMotionThread(intr->f4, 22, ((char *)w + 0xC));
         }
         if (intr->f0C != 0) {
             intr->f0C(self, ent->id, ent->f4);

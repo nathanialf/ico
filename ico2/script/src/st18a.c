@@ -3,6 +3,7 @@
 #include "thread.h"
 #include "s_init.h"
 #include "act.h"
+#include "gobj_process.h"
 #include "commonact.h"
 #include "camera-root.h"
 #include "generator.h"
@@ -53,7 +54,7 @@ void actSt18aEnd(void)
     }
 }
 
-void actSt18aIntroChk(volatile int a0)
+void actSt18aIntroChk(GObj *volatile a0)
 {
     while (scpTriggerBall(a0, boyGObj, 1000.0f) == 0) {
         _ACTWait(1);
@@ -92,9 +93,9 @@ void actSt18aIntroChk(volatile int a0)
     scpBoyControlReadDisable = 0;
 }
 
-void actSt18aSwitchLChk(volatile int a0)
+void actSt18aSwitchLChk(GObj *volatile a0)
 {
-    Act *sub = (Act *)((PObjGObj *)a0)->act;
+    Act *sub = GOBJ_ACT(a0);
     int i;
 
     i = 0;
@@ -135,9 +136,9 @@ void actSt18aSwitchLChk(volatile int a0)
 
 /* TU-owned .data record (VMA 0x004FB0F0..0x004FB10F, ROM 0x3FB0F0). */
 
-void actSt18aSwitchLUpChk(volatile int a0)
+void actSt18aSwitchLUpChk(GObj *volatile a0)
 {
-    Act *sub = (Act *)((PObjGObj *)a0)->act;
+    Act *sub = GOBJ_ACT(a0);
 
     while (scpTriggerFloorAttrTargetMan(a0, 0x1000000) != 0) {
         _ACTWait(1);
@@ -167,9 +168,9 @@ void actSt18aSwitchLUpChk(volatile int a0)
     _ACTWait(0);
 }
 
-void actSt18aSwitchRChk(volatile int a0)
+void actSt18aSwitchRChk(GObj *volatile a0)
 {
-    Act *sub = (Act *)((PObjGObj *)a0)->act;
+    Act *sub = GOBJ_ACT(a0);
     int i;
 
     i = 0;
@@ -208,9 +209,9 @@ void actSt18aSwitchRChk(volatile int a0)
     _ACTWait(0);
 }
 
-void actSt18aSwitchRUpChk(volatile int a0)
+void actSt18aSwitchRUpChk(GObj *volatile a0)
 {
-    Act *sub = (Act *)((PObjGObj *)a0)->act;
+    Act *sub = GOBJ_ACT(a0);
 
     while (scpTriggerFloorAttrTargetMan(a0, 0x2000000) != 0) {
         _ACTWait(1);
@@ -248,10 +249,10 @@ static int demoEnd;
 
 static int doorChkDone;
 
-void actSt18aDoorChk(volatile int a0)
+void actSt18aDoorChk(GObj *volatile a0)
 {
-    Act *sub = (Act *)((PObjGObj *)a0)->act;
-    int th;
+    Act *sub = GOBJ_ACT(a0);
+    GProc *th;
 
     while (gflagChk(58) == 0 || gflagChk(59) == 0) {
         _ACTWait(1);
@@ -271,7 +272,7 @@ void actSt18aDoorChk(volatile int a0)
         _ACTWait(1);
     }
 
-    iosThreadSetPri(th + 0x24, 34);
+    iosThreadSetPri(&th->thread, 34);
 
     if (demoEnd == 0) {
         scpFadeOut(16.0f, 0, 0, 0);
@@ -306,9 +307,9 @@ void actSt18aDoorChk(volatile int a0)
    table actSt18aDoorDownChk hands back to the door actor. Role-named file
    static per the 2026-09-07 ruling, same shape as st17a's doorDownChk_mes. */
 
-void actSt18aDoorDownChk(volatile int a0)
+void actSt18aDoorDownChk(GObj *volatile a0)
 {
-    Act *sub = (Act *)((PObjGObj *)a0)->act;
+    Act *sub = GOBJ_ACT(a0);
 
     while (gflagChk(58) != 0 && gflagChk(59) != 0) {
         _ACTWait(1);
@@ -333,9 +334,9 @@ void actSt18aDoorDownChk(volatile int a0)
     _ACTWait(0);
 }
 
-void actSt18aEnemy1_1(volatile int a0)
+void actSt18aEnemy1_1(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     actInitialize(a0);
     _ACTWait(1);
 
@@ -363,9 +364,9 @@ void actSt18aEnemy1_1(volatile int a0)
     Generator_Call(scpSearchGobj(766));
 }
 
-void actSt18aEnemy2_1(volatile int a0)
+void actSt18aEnemy2_1(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     actInitialize(a0);
     _ACTWait(1);
 
@@ -389,9 +390,9 @@ void actSt18aEnemy2_1(volatile int a0)
     Generator_Call(scpSearchGobj(766));
 }
 
-void actSt18aIntro(volatile int a0)
+void actSt18aIntro(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     Act *self = actInitialize(a0);
 
     _ACTWait(1);
@@ -404,9 +405,9 @@ void actSt18aIntro(volatile int a0)
     }
 }
 
-void actSt18aDoor(volatile int a0)
+void actSt18aDoor(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     Act *self = actInitialize(a0);
 
     _ACTWait(1);
@@ -428,9 +429,9 @@ void actSt18aDoor(volatile int a0)
     }
 }
 
-void actSt18aSwitchL(volatile int a0)
+void actSt18aSwitchL(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     Act *self = actInitialize(a0);
 
     _ACTWait(1);
@@ -452,9 +453,9 @@ void actSt18aSwitchL(volatile int a0)
     }
 }
 
-void actSt18aSwitchR(volatile int a0)
+void actSt18aSwitchR(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     Act *self = actInitialize(a0);
 
     _ACTWait(1);
@@ -476,9 +477,9 @@ void actSt18aSwitchR(volatile int a0)
     }
 }
 
-void actSt18aEne(volatile int a0)
+void actSt18aEne(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     Act *self = actInitialize(a0);
 
     _ACTWait(1);
@@ -491,9 +492,9 @@ void actSt18aEne(volatile int a0)
     }
 }
 
-void actSt18aEnemy1_2(volatile int a0)
+void actSt18aEnemy1_2(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     actInitialize(a0);
     _ACTWait(1);
 
@@ -516,9 +517,9 @@ void actSt18aEnemy1_2(volatile int a0)
     Generator_Call(a0);
 }
 
-void actSt18aEne2(volatile int a0)
+void actSt18aEne2(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     Act *self = actInitialize(a0);
 
     _ACTWait(1);
@@ -531,9 +532,9 @@ void actSt18aEne2(volatile int a0)
     }
 }
 
-void actSt18aEnemy2_2(volatile int a0)
+void actSt18aEnemy2_2(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     actInitialize(a0);
     _ACTWait(1);
 
@@ -561,7 +562,7 @@ void actSt18aCamera(int x)
     volatile int local = x;
 }
 
-void actSt18aDoorChkSub(volatile int a0)
+void actSt18aDoorChkSub(GObj *volatile a0)
 {
     _ACTWait(60);
 
@@ -583,7 +584,7 @@ void actSt18aDoorChkSub(volatile int a0)
     _ACTWait(0);
 }
 
-void actSt18aEneChk(volatile int a0)
+void actSt18aEneChk(GObj *volatile a0)
 {
     if (girlGObj == 0) {
         _ACTWait(0);
@@ -597,7 +598,7 @@ void actSt18aEneChk(volatile int a0)
     gflagOn(62);
 }
 
-void actSt18aEne2Chk(volatile int a0)
+void actSt18aEne2Chk(GObj *volatile a0)
 {
     if (girlGObj == 0) {
         _ACTWait(0);

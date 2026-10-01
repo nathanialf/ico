@@ -49,7 +49,7 @@ char *hgrm_19a = 0;
 
 char *pipe19a = 0;
 
-void actSt19aOriUp(volatile int a0)
+void actSt19aOriUp(GObj *volatile a0)
 {
     int skip = 0;
     int i;
@@ -97,11 +97,11 @@ void actSt19aOriUp(volatile int a0)
 
 static const ConstVec hagurumaPos = {{-642.0f, 2132.0f, -2861.0f, 0.0f}};
 
-void actSt19aHaguruma(volatile int a0)
+void actSt19aHaguruma(GObj *volatile a0)
 {
     long long pos[2];
     Act *sub;
-    int x = a0;
+    GObj *x = a0;
 
     sub = actInitialize(a0);
     _ACTWait(1);
@@ -127,12 +127,12 @@ void actSt19aHaguruma(volatile int a0)
     }
 }
 
-void actSt19aHagurumaChk(volatile int a0)
+void actSt19aHagurumaChk(GObj *volatile a0)
 {
     int skip = 0;
     int i;
 
-    while (scpTriggerBall(a0, (int)scpSearchGobj(1961), 220.0f) == 0) {
+    while (scpTriggerBall(a0, scpSearchGobj(1961), 220.0f) == 0) {
         _ACTWait(1);
     }
     lt_switch_layout(55);
@@ -185,7 +185,7 @@ done:
     lt_switch_layout(54);
 }
 
-void actSt19aPipeChk(volatile int a0)
+void actSt19aPipeChk(GObj *volatile a0)
 {
     int i;
 
@@ -229,7 +229,7 @@ void actSt19aPipeChk(volatile int a0)
     lt_switch_layout(54);
 }
 
-void actSt19aChainDown(volatile int a0)
+void actSt19aChainDown(GObj *volatile a0)
 {
     int *th;
 
@@ -264,9 +264,9 @@ void actSt19aChainDown(volatile int a0)
     lt_switch_layout(54);
 }
 
-void actSt19bIntro(volatile int a0)
+void actSt19bIntro(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
 
     actInitialize(a0);
     _ACTWait(1);
@@ -298,9 +298,9 @@ void actSt19bIntro(volatile int a0)
     }
 }
 
-void actSt19aOri(volatile int a0)
+void actSt19aOri(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     Act *self = actInitialize(a0);
 
     _ACTWait(1);
@@ -319,9 +319,9 @@ void actSt19aOri(volatile int a0)
     }
 }
 
-void actSt19aOriXL(volatile int a0)
+void actSt19aOriXL(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
 
     actInitialize(a0);
     _ACTWait(1);
@@ -331,9 +331,9 @@ void actSt19aOriXL(volatile int a0)
     stage_SetAnimation(142, 0, 0);
 }
 
-void actSt19aPipe(volatile int a0)
+void actSt19aPipe(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
 
     Act *self = actInitialize(a0);
     _ACTWait(1);
@@ -353,9 +353,9 @@ void actSt19aPipe(volatile int a0)
     }
 }
 
-void actSt19aPipeXL(volatile int a0)
+void actSt19aPipeXL(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
 
     actInitialize(a0);
     _ACTWait(1);
@@ -367,9 +367,9 @@ void actSt19aPipeXL(volatile int a0)
     }
 }
 
-void actSt19aChain(volatile int a0)
+void actSt19aChain(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     Act *self = actInitialize(a0);
 
     _ACTWait(1);
@@ -386,9 +386,9 @@ void actSt19aChain(volatile int a0)
     }
 }
 
-void actSt19aOriMain(volatile int a0)
+void actSt19aOriMain(GObj *volatile a0)
 {
-    Act *sub = (Act *)((PObjGObj *)a0)->act;
+    Act *sub = GOBJ_ACT(a0);
 
     scpBoyControlReadDisable = 0;
 
@@ -399,9 +399,9 @@ void actSt19aOriMain(volatile int a0)
     }
 }
 
-void actSt19aOriSwitch(volatile int a0)
+void actSt19aOriSwitch(GObj *volatile a0)
 {
-    Act *sub = (Act *)((PObjGObj *)a0)->act;
+    Act *sub = GOBJ_ACT(a0);
 
     scpBoyControlReadDisable = 1;
 
@@ -412,9 +412,9 @@ void actSt19aOriSwitch(volatile int a0)
     _ACTWait(0);
 }
 
-void actSt19aChainMain(volatile int a0)
+void actSt19aChainMain(GObj *volatile a0)
 {
-    Act *sub = (Act *)((PObjGObj *)a0)->act;
+    Act *sub = GOBJ_ACT(a0);
 
     scpBoyControlReadDisable = 0;
 
@@ -425,9 +425,9 @@ void actSt19aChainMain(volatile int a0)
     }
 }
 
-void actSt19aChainSwitch(volatile int a0)
+void actSt19aChainSwitch(GObj *volatile a0)
 {
-    Act *sub = (Act *)((PObjGObj *)a0)->act;
+    Act *sub = GOBJ_ACT(a0);
 
     scpBoyControlReadDisable = 1;
 
@@ -441,7 +441,7 @@ void actSt19aChainSwitch(volatile int a0)
     }
 }
 
-void actSt19aChainDownSub(volatile int a0)
+void actSt19aChainDownSub(GObj *volatile a0)
 {
     _ACTWait(60);
 

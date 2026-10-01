@@ -298,7 +298,7 @@ void gamesysGeneratorInfoSave(int *self)
 
 void gamesysGeneratorInfoLoad(int *a0)
 {
-    int s1 = GetbufpGeneratorPacket();
+    int *s1 = GetbufpGeneratorPacket();
     int s2 = GetsizeGeneratorPacket();
     if (s1 != 0) {
         memcpy(s1, a0[0] + a0[1], s2);
@@ -320,7 +320,7 @@ void gamesysHintInfoSave(int *self)
 
 void gamesysHintInfoLoad(int *a0)
 {
-    int s1 = GetBuffHintSaveInfo();
+    char *s1 = GetBuffHintSaveInfo();
     int s2 = GetSizeHintSaveInfo();
     if (s1 != 0) {
         memcpy(s1, a0[0] + a0[1], s2);
@@ -342,7 +342,7 @@ void gamesysCharacterInfoSave(int *self)
 
 void gamesysCharacterInfoLoad(int *a0)
 {
-    int s1 = GetbufpCharacterPacket();
+    int *s1 = GetbufpCharacterPacket();
     int s2 = GetsizeCharacterPacket();
     if (s1 != 0) {
         memcpy(s1, a0[0] + a0[1], s2);
@@ -407,7 +407,7 @@ int *gamesysObjInfoUniqDataSet(int a0)
     int idx;
 
     p = gamesysObjInfoBaseSet((int *)a0, stage_no);
-    idx = ((PObjGObj *)a0)->kind;
+    idx = ((GObj *)a0)->kind;
     elem = (ObjKindEnt *)((char *)objKindData + idx * 0x64);
     fn = elem->uniqDataSet;
     if (fn != 0) {
@@ -554,7 +554,7 @@ void gamesysVersionLoad(int *self)
 {
     int buf[8];
     gamesysMemoryHandlerRead(self, buf, 18);
-    if (strcmp((int *)stamp_str, buf) != 0) {
+    if (strcmp(stamp_str, buf) != 0) {
         gamesysVersionDiff = 1;
     } else {
         gamesysVersionDiff = 0;

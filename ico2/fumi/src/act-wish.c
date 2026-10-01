@@ -24,12 +24,12 @@ static inline unsigned char chkOrient(char *s, float *dir, float *w, float deg)
     return 0;
 }
 
-void ACTGetWish_FromPad(char *a0, float *a1)
+void ACTGetWish_FromPad(GObj *a0, float *a1)
 {
     float v[4];
     float u[4];
     float p[4];
-    char *o;
+    GObj *o;
     Act *s = GOBJ_ACT(a0);
     float deg;
 
@@ -43,7 +43,7 @@ void ACTGetWish_FromPad(char *a0, float *a1)
 
     s->wish4.ll |= 2;
 
-    if ((s->padNow & 0x20) || GOBJ_WORK(a0)->f_340 < 0.9) {
+    if ((s->padNow & 0x20) || GOBJ_WORK(a0)->stickMag < 0.9) {
         s->wish4.ll |= 4;
     }
     s->wish3.ll |= 1ULL << 63;
@@ -71,7 +71,7 @@ void ACTGetWish_FromPad(char *a0, float *a1)
     if (a0 == boyGObj) {
         if (0.1f < s->stickMag && ((int)(s->wish1.ll >> 5) & 1) &&
             chkOrient((char *)s, a1, u, 80.0f)) {
-            if (!(s->padNow & 8) || girlGObj == 0 || GOBJ_WORK(girlGObj)->f_3A0 == 0) {
+            if (!(s->padNow & 8) || girlGObj == 0 || GOBJ_WORK(girlGObj)->timer3A0 == 0) {
                 s->wish3.ll |= 0x20;
             }
         }
@@ -198,9 +198,9 @@ void ACTGetWish_FromPad(char *a0, float *a1)
             s->wish2.ll |= 1ULL << 40;
 
             s->wish2.ll |= 1ULL << 41;
-            GOBJ_WORK(a0)->f_350 = a1[0];
-            GOBJ_WORK(a0)->f_354 = a1[1];
-            GOBJ_WORK(a0)->f_358 = a1[2];
+            GOBJ_WORK(a0)->padWishX = a1[0];
+            GOBJ_WORK(a0)->padWishY = a1[1];
+            GOBJ_WORK(a0)->padWishZ = a1[2];
         }
         s->wish2.ll |= 1ULL << 42;
         s->wish2.ll |= 1ULL << 43;
@@ -210,7 +210,7 @@ void ACTGetWish_FromPad(char *a0, float *a1)
         /* Both arms set the same bit; gcc cross-jumps them and drops the
            branch, leaving the compare'(char *)s two operands as dead instructions --
            which is exactly what ROM has here. */
-        if (*(int *)(a0 + 0xC) == 1) {
+        if (a0->kind == 1) {
             s->wish2.ll |= 1ULL << 44;
         } else {
             s->wish2.ll |= 1ULL << 44;
@@ -228,10 +228,11 @@ void ACTGetWish_FromPad(char *a0, float *a1)
 
     if (s->padNow & 8) {
         if (GOBJ_SUB(a0)->motion == 0xBA) {
-            GOBJ_WORK(a0)->f_38C = (0x3C - systemStatus[0] * 0xA) / systemStatus[1] / 6;
+            GOBJ_WORK(a0)->noInterpTimer = (0x3C - systemStatus[0] * 0xA) / systemStatus[1] / 6;
         }
-        if (GOBJ_WORK(a0)->f_390 == 0) {
-            GOBJ_WORK(a0)->f_390 = (0x3C - systemStatus[0] * 0xA) / systemStatus[1] * 0x50 / 0x3C;
+        if (GOBJ_WORK(a0)->wishHoldTimer == 0) {
+            GOBJ_WORK(a0)->wishHoldTimer =
+                (0x3C - systemStatus[0] * 0xA) / systemStatus[1] * 0x50 / 0x3C;
         }
         s->wish2.ll |= 1ULL << 46;
         s->wish4.ll |= 0x80;
@@ -247,7 +248,7 @@ void ACTGetWish_FromPad(char *a0, float *a1)
         }
     }
 
-    if (GOBJ_WORK(a0)->f_390 != 0) {
+    if (GOBJ_WORK(a0)->wishHoldTimer != 0) {
         s->wish2.ll |= 1ULL << 46;
     }
 

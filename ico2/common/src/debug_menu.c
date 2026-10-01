@@ -84,6 +84,6 @@ extern ObjKindEnt objKindData[];
 
 char *debug_TargetGObj_Func(int idx)
 {
-    int kind = ((PObjGObj *)GetGObjP(idx))->kind;
+    int kind = ((GObj *)GetGObjP(idx))->kind;
     return objKindData[kind].name;
 }

@@ -28,7 +28,7 @@ char *soundDataAreaSearch(int *a0);
 char *soundDataAreaGet(int a0, int a1, int a2, int a3);
 char *soundHDDataSet(int a0, int a1, int a2, int a3, int a4);
 char *soundSQDataSet(int a0, int a1, int a2, int a3, int a4);
-int soundSeDefPlay(int a0, unsigned int a1, int a2, int a3);
+int soundSeDefPlay(int a0, unsigned int a1, float *pos, int a3);
 int soundSeDefPlayWithVolumeRate(int a0, int a1, int a2, int a3);
 float soundSeDefVolumeRateGet(int a0);
 void soundSeDefVolumeRateSet(int a0, float f);
@@ -54,13 +54,36 @@ void soundReverbDepthSet(int a0);
 void soundSeDefStop(int a0);
 void soundSeDefStopNoRelease(int a0);
 void soundSeEnvNotUseClose();
-
 /* s_init.o's .sdata globals (MAIN.MAP) */
 extern float soundSeEnvMasterVolRate;
 extern int seEnvForceClose;
 extern int soundIopHeapAddrs;
-
 void soundAllocIopFree(void);
 void soundSeEnvPlay(void);
+
+/* sedef: one sound effect, 0x3C bytes. Readers: ico2/fumi/sound/s_init.c
+ * (SeSrcDef), ico2/fumi/src/seMail.c (SeRec: mail, check, 0x34, flags),
+ * ico2/common/src/debug.c, ico2/sugipon/src/frameDependSequence.c (0x20).
+ * Owner: ico2/fumi/include/s_init.h. */
+typedef struct {                                   /* field names derived */
+    char name[32];                                 /* 0x00 */
+    int kind;                                      /* 0x20, the seKind row */
+    float volume;                                  /* 0x24 */
+    int mail;                                      /* 0x28 */
+    int (*check)(int target, int self, void *rec); /* 0x2C */
+    int word30;                                    /* 0x30 */
+    unsigned short mailArg;                        /* 0x34, ACTGame_SendSoundMail's argument */
+    unsigned short half36;                         /* 0x36 */
+    unsigned int flags;                            /* 0x38 */
+} SeDef;                                           /* derived name */
+
+/* selist: one sound kind, 8 bytes. Reader: ico2/fumi/sound/s_init.c
+ * (SeKind). Owner: ico2/fumi/include/s_init.h. */
+typedef struct { /* field names derived */
+    short num;   /* 0x00 */
+    short half2; /* 0x02 */
+    short half4; /* 0x04 */
+    short idx;   /* 0x06 */
+} SeKind;        /* derived name */
 
 #endif /* S_INIT_H */

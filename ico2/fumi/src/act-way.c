@@ -31,7 +31,7 @@ typedef struct {
 /* the three detour angles DetourCheck sweeps, in degrees, zero-terminated */
 static int detourAngle[4] = {75, -75, 0, 0};
 
-void DetourCheck(char *self, float *out)
+void DetourCheck(GObj *self, float *out)
 {
     float orient[4];
     float cur[4];
@@ -102,7 +102,7 @@ typedef struct {
 
 extern EnemyParaRow motionKind[];
 
-int checkPositionIllegal(char *self, float *pos)
+int checkPositionIllegal(GObj *self, float *pos)
 {
     float v[4];
     float r[4];
@@ -219,7 +219,7 @@ static inline int RequestWayBegin(char *self, float *goal, float *from, WayWork 
     return w;
 }
 
-int ACTWayMove_BeginDetail(char *self, float *goal, float *from, void *tgt, void *e,
+int ACTWayMove_BeginDetail(GObj *self, float *goal, float *from, void *tgt, void *e,
                            unsigned char sub)
 {
     WayWork way;
@@ -302,7 +302,7 @@ static WayStep wayStepClear = {{0.0f, 0.0f, 0.0f, 0.0f}, 0, 3.4028235e38f, 3.402
    returns gv.h carries, and its GetRootProjectionPosOfGObj / IsThisBoxTruck
    call forms do not fit motionManager2.h and box.h */
 
-int ACTWayMove_NextDetail(char *self, float *node, float *goal, unsigned char d, unsigned char e)
+int ACTWayMove_NextDetail(GObj *self, float *node, float *goal, unsigned char d, unsigned char e)
 {
     float pos[4];
     Act *act = GOBJ_ACT(self);
@@ -396,7 +396,7 @@ int ACTWayMove_NextDetail(char *self, float *node, float *goal, unsigned char d,
             }
             act->stickMag = 1.0f;
             act->wayState.st[1] = 0;
-            if (self == (char *)girlGObj && goal[1] - *(float *)((char *)act + 0x414) > 150.0f &&
+            if (self == girlGObj && goal[1] - *(float *)((char *)act + 0x414) > 150.0f &&
                 pos[1] < goal[1]) {
                 if (((int)(act->wayState.flags >> 17) & 0xF) == 0) {
                     *(int *)((char *)act + 0x430) =
@@ -433,7 +433,7 @@ int ACTWayMove_NextDetail(char *self, float *node, float *goal, unsigned char d,
     }
     switch (act->wayState.st[1]) {
     case 0:
-        if (self == (char *)girlGObj) {
+        if (self == girlGObj) {
             SuspendGirlPullupFloorBox();
         }
         *(short *)((char *)act + 0x3F0) = 1;
@@ -449,13 +449,13 @@ int ACTWayMove_NextDetail(char *self, float *node, float *goal, unsigned char d,
                 *(int *)((char *)act + 0x400) = w;
             }
         }
-        if (self == (char *)girlGObj) {
+        if (self == girlGObj) {
             ResumeGirlPullupFloorBox();
         }
         act->wayNodeX = *(float *)((char *)act + 0x3B0);
         act->wayNodeY = *(float *)((char *)act + 0x3B4);
         act->wayNodeZ = *(float *)((char *)act + 0x3B8);
-        if (self == (char *)boyGObj || self == (char *)girlGObj) {
+        if (self == boyGObj || self == girlGObj) {
             DetourCheck(self, (float *)((char *)act + 0x3E0));
         }
         if (*(int *)((char *)act + 0x39C) == 0 &&
@@ -475,7 +475,7 @@ int ACTWayMove_NextDetail(char *self, float *node, float *goal, unsigned char d,
             chk = 0;
         }
         if (stage_no == 8 || chk != 0) {
-            if (self == (char *)girlGObj && wallGObj_ACTCheckCollis_WAY != 0 &&
+            if (self == girlGObj && wallGObj_ACTCheckCollis_WAY != 0 &&
                 *(int *)((char *)wallGObj_ACTCheckCollis_WAY + 0xC) == 17 &&
                 IsThisBoxTruck((char *)wallGObj_ACTCheckCollis_WAY) != 7 &&
                 _DistSqGV(goal, test_CURRENTROOT(wallGObj_ACTCheckCollis_WAY)) < 40000.0f &&
@@ -508,7 +508,7 @@ int ACTWayMove_NextDetail(char *self, float *node, float *goal, unsigned char d,
             goto restart;
         }
         _OrientXZGV((float *)((char *)act + 0x3E0), goal, pos);
-        if (self == (char *)boyGObj || self == (char *)girlGObj) {
+        if (self == boyGObj || self == girlGObj) {
             DetourCheck(self, (float *)((char *)act + 0x3E0));
         }
         act->wayGoalDist = _DistxzGV(goal, pos);
@@ -520,7 +520,7 @@ int ACTWayMove_NextDetail(char *self, float *node, float *goal, unsigned char d,
     }
     }
     if (act->wayStep == 0 ||
-        (stage_no == 22 && *(int *)(self + 0xC) == 4 && ((int)(act->wayFlags >> 17) & 1) != 0)) {
+        (stage_no == 22 && self->kind == 4 && ((int)(act->wayFlags >> 17) & 1) != 0)) {
         goto done;
     }
 restart:
@@ -533,7 +533,7 @@ done:
     return 1;
 }
 
-int ACTWayExec_Position(char *self, int a1, float *dir, float speed, int a3)
+int ACTWayExec_Position(GObj *self, int a1, float *dir, float speed, int a3)
 {
     /* listing lines 677/678 carry every flag test inside this function's own
        span: an inline function nested in the body, reading the enclosing a3
@@ -562,7 +562,7 @@ int ACTWayExec_Position(char *self, int a1, float *dir, float speed, int a3)
         v[2] = dir[2];
     }
     if (way_flag(4)) {
-        GetRootProjectionPosOfGObj(pos, (void *)a1);
+        GetRootProjectionPosOfGObj(pos, a1);
         if (WayMove_CheckCollis(pos, v, 0, 0)) {
             v[0] = pos[0];
             v[1] = pos[1];
@@ -603,7 +603,7 @@ int ACTWayExec_Position(char *self, int a1, float *dir, float speed, int a3)
     }
 }
 
-int ACTWay_IsMustWalkFromWay(char *a0)
+int ACTWay_IsMustWalkFromWay(GObj *a0)
 {
     char *w = GOBJ_ACT(a0)->wayPoint;
     float d;

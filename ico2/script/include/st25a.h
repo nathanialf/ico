@@ -12,23 +12,22 @@
 #ifndef ST25A_H
 #define ST25A_H
 
-void actConte12(volatile int a0);
-void actConte12Jimaku(volatile int a0);
-void actConte13Jimaku(volatile int a0);
-void actSt25aElevCharaChk(volatile int a0);
-void actSt25aElevChk(volatile int a0);
-void actSt25aQueenAppearChk(volatile int a0);
-void actSt25aQueenDeadChk(volatile int a0);
-void actSt25aQueenTalkChk(volatile int a0);
+#include "typedef.h"
 
+void actConte12(GObj *volatile a0);
+void actConte12Jimaku(GObj *volatile a0);
+void actConte13Jimaku(GObj *volatile a0);
+void actSt25aElevCharaChk(GObj *volatile a0);
+void actSt25aElevChk(GObj *volatile a0);
+void actSt25aQueenAppearChk(GObj *volatile a0);
+void actSt25aQueenDeadChk(GObj *volatile a0);
+void actSt25aQueenTalkChk(GObj *volatile a0);
 extern const char faceShadowTex[];
 extern const char faceShadowTex00[];
-
 /* MAIN.MAP globals of st25a.o's .sdata: ADPCM request slots */
-extern int conte12;
-extern int sd2;
-extern int dead;
-
+extern char *conte12;
+extern char *sd2;
+extern char *dead;
 void BoySekikaTexScroll(void);
 
 #endif /* ST25A_H */

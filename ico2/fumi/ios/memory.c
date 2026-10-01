@@ -73,7 +73,7 @@ IosMemPart *iosMallocSetPartition(IosMemPart *part, int size, int align)
         debug_StdPrintfDummy("mem:null partition pointer\n");
         return 0;
     }
-    if (strcmp((int *)part, "<PARTITION>____") != 0) {
+    if (strcmp(part->tag, "<PARTITION>____") != 0) {
         debug_StdPrintfDummy("mem:illegal partition pointer\n");
         return 0;
     }
@@ -112,7 +112,7 @@ IosMemPart *iosMallocResetPartition(IosMemPart *part)
         debug_StdPrintfDummy("mem:null partition pointer\n");
         return 0;
     }
-    if (strcmp((int *)part, "<PARTITION>____") != 0) {
+    if (strcmp(part->tag, "<PARTITION>____") != 0) {
         debug_StdPrintfDummy("mem:illegal partition pointer\n");
         return 0;
     }
@@ -133,17 +133,17 @@ IosMemPart *iosMallocResetPartition(IosMemPart *part)
     return part;
 }
 
-int iosMallocSetPartitionName(int *a0, int a1)
+int iosMallocSetPartitionName(IosMemPart *part, char *name)
 {
-    if (a0 == 0) {
+    if (part == 0) {
         debug_StdPrintfDummy("mem:null partition pointer\n");
         return 0;
     }
-    if (strcmp(a0, "<PARTITION>____") != 0) {
+    if (strcmp(part->tag, "<PARTITION>____") != 0) {
         debug_StdPrintfDummy("mem:illegal partition pointer\n");
         return 0;
     }
-    strcpy((unsigned char *)((char *)a0 + 0x10), a1);
+    strcpy(part->name, name);
 }
 
 void iosMallocClearPartition(IosMemPart *part)
@@ -154,7 +154,7 @@ void iosMallocClearPartition(IosMemPart *part)
         debug_StdPrintfDummy("mem:null partition pointer\n");
         return;
     }
-    if (strcmp((int *)part, "<PARTITION>____") != 0) {
+    if (strcmp(part->tag, "<PARTITION>____") != 0) {
         debug_StdPrintfDummy("mem:illegal partition pointer\n");
         return;
     }
@@ -167,7 +167,7 @@ void iosMallocClearPartition(IosMemPart *part)
         while (child != part) {
             if (child->parent != 0) {
                 child = child->parent;
-            } else if (strcmp((int *)child, "<PARTITION>____") != 0) {
+            } else if (strcmp(child->tag, "<PARTITION>____") != 0) {
                 debug_StdPrintfDummy("mem:illegal partition pointer\n");
                 return;
             } else {
@@ -234,7 +234,7 @@ void *_iosMallocDebug(IosMemPart *part, int size, char *file, int line)
         mallocBusy = 0;
         return 0;
     }
-    if (strcmp((int *)part, "<PARTITION>____") != 0) {
+    if (strcmp(part->tag, "<PARTITION>____") != 0) {
         debug_assertMessage(__FILE__, 562, "IOSMALLOC():\nNULL PARTITION POINTER AT MALLOC\n");
         __assert(__FILE__, 562, "e");
         mallocBusy = 0;
@@ -242,7 +242,7 @@ void *_iosMallocDebug(IosMemPart *part, int size, char *file, int line)
     }
     need = (((size + 0xF) & 0xFFFFFFF0) + 0x40) >> 4;
     for (node = part->head; node != 0; node = node->free_next) {
-        if (strcmp((int *)node, "<FREE AREA>____") != 0) {
+        if (strcmp(node->tag, "<FREE AREA>____") != 0) {
             debug_StdPrintfDummy("mem:illegal free area pointer\n");
             if (node->prev != 0) {
                 debug_StdPrintfDummy("mem: prev block, %08x called at %s\n", node->prev,
@@ -295,7 +295,7 @@ void *_iosMallocDebug(IosMemPart *part, int size, char *file, int line)
             }
             *(IosMemTag *)node = *(IosMemTag *)"<ALLOC>________";
             name = best->name;
-            strncpy(name, (int)file, 15);
+            strncpy(name, file, 15);
             if (strlen(file) < 16) {
                 len = strlen(file);
             }
@@ -419,7 +419,7 @@ void *iosFree(void *ptr)
         next = (IosMemNode *)((char *)prev - (n - 0x10));
     }
     node = (IosMemNode *)((char *)next - 0x40);
-    if (strcmp((int *)node, "<ALLOC>________") != 0) {
+    if (strcmp(node->tag, "<ALLOC>________") != 0) {
         sprintf(buf, "IOSFREE():\n\tPREV MAGIC: %s\n\t CUR MAGIC: %s\n\tNEXT MAGIC: %s\n",
                 node->prev, node, node->next);
         debug_assertMessage(__FILE__, 836, buf);
@@ -429,9 +429,9 @@ void *iosFree(void *ptr)
     next = node->next;
     prev = node->prev;
     if (prev != 0) {
-        if (strcmp((int *)prev, "<FREE AREA>____") == 0) {
+        if (strcmp(prev->tag, "<FREE AREA>____") == 0) {
             if (next != 0) {
-                if (strcmp((int *)next, "<FREE AREA>____") == 0) {
+                if (strcmp(next->tag, "<FREE AREA>____") == 0) {
                     if (prev->free_next == next) {
                         fn = next->free_next;
                         prev->free_next = fn;
@@ -467,7 +467,7 @@ void *iosFree(void *ptr)
                     if (next->next != 0) {
                         next->next->prev = prev;
                     }
-                } else if (strcmp((int *)next, "<ALLOC>________") == 0) {
+                } else if (strcmp(next->tag, "<ALLOC>________") == 0) {
                     prev->next = next;
                     next->prev = prev;
                 } else {
@@ -487,14 +487,14 @@ void *iosFree(void *ptr)
             *(IosMemTag *)node = *(IosMemTag *)" free memory1  ";
             goto ret_ptr;
         }
-        if (strcmp((int *)prev, "<ALLOC>________") != 0) {
+        if (strcmp(prev->tag, "<ALLOC>________") != 0) {
             goto err_3bf;
         }
     }
     if (next == 0) {
         goto tail_node;
     }
-    if (strcmp((int *)next, "<ALLOC>________") == 0) {
+    if (strcmp(next->tag, "<ALLOC>________") == 0) {
         node->free_prev = 0;
         node->free_next = ((IosMemNode *)node->part)->head;
         ((IosMemNode *)node->part)->head = node;
@@ -503,7 +503,7 @@ void *iosFree(void *ptr)
         }
         goto tag_free;
     }
-    if (strcmp((int *)next, "<FREE AREA>____") != 0) {
+    if (strcmp(next->tag, "<FREE AREA>____") != 0) {
         goto err_3b5;
     }
     fn = next->free_prev;
@@ -563,9 +563,9 @@ void iosMallocCheckLeak(IosMemPart *part)
 
     node = (IosMemNode *)part->start;
     while (node != 0) {
-        if (strcmp((int *)node, "<ALLOC>________") != 0 &&
-            strcmp((int *)node, "<FREE AREA>____") != 0 &&
-            strcmp((int *)node, " free memory   ") != 0) {
+        if (strcmp(node->tag, "<ALLOC>________") != 0 &&
+            strcmp(node->tag, "<FREE AREA>____") != 0 &&
+            strcmp(node->tag, " free memory   ") != 0) {
             debug_StdPrintfDummy("magic broken :%p\n", node);
             found = 1;
             break;
@@ -578,11 +578,11 @@ void iosMallocCheckLeak(IosMemPart *part)
         node = (IosMemNode *)part->start;
         while (node != 0) {
             debug_StdPrintfDummy("mem:addr:$%08x ", node);
-            if (strcmp((int *)node, "<ALLOC>________") == 0) {
+            if (strcmp(node->tag, "<ALLOC>________") == 0) {
                 debug_StdPrintfDummy("ALLOC ");
-            } else if (strcmp((int *)node, "<FREE AREA>____") == 0) {
+            } else if (strcmp(node->tag, "<FREE AREA>____") == 0) {
                 debug_StdPrintfDummy("FREEAREA ");
-            } else if (strcmp((int *)node, " free memory   ") == 0) {
+            } else if (strcmp(node->tag, " free memory   ") == 0) {
                 debug_StdPrintfDummy("DELETED_MEMORY ");
             } else {
                 debug_StdPrintfDummy("!!! unrecognized memory block !!!\n");
@@ -664,7 +664,7 @@ void *iosReallocDebug(void *ptr, unsigned int size)
         *((char *)ptr - 0x10) = 0;
     }
     node = (IosMemNode *)((char *)next - 0x40);
-    if (strcmp((int *)node, "<ALLOC>________") != 0) {
+    if (strcmp(node->tag, "<ALLOC>________") != 0) {
         sprintf(buf, "IOSFREE():\n\tPREV MAGIC: %s\n\t CUR MAGIC: %s\n\tNEXT MAGIC: %s\n",
                 node->prev, node, node->next);
         debug_assertMessage(__FILE__, 1199, buf);
@@ -672,7 +672,7 @@ void *iosReallocDebug(void *ptr, unsigned int size)
         return 0;
     }
     nd = node->next;
-    if (strcmp((int *)nd, "<FREE AREA>____") != 0) {
+    if (strcmp(nd->tag, "<FREE AREA>____") != 0) {
         debug_StdPrintfDummy("mem:realloc; not support yet\n");
         __asm__ __volatile__("break");
         return 0;

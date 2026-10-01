@@ -50,7 +50,7 @@ typedef struct ActSt04A {
     int unk478;        /* 0x478 */
 } ActSt04A;
 
-/* kept local: this TU's bytes only come out with its own view of PObjGObj, so it
+/* kept local: this TU's bytes only come out with its own view of GObj, so it
    keeps one under its own name; the shared view is in ico2/common/include/typedef.h. */
 typedef struct PObjGObjSt04A {
     char pad00[348]; /* 0x000 */
@@ -90,10 +90,10 @@ static ActMail torch_hint_mail[2] = {{430}, {429}}; /* derived name */
 
 static ActMail model_mail[2] = {{430}, {429}}; /* derived name */
 
-void actSt04aGate(volatile int a0)
+void actSt04aGate(GObj *volatile a0)
 {
-    int x = a0;
-    ActSt04A *self = actInitialize(a0);
+    GObj *x = a0;
+    Act *self = actInitialize(a0);
     _ACTWait(1);
 
     MallocStreamMotionBuffer();
@@ -131,7 +131,7 @@ extern char streamMotion[];
 /* .sdata, owned by st04a.o, the head of the run: the first gate's stream
    handle and gate1, which the retail code does not use (MAIN.MAP globals).
    actSt04aConte06's "!!\n" trace follows them. */
-int gate1st = 0;
+char *gate1st = 0;
 
 int gate1 = 0;
 
@@ -143,7 +143,7 @@ static int demoEnd;
 
 static int conte09_3Running;
 
-void actSt04aGateChk(volatile int a0)
+void actSt04aGateChk(GObj *volatile a0)
 {
     int *th0;
     int *th1;
@@ -308,10 +308,10 @@ void actSt04aGateChk(volatile int a0)
         GOBJ_SUB(girlGObj)->word514 =
             (int)((float)((0x3C - systemStatus[0] * 0xA) / systemStatus[1]) / 60.0f * 0.0f);
 
-        sceVu0SubVector(dir, test_CURRENTROOT((int)girlGObj), test_CURRENTROOT((int)boyGObj));
+        sceVu0SubVector(dir, test_CURRENTROOT(girlGObj), test_CURRENTROOT(boyGObj));
         scpPlayMotDir(boyGObj, dir);
 
-        sceVu0SubVector(dir, test_CURRENTROOT((int)boyGObj), test_CURRENTROOT((int)girlGObj));
+        sceVu0SubVector(dir, test_CURRENTROOT(boyGObj), test_CURRENTROOT(girlGObj));
         scpPlayMotDir(girlGObj, dir);
     }
 
@@ -320,7 +320,7 @@ void actSt04aGateChk(volatile int a0)
 
     _ACTWait(1);
 
-    iosOmSendMail(girlGObj, 0x3F, boyGObj);
+    iosOmSendMail(girlGObj, 0x3F, (int)boyGObj);
 
     scpBoyControlReadDisable = 0;
 
@@ -333,7 +333,7 @@ void actSt04aGateChk(volatile int a0)
     stgmgrNextStagePreLoadDistBoyMode();
 }
 
-void actSt04aConte06(volatile int a0)
+void actSt04aConte06(GObj *volatile a0)
 {
     stage_SetAnimation(648, 1, 0);
 
@@ -481,17 +481,17 @@ void actSt04aConte06(volatile int a0)
    and torch stream handles (the first three are the retail object's own, the
    next three MAIN.MAP's globals), then the pad shakes and their volumes
    (MAIN.MAP globals, declared in st04a.h for actSt04aConte06). */
-static int gate_open = 0; /* derived name */
+static char *gate_open = 0; /* derived name */
 
-static int gate_open2 = 0; /* derived name */
+static char *gate_open2 = 0; /* derived name */
 
-static int conte09_2 = 0; /* derived name */
+static char *conte09_2 = 0; /* derived name */
 
-int gate_ready_l = 0;
+char *gate_ready_l = 0;
 
-int gate_ready_r = 0;
+char *gate_ready_r = 0;
 
-int torch = 0;
+char *torch = 0;
 
 int gate_yure_low = 0;
 
@@ -505,7 +505,7 @@ int yure2 = 0;
 
 unsigned char vol2 = 0;
 
-void actSt04aConte06Jimaku(volatile int a0)
+void actSt04aConte06Jimaku(GObj *volatile a0)
 {
     float t;
     float tn;
@@ -518,80 +518,80 @@ void actSt04aConte06Jimaku(volatile int a0)
             jimakuBegin(&jimaku_msg);
             break;
         case 0xFA:
-            jimaku_msg.sub.unk2C = 0x19;
-            jimaku_msg.sub.unk38 = -1;
+            jimaku_msg.sub.block = 0x19;
+            jimaku_msg.sub.jump = -1;
             jimakuOn = 1;
             jimakuJump(&jimaku_msg);
             break;
         case 0x564:
-            jimaku_msg.sub.unk2C = 0x1A;
-            jimaku_msg.sub.unk38 = 0x3C;
+            jimaku_msg.sub.block = 0x1A;
+            jimaku_msg.sub.jump = 0x3C;
             jimakuOn = 1;
             jimakuJump(&jimaku_msg);
             break;
         case 0x94C:
-            jimaku_msg.sub.unk2C = 0x1F;
-            jimaku_msg.sub.unk38 = -1;
+            jimaku_msg.sub.block = 0x1F;
+            jimaku_msg.sub.jump = -1;
             jimakuOn = 1;
             jimakuJump(&jimaku_msg);
             break;
         case 0xB2D:
-            jimaku_msg.sub.unk2C = 0x22;
-            jimaku_msg.sub.unk38 = 0x96;
+            jimaku_msg.sub.block = 0x22;
+            jimaku_msg.sub.jump = 0x96;
             jimakuOn = 1;
             jimakuJump(&jimaku_msg);
             break;
         case 0xC58:
-            jimaku_msg.sub.unk2C = 0x23;
-            jimaku_msg.sub.unk38 = -1;
+            jimaku_msg.sub.block = 0x23;
+            jimaku_msg.sub.jump = -1;
             jimakuOn = 1;
             jimakuJump(&jimaku_msg);
             break;
         case 0xD84:
-            jimaku_msg.sub.unk2C = 0x24;
-            jimaku_msg.sub.unk38 = -1;
+            jimaku_msg.sub.block = 0x24;
+            jimaku_msg.sub.jump = -1;
             jimakuOn = 1;
             jimakuJump(&jimaku_msg);
             break;
         case 0xEB0:
-            jimaku_msg.sub.unk2C = 0x25;
-            jimaku_msg.sub.unk38 = 0xAE;
+            jimaku_msg.sub.block = 0x25;
+            jimaku_msg.sub.jump = 0xAE;
             jimakuOn = 1;
             jimakuJump(&jimaku_msg);
             break;
         case 0x1054:
-            jimaku_msg.sub.unk2C = 0x26;
-            jimaku_msg.sub.unk38 = 0xAE;
+            jimaku_msg.sub.block = 0x26;
+            jimaku_msg.sub.jump = 0xAE;
             jimakuOn = 1;
             jimakuJump(&jimaku_msg);
             break;
         case 0x12C0:
-            jimaku_msg.sub.unk2C = 0x2B;
-            jimaku_msg.sub.unk38 = -1;
+            jimaku_msg.sub.block = 0x2B;
+            jimaku_msg.sub.jump = -1;
             jimakuOn = 1;
             jimakuJump(&jimaku_msg);
             break;
         case 0x15CC:
-            jimaku_msg.sub.unk2C = 0x1B;
-            jimaku_msg.sub.unk38 = -1;
+            jimaku_msg.sub.block = 0x1B;
+            jimaku_msg.sub.jump = -1;
             jimakuOn = 1;
             jimakuJump(&jimaku_msg);
             break;
         case 0x17A2:
-            jimaku_msg.sub.unk2C = 0x1D;
-            jimaku_msg.sub.unk38 = -1;
+            jimaku_msg.sub.block = 0x1D;
+            jimaku_msg.sub.jump = -1;
             jimakuOn = 1;
             jimakuJump(&jimaku_msg);
             break;
         case 0x1A54:
-            jimaku_msg.sub.unk2C = 0x30;
-            jimaku_msg.sub.unk38 = -1;
+            jimaku_msg.sub.block = 0x30;
+            jimaku_msg.sub.jump = -1;
             jimakuOn = 1;
             jimakuJump(&jimaku_msg);
             break;
         case 0x1B44:
-            jimaku_msg.sub.unk2C = 0x31;
-            jimaku_msg.sub.unk38 = -1;
+            jimaku_msg.sub.block = 0x31;
+            jimaku_msg.sub.jump = -1;
             jimakuOn = 1;
             jimakuJump(&jimaku_msg);
             break;
@@ -609,10 +609,10 @@ void actSt04aConte06Jimaku(volatile int a0)
     _ACTWait(0);
 }
 
-void actSt04aGateOpen(volatile int a0)
+void actSt04aGateOpen(GObj *volatile a0)
 {
-    int x = a0;
-    ActSt04A *self = actInitialize(a0);
+    GObj *x = a0;
+    Act *self = actInitialize(a0);
     _ACTWait(1);
 
     MallocStreamMotionBuffer();
@@ -653,7 +653,7 @@ static const ConstVec liftOfs2;
 
 extern char D_00618DB0[];
 
-void actSt04aGateOpenChk(volatile int a0)
+void actSt04aGateOpenChk(GObj *volatile a0)
 {
     int *th1;
     int *th2;
@@ -805,7 +805,7 @@ void actSt04aGateOpenChk(volatile int a0)
 
         ofs[0] = liftOfs1.d[0];
         ofs[1] = liftOfs1.d[1];
-        sceVu0SubVector(dir, ofs, test_CURRENTROOT((int)girlGObj));
+        sceVu0SubVector(dir, ofs, test_CURRENTROOT(girlGObj));
         scpPlayMotDir(girlGObj, dir);
     }
 
@@ -827,7 +827,7 @@ static const ConstVec liftOfs1 = {{0.0f, 0.0f, 6000.0f, 1.0f}};
 
 static const ConstVec liftOfs2 = {{-5000.0f, 0.0f, 5300.0f, 1.0f}};
 
-void actConte09(volatile int a0)
+void actConte09(GObj *volatile a0)
 {
     int th1;
     int th2;
@@ -948,7 +948,7 @@ void actConte09(volatile int a0)
     _ACTWait(0);
 }
 
-void actConte09Jimaku(volatile int a0)
+void actConte09Jimaku(GObj *volatile a0)
 {
     float t;
     float tn;
@@ -961,14 +961,14 @@ void actConte09Jimaku(volatile int a0)
             jimakuBegin(&jimaku_msg);
             break;
         case 0x871:
-            jimaku_msg.sub.unk2C = 0x58;
-            jimaku_msg.sub.unk38 = -1;
+            jimaku_msg.sub.block = 0x58;
+            jimaku_msg.sub.jump = -1;
             jimakuOn = 1;
             jimakuJump(&jimaku_msg);
             break;
         case 0x97E:
-            jimaku_msg.sub.unk2C = 0x56;
-            jimaku_msg.sub.unk38 = -1;
+            jimaku_msg.sub.block = 0x56;
+            jimaku_msg.sub.jump = -1;
             jimakuOn = 1;
             jimakuJump(&jimaku_msg);
             break;
@@ -988,7 +988,7 @@ void actConte09Jimaku(volatile int a0)
 
 /* st04a.o's own .rodata: the gate-open exit direction vector. */
 
-void actSt04aGateOpen2Chk(volatile int a0)
+void actSt04aGateOpen2Chk(GObj *volatile a0)
 {
     long long ofs[2];
     float dir[4];
@@ -1008,7 +1008,7 @@ void actSt04aGateOpen2Chk(volatile int a0)
 
     ofs[0] = liftOfs2.d[0];
     ofs[1] = liftOfs2.d[1];
-    sceVu0SubVector(dir, ofs, test_CURRENTROOT((int)boyGObj));
+    sceVu0SubVector(dir, ofs, test_CURRENTROOT(boyGObj));
     scpPlayMotDir(boyGObj, dir);
 
     lt_switch_layout(55);
@@ -1032,7 +1032,7 @@ extern char D_00618E10[];
 
 /* st04a.o's own .rodata: the two demo exit direction vectors. */
 
-void actConte09_2(volatile int a0)
+void actConte09_2(GObj *volatile a0)
 {
     long long ofs[2];
     float dir[4];
@@ -1115,7 +1115,7 @@ void actConte09_2(volatile int a0)
 
     ofs[0] = liftOfs1.d[0];
     ofs[1] = liftOfs1.d[1];
-    sceVu0SubVector(dir, ofs, test_CURRENTROOT((int)girlGObj));
+    sceVu0SubVector(dir, ofs, test_CURRENTROOT(girlGObj));
     scpPlayMotDir(girlGObj, dir);
 
     lt_switch_layout(54);
@@ -1129,7 +1129,7 @@ void actConte09_2(volatile int a0)
 
     ofs[0] = liftOfs2.d[0];
     ofs[1] = liftOfs2.d[1];
-    sceVu0SubVector(dir, ofs, test_CURRENTROOT((int)boyGObj));
+    sceVu0SubVector(dir, ofs, test_CURRENTROOT(boyGObj));
     scpPlayMotDir(boyGObj, dir);
 
     StandbyStreamMotion(D_00618E10);
@@ -1150,10 +1150,10 @@ void actConte09_2(volatile int a0)
     gflagOn(141);
 }
 
-void actSt04aGateOpen3(volatile int a0)
+void actSt04aGateOpen3(GObj *volatile a0)
 {
-    int x = a0;
-    ActSt04A *self = actInitialize(a0);
+    GObj *x = a0;
+    Act *self = actInitialize(a0);
     _ACTWait(1);
 
     if (gflagChk(142) == 0) {
@@ -1178,7 +1178,7 @@ void actSt04aGateOpen3(volatile int a0)
     }
 }
 
-void actSt04aGateOpen3Chk(volatile int a0)
+void actSt04aGateOpen3Chk(GObj *volatile a0)
 {
     if (girlGObj == 0) {
         _ACTWait(0);
@@ -1211,7 +1211,7 @@ void actSt04aGateOpen3Chk(volatile int a0)
     actCreateSubThread(actConte09_3Jimaku, 21);
 }
 
-void actConte09_3(volatile int a0)
+void actConte09_3(GObj *volatile a0)
 {
     conte09_3Running = 1;
 
@@ -1449,7 +1449,7 @@ void actConte09_3(volatile int a0)
     RequestStageChange(3, boyGObj, 0, 16.0f, 16.0f);
 }
 
-void actSt04aGateLChk(volatile int a0)
+void actSt04aGateLChk(GObj *volatile a0)
 {
     int *th;
 
@@ -1506,7 +1506,7 @@ void actSt04aGateLChk(volatile int a0)
     RequestStageChange(4, boyGObj, 0, 1.0f, 8.0f);
 }
 
-void actSt04aGateRChk(volatile int a0)
+void actSt04aGateRChk(GObj *volatile a0)
 {
     int *th;
     int stage;
@@ -1583,10 +1583,10 @@ void actSt04aGateRChk(volatile int a0)
     RequestStageChange(stage, boyGObj, 0, 1.0f, 8.0f);
 }
 
-void actSt04aTorch1(volatile int a0)
+void actSt04aTorch1(GObj *volatile a0)
 {
-    int x = a0;
-    ActSt04A *self = actInitialize(a0);
+    GObj *x = a0;
+    Act *self = actInitialize(a0);
     _ACTWait(1);
 
     if (gflagChk(153) == 0) {
@@ -1669,13 +1669,13 @@ void actSt04aTorch1(volatile int a0)
     }
 }
 
-void actSt04aTorch1Chk(volatile int a0)
+void actSt04aTorch1Chk(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     ActSt04A *self = actInitialize(a0);
     _ACTWait(1);
 
-    switch (*(int *)(a0 + 8)) {
+    switch (a0->labelId) {
     case 0x22B:
         self->unk478 = 0x91;
         self->unk474 = scpSearchGobj(563);
@@ -1748,7 +1748,7 @@ void actSt04aTorch1Chk(volatile int a0)
     }
 }
 
-void actSt04aTorchAllFlagfChk(volatile int a0)
+void actSt04aTorchAllFlagfChk(GObj *volatile a0)
 {
     int i;
     int skip = 0;
@@ -1817,7 +1817,7 @@ void actSt04aTorchAllFlagfChk(volatile int a0)
     scpWakeupEnemyAll();
 }
 
-void actSt04aTorchHintChk(volatile int a0)
+void actSt04aTorchHintChk(GObj *volatile a0)
 {
     while (gflagChk(155) == 0) {
         _ACTWait(1);
@@ -1850,10 +1850,10 @@ void actSt04aTorchHintChk(volatile int a0)
     gflagOn(156);
 }
 
-void actSt04aGateL(volatile int a0)
+void actSt04aGateL(GObj *volatile a0)
 {
-    int x = a0;
-    ActSt04A *self = actInitialize(a0);
+    GObj *x = a0;
+    Act *self = actInitialize(a0);
     _ACTWait(1);
 
     if (gflagChk(138) == 0) {
@@ -1870,10 +1870,10 @@ void actSt04aGateL(volatile int a0)
     }
 }
 
-void actSt04aGateR(volatile int a0)
+void actSt04aGateR(GObj *volatile a0)
 {
-    int x = a0;
-    ActSt04A *self = actInitialize(a0);
+    GObj *x = a0;
+    Act *self = actInitialize(a0);
     _ACTWait(1);
 
     if (gflagChk(139) == 0) {
@@ -1890,9 +1890,9 @@ void actSt04aGateR(volatile int a0)
     }
 }
 
-void actSt04aTorchXL(volatile int a0)
+void actSt04aTorchXL(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
 
     actInitialize(a0);
     _ACTWait(1);
@@ -1900,9 +1900,9 @@ void actSt04aTorchXL(volatile int a0)
     stage_SetAnimation(291, 0, 0);
 }
 
-void actSt04aDeadCam(volatile int a0)
+void actSt04aDeadCam(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
 
     actInitialize(a0);
     _ACTWait(1);
@@ -1924,10 +1924,10 @@ void actSt04aDeadCam(volatile int a0)
     _ACTWait(1);
 }
 
-void actSt04aGateOpen2(volatile int a0)
+void actSt04aGateOpen2(GObj *volatile a0)
 {
-    int x = a0;
-    ActSt04A *self = actInitialize(a0);
+    GObj *x = a0;
+    Act *self = actInitialize(a0);
     _ACTWait(1);
 
     if (gflagChk(141) == 0) {
@@ -1940,10 +1940,10 @@ void actSt04aGateOpen2(volatile int a0)
     }
 }
 
-void actSt04aGateOpen2Ready(volatile int a0)
+void actSt04aGateOpen2Ready(GObj *volatile a0)
 {
-    int x = a0;
-    ActSt04A *self = actInitialize(a0);
+    GObj *x = a0;
+    Act *self = actInitialize(a0);
     _ACTWait(1);
 
     gate_open2_ready_mail[0].func = actSt04aGateOpen2ReadyChk;
@@ -1952,10 +1952,10 @@ void actSt04aGateOpen2Ready(volatile int a0)
     _ACTWait(0);
 }
 
-void actSt04aGirlSit(volatile int a0)
+void actSt04aGirlSit(GObj *volatile a0)
 {
-    int x = a0;
-    ActSt04A *self = actInitialize(a0);
+    GObj *x = a0;
+    Act *self = actInitialize(a0);
     _ACTWait(1);
 
     girl_sit_mail[0].func = actSt04aGirlSitChk;
@@ -1964,10 +1964,10 @@ void actSt04aGirlSit(volatile int a0)
     _ACTWait(0);
 }
 
-void actSt04aTorchHint(volatile int a0)
+void actSt04aTorchHint(GObj *volatile a0)
 {
-    int x = a0;
-    ActSt04A *self = actInitialize(a0);
+    GObj *x = a0;
+    Act *self = actInitialize(a0);
     _ACTWait(1);
 
     if (gflagChk(153) == 0) {
@@ -1978,10 +1978,10 @@ void actSt04aTorchHint(volatile int a0)
     }
 }
 
-void actSt04aModel(volatile int a0)
+void actSt04aModel(GObj *volatile a0)
 {
-    int x = a0;
-    ActSt04A *self = actInitialize(a0);
+    GObj *x = a0;
+    Act *self = actInitialize(a0);
     _ACTWait(1);
 
     scpSearchGobj(648)->active = 0;
@@ -1992,7 +1992,7 @@ void actSt04aModel(volatile int a0)
     _ACTWait(0);
 }
 
-void actSt04aEnvSe(volatile int a0)
+void actSt04aEnvSe(GObj *volatile a0)
 {
     float f = 0.0f;
 
@@ -2017,7 +2017,7 @@ void actSt04aEnvSe(volatile int a0)
     _ACTWait(0);
 }
 
-void actSt04aEnvSeWakare1(volatile int a0)
+void actSt04aEnvSeWakare1(GObj *volatile a0)
 {
     float f = 0.0f;
 
@@ -2051,9 +2051,9 @@ void finishCallBackFunc(int a0)
     Vec4St04A v;
     int i;
 
-    _ApplyMatrix((int)&v, GOBJ_SUB(a0)->nodeMtx, (int)YUnitVector);
+    _ApplyMatrix(&v, GOBJ_SUB(a0)->nodeMtx, YUnitVector);
     v.m[1] = 0.0f;
-    _NormalizeVector((int)GOBJ_SUB(a0) + 0x520, (int)&v);
+    _NormalizeVector((int)GOBJ_SUB(a0) + 0x520, &v);
 
     for (i = 0; i < GOBJ_SUB(a0)->skelNodeNum; i++) {
         *(Mtx44 *)(GOBJ_SUB(a0)->nodeRotElem + i * 64) = jointMtxInit;
@@ -2062,9 +2062,9 @@ void finishCallBackFunc(int a0)
 
 extern char D_00618DE0[];
 
-void actSt04aGateOpen2ReadyChk(volatile int a0)
+void actSt04aGateOpen2ReadyChk(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     int i;
 
     actInitialize(a0);
@@ -2086,7 +2086,7 @@ void actSt04aGateOpen2ReadyChk(volatile int a0)
     scpAdpcmPlayRequestFunc(32, &gate_open2, 1, 0, 0);
 }
 
-void actSt04aEnvSeWakare2(volatile int a0)
+void actSt04aEnvSeWakare2(GObj *volatile a0)
 {
     float f = 0.0f;
 
@@ -2109,7 +2109,7 @@ void actSt04aEnvSeWakare2(volatile int a0)
     _ACTWait(0);
 }
 
-void actConte09_3Jimaku(volatile int a0)
+void actConte09_3Jimaku(GObj *volatile a0)
 {
     float t;
     float tn;
@@ -2122,8 +2122,8 @@ void actConte09_3Jimaku(volatile int a0)
             jimakuBegin(&jimaku_msg);
             break;
         case 2470:
-            jimaku_msg.sub.unk2C = 91;
-            jimaku_msg.sub.unk38 = 300;
+            jimaku_msg.sub.block = 91;
+            jimaku_msg.sub.jump = 300;
             jimakuOn = 1;
             jimakuJump(&jimaku_msg);
             break;
@@ -2140,14 +2140,14 @@ void actConte09_3Jimaku(volatile int a0)
     } while (t < 3000.0f);
 }
 
-void actConte09_3_demoCancel(volatile int a0)
+void actConte09_3_demoCancel(GObj *volatile a0)
 {
     while (1) {
         _ACTWait(1);
     }
 }
 
-void actSt04aGateLSub(volatile int a0)
+void actSt04aGateLSub(GObj *volatile a0)
 {
     stage_SetAnimation(293, 1, 0);
     while (stage_CheckAnimationFinish(293) == 0) {
@@ -2158,7 +2158,7 @@ void actSt04aGateLSub(volatile int a0)
     _ACTWait(0);
 }
 
-void actSt04aGateRSub(volatile int a0)
+void actSt04aGateRSub(GObj *volatile a0)
 {
     stage_SetAnimation(295, 1, 0);
     while (stage_CheckAnimationFinish(295) == 0) {
@@ -2169,7 +2169,7 @@ void actSt04aGateRSub(volatile int a0)
     _ACTWait(0);
 }
 
-void actSt04aGirlSitChk(volatile int a0)
+void actSt04aGirlSitChk(GObj *volatile a0)
 {
     int n;
 
@@ -2185,7 +2185,7 @@ void actSt04aGirlSitChk(volatile int a0)
             n = 0;
         }
         if (((0x3C - systemStatus[0] * 0xA) / systemStatus[1]) * 3 < n) {
-            iosOmSendMail(girlGObj, 0x6D, girlGObj);
+            iosOmSendMail(girlGObj, 0x6D, (int)girlGObj);
             n = 0;
         }
         _ACTWait(1);
@@ -2198,7 +2198,7 @@ void actSt04aGirlSitChk(volatile int a0)
    Named for the thread that owns and posts it. */
 static ActMail model_on[2] = {{430}, {429}};
 
-void actSt04aModelOnChk(volatile int a0)
+void actSt04aModelOnChk(GObj *volatile a0)
 {
     ActSt04A *sub = ((PObjGObjSt04A *)a0)->act;
 
@@ -2217,7 +2217,7 @@ void actSt04aModelOnChk(volatile int a0)
 /* The model-off watcher's own mail record (installs actSt04aModelOnChk). */
 static ActMail model_off[2] = {{430}, {429}};
 
-void actSt04aModelOffChk(volatile int a0)
+void actSt04aModelOffChk(GObj *volatile a0)
 {
     ActSt04A *sub = ((PObjGObjSt04A *)a0)->act;
 

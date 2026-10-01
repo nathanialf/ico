@@ -74,14 +74,14 @@ void BeforeFunc2(char *self)
             actCreateSubThread(p->sub, 20);
         }
         if (p->motion != 0) {
-            actCreateMotionThread(p->motion, (void *)21, &act->motionThread);
+            actCreateMotionThread(p->motion, 21, &act->motionThread);
         }
     }
 }
 
-void actDummy(volatile int a0)
+void actDummy(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     actInitialize(a0);
     _ACTWait(1);
 }

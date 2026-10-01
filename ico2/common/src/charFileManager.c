@@ -221,11 +221,6 @@ void ReadShadowModelFile(void *h, int a1, int size, int id, int a4, int a5, int 
     iosFree(buf);
 }
 
-typedef struct {
-    char pad0[48];
-    int unk_30; /* 0x30 */
-} TexRec;       /* 0x34 */
-
 extern TexRec texFile[];
 /* kept local: agrees with Texture.h, which this TU does not include (tex_RemakeRegistersSampleMin differs) */
 extern int tex_InitTexture(int id, void *buf);
@@ -249,8 +244,8 @@ void ReadTextureFile(void *h, int a1, int size, int a3, int a4, int a5, int a6)
         return;
     }
     iosCdvdHandlerRead(h, buf, size);
-    if (a4 == 55 && a6 == 1 && texFile[a3].unk_30 != 0) {
-        if (texFile[a3].unk_30 != NonLinearCameraMove) {
+    if (a4 == 55 && a6 == 1 && texFile[a3].cameraMove != 0) {
+        if (texFile[a3].cameraMove != NonLinearCameraMove) {
             flag = a6;
         }
     }
@@ -641,7 +636,7 @@ inline void ReadSoundAdpcmFile(void *h, int a1, int size, int a3, int a4, int a5
     int key;
     int hi;
     char *p;
-    char *q;
+    int *q;
 
     systemStatus[8]++;
     if (size > 0x5C000)

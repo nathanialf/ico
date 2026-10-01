@@ -17,9 +17,15 @@
  * first-declaration order, so this is the order charFileManager.c's inline tail has. */
 void ReadSoundSqFile(void *h, int a1, int size, int a3, int kind, int a5, int a6);
 void ReadSoundAdpcmFile(void *h, int a1, int size, int a3, int a4, int a5, int a6);
-
-
 void InitCharFileManager(void);
 void ResetCharFileManager(void);
+
+/* texture-path: one texture file, 0x34 bytes. Readers:
+ * ico2/common/src/charFileManager.c (TexRec), kanban.c, layout_texture.c.
+ * Owner: ico2/common/include/charFileManager.h. */
+typedef struct {    /* field names derived */
+    char path[48];  /* 0x00 */
+    int cameraMove; /* 0x30, compared with NonLinearCameraMove */
+} TexRec;           /* derived name */
 
 #endif /* CHARFILEMANAGER_H */

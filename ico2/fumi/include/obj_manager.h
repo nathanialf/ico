@@ -12,6 +12,8 @@
 #ifndef OBJ_MANAGER_H
 #define OBJ_MANAGER_H
 
+#include "typedef.h"
+
 /* The declarations below lead this header because their order is load-bearing:
  * gcc 2.9 emits the deferred out-of-line copy of a plain-inline function in
  * first-declaration order, so this is the order obj_manager.c's inline tail has. */
@@ -22,15 +24,12 @@ void iosOmGetGObjStatus(int a0, int a1);
 int *iosOmSearchGObjId(int idx, int target);
 int *iosOmSearchGObjIdAll(int a0);
 void iosOmBeforeFuncStandard(void);
-int iosOmSendMail(char *self_arg, int val5, int val6);
+int iosOmSendMail(GObj *g, int type, int arg);
 int iosOmSendMailLink(int a0, int val5, int val6);
 int iosOmExeMail(void (*func)(IosMail));
-
 void _iosOmMain(void);
 void iosOmInit(void);
-
 void iosOmMain(void);
-
 void iosOmCreateDL(void);
 
 #endif /* OBJ_MANAGER_H */

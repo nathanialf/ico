@@ -239,7 +239,7 @@ static struct WoodBoxEnt woodBoxTbl[11] = {
 };
 
 /* kept local: agrees with motionManager2.h, which this TU does not include (SetMotionNodeFixModeParameter differs) */
-extern int CheckFloorAttribute(char *self, int attr);
+extern int CheckFloorAttribute(GObj *self, int attr);
 /* kept local: agrees with motionManager2.h, which this TU does not include (SetMotionNodeFixModeParameter differs) */
 extern int CheckWallAttribute(char *self, int attr);
 extern char objLayout[];
@@ -278,9 +278,9 @@ extern ActMail queen_appear_mes[];
  * calls (ScpCallCameraSetTarget, scpSearchGobj and
  * scpLinkBGAtoKindTargetSkeltonWithLocalRotationFlag stay calls).  WHAT THEY
  * CANNOT PIN: its source line, so it opens the function list here. */
-inline void actSubSekizoSe(volatile int a0)
+inline void actSubSekizoSe(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     Act *act = (Act *)actInitialize(a0);
 
     _ACTWait(1);
@@ -296,7 +296,7 @@ inline void actSubSekizoSe(volatile int a0)
     }
     scpLinkBGAtoKindTargetSkeltonWithLocalRotationFlag(0x2F, 0, 0x22B, 0);
     scpSearchGobj(2149)->active = 1;
-    scpPlayMot((char *)scpSearchGobj(2149), 1104);
+    scpPlayMot(scpSearchGobj(2149), 1104);
     tex_SetUVScroll(faceShadowTex, 0.0f, 0.0f, 0.25f, 0.0625f, 0.8f, 0.8f, 1);
     tex_SetUVScroll(faceShadowTex00, 0.0f, 0.0f, 0.25f, 0.0625f, 0.45f, 0.45f, 1);
     ScpCallCameraSetTarget(3834.0f, -888.0f, 0.0f);
@@ -306,7 +306,7 @@ inline void actSubSekizoSe(volatile int a0)
 
 inline void scpDispOffAllWithKind(int kind)
 {
-    int v0 = isysGObjSearchFromObjKindID_begin(kind);
+    void *v0 = isysGObjSearchFromObjKindID_begin(kind);
     while (v0 != 0) {
         ((GObj *)v0)->drawMask = 0;
         v0 = isysGObjSearchFromObjKindID_next(v0);
@@ -333,7 +333,7 @@ inline void scpActivateAllWithKind(int kind)
 
 inline void scpDisActivateAllWithKind(int kind)
 {
-    int v0 = isysGObjSearchFromObjKindID_begin(kind);
+    void *v0 = isysGObjSearchFromObjKindID_begin(kind);
     while (v0 != 0) {
         ((GObj *)v0)->active = 0;
         v0 = isysGObjSearchFromObjKindID_next(v0);
@@ -342,8 +342,8 @@ inline void scpDisActivateAllWithKind(int kind)
 
 inline int scpIsTorchLightOn(int a0)
 {
-    int ret1 = scpSearchGobj(a0);
-    PObjGObj *ret2 = scpSearchGobj(0);
+    GObj *ret1 = scpSearchGobj(a0);
+    GObj *ret2 = scpSearchGobj(0);
     ret2->active = 1;
     return IsTorchLightOn(ret1);
 }
@@ -358,7 +358,7 @@ void scpTorchLightOn(int id)
 
 void scpTorchLightOff(int id)
 {
-    int v = scpSearchGobj(id);
+    GObj *v = scpSearchGobj(id);
     if (v) {
         LightTorchOff(v);
     }
@@ -380,7 +380,7 @@ inline int *scpIsBombExplode(int x)
 
 void scpSetCageVelocityFriction(int id, float f12)
 {
-    int *v = scpSearchGobj(id);
+    GObj *v = scpSearchGobj(id);
     if (v) {
         SetCageVelocityFriction(v, f12);
     }
@@ -390,7 +390,7 @@ void scpSetCageVelocityFriction(int id, float f12)
 
 inline float scpGetRotObjectRotCount(int id)
 {
-    int v = scpSearchGobj(id);
+    GObj *v = scpSearchGobj(id);
     if (v != 0) {
         return GetRotObjectRotCount(v);
     }
@@ -413,7 +413,7 @@ inline short scpGetRotObjectCurrentRot(int no)
 
 inline int scpIsRotObjectZPlusDirInclude(int a0, int a1, int a2)
 {
-    int q = scpSearchGobj(a0);
+    GObj *q = scpSearchGobj(a0);
     if (q != 0) {
         int e = GetRotObjectZPlusDirection(q);
         short A1 = (a1 << 15) / 0xB4;
@@ -521,12 +521,12 @@ inline struct WallCol *scpGetWallCollision(float x0, float y0, float z0, float x
     return &wallColResult;
 }
 
-inline PObjGObj *scpSearchGobj(int id)
+inline GObj *scpSearchGobj(int id)
 {
     return isysGObjSearchFromObjLayoutID(id);
 }
 
-void scpPlayMotDir(char *self, float *dir)
+void scpPlayMotDir(GObj *self, float *dir)
 {
     sceVu0Normalize(dir, dir);
     SetMotionDirection(self, dir);
@@ -550,7 +550,7 @@ inline void scpPlayMotNode(void *a0, int a1, void *a2, int a3)
     scpPlayMot(a0, a1);
 }
 
-void scpPlayMot(char *self, int mot)
+void scpPlayMot(GObj *self, int mot)
 {
     Act *act = GOBJ_ACT(self);
     int id = -1;
@@ -559,7 +559,7 @@ void scpPlayMot(char *self, int mot)
         id = 0x501;
     } else if (self == girlGObj) {
         id = 0x846;
-    } else if (self == (char *)isysGObjSearchFromObjLayoutID(0x865)) {
+    } else if (self == isysGObjSearchFromObjLayoutID(0x865)) {
         id = 0x96D;
     } else if (((GObj *)self)->kind == 4) {
         id = 0x965;
@@ -573,7 +573,7 @@ void scpPlayMot(char *self, int mot)
     act->motReq = SetMotionRequest(self, 0x10C, act->motOriReq);
 }
 
-inline void scpPlayMotReq(char *a0, int a1)
+inline void scpPlayMotReq(GObj *a0, int a1)
 {
     Act *p = GOBJ_ACT(a0);
     p->motReq = SetMotionRequest(a0, a1, p->motOriReq);
@@ -590,27 +590,27 @@ inline void scpPlayPosSet(void *a0, float f12, float f13, float f14)
     ClearMotionGeometryInfo(a0);
 }
 
-void scpPlayJump(char *a0, int a1)
+void scpPlayJump(GObj *a0, int a1)
 {
     ACTItemForceDrop(a0);
-    GOBJ_ACT(a0)->enemy->f_C0 = a1;
-    iosOmSendMail(a0, 0x2D, a0);
+    GOBJ_ACT(a0)->enemy->jumpOrient = a1;
+    iosOmSendMail(a0, 0x2D, (int)a0);
 }
 
-void scpPlayStart(int a0)
+void scpPlayStart(GObj *a0)
 {
     ACTItemForceDrop(a0);
-    iosOmSendMail(a0, 0x2E, a0);
+    iosOmSendMail(a0, 0x2E, (int)a0);
     SetLodLevel(a0, 0);
 }
 
-void scpPlayEnd(int a0)
+void scpPlayEnd(GObj *a0)
 {
-    iosOmSendMail(a0, 0x2F, a0);
+    iosOmSendMail(a0, 0x2F, (int)a0);
     SetLodLevel(a0, 2);
 }
 
-inline void scpPlayWaitMotEnd(char *a0)
+inline void scpPlayWaitMotEnd(GObj *a0)
 {
     Act *p = GOBJ_ACT(a0);
     while ((*(int *)((char *)p->motReq + 0x5C) & 1) == 0) {
@@ -726,7 +726,7 @@ inline int scpTriggerPosBall(float *pos, float *target, float r)
     return hit;
 }
 
-inline int scpTriggerBall(char *obj, char *target, float r)
+inline int scpTriggerBall(GObj *obj, GObj *target, float r)
 {
     float tpos[4];
     float pos[4];
@@ -739,9 +739,9 @@ inline int scpTriggerBall(char *obj, char *target, float r)
 /* the object kinds a trigger ball tests */
 static const int targetManKind[] = {1, 2, 4}; /* derived name */
 
-int scpTriggerBallTargetMan(char *obj, float r)
+int scpTriggerBallTargetMan(GObj *obj, float r)
 {
-    char *g;
+    GObj *g;
     unsigned int i;
     int hit = 0;
 
@@ -760,7 +760,7 @@ int scpTriggerBallTargetMan(char *obj, float r)
 /* the object kinds a trigger may ignore, up to the -1 end marker */
 static const int ignoreKind[] = {1, 2, 4, -1}; /* derived name */
 
-inline int scpTriggerIgnore(char *self)
+inline int scpTriggerIgnore(GObj *self)
 {
     int i = 0;
 
@@ -776,7 +776,7 @@ inline int scpTriggerIgnore(char *self)
     return 0;
 }
 
-inline int scpTriggerFloorAttr(char *self, int attr)
+inline int scpTriggerFloorAttr(GObj *self, int attr)
 {
     if (scpTriggerIgnore(self) != 0) {
         return 0;
@@ -784,7 +784,7 @@ inline int scpTriggerFloorAttr(char *self, int attr)
     return CheckFloorAttribute(self, attr);
 }
 
-inline int scpTriggerWallAttr(char *self, int attr)
+inline int scpTriggerWallAttr(GObj *self, int attr)
 {
     if (scpTriggerIgnore(self) != 0) {
         return 0;
@@ -795,9 +795,9 @@ inline int scpTriggerWallAttr(char *self, int attr)
 /* the object kinds a floor-attribute trigger tests */
 static const int floorTargetManKind[] = {1, 2, 4, 17}; /* derived name */
 
-inline int scpTriggerFloorAttrTargetMan(char *self, int attr)
+inline int scpTriggerFloorAttrTargetMan(GObj *self, int attr)
 {
-    char *g;
+    GObj *g;
     unsigned int i;
     int hit = 0;
 
@@ -845,12 +845,12 @@ inline int scpEffectStart(void *pos, int kind)
     return SetParticleEffect(kind, pos, buf);
 }
 
-inline void scpDoorTypeUp(volatile int a0)
+inline void scpDoorTypeUp(GObj *volatile a0)
 {
     Act *act = GOBJ_ACT(a0);
 
     if (gflagChk(act->doorFlag) != 0) {
-        int self = a0;
+        GObj *self = a0;
         scpTransLinear((void *)self, 1, -act->doorDist, act->doorDist);
     }
     doorTypeUp_mes[0].func = scpDoorTypeUpMain;
@@ -859,7 +859,7 @@ inline void scpDoorTypeUp(volatile int a0)
     _ACTWait(0);
 }
 
-inline void scpDoorTypeUpMain(volatile int a0)
+inline void scpDoorTypeUpMain(GObj *volatile a0)
 {
     Act *p = GOBJ_ACT(a0);
     p->mainMail = (ActMail *)p->doorMail;
@@ -868,7 +868,7 @@ inline void scpDoorTypeUpMain(volatile int a0)
     }
 }
 
-inline void scpDoorTypeUpSwitch(volatile int a0)
+inline void scpDoorTypeUpSwitch(GObj *volatile a0)
 {
     Act *act = GOBJ_ACT(a0);
 
@@ -885,7 +885,7 @@ inline void scpDoorTypeUpSwitch(volatile int a0)
     _ACTWait(0);
 }
 
-void scpDoorTypeUpDown(volatile int a0)
+void scpDoorTypeUpDown(GObj *volatile a0)
 {
     Act *act = GOBJ_ACT(a0);
 
@@ -908,7 +908,7 @@ void scpDoorTypeUpDown(volatile int a0)
     _ACTWait(0);
 }
 
-void scpDoorTypeUpUp(volatile int a0)
+void scpDoorTypeUpUp(GObj *volatile a0)
 {
     Act *act = GOBJ_ACT(a0);
 
@@ -994,7 +994,7 @@ static inline void scpAdpcmRequestClose(char **id)
         }
 }
 
-void scpSubAdpcmPlay(volatile int a0)
+void scpSubAdpcmPlay(GObj *volatile a0)
 {
     int work[8];
     int i;
@@ -1072,7 +1072,7 @@ inline int scpAdpcmFadeCloseFunc(char **h, short fade)
         if (s == 0) {
             return 0;
         }
-        s->f44 = fade;
+        s->fadeStep = fade;
         return 1;
     }
     scpAdpcmRequestClose(h);
@@ -1084,7 +1084,7 @@ inline int scpAdpcmCloseChkFunc(char **h)
     int no;
     char *p = *h;
     if (p != 0) {
-        if (((AdpcmObj *)p)->stream == 0 || ((AdpcmObj *)p)->stream->f28 == 0) {
+        if (((AdpcmObj *)p)->stream == 0 || ((AdpcmObj *)p)->stream->bg == 0) {
             return 0;
         }
         return 1;
@@ -1102,7 +1102,7 @@ static inline int scpGirlHintVoiceChk(void)
     return scpAdpcmCloseChkFunc(&girlHintVoice);
 }
 
-inline void scpDeamon(volatile int a0)
+inline void scpDeamon(GObj *volatile a0)
 {
     debug_StdPrintfDummy("deamon start");
     girlHintVoice = 0;
@@ -1239,8 +1239,8 @@ void scpGirlHintVoiceTickProc(void)
             adeg = 180 - adeg;
         r = (float)adeg * -0.01f + 1.0f;
     }
-    snd->f3C[0] = vol * 16383.0f * lr * l;
-    snd->f40[1] = vol * 16383.0f * lr * r;
+    snd->volL[0] = vol * 16383.0f * lr * l;
+    snd->volR[1] = vol * 16383.0f * lr * r;
     AdpcmInterStereoVolumeSet(snd, 0);
 }
 
@@ -1362,7 +1362,7 @@ void scpWoodSrh(char *self, struct WoodBoxEnt *w)
     }
 }
 
-inline void scpWoodBox(volatile int a0)
+inline void scpWoodBox(GObj *volatile a0)
 {
     struct WoodBoxEnt *p;
     unsigned int i;
@@ -1370,7 +1370,7 @@ inline void scpWoodBox(volatile int a0)
     _ACTWait(10);
 
     for (i = 0, p = woodBoxTbl; i < 11; i++, p++) {
-        if (p->id == *(int *)(a0 + 8)) {
+        if (p->id == a0->labelId) {
             goto found;
         }
     }
@@ -1383,7 +1383,7 @@ found:
 /* where the stone statue's sound effects play */
 static const Vec16 sekizouSePos = {{6646.0f, -2157.0f, 1102.0f, 0.0f}}; /* derived name */
 
-void scpSekizou(char *self, int flag, int anim, int anim2, int kind, float bx, float by, float bz,
+void scpSekizou(GObj *self, int flag, int anim, int anim2, int kind, float bx, float by, float bz,
                 float gx, float gy, float gz)
 {
     int fade = 0;
@@ -1477,12 +1477,12 @@ inline void InitStageChange(void)
     stageChangeReq = 0;
 }
 
-inline int RequestStageChange(int no, char *g, int flag, float speed, float wait)
+inline int RequestStageChange(int no, GObj *g, GObj *girl, float speed, float wait)
 {
-    return RequestStageChangeWithColor(no, g, flag, speed, wait, 0, 0, 0);
+    return RequestStageChangeWithColor(no, g, girl, speed, wait, 0, 0, 0);
 }
 
-inline int RequestStageChangeWithColor(int no, char *g, int flag, float speed, float wait,
+inline int RequestStageChangeWithColor(int no, GObj *g, GObj *girl, float speed, float wait,
                                        unsigned char r, unsigned char gr, unsigned char b)
 {
     int ret;
@@ -1503,7 +1503,7 @@ inline int RequestStageChangeWithColor(int no, char *g, int flag, float speed, f
             }
             BoyInfoUpdate_StageChange();
         }
-        if (flag != 0) {
+        if (girl != 0) {
             ACTGame_StageChangeGObj(girlGObj, next);
         }
         stgmgrForceSwitchWithFadeColor(exitData[next].id, speed, wait, r, gr, b);
@@ -1587,8 +1587,8 @@ void _SCPBoySupportGirl(float x0, float y0, float z0, float x1, float y1, float 
     if (wc != 0) {
         *(struct WallCol *)((char *)GOBJ_ACT(boyGObj) + 0x670) = *wc;
         *(struct WallCol *)((char *)GOBJ_ACT(girlGObj) + 0x660) = *wc;
-        iosOmSendMail(boyGObj, 385, boyGObj);
-        iosOmSendMail(girlGObj, 386, boyGObj);
+        iosOmSendMail(boyGObj, 385, (int)boyGObj);
+        iosOmSendMail(girlGObj, 386, (int)boyGObj);
     }
 }
 
@@ -1596,7 +1596,7 @@ void _SCPBoySupportGirl(float x0, float y0, float z0, float x1, float y1, float 
    allocation (the same C89 default-int prototype the TU's other way/thread
    callees carry) */
 
-inline int _SCPMoveCharactorByWay(char *self, int a1, float *dir, float speed, int a3)
+inline int _SCPMoveCharactorByWay(GObj *self, int a1, float *dir, float speed, int a3)
 {
     Act *act = GOBJ_ACT(self);
 
@@ -1609,13 +1609,13 @@ inline int _SCPMoveCharactorByWay(char *self, int a1, float *dir, float speed, i
     return 0;
 }
 
-void _SCPMoveCharactorByWay_Cancel(char *a0)
+void _SCPMoveCharactorByWay_Cancel(GObj *a0)
 {
     GOBJ_ACT(a0)->flags18.ll &= ~(1ULL << 47);
     ACTCharctrl_Unlock(a0);
 }
 
-inline void _SCPCharacterStop(char *self)
+inline void _SCPCharacterStop(GObj *self)
 {
     Act *p = GOBJ_ACT(self);
     p->dir[0] = 0;
@@ -1625,7 +1625,7 @@ inline void _SCPCharacterStop(char *self)
     p->stickMag = 0;
 }
 
-inline int _SCPMoveByWay_ToChar(char *self, char *target, int deg, int a3, float scale, float speed)
+inline int _SCPMoveByWay_ToChar(GObj *self, GObj *target, int deg, int a3, float scale, float speed)
 {
     float v[4];
     float w[4];
@@ -1668,7 +1668,7 @@ inline int scpIsWallLever2On(void)
     return IsWallLeverStatus();
 }
 
-inline int scpIsHangChain(char *self)
+inline int scpIsHangChain(GObj *self)
 {
     return ACTGame_isHangChain(self) != 0;
 }
@@ -1690,36 +1690,36 @@ out:
 
 void scpWakeupEnemyOne(int id)
 {
-    int rc = isysGObjSearchFromObjLayoutID(id);
+    void *rc = isysGObjSearchFromObjLayoutID(id);
     if (rc) {
-        iosOmSendMail(rc, 0x1F, rc);
+        iosOmSendMail(rc, 0x1F, (int)rc);
     }
 }
 
 inline void scpWakeupEnemyAll(void)
 {
-    char *g;
+    GObj *g;
     for (g = isysGObjSearchFromObjKindID_begin(4); g != 0;
          g = isysGObjSearchFromObjKindID_next(g)) {
-        iosOmSendMail(g, 0x1F, g);
+        iosOmSendMail(g, 0x1F, (int)g);
     }
     for (g = isysGObjSearchFromObjKindID_begin(62); g != 0;
          g = isysGObjSearchFromObjKindID_next(g)) {
-        iosOmSendMail(g, 0x1F, g);
+        iosOmSendMail(g, 0x1F, (int)g);
     }
 }
 
 void scpSleepEnemyOne(int id)
 {
-    int rc = isysGObjSearchFromObjLayoutID(id);
+    void *rc = isysGObjSearchFromObjLayoutID(id);
     if (rc) {
-        iosOmSendMail(rc, 0x20, rc);
+        iosOmSendMail(rc, 0x20, (int)rc);
     }
 }
 
 void scpSleepSpiderGroupOne(int id)
 {
-    int v = isysGObjSearchFromObjLayoutID(id);
+    void *v = isysGObjSearchFromObjLayoutID(id);
     if (v) {
         SleepSpiderGroup(v);
     }
@@ -1727,7 +1727,7 @@ void scpSleepSpiderGroupOne(int id)
 
 void scpWakeupSpiderGroupOne(int id)
 {
-    int v = isysGObjSearchFromObjLayoutID(id);
+    void *v = isysGObjSearchFromObjLayoutID(id);
     if (v) {
         WakeupSpiderGroup(v);
     }
@@ -1735,14 +1735,14 @@ void scpWakeupSpiderGroupOne(int id)
 
 inline void scpSleepEnemyAll(void)
 {
-    char *g;
+    GObj *g;
     for (g = isysGObjSearchFromObjKindID_begin(4); g != 0;
          g = isysGObjSearchFromObjKindID_next(g)) {
-        iosOmSendMail(g, 0x20, g);
+        iosOmSendMail(g, 0x20, (int)g);
     }
     for (g = isysGObjSearchFromObjKindID_begin(62); g != 0;
          g = isysGObjSearchFromObjKindID_next(g)) {
-        iosOmSendMail(g, 0x20, g);
+        iosOmSendMail(g, 0x20, (int)g);
     }
 }
 
@@ -1761,18 +1761,18 @@ inline void scpKillEnemyAll(void)
 
     for (g = (char *)isysGObjSearchFromObjKindID_begin(4); g != 0;
          g = (char *)isysGObjSearchFromObjKindID_next(g)) {
-        iosOmSendMail(g, 0x26, g);
+        iosOmSendMail(g, 0x26, (int)g);
         ((struct EnemyEnt *)(*(int *)(g + 8) * 0x4C + (char *)objLayout))->f42 = 0;
     }
     for (g = (char *)isysGObjSearchFromObjKindID_begin(62); g != 0;
          g = (char *)isysGObjSearchFromObjKindID_next(g)) {
-        iosOmSendMail(g, 0x26, g);
+        iosOmSendMail(g, 0x26, (int)g);
     }
 }
 
 inline void scpMaskGeneratorAll(void)
 {
-    int *p = isysGObjSearchFromObjKindID_begin(33);
+    GObj *p = isysGObjSearchFromObjKindID_begin(33);
     while (p != 0) {
         Generator_Mask(p);
         p = isysGObjSearchFromObjKindID_next(p);
@@ -1846,7 +1846,7 @@ inline int scpCheckReadyAllObjects(void)
 
 inline void ScpCallCameraOff(void)
 {
-    char *g = boyGObj;
+    GObj *g = boyGObj;
     if (g != 0) {
         GOBJ_ACT(g)->flags20.ll &= ~(1ULL << 23);
     }
@@ -1854,7 +1854,7 @@ inline void ScpCallCameraOff(void)
 
 inline void ScpCallCameraOn(void)
 {
-    char *g = boyGObj;
+    GObj *g = boyGObj;
     if (g != 0) {
         GOBJ_ACT(g)->flags20.ll |= 0x800000;
     }
@@ -1866,7 +1866,7 @@ inline void ScpCallCameraSetTarget(float x, float y, float z)
        block initializer is what keeps ROM's 0/4/8/C store order (a separate
        `pos[3] = 1.0f` statement lets sched hoist the constant store first) */
     float pos[4] = {-x, -y, -z, 1.0f};
-    char *g = boyGObj;
+    GObj *g = boyGObj;
 
     if (g != 0) {
         ActStatus *st = &GOBJ_ACT(g)->flags20;
@@ -1879,7 +1879,7 @@ inline void ScpCallCameraSetTarget(float x, float y, float z)
 
 inline void ScpCallCameraTargetOff(void)
 {
-    char *g = boyGObj;
+    GObj *g = boyGObj;
     if (g != 0) {
         GOBJ_ACT(g)->flags20.ll &= ~(3ULL << 24);
     }
@@ -1923,7 +1923,7 @@ void preload(int idx)
     stgmgrNextStagePreLoadForceNoCancel(1);
 }
 
-inline int scpActStatusDeathFall(char *self)
+inline int scpActStatusDeathFall(GObj *self)
 {
     Sub15C *sub;
 
@@ -1993,23 +1993,23 @@ inline int scpCheckExistAliveSpider(void)
     return 0;
 }
 
-inline void scpLockMaxRotate(char *a0, float f12)
+inline void scpLockMaxRotate(GObj *a0, float f12)
 {
     GOBJ_ACT(a0)->flags20.ll |= (1ULL << 33);
-    GOBJ_WORK(a0)->f_344 = f12;
+    GOBJ_WORK(a0)->lockedMaxRotate = f12;
 }
 
-inline void scpUnLockMaxRotate(char *a0)
+inline void scpUnLockMaxRotate(GObj *a0)
 {
     GOBJ_ACT(a0)->flags20.ll &= ~(1ULL << 33);
 }
 
-inline void scpCheckDisconnectWallStart(char *a0)
+inline void scpCheckDisconnectWallStart(GObj *a0)
 {
     GOBJ_ACT(a0)->flags18.ll |= (1ULL << 58);
 }
 
-inline void scpCheckDisconnectWallEnd(char *a0)
+inline void scpCheckDisconnectWallEnd(GObj *a0)
 {
     GOBJ_ACT(a0)->flags18.ll &= ~(1ULL << 58);
 }

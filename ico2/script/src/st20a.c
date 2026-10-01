@@ -6,6 +6,7 @@
 #include "adpcm_init.h"
 #include "s_init.h"
 #include "act.h"
+#include "gobj_process.h"
 #include "boyact.h"
 #include "commonact.h"
 #include "girl_act.h"
@@ -88,19 +89,19 @@ void actSt20aEnd(void)
 static int demoEnd;
 
 /* .sdata, owned by st20a.o, in the ROM's order: the bridge and gondola stream handles and the shake. */
-int brg20a = 0;
+char *brg20a = 0;
 
-int gondola_up = 0;
+char *gondola_up = 0;
 
-int gondola_down = 0;
+char *gondola_down = 0;
 
 unsigned int st20a_yure = 0;
 
 unsigned char st20a_yure_vol = 0;
 
-void actSt20aBridgeDown(volatile int a0)
+void actSt20aBridgeDown(GObj *volatile a0)
 {
-    int th;
+    GProc *th;
 
     lt_switch_layout(55);
     scpSleepEnemyAll();
@@ -113,7 +114,7 @@ void actSt20aBridgeDown(volatile int a0)
     while (demoEnd == 0 && ((pad[0].flags & 0x800) == 0 || scpAdpcmPlayRequestNum() != 0)) {
         _ACTWait(1);
     }
-    iosThreadSetPri(th + 0x24, 34);
+    iosThreadSetPri(&th->thread, 34);
     if (demoEnd == 0) {
         scpFadeOut(16.0f, 0, 0, 0);
         while (brg20a == 0) {
@@ -136,7 +137,7 @@ void actSt20aBridgeDown(volatile int a0)
     lt_switch_layout(54);
 }
 
-void actSt20aGondolaDown(volatile int a0)
+void actSt20aGondolaDown(GObj *volatile a0)
 {
     Act *sub = GOBJ_ACT(a0);
 
@@ -170,7 +171,7 @@ void actSt20aGondolaDown(volatile int a0)
     _ACTWait(0);
 }
 
-void actSt20aGondolaUp(volatile int a0)
+void actSt20aGondolaUp(GObj *volatile a0)
 {
     Act *sub = GOBJ_ACT(a0);
 
@@ -202,9 +203,9 @@ void actSt20aGondolaUp(volatile int a0)
     _ACTWait(0);
 }
 
-void actSt20aFence(volatile int a0)
+void actSt20aFence(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     Act *sub = (Act *)actInitialize(a0);
 
     _ACTWait(1);
@@ -258,7 +259,7 @@ void actSt20aFence(volatile int a0)
     }
 }
 
-void actSt20aFenceDownChk(volatile int a0)
+void actSt20aFenceDownChk(GObj *volatile a0)
 {
     Act *sub = GOBJ_ACT(a0);
 
@@ -287,7 +288,7 @@ void actSt20aFenceDownChk(volatile int a0)
     _ACTWait(0);
 }
 
-void actSt20aFenceUpChk(volatile int a0)
+void actSt20aFenceUpChk(GObj *volatile a0)
 {
     Act *sub = GOBJ_ACT(a0);
 
@@ -316,7 +317,7 @@ void actSt20aFenceUpChk(volatile int a0)
     _ACTWait(0);
 }
 
-void actSt20aFenceDownChk2(volatile int a0)
+void actSt20aFenceDownChk2(GObj *volatile a0)
 {
     Act *sub = GOBJ_ACT(a0);
 
@@ -345,7 +346,7 @@ void actSt20aFenceDownChk2(volatile int a0)
     _ACTWait(0);
 }
 
-void actSt20aFenceUpChk2(volatile int a0)
+void actSt20aFenceUpChk2(GObj *volatile a0)
 {
     Act *sub = GOBJ_ACT(a0);
 
@@ -374,9 +375,9 @@ void actSt20aFenceUpChk2(volatile int a0)
     _ACTWait(0);
 }
 
-void actSt20aBridge(volatile int a0)
+void actSt20aBridge(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     Act *sub = (Act *)actInitialize(a0);
 
     _ACTWait(1);
@@ -388,9 +389,9 @@ void actSt20aBridge(volatile int a0)
     }
 }
 
-void actSt20aGondola(volatile int a0)
+void actSt20aGondola(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     Act *sub = (Act *)actInitialize(a0);
 
     _ACTWait(1);
@@ -407,9 +408,9 @@ void actSt20aGondola(volatile int a0)
     _ACTWait(0);
 }
 
-void actSt20aExit(volatile int a0)
+void actSt20aExit(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     Act *sub = (Act *)actInitialize(a0);
 
     _ACTWait(1);
@@ -419,9 +420,9 @@ void actSt20aExit(volatile int a0)
     _ACTWait(0);
 }
 
-void actSt20aElv(volatile int a0)
+void actSt20aElv(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
 
     actInitialize(a0);
     _ACTWait(1);
@@ -435,9 +436,9 @@ void actSt20aElv(volatile int a0)
     }
 }
 
-void actSt20aEne(volatile int a0)
+void actSt20aEne(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     Act *sub = (Act *)actInitialize(a0);
 
     _ACTWait(1);
@@ -449,9 +450,9 @@ void actSt20aEne(volatile int a0)
     }
 }
 
-void actSt20aEnemy1(volatile int a0)
+void actSt20aEnemy1(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
 
     actInitialize(a0);
     _ACTWait(1);
@@ -468,9 +469,9 @@ void actSt20aEnemy1(volatile int a0)
     Generator_Call(a0);
 }
 
-void actSt20aEnemy2(volatile int a0)
+void actSt20aEnemy2(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
 
     actInitialize(a0);
     _ACTWait(1);
@@ -487,9 +488,9 @@ void actSt20aEnemy2(volatile int a0)
     Generator_Call(a0);
 }
 
-void actSt20aEnemy3(volatile int a0)
+void actSt20aEnemy3(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
 
     actInitialize(a0);
     _ACTWait(1);
@@ -501,9 +502,9 @@ void actSt20aEnemy3(volatile int a0)
     Generator_MaskOff(a0);
 }
 
-void actSt20aHint1(volatile int a0)
+void actSt20aHint1(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     Act *sub = (Act *)actInitialize(a0);
 
     _ACTWait(1);
@@ -517,9 +518,9 @@ void actSt20aHint1(volatile int a0)
     }
 }
 
-void actSt20aGirlPos(volatile int a0)
+void actSt20aGirlPos(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     Act *sub = (Act *)actInitialize(a0);
 
     _ACTWait(1);
@@ -533,7 +534,7 @@ void actSt20aGirlPos(volatile int a0)
 }
 
 /* the actor entry's parameter is its frame home: the thread switch writes it */
-void actSt20aBridgeMain(volatile int a0)
+void actSt20aBridgeMain(GObj *volatile a0)
 {
     GOBJ_ACT(a0)->mainMail = bridgeMain_mes;
     scpBoyControlReadDisable = 0;
@@ -542,7 +543,7 @@ void actSt20aBridgeMain(volatile int a0)
     }
 }
 
-void actSt20aBridgeSwitch(volatile int a0)
+void actSt20aBridgeSwitch(GObj *volatile a0)
 {
     Act *sub = GOBJ_ACT(a0);
 
@@ -554,7 +555,7 @@ void actSt20aBridgeSwitch(volatile int a0)
     _ACTWait(0);
 }
 
-void actSt20aBridgeDownSub(volatile int a0)
+void actSt20aBridgeDownSub(GObj *volatile a0)
 {
     _ACTWait(30);
     while (brg20a == 0) {
@@ -573,7 +574,7 @@ void actSt20aBridgeDownSub(volatile int a0)
     _ACTWait(0);
 }
 
-void actSt20aGondolaMain(volatile int a0)
+void actSt20aGondolaMain(GObj *volatile a0)
 {
     Act *p = GOBJ_ACT(a0);
 
@@ -586,7 +587,7 @@ void actSt20aGondolaMain(volatile int a0)
     }
 }
 
-void actSt20aGondolaSwitch(volatile int a0)
+void actSt20aGondolaSwitch(GObj *volatile a0)
 {
     Act *sub = GOBJ_ACT(a0);
 
@@ -606,7 +607,7 @@ void actSt20aGondolaSwitch(volatile int a0)
     _ACTWait(0);
 }
 
-void actSt20aExitChk(volatile int a0)
+void actSt20aExitChk(GObj *volatile a0)
 {
     while (scpTriggerBall(a0, boyGObj, 400.0f) == 0 ||
            scpTriggerFloorAttr(boyGObj, 0x2000000) == 0) {
@@ -621,7 +622,7 @@ void actSt20aExitChk(volatile int a0)
     RequestStageChange(4, boyGObj, 0, 2.0f, 8.0f);
 }
 
-void actSt20aEneChk(volatile int a0)
+void actSt20aEneChk(GObj *volatile a0)
 {
     if (girlGObj == 0) {
         _ACTWait(0);
@@ -634,7 +635,7 @@ void actSt20aEneChk(volatile int a0)
     gflagOn(319);
 }
 
-void actSt20aGirlPosChk(volatile int a0)
+void actSt20aGirlPosChk(GObj *volatile a0)
 {
     while (girlGObj == 0 || scpTriggerBall(a0, girlGObj, 200.0f) == 0) {
         _ACTWait(1);
@@ -643,7 +644,7 @@ void actSt20aGirlPosChk(volatile int a0)
     WakeupHint(20);
 }
 
-void actSt20aHint1Chk(volatile int a0)
+void actSt20aHint1Chk(GObj *volatile a0)
 {
     while (scpTriggerBall(a0, boyGObj, 100.0f) == 0 &&
            scpTriggerFloorAttr(boyGObj, 0x4000000) == 0) {

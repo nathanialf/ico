@@ -6,6 +6,7 @@
 #include "adpcm_init.h"
 #include "s_init.h"
 #include "act.h"
+#include "gobj_process.h"
 #include "commonact.h"
 #include "jimaku.h"
 #include "itou_boss.h"
@@ -75,27 +76,27 @@ static ActMail elev2Chara_mes[2] = {{430}, {429}};
 static ActMail elev2CharaChk_mes[2] = {{430}, {429}};
 
 /* .sdata, owned by st13b.o, in the ROM's order: the scene stream MAIN.MAP leaves unnamed, the stream handles and shakes (MAIN.MAP globals), then the shake and volume the retail object adds. */
-static int st13b_adpcm = 0; /* derived name */
+static char *st13b_adpcm = 0; /* derived name */
 
-int sekizo13b = 0;
+char *sekizo13b = 0;
 
-int sekizo13b2 = 0;
+char *sekizo13b2 = 0;
 
-int meets_again = 0;
+char *meets_again = 0;
 
-int boss = 0;
+char *boss = 0;
 
-int sd = 0;
+char *sd = 0;
 
-int boss_dead = 0;
+char *boss_dead = 0;
 
-int st13b_up = 0;
+char *st13b_up = 0;
 
-int st13b_down = 0;
+char *st13b_down = 0;
 
-int sekizo_13b = 0;
+char *sekizo_13b = 0;
 
-int sekizo_13b_vol = 0;
+char *sekizo_13b_vol = 0;
 
 int st13b_yure = 0;
 
@@ -105,9 +106,9 @@ static int st13b_boss_yure = 0; /* derived name */
 
 static unsigned char st13b_boss_yure_vol = 0; /* derived name */
 
-void actSt13bFloor(volatile int a0)
+void actSt13bFloor(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     Act *self = actInitialize(a0);
     _ACTWait(1);
 
@@ -138,7 +139,7 @@ void actSt13bFloor(volatile int a0)
     }
 }
 
-void actSt13bFloorChk(volatile int a0)
+void actSt13bFloorChk(GObj *volatile a0)
 {
     int v = 0x20;
 
@@ -168,7 +169,7 @@ void actSt13bFloorChk(volatile int a0)
     RequestStageChange(4, boyGObj, 0, 0.025f, 2.0f);
 }
 
-void actSt13bConte02(volatile int a0)
+void actSt13bConte02(GObj *volatile a0)
 {
     scpPlayStart(boyGObj);
     stgmgrNextStagePreLoadForceStageSet(0);
@@ -407,7 +408,7 @@ void actSt13bConte02(volatile int a0)
     conte02End = 1;
 }
 
-void actSt13bSekizoChk(volatile int a0)
+void actSt13bSekizoChk(GObj *volatile a0)
 {
     float dir[4];
 
@@ -459,7 +460,7 @@ void actSt13bSekizoChk(volatile int a0)
     scpBoyControlReadDisable = 0;
 }
 
-void actSt13bSekizo2Chk(volatile int a0)
+void actSt13bSekizo2Chk(GObj *volatile a0)
 {
     float dir[4];
 
@@ -511,9 +512,9 @@ void actSt13bSekizo2Chk(volatile int a0)
     scpBoyControlReadDisable = 0;
 }
 
-void actSt13bMeetAgain(volatile int a0)
+void actSt13bMeetAgain(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     Act *self = actInitialize(a0);
     _ACTWait(1);
 
@@ -537,7 +538,7 @@ void actSt13bMeetAgain(volatile int a0)
     }
 }
 
-void actSt13bMeetAgainSub(volatile int a0)
+void actSt13bMeetAgainSub(GObj *volatile a0)
 {
     stage_SetAnimation(760, 1, 0);
 
@@ -564,9 +565,9 @@ void actSt13bMeetAgainSub(volatile int a0)
     _ACTWait(0);
 }
 
-void actSt13bMeetAgainChk(volatile int a0)
+void actSt13bMeetAgainChk(GObj *volatile a0)
 {
-    int th;
+    GProc *th;
 
     while (scpTriggerFloorAttr(boyGObj, 0x1000000) == 0) {
         _ACTWait(1);
@@ -590,7 +591,7 @@ void actSt13bMeetAgainChk(volatile int a0)
         _ACTWait(1);
     }
 
-    iosThreadSetPri(th + 0x24, 34);
+    iosThreadSetPri(&th->thread, 34);
 
     if (demoEnd == 0) {
         scpFadeOut(16.0f, 0, 0, 0);
@@ -621,9 +622,9 @@ void actSt13bMeetAgainChk(volatile int a0)
     scpAdpcmFadeCloseFunc(&meets_again, 0x80);
 }
 
-void actSt13bBoss(volatile int a0)
+void actSt13bBoss(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     Act *self = actInitialize(a0);
     _ACTWait(1);
 
@@ -646,7 +647,7 @@ void actSt13bBoss(volatile int a0)
     }
 }
 
-void actSt13bBossChk(volatile int a0)
+void actSt13bBossChk(GObj *volatile a0)
 {
     while (scpTriggerFloorAttr(boyGObj, 0x2000000) == 0) {
         _ACTWait(1);
@@ -683,9 +684,9 @@ void actSt13bBossChk(volatile int a0)
     AdpcmPlay(((AdpcmObj *)boss)->stream);
 }
 
-void actSt13bBossAfterChk(volatile int a0)
+void actSt13bBossAfterChk(GObj *volatile a0)
 {
-    int th;
+    GProc *th;
 
     while (InqCapsuleGhostBossEnd() == 0) {
         _ACTWait(1);
@@ -713,7 +714,7 @@ void actSt13bBossAfterChk(volatile int a0)
         _ACTWait(1);
     }
 
-    iosThreadSetPri(th + 0x24, 34);
+    iosThreadSetPri(&th->thread, 34);
 
     if (demoEnd == 0) {
         scpFadeOut(16.0f, 0, 0, 0);
@@ -738,7 +739,7 @@ void actSt13bBossAfterChk(volatile int a0)
     lt_switch_layout(54);
 }
 
-void actSt13bElevDownSub(volatile int a0)
+void actSt13bElevDownSub(GObj *volatile a0)
 {
     stage_SetAnimation(40, 1, 0xEB);
 
@@ -764,9 +765,9 @@ void actSt13bElevDownSub(volatile int a0)
     _ACTWait(0);
 }
 
-void actSt13bElevDown(volatile int a0)
+void actSt13bElevDown(GObj *volatile a0)
 {
-    int th;
+    GProc *th;
 
     lt_switch_layout(55);
     gflagOn(15);
@@ -785,7 +786,7 @@ void actSt13bElevDown(volatile int a0)
         _ACTWait(1);
     }
 
-    iosThreadSetPri(th + 0x24, 34);
+    iosThreadSetPri(&th->thread, 34);
 
     if (demoEnd == 0) {
         scpFadeOut(16.0f, 0, 0, 0);
@@ -809,9 +810,9 @@ void actSt13bElevDown(volatile int a0)
     lt_switch_layout(54);
 }
 
-void actSt13bElevUp(volatile int a0)
+void actSt13bElevUp(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     Act *self = actInitialize(a0);
     _ACTWait(1);
 
@@ -832,9 +833,9 @@ void actSt13bElevUp(volatile int a0)
     }
 }
 
-void actSt13bElevUpChk(volatile int a0)
+void actSt13bElevUpChk(GObj *volatile a0)
 {
-    int th;
+    GProc *th;
 
     scpAdpcmPlayRequestFunc(78, &st13b_up, 1, 1, 1);
 
@@ -852,7 +853,7 @@ void actSt13bElevUpChk(volatile int a0)
         _ACTWait(1);
     }
 
-    iosThreadSetPri(th + 0x24, 34);
+    iosThreadSetPri(&th->thread, 34);
 
     if (demoEnd == 0) {
         scpFadeOut(16.0f, 0, 0, 0);
@@ -882,9 +883,9 @@ void actSt13bElevUpChk(volatile int a0)
     gflagOff(325);
 }
 
-void actSt13bDoorUp(volatile int a0)
+void actSt13bDoorUp(GObj *volatile a0)
 {
-    int th;
+    GProc *th;
 
     lt_switch_layout(55);
     gflagOn(17);
@@ -897,7 +898,7 @@ void actSt13bDoorUp(volatile int a0)
         _ACTWait(1);
     }
 
-    iosThreadSetPri(th + 0x24, 34);
+    iosThreadSetPri(&th->thread, 34);
 
     if (demoEnd == 0) {
         scpFadeOut(16.0f, 0, 0, 0);
@@ -922,9 +923,9 @@ void actSt13bDoorUp(volatile int a0)
     lt_switch_layout(54);
 }
 
-void actSt13bElev2Chk(volatile int a0)
+void actSt13bElev2Chk(GObj *volatile a0)
 {
-    Act *sub = ((PObjGObj *)a0)->act;
+    Act *sub = GOBJ_ACT(a0);
 
     while (scpTriggerFloorAttr(boyGObj, 0x4000000) == 0) {
         _ACTWait(1);
@@ -985,9 +986,9 @@ void actSt13bElev2Chk(volatile int a0)
     _ACTWait(0);
 }
 
-void actSt13bSekizo(volatile int a0)
+void actSt13bSekizo(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     Act *self = actInitialize(a0);
 
     _ACTWait(1);
@@ -1004,9 +1005,9 @@ void actSt13bSekizo(volatile int a0)
     }
 }
 
-void actSt13bSekizo2(volatile int a0)
+void actSt13bSekizo2(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     Act *self = actInitialize(a0);
 
     _ACTWait(1);
@@ -1023,9 +1024,9 @@ void actSt13bSekizo2(volatile int a0)
     }
 }
 
-void actSt13bBossAfter(volatile int a0)
+void actSt13bBossAfter(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     Act *self = actInitialize(a0);
 
     _ACTWait(1);
@@ -1042,9 +1043,9 @@ void actSt13bBossAfter(volatile int a0)
     }
 }
 
-void actSt13bStoneGirl(volatile int a0)
+void actSt13bStoneGirl(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
 
     actInitialize(a0);
     _ACTWait(1);
@@ -1055,9 +1056,9 @@ void actSt13bStoneGirl(volatile int a0)
     }
 }
 
-void actSt13bElev(volatile int a0)
+void actSt13bElev(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     Act *self = actInitialize(a0);
 
     _ACTWait(1);
@@ -1068,9 +1069,9 @@ void actSt13bElev(volatile int a0)
     _ACTWait(0);
 }
 
-void actSt13bElev2(volatile int a0)
+void actSt13bElev2(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     Act *self = actInitialize(a0);
 
     _ACTWait(1);
@@ -1092,9 +1093,9 @@ void actSt13bElev2(volatile int a0)
     }
 }
 
-void actSt13bDoor(volatile int a0)
+void actSt13bDoor(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     Act *self = actInitialize(a0);
 
     _ACTWait(1);
@@ -1111,9 +1112,9 @@ void actSt13bDoor(volatile int a0)
     }
 }
 
-void actBossTest(volatile int a0)
+void actBossTest(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
 
     actInitialize(a0);
     _ACTWait(1);
@@ -1125,7 +1126,7 @@ void actBossTest(volatile int a0)
     stage_SetAnimation(38, 0, 0);
 }
 
-void actSt13bConte02Jimaku(volatile int a0)
+void actSt13bConte02Jimaku(GObj *volatile a0)
 {
     float t;
     float tn;
@@ -1138,8 +1139,8 @@ void actSt13bConte02Jimaku(volatile int a0)
             jimakuBegin(&jimaku_msg);
             break;
         case 1800:
-            jimaku_msg.sub.unk2C = 1;
-            jimaku_msg.sub.unk38 = -1;
+            jimaku_msg.sub.block = 1;
+            jimaku_msg.sub.jump = -1;
             jimakuOn = 1;
             jimakuJump(&jimaku_msg);
             break;
@@ -1161,7 +1162,7 @@ void actSt13bSekizo2Event(int x)
     volatile int local = x;
 }
 
-void actConte10c(volatile int a0)
+void actConte10c(GObj *volatile a0)
 {
     stage_SetAnimation(763, 1, 0);
 
@@ -1183,9 +1184,9 @@ void actConte10c(volatile int a0)
     _ACTWait(0);
 }
 
-void actSt13bElevMain(volatile int a0)
+void actSt13bElevMain(GObj *volatile a0)
 {
-    Act *sub = ((PObjGObj *)a0)->act;
+    Act *sub = GOBJ_ACT(a0);
 
     sub->mainMail = elevMain_mes;
     while (1) {
@@ -1193,9 +1194,9 @@ void actSt13bElevMain(volatile int a0)
     }
 }
 
-void actSt13bElevSwitch(volatile int a0)
+void actSt13bElevSwitch(GObj *volatile a0)
 {
-    Act *sub = ((PObjGObj *)a0)->act;
+    Act *sub = GOBJ_ACT(a0);
 
     sub->mainMail = 0;
     scpBoyControlReadDisable = 1;
@@ -1206,7 +1207,7 @@ void actSt13bElevSwitch(volatile int a0)
     _ACTWait(0);
 }
 
-void actSt13bElevUpSub(volatile int a0)
+void actSt13bElevUpSub(GObj *volatile a0)
 {
     stage_SetAnimation(40, 1, 0);
     st13b_boss_yure = iosPadActRequest(boyPad, 9);
@@ -1226,9 +1227,9 @@ void actSt13bElevUpSub(volatile int a0)
     _ACTWait(0);
 }
 
-void actSt13bDoorMain(volatile int a0)
+void actSt13bDoorMain(GObj *volatile a0)
 {
-    Act *sub = ((PObjGObj *)a0)->act;
+    Act *sub = GOBJ_ACT(a0);
 
     sub->mainMail = doorMain_mes;
     while (1) {
@@ -1236,9 +1237,9 @@ void actSt13bDoorMain(volatile int a0)
     }
 }
 
-void actSt13bDoorSwitch(volatile int a0)
+void actSt13bDoorSwitch(GObj *volatile a0)
 {
-    Act *sub = ((PObjGObj *)a0)->act;
+    Act *sub = GOBJ_ACT(a0);
 
     sub->mainMail = 0;
     scpBoyControlReadDisable = 1;
@@ -1249,7 +1250,7 @@ void actSt13bDoorSwitch(volatile int a0)
     _ACTWait(0);
 }
 
-void actSt13bDoorUpSub(volatile int a0)
+void actSt13bDoorUpSub(GObj *volatile a0)
 {
     _ACTWait(60);
 
@@ -1273,9 +1274,9 @@ void actSt13bDoorUpSub(volatile int a0)
     _ACTWait(0);
 }
 
-void actSt13bElev2CharaChk(volatile int a0)
+void actSt13bElev2CharaChk(GObj *volatile a0)
 {
-    Act *sub = ((PObjGObj *)a0)->act;
+    Act *sub = GOBJ_ACT(a0);
 
     while (scpTriggerFloorAttr(boyGObj, 0x4000000) != 0) {
         _ACTWait(1);

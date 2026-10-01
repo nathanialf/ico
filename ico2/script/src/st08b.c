@@ -4,6 +4,7 @@
 #include "thread.h"
 #include "s_init.h"
 #include "act.h"
+#include "gobj_process.h"
 #include "commonact.h"
 #include "generator.h"
 #include "gflag.h"
@@ -50,22 +51,22 @@ typedef union Pos {
     float f[4];
 } Pos;
 
-void actSt08bKurenLeft(volatile int a0);
-void actSt08bKurenRight(volatile int a0);
+void actSt08bKurenLeft(GObj *volatile a0);
+void actSt08bKurenRight(GObj *volatile a0);
 /* The door-boundary X/Z corners live in the -G8 gp float pool and are written
    by the stage's layout/script side, so their loads may not sink into the jal
    delay slot; ROM has a nop at both call sites. */
-void actSt08bDoorUpChk(volatile int a0);
-void actSt08bDoorDownChk(volatile int a0);
+void actSt08bDoorUpChk(GObj *volatile a0);
+void actSt08bDoorDownChk(GObj *volatile a0);
 
 /* .sbss, owned by st08b.o and reached only from this file (MAIN.MAP names no
    symbol in the run): the demo's own end flag, raised by the
    subthreads the wait loop below spins for. */
 static int demoEnd;
 
-inline void actSt08bKuren(volatile int a0)
+inline void actSt08bKuren(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     Act *self = actInitialize(a0);
     _ACTWait(1);
 
@@ -75,7 +76,7 @@ inline void actSt08bKuren(volatile int a0)
     _ACTWait(0);
 }
 
-inline void actSt08bKurenMain(volatile int a0)
+inline void actSt08bKurenMain(GObj *volatile a0)
 {
     Act *sub = GOBJ_ACT(a0);
 
@@ -89,14 +90,14 @@ inline void actSt08bKurenMain(volatile int a0)
     }
 }
 
-void actSt08bKurenSwitch(volatile int a0)
+void actSt08bKurenSwitch(GObj *volatile a0)
 {
-    Act *sub = (Act *)((PObjGObj *)a0)->act;
+    Act *sub = GOBJ_ACT(a0);
     Pos p1;
     Pos p2;
-    int h;
-    int th = 0;
-    int thread;
+    char *h;
+    GProc *th = 0;
+    GProc *thread;
     int frame;
 
     scpBoyControlReadDisable = 1;
@@ -133,9 +134,9 @@ void actSt08bKurenSwitch(volatile int a0)
         _ACTWait(1);
     }
 
-    iosThreadSetPri(thread + 0x24, 34);
+    iosThreadSetPri(&thread->thread, 34);
     if (th != 0) {
-        iosThreadSetPri(th + 0x24, 34);
+        iosThreadSetPri(&th->thread, 34);
     }
 
     if (demoEnd == 0) {
@@ -192,7 +193,7 @@ void actSt08bKurenSwitch(volatile int a0)
     _ACTWait(0);
 }
 
-void actSt08bKurenLeft(volatile int a0)
+void actSt08bKurenLeft(GObj *volatile a0)
 {
     ReviveAllCarryableItemsWithNonSleepFrame(300);
 
@@ -223,7 +224,7 @@ void actSt08bKurenLeft(volatile int a0)
     _ACTWait(0);
 }
 
-void actSt08bKurenRight(volatile int a0)
+void actSt08bKurenRight(GObj *volatile a0)
 {
     ReviveAllCarryableItemsWithNonSleepFrame(300);
 
@@ -251,7 +252,7 @@ void actSt08bKurenRight(volatile int a0)
     _ACTWait(0);
 }
 
-inline void actSt08aGirlYoro(volatile int a0)
+inline void actSt08aGirlYoro(GObj *volatile a0)
 {
     scpPlayStart(girlGObj);
     scpPlayMot(girlGObj, 546);
@@ -266,9 +267,9 @@ inline void actSt08bDoorEvent(int x)
     volatile int local = x;
 }
 
-void actSt08bDoor(volatile int a0)
+void actSt08bDoor(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     Act *self = actInitialize(a0);
 
     _ACTWait(1);
@@ -290,9 +291,9 @@ void actSt08bDoor(volatile int a0)
     }
 }
 
-void actSt08bDoorUpChk(volatile int a0)
+void actSt08bDoorUpChk(GObj *volatile a0)
 {
-    Act *sub = (Act *)((PObjGObj *)a0)->act;
+    Act *sub = GOBJ_ACT(a0);
     long long buf[2];
 
     while (scpTriggerFloorAttrTargetMan(a0, 0x4000000) == 0) {
@@ -325,7 +326,7 @@ void actSt08bDoorUpChk(volatile int a0)
     _ACTWait(0);
 }
 
-inline void actSt08bDoorUpEffect(volatile int a0)
+inline void actSt08bDoorUpEffect(GObj *volatile a0)
 {
     long long b1[2];
     long long b2[2];
@@ -349,7 +350,7 @@ inline void actSt08bDoorUpEffect(volatile int a0)
     }
 }
 
-inline void actSt08bDoorDownEffect(volatile int a0)
+inline void actSt08bDoorDownEffect(GObj *volatile a0)
 {
     long long b1[2];
     long long b2[2];
@@ -377,9 +378,9 @@ inline void actSt08bDoorDownEffect(volatile int a0)
    doorDown_mes and doorUp_mes, each check thread's own doorUpChk_mes and
    doorDownChk_mes (st04d's door1_up_chk_mes idiom, st18a's switchLUpChk_mes). */
 
-void actSt08bDoorDownChk(volatile int a0)
+void actSt08bDoorDownChk(GObj *volatile a0)
 {
-    Act *sub = (Act *)((PObjGObj *)a0)->act;
+    Act *sub = GOBJ_ACT(a0);
     long long buf[2];
 
     while (scpTriggerFloorAttrTargetMan(a0, 0x4000000) != 0) {
@@ -412,9 +413,9 @@ void actSt08bDoorDownChk(volatile int a0)
     _ACTWait(0);
 }
 
-inline void actSt08bEne(volatile int a0)
+inline void actSt08bEne(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     Act *self = actInitialize(a0);
     _ACTWait(1);
 
@@ -426,7 +427,7 @@ inline void actSt08bEne(volatile int a0)
     }
 }
 
-inline void actSt08bEneChk(volatile int a0)
+inline void actSt08bEneChk(GObj *volatile a0)
 {
     if (girlGObj == 0) {
         _ACTWait(0);
@@ -439,9 +440,9 @@ inline void actSt08bEneChk(volatile int a0)
     gflagOn(82);
 }
 
-inline void actSt08bEnemy1(volatile int a0)
+inline void actSt08bEnemy1(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     actInitialize(a0);
     _ACTWait(1);
     Generator_Mask(a0);
@@ -455,9 +456,9 @@ inline void actSt08bEnemy1(volatile int a0)
     Generator_Call(a0);
 }
 
-inline void actSt08bEnemy2(volatile int a0)
+inline void actSt08bEnemy2(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     actInitialize(a0);
     _ACTWait(1);
     Generator_Mask(a0);

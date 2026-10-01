@@ -12,9 +12,11 @@
 #ifndef ST04D_H
 #define ST04D_H
 
-void actSt04dDoor1DownChk(volatile int a0);
-void actSt04dDoor1UpChk(volatile int a0);
-void actSt04dDoor2DownChk(volatile int a0);
-void actSt04dDoor2UpChk(volatile int a0);
+#include "typedef.h"
+
+void actSt04dDoor1DownChk(GObj *volatile a0);
+void actSt04dDoor1UpChk(GObj *volatile a0);
+void actSt04dDoor2DownChk(GObj *volatile a0);
+void actSt04dDoor2UpChk(GObj *volatile a0);
 
 #endif /* ST04D_H */

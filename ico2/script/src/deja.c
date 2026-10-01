@@ -31,7 +31,7 @@ static ActMail after_mes[2] = {{430}, {429}};
    loop below is spinning for. */
 static int demoEnd;
 
-void actDejaDemo(volatile int a0);
+void actDejaDemo(GObj *volatile a0);
 
 /* the 0x28-byte stage-manager table entry */
 typedef struct {
@@ -42,18 +42,18 @@ typedef struct {
 /* Both tables are in the ELF's .rodata run (0x54D380..0x638A98), so `const`
    is what they are.  It is also load-bearing on stageData: only a reference
    rooted at a const object makes the `nextStage` load unchanging, and only
-   then is it free of the `volatile int a0` parameter home's memory
+   then is it free of the `GObj *volatile a0` parameter home's memory
    dependence, which is what lets the home store issue two slots later. */
 extern const StgPre stageData[];
 extern const StgEntry exitData[];
-void actDejaAfterChk(volatile int a0);
+void actDejaAfterChk(GObj *volatile a0);
 
 /* .sdata, owned by deja.o: the scene's stream handle (MAIN.MAP global) */
 char *deja = 0;
 
 static const Vec16 afterChkPos = {{-1000.0f, 0.0f, -2200.0f, 1.0f}};
 
-inline void actEnemySleep(volatile int a0)
+inline void actEnemySleep(GObj *volatile a0)
 {
     while (1) {
         scpSleepEnemyAll();
@@ -61,9 +61,9 @@ inline void actEnemySleep(volatile int a0)
     }
 }
 
-inline void actDeja(volatile int a0)
+inline void actDeja(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     Act *self = actInitialize(a0);
     _ACTWait(1);
 
@@ -79,7 +79,7 @@ inline void actDeja(volatile int a0)
     }
 }
 
-void actDejaChk(volatile int a0)
+void actDejaChk(GObj *volatile a0)
 {
     gflagOn(6);
     scpSearchGobj(2548)->active = 0;
@@ -107,10 +107,10 @@ void actDejaChk(volatile int a0)
     RequestStageChange(1, boyGObj, 0, 0.025f, 1.0f);
 }
 
-void actDejaDemo(volatile int a0)
+void actDejaDemo(GObj *volatile a0)
 {
     stgmgrNextStagePreLoadForceStageSet(exitData[stageData[stage_no].ent[0]].preload);
-    scpPlayStart((int)boyGObj);
+    scpPlayStart(boyGObj);
     stage_SetAnimation(608, 1, 0);
     scpPlayMot(boyGObj, 298);
     while (stage_ContinueAnimation(608, 609) == 0) {
@@ -145,7 +145,7 @@ void actDejaDemo(volatile int a0)
     while (stage_ContinueAnimation(613, 614) == 0) {
         _ACTWait(1);
     }
-    scpPlayMot((char *)scpSearchGobj(2548), 724);
+    scpPlayMot(scpSearchGobj(2548), 724);
     scpSearchGobj(2548)->active = 1;
     _ACTWait(1);
     stage_SetAnimation(620, -1, -2);
@@ -162,7 +162,7 @@ void actDejaDemo(volatile int a0)
         _ACTWait(1);
     }
     scpPlayMot(boyGObj, 304);
-    scpPlayMot((char *)scpSearchGobj(2548), 725);
+    scpPlayMot(scpSearchGobj(2548), 725);
     _ACTWait(1);
     stage_SetAnimation(622, 1, 0);
     while (stage_ContinueAnimation(616, 617) == 0) {
@@ -171,7 +171,7 @@ void actDejaDemo(volatile int a0)
     scpSearchGobj(2549)->active = 1;
     scpPlayMot(boyGObj, 305);
     scpPlayStart(scpSearchGobj(2549));
-    scpPlayMot((char *)scpSearchGobj(2549), 962);
+    scpPlayMot(scpSearchGobj(2549), 962);
     _ACTWait(1);
     stage_SetAnimation(622, -1, -2);
     stage_SetAnimation(623, 1, 0);
@@ -179,7 +179,7 @@ void actDejaDemo(volatile int a0)
         _ACTWait(1);
     }
     scpPlayMot(boyGObj, 306);
-    scpPlayMot((char *)scpSearchGobj(2549), 963);
+    scpPlayMot(scpSearchGobj(2549), 963);
     shadow_DispCancel(74, 0);
     while (stage_CheckAnimationFrame(618, 125, 0) == 0) {
         _ACTWait(1);
@@ -188,9 +188,9 @@ void actDejaDemo(volatile int a0)
     demoEnd = 1;
 }
 
-void actDejaAfter(volatile int a0)
+void actDejaAfter(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     Act *self = actInitialize(a0);
     _ACTWait(1);
 
@@ -216,7 +216,7 @@ void actDejaAfter(volatile int a0)
     }
 }
 
-void actDejaAfterChk(volatile int a0)
+void actDejaAfterChk(GObj *volatile a0)
 {
     Vec16 target;
     Vec16 dir;
@@ -225,7 +225,7 @@ void actDejaAfterChk(volatile int a0)
     gflagOn(7);
     lt_switch_layout(55);
     scpBoyControlReadDisable = 1;
-    scpPlayStart((int)boyGObj);
+    scpPlayStart(boyGObj);
     stage_SetAnimation(624, 1, 0);
     scpPlayMot(boyGObj, 307);
     while (stage_CheckAnimationFinish(624) == 0) {
@@ -236,7 +236,7 @@ void actDejaAfterChk(volatile int a0)
     target = afterChkPos;
     sceVu0SubVector(dir.f, target.f, test_CURRENTROOT(boyGObj));
     scpPlayMotDir(boyGObj, dir.f);
-    scpPlayEnd((int)boyGObj);
+    scpPlayEnd(boyGObj);
     scpBoyControlReadDisable = 0;
     lt_switch_layout(54);
     _ACTWait(60);

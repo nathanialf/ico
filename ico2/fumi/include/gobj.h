@@ -12,6 +12,8 @@
 #ifndef GOBJ_H
 #define GOBJ_H
 
+#include "typedef.h"
+
 struct GObj;
 
 /* gobj.c's functions in the order the ROM emits them: gcc 2.9 writes the

@@ -146,8 +146,8 @@ void findChainInJump(void *self)
 
     if (((CHAINROW(self)->f_190 >> 6) & 1) == 0 && (rside != 0 || lside != 0) &&
         (lv[2] < 0.0f ? -lv[2] : lv[2]) < 150.0f) {
-        RequestChangeHandMode(self, 0, 2, 1, g, 0, (int)w);
-        RequestChangeHandMode(self, 1, 2, 1, g, 0, (int)w);
+        RequestChangeHandMode(self, 0, 2, 1, g, 0, w);
+        RequestChangeHandMode(self, 1, 2, 1, g, 0, w);
     } else {
         RequestChangeHandMode(self, 0, 2, 0, 0, 0, 0);
         RequestChangeHandMode(self, 1, 2, 0, 0, 0, 0);
@@ -168,14 +168,14 @@ void findChainInJump(void *self)
     if (rside != 0) {
         GetSkeltonPosition(hp0, self, 22);
         if ((lv[0] < 0.0f ? -lv[0] : lv[0]) < 60.0f && (lv[2] < 0.0f ? -lv[2] : lv[2]) < 100.0f) {
-            iosOmSendMail(self, 20, g);
+            iosOmSendMail(self, 20, (int)g);
         }
     }
 
     if (lside != 0) {
         GetSkeltonPosition(hp1, self, 6);
         if ((lv[0] < 0.0f ? -lv[0] : lv[0]) < 60.0f && (lv[2] < 0.0f ? -lv[2] : lv[2]) < 100.0f) {
-            iosOmSendMail(self, 20, g);
+            iosOmSendMail(self, 20, (int)g);
         }
     }
 
@@ -183,7 +183,7 @@ void findChainInJump(void *self)
         GetSkeltonPosition(hp0, self, 6);
         GetChainNearestNodePosition(hp1, g, hp0);
         if ((hp0[1] - hp1[1] < 0.0f ? -(hp0[1] - hp1[1]) : (hp0[1] - hp1[1])) < 5.0f) {
-            iosOmSendMail(self, 20, g);
+            iosOmSendMail(self, 20, (int)g);
         }
     }
 
@@ -209,8 +209,8 @@ void findChainInJump(void *self)
             GetRootPositionHandExtra(self, hx);
             GetCageChainPoint(cp2, ce2, cage);
             if (cp2[1] + 150.0f < hx[1]) {
-                ACTSendMailCorrect((int)self, 0xAE);
-                ACTSendMailCorrect((int)self, 0xAD);
+                ACTSendMailCorrect(self, 0xAE);
+                ACTSendMailCorrect(self, 0xAD);
             }
         }
     }
@@ -276,15 +276,15 @@ int CorrectOrient_RopeCliff(float *out, void *gobj, float *dir)
    act-routine `inline`, which the compiler emits at the end of the file in
    boyact.h's order, and the mot-routine plainly, emitted in place.  Their
    strings come out here, in this order, at the head of the TU's .rodata. */
-inline void afterBoyHand50(volatile int a0)
+inline void afterBoyHand50(GObj *volatile a0)
 {
     debug_StdPrintfDummy("boy after func\n");
     if (girlGObj != 0) {
-        iosOmSendMail(girlGObj, 0x60, isysCurrentGObj);
+        iosOmSendMail(girlGObj, 0x60, (int)isysCurrentGObj);
     }
 }
 
-inline void actBoyHand50(volatile int a0)
+inline void actBoyHand50(GObj *volatile a0)
 {
     Act *sub = GOBJ_ACT(a0);
 
@@ -302,14 +302,14 @@ inline void actBoyHand50(volatile int a0)
     }
 }
 
-void motBoyHand50(volatile int a0)
+void motBoyHand50(GObj *volatile a0)
 {
     Act *sub = GOBJ_ACT(a0);
 
     debug_StdPrintfDummy("enter motBoyHand50\n");
     while (1) {
         if (girlGObj != 0) {
-            iosOmSendMail(girlGObj, 0x5C, isysCurrentGObj);
+            iosOmSendMail(girlGObj, 0x5C, (int)isysCurrentGObj);
         }
         if (sub->readyFlags & 1) {
             break;
@@ -322,7 +322,7 @@ void motBoyHand50(volatile int a0)
     _ACTWait(1);
     while (1) {
         if (girlGObj != 0) {
-            iosOmSendMail(girlGObj, 0x5D, isysCurrentGObj);
+            iosOmSendMail(girlGObj, 0x5D, (int)isysCurrentGObj);
         }
         if (sub->readyFlags & 2) {
             break;
@@ -353,15 +353,15 @@ static inline void faceGirlFlat(void)
     SetMotionDirection(boy, dir);
 }
 
-inline void afterBoyHand100(volatile int a0)
+inline void afterBoyHand100(GObj *volatile a0)
 {
     debug_StdPrintfDummy("boy after func\n");
     if (girlGObj != 0) {
-        iosOmSendMail(girlGObj, 0x65, isysCurrentGObj);
+        iosOmSendMail(girlGObj, 0x65, (int)isysCurrentGObj);
     }
 }
 
-inline void actBoyHand100(volatile int a0)
+inline void actBoyHand100(GObj *volatile a0)
 {
     Act *sub = GOBJ_ACT(a0);
 
@@ -379,7 +379,7 @@ inline void actBoyHand100(volatile int a0)
     }
 }
 
-void motBoyHand100(volatile int a0)
+void motBoyHand100(GObj *volatile a0)
 {
     Act *sub = GOBJ_ACT(a0);
     int n;
@@ -391,7 +391,7 @@ void motBoyHand100(volatile int a0)
         if (0 < n) {
             n--;
             if (girlGObj != 0) {
-                iosOmSendMail(girlGObj, 0x61, isysCurrentGObj);
+                iosOmSendMail(girlGObj, 0x61, (int)isysCurrentGObj);
             }
             if ((sub->readyFlags & 1) == 0) {
                 goto cont;
@@ -416,7 +416,7 @@ done:
     }
     while (1) {
         if (girlGObj != 0) {
-            iosOmSendMail(girlGObj, 0x62, isysCurrentGObj);
+            iosOmSendMail(girlGObj, 0x62, (int)isysCurrentGObj);
         }
         if (sub->readyFlags & 2) {
             break;
@@ -429,7 +429,7 @@ done:
     }
     while (1) {
         if (girlGObj != 0) {
-            iosOmSendMail(girlGObj, 0x64, isysCurrentGObj);
+            iosOmSendMail(girlGObj, 0x64, (int)isysCurrentGObj);
         }
         if (sub->readyFlags & 8) {
             break;
@@ -443,15 +443,15 @@ done:
     }
 }
 
-inline void afterBoyHand200(volatile int a0)
+inline void afterBoyHand200(GObj *volatile a0)
 {
     debug_StdPrintfDummy("boy after func\n");
     if (girlGObj != 0) {
-        iosOmSendMail(girlGObj, 0x6A, isysCurrentGObj);
+        iosOmSendMail(girlGObj, 0x6A, (int)isysCurrentGObj);
     }
 }
 
-inline void actBoyHand200(volatile int a0)
+inline void actBoyHand200(GObj *volatile a0)
 {
     Act *sub = GOBJ_ACT(a0);
 
@@ -469,7 +469,7 @@ inline void actBoyHand200(volatile int a0)
     }
 }
 
-void motBoyHand200(volatile int a0)
+void motBoyHand200(GObj *volatile a0)
 {
     Act *sub = GOBJ_ACT(a0);
     int n;
@@ -481,7 +481,7 @@ void motBoyHand200(volatile int a0)
         if (0 < n) {
             n--;
             if (girlGObj != 0) {
-                iosOmSendMail(girlGObj, 0x66, isysCurrentGObj);
+                iosOmSendMail(girlGObj, 0x66, (int)isysCurrentGObj);
             }
             if ((sub->readyFlags & 1) == 0) {
                 goto cont;
@@ -510,7 +510,7 @@ done:
     }
     while (1) {
         if (girlGObj != 0) {
-            iosOmSendMail(girlGObj, 0x67, isysCurrentGObj);
+            iosOmSendMail(girlGObj, 0x67, (int)isysCurrentGObj);
         }
         if (sub->readyFlags & 2) {
             break;
@@ -523,7 +523,7 @@ done:
     }
     while (1) {
         if (girlGObj != 0) {
-            iosOmSendMail(girlGObj, 0x69, isysCurrentGObj);
+            iosOmSendMail(girlGObj, 0x69, (int)isysCurrentGObj);
         }
         if (sub->readyFlags & 8) {
             break;
@@ -557,11 +557,11 @@ void handoff_heroin(void)
 
     if (girlGObj != 0) {
         if (GOBJ_SUB(girlGObj)->hand0Mode == 6) {
-            if ((((StatusAttr *)(actModeTbl + GOBJ_ACT(boy)->actMode * 0x50))->f_4C >> 7) & 1) {
+            if ((((StatusAttr *)(actModeTbl + GOBJ_ACT(boy)->actMode * 0x50))->flags >> 7) & 1) {
             } else {
-                iosOmSendMail(girlGObj, 0x3E, isysCurrentGObj);
+                iosOmSendMail(girlGObj, 0x3E, (int)isysCurrentGObj);
             }
-            ACTSendMailCorrect((int)boy, 0xFA);
+            ACTSendMailCorrect(boy, 0xFA);
         } else if (_DistxzGV(test_CURRENTROOT(boy), test_CURRENTROOT(girlGObj)) < 100.0f &&
                    ABSF(ABSF(BOYGIRL_DY())) < 100.0f) {
             GetHeightOfFieldPlaneDifference(boyGObj, girlGObj);
@@ -598,7 +598,7 @@ static int attrWallHit[3]; /* derived name */
 static long long boyInfo[12]; /* derived name */
 
 /* kept local: agrees with motionManager2.h, which this TU does not include (SetMotionNodeFixModeParameter differs) */
-extern int CheckFloorAttribute(char *self, int attr);
+extern int CheckFloorAttribute(GObj *self, int attr);
 
 void CheckCollisionAttr(void *self)
 {
@@ -896,7 +896,7 @@ extern void ClipWall(void *a0);
 extern float IsPointIsInScreen(void *a0, void *a1);
 /* kept local: agrees with motionManager2.h, which this TU does not include (SetMotionNodeFixModeParameter differs) */
 extern void _GetMotionDirection(int a0, int a1);
-extern void _ACTCommonMailTest(int a0, int a, int b, int c);
+extern void _ACTCommonMailTest(GObj *a0, int a, int b, int c);
 extern float GetDifferenceFromLowerField(int self, int a1);
 /* kept local: agrees with motionManager2.h, which this TU does not include (SetMotionNodeFixModeParameter differs) */
 extern int GetMotionFrameFlag1(char *self);
@@ -999,7 +999,7 @@ int test_rope_slope = 0;
 
 float add_rope_val = 0.0f;
 
-void subBoyControl(volatile int a0)
+void subBoyControl(GObj *volatile a0)
 {
     float stick[4];
     float wish[4];
@@ -1047,10 +1047,10 @@ void subBoyControl(volatile int a0)
                 goto noStick;
             }
             s->flags18.ll &= ~0x800000000;
-            if (scpBoyControlReadDisable == 0 && GOBJ_WORK(a0)->f_4B0 == 0 &&
+            if (scpBoyControlReadDisable == 0 && GOBJ_WORK(a0)->pinchFrames == 0 &&
                 (PrivInsCamChk() == 0 || boyPrivInsCamInScreen())) {
                 iosPadRead((char *)s + 0x2D8);
-                if (GOBJ_WORK(a0)->f_3C8 != 0) {
+                if (GOBJ_WORK(a0)->ditchTimer != 0) {
                     *(unsigned int *)((char *)s + 0x2E0) &= ~8;
                 }
                 s->flags18.ll |= 0x800000000;
@@ -1190,7 +1190,7 @@ void subBoyControl(volatile int a0)
         s->dir[1] = stick[1];
         s->dir[2] = stick[2];
     noStick:
-        GOBJ_WORK(a0)->f_340 = s->stickMag;
+        GOBJ_WORK(a0)->stickMag = s->stickMag;
         {
             static int slowWalkTimer = 0; /* derived name */
 
@@ -1442,7 +1442,7 @@ void subBoyControl(volatile int a0)
                this local is the form that read takes in fumi'(char *)s actor code,
                and its reader is the DEBUG build'(char *)s report in that window.
                The name, type and report are ours. */
-            int self = a0;
+            GObj *self = a0;
 
             if (((int)(*(unsigned long long *)((char *)GOBJ_ACT(a0)->enemy + 0x298) >> 1) & 1) &&
                 !(s->stickY - 128 < 101)) {
@@ -1453,7 +1453,7 @@ void subBoyControl(volatile int a0)
             } else {
                 ACTSendMailCorrect(a0, 0x150);
             }
-            if ((optionControlType == (void *)1 ? s->padTrg : s->padNow) & 8) {
+            if ((optionControlType == 1 ? s->padTrg : s->padNow) & 8) {
                 ACTSendMailCorrect(a0, 0x42);
             }
 #ifdef DEBUG
@@ -1596,7 +1596,7 @@ void subBoyControl(volatile int a0)
         case 20:
         case 21:
             if (girlGObj != 0) {
-                iosOmSendMail(girlGObj, 0x3E, isysCurrentGObj);
+                iosOmSendMail(girlGObj, 0x3E, (int)isysCurrentGObj);
             }
             break;
         case 109:
@@ -1644,7 +1644,7 @@ void subBoyControl(volatile int a0)
             }
             break;
         case 94:
-            if (GOBJ_ACT(a0)->enemy->f_D0 != 0) {
+            if (GOBJ_ACT(a0)->enemy->floorAttrOff != 0) {
                 ACTSendMailCorrect(a0, 0x16F);
                 break;
             }
@@ -1806,7 +1806,7 @@ void OtherStageGirlPinchCamera_After(float t)
         PrivInsCamSet(test_CURRENTROOT(boyGObj), pinchCameraPos, (int)boyGObj,
                       (60 - systemStatus[0] * 10) / systemStatus[1] * 100 / 60,
                       (60 - systemStatus[0] * 10) / systemStatus[1] * 45 / 60, 0.05f, 0.25f, 0);
-        GOBJ_WORK(boyGObj)->f_4B0 = 0;
+        GOBJ_WORK(boyGObj)->pinchFrames = 0;
     }
 }
 
@@ -1879,9 +1879,9 @@ void PrivInsCamProcess(void)
    read the float it returns */
 /* kept local: returns float here, void in poly-flat.h */
 extern float IsPointIsInScreen(void *a0, void *a1);
-extern void ACTGame_CommonLoop(void *self);
-extern void ACTParaStatus_Exec(void *self);
-extern void ACTLookTargetSystem_Exec(void *self);
+extern void ACTGame_CommonLoop(GObj *self);
+extern void ACTParaStatus_Exec(GObj *self);
+extern void ACTLookTargetSystem_Exec(GObj *self);
 extern float GetDifferenceFromLowerField(int self, int a1);
 extern int isBottomOfChain(void *chain);
 /* kept local: agrees with camera-root.h, which this TU does not include (GetCurrentCameraSet2 differs) */
@@ -1977,7 +1977,7 @@ static __inline__ void boyCamDebugDisp(int camOn, int looking)
 #endif
 }
 
-void subBoyCollision(volatile int a0)
+void subBoyCollision(GObj *volatile a0)
 {
     Act *sub = GOBJ_ACT(a0);
     int camOn;
@@ -2029,7 +2029,7 @@ void subBoyCollision(volatile int a0)
         }
         CommonAttackCenter((void *)a0);
         ACTGame_SaveActorInformation((void *)a0);
-        if (*(unsigned int *)((char *)sub + 0x34) < 4 && *(int *)((char *)sub + 0x34) != 0) {
+        if (*(unsigned int *)((char *)sub + 0x34) < 4 && sub->actMode != 0) {
             if (sub->padTrg & 0x20) {
                 int hit;
 
@@ -2142,7 +2142,7 @@ void subBoyCollision(volatile int a0)
         case 0x44:
             if (((int)(sub->wish0.ll >> 48) & 1) && ((int)(sub->wish2.ll >> 48) & 1)) {
                 if (girlGObj != 0) {
-                    iosOmSendMail(girlGObj, 0x3E, isysCurrentGObj);
+                    iosOmSendMail(girlGObj, 0x3E, (int)isysCurrentGObj);
                 }
                 ACTSendMailCorrect(a0, 0xFA);
             } else if (NotNeedBackHand() ||
@@ -2384,7 +2384,7 @@ void subBoyCollision(volatile int a0)
                        call on the helper position just set (rows 3769-3771 are
                        code-free). */
                     if (dbg) {
-                        debug_NMarker((float *)work, 0xFF, 0, 0, 100.0f);
+                        debug_NMarker(work, 0xFF, 0, 0, 100.0f);
                     }
                     if ((int)(sub->flags20.ll >> 23) & 1) {
                         if (((int)(sub->flags20.ll >> 24) & 3) != 0) {
@@ -2417,7 +2417,7 @@ void subBoyCollision(volatile int a0)
             if ((_ACTCharStatus_Check((void *)a0, 0x22) ||
                  _ACTCharStatus_Check((void *)a0, 0x23)) &&
                 girlGObj != 0) {
-                iosOmSendMail(girlGObj, 0x3D, isysCurrentGObj);
+                iosOmSendMail(girlGObj, 0x3D, (int)isysCurrentGObj);
             }
             sub->flags18.ll = (sub->flags18.ll & ~0x20000000000LL) |
                               ((unsigned long long)(ACTGame_FLAG_TETSUNAGI() & 1) << 41);
@@ -2429,7 +2429,7 @@ void subBoyCollision(volatile int a0)
 
                 if (life < 60) {
                     if (girlGObj != 0) {
-                        iosOmSendMail(girlGObj, 0xB4, isysCurrentGObj);
+                        iosOmSendMail(girlGObj, 0xB4, (int)isysCurrentGObj);
                     }
                 } else if (life < 70) {
                     brainAddLevelGirl(20.0f);
@@ -2442,7 +2442,7 @@ void subBoyCollision(volatile int a0)
     }
 }
 
-void afterBoySwim(volatile int a0);
+void afterBoySwim(GObj *volatile a0);
 /* kept local: S12 here, FcColInfo in fieldCollision.h */
 extern S12 InitialColInfo;
 /* kept local: agrees with motionManager2.h, which this TU does not include (SetMotionNodeFixModeParameter differs) */
@@ -2481,7 +2481,7 @@ typedef union {
 
 #define GOBJ_SUBSLOT(o) (((GObjSubSlot *)((char *)(o) + 0x15C))->sub)
 
-void actBoySwim(volatile int a0)
+void actBoySwim(GObj *volatile a0)
 {
     float pos[4];
     Act *sub = GOBJ_ACT(a0);
@@ -2528,7 +2528,7 @@ void actBoySwim(volatile int a0)
     }
 }
 
-void actBoyWalk(volatile int a0)
+void actBoyWalk(GObj *volatile a0)
 {
     Act *sub = GOBJ_ACT(a0);
 
@@ -2554,7 +2554,7 @@ void actBoyWalk(volatile int a0)
     }
 }
 
-void actBoyRun(volatile int a0)
+void actBoyRun(GObj *volatile a0)
 {
     Act *sub = GOBJ_ACT(a0);
 
@@ -2580,7 +2580,7 @@ void actBoyRun(volatile int a0)
     }
 }
 
-inline void actBoyFall(volatile int a0)
+inline void actBoyFall(GObj *volatile a0)
 {
     Act *sub = GOBJ_ACT(a0);
 
@@ -2604,7 +2604,7 @@ static inline void ACTSearchEnemy_inl(void *a0, int *out_id, float *out_vec)
     ACTSearchGObj_inl(a0, (*(int *)((char *)a0 + 0xC) ^ 1) ? 1 : 4, 0x5A, out_id, out_vec, 300.0f);
 }
 
-void actBoyAttack(volatile int a0)
+void actBoyAttack(GObj *volatile a0)
 {
     char *sub = (char *)GOBJ_ACT(a0);
     int mot = *(int *)((char *)sub + 0x10);
@@ -2633,12 +2633,12 @@ void actBoyAttack(volatile int a0)
 /* kept local: agrees with motionManager2.h, which this TU does not include (SetMotionNodeFixModeParameter differs) */
 extern void SetMotionDirection(void *a0, float *a1);
 
-void actBoyTakeWeaponReady(volatile int a0)
+void actBoyTakeWeaponReady(GObj *volatile a0)
 {
     float w[4];
     float p[4];
     float dir[4];
-    char *obj;
+    GObj *obj;
     int first = 1;
     int n = 0;
 
@@ -2669,9 +2669,9 @@ void actBoyTakeWeaponReady(volatile int a0)
 /* sub->0x14 is the actor's "after" callback slot: actBoyTakeWeapon arms it with
    afterBoyTakeWeapon and calls it through the slot once the motion frame passes
    the swap point, so it is written and read as a function pointer. */
-typedef void (*BoyAfterFunc)(volatile int a0);
+typedef void (*BoyAfterFunc)(GObj *volatile a0);
 
-void actBoyTakeWeapon(volatile int a0)
+void actBoyTakeWeapon(GObj *volatile a0)
 {
     float p[4];
     float dir[4];
@@ -2726,13 +2726,13 @@ extern int CompareAttribute(unsigned int a, unsigned int b);
 
 #define BOY_WALL(o) ((char *)GOBJ_ACT(o)->work)
 
-void actBoyCliffHesitate(volatile int a0)
+void actBoyCliffHesitate(GObj *volatile a0)
 {
     int hit = 0;
 
     ACTAdjustPlane(a0, BOY_WALL(a0) + 0x8C0);
-    GetOrientOfWall(BOY_WALL(a0) + 0x8D0, GOBJ_WORK(a0)->f_8C8, BOY_WALL(a0) + 0x8C0);
-    if (CompareAttribute(*(int *)((char *)GOBJ_WORK(a0)->f_8C8 + 0x48), 0x400)) {
+    GetOrientOfWall(BOY_WALL(a0) + 0x8D0, GOBJ_WORK(a0)->cliffWall, BOY_WALL(a0) + 0x8C0);
+    if (CompareAttribute(*(int *)((char *)GOBJ_WORK(a0)->cliffWall + 0x48), 0x400)) {
         hit = 1;
         *(S12 *)(BOY_WALL(a0) + 0x490) = *(S12 *)(BOY_WALL(a0) + 0x8C0);
     }
@@ -2743,7 +2743,7 @@ void actBoyCliffHesitate(volatile int a0)
         if (girlGObj != 0) {
             brainSetSpMode();
             if (girlGObj != 0) {
-                iosOmSendMail(girlGObj, 0x3D, isysCurrentGObj);
+                iosOmSendMail(girlGObj, 0x3D, (int)isysCurrentGObj);
             }
         }
         ACTSendMailCorrect(a0, 0x128);
@@ -2751,7 +2751,7 @@ void actBoyCliffHesitate(volatile int a0)
     }
 }
 
-inline void actBoyCall(volatile int a0)
+inline void actBoyCall(GObj *volatile a0)
 {
     Act *sub = GOBJ_ACT(a0);
 
@@ -2759,7 +2759,7 @@ inline void actBoyCall(volatile int a0)
     sub->actMode = 9;
     _ACTWait(2);
     if (girlGObj != 0) {
-        iosOmSendMail(girlGObj, 0x41, isysCurrentGObj);
+        iosOmSendMail(girlGObj, 0x41, (int)isysCurrentGObj);
     }
     while (1) {
         if ((sub->padNow & 8) == 0) {
@@ -2793,7 +2793,7 @@ void ACTSendMail_PULLUP_GO(void)
             ACTSendMailCorrect((int)g, 0x4A);
             sub->orientMot = 0x6F;
         } else if (girlGObj != 0) {
-            iosOmSendMail(girlGObj, 0x52, isysCurrentGObj);
+            iosOmSendMail(girlGObj, 0x52, (int)isysCurrentGObj);
         }
         break;
     }
@@ -2809,19 +2809,19 @@ static inline void ACTSendMail_PULLUP_START(void)
     switch (sub->cliffSel) {
     case 0x64:
         if (girlGObj != 0) {
-            iosOmSendMail(girlGObj, 0x51, isysCurrentGObj);
+            iosOmSendMail(girlGObj, 0x51, (int)isysCurrentGObj);
         }
         GOBJ_ACT(girlGObj)->orientMot = 0x65;
         break;
     case 0xC8:
         if (girlGObj != 0) {
-            iosOmSendMail(girlGObj, 0x51, isysCurrentGObj);
+            iosOmSendMail(girlGObj, 0x51, (int)isysCurrentGObj);
         }
         GOBJ_ACT(girlGObj)->orientMot = 0x66;
         break;
     case 0x12C:
         if (girlGObj != 0) {
-            iosOmSendMail(girlGObj, 0x51, isysCurrentGObj);
+            iosOmSendMail(girlGObj, 0x51, (int)isysCurrentGObj);
         }
         GOBJ_ACT(girlGObj)->orientMot = 0x67;
         break;
@@ -2843,12 +2843,12 @@ int pullup_check_heroin_position(void)
             GetSkeltonPosition(p2, boyGObj, 6);
             if (_DistSqGV(p1, p2) < 3600.0f) {
                 if (girlGObj != 0) {
-                    iosOmSendMail(girlGObj, 0x59, isysCurrentGObj);
+                    iosOmSendMail(girlGObj, 0x59, (int)isysCurrentGObj);
                 }
             }
             return 0;
         case 0x51:
-            ACTSendMailCorrect((int)boyGObj, 0x58);
+            ACTSendMailCorrect(boyGObj, 0x58);
             return 0;
         default:
             return 0;
@@ -2882,7 +2882,7 @@ int ditch_check_heroin_position(void)
 
 extern char D_0055FFA8[];
 
-void actBoyPullupReady(volatile int a0)
+void actBoyPullupReady(GObj *volatile a0)
 {
     float mv[4];
 
@@ -2911,15 +2911,15 @@ void actBoyPullupReady(volatile int a0)
             _MoveGV(mv, test_CURRENTROOT((void *)a0), (float *)(BOY_WALL(a0) + 0x500), 3.0f);
             SetRootPosition((char *)a0, mv);
         }
-        _ACTCharStatus_Set((char *)a0, 0x1C, -1.0f, 0);
+        _ACTCharStatus_Set(a0, 0x1C, -1.0f, 0);
         if ((sub->padNow & 8) == 0 || isGirlWithinPullupHeight()) {
             ACTSendMailCorrect(a0, 0x49);
         } else if (pullup_check_heroin_position()) {
             if (PAIR_IsStatus_GIRL_PULL() == 0) {
                 if (!(300.0f < (BOY_GIRL_DY() < 0.0f ? -BOY_GIRL_DY() : BOY_GIRL_DY()) &&
-                      GOBJ_WORK(girlGObj)->f_3B4)) {
+                      GOBJ_WORK(girlGObj)->jumpTimer)) {
                     if (girlGObj != 0) {
-                        iosOmSendMail(girlGObj, 0x4F, isysCurrentGObj);
+                        iosOmSendMail(girlGObj, 0x4F, (int)isysCurrentGObj);
                     }
                 }
             } else if (IsCorrectPosition(girlGObj) == 0) {
@@ -2936,7 +2936,7 @@ void actBoyPullupReady(volatile int a0)
     (0.1f < *(float *)((char *)(sub) + 0x34C) &&                                                   \
      (*(float *)((char *)(sub) + 0x34C) < 0.99f || (*(int *)((char *)(sub) + 0x2E0) & 0x20)))
 
-void actBoyPullupGo(volatile int a0)
+void actBoyPullupGo(GObj *volatile a0)
 {
     Act *sub = GOBJ_ACT(a0);
 
@@ -2964,7 +2964,7 @@ extern void SetMotionNodeFixModeParameter(char *self, char *obj, int mode, int n
 extern void InsertCamera_Set(float *pos, float *tgt, int frames);
 extern char D_005577F4[];
 
-void actBoyBelift(volatile int a0)
+void actBoyBelift(GObj *volatile a0)
 {
     /* RECONSTRUCTION: the quaternion is reached through a union, the form
        actEnemyKidnapEnd (enemy_act.c) gives the same memset-and-w=1 idiom.
@@ -2983,7 +2983,7 @@ void actBoyBelift(volatile int a0)
     float dir[4];
     float ofs[4];
     float hit[4];
-    char *girl = GOBJ_ACT(a0)->intrArg;
+    GObj *girl = GOBJ_ACT(a0)->intrArg;
     float ratio;
     int mode;
     int lv;
@@ -3072,7 +3072,7 @@ typedef struct {
     char pad188[12];
 } BoyMotionRow;
 
-void actBoyReadyMove(volatile int a0)
+void actBoyReadyMove(GObj *volatile a0)
 {
     Act *sub = GOBJ_ACT(a0);
     BoyMoveOrder ord = *(BoyMoveOrder *)((char *)GOBJ_ACT(a0)->intrData);
@@ -3104,9 +3104,9 @@ void actBoyReadyMove(volatile int a0)
     }
 }
 
-void actBoyRescueReady(volatile int a0)
+void actBoyRescueReady(GObj *volatile a0)
 {
-    char *g = GOBJ_ACT(a0)->enemy->f_2E0;
+    GObj *g = GOBJ_ACT(a0)->enemy->rescueObj;
     float p[4];
     float q[4];
     float step[4];
@@ -3177,7 +3177,7 @@ void actBoyRescueReady(volatile int a0)
             }
             if (gameover_flag == 0) {
                 if (girlGObj != 0) {
-                    iosOmSendMail(girlGObj, 0x15D, isysCurrentGObj);
+                    iosOmSendMail(girlGObj, 0x15D, (int)isysCurrentGObj);
                 }
             }
             n1 = GetSkeltonFocusNode(girlGObj, 0x16);
@@ -3208,7 +3208,7 @@ void actBoyRescueReady(volatile int a0)
     }
 }
 
-void actBoyDitch3mReady(volatile int a0)
+void actBoyDitch3mReady(GObj *volatile a0)
 {
     Act *sub = GOBJ_ACT(a0);
     float p[4];
@@ -3255,7 +3255,7 @@ void actBoyDitch3mReady(volatile int a0)
 
         if (c != 0) {
             if (GOBJ_ACT(girlGObj)->actMode == 4) {
-                GOBJ_WORK(a0)->f_3C8 = (60 - systemStatus[0] * 10) / systemStatus[1] / 3;
+                GOBJ_WORK(a0)->ditchTimer = (60 - systemStatus[0] * 10) / systemStatus[1] / 3;
             }
             _ACTParaStatus_Set((void *)a0, 40);
             _ACTCharStatus_Set((void *)a0, 29, -1.0f, 0);
@@ -3281,12 +3281,12 @@ void actBoyDitch3mReady(volatile int a0)
             if (girlControlMode == 0) {
                 if (ditch_check_heroin_position() != 0) {
                     if (girlGObj != 0) {
-                        iosOmSendMail(girlGObj, 0x18C, isysCurrentGObj);
+                        iosOmSendMail(girlGObj, 0x18C, (int)isysCurrentGObj);
                     }
                 }
                 if (IsCorrectPosition(girlGObj) == 0) {
                     if (girlGObj != 0) {
-                        iosOmSendMail(girlGObj, 0x18D, isysCurrentGObj);
+                        iosOmSendMail(girlGObj, 0x18D, (int)isysCurrentGObj);
                     }
                 }
             }
@@ -3313,7 +3313,7 @@ void actBoyDitch3mReady(volatile int a0)
                 }
                 if (b != 0) {
                     if (girlGObj != 0) {
-                        iosOmSendMail(girlGObj, 0x18F, isysCurrentGObj);
+                        iosOmSendMail(girlGObj, 0x18F, (int)isysCurrentGObj);
                     }
                     ACTSendMailCorrect(a0, 0x18B);
                 }
@@ -3325,7 +3325,7 @@ void actBoyDitch3mReady(volatile int a0)
 
 extern char D_0055FFA8[];
 
-void actBoyRescueGirlBhang(volatile int a0)
+void actBoyRescueGirlBhang(GObj *volatile a0)
 {
     float tgt[4];
     float mv[4];
@@ -3371,14 +3371,14 @@ void actBoyRescueGirlBhang(volatile int a0)
             if (mode == 1) {
                 ACTSendMailCorrect(a0, 0x15B);
                 if (girlGObj != 0) {
-                    iosOmSendMail(girlGObj, 0x51, isysCurrentGObj);
+                    iosOmSendMail(girlGObj, 0x51, (int)isysCurrentGObj);
                 }
                 GOBJ_ACT(girlGObj)->orientMot = 0x66;
             }
             if (mode == 2) {
                 ACTSendMailCorrect(a0, 0x15B);
                 if (girlGObj != 0) {
-                    iosOmSendMail(girlGObj, 0x40, isysCurrentGObj);
+                    iosOmSendMail(girlGObj, 0x40, (int)isysCurrentGObj);
                 }
             }
         }
@@ -3428,10 +3428,10 @@ void SetStatusBoy_OtherStageGirlPinch(void)
     GetOtherStageGirlOrient(buf, GetCurrentCameraSet2());
     w = GOBJ_WORK(g);
     frames = (int)t;
-    w->f_4B0 = frames;
-    w->f_4A0 = buf[0];
-    w->f_4A4 = buf[1];
-    w->f_4A8 = buf[2];
+    w->pinchFrames = frames;
+    w->pinchPosX = buf[0];
+    w->pinchPosY = buf[1];
+    w->pinchPosZ = buf[2];
     cam[0] = GetCurrentCameraSet2()[0];
     cam[1] = GetCurrentCameraSet2()[1];
     cam[2] = GetCurrentCameraSet2()[2];
@@ -3449,7 +3449,7 @@ void *gopp_subBoyControl;
    girl_act.c declares them for actGirlStart */
 extern void LightTorchOnOfWeaponWithNoSE(void *w);
 
-void actBoyStart(int a0)
+void actBoyStart(GObj *a0)
 {
     char *work;
     void *g;
@@ -3477,7 +3477,7 @@ void actBoyStart(int a0)
     actInitialize_only_charcter(a0);
     actInitialize_geo(a0);
 
-    GOBJ_ACT(a0)->enemy->f_254 =
+    GOBJ_ACT(a0)->enemy->word254 =
         (int)(_ACTGame_GetParamF(0x21) * (float)((60 - systemStatus[0] * 10) / systemStatus[1]) /
               60.0f);
     ACTGame_LwsEffectInit(a0);
@@ -3567,7 +3567,7 @@ void actBoyStart(int a0)
     _ACTWait(1);
 
     if (BOYINFO.fire && girlGObj != 0) {
-        iosOmSendMail(girlGObj, 0x3F, (void *)a0);
+        iosOmSendMail(girlGObj, 0x3F, (int)a0);
         debug_StdPrintfDummy("hand connect start\n");
     }
     _ACTWait(0);
@@ -3596,7 +3596,7 @@ typedef struct {
     char pad190[4];
 } BoyParaRow;
 
-inline void actBoyStand(volatile int a0)
+inline void actBoyStand(GObj *volatile a0)
 {
     BoyParaRow *row = (BoyParaRow *)(GOBJ_SUB(a0)->motion * sizeof(BoyParaRow) + motionKind);
 
@@ -3608,21 +3608,21 @@ inline void actBoyStand(volatile int a0)
     }
 }
 
-inline void actBoyHang(volatile int a0)
+inline void actBoyHang(GObj *volatile a0)
 {
     char *g = (char *)a0;
     ACTAdjustPlane(a0, (char *)GOBJ_ACT(g)->work + 0x8B0);
     _ACTWait(0);
 }
 
-inline void actBoyBHang(volatile int a0)
+inline void actBoyBHang(GObj *volatile a0)
 {
     char *g = (char *)a0;
     ACTAdjustPlane(a0, (char *)GOBJ_ACT(g)->work + 0x8B0);
     _ACTWait(0);
 }
 
-inline void actBoyHangBefore(volatile int a0)
+inline void actBoyHangBefore(GObj *volatile a0)
 {
     Act *sub = GOBJ_ACT(a0);
 
@@ -3637,7 +3637,7 @@ inline void actBoyHangBefore(volatile int a0)
     }
 }
 
-inline void actBoyBeslam(volatile int a0)
+inline void actBoyBeslam(GObj *volatile a0)
 {
     char *p = (char *)GOBJ_SUB(a0) + 0x130;
 
@@ -3648,7 +3648,7 @@ inline void actBoyBeslam(volatile int a0)
     }
 }
 
-inline void actBoyRescueSrc(volatile int a0)
+inline void actBoyRescueSrc(GObj *volatile a0)
 {
     while (1) {
         ACTSendMailCorrect(a0, 0xC7);
@@ -3656,11 +3656,11 @@ inline void actBoyRescueSrc(volatile int a0)
     }
 }
 
-inline void actBoySupportGBBegin(volatile int a0)
+inline void actBoySupportGBBegin(GObj *volatile a0)
 {
     while (1) {
         if (girlGObj != 0) {
-            iosOmSendMail(girlGObj, 0x17D, isysCurrentGObj);
+            iosOmSendMail(girlGObj, 0x17D, (int)isysCurrentGObj);
         }
         ACTSendMailCorrect(a0, 0x17B);
         _ACTWait(1);
@@ -3678,7 +3678,7 @@ static inline unsigned char IsBoyStatus_SupportGB(void)
     return 0;
 }
 
-inline void actBoySupportGBLoop(volatile int a0)
+inline void actBoySupportGBLoop(GObj *volatile a0)
 {
     while (1) {
         if (!IsBoyStatus_SupportGB()) {
@@ -3688,18 +3688,18 @@ inline void actBoySupportGBLoop(volatile int a0)
     }
 }
 
-inline void actBoySupportGBEnd(volatile int a0)
+inline void actBoySupportGBEnd(GObj *volatile a0)
 {
     while (1) {
         if (girlGObj != 0) {
-            iosOmSendMail(girlGObj, 0x17F, isysCurrentGObj);
+            iosOmSendMail(girlGObj, 0x17F, (int)isysCurrentGObj);
         }
         ACTSendMailCorrect(a0, 0xC7);
         _ACTWait(1);
     }
 }
 
-inline void actBoySupportBGBegin(volatile int a0)
+inline void actBoySupportBGBegin(GObj *volatile a0)
 {
     while (1) {
         ACTSendMailCorrect(a0, 0x183);
@@ -3707,7 +3707,7 @@ inline void actBoySupportBGBegin(volatile int a0)
     }
 }
 
-inline void actBoyDitch3mExec(volatile int a0)
+inline void actBoyDitch3mExec(GObj *volatile a0)
 {
     while (1) {
         ACTSendMailCorrect(a0, 0x190);
@@ -3715,7 +3715,7 @@ inline void actBoyDitch3mExec(volatile int a0)
     }
 }
 
-inline void actBoyHangG3M(volatile int a0)
+inline void actBoyHangG3M(GObj *volatile a0)
 {
     Act *sub = GOBJ_ACT(a0);
 
@@ -3724,7 +3724,7 @@ inline void actBoyHangG3M(volatile int a0)
         if (0.1f < sub->stickMag || (sub->padNow & 0x10)) {
             ACTSendMailCorrect(a0, 0x192);
             if (girlGObj != 0) {
-                iosOmSendMail(girlGObj, 0x195, isysCurrentGObj);
+                iosOmSendMail(girlGObj, 0x195, (int)isysCurrentGObj);
             }
         }
         _ACTWait(1);
@@ -3859,11 +3859,11 @@ inline int IsBoyStatus_EnemyMustWait(void)
             if (st < 0x18) {
                 return 1;
             }
-        } else if (sub->enemy->f_29C != 0) {
+        } else if (sub->enemy->stoneLevel != 0) {
             return 1;
         }
     }
-    if (st == 0x15 || 0 < ((ActWork *)sub->work)->f_37C) {
+    if (st == 0x15 || 0 < ((ActWork *)sub->work)->downTimer) {
         return 1;
     }
     return 0;
@@ -3922,7 +3922,7 @@ inline int IsBoyStatus_NotDanger(void)
             return 1;
         }
     }
-    return 0 < GOBJ_WORK(boyGObj)->f_37C;
+    return 0 < GOBJ_WORK(boyGObj)->downTimer;
 }
 
 inline int GetEfStageCameraTargetID(void)
@@ -4079,7 +4079,7 @@ inline void ACTSearchGObj(void *a0, int a1, int a2, int *out_id, float *out_vec,
 /* kept local: S12 here, FcColInfo in fieldCollision.h */
 extern S12 InitialColInfo;
 
-inline void afterBoySwim(volatile int a0)
+inline void afterBoySwim(GObj *volatile a0)
 {
     RequestChangeHandMode((void *)a0, 0, 3, 0, 0, 0, 0);
     *(S12 *)((char *)GOBJ_SUB(a0) + 0x1C0) = InitialColInfo;
@@ -4088,7 +4088,7 @@ inline void afterBoySwim(volatile int a0)
 
 static int boyActUnusedWord = -1; /* derived name */
 
-inline void actBoyJump(volatile int a0)
+inline void actBoyJump(GObj *volatile a0)
 {
     while (1) {
         ACTSendMailCorrect(a0, 0xBD);
@@ -4096,7 +4096,7 @@ inline void actBoyJump(volatile int a0)
     }
 }
 
-inline void afterBoyTakeWeapon(volatile int a0)
+inline void afterBoyTakeWeapon(GObj *volatile a0)
 {
     Act *sub = GOBJ_ACT(a0);
 
@@ -4109,7 +4109,7 @@ inline void afterBoyHangG3M(int x)
     volatile int local = x;
 }
 
-inline void afterBoyRescueGirlBhang(volatile int a0)
+inline void afterBoyRescueGirlBhang(GObj *volatile a0)
 {
     ACTGame_DisconnectHand();
 }

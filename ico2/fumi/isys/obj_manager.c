@@ -3,18 +3,6 @@
 #include "main.h"
 #include "isys.h"
 #include "gobj.h"
-
-typedef struct {
-    int type;
-    int arg;
-} IosMail;
-
-typedef struct {
-    int unk0;
-    int num;
-    IosMail mail[32];
-} IosMailBox;
-
 #include "obj_manager.h"
 #include "gobj_process.h"
 #include "thread.h"
@@ -125,22 +113,17 @@ inline int *iosOmSearchGObjIdAll(int a0)
 
 inline void iosOmBeforeFuncStandard(void) {}
 
-inline int iosOmSendMail(char *self_arg, int val5, int val6)
+inline int iosOmSendMail(GObj *g, int type, int arg)
 {
-    char *self = self_arg;
-    int *p = (int *)(self + 0x54);
-    int count = p[1];
-    char *addr;
-    if (count == 0x20)
+    IosMailBox *mb = (IosMailBox *)&g->mailQueue;
+    int count = mb->num;
+    if (count == 32)
         return -1;
-    addr = self + count * 8;
-    *(int *)(addr + 0x5C) = val5;
+    g->mail[count].type = type;
     {
-        int c2 = p[1];
-        char *addr2;
-        p[1] = c2 + 1;
-        addr2 = self + c2 * 8;
-        *(int *)(addr2 + 0x60) = val6;
+        int c2 = mb->num;
+        mb->num = c2 + 1;
+        g->mail[c2].arg = arg;
     }
     return 0;
 }
@@ -180,8 +163,8 @@ inline int iosOmSendMailLink(int a0, int val5, int val6)
 
 inline int iosOmExeMail(void (*func)(IosMail))
 {
-    char *g = isysCurrentGObj;
-    IosMailBox *mb = (IosMailBox *)(g + 0x54);
+    GObj *g = isysCurrentGObj;
+    IosMailBox *mb = (IosMailBox *)&g->mailQueue;
     int i;
     for (i = 0; i < mb->num; i++) {
         switch (mb->mail[i].type) {
@@ -205,23 +188,11 @@ inline int iosOmExeMail(void (*func)(IosMail))
     return 0;
 }
 
-typedef struct OmProc {
-    char pad0[8];
-    struct OmProc *next; /* 0x08 */
-    char padC[4];
-    int mode;           /* 0x10 */
-    int pri;            /* 0x14 */
-    int enabled;        /* 0x18 */
-    void (*fn)(void *); /* 0x1C */
-    char pad20[4];
-    char thread[4]; /* 0x24 */
-} OmProc;
-
 void _iosOmMain(void)
 {
     GObj *g;
     GObj *g2;
-    OmProc *p;
+    GProc *p;
     int k;
     int pri;
 
@@ -229,7 +200,7 @@ void _iosOmMain(void)
         g = gobj_link_head[k];
         if ((active_gobj_link >> k) & 1) {
             for (; g != 0; g = g->next) {
-                isysCurrentGObj = (char *)g;
+                isysCurrentGObj = g;
                 if (systemStatus[5] == 0 || g->pauseExempt != 0) {
                     if (g->active != 0) {
                         if (g->fn != 0) {
@@ -244,31 +215,31 @@ void _iosOmMain(void)
         g2 = gobj_link_head[k];
         if ((active_gobj_link >> k) & 1) {
             for (; g2 != 0; g2 = g2->next) {
-                isysCurrentGObj = (char *)g2;
+                isysCurrentGObj = g2;
                 if (systemStatus[5] == 0 || g2->pauseExempt != 0) {
                     if (g2->active != 0) {
                         for (pri = 0x13; pri < 27; pri++) {
-                            p = (OmProc *)g2->procHead;
+                            p = g2->procHead;
                             while (p != 0) {
-                                if (p->pri == pri) {
-                                    if (p->enabled != 0) {
+                                if (p->priority == pri) {
+                                    if (p->active != 0) {
                                         isysCurrentGObjProcess = p;
-                                        if (p->mode == 0) {
-                                            if (iosThreadGetPri(p->thread) != 0x22) {
-                                                iosThreadWakeup(p->thread);
+                                        if (p->noThread == 0) {
+                                            if (iosThreadGetPri(&p->thread) != 0x22) {
+                                                iosThreadWakeup(&p->thread);
                                             } else {
                                                 isysGObjProcRemove(p);
                                             }
                                             isysCurrentGObjProcess = 0;
                                         } else {
-                                            if (p->fn != 0) {
-                                                p->fn(g2);
+                                            if (p->func != 0) {
+                                                p->func(g2);
                                             }
                                             isysCurrentGObjProcess = 0;
                                         }
                                     }
                                 }
-                                p = p->next;
+                                p = p->prev;
                             }
                         }
                     }

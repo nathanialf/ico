@@ -12,20 +12,22 @@
 #ifndef ST08A_H
 #define ST08A_H
 
-void actSt08aDoorMain(volatile int a0);
-void actSt08aDoorSwitch(volatile int a0);
-void actSt08aDoorUp(volatile int a0);
-void actSt08aDoorUpSub(volatile int a0);
-void actSt08aEne1Chk(volatile int a0);
-void actSt08aEne2Chk(volatile int a0);
-void actSt08aGirlPosChk(volatile int a0);
-void actSt08aHasiMain(volatile int a0);
-void actSt08aHasiSwitch(volatile int a0);
-void actSt08aHasiUp(volatile int a0);
-void actSt08aHasiUpSub(volatile int a0);
-void actSt08aHint1Chk(volatile int a0);
-void actSt08aIntroChk(volatile int a0);
-void actSt08aTorchOffChk(volatile int a0);
-void actSt08aTorchOnChk(volatile int a0);
+#include "typedef.h"
+
+void actSt08aDoorMain(GObj *volatile a0);
+void actSt08aDoorSwitch(GObj *volatile a0);
+void actSt08aDoorUp(GObj *volatile a0);
+void actSt08aDoorUpSub(GObj *volatile a0);
+void actSt08aEne1Chk(GObj *volatile a0);
+void actSt08aEne2Chk(GObj *volatile a0);
+void actSt08aGirlPosChk(GObj *volatile a0);
+void actSt08aHasiMain(GObj *volatile a0);
+void actSt08aHasiSwitch(GObj *volatile a0);
+void actSt08aHasiUp(GObj *volatile a0);
+void actSt08aHasiUpSub(GObj *volatile a0);
+void actSt08aHint1Chk(GObj *volatile a0);
+void actSt08aIntroChk(GObj *volatile a0);
+void actSt08aTorchOffChk(GObj *volatile a0);
+void actSt08aTorchOnChk(GObj *volatile a0);
 
 #endif /* ST08A_H */

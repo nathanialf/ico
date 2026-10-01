@@ -12,6 +12,8 @@
 #ifndef ENEMY_ACT_H
 #define ENEMY_ACT_H
 
+#include "typedef.h"
+
 /* A 64-bit flag word with a byte view (the enemy work's +0x210 status word and
    the sub record's +0x20 word); the union is what makes a write to it alias
    the pointer chase that reaches it, which is why ROM re-walks
@@ -33,96 +35,96 @@ typedef union {
    _BrainMode_SetDirect requests (+0x208), the requested target inside the
    status word and the running target (+0x218), a countdown (+0x224).  The
    field names are ours. */
-typedef struct EnemyBattleWork {
-    char _pad0[0x54];
-    unsigned int f_54; /* 0x54 */
-    float f_58;        /* 0x58 */
-    int f_5C;          /* 0x5C */
-    int f_60;          /* 0x60 */
-    char _pad64[0xC];
-    float f_70; /* 0x70 */
-    float f_74; /* 0x74 */
-    float f_78; /* 0x78 */
-    char _pad7C[0x4];
-    float f_80; /* 0x80 */
-    float f_84; /* 0x84 */
-    float f_88; /* 0x88 */
-    char _pad8C[0x4];
-    float f_90; /* 0x90 */
-    float f_94; /* 0x94 */
-    float f_98; /* 0x98 */
-    char _pad9C[0x4];
-    float f_A0; /* 0xA0 */
-    float f_A4; /* 0xA4 */
-    float f_A8; /* 0xA8 */
-    char _padAC[0x4];
-    int f_B0; /* 0xB0 */
-    int f_B4; /* 0xB4 */
-    char _padB8[0x4];
-    unsigned int f_BC; /* 0xBC */
-    int f_C0;          /* 0xC0 */
-    char _padC4[0x8];
-    int f_CC; /* 0xCC */
-    int f_D0; /* 0xD0 */
-    char _padD4[0xE4];
-    int f_1B8; /* 0x1B8 */
-    char _pad1BC[0x4];
-    float f_1C0; /* 0x1C0 */
-    float f_1C4; /* 0x1C4 */
-    float f_1C8; /* 0x1C8 */
-    char _pad1CC[0x14];
+typedef struct EnemyBattleWork { /* field names derived */
+    char pad0[84];
+    unsigned int speedRatioPri; /* 0x54 */
+    float speedRatio;           /* 0x58 */
+    int paraTimer;              /* 0x5C */
+    int paraRandom;             /* 0x60 */
+    char pad64[12];
+    float corrPosX; /* 0x70 */
+    float corrPosY; /* 0x74 */
+    float corrPosZ; /* 0x78 */
+    char pad7C[4];
+    float corrDirX; /* 0x80 */
+    float corrDirY; /* 0x84 */
+    float corrDirZ; /* 0x88 */
+    char pad8C[4];
+    float corrDstX; /* 0x90 */
+    float corrDstY; /* 0x94 */
+    float corrDstZ; /* 0x98 */
+    char pad9C[4];
+    float corrDstDirX; /* 0xA0 */
+    float corrDstDirY; /* 0xA4 */
+    float corrDstDirZ; /* 0xA8 */
+    char padAC[4];
+    int corrFrames; /* 0xB0 */
+    int corrCount;  /* 0xB4 */
+    char padB8[4];
+    unsigned int corrFlags; /* 0xBC */
+    int jumpOrient;         /* 0xC0 */
+    char padC4[8];
+    int liftLevel;    /* 0xCC */
+    int floorAttrOff; /* 0xD0 */
+    char padD4[228];
+    int lwsEffect; /* 0x1B8 */
+    char pad1BC[4];
+    float ropeCliffX; /* 0x1C0 */
+    float ropeCliffY; /* 0x1C4 */
+    float ropeCliffZ; /* 0x1C8 */
+    char pad1CC[20];
     float bodySize;
     int liftKind;
-    int f_1E8; /* 0x1E8 */
+    int sizeClass; /* 0x1E8 */
     int battleType;
-    int f_1F0; /* 0x1F0 */
-    int f_1F4; /* 0x1F4 */
-    int f_1F8; /* 0x1F8 */
-    int f_1FC; /* 0x1FC */
-    int f_200; /* 0x200 */
+    int paraStatus;    /* 0x1F0 */
+    int clingNode;     /* 0x1F4 */
+    int attackChance;  /* 0x1F8 */
+    int attackChance2; /* 0x1FC */
+    int bodyslamMail;  /* 0x200 */
     int mode;
     int reqMode;
-    int f_20C; /* 0x20C */
+    int bossLife; /* 0x20C */
     EnemyStatusFlags flags;
     int target;
-    int f_21C; /* 0x21C */
-    int f_220; /* 0x220 */
+    int clingReq;    /* 0x21C */
+    int clingTarget; /* 0x220 */
     int waitCount;
     int slowTimer;
-    int f_22C;   /* 0x22C */
-    float f_230; /* 0x230 */
-    float f_234; /* 0x234 */
-    float f_238; /* 0x238 */
-    char _pad23C[0x4];
-    float f_240; /* 0x240 */
-    float f_244; /* 0x244 */
-    float f_248; /* 0x248 */
-    char _pad24C[0x4];
-    int f_250; /* 0x250 */
-    int f_254; /* 0x254 */
-    int f_258; /* 0x258 */
-    int f_25C; /* 0x25C */
-    int f_260; /* 0x260 */
-    char _pad264[0xC];
-    float f_270; /* 0x270 */
-    float f_274; /* 0x274 */
-    float f_278; /* 0x278 */
-    char _pad27C[0x14];
-    int f_290; /* 0x290 */
-    int f_294; /* 0x294 */
-    char _pad298[0x4];
-    int f_29C; /* 0x29C */
-    int f_2A0; /* 0x2A0 */
-    int f_2A4; /* 0x2A4 */
-    int f_2A8; /* 0x2A8 */
-    int f_2AC; /* 0x2AC */
-    int f_2B0; /* 0x2B0 */
-    char _pad2B4[0x2C];
-    char *f_2E0; /* 0x2E0 */
-    char _pad2E4[0x20];
-    float f_304; /* 0x304 */
-    char _pad308[0x8];
-    int f_310; /* 0x310 */
+    int liftedObj;   /* 0x22C */
+    float readyPosX; /* 0x230 */
+    float readyPosY; /* 0x234 */
+    float readyPosZ; /* 0x238 */
+    char pad23C[4];
+    float readyDirX; /* 0x240 */
+    float readyDirY; /* 0x244 */
+    float readyDirZ; /* 0x248 */
+    char pad24C[4];
+    int sofaWake;         /* 0x250 */
+    int word254;          /* 0x254 */
+    int dirSmoothFrames;  /* 0x258 */
+    int dirSmoothFrames2; /* 0x25C */
+    int clingedFrames;    /* 0x260 */
+    char pad264[12];
+    float slipDirX; /* 0x270 */
+    float slipDirY; /* 0x274 */
+    float slipDirZ; /* 0x278 */
+    char pad27C[20];
+    int ladderUpStep;   /* 0x290 */
+    int ladderDownStep; /* 0x294 */
+    char pad298[4];
+    int stoneLevel; /* 0x29C */
+    int stonePair;  /* 0x2A0 */
+    int word2A4;    /* 0x2A4 */
+    int count2A8;   /* 0x2A8 */
+    int count2AC;   /* 0x2AC */
+    int word2B0;    /* 0x2B0 */
+    char pad2B4[44];
+    char *rescueObj; /* 0x2E0 */
+    char pad2E4[32];
+    float rescueY; /* 0x304 */
+    char pad308[8];
+    int boxBarSound; /* 0x310 */
 } EnemyBattleWork;
 
 /* enemy_act.c defines these `inline`, so the compiler emits them after the
@@ -130,24 +132,24 @@ typedef struct EnemyBattleWork {
  * ROM's order of the TU's closing run, from funcEnemyAiGetGirl to
  * afterEnemyBodylift. */
 void funcEnemyAiGetGirl(int a0);
-void actEnemyStand(volatile int a0);
-void actEnemyWalk(volatile int a0);
-void actEnemyRun(volatile int a0);
-void actEnemyHang(volatile int a0);
-void actEnemyCarry(volatile int a0);
-void actEnemyBodyslam(volatile int a0);
-void actEnemyBodyslamFail(volatile int a0);
-void actEnemyNest(volatile int a0);
+void actEnemyStand(GObj *volatile a0);
+void actEnemyWalk(GObj *volatile a0);
+void actEnemyRun(GObj *volatile a0);
+void actEnemyHang(GObj *volatile a0);
+void actEnemyCarry(GObj *volatile a0);
+void actEnemyBodyslam(GObj *volatile a0);
+void actEnemyBodyslamFail(GObj *volatile a0);
+void actEnemyNest(GObj *volatile a0);
 void funcEnemyCarryFail(char *a0);
 void actEnemyHyde(int *self);
 void actEnemyFlagOnFree(int *a0);
-void afterCommonCarry(volatile int a0);
+void afterCommonCarry(GObj *volatile a0);
 void actEnemyFlagOnDead(int *a0);
 int EnemyBrainStatus_Boy(char *a0);
 int EnemyBrainStatus_Girl(char *a0);
 int actEnemyFlagCheckDead(int *a0);
 int actEnemyFlagCheckActive(int *a0);
-int ACTEnemyForceSwitchToCarry(char *a0);
+int ACTEnemyForceSwitchToCarry(GObj *a0);
 int actEnemy_GetClingTarget(char *a0);
 int actEnemy_isNormalEnemy(char *a0);
 int actEnemy_isLargeEnemy(char *a0);
@@ -160,41 +162,41 @@ int isEnemyKidnapEnable(int *self);
 int isEnemyActive(int *self);
 int GetMotherGeneratorLabelAskEnemy(char *a0);
 int GetMotherGeneratorGObjAskEnemy(char *a0);
-void subEnemyBrain_Idle(volatile int a0);
-void subEnemyBrain_Await(volatile int a0);
-void subEnemyBrain_FindGirl(volatile int a0);
-void subEnemyBrain_BodyGuard(volatile int a0);
-void subEnemyBrain_Shoulder(volatile int a0);
-void subEnemyBrain_Pickup(volatile int a0);
-void subEnemyBrain_Bodyslam(volatile int a0);
-void subEnemyBrain_Irregular(volatile int a0);
+void subEnemyBrain_Idle(GObj *volatile a0);
+void subEnemyBrain_Await(GObj *volatile a0);
+void subEnemyBrain_FindGirl(GObj *volatile a0);
+void subEnemyBrain_BodyGuard(GObj *volatile a0);
+void subEnemyBrain_Shoulder(GObj *volatile a0);
+void subEnemyBrain_Pickup(GObj *volatile a0);
+void subEnemyBrain_Bodyslam(GObj *volatile a0);
+void subEnemyBrain_Irregular(GObj *volatile a0);
 void _BrainMode_SetDirect(char *a0, int a1, int *a2);
-void EnemyUtil_TurnToBoy(char *self, int tgt, int smooze);
+void EnemyUtil_TurnToBoy(GObj *self, GObj *tgt, int smooze);
 int FlyMail(void *a0);
 void boss_effect_callback(int id);
-void motEnemyStand(volatile int a0);
-void motEnemyWalk(volatile int a0);
-void motEnemyRun(volatile int a0);
-void actEnemyJump(volatile int a0);
+void motEnemyStand(GObj *volatile a0);
+void motEnemyWalk(GObj *volatile a0);
+void motEnemyRun(GObj *volatile a0);
+void actEnemyJump(GObj *volatile a0);
 int EnemyUtil_isOtherStatus(char *self, int mode);
 int isEnemyHyde(int *a0);
-int _ApproachTarget(char *self, void *tgt, void *pos, void *fn, float range, unsigned char flag);
-void afterEnemyBodylift(volatile int a0);
+int _ApproachTarget(GObj *self, void *tgt, void *pos, void *fn, float range, unsigned char flag);
+void afterEnemyBodylift(GObj *volatile a0);
 
-int _ApproachTarget_Boss(char *self, void *tgt, void *pos, void *fn, float range,
+int _ApproachTarget_Boss(GObj *self, void *tgt, void *pos, void *fn, float range,
                          unsigned char flag);
-int _ApproachTarget_Way(char *self, void *tgt, void *pos, void *fn, float range,
+
+int _ApproachTarget_Way(GObj *self, void *tgt, void *pos, void *fn, float range,
                         unsigned char flag);
+
 int actEnemyForceSwitchToCarry(void *a0);
-void actEnemyRestart(char *self, float *pos, float *dir, int kind, int mot);
+void actEnemyRestart(GObj *self, float *pos, float *dir, int kind, int mot);
 void boss_effect_start(char *self, int id);
 int flyMailCore(void *self);
-
 /* MAIN.MAP global of enemy_act.o's .sdata, the run's last word (act.c sets it) */
 extern int entesty;
-
-void subEnemyControl(volatile int a0);
-void subEnemyCollision(volatile int a0);
-void subEnemyBrainMain(volatile int a0);
+void subEnemyControl(GObj *volatile a0);
+void subEnemyCollision(GObj *volatile a0);
+void subEnemyBrainMain(GObj *volatile a0);
 
 #endif /* ENEMY_ACT_H */

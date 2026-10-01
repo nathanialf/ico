@@ -12,14 +12,15 @@
 #ifndef ST05E_H
 #define ST05E_H
 
-/* st05e.o's .sdata globals (MAIN.MAP) */
-extern int solar;
+#include "typedef.h"
 
-void actSt05eSolarChk(volatile int a0);
-void actSt05eWaterFlagOn(volatile int a0);
-void actSt05eWaterMain(volatile int a0);
-void actSt05eWaterStop(volatile int a0);
-void actSt05eWaterStopSub(volatile int a0);
-void actSt05eWaterSwitch(volatile int a0);
+/* st05e.o's .sdata globals (MAIN.MAP) */
+extern char *solar;
+void actSt05eSolarChk(GObj *volatile a0);
+void actSt05eWaterFlagOn(GObj *volatile a0);
+void actSt05eWaterMain(GObj *volatile a0);
+void actSt05eWaterStop(GObj *volatile a0);
+void actSt05eWaterStopSub(GObj *volatile a0);
+void actSt05eWaterSwitch(GObj *volatile a0);
 
 #endif /* ST05E_H */

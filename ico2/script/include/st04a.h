@@ -12,45 +12,46 @@
 #ifndef ST04A_H
 #define ST04A_H
 
+#include "typedef.h"
+
 /* st04a.o's .sdata globals (MAIN.MAP) */
-extern int gate1st;
+extern char *gate1st;
 extern int gate1;
-extern int gate_ready_l;
-extern int gate_ready_r;
-extern int torch;
+extern char *gate_ready_l;
+extern char *gate_ready_r;
+extern char *torch;
 extern int gate_yure_low;
 extern unsigned char gate_yure_low_vol;
 extern int yure1;
 extern unsigned char vol1;
 extern int yure2;
 extern unsigned char vol2;
-
-void actConte09(volatile int a0);
-void actConte09Jimaku(volatile int a0);
-void actConte09_2(volatile int a0);
-void actConte09_3(volatile int a0);
-void actConte09_3Jimaku(volatile int a0);
-void actConte09_3_demoCancel(volatile int a0);
-void actSt04aConte06(volatile int a0);
-void actSt04aConte06Jimaku(volatile int a0);
-void actSt04aEnvSe(volatile int a0);
-void actSt04aEnvSeWakare1(volatile int a0);
-void actSt04aEnvSeWakare2(volatile int a0);
-void actSt04aGateChk(volatile int a0);
-void actSt04aGateLChk(volatile int a0);
-void actSt04aGateLSub(volatile int a0);
-void actSt04aGateOpen2Chk(volatile int a0);
-void actSt04aGateOpen2ReadyChk(volatile int a0);
-void actSt04aGateOpen3Chk(volatile int a0);
-void actSt04aGateOpenChk(volatile int a0);
-void actSt04aGateRChk(volatile int a0);
-void actSt04aGateRSub(volatile int a0);
-void actSt04aGirlSitChk(volatile int a0);
-void actSt04aModelOffChk(volatile int a0);
-void actSt04aModelOnChk(volatile int a0);
-void actSt04aTorch1Chk(volatile int a0);
-void actSt04aTorchAllFlagfChk(volatile int a0);
-void actSt04aTorchHintChk(volatile int a0);
+void actConte09(GObj *volatile a0);
+void actConte09Jimaku(GObj *volatile a0);
+void actConte09_2(GObj *volatile a0);
+void actConte09_3(GObj *volatile a0);
+void actConte09_3Jimaku(GObj *volatile a0);
+void actConte09_3_demoCancel(GObj *volatile a0);
+void actSt04aConte06(GObj *volatile a0);
+void actSt04aConte06Jimaku(GObj *volatile a0);
+void actSt04aEnvSe(GObj *volatile a0);
+void actSt04aEnvSeWakare1(GObj *volatile a0);
+void actSt04aEnvSeWakare2(GObj *volatile a0);
+void actSt04aGateChk(GObj *volatile a0);
+void actSt04aGateLChk(GObj *volatile a0);
+void actSt04aGateLSub(GObj *volatile a0);
+void actSt04aGateOpen2Chk(GObj *volatile a0);
+void actSt04aGateOpen2ReadyChk(GObj *volatile a0);
+void actSt04aGateOpen3Chk(GObj *volatile a0);
+void actSt04aGateOpenChk(GObj *volatile a0);
+void actSt04aGateRChk(GObj *volatile a0);
+void actSt04aGateRSub(GObj *volatile a0);
+void actSt04aGirlSitChk(GObj *volatile a0);
+void actSt04aModelOffChk(GObj *volatile a0);
+void actSt04aModelOnChk(GObj *volatile a0);
+void actSt04aTorch1Chk(GObj *volatile a0);
+void actSt04aTorchAllFlagfChk(GObj *volatile a0);
+void actSt04aTorchHintChk(GObj *volatile a0);
 void finishCallBackFunc(int a0);
 
 #endif /* ST04A_H */

@@ -127,15 +127,8 @@ inline void MoveNextStage_Clear(void)
 }
 
 extern const StgPre stageData[];
-
 /* RECONSTRUCTION: the 0x28-byte enemy-model record; the two members named are the
    first and one-past-last index into the model-id list enemymodelTable. */
-typedef struct {
-    unsigned char pad0[32]; /* 0x00 */
-    int first;              /* 0x20 */
-    int last;               /* 0x24 */
-} EnemyMdlRec;
-
 extern EnemyMdlRec enemymodelGroup[];
 extern int enemymodelTable[];
 
@@ -424,7 +417,7 @@ void initSceneGObj(int stage, int no)
     GamesysObjInfo *info = gamesysObjInfoGet(gen->kind, no);
     int mdl = gen->mdl;
     int st;
-    char *gobj;
+    GObj *gobj;
     float ry;
     int sno;
     long long pri;
@@ -502,7 +495,7 @@ void initSceneGObj(int stage, int no)
         if (gen->proc != 0) {
             isysGObjProcAddS(gobj, gen->proc, 0, 0x13, pri);
         } else if (lay->start != 0) {
-            isysGObjProcAddS(gobj, (int)lay->start, 0, 0x13, pri);
+            isysGObjProcAddS(gobj, lay->start, 0, 0x13, pri);
         }
 
         if (gen->kind == 1) {
@@ -644,7 +637,7 @@ extern void *itemWatchOff;
 
 void InitSceneObjects(int stage)
 {
-    int *cam;
+    GObj *cam;
 
     ResetGObjProc();
     boyGObj = girlGObj = 0;
@@ -693,15 +686,15 @@ void InitSceneObjects(int stage)
 
 int HotInitSceneObjects(int a0)
 {
-    int *node = isysGObjGetExist_begin();
+    GObj *node = isysGObjGetExist_begin();
     if (node != 0) {
         do {
-            int idx = ((PObjGObj *)node)->kind;
+            int idx = ((GObj *)node)->kind;
             if (idx >= 0) {
                 ObjKindEnt *e = (ObjKindEnt *)((char *)objKindData + idx * 0x64);
                 void (*fn)(int *);
                 if (e->before != 0) {
-                    iosOmSendMail(node, 0x2F, node);
+                    iosOmSendMail(node, 0x2F, (int)node);
                 }
                 fn = e->hotInit;
                 if (fn != 0) {

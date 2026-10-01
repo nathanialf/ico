@@ -45,7 +45,7 @@ int sekizo_4b = 0;
 
 unsigned char sekizo_4b_vol = 0;
 
-void actSt04bSekizoChk(volatile int a0)
+void actSt04bSekizoChk(GObj *volatile a0)
 {
     /* the SE handle is memory-resident in ROM: soundSeDefPlay hands back a slot
        id the sound side keeps updating, so it is re-read at the stop site rather
@@ -140,7 +140,7 @@ void actSt04bSekizoChk(volatile int a0)
     scpBoyControlReadDisable = 0;
 }
 
-void actSt04bEne1Chk(volatile int a0)
+void actSt04bEne1Chk(GObj *volatile a0)
 {
     if (girlGObj == 0) {
         _ACTWait(0);
@@ -176,9 +176,9 @@ void actSt04bEne1Chk(volatile int a0)
     scpWakeupEnemyOne(3757);
 }
 
-void actSt04bCrest01XL(volatile int a0)
+void actSt04bCrest01XL(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
 
     actInitialize(a0);
     _ACTWait(1);
@@ -194,18 +194,18 @@ void actSt04bCrest01XL(volatile int a0)
     }
 }
 
-void actSt04bDoorXL(volatile int a0)
+void actSt04bDoorXL(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
 
     actInitialize(a0);
     _ACTWait(1);
     stage_SetAnimation(249, 0, 0);
 }
 
-void actSt04bMonyoDoorXL(volatile int a0)
+void actSt04bMonyoDoorXL(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
 
     actInitialize(a0);
     _ACTWait(1);
@@ -217,9 +217,9 @@ void actSt04bMonyoDoorXL(volatile int a0)
     }
 }
 
-void actSt04bSekizo(volatile int a0)
+void actSt04bSekizo(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     Act *self = actInitialize(a0);
     _ACTWait(1);
 
@@ -237,9 +237,9 @@ void actSt04bSekizo(volatile int a0)
     }
 }
 
-void actSt04bEne1(volatile int a0)
+void actSt04bEne1(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     Act *self = actInitialize(a0);
     _ACTWait(1);
 
@@ -251,9 +251,9 @@ void actSt04bEne1(volatile int a0)
     }
 }
 
-void actSt04bEnemy1(volatile int a0)
+void actSt04bEnemy1(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
 
     actInitialize(a0);
     _ACTWait(1);
@@ -271,9 +271,9 @@ void actSt04bEnemy1(volatile int a0)
     Generator_Call(a0);
 }
 
-void actSt04bEnemy2(volatile int a0)
+void actSt04bEnemy2(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
 
     actInitialize(a0);
     _ACTWait(1);
@@ -291,9 +291,9 @@ void actSt04bEnemy2(volatile int a0)
     Generator_Call(a0);
 }
 
-void actSt04bBallXL(volatile int a0)
+void actSt04bBallXL(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
 
     actInitialize(a0);
     _ACTWait(1);
@@ -305,9 +305,9 @@ void actSt04bBallXL(volatile int a0)
     }
 }
 
-void actSt04bSolarXL(volatile int a0)
+void actSt04bSolarXL(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
 
     actInitialize(a0);
     _ACTWait(1);
@@ -323,7 +323,7 @@ void actSt04bSekizoEvent(int x)
     volatile int local = x;
 }
 
-void actSt04bGirlWay(volatile int a0)
+void actSt04bGirlWay(GObj *volatile a0)
 {
     long long buf[2];
     long long way[2];

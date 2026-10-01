@@ -12,31 +12,32 @@
 #ifndef ST10R_H
 #define ST10R_H
 
+#include "typedef.h"
+
 /* st10r.o's .sdata globals (MAIN.MAP) */
-extern int st10r_floor;
+extern char *st10r_floor;
 extern char *cage10r;
 extern char *chain10r;
-
-void actSt10rCageMain(volatile int a0);
-void actSt10rCageSub(volatile int a0);
-void actSt10rChainMain(volatile int a0);
-void actSt10rChainMove(volatile int a0);
-void actSt10rChainMoveSub(volatile int a0);
-void actSt10rChainSwitch(volatile int a0);
-void actSt10rEneChk(volatile int a0);
-void actSt10rExitChk(volatile int a0);
-void actSt10rFenceDownChk(volatile int a0);
-void actSt10rFenceDownChk2(volatile int a0);
-void actSt10rFenceUpChk(volatile int a0);
-void actSt10rFenceUpChk2(volatile int a0);
-void actSt10rFloorChk(volatile int a0);
-void actSt10rFloorHitChk(volatile int a0);
-void actSt10rFloorSub(volatile int a0);
+void actSt10rCageMain(GObj *volatile a0);
+void actSt10rCageSub(GObj *volatile a0);
+void actSt10rChainMain(GObj *volatile a0);
+void actSt10rChainMove(GObj *volatile a0);
+void actSt10rChainMoveSub(GObj *volatile a0);
+void actSt10rChainSwitch(GObj *volatile a0);
+void actSt10rEneChk(GObj *volatile a0);
+void actSt10rExitChk(GObj *volatile a0);
+void actSt10rFenceDownChk(GObj *volatile a0);
+void actSt10rFenceDownChk2(GObj *volatile a0);
+void actSt10rFenceUpChk(GObj *volatile a0);
+void actSt10rFenceUpChk2(GObj *volatile a0);
+void actSt10rFloorChk(GObj *volatile a0);
+void actSt10rFloorHitChk(GObj *volatile a0);
+void actSt10rFloorSub(GObj *volatile a0);
 void actSt10rGirlWay(volatile unsigned int a0);
-void actSt10rTowerChk(volatile int a0);
-void actSt10rTowerConte(volatile int a0);
-void actSt10rTowerResqueChk(volatile int a0);
-void actSt10rWayOffChk(volatile int a0);
-void actSt10rWayOnChk(volatile int a0);
+void actSt10rTowerChk(GObj *volatile a0);
+void actSt10rTowerConte(GObj *volatile a0);
+void actSt10rTowerResqueChk(GObj *volatile a0);
+void actSt10rWayOffChk(GObj *volatile a0);
+void actSt10rWayOnChk(GObj *volatile a0);
 
 #endif /* ST10R_H */

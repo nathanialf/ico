@@ -52,7 +52,7 @@ typedef struct MotObj {
 } MotObj;
 
 /* kept local: this TU's bytes only come out with its own view of PObjGObjSt13c. */
-/* kept local: this TU's bytes only come out with its own view of PObjGObj, so it
+/* kept local: this TU's bytes only come out with its own view of GObj, so it
    keeps one under its own name; the shared view is in ico2/common/include/typedef.h. */
 typedef struct PObjGObjSt13c {
     char pad00[348]; /* 0x000 */
@@ -105,15 +105,15 @@ static ActMail rescue_mes[2] = {{430}, {429}};
 static ActMail buki_mes[2] = {{430}, {429}};
 
 /* .sdata, owned by st13c.o, in the ROM's order: bmg and hand (MAIN.MAP globals) around the two scene streams MAIN.MAP leaves unnamed, then a word no retail code uses and the shake and volume the retail object adds. */
-int bmg = 0;
+char *bmg = 0;
 
-static int st13c_adpcm = 0; /* derived name */
+static char *st13c_adpcm = 0; /* derived name */
 
-static int st13c_adpcm2 = 0; /* derived name */
+static char *st13c_adpcm2 = 0; /* derived name */
 
-int hand = 0;
+char *hand = 0;
 
-static int st13c_reserved = 0; /* derived name */
+static char *st13c_reserved = 0; /* derived name */
 
 static int st13c_yure = 0; /* derived name */
 
@@ -171,9 +171,9 @@ static const EffectArg cageFallEffect8 = {{-10.0f, 0.0f, 466.0f, 1.0f}};
 
 static const EffectArg cageFallEffect9 = {{-25.0f, 0.0f, 450.0f, 1.0f}};
 
-void actSt13cBmg1(volatile int a0)
+void actSt13cBmg1(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     Act *self = actInitialize(a0);
 
     _ACTWait(1);
@@ -204,11 +204,11 @@ void actSt13cBmg1(volatile int a0)
     }
 }
 
-void actSt13cBmg1Chk(volatile int a0)
+void actSt13cBmg1Chk(GObj *volatile a0)
 {
     AnimSet w;
-    int th1;
-    int th2;
+    GProc *th1;
+    GProc *th2;
     unsigned int i;
 
     if (girlGObj == 0) {
@@ -249,8 +249,8 @@ void actSt13cBmg1Chk(volatile int a0)
             _ACTWait(1);
         }
 
-        iosThreadSetPri((int *)((GProc *)th1)->thread, 34);
-        iosThreadSetPri((int *)((GProc *)th2)->thread, 34);
+        iosThreadSetPri(&((GProc *)th1)->thread, 34);
+        iosThreadSetPri(&((GProc *)th2)->thread, 34);
 
         w = conte04Anims;
         for (i = 0; i < 5; i++) {
@@ -263,8 +263,8 @@ void actSt13cBmg1Chk(volatile int a0)
         stage_SetAnimation(629, 1, -1);
         scpFadeIn(3.0f);
     } else {
-        iosThreadSetPri((int *)((GProc *)th1)->thread, 34);
-        iosThreadSetPri((int *)((GProc *)th2)->thread, 34);
+        iosThreadSetPri(&((GProc *)th1)->thread, 34);
+        iosThreadSetPri(&((GProc *)th2)->thread, 34);
     }
 
     scpPlayMot(boyGObj, 0);
@@ -277,7 +277,7 @@ void actSt13cBmg1Chk(volatile int a0)
     lt_switch_layout(54);
 }
 
-void actSt13cConte04(volatile int a0)
+void actSt13cConte04(GObj *volatile a0)
 {
     scpPlayStart(boyGObj);
 
@@ -313,7 +313,7 @@ void actSt13cConte04(volatile int a0)
     _ACTWait(0);
 }
 
-void actSt13cConte04Jimaku(volatile int a0)
+void actSt13cConte04Jimaku(GObj *volatile a0)
 {
     float t;
     float tn;
@@ -326,20 +326,20 @@ void actSt13cConte04Jimaku(volatile int a0)
             jimakuBegin(&jimaku_msg);
             break;
         case 0x122:
-            jimaku_msg.sub.unk2C = 2;
-            jimaku_msg.sub.unk38 = -1;
+            jimaku_msg.sub.block = 2;
+            jimaku_msg.sub.jump = -1;
             jimakuOn = 1;
             jimakuJump(&jimaku_msg);
             break;
         case 0x320:
-            jimaku_msg.sub.unk2C = 4;
-            jimaku_msg.sub.unk38 = -1;
+            jimaku_msg.sub.block = 4;
+            jimaku_msg.sub.jump = -1;
             jimakuOn = 1;
             jimakuJump(&jimaku_msg);
             break;
         case 0x42E:
-            jimaku_msg.sub.unk2C = 5;
-            jimaku_msg.sub.unk38 = -1;
+            jimaku_msg.sub.block = 5;
+            jimaku_msg.sub.jump = -1;
             jimakuOn = 1;
             jimakuJump(&jimaku_msg);
             break;
@@ -357,15 +357,15 @@ void actSt13cConte04Jimaku(volatile int a0)
     _ACTWait(0);
 }
 
-void actSt13cCage1stDownDemoCancel(volatile int a0)
+void actSt13cCage1stDownDemoCancel(GObj *volatile a0)
 {
     float ofs[4];
     float dir[4];
-    int *th;
+    IOSThread *th;
 
     demoEnd = 0;
 
-    th = (int *)((GProc *)actCreateSubThread(actSt13cCage1stDownDemo, 21))->thread;
+    th = &((GProc *)actCreateSubThread(actSt13cCage1stDownDemo, 21))->thread;
 
     while (demoEnd == 0 && ((pad[0].flags & 0x800) == 0 || scpAdpcmPlayRequestNum() != 0)) {
         _ACTWait(1);
@@ -409,7 +409,7 @@ void actSt13cCage1stDownDemoCancel(volatile int a0)
     lt_switch_layout(54);
 }
 
-void actSt13cCage1stDown(volatile int a0)
+void actSt13cCage1stDown(GObj *volatile a0)
 {
     int se;
 
@@ -456,9 +456,9 @@ void actSt13cCage1stDown(volatile int a0)
     _ACTWait(1);
 }
 
-void actSt13cCageFall(volatile int a0)
+void actSt13cCageFall(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     Act *self = actInitialize(a0);
 
     _ACTWait(1);
@@ -495,12 +495,12 @@ void actSt13cCageFall(volatile int a0)
     }
 }
 
-void actSt13cCageFallChk(volatile int a0)
+void actSt13cCageFallChk(GObj *volatile a0)
 {
     AnimSet16 w;
-    int th1;
-    int th2;
-    int th3;
+    GProc *th1;
+    GProc *th2;
+    GProc *th3;
     int cancel;
     unsigned int i;
 
@@ -560,9 +560,9 @@ void actSt13cCageFallChk(volatile int a0)
         }
     }
 
-    iosThreadSetPri((int *)((GProc *)th1)->thread, 34);
-    iosThreadSetPri((int *)((GProc *)th2)->thread, 34);
-    iosThreadSetPri((int *)((GProc *)th3)->thread, 34);
+    iosThreadSetPri(&((GProc *)th1)->thread, 34);
+    iosThreadSetPri(&((GProc *)th2)->thread, 34);
+    iosThreadSetPri(&((GProc *)th3)->thread, 34);
 
     if (cancel) {
         w = conte05Anims;
@@ -589,7 +589,7 @@ void actSt13cCageFallChk(volatile int a0)
         if (isEnemyActive(scpSearchGobj(150)) == 0) {
             memset(&w, 0, 0x10);
             DirectCallEnemy(scpSearchGobj(150), bossGenerator, &w, &w, 0);
-            iosOmSendMail(scpSearchGobj(150), 0x102, scpSearchGobj(150));
+            iosOmSendMail(scpSearchGobj(150), 0x102, (int)scpSearchGobj(150));
             _ACTWait(1);
         }
 
@@ -658,7 +658,7 @@ void actSt13cCageFallChk(volatile int a0)
     ((Act *)((PObjGObjSt13c *)boyGObj)->act)->flags &= ~0x100000;
 }
 
-void actSt13cConte05(volatile int a0)
+void actSt13cConte05(GObj *volatile a0)
 {
     lt_switch_layout(55);
     scpBoyControlReadDisable = 1;
@@ -806,7 +806,7 @@ void actSt13cConte05(volatile int a0)
     _ACTWait(0);
 }
 
-void actSt13cConte05Jimaku(volatile int a0)
+void actSt13cConte05Jimaku(GObj *volatile a0)
 {
     float t;
     float tn;
@@ -820,25 +820,25 @@ void actSt13cConte05Jimaku(volatile int a0)
             break;
         case 0x65E:
             jimakuOn = 1;
-            jimaku_msg.sub.unk2C = 9;
-            jimaku_msg.sub.unk38 = -1;
+            jimaku_msg.sub.block = 9;
+            jimaku_msg.sub.jump = -1;
             jimakuJump(&jimaku_msg);
             break;
         case 0x9BC:
-            jimaku_msg.sub.unk2C = 6;
-            jimaku_msg.sub.unk38 = -1;
+            jimaku_msg.sub.block = 6;
+            jimaku_msg.sub.jump = -1;
             jimakuOn = 1;
             jimakuJump(&jimaku_msg);
             break;
         case 0xAC8:
-            jimaku_msg.sub.unk2C = 7;
-            jimaku_msg.sub.unk38 = -1;
+            jimaku_msg.sub.block = 7;
+            jimaku_msg.sub.jump = -1;
             jimakuOn = 1;
             jimakuJump(&jimaku_msg);
             break;
         case 0xE80:
-            jimaku_msg.sub.unk2C = 8;
-            jimaku_msg.sub.unk38 = -1;
+            jimaku_msg.sub.block = 8;
+            jimaku_msg.sub.jump = -1;
             jimakuOn = 1;
             jimakuJump(&jimaku_msg);
             break;
@@ -856,7 +856,7 @@ void actSt13cConte05Jimaku(volatile int a0)
     _ACTWait(0);
 }
 
-void actSt13cCageFallEffect(volatile int a0)
+void actSt13cCageFallEffect(GObj *volatile a0)
 {
     EffectArg b1;
     EffectArg b2;
@@ -924,7 +924,7 @@ void actSt13cCageFallEffect(volatile int a0)
     _ACTWait(0);
 }
 
-void actSt13cSekizoChk(volatile int a0)
+void actSt13cSekizoChk(GObj *volatile a0)
 {
     /* the family's SE-handle slot at 4(sp): sound-subsystem owned, and here
        never written before soundSeDefStop reads it back (ROM: lw $4,4($sp)). */
@@ -1004,7 +1004,7 @@ void actSt13cSekizoChk(volatile int a0)
     lt_switch_layout(54);
 }
 
-void actSt13cGirlCarryChk(volatile int a0)
+void actSt13cGirlCarryChk(GObj *volatile a0)
 {
     Act *self = (Act *)((PObjGObjSt13c *)a0)->act;
 
@@ -1037,11 +1037,11 @@ void actSt13cGirlCarryChk(volatile int a0)
     _ACTWait(1);
 }
 
-void actSt13cHandChk(volatile int a0)
+void actSt13cHandChk(GObj *volatile a0)
 {
     float dir[4];
-    int th1;
-    int th2;
+    GProc *th1;
+    GProc *th2;
     int t;
 
     if (girlGObj == 0) {
@@ -1114,8 +1114,8 @@ void actSt13cHandChk(volatile int a0)
         _ACTWait(1);
     }
 
-    iosThreadSetPri((int *)((GProc *)th2)->thread, 34);
-    iosThreadSetPri((int *)((GProc *)th1)->thread, 34);
+    iosThreadSetPri(&((GProc *)th2)->thread, 34);
+    iosThreadSetPri(&((GProc *)th1)->thread, 34);
 
     if (demoEnd == 0) {
         scpAdpcmFadeCloseFunc(&st13c_reserved, 0x200);
@@ -1149,7 +1149,7 @@ void actSt13cHandChk(volatile int a0)
 
     _ACTWait(1);
 
-    iosOmSendMail(girlGObj, 0x3F, boyGObj);
+    iosOmSendMail(girlGObj, 0x3F, (int)boyGObj);
 
     scpBoyControlReadDisable = 0;
     scpWakeupEnemyAll();
@@ -1157,7 +1157,7 @@ void actSt13cHandChk(volatile int a0)
     gflagOn(28);
 }
 
-void actSt13cHandJimaku(volatile int a0)
+void actSt13cHandJimaku(GObj *volatile a0)
 {
     float t;
     float tn;
@@ -1170,20 +1170,20 @@ void actSt13cHandJimaku(volatile int a0)
             jimakuBegin(&jimaku_msg);
             break;
         case 0x6E:
-            jimaku_msg.sub.unk2C = 0xB;
-            jimaku_msg.sub.unk38 = -1;
+            jimaku_msg.sub.block = 0xB;
+            jimaku_msg.sub.jump = -1;
             jimakuOn = 1;
             jimakuJump(&jimaku_msg);
             break;
         case 0x154:
-            jimaku_msg.sub.unk2C = 0xC;
-            jimaku_msg.sub.unk38 = -1;
+            jimaku_msg.sub.block = 0xC;
+            jimaku_msg.sub.jump = -1;
             jimakuOn = 1;
             jimakuJump(&jimaku_msg);
             break;
         case 0x244:
-            jimaku_msg.sub.unk2C = 0xD;
-            jimaku_msg.sub.unk38 = -1;
+            jimaku_msg.sub.block = 0xD;
+            jimaku_msg.sub.jump = -1;
             jimakuOn = 1;
             jimakuJump(&jimaku_msg);
             break;
@@ -1200,9 +1200,9 @@ void actSt13cHandJimaku(volatile int a0)
     } while (t < 800.0f);
 }
 
-void actSt13cSleep(volatile int a0)
+void actSt13cSleep(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     Act *self = actInitialize(a0);
 
     _ACTWait(1);
@@ -1215,9 +1215,9 @@ void actSt13cSleep(volatile int a0)
     }
 }
 
-void actSt13cCageDown(volatile int a0)
+void actSt13cCageDown(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     Act *self = actInitialize(a0);
 
     _ACTWait(1);
@@ -1237,9 +1237,9 @@ void actSt13cCageDown(volatile int a0)
     }
 }
 
-void actSt13cCageFallReady(volatile int a0)
+void actSt13cCageFallReady(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     Act *self = actInitialize(a0);
 
     _ACTWait(1);
@@ -1252,9 +1252,9 @@ void actSt13cCageFallReady(volatile int a0)
     }
 }
 
-void actSt13cEnemy(volatile int a0)
+void actSt13cEnemy(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
 
     actInitialize(a0);
 
@@ -1275,9 +1275,9 @@ void actSt13cEnemy(volatile int a0)
     gflagOff(23);
 }
 
-void actSt13cEnemyNull(volatile int a0)
+void actSt13cEnemyNull(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
 
     actInitialize(a0);
 
@@ -1292,9 +1292,9 @@ void actSt13cEnemyNull(volatile int a0)
     Generator_MaskOff(a0);
 }
 
-void actSt13cSekizo(volatile int a0)
+void actSt13cSekizo(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     Act *self = actInitialize(a0);
 
     _ACTWait(1);
@@ -1313,9 +1313,9 @@ void actSt13cSekizo(volatile int a0)
     }
 }
 
-void actSt13cSekizoJimaku(volatile int a0)
+void actSt13cSekizoJimaku(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     Act *self = actInitialize(a0);
 
     _ACTWait(1);
@@ -1328,9 +1328,9 @@ void actSt13cSekizoJimaku(volatile int a0)
     }
 }
 
-void actSt13cHand(volatile int a0)
+void actSt13cHand(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     Act *self = actInitialize(a0);
 
     _ACTWait(1);
@@ -1343,9 +1343,9 @@ void actSt13cHand(volatile int a0)
     }
 }
 
-void actSt13cGirlCarry(volatile int a0)
+void actSt13cGirlCarry(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     Act *self = actInitialize(a0);
 
     _ACTWait(1);
@@ -1358,9 +1358,9 @@ void actSt13cGirlCarry(volatile int a0)
     }
 }
 
-void actSt13cRescue(volatile int a0)
+void actSt13cRescue(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     Act *self = actInitialize(a0);
 
     _ACTWait(1);
@@ -1373,9 +1373,9 @@ void actSt13cRescue(volatile int a0)
     }
 }
 
-void actSt13cBuki(volatile int a0)
+void actSt13cBuki(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     Act *self = actInitialize(a0);
 
     _ACTWait(1);
@@ -1386,9 +1386,9 @@ void actSt13cBuki(volatile int a0)
     _ACTWait(0);
 }
 
-void actE3St13cSekizo(volatile int a0)
+void actE3St13cSekizo(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
 
     actInitialize(a0);
     _ACTWait(1);
@@ -1412,7 +1412,7 @@ void actSt13cSleepEvent(int x)
     volatile int local = x;
 }
 
-void actSt13cSleepChk(volatile int a0)
+void actSt13cSleepChk(GObj *volatile a0)
 {
     long long ofs[2];
     float dir[4];
@@ -1436,7 +1436,7 @@ void actSt13cSleepChk(volatile int a0)
     scpPlayMotReq(girlGObj, 0x11D);
 }
 
-void actSt13cCageDownMain(volatile int a0)
+void actSt13cCageDownMain(GObj *volatile a0)
 {
     Act *sub = (Act *)((PObjGObjSt13c *)a0)->act;
 
@@ -1446,7 +1446,7 @@ void actSt13cCageDownMain(volatile int a0)
     }
 }
 
-void actSt13cCageDownSwitch(volatile int a0)
+void actSt13cCageDownSwitch(GObj *volatile a0)
 {
     Act *sub = (Act *)((PObjGObjSt13c *)a0)->act;
 
@@ -1461,7 +1461,7 @@ void actSt13cCageDownSwitch(volatile int a0)
     }
 }
 
-void actSt13cCage1stDownDemo(volatile int a0)
+void actSt13cCage1stDownDemo(GObj *volatile a0)
 {
     scpPlayStart(boyGObj);
     scpPlayMot(boyGObj, 313);
@@ -1471,9 +1471,9 @@ void actSt13cCage1stDownDemo(volatile int a0)
     _ACTWait(0);
 }
 
-void actSt13cCageFallReadyChk(volatile int a0)
+void actSt13cCageFallReadyChk(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
 
     actInitialize(a0);
 
@@ -1496,9 +1496,9 @@ void actE3St13cSekizoEvent(int x)
     volatile int local = x;
 }
 
-void actSt13cSekizoJimakuChk(volatile int a0)
+void actSt13cSekizoJimakuChk(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
 
     actInitialize(a0);
 
@@ -1512,7 +1512,7 @@ void actSt13cSekizoJimakuChk(volatile int a0)
     actCreateSubThread(actSt13cSekizoJimakuEff, 21);
 }
 
-void actSt13cSekizoJimakuEff(volatile int a0)
+void actSt13cSekizoJimakuEff(GObj *volatile a0)
 {
     float t;
     float tn;
@@ -1525,8 +1525,8 @@ void actSt13cSekizoJimakuEff(volatile int a0)
             jimakuBegin(&jimaku_msg);
             break;
         case 0x2D:
-            jimaku_msg.sub.unk2C = 0x13;
-            jimaku_msg.sub.unk38 = -1;
+            jimaku_msg.sub.block = 0x13;
+            jimaku_msg.sub.jump = -1;
             jimakuOn = 1;
             jimakuJump(&jimaku_msg);
             break;
@@ -1543,7 +1543,7 @@ void actSt13cSekizoJimakuEff(volatile int a0)
     } while (t < 500.0f);
 }
 
-void actSt13cGirlCarryAgainChk(volatile int a0)
+void actSt13cGirlCarryAgainChk(GObj *volatile a0)
 {
     Act *self = (Act *)((PObjGObjSt13c *)a0)->act;
 
@@ -1565,7 +1565,7 @@ void actSt13cGirlCarryAgainChk(volatile int a0)
     _ACTWait(1);
 }
 
-void actSt13cHandSub(volatile int a0)
+void actSt13cHandSub(GObj *volatile a0)
 {
     _ACTWait(100);
     scpPlayWaitMotEnd(boyGObj);
@@ -1573,7 +1573,7 @@ void actSt13cHandSub(volatile int a0)
     _ACTWait(0);
 }
 
-void actSt13cRescueChk(volatile int a0)
+void actSt13cRescueChk(GObj *volatile a0)
 {
     if (girlGObj == 0) {
         _ACTWait(0);
@@ -1599,7 +1599,7 @@ void actSt13cBukiEvent(int x)
     volatile int local = x;
 }
 
-void actSt13cBukiChk(volatile int a0)
+void actSt13cBukiChk(GObj *volatile a0)
 {
     while (ForMotionViewer_GetCurrentMotion(boyGObj) != 0xE7) {
         _ACTWait(1);

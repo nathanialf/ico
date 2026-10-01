@@ -1052,13 +1052,6 @@ static void sound3DParamSet(SeSlot *self)
     soundSeVolSet(self);
 }
 
-typedef struct SeKind {
-    short num;  /* 0x0 */
-    short unk2; /* 0x2 */
-    short unk4; /* 0x4 */
-    short idx;  /* 0x6 */
-} SeKind;
-
 extern unsigned short seKind[];
 extern SeKind seList[];
 extern char seDef[];
@@ -1247,7 +1240,7 @@ static int _soundSeDefPlay(int kind, unsigned int a1, float *a2, int a3, SeEnvDe
     if (stage_no == 37) {
         slot->unk28 = 10000.0f;
     }
-    if ((slot->unk10 = SgSePlay(e->unk28, def->unk2, def->unk4)) < 0) {
+    if ((slot->unk10 = SgSePlay(e->unk28, def->half2, def->half4)) < 0) {
         seReqChClear(e, ch);
         debug_StdPrintfDummy("se not open\n");
         return -1;
@@ -1261,9 +1254,9 @@ static int _soundSeDefPlay(int kind, unsigned int a1, float *a2, int a3, SeEnvDe
     return (slot->num << 8) | ch;
 }
 
-inline int soundSeDefPlay(int a0, unsigned int a1, int a2, int a3)
+inline int soundSeDefPlay(int a0, unsigned int a1, float *pos, int a3)
 {
-    int idx = _soundSeDefPlay(a0, a1, a2, a3, 0, 0, -1.0f);
+    int idx = _soundSeDefPlay(a0, a1, pos, a3, 0, 0, -1.0f);
     if (idx >= 0) {
         sound3DParamSet(&seSlotTbl[idx & 0xFF]);
     }

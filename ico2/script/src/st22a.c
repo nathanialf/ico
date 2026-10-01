@@ -3,6 +3,7 @@
 #include "thread.h"
 #include "adpcm_init.h"
 #include "act.h"
+#include "gobj_process.h"
 #include "commonact.h"
 #include "camera-root.h"
 #include "gflag.h"
@@ -27,7 +28,7 @@ int lightning = 0;
 
 static int lightningAnims[2] = {758, 759}; /* derived name */
 
-void actSt22aLightningVolime(volatile int a0)
+void actSt22aLightningVolime(GObj *volatile a0)
 {
     /* Listing rows 123-127 sit above the loop's own rows and run inside it:
        an inline helper nested in this function. */
@@ -65,11 +66,11 @@ static ActMail intro_mes[2] = {{430}, {429}};
 static const StVec introFacePos = {{-2000.0f, 0.0f, -1129.0f, 1.0f}}; /* derived name */
 
 /* no header declares it; gamesys.c defines it */
-void actSt22aIntroChk(volatile int a0);
+void actSt22aIntroChk(GObj *volatile a0);
 
-void actSt22aIntro(volatile int a0)
+void actSt22aIntro(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     Act *self = actInitialize(a0);
     StVec pos;
     float dir[4];
@@ -118,12 +119,12 @@ typedef struct St22Anims {
     int id[2];
 } St22Anims;
 
-void actSt22aIntroChk(volatile int a0)
+void actSt22aIntroChk(GObj *volatile a0)
 {
     St22Anims anims;
     StVec pos;
     float dir[4];
-    int th;
+    GProc *th;
     int fin;
     unsigned int i;
 
@@ -148,7 +149,7 @@ void actSt22aIntroChk(volatile int a0)
             _ACTWait(1);
         }
     }
-    iosThreadSetPri(th + 0x24, 34);
+    iosThreadSetPri(&th->thread, 34);
     if (fin != 0) {
         anims = *(St22Anims *)lightningAnims;
         for (i = 0; i < 2; i++) {
@@ -176,7 +177,7 @@ void actSt22aIntroChk(volatile int a0)
     scpBoyControlReadDisable = 0;
 }
 
-void actSt22aIntroSub(volatile int a0)
+void actSt22aIntroSub(GObj *volatile a0)
 {
     StVec pos;
     float dir[4];

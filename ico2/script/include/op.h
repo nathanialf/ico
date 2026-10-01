@@ -12,24 +12,24 @@
 #ifndef OP_H
 #define OP_H
 
+#include "typedef.h"
+
 /* op.o's .sdata globals (MAIN.MAP) */
-extern int op2;
-extern int adpcm_conte01_sea;
+extern char *op2;
+extern char *adpcm_conte01_sea;
 extern int opTitleLogoMode;
 extern char *titleAdpcm;
-
 /* The declarations below lead this header because their order is load-bearing:
  * gcc 2.9 emits the deferred out-of-line copy of a plain-inline function in
  * first-declaration order, so this is the order op.c's inline tail has. */
-void actOpDemo03(volatile int a0);
-void actSubMpegReturnPreload(volatile int a0);
-void actSt26aConte01_1_newgame(volatile int a0);
-void actOpDemo02Chk(volatile int a0);
-void actSt24aConte01_2_Jimaku(volatile int a0);
-
-void actOpDemo01_2Chk(volatile int a0);
-void actOpDemo03Chk(volatile int a0);
-void actSt13aConte01_3(volatile int a0);
-void actSt24aConte01_2(volatile int a0);
+void actOpDemo03(GObj *volatile a0);
+void actSubMpegReturnPreload(GObj *volatile a0);
+void actSt26aConte01_1_newgame(GObj *volatile a0);
+void actOpDemo02Chk(GObj *volatile a0);
+void actSt24aConte01_2_Jimaku(GObj *volatile a0);
+void actOpDemo01_2Chk(GObj *volatile a0);
+void actOpDemo03Chk(GObj *volatile a0);
+void actSt13aConte01_3(GObj *volatile a0);
+void actSt24aConte01_2(GObj *volatile a0);
 
 #endif /* OP_H */

@@ -986,7 +986,7 @@ static __inline__ void setClipPlane(char *self, void *m, void *v)
     FcPlane *n = (FcPlane *)(self + 0xA0);
 
     sceVu0ApplyMatrix(n, m, v);
-    n->f[3] = -sceVu0InnerProduct((int)n, (int)(self + 0x20));
+    n->f[3] = -sceVu0InnerProduct(n, (self + 0x20));
 }
 
 /* RECONSTRUCTION: the 0x15C sub-object slot of a gobj, read as the union of
@@ -1303,7 +1303,7 @@ inline float GetYProjectionOfPlane(float *a0, float *a1)
 
 inline float GetDistanceFromPlane(void *a0, void *a1)
 {
-    return sceVu0InnerProduct((int)a0, (int)a1) + ((float *)a0)[3];
+    return sceVu0InnerProduct(a0, a1) + ((float *)a0)[3];
 }
 
 inline float GetYDistanceFromPlane(float *a0, float *a1)
@@ -1340,7 +1340,7 @@ inline void GetGlobalWallPlane(float *plane, int *r)
 
     GetWallGlobalInfo((char *)pts, plane, (char *)r[2],
                       (void *)((r[1] << 6) + *(int *)(*(int *)(r[0] + 0x15C) + 0xC)));
-    plane[3] = -sceVu0InnerProduct((int)plane, (int)pts);
+    plane[3] = -sceVu0InnerProduct(plane, pts);
 }
 
 inline int ClipPlane(int a0)
@@ -1735,7 +1735,7 @@ void DrawCollisionRay(char *ray)
     sceVu0SubVector(d, ray + 0x10, ray);
     MatrixDrive_TransMatrixV(ray + 0x10);
     MatrixDrive_TurnYObjectMatrixXZ(d[0], d[1], d[2]);
-    len = FSqrt(sceVu0InnerProduct((int)d, (int)d));
+    len = FSqrt(sceVu0InnerProduct(d, d));
     v[0] = len * 0.05f;
     v[1] = len * 0.3f;
     sceVu0ApplyMatrix(p0, MatrixDrive_GetMatrix(), v);
@@ -1888,7 +1888,7 @@ void ClipFloorByGObj(char *p, char *gobj)
         }
         n = (FcPlane *)(p + 0xA0);
         sceVu0ApplyMatrix(n, mtx, &keep);
-        n->f[3] = -sceVu0InnerProduct((int)n, (int)ep);
+        n->f[3] = -sceVu0InnerProduct(n, ep);
         *(int *)(p + 0x98) = *(int *)(*(char **)(p + 0x94) + 0x60);
     }
     sceVu0CopyVector((int *)p, (int *)buf0);

@@ -733,7 +733,7 @@ int la_vibe_select(void)
             break;
         }
         if (titleAdpcm != 0) {
-            ((AdpcmObj *)titleAdpcm)->stream->f44 = 0x80;
+            ((AdpcmObj *)titleAdpcm)->stream->fadeStep = 0x80;
         }
         titleAdpcm = 0;
         gflagInit();
@@ -1553,7 +1553,7 @@ int la_load_processing(int a0)
         debug_StdPrintfDummy("stage no %d\n", gFlagSaveStage);
         seEnvForceClose = 1;
         if (titleAdpcm != 0) {
-            ((AdpcmObj *)titleAdpcm)->stream->f44 = 0x40;
+            ((AdpcmObj *)titleAdpcm)->stream->fadeStep = 0x40;
         }
         titleAdpcm = 0;
         if (gflagChk(395)) {
@@ -2675,7 +2675,7 @@ inline void la_playtime_count(void)
 static inline void releaseGameLoopCursor(void)
 {
     if (layoutVoice != 0 && ((AdpcmObj *)layoutVoice)->stream != 0) {
-        ((AdpcmObj *)layoutVoice)->stream->f44 = 0x100;
+        ((AdpcmObj *)layoutVoice)->stream->fadeStep = 0x100;
     }
     layoutVoice = 0;
 }

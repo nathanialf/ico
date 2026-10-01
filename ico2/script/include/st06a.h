@@ -12,48 +12,49 @@
 #ifndef ST06A_H
 #define ST06A_H
 
-/* st06a.o's .sdata globals (MAIN.MAP) */
-extern int suimon;
-extern char *shutter;
-extern int toge;
+#include "typedef.h"
 
-void actSt06aBallDeleteChk(volatile int a0);
-void actSt06aBox2Chk(volatile int a0);
-void actSt06aBox3Chk(volatile int a0);
-void actSt06aBoxChk(volatile int a0);
-void actSt06aBoxEvent2InChk(volatile int a0);
-void actSt06aBoxEvent2OutChk(volatile int a0);
-void actSt06aBoxSub(volatile int a0);
-void actSt06aDoorDownChk(volatile int a0);
-void actSt06aDoorDownEffect(volatile int a0);
-void actSt06aDoorUpChk(volatile int a0);
-void actSt06aDoorUpEffect(volatile int a0);
-void actSt06aExitChk(volatile int a0);
-void actSt06aExitGirlChk(volatile int a0);
-void actSt06aHeadChk(volatile int a0);
-void actSt06aJumpMain(volatile int a0);
-void actSt06aJumpMove(volatile int a0);
-void actSt06aJumpSub(volatile int a0);
-void actSt06aJumpSwitch(volatile int a0);
-void actSt06aKyomiOffChk(volatile int a0);
-void actSt06aKyomiOnChk(volatile int a0);
-void actSt06aPistonFlagOnChk(volatile int a0);
-void actSt06aPistonRideOnChk(volatile int a0);
-void actSt06aShutterMain(volatile int a0);
-void actSt06aShutterOpen(volatile int a0);
-void actSt06aShutterOpenSub(volatile int a0);
-void actSt06aShutterSwitch(volatile int a0);
-void actSt06aStatueChk(volatile int a0);
-void actSt06aSuimonChk(volatile int a0);
-void actSt06aSuimonEffect(volatile int a0);
-void actSt06aSuimonFlagOn(volatile int a0);
-void actSt06aSuimonSub(volatile int a0);
-void actSt06aTreeChk(volatile int a0);
-void actSt06aWallWay2OffChk(volatile int a0);
-void actSt06aWallWay2OnChk(volatile int a0);
-void actSt06aWallWayOffChk(volatile int a0);
-void actSt06aWallWayOnChk(volatile int a0);
-void actSt06aWayOffChk(volatile int a0);
-void actSt06aWayOnChk(volatile int a0);
+/* st06a.o's .sdata globals (MAIN.MAP) */
+extern char *suimon;
+extern char *shutter;
+extern char *toge;
+void actSt06aBallDeleteChk(GObj *volatile a0);
+void actSt06aBox2Chk(GObj *volatile a0);
+void actSt06aBox3Chk(GObj *volatile a0);
+void actSt06aBoxChk(GObj *volatile a0);
+void actSt06aBoxEvent2InChk(GObj *volatile a0);
+void actSt06aBoxEvent2OutChk(GObj *volatile a0);
+void actSt06aBoxSub(GObj *volatile a0);
+void actSt06aDoorDownChk(GObj *volatile a0);
+void actSt06aDoorDownEffect(GObj *volatile a0);
+void actSt06aDoorUpChk(GObj *volatile a0);
+void actSt06aDoorUpEffect(GObj *volatile a0);
+void actSt06aExitChk(GObj *volatile a0);
+void actSt06aExitGirlChk(GObj *volatile a0);
+void actSt06aHeadChk(GObj *volatile a0);
+void actSt06aJumpMain(GObj *volatile a0);
+void actSt06aJumpMove(GObj *volatile a0);
+void actSt06aJumpSub(GObj *volatile a0);
+void actSt06aJumpSwitch(GObj *volatile a0);
+void actSt06aKyomiOffChk(GObj *volatile a0);
+void actSt06aKyomiOnChk(GObj *volatile a0);
+void actSt06aPistonFlagOnChk(GObj *volatile a0);
+void actSt06aPistonRideOnChk(GObj *volatile a0);
+void actSt06aShutterMain(GObj *volatile a0);
+void actSt06aShutterOpen(GObj *volatile a0);
+void actSt06aShutterOpenSub(GObj *volatile a0);
+void actSt06aShutterSwitch(GObj *volatile a0);
+void actSt06aStatueChk(GObj *volatile a0);
+void actSt06aSuimonChk(GObj *volatile a0);
+void actSt06aSuimonEffect(GObj *volatile a0);
+void actSt06aSuimonFlagOn(GObj *volatile a0);
+void actSt06aSuimonSub(GObj *volatile a0);
+void actSt06aTreeChk(GObj *volatile a0);
+void actSt06aWallWay2OffChk(GObj *volatile a0);
+void actSt06aWallWay2OnChk(GObj *volatile a0);
+void actSt06aWallWayOffChk(GObj *volatile a0);
+void actSt06aWallWayOnChk(GObj *volatile a0);
+void actSt06aWayOffChk(GObj *volatile a0);
+void actSt06aWayOnChk(GObj *volatile a0);
 
 #endif /* ST06A_H */

@@ -60,17 +60,17 @@ inline int CreateWayGroup(void)
     for (i = 0; i < 94; i++) {
         WayGroup *wg = &way_group[i];
 
-        if (wg->f0 == 0) {
-            wg->f0 = 1;
-            wg->f8 = 0;
-            wg->fC = 0;
-            wg->f10 = 0;
-            wg->f14 = 0;
-            wg->f18 = 0;
-            wg->f1C = 0;
+        if (wg->used == 0) {
+            wg->used = 1;
+            wg->first = 0;
+            wg->last = 0;
+            wg->count = 0;
+            wg->closed = 0;
+            wg->bridge = 0;
+            wg->boxBridge = 0;
             wg->end[0] = -1;
             wg->end[1] = -1;
-            wg->f2C = 0;
+            wg->temp = 0;
             n_way_group++;
             return i;
         }
@@ -83,7 +83,7 @@ inline int CreateTempWayGroup(void)
     int no = CreateWayGroup();
 
     if (no != -1) {
-        way_group[no].f2C = 1;
+        way_group[no].temp = 1;
     }
     return no;
 }
@@ -92,17 +92,17 @@ inline int DeleteWayGroup(int gno)
 {
     WayGroup *wg = &way_group[gno];
 
-    if (wg->f0 == 1) {
-        if (wg->f8 != 0) {
-            WayPoint *wp = wg->f8;
+    if (wg->used == 1) {
+        if (wg->first != 0) {
+            WayPoint *wp = wg->first;
 
             do {
-                DeleteWayPoint(wp->f4);
-                wp = wp->fC;
+                DeleteWayPoint(wp->index);
+                wp = wp->next;
             } while (wp != 0);
         }
 
-        wg->f0 = 0;
+        wg->used = 0;
         n_way_group--;
         return 0;
     }
@@ -112,11 +112,11 @@ inline int DeleteWayGroup(int gno)
 inline void CloseWayGroup(int idx)
 {
     WayGroup *wg = &way_group[idx];
-    WayPoint *first = wg->f8;
-    WayPoint *last = wg->fC;
-    wg->f14 = 1;
-    first->f8 = last;
-    last->fC = first;
+    WayPoint *first = wg->first;
+    WayPoint *last = wg->last;
+    wg->closed = 1;
+    first->prev = last;
+    last->next = first;
 }
 
 inline int CreateWayPoint(float *pos)
@@ -126,12 +126,12 @@ inline int CreateWayPoint(float *pos)
     for (i = 0; i < 275; i++) {
         WayPoint *node = &way_point[i];
 
-        if (node->f0 == 0) {
-            node->f0 = 1;
-            node->f20 = -1;
-            node->f8 = 0;
-            node->fC = 0;
-            node->f28 = 0;
+        if (node->used == 0) {
+            node->used = 1;
+            node->group = -1;
+            node->prev = 0;
+            node->next = 0;
+            node->escape = 0;
             sceVu0CopyVector(node->pos, pos);
             return i;
         }
@@ -144,19 +144,19 @@ inline int AddWayPoint(int gno, int pno)
     WayGroup *wg = &way_group[gno];
     WayPoint *wp = &way_point[pno];
 
-    if (wg->f8 == 0) {
-        wg->f8 = wp;
-        wg->fC = wp;
+    if (wg->first == 0) {
+        wg->first = wp;
+        wg->last = wp;
     } else {
-        wg->fC->fC = wp;
-        wp->f8 = wg->fC;
-        wp->fC = 0;
+        wg->last->next = wp;
+        wp->prev = wg->last;
+        wp->next = 0;
 
-        wg->fC = wp;
+        wg->last = wp;
     }
 
-    wp->f20 = gno;
-    wg->f10++;
+    wp->group = gno;
+    wg->count++;
     return 0;
 }
 
@@ -165,11 +165,11 @@ inline int AddWayPointTop(int a0, int a1)
     WayGroup *wg = &way_group[a0];
     WayPoint *node = &way_point[a1];
     WayPoint *old;
-    node->f8 = 0;
-    old = wg->f8;
-    wg->f8 = node;
-    node->fC = old->f8;
-    old->f8 = node;
+    node->prev = 0;
+    old = wg->first;
+    wg->first = node;
+    node->next = old->prev;
+    old->prev = node;
     return 0;
 }
 
@@ -177,59 +177,59 @@ inline int InsertWayPointAfter(int dummy, int idx1, int idx2)
 {
     WayPoint *node_a = &way_point[idx1];
     WayPoint *node_b = &way_point[idx2];
-    WayPoint *old = node_a->fC;
-    node_a->fC = node_b;
-    node_b->f8 = node_a;
-    node_b->fC = old;
-    old->f8 = node_b;
+    WayPoint *old = node_a->next;
+    node_a->next = node_b;
+    node_b->prev = node_a;
+    node_b->next = old;
+    old->prev = node_b;
     return 0;
 }
 
 inline int DeleteWayPoint(int pno)
 {
     WayPoint *wp = &way_point[pno];
-    WayPoint *prev = wp->f8;
-    WayPoint *next = wp->fC;
-    WayGroup *wg = &way_group[wp->f20];
+    WayPoint *prev = wp->prev;
+    WayPoint *next = wp->next;
+    WayGroup *wg = &way_group[wp->group];
 
-    if (wg->f10 < 4)
-        wg->f14 = 0;
+    if (wg->count < 4)
+        wg->closed = 0;
 
-    if (wg->f14 != 0) {
-        if (wp == wg->f8) {
-            wg->f8 = next;
+    if (wg->closed != 0) {
+        if (wp == wg->first) {
+            wg->first = next;
 
-            wg->f10--;
-            wp->f0 = 0;
+            wg->count--;
+            wp->used = 0;
             return 0;
-        } else if (wp == wg->fC) {
-            wg->fC = prev;
+        } else if (wp == wg->last) {
+            wg->last = prev;
 
-            wg->f10--;
-            wp->f0 = 0;
+            wg->count--;
+            wp->used = 0;
             return 0;
         }
     }
 
     if (prev != 0) {
-        prev->fC = next;
+        prev->next = next;
     } else if (next != 0) {
-        wg->f8 = next;
+        wg->first = next;
     }
 
     if (next != 0) {
-        next->f8 = prev;
+        next->prev = prev;
     } else if (prev != 0) {
-        wg->fC = prev;
+        wg->last = prev;
     }
 
     if (prev == 0 && next == 0) {
-        wg->f8 = 0;
-        wg->fC = 0;
+        wg->first = 0;
+        wg->last = 0;
     }
 
-    wp->f0 = 0;
-    wg->f10--;
+    wp->used = 0;
+    wg->count--;
     return 0;
 }
 
@@ -252,10 +252,10 @@ int CreateBridge(float *a0, float *a1)
     }
     p0 = CreateWayPoint(a0);
     AddWayPoint(gno, p0);
-    way_point[p0].f30 = 1;
+    way_point[p0].bridgeEnd = 1;
     p1 = CreateWayPoint(a1);
     AddWayPoint(gno, p1);
-    way_point[p1].f30 = 1;
+    way_point[p1].bridgeEnd = 1;
     set_bridge(gno);
     SetWayGroupActive(gno, 1);
     return gno;
@@ -271,7 +271,7 @@ inline WayGroup *WayGroup_begin(void)
     if (p != 0 && p != end) {
         do {
             p++;
-            if (p->f0 != 0)
+            if (p->used != 0)
                 return p;
         } while (p != end);
     }
@@ -285,7 +285,7 @@ inline WayGroup *WayGroup_next(WayGroup *p)
         WayGroup *q = p;
         do {
             q++;
-            if (q->f0 != 0)
+            if (q->used != 0)
                 return q;
         } while (q != end);
     }
@@ -299,7 +299,7 @@ inline WayGroup *WayBridge_begin(void)
     if (p != 0 && p != end) {
         do {
             p++;
-            if (p->f0 != 0 && p->f18 != 0 && p->f28 != 0)
+            if (p->used != 0 && p->bridge != 0 && p->active != 0)
                 return p;
         } while (p != end);
     }
@@ -313,7 +313,7 @@ inline WayGroup *WayBridge_next(WayGroup *p)
         WayGroup *q = p;
         do {
             q++;
-            if (q->f0 != 0 && q->f18 != 0 && q->f28 != 0)
+            if (q->used != 0 && q->bridge != 0 && q->active != 0)
                 return q;
         } while (q != end);
     }
@@ -327,7 +327,7 @@ inline WayGroup *WayBridgeAll_begin(void)
     if (p != 0 && p != end) {
         do {
             p++;
-            if (p->f0 != 0 && p->f18 != 0)
+            if (p->used != 0 && p->bridge != 0)
                 return p;
         } while (p != end);
     }
@@ -341,7 +341,7 @@ inline WayGroup *WayBridgeAll_next(WayGroup *p)
         WayGroup *q = p;
         do {
             q++;
-            if (q->f0 != 0 && q->f18 != 0)
+            if (q->used != 0 && q->bridge != 0)
                 return q;
         } while (q != end);
     }
@@ -357,7 +357,7 @@ inline WayGroup *WayBridgeVar_begin(void)
     if (p == end)
         goto ret0;
     for (p++;; p++) {
-        if (p->f0 != 0 && p->f18 != 0 && p->f28 != 0)
+        if (p->used != 0 && p->bridge != 0 && p->active != 0)
             return p;
         if (p == end)
             break;
@@ -371,7 +371,7 @@ inline WayGroup *WayBridgeVar_next(WayGroup *a0)
     WayGroup *p, *end = &way_group[93];
     if (a0 != 0 && a0 != end) {
         for (p = a0 + 1;; p++) {
-            if (p->f0 != 0 && p->f18 != 0 && p->f28 != 0)
+            if (p->used != 0 && p->bridge != 0 && p->active != 0)
                 return p;
             if (p == end)
                 break;
@@ -389,7 +389,7 @@ inline WayPoint *WayPoint_begin(void)
     if (p == end)
         goto ret0;
     for (p++;; p++) {
-        if (p->f0 != 0)
+        if (p->used != 0)
             return p;
         if (p == end)
             break;
@@ -406,7 +406,7 @@ inline WayPoint *WayPoint_next(WayPoint *a0)
     if (a0 == end)
         goto ret0;
     for (a0++;; a0++) {
-        if (a0->f0 != 0)
+        if (a0->used != 0)
             return a0;
         if (a0 == end)
             break;
@@ -421,18 +421,18 @@ ret0:
  * test, as the ROM's row order (507 then 509) has it. */
 static inline WayPoint *wayPointListNext(WayPoint *wp)
 {
-    WayGroup *grp = &way_group[wp->f20];
+    WayGroup *grp = &way_group[wp->group];
 
     if (wp == 0)
         return 0;
-    if (wp->fC == grp->f8)
+    if (wp->next == grp->first)
         return 0;
-    return wp->fC;
+    return wp->next;
 }
 
 inline WayPoint *WayPointList_begin(int a0)
 {
-    return way_group[a0].f8;
+    return way_group[a0].first;
 }
 
 inline WayPoint *WayPointList_next(WayPoint *a0)
@@ -447,9 +447,9 @@ inline WayPoint *waypoint_bidirectional_list(WayPoint *self, int which)
     }
     debug_StdPrintfDummy("bidir wp:%p\n", self);
     if (which == 0) {
-        return self->f8;
+        return self->prev;
     }
-    return self->fC;
+    return self->next;
 }
 
 void InitWayPointSystem(void)
@@ -459,25 +459,25 @@ void InitWayPointSystem(void)
     for (i = 0; i < 275; i++) {
         WayPoint *node = &way_point[i];
 
-        node->f0 = 0;
-        node->f4 = i;
-        node->f8 = 0;
-        node->fC = 0;
-        node->f20 = -1;
+        node->used = 0;
+        node->index = i;
+        node->prev = 0;
+        node->next = 0;
+        node->group = -1;
     }
 
     for (i = 0; i < 94; i++) {
         WayGroup *wg = &way_group[i];
 
-        wg->f0 = 0;
-        wg->f4 = i;
-        wg->f8 = 0;
-        wg->fC = 0;
-        wg->f10 = 0;
-        wg->f14 = 0;
-        wg->f18 = 0;
-        wg->f1C = 0;
-        wg->f28 = 0;
+        wg->used = 0;
+        wg->index = i;
+        wg->first = 0;
+        wg->last = 0;
+        wg->count = 0;
+        wg->closed = 0;
+        wg->bridge = 0;
+        wg->boxBridge = 0;
+        wg->active = 0;
         wg->end[0] = -1;
         wg->end[1] = -1;
     }
@@ -488,10 +488,10 @@ void InitWayPointSystem(void)
 
 inline void SetWayGroupActive(int a0, int a1)
 {
-    way_group[a0].f28 = a1;
+    way_group[a0].active = a1;
 }
 
 inline int CheckWayGroupActive(int idx)
 {
-    return way_group[idx].f28 != 0;
+    return way_group[idx].active != 0;
 }

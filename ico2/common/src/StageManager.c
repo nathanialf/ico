@@ -351,7 +351,7 @@ void stgmgrNextStagePreLoadEntry(int stage)
 {
     const StgPre *pre = &stageData[stage];
     int i;
-    int ret;
+    CdvdBgReq *ret;
 
     stageExitDataCnt = 0;
     for (i = 0; i < 15; i++) {

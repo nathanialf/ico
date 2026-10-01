@@ -12,7 +12,7 @@ static int gobjCount = 0; /* derived name */
 
 /* .bss, owned by GobjProc.o and reached only from this file (MAIN.MAP names no
    symbol in the run): the table of created game objects, 208 entries. */
-static PObjGObj *gobj_table[208];
+static GObj *gobj_table[208];
 
 /* kept local: a4 is unsigned int here, int in gobj_cam_dl.h */
 extern void isysGObjLinkCameraDL(char *a0, int a1, int a2, int a3, unsigned int a4);
@@ -53,10 +53,10 @@ void PrintGObjID(int a0)
     }
 }
 
-PObjGObj *InitCameraGObjs(int a0, int from, int to)
+GObj *InitCameraGObjs(int a0, int from, int to)
 {
-    PObjGObj *g = 0;
-    PObjGObj *cam;
+    GObj *g = 0;
+    GObj *cam;
     int i;
 
     for (i = from; i < to; i++) {
@@ -66,7 +66,7 @@ PObjGObj *InitCameraGObjs(int a0, int from, int to)
         g->labelId = -1;
         g->kind = -1;
         g->active = 1;
-        isysGObjLinkObjDL(g, (int)DispIcoMisc, 0, 0, 0xFFFFFFFF);
+        isysGObjLinkObjDL(g, DispIcoMisc, 0, 0, 0xFFFFFFFF);
     }
 
     cam = isysGObjAdd(0, 0, 0);
@@ -76,9 +76,9 @@ PObjGObj *InitCameraGObjs(int a0, int from, int to)
     return g;
 }
 
-inline PObjGObj *CreateGObjByFuncSet(int a0, int a1, int a2, int a3, int a4, int a5, int a6)
+inline GObj *CreateGObjByFuncSet(int a0, int a1, int a2, int a3, int a4, int a5, int a6)
 {
-    PObjGObj *g;
+    GObj *g;
 
     g = isysGObjAdd(a0, 0, 0);
     g->act = 0;
@@ -97,15 +97,16 @@ inline PObjGObj *CreateGObjByFuncSet(int a0, int a1, int a2, int a3, int a4, int
     return g;
 }
 
-PObjGObj *CreateGObj(PObjGObj *p, int a1, int a2, int a3, int a4)
+GObj *CreateGObj(ObjKindEnt *p, int a1, int a2, int a3, int a4)
 {
-    PObjGObj *g;
+    GObj *g;
     int r21 = 0;
 
     if (a4 != 0) {
-        r21 = p->dlLinkId;
+        r21 = (int)p->start;
     }
-    g = CreateGObjByFuncSet(p->mailArg, p->mailType, p->drawMask, p->word4C, r21, p->dl, a3);
+    g = CreateGObjByFuncSet((int)p->before, (int)p->ai, (int)p->geo, p->afterGeo, r21, (int)p->dl,
+                            a3);
     g->labelId = a2;
     isysGObjKindTableAdd(g, a1);
     return g;

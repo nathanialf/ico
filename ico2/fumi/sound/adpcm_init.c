@@ -28,14 +28,6 @@ void AdpcmStreamFree(void)
     sceSifFreeIopHeap(adpcmIopHeap);
 }
 
-typedef struct {
-    char pad0[48];
-    int f30;
-    int f34;
-    int pitch; /* 0x38 */
-    int f3C;   /* 0x3C */
-} AdpcmDataRec;
-
 extern const AdpcmDataRec adpcmFile[];
 extern int SgStAdpcmChannelPitch(long long mask, int pitch);
 extern int SgStAdpcmIopReadAddr(int addr);
@@ -60,30 +52,30 @@ void adpcmTickProc2(int *a0)
         }
         return;
     }
-    if (self->f46 != 0) {
+    if (self->loopNum != 0) {
         int addr = SgStAdpcmIopReadAddr(self->ch[0]);
         int delta;
 
-        if (addr >= self->f4C) {
-            delta = addr - self->f4C;
+        if (addr >= self->lastAddr) {
+            delta = addr - self->lastAddr;
         } else {
-            delta = self->f1C - self->f4C + addr;
+            delta = self->ringSize - self->lastAddr + addr;
         }
-        self->f4C = addr;
+        self->lastAddr = addr;
         if (delta != 0) {
-            self->f50 -= delta;
-            if (self->f50 <= 0) {
-                self->f48 += 1;
-                self->f50 += self->f24 - self->f20;
+            self->remain -= delta;
+            if (self->remain <= 0) {
+                self->loopCount += 1;
+                self->remain += self->dataSize - self->loopStart;
             }
-            if (self->f46 != 0 && self->f48 >= self->f46) {
+            if (self->loopNum != 0 && self->loopCount >= self->loopNum) {
                 soundDataClose(a0);
                 return;
             }
         }
     }
-    if (self->f44 != 0) {
-        int d = AdpcmVolumeGet((char *)a0) - self->f44;
+    if (self->fadeStep != 0) {
+        int d = AdpcmVolumeGet((char *)a0) - self->fadeStep;
 
         if (d < 0) {
             d = 0;
@@ -138,16 +130,16 @@ found:
     p = (AdpcmStream *)((char *)adpcmStream + i * 0x58);
     p->used = 1;
     obj->stream = p;
-    p->n = adpcmFile[no].f3C;
+    p->n = adpcmFile[no].channels;
     switch (p->n) {
     case 1:
-        p->f38 = 0x10000;
+        p->chAttr = 0x10000;
         break;
     case 2:
-        p->f38 = 0x20000;
+        p->chAttr = 0x20000;
         break;
     case 4:
-        p->f38 = 0x40000;
+        p->chAttr = 0x40000;
         break;
     default:
         debug_assert(adpcmSrcFile, 381);
@@ -155,48 +147,48 @@ found:
     }
     p->mask = 0;
     for (j = 0; j < p->n; j++) {
-        req.f10 = soundBufAdpcmChAlloc(obj, &req.ch);
+        req.spuAddr = soundBufAdpcmChAlloc(obj, &req.ch);
         p->ch[j] = req.ch = adpcmSpuSlot[req.ch];
-        req.f4 = p->f38 | 2;
-        req.f8 = a5 + (0x800 / p->n) * j;
-        req.fC = 0x5C000;
-        req.f14 = 0x4000;
+        req.attr = p->chAttr | 2;
+        req.iopAddr = a5 + (0x800 / p->n) * j;
+        req.iopSize = 0x5C000;
+        req.vol = 0x4000;
         SgStAdpcmOpen(&req);
-        if (p->f38 == 0x10000) {
-            p->f40[j] = 0x3FFF;
-            p->f3C[j] = 0x3FFF;
+        if (p->chAttr == 0x10000) {
+            p->volR[j] = 0x3FFF;
+            p->volL[j] = 0x3FFF;
         } else if ((j & 1) == 0) {
-            p->f3C[j] = 0x3FFF;
-            p->f40[j] = 0;
+            p->volL[j] = 0x3FFF;
+            p->volR[j] = 0;
         } else {
-            p->f40[j] = 0x3FFF;
-            p->f3C[j] = 0;
+            p->volR[j] = 0x3FFF;
+            p->volL[j] = 0;
         }
-        p->f44 = 0;
-        SgStAdpcmChannelVolume(1LL << p->ch[j], p->f3C[j], p->f40[j]);
+        p->fadeStep = 0;
+        SgStAdpcmChannelVolume(1LL << p->ch[j], p->volL[j], p->volR[j]);
         SgStAdpcmChannelPitch(1LL << p->ch[j], adpcmFile[no].pitch);
         p->mask |= 1LL << p->ch[j];
     }
     if (size < 0x5C000) {
-        p->f10 = size;
+        p->seekSize = size;
     } else {
-        p->f10 = 0;
+        p->seekSize = 0;
     }
-    p->f14 = adpcmFile[no].pitch;
-    p->f18 = a5;
-    p->f1C = 0x5C000;
-    p->f24 = adpcmFile[no].f34 << 11;
-    p->f20 = adpcmFile[no].f30 << 11;
-    p->f4C = 0;
-    p->f50 = adpcmFile[no].f34 << 11;
-    p->f46 = a6;
-    p->f48 = 0;
+    p->pitch = adpcmFile[no].pitch;
+    p->iopBuf = a5;
+    p->ringSize = 0x5C000;
+    p->dataSize = adpcmFile[no].sectors << 11;
+    p->loopStart = adpcmFile[no].word30 << 11;
+    p->lastAddr = 0;
+    p->remain = adpcmFile[no].sectors << 11;
+    p->loopNum = a6;
+    p->loopCount = 0;
     if (size != 0) {
         Ee2Iop(a0, a5, size);
     }
-    p->f28 = iosCdvdBackGroundMgrAdd((char *)&adpcmFile[no], adpcmTickProc, obj, adpcmDiskNotReady,
-                                     (int)adpcmDiskReturnReady, obj, 0, 0);
-    iosCdvdBackGroundMgrSeek(p->f28, size);
+    p->bg = iosCdvdBackGroundMgrAdd((char *)&adpcmFile[no], adpcmTickProc, obj, adpcmDiskNotReady,
+                                    adpcmDiskReturnReady, obj, 0, 0);
+    iosCdvdBackGroundMgrSeek(p->bg, size);
     return (int *)obj;
 }
 
@@ -250,14 +242,14 @@ void AdpcmOpen(AdpcmOpenReq *self, int no, int a2, int a3)
         self->bg = 0;
         debug_StdPrintfDummy("%s\n", (char *)&adpcmFile[no]);
     }
-    self->f10 = a3;
+    self->loopNum = a3;
 }
 
 extern int SgStAdpcmClose(int ch);
 
 static inline void AdpcmIopBuffFree(AdpcmStream *self)
 {
-    int adr = self->f18;
+    int adr = self->iopBuf;
     int no = (adr - adpcmIopBase) / 0x5C000;
 
     if (no >= 3) {
@@ -273,9 +265,9 @@ void AdpcmClose(int *a0)
     int i;
     int j;
 
-    if (self != 0 && self->f28 != 0) {
-        iosCdvdBackGroundMgrDelete(self->f28);
-        self->f28 = 0;
+    if (self != 0 && self->bg != 0) {
+        iosCdvdBackGroundMgrDelete(self->bg);
+        self->bg = 0;
         AdpcmStop((int)self);
         for (i = 0; i < self->n; i++) {
             char *ch = (char *)self->ch;
@@ -438,7 +430,7 @@ body:
     }
     debug_StdPrintfDummy("AdpcmOpensync done\n");
     iosCdvdBackGroundMgrDelete(self->bg);
-    r = adpcmDataSet(0, self->id, 0x11, self->ch, 0, self->iopBuf, self->f10);
+    r = adpcmDataSet(0, self->id, 0x11, self->ch, 0, self->iopBuf, self->loopNum);
     iosCdvdBackGroundMgrSeek(((int *)r[11])[10], 0x5C000);
     return r;
 }

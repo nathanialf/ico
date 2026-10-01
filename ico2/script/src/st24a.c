@@ -4,6 +4,7 @@
 #include "adpcm_init.h"
 #include "s_init.h"
 #include "act.h"
+#include "gobj_process.h"
 #include "commonact.h"
 #include "camera-root.h"
 #include "gflag.h"
@@ -41,7 +42,7 @@ void actSt24aSwordChk(volatile int self)
 {
     float v[4];
     float dir[4];
-    char *th;
+    GProc *th;
 
     while ((GOBJ_ACT(boyGObj)->padTrg & 0x20) == 0 || scpTriggerBall(self, boyGObj, 100.0f) == 0) {
         _ACTWait(1);
@@ -52,12 +53,12 @@ void actSt24aSwordChk(volatile int self)
     gflagOn(329);
     soundSeDefPlay(1343, 0, 0, 1);
     scpAdpcmPlayRequestFunc(34, &sword, 1, 1, 0);
-    th = (char *)actCreateSubThread(actSt24aSwordSub, 21);
+    th = actCreateSubThread(actSt24aSwordSub, 21);
     demoEnd = 0;
     while (demoEnd == 0 && ((pad[0].flags & 0x800) == 0 || scpAdpcmPlayRequestNum() != 0)) {
         _ACTWait(1);
     }
-    iosThreadSetPri(th + 0x24, 34);
+    iosThreadSetPri(&th->thread, 34);
     if (demoEnd == 0) {
         scpFadeOut(16.0f, 0, 0, 0);
         while (sword == 0) {
@@ -85,7 +86,7 @@ void actSt24aSwordChk(volatile int self)
     scpBoyControlReadDisable = 0;
 }
 
-void actSt24aDemoCamChk(volatile int a0)
+void actSt24aDemoCamChk(GObj *volatile a0)
 {
     while (scpTriggerBall(a0, boyGObj, 700.0f) == 0) {
         _ACTWait(1);
@@ -116,9 +117,9 @@ void actSt24aDemoCamChk(volatile int a0)
     scpBoyControlReadDisable = 0;
 }
 
-void actSt24aSword(volatile int a0)
+void actSt24aSword(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     Act *self = actInitialize(a0);
     _ACTWait(1);
 
@@ -132,18 +133,18 @@ void actSt24aSword(volatile int a0)
     }
 }
 
-void actSt24aSaku(volatile int a0)
+void actSt24aSaku(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     actInitialize(a0);
     _ACTWait(1);
 
     stage_SetAnimation(151, 0, 0);
 }
 
-void actSt24aDemoCam(volatile int a0)
+void actSt24aDemoCam(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     Act *self = actInitialize(a0);
     _ACTWait(1);
 
@@ -155,7 +156,7 @@ void actSt24aDemoCam(volatile int a0)
     }
 }
 
-void actSt24aSwordSub(volatile int a0)
+void actSt24aSwordSub(GObj *volatile a0)
 {
     while (sword == 0) {
         _ACTWait(1);

@@ -46,9 +46,6 @@ static const VECTOR sofaSeatOffset = {30.0f, 0.0f, -50.0f, 0.0f};
 
 /* kept local: int here, GObj * in main.h */
 extern int boyGObj;
-/* same prototype motionManager2.h carries; kept local because this TU does not include it */
-/* same prototype motionManager2.h carries; kept local because this TU does not include it */
-/* same prototype motionManager2.h carries; kept local because this TU does not include it */
 /* kept local: agrees with main.h, which this TU does not include (boyGObj, ((char *)girlGObj) differ) */
 extern int stage_no;
 
@@ -401,7 +398,7 @@ static inline unsigned char H1000(void *o, float h)
     s = GOBJ_ACT(o);
     if (o == boyGObj && stageData[stage_no].flag2 && (s->actMode == 4 || s->actMode == 5)) {
         memset(&work, 0, 0xC0);
-        GetSkeltonPosition(work.a, o, (void *)0x2C);
+        GetSkeltonPosition(work.a, o, 0x2C);
         work.b[0] = work.a[0];
         work.b[2] = work.a[2];
         work.b[1] = work.a[1] + 200.0f;
@@ -702,7 +699,7 @@ void ACTGetEnvironment(void *a0, void *a1, float *a2, EnvFlag *flags, ActEnv *en
             wallh = 3.40282347e+38f /* FLT_MAX */;
             hgt = wallh;
             if (ACTGame_FLAG_TETSUNAGI() &&
-                test_CURRENTROOT(((char *)girlGObj))[1] >
+                test_CURRENTROOT((girlGObj))[1] >
                     test_CURRENTROOT(boyGObj)[1] + 50.0f) {
                 float p60[4], p70[4], p80[4];
                 float p90[4][4];
@@ -710,7 +707,7 @@ void ACTGetEnvironment(void *a0, void *a1, float *a2, EnvFlag *flags, ActEnv *en
                 sceVu0ScaleVector(p60, env->wallOrient, -1.0f);
                 GetMatrixDirectionToZ(p90[0], p60);
                 sceVu0SubVector(p70, test_CURRENTROOT(boyGObj),
-                                test_CURRENTROOT(((char *)girlGObj)));
+                                test_CURRENTROOT((girlGObj)));
                 p70[3] = 0.0f;
                 sceVu0ApplyMatrix(p80, p90, p70);
                 if (dist < p80[2])
@@ -756,7 +753,7 @@ void ACTGetEnvironment(void *a0, void *a1, float *a2, EnvFlag *flags, ActEnv *en
                 flags[1].w |= 8;
             }
             if (a0 == ((char *)girlGObj) && _ACTCharStatus_Check(a0, 0x1C)) {
-                sceVu0SubVector(p60, test_CURRENTROOT(((char *)girlGObj)),
+                sceVu0SubVector(p60, test_CURRENTROOT((girlGObj)),
                                 test_CURRENTROOT(boyGObj));
                 p60[1] = 0.0f;
                 if (sceVu0InnerProduct(p60, test_CURRENTORIENT(boyGObj)) < 100.0f) {
@@ -986,9 +983,9 @@ void ACTGetEnvironment(void *a0, void *a1, float *a2, EnvFlag *flags, ActEnv *en
         if (a0 == boyGObj && ((char *)girlGObj) != 0) {
             float p60[4];
 
-            p60[0] = test_CURRENTROOT(((char *)girlGObj))[0];
-            p60[1] = test_CURRENTROOT(((char *)girlGObj))[1];
-            p60[2] = test_CURRENTROOT(((char *)girlGObj))[2];
+            p60[0] = test_CURRENTROOT((girlGObj))[0];
+            p60[1] = test_CURRENTROOT((girlGObj))[1];
+            p60[2] = test_CURRENTROOT((girlGObj))[2];
             if (_DistSqGV(pos, p60) < stageData[stage_no].ledgeRange * stageData[stage_no].ledgeRange) {
                 float p70[4][4];
                 float pB0[4], pC0[4];
@@ -1004,12 +1001,12 @@ void ACTGetEnvironment(void *a0, void *a1, float *a2, EnvFlag *flags, ActEnv *en
             }
         }
         if (a0 == boyGObj && hh < 80.0f && ((char *)girlGObj) != 0 &&
-            171 <= _AbsRotyGV(test_CURRENTORIENT(((char *)girlGObj)), env->cliffOrient)) {
+            171 <= _AbsRotyGV(test_CURRENTORIENT((girlGObj)), env->cliffOrient)) {
             if (GOBJ_ACT(girlGObj)->actMode == 0x1D &&
-                _DistSqGV(pos, test_CURRENTROOT(((char *)girlGObj))) < 14400.0f)
+                _DistSqGV(pos, test_CURRENTROOT((girlGObj))) < 14400.0f)
                 flags[0].w |= 0x4000000;
             if (GOBJ_ACT(girlGObj)->actMode == 0x1C &&
-                _DistSqGV(pos, test_CURRENTROOT(((char *)girlGObj))) < 40000.0f)
+                _DistSqGV(pos, test_CURRENTROOT((girlGObj))) < 40000.0f)
                 flags[0].w |= 0x2000000;
         }
         if (hh < 20.0f && 45 < r) {
@@ -1209,7 +1206,7 @@ void ACTGetEnvironment(void *a0, void *a1, float *a2, EnvFlag *flags, ActEnv *en
                 sel = 300;
             }
             if (((char *)girlGObj) != 0 && boyGObj != 0 &&
-                test_CURRENTROOT(((char *)girlGObj))[1] >
+                test_CURRENTROOT((girlGObj))[1] >
                     test_CURRENTROOT(boyGObj)[1] + 800.0f)
                 v204 = 0;
             if (stage_no == 7) {
@@ -1301,17 +1298,17 @@ void ACTGetEnvironment(void *a0, void *a1, float *a2, EnvFlag *flags, ActEnv *en
         }
         if (((char *)girlGObj) != 0 && a0 == boyGObj && hh < 200.0f && 350.0f < f26 &&
             v1E4 && !ACTGame_FLAG_TETSUNAGI() &&
-            !(_DistSqGV(test_CURRENTROOT(boyGObj), test_CURRENTROOT(((char *)girlGObj))) <
+            !(_DistSqGV(test_CURRENTROOT(boyGObj), test_CURRENTROOT((girlGObj))) <
               10000.0f) &&
             !(((char *)girlGObj) != 0 && boyGObj != 0 &&
-              test_CURRENTROOT(((char *)girlGObj))[1] >
+              test_CURRENTROOT((girlGObj))[1] >
                   test_CURRENTROOT(boyGObj)[1] + 800.0f) &&
             (GOBJ_ACT(girlGObj)->actMode == 4 ||
-             !(_DistxzSqGV(test_CURRENTROOT(boyGObj), test_CURRENTROOT(((char *)girlGObj))) <
+             !(_DistxzSqGV(test_CURRENTROOT(boyGObj), test_CURRENTROOT((girlGObj))) <
                (hh + 100.0f) * (hh + 100.0f))) &&
-            !(_DistxzSqGV(test_CURRENTROOT(boyGObj), test_CURRENTROOT(((char *)girlGObj))) < 40000.0f &&
+            !(_DistxzSqGV(test_CURRENTROOT(boyGObj), test_CURRENTROOT((girlGObj))) < 40000.0f &&
               300.0f < GetHeightOfFieldPlaneDifference((int *)((char *)girlGObj), (int *)boyGObj))) {
-            _OrientXZGV(p130, test_CURRENTROOT(((char *)girlGObj)), test_CURRENTROOT(boyGObj));
+            _OrientXZGV(p130, test_CURRENTROOT((girlGObj)), test_CURRENTROOT(boyGObj));
             if (_AbsRotyGV(p130, env->cliffOrient) < 80) {
                 float *tbl;
                 float range;
@@ -1440,7 +1437,7 @@ void ACTGetEnvironment(void *a0, void *a1, float *a2, EnvFlag *flags, ActEnv *en
         sub->wish0.ll |= (1ULL << 47);
         sub->wish0.ll |= (1ULL << 48);
     }
-    if (*(char **)((char *)sub + 0x180) != 0)
+    if (sub->heldItem.p != 0)
         sub->wish1.ll |= (1ULL << 44);
     if (a0 == boyGObj && sub->actMode != 14) {
         char *w;
@@ -1483,8 +1480,8 @@ void ACTGetEnvironment(void *a0, void *a1, float *a2, EnvFlag *flags, ActEnv *en
         if (GOBJ_ACT(h)->actMode == 0x67 && GetMotionFrameFlag1(h)) {
             float p60[4], p70[4];
 
-            if (_ACTGame_SearchGObj(a0, ((char *)girlGObj), 200.0f, 400.0f, 0x78, p60)) {
-                char *n = ACTGame_GetNearestGObj(test_CURRENTROOT(h), 0x21);
+            if (_ACTGame_SearchGObj(a0, (girlGObj), 200.0f, 400.0f, 0x78, p60)) {
+                GObj *n = ACTGame_GetNearestGObj(test_CURRENTROOT(h), 0x21);
 
                 p70[0] = test_CURRENTROOT(n)[0];
                 p70[1] = test_CURRENTROOT(n)[1];
@@ -1581,8 +1578,8 @@ void ACTGetEnvironment(void *a0, void *a1, float *a2, EnvFlag *flags, ActEnv *en
                 }
             }
         }
-        if (*(char **)((char *)sub + 0x180) != 0) {
-            char *b = GetBombTorchGObj(*(char **)((char *)sub + 0x180));
+        if (sub->heldItem.p != 0) {
+            char *b = GetBombTorchGObj(sub->heldItem.p);
 
             if (t23 != 0 && b != 0 && !IsTorchLightOn(b)) {
                 env->bombObj = b;

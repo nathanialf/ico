@@ -144,7 +144,7 @@ void backStageProcessOutStage(void)
     int done;
     int i;
     int gen;
-    int p;
+    void *p;
     int o;
 
     done = 0;
@@ -253,7 +253,7 @@ void backStageProcessMain(void)
     Vec16 rot;
     Vec16 tmp;
     GamesysObjInfoBackstage *g1;
-    GamesysObjInfoBackstage *g2;
+    GamesysObjInfo *g2;
 
     gamesysAnotherStageTsuresari = 0;
     if (gflagChk(390) != 0) {

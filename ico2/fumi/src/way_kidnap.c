@@ -105,8 +105,8 @@ float WayLengthOfPos_Pos(float *pos0, float *pos1)
 
     len = 0.0f;
 
-    w.w64 = -1;
-    w.w2C = 0;
+    w.guideFirst = -1;
+    w.nearWp = 0;
     sceVu0CopyVector(cur, pos0);
     sceVu0CopyVector(dst, pos1);
     wp0 = visible_waypoint_of_all(cur);
@@ -122,10 +122,10 @@ float WayLengthOfPos_Pos(float *pos0, float *pos1)
     if (wp == wp1) {
         goto found;
     }
-    if (w.w70 == 2) {
+    if (w.pathKind == 2) {
         goto fail;
     }
-    if (wayRangeLimit == 0 && w.w70 == 1) {
+    if (wayRangeLimit == 0 && w.pathKind == 1) {
         goto fail;
     }
 
@@ -140,7 +140,7 @@ float WayLengthOfPos_Pos(float *pos0, float *pos1)
         }
         wp = GetWay_next(&w, cur);
 
-        if (w.w44 != 0) {
+        if (w.reached != 0) {
             if (wp == wp1) {
                 goto found;
             }
@@ -223,7 +223,7 @@ static inline void WayRangeSearch(float *pos, float range, WpPosEntry *e, int li
         if (e->len < 0.0f) {
             continue;
         }
-        if (chk && e->wp->f30 != 0) {
+        if (chk && e->wp->bridgeEnd != 0) {
             continue;
         }
         add_wp_pos(e->wp, e->wp->pos, e->len);
@@ -282,11 +282,11 @@ static inline WayPoint *SearchOpenNode(WayPoint *start)
 
     p = start;
     while (p != 0) {
-        if (p->f30 == 0) {
+        if (p->bridgeEnd == 0) {
             hit = 1;
             break;
         }
-        p = p->fC;
+        p = p->next;
         if (p == start) {
             wrapped = 1;
             break;
@@ -295,11 +295,11 @@ static inline WayPoint *SearchOpenNode(WayPoint *start)
     if (hit == 0 && wrapped == 0) {
         p = start;
         while (p != 0) {
-            if (p->f30 == 0) {
+            if (p->bridgeEnd == 0) {
                 hit = 1;
                 break;
             }
-            p = p->f8;
+            p = p->prev;
             if (p == start) {
                 break;
             }
@@ -356,13 +356,13 @@ int WayPointWithRangeFromPos2(float *pos, WVTObj *w, float *dst, int chk)
     }
     GetWay_begin(pos, w, pos);
     found = 0;
-    cur = w->w2C;
+    cur = w->nearWp;
     if (cur == 0) {
         /* my own WAY was not found */
         debug_StdPrintfDummy("自分のWAYが見付からなかった");
         goto ret;
     }
-    edgeDone[cur->f20] = 1;
+    edgeDone[cur->group] = 1;
     searchNodes[n++] = cur;
 
     while (1) {
@@ -374,11 +374,11 @@ int WayPointWithRangeFromPos2(float *pos, WVTObj *w, float *dst, int chk)
         break;
     found:
         cur = searchNodes[i];
-        edge = &way_group[cur->f20];
-        debug_StdPrintfDummy("srh wp %p group id %d %d\n", cur, cur->f20, i);
+        edge = &way_group[cur->group];
+        debug_StdPrintfDummy("srh wp %p group id %d %d\n", cur, cur->group, i);
         searchNodes[i] = 0;
-        debug_StdPrintfDummy("active %d\n", edge->f28);
-        if (edge->f28 != 0) {
+        debug_StdPrintfDummy("active %d\n", edge->active);
+        if (edge->active != 0) {
             /* RULING-VESTIGIAL-EXCEPTION (supervisor 2026-09-24, under the
                user's 2026-09-21 standard for dead assignments the ROM proves).
                Deleted-code window (c3p76): k is the
@@ -401,41 +401,41 @@ int WayPointWithRangeFromPos2(float *pos, WVTObj *w, float *dst, int chk)
         if (found != 0) {
             break;
         }
-        if (edge->f18 == 0) {
+        if (edge->bridge == 0) {
             for (k = 0; k < 94; k++) {
-                if (way_group[k].f0 == 0) {
+                if (way_group[k].used == 0) {
                     continue;
                 }
-                if (way_group[k].f18 == 0) {
+                if (way_group[k].bridge == 0) {
                     continue;
                 }
                 for (j = 0; j < 2; j++) {
-                    if (cur->f20 != way_point[way_group[k].end[j]].f20) {
+                    if (cur->group != way_point[way_group[k].end[j]].group) {
                         continue;
                     }
                     if (edgeDone[k] != 0) {
                         continue;
                     }
                     edgeDone[k] = 1;
-                    if (chk && way_group[k].f28 == 0) {
+                    if (chk && way_group[k].active == 0) {
                         continue;
                     }
                     if (j == 0) {
-                        searchNodes[n++] = way_group[k].f8;
+                        searchNodes[n++] = way_group[k].first;
                     } else {
-                        searchNodes[n++] = way_group[k].fC;
+                        searchNodes[n++] = way_group[k].last;
                     }
                     debug_StdPrintfDummy("add no bridge wp %p %d %d\n", searchNodes[n - 1], j, k);
                 }
             }
         } else {
             for (j = 0; j < 2; j++) {
-                k = way_point[edge->end[j]].f20;
+                k = way_point[edge->end[j]].group;
                 if (edgeDone[k] != 0) {
                     continue;
                 }
                 edgeDone[k] = 1;
-                if (chk && way_group[k].f28 == 0) {
+                if (chk && way_group[k].active == 0) {
                     continue;
                 }
                 searchNodes[n++] = &way_point[edge->end[j]];
@@ -457,7 +457,7 @@ ret:
             "見付からないので全WAYPOOINTから アクティブグループで巣許可の一番近いポイントを検索");
         for (i = 0; i < 275; i++) {
             cur = &way_point[i];
-            if (cur->f0 == 0 || cur->f30 != 0 || way_group[cur->f20].f28 == 0) {
+            if (cur->used == 0 || cur->bridgeEnd != 0 || way_group[cur->group].active == 0) {
                 continue;
             }
             _SubVector(v, pos, cur->pos);

@@ -3,6 +3,7 @@
 #include "thread.h"
 #include "s_init.h"
 #include "act.h"
+#include "gobj_process.h"
 #include "commonact.h"
 #include "generator.h"
 #include "lws_kyomi.h"
@@ -37,7 +38,7 @@ static ActMail st04rDoor2_mes[2] = {{430}, {429}};
 
 static ActMail crestHint_mes[2] = {{430}, {429}};
 
-void actSt05cDoorDownChk(volatile int a0)
+void actSt05cDoorDownChk(GObj *volatile a0)
 {
     StVec pos;
 
@@ -66,10 +67,10 @@ void actSt05cDoorDownChk(volatile int a0)
     scpBoyControlReadDisable = 0;
 }
 
-void actSt04rDoorChk(volatile int a0)
+void actSt04rDoorChk(GObj *volatile a0)
 {
-    int x = a0;
-    int th;
+    GObj *x = a0;
+    GProc *th;
 
     actInitialize(a0);
     _ACTWait(1);
@@ -99,7 +100,7 @@ void actSt04rDoorChk(volatile int a0)
                 _ACTWait(1);
             }
 
-            iosThreadSetPri(th + 0x24, 34);
+            iosThreadSetPri(&th->thread, 34);
 
             if (demoEnd == 0) {
                 scpFadeOut(16.0f, 0, 0, 0);
@@ -122,10 +123,10 @@ void actSt04rDoorChk(volatile int a0)
     }
 }
 
-void actSt04rDoor2Chk(volatile int a0)
+void actSt04rDoor2Chk(GObj *volatile a0)
 {
-    int x = a0;
-    int th;
+    GObj *x = a0;
+    GProc *th;
 
     actInitialize(a0);
     _ACTWait(1);
@@ -155,7 +156,7 @@ void actSt04rDoor2Chk(volatile int a0)
                 _ACTWait(1);
             }
 
-            iosThreadSetPri(th + 0x24, 34);
+            iosThreadSetPri(&th->thread, 34);
 
             if (demoEnd == 0) {
                 scpFadeOut(16.0f, 0, 0, 0);
@@ -178,9 +179,9 @@ void actSt04rDoor2Chk(volatile int a0)
     }
 }
 
-void actSt05cSolarXL(volatile int a0)
+void actSt05cSolarXL(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
 
     actInitialize(a0);
     _ACTWait(1);
@@ -190,9 +191,9 @@ void actSt05cSolarXL(volatile int a0)
     }
 }
 
-void actSt05cWaterXL(volatile int a0)
+void actSt05cWaterXL(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
 
     actInitialize(a0);
     _ACTWait(1);
@@ -202,9 +203,9 @@ void actSt05cWaterXL(volatile int a0)
     }
 }
 
-void actSt04rDoor(volatile int a0)
+void actSt04rDoor(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     Act *self = actInitialize(a0);
     _ACTWait(1);
 
@@ -220,9 +221,9 @@ void actSt04rDoor(volatile int a0)
     }
 }
 
-void actSt04rDoor2(volatile int a0)
+void actSt04rDoor2(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     Act *self = actInitialize(a0);
     _ACTWait(1);
 
@@ -238,9 +239,9 @@ void actSt04rDoor2(volatile int a0)
     }
 }
 
-void actSt05cDoorDown(volatile int a0)
+void actSt05cDoorDown(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     Act *self = actInitialize(a0);
 
     if (gflagChk(165) == 0) {
@@ -251,9 +252,9 @@ void actSt05cDoorDown(volatile int a0)
     }
 }
 
-void actSt05cEne(volatile int a0)
+void actSt05cEne(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     Act *self = actInitialize(a0);
     _ACTWait(1);
 
@@ -265,9 +266,9 @@ void actSt05cEne(volatile int a0)
     }
 }
 
-void actSt05cEnemy1(volatile int a0)
+void actSt05cEnemy1(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
 
     actInitialize(a0);
     _ACTWait(1);
@@ -286,9 +287,9 @@ void actSt05cEnemy1(volatile int a0)
     Generator_Call(a0);
 }
 
-void actSt05cEnemy2(volatile int a0)
+void actSt05cEnemy2(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
 
     actInitialize(a0);
     _ACTWait(1);
@@ -306,9 +307,9 @@ void actSt05cEnemy2(volatile int a0)
     Generator_Call(a0);
 }
 
-void actSt05cCrestHint(volatile int a0)
+void actSt05cCrestHint(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     Act *self = actInitialize(a0);
     _ACTWait(1);
 
@@ -326,7 +327,7 @@ void actSt05cDoorDownEvent(int x)
     volatile int local = x;
 }
 
-void actSt05cDoorDownEffect(volatile int a0)
+void actSt05cDoorDownEffect(GObj *volatile a0)
 {
     StVec a;
     StVec b;
@@ -350,7 +351,7 @@ void actSt05cDoorDownEffect(volatile int a0)
     }
 }
 
-void actSt05cEneChk(volatile int a0)
+void actSt05cEneChk(GObj *volatile a0)
 {
     if (girlGObj == 0) {
         _ACTWait(0);
@@ -365,7 +366,7 @@ void actSt05cEneChk(volatile int a0)
     gflagOn(168);
 }
 
-void actSt04rDoorSub(volatile int a0)
+void actSt04rDoorSub(GObj *volatile a0)
 {
     int h;
 
@@ -377,7 +378,7 @@ void actSt04rDoorSub(volatile int a0)
     _ACTWait(0);
 }
 
-void actSt04rDoor2Sub(volatile int a0)
+void actSt04rDoor2Sub(GObj *volatile a0)
 {
     int h;
 
@@ -389,7 +390,7 @@ void actSt04rDoor2Sub(volatile int a0)
     _ACTWait(0);
 }
 
-void actSt05cCrestHintChk(volatile int a0)
+void actSt05cCrestHintChk(GObj *volatile a0)
 {
     while (gflagChk(243) == 0 || gflagChk(244) == 0 || gflagChk(245) == 0 || gflagChk(232) != 0) {
         _ACTWait(1);

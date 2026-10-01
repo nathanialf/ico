@@ -568,14 +568,8 @@ typedef struct PackEnt {
 } PackEnt;
 
 typedef void (*PackFunc)(char *self, char *name, int size, int a3, int a4, int a5, int seg);
-
 /* The extension table: 26 rows of a 0x20-byte suffix and the loader that
  * handles it. */
-typedef struct PackKind {
-    char ext[32];  /* 0x00 */
-    PackFunc func; /* 0x20 */
-} PackKind;
-
 extern PackKind initFunc[];
 extern int SgGetDmaTransferStatus(int ch);
 
@@ -661,7 +655,7 @@ void iosCdvdMgrPackLoad(IosCdvdHandle *self)
         int size;
 
         debug_StdPrintfDummy("try load %s\n", self->name);
-        iosCdvdHandlerRead((int *)self, hdr, 16);
+        iosCdvdHandlerRead(self, hdr, 16);
         /* The entry count is the header's first word; the loop re-reads it
          * through this view after every member call. */
         num = hdr;
@@ -674,7 +668,7 @@ void iosCdvdMgrPackLoad(IosCdvdHandle *self)
         systemStatus[8] = 0;
         size = *num * sizeof(PackEnt);
         ent = (PackEnt *)iosMallocDebug(ios_partition_seki, size, __FILE__, 1174);
-        iosCdvdHandlerRead((int *)self, ent, size);
+        iosCdvdHandlerRead(self, ent, size);
         pk = ent;
         for (seg = 0; seg < *num; seg++, pk++) {
             debug_BeginTimer(3);
@@ -995,7 +989,7 @@ void iosCdvdDiskReady(int a0)
 {
     union U001325D8 *p = (union U001325D8 *)a0;
     p->i[1] = 0;
-    iosMsgSend(CdvdMsgQ, (void *)a0, 0);
+    iosMsgSend(CdvdMsgQ, a0, 0);
 }
 
 void iosCdvdLoad(int a0, int a1)
@@ -1003,7 +997,7 @@ void iosCdvdLoad(int a0, int a1)
     union U001325D8 *p = (union U001325D8 *)a0;
     p->i[1] = 1;
     p->ll = (p->ll & ~1LL) | (a1 & 1);
-    iosMsgSend(CdvdMsgQ, (void *)a0, 0);
+    iosMsgSend(CdvdMsgQ, a0, 0);
 }
 
 void iosCdvdPackLoad(void *a0)

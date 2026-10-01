@@ -22,7 +22,7 @@ void isysGObjProcessInit(unsigned int a0)
 
 inline void isysGObjProcessAlloc(unsigned int a0)
 {
-    int ret = iosMallocDebug(ios_partition_isys, a0 * 0x94, "isys/gobj_process.c", 73);
+    void *ret = iosMallocDebug(ios_partition_isys, a0 * 0x94, "isys/gobj_process.c", 73);
     unsigned int i;
     procMax = a0;
     procPool = (char *)ret;
@@ -54,7 +54,7 @@ static inline GProc *alloc_gobj_process(void)
     return (GProc *)(procPool + i * 0x94);
 }
 
-int isysGObjProcAdd_(int a0, int a1, int a2, unsigned char a3, int a4, long a5)
+GProc *isysGObjProcAdd_(GObj *a0, GObj *a1, void (*a2)(), unsigned char a3, int a4, long a5)
 {
     GProc *p;
     GProc *h;
@@ -70,34 +70,34 @@ int isysGObjProcAdd_(int a0, int a1, int a2, unsigned char a3, int a4, long a5)
     }
     p->self = p;
     if (a3 == 0) {
-        iosThreadCreateS(p->thread, 1, a2, a1 ? a1 : (int)p, ios_partition_isys, a5, a4);
-        iosThreadStart(p->thread);
+        iosThreadCreateS(&p->thread, 1, a2, a1 ? (int)a1 : (int)p, ios_partition_isys, a5, a4);
+        iosThreadStart(&p->thread);
         p->func = 0;
     } else {
         p->func = a2;
     }
     p->noThread = a3;
-    p->owner = (char *)a0;
+    p->owner = a0;
     p->active = 1;
     p->priority = a4;
-    h = ((GObj *)a0)->procHead;
+    h = a0->procHead;
     if (h == 0) {
         p->next = 0;
         p->prev = 0;
-        ((GObj *)a0)->procHead = p;
-        ((GObj *)a0)->procTail = p;
+        a0->procHead = p;
+        a0->procTail = p;
     } else if ((unsigned int)a4 < h->priority) {
         p->next = 0;
-        p->prev = ((GObj *)a0)->procHead;
+        p->prev = a0->procHead;
         p->prev->next = p;
-        ((GObj *)a0)->procHead = p;
+        a0->procHead = p;
     } else {
-        t = ((GObj *)a0)->procTail;
+        t = a0->procTail;
         if (!((unsigned int)a4 < t->priority)) {
             p->next = t;
             p->prev = 0;
             t->prev = p;
-            ((GObj *)a0)->procTail = p;
+            a0->procTail = p;
         } else {
             while (!((unsigned int)a4 < h->prev->priority)) {
                 h = h->prev;
@@ -108,25 +108,25 @@ int isysGObjProcAdd_(int a0, int a1, int a2, unsigned char a3, int a4, long a5)
             p->prev->next = p;
         }
     }
-    return (int)p;
+    return p;
 }
 
-inline int isysGObjProcAddGOppArg(int a0, int a1, int a2, int a3)
+inline GProc *isysGObjProcAddGOppArg(GObj *a0, void (*a1)(), int a2, int a3)
 {
     return isysGObjProcAdd_(a0, 0, a1, a2 & 0xFF, a3, 0x1800);
 }
 
-inline int isysGObjProcAdd(int a0, int a1, int a2, int a3)
+inline GProc *isysGObjProcAdd(GObj *a0, void (*a1)(), int a2, int a3)
 {
     return isysGObjProcAdd_(a0, a0, a1, a2 & 0xFF, a3, 0x1800);
 }
 
-inline int isysGObjProcAddS(int a0, int a1, int a2, int a3, long a4)
+inline GProc *isysGObjProcAddS(GObj *a0, void (*a1)(), int a2, int a3, long a4)
 {
     return isysGObjProcAdd_(a0, a0, a1, a2 & 0xFF, a3, a4);
 }
 
-inline int isysGObjProcAddSGOppArg(int a, int b, int c, int d, int e)
+inline GProc *isysGObjProcAddSGOppArg(GObj *a, void (*b)(), int c, int d, int e)
 {
     return isysGObjProcAdd_(a, 0, b, c & 0xFF, d, e);
 }
@@ -204,31 +204,31 @@ void cut_gobj_process_link(GProc *p)
             p->prev->next = p->next;
         }
     }
-    if (p == ((GObj *)p->owner)->procHead) {
-        ((GObj *)p->owner)->procHead = p->prev;
+    if (p == p->owner->procHead) {
+        p->owner->procHead = p->prev;
     }
-    if (p == ((GObj *)p->owner)->procTail) {
-        ((GObj *)p->owner)->procTail = p->next;
+    if (p == p->owner->procTail) {
+        p->owner->procTail = p->next;
     }
 }
 
-void isysGObjProcRemove(int *a0)
+void isysGObjProcRemove(GProc *p)
 {
     int v0;
-    cut_gobj_process_link((int)a0);
-    v0 = a0[4];
-    a0[0] = 0;
+    cut_gobj_process_link(p);
+    v0 = p->noThread;
+    p->self = 0;
     if (v0 != 0) {
         return;
     }
-    return iosThreadDestroy((int)a0 + 0x24);
+    return iosThreadDestroy(&p->thread);
 }
 
 inline void isysGObjProcRemoveAll(void *a0)
 {
     GProc *p = ((GObj *)a0)->procHead;
     while (p != 0) {
-        isysGObjProcRemove((int *)p);
+        isysGObjProcRemove(p);
         p = p->prev;
     }
 }

@@ -8,6 +8,7 @@
 #include "StageAnimation.h"
 #include "attackCheckBoundary.h"
 #include "act.h"
+#include "gobj_process.h"
 #include "typedef.h"
 #include "generator.h"
 #include "script.h"
@@ -35,7 +36,7 @@ static const ConstVec doorDownEffect2Pos = {{-2.0f, 250.0f, -1450.0f, 1.0f}};
 static const ConstVec doorDownEffect3Pos = {{5.0f, 260.0f, -1450.0f, 1.0f}};
 
 /* listing lines 326-357 */
-void actSt04cDoorDownChk(volatile int a0)
+void actSt04cDoorDownChk(GObj *volatile a0)
 {
     StVec pos;
 
@@ -69,9 +70,9 @@ void actSt04cDoorDownChk(volatile int a0)
 static int demoEnd;
 
 /* listing lines 592-637 */
-void actSt04cIntroChk(volatile int a0)
+void actSt04cIntroChk(GObj *volatile a0)
 {
-    int th;
+    GProc *th;
 
     while (scpTriggerBall(a0, boyGObj, 1000.0f) == 0) {
         _ACTWait(1);
@@ -93,7 +94,7 @@ void actSt04cIntroChk(volatile int a0)
         _ACTWait(1);
     }
 
-    iosThreadSetPri(th + 0x24, 34);
+    iosThreadSetPri(&th->thread, 34);
 
     if (demoEnd == 0) {
         scpFadeOut(16.0f, 0, 0, 0);
@@ -112,9 +113,9 @@ void actSt04cIntroChk(volatile int a0)
 }
 
 /* listing lines 705-753 */
-void actSt04lDoorChk(volatile int a0)
+void actSt04lDoorChk(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     int h;
     int i;
 
@@ -179,9 +180,9 @@ void actSt04lDoorChk(volatile int a0)
     }
 }
 
-void actSt04cSolarXL(volatile int a0)
+void actSt04cSolarXL(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
 
     actInitialize(a0);
     _ACTWait(1);
@@ -199,9 +200,9 @@ static ActMail intro_mes[2] = {{430}, {429}};
 
 static ActMail st04lDoor_mes[2] = {{430}, {429}};
 
-void actSt04lDoor(volatile int a0)
+void actSt04lDoor(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     Act *self = actInitialize(a0);
     _ACTWait(1);
 
@@ -218,9 +219,9 @@ void actSt04lDoor(volatile int a0)
     }
 }
 
-void actSt04cIntro(volatile int a0)
+void actSt04cIntro(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     Act *self = actInitialize(a0);
     _ACTWait(1);
 
@@ -232,9 +233,9 @@ void actSt04cIntro(volatile int a0)
     }
 }
 
-void actSt04cDoorDown(volatile int a0)
+void actSt04cDoorDown(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     Act *self = actInitialize(a0);
 
     if (gflagChk(162) == 0) {
@@ -245,9 +246,9 @@ void actSt04cDoorDown(volatile int a0)
     }
 }
 
-void actSt04cEne(volatile int a0)
+void actSt04cEne(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     Act *self = actInitialize(a0);
     _ACTWait(1);
 
@@ -259,9 +260,9 @@ void actSt04cEne(volatile int a0)
     }
 }
 
-void actSt04cEnemy1(volatile int a0)
+void actSt04cEnemy1(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
 
     actInitialize(a0);
     _ACTWait(1);
@@ -278,9 +279,9 @@ void actSt04cEnemy1(volatile int a0)
     Generator_Call(a0);
 }
 
-void actSt04cEnemy2(volatile int a0)
+void actSt04cEnemy2(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
 
     actInitialize(a0);
     _ACTWait(1);
@@ -297,9 +298,9 @@ void actSt04cEnemy2(volatile int a0)
     Generator_Call(a0);
 }
 
-void actSt04cWaterXL(volatile int a0)
+void actSt04cWaterXL(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
 
     actInitialize(a0);
     _ACTWait(1);
@@ -318,7 +319,7 @@ void actSt04cDoorDownEvent(int x)
    load-bearing: RTX_UNCHANGING_P is what keeps sched2 from ordering each
    b[0] store behind the b[1] load in the two remat'd-address switch arms. */
 
-void actSt04cDoorDownEffect(volatile int a0)
+void actSt04cDoorDownEffect(GObj *volatile a0)
 {
     long long b1[2];
     long long b2[2];
@@ -347,7 +348,7 @@ void actSt04cDoorDownEffect(volatile int a0)
     }
 }
 
-void actSt04cEneChk(volatile int a0)
+void actSt04cEneChk(GObj *volatile a0)
 {
     if (girlGObj == 0) {
         _ACTWait(0);
@@ -361,7 +362,7 @@ void actSt04cEneChk(volatile int a0)
     gflagOn(164);
 }
 
-void actSt04cIntroChkSub(volatile int a0)
+void actSt04cIntroChkSub(GObj *volatile a0)
 {
     while (stage_CheckAnimationFinish(352) == 0) {
         _ACTWait(1);

@@ -92,7 +92,7 @@ int ATGoalTurnMail(void *actor, float *dir, int node)
 }
 
 /* kept local: agrees with commonact.h, which this TU does not include */
-extern float *test_CURRENTROOT(void *a0);
+extern float *test_CURRENTROOT(GObj *a0);
 
 int checkWaterfallResult(float *out)
 {
@@ -216,7 +216,7 @@ static GirlAttractParam attractBoyParam = {0, {0}, {0}, 0, 338, 100.0f, 70.0f}; 
 
 /* The actor entry parameter is volatile: the actor scheduler writes the
  * caller's home slot while this thread is parked in _ACTWait. */
-void subGirlBrain_Attract(volatile int a0)
+void subGirlBrain_Attract(GObj *volatile a0)
 {
     Act *sub = GOBJ_ACT(a0);
     float mypos[4];
@@ -330,7 +330,7 @@ restart:
         if (!ACTGame_FLAG_TETSUNAGI()) {
             sub->flags20.ll |= 0x2000000000ULL;
         }
-        if (type == 0 && tgt.obj == (void *)boyGObj && GOBJ_WORK(a0)->f_380 != 0) {
+        if (type == 0 && tgt.obj == (void *)boyGObj && GOBJ_WORK(a0)->brainTimer != 0) {
             noTurn = 0;
         }
         if (*(int *)GOBJ_SUB(a0) != 0 && *(int *)(*(int *)GOBJ_SUB(a0) + 0xC) == 17 &&
@@ -482,7 +482,7 @@ restart:
                     break;
                 }
             } else if (type == 1) {
-                if (tgt.obj != (void *)boyGObj && GOBJ_WORK(a0)->f_3A4 != 0) {
+                if (tgt.obj != (void *)boyGObj && GOBJ_WORK(a0)->timer3A4 != 0) {
                     setMode(8);
                     sub->stickMag = 0.0f;
                     break;
@@ -599,7 +599,7 @@ restart:
                     }
                 }
                 if (tgt.obj == (void *)boyGObj && sub->wayMode == 2 && escape == 0 &&
-                    GOBJ_WORK(a0)->f_3B0 == 0 && girlControlMode == 0 &&
+                    GOBJ_WORK(a0)->timer3B0 == 0 && girlControlMode == 0 &&
                     brain_val.targetFlag != 0) {
                     girlAttractTurnMailR((void *)a0, tgt.pos, mypos);
                     if (sub->actMode == 77) {
@@ -610,7 +610,7 @@ restart:
                 _ACTLookTarget_Set((void *)a0, 0, 0, 6, 1);
                 setMode(8);
             }
-            if (((int)(sub->flags18.ll >> 63) & 1) || (*(int *)((char *)sub + 0x20) & 1)) {
+            if (((int)(sub->flags18.ll >> 63) & 1) || (sub->flags20.i[0] & 1)) {
                 sub->flags20.ll |= 2;
             }
             break;

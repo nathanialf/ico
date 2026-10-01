@@ -22,9 +22,9 @@ static const PosBox exitRPos = {{854.0f, -156.0f, -400.0f, 0.0f}};
 
 static const PosBox exitLPos = {{854.0f, -156.0f, 400.0f, 0.0f}};
 
-void actSt13dExit(volatile int a0)
+void actSt13dExit(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     PosBox pos;
     PosBox size;
     PosBox p;
@@ -48,9 +48,9 @@ void actSt13dExit(volatile int a0)
     RequestStageChange(2, boyGObj, 0, 16.0f, 16.0f);
 }
 
-void actSt13dExitR(volatile int a0)
+void actSt13dExitR(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     PosBox pos;
     PosBox size;
     PosBox p;
@@ -70,9 +70,9 @@ void actSt13dExitR(volatile int a0)
     RequestStageChange(7, boyGObj, 0, 16.0f, 16.0f);
 }
 
-void actSt13dExitL(volatile int a0)
+void actSt13dExitL(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     PosBox pos;
     PosBox size;
     PosBox p;

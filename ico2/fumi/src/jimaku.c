@@ -159,8 +159,8 @@ int jimakuHandler(int self, JimakuArg *p)
     int left;
     int n;
 
-    while (sub->unk34 != (sub->n + 3) % 4) {
-        g = &jimakuRing[sub->unk34];
+    while (sub->ringPos != (sub->n + 3) % 4) {
+        g = &jimakuRing[sub->ringPos];
         if (g->f4 == 2) {
             g->f4 = 3;
             break;
@@ -176,15 +176,15 @@ int jimakuHandler(int self, JimakuArg *p)
         left = size;
         while (left > 0) {
             n = (0x8C40 < left) ? 0x8C40 : left;
-            jimakuBuf[sub->unk34][0] = -1;
-            jimakuBuf[sub->unk34][1] = -1;
-            iosCdvdBackGroundReadJimaku(self, (int)jimakuBuf[sub->unk34], n);
+            jimakuBuf[sub->ringPos][0] = -1;
+            jimakuBuf[sub->ringPos][1] = -1;
+            iosCdvdBackGroundReadJimaku(self, (int)jimakuBuf[sub->ringPos], n);
             left -= n;
         }
-        jimakuRing[sub->unk34].f0 = sub->unk2C++;
-        jimakuRing[sub->unk34].f4 = 4;
-        iosCdvdBackGroundMgrSeek(sub->unk40, sub->unk2C * 0x8800);
-        sub->unk34 = (sub->unk34 + 1) % 4;
+        jimakuRing[sub->ringPos].f0 = sub->block++;
+        jimakuRing[sub->ringPos].f4 = 4;
+        iosCdvdBackGroundMgrSeek(sub->bg, sub->block * 0x8800);
+        sub->ringPos = (sub->ringPos + 1) % 4;
     }
     if (systemStatus[10] != 0) {
         iosSemaReferStatus(jimakuReadSema);
@@ -220,7 +220,7 @@ void jimakuMgrBegin(JimakuArg *p)
     jimakuRing[0].f0 = -1;
     jimakuRing[0].f4 = 3;
     jimakuRing[0].f8 = -1;
-    sub->unk34 = 1;
+    sub->ringPos = 1;
     switch (NonLinearCameraMove) {
     case 2:
         st = 0;
@@ -241,14 +241,13 @@ void jimakuMgrBegin(JimakuArg *p)
     if (gFlagGameClear != 0) {
         st = st + 1;
     }
-    sub->unk40 =
-        (void *)iosCdvdBackGroundMgrAdd(jimakuFileName[st], jimakuHandler, p, 0, 0, 0, 0, 0);
+    sub->bg = (void *)iosCdvdBackGroundMgrAdd(jimakuFileName[st], jimakuHandler, p, 0, 0, 0, 0, 0);
     {
         JimakuSub *q = &p->sub;
         int m;
 
-        iosCdvdBackGroundMgrSeek(q->unk40, q->unk2C * 0x8800);
-        m = (q->unk34 = (q->n + 1) % 4);
+        iosCdvdBackGroundMgrSeek(q->bg, q->block * 0x8800);
+        m = (q->ringPos = (q->n + 1) % 4);
         while (m != q->n) {
             jimakuRing[m].f0 = -1;
             jimakuRing[m].f4 = 3;
@@ -301,7 +300,7 @@ void jimakuMgrNext(JimakuArg *p)
     if (g->f8 >= 0) {
         tex_FreeTexture(g->f8);
     }
-    sub->unk3C = jimakuBuf[sub->n];
+    sub->cur = jimakuBuf[sub->n];
     jimakuDispOn = 1;
     /* The listing's rows 705 to 714 carry no code, and the ROM's second and
      * third returns take `ld $31` from the epilogue where the build without
@@ -329,8 +328,8 @@ void jimakuMgrJump(JimakuArg *p)
     JimakuSub *q = &p->sub;
     int m;
 
-    iosCdvdBackGroundMgrSeek(q->unk40, q->unk2C * 0x8800);
-    m = (q->unk34 = (q->n + 1) % 4);
+    iosCdvdBackGroundMgrSeek(q->bg, q->block * 0x8800);
+    m = (q->ringPos = (q->n + 1) % 4);
     while (m != q->n) {
         jimakuRing[m].f0 = -1;
         jimakuRing[m].f4 = 3;
@@ -405,7 +404,7 @@ void jimakuJump(JimakuArg *msg)
     if (systemStatus[10] == 0)
         return;
     {
-        int v = sub->unk38;
+        int v = sub->jump;
 
         if (v == -1) {
             jimakuDispTime = ((0x3C - systemStatus[0] * 0xA) / systemStatus[1]) << 2;

@@ -6,6 +6,7 @@
 #include "adpcm_init.h"
 #include "s_init.h"
 #include "act.h"
+#include "gobj_process.h"
 #include "commonact.h"
 #include "way_llf.h"
 #include "camera-root.h"
@@ -65,7 +66,7 @@ void actSt08aEnd(void)
     }
 }
 
-void actSt08aEne1Chk(volatile int a0)
+void actSt08aEne1Chk(GObj *volatile a0)
 {
     if (girlGObj == 0) {
         _ACTWait(0);
@@ -99,7 +100,7 @@ void actSt08aEne1Chk(volatile int a0)
     scpWakeupEnemyOne(3757);
 }
 
-void actSt08aEne2Chk(volatile int a0)
+void actSt08aEne2Chk(GObj *volatile a0)
 {
     int save;
 
@@ -147,9 +148,9 @@ void actSt08aEne2Chk(volatile int a0)
     scpWakeupEnemyOne(3757);
 }
 
-void actSt08aDoorUp(volatile int a0)
+void actSt08aDoorUp(GObj *volatile a0)
 {
-    int th;
+    GProc *th;
 
     lt_switch_layout(55);
     gflagOn(71);
@@ -163,7 +164,7 @@ void actSt08aDoorUp(volatile int a0)
         _ACTWait(1);
     }
 
-    iosThreadSetPri(th + 0x24, 34);
+    iosThreadSetPri(&th->thread, 34);
 
     if (demoEnd == 0) {
         scpFadeOut(16.0f, 0, 0, 0);
@@ -189,7 +190,7 @@ void actSt08aDoorUp(volatile int a0)
 /* .sdata, owned by st08a.o, in the ROM's order: the scene's stream handle (MAIN.MAP has no .sdata for the January object). */
 static int *st08a_adpcm = 0; /* derived name */
 
-void actSt08aHasiUpSub(volatile int a0)
+void actSt08aHasiUpSub(GObj *volatile a0)
 {
     _ACTWait(60);
 
@@ -222,9 +223,9 @@ void actSt08aHasiUpSub(volatile int a0)
     _ACTWait(0);
 }
 
-void actSt08aHasiUp(volatile int a0)
+void actSt08aHasiUp(GObj *volatile a0)
 {
-    int th;
+    GProc *th;
 
     lt_switch_layout(55);
     gflagOn(79);
@@ -240,7 +241,7 @@ void actSt08aHasiUp(volatile int a0)
         _ACTWait(1);
     }
 
-    iosThreadSetPri(th + 0x24, 34);
+    iosThreadSetPri(&th->thread, 34);
 
     if (demoEnd == 0) {
         scpFadeOut(16.0f, 0, 0, 0);
@@ -264,7 +265,7 @@ void actSt08aHasiUp(volatile int a0)
     lt_switch_layout(54);
 }
 
-void actSt08aTorchOnChk(volatile int a0)
+void actSt08aTorchOnChk(GObj *volatile a0)
 {
     Act *self = GOBJ_ACT(a0);
 
@@ -292,7 +293,7 @@ void actSt08aTorchOnChk(volatile int a0)
     _ACTWait(0);
 }
 
-void actSt08aTorchOffChk(volatile int a0)
+void actSt08aTorchOffChk(GObj *volatile a0)
 {
     Act *self = GOBJ_ACT(a0);
 
@@ -320,9 +321,9 @@ void actSt08aTorchOffChk(volatile int a0)
     _ACTWait(0);
 }
 
-void actSt08aDoor(volatile int a0)
+void actSt08aDoor(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     Act *self = actInitialize(a0);
     _ACTWait(1);
 
@@ -338,15 +339,15 @@ void actSt08aDoor(volatile int a0)
     }
 }
 
-void actSt08aEne1(volatile int a0)
+void actSt08aEne1(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     Act *self = actInitialize(a0);
     _ACTWait(1);
 
-    shadow_SetLength(scpSearchGobj(366)->sub, 100.0f);
-    shadow_SetLength(scpSearchGobj(367)->sub, 100.0f);
-    shadow_SetLength(scpSearchGobj(368)->sub, 100.0f);
+    shadow_SetLength(scpSearchGobj(366)->dobj, 100.0f);
+    shadow_SetLength(scpSearchGobj(367)->dobj, 100.0f);
+    shadow_SetLength(scpSearchGobj(368)->dobj, 100.0f);
 
     if (gflagChk(72) == 0) {
         ene1_mes[0].func = actSt08aEne1Chk;
@@ -356,9 +357,9 @@ void actSt08aEne1(volatile int a0)
     }
 }
 
-void actSt08aEne2(volatile int a0)
+void actSt08aEne2(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     Act *self = actInitialize(a0);
     _ACTWait(1);
 
@@ -370,9 +371,9 @@ void actSt08aEne2(volatile int a0)
     }
 }
 
-void actSt08aEnemy1(volatile int a0)
+void actSt08aEnemy1(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     actInitialize(a0);
     _ACTWait(1);
 
@@ -393,9 +394,9 @@ void actSt08aEnemy1(volatile int a0)
     Generator_Call(a0);
 }
 
-void actSt08aEnemy2(volatile int a0)
+void actSt08aEnemy2(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     actInitialize(a0);
     _ACTWait(1);
 
@@ -416,9 +417,9 @@ void actSt08aEnemy2(volatile int a0)
     Generator_Call(a0);
 }
 
-void actSt08aEnemy3(volatile int a0)
+void actSt08aEnemy3(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     actInitialize(a0);
     _ACTWait(1);
 
@@ -437,9 +438,9 @@ void actSt08aEnemy3(volatile int a0)
     Generator_Call(a0);
 }
 
-void actSt08aEnemy4(volatile int a0)
+void actSt08aEnemy4(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     actInitialize(a0);
     _ACTWait(1);
 
@@ -458,9 +459,9 @@ void actSt08aEnemy4(volatile int a0)
     Generator_Call(a0);
 }
 
-void actSt08aIntro(volatile int a0)
+void actSt08aIntro(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     Act *self = actInitialize(a0);
     _ACTWait(1);
 
@@ -472,9 +473,9 @@ void actSt08aIntro(volatile int a0)
     }
 }
 
-void actSt08aHint1(volatile int a0)
+void actSt08aHint1(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     Act *self = actInitialize(a0);
     _ACTWait(1);
 
@@ -488,9 +489,9 @@ void actSt08aHint1(volatile int a0)
     }
 }
 
-void actSt08aGirlPos(volatile int a0)
+void actSt08aGirlPos(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     Act *self = actInitialize(a0);
     _ACTWait(1);
 
@@ -503,9 +504,9 @@ void actSt08aGirlPos(volatile int a0)
     }
 }
 
-void actSt08aHasi(volatile int a0)
+void actSt08aHasi(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     Act *self = actInitialize(a0);
     _ACTWait(1);
 
@@ -522,9 +523,9 @@ void actSt08aHasi(volatile int a0)
     }
 }
 
-void actSt08aTorch(volatile int a0)
+void actSt08aTorch(GObj *volatile a0)
 {
-    int x = a0;
+    GObj *x = a0;
     Act *self = actInitialize(a0);
     _ACTWait(1);
 
@@ -550,7 +551,7 @@ void actSt08aInit(void)
     }
 }
 
-void actSt08aDoorMain(volatile int a0)
+void actSt08aDoorMain(GObj *volatile a0)
 {
     Act *sub = GOBJ_ACT(a0);
 
@@ -562,7 +563,7 @@ void actSt08aDoorMain(volatile int a0)
     }
 }
 
-void actSt08aDoorSwitch(volatile int a0)
+void actSt08aDoorSwitch(GObj *volatile a0)
 {
     Act *sub = GOBJ_ACT(a0);
 
@@ -575,7 +576,7 @@ void actSt08aDoorSwitch(volatile int a0)
     _ACTWait(0);
 }
 
-void actSt08aDoorUpSub(volatile int a0)
+void actSt08aDoorUpSub(GObj *volatile a0)
 {
     _ACTWait(60);
 
@@ -595,7 +596,7 @@ void actSt08aDoorUpSub(volatile int a0)
     _ACTWait(0);
 }
 
-void actSt08aIntroChk(volatile int a0)
+void actSt08aIntroChk(GObj *volatile a0)
 {
     while (scpTriggerBall(a0, boyGObj, 100.0f) == 0) {
         _ACTWait(1);
@@ -616,7 +617,7 @@ void actSt08aIntroChk(volatile int a0)
     scpBoyControlReadDisable = 0;
 }
 
-void actSt08aGirlPosChk(volatile int a0)
+void actSt08aGirlPosChk(GObj *volatile a0)
 {
     while (girlGObj == 0 || scpTriggerBall(a0, girlGObj, 200.0f) == 0) {
         _ACTWait(1);
@@ -626,7 +627,7 @@ void actSt08aGirlPosChk(volatile int a0)
     WakeupHint(2);
 }
 
-void actSt08aHint1Chk(volatile int a0)
+void actSt08aHint1Chk(GObj *volatile a0)
 {
     while (gflagChk(80) == 0) {
         _ACTWait(1);
@@ -638,7 +639,7 @@ void actSt08aHint1Chk(volatile int a0)
     FinishHint(2);
 }
 
-void actSt08aHasiMain(volatile int a0)
+void actSt08aHasiMain(GObj *volatile a0)
 {
     Act *sub = GOBJ_ACT(a0);
 
@@ -650,7 +651,7 @@ void actSt08aHasiMain(volatile int a0)
     }
 }
 
-void actSt08aHasiSwitch(volatile int a0)
+void actSt08aHasiSwitch(GObj *volatile a0)
 {
     Act *sub = GOBJ_ACT(a0);
 

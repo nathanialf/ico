@@ -12,16 +12,18 @@
 #ifndef ST04E_H
 #define ST04E_H
 
-void actSt04eFuchi1Chk(volatile int a0);
-void actSt04eFuchi2Chk(volatile int a0);
-void actSt04eFuchi3Chk(volatile int a0);
-void actSt04eHint1Chk(volatile int a0);
-void actSt04eHint1WakeUpChk(volatile int a0);
-void actSt04eSeChk(volatile int a0);
-void actSt04eWaterFlagOn(volatile int a0);
-void actSt04eWaterMain(volatile int a0);
-void actSt04eWaterStop(volatile int a0);
-void actSt04eWaterStopSub(volatile int a0);
-void actSt04eWaterSwitch(volatile int a0);
+#include "typedef.h"
+
+void actSt04eFuchi1Chk(GObj *volatile a0);
+void actSt04eFuchi2Chk(GObj *volatile a0);
+void actSt04eFuchi3Chk(GObj *volatile a0);
+void actSt04eHint1Chk(GObj *volatile a0);
+void actSt04eHint1WakeUpChk(GObj *volatile a0);
+void actSt04eSeChk(GObj *volatile a0);
+void actSt04eWaterFlagOn(GObj *volatile a0);
+void actSt04eWaterMain(GObj *volatile a0);
+void actSt04eWaterStop(GObj *volatile a0);
+void actSt04eWaterStopSub(GObj *volatile a0);
+void actSt04eWaterSwitch(GObj *volatile a0);
 
 #endif /* ST04E_H */

@@ -20,21 +20,6 @@ inline void warpGirlInit(void)
 }
 
 /* one 0x58-byte girl-warp record (MAIN.MAP: girlWarpList, from girl-warp-list.o) */
-typedef struct WarpRec {
-    float p0[4];         /* 0x00 */
-    float p1[4];         /* 0x10 */
-    float p2[4];         /* 0x20 */
-    int gflag;           /* 0x30 */
-    float box0[3];       /* 0x34 */
-    float box1[3];       /* 0x40 */
-    unsigned short to0;  /* 0x4C */
-    unsigned short to1;  /* 0x4E */
-    unsigned short to2;  /* 0x50 */
-    unsigned short from; /* 0x52 */
-    unsigned char kind;  /* 0x54 */
-    char _p55[0x58 - 0x55];
-} WarpRec;
-
 /* the 16-byte vector this file copies whole */
 typedef union WarpVec { /* derived name */ /* field names derived */
     float f[4];

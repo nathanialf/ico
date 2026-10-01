@@ -12,6 +12,8 @@
 #ifndef COMMONACT_H
 #define COMMONACT_H
 
+struct GObj;
+
 void ACTAcceptMail(char *a0, int a1);
 void ACTAdjustPlane(int a0, int a1);
 int ACTGetOrientFromIntrK(char *self, int kind, void *buf, int i);
@@ -22,7 +24,7 @@ int ACTGetOrientFromIntrK(char *self, int kind, void *buf, int i);
 struct IntrRec;
 
 void ACTRunIntrCorrect(char *self, struct IntrRec *a1, struct IntrRec *a2);
-void ACTSendMailCorrect(char *a0, int a1);
+void ACTSendMailCorrect(struct GObj *a0, int a1);
 void ACTSetPositionWithFitting(void *a0, float *pos);
 void ACT_LAYOUT_GAMEOVER(void);
 int CollisCheckInRope(void *a0, int chain);
@@ -32,35 +34,69 @@ void DamageFunc(char *a0);
 void GetCorrectOrientOfChain(void *buf, void *obj);
 int IsCorrectPosition(char *a0);
 int SetMotionDirectionSmooze(int a0, float *dir, float s);
-void StartCorrectPosition(char *a0, float *pos, float *dir, int mode, float t);
-void TestCageUpDown(int cage, char *gobj);
-int _ACTCorrectMsg(char *self, int msg, void *arg);
+void StartCorrectPosition(struct GObj *a0, float *pos, float *dir, int mode, float t);
+void TestCageUpDown(int cage, struct GObj *gobj);
+int _ACTCorrectMsg(struct GObj *self, int msg, void *arg);
 void _ACTDebugPrint(char *a0);
 int _ACTMotDirSmzDirect(char *a0, float *a1);
-void _boxbar_set_sound(int a0, int mode);
-void actAfterDown(volatile int a0);
-void actAfterFly(volatile int a0);
-void actAfterForceRope(volatile int a0);
-void actAfterForceRopeSwing(volatile int a0);
-void actAfterJump(volatile int a0);
-void actAfterRopeJump(volatile int a0);
-void afterCommonBar(volatile int a0);
+void _boxbar_set_sound(struct GObj *a0, int mode);
+void actAfterDown(struct GObj *volatile a0);
+void actAfterFly(struct GObj *volatile a0);
+void actAfterForceRope(struct GObj *volatile a0);
+void actAfterForceRopeSwing(struct GObj *volatile a0);
+void actAfterJump(struct GObj *volatile a0);
+void actAfterRopeJump(struct GObj *volatile a0);
+void afterCommonBar(struct GObj *volatile a0);
 void afterCommonOneWall(int x);
 void afterCommonRevive(volatile unsigned int a0);
-void afterCommonRope(volatile int a0);
-void afterCommonRopeTurnSpecial(volatile int a0);
-void afterCommonStone(volatile int a0);
-void afterCommonTruckLever(volatile int a0);
+void afterCommonRope(struct GObj *volatile a0);
+void afterCommonRopeTurnSpecial(struct GObj *volatile a0);
+void afterCommonStone(struct GObj *volatile a0);
+void afterCommonTruckLever(struct GObj *volatile a0);
 void flyCoreLoop(char *a0, char *target, int flag);
-void subCommonIdle(volatile int a0);
-float *test_CURRENTORIENT(char *a0);
-float *test_CURRENTROOT(void *a0);
-
+void subCommonIdle(struct GObj *volatile a0);
+float *test_CURRENTORIENT(struct GObj *a0);
+float *test_CURRENTROOT(struct GObj *a0);
 void DownFunc(char *a0);
 int FloorIsTruck(void *a0);
 void afterCommonRopeCliff(char *a0);
-void afterCommonBox(volatile int a0);
-void actAfterFall(volatile int a0);
+void afterCommonBox(struct GObj *volatile a0);
+void actAfterFall(struct GObj *volatile a0);
 void ClipCollisionWithField(char *a0);
+
+/* idle-mot-def: one idling motion per actor kind, 0x0C bytes. Reader:
+ * ico2/fumi/src/commonact.c (int [][3]). Owner: ico2/fumi/include/commonact.h. */
+typedef struct {   /* field names derived */
+    int motion[3]; /* 0x00, indexed by Act+0x48 */
+} IdlingDef;       /* derived name */
+
+/* act-data-tbl: one idle-motion range, 0x14 bytes, indexed by Act+0x48.
+ * Reader: ico2/fumi/src/commonact.c (SetIdleMotionRange, subCommonIdle).
+ * Owner: ico2/fumi/include/commonact.h. */
+typedef struct {     /* field names derived */
+    int idleMotion;  /* 0x00 */
+    int orientRow;   /* 0x04, the motionOrient row whose nextId takes the motion */
+    int orientRow2;  /* 0x08, the row that takes the second motion */
+    int orientFirst; /* 0x0C, the rows whose id takes the motion */
+    int orientEnd;   /* 0x10 */
+} IdleRangeRec;      /* derived name */
+
+/* node-fix-ofs: one cling pose, 0x24 bytes. Reader:
+ * ico2/fumi/src/commonact.c (ClingRec, SetMotionNodeFixModeParameter's
+ * arguments). Owner: ico2/fumi/include/commonact.h. */
+typedef struct {  /* field names derived */
+    int rot[3];   /* 0x00, degrees about x, y, z */
+    float pos[3]; /* 0x0C */
+    int mode;     /* 0x18 */
+    int motion;   /* 0x1C, the motion the cling plays */
+    int node;     /* 0x20 */
+} ClingRec;       /* derived name */
+
+/* pair-motion: one paired motion, 8 bytes. Reader: ico2/fumi/src/
+ * commonact.c (BecPair). Owner: ico2/fumi/include/commonact.h. */
+typedef struct { /* field names derived */
+    int mot;     /* 0x00 */
+    int req;     /* 0x04 */
+} BecPair;       /* derived name */
 
 #endif /* COMMONACT_H */
