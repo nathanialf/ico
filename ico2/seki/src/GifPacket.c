@@ -2,6 +2,7 @@
 #include "GifPacket.h"
 #include "GsBase.h"
 #include "DmaPacket.h"
+#include "DisplayList.h"
 
 typedef struct {
     int a, b, c, d;
@@ -77,11 +78,6 @@ void gif_StartPacket(void)
    flag gif_EndPacket clears, then the strip drawers' last two on-screen
    flags and the index of the older one. */
 static int packetOpen = 0; /* derived name */
-
-/* kept local: void (int, void *, int) here, void (int, int, int) in DisplayList.h */
-extern void dl_OpenDma(int chan, void *dma, int flag);
-/* kept local: agrees with DisplayList.h, which this TU does not include (dl_OpenDma differs) */
-extern void dl_CloseDma(void);
 
 void gif_EndPacket(void)
 {
@@ -610,8 +606,6 @@ void gif_Init(void)
 
 /* kept local: DisplayList.h is not included, since this TU's uses of dl_OpenDma
  * do not fit its prototype there */
-/* kept local: agrees with DisplayList.h, which this TU does not include (dl_OpenDma differs) */
-extern void dl_SetDLPriority(int a0);
 
 void gif_StartPacketPri(int pri)
 {

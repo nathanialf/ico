@@ -50,7 +50,7 @@ inline void GirlForceFieldGeo(void) {}
 extern OaRecA objLayout[];
 extern OaRecB D_002BC6E0[];
 
-void GirlForceFieldDL(char *self)
+void GirlForceFieldDL(GObj *self)
 {
     float pos[4];
     float quat[4];
@@ -71,7 +71,7 @@ void GirlForceFieldDL(char *self)
 
             GetRootQuaternion(quat, self);
             w->frame = (int)stage_PlayBgAnimationDissolve(
-                D_002BC6E0[objLayout[*(int *)(self + 8)].action].baseMode, pos, quat,
+                D_002BC6E0[objLayout[*(int *)(((char *)self) + 8)].action].baseMode, pos, quat,
                 (float)w->frame, ratio);
             return;
         }

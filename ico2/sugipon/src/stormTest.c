@@ -10,6 +10,7 @@
 #include "main.h"
 #include "matrixDrive.h"
 #include "GifPacket.h"
+#include "windField.h"
 
 /* the clip plane normal StormTestDL transforms into view space */
 static float stormClipPlane[4] = {0.0f, 0.0f, 1.0f, 0.0f};
@@ -176,8 +177,6 @@ void ClipStormByCamera(StormPackage *pkg)
 }
 
 extern void UpdateStormPackage(StormPackage *pkg);
-/* kept local: void * (int, void *) here, int (void) in windField.h */
-extern void *GetWindVector(int a0, void *pos);
 
 void UpdateStormPackage(StormPackage *pkg)
 {
@@ -281,12 +280,12 @@ inline int *InitStormTestGeo(int a0, int *a1)
     return obj;
 }
 
-void StormTestGeo(char *a0)
+void StormTestGeo(GObj *a0)
 {
     UpdateStormPackage(*(StormPackage **)((char *)GOBJ_SUB(a0)->work + 0x20));
 }
 
-void StormTestDL(char *a0)
+void StormTestDL(GObj *a0)
 {
     char *p = GOBJ_SUB(a0)->work;
     DispStormPackage(*(StormPackage **)(p + 0x20), p + 0x10);

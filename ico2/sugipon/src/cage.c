@@ -10,6 +10,8 @@
 #include "Matrix.h"
 #include "geometryManager.h"
 #include "matrixDrive.h"
+#include "memory.h"
+#include "windField.h"
 
 /* RECONSTRUCTION, names ours: the cage's 80-byte work record, InitCageGeo's
    allocation, kept at +0x830 of the object's motion work: the cage and chain
@@ -33,7 +35,7 @@ typedef struct {  /* field names derived */
     char pad44[12];
 } CageWork; /* derived name */
 
-int CageRideFunc(char **self, char *rider)
+int CageRideFunc(char **self, GObj *rider)
 {
     float v[4];
     float n[4];
@@ -62,7 +64,7 @@ int CageRideFunc(char **self, char *rider)
     return 1;
 }
 
-void SetCageFixGeometry(char *self, void *pos, void *dir)
+void SetCageFixGeometry(GObj *self, void *pos, void *dir)
 {
     CageWork *w = GOBJ_SUB(self)->work;
 
@@ -70,7 +72,7 @@ void SetCageFixGeometry(char *self, void *pos, void *dir)
     CopyVector(w->rot, dir);
 }
 
-inline int GetCageChainPoint(char *a0, char *a1, char *a2)
+inline int GetCageChainPoint(char *a0, char *a1, GObj *a2)
 {
     CageWork *w = GOBJ_SUB(a2)->work;
     CopyVector(a0, *(char **)(*(char **)(w->chains + 8)));
@@ -79,11 +81,6 @@ inline int GetCageChainPoint(char *a0, char *a1, char *a2)
     *(float *)(a1 + 4) = *(float *)(a1 + 4) - 150.0f;
     return w->rideable;
 }
-
-/* kept local: void * (void *, int, char *, int) here, void * (IosMemPart *, int, char *, int) in memory.h */
-extern void *iosMallocDebug(void *part, int size, char *file, int line);
-/* kept local: void (void *) here, void * (void *) in memory.h */
-extern void iosFree(void *p);
 
 /* the game heap handles, declared int as sugipon's other TUs do
    (girlForceField.c, candle.c) and cast at the allocator calls */
@@ -236,12 +233,12 @@ char *InitCageGeo(char *self, char *lay)
     return (char *)w;
 }
 
-inline void SetCageChainHangableFlag(char *a0, int a1)
+inline void SetCageChainHangableFlag(GObj *a0, int a1)
 {
     *(int *)((char *)GOBJ_SUB(a0)->work + 0x40) = a1;
 }
 
-void HotInitCageGeo(char *self)
+void HotInitCageGeo(GObj *self)
 {
     CageWork *w = GOBJ_SUB(self)->work;
 
@@ -279,13 +276,10 @@ inline void StabilizeAllLayoutedCage(void)
     }
 }
 
-inline void SetCageVelocityFriction(char *a0, float a1)
+inline void SetCageVelocityFriction(GObj *a0, float a1)
 {
     *(float *)((char *)GOBJ_SUB(a0)->work + 0x3C) = a1;
 }
-
-/* kept local: void * (int, void *) here, int (void) in windField.h */
-extern void *GetWindVector(int kind, void *pos);
 
 /* the world down axis the chain's swing axis is taken against */
 static sceVu0FVECTOR cageDown = {0.0f, -1.0f, 0.0f, 0.0f};
@@ -314,7 +308,7 @@ static inline void AddCageWindForce(char *n, float k)
     _AddVector(n + 0x30, n + 0x30, v);
 }
 
-void CageGeo(char *self)
+void CageGeo(GObj *self)
 {
     CageWork *w;
     char *n0;
@@ -388,7 +382,7 @@ void CageGeo(char *self)
     }
 }
 
-void CageDL(char *self)
+void CageDL(GObj *self)
 {
     CageWork *w = GOBJ_SUB(self)->work;
 

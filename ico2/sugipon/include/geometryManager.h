@@ -12,44 +12,49 @@
 #ifndef GEOMETRYMANAGER_H
 #define GEOMETRYMANAGER_H
 
+struct GObj;
+
 struct Sub15C;
 
 int CylinderCollision(char *self, int group, float r, float h, float s);
 
-int CylinderCollisionWithControlDynamics(char *self, int group, int ctrl, float r, float h,
+int CylinderCollisionWithControlDynamics(struct GObj *self, int group, int ctrl, float r, float h,
                                          float s);
 
 int *GetCharGObjList(void);
-void GetGlobalDirectionOrient(int *self, int *other, char *p);
+void GetGlobalDirectionOrient(float *dir, struct GObj *obj, void *src);
 void GetInitialSkeltonMatrixByDObj(char *mdl);
 float GetProjectionOfPlane(void *a0, void *a1, void *a2);
 float GetProjectionOfPlaneWithKeepAway(void *a0, void *a1, void *a2, float f);
 void GetProjectionPosOfPlane(void *a0, void *a1, void *a2);
-void GetRootMatrix(void *a0, char *outer);
-void GetRootMatrixRotOffset(void *a0, int a1);
-void GetRootMatrixTransOffset(char *dst, char *src);
-void GetRootMotionOrient(char *a0, char *a1);
-void GetRootOrient(char *a0, char *a1);
-void GetRootPosition(void *a0, char *outer);
-void GetRootPositionByDObj(void *a0, struct Sub15C *src);
-void GetRootQuaternion(int a0, int a1);
-void GetRootQuaternionByDObj(int a0, int *a1);
-void GlobalizeGeometry(char *gobj);
+void GetRootMatrix(float *m, struct GObj *obj);
+void GetRootMatrixRotOffset(void *q, struct GObj *obj);
+void GetRootMatrixTransOffset(char *dst, struct GObj *src);
+void GetRootMotionOrient(char *a0, struct GObj *a1);
+void GetRootOrient(char *a0, struct GObj *a1);
+void GetRootPosition(float *pos, struct GObj *obj);
+void GetRootPositionByDObj(float *pos, struct Sub15C *src);
+void GetRootQuaternion(void *q, struct GObj *obj);
+void GetRootQuaternionByDObj(void *q, struct Sub15C *dobj);
+void GlobalizeGeometry(struct GObj *gobj);
 int LimitExistGeometry(float *pos, int *exist);
-void LocalizeDirectionOrient(int *self, int *a1);
-void LocalizeGeometry(char *gobj, int *dobj);
-void SetDirectRootPosition(char *self, void *v);
-void SetDirectRootPositionNoFitting(char *self, void *v);
-void SetDirectRootPositionNoFittingWithNodePoint(char *gobj, int node, float *pos, float t);
-void SetDirectRootPositionNoFittingWithNodePointXZ(char *gobj, int node, float *pos, float t);
-void SetDirectRootPositionWithNodePoint(char *gobj, int node, float *pos, float t);
-void SetRootMatrixRotOffset(int a0, void *a1);
-void SetRootMatrixWithTransOffset(void *obj, float x, float y, float z);
-void SetRootPosition(char *a0, void *a1);
-void SetRootQuaternion(char *a0, void *a1);
-void SetRootBaseQuaternion(int a0, float *q);
-void UpdateRootMatrix(int a0);
-void UpdateRootMatrixByDObj(char *a0);
+void LocalizeDirectionOrient(struct GObj *self, int *link);
+void LocalizeGeometry(struct GObj *gobj, int *dobj);
+void SetDirectRootPosition(struct GObj *self, void *v);
+void SetDirectRootPositionNoFitting(struct GObj *self, void *v);
+void SetDirectRootPositionNoFittingWithNodePoint(struct GObj *gobj, int node, float *pos, float t);
+
+void SetDirectRootPositionNoFittingWithNodePointXZ(struct GObj *gobj, int node, float *pos,
+                                                   float t);
+
+void SetDirectRootPositionWithNodePoint(struct GObj *gobj, int node, float *pos, float t);
+void SetRootMatrixRotOffset(struct GObj *obj, void *q);
+void SetRootMatrixWithTransOffset(struct GObj *obj, float x, float y, float z);
+void SetRootPosition(struct GObj *obj, void *pos);
+void SetRootQuaternion(struct GObj *obj, void *quat);
+void SetRootBaseQuaternion(struct GObj *obj, void *q);
+void UpdateRootMatrix(struct GObj *obj);
+void UpdateRootMatrixByDObj(struct Sub15C *dobj);
 
 int cylinderCollisionCheck(void *a0, void *a1, int a2, float f0, float f1, float f2, float f3,
                            float f4, int a3, int a4);

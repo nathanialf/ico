@@ -6,25 +6,16 @@
 #include <eekernel.h>
 #include "FileManager.h"
 #include "debug_exception.h"
+#include <libcdvd.h>
 
 /* kept local: agrees with sifrpc.h, which this TU does not include (sceSifLoadFileReset, sceSifLoadModule differ) */
 extern void sceSifInitRpc(int mode);
-/* kept local: agrees with libcdvd.h, which this TU does not include (sceCdRead differs) */
-extern int sceCdInit(int mode);
-/* kept local: agrees with libcdvd.h, which this TU does not include (sceCdRead differs) */
-extern int sceCdMmode(int media);
-/* kept local: agrees with libcdvd.h, which this TU does not include (sceCdRead differs) */
-extern int sceCdDiskReady(int mode);
-/* kept local: agrees with libcdvd.h, which this TU does not include (sceCdRead differs) */
-extern int sceCdStatus(void);
 /* kept local: agrees with sifrpc.h, which this TU does not include (sceSifLoadFileReset, sceSifLoadModule differ) */
 extern int sceSifRebootIop(const char *img);
 /* kept local: agrees with sifrpc.h, which this TU does not include (sceSifLoadFileReset, sceSifLoadModule differ) */
 extern int sceSifSyncIop(void);
 /* kept local: void (void) here, int (void) in sifrpc.h */
 extern void sceSifLoadFileReset(void);
-/* kept local: agrees with libcdvd.h, which this TU does not include (sceCdRead differs) */
-extern int sceFsReset(void);
 /* kept local: int (const char *, int, const char *) here, void (void *, int, int) in sifrpc.h */
 extern int sceSifLoadModule(const char *name, int argc, const char *argv);
 
@@ -68,12 +59,6 @@ extern IosPartition *ios_partition_sound;
 /* kept local: IosPartition * here, int in ios.h */
 extern IosPartition *ios_partition_sound_semi;
 extern int sceCdSearchFile(sceCdlFILE *fp, const char *name);
-/* kept local: int (unsigned int, unsigned int, void *, sceCdRMode *) here, int (int, int, void *, int *) in libcdvd.h */
-extern int sceCdRead(unsigned int lsn, unsigned int sectors, void *buf, sceCdRMode *mode);
-/* kept local: agrees with libcdvd.h, which this TU does not include (sceCdRead differs) */
-extern int sceCdSync(int mode);
-/* kept local: agrees with libcdvd.h, which this TU does not include (sceCdRead differs) */
-extern int sceCdGetError(void);
 extern void __assert(char *file, int line, char *expr);
 
 /* SRCFILE puts this pair on seki/src/FileManager.c:184-185, above file_Init's

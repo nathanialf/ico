@@ -52,7 +52,7 @@ static inline void setFlag4PointMesh(Mesh3D *mesh, char *cl, float k, int id)
     }
 }
 
-void SetFlag4PointFixID(char *self, int a1, int id)
+void SetFlag4PointFixID(GObj *self, int a1, int id)
 {
     char *w;
     short ang;
@@ -227,7 +227,7 @@ char *InitFlagGeo(char *self, char *arg)
 
 /* clang-format on */
 
-void FlagGeo(char *self)
+void FlagGeo(GObj *self)
 {
     char *gd;
     char *o;
@@ -261,7 +261,7 @@ void FlagGeo(char *self)
     }
 }
 
-void FlagDL(char *self)
+void FlagDL(GObj *self)
 {
     Vec4Flag l0;
     Vec4Flag l10;

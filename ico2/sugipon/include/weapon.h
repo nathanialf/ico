@@ -12,29 +12,59 @@
 #ifndef WEAPON_H
 #define WEAPON_H
 
-int CheckWeaponKind(char *a0);
-void ExecWeaponHitReaction(int a0, int a1, int a2, int a3);
-int GetTorchGObjOfWeapon(char *a0);
-void LightTorchOffOfWeapon(char *a0);
-void LightTorchOnOfWeapon(char *a0);
-void PickupWeapon(char *a0, char *a1, int a2);
-void ReleaseWeapon(char *a0);
-int ReleaseWeaponWithFumbleSequential(char *g);
-void SetWeaponOffsetMode(char *a0, int a1);
+struct GObj;
+
+/* weapon-def: one weapon kind, 0x24 bytes: the blur trail's length, the grip
+   and the hit power (attackhit's damage factor), the weight GetWeaponWeight
+   gives, the blend mode of the blur the weapon trails (-1 for none) and the
+   blur's colour.
+   Readers: weapon.c, ico2/omori/src/attackhit.c (power),
+   ico2/fumi/src/act-game.c (0x1C). */
+typedef struct {            /* field names derived */
+    float length;           /* 0x00, the blade tip's distance */
+    float grip;             /* 0x04 */
+    float power;            /* 0x08 */
+    int weight;             /* 0x0C */
+    int word10;             /* 0x10 */
+    int blur;               /* 0x14, the blur's blend mode, -1 for none */
+    unsigned char color[4]; /* 0x18, the blur's colour */
+    int word1C;             /* 0x1C */
+    int word20;             /* 0x20 */
+} WeaponDef;
+
+/* weapon-fumble-def: one fumble placement, 0x18 bytes, three to a weapon
+   slot: the target position and the three turns the dropped weapon is given,
+   in degrees. */
+typedef struct {  /* field names derived */
+    float pos[3]; /* 0x00 */
+    float rotY;   /* 0x0C */
+    float rotX;   /* 0x10 */
+    float rotZ;   /* 0x14 */
+} FumbleRow;
+
+int CheckWeaponKind(struct GObj *a0);
+void ExecWeaponHitReaction(struct GObj *a0, int a1, int a2, int a3);
+int GetTorchGObjOfWeapon(struct GObj *a0);
+void LightTorchOffOfWeapon(struct GObj *a0);
+void LightTorchOnOfWeapon(struct GObj *a0);
+void PickupWeapon(struct GObj *a0, struct GObj *a1, int a2);
+void ReleaseWeapon(struct GObj *a0);
+int ReleaseWeaponWithFumbleSequential(struct GObj *g);
+void SetWeaponOffsetMode(struct GObj *a0, int a1);
 void SetWeaponTorchChainReactionFlagAll(int a0);
-void WeaponCurPos(char *a0, void *a1, void *a2, void *a3);
-void calcBlur(char *g, float t);
-void calcDynamicGeometry(char *g);
-void dispBlur(char *g);
-void dispInsectNet(char *g);
-void dispLaserSword(char *g, float t);
+void WeaponCurPos(struct GObj *a0, void *a1, void *a2, void *a3);
+void calcBlur(struct GObj *g, float t);
+void calcDynamicGeometry(struct GObj *g);
+void dispBlur(struct GObj *g);
+void dispInsectNet(struct GObj *g);
+void dispLaserSword(struct GObj *g, float t);
 /* unprototyped: the third argument is weapon.c's own layout record type. */
 void initializeQueenzSword();
 /* Unprototyped: the ROM proves two arities at the two call sites inside
  * weapon.c, one argument from calcDynamicGeometry (0x002015F8 and
  * 0x002016DC set only $4) and four from ExecWeaponHitReaction, so the 2001
  * declaration cannot have carried a parameter list. */
-void weaponHitReactionSE();
-float GetWeaponWeight(char *a0);
+void weaponHitReactionSE(struct GObj *);
+float GetWeaponWeight(struct GObj *a0);
 
 #endif /* WEAPON_H */

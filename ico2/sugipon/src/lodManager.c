@@ -26,9 +26,9 @@ static int *lodNodeTable[4] = {lodNodesGame, &lodNodesGame[2], &lodNodesGame[2],
 
 static char *lodNameTable[4] = {"DEMO MODE", "GAMEMODE HIGH", "GAMEMODE LOW", "GAMEMODE LOW0"};
 
-void SetLodLevel(char *self, int lv)
+void SetLodLevel(GObj *self, int lv)
 {
-    int n = *(int *)(self + 0xC);
+    int n = *(int *)(((char *)self) + 0xC);
     char *p;
 
     if (n >= 0) {
@@ -38,7 +38,7 @@ void SetLodLevel(char *self, int lv)
             objKindData + n * 0x64, lodNameTable[lv]);
     }
     SetMotionBlendlessNode(self, lodNodeTable[lv]);
-    p = *(char **)(self + 0x15C);
+    p = *(char **)(((char *)self) + 0x15C);
     if (p != 0) {
         if (*(int *)(p + 0x848) != 0) {
             (*(void (**)(int))(p + 0x848))(lv);

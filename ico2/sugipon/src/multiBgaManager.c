@@ -4,10 +4,13 @@
 #include "ios.h"
 #include "Matrix.h"
 #include "main.h"
+#include "StageAnimation.h"
+#include "memory.h"
 
 /* the TU's whole .data */
 BgaAnimeState InitialBgaMultiAnimeState = {
-    {-1.0f, 0.0f, 0.0f, 0.0f},
+    -1.0f,
+    {0.0f, 0.0f, 0.0f},
     {0.0f, 0.0f, 0.0f, 1.0f},
     {0.0f, 0.0f, 0.0f, 0.0f},
     {0.0f, 0.0f, 0.0f, 1.0f},
@@ -15,28 +18,24 @@ BgaAnimeState InitialBgaMultiAnimeState = {
     0,
 };
 
-/* kept local: float (int, void *, void *, float) here, float (int, float, void *, void *) in StageAnimation.h */
-extern float stage_PlayBgAnimation(int obj, void *a1, void *a2, float f);
-
 static inline void entryMultiBga(BgaDisp *bga, int no, int kind, void *pos, void *rot)
 {
     BgaDisp *p = &bga[no];
 
-    p->obj = kind;
-    p->x44 = 0;
-    CopyVector(p->m10, pos);
-    CopyVector(p->m20, ZeroVector);
-    CopyQuaternion(p->m30, rot);
-    p->f0 = 0.0f;
+    p->kind = kind;
+    p->stay = 0;
+    CopyVector(p->pos, pos);
+    CopyVector(p->vel, ZeroVector);
+    CopyQuaternion(p->rot, rot);
+    p->frame = 0.0f;
 }
 
-void *InitMultiBgaManager(int n)
+BgaDisp *InitMultiBgaManager(int n)
 {
-    MultiBga *base =
-        (MultiBga *)iosMallocDebug(ios_partition_sugipon, n * 0x50, "src/multiBgaManager.c", 11);
+    BgaDisp *base = iosMallocDebug(ios_partition_sugipon, n * 0x50, "src/multiBgaManager.c", 11);
     int i;
     for (i = 0; i < n; i++) {
-        base[i] = *(MultiBga *)&InitialBgaMultiAnimeState;
+        base[i] = *(BgaDisp *)&InitialBgaMultiAnimeState;
     }
     return base;
 }
@@ -55,12 +54,12 @@ void EntryMultiBgaManagerSensitive(BgaDisp *bga, int no, int kind, void *pos, vo
 {
     BgaDisp *p = &bga[no];
 
-    p->obj = kind;
-    p->x44 = 0;
-    CopyVector(p->m10, pos);
-    CopyVector(p->m20, sens);
-    CopyQuaternion(p->m30, rot);
-    p->f0 = 0.0f;
+    p->kind = kind;
+    p->stay = 0;
+    CopyVector(p->pos, pos);
+    CopyVector(p->vel, sens);
+    CopyQuaternion(p->rot, rot);
+    p->frame = 0.0f;
 }
 
 void DispMultiBgaManager(BgaDisp *base, int n)
@@ -70,16 +69,16 @@ void DispMultiBgaManager(BgaDisp *base, int n)
     float f;
     for (i = 0; i < n; i++) {
         BgaDisp *e = &base[i];
-        f = e->f0;
+        f = e->frame;
         if (f < 0.0f) {
             continue;
         }
-        ri = (int)stage_PlayBgAnimation(e->obj, e->m10, e->m30, f);
+        ri = (int)stage_PlayBgAnimation(e->kind, f, e->pos, e->rot);
         if (systemStatus[5] != 0) {
             continue;
         }
-        e->f0 = (float)ri;
-        _AddVector(e->m10, e->m10, e->m20);
+        e->frame = (float)ri;
+        _AddVector(e->pos, e->pos, e->vel);
     }
 }
 
@@ -90,14 +89,14 @@ inline void DispMultiBgaManagerWithKind(int kind, BgaDisp *base, int n)
     float f;
     for (i = 0; i < n; i++) {
         BgaDisp *e = &base[i];
-        f = e->f0;
+        f = e->frame;
         if (f < 0.0f) {
             continue;
         }
-        ri = (int)stage_PlayBgAnimation(kind, e->m10, e->m30, f);
+        ri = (int)stage_PlayBgAnimation(kind, f, e->pos, e->rot);
         if (systemStatus[5] != 0) {
             continue;
         }
-        e->f0 = (float)ri;
+        e->frame = (float)ri;
     }
 }

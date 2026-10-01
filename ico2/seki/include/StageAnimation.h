@@ -12,6 +12,29 @@
 #ifndef STAGEANIMATION_H
 #define STAGEANIMATION_H
 
+/* stage-anim: one stage animation, 0x5C bytes. Reader: ico2/seki/src/
+ * StageAnimation.c (stage_ApplyData, the BGA set-up, (r - table) / 0x5C). */
+typedef struct {          /* field names derived */
+    char path[64];        /* 0x00, the .bga file, "NULL" for none */
+    int objFirst;         /* 0x40, the objTableScene range */
+    int objLast;          /* 0x44 */
+    int word48;           /* 0x48, copied into the BGA data's 0x04 */
+    unsigned char byte4C; /* 0x4C, copied into the BGA data's 0x0B */
+    char pad4D[3];
+    int word50; /* 0x50 */
+    void *data; /* 0x54, the loaded BGA data or the data pointer */
+    int no;     /* 0x58, the row's own index, -1 for none */
+} StageAnimDef;
+
+/* stage-anim-model: one stage animation object, 8 bytes, the objTableScene
+   range a stage animation's 0x40 and 0x44 words bound: the object kind and
+   its argument. */
+typedef struct { /* field names derived */
+    int kind;    /* 0x00 */
+    int aux;     /* 0x04 */
+} StgObjDat;
+
+extern const StgObjDat objTableScene[];
 /* The declarations below lead this header because their order is load-bearing:
  * gcc 2.9 emits the deferred out-of-line copy of a plain-inline function in
  * first-declaration order, so this is the order StageAnimation.c's inline tail has. */
@@ -24,7 +47,6 @@ void stage_SetParentOfGObjWithLocalRotationFlag(int a0, void *a1, int a2);
 void stage_SetLocalizeGeometry(int key, int arg1, int arg2);
 void stage_KillPlayBgAnimationIfOverMaxCount(int a0, int a1);
 int stage_CheckAnimationFrameIn(int a0, int a1, int a2);
-
 void stage_ApplyData(char *name, char *data);
 int stage_ContinueAnimation(int a0, int a1);
 void stage_DispAnimation(void);

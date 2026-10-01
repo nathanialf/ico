@@ -12,18 +12,19 @@
 #ifndef TORCH_H
 #define TORCH_H
 
+struct GObj;
+
 /* The declarations below lead this header because their order is load-bearing:
  * gcc 2.9 emits the deferred out-of-line copy of a plain-inline function in
  * first-declaration order, so this is the order torch.c's inline tail has. */
-char *InitTorchGeo(char *a0, char *a1);
+char *InitTorchGeo(struct GObj *a0, char *a1);
 void TorchDL(void);
-int IsTorchLightOn(char *a0);
-char *CheckTorchChainReaction(char *a0, float dist);
-void SetTorchLife(char *a0, int a1, int a2);
-void SetTorchChainReactionFlag(char *a0, int a1);
-void UpdateRealTimeGeometryValue(char *a0);
-
+int IsTorchLightOn(struct GObj *a0);
+char *CheckTorchChainReaction(struct GObj *a0, float dist);
+void SetTorchLife(struct GObj *a0, int a1, int a2);
+void SetTorchChainReactionFlag(struct GObj *a0, int a1);
+void UpdateRealTimeGeometryValue(struct GObj *a0);
 void LightTorchOff(char *gobj);
-void LightTorchOn(char *gobj);
+void LightTorchOn(struct GObj *gobj);
 
 #endif /* TORCH_H */

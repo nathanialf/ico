@@ -22,18 +22,18 @@ static const char rotObjectFile[] = "src/rotObject.c";
    the objects' saves fall on different frames. */
 static unsigned char rotObjectPhase = 0; /* derived name */
 
-void moveStartSE(int a0, int a1, int a2, int a3)
+void moveStartSE(GObj *a0, int a1, int a2, int a3)
 {
     ExecuteSEPackage(a0, 0x35);
 }
 
-void moveEndSE(int a0, int a1, int a2, int a3)
+void moveEndSE(GObj *a0, int a1, int a2, int a3)
 {
     StopSEPackage(a0);
     ExecuteSEPackage(a0, 0x3A);
 }
 
-void RotObjectGeo(char *a0)
+void RotObjectGeo(GObj *a0)
 {
     char *p = GOBJ_SUB(a0)->work;
     if ((*(int *)(p + 0x30))++ >= 0x1F) {
@@ -42,7 +42,7 @@ void RotObjectGeo(char *a0)
     }
 }
 
-static inline void getRotObjectDriveMatrix(void *gobj, void *dst)
+static inline void getRotObjectDriveMatrix(GObj *gobj, void *dst)
 {
     float v[4];
     Sub15C *sub = GOBJ_SUB(gobj);
@@ -86,7 +86,7 @@ void GetRotObjectHoldPoint(void *a0, void *a1, void *a2, void *a3)
     sceVu0Normalize(a1, a1);
 }
 
-int MoveRotObjectWithHoldPoint(void *bar, void *hold, void *self, void *dir, void *up)
+int MoveRotObjectWithHoldPoint(GObj *bar, void *hold, void *self, void *dir, void *up)
 {
     char *w = GOBJ_SUB(bar)->work;
     char *gobj = (char *)bar;
@@ -114,7 +114,7 @@ int MoveRotObjectWithHoldPoint(void *bar, void *hold, void *self, void *dir, voi
     {
         float v[4];
         float o[4];
-        MatrixDrive_SetTransposeMatrix(tm, (int)m);
+        MatrixDrive_SetTransposeMatrix(tm, m);
         sceVu0ApplyMatrix(q, tm, a3);
         CopyVector(p, a4);
         p[1] = 0.0f;
@@ -183,17 +183,17 @@ int MoveRotObjectWithHoldPoint(void *bar, void *hold, void *self, void *dir, voi
     return 1;
 }
 
-void ExecRotObjectMoveStartReaction(int a0, int a1, int a2, int a3)
+void ExecRotObjectMoveStartReaction(GObj *a0, int a1, int a2, int a3)
 {
     moveStartSE(a0, a1, a2, a3);
 }
 
-void ExecRotObjectMoveEndReaction(int a0, int a1, int a2, int a3)
+void ExecRotObjectMoveEndReaction(GObj *a0, int a1, int a2, int a3)
 {
     moveEndSE(a0, a1, a2, a3);
 }
 
-void SetRotObjectArmRadius(char *a0, float f)
+void SetRotObjectArmRadius(GObj *a0, float f)
 {
     *(float *)((char *)GOBJ_SUB(a0)->work + 0x3C) = 100.0f / f;
 }
@@ -257,13 +257,13 @@ void GetRotObjectGameSysObjInfoExtData(short *a0, int *a1, char *a2)
     *a1 = *(int *)(a2 + 0x34);
 }
 
-void RotObjectDL(void *gobj)
+void RotObjectDL(GObj *gobj)
 {
     getRotObjectDriveMatrix(gobj, (void *)GOBJ_SUB(gobj)->nodeMtx);
     p2o_DispVU1(gobj);
 }
 
-float GetRotObjectRotCount(char *a0)
+float GetRotObjectRotCount(GObj *a0)
 {
     return (float)*(int *)((char *)GOBJ_SUB(a0)->work + 0x24) * (1.0f / 65536.0f);
 }
@@ -289,7 +289,7 @@ int RestoreRotObjectGeo(void)
     return 1;
 }
 
-int RestoreRotObjectExtGeo(char *a0, char *a1)
+int RestoreRotObjectExtGeo(GObj *a0, char *a1)
 {
     char *p = GOBJ_SUB(a0)->work;
     *(short *)(p + 0x20) = *(unsigned short *)(a1 + 0x30);
@@ -297,7 +297,7 @@ int RestoreRotObjectExtGeo(char *a0, char *a1)
     return 1;
 }
 
-int MemoryRotObject(char *a0, char *a1)
+int MemoryRotObject(char *a0, GObj *a1)
 {
     char *p = GOBJ_SUB(a1)->work;
     *(short *)a0 = *(unsigned short *)(p + 0x20);
@@ -305,7 +305,7 @@ int MemoryRotObject(char *a0, char *a1)
     return 1;
 }
 
-void SetRotObjectLockFlag(char *a0, int a1)
+void SetRotObjectLockFlag(GObj *a0, int a1)
 {
     *(int *)((char *)GOBJ_SUB(a0)->work + 0x34) = a1;
 }

@@ -36,13 +36,7 @@ static float gustSpeed = 0; /* derived name */
 
 static int gustTimer = 0; /* derived name */
 
-/* kept local: void (int, float *, float *, float) here, void (int, float, void *, void *) in windField.h */
-extern void InitWindField(int a0, float *a1, float *a2, float a3);
-/* kept local: agrees with windField.h, which this TU does not include (GetWindVector, InitWindField differ) */
-extern void ExecWindField(float f);
-/* kept local: int (float *, void *) here, int (void) in windField.h */
-extern int GetWindVector(float *power, void *pos);
-
+#include "windField.h"
 #include "windManager.h"
 
 inline void SetWindManager(float a, float b, float c, float d, float e, float f, float g, float h)
@@ -56,7 +50,7 @@ inline void SetWindManager(float a, float b, float c, float d, float e, float f,
     windVarianceInv = 1.0f / h;
     gustAim = g;
     gustSpeed = g;
-    InitWindField(1, buf1, buf2, g);
+    InitWindField(1, g, buf1, buf2);
 }
 
 inline void InitWindManager(int no)

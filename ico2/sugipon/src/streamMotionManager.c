@@ -21,23 +21,23 @@ static int streamState = 0; /* derived name */
 
 static int readState = 0; /* derived name */
 
-static int bgMgrId = 0; /* derived name */
+static CdvdBgReq *bgMgrId = 0; /* derived name */
 
 static int ringRead = 0; /* derived name */
 
 static int ringWrite = 0; /* derived name */
 
-static int ringBuf = 0; /* derived name */
+static char *ringBuf = 0; /* derived name */
 
-static int readBuf = 0; /* derived name */
+static char *readBuf = 0; /* derived name */
 
-static int readBufRaw = 0; /* derived name */
+static char *readBufRaw = 0; /* derived name */
 
 static int headerRead = 0; /* derived name */
 
 static int headerSize = 0; /* derived name */
 
-static int streamOwner = 0; /* derived name */
+static char *streamOwner = 0; /* derived name */
 
 static int ringUsed = 0; /* derived name */
 
@@ -49,8 +49,24 @@ static int frameTime = 0; /* derived name */
 
 static int frameCount = 0; /* derived name */
 
-typedef struct {
-    int w[7];
+/* One character's stream: the node and shape counts the frame header gives,
+   the frame's size, the ring offsets of the current and the next frame, the
+   object and the function called when the stream ends. */
+typedef struct {  /* field names derived */
+    int nodeNum;  /* 0x00, 8 bytes a node */
+    int shapeNum; /* 0x04, 4 bytes a shape */
+    int size;     /* 0x08, 16 + the two */
+    int cur;      /* 0x0C, -1 until data arrives */
+    int next;     /* 0x10 */
+
+    union {
+        int i;
+        GObj *p;
+    } obj; /* 0x14, stored as a word: EntryStreamMotion's store of it stays
+              behind the reads of the object it follows only under an
+              any-type view */
+
+    void (*finishFunc)(GObj *); /* 0x18 */
 } SMotion;
 
 /* .bss, the whole of streamMotionManager.o's run: the ten stream-motion slots
@@ -83,8 +99,8 @@ static inline void _setEntryOffsets(void)
     int i;
 
     for (i = 0; i < streamNum; i++) {
-        streamEntry[i].w[3] = streamEntry[i].w[4] = (ringRead + off) % 0x28000;
-        off += streamEntry[i].w[2];
+        streamEntry[i].cur = streamEntry[i].next = (ringRead + off) % 0x28000;
+        off += streamEntry[i].size;
     }
 }
 
@@ -94,8 +110,8 @@ static inline void _setNextEntryOffsets(unsigned int base)
     int i;
 
     for (i = 0; i < streamNum; i++) {
-        streamEntry[i].w[4] = (base + off) % 0x28000;
-        off += streamEntry[i].w[2];
+        streamEntry[i].next = (base + off) % 0x28000;
+        off += streamEntry[i].size;
     }
 }
 
@@ -120,10 +136,10 @@ int _infoUpdate(void)
             for (i = 0; i < streamNum; i++) {
                 int a = ringRead + headerSize;
 
-                streamEntry[i].w[0] = *(unsigned char *)(ringBuf + (a + 2) % 0x28000);
-                streamEntry[i].w[1] = *(unsigned char *)(ringBuf + (a + 3) % 0x28000);
-                streamEntry[i].w[2] = 16 + streamEntry[i].w[0] * 8 + streamEntry[i].w[1] * 4;
-                headerSize += streamEntry[i].w[2];
+                streamEntry[i].nodeNum = *(unsigned char *)(ringBuf + (a + 2) % 0x28000);
+                streamEntry[i].shapeNum = *(unsigned char *)(ringBuf + (a + 3) % 0x28000);
+                streamEntry[i].size = 16 + streamEntry[i].nodeNum * 8 + streamEntry[i].shapeNum * 4;
+                headerSize += streamEntry[i].size;
             }
             n = 0xE23;
             if (systemStatus[0] == 0) {
@@ -200,11 +216,10 @@ void PlayStreamMotion(void)
 {
     if (bgMgrId == 0) {
         /* StandbyStreamMotion has not been called; nothing was played */
-        return debug_StdPrintfDummy(
-            "StandbyStreamMotionが呼ばれてません。再生はされませんでした。\n");
+        debug_StdPrintfDummy("StandbyStreamMotionが呼ばれてません。再生はされませんでした。\n");
+        return;
     }
     streamState = 1;
-    return 1;
 }
 
 /* SRCFILE.TXT's rows for this function run 285 to 289 and then jump straight to
@@ -215,23 +230,23 @@ void PlayStreamMotion(void)
  * and _deleteStreamMotionManager's with no reference to it: the arm is expanded
  * and its string output, then the dead code is deleted.  The bytes pin the
  * vector and the string; the arm's other statements are not recoverable. */
-void ClearStreamMotionEntry(char *gobj)
+void ClearStreamMotionEntry(GObj *gobj)
 {
-    *(int *)(*(int *)(gobj + 0x15C) + 0x470) = -1;
+    *(int *)((char *)GOBJ_SUB(gobj) + 0x470) = -1;
     GOBJ_SUB(gobj)->streamScale = 1;
-    CopyVector((char *)*(int *)(gobj + 0x15C) + 0x670, ZeroVector);
+    CopyVector((char *)GOBJ_SUB(gobj) + 0x670, ZeroVector);
     GOBJ_SUB(gobj)->catchBoy = 1;
     if (0) {
         float v[4];
 
-        CopyVector((char *)v, (char *)*(int *)(gobj + 0x15C) + 0x670);
+        CopyVector(v, (char *)GOBJ_SUB(gobj) + 0x670);
         debug_StdPrintfDummy("ADJUST %08x(%f)\n", gobj, v[0]);
     }
 }
 
 /* .data, the whole of streamMotionManager.o's run: the cleared entry every
    slot is reset to. */
-static SMotion emptyEntry = {{0, 0, -1, -1, -1, 0, 0}};
+static SMotion emptyEntry = {0, 0, -1, -1, -1, 0, 0};
 
 void _deleteStreamMotionManager(void)
 {
@@ -239,9 +254,9 @@ void _deleteStreamMotionManager(void)
 
     if (streamNum != 0) {
         for (i = 0; i < streamNum; i++) {
-            ClearStreamMotionEntry((char *)streamEntry[i].w[5]);
-            if (streamEntry[i].w[6] != 0) {
-                ((void (*)())streamEntry[i].w[6])(streamEntry[i].w[5]);
+            ClearStreamMotionEntry(streamEntry[i].obj.p);
+            if (streamEntry[i].finishFunc != 0) {
+                streamEntry[i].finishFunc(streamEntry[i].obj.p);
             }
         }
         streamNum = 0;
@@ -273,45 +288,46 @@ void DisableStreamMotionManagerAutomaticDelete(void)
 
 inline int GetDataSizeOfStreamMotion(int no)
 {
-    if (streamEntry[no].w[3] < 0) {
+    if (streamEntry[no].cur < 0) {
         /* tried to get the work size before the data has arrived */
         debug_StdPrintfDummy("データがまだ来ていないのにワークサイズの取得をしようとしました\n");
         return 4;
     }
-    return streamEntry[no].w[2];
+    return streamEntry[no].size;
 }
 
 void getStreamMotionData(char *dst, int off, int no)
 {
-    int size = streamEntry[no].w[2];
+    int size = streamEntry[no].size;
     int over = off + size - 0x28000;
 
     if (over > 0) {
         int first = 0x28000 - off;
 
         memcpy(dst, ringBuf + off, first);
-        return memcpy(dst + first, ringBuf, over);
+        memcpy(dst + first, ringBuf, over);
+        return;
     }
-    return memcpy(dst, ringBuf + off, size);
+    memcpy(dst, ringBuf + off, size);
 }
 
 void getStreamMotionBlendData(char *dst, int no)
 {
-    int size = streamEntry[no].w[2];
+    int size = streamEntry[no].size;
     char a[size];
     char b[size];
     int i;
 
-    getStreamMotionData(a, streamEntry[no].w[3], no);
-    getStreamMotionData(b, streamEntry[no].w[4], no);
+    getStreamMotionData(a, streamEntry[no].cur, no);
+    getStreamMotionData(b, streamEntry[no].next, no);
     for (i = 0; i < 4; i++) {
         dst[i] = a[i];
     }
 }
 
-void GetStreamMotionDataNext(int a0, int a1)
+void GetStreamMotionDataNext(char *dst, int no)
 {
-    getStreamMotionData(a0, streamEntry[a1].w[4], a1);
+    getStreamMotionData(dst, streamEntry[no].next, no);
 }
 
 typedef struct {
@@ -325,14 +341,14 @@ static const char streamDummyHead[] = {0, 0xFF, 0, 0}; /* derived name */
 
 inline float GetStreamMotionData(char *dst, int no)
 {
-    if (streamEntry[no].w[3] < 0) {
+    if (streamEntry[no].cur < 0) {
         *(StreamMotionHead *)dst = *(const StreamMotionHead *)streamDummyHead;
         /* "tried to get the stream motion before the data has arrived" */
         debug_StdPrintfDummy(
             "データがまだ来ていないのにストリームモーションの取得をしようとしました\n");
         return -1.0f;
     }
-    getStreamMotionData(dst, streamEntry[no].w[3], no);
+    getStreamMotionData(dst, streamEntry[no].cur, no);
     return (float)framePlayed / 2997.0f;
 }
 
@@ -373,9 +389,9 @@ void ExecStreamMotionManager(void)
                 }
                 if (streamNum != 0) {
                     for (i = 0; i < streamNum; i++) {
-                        ClearStreamMotionEntry((char *)streamEntry[i].w[5]);
-                        if (streamEntry[i].w[6] != 0) {
-                            ((void (*)())streamEntry[i].w[6])(streamEntry[i].w[5]);
+                        ClearStreamMotionEntry(streamEntry[i].obj.p);
+                        if (streamEntry[i].finishFunc != 0) {
+                            streamEntry[i].finishFunc(streamEntry[i].obj.p);
                         }
                     }
                     streamNum = 0;
@@ -408,7 +424,7 @@ void MallocStreamMotionBuffer(void)
 {
     ringBuf = iosMallocDebug(ios_partition_sugipon, 0x28000, "src/streamMotionManager.c", 602);
     readBufRaw = iosMallocDebug(ios_partition_sugipon, 0x28040, "src/streamMotionManager.c", 604);
-    readBuf = (readBufRaw + 0x3F) & 0xFFFFFFC0;
+    readBuf = (char *)((int)(readBufRaw + 0x3F) & 0xFFFFFFC0);
     if (ringBuf == 0 || readBuf == 0) {
         /* "could not allocate the stream buffer memory" */
         debug_StdPrintfDummy("ストリーム用のバッファメモリが確保できませんでした\n");
@@ -423,9 +439,9 @@ inline void ClearAllStreamMotionEntry(void)
         return;
     }
     for (i = 0; i < streamNum; i++) {
-        ClearStreamMotionEntry((char *)streamEntry[i].w[5]);
-        if (streamEntry[i].w[6] != 0) {
-            ((void (*)())streamEntry[i].w[6])(streamEntry[i].w[5]);
+        ClearStreamMotionEntry(streamEntry[i].obj.p);
+        if (streamEntry[i].finishFunc != 0) {
+            streamEntry[i].finishFunc(streamEntry[i].obj.p);
         }
     }
     streamNum = 0;
@@ -441,7 +457,7 @@ inline void DeleteStreamMotionManager(void)
     ClearAllStreamMotionEntry();
 }
 
-inline void StandbyStreamMotion(int self)
+inline void StandbyStreamMotion(char *self)
 {
     DeleteStreamMotionManager();
     while (bgMgrId != 0) {
@@ -457,13 +473,13 @@ inline void StopStreamMotion(void)
     streamState = 0;
 }
 
-inline int EntryStreamMotion(char *a0)
+inline int EntryStreamMotion(GObj *a0)
 {
     int no = streamNum;
 
-    streamEntry[no].w[5] = (int)a0;
+    streamEntry[no].obj.p = a0;
 
-    *(int *)(*(int *)(a0 + 0x15C) + 0x470) = no;
+    *(int *)((char *)GOBJ_SUB(a0) + 0x470) = no;
     GOBJ_SUB(a0)->word4F0 = 0;
     GOBJ_SUB(a0)->posReserve = 0;
     GOBJ_SUB(a0)->catchBoy = 0;
@@ -492,9 +508,9 @@ inline int CheckReadyStreamMotion(void)
     return r;
 }
 
-inline void SetStreamMotionFinishCallBackFunc(int a0, int a1)
+inline void SetStreamMotionFinishCallBackFunc(int no, void (*func)(GObj *))
 {
-    streamEntry[a0].w[6] = a1;
+    streamEntry[no].finishFunc = func;
 }
 
 inline void FreeStreamMotionBuffer(void)
@@ -514,7 +530,7 @@ inline int _closeHander(void)
     return 1;
 }
 
-inline int _handler(int self)
+inline int _handler(CdvdBgReq *self)
 {
     unsigned int wp = ringWrite;
     unsigned int rp = ringRead;

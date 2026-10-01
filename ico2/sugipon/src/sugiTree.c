@@ -15,7 +15,7 @@ inline short *InitSugiLeafGeo(void)
     return h;
 }
 
-inline void SugiLeafGeo(void *gobj)
+inline void SugiLeafGeo(GObj *gobj)
 {
     Sub15C *p = GOBJ_SUB(gobj);
     short *ang = p->work;
@@ -27,7 +27,7 @@ inline void SugiLeafGeo(void *gobj)
     *ang += 0x80;
 }
 
-inline short *InitSugiLeafGeo2(void *gobj)
+inline short *InitSugiLeafGeo2(GObj *gobj)
 {
     Sub15C *p = GOBJ_SUB(gobj);
     int n = p->model->partCount;
@@ -40,7 +40,7 @@ inline short *InitSugiLeafGeo2(void *gobj)
     return buf;
 }
 
-void SugiLeafGeo2(void *gobj)
+void SugiLeafGeo2(GObj *gobj)
 {
     Sub15C *p = GOBJ_SUB(gobj);
     int n = p->model->partCount;
@@ -64,7 +64,7 @@ void SugiLeafGeo2(void *gobj)
     }
 }
 
-void SugiLeafDL2(void *gobj)
+void SugiLeafDL2(GObj *gobj)
 {
     Sub15C *p = GOBJ_SUB(gobj);
     int n = p->model->partCount;

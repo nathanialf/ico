@@ -16,6 +16,8 @@
 #include "Matrix.h"
 #include "matrixDrive.h"
 #include "main.h"
+#include "motionManager2.h"
+#include "spider.h"
 
 typedef struct AP1Vec {
     float x;
@@ -46,10 +48,10 @@ inline char *GetAP1AIMode(char *self)
    two units forward. */
 static AP1Vec ap1BoxedInJump = {0.0f, -20.0f, 2.0f, 0.0f};
 
-int standAI(char *self);
-int walkAI(char *self);
-int jumpAI();
-int attackAI();
+int standAI(GObj *self);
+int walkAI(GObj *self);
+int jumpAI(GObj *);
+int attackAI(GObj *);
 
 /* one entry per mode; dead and sleep run no AI of their own. */
 static int (*ap1ModeAI[])() = {standAI, walkAI, jumpAI, attackAI, 0, 0};
@@ -93,14 +95,14 @@ static AP1Vec lookDeltaFlat; /* lookDelta with y removed */
 
 static AP1Vec selfPos; /* this actor's own root position */
 
-int standAI(char *self)
+int standAI(GObj *self)
 {
     typedef union {
         int i;
         long long ll;
     } U;
 
-    char *p = *(char **)(self + 0x164);
+    char *p = *(char **)(((char *)self) + 0x164);
 
     if ((int)(((U *)(p + 0x20))->ll >> 21) & 1) {
         short r = boyYaw;
@@ -149,14 +151,14 @@ int standAI(char *self)
     return AP1MotReq(self, 1) ? 1 : -1;
 }
 
-int walkAI(char *self)
+int walkAI(GObj *self)
 {
     typedef union {
         int i;
         long long ll;
     } U;
 
-    char *p = *(char **)(self + 0x164);
+    char *p = *(char **)(((char *)self) + 0x164);
 
     if ((int)(((U *)(p + 0x20))->ll >> 21) & 1) {
         if (AP1MotReq(self, 0))
@@ -250,7 +252,7 @@ void hehehe(char *a0)
     debug_StdPrintfDummy(ap1ModeName[GOBJ_ACT(a0)->actMode]);
 }
 
-void SleepAP1(int *a0)
+void SleepAP1(GObj *a0)
 {
     typedef union {
         int i;
@@ -264,7 +266,7 @@ void SleepAP1(int *a0)
     AP1MotReqForce(a0, 7);
 }
 
-void WakeUpAP1(int *a0)
+void WakeUpAP1(GObj *a0)
 {
     typedef union {
         int i;
@@ -296,7 +298,7 @@ typedef struct AP1Mtx {
     float m[16];
 } __attribute__((aligned(16))) AP1Mtx;
 
-static inline int AP1GetVerticalAngle(char *g, AP1Vec *v)
+static inline int AP1GetVerticalAngle(GObj *g, AP1Vec *v)
 {
     AP1Vec q;
     AP1Mtx m;
@@ -322,7 +324,7 @@ static inline float AP1GetDirection(AP1Vec *dst, AP1Vec *tmp, AP1Vec *from, AP1V
     return len;
 }
 
-static inline void AP1ToLocal(char *self, AP1Vec *v)
+static inline void AP1ToLocal(GObj *self, AP1Vec *v)
 {
     AP1Mtx m;
 
@@ -330,9 +332,6 @@ static inline void AP1ToLocal(char *self, AP1Vec *v)
     MatrixDrive_SetTransposeMatrix(&m, &m);
     _ApplyMatrix(v, &m, v);
 }
-
-/* kept local: int (int, int) here, int (char *, int) in motionManager2.h */
-extern int CheckFloorAttribute(int self, int attr);
 
 /* `self` is volatile because this is an actor sub-thread entry: _ACTWait
  * yields to the scheduler inside the loop, so the GObj handle is re-read at
@@ -344,8 +343,8 @@ void subAP1BrainMain(volatile int self)
     AP1Vec look;
     int hold = 0;
     char *p;
-    char *boyObj;
-    char *host;
+    GObj *boyObj;
+    GObj *host;
     int r;
 
     p = *(char **)((char *)self + 0x164);
@@ -420,8 +419,8 @@ void subAP1BrainMain(volatile int self)
             break;
         }
 
-        if (CheckFloorAttribute((int)self, 0x800) || CheckFloorAttribute((int)self, 0x900)) {
-            iosOmSendMail((int)self, 0xDF, (int)self);
+        if (CheckFloorAttribute(self, 0x800) || CheckFloorAttribute(self, 0x900)) {
+            iosOmSendMail(self, 0xDF, (int)self);
             /* forced death */
             debug_StdPrintfDummy("強制死亡\n");
         }
@@ -434,12 +433,12 @@ void subAP1BrainMain(volatile int self)
     }
 }
 
-void hitProc(int a0)
+void hitProc(GObj *a0)
 {
     AP1MotReqForce(a0, 5);
 }
 
-void SetAP1DeadStatus(int *a0)
+void SetAP1DeadStatus(GObj *a0)
 {
     typedef union {
         int i;
@@ -450,7 +449,7 @@ void SetAP1DeadStatus(int *a0)
     *(int *)(s + 0x34) = 4;
     ((U *)(s + 0x18))->ll &= ~(1LL << 32);
     *(char *)(((U *)((char *)a0 + 0x164))->i + 0x1DA) = 1;
-    AP1MotReqForce((int)a0, 5);
+    AP1MotReqForce(a0, 5);
 }
 
 typedef struct AP1MailEntry {
@@ -483,9 +482,9 @@ static inline void AP1SetMode(char *self, int mode)
     GOBJ_ACT(self)->hit = 1;
 }
 
-static inline void AP1DeadEffect(char *self)
+static inline void AP1DeadEffect(GObj *self)
 {
-    char *p = *(char **)(self + 0x164);
+    char *p = *(char **)(((char *)self) + 0x164);
 
     if (*(int *)(p + 0x34) != 4) {
         int pos[4];
@@ -503,9 +502,9 @@ static inline void AP1DeadMode(char *self)
         AP1SetMode(self, 4);
 }
 
-static inline void AP1DeadEffectHit(char *self)
+static inline void AP1DeadEffectHit(GObj *self)
 {
-    char *p = *(char **)(self + 0x164);
+    char *p = *(char **)(((char *)self) + 0x164);
 
     if (*(int *)(p + 0x34) != 4) {
         int pos[4];
@@ -515,7 +514,7 @@ static inline void AP1DeadEffectHit(char *self)
         GetRootPosition(pos, self);
         GetRootQuaternion(quat, self);
         SetParticleEffect(49, pos, quat);
-        hitProc((int)self);
+        hitProc(self);
     }
 }
 
@@ -543,9 +542,9 @@ static inline void AP1ClrHold(char *self)
     ((U *)(p + 0x20))->ll &= ~0x200000;
 }
 
-void AP1BeforeFunc(char *self)
+void AP1BeforeFunc(GObj *self)
 {
-    AP1MailQueue *q = (AP1MailQueue *)(self + 0x54);
+    AP1MailQueue *q = (AP1MailQueue *)(((char *)self) + 0x54);
     AP1MailEntry *e = q->e;
     int i;
 
@@ -567,7 +566,7 @@ void AP1BeforeFunc(char *self)
             break;
 
         case 13:
-            hitProc((int)self);
+            hitProc(self);
             AP1DeadEffect(self);
             AP1DeadMode(self);
             iosPadActRequest(boyPad, 17);
@@ -578,30 +577,21 @@ void AP1BeforeFunc(char *self)
         case 38:
             AP1DeadEffect(self);
             AP1DeadMode(self);
-            hitProc((int)self);
+            hitProc(self);
             break;
 
         case 223:
             AP1DeadMode(self);
-            hitProc((int)self);
+            hitProc(self);
             break;
         }
     }
     q->num = 0;
 }
 
-typedef struct AP1Spec {
-    float a;      /* 0x00 */
-    float b;      /* 0x04 */
-    float c;      /* 0x08 */
-    int unk0C[4]; /* 0x0C */
-    float d;      /* 0x1C */
-} AP1Spec;
-
-extern AP1Spec D_0062B588[];
 void subAP1Control(int x);
 
-void actAP1Start(char *g)
+void actAP1Start(GObj *g)
 {
     typedef union {
         int i;
@@ -624,13 +614,13 @@ void actAP1Start(char *g)
     *(int *)(s + 0x48) = GetAP1SpecType(g);
 
     {
-        AP1Vec v = {D_0062B588[*(int *)(s + 0x48)].a, D_0062B588[*(int *)(s + 0x48)].b,
-                    D_0062B588[*(int *)(s + 0x48)].c, 0};
+        AP1Vec v = {spiderDef[*(int *)(s + 0x48)].jump[0], spiderDef[*(int *)(s + 0x48)].jump[1],
+                    spiderDef[*(int *)(s + 0x48)].jump[2], 0};
 
         CopyVector(s + 0xF0, &v);
     }
 
-    *(int *)(s + 0xDC) = (unsigned int)D_0062B588[*(int *)(s + 0x48)].d;
+    *(int *)(s + 0xDC) = (unsigned int)spiderDef[*(int *)(s + 0x48)].attack;
     actCreateSubThread(subAP1BrainMain, 20);
     actCreateSubThread(subAP1Control, 21);
 }
@@ -652,12 +642,12 @@ void SetAP1PriorLevel(char *self, int val)
     GOBJ_ACT(self)->lookPri = val;
 }
 
-inline int jumpAI(int a0)
+inline int jumpAI(GObj *a0)
 {
     return AP1MotReq(a0, 0) ? 0 : -1;
 }
 
-inline int attackAI(int a0)
+inline int attackAI(GObj *a0)
 {
     return AP1MotReq(a0, 0) ? 0 : -1;
 }

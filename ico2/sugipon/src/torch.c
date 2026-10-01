@@ -40,22 +40,22 @@ static TorchGeoWork emptyTorchWork = {
 #include "ios.h"
 #include "main.h"
 
-inline void SetTorchChainReactionFlag(char *a0, int a1)
+inline void SetTorchChainReactionFlag(GObj *a0, int a1)
 {
     *(int *)((char *)GOBJ_SUB(a0)->work + 0x30) = a1;
 }
 
-void torchOffSE(int a0)
+void torchOffSE(GObj *a0)
 {
     StopSEPackage(a0);
     ExecuteSEPackage(a0, 0x43);
 }
 
-void LightTorchOn(char *gobj)
+void LightTorchOn(GObj *gobj)
 {
     float pos[4];
     TorchGeoWork *w;
-    char *o;
+    GObj *o;
     int n;
 
     w = GOBJ_SUB(gobj)->work;
@@ -94,7 +94,7 @@ void LightTorchOn(char *gobj)
     }
     w->unk24 = 0;
     w->lightOn = 1;
-    *(int *)(*(int *)(gobj + 0x15C) + 0x83C) = 1;
+    *(int *)(*(int *)(((char *)gobj) + 0x15C) + 0x83C) = 1;
 }
 
 void LightTorchOff(char *gobj)
@@ -125,7 +125,7 @@ void LightTorchOff(char *gobj)
     }
 }
 
-void torchDrainControl(char *gobj, float level)
+void torchDrainControl(GObj *gobj, float level)
 {
     TorchGeoWork *w = GOBJ_SUB(gobj)->work;
 
@@ -146,7 +146,7 @@ void torchDrainControl(char *gobj, float level)
     }
 }
 
-void moveTorch(char *gobj, void *mtx)
+void moveTorch(GObj *gobj, void *mtx)
 {
     TorchGeoWork *w = GOBJ_SUB(gobj)->work;
 
@@ -167,7 +167,7 @@ void moveTorch(char *gobj, void *mtx)
     }
 }
 
-void setPauseFlag(char *gobj, int flag)
+void setPauseFlag(GObj *gobj, int flag)
 {
     TorchGeoWork *w = GOBJ_SUB(gobj)->work;
 
@@ -188,35 +188,35 @@ void setPauseFlag(char *gobj, int flag)
     }
 }
 
-inline int IsTorchLightOn(char *a0)
+inline int IsTorchLightOn(GObj *a0)
 {
     return *(int *)((char *)GOBJ_SUB(a0)->work + 0x20);
 }
 
-inline void SetTorchLife(char *a0, int a1, int a2)
+inline void SetTorchLife(GObj *a0, int a1, int a2)
 {
     char *p = GOBJ_SUB(a0)->work;
     *(int *)(p + 0x28) = a1;
     *(int *)(p + 0x2C) = a1 - a2;
 }
 
-inline char *InitTorchGeo(char *a0, char *a1)
+inline char *InitTorchGeo(GObj *a0, char *a1)
 {
     TorchGeoWork *p = (TorchGeoWork *)iosMallocDebug(ios_partition_sugipon, 0x50, __FILE__, 232);
     *p = emptyTorchWork;
-    sceVu0UnitMatrix((char *)*(void **)(a0 + 0x15C) + 0x20);
-    *(void **)((char *)*(void **)(a0 + 0x15C) + 0x830) = p;
+    sceVu0UnitMatrix((char *)*(void **)(((char *)a0) + 0x15C) + 0x20);
+    *(void **)((char *)*(void **)(((char *)a0) + 0x15C) + 0x830) = p;
     if (*(int *)(a1 + 0x30) & 1) {
         LightTorchOn(a0);
     } else {
-        *(int *)((char *)*(void **)(a0 + 0x15C) + 0x83C) = 0;
+        *(int *)((char *)*(void **)(((char *)a0) + 0x15C) + 0x83C) = 0;
     }
     p->flags = *(int *)(a1 + 0x30) & ~1;
     GetRootPosition(p->pos, a0);
     return (char *)p;
 }
 
-inline char *CheckTorchChainReaction(char *a0, float dist)
+inline char *CheckTorchChainReaction(GObj *a0, float dist)
 {
     float pos[4];
     float pos2[4];
@@ -240,11 +240,11 @@ inline char *CheckTorchChainReaction(char *a0, float dist)
     return 0;
 }
 
-char *CheckTorchChainReactionReverse(char *a0, float dist)
+char *CheckTorchChainReactionReverse(GObj *a0, float dist)
 {
     float pos[4];
     float pos2[4];
-    char *o;
+    GObj *o;
     char *p;
     int n;
     int lit;
@@ -279,14 +279,14 @@ char *CheckTorchChainReactionReverse(char *a0, float dist)
     return 0;
 }
 
-inline void UpdateRealTimeGeometryValue(char *a0)
+inline void UpdateRealTimeGeometryValue(GObj *a0)
 {
     int buf[4];
     char *sub;
     GetRootPosition(buf, a0);
-    sub = *(char **)(a0 + 0x15C);
+    sub = *(char **)(((char *)a0) + 0x15C);
     sceVu0SubVector(sub + 0x130, buf, sub + 0x1F0);
-    sub = *(char **)(a0 + 0x15C);
+    sub = *(char **)(((char *)a0) + 0x15C);
     CopyVector(sub + 0x1F0, buf);
 }
 
@@ -321,7 +321,7 @@ static inline int chainReactionBlocked(char *gobj, char *other)
     return 0;
 }
 
-void procChainReaction(char *gobj)
+void procChainReaction(GObj *gobj)
 {
     TorchGeoWork *w;
     char *o;
@@ -336,7 +336,7 @@ void procChainReaction(char *gobj)
     }
 }
 
-void TorchGeo(char *gobj)
+void TorchGeo(GObj *gobj)
 {
     TorchGeoWork *w;
     char *sub;
@@ -344,7 +344,7 @@ void TorchGeo(char *gobj)
     float drain;
     int id;
 
-    sub = *(char **)(gobj + 0x15C);
+    sub = *(char **)(((char *)gobj) + 0x15C);
     o = *(char **)sub;
     w = *(TorchGeoWork **)(sub + 0x830);
     if (o != 0) {
@@ -358,7 +358,7 @@ void TorchGeo(char *gobj)
         procChainReaction(gobj);
         return;
     }
-    if (*(int *)(gobj + 0x50) != 0) {
+    if (*(int *)(((char *)gobj) + 0x50) != 0) {
         setPauseFlag(gobj, 0);
     } else {
         setPauseFlag(gobj, 1);

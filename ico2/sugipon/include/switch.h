@@ -13,6 +13,8 @@
 #ifndef SWITCH_H
 #define SWITCH_H
 
+struct GObj;
+
 /* The floor and wall lever geometry block InitFloorLeverGeo returns: eight
  * words, read back as such at box.c's own call sites.  RECONSTRUCTION: the
  * name is ours, and it deliberately is not FloorLeverGeo, which MAIN.MAP
@@ -29,11 +31,11 @@ void SwitchGeo(void);
 void SwitchDL(void);
 void SetSwitchTriggerFunc(char *a0, void *a1);
 void SetSwitchState(char *a0, int a1);
-void SetFloorLeverWithNodePoint(char *a0, char *a1, int a2);
+void SetFloorLeverWithNodePoint(struct GObj *a0, struct GObj *a1, int a2);
 int CanFloorLeverPull(char *a0);
 LeverGeoWork *InitFloorLeverGeo(char *a0, char *a1);
 int GetFloorLeverAngle(char *a0);
-void SetWallLeverWithNodePoint(char *a0, char *a1, int a2);
+void SetWallLeverWithNodePoint(struct GObj *a0, struct GObj *a1, int a2);
 int CanWallLeverPull(char *a0);
 int IsWallLeverStatus(char *a0);
 LeverGeoWork *InitWallLeverGeo(char *a0, char *a1);

@@ -8,6 +8,8 @@
 #include "main.h"
 #include "Matrix.h"
 #include "DmaPacket.h"
+#include "DisplayList.h"
+#include "Basic.h"
 
 /* .bss, Shadow.o's two objects in the ROM's order (MAIN.MAP line 7683 sizes
  * the run 0x1028 and names no symbol in it, so the names are ours).  One
@@ -37,12 +39,6 @@ static int killShadowRequest = 0; /* derived name */
  * types beyond one 64-bit packet pointer and one byte pointer, or the names
  * of the union and the record. */
 /* the screen width and height in pixels */
-/* kept local: agrees with DisplayList.h, which this TU does not include (dl_OpenDma differs) */
-extern void dl_SetDLPriority(int pri);
-/* kept local: void (int, void *, int) here, void (int, int, int) in DisplayList.h */
-extern void dl_OpenDma(int chan, void *dma, int flag);
-/* kept local: agrees with DisplayList.h, which this TU does not include (dl_OpenDma differs) */
-extern void dl_CloseDma(void);
 
 /* The GS A+D writer, a MACRO as in Texture.c: the listing puts every writer's
  * value and both of its stores on the line of the use (337 carries FRAME,
@@ -941,9 +937,6 @@ void __GetCameraPos(VECTOR *a0)
     _PopCurrentMatrix();
 }
 
-/* kept local: agrees with DisplayList.h, which this TU does not include (dl_OpenDma differs) */
-extern int dl_GetPri(void);
-
 /* One sixteen-byte record of a part's silhouette strip list. A strip opens
  * with a record whose count is its vertex count (0 ends the list); each
  * vertex record that follows carries its facing flag in the same short and
@@ -1157,9 +1150,6 @@ void shadow_RenderVolumeMulti(Sub15C *o, int idx)
     }
     dl_SetDLPriority(0);
 }
-
-/* kept local: void * (int) here, int (int) in Basic.h */
-extern void *mallocseki(int size);
 
 /* The three record shapes shadow_MakeObjectData copies out of the model into
  * its own heap. The vertex and polygon records are eight-byte aligned, which

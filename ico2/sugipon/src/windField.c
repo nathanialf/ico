@@ -36,16 +36,17 @@ static float windStrength[256];
 
 static WindCell windCell[20][20];
 
-extern WindCell *getRadiateWindVector(float *power, float *pos);
+float *getRadiateWindVector(float *power, float *pos);
 
-static int (*windVectorFunc)(void) = (int (*)(void))dummyGetWindVector; /* derived name */
+/* the wind field's sampler: none, the radial cells or the parallel plane */
+static float *(*windVectorFunc)(float *power, float *pos) = dummyGetWindVector; /* derived name */
 
 void InitWindField(int mode, float str, void *center, void *dir)
 {
     int i;
     int j;
 
-    windVectorFunc = (int (*)(void))dummyGetWindVector;
+    windVectorFunc = dummyGetWindVector;
     windFieldMode = mode;
 
     for (i = 255; i >= 0; i--) {
@@ -60,14 +61,14 @@ void InitWindField(int mode, float str, void *center, void *dir)
             }
         }
         CopyVector(windCenter, center);
-        windVectorFunc = (int (*)(void))getRadiateWindVector;
+        windVectorFunc = getRadiateWindVector;
     } else {
         CopyVector(windCenter, center);
         sceVu0Normalize(windDir, dir);
         windDir[3] = 0.0f;
         CopyVector(windPlane, windDir);
         windPlane[3] = -sceVu0InnerProduct(windPlane, windCenter);
-        windVectorFunc = (int (*)(void))getParallelWindVector;
+        windVectorFunc = getParallelWindVector;
     }
 }
 
@@ -225,19 +226,19 @@ void ExecWindField(float str)
     }
 }
 
-int GetWindVector(void)
+float *GetWindVector(float *power, float *pos)
 {
-    return windVectorFunc();
+    return windVectorFunc(power, pos);
 }
 
-int *dummyGetWindVector(int *a0)
+float *dummyGetWindVector(float *power, float *pos)
 {
-    if (a0)
-        *a0 = 0;
+    if (power)
+        *power = 0.0f;
     return ZeroVector;
 }
 
-float *getParallelWindVector(float *power, void *pos)
+float *getParallelWindVector(float *power, float *pos)
 {
     float d;
     float s;
@@ -257,7 +258,7 @@ float *getParallelWindVector(float *power, void *pos)
     return windVector;
 }
 
-WindCell *getRadiateWindVector(float *power, float *pos)
+float *getRadiateWindVector(float *power, float *pos)
 {
     int x;
     int z;
@@ -268,12 +269,12 @@ WindCell *getRadiateWindVector(float *power, float *pos)
     x = x < 0 ? 0 : (x < 20 ? x : 19);
     if (power)
         *power = (windCell[0] + x + z * 20)->str;
-    return &windCell[z][x];
+    return windCell[z][x].v;
 }
 
 void StopWindField(void)
 {
-    windVectorFunc = (int (*)(void))dummyGetWindVector;
+    windVectorFunc = dummyGetWindVector;
 }
 
 void drawLines(char *a0)

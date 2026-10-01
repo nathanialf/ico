@@ -86,7 +86,7 @@ void SetIdentityQuaternion(void *a0)
 /* the {1, 1, 1, sqrt(2)} multiplier GetMatrixFromQuaternion feeds $vf12 */
 static float quatToMatrixScale[4] = {1.0f, 1.0f, 1.0f, 1.41421356f};
 
-void GetMatrixFromQuaternion(float *a0, float *a1)
+void GetMatrixFromQuaternion(float *a0, void *a1)
 {
     __asm__ __volatile__(".set noreorder\n"
                          "lqc2 $vf11, 0x0($5)\n"
@@ -178,7 +178,7 @@ void CopyQuaternion(void *a0, void *a1)
     CopyVector(a0, a1);
 }
 
-void GetInverseQuaternion(float *a0, float *a1)
+void GetInverseQuaternion(void *a0, void *a1)
 {
     CopyQuaternion(a0, a1);
     _ScaleVectorXYZ(a0, a1, -1.0f);
@@ -381,7 +381,7 @@ inline void MultiQuaternion(void *p0, void *p1, void *p2)
     VU0_LSV(sqc2, 13, 0x0, 4);
 }
 
-inline void DivQuaternion(float *self, float *a1, float *a2)
+inline void DivQuaternion(void *self, void *a1, void *a2)
 {
     float buf[4];
     GetInverseQuaternion(buf, a2);
@@ -391,7 +391,7 @@ inline void DivQuaternion(float *self, float *a1, float *a2)
     ((void (*)(int, int, int))MultiQuaternion)(self, buf, a1);
 }
 
-inline void GetMatrixFromQuaternionRotElem(float *a0, float *a1)
+inline void GetMatrixFromQuaternionRotElem(void *a0, void *a1)
 {
     __asm__ __volatile__(".set noreorder\n"
                          "lqc2 $vf11, 0x0($5)\n"
@@ -428,7 +428,7 @@ inline void GetMatrixFromQuaternionRotElem(float *a0, float *a1)
                          : "memory");
 }
 
-inline void GetMatrixFromQuaternionPos(float *a0, float *a1, float *a2)
+inline void GetMatrixFromQuaternionPos(float *a0, void *a1, void *a2)
 {
     __asm__ __volatile__(".set noreorder\n"
                          "lqc2 $vf11, 0x0(%2)\n"
@@ -653,7 +653,7 @@ inline void GetXUnitVectorOfQuaternion(float *out, float *q)
     float y = q[1];
     float z = q[2];
     float v[4] = {-(y * y + z * z), x * y - w * z, x * z + w * y, 0.0f};
-    _ScaleVectorXYZ((int)out, (int)v, 2.0f);
+    _ScaleVectorXYZ(out, v, 2.0f);
     out[0] = out[0] + 1.0f;
 }
 
@@ -664,7 +664,7 @@ inline void GetYUnitVectorOfQuaternion(float *out, float *q)
     float y = q[1];
     float z = q[2];
     float v[4] = {x * y + w * z, -(x * x + z * z), y * z - w * x, 0.0f};
-    _ScaleVectorXYZ((int)out, (int)v, 2.0f);
+    _ScaleVectorXYZ(out, v, 2.0f);
     out[1] = out[1] + 1.0f;
 }
 
@@ -675,7 +675,7 @@ inline void GetZUnitVectorOfQuaternion(float *out, float *q)
     float y = q[1];
     float z = q[2];
     float v[4] = {x * z - w * y, y * z + w * x, -(x * x + y * y), 0.0f};
-    _ScaleVectorXYZ((int)out, (int)v, 2.0f);
+    _ScaleVectorXYZ(out, v, 2.0f);
     out[2] = out[2] + 1.0f;
 }
 

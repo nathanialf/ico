@@ -12,6 +12,8 @@
 #ifndef CLOTHANIMATION_H
 #define CLOTHANIMATION_H
 
+struct GObj;
+
 #include "Primitive.h"
 
 /* one cloth InitCloth4D builds (clothAnimation.c) */
@@ -21,34 +23,37 @@ void DispCloth4D(Cloth4D *c, void *a1, void *a2);
 void DispCloth4DWithAdd(Cloth4D *c, void *a1, void *a2);
 void DispClothMesh(int *a0, void *a1, void *a2);
 void DispMeshWire(Prim3DVec **rows, int nx, int ny);
-void GetChainAnimation(void *chain, int a, void *m);
+void GetChainAnimation(void *chain, struct GObj *a, void *m);
 float GetChainCollision(int *a0, void *pos, float r);
 float GetChainNodeID(int a0, float f);
 void GetCloth4D(void *a0, float x, float y);
 void GetCloth4DWithDetail(void *a0, float x, float y, float z, float w);
 void GetCloth4DWithTight(void *a0, float x, float y, float z, float w, void *a1, void *a2);
-void GetClothAnimation(void *a0, void *a1, int a2, void *m, int a4, int a5, void *a6, int a7);
+
+void GetClothAnimation(void *a0, void *a1, struct GObj *a2, void *m, int a4, int a5, void *a6,
+                       int a7);
+
 void GetClothAnimationFix4Points(void *a0, void *a1, int a2, void *m);
 void *InitChains(char *a0);
 
 /* RECONSTRUCTION.  One row of the table InitCloth4D's third argument points at:
  * the skeleton node a piece of cloth hangs from and the offsets the init
- * scales by the actor's own scale.  Only enable, node and f0C have a reader in
- * C (InitCloth4D itself); the rest are read by the cloth step, which is still
- * assembled, so those names are positional.  The layout is read off the ROM's
+ * scales by the actor's own scale.  Only enable, node and ofsZ have a reader in
+ * C (InitCloth4D itself); the cloth step reads the rest through its own view,
+ * so float20 to float30 are named by their type only.  The layout is read off the ROM's
  * own tables in boy.o, girl.o and queen.o. */
 typedef struct {
     int enable; /* 0x00, -1 ends the table */
-    float f04;  /* 0x04, scaled by the actor scale at init */
-    float f08;  /* 0x08, likewise */
-    float f0C;  /* 0x0C, likewise; the init also stores 1 / (f0C + f0C) at 0x34 */
+    float ofsX; /* 0x04, scaled by the actor scale at init */
+    float ofsY; /* 0x08, likewise */
+    float ofsZ; /* 0x0C, likewise; the init also stores 1 / (ofsZ + ofsZ) at 0x34 */
     int node;   /* 0x10, the argument GetSkeltonFocusNode is called with */
     char pad14[0x20 - 0x14];
-    float f20; /* 0x20 */
-    float f24; /* 0x24 */
+    float float20; /* 0x20 */
+    float float24; /* 0x24 */
     char pad28[0x2C - 0x28];
-    float f2C; /* 0x2C */
-    float f30; /* 0x30 */
+    float float2C; /* 0x2C */
+    float float30; /* 0x30 */
     char pad34[0x40 - 0x34];
 } ClothHangCfg;
 
@@ -56,11 +61,11 @@ typedef struct {
  * points at: one column of the cloth, its attachment point and the pair of
  * skeleton nodes the column is blended between.  Only uv has a reader in C
  * (InitCloth4D reads the column's ny texture coordinates through it); the rest
- * are read by the cloth step, which is still assembled, so those names are
- * positional.  The layout is read off the ROM's own tables in boy.o, girl.o
+ * are read by the cloth step, so float20 to float30, vec50 and the config's
+ * word and float members are named by their type only.  The layout is read off the ROM's own tables in boy.o, girl.o
  * and queen.o. */
 typedef struct {
-    float f00; /* 0x00 */
+    float length; /* 0x00, the column's length, scaled by the actor scale */
     char pad04[0x10 - 0x04];
     float pos[4];   /* 0x10, the point the column hangs from */
     float dir[4];   /* 0x20, a unit vector */
@@ -70,7 +75,7 @@ typedef struct {
     float weight1;  /* 0x3C */
     float (*uv)[2]; /* 0x40, ny texture coordinates */
     char pad44[0x50 - 0x44];
-    float f50[4]; /* 0x50 */
+    float vec50[4]; /* 0x50 */
 } __attribute__((aligned(16))) Cloth4DCol;
 
 /* RECONSTRUCTION.  The head of one generated cloth mesh: the mesh size, the
@@ -79,19 +84,19 @@ typedef struct {
 typedef struct {
     int nx;
     int ny;
-    int f08;
-    int f0C;
-    int r; /* 0x10 */
-    int g; /* 0x14 */
-    int b; /* 0x18 */
-    int a; /* 0x1C */
+    int word08; /* 0x08 */
+    int word0C; /* 0x0C */
+    int r;      /* 0x10 */
+    int g;      /* 0x14 */
+    int b;      /* 0x18 */
+    int a;      /* 0x1C */
     const char *tex;
     Cloth4DCol *cols;
-    float f28;
-    int f2C;
+    float float28; /* 0x28 */
+    int word2C;    /* 0x2C */
 } Cloth4DCfg;
 
-Cloth4D *InitCloth4D(char *g, void *a1, void *a2);
+Cloth4D *InitCloth4D(struct GObj *g, void *a1, void *a2);
 int InitClothes(char *p);
 int SetChainExtendedWeight(int *a0, int idx, float w0, float w1);
 void TestDispChainAnimation(int *a0);

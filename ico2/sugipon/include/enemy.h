@@ -12,20 +12,32 @@
 #ifndef ENEMY_H
 #define ENEMY_H
 
-int CanThisEnemyFly(char *a0);
-int CheckEnemyHit(char *self, float *pos, float *a, float *b);
-void EnemyDeleteParticle(char *self, float *dir, short *list);
-void EnemySetfAppearAll(char *self);
-int GetEnemyBattleType(char *a0);
-float GetEnemyDefDodgeRange(char *a0);
-float GetEnemyDefLife(char *a0);
-int GetEnemyHitNodeFlag(char *a0);
-int RandomizeEnemy(char *self);
-void ResetEnemyPositionInfo(char *self);
-void ReviveEnemyParticle(char *a0, int a1);
-void SetEnemyDissolve(char *self, float ratio);
-void SetEnemyFootPrintSwitch(char *a0, int a1);
+struct GObj;
+
+/* enemy-random-def: one random enemy kind range, 8 bytes, for the kinds from
+   0x10000 on: the first and the last row of randomEnemyVariationKind the
+   kind draws from. */
+typedef struct { /* field names derived */
+    int first;   /* 0x00 */
+    int last;    /* 0x04 */
+} EnemyKindRange;
+
+extern const EnemyKindRange randomEnemyKind[];
+extern const int randomEnemyVariationKind[];
+int CanThisEnemyFly(struct GObj *a0);
+int CheckEnemyHit(struct GObj *self, float *pos, float *a, float *b);
+void EnemyDeleteParticle(struct GObj *self, float *dir, short *list);
+void EnemySetfAppearAll(struct GObj *self);
+int GetEnemyBattleType(struct GObj *a0);
+float GetEnemyDefDodgeRange(struct GObj *a0);
+float GetEnemyDefLife(struct GObj *a0);
+int GetEnemyHitNodeFlag(struct GObj *a0);
+int RandomizeEnemy(struct GObj *self);
+void ResetEnemyPositionInfo(struct GObj *self);
+void ReviveEnemyParticle(struct GObj *a0, int a1);
+void SetEnemyDissolve(struct GObj *self, float ratio);
+void SetEnemyFootPrintSwitch(struct GObj *a0, int a1);
 void dispEnemyObject(void *self);
-int isExistEnemyParticle(char *a0, int a1);
+int isExistEnemyParticle(struct GObj *a0, int a1);
 
 #endif /* ENEMY_H */

@@ -17,6 +17,7 @@
 #include "wireLetter.h"
 #include "main.h"
 #include "GifPacket.h"
+#include <stdio.h>
 
 typedef struct Light {
     char _pad0[0x10];
@@ -521,9 +522,6 @@ void light_MakeLightMatrix(Sub15C *a, int b)
    initializer in a temporary (the three conversions, the 128 and the ld/sd
    copy all sit on that row), and the temporary is the slot the extents
    re-take. */
-
-/* kept local: int (char *, char *, ...) here, int (void *, int, ...) in stdio.h */
-extern int sprintf(char *buf, char *fmt, ...);
 
 void light_DispVolume(void)
 {

@@ -4,7 +4,6 @@
 #include "matrixDrive.h"
 #include "fieldCollision.h"
 #include "quaternion.h"
-#include "switch.c.inc"
 #include "DObj.h"
 #include "Primitive.h"
 #include "debug.h"
@@ -21,6 +20,18 @@
 #include "sceneManager.h"
 #include "Matrix.h"
 #include "motionManager.h"
+#include "GifPacket.h"
+#include <math.h>
+#include "stageMultiBgaManager.h"
+#include "DisplayP2O.h"
+#include "lineManager.h"
+#include "attackhit.h"
+#include "obj_manager.h"
+#include "memory.h"
+#include "geometryManager.h"
+#include "ios.h"
+#include "particleEffect.h"
+#include "switch.c.inc"
 
 /* The 416-byte box work block InitBoxGeo allocates and seeds from the
    template below (VMA 0x4E6030).  RECONSTRUCTION: the record and every name
@@ -80,37 +91,27 @@ typedef struct BoxWork {
     float f_190[4];   /* 0x190 */
 } __attribute__((aligned(8))) BoxWork;
 
-#include "GifPacket.h"
-#include <math.h>
-#include "stageMultiBgaManager.h"
-#include "DisplayP2O.h"
-#include "lineManager.h"
-#include "attackhit.h"
-
-/* kept local: void (void *) here, void (int) in geometryManager.h */
-extern void UpdateRootMatrix(void *a0);
-
-void landingSE(int a0)
+void landingSE(GObj *a0)
 {
     ExecuteSEPackage(a0, 0x2);
 }
 
-void fallDownStartSE(int a0)
+void fallDownStartSE(GObj *a0)
 {
     ExecuteSEPackage(a0, 0x24);
 }
 
-void pushStartSE(int a0)
+void pushStartSE(GObj *a0)
 {
     ExecuteSEPackage(a0, 0x4);
 }
 
-void pullStartSE(int a0)
+void pullStartSE(GObj *a0)
 {
     ExecuteSEPackage(a0, 0xD);
 }
 
-void wallHitSE(int a0)
+void wallHitSE(GObj *a0)
 {
     ExecuteSEPackage(a0, 0x1E);
 }
@@ -118,21 +119,21 @@ void wallHitSE(int a0)
 /* box.c:232-241 in the listing: inlined into onPath and into
    ExecBoxMoveEndReaction, so it is a static inline here; it has no symbol of
    its own in the ROM and no census row, and the name is descriptive. */
-static inline void stopBoxMoveSE(char *self)
+static inline void stopBoxMoveSE(GObj *self)
 {
     BoxWork *q = GOBJ_SUB(self)->work;
 
-    StopSEPackage((int)self);
-    StopSEPackageWithGroupVariation((int)self, 1);
+    StopSEPackage(self);
+    StopSEPackageWithGroupVariation(self, 1);
 
-    ExecuteSEPackage((int)self, 0x16);
+    ExecuteSEPackage(self, 0x16);
     if (q->f_140 != 0) {
-        wallHitSE((int)self);
+        wallHitSE(self);
         q->f_140 = 0;
     }
 }
 
-void initFallDown(char *a0)
+void initFallDown(GObj *a0)
 {
     float pos[4];
     float pts[16];
@@ -149,14 +150,14 @@ void initFallDown(char *a0)
         sceVu0Normalize(n, n);
         SetIdentityQuaternion((char *)GOBJ_SUB(a0) + 0xC0);
         RotQuaternionY((char *)GOBJ_SUB(a0) + 0xC0, GetTableArcTan2(n[0], n[2]));
-        GetRootQuaternion((int)((char *)GOBJ_SUB(a0) + 0xE0), (int)a0);
-        DivQuaternion((int)((char *)GOBJ_SUB(a0) + 0xE0), (int)((char *)GOBJ_SUB(a0) + 0xE0),
-                      (int)((char *)GOBJ_SUB(a0) + 0xC0));
+        GetRootQuaternion(((char *)GOBJ_SUB(a0) + 0xE0), a0);
+        DivQuaternion(((char *)GOBJ_SUB(a0) + 0xE0), ((char *)GOBJ_SUB(a0) + 0xE0),
+                      ((char *)GOBJ_SUB(a0) + 0xC0));
         GetMatrixFromQuaternionPos(p->mtx[0], (char *)GOBJ_SUB(a0) + 0xC0, (char *)pos);
         GOBJ_SUB(a0)->motion = 1143;
     } else {
         GOBJ_SUB(a0)->motion = 1143;
-        GetRootQuaternion((int)((char *)GOBJ_SUB(a0) + 0xC0), (int)a0);
+        GetRootQuaternion(((char *)GOBJ_SUB(a0) + 0xC0), a0);
     }
 }
 
@@ -164,7 +165,7 @@ void initFallDown(char *a0)
    AddVectorXYZ prototypes do not fit this TU's uses of them. */
 extern void GetLowerPlaneCollision(void *work, void *pos);
 
-int checkFieldContact(char *a0, float lim)
+int checkFieldContact(GObj *a0, float lim)
 {
     ClipBuf w;
     float pos[4];
@@ -199,12 +200,8 @@ int checkFieldContact(char *a0, float lim)
     return 0;
 }
 
-/* kept local: void (void *, void *) here, void (char *, void *) in geometryManager.h */
-extern void SetDirectRootPosition(void *obj, void *pos);
 /* kept local: this TU does not include geometryManager.h, whose GetRootMatrix and
    GetCharGObjList prototypes do not fit this TU's uses of them. */
-/* kept local: void (void *, void *) here, void (char *, void *) in geometryManager.h */
-extern void SetRootPosition(void *obj, void *pos);
 
 /* box.c:343-360 in the listing: inlined into execNormalMove twice (once with
    ClipWall, once with ClipWallBoxStop) and into inertiaMove once, so it is a
@@ -214,7 +211,7 @@ extern void SetRootPosition(void *obj, void *pos);
    and the root-position scratch are the CALLER's: the ROM's frames place them
    among the caller's own locals, and execNormalMove's two expansions get two
    separate work buffers while sharing one output vector. */
-static inline void checkBoxWallHit(char *self, char *w, float *base, float *out, int stop)
+static inline void checkBoxWallHit(GObj *self, char *w, float *base, float *out, int stop)
 {
     BoxWork *p = GOBJ_SUB(self)->work;
 
@@ -236,12 +233,6 @@ static inline void checkBoxWallHit(char *self, char *w, float *base, float *out,
 
 /* kept local: this TU's uses of these do not fit the prototypes in the headers
    that declare them */
-/* kept local: void (int, int, void *) here, int (char *, int, int) in obj_manager.h */
-extern void iosOmSendMail(int dst, int mail, void *arg);
-/* kept local: agrees with geometryManager.h, which this TU does not include (GetCharGObjList, GetRootPosition differ) */
-extern void GetProjectionPosOfPlane(void *dst, void *plane, void *pos);
-/* kept local: void (void *, void *) here, void (char *, void *) in geometryManager.h */
-extern void SetRootQuaternion(void *obj, void *q);
 
 /* the two debug lines the wall fit prints, rodata VMA 0x61EF20 and 0x61EF48;
    the second is EUC-JP, "this terrain is wrong (it is not cut to 100cm)" */
@@ -263,7 +254,7 @@ typedef struct {
 } BoxWallRec;
 
 /* box.c:362-457 in the listing. */
-int execNormalMove(char *self, int stop)
+int execNormalMove(GObj *self, int stop)
 {
     char stopWork[0xC0];
     float pos[4];
@@ -364,7 +355,7 @@ int execNormalMove(char *self, int stop)
 
 /* box.c:461-478 in the listing: inlined once, into execAutoMove, so it has no
    symbol of its own in the ROM and no census row; the name is descriptive. */
-static inline void setBoxStopWallFlag(char *self, float *vel)
+static inline void setBoxStopWallFlag(GObj *self, float *vel)
 {
     ClipBuf w;
     float dir[4];
@@ -383,7 +374,7 @@ static inline void setBoxStopWallFlag(char *self, float *vel)
     }
 }
 
-int execAutoMove(char *a0)
+int execAutoMove(GObj *a0)
 {
     float pos[4];
     BoxWork *p = GOBJ_SUB(a0)->work;
@@ -407,7 +398,7 @@ static inline float getAlign(float v, float g)
     return -getAlign(-v, g);
 }
 
-static inline void alignPosition(char *self, float *dst, float *src, float grid)
+static inline void alignPosition(GObj *self, float *dst, float *src, float grid)
 {
     float npos[4];
     char *n = (char *)(int)GOBJ_SUB(self);
@@ -421,7 +412,7 @@ static inline void alignPosition(char *self, float *dst, float *src, float grid)
     CopyVector(dst, npos);
 }
 
-int AlignBox(char *a0, float grid)
+int AlignBox(GObj *a0, float grid)
 {
     float pos[4];
     float quat[4];
@@ -439,14 +430,8 @@ int AlignBox(char *a0, float grid)
 
 /* declared here: box.c includes no header that declares the ios allocators
    (ico2/fumi/include/memory.h has them with an IosMemPart * partition) */
-/* kept local: void * (void *, int, char *, int) here, void * (IosMemPart *, int, char *, int) in memory.h */
-extern void *iosMallocDebug(void *part, int size, char *file, int line);
-/* kept local: void (void *) here, void * (void *) in memory.h */
-extern void iosFree(void *p);
 /* kept local: this TU's view of ios.c's partition handle is a pointer, which
    initWheels' schedule needs (ios.h declares the handles int) */
-/* kept local: void * here, int in ios.h */
-extern void *ios_partition_seki;
 extern GenGeo objLayout[];
 
 /* box.c:546-565 in the listing.  Lines 558 to 560 are one call-site line in
@@ -569,7 +554,7 @@ void initWheels(char *self, float *lay)
    static inline here; it has no symbol of its own in the ROM and no census row,
    and the name is descriptive.  10430.3779f is 65536 / (2 * pi), the repo's
    spelling of the radian-to-angle-table factor (ico2/seki/src/Primitive.c). */
-static inline void updateBoxWheelAngle(char *self)
+static inline void updateBoxWheelAngle(GObj *self)
 {
     BoxWork *p = GOBJ_SUB(self)->work;
 
@@ -578,7 +563,7 @@ static inline void updateBoxWheelAngle(char *self)
     }
 }
 
-void dispWheels(char *a0)
+void dispWheels(GObj *a0)
 {
     BoxWork *p = GOBJ_SUB(a0)->work;
 
@@ -901,7 +886,7 @@ int getNearestPosition(float *out, int *pidx, int *path)
     return 1;
 }
 
-void onPathInitialize(char *a0)
+void onPathInitialize(GObj *a0)
 {
     BoxWork *p = GOBJ_SUB(a0)->work;
     float front[4];
@@ -925,7 +910,7 @@ void onPathInitialize(char *a0)
     debug_StdPrintfDummy("front pos: %f, %f, %f\n", front[0], front[1], front[2]);
     debug_StdPrintfDummy("rear  pos: %f, %f, %f\n", rear[0], rear[1], rear[2]);
     if (distance_squared(front, rear) < 0.010000001f) {
-        GetRootQuaternion((int)quat, (int)a0);
+        GetRootQuaternion(quat, a0);
         RotQuaternionY(quat, 16384);
         SetRootQuaternion(a0, quat);
         UpdateRootMatrix(a0);
@@ -952,7 +937,7 @@ static int routeRearColor[4] = {255, 128, 0, 128};
    block-copied, as onPathInitialize's are; the offsets are VECTOR records, whose
    one clobber (a union initialiser emits two) lets the stores clear early
    enough for the ROM's schedule. */
-int onPath(char *self)
+int onPath(GObj *self)
 {
     BoxWork *p = GOBJ_SUB(self)->work;
     Vec4 front;
@@ -1058,7 +1043,7 @@ inline float GetDistanceOfGObj(void *a0, void *a1)
 
 extern void GetFloatingMotion(void *mot, void *dir, int *m, int a3, int t0, int t1, float t);
 
-int playAnimationCore(char *a0)
+int playAnimationCore(GObj *a0)
 {
     float mot[4];
     float rot[4];
@@ -1084,31 +1069,24 @@ int playAnimationCore(char *a0)
     return UpdateFrameCounter(a0);
 }
 
-/* kept local: int (void *, void *) here, int (float *, int *) in geometryManager.h */
-extern int LimitExistGeometry(void *pos, void *vel);
-
 /* box.c:867-877 in the listing: inlined once, into execFallDown's case 3, so it
    is a static inline here; it has no symbol of its own in the ROM and no census
    row, and the name is descriptive.  The frame-rate divisor is the one
    moveBoxAutoMatic uses, written twice and shared by cse. */
-static inline void execBoxFall(char *self)
+static inline void execBoxFall(GObj *self)
 {
     float v[4];
 
     GetRootPosition(v, self);
-    ((IntFloat *)(*(char **)(self + 0x15C) + 0x134))->f +=
+    ((IntFloat *)(*(char **)(((char *)self) + 0x15C) + 0x134))->f +=
         60.0f / (float)((60 - systemStatus[0] * 10) / systemStatus[1]) * 0.5f *
         (60.0f / (float)((60 - systemStatus[0] * 10) / systemStatus[1]));
-    AddVectorXYZ(v, v, *(char **)(self + 0x15C) + 0x130);
+    AddVectorXYZ(v, v, *(char **)(((char *)self) + 0x15C) + 0x130);
     SetRootPosition(self, v);
-    if (LimitExistGeometry(v, *(char **)(self + 0x15C) + 0x130) != 0) {
+    if (LimitExistGeometry(v, *(char **)(((char *)self) + 0x15C) + 0x130) != 0) {
         *(int *)((char *)GOBJ_SUB(self)->work + 0x20) = -1;
     }
 }
-
-/* kept local: agrees with geometryManager.h, which this TU does not include (GetCharGObjList, GetRootPosition differ) */
-extern int GetCylinderCollisionWithExceptOwnCollision(char *self, int target, float r, float h,
-                                                      float s, float t, int ctrl);
 
 /* the local Z axis the floating box's facing is rebuilt from */
 static float floatFacingAxis[4] = {0.0f, 0.0f, 1.0f, 0.0f};
@@ -1116,7 +1094,7 @@ static float floatFacingAxis[4] = {0.0f, 0.0f, 1.0f, 0.0f};
 /* box.c:882-951 in the listing.  0.31830987 is 1 / pi and the ROM keeps two
    copies of it, one per arm of the sign test, the way it keeps two copies of
    every other constant that appears once in each arm. */
-int MoveFloatingBox(char *self, char *other, float *dst, void *src, float lim)
+int MoveFloatingBox(GObj *self, GObj *other, float *dst, void *src, float lim)
 {
     float pos[4];
     float opos[4];
@@ -1233,7 +1211,7 @@ static inline void pushOutFloatingBox(char *cw, float *m, float *sv, float *dv, 
 /* The same prototype fieldCollision.h gives; dropping this redeclaration moves
    avoidCharGObj's w+0x88 load from $2 to $3 (measured, complete66 row). */
 
-void avoidCharGObj(char *a0, char *a1)
+void avoidCharGObj(GObj *a0, GObj *a1)
 {
     ClipBuf w;
     float pos[4];
@@ -1280,7 +1258,7 @@ extern int GetWaterReaction(void *w, int *hit, void *plane, void *pos, void *vel
 /* the world Y axis the box's tilt is measured around */
 static float floatTiltAxis[4] = {0.0f, 1.0f, 0.0f, 0.0f};
 
-void execFloating(char *self)
+void execFloating(GObj *self)
 {
     char fw[0xC0];
     float pos[4];
@@ -1386,7 +1364,7 @@ void execFloating(char *self)
 /* the facing a floating box starts with */
 static float floatInitFacing[4] = {0.0f, 0.0f, 1.0f, 0.0f};
 
-void initFloating(char *a0)
+void initFloating(GObj *a0)
 {
     BoxWork *p = GOBJ_SUB(a0)->work;
 
@@ -1403,8 +1381,6 @@ void initFloating(char *a0)
     execFloating(a0);
 }
 
-/* kept local: char ** (void) here, int * (void) in geometryManager.h */
-extern char **GetCharGObjList(void);
 extern int moveXPlus(float *a0, float f12, float f13, float f14);
 extern int moveXMinus(float *a0, float f12, float f13, float f14);
 extern int moveZPlus(float *a0, float f12, float f13, float f14);
@@ -1414,7 +1390,7 @@ int _checkItemBreak(void *pos)
 {
     float p[4];
     float d[4];
-    char *o;
+    GObj *o;
 
     /* listing lines 1259 and 1263 sit inside this function's own span, so
        the test is a nested inline function (the name is ours). What the
@@ -1446,7 +1422,7 @@ int _checkItemBreak(void *pos)
     return 1;
 }
 
-void initLanding(char *a0)
+void initLanding(GObj *a0)
 {
     float pos[4];
     float plane[4];
@@ -1474,14 +1450,14 @@ void initLanding(char *a0)
    action's case 4 (the inner one inside the outer one), so they are static
    inlines here; neither has a symbol of its own in the ROM or a census row, and
    the names are descriptive. */
-static inline void resetBoxRootQuaternion(char *self, float *q)
+static inline void resetBoxRootQuaternion(GObj *self, float *q)
 {
     GetInverseQuaternion(q, (char *)GOBJ_SUB(self) + 0x60);
     SetRootQuaternion(self, q);
     GOBJ_SUB(self)->colRotate = 1;
 }
 
-static inline void playBoxAnimation(char *self, float *q)
+static inline void playBoxAnimation(GObj *self, float *q)
 {
     if (playAnimationCore(self) != 0) {
         BoxWork *p = GOBJ_SUB(self)->work;
@@ -1494,7 +1470,7 @@ static inline void playBoxAnimation(char *self, float *q)
 /* box.c:1325-1339 in the listing: inlined once, into execFallDown, so it is a
    static inline here; it has no symbol of its own in the ROM and no census row,
    and the name is descriptive. */
-static inline void attackBoxFallCenter(char *self)
+static inline void attackBoxFallCenter(GObj *self)
 {
     float plane[4];
     float pos[4];
@@ -1509,7 +1485,7 @@ static inline void attackBoxFallCenter(char *self)
     }
 }
 
-void execFallDown(char *a0)
+void execFallDown(GObj *a0)
 {
     BoxWork *p = GOBJ_SUB(a0)->work;
 
@@ -1528,17 +1504,17 @@ void execFallDown(char *a0)
     case 1:
         initLanding(a0);
         p->f_020 = 4;
-        landingSE((int)a0);
+        landingSE(a0);
         break;
     case 2:
         initFloating(a0);
         p->f_020 = 5;
-        landingSE((int)a0);
+        landingSE(a0);
         break;
     }
 }
 
-void inertiaMove(char *a0)
+void inertiaMove(GObj *a0)
 {
     float pos[4];
     float tmp[4];
@@ -1561,12 +1537,12 @@ void inertiaMove(char *a0)
     }
 }
 
-inline int IsThisBoxTruck(char *a0)
+inline int IsThisBoxTruck(GObj *a0)
 {
     return *(int *)((char *)GOBJ_SUB(a0)->work + 0x58);
 }
 
-void action(char *a0)
+void action(GObj *a0)
 {
     /* the float view carries the up vector; the union is what the ROM's
        schedule needs, its alias-set-0 store keeping the matrix read after it */
@@ -1613,9 +1589,6 @@ void action(char *a0)
     }
 }
 
-/* kept local: agrees with geometryManager.h, which this TU does not include (GetCharGObjList, GetRootPosition differ) */
-extern void GetRootMatrix();
-
 inline void GetBoxGlobalHoldPoint(void *a0, void *a1, void *a2)
 {
     float buf[16];
@@ -1629,7 +1602,7 @@ inline void GetBoxGlobalHoldPoint(void *a0, void *a1, void *a2)
    so it is allocated after the first inlining and not with the function's
    top-level locals.  The two squared-distance spellings are the listing's:
    sugiCommon.h:97 in the first iteration, sugiCommon.h:87 in the rest. */
-int GetBoxHoldPoint(float *out, char *self, void *chara)
+int GetBoxHoldPoint(float *out, GObj *self, void *chara)
 {
     float pos[4];
     float p[4];
@@ -1675,12 +1648,12 @@ int GetBoxHoldPoint(float *out, char *self, void *chara)
     return 1;
 }
 
-inline int CanHoldBox(char *a0)
+inline int CanHoldBox(GObj *a0)
 {
     return *(int *)((char *)GOBJ_SUB(a0)->work + 0x20) == 0;
 }
 
-static inline void setupClipWork(ClipBuf *w, char *obj, float *dir, float len, float h)
+static inline void setupClipWork(ClipBuf *w, GObj *obj, float *dir, float len, float h)
 {
     float t[4];
 
@@ -1870,7 +1843,7 @@ end:
     return rv;
 }
 
-static inline int checkCharGObjs(char *obj, char *holder, float *dir)
+static inline int checkCharGObjs(GObj *obj, char *holder, float *dir)
 {
     float pos[4];
     float pos2[4];
@@ -1909,7 +1882,7 @@ int _checkItemCollision(void *pos)
 {
     float p[4];
     float d[4];
-    char *o;
+    GObj *o;
 
     /* listing lines 1735 and 1739: the same nested range test as
        _checkItemBreak's (see the comment there for what the bytes pin) */
@@ -1936,7 +1909,7 @@ int _checkItemCollision(void *pos)
     return 1;
 }
 
-static inline int checkItemHit(char *obj, float *dir)
+static inline int checkItemHit(GObj *obj, float *dir)
 {
     float pos[4];
     float d[4];
@@ -1948,7 +1921,7 @@ static inline int checkItemHit(char *obj, float *dir)
     return _checkItemCollision(to);
 }
 
-int moveBoxAutoMatic(char *a0, int a1)
+int moveBoxAutoMatic(GObj *a0, int a1)
 {
     float v[4];
     float v2[4];
@@ -1976,7 +1949,7 @@ int moveBoxAutoMatic(char *a0, int a1)
         break;
     }
     if (p->f_138 != a1) {
-        StopSEPackageWithGroupVariation((int)a0, 1);
+        StopSEPackageWithGroupVariation(a0, 1);
         if (a1 != 0) {
             ExecuteSEPackageWithGroupVariation(a0, 29, 1);
         }
@@ -1991,7 +1964,7 @@ int moveBoxAutoMatic(char *a0, int a1)
     return r;
 }
 
-int MoveBoxWithHoldPoint(char *a0, void *a1, char *a2, int a3, float *a4)
+int MoveBoxWithHoldPoint(GObj *a0, void *a1, GObj *a2, int a3, float *a4)
 {
     float plane[4];
     float nv[4];
@@ -2030,7 +2003,7 @@ int MoveBoxWithHoldPoint(char *a0, void *a1, char *a2, int a3, float *a4)
         }
         if (stage_no == 8) {
             if (q->serial == 0 && q->f_114 == 0) {
-                pushStartSE((int)a0);
+                pushStartSE(a0);
             }
         }
         ReviveCarryableItemsWithBoundary(pos, 100.0f);
@@ -2071,9 +2044,9 @@ int MoveBoxWithHoldPoint(char *a0, void *a1, char *a2, int a3, float *a4)
     }
 }
 
-inline int BoxRideFunc(int *a0, char *a1)
+inline int BoxRideFunc(int *a0, GObj *a1)
 {
-    char *obj = (char *)*a0;
+    GObj *obj = (char *)*a0;
     Sub15C *p15c = GOBJ_SUB(obj);
     char *s0 = *(char **)((char *)p15c + 0x830);
     char buf[0x20];
@@ -2088,7 +2061,7 @@ inline int BoxRideFunc(int *a0, char *a1)
     return 1;
 }
 
-inline void ExecBoxMoveStartReaction(char *a0, int a1)
+inline void ExecBoxMoveStartReaction(GObj *a0, int a1)
 {
     BoxWork *q = GOBJ_SUB(a0)->work;
     if (q->route != 0) {
@@ -2097,17 +2070,17 @@ inline void ExecBoxMoveStartReaction(char *a0, int a1)
         }
     }
     if (a1 >= 0) {
-        pushStartSE((int)a0);
+        pushStartSE(a0);
         q->f_114 = 0;
     } else {
-        pullStartSE((int)a0);
+        pullStartSE(a0);
         q->f_114 = 0;
     }
 end:
     q->f_110 = 1;
 }
 
-inline void ExecBoxMoveEndReaction(char *a0)
+inline void ExecBoxMoveEndReaction(GObj *a0)
 {
     BoxWork *q = GOBJ_SUB(a0)->work;
     if (q->route == 0 || q->f_110 != 0) {
@@ -2116,7 +2089,7 @@ inline void ExecBoxMoveEndReaction(char *a0)
     q->f_110 = 0;
 }
 
-void ReInitBoxGeo(char *a0)
+void ReInitBoxGeo(GObj *a0)
 {
     BoxWork *p = GOBJ_SUB(a0)->work;
 
@@ -2168,7 +2141,7 @@ typedef struct {
 } BoxLink;
 
 /* box.c:2014-2102 in the listing. */
-char *InitBoxGeo(char *self, BoxLayout *lay)
+char *InitBoxGeo(GObj *self, BoxLayout *lay)
 {
     char *w = (char *)iosMallocDebug(ios_partition_sugipon, 416, __FILE__, 2017);
     char *o;
@@ -2256,7 +2229,7 @@ char *InitBoxGeo(char *self, BoxLayout *lay)
     return w;
 }
 
-void BoxGeo(char *a0)
+void BoxGeo(GObj *a0)
 {
     BoxWork *p = GOBJ_SUB(a0)->work;
 
@@ -2268,7 +2241,7 @@ void BoxGeo(char *a0)
     }
 }
 
-inline void BoxDL(char *a0)
+inline void BoxDL(GObj *a0)
 {
     BoxWork *q = GOBJ_SUB(a0)->work;
     p2o_SetDefaultEnviroment();
@@ -2277,7 +2250,7 @@ inline void BoxDL(char *a0)
         dispWheels(a0);
     }
     if (systemStatus[5] != 0) {
-        StopSEPackageWithGroupVariation((int)a0, 1);
+        StopSEPackageWithGroupVariation(a0, 1);
         *(int *)((char *)GOBJ_SUB(a0)->work + 0x138) = 0;
     }
 }
@@ -2304,7 +2277,7 @@ inline int BoxMemoryFunc(void)
     return 1;
 }
 
-int GetBoxMode(char *a0)
+int GetBoxMode(GObj *a0)
 {
     return *(int *)((char *)GOBJ_SUB(a0)->work + 0x20);
 }

@@ -1,5 +1,6 @@
 #include "EnemyInit.h"
 #include "ios.h"
+#include "memory.h"
 
 /* the number of stages enemy_Initialize sets up (MAIN.MAP global, the TU's
    .sdata) */
@@ -836,9 +837,6 @@ EnemyModelSet *enemymodel01[] = {&enemy_enemymodel01_enemymodel04, 0};
 
 /* the stages' set lists and their counts, enemy_Initialize's table */
 static EnemySet enemySetTable[] = {{(int **)enemymodel01, 1}}; /* derived name */
-
-/* kept local: void * (void *, int, char *, int) here, void * (IosMemPart *, int, char *, int) in memory.h */
-extern void *iosMallocDebug(void *heap, int size, char *file, int line);
 
 /* Debug report of the number of positions enemy_Initialize copied, built only
    under DEBUG; the name and the text are ours. */

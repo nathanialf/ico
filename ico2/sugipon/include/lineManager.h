@@ -14,9 +14,9 @@
 
 void Draw2DLineSeg_Loop(int *a0, int *a1, int *a2);
 void Draw2DLineSeg_Start(void);
-void DrawLine(int *p1, int *p2, int a2, int a3);
+void DrawLine(void *p1, void *p2, void *color, int z);
 void DrawLineG(void *p0, void *c0, void *p1, void *c1, int z);
-int _getLine();
+int _getLine(float *o1, float *o2, float *p1, float *p2);
 void Draw2DLine(int *p1, int *p2, int *color, int z);
 
 #endif /* LINEMANAGER_H */

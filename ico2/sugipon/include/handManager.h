@@ -12,8 +12,18 @@
 #ifndef HANDMANAGER_H
 #define HANDMANAGER_H
 
-void HandManager(char *obj);
-float _handManager(char *obj, char *hw, char *vec, char *ref, int node);
-void connectToTarget(char *obj, char *hw, int na, int nb, int nc);
+/* motion-ik-eff-def: one hand IK mode, 0x10 bytes, indexed by a nibble of
+ * MotionRec's modeBits. Readers: ico2/sugipon/src/handManager.c (the vec
+ * _handManager takes), ico2/fumi/src/act-game.c (HandModeRow). */
+typedef struct {  /* field names derived */
+    float dir[3]; /* 0x00 */
+    int mode;     /* 0x0C */
+} HandModeRow;
+
+struct GObj;
+
+void HandManager(struct GObj *obj);
+float _handManager(struct GObj *obj, char *hw, char *vec, char *ref, int node);
+void connectToTarget(struct GObj *obj, char *hw, int na, int nb, int nc);
 
 #endif /* HANDMANAGER_H */

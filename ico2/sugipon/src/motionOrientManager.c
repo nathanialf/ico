@@ -121,12 +121,8 @@ extern const MotOriTrigEnt motionKind[];
 /* the seventeen fixed captions the orientation debug window prints, one per
    trigger kind, plus the window's own format at 0x6201C8 */
 
-/* The motion-name row the debug line prints: 32 bytes the ROM copies with
- * ldl/ldr, so a 4-aligned record and not an 8-aligned one. */
-typedef struct MotOriName {
-    char s[0x20];
-} MotOriName;
-
+/* kept local: ico2/fumi/src/commonact.c declares the table as char [], and it
+   includes motionOrientManager.h through typedef.h */
 extern MotOriName motionOriKind[];
 
 void orientDebug(void *self, int idx, int y)
@@ -199,15 +195,6 @@ void orientDebug(void *self, int idx, int y)
     }
 }
 
-typedef struct MotOriSub {
-    /* 0x0 */ int f0;
-    /* 0x4 */ int f4;
-    /* 0x8 */ float f8;
-    /* 0xC */ int fC;
-} MotOriSub;
-
-extern const MotOriSub blendMotionKind[];
-
 static inline void checkMotionKind(int i, int j)
 {
     if (motionKind[i].f178 != 0x140) {
@@ -232,8 +219,8 @@ int GetNbMotionFrames(int id)
     if (motionKind[id].f178 == 0x140) {
         return *motionTable[id];
     }
-    m = blendMotionKind[motionKind[id].f178].f0;
-    n = blendMotionKind[motionKind[id].f178].fC;
+    m = blendMotionKind[motionKind[id].f178].motion;
+    n = blendMotionKind[motionKind[id].f178].frames;
     checkMotionKind(m, id);
     if (n != -1) {
         return n;
@@ -248,7 +235,7 @@ float GetMotionPlaySpeedRatio(int id)
     if (motionKind[id].f178 == 0x140) {
         return motionKind[id].f174;
     }
-    m = blendMotionKind[motionKind[id].f178].f0;
+    m = blendMotionKind[motionKind[id].f178].motion;
     checkMotionKind(m, id);
     return motionKind[m].f174;
 }
@@ -260,26 +247,26 @@ void execFrameTrigger(void *self)
 
     t = (float)motionKind[w->motion].f144;
     if (0.0f <= t) {
-        if (w->f_19C == 0) {
-            if (t < w->f_3C) {
-                w->f_198 = 1;
-                w->f_19C = 1;
+        if (w->trigger1Done == 0) {
+            if (t < w->animFrame) {
+                w->trigger1 = 1;
+                w->trigger1Done = 1;
             } else {
-                w->f_198 = 0;
+                w->trigger1 = 0;
             }
         } else {
-            w->f_198 = 0;
+            w->trigger1 = 0;
         }
     }
     t = (float)motionKind[w->motion].f14C;
     if (0.0f <= t) {
-        if (w->f_1A4 != 0) {
-            w->f_1A0 = 0;
-        } else if (t < w->f_3C) {
-            w->f_1A0 = 1;
-            w->f_1A4 = 1;
+        if (w->trigger2Done != 0) {
+            w->trigger2 = 0;
+        } else if (t < w->animFrame) {
+            w->trigger2 = 1;
+            w->trigger2Done = 1;
         } else {
-            w->f_1A0 = 0;
+            w->trigger2 = 0;
         }
     }
 }
@@ -344,18 +331,18 @@ int UpdateFrameCounter(void *self)
     float r;
     float frame;
 
-    if (w->f_58 != 0) {
-        w->f_58 = 0;
+    if (w->justShifted != 0) {
+        w->justShifted = 0;
     }
-    w->f_5C = 0;
-    w->f_80 = 0;
+    w->frameEnd = 0;
+    w->loopFlag = 0;
     if (motionFrameUpdate == 1) {
-        t = w->f_48 * motionKind[w->motion].f174 * w->f_4C *
+        t = w->speedRatio * motionKind[w->motion].f174 * w->playRate *
             (60.0f / (float)((60 - systemStatus[0] * 10) / systemStatus[1]) * 0.5f);
         if (systemStatus[0] != 0) {
             t = t * motionKind[w->motion].f15C;
         }
-        if (w->f_54 != 0) {
+        if (w->waterDrag != 0) {
             switch (w->rootUpdateMode) {
             case 1:
             case 2:
@@ -375,47 +362,48 @@ int UpdateFrameCounter(void *self)
                 break;
             }
         }
-        w->f_40 = w->f_3C;
-        w->f_3C = w->f_3C + t;
+        w->lastFrame = w->animFrame;
+        w->animFrame = w->animFrame + t;
         switch (motionKind[w->motion].f150) {
         case 1:
-            if ((float)(nf - 1) <= w->f_3C) {
-                w->f_3C = w->f_3C - (float)(nf - 1);
-                w->f_5C = motionKind[w->motion].f150;
+            if ((float)(nf - 1) <= w->animFrame) {
+                w->animFrame = w->animFrame - (float)(nf - 1);
+                w->frameEnd = motionKind[w->motion].f150;
                 InitFrameDependSequence(m + 0x740);
                 clearFrameTriggerState(self);
                 if (motionKind[w->motion].f18C_20 != 0) {
-                    w->f_80 = 1;
+                    w->loopFlag = 1;
                 }
             }
             break;
         case 4:
-            r = w->f_50;
+            r = w->frameRatio;
             r = r < 0.0f ? 0.0f : (1.0f < r ? 1.0f : r);
-            w->f_3C = (float)(nf - 1) * r;
+            w->animFrame = (float)(nf - 1) * r;
             break;
         default:
-            if ((float)(nf - 1) <= w->f_3C) {
-                w->f_3C = w->f_40;
-                w->f_5C = 1;
+            if ((float)(nf - 1) <= w->animFrame) {
+                w->animFrame = w->lastFrame;
+                w->frameEnd = 1;
             }
             break;
         }
-        w->f_44 = w->f_44 +
-                  w->f_48 * (60.0f / (float)((60 - systemStatus[0] * 10) / systemStatus[1]) * 0.5f);
-        w->f_8C = w->f_8C + 1;
-        if (!(w->f_A4 < w->f_A0)) {
-            w->f_A0 = w->f_A0 + 1;
+        w->playTime =
+            w->playTime +
+            w->speedRatio * (60.0f / (float)((60 - systemStatus[0] * 10) / systemStatus[1]) * 0.5f);
+        w->step = w->step + 1;
+        if (!(w->blendFrames < w->blendCount)) {
+            w->blendCount = w->blendCount + 1;
         }
         /* The two-frame range tests take a second frame value; here it is the
            same frame, held in a local, and the ROM's mov.s of the loaded frame
            into a second register is that local's copy. */
-        frame = w->f_3C;
-        w->f_190 = checkFrameInRange(w->motion, w->f_3C);
-        w->f_194 = checkFrameInRange2(w->motion, w->f_3C, frame);
-        w->f_38 = checkMotionShiftRange(w->motion, w->f_3C, frame);
+        frame = w->animFrame;
+        w->frameFlag1 = checkFrameInRange(w->motion, w->animFrame);
+        w->frameFlag2 = checkFrameInRange2(w->motion, w->animFrame, frame);
+        w->shiftReady = checkMotionShiftRange(w->motion, w->animFrame, frame);
     }
-    return w->f_5C;
+    return w->frameEnd;
 }
 
 inline MotionOrientEntry *GetMotionOrient(int i, int n, int id, int kind)
@@ -548,13 +536,13 @@ static inline int searchMotionShift(void *self, int id, int cur)
     struct MotCtrl *m = (struct MotCtrl *)((char *)MOWORK(self) + 0x470);
     int i;
 
-    if (m->f_1C != 0 && m->f_20 != 0) {
-        for (i = 0; (m->f_1C)[i] != -1; i++) {
-            if ((m->f_1C)[i] == id) {
-                if ((m->f_20)[i] == cur) {
+    if (m->shiftReq != 0 && m->shiftNext != 0) {
+        for (i = 0; (m->shiftReq)[i] != -1; i++) {
+            if ((m->shiftReq)[i] == id) {
+                if ((m->shiftNext)[i] == cur) {
                     return 0x479;
                 }
-                return (m->f_20)[i];
+                return (m->shiftNext)[i];
             }
         }
     }
@@ -562,22 +550,15 @@ static inline int searchMotionShift(void *self, int id, int cur)
 }
 
 /* No symbol and no census row: the listing gives it lines 563 to 566, above
- * shiftMotionData's own first line. The table is six {request, substitute}
- * pairs. */
-typedef struct MotOriAlt {
-    int req;
-    int alt;
-} MotOriAlt;
-
-extern MotOriAlt D_004FBA50[];
-
+ * shiftMotionData's own first line. mirrorMotionTable is six {request,
+ * substitute} pairs. */
 static __inline__ int searchAltMotion(int req)
 {
     int i;
 
     for (i = 0; i < 6; i++) {
-        if (D_004FBA50[i].req == req) {
-            return D_004FBA50[i].alt;
+        if (mirrorMotionTable[i].req == req) {
+            return mirrorMotionTable[i].alt;
         }
     }
     return req;
@@ -598,20 +579,21 @@ void shiftMotionData(int a0, int a1, int a2, int a3)
     int mot;
     float frame;
 
-    if (w->f_38 != 0) {
+    if (w->shiftReady != 0) {
         mot = searchAltMotion(a1);
     } else {
         mot = a1;
     }
-    w->f_98 = w->f_34;
-    w->f_34 = 0;
+    w->lastNoAlt = w->noAlt;
+    w->noAlt = 0;
     if (mot == -1) {
-        w->f_34 = 1;
+        w->noAlt = 1;
         mot = a1;
     }
-    w->f_94 = w->motion;
-    w->f_9C = (int)w->f_3C;
-    w->f_A4 = (int)((float)a3 * ((float)((60 - systemStatus[0] * 10) / systemStatus[1]) / 60.0f));
+    w->lastMotion = w->motion;
+    w->shiftFrame = (int)w->animFrame;
+    w->blendFrames =
+        (int)((float)a3 * ((float)((60 - systemStatus[0] * 10) / systemStatus[1]) / 60.0f));
     *(int *)(mw + 0x180) = -1;
     *(int *)(mw + 0x310) = motionKind[mot].f10C;
     *(int *)(mw + 0x308) = motionKind[mot].f114;
@@ -627,42 +609,42 @@ void shiftMotionData(int a0, int a1, int a2, int a3)
     *(int *)(mw + 0x328) = motionKind[mot].f104;
     *(int *)(mw + 0x32C) = motionKind[mot].f18C_22;
     *(int *)(mw + 0x330) = motionKind[mot].f190_9;
-    w->f_64 = 0;
-    if (w->f_60 == 0) {
+    w->updateModeChanged = 0;
+    if (w->keepUpdateMode == 0) {
         if (w->rootUpdateMode != motionKind[mot].f118) {
-            w->f_64 = 1;
+            w->updateModeChanged = 1;
             w->rootUpdateMode = motionKind[mot].f118;
         }
     }
-    w->f_6C = 0;
-    if (w->f_70 != 0) {
+    w->parallelEnded = 0;
+    if (w->parallel != 0) {
         if (motionKind[mot].f18C_17 == 0) {
-            w->f_6C = 1;
+            w->parallelEnded = 1;
         }
     }
-    w->f_70 = motionKind[mot].f18C_17;
+    w->parallel = motionKind[mot].f18C_17;
     w->motion = mot;
-    w->f_2C = a2;
-    w->f_A0 = 1;
-    w->f_8C = 0;
-    w->f_3C = 0.0f;
-    w->f_40 = w->f_3C;
-    w->f_58 = 1;
-    frame = w->f_3C;
-    w->f_190 = checkFrameInRange(mot, w->f_3C);
-    w->f_194 = checkFrameInRange2(w->motion, w->f_3C, frame);
-    w->f_38 = checkMotionShiftRange(w->motion, w->f_3C, frame);
-    w->f_C = 1;
-    w->f_5C = 0;
-    w->f_1DC = 0;
+    w->request = a2;
+    w->blendCount = 1;
+    w->step = 0;
+    w->animFrame = 0.0f;
+    w->lastFrame = w->animFrame;
+    w->justShifted = 1;
+    frame = w->animFrame;
+    w->frameFlag1 = checkFrameInRange(mot, w->animFrame);
+    w->frameFlag2 = checkFrameInRange2(w->motion, w->animFrame, frame);
+    w->shiftReady = checkMotionShiftRange(w->motion, w->animFrame, frame);
+    w->shifted = 1;
+    w->frameEnd = 0;
+    w->contactFlags = 0;
     if (motionKind[mot].f18C_20 != 0) {
-        w->f_80 = 1;
-        if (motionKind[w->f_94].f18C_20 == 0) {
-            w->f_7C = 0;
+        w->loopFlag = 1;
+        if (motionKind[w->lastMotion].f18C_20 == 0) {
+            w->posReserve = 0;
         }
     } else {
-        w->f_80 = 0;
-        w->f_7C = 0;
+        w->loopFlag = 0;
+        w->posReserve = 0;
     }
 }
 
@@ -674,7 +656,7 @@ void shiftMotionOrientEndFunc(void *self)
     struct MotCtrl *w = (struct MotCtrl *)((char *)MOWORK(self) + 0x470);
     int x;
 
-    if (w->f_1AC == -1) {
+    if (w->word1AC == -1) {
         /* EUC-JP: "the SE internal processing seems wrong for some reason; report it to Sugiyama" */
         debug_StdPrintfDummy(
             "何らかの理由でSEの内部処理がおかしいようです。杉山に報告してください。\n");
@@ -683,7 +665,7 @@ void shiftMotionOrientEndFunc(void *self)
     }
     StopSEPackageWithGroupVariation(self, 0);
     StopSEPackageWithGroupVariation(self, 1);
-    w->f_1B8 = 0;
+    w->lastSlipFlags = 0;
     x = w->rootUpdateMode;
     if (x < 9) {
         if (x >= 7) {
@@ -792,33 +774,33 @@ static inline int checkMotionShiftReady(struct MotCtrl *m, MotionOrientEntry *p)
 {
     int kind;
 
-    m->f_10 = 0;
-    m->f_C = 0;
-    if (m->f_74 != 0 || p->kind == -1) {
+    m->ctrlFlags = 0;
+    m->shifted = 0;
+    if (m->orientUpdateOff != 0 || p->kind == -1) {
     fail:
         return 0;
     }
     kind = p->nextId;
-    m->f_90 = kind;
+    m->orientReq = kind;
     if (kind == 0x479) {
-        if (m->f_5C == 0) {
+        if (m->frameEnd == 0) {
             goto fail;
         }
-        m->f_10 = 4;
+        m->ctrlFlags = 4;
         return 1;
     }
-    if (m->f_5C != 0) {
-        m->f_3C = (float)(GetNbMotionFrames(m->motion) - 1) - 1.0e-6f;
-        m->f_10 |= 0x10;
+    if (m->frameEnd != 0) {
+        m->animFrame = (float)(GetNbMotionFrames(m->motion) - 1) - 1.0e-6f;
+        m->ctrlFlags |= 0x10;
         return 1;
     }
-    return p->fC != -1 && (float)p->fC < m->f_3C;
+    return p->shiftFrom != -1 && (float)p->shiftFrom < m->animFrame;
 }
 
 int normalMotionShift(void *self, int force)
 {
     struct MotCtrl *w = (struct MotCtrl *)((char *)MOWORK(self) + 0x470);
-    MotionOrientEntry *p = getMotionOrient(w->f_4, w->f_8, w->f_2C, w->f_D0);
+    MotionOrientEntry *p = getMotionOrient(w->oriFrom, w->oriTo, w->request, w->orientKind);
 
     if (force == 0) {
         if (p->id == 0x47A) {
@@ -827,7 +809,7 @@ int normalMotionShift(void *self, int force)
     }
     if (checkMotionShiftReady((struct MotCtrl *)((char *)MOWORK(self) + 0x470), p) != 0) {
         int kind = p->nextId;
-        int mode = p->f10;
+        int mode = p->shiftMode;
         int next;
         int r = -1; /* no pairing found; the else arm searches with it as cur */
 
@@ -852,18 +834,8 @@ int normalMotionShift(void *self, int force)
 
 /* Listing lines 432-441: a static inline with no symbol and no census row, so
  * its name is not on the disc; findParallelMotion is this repo's spelling.
- * The table at D_00629E40 is 54 rows of five words, keyed on the current and
- * the requested motion. */
-typedef struct {
-    /* 0x00 */ int id;
-    /* 0x04 */ int kind;
-    /* 0x08 */ int nextId;
-    /* 0x0C */ int fC;
-    /* 0x10 */ int f10;
-} MotOriParallelEnt;
-
-extern MotOriParallelEnt D_00629E40[];
-
+ * parallelMotionOrient is 54 rows of five words, keyed on the current and the
+ * requested motion. */
 static inline MotionOrientEntry *findParallelMotion(int cur, int next)
 {
     int i;
@@ -872,9 +844,9 @@ static inline MotionOrientEntry *findParallelMotion(int cur, int next)
         return &D_002BC4A8;
     }
     for (i = 0; i < 54; i++) {
-        if (D_00629E40[i].id == cur) {
-            if (D_00629E40[i].kind == next) {
-                return (MotionOrientEntry *)&D_00629E40[i];
+        if (parallelMotionOrient[i].id == cur) {
+            if (parallelMotionOrient[i].kind == next) {
+                return (MotionOrientEntry *)&parallelMotionOrient[i];
             }
         }
     }
@@ -889,7 +861,7 @@ static inline MotionOrientEntry *findParallelMotion(int cur, int next)
 int parallelMotionShift(void *self)
 {
     struct MotCtrl *m = (struct MotCtrl *)((char *)MOWORK(self) + 0x470);
-    int next = searchMotionShift(self, m->f_2C, m->motion);
+    int next = searchMotionShift(self, m->request, m->motion);
     MotionOrientEntry *p;
 
     if (next != -1) {
@@ -898,15 +870,15 @@ int parallelMotionShift(void *self)
         if (p != 0) {
             if (checkMotionShiftReady((struct MotCtrl *)((char *)MOWORK(self) + 0x470), p) != 0) {
                 shiftMotionOrientEndFunc(self);
-                shiftMotionOrientBeginFunc(self, p->nextId, m->f_2C, p->f10);
+                shiftMotionOrientBeginFunc(self, p->nextId, m->request, p->shiftMode);
                 return 1;
             }
         } else if (next != 0x479) {
-            MotionOrientEntry e = {m->motion, m->f_D0, next, m->f_24, m->f_28};
+            MotionOrientEntry e = {m->motion, m->orientKind, next, m->shiftFrom, m->shiftMode};
 
             if (checkMotionShiftReady((struct MotCtrl *)((char *)MOWORK(self) + 0x470), &e) != 0) {
                 shiftMotionOrientEndFunc(self);
-                shiftMotionOrientBeginFunc(self, next, m->f_2C, m->f_28);
+                shiftMotionOrientBeginFunc(self, next, m->request, m->shiftMode);
                 return 1;
             }
         }
@@ -1030,8 +1002,8 @@ void getNodeBlendedFloatingMotion(void *dst, float *root, int id, int n, int a4,
     int prev = -1;
     void *skel = *(void **)((char *)MOWORK(self) + 0x8C);
 
-    for (i = 0, j = motionKind[id].f178; blendMotionKind[j].f0 != 0x47B; i++, j++) {
-        int node = blendMotionKind[j].f0;
+    for (i = 0, j = motionKind[id].f178; blendMotionKind[j].motion != 0x47B; i++, j++) {
+        int node = blendMotionKind[j].motion;
 
         checkMotionKind(node, id);
         if (i == 0) {
@@ -1042,11 +1014,11 @@ void getNodeBlendedFloatingMotion(void *dst, float *root, int id, int n, int a4,
             int fn;
 
             if (prev != node) {
-                GetFloatingMotion(mot, t * blendMotionKind[j].f8, v, motionTable[node], n, a4,
+                GetFloatingMotion(mot, t * blendMotionKind[j].rate, v, motionTable[node], n, a4,
                                   skel);
                 prev = node;
             }
-            fn = GetSkeltonFocusNode(self, blendMotionKind[j].f4);
+            fn = GetSkeltonFocusNode(self, blendMotionKind[j].node);
             if (fn != -1) {
                 CopyMotionWithNodeHrc(dst, mot, skel, fn, 0);
             }
@@ -1081,7 +1053,7 @@ extern void SlopeIKControl(void *self, void *m, float *v, float *r, int n);
  * repo's spelling. */
 static inline void getMotionRootPos(char *w, float *v)
 {
-    int m = blendMotionKind[motionKind[*(int *)(w + 0x30)].f178].f0;
+    int m = blendMotionKind[motionKind[*(int *)(w + 0x30)].f178].motion;
     float t = *(float *)(w + 0x40);
 
     checkMotionKind(m, *(int *)(w + 0x30));
@@ -1148,26 +1120,26 @@ void getMotionGeometry(void *self)
         Vec16 rv;
 
         if (motionKind[w->motion].f178 == 0x140) {
-            GetFloatingMotion(mot, w->f_3C, v.f, md, n, tbl, p);
-            GetFloatingMotionRootPos(rv.f, md, w->f_40);
+            GetFloatingMotion(mot, w->animFrame, v.f, md, n, tbl, p);
+            GetFloatingMotionRootPos(rv.f, md, w->lastFrame);
         } else {
-            getNodeBlendedFloatingMotion(mot, v.f, w->motion, n, tbl, self, w->f_3C);
+            getNodeBlendedFloatingMotion(mot, v.f, w->motion, n, tbl, self, w->animFrame);
             getMotionRootPos(w, rv.f);
         }
         if (w->motion == 102) {
             v.f[0] = v.f[0] + 1.0f;
         }
         sceVu0ScaleVector(&v, &v, scale);
-        if (w->f_3C < w->f_40) {
+        if (w->animFrame < w->lastFrame) {
             CopyVector(mo + 0xA0, ZeroVector);
         } else {
             sceVu0ScaleVector(&rv, &rv, scale);
             sceVu0SubVector(mo + 0xA0, &v, &rv);
         }
-        if (w->f_34 != 0) {
+        if (w->noAlt != 0) {
             MakeMirrorMotion(mot, p);
         }
-        if (w->f_E0 != 0) {
+        if (w->catchBoy != 0) {
             SlopeIKControl(self, mot, v.f, (float *)(mo + 0xA0), n);
         }
         {
@@ -1197,8 +1169,8 @@ void getMotionGeometry(void *self)
 
             len = VectorLength(mo + 0x90) *
                   ((float)((60 - systemStatus[0] * 10) / systemStatus[1]) / 60.0f);
-            CopyVector(&fv, w->v0B0);
-            CopyVector(&tv, w->v0C0);
+            CopyVector(&fv, w->dir);
+            CopyVector(&tv, w->lastDir);
             if (*(void **)MOWORK(self) != 0) {
                 sceVu0ApplyMatrix(&fv,
                                   (char *)MOWORK(*(void **)MOWORK(self))->nodeMtx +
@@ -1251,11 +1223,11 @@ void getMotionGeometry(void *self)
             }
             flag = 0;
             if (debug_motion_interporate != 0) {
-                flag = w->f_A4 >= w->f_A0;
+                flag = w->blendFrames >= w->blendCount;
             }
             k = motionKind[w->motion].f11C;
             if (flag != 0) {
-                float s = (float)w->f_A0 / (float)w->f_A4;
+                float s = (float)w->blendCount / (float)w->blendFrames;
 
                 GetBlendedMotion(MOWORK(self)->motionBuf, tmp.f, mot, v.f, MOWORK(self)->blendBuf,
                                  (float *)((char *)MOWORK(self) + 0x7E0), s, tbl, n);
@@ -1266,7 +1238,7 @@ void getMotionGeometry(void *self)
                 CopyMotion(MOWORK(self)->motionBuf, mot, n);
                 *(float *)(mo + 0x338) = *(float *)(mo + 0x33C);
                 GetGeometryOfMotion(self, mot, MOWORK(self)->motionBuf, v.f, 1.0f, mo + 0xA0,
-                                    w->f_58 ? k : -1);
+                                    w->justShifted ? k : -1);
             }
             SetIdentityQuaternion(&tmp);
             RotQuaternionX(&tmp, -32768);
@@ -1274,12 +1246,12 @@ void getMotionGeometry(void *self)
             MultiQuaternion(&tmp, &tmp, (char *)p + 0x20);
             GetInverseQuaternion(&tmp, &tmp);
             MultiQuaternion(mo + 0x40, mot + 0x10, &tmp);
-            CopyVector(w->v0C0, w->v0B0);
+            CopyVector(w->lastDir, w->dir);
         }
     }
     MatrixDrive_PopMatrix();
-    if (w->f_1E0 <= 0) {
-        w->f_1E0 = w->f_1E0 + 1;
+    if (w->word1E0 <= 0) {
+        w->word1E0 = w->word1E0 + 1;
     } else {
         sendStateMail(self);
     }
@@ -1601,25 +1573,6 @@ void ExecMotionOrient(void *self)
     }
 }
 
-/* The node rotation limit table: three float triples (the lower, the middle and
- * the upper limit), the skeleton node name id and two unused words.  Read from
- * the ROM's own records at motionLimitDef, whose rows carry -70/-40/5, 0/-60/0,
- * 70/-40/-5 and the node id 35. */
-typedef struct {
-    float x, y, z;
-} MotOriLimit3;
-
-typedef struct {
-    /* 0x00 */ MotOriLimit3 lo;
-    /* 0x0C */ MotOriLimit3 mid;
-    /* 0x18 */ MotOriLimit3 hi;
-    /* 0x24 */ int node;
-    /* 0x28 */ int f28;
-    /* 0x2C */ int f2C;
-} MotOriLimit;
-
-extern const MotOriLimit motionLimitDef[];
-
 void SetNodeRotationLimitDataTable(void *self, int a1, int a2)
 {
     int i;
@@ -1669,15 +1622,15 @@ inline void InitMotionOrient(void *self, int a1, int a2, int a3, int a4, int a5)
     *(int *)(m + 0x1B0) = soundSeGroupGet();
 }
 
-inline unsigned int GetCurrentMotionDirectionAdjustFlag(char *a0)
+inline unsigned int GetCurrentMotionDirectionAdjustFlag(GObj *a0)
 {
     char *rec = (char *)motionKind + GOBJ_SUB(a0)->motion * 0x194;
     return *(unsigned int *)(rec + 0x188) >> 30;
 }
 
-inline int ExecuteSlipProc(char *a0)
+inline int ExecuteSlipProc(GObj *a0)
 {
-    Sub15C *e = ((GObj *)a0)->dobj;
+    Sub15C *e = a0->dobj;
     if (e->lastSlipFlags != e->slipFlags) {
         StopSEPackageWithGroupVariation(a0, 1);
         if (GOBJ_SUB(a0)->slipFlags & 0x100000) {
@@ -1696,7 +1649,7 @@ inline int ExecuteSlipProc(char *a0)
     return 1;
 }
 
-inline int ExecutePauseSlipProc(char *a0)
+inline int ExecutePauseSlipProc(GObj *a0)
 {
     if (systemStatus[5] != 0) {
         GOBJ_SUB(a0)->lastSlipFlags = 0;

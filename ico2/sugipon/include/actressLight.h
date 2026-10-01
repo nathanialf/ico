@@ -12,6 +12,8 @@
 #ifndef ACTRESSLIGHT_H
 #define ACTRESSLIGHT_H
 
-void SetActressLight(void *a0, int a1, int a2, void *a3);
+struct GObj;
+
+void SetActressLight(struct GObj *a0, int a1, int a2, int a3);
 
 #endif /* ACTRESSLIGHT_H */

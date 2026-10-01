@@ -6,12 +6,12 @@
 #include "Matrix.h"
 #include "DisplayP2O.h"
 
-void GetWormCaptureVector(void *out, void *act, void *node, float scale);
+void GetWormCaptureVector(void *out, GObj *act, void *node, float scale);
 
 /* the TU's one .sdata word (MAIN.MAP worm.o .sdata 0x4, no symbol) */
 static int wormFirst = 1; /* derived name */
 
-void disp(void *act);
+void disp(GObj *act);
 
 /* A 16-byte GS colour: four 8-bit RGBA components, one per word, handed to
    DrawLine through the float view the call expects. */
@@ -75,7 +75,7 @@ typedef struct {
 } WormWork;
 
 void simulate(WormVec *v, int n, float len);
-void GetWormRoute(int act, WormVec *target);
+void GetWormRoute(GObj *act, WormVec *target);
 
 #include "worm.h"
 #include <libvu0.h>
@@ -86,7 +86,7 @@ void GetWormRoute(int act, WormVec *target);
 #include "GifPacket.h"
 #include "ios.h"
 
-void outerProcess(int act)
+void outerProcess(GObj *act)
 {
     float v[4];
     float p[4];
@@ -170,7 +170,7 @@ void simulate(WormVec *v, int n, float len)
     }
 }
 
-void getAnimation(int act)
+void getAnimation(GObj *act)
 {
     float tmp[4];
     WormWork *w = GOBJ_SUB(act)->work;
@@ -202,7 +202,7 @@ void getAnimation(int act)
     }
 }
 
-void disp(void *act)
+void disp(GObj *act)
 {
     unsigned short ax;
     unsigned short az;
@@ -268,12 +268,12 @@ typedef union {
     int i;
 } WormFI;
 
-inline void SetWormReduceRatio(int a0, float f12)
+inline void SetWormReduceRatio(GObj *a0, float f12)
 {
     ((WormFI *)((char *)GOBJ_SUB(a0)->work + 8))->f = f12;
 }
 
-void GetWormRoute(int act, WormVec *target)
+void GetWormRoute(GObj *act, WormVec *target)
 {
     WormVec d;
     WormWork *w = GOBJ_SUB(act)->work;
@@ -305,7 +305,7 @@ void GetWormRoute(int act, WormVec *target)
     w->ratio = 0.0f;
 }
 
-inline void SetDirectWormTargetPos(int act, void *pos)
+inline void SetDirectWormTargetPos(GObj *act, void *pos)
 {
     WormWork *w = GOBJ_SUB(act)->work;
     WormRoute *r = w->route;
@@ -319,7 +319,7 @@ inline void SetDirectWormTargetPos(int act, void *pos)
     w->ratio = 1.0f;
 }
 
-inline void TraceWormRoute(int act, float t)
+inline void TraceWormRoute(GObj *act, float t)
 {
     WormWork *w = GOBJ_SUB(act)->work;
     WormRoute *r = w->route;
@@ -360,7 +360,7 @@ static inline void ResetWormRoute(int act, WormWork *w)
     w->ratio = 0.0f;
 }
 
-void *InitWormGeo(int act, WormInit *ini)
+void *InitWormGeo(GObj *act, WormInit *ini)
 {
     Sub15C *d = GOBJ_SUB(act);
     WormWork *w;
@@ -449,14 +449,14 @@ void *InitWormGeo(int act, WormInit *ini)
     return w;
 }
 
-void GetWormCaptureVector(void *out, void *act, void *node, float scale)
+void GetWormCaptureVector(void *out, GObj *act, void *node, float scale)
 {
     sceVu0SubVector(out, (void *)((int)GOBJ_SUB(act) + 0x50), node);
     sceVu0Normalize(out, out);
     sceVu0ScaleVector(out, out, scale);
 }
 
-void WormGeo(int act)
+void WormGeo(GObj *act)
 {
     WormWork *w = GOBJ_SUB(act)->work;
 

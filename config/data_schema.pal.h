@@ -114,19 +114,6 @@ typedef struct { /* field names derived */
     unsigned int flags2;      /* 0x190 */
 } MotionRec; /* derived name */
 
-/* accessary: one accessory model set, 0x28 bytes, indexed by the object's
- * Sub15C+0x844. Readers: ico2/sugipon/src/switch.c.inc (BoxModelRec: dobj0,
- * dobj1, sub, pos, rotY), pool.c (the negated pivot), weapon.c, cage.c,
- * puddle.c. Owner: ico2/sugipon/include/box.h. */
-typedef struct { /* field names derived */
-    int model;      /* 0x00, CSVSYSTEM_InitDObj's first model */
-    int model2;     /* 0x04, its second model */
-    int subModel;   /* 0x08, the sub-box model InitBoxGeo creates */
-    float pivot[3]; /* 0x0C, pool.c places the model at its negation */
-    float subPos[3]; /* 0x18, the sub-box's offset */
-    float subRotY;  /* 0x24, the sub-box's facing in degrees */
-} AccessaryRec; /* derived name */
-
 /* camera-set: one camera data file name, 0x20 bytes. Readers:
  * ico2/omori/src/camera-ico2.c and camera-editor.c. Owner:
  * ico2/omori/include/camera-ico2.h. */
@@ -143,19 +130,6 @@ typedef struct { /* field names derived */
     float time;         /* 0x08, seconds */
     unsigned int flags; /* 0x0C */
 } HintDef; /* derived name */
-
-/* motion-orient: one orientation row, 0x18 bytes. Readers:
- * ico2/sugipon/src/motionOrientManager.c and motionViewer.c
- * (MotionOrientEntry), ico2/fumi/src/commonact.c. Owner:
- * ico2/sugipon/include/motionOrientManager.h (MotionOrientEntry). */
-typedef struct { /* field names derived */
-    int id;        /* 0x00 */
-    int kind;      /* 0x04 */
-    int nextId;    /* 0x08, the motion this row chains to */
-    int shiftFrom; /* 0x0C, the frame the shift may start from, -1 for none */
-    int shiftMode; /* 0x10, handed to shiftMotionOrientBeginFunc */
-    int word14;    /* 0x14 */
-} MotionOrientEntry; /* derived name */
 
 /* obj-action: one object action, 0x14 bytes, indexed by obj-layout's
  * action. Readers: ico2/omori/src/objact.c (OaRecB), ico2/sugipon/src/
@@ -226,42 +200,6 @@ typedef struct { /* field names derived */
     unsigned int flags; /* 0x6C, bit 2: fade_cancel */
 } LtProperty; /* derived name */
 
-/* weapon-def: one weapon kind, 0x24 bytes. Readers: ico2/sugipon/src/
- * weapon.c (WeaponDef), ico2/omori/src/attackhit.c (power),
- * ico2/fumi/src/act-game.c (0x1C). Owner: ico2/sugipon/include/weapon.h. */
-typedef struct { /* field names derived */
-    float length;           /* 0x00, the blade tip's distance */
-    float grip;             /* 0x04 */
-    float power;            /* 0x08, attackhit's damage factor */
-    int wordC;              /* 0x0C */
-    int word10;             /* 0x10 */
-    int word14;             /* 0x14, -1 for none */
-    unsigned char color[4]; /* 0x18 */
-    int word1C;             /* 0x1C */
-    int word20;             /* 0x20 */
-} WeaponDef; /* derived name */
-
-/* item-kind-def: one item kind's break animations, 0x20 bytes. Reader:
- * ico2/sugipon/src/item.c (ItemBreakRec). Owner: ico2/sugipon/include/item.h. */
-typedef struct { /* field names derived */
-    int stayAnim;       /* 0x00, 972 for none */
-    int stayMode;       /* 0x04 */
-    int breakAnim;      /* 0x08 */
-    int breakMode;      /* 0x0C */
-    int dropAnim;       /* 0x10 */
-    int hitAnim;        /* 0x14 */
-    int hitMode;        /* 0x18 */
-    unsigned int flags; /* 0x1C, bit 0: play SE package 43 */
-} ItemBreakRec; /* derived name */
-
-/* mirror-motion-def: one alternative motion, 8 bytes. Reader:
- * ico2/sugipon/src/motionOrientManager.c (MotOriAlt). Owner:
- * ico2/sugipon/include/motionOrientManager.h. */
-typedef struct { /* field names derived */
-    int req; /* 0x00 */
-    int alt; /* 0x04, -1 for none */
-} MotOriAlt; /* derived name */
-
 /* model-path: one model, 0x8C bytes. Readers: ico2/common/src/PObj.c
  * (PObjMdl), charFileManager.c (SkelEnt, CollEnt at 0x30). Owner:
  * ico2/common/include/charFileManager.h. */
@@ -276,31 +214,6 @@ typedef struct { /* field names derived */
     float float84;      /* 0x84 */
     unsigned int flags; /* 0x88, bits 4-7 and 8-11 go into the GS tag */
 } PObjMdl; /* derived name */
-
-/* prog-se-link: one SE package, 0x0C bytes; the list ends at id -1. Reader:
- * ico2/sugipon/src/frameDependSequence.c (SePackage). Owner:
- * ico2/sugipon/include/frameDependSequence.h. */
-typedef struct { /* field names derived */
-    int se[2]; /* 0x00 */
-    int id;    /* 0x08 */
-} SePackage; /* derived name */
-
-/* unmapped_00533FC0: one girl-to-boy motion pair, 8 bytes. Reader:
- * ico2/sugipon/src/boy.c (MotSyncPair). Owner: ico2/sugipon/include/boy.h. */
-typedef struct { /* field names derived */
-    int girl; /* 0x00 */
-    int boy;  /* 0x04 */
-} MotSyncPair; /* derived name */
-
-/* weapon-fumble-def: one fumble placement, 0x18 bytes, three per slot.
- * Reader: ico2/sugipon/src/weapon.c (FumbleRow). Owner:
- * ico2/sugipon/include/weapon.h. */
-typedef struct { /* field names derived */
-    float pos[3]; /* 0x00 */
-    float rotY;   /* 0x0C */
-    float rotX;   /* 0x10 */
-    float rotZ;   /* 0x14 */
-} FumbleRow; /* derived name */
 
 /* attack-def: one attack kind, 0x24 bytes. Reader: ico2/omori/src/
  * attackhit.c (AttackKindEntry). Owner: ico2/omori/include/attackhit.h. */
@@ -337,30 +250,6 @@ typedef struct { /* field names derived */
     float z;  /* 0x08 */
     int kind; /* 0x0C, matched with GObj+8 */
 } SafePosOffset; /* derived name */
-
-/* motion-ik-eff-def: one hand IK mode, 0x10 bytes, indexed by a nibble of
- * MotionRec's modeBits. Readers: ico2/sugipon/src/handManager.c (the vec
- * _handManager takes), ico2/fumi/src/act-game.c (HandModeRow). Owner:
- * ico2/sugipon/include/handManager.h. */
-typedef struct { /* field names derived */
-    float dir[3]; /* 0x00 */
-    int mode;     /* 0x0C */
-} HandModeRow; /* derived name */
-
-/* motion-orient-def, moviefile: one 0x20-byte name. Readers:
- * ico2/sugipon/src/motionOrientManager.c (MotOriName), motionViewer.c,
- * ico2/common/src/main.c (movie_init's file). Owner:
- * ico2/sugipon/include/motionOrientManager.h. */
-typedef struct { /* field names derived */
-    char s[32]; /* 0x00 */
-} MotOriName; /* derived name */
-
-/* obj-light: one object light, 0x10 bytes. Reader: ico2/seki/src/Light.c
- * (float [][4]: the colour scaled by 1/256). Owner: ico2/seki/include/Light.h. */
-typedef struct { /* field names derived */
-    float col[3];  /* 0x00, 0..255 */
-    float range;   /* 0x0C */
-} ObjLight; /* derived name */
 
 /* se-env: one stage sound environment, 0x1C bytes. Reader: ico2/fumi/sound/
  * s_init.c (SeEnvDef). Owner: ico2/fumi/include/s_init.h. */
@@ -435,31 +324,6 @@ typedef struct { /* field names derived */
     unsigned int flags;    /* 0x190, one-bit stage switches */
 } StgPre; /* derived name */
 
-/* stage-anim-model: one stage animation object, 8 bytes. Reader:
- * ico2/seki/src/StageAnimation.c (StgObjDat). Owner:
- * ico2/seki/include/StageAnimation.h. */
-typedef struct { /* field names derived */
-    int kind; /* 0x00 */
-    int aux;  /* 0x04 */
-} StgObjDat; /* derived name */
-
-/* stream-motion-def: one stream motion file, 0x30 bytes. Readers:
- * ico2/script/src/st04a.c, st25a.c, e3.c (StandbyStreamMotion's file).
- * Owner: ico2/sugipon/include/streamMotionManager.h. */
-typedef struct { /* field names derived */
-    char path[48]; /* 0x00 */
-} StreamMotionFile; /* derived name */
-
-/* blend-motion-def: one node-blend motion, 0x10 bytes, indexed by
- * MotionRec's blendKind. Reader: ico2/sugipon/src/motionOrientManager.c
- * (MotOriSub). Owner: ico2/sugipon/include/motionOrientManager.h. */
-typedef struct { /* field names derived */
-    int motion;    /* 0x00, the motion blended from */
-    int word4;     /* 0x04 */
-    float float8;  /* 0x08 */
-    int frames;    /* 0x0C, the frame count, -1 for the motion's own */
-} MotOriSub; /* derived name */
-
 /* enemy-def: one enemy kind, 0x1C bytes. Reader: ico2/sugipon/src/enemy.c
  * (EnemyDef). Owner: ico2/sugipon/include/enemy.h. */
 typedef struct { /* field names derived */
@@ -471,14 +335,6 @@ typedef struct { /* field names derived */
     float dodge;       /* 0x14 */
     unsigned int attr; /* 0x18, paraIndex in bits 0-7, flyType 8-9, battleType 10-11 */
 } EnemyDef; /* derived name */
-
-/* enemy-random-def: one random enemy kind range, 8 bytes. Reader:
- * ico2/sugipon/src/enemy.c (EnemyKindRange). Owner:
- * ico2/sugipon/include/enemy.h. */
-typedef struct { /* field names derived */
-    int first; /* 0x00 */
-    int last;  /* 0x04 */
-} EnemyKindRange; /* derived name */
 
 /* layout-cloth-def: one laid-out cloth, 0x68 bytes. Readers:
  * ico2/sugipon/src/attackCheckBoundary.c (LayoutClothDef), flag.c. Owner:
@@ -494,59 +350,6 @@ typedef struct { /* field names derived */
     float float64;     /* 0x64 */
 } LayoutClothDef; /* derived name */
 
-/* motion-eff-condition-def: one vibration condition, 0x0C bytes. Reader:
- * ico2/sugipon/src/frameDependSequence.c (VibCondEntry). Owner:
- * ico2/sugipon/include/frameDependSequence.h. */
-typedef struct { /* field names derived */
-    int kind;  /* 0x00 */
-    int cond;  /* 0x04 */
-    int actId; /* 0x08 */
-} VibCondEntry; /* derived name */
-
-/* motion-eff-def: one motion effect, 0x24 bytes. Readers:
- * ico2/sugipon/src/frameDependSequence.c (EffEntry), ico2/common/src/
- * icoMisc.c (EffEnt). Owner: ico2/sugipon/include/frameDependSequence.h. */
-typedef struct { /* field names derived */
-    float x;            /* 0x00 */
-    float y;            /* 0x04 */
-    float z;            /* 0x08 */
-    float rx;           /* 0x0C */
-    float ry;           /* 0x10 */
-    float rz;           /* 0x14 */
-    int eff;            /* 0x18 */
-    int node;           /* 0x1C */
-    unsigned int flags; /* 0x20 */
-} EffEntry; /* derived name */
-
-/* motion-limit-def: one node's orientation limits, 0x30 bytes. Reader:
- * ico2/sugipon/src/motionOrientManager.c (MotOriLimit). Owner:
- * ico2/sugipon/include/motionOrientManager.h. */
-typedef struct { /* field names derived */
-    float lo[3];   /* 0x00 */
-    float mid[3];  /* 0x0C */
-    float hi[3];   /* 0x18 */
-    int node;      /* 0x24 */
-    float float28; /* 0x28 */
-    int word2C;    /* 0x2C */
-} MotOriLimit; /* derived name */
-
-/* motion-se-condition-def: one sound condition, 0x0C bytes. Reader:
- * ico2/sugipon/src/frameDependSequence.c (SECondEntry). Owner:
- * ico2/sugipon/include/frameDependSequence.h. */
-typedef struct { /* field names derived */
-    int kind; /* 0x00 */
-    int cond; /* 0x04 */
-    int se;   /* 0x08 */
-} SECondEntry; /* derived name */
-
-/* motion-se-random-def: one random sound, 8 bytes. Reader:
- * ico2/sugipon/src/frameDependSequence.c (SERandEntry). Owner:
- * ico2/sugipon/include/frameDependSequence.h. */
-typedef struct { /* field names derived */
-    int se;     /* 0x00 */
-    float rate; /* 0x04 */
-} SERandEntry; /* derived name */
-
 /* obj-trigger: one object mail trigger, 8 bytes. Reader: ico2/omori/src/
  * objact.c (ObjActMailEnt, declared in objact.h). Owner:
  * ico2/omori/include/objact.h (ObjActMailEnt). */
@@ -554,51 +357,5 @@ typedef struct { /* field names derived */
     int id;  /* 0x00, the object's GObj+8 */
     int idx; /* 0x04, the objTriggerDef row */
 } ObjActMailEnt; /* derived name */
-
-/* parallel-motion-orient: one parallel orientation row, 0x14 bytes.
- * Reader: ico2/sugipon/src/motionOrientManager.c (MotOriParallelEnt).
- * Owner: ico2/sugipon/include/motionOrientManager.h. */
-typedef struct { /* field names derived */
-    int id;        /* 0x00 */
-    int kind;      /* 0x04 */
-    int nextId;    /* 0x08 */
-    int shiftFrom; /* 0x0C */
-    int shiftMode; /* 0x10 */
-} MotOriParallelEnt; /* derived name */
-
-/* particle-effect: one particle effect file, 0x50 bytes. Readers:
- * ico2/common/src/icoMisc.c, ico2/sugipon/src/effectTool.c (the path at
- * 0x20), particleEffect.c. Owner: ico2/sugipon/include/particleEffect.h. */
-typedef struct { /* field names derived */
-    char name[32]; /* 0x00 */
-    char path[48]; /* 0x20 */
-} ParticleEffectFile; /* derived name */
-
-/* spider-def: one spider kind, 0x20 bytes. Readers: ico2/sugipon/src/
- * spider.c (SpiderKindRec), a_p_1.c (AP1Layout), act_a_p_1.c (AP1Spec).
- * Owner: ico2/sugipon/include/spider.h. */
-typedef struct { /* field names derived */
-    float ofs[3];  /* 0x00, act_a_p_1's vector */
-    int layout;    /* 0x0C, CreateLayoutedGObj's kind */
-    int count;     /* 0x10 */
-    int word14;    /* 0x14, compared with 1 */
-    float upY;     /* 0x18, ap1LayoutUp[2] */
-    int word1C;    /* 0x1C */
-} SpiderKindRec; /* derived name */
-
-/* stage-anim: one stage animation, 0x5C bytes. Reader: ico2/seki/src/
- * StageAnimation.c (stage_ApplyData, the BGA set-up, (r - table) / 0x5C).
- * Owner: ico2/seki/include/StageAnimation.h. */
-typedef struct { /* field names derived */
-    char path[64];       /* 0x00, the .bga file, "NULL" for none */
-    int objFirst;        /* 0x40, the objTableScene range */
-    int objLast;         /* 0x44 */
-    int word48;          /* 0x48, copied into the BGA data's 0x04 */
-    unsigned char byte4C; /* 0x4C, copied into the BGA data's 0x0B */
-    char pad4D[3];
-    int word50;          /* 0x50 */
-    void *data;          /* 0x54, the loaded BGA data or the data pointer */
-    int no;              /* 0x58, the row's own index, -1 for none */
-} StageAnimDef; /* derived name */
 
 #endif /* DATA_SCHEMA_PAL_H */

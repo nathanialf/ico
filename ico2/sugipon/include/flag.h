@@ -12,7 +12,9 @@
 #ifndef FLAG_H
 #define FLAG_H
 
-void SetFlag4PointFixID(char *self, int a1, int id);
+struct GObj;
+
+void SetFlag4PointFixID(struct GObj *self, int a1, int id);
 
 typedef struct {
     float m[4];
@@ -21,13 +23,13 @@ typedef struct {
 /* The InitClothes config record, the same 0x1C-byte layout clothTest.c
    carries (rows, spacing, columns, anchors, texture, weight). */
 typedef struct ClothCfg {
-    int num;       /* 0x00  rows, and -1 ends the array */
-    float f04;     /* 0x04 */
-    int div;       /* 0x08  columns */
-    int f0C;       /* 0x0C */
-    void *anchors; /* 0x10 */
-    void *tex;     /* 0x14  null means the untextured mesh */
-    float f18;     /* 0x18 */
+    int num;         /* 0x00  rows, and -1 ends the array */
+    float segLength; /* 0x04  the spacing between rows */
+    int div;         /* 0x08  columns */
+    int wrap;        /* 0x0C  nonzero when the last column joins the first */
+    void *anchors;   /* 0x10 */
+    void *tex;       /* 0x14  null means the untextured mesh */
+    float weight;    /* 0x18  the fall added to each point a step */
 } ClothCfg;
 
 /* one word of a record reached through a union member (alias set 0): the

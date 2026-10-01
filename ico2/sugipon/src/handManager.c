@@ -12,7 +12,7 @@
 
 /* getBone is defined as a nested function inside connectToTarget below. */
 
-void connectToTarget(char *obj, char *hw, int na, int nb, int nc)
+void connectToTarget(GObj *obj, char *hw, int na, int nb, int nc)
 {
     /* getBone is a nested function in the ROM: connectToTarget passes it a
      * static chain in $2 (STATIC_CHAIN_REGNUM) and getBone's prologue spills
@@ -148,7 +148,7 @@ static inline void FollowHandMatrix(char *hw, char *vec, char *ref)
     SetHandQuaternion(hw, vec, ref);
 }
 
-static inline int SetHandOnWall(char *obj, char *hw, char *vec, char *ref, int node)
+static inline int SetHandOnWall(GObj *obj, char *hw, char *vec, char *ref, int node)
 {
     Vec4 plane;
 
@@ -174,7 +174,7 @@ static inline int PutHandOnLadder(char *hw, int node)
     return 1;
 }
 
-float _handManager(char *obj, char *hw, char *vec, char *ref, int node)
+float _handManager(GObj *obj, char *hw, char *vec, char *ref, int node)
 {
     switch (*(int *)hw) {
     case 2:
@@ -217,7 +217,7 @@ float _handManager(char *obj, char *hw, char *vec, char *ref, int node)
 extern char motionKind[];
 extern char motionIKEffKind[];
 
-static inline void ResetHandTarget(char *obj, int off)
+static inline void ResetHandTarget(GObj *obj, int off)
 {
     char *h = (char *)(int)GOBJ_SUB(obj) + off;
     *(int *)(h + 0x20) = 0;
@@ -225,7 +225,7 @@ static inline void ResetHandTarget(char *obj, int off)
     ((IntFloat *)(h + 0x50))->f = GOBJ_SUB(obj)->handRate;
 }
 
-void HandManager(char *obj)
+void HandManager(GObj *obj)
 {
     float t = 1.0f;
 

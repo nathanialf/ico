@@ -1000,7 +1000,7 @@ void MotionBlur(void)
 void calcSun(void)
 {
     float buf[4];
-    _NormalizeVector((int)buf, sunDir);
+    _NormalizeVector(buf, sunDir);
     _ScaleVector(buf, buf, 1000000.0f);
     buf[3] = 1.0f;
     _ApplyMatrix(buf, matrixptr + 0x100, buf);

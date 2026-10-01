@@ -243,7 +243,7 @@ static inline char *ResetCurrentBga(char *gobj) /* derived name */
 
     if (w->cur != -1) {
         w->bga[w->cur].active = 0;
-        w->bga[w->cur].p->f0 = -1.0f;
+        w->bga[w->cur].p->frame = -1.0f;
     }
     return (char *)w;
 }
@@ -273,7 +273,7 @@ void endfunc_BGA(char *gobj)
     }
 
     case 1:
-        w->bga[1].p->f0 = 0.0f;
+        w->bga[1].p->frame = 0.0f;
         break;
 
     case 2: {

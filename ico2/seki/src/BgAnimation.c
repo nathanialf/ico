@@ -17,6 +17,7 @@
 #include "main.h"
 #include "Matrix.h"
 #include "enemy_act.h"
+#include "gobj.h"
 
 /* .data, carved VMA 0x4EE5B0..0x4EE5F0, bytes verified against
    baserom/pal/baseelf.rom.  bgaAnimDefault is the 0x30-byte default record
@@ -2177,16 +2178,9 @@ typedef struct BgaObjKind {
 } BgaObjKind;
 
 extern BgaObjKind D_002C2DF4[];
+
 /* kept local: this TU does not include gobj.h or enemy_act.h, and its use of
    DrawLightningN does not fit the prototype in lightning.h */
-/* kept local: agrees with gobj.h, which this TU does not include (isysGObjSearchFromObjKindID_next differs) */
-extern void *isysGObjSearchFromObjKindID_begin(int kind);
-/* kept local: void * (void *) here, void * (char *) in gobj.h */
-extern void *isysGObjSearchFromObjKindID_next(void *g);
-/* kept local: agrees with gobj.h, which this TU does not include (isysGObjSearchFromObjKindID_next differs) */
-extern void *isysGObjGetExist_begin(void);
-/* kept local: agrees with gobj.h, which this TU does not include (isysGObjSearchFromObjKindID_next differs) */
-extern void *isysGObjGetExist_next(void *g);
 
 /* Listing line 3069: the definition's four colour bytes widened into the
    16-byte record DrawLightningN reads.  The name is ours. */

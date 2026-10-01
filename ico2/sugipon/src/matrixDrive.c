@@ -93,7 +93,7 @@ void MatrixDrive_RotMatrixX(short a0)
     rotXWorkMatrix[6] = s;
     rotXWorkMatrix[5] = c;
     sceVu0MulMatrix(&matrixStack[matrixStackIndex * 0x40], &matrixStack[matrixStackIndex * 0x40],
-                    (int)rotXWorkMatrix);
+                    rotXWorkMatrix);
 }
 
 /* the scratch matrix MatrixDrive_RotMatrixY fills in and multiplies through */
@@ -109,7 +109,7 @@ void MatrixDrive_RotMatrixY(short a0)
     rotYWorkMatrix[2] = -s;
     rotYWorkMatrix[0] = c;
     sceVu0MulMatrix(&matrixStack[matrixStackIndex * 0x40], &matrixStack[matrixStackIndex * 0x40],
-                    (int)rotYWorkMatrix);
+                    rotYWorkMatrix);
 }
 
 /* the scratch matrix MatrixDrive_RotMatrixZ fills in and multiplies through */
@@ -125,7 +125,7 @@ void MatrixDrive_RotMatrixZ(short a0)
     rotZWorkMatrix[1] = s;
     rotZWorkMatrix[0] = c;
     sceVu0MulMatrix(&matrixStack[matrixStackIndex * 0x40], &matrixStack[matrixStackIndex * 0x40],
-                    (int)rotZWorkMatrix);
+                    rotZWorkMatrix);
 }
 
 /* the scratch matrix MatrixDrive_ScaleMatrix fills in and multiplies through */
@@ -138,7 +138,7 @@ void MatrixDrive_ScaleMatrix(float x, float y, float z)
     scaleWorkMatrix[5] = y;
     scaleWorkMatrix[10] = z;
     sceVu0MulMatrix(&matrixStack[matrixStackIndex * 0x40], &matrixStack[matrixStackIndex * 0x40],
-                    (int)scaleWorkMatrix);
+                    scaleWorkMatrix);
 }
 
 /* kept local: matrixDrive.h does not compile in this TU (conflicting types for `UnitRotation') */
@@ -158,7 +158,7 @@ void MatrixDrive_TurnViewMatrix(float x, float y, float z)
                          {0.0f, 1.0f, 0.0f, 0.0f},
                          {s, 0.0f, c, 0.0f},
                          {0.0f, 0.0f, 0.0f, 1.0f}};
-        sceVu0MulMatrix(&matrixStack[matrixStackIndex * 0x40], (int)m,
+        sceVu0MulMatrix(&matrixStack[matrixStackIndex * 0x40], m,
                         &matrixStack[matrixStackIndex * 0x40]);
     }
     {
@@ -168,7 +168,7 @@ void MatrixDrive_TurnViewMatrix(float x, float y, float z)
                          {0.0f, len, t, 0.0f},
                          {0.0f, -t, len, 0.0f},
                          {0.0f, 0.0f, 0.0f, 1.0f}};
-        sceVu0MulMatrix(&matrixStack[matrixStackIndex * 0x40], (int)m,
+        sceVu0MulMatrix(&matrixStack[matrixStackIndex * 0x40], m,
                         &matrixStack[matrixStackIndex * 0x40]);
     }
 }
@@ -199,7 +199,7 @@ extern void CopyVector(void *dst, void *src);
 void MatrixDrive_TransMatrixV(void *a0)
 {
     float buf[4];
-    sceVu0ApplyMatrix((int *)buf, &matrixStack[matrixStackIndex * 0x40], (int)a0);
+    sceVu0ApplyMatrix((int *)buf, &matrixStack[matrixStackIndex * 0x40], a0);
     buf[3] = 1.0f;
     CopyVector(&matrixStack[matrixStackIndex * 0x40 + 0x30], buf);
 }
@@ -213,7 +213,7 @@ void MatrixDrive_TransMatrix(float x, float y, float z)
     v[1] = y;
     v[2] = z;
     v[3] = 1.0f;
-    sceVu0ApplyMatrix((int *)m, &matrixStack[matrixStackIndex * 0x40], (int)v);
+    sceVu0ApplyMatrix((int *)m, &matrixStack[matrixStackIndex * 0x40], v);
     m[3] = 1.0f;
     CopyVector(&matrixStack[matrixStackIndex * 0x40 + 0x30], m);
 }
@@ -515,7 +515,7 @@ void MatrixDrive_SetTransposeMatrix(float *dst, float *src)
 
     sceVu0TransposeMatrix(dst, src);
     dst[3] = dst[7] = dst[11] = 0.0f;
-    sceVu0ApplyMatrix((int *)&dst[12], (char *)dst, (int)&v);
+    sceVu0ApplyMatrix((int *)&dst[12], (char *)dst, &v);
     dst[15] = 1.0f;
 }
 

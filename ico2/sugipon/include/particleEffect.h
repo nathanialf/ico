@@ -12,6 +12,14 @@
 #ifndef PARTICLEEFFECT_H
 #define PARTICLEEFFECT_H
 
+/* particle-effect: one particle effect file, 0x50 bytes. Readers:
+ * ico2/common/src/icoMisc.c, ico2/sugipon/src/effectTool.c (the path at
+ * 0x20), particleEffect.c. */
+typedef struct {   /* field names derived */
+    char name[32]; /* 0x00 */
+    char path[48]; /* 0x20 */
+} ParticleEffectFile;
+
 void DeleteParticleEffect(int no);
 void DisableParticleEffectGeometryControl(int a0);
 void DispParticleEffects(void);

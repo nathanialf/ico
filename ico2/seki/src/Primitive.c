@@ -235,7 +235,7 @@ void prim_DispFan2D(Fan2D *f, int mode)
     ((PrimPkWord *)(m + 8))->w[1] = 0;
     PacketBufferStruct.ptr.c = m + 0x10;
 
-    dl_OpenDma(5, (int)PacketBufferStruct.dma.c, 0);
+    dl_OpenDma(5, PacketBufferStruct.dma.c, 0);
     dl_CloseDma();
 }
 
@@ -672,13 +672,13 @@ void prim_DispMesh3D(Mesh3D *m, void *la, void *lb, int tex)
     d->ptr.c = q + 0xC;
     ((PrimPkWord *)(q + 0xC))->w[0] = 0;
     d->ptr.c = q + 0x10;
-    dl_OpenDma(5, (int)d->dma.c, 0);
+    dl_OpenDma(5, d->dma.c, 0);
     dl_CloseDma();
     gif_StartPacketPri(pri);
     gif_SetGsReg(0x4A, 0);
     gif_EndPacket();
     mc_SetMicroCode(2, m->f58, 0, 1, pri);
-    dl_OpenDma(2, (int)m->bufs[buffer_ID], m->f78);
+    dl_OpenDma(2, m->bufs[buffer_ID], m->f78);
     dl_CloseDma();
 }
 
@@ -797,10 +797,10 @@ void prim_DispParticle(PrimParticle *p, void *mtx)
             _CopyMatrix(p->buf[p->cur].mtx, mtx);
             _CopyMatrix(p->buf[p->cur].lmtx, matrixptr + 0xC0);
             mc_TransMicroCode(5, 1 << pri);
-            dl_OpenDma(2, (int)&p->buf[p->cur], p->f140);
+            dl_OpenDma(2, &p->buf[p->cur], p->f140);
             dl_CloseDma();
             mc_SetMicroCode(3, 0, 0, 0, pri);
-            dl_OpenDma(2, (int)p->objs[p->cur], p->f184);
+            dl_OpenDma(2, p->objs[p->cur], p->f184);
             dl_CloseDma();
             if (systemStatus[5] == 0) {
                 p->cur ^= 1;

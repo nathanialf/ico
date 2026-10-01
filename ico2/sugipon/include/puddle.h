@@ -12,12 +12,14 @@
 #ifndef PUDDLE_H
 #define PUDDLE_H
 
-void baseSetup(char *a0);
+struct GObj;
+
+void baseSetup(struct GObj *a0);
 void copy(int pri);
 void drawAreaRestore(void);
 void drawAreaSetup(void);
 void drawRipple(float t, void *pos);
-void drawRipples(char *a0, int pri);
+void drawRipples(struct GObj *a0, int pri);
 void leveldown(int pri);
 
 #endif /* PUDDLE_H */

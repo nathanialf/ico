@@ -12,6 +12,8 @@
 #ifndef POOL_H
 #define POOL_H
 
+struct GObj;
+
 #include "typedef.h"
 #include "Primitive.h"
 
@@ -25,8 +27,8 @@
 typedef struct {
     int nrow;           /* 0x00 */
     int ncol;           /* 0x04 */
-    float f_8;          /* 0x08 */
-    float f_C;          /* 0x0C */
+    float sizeX;        /* 0x08 */
+    float sizeZ;        /* 0x0C */
     Mesh3D *mesh;       /* 0x10 */
     float **height;     /* 0x14, nrow rows of ncol heights */
     Prim3DVec **row;    /* 0x18, the rows of mesh's vertices */
@@ -42,18 +44,18 @@ typedef struct {
     VECTOR corner[4];
 } PoolMeshQuad;
 
-int CheckPoolHasGridMesh(char *a0);
+int CheckPoolHasGridMesh(GObj *a0);
 void DispLimitedPoolReflactionMesh(PoolMesh *a0);
-void GetPoolGlobalDrainVector(void *dst, char *a0);
-float GetPoolGlobalHeight(char *a0);
-float GetPoolGlobalHeightDetail(char *a0, float *pos);
+void GetPoolGlobalDrainVector(void *dst, GObj *a0);
+float GetPoolGlobalHeight(GObj *a0);
+float GetPoolGlobalHeightDetail(GObj *a0, float *pos);
 void InitLayoutedPoolReflactionMesh(PoolMesh *a0, PoolMeshQuad *a1);
 void InitLimitedPoolReflactionMesh(PoolMesh *a0);
-void SetFallDownSplash(char *pool, char *self);
+void SetFallDownSplash(GObj *pool, struct GObj *self);
 void SetLayoutedPoolReflactionMesh(PoolMesh *a0);
-void SetLimitedPoolReflactionMesh(PoolMesh *a0, char *a1, char *a2);
+void SetLimitedPoolReflactionMesh(PoolMesh *a0, GObj *a1, GObj *a2);
 void copyToWork(int pri);
-void dispPool(char *self);
-void updatePoolGeo(char *self);
+void dispPool(GObj *self);
+void updatePoolGeo(GObj *self);
 
 #endif /* POOL_H */

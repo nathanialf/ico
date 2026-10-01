@@ -841,9 +841,9 @@ void DispGameOverEffect(void)
     }
 }
 
-void GetGameOverEffectCenterPosition(int a0)
+void GetGameOverEffectCenterPosition(float *pos)
 {
-    CopyVector(a0, gameOverCenter);
+    CopyVector(pos, gameOverCenter);
 }
 
 /* listing lines 647-676: build the 8 by 17 sphere vertex table renderViewCoordZSphere
@@ -906,7 +906,7 @@ void SetupDarkVolume(void *a0, float a1, float a2)
     darkVolume(a0, a1, 1.0f, a2);
 }
 
-void DarkVolumeGeo(char *a0)
+void DarkVolumeGeo(GObj *a0)
 {
     float *p;
 

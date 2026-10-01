@@ -21,9 +21,8 @@ void ExecGameOverEffect(void);
 void StartGameOverEffect(int a0, float t);
 void StartQueenAttackEffect(int a0, float t);
 void ResetGameOverEffect(void);
-
 void DispGameOverEffect(void);
-void GetGameOverEffectCenterPosition(int a0);
+void GetGameOverEffectCenterPosition(float *pos);
 void InitGameOverEffect(void);
 void SetupDarkVolume(void *a0, float a1, float a2);
 void darkVolume(void *a0, float a1, float a2, float a3);

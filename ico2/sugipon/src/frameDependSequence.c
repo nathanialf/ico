@@ -9,13 +9,9 @@
 #include "matrixDrive.h"
 #include "quaternion.h"
 #include "main.h"
+#include "motionManager2.h"
+#include "frameDependSequence.h"
 
-typedef struct {
-    int se[2];
-    int id;
-} SePackage;
-
-extern SePackage D_005339C0[];
 extern GsysObjInfo seDef[];
 /* kept local: int (int, unsigned int, int, int) here, int (int, int, int, int) in s_init.h */
 extern int soundSeDefPlay(int se, unsigned int a1, int a2, int a3);
@@ -31,6 +27,10 @@ static void *fdsLayout = 0; /* derived name */
 
 static void *fdsRecord = 0; /* derived name */
 
+/* the sequence's owner object, held as a char pointer: setSEEnvironment's
+   store of it keeps its place behind the owner's display-object reads only as
+   a char pointer store (a GObj pointer, a void pointer or a union all let it
+   rise), so the TU's uses convert it */
 static char *fdsGObj = 0; /* derived name */
 
 static float fdsVolume = 1.0f; /* derived name */
@@ -83,15 +83,6 @@ int playSE(int no)
     return 1;
 }
 
-typedef struct { /* 0x08 */
-    int se;      /* 0x00 */
-    float rate;  /* 0x04 */
-} SERandEntry;
-
-extern SERandEntry D_00627910[];
-/* kept local: agrees with frameDependSequence.h; including it here moves this TU's bytes */
-extern int execSE(int a0, void *a1);
-
 int playSERandomID(int no, void *entry)
 {
     float rest;
@@ -104,11 +95,11 @@ int playSERandomID(int no, void *entry)
 
     rest = 100.0f;
     nshare = 0;
-    for (n = 0; n < D_00627910[no + n].se; n++) {
-        if (D_00627910[no + n].rate < 0.0f) {
+    for (n = 0; n < randomSEKind[no + n].se; n++) {
+        if (randomSEKind[no + n].rate < 0.0f) {
             nshare++;
         } else {
-            rest -= D_00627910[no + n].rate;
+            rest -= randomSEKind[no + n].rate;
         }
     }
     rnd = crt_random_unit() * 0.99999f;
@@ -118,44 +109,24 @@ int playSERandomID(int no, void *entry)
         share = rest < acc ? acc : rest / (float)nshare;
     }
     for (i = 0; i < n; i++) {
-        float w = D_00627910[no + i].rate;
+        float w = randomSEKind[no + i].rate;
         if (w < 0.0f) {
             w = share;
         }
         acc += w * 0.01f;
         if (rnd < acc) {
-            return execSE(D_00627910[no + i].se, entry);
+            return execSE(randomSEKind[no + i].se, entry);
         }
     }
-    return execSE(D_00627910[no].se, entry);
+    return execSE(randomSEKind[no].se, entry);
 }
-
-typedef struct SECondEntry { /* 0x0C */
-    int kind;                /* 0x00 */
-    int cond;                /* 0x04 */
-    int se;                  /* 0x08 */
-} SECondEntry;
-
-extern SECondEntry D_00626F28[];
-/* kept local: int (void *, int) here, int (char *, int) in motionManager2.h */
-extern int CheckFloorAttribute(void *self, int id);
-/* kept local: int (void *, int) here, int (char *, int) in motionManager2.h */
-extern int CheckWallAttribute(void *self, int id);
-/* Declared before the three predicates: gcc 2.9 emits deferred inline bodies
-   in first-declaration order, and the ROM has execSE before them. */
-/* kept local: agrees with frameDependSequence.h; including it here moves this TU's bytes */
-extern int checkWaterDepth(void *a0, int a1);
-/* kept local: agrees with frameDependSequence.h; including it here moves this TU's bytes */
-extern int checkModelDataID(void *a0, int a1);
-/* kept local: agrees with frameDependSequence.h; including it here moves this TU's bytes */
-extern int checkWeaponType(void *a0, int a1);
 
 int playSEConditionID(int no, void *entry)
 {
-    int (*fn)(void *, int);
-    SECondEntry *p;
+    int (*fn)(GObj *, int);
+    const SECondEntry *p;
 
-    switch (D_00626F28[no].kind) {
+    switch (motSECondKind[no].kind) {
     case 0:
     default:
         fn = CheckFloorAttribute;
@@ -173,10 +144,10 @@ int playSEConditionID(int no, void *entry)
         fn = checkWeaponType;
         break;
     }
-    if (D_00626F28[no].kind != -1) {
-        p = &D_00626F28[no];
+    if (motSECondKind[no].kind != -1) {
+        p = &motSECondKind[no];
         do {
-            if (p->cond == -1 || fn(fdsGObj, p->cond) != 0) {
+            if (p->cond == -1 || fn((GObj *)fdsGObj, p->cond) != 0) {
                 if (execSE(p->se, entry) != 0) {
                     return 1;
                 }
@@ -207,43 +178,27 @@ inline int execSE(int a0, void *a1)
     }
 }
 
-typedef struct EffEntry { /* 0x24 */
-    float x;              /* 0x00 */
-    float y;              /* 0x04 */
-    float z;              /* 0x08 */
-    float rx;             /* 0x0C */
-    float ry;             /* 0x10 */
-    float rz;             /* 0x14 */
-    int eff;              /* 0x18 */
-    int node;             /* 0x1C */
-    unsigned int flags;   /* 0x20 */
-} EffEntry;
-
-extern EffEntry motionEffKind[];
-/* kept local: int (void *, int) here, int (char *, int) in motionManager2.h */
-extern int GetSkeltonFocusNode(void *gobj, int node);
-
 void playEff(int no)
 {
     float q[4];
     float pos[4];
-    EffEntry *p;
+    const EffEntry *p;
     int node;
     unsigned int flags;
 
     if (motionEffKind[no].node == -1) {
-        GetRootQuaternion(q, fdsGObj);
-        GetRootMatrix(MatrixDrive_GetMatrix(), fdsGObj);
+        GetRootQuaternion(q, (GObj *)fdsGObj);
+        GetRootMatrix(MatrixDrive_GetMatrix(), (GObj *)fdsGObj);
     } else {
-        node = GetSkeltonFocusNode(fdsGObj, motionEffKind[no].node);
+        node = GetSkeltonFocusNode((GObj *)fdsGObj, motionEffKind[no].node);
         if (no == -1) {
-            GetRootQuaternion(q, fdsGObj);
-            GetRootMatrix(MatrixDrive_GetMatrix(), fdsGObj);
+            GetRootQuaternion(q, (GObj *)fdsGObj);
+            GetRootMatrix(MatrixDrive_GetMatrix(), (GObj *)fdsGObj);
             /* EUC-JP: "note: the node of a node-specified motion effect was not found" */
             debug_StdPrintfDummy(
                 "注意：ノード指定のモーションエフェクトでノードが見つかりませんでした\n");
         } else {
-            GetRootQuaternion(q, fdsGObj);
+            GetRootQuaternion(q, (GObj *)fdsGObj);
             CopyMatrix(MatrixDrive_GetMatrix(), (char *)GOBJ_SUB(fdsGObj)->nodeMtx + (node << 6));
         }
     }
@@ -270,21 +225,10 @@ void playEff(int no)
     }
 }
 
-/* The shared condition table: execEff reads its `cond`/`actId` pair as an
- * effect id, execVibCondition reads `actId` as a pad actuator id. */
-typedef struct VibCondEntry { /* 0x0C */
-    int kind;                 /* 0x00 */
-    int cond;                 /* 0x04 */
-    int actId;                /* 0x08 */
-} VibCondEntry;
-
-extern VibCondEntry D_00626010[];
-extern int D_00626600[];
-
 int execEff(int no, void *entry)
 {
-    int (*fn)(void *, int);
-    VibCondEntry *p;
+    int (*fn)(GObj *, int);
+    const VibCondEntry *p;
     int idx;
     int j;
     int eff;
@@ -305,16 +249,16 @@ int execEff(int no, void *entry)
         idx = no - 0x10000;
         k = idx + 1;
         n = 0;
-        if (D_00626600[idx] != 0x18) {
+        if (randomEffKind[idx] != 0x18) {
             do {
                 n++;
-            } while (D_00626600[k++] != 0x18);
+            } while (randomEffKind[k++] != 0x18);
         }
-        execEff(D_00626600[idx + (int)(((float)n - 1e-05f) * crt_random_unit())], entry);
+        execEff(randomEffKind[idx + (int)(((float)n - 1e-05f) * crt_random_unit())], entry);
         goto done;
     }
     j = no - 0x20000;
-    switch (D_00626010[j].kind) {
+    switch (motEffCondKind[j].kind) {
     case 0:
     default:
         fn = CheckFloorAttribute;
@@ -323,10 +267,10 @@ int execEff(int no, void *entry)
         fn = checkWaterDepth;
         break;
     }
-    if (D_00626010[j].kind != -1) {
-        p = &D_00626010[j];
+    if (motEffCondKind[j].kind != -1) {
+        p = &motEffCondKind[j];
         do {
-            if (p->cond == -1 || fn(fdsGObj, p->cond) != 0) {
+            if (p->cond == -1 || fn((GObj *)fdsGObj, p->cond) != 0) {
                 eff = p->actId;
                 goto call;
             }
@@ -340,20 +284,17 @@ done:
     return 1;
 }
 
-/* kept local: agrees with frameDependSequence.h; including it here moves this TU's bytes */
-extern void StopFDSVibration(void *a0);
-
 void execVibCondition(int no, int *entry)
 {
     if (girlControlMode != 0) {
         /* EUC-JP: "controller-2 vibration condition detect mode" */
         debug_StdPrintfDummy("2コン振動条件検知モード\n");
-        if (D_00626010[no].kind != 0) {
+        if (motEffCondKind[no].kind != 0) {
             if (fdsFlags != 0) {
                 StopFDSVibration(fdsFlags);
             }
         } else {
-            *entry = iosPadActRequest(girlPad, D_00626010[no].actId);
+            *entry = iosPadActRequest(girlPad, motEffCondKind[no].actId);
         }
     }
 }
@@ -381,10 +322,6 @@ typedef struct FDSFlags { /* 0x74 */
 } FDSFlags;
 
 extern char motionKind[];
-/* kept local: agrees with frameDependSequence.h; including it here moves this TU's bytes */
-extern int execVib(int a0, void *a1);
-/* kept local: agrees with frameDependSequence.h; including it here moves this TU's bytes */
-extern int execWeaponLightOff(void);
 
 /* static helper the listing places at frameDependSequence.c lines 414-421; never
  * emitted out of line, so it has no MAIN.MAP symbol and this name is ours. */
@@ -399,7 +336,7 @@ static inline void fireFDSSlot(float t, int no, void *entry, int *done, int (*fn
     }
 }
 
-void ExecFrameDependSequence(void *gobj)
+void ExecFrameDependSequence(GObj *gobj)
 {
     char *w;
     char *p;
@@ -407,7 +344,7 @@ void ExecFrameDependSequence(void *gobj)
 
     w = (char *)GOBJ_SUB(gobj);
     p = w + 0x470;
-    fdsGObj = gobj;
+    fdsGObj = (char *)gobj;
     fdsLayout = p;
     fdsWork = w + 0xA0;
     fdsFlags = w + 0x740;
@@ -427,7 +364,7 @@ void ExecFrameDependSequence(void *gobj)
                         execVib);
         }
     }
-    if (CheckFloorAttribute(fdsGObj, 0x40000) == 0) {
+    if (CheckFloorAttribute((GObj *)fdsGObj, 0x40000) == 0) {
         for (i = 0; i < 12; i++) {
             if (((FDSFlags *)fdsFlags)->effDone[i] == 0) {
                 fireFDSSlot(((FDSRecord *)fdsRecord)->eff[i].t, ((FDSRecord *)fdsRecord)->eff[i].no,
@@ -447,30 +384,25 @@ void ExecFrameDependSequence(void *gobj)
  * emitted out of line, so it has no MAIN.MAP symbol and this name is ours. */
 static inline int *findSEPackage(int no, int id)
 {
-    while (D_005339C0[no].id != -1 && D_005339C0[no].id != id) {
+    while (progSELink[no].id != -1 && progSELink[no].id != id) {
         no++;
     }
     if (debug_seslotdisp_flag != 0) {
         debug_StdPrintfDummy("\033[36mRequested by program... \033[m");
     }
-    return D_005339C0[no].se;
+    return progSELink[no].se;
 }
-
-/* kept local: agrees with frameDependSequence.h; including it here moves this TU's bytes */
-extern int playSE(int no);
-/* kept local: agrees with frameDependSequence.h; including it here moves this TU's bytes */
-extern int playSERandomID(int no, void *entry);
 
 /* static helper the listing places at frameDependSequence.c lines 549-564; never
  * emitted out of line, so it has no MAIN.MAP symbol and this name is ours. */
-static inline int setSEEnvironment(void *gobj, int id)
+static inline int setSEEnvironment(GObj *gobj, int id)
 {
     char *w;
     char *p;
     int no;
 
     w = *(char **)((char *)gobj + 0x15C);
-    fdsGObj = gobj;
+    fdsGObj = (char *)gobj;
     if (w != 0) {
         no = *(int *)(w + 0x84);
         p = w + 0x470;
@@ -490,7 +422,7 @@ static inline int setSEEnvironment(void *gobj, int id)
     return no;
 }
 
-void executeSEPackageByGObj(void *gobj, int no, int grp)
+void executeSEPackageByGObj(GObj *gobj, int no, int grp)
 {
     int id;
     int *p;
@@ -520,10 +452,7 @@ void executeSEPackageWithNoGObj(int no)
     }
 }
 
-/* kept local: agrees with frameDependSequence.h; including it here moves this TU's bytes */
-extern void executeSEPackageWithNoGObj(int a0);
-
-void ExecuteSEPackageWithGroupVariation(void *a0, int a1, int a2)
+void ExecuteSEPackageWithGroupVariation(GObj *a0, int a1, int a2)
 {
     fdsVolume = 1.0f;
     if (a0 != 0) {
@@ -533,18 +462,12 @@ void ExecuteSEPackageWithGroupVariation(void *a0, int a1, int a2)
     }
 }
 
-/* kept local: agrees with frameDependSequence.h; including it here moves this TU's bytes */
-extern void ExecuteSEPackageWithGroupVariation(void *a0, int a1, int a2);
-
-void ExecuteSEPackage(int a0, int a1)
+void ExecuteSEPackage(GObj *a0, int a1)
 {
     ExecuteSEPackageWithGroupVariation(a0, a1, 0);
 }
 
-/* kept local: agrees with frameDependSequence.h; including it here moves this TU's bytes */
-extern void executeSEPackageByGObj();
-
-void ExecuteSEPackageWithVolumeRate(int a0, int a1, float f)
+void ExecuteSEPackageWithVolumeRate(GObj *a0, int a1, float f)
 {
     fdsVolume = f;
     executeSEPackageByGObj(a0, a1, 0);
@@ -553,48 +476,45 @@ void ExecuteSEPackageWithVolumeRate(int a0, int a1, float f)
 /* kept local: agrees with s_init.h, which this TU does not include (soundSeDefPlay, soundSeDefPlayWithVolumeRate differ) */
 extern void soundSeGroupStop(int a0);
 
-void StopSEPackageWithGroupVariation(int a0, int a1)
+void StopSEPackageWithGroupVariation(GObj *a0, int a1)
 {
     int *p = (int *)GOBJ_SUB(a0);
     p += a1;
     soundSeGroupStop(p[0x187]);
 }
 
-void StopSEPackage(int a0)
+void StopSEPackage(GObj *a0)
 {
     StopSEPackageWithGroupVariation(a0, 0);
 }
 
 void InitFrameDependSequence(void *a0)
 {
-    int *p = (int *)a0;
-    int *se = (int *)((char *)a0 + 0x8);
-    int *eff = (int *)((char *)a0 + 0x38);
-    int *vib = (int *)((char *)a0 + 0x6C);
+    FDSFlags *f = a0;
     int i;
 
     for (i = 0; i < 2; i++) {
-        p[i] = 0;
+        f->vibDone[i] = 0;
     }
     for (i = 0; i < 12; i++) {
-        se[i] = 0;
+        f->effDone[i] = 0;
     }
     for (i = 0; i < 12; i++) {
-        eff[i] = 0;
+        f->seDone[i] = 0;
     }
-    p[0x68 / 4] = 0;
+    f->weaponDone = 0;
     for (i = 0; i < 2; i++) {
-        vib[i] = -1;
+        f->vibEntry[i] = -1;
     }
 }
 
-int ExecuteDirectSEWithGroupVariation(void *gobj, int id, int grp)
+int ExecuteDirectSEWithGroupVariation(GObj *gobj, int id, int grp)
 {
     setSEEnvironment(gobj, id);
     return execSE(id, 0);
 }
 
-int ExecuteDirectSE(void *gobj, int id)
+int ExecuteDirectSE(GObj *gobj, int id)
 {
     setSEEnvironment(gobj, id);
     return execSE(id, 0);
@@ -602,7 +522,7 @@ int ExecuteDirectSE(void *gobj, int id)
 
 void StopFDSVibration(void *a0)
 {
-    int *p = (int *)((char *)a0 + 0x6C);
+    int *p = ((FDSFlags *)a0)->vibEntry;
     int i;
 
     for (i = 0; i < 2; i++) {
@@ -613,22 +533,19 @@ void StopFDSVibration(void *a0)
     }
 }
 
-inline int checkWaterDepth(void *a0, int a1)
+inline int checkWaterDepth(GObj *a0, int a1)
 {
-    int *p = (int *)GOBJ_SUB(a0);
-    return (int)(*(float *)((char *)p + 0x644)) < a1;
+    return (int)GOBJ_SUB(a0)->waterDepth < a1;
 }
 
-inline int checkModelDataID(void *a0, int a1)
+inline int checkModelDataID(GObj *a0, int a1)
 {
-    int *p = (int *)GOBJ_SUB(a0);
-    return p[0x21] == a1;
+    return GOBJ_SUB(a0)->modelId == a1;
 }
 
-inline int checkWeaponType(void *a0, int a1)
+inline int checkWeaponType(GObj *a0, int a1)
 {
-    int *p = (int *)GOBJ_SUB(a0);
-    char *w = (char *)p[0x630 / 4];
+    GObj *w = (GObj *)GOBJ_SUB(a0)->pickedWeapon;
     if (w != 0 && CheckWeaponKind(w) == a1) {
         return 1;
     }
@@ -649,14 +566,14 @@ inline int execVib(int a0, void *a1)
 
 inline int execWeaponLightOff(void)
 {
-    int *p;
-    int *q;
-    p = (int *)((int *)fdsGObj)[0x15C / 4];
-    q = (int *)p[0x630 / 4];
+    Sub15C *p;
+    GObj *q;
+    p = GOBJ_SUB(fdsGObj);
+    q = (GObj *)p->pickedWeapon;
     if (q != 0) {
         if (CheckWeaponKind(q) == 1) {
-            int *r = (int *)((int *)fdsGObj)[0x15C / 4];
-            LightTorchOffOfWeapon((int *)r[0x630 / 4]);
+            Sub15C *r = GOBJ_SUB(fdsGObj);
+            LightTorchOffOfWeapon((GObj *)r->pickedWeapon);
         }
     }
     return 1;

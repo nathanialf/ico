@@ -19,6 +19,7 @@
 #include "fieldCollision.h"
 #include "GifPacket.h"
 #include "Matrix.h"
+#include "windField.h"
 
 typedef struct {
     float v[4];
@@ -120,7 +121,7 @@ static __inline__ void chainDebugOld(VECTOR *old)
 #endif
 }
 
-void GetChainAnimation(ChainSet *sys, int obj, char *mtx)
+void GetChainAnimation(ChainSet *sys, GObj *obj, char *mtx)
 {
     VECTOR dv;
     VECTOR tv;
@@ -429,9 +430,6 @@ int SetChainExtendedWeight(int *a0, int idx, float w0, float w1)
     return -1;
 }
 
-/* kept local: void * (void *, void *) here, int (void) in windField.h */
-extern void *GetWindVector(void *out, void *pos);
-
 /* clothAnimation.c:22-30 in the listing: push a point back to the inner side
    of a wall plane.  Only ever inlined; its VECTOR temp is the caller's. */
 static __inline__ void pushInsidePlane(void *p, const void *plane)
@@ -448,13 +446,13 @@ static __inline__ void pushInsidePlane(void *p, const void *plane)
 /* The cloth config record, the 0x1C-byte layout clothTest.c and flag.h carry
    (rows, spacing, columns, anchors, texture, weight). */
 typedef struct ClothCfg {
-    int num;       /* 0x00  rows, and -1 ends the array */
-    float f04;     /* 0x04 */
-    int div;       /* 0x08  columns */
-    int f0C;       /* 0x0C */
-    void *anchors; /* 0x10 */
-    void *tex;     /* 0x14  null means the untextured mesh */
-    float f18;     /* 0x18 */
+    int num;         /* 0x00  rows, and -1 ends the array */
+    float segLength; /* 0x04  the spacing between rows */
+    int div;         /* 0x08  columns */
+    int wrap;        /* 0x0C  nonzero when the last column joins the first */
+    void *anchors;   /* 0x10 */
+    void *tex;       /* 0x14  null means the untextured mesh */
+    float weight;    /* 0x18  the fall added to each point a step */
 } ClothCfg;
 
 /* The sixth parameter is the wall count, which the function recomputes from
@@ -462,7 +460,8 @@ typedef struct ClothCfg {
    stores $t1) and its pseudo, the sixth parameter's, is what sits between a2's
    and a6's spill slots.  a6, the wall owner, is an object handle passed as an
    int, as a2 is. */
-void GetClothAnimation(int a0, void *a1, int a2, void *m, ClothCfg *cfg, int nwall, int a6, int a7)
+void GetClothAnimation(int a0, void *a1, GObj *a2, void *m, ClothCfg *cfg, int nwall, int a6,
+                       int a7)
 {
     VECTOR dv;
     float pw;
@@ -476,11 +475,11 @@ void GetClothAnimation(int a0, void *a1, int a2, void *m, ClothCfg *cfg, int nwa
     int focus;
     char **rowsB = (char **)a1;
     int n0 = cfg->num;
-    float seg = cfg->f04;
+    float seg = cfg->segLength;
     int nx = cfg->div - (a7 != 0);
     float rnx = 1.0f / (float)nx;
     char *pts = (char *)cfg->anchors;
-    int wrap = cfg->f0C;
+    int wrap = cfg->wrap;
 
     focus = 0;
     if (a6 != 0) {
@@ -530,7 +529,7 @@ void GetClothAnimation(int a0, void *a1, int a2, void *m, ClothCfg *cfg, int nwa
             Vec4u work[3];
 
             work[2].f[1] = 0.0f;
-            *(float *)(p + 4) = *(float *)(p + 4) + cfg->f18;
+            *(float *)(p + 4) = *(float *)(p + 4) + cfg->weight;
         }
     }
     for (j = 1; j < nx; j++) {
@@ -1357,7 +1356,7 @@ void getCloth4D_preProcess(void *a0, float g, float damp, float z, float w, int 
             sk = *(void **)(*(int *)a0 + 0x15C);
             _MulMatrix(work, *(char **)((char *)sk + 0xC) + n * 64,
                        *(char **)((char *)sk + 0x90) + n * 64);
-            _SetCurrentMatrix((int)work);
+            _SetCurrentMatrix(work);
             if (j == 0) {
                 clothSetPoint(rowsB[i], pt->pos, f);
                 clothSetPoint(rowsD[i], pt->dir, f);
@@ -1386,7 +1385,7 @@ void getCloth4D_preProcess(void *a0, float g, float damp, float z, float w, int 
             }
         }
         rz = 1.0f / (float)(ny - 1);
-        GetInverseQuaternion((int)&work[2], (int)qa);
+        GetInverseQuaternion(&work[2], qa);
         MultiQuaternion(&work[1], qa, qb);
         MultiQuaternion(&work[1], &work[1], &work[2]);
         GetMatrixFromQuaternion((char *)mx, (char *)&work[1]);
@@ -2037,7 +2036,7 @@ typedef struct {
     char *p24;
 } Cloth4DCfg;
 
-Cloth4D *InitCloth4D(int a0, Cloth4DCfg *cfg, int tbl)
+Cloth4D *InitCloth4D(GObj *a0, Cloth4DCfg *cfg, int tbl)
 {
     Cloth4D *r;
     int i;

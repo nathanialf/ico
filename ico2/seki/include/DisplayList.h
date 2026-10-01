@@ -17,9 +17,8 @@
  * first-declaration order, so this is the order DisplayList.c's inline tail has. */
 void dl_Out(void);
 void dl_SetDLPriority(int a0);
-void dl_OpenDma(int a0, int a1, int a2);
+void dl_OpenDma(int id, void *addr, int qwc);
 int dl_GetPri(void);
-
 void dl_CloseDma(void);
 void dl_Init(void);
 

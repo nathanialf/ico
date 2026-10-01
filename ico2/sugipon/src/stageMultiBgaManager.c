@@ -7,7 +7,7 @@
 /* .bss, owned by stageMultiBgaManager.o and reached only from this file
    (MAIN.MAP names no symbol in the run), in the ROM's run order: the thirty
    multi-BGA slots and the animation each one is playing. */
-static MultiBga stageBga[30];
+static BgaDisp stageBga[30];
 
 static char *stageBgaAnim[30];
 
@@ -15,12 +15,9 @@ static char *stageBgaAnim[30];
    symbol): the number of stage animations entered */
 static int stageBgaCount = 0; /* derived name */
 
-extern void EntryMultiBgaManagerSensitive(MultiBga *bga, int no, int kind, void *pos, void *rot,
-                                          int sensitive);
-
 #include "stageMultiBgaManager.h"
 
-void EntryStageMultiBgaManagerSensitiveWithStay(int kind, void *pos, void *rot, int sensitive,
+void EntryStageMultiBgaManagerSensitiveWithStay(int kind, void *pos, void *rot, void *vel,
                                                 int stay);
 
 inline void InitStageMultiBgaManager(void)
@@ -28,7 +25,7 @@ inline void InitStageMultiBgaManager(void)
     int i;
 
     for (i = 0; i < 30; i++) {
-        stageBga[i] = *(MultiBga *)&InitialBgaMultiAnimeState;
+        stageBga[i] = *(BgaDisp *)&InitialBgaMultiAnimeState;
         stageBgaAnim[i] = 0;
     }
     stageBgaCount = 0;
@@ -51,22 +48,22 @@ inline void EntryStageMultiBgaManager(int kind, void *pos, void *rot)
     EntryStageMultiBgaManagerWithStay(kind, pos, rot, 0);
 }
 
-inline void EntryStageMultiBgaManagerSensitiveWithStay(int kind, void *pos, void *rot,
-                                                       int sensitive, int stay)
+inline void EntryStageMultiBgaManagerSensitiveWithStay(int kind, void *pos, void *rot, void *vel,
+                                                       int stay)
 {
     stageBgaAnim[stageBgaCount] = stage_MakePlayBgAnimation(kind);
     _CopyVector(stageBgaAnim[stageBgaCount] + 0x20, pos);
     CopyQuaternion(stageBgaAnim[stageBgaCount] + 0x30, rot);
-    EntryMultiBgaManagerSensitive(stageBga, stageBgaCount++, kind, pos, rot, sensitive);
+    EntryMultiBgaManagerSensitive(stageBga, stageBgaCount++, kind, pos, rot, vel);
     stageBga[stageBgaCount - 1].stay = stay;
     if (stageBgaCount >= 30) {
         stageBgaCount = 0;
     }
 }
 
-inline void EntryStageMultiBgaManagerSensitive(int kind, void *pos, void *rot, int sensitive)
+inline void EntryStageMultiBgaManagerSensitive(int kind, void *pos, void *rot, void *vel)
 {
-    EntryStageMultiBgaManagerSensitiveWithStay(kind, pos, rot, sensitive, 0);
+    EntryStageMultiBgaManagerSensitiveWithStay(kind, pos, rot, vel, 0);
 }
 
 void DispStageMultiBgaManager(void)
@@ -86,7 +83,7 @@ void DispStageMultiBgaManager(void)
             }
         }
         if (systemStatus[5] == 0) {
-            _AddVector(stageBgaAnim[i] + 0x20, stageBgaAnim[i] + 0x20, &stageBga[i].w[4]);
+            _AddVector(stageBgaAnim[i] + 0x20, stageBgaAnim[i] + 0x20, stageBga[i].vel);
         }
     }
 }

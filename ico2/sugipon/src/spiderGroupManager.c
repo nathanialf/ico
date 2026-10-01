@@ -77,7 +77,7 @@ inline void InitSpiderGroupManager(void)
 
 inline int *getReviveEnemyGObj(int count)
 {
-    int *p = isysGObjSearchFromObjKindID_begin(4);
+    GObj *p = isysGObjSearchFromObjKindID_begin(4);
     int i;
     {
         for (i = 0; i < count; i++) {

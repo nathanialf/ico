@@ -1,16 +1,14 @@
 /* kept local with ios.h's declaration: box.c, which includes this file, keeps
    its own view of ios_partition_seki and so does not include ios.h */
-/* kept local: agrees with ios.h, which this TU does not include (ios_partition_seki differs) */
-extern int ios_partition_sugipon;
 
 /* switch.c -- lever / switch module; #included into box.c (one box.o, listing SRCFILE.TXT). */
 
-void switchOnSE(int a0)
+void switchOnSE(GObj *a0)
 {
     ExecuteSEPackage(a0, 0x3F);
 }
 
-void switchReleaseSE(int a0)
+void switchReleaseSE(GObj *a0)
 {
     ExecuteSEPackage(a0, 0x40);
 }
@@ -29,7 +27,7 @@ inline void SwitchGeo(void) {}
 
 inline void SwitchDL(void) {}
 
-void GetFloorLeverGlobalHoldPoint(void *dst, char *a1)
+void GetFloorLeverGlobalHoldPoint(void *dst, GObj *a1)
 {
     char *p = GOBJ_SUB(a1)->work;
     GetRootMatrix(MatrixDrive_GetMatrix(), a1);
@@ -38,10 +36,7 @@ void GetFloorLeverGlobalHoldPoint(void *dst, char *a1)
     CopyVector(dst, MatrixDrive_GetMatrix() + 0x30);
 }
 
-/* kept local: void (void *, void *) here, void (void *, char *) in geometryManager.h */
-extern void GetRootPosition(void *dst, void *obj);
-
-inline void SetFloorLeverWithNodePoint(char *a0, char *a1, int a2)
+inline void SetFloorLeverWithNodePoint(GObj *a0, GObj *a1, int a2)
 {
     float buf[4];
     float pos[4];
@@ -63,7 +58,7 @@ inline int CanFloorLeverPull(char *a0)
     return *(int *)((char *)GOBJ_SUB(a0)->work + 4) == 0;
 }
 
-inline void initParentize(char *a0)
+inline void initParentize(GObj *a0)
 {
     char buf[0xC0];
     GetRootPosition(buf, a0);
@@ -123,24 +118,24 @@ inline void SetSwitchState(char *a0, int a1)
     int cur = *(int *)(p + 4);
     unsigned char ne = cur != a1;
     if (ne) {
-        switchOnSE((int)a0);
+        switchOnSE(a0);
         *(int *)(p + 4) = a1;
     } else {
         *(int *)(p + 4) = a1;
     }
 }
 
-void FloorLeverTriStateGeo(char *a0)
+void FloorLeverTriStateGeo(GObj *a0)
 {
     char *p = GOBJ_SUB(a0)->work;
 
     if (*(int *)(p + 4) != -1 && *(int *)(p + 4) != 1) {
         if (*(int *)(p + 0x1C) != 0) {
-            (*(void (**)(int, int))(p + 0x1C))(**(int **)(a0 + 0x15C), 0);
+            (*(void (**)(int, int))(p + 0x1C))(**(int **)(((char *)a0) + 0x15C), 0);
         }
     } else {
         if (*(int *)(p + 0x1C) != 0) {
-            (*(void (**)(int, int))(p + 0x1C))(**(int **)(a0 + 0x15C), *(int *)(p + 4));
+            (*(void (**)(int, int))(p + 0x1C))(**(int **)(((char *)a0) + 0x15C), *(int *)(p + 4));
         }
     }
     UpdateRootMatrix(a0);
@@ -149,8 +144,6 @@ void FloorLeverTriStateGeo(char *a0)
 /* kept local: this TU's uses of SetIdentityQuaternion, RotQuaternionX,
    SetParticleEffect and ObjAction_MailCenter do not fit the prototypes in the
    headers that declare them */
-/* kept local: void (int, void *, void *) here, int (int, void *, void *) in particleEffect.h */
-extern void SetParticleEffect(int kind, void *mat, void *q);
 
 /* the two frame-rate divisors, the pair box.c's own fall code reads */
 
@@ -160,7 +153,7 @@ extern void SetParticleEffect(int kind, void *mat, void *q);
    probe at switch.c:122-133 is the inlined initParentize above, and the
    quaternion the particle effect is given shares its frame slot with that
    probe's work buffer, so it is declared in the block that uses it. */
-void FloorLeverGeo(char *a0)
+void FloorLeverGeo(GObj *a0)
 {
     char *p = GOBJ_SUB(a0)->work;
 
@@ -175,10 +168,11 @@ void FloorLeverGeo(char *a0)
         if (*(int *)(p + 8) <= (60 - systemStatus[0] * 10) / systemStatus[1]) {
             *(short *)p = (short)(random_signed() * 128.0f);
             if (*(int *)(p + 8) == (60 - systemStatus[0] * 10) / systemStatus[1]) {
-                switchReleaseSE((int)a0);
+                switchReleaseSE(a0);
             }
             if (*(int *)(p + 0x1C) != 0) {
-                (*(void (**)(int, int))(p + 0x1C))(**(int **)(a0 + 0x15C), *(int *)(p + 4));
+                (*(void (**)(int, int))(p + 0x1C))(**(int **)(((char *)a0) + 0x15C),
+                                                   *(int *)(p + 4));
             }
         } else if (*(short *)(p + 2) != 0) {
             *(short *)p = 0;
@@ -193,7 +187,7 @@ void FloorLeverGeo(char *a0)
             *(int *)(p + 4) = 0;
             *(int *)(p + 8) = 0;
             if (*(int *)(p + 0x1C) != 0) {
-                (*(void (**)(int, int))(p + 0x1C))(**(int **)(a0 + 0x15C), 0);
+                (*(void (**)(int, int))(p + 0x1C))(**(int **)(((char *)a0) + 0x15C), 0);
             }
         }
     } else {
@@ -204,7 +198,7 @@ void FloorLeverGeo(char *a0)
         }
         *(int *)(p + 4) = 1;
         *(int *)(p + 8) = 0;
-        switchOnSE((int)a0);
+        switchOnSE(a0);
         ObjAction_MailCenter(a0, -1);
     }
 end:
@@ -216,7 +210,7 @@ inline int GetFloorLeverAngle(char *a0)
     return *(short *)((char *)GOBJ_SUB(a0)->work + 2);
 }
 
-void FloorLeverDL(char *a0)
+void FloorLeverDL(GObj *a0)
 {
     char *p = GOBJ_SUB(a0)->work;
 
@@ -240,7 +234,7 @@ void GetWallLeverGlobalHoldPoint(void *dst, void *lev)
     CopyVector(dst, (char *)MatrixDrive_GetMatrix() + 0x30);
 }
 
-inline void SetWallLeverWithNodePoint(char *a0, char *a1, int a2)
+inline void SetWallLeverWithNodePoint(GObj *a0, GObj *a1, int a2)
 {
     float buf[4];
     float pos[4];
@@ -301,7 +295,7 @@ end:
    same parentize probe and the same frame divisor written twice, no trigger
    callback, and a mail sent every frame that reports the lever's rest state
    (the inlined IsWallLeverStatus above, switch.c:319-328). */
-void WallLeverGeo(char *a0)
+void WallLeverGeo(GObj *a0)
 {
     char *p = GOBJ_SUB(a0)->work;
 
@@ -316,7 +310,7 @@ void WallLeverGeo(char *a0)
         if (*(int *)(p + 8) <= (60 - systemStatus[0] * 10) / systemStatus[1]) {
             *(short *)p = (short)(random_signed() * 128.0f);
             if (*(int *)(p + 8) == (60 - systemStatus[0] * 10) / systemStatus[1]) {
-                switchReleaseSE((int)a0);
+                switchReleaseSE(a0);
             }
         } else if (*(short *)(p + 2) != 0) {
             *(short *)p = 0;
@@ -340,7 +334,7 @@ void WallLeverGeo(char *a0)
         }
         *(int *)(p + 4) = 1;
         *(int *)(p + 8) = 0;
-        switchOnSE((int)a0);
+        switchOnSE(a0);
         ObjAction_MailCenter(a0, -1);
     }
 end:
@@ -352,7 +346,7 @@ end:
     UpdateRootMatrix(a0);
 }
 
-void WallLeverDL(char *a0)
+void WallLeverDL(GObj *a0)
 {
     char *p = GOBJ_SUB(a0)->work;
     char *d;

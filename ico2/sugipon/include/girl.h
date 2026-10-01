@@ -12,11 +12,13 @@
 #ifndef GIRL_H
 #define GIRL_H
 
+struct GObj;
+
 /* The declarations below lead this header because their order is load-bearing:
  * gcc 2.9 emits the deferred out-of-line copy of a plain-inline function in
  * first-declaration order, so this is the order girl.c's inline tail has. */
-void SetGirlClothDispSwitch(char *a0, int a1, int a2);
-void SetGirlHairDispSwitch(char *a0, int a1);
+void SetGirlClothDispSwitch(struct GObj *a0, int a1, int a2);
+void SetGirlHairDispSwitch(struct GObj *a0, int a1);
 void setGirlClothSetting(int a0);
 
 #endif /* GIRL_H */

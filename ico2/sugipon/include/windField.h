@@ -13,10 +13,10 @@
 #define WINDFIELD_H
 
 void ExecWindField(float f);
-int GetWindVector(void);
+float *GetWindVector(float *power, float *pos);
 void InitWindField(int mode, float str, void *center, void *dir);
 void drawSenpuukiHaneUnit(float scale);
-int *dummyGetWindVector(int *a0);
-float *getParallelWindVector(float *power, void *pos);
+float *dummyGetWindVector(float *power, float *pos);
+float *getParallelWindVector(float *power, float *pos);
 
 #endif /* WINDFIELD_H */

@@ -12,6 +12,8 @@
 #ifndef LODMANAGER_H
 #define LODMANAGER_H
 
-void SetLodLevel(char *self, int lv);
+struct GObj;
+
+void SetLodLevel(struct GObj *self, int lv);
 
 #endif /* LODMANAGER_H */

@@ -13,7 +13,8 @@
 #define LIGHT_H
 
 #include <libvu0.h>
-#include "typedef.h"
+
+struct Sub15C;
 
 /* RECONSTRUCTION: the per-object light matrix record at *(Sub15C + 0x874)
  * (typedef.h's Sub15C keeps the slot as void *).  Rung: ROM bytes for every
@@ -39,6 +40,13 @@ typedef struct LightMatrix {
     int mode;              /* 0xF0 */
 } LightMatrix;
 
+/* obj-light: one object light, 0x10 bytes. Reader: ico2/seki/src/Light.c
+ * (float [][4]: the colour scaled by 1/256). */
+typedef struct {  /* field names derived */
+    float col[3]; /* 0x00, 0..255 */
+    float range;  /* 0x0C */
+} ObjLight;
+
 struct Light; /* Light.c's light list node */
 
 struct AmbientVolume; /* Light.c's ambient volume node */
@@ -49,9 +57,9 @@ void light_DispVolume(void);
 void light_DrawCursor(float *dir, int mode);
 void light_GetColorAnalog(float *col);
 void light_KillAllFixLight(void);
-void light_MakeLightMatrix(Sub15C *a, int b);
-void light_getAmbientLight(Sub15C *a, int b);
-void light_getNearLight(Sub15C *a, int b);
+void light_MakeLightMatrix(struct Sub15C *a, int b);
+void light_getAmbientLight(struct Sub15C *a, int b);
+void light_getNearLight(struct Sub15C *a, int b);
 void light_killLinkAmbient();
 void light_killLinkLight(char *node);
 void light_resetFlatLight(void);

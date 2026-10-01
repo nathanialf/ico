@@ -19,8 +19,7 @@ static inline void actWaySystemCore(volatile unsigned int self)
 {
     int *s = (int *)((int *)self)[0x20 / 4];
     int v;
-    v = _FUNC_GetWay_begin((int)((char *)s + 0x10), (int)((char *)s + 0x20),
-                           (int)((char *)s + 0xA0), 1);
+    v = _FUNC_GetWay_begin(((char *)s + 0x10), ((char *)s + 0x20), (int)((char *)s + 0xA0), 1);
     s[0x4 / 4] = v;
     s[0] = 1;
     s[0xB0 / 4] = 0;

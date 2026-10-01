@@ -245,16 +245,10 @@ void stage_ApplyData(char *name, char *data)
 #define STG ((StageAnim *)stageAnimTable)
 
 typedef struct {
-    int kind; /* 0x00 */
-    int aux;  /* 0x04 */
-} StgObjDat;
-
-typedef struct {
     int id[2]; /* 0x00 */
     int _8[3];
 } StgBgaSet;
 
-extern StgObjDat D_00600498[];
 extern char objKindData[];
 /* kept local: agrees with BgAnimation.h, which this TU does not include (bga_CalcAnimation, bga_CheckAnimationFinish differ) */
 extern void bga_InitBGA(void);
@@ -299,7 +293,7 @@ static __inline__ void stageAnimDebugHook(void)
 
 int stage_Init(void)
 {
-    StgObjDat *p = 0;
+    const StgObjDat *p = 0;
     char *tbl[2] = {D_005F5E70 + stage_no * 0x194, D_005F5E70 + 8 + stage_no * 0x194};
     StageGObjInit arg;
     int max = 0;
@@ -311,7 +305,7 @@ int stage_Init(void)
     int n;
     int id;
     int no;
-    StgObjDat *q;
+    const StgObjDat *q;
     char *rec;
     char *tbl2;
     char *obj;
@@ -378,8 +372,8 @@ int stage_Init(void)
                             *(int *)((char *)stageAnimTable + stageAnimCount * 0x290 + 0x280) =
                                 (int)obj;
                             STG[stageAnimCount].flags.b.play = 0;
-                            p = &D_00600498[*(int *)(obj + 0x40)];
-                            q = &D_00600498[*(int *)(obj + 0x44)];
+                            p = &objTableScene[*(int *)(obj + 0x40)];
+                            q = &objTableScene[*(int *)(obj + 0x44)];
                             for (; p != q; p++) {
                                 stage_MakeGObj((int *)p, stageAnimCount);
                             }

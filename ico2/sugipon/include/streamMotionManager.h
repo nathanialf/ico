@@ -12,26 +12,35 @@
 #ifndef STREAMMOTIONMANAGER_H
 #define STREAMMOTIONMANAGER_H
 
+/* stream-motion-def: one stream motion file, 0x30 bytes. Readers:
+ * ico2/script/src/st04a.c, st25a.c, e3.c (StandbyStreamMotion's file). */
+typedef struct {   /* field names derived */
+    char path[48]; /* 0x00 */
+} StreamMotionFile;
+
+struct GObj;
+
+struct CdvdBgReq;
+
 /* The declarations below lead this header because their order is load-bearing:
  * gcc 2.9 emits the deferred out-of-line copy of a plain-inline function in
  * first-declaration order, so this is the order streamMotionManager.c's inline tail has. */
-void StandbyStreamMotion(int self);
+void StandbyStreamMotion(char *self);
 void StopStreamMotion(void);
 void DeleteStreamMotionManager(void);
-int EntryStreamMotion(char *a0);
+int EntryStreamMotion(struct GObj *a0);
 int GetDataSizeOfStreamMotion(int no);
 float GetStreamMotionData(char *dst, int no);
 void InitStreamMotionManager(void);
 int CheckReadyStreamMotion(void);
-void SetStreamMotionFinishCallBackFunc(int a0, int a1);
+void SetStreamMotionFinishCallBackFunc(int no, void (*func)(struct GObj *));
 void FreeStreamMotionBuffer(void);
 void ClearAllStreamMotionEntry(void);
 int _closeHander(void);
-int _handler(int self);
-
-void ClearStreamMotionEntry(char *gobj);
+int _handler(struct CdvdBgReq *self);
+void ClearStreamMotionEntry(struct GObj *gobj);
 void DisableStreamMotionManagerAutomaticDelete(void);
-void GetStreamMotionDataNext(int a0, int a1);
+void GetStreamMotionDataNext(char *dst, int no);
 void MallocStreamMotionBuffer(void);
 void PlayStreamMotion(void);
 void _deleteStreamMotionManager(void);

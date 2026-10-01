@@ -11,6 +11,7 @@
 #include "main.h"
 #include "matrixDrive.h"
 #include "DmaPacket.h"
+#include "windField.h"
 
 /* RECONSTRUCTION, read from the ROM.  The 128-byte per-effect geometry
    object SetParticleEffectByPartition allocates: the emitter's position and
@@ -363,9 +364,6 @@ int setParticleEffect(PEGeo *self, PEPackage *pkg, int part)
     }
     return (int)self->parts;
 }
-
-/* kept local: void * (int, void *) here, int (void) in windField.h */
-extern void *GetWindVector(int a0, void *v);
 
 /* the EE scratchpad holds the particle being updated */
 #define PEWORK (*(PEPartRec *)0x70000000)

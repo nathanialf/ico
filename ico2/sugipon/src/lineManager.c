@@ -236,23 +236,23 @@ int _getLine(float *o1, float *o2, float *p1, float *p2)
     return rev;
 }
 
-void DrawLine(int *p1, int *p2, int a2, int a3)
+void DrawLine(void *p1, void *p2, void *color, int z)
 {
-    int t0[4];
-    int t1[4];
+    float t0[4];
+    float t1[4];
     int t2[4];
     int t3[4];
     if (_getLine(t0, t1, p1, p2) < 0)
         return;
     _FTOI4Vector(t2, t0);
     _FTOI4Vector(t3, t1);
-    Draw2DLine(t2, t3, a2, a3);
+    Draw2DLine(t2, t3, color, z);
 }
 
 void DrawLineG(void *p0, void *c0, void *p1, void *c1, int z)
 {
-    int t0[4];
-    int t1[4];
+    float t0[4];
+    float t1[4];
     int t2[4];
     int t3[4];
     int r;

@@ -12,18 +12,20 @@
 #ifndef A_P_1_H
 #define A_P_1_H
 
-int AP1JumpReq(char *a0, int a1, void *a2);
-int AP1MotReq(char *a0, int a1);
-int AP1MotReqForce(char *a0, int a1);
-int AP1Turn(char *a0, short a1);
-int GetAP1Mode(char *a0);
-int GetAP1SpecType(char *a0);
+struct GObj;
+
+int AP1JumpReq(struct GObj *a0, int a1, void *a2);
+int AP1MotReq(struct GObj *a0, int a1);
+int AP1MotReqForce(struct GObj *a0, int a1);
+int AP1Turn(struct GObj *a0, short a1);
+int GetAP1Mode(struct GObj *a0);
+int GetAP1SpecType(struct GObj *a0);
 char *MakeAP1GObj(char *a0);
-void SetAP1VisualState(char *a0, int a1);
-void calcSubMission(char *a0);
-int fitToCol(char *a0, int a1);
-int rolling(char *a0);
-void updateMatrix(char *a0);
-void yAxisRotFitting(int *self, int arg2);
+void SetAP1VisualState(struct GObj *a0, int a1);
+void calcSubMission(struct GObj *a0);
+int fitToCol(struct GObj *a0, int a1);
+int rolling(struct GObj *a0);
+void updateMatrix(struct GObj *a0);
+void yAxisRotFitting(struct GObj *self, void *arg2);
 
 #endif /* A_P_1_H */

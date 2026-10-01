@@ -9,18 +9,22 @@
 #include "GsBase.h"
 #include "ios.h"
 #include "debug_exception.h"
+#include "Basic.h"
 
 #define DL_DEBUG 0 /* derived name */
 
-typedef struct {
-    int f_0;                 /* 0x00 */
-    int f_4;                 /* 0x04 */
-    long long f_8;           /* 0x08 */
-    unsigned int f_10;       /* 0x10 */
-    int pad_14;              /* 0x14 */
-    unsigned long long f_18; /* 0x18 */
-    int pad_20;              /* 0x20 */
-    int f_24;                /* 0x24 */
+/* One priority's display list: whether a DMA tag is open, where the open tag
+   is, the address and quadword count it refers to and its tag id, the start
+   of the list's buffer and the write pointer. */
+typedef struct {           /* field names derived */
+    int open;              /* 0x00 */
+    int tag;               /* 0x04 */
+    long long addr;        /* 0x08 */
+    unsigned int qwc;      /* 0x10 */
+    int pad14;             /* 0x14 */
+    unsigned long long id; /* 0x18 */
+    int start;             /* 0x20 */
+    int cur;               /* 0x24 */
 } DlEntry;
 
 /* .sbss and .bss, owned by DisplayList.o and reached only from this file
@@ -36,8 +40,6 @@ static DlEntry dlEntries[13];
 
 static int dlBufferHead[2][13];
 
-/* kept local: int here, int * in Basic.h */
-extern int dmaVif;
 extern void __assert(char *file, int line, char *expr);
 
 /* The depth of the priority stack below, the TU's first .sdata object. */
@@ -68,8 +70,8 @@ void dl_Init(void)
     }
     dlBank = 0;
     for (i = 0; i < 13; i++) {
-        dlEntries[i].pad_20 = dlEntries[i].f_24 = dlBufferHead[0][i];
-        dlEntries[i].f_0 = 0;
+        dlEntries[i].start = dlEntries[i].cur = dlBufferHead[0][i];
+        dlEntries[i].open = 0;
     }
     dpk_Init();
     dl_Clear();
@@ -79,10 +81,10 @@ inline void dl_Out(void)
 {
     int i;
     for (i = 0; i < 2; i++) {
-        int *p = (int *)((char *)dlBufferHead + i * 0x34);
+        int *p = dlBufferHead[i];
         int j;
-        for (j = 0xC; j >= 0; j--) {
-            iosFree(*p);
+        for (j = 12; j >= 0; j--) {
+            iosFree((void *)*p);
             p++;
         }
     }
@@ -91,18 +93,18 @@ inline void dl_Out(void)
 void dl_Clear(void)
 {
     int flag = dlBank ^ 1;
-    int *src = (int *)((char *)dlBufferHead + flag * 0x34);
-    char *dst = (char *)dlEntries;
+    int *src = dlBufferHead[flag];
+    DlEntry *dst = dlEntries;
     int i;
     dlBank = flag;
     dlPriority = 0;
-    for (i = 0xC; i >= 0; i--) {
+    for (i = 12; i >= 0; i--) {
         int v = *src;
-        *(int *)dst = 0;
+        dst->open = 0;
         src++;
-        *(int *)(dst + 0x24) = v;
-        *(int *)(dst + 0x20) = v;
-        dst += 0x28;
+        dst->cur = v;
+        dst->start = v;
+        dst++;
     }
     dpk_SwapBuffer();
     gif_Init();
@@ -123,15 +125,15 @@ void dl_Swap(void)
         dl_SetDLPriority(i);
         j = i + 1;
         e = (DlEntry *)((char *)dlEntries + j * stride);
-        dl_OpenDma(1, e->pad_20 & 0xFFFFFFF, 0);
+        dl_OpenDma(1, (void *)(e->start & 0xFFFFFFF), 0);
         dl_CloseDma();
         i = j;
     } while (j < 0xC);
     FlushCache(0);
     if (fbKeep) {
-        sceDmaSend(dmaVif, dlEntries[11].pad_20 & 0xFFFFFFF);
+        sceDmaSend(dmaVif, dlEntries[11].start & 0xFFFFFFF);
     } else {
-        sceDmaSend(dmaVif, dlEntries[0].pad_20 & 0xFFFFFFF);
+        sceDmaSend(dmaVif, dlEntries[0].start & 0xFFFFFFF);
     }
     dl_Clear();
 }
@@ -178,16 +180,16 @@ inline int dl_GetPri(void)
 
 void dl_Debug(void)
 {
-    int *entry = (int *)dlEntries + dlPriority * 10;
-    unsigned int end = entry[9];
-    unsigned int start = entry[1];
+    DlEntry *entry = &dlEntries[dlPriority];
+    unsigned int end = entry->cur;
+    unsigned int start = entry->tag;
     unsigned int count = (end - start) >> 4;
-    return debug_StdPrintfDummy("dldma %d\n", count - 1);
+    debug_StdPrintfDummy("dldma %d\n", count - 1);
 }
 
-inline void dl_OpenDma(int a0, int a1, int a2)
+inline void dl_OpenDma(int id, void *addr, int qwc)
 {
-    int *entry = (int *)&dlEntries[dlPriority];
+    DlEntry *entry = &dlEntries[dlPriority];
     int old;
 
     /* Compiled out. What the bytes pin: the ROM keeps this message between
@@ -201,44 +203,44 @@ inline void dl_OpenDma(int a0, int a1, int a2)
         debug_StdPrintfDummy("dl_CheckDLOverflow:Display List Buffer [%d] Full.\n", dlPriority);
         __assert(__FILE__, 613, "e");
     }
-    if (entry[0]) {
+    if (entry->open) {
         dl_CloseDma();
     }
-    old = entry[9];
-    *(long long *)(entry + 6) = a0;
-    entry[4] = a2;
-    entry[0] = 1;
-    *(long long *)(entry + 2) = (long long)a1 & 0xFFFFFFFLL;
-    entry[1] = old;
-    entry[9] = old + 0x10;
+    old = entry->cur;
+    entry->id = id;
+    entry->qwc = qwc;
+    entry->open = 1;
+    entry->addr = (int)addr & 0xFFFFFFF;
+    entry->tag = old;
+    entry->cur = old + 0x10;
 }
 
 void dl_CloseDma(void)
 {
     DlEntry *e = &dlEntries[dlPriority];
-    long long addr = (e->f_8 & 0x7FFFFFFF) << 32;
+    long long addr = (e->addr & 0x7FFFFFFF) << 32;
     long long qwc;
     long long *p;
 
-    switch (e->f_18) {
+    switch (e->id) {
     case 0:
     case 6:
-        qwc = ((unsigned int)(e->f_24 - e->f_4) >> 4) - 1;
+        qwc = ((unsigned int)(e->cur - e->tag) >> 4) - 1;
         if (qwc == 0) {
-            e->f_24 = e->f_24 - 0x10;
-            e->f_0 = 0;
+            e->cur = e->cur - 0x10;
+            e->open = 0;
             return;
         }
         break;
     case 7:
-        qwc = ((unsigned int)(e->f_24 - e->f_4) >> 4) - 1;
+        qwc = ((unsigned int)(e->cur - e->tag) >> 4) - 1;
         break;
     default:
-        qwc = e->f_10;
+        qwc = e->qwc;
         break;
     }
-    p = (long long *)e->f_4;
-    switch (e->f_18) {
+    p = (long long *)e->tag;
+    switch (e->id) {
     case 0:
         p[0] = qwc | 0x10000000;
         break;
@@ -265,5 +267,5 @@ void dl_CloseDma(void)
         break;
     }
     p[1] = 0;
-    e->f_0 = 0;
+    e->open = 0;
 }

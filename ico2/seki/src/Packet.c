@@ -9,6 +9,7 @@
 #include "Light.h"
 #include <stdio.h>
 #include "debug_exception.h"
+#include "memory.h"
 
 /* .sdata, Packet.o's run (MAIN.MAP 0x57, no symbol named): the largest
    packet pac_MakePacket has built so far, then the dump formats, the assert
@@ -765,9 +766,6 @@ void pac_countOneVertexPacketSize(char *shp, char *mat)
         ctx->counts.w[1] = 3;
     }
 }
-
-/* kept local: void (int) here, void * (void *) in memory.h */
-extern void iosFree(int p);
 
 int pac_makeStrip(char **out, char *obj, char **tbl, int shpno, int matno, int line)
 {

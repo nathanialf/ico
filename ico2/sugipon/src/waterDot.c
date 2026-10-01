@@ -7,6 +7,8 @@
 #include "main.h"
 #include "GifPacket.h"
 #include "Matrix.h"
+#include "ios.h"
+#include "windField.h"
 
 /* One dot of the splash: 0x30 bytes, sized by AllocWaterDot's `mult ,0x30`. */
 /* 0x30 */
@@ -31,9 +33,6 @@ inline void InitializeWaterDot(void)
         waterDots[i] = 0;
     }
 }
-
-/* kept local: void * here, int in ios.h */
-extern void *ios_partition_sugipon; /* the heap partition every waterDot record comes from */
 
 /* The three .data templates AllocWaterDot block-copies, in ROM order at
    0x4ED170, 0x4ED190 and 0x4ED1C0. Each is an explicit initialiser, which is
@@ -96,9 +95,6 @@ inline void EntryWaterDot(WaterDotWork *w, VECTOR *pos, VECTOR *vel, float range
     if (++w->cur == w->num)
         w->cur = 0;
 }
-
-/* kept local: void * (int, void *) here, int (void) in windField.h */
-extern void *GetWindVector(int a0, void *pos);
 
 /* waterDot.c:71-78 in the PAL listing, rows inside ExecWaterDot's span but
    above its def line: a static helper with no out-of-line copy, inlined at

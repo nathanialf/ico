@@ -384,7 +384,7 @@ typedef struct BoyWork { /* field names derived */
     float detail;           /* 0x64 */
 } BoyWork;
 
-void dispClothes(char *gobj)
+void dispClothes(GObj *gobj)
 {
     BoyWork *w = GOBJ_SUB(gobj)->work;
     char *x;
@@ -409,7 +409,7 @@ void dispClothes(char *gobj)
  * that constant five times, and the two arm-scoped values the helper reads are
  * homed in the frame and reloaded after every call. The helper's name and the
  * two locals' names are ours (a nested inline leaves no symbol). */
-static void execClothes(char *gobj)
+static void execClothes(GObj *gobj)
 {
     BoyWork *w = GOBJ_SUB(gobj)->work;
 
@@ -567,7 +567,7 @@ void LightLineDL(void)
     gif_EndPacket();
 }
 
-inline void SelectBoyCrown(char *a0, int a1)
+inline void SelectBoyCrown(GObj *a0, int a1)
 {
     ((BoyWork *)GOBJ_SUB(a0)->work)->crown = a1;
 }
@@ -590,7 +590,7 @@ static ClothHangCfg tapeHang[3] = {
     {-1, 0.0f, 0.0f, 0.0f, 0, {0}, 0.0f, 0.0f, {0}, 0.0f, 0.0f, {0}},
 };
 
-BoyWork *InitBoyGeo(char *gobj, void *csv)
+BoyWork *InitBoyGeo(GObj *gobj, void *csv)
 {
     BoyWork *w;
     BoyWork *p;
@@ -599,14 +599,14 @@ BoyWork *InitBoyGeo(char *gobj, void *csv)
     w = iosMallocDebug(ios_partition_sugipon, sizeof(BoyWork), "src/boy.c", 280);
     /* the work word stored and read back as char *: the bytes pin that alias
        set here (the cloth stores below must stay ordered against the reload) */
-    *(char **)(*(char **)(gobj + 0x15C) + 0x830) = (char *)w;
-    p = (BoyWork *)*(char **)(*(char **)(gobj + 0x15C) + 0x830);
+    *(char **)(*(char **)(((char *)gobj) + 0x15C) + 0x830) = (char *)w;
+    p = (BoyWork *)*(char **)(*(char **)(((char *)gobj) + 0x15C) + 0x830);
     p->mantle = (char *)InitCloth4D(gobj, &mantleMesh, mantleHang);
     p->tape = (char *)InitCloth4D(gobj, &tapeMesh, tapeHang);
     p->tapeB = (char *)InitCloth4D(gobj, &tapeBMesh, 0);
     p->tapeBoro1 = (char *)InitCloth4D(gobj, &tapeBoro1Mesh, 0);
     p->tapeBoro2 = (char *)InitCloth4D(gobj, &tapeBoro2Mesh, 0);
-    *(int *)(*(char **)(gobj + 0x15C) + 0x554) = 1;
+    *(int *)(*(char **)(((char *)gobj) + 0x15C) + 0x554) = 1;
     w->head = (Sub15C *)CSVSYSTEM_InitDObj(2, csv);
     w->body = (Sub15C *)CSVSYSTEM_InitDObj(3, csv);
     if (w->body->nodeMtx != 0) {
@@ -643,7 +643,7 @@ BoyWork *InitBoyGeo(char *gobj, void *csv)
     w->crown0 = CSVSYSTEM_InitDObj(1, csv);
     w->crown1 = CSVSYSTEM_InitDObj(15, csv);
     w->crown2 = CSVSYSTEM_InitDObj(16, csv);
-    (*(BoyWork **)(*(char **)(gobj + 0x15C) + 0x830))->crown = 0;
+    (*(BoyWork **)(*(char **)(((char *)gobj) + 0x15C) + 0x830))->crown = 0;
     sceVu0UnitMatrix(w->crown0 + 0x20);
     InitMotionOrient(gobj, 0, 0x503, 0, 0xC, 0);
     InitLightLineGeo(gobj, csv);
@@ -652,8 +652,8 @@ BoyWork *InitBoyGeo(char *gobj, void *csv)
     w->stoneAnim = 0;
     w->refl.nrow = 20;
     w->refl.ncol = 20;
-    w->refl.f_8 = 300.0f;
-    w->refl.f_C = 300.0f;
+    w->refl.sizeX = 300.0f;
+    w->refl.sizeZ = 300.0f;
     w->refl.color = 0x80808080;
     InitLimitedPoolReflactionMesh(&w->refl);
     w->waterDot = AllocWaterDot((int)gobj, 30, 5);
@@ -664,13 +664,6 @@ BoyWork *InitBoyGeo(char *gobj, void *csv)
     return w;
 }
 
-typedef struct MotSyncPair { /* 0x08 */
-    int girl;                /* 0x00 */
-    int boy;                 /* 0x04 */
-} MotSyncPair;
-
-extern MotSyncPair motSyncPairs[]; /* derived name */
-
 /* the two wire spheres the girl-to-boy position sync draws when the debug flag
    is on: blue for the girl, orange for the boy */
 static int girlSyncMarkerColor[4] = {64, 96, 128, 128};
@@ -679,7 +672,7 @@ static int boySyncMarkerColor[4] = {255, 96, 64, 128};
 
 static LightLineExt lightLineExt = {0, 0, 0};
 
-void synchronizeMotionOutputOriginForGirl(char *gobj)
+void synchronizeMotionOutputOriginForGirl(GObj *gobj)
 {
     float d[4];
     float v[4];
@@ -722,13 +715,13 @@ void synchronizeMotionOutputOriginForGirl(char *gobj)
     }
 }
 
-void actionOfWater(char *gobj)
+void actionOfWater(GObj *gobj)
 {
     float pos[4];
     BoyWork *w = GOBJ_SUB(gobj)->work;
     int node;
 
-    ExecWaterDot((int)w->waterDot);
+    ExecWaterDot(w->waterDot);
     if (GOBJ_SUB(gobj)->rootUpdateMode == 0xB) {
         w->wet = 1;
         w->dripVel = 5.0f;
@@ -740,22 +733,22 @@ void actionOfWater(char *gobj)
         if (1.0f < w->drip) {
             node = GetSkeltonFocusNode(gobj, 0x16);
             CopyVector(pos, (char *)GOBJ_SUB(gobj)->nodeMtx + (node << 6) + 0x30);
-            EntryWaterDot((int)w->waterDot, pos, ZeroVector, 8.0f);
+            EntryWaterDot(w->waterDot, pos, ZeroVector, 8.0f);
             node = GetSkeltonFocusNode(gobj, 0x6);
             CopyVector(pos, (char *)GOBJ_SUB(gobj)->nodeMtx + (node << 6) + 0x30);
-            EntryWaterDot((int)w->waterDot, pos, ZeroVector, 8.0f);
+            EntryWaterDot(w->waterDot, pos, ZeroVector, 8.0f);
             node = GetSkeltonFocusNode(gobj, 0x2C);
             CopyVector(pos, (char *)GOBJ_SUB(gobj)->nodeMtx + (node << 6) + 0x30);
-            EntryWaterDot((int)w->waterDot, pos, ZeroVector, 10.0f);
+            EntryWaterDot(w->waterDot, pos, ZeroVector, 10.0f);
             w->drip = 0.0f;
         }
     }
 }
 
-void synchronizeMotionOutputOriginForGirl(char *gobj);
-void actionOfWater(char *gobj);
+void synchronizeMotionOutputOriginForGirl(GObj *gobj);
+void actionOfWater(GObj *gobj);
 
-void BoyGeo(char *gobj)
+void BoyGeo(GObj *gobj)
 {
     HandManager(gobj);
     ExecMotionOrient(gobj);
@@ -770,7 +763,7 @@ void BoyGeo(char *gobj)
     actionOfWater(gobj);
 }
 
-void dispSubParts(char *gobj)
+void dispSubParts(GObj *gobj)
 {
     BoyWork *w = GOBJ_SUB(gobj)->work;
     char *a;
@@ -790,7 +783,7 @@ void dispSubParts(char *gobj)
     p2o_DispVU1DObjMulti(w->body);
 }
 
-void dispCrown(char *gobj)
+void dispCrown(GObj *gobj)
 {
     BoyWork *w = GOBJ_SUB(gobj)->work;
     int node = GetSkeltonFocusNode(gobj, 0x23);
@@ -813,7 +806,7 @@ void dispCrown(char *gobj)
     reg_DispAccessoryWithShadow((Sub15C *)obj, GOBJ_SUB(gobj));
 }
 
-inline void SetBoyStonizedVisual(char *a0)
+inline void SetBoyStonizedVisual(GObj *a0)
 {
     BoyWork *crown = GOBJ_SUB(a0)->work;
     AdjustMotionHeightToNearestField(a0);
@@ -824,9 +817,9 @@ inline void SetBoyStonizedVisual(char *a0)
 
 /* kept local: float (int, void *, void *, float) here, float (int, float, void *, void *) in StageAnimation.h */
 extern float stage_PlayBgAnimation(int obj, void *a1, void *a2, float f);
-void dispSubParts(char *gobj);
+void dispSubParts(GObj *gobj);
 
-void BoyDL(char *gobj)
+void BoyDL(GObj *gobj)
 {
     char pos[0x10];
     char quat[0x10];
@@ -858,5 +851,5 @@ void BoyDL(char *gobj)
         SetLimitedPoolReflactionMesh(m, sub->pool, gobj);
         DispLimitedPoolReflactionMesh(m);
     }
-    DispWaterDot((int)w->waterDot);
+    DispWaterDot(w->waterDot);
 }

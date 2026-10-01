@@ -6,6 +6,7 @@
 #include "MicroCode.h"
 #include <libdma.h>
 #include "Shadow.h"
+#include "Basic.h"
 
 /* The TU's whole .rodata run, VMA 0x54DB10..0x54DB30: debug_PrintFontWindow's
    format for the display-object counter.  The explicit 32 is the ROM's own
@@ -16,9 +17,6 @@ static const char dispObjFormat[32] = "display object = %d";
    p2o_HideDispVU1 records and reports, none yet. */
 static int dispObjCount = -1; /* derived name */
 
-/* kept local: int here, int * in Basic.h */
-extern int dmaVif;
-
 void p2o_MakePacket(Sub15C *a0)
 {
     a0->model->dobj = a0;
@@ -27,9 +25,9 @@ void p2o_MakePacket(Sub15C *a0)
 
 inline void p2o_SetDefaultEnviroment(void) {}
 
-void p2o_DispShadowVolume(int a0)
+void p2o_DispShadowVolume(GObj *a0)
 {
-    shadow_Render(((GObj *)a0)->dobj);
+    shadow_Render(a0->dobj);
 }
 
 void p2o_HideDispVU1(int a0)

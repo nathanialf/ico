@@ -12,12 +12,14 @@
 #ifndef ACT_A_P_1_H
 #define ACT_A_P_1_H
 
+struct GObj;
+
 char *GetAP1AIMode(char *self);
 int IsActCharDead(int *a0);
-void SetAP1DeadStatus(int *a0);
+void SetAP1DeadStatus(struct GObj *a0);
 void SetAP1HostGObj(char *self, int val);
 void SetAP1PriorLevel(char *self, int val);
-void WakeUpAP1(int *a0);
+void WakeUpAP1(struct GObj *a0);
 void subAP1BrainMain(volatile int self);
 
 #endif /* ACT_A_P_1_H */

@@ -2,12 +2,10 @@
 #include <eekernel.h>
 #include "keyInput.h"
 #include "main.h"
+#include "pad.h"
 
 /* the pad device descriptor InitKeyInput hands to iosPadDevInit */
 static int keyInputPadDev[6] = {7, 2, 0, 0, 0, 0};
-
-/* kept local: void (void *) here, int (void *) in pad.h */
-extern void iosPadDevInit(void *a0);
 
 void InitKeyInput(void)
 {
@@ -40,14 +38,6 @@ typedef struct PadBuf {
 } PadBuf;
 
 extern char iosPadConfDefault[];
-/* kept local: void (void) here, int (void) in pad.h */
-extern void iosPadDevRead(void);
-/* kept local: void (void *, int, int, void *) here, int (void *, int, int, int) in pad.h */
-extern void iosPadConnect(void *buf, int a1, int port, void *conf);
-/* kept local: agrees with pad.h, which this TU does not include (iosPadConnect, iosPadDevInit differ) */
-extern int iosPadRead(void *buf);
-/* kept local: agrees with pad.h, which this TU does not include (iosPadConnect, iosPadDevInit differ) */
-extern int iosPadGetStick(void *buf, void *dst, int which, int cx, int cy, int a5);
 
 void ExecKeyInput(void)
 {

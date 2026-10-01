@@ -14,6 +14,7 @@
 #include "quaternion.h"
 #include "main.h"
 #include "GifPacket.h"
+#include "debug.h"
 
 /* the effect-parameter descriptor table _dispParam/editParam walk: 0x1C per
  * entry, name pointer first, NULL-terminated.  `off` is the byte offset of the
@@ -74,9 +75,6 @@ static EffParamDef effParam[] = {
     {"LIMIT HEIGHT", 0x98, 0, 0, 0, -100000, 100000},
     {0},
 };
-
-/* kept local: void (int, int, unsigned int, char *, ...) here, void (int, int, unsigned int, int, ...) in debug.h */
-extern void debug_PrintfDummy(int x, int y, unsigned int col, char *fmt, ...);
 
 void _dispParam(int *pkg, int idx, int x, int y, int col)
 {
@@ -459,9 +457,6 @@ int EditTarget(int id)
     return 0;
 }
 
-/* kept local: agrees with debug.h, which this TU does not include (debugSceOpen, debug_PrintfDummy differ) */
-extern void debug_StdPrintfDummy(char *fmt, ...);
-
 /* static helper the PAL listing places at effectTool.c lines 403-415 and
  * inlines at the head of EffectTool; never emitted out of line, so it has no
  * MAIN.MAP symbol and this name is ours. */
@@ -486,14 +481,6 @@ static inline void initEffectTool(void)
 /* particleEffect.c's effect table is 0x50 bytes per entry: char name[0x20]
    then char file[0x30].  D_0062A298 is &tbl[0].file (particleEffectFile = &tbl[0].name). */
 extern char D_0062A298[];
-/* kept local: agrees with debug.h, which this TU does not include (debugSceOpen, debug_PrintfDummy differ) */
-extern void debug_closeLog(void);
-/* kept local: agrees with debug.h, which this TU does not include (debugSceOpen, debug_PrintfDummy differ) */
-extern void debug_openLog(void);
-/* kept local: int (void *, int) here, int (int, int) in debug.h */
-extern int debugSceOpen(void *name, int flags);
-/* kept local: agrees with debug.h, which this TU does not include (debugSceOpen, debug_PrintfDummy differ) */
-extern int debugSceClose(int fd);
 
 int saveEffectData(int id)
 {
@@ -569,9 +556,6 @@ void moveEffectToolGeometry(int idx)
 }
 
 extern char particleEffectFile[];
-/* kept local: agrees with debug.h, which this TU does not include (debugSceOpen, debug_PrintfDummy differ) */
-extern int debug_SelectCsvWindow(char *title, int a1, int a2, int a3, void *tbl, int stride, int a6,
-                                 int a7, int count, int *cur);
 
 int execEffectTool(void)
 {

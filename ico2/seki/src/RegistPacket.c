@@ -180,7 +180,7 @@ void reg_dispBoxLine(PacHeader *pk)
     gif_SetAlpha(1, 4, 0x20);
     _CopyMatrix(MatrixDrive_GetMatrix(), matrixptr + 0x40);
     for (i = 0; i < 12; i++) {
-        DrawLine(pk->box[line.e[i][0]], pk->box[line.e[i][1]], &col, 0);
+        DrawLine(pk->box[line.e[i][0]], pk->box[line.e[i][1]], col.c, 0);
     }
     gif_EndPacket();
 }
@@ -711,7 +711,7 @@ void reg_transMaterialPacket(PacHeader *self, int *p)
 {
     short idx = self->mat;
     if (idx != -1) {
-        int v = *p + idx * 0x70;
+        char *v = (char *)*p + idx * 0x70;
         dl_OpenDma(2, v, 6);
         dl_CloseDma();
     }

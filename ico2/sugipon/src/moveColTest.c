@@ -38,16 +38,17 @@ static unsigned char blinkCount = 0; /* derived name */
 
 static int testOffset = 0; /* derived name */
 
-void MoveColTestGeo(char *self)
+void MoveColTestGeo(GObj *self)
 {
     float pos[4];
     MctWork *w = GOBJ_SUB(self)->work;
     int c;
 
-    CopyMatrix(MatrixDrive_GetMatrix(), *(char **)(self + 0x15C) + 0x20);
+    CopyMatrix(MatrixDrive_GetMatrix(), *(char **)(((char *)self) + 0x15C) + 0x20);
     MatrixDrive_RotMatrixZ(w->angle);
-    CopyQuaternion(*(char **)(self + 0x15C) + 0xD0, *(char **)(self + 0x15C) + 0x60);
-    RotQuaternionZ(*(char **)(self + 0x15C) + 0xD0, w->angle);
+    CopyQuaternion(*(char **)(((char *)self) + 0x15C) + 0xD0,
+                   *(char **)(((char *)self) + 0x15C) + 0x60);
+    RotQuaternionZ(*(char **)(((char *)self) + 0x15C) + 0xD0, w->angle);
     CopyMatrix((void *)GOBJ_SUB(self)->nodeMtx, MatrixDrive_GetMatrix());
     UpdateRootMatrix(self);
 

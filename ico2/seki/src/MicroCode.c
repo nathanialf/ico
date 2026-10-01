@@ -99,7 +99,7 @@ void mc_setBaseOffset(int base, int pri)
     ((GifPkWord *)(q + 8))->w[1] = 0;
     PacketBufferStruct.ptr.c = q + 0x10;
     dl_SetDLPriority(pri);
-    dl_OpenDma(5, (int)PacketBufferStruct.dma.c, 0);
+    dl_OpenDma(5, PacketBufferStruct.dma.c, 0);
     dl_CloseDma();
 }
 
@@ -271,7 +271,7 @@ void mc_SetMicroCode(int mode, int a1, int a2, int a3, int pri)
     ((GifPkWord *)(c + 0x18))->w[1] = 0;
     PacketBufferStruct.ptr.c = c + 0x20;
     dl_SetDLPriority(pri);
-    dl_OpenDma(5, (int)PacketBufferStruct.dma.c, 0);
+    dl_OpenDma(5, PacketBufferStruct.dma.c, 0);
     dl_CloseDma();
 }
 

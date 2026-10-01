@@ -74,7 +74,7 @@ inline void AttackCheckBoundaryGeo(void *a0)
     }
 }
 
-inline void AttackCheckBoundaryDL(char *obj)
+inline void AttackCheckBoundaryDL(GObj *obj)
 {
     char *m = GOBJ_SUB(obj)->work;
     float r;
@@ -109,7 +109,7 @@ inline void SetAttackCheckBoundaryAttribute(char *a0, int a1)
     *(int *)(w + 8) = a1;
 }
 
-inline float GetAttackCheckBoundaryRadius(char *a0)
+inline float GetAttackCheckBoundaryRadius(GObj *a0)
 {
     return *(float *)((char *)GOBJ_SUB(a0)->nodes + 0x20);
 }
@@ -279,7 +279,7 @@ AcbMgr *InitAttackCheckBoundaryManagerGeo(int a0, char *a1)
     return mgr;
 }
 
-void AttackCheckBoundaryManagerGeo(char *self)
+void AttackCheckBoundaryManagerGeo(GObj *self)
 {
     AcbMgr *m = GOBJ_SUB(self)->work;
     int i;
@@ -299,7 +299,7 @@ void AttackCheckBoundaryManagerGeo(char *self)
 
 void AttackCheckBoundaryManagerDL(void) {}
 
-inline int GetAttackCheckBoundaryManagerStatus(char *a0)
+inline int GetAttackCheckBoundaryManagerStatus(GObj *a0)
 {
     return *(int *)((char *)GOBJ_SUB(a0)->work + 8);
 }

@@ -125,11 +125,13 @@ void gsb_SetFrame(sceGsDBuff *db, int a1, int a2, int psm, short zbp)
 
     *(int *)&disp1->dispfb &= ~0x1FF;
     *(int *)&db->disp[0].dispfb &= ~0x1FF;
-    ((GifPkWord *)((char *)db + 0x150))->d =
-        (((GifPkWord *)((char *)db + 0x150))->d & ~0x1FF) | 0x40;
-    ((GifPkWord *)((char *)db + 0x60))->d = (((GifPkWord *)((char *)db + 0x60))->d & ~0x1FF) | 0x40;
-    ((GifPkWord *)((char *)db + 0x160))->d = ((long long)(psm & 0xF) << 24) | zb;
-    ((GifPkWord *)((char *)db + 0x70))->d = ((long long)(psm & 0xF) << 24) | zb;
+    /* the four register words are rewritten through GifPkWord's union view:
+       as plain long long members the ROM's li of the mask becomes a reload
+       of the word (measured) */
+    ((GifPkWord *)&db->draw1.frame)->d = (((GifPkWord *)&db->draw1.frame)->d & ~0x1FF) | 0x40;
+    ((GifPkWord *)&db->draw0.frame)->d = (((GifPkWord *)&db->draw0.frame)->d & ~0x1FF) | 0x40;
+    ((GifPkWord *)&db->draw1.zbuf)->d = ((long long)(psm & 0xF) << 24) | zb;
+    ((GifPkWord *)&db->draw0.zbuf)->d = ((long long)(psm & 0xF) << 24) | zb;
     sceGsSetDefDispEnv(&db->disp[0], 0, w, h, 0, 0);
     sceGsSetDefDispEnv(disp1, 0, w, h, 0, 0);
 }

@@ -84,14 +84,14 @@ typedef struct {
     /* 0x10 */ void *f10;
 } RopeGeoWork;
 
-void *InitRopeGeo(char *o, const float *p)
+void *InitRopeGeo(GObj *o, const float *p)
 {
     RopeChainSys *c;
     Sub15C *sub;
     RopeGeoWork *w;
     int i;
 
-    sub = ((GObj *)o)->dobj;
+    sub = o->dobj;
     w = (RopeGeoWork *)iosMallocDebug(ios_partition_sugipon, 0x14, __FILE__, 38);
     c = (RopeChainSys *)iosMallocDebug(ios_partition_sugipon, 0xA0, __FILE__, 39);
 
@@ -227,12 +227,12 @@ void *InitRopeGeo(char *o, const float *p)
     return w;
 }
 
-inline int CheckRopeUpperWallClimbable(int a0, char *a1)
+inline int CheckRopeUpperWallClimbable(int a0, GObj *a1)
 {
     return *(int *)((char *)GOBJ_SUB(a1)->work + 4);
 }
 
-void SetRopeFixPoint(char *a0, void *a1)
+void SetRopeFixPoint(GObj *a0, void *a1)
 {
     CopyVector(**(char ***)((char *)GOBJ_SUB(a0)->work) + 0x20, a1);
 }
@@ -337,11 +337,11 @@ inline void RopeGeo(void *a0)
 /* kept local: void (void *) here, void (int *) in clothAnimation.h */
 extern void TestDispChainAnimation(void *a0);
 
-void RopeDL(void *a0)
+void RopeDL(GObj *a0)
 {
     unsigned short ax;
     unsigned short az;
-    Sub15C *sub = ((GObj *)a0)->dobj;
+    Sub15C *sub = a0->dobj;
     void **p = *(void ***)((char *)sub + 0x830);
     char *set = (char *)p[0];
     int i;

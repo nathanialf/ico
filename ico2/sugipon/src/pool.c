@@ -31,7 +31,7 @@ typedef struct {
     char c[4];
 } Blob4;
 
-void falldownSE(int a0)
+void falldownSE(GObj *a0)
 {
     ExecuteSEPackage(a0, 0x56);
 }
@@ -172,29 +172,29 @@ static inline void setWaveCell(PoolWork *w, float *pos, PoolRipple *cell, float 
     cell->age = 0.0f;
 }
 
-void setNodePursueParticleEffectWithUpperLimit(char *a0, char *a1, int a2, float f)
+void setNodePursueParticleEffectWithUpperLimit(char *a0, GObj *a1, int a2, float f)
 {
     int ret = GetSkeltonFocusNode(a1, a2);
     if (ret != -1) {
         Sub15C *p = GOBJ_SUB(a1);
         int r = SetParticleEffectActiveSensing((int)a0, p->nodeMtx + ret * 0x40 + 0x30,
-                                               (int)IdentityQuaternion);
+                                               IdentityQuaternion);
         SetParticleEffectUpperLimit(r, f);
     }
 }
 
-void SetFallDownSplash(char *pool, char *self)
+void SetFallDownSplash(GObj *pool, GObj *self)
 {
     float pos[4];
     float tmp[4];
     PoolWork *w = GOBJ_SUB(pool)->work;
 
     GetRootPosition(pos, self);
-    _ScaleVectorXYZ(tmp, *(char **)(self + 0x15C) + 0x130, 2.0f);
+    _ScaleVectorXYZ(tmp, *(char **)(((char *)self) + 0x15C) + 0x130, 2.0f);
     _AddVector(pos, pos, tmp);
     pos[1] = w->pos[1];
 
-    if (*(int *)(*(char **)(self + 0x15C) + 0x8C) != 0) {
+    if (*(int *)(*(char **)(((char *)self) + 0x15C) + 0x8C) != 0) {
         setNodePursueParticleEffectWithUpperLimit((char *)48, self, 51, pos[1]);
         setNodePursueParticleEffectWithUpperLimit((char *)48, self, 47, pos[1]);
     }
@@ -213,10 +213,10 @@ void SetFallDownSplash(char *pool, char *self)
         }
     }
 
-    falldownSE((int)self);
+    falldownSE(self);
 }
 
-void GetPoolGlobalDrainVector(void *dst, char *a0)
+void GetPoolGlobalDrainVector(void *dst, GObj *a0)
 {
     CopyVector(dst, ((PoolWork *)GOBJ_SUB(a0)->work)->drain);
 }
@@ -261,7 +261,7 @@ typedef struct {
 } StgCsvEnt;
 
 extern StgCsvEnt D_002A79B8[];
-int poolRideFunc(char **a0, char *a1);
+int poolRideFunc(char **a0, GObj *a1);
 
 char *InitPoolGeo(char *self, SObjSimpleSetting *lay)
 {
@@ -449,7 +449,7 @@ static inline void makeWaveGrid(PoolWork *w, float **grid, int ang)
 /* The GS drawing-area origin, the centre of the 4096-unit primitive space. */
 static const ConstVec screenOrigin = {{2048.0f, 2048.0f, 0.0f, 0.0f}};
 
-void updatePoolGeo(char *self)
+void updatePoolGeo(GObj *self)
 {
     ConstVec org;
     float out[4];
@@ -630,7 +630,7 @@ static float workLightNormal[4][4] = {
     {0.0f, 0.0f, 0.0f, 1.0f},
 };
 
-void dispPool(char *self)
+void dispPool(GObj *self)
 {
     char m0[0x40];
     char m1[0x40];
@@ -747,7 +747,7 @@ void dispPool(char *self)
     }
 }
 
-void PoolDL(char *self)
+void PoolDL(GObj *self)
 {
     PoolWork *w = GOBJ_SUB(self)->work;
 
@@ -841,7 +841,7 @@ void SetLayoutedPoolReflactionMesh(PoolMesh *a0)
     prim_UpdateMesh3D(mesh, 9, buffer_ID);
 }
 
-void SetLimitedPoolReflactionMesh(PoolMesh *a0, char *a1, char *a2)
+void SetLimitedPoolReflactionMesh(PoolMesh *a0, GObj *a1, GObj *a2)
 {
     PoolWork *w = GOBJ_SUB(a1)->work;
     float pos[4];
@@ -944,12 +944,12 @@ void DispLimitedPoolReflactionMesh(PoolMesh *a0)
 
 void PoolGeo(void) {}
 
-float GetPoolGlobalHeight(char *a0)
+float GetPoolGlobalHeight(GObj *a0)
 {
     return ((PoolWork *)GOBJ_SUB(a0)->work)->pos[1];
 }
 
-float GetPoolGlobalHeightDetail(char *a0, float *pos)
+float GetPoolGlobalHeightDetail(GObj *a0, float *pos)
 {
     PoolWork *p = GOBJ_SUB(a0)->work;
     float inv;
@@ -967,7 +967,7 @@ float GetPoolGlobalHeightDetail(char *a0, float *pos)
     return p->pos[1];
 }
 
-int CheckPoolHasGridMesh(char *a0)
+int CheckPoolHasGridMesh(GObj *a0)
 {
     return ((PoolWork *)GOBJ_SUB(a0)->work)->hasGrid != 0;
 }
@@ -991,7 +991,7 @@ void InitLayoutedPoolReflactionMesh(PoolMesh *a0, PoolMeshQuad *a1)
     }
 }
 
-int poolRideFunc(char **a0, char *a1)
+int poolRideFunc(char **a0, GObj *a1)
 {
     Sub15C *e = GOBJ_SUB(a1);
     PoolWork *p = GOBJ_SUB(a0[0])->work;

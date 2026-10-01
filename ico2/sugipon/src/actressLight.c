@@ -1,21 +1,17 @@
 #include "motionManager2.h"
 #include "quaternion.h"
 #include "actressLight.h"
+#include "StageAnimation.h"
 
-/* kept local: void (void *, int, void *, float) here, float (int, float, void *, void *) in StageAnimation.h */
-extern void stage_PlayBgAnimation(void *a0, int a1, void *a2, float a3);
-/* kept local: void (void *, int) here, void (int, int) in StageAnimation.h */
-extern void stage_SetLoopFlag(void *a0, int a1);
-
-void SetActressLight(void *a0, int a1, int a2, void *a3)
+void SetActressLight(GObj *a0, int a1, int a2, int a3)
 {
     char buf[0x10];
     int r1 = GetSkeltonFocusNode(a0, a1);
     int r2 = GetSkeltonFocusNode(a0, a2);
     stage_SetLoopFlag(a3, 1);
-    CopyQuaternion(buf, GOBJ_SUB(a0)->nodeQuat + r1 * 0x10);
+    CopyQuaternion(buf, (char *)GOBJ_SUB(a0)->nodeQuat + r1 * 0x10);
     RotQuaternionX(buf, 0x4000);
     RotQuaternionZ(buf, 0x4000);
-    stage_PlayBgAnimation(a3, GOBJ_SUB(a0)->nodeMtx + r2 * 0x40 + 0x30, buf, 0.0f);
+    stage_PlayBgAnimation(a3, 0.0f, (char *)GOBJ_SUB(a0)->nodeMtx + r2 * 0x40 + 0x30, buf);
     stage_SetLoopFlag(a3, 0);
 }

@@ -86,11 +86,11 @@ static float savedMatrix340[16]; /* derived name */
 /* kept local: declaring it only through string.h moves this TU's bytes */
 extern void memset(void *p, int c, int n);
 extern char D_002A79B8[];
-void PuddleGeo(char *a0);
-void EntryRippleToPuddle(char *a0, void *vec);
+void PuddleGeo(GObj *a0);
+void EntryRippleToPuddle(GObj *a0, void *vec);
 int puddleRideFunc(char **a0, char *a1);
 
-PuddleWork *InitPuddleGeo(char *a0, char *a1)
+PuddleWork *InitPuddleGeo(GObj *a0, char *a1)
 {
     PuddleWork *w = (PuddleWork *)iosMallocDebug(ios_partition_sugipon, 0xD0, __FILE__, 69);
     float *v;
@@ -119,7 +119,7 @@ PuddleWork *InitPuddleGeo(char *a0, char *a1)
     return w;
 }
 
-void baseSetup(char *a0)
+void baseSetup(GObj *a0)
 {
     gif_StartPacketPri(4);
     gif_SetDrawEnviroment(0x800, 0, ScreenWidth, ScreenHeight, 1, 0);
@@ -142,7 +142,7 @@ void baseSetup(char *a0)
     gif_SetZTest(1);
     gif_EndPacket();
 
-    reg_RenderReflection(((GObj *)a0)->dobj, 4);
+    reg_RenderReflection(a0->dobj, 4);
 }
 
 /* the sprite rectangle drawAreaSetup blits the frame through, in GS primitive
@@ -342,7 +342,7 @@ void drawRipple(float t, void *pos)
     gif_DrawStripFST(stripUpper, stripLower, col, 0x12, 1);
 }
 
-void drawRipples(char *a0, int pri)
+void drawRipples(GObj *a0, int pri)
 {
     PuddleWork *w = (PuddleWork *)(char *)GOBJ_SUB(a0)->work;
     Ripple *p;
@@ -378,7 +378,7 @@ void drawRipples(char *a0, int pri)
     gif_EndPacket();
 }
 
-void PuddleDL(char *a0)
+void PuddleDL(GObj *a0)
 {
     char *p = *(char **)(char *)GOBJ_SUB(a0)->work;
 
@@ -393,7 +393,7 @@ void PuddleDL(char *a0)
     copy(4);
 }
 
-inline void PuddleGeo(char *a0)
+inline void PuddleGeo(GObj *a0)
 {
     char *p;
     int i;
@@ -408,7 +408,7 @@ inline void PuddleGeo(char *a0)
     }
 }
 
-inline void EntryRippleToPuddle(char *a0, void *vec)
+inline void EntryRippleToPuddle(GObj *a0, void *vec)
 {
     PuddleWork *w;
 

@@ -12,15 +12,17 @@
 #ifndef ROTOBJECT_H
 #define ROTOBJECT_H
 
+struct GObj;
+
 void GetRotObjectGameSysObjInfoExtData(short *a0, int *a1, char *a2);
 void GetRotObjectGlobalHoldGeometry(void *pos, void *dir, void *gobj, void *posMtx, void *dirMtx);
 void GetRotObjectHoldPoint(void *a0, void *a1, void *a2, void *a3);
-float GetRotObjectRotCount(char *a0);
+float GetRotObjectRotCount(struct GObj *a0);
 int GetRotObjectZPlusDirection(void *gobj);
-int MoveRotObjectWithHoldPoint(void *bar, void *hold, void *self, void *dir, void *up);
-void SetRotObjectArmRadius(char *a0, float f);
-void SetRotObjectLockFlag(char *a0, int a1);
-void moveEndSE(int a0, int a1, int a2, int a3);
-void moveStartSE(int a0, int a1, int a2, int a3);
+int MoveRotObjectWithHoldPoint(struct GObj *bar, void *hold, void *self, void *dir, void *up);
+void SetRotObjectArmRadius(struct GObj *a0, float f);
+void SetRotObjectLockFlag(struct GObj *a0, int a1);
+void moveEndSE(struct GObj *a0, int a1, int a2, int a3);
+void moveStartSE(struct GObj *a0, int a1, int a2, int a3);
 
 #endif /* ROTOBJECT_H */

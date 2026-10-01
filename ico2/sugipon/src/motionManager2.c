@@ -48,7 +48,7 @@ int GetWaterReaction(float *outH, int *outFlag, char *info, float *pos, float *v
     float waterH;
     float scale;
     float r;
-    int pool;
+    GObj *pool;
 
     if (outFlag != 0) {
         *outFlag = 0;
@@ -193,19 +193,19 @@ void dispPlane(Vec4 *plane, float *pos)
     gif_EndPacket();
 }
 
-void GetOrientOfWallOfGObj(int a0, int a1)
+void GetOrientOfWallOfGObj(float *dir, GObj *obj)
 {
-    CopyVector(a0, (int)((GObj *)(a1))->dobj + 0x5C0);
+    CopyVector(dir, (char *)obj->dobj + 0x5C0);
 }
 
-void GetOrientOfCliffOfGObj(int a0, int a1)
+void GetOrientOfCliffOfGObj(float *dir, GObj *obj)
 {
-    CopyVector(a0, (int)((GObj *)(a1))->dobj + 0x590);
+    CopyVector(dir, (char *)obj->dobj + 0x590);
 }
 
-void SetMotionDirection(void *a0, float *a1)
+void SetMotionDirection(GObj *a0, float *a1)
 {
-    Sub15C *base = ((GObj *)a0)->dobj;
+    Sub15C *base = a0->dobj;
     struct MotCtrl *s2 = (struct MotCtrl *)((char *)base + 0x470);
     char *m;
     Sub15C *ctrl;
@@ -213,23 +213,23 @@ void SetMotionDirection(void *a0, float *a1)
         return;
     }
     m = (char *)base + 0x520;
-    CopyVector((int)m, a1);
-    s2->v0B0[1] = 0.0f;
-    s2->v0B0[3] = 1.0f;
-    sceVu0Normalize((int *)m, (int *)m);
-    ctrl = ((GObj *)a0)->dobj;
+    CopyVector(m, a1);
+    s2->dir[1] = 0.0f;
+    s2->dir[3] = 1.0f;
+    sceVu0Normalize(m, m);
+    ctrl = a0->dobj;
     if (*(int *)ctrl == 0) {
         return;
     }
-    LocalizeDirectionOrient(a0, ctrl);
+    LocalizeDirectionOrient(a0, (int *)ctrl);
 }
 
-void _GetMotionDirection(int a0, int a1)
+void _GetMotionDirection(float *dir, GObj *obj)
 {
-    GetGlobalDirectionOrient(a0, a1, (int)((GObj *)(a1))->dobj + 0x520);
+    GetGlobalDirectionOrient(dir, obj, (char *)obj->dobj + 0x520);
 }
 
-void SetMotionDirectionWithLimit(void *self, float *dir, float lim0, float lim1)
+void SetMotionDirectionWithLimit(GObj *self, float *dir, float lim0, float lim1)
 {
     float q[4];
     float inv[4];
@@ -262,18 +262,18 @@ void SetMotionDirectionWithLimit(void *self, float *dir, float lim0, float lim1)
     SetMotionDirection(self, v);
 }
 
-void GetRootPosOfNextFrame(int a0, int *a1)
+void GetRootPosOfNextFrame(float *pos, GObj *obj)
 {
-    struct MotRoot *sub = (struct MotRoot *)((char *)((GObj *)(a1))->dobj + 0xA0);
-    CopyVector(a0, (int)(sub->move));
-    SubVectorXYZ(a0, a0, (int)sub);
+    struct MotRoot *sub = (struct MotRoot *)((char *)obj->dobj + 0xA0);
+    CopyVector(pos, sub->move);
+    SubVectorXYZ(pos, pos, sub);
 }
 
-void AdjustMotionHeightToField(int *a0)
+void AdjustMotionHeightToField(GObj *obj)
 {
-    char *o = (char *)a0[0x57];
+    char *o = (char *)obj->dobj;
     struct MotRoot *sub = (struct MotRoot *)(o + 0xA0);
-    sub->v1B0[1] = GetYProjectionOfPlane(o + 0x1D0, o + 0x250);
+    sub->footPos[1] = GetYProjectionOfPlane(o + 0x1D0, o + 0x250);
     debug_StdPrintfDummy("Adjust Motion Height To Field. --------------\n");
 }
 
@@ -301,7 +301,7 @@ static inline int adjustMotionHeightToNearestField(char *o, float *pos)
     float p[4];
     struct MotRoot *sub = (struct MotRoot *)(o + 0xA0);
 
-    CopyVector((int)p, (int)pos);
+    CopyVector(p, pos);
     p[1] = p[1] - 100.0f;
     if (sub->filter.o.obj != 0) {
         buf.filter = sub->filter;
@@ -312,9 +312,9 @@ static inline int adjustMotionHeightToNearestField(char *o, float *pos)
     if (buf.floor.n == 0) {
         return 0;
     }
-    CopyVector((int)(&sub->plane), (int)(&buf.normal));
-    sceVu0CopyVector(sub->v1B0, buf.pt[2]);
-    sub->v1B0[3] = 1.0f;
+    CopyVector((&sub->plane), (&buf.normal));
+    sceVu0CopyVector(sub->footPos, buf.pt[2]);
+    sub->footPos[3] = 1.0f;
     return 1;
 }
 
@@ -389,7 +389,7 @@ int calcFootIK(SkelNode *skel, char *arg, int node, float scale, float ratio)
         MatrixDrive_TransMatrixV(v);
         MultiMatrixByQuaternion(arg + j * 0x20 + 0x10);
     }
-    CopyVector((int)dir, (int)((char *)MatrixDrive_GetMatrix() + 0x30));
+    CopyVector(dir, ((char *)MatrixDrive_GetMatrix() + 0x30));
     MatrixDrive_PopMatrix();
 
     m = (float *)MatrixDrive_GetMatrix();
@@ -860,16 +860,16 @@ void InitMotionGeoInfo(char *self, float x, float y, float z, float rx, float ry
     *(float *)(self + 0x0) = x;
     *(float *)(self + 0x4) = y;
     *(float *)(self + 0x8) = z;
-    CopyVector((int)(self + 0x150), (int)self);
-    CopyVector((int)(self + 0x70), (int)self);
-    CopyVector((int)(self + 0x160), (int)self);
+    CopyVector((self + 0x150), self);
+    CopyVector((self + 0x70), self);
+    CopyVector((self + 0x160), self);
     RotQuaternionY(self + 0x30, -(int)(ry * 10430.378f));
     RotQuaternionX(self + 0x30, -(int)(rx * 10430.378f));
     RotQuaternionZ(self + 0x30, (short)-(int)(rz * 10430.378f));
     RegularizeQuaternion(self + 0x30);
     adjustMotionHeightToNearestField(self - 0xA0, (float *)self);
     SetSimplePlane(self + 0x130, 0.0f, -1.0f, 0.0f, y);
-    CopyVector((int)(self + 0x1B0), (int)self);
+    CopyVector((self + 0x1B0), self);
 }
 
 /* .sbss, owned by motionManager2.o (MAIN.MAP names no symbol in the run): the
@@ -1005,16 +1005,16 @@ void SlopeIKControl(GObj *self, char *arg, int a2, Vec4 *vel)
     sub = (struct MotRoot *)((char *)GOBJ_SUB(self) + 0xA0);
     if (ik->rootUpdateMode < 3) {
         if (ik->rootUpdateMode > 0) {
-            if (sub->f_310 != 0) {
+            if (sub->slopeIK != 0) {
                 n0 = GOBJ_SUB(self)->focusNodes[49];
                 n1 = GOBJ_SUB(self)->focusNodes[45];
                 if (n0 != -1 && n1 != -1) {
                     SkelNode *skel = (SkelNode *)GOBJ_SUB(self)->skel;
 
-                    calcFootIK(skel, arg, n0, GOBJ_SUB(self)->nodes->scale[0], sub->f_3B8);
-                    calcFootIK(skel, arg, n1, GOBJ_SUB(self)->nodes->scale[0], sub->f_3B8);
-                    vel->f[0] = vel->f[0] * sub->f_3B8;
-                    vel->f[2] = vel->f[2] * sub->f_3B8;
+                    calcFootIK(skel, arg, n0, GOBJ_SUB(self)->nodes->scale[0], sub->footIKRate);
+                    calcFootIK(skel, arg, n1, GOBJ_SUB(self)->nodes->scale[0], sub->footIKRate);
+                    vel->f[0] = vel->f[0] * sub->footIKRate;
+                    vel->f[2] = vel->f[2] * sub->footIKRate;
                 }
                 d = getSlopeDifference(self, arg, (char *)GOBJ_SUB(self));
                 rec = ik->motion;
@@ -1023,10 +1023,10 @@ void SlopeIKControl(GObj *self, char *arg, int a2, Vec4 *vel)
             }
         }
     }
-    sub->f_3B8 =
-        sub->f_3B8 +
-        (r1 - sub->f_3B8) * (60.0f / (float)((60 - systemStatus[0] * 10) / systemStatus[1]) * 0.1f);
-    ik->f_4C = (r0 > 1.0f) ? 1.0f : r0;
+    sub->footIKRate = sub->footIKRate +
+                      (r1 - sub->footIKRate) *
+                          (60.0f / (float)((60 - systemStatus[0] * 10) / systemStatus[1]) * 0.1f);
+    ik->playRate = (r0 > 1.0f) ? 1.0f : r0;
 }
 
 extern void __assert(char *file, int line, char *expr);
@@ -1714,25 +1714,25 @@ typedef struct {
     int c;
 } WallWork;
 
-void FeedbackWallWorkInfoToBrainSystem(char *a0)
+void FeedbackWallWorkInfoToBrainSystem(GObj *a0)
 {
-    Sub15C *p = ((GObj *)a0)->dobj;
-    char *d = *(char **)(a0 + 0x164);
+    Sub15C *p = a0->dobj;
+    char *d = (char *)a0->act;
     *(WallWork *)((char *)p + 0x180) = *(WallWork *)((char *)p + 0x1A0);
     *(WallWork *)(d + 0x620) = *(WallWork *)((char *)p + 0x1A0);
 }
 
-void *GetMotionPointer(char *self)
+void *GetMotionPointer(GObj *self)
 {
-    return (char *)((GObj *)(self))->dobj + 0x680;
+    return (char *)self->dobj + 0x680;
 }
 
-int GetCollisionOfLastActiveField(char *self)
+int GetCollisionOfLastActiveField(GObj *self)
 {
-    return ((GObj *)(self))->dobj->lastField;
+    return self->dobj->lastField;
 }
 
-int CheckFieldContact(char *info, char *self, float *pos, float lim)
+int CheckFieldContact(char *info, GObj *self, float *pos, float lim)
 {
     float h;
     float dy;
@@ -1837,20 +1837,20 @@ void DebugDisp1CollisionWithColor(int *cfg, void *color)
    (SetMotionBlendlessNode, the two GetDifferenceFromWall*Plane, the node fix
    mode setter) calls this static stand-in.
    Collapses to one `inline` definition at layout. */
-static inline int getSkeltonFocusNode(char *a0, int a1)
+static inline int getSkeltonFocusNode(GObj *a0, int a1)
 {
     return GOBJ_SUB(a0)->focusNodes[a1];
 }
 
 /* kept local: motionManager2.h does not compile in this TU (conflicting types for `CopyMotionWithNodeHrc') */
-extern void ClearMotionBlendlessNode(char *a0);
+extern void ClearMotionBlendlessNode(GObj *a0);
 
-void SetMotionBlendlessNode(char *self, int *node)
+void SetMotionBlendlessNode(GObj *self, int *node)
 {
     char *blend;
     int i;
 
-    blend = ((GObj *)self)->dobj->blendless;
+    blend = self->dobj->blendless;
     ClearMotionBlendlessNode(self);
     for (i = 0; node[i] != -1; i++) {
         int idx = getSkeltonFocusNode(self, node[i]);
@@ -1860,10 +1860,10 @@ void SetMotionBlendlessNode(char *self, int *node)
     }
 }
 
-void ClearMotionBlendlessNode(char *a0)
+void ClearMotionBlendlessNode(GObj *a0)
 {
     int i = 0;
-    char *arr = ((GObj *)a0)->dobj->blendless;
+    char *arr = a0->dobj->blendless;
     while (i < GOBJ_SUB(a0)->skelNodeNum) {
         arr[i] = 0;
         i++;
@@ -1877,66 +1877,66 @@ void InitMotionStateInfo(MotionStateInfo *self)
     self->seGroup1 = soundSeGroupGet();
 }
 
-int GetSkeltonFocusNode(char *a0, int a1)
+int GetSkeltonFocusNode(GObj *a0, int a1)
 {
     return GOBJ_SUB(a0)->focusNodes[a1];
 }
 
-int AdjustMotionHeightToNearestField(char *self)
+int AdjustMotionHeightToNearestField(GObj *self)
 {
     float pos[4];
-    char *o = *(char **)(self + 0x15C);
+    char *o = (char *)self->dobj;
 
     GetRootPosition(pos, self);
     return adjustMotionHeightToNearestField(o, pos);
 }
 
-void SetRootUpdateMode(char *self, int val)
+void SetRootUpdateMode(GObj *self, int val)
 {
-    ((GObj *)(self))->dobj->rootUpdateMode = val;
+    self->dobj->rootUpdateMode = val;
 }
 
-float ForMotionViewer_GetCurrentAnimationFrame(char *self)
+float ForMotionViewer_GetCurrentAnimationFrame(GObj *self)
 {
     return GOBJ_SUB(self)->animFrame;
 }
 
-int ForMotionViewer_GetCurrentMotion(char *self)
+int ForMotionViewer_GetCurrentMotion(GObj *self)
 {
-    return ((GObj *)(self))->dobj->motion;
+    return self->dobj->motion;
 }
 
-void EnableMotionOrientUpdate(char *self)
+void EnableMotionOrientUpdate(GObj *self)
 {
-    ((GObj *)(self))->dobj->orientUpdateOff = 0;
+    self->dobj->orientUpdateOff = 0;
 }
 
-void DisableMotionOrientUpdate(char *self)
+void DisableMotionOrientUpdate(GObj *self)
 {
-    ((GObj *)(self))->dobj->orientUpdateOff = 1;
+    self->dobj->orientUpdateOff = 1;
 }
 
-int CheckFloorAttribute(char *self, int attr)
+int CheckFloorAttribute(GObj *self, int attr)
 {
-    Sub15C *sub = ((GObj *)self)->dobj;
+    Sub15C *sub = self->dobj;
     return CompareAttribute(sub->floorAttr, attr);
 }
 
-int CheckWallAttribute(char *self, int attr)
+int CheckWallAttribute(GObj *self, int attr)
 {
-    Sub15C *sub = ((GObj *)self)->dobj;
+    Sub15C *sub = self->dobj;
     return CompareAttribute(sub->wallAttr, attr);
 }
 
-int CheckPureWallAttribute(char *self, int attr)
+int CheckPureWallAttribute(GObj *self, int attr)
 {
-    Sub15C *sub = ((GObj *)self)->dobj;
+    Sub15C *sub = self->dobj;
     return CompareAttribute(sub->pureWallAttr, attr);
 }
 
-int CheckPureCliffAttribute(char *self, int attr)
+int CheckPureCliffAttribute(GObj *self, int attr)
 {
-    Sub15C *sub = ((GObj *)self)->dobj;
+    Sub15C *sub = self->dobj;
     return CompareAttribute(sub->pureCliffAttr, attr);
 }
 
@@ -1956,28 +1956,28 @@ int GetStreamShapeMotion(float *dst, FloorAttr *a1)
     return 0;
 }
 
-float GetDifferenceFromWallUpperField(char *a0, int a1)
+float GetDifferenceFromWallUpperField(GObj *a0, int a1)
 {
-    Sub15C *e = ((GObj *)a0)->dobj;
+    Sub15C *e = a0->dobj;
     int idx = (e->focusNodes)[a1];
     return GetYDistanceFromPlane((char *)e + 0x3F0,
                                  *(char **)((char *)e + 0xC) + idx * 0x40 + 0x30);
 }
 
-float GetDifferenceFromLastField(char *a0, int a1)
+float GetDifferenceFromLastField(GObj *a0, int a1)
 {
-    Sub15C *e = ((GObj *)a0)->dobj;
+    Sub15C *e = a0->dobj;
     int idx = (e->focusNodes)[a1];
     return GetYDistanceFromPlane((char *)e + 0x1D0,
                                  *(char **)((char *)e + 0xC) + idx * 0x40 + 0x30);
 }
 
-float GetDifferenceFromLowerField(char *a0, int a1)
+float GetDifferenceFromLowerField(GObj *a0, int a1)
 {
     ClipBuf buf;
     Sub15C *ctrl;
     int idx;
-    ctrl = ((GObj *)a0)->dobj;
+    ctrl = a0->dobj;
     idx = (*(signed char **)((char *)ctrl + 0x840))[a1];
     GetLowerPlaneCollision((int)&buf, ctrl->nodeMtx + (idx << 6) + 0x30);
     if (buf.floor.n == 0) {
@@ -1986,80 +1986,80 @@ float GetDifferenceFromLowerField(char *a0, int a1)
     return buf.pt[2][1] - buf.pt[0][1];
 }
 
-float GetDifferenceFromWallLowerPlane(char *self, int node)
+float GetDifferenceFromWallLowerPlane(GObj *self, int node)
 {
     float pos[4];
     float pts[4][4];
     int idx;
 
     idx = getSkeltonFocusNode(self, node);
-    GetPureVerticalPlane(pos, 0, pts, *(char **)(self + 0x15C) + 0x180, 1);
+    GetPureVerticalPlane(pos, 0, pts, (char *)self->dobj + 0x180, 1);
     return GetYDistanceFromPlane(pos, (char *)GOBJ_SUB(self)->nodeMtx + idx * 0x40 + 0x30);
 }
 
-float GetDifferenceFromWallUpperPlane(char *self, int node)
+float GetDifferenceFromWallUpperPlane(GObj *self, int node)
 {
     float pos[4];
     float pts[4][4];
     int idx;
 
     idx = getSkeltonFocusNode(self, node);
-    GetPureVerticalPlane(pos, 0, pts, *(char **)(self + 0x15C) + 0x180, 0);
+    GetPureVerticalPlane(pos, 0, pts, (char *)self->dobj + 0x180, 0);
     return GetYDistanceFromPlane(pos, (char *)GOBJ_SUB(self)->nodeMtx + idx * 0x40 + 0x30);
 }
 
-void DisableChangeRootUpdateMode(char *self)
+void DisableChangeRootUpdateMode(GObj *self)
 {
-    Sub15C *sub = ((GObj *)(self))->dobj;
+    Sub15C *sub = self->dobj;
     *(int *)((char *)sub + 0x4D0) = 1;
 }
 
-void EnableChangeRootUpdateMode(char *self)
+void EnableChangeRootUpdateMode(GObj *self)
 {
-    Sub15C *sub = ((GObj *)(self))->dobj;
+    Sub15C *sub = self->dobj;
     *(int *)((char *)sub + 0x4D0) = 0;
 }
 
-float GetRopeHangablePos(char *self)
+float GetRopeHangablePos(GObj *self)
 {
-    Sub15C *sub = ((GObj *)(self))->dobj;
+    Sub15C *sub = self->dobj;
     return *(float *)((char *)sub + 0x618);
 }
 
-int GetMotionFrameFlag1(char *self)
+int GetMotionFrameFlag1(GObj *self)
 {
-    Sub15C *sub = ((GObj *)(self))->dobj;
+    Sub15C *sub = self->dobj;
     return sub->frameFlag1;
 }
 
-int GetMotionFrameFlag2(char *self)
+int GetMotionFrameFlag2(GObj *self)
 {
-    Sub15C *sub = ((GObj *)(self))->dobj;
+    Sub15C *sub = self->dobj;
     return sub->frameFlag2;
 }
 
-float GetHeightOfFieldPlaneDifference(int *a, int *b)
+float GetHeightOfFieldPlaneDifference(GObj *a, GObj *b)
 {
     int *pa;
     int *pb;
     float r1;
     float r2;
-    pa = (int *)((GObj *)(a))->dobj;
+    pa = (int *)a->dobj;
     r1 = GetYProjectionOfPlane((int *)((char *)pa + 0x1D0), (int *)((char *)pa + 0xA0));
-    pb = (int *)((GObj *)(b))->dobj;
+    pb = (int *)b->dobj;
     r2 = GetYProjectionOfPlane((int *)((char *)pb + 0x1D0), (int *)((char *)pb + 0xA0));
     return r1 - r2;
 }
 
-float GetHeightOfWallFromGObj(char *self)
+float GetHeightOfWallFromGObj(GObj *self)
 {
-    Sub15C *sub = ((GObj *)(self))->dobj;
+    Sub15C *sub = self->dobj;
     return *(float *)((char *)sub + 0x5A0);
 }
 
-float GetHeightOfCliffFromGObj(char *self)
+float GetHeightOfCliffFromGObj(GObj *self)
 {
-    Sub15C *sub = ((GObj *)(self))->dobj;
+    Sub15C *sub = self->dobj;
     return *(float *)((char *)sub + 0x580);
 }
 
@@ -2083,7 +2083,7 @@ loop:
         goto loop;
 }
 
-void SetMotionNodeFixModeParameter(char *self, char *obj, float x, float y, float z, int mode,
+void SetMotionNodeFixModeParameter(GObj *self, char *obj, float x, float y, float z, int mode,
                                    int node, float w, void *quat)
 {
     float vec[4] = {x, y, z, 1.0f};
@@ -2091,25 +2091,25 @@ void SetMotionNodeFixModeParameter(char *self, char *obj, float x, float y, floa
     GOBJ_SUB(self)->fixObj = (int)obj;
     GOBJ_SUB(self)->fixNode = getSkeltonFocusNode(obj, node);
     GOBJ_SUB(self)->fixMode = mode;
-    CopyVector(*(int *)(self + 0x15C) + 0x440, vec);
-    CopyQuaternion(*(int *)(self + 0x15C) + 0x430, quat);
+    CopyVector((char *)GOBJ_SUB(self) + 0x440, vec);
+    CopyQuaternion((char *)GOBJ_SUB(self) + 0x430, quat);
     GOBJ_SUB(self)->fixWeight = w;
 }
 
-void GetRootProjectionPosOfGObj(int a0, int a1)
+void GetRootProjectionPosOfGObj(float *pos, GObj *obj)
 {
-    GetRootPosition(a0, a1);
-    *(float *)(a0 + 0x4) += *(float *)((int)((GObj *)(a1))->dobj + 0x270);
+    GetRootPosition(pos, obj);
+    pos[1] += obj->dobj->projHeight;
 }
 
-void SetMotionPlaySpeedRatio(char *self, float val)
+void SetMotionPlaySpeedRatio(GObj *self, float val)
 {
     GOBJ_SUB(self)->speedRatio = val;
 }
 
-void ClearMotionGeometryInfo(int *self)
+void ClearMotionGeometryInfo(GObj *self)
 {
-    int *p = (int *)((GObj *)(self))->dobj;
+    int *p = (int *)self->dobj;
     int *p1 = (int *)(((char *)p) + 0x230);
     int *p2 = (int *)(((char *)p) + 0xA0);
     int ret;
@@ -2239,18 +2239,18 @@ void GetShapeMotion(float *dst, char *a1, int idx, int count)
 }
 
 /* Retail bodies are empty; every call site passes the actor's GObj. */
-void LockForceGroundParent(int gobj) {}
+void LockForceGroundParent(GObj *gobj) {}
 
-void UnlockForceGroundParent(int gobj) {}
+void UnlockForceGroundParent(GObj *gobj) {}
 
-void GetOutOutsideOfWall(void *obj, float threshold)
+void GetOutOutsideOfWall(GObj *obj, float threshold)
 {
     int buf0[4];
     int buf1[4];
     if (GOBJ_SUB(obj)->wallPlane != 0) {
         float dot;
         GetRootPosition(buf0, obj);
-        GetGlobalWallPlane(buf1, *(char **)((char *)obj + 0x15C) + 0x180);
+        GetGlobalWallPlane(buf1, (char *)obj->dobj + 0x180);
         /* The listing puts these rows on sugiCommon.h:71, so the dev called
          * the header helper here; it costs nothing since plane_distance
          * became one asm block with the $v0 hop hard-wired. */

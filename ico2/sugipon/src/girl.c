@@ -23,29 +23,35 @@
 #include "main.h"
 #include "DisplayP2O.h"
 
-typedef struct GirlWork {
-    int f0;  /* 0x00 */
-    int f4;  /* 0x04 */
-    int f8;  /* 0x08 */
-    int fC;  /* 0x0C */
-    int f10; /* 0x10 */
-    int f14; /* 0x14 */
-    int f18; /* 0x18 */
-    int f1C; /* 0x1C */
-    int f20; /* 0x20 */
-    int f24; /* 0x24 */
-    int f28; /* 0x28 */
-    int f2C; /* 0x2C */
-    int f30; /* 0x30 */
-    int f34; /* 0x34 */
-    int f38; /* 0x38 */
-    int f3C; /* 0x3C */
-    int f40; /* 0x40 */
+/* The girl's work record: her kind, the four cloths and the hair she wears
+   with the switches SetGirlClothDispSwitch sets (case 0 for cloth0, 1 for
+   cloth1, cloth2 and the hair, 2 for cloth3), the crown and the two
+   ornaments, and the two hint voices' ready and played flags.  The cloth and
+   model pointers are held as words: InitGirlGeo's zero stores to them keep
+   their order against the record's other int stores only as int stores. */
+typedef struct GirlWork { /* field names derived */
+    int kind;             /* 0x00, the layout's 0x30 word */
+    int cloth0Disp;       /* 0x04 */
+    int cloth0;           /* 0x08, a Cloth4D */
+    int cloth12Disp;      /* 0x0C */
+    int cloth1;           /* 0x10, a Cloth4D */
+    int cloth2;           /* 0x14, a Cloth4D */
+    int hair;             /* 0x18, the Cloth4D the debug hair settings drive */
+    int cloth3Disp;       /* 0x1C */
+    int cloth3;           /* 0x20, a Cloth4D */
+    int crown;            /* 0x24, a display object */
+    int ornamentDisp;     /* 0x28 */
+    int ornament0;        /* 0x2C, a display object */
+    int ornament1;        /* 0x30, a display object */
+    int hint1Ready;       /* 0x34 */
+    int hint2Ready;       /* 0x38 */
+    int hint1Played;      /* 0x3C */
+    int hint2Played;      /* 0x40 */
 } GirlWork;
 
 /* census: sugipon/src/girl.c:706 `execClothes` (a TU-static; `static` keeps the ELF
  * symbol local, so it cannot collide with the sugipon/src/boy global). */
-static void execClothes(char *gobj)
+static void execClothes(GObj *gobj)
 {
     int q[4];
     GirlWork *w;
@@ -54,33 +60,33 @@ static void execClothes(char *gobj)
     n = GetSkeltonFocusNode(gobj, 35);
     w = GOBJ_SUB(gobj)->work;
     SetQuaternionByAxisRotateV(q, -debug_hair_bend_angle * 16, ZUnitVector);
-    if ((void *)w->f18 != 0) {
-        *(int *)((char *)w->f18 + 0x2F8) = debug_hair_collision;
+    if ((void *)w->hair != 0) {
+        *(int *)((char *)w->hair + 0x2F8) = debug_hair_collision;
     }
-    switch (w->fC) {
+    switch (w->cloth12Disp) {
     default:
     case 1:
-        if ((void *)w->f10 != 0) {
-            GetCloth4D((void *)w->f10, 4.0f, 0.98f);
+        if ((void *)w->cloth1 != 0) {
+            GetCloth4D((void *)w->cloth1, 4.0f, 0.98f);
         }
-        if ((void *)w->f14 != 0) {
-            GetCloth4D((void *)w->f14, 4.0f, 0.98f);
+        if ((void *)w->cloth2 != 0) {
+            GetCloth4D((void *)w->cloth2, 4.0f, 0.98f);
         }
-        if ((void *)w->f18 != 0) {
-            GetCloth4DWithTight((void *)w->f18, debug_hair_gravity_level * 0.002f, 1.0f,
+        if ((void *)w->hair != 0) {
+            GetCloth4DWithTight((void *)w->hair, debug_hair_gravity_level * 0.002f, 1.0f,
                                 debug_hair_tight_level * 0.01f, 1.0f,
                                 (char *)GOBJ_SUB(gobj)->nodeQuat + n * 16, q);
         }
         break;
     case 2:
-        if ((void *)w->f10 != 0) {
-            GetCloth4D((void *)w->f10, 0.0f, 0.98f);
+        if ((void *)w->cloth1 != 0) {
+            GetCloth4D((void *)w->cloth1, 0.0f, 0.98f);
         }
-        if ((void *)w->f14 != 0) {
-            GetCloth4D((void *)w->f14, 4.0f, 0.98f);
+        if ((void *)w->cloth2 != 0) {
+            GetCloth4D((void *)w->cloth2, 4.0f, 0.98f);
         }
-        if ((void *)w->f18 != 0) {
-            GetCloth4DWithTight((void *)w->f18, debug_hair_gravity_level * 0.002f, 1.0f,
+        if ((void *)w->hair != 0) {
+            GetCloth4DWithTight((void *)w->hair, debug_hair_gravity_level * 0.002f, 1.0f,
                                 debug_hair_tight_level * 0.01f, 1.0f,
                                 (char *)GOBJ_SUB(gobj)->nodeQuat + n * 16, q);
         }
@@ -88,21 +94,21 @@ static void execClothes(char *gobj)
     case 0:
         break;
     }
-    if (w->f4 != 0) {
-        if ((void *)w->f8 != 0) {
-            GetCloth4D((void *)w->f8, 3.0f, 0.98f);
+    if (w->cloth0Disp != 0) {
+        if ((void *)w->cloth0 != 0) {
+            GetCloth4D((void *)w->cloth0, 3.0f, 0.98f);
         }
     }
-    if (w->f1C != 0) {
-        if ((void *)w->f20 != 0) {
-            GetCloth4D((void *)w->f20, 4.0f, 0.98f);
+    if (w->cloth3Disp != 0) {
+        if ((void *)w->cloth3 != 0) {
+            GetCloth4D((void *)w->cloth3, 4.0f, 0.98f);
         }
     }
 }
 
 /* census: sugipon/src/girl.c:763 `dispCrown` (a TU-static; `static` keeps the ELF
  * symbol local, so it cannot collide with the sugipon/src/boy global). */
-static void dispCrown(char *gobj, char *acc)
+static void dispCrown(GObj *gobj, char *acc)
 {
     GirlWork *w;
     int n;
@@ -111,22 +117,22 @@ static void dispCrown(char *gobj, char *acc)
     n = GetSkeltonFocusNode(gobj, 35);
     CopyMatrix(MatrixDrive_GetMatrix(), (char *)GOBJ_SUB(gobj)->nodeMtx + n * 0x40);
     MatrixDrive_ScaleMatrix(1.1111112f, 1.1111112f, 1.1111112f);
-    if (w->f28 != 0) {
-        CopyMatrix(*(char **)((char *)w->f2C + 0xC), MatrixDrive_GetMatrix());
-        CopyMatrix(*(char **)((char *)w->f30 + 0xC), MatrixDrive_GetMatrix());
-        reg_DispAccessoryWithShadow((Sub15C *)w->f30, GOBJ_SUB(gobj));
-        reg_DispAccessoryWithShadow((Sub15C *)w->f2C, GOBJ_SUB(gobj));
+    if (w->ornamentDisp != 0) {
+        CopyMatrix(*(char **)((char *)w->ornament0 + 0xC), MatrixDrive_GetMatrix());
+        CopyMatrix(*(char **)((char *)w->ornament1 + 0xC), MatrixDrive_GetMatrix());
+        reg_DispAccessoryWithShadow((Sub15C *)w->ornament1, GOBJ_SUB(gobj));
+        reg_DispAccessoryWithShadow((Sub15C *)w->ornament0, GOBJ_SUB(gobj));
     } else {
         CopyMatrix(*(char **)(acc + 0xC), MatrixDrive_GetMatrix());
         reg_DispAccessoryWithShadow((Sub15C *)acc, GOBJ_SUB(gobj));
     }
 }
 
-static void dispCrown(char *gobj, char *acc);
+static void dispCrown(GObj *gobj, char *acc);
 
 /* census: sugipon/src/girl.c:787 `dispClothes` (a TU-static; `static` keeps the ELF
  * symbol local, so it cannot collide with the sugipon/src/boy global). */
-static void dispClothes(char *gobj)
+static void dispClothes(GObj *gobj)
 {
     GirlWork *w;
     char *x;
@@ -135,30 +141,30 @@ static void dispClothes(char *gobj)
     w = GOBJ_SUB(gobj)->work;
     x = (char *)GOBJ_SUB(gobj)->lightMtx;
     y = x + 0x40;
-    if (w->f24 != 0) {
-        dispCrown(gobj, (char *)w->f24);
+    if (w->crown != 0) {
+        dispCrown(gobj, (char *)w->crown);
     }
-    if (w->fC != 0) {
-        if (w->f28 != 0) {
-            if (w->f10 != 0) {
-                DispCloth4DWithAdd((void *)w->f10, y, x);
+    if (w->cloth12Disp != 0) {
+        if (w->ornamentDisp != 0) {
+            if (w->cloth1 != 0) {
+                DispCloth4DWithAdd((void *)w->cloth1, y, x);
             }
-            if (w->f14 != 0) {
-                DispCloth4DWithAdd((void *)w->f14, y, x);
+            if (w->cloth2 != 0) {
+                DispCloth4DWithAdd((void *)w->cloth2, y, x);
             }
         } else {
-            if (w->f10 != 0) {
-                DispCloth4D((void *)w->f10, y, x);
+            if (w->cloth1 != 0) {
+                DispCloth4D((void *)w->cloth1, y, x);
             }
-            if (w->f14 != 0) {
-                DispCloth4D((void *)w->f14, y, x);
+            if (w->cloth2 != 0) {
+                DispCloth4D((void *)w->cloth2, y, x);
             }
-            if (w->f18 != 0) {
-                DispCloth4D((void *)w->f18, y, x);
+            if (w->hair != 0) {
+                DispCloth4D((void *)w->hair, y, x);
             }
         }
     }
-    if (w->f4 != 0) {
+    if (w->cloth0Disp != 0) {
         /* Two separate tests, not `>= 642 || < 639`: gcc's fold_range_test
          * merges a disjunction over one operand into `(unsigned)(v - 639) < 3`,
          * which ROM does not have, ROM keeps both `slti`s. */
@@ -167,14 +173,14 @@ static void dispClothes(char *gobj)
                 goto skip;
             }
         }
-        if (w->f8 != 0) {
-            DispCloth4D((void *)w->f8, y, x);
+        if (w->cloth0 != 0) {
+            DispCloth4D((void *)w->cloth0, y, x);
         }
     skip:;
     }
-    if (w->f1C != 0) {
-        if (w->f20 != 0) {
-            DispCloth4D((void *)w->f20, y, x);
+    if (w->cloth3Disp != 0) {
+        if (w->cloth3 != 0) {
+            DispCloth4D((void *)w->cloth3, y, x);
         }
     }
 }
@@ -1713,23 +1719,23 @@ static ClothHangCfg clothHangF20[2] = {
    (834, 852 and 878, against InitGirlGeo's 891).  They are plain `inline`,
    which is why gcc emits their bodies at the END of the object, where the
    ROM has them, while their string constants stay at this point of the run. */
-inline void SetGirlClothDispSwitch(char *a0, int a1, int a2)
+inline void SetGirlClothDispSwitch(GObj *a0, int a1, int a2)
 {
     GirlWork *cloth = GOBJ_SUB(a0)->work;
     switch (a1) {
     case 0:
-        cloth->f4 = a2;
+        cloth->cloth0Disp = a2;
         break;
     case 1:
-        cloth->fC = a2;
+        cloth->cloth12Disp = a2;
         break;
     case 2:
-        cloth->f1C = a2;
+        cloth->cloth3Disp = a2;
         break;
     }
 }
 
-inline void SetGirlHairDispSwitch(char *a0, int a1)
+inline void SetGirlHairDispSwitch(GObj *a0, int a1)
 {
     *(int *)((char *)GOBJ_SUB(a0)->work + 0x28) = a1;
 }
@@ -1767,7 +1773,7 @@ inline void setGirlClothSetting(int a0)
     }
 }
 
-void *InitGirlGeo(char *gobj, char *csv)
+void *InitGirlGeo(GObj *gobj, char *csv)
 {
     GirlWork *w;
     int p;
@@ -1775,42 +1781,42 @@ void *InitGirlGeo(char *gobj, char *csv)
 
     w = iosMallocDebug(ios_partition_sugipon, sizeof(GirlWork), __FILE__, 892);
     p = (int)GOBJ_SUB(gobj);
-    w->f38 = 0;
-    w->f34 = 0;
-    w->f40 = 0;
-    w->f3C = 0;
-    w->f28 = 0;
+    w->hint2Ready = 0;
+    w->hint1Ready = 0;
+    w->hint2Played = 0;
+    w->hint1Played = 0;
+    w->ornamentDisp = 0;
     *(int *)(p + 0x848) = (int)setGirlClothSetting;
     kind = *(int *)(csv + 0x30);
-    w->f24 = 0;
-    w->f30 = 0;
-    w->f2C = 0;
-    w->f20 = 0;
-    w->f18 = 0;
-    w->f14 = 0;
-    w->f8 = 0;
-    w->f10 = 0;
-    w->f0 = kind;
+    w->crown = 0;
+    w->ornament1 = 0;
+    w->ornament0 = 0;
+    w->cloth3 = 0;
+    w->hair = 0;
+    w->cloth2 = 0;
+    w->cloth0 = 0;
+    w->cloth1 = 0;
+    w->kind = kind;
     /* an int-set store: the word is a pointer, but this store must stay
        ordered against the int stores into the work record (the bytes) */
     *(int *)&GOBJ_SUB(gobj)->work = (int)w;
     switch (kind) {
     case 1:
-        w->f10 = (int)InitCloth4D(gobj, &demoClothMeshF10, 0);
-        w->f14 = (int)InitCloth4D(gobj, &demoClothMeshF14, 0);
-        w->f20 = (int)InitCloth4D(gobj, &demoClothMeshF20, 0);
+        w->cloth1 = (int)InitCloth4D(gobj, &demoClothMeshF10, 0);
+        w->cloth2 = (int)InitCloth4D(gobj, &demoClothMeshF14, 0);
+        w->cloth3 = (int)InitCloth4D(gobj, &demoClothMeshF20, 0);
         break;
     case 2:
         break;
     default:
-        w->f10 = (int)InitCloth4D(gobj, &clothMeshF10, clothHangF10);
-        w->f8 = (int)InitCloth4D(gobj, &clothMeshF8, clothHangF8);
-        w->f14 = (int)InitCloth4D(gobj, &clothMeshF14, clothHangF10);
-        w->f18 = (int)InitCloth4D(gobj, &clothMeshF18, clothHangF18);
-        w->f20 = (int)InitCloth4D(gobj, &clothMeshF20, clothHangF20);
-        w->f24 = (int)CSVSYSTEM_InitDObj(0xC, csv);
-        w->f2C = (int)CSVSYSTEM_InitDObj(0xD, csv);
-        w->f30 = (int)CSVSYSTEM_InitDObj(0xE, csv);
+        w->cloth1 = (int)InitCloth4D(gobj, &clothMeshF10, clothHangF10);
+        w->cloth0 = (int)InitCloth4D(gobj, &clothMeshF8, clothHangF8);
+        w->cloth2 = (int)InitCloth4D(gobj, &clothMeshF14, clothHangF10);
+        w->hair = (int)InitCloth4D(gobj, &clothMeshF18, clothHangF18);
+        w->cloth3 = (int)InitCloth4D(gobj, &clothMeshF20, clothHangF20);
+        w->crown = (int)CSVSYSTEM_InitDObj(0xC, csv);
+        w->ornament0 = (int)CSVSYSTEM_InitDObj(0xD, csv);
+        w->ornament1 = (int)CSVSYSTEM_InitDObj(0xE, csv);
         break;
     }
     *(int *)((char *)GOBJ_SUB(gobj)->work + 0x4) = 1;
@@ -1821,7 +1827,7 @@ void *InitGirlGeo(char *gobj, char *csv)
     return w;
 }
 
-void GirlGeo(char *a0)
+void GirlGeo(GObj *a0)
 {
     float v[4];
     int n0;
@@ -1857,7 +1863,7 @@ void GirlGeo(char *a0)
     execClothes(a0);
 }
 
-void GirlAI(char *a0)
+void GirlAI(GObj *a0)
 {
     Sub15C *work = GOBJ_SUB(a0);
     int mode = work->motion;
@@ -1866,49 +1872,49 @@ void GirlAI(char *a0)
 
     if (mode == 0x297) {
         if (hint != 0) {
-            if (cloth->f38 != 0) {
+            if (cloth->hint2Ready != 0) {
                 debug_StdPrintfDummy("reset hint2 voice ready\n");
                 scpGirlHintVoiceCancel();
             }
             scpGirlHintVoiceReady(0x65);
-            cloth->f34 = 1;
+            cloth->hint1Ready = 1;
             debug_StdPrintfDummy("hint1 voice ready\n");
         }
-        if (cloth->f34 != 0 && cloth->f3C == 0 && 47.0f < GOBJ_SUB(a0)->animFrame) {
+        if (cloth->hint1Ready != 0 && cloth->hint1Played == 0 && 47.0f < GOBJ_SUB(a0)->animFrame) {
             scpGirlHintVoicePlay();
-            cloth->f3C = 1;
+            cloth->hint1Played = 1;
             debug_StdPrintfDummy("hint1 voice play\n");
         }
     }
     if (mode == 0x29A) {
         if (hint != 0) {
-            if (cloth->f34 != 0) {
+            if (cloth->hint1Ready != 0) {
                 debug_StdPrintfDummy("reset hint1 voice ready\n");
                 scpGirlHintVoiceCancel();
             }
             scpGirlHintVoiceReady(0x67);
-            cloth->f38 = 1;
+            cloth->hint2Ready = 1;
             debug_StdPrintfDummy("hint2 voice ready\n");
         }
-        if (cloth->f38 != 0 && cloth->f40 == 0 && 107.0f < GOBJ_SUB(a0)->animFrame) {
+        if (cloth->hint2Ready != 0 && cloth->hint2Played == 0 && 107.0f < GOBJ_SUB(a0)->animFrame) {
             scpGirlHintVoicePlay();
-            cloth->f40 = 1;
+            cloth->hint2Played = 1;
             debug_StdPrintfDummy("hint2 voice play\n");
         }
     }
-    if (cloth->f34 != 0) {
+    if (cloth->hint1Ready != 0) {
         if (mode != 0x297 && mode != 0x298) {
             debug_StdPrintfDummy("hint1 voice reset\n");
-            cloth->f34 = 0;
-            cloth->f3C = 0;
+            cloth->hint1Ready = 0;
+            cloth->hint1Played = 0;
             scpGirlHintVoiceCancel();
         }
     }
-    if (cloth->f38 != 0) {
+    if (cloth->hint2Ready != 0) {
         if (mode != 0x29A && mode != 0x29B) {
             debug_StdPrintfDummy("hint2 voice reset\n");
-            cloth->f38 = 0;
-            cloth->f40 = 0;
+            cloth->hint2Ready = 0;
+            cloth->hint2Played = 0;
             scpGirlHintVoiceCancel();
         }
     }
@@ -1919,12 +1925,12 @@ static char *girlClothName[4] = {"", "DEVIL", "STONE", 0};
 
 /* static helper the listing places at girl.c line(s) 1082; never emitted out
  * of line, so it has no MAIN.MAP symbol and this name is ours. */
-static inline int *getGirlCloth(char *gobj)
+static inline int *getGirlCloth(GObj *gobj)
 {
     return (int *)GOBJ_SUB(gobj)->work;
 }
 
-void debugWireStringGirl(char *a0)
+void debugWireStringGirl(GObj *a0)
 {
     float m[16];
     float pos[4];
@@ -1942,7 +1948,7 @@ void debugWireStringGirl(char *a0)
     MatrixDrive_PopMatrix();
 }
 
-void GirlDL(int a0)
+void GirlDL(GObj *a0)
 {
     p2o_SetDefaultEnviroment();
     p2o_DispVU1(a0);

@@ -6,6 +6,7 @@
 #include "ZFog.h"
 #include "main.h"
 #include "DmaPacket.h"
+#include "DisplayList.h"
 
 /* The fog CLUT upload packet: a VIF code quad (nop, nop, FLUSHA, DIRECT 65),
  * a GIFtag (EOP, NLOOP=64, FLG=IMAGE), the 256-entry 32-bit CLUT itself and a
@@ -84,11 +85,6 @@ void fog_MakeFogClut(void)
 
     FlushCache(0);
 }
-
-/* kept local: void (int, void *, int) here, void (int, int, int) in DisplayList.h */
-extern void dl_OpenDma(int chan, void *dma, int flag);
-/* kept local: agrees with DisplayList.h, which this TU does not include (dl_OpenDma differs) */
-extern void dl_CloseDma(void);
 
 /* RECONSTRUCTION.  The packet writers the listing attributes to their
    invoking lines in fog_DrawFog (no GifPacket.c rows), so macros; their

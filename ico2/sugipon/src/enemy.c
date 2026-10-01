@@ -100,7 +100,7 @@ typedef struct {
     float f_50;               /* 0x50 */
 } EnemyWork;
 
-void setEnemyParticleObject(char *self, int pid)
+void setEnemyParticleObject(GObj *self, int pid)
 {
     Sub15C *sub = GOBJ_SUB(self);
     EnemyWork *w = sub->work;
@@ -178,21 +178,13 @@ void setEnemyParticleObject(char *self, int pid)
     }
 }
 
-typedef struct {
-    int first;
-    int last;
-} EnemyKindRange;
-
-extern EnemyKindRange D_00624F68[];
-extern int D_00625018[];
-
 /* static helper the listing places at enemy.c lines 223-233, expanded only into
  * setEnemyObject; never emitted out of line, so it has no MAIN.MAP symbol and
  * this name is ours. */
 static inline int enemyRandomizeID(int kind, int *ctr)
 {
-    int lo = D_00624F68[kind - 0x10000].first;
-    int n = D_00624F68[kind - 0x10000].last - lo;
+    int lo = randomEnemyKind[kind - 0x10000].first;
+    int n = randomEnemyKind[kind - 0x10000].last - lo;
     int id = lo + *ctr;
 
     debug_StdPrintfDummy("\x1b[36mRANDOMIZE COUNT: %d > RID: %d\x1b[m\n", *ctr, id);
@@ -200,10 +192,10 @@ static inline int enemyRandomizeID(int kind, int *ctr)
     if (*ctr >= n) {
         *ctr = 0;
     }
-    return D_00625018[id];
+    return randomEnemyVariationKind[id];
 }
 
-int setEnemyObject(char *self, int kind, int *ctr)
+int setEnemyObject(GObj *self, int kind, int *ctr)
 {
     struct DObjNode *p;
     Sub15C *sub;
@@ -363,7 +355,7 @@ static inline int enemySetParticle(int kind, void *obj, float *dir)
     return SetParticleEffect(kind, obj, buf);
 }
 
-int EnemyCheckHit(char *self, float *pos, float *dir)
+int EnemyCheckHit(GObj *self, float *pos, float *dir)
 {
     int eff = 0;
     Sub15C *sub;
@@ -373,7 +365,7 @@ int EnemyCheckHit(char *self, float *pos, float *dir)
     int cnt;
     int flags;
 
-    sub = ((GObj *)self)->dobj;
+    sub = self->dobj;
     w = sub->work;
     n = sub->skelNodeNum;
     cnt = 0;
@@ -437,10 +429,10 @@ int EnemyCheckHit(char *self, float *pos, float *dir)
  * 563), which needs the store's block to be a join when PRE runs.
  * WHAT THEY CANNOT PIN: how the test on n and the flag were spelled, and the
  * text of the lines without code. */
-int CheckEnemyHit(char *self, float *pos, float *a, float *b)
+int CheckEnemyHit(GObj *self, float *pos, float *a, float *b)
 {
     int eff = 1;
-    Sub15C *sub = ((GObj *)self)->dobj;
+    Sub15C *sub = self->dobj;
     EnemyWork *w = sub->work;
     int i;
     int n = sub->skelNodeNum;
@@ -487,7 +479,7 @@ int CheckEnemyHit(char *self, float *pos, float *a, float *b)
  * reads it back as a pointer, so every read of it is a union view, the same
  * spelling ico2/sugipon/src/geometryManager.c uses for the same slot. */
 
-#define SUBOF(o) (((SubHandle *)((o) + 0x15C))->p)
+#define SUBOF(o) (((SubHandle *)&((GObj *)(o))->dobj)->p)
 
 /* the TU's one named .sdata object (after the two literals): the variation
    number the next enemy takes, stepped by two modulo ten */
@@ -496,7 +488,7 @@ static int enemyVariation = 0; /* derived name */
 /* static helper the listing places at enemy.c lines 281-290, expanded only into
  * InitEnemyGeo; never emitted out of line, so it has no MAIN.MAP symbol and this
  * name is ours.  Its own body inlines the lines 99-100 clear loop. */
-static inline int enemyInitPartsList(char *self, char *param)
+static inline int enemyInitPartsList(GObj *self, char *param)
 {
     int kind = *(int *)(param + 0x30);
     EnemyWork *w;
@@ -517,7 +509,7 @@ static inline int enemyInitPartsList(char *self, char *param)
     return setEnemyObject(self, kind, &w->ctr);
 }
 
-void *InitEnemyGeo(char *self, char *param)
+void *InitEnemyGeo(GObj *self, char *param)
 {
     EnemyWork *w;
     int kind;
@@ -550,7 +542,7 @@ void *InitEnemyGeo(char *self, char *param)
     return w;
 }
 
-void EnemyGeo(char *self)
+void EnemyGeo(GObj *self)
 {
     int sub = (int)GOBJ_SUB(self);
     Act *node = GOBJ_ACT(self);
@@ -609,7 +601,7 @@ void EnemyGeo(char *self)
     UpdateEnemyEye(w->eye1, MatrixDrive_GetMatrix(), ratio);
 }
 
-void DisplayEnemy(char *self)
+void DisplayEnemy(GObj *self)
 {
     EnemyWork *w = GOBJ_SUB(self)->work;
 
@@ -641,7 +633,7 @@ void EnemyDL(int *self)
     DisplayEnemy((char *)self);
 }
 
-void DemoMotionGeo(int *self)
+void DemoMotionGeo(GObj *self)
 {
     GOBJ_SUB(self)->hand1Mode = 0;
     GOBJ_SUB(self)->hand0Mode = 0;
@@ -650,7 +642,7 @@ void DemoMotionGeo(int *self)
     ExecMotionOrient(self);
 }
 
-void SetEnemyDissolve(char *self, float ratio)
+void SetEnemyDissolve(GObj *self, float ratio)
 {
     Sub15C *sub = GOBJ_SUB(self);
 
@@ -661,33 +653,33 @@ void SetEnemyDissolve(char *self, float ratio)
         sub->nodes->fade = 1.0f;
 }
 
-void SetEnemyFlyXZAccel(char *a0, float f)
+void SetEnemyFlyXZAccel(GObj *a0, float f)
 {
     *(float *)((char *)GOBJ_SUB(a0)->work + 0x50) = f;
 }
 
 void SetEnemyFlyXZAccelAll(float accel)
 {
-    char *g = isysGObjSearchFromObjKindID_begin(4);
+    GObj *g = isysGObjSearchFromObjKindID_begin(4);
     while (g != 0) {
         *(float *)((char *)GOBJ_SUB(g)->work + 0x50) = accel;
         g = isysGObjSearchFromObjKindID_next(g);
     }
 }
 
-float GetEnemyFlyXZAccel(char *a0)
+float GetEnemyFlyXZAccel(GObj *a0)
 {
     return *(float *)((char *)GOBJ_SUB(a0)->work + 0x50);
 }
 
 void EnemyAI(void) {}
 
-void SetEnemyFootPrintSwitch(char *a0, int a1)
+void SetEnemyFootPrintSwitch(GObj *a0, int a1)
 {
     *(int *)((char *)GOBJ_SUB(a0)->work + 0x2C) = a1;
 }
 
-void EnemySetfAppearAll(char *self)
+void EnemySetfAppearAll(GObj *self)
 {
     int n = GOBJ_SUB(self)->skelNodeNum;
     int i;
@@ -696,7 +688,7 @@ void EnemySetfAppearAll(char *self)
         ((int *)*(int *)(GOBJ_SUB(self)->work + 0x14))[i] = 0;
 }
 
-void EnemySetfDisappearAll(char *self)
+void EnemySetfDisappearAll(GObj *self)
 {
     int n = GOBJ_SUB(self)->skelNodeNum;
     int i;
@@ -705,7 +697,7 @@ void EnemySetfDisappearAll(char *self)
         ((int *)*(int *)(GOBJ_SUB(self)->work + 0x14))[i] = 1;
 }
 
-void EnemySetfDisappear(char *self, float *dir)
+void EnemySetfDisappear(GObj *self, float *dir)
 {
     Sub15C *sub = GOBJ_SUB(self);
     int n = sub->skelNodeNum;
@@ -731,17 +723,17 @@ void enemySetParticleDie(void *a0, float *a1)
     SetParticleEffect(0xC, a0, buf);
 }
 
-void ReviveEnemyParticle(char *a0, int a1)
+void ReviveEnemyParticle(GObj *a0, int a1)
 {
     (*(int **)((char *)GOBJ_SUB(a0)->work + 0x14))[a1] = 0;
 }
 
-int isExistEnemyParticle(char *a0, int a1)
+int isExistEnemyParticle(GObj *a0, int a1)
 {
     return (*(int **)((char *)GOBJ_SUB(a0)->work + 0x14))[a1] == 0;
 }
 
-int EnemyGetNSafeParts(char *self)
+int EnemyGetNSafeParts(GObj *self)
 {
     int n = GOBJ_SUB(self)->skelNodeNum;
     int *p;
@@ -756,9 +748,9 @@ int EnemyGetNSafeParts(char *self)
     return cnt;
 }
 
-void EnemyDeleteParticle(char *self, float *dir, short *list)
+void EnemyDeleteParticle(GObj *self, float *dir, short *list)
 {
-    Sub15C *sub = ((GObj *)self)->dobj;
+    Sub15C *sub = self->dobj;
     int i;
     int n;
 
@@ -768,32 +760,32 @@ void EnemyDeleteParticle(char *self, float *dir, short *list)
     }
 }
 
-void SetEnemyHitGeometryAction(char *a0, int a1)
+void SetEnemyHitGeometryAction(GObj *a0, int a1)
 {
     *(int *)((char *)GOBJ_SUB(a0)->work + 0x38) = a1;
 }
 
-int InitDemoMotionGeo(char *self)
+int InitDemoMotionGeo(GObj *self)
 {
     InitMotionOrient(self, 0x84A, 0x967, -1, -1, 0x3D7);
     SetLodLevel(self, 0);
-    *(int *)(self + 0x16C) = 0;
+    *(int *)(((char *)self) + 0x16C) = 0;
     return 0;
 }
 
-void HotInitDemoMotionGeo(char *self)
+void HotInitDemoMotionGeo(GObj *self)
 {
     InitMotionOrient(self, 0x84A, 0x967, -1, -1, 0x3D7);
     SetLodLevel(self, 0);
-    *(int *)(self + 0x16C) = 0;
+    *(int *)(((char *)self) + 0x16C) = 0;
 }
 
-int GetEnemyHitNodeFlag(char *a0)
+int GetEnemyHitNodeFlag(GObj *a0)
 {
     return *(int *)((char *)GOBJ_SUB(a0)->work + 0x14);
 }
 
-int RandomizeEnemy(char *self)
+int RandomizeEnemy(GObj *self)
 {
     Sub15C *sub = GOBJ_SUB(self);
     EnemyWork *w = sub->work;
@@ -803,37 +795,37 @@ int RandomizeEnemy(char *self)
     return setEnemyObject(self, kind, &w->ctr);
 }
 
-void SetEnemyWingRatio(char *a0, float f)
+void SetEnemyWingRatio(GObj *a0, float f)
 {
     ((EnemyWork *)GOBJ_SUB(a0)->work)->wing = f;
 }
 
-int CanThisEnemyFly(char *a0)
+int CanThisEnemyFly(GObj *a0)
 {
     return D_00624880[((EnemyWork *)GOBJ_SUB(a0)->work)->def].flyType;
 }
 
-int GetEnemyBattleType(char *a0)
+int GetEnemyBattleType(GObj *a0)
 {
     return D_00624880[((EnemyWork *)GOBJ_SUB(a0)->work)->def].battleType;
 }
 
-float GetEnemyDefLife(char *a0)
+float GetEnemyDefLife(GObj *a0)
 {
     return D_00624880[((EnemyWork *)GOBJ_SUB(a0)->work)->def].life;
 }
 
-float GetEnemyDefDodgeRange(char *a0)
+float GetEnemyDefDodgeRange(GObj *a0)
 {
     return D_00624880[((EnemyWork *)GOBJ_SUB(a0)->work)->def].dodge;
 }
 
-float GetEnemyDefParaIndex(char *a0)
+float GetEnemyDefParaIndex(GObj *a0)
 {
     return D_00624880[((EnemyWork *)GOBJ_SUB(a0)->work)->def].paraIndex;
 }
 
-void ResetEnemyPositionInfo(char *self)
+void ResetEnemyPositionInfo(GObj *self)
 {
     EnemyWork *w = GOBJ_SUB(self)->work;
 
@@ -843,11 +835,11 @@ void ResetEnemyPositionInfo(char *self)
         (int)((float)((0x3C - systemStatus[0] * 0xA) / systemStatus[1]) / 60.0f * 0.0f);
 }
 
-void SetEnemyStonizedVisual(int *self)
+void SetEnemyStonizedVisual(GObj *self)
 {
     int local[8];
     GetRootPosition(local, self);
     GetRootQuaternion(&local[4], self);
     SetParticleEffect(0x31, local, &local[4]);
-    ((GObj *)self)->active = 0;
+    self->active = 0;
 }
