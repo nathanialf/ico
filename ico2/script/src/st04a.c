@@ -318,7 +318,7 @@ void actSt04aGateChk(GObj *volatile a0)
 
     _ACTWait(1);
 
-    iosOmSendMail(girlGObj, 0x3F, (int)boyGObj);
+    iosOmSendMail(girlGObj, 0x3F, boyGObj);
 
     scpBoyControlReadDisable = 0;
 
@@ -2170,7 +2170,7 @@ void actSt04aGirlSitChk(GObj *volatile a0)
             n = 0;
         }
         if (((0x3C - systemStatus[0] * 0xA) / systemStatus[1]) * 3 < n) {
-            iosOmSendMail(girlGObj, 0x6D, (int)girlGObj);
+            iosOmSendMail(girlGObj, 0x6D, girlGObj);
             n = 0;
         }
         _ACTWait(1);

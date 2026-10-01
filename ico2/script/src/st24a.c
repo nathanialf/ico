@@ -27,7 +27,7 @@ static const Vec16 swordChkPos = {{1685.0f, -1080.0f, -1000.0f, 1.0f}}; /* deriv
 /* .sdata: the sword's object. */
 char *sword = 0;
 
-void actSt24aSwordChk(volatile int self)
+void actSt24aSwordChk(GObj *volatile self)
 {
     float v[4];
     float dir[4];

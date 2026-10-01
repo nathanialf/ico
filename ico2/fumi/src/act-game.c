@@ -239,17 +239,17 @@ inline int ACTGame_CheckItemMotion(GObj *a0)
     return (rec->u_188.w >> 19) & 7;
 }
 
-void ACTGame_SaveActorInformation(char *a0)
+void ACTGame_SaveActorInformation(GObj *a0)
 {
     Act *s = GOBJ_ACT(a0);
     if (((int)(s->flags18.ll >> 39) & 1) && s->modeFrame % 30 == 0) {
-        gamesysObjInfoPosSetStage((int *)a0, s->infoPos, 0, stage_no);
+        gamesysObjInfoPosSetStage(a0, s->infoPos, 0, stage_no);
     }
 }
 
-void ACTGame_DeleteActorInformation(int *a0)
+void ACTGame_DeleteActorInformation(GObj *a0)
 {
-    gamesysObjInfoCls(a0[3], a0[2]);
+    gamesysObjInfoCls(a0->kind, a0->labelId);
 }
 
 void EXITDATA_GetNextPosition(int idx, float *pos, float *rot)
@@ -277,7 +277,7 @@ inline void ACTGame_StageChangeGObjID(int no, int kind, int idx)
     gamesysObjInfoPosNewStageSet(no, kind, exitData[idx].nextStage, tmp_a, tmp_b);
 }
 
-void ACTGame_StageChangeGObj(char *self, int idx)
+void ACTGame_StageChangeGObj(GObj *self, int idx)
 {
     float tmp_a[4];
     float tmp_b[4];
@@ -286,23 +286,22 @@ void ACTGame_StageChangeGObj(char *self, int idx)
     Vec4S buf3;
 
     EXITDATA_GetNextPosition(idx, tmp_a, tmp_b);
-    if (*(int *)(self + 0xC) == 0x11) {
+    if (self->kind == 0x11) {
         memset(buf, 0, 0x10);
         buf[2] = 250.0f;
         _ApplyRyGV(buf, -tmp_b[1]);
         sceVu0AddVector(tmp_a, tmp_a, buf);
     }
-    if (self == ((char *)girlGObj)) {
+    if (self == girlGObj) {
         if (0.0f <= GOBJ_WORK(self)->escortOffset) {
             memset(&buf3, 0, 0x10);
-            buf3.z = -GOBJ_WORK(((char *)girlGObj))->escortOffset;
+            buf3.z = -GOBJ_WORK(girlGObj)->escortOffset;
             buf2 = buf3;
             _ApplyRyGV(&buf2, -tmp_b[1]);
             sceVu0AddVector(tmp_a, tmp_a, &buf2);
         }
     }
-    gamesysObjInfoPosNewStageSet(*(int *)(self + 0x8), *(int *)(self + 0xC),
-                                 exitData[idx].nextStage, tmp_a, tmp_b);
+    gamesysObjInfoPosNewStageSet(self->labelId, self->kind, exitData[idx].nextStage, tmp_a, tmp_b);
 }
 
 inline void ACTGame_StageChangeGObjDirect(GObj *a0, int a1, void *a2, int a3)
@@ -1141,7 +1140,7 @@ inline int ACTGame_isWeaponEnableCatchfire(int *self)
     return ret;
 }
 
-inline int ACTGame_isHangChain(GObj *a0)
+inline GObj *ACTGame_isHangChain(GObj *a0)
 {
     Act *s = GOBJ_ACT(a0);
     if (a0 == boyGObj) {

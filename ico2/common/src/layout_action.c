@@ -172,9 +172,6 @@ typedef struct {
 /* mcard.c's save records, read here as R1F0, and its preview record */
 extern R1F0 IosMcProductFile[];
 extern int IosMcPreviewInfo[];
-/* the custom pad configuration ios/pad.c owns; no header declares it
-   (camera-root.c reads it as a char array) */
-extern PadConf iosPadConfCustom;
 
 int _la_mcard_error_check(void *a0)
 {

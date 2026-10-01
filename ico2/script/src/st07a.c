@@ -269,7 +269,7 @@ void actSt07aChanEffect(GObj *volatile a0)
 void actSt07aTsuroChk(GObj *volatile a0)
 {
     long long buf[2];
-    int obj;
+    GObj *obj;
     int wk;
     GProc *hGirl;
     GProc *hEffect;
@@ -638,7 +638,7 @@ void actSt07aGene1(GObj *volatile a0)
 
     Generator_Mask(a0);
 
-    Generator_Mask((int)scpSearchGobj(410));
+    Generator_Mask(scpSearchGobj(410));
 
     while (gflagChk(132) == 0) {
         _ACTWait(1);
@@ -655,7 +655,7 @@ void actSt07aGene1(GObj *volatile a0)
     Generator_Call(a0);
     _ACTWait(60);
     Generator_Call(a0);
-    Generator_Call((int)scpSearchGobj(410));
+    Generator_Call(scpSearchGobj(410));
 }
 
 void actSt07aChan(GObj *volatile a0)

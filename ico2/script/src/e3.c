@@ -627,7 +627,7 @@ void actE3CageFallDemo(GObj *volatile a0)
 
     scpPlayMot(girlGObj, 532);
     {
-        int self = (int)girlGObj;
+        GObj *self = girlGObj;
 
         GOBJ_SUB(self)->ctrl.blendFrames =
             (int)((float)((0x3C - systemStatus[0] * 0xA) / systemStatus[1]) / 60.0f * 30.0f);
@@ -637,7 +637,7 @@ void actE3CageFallDemo(GObj *volatile a0)
 
     gflagOn(381);
 
-    gamesysObjInfoPosSetStage((int *)((int)boyGObj), GOBJ_ACT((int)boyGObj)->infoPos, 0, stage_no);
+    gamesysObjInfoPosSetStage(boyGObj, GOBJ_ACT(boyGObj)->infoPos, 0, stage_no);
 
     CheckPoint();
 

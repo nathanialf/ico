@@ -60,7 +60,7 @@ typedef struct PObjGObjSt13c { /* field names derived */
    fight calls through. */
 static int demoEnd;
 
-static int bossGenerator; /* derived name */
+static GObj *bossGenerator; /* derived name */
 
 /* .data: actor mail packets. */
 
@@ -582,7 +582,7 @@ void actSt13cCageFallChk(GObj *volatile a0)
         if (isEnemyActive(scpSearchGobj(150)) == 0) {
             memset(&w, 0, 0x10);
             DirectCallEnemy(scpSearchGobj(150), bossGenerator, &w, &w, 0);
-            iosOmSendMail(scpSearchGobj(150), 0x102, (int)scpSearchGobj(150));
+            iosOmSendMail(scpSearchGobj(150), 0x102, scpSearchGobj(150));
             _ACTWait(1);
         }
 
@@ -1142,7 +1142,7 @@ void actSt13cHandChk(GObj *volatile a0)
 
     _ACTWait(1);
 
-    iosOmSendMail(girlGObj, 0x3F, (int)boyGObj);
+    iosOmSendMail(girlGObj, 0x3F, boyGObj);
 
     scpBoyControlReadDisable = 0;
     scpWakeupEnemyAll();

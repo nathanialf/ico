@@ -316,8 +316,8 @@ void actSt03tGene(GObj *volatile a0)
 
     Generator_Mask(a0);
 
-    Generator_Mask((int)scpSearchGobj(877));
-    Generator_Mask((int)scpSearchGobj(878));
+    Generator_Mask(scpSearchGobj(877));
+    Generator_Mask(scpSearchGobj(878));
 
     while (gflagChk(105) == 0) {
         _ACTWait(1);
@@ -329,8 +329,8 @@ void actSt03tGene(GObj *volatile a0)
     _ACTWait(20);
     Generator_Call(a0);
 
-    Generator_Call((int)scpSearchGobj(877));
-    Generator_Call((int)scpSearchGobj(878));
+    Generator_Call(scpSearchGobj(877));
+    Generator_Call(scpSearchGobj(878));
 }
 
 void actSt03tBoxA(GObj *volatile a0)

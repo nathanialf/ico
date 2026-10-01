@@ -53,9 +53,9 @@ void actSt05cDoorDownChk(GObj *volatile a0)
 
     pos = doorDownChkPos;
     _ACTWait(30);
-    soundSeDefPlay(1221, 0, &pos, 1);
+    soundSeDefPlay(1221, 0, pos.f, 1);
     _ACTWait(30);
-    soundSeDefPlay(1222, 0, &pos, 1);
+    soundSeDefPlay(1222, 0, pos.f, 1);
 
     while (stage_CheckAnimationFinish(347) == 0) {
         _ACTWait(1);

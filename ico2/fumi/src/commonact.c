@@ -1666,7 +1666,6 @@ void actCommonDown(GObj *volatile a0)
 
 extern void enemySetParticleDie(void *root, void *dir);
 extern void EnemySetfDisappearAll(GObj *volatile a0);
-extern void ACTGame_DeleteActorInformation(GObj *volatile a0);
 
 void actCommonDie(GObj *volatile a0)
 {

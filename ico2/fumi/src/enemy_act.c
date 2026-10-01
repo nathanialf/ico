@@ -684,7 +684,7 @@ void subEnemyCollision(GObj *volatile a0)
                             : motionKind[GOBJ_SUB(a0)->ctrl.motion].dirFrames));
         }
         if (actEnemyFlagCheckDead(a0) == 0) {
-            ACTGame_SaveActorInformation((char *)a0);
+            ACTGame_SaveActorInformation(a0);
         }
         if (sub->actMode != 0x70) {
             /* The January listing's rows 1761-1770 emit no instruction at all;
@@ -947,7 +947,7 @@ void actEnemyRestart(GObj *self, float *pos, float *dir, int kind, GObj *mother)
     v[2] = pos[2];
     v[1] = pos[1] - 100.0f;
     SetDirectRootPositionNoFitting(self, (char *)v);
-    gamesysObjInfoPosSetStage((int *)self, sub->infoPos, 0, stage_no);
+    gamesysObjInfoPosSetStage(self, sub->infoPos, 0, stage_no);
     switch (kind) {
     case 0:
         pos[1] = pos[1] + GOBJ_ACT(self)->enemy->bodySize * 100.0f;
@@ -1099,7 +1099,7 @@ inline void actEnemyNest(GObj *volatile a0)
     *(int *)((char *)sub + 0x440) = 0;
     x2 = a0;
     sub->infoPos = 7;
-    gamesysObjInfoPosSetStage((int *)x2, 7, 0, stg);
+    gamesysObjInfoPosSetStage(x2, 7, 0, stg);
     _ACTWait(0);
 }
 
@@ -1169,7 +1169,7 @@ void actEnemyKidnapEnd(GObj *volatile a0)
         if (5 <= sub->modeFrame) {
             if (GOBJ_ACT(girlGObj)->actMode != 0x6F || GOBJ_ACT(girlGObj)->carrier != a0) {
                 sub->infoPos = 0;
-                gamesysObjInfoPosSetStage((int *)a0, 0, 0, stage_no);
+                gamesysObjInfoPosSetStage(a0, 0, 0, stage_no);
             }
         }
         if (GetEfStageCameraTargetID() != 0) {
@@ -1764,7 +1764,7 @@ void subEnemyBrainMain(GObj *volatile a0)
             sub->brainAim = brainModeTable[GOBJ_ACT(a0)->enemy->mode].f0C;
             sub->infoPos = brainModeTable[GOBJ_ACT(a0)->enemy->mode].f18;
             if (sub->infoPos == 4) {
-                gamesysObjInfoPosSetStage((int *)a0, 4, 0, stage_no);
+                gamesysObjInfoPosSetStage(a0, 4, 0, stage_no);
             }
             actChangeActBrain(isysCurrentGObj,
                               (void *)brainModeTable[GOBJ_ACT(a0)->enemy->mode].brain, (char *)sub);

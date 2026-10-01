@@ -49,6 +49,7 @@
 #include "commonact.h"
 #include "fieldCollision.h"
 #include "main.h"
+#include "motionManager2.h"
 
 /* .sdata.  The three words after scpSeEnvMasterVolRate are the girl's hint
    voice: its ADPCM handle and the distance range its volume follows. */
@@ -83,14 +84,11 @@ struct DQW { /* derived name */ /* field names derived */
     int _34[3];
 };
 
-struct SPMD { /* derived name */ /* field names derived */
-    int a;
-    int b;
-};
-
-struct SVF { /* derived name */ /* field names derived */
-    int a;
-    int b;
+/* the parent link stage_SetParentOfGObj copies into a stage animation: the
+   object and its skeleton node, -1 when the node was not found */
+struct ParentLink { /* derived name */ /* field names derived */
+    GObj *gobj;
+    int node;
 };
 
 /* the wall-collision result scpWallCollision and its sibling hand back */
@@ -120,14 +118,6 @@ typedef struct AdpcmReq { /* field names derived */
 static AdpcmReq adpcmReq[2]; /* derived name */
 
 static float scriptCameraTarget[4]; /* derived name */
-
-struct S { /* derived name */ /* field names derived */
-    int a;
-    int b;
-};
-
-/* as in motionManager2.h, which this TU does not include */
-extern void SetMotionDirection(void *a0, float *a1);
 
 /* sugipon's motionKind (MotionDef, motionOrientManager.h), read here through
    this file's own view of the record */
@@ -172,9 +162,6 @@ struct WoodBoxEnt { /* derived name */ /* field names derived */
     float b3;                          /* 0x2C */
 };
 
-/* as in motionManager2.h, which this TU does not include */
-extern void ClearMotionGeometryInfo(int *self);
-
 /* the wall-collision result the ClipWall work area hands back at +0x80 */
 
 typedef struct {                     /* field names derived */
@@ -186,9 +173,6 @@ typedef struct {                     /* field names derived */
     struct WallCol res;              /* 0x80 */
     char pad8C[52];                  /* 0x8C */
 } ClipWorkScript; /* derived name */ /* 0xC0 */
-
-/* as in motionManager2.h, which this TU does not include */
-extern int GetSkeltonFocusNode(char *a0, int a1);
 
 /* .data: the wood-bridge trigger table, one row per bridge object, walked by
    object id. */
@@ -205,15 +189,6 @@ static struct WoodBoxEnt woodBoxTbl[11] = {
     {1626, 1, {0}, {100.0f, -200.0f, 0.0f, 0.0f}, 680.0f, 230.0f, 0.0f, 0.0f},
     {3294, 9, {0}, {-100.0f, -200.0f, 0.0f, 0.0f}, 0.0f, 0.0f, 0.0f, 0.0f},
 }; /* derived name */
-
-/* as in motionManager2.h, which this TU does not include */
-extern int CheckFloorAttribute(GObj *self, int attr);
-/* as in motionManager2.h, which this TU does not include */
-extern int CheckWallAttribute(GObj *self, int attr);
-/* motionManager2.h lists the parameters as (self, obj, x, y, z, mode, node, w, quat);
-   the callers pass them in this order */
-extern void SetMotionNodeFixModeParameter(char *self, char *obj, int mode, int node, void *quat,
-                                          float x, float y, float z, float w);
 
 /* .sbss: a stage change has been requested and no further one is
    accepted. */
@@ -278,9 +253,9 @@ inline void scpDispOnAllWithKind(int x)
 
 inline void scpActivateAllWithKind(int kind)
 {
-    int *p = isysGObjSearchFromObjKindID_begin(kind);
+    GObj *p = isysGObjSearchFromObjKindID_begin(kind);
     while (p != 0) {
-        p[0x16C / 4] = 1;
+        p->active = 1;
         p = isysGObjSearchFromObjKindID_next(p);
     }
 }
@@ -318,7 +293,7 @@ void scpTorchLightOff(int id)
     }
 }
 
-inline int *scpIsBombExplode(int x)
+inline GObj *scpIsBombExplode(int x)
 {
     GObj *p = isysGObjSearchFromObjKindID_begin(x);
     if (p != 0) {
@@ -388,23 +363,23 @@ inline int scpIsRotObjectZPlusDirInclude(int a0, int a1, int a2)
 
 inline void scpLinkBGAtoLayoutedTarget(int a0, int a1)
 {
-    int ret = scpSearchGobj(a0);
+    GObj *ret = scpSearchGobj(a0);
     if (ret != 0) {
-        int msg[2] = {ret, 0};
-        stage_SetParentOfGObj(a1, msg);
+        struct ParentLink link = {ret, 0};
+        stage_SetParentOfGObj(a1, &link);
     }
 }
 
 inline void scpLinkBGAtoLayoutedTargetSkeltonWithLocalRotationFlag(int a0, int a1, int a2, int a3)
 {
-    int ret = scpSearchGobj(a0);
+    GObj *ret = scpSearchGobj(a0);
     if (ret != 0) {
-        struct SVF copy;
-        struct SVF pair;
-        pair.a = ret;
-        pair.b = GetSkeltonFocusNode(ret, a1);
+        struct ParentLink copy;
+        struct ParentLink pair;
+        pair.gobj = ret;
+        pair.node = GetSkeltonFocusNode(ret, a1);
         copy = pair;
-        if (copy.b == -1)
+        if (copy.node == -1)
             /* LWS skeleton parenting: the node was not found */
             debug_StdPrintfDummy(
                 "LWSのスケルトンペアレント処理において,ノードが見つかりませんでした\n");
@@ -415,14 +390,14 @@ inline void scpLinkBGAtoLayoutedTargetSkeltonWithLocalRotationFlag(int a0, int a
 
 inline void scpLinkBGAtoKindTargetSkeltonWithLocalRotationFlag(int a0, int a1, int a2, int a3)
 {
-    int *ret = isysGObjSearchFromObjKindID_begin(a0);
+    GObj *ret = isysGObjSearchFromObjKindID_begin(a0);
     if (ret != 0) {
-        struct SPMD copy;
-        struct SPMD pair;
-        pair.a = (int)ret;
-        pair.b = GetSkeltonFocusNode((int)ret, a1);
+        struct ParentLink copy;
+        struct ParentLink pair;
+        pair.gobj = ret;
+        pair.node = GetSkeltonFocusNode(ret, a1);
         copy = pair;
-        if (copy.b == -1)
+        if (copy.node == -1)
             /* LWS skeleton parenting: the node was not found */
             debug_StdPrintfDummy(
                 "LWSのスケルトンペアレント処理において,ノードが見つかりませんでした\n");
@@ -433,14 +408,14 @@ inline void scpLinkBGAtoKindTargetSkeltonWithLocalRotationFlag(int a0, int a1, i
 
 inline void scpLinkBGAtoLayoutedTargetSkelton(int a0, int a1, int a2)
 {
-    int ret = scpSearchGobj(a0);
+    GObj *ret = scpSearchGobj(a0);
     if (ret != 0) {
-        struct S copy;
-        struct S pair;
-        pair.a = ret;
-        pair.b = GetSkeltonFocusNode(ret, a1);
+        struct ParentLink copy;
+        struct ParentLink pair;
+        pair.gobj = ret;
+        pair.node = GetSkeltonFocusNode(ret, a1);
         copy = pair;
-        if (copy.b == -1)
+        if (copy.node == -1)
             /* LWS skeleton parenting: the node was not found */
             debug_StdPrintfDummy(
                 "LWSのスケルトンペアレント処理において,ノードが見つかりませんでした\n");
@@ -486,7 +461,7 @@ void scpPlayMotDir(GObj *self, float *dir)
     SetMotionDirection(self, dir);
 }
 
-void scpPlayMotDirSmz(char *self, float *dir)
+void scpPlayMotDirSmz(GObj *self, float *dir)
 {
     sceVu0Normalize(dir, dir);
     SetMotionDirectionSmooze(
@@ -500,7 +475,7 @@ inline void scpPlayMotNode(void *a0, int a1, void *a2, int a3)
     float buf[4];
     memset(buf, 0, 0x10);
     buf[3] = 1.0f;
-    SetMotionNodeFixModeParameter(a0, a2, 0, a3, buf, 0.0f, 0.0f, 0.0f, 1.0f);
+    SetMotionNodeFixModeParameter(a0, a2, 0.0f, 0.0f, 0.0f, 0, a3, 1.0f, buf);
     scpPlayMot(a0, a1);
 }
 
@@ -548,19 +523,19 @@ void scpPlayJump(GObj *a0, int a1)
 {
     ACTItemForceDrop(a0);
     GOBJ_ACT(a0)->enemy->jumpOrient = a1;
-    iosOmSendMail(a0, 0x2D, (int)a0);
+    iosOmSendMail(a0, 0x2D, a0);
 }
 
 void scpPlayStart(GObj *a0)
 {
     ACTItemForceDrop(a0);
-    iosOmSendMail(a0, 0x2E, (int)a0);
+    iosOmSendMail(a0, 0x2E, a0);
     SetLodLevel(a0, 0);
 }
 
 void scpPlayEnd(GObj *a0)
 {
-    iosOmSendMail(a0, 0x2F, (int)a0);
+    iosOmSendMail(a0, 0x2F, a0);
     SetLodLevel(a0, 2);
 }
 
@@ -598,7 +573,7 @@ static inline int scpTransStep(float *p, float target, float step) /* derived na
     return done;
 }
 
-inline void scpTransLinear(void *obj, int axis, float target, float step)
+inline void scpTransLinear(GObj *obj, int axis, float target, float step)
 {
     int done = 0;
     float pos[4];
@@ -805,7 +780,7 @@ inline void scpDoorTypeUp(GObj *volatile a0)
 
     if (gflagChk(act->doorFlag) != 0) {
         GObj *self = a0;
-        scpTransLinear((void *)self, 1, -act->doorDist, act->doorDist);
+        scpTransLinear(self, 1, -act->doorDist, act->doorDist);
     }
     doorTypeUp_mes[0].func = scpDoorTypeUpMain;
     act->mail = doorTypeUp_mes;
@@ -851,7 +826,7 @@ void scpDoorTypeUpDown(GObj *volatile a0)
     }
     debug_StdPrintfDummy("start animation down\n");
     gflagOff(act->doorFlag);
-    scpTransLinear((void *)a0, 1, act->doorDist, act->doorStep);
+    scpTransLinear(a0, 1, act->doorDist, act->doorStep);
     if (act->doorEndWait != 0) {
         _ACTWait(act->doorEndWait);
     }
@@ -874,7 +849,7 @@ void scpDoorTypeUpUp(GObj *volatile a0)
     }
     debug_StdPrintfDummy("start animation up\n");
     gflagOn(act->doorFlag);
-    scpTransLinear((void *)a0, 1, -act->doorDist, act->doorStep);
+    scpTransLinear(a0, 1, -act->doorDist, act->doorStep);
     if (act->doorEndWait != 0) {
         _ACTWait(act->doorEndWait);
     }
@@ -1193,7 +1168,7 @@ void scpWoodSrh(GObj *self, struct WoodBoxEnt *w)
     float pos[4];
     float dst[4];
     float gpos[4];
-    char *g;
+    GObj *g;
     int st;
     int way = 0;
 
@@ -1234,7 +1209,7 @@ void scpWoodSrh(GObj *self, struct WoodBoxEnt *w)
                 for (g = isysGObjSearchFromObjKindID_begin(17); g != 0;
                      g = isysGObjSearchFromObjKindID_next(g)) {
                     if (g != self) {
-                        if (*(int *)(g + 8) == 865 || *(int *)(g + 8) == 866) {
+                        if (g->labelId == 865 || g->labelId == 866) {
                             GetRootPosition(gpos, g);
                             gpos[1] -= 50.0f;
                             if (gpos[1] < -182.0f && gpos[1] > -280.0f) {
@@ -1439,8 +1414,8 @@ inline int RequestStageChangeWithColor(int no, GObj *g, GObj *girl, float speed,
         if (g != 0) {
             act = GOBJ_ACT(g);
             ACTGame_StageChangeGObj(g, next);
-            if ((char *)act->weapon != 0) {
-                ACTGame_StageChangeGObj((char *)act->weapon, next);
+            if (act->weapon != 0) {
+                ACTGame_StageChangeGObj(act->weapon, next);
             }
             if (act->curItem != 0) {
                 ACTGame_StageChangeGObj(act->curItem, next);
@@ -1483,7 +1458,7 @@ inline void RequestStageChangeDirect(GObj *self, int a1, void *a2, int a3)
     ACTCharctrl_Lock(self);
     pos = farRootPos;
     SetDirectRootPosition(self, &pos);
-    iosOmSendMail(self, 0x27, (int)self);
+    iosOmSendMail(self, 0x27, self);
 }
 
 inline void scpFadeOut(float a0, int a1, int a2, int a3)
@@ -1531,8 +1506,8 @@ void _SCPBoySupportGirl(float x0, float y0, float z0, float x1, float y1, float 
     if (wc != 0) {
         *(struct WallCol *)((char *)GOBJ_ACT(boyGObj) + 0x670) = *wc;
         *(struct WallCol *)((char *)GOBJ_ACT(girlGObj) + 0x660) = *wc;
-        iosOmSendMail(boyGObj, 385, (int)boyGObj);
-        iosOmSendMail(girlGObj, 386, (int)boyGObj);
+        iosOmSendMail(boyGObj, 385, boyGObj);
+        iosOmSendMail(girlGObj, 386, boyGObj);
     }
 }
 
@@ -1592,9 +1567,9 @@ void scpSekizouCheckPoint(void)
     int was;
 
     if (girlGObj != 0) {
-        gamesysObjInfoPosSetStage((int *)girlGObj, GOBJ_ACT(girlGObj)->infoPos, 0, stage_no);
+        gamesysObjInfoPosSetStage(girlGObj, GOBJ_ACT(girlGObj)->infoPos, 0, stage_no);
     }
-    gamesysObjInfoPosSetStage((int *)boyGObj, GOBJ_ACT(boyGObj)->infoPos, 0, stage_no);
+    gamesysObjInfoPosSetStage(boyGObj, GOBJ_ACT(boyGObj)->infoPos, 0, stage_no);
     was = gflagChk(381);
     gflagOn(381);
     CheckPoint();
@@ -1615,7 +1590,7 @@ inline int scpIsHangChain(GObj *self)
 
 inline int scpIsHangChainOptional(GObj *a0, int b)
 {
-    register int *p;         /* v1 */
+    register GObj *p;        /* v1 */
     register int b_save;     /* s0 */
     register unsigned int v; /* v0 */
     b_save = b;
@@ -1623,7 +1598,7 @@ inline int scpIsHangChainOptional(GObj *a0, int b)
     v = 0;
     if (p == 0)
         goto out;
-    v = (unsigned int)(p[0x8 / 4] ^ b_save) < 1;
+    v = (unsigned int)(p->labelId ^ b_save) < 1;
 out:
     return (int)v;
 }
@@ -1632,7 +1607,7 @@ void scpWakeupEnemyOne(int id)
 {
     void *rc = isysGObjSearchFromObjLayoutID(id);
     if (rc) {
-        iosOmSendMail(rc, 0x1F, (int)rc);
+        iosOmSendMail(rc, 0x1F, rc);
     }
 }
 
@@ -1641,11 +1616,11 @@ inline void scpWakeupEnemyAll(void)
     GObj *g;
     for (g = isysGObjSearchFromObjKindID_begin(4); g != 0;
          g = isysGObjSearchFromObjKindID_next(g)) {
-        iosOmSendMail(g, 0x1F, (int)g);
+        iosOmSendMail(g, 0x1F, g);
     }
     for (g = isysGObjSearchFromObjKindID_begin(62); g != 0;
          g = isysGObjSearchFromObjKindID_next(g)) {
-        iosOmSendMail(g, 0x1F, (int)g);
+        iosOmSendMail(g, 0x1F, g);
     }
 }
 
@@ -1653,7 +1628,7 @@ void scpSleepEnemyOne(int id)
 {
     void *rc = isysGObjSearchFromObjLayoutID(id);
     if (rc) {
-        iosOmSendMail(rc, 0x20, (int)rc);
+        iosOmSendMail(rc, 0x20, rc);
     }
 }
 
@@ -1678,35 +1653,35 @@ inline void scpSleepEnemyAll(void)
     GObj *g;
     for (g = isysGObjSearchFromObjKindID_begin(4); g != 0;
          g = isysGObjSearchFromObjKindID_next(g)) {
-        iosOmSendMail(g, 0x20, (int)g);
+        iosOmSendMail(g, 0x20, g);
     }
     for (g = isysGObjSearchFromObjKindID_begin(62); g != 0;
          g = isysGObjSearchFromObjKindID_next(g)) {
-        iosOmSendMail(g, 0x20, (int)g);
+        iosOmSendMail(g, 0x20, g);
     }
 }
 
 inline void scpKillEnemyOne(int id)
 {
-    int *p = isysGObjSearchFromObjLayoutID(id);
+    GObj *p = isysGObjSearchFromObjLayoutID(id);
     if (p != 0) {
-        iosOmSendMail((int)p, 0x26, (int)p);
-        objLayout[p[0x8 / 4]].reviveCount = 0;
+        iosOmSendMail(p, 0x26, p);
+        objLayout[p->labelId].reviveCount = 0;
     }
 }
 
 inline void scpKillEnemyAll(void)
 {
-    char *g;
+    GObj *g;
 
-    for (g = (char *)isysGObjSearchFromObjKindID_begin(4); g != 0;
-         g = (char *)isysGObjSearchFromObjKindID_next(g)) {
-        iosOmSendMail(g, 0x26, (int)g);
-        objLayout[*(int *)(g + 8)].reviveCount = 0;
+    for (g = isysGObjSearchFromObjKindID_begin(4); g != 0;
+         g = isysGObjSearchFromObjKindID_next(g)) {
+        iosOmSendMail(g, 0x26, g);
+        objLayout[g->labelId].reviveCount = 0;
     }
-    for (g = (char *)isysGObjSearchFromObjKindID_begin(62); g != 0;
-         g = (char *)isysGObjSearchFromObjKindID_next(g)) {
-        iosOmSendMail(g, 0x26, (int)g);
+    for (g = isysGObjSearchFromObjKindID_begin(62); g != 0;
+         g = isysGObjSearchFromObjKindID_next(g)) {
+        iosOmSendMail(g, 0x26, g);
     }
 }
 
@@ -1728,7 +1703,8 @@ inline void scpBornSpider(int n, float a, float b, float c, float d)
 {
     int i;
     float t1, t2;
-    int r, dead;
+    int r;
+    GObj *dead;
     for (i = 0; i < n; i++) {
         t1 = random_unit();
         spiderLayout.f4 = b;
@@ -1751,7 +1727,7 @@ inline void scpSetStreamMotionRootOffset(GObj *a0, float x, float y, float z)
     v.f[1] = y;
     v.f[2] = z;
     v.i[3] = 0;
-    CopyVector((int)GOBJ_SUB(a0) + 0x670, &v);
+    CopyVector(GOBJ_SUB(a0)->streamOfs, &v);
 }
 
 /* the colour the item-revival boundary's wire sphere is drawn in */
@@ -1901,9 +1877,9 @@ void scpSetBoyWeaponGObj(void *w)
 
 inline int scpCheckExistAliveEnemy(void)
 {
-    char *g;
-    for (g = (char *)isysGObjSearchFromObjKindID_begin(4); g != 0;
-         g = (char *)isysGObjSearchFromObjKindID_next(g)) {
+    GObj *g;
+    for (g = isysGObjSearchFromObjKindID_begin(4); g != 0;
+         g = isysGObjSearchFromObjKindID_next(g)) {
         if (actEnemyFlagCheckDead(g) == 0) {
             /* found a living enemy */
             debug_StdPrintfDummy("scpCheckExistAliveEnemy: 生きている敵を発見\n");
@@ -1917,9 +1893,9 @@ inline int scpCheckExistAliveEnemy(void)
 
 inline int scpCheckExistAliveSpider(void)
 {
-    char *g;
-    for (g = (char *)isysGObjSearchFromObjKindID_begin(62); g != 0;
-         g = (char *)isysGObjSearchFromObjKindID_next(g)) {
+    GObj *g;
+    for (g = isysGObjSearchFromObjKindID_begin(62); g != 0;
+         g = isysGObjSearchFromObjKindID_next(g)) {
         if (IsActCharDead(g) == 0) {
             /* found a living spider */
             debug_StdPrintfDummy("scpCheckExistAliveSpider: 生きている蜘蛛を発見\n");

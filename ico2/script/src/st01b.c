@@ -95,7 +95,7 @@ static const ConstVec floorChkSubPos = {{-101.0f, -381.0f, -398.0f, 0.0f}}; /* d
 
 void actSt01bFloorChkSub(GObj *volatile a0)
 {
-    long long pos[2];
+    ConstVec pos;
 
     while (st01b_floor == 0) {
         _ACTWait(1);
@@ -103,9 +103,8 @@ void actSt01bFloorChkSub(GObj *volatile a0)
     AdpcmPlay(((AdpcmObj *)st01b_floor)->stream);
     stage_SetAnimation(180, 1, 0);
     stage_SetAnimation(181, 1, 0);
-    pos[0] = floorChkSubPos.d[0];
-    pos[1] = floorChkSubPos.d[1];
-    seHandle = soundSeDefPlay(1325, 0, pos, 1);
+    pos = floorChkSubPos;
+    seHandle = soundSeDefPlay(1325, 0, pos.f, 1);
     _ACTWait(90);
     soundSeDefStop(seHandle);
     seHandle = -1;

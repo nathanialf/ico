@@ -264,7 +264,7 @@ void actSt10rCageMain(GObj *volatile a0)
 void actSt10rTowerChk(GObj *volatile a0)
 {
     GProc *th;
-    int n;
+    GObj *n;
     int f;
 
     while ((n = scpIsBombExplode(19)) == 0 || scpTriggerBall(a0, n, 350.0f) == 0) {

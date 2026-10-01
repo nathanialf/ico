@@ -199,10 +199,6 @@ typedef struct {
 /* defined below, at their ROM slots; the 2001 source called them from here
    without a prototype, so they keep the non-prototype form. */
 extern McSaveRec IosMcProductFile[];
-/* the custom pad configuration ios/pad.c owns, saved from its button bits;
-   kept local: pad.h cannot declare it while camera-root.c declares it as a
-   char array */
-extern PadConf iosPadConfCustom;
 
 inline int product_write(int *self)
 {

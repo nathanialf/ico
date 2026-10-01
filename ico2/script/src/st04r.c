@@ -755,7 +755,7 @@ void actSt04rStairChk(GObj *volatile a0)
 
         _ACTWait(1);
 
-        iosOmSendMail(girlGObj, 0x3E, (int)boyGObj);
+        iosOmSendMail(girlGObj, 0x3E, boyGObj);
 
         scpFadeIn(3.0f);
     } else {
@@ -858,7 +858,7 @@ void actSt04rSekizoChk(GObj *volatile a0)
     scpPlayEnd(boyGObj);
     _ACTWait(1);
 
-    iosOmSendMail(girlGObj, 0x3F, (int)boyGObj);
+    iosOmSendMail(girlGObj, 0x3F, boyGObj);
 
     lt_switch_layout(54);
 
@@ -1096,7 +1096,7 @@ void actSt04rMonyou01Chk(GObj *volatile a0)
     _ACTWait(1);
 
     if (ACTGame_FLAG_TETSUNAGI() != 0) {
-        iosOmSendMail(girlGObj, 0x3F, (int)boyGObj);
+        iosOmSendMail(girlGObj, 0x3F, boyGObj);
     }
 
     scpBoyControlReadDisable = 0;
@@ -1148,7 +1148,7 @@ void actSt04rMonyou02Chk(GObj *volatile a0)
     _ACTWait(1);
 
     if (ACTGame_FLAG_TETSUNAGI() != 0) {
-        iosOmSendMail(girlGObj, 0x3F, (int)boyGObj);
+        iosOmSendMail(girlGObj, 0x3F, boyGObj);
     }
 
     scpBoyControlReadDisable = 0;
@@ -1200,7 +1200,7 @@ void actSt04rMonyou03Chk(GObj *volatile a0)
     _ACTWait(1);
 
     if (ACTGame_FLAG_TETSUNAGI() != 0) {
-        iosOmSendMail(girlGObj, 0x3F, (int)boyGObj);
+        iosOmSendMail(girlGObj, 0x3F, boyGObj);
     }
 
     scpBoyControlReadDisable = 0;
@@ -1252,7 +1252,7 @@ void actSt04rMonyou04Chk(GObj *volatile a0)
     _ACTWait(1);
 
     if (ACTGame_FLAG_TETSUNAGI() != 0) {
-        iosOmSendMail(girlGObj, 0x3F, (int)boyGObj);
+        iosOmSendMail(girlGObj, 0x3F, boyGObj);
     }
 
     scpBoyControlReadDisable = 0;
@@ -1304,7 +1304,7 @@ void actSt04rMonyou05Chk(GObj *volatile a0)
     _ACTWait(1);
 
     if (ACTGame_FLAG_TETSUNAGI() != 0) {
-        iosOmSendMail(girlGObj, 0x3F, (int)boyGObj);
+        iosOmSendMail(girlGObj, 0x3F, boyGObj);
     }
 
     scpBoyControlReadDisable = 0;
@@ -1356,7 +1356,7 @@ void actSt04rMonyou06Chk(GObj *volatile a0)
     _ACTWait(1);
 
     if (ACTGame_FLAG_TETSUNAGI() != 0) {
-        iosOmSendMail(girlGObj, 0x3F, (int)boyGObj);
+        iosOmSendMail(girlGObj, 0x3F, boyGObj);
     }
 
     scpBoyControlReadDisable = 0;
@@ -1408,7 +1408,7 @@ void actSt04rMonyou07Chk(GObj *volatile a0)
     _ACTWait(1);
 
     if (ACTGame_FLAG_TETSUNAGI() != 0) {
-        iosOmSendMail(girlGObj, 0x3F, (int)boyGObj);
+        iosOmSendMail(girlGObj, 0x3F, boyGObj);
     }
 
     scpBoyControlReadDisable = 0;
@@ -1416,7 +1416,7 @@ void actSt04rMonyou07Chk(GObj *volatile a0)
 
 void actSt04rBarricadeChk(GObj *volatile a0)
 {
-    int n;
+    GObj *n;
 
     while ((n = scpIsBombExplode(19)) == 0 || scpTriggerBall(a0, n, 350.0f) == 0) {
         _ACTWait(1);

@@ -65,13 +65,6 @@ typedef struct {
     int work[4];          /* 0x30 */
 } GamesysObjInfoBackstage;
 
-/* the actor work record a gobj carries at 0x164 (src/enemy_act.c reads the same
-   0x444 member off the same 0x164 pointer) */
-typedef struct {
-    char pad000[1092];
-    int objNo; /* 0x444 */
-} ActorWorkRec;
-
 /* gamesys.c's object-info records, read here as GamesysObjInfoBackstage;
    gamesys.h, which this TU does not include, declares GamesysObjInfo [] */
 extern GamesysObjInfoBackstage gameSysObjInfo[];
@@ -95,7 +88,7 @@ extern void SetInfoSpKidnapGenerator(short *a0);
 /* this TU passes an int *; generator.h declares a short * */
 extern void SetInfoSpKidnapEnemy(int *work);
 /* as in gamesys.h, which this TU does not include */
-extern int *gamesysObjInfoPosSetStage(int *self, int a1, int a2, int a3);
+extern GamesysObjInfo *gamesysObjInfoPosSetStage(GObj *self, int a1, int a2, int a3);
 /* as in gamesys.h, which this TU does not include */
 extern void gamesysObjInfoCls(int kind, int no);
 /* as in gamesys.h, which this TU does not include */
@@ -150,20 +143,20 @@ void backStageProcessOutStage(void)
         kidnapState = 0;
         wayKidnap = 0;
         if (kidnapObjIdx < 0) {
-            char *e = NearestEnemyFromGirl(&enemyDist);
+            GObj *e = NearestEnemyFromGirl(&enemyDist);
 
             if (e != 0) {
-                ActorWorkRec *m;
+                Act *m;
 
                 kidnapState = 1;
                 enemySec = enemyDist / 160.0f;
                 kidnapTime =
                     (int)(enemySec * (float)((60 - systemStatus[0] * 10) / systemStatus[1]));
-                m = *(ActorWorkRec **)(e + 0x164);
-                kidnapObjIdx = (unsigned int)((char *)gamesysObjInfoPosSetStage((int *)e, m->objNo,
-                                                                                0, stage_no) -
-                                              (char *)gameSysObjInfo) >>
-                               6;
+                m = GOBJ_ACT(e);
+                kidnapObjIdx =
+                    (unsigned int)((char *)gamesysObjInfoPosSetStage(e, m->infoPos, 0, stage_no) -
+                                   (char *)gameSysObjInfo) >>
+                    6;
             }
         } else {
             kidnapState = 2;

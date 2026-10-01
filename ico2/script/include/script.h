@@ -43,10 +43,10 @@ void scpDeamon(struct GObj *volatile a0);
 void scpGirlHintVoiceCancel(void);
 void scpWoodBox(struct GObj *volatile a0);
 int scpIsTorchLightOn(int a0);
-int *scpIsBombExplode(int x);
+struct GObj *scpIsBombExplode(int x);
 float scpGetRotObjectRotCount(int id);
 int scpIsRotObjectZPlusDirInclude(int a0, int a1, int a2);
-void scpTransLinear(void *obj, int axis, float target, float step);
+void scpTransLinear(struct GObj *obj, int axis, float target, float step);
 void scpRotateLinear(void *obj, int deg, short step, int axis);
 int scpTriggerPosBall(float *pos, float *target, float r);
 int scpTriggerBall(struct GObj *obj, struct GObj *target, float r);
@@ -74,8 +74,9 @@ void scpPlayWaitMotEnd(struct GObj *a0);
 void InitStageChange(void);
 int RequestStageChange(int no, struct GObj *g, struct GObj *girl, float speed, float wait);
 
-inline int RequestStageChangeWithColor(int no, struct GObj *g, struct GObj *girl, float speed, float wait,
-                                unsigned char r, unsigned char gr, unsigned char b);
+inline int RequestStageChangeWithColor(int no, struct GObj *g, struct GObj *girl, float speed,
+                                       float wait, unsigned char r, unsigned char gr,
+                                       unsigned char b);
 
 int RequestStageChangeSimple(int no, float speed, float wait, unsigned char r, unsigned char gr,
                              unsigned char b);
@@ -154,6 +155,7 @@ typedef struct {         /* field names derived */
     unsigned char kind;  /* 0x54 */
     char pad55[3];
 } WarpRec; /* derived name */
+
 extern const WarpRec girlWarpList[];
 
 #endif /* SCRIPT_H */

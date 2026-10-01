@@ -30,17 +30,21 @@ int iosPadRead(void *pad);
 void iosPadStickCameraCoord(void *a0, float *a1);
 /* pad.c's vibration enable flag (MAIN.MAP's pad.o .sdata name). */
 extern int iosPadActRequestEnable;
+/* pad.c's custom pad configuration, the record iosPadConnect takes for the
+   player's own button layout */
+extern struct PadConf iosPadConfCustom;
 int controler_stable_check(void *a0);
 void iosPadActInit(void);
 
 /* shocklist: one pad vibration, 8 bytes. Readers: ico2/fumi/ios/pad.c
  * (PadActDef), ico2/fumi/sound/s_init.c (SeInfo). Owner:
  * ico2/fumi/include/pad.h. */
-typedef struct {         /* field names derived */
-    int word0;           /* 0x00 */
-    short player;        /* 0x04 */
-    short life;          /* 0x06 */
-} PadActDef;             /* derived name */
+typedef struct {  /* field names derived */
+    int word0;    /* 0x00 */
+    short player; /* 0x04 */
+    short life;   /* 0x06 */
+} PadActDef;      /* derived name */
+
 extern const PadActDef shockList[];
 
 #endif /* PAD_H */

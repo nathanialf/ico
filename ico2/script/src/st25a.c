@@ -746,7 +746,7 @@ void actSt25aElevChk(GObj *volatile a0)
     _ACTWait(0);
 }
 
-void actSt25aGenerator(volatile unsigned int a0)
+void actSt25aGenerator(GObj *volatile a0)
 {
     Generator_Mask(a0);
 }

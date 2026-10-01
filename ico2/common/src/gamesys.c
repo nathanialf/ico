@@ -191,7 +191,7 @@ GamesysObjInfo *gamesysObjInfoEmptyAreaSearch(GamesysObjInfoReq *req)
     return p;
 }
 
-int *gamesysObjInfoBaseSet(int *self, int stage)
+GamesysObjInfo *gamesysObjInfoBaseSet(GObj *self, int stage)
 {
     GamesysObjInfoReq req;
     float dir[4];
@@ -202,10 +202,10 @@ int *gamesysObjInfoBaseSet(int *self, int stage)
        arm writes the record directly */
     GamesysObjInfoReq *r = &req;
 
-    req.no = self[2];
+    req.no = self->labelId;
     req.stage = stage;
 
-    switch (self[3]) {
+    switch (self->kind) {
     case 1:
         req.start = 0;
         req.end = 1;
@@ -235,11 +235,11 @@ int *gamesysObjInfoBaseSet(int *self, int stage)
         p->rot[1] =
             -((float)(int)(_GetDirection(dir) / 3.14159274f * 180.0f) * 3.14159274f / 180.0f);
         p->rot[0] = p->rot[2] = 0.0f;
-        if (self[3] == 0x11 && stage_no == 0xB) {
+        if (self->kind == 0x11 && stage_no == 0xB) {
             p->rot[1] =
                 (float)(int)(_GetDirection(dir) / 3.14159274f * 180.0f) * 3.14159274f / 180.0f;
         }
-        if (self[3] == 0xE) {
+        if (self->kind == 0xE) {
             memset((char *)v, 0, 0x10);
             v[2] = 1.0f;
             GetRootMatrix(m, self);
@@ -252,7 +252,7 @@ int *gamesysObjInfoBaseSet(int *self, int stage)
     } else {
         debug_StdPrintfDummy("gamesys: gamesysObjInfoPosSet:%d - %d \n", req.start, req.end);
     }
-    return (int *)p;
+    return p;
 }
 
 void gamesysBackStageProcess(void)
@@ -380,27 +380,27 @@ void gamesysObjInfoStageInitPosSaveUnlock(void)
     } while (i >= 0);
 }
 
-int *gamesysObjInfoPosSetStage(int *self, int a1, int a2, int a3)
+GamesysObjInfo *gamesysObjInfoPosSetStage(GObj *self, int a1, int a2, int a3)
 {
-    int *p = gamesysObjInfoBaseSet(self, a3);
-    ((GamesysObjInfo *)p)->work[0] = a1;
-    ((GamesysObjInfo *)p)->work[1] = a2;
+    GamesysObjInfo *p = gamesysObjInfoBaseSet(self, a3);
+    p->work[0] = a1;
+    p->work[1] = a2;
     return p;
 }
 
-int *gamesysObjInfoUniqDataSet(GObj *a0)
+GamesysObjInfo *gamesysObjInfoUniqDataSet(GObj *a0)
 {
-    int *p;
+    GamesysObjInfo *p;
     void (*fn)(int *, GObj *);
     ObjKindEnt *elem;
     int idx;
 
-    p = gamesysObjInfoBaseSet((int *)a0, stage_no);
+    p = gamesysObjInfoBaseSet(a0, stage_no);
     idx = a0->kind;
     elem = &objKindData[idx];
     fn = elem->uniqDataSet;
     if (fn != 0) {
-        fn(p + 12, a0);
+        fn(p->work, a0);
     }
     return p;
 }

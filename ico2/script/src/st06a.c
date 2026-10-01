@@ -668,7 +668,7 @@ inline void actSt06aPistonRideOffChk(GObj *volatile a0)
     while (scpTriggerFloorAttr(boyGObj, 0x6000000) != 0) {
         if (gflagChk(117) != 0) {
             debug_StdPrintfDummy("FALLDOWN!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n");
-            iosOmSendMail(boyGObj, 7, (int)boyGObj);
+            iosOmSendMail(boyGObj, 7, boyGObj);
         }
         _ACTWait(1);
     }

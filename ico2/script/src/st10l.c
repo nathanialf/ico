@@ -523,7 +523,7 @@ void actSt10lEnemy1_1(GObj *volatile a0)
     _ACTWait(1);
 
     Generator_Mask(a0);
-    Generator_Mask((int)scpSearchGobj(997));
+    Generator_Mask(scpSearchGobj(997));
 
     while (gflagChk(293) == 0) {
         _ACTWait(1);
@@ -532,7 +532,7 @@ void actSt10lEnemy1_1(GObj *volatile a0)
 
     Generator_Call(a0);
     Generator_MaskOff(a0);
-    Generator_Call((int)scpSearchGobj(997));
+    Generator_Call(scpSearchGobj(997));
 }
 
 void actSt10lEnemy1_2(GObj *volatile a0)

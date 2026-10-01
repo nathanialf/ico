@@ -11,7 +11,7 @@
 #include "typedef.h"
 
 void actSt24aDemoCamChk(GObj *volatile a0);
-void actSt24aSwordChk(volatile int self);
+void actSt24aSwordChk(struct GObj *volatile self);
 void actSt24aSwordSub(GObj *volatile a0);
 
 #endif /* ST24A_H */

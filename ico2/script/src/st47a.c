@@ -555,7 +555,7 @@ void actSt47aEnemy1(GObj *volatile a0)
 
     Generator_Mask(a0);
 
-    Generator_Mask((int)scpSearchGobj(513));
+    Generator_Mask(scpSearchGobj(513));
 
     while (gflagChk(53) == 0) {
         _ACTWait(1);
@@ -571,7 +571,7 @@ void actSt47aEnemy1(GObj *volatile a0)
     _ACTWait(60);
     Generator_Call(a0);
 
-    Generator_Call((int)scpSearchGobj(513));
+    Generator_Call(scpSearchGobj(513));
 }
 
 void actSt47aTorch(GObj *volatile a0)

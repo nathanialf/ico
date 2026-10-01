@@ -539,5 +539,5 @@ void actSt17aFallChk(GObj *volatile a0)
 
     debug_StdPrintfDummy("FAAAAALL!\n");
 
-    iosOmSendMail(boyGObj, 0xE2, (int)boyGObj);
+    iosOmSendMail(boyGObj, 0xE2, boyGObj);
 }

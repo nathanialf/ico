@@ -143,7 +143,7 @@ static const PoolMeshQuad poolReflactionQuad = {{{650.0f, 0.0f, 700.0f, 1.0f},
 void actSt02aDoorUpChk(GObj *volatile a0)
 {
     Act *sub = GOBJ_ACT(a0);
-    long long pos[2];
+    ConstVec pos;
     int h;
 
     while (scpTriggerFloorAttrTargetMan(a0, 0x1000000) == 0) {
@@ -153,14 +153,13 @@ void actSt02aDoorUpChk(GObj *volatile a0)
     actCreateSubThread(actSt02aDoorUpEffect, 21);
     scpWakeupItemWithBoundary(-1827.0f, -1072.0f, 2285.0f, 100.0f);
     stage_SetAnimation(97, 1, 0);
-    pos[0] = doorSePos.d[0];
-    pos[1] = doorSePos.d[1];
-    soundSeDefPlay(1220, 0, pos, 1);
+    pos = doorSePos;
+    soundSeDefPlay(1220, 0, pos.f, 1);
     _ACTWait(30);
-    h = soundSeDefPlay(1221, 0, pos, 1);
+    h = soundSeDefPlay(1221, 0, pos.f, 1);
     _ACTWait(30);
     soundSeDefStop(h);
-    soundSeDefPlay(1222, 0, pos, 1);
+    soundSeDefPlay(1222, 0, pos.f, 1);
     while (stage_CheckAnimationFinish(97) == 0) {
         _ACTWait(1);
     }
@@ -174,7 +173,7 @@ void actSt02aDoorUpChk(GObj *volatile a0)
 void actSt02aDoorDownChk(GObj *volatile a0)
 {
     Act *sub = GOBJ_ACT(a0);
-    long long pos[2];
+    ConstVec pos;
     int h;
 
     while (scpTriggerFloorAttrTargetMan(a0, 0x1000000) != 0) {
@@ -184,14 +183,13 @@ void actSt02aDoorDownChk(GObj *volatile a0)
     actCreateSubThread(actSt02aDoorDownEffect, 21);
     scpWakeupItemWithBoundary(-1827.0f, -1072.0f, 2285.0f, 100.0f);
     stage_SetAnimation(98, 1, 0);
-    pos[0] = doorSePos.d[0];
-    pos[1] = doorSePos.d[1];
-    soundSeDefPlay(1220, 0, pos, 1);
+    pos = doorSePos;
+    soundSeDefPlay(1220, 0, pos.f, 1);
     _ACTWait(30);
-    h = soundSeDefPlay(1221, 0, pos, 1);
+    h = soundSeDefPlay(1221, 0, pos.f, 1);
     _ACTWait(30);
     soundSeDefStop(h);
-    soundSeDefPlay(1222, 0, pos, 1);
+    soundSeDefPlay(1222, 0, pos.f, 1);
     while (stage_CheckAnimationFinish(98) == 0) {
         _ACTWait(1);
     }
@@ -541,7 +539,7 @@ void actSt02aEnemy2(GObj *volatile a0)
     _ACTWait(1);
 
     Generator_Mask(a0);
-    Generator_Mask((int)scpSearchGobj(1703));
+    Generator_Mask(scpSearchGobj(1703));
 
     while (gflagChk(122) == 0) {
         _ACTWait(1);
@@ -552,7 +550,7 @@ void actSt02aEnemy2(GObj *volatile a0)
     Generator_Call(a0);
     _ACTWait(60);
     Generator_Call(a0);
-    Generator_Call((int)scpSearchGobj(1703));
+    Generator_Call(scpSearchGobj(1703));
 }
 
 void actSt02aSekizo(GObj *volatile a0)

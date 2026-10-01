@@ -884,9 +884,6 @@ extern float GetDifferenceFromLowerField(int self, int a1);
 extern int GetMotionFrameFlag1(char *self);
 extern void IncreasePdlChain(int id);
 extern void DecreasePdlChain(int id);
-/* kept local: pad.h cannot declare it while camera-root.c declares it as a
-   char array */
-extern PadConf iosPadConfCustom;
 /* kept local: agrees with camera-root.h, which this TU does not include (GetCurrentCameraSet2 differ) */
 extern int InsertCameraWorkingFlag;
 /* kept local: agrees with camera-root.h, which this TU does not include (GetCurrentCameraSet2 differ) */
@@ -1747,7 +1744,7 @@ static inline int SwapBoyWeapon(void *oldW, void *newW, void *boy)
     }
     ReleaseWeapon(oldW);
     PutWeapon();
-    gamesysObjInfoPosSetStage((int *)oldW, 0, 0, stage_no);
+    gamesysObjInfoPosSetStage(oldW, 0, 0, stage_no);
     debug_StdPrintfDummy("%d -> %d\n", *(int *)((char *)oldW + 0x8), *(int *)((char *)newW + 0x8));
     return 1;
 }
@@ -1992,7 +1989,7 @@ void subBoyCollision(GObj *volatile a0)
             }
         }
         CommonAttackCenter((void *)a0);
-        ACTGame_SaveActorInformation((void *)a0);
+        ACTGame_SaveActorInformation(a0);
         if (*(unsigned int *)((char *)sub + 0x34) < 4 && sub->actMode != 0) {
             if (sub->padTrg & 0x20) {
                 int hit;
@@ -3723,7 +3720,7 @@ inline void DeleteBoyWeapon(void)
             memset(&buf, 0, 0x10);
             buf.f[0] = 10000000.0f;
             SetDirectRootPositionNoFitting((void *)sub->weapon, buf.f);
-            gamesysObjInfoPosSetStage((int *)sub->weapon, 0, 0, stage_no);
+            gamesysObjInfoPosSetStage(sub->weapon, 0, 0, stage_no);
             *(int *)((char *)sub->weapon + 0x16C) = 0;
         }
         characterPacket[2] = 0;

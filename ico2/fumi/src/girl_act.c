@@ -3743,7 +3743,7 @@ void subGirlCollision(GObj *volatile a0)
         if (cnt2) {
             cnt2--;
         }
-        ACTGame_SaveActorInformation((void *)a0);
+        ACTGame_SaveActorInformation(a0);
         if (((int *)boyGObj) != 0 && (void *)girlGObj != 0) {
             if (!ACTGame_CheckHandMotion(((int *)boyGObj), (void *)girlGObj)) {
                 ACTSendMailCorrect((void *)a0, 0x3E);
