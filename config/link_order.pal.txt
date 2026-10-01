@@ -3,7 +3,7 @@
 # The order is the retail link's object order as MAIN.MAP gives it: every
 # output section of config/link.pal.ld takes its inputs in this one order.
 # Until the cut-over it is re-derived from the splat link (config/ico.pal.ld and
-# build/ico.pal.map, last on 2026-09-30): the .text object order, each object
+# build/ico.pal.map, last on 2026-10-01): the .text object order, each object
 # with no .text and each data-only member placed where its other sections and
 # MAIN.MAP's member order put it, the five VU microprograms as their sources. tools/gen_ninja_plain.py reads it and fails
 # on any tracked .c/.s/.dsm under ico2/ or sce/ that is missing here, and on any
@@ -33,7 +33,10 @@
 #
 # Not listed: splat's cod/18ECB0 (the 80 zero bytes after .vutext; .reginfo is
 # not allocated, the gap is fill), cod/44D320.data (zero bytes past the end of
-# .data) and cod/539C54.lit4 (zero bytes past the end of .lit4).
+# .data), cod/539C54.lit4 (zero bytes past the end of .lit4), cod/538848.rodata
+# (no bytes), and eight zero pads that the next object's own section alignment
+# reproduces (cod/44A3CC.data, 44DB0C, 51EEC2, 51F182, 51F218, 51FA18 and
+# 51FBD8 .rodata, 53B8D9.sdata).
 
 sce/crt0.s
 sce/libkernl/klib.s
@@ -53,7 +56,6 @@ ico2/sugipon/src/motionManager2.c
 ico2/sugipon/src/pool.c
 ico2/sugipon/src/quaternion.c
 ico2/sugipon/src/tableSin.c
-blob:cod/44DB0C.rodata
 ico2/seki/src/DisplayP2O.c
 ico2/seki/src/FileManager.c
 ico2/seki/src/GifPacket.c
@@ -61,7 +63,6 @@ ico2/seki/src/GsBase.c
 ico2/seki/src/Light.c
 # ico2/seki/src/Matrix.c .data starts 16-aligned at 0x2908E0, 12 B after its predecessor; the object's section is 8-aligned
 ico2/seki/src/Matrix.c align.data=16
-blob:cod/0067BDD0.bss
 ico2/seki/src/MicroCode.c
 ico2/seki/src/Packet.c
 ico2/seki/src/Primitive.c
@@ -74,12 +75,10 @@ ico2/fumi/ios/cdvd.c
 ico2/fumi/ios/inflate.c
 ico2/fumi/ios/ios.c
 ico2/fumi/ios/mblock.c
-blob:cod/53A3E0.sdata
 ico2/fumi/ios/mcard.c
 ico2/fumi/ios/mcdata.c
 ico2/fumi/ios/memory.c
 ico2/fumi/ios/message.c
-blob:cod/53A4D8.sdata
 ico2/fumi/ios/pad.c
 ico2/fumi/ios/shockdriver.c
 ico2/fumi/ios/thread.c
@@ -130,7 +129,6 @@ ico2/ito/src/gather_effect.c
 ico2/ito/src/itou_boss.c
 ico2/ito/src/itou_gflag.c
 ico2/ito/src/itou_sub.c
-blob:cod/006E9A28.bss
 ico2/ito/src/lightning.c
 ico2/ito/src/queen.c
 ico2/ito/src/queen_barrier_disp.c
@@ -190,39 +188,30 @@ ico2/common/src/backStage.c
 blob:cod/53AC98.sdata
 ico2/common/src/charFileManager.c
 ico2/common/src/debug.c
-blob:cod/51C590.rodata
-ico2/common/src/debug_exception.c rodata=.rodata.0x0061CF00
-blob:cod/51CF14.rodata
-part:ico2/common/src/debug_exception.c rodata=.rodata,.rodata.0x0061CFF8,.rodata.[A-Za-z_]*
-blob:cod/51D008.rodata
+ico2/common/src/debug_exception.c
 ico2/common/src/debug_menu.c
 ico2/common/src/gamesys.c
 ico2/common/src/haveParentSimpleObj.c
 ico2/common/src/icoMisc.c
-blob:cod/53B268.sdata
+blob:cod/53B400.sdata
 ico2/common/src/kanban.c
 ico2/common/src/kanbanBoot.c
 ico2/common/src/layout_action.c
 ico2/common/src/layout_texture.c
 ico2/common/src/sceneManager.c
-blob:cod/3DA788.data
-blob:cod/53B5F8.sdata
 ico2/common/src/staffroll.c
 data:staffroll_dat
 ico2/sugipon/src/a_p_1.c
 ico2/sugipon/src/act_a_p_1.c
 ico2/sugipon/src/actressLight.c
-blob:cod/51EEC2.rodata
 ico2/sugipon/src/attackCheckBoundary.c
 ico2/sugipon/src/box.c
 ico2/sugipon/src/boy.c
-blob:cod/51F182.rodata
 ico2/sugipon/src/cage.c
 ico2/sugipon/src/cageFix.c
 ico2/sugipon/src/candle.c
 ico2/sugipon/src/chandelier.c
 ico2/sugipon/src/clipCollisionManager.c
-blob:cod/51F218.rodata
 ico2/sugipon/src/clothAnimation.c
 ico2/sugipon/src/clothTest.c
 ico2/sugipon/src/darkVolume.c
@@ -235,15 +224,11 @@ ico2/sugipon/src/frameDependSequence.c
 ico2/sugipon/src/girl.c
 ico2/sugipon/src/girlForceField.c
 ico2/sugipon/src/handManager.c
-blob:cod/3EB430.data
-blob:cod/51FA18.rodata
-blob:cod/53B8D9.sdata
 ico2/sugipon/src/item.c
 ico2/sugipon/src/lineManager.c
 ico2/sugipon/src/lodManager.c
 blob:cod/51FB51.rodata
 ico2/sugipon/src/motionFileManager.c
-blob:cod/51FBD8.rodata
 ico2/sugipon/src/motionManager.c
 ico2/sugipon/src/motionOrientManager.c
 ico2/sugipon/src/motionViewer.c
@@ -257,7 +242,6 @@ ico2/sugipon/src/ropeFix.c
 ico2/sugipon/src/rotObject.c
 ico2/sugipon/src/spider.c
 ico2/sugipon/src/spiderGroupManager.c
-blob:cod/00724098.bss
 ico2/sugipon/src/stageMultiBgaManager.c
 ico2/sugipon/src/staticBlur.c
 ico2/sugipon/src/stormTest.c
@@ -271,13 +255,11 @@ ico2/sugipon/src/windField.c
 ico2/sugipon/src/windManager.c
 ico2/sugipon/src/windmill.c
 ico2/sugipon/src/wireLetter.c
-# ico2/sugipon/src/worm.c .rodata starts 16-aligned at 0x621520, 8 B after its predecessor; the object's section is 8-aligned
-ico2/sugipon/src/worm.c align.rodata=16
+ico2/sugipon/src/worm.c
 ico2/seki/src/Basic.c
 ico2/seki/src/BgAnimation.c
 ico2/seki/src/DisplayFont.c
 ico2/seki/src/DisplayList.c
-blob:cod/53BCB8.sdata
 ico2/seki/src/DmaPacket.c
 ico2/seki/src/EnemyInit.c
 ico2/fumi/isys/gobj_cam_dl.c
@@ -289,7 +271,6 @@ ico2/fumi/src/seMail.c
 ico2/fumi/src/way_kidnap.c
 blob:cod/53BD40.sdata
 ico2/fumi/src/way_llf.c
-blob:cod/3F1EC0.data
 ico2/fumi/src/way_tool.c
 ico2/script/src/deja.c
 # ico2/script/src/e3.c .data starts 16-aligned at 0x4F79D0, 8 B after its predecessor; the object's section is 8-aligned
@@ -300,8 +281,6 @@ ico2/script/src/st00a.c
 ico2/script/src/st01b.c
 ico2/script/src/st02a.c
 ico2/script/src/st03t.c
-blob:cod/3F85D0.data
-blob:cod/522840.rodata
 ico2/script/src/st04a.c
 ico2/script/src/st04b.c
 ico2/script/src/st04c.c
@@ -314,8 +293,7 @@ ico2/script/src/st05c.c
 ico2/script/src/st05d.c
 ico2/script/src/st05e.c
 ico2/script/src/st06a.c
-# ico2/script/src/st07a.c .rodata starts 16-aligned at 0x622C60, 12 B after its predecessor; the object's section is 8-aligned
-ico2/script/src/st07a.c align.rodata=16
+ico2/script/src/st07a.c
 ico2/script/src/st08a.c
 ico2/script/src/st08b.c
 ico2/script/src/st09a.c
@@ -336,14 +314,13 @@ ico2/script/src/st24a.c
 ico2/script/src/st47a.c
 ico2/script/src/st99a.c
 ico2/script/src/stageSEProc.c
-blob:cod/00729C10.bss
 ico2/omori/src/access.c
 ico2/omori/src/objact.c
 ico2/ito/mpeg/mv_audiodec.c
 ico2/ito/mpeg/mv_disp.c
 ico2/ito/mpeg/mv_sub.c
 ico2/ito/mpeg/mv_vibuf.c
-blob:cod/53BDF0.sdata
+blob:cod/53C090.sdata
 ico2/common/src/GobjProc.c
 data:blend-motion-def
 data:enemy-def
@@ -399,7 +376,6 @@ sce/libgraph/graph005.c
 sce/libgraph/graph007.c
 sce/libvu0/libvu0.c
 sce/libdma/libdma.c
-blob:cod/44A3CC.data
 sce/libpkt/vifpk025.c
 sce/libpkt/vifpk026.c
 sce/libpkt/vifpk027.c
@@ -514,7 +490,6 @@ sce/libc/stdio/fread.c
 sce/libc/stdlib/freer.c
 sce/libc/stdio/fvwrite.c
 sce/libc/stdio/fwalk.c
-blob:cod/538848.rodata
 sce/libc/locale/locale.c
 sce/libc/stdio/makebuf.c
 sce/libc/stdlib/mallocr.c

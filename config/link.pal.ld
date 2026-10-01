@@ -9,7 +9,8 @@
  * output (a PHDRS command leaves .sbss/.bss out of its memsz).
  *
  * Transitional lines, gone at the cut-over:
- *  - the two INCLUDEs: while the order file still carries part:/<sec>= tokens,
+ *  - the two INCLUDEs: while the order file still carries part:, <sec>= or
+ *    align.<sec>= tokens (four align.data=16 lines on 2026-10-01),
  *    tools/gen_ninja_plain.py lists .data and .rodata input by input there;
  *    with none they are empty and the wildcard after them places everything.
  *
