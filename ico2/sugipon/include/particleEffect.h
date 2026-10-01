@@ -41,7 +41,7 @@ int SetParticleEffectActiveSensing(int id, void *pos, void *quat);
 int SetParticleEffectByPartition(int id, void *pos, void *quat, struct IosMemPart *part);
 void SetParticleEffectDrainLevel(int a0, float f);
 void SetParticleEffectGeometry(int id, void *pos, void *quat);
-void SetParticleEffectPackage(int a0, int *a1, int a2);
+void SetParticleEffectPackage(int no, int *data, int size);
 void SetParticleEffectPauseFlag(int a0, int a1);
 void SetParticleEffectUpperLimit(int no, float f);
 void SetParticleEffectClipEnableFlag(int a0, int a1);

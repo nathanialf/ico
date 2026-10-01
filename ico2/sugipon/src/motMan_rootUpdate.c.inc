@@ -13,7 +13,6 @@ extern ObjNode InitialObjPointer;
 extern void ClipWallAdjustPos(void *a0);
 /* as in fieldCollision.h, which this file does not include */
 extern void ClipWallE(void *a0);
-/* the two ints the demo timer keeps: the elapsed count and its divisor. */
 /* WallCfg here, FcColInfo in fieldCollision.h */
 extern WallCfg InitialColInfo;
 /* declared as ico2/sugipon/src/box.c declares it; fumi's act.c declares it
@@ -323,12 +322,12 @@ static inline void waveForceReaction(struct MotRoot *cur, float *last, float dy)
     }
 }
 
-inline int upperFieldCheck(float *a0, float f)
+inline int upperFieldCheck(float *pos, float dy)
 {
     ClipBuf buf;
-    CopyVector(&buf, a0);
-    CopyVector(buf.pt[1], a0);
-    buf.pt[1][1] = buf.pt[1][1] + f;
+    CopyVector(&buf, pos);
+    CopyVector(buf.pt[1], pos);
+    buf.pt[1][1] = buf.pt[1][1] + dy;
     ClipFloor(&buf);
     return buf.floor.n;
 }
@@ -494,9 +493,9 @@ static void setIKAndAdjustRootHeight(char *mv)
 
     makeRootFitPlane(pl.f, skelRoot);
 
-    AddVectorXYZ(&p0, nodePos2 + skelRoot->stepNode * 0x10, mv);
+    AddVectorXYZ(&p0, nodePos2 + skelRoot->stepNode * 16, mv);
 
-    AddVectorXYZ(&p1, nodePos2 + skelRoot->stepNode * 0x10, skelRoot->pos);
+    AddVectorXYZ(&p1, nodePos2 + skelRoot->stepNode * 16, skelRoot->pos);
 
     p1.f[1] = p1.f[1] - p0.f[1];
 
@@ -517,7 +516,7 @@ static void setIKAndAdjustRootHeight(char *mv)
     if (node != -1) {
         Vec16 p3;
 
-        AddVectorXYZ(&p2, nodePos2 + node * 0x10, skelRoot->pos);
+        AddVectorXYZ(&p2, nodePos2 + node * 16, skelRoot->pos);
 
         p2.f[1] = p1.f[1];
         CopyVector(&p3, &p2);
@@ -671,7 +670,7 @@ static inline int getFloorAttributeUnderNode(void) /* derived name */
 
     memset(&w, 0, 0xC0);
     node = GetSkeltonFocusNode((GObj *)skelGObj, 51);
-    _AddVectorXYZ(&w, skelRoot->pos, nodePos2 + node * 0x10);
+    _AddVectorXYZ(&w, skelRoot->pos, nodePos2 + node * 16);
     CopyVector(w.pt[1], &w);
     w.pt[0][1] = w.pt[0][1] - 50.0f;
     w.pt[1][1] = w.pt[1][1] + 50.0f;
@@ -703,8 +702,8 @@ static ObjNode rootUpdateXZ(int kind, int no)
     float mtx[16];
 
     GetMatrixFromQuaternion(mtx, skelRoot->quat);
-    sceVu0ApplyMatrix((int *)&mv, mtx, (char *)rootMove);
-    sceVu0ApplyMatrix((int *)&step, mtx, skelRoot->stepMove);
+    sceVu0ApplyMatrix(&mv, mtx, rootMove);
+    sceVu0ApplyMatrix(&step, mtx, skelRoot->stepMove);
     AddVectorXYZ(skelRoot->pos, skelRoot->pos, skelRoot->trans);
     AddVectorXYZ(skelRoot->last, skelRoot->last, skelRoot->trans);
 
@@ -712,7 +711,7 @@ static ObjNode rootUpdateXZ(int kind, int no)
         Vec16 focus;
 
         skelRoot->stepNode = no;
-        CopyVector(&focus, nodePos + no * 0x10);
+        CopyVector(&focus, nodePos + no * 16);
         switch (skelNode[no].kind) {
         case 47:
             skelRoot->stepNode = GetSkeltonFocusNode((GObj *)skelGObj, 48);
@@ -735,7 +734,7 @@ static ObjNode rootUpdateXZ(int kind, int no)
                 MatrixDrive_PushMatrix();
                 sceVu0UnitMatrix(MatrixDrive_GetMatrix());
                 MultiMatrixByQuaternion(skelRoot->quat);
-                sceVu0ApplyMatrix((int *)&nodePos, MatrixDrive_GetMatrix(), skelRoot->focusLocal);
+                sceVu0ApplyMatrix(&nodePos, MatrixDrive_GetMatrix(), skelRoot->focusLocal);
                 SubVectorXYZ(&dir, &nodePos, &focus);
                 MatrixDrive_PopMatrix();
                 CopyVector(&pl, &skelRoot->plane);
@@ -809,14 +808,14 @@ static ObjNode rootUpdateXZ(int kind, int no)
         MultiMatrixByQuaternion(skelRoot->quat);
         CopyVector((void *)(MatrixDrive_GetMatrix()[3]), ZeroPoint);
         sceVu0TransposeMatrix(MatrixDrive_GetMatrix(), MatrixDrive_GetMatrix());
-        sceVu0ApplyMatrix((int *)skelRoot->focusLocal, MatrixDrive_GetMatrix(), (char *)&focus);
+        sceVu0ApplyMatrix(skelRoot->focusLocal, MatrixDrive_GetMatrix(), &focus);
         MatrixDrive_PopMatrix();
         skelRoot->height = GetYDistanceFromPlane(&skelRoot->plane, skelRoot->pos);
         {
             Vec16 sum;
             float proj, gap;
 
-            AddVectorXYZ(&sum, nodePos2 + no * 0x10, skelRoot->pos);
+            AddVectorXYZ(&sum, nodePos2 + no * 16, skelRoot->pos);
             sceVu0CopyVector(skelRoot->footPos, &sum);
             skelRoot->footPos[3] = 1.0f;
             proj = GetYProjectionOfPlane(skelRoot->plane.f, sum.f);
@@ -904,8 +903,8 @@ static ObjNode rootUpdateXZ_MotPos(int kind, int no)
     int r;
 
     GetMatrixFromQuaternion(mtx, skelRoot->quat);
-    sceVu0ApplyMatrix((int *)&mv, mtx, (char *)rootMove);
-    sceVu0ApplyMatrix((int *)&step, mtx, rootStep);
+    sceVu0ApplyMatrix(&mv, mtx, rootMove);
+    sceVu0ApplyMatrix(&step, mtx, rootStep);
     AddVectorXYZ(skelRoot->pos, skelRoot->pos, &step);
 
     if (no != -1) {
@@ -977,7 +976,7 @@ static ObjNode rootUpdateXZ_MotPos(int kind, int no)
     return ret;
 }
 
-static int adjustSideWall(ClipBuf *w, int a1, Vec16 *wallPlane)
+static int adjustSideWall(ClipBuf *w, int nearTest, Vec16 *wallPlane)
 {
     WallCfg cfg = {((WallCfg *)&w->wall)->o, ((WallCfg *)&w->wall)->n};
     Vec16 pl0;
@@ -991,7 +990,7 @@ static int adjustSideWall(ClipBuf *w, int a1, Vec16 *wallPlane)
     d = (GetDistanceFromPlane(&pl0, w->pt[2]) < 0.0f ? -GetDistanceFromPlane(&pl0, w->pt[2])
                                                      : GetDistanceFromPlane(&pl0, w->pt[2])) -
         30.0f;
-    if (a1 != 0) {
+    if (nearTest != 0) {
         if ((d < 0.0f ? -d : d) < 30.0f) {
             return 1;
         }
@@ -1006,7 +1005,7 @@ static int adjustSideWall(ClipBuf *w, int a1, Vec16 *wallPlane)
     return 0;
 }
 
-static int checkSideWall(float *probe, float *mtx, ClipBuf *p, ClipBuf *a3, Vec16 *wallPlane)
+static int checkSideWall(float *probe, float *mtx, ClipBuf *p, ClipBuf *base, Vec16 *wallPlane)
 {
     char buf[16];
     int flag;
@@ -1014,7 +1013,7 @@ static int checkSideWall(float *probe, float *mtx, ClipBuf *p, ClipBuf *a3, Vec1
     int mask;
 
     p->rad = 0.0f;
-    CopyVector(p, a3);
+    CopyVector(p, base);
     sceVu0ApplyMatrix(p->pt[1], mtx, probe);
     ClipWall(p);
 
@@ -1044,10 +1043,10 @@ static int checkSideWall(float *probe, float *mtx, ClipBuf *p, ClipBuf *a3, Vec1
             if (flag != 0) {
                 return adjustSideWall(p, 0, wallPlane);
             }
-            goto block12;
+            goto side_probe;
         }
     }
-block12:
+side_probe:
     _ApplyMatrix(buf, mtx, sideWallProbe);
     CopyVector(p, (void *)p->pt[1]);
     _AddVectorXYZ(p->pt[1], p, buf);
@@ -1056,7 +1055,7 @@ block12:
         goto disp_one;
     }
     CopyVector(p, (void *)p->pt[1]);
-    CopyVector((void *)p->pt[1], a3->pt[1]);
+    CopyVector((void *)p->pt[1], base->pt[1]);
     ClipWall(p);
     if (p->wall.n != 0) {
     disp_one:
@@ -1120,25 +1119,24 @@ static void calcWallFittingGeometry(void)
     short ang;
 
     GetWallGlobalInfo(0, &v, skelRoot->wall.n,
-                      *(char **)(*(char **)(*(char **)&skelRoot->wall + 0x15C) + 0xC) +
-                          skelRoot->wall.o.node * 0x40);
+                      (char *)GOBJ_SUB(skelRoot->wall.o.obj)->nodeMtx + skelRoot->wall.o.node * 64);
     MatrixDrive_SetTransposeMatrix(mtx, MatrixDrive_GetMatrix());
-    _ApplyMatrix(&v, mtx, (char *)&v);
+    _ApplyMatrix(&v, mtx, &v);
     v.f[0] = 0.0f;
     _NormalizeVector(&v, &v);
     ang = (short)(atan2f(v.f[1], -v.f[2]) * 10430.378f);
     RotQuaternionX(skelRoot->quat, ang);
     MatrixDrive_PushMatrix();
-    _ApplyMatrix(&base, MatrixDrive_GetMatrix(), (char *)rootMove);
+    _ApplyMatrix(&base, MatrixDrive_GetMatrix(), rootMove);
     MatrixDrive_RotMatrixX(ang);
-    _ApplyMatrix(&rot, MatrixDrive_GetMatrix(), (char *)rootMove);
+    _ApplyMatrix(&rot, MatrixDrive_GetMatrix(), rootMove);
     _SubVector(skelRoot->trans, &rot, &base);
     skelRoot->trans[3] = 0.0f;
     MatrixDrive_PopMatrix();
     skelRoot->height = 0.0f;
 }
 
-static ObjNode rootUpdateHang(int kind, int a1, int a2)
+static ObjNode rootUpdateHang(int kind, int hand1Pt, int hand0Pt)
 {
     Vec16 mv;
     Vec16 up;
@@ -1151,8 +1149,8 @@ static ObjNode rootUpdateHang(int kind, int a1, int a2)
     int hit;
 
     GetMatrixFromQuaternion(mtx, skelRoot->quat);
-    sceVu0ApplyMatrix((int *)&up, mtx, (char *)rootMove);
-    sceVu0ApplyMatrix((int *)&mv, mtx, (char *)rootStep);
+    sceVu0ApplyMatrix(&up, mtx, rootMove);
+    sceVu0ApplyMatrix(&mv, mtx, rootStep);
     AddVectorXYZ(skelRoot->pos, skelRoot->pos, &mv);
     skelRoot->height = rootMove[1];
     hit = 0;
@@ -1163,8 +1161,8 @@ static ObjNode rootUpdateHang(int kind, int a1, int a2)
     MatrixDrive_TransMatrix(0.0f, 0.0f, -rootMove[2] - 10.0f);
     CopyMatrix(mtx2, (void *)MatrixDrive_GetMatrix());
     MatrixDrive_PopMatrix();
-    sceVu0ApplyMatrix((int *)&w, mtx2, (char *)hangBack);
-    sceVu0ApplyMatrix((int *)w.pt[1], mtx2, (char *)hangFront);
+    sceVu0ApplyMatrix(&w, mtx2, hangBack);
+    sceVu0ApplyMatrix(w.pt[1], mtx2, hangFront);
     w.rad = 0.0f;
 
     /* the work records, in a block of their own */
@@ -1293,18 +1291,17 @@ static ObjNode rootUpdateSwim(void)
 
     node = GetSkeltonFocusNode((GObj *)skelGObj, 34);
     GetMatrixFromQuaternion(mtx, skelRoot->quat);
-    sceVu0ApplyMatrix((int *)&v, mtx, rootStep);
+    sceVu0ApplyMatrix(&v, mtx, rootStep);
     v.f[0] = v.f[0] * 0.2f;
     v.f[1] = v.f[1] * 0.2f;
     v.f[2] = v.f[2] * 0.2f;
     sceVu0AddVector(skelRoot->move, skelRoot->move, &v);
     GetLowerPlaneCollision(&w, skelRoot->pos);
-    if (GetWaterReaction(0, 0, &w, skelRoot->pos, skelRoot->move, skelRoot->pos[1] - 80.0f,
-                         skelRoot->pos[1] + *(float *)(nodePos + node * 0x10 + 4),
-                         skelRoot->pos[1] + 80.0f, 0.9f,
-                         60.0f / (float)((60 - systemStatus[0] * 10) / systemStatus[1]) * -0.1f *
-                             (60.0f / (float)((60 - systemStatus[0] * 10) / systemStatus[1]))) !=
-        0) {
+    if (GetWaterReaction(
+            0, 0, &w, skelRoot->pos, skelRoot->move, skelRoot->pos[1] - 80.0f,
+            skelRoot->pos[1] + *(float *)(nodePos + node * 16 + 4), skelRoot->pos[1] + 80.0f, 0.9f,
+            60.0f / (float)((60 - systemStatus[0] * 10) / systemStatus[1]) * -0.1f *
+                (60.0f / (float)((60 - systemStatus[0] * 10) / systemStatus[1]))) != 0) {
         float depth = 10.0f;
 
         if (w.pt[2][1] - depth < skelRoot->pos[1]) {
@@ -1344,8 +1341,8 @@ static inline void clipWallAhead(ClipBuf *w) /* derived name */
     float mtx[16];
 
     GetMatrixFromQuaternionPos(mtx, skelRoot->quat, skelRoot->pos);
-    sceVu0ApplyMatrix((int *)w, mtx, (char *)clipWallBack);
-    sceVu0ApplyMatrix((int *)w->pt[1], mtx, (char *)clipWallFront);
+    sceVu0ApplyMatrix(w, mtx, clipWallBack);
+    sceVu0ApplyMatrix(w->pt[1], mtx, clipWallFront);
     w->rad = 0.0f;
     ClipWall(w);
 }
@@ -1414,13 +1411,13 @@ static ObjNode rootUpdateStepSolution(int kind)
     int i;
 
     GetMatrixFromQuaternion(mtx, skelRoot->quat);
-    sceVu0ApplyMatrix((int *)&mv, mtx, (char *)rootStep);
-    sceVu0ApplyMatrix((int *)&up, mtx, (char *)rootMove);
+    sceVu0ApplyMatrix(&mv, mtx, rootStep);
+    sceVu0ApplyMatrix(&up, mtx, rootMove);
     if (stepFocusNode != -1) {
         node = GetSkeltonFocusNode((GObj *)skelGObj, stepFocusNode);
-        _SubVectorXYZ(&d2, (char *)GOBJ_SUB(skelGObj)->nodeMtx + node * 0x40 + 0x30,
-                      (char *)GOBJ_SUB(skelGObj)->nodeMtx + 0x30);
-        _SubVectorXYZ(&d1, nodePos2 + node * 0x10, &d2);
+        _SubVectorXYZ(&d2, (char *)GOBJ_SUB(skelGObj)->nodeMtx + node * 64 + 48,
+                      (char *)GOBJ_SUB(skelGObj)->nodeMtx + 48);
+        _SubVectorXYZ(&d1, nodePos2 + node * 16, &d2);
         _SubVectorXYZ(skelRoot->pos, skelRoot->pos, &d1);
     } else {
         AddVectorXYZ(skelRoot->pos, skelRoot->pos, &mv);
@@ -1562,15 +1559,15 @@ static ObjNode rootUpdateStepSolution(int kind)
     return cfg.o;
 }
 
-static ObjNode rootUpdateTrueMotion(int a0)
+static ObjNode rootUpdateTrueMotion(int kind)
 {
     float mtx[16];
     Vec16 v;
-    int noMove = a0;
+    int noMove = kind;
 
     GetMatrixFromQuaternion(mtx, skelRoot->quat);
     if (noMove == 0) {
-        sceVu0ApplyMatrix((int *)&v, mtx, (char *)rootMove);
+        sceVu0ApplyMatrix(&v, mtx, rootMove);
         v.f[1] = v.f[1] + skelNode->pos[1];
         v.f[0] = v.f[2] = 0.0f;
         CopyVector(skelRoot->trans, &v);
@@ -1603,9 +1600,9 @@ static ObjNode rootUpdateDirectPlayForStream(void)
     return InitialObjPointer;
 }
 
-static ObjNode rootUpdateDirectPlay(int a0)
+static ObjNode rootUpdateDirectPlay(int mode)
 {
-    int kind = a0;
+    int kind = mode;
     float *p;
     float s;
 
@@ -1644,15 +1641,14 @@ static ObjNode rootUpdateNodeFix(void)
         Vec16 v;
 
         GetMatrixFromQuaternion(mtx, q);
-        sceVu0ApplyMatrix((int *)&v, mtx, ZUnitVector);
+        sceVu0ApplyMatrix(&v, mtx, ZUnitVector);
         v.f[1] = 0.0f;
         sceVu0Normalize(&v, &v);
         SetIdentityQuaternion(skelRoot->quat);
         RotQuaternionY(skelRoot->quat, -GetTableArcTan2(v.f[0], -v.f[2]));
         MultiQuaternion(skelRoot->quat, skelRoot->quat, skelRoot->fixQuat);
         CopyMatrix((void *)MatrixDrive_GetMatrix(),
-                   *(char **)(*(char **)(skelRoot->fixObj + 0x15C) + 0xC) +
-                       skelRoot->fixNode * 0x40);
+                   (char *)GOBJ_SUB(skelRoot->fixObj)->nodeMtx + skelRoot->fixNode * 64);
         MatrixDrive_TransMatrixV(skelRoot->fixPos);
         UnitRotation(MatrixDrive_GetMatrix());
         MultiMatrixByQuaternion(skelRoot->quat);
@@ -1664,15 +1660,13 @@ static ObjNode rootUpdateNodeFix(void)
     Vec16 va;
     Vec16 vb;
 
-    CopyQuaternion(&rq, *(char **)(*(char **)(skelRoot->fixObj + 0x15C) + 0x10) +
-                            skelRoot->fixNode * 0x10);
+    CopyQuaternion(&rq, (char *)GOBJ_SUB(skelRoot->fixObj)->nodeQuat + skelRoot->fixNode * 16);
     switch (skelRoot->fixMode) {
     default:
     case 0:
         MultiQuaternion(skelRoot->quat, &rq, skelRoot->fixQuat);
         CopyMatrix((void *)MatrixDrive_GetMatrix(),
-                   *(char **)(*(char **)(skelRoot->fixObj + 0x15C) + 0xC) +
-                       skelRoot->fixNode * 0x40);
+                   (char *)GOBJ_SUB(skelRoot->fixObj)->nodeMtx + skelRoot->fixNode * 64);
         MultiMatrixByQuaternion(skelRoot->fixQuat);
         MatrixDrive_TransMatrixV(skelRoot->fixPos);
         MatrixDrive_TransMatrix(rootMove[0], rootMove[1], rootMove[2]);
@@ -1682,7 +1676,7 @@ static ObjNode rootUpdateNodeFix(void)
         break;
     case 3:
         GetRootQuaternion(&rq, skelRoot->fixObj);
-        MultiQuaternion(&rq, &rq, *(char **)(skelRoot->fixObj + 0x15C) + 0xE0);
+        MultiQuaternion(&rq, &rq, GOBJ_SUB(skelRoot->fixObj)->root.motionQuat);
         /* fall through */
     case 2:
         keepVerticalZWithQ(&rq);
@@ -1719,8 +1713,8 @@ static ObjNode rootUpdateY(void)
     int i;
 
     GetMatrixFromQuaternion(mtx, skelRoot->quat);
-    sceVu0ApplyMatrix((int *)&mv, mtx, (char *)rootMove);
-    sceVu0ApplyMatrix((int *)&mv2, mtx, (char *)rootStep);
+    sceVu0ApplyMatrix(&mv, mtx, rootMove);
+    sceVu0ApplyMatrix(&mv2, mtx, rootStep);
 
     CopyVector(skelRoot->move, &mv2);
     sceVu0AddVector(skelRoot->pos, skelRoot->pos, skelRoot->move);
@@ -1791,7 +1785,7 @@ static ObjNode rootUpdateY(void)
 }
 
 /* the parameter is unused */
-static ObjNode rootUpdateY_Rope(int a0)
+static ObjNode rootUpdateY_Rope(int actPt)
 {
     float mtx[16];
     Vec16 dir;
@@ -1805,7 +1799,7 @@ static ObjNode rootUpdateY_Rope(int a0)
     mode = skelRoot->ropeState;
     if (mode >= 2) {
         GetMatrixFromQuaternion(mtx, skelRoot->quat);
-        sceVu0ApplyMatrix((int *)&dir, mtx, (char *)rootMove);
+        sceVu0ApplyMatrix(&dir, mtx, rootMove);
         sceVu0AddVector(&pos, skelRoot->holdPoint, &dir);
         skelRoot->pos[0] = pos.f[0];
         skelRoot->pos[2] = pos.f[2];
@@ -1815,7 +1809,7 @@ static ObjNode rootUpdateY_Rope(int a0)
         v.f[0] = skelRoot->pos[0];
         v.f[1] = skelRoot->pos[1];
         v.f[2] = skelRoot->pos[2];
-        _SubVector(skelRoot->pos, skelRoot->holdPoint, nodePos2 + node * 0x10);
+        _SubVector(skelRoot->pos, skelRoot->holdPoint, nodePos2 + node * 16);
         if (skelRoot->ropeState < 0) {
             _InterGV(skelRoot->pos, v.f, skelRoot->pos, ropeInterRate, 1.0f);
         }
@@ -1826,7 +1820,6 @@ static ObjNode rootUpdateY_Rope(int a0)
     skelRoot->radius = 60.0f;
     wallCollisionAndFloorFit(cur.f, v.f, 5.0f);
     skelRoot->radius = save;
-    /* 0xEC is the float landingFieldAction and rootUpdateFly write. */
     skelMotCtrl->fallHeight = 0.0f;
     skelRoot->height = 0.0f;
     SubVectorXYZ(skelRoot->move, skelRoot->pos, skelRoot->last);

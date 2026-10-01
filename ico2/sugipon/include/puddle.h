@@ -10,19 +10,19 @@
 
 struct GObj;
 
-void baseSetup(struct GObj *a0);
+void baseSetup(struct GObj *self);
 void copy(int pri);
 void drawAreaRestore(void);
 void drawAreaSetup(void);
 void drawRipple(float t, void *pos);
-void drawRipples(struct GObj *a0, int pri);
+void drawRipples(struct GObj *self, int pri);
 void leveldown(int pri);
 
 struct PuddleWork;
 
 struct SObjSimpleSetting;
 
-struct PuddleWork *InitPuddleGeo(struct GObj *a0, struct SObjSimpleSetting *a1);
-void PuddleDL(struct GObj *a0);
+struct PuddleWork *InitPuddleGeo(struct GObj *self, struct SObjSimpleSetting *setting);
+void PuddleDL(struct GObj *self);
 
 #endif /* PUDDLE_H */

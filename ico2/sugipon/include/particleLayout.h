@@ -11,9 +11,9 @@
 /* The declarations below lead this header because their order is load-bearing:
  * gcc 2.9 emits the deferred out-of-line copy of a plain-inline function in
  * first-declaration order, so this is the order particleLayout.c's inline tail has. */
-int *InitParticleLayoutGeo(struct GObj *self, int *other);
+int *InitParticleLayoutGeo(struct GObj *self, int *layout);
 void ParticleLayoutDL(void);
-void DeleteParticleLayout(struct GObj *a0);
+void DeleteParticleLayout(struct GObj *self);
 
 struct GObj;
 

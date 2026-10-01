@@ -397,10 +397,9 @@ static inline int updateParticle(PEGeo *self, float *m) /* derived name */
     return 1;
 }
 
-static int execParticleEffect(void *a0)
+static int execParticleEffect(PEGeo *self)
 {
     float m[16];
-    PEGeo *self;
     PEPartRec *part;
     PEPartRec *base;
     PEVtx *d0;
@@ -413,7 +412,6 @@ static int execParticleEffect(void *a0)
     float total;
     float next;
 
-    self = a0;
     d0 = (PEVtx *)self->prim->vtx;
     flags = 0;
     if (particleEffectOffScreen(self)) {
@@ -461,10 +459,10 @@ static int execParticleEffect(void *a0)
 
 /* the GS-register writer, a file-static copy of gif_SetGsReg (the same
    construct src/GifPacket.c uses); the out-of-line copy is in src/GifPacket.c */
-static inline void peSetGsReg(long long a0, long long a1) /* derived name */
+static inline void peSetGsReg(long long reg, long long data) /* derived name */
 {
-    *PacketBufferStruct.ptr.d++ = a1;
-    *PacketBufferStruct.ptr.d++ = a0;
+    *PacketBufferStruct.ptr.d++ = data;
+    *PacketBufferStruct.ptr.d++ = reg;
 }
 
 static void dispParticleEffect(PEGeo *geo)
@@ -580,14 +578,14 @@ static inline void deleteParticleEffectGeo(int no) /* derived name */
     particleEffects[no].geo = 0;
 }
 
-void SetParticleEffectGeometry(int a0, void *a1, void *a2)
+void SetParticleEffectGeometry(int id, void *pos, void *quat)
 {
-    if (a0 >= 0) {
-        if (particleEffects[a0].used == 0) {
+    if (id >= 0) {
+        if (particleEffects[id].used == 0) {
             debug_StdPrintfDummy(
                 "\033[36mError!!! Set geometry for release type particle.\033[m\n");
         } else {
-            setParticleEffectGeometry(particleEffects[a0].geo, a1, a2);
+            setParticleEffectGeometry(particleEffects[id].geo, pos, quat);
         }
     }
 }
@@ -724,14 +722,14 @@ static PEPackage defaultPackage = {
 
 static sceVu0FVECTOR spreadVector = {0.0f, 0.0f, 1.0f, 0.0f}; /* derived name */
 
-void SetParticleEffectPackage(int a0, int *a1, int a2)
+void SetParticleEffectPackage(int no, int *data, int size)
 {
-    *(PEPackage *)((unsigned char *)particleParams + a0 * 160) = defaultPackage;
-    if (*(int *)&defaultPackage != *a1) {
+    *(PEPackage *)((unsigned char *)particleParams + no * 160) = defaultPackage;
+    if (*(int *)&defaultPackage != *data) {
         debug_StdPrintfDummy("\033[36mThis is old version(%d) file. May be an error occur.\033[m\n",
-                             *a1);
+                             *data);
     }
-    memcpy(((unsigned char *)particleParams + a0 * 160), a1, a2);
+    memcpy(((unsigned char *)particleParams + no * 160), data, size);
 }
 
 void InitParticleEffects(void)

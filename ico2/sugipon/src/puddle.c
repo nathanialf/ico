@@ -80,21 +80,21 @@ static float savedMatrix340[16]; /* derived name */
 
 /* declared here with a void return; string.h is not included */
 extern void memset(void *p, int c, int n);
-void PuddleGeo(GObj *a0);
-void EntryRippleToPuddle(GObj *a0, void *vec);
-int puddleRideFunc(ObjNode *a0, GObj *a1);
+void PuddleGeo(GObj *self);
+void EntryRippleToPuddle(GObj *self, void *vec);
+int puddleRideFunc(ObjNode *on, GObj *rider);
 
-PuddleWork *InitPuddleGeo(GObj *a0, SObjSimpleSetting *a1)
+PuddleWork *InitPuddleGeo(GObj *self, SObjSimpleSetting *setting)
 {
-    PuddleWork *w = (PuddleWork *)iosMallocDebug(ios_partition_sugipon, 0xD0, __FILE__, 69);
+    PuddleWork *w = (PuddleWork *)iosMallocDebug(ios_partition_sugipon, 208, __FILE__, 69);
     float *v;
     int i;
 
-    w->reflect = CSVSYSTEM_InitDObj(accessary[GOBJ_SUB(a0)->accessary].model, a1);
+    w->reflect = CSVSYSTEM_InitDObj(accessary[GOBJ_SUB(self)->accessary].model, setting);
 
     v = spokeDir;
     for (i = 0; i < 9; i++) {
-        short s = i * 0x2000;
+        short s = i * 8192;
 
         v[0] = GetTableCos(s);
         v[2] = GetTableSin(s);
@@ -109,17 +109,17 @@ PuddleWork *InitPuddleGeo(GObj *a0, SObjSimpleSetting *a1)
         w->rip[i] = rippleInit;
     }
 
-    GOBJ_SUB(a0)->rideFunc = puddleRideFunc;
+    GOBJ_SUB(self)->rideFunc = puddleRideFunc;
     return w;
 }
 
-void baseSetup(GObj *a0)
+void baseSetup(GObj *self)
 {
     gif_StartPacketPri(4);
     gif_SetDrawEnviroment(0x800, 0, ScreenWidth, ScreenHeight, 1, 0);
     gif_SetZTest(0);
     gif_SetZWrite(0);
-    gif_SetAlpha(1, 5, 0x80);
+    gif_SetAlpha(1, 5, 128);
 
     {
         PuddleRect r = {-ScreenWidth / 2 * 16, -ScreenHeight / 2 * 16, ScreenWidth * 16,
@@ -136,7 +136,7 @@ void baseSetup(GObj *a0)
     gif_SetZTest(1);
     gif_EndPacket();
 
-    reg_RenderReflection(a0->dobj, 4);
+    reg_RenderReflection(self->dobj, 4);
 }
 
 /* the sprite rectangle drawAreaSetup blits the frame through, in GS primitive
@@ -331,9 +331,9 @@ void drawRipple(float t, void *pos)
     gif_DrawStripFST(stripUpper, stripLower, col, 0x12, 1);
 }
 
-void drawRipples(GObj *a0, int pri)
+void drawRipples(GObj *self, int pri)
 {
-    PuddleWork *w = GOBJ_SUB(a0)->work;
+    PuddleWork *w = GOBJ_SUB(self)->work;
     Ripple *p;
     float *t;
     int i;
@@ -367,27 +367,27 @@ void drawRipples(GObj *a0, int pri)
     gif_EndPacket();
 }
 
-void PuddleDL(GObj *a0)
+void PuddleDL(GObj *self)
 {
-    Sub15C *p = ((PuddleWork *)GOBJ_SUB(a0)->work)->reflect;
+    Sub15C *p = ((PuddleWork *)GOBJ_SUB(self)->work)->reflect;
 
-    baseSetup(a0);
+    baseSetup(self);
     drawAreaSetup();
     _UnitMatrix(MatrixDrive_GetMatrix());
     CopyMatrix((void *)p->nodeMtx, MatrixDrive_GetMatrix());
     reg_RenderReflection(p, 4);
     drawAreaRestore();
     leveldown(4);
-    drawRipples(a0, 4);
+    drawRipples(self, 4);
     copy(4);
 }
 
-inline void PuddleGeo(GObj *a0)
+inline void PuddleGeo(GObj *self)
 {
     char *p;
     int i;
 
-    p = GOBJ_SUB(a0)->work;
+    p = GOBJ_SUB(self)->work;
     for (i = 0; i < 6; i++) {
         if (*(float *)(p + 0x20) < 200.0f) {
             *(float *)(p + 0x20) +=
@@ -397,11 +397,11 @@ inline void PuddleGeo(GObj *a0)
     }
 }
 
-inline void EntryRippleToPuddle(GObj *a0, void *vec)
+inline void EntryRippleToPuddle(GObj *self, void *vec)
 {
     PuddleWork *w;
 
-    w = GOBJ_SUB(a0)->work;
+    w = GOBJ_SUB(self)->work;
     CopyVector(w->rip[w->idx].pos, vec);
     w->rip[w->idx].t = 0.0f;
     w->idx = w->idx + 1;
@@ -410,18 +410,18 @@ inline void EntryRippleToPuddle(GObj *a0, void *vec)
     }
 }
 
-inline int puddleRideFunc(ObjNode *a0, GObj *a1)
+inline int puddleRideFunc(ObjNode *on, GObj *rider)
 {
     float v[4];
     Sub15C *e;
     int n;
 
-    e = a1->dobj;
+    e = rider->dobj;
     if (e->ctrl.landed != 0) {
         n = e->root.standNode;
         if (n != -1) {
-            CopyVector(v, (char *)e->nodeMtx + n * 0x40 + 0x30);
-            EntryRippleToPuddle(a0->obj, v);
+            CopyVector(v, (char *)e->nodeMtx + n * 64 + 48);
+            EntryRippleToPuddle(on->obj, v);
         }
     }
     return 1;

@@ -202,21 +202,21 @@ MotionOrientEntry *getMotionOrient(int i, int n, int id, int kind);
 void CopyBlendMotionDataSource(void *self, short ang);
 void SetParallelMotionTableWithNoRequest(void *self, int *next, int *req);
 void SetParallelMotionTable(void *self, int *next, int *req, int from, int mode);
-void InitMotionOrient(void *self, int a1, int a2, int a3, int a4, int a5);
+void InitMotionOrient(void *self, int oriFrom, int oriTo, int limitFrom, int limitTo, int motion);
 
 struct GObj;
 
-unsigned int GetCurrentMotionDirectionAdjustFlag(struct GObj *a0);
-int ExecuteSlipProc(struct GObj *a0);
-int ExecutePauseSlipProc(struct GObj *a0);
+unsigned int GetCurrentMotionDirectionAdjustFlag(struct GObj *self);
+int ExecuteSlipProc(struct GObj *self);
+int ExecutePauseSlipProc(struct GObj *self);
 void ExecMotionOrient(void *self);
 float GetMotionPlaySpeedRatio(int id);
 int GetNbMotionFrames(int id);
 int UpdateFrameCounter(void *self);
 char *SetMotionRequest(void *self, int mot, MotOriReq req);
-void SetNodeRotationLimitDataTable(void *self, int a1, int a2);
+void SetNodeRotationLimitDataTable(void *self, int from, int to);
 /* the rope interpolation rate the chain sets (motionOrientManager.c) */
 extern float ropeInterRate;
-void ForTest_ForceShiftMotion(int a0, int a1);
+void ForTest_ForceShiftMotion(int obj, int motion);
 
 #endif /* MOTIONORIENTMANAGER_H */

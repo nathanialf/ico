@@ -13,10 +13,10 @@
    arguments than this file passes */
 extern void p2o_DispVU1();
 
-inline short *InitMoveColTestGeo(int a0, int *self)
+inline short *InitMoveColTestGeo(int gobj, int *layout)
 {
     short *r = iosMallocDebug(ios_partition_sugipon, 12, "src/moveColTest.c", 28);
-    *(int *)r = self[0x30 / 4];
+    *(int *)r = layout[12];
     r[2] = (short)rand();
     r[3] = (short)rand();
     r[4] = (short)rand();

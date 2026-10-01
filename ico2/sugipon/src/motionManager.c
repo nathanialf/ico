@@ -173,16 +173,16 @@ extern void ClipWallFuchiHangWalkStop(void *a0);
 /* int (void *) here, int (int) in fieldCollision.h */
 extern int GetWallAttribute(void *a0);
 static ObjNode rootUpdateDirectPlayForStream(void);
-static ObjNode rootUpdateXZ(int a0, int a1);
-static ObjNode rootUpdateXZ_MotPos(int a0, int a1);
-static ObjNode rootUpdateStepSolution(int a0);
-static ObjNode rootUpdateHang(int a0, int a1, int a2);
+static ObjNode rootUpdateXZ(int kind, int no);
+static ObjNode rootUpdateXZ_MotPos(int kind, int no);
+static ObjNode rootUpdateStepSolution(int kind);
+static ObjNode rootUpdateHang(int kind, int hand1Pt, int hand0Pt);
 static ObjNode rootUpdateSwim(void);
 static ObjNode rootUpdateNodeFix(void);
 static ObjNode rootUpdateY(void);
-static ObjNode rootUpdateY_Rope(int a0);
-static ObjNode rootUpdateTrueMotion(int a0);
-static ObjNode rootUpdateDirectPlay(int a0);
+static ObjNode rootUpdateY_Rope(int actPt);
+static ObjNode rootUpdateTrueMotion(int kind);
+static ObjNode rootUpdateDirectPlay(int mode);
 static ObjNode rootUpdateFly(void);
 static ObjNode rootUpdateEnemyFly(void);
 /* void (int, int) here, void (char *, int) in fieldCollision.h */
@@ -200,7 +200,7 @@ extern void ClipWallField(void *a0);
 extern void DrawCollisionRay(void *a0);
 /* declared here: DisplayP2O.h does not compile in this file (too few arguments to function `p2o_DispVU1') */
 extern void p2o_DispVU1();
-static void getInitialMatrix(Sub15C *a0, int a1);
+static void getInitialMatrix(Sub15C *obj, int idx);
 /* void () here, void (void *) in fieldCollision.h */
 extern void ClipFloor();
 
@@ -274,7 +274,7 @@ static int findActPoint(int *list)
                 continue;
             }
         }
-        v = *(int *)(skelMotion + i * 0x20);
+        v = *(int *)(skelMotion + i * 32);
         if (v < minVal || (v == minVal && order < bestOrder)) {
             ret = i;
             minVal = v;
@@ -301,10 +301,10 @@ static int checkActPointWithHeight(int kind, float h)
     for (i = 0; i < skelNodeNum; i++) {
         if (skelNode[i].kind == kind) {
             float d;
-            if (*(int *)(skelMotion + i * 0x20) >= 249) {
+            if (*(int *)(skelMotion + i * 32) >= 249) {
                 return -1;
             }
-            d = *(float *)(nodePos + i * 0x10 + 4) + rootMove[1];
+            d = *(float *)(nodePos + i * 16 + 4) + rootMove[1];
             if ((d < 0.0f ? -d : d) < h) {
                 return kind;
             }
@@ -362,11 +362,11 @@ static void clearCollisionStatus(void)
 static void checkUpperWallState(void)
 {
     ClipBuf buf;
-    memset(&buf, 0, 0xC0);
+    memset(&buf, 0, sizeof(buf));
     MatrixDrive_PushMatrix();
     MatrixDrive_TransMatrixV(wallCheckBase);
     CopyVector(&buf, (void *)(MatrixDrive_GetMatrix()[3]));
-    sceVu0ApplyMatrix((int *)buf.pt[1], MatrixDrive_GetMatrix(), wallCheckAhead);
+    sceVu0ApplyMatrix(buf.pt[1], MatrixDrive_GetMatrix(), wallCheckAhead);
     MatrixDrive_PopMatrix();
     ClipWall(&buf);
     if (buf.wall.n != 0) {
@@ -389,7 +389,7 @@ static void checkWallSideState(void)
     MatrixDrive_PushMatrix();
     MatrixDrive_TransMatrixV(wallCheckBase);
     CopyVector((void *)p, (void *)(MatrixDrive_GetMatrix()[3]));
-    sceVu0ApplyMatrix((int *)p->pt[1], MatrixDrive_GetMatrix(), wallCheckAhead);
+    sceVu0ApplyMatrix(p->pt[1], MatrixDrive_GetMatrix(), wallCheckAhead);
     MatrixDrive_PopMatrix();
 
     if (skelRoot->fieldWall != 0) {
@@ -427,12 +427,12 @@ static void checkWallState(int flag)
     WallCfg cfg;
     WallCfg cfg2;
 
-    memset(&buf, 0, 0xC0);
+    memset(&buf, 0, sizeof(buf));
     p = &buf;
     MatrixDrive_PushMatrix();
     MatrixDrive_TransMatrixV(wallCheckBase);
     CopyVector((void *)p, (void *)(MatrixDrive_GetMatrix()[3]));
-    sceVu0ApplyMatrix((int *)p->pt[1], MatrixDrive_GetMatrix(), wallCheckAhead);
+    sceVu0ApplyMatrix(p->pt[1], MatrixDrive_GetMatrix(), wallCheckAhead);
     MatrixDrive_PopMatrix();
 
     if (skelRoot->fieldWall != 0) {
@@ -521,14 +521,14 @@ static void checkCliffState(int a0)
     ClipBuf *p;
     float k;
 
-    memset(&buf, 0, 0xC0);
+    memset(&buf, 0, sizeof(buf));
     p = &buf;
     k = (skelGObj == boyGObj) ? -20.0f : 0.0f;
     cliffCheckBase[2] = k;
     MatrixDrive_PushMatrix();
     MatrixDrive_TransMatrixV(cliffCheckBase);
     CopyVector(p, (void *)(MatrixDrive_GetMatrix()[3]));
-    sceVu0ApplyMatrix((int *)p->pt[1], MatrixDrive_GetMatrix(), cliffCheckAhead);
+    sceVu0ApplyMatrix(p->pt[1], MatrixDrive_GetMatrix(), cliffCheckAhead);
     _ApplyMatrix(mv, MatrixDrive_GetMatrix(), ZUnitVector);
     MatrixDrive_PopMatrix();
     if (hitColRayDisp != 0) {
@@ -744,27 +744,27 @@ static void dispActNode(int id)
     if (id == -1) {
         return;
     }
-    gif_StartPacketPri(0xB);
-    gif_SetAlpha(1, 5, 0x80);
+    gif_StartPacketPri(11);
+    gif_SetAlpha(1, 5, 128);
     MatrixDrive_PushMatrix();
     sceVu0UnitMatrix(MatrixDrive_GetMatrix());
     CopyVector((void *)(MatrixDrive_GetMatrix()[3]),
-               (void *)((char *)GOBJ_SUB(skelGObj)->nodeMtx + id * 0x40 + 0x30));
+               (void *)((char *)GOBJ_SUB(skelGObj)->nodeMtx + id * 64 + 48));
     MatrixDrive_ScaleMatrix(5.0f, 5.0f, 5.0f);
-    dispSquare(0xFF);
+    dispSquare(255);
     MatrixDrive_PopMatrix();
     gif_EndPacket();
 }
 
 static void dispLastNode(void)
 {
-    gif_StartPacketPri(0xB);
-    gif_SetAlpha(1, 5, 0x80);
+    gif_StartPacketPri(11);
+    gif_SetAlpha(1, 5, 128);
     MatrixDrive_PushMatrix();
     sceVu0UnitMatrix(MatrixDrive_GetMatrix());
     MatrixDrive_TransMatrix(skelRoot->footPos[0], skelRoot->footPos[1], skelRoot->footPos[2]);
     MatrixDrive_ScaleMatrix(8.0f, 8.0f, 8.0f);
-    dispSquare2(0xFF);
+    dispSquare2(255);
     MatrixDrive_PopMatrix();
     gif_EndPacket();
 }
@@ -775,11 +775,6 @@ static void dispLastNode(void)
 #include "GifPacket.h"
 #include "DObj.h"
 
-static void _checkCliffAndWall(void);
-static void _getFinalMatrix(int id);
-static void getFinalMatrixWithNaturalGeometry(int id);
-static void _wallHitReaction(ClipBuf *w, void *pos, void *last, int noSlide);
-
 static SkelNode *skelNode = 0; /* derived name */
 
 static int skelGObj = 0; /* derived name */
@@ -789,8 +784,8 @@ static inline void calcMaxNodeHeight(int n) /* derived name */
     int i;
     skelRoot->projHeight = 0.0f;
     for (i = 0; i < n; i++) {
-        if (skelRoot->projHeight < *(float *)(nodePos2 + i * 0x10 + 4)) {
-            skelRoot->projHeight = *(float *)(nodePos2 + i * 0x10 + 4);
+        if (skelRoot->projHeight < *(float *)(nodePos2 + i * 16 + 4)) {
+            skelRoot->projHeight = *(float *)(nodePos2 + i * 16 + 4);
         }
     }
 }
@@ -822,7 +817,7 @@ static void _getGeometryOfMotion(ObjNode *out, int second)
     } else {
         int i;
         for (i = 0; i < skelNodeNum; i++) {
-            CopyVector((void *)(nodePos2 + i * 0x10), (void *)(nodePos + i * 0x10));
+            CopyVector((void *)(nodePos2 + i * 16), (void *)(nodePos + i * 16));
         }
     }
     calcMaxNodeHeight(skelNodeNum);
@@ -869,7 +864,7 @@ static void _getGeometryOfMotion(ObjNode *out, int second)
         case 10:
         case 15:
             *out = rootUpdateHang(pm->rootUpdateMode, checkActPointWithHeight(6, 10.0f),
-                                  checkActPointWithHeight(0x16, 10.0f));
+                                  checkActPointWithHeight(22, 10.0f));
             break;
         case 11:
             *out = rootUpdateSwim();
@@ -905,7 +900,7 @@ static void _getGeometryOfMotion(ObjNode *out, int second)
 
     MatrixDrive_PushMatrix();
     MatrixDrive_SetTransposeMatrix((void *)MatrixDrive_GetMatrix(), MatrixDrive_GetMatrix());
-    sceVu0ApplyMatrix((int *)skelRoot->stepMove, MatrixDrive_GetMatrix(), skelRoot->move);
+    sceVu0ApplyMatrix(skelRoot->stepMove, MatrixDrive_GetMatrix(), skelRoot->move);
     MatrixDrive_PopMatrix();
 
     MatrixDrive_PopMatrix();
@@ -956,7 +951,7 @@ static void execPositionReserver(GObj *self, ObjNode m)
     if (GOBJ_SUB(self)->ctrl.posReserve == 1) {
         if (m.obj != 0) {
             CopyVector(buf, skelRoot->savePos);
-            _ApplyMatrix(buf, ((char *)GOBJ_SUB(m.obj)->nodeMtx + m.node * 0x40), (char *)buf);
+            _ApplyMatrix(buf, ((char *)GOBJ_SUB(m.obj)->nodeMtx + m.node * 64), buf);
             if (distance_squared(buf, skelRoot->reservePos) == 0.0f) {
                 skelMotCtrl->reserveMoved = 0;
             }
@@ -978,14 +973,13 @@ static void execPositionReserver(GObj *self, ObjNode m)
             CopyVector(buf2, skelRoot->savePos);
             _UnitMatrix(MatrixDrive_GetMatrix());
             if (m.obj != 0) {
-                _ApplyMatrix(buf2, ((char *)GOBJ_SUB(m.obj)->nodeMtx + m.node * 0x40),
-                             (char *)buf2);
+                _ApplyMatrix(buf2, ((char *)GOBJ_SUB(m.obj)->nodeMtx + m.node * 64), (char *)buf2);
                 MatrixDrive_TransMatrixV(buf2);
-                gif_StartPacketPri(0xB);
+                gif_StartPacketPri(11);
                 if (GOBJ_SUB(self)->ctrl.posReserve == 1) {
-                    prim_DispWireSphere(50.0f, reserverColor, 0x10, 8);
+                    prim_DispWireSphere(50.0f, reserverColor, 16, 8);
                 } else {
-                    prim_DispWireSphere(50.0f, reserverColor2, 0x10, 8);
+                    prim_DispWireSphere(50.0f, reserverColor2, 16, 8);
                 }
                 gif_EndPacket();
             }
@@ -993,19 +987,11 @@ static void execPositionReserver(GObj *self, ObjNode m)
     }
 }
 
-void GetMatrixOfMotion(GObj *self, char *tbl, void *ofs);
-
 typedef struct MotHdrTag MotHdr; /* derived name */
 
-/* the object's work pointer at 0x15C, read through a union member, as
-   motionOrientManager.c reads it */
-typedef union MotWorkRef { /* field names derived */
-    char *p;
-    int i;
-    Sub15C *sub;
-} MotWorkRef; /* derived name */
-
-#define MOWORK(self) (((MotWorkRef *)((char *)(self) + 0x15C))->sub) /* derived name */
+/* the object's display object, read through geometryManager.h's SubHandle
+   union, as motionOrientManager.c reads it */
+#define MOWORK(self) (((SubHandle *)&((GObj *)(self))->dobj)->sub) /* derived name */
 
 void GetGeometryOfMotion(void *self, void *m0, void *m1, float *v, float r, float *step, int k)
 {
@@ -1017,9 +1003,9 @@ void GetGeometryOfMotion(void *self, void *m0, void *m1, float *v, float r, floa
     if ((char *)MOWORK(self)->localObj != 0) {
         MOWORK(self)->localPos[3] = 1.0f;
         CopyVector(v2, MOWORK(self)->localPos);
-        sceVu0ApplyMatrix(
-            (int *)v2, GOBJ_SUB(MOWORK(self)->localObj)->nodeMtx + MOWORK(self)->localNode * 0x40,
-            (char *)v2);
+        sceVu0ApplyMatrix((int *)v2,
+                          GOBJ_SUB(MOWORK(self)->localObj)->nodeMtx + MOWORK(self)->localNode * 64,
+                          (char *)v2);
     } else {
         AddVectorXYZ(MOWORK(self)->localPos, MOWORK(self)->localPos, MOWORK(self)->localMove);
         CopyVector(v2, MOWORK(self)->localPos);
@@ -1062,12 +1048,12 @@ void GetGeometryOfMotion(void *self, void *m0, void *m1, float *v, float r, floa
         GetMatrixOfMotion(self, m1, MOWORK(self)->motionPos);
     }
     if (debug_wallcheck_flag != 0) {
-        gif_StartPacketPri(0xB);
-        gif_SetAlpha(1, 5, 0x80);
+        gif_StartPacketPri(11);
+        gif_SetAlpha(1, 5, 128);
         gif_SetZTest(0);
         gif_EndPacket();
         dispPlane(MOWORK(self)->root.plane.f, MOWORK(self)->root.pos);
-        gif_StartPacketPri(0xB);
+        gif_StartPacketPri(11);
         gif_SetZTest(1);
         gif_EndPacket();
     }
@@ -1087,13 +1073,13 @@ void GetGeometryOfMotion(void *self, void *m0, void *m1, float *v, float r, floa
     MOWORK(self)->motionPos[1] = MOWORK(self)->motionPos[1] - skelRoot->height;
     if (sh.obj != 0) {
         float m[16];
-        MatrixDrive_SetTransposeMatrix((void *)m, GOBJ_SUB(sh.obj)->nodeMtx + sh.node * 0x40);
-        sceVu0ApplyMatrix((int *)(MOWORK(self)->motionPos), m, MOWORK(self)->motionPos);
+        MatrixDrive_SetTransposeMatrix((void *)m, GOBJ_SUB(sh.obj)->nodeMtx + sh.node * 64);
+        sceVu0ApplyMatrix((MOWORK(self)->motionPos), m, MOWORK(self)->motionPos);
     }
     execPositionReserver(self, sh);
 }
 
-/* GObj+8 is the index into objLayout, the 0x4C-byte GenGeo table (ebrain.c
+/* GObj+8 is the index into objLayout, the 76-byte GenGeo table (ebrain.c
    types that array `GenGeo objLayout[]`; enemy_act.c indexes it with the same
    `obj[2]` field), read as an enumerated kind. */
 typedef enum { GENGEO_KIND_0 = 0 } GenGeoKind; /* derived name */
@@ -1114,7 +1100,7 @@ void GetMatrixOfMotion(GObj *self, char *tbl, void *ofs)
     skelRoot = &GOBJ_SUB(self)->root;
     skelMotCtrl = &GOBJ_SUB(self)->ctrl;
     skelNodeNum = GOBJ_SUB(self)->skelNodeNum;
-    skelGeoType = objLayout[*(GenGeoKind *)(((char *)self) + 8) * 0x4C + 0x46];
+    skelGeoType = objLayout[*(GenGeoKind *)(((char *)self) + 8) * 76 + 70];
     skelGObj = (int)self;
     MatrixDrive_PushMatrix();
     PushQuaternion();
@@ -1127,7 +1113,7 @@ void GetMatrixOfMotion(GObj *self, char *tbl, void *ofs)
     rootHeightVec[1] = skelRoot->height;
     MatrixDrive_RotMatrixZ(skelRoot->twist);
 
-    sceVu0ApplyMatrix((int *)v, MatrixDrive_GetMatrix(), (char *)rootHeightVec);
+    sceVu0ApplyMatrix(v, MatrixDrive_GetMatrix(), rootHeightVec);
 
     v[1] -= skelRoot->height;
     v[0] *= 0.5f;
@@ -1144,8 +1130,8 @@ void GetMatrixOfMotion(GObj *self, char *tbl, void *ofs)
 
     AddVectorXYZ(w, ofs, v);
     for (i = 0; i < skelNodeNum; i++) {
-        char *nd = (char *)GOBJ_SUB(skelGObj)->nodeMtx + i * 0x40;
-        char *pos = nd + 0x30;
+        char *nd = (char *)GOBJ_SUB(skelGObj)->nodeMtx + i * 64;
+        char *pos = nd + 48;
         sceVu0MulMatrix(nd, nd, scaleMatrix);
         AddVectorXYZ(pos, pos, w);
     }
@@ -1160,15 +1146,15 @@ void GetMatrixOfMotion(GObj *self, char *tbl, void *ofs)
         int n;
 
         sceVu0UnitMatrix(MatrixDrive_GetMatrix());
-        gif_StartPacketPri(0xB);
-        n = GetSkeltonFocusNode(self, 0x23);
-        CopyVector(w, (char *)GOBJ_SUB(skelGObj)->nodeMtx + n * 0x40 + 0x30);
+        gif_StartPacketPri(11);
+        n = GetSkeltonFocusNode(self, 35);
+        CopyVector(w, (char *)GOBJ_SUB(skelGObj)->nodeMtx + n * 64 + 48);
         CopyVector(p1, skelRoot->lookPos);
         _SubVector(p2, p1, w);
         _NormalizeVector(p2, p2);
         _ScaleVector(p2, p2, 100.0f);
         _AddVector(p1, w, p2);
-        gif_SetAlpha(1, 5, 0x80);
+        gif_SetAlpha(1, 5, 128);
         if (skelRoot->lookIK != 0 && skelRoot->lookMode != 0) {
             DrawLineG(w, dirColor, p1, dirColor, -1);
         } else {
@@ -1232,11 +1218,11 @@ static void getInitialMatrix(Sub15C *obj, int idx)
     case 19:
     case 20:
     case 22:
-        MatrixDrive_RotMatrixY((short)((pad[0].ana[0] - 0x80) << 7));
-        MatrixDrive_RotMatrixZ((short)((pad[0].ana[1] - 0x80) << 7));
+        MatrixDrive_RotMatrixY((short)((pad[0].ana[0] - 128) << 7));
+        MatrixDrive_RotMatrixZ((short)((pad[0].ana[1] - 128) << 7));
         break;
     }
-    mtx = (char *)obj->nodeMtx + idx * 0x40;
+    mtx = (char *)obj->nodeMtx + idx * 64;
     CopyMatrix(mtx, (void *)MatrixDrive_GetMatrix());
     if (nd->child != -1) {
         getInitialMatrix(obj, nd->child);
@@ -1252,8 +1238,8 @@ static void getInitialMatrix(Sub15C *obj, int idx)
 static void dispSkelton()
 {
     float (*v)[4];
-    gif_StartPacketPri(0xB);
-    gif_SetAlpha(1, 5, 0x80);
+    gif_StartPacketPri(11);
+    gif_SetAlpha(1, 5, 128);
     MatrixDrive_PushMatrix();
     v = MatrixDrive_GetMatrix();
     sceVu0UnitMatrix(v);

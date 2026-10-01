@@ -330,7 +330,7 @@ static int calcFootIK(SkelNode *skel, char *arg, int node, float scale, float ra
 
     i = node;
     while (i != -1) {
-        MultiQuaternion(qb, arg + i * 0x20 + 0x10, qb);
+        MultiQuaternion(qb, arg + i * 32 + 16, qb);
         MultiQuaternion(qc, skel[i].quat, qc);
         i = skel[i].parent;
     }
@@ -338,7 +338,7 @@ static int calcFootIK(SkelNode *skel, char *arg, int node, float scale, float ra
 
     i = skel[node].parent;
     while (i != -1) {
-        MultiQuaternion(qa, arg + i * 0x20 + 0x10, qa);
+        MultiQuaternion(qa, arg + i * 32 + 16, qa);
         i = skel[i].parent;
     }
 
@@ -358,7 +358,7 @@ static int calcFootIK(SkelNode *skel, char *arg, int node, float scale, float ra
         p = &skel[j];
         sceVu0ScaleVectorXYZ(v, p->pos, scale);
         MatrixDrive_TransMatrixV(v);
-        MultiMatrixByQuaternion(arg + j * 0x20 + 0x10);
+        MultiMatrixByQuaternion(arg + j * 32 + 16);
     }
     CopyVector(dir, (MatrixDrive_GetMatrix()[3]));
     MatrixDrive_PopMatrix();
@@ -375,7 +375,7 @@ static int calcFootIK(SkelNode *skel, char *arg, int node, float scale, float ra
     RotQuaternionY(qt, ang2);
     DivQuaternion(qt, qb, qt);
 
-    dstq = arg + node * 0x20 + 0x10;
+    dstq = arg + node * 32 + 16;
     CopyQuaternion(dstq, q0);
     RotQuaternionZ(dstq, (short)((float)ang * ratio));
     RotQuaternionY(dstq, ang2);
@@ -385,12 +385,12 @@ static int calcFootIK(SkelNode *skel, char *arg, int node, float scale, float ra
     k = node;
     for (n = 1; n >= 0; n--) {
         k = skel[k].child;
-        qk = arg + k * 0x20 + 0x10;
+        qk = arg + k * 32 + 16;
         MultiQuaternion(qv, qv, qk);
     }
     CopyQuaternion(qu, qa);
-    MultiQuaternion(qu, qu, arg + node * 0x20 + 0x10);
-    MultiQuaternion(qu, qu, arg + skel[node].child * 0x20 + 0x10);
+    MultiQuaternion(qu, qu, arg + node * 32 + 16);
+    MultiQuaternion(qu, qu, arg + skel[node].child * 32 + 16);
     DivQuaternion(qk, qv, qu);
     return ang;
 }
@@ -1462,7 +1462,7 @@ int GetStreamMotion(char *dst, float *out, char *node, char *info)
         for (i = 0; i < n; i++) {
             _getS16MotRotElem(dst + i * 0x20, node + 0x10 + i * 8);
             if (*(int *)(info + 0x38 + i * 0x40) == -1) {
-                MultiQuaternion(dst + i * 0x20 + 0x10, quat, dst + i * 0x20 + 0x10);
+                MultiQuaternion(dst + i * 32 + 16, quat, dst + i * 32 + 16);
             }
             *(int *)(dst + i * 0x20) = 0;
         }
@@ -1471,7 +1471,7 @@ int GetStreamMotion(char *dst, float *out, char *node, char *info)
     for (i = 0; i < n; i++) {
         CopyVector(out, ZeroPoint);
         *(int *)(dst + i * 0x20) = 0;
-        CopyQuaternion(dst + i * 0x20 + 0x10, quat);
+        CopyQuaternion(dst + i * 32 + 16, quat);
     }
     return 0;
 }
@@ -1543,12 +1543,12 @@ static inline void getMotion(char *dst, float *root, void *motion, int idx, unsi
     if (hrc != 0) {
         i = 0;
         do {
-            MultiQuaternion(dst + i * 0x20 + 0x10, nodeFlipQuaternion, dst + i * 0x20 + 0x10);
+            MultiQuaternion(dst + i * 32 + 16, nodeFlipQuaternion, dst + i * 32 + 16);
             i = hrc[i].sibling;
         } while (i != -1);
     } else {
         for (i = 0; i < count; i++) {
-            MultiQuaternion(dst + i * 0x20 + 0x10, nodeFlipQuaternion, dst + i * 0x20 + 0x10);
+            MultiQuaternion(dst + i * 32 + 16, nodeFlipQuaternion, dst + i * 32 + 16);
         }
     }
     if (root != 0) {

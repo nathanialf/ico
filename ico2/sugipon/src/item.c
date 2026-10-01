@@ -251,8 +251,9 @@ char *InitItemGeo(GObj *gobj, ItemLayout *layout)
     return (char *)p;
 }
 
-/* The holder's 0x15C sub-handle is read through the SubHandle union at every
-   site in this function; q is a plain four-float scratch. */
+/* The holder's display object is read again at every site through the
+   SubHandle union, then its node matrices (64 bytes a node) and quaternions
+   (16 bytes a node); q is a plain four-float scratch. */
 static void carriedItemGeo(GObj *gobj)
 {
     Vec16 pos;
@@ -265,26 +266,23 @@ static void carriedItemGeo(GObj *gobj)
     Vec16 adj;
     ItemWork *rec = GOBJ_SUB(gobj)->work;
 
-    if (*(int *)((char *)((SubHandle *)((char *)rec->holder + 0x15C))->i + 0x604) != 0) {
+    if (((SubHandle *)&((GObj *)rec->holder)->dobj)->sub->ctrl.frameFlag2 != 0) {
         int isPlayer = (GObj *)rec->holder == girlGObj;
         int node = isPlayer ? 6 : 22;
 
         if (isPlayer) {
-            _ApplyMatrix(
-                &pos,
-                (char *)*(int *)((char *)((SubHandle *)((char *)rec->holder + 0x15C))->i + 0xC) +
-                    GetSkeltonFocusNode((GObj *)rec->holder, node) * 0x40,
-                carryOfsPlayer);
+            _ApplyMatrix(&pos,
+                         (char *)((SubHandle *)&((GObj *)rec->holder)->dobj)->sub->nodeMtx +
+                             GetSkeltonFocusNode((GObj *)rec->holder, node) * 64,
+                         carryOfsPlayer);
         } else {
-            _ApplyMatrix(
-                &pos,
-                (char *)*(int *)((char *)((SubHandle *)((char *)rec->holder + 0x15C))->i + 0xC) +
-                    GetSkeltonFocusNode((GObj *)rec->holder, node) * 0x40,
-                carryOfsOther);
+            _ApplyMatrix(&pos,
+                         (char *)((SubHandle *)&((GObj *)rec->holder)->dobj)->sub->nodeMtx +
+                             GetSkeltonFocusNode((GObj *)rec->holder, node) * 64,
+                         carryOfsOther);
         }
-        CopyQuaternion(
-            q, (char *)*(int *)((char *)((SubHandle *)((char *)rec->holder + 0x15C))->i + 0x10) +
-                   GetSkeltonFocusNode((GObj *)rec->holder, node) * 0x10);
+        CopyQuaternion(q, (char *)((SubHandle *)&((GObj *)rec->holder)->dobj)->sub->nodeQuat +
+                              GetSkeltonFocusNode((GObj *)rec->holder, node) * 16);
         if (isPlayer) {
             RotQuaternionX(q, -16384);
         } else {
@@ -294,26 +292,20 @@ static void carriedItemGeo(GObj *gobj)
     } else {
         int node = GetSkeltonFocusNode((GObj *)rec->holder, 1);
 
-        CopyVector(&wpos,
-                   (char *)*(int *)((char *)((SubHandle *)((char *)rec->holder + 0x15C))->i + 0xC) +
-                       GetSkeltonFocusNode((GObj *)rec->holder, 22) * 0x40 + 0x30);
+        CopyVector(&wpos, (char *)((SubHandle *)&((GObj *)rec->holder)->dobj)->sub->nodeMtx +
+                              GetSkeltonFocusNode((GObj *)rec->holder, 22) * 64 + 48);
         MatrixDrive_SetTransposeMatrix(
-            m, (char *)*(int *)((char *)((SubHandle *)((char *)rec->holder + 0x15C))->i + 0xC) +
-                   node * 0x40);
+            m, (char *)((SubHandle *)&((GObj *)rec->holder)->dobj)->sub->nodeMtx + node * 64);
         _ApplyMatrix(q, m, &wpos);
         q[2] = 0.0f;
         _ApplyMatrix(
-            &pos,
-            (char *)*(int *)((char *)((SubHandle *)((char *)rec->holder + 0x15C))->i + 0xC) +
-                node * 0x40,
-            q);
+            &pos, (char *)((SubHandle *)&((GObj *)rec->holder)->dobj)->sub->nodeMtx + node * 64, q);
         memset(&up, 0, 16);
         up.f[1] = 1.0f;
-        sceVu0ApplyMatrix(
-            &up,
-            (char *)*(int *)((char *)((SubHandle *)((char *)rec->holder + 0x15C))->i + 0xC) +
-                GetSkeltonFocusNode((GObj *)rec->holder, 44) * 0x40,
-            &up);
+        sceVu0ApplyMatrix(&up,
+                          (char *)((SubHandle *)&((GObj *)rec->holder)->dobj)->sub->nodeMtx +
+                              GetSkeltonFocusNode((GObj *)rec->holder, 44) * 64,
+                          &up);
         MatrixDrive_GetTurnZAngleYX(&ang[0], &ang[1], up.f[0], up.f[1], up.f[2]);
         CopyQuaternion(&rot, rec->rot);
         SetIdentityQuaternion(&adj);

@@ -29,7 +29,7 @@
 static void getMotionGeometry(void *self);
 static void getStreamBlendShapeGeometry(void *self, void *m0, void *m1, float t);
 static void getStreamShapeGeometry(void *self, void *sm);
-static void shiftMotionData(int a0, int a1, int a2, int a3);
+static void shiftMotionData(int obj, int motion, int request, int shiftMode);
 
 /* The rope's interpolation rate: the chain's geometry sets it from the hang
    height and rootUpdateY_Rope moves the root by it. */
@@ -45,14 +45,9 @@ struct MotOriFloat { /* field names derived */
     float frame;
 };
 
-/* the object's work pointer at 0x15C, read through a union member */
-typedef union MotWorkRef { /* field names derived */
-    char *p;
-    int i;
-    Sub15C *sub;
-} MotWorkRef; /* derived name */
-
-#define MOWORK(self) (((MotWorkRef *)((char *)(self) + 0x15C))->sub) /* derived name */
+/* the object's display object, read through geometryManager.h's SubHandle
+   union */
+#define MOWORK(self) (((SubHandle *)&((GObj *)(self))->dobj)->sub) /* derived name */
 
 /* The 0x470 motion work area is motionManager.h's MotCtrl. */
 
@@ -499,29 +494,29 @@ static __inline__ int searchAltMotion(int req) /* derived name */
     return req;
 }
 
-static void shiftMotionData(int a0, int a1, int a2, int a3)
+static void shiftMotionData(int obj, int motion, int request, int shiftMode)
 {
-    char *m = (char *)GOBJ_SUB(a0);
+    char *m = (char *)GOBJ_SUB(obj);
     struct MotCtrl *w = (struct MotCtrl *)(m + 0x470);
     struct MotRoot *mw = (struct MotRoot *)(m + 0xA0);
     int mot;
     float frame;
 
     if (w->shiftReady != 0) {
-        mot = searchAltMotion(a1);
+        mot = searchAltMotion(motion);
     } else {
-        mot = a1;
+        mot = motion;
     }
     w->lastNoAlt = w->noAlt;
     w->noAlt = 0;
     if (mot == -1) {
         w->noAlt = 1;
-        mot = a1;
+        mot = motion;
     }
     w->lastMotion = w->motion;
     w->shiftFrame = (int)w->animFrame;
     w->blendFrames =
-        (int)((float)a3 * ((float)((60 - systemStatus[0] * 10) / systemStatus[1]) / 60.0f));
+        (int)((float)shiftMode * ((float)((60 - systemStatus[0] * 10) / systemStatus[1]) / 60.0f));
     mw->standNode = -1;
     mw->slopeIK = motionKind[mot].slopeIK;
     mw->noStepSearch = motionKind[mot].noStepSearch;
@@ -552,7 +547,7 @@ static void shiftMotionData(int a0, int a1, int a2, int a3)
     }
     w->parallel = motionKind[mot].flags.bits.parallel;
     w->motion = mot;
-    w->request = a2;
+    w->request = request;
     w->blendCount = 1;
     w->step = 0;
     w->animFrame = 0.0f;
@@ -627,7 +622,7 @@ inline void CopyBlendMotionDataSource(void *self, short ang)
     }
 }
 
-static void shiftMotionOrientBeginFunc(void *self, int a1, int a2, int a3)
+static void shiftMotionOrientBeginFunc(void *self, int motion, int request, int shiftMode)
 {
     Vec16 v;
     char *m = (char *)MOWORK(self);
@@ -638,7 +633,7 @@ static void shiftMotionOrientBeginFunc(void *self, int a1, int a2, int a3)
     debug_StdPrintfDummy(
         "Change \"\033[33m%s(%d)\033[m\"in \"\033[33m%s(%d)\033[m\" at control \"\033[33m%s\033[m\".\n",
         motionOriKind[w->orientKind].s, w->orientKind, motionKind[w->motion].name, w->motion, "");
-    shiftMotionData((int)self, a1, a2, a3);
+    shiftMotionData((int)self, motion, request, shiftMode);
     if (w->parallelEnded != 0) {
         GetOutOutsideOfWall(self, p->radius);
     }
@@ -672,14 +667,14 @@ static void shiftMotionOrientBeginFunc(void *self, int a1, int a2, int a3)
         }
     }
     CopyBlendMotionDataSource(self, ang);
-    StopFDSVibration((char *)MOWORK(self) + 0x740);
-    InitFrameDependSequence((char *)MOWORK(self) + 0x740);
+    StopFDSVibration(MOWORK(self)->fdsFlags);
+    InitFrameDependSequence(MOWORK(self)->fdsFlags);
     clearFrameTriggerState(self);
 }
 
-void ForTest_ForceShiftMotion(int a0, int a1)
+void ForTest_ForceShiftMotion(int obj, int motion)
 {
-    shiftMotionData(a0, a1, a1, 0);
+    shiftMotionData(obj, motion, motion, 0);
 }
 
 /* Clear the pending-shift words and report whether the entry may start.
@@ -989,7 +984,7 @@ static void getMotionGeometry(void *self)
     int n = MOWORK(self)->skelNodeNum;
     char *blendless = MOWORK(self)->blendless;
     char mot[n * 32];
-    float scale = *(float *)((char *)MOWORK(self)->nodes + 0x20);
+    float scale = MOWORK(self)->nodes->scale[0];
     int *md = motionTable[w->motion];
 
     if (motionKind[w->motion].blendKind == 320) {
@@ -1255,7 +1250,7 @@ static void getShapeGeometry(void *self)
 /* both stream-geometry functions inline it (once and twice) */
 static inline int getStreamVec(void *self, void *sm, float *v, void *mot) /* derived name */
 {
-    float s = *(float *)((char *)MOWORK(self)->nodes + 0x20);
+    float s = MOWORK(self)->nodes->scale[0];
 
     if (GetStreamMotion(mot, v, sm, MOWORK(self)->skel) != 0) {
         if (MOWORK(self)->streamScale != 0) {
@@ -1362,7 +1357,7 @@ static void getStreamShapeGeometry(void *self, void *sm)
 
 static void getStreamMotion(void *self)
 {
-    void *s = *(void **)((char *)MOWORK(self) + 0x470);
+    int s = MOWORK(self)->ctrl.stream;
     char a[GetDataSizeOfStreamMotion(s)];
     float t = GetStreamMotionData(a, s);
 
@@ -1420,11 +1415,11 @@ void ExecMotionOrient(void *self)
     }
 }
 
-void SetNodeRotationLimitDataTable(void *self, int a1, int a2)
+void SetNodeRotationLimitDataTable(void *self, int from, int to)
 {
     int i;
 
-    for (i = a1; i < a2;) {
+    for (i = from; i < to;) {
         MotOriLimit tmp;
         int node = GetSkeltonFocusNode(self, motionLimitDef[i].node);
 
@@ -1455,51 +1450,52 @@ void SetNodeRotationLimitDataTable(void *self, int a1, int a2)
     }
 }
 
-inline void InitMotionOrient(void *self, int a1, int a2, int a3, int a4, int a5)
+inline void InitMotionOrient(void *self, int oriFrom, int oriTo, int limitFrom, int limitTo,
+                             int motion)
 {
     struct MotCtrl *m = &GOBJ_SUB(self)->ctrl;
 
-    if (a3 >= 0 && a4 >= 0) {
-        SetNodeRotationLimitDataTable(self, a3, a4);
+    if (limitFrom >= 0 && limitTo >= 0) {
+        SetNodeRotationLimitDataTable(self, limitFrom, limitTo);
     }
-    m->oriFrom = a1;
-    m->oriTo = a2;
-    shiftMotionData((int)self, a5, a5, 0);
+    m->oriFrom = oriFrom;
+    m->oriTo = oriTo;
+    shiftMotionData((int)self, motion, motion, 0);
     m->seGroup[0] = soundSeGroupGet();
     m->seGroup[1] = soundSeGroupGet();
 }
 
-inline unsigned int GetCurrentMotionDirectionAdjustFlag(GObj *a0)
+inline unsigned int GetCurrentMotionDirectionAdjustFlag(GObj *self)
 {
-    return motionKind[GOBJ_SUB(a0)->ctrl.motion].modeBits.bits.dirAdjust;
+    return motionKind[GOBJ_SUB(self)->ctrl.motion].modeBits.bits.dirAdjust;
 }
 
-inline int ExecuteSlipProc(GObj *a0)
+inline int ExecuteSlipProc(GObj *self)
 {
-    Sub15C *e = a0->dobj;
+    Sub15C *e = self->dobj;
     if (e->ctrl.lastSlipFlags != e->ctrl.slipFlags) {
-        StopSEPackageWithGroupVariation(a0, 1);
-        if (GOBJ_SUB(a0)->ctrl.slipFlags & 0x100000) {
-            ExecuteSEPackageWithGroupVariation(a0, 0x72, 1);
+        StopSEPackageWithGroupVariation(self, 1);
+        if (GOBJ_SUB(self)->ctrl.slipFlags & 0x100000) {
+            ExecuteSEPackageWithGroupVariation(self, 114, 1);
         }
-        if (GOBJ_SUB(a0)->ctrl.slipFlags & 0x200000) {
-            ExecuteSEPackageWithGroupVariation(a0, 0x74, 1);
+        if (GOBJ_SUB(self)->ctrl.slipFlags & 0x200000) {
+            ExecuteSEPackageWithGroupVariation(self, 116, 1);
         }
-        if (GOBJ_SUB(a0)->ctrl.slipFlags & 0x400000) {
-            ExecuteSEPackageWithGroupVariation(a0, 0x76, 1);
+        if (GOBJ_SUB(self)->ctrl.slipFlags & 0x400000) {
+            ExecuteSEPackageWithGroupVariation(self, 118, 1);
         }
-        if (GOBJ_SUB(a0)->ctrl.slipFlags & 0x800000) {
-            ExecuteSEPackageWithGroupVariation(a0, 0x78, 1);
+        if (GOBJ_SUB(self)->ctrl.slipFlags & 0x800000) {
+            ExecuteSEPackageWithGroupVariation(self, 120, 1);
         }
     }
     return 1;
 }
 
-inline int ExecutePauseSlipProc(GObj *a0)
+inline int ExecutePauseSlipProc(GObj *self)
 {
     if (systemStatus[5] != 0) {
-        GOBJ_SUB(a0)->ctrl.lastSlipFlags = 0;
-        StopSEPackageWithGroupVariation(a0, 1);
+        GOBJ_SUB(self)->ctrl.lastSlipFlags = 0;
+        StopSEPackageWithGroupVariation(self, 1);
     }
     return 1;
 }

@@ -36,16 +36,16 @@ typedef struct { /* field names derived */
     VECTOR corner[4];
 } PoolMeshQuad; /* derived name */
 
-int CheckPoolHasGridMesh(GObj *a0);
-void DispLimitedPoolReflactionMesh(PoolMesh *a0);
-void GetPoolGlobalDrainVector(void *dst, GObj *a0);
-float GetPoolGlobalHeight(GObj *a0);
-float GetPoolGlobalHeightDetail(GObj *a0, float *pos);
-void InitLayoutedPoolReflactionMesh(PoolMesh *a0, PoolMeshQuad *a1);
-void InitLimitedPoolReflactionMesh(PoolMesh *a0);
+int CheckPoolHasGridMesh(GObj *pool);
+void DispLimitedPoolReflactionMesh(PoolMesh *refl);
+void GetPoolGlobalDrainVector(void *dst, GObj *pool);
+float GetPoolGlobalHeight(GObj *pool);
+float GetPoolGlobalHeightDetail(GObj *pool, float *pos);
+void InitLayoutedPoolReflactionMesh(PoolMesh *refl, PoolMeshQuad *quad);
+void InitLimitedPoolReflactionMesh(PoolMesh *refl);
 void SetFallDownSplash(GObj *pool, struct GObj *self);
-void SetLayoutedPoolReflactionMesh(PoolMesh *a0);
-void SetLimitedPoolReflactionMesh(PoolMesh *a0, GObj *a1, GObj *a2);
+void SetLayoutedPoolReflactionMesh(PoolMesh *refl);
+void SetLimitedPoolReflactionMesh(PoolMesh *refl, GObj *pool, GObj *obj);
 
 struct SObjSimpleSetting;
 

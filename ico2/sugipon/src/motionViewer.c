@@ -140,10 +140,10 @@ static void dispMotFrameProgress(int obj, float cur)
         float r1 = (float)e / (float)n;
         float rc = c / (float)n;
 
-        gif_StartPacketPri(0xB);
+        gif_StartPacketPri(11);
         gif_SetZTest(0);
         gif_SetZWrite(0);
-        gif_SetAlpha(1, 5, 0x80);
+        gif_SetAlpha(1, 5, 128);
         if (r0 < rc && rc <= r1) {
             BarCol dark = {col->r / 2, col->g / 2, col->b / 2, 0x80};
             BarRect ra = {(int)((-(ScreenWidth << 4) / 2 + (ScreenWidth << 4) * r0) * 8 / 10),
@@ -230,13 +230,12 @@ static int lastObjSel = -1; /* derived name */
 static char *savedMotTbl = 0; /* derived name */
 
 /* as in debug.h, which this file does not include */
-extern int debug_SelectCsvWindow(char *title, int a1, int a2, int a3, void *tbl, int stride, int a6,
-                                 int a7, int count, int *cur);
+extern int debug_SelectCsvWindow(char *title, int x, int y, int rows, void *tbl, int stride,
+                                 int off, int deref, int count, int *cur);
 
 static int objMenuProc(void)
 {
-    int ret =
-        debug_SelectCsvWindow("Motion Viewer", 10, 0x32, 0xB, objMenu, 0x18, 0, 1, 5, &objSel);
+    int ret = debug_SelectCsvWindow("Motion Viewer", 10, 50, 11, objMenu, 24, 0, 1, 5, &objSel);
 
     if (lastObjSel != objSel) {
         if (viewObj) {
@@ -292,11 +291,12 @@ static int lastMotSel = -1; /* derived name */
  * motOriMenuProc hands to debug_SelectCsvWindow */
 static int motionKindCount; /* derived name */
 
-/* void (int, int, unsigned int, const char *, ...) here, void (int, int, unsigned int, int, ...) in debug.h */
+/* as in debug.h, which this file does not include (its 11-argument
+   debug_SelectCsvWindowWithLine below conflicts with debug.h's 10) */
 extern void debug_PrintfDummy(int x, int y, unsigned int color, const char *fmt, ...);
 /* int (char *, int, int, int, void *, int, int, int, int, int *, int) here, int (char *, int, int, int, void *, int, int, int, int, int *) in debug.h */
-extern int debug_SelectCsvWindowWithLine(char *title, int a1, int a2, int a3, void *tbl, int stride,
-                                         int a6, int a7, int count, int *cur, int a10);
+extern int debug_SelectCsvWindowWithLine(char *title, int x, int y, int rows, void *tbl, int stride,
+                                         int off, int deref, int count, int *cur, int extra);
 
 static int motKindMenuProc(void)
 {
@@ -308,8 +308,8 @@ static int motKindMenuProc(void)
     int cur;
 
     dispMotFrameProgress(mot, ForMotionViewer_GetCurrentAnimationFrame(viewObj));
-    ret = debug_SelectCsvWindowWithLine(ent->name, 10, 0x46, 6, &motionKind[ent->motFirst], 0x194,
-                                        0xC0, 0, ent->motLast - ent->motFirst, &motSel, 0);
+    ret = debug_SelectCsvWindowWithLine(ent->name, 10, 70, 6, &motionKind[ent->motFirst], 404, 192,
+                                        0, ent->motLast - ent->motFirst, &motSel, 0);
     base = motSel;
     cur = base + ent->motFirst;
     if (motionKind[cur].node_id != 0 && motionKind[cur].blendKind == 320 && motionTable[cur] == 0) {
@@ -500,7 +500,7 @@ static void lookAtTest(MvVec *pos, float rad, void *colAxis, void *colRing, shor
     int a;
 
     GetRootPosition(pos, viewObj);
-    gif_StartPacketPri(0xB);
+    gif_StartPacketPri(11);
     sceVu0UnitMatrix(MatrixDrive_GetMatrix());
     MatrixDrive_TransMatrixV(pos);
     for (a = 0; a <= 65535; a += 2048) {
@@ -514,7 +514,7 @@ static void lookAtTest(MvVec *pos, float rad, void *colAxis, void *colRing, shor
     gif_EndPacket();
 
     pos->y += fdy;
-    gif_StartPacketPri(0xB);
+    gif_StartPacketPri(11);
     sceVu0UnitMatrix(MatrixDrive_GetMatrix());
     MatrixDrive_TransMatrixV(pos);
     for (a = 0; a <= 65535; a += 2048) {
@@ -529,7 +529,7 @@ static void lookAtTest(MvVec *pos, float rad, void *colAxis, void *colRing, shor
 
     pos->x += sx;
     pos->z += cx;
-    gif_StartPacketPri(0xB);
+    gif_StartPacketPri(11);
     sceVu0UnitMatrix(MatrixDrive_GetMatrix());
     MatrixDrive_TransMatrixV(pos);
 
@@ -652,8 +652,8 @@ int MotionViewer(void)
         if (FSqrt(sceVu0InnerProduct(&dir, &dir)) > 0.5f && (pad[1].now & 0x200) == 0) {
             SetMotionDirection(viewObj, &dir);
         }
-        gif_StartPacketPri(0xB);
-        gif_SetAlpha(1, 5, 0x80);
+        gif_StartPacketPri(11);
+        gif_SetAlpha(1, 5, 128);
         gif_SetZTest(1);
         gif_EndPacket();
 
@@ -697,7 +697,7 @@ int MotionViewer(void)
         }
         if (mode != 0) {
             int n;
-            gif_StartPacketPri(0xB);
+            gif_StartPacketPri(11);
             n = GetSkeltonFocusNode(viewObj, 0x23);
             sceVu0UnitMatrix(MatrixDrive_GetMatrix());
             DrawLineG(&p, &focusColor, viewObj->sub->nodes + n * 64 + 0x30, &testRingColor, 0);
@@ -751,7 +751,7 @@ int MotionViewer(void)
             lookAtTest(&look, lookRadius, &p, &q.v, (pad[1].ana[1] - 128) * 2.0f,
                        -pad[1].ana[0] * 256);
             CopyVector(viewObj->sub->lookAt, &look);
-            gif_StartPacketPri(0xB);
+            gif_StartPacketPri(11);
             n = GetSkeltonFocusNode(viewObj, 3);
             sceVu0UnitMatrix(MatrixDrive_GetMatrix());
             DrawLineG(&look, &col, viewObj->sub->nodes + n * 64 + 0x30, &q.v, 0);
@@ -763,7 +763,7 @@ int MotionViewer(void)
             lookAtTest(&head, lookRadius, &p, &q.v, (pad[1].ana[1] - 128) * 2.0f,
                        -pad[1].ana[0] * 256);
             CopyVector(viewObj->sub->headAt, &head);
-            gif_StartPacketPri(0xB);
+            gif_StartPacketPri(11);
             n = GetSkeltonFocusNode(viewObj, 0x13);
             sceVu0UnitMatrix(MatrixDrive_GetMatrix());
             DrawLineG(&head, &col, viewObj->sub->nodes + n * 64 + 0x30, &q.v, 0);

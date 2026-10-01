@@ -59,12 +59,14 @@ typedef struct { /* field names derived */
  * gcc 2.9 emits the deferred out-of-line copy of a plain-inline function in
  * first-declaration order, so this is the order motionManager.c's inline tail has. */
 void SetHitCollisionDisplay(int a, int b);
-int ResetMotionProgramInterpInfo(struct GObj *a0, int a1);
-int SetDirectMotionProgramInterpInfo(struct GObj *a0, int a1, float f);
+int ResetMotionProgramInterpInfo(struct GObj *self, int focus);
+int SetDirectMotionProgramInterpInfo(struct GObj *self, int focus, float rate);
 void GetGeometryOfMotion(void *self, void *m0, void *m1, float *v, float r, float *step, int k);
 void EditRotEmphasys(void);
 void landingFieldAction(ClipBuf *w);
 void SkelTest(GObj *self);
 void SkelTestGeo(GObj *self);
+
+void GetMatrixOfMotion(GObj *self, char *tbl, void *ofs);
 
 #endif /* MOTIONMANAGER_H */

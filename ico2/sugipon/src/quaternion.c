@@ -11,10 +11,10 @@ static int quatStackIndex = -1; /* derived name */
    current one. */
 static float quatStack[64][4]; /* derived name */
 
-void MultiCurrentQuaternion(void *a0)
+void MultiCurrentQuaternion(void *src)
 {
     float *q = quatStack[quatStackIndex];
-    MultiQuaternion(q, q, a0);
+    MultiQuaternion(q, q, src);
 }
 
 void InvertCurrentQuaternion(void)
@@ -23,24 +23,24 @@ void InvertCurrentQuaternion(void)
     GetInverseQuaternion(p, p);
 }
 
-void SetCurrentQuaternion(float *a0)
+void SetCurrentQuaternion(float *q)
 {
-    CopyQuaternion(quatStack[quatStackIndex], a0);
+    CopyQuaternion(quatStack[quatStackIndex], q);
 }
 
-void RotCurrentQuaternionX(short a0)
+void RotCurrentQuaternionX(short ang)
 {
-    RotQuaternionX(quatStack[quatStackIndex], a0);
+    RotQuaternionX(quatStack[quatStackIndex], ang);
 }
 
-void RotCurrentQuaternionY(short a0)
+void RotCurrentQuaternionY(short ang)
 {
-    RotQuaternionY(quatStack[quatStackIndex], a0);
+    RotQuaternionY(quatStack[quatStackIndex], ang);
 }
 
-void RotCurrentQuaternionZ(short a0)
+void RotCurrentQuaternionZ(short ang)
 {
-    RotQuaternionZ(quatStack[quatStackIndex], a0);
+    RotQuaternionZ(quatStack[quatStackIndex], ang);
 }
 
 void PushQuaternion(void)
@@ -72,15 +72,15 @@ void InitQuaternionDrive(void)
 
 float IdentityQuaternion[4] = {0.0f, 0.0f, 0.0f, 1.0f};
 
-void SetIdentityQuaternion(void *a0)
+void SetIdentityQuaternion(void *q)
 {
-    CopyQuaternion(a0, IdentityQuaternion);
+    CopyQuaternion(q, IdentityQuaternion);
 }
 
 /* the {1, 1, 1, sqrt(2)} multiplier GetMatrixFromQuaternion feeds $vf12 */
 static float quatToMatrixScale[4] = {1.0f, 1.0f, 1.0f, 1.41421356f}; /* derived name */
 
-void GetMatrixFromQuaternion(void *mtx, void *a1)
+void GetMatrixFromQuaternion(void *mtx, void *q)
 {
     float *m = mtx;
 
@@ -124,7 +124,7 @@ void GetMatrixFromQuaternion(void *mtx, void *a1)
 static int nxt[3] = {1, 2, 0}; /* derived name */
 
 /* no caller; void as sugipon's output-parameter getters */
-void GetQuaternionFromMatrix(void *a0, void *a1)
+void GetQuaternionFromMatrix(void *q, void *mtx)
 {
     auto void getQuaternionFromMatrix(float *q, float (*m)[4]);
     char local[64];
@@ -165,22 +165,22 @@ void GetQuaternionFromMatrix(void *a0, void *a1)
         }
     }
 
-    _TransposeMatrix(local, a1);
-    getQuaternionFromMatrix((float *)a0, (float (*)[4])local);
+    _TransposeMatrix(local, mtx);
+    getQuaternionFromMatrix((float *)q, (float (*)[4])local);
 }
 
-void CopyQuaternion(void *a0, void *a1)
+void CopyQuaternion(void *dst, void *src)
 {
-    CopyVector(a0, a1);
+    CopyVector(dst, src);
 }
 
-void GetInverseQuaternion(void *a0, void *a1)
+void GetInverseQuaternion(void *dst, void *src)
 {
-    CopyQuaternion(a0, a1);
-    _ScaleVectorXYZ(a0, a1, -1.0f);
+    CopyQuaternion(dst, src);
+    _ScaleVectorXYZ(dst, src, -1.0f);
 }
 
-void RegularizeQuaternion(void *a0)
+void RegularizeQuaternion(void *q)
 {
     float d;
     __asm__ __volatile__(".set noreorder\n"
@@ -194,9 +194,9 @@ void RegularizeQuaternion(void *a0)
                          "mtc1 $2, %0\n"
                          ".set reorder\n"
                          : "=f"(d)
-                         : "r"(a0)
+                         : "r"(q)
                          : "$2");
-    _ScaleVector(a0, a0, 1.0f / _Sqrt(d));
+    _ScaleVector(q, q, 1.0f / _Sqrt(d));
 }
 
 inline float GetQuaternionCosRadian(void *p0, void *p1)
@@ -299,33 +299,33 @@ inline void PopQuaternion(void)
 /* float (int) here, float (short) in tableSin.h */
 extern float GetTableCos(int x);
 
-inline void SetQuaternionByAxisRotateVWithNoRegularize(float *self, short a1, float *src)
+inline void SetQuaternionByAxisRotateVWithNoRegularize(float *self, short ang, float *src)
 {
-    int half = a1 >> 1;
+    int half = ang >> 1;
     float f;
     f = GetTableSin(half);
     _ScaleVector(self, src, f);
     self[3] = GetTableCos(half);
 }
 
-inline void SetQuaternionByAxisRotateV(float *self, short a1, float *src)
+inline void SetQuaternionByAxisRotateV(float *self, short ang, float *src)
 {
     char buf[16];
     _NormalizeVector(buf, src);
-    SetQuaternionByAxisRotateVWithNoRegularize(self, a1, buf);
+    SetQuaternionByAxisRotateVWithNoRegularize(self, ang, buf);
 }
 
-inline void SetQuaternionByAxisRotate(float *self, short a1, float x, float y, float z)
+inline void SetQuaternionByAxisRotate(float *self, short ang, float x, float y, float z)
 {
     float v[4] = {x, y, z, 0.0f};
-    SetQuaternionByAxisRotateV(self, a1, v);
+    SetQuaternionByAxisRotateV(self, ang, v);
 }
 
-inline void SetQuaternionByAxisRotateWithNoRegularize(float *self, short a1, float x, float y,
+inline void SetQuaternionByAxisRotateWithNoRegularize(float *self, short ang, float x, float y,
                                                       float z)
 {
     char buf[16];
-    int half = (a1 << 16) >> 17;
+    int half = (ang << 16) >> 17;
     float f;
     *(float *)(buf + 0) = x;
     *(float *)(buf + 4) = y;
@@ -336,17 +336,17 @@ inline void SetQuaternionByAxisRotateWithNoRegularize(float *self, short a1, flo
     self[3] = GetTableCos(half);
 }
 
-inline void SetQuaternionByAxisRotateVEAngle(void *a0, float *a1, void *a2)
+inline void SetQuaternionByAxisRotateVEAngle(void *out, float *cosAngle, void *axis)
 {
     float buf[4];
     float first, second;
-    first = _Sqrt((a1[0] + 1.0f) * 0.5f);
-    second = _Sqrt((1.0f - a1[0]) * 0.5f);
-    _NormalizeVector(buf, a2);
-    *(float *)((char *)a0 + 0xC) = first;
-    *(float *)((char *)a0 + 0x0) = buf[0] * second;
-    *(float *)((char *)a0 + 0x4) = buf[1] * second;
-    *(float *)((char *)a0 + 0x8) = buf[2] * second;
+    first = _Sqrt((cosAngle[0] + 1.0f) * 0.5f);
+    second = _Sqrt((1.0f - cosAngle[0]) * 0.5f);
+    _NormalizeVector(buf, axis);
+    *(float *)((char *)out + 0xC) = first;
+    *(float *)((char *)out + 0x0) = buf[0] * second;
+    *(float *)((char *)out + 0x4) = buf[1] * second;
+    *(float *)((char *)out + 0x8) = buf[2] * second;
 }
 
 inline void SetQuaternionByAxisRotateEAngle(float *out, float *in, float x, float y, float z)
@@ -372,15 +372,15 @@ inline void MultiQuaternion(void *p0, void *p1, void *p2)
     VU0_LSV(sqc2, 13, 0x0, 4);
 }
 
-inline void DivQuaternion(void *self, void *a1, void *a2)
+inline void DivQuaternion(void *self, void *qa, void *qb)
 {
     float buf[4];
-    GetInverseQuaternion(buf, a2);
+    GetInverseQuaternion(buf, qb);
     /* the call goes through a cast of MultiQuaternion's declaration */
-    ((void (*)(int, int, int))MultiQuaternion)(self, buf, a1);
+    ((void (*)(int, int, int))MultiQuaternion)(self, buf, qa);
 }
 
-inline void GetMatrixFromQuaternionRotElem(void *a0, void *a1)
+inline void GetMatrixFromQuaternionRotElem(void *mtx, void *q)
 {
     __asm__ __volatile__(".set noreorder\n"
                          "lqc2 $vf11, 0x0($5)\n"
@@ -417,7 +417,7 @@ inline void GetMatrixFromQuaternionRotElem(void *a0, void *a1)
                          : "memory");
 }
 
-inline void GetMatrixFromQuaternionPos(void *mtx, void *a1, void *a2)
+inline void GetMatrixFromQuaternionPos(void *mtx, void *q, void *pos)
 {
     float *m = mtx;
 
@@ -452,9 +452,9 @@ inline void GetMatrixFromQuaternionPos(void *mtx, void *a1, void *a2)
                          "sqc2 $vf16, 0x20(%1)\n"
                          ".set reorder\n"
                          :
-                         : "r"(quatToMatrixScale), "r"(m), "r"(a1)
+                         : "r"(quatToMatrixScale), "r"(m), "r"(q)
                          : "memory");
-    CopyVector(m + 12, a2);
+    CopyVector(m + 12, pos);
     m[15] = 1.0f;
 }
 
@@ -502,10 +502,10 @@ inline void GetMirrorQuaternion(float *dst, float *src, int mode)
     }
 }
 
-inline void RotQuaternionX(void *self, short a1)
+inline void RotQuaternionX(void *self, short ang)
 {
     char buf[16];
-    int half = (-(a1 << 16)) >> 17;
+    int half = (-(ang << 16)) >> 17;
     char *axis = XUnitVector;
     float f;
     f = GetTableSin(half);
@@ -531,10 +531,10 @@ inline void RotQuaternionX(void *self, short a1)
                          : "memory");
 }
 
-inline void RotQuaternionY(void *self, short a1)
+inline void RotQuaternionY(void *self, short ang)
 {
     char buf[16];
-    int half = (-(a1 << 16)) >> 17;
+    int half = (-(ang << 16)) >> 17;
     char *axis = YUnitVector;
     float f;
     f = GetTableSin(half);
@@ -560,10 +560,10 @@ inline void RotQuaternionY(void *self, short a1)
                          : "memory");
 }
 
-inline void RotQuaternionZ(void *self, short a1)
+inline void RotQuaternionZ(void *self, short ang)
 {
     char buf[16];
-    int half = (-(a1 << 16)) >> 17;
+    int half = (-(ang << 16)) >> 17;
     char *axis = ZUnitVector;
     float f;
     f = GetTableSin(half);
@@ -670,20 +670,20 @@ inline void GetZUnitVectorOfQuaternion(float *out, float *q)
     out[2] = out[2] + 1.0f;
 }
 
-inline void SetQuaternionByCosineAxisRotateVWithNoRegularize(void *a0, void *a1, float angle)
+inline void SetQuaternionByCosineAxisRotateVWithNoRegularize(void *out, void *axis, float angle)
 {
     float first, second;
     first = _Sqrt((angle + 1.0f) * 0.5f);
     second = _Sqrt((1.0f - angle) * 0.5f);
-    _ScaleVector(a0, a1, second);
-    *(float *)((char *)a0 + 0xC) = first;
+    _ScaleVector(out, axis, second);
+    *(float *)((char *)out + 0xC) = first;
 }
 
-inline void SetQuaternionByCosineAxisRotateV(void *a0, void *a1, float angle)
+inline void SetQuaternionByCosineAxisRotateV(void *out, void *axis, float angle)
 {
     float buf[4];
-    _NormalizeVector(buf, a1);
-    SetQuaternionByCosineAxisRotateVWithNoRegularize(a0, buf, angle);
+    _NormalizeVector(buf, axis);
+    SetQuaternionByCosineAxisRotateVWithNoRegularize(out, buf, angle);
 }
 
 inline void GetDifferencialQuaternionWithNoRegularize(void *out, void *a, void *b)
@@ -696,7 +696,7 @@ inline void GetDifferencialQuaternionWithNoRegularize(void *out, void *a, void *
 }
 
 /* no caller; float as sugipon's scalar getters */
-inline float GetQuaternionMagnitude(void *a0)
+inline float GetQuaternionMagnitude(void *q)
 {
     float r;
     __asm__ __volatile__(".set noreorder\n"
@@ -709,6 +709,6 @@ inline float GetQuaternionMagnitude(void *a0)
                          "qmfc2.ni %0, $vf15\n"
                          ".set reorder\n"
                          : "=r"(r)
-                         : "r"(a0));
+                         : "r"(q));
     return _Sqrt(r);
 }
