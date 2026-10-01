@@ -6,8 +6,8 @@
 #include "main.h"
 #include "matrixDrive.h"
 
-/* the TU's .sdata (MAIN.MAP lineManager.o .sdata 0xC, no symbol): the GS PRIM
-   values the plain line, the line strip and the gouraud line are drawn with */
+/* the GS PRIM values the plain line, the line strip and the gouraud line are
+   drawn with */
 static int linePrim = 0x142; /* derived name */
 
 static int lineStripPrim = 0x189; /* derived name */
@@ -63,17 +63,12 @@ void Draw2DLineG(int *p1, int *c1, int *p2, int *c2, int z)
 
 /* Project a 3D segment to screen space and clip it to the screen, answering
  * -1 when it is off screen, else whether the end points were swapped.  The
- * listing puts the parameter moves on line 115 and the helpers' bodies on
- * rows 120 to 223 inside the span, so the helpers are nested inline functions
- * (sugipon's style, as boy.c and staticBlur.c).  Rows 149 to 174 are one
- * helper: the near clip and the projection share its parameter copies ($v0,
- * $a0).  The four VU0 blocks carry no memory clobber, like sugiCommon.h's
- * distance_squared: the ROM keeps o2's first coordinate in a register across
- * the X and Y clips.  The end points are VECTOR initialisers (lines 244 and
- * 245), built in a temporary and block-copied as box.c's are. */
+ * helpers are nested inline functions, as in boy.c and staticBlur.c; one of
+ * them does both the near clip and the projection.  The four VU0 blocks carry
+ * no memory clobber, like sugiCommon.h's distance_squared. */
 int _getLine(float *o1, float *o2, float *p1, float *p2)
 {
-    inline void swapVector(float *a, float *b)
+    inline void swapVector(float *a, float *b) /* derived name */
     {
         float t[4];
 
@@ -82,7 +77,7 @@ int _getLine(float *o1, float *o2, float *p1, float *p2)
         _CopyVector(b, t);
     }
 
-    inline int sortByX(float *a, float *b)
+    inline int sortByX(float *a, float *b) /* derived name */
     {
         if (a[0] > b[0]) {
             swapVector(a, b);
@@ -91,7 +86,7 @@ int _getLine(float *o1, float *o2, float *p1, float *p2)
         return 0;
     }
 
-    inline int sortByY(float *a, float *b)
+    inline int sortByY(float *a, float *b) /* derived name */
     {
         if (a[1] > b[1]) {
             swapVector(a, b);
@@ -100,7 +95,7 @@ int _getLine(float *o1, float *o2, float *p1, float *p2)
         return 0;
     }
 
-    inline int sortByZ(float *a, float *b)
+    inline int sortByZ(float *a, float *b) /* derived name */
     {
         if (a[2] > b[2]) {
             swapVector(a, b);
@@ -109,7 +104,7 @@ int _getLine(float *o1, float *o2, float *p1, float *p2)
         return 0;
     }
 
-    inline void perspLine(float *o1, float *o2, float *a, float *b)
+    inline void perspLine(float *o1, float *o2, float *a, float *b) /* derived name */
     {
         if (a[2] < 1.0f) {
             __asm__ __volatile__(".set noreorder\n\t"
@@ -152,7 +147,7 @@ int _getLine(float *o1, float *o2, float *p1, float *p2)
                              : "r"(a), "r"(b), "r"(o1), "r"(o2));
     }
 
-    inline void clipAtX(float *d, float *a, float *b, float x)
+    inline void clipAtX(float *d, float *a, float *b, float x) /* derived name */
     {
         __asm__ __volatile__(".set noreorder\n\t"
                              "lqc2 $vf8, 0x0(%1)\n\t"
@@ -173,7 +168,7 @@ int _getLine(float *o1, float *o2, float *p1, float *p2)
                              : "r"(d), "r"(a), "r"(b), "f"(x));
     }
 
-    inline void clipAtY(float *d, float *a, float *b, float y)
+    inline void clipAtY(float *d, float *a, float *b, float y) /* derived name */
     {
         __asm__ __volatile__(".set noreorder\n\t"
                              "lqc2 $vf8, 0x0(%1)\n\t"

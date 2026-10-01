@@ -1,12 +1,8 @@
 /*
  * ico2/sugipon/include/streamMotionManager.h
  *
- * The disc records no file of this name: SRCFILE.TXT attributes no
- * instruction to it, and a header that only declares leaves no rows in the
- * listing at all, so this file is ours and not the developers' own record.
- * It collects the declarations of what streamMotionManager.c defines, in the form its
- * users need them; every type here is read from the ROM's calling convention
- * at the call sites and from the spellings the using TUs already carried.
+ * The declarations of what streamMotionManager.c defines, for the files that use
+ * them.  The file name is derived.
  */
 
 #ifndef STREAMMOTIONMANAGER_H
@@ -16,7 +12,7 @@
  * ico2/script/src/st04a.c, st25a.c, e3.c (StandbyStreamMotion's file). */
 typedef struct {   /* field names derived */
     char path[48]; /* 0x00 */
-} StreamMotionFile;
+} StreamMotionFile; /* derived name */
 
 struct GObj;
 

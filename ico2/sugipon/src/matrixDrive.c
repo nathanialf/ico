@@ -4,13 +4,13 @@
 #include <libvu0.h>
 #include "matrixDrive.h"
 
-/* Quadword copies this TU alone issues; the wrappers shared with other
+/* Quadword copies this file alone uses; the wrappers shared with other
    programmers' trees are in ../common/include/typedef.h.  dst/src are
    implicit in $a0/$a1: each macro is the BODY of a two-pointer wrapper. */
 
 /* 64 bytes, serial form: every lq immediately followed by its sq through one
    scratch GPR. */
-#define QCOPY64_SERIAL(scratch)                                                                    \
+#define QCOPY64_SERIAL(scratch) /* derived name */                                                 \
     __asm__ __volatile__("lq " scratch ", 0($5)" : : : "memory");                                  \
     __asm__ __volatile__("sq " scratch ", 0($4)" : : : "memory");                                  \
     __asm__ __volatile__("lq " scratch ", 0x10($5)" : : : "memory");                               \
@@ -21,32 +21,28 @@
     __asm__ __volatile__("sq " scratch ", 0x30($4)" : : : "memory")
 /* Map $a0 into EE scratchpad (SPR) addressing by OR-ing 0x20000000, through
    $a3.  Prelude to QCOPY64_SERIAL in CopyMatrixUncached. */
-#define MAP_A0_TO_SPR()                                                                            \
+#define MAP_A0_TO_SPR() /* derived name */                                                         \
     __asm__ __volatile__("lui $7, 0x2000");                                                        \
     __asm__ __volatile__("or $4, $4, $7")
 /* lq/sq of 16 bytes through $a2, with the base bound from a C pointer. */
-#define LQ16_FROM(p) __asm__ __volatile__("lq $6, 0(%0)" : : "r"(p) : "memory")
-#define SQ16_TO(p) __asm__ __volatile__("sq $6, 0(%0)" : : "r"(p) : "memory")
+#define LQ16_FROM(p) __asm__ __volatile__("lq $6, 0(%0)" : : "r"(p) : "memory") /* derived name */
+#define SQ16_TO(p) __asm__ __volatile__("sq $6, 0(%0)" : : "r"(p) : "memory")   /* derived name */
 
 /* a matrix as UnitRotation keeps it: its translation row moved as one
    128-bit quadword around the unit fill */
-typedef int Qw128 __attribute__((mode(TI)));
+typedef int Qw128 __attribute__((mode(TI))); /* derived name */
 
 typedef struct { /* field names derived */
     char pad[48];
     Qw128 q; /* 0x30, the translation row */
 } MatDrive;  /* derived name */
 
-/* the TU's one .sdata word (MAIN.MAP matrixDrive.o .sdata 0x4, no symbol): the
-   current depth of the matrix stack below */
+/* the current depth of the matrix stack below */
 static int matrixStackIndex = 0; /* derived name */
 
-/* .bss, owned by matrixDrive.o and reached only from this file (MAIN.MAP names
-   no symbol in the run; its matrixDrive.o .bss size 0x1000 is what fixes the
-   length, and geometryManager's 0x100 and quaternion's 0x400 tile the same
-   region exactly).  The 64-deep matrix stack; MatrixDrive_GetLastMatrix reads
-   one slot below the current one, which is the ROM's second %hi/%lo base. */
-static float matrixStack[64][4][4];
+/* the 64-deep matrix stack; MatrixDrive_GetLastMatrix reads one slot below
+   the current one */
+static float matrixStack[64][4][4]; /* derived name */
 
 void InitMatrixDrive(void)
 {
@@ -62,11 +58,10 @@ void MatrixDrive_PushMatrix(void)
     CopyMatrix(matrixStack[matrixStackIndex], matrixStack[matrixStackIndex - 1]);
 }
 
-/* matrixDrive.o's .data run, in source order.  The six leading objects are
-   the engine-wide constant vectors and the identity matrix; MAIN.MAP names
-   them and other objects reach them by name.  The four matrices that follow
-   are this file's own scratch templates: each rotate/scale entry point writes
-   its varying terms into one of them and multiplies it through. */
+/* The six leading objects are the engine-wide constant vectors and the
+   identity matrix, which other files use by name.  The four matrices that
+   follow are this file's own scratch templates: each rotate/scale entry point
+   writes its varying terms into one of them and multiplies it through. */
 float ZeroVector[4] = {0.0f, 0.0f, 0.0f, 0.0f};
 
 float ZeroPoint[4] = {0.0f, 0.0f, 0.0f, 1.0f};
@@ -81,8 +76,8 @@ float InitialMatrix[16] = {1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f,
                            0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f};
 
 /* the scratch matrix MatrixDrive_RotMatrixX fills in and multiplies through */
-static float rotXWorkMatrix[16] = {1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f,
-                                   0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f};
+static float rotXWorkMatrix[16] = {1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f,
+                                   0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f}; /* derived name */
 
 void MatrixDrive_RotMatrixX(short a0)
 {
@@ -96,8 +91,8 @@ void MatrixDrive_RotMatrixX(short a0)
 }
 
 /* the scratch matrix MatrixDrive_RotMatrixY fills in and multiplies through */
-static float rotYWorkMatrix[16] = {1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f,
-                                   1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f};
+static float rotYWorkMatrix[16] = {1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f,
+                                   0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f}; /* derived name */
 
 void MatrixDrive_RotMatrixY(short a0)
 {
@@ -111,8 +106,8 @@ void MatrixDrive_RotMatrixY(short a0)
 }
 
 /* the scratch matrix MatrixDrive_RotMatrixZ fills in and multiplies through */
-static float rotZWorkMatrix[16] = {1.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f, 0.0f,
-                                   0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f};
+static float rotZWorkMatrix[16] = {1.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f,
+                                   0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f}; /* derived name */
 
 void MatrixDrive_RotMatrixZ(short a0)
 {
@@ -126,8 +121,8 @@ void MatrixDrive_RotMatrixZ(short a0)
 }
 
 /* the scratch matrix MatrixDrive_ScaleMatrix fills in and multiplies through */
-static float scaleWorkMatrix[16] = {1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f,
-                                    0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f};
+static float scaleWorkMatrix[16] = {1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f,
+                                    0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f}; /* derived name */
 
 void MatrixDrive_ScaleMatrix(float x, float y, float z)
 {
@@ -206,10 +201,10 @@ void MatrixDrive_TransMatrix(float x, float y, float z)
     CopyVector(matrixStack[matrixStackIndex][3], m);
 }
 
-/* INTERIM stand-in: MatrixDrive_GetTurnZAngleYX is `inline` in the 2001 source, so its
-   out-of-line copy lands in the deferred inline tail BELOW this caller and gcc
-   cannot inline it from there. Same body. */
-static inline void GetTurnZAngleYX_i(short *a0, short *a1, float x, float y, float z)
+/* a file-static copy of MatrixDrive_GetTurnZAngleYX, for the callers above
+   its definition */
+static inline void GetTurnZAngleYX_i(short *a0, short *a1, float x, float y,
+                                     float z) /* derived name */
 {
     float v0[4] = {x, y, -z, 1.0f};
     float v1[4] = {x, 0.0f, -z, 1.0f};
@@ -240,11 +235,10 @@ void MatrixDrive_TurnObjectMatrix(float x, float y, float z)
     MatrixDrive_RotMatrixX(ax);
 }
 
-/* INTERIM stand-in: MatrixDrive_GetTurnXAngleZY is `inline` in the 2001 source,
-   so its out-of-line copy lands in the deferred inline tail BELOW this caller and
-   gcc cannot inline it from there. This carries the same body for the callers
-   above the tail. */
-static inline void GetTurnXAngleZY_i(short *a0, short *a1, float x, float y, float z)
+/* a file-static copy of MatrixDrive_GetTurnXAngleZY, for the callers above
+   its definition */
+static inline void GetTurnXAngleZY_i(short *a0, short *a1, float x, float y,
+                                     float z) /* derived name */
 {
     float v0[4] = {x, y, z, 1.0f};
     float v1[4] = {x, y, 0.0f, 1.0f};
@@ -271,10 +265,10 @@ void MatrixDrive_TurnXObjectMatrixZY(float x, float y, float z)
     MatrixDrive_RotMatrixY(ay);
 }
 
-/* INTERIM stand-in: MatrixDrive_GetTurnXAngleYZ is `inline` in the 2001 source, so its
-   out-of-line copy lands in the deferred inline tail BELOW this caller and gcc
-   cannot inline it from there. Same body. */
-static inline void GetTurnXAngleYZ_i(short *a0, short *a1, float x, float y, float z)
+/* a file-static copy of MatrixDrive_GetTurnXAngleYZ, for the callers above
+   its definition */
+static inline void GetTurnXAngleYZ_i(short *a0, short *a1, float x, float y,
+                                     float z) /* derived name */
 {
     float v0[4] = {x, y, z, 1.0f};
     float v1[4] = {x, 0.0f, z, 1.0f};
@@ -301,10 +295,10 @@ void MatrixDrive_TurnXObjectMatrixYZ(float x, float y, float z)
     MatrixDrive_RotMatrixZ(az);
 }
 
-/* INTERIM stand-in: MatrixDrive_GetTurnYAngleXZ is `inline` in the 2001 source, so its
-   out-of-line copy lands in the deferred inline tail BELOW this caller and gcc
-   cannot inline it from there. Same body. */
-static inline void GetTurnYAngleXZ_i(short *a0, short *a1, float x, float y, float z)
+/* a file-static copy of MatrixDrive_GetTurnYAngleXZ, for the callers above
+   its definition */
+static inline void GetTurnYAngleXZ_i(short *a0, short *a1, float x, float y,
+                                     float z) /* derived name */
 {
     float v0[4] = {x, y, z, 1.0f};
     float v1[4] = {0.0f, y, z, 1.0f};
@@ -329,10 +323,10 @@ void MatrixDrive_TurnYObjectMatrixXZ(float x, float y, float z)
     MatrixDrive_RotMatrixZ(az);
 }
 
-/* INTERIM stand-in: MatrixDrive_GetTurnZAngleXY is `inline` in the 2001 source, so its
-   out-of-line copy lands in the deferred inline tail BELOW this caller and gcc
-   cannot inline it from there. Same body. */
-static inline void GetTurnZAngleXY_i(short *a0, short *a1, float x, float y, float z)
+/* a file-static copy of MatrixDrive_GetTurnZAngleXY, for the callers above
+   its definition */
+static inline void GetTurnZAngleXY_i(short *a0, short *a1, float x, float y,
+                                     float z) /* derived name */
 {
     float v0[4] = {x, y, z, 1.0f};
     float v1[4] = {0.0f, y, z, 1.0f};
@@ -406,7 +400,7 @@ void MatrixDrive_GetTurnYAngleXZ(short *a0, short *a1, float x, float y, float z
     *a1 = GetTableArcTan2(v0[0], len);
 }
 
-/* No caller in the ROM, so the bytes cannot decide the return type: void as sugipon's output-parameter getters. */
+/* no caller; void, as sugipon's other output-parameter getters */
 void MatrixDrive_GetTurnYEAngleXZ(float *a0, float *a1, float x, float y, float z)
 {
     float v0[4];
@@ -490,12 +484,12 @@ void MatrixDrive_GetTurnMinusZAngleXY(short *a0, short *a1, float x, float y, fl
     *a1 = GetTableArcTan2(v0[0], len);
 }
 
-typedef struct {
+typedef struct { /* field names derived */
     float x;
     float y;
     float z;
     float w;
-} __attribute__((aligned(16))) MdVec;
+} __attribute__((aligned(16))) MdVec; /* derived name */
 
 void MatrixDrive_SetTransposeMatrix(void *dstMtx, void *srcMtx)
 {

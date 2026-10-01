@@ -17,11 +17,10 @@
  * waterDots[waterDotCount++]. */
 /* 0x1C */
 
-/* .bss, owned by waterDot.o (InitializeWaterDot clears five slots): the
-   registered emitters. */
-static WaterDotWork *waterDots[5];
+/* the registered emitters; InitializeWaterDot clears all five */
+static WaterDotWork *waterDots[5]; /* derived name */
 
-/* the TU's .sdata (MAIN.MAP names nothing in it): how many are registered */
+/* how many water dots are registered */
 static int waterDotCount = 0; /* derived name */
 
 inline void InitializeWaterDot(void)
@@ -34,18 +33,15 @@ inline void InitializeWaterDot(void)
     }
 }
 
-/* The three .data templates AllocWaterDot block-copies, in ROM order at
-   0x4ED170, 0x4ED190 and 0x4ED1C0. Each is an explicit initialiser, which is
-   why the all-zero first one sits in .data rather than .bss. */
-static WaterDotWork initWaterDotWork = {0, 0, 0, 0, 0, 0, 0};
+/* the three templates AllocWaterDot copies into a new work block */
+static WaterDotWork initWaterDotWork = {0, 0, 0, 0, 0, 0, 0}; /* derived name */
 
 static WaterDot initWaterDot = {
-    0, 0, 128, 1.0f, {0.0f, 0.0f, 0.0f, 1.0f}, {0.0f, 0.0f, 0.0f, 0.0f}};
+    0, 0, 128, 1.0f, {0.0f, 0.0f, 0.0f, 1.0f}, {0.0f, 0.0f, 0.0f, 0.0f}}; /* derived name */
 
-static WaterDot initWaterDot2 = {0, 0, 0, 0.0f, {0.0f, 0.0f, 0.0f, 1.0f}, {0.0f, 0.0f, 0.0f, 0.0f}};
+static WaterDot initWaterDot2 = {
+    0, 0, 0, 0.0f, {0.0f, 0.0f, 0.0f, 1.0f}, {0.0f, 0.0f, 0.0f, 0.0f}}; /* derived name */
 
-/* waterDot.c:27-47 in the PAL listing. The line numbers the three
-   iosMallocDebug calls carry ARE their source lines, 29, 33 and 38. */
 WaterDotWork *AllocWaterDot(int gobj, int num, int num2)
 {
     WaterDotWork *w;
@@ -96,17 +92,12 @@ inline void EntryWaterDot(WaterDotWork *w, void *pos, void *vel, float range)
         w->cur = 0;
 }
 
-/* waterDot.c:71-78 in the PAL listing, rows inside ExecWaterDot's span but
-   above its def line: a static helper with no out-of-line copy, inlined at
-   its one call site. It ages one dot and reports whether it has expired. */
-static inline int stepWaterDot(WaterDot *p)
+/* age one dot and report whether it has expired */
+static inline int stepWaterDot(WaterDot *p) /* derived name */
 {
     if (p->frame++ < 30) {
-        /* The gravity step is the frame-rate quotient written out TWICE rather
-           than held in a local, the same spelling src/clothAnimation.c uses for
-           the identical term. cse collapses the second copy, but expanding it
-           moves the p->scale argument load one issue slot later, which is the
-           ROM's order. */
+        /* the gravity step, the frame-rate quotient written out twice as
+           clothAnimation.c writes the same term */
         p->vel.y += 60.0f / (float)((60 - systemStatus[0] * 10) / systemStatus[1]) * 0.5f *
                     (60.0f / (float)((60 - systemStatus[0] * 10) / systemStatus[1]));
         _ScaleVectorXYZ(&p->vel, &p->vel, p->scale);
@@ -147,14 +138,11 @@ void ExecWaterDot(WaterDotWork *w)
     }
 }
 
-/* the PRIM register value the splash packet draws with, the TU's second
-   .sdata word */
+/* the PRIM register value the splash packet draws with */
 static int waterDotPrim = 0x1C0; /* derived name */
 
-/* waterDot.c:121-126 in the PAL listing, rows inside DispWaterDot's span but
-   above its def line: a static helper with no out-of-line copy, inlined at its
-   one call site. It projects one dot into GS fixed-point screen space. */
-static inline void getWaterDotScreenPos(int *out, VECTOR *pos)
+/* project one dot into GS fixed-point screen space */
+static inline void getWaterDotScreenPos(int *out, VECTOR *pos) /* derived name */
 {
     VECTOR v;
     float q;

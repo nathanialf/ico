@@ -1,12 +1,8 @@
 /*
  * ico2/sugipon/include/geometryManager.h
  *
- * The disc records no file of this name: SRCFILE.TXT attributes no
- * instruction to it, and a header that only declares leaves no rows in the
- * listing at all, so this file is ours and not the developers' own record.
- * It collects the declarations of what geometryManager.c defines, in the form its
- * users need them; every type here is read from the ROM's calling convention
- * at the call sites and from the spellings the using TUs already carried.
+ * The declarations of what geometryManager.c defines, for the files that use
+ * them.  The file name is derived.
  */
 
 #ifndef GEOMETRYMANAGER_H
@@ -62,12 +58,12 @@ int cylinderCollisionCheck(struct GObj *self, float *ppos, struct GObj *target, 
 void getInitialInverseMatrix(char *mat, char *mdl, int no);
 void getInitialMatrix(char *mdl, int no);
 
-/* RECONSTRUCTION, PLACED BY INCLUDE PATTERN: one record for 3 TUs that carried 2 divergent local copies; this body is the one the ROM's bytes accept in the most of them. */
-typedef union SubHandle {
+/* the GObj's sub-object slot, read as an int, a byte pointer or a Sub15C */
+typedef union SubHandle { /* field names derived */
     int i;
     char *p;
     struct Sub15C *sub;
-} SubHandle;
+} SubHandle; /* derived name */
 
 int GetCylinderCollisionWithExceptOwnCollision(struct GObj *self, struct GObj *target, float r,
                                                float h, float s, float t, int ctrl);

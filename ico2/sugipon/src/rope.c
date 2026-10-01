@@ -12,17 +12,17 @@
 #include "ios.h"
 #include <assert.h>
 
-/* kept local: float (void *, void *, float) here, float (int *, void *, float) in clothAnimation.h */
+/* float (void *, void *, float) here, float (int *, void *, float) in clothAnimation.h */
 extern float GetChainCollision(void *a0, void *a1, float w);
-/* kept local: int (void *) here, void * (char *) in clothAnimation.h */
+/* int (void *) here, void * (char *) in clothAnimation.h */
 extern int InitChains(void *c);
 
 /* The chain template the rope starts from: two 0x50-byte records, the
    halves of the chain system record below, copied whole with doubleword
    moves, so the record carries 8-byte alignment (its zero doubleword at
    0x18 is spelled as one, as particleEffect.c's staging record does). */
-typedef struct {
-    int n; /* 0x00 */
+typedef struct { /* field names derived */
+    int n;       /* 0x00 */
     int _04[3];
     int f10;       /* 0x10 */
     float f14;     /* 0x14 */
@@ -34,25 +34,25 @@ typedef struct {
     int _30[4];
     float f40; /* 0x40 */
     int _44[3];
-} RopeTemplate;
+} RopeTemplate; /* derived name */
 
-/* .data, the whole of rope.o's run (MAIN.MAP sizes the member 0xB0): the zero
-   vector HoldRope clears the holder's offset with, then the template. */
+/* the zero vector HoldRope clears the holder's offset with, then the
+   template */
 static float ropeZeroVector[4] = {0.0f, 0.0f, 0.0f, 0.0f}; /* derived name */
 
 static RopeTemplate ropeChainInit[2] = {
     /* derived name */
     {55, {0, 0, 0}, -1, 20.0f, 0, 0.0f, 0.0f, 0.0f, 1.0f, {0, 0, 0, 0}, 10.0f},
     {-1},
-};
+}; /* derived name */
 
-typedef struct {
+typedef struct { /* field names derived */
     int a;
     int b;
-} RopePair;
+} RopePair; /* derived name */
 
 /* The chain system record the rope allocates (0xA0 bytes, two template halves). */
-typedef struct {
+typedef struct { /* field names derived */
     /* 0x00 */ int n;
     /* 0x04 */ int _04[4];
     /* 0x14 */ float f14;
@@ -63,26 +63,26 @@ typedef struct {
     /* 0x2C */ int _2c[5];
     /* 0x40 */ float f40;
     /* 0x44 */ int _44[23];
-} RopeChainSys;
+} RopeChainSys; /* derived name */
 
 /* The wall-clip request, the same record ico2/omori/src/chain.c hands to
    ClipWall (endpoints at 0x00 and 0x10, hit flag at 0x88); the rope also reads
    the 8 bytes at 0x80. */
-typedef struct {
+typedef struct { /* field names derived */
     /* 0x00 */ float from[4];
     /* 0x10 */ float to[4];
     /* 0x20 */ char _20[0x60];
     /* 0x80 */ RopePair out;
     /* 0x88 */ void *hit; /* the wall hit; fieldCollision.c reads it as a pointer */
     /* 0x8C */ char _8c[0x34];
-} RopeClipWork;
+} RopeClipWork; /* derived name */
 
-typedef struct {
+typedef struct { /* field names derived */
     /* 0x00 */ int f0;
     /* 0x04 */ int f4;
     /* 0x08 */ RopePair f8;
     /* 0x10 */ void *f10;
-} RopeGeoWork;
+} RopeGeoWork; /* derived name */
 
 void *InitRopeGeo(GObj *o, const float *p)
 {
@@ -194,9 +194,8 @@ void *InitRopeGeo(GObj *o, const float *p)
         }
         {
             struct DObjNode *e = (struct DObjNode *)(i * 80 + (int)sub->nodes);
-            /* float, where the other expansions of this reset write an int: the
-               ROM loads the loop bound c->n (an int) ahead of this store, which
-               it may do only if the two do not alias */
+            /* a float store, where the other expansions of this reset write
+               an int */
             e->fade = 0.0f;
         }
         {
@@ -238,18 +237,16 @@ void SetRopeFixPoint(GObj *a0, void *a1)
 }
 
 /* The actor's 0x15C sub-object slot: the engine stores a different per-actor
-   struct pointer in it depending on the actor, so it is a union of pointers.
-   (ROM proves the union read: it may-alias the float chain-node writes in
-   HoldRope, which a plain typed pointer read would not.) */
-typedef union {
+   struct pointer in it depending on the actor, so it is a union of pointers. */
+typedef union { /* field names derived */
     char *b;
     float *f;
     int *i;
-} Sub15CRef;
+} Sub15CRef; /* derived name */
 
-/* kept local: float (void *) here, float (int, float) in clothAnimation.h */
+/* float (void *) here, float (int, float) in clothAnimation.h */
 extern float GetChainNodeID(void *n);
-/* kept local: int (void *, int, float, float) here, int (int *, int, float, float) in clothAnimation.h */
+/* int (void *, int, float, float) here, int (int *, int, float, float) in clothAnimation.h */
 extern int SetChainExtendedWeight(void *a0, int a1, float f12, float f13);
 
 void HoldRope(void *a0, void *a1)
@@ -281,7 +278,7 @@ void HoldRope(void *a0, void *a1)
 
 inline void ReleaseRope(void) {}
 
-/* kept local: agrees with clothAnimation.h, which this TU does not include (GetChainCollision, GetChainNodeID differ) */
+/* as in clothAnimation.h, which this file does not include */
 extern void GetChainAnimation(void *sys, int obj, void *mtx);
 
 void ropeGeo(void *a0)
@@ -298,13 +295,10 @@ void ropeGeo(void *a0)
     GetChainAnimation(obj[0], 0, MatrixDrive_GetMatrix());
 }
 
-/* The listing inlines rope.c:215-221 into RopeGeo: the chain-length update
-   is a static helper defined above it (its name is not recoverable). */
-
 /* extra chains hung from the rope; none in the release build */
-#define ROPE_EXTRA_CHAINS 0
+#define ROPE_EXTRA_CHAINS 0 /* derived name */
 
-static inline void ropeChainCollision(void *a0)
+static inline void ropeChainCollision(void *a0) /* derived name */
 {
     void *g = boyGObj;
     void **obj = *(void ***)((char *)*(void **)((char *)a0 + 0x15C) + 0x830);
@@ -316,12 +310,7 @@ static inline void ropeChainCollision(void *a0)
     w = GetChainCollision(obj[0], m, 200.0f);
     if (0.0f < w) {
         *(float *)((char *)*(void **)((char *)g + 0x15C) + 0x618) = w;
-        /* A loop over the rope's extra chains, built with a count of 0 in
-           the release build.  WHAT THE BYTES PIN: the loop-begin note of a
-           loop at the end of this block; its body never runs, so it leaves
-           no code (listing rows 222-250 are code-free).  WHAT THEY CANNOT
-           PIN: what the loop counted or did; the count's name and the body
-           are ours. */
+        /* the rope's extra chains, none in the release build */
         for (i = 0; i < ROPE_EXTRA_CHAINS; i++) {
             w = GetChainCollision(obj[i + 1], m, w);
         }
@@ -334,7 +323,7 @@ inline void RopeGeo(void *a0)
     ropeChainCollision(a0);
 }
 
-/* kept local: void (void *) here, void (int *) in clothAnimation.h */
+/* void (void *) here, void (int *) in clothAnimation.h */
 extern void TestDispChainAnimation(void *a0);
 
 void RopeDL(GObj *a0)

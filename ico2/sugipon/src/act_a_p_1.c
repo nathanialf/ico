@@ -19,20 +19,17 @@
 #include "motionManager2.h"
 #include "spider.h"
 
-typedef struct AP1Vec {
+typedef struct AP1Vec { /* field names derived */
     float x;
     float y;
     float z;
     float w;
-} __attribute__((aligned(16))) AP1Vec;
+} __attribute__((aligned(16))) AP1Vec; /* derived name */
 
-/* --- the TU's whole .data run, VMA 0x4E5A30..0x4E5A90 (0x60), in emission
-   order.  The six AI mode names are eight bytes or fewer, so the compiler
-   puts them (and GetAP1AIMode's "--") in the TU's .sdata run, in this order.
-   The modes are stand, walk, jump, attack, dead, sleep. */
+/* the AI modes are stand, walk, jump, attack, dead and sleep */
 
 /* the two-letter tag GetAP1AIMode hands the debug display. */
-static char *ap1ModeTag[] = {"ST", "WA", "JM", "AT", "DE", "SL"};
+static char *ap1ModeTag[] = {"ST", "WA", "JM", "AT", "DE", "SL"}; /* derived name */
 
 inline char *GetAP1AIMode(GObj *self)
 {
@@ -46,7 +43,7 @@ inline char *GetAP1AIMode(GObj *self)
 
 /* the fixed hop walkAI asks for when it is boxed in: straight down and
    two units forward. */
-static AP1Vec ap1BoxedInJump = {0.0f, -20.0f, 2.0f, 0.0f};
+static AP1Vec ap1BoxedInJump = {0.0f, -20.0f, 2.0f, 0.0f}; /* derived name */
 
 int standAI(GObj *self);
 int walkAI(GObj *self);
@@ -57,43 +54,42 @@ int attackAI(GObj *);
 static int (*ap1ModeAI[])(GObj *) = {standAI, walkAI, jumpAI, attackAI, 0, 0};
 
 /* the spelled-out mode name hehehe() prints. */
-static char *ap1ModeName[] = {"STAND", "WALK", "JUMP", "ATTACK", "DEAD", "SLEEP"};
+static char *ap1ModeName[] = {"STAND",  "WALK", "JUMP",
+                              "ATTACK", "DEAD", "SLEEP"}; /* derived name */
 
-/* .sbss and .bss, owned by act_a_p_1.o and reached only from this file
-   (MAIN.MAP names no symbol in either run), each in the ROM's run order.
-   The AI's view of the boy and of the object it is watching, refreshed once a
-   frame by the sense pass and read by every mode routine. */
-static float boyDist; /* distance to the boy */
+/* the AI's view of the boy and of the object it is watching, refreshed once
+   a frame by the sense pass and read by every mode routine */
+static float boyDist; /* derived name */ /* distance to the boy */
 
-static short boyPitch; /* vertical angle to the boy */
+static short boyPitch; /* derived name */ /* vertical angle to the boy */
 
-static short boyYaw; /* heading to the boy in local space */
+static short boyYaw; /* derived name */ /* heading to the boy in local space */
 
-static short boyYawBack; /* the opposite heading, boyYaw - 32768 */
+static short boyYawBack; /* derived name */ /* the opposite heading, boyYaw - 32768 */
 
-static int boySafe; /* the boy is not in danger */
+static int boySafe; /* derived name */ /* the boy is not in danger */
 
-static float lookDist; /* distance to the object being watched */
+static float lookDist; /* derived name */ /* distance to the object being watched */
 
-static short lookYaw; /* heading to it in local space */
+static short lookYaw; /* derived name */ /* heading to it in local space */
 
-static AP1Vec boyLocalDir; /* direction to the boy, in local space */
+static AP1Vec boyLocalDir; /* derived name */ /* direction to the boy, in local space */
 
-static AP1Vec boyLocalFlat; /* the same with y removed and normalised */
+static AP1Vec boyLocalFlat; /* derived name */ /* the same with y removed and normalised */
 
-static AP1Vec boyDelta; /* the boy's offset in world space */
+static AP1Vec boyDelta; /* derived name */ /* the boy's offset in world space */
 
-static AP1Vec boyDeltaFlat; /* the same with y removed */
+static AP1Vec boyDeltaFlat; /* derived name */ /* the same with y removed */
 
-static AP1Vec lookDelta; /* the watched object's offset in world space */
+static AP1Vec lookDelta; /* derived name */ /* the watched object's offset in world space */
 
-static AP1Vec lookLocalDir; /* direction to it, in local space */
+static AP1Vec lookLocalDir; /* derived name */ /* direction to it, in local space */
 
-static AP1Vec lookLocalFlat; /* the same with y removed and normalised */
+static AP1Vec lookLocalFlat; /* derived name */ /* the same with y removed and normalised */
 
-static AP1Vec lookDeltaFlat; /* lookDelta with y removed */
+static AP1Vec lookDeltaFlat; /* derived name */ /* lookDelta with y removed */
 
-static AP1Vec selfPos; /* this actor's own root position */
+static AP1Vec selfPos; /* derived name */ /* this actor's own root position */
 
 int standAI(GObj *self)
 {
@@ -270,15 +266,13 @@ void WakeUpAP1(GObj *a0)
     }
 }
 
-/* Three static helpers the January-2002 listing places at act_a_p_1.c lines
- * 320-331, 335-344 and 346-352, expanded into subAP1BrainMain; never emitted
- * out of line, so none has a MAIN.MAP symbol and these three names are ours. */
+/* three helpers for subAP1BrainMain */
 
-typedef struct AP1Mtx {
+typedef struct AP1Mtx { /* field names derived */
     float m[16];
-} __attribute__((aligned(16))) AP1Mtx;
+} __attribute__((aligned(16))) AP1Mtx; /* derived name */
 
-static inline int AP1GetVerticalAngle(GObj *g, AP1Vec *v)
+static inline int AP1GetVerticalAngle(GObj *g, AP1Vec *v) /* derived name */
 {
     AP1Vec q;
     AP1Mtx m;
@@ -293,7 +287,8 @@ static inline int AP1GetVerticalAngle(GObj *g, AP1Vec *v)
     return a < 0 ? -a : a;
 }
 
-static inline float AP1GetDirection(AP1Vec *dst, AP1Vec *tmp, AP1Vec *from, AP1Vec *to)
+static inline float AP1GetDirection(AP1Vec *dst, AP1Vec *tmp, AP1Vec *from,
+                                    AP1Vec *to) /* derived name */
 {
     float len;
 
@@ -304,7 +299,7 @@ static inline float AP1GetDirection(AP1Vec *dst, AP1Vec *tmp, AP1Vec *from, AP1V
     return len;
 }
 
-static inline void AP1ToLocal(GObj *self, AP1Vec *v)
+static inline void AP1ToLocal(GObj *self, AP1Vec *v) /* derived name */
 {
     AP1Mtx m;
 
@@ -313,9 +308,8 @@ static inline void AP1ToLocal(GObj *self, AP1Vec *v)
     _ApplyMatrix(v, &m, v);
 }
 
-/* `self` is volatile because this is an actor sub-thread entry: _ACTWait
- * yields to the scheduler inside the loop, so the GObj handle is re-read at
- * every use rather than cached in a register. */
+/* `self` is volatile: this is an actor sub-thread entry, and _ACTWait
+ * yields to the other threads inside the loop */
 void subAP1BrainMain(GObj *volatile self)
 {
     AP1Vec smooth = {0.0f, 0.0f, 0.0f, 1.0f};
@@ -358,17 +352,7 @@ void subAP1BrainMain(GObj *volatile self)
                 CopyVector(&smooth, &dest);
                 hold = 1;
             } else {
-                /* The census puts this row on sugiCommon.h:87, but only the
-                 * line-95 spelling reaches rc0 here: the line-87 helper's
-                 * single `__asm__ __volatile__` block hard-wires `$2` in its
-                 * clobber list, which conflicts $2 with everything live across
-                 * the block and moves this function's whole entry-block
-                 * reload. See the ledger row for the measurement. */
-                /* PLACEHOLDER: the census puts this row on sugiCommon.h:87, so the
-                   host absorbed the line 85-88 helper, not the line 95-98 one.
-                   No spelling of that helper reaches rc0 in both this TU and
-                   clothAnimation.c; `_b` carries the multi-block body this host
-                   needs. See docs/HEADERS.md, distance_squared. */
+                /* sugiCommon.h's multi-block distance_squared_b */
                 if (40000.0f < distance_squared_b(&dest, &smooth)) {
                     _InterVectorXYZ(&smooth, &smooth, &dest, 0.5f);
                 }
@@ -427,23 +411,20 @@ void SetAP1DeadStatus(GObj *a0)
     AP1MotReqForce(a0, 5);
 }
 
-typedef struct AP1MailEntry {
+typedef struct AP1MailEntry { /* field names derived */
     /* 0x0 */ unsigned int mail;
     /* 0x4 */ void *data;
-} AP1MailEntry;
+} AP1MailEntry; /* derived name */
 
 /* The GObj's pending-mail box at +0x54: a count and a run of 8-byte slots. */
-typedef struct AP1MailQueue {
+typedef struct AP1MailQueue { /* field names derived */
     /* 0x00 */ int unk0;
     /* 0x04 */ int num;
     /* 0x08 */ AP1MailEntry e[1];
-} AP1MailQueue;
+} AP1MailQueue; /* derived name */
 
-/* Four static helpers the January-2002 listing places at act_a_p_1.c lines
- * 510-515, 517-527, 530-533 and 543-556, expanded into AP1BeforeFunc (and, for
- * the first, into SetAP1DeadStatus); never emitted out of line, so none has a
- * MAIN.MAP symbol and these four names are ours. */
-static inline void AP1SetMode(GObj *self, int mode)
+/* four helpers for AP1BeforeFunc; SetAP1DeadStatus also uses the first */
+static inline void AP1SetMode(GObj *self, int mode) /* derived name */
 {
     Act *p = GOBJ_ACT(self);
 
@@ -452,7 +433,7 @@ static inline void AP1SetMode(GObj *self, int mode)
     GOBJ_ACT(self)->hit = 1;
 }
 
-static inline void AP1DeadEffect(GObj *self)
+static inline void AP1DeadEffect(GObj *self) /* derived name */
 {
     Act *p = GOBJ_ACT(self);
 
@@ -466,13 +447,13 @@ static inline void AP1DeadEffect(GObj *self)
     }
 }
 
-static inline void AP1DeadMode(GObj *self)
+static inline void AP1DeadMode(GObj *self) /* derived name */
 {
     if (GOBJ_ACT(self)->actMode != 4)
         AP1SetMode(self, 4);
 }
 
-static inline void AP1DeadEffectHit(GObj *self)
+static inline void AP1DeadEffectHit(GObj *self) /* derived name */
 {
     Act *p = GOBJ_ACT(self);
 
@@ -488,14 +469,14 @@ static inline void AP1DeadEffectHit(GObj *self)
     }
 }
 
-static inline void AP1SetHold(GObj *self)
+static inline void AP1SetHold(GObj *self) /* derived name */
 {
     Act *p = GOBJ_ACT(self);
 
     p->flags20.ll |= 0x200000;
 }
 
-static inline void AP1ClrHold(GObj *self)
+static inline void AP1ClrHold(GObj *self) /* derived name */
 {
     Act *p = GOBJ_ACT(self);
 

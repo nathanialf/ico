@@ -14,41 +14,39 @@
 #include "sceneManager.h"
 
 /* 16-byte aligned: the template copy in InitPuddleGeo is ld/sd, not ldl/ldr. */
-typedef struct {
+typedef struct { /* field names derived */
     float pos[4];
     float t;
     float pad[3];
-} __attribute__((aligned(16))) Ripple;
+} __attribute__((aligned(16))) Ripple; /* derived name */
 
-typedef struct {
+typedef struct {     /* field names derived */
     Sub15C *reflect; /* the reflection display object */
     int idx;
     int pad8[2];
     Ripple rip[6];
-} PuddleWork;
+} PuddleWork; /* derived name */
 
-typedef struct {
+typedef struct { /* field names derived */
     int x0;
     int y0;
     int x1;
     int y1;
-} PuddleRect;
+} PuddleRect; /* derived name */
 
-typedef struct {
+typedef struct { /* field names derived */
     unsigned char r, g, b, a;
-} PuddleColor;
+} PuddleColor; /* derived name */
 
-/* The TU's .data (MAIN.MAP names nothing in it), in ROM order: the ripple every
-   slot starts from, and the centre and scale of the ripple mesh in texture
-   space. */
+/* the ripple every slot starts from, and the centre and scale of the ripple
+   mesh in texture space */
 static Ripple rippleInit = {{0.0f, 0.0f, 0.0f, 1.0f}, 10000.0f}; /* derived name */
 
 static float rippleCenter[4] = {2048.0f, 2048.0f, 0.0f, 0.0f}; /* derived name */
 
 static float rippleScale[4] = {1.5f, 1.5f, 0.0f, 0.0f}; /* derived name */
 
-/* The TU's .sdata, in ROM order: the two work-area VRAM addresses and the three
-   sprite colours. */
+/* the two work-area VRAM addresses and the three sprite colours */
 static int workVram = 0; /* derived name */
 
 static int work1Vram = 0; /* derived name */
@@ -59,10 +57,9 @@ static PuddleColor leveldownColor = {0, 0, 0, 0}; /* derived name */
 
 static PuddleColor copyColor = {128, 128, 128, 128}; /* derived name */
 
-/* The TU's .bss (MAIN.MAP names nothing in it), in ROM order: the two vertex
-   strips of the ripple mesh, the nine spoke directions and their scaled copies,
-   and the five camera matrices drawAreaSetup saves and drawAreaRestore puts
-   back. */
+/* the two vertex strips of the ripple mesh, the nine spoke directions and
+   their scaled copies, and the five camera matrices drawAreaSetup saves and
+   drawAreaRestore puts back */
 static float stripUpper[9 * 8]; /* derived name */
 
 static float stripLower[9 * 8]; /* derived name */
@@ -81,11 +78,7 @@ static float savedMatrix200[16]; /* derived name */
 
 static float savedMatrix340[16]; /* derived name */
 
-/* Declared here, not through string.h: with newlib's prototype in scope gcc
-   expands the four-byte zero fill below as one store, and the ROM calls
-   memset there (ROM bytes 0x1BD6D0 frame). The non-standard prototype is
-   what keeps the builtin off in this file. */
-/* kept local: declaring it only through string.h moves this TU's bytes */
+/* declared here with a void return; string.h is not included */
 extern void memset(void *p, int c, int n);
 void PuddleGeo(GObj *a0);
 void EntryRippleToPuddle(GObj *a0, void *vec);
@@ -147,7 +140,7 @@ void baseSetup(GObj *a0)
 }
 
 /* the sprite rectangle drawAreaSetup blits the frame through, in GS primitive
-   coordinates, after InitPuddleGeo's file name in the TU's .rodata */
+   coordinates */
 static const int drawAreaRect[4] = {-2048, -2048, 4096, 4096}; /* derived name */
 
 void drawAreaSetup(void)
@@ -235,14 +228,9 @@ void leveldown(int pri)
 
 /* gif_SpriteSensitiveOrg passes the uv rectangle straight through to
    gif_MakeSprite, so its caller supplies UV already in GS 1/16-texel units
-   (gif_SpriteOrg is the variant that scales by 16 itself).  The conversion has
-   to be a CALL and not a constant expression: an all-constant initialiser is
-   emitted as a 16-byte .rodata blob and block-copied, and the ROM instead
-   materialises 212 and 3686 with `li` into a stack temp and block-copies that,
-   which is what expr.c does when safe_from_p rejects the target.  The exact
-   spelling of the 2001 helper is not recoverable; this one reproduces the ROM
-   word for word. */
-static inline int texUV(float texel)
+   (gif_SpriteOrg is the variant that scales by 16 itself); this converts a
+   texel coordinate to those units */
+static inline int texUV(float texel) /* derived name */
 {
     return (int)(texel * 16.0f);
 }

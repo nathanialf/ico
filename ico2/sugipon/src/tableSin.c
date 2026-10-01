@@ -1,12 +1,9 @@
 #include <math.h>
 
 /* tableSin.h is not included here: it declares GetTableArcTan2 as returning
-   short, which is what every caller's bytes need, while this definition returns
-   int, which is what this TU's own bytes need; the 2001 source can only have
-   carried both if the definition never saw that prototype. The declarations
-   below repeat the header's order, which is load-bearing: gcc 2.9 emits the
-   deferred out-of-line copies of plain-inline functions in first-declaration
-   order. */
+   short, while this definition returns int.  The declarations below repeat
+   the header's order, which is load-bearing: gcc 2.9 emits the deferred
+   out-of-line copies of plain-inline functions in first-declaration order. */
 float GetTableSin(short a0);
 float GetTableCos(short a0);
 void InitTableSin(void);
@@ -14,24 +11,17 @@ short GetTableArcSin(float x);
 short GetTableArcCos(float x);
 int GetTableArcTan2(float f12, float f13);
 
-/* .bss, owned by tableSin.o and reached only from this file (MAIN.MAP names no
-   symbol in the run; its tableSin.o .bss size 0x12012 is exactly these two
-   tables), in the ROM's run order: a quarter-turn of sine at 16385 steps, then
-   the arc-sine table at 4097 steps.  The ROM puts the arc-sine table 0x10010
-   bytes on and MAIN.MAP sizes tableSin.o's .bss at 0x12012, which is that
-   0x10010 plus the arc-sine table's own 0x2002; gcc's own padding after a
-   0x4001-entry table only reaches 0x10008, so the sine table's DECLARED bound
-   is 0x4004 even though the loop below fills 0x4001 entries.  The bound is
-   inferred from those two sizes, not read off any ROM byte. */
-static float sinTable[16388];
+/* the two lookup tables: a quarter-turn of sine at 16385 steps, then the
+   arc-sine table at 4097 steps.  The sine table is declared 16388 long; the
+   loop below fills 16385 entries. */
+static float sinTable[16388]; /* derived name */
 
-static unsigned short arcSinTable[4097];
+static unsigned short arcSinTable[4097]; /* derived name */
 
-/* the TU's one .sdata word (MAIN.MAP tableSin.o .sdata 0x4, no symbol): set once
-   InitTableSin has built the two tables */
+/* set once InitTableSin has built the two tables */
 static int tableSinReady = 0; /* derived name */
 
-static inline void makeSinTable(void)
+static inline void makeSinTable(void) /* derived name */
 {
     int i;
     float m = 1.5707964f;
@@ -41,7 +31,7 @@ static inline void makeSinTable(void)
     }
 }
 
-static inline void makeArcSinTable(void)
+static inline void makeArcSinTable(void) /* derived name */
 {
     int i;
     float k = 0.000244140625f;
@@ -61,9 +51,9 @@ inline void InitTableSin(void)
     tableSinReady = 1;
 }
 
-/* Shared by GetTableArcSin and GetTableArcCos (listing lines 63-69):
-   clamp the cosine/sine argument to [-1, 1] and split off its sign. */
-static inline void arcClamp(float *x, int *neg)
+/* shared by GetTableArcSin and GetTableArcCos: clamp the cosine/sine
+   argument to [-1, 1] and split off its sign */
+static inline void arcClamp(float *x, int *neg) /* derived name */
 {
     if (1.0f < *x) {
         *x = 1.0f;

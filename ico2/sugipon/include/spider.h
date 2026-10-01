@@ -1,12 +1,8 @@
 /*
  * ico2/sugipon/include/spider.h
  *
- * The disc records no file of this name: SRCFILE.TXT attributes no
- * instruction to it, and a header that only declares leaves no rows in the
- * listing at all, so this file is ours and not the developers' own record.
- * It collects the declarations of what spider.c defines, in the form its
- * users need them; every type here is read from the ROM's calling convention
- * at the call sites and from the spellings the using TUs already carried.
+ * The declarations of what spider.c defines, for the files that use
+ * them.  The file name is derived.
  */
 
 #ifndef SPIDER_H
@@ -27,7 +23,7 @@ typedef struct {   /* field names derived */
     int targetBoy; /* 0x14, 1 to call the group to the boy as well */
     float upY;     /* 0x18 */
     float attack;  /* 0x1C */
-} SpiderKindRec;
+} SpiderKindRec; /* derived name */
 
 extern const SpiderKindRec spiderDef[];
 extern int sgSelLine;

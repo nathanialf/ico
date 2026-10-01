@@ -20,7 +20,7 @@
  * entry, name pointer first, NULL-terminated.  `off` is the byte offset of the
  * field inside the effect package, `enums` an optional name table for a type-0
  * field and (min,max) the range printed after the label. */
-typedef struct {
+typedef struct {       /* field names derived */
     char *name;        /* 0x00 */
     int off;           /* 0x04 */
     char **enums;      /* 0x08 */
@@ -28,16 +28,15 @@ typedef struct {
     int step;          /* 0x10 */
     int min;           /* 0x14 */
     int max;           /* 0x18 */
-} EffParamDef;
+} EffParamDef;         /* derived name */
 
-/* the three enum name tables the type-0 fields print through; the names
-   themselves are seven bytes or fewer, so the compiler puts them in .sdata. */
+/* the three enum name tables the type-0 fields print through */
 
-static char *drainTypeName[] = {"RELEASE", "LOOP"};
+static char *drainTypeName[] = {"RELEASE", "LOOP"}; /* derived name */
 
-static char *alphaTypeName[] = {"BLEND", "ADD", "SUB"};
+static char *alphaTypeName[] = {"BLEND", "ADD", "SUB"}; /* derived name */
 
-static char *upperLimitName[] = {"OFF", "ON"};
+static char *upperLimitName[] = {"OFF", "ON"}; /* derived name */
 
 static EffParamDef effParam[] = {
     {"U OFFSET", 0x80, 0, 0, 0, 0, 3},
@@ -74,7 +73,7 @@ static EffParamDef effParam[] = {
     {"UPPER LIMIT", 0x94, upperLimitName, 0, 0, 0, 1},
     {"LIMIT HEIGHT", 0x98, 0, 0, 0, -100000, 100000},
     {0},
-};
+}; /* derived name */
 
 void _dispParam(int *pkg, int idx, int x, int y, int col)
 {
@@ -114,23 +113,21 @@ void _dispParam(int *pkg, int idx, int x, int y, int col)
     debug_PrintfDummy(x, y, col, "%-20s:%s", lbl, val);
 }
 
-typedef union {
+typedef union { /* field names derived */
     int i;
     float f;
     short s;
     unsigned short us;
-} EffVal;
+} EffVal; /* derived name */
 
-/* editParam's hold counter, the first named object of the TU's .sdata (after
-   _dispParam's formats) */
+/* editParam's hold counter */
 static int holdCount = 0; /* derived name */
 
-/* .bss, owned by effectTool.o and reached only from this file (MAIN.MAP names
-   no symbol in the run), in the ROM's run order: a change flag per tool row,
-   then the position the tool's effect is placed at. */
-static int effectToolDirty[64];
+/* a change flag per tool row, then the position the tool's effect is placed
+   at */
+static int effectToolDirty[64]; /* derived name */
 
-static float effectToolPos[4];
+static float effectToolPos[4]; /* derived name */
 
 int editParam(int id, int sel)
 {
@@ -244,37 +241,35 @@ int editParam(int id, int sel)
 
 /* the tool's line colour (r=0, g=0xC0, b=0xFF, a=0x1C) and the dimmed copy the
  * second, blended pass draws with. */
-typedef struct {
+typedef struct { /* field names derived */
     int r;
     int g;
     int b;
     int a;
-} __attribute__((aligned(16))) EffCol;
+} __attribute__((aligned(16))) EffCol; /* derived name */
 
-typedef struct {
+typedef struct { /* field names derived */
     float x;
     float y;
     float z;
     float w;
-} __attribute__((aligned(16))) EffVec;
+} __attribute__((aligned(16))) EffVec; /* derived name */
 
 /* the effect tool's own line colour and the three axis-circle colours the
    XZ/YZ/XY passes draw with; drawEdge draws each once solid and once at a
    sixteenth over the top. */
-static EffCol effectToolColor = {0x00, 0xC0, 0xFF, 0x1C};
+static EffCol effectToolColor = {0x00, 0xC0, 0xFF, 0x1C}; /* derived name */
 
-static EffCol circleColorXZ = {0x00, 0x20, 0xFF, 0x1C};
+static EffCol circleColorXZ = {0x00, 0x20, 0xFF, 0x1C}; /* derived name */
 
-static EffCol circleColorYZ = {0xFF, 0x00, 0x20, 0x1C};
+static EffCol circleColorYZ = {0xFF, 0x00, 0x20, 0x1C}; /* derived name */
 
-static EffCol circleColorXY = {0x00, 0xFF, 0x20, 0x1C};
+static EffCol circleColorXY = {0x00, 0xFF, 0x20, 0x1C}; /* derived name */
 
-/* a static helper the PAL listing places at effectTool.c lines 286-289 and
- * inlines into dispXZYZCircle (three times, with three different colours),
- * dispCircle2 and dispEffectToolField; it is not emitted out of line, so it
- * has no MAIN.MAP symbol and this name is ours.  It draws the edge once solid
- * and once with a 1/16 colour over the top. */
-static inline void drawEdge(EffVec *p0, EffVec *p1, EffCol *c)
+/* Used by dispXZYZCircle (three times, with three different colours),
+ * dispCircle2 and dispEffectToolField: draw the edge once solid and once with
+ * a 1/16 colour over the top. */
+static inline void drawEdge(EffVec *p0, EffVec *p1, EffCol *c) /* derived name */
 {
     EffCol dim = {c->r >> 4, c->g >> 4, c->b >> 4, c->a};
 
@@ -325,10 +320,9 @@ void dispCircle2(float rad, short elev, int step)
     }
 }
 
-/* The tool's state, the rest of the TU's .sdata in ROM order: the particle
-   effect on show, the view rotation, the effect and parameter being edited,
-   the field display switch, the camera target to restore, and the tool's mode
-   (MAIN.MAP effectTool.o). */
+/* The tool's state: the particle effect on show, the view rotation, the
+   effect and parameter being edited, the field display switch, the camera
+   target to restore, and the tool's mode. */
 static int effectHandle = -1; /* derived name */
 
 static short viewRotY = 0; /* derived name */
@@ -374,11 +368,7 @@ void dispEffectToolField(int idx)
 
     memset(&o, 0, sizeof(o));
     o.w = 1.0f;
-    /* the 100-unit +Z spoke drawn out of the origin.  The ROM copies its
-       16-byte template out of .rodata here, at the call, not at function
-       entry, and the template sits between this file's string constants
-       rather than in a section of its own; an initialised local in its own
-       scope is the form that reproduces both. */
+    /* the 100-unit +Z spoke drawn out of the origin */
     {
         EffVec e = {0.0f, 0.0f, 100.0f, 1.0f};
 
@@ -394,10 +384,8 @@ void dispEffectToolField(int idx)
     debug_PrintfDummy(450, 96, 0xFFFFFF00, "ROT-X:%4.3f", viewRotX * -180.0f / 32768.0f);
 }
 
-/* two static helpers the PAL listing places at effectTool.c lines 260 and
- * 266-275 and inlines into EditTarget; neither is emitted out of line, so
- * neither has a MAIN.MAP symbol and these names are ours. */
-static inline int countEffectParams(void)
+/* two helpers for EditTarget */
+static inline int countEffectParams(void) /* derived name */
 {
     int n = 0;
     if (effParam[0].name != 0) {
@@ -408,7 +396,7 @@ static inline int countEffectParams(void)
     return n;
 }
 
-static inline void dispEffectParams(int id, int sel)
+static inline void dispEffectParams(int id, int sel) /* derived name */
 {
     int n = countEffectParams();
     int *pkg = GetParticleEffectPackage(id);
@@ -457,10 +445,8 @@ int EditTarget(int id)
     return 0;
 }
 
-/* static helper the PAL listing places at effectTool.c lines 403-415 and
- * inlines at the head of EffectTool; never emitted out of line, so it has no
- * MAIN.MAP symbol and this name is ours. */
-static inline void initEffectTool(void)
+/* the set-up EffectTool runs first */
+static inline void initEffectTool(void) /* derived name */
 {
     int q[4];
     int i;
@@ -502,7 +488,7 @@ extern PadConf iosPadConfDefault;
 
 /* iosPadGetStick's output block (camera-ico2.c's IosPadStick, extended): the
  * camera-coord helper reads the two floats at 0xC/0x10 as a1[3]/a1[4]. */
-typedef struct {
+typedef struct {   /* field names derived */
     int x;         /* 0x00 */
     int y;         /* 0x04 */
     int unk08;     /* 0x08 */
@@ -510,7 +496,7 @@ typedef struct {
     float fz;      /* 0x10 */
     float mag;     /* 0x14 */
     char unk18[8]; /* 0x18 */
-} EffToolStick;
+} EffToolStick;    /* derived name */
 
 void moveEffectToolGeometry(int idx)
 {
@@ -620,7 +606,7 @@ void exitEffectTool(void)
     debug_StdPrintfDummy("exit\n");
 }
 
-/* EffectTool's entered flag, the last object of the TU's .sdata */
+/* EffectTool's entered flag */
 static int toolEntered = 0; /* derived name */
 
 int EffectTool(void)

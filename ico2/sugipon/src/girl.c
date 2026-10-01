@@ -48,10 +48,9 @@ typedef struct GirlWork { /* field names derived */
     int hint2Ready;       /* 0x38 */
     int hint1Played;      /* 0x3C */
     int hint2Played;      /* 0x40 */
-} GirlWork;
+} GirlWork;               /* derived name */
 
-/* census: sugipon/src/girl.c:706 `execClothes` (a TU-static; `static` keeps the ELF
- * symbol local, so it cannot collide with the sugipon/src/boy global). */
+/* file-static: boy.c has a global function of the same name */
 static void execClothes(GObj *gobj)
 {
     int q[4];
@@ -107,8 +106,7 @@ static void execClothes(GObj *gobj)
     }
 }
 
-/* census: sugipon/src/girl.c:763 `dispCrown` (a TU-static; `static` keeps the ELF
- * symbol local, so it cannot collide with the sugipon/src/boy global). */
+/* file-static: boy.c has a global function of the same name */
 static void dispCrown(GObj *gobj, char *acc)
 {
     GirlWork *w;
@@ -131,8 +129,7 @@ static void dispCrown(GObj *gobj, char *acc)
 
 static void dispCrown(GObj *gobj, char *acc);
 
-/* census: sugipon/src/girl.c:787 `dispClothes` (a TU-static; `static` keeps the ELF
- * symbol local, so it cannot collide with the sugipon/src/boy global). */
+/* file-static: boy.c has a global function of the same name */
 static void dispClothes(GObj *gobj)
 {
     GirlWork *w;
@@ -166,9 +163,6 @@ static void dispClothes(GObj *gobj)
         }
     }
     if (w->cloth0Disp != 0) {
-        /* Two separate tests, not `>= 642 || < 639`: gcc's fold_range_test
-         * merges a disjunction over one operand into `(unsigned)(v - 639) < 3`,
-         * which ROM does not have, ROM keeps both `slti`s. */
         if (GOBJ_SUB(gobj)->ctrl.motion < 642) {
             if (GOBJ_SUB(gobj)->ctrl.motion >= 639) {
                 goto skip;
@@ -186,17 +180,14 @@ static void dispClothes(GObj *gobj)
     }
 }
 
-/* The girl's eight generated cloth meshes: the five InitGirlGeo builds for the
-   game, named after the work slot each fills, and the three the demo kind
-   builds.  MAIN.MAP names no symbol in girl.o's .data, so these names are
-   ours.  The floats are the generator's own three-decimal output, read back
-   from the ROM. */
+/* The girl's eight cloth meshes: the five InitGirlGeo builds for the game,
+   named after the work slot each fills, and the three the demo kind builds. */
 
 static Cloth4DCol clothMeshF8Cols[21];
 
 static Cloth4DCfg clothMeshF8 = {
     21, 6, 1, 0, 0x59, 0x59, 0x59, 0x80, "fuku03", clothMeshF8Cols, 7.05f, 0,
-};
+}; /* derived name */
 
 static float clothMeshF8Uv[21][6][2] = {
     {{0.828f, 0.833f},
@@ -325,7 +316,7 @@ static float clothMeshF8Uv[21][6][2] = {
      {0.045f, 0.358f},
      {0.04f, 0.184f},
      {0.036f, 0.011f}},
-};
+}; /* derived name */
 
 static Cloth4DCol clothMeshF8Cols[21] = {
     {12.187f,
@@ -559,13 +550,13 @@ static Cloth4DCol clothMeshF8Cols[21] = {
      clothMeshF8Uv[20],
      {0},
      {1.955f, -12.029f, -0.068f, 0.0f}},
-};
+}; /* derived name */
 
 static Cloth4DCol clothMeshF10Cols[15];
 
 static Cloth4DCfg clothMeshF10 = {
     15, 5, 0, 0, 0x59, 0x59, 0x59, 0x80, "g_hair9", clothMeshF10Cols, 10.768f, 0,
-};
+}; /* derived name */
 
 static float clothMeshF10Uv[15][5][2] = {
     {{0.712f, 0.628f}, {0.717f, 0.473f}, {0.723f, 0.318f}, {0.728f, 0.163f}, {0.734f, 0.008f}},
@@ -583,7 +574,7 @@ static float clothMeshF10Uv[15][5][2] = {
     {{0.86f, 0.691f}, {0.835f, 0.519f}, {0.809f, 0.347f}, {0.784f, 0.176f}, {0.759f, 0.004f}},
     {{0.989f, 0.697f}, {0.969f, 0.524f}, {0.948f, 0.351f}, {0.927f, 0.178f}, {0.906f, 0.004f}},
     {{0.86f, 0.691f}, {0.835f, 0.519f}, {0.809f, 0.347f}, {0.784f, 0.176f}, {0.759f, 0.004f}},
-};
+}; /* derived name */
 
 static Cloth4DCol clothMeshF10Cols[15] = {
     {2.726f,
@@ -751,20 +742,20 @@ static Cloth4DCol clothMeshF10Cols[15] = {
      clothMeshF10Uv[7],
      {0},
      {0.024f, -2.726f, -0.029f, 0.0f}},
-};
+}; /* derived name */
 
 static Cloth4DCol clothMeshF14Cols[4];
 
 static Cloth4DCfg clothMeshF14 = {
     4, 3, 0, 0, 0x59, 0x59, 0x59, 0x80, "g_hair9", clothMeshF14Cols, 2.597f, 0,
-};
+}; /* derived name */
 
 static float clothMeshF14Uv[4][3][2] = {
     {{0.016f, 0.44f}, {0.013f, 0.711f}, {0.01f, 0.982f}},
     {{0.516f, 0.464f}, {0.509f, 0.725f}, {0.503f, 0.987f}},
     {{0.982f, 0.479f}, {0.984f, 0.733f}, {0.987f, 0.987f}},
     {{0.516f, 0.464f}, {0.509f, 0.725f}, {0.503f, 0.987f}},
-};
+}; /* derived name */
 
 static Cloth4DCol clothMeshF14Cols[4] = {
     {5.548f,
@@ -811,13 +802,13 @@ static Cloth4DCol clothMeshF14Cols[4] = {
      clothMeshF14Uv[3],
      {0},
      {0.0f, -2.501f, 2.87f, 0.0f}},
-};
+}; /* derived name */
 
 static Cloth4DCol clothMeshF18Cols[7];
 
 static Cloth4DCfg clothMeshF18 = {
     7, 6, 0, 0, 0x59, 0x59, 0x59, 0x80, "g_hair9", clothMeshF18Cols, 5.041f, 0,
-};
+}; /* derived name */
 
 static float clothMeshF18Uv[7][6][2] = {
     {{0.672f, 0.482f},
@@ -862,7 +853,7 @@ static float clothMeshF18Uv[7][6][2] = {
      {0.015f, 0.801f},
      {0.015f, 0.889f},
      {0.016f, 0.977f}},
-};
+}; /* derived name */
 
 static Cloth4DCol clothMeshF18Cols[7] = {
     {1.474f,
@@ -942,13 +933,13 @@ static Cloth4DCol clothMeshF18Cols[7] = {
      clothMeshF18Uv[6],
      {0},
      {0.049f, -0.273f, 1.183f, 0.0f}},
-};
+}; /* derived name */
 
 static Cloth4DCol clothMeshF20Cols[13];
 
 static Cloth4DCfg clothMeshF20 = {
     13, 5, 0, 0, 0x59, 0x59, 0x59, 0x80, "poncho005", clothMeshF20Cols, 24.772f, 0,
-};
+}; /* derived name */
 
 static float clothMeshF20Uv[13][5][2] = {
     {{0.622f, 0.211f}, {0.636f, 0.162f}, {0.649f, 0.113f}, {0.663f, 0.063f}, {0.676f, 0.014f}},
@@ -964,7 +955,7 @@ static float clothMeshF20Uv[13][5][2] = {
     {{0.862f, 0.136f}, {0.865f, 0.116f}, {0.868f, 0.097f}, {0.871f, 0.077f}, {0.874f, 0.057f}},
     {{0.226f, 0.19f}, {0.216f, 0.155f}, {0.207f, 0.119f}, {0.197f, 0.084f}, {0.188f, 0.048f}},
     {{0.135f, 0.135f}, {0.136f, 0.116f}, {0.137f, 0.097f}, {0.137f, 0.078f}, {0.138f, 0.06f}},
-};
+}; /* derived name */
 
 static Cloth4DCol clothMeshF20Cols[13] = {
     {0.662f,
@@ -1110,13 +1101,13 @@ static Cloth4DCol clothMeshF20Cols[13] = {
      clothMeshF20Uv[8],
      {0},
      {-0.086f, -0.624f, -0.193f, 0.0f}},
-};
+}; /* derived name */
 
 static Cloth4DCol demoClothMeshF10Cols[15];
 
 static Cloth4DCfg demoClothMeshF10 = {
     15, 5, 0, 0, 0x0, 0x0, 0x0, 0x80, "g_hair9_d", demoClothMeshF10Cols, 10.676f, 0,
-};
+}; /* derived name */
 
 static float demoClothMeshF10Uv[15][5][2] = {
     {{0.712f, 0.628f}, {0.717f, 0.473f}, {0.723f, 0.318f}, {0.728f, 0.163f}, {0.734f, 0.008f}},
@@ -1134,7 +1125,7 @@ static float demoClothMeshF10Uv[15][5][2] = {
     {{0.86f, 0.691f}, {0.835f, 0.519f}, {0.809f, 0.347f}, {0.784f, 0.176f}, {0.759f, 0.004f}},
     {{0.989f, 0.697f}, {0.969f, 0.524f}, {0.948f, 0.351f}, {0.927f, 0.178f}, {0.906f, 0.004f}},
     {{0.86f, 0.691f}, {0.835f, 0.519f}, {0.809f, 0.347f}, {0.784f, 0.176f}, {0.759f, 0.004f}},
-};
+}; /* derived name */
 
 static Cloth4DCol demoClothMeshF10Cols[15] = {
     {2.887f,
@@ -1302,13 +1293,13 @@ static Cloth4DCol demoClothMeshF10Cols[15] = {
      demoClothMeshF10Uv[7],
      {0},
      {0.086f, -2.873f, 0.265f, 0.0f}},
-};
+}; /* derived name */
 
 static Cloth4DCol demoClothMeshF14Cols[9];
 
 static Cloth4DCfg demoClothMeshF14 = {
     9, 3, 0, 0, 0x0, 0x0, 0x0, 0x80, "g_hair9_d", demoClothMeshF14Cols, 9.495f, 0,
-};
+}; /* derived name */
 
 static float demoClothMeshF14Uv[9][3][2] = {
     {{0.99f, 0.542f}, {0.987f, 0.275f}, {0.984f, 0.008f}},
@@ -1320,7 +1311,7 @@ static float demoClothMeshF14Uv[9][3][2] = {
     {{0.557f, 0.51f}, {0.544f, 0.26f}, {0.531f, 0.01f}},
     {{0.073f, 0.497f}, {0.078f, 0.255f}, {0.083f, 0.013f}},
     {{0.305f, 0.508f}, {0.307f, 0.259f}, {0.31f, 0.01f}},
-};
+}; /* derived name */
 
 static Cloth4DCol demoClothMeshF14Cols[9] = {
     {3.021f,
@@ -1422,13 +1413,13 @@ static Cloth4DCol demoClothMeshF14Cols[9] = {
      demoClothMeshF14Uv[1],
      {0},
      {-0.5f, -2.944f, 0.458f, 0.0f}},
-};
+}; /* derived name */
 
 static Cloth4DCol demoClothMeshF20Cols[15];
 
 static Cloth4DCfg demoClothMeshF20 = {
     15, 6, 0, 0, 0x0, 0x0, 0x0, 0x80, "g_poncho_test03", demoClothMeshF20Cols, 26.618f, 0,
-};
+}; /* derived name */
 
 static float demoClothMeshF20Uv[15][6][2] = {
     {{0.155f, 0.239f},
@@ -1521,7 +1512,7 @@ static float demoClothMeshF20Uv[15][6][2] = {
      {0.399f, 0.084f},
      {0.399f, 0.06f},
      {0.399f, 0.036f}},
-};
+}; /* derived name */
 
 static Cloth4DCol demoClothMeshF20Cols[15] = {
     {1.582f,
@@ -1689,37 +1680,33 @@ static Cloth4DCol demoClothMeshF20Cols[15] = {
      demoClothMeshF20Uv[1],
      {0},
      {-0.315f, -1.46f, -0.619f, 0.0f}},
-};
+}; /* derived name */
 
 /* The hang tables the girl's five cloths are built from, named after the work
-   slot each one fills in InitGirlGeo.  MAIN.MAP names no symbol in girl.o's
-   .data, so these names are ours. */
+   slot each one fills in InitGirlGeo. */
 static ClothHangCfg clothHangF8[3] = {
     {1, -10.0f, 65.0f, 10.0f, 49, {0}, 0.0f, 0.0f, {0}, 1.0f, 1.0f, {0}},
     {1, -10.0f, 65.0f, 10.0f, 45, {0}, 0.0f, 0.0f, {0}, 1.0f, 1.0f, {0}},
     {-1, 0.0f, 0.0f, 0.0f, 0, {0}, 0.0f, 0.0f, {0}, 0.0f, 0.0f, {0}},
-};
+}; /* derived name */
 
 static ClothHangCfg clothHangF10[3] = {
     {1, -3.0f, 15.0f, 10.0f, 35, {0}, 0.0f, 4.0f, {0}, 1.0f, -1.0f, {0}},
     {1, -5.0f, 8.0f, 5.0f, 34, {0}, 0.0f, 0.0f, {0}, 1.0f, -1.0f, {0}},
     {-1, 0.0f, 0.0f, 0.0f, 0, {0}, 0.0f, 0.0f, {0}, 0.0f, 0.0f, {0}},
-};
+}; /* derived name */
 
 static ClothHangCfg clothHangF18[2] = {
     {1, 0.0f, 10.0f, 8.0f, 35, {0}, 5.0f, 3.5f, {0}, 1.0f, -1.0f, {0}},
     {-1, 0.0f, 0.0f, 0.0f, 0, {0}, 0.0f, 0.0f, {0}, 0.0f, 0.0f, {0}},
-};
+}; /* derived name */
 
 static ClothHangCfg clothHangF20[2] = {
     {1, -15.0f, 30.0f, 20.0f, 1, {0}, 0.0f, 13.0f, {0}, 1.0f, -1.0f, {0}},
     {-1, 0.0f, 0.0f, 0.0f, 0, {0}, 0.0f, 0.0f, {0}, 0.0f, 0.0f, {0}},
-};
+}; /* derived name */
 
-/* The three cloth and hair setters sit here, at their census source lines
-   (834, 852 and 878, against InitGirlGeo's 891).  They are plain `inline`,
-   which is why gcc emits their bodies at the END of the object, where the
-   ROM has them, while their string constants stay at this point of the run. */
+/* the three cloth and hair setters */
 inline void SetGirlClothDispSwitch(GObj *a0, int a1, int a2)
 {
     GirlWork *cloth = GOBJ_SUB(a0)->work;
@@ -1741,21 +1728,20 @@ inline void SetGirlHairDispSwitch(GObj *a0, int a1)
     *(int *)((char *)GOBJ_SUB(a0)->work + 0x28) = a1;
 }
 
-typedef struct {
+typedef struct { /* field names derived */
     int unk0;
     int unk4;
     int unk8;
     int unkC;
-} GirlClothSetting;
+} GirlClothSetting; /* derived name */
 
 /* the two cloth parameter sets setGirlClothSetting switches between */
-static GirlClothSetting girlClothDemoParam = {20, 0, 256, 1};
+static GirlClothSetting girlClothDemoParam = {20, 0, 256, 1}; /* derived name */
 
-static GirlClothSetting girlClothGameParam = {20, 0, 256, 0};
+static GirlClothSetting girlClothGameParam = {20, 0, 256, 0}; /* derived name */
 
-/* static helper the listing places at girl.c line(s) 864-868; never emitted out
- * of line, so it has no MAIN.MAP symbol and this name is ours. */
-static inline void setGirlClothParam(GirlClothSetting *p)
+/* copy a cloth setting into the hair debug levels */
+static inline void setGirlClothParam(GirlClothSetting *p) /* derived name */
 {
     debug_hair_tight_level = p->unk0;
     debug_hair_gravity_level = p->unk4;
@@ -1798,8 +1784,7 @@ void *InitGirlGeo(GObj *gobj, SObjSimpleSetting *csv)
     w->cloth0 = 0;
     w->cloth1 = 0;
     w->kind = kind;
-    /* an int-set store: the word is a pointer, but this store must stay
-       ordered against the int stores into the work record (the bytes) */
+    /* the work pointer, stored as a word */
     *(int *)&GOBJ_SUB(gobj)->work = (int)w;
     switch (kind) {
     case 1:
@@ -1924,11 +1909,10 @@ void GirlAI(GObj *a0)
 }
 
 /* the name the cloth debug display prints for each girl kind */
-static char *girlClothName[4] = {"", "DEVIL", "STONE", 0};
+static char *girlClothName[4] = {"", "DEVIL", "STONE", 0}; /* derived name */
 
-/* static helper the listing places at girl.c line(s) 1082; never emitted out
- * of line, so it has no MAIN.MAP symbol and this name is ours. */
-static inline int *getGirlCloth(GObj *gobj)
+/* the girl's cloth work */
+static inline int *getGirlCloth(GObj *gobj) /* derived name */
 {
     return (int *)GOBJ_SUB(gobj)->work;
 }

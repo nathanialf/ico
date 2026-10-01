@@ -1,12 +1,8 @@
 /*
  * ico2/sugipon/include/attackCheckBoundary.h
  *
- * The disc records no file of this name: SRCFILE.TXT attributes no
- * instruction to it, and a header that only declares leaves no rows in the
- * listing at all, so this file is ours and not the developers' own record.
- * It collects the declarations of what attackCheckBoundary.c defines, in the form its
- * users need them; every type here is read from the ROM's calling convention
- * at the call sites and from the spellings the using TUs already carried.
+ * The declarations of what attackCheckBoundary.c defines, for the files that use
+ * them.  The file name is derived.
  */
 
 #ifndef ATTACKCHECKBOUNDARY_H
@@ -26,24 +22,14 @@ char *CreateAttackCheckBoundary(int *obj, float x, float y, float z, float r);
 int GetAttackCheckBoundaryManagerStatus(struct GObj *a0);
 void SetAttackCheckBoundaryAttribute(char *a0, int a1);
 
-/* RECONSTRUCTION: the attribute word of a cloth layout record has a type of
-   its own. The ROM's schedule of InitAttackCheckBoundaryManagerGeo loads
-   rec->attr (line 61) above the roster store `mgr->list[i].obj = g` (line
-   214), while that store must still precede the first sub-object chase
-   (line 62) and the attribute store must force the second chase (line 218)
-   to reload; with the roster handle and both chases int (the engine's
-   int-handle reading, GOBJ_SUB), only an attribute load outside int's alias
-   set is free to rise (the compiler's sched2 dump gives int set 2 and this
-   enum its own set). Only the type is attested: the table holds 96 and 128
-   here and the developers' enumerator names are not recoverable. */
+/* the attribute word of a cloth layout record; the table holds 96 and 128
+   here */
 typedef enum { CLOTH_ATTR_NONE = 0 } ClothAttr;
 
-/* RECONSTRUCTION: one record of layoutClothDef (MAIN.MAP line 6655, member
-   layout-cloth-def.o, .rodata; the retail table is 36 records, 0xEA0 bytes).
-   The name string and the four corner points are the table's own bytes; this
-   TU reads the first two corners, the attribute and the boundary count, and
-   InitFlagGeo reads the rest. The generated layout-cloth-def member compiles
-   against this record. */
+/* one record of layoutClothDef, the cloth layout table: its name, the four
+   corner points, the attribute and the boundary count.  This file reads the
+   first two corners, the attribute and the boundary count, and InitFlagGeo
+   reads the rest. */
 typedef struct {    /* field names derived */
     char name[32];  /* 0x00 */
     float pt[4][3]; /* 0x20 */

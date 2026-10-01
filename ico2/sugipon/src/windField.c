@@ -8,33 +8,27 @@
 #include "main.h"
 #include "GifPacket.h"
 
-/* the TU's .sdata (MAIN.MAP names nothing in it), in ROM order: the field mode,
-   the wind vector function and the fan blade angle */
+/* the field mode, the wind vector function and the fan blade angle */
 static int windFieldMode = -1; /* derived name */
 
-/* This TU's .data run (VMA 0x4ED350..0x4ED760) and its .bss run (VMA
-   0x724BE0..0x7281F0) are one file-static block each. MAIN.MAP records no
-   symbol in either (only the sizes 0x410 and 0x3610, map lines 5991 and
-   7755), so every name below is ours, read off the code that uses it; the
-   definitions are written in the ROM's own run order because the compiler
-   emits them in declaration order. */
-static float windCenter[4] = {0.0f, 0.0f, 0.0f, 1.0f};
+/* the wind field's geometry and tables */
+static float windCenter[4] = {0.0f, 0.0f, 0.0f, 1.0f}; /* derived name */
 
-static float windDir[4] = {0.0f, 0.0f, 0.0f, 0.0f};
+static float windDir[4] = {0.0f, 0.0f, 0.0f, 0.0f}; /* derived name */
 
-static float windPlane[4] = {0.0f, 0.0f, 0.0f, 1.0f};
+static float windPlane[4] = {0.0f, 0.0f, 0.0f, 1.0f}; /* derived name */
 
-typedef struct {
+typedef struct { /* field names derived */
     float v[4];
     float str;
     float pad[3];
-} WindCell;
+} WindCell; /* derived name */
 
-static sceVu0FVECTOR windVector;
+static sceVu0FVECTOR windVector; /* derived name */
 
-static float windStrength[256];
+static float windStrength[256]; /* derived name */
 
-static WindCell windCell[20][20];
+static WindCell windCell[20][20]; /* derived name */
 
 float *getRadiateWindVector(float *power, float *pos);
 
@@ -74,9 +68,9 @@ void InitWindField(int mode, float str, void *center, void *dir)
 
 static short fanAngle = 0; /* derived name */
 
-/* RGBA of every line this TU draws, in the int-per-channel form DrawLineG
-   takes; colour bytes stay hex. */
-static int lineColor[4] = {0x40, 0x40, 0x80, 0x80};
+/* RGBA of every line this file draws, in the int-per-channel form DrawLineG
+   takes */
+static int lineColor[4] = {0x40, 0x40, 0x80, 0x80}; /* derived name */
 
 /* Vertex pairs, one line segment per two rows, terminated by a vertex whose
    x is the -10000 sentinel the draw loops test. */
@@ -85,7 +79,7 @@ static float haneLines[10][4] = {
     {15.0f, 40.0f, 0.0f, 1.0f}, {15.0f, 40.0f, 0.0f, 1.0f}, {40.0f, 20.0f, 0.0f, 1.0f},
     {40.0f, 20.0f, 0.0f, 1.0f}, {10.0f, 0.0f, 0.0f, 1.0f},  {-10000.0f, 0.0f, 0.0f, 0.0f},
     {0.0f, 0.0f, 0.0f, 0.0f},
-};
+}; /* derived name */
 
 /* The spoke drawSenpuukiHaneUnit sweeps sixteen times around Z. */
 static float guardLines[12][4] = {
@@ -93,13 +87,11 @@ static float guardLines[12][4] = {
     {0.0f, -50.0f, 10.0f, 1.0f},   {0.0f, -50.0f, 10.0f, 1.0f},   {0.0f, -10.0f, 20.0f, 1.0f},
     {-10.0f, -50.0f, 10.0f, 1.0f}, {10.0f, -50.0f, 10.0f, 1.0f},  {-5.0f, -10.0f, 20.0f, 1.0f},
     {5.0f, -10.0f, 20.0f, 1.0f},   {-10000.0f, 0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f, 0.0f},
-};
+}; /* derived name */
 
-/* INTERIM: `drawLines` is a real function at its own ROM slot further down this
-   TU and the listing inlines it here; while the tail still carries asm members
-   its definition cannot move up, so the two inlined copies are spelled through
-   this stand-in. Fold them back onto drawLines once the TU is fully C. */
-static inline void drawLinesInline(char *a0)
+/* a file-static copy of drawLines, which the function below inlines twice;
+   the original is defined further down */
+static inline void drawLinesInline(char *a0) /* derived name */
 {
     char *cur = a0;
 
@@ -147,7 +139,7 @@ static float unitLines[26][4] = {
     {10.0f, 0.0f, -20.0f, 1.0f},    {10.0f, -20.0f, -20.0f, 1.0f}, {-10.0f, 0.0f, -20.0f, 1.0f},
     {-10.0f, -20.0f, -20.0f, 1.0f}, {-10.0f, 0.0f, 20.0f, 1.0f},   {-10.0f, -20.0f, 20.0f, 1.0f},
     {-10000.0f, 0.0f, 0.0f, 0.0f},  {0.0f, 0.0f, 0.0f, 0.0f},
-};
+}; /* derived name */
 
 /* The stand: a 100 by 100 square on the floor and the post above it. */
 static float baseLines[12][4] = {
@@ -155,7 +147,7 @@ static float baseLines[12][4] = {
     {-50.0f, 0.0f, -50.0f, 1.0f}, {-50.0f, 0.0f, -50.0f, 1.0f},  {-50.0f, 0.0f, 50.0f, 1.0f},
     {-50.0f, 0.0f, 50.0f, 1.0f},  {50.0f, 0.0f, 50.0f, 1.0f},    {0.0f, 0.0f, 0.0f, 1.0f},
     {0.0f, -100.0f, 0.0f, 1.0f},  {-10000.0f, 0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f, 0.0f},
-};
+}; /* derived name */
 
 void drawSenpuuki(float scale)
 {
@@ -184,7 +176,7 @@ void drawSenpuuki(float scale)
 }
 
 /* The cell centre ExecWindField samples, rewritten per cell; w stays 1. */
-static float samplePos[4] = {0.0f, 0.0f, 0.0f, 1.0f};
+static float samplePos[4] = {0.0f, 0.0f, 0.0f, 1.0f}; /* derived name */
 
 void ExecWindField(float str)
 {

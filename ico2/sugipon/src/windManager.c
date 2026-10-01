@@ -1,14 +1,11 @@
 #include "sugiCommon.h"
 #include "main.h"
 
-/* PAL listing (windManager.c): SetWindManager (line 21) and InitWindManager
- * (35) are inline and expand into ReinitWindManager, whose rows are exactly
- * InitWindManager's plus its own trailing line 72; ExecWindManager is the
- * TU's only plain function.  The object order Exec, Reinit, Set, Init,
- * GetRegularized is the prototype order of the deferred inline tail. */
+/* SetWindManager and InitWindManager are inline and expand into
+ * ReinitWindManager; ExecWindManager is the file's only plain function. */
 
-/* The TU's .sdata (MAIN.MAP names nothing in it), in ROM order: the wind kind,
-   the base speed and its variance with their reciprocals, and the gust state. */
+/* the wind kind, the base speed and its variance with their reciprocals, and
+   the gust state */
 static int windKind = -1; /* derived name */
 
 static float windSpeed = 0; /* derived name */

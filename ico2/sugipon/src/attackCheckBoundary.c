@@ -11,8 +11,7 @@
 #include "weapon.h"
 #include <libvu0.h>
 
-/* the TU's whole .data (MAIN.MAP attackCheckBoundary.o .data 0x10, no symbol):
-   the colour the debug display draws a boundary sphere in */
+/* the colour the debug display draws a boundary sphere in */
 static unsigned int acbSphereColor[4] = {0, 128, 255, 128}; /* derived name */
 
 #include "attackCheckBoundary.h"
@@ -20,7 +19,7 @@ static unsigned int acbSphereColor[4] = {0, 128, 255, 128}; /* derived name */
 #include "main.h"
 #include "GifPacket.h"
 
-static inline char *createAttackCheckBoundaryGObj(SObjSimpleSetting *lay)
+static inline char *createAttackCheckBoundaryGObj(SObjSimpleSetting *lay) /* derived name */
 {
     return CreateLayoutedGObj(63, 0x4B, -1, 0, lay, -1, 7, 1);
 }
@@ -30,11 +29,11 @@ static inline char *createAttackCheckBoundaryGObj(SObjSimpleSetting *lay)
    tests and the manager reads back and clears, 0x8 the attribute SetAttackCheckBoundaryAttribute stores, and 0x0
    the caller's int that CreateAttackCheckBoundary passed in the layout's
    handle, cleared again through it here. */
-typedef struct {
+typedef struct { /* field names derived */
     int *handle; /* 0x0 */
     int hit;     /* 0x4 */
     int attr;    /* 0x8 */
-} AcbWork;
+} AcbWork;       /* derived name */
 
 inline int InitAttackCheckBoundaryGeo(int unused, void *obj)
 {
@@ -66,10 +65,7 @@ inline void AttackCheckBoundaryDL(GObj *obj)
     if (debug_skel_flag == 0) {
         return;
     }
-    /* The drawing is the body of this if (listing line 57 is its brace), so the
-       if's join label and the early return's label both follow gif_EndPacket:
-       its block does not fall straight into the exit block, and sibcall.c keeps
-       the jal and the frame the ROM has. */
+    /* the boundary is drawn only while nothing has hit it */
     if (m->hit == 0) {
         gif_StartPacketPri(0xB);
 
@@ -85,10 +81,7 @@ inline void AttackCheckBoundaryDL(GObj *obj)
 
 inline void SetAttackCheckBoundaryAttribute(char *a0, int a1)
 {
-    /* listing lines 62 and 63: the work pointer is its own statement, and
-       the sub-object chase is int-typed (the engine's int handle), so the
-       attribute store kills it and the manager's owner store at line 218
-       reloads 0x15C */
+    /* the work pointer, read through the int-typed sub-object handle */
     AcbWork *w = GOBJ_SUB(a0)->work;
     w->attr = a1;
 }
@@ -119,9 +112,6 @@ inline void actAttackCheckBoundaryStart(GObj *self)
     _ACTWait(1);
     p->flags18.ll |= 1LL << 32;
 }
-
-/* mail-add-data.c defines this returning int; declaring it void costs the
-   $v1 allocation of the reloaded state pointer in the mail block below. */
 
 void AttackCheckBoundaryBeforeFunc(char *self)
 {
@@ -171,20 +161,19 @@ void AttackCheckBoundaryBeforeFunc(char *self)
 }
 
 /* the manager's 8-byte roster entries and its work block at sub+0x830 */
-typedef struct AcbEntry {
-    int obj; /* 0x00 */
-    int hit; /* 0x04 */
-} AcbEntry;
+typedef struct AcbEntry { /* field names derived */
+    int obj;              /* 0x00 */
+    int hit;              /* 0x04 */
+} AcbEntry;               /* derived name */
 
-typedef struct AcbMgr {
-    int count;      /* 0x00 */
-    int cur;        /* 0x04 */
-    int prev;       /* 0x08 */
-    AcbEntry *list; /* 0x0C */
-} AcbMgr;
+typedef struct AcbMgr { /* field names derived */
+    int count;          /* 0x00 */
+    int cur;            /* 0x04 */
+    int prev;           /* 0x08 */
+    AcbEntry *list;     /* 0x0C */
+} AcbMgr;               /* derived name */
 
-/* attackCheckBoundary.o's own 8-byte .sdata (MAIN.MAP line 7305, unnamed
-   there): the blank roster entry each slot starts from */
+/* the blank roster entry each slot starts from */
 static AcbEntry acbBlankEntry = {0, 0}; /* derived name */
 
 AcbMgr *InitAttackCheckBoundaryManagerGeo(int a0, SObjSimpleSetting *a1)
@@ -225,8 +214,7 @@ AcbMgr *InitAttackCheckBoundaryManagerGeo(int a0, SObjSimpleSetting *a1)
         mgr->list[i].obj = (int)g;
         SetAttackCheckBoundaryAttribute(g, rec->attr);
         /* the sub-object's first word is its owner (AttackCheckBoundaryGeo
-           reads it as an int pointer); an int-typed store would hold the
-           loop test's count reload behind it and lose the delay slot */
+           reads it as an int pointer) */
         *(int **)*(int *)(g + 0x15C) = (int *)a0;
     }
     return mgr;
@@ -240,8 +228,7 @@ void AttackCheckBoundaryManagerGeo(GObj *self)
     for (i = 0; i < m->count; i++) {
         char *e = (char *)m->list[i].obj;
 
-        /* int-typed chase (types.h GOBJ_SUB): the int store below may-alias the
-           chase, so ROM reloads 0x15C/0x830 for the second access */
+        /* whether the member's work says it has been hit */
         m->list[i].hit = *(int *)(*(int *)((char *)GOBJ_SUB(e) + 0x830) + 4);
         *(int *)(*(int *)((char *)GOBJ_SUB(e) + 0x830) + 4) = 0;
         *(int *)(e + 0x16C) = 1;

@@ -15,10 +15,9 @@
 #include "windField.h"
 #include "sceneManager.h"
 
-/* RECONSTRUCTION, names ours: the cage's 80-byte work record, InitCageGeo's
-   allocation, kept at +0x830 of the object's motion work: the cage and chain
-   DObjs, the cage's rotation and turn, the chains InitChains builds and the
-   swing state. */
+/* the cage's 80-byte work record, InitCageGeo's allocation, kept at +0x830
+   of the object's motion work: the cage and chain DObjs, the cage's rotation
+   and turn, the chains InitChains builds and the swing state */
 typedef struct {  /* field names derived */
     Sub15C *dobj; /* 0x00 */
     char *dobj2;  /* 0x04 */
@@ -87,12 +86,11 @@ inline int GetCageChainPoint(char *a0, char *a1, GObj *a2)
 /* the game heap handles, declared int as sugipon's other TUs do
    (girlForceField.c, candle.c) and cast at the allocator calls */
 
-/* RECONSTRUCTION: one 80-byte chain-parameter record per chain, the list
- * InitChains walks until num is -1.  The fields are the ones clothAnimation.c
- * reads (count 0x0, focus node 0x10, node spacing 0x14, root 0x20, the length
- * weight 0x40); the root is a homogeneous vector, which makes the record
- * 16-aligned and gives the ROM's doubleword block copy. */
-typedef struct {
+/* one 80-byte chain-parameter record per chain, the list InitChains walks
+ * until num is -1.  The fields are the ones clothAnimation.c reads (count 0x0,
+ * focus node 0x10, node spacing 0x14, root 0x20, the length weight 0x40); the
+ * root is a homogeneous vector, so the record is 16-byte aligned. */
+typedef struct { /* field names derived */
     int num;
     int pad04[3];
     int node;
@@ -102,15 +100,14 @@ typedef struct {
     int pad30[4];
     float length;
     int pad44[3];
-} CageChainParam;
+} CageChainParam; /* derived name */
 
 /* the cage's one chain, 2 nodes 500 apart hanging from the cage root */
 static CageChainParam cageChainParam[2] = {
     {2, {0, 0, 0}, -1, 500.0f, {0, 0}, {0.0f, 0.0f, 0.0f, 1.0f}, {0, 0, 0, 0}, 100.0f},
     {-1},
-};
+}; /* derived name */
 
-/* listing rows sugipon/src/cage.c:96-132 */
 char *InitCageGeo(char *self, SObjSimpleSetting *lay)
 {
     CageWork *w;
@@ -152,9 +149,8 @@ char *InitCageGeo(char *self, SObjSimpleSetting *lay)
     w->linkLength = lay->scale[2];
     w->linkCount = (int)(lay->scale[1] / w->linkLength);
 
-    /* listing line 128 carries everything from here to the 0x84C store: one
-       macro, the DObj buffer reallocation box.c, boy.c and omori's chain.c
-       expand in the same statement order */
+    /* from here to the 0x84C store: the DObj buffer reallocation, in the
+       statement order box.c, boy.c and omori's chain.c also use */
     if (*(void **)((char *)w->dobj + 0xC) != 0) {
         iosFree((void *)((int)*(void **)((char *)w->dobj + 0xC) & 0x0FFFFFFF));
     }
@@ -279,9 +275,9 @@ inline void SetCageVelocityFriction(GObj *a0, float a1)
 }
 
 /* the world down axis the chain's swing axis is taken against */
-static sceVu0FVECTOR cageDown = {0.0f, -1.0f, 0.0f, 0.0f};
+static sceVu0FVECTOR cageDown = {0.0f, -1.0f, 0.0f, 0.0f}; /* derived name */
 
-static inline void SetCageChainQuaternion(void *q, void *a, void *b)
+static inline void SetCageChainQuaternion(void *q, void *a, void *b) /* derived name */
 {
     float d[4];
     float n[4];
@@ -296,7 +292,7 @@ static inline void SetCageChainQuaternion(void *q, void *a, void *b)
         q, (short)(atan2f(FSqrt(d[0] * d[0] + d[2] * d[2]), d[1]) * 10430.378f), axis);
 }
 
-static inline void AddCageWindForce(char *n, float k)
+static inline void AddCageWindForce(char *n, float k) /* derived name */
 {
     float v[4];
 

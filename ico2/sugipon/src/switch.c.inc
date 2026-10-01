@@ -1,7 +1,5 @@
-/* kept local with ios.h's declaration: box.c, which includes this file, keeps
-   its own view of ios_partition_seki and so does not include ios.h */
-
-/* switch.c -- lever / switch module; #included into box.c (one box.o, listing SRCFILE.TXT). */
+/* switch.c: the floor and wall levers and the switches; box.c includes this
+   file. */
 
 void switchOnSE(GObj *a0)
 {
@@ -71,15 +69,12 @@ inline void initParentize(GObj *a0)
     }
 }
 
-/* the zeroed template both lever inits copy into a new geometry block (the
-   head of box.o's .data, VMA 0x4E5AA0, 32 bytes); the name is ours */
-static LeverGeoWork leverGeoInit = {0};
+/* the zeroed template both lever inits copy into a new geometry block */
+static LeverGeoWork leverGeoInit = {0}; /* derived name */
 
 inline LeverGeoWork *InitFloorLeverGeo(char *a0, SObjSimpleSetting *a1)
 {
-    /* "src/switch.c" is this file's __FILE__ in the retail build (the listing
-       names it sugipon/src/switch.c, included by src/box.c); __FILE__ here
-       would spell the repository's .c.inc name. */
+    /* "src/switch.c" is this file's name in the game's source tree */
     LeverGeoWork *g =
         (LeverGeoWork *)iosMallocDebug(ios_partition_sugipon, 0x20, "src/switch.c", 141);
     *g = leverGeoInit;
@@ -122,18 +117,12 @@ void FloorLeverTriStateGeo(GObj *a0)
     UpdateRootMatrix(a0);
 }
 
-/* kept local: this TU's uses of SetIdentityQuaternion, RotQuaternionX,
-   SetParticleEffect and ObjAction_MailCenter do not fit the prototypes in the
-   headers that declare them */
-
 /* the two frame-rate divisors, the pair box.c's own fall code reads */
 
-/* switch.c:179-225 in the listing.  The frame divisor (60 - systemStatus[0] *
-   10) / systemStatus[1] is written twice, once for the limit test and once for
-   the equality test, which is what the ROM's two divisions are; the parentize
-   probe at switch.c:122-133 is the inlined initParentize above, and the
-   quaternion the particle effect is given shares its frame slot with that
-   probe's work buffer, so it is declared in the block that uses it. */
+/* The floor lever's per-frame function.  The frame divisor (60 -
+   systemStatus[0] * 10) / systemStatus[1] is written twice, once for the
+   limit test and once for the equality test; the parentize probe is the
+   inlined initParentize above. */
 void FloorLeverGeo(GObj *a0)
 {
     LeverGeoWork *p = GOBJ_SUB(a0)->work;
@@ -271,10 +260,10 @@ end:
     return ret;
 }
 
-/* switch.c:331-380 in the listing, the wall lever's twin of FloorLeverGeo: the
-   same parentize probe and the same frame divisor written twice, no trigger
-   callback, and a mail sent every frame that reports the lever's rest state
-   (the inlined IsWallLeverStatus above, switch.c:319-328). */
+/* the wall lever's counterpart of FloorLeverGeo: the same parentize probe
+   and the same frame divisor written twice, no trigger callback, and a mail
+   sent every frame that reports the lever's rest state (the inlined
+   IsWallLeverStatus above) */
 void WallLeverGeo(GObj *a0)
 {
     LeverGeoWork *p = GOBJ_SUB(a0)->work;
@@ -341,10 +330,8 @@ void WallLeverDL(GObj *a0)
     MatrixDrive_PopMatrix();
 }
 
-/* switch.c:414-421 in the listing: the poll loop is inlined at all four call
-   sites below, so it is a static inline helper here; it has no symbol of its
-   own in the ROM and no census row, and the name is descriptive. */
-static inline int checkReadySwitchKind(int kind)
+/* the poll loop the four functions below share */
+static inline int checkReadySwitchKind(int kind) /* derived name */
 {
     char *o;
 

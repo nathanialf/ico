@@ -11,8 +11,7 @@
 #include "main.h"
 #include <assert.h>
 
-/* The TU's .sdata, in ROM order (MAIN.MAP names nothing in it): the manager's
-   counters and the revive state, then EntrySpiderGroupManager's assert literal. */
+/* the manager's counters and the revive state */
 static int reviveNext = 0; /* derived name */
 
 static int spiderGroupIdCount = 0; /* derived name */
@@ -29,37 +28,35 @@ static int reviveCounter = 0; /* derived name */
 
 static int reviveDone = 0; /* derived name */
 
-typedef struct {
+typedef struct { /* field names derived */
     GObj *group; /* 0x00 */
     int spider;  /* 0x04, the spider's index in the group */
-} SpiderPair;
+} SpiderPair;    /* derived name */
 
-typedef struct {
-    GObj *gobj; /* 0x00 */
-    int rev;    /* 0x04 */
-} SpiderGroupEnt;
+typedef struct {  /* field names derived */
+    GObj *gobj;   /* 0x00 */
+    int rev;      /* 0x04 */
+} SpiderGroupEnt; /* derived name */
 
-/* .bss, owned by spiderGroupManager.o (0x5B8, the run and MAIN.MAP's own size),
-   in the ROM's run order: the spiders found inside a revive range, the pairs
-   picked out of them, the registered group ids, the group table and the group
-   ids the revive walk works from. */
-static int spidersInRange[100];
+/* the spiders found inside a revive range, the pairs picked out of them,
+   the registered group ids, the group table and the group ids the revive
+   walk works from */
+static int spidersInRange[100]; /* derived name */
 
-static SpiderPair spiderPairs[5];
+static SpiderPair spiderPairs[5]; /* derived name */
 
-/* words, not GObj *: EntrySpiderGroupManager's id store keeps the ROM's
-   order against the group table's rev store only as an int store */
-static int spiderGroupIds[64];
+/* the registered groups' GObj handles, held as words */
+static int spiderGroupIds[64]; /* derived name */
 
-static SpiderGroupEnt spiderGroups[64];
+static SpiderGroupEnt spiderGroups[64]; /* derived name */
 
-static GObj *reviveGroupIds[64];
+static GObj *reviveGroupIds[64]; /* derived name */
 
 /* one RGBA tint per spider group, alpha 0x80 throughout */
 static int spiderGroupColors[7][4] = {{0x7F, 0x00, 0x00, 0x80}, {0x40, 0x7F, 0x00, 0x80},
                                       {0x00, 0x40, 0x7F, 0x80}, {0x00, 0x7F, 0x00, 0x80},
                                       {0x40, 0x00, 0x7F, 0x80}, {0x7F, 0x40, 0x00, 0x80},
-                                      {0x40, 0x40, 0x40, 0x80}};
+                                      {0x40, 0x40, 0x40, 0x80}}; /* derived name */
 
 inline void InitSpiderGroupManager(void)
 {
@@ -100,7 +97,6 @@ inline void EntryRevivedSpiderGroupManager(int a0)
     spiderGroupIds[idx] = a0;
 }
 
-/* listing lines 96-103 */
 void EntrySpiderGroupManager(int gobj)
 {
     int *p;
@@ -128,7 +124,6 @@ inline void EntryToSpiderGroupManagerForReviveMaster(GObj *a0, GObj *a1)
     reviveMaster = a1;
 }
 
-/* listing lines 124-171 */
 int tryToRevive(void)
 {
     float pos[4];

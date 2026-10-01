@@ -8,71 +8,71 @@
 
 void GetWormCaptureVector(void *out, GObj *act, void *node, float scale);
 
-/* the TU's one .sdata word (MAIN.MAP worm.o .sdata 0x4, no symbol) */
+/* nonzero until the first worm has been set up */
 static int wormFirst = 1; /* derived name */
 
 void disp(GObj *act);
 
 /* A 16-byte GS colour: four 8-bit RGBA components, one per word, handed to
    DrawLine through the float view the call expects. */
-typedef union {
+typedef union { /* field names derived */
     int rgba[4];
     float f[4];
     long long d[2];
-} Color16;
+} Color16; /* derived name */
 
 /* The worm tip highlight: the line's far endpoint and its colour. */
-static const Vec16 tipLineTo = {{0.0f, 10.0f, 0.0f, 1.0f}};
+static const Vec16 tipLineTo = {{0.0f, 10.0f, 0.0f, 1.0f}}; /* derived name */
 
-static const Color16 tipLineColor = {{0x80, 0x80, 0x80, 0x80}};
+static const Color16 tipLineColor = {{0x80, 0x80, 0x80, 0x80}}; /* derived name */
 
-typedef struct {
+typedef struct { /* field names derived */
     float x, y, z, w;
-} __attribute__((aligned(16))) WormVec;
+} __attribute__((aligned(16))) WormVec; /* derived name */
 
-typedef struct {
-    int f00;    /* 0x00 */
-    float rate; /* 0x04 */
-    int f08[2]; /* 0x08 */
-    float p[4]; /* 0x10 */
-    int f20[4]; /* 0x20 */
-    float f30;  /* 0x30 */
-    int f34[3]; /* 0x34 */
-} WormParam;
+typedef struct { /* field names derived */
+    int f00;     /* 0x00 */
+    float rate;  /* 0x04 */
+    int f08[2];  /* 0x08 */
+    float p[4];  /* 0x10 */
+    int f20[4];  /* 0x20 */
+    float f30;   /* 0x30 */
+    int f34[3];  /* 0x34 */
+} WormParam;     /* derived name */
 
-typedef struct {
+typedef struct {  /* field names derived */
     int num;      /* 0x00 */
     int pad04[3]; /* 0x04 */
     WormParam pm; /* 0x10 */
-} WormSeg;
+} WormSeg;        /* derived name */
 
-typedef struct {
+typedef struct {    /* field names derived */
     WormVec *pos;   /* 0x00 */
     WormVec *prev;  /* 0x04 */
     float *len;     /* 0x08 */
     int pad0C[101]; /* 0x0C */
-} WormPnt;
+} WormPnt;          /* derived name */
 
-typedef struct {
+typedef struct { /* field names derived */
     WormSeg *seg;
     int nseg;
     WormPnt *pnt;
-} WormRoute;
+} WormRoute; /* derived name */
 
-typedef struct {
+typedef struct {  /* field names derived */
     float pos[3]; /* 0x00 */
     int pad0C;    /* 0x0C */
     float nseg;   /* 0x10 */
     float rate;   /* 0x14 */
     float num;    /* 0x18 */
-} WormInit;
+} WormInit;       /* derived name */
 
-typedef struct {
+typedef struct { /* field names derived */
     WormRoute *route;
     WormVec **src;
     float reduce;
     float ratio;
-} WormWork;
+} WormWork; /* derived name */
 
 void simulate(WormVec *v, int n, float len);
 void GetWormRoute(GObj *act, WormVec *target);
@@ -259,14 +259,11 @@ void disp(GObj *act)
     }
 }
 
-/* the reduce ratio is written through a union view, so the store is a full
-   memory barrier: the ROM proves it, because the SetWormReduceRatio +
-   TraceWormRoute pair in WormGeo re-derives the work pointer from the actor
-   after the store instead of reusing the one the store just computed. */
-typedef union {
+/* a work word read as a float or as an int */
+typedef union { /* field names derived */
     float f;
     int i;
-} WormFI;
+} WormFI; /* derived name */
 
 inline void SetWormReduceRatio(GObj *a0, float f12)
 {
@@ -337,9 +334,8 @@ inline void TraceWormRoute(GObj *act, float t)
     }
 }
 
-/* census: the listing inlines this (sugipon/src/worm.c:310-321) into WormGeo
-   and nowhere else, so it is a file-static inline with no ROM symbol. */
-static inline void ResetWormRoute(int act, WormWork *w)
+/* restart the worm's route; used only by WormGeo */
+static inline void ResetWormRoute(int act, WormWork *w) /* derived name */
 {
     WormRoute *r = w->route;
     int i;

@@ -10,11 +10,9 @@
 #include <string.h>
 #include "thread.h"
 
-/* The TU's .sdata (MAIN.MAP names nothing in it), in ROM order: the stream
-   entry count and state, the background reader's state and id, the ring
-   buffer's read and write offsets and buffers, the header parse, the owner,
-   the ring use, the idle flag and the frame clock; the two debug formats
-   follow. */
+/* the stream entry count and state, the background reader's state and id,
+   the ring buffer's read and write offsets and buffers, the header parse, the
+   owner, the ring use, the idle flag and the frame clock */
 static int streamNum = 0; /* derived name */
 
 static int streamState = 0; /* derived name */
@@ -67,16 +65,15 @@ typedef struct {  /* field names derived */
               any-type view */
 
     void (*finishFunc)(GObj *); /* 0x18 */
-} SMotion;
+} SMotion;                      /* derived name */
 
-/* .bss, the whole of streamMotionManager.o's run: the ten stream-motion slots
-   _deleteStreamMotionManager resets to emptyEntry.  0x118 bytes, ten 0x1C-byte
-   entries; MAIN.MAP's January member has 0xF0, ten entries of 0x18. */
-static SMotion streamEntry[10];
+/* the ten stream-motion slots _deleteStreamMotionManager resets to
+   emptyEntry */
+static SMotion streamEntry[10]; /* derived name */
 
 /* The ring is 0x28000 bytes; the check asks whether the write pointer has run
  * far enough ahead of the read pointer for `room` more bytes to be there. */
-static inline int _checkRing(int room)
+static inline int _checkRing(int room) /* derived name */
 {
     unsigned int p = ringRead;
     unsigned int end = p + room;
@@ -93,7 +90,7 @@ static inline int _checkRing(int room)
     return r;
 }
 
-static inline void _setEntryOffsets(void)
+static inline void _setEntryOffsets(void) /* derived name */
 {
     unsigned int off = 0;
     int i;
@@ -104,7 +101,7 @@ static inline void _setEntryOffsets(void)
     }
 }
 
-static inline void _setNextEntryOffsets(unsigned int base)
+static inline void _setNextEntryOffsets(unsigned int base) /* derived name */
 {
     unsigned int off = 0;
     int i;
@@ -115,7 +112,7 @@ static inline void _setNextEntryOffsets(unsigned int base)
     }
 }
 
-static inline void _advanceRing(int amt)
+static inline void _advanceRing(int amt) /* derived name */
 {
     ringUsed += amt;
     ringRead += amt;
@@ -222,14 +219,8 @@ void PlayStreamMotion(void)
     streamState = 1;
 }
 
-/* SRCFILE.TXT's rows for this function run 285 to 289 and then jump straight to
- * the closing brace at 308: lines 290 to 307 are a debug arm the retail build
- * compiles to nothing.  The ROM keeps two traces of it, the 0x10 bytes of frame
- * at sp+0 (a vector the arm declares; the frame is 0x30 without it) and the
- * "ADJUST %08x(%f)\n" string, which sits in .rodata between PlayStreamMotion's
- * and _deleteStreamMotionManager's with no reference to it: the arm is expanded
- * and its string output, then the dead code is deleted.  The bytes pin the
- * vector and the string; the arm's other statements are not recoverable. */
+/* reset the actor's stream-motion state; the offset trace at the end is
+ * switched off */
 void ClearStreamMotionEntry(GObj *gobj)
 {
     *(int *)((char *)GOBJ_SUB(gobj) + 0x470) = -1;
@@ -244,9 +235,8 @@ void ClearStreamMotionEntry(GObj *gobj)
     }
 }
 
-/* .data, the whole of streamMotionManager.o's run: the cleared entry every
-   slot is reset to. */
-static SMotion emptyEntry = {0, 0, -1, -1, -1, 0, 0};
+/* the cleared entry every slot is reset to */
+static SMotion emptyEntry = {0, 0, -1, -1, -1, 0, 0}; /* derived name */
 
 void _deleteStreamMotionManager(void)
 {
@@ -330,13 +320,11 @@ void GetStreamMotionDataNext(char *dst, int no)
     getStreamMotionData(dst, streamEntry[no].next, no);
 }
 
-typedef struct {
+typedef struct { /* field names derived */
     char c[4];
-} StreamMotionHead;
+} StreamMotionHead; /* derived name */
 
-/* the four bytes GetStreamMotionData hands back while no data has arrived.
-   ZFog's idiom: the unspecified bound keeps the object out of small data
-   under -G 8, which is where the ROM has it */
+/* the four bytes GetStreamMotionData hands back while no data has arrived */
 static const char streamDummyHead[] = {0, 0xFF, 0, 0}; /* derived name */
 
 inline float GetStreamMotionData(char *dst, int no)

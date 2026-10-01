@@ -16,16 +16,13 @@
 #include "sceneManager.h"
 
 /* the name every iosMallocDebug in this file reports itself under */
-static const char rotObjectFile[] = "src/rotObject.c";
+static const char rotObjectFile[] = "src/rotObject.c"; /* derived name */
 
-/* The TU's .sdata word (MAIN.MAP names nothing in it): the phase the next
-   rotating object's uniq-data save counter starts at, cycling through 30 so
-   the objects' saves fall on different frames. */
+/* the phase the next rotating object's uniq-data save counter starts at,
+   cycling through 30 so the objects' saves fall on different frames */
 static unsigned char rotObjectPhase = 0; /* derived name */
 
-/* The 64-byte work block InitRotObjectGeo allocates for a rotating object.
-   RECONSTRUCTION: the record and its names are ours, from what this file
-   does at each offset. */
+/* the 64-byte work block InitRotObjectGeo allocates for a rotating object */
 typedef struct RotObjWork { /* field names derived */
     int kind;               /* 0x00, the layout's object word: 3 for a turn limited to a range */
     char pad04[12];
@@ -39,7 +36,7 @@ typedef struct RotObjWork { /* field names derived */
     int lock;       /* 0x34, SetRotObjectLockFlag: no move while set */
     float rate;     /* 0x38, the turn per push, the layout's scale y (1 below 0.05) */
     float armScale; /* 0x3C, 100 over the arm radius */
-} RotObjWork;
+} RotObjWork;       /* derived name */
 
 /* the two words MemoryRotObject saves in the object's gamesys info record and
    RestoreRotObjectExtGeo and GetRotObjectGameSysObjInfoExtData read back */
@@ -47,7 +44,7 @@ typedef struct {          /* field names derived */
     unsigned short angle; /* 0x0 */
     short pad02;
     int turnCount; /* 0x4 */
-} RotObjMemory;
+} RotObjMemory;    /* derived name */
 
 void moveStartSE(GObj *a0, int a1, int a2, int a3)
 {
@@ -69,7 +66,7 @@ void RotObjectGeo(GObj *a0)
     }
 }
 
-static inline void getRotObjectDriveMatrix(GObj *gobj, void *dst)
+static inline void getRotObjectDriveMatrix(GObj *gobj, void *dst) /* derived name */
 {
     float v[4];
     Sub15C *sub = GOBJ_SUB(gobj);
@@ -95,11 +92,7 @@ void GetRotObjectHoldPoint(void *a0, void *a1, void *a2, void *a3)
     *(int *)((char *)a1 + 0xC) = 0;
     AdjustVerticalSidePlaneOfWall(a0, a2, buf + 0x10, 10.0f);
     GetProjectionPosOfPlane(a0, buf, a0);
-    /* Disabled in retail: the hold point trace.  What the bytes pin: the
-       function's name, the vector format and the "%s\n" in .sdata, with no
-       instruction; the listing's rows 155-175, empty between the projection
-       (154) and the transpose (176), are where it fits.  What they cannot:
-       the condition that disabled it and which vectors it printed. */
+    /* the hold point trace, switched off */
     if (0) {
         debug_StdPrintfDummy("%s\n", "GetRotObjectHoldPoint");
         debug_StdPrintfDummy("\t%f, %f, %f\n", ((float *)a0)[0], ((float *)a0)[1],
@@ -197,11 +190,7 @@ int MoveRotObjectWithHoldPoint(GObj *bar, void *hold, void *self, void *dir, voi
         }
         break;
     }
-    /* Disabled in retail: the function's name trace.  What the bytes pin:
-       its text in .rodata after GetRotObjectHoldPoint's trace, with no
-       instruction.  What they cannot: which of the function's empty listing
-       rows held it (304-310, after the switch, is the one used here) and the
-       condition that disabled it. */
+    /* the function's name trace, switched off */
     if (0) {
         debug_StdPrintfDummy("%s\n", "MoveRotObjectWithHoldPoint");
     }
@@ -234,22 +223,17 @@ void GetRotObjectGlobalHoldGeometry(void *pos, void *dir, void *gobj, void *posM
     getRotObjectDriveMatrix(gobj, m);
     sceVu0ApplyMatrix(pos, m, posMtx);
     sceVu0ApplyMatrix(dir, m, dirMtx);
-    /* Disabled in retail: the function's name trace.  What the bytes pin:
-       its text last in .rodata, with no instruction; the listing's last row
-       for the function is 326.  What they cannot: the condition that
-       disabled it. */
+    /* the function's name trace, switched off */
     if (0) {
         debug_StdPrintfDummy("%s\n", "GetRotObjectGlobalHoldGeometry");
     }
 }
 
-/* A GObj slot read as an int but written elsewhere as a float: reading it
- * through the union keeps both views in one alias set, so the reload of
- * gobj->_15C stays behind the float stores it follows (COOKBOOK 8.26/8.32). */
-typedef union RotObjWord {
+/* a GObj slot read as an int but written elsewhere as a float */
+typedef union RotObjWord { /* field names derived */
     int i;
     float f;
-} RotObjWord;
+} RotObjWord; /* derived name */
 
 RotObjWork *InitRotObjectGeo(GObj *gobj, SObjSimpleSetting *src)
 {
@@ -301,9 +285,8 @@ float GetRotObjectRotCount(GObj *a0)
     return (float)w->turnCount * (1.0f / 65536.0f);
 }
 
-/* .data, the whole of rotObject.o's run (MAIN.MAP sizes the member 0x10): the
-   +Z unit vector the drive matrix is applied to. */
-static float zPlusVector[4] = {0.0f, 0.0f, 1.0f, 0.0f};
+/* the +Z unit vector the drive matrix is applied to */
+static float zPlusVector[4] = {0.0f, 0.0f, 1.0f, 0.0f}; /* derived name */
 
 int GetRotObjectZPlusDirection(void *gobj)
 {

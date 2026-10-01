@@ -112,17 +112,15 @@ void SetRootMatrixRotOffset(GObj *obj, void *q)
     SetRootMatrixRotOffsetByDObj(obj->dobj, q);
 }
 
-/* INTERIM stand-ins: the ROM inlines GetRootPosition (listing lines 55-64 and
- * 85) and SetDirectRootPositionNoFitting (lines 255-274) into the two
- * WithNodePoint entries, which sit AHEAD of them in the object because those
- * three are deferred-inline tail members. Their out-of-line copies stay plain
- * definitions at their ROM slots while the tail still has asm members. */
-typedef union {
+/* file-static copies of GetRootPosition and SetDirectRootPositionNoFitting,
+ * which the two WithNodePoint functions inline; the originals are defined
+ * further down */
+typedef union { /* field names derived */
     float f[4];
     long long ll[2];
-} SdrpVec4i;
+} SdrpVec4i; /* derived name */
 
-static __inline__ void GetRootPositionByDObj_i(float *pos, Sub15C *src)
+static __inline__ void GetRootPositionByDObj_i(float *pos, Sub15C *src) /* derived name */
 {
     struct MotRoot *root = &src->root;
     float f0;
@@ -137,12 +135,12 @@ static __inline__ void GetRootPositionByDObj_i(float *pos, Sub15C *src)
     pos[3] = 1.0f;
 }
 
-static __inline__ void GetRootPosition_i(float *pos, GObj *obj)
+static __inline__ void GetRootPosition_i(float *pos, GObj *obj) /* derived name */
 {
     GetRootPositionByDObj_i(pos, obj->dobj);
 }
 
-static __inline__ void SetRootPosition_ii(GObj *obj, void *pos)
+static __inline__ void SetRootPosition_ii(GObj *obj, void *pos) /* derived name */
 {
     float buf[16];
     SdrpVec4i *p = (SdrpVec4i *)obj->dobj->root.pos;
@@ -160,7 +158,7 @@ static __inline__ void SetRootPosition_ii(GObj *obj, void *pos)
     }
 }
 
-static __inline__ void SetDirectRootPositionNoFitting_i(GObj *self, void *v)
+static __inline__ void SetDirectRootPositionNoFitting_i(GObj *self, void *v) /* derived name */
 {
     Sub15C *sub = self->dobj;
     float *p = sub->root.pos;
@@ -213,18 +211,14 @@ void SetDirectRootPositionWithNodePoint(GObj *gobj, int node, float *pos, float 
     AdjustMotionHeightToNearestField(gobj);
 }
 
-/* The 0x15C slot is the engine's sub-object HANDLE: the code stores an int and
- * reads it back as a pointer, so every read of it is a union view and any store
- * in between forces the reload the ROM performs. */
+/* The 0x15C slot is the engine's sub-object handle: the code stores an int and
+ * reads it back as a pointer, so every read of it is a union view. */
 
-#define SUBOF(o) (((SubHandle *)&((GObj *)(o))->dobj)->sub)
+#define SUBOF(o) (((SubHandle *)&((GObj *)(o))->dobj)->sub) /* derived name */
 
-/* INTERIM: the January-2002 listing inlines LocalizeDirectionOrient into
- * LocalizeGeometry (its geometryManager.c:348-352 rows sit inside
- * LocalizeGeometry's :363-390 span).  The TU's out-of-line copy stays a plain
- * definition further down while the deferred-inline tail still has asm members,
- * so the body is repeated here as a static stand-in. */
-static __inline__ void LocalizeDirectionOrient_i(GObj *self, int *link)
+/* a file-static copy of LocalizeDirectionOrient, which LocalizeGeometry
+ * inlines; the original is defined further down */
+static __inline__ void LocalizeDirectionOrient_i(GObj *self, int *link) /* derived name */
 {
     float buf[16];
     GObj *obj = (GObj *)link[0];
@@ -398,24 +392,17 @@ loop:
     MatrixDrive_PopMatrix();
 }
 
-/* .data, owned by geometryManager.o and read only here (MAIN.MAP names no
-   symbol in the run; its geometryManager.o .data size 0x14 fixes the length).
-   The object kinds the character list builder accepts, -1 terminated. */
-static int charGObjKinds[5] = {1, 2, 4, 47, -1};
+/* the object kinds the character list builder accepts, -1 terminated */
+static int charGObjKinds[5] = {1, 2, 4, 47, -1}; /* derived name */
 
-/* .bss, owned by geometryManager.o and reached only from this file (MAIN.MAP
-   names no symbol in the run; its geometryManager.o .bss size 0x100 fixes the
-   length, and matrixDrive's 0x1000 and quaternion's 0x400 tile the rest of the
-   region exactly).  The live character objects the cylinder check walks. */
-static GObj *charGObjList[64];
+/* the live character objects the cylinder check walks */
+static GObj *charGObjList[64]; /* derived name */
 
-/* the TU's .sdata word after the two assert literals (MAIN.MAP names nothing
-   in the run): the number of entries in charGObjList */
+/* the number of entries in charGObjList */
 static int charGObjCount = 0; /* derived name */
 
-/* listing lines 540-547: the kind test the list builder runs on every live
-   object; inlined at its single call site. */
-static inline int isCharGObj(GObj *o)
+/* the kind test the list builder runs on every live object */
+static inline int isCharGObj(GObj *o) /* derived name */
 {
     int i;
 
@@ -449,7 +436,7 @@ void MakeCharGObjList(void)
     charGObjList[charGObjCount] = 0;
 }
 
-static __inline__ void GetRootPosition_cc(float *pos, GObj *obj)
+static __inline__ void GetRootPosition_cc(float *pos, GObj *obj) /* derived name */
 {
     Sub15C *src = obj->dobj;
     struct MotRoot *root = &src->root;
@@ -465,18 +452,15 @@ static __inline__ void GetRootPosition_cc(float *pos, GObj *obj)
     pos[3] = 1.0f;
 }
 
-/* INTERIM: the January-2002 listing inlines SetRootPosition (its :180-188 rows)
- * and SetDirectRootPositionNoFitting (its :255-274 rows, which carry the
- * SetRootPosition rows inside them) into cylinderCollisionCheck; the TU's
- * out-of-line copies stay plain definitions further down while the
- * deferred-inline tail still has asm members, so their bodies are repeated here
- * as static stand-ins. */
-typedef union {
+/* file-static copies of SetRootPosition and SetDirectRootPositionNoFitting,
+ * which cylinderCollisionCheck inlines; the originals are defined further
+ * down */
+typedef union { /* field names derived */
     float f[4];
     long long ll[2];
-} CylVec4;
+} CylVec4; /* derived name */
 
-static __inline__ void SetRootPosition_c(GObj *obj, void *pos)
+static __inline__ void SetRootPosition_c(GObj *obj, void *pos) /* derived name */
 {
     float buf[16];
     CylVec4 *p = (CylVec4 *)obj->dobj->root.pos;
@@ -494,7 +478,7 @@ static __inline__ void SetRootPosition_c(GObj *obj, void *pos)
     }
 }
 
-static __inline__ void SetDirectRootPositionNoFitting_c(GObj *self, void *v)
+static __inline__ void SetDirectRootPositionNoFitting_c(GObj *self, void *v) /* derived name */
 {
     Sub15C *sub = self->dobj;
     float *p = sub->root.pos;
@@ -623,11 +607,10 @@ void LocalizeDirectionOrient(GObj *self, int *link)
     self->dobj->ctrl.dir[3] = 0;
 }
 
-/* INTERIM: ROM inlines GetRootPosition into both cylinder-collision walkers and
- * inlines CylinderCollisionWithControlDynamics into CylinderCollision; the TU's
- * out-of-line copies stay plain definitions while the deferred-inline tail
- * still has asm members, so their bodies are repeated here as static stand-ins. */
-static __inline__ void GetRootPosition_ic(float *pos, GObj *obj)
+/* file-static copies of GetRootPosition, which both cylinder-collision
+ * walkers inline, and of CylinderCollisionWithControlDynamics, which
+ * CylinderCollision inlines */
+static __inline__ void GetRootPosition_ic(float *pos, GObj *obj) /* derived name */
 {
     Sub15C *src = obj->dobj;
     struct MotRoot *root = &src->root;
@@ -643,11 +626,10 @@ static __inline__ void GetRootPosition_ic(float *pos, GObj *obj)
     pos[3] = 1.0f;
 }
 
-/* kept local: girl_act.c defines it inline just before its own user, with no
-   earlier declaration there, so girl_act.h does not carry it */
+/* defined in girl_act.c; girl_act.h does not declare it */
 extern int isMustCheckCylinder(void *a, void *b);
 
-/* No caller in the ROM, so the bytes cannot decide the return type: int as sugipon's scalar getters. */
+/* no caller; int, as sugipon's other scalar getters */
 int GetCylinderCollision(GObj *self, GObj *target, float r, float h, float s, int ctrl)
 {
     float pos[4];
@@ -666,7 +648,8 @@ int GetCylinderCollisionWithExceptOwnCollision(GObj *self, GObj *target, float r
 }
 
 static __inline__ int CylinderCollisionWithControlDynamics_i(GObj *self, int group, int ctrl,
-                                                             float r, float h, float s)
+                                                             float r, float h,
+                                                             float s) /* derived name */
 {
     float pos[4];
     int hit = 0;
@@ -779,15 +762,14 @@ void GetRootPositionByDObj(void *dst, Sub15C *src)
     pos[3] = 1.0f;
 }
 
-/* INTERIM: ROM inlines SetRootPosition into this function and into
- * SetDirectRootPositionNoFitting; the TU's out-of-line copy stays a plain
- * definition while the deferred-inline tail still has asm members. */
-typedef union {
+/* a file-static copy of SetRootPosition, which this function and
+ * SetDirectRootPositionNoFitting inline */
+typedef union { /* field names derived */
     float f[4];
     long long ll[2];
-} SdrpVec4;
+} SdrpVec4; /* derived name */
 
-static __inline__ void SetRootPosition_i(GObj *obj, void *pos)
+static __inline__ void SetRootPosition_i(GObj *obj, void *pos) /* derived name */
 {
     float buf[16];
     SdrpVec4 *p = (SdrpVec4 *)obj->dobj->root.pos;
@@ -843,7 +825,7 @@ void SetDirectRootPositionNoFitting(GObj *self, void *v)
 }
 
 /* The root position at (char *)sub+0xA0 is a 4-lane vector the engine also moves as
- * two quadwords (CopyVector); the union is the TU's view of it. */
+ * two quadwords (CopyVector); the union is this file's view of it. */
 
 void SetRootPosition(GObj *obj, void *pos)
 {

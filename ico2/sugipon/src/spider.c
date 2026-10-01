@@ -18,24 +18,22 @@
 #include "GifPacket.h"
 #include "ios.h"
 
-/* spider.o's whole .rodata run starts here.  These three are named objects,
-   not literals at their use sites: the two group-wake messages are used near
-   the end of the file and the ROM has them second and third in the run. */
-static const char spiderFile[] = __FILE__;
+/* the file name and the two group-wake messages */
+static const char spiderFile[] = __FILE__; /* derived name */
 
 /* tried to wake a spider group that already has a parent; this is invalid */
 static const char spiderWakeHasParentMsg[] =
-    "親のいる蜘蛛グループを起こそうとしました。これは無効です\n";
+    "親のいる蜘蛛グループを起こそうとしました。これは無効です\n"; /* derived name */
 
 /* tried to wake a spider group with no parent written in the table; invalid */
 static const char spiderWakeNoParentMsg[] =
-    "蜘蛛グループを起こそうとしましたが、表に親が書かれていません。これは無効です\n";
+    "蜘蛛グループを起こそうとしましたが、表に親が書かれていません。これは無効です\n"; /* derived name */
 
-/* RECONSTRUCTION, read from the ROM.  The 64-byte record InitSpiderLayoutGeo
-   allocates and hangs at the object's work word: the group's state (-1 laid
-   out, 0 entered in the group manager, 1 awake, 2 calling the master back),
-   the member spiders, and the counters SpiderLayoutGeo runs. */
-typedef struct {
+/* The 64-byte record InitSpiderLayoutGeo allocates and hangs at the object's
+   work word: the group's state (-1 laid out, 0 entered in the group manager,
+   1 awake, 2 calling the master back), the member spiders, and the counters
+   SpiderLayoutGeo runs. */
+typedef struct {            /* field names derived */
     int state;              /* 0x00 */
     char pad04[28];         /* 0x04 */
     int n;                  /* 0x20, member count */
@@ -46,14 +44,14 @@ typedef struct {
     int kind;               /* 0x34, index into the kind table */
     int wakeFrom;           /* 0x38, first member to wake, -1 for none */
     int revived;            /* 0x3C */
-} SpiderWork;
+} SpiderWork;               /* derived name */
 
 /* the three words MemorySpiderLayout saves */
-typedef struct {
+typedef struct { /* field names derived */
     int awake;   /* 0x0 */
     int alive;   /* 0x4 */
     int revived; /* 0x8 */
-} SpiderMemory;
+} SpiderMemory;  /* derived name */
 
 SpiderWork *InitSpiderLayoutGeo(GObj *self, SObjSimpleSetting *lay)
 {
@@ -86,8 +84,7 @@ SpiderWork *InitSpiderLayoutGeo(GObj *self, SObjSimpleSetting *lay)
     return w;
 }
 
-/* listing lines 78-88 */
-static inline void wakeSpiderGroup(GObj *self)
+static inline void wakeSpiderGroup(GObj *self) /* derived name */
 {
     SpiderWork *w;
     int n;
@@ -109,8 +106,7 @@ void WakeUpLayoutedSpiders(GObj *self)
     ExecuteSEPackage(self, 106);
 }
 
-/* listing lines 324-331 */
-static inline void setSpiderGroupHost(GObj *self, GObj *host)
+static inline void setSpiderGroupHost(GObj *self, GObj *host) /* derived name */
 {
     SpiderWork *w;
     int i;
@@ -123,16 +119,13 @@ static inline void setSpiderGroupHost(GObj *self, GObj *host)
     }
 }
 
-typedef union {
+typedef union { /* field names derived */
     char *p;
     int i;
-} SpiderWord;
+} SpiderWord; /* derived name */
 
-/* The prior-level pass reads the actor extension through a union view: the
-   `w->state = 2;` status store in the caller has to kill this load, which only
-   an alias-set-0 union member does. */
-/* listing lines 336-341 */
-static inline void setSpiderGroupPrior(GObj *self)
+/* the prior-level pass reads the actor extension through a union view */
+static inline void setSpiderGroupPrior(GObj *self) /* derived name */
 {
     SpiderWork *w;
     int i;
@@ -145,16 +138,14 @@ static inline void setSpiderGroupPrior(GObj *self)
     }
 }
 
-/* listing lines 392-396 */
-static inline void callSpidersToGirl(GObj *self)
+static inline void callSpidersToGirl(GObj *self) /* derived name */
 {
     if (boyGObj != 0) {
         setSpiderGroupHost(self, boyGObj);
     }
 }
 
-/* listing lines 402-407 */
-static inline int callSpidersToBoy(GObj *self)
+static inline int callSpidersToBoy(GObj *self) /* derived name */
 {
     if (girlGObj != 0) {
         setSpiderGroupHost(self, girlGObj);
@@ -180,11 +171,10 @@ int CallSpidersToReviveEnemy(GObj *self)
     return 1;
 }
 
-/* the TU's .sdata opens with the layout entry count SpiderLayoutGeo prints */
+/* the layout entry count SpiderLayoutGeo prints */
 static int spiderEntryCount = 0; /* derived name */
 
-/* listing lines 69-76 */
-static inline void setAllSpiderPositions(GObj *self, float *pos)
+static inline void setAllSpiderPositions(GObj *self, float *pos) /* derived name */
 {
     SpiderWork *w;
     int n;
@@ -276,23 +266,22 @@ void SpiderLayoutGeo(GObj *self)
     }
 }
 
-/* the debug display's selected line (MAIN.MAP spider.o) */
+/* the debug display's selected line */
 int sgSelLine = 0;
 
-/* spider.o's whole .data run: the white the debug wire sphere is drawn in. */
-static int spiderWireColor[4] = {0xFF, 0xFF, 0xFF, 0xFF};
+/* the white the debug wire sphere is drawn in */
+static int spiderWireColor[4] = {0xFF, 0xFF, 0xFF, 0xFF}; /* derived name */
 
-/* The rest of spider.o's .rodata run: the compiler puts SpiderLayoutGeo's
-   switch table ahead of these, so they are named objects declared after it. */
-static const char spiderStatusFmt[] = "%c SE:%s AI:%s";
+/* the debug display's formats */
+static const char spiderStatusFmt[] = "%c SE:%s AI:%s"; /* derived name */
 
-static const char spiderRestoreFmt[] = "restore: %p\n";
+static const char spiderRestoreFmt[] = "restore: %p\n"; /* derived name */
 
-static const char spiderWakeFmt[] = "     WAKE: %s\n";
+static const char spiderWakeFmt[] = "     WAKE: %s\n"; /* derived name */
 
-static const char spiderAliveFmt[] = "    ALIVE: %d\n";
+static const char spiderAliveFmt[] = "    ALIVE: %d\n"; /* derived name */
 
-static const char spiderReviveFmt[] = "   REVIVE: %d\n";
+static const char spiderReviveFmt[] = "   REVIVE: %d\n"; /* derived name */
 
 void DispAllMemberOfSpider(GObj *self, int *col)
 {
@@ -364,9 +353,8 @@ int DeadAllSpiders(GObj *gp)
     return 0;
 }
 
-/* Unnamed in MAIN.MAP: a static-inline helper (listing rows 148-151) shared by
-   GetAliveSpiders and MemorySpiderLayout; it has no out-of-line copy. */
-static inline int CountAliveSpiders(GObj *gp)
+/* shared by GetAliveSpiders and MemorySpiderLayout */
+static inline int CountAliveSpiders(GObj *gp) /* derived name */
 {
     SpiderWork *sg = GOBJ_SUB(gp)->work;
     int i;
@@ -405,9 +393,8 @@ GObj *DeleteSpiderFromLayoutGroup(GObj *a0, int a1)
     return r;
 }
 
-/* Unnamed in MAIN.MAP: a static-inline helper (listing rows 219-222) that
-   clears the dead members out of a spider group; it has no out-of-line copy. */
-static inline void RemoveDeadLayoutSpiders(SpiderWork *sg)
+/* clear the dead members out of a spider group */
+static inline void RemoveDeadLayoutSpiders(SpiderWork *sg) /* derived name */
 {
     int i;
     for (i = 0; i < sg->n; i++) {
@@ -491,8 +478,7 @@ int RestoreSpiderLayoutExtGeo(GObj *a0, char *a1)
     return 1;
 }
 
-/* the debug display's line counter (MAIN.MAP spider.o), the last object of the
-   TU's .sdata, after RestoreSpiderLayoutExtGeo's two answers */
+/* the debug display's line counter */
 int sgInfoLine = 0;
 
 int MemorySpiderLayout(SpiderMemory *dst, GObj *gp)
@@ -510,9 +496,8 @@ int MemorySpiderLayout(SpiderMemory *dst, GObj *gp)
     return 1;
 }
 
-/* Unnamed in MAIN.MAP: a static-inline helper (listing rows 71-74) shared by
-   WakeUpSpidersFromGenerator and SpiderLayoutGeo; it has no out-of-line copy. */
-static inline void SetLayoutedSpidersRootPosition(GObj *gp, void *pos)
+/* shared by WakeUpSpidersFromGenerator and SpiderLayoutGeo */
+static inline void SetLayoutedSpidersRootPosition(GObj *gp, void *pos) /* derived name */
 {
     SpiderWork *sg = GOBJ_SUB(gp)->work;
     int num = sg->n;
@@ -541,10 +526,9 @@ void WakeUpSpidersFromGenerator(GObj *gp)
     WakeUpLayoutedSpiders(gp);
 }
 
-/* INTERIM: stand-in for the TU's own DeleteSpiderFromLayoutGroup, which ROM
-   inlines here (listing rows 257-259 inside this function).  The plain
-   definition above stays until the TU's inline tail is laid out. */
-static inline GObj *DeleteSpiderFromLayoutGroup_inl(GObj *gp, int idx)
+/* a file-static copy of DeleteSpiderFromLayoutGroup, which the function
+   below inlines */
+static inline GObj *DeleteSpiderFromLayoutGroup_inl(GObj *gp, int idx) /* derived name */
 {
     GObj **arr = ((SpiderWork *)GOBJ_SUB(gp)->work)->members;
     GObj *r = arr[idx];
