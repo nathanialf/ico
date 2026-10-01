@@ -106,28 +106,32 @@ int EnableDmac(int a0)
     return rv;
 }
 
-void iEnableIntc(void)
+int iEnableIntc(int cause)
 {
-    _iEnableIntc();
+    int r = _iEnableIntc(cause);
     SYNC();
+    return r;
 }
 
-void iDisableIntc(void)
+int iDisableIntc(int cause)
 {
-    _iDisableIntc();
+    int r = _iDisableIntc(cause);
     SYNC();
+    return r;
 }
 
-void iEnableDmac(void)
+int iEnableDmac(int channel)
 {
-    _iEnableDmac();
+    int r = _iEnableDmac(channel);
     SYNC();
+    return r;
 }
 
-void iDisableDmac(void)
+int iDisableDmac(int channel)
 {
-    _iDisableDmac();
+    int r = _iDisableDmac(channel);
     SYNC();
+    return r;
 }
 
 /* intr.o's own file static setup (initsys.o holds the global of the name); the

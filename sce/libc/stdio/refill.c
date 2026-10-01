@@ -1,6 +1,7 @@
 /* libc.a member refill.o.  MAIN.MAP member spans tile this run exactly and
  * this member starts at an 8-aligned function start of the shipped ELF. */
 #include <reent.h>
+#include <libc_internal.h>
 
 struct D520 {
     char pad0[8];
@@ -11,15 +12,8 @@ struct D520 {
    as the shipped code does; the declaration is left unprototyped. */
 /* kept local: not yet moved to stdio.h */
 extern int fflush();
-/* kept local: libc_internal.h declares it as `void __sinit(char *a0)` */
-extern void __sinit(Reent *r);
 /* kept local: stdlib.h declares it as `void _free_r(int *self, void *mem)` */
 extern void _free_r(Reent *r, void *p);
-/* kept local: this member cannot include libc_internal.h, whose __sinit, _fwalk conflict with
-   its own */
-extern void __smakebuf(Fil *fp);
-/* kept local: libc_internal.h declares it as `int _fwalk(Reent *ptr, int (*function)())` */
-extern void _fwalk(Reent *r, int (*f)());
 
 int lflush(void)
 {

@@ -13,6 +13,6 @@ int raise(int a0);                      /* definition in sce/ */
 int _raise_r(void *ptr, int sig);       /* definition in sce/ */
 int _init_signal_r(void *ptr);          /* definition in sce/ */
 int __sigtramp_r(void *ptr, int signo); /* definition in sce/ */
-int kill(int a0, void *a1);             /* definition in sce/ */
+int kill(int pid, int sig);             /* definition in sce/ */
 
 #endif /* SCE_LIBC_SIGNAL_H */

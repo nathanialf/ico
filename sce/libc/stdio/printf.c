@@ -17,10 +17,10 @@ int _printf_r(int *self, int b, ...)
     return _vfprintf_r(self, self[2], b, args);
 }
 
-void printf(void *a0, ...)
+int printf(const char *fmt, ...)
 {
-    void *args = (char *)__builtin_next_arg(a0) - 0x38;
+    void *args = (char *)__builtin_next_arg(fmt) - 0x38;
     int s = (int)_impure_ptr;
     *(int *)(*(int *)(s + 8) + 0x54) = s;
-    vfprintf(*(int *)(s + 8), a0, args);
+    return vfprintf(*(int *)(s + 8), fmt, args);
 }

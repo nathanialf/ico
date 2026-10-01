@@ -2,6 +2,7 @@
  * this member starts at an 8-aligned function start of the shipped ELF. */
 #include <string.h>
 #include <reent.h>
+#include <libc_internal.h>
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -17,9 +18,8 @@ struct D520 {
    real array member of a struct type, which is what puts ROM's preheader copy
    of _ub._base in place of a load. */
 
-int __submore(char *fp0)
+int __submore(Fil *fp)
 {
-    Fil *fp = (Fil *)fp0;
     int i;
     unsigned char *p;
 
@@ -46,11 +46,6 @@ int __submore(char *fp0)
     return 0;
 }
 
-/* kept local: libc_internal.h declares it as `void __sinit(char *a0)` */
-extern void __sinit(void *r);
-/* kept local: this member cannot include libc_internal.h, whose __sinit conflicts with its own */
-extern int __submore(char *fp);
-
 int ungetc(int c, Fil *fp)
 {
     if (c == -1)
@@ -58,7 +53,7 @@ int ungetc(int c, Fil *fp)
     /* newlib's CHECK_INIT(fp), a do-while-zero macro wrapper */
     do {
         if (fp->data == 0)
-            fp->data = (char *)_impure_ptr;
+            fp->data = _impure_ptr;
         if (fp->data->sdidinit == 0)
             __sinit(fp->data);
     } while (0);

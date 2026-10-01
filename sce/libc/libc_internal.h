@@ -26,16 +26,16 @@ int __sread(Fil *a0, int a1, int a2);                              /* definition
 long __swrite(Fil *a0, int a1, int a2);                            /* definition in sce/ */
 long __sseek(Fil *a0, int a1, int a2);                             /* definition in sce/ */
 int __sclose(Fil *a0);                                             /* definition in sce/ */
-void __sinit(char *a0);                                            /* definition in sce/ */
+void __sinit(Reent *s);                                            /* definition in sce/ */
 void __smakebuf(Fil *fp);                                          /* definition in sce/ */
 int __srefill(Fil *fp);                                            /* definition in sce/ */
 int __swsetup(Fil *fp);                                            /* definition in sce/ */
 int __sfvwrite(Fil *fp, struct __suio *uio);                       /* definition in sce/ */
-int __submore(char *fp0);                                          /* definition in sce/ */
+int __submore(Fil *fp);                                            /* definition in sce/ */
 char *__sccl(char *tab, char *fmt);                                /* definition in sce/ */
 int _fwalk(Reent *ptr, int (*function)());                         /* definition in sce/ */
-void _cleanup_r(int a0);                                           /* definition in sce/ */
-void std(char *fp, int flags, int file, void *data);               /* definition in sce/ */
+void _cleanup_r(Reent *ptr);                                       /* definition in sce/ */
+void std(Fil *fp, int flags, int file, Reent *data);               /* definition in sce/ */
 int _vfiprintf_r(void *data, Fil *fp, const char *fmt0, char *ap); /* definition in sce/ */
 int _vfprintf_r(int *self, int subj, int b, void *args); /* dominant spelling at 1 of 2 sites */
 int *_Balloc(void *ptr, int k);                          /* definition in sce/ */

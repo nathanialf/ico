@@ -26,6 +26,18 @@ typedef struct {
     long long bgcolor; /* 0x20 */
 } sceGsDispEnv;
 
+/* Four (register-address, data) pairs: TEXFLUSH-or-NOP, TEX1_1, TEX0_1, CLAMP_1. */
+typedef struct {
+    long long texflush;      /* 0x00 */
+    long long texflush_addr; /* 0x08 */
+    long long tex1;          /* 0x10 */
+    long long tex1_addr;     /* 0x18 */
+    long long tex0;          /* 0x20 */
+    long long tex0_addr;     /* 0x28 */
+    long long clamp;         /* 0x30 */
+    long long clamp_addr;    /* 0x38 */
+} sceGsTexEnv;
+
 /* Eight (register-address, data) pairs: FRAME_1, ZBUF_1, XYOFFSET_1, SCISSOR_1,
    PRMODECONT, COLCLAMP, DTHE, TEST_1.  Same pair convention as graph007. */
 typedef struct {
@@ -65,10 +77,10 @@ typedef struct {
 } sceGsClear;
 
 void *sceGsGetGParam(void);     /* definition in sce/ */
-int sceGsGetIMR(void);          /* definition in sce/ */
+unsigned long sceGsGetIMR(void); /* definition in sce/ */
 void sceGsPutDispEnv(void *a0); /* definition in sce/ */
 int sceGsPutDrawEnv(void *a0);  /* definition in sce/ */
-int sceGsPutIMR(void *a0);      /* definition in sce/ */
+unsigned long sceGsPutIMR(unsigned long imr); /* definition in sce/ */
 
 void sceGsResetGraph(
     short mode, short inter, short omode,
@@ -87,9 +99,11 @@ int sceGsSetDefClear(sceGsClear *cl, short ztst, short x, short y, short w, shor
 int sceGsSetDefDrawEnv(sceGsDrawEnv *env, short psm, short w, short h, short ztst,
                        short zpsm); /* definition in sce/ */
 
-int sceGsSetDefTexEnv();                           /* dominant spelling at 1 sites */
+int sceGsSetDefTexEnv(sceGsTexEnv *env, short flush, short tbp, short tbw, short psm, short tw,
+                      short th, short tfx, short cbp, short cpsm, short cld,
+                      short flt); /* definition in sce/ */
 int sceGsSwapDBuff(void *a0, int a1);              /* definition in sce/ */
-void sceGsSyncPath(int a, int b);                  /* dominant spelling at 5 sites */
+int sceGsSyncPath(int mode, unsigned short timeout); /* definition in sce/ */
 int sceGsSyncV(void);                              /* definition in sce/ */
 short sceGszbufaddr(short a0, short a1, short a2); /* definition in sce/ */
 

@@ -3,6 +3,7 @@
  * retail function start to the next; VMA 0x264838..0x264AE8,
  * 4 functions. */
 
+#include <stdio.h>
 #include <sifrpc.h>
 #include <string.h>
 #include <sifcmd.h>
@@ -59,9 +60,6 @@ int sceSifSyncIop(void)
     }
     return 0;
 }
-
-/* kept local: sce/libc/stdio.h declares printf void */
-extern int printf(const char *fmt, ...);
 
 int sceSifRebootIop(const char *arg)
 {

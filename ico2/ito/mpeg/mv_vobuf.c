@@ -1,6 +1,7 @@
 #include "mv_defs.h"
 #include "typedef.h"
 #include "memory.h"
+#include <eekernel.h>
 
 static void Free();
 
@@ -83,8 +84,6 @@ static inline int isFull(int *self)
 {
     return self[3] == self[4];
 }
-
-extern void DIntr(void);
 
 void voBufIncCount(int *self)
 {

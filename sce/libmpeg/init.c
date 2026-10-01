@@ -8,19 +8,12 @@
 #include <eekernel.h>
 #include <stdio.h>
 
-/* kept local: libmpeg_internal.h leaves it out: the members read this scalar of var.c through
-   an array declaration */
-extern int _isMpeg2[];
-
 void _initSeqAgain(void)
 {
-    _isMpeg2[0] = 0;
+    _isMpeg2 = 0;
     _ipuSetMPEG1(1);
 }
 
-/* kept local: libmpeg_internal.h leaves it out: the members read this scalar of var.c through
-   an array declaration */
-extern int _isSecondField[];
 /* kept local: libmpeg_internal.h leaves it out: its callers' arguments do not fit the
    definition's prototype */
 extern void _dispRefImage();
@@ -29,9 +22,9 @@ extern void _dispRefImageField();
 void _lastFrame(int a0)
 {
     int t;
-    if (_isSecondField[0]) {
+    if (_isSecondField) {
         _Error("the second field is missing");
-        _isSecondField[0] = 0;
+        _isSecondField = 0;
         return;
     }
     t = _picture_structure;
@@ -40,7 +33,7 @@ void _lastFrame(int a0)
     } else {
         _dispRefImageField(_backTop, _backBot, a0 - 1);
     }
-    _isSecondField[0] = 0;
+    _isSecondField = 0;
 }
 
 /* the member's .bss: the scratchpad tag buffer _sprtag points at and the
@@ -73,10 +66,6 @@ void _clearOnce(void)
     *(float *)((char *)_mbcont + 0x280) = 0.0f;
 }
 
-/* kept local: libmpeg_internal.h leaves it out: the members read this scalar of var.c through
-   an array declaration */
-extern int _sp_dcr[];
-extern int _isTop32dirty[];
 /* kept local: libipu.h declares sceIpuSync(int); this member passes two arguments */
 extern int sceIpuSync();
 
@@ -85,8 +74,8 @@ extern int sceIpuSync();
    scheduled into the delay slot of jal EIntr. */
 void _clearEach(void)
 {
-    _sp_dcr[0] = 0;
-    _isTop32dirty[0] = 1;
+    _sp_dcr = 0;
+    _isTop32dirty = 1;
     DIntr();
     *D_ENABLEW = *D_ENABLER | 0x10000;
     *D3_CHCR = 0;
@@ -165,11 +154,6 @@ int _RefImageInit(int *a0, int a1, int a2)
     return 1;
 }
 
-/* kept local: libmpeg_internal.h leaves it out: var.c defines it as unsigned char[64], the
-   members read it as an int array */
-extern int _defIQM[];
-extern int _defNIQM[];
-
 void _sequenceHeader(void)
 {
     unsigned int v;
@@ -205,12 +189,6 @@ void _sequenceHeader(void)
     _initSeq(_theSceMpeg);
 }
 
-/* kept local: libmpeg_internal.h leaves it out: the members read this scalar of var.c through
-   an array declaration */
-extern int _isMpeg2[];
-extern int _widthMB[];
-extern int _heightMB[];
-
 /* the stream record _initSeq re-sizes: the picture size the decoder was last
  * set up for, and at 0x40 the decoder the three frame buffers are allocated
  * out of */
@@ -228,7 +206,7 @@ void _initSeq(void *a0)
     int *heap;
     unsigned int size;
 
-    if (_isMpeg2[0] == 0) {
+    if (_isMpeg2 == 0) {
         _progressive_sequence = 1;
         _chroma_format = 1;
         _progressive_frame = 1;
@@ -236,12 +214,11 @@ void _initSeq(void *a0)
         _frame_pred_frame_dct = 1;
         _matrix_coefficients = 5;
     }
-    _widthMB[0] = (_horizontal_size + 15) >> 4;
-    _heightMB[0] = (_isMpeg2[0] != 0 && _progressive_sequence == 0)
-                       ? ((_vertical_size + 31) >> 5) * 2
-                       : (_vertical_size + 15) >> 4;
-    _picWidth = _widthMB[0] * 16;
-    _picHeight = _heightMB[0] * 16;
+    _widthMB = (_horizontal_size + 15) >> 4;
+    _heightMB = (_isMpeg2 != 0 && _progressive_sequence == 0) ? ((_vertical_size + 31) >> 5) * 2
+                                                              : (_vertical_size + 15) >> 4;
+    _picWidth = _widthMB * 16;
+    _picHeight = _heightMB * 16;
     if (_picWidth != p->width || _picHeight != p->height) {
         p->width = _picWidth;
         p->height = _picHeight;
@@ -293,7 +270,7 @@ void _initRefImages(int *frame0, int *frame1, int *frame2, int *top0, int *top1,
     *bot2 = _uncachedAddr(cr + size / 512 * 384);
 }
 
-void _setDefaultQM(int a0, int *a1)
+void _setDefaultQM(int cmd, unsigned char *qm)
 {
     int buf[8];
 
@@ -303,10 +280,10 @@ void _setDefaultQM(int a0, int *a1)
     *IPU_CMD = 0;
     _waitIpuIdle();
     /* channel 4 (to IPU) sends the four quadwords of the matrix */
-    *D4_MADR = (int)a1 & 0x0FFFFFFF;
+    *D4_MADR = (int)qm & 0x0FFFFFFF;
     *D4_QWC = 4;
     *D4_CHCR = 0x101;
-    _sendIpuCommand(a0);
+    _sendIpuCommand(cmd);
     _waitIpuIdle();
     buf[0] = 3;
     _dispatchMpegCallback(_theSceMpeg, buf);
@@ -320,7 +297,7 @@ void _sequenceExtension(void)
     int bit_rate_ext;
     int vbv_ext;
 
-    _isMpeg2[0] = 1;
+    _isMpeg2 = 1;
     _ipuSetMPEG1(0);
     v = _nextBit(28);
     bit_rate_ext = (v >> 1) & 0xFFF;

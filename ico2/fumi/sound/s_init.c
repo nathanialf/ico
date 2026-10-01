@@ -142,7 +142,6 @@ static int outputMode = 0; /* derived name */
 
 static int seSemiCommonLoaded = 0; /* derived name */
 
-extern void FlushCache(int a);
 extern int sceSifDmaStat(int h);
 extern int sceSifSetDma(int p, int a);
 

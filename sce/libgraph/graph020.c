@@ -3,9 +3,9 @@
 #include <libgraph.h>
 #include <eekernel.h>
 
-int sceGsPutIMR(void *a0)
+unsigned long sceGsPutIMR(unsigned long imr)
 {
-    int r = GsGetIMR();
-    GsPutIMR((int)a0);
+    unsigned long r = GsGetIMR();
+    GsPutIMR(imr);
     return r;
 }

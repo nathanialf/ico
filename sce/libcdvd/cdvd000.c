@@ -98,9 +98,9 @@ static int cb_thread_word;
 
 static int cd_thread_id;
 
-static int cd_thread_stat[12];
+static struct ThreadParam cd_thread_stat;
 
-static int cb_thread_param[12];
+static struct ThreadParam cb_thread_param;
 
 static int poff_cd[10];
 
@@ -147,14 +147,14 @@ __asm__(".section .text\n"
 
 void sceCdDelayThread(unsigned short a0)
 {
-    int buf[8];
+    struct SemaParam buf;
     unsigned short id = a0;
     int r;
-    buf[1] = 1;
-    buf[2] = 0;
-    buf[5] = 0;
-    r = CreateSema(buf);
-    SetAlarm(id, CB_DelayTh, r);
+    buf.maxCount = 1;
+    buf.initCount = 0;
+    buf.option = 0;
+    r = CreateSema(&buf);
+    SetAlarm(id, CB_DelayTh, (void *)r);
     WaitSema(r);
     DeleteSema(r);
 }
@@ -216,7 +216,7 @@ void _sceCd_cd_callback(int *data)
  * fills in reorder mode from a volatile access gcc's reorg leaves in place
  * (the plain store is stolen into beqzl slots instead). WHAT THEY CANNOT PIN:
  * how the volatile accesses were spelled. */
-void _Cdvd_cbLoop(void)
+void _Cdvd_cbLoop(void *arg)
 {
     while (1) {
         WaitSema(cb_semid);
@@ -239,9 +239,6 @@ void _Cdvd_cbLoop(void)
 
 /* kept local: the link's small-data base, which no header declares */
 extern char _gp[];
-/* kept local: eekernel.h leaves CreateThread out until one type serves its callers' thread
-   parameter blocks */
-extern int CreateThread(int *param);
 
 int sceCdInitEeCB(int priority, void *stack, int stackSize)
 {
@@ -249,13 +246,13 @@ int sceCdInitEeCB(int priority, void *stack, int stackSize)
 
     if (cb_thread_id == 0) {
         cd_thread_id = GetThreadId();
-        ReferThreadStatus(cd_thread_id, cd_thread_stat);
-        cb_thread_param[3] = stackSize;
-        cb_thread_param[4] = (int)_gp;
-        cb_thread_param[1] = (int)_Cdvd_cbLoop;
-        cb_thread_param[2] = (int)stack;
-        cb_thread_param[5] = priority;
-        cb_thread_id = CreateThread(cb_thread_param);
+        ReferThreadStatus(cd_thread_id, &cd_thread_stat);
+        cb_thread_param.stackSize = stackSize;
+        cb_thread_param.gpReg = _gp;
+        cb_thread_param.entry = _Cdvd_cbLoop;
+        cb_thread_param.stack = stack;
+        cb_thread_param.initPriority = priority;
+        cb_thread_id = CreateThread(&cb_thread_param);
         StartThread(cb_thread_id, 0);
     } else {
         ChangeThreadPriority(cb_thread_id, priority);
@@ -299,12 +296,12 @@ void _sceCd_cd_read_intr(void *pkt)
 
 void cmd_sem_init(void)
 {
-    int buf[8];
+    struct SemaParam buf;
 
     if (_sceCd_ncmd_semid == -1 || _sceCd_scmd_semid == -1) {
-        buf[5] = 0;
-        buf[2] = 1;
-        buf[1] = 1;
+        buf.option = 0;
+        buf.initCount = 1;
+        buf.maxCount = 1;
         /* The handle stores are the member's per-access volatile spelling (the
            form the semaphore reads at the wait sites above use). WHAT THE BYTES
            PIN: with the ncmd store volatile, reorg refuses it for the second
@@ -312,10 +309,10 @@ void cmd_sem_init(void)
            gcc emits the call in reorder mode; the ROM carries the store in
            that slot, which is the archive assembler's reorder-mode swap of
            the compiler's own output (docs/NOTES.md "Assembler per archive"). */
-        *(volatile int *)&_sceCd_ncmd_semid = CreateSema(buf);
-        _sceCd_scmd_semid = CreateSema(buf);
-        buf[2] = 0;
-        *(volatile int *)&cb_semid = CreateSema(buf);
+        *(volatile int *)&_sceCd_ncmd_semid = CreateSema(&buf);
+        _sceCd_scmd_semid = CreateSema(&buf);
+        buf.initCount = 0;
+        *(volatile int *)&cb_semid = CreateSema(&buf);
         *(volatile int *)&_sceCd_c_cb_sem = 0;
     }
 }
@@ -435,7 +432,7 @@ int sceCdSearchFile(CdFileEntry *fp, const char *name)
         return 0;
     }
     ncmd_keep_cmd = 1;
-    ReferThreadStatus(cd_thread_id, cd_thread_stat);
+    ReferThreadStatus(cd_thread_id, &cd_thread_stat);
     if (sceCdSync(1) != 0) {
         SignalSema(*(volatile int *)&_sceCd_ncmd_semid);
         return 0;
@@ -505,7 +502,7 @@ int _sceCd_ncmd_prechk(int cmd)
         return 0;
     }
     ncmd_keep_cmd = cmd;
-    ReferThreadStatus(cd_thread_id, cd_thread_stat);
+    ReferThreadStatus(cd_thread_id, &cd_thread_stat);
     if (sceCdSync(1) != 0) {
         SignalSema(*(volatile int *)&_sceCd_ncmd_semid);
         return 0;
@@ -591,7 +588,7 @@ int _sceCd_scmd_prechk(int cmd)
         return 0;
     }
     scmd_keep_cmd = cmd;
-    ReferThreadStatus(cd_thread_id, cd_thread_stat);
+    ReferThreadStatus(cd_thread_id, &cd_thread_stat);
     if (sceCdSyncS(1) != 0) {
         SignalSema(*(volatile int *)&_sceCd_scmd_semid);
         return 0;

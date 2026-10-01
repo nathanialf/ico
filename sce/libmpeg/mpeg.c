@@ -31,11 +31,6 @@ void sceMpegInit(void)
 /* kept local: libmpeg.h leaves it out: this member passes an argument its definition does not
    take */
 extern int sceMpegClearRefBuff();
-/* kept local: libmpeg_internal.h leaves it out: the members read this pointer of var.c through
-   an array declaration */
-extern int _zFrame[];
-extern int _zTop[];
-extern int _zBot[];
 
 int sceMpegCreate(void *self, void *buf, int size)
 {
@@ -101,13 +96,13 @@ int sceMpegCreate(void *self, void *buf, int size)
     sceMpegClearRefBuff(self);
     _forwFrame = _refFrame0;
     _backFrame = _refFrame1;
-    _zFrame[0] = (int)_refFrame2;
+    _zFrame = _refFrame2;
     _forwTop = _refTop0;
     _backTop = _refTop1;
-    _zTop[0] = (int)_refTop2;
+    _zTop = _refTop2;
     _forwBot = _refBot0;
     _backBot = _refBot1;
-    _zBot[0] = (int)_refBot2;
+    _zBot = _refBot2;
     _alalcSetDynamic((int *)(p + 0x108));
 }
 
@@ -116,15 +111,11 @@ int sceMpegDelete(void)
     return 1;
 }
 
-/* kept local: libmpeg_internal.h leaves it out: the members read this scalar of var.c through
-   an array declaration */
-extern int _bsDataSize[];
-
 void sceMpegAddBs(int a0, int a1, int a2)
 {
     int rounded = (a2 + 0x13) / 16 * 16;
     _bsDatap = a1;
-    _bsDataSize[0] = rounded;
+    _bsDataSize = rounded;
     _sendDataToIPU(a1, rounded);
 }
 
@@ -191,10 +182,6 @@ int sceMpegIsRefBuffEmpty(void *a0)
     return *(int *)((char *)p + 0x4) == 0;
 }
 
-/* kept local: libmpeg_internal.h leaves it out: the members read this scalar of var.c through
-   an array declaration */
-extern int _totalFrames[];
-
 void sceMpegReset(int *a0)
 {
     int *p = (int *)a0[0x10];
@@ -205,7 +192,7 @@ void sceMpegReset(int *a0)
     p[0x20] = -1;
     p[0x2B] = 0;
     _clearEach();
-    _totalFrames[0] = 0;
+    _totalFrames = 0;
     _initSeqAgain();
 }
 
@@ -356,11 +343,6 @@ int _alalcRest(int *a0)
     return a0[0] + a0[1] - a0[2];
 }
 
-/* kept local: libmpeg_internal.h leaves it out: the members read this scalar of var.c through
-   an array declaration */
-extern int _isOutputPicture[];
-extern int _isMpeg2[];
-
 int _getpic(int a0)
 {
     int code = 1;
@@ -374,12 +356,12 @@ int _getpic(int a0)
         _Error1((int)"image buffer needs to be aligned to 64byte boundary(0x%08x)", v);
         return -1;
     }
-    _isOutputPicture[0] = 0;
+    _isOutputPicture = 0;
     do {
         if (ret != -1) {
             do {
                 code = _nextHeader();
-            } while (code != 0 && _picture_structure != p[0xD4 / 4] && _isMpeg2[0] != 0);
+            } while (code != 0 && _picture_structure != p[0xD4 / 4] && _isMpeg2 != 0);
         }
         switch (code) {
         case 0:
@@ -403,13 +385,9 @@ int _getpic(int a0)
             p[0xA8 / 4] = p[0xA8 / 4] + 1;
             break;
         }
-    } while (_isOutputPicture[0] == 0);
+    } while (_isOutputPicture == 0);
     return 1;
 }
-
-/* kept local: libmpeg_internal.h leaves it out: the members read this scalar of var.c through
-   an array declaration */
-extern int _isSecondField[];
 
 int _decodeOrSkipFrame(int a0, int a1, int a2)
 {
@@ -431,7 +409,7 @@ int _decodeOrSkipFrame(int a0, int a1, int a2)
         ok = _updateRefImage(0);
         decoded = 0;
         if (ok != 0) {
-            decoded = _decPicture(_totalFrames[0], p[1]) != 0;
+            decoded = _decPicture(_totalFrames, p[1]) != 0;
         }
         ret = decoded;
     } else {
@@ -439,17 +417,17 @@ int _decodeOrSkipFrame(int a0, int a1, int a2)
         _dispatchMpegCbNodata(self);
         skip = 1;
     }
-    _outputFrame(_totalFrames[0], p[1]);
+    _outputFrame(_totalFrames, p[1]);
     if (_picture_structure != 3 && skip == 0) {
-        _isSecondField[0] = _isSecondField[0] == 0;
+        _isSecondField = _isSecondField == 0;
     }
-    t = _totalFrames[0];
-    second = _isSecondField[0];
+    t = _totalFrames;
+    second = _isSecondField;
     self[2] = t - p[0xAC / 4];
     if (second == 0) {
         int f = p[1];
 
-        _totalFrames[0] = t + 1;
+        _totalFrames = t + 1;
         p[1] = f + 1;
     }
     return ret;
@@ -463,10 +441,6 @@ int _decodeOrSkip(int a0, int a1, int a2)
     return _decodeOrSkipFrame(a0, a1, a2);
 }
 
-/* kept local: libmpeg_internal.h leaves it out: the members read this scalar of var.c through
-   an array declaration */
-extern int _isSecondField[];
-
 int _decodeOrSkipField(int a0, int a1, int a2)
 {
     int dec = 0;
@@ -478,7 +452,7 @@ int _decodeOrSkipField(int a0, int a1, int a2)
     int *self = (int *)a0;
     int *p = (int *)self[0x40 / 4];
 
-    _isSecondField[0] = 0;
+    _isSecondField = 0;
     if (a2 == -1 || a1 < a2) {
         dec = 1;
     }
@@ -487,9 +461,9 @@ int _decodeOrSkipField(int a0, int a1, int a2)
         p[2] = 1;
     }
     if (_updateRefImage(0) != 0 && dec != 0) {
-        _decPicture(_totalFrames[0], p[1]);
+        _decPicture(_totalFrames, p[1]);
     }
-    _isSecondField[0] = 1;
+    _isSecondField = 1;
     if (_nextHeader() == 0) {
         _sceMpegFlush(self);
         p[0] = 1;
@@ -508,16 +482,16 @@ int _decodeOrSkipField(int a0, int a1, int a2)
         ok = 1;
     }
     if (ok != 0 && dec != 0) {
-        if (_decPicture(_totalFrames[0], p[1]) != 0) {
+        if (_decPicture(_totalFrames, p[1]) != 0) {
             ret = 1;
         }
     }
-    _outputFrame(_totalFrames[0], p[1]);
-    t = _totalFrames[0];
+    _outputFrame(_totalFrames, p[1]);
+    t = _totalFrames;
     base = p[0xAC / 4];
-    _isSecondField[0] = 0;
+    _isSecondField = 0;
     self[2] = t - base;
-    _totalFrames[0] = t + 1;
+    _totalFrames = t + 1;
     p[1] = p[1] + 1;
     if (dec == 0) {
         _dispatchMpegCbNodata(self);
@@ -530,8 +504,8 @@ int _sceMpegFlush(int *self)
     int *p = (int *)self[0x40 / 4];
     int ret = 0;
     if (p[1] != 0 && p[2] != 0) {
-        _lastFrame(_totalFrames[0]);
-        self[2] = _totalFrames[0] - p[0xAC / 4];
+        _lastFrame(_totalFrames);
+        self[2] = _totalFrames - p[0xAC / 4];
         p[1] = 0;
         ret = 1;
     }

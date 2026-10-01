@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <reent.h>
+#include <libc_internal.h>
 #include <stdio.h>
 #include <unistd.h>
 
@@ -10,9 +11,6 @@ struct D520 {
     char pad0[8];
     PObjBlk *blk; /* 0x8 */
 };
-
-/* kept local: this member cannot include libc_internal.h, whose __sinit conflicts with its own */
-extern int __sfvwrite();
 
 int __sprint(int a0, int *a1)
 {
@@ -59,21 +57,16 @@ int __sbprintf(Fil *fp, char *fmt, void *ap)
     return ret;
 }
 
-/* kept local: libc_internal.h declares it as `void __sinit(char *a0)` */
-extern void __sinit(void *r);
-/* kept local: this member cannot include libc_internal.h, whose __sinit conflicts with its own */
-extern int _vfiprintf_r(void *r, Fil *fp, const char *fmt, char *ap);
-
 int vfiprintf(char *fp, char *fmt0, void *ap)
 {
     /* newlib's CHECK_INIT(fp), a do-while-zero macro wrapper */
     do {
-        if (*(char **)(fp + 0x54) == 0)
-            *(char **)(fp + 0x54) = (char *)_impure_ptr;
-        if (*(int *)(*(char **)(fp + 0x54) + 0x38) == 0)
-            __sinit(*(char **)(fp + 0x54));
+        if (*(Reent **)(fp + 0x54) == 0)
+            *(Reent **)(fp + 0x54) = _impure_ptr;
+        if ((*(Reent **)(fp + 0x54))->sdidinit == 0)
+            __sinit(*(Reent **)(fp + 0x54));
     } while (0);
-    return _vfiprintf_r(*(char **)(fp + 0x54), (Fil *)fp, fmt0, ap);
+    return _vfiprintf_r(*(Reent **)(fp + 0x54), (Fil *)fp, fmt0, ap);
 }
 
 /* newlib's vfprintf.c built INTEGER_ONLY (so the entry point is
@@ -98,8 +91,6 @@ struct __suio {
     int uio_resid;          /* 0x8 */
 };
 
-/* kept local: this member cannot include libc_internal.h, whose __sinit conflicts with its own */
-extern int __swsetup(Fil *fp);
 /* kept local: stdlib.h leaves it out: its definition's argument list does not fit this member's
    calls */
 extern int _mbtowc_r(void *r, int *pwc, const char *s, int n, int *state);

@@ -44,7 +44,7 @@ static int storeQwc; /* derived name */
 
 static int storeAddr; /* derived name */
 
-int _ch3dmaCSC(void)
+int _ch3dmaCSC(int channel)
 {
     *D_STAT = 8;
     _cscDma[0]++;
@@ -109,7 +109,7 @@ void _doCSC2(int a0, int a1)
     RemoveDmacHandler(3, id);
 }
 
-int _ch4dma(void)
+int _ch4dma(int channel)
 {
     *D_STAT = 0x10;
     storeCount++;

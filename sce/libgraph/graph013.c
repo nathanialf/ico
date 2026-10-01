@@ -1,19 +1,9 @@
 /* libgraph.a member graph013.o.  MAIN.MAP member spans tile this run exactly and
  * this member starts at an 8-aligned function start of the shipped ELF. */
 
-typedef long long s_long128;
+#include <libgraph.h>
 
-/* Four (register-address, data) pairs: TEXFLUSH-or-NOP, TEX1_1, TEX0_1, CLAMP_1. */
-typedef struct {
-    s_long128 texflush;      /* 0x00 */
-    s_long128 texflush_addr; /* 0x08 */
-    s_long128 tex1;          /* 0x10 */
-    s_long128 tex1_addr;     /* 0x18 */
-    s_long128 tex0;          /* 0x20 */
-    s_long128 tex0_addr;     /* 0x28 */
-    s_long128 clamp;         /* 0x30 */
-    s_long128 clamp_addr;    /* 0x38 */
-} sceGsTexEnv;
+typedef long long s_long128;
 
 int sceGsSetDefTexEnv(sceGsTexEnv *env, short flush, short tbp, short tbw, short psm, short tw,
                       short th, short tfx, short cbp, short cpsm, short cld, short flt)

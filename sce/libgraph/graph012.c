@@ -1,9 +1,7 @@
 /* libgraph.a member graph012.o.  MAIN.MAP member spans tile this run exactly and
  * this member starts at an 8-aligned function start of the shipped ELF. */
+#include <stdio.h>
 #include <eeregs.h>
-
-/* kept local: sce/libc/stdio.h declares printf void */
-extern int printf(const char *fmt, ...);
 
 #define GS_SYNCPATH_DUMP()                                                                         \
     printf("\t<D1_CHCR=%08x:", *D1_CHCR);                                                          \
@@ -18,7 +16,7 @@ extern int printf(const char *fmt, ...);
     printf("GIF_STAT=%08x>\r\n", *GIF_STAT);                                                       \
     return -1
 
-int sceGsSyncPath(int mode)
+int sceGsSyncPath(int mode, unsigned short timeout)
 {
     unsigned int i = 0;
     int r;

@@ -117,9 +117,6 @@ extern int mpegPlay;
 extern int mpegInitDone;
 extern int stageManagerFreeResourceFlag;
 extern char D_0063ACE0[];
-extern void WaitSema(int s);
-extern void DeleteSema(int s);
-extern void SignalSema(int s);
 extern int IosCdLock;
 extern int IosStgMgrLock;
 extern int fadeStatus;
@@ -144,11 +141,11 @@ extern void *boyGObj;
 extern void *girlGObj;
 extern int jimaku_msg[];
 extern char D_0063ACB0[];
-extern void EnableIntc(int ch);
 
 #include "StageManager.h"
 #include <libgraph.h>
 #include <libvu0.h>
+#include <eekernel.h>
 #include <libdma.h>
 #include <string.h>
 #include "typedef.h"

@@ -19,7 +19,7 @@
 
 void sceVif1PkAddGsData(int **a0, long long a1);                       /* definition in sce/ */
 void sceVif1PkAlign(int *a0, int a1, int a2);                          /* definition in sce/ */
-void sceVif1PkCloseDirectCode();                                       /* dominant spelling at 1 sites */
+int sceVif1PkCloseDirectCode(void *a0);                                /* definition in sce/ */
 void sceVif1PkCloseGifTag(void *a0);                                   /* definition in sce/ */
 void sceVif1PkCnt(void *a0, int a1);                                   /* definition in sce/ */
 void sceVif1PkEnd(int **a0, int a1);                                   /* definition in sce/ */

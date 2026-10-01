@@ -9,6 +9,13 @@
 _fbss = 0x0063C100;
 _end = 0x00736198;
 
+/* The SDK linker script's start-up values (MAIN.MAP lines 724-726), defined in
+ * config/link.pal.ld for the plain link and here for the splat build: crt0's
+ * SetupThread syscall takes _stack and _stack_size, its SetupHeap _heap_size. */
+_stack_size = 0x10000;
+_stack = 0x1ff0000;
+_heap_size = 0x10000;
+
 /* TRANSITIONAL (finishing pass P1-3): main.c now defines its six .data globals under their
  * MAIN.MAP names; the consumer TUs still spell them, and addresses inside them, as the old
  * blob placeholders. These bind those placeholders to the definitions until the consumers

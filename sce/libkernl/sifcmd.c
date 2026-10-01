@@ -3,21 +3,15 @@
  * retail function start to the next (the retail link has it after tlbtrap.o, where the January listing also puts it; MAIN.MAP's own link has it after tty.o); VMA 0x2653A0..0x265AE8,
  * 16 functions. */
 
+#include <eekernel.h>
 #include <sifrpc.h>
 #include <string.h>
 #include <sifcmd.h>
 #include <eeregs.h>
 #include <libkernl_internal.h>
 
-/* kept local: this member cannot include eekernel.h, whose RemoveDmacHandler conflicts with its
-   own */
-extern int DIntr();
-extern int EIntr();
 /* eekernel.h's spelling: a void call leaves no value register set after it,
    which sceSifInitCmd's allocation after its FlushCache call shows. */
-/* kept local: this member cannot include eekernel.h, whose RemoveDmacHandler conflicts with its
-   own */
-extern void FlushCache(int a0);
 
 void _set_sreg(int *a0, int *a1)
 {
@@ -147,12 +141,6 @@ void sceSifInitCmd(void)
     cmdInitPkt[3] = 0;
     sceSifSendCmd(0x80000002, (int)cmdInitPkt, 0x14, 0, 0, 0);
 }
-
-/* kept local: this member cannot include eekernel.h, whose RemoveDmacHandler conflicts with its
-   own */
-extern int DisableDmac(int a0);
-/* kept local: eekernel.h declares it as `void RemoveDmacHandler()` */
-extern int RemoveDmacHandler(int a0, int a1);
 
 void sceSifExitCmd(void)
 {

@@ -3,7 +3,7 @@
 #include <libgraph.h>
 #include <eekernel.h>
 
-int sceGsGetIMR(void)
+unsigned long sceGsGetIMR(void)
 {
     return GsGetIMR();
 }

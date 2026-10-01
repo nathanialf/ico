@@ -31,27 +31,16 @@ inline int iosSifAllocIopHeapDebug(int size, char *file, int line)
     return p;
 }
 
-/* the semaphore descriptor CreateSema takes: only three of its words are set */
-typedef struct SemaParam {
-    char _p0[0x4];
-    int initCount; /* 0x04 */
-    int maxCount;  /* 0x08 */
-    char _pC[0x4];
-    int attr;       /* 0x10 */
-    char _p14[0x4]; /* 0x14: the record is 0x18 bytes, which is the stride
-                        between the four descriptors in the ROM's .bss run */
-} SemaParam;
-
 /* .bss, owned by ios.o and reached only from this file (MAIN.MAP names no
    symbol in the run), in the ROM's run order: the four semaphore descriptors
    iosInit fills in and hands to CreateSema. */
-static SemaParam cdLockSemaParam;
+static struct SemaParam cdLockSemaParam;
 
-static SemaParam faultSemaParam;
+static struct SemaParam faultSemaParam;
 
-static SemaParam sndLockSemaParam;
+static struct SemaParam sndLockSemaParam;
 
-static SemaParam stgMgrLockSemaParam;
+static struct SemaParam stgMgrLockSemaParam;
 
 extern int IosPadLock;
 extern int IosCdLock;
@@ -68,20 +57,20 @@ extern void SgSndn2RemoteInit(void);
 void ios_init_plus(void)
 {
     cdLockSemaParam.attr = 1;
-    cdLockSemaParam.initCount = 1;
-    cdLockSemaParam.maxCount = 0;
+    cdLockSemaParam.maxCount = 1;
+    cdLockSemaParam.initCount = 0;
     IosPadLock = CreateSema(&cdLockSemaParam);
     sndLockSemaParam.attr = 1;
-    sndLockSemaParam.initCount = 1;
-    sndLockSemaParam.maxCount = 0;
+    sndLockSemaParam.maxCount = 1;
+    sndLockSemaParam.initCount = 0;
     IosCdLock = CreateSema(&sndLockSemaParam);
     faultSemaParam.attr = 1;
-    faultSemaParam.initCount = 1;
-    faultSemaParam.maxCount = 0;
+    faultSemaParam.maxCount = 1;
+    faultSemaParam.initCount = 0;
     IosStgMgrLock = CreateSema(&faultSemaParam);
     stgMgrLockSemaParam.attr = 1;
-    stgMgrLockSemaParam.initCount = 1;
-    stgMgrLockSemaParam.maxCount = 0;
+    stgMgrLockSemaParam.maxCount = 1;
+    stgMgrLockSemaParam.initCount = 0;
     IosSndLock = CreateSema(&stgMgrLockSemaParam);
     system_stage_func = 0;
     InitKeyInput(0);

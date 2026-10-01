@@ -17,6 +17,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <eekernel.h>
+#include <sifdev.h>
 #include <libvu0.h>
 #include "gamesys.h"
 #include "typedef.h"
@@ -33,10 +34,6 @@ typedef struct {
     int x, y;
     unsigned int w, h;
 } FR;
-
-/* sceWrite returns the byte count (SCE sifdev); the unused return value is
-   what makes $v0 live-and-dying at each call site. */
-extern int sceWrite();
 
 /* the debug-option table: 76 records of 0x1C bytes */
 typedef struct {
@@ -457,8 +454,6 @@ static int startStageNo = -1; /* derived name */
 
 int debugBackGroundDisableFlag = 0;
 
-extern int sceLseek(int fd, int off, int whence);
-extern int sceRead(int fd, void *buf, int size);
 extern int atoi(char *s);
 extern int strcmp();
 extern int debug_bar_flag;
@@ -932,8 +927,6 @@ extern void DebugDisp1Collision(void *hit);
    main.c and motionManager2.c, where a3 is literally the caller's line number.
    +0x14 samples the EE timer T0_COUNT at 0x10000000; volatile because it is a
    hardware counter (and the ROM's 32-bit `lw` shows the read is not narrowed). */
-extern int sceOpen(void *a0, int a1);
-extern int sceClose();
 /* kept local: this TU's uses of iosMcFormat do not fit the prototype in mcard.h */
 extern void iosMcFormat(int port);
 /* kept local: this TU's uses of iosMcSync do not fit the prototype in mcard.h */
@@ -1007,7 +1000,7 @@ inline void debug_closeLog(void)
 void debug_LogPrintf(const char *fmt, ...)
 {
     char buf[0x100];
-    void *info;
+    int info;
     vsprintf(buf, fmt, (char *)__builtin_next_arg(fmt) - 0x38);
     info = strlen(buf);
     sceWrite(logFd, buf, info);
@@ -1131,7 +1124,7 @@ void debug_SetDmaCallback(void)
     if ((int)dmaHandlerId != -1) {
         RemoveDmacHandler(1, dmaHandlerId);
     }
-    dmaHandlerId = AddDmacHandler(1, (int)debug_CallbackGsFinish, -1);
+    dmaHandlerId = AddDmacHandler(1, debug_CallbackGsFinish, -1);
     EnableDmac(1);
 }
 
@@ -1260,10 +1253,6 @@ inline float debug_GetTimerCount(void)
     }
     return (float)(*(volatile unsigned int *)T1_COUNT);
 }
-
-/* kept local: this TU's other raw-file calls do not fit sifdev.h's sceClose */
-extern int sceLseek(int fd, int offset, int whence);
-extern int sceRead(int fd, void *buf, int size);
 
 int debug_Load(char **dst, char *name, int kind)
 {
@@ -1605,7 +1594,7 @@ void debug_FlushFont(void)
     debug_FlushFontWindow();
 }
 
-inline int debug_CallbackGsFinish(void)
+inline int debug_CallbackGsFinish(int channel)
 {
     drawTimerCount = *T0_COUNT;
     return 0;
@@ -3968,7 +3957,7 @@ inline int debugSceClose(int a0)
     if (a0 == sceFd) {
         sceFd = -1;
     }
-    return sceClose();
+    return sceClose(a0);
 }
 
 inline int debugSceCloseFdNew(void)

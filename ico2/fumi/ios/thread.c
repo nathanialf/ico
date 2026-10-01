@@ -1,6 +1,7 @@
 #include "debug.h"
 #include "memory.h"
 #include "message.h"
+#include <eekernel.h>
 
 /* ---------------------------------------------------------------------------
  * EMISSION ORDER / INLINE MODEL of this TU, proven from baserom/pal/SRCFILE.TXT
@@ -58,29 +59,30 @@
 
 /* --- ios thread object (SCE ee_thread_t at offset 0 + ICO bookkeeping) --- */
 typedef struct IOSThread {
-    int status;          /* 0x00 ee_thread_t.status              */
-    void (*entry)();     /* 0x04 ee_thread_t.func  == iosThreadMain */
-    void *stack;         /* 0x08 ee_thread_t.stack               */
-    int stackSize;       /* 0x0C ee_thread_t.stack_size          */
-    void *gpReg;         /* 0x10 ee_thread_t.gp_reg              */
-    int initPriority;    /* 0x14 ee_thread_t.initial_priority    */
-    int currentPriority; /* 0x18 ee_thread_t.current_priority    */
-    int attr;            /* 0x1C */
-    int option;          /* 0x20 */
-    int reserved[3];     /* 0x24 */
-    int id;              /* 0x30 kernel thread id                */
-    int arg;             /* 0x34 argument handed to func         */
-    void (*func)();      /* 0x38 body run by iosThreadMain       */
-    int flags;           /* 0x3C */
-    int sleeping;        /* 0x40 read by iosThreadMain           */
-    int pad44;           /* 0x44 */
-    int hasQueue;        /* 0x48 */
-    void *queue;         /* 0x4C */
-    char name[16];       /* 0x50 */
-    char pad60[0x10];    /* 0x60: the record is 0x70 bytes, which is the gap
+    struct ThreadParam param; /* 0x00 the kernel's thread record */
+    int id;                   /* 0x30 kernel thread id                */
+    int arg;                  /* 0x34 argument handed to func         */
+    void (*func)();           /* 0x38 body run by iosThreadMain       */
+    int flags;                /* 0x3C */
+    int sleeping;             /* 0x40 read by iosThreadMain           */
+    int pad44;                /* 0x44 */
+    int hasQueue;             /* 0x48 */
+    void *queue;              /* 0x4C */
+    char name[16];            /* 0x50 */
+    char pad60[0x10];         /* 0x60: the record is 0x70 bytes, which is the gap
                             between the boot thread and its stack in the ROM's
                             own .bss run */
 } IOSThread;
+
+/* --- ios semaphore object: the parameter block CreateSema is handed (and
+   iosSemaWait refers the status into), the status iosSemaReferStatus last
+   read, and the kernel's semaphore id; thread.h's users hand it over as the
+   13 words they declare --- */
+typedef struct IosSema {
+    struct SemaParam param;  /* 0x00 */
+    struct SemaParam status; /* 0x18 */
+    int id;                  /* 0x30 */
+} IosSema;                   /* derived name */
 
 /* kept local: this TU's uses of iosThreadCreate do not fit the prototype in thread.h */
 extern void iosThreadCreate(IOSThread *th, int no, void (*func)(), int arg, void *stack,
@@ -96,15 +98,15 @@ extern int iosThreadJoin(void *a0);
 /* kept local: this TU's uses of iosThreadCancelWakeup do not fit the prototype in thread.h */
 extern int iosThreadCancelWakeup(int *self);
 /* kept local: this TU's uses of iosSemaCreate do not fit the prototype in thread.h */
-extern int iosSemaCreate(int *self, int a1, int a2, int a3);
+extern int iosSemaCreate(IosSema *self, int initCount, int maxCount, int option);
 /* kept local: this TU's uses of iosSemaDelete do not fit the prototype in thread.h */
-extern int iosSemaDelete(int *self);
+extern int iosSemaDelete(IosSema *self);
 /* kept local: this TU's uses of iosSemaWait do not fit the prototype in thread.h */
-extern int iosSemaWait(int *self);
+extern int iosSemaWait(IosSema *self);
 /* kept local: this TU's uses of iosSemaSignal do not fit the prototype in thread.h */
-extern int iosSemaSignal(int *self);
+extern int iosSemaSignal(IosSema *self);
 /* kept local: this TU's uses of iosSemaReferStatus do not fit the prototype in thread.h */
-extern int iosSemaReferStatus(int *self);
+extern int iosSemaReferStatus(IosSema *self);
 
 /* .bss, owned by thread.o and reached only from this file (MAIN.MAP names no
    symbol in the run), in the ROM's run order: the IOSThread each thread id
@@ -121,15 +123,14 @@ static IOSThread iosBootThread;
    this object's */
 static char iosBootStack[8192] __attribute__((aligned(16)));
 
-extern int GetThreadId();
 /* kept local: this TU's uses of iosThreadSetPri do not fit the prototype in thread.h */
 extern void iosThreadSetPri(int *a0, int a1);
 
-void iosThreadMain(int a0)
+void iosThreadMain(void *arg)
 {
     int idx = GetThreadId();
     IOSThread *obj = (IOSThread *)iosThreadTable[idx];
-    (*(void (*)(int))obj->func)(a0);
+    obj->func(arg);
     if (obj->sleeping == 0) {
         iosThreadSetPri((int *)obj, 33);
     } else {
@@ -147,7 +148,6 @@ extern int _gp; /* linker-defined global pointer */
 static int n_thread = 0; /* derived name: the number of live IOS threads */
 
 inline void iosThreadDestroyMgr(); /* deferred-tail member; see the emission-order note */
-extern int CreateThread(IOSThread *param);
 extern void debug_assert(const char *file, int line);
 extern void __assert(const char *file, int line, const char *expr);
 
@@ -163,18 +163,18 @@ extern void __assert(const char *file, int line, const char *expr);
 inline void iosThreadCreate(IOSThread *th, int no, void (*func)(), int arg, void *stack,
                             long stackSize, int pri)
 {
-    th->entry = iosThreadMain;
+    th->param.entry = iosThreadMain;
     th->func = func;
 
-    th->stack = stack;
+    th->param.stack = stack;
     *(IosStackMark *)stack = *(const IosStackMark *)"<THREAD_SP>....";
     *(IosStackMark *)((char *)stack + stackSize - 16) = *(const IosStackMark *)"<THREAD_SP_END>";
 
-    th->stackSize = stackSize - 16;
-    th->gpReg = &_gp;
-    th->initPriority = pri;
-    th->currentPriority = pri;
-    th->id = CreateThread(th);
+    th->param.stackSize = stackSize - 16;
+    th->param.gpReg = &_gp;
+    th->param.initPriority = pri;
+    th->param.currentPriority = pri;
+    th->id = CreateThread(&th->param);
     th->sleeping = 0;
 
     th->arg = arg;
@@ -215,15 +215,10 @@ void iosThreadCreateS(IOSThread *th, int no, void (*func)(), int arg, void *heap
     th->flags |= 1;
 }
 
-extern void StartThread();
-
 void iosThreadStart(int a0)
 {
-    StartThread(*(int *)(a0 + 0x30), *(int *)(a0 + 0x34));
+    StartThread(*(int *)(a0 + 0x30), *(void **)(a0 + 0x34));
 }
-
-extern void ExitThread();
-extern void TerminateThread();
 
 void iosThreadStop(int a0)
 {
@@ -234,14 +229,10 @@ void iosThreadStop(int a0)
     }
 }
 
-extern void SleepThread();
-
-void iosThreadSleep(int a0, int a1, int a2, int a3)
+void iosThreadSleep(void)
 {
-    SleepThread(a0, a1, a2, a3);
+    SleepThread();
 }
-
-extern int WakeupThread();
 
 inline int iosThreadWakeup(int *self)
 {
@@ -254,8 +245,6 @@ inline int iosThreadWakeup(int *self)
 /* .sbss, owned by thread.o and reached only from this file: the manager
    queue's 2-slot message ring. */
 static int iosThreadDestroyRing[2];
-
-extern void DeleteThread(int id);
 
 inline void iosThreadDestroyMgr(void)
 {
@@ -274,7 +263,7 @@ inline void iosThreadDestroyMgr(void)
         TerminateThread(id);
         DeleteThread(id);
         if ((th->flags & 1) == (unsigned)1)
-            iosFree(((IOSThread *)iosThreadTable[id])->stack);
+            iosFree(((IOSThread *)iosThreadTable[id])->param.stack);
 
         if (th->hasQueue) {
             iosMsgQueueDestroy(th->queue);
@@ -304,8 +293,6 @@ inline int iosThreadGetPri(int *a0)
     }
     return a0[0x18 / 4];
 }
-
-extern void ChangeThreadPriority();
 
 void iosThreadSetPri(int *a0, int a1)
 {
@@ -374,21 +361,15 @@ void iosThreadName(int a0)
     strcpy(a0 + 0x50);
 }
 
-extern void SuspendThread();
-
 void iosThreadSuspend(int a0)
 {
     SuspendThread(*(int *)(a0 + 0x30));
 }
 
-extern void ResumeThread();
-
 void iosThreadResume(int a0)
 {
     ResumeThread(*(int *)(a0 + 0x30));
 }
-
-extern int CancelWakeupThread();
 
 inline int iosThreadCancelWakeup(int *self)
 {
@@ -401,32 +382,28 @@ inline int iosThreadCancelWakeup(int *self)
     return CancelWakeupThread(v);
 }
 
-extern int CreateSema(int *self);
-
-inline int iosSemaCreate(int *self, int a1, int a2, int a3)
+inline int iosSemaCreate(IosSema *self, int initCount, int maxCount, int option)
 {
     int rv;
-    self[0x8 / 4] = a1;
-    self[0x4 / 4] = a2;
-    self[0x14 / 4] = a3;
-    rv = CreateSema(self);
-    self[0x30 / 4] = rv;
+    self->param.initCount = initCount;
+    self->param.maxCount = maxCount;
+    self->param.option = option;
+    rv = CreateSema(&self->param);
+    self->id = rv;
     if (rv < 0) {
         debug_StdPrintfDummy("sem: can't create %d\n", rv);
         debug_assert(__FILE__, 604);
         __assert(__FILE__, 604, "0");
-        return self[0x30 / 4];
+        return self->id;
     }
     return 0;
 }
 
-extern int DeleteSema(int sem);
-
-inline int iosSemaDelete(int *self)
+inline int iosSemaDelete(IosSema *self)
 {
-    int rv = DeleteSema(self[0x30 / 4]);
+    int rv = DeleteSema(self->id);
     if (rv < 0) {
-        debug_StdPrintfDummy("sem: can't delete %d\n", self[0x30 / 4]);
+        debug_StdPrintfDummy("sem: can't delete %d\n", self->id);
         debug_assert(__FILE__, 624);
         __assert(__FILE__, 624, "0");
         return rv;
@@ -434,40 +411,35 @@ inline int iosSemaDelete(int *self)
     return 0;
 }
 
-extern int ReferSemaStatus(int sem, int *self);
-extern int WaitSema(int sem);
-
-inline int iosSemaWait(int *self)
+inline int iosSemaWait(IosSema *self)
 {
-    int rv = ReferSemaStatus(self[0x30 / 4], self);
+    int rv = ReferSemaStatus(self->id, &self->param);
     if (rv < 0) {
-        debug_StdPrintfDummy("sem: wait error? %d\n", self[0x30 / 4]);
+        debug_StdPrintfDummy("sem: wait error? %d\n", self->id);
         return rv;
     }
-    WaitSema(self[0x30 / 4]);
+    WaitSema(self->id);
     return 0;
 }
 
-extern int SignalSema(int x);
-
-inline int iosSemaSignal(int *self)
+inline int iosSemaSignal(IosSema *self)
 {
     int v;
     int rv;
-    v = SignalSema(self[0x30 / 4]);
+    v = SignalSema(self->id);
     rv = 0;
     if (v < 0) {
-        debug_StdPrintfDummy("sem: signal error? %d\n", self[0x30 / 4]);
+        debug_StdPrintfDummy("sem: signal error? %d\n", self->id);
         rv = v;
     }
     return rv;
 }
 
-inline int iosSemaReferStatus(int *self)
+inline int iosSemaReferStatus(IosSema *self)
 {
-    int rv = ReferSemaStatus(self[0x30 / 4], self + 0x18 / 4);
+    int rv = ReferSemaStatus(self->id, &self->status);
     if (rv < 0) {
-        debug_StdPrintfDummy("sem: refer error? %d\n", self[0x30 / 4]);
+        debug_StdPrintfDummy("sem: refer error? %d\n", self->id);
         debug_assert(__FILE__, 688);
         __assert(__FILE__, 688, "0");
         return rv;

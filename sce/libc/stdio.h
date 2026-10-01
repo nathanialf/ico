@@ -19,7 +19,7 @@
 
 struct Fil; /* sce/libc/reent.h's stream record */
 
-void printf(void *a0, ...);                               /* definition in sce/ */
+int printf(const char *fmt, ...);                         /* definition in sce/ */
 int sprintf(void *a0, int a1, ...);                       /* definition in sce/ */
 int sscanf(void *a0, void *a1, ...);                      /* definition in sce/ */
 int vfprintf();                                           /* dominant spelling at 4 sites */

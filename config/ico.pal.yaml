@@ -694,7 +694,7 @@ segments:
       - [0x44A294, data, cod/44A294]     # .data fill: 0xC B to graph001.o's 16-aligned .data
       - [0x44A2A0, .data, sce/libgraph/graph001]  # the member's .data (= MAIN.MAP graph001.o .data 0x20): the build stamp "PsIIlibgraph2200" and the record sceGsGetGParam returns as statics, VMA 0x54A2A0..0x54A2C0
       - [0x44A2C0, .data, sce/libgraph/graph002]  # the member's .data (data pass 3): the VIF1 reset packet, VMA 0x54A2C0..0x54A2E0, 32 B
-      - [0x44A2E0, data, cod/44A2E0]     # data blob resume
+      - [0x44A2E0, .data, sce/libgraph/graph018]  # the member's .data (= MAIN.MAP graph018.o .data 0x10): the VIF1 MSKPATH3 0 quadword sceGsExecStoreImage writes to the FIFO, VMA 0x54A2E0..0x54A2F0, 16 B
       - [0x44A2F0, .data, sce/libvu0/libvu0]  # the member's .data (data pass 3): the sine coefficients and the packet, VMA 0x54A2F0..0x54A320, 48 B
       - [0x44A320, .data, sce/libdma/libdma]  # the member's whole .data (chain 1 pass 107): dch, sceDmaDebugMode and sceDmaCurrentEnv named from MAIN.MAP, the build stamp "PsIIlibdma  2200" and the four channel code tables as statics, VMA 0x54A320..0x54A3CC, 172 B
       - [0x44A3CC, data, cod/44A3CC]     # .data fill: 4 B to vifpk025.o's 16-aligned .data

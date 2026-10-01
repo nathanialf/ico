@@ -31,6 +31,12 @@ ENTRY(_start)
 SECTIONS
 {
     _gp = 0x00640AF0;
+    /* The SDK script's start-up values, MAIN.MAP lines 724-726: crt0 hands
+     * _stack and _stack_size to the SetupThread syscall and _heap_size to
+     * SetupHeap. */
+    _stack_size = 0x10000;
+    _stack = 0x1ff0000;
+    _heap_size = 0x10000;
 
     .text 0x00100000 : { *(.text) }
     .vutext 0x00289BD0 : { *(.vutext) }

@@ -3,6 +3,7 @@
 #include "debug.h"
 #include "GsBase.h"
 #include <eekernel.h>
+#include <libgraph.h>
 #include <libmpeg.h>
 #include "mv_audiodec.h"
 #include <eeregs.h>
@@ -94,9 +95,7 @@ static int movieFrameNo = 0; /* derived name */
 
 /* kept local: void (char *) here, int (void) in mv_strfile.h */
 extern void strFileClose(char *self);
-extern int DIntr(void);
-extern int EIntr(void);
-/* kept local: void (int *) here, void (void) in mv_readbuf.h */
+/* kept local: this TU's uses of readBufDelete do not fit the prototype in mv_readbuf.h */
 extern void readBufDelete(int *self);
 /* kept local: void (MvVoBuf *) here, void (void) in mv_vobuf.h */
 extern void voBufDelete(MvVoBuf *self);
@@ -106,12 +105,6 @@ extern int videoDecDelete(int *self);
 extern void dispDelete(MvDispEnv *self);
 /* kept local: void (MvDispEnv *, unsigned int) here, void (int *, unsigned int) in mv_disp.h */
 extern void dispClear(MvDispEnv *self, unsigned int col);
-/* kept local: agrees with libgraph.h, which this TU does not include (sceGsPutIMR differs) */
-extern int sceGsGetIMR(void);
-/* kept local: void (long long) here, int (void *) in libgraph.h */
-extern void sceGsPutIMR(long long imr);
-/* kept local: agrees with libgraph.h, which this TU does not include (sceGsPutIMR differs) */
-extern void sceGsSyncPath(int a0, int a1);
 void movie_end(void);
 /* kept local: agrees with libcdvd.h; including it here moves this TU's bytes */
 extern int sceCdStStat(void);
@@ -151,21 +144,7 @@ extern int videoDecCreate(int *self);
 extern int videoDecSetStream(int *self, int id, int a2, void *fn, void *arg);
 /* kept local: int (MvVoBuf *) here, int (char *) in mv_vobuf.h */
 extern int voBufCreate(MvVoBuf *self);
-
-typedef struct {
-    int status;
-    void *entry;
-    void *stack;
-    int stackSize;
-    void *gpReg;
-    int initPriority;
-    int currentPriority;
-    unsigned int attr;
-    unsigned int option;
-} ThreadParam;
-
-extern int CreateThread(ThreadParam *th);
-/* kept local: agrees with mv_videodec.h, which this TU does not include (videoDecAbort, videoDecCreate differ) */
+/* kept local: this TU's uses of videoCallback do not fit the prototype in mv_videodec.h */
 extern int videoCallback();
 /* kept local: agrees with mv_videodec.h, which this TU does not include (videoDecAbort, videoDecCreate differ) */
 extern void videoDecMain();
@@ -309,7 +288,7 @@ term:
 
 int initAll(int a0, int a1, int a2, int a3, int p4, int p5, int p6, int p7)
 {
-    ThreadParam th;
+    struct ThreadParam th;
     int ret = 0;
 
     moviePauseCount = 0;
@@ -356,7 +335,7 @@ int initAll(int a0, int a1, int a2, int a3, int p4, int p5, int p6, int p7)
     }
     debug_StdPrintfDummy("create video decode thread\n");
 
-    th.entry = (void *)videoDecMain;
+    th.entry = videoDecMain;
     th.stack = (void *)decThreadStack;
     th.stackSize = 0x8000;
     th.initPriority = decThreadPri;
@@ -433,16 +412,16 @@ static inline int vu0Stat(void)
 
 int movie_init(int a0, int a1, int a2, int a3, int p4, int p5, int p6)
 {
-    int st[12];
+    struct ThreadParam st;
     unsigned int i;
     unsigned int j;
 
     while (vu0Stat() & 0x100) {}
     sceGsSyncPath(0, 0);
 
-    ReferThreadStatus(GetThreadId(), st);
-    callerPri = st[0x18 / 4];
-    decThreadPri = st[0x18 / 4];
+    ReferThreadStatus(GetThreadId(), &st);
+    callerPri = st.currentPriority;
+    decThreadPri = st.currentPriority;
     savedIMR = sceGsGetIMR();
     debug_StdPrintfDummy("sceGsGetIMR() %lx\n", sceGsGetIMR());
 

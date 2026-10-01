@@ -10,21 +10,14 @@
 #include <eekernel.h>
 #include <stdio.h>
 
-/* kept local: libmpeg_internal.h leaves it out: the members read this scalar of var.c through
-   an array declaration */
-extern int _isMpeg2[];
-extern int _isSecondField[];
-extern int _totalFrames[];
-extern int _widthMB[];
-extern int _isError[];
 /* kept local: libmpeg_internal.h leaves it out: its callers' arguments do not fit the
    definition's prototype */
 extern void _getAllRefs();
 
 int _motionComp0(int a0, int a1, int a2, int a3, int *a4, int *a5, int *a6)
 {
-    int col = a0 % _widthMB[0];
-    int row = a0 / _widthMB[0];
+    int col = a0 % _widthMB;
+    int row = a0 / _widthMB;
     int x = col * 16;
     int y = row * 16;
     int intra = a2 & 1;
@@ -39,7 +32,7 @@ int _motionComp0(int a0, int a1, int a2, int a3, int *a4, int *a5, int *a6)
 
         if ((unsigned int)(a3 - 1) >= 3) {
             _Error1((int)"Invalid modion type -- ignored(%d)", a3);
-            _isError[0] = 1;
+            _isError = 1;
             return 0;
         }
         _getAllRefs(x, y, a2);
@@ -130,7 +123,7 @@ void _getAllRefs(int x, int y, int mbflags, int motion_type, int *PMV, int *mv_f
             fld = _picture_structure == 2;
             /* The else arm's set is hoisted by jump in front of the first
                test, after its li 2, which is where the ROM schedules it. */
-            if (_picture_coding_type == 2 && _isSecondField[0] != 0 && fld != mv_field_sel[0]) {
+            if (_picture_coding_type == 2 && _isSecondField != 0 && fld != mv_field_sel[0]) {
                 sel = 1;
             } else {
                 sel = 0;
@@ -140,14 +133,14 @@ void _getAllRefs(int x, int y, int mbflags, int motion_type, int *PMV, int *mv_f
             } else if (motion_type == 2) {
                 _getRef0(fields[sel][mv_field_sel[0]], 0, 0, 0, 8, x, y, PMV[0], PMV[1], 0, 0);
                 sel = 0;
-                if (_picture_coding_type == motion_type && _isSecondField[0] != 0 &&
+                if (_picture_coding_type == motion_type && _isSecondField != 0 &&
                     fld != mv_field_sel[2]) {
                     sel = 1;
                 }
                 _getRef0(fields[sel][mv_field_sel[2]], 0, 0, 8, 8, x, y, PMV[4], PMV[5], 0, 0);
             } else if (motion_type == 3) {
                 sel = 0;
-                if (_isSecondField[0] != 0) {
+                if (_isSecondField != 0) {
                     sel = 1;
                 }
                 _dualPrimeVector(DMV, dmvector, PMV[0], PMV[1]);
@@ -1576,10 +1569,6 @@ void _dualPrimeVector(int *DMV, int *dmvector, int mvx, int mvy)
     }
 }
 
-/* kept local: libmpeg_internal.h leaves it out: the members read this scalar of var.c through
-   an array declaration */
-extern int _isError[];
-
 int _mbAddressIncrement(void)
 {
     int cont;
@@ -1599,12 +1588,12 @@ int _mbAddressIncrement(void)
             break;
         case 0: {
             int r = _peepBit(0xB);
-            if ((_isMpeg2[0] != 0) && (r == 0xF)) {
+            if ((_isMpeg2 != 0) && (r == 0xF)) {
                 _flushBuf(0xB);
                 cont = 1;
             } else {
                 _Error1((int)"Invalid macroblock_address_increment code(0x%08x)", v);
-                _isError[0] = 1;
+                _isError = 1;
                 return 1;
             }
         } break;
@@ -1617,14 +1606,9 @@ int _mbAddressIncrement(void)
     return sum;
 }
 
-/* kept local: libmpeg_internal.h leaves it out: the members read this scalar of var.c through
-   an array declaration */
-extern int _widthMB[];
-extern int _heightMB[];
-
 int _pictureData0(int a0)
 {
-    int n = _widthMB[0] * _heightMB[0];
+    int n = _widthMB * _heightMB;
     int r;
 
     _mbcont[0x280 / 4] = 0;
@@ -1649,18 +1633,13 @@ int _pictureData0(int a0)
     return r == 0;
 }
 
-/* kept local: libmpeg_internal.h leaves it out: the members read this scalar of var.c through
-   an array declaration */
-extern int _widthMB[];
-extern int _sp_dcr[];
-
 int _sliceA0(int a0, int *a1, int *a2, int *a3)
 {
     int id;
     int m;
     int n;
 
-    _isError[0] = 0;
+    _isError = 0;
     _nextStartCode();
     id = _peepBit(0x20);
     if ((unsigned int)(id - 0x101) >= 0xAF) {
@@ -1671,13 +1650,13 @@ int _sliceA0(int a0, int *a1, int *a2, int *a3)
     m = _sliceB();
     n = _mbAddressIncrement();
     *a2 = n;
-    if (_isError[0] != 0) {
+    if (_isError != 0) {
         _Error("_sliceA0(): error happens");
         return 1;
     }
-    *a1 = ((((m << 7) + (id & 0xFF)) - 1) * _widthMB[0] + n) - 1;
+    *a1 = ((((m << 7) + (id & 0xFF)) - 1) * _widthMB + n) - 1;
     *a2 = 1;
-    _sp_dcr[0] = 1;
+    _sp_dcr = 1;
     a3[5] = 0;
     a3[4] = 0;
     a3[1] = 0;
@@ -1707,7 +1686,7 @@ int _slice0(int a0, int a1)
     if (r != 0) {
         return r;
     }
-    _isError[0] = 0;
+    _isError = 0;
     for (;;) {
         if (mba >= a1) {
             return 0;
@@ -1717,13 +1696,13 @@ int _slice0(int a0, int a1)
             return 2;
         }
         if (n == 0) {
-            if (_peepBit(0x17) == 0 || _isError[0] != 0) {
-                _isError[0] = 0;
+            if (_peepBit(0x17) == 0 || _isError != 0) {
+                _isError = 0;
                 return 3;
             }
             n = _mbAddressIncrement();
-            if (_isError[0] != 0) {
-                _isError[0] = 0;
+            if (_isError != 0) {
+                _isError = 0;
                 return 1;
             }
         }
@@ -1733,17 +1712,17 @@ int _slice0(int a0, int a1)
         }
         if (n == 1) {
             if (_decMB0(&mb_type, &motion_type, &dct_type, PMV, dmvector, mv_field_sel) == 0) {
-                _isError[0] = 0;
+                _isError = 0;
                 return 1;
             }
         } else {
             if (_skipMB0(PMV, &motion_type, dmvector, &mb_type) == 0) {
-                _isError[0] = 0;
+                _isError = 0;
                 return 2;
             }
         }
         if (_motionComp0(mba, n, mb_type, motion_type, PMV, dmvector, mv_field_sel) == 0) {
-            _isError[0] = 0;
+            _isError = 0;
             return 2;
         }
         if (mba != 0) {
@@ -1760,7 +1739,7 @@ int _skipMB0(int *a0, int *a1, int *a2, int *a3)
     int ret = 1;
     char *p;
 
-    _sp_dcr[0] = 1;
+    _sp_dcr = 1;
     p = (char *)_mbcont + _mbcont[0xA0] * 0x140;
     *(int *)(p + 0x13C) = 1;
     if (_picture_coding_type == 2) {
@@ -1780,9 +1759,6 @@ int _skipMB0(int *a0, int *a1, int *a2, int *a3)
     return ret;
 }
 
-/* kept local: libmpeg_internal.h leaves it out: var.c defines it as int[2][2], the members read
-   it flat */
-extern int _f_code[];
 /* kept local: libmpeg_internal.h leaves it out: its callers' arguments do not fit the
    definition's prototype */
 extern void _motionVectors();
@@ -1808,7 +1784,7 @@ int _decMB0(int *mb_type, int *motion_type, int *dct_type, int PMV[2][2][2], int
     mb_type[0] = _ipuVdec(1);
     if (mb_type[0] == 0) {
         _Error("Invalid macroblock_type code: 0");
-        _isError[0] = 1;
+        _isError = 1;
         return 0;
     }
     if (mb_type[0] & 0xC) {
@@ -1839,27 +1815,27 @@ int _decMB0(int *mb_type, int *motion_type, int *dct_type, int PMV[2][2][2], int
         _qscqsc = _nextBit(5);
     }
     if ((mb_type[0] & 8) || ((mb_type[0] & 1) && _concealment_motion_vectors != 0)) {
-        if (_isMpeg2[0]) {
-            _motionVectors(PMV, dmvector, mv_field_sel, 0, mv_count, mv_format, _f_code[0] - 1,
-                           _f_code[1] - 1, dmv, mvscale);
+        if (_isMpeg2) {
+            _motionVectors(PMV, dmvector, mv_field_sel, 0, mv_count, mv_format, _f_code[0][0] - 1,
+                           _f_code[0][1] - 1, dmv, mvscale);
         } else {
             _motionVector(PMV[0][0], dmvector, _forward_f_code - 1, _forward_f_code - 1, 0, 0,
                           _full_pel_forward_vector);
         }
     }
-    if (_isError[0]) {
+    if (_isError) {
         return 0;
     }
     if (mb_type[0] & 4) {
-        if (_isMpeg2[0]) {
-            _motionVectors(PMV, dmvector, mv_field_sel, 1, mv_count, mv_format, _f_code[2] - 1,
-                           _f_code[3] - 1, 0, mvscale);
+        if (_isMpeg2) {
+            _motionVectors(PMV, dmvector, mv_field_sel, 1, mv_count, mv_format, _f_code[1][0] - 1,
+                           _f_code[1][1] - 1, 0, mvscale);
         } else {
             _motionVector(PMV[0][1], dmvector, _backward_f_code - 1, _backward_f_code - 1, 0, 0,
                           _full_pel_backward_vector);
         }
     }
-    if (_isError[0]) {
+    if (_isError) {
         return 0;
     }
     if ((mb_type[0] & 1) && _concealment_motion_vectors != 0) {
@@ -1872,17 +1848,17 @@ int _decMB0(int *mb_type, int *motion_type, int *dct_type, int PMV[2][2][2], int
         *D3_CHCR = 0x100;
         _waitIpuIdle();
         cmd = ((mb_type[0] & 1) << 27) | (_qscqsc << 16);
-        cmd2 = (_sp_dcr[0] << 26) | 0x20000000;
+        cmd2 = (_sp_dcr << 26) | 0x20000000;
         _sendIpuCommand(cmd | cmd2 | (dct_type[0] << 25));
     } else {
         *(int *)((char *)_mbcont + _mbcont[0x280 / 4] * 0x140 + 0x13C) = 1;
     }
-    _sp_dcr[0] = 0;
-    if (_isError[0]) {
+    _sp_dcr = 0;
+    if (_isError) {
         return 0;
     }
     if ((mb_type[0] & 1) == 0) {
-        _sp_dcr[0] = 1;
+        _sp_dcr = 1;
     }
     if ((mb_type[0] & 1) && _concealment_motion_vectors == 0) {
         PMV[0][0][0] = PMV[0][0][1] = PMV[1][0][0] = PMV[1][0][1] = 0;
@@ -1986,10 +1962,6 @@ c2c:
     }
 }
 
-/* kept local: libmpeg_internal.h leaves it out: the members read this scalar of var.c through
-   an array declaration */
-extern int _isTop32dirty[];
-
 /* whether the top of the bit buffer is stale after each IPU command, by the
  * command's opcode (cmd >> 28) */
 static int top32Dirty[10] = {1, 1, 0, 0, 0, 1, 1, 1, 1, 1}; /* derived name */
@@ -1997,7 +1969,7 @@ static int top32Dirty[10] = {1, 1, 0, 0, 0, 1, 1, 1, 1, 1}; /* derived name */
 void _sendIpuCommand(unsigned int a0)
 {
     *IPU_CMD = a0;
-    _isTop32dirty[0] = top32Dirty[a0 >> 28];
+    _isTop32dirty = top32Dirty[a0 >> 28];
 }
 
 void _waitIpuIdle(void)
@@ -2030,10 +2002,6 @@ long long _waitIpuIdle64(void)
     return v;
 }
 
-/* kept local: libmpeg_internal.h leaves it out: the members read this scalar of var.c through
-   an array declaration */
-extern int _isError[];
-
 int _ipuVdec(int tbl)
 {
     long long v;
@@ -2051,7 +2019,7 @@ int _ipuVdec(int tbl)
     }
     cmd = (tbl << 26) | 0x30000000;
     *IPU_CMD = cmd;
-    _isTop32dirty[0] = top32Dirty[cmd >> 28];
+    _isTop32dirty = top32Dirty[cmd >> 28];
     while ((v = *(volatile long long *)IPU_CMD) < 0) {
         if (m++ >= 5001) {
             _dispatchMpegCbNodata(_theSceMpeg);
@@ -2070,13 +2038,13 @@ int _ipuVdec(int tbl)
     } else {
         _top32len = 32;
     }
-    _isError[0] = ((int)v == 0);
+    _isError = ((int)v == 0);
     return (short)v;
 }
 
 int _peepBit(int a0)
 {
-    if (_isTop32dirty[0] != 0 || _top32len < a0) {
+    if (_isTop32dirty != 0 || _top32len < a0) {
         int n = 0;
 
         while ((*IPU_CTRL & 0x80004000) == 0x80000000) {
@@ -2086,7 +2054,7 @@ int _peepBit(int a0)
             }
         }
         *IPU_CMD = 0x40000000;
-        _isTop32dirty[0] = top32Dirty[4];
+        _isTop32dirty = top32Dirty[4];
         _top32 = _waitIpuIdle64();
         _top32len = 32;
     }
@@ -2106,7 +2074,7 @@ void _flushBuf(int a0)
     }
     cmd = a0 | 0x40000000;
     *IPU_CMD = cmd;
-    _isTop32dirty[0] = top32Dirty[(unsigned int)cmd >> 28];
+    _isTop32dirty = top32Dirty[(unsigned int)cmd >> 28];
     _top32 = _waitIpuIdle64();
     _top32len = 32;
 }
@@ -2123,16 +2091,16 @@ unsigned int _nextBit(int a0)
             n = 0;
         }
     }
-    if (_isTop32dirty[0] != 0 || _top32len < a0) {
+    if (_isTop32dirty != 0 || _top32len < a0) {
         *IPU_CMD = 0x40000000;
-        _isTop32dirty[0] = top32Dirty[4];
+        _isTop32dirty = top32Dirty[4];
         _top32 = _waitIpuIdle64();
     }
     _top32len = 32;
     r = (unsigned int)_top32 >> (32 - a0);
     cmd = a0 | 0x40000000;
     *IPU_CMD = cmd;
-    _isTop32dirty[0] = top32Dirty[(unsigned int)cmd >> 28];
+    _isTop32dirty = top32Dirty[(unsigned int)cmd >> 28];
     _top32 = _waitIpuIdle64();
     return r;
 }
@@ -2258,18 +2226,14 @@ void _extensionAndUserData(void)
     }
 }
 
-/* kept local: libmpeg_internal.h leaves it out: var.c defines it as int[2][2], the members read
-   it flat */
-extern int _f_code[];
-
 void _pictureCodingExtension(void)
 {
     int *p = *(int **)((char *)_theSceMpeg + 0x40);
 
-    _f_code[0] = _nextBit(4);
-    _f_code[1] = _nextBit(4);
-    _f_code[2] = _nextBit(4);
-    _f_code[3] = _nextBit(4);
+    _f_code[0][0] = _nextBit(4);
+    _f_code[0][1] = _nextBit(4);
+    _f_code[1][0] = _nextBit(4);
+    _f_code[1][1] = _nextBit(4);
     _intra_dc_precision = _nextBit(2);
     *(int *)IPU_CTRL = (*(int *)IPU_CTRL & 0xFFFCFFFF) | (_intra_dc_precision << 16);
     _picture_structure = _nextBit(2);
@@ -2415,9 +2379,9 @@ int _decPicture(int a0, int a1)
     int p;
     int r;
 
-    if (_picture_structure == 3 && _isSecondField[0] != 0) {
+    if (_picture_structure == 3 && _isSecondField != 0) {
         _Error("odd number of field pictures");
-        _isSecondField[0] = 0;
+        _isSecondField = 0;
     }
     switch (_picture_structure) {
     case 3:
@@ -2441,12 +2405,6 @@ int _decPicture(int a0, int a1)
     return r;
 }
 
-/* kept local: libmpeg_internal.h leaves it out: the members read this pointer of var.c through
-   an array declaration */
-extern int _zFrame[];
-extern int _zTop[];
-extern int _zBot[];
-
 void _outputFrame(int a0, int a1)
 {
     int *p = *(int **)((char *)_theSceMpeg + 0x40);
@@ -2457,15 +2415,15 @@ void _outputFrame(int a0, int a1)
 
         if (_picture_structure == 3) {
             if (_picture_coding_type == 3) {
-                top = _zFrame[0];
+                top = (int)_zFrame;
             } else {
                 top = (int)_forwFrame;
             }
             _dispRefImage(top, a0 - 1);
         } else {
             if (_picture_coding_type == 3) {
-                top = _zTop[0];
-                bot = _zBot[0];
+                top = (int)_zTop;
+                bot = (int)_zBot;
             } else {
                 top = (int)_forwTop;
                 bot = (int)_forwBot;
@@ -2492,9 +2450,9 @@ int _updateRefImage(int a0)
     int ret = 0;
 
     if (_picture_coding_type == 3) {
-        _curFrame = (int *)_zFrame[0];
-        _curTop = (int *)_zTop[0];
-        _curBot = (int *)_zBot[0];
+        _curFrame = _zFrame;
+        _curTop = _zTop;
+        _curBot = _zBot;
         if (r[0xA0 / 4] + r[0xA4 / 4] >= n) {
             r[0xE8 / 4] = 0;
             _broken_link = 0;
@@ -2647,19 +2605,15 @@ void _cpr8(char *im)
     }
 }
 
-/* kept local: libmpeg_internal.h leaves it out: the members read this scalar of var.c through
-   an array declaration */
-extern int _isOutputPicture[];
-
 int _markOutput(void)
 {
     int *q = *(int **)((char *)_theSceMpeg + 0x40);
     if (q[2] != 2) {
-        int v = _totalFrames[0];
+        int v = _totalFrames;
         q[2] = 2;
         q[0x2B] = v;
     }
-    _isOutputPicture[0] = 1;
+    _isOutputPicture = 1;
     return 1;
 }
 

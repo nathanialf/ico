@@ -5,15 +5,10 @@
  * state (var.o's and init.o's globals, MAIN.MAP's names) and the helpers
  * the members call across files.  Each declaration is the definition's in
  * sce/libmpeg where that is C (var.c's objects, the members' functions),
- * else the spelling its callers carry.  Left out: the objects the members
- * read through a declaration of another shape than their definition (the
- * scalars _isMpeg2, _isSecondField, _totalFrames, _isError, _isOutputPicture,
- * _isTop32dirty, _bsDataSize, _sp_dcr, _widthMB, _heightMB read as arrays,
- * the pointers _zFrame, _zTop, _zBot read as arrays, the byte matrices
- * _defIQM, _defNIQM read as int arrays, _f_code read flat), and the helpers
- * whose callers pass other arguments than the definition takes (_getAllRefs,
- * _getRef0, _motionVector, _motionVectors, _dispRefImage, _dispRefImageField,
- * _system_header): each user keeps its own declaration until those sites are
+ * else the spelling its callers carry.  Left out: the helpers whose callers
+ * pass other arguments than the definition takes (_getAllRefs,
+ * _getRef0, _motionVector, _motionVectors, _dispRefImage, _dispRefImageField):
+ * each user keeps its own declaration until those sites are
  * retyped.
  */
 #ifndef SCE_LIBMPEG_LIBMPEG_INTERNAL_H
@@ -53,6 +48,7 @@ extern int *_backTop;
 extern int _backward_f_code;
 extern int _bit_rate_value;
 extern int _broken_link;
+extern int _bsDataSize;
 extern int _bsDatap;
 extern int _burst_amplitude;
 extern int _cHeight;
@@ -92,6 +88,8 @@ void _defRestartDMA(int **a0);
 void _defStopDMA(int **a0);
 void *_dispatchMpegCallback(void *a0, void *a1);
 void _dispatchMpegCbNodata(void *a0);
+extern unsigned char _defIQM[64];
+extern unsigned char _defNIQM[64];
 extern int _display_horizontal_size;
 extern int _display_vertical_size;
 void _doCSC2(int a0, int a1);
@@ -100,6 +98,7 @@ extern int _drop_frame_flag;
 void _dualPrimeVector(int *DMV, int *dmvector, int mvx, int mvy);
 void _extensionAndUserData(void);
 void _extrainfo(void);
+extern int _f_code[2][2];
 extern int _field_sequence;
 void _flushBuf(int a0);
 extern int *_forwBot;
@@ -119,6 +118,7 @@ int _getpic(int a0);
 void _groupOfPicturesHeader(void);
 extern long long _headerDts;
 extern long long _headerPts;
+extern int _heightMB;
 extern int _horizontal_size;
 
 void _initRefImages(int *frame0, int *frame1, int *frame2, int *top0, int *top1, int *top2,
@@ -126,6 +126,11 @@ void _initRefImages(int *frame0, int *frame1, int *frame2, int *top0, int *top1,
 
 void _initSeq(void *a0);
 void _initSeqAgain(void);
+extern int _isError;
+extern int _isMpeg2;
+extern int _isOutputPicture;
+extern int _isSecondField;
+extern int _isTop32dirty;
 extern int _intra_dc_precision;
 extern int _intra_slice;
 extern int _intra_vlc_format;
@@ -179,11 +184,12 @@ void _sequenceDisplayExtension(void);
 void _sequenceExtension(void);
 void _sequenceHeader(void);
 void _sequenceScalableExtension(void);
-void _setDefaultQM(int a0, int *a1);
+void _setDefaultQM(int cmd, unsigned char *qm);
 int _skipMB0(int *a0, int *a1, int *a2, int *a3);
 int _slice0(int a0, int a1);
 int _sliceA0(int a0, int *a1, int *a2, int *a3);
 int _sliceB(void);
+extern int _sp_dcr;
 extern int _sprtag;
 extern int _sub_carrier;
 extern int _sub_carrier_phase;
@@ -202,6 +208,7 @@ extern int _time_code_seconds;
 extern int _top32;
 extern int _top32len;
 extern int _top_field_first;
+extern int _totalFrames;
 extern int _trFrameNumber;
 extern int _transfer_characteristics;
 long long _type2id(int a0, int a1);
@@ -213,8 +220,12 @@ extern int _vbv_buffer_size_value;
 extern int _vbv_delay;
 extern int _vertical_size;
 extern int _video_format;
+extern int _widthMB;
 int _waitBdecOut(void);
 void _waitIpuIdle(void);
 long long _waitIpuIdle64(void);
+extern int *_zBot;
+extern int *_zFrame;
+extern int *_zTop;
 
 #endif /* SCE_LIBMPEG_LIBMPEG_INTERNAL_H */

@@ -1,18 +1,14 @@
 /* Vendor SCE library member: libipu.a(ipuinit.o).  MAIN.MAP's size (0x2A0) tiles the
  * retail run exactly, VMA 0x2725D8..0x272878, 2 functions. */
+#include <eekernel.h>
 #include <eeregs.h>
 #include <libipu.h>
-
-/* kept local: eekernel.h declares it as `int DIntr(void)` */
-extern void DIntr(int *self);
-/* kept local: eekernel.h declares it as `int EIntr(void)` */
-extern void EIntr(void);
 
 /* ipuinit.o's own file static setD4_CHCR (libmpeg holds the global of the name, which
    libipu.o's functions call); sceIpuInit calls this one. */
 static void setD4_CHCR(int *a0)
 {
-    DIntr(a0);
+    DIntr();
     *D_ENABLEW = *D_ENABLER | 0x10000;
     *D4_CHCR = (int)a0;
     *D_ENABLEW = *D_ENABLER & 0xFFFEFFFF;

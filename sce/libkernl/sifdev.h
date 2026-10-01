@@ -17,10 +17,10 @@
 #ifndef SCE_LIBKERNL_SIFDEV_H
 #define SCE_LIBKERNL_SIFDEV_H
 
-int sceClose(int fd);                                                  /* dominant spelling at 3 sites */
-int sceLseek(int fd, int offset, int whence);                          /* dominant spelling at 2 sites */
-int sceOpen(void *a0, int a1);                                         /* dominant spelling at 2 sites */
-int sceRead(int fd, void *buf, int size);                              /* dominant spelling at 4 sites */
-int sceWrite();                                                        /* dominant spelling at 6 sites */
+int sceClose(unsigned int fd);                     /* definition in sce/ */
+int sceLseek(unsigned int fd, int offset, int whence); /* definition in sce/ */
+int sceOpen(unsigned char *name, int flags, ...);  /* definition in sce/ */
+int sceRead(int fd, void *buf, int nbyte);         /* definition in sce/ */
+int sceWrite(int fd, void *buf, int nbyte);        /* definition in sce/ */
 
 #endif /* SCE_LIBKERNL_SIFDEV_H */

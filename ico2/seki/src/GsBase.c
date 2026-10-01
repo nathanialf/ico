@@ -7,6 +7,7 @@
 #include "Texture.h"
 #include "staticBlur.h"
 #include <libvu0.h>
+#include <eekernel.h>
 #include <sifdev.h>
 #include <stdio.h>
 #include "typedef.h"

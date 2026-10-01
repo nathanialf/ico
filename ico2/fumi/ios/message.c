@@ -1,5 +1,6 @@
 #include "debug.h"
 #include "memory.h"
+#include <eekernel.h>
 #include <eeregs.h>
 #include "ios.h"
 
@@ -8,24 +9,14 @@ typedef struct IosMsg {
     struct IosMsg *next; /* 0x44 */
 } IosMsg;
 
-/* SCE ee_sema_t, the parameter block CreateSema is handed. */
-typedef struct EeSema {
-    int count;        /* 0x00 */
-    int max_count;    /* 0x04 */
-    int init_count;   /* 0x08 */
-    int wait_threads; /* 0x0C */
-    int attr;         /* 0x10 */
-    int option;       /* 0x14 */
-} EeSema;
-
 typedef struct IosMsgQueue {
-    int *buf;     /* 0x00 */
-    int rd;       /* 0x04 */
-    int num;      /* 0x08 */
-    int size;     /* 0x0C */
-    IosMsg *head; /* 0x10 */
-    EeSema sem;   /* 0x14 */
-    int sema;     /* 0x2C */
+    int *buf;             /* 0x00 */
+    int rd;               /* 0x04 */
+    int num;              /* 0x08 */
+    int size;             /* 0x0C */
+    IosMsg *head;         /* 0x10 */
+    struct SemaParam sem; /* 0x14 */
+    int sema;             /* 0x2C */
 } IosMsgQueue;
 
 /* the event thread iosMsgSetEvent spawns: an IOSThread with three trailing
@@ -40,14 +31,8 @@ typedef struct MsgEventThread {
     int intc;           /* 0x4098 */
 } MsgEventThread;
 
-extern void SignalSema(int sema);
-extern int CreateSema(EeSema *p);
-extern int DeleteSema(int sema);
-extern int ReferSemaStatus(int sema, int *st);
-extern int WaitSema(int sema);
 extern void debug_assert(char *file, int line);
 extern void __assert(char *file, int line, char *expr);
-extern int GetThreadId();
 /* kept local: this TU's uses of iosGetIOSThreadFromId do not fit the prototype in thread.h */
 extern int iosGetIOSThreadFromId(unsigned int a0);
 /* kept local: this TU's uses of iosThreadSleep do not fit the prototype in thread.h */
@@ -57,8 +42,6 @@ extern void iosThreadCreate(void *th, int no, void (*func)(), int arg, void *sta
                             int pri);
 /* kept local: this TU's uses of iosThreadStart do not fit the prototype in thread.h */
 extern void iosThreadStart(int a0);
-extern int AddIntcHandler(int ch, void *fn, int a2);
-extern int EnableIntc(int ch);
 /* kept local: this TU's uses of signal_handler do not fit the prototype in message.h */
 extern int signal_handler(int a0);
 /* kept local with message.h's declaration (this TU does not include it): the
@@ -89,8 +72,8 @@ void iosMsgQueueCreate(IosMsgQueue *q, int *buf, int size)
     q->head = 0;
     q->size = size;
 
-    q->sem.init_count = 0;
-    q->sem.max_count = size;
+    q->sem.initCount = 0;
+    q->sem.maxCount = size;
     q->sem.attr = 1;
     q->sema = CreateSema(&q->sem);
     if (q->sema < 0) {
@@ -118,24 +101,24 @@ void iosMsgQueueDestroy(IosMsgQueue *q)
  * static stand-in, which collapses at layout. */
 static inline int msgSend(IosMsgQueue *q, int val, int mode)
 {
-    int st[8];
+    struct SemaParam st;
 
     if (q == 0) {
         debug_StdPrintfDummy("msg:null message queue\n");
         debug_assert("ios/message.c", 293);
         __assert("ios/message.c", 293, "0");
     }
-    ReferSemaStatus(q->sema, st);
-    if (q->num == st[1]) {
+    ReferSemaStatus(q->sema, &st);
+    if (q->num == st.maxCount) {
         if (mode != 1) {
             debug_StdPrintfDummy("MSG NO SEND\n");
             return -1;
         }
         WaitSema(q->sema);
     }
-    q->buf[(q->rd + q->num) % st[1]] = val;
+    q->buf[(q->rd + q->num) % st.maxCount] = val;
     q->num += 1;
-    if (st[3] > 0) {
+    if (st.numWaitThreads > 0) {
         SignalSema(q->sema);
     }
     return 0;
@@ -193,23 +176,23 @@ void iosMsgInit(void)
 
 int iosMsgSend(char *q, int val, int mode)
 {
-    int st[8];
+    struct SemaParam st;
     if (q == 0) {
         debug_StdPrintfDummy("msg:null message queue\n");
         debug_assert("ios/message.c", 293);
         __assert("ios/message.c", 293, "0");
     }
-    ReferSemaStatus(*(int *)(q + 0x2C), st);
-    if (*(int *)(q + 8) == st[1]) {
+    ReferSemaStatus(*(int *)(q + 0x2C), &st);
+    if (*(int *)(q + 8) == st.maxCount) {
         if (mode != 1) {
             debug_StdPrintfDummy("MSG NO SEND\n");
             return -1;
         }
         WaitSema(*(int *)(q + 0x2C));
     }
-    (*(int **)q)[(*(int *)(q + 4) + *(int *)(q + 8)) % st[1]] = val;
+    (*(int **)q)[(*(int *)(q + 4) + *(int *)(q + 8)) % st.maxCount] = val;
     *(int *)(q + 8) += 1;
-    if (st[3] > 0) {
+    if (st.numWaitThreads > 0) {
         SignalSema(*(int *)(q + 0x2C));
     }
     return 0;
@@ -217,23 +200,23 @@ int iosMsgSend(char *q, int val, int mode)
 
 int iosMsgRecv(char *q, int *out, int mode)
 {
-    int st[8];
+    struct SemaParam st;
     if (q == 0) {
         debug_StdPrintfDummy("msg:null message queue\n");
         debug_assert("ios/message.c", 329);
         __assert("ios/message.c", 329, "0");
     }
-    ReferSemaStatus(*(int *)(q + 0x2C), st);
+    ReferSemaStatus(*(int *)(q + 0x2C), &st);
     if (*(int *)(q + 8) == 0) {
         if (mode != 1)
             return -1;
         WaitSema(*(int *)(q + 0x2C));
     }
     *out = (*(int **)q)[*(int *)(q + 4)];
-    *(int *)(q + 4) = (*(int *)(q + 4) + 1) % st[1];
+    *(int *)(q + 4) = (*(int *)(q + 4) + 1) % st.maxCount;
     *(int *)(q + 8) -= 1;
-    if (*(int *)(q + 8) == st[1]) {
-        if (st[3] > 0) {
+    if (*(int *)(q + 8) == st.maxCount) {
+        if (st.numWaitThreads > 0) {
             SignalSema(*(int *)(q + 0x2C));
         }
     }
@@ -256,7 +239,6 @@ void iosMsgQueueDestroyAll(void)
 }
 
 extern int odd_even;
-extern void iWakeupThread(int);
 
 int signal_handler(int a0)
 {

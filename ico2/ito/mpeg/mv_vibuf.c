@@ -33,7 +33,6 @@ typedef struct ViBuf {
 } ViBuf;
 
 static void Free();
-extern int DIntr(void);
 
 /* The same for the IPU output channel's CHCR (0x1000B000): listing rows
    56-61. Our name. */
@@ -106,7 +105,7 @@ extern int viBufReset(ViBuf *self);
 
 int viBufCreate(ViBuf *self)
 {
-    int sem[8];
+    struct SemaParam sem;
     int data;
     int tag;
     int ts;
@@ -141,10 +140,10 @@ int viBufCreate(ViBuf *self)
     self->ts = (ViTs *)ts;
     self->tsMax = tsMax;
 
-    sem[2] = 1;
-    sem[1] = 1;
+    sem.initCount = 1;
+    sem.maxCount = 1;
 
-    self->sema = CreateSema(sem);
+    self->sema = CreateSema(&sem);
 
     self->created = 1;
 

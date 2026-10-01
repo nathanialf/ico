@@ -148,7 +148,7 @@ void debugCdvdLoadInfoSegAdd(int page, int idx, int delta);
 void debugCdvdLoadInfoSegCls(int page, int idx);
 int gsResetFunc(void);
 void ChangeGirlControlMode(int a0);
-int debug_CallbackGsFinish(void);
+int debug_CallbackGsFinish(int channel);
 void debug_SaveStartStageFile(int stage);
 
 int _debug_SelectCsvWindow(char *title, int x, int y, int rows, int base, int stride, int off,

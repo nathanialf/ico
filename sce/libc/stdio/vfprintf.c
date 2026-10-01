@@ -11,7 +11,7 @@ struct D520 {
     PObjBlk *blk; /* 0x8 */
 };
 
-/* kept local: this member cannot include libc_internal.h, whose __sinit conflicts with its own */
+/* kept local: this member cannot include libc_internal.h, whose _vfprintf_r conflicts with its own */
 extern int _vfprintf_r();
 extern int __sfvwrite();
 
@@ -109,10 +109,10 @@ typedef int wchar_t;
 #define __SERR 0x0040
 #define NULL 0
 
-/* kept local: this member cannot include libc_internal.h, whose __sinit conflicts with its own */
+/* kept local: this member cannot include libc_internal.h, whose _vfprintf_r conflicts with its own */
 extern int __sfvwrite(Fil *fp, struct __suio *uio);
 extern int __swsetup(Fil *fp);
-/* kept local: libc_internal.h declares it as `void __sinit(char *a0)` */
+/* kept local: this member cannot include libc_internal.h, whose _vfprintf_r conflicts with its own */
 extern void __sinit(Reent *ptr);
 /* kept local: stdlib.h leaves it out: its definition's argument list does not fit this member's
    calls */

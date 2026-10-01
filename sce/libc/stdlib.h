@@ -21,7 +21,7 @@ struct _reent;
 
 double atof(const char *ascii);                        /* definition in sce/ */
 int atoi(void *a0);                                    /* definition in sce/ */
-void qsort(void *base, int n, int size, int (*cmp)()); /* dominant spelling at 3 sites */
+void qsort(void *base, unsigned int n, unsigned int size, int (*cmp)()); /* definition in sce/ */
 int rand(void);                                        /* definition in sce/ */
 double strtod(const char *s00, char **se);             /* definition in sce/ */
 long long strtol(void *a0, int a1, int a2);            /* definition in sce/ */

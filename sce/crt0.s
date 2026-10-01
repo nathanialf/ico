@@ -48,13 +48,13 @@ _start:
     bnez $1, .L1
     addiu $2, $2, 0x10
     lui $4, %hi(_gp)
-    lui $5, %hi(D_1FF0000)
-    lui $6, %hi(D_10000)
+    lui $5, %hi(_stack)
+    lui $6, %hi(_stack_size)
     lui $7, %hi(_args)
     lui $8, %hi(_root)
     addiu $4, $4, %lo(_gp)
-    addiu $5, $5, %lo(D_1FF0000)
-    addiu $6, $6, %lo(D_10000)
+    addiu $5, $5, %lo(_stack)
+    addiu $6, $6, %lo(_stack_size)
     addiu $7, $7, %lo(_args)
     addiu $8, $8, %lo(_root)
     daddu $28, $4, $0
@@ -62,9 +62,9 @@ _start:
     syscall 0
     daddu $29, $2, $0
     lui $4, %hi(_end)
-    lui $5, %hi(D_10000)
+    lui $5, %hi(_heap_size)
     addiu $4, $4, %lo(_end)
-    addiu $5, $5, %lo(D_10000)
+    addiu $5, $5, %lo(_heap_size)
     addiu $3, $0, 0x3D
     syscall 0
     jal _InitSys

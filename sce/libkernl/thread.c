@@ -1,6 +1,7 @@
 /* Vendor SCE library member: libkernl.a(thread.o).  MAIN.MAP places this member at
  * the same address as the shipped ELF and its size tiles the run exactly, every
  * boundary a retail function start; VMA 0x100D68..0x1010C8, 5 functions. */
+#include <eekernel.h>
 #include <libkernl_internal.h>
 
 /* EE syscall leaf wrappers.  This member's uses stand for a Sony-internal
@@ -47,15 +48,6 @@ static int kernEventSema; /* derived name */
 
 static KernEventRing kernEventRing; /* derived name */
 
-/* kept local: this member cannot include eekernel.h, whose ChangeThreadPriority, CreateSema,
-   DeleteSema, RotateThreadReadyQueue, SuspendThread conflict with its own */
-extern int WaitSema(int id);
-extern int WakeupThread(int id);
-/* kept local: eekernel.h declares it as `void RotateThreadReadyQueue()` */
-extern int RotateThreadReadyQueue(int id);
-/* kept local: eekernel.h declares it as `void SuspendThread()` */
-extern int SuspendThread(int id);
-
 void topThread(void *arg)
 {
     KernEventRing *ring = (KernEventRing *)arg;
@@ -82,71 +74,34 @@ void topThread(void *arg)
     }
 }
 
-/* EE kernel thread/semaphore parameter blocks.  The field offsets are the
-   ROM's own stores; the members this function never touches are named from
-   the published EE kernel ABI. */
-typedef struct {
-    int count;        /* 0x00 */
-    int max_count;    /* 0x04 */
-    int init_count;   /* 0x08 */
-    int wait_threads; /* 0x0C */
-    unsigned attr;    /* 0x10 */
-    unsigned option;  /* 0x14 */
-} ee_sema_t;
-
-typedef struct {
-    int status;           /* 0x00 */
-    void *func;           /* 0x04 */
-    void *stack;          /* 0x08 */
-    int stack_size;       /* 0x0C */
-    void *gp_reg;         /* 0x10 */
-    int initial_priority; /* 0x14 */
-    int current_priority; /* 0x18 */
-    unsigned attr;        /* 0x1C */
-    unsigned option;      /* 0x20 */
-} ee_thread_t;
-
 /* the kernel event thread's id, zero until InitKernEvent creates it */
 static int kernEventThreadId = 0;
 
 /* kept local: the link's small-data base, which no header declares */
 extern char _gp[];
-/* kept local: eekernel.h declares it as `int CreateSema(int *self)` */
-extern int CreateSema(ee_sema_t *param);
-/* kept local: eekernel.h declares it as `int DeleteSema(int sema)` */
-extern void DeleteSema(int id);
-/* kept local: eekernel.h leaves CreateThread out until one type serves its callers' thread
-   parameter blocks */
-extern int CreateThread(ee_thread_t *param);
-/* kept local: this member cannot include eekernel.h, whose ChangeThreadPriority, CreateSema,
-   DeleteSema, RotateThreadReadyQueue, SuspendThread conflict with its own */
-extern int StartThread(int id, void *arg);
-extern int GetThreadId(void);
-/* kept local: eekernel.h declares it as `void ChangeThreadPriority()` */
-extern int ChangeThreadPriority(int id, int prio);
 
 int InitThread(void)
 {
-    ee_thread_t th;
-    ee_sema_t sm;
+    struct ThreadParam th;
+    struct SemaParam sm;
     int tid;
 
     if (kernEventThreadId > 0) {
         return -1;
     }
 
-    sm.max_count = 0xFF;
-    sm.init_count = 0;
+    sm.maxCount = 0xFF;
+    sm.initCount = 0;
     kernEventSema = CreateSema(&sm);
     if (kernEventSema < 0) {
         return -1;
     }
 
-    th.func = topThread;
+    th.entry = topThread;
     th.stack = kernEventStack;
-    th.stack_size = 0x400;
-    th.gp_reg = _gp;
-    th.initial_priority = 0;
+    th.stackSize = 0x400;
+    th.gpReg = _gp;
+    th.initPriority = 0;
     tid = CreateThread(&th);
     kernEventThreadId = tid;
     if (tid < 0) {
@@ -160,10 +115,6 @@ int InitThread(void)
     ChangeThreadPriority(GetThreadId(), 1);
     return kernEventThreadId;
 }
-
-/* kept local: this member cannot include eekernel.h, whose ChangeThreadPriority, CreateSema,
-   DeleteSema, RotateThreadReadyQueue, SuspendThread conflict with its own */
-extern int iSignalSema(int handle);
 
 int iWakeupThread(int id)
 {

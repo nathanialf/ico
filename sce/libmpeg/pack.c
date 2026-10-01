@@ -278,9 +278,7 @@ int sceMpegAddStrCallback(int *a0, int a1, int a2, MpegStrCallback a3, void *a4)
     return ret;
 }
 
-/* kept local: libmpeg_internal.h leaves it out: its callers' arguments do not fit the
-   definition's prototype */
-extern int _system_header();
+int _system_header(int *a0, P24D418 *pkt);
 
 int _pack_header(int *bs, P24D418 *pkt)
 {
@@ -315,7 +313,7 @@ end:
     return 1;
 }
 
-int _system_header(int *a0)
+int _system_header(int *a0, P24D418 *pkt)
 {
     _sysbitGet(a0, 0x38);
     _sysbitGet(a0, 0x28);

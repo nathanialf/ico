@@ -29,7 +29,7 @@ typedef union {
 /* .bss, owned by mcard.o and reached only from this file (MAIN.MAP names no
    symbol in the run), in the ROM's run order: the semaphore descriptor the
    card lock is created from, then the manager queue's 16-slot message ring. */
-static int mcLockSemaParam[6];
+static struct SemaParam mcLockSemaParam;
 
 static int mcMsgRing[16];
 
@@ -55,10 +55,10 @@ static int mcLockCount = 0; /* derived name */
 
 inline void iosMcMgrSync(void *mp)
 {
-    mcLockSemaParam[4] = 1;
-    mcLockSemaParam[2] = 0;
-    mcLockSemaParam[1] = 1;
-    IosMcLock = CreateSema(mcLockSemaParam);
+    mcLockSemaParam.attr = 1;
+    mcLockSemaParam.initCount = 0;
+    mcLockSemaParam.maxCount = 1;
+    IosMcLock = CreateSema(&mcLockSemaParam);
     debug_StdPrintfDummy("%d\n", IosMcLock);
     do {
         WaitSema(IosMcLock);
@@ -200,18 +200,17 @@ extern McSaveRec IosMcProductFile[];
    (0xB0) */
 extern char iosPadConfCustom[];
 extern int optionControlType;
-/* kept local: main.c's global; this TU does not include main.h */
-extern int systemStatus[];
+extern int D_0028F4C0[];
 extern int NonLinearCameraMove;
 
 inline int product_write(int *self)
 {
-    (IosMcProductFile + self[2])->soundMode = systemStatus[11];
+    (IosMcProductFile + self[2])->soundMode = D_0028F4C0[11];
     (IosMcProductFile + self[2])->outputMode = soundOutputModeGet();
     (IosMcProductFile + self[2])->unk198 = iosPadActRequestEnable;
     (IosMcProductFile + self[2])->gobj = optionControlType;
     (IosMcProductFile + self[2])->cameraMove = NonLinearCameraMove;
-    (IosMcProductFile + self[2])->unk1EC = systemStatus[0];
+    (IosMcProductFile + self[2])->unk1EC = D_0028F4C0[0];
     *(McBlk *)(IosMcProductFile + self[2])->blk = *(McBlk *)(iosPadConfCustom + 0xB0);
     iosMcHandlerWrite((int)self, (int)(IosMcProductFile + self[2]), 0x1F0);
     return 0;
@@ -225,27 +224,28 @@ inline int product_read(int *self)
 }
 
 extern int optionScreenMode;
-/* kept local: main.c's global; this TU does not include main.h */
-extern int girlControlMode;
+extern int D_00639EA0;
 
 inline int gameblock_write(int self, void *buf)
 {
     iosMcHandlerWrite(self, buf, 0x63F4);
     iosMcHandlerWrite(self, &optionScreenMode, 4);
-    iosMcHandlerWrite(self, &girlControlMode, 4);
+    iosMcHandlerWrite(self, &D_00639EA0, 4);
     return 0;
 }
+
+extern int D_0028F4EC[];
 
 inline int gameblock_read(int *self, void *buf)
 {
     iosMcHandlerRead((int)self, (int)buf, 0x63F4);
-    systemStatus[11] = (IosMcProductFile + self[2])->soundMode;
+    D_0028F4EC[0] = (IosMcProductFile + self[2])->soundMode;
     soundOutputModeSet((IosMcProductFile + self[2])->outputMode);
     iosPadActRequestEnable = (IosMcProductFile + self[2])->unk198;
     optionControlType = (IosMcProductFile + self[2])->gobj;
     *(McBlk *)(iosPadConfCustom + 0xB0) = *(McBlk *)(IosMcProductFile + self[2])->blk;
     iosMcHandlerRead((int)self, (int)&optionScreenMode, 4);
-    iosMcHandlerRead((int)self, (int)&girlControlMode, 4);
+    iosMcHandlerRead((int)self, (int)&D_00639EA0, 4);
     return self[4];
 }
 

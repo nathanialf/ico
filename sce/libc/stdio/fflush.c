@@ -1,6 +1,7 @@
 /* libc.a member fflush.o.  MAIN.MAP member spans tile this run exactly and
  * this member starts at an 8-aligned function start of the shipped ELF. */
 #include <reent.h>
+#include <libc_internal.h>
 #include <stdio.h>
 
 struct D520 {
@@ -16,8 +17,6 @@ struct D520 {
 
 /* kept local: libc_internal.h declares it as `int _fwalk(Reent *ptr, int (*function)())` */
 extern int _fwalk(Reent *r, int (*func)());
-/* kept local: libc_internal.h declares it as `void __sinit(char *a0)` */
-extern void __sinit(Reent *r);
 
 int fflush(Fil *fp)
 {

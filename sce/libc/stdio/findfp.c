@@ -19,21 +19,21 @@ extern long __sseek(void *a0, int a1, int a2);
 /* kept local: libc_internal.h declares it as `int __sclose(Fil *a0)` */
 extern int __sclose(void *a0);
 
-void std(char *fp, int flags, int file, void *data)
+void std(Fil *fp, int flags, int file, Reent *data)
 {
-    *(int *)(fp + 0x0) = 0;
-    *(int *)(fp + 0x4) = 0;
-    *(int *)(fp + 0x8) = 0;
-    *(short *)(fp + 0xC) = flags;
-    *(short *)(fp + 0xE) = file;
-    *(int *)(fp + 0x10) = 0;
-    *(int *)(fp + 0x18) = 0;
-    *(char **)(fp + 0x1C) = fp;
-    *(void **)(fp + 0x20) = (void *)__sread;
-    *(void **)(fp + 0x24) = (void *)__swrite;
-    *(void **)(fp + 0x28) = (void *)__sseek;
-    *(void **)(fp + 0x2C) = (void *)__sclose;
-    *(void **)(fp + 0x54) = data;
+    fp->p = 0;
+    fp->r = 0;
+    fp->w = 0;
+    fp->flags = flags;
+    fp->file = file;
+    fp->bf.base = 0;
+    fp->lbfsize = 0;
+    fp->cookie = fp;
+    fp->read = __sread;
+    fp->write = __swrite;
+    fp->seek = __sseek;
+    fp->close = __sclose;
+    fp->data = data;
 }
 
 void *__sfmoreglue(void *a0, int a1)
@@ -54,14 +54,10 @@ void *__sfmoreglue(void *a0, int a1)
     return p;
 }
 
-Reent;
-
 #define ENOMEM 12
 #define NDYNAMIC 4
 
-/* kept local: this member cannot include libc_internal.h, whose __sclose, __sread, __sseek,
-   __swrite, _fwalk conflict with its own */
-extern void __sinit(char *a0);
+void __sinit(Reent *s);
 
 Fil *__sfp(Reent *d)
 {
@@ -70,7 +66,7 @@ Fil *__sfp(Reent *d)
     Glue *g;
 
     if (!d->sdidinit) {
-        __sinit((char *)d);
+        __sinit(d);
     }
 
     for (g = &d->glue;; g = g->next) {
@@ -103,36 +99,26 @@ found:
     return fp;
 }
 
-/* kept local: libc_internal.h declares it as `int _fwalk(Reent *ptr, int (*function)())` */
-extern void _fwalk(int a0, void *a1);
+int _fwalk(Reent *ptr, int (*function)());
 
-void _cleanup_r(int a0)
+void _cleanup_r(Reent *ptr)
 {
-    _fwalk(a0, fflush);
+    _fwalk(ptr, fflush);
 }
-
-/* kept local: this member cannot include libc_internal.h, whose __sclose, __sread, __sseek,
-   __swrite, _fwalk conflict with its own */
-extern void _cleanup_r(int a0);
 
 void _cleanup(void)
 {
-    _cleanup_r((int)_impure_ptr);
+    _cleanup_r(_impure_ptr);
 }
 
-/* kept local: this member cannot include libc_internal.h, whose __sclose, __sread, __sseek,
-   __swrite, _fwalk conflict with its own */
-extern void std();
-
-void __sinit(char *a0)
+void __sinit(Reent *s)
 {
-    char *p = a0 + 0x1E4;
-    *(void **)(a0 + 0x3C) = (void *)_cleanup_r;
-    *(int *)(a0 + 0x38) = 1;
-    std(p, 4, 0, (int)a0);
-    std(a0 + 0x23C, 9, 1, (int)a0);
-    std(a0 + 0x294, 0xA, 2, (int)a0);
-    *(char **)(a0 + 0x1E0) = p;
-    *(int *)(a0 + 0x1DC) = 3;
-    *(int *)(a0 + 0x1D8) = 0;
+    s->cleanup = _cleanup_r;
+    s->sdidinit = 1;
+    std(&s->sf[0], 4, 0, s);
+    std(&s->sf[1], 9, 1, s);
+    std(&s->sf[2], 10, 2, s);
+    s->glue.iobs = &s->sf[0];
+    s->glue.niobs = 3;
+    s->glue.next = 0;
 }

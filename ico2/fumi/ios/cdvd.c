@@ -1,5 +1,6 @@
 #include "cdvd.h"
 #include <ctype.h>
+#include <eekernel.h>
 #include "debug.h"
 #include "debug_exception.h"
 #include "inflate.h"
@@ -906,7 +907,6 @@ extern void iosThreadCreate(char *th, int prio, void *entry, int arg, char *stac
                             int a6);
 extern void iosThreadStart(char *th);
 extern void iosCdvdBackGroundMgrInit(void);
-extern void SignalSema(int sema);
 
 /* cdvd.c:1665-1724 in the listing, with iosCdvdDiskReadyBlock (rows
    701-708) expanded in case 0.  The frame is the ROM's: the inlined block's

@@ -397,7 +397,6 @@ sce/libgraph/graph021.c
 sce/libgraph/graph029.c
 sce/libgraph/graph005.c
 sce/libgraph/graph007.c
-blob:cod/44A2E0.data
 sce/libvu0/libvu0.c
 sce/libdma/libdma.c
 blob:cod/44A3CC.data

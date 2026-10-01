@@ -4,6 +4,7 @@
  * them (setD3_CHCR, setD4_CHCR, VMA 0x272268..0x272338) are libipu.o's own
  * functions in the listing, where libipu.o begins after bit.o's 4 bytes of
  * link fill; they stay in this file until libipu's row is moved to take them. */
+#include <eekernel.h>
 #include <libmpeg.h>
 #include <libmpeg_internal.h>
 #include <eeregs.h>
@@ -95,14 +96,9 @@ int _sysbitPtr(int *a0, int a1)
     return v;
 }
 
-/* kept local: eekernel.h declares it as `int DIntr(void)` */
-extern void DIntr(int *self);
-/* kept local: this member cannot include eekernel.h, whose DIntr conflicts with its own */
-extern int EIntr(void);
-
 void setD3_CHCR(int *a0)
 {
-    DIntr(a0);
+    DIntr();
     *D_ENABLEW = *D_ENABLER | 0x10000;
     *D3_CHCR = (int)a0;
     *D_ENABLEW = *D_ENABLER & 0xFFFEFFFF;
@@ -111,7 +107,7 @@ void setD3_CHCR(int *a0)
 
 void setD4_CHCR(int *a0)
 {
-    DIntr(a0);
+    DIntr();
     *D_ENABLEW = *D_ENABLER | 0x10000;
     *D4_CHCR = (int)a0;
     *D_ENABLEW = *D_ENABLER & 0xFFFEFFFF;

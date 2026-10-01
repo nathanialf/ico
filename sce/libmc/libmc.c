@@ -1,5 +1,7 @@
 /* libmc.a member libmc.o.  MAIN.MAP member spans tile this run exactly and
  * this member starts at an 8-aligned function start of the shipped ELF. */
+#include <stdio.h>
+#include <eekernel.h>
 #include <sifrpc.h>
 #include <libmc.h>
 #include <string.h>
@@ -23,15 +25,6 @@ typedef struct {
     int f10;
     char name[0x400];
 } NameReq;
-
-typedef struct {
-    int count;
-    int max_count;
-    int init_count;
-    int wait_threads;
-    unsigned int attr;
-    unsigned int option;
-} SemaParam;
 
 /* The member's .data in the ROM's order (VMA 0x54C000..0x54C018): the build
    stamp, the number of the call in flight that sceMcSync completes, and the
@@ -66,26 +59,17 @@ static char mcPwd[0x1000] __attribute__((aligned(64)));
 
 static char mcRdata[0x40] __attribute__((aligned(64)));
 
-/* kept local: eekernel.h declares it as `int CreateSema(int *self)` */
-extern int CreateSema(SemaParam *param);
-/* kept local: this member cannot include eekernel.h, whose CreateSema, SetAlarm, iWakeupThread
-   conflict with its own */
-extern int WaitSema(int sema);
-extern void SignalSema(int sema);
-/* kept local: sce/libc/stdio.h declares printf void */
-extern int printf(const char *fmt, ...);
-
 int sceMcInit(void)
 {
-    SemaParam sema;
+    struct SemaParam sema;
     char *cd;
     char *dev;
     int i;
     int r;
 
     if (mcSema < 0) {
-        sema.init_count = 1;
-        sema.max_count = 1;
+        sema.initCount = 1;
+        sema.maxCount = 1;
         sema.option = 0;
         mcSema = CreateSema(&sema);
     }
@@ -130,10 +114,6 @@ void *_lmcGetClientPtr(int *a0, int *a1)
     *(int *)(mcRdata + 0x3C) = mcSema;
     return mcClient;
 }
-
-/* kept local: this member cannot include eekernel.h, whose CreateSema, SetAlarm, iWakeupThread
-   conflict with its own */
-extern int PollSema(int sema);
 
 int sceMcChangeThreadPriority(int arg)
 {
@@ -346,10 +326,6 @@ done:
     return r;
 }
 
-/* kept local: this member cannot include eekernel.h, whose CreateSema, SetAlarm, iWakeupThread
-   conflict with its own */
-extern void FlushCache(int a0);
-
 /* RECONSTRUCTION: the 0x30-byte RPC command block sceMcWrite sends, as the
    ROM's offsets use it: the unaligned head of the caller's buffer travels in
    the block itself, the 16-byte aligned rest by address. */
@@ -406,28 +382,16 @@ done:
     return r;
 }
 
-/* kept local: eekernel.h declares it as `int iWakeupThread(int id)` */
-extern void iWakeupThread(int a0);
-
-void mcHearAlarm(int a0, int a1, int a2)
+void mcHearAlarm(int id, unsigned short time, void *arg)
 {
-    iWakeupThread(a2);
+    iWakeupThread((int)arg);
     SYNC();
     EI();
 }
 
-/* kept local: this member cannot include eekernel.h, whose CreateSema, SetAlarm, iWakeupThread
-   conflict with its own */
-extern int GetThreadId(void);
-/* kept local: eekernel.h declares it as `int SetAlarm(int a0, void *a1, int a2)` */
-extern void SetAlarm(int a0, void *a1, int a2);
-/* kept local: this member cannot include eekernel.h, whose CreateSema, SetAlarm, iWakeupThread
-   conflict with its own */
-extern void SleepThread(void);
-
 void mcDelayThread(int a0)
 {
-    SetAlarm((unsigned short)a0, mcHearAlarm, GetThreadId());
+    SetAlarm(a0, mcHearAlarm, (void *)GetThreadId());
     SleepThread();
 }
 

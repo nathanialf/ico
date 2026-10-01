@@ -12,6 +12,7 @@
 #include <stdio.h>
 #include <eekernel.h>
 #include <libvu0.h>
+#include <sifdev.h>
 #include "way_llf.h"
 #include "typedef.h"
 #include "vobj.h"
@@ -365,7 +366,6 @@ inline int point_nige(void)
 
 /* kept local: way_util.h's prototypes do not fit this TU's uses */
 extern int load_save_flag;
-extern void sceWrite(int a0, void *a1, int a2);
 
 inline int quick_save_wpfile(void)
 {
@@ -394,8 +394,6 @@ inline int quick_save_wpfile(void)
     load_save_flag = 0;
     return 1;
 }
-
-extern void sceRead(int a0, void *a1, int a2);
 
 int quick_load_wpfile(void)
 {
@@ -546,7 +544,6 @@ typedef struct {
 } WpName;
 
 extern int strlen(char *s);
-extern void sceWrite(int fd, void *buf, int n);
 extern WayRec *WayGroup_begin(void);
 extern WayRec *WayGroup_next(WayRec *p);
 

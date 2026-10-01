@@ -23,7 +23,7 @@ void _kExitTLBHandler(void);            /* the spelling at 1 site */
 void _kTLBException(void);              /* the spelling at 1 site */
 void _change_addr(int *a0, int *a1);    /* definition in sce/ */
 void _set_sreg(int *a0, int *a1);       /* definition in sce/ */
-void _sceSifCmdIntrHdlr();              /* the spelling at 1 site, asm definition in sce/ */
+int _sceSifCmdIntrHdlr(int channel);    /* AddDmacHandler's handler, asm definition in sce/ */
 void _request_bind(int *req, int *q);   /* definition in sce/ */
 void _request_call(int *a0);            /* definition in sce/ */
 void _request_end(int *pkt);            /* definition in sce/ */

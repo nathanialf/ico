@@ -3,14 +3,11 @@
  * retail function start to the next; VMA 0x25F770..0x2606D0,
  * 22 functions. */
 
+#include <eekernel.h>
 #include <sifrpc.h>
 #include <string.h>
 #include <sifcmd.h>
 #include <libkernl_internal.h>
-
-/* kept local: this member cannot include eekernel.h, whose iWakeupThread conflicts with its own */
-extern int DIntr();
-extern int EIntr();
 
 /* sifrpc.o's .data: set once sceSifInitRpc has run, cleared by sceSifExitRpc */
 static int rpc_inited = 0;
@@ -94,10 +91,6 @@ void sceSifExitRpc(void)
     rpc_inited = 0;
 }
 
-/* kept local: this member cannot include eekernel.h, whose iWakeupThread conflicts with its own */
-extern int DIntr();
-extern int EIntr();
-
 int *_sceRpcGetPacket(int *q)
 {
     int *p;
@@ -156,9 +149,6 @@ elem:
     return a0[7] + a1 * 64;
 }
 
-/* kept local: this member cannot include eekernel.h, whose iWakeupThread conflicts with its own */
-extern int iSignalSema(int a0);
-
 void _request_end(int *pkt)
 {
     int *c;
@@ -204,10 +194,6 @@ void _request_rdata(int *a0, int *a1)
 }
 
 /* the RPC server's own record: the queue list head is the word at +0x28 */
-/* kept local: this member cannot include eekernel.h, whose iWakeupThread conflicts with its own */
-extern int CreateSema(int *self);
-extern int WaitSema(int a0);
-extern int DeleteSema(int a0);
 
 int sceSifGetOtherData(void *cd, void *src, void *dest, int size, int mode)
 {
@@ -217,7 +203,7 @@ int sceSifGetOtherData(void *cd, void *src, void *dest, int size, int mode)
        the same way sceSifCallRpc writes its four */
     volatile int *vc = (volatile int *)cd;
     int *pkt;
-    int buf[8];
+    struct SemaParam buf;
     int pid;
 
     pkt = _sceRpcGetPacket((int *)&rpc_data);
@@ -233,9 +219,9 @@ int sceSifGetOtherData(void *cd, void *src, void *dest, int size, int mode)
     pkt[5] = (int)pkt;
     pkt[7] = (int)c;
     if ((mode & 1) == 0) {
-        buf[1] = 1;
-        buf[2] = 0;
-        c[2] = CreateSema(buf);
+        buf.maxCount = 1;
+        buf.initCount = 0;
+        c[2] = CreateSema(&buf);
         if (c[2] < 0) {
             _sceRpcFreePacket(pkt);
             return -3;
@@ -294,10 +280,6 @@ void _request_bind(int *req, int *q)
 }
 
 /* the RPC server's own record: the queue list head is the word at +0x28 */
-/* kept local: this member cannot include eekernel.h, whose iWakeupThread conflicts with its own */
-extern int CreateSema(int *self);
-extern int WaitSema(int a0);
-extern int DeleteSema(int a0);
 
 int sceSifBindRpc(void *cd, unsigned int sid, int mode)
 {
@@ -307,7 +289,7 @@ int sceSifBindRpc(void *cd, unsigned int sid, int mode)
        the same way sceSifCallRpc writes its four */
     volatile int *vc = (volatile int *)cd;
     int *pkt;
-    int buf[8];
+    struct SemaParam buf;
     int pid;
 
     c[4] = 0;
@@ -323,9 +305,9 @@ int sceSifBindRpc(void *cd, unsigned int sid, int mode)
     pkt[5] = (int)pkt;
     pkt[7] = (int)c;
     if ((mode & 1) == 0) {
-        buf[1] = 1;
-        buf[2] = 0;
-        c[2] = CreateSema(buf);
+        buf.maxCount = 1;
+        buf.initCount = 0;
+        c[2] = CreateSema(&buf);
         if (c[2] < 0) {
             _sceRpcFreePacket(pkt);
             return -3;
@@ -346,9 +328,6 @@ int sceSifBindRpc(void *cd, unsigned int sid, int mode)
     }
     return 0;
 }
-
-/* kept local: eekernel.h declares it as `int iWakeupThread(int id)` */
-extern void iWakeupThread(int a0);
 
 void _request_call(int *a0)
 {
@@ -394,7 +373,7 @@ int sceSifCallRpc(void *cd, unsigned int rpc_number, unsigned int mode, void *se
        write their own two request fields through. */
     volatile int *vc = (volatile int *)cd;
     int *pkt;
-    int buf[8];
+    struct SemaParam buf;
     int pid;
 
     pkt = _sceRpcGetPacket((int *)&rpc_data);
@@ -438,9 +417,9 @@ int sceSifCallRpc(void *cd, unsigned int rpc_number, unsigned int mode, void *se
         _sceRpcFreePacket(pkt);
         return -2;
     }
-    buf[1] = 1;
-    buf[2] = 0;
-    c[2] = CreateSema(buf);
+    buf.maxCount = 1;
+    buf.initCount = 0;
+    c[2] = CreateSema(&buf);
     if (c[2] < 0) {
         _sceRpcFreePacket(pkt);
         return -3;
@@ -470,20 +449,6 @@ ret0:
 ret1:
     return 1;
 }
-
-/* Unprototyped in the K&R sense, so DIntr returns int: sceSifGetNextRequest
-   passes its record and the queue routines call it bare.  The implicit int
-   return is load bearing, not cosmetic: the call sets $2, which keeps the
-   %hi address pseudo of rpc_data out of $2 in local-alloc and lets it tie
-   with the lo_sum in $3, which is the ROM's `lui $3 / addiu $3,$3` pair. */
-/* kept local: this member cannot include eekernel.h, whose iWakeupThread conflicts with its own */
-extern int DIntr();
-/* EIntr is unprototyped for the same reason DIntr is, and it is load bearing
-   in sceSifExecRequest: the call sets $2, which keeps the 0x8000000A constant
-   born right after it out of $2 and puts it in $3 beside the client pointer
-   in $4, the ROM's pair. */
-/* kept local: this member cannot include eekernel.h, whose iWakeupThread conflicts with its own */
-extern int EIntr();
 
 /* the RPC server's own record: the queue list head is the word at +0x28 */
 
@@ -583,7 +548,7 @@ int *sceSifGetNextRequest(int *self)
 {
     int *p;
     int v;
-    DIntr(self);
+    DIntr();
     p = (int *)self[0xC / 4];
     if (p == 0) {
         self[0x4 / 4] = 0;
@@ -661,9 +626,6 @@ void sceSifExecRequest(int *sd)
         }
     } while (r == 0);
 }
-
-/* kept local: this member cannot include eekernel.h, whose iWakeupThread conflicts with its own */
-extern void SleepThread(void);
 
 void sceSifRpcLoop(int *self)
 {

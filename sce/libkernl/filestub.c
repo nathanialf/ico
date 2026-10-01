@@ -3,17 +3,12 @@
  * retail function start to the next; VMA 0x2606D0..0x263C40,
  * 38 functions. */
 
+#include <eekernel.h>
 #include <sifrpc.h>
 #include <string.h>
 #include <libkernl_internal.h>
 #include <sifcmd.h>
 #include <libcdvd.h>
-
-/* kept local: this member cannot include eekernel.h, whose SignalSema conflicts with its own */
-extern int DIntr();
-extern int EIntr();
-extern int iSignalSema(int a0);
-extern int CreateSema(int *self);
 
 /* filestub.o's .data, in the ROM's order.  _sceFs_q is MAIN.MAP's name: the
    async request slot table _sceFs_Rcv_Intr matches a reply against, read and
@@ -59,23 +54,15 @@ static char fsCmdBuf[0x40]; /* derived name */
 
 void _sceFsIobSemaMK(void)
 {
-    /* kept local: this member cannot include eekernel.h, whose SignalSema conflicts with its
-       own */
-    extern int CreateSema(int *a0);
-    int args[8];
+    struct SemaParam args;
     if (iob_sema == -1) {
-        args[5] = 0;
-        args[2] = 1;
-        args[1] = 1;
-        iob_sema = CreateSema(args);
-        q_sema = CreateSema(args);
+        args.option = 0;
+        args.initCount = 1;
+        args.maxCount = 1;
+        iob_sema = CreateSema(&args);
+        q_sema = CreateSema(&args);
     }
 }
-
-/* kept local: eekernel.h declares it as `void SignalSema(int sema)` */
-extern int SignalSema(int a0);
-/* kept local: this member cannot include eekernel.h, whose SignalSema conflicts with its own */
-extern int WaitSema(int a0);
 
 int new_iob(void)
 {
@@ -220,12 +207,12 @@ void _sceFs_Rcv_Intr(void)
 
 void _sceFsSemInit(void)
 {
-    int self[8];
+    struct SemaParam self;
     if (fs_sema == -1) {
-        self[0x8 / 4] = 1;
-        self[0x4 / 4] = 1;
-        self[0x14 / 4] = 0;
-        fs_sema = CreateSema(self);
+        self.initCount = 1;
+        self.maxCount = 1;
+        self.option = 0;
+        fs_sema = CreateSema(&self);
     }
 }
 
@@ -240,9 +227,6 @@ void _sceFsSigSema(void)
 {
     SignalSema(fs_sema);
 }
-
-/* kept local: eekernel.h declares it as `void SignalSema(int sema)` */
-extern int SignalSema(int a0);
 
 int sceFsInit(void)
 {
@@ -324,11 +308,6 @@ typedef struct {
     int _8[2];
 } SceIob;
 
-/* kept local: this member cannot include eekernel.h, whose SignalSema conflicts with its own */
-extern int CreateSema(int *self);
-extern int WaitSema(int a0);
-extern int DeleteSema(int a0);
-
 /* Varargs: the mode is the first anonymous argument, read from gcc's own
    save area after the new_iob() check (the ROM's lw $7,0x120($29)).  One
    status local, rc, carries the RPC result, the uncached reply word and the
@@ -348,7 +327,7 @@ int sceOpen(unsigned char *name, int flags, ...)
     int h;
     int rc;
     int result;
-    int buf[8];
+    struct SemaParam buf;
 
     _sceFsWaitS(0);
     if (fs_inited == 0)
@@ -376,10 +355,10 @@ int sceOpen(unsigned char *name, int flags, ...)
     g[3] = flags & 0xFFFFFFF;
     g[4] = mode;
     g[0x414 / 4] = idx;
-    buf[1] = 1;
-    buf[2] = 0;
-    buf[5] = 0;
-    g[0] = h = CreateSema(buf);
+    buf.maxCount = 1;
+    buf.initCount = 0;
+    buf.option = 0;
+    g[0] = h = CreateSema(&buf);
     *(void **)(g + 1) = &result;
     g[2] = 4;
     rc = sceSifCallRpc(fsClient, 0, 0, fsSendBuf, 0x418, fsRecvBuf, 4, 0, 0);
@@ -419,7 +398,7 @@ int sceClose(unsigned int fd)
     int h;
     int rc;
     int result;
-    int buf[8];
+    struct SemaParam buf;
 
     iob = (SceIob *)get_iob(fd);
     _sceFsWaitS(1);
@@ -434,10 +413,10 @@ int sceClose(unsigned int fd)
     f0 = iob->fd;
     g[3] = f0;
     g[4] = iob - (SceIob *)fsIobTab;
-    buf[1] = 1;
-    buf[2] = 0;
-    buf[5] = 0;
-    fsSendBuf[0] = h = CreateSema(buf);
+    buf.maxCount = 1;
+    buf.initCount = 0;
+    buf.option = 0;
+    fsSendBuf[0] = h = CreateSema(&buf);
     *(void **)(g + 1) = &result;
     g[2] = 4;
     rc = sceSifCallRpc(fsClient, 1, 0, g, 0x14, fsRecvBuf, 4, 0, 0);
@@ -486,7 +465,7 @@ int sceLseek(unsigned int fd, int offset, int whence)
     int rc;
     int i;
     int result;
-    int buf[8];
+    struct SemaParam buf;
 
     iob = (SceIob *)get_iob(fd);
     _sceFsWaitS(4);
@@ -502,10 +481,10 @@ int sceLseek(unsigned int fd, int offset, int whence)
     g[4] = offset;
     g[5] = whence;
     g[6] = iob - (SceIob *)fsIobTab;
-    buf[1] = 1;
-    buf[2] = 0;
-    buf[5] = 0;
-    fsSendBuf[0] = h = CreateSema(buf);
+    buf.maxCount = 1;
+    buf.initCount = 0;
+    buf.option = 0;
+    fsSendBuf[0] = h = CreateSema(&buf);
     *(void **)(g + 1) = &result;
     g[2] = 4;
     if (inuse & 0x8000) {
@@ -550,7 +529,7 @@ int sceRead(int fd, void *buf, int nbyte)
     int rc;
     int i;
     int result;
-    int sema[8];
+    struct SemaParam sema;
 
     iob = (SceIob *)get_iob(fd);
     _sceFsWaitS(2);
@@ -566,10 +545,10 @@ int sceRead(int fd, void *buf, int nbyte)
     g[7] = iob - (SceIob *)fsIobTab;
     g[4] = (int)buf;
     g[5] = nbyte;
-    sema[1] = 1;
-    sema[2] = 0;
-    sema[5] = 0;
-    fsSendBuf[0] = h = CreateSema(sema);
+    sema.maxCount = 1;
+    sema.initCount = 0;
+    sema.option = 0;
+    fsSendBuf[0] = h = CreateSema(&sema);
     *(void **)(g + 1) = &result;
     g[2] = 4;
     if (inuse & 0x8000) {
@@ -625,7 +604,7 @@ int sceWrite(int fd, void *buf, int nbyte)
     char *dst;
     int nb;
     int result;
-    int sema[8];
+    struct SemaParam sema;
 
     iob = (SceIob *)get_iob(fd);
     _sceFsWaitS(3);
@@ -641,10 +620,10 @@ int sceWrite(int fd, void *buf, int nbyte)
     g[11] = iob - (SceIob *)fsIobTab;
     g[5] = nbyte;
     g[4] = (int)buf;
-    sema[1] = 1;
-    sema[2] = 0;
-    sema[5] = 0;
-    fsSendBuf[0] = h = CreateSema(sema);
+    sema.maxCount = 1;
+    sema.initCount = 0;
+    sema.option = 0;
+    fsSendBuf[0] = h = CreateSema(&sema);
     *(void **)(g + 1) = &result;
     g[2] = 4;
     if (inuse & 0x8000) {
@@ -720,7 +699,7 @@ int sceIoctl(unsigned int fd, int request, void *argp)
     int rc;
     int i;
     int result;
-    int sema[8];
+    struct SemaParam sema;
 
     rc = 1; /* RULING-VESTIGIAL-EXCEPTION instance (user-approved 2026-09-21):
                a dead assignment the 2001 source carried, overwritten by the
@@ -735,7 +714,7 @@ int sceIoctl(unsigned int fd, int request, void *argp)
                dispatch reorders (211 of 211 instructions, 38 differing
                words).  Re-audit (completeness pass 57): the two live reads of
                the 1 the function has, case 1's `*(int *)fsIoctlArg = rc;`
-               and `sema[1] = rc;`, were measured and change the function's
+               and `sema.maxCount = rc;`, were measured and change the function's
                size (0x344 and 0x354 against the ROM's 0x34C). */
 
     iob = (SceIob *)get_iob(fd);
@@ -783,10 +762,10 @@ int sceIoctl(unsigned int fd, int request, void *argp)
         g[0x107] = 1024;
         *(SceIoctlArg *)((char *)g + 0x14) = *(SceIoctlArg *)argp;
     }
-    sema[1] = 1;
-    sema[2] = 0;
-    sema[5] = 0;
-    h = CreateSema(sema);
+    sema.maxCount = 1;
+    sema.initCount = 0;
+    sema.option = 0;
+    h = CreateSema(&sema);
     g[2] = 4;
     *(void **)(g + 1) = &result;
     g[0] = h;
@@ -817,7 +796,7 @@ int sceIoctl2(unsigned int fd, int request, void *argp, unsigned int arglen, voi
     int h;
     int rc;
     int result;
-    int buf[8];
+    struct SemaParam buf;
 
     iob = (SceIob *)get_iob(fd);
     _sceFsWaitS(0x1A);
@@ -839,10 +818,10 @@ int sceIoctl2(unsigned int fd, int request, void *argp, unsigned int arglen, voi
     g[3] = iob->fd;
     g[4] = request;
     g[0x107] = arglen;
-    buf[1] = 1;
-    buf[2] = 0;
-    buf[5] = 0;
-    h = CreateSema(buf);
+    buf.maxCount = 1;
+    buf.initCount = 0;
+    buf.option = 0;
+    h = CreateSema(&buf);
     *(void **)(g + 1) = &result;
     g[0x106] = buflen;
     g[2] = 4;
@@ -874,7 +853,7 @@ int _sceCallCode(void *name, int code)
     int rc;
     int i;
     int result;
-    int buf[8];
+    struct SemaParam buf;
 
     _sceFsWaitS(code);
     if (fs_inited == 0) {
@@ -890,10 +869,10 @@ int _sceCallCode(void *name, int code)
         *((char *)g + 0x40B) = 0;
         i = 0x3FF;
     }
-    buf[1] = 1;
-    buf[2] = 0;
-    buf[5] = 0;
-    g[0] = h = CreateSema(buf);
+    buf.maxCount = 1;
+    buf.initCount = 0;
+    buf.option = 0;
+    g[0] = h = CreateSema(&buf);
     *(void **)(g + 1) = &result;
     g[2] = 4;
     rc = sceSifCallRpc(fsClient, code, 0, fsSendBuf, i + 0xD, fsRecvBuf, 4, 0, 0);
@@ -926,7 +905,7 @@ int sceMkdir(char *name, int mode)
     int rc;
     int i;
     int result;
-    int buf[8];
+    struct SemaParam buf;
 
     _sceFsWaitS(7);
     if (fs_inited == 0) {
@@ -943,10 +922,10 @@ int sceMkdir(char *name, int mode)
         i = 0x3FF;
     }
     g[3] = mode;
-    buf[1] = 1;
-    buf[2] = 0;
-    buf[5] = 0;
-    g[0] = h = CreateSema(buf);
+    buf.maxCount = 1;
+    buf.initCount = 0;
+    buf.option = 0;
+    g[0] = h = CreateSema(&buf);
     *(void **)(g + 1) = &result;
     g[2] = 4;
     rc = sceSifCallRpc(fsClient, 7, 0, fsSendBuf, i + 0x11, fsRecvBuf, 4, 0, 0);
@@ -979,7 +958,7 @@ int sceFormat(unsigned char *dev, unsigned char *blockdev, unsigned char *arg, i
     int rc;
     int i;
     int result;
-    int buf[8];
+    struct SemaParam buf;
 
     _sceFsWaitS(0xE);
     if (fs_inited == 0) {
@@ -1017,10 +996,10 @@ int sceFormat(unsigned char *dev, unsigned char *blockdev, unsigned char *arg, i
         d[i] = arg[i];
     }
     g[0x303] = arglen;
-    buf[1] = 1;
-    buf[2] = 0;
-    buf[5] = 0;
-    g[0] = h = CreateSema(buf);
+    buf.maxCount = 1;
+    buf.initCount = 0;
+    buf.option = 0;
+    g[0] = h = CreateSema(&buf);
     *(void **)(g + 1) = &result;
     g[2] = 4;
     sceSifWriteBackDCache(fsSendBuf, 0xC10);
@@ -1041,11 +1020,6 @@ int sceFormat(unsigned char *dev, unsigned char *blockdev, unsigned char *arg, i
     return result;
 }
 
-/* kept local: this member cannot include eekernel.h, whose SignalSema conflicts with its own */
-extern int CreateSema(int *a0);
-extern int WaitSema(int a0);
-extern int DeleteSema(int a0);
-
 int sceAddDrv(void *a0)
 {
     int *g = fsSendBuf;
@@ -1053,17 +1027,17 @@ int sceAddDrv(void *a0)
     int h;
     int rc;
     int result;
-    int buf[8];
+    struct SemaParam buf;
 
     _sceFsWaitS(0xF);
     if (fs_inited == 0) {
         sceFsInit();
     }
     g[3] = (int)a0;
-    buf[1] = 1;
-    buf[2] = 0;
-    buf[5] = 0;
-    fsSendBuf[0] = h = CreateSema(buf);
+    buf.maxCount = 1;
+    buf.initCount = 0;
+    buf.option = 0;
+    fsSendBuf[0] = h = CreateSema(&buf);
     *(void **)(g + 1) = &result;
     g[2] = 4;
     rc = sceSifCallRpc(fsClient, 0xF, 0, g, 0x10, fsRecvBuf, 4, 0, 0);
@@ -1111,15 +1085,8 @@ int sceDopen(void *name)
     return rc;
 }
 
-/* kept local: this member cannot include eekernel.h, whose SignalSema conflicts with its own */
-extern int DeleteSema(int a0);
-
 int sceDclose(unsigned int a0)
 {
-    /* kept local: this member cannot include eekernel.h, whose SignalSema conflicts with its
-       own */
-    extern int CreateSema(int *a0);
-    extern int WaitSema(int a0);
     int *g = fsSendBuf;
     void *obj;
     int f0;
@@ -1127,7 +1094,7 @@ int sceDclose(unsigned int a0)
     int h;
     int rc;
     int result;
-    int buf[8];
+    struct SemaParam buf;
 
     obj = get_iob(a0);
     _sceFsWaitS(0xA);
@@ -1141,10 +1108,10 @@ int sceDclose(unsigned int a0)
     }
     f0 = ((int *)obj)[0];
     g[3] = f0;
-    buf[1] = 1;
-    buf[2] = 0;
-    buf[5] = 0;
-    fsSendBuf[0] = h = CreateSema(buf);
+    buf.maxCount = 1;
+    buf.initCount = 0;
+    buf.option = 0;
+    fsSendBuf[0] = h = CreateSema(&buf);
     *(void **)(g + 1) = &result;
     g[2] = 4;
     rc = sceSifCallRpc(fsClient, 0xA, 0, g, 0x14, fsRecvBuf, 4, 0, 0);
@@ -1170,17 +1137,13 @@ int sceDclose(unsigned int a0)
 
 int sceDread(unsigned int a0, int a1)
 {
-    /* kept local: this member cannot include eekernel.h, whose SignalSema conflicts with its
-       own */
-    extern int CreateSema(int *a0);
-    extern int WaitSema(int a0);
     int *g = fsSendBuf;
     void *obj;
     int f0;
     int uv;
     int rc;
     int result;
-    int buf[8];
+    struct SemaParam buf;
 
     obj = get_iob(a0);
     _sceFsWaitS(0xB);
@@ -1195,10 +1158,10 @@ int sceDread(unsigned int a0, int a1)
     f0 = ((int *)obj)[0];
     g[4] = a1;
     g[3] = f0;
-    buf[1] = 1;
-    buf[2] = 0;
-    buf[5] = 0;
-    fsSendBuf[0] = a1 = CreateSema(buf);
+    buf.maxCount = 1;
+    buf.initCount = 0;
+    buf.option = 0;
+    fsSendBuf[0] = a1 = CreateSema(&buf);
     *(void **)(g + 1) = &result;
     g[2] = 4;
     rc = sceSifCallRpc(fsClient, 0xB, 0, g, 0x20, fsRecvBuf, 4, 0, 0);
@@ -1226,7 +1189,7 @@ int sceGetstat(unsigned char *name, void *stat)
     int rc;
     int i;
     int result;
-    int buf[8];
+    struct SemaParam buf;
 
     _sceFsWaitS(0xC);
     if (fs_inited == 0) {
@@ -1243,10 +1206,10 @@ int sceGetstat(unsigned char *name, void *stat)
         i = 0x3FF;
     }
     g[3] = (int)stat;
-    buf[1] = 1;
-    buf[2] = 0;
-    buf[5] = 0;
-    g[0] = h = CreateSema(buf);
+    buf.maxCount = 1;
+    buf.initCount = 0;
+    buf.option = 0;
+    g[0] = h = CreateSema(&buf);
     *(void **)(g + 1) = &result;
     g[2] = 4;
     rc = sceSifCallRpc(fsClient, 0xC, 0, fsSendBuf, i + 0x11, fsRecvBuf, 4, 0, 0);
@@ -1281,7 +1244,7 @@ int sceChstat(unsigned char *name, void *stat, int mask)
     int rc;
     int i;
     int result;
-    int buf[8];
+    struct SemaParam buf;
 
     _sceFsWaitS(0xD);
     if (fs_inited == 0) {
@@ -1299,10 +1262,10 @@ int sceChstat(unsigned char *name, void *stat, int mask)
     }
     *(SceFsStat *)((char *)g + 0x10) = *(SceFsStat *)stat;
     g[3] = mask;
-    buf[1] = 1;
-    buf[2] = 0;
-    buf[5] = 0;
-    g[0] = h = CreateSema(buf);
+    buf.maxCount = 1;
+    buf.initCount = 0;
+    buf.option = 0;
+    g[0] = h = CreateSema(&buf);
     *(void **)(g + 1) = &result;
     g[2] = 4;
     sceSifWriteBackDCache(fsSendBuf, 0x450);
@@ -1331,7 +1294,7 @@ int sceRename(unsigned char *oldname, unsigned char *newname)
     int rc;
     int i;
     int result;
-    int buf[8];
+    struct SemaParam buf;
 
     _sceFsWaitS(0x11);
     if (fs_inited == 0) {
@@ -1356,10 +1319,10 @@ int sceRename(unsigned char *oldname, unsigned char *newname)
     if (i == 0x400) {
         ((char *)g)[0x80B] = 0;
     }
-    buf[1] = 1;
-    buf[2] = 0;
-    buf[5] = 0;
-    g[0] = h = CreateSema(buf);
+    buf.maxCount = 1;
+    buf.initCount = 0;
+    buf.option = 0;
+    g[0] = h = CreateSema(&buf);
     *(void **)(g + 1) = &result;
     g[2] = 4;
     sceSifWriteBackDCache(fsSendBuf, 0x80C);
@@ -1393,7 +1356,7 @@ int sceSync(unsigned char *name, int flag)
     int rc;
     int i;
     int result;
-    int buf[8];
+    struct SemaParam buf;
 
     _sceFsWaitS(0x13);
     if (fs_inited == 0) {
@@ -1409,10 +1372,10 @@ int sceSync(unsigned char *name, int flag)
         ((char *)g)[0x413] = 0;
     }
     g[4] = flag;
-    buf[1] = 1;
-    buf[2] = 0;
-    buf[5] = 0;
-    g[0] = h = CreateSema(buf);
+    buf.maxCount = 1;
+    buf.initCount = 0;
+    buf.option = 0;
+    g[0] = h = CreateSema(&buf);
     *(void **)(g + 1) = &result;
     g[2] = 4;
     rc = sceSifCallRpc(fsClient, 0x13, 0, fsSendBuf, 0x414, fsRecvBuf, 4, 0, 0);
@@ -1441,7 +1404,7 @@ int sceMount(unsigned char *fsname, unsigned char *devname, int flag, unsigned c
     int rc;
     int i;
     int result;
-    int buf[8];
+    struct SemaParam buf;
 
     _sceFsWaitS(0x14);
     if (fs_inited == 0) {
@@ -1476,10 +1439,10 @@ int sceMount(unsigned char *fsname, unsigned char *devname, int flag, unsigned c
     }
     g[0x304] = arglen;
     g[0x303] = flag;
-    buf[1] = 1;
-    buf[2] = 0;
-    buf[5] = 0;
-    g[0] = h = CreateSema(buf);
+    buf.maxCount = 1;
+    buf.initCount = 0;
+    buf.option = 0;
+    g[0] = h = CreateSema(&buf);
     *(void **)(g + 1) = &result;
     g[2] = 4;
     sceSifWriteBackDCache(fsSendBuf, 0xC14);
@@ -1515,7 +1478,7 @@ long long sceLseek64(int fd, long long offset, int whence)
     int rc;
     int i;
     long long result;
-    int buf[8];
+    struct SemaParam buf;
 
     iob = (SceIob *)get_iob(fd);
     _sceFsWaitS(0x16);
@@ -1531,10 +1494,10 @@ long long sceLseek64(int fd, long long offset, int whence)
     g[3] = iob->fd;
     g[6] = whence;
     g[7] = iob - (SceIob *)fsIobTab;
-    buf[1] = 1;
-    buf[2] = 0;
-    buf[5] = 0;
-    h = CreateSema(buf);
+    buf.maxCount = 1;
+    buf.initCount = 0;
+    buf.option = 0;
+    h = CreateSema(&buf);
     *(void **)(g + 1) = &result;
     g[2] = 8;
     fsSendBuf[0] = h;
@@ -1579,7 +1542,7 @@ int sceDevctl(unsigned char *name, int cmd, unsigned char *arg, unsigned int arg
     int rc;
     int i;
     int result;
-    int buf[8];
+    struct SemaParam buf;
 
     _sceFsWaitS(0x17);
     if (fs_inited == 0) {
@@ -1603,10 +1566,10 @@ int sceDevctl(unsigned char *name, int cmd, unsigned char *arg, unsigned int arg
     }
     g[0x204] = arglen;
     g[0x203] = cmd;
-    buf[1] = 1;
-    buf[2] = 0;
-    buf[5] = 0;
-    h = CreateSema(buf);
+    buf.maxCount = 1;
+    buf.initCount = 0;
+    buf.option = 0;
+    h = CreateSema(&buf);
     g[0x206] = buflen;
     *(void **)(g + 1) = &result;
     g[2] = 4;
@@ -1638,7 +1601,7 @@ int sceSymlink(unsigned char *existing, unsigned char *newpath)
     int rc;
     int i;
     int result;
-    int buf[8];
+    struct SemaParam buf;
 
     _sceFsWaitS(0x11);
     if (fs_inited == 0) {
@@ -1663,10 +1626,10 @@ int sceSymlink(unsigned char *existing, unsigned char *newpath)
     if (i == 0x400) {
         ((char *)g)[0x80B] = 0;
     }
-    buf[1] = 1;
-    buf[2] = 0;
-    buf[5] = 0;
-    g[0] = h = CreateSema(buf);
+    buf.maxCount = 1;
+    buf.initCount = 0;
+    buf.option = 0;
+    g[0] = h = CreateSema(&buf);
     *(void **)(g + 1) = &result;
     g[2] = 4;
     rc = sceSifCallRpc(fsClient, 0x18, 0, fsSendBuf, 0x80C, fsRecvBuf, 4, 0, 0);
@@ -1694,7 +1657,7 @@ int sceReadlink(unsigned char *name, void *buf, unsigned int len)
     int rc;
     int i;
     int result;
-    int sema[8];
+    struct SemaParam sema;
 
     _sceFsWaitS(0x11);
     if (fs_inited == 0) {
@@ -1715,10 +1678,10 @@ int sceReadlink(unsigned char *name, void *buf, unsigned int len)
     g[4] = (int)buf;
     g[3] = len;
     sceSifWriteBackDCache(buf, len);
-    sema[1] = 1;
-    sema[2] = 0;
-    sema[5] = 0;
-    g[0] = h = CreateSema(sema);
+    sema.maxCount = 1;
+    sema.initCount = 0;
+    sema.option = 0;
+    g[0] = h = CreateSema(&sema);
     *(void **)(g + 1) = &result;
     g[2] = 4;
     rc = sceSifCallRpc(fsClient, 0x19, 0, fsSendBuf, 0x80C, fsRecvBuf, 4, 0, 0);

@@ -212,10 +212,10 @@ int getpid(void)
     return 1;
 }
 
-int kill(int a0, void *a1)
+int kill(int pid, int sig)
 {
-    if (a0 == 1) {
-        Exit(a1);
+    if (pid == 1) {
+        Exit(sig);
     }
     return 0;
 }
