@@ -50,12 +50,13 @@ Caveats:
   (`sekizo`, stone statue; `sekika`, petrification), not the name. The
   credit block is the reliable source.
 
-## Shared code is not one author's
+## Shared records
 
-Two object fields are read across the whole tree and belong to the engine,
-not to any one programmer (`ico2/common/include/typedef.h`): the per-object
-sub-state pointer at offset 0x15C of a game object (`GObj`, `Sub15C`), with
-the shared geometry object at 0x7F0 of that state (`Obj7F0`), and the
-action-state object at 0x164. Files under `sugipon`, `omori`, `ito`, `fumi`
-and `script` all read them. What the 0x7F0 and 0x164 pointers point at
-differs by object type, so each file types its own view of them.
+The engine's object records are defined once, in
+`ico2/common/include/typedef.h`, and read from every programmer directory:
+the game object (`GObj`), the per-object state it points at (`Sub15C`,
+reached through `GOBJ_SUB`), the geometry object that state holds
+(`Obj7F0`) and the action state (`Act`, reached through `GOBJ_ACT`). They
+belong to the engine rather than to any one programmer. What the geometry
+and action pointers lead to differs by object type, so some files declare
+their own view of it.

@@ -23,8 +23,11 @@ derive progress from that comparison and the link map.
               the base's (NOBITS: ownership only, there is nothing to
               compare). `*fill*` rows are credited to the input section that
               follows them, since it is that section's alignment that the
-              linker padded for. Objects under build/data/ (the extracted
-              data-only members) are counted separately as `extracted`.
+              linker padded for. Objects under build/data/ (the data-only
+              members, generated at build time from the user's own base ELF,
+              as C for the members config/data_schema.pal.txt lists and as
+              assembly for the rest) are counted separately as `extracted`:
+              their content comes from the user's disc, not the repository.
 
   --full-diff The whole file, built vs base, for the ELF-identity work: ELF
               header fields side by side, program headers, section headers
@@ -812,19 +815,20 @@ def _badge_color(m: int, t: int) -> str:
 
 
 def _badge_text(m: int, x: int, t: int) -> str:
-    """The identical share first, then how it is built: `100.00 %` for a
-    section that is all C, `100.00 % (72.54 % C + 27.46 % table)` when part
-    of the section is extracted data."""
+    """The identical share first, then where its bytes come from:
+    `100.00 %` for a section built wholly from the tracked sources,
+    `100.00 % (72.54 % source + 27.46 % disc)` when part of it is generated
+    at build time from the user's disc."""
     text = _fmt_pct(m + x, t)
     if x:
-        text += f" ({_fmt_pct(m, t)} C + {_fmt_pct(x, t)} table)"
+        text += f" ({_fmt_pct(m, t)} source + {_fmt_pct(x, t)} disc)"
     return text
 
 
 def _badges(sections: dict, extracted: dict) -> str:
-    """One badge per section: the share built from C and the share built
-    from the extracted data tables; the colour is their sum, the share of
-    the section that is identical to the base."""
+    """One badge per section: the share built from the tracked sources and
+    the share generated from the user's disc; the colour is their sum, the
+    share of the section that is identical to the base."""
     from urllib.parse import quote
     lines = []
     for sec in REPORT_ORDER:
@@ -839,7 +843,7 @@ def _badges(sections: dict, extracted: dict) -> str:
 
 
 def _table(sections: dict, extracted: dict) -> str:
-    lines = ["| Section | From C | Extracted tables | Total bytes | C % | Identical % |",
+    lines = ["| Section | From source | From the disc | Total bytes | Source % | Identical % |",
              "| --- | ---: | ---: | ---: | ---: | ---: |"]
     for sec in REPORT_ORDER:
         m, t = sections.get(sec, (0, 0))
@@ -851,18 +855,20 @@ def _table(sections: dict, extracted: dict) -> str:
                      f"| {_fmt_pct(m + x, t)} |")
     lines.append("")
     lines.append(
-        "**From C** counts the bytes placed by an object compiled or assembled "
-        "from a source under `ico2/` or `sce/`. **Extracted tables** counts the "
-        "bytes of the data-only archive members, which the build writes out of "
-        "the user's own base ELF (`tools/extract_data.py`, rows in "
-        "`config/data_members.pal.txt`) instead of from committed source. "
-        "**Identical** is their sum: the share of the section equal to the base.")
+        "**From source** counts the bytes placed by an object compiled or "
+        "assembled from a tracked source under `ico2/` or `sce/`. **From the "
+        "disc** counts the bytes of the data-only archive members "
+        "(`config/data_members.pal.txt`), which the build generates from the "
+        "user's own base ELF: as C for the members `config/data_schema.pal.txt` "
+        "lists (`tools/gen_data_c.py`) and as assembly for the rest "
+        "(`tools/extract_data.py`); none of their content is in the repository. "
+        "**Identical** is their sum, the share of the section equal to the base, "
+        "which the gate requires to be 100 % for every section with file bytes.")
     lines.append("")
     lines.append(
         "`.sbss` and `.bss` are NOBITS: they hold no ROM bytes, so their "
-        "figure is **ownership**, how much of the section a compiled C "
-        "object defines and the link seats at the ROM's VMAs, not "
-        "reproduced bytes. A section the ELF sizes at zero (`.vudata` on "
+        "figure is **ownership**, how much of the section an object defines "
+        "and the link places at the base's addresses. A section the ELF sizes at zero (`.vudata` on "
         "this target) is omitted.")
     return "\n".join(lines)
 
@@ -892,12 +898,12 @@ def run_progress(args) -> int:
     secs = compute(cmp_)
     tree = build_tree(cmp_, secs)
     sections = tree["totals"]["sections"]
-    print("progress (from C or owned / total):")
+    print("progress (from source or owned / total):")
     for sec in REPORT_ORDER:
         if sec in sections:
             m, t = sections[sec]
             print(f"  {sec:<10} {m:>10} / {t:<10} {_fmt_pct(m, t):>8}"
-                  f"  extracted {tree['totals']['extracted'].get(sec, 0)}")
+                  f"  from the disc {tree['totals']['extracted'].get(sec, 0)}")
     t = tree["totals"]
     print(f"  functions  {t['matched_funcs']}/{t['total_funcs']}, "
           f"{len(tree['programmers'])} groups")

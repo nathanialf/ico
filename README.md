@@ -7,11 +7,11 @@ A source tree for the PlayStation 2 game **ICO** (Sony Computer Entertainment,
 <!-- progress:begin -->
 ![.text progress](https://img.shields.io/badge/text-100.00%20%25-brightgreen.svg)
 ![.vutext progress](https://img.shields.io/badge/vutext-100.00%20%25-brightgreen.svg)
-![.data progress](https://img.shields.io/badge/data-100.00%20%25%20%2872.54%20%25%20C%20%2B%2027.46%20%25%20table%29-brightgreen.svg)
-![.rodata progress](https://img.shields.io/badge/rodata-100.00%20%25%20%289.49%20%25%20C%20%2B%2090.51%20%25%20table%29-brightgreen.svg)
+![.data progress](https://img.shields.io/badge/data-100.00%20%25%20%2872.54%20%25%20source%20%2B%2027.46%20%25%20disc%29-brightgreen.svg)
+![.rodata progress](https://img.shields.io/badge/rodata-100.00%20%25%20%289.49%20%25%20source%20%2B%2090.51%20%25%20disc%29-brightgreen.svg)
 ![.lit4 progress](https://img.shields.io/badge/lit4-100.00%20%25-brightgreen.svg)
-![.sdata progress](https://img.shields.io/badge/sdata-100.00%20%25%20%2899.91%20%25%20C%20%2B%200.09%20%25%20table%29-brightgreen.svg)
-![.sbss progress](https://img.shields.io/badge/sbss-100.00%20%25%20%2899.68%20%25%20C%20%2B%200.32%20%25%20table%29-brightgreen.svg)
+![.sdata progress](https://img.shields.io/badge/sdata-100.00%20%25%20%2899.91%20%25%20source%20%2B%200.09%20%25%20disc%29-brightgreen.svg)
+![.sbss progress](https://img.shields.io/badge/sbss-100.00%20%25%20%2899.68%20%25%20source%20%2B%200.32%20%25%20disc%29-brightgreen.svg)
 ![.bss progress](https://img.shields.io/badge/bss-100.00%20%25-brightgreen.svg)
 <!-- progress:end -->
 
@@ -62,12 +62,12 @@ There is one badge per section of the base ELF, in link order.
 `docs/progress.json` from the built ELF and its link map.
 
 A badge reads `100 %` when the whole section equals the base. Where part of a
-section comes from the extracted data tables (next section), the badge splits
-the figure: `C` is the share placed by objects compiled or assembled from
-sources under `ico2/` and `sce/`, and `table` is the share written out of the
-user's own ELF at build time. `.sbss` and `.bss` hold no file bytes, so their
-figure is the share of the range that an object defines and the link places
-at the base's addresses.
+section comes from the data tables (next section), the badge splits the
+figure: `source` is the share placed by objects compiled or assembled from
+the tracked sources under `ico2/` and `sce/`, and `disc` is the share of the
+data-only members the build generates from the user's own ELF. `.sbss` and `.bss` hold no file
+bytes, so their figure is the share of the range that an object defines and
+the link places at the base's addresses.
 
 ## Data tables
 
@@ -75,11 +75,17 @@ The game links 70 members of its own archive, `ico2000.a`, that have data
 sections and no code: stage layouts, model paths, motion and sound
 definitions, way points (MAIN.MAP; the list is `config/data_members.pal.txt`,
 which also carries three data runs MAIN.MAP does not list and one four-byte
-`.sbss` word). They are the game's content, not its program, so the tree does
-not transcribe them as C. At build time `tools/extract_data.py` writes each
-one's bytes from the user's `baserom/pal/baseelf.elf` into `build/data/`, as
-assembly the period assembler turns back into the same bytes; nothing it
-writes is ever committed. [`docs/LEGAL.md`](docs/LEGAL.md) has the reasoning.
+`.sbss` word). They are the game's content, and nothing of that content is
+committed. The build generates them from the user's own
+`baserom/pal/baseelf.elf` into `build/data/`. A member listed in
+`config/data_schema.pal.txt` becomes `build/data/<member>.c`, an initialized
+array of its record type compiled with the game's flags
+(`tools/gen_data_c.py`); the schema holds only the record type, its header,
+the element count, MAIN.MAP's symbol names and which fields are masks.
+Every other member is written
+as assembly that the period assembler turns back into the same bytes
+(`tools/extract_data.py`). [`docs/LEGAL.md`](docs/LEGAL.md) has the
+reasoning.
 
 ## Layout
 
@@ -97,7 +103,9 @@ sce/<archive>/              Sony's runtime libraries (libkernl, libgraph,
                             crt0.s
 config/                     link_order.pal.txt (every object in link order),
                             link.pal.ld (the linker script),
-                            data_members.pal.txt (the extracted tables),
+                            data_members.pal.txt (the data-only members),
+                            data_schema.pal.txt and data_schema.pal.h (the
+                            record types of the members built as C),
                             sha1sums.txt; ico.pal.yaml and symbol_addrs.pal*.txt
                             are kept as a record and nothing reads them
 tools/                      setup, extraction, build and gate scripts, listed
@@ -110,8 +118,8 @@ baserom/  build/            local only and gitignored: the user's disc image
 Each game file compiles from inside its programmer's directory with relative
 `-I../<other>/include` entries, because ee-gcc writes the path it is given
 into `__FILE__` strings the ROM contains (`tools/compile_c.sh`).
-[`docs/HEADERS.md`](docs/HEADERS.md) explains which headers the disc attests
-and how the others were placed, and
+[`docs/HEADERS.md`](docs/HEADERS.md) says which headers the disc attests
+and where the other declarations live, and
 [`docs/PROGRAMMERS.md`](docs/PROGRAMMERS.md) who wrote which subsystem.
 
 ## Toolchain
@@ -130,9 +138,9 @@ from a Sony SDK.
 The assembler follows the archive, as the disc's link did: MAIN.MAP takes
 libc, libm and libgcc from the compiler's install and every other library
 from Sony's SDK install, whose objects carry the later assembler's delay-slot
-filling (`tools/compile_c.sh`). The game compiles with `-g -G 8`, Sony's
-libraries with `-G 0` and no `-g`, newlib and libgcc also with
-`-fno-builtin`. The first ld patch backports the R5900 machine type and the
+filling (`tools/compile_c.sh`). The game compiles with `-g -G 8
+-fno-common`, Sony's libraries with `-G 0` and no `-g`, newlib and libgcc
+also with `-fno-builtin`. The first ld patch backports the R5900 machine type and the
 DVP overlay sections from ps2dev's `binutils-2.14-PS2.patch`; the second
 places each VU overlay at address 0, the rule of the Cygnus linker shipped
 with the GPL ee-gcc 2.9-991111 sources. The licence notices are the tools'

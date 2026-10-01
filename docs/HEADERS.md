@@ -1,7 +1,7 @@
 # Headers
 
-Which headers in the tree the disc attests, and how the others were placed
-and named.
+Which headers under `ico2/` the disc attests, which source files are compiled
+as part of another, and where every other declaration lives.
 
 The evidence is the PAL disc's January 2002 listing (`SRCFILE.TXT`, an
 `objdump -dl` of the game with a source path and line on every instruction)
@@ -20,7 +20,7 @@ the listing records for it, under the programmer directory that owns it.
 | --- | --- | --- |
 | `ico2/sugipon/include/sugiCommon.h` | 84 inlined expansions in callers across six programmer directories | nine `static` inline helpers: random numbers, plane distance, squared distances, a byte checksum |
 | `ico2/ito/include/itou_common.h` | inlined expansions in five `ito` functions | degree and radian conversion |
-| `ico2/ito/include/mv_defs.h` | inlined expansions in the movie player, and three out-of-line copies of `Free` | address masks, a zeroing allocator, `Free` |
+| `ico2/ito/include/mv_defs.h` | inlined expansions in the movie player, and three out-of-line copies of `Free` | address masks and a zeroing allocator; `Free`, its release, is defined in each of `mv_vibuf.c`, `mv_videodec.c` and `mv_vobuf.c` |
 | `ico2/common/include/typedef.h` | one helper at line 74, inlined twice into `avoid_obstacle2` | the engine's shared object records (`GObj`, `Sub15C`, `Obj7F0`, ...) and the game's VU0 asm templates |
 | `ico2/omori/include/{b50,b100,b200}climb.h` | whole functions, emitted into `fumi/src/boyact.c`'s object | the boy's climb handlers |
 | `ico2/omori/include/{g50,g100,g200}climb.h` | whole functions, emitted into `fumi/src/girl_act.c`'s object | the girl's climb handlers |
@@ -32,7 +32,8 @@ Things a reader of these files should know:
   developer's only when the listing shows it emitted out of line somewhere.
   That holds for `Free` and for the eighteen climb functions
   (`after*Hand*`, `act*Hand*`, `mot*Hand*`). Every other helper name is a
-  descriptive one chosen here and is marked so at its definition.
+  descriptive one, and the header says so (a `/* derived name */` token at
+  the definition, or the header's opening comment).
 - **Two pairs of identical helpers.** `sugiCommon.h` lines 53-56 and 63-66,
   and lines 85-88 and 95-98, compile to the same instructions. The listing
   cites the lines separately, so both of each pair are written out.
@@ -42,11 +43,11 @@ Things a reader of these files should know:
   be reflowed.
 - **The climb headers hold no bodies.** ee-gcc 2.9 emits ordinary functions
   in parse order and `inline` ones at the end of the file. In each includer
-  the `mot*` function lands in the parse-order run and the `act*` and
-  `after*` functions in the end-of-file run, which one `#include` cannot
-  produce. The eighteen functions are therefore defined in `boyact.c` and
-  `girl_act.c`, with a comment naming the header lines, and the headers keep
-  the listing's line ranges and instruction counts.
+  the `mot*` function sits in the parse-order run and the `act*` and
+  `after*` functions in the end-of-file run, an order one `#include` cannot
+  give. The eighteen functions are written in `boyact.c` and `girl_act.c`
+  at the point the headers would be included, under a comment naming the
+  three headers, and each header names the functions written in its place.
 
 ## Code includes (`.c.inc`)
 
@@ -71,25 +72,26 @@ the point the listing puts it, and its assert strings still name it
 ## Headers placed by this project
 
 **One header per game file.** The other 216 headers under
-`ico2/<programmer>/include/` are named after the file whose definitions they
-declare (`gobj.h` for `isys/gobj.c`). The disc records no such file, and
-each one says so in its opening comment. They hold one prototype per
-function and one `extern` per object, typed from the calling convention at
-the call sites and from the definitions; the byte gate decides between
-conflicting spellings, since an argument's declared type can move registers.
-Shared records are defined in the owner's header or, for the engine's
-records, in `typedef.h`; some files still define a local, partial view of a
-shared record (several `CamWork` and `ClothCfg` definitions, for example).
-Records only one file uses stay in that file. A file that keeps a local declaration instead of
-including the owner's header says why in a `kept local` comment.
+`ico2/<programmer>/include/` are each named after the source file whose
+definitions they declare (`gobj.h` for `isys/gobj.c`); the disc records none
+of them. They hold one prototype per function and one `extern` per object,
+with the types the definitions and their callers use. Shared records are
+defined in the owner's header or, for the engine's records (`GObj`,
+`Sub15C`, `Obj7F0`, `Act`, ...), in `typedef.h`. A few files define a local,
+partial view of a shared record (`ClothCfg` in `clothAnimation.c` and
+`clothTest.c`, for example). Records only one file uses stay in that file. A
+file that keeps a local declaration instead of including the owner's header
+says why in a `kept local` comment.
 
 **Sony's and newlib's headers.** The headers under `sce/<archive>/` carry the
 SDK's public header names (`eekernel.h`, `libgraph.h`, `libdma.h`, ...) and
 newlib's (`stdio.h`, `math.h`, ...). The declarations follow the signatures
 the open-source ps2sdk headers and newlib's own headers give; where a header
-follows one, its opening comment names the file. Files named `*_internal.h` hold
-declarations that are not public API, and their names are this project's.
-The listing attributes no rows to `/usr/local/sce/ee/include`, so no SDK
+follows one, its opening comment names the file. Files named
+`*_internal.h` hold declarations that are not public API, and their names
+are this project's, as is `sce/libsndn2/sound.h`, named after its member
+`sound.o`; the movie player's audio decoder takes the stream PCM calls from
+it. The listing attributes no rows to `/usr/local/sce/ee/include`, so no SDK
 header compiled code into the game.
 
 ## Search order

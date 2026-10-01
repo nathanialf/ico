@@ -18,7 +18,8 @@ respective owners.
 - Documentation written for this project.
 - Configuration that describes how the user's own disc image is checked and
   how the rebuilt ELF is linked: the link order, the linker script, the
-  data-table index and the SHA-1s of the expected files.
+  data-table index, the data-table schema (record types and counts, no
+  values) and the SHA-1s of the expected files.
 
 ## What is not in this repository, and must never be added
 
@@ -41,19 +42,26 @@ harder to commit such material by accident. They do not replace care. If you
 suspect a file in this repository breaks these rules, open an issue tagged
 `legal`.
 
-## The data tables are extracted at build time
+## The data tables are generated at build time
 
 The PAL link includes 70 members of the game's archive `ico2000.a` that have
 data sections and no code (MAIN.MAP), plus three data runs MAIN.MAP does not
 list and one four-byte `.sbss` word; `config/data_members.pal.txt` lists them
 all. They are the game's content: stage object layouts, model and motion
 file tables, sound definitions, way points, the staff roll. There is no
-program in them to re-derive, so writing them out as C would only transcribe
-the disc's bytes into the repository. They are therefore never committed in
-any form. At build time `tools/extract_data.py` reads them from the user's
-own `baserom/pal/baseelf.elf` and writes them as assembly under
-`build/data/`, which is gitignored; the configuration file holds only member
-names, address ranges and the names MAIN.MAP gives their symbols.
+program in them to re-derive, and their values are never committed, as C,
+as assembly or in any other form.
+
+The build reads them from the user's own `baserom/pal/baseelf.elf` and
+writes them under `build/data/`, which is gitignored. A member that
+`config/data_schema.pal.txt` lists is written as `build/data/<member>.c`, an
+initialized array of its record type that compiles with the game's flags
+(`tools/gen_data_c.py`). The committed schema and its record types
+(`config/data_schema.pal.h`, or the owner's header) hold only types, element
+counts and symbol names. Every other member is written as assembly
+(`tools/extract_data.py`). The configuration files hold member names,
+address ranges, record types and the names MAIN.MAP gives the symbols, and
+nothing of the tables' content.
 
 ## Public reverse-engineering material (allowed as references)
 

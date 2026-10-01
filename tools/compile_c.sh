@@ -95,7 +95,7 @@ esac
 # The SDK's and newlib's own public headers, reconstructed under sce/<archive>/
 # by public naming (the members and the game TUs include them as <libdma.h>).
 SCE_INCS=""
-for _a in libc libm libvu0 libkernl libpkt libgraph libdma libpad libscf libmpeg libmc libipu libcdvd; do
+for _a in libc libm libvu0 libkernl libpkt libgraph libdma libpad libscf libmpeg libmc libipu libcdvd libsndn2; do
     SCE_INCS="${SCE_INCS} -I${ROOT}/sce/${_a}"
 done
 CFLAGS="-S ${DBG} ${COMMON} -G ${GNUM} -O2 -mips3 -EL ${BUILTIN} -nostdinc${SCE_INCS}"

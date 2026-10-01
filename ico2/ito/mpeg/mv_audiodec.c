@@ -4,18 +4,7 @@
 #include "mv_audiodec.h"
 #include <eekernel.h>
 #include <sifrpc.h>
-
-/* libsndn2's stream PCM calls (sound.h is not on the game's include path) */
-extern int SgStPcmClose(unsigned int a0);
-extern void SgStPcmQuit(void);
-extern int SgStPcmStop(unsigned long long a0);
-extern void SgStPcmVolume(unsigned long long a0, unsigned int a1, int a2);
-extern int SgStPcmLseek(unsigned int a0, unsigned int a1);
-extern int SgStPcmPlay(unsigned long long a0);
-extern void SgStPcmInit(void);
-extern int SgStPcmOpen(int *a0);
-extern void SgStPcmSetEffect(int a0);
-extern int SgStPcmIopReadAddr(unsigned int a0);
+#include <sound.h>
 
 int audioDecCreate(AudioDec *self, int a1, int a2)
 {
