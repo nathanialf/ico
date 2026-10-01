@@ -1,6 +1,4 @@
-/* Vendor SCE library member: libkernl.a(kprintf.o).  MAIN.MAP places this member at
- * the same address as the shipped ELF and its size tiles the run exactly, every
- * boundary a retail function start; VMA 0x1010C8..0x101A40, 8 functions. */
+/* libkernl.a(kprintf.o) */
 #include <eekernel.h>
 
 int kputchar(int c)
@@ -16,10 +14,10 @@ int kputchar(int c)
 }
 
 typedef void (*PutcharFn)(int c);
-/* kept local: this member cannot include libkernl_internal.h, whose kputs conflicts with its
+/* this member does not include libkernl_internal.h, whose kputs conflicts with its
    own */
 extern void deci2Putchar(int c);
-/* kept local: libkernl_internal.h declares it as `void kputs(int a0)` */
+/* this member's own declaration; libkernl_internal.h declares it as `void kputs(int a0)` */
 extern void kputs(char *s);
 
 /* deci2Putchar's line buffer and its fill count; kputs sends a full line. */
@@ -93,7 +91,7 @@ int ftoi(unsigned long long a)
     return (int)m;
 }
 
-/* kept local: this member cannot include libkernl_internal.h, whose kputs conflicts with its
+/* this member does not include libkernl_internal.h, whose kputs conflicts with its
    own */
 extern void kprintf(char *fmt, ...);
 
@@ -323,14 +321,9 @@ void _printf(char *fmt, char *ap)
                 break;
             case 'e':
             case 'f': {
-                /* CRUTCH (user-approved 2026-09-29, finisher to fix): the ROM has a nop
-                 * between c.eq.s and bc1f here. The compiler writes only `#nop` and then
-                 * `.set noreorder` before the branch; the nop is the assembler's hazard
-                 * flush. Measured 2026-10-01 on this member's .s: SCE 2.10-ee assembles
-                 * it with only this nop missing (no option adds it for the R5900), and
-                 * ee-as 2.9-991111 assembles it with only ftoi's return slot unfilled.
-                 * Sony's library assembler did both; no assembler in the tree does. The
-                 * $f12 register variable x and the nop asm stand in for that. */
+                /* CRUTCH, open: the register variable x and the nop asm stand in for the
+                 * hazard nop Sony's library assembler put between c.eq.s and
+                 * bc1f here; neither assembler in the tree emits it. */
                 register float x __asm__("$f12");
 
                 ap += 8;

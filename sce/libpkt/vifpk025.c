@@ -1,5 +1,4 @@
-/* libpkt.a member vifpk025.o.  MAIN.MAP member spans tile this run exactly and
- * this member starts at an 8-aligned function start of the shipped ELF. */
+/* libpkt.a member vifpk025.o */
 #include <libpkt.h>
 
 /* the member's .data: the library's build stamp */

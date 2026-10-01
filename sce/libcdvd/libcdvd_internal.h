@@ -3,9 +3,9 @@
  *
  * libcdvd's declarations that are not public SDK API: cdvd000.o's command
  * state (the semaphores, the RPC buffers and client records' companions, the
- * callback words; their names are MAIN.MAP's), the command pre-checks and
- * the callback and delay helpers the other members call.  Each declaration
- * is the definition's in sce/libcdvd, which includes this header.
+ * callback words), the command pre-checks and the callback and delay helpers
+ * the other members call.  Each declaration is the definition's in
+ * sce/libcdvd, which includes this header.
  */
 #ifndef SCE_LIBCDVD_LIBCDVD_INTERNAL_H
 #define SCE_LIBCDVD_LIBCDVD_INTERNAL_H

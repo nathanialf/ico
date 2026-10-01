@@ -1,11 +1,11 @@
-# libc.a member memcmp.o.  SRCFILE.TXT attributes every instruction to
-# src/newlib/libc/machine/r5900/memcmp.S (listing line 517478 on), so this
-# member was assembled, not compiled; the MMI quadword compare (lq, pxor,
-# pcpyud) has no C spelling either.  Transcribed from the shipped instruction
-# stream (rungs: ROM bytes for the instructions, the listing rows for the source
-# file).  MAIN.MAP sizes memcmp.o at 0x94.  It starts at 0x0027E684, right after
-# fiprintf.o's 0x34 bytes: the ROM start is 4-aligned, so the section is only
-# word-aligned.
+# libc.a member memcmp.o, assembled from newlib's
+# src/newlib/libc/machine/r5900/memcmp.S.  When both pointers are 16-aligned
+# it compares a quadword at a time (lq, pxor, pcpyud: MMI, no C spelling),
+# stopping at the first quadword that differs; the remainder, and any
+# unaligned call, is compared byte by byte.
+#
+# The member starts 4-aligned right after fiprintf.o's 0x34 bytes, so the
+# section is only word-aligned.
     .section .text
     .align 2
     .set noreorder

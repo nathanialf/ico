@@ -1,15 +1,11 @@
-/* Vendor SCE library run.  The archive attribution (libvu0.a) comes from
- * MAIN.MAP's symbol table.  The January link carried a different revision of
- * this archive, so its member spans do not tile this run: the per-member
- * partition is NOT verified, and this file is the whole run. */
+/* libvu0.a.  The archive's member boundaries in this build are not known,
+ * so this file is the archive's whole run. */
 #include <eeregs.h>
 #include <libvu0.h>
 
-/* VU0 / COP2 macro-mode opcodes, one instruction per __asm__ block.  This
-   run's uses stand for a Sony-internal header this tree cannot name: MAIN.MAP
-   attests archives and their members, never a header, so the definitions are
-   kept here rather than shared with the game tree's copy in
-   ico2/common/include/typedef.h.  Operands are unprefixed register numbers;
+/* VU0 / COP2 macro-mode opcodes, one instruction per __asm__ block, defined
+   in this file (the game tree has its own copy in
+   ico2/common/include/typedef.h).  Operands are unprefixed register numbers;
    the macro builds the asm text by stringify-and-paste. */
 #define VU0_MEM(insn) __asm__ __volatile__(insn : : : "memory")
 #define VU0_REG(insn) __asm__ __volatile__(insn)
@@ -25,7 +21,8 @@
 /* vwaitq: no memory effect, sequences later VU0 ops with prior compute. */
 #define VU0_WAIT() __asm__ __volatile__("vwaitq")
 /* Several COP2 transfer pairs have a load-delay or Q-pipeline interlock that
-   gas's default `.set reorder` fills with a nop the ROM does not carry. */
+   gas's default `.set reorder` would fill with a nop; those runs are written
+   noreorder. */
 #define VU0_NOREORDER_BEGIN() __asm__ __volatile__(".set noreorder")
 #define VU0_NOREORDER_END() __asm__ __volatile__(".set reorder")
 

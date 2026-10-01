@@ -1,10 +1,7 @@
-# libc.a member memchr.o.  SRCFILE.TXT attributes every instruction to
-# src/newlib/libc/machine/r5900/memchr.S (listing line 528620 on), so this
-# member was assembled, not compiled; the MMI byte search (pcpyh, pcpyld, pnor,
-# psubb, pand, pcpyud) has no C spelling either.  Transcribed from the shipped
-# instruction stream (rungs: ROM bytes, the listing rows).  MAIN.MAP sizes
-# memchr.o at 0xE0.  It starts at 0x002862EC, right after mbtowc_r.o's 0x3C
-# bytes: the ROM start is 4-aligned, so the section is only word-aligned.
+# libc.a member memchr.o, assembled from newlib's
+# src/newlib/libc/machine/r5900/memchr.S; the MMI byte search (pcpyh, pcpyld,
+# pnor, psubb, pand, pcpyud) has no C spelling. The section is only
+# word-aligned.
     .section .text
     .align 2
     .set noat

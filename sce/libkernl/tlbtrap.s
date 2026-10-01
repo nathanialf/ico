@@ -1,10 +1,10 @@
 /* libkernl.a member tlbtrap.o: the TLB refill and debug exception entries,
  * the launcher they eret into and the TLB handler's return syscall, each
- * instruction on the line the January listing (SRCFILE.TXT) gives it. Every
- * entry is 64-byte aligned: the ROM has _kTLBException, _xlaunch,
- * _kExitTLBHandler and _kDebugException at 0x265040, 0x265140, 0x265180 and
- * 0x265280. The listing dumps _xlaunch as data, so of its lines only 92 and
- * 96 are pinned; the others are placed in order. */
+ * instruction on its own source line of tlbtrap.s. Every entry is 64-byte
+ * aligned: _kTLBException, _xlaunch, _kExitTLBHandler and _kDebugException
+ * sit at 0x265040, 0x265140, 0x265180 and 0x265280. Of _xlaunch's lines
+ * only 92 and 96 are known; the others are placed in order.
+ */
 
 	.text
 	.set	noreorder
@@ -235,10 +235,10 @@ _kDebugException:
 
 	break	1023, 1023
 
-/* The member's .bss (MAIN.MAP tlbtrap.o 0x122C, 64-byte aligned there): the
+/* The member's .bss (0x122C, 64-byte aligned): the
    handlers' 0x1000-byte stack, whose top is the register save area the
    entries store the 32 GPRs into, then HI, HI1, LO, LO1, SA and the EPC.
-   All local: MAIN.MAP names no global in tlbtrap.o's .bss. */
+   All local: tlbtrap.o's .bss has no global symbol. */
 	.bss
 	.align	6
 	.space	0x1000

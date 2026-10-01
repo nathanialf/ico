@@ -1,9 +1,5 @@
-# libc.a member memmove.o.  SRCFILE.TXT attributes every instruction to
-# src/newlib/libc/machine/r5900/memmove.S (listing line 528736 on), so this
-# member was assembled, not compiled.  Transcribed from the shipped instruction
-# stream (rungs: ROM bytes, the listing rows).  MAIN.MAP sizes memmove.o at
-# 0x104.  It starts at 0x002863CC, right after memchr.o: the ROM start is
-# 4-aligned, so the section is only word-aligned.
+# libc.a member memmove.o, assembled from newlib's
+# src/newlib/libc/machine/r5900/memmove.S. The section is only word-aligned.
     .section .text
     .set noat
     .set noreorder

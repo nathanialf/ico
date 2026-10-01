@@ -1,7 +1,4 @@
-/* Vendor SCE library member: libkernl.a(iopheap.o).  MAIN.MAP names the
- * member and its .text size (0x260), which tiles the shipped ELF from one
- * retail function start to the next; VMA 0x263C40..0x263EA0,
- * 4 functions. */
+/* libkernl.a(iopheap.o) */
 
 #include <sifrpc.h>
 #include <string.h>
@@ -64,16 +61,10 @@ int sceSifFreeIopHeap(int a0)
     return heapRecv;
 }
 
-/* The LoadIopHeap RPC request block, reconstructed: the ROM stores the address
- * argument at offset 0, copies the module name into offset 4 and sends
- * i + 5 bytes, so the record is one int followed by a 252-byte name and the
- * sent length is the name length plus the int plus the terminator.  It is
- * spelled as a struct rather than as `char heapLoadReq[]` because the ROM's
- * destination address is `addu $3,$3,$8`, base first: the C front end builds
- * `arr[j]` on an array object as PLUS_EXPR(ADDR_EXPR(arr), j), fold moves the
- * TREE_CONSTANT array address to the right and expand then emits
- * `addu dest,index,base`, while a COMPONENT_REF of a struct reaches expand
- * with the base already in a register and keeps the ROM's order. */
+/* The LoadIopHeap RPC request block: the address argument at offset 0, the
+ * module name copied in at offset 4, and i + 5 bytes sent, so the record is
+ * one int followed by a 252-byte name and the sent length is the name length
+ * plus the int plus the terminator. */
 typedef struct {
     int addr;       /* 0x00 */
     char name[252]; /* 0x04 */
@@ -90,10 +81,7 @@ int sceSifLoadIopHeap(char *name, void *addr)
     if (iopheap_bind < 0) {
         return 0;
     }
-    /* the terminator test reads the byte back out of the DESTINATION, which is
-     * the value cse already holds; reading name[i] again cannot be folded away
-     * because the char store may alias the char load, and the ROM loads the
-     * name byte once (lbu, then sll 24 and beqz on the same register) */
+    /* the terminator test reads the byte back out of the destination */
     for (i = 0; i < 252; i++) {
         heapLoadReq.name[i] = name[i];
         if (heapLoadReq.name[i] == 0) {

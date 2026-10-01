@@ -1,13 +1,9 @@
-/* Vendor SCE library member: libkernl.a(intr.o).  MAIN.MAP places this member at
- * the same address as the shipped ELF and its size tiles the run exactly, every
- * boundary a retail function start; VMA 0x100A08..0x100D68, 13 functions. */
+/* libkernl.a(intr.o) */
 #include <eekernel.h>
 #include <eeregs.h>
 #include <libkernl_internal.h>
 
-/* EE syscall leaf wrappers.  This member's uses stand for a Sony-internal
-   header this tree cannot name: MAIN.MAP attests archives and their members,
-   never a header, so the definitions are kept per member.  Body is the
+/* EE syscall leaf wrappers, defined in this member.  Body is the
    four-instruction leaf `addiu $3,$zero,NUM; syscall 0; jr $31; nop`, the
    last two supplied by gcc's epilogue. */
 #define SYSCALL_WRAPPER(name, num)                                                                 \
@@ -15,10 +11,9 @@
     {                                                                                              \
         __asm__ __volatile__("addiu $3, $0, " #num "\n\tsyscall 0" : : : "$3", "memory");          \
     }
-/* The same leaf issued INLINE, for the members that act on its result.
+/* The same leaf issued inline, for the members that act on its result.
    `dst` is bound to $v0 because that is where the kernel ABI leaves the
-   result; a plain "=r" output would let gcc pick a register the kernel
-   never writes.  Operand binding, not a scheduling pin. */
+   result. */
 #define SYSCALL_INLINE(num, dst)                                                                   \
     {                                                                                              \
         register int __sc_ret __asm__("$2");                                                       \
@@ -28,13 +23,10 @@
                              : "$3", "memory");                                                    \
         (dst) = __sc_ret;                                                                          \
     }
-/* R5900 opcodes with no C spelling.  This member's uses stand for a
-   Sony-internal header this tree cannot name: MAIN.MAP attests archives and
-   their members, never a header, so the definition is kept per member. */
+/* R5900 opcodes with no C spelling.  Defined in this member. */
 #define SYNC() __asm__ __volatile__("sync" : : : "memory")
 /* COP0 Status ($12), bit 16 = interrupts enabled.  Taken as an lvalue: the
-   wrappers mask the word in place, and a value-returning form puts the mask
-   in a different register than the read. */
+   wrappers mask the word in place. */
 #define MFC0_STATUS(dst) __asm__ __volatile__("mfc0 %0, $12" : "=r"(dst))
 #define COP0_STATUS_EIE 0x10000
 
@@ -134,8 +126,8 @@ int iDisableDmac(int channel)
     return r;
 }
 
-/* intr.o's own file static setup (initsys.o holds the global of the name); the
-   census names it and InitAlarm calls it. */
+/* intr.o's own file static setup (initsys.o holds the global of the same
+   name); InitAlarm calls it. */
 static void setup(int num, int addr)
 {
     __asm__ __volatile__("addiu $3, $0, 116\n\tsyscall 0" : : : "$3", "memory");
@@ -167,7 +159,7 @@ int GetEntryAddress(int num)
 
 /* The member's .data: the kernel-mode alarm handler InitAlarm copies to
    0x80076000 (0x740 B of R5900 code and its tables, linked at that address,
-   so the words carry no relocation), the 0x20-byte entry stub it copies to
+   so the words carry no relocation), the 0x20-byte entry code it copies to
    0x82000, and the syscall table it installs: {number, handler} pairs, the
    first two handlers given, the other six looked up with GetEntryAddress. */
 static unsigned int alarm_handler[464] /* derived name */ = {

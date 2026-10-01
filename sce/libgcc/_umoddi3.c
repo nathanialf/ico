@@ -1,5 +1,4 @@
-/* libgcc.a member _umoddi3.o.  MAIN.MAP member spans tile this run exactly and
- * this member starts at an 8-aligned function start of the shipped ELF. */
+/* libgcc.a member _umoddi3.o */
 #include "libgcc2.h"
 
 typedef int SItype;
@@ -40,11 +39,8 @@ static const unsigned char __clz_tab[256] = {
     8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8,
 };
 
-/* count_leading_zeros is longlong.h's generic C form, kept whole: the dead
- * `else` branch for word sizes above 32 never emits code, but its loop notes
- * survive into final, and they are what 8-aligns the join label after the
- * ternary (the ROM pads that label in every expansion). Trimming the branch
- * loses those pads. */
+/* count_leading_zeros is longlong.h's generic C form, kept whole, the
+ * branch for word sizes above 32 included. */
 #define count_leading_zeros(count, x)                                                              \
     do {                                                                                           \
         USItype __xr = (x);                                                                        \

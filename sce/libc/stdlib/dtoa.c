@@ -1,5 +1,4 @@
-/* libc.a member dtoa.o.  MAIN.MAP member spans tile this run exactly and
- * this member starts at an 8-aligned function start of the shipped ELF. */
+/* libc.a member dtoa.o */
 #include <stdlib.h>
 #include <reent.h>
 #include <string.h>

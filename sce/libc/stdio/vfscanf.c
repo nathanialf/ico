@@ -1,5 +1,4 @@
-/* libc.a member vfscanf.o.  MAIN.MAP member spans tile this run exactly and
- * this member starts at an 8-aligned function start of the shipped ELF. */
+/* libc.a member vfscanf.o */
 #include <reent.h>
 #include <ctype.h>
 #include <libc_internal.h>
@@ -10,9 +9,8 @@ struct D520 {
     PObjBlk *blk; /* 0x8 */
 };
 
-/* newlib's struct __sbuf / struct __sFILE, reconstructed from the ROM's own
-   field offsets in this member (evidence rung: ROM bytes; the newlib member
-   layout gives the names). */
+/* newlib's struct __sbuf / struct __sFILE, laid out from this member's own
+   field offsets, with the newlib member names. */
 
 /* newlib's own table: the base a `%i` conversion falls back to, indexed by
    the base the format asked for (0 becomes 10). */
@@ -50,12 +48,12 @@ typedef int wchar_t;
 #define BUF (MAXEXP + MAXFRACT + 3)
 #define EOF (-1)
 
-/* kept local: stdlib.h declares it as `long long strtol(void *a0, int a1, int a2)` */
+/* this member's own declaration; stdlib.h declares it as `long long strtol(void *a0, int a1, int a2)` */
 extern long strtol();
-/* kept local: stdlib.h declares it as `long long strtoul(void *a0, int a1, int a2)` */
+/* this member's own declaration; stdlib.h declares it as `long long strtoul(void *a0, int a1, int a2)` */
 extern unsigned long strtoul();
 /* newlib atof (sce/libc/stdlib/atof): strtod with a null end pointer. */
-/* kept local: stdlib.h declares it as `double atof(const char *ascii)` */
+/* this member's own declaration; stdlib.h declares it as `double atof(const char *ascii)` */
 extern double atof(char *nptr);
 
 #define BufferEmpty (fp->r <= 0 && __srefill(fp))

@@ -1,5 +1,4 @@
-/* libc.a member refill.o.  MAIN.MAP member spans tile this run exactly and
- * this member starts at an 8-aligned function start of the shipped ELF. */
+/* libc.a member refill.o */
 #include <reent.h>
 #include <stdlib.h>
 #include <libc_internal.h>
@@ -9,9 +8,9 @@ struct D520 {
     PObjBlk *blk; /* 0x8 */
 };
 
-/* fflush is reached both with and without an argument in this member, exactly
-   as the shipped code does; the declaration is left unprototyped. */
-/* kept local: not yet moved to stdio.h */
+/* fflush is reached both with and without an argument in this member; the
+   declaration is left unprototyped. */
+/* not declared in stdio.h */
 extern int fflush();
 
 int lflush(void)

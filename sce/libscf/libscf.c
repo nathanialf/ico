@@ -1,19 +1,19 @@
-/* Vendor SCE library run, attribution INFERRED: libscf.a.  Neither disc map names an
- * archive for these 21 functions (MAIN.MAP is an older link whose .text ends before
- * them; SRCFILE.TXT carries them with symbols but no source paths).  The sceScf family
- * is the public SDK's libscf, GetRomName and IsT10K feed sceScfSetT10kConfig, and the
- * BCD date helpers feed the RTC readers, so the run is one library, VMA 0x272878..0x273228.
- * The FILE name is the run's own __assert string "libscf.c" at 0x637260 (ROM bytes), and
- * the asserts carry __LINE__ (tobcd's is 281), so the line layout above them is pinned
- * (a line added or removed anywhere above an assert moves its line constant).
- * sceScfSetT10kConfig's `sdr` sits in the return's delay slot by the SDK archive
- * assembler's reorder-mode swap (docs/NOTES.md "Assembler per archive"). */
+/* libscf.a.  The archive name is inferred: neither the member nor its source
+ * path is named for these 21 functions.  The sceScf family is the public SDK's
+ * libscf, GetRomName and IsT10K feed sceScfSetT10kConfig, and the BCD date
+ * helpers feed the RTC readers, so the run is one library.
+ *
+ * The file name is the run's own __assert string "libscf.c", and the asserts
+ * carry __LINE__ (tobcd's is 281), so the line layout above them is fixed:
+ * a line added or removed anywhere above an assert moves its line constant;
+ * a comment that changes is rewritten in place, keeping its line count.
+ */
 #include <stdio.h>
 #include <libscf.h>
 #include <sifdev.h>
 
-/* The member's .data, VMA 0x54CB50..0x54CB78: the build stamp, the T10K (DTL-T10000 kit)
- * OSD config shadow (timezone 540 minutes, JST) and the rom0:ROMVER cache GetRomName fills. */
+/* The member's .data: the build stamp, the T10K (DTL-T10000 kit) OSD
+ * config shadow (timezone 540 minutes, JST) and the rom0:ROMVER cache GetRomName fills. */
 typedef struct {
     short timezone;
     unsigned char aspect;
@@ -31,9 +31,9 @@ static sceScfT10KConfig t10kConfig = {540, 0, 0, 0, 0, 0, 0};
 static char romName[16] = {0};
 
 /* The OSD configuration word the kernel's GetOsdConfigParam syscall returns.
- * Every bit position below is read straight off the ROM's shift/mask pairs in
- * this file (evidence rung: ROM bytes); the field names follow the public
- * sceScfGet* entry points that read them. */
+ * Every bit position below is the shift/mask pair this file's getters use;
+ * the field names follow the public sceScfGet* entry points that read
+ * them. */
 typedef struct {
     unsigned int spdif : 1;        /* bit 0     sceScfGetSpdif */
     unsigned int aspect : 2;       /* bits 1-2  sceScfGetAspect */
@@ -42,12 +42,12 @@ typedef struct {
     unsigned int ps1drvConfig : 8; /* bits 5-12 */
     unsigned int version : 3;      /* bits 13-15 */
     unsigned int language : 5;     /* bits 16-20 */
-    int timezone : 11;             /* bits 21-31, signed: ROM reads it with sra */
+    int timezone : 11;             /* bits 21-31, signed */
 } ConfigParam;
 
 /* The second configuration record, read by GetOsdConfigParam2 with count 1 and
- * offset 1.  Only its first byte is touched here, and the ROM reads that byte
- * with lbu, so the three flags below sit in one storage unit. */
+ * offset 1.  Only its first byte is touched here, read as one unsigned byte,
+ * so the three flags below sit in one storage unit. */
 typedef struct {
     unsigned char reserved : 4;     /* bits 0-3 */
     unsigned char summerTime : 1;   /* bit 4    sceScfGetSummerTime */
@@ -56,34 +56,34 @@ typedef struct {
 } ConfigParam2;
 
 /* The strings this member emits.  The developer wrote them as literals at the
- * use sites; the compiler interns each one on first use, which is what fixes
- * the ROM's .rodata order (the month-length template lands between the two
- * assert groups because adddate precedes AdjustTime).  ROM VMA 0x6371D0:
- *   0x6371D0  rom0:ROMVER                     GetRomName
- *   0x6371E0  Can't open rom0:ROMVER          GetRomName
- *   0x6371F8  Can't read rom error            GetRomName
- *   0x637210  Timezone=%d                     sceScfGetTimeZone
- *   0x637220  DateNotation=%d                 sceScfGetDateNotation
- *   0x637238  SummerTime=%d                   sceScfGetSummerTime
- *   0x637248  TimeNotation=%d                 sceScfGetTimeNotation
- *   0x637260  libscf.c                        __FILE__, first used by tobcd
- *   0x637270  c <=99                          tobcd
- *   0x637278  c <= 0x99                       frombcd
- *   0x637288  prtc != NULL                    convertfrombcd
- *   0x637298  the twelve month lengths        adddate, shared with subdate
- *   0x6372A8  -60*24<=diff && diff <= 60*24   AdjustTime
+ * use sites; the compiler interns each one on first use, which fixes the
+ * .rodata order (the month-length template lands between the two assert
+ * groups because adddate precedes AdjustTime).  In .rodata order:
+ *   rom0:ROMVER                     GetRomName
+ *   Can't open rom0:ROMVER          GetRomName
+ *   Can't read rom error            GetRomName
+ *   Timezone=%d                     sceScfGetTimeZone
+ *   DateNotation=%d                 sceScfGetDateNotation
+ *   SummerTime=%d                   sceScfGetSummerTime
+ *   TimeNotation=%d                 sceScfGetTimeNotation
+ *   libscf.c                        __FILE__, first used by tobcd
+ *   c <=99                          tobcd
+ *   c <= 0x99                       frombcd
+ *   prtc != NULL                    convertfrombcd
+ *   the twelve month lengths        adddate, shared with subdate
+ *   -60*24<=diff && diff <= 60*24   AdjustTime
  * (the five printf strings and the two rom0 diagnostics each end in a newline
  * escape, dropped from the table above so the table stays one line per entry).
  * libscf.c is __FILE__, so the member is compiled from inside its own
  * directory by its bare name, and every assert string is the stringified
  * expression, so the three-argument calls are the newlib assert macro and
  * their line arguments (0x119 for the first, 0x1C7 for the last) fix this
- * file's line layout.  Evidence rung: ROM bytes. */
+ * file's line layout. */
 
-/* newlib <assert.h> and <stddef.h>, reconstructed here because the repo's
- * include/ carries stub scaffolding only.  NDEBUG is not defined in this
- * archive: the calls are in the shipped code.  The layout pass keeps the
- * two defines together. */
+/* newlib <assert.h> and <stddef.h>, written out here: this tree has no
+ * libc include directory for the SDK archives.  NDEBUG is not defined in
+ * this archive: the calls are in the shipped code.  The two defines stay
+ * together. */
 #define assert(e) ((e) ? (void)0 : __assert(__FILE__, __LINE__, #e))
 /* <stddef.h> */
 #define NULL 0
@@ -100,7 +100,7 @@ typedef struct {
     unsigned char year;
 } sceCdCLOCK;
 
-/* kept local: no libc header in this tree declares __assert, and its definition in
+/* No libc header in this tree declares __assert, and its definition in
    sce/libc/stdlib/assert.c takes three ints */
 extern void __assert(char *file, int line, char *expr);
 void AdjustTime(sceCdCLOCK *prtc, int diff);
@@ -114,7 +114,7 @@ unsigned char tobcd(unsigned char c);
 unsigned char frombcd(unsigned char c);
 char *GetRomName(void);
 int IsT10K(void);
-/* kept local: the kernel's records are typed in this member (asserts pin its line count) */
+/* The kernel's records are typed in this member (asserts pin its line count) */
 extern void GetOsdConfigParam(ConfigParam *param);
 extern int GetOsdConfigParam2(ConfigParam2 *param, int count, int offset);
 
@@ -272,9 +272,9 @@ int sceScfGetTimeNotation(void)
 }
 
 /* #e stringifies the expression exactly as it is spelled, so the spacing of
- * this file's first assert and of AdjustTime's range assert is load-bearing
- * (assert is a whitespace-sensitive macro for the formatter), and the ROM's
- * __LINE__ arguments pin every assert to its line the comment blocks keep. */
+ * this file's first assert and of AdjustTime's range assert is part of the
+ * strings (assert is a whitespace-sensitive macro for the formatter), and the
+ * __LINE__ arguments pin every assert to its line. */
 
 unsigned char tobcd(unsigned char c)
 {
@@ -282,11 +282,11 @@ unsigned char tobcd(unsigned char c)
     return (c / 10) * 6 + c;
 }
 
-/* frombcd, the inverse, lands on the ROM's next assert line. */
-/* The correction term is its own byte-wide local: with the product written
- * straight into the subtraction the r5900 three-operand mult3 takes it, and
- * the ROM has the two-operand mult with a separate mflo (tobcd takes mult3,
- * its product feeding an addu).  Evidence rung: ROM bytes. */
+/* frombcd, the inverse, lands on the next assert line. */
+/* The correction term is its own byte-wide local, multiplied with a
+ * separate mult and mflo rather than the r5900 three-operand mult3 (tobcd
+ * takes mult3, its product feeding an addu).
+ */
 unsigned char frombcd(unsigned char c)
 {
     unsigned char t;
@@ -298,9 +298,9 @@ unsigned char frombcd(unsigned char c)
 
 /* The six packed-BCD fields libcdvd fills in a sceCdCLOCK record, widened to
  * plain binary in place.  The stat and pad bytes are left alone.  The order
- * of the six is the ROM's, year first and second last (evidence rung: ROM
- * bytes); the walk is written out rather than looped because the members are
- * named, which is what the ROM's six calls show. */
+ * of the six is year first and second last; the walk is written out rather
+ * than looped because the members are named, one call per field.
+ */
 void convertfrombcd(sceCdCLOCK *prtc)
 {
     assert(prtc != NULL);
@@ -408,7 +408,7 @@ void subhour(sceCdCLOCK *prtc)
  * the minute field the whole offset, carry the overflow out an hour at a
  * time, pack it again.  The bound asserted is the sixty hours either side a
  * time zone plus a summer-time hour can reach. */
-/* AdjustTime's range assert sits on line 0x1A1, the ROM's argument. */
+/* AdjustTime's range assert sits on line 0x1A1. */
 void AdjustTime(sceCdCLOCK *prtc, int diff)
 {
     int min;
@@ -437,8 +437,8 @@ void AdjustTime(sceCdCLOCK *prtc, int diff)
  * Standard Time whatever the console's region, so GMT is nine hours behind it
  * and the local time is the OSD's time zone plus its summer-time flag away
  * from GMT.  540 is those nine hours in minutes, spelled out at both sites
- * rather than shared, which is what the ROM's two immediates show (evidence
- * rung: ROM bytes); the local entry reaches the OSD by this file's getters. */
+ * rather than shared; the local entry reaches the OSD by this file's
+ * getters. */
 void sceScfGetGMTfromRTC(sceCdCLOCK *prtc)
 {
     assert(prtc != NULL);

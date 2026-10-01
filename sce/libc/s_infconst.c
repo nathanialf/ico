@@ -1,6 +1,5 @@
 /* libc.a member s_infconst.o (newlib libm/math/s_infconst.c): no code, the
- * one read-only double HUGE_VAL reads, +infinity (MAIN.MAP lines 670,
- * 6785-6786: .rodata 0x8). */
+ * one read-only double HUGE_VAL reads, +infinity (.rodata 0x8). */
 /* Infinity as a constant value.   This is used for HUGE_VAL.
  * Added by Cygnus Support.
  */

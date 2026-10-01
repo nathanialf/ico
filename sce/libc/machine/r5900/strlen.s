@@ -1,10 +1,10 @@
-# libc.a member strlen.o.  SRCFILE.TXT attributes every instruction to
-# src/newlib/libc/machine/r5900/strlen.S (listing line 519300 on), so it was
-# assembled, not compiled.  Transcribed from the shipped instruction stream
-# (rungs: ROM bytes, the listing rows).  MAIN.MAP sizes strlen.o at 0x138.  It
-# starts at 0x0027F86C, right after strcpy.o: the ROM start is 4-aligned, so
-# the section is only word-aligned.  The word of fill after it comes from
-# strncmp.o's own 8-byte alignment.
+# libc.a member strlen.o, assembled from newlib's
+# src/newlib/libc/machine/r5900/strlen.S: it scans a quadword (or a
+# doubleword) at a time for a zero byte, tested with the MMI psubb/pnor idiom,
+# then finds the terminator byte by byte.
+#
+# The member starts 4-aligned right after strcpy.o, so the section is only
+# word-aligned; the word of fill after it comes from strncmp.o's alignment.
     .section .text
     .set    at
     .set    noreorder

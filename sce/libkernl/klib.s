@@ -1,15 +1,15 @@
-# klib: libkernl.a(klib.o), the EE kernel's syscall entry points.  SRCFILE.TXT
-# attributes every instruction of this member to klib.s, one source line per
-# entry point (RFU000_FullReset at klib.s:33 through GetMemorySize at
-# klib.s:186), so it was assembled, not compiled.  Each entry point is the
-# four words `addiu $3,$0,NUM; syscall; jr $31; nop`: the kernel takes the call
-# number in $3, and the `i` (interrupt-context) forms pass it negated.  The
-# lines below sit at the listing's own line numbers.
+# klib: libkernl.a(klib.o), the EE kernel's syscall entry points, assembled
+# from klib.s with one source line per entry point (RFU000_FullReset at
+# klib.s:33 through GetMemorySize at klib.s:186).  Each entry point is the
+# four words `addiu $3,$0,NUM; syscall; jr $31; nop`: the kernel takes the
+# call number in $3, and the `i` (interrupt-context) forms pass it negated.
+# Each entry point below sits on its own line number in klib.s.
 #
-# The object's .text is 64-byte aligned: the shipped ELF's .text carries
-# alignment 64 and klib.o is the input that gives it, since the listing puts
-# RFU000_FullReset at 0x100100 after crt0's 0xC8 bytes and zero fill.  Names
-# and call numbers are the listing's; the macro's name is ours.
+# The object's .text is 64-byte aligned: the ELF's .text carries alignment
+# 64 and klib.o is the input that gives it, RFU000_FullReset sitting at
+# 0x100100 after crt0's 0xC8 bytes and zero fill.
+#
+# Names and call numbers are klib.s's own; the macro's name is ours.
 
 	.macro	KCALL name, num	/* derived name */
 	.globl	\name
@@ -187,7 +187,7 @@
 
 	.set	reorder
 
-# The member's .data (MAIN.MAP klib.o 0x10): the library stamp.  Its last
+# The member's .data (0x10): the library stamp.  Its last
 # four bytes are the version the SIF members compare against the IOP's.
 	.data
 	.globl	__ps2_klibinfo__

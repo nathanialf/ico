@@ -1,14 +1,10 @@
-/* Vendor SCE library member libsndn2.a(sound.o), VMA 0x273228..0x2788D8.
- * The _Sg family (the first 44 functions) carries no name in either disc map:
- * SRCFILE.TXT lists it with symbols but no source paths, and MAIN.MAP's
- * symbol table names only the 61 Sg entry points that follow.  It is the
- * same member: MAIN.MAP's sound.o sections are .text 0x56AC (the two runs
- * here are 0x38A8 + 0x1E08 = 0x56B0 in this later revision), .rodata 0x1E0
- * (exactly the _Sg tick's and _SgContParam's jump tables), .data 0x40 (the
- * _Sg voice code's pan table) and .bss 0x4B68 (the _Sg context blocks and
- * the RPC client the Sg entry points bind), and the member has no other
- * sections for the entry points to own.  The January link carried a
- * different revision of this archive, so its addresses are never used. */
+/* libsndn2.a(sound.o).  The _Sg family (the first 44 functions) and the 61
+ * Sg entry points that follow are one member: sound.o's sections are .text
+ * (0x56B0 in this revision), .rodata 0x1E0 (exactly the _Sg tick's and
+ * _SgContParam's jump tables), .data 0x40 (the _Sg voice code's pan table)
+ * and .bss 0x4B68 (the _Sg context blocks and the RPC client the Sg entry
+ * points bind), and the member has no other sections for the entry points to
+ * own. */
 #include <eekernel.h>
 #include <sifrpc.h>
 #include <string.h>
@@ -251,8 +247,7 @@ void _SgCalledTickProc(void)
 /* The EE to IOP packet ring in the common context: c[0xF] is the page the ring
  * lives in and c[0x10] the write index _SgGetPacketCntext resolves to a slot.
  * The index is read and bumped through a volatile view because the IOP side
- * polls it while the EE fills the ring; the ROM proves it, reloading the count
- * after storing it. */
+ * polls it while the EE fills the ring. */
 int _SgSetPkAdd(int a0, int a1, int a2, int a3)
 {
     int *c = _SgGetComContext();
@@ -350,10 +345,8 @@ int _SgSeMain(int *a0)
     *(short *)(s + 0x30) = head[1][0xC];
     *(int *)(s + 0x44) = 0;
     /* The vibrato enable bit is written through the volatile view on both
-     * arms.  The ROM proves the qualifier: with a plain store, reorg sinks it
-     * into the branch delay slot of the arm's `b`, where the ROM instead keeps
-     * the store in place and steals the join's 0x4E read into the slot.  No
-     * data-model reason beyond that is known for this field. */
+     * arms.  No data-model reason beyond the status word's is known for this
+     * field. */
     if (head[1][0xF] & 0x20) {
         int e = head[1][0xE];
 
@@ -528,18 +521,11 @@ int _SgBgmMain(int *a0)
  * The DEBUG build traces one voice (the one a debugger sets in sgTraceVoice):
  * when its portamento or its realtime pitch request is looked at, it prints
  * the voice's tick counter (0x10, cleared at key-on) and the last vab header
- * this tick has read.  Retail builds the voice as 0 and the trace as nothing,
- * so the tick fetched for it is dead and flow deletes it.  What the bytes pin:
- * between each of the two flags' preloads and its test, a conditional on a
- * register-held value whose body flow deletes (so combine never folds the
- * preload into the test's conditional move, and the empty branch is gone
- * before the final schedule), and a mention of hd before the loop (hd, not
- * the vab word it copies, then heads their register class and the tag load
- * keeps hd as its base).  What they cannot pin: the trace, its voice test and
- * the field it fetches; those and the names are ours. */
+ * this tick has read.  Retail builds the voice as 0 and the trace as nothing.
+ * The trace, its voice test, the field it fetches and the names are ours. */
 #ifdef DEBUG
 
-/* kept local: the DEBUG build's trace voice, defined nowhere in this tree */
+/* The DEBUG build's trace voice, defined nowhere in this tree */
 extern int sgTraceVoice;
 
 #define SG_TRACE_VOICE sgTraceVoice
@@ -598,9 +584,7 @@ void _SgSetRealtimeTickProc(void)
                 int *vab = _SgGetVabContext(*(unsigned short *)((char *)q + 0x18));
                 int t = vab[0];
 
-                /* t holds the header word, then the tag, then the table id:
-                 * reusing it in the block that copies it to hd is what keeps
-                 * the ROM's separate test register ($3) and base ($4). */
+                /* t holds the header word, then the tag, then the table id */
                 if (t != 0 && vab[2] != 0) {
                     hd = (int *)t;
                     t = hd[3];
@@ -767,8 +751,7 @@ void _SgSetRealtimeTickProc(void)
                 unsigned char *p = (unsigned char *)hd[0x10];
 
                 /* The level goes back to the volume table as the byte just
-                 * stored: the ROM's `andi $5,$6,0xFF` is that read, which the
-                 * compiler turns into a register copy after allocation. */
+                 * stored. */
                 if (p != 0 && hd[3] == 0x64685353) {
                     *p = v & 0x7F;
                     _SgSetSeVolValue(i, *p);
@@ -845,8 +828,7 @@ int _SgSetRealtimeVolume(int *a0)
 }
 
 /* Both arms fill the same three head slots from one table pointer (tb) and
- * one data pointer (p, reloaded from the header in the flag-4 arm): the
- * ROM keeps each in the same register ($6, $5) across the two arms. */
+ * one data pointer (p, reloaded from the header in the flag-4 arm). */
 int _SgTableEnvAdd(int *a0)
 {
     int *head = _SgGetHeadContext();
@@ -860,8 +842,8 @@ int _SgTableEnvAdd(int *a0)
     int ret;
     unsigned char *tb;
 
-    /* volatile: the ROM reads the vab id at 0x18 twice, once for the range
-       check and again in the delay slot of the _SgGetVabContext call. */
+    /* volatile: the vab id at 0x18 is read twice, once for the range check
+       and again for the _SgGetVabContext call. */
     if ((unsigned int)(*(volatile unsigned short *)((char *)a0 + 0x18) - 1) >= 127) {
         return -1;
     }
@@ -1202,10 +1184,9 @@ int _SgPan(int a0, int a1)
 
 /* End of sequence: a0 is the sequence context, a0[0] its status word, a0[1] the
  * event cursor, a0[5] the repeat state and 0x4C the sequence id the voices carry
- * at slot offset 0x50.  Every status word here is READ through a volatile view
- * and written back plainly: the ROM reloads the word at each update (the tick
- * proc and the IOP both touch these while the sequence runs) but keeps the
- * write-back movable, and it is the store that fills the branch delay slot. */
+ * at slot offset 0x50.  Every status word here is read through a volatile view
+ * (the tick proc and the IOP both touch these while the sequence runs) and
+ * written back plainly. */
 void _SgEndSeq(int *a0)
 {
     unsigned char *s = _SgGetSlotContext(0);
@@ -1350,8 +1331,7 @@ void _SgContModLoop(int *a0)
  * whose program, note and track match takes a glide time of the common tempo
  * times the event's rate over 15 at 0x4C and a per-tick pitch step of the
  * signed or unsigned depth byte over that time at 0x44.  The state and the
- * divisor sit in locals: the ROM loads 2 before 15 ahead of the loop and keeps
- * the divide's zero trap, which a literal divisor would drop (measured). */
+ * divisor sit in locals. */
 void _SgContPolta(char *a0)
 {
     char *p;
@@ -1444,7 +1424,7 @@ void _SgContVol(int *a0)
  * the value lands in the program record at 0x14 and every matching voice is
  * panned through _SgPan and the pan curve.  The voice's own pan byte pair at
  * 0xC is read through the slot table entry for the voice's index, not through
- * the walker: the ROM keeps that table pointer apart from the 0xC offset. */
+ * the walker. */
 void _SgContPan(int *a0)
 {
     unsigned char *s = _SgGetSlotContext(0);
@@ -1500,7 +1480,7 @@ void _SgContPan(int *a0)
  * value, and when it goes to zero every voice the sequence holds either gets
  * its bit set in the common context's 64-bit key-off mask or, if the damper is
  * still down, is marked 8.  The slot status word is read through a volatile
- * view at both sites: the ROM reloads it for the mark. */
+ * view at both sites. */
 void _SgContDump(int *a0)
 {
     unsigned char *s = _SgGetSlotContext(0);
@@ -1533,8 +1513,7 @@ void _SgContDump(int *a0)
  * bytes are e[2] and e[3] (the 16-bit loop target) and e[4] the repeat count;
  * the running count lives at 0x22 and the byte the loop jumps to at 0x24.
  * The flag word is read and written through a volatile view because the tick
- * proc that runs the voice updates it: the ROM reloads it in the arm that
- * clears the loop flag. */
+ * proc that runs the voice updates it. */
 void _SgContSeLoop(int *a0)
 {
     int *p = _SgGetHeadContext();
@@ -2710,14 +2689,11 @@ int SgStAdpcmOpen(void *a0)
 
     _SgGetComContext();
     c = *(int *)(p + 0xC);
-    /* RECONSTRUCTION: the ROM schedules `lui $4,0xff; lui $8,0xff` ahead of
-     * `lbu $5,0($16)` (words 6-8), which the compiler gives only when one
-     * zero-byte instruction that writes the record at p sits between the 0xC
-     * read and the other five reads, in both schedulers; no C construct this
-     * compiler emits yields such an instruction (the port's zero-byte emitters
-     * were enumerated, rows c3p110 and c3p121). The empty asm with the record
-     * as its memory output stands in for Sony's text, which the bytes cannot
-     * show; the reads themselves are plain. */
+    /* RECONSTRUCTION: the empty asm with the record as its memory output
+     * stands in for Sony's text: the object reads the 0xC word first, then
+     * the other five words after both `lui 0xff` mask constants, which
+     * places a write of the record between those reads; the reads
+     * themselves are plain. */
     __asm__("" : "=m"(*(struct { int w[6]; } *)p));
     b0 = *(unsigned char *)p;
     v4 = *(int *)(p + 4);

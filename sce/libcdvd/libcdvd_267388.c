@@ -1,10 +1,6 @@
-/* Vendor SCE library run: libcdvd.a members absent from the January MAIN.MAP
- * link (sceCdStatus, sceCdBreak, sceCdReadClock at 0x267388..0x2675F0).  The
- * retail archive revision, which SRCFILE.TXT's link also carries, added them
- * between cdvd015 and cdvd047; each is referenced from the game, so each
- * could be its own member as cdvd014 and cdvd015 are, but the map names
- * none of them, so the three stay one row named by their address until the
- * ROM forces a split. */
+/* libcdvd.a: sceCdStatus, sceCdBreak and sceCdReadClock, which this build's
+ * archive revision adds between cdvd015 and cdvd047.  Their member names are
+ * not known, so the three share one file named by their address. */
 #include <eekernel.h>
 #include <stdio.h>
 #include <sifrpc.h>
@@ -12,13 +8,8 @@
 #include <libcdvd.h>
 
 /* _sceCd_scmd_semid, the S-command semaphore handle cmd_sem_init creates at
- * run time (cdvd000 defines it), is read through a volatile cast as cdvd000's own sites read it.
- * sceCdBreak's two SignalSema reads are volatile loads in the ROM (neither is
- * moved into a delay slot by the compiler, and the success-path read waits on
- * the store to sceCdCbfunc_num). In sceCdStatus and sceCdReadClock a plain
- * read gives the same text (the compiler fills the call's delay slot where
- * the SDK assembler otherwise does) but a different relocation order, so the
- * member keeps every read volatile, as it was. */
+ * run time (cdvd000 defines it), is read through a volatile cast as
+ * cdvd000's own sites read it. */
 
 int sceCdStatus(void)
 {

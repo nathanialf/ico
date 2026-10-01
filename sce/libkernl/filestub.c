@@ -1,7 +1,4 @@
-/* Vendor SCE library member: libkernl.a(filestub.o).  MAIN.MAP names the
- * member and its .text size (0x3570), which tiles the shipped ELF from one
- * retail function start to the next; VMA 0x2606D0..0x263C40,
- * 38 functions. */
+/* libkernl.a(filestub.o) */
 
 #include <eekernel.h>
 #include <sifrpc.h>
@@ -10,14 +7,13 @@
 #include <sifcmd.h>
 #include <libcdvd.h>
 
-/* filestub.o's .data, in the ROM's order.  _sceFs_q is MAIN.MAP's name: the
-   async request slot table _sceFs_Rcv_Intr matches a reply against, read and
-   written under q_sema; an entry of -1 is free.  The table is written by the
-   SIF receive interrupt, so every access to it is volatile (C volatile ruling
-   2026-09-07).  Then whether sceFsInit has bound the server, the FS call
-   semaphore, the iob table's semaphore and the slot table's guard semaphore
-   (each -1 until created).  The last word, _fs_version's stamp, is defined
-   beside its one user below. */
+/* filestub.o's .data, in link order.  _sceFs_q is the async request slot
+   table _sceFs_Rcv_Intr matches a reply against, read and written under
+   q_sema; an entry of -1 is free.  The table is written by the SIF receive
+   interrupt, so every access to it is volatile.  Then whether sceFsInit has
+   bound the server, the FS call semaphore, the iob table's semaphore and the
+   slot table's guard semaphore (each -1 until created).  The last word,
+   _fs_version's stamp, is defined beside its one user below. */
 
 volatile int _sceFs_q[32] = {
     -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
@@ -100,7 +96,7 @@ ok:
     return p;
 }
 
-/* Reconstruction: the four-byte filesystem version stamp the IOP hands back
+/* The four-byte filesystem version stamp the IOP hands back
    in the RPC receive buffer; _fs_version() memcmps it against the two
    built-in stamps. */
 typedef struct {
@@ -123,15 +119,7 @@ typedef struct {
 /* The SIF command handler for the FS reply.  Each reply word is its own
    local (the header's request id, command, buffer and size, then a
    command's destination and length), filled by a four-byte record copy
-   through the uncached window.  Rung: ROM bytes.  The frame puts them at
-   0x0..0x14 in first-use order, which is where gcc places locals whose
-   address is taken once purge_addressof, after the first cse pass, sends
-   them to the stack; an int array is allocated before them (measured).
-   The same property gives the search its id register: until the purge the
-   id is an ADDRESSOF MEM, so cse1 keeps the peel's read of it, gcse carries
-   that read into the loop, and cse2 then forwards the negated id's store
-   into it, which is the ROM's `daddu $6,$2,$0` beside the `sw $2,0($29)`
-   (an int array or a copy into a second local measured 30 words off). */
+   through the uncached window. */
 void _sceFs_Rcv_Intr(void)
 {
     int id;
@@ -268,10 +256,10 @@ int sceFsInit(void)
     return 0;
 }
 
-/* the stamp _fs_version accepts besides the library's own.  Defined here, after
-   _sceFs_Rcv_Intr, its four dots follow that function's jump table in the
-   member's .rodata as the ROM has them (0x636708), and the pointer is still
-   the member's last .data word. */
+/* the stamp _fs_version accepts besides the library's own.  Defined here,
+   after _sceFs_Rcv_Intr, its four dots follow that function's jump table in
+   the member's .rodata, and the pointer is still the member's last .data
+   word. */
 static char *fs_stamp = "....";
 
 int _fs_version(void)
@@ -299,7 +287,7 @@ int sceFsReset(void)
     return 0;
 }
 
-/* Reconstruction: the 16-byte file-descriptor record new_iob() hands out of
+/* The 16-byte file-descriptor record new_iob() hands out of
    the fsIobTab table; field 0 is the driver handle _sceCallCode returns and
    field 4 the in-use flag new_iob() sets to 0x10000000. */
 typedef struct {
@@ -308,15 +296,10 @@ typedef struct {
     int _8[2];
 } SceIob;
 
-/* Varargs: the mode is the first anonymous argument, read from gcc's own
-   save area after the new_iob() check (the ROM's lw $7,0x120($29)).  One
-   status local, rc, carries the RPC result, the uncached reply word and the
-   returned index, the way sceLseek keeps its own; the ROM's register pairs
-   (name and the semaphore in $s0, the request pointer and the reply word in
-   $s1) need the reply word to be that cross-block variable, since a local
-   used in one block is local-alloc's and takes $s0 first.  The descriptor is
-   stored before the in-use flag is or-ed: the ROM loads `result` ahead of
-   the flag store, which an addressed stack local cannot pass. */
+/* Varargs: the mode is the first anonymous argument, read after the
+   new_iob() check.  One status local, rc, carries the RPC result, the
+   uncached reply word and the returned index, the way sceLseek keeps its
+   own.  The descriptor is stored before the in-use flag is or-ed. */
 int sceOpen(unsigned char *name, int flags, ...)
 {
     int *g = fsSendBuf;
@@ -440,16 +423,9 @@ int sceClose(unsigned int fd)
     return 0;
 }
 
-/* RECONSTRUCTION, the name is ours: whether a descriptor was opened with the
-   no-wait flag (0x8000, SCE_NOWAIT in the public SDK naming), read from the
-   open-mode half of the descriptor's in-use word.  The ROM's second no-wait
-   test in sceLseek (and in sceLseek64, sceRead and sceWrite) is its own
-   `andi 0x8000` on the register the first test already masked: the
-   argument's narrowing is its own insn when the call is inlined, so gcse
-   sees (and (zero_extend (subreg:HI inuse)) 0x8000) apart from the first
-   test's (and inuse 0x8000) and PRE keeps it, and combine then folds the
-   extension into the mask (-da gcse and combine dumps, completeness pass
-   57).  Written plainly, or with the cast at the test, PRE deletes it. */
+/* whether a descriptor was opened with the no-wait flag (0x8000, SCE_NOWAIT
+   in the public SDK naming), read from the open-mode half of the
+   descriptor's in-use word.  The name is ours. */
 static inline int isNowait(unsigned short mode)
 {
     return mode & 0x8000;
@@ -567,8 +543,7 @@ int sceRead(int fd, void *buf, int nbyte)
     }
     sceSifWriteBackDCache(fsRcvPkt, 0xA4);
     /* the request record is flushed through g and handed to the RPC by its
-       symbol: the ROM passes $17 here and rebuilds %lo(fsSendBuf) for the
-       call's fourth argument */
+       symbol */
     sceSifWriteBackDCache(g, 0x20);
     rc = sceSifCallRpc(fsClient, 2, 0, fsSendBuf, 0x20, fsRecvBuf, 4, 0, 0);
     if (rc < 0) {
@@ -650,14 +625,7 @@ int sceWrite(int fd, void *buf, int nbyte)
     }
     buf = (char *)((unsigned int)buf | 0x20000000);
     g[6] = nb;
-    /* What the bytes pin: the head-byte address g + 0x1C is its own insn in the
-       copy loop's preheader, after the loop's test (addiu $6,$18,0x1C), and the
-       store has displacement 0.  A constant-offset index (((char *)g)[0x1C + j])
-       folds the 0x1C into the sb displacement (fold-const.c associate), and a
-       pointer set before the loop is hoisted by gcse PRE above the async block;
-       a set inside the body is what loop.c moves to that preheader.  The copy
-       counter is its own variable: the ROM keeps it in $5, apart from the slot
-       search's i in $6. */
+    /* the name bytes are copied from g + 0x1C on, with their own counter */
     for (j = 0; j < nb; j++) {
         dst = (char *)g + 0x1C;
         dst[j] = ((char *)buf)[j];
@@ -701,21 +669,8 @@ int sceIoctl(unsigned int fd, int request, void *argp)
     int result;
     struct SemaParam sema;
 
-    rc = 1; /* RULING-VESTIGIAL-EXCEPTION instance (user-approved 2026-09-21):
-               a dead assignment the 2001 source carried, overwritten by the
-               sceSifCallRpc result below and read nowhere before it. The ROM
-               proves it: `addiu $21,$0,0x1` at 0x00261A6C is the first
-               instruction after the register saves and puts the constant 1 in
-               a callee-saved register with no consumer until the switch's
-               case-1 test, `beql $17,$21` at 0x00261AEC. Only a const-1
-               pseudo born at the function head survives local_alloc into a
-               callee-saved register and is there for that compare; without
-               the statement the arm builds its own constant and the whole
-               dispatch reorders (211 of 211 instructions, 38 differing
-               words).  Re-audit (completeness pass 57): the two live reads of
-               the 1 the function has, case 1's `*(int *)fsIoctlArg = rc;`
-               and `sema.maxCount = rc;`, were measured and change the function's
-               size (0x344 and 0x354 against the ROM's 0x34C). */
+    rc = 1; /* a dead assignment the 2001 source carried: the sceSifCallRpc
+               result below overwrites it, and nothing reads it before. */
 
     iob = (SceIob *)get_iob(fd);
     _sceFsWaitS(5);

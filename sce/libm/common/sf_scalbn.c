@@ -1,11 +1,9 @@
-/* libm.a member sf_scalbn.o.  MAIN.MAP member spans tile this run exactly and
- * this member starts at an 8-aligned function start of the shipped ELF. */
+/* libm.a member sf_scalbn.o */
 #include <math_private.h>
 #include <math.h>
 
-/* Float<->word access, the public-domain fdlibm idiom (netlib's fdlibm),
-   re-derived, not copied from any SDK.  This member's use stands for a
-   Sony/newlib-internal math_private.h this tree cannot name. */
+/* Float<->word access, the public-domain fdlibm idiom (netlib's fdlibm,
+   math_private.h), defined in this member. */
 
 #define GET_FLOAT_WORD(i, d)                                                                       \
     do {                                                                                           \
@@ -20,9 +18,9 @@
         (d) = sf_u.value;                                                                          \
     } while (0)
 
-/* fdlibm's constant table: the member's whole .rodata (MAIN.MAP sf_scalbn.o
- * .rodata 0x10, four words in declaration order).  The code loads each one as
- * an immediate, so the table is referenced by nothing. */
+/* fdlibm's constant table: the member's whole .rodata (0x10, four words in
+ * declaration order).  The code loads each one as an immediate, so the table
+ * is referenced by nothing. */
 static const float two25 = 3.355443200e+07, /* 0x4c000000 */
     twom25 = 2.9802322388e-08,              /* 0x33000000 */
     huge = 1.0e+30, tiny = 1.0e-30;

@@ -1,7 +1,5 @@
-# libc.a member strncpy.o.  SRCFILE.TXT attributes every instruction to
-# src/newlib/libc/machine/r5900/strncpy.S (listing line 519669 on), so this
-# member was assembled, not compiled.  Transcribed from the shipped instruction
-# stream (rungs: ROM bytes, the listing rows).
+# libc.a member strncpy.o, assembled from newlib's
+# src/newlib/libc/machine/r5900/strncpy.S.
     .section .text
     .set noat
     .set noreorder

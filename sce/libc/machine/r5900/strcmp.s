@@ -1,9 +1,5 @@
-# libc.a member strcmp.o.  SRCFILE.TXT attributes every instruction to
-# src/newlib/libc/machine/r5900/strcmp.S (listing line 518989 on), so it was
-# assembled, not compiled.  Transcribed from the shipped instruction stream
-# (rungs: ROM bytes, the listing rows).  MAIN.MAP sizes strcmp.o at 0x144.  It
-# starts at 0x0027F614, right after strcat.o: the ROM start is 4-aligned, so
-# the section is only word-aligned.
+# libc.a member strcmp.o, assembled from newlib's
+# src/newlib/libc/machine/r5900/strcmp.S. The section is only word-aligned.
     .section .text
     .set noat
     .set noreorder

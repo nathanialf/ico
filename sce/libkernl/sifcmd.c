@@ -1,7 +1,4 @@
-/* Vendor SCE library member: libkernl.a(sifcmd.o).  MAIN.MAP names the
- * member and its .text size (0x748), which tiles the shipped ELF from one
- * retail function start to the next (the retail link has it after tlbtrap.o, where the January listing also puts it; MAIN.MAP's own link has it after tty.o); VMA 0x2653A0..0x265AE8,
- * 16 functions. */
+/* libkernl.a(sifcmd.o) */
 
 #include <eekernel.h>
 #include <sifrpc.h>
@@ -10,8 +7,7 @@
 #include <eeregs.h>
 #include <libkernl_internal.h>
 
-/* eekernel.h's spelling: a void call leaves no value register set after it,
-   which sceSifInitCmd's allocation after its FlushCache call shows. */
+/* eekernel.h's spelling: FlushCache returns nothing. */
 
 void _set_sreg(int *a0, int *a1)
 {
@@ -23,14 +19,14 @@ void _change_addr(int *a0, int *a1)
     a1[2] = a0[4];
 }
 
-/* Reconstruction: the 32-entry SIF command handler table, a
+/* The 32-entry SIF command handler table, a
    handler function and the data pointer handed to it. */
 typedef struct {
     void (*fn)();
     void *data;
 } SifCmdEntry;
 
-/* Reconstruction: the SIF command data record (fields 3/4 and 5/6
+/* The SIF command data record (fields 3/4 and 5/6
    are what sceSifSetSysCmdBuffer and sceSifSetCmdBuffer swap). */
 typedef struct {
     int sendbuf;
@@ -45,8 +41,7 @@ typedef struct {
 
 /* the member's .bss: the uncached send and ack buffers and the init packet on
    64-byte DMA lines, the DMAC handler id, the command data record, the system
-   handler table (the bytes pin at least 16-byte alignment) and the software
-   registers */
+   handler table (at least 16-byte aligned) and the software registers */
 static int cmdSendBuf[32] __attribute__((aligned(64))); /* derived name */
 
 static int cmdAckBuf[16] __attribute__((aligned(64))); /* derived name */
@@ -99,9 +94,8 @@ void sceSifInitCmd(void)
     cmdData.usrtbl = 0;
     cmdData.nusr = 0;
     cmdData.sreg = cmdSreg;
-    /* Both loops count up with the one i: loop.c reverses each counter and,
-       since i is shared, sets i = 32 after the second, which is the register
-       the DMAC status write below stores (the ROM keeps i in $16). */
+    /* Both loops count up with the one i, which ends at 32 for the DMAC
+       status write below. */
     h = sysCmdTable;
     for (i = 0; i < 32; i++) {
         h->fn = 0;
@@ -334,11 +328,9 @@ __asm__(".section .text\n"
         "    .set reorder\n"
         "    .set at\n");
 
-/* The four `.align 2` directives below are the ones the shipped function's own
- * asm carries at its internal labels; they emit no bytes here, but without them
- * the period assembler inserts two nops before the first loop's closing bgtz
- * as soon as any other function in the object is compiled C rather than
- * assembled. */
+/* The four `.align 2` directives below sit at the function's own internal
+ * labels; they emit no bytes here, and without them the period assembler
+ * inserts two nops before the first loop's closing bgtz. */
 __asm__(".section .text\n"
         "    .set noat\n"
         "    .set noreorder\n"
@@ -402,7 +394,6 @@ __asm__(".section .text\n"
         "    .set reorder\n"
         "    .set at\n");
 
-/* The stray jr that closes the block above has no delay-slot instruction of
-   its own: the next input, libcdvd.a(cdvd000), starts with CB_DelayTh at
-   0x265AE8, whose first word sits in that slot.  The member boundary is the
-   object boundary, as the retail link had it. */
+/* The jr that closes the block above has no delay-slot instruction of its
+   own: the next object, libcdvd.a(cdvd000), starts with CB_DelayTh, whose
+   first word sits in that slot. */

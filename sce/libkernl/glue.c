@@ -1,7 +1,4 @@
-/* Vendor SCE library member: libkernl.a(glue.o).  MAIN.MAP names the
- * member and its .text size (0x338), which tiles the shipped ELF from one
- * retail function start to the next; VMA 0x25EF18..0x25F250,
- * 16 functions. */
+/* libkernl.a(glue.o) */
 #include <eeregs.h>
 #include <eekernel.h>
 #include <errno.h>
@@ -11,8 +8,9 @@
 
 /* glue.o's .data: whether the tty is open (write and read open it on first
    use), then sbrk's current break, which starts at the end of the program's
-   bss (the linker's _end).  MAIN.MAP names neither, so both are statics. */
-/* kept local: the link's end of .bss, which no header declares */
+   bss (the linker's _end).  Neither has a global symbol, so both are
+   statics. */
+/* The link's end of .bss, which no header declares */
 extern char _end[];
 
 static int tty_opened = 0;
@@ -20,7 +18,7 @@ static int tty_opened = 0;
 static char *heap_ptr = _end;
 
 /* unprototyped: sceResetttyinit passes the port, write and read call it bare */
-/* kept local: not yet moved to libkernl_internal.h */
+/* not declared in libkernl_internal.h */
 extern int sceTtyInit();
 
 void sceResetttyinit(int a0)
@@ -29,17 +27,8 @@ void sceResetttyinit(int a0)
     sceTtyInit(a0);
 }
 
-/* VSync polls INTC_STAT (0x1000F000) for the VBLANK bit and clears it, which
-   is one of the whole-function asm exceptions this project documents (a
-   busy-wait on a hardware register).  It is assembled here rather than written
-   in C because two measurements say no C that keeps the data model reaches the
-   ROM's last two words, which end `jr $31` with `sw $2,-0x1000($1)` in the
-   delay slot: gcc's reorg cannot fill a return's delay slot with a VOLATILE
-   store, and a store through an ABSOLUTE CONSTANT address is a two-instruction
-   assembler macro and so is not eligible for a delay slot either; this
-   function's store is both.  ee-as never fills a `j $31` slot itself.  The C
-   that produces the other fourteen words is kept on record in
-   tails/seeds/libkernl_25EF18.c1p40_VSync_16of16_strict2.c. */
+/* VSync polls INTC_STAT (0x1000F000) for the VBLANK bit and clears it: a
+   busy-wait on a hardware register, written as a whole-function asm. */
 __asm__(".section .text\n"
         "    .set noat\n"
         "    .set noreorder\n"
@@ -81,7 +70,7 @@ long long VSync2(void)
     return val;
 }
 
-/* kept local: not yet moved to libkernl_internal.h */
+/* not declared in libkernl_internal.h */
 extern int sceTtyWrite(char *buf, int len);
 extern int sceTtyRead(void *buf, int size);
 

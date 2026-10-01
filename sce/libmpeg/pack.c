@@ -1,6 +1,5 @@
-/* Vendor SCE library member: libmpeg.a(pack.o).  MAIN.MAP's member size (0xDD8)
- * tiles the retail run exactly, VMA 0x26A630..0x26B408, 8 functions: the PSS
- * demultiplexer and its pack, system and PES header parsers. */
+/* libmpeg.a(pack.o): the PSS demultiplexer and its pack, system and PES
+ * header parsers. */
 #include <libmpeg.h>
 #include <libmpeg_internal.h>
 
@@ -171,7 +170,7 @@ typedef struct {
     void *arg;
 } StrCb;
 
-/* kept local: its record type is this member's own */
+/* Its record type is this member's own */
 extern int _pack_header(int *bs, P24D418 *pkt);
 extern int _PES_packet(int *bs, PesPkt *pkt);
 

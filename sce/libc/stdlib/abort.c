@@ -1,5 +1,4 @@
-/* libc.a member abort.o.  MAIN.MAP member spans tile this run exactly and
- * this member starts at an 8-aligned function start of the shipped ELF. */
+/* libc.a member abort.o */
 #include <reent.h>
 #include <signal.h>
 #include <stdlib.h>

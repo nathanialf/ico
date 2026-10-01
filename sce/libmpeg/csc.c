@@ -1,6 +1,4 @@
-/* Vendor SCE library member: libmpeg.a(csc.o).  MAIN.MAP's member size (0x71C)
- * tiles the retail run, VMA 0x271938..0x272054, 5 functions, then 4 bytes of
- * link fill to bit.o: the IPU colour space conversion and its DMA feeders. */
+/* libmpeg.a(csc.o): the IPU colour space conversion and its DMA feeders. */
 #include <libmpeg.h>
 #include <libmpeg_internal.h>
 #include <eeregs.h>
@@ -22,9 +20,9 @@ void _doCSC(int a0, int a1)
 }
 
 /* the member's .data: the conversion's error flag, then the chunk count
- * (MAIN.MAP's _cscDma, the member's one global): the channel-3 handler bumps
- * it while _doCSC2 polls it, so every read is fresh.  The ROM pins _cscDma's
- * 8-aligned start at +8 and the member's 0x18 end, not the array's length. */
+ * (_cscDma, the member's one global): the channel-3 handler bumps it while
+ * _doCSC2 polls it, so every read is fresh.  _cscDma starts 8-aligned at +8
+ * and the member's .data ends at 0x18. */
 static int cscError = 0; /* derived name */
 
 volatile int _cscDma[4] = {0, 0, 0, 0};
@@ -72,10 +70,7 @@ int _ch3dmaCSC(int channel)
 
 /* More than 1023 macroblocks: the conversion runs in 1023-macroblock chunks,
  * the first kicked here and the rest by _ch3dmaCSC.  The first chunk's
- * quadword count is named once at the top; the compiler re-materialises it
- * just before its store, after the first scheduling pass, and that pass's
- * order is what puts the callback kind in $a0 ahead of the IPU command write
- * (the bytes pin the moved constant, not the variable's name). */
+ * quadword count is named once at the top. */
 void _doCSC2(int a0, int a1)
 {
     int buf[8];
@@ -96,9 +91,7 @@ void _doCSC2(int a0, int a1)
     *D3_CHCR = 0x100;
     *IPU_CMD = 0x700003FF;
     buf[0] = 4;
-    /* the handle read in int's alias set, as mpc.c's _groupOfPicturesHeader
-     * reads it: the load then waits for the register writes, after the
-     * record store */
+    /* the handle read as an int, as mpc.c's _groupOfPicturesHeader reads it */
     _dispatchMpegCallback((void *)(int)_theSceMpeg, buf);
     while (_cscDma[0] < cscChunks) {}
     if (*(volatile int *)&cscError != 0) {

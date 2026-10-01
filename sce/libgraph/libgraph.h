@@ -1,16 +1,10 @@
 /*
  * sce/libgraph/libgraph.h
  *
- * PUBLIC SDK NAMING RUNG.  The disc attests no declaration-only header: a
- * header that only declares leaves no instruction in SRCFILE.TXT and no
- * symbol in MAIN.MAP, so neither its name nor its contents can be read off
- * the ROM.  What places this file is the public naming of the PS2 SDK and of
- * newlib, whose header for these entry points is called libgraph.h and whose
- * archive is this directory's; the declarations themselves are the tree's
- * own facts, each one either the signature of the member that defines the
- * symbol in sce/ or, where the member is still an assembled stub, the
- * spelling the calling TUs already carried and which keeps every one of them
- * byte-identical.  Nothing here is copied from an SDK header.
+ * Declarations of the entry points this tree calls, under the public name
+ * of the PS2 SDK and newlib header for them (libgraph.h).  Each one is
+ * the signature of the member that defines the symbol in sce/.  Nothing here
+ * is copied from an SDK header.
  *
  * Only what this tree uses is declared.
  */
@@ -76,17 +70,13 @@ typedef struct {
     unsigned long long test_1r_addr; /* 0x58 */
 } sceGsClear;
 
-void *sceGsGetGParam(void);     /* definition in sce/ */
-unsigned long sceGsGetIMR(void); /* definition in sce/ */
-void sceGsPutDispEnv(void *a0); /* definition in sce/ */
-int sceGsPutDrawEnv(void *a0);  /* definition in sce/ */
-unsigned long sceGsPutIMR(unsigned long imr); /* definition in sce/ */
-
-void sceGsResetGraph(
-    short mode, short inter, short omode,
-    short ffmd); /* definition in sce/; the ROM sign-extends all four with sll/sra */
-
-void sceGsResetPath(void);                      /* dominant spelling at 4 sites */
+void *sceGsGetGParam(void);                                             /* definition in sce/ */
+unsigned long sceGsGetIMR(void);                                        /* definition in sce/ */
+void sceGsPutDispEnv(void *a0);                                         /* definition in sce/ */
+int sceGsPutDrawEnv(void *a0);                                          /* definition in sce/ */
+unsigned long sceGsPutIMR(unsigned long imr);                           /* definition in sce/ */
+void sceGsResetGraph(short mode, short inter, short omode, short ffmd); /* definition in sce/ */
+void sceGsResetPath(void);
 int sceGsSetDefAlphaEnv(long long *a0, int a1); /* definition in sce/ */
 
 void sceGsSetDefDispEnv(sceGsDispEnv *disp, short psm, short w, short h, short dx,
@@ -102,9 +92,10 @@ int sceGsSetDefDrawEnv(sceGsDrawEnv *env, short psm, short w, short h, short zts
 int sceGsSetDefTexEnv(sceGsTexEnv *env, short flush, short tbp, short tbw, short psm, short tw,
                       short th, short tfx, short cbp, short cpsm, short cld,
                       short flt); /* definition in sce/ */
-int sceGsSwapDBuff(void *a0, int a1);              /* definition in sce/ */
+
+int sceGsSwapDBuff(void *a0, int a1);                /* definition in sce/ */
 int sceGsSyncPath(int mode, unsigned short timeout); /* definition in sce/ */
-int sceGsSyncV(int mode);                          /* definition in sce/ */
-short sceGszbufaddr(short a0, short a1, short a2); /* definition in sce/ */
+int sceGsSyncV(int mode);                            /* definition in sce/ */
+short sceGszbufaddr(short a0, short a1, short a2);   /* definition in sce/ */
 
 #endif /* SCE_LIBGRAPH_LIBGRAPH_H */

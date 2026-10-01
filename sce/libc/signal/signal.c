@@ -1,5 +1,4 @@
-/* libc.a member signal.o.  MAIN.MAP member spans tile this run exactly and
- * this member starts at an 8-aligned function start of the shipped ELF. */
+/* libc.a member signal.o */
 #include <stdlib.h>
 #include <string.h>
 #include <reent.h>
@@ -47,10 +46,10 @@ unsigned int _signal_r(void *a0, int a1, int a2)
     return old;
 }
 
-/* kept local: reent.h leaves it out: its definition takes no reentrancy pointer, which this
+/* reent.h leaves it out: its definition takes no reentrancy pointer, which this
    member passes */
 extern int _getpid_r(void *ptr);
-/* kept local: reent.h leaves it out: its definition's argument types do not fit this member's
+/* reent.h leaves it out: its definition's argument types do not fit this member's
    calls */
 extern int _kill_r(void *ptr, int pid, int sig);
 

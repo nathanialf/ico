@@ -1,5 +1,4 @@
-/* libpkt.a member vifpk039.o.  MAIN.MAP member spans tile this run exactly and
- * this member starts at an 8-aligned function start of the shipped ELF. */
+/* libpkt.a member vifpk039.o */
 #include <libpkt.h>
 
 typedef unsigned int u128_241778 __attribute__((mode(TI)));

@@ -1,18 +1,13 @@
-/* libc.a member strtod.o.  MAIN.MAP member spans tile this run exactly and
- * this member starts at an 8-aligned function start of the shipped ELF. */
+/* libc.a member strtod.o */
 #include <stdlib.h>
 #include <reent.h>
 #include <libc_internal.h>
 
 /* newlib's mprec.h configuration for this build, spelled out in the member
-   that uses it.  Evidence rung: the SRCFILE.TXT line map of _strtod_r picks
-   the arm of every switch below (lines 273..278 absent and 276/277 present
-   so VAX is off; 306..309 present so Inaccurate_Divide is off; 328 present
-   so _HAVE_STDC is on and the overflow value is HUGE_VAL; 443..448 absent
-   and 450..454 present so Sudden_Underflow is off; 546 present so
-   ROUND_BIASED is off; 592..605 absent so Check_FLT_ROUNDS is off and
-   FLT_ROUNDS folds to 1; 362 and 625 present with their _DOUBLE_IS_32BITS
-   arms absent, so doubles are 64-bit IEEE little-endian). */
+   that uses it: VAX off, Inaccurate_Divide off, _HAVE_STDC on (the overflow
+   value is HUGE_VAL), Sudden_Underflow off, ROUND_BIASED off,
+   Check_FLT_ROUNDS off (FLT_ROUNDS folds to 1), and doubles 64-bit IEEE
+   little-endian. */
 typedef unsigned int ULong;
 
 #define Long int
@@ -71,7 +66,7 @@ union __dmath {
     double d;
 };
 
-/* kept local: its definition in sce/libc/s_infconst.c is one union, not this member's array */
+/* Its definition in sce/libc/s_infconst.c is one union, not this member's array */
 extern const union __dmath __infinity[1];
 
 #define HUGE_VAL (__infinity[0].d)

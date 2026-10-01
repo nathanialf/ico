@@ -1,5 +1,4 @@
-/* libc.a member fflush.o.  MAIN.MAP member spans tile this run exactly and
- * this member starts at an 8-aligned function start of the shipped ELF. */
+/* libc.a member fflush.o */
 #include <reent.h>
 #include <libc_internal.h>
 #include <stdio.h>
@@ -15,7 +14,7 @@ struct D520 {
 #define __SERR 0x0040
 #define EOF (-1)
 
-/* kept local: libc_internal.h declares it as `int _fwalk(Reent *ptr, int (*function)())` */
+/* this member's own declaration; libc_internal.h declares it as `int _fwalk(Reent *ptr, int (*function)())` */
 extern int _fwalk(Reent *r, int (*func)());
 
 int fflush(Fil *fp)
@@ -33,8 +32,7 @@ int fflush(Fil *fp)
         if (fp->data->sdidinit == 0)
             __sinit(fp->data);
     } while (0);
-    /* newlib spells the flags word and the write count with one variable t,
-       which is what keeps ROM's copy of the write result out of $2. */
+    /* newlib spells the flags word and the write count with one variable t */
     t = fp->flags;
     if ((t & __SWR) == 0) {
         return 0;

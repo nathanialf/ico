@@ -1,16 +1,10 @@
 /*
  * sce/libm/math.h
  *
- * PUBLIC SDK NAMING RUNG.  The disc attests no declaration-only header: a
- * header that only declares leaves no instruction in SRCFILE.TXT and no
- * symbol in MAIN.MAP, so neither its name nor its contents can be read off
- * the ROM.  What places this file is the public naming of the PS2 SDK and of
- * newlib, whose header for these entry points is called math.h and whose
- * archive is this directory's; the declarations themselves are the tree's
- * own facts, each one either the signature of the member that defines the
- * symbol in sce/ or, where the member is still an assembled stub, the
- * spelling the calling TUs already carried and which keeps every one of them
- * byte-identical.  Nothing here is copied from an SDK header.
+ * Declarations of the entry points this tree calls, under the public name
+ * of the PS2 SDK and newlib header for them (math.h).  Each one is
+ * the signature of the member that defines the symbol in sce/.  Nothing here
+ * is copied from an SDK header.
  *
  * Only what this tree uses is declared.
  */
@@ -41,6 +35,7 @@ float fmodf(float x, float y);       /* definition in sce/ */
 float sinf(float x);                 /* definition in sce/ */
 float copysignf(float a0, float a1); /* definition in sce/ */
 int isnanf(float x);                 /* definition in sce/ */
+
 /* newlib's math.h: the record the wrappers hand matherr */
 struct exception {
     int type;      /* 0x0 */
@@ -51,9 +46,9 @@ struct exception {
     int err;       /* 0x20 */
 };
 
-int matherr(struct exception *x);    /* definition in sce/ */
-float scalbnf(float x, int n);       /* definition in sce/ */
-int isinf(long long x);              /* definition in sce/ */
-int isnan(long long x);              /* definition in sce/ */
+int matherr(struct exception *x); /* definition in sce/ */
+float scalbnf(float x, int n);    /* definition in sce/ */
+int isinf(long long x);           /* definition in sce/ */
+int isnan(long long x);           /* definition in sce/ */
 
 #endif /* SCE_LIBM_MATH_H */

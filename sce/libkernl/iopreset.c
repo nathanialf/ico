@@ -1,7 +1,4 @@
-/* Vendor SCE library member: libkernl.a(iopreset.o).  MAIN.MAP names the
- * member and its .text size (0x2B0), which tiles the shipped ELF from one
- * retail function start to the next; VMA 0x264838..0x264AE8,
- * 4 functions. */
+/* libkernl.a(iopreset.o) */
 
 #include <stdio.h>
 #include <sifrpc.h>

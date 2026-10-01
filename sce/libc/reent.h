@@ -1,39 +1,34 @@
 /*
  * sce/libc/reent.h
  *
- * PUBLIC SDK NAMING RUNG.  The disc attests no declaration-only header.  This
- * file carries the record shapes that this archive's members all carried a
- * private copy of; its name is the public one the archive's own sources use.
- * The shapes are read back from the ROM's loads and stores, not copied from
- * any SDK header.
+ * The record shapes this archive's members share, under the public name the
+ * archive's own sources use for this header.  The shapes follow the members'
+ * loads and stores; nothing here is copied from an SDK header.
  */
 #ifndef SCE_LIBC_REENT_H
 #define SCE_LIBC_REENT_H
 
-/* RECONSTRUCTION, PLACED BY INCLUDE PATTERN: one record, previously repeated character for character in 56 TUs. */
 typedef struct PObjBlk {
     char pad0[4];
     unsigned int size; /* 0x4 */
 } PObjBlk;
 
-/* RECONSTRUCTION, PLACED BY INCLUDE PATTERN: one record, previously repeated character for character in 2 TUs. */
 typedef struct {
     unsigned char *base; /* 0x0 */
     int size;            /* 0x4 */
 } Sbuf;
 
-/* RECONSTRUCTION, PLACED BY INCLUDE PATTERN: one record, previously repeated character for character in 56 TUs. */
 typedef struct {
     char *pos; /* 0x0 */
     int len;   /* 0x4 */
 } StreamBuf;
 
-/* RECONSTRUCTION, PLACED BY INCLUDE PATTERN: the reentrancy record every member
+/* The reentrancy record every member
  * of this archive reaches through the stream record's data field, defined after
  * the stream record it holds three of. */
 struct Reent;
 
-/* RECONSTRUCTION, PLACED BY INCLUDE PATTERN: the chain of stream record blocks
+/* The chain of stream record blocks
  * the reentrancy record heads. */
 typedef struct Glue {
     struct Glue *next; /* 0x0 */
@@ -41,8 +36,7 @@ typedef struct Glue {
     struct Fil *iobs;  /* 0x8 */
 } Glue;
 
-/* RECONSTRUCTION, PLACED BY INCLUDE PATTERN: one record for the archive's stream
- * members, which carried six divergent local copies of it. */
+/* The stream record the archive's stdio members share. */
 typedef struct Fil {
     unsigned char *p; /* 0x00 */
     int r;            /* 0x04 */
@@ -52,19 +46,19 @@ typedef struct Fil {
     Sbuf bf;          /* 0x10 */
     int lbfsize;      /* 0x18 */
     void *cookie;     /* 0x1C, the argument the four stream calls below take */
-    int (*read)(void *cookie, char *buf, int n);    /* 0x20 */
-    int (*write)(void *cookie, char *buf, int n);   /* 0x24 */
+    int (*read)(void *cookie, char *buf, int n);      /* 0x20 */
+    int (*write)(void *cookie, char *buf, int n);     /* 0x24 */
     long (*seek)(void *cookie, long off, int whence); /* 0x28 */
-    int (*close)(void *cookie);                     /* 0x2C */
-    Sbuf ub;                                        /* 0x30 */
-    unsigned char *up;                              /* 0x38 */
-    int ur;                                         /* 0x3C */
-    unsigned char ubuf[3];                          /* 0x40 */
-    unsigned char nbuf[1];                          /* 0x43 */
-    Sbuf lb;                                        /* 0x44 */
-    int blksize;                                    /* 0x4C */
-    int offset;                                     /* 0x50 */
-    struct Reent *data;                             /* 0x54 */
+    int (*close)(void *cookie);                       /* 0x2C */
+    Sbuf ub;                                          /* 0x30 */
+    unsigned char *up;                                /* 0x38 */
+    int ur;                                           /* 0x3C */
+    unsigned char ubuf[3];                            /* 0x40 */
+    unsigned char nbuf[1];                            /* 0x43 */
+    Sbuf lb;                                          /* 0x44 */
+    int blksize;                                      /* 0x4C */
+    int offset;                                       /* 0x50 */
+    struct Reent *data;                               /* 0x54 */
 } Fil;
 
 /* newlib's big integer (sys/reent.h): mprec's Balloc keeps a free list of
@@ -104,13 +98,15 @@ typedef struct Reent {
     Fil sf[3];                  /* 0x1E4 */
 } Reent;
 
-extern Reent *_impure_ptr;                       /* definition in sce/ (reent/impure.c) */
-int _close_r(Reent *ptr, int fd);                           /* definition in sce/ */
-long _read_r(Reent *ptr, int fd, void *buf, int cnt);       /* definition in sce/ */
-long _write_r(Reent *ptr, int fd, void *buf, int cnt);      /* definition in sce/ */
-long _lseek_r(Reent *ptr, int fd, long pos, int whence);      /* definition in sce/ */
+extern Reent *_impure_ptr;                               /* definition in sce/ (reent/impure.c) */
+int _close_r(Reent *ptr, int fd);                        /* definition in sce/ */
+long _read_r(Reent *ptr, int fd, void *buf, int cnt);    /* definition in sce/ */
+long _write_r(Reent *ptr, int fd, void *buf, int cnt);   /* definition in sce/ */
+long _lseek_r(Reent *ptr, int fd, long pos, int whence); /* definition in sce/ */
+
 struct stat;
-int _fstat_r(Reent *ptr, int fd, struct stat *pstat);        /* definition in sce/ */
-int _sbrk_r(Reent *ptr, int incr);                          /* definition in sce/ */
+
+int _fstat_r(Reent *ptr, int fd, struct stat *pstat); /* definition in sce/ */
+int _sbrk_r(Reent *ptr, int incr);                    /* definition in sce/ */
 
 #endif /* SCE_LIBC_REENT_H */

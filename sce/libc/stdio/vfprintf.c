@@ -1,5 +1,4 @@
-/* libc.a member vfprintf.o.  MAIN.MAP member spans tile this run exactly and
- * this member starts at an 8-aligned function start of the shipped ELF. */
+/* libc.a member vfprintf.o */
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -11,7 +10,7 @@ struct D520 {
     PObjBlk *blk; /* 0x8 */
 };
 
-/* kept local: this member cannot include libc_internal.h, whose _vfprintf_r conflicts with its own */
+/* this member does not include libc_internal.h, whose _vfprintf_r conflicts with its own */
 extern int _vfprintf_r();
 extern int __sfvwrite();
 
@@ -34,8 +33,8 @@ struct __suio {
     int uio_resid;          /* 0x8 */
 };
 
-/* census __sprint, a file static (sce/libc/stdio/vfiprintf holds the global);
-   _vfprintf_r's stub calls it and the same-object definition binds first. */
+/* __sprint, a file static (sce/libc/stdio/vfiprintf.c holds the global of
+   the same name). */
 static int __sprint(fp, uio)
 Fil *fp;
 
@@ -54,9 +53,8 @@ register struct __suio *uio;
     return (err);
 }
 
-/* census __sbprintf, a file static (sce/libc/stdio/vfiprintf holds the global
-   at 0x00280160); _vfprintf_r's stub calls it and the same-object definition
-   binds first. */
+/* __sbprintf, a file static (sce/libc/stdio/vfiprintf.c holds the global of
+   the same name). */
 static int __sbprintf(Fil *fp, const char *fmt, void *ap)
 {
     int ret;
@@ -109,19 +107,19 @@ typedef int wchar_t;
 #define __SERR 0x0040
 #define NULL 0
 
-/* kept local: this member cannot include libc_internal.h, whose _vfprintf_r conflicts with its own */
+/* this member does not include libc_internal.h, whose _vfprintf_r conflicts with its own */
 extern int __sfvwrite(Fil *fp, struct __suio *uio);
 extern int __swsetup(Fil *fp);
-/* kept local: this member cannot include libc_internal.h, whose _vfprintf_r conflicts with its own */
+/* this member does not include libc_internal.h, whose _vfprintf_r conflicts with its own */
 extern void __sinit(Reent *ptr);
-/* kept local: stdlib.h leaves it out: its definition's argument list does not fit this member's
+/* stdlib.h leaves it out: its definition's argument list does not fit this member's
    calls */
 extern int _mbtowc_r(Reent *ptr, wchar_t *pwc, const char *s, int n, int *state);
-/* kept local: math.h declares it as `int isinf(long long x)` */
+/* this member's own declaration; math.h declares it as `int isinf(long long x)` */
 extern int isinf(double d);
-/* kept local: math.h declares it as `int isnan(long long x)` */
+/* this member's own declaration; math.h declares it as `int isnan(long long x)` */
 extern int isnan(double d);
-/* kept local: stdlib.h leaves it out: its definition takes dtoa.c's own DtoaReent record */
+/* stdlib.h leaves it out: its definition takes dtoa.c's own DtoaReent record */
 extern char *_dtoa_r(Reent *ptr, double d, int mode, int ndigits, int *decpt, int *sign,
                      char **rve);
 
@@ -130,7 +128,7 @@ struct lconv {
     char *decimal_point; /* 0x0 */
 };
 
-/* kept local: no header declares it; its definition in sce/libc/locale returns void * */
+/* No header declares it; its definition in sce/libc/locale returns void * */
 extern struct lconv *localeconv(void);
 
 #define _REENT (_impure_ptr)

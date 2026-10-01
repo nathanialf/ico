@@ -1,7 +1,5 @@
-/* Vendor SCE library member: libmpeg.a(mpeg.o).  MAIN.MAP's member size (0xBD0)
- * tiles the retail run exactly, VMA 0x26B408..0x26BFD8, 35 functions: the
- * sceMpeg entry points, the callback dispatch, the arena allocator and the
- * picture loop. */
+/* libmpeg.a(mpeg.o): the sceMpeg entry points, the callback dispatch, the
+ * arena allocator and the picture loop. */
 #include <libmpeg.h>
 #include <libmpeg_internal.h>
 #include <eeregs.h>
@@ -12,9 +10,8 @@
 static char sceMpegVersion[16] = "PsIIlibmpeg 2200"; /* derived name */
 
 /* The DMAC and IPU registers are hardware the DMAC itself updates, so every
-   access is volatile. The second write of the enable register at 0x1000F590 is
-   plain: its address is already live in a register from the first write, and
-   only a non-volatile store can be scheduled into the delay slot of jal EIntr. */
+   access is volatile, except the second write of the enable register at
+   0x1000F590, whose address is already live from the first write. */
 void sceMpegInit(void)
 {
     DIntr();
@@ -28,7 +25,7 @@ void sceMpegInit(void)
     sceIpuInit();
 }
 
-/* kept local: libmpeg.h leaves it out: this member passes an argument its definition does not
+/* libmpeg.h leaves it out: this member passes an argument its definition does not
    take */
 extern int sceMpegClearRefBuff();
 

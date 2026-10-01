@@ -1,12 +1,8 @@
-/* Vendor SCE library member: libkernl.a(thread.o).  MAIN.MAP places this member at
- * the same address as the shipped ELF and its size tiles the run exactly, every
- * boundary a retail function start; VMA 0x100D68..0x1010C8, 5 functions. */
+/* libkernl.a(thread.o) */
 #include <eekernel.h>
 #include <libkernl_internal.h>
 
-/* EE syscall leaf wrappers.  This member's uses stand for a Sony-internal
-   header this tree cannot name: MAIN.MAP attests archives and their members,
-   never a header, so the definitions are kept per member.  Body is the
+/* EE syscall leaf wrappers, defined in this member.  Body is the
    four-instruction leaf `addiu $3,$zero,NUM; syscall 0; jr $31; nop`, the
    last two supplied by gcc's epilogue. */
 #define SYSCALL_WRAPPER(name, num)                                                                 \
@@ -14,10 +10,9 @@
     {                                                                                              \
         __asm__ __volatile__("addiu $3, $0, " #num "\n\tsyscall 0" : : : "$3", "memory");          \
     }
-/* The same leaf issued INLINE, for the members that act on its result.
+/* The same leaf issued inline, for the members that act on its result.
    `dst` is bound to $v0 because that is where the kernel ABI leaves the
-   result; a plain "=r" output would let gcc pick a register the kernel
-   never writes.  Operand binding, not a scheduling pin. */
+   result. */
 #define SYSCALL_INLINE(num, dst)                                                                   \
     {                                                                                              \
         register int __sc_ret __asm__("$2");                                                       \
@@ -77,7 +72,7 @@ void topThread(void *arg)
 /* the kernel event thread's id, zero until InitKernEvent creates it */
 static int kernEventThreadId = 0;
 
-/* kept local: the link's small-data base, which no header declares */
+/* The link's small-data base, which no header declares */
 extern char _gp[];
 
 int InitThread(void)

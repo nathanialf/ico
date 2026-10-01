@@ -1,5 +1,4 @@
-/* libgcc.a member __main.o.  MAIN.MAP member spans tile this run exactly and
- * this member starts at an 8-aligned function start of the shipped ELF. */
+/* libgcc.a member __main.o */
 #include "libgcc2.h"
 
 void __do_global_dtors(void)
@@ -13,11 +12,8 @@ void __do_global_dtors(void)
 
 /* libgcc2.c's __do_global_ctors is one line, the DO_GLOBAL_CTORS_BODY macro
    gbl-ctors.h defines, and that macro is written in the ordinary multi-statement
-   `do { ... } while (0)` form. The wrapper is transcribed here because it is the
-   member's source: it is also what puts the counter in $17 and the address in
-   $16, since the extra loop level raises the loop depth flow.c weights the two
-   allocnos' reference counts by and carries the address register's count across
-   a floor_log2 step in allocno_compare. */
+   `do { ... } while (0)` form.  The wrapper is transcribed here because it is
+   the member's public source. */
 void __do_global_ctors(void)
 {
     do {

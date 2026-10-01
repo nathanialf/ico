@@ -1,5 +1,4 @@
-/* libc.a member strtol.o.  MAIN.MAP member spans tile this run exactly and
- * this member starts at an 8-aligned function start of the shipped ELF. */
+/* libc.a member strtol.o */
 #include <stdlib.h>
 #include <string.h>
 #include <reent.h>
@@ -10,9 +9,9 @@ struct D520 {
     PObjBlk *blk; /* 0x8 */
 };
 
-/* MAIN.MAP member strtol.o: this is the reentrant worker `strtol` calls, i.e.
-   newlib's _strtol_r; the shipped ELF has no symbol for it, so splat named it
-   _strtol_r, now under its own row.  Its twin _strtoul_r sits in the strtoul.o member. */
+/* libc.a member strtol.o: this is the reentrant worker `strtol` calls, i.e.
+   newlib's _strtol_r; the ELF has no symbol for it.  _strtoul_r sits in the
+   strtoul.o member. */
 
 struct _reent {
     int _errno; /* 0x00 */

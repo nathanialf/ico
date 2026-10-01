@@ -1,5 +1,4 @@
-/* libc.a member reallocr.o.  MAIN.MAP member spans tile this run exactly and
- * this member starts at an 8-aligned function start of the shipped ELF. */
+/* libc.a member reallocr.o */
 #include <string.h>
 #include <reent.h>
 #include <stdlib.h>
@@ -8,7 +7,7 @@
 #define SIZE_SZ (sizeof(INTERNAL_SIZE_T))
 #define PREV_INUSE 0x1
 #define SIZE_BITS 0x3
-/* This build of the allocator is configured with MALLOC_ALIGNMENT 16: the ROM's
+/* This build of the allocator is configured with MALLOC_ALIGNMENT 16:
    request2size adds 0x13 and masks with 0xFFFFFFF0, and its small-request arm
    yields 0x10. */
 #define MALLOC_ALIGNMENT 16
@@ -30,7 +29,7 @@
 #define set_head_size(p, s) ((p)->size = (((p)->size & PREV_INUSE) | (s)))
 #define set_head(p, s) ((p)->size = (s))
 
-/* The bin array of the shipped allocator. */
+/* The bin array of the allocator. */
 
 #define bin_at(i) ((mchunkptr)((char *)&(__malloc_av_[2 * (i) + 2]) - 2 * SIZE_SZ))
 #define top (bin_at(0)->fd)

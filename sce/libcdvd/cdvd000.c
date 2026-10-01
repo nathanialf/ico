@@ -1,8 +1,6 @@
-/* Vendor SCE library member: libcdvd.a(cdvd000).  The callback thread, the power-off callback, the ncmd and scmd
- * pre-checks and the sync, init, disk-ready and media-mode entry points.  Rung: MAIN.MAP member
- * sizes tile the retail run (cdvd000 0x1434, cdvd005 0x1E0, cdvd006 0x154,
- * cdvd014 0x98, cdvd015 0x98, cdvd047 0x4E0 up to sceCdStream's end), and
- * SRCFILE.TXT's libcdvd is the retail revision function for function. */
+/* libcdvd.a(cdvd000): the callback thread, the power-off callback, the ncmd
+ * and scmd pre-checks and the sync, init, disk-ready and media-mode entry
+ * points. */
 #include <eekernel.h>
 #include <stdio.h>
 #include <sifrpc.h>
@@ -10,20 +8,18 @@
 #include <libcdvd_internal.h>
 #include <sifcmd.h>
 
-/* RECONSTRUCTION: the search RPC's request record, read off sceCdSearchFile's
-   offsets: the 0x24-byte file entry the reply fills, the 256-byte name, then
-   the request's own address. */
+/* the search RPC's request record: the 0x24-byte file entry the reply fills,
+   the 256-byte name, then the request's own address. */
 typedef struct {
     unsigned char file[0x24];
     char name[0x100];
     void *addr;
 } CdSearchReq;
 
-/* The member's .data in the ROM's order (VMA 0x54A540..0x54BFB0).  The names
-   MAIN.MAP lists for cdvd000.o are globals (the other libcdvd members bind to
-   them); the rest are statics named for their role.  Every SIF RPC buffer is
-   64-byte aligned, a cache line.  The bind states are -1 until the server is
-   bound and 0 after. */
+/* The member's .data in link order.  The names the other libcdvd members
+   bind to are globals; the rest are statics named for their role.  Every SIF
+   RPC buffer is 64-byte aligned, a cache line.  The bind states are -1 until
+   the server is bound and 0 after. */
 static char sceCdvdVersion[16] = "PsIIlibcdvd 2240";
 
 int SCE_CD_debug = 0;
@@ -84,10 +80,10 @@ int _sceCd_scmdsdata[258] __attribute__((aligned(64))) = {0};
 
 char _sceCd_cd_scmd[40] = {0};
 
-/* The member's .bss in the ROM's order (VMA 0x72EF00..0x72F1D4), all file
-   statics: the callbacks, the callback thread, and each bound server's client
-   record and buffers (the RPC buffers on the SIF DMA's alignment: a 64-byte
-   line, or a quadword for diskready's send word). */
+/* The member's .bss in link order, all file statics: the callbacks, the
+   callback thread, and each bound server's client record and buffers (the
+   RPC buffers on the SIF DMA's alignment: a 64-byte line, or a quadword for
+   diskready's send word). */
 static int cd_cbfunc;
 
 static void (*poff_cbfunc)(int);
@@ -120,10 +116,9 @@ static int init_sdata __attribute__((aligned(64)));
 static int diskready_sdata __attribute__((aligned(16)));
 
 /* CB_DelayTh is the member's first function; its first word sits in the delay
-   slot of the stray jr that ends libkernl.a's sceSifWriteBackDCache, the
-   previous input, which is why splat once split it one word late.  The
-   SetAlarm callback: signal the semaphore from the handler and re-enable
-   interrupts. */
+   slot of the jr that ends libkernl.a's sceSifWriteBackDCache, the previous
+   object.  The SetAlarm callback: signal the semaphore from the handler and
+   re-enable interrupts. */
 __asm__(".section .text\n"
         "    .set at\n"
         "    .set noreorder\n"
@@ -172,23 +167,14 @@ int sceCdCallback(int a0)
     return ret;
 }
 
-/* Runs from the SIF RPC end interrupt. WHAT THE BYTES PIN: four accesses here
- * are volatile accesses to words that are not volatile objects. The number
- * store stays ahead of the third num read, the ==11 arm's flag store stays out
- * of the return branch's slot, and both semaphore-handle loads stay in front of
- * their jal iSignalSema with the slot empty; in this compiler only a volatile
- * MEM does that (reorg.c fill_simple_delay_slots with resource.c
- * resource_conflicts_p; alias.c true_dependence orders two distinct globals
- * only when both are volatile). The same words are plain elsewhere in the
- * member (cbLoop's number argument loads and flag store, cmd_sem_init's and
- * cdvd_exit's DeleteSema handle loads and sceCdNcmdDiskReady's fill delay slots), and a
- * volatile declaration of any of them, at file or block scope, makes every
- * later access volatile. Sony's member reads these words the same way at its
- * other synchronisation points: _Cdvd_cbLoop's guard read of the number (not
- * merged with the argument load two words later, which fills the jalr slot)
- * and the PollSema and error-path SignalSema handle loads of
- * _sceCd_ncmd_prechk, _sceCd_scmd_prechk, sceCdSearchFile and sceCdDiskReady.
- * WHAT THEY CANNOT PIN: how the volatile accesses were spelled. */
+/* Runs from the SIF RPC end interrupt.  The callback number, the flag and
+ * the semaphore handles are read and written here with volatile accesses,
+ * since the callback thread and the command entry points use the same words;
+ * the words themselves are not volatile objects, and the member's other
+ * synchronisation points (_Cdvd_cbLoop's guard read of the number, the
+ * PollSema and error-path SignalSema handle loads of _sceCd_ncmd_prechk,
+ * _sceCd_scmd_prechk, sceCdSearchFile and sceCdDiskReady) read them the same
+ * way.  How Sony spelled the volatile accesses is not known. */
 void _sceCd_cd_callback(int *data)
 {
     sceCdCbfunc_num = data[0];
@@ -210,12 +196,7 @@ void _sceCd_cd_callback(int *data)
 /* The callback number is written by the interrupt-side _sceCd_cd_callback and
  * the loop reads it per access at the guard and again for the argument; the
  * loop-closing release of _sceCd_c_cb_sem is a per-access store as in the
- * callback. WHAT THE BYTES PIN: the guard and argument loads are separate
- * words (not CSE'd), both beqz slots are bare, and the argument load and the
- * release store sit in the jalr and b slots, which this archive's assembler
- * fills in reorder mode from a volatile access gcc's reorg leaves in place
- * (the plain store is stolen into beqzl slots instead). WHAT THEY CANNOT PIN:
- * how the volatile accesses were spelled. */
+ * callback.  How Sony spelled the volatile accesses is not known. */
 void _Cdvd_cbLoop(void *arg)
 {
     while (1) {
@@ -237,7 +218,7 @@ void _Cdvd_cbLoop(void *arg)
     }
 }
 
-/* kept local: the link's small-data base, which no header declares */
+/* The link's small-data base, which no header declares */
 extern char _gp[];
 
 int sceCdInitEeCB(int priority, void *stack, int stackSize)
@@ -261,9 +242,8 @@ int sceCdInitEeCB(int priority, void *stack, int stackSize)
     return r;
 }
 
-/* RECONSTRUCTION: the read RPC's reply record, read off this function's
-   offsets: the byte counts and destinations of the unaligned head and tail
-   of a read, then the two 64-byte bounce buffers. */
+/* the read RPC's reply record: the byte counts and destinations of the
+   unaligned head and tail of a read, then the two 64-byte bounce buffers. */
 typedef struct {
     int size1;
     int size2;
@@ -303,12 +283,7 @@ void cmd_sem_init(void)
         buf.initCount = 1;
         buf.maxCount = 1;
         /* The handle stores are the member's per-access volatile spelling (the
-           form the semaphore reads at the wait sites above use). WHAT THE BYTES
-           PIN: with the ncmd store volatile, reorg refuses it for the second
-           CreateSema's delay slot (resource.c 708-713, reorg.c 268-271) and
-           gcc emits the call in reorder mode; the ROM carries the store in
-           that slot, which is the archive assembler's reorder-mode swap of
-           the compiler's own output (docs/NOTES.md "Assembler per archive"). */
+           form the semaphore reads at the wait sites above use). */
         *(volatile int *)&_sceCd_ncmd_semid = CreateSema(&buf);
         _sceCd_scmd_semid = CreateSema(&buf);
         buf.initCount = 0;
@@ -358,17 +333,11 @@ void _sceCd_Poff_Intr(void)
     }
 }
 
-/* Binds the power-off RPC once and asks the IOP side to arm it. The bound
- * flag is cleared in the serve arm ahead of the break: the loop rotation moves
- * that arm with its exit test to the loop's tail, so the clear sits inside the
- * loop, which is what ranks the flag's %hi first among the three callee-saved
- * %hi values (flow.c recompute_reg_usage weights it by loop depth; a clear
- * after the loop ranks it last). The busy flag poff_busy is read by
- * _sceCd_Poff_Intr from the SIF command interrupt: its three clears are
- * volatile accesses (both return arms keep their clear out of the final
- * bgez delay slot, which reorg refuses only to a volatile store) while the
- * set is plain (it fills the jal DIntr slot). WHAT THE BYTES CANNOT PIN: how
- * the volatile clears were spelled. */
+/* Binds the power-off RPC once and asks the IOP side to arm it.  The bound
+ * flag is cleared in the serve arm ahead of the break.  The busy flag
+ * poff_busy is read by _sceCd_Poff_Intr from the SIF command interrupt: its
+ * three clears are volatile accesses while the set is plain.  How Sony
+ * spelled the volatile clears is not known. */
 int PowerOffCB(void)
 {
     int i;
@@ -411,8 +380,7 @@ int PowerOffCB(void)
     return 1;
 }
 
-/* RECONSTRUCTION: the 0x24-byte file entry, copied whole (the ROM's ldl/ldr
-   and sdl/sdr run). */
+/* the 0x24-byte file entry, copied whole */
 typedef struct {
     unsigned char b[0x24];
 } CdFileEntry;
@@ -575,7 +543,7 @@ int sceCdSyncS(int a0)
     return sceSifCheckStatRpc(_sceCd_cd_scmd);
 }
 
-/* The scmd twin of _sceCd_ncmd_prechk. */
+/* The scmd counterpart of _sceCd_ncmd_prechk. */
 int _sceCd_scmd_prechk(int cmd)
 {
     int w;
@@ -615,17 +583,12 @@ int _sceCd_scmd_prechk(int cmd)
     return 1;
 }
 
-/* Binds the init RPC and reads the IOP module's version reply. The busy flag
+/* Binds the init RPC and reads the IOP module's version reply.  The busy flag
  * set and the ee_read_mode reset are volatile accesses: the busy word is read
  * by _sceCd_Poff_Intr from the SIF command interrupt (its clears here and in
  * PowerOffCB are volatile too) and ee_read_mode is shared with sceCdRead and
- * sceCdReadIOPm. WHAT THE BYTES PIN: the busy store has a later volatile
- * dependent in its block (a plain pair swaps the s4/s5 %hi values), and the
- * reset order: the poff_bind reset is the last -1 store and the init_bind
- * reset sits between the diskready_bind and poff_bind resets (sched1 ranks a
- * store that kills the shared -1 ahead of the others, and the order fixes
- * every %hi register of the entry). NOT PINNED: which later access is the
- * busy store's volatile partner. */
+ * sceCdReadIOPm.  The poff_bind reset is the last -1 store, and the init_bind
+ * reset sits between the diskready_bind and poff_bind resets. */
 int sceCdInit(int mode)
 {
     int *p;

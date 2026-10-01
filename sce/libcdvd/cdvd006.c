@@ -1,7 +1,4 @@
-/* Vendor SCE library member: libcdvd.a(cdvd006).  sceCdReadIOPm.  Rung: MAIN.MAP member
- * sizes tile the retail run (cdvd000 0x1434, cdvd005 0x1E0, cdvd006 0x154,
- * cdvd014 0x98, cdvd015 0x98, cdvd047 0x4E0 up to sceCdStream's end), and
- * SRCFILE.TXT's libcdvd is the retail revision function for function. */
+/* libcdvd.a(cdvd006): sceCdReadIOPm. */
 #include <eekernel.h>
 #include <stdio.h>
 #include <sifrpc.h>
@@ -19,12 +16,12 @@ typedef struct {
     int *cur_pos;
 } CdReadCmd;
 
-/* kept local: this member cannot include libcdvd_internal.h, whose _sceCd_c_cb_sem,
+/* this member does not include libcdvd_internal.h, whose _sceCd_c_cb_sem,
    _sceCd_cd_callback, _sceCd_ncmdsdata conflict with its own */
 extern int _sceCd_ee_read_mode;
-/* kept local: libcdvd_internal.h declares it as `int _sceCd_ncmdsdata[]` */
+/* this member's own declaration; libcdvd_internal.h declares it as `int _sceCd_ncmdsdata[]` */
 extern CdReadCmd _sceCd_ncmdsdata[];
-/* kept local: this member cannot include libcdvd_internal.h, whose _sceCd_c_cb_sem,
+/* this member does not include libcdvd_internal.h, whose _sceCd_c_cb_sem,
    _sceCd_cd_callback, _sceCd_ncmdsdata conflict with its own */
 extern int _sceCd_rd_intr_data[];
 extern int _sceCd_Read_cur_pos[];
@@ -36,14 +33,14 @@ extern int SCE_CD_debug;
    PIN: both stores volatile (their output dependence orders the set-up
    block) and the failure arm's semaphore id read per access (its load waits
    for the two clears and leaves the jal slot to the assembler). */
-/* kept local: this member cannot include libcdvd_internal.h, whose _sceCd_c_cb_sem,
+/* this member does not include libcdvd_internal.h, whose _sceCd_c_cb_sem,
    _sceCd_cd_callback, _sceCd_ncmdsdata conflict with its own */
 extern volatile int sceCdCbfunc_num;
-/* kept local: libcdvd_internal.h declares it as `int _sceCd_c_cb_sem` */
+/* this member's own declaration; libcdvd_internal.h declares it as `int _sceCd_c_cb_sem` */
 extern volatile int _sceCd_c_cb_sem;
-/* kept local: libcdvd_internal.h declares it as `void _sceCd_cd_callback(int *data)` */
+/* this member's own declaration; libcdvd_internal.h declares it as `void _sceCd_cd_callback(int *data)` */
 extern void _sceCd_cd_callback(void);
-/* kept local: this member cannot include libcdvd_internal.h, whose _sceCd_c_cb_sem,
+/* this member does not include libcdvd_internal.h, whose _sceCd_c_cb_sem,
    _sceCd_cd_callback, _sceCd_ncmdsdata conflict with its own */
 extern int sceCdNcmdDiskReady(void);
 extern int _sceCd_ncmd_prechk(int a0);

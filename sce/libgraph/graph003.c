@@ -1,5 +1,4 @@
-/* libgraph.a member graph003.o.  MAIN.MAP member spans tile this run exactly and
- * this member starts at an 8-aligned function start of the shipped ELF. */
+/* libgraph.a member graph003.o */
 #include <stdio.h>
 #include <libgraph.h>
 
@@ -29,16 +28,11 @@ void sceGsSetDefDispEnv(sceGsDispEnv *disp, short psm, short w, short h, short d
 
     if (gp->f2 == 2) {
         if (gp->f0 == 1) {
-            /* RECONSTRUCTION: the ROM issues this arm's divide-by-zero trap
-             * (beql/break) ahead of `dsll $7,$3,12` (words 53-55), which the
-             * compiler schedules only when one zero-byte instruction reading the
-             * sum sits between `addiu $3,$18,50` and `andi $3,$3,0xfff` in both
-             * schedulers: a same-register sign extension of dy + 50 that combine
-             * folds in every C spelling measured (cast, 64-bit local, compound
-             * assignment, short truncation, mask after shift, shared temporaries,
-             * second quotient, the public DISPLAY bitfield record). The empty asm
-             * stands in for that extension; the text here is presumed Sony's
-             * plain `(dy + 50) & 0xFFF`, which the bytes cannot show. */
+            /* RECONSTRUCTION: the empty asm stands in for Sony's text, presumed
+             * the plain `(dy + 50) & 0xFFF`.  The object reads the sum once
+             * between the add and the mask, which places this arm's
+             * divide-by-zero trap ahead of the shift; no C spelling of the
+             * expression keeps that read. */
             s_long128 ddy = (s_long128)(({
                                             int e = dy + 0x32;
                                             __asm__("" : "+r"(e));
@@ -68,10 +62,8 @@ void sceGsSetDefDispEnv(sceGsDispEnv *disp, short psm, short w, short h, short d
         }
     } else if (gp->f2 == 3) {
         if (gp->f0 == 1) {
-            /* RECONSTRUCTION: as in the f2 == 2 arm, the asm reproduces the trap
-             * ahead of `dsll $7,$3,12` (words 95-97) in place of the folded sign
-             * extension of dy + 72; the text is presumed Sony's plain
-             * `(dy + 72) & 0xFFF`. */
+            /* RECONSTRUCTION: as in the f2 == 2 arm, the empty asm stands in
+             * for Sony's text, presumed the plain `(dy + 72) & 0xFFF`. */
             s_long128 ddy = (s_long128)(({
                                             int e = dy + 0x48;
                                             __asm__("" : "+r"(e));

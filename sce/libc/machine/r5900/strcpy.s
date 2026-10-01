@@ -1,7 +1,7 @@
-# libc.a member strcpy.o.  SRCFILE.TXT attributes every instruction to
-# src/newlib/libc/machine/r5900/strcpy.S (listing line 519160 on), so it was
-# assembled, not compiled.  Transcribed from the shipped instruction stream
-# (rungs: ROM bytes, the listing rows).  MAIN.MAP sizes strcpy.o at 0x114.
+# libc.a member strcpy.o, assembled from newlib's
+# src/newlib/libc/machine/r5900/strcpy.S: it copies a quadword (or a
+# doubleword) at a time while no byte of the source word is zero, tested with
+# the MMI psubb/pnor idiom, then finishes byte by byte up to the terminator.
     .section .text
     .set    at
     .set    noreorder

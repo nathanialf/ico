@@ -1,7 +1,5 @@
-/* Vendor SCE library member: libmpeg.a(init.o).  MAIN.MAP's member size (0xBCC)
- * tiles the retail run, VMA 0x26BFD8..0x26CBA4, 19 functions, then 4 bytes of
- * link fill to defhandler.o's 8-aligned start: the decoder state resets, the
- * error reporting, the bitstream DMA and the sequence-level header parsers. */
+/* libmpeg.a(init.o): the decoder state resets, the error reporting, the
+ * bitstream DMA and the sequence-level header parsers. */
 #include <libmpeg.h>
 #include <libmpeg_internal.h>
 #include <eeregs.h>
@@ -38,7 +36,7 @@ static long long sprTagBuf[64]; /* derived name */
 static long long ipuTags[258]; /* derived name */
 
 /* the member's .data: the scratchpad base the macroblock state lives at, then
-   the four globals MAIN.MAP lists */
+   the member's four globals */
 static int sprBase = 0x70000000; /* derived name */
 
 int _sprtag = (int)sprTagBuf;
@@ -49,15 +47,11 @@ MpegHandle *_theSceMpeg = 0;
 
 int _bsDatap = 0;
 
-/* kept local: var.o's _mbcont (sce/libmpeg/libmpeg_internal.h's MCState) as
-   this member declares it, only the words _clearOnce sets: the first
-   record's two scratchpad areas as ints, the second record's as pointers,
-   and the current-record index as a float.  MAIN.MAP lists init.o and mpc.o
-   as separate members, and the types of these stores prove the two views:
-   the index store is a single-precision move of 0.0, and the second
-   record's stores fall in an alias set apart from the first record's int
-   stores (with one record type for both, sched2 orders the five stores
-   differently). */
+/* var.o's _mbcont (sce/libmpeg/libmpeg_internal.h's MCState) as this member
+   declares it, only the words _clearOnce sets: the first record's two
+   scratchpad areas as ints, the second record's as pointers, and the
+   current-record index as a float.  init.o and mpc.o are separate archive
+   members, each compiled against its own view of the same words. */
 extern struct mbcontInit { /* derived name */
     int refBuf0;           /* 0x000 */
     int ipuBuf0;           /* 0x004 */
@@ -80,12 +74,11 @@ void _clearOnce(void)
     _mbcont.cur = 0.0f;
 }
 
-/* kept local: libipu.h declares sceIpuSync(int); this member passes two arguments */
+/* libipu.h declares sceIpuSync(int); this member passes two arguments */
 extern int sceIpuSync();
 
-/* Same hardware-register rule as sceMpegInit: volatile everywhere, and the
-   second write of the enable register at 0x1000F590 plain so it can be
-   scheduled into the delay slot of jal EIntr. */
+/* Same hardware-register rule as sceMpegInit: volatile everywhere except the
+   second write of the enable register at 0x1000F590. */
 void _clearEach(void)
 {
     _sp_dcr = 0;
@@ -258,11 +251,8 @@ void _initSeq(void *a0)
     }
 }
 
-/* The uncached-accelerated alias of a frame buffer address. RECONSTRUCTION:
- * the ROM computes `size / 512 * 384` three times (three `mult` into fresh
- * scratch registers), which is an inline call per store: gcc expands each
- * inline argument with EXPAND_SUM and computes its product into the argument
- * copy, so cse can not share it; the helper's name stands in for Sony's. */
+/* The uncached-accelerated alias of a frame buffer address, an inline helper
+ * computed afresh at each of its three uses; the helper's name is ours. */
 static inline int _uncachedAddr(int addr)
 {
     return (addr & 0x0FFFFFFF) | 0x20000000;

@@ -1,8 +1,8 @@
-# libc.a member strncmp.o.  SRCFILE.TXT attributes every instruction to
-# src/newlib/libc/machine/r5900/strncmp.S (listing line 519441 on), so this
-# member was assembled, not compiled.  Transcribed from the shipped instruction
-# stream (rungs: ROM bytes, the listing rows).  MAIN.MAP sizes strncmp.o at the
-# whole of this member's run.
+# libc.a member strncmp.o, assembled from newlib's
+# src/newlib/libc/machine/r5900/strncmp.S: with both strings 16-aligned it
+# compares a quadword at a time (MMI psubw, with psubb/pnor for the
+# terminator) while the count lasts, then finishes byte by byte; a zero count
+# returns 0.
     .section .text
     .set    at
     .set    noreorder

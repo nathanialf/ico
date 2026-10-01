@@ -1,9 +1,6 @@
-# libc.a member memset.o.  SRCFILE.TXT attributes every instruction to
-# src/newlib/libc/machine/r5900/memset.S (listing line 517665 on), so this
-# member was assembled, not compiled; the quadword sq store loop and the
-# pcpyh/pcpyld broadcast have no C spelling either.  Transcribed from the
-# shipped instruction stream (rungs: ROM bytes, the listing rows).  MAIN.MAP
-# sizes memset.o at 0xC0, the whole of this member's run.
+# libc.a member memset.o, assembled from newlib's
+# src/newlib/libc/machine/r5900/memset.S; the quadword sq store loop and the
+# pcpyh/pcpyld broadcast have no C spelling.
     .section .text
     .set noat
     .set noreorder

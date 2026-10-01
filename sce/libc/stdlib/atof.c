@@ -1,9 +1,8 @@
-/* libc.a member atof.o.  MAIN.MAP member spans tile this run exactly and
- * this member starts at an 8-aligned function start of the shipped ELF. */
+/* libc.a member atof.o */
 #include <stdlib.h>
 
-/* newlib's atof: strtod without an end pointer. The ELF carries no symbol
- * for it; MAIN.MAP lists the member, and __svfscanf's float arm calls it. */
+/* newlib's atof: strtod without an end pointer.  The ELF carries no symbol
+ * for it; __svfscanf's float arm calls it. */
 double atof(const char *ascii)
 {
     return strtod(ascii, 0);

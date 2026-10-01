@@ -1,5 +1,4 @@
-/* libc.a member ungetc.o.  MAIN.MAP member spans tile this run exactly and
- * this member starts at an 8-aligned function start of the shipped ELF. */
+/* libc.a member ungetc.o */
 #include <string.h>
 #include <reent.h>
 #include <libc_internal.h>
@@ -11,12 +10,10 @@ struct D520 {
     PObjBlk *blk; /* 0x8 */
 };
 
-/* newlib's struct __sbuf / struct __sFILE, reconstructed from the ROM's own
-   field offsets in this member (evidence rung: ROM bytes; the newlib member
-   layout gives the names).  Only this member needs the typed form: the loop
-   below copies fp->ubuf[i] and gcc hoists the address only when the field is a
-   real array member of a struct type, which is what puts ROM's preheader copy
-   of _ub._base in place of a load. */
+/* newlib's struct __sbuf / struct __sFILE, laid out from this member's own
+   field offsets, with the newlib member names.  Only this member needs the
+   typed form: the loop below copies fp->ubuf[i] through the real array
+   member. */
 
 int __submore(Fil *fp)
 {

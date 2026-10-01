@@ -1,5 +1,4 @@
-/* libc.a member fread.o.  MAIN.MAP member spans tile this run exactly and
- * this member starts at an 8-aligned function start of the shipped ELF. */
+/* libc.a member fread.o */
 #include <string.h>
 #include <reent.h>
 #include <libc_internal.h>

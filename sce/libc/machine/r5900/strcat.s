@@ -1,7 +1,5 @@
-# libc.a member strcat.o.  SRCFILE.TXT attributes every instruction to
-# src/newlib/libc/machine/r5900/strcat.S (listing line 518844 on), so it was
-# assembled, not compiled.  Transcribed from the shipped instruction stream
-# (rungs: ROM bytes, the listing rows).  MAIN.MAP sizes strcat.o at 0x12C.
+# libc.a member strcat.o, assembled from newlib's
+# src/newlib/libc/machine/r5900/strcat.S.
     .section .text
     .set noat
     .set noreorder

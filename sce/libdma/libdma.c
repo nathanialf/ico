@@ -1,13 +1,11 @@
-/* Vendor SCE library run.  The archive attribution (libdma.a) comes from
- * MAIN.MAP's symbol table.  The January link carried a different revision of
- * this archive, so its member spans do not tile this run: the per-member
- * partition is NOT verified, and this file is the whole run. */
+/* libdma.a.  The archive's member boundaries in this build are not known,
+ * so this file is the archive's whole run. */
 #include <stdio.h>
 #include <eeregs.h>
 #include <libdma.h>
 
-/* The member's .data in ROM order (= MAIN.MAP libdma.o .data 0xAC, which
- * names the three globals dch, sceDmaDebugMode and sceDmaCurrentEnv). */
+/* The member's .data in link order (0xAC): the three globals dch,
+ * sceDmaDebugMode and sceDmaCurrentEnv. */
 /* The ten channel register blocks, VIF0 to toSPR. */
 int dch[10] = {
     (int)D0_CHCR, (int)D1_CHCR, (int)D2_CHCR, (int)D3_CHCR, (int)D4_CHCR,
@@ -40,7 +38,7 @@ int sceDmaGetChan(unsigned int a0)
     return 0;
 }
 
-/* kept local: libvu0's memclr takes unsigned char *, and this member passes its DmaEnv */
+/* libvu0's memclr takes unsigned char *, and this member passes its DmaEnv */
 extern void memclr(void *p, int n);
 
 int sceDmaReset(int mode)

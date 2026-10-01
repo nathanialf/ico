@@ -1,6 +1,5 @@
-/* libc.a member s_isinf.o.  MAIN.MAP member spans tile this run exactly and
- * this member starts at an 8-aligned function start of the shipped ELF. */
-/* The listing puts this source under newlib libm/math; the archive is libc.a. */
+/* libc.a member s_isinf.o */
+/* newlib's libm/math source, built into libc.a. */
 #include "reent.h"
 #include <math.h>
 

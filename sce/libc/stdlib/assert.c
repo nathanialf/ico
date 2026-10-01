@@ -1,5 +1,4 @@
-/* libc.a member assert.o.  MAIN.MAP member spans tile this run exactly and
- * this member starts at an 8-aligned function start of the shipped ELF. */
+/* libc.a member assert.o */
 #include <stdlib.h>
 #include <string.h>
 #include <reent.h>
@@ -9,7 +8,7 @@ struct D520 {
     PObjBlk *blk; /* 0x8 */
 };
 
-/* kept local: stdio.h declares it as `int fiprintf(void *fp, void *fmt, ...)` */
+/* this member's own declaration; stdio.h declares it as `int fiprintf(void *fp, void *fmt, ...)` */
 extern void fiprintf();
 
 void __assert(int a0, int a1, int a2)

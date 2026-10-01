@@ -1,5 +1,4 @@
-/* libc.a member vfiprintf.o.  MAIN.MAP member spans tile this run exactly and
- * this member starts at an 8-aligned function start of the shipped ELF. */
+/* libc.a member vfiprintf.o */
 #include <stdlib.h>
 #include <string.h>
 #include <reent.h>
@@ -91,7 +90,7 @@ struct __suio {
     int uio_resid;          /* 0x8 */
 };
 
-/* kept local: stdlib.h leaves it out: its definition's argument list does not fit this member's
+/* stdlib.h leaves it out: its definition's argument list does not fit this member's
    calls */
 extern int _mbtowc_r(void *r, int *pwc, const char *s, int n, int *state);
 

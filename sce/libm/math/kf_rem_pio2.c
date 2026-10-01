@@ -1,11 +1,10 @@
-/* libm.a member kf_rem_pio2.o.  MAIN.MAP member spans tile this run exactly and
- * this member starts at an 8-aligned function start of the shipped ELF. */
+/* libm.a member kf_rem_pio2.o */
 #include <math.h>
 #include <math_private.h>
 
 /* The member's own static tables, fdlibm's init_jk (three ints), PIo2 (eleven
    floats) and its four scalar constants, in declaration order: the member's
-   whole .rodata (MAIN.MAP kf_rem_pio2.o .rodata 0x4c). */
+   whole .rodata (0x4c). */
 static const int init_jk[] = {
     4,
     7,

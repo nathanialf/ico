@@ -1,16 +1,16 @@
-# crt0: the SDK's start-up module, the head of .text.  SRCFILE.TXT attributes
-# every instruction of it to /usr/local/sce/ee/lib/crt0.s (listing line 10 on,
-# <_start> at listing line 9), so it was assembled, not compiled; sq, syscall
-# and ei have no C spelling either.  Transcribed from the shipped instruction
-# stream (rungs: ROM bytes for the instructions, the listing rows for the
-# source file).  The eight zero bytes the listing labels <_start-0x8> are
-# crt0.s's pre-entry pad, not a function and carrying no symbol of its own,
-# and are emitted here as data so the run starts at the same address.  The module ends after _root's syscall at
-# 0x1000C8, as the listing shows; the zero fill to 0x100100 is klib.o's 64-byte
-# alignment (sce/libkernl/klib.s), not part of crt0.
-# The module's .bss (MAIN.MAP crt0.o 0x144): the argument block _start hands
-# main, argc then argv's sixteen pointers and the 256 bytes they point into.
-# Local: MAIN.MAP names no global in crt0.o's .bss.
+# crt0: the SDK's start-up module, the head of .text, assembled from
+# /usr/local/sce/ee/lib/crt0.s; sq, syscall and ei have no C spelling.
+# The eight zero bytes before <_start> are crt0.s's pre-entry pad, not a
+# function and carrying no symbol of its own, and are emitted here as data
+# so the run starts at the same address.
+# The module ends after _root's syscall at 0x1000C8; the zero fill to
+# 0x100100 is klib.o's 64-byte alignment (sce/libkernl/klib.s), not part of
+# crt0.
+#
+# The module's .bss (0x144): the argument block _start hands main, argc then
+# argv's sixteen pointers and the 256 bytes they point into.
+#
+# Local: crt0.o's .bss has no global symbol.
     .section .bss
 _args: /* derived name */
     .space 4 + 16 * 4 + 256

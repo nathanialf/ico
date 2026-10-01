@@ -1,14 +1,11 @@
-/* libmc.a member libmc.o.  MAIN.MAP member spans tile this run exactly and
- * this member starts at an 8-aligned function start of the shipped ELF. */
+/* libmc.a member libmc.o */
 #include <stdio.h>
 #include <eekernel.h>
 #include <sifrpc.h>
 #include <libmc.h>
 #include <string.h>
 
-/* R5900 opcodes with no C spelling.  This member's uses stand for a
-   Sony-internal header this tree cannot name: MAIN.MAP attests archives and
-   their members, never a header, so the definition is kept per member. */
+/* R5900 opcodes with no C spelling.  Defined in this member. */
 #define SYNC() __asm__ __volatile__("sync" : : : "memory")
 #define EI() __asm__ __volatile__(".word 0x42000038" : : : "memory")
 
@@ -26,19 +23,19 @@ typedef struct {
     char name[0x400];
 } NameReq;
 
-/* The member's .data in the ROM's order (VMA 0x54C000..0x54C018): the build
-   stamp, the number of the call in flight that sceMcSync completes, and the
-   semaphore every entry point takes, -1 until sceMcInit creates it. */
+/* The member's .data in link order: the build stamp, the number of the call
+   in flight that sceMcSync completes, and the semaphore every entry point
+   takes, -1 until sceMcInit creates it. */
 static char sceMcVersion[16] = "PsIIlibmc   2240";
 
 static int mcFunc = 0;
 
 static int mcSema = -1;
 
-/* The member's .bss in the ROM's order (VMA 0x72F5C0..0x730BC0), all file
-   statics: the mcserv client record, the three answer pointers sceMcGetInfo
-   leaves for its end callback, and the RPC buffers, each SIF buffer on its
-   own 64-byte cache line. */
+/* The member's .bss in link order, all file statics: the mcserv client
+   record, the three answer pointers sceMcGetInfo leaves for its end
+   callback, and the RPC buffers, each SIF buffer on its own 64-byte cache
+   line. */
 static char mcClient[0x28] __attribute__((aligned(64)));
 
 static int *mcInfoType;
@@ -326,9 +323,9 @@ done:
     return r;
 }
 
-/* RECONSTRUCTION: the 0x30-byte RPC command block sceMcWrite sends, as the
-   ROM's offsets use it: the unaligned head of the caller's buffer travels in
-   the block itself, the 16-byte aligned rest by address. */
+/* the 0x30-byte RPC command block sceMcWrite sends: the unaligned head of
+   the caller's buffer travels in the block itself, the 16-byte aligned rest
+   by address. */
 typedef struct {
     int fd;               /* 0x00 */
     int f4;               /* 0x04 */
@@ -436,8 +433,8 @@ void mceGetInfoApdx(int a0)
         *mcInfoFormat = *(int *)(a0 + 0x90);
 }
 
-/* RECONSTRUCTION: sceMcGetInfo's view of the same 0x30-byte command block:
-   the card to ask, a flag per answer wanted, and the result buffer. */
+/* sceMcGetInfo's view of the same 0x30-byte command block: the card to ask,
+   a flag per answer wanted, and the result buffer. */
 typedef struct {
     int f0;         /* 0x00 */
     int port;       /* 0x04 */

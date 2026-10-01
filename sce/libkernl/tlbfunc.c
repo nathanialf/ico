@@ -1,12 +1,9 @@
-/* Vendor SCE library member: libkernl.a(tlbfunc.o).  MAIN.MAP names the
- * member and its .text size (0x548), which tiles the shipped ELF from one
- * retail function start to the next; VMA 0x264AE8..0x265030,
- * 19 functions. */
+/* libkernl.a(tlbfunc.o) */
 #include <eekernel.h>
 #include <libkernl_internal.h>
 
-/* the member's .rodata (MAIN.MAP 0x70): _DumpTLB's two format strings, named
-   here because the function below is assembled and reaches them by name */
+/* the member's .rodata (0x70): _DumpTLB's two format strings, named here
+   because the function below is assembled and reaches them by name */
 static const char dumpTlbWired[] = /* derived name */
     "=========================<wired=%02d>=========================\n";
 
@@ -317,10 +314,10 @@ __asm__(".section .text\n"
         "    .set reorder\n"
         "    .set at\n");
 
-/* tlbfunc.o's .data, in the ROM's order: the two handler globals MAIN.MAP
-   names (the TLB exception entry calls _kTLBRefillHandler, the debug
-   exception entry calls _kDebugHandler by cause code), then the six kernel
-   calls InitTLBFunctions installs, each a syscall number and its handler. */
+/* tlbfunc.o's .data, in link order: the two handler globals (the TLB
+   exception entry calls _kTLBRefillHandler, the debug exception entry calls
+   _kDebugHandler by cause code), then the six kernel calls InitTLBFunctions
+   installs, each a syscall number and its handler. */
 
 int _kTLBRefillHandler = 0;
 
@@ -358,8 +355,8 @@ int SetDebugHandler(int a0, int a1)
     return old;
 }
 
-/* census setup, intr.o's file static (sce/libkernl/initsys.c holds initsys.o's
-   global of the name); the hand-typed leaf takes a local label. */
+/* setup, a file static (sce/libkernl/initsys.c holds initsys.o's global of
+   the same name); the hand-typed leaf takes a local label. */
 __asm__(".section .text\n"
         "    .set at\n"
         "    .set noreorder\n"

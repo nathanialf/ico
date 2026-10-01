@@ -1,12 +1,9 @@
-/* libm.a member sf_isnan.o.  MAIN.MAP member spans tile this run exactly and
- * this member starts at an 8-aligned function start of the shipped ELF. */
+/* libm.a member sf_isnan.o */
 #include <math_private.h>
 #include <math.h>
 
-/* Float<->word access, the public-domain fdlibm idiom (netlib's fdlibm),
-   re-derived, not copied from any SDK.  This member's use stands for a
-   Sony/newlib-internal math_private.h this tree cannot name: the listing
-   attributes no row to such a header, so the definition is kept per member. */
+/* Float<->word access, the public-domain fdlibm idiom (netlib's fdlibm,
+   math_private.h), defined in this member. */
 
 #define GET_FLOAT_WORD(i, d)                                                                       \
     do {                                                                                           \

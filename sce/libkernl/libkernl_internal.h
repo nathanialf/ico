@@ -6,8 +6,7 @@
  * helpers _InitSys calls, the DECI2 and tty layer, the file stub's and the
  * SIF members' internal helpers, and the assembled TLB and cache entry
  * points the C members call.  Each declaration is the definition's in
- * sce/libkernl where the definition is C (that member includes this header);
- * for an assembled one it is the spelling its caller carried.
+ * sce/libkernl.
  */
 #ifndef SCE_LIBKERNL_LIBKERNL_INTERNAL_H
 #define SCE_LIBKERNL_LIBKERNL_INTERNAL_H

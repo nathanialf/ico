@@ -1,5 +1,4 @@
-/* libgcc.a member dp-bit.o.  MAIN.MAP member spans tile this run exactly and
- * this member starts at an 8-aligned function start of the shipped ELF. */
+/* libgcc.a member dp-bit.o */
 #include "libgcc2.h"
 
 #define CLASS_SNAN 0
@@ -9,12 +8,9 @@
 #define CLASS_INFINITY 4
 /* libgcc's fp-bit.c reads a zero exponent as zero when NO_DENORMALS is
    defined (`if (fraction == 0 || 1)` under #ifdef NO_DENORMALS in the public
-   GCC source), and this build defined it: the EE FPU has no denormals.  The
-   ROM shows the arm compiled away: __unpack_d's exp == 0 arm emits only
-   CLASS_ZERO, yet the label after its return carries the 8-byte loop
-   alignment that the dead normalisation loop's loop note gives it (measured:
-   without the loop the pad goes).  Where the developers' build defined the
-   macro (a target makefile fragment) is not attested; the define is here. */
+   GCC source), and this build defined it: the EE FPU has no denormals.
+   Where the developers' build defined the macro (a target makefile fragment)
+   is not known; the define is here. */
 #define NO_DENORMALS
 
 /* The double number in unpacked form.  FRAC_NBITS is 64 and NGARDS is 8, so the
@@ -26,11 +22,7 @@ typedef struct {
     int pad;
 
     /* libgcc's fp_number_type keeps the fraction in a union of the 64-bit
-       value and its two 32-bit halves (public GCC fp-bit.c).  The union is
-       what the ROM needs too: dpmul stores the fraction ahead of the class
-       constant, which takes the fraction store in alias set 0 on the
-       compiler's sched2 dump; as a plain unsigned long long field the
-       constant goes first (four words). */
+       value and its two 32-bit halves (public GCC fp-bit.c). */
     union {
         unsigned long long ll;
         unsigned int l[2];

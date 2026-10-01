@@ -1,7 +1,4 @@
-/* Vendor SCE library member: libkernl.a(tty.o).  MAIN.MAP names the
- * member and its .text size (0x51C), which tiles the shipped ELF from one
- * retail function start to the next; VMA 0x25F250..0x25F76C,
- * 7 functions. */
+/* libkernl.a(tty.o) */
 #include <eekernel.h>
 
 typedef struct {
@@ -18,7 +15,7 @@ typedef struct {
     char buf[256];
 } PrintSink;
 
-/* tty.o's .bss, in the ROM's order: the receive queue QueueInit sets up (a
+/* tty.o's .bss, in link order: the receive queue QueueInit sets up (a
    16-byte header and a 256-byte ring), the DECI2 socket record, then the send
    and receive packets (320 bytes each, 64-aligned for the DECI2 transfer). */
 static PrintSink tty_queue;
@@ -63,23 +60,21 @@ void QueuePeekReadDone(RingBuf_241C80 *a0)
     }
 }
 
-/* unprototyped: the ROM passes a second argument in a register at two of the
-   four call sites */
-/* kept local: this member cannot include libkernl_internal.h, whose sceDeci2ExRecv,
+/* unprototyped: two of the four call sites pass a second argument */
+/* this member does not include libkernl_internal.h, whose sceDeci2ExRecv,
    sceDeci2ExSend, sceDeci2ReqSend conflict with its own */
 extern void kprintf();
-/* kept local: libkernl_internal.h declares it as `void sceDeci2ExRecv(int a0, int a1, unsigned
+/* this member's own declaration; libkernl_internal.h declares it as `void sceDeci2ExRecv(int a0, int a1, unsigned
    short a2)` */
 extern int sceDeci2ExRecv(int s, int buf, unsigned short len);
-/* kept local: libkernl_internal.h declares it as `void sceDeci2ExSend(int a0, int a1, unsigned
+/* this member's own declaration; libkernl_internal.h declares it as `void sceDeci2ExSend(int a0, int a1, unsigned
    short a2)` */
 extern int sceDeci2ExSend(int s, int buf, unsigned short len);
 
-/* RECONSTRUCTION: the tty socket record at tty_rec as the handler sees it.
-   The four header words are volatile, the view sceTtyInit and sceTtyWrite
-   already take (the handler writes them from interrupt level while the
-   callers poll them); the buffer and queue pointers below them are plain.
-   The names are ours. */
+/* the tty socket record at tty_rec as the handler sees it.  The four header
+   words are volatile, the view sceTtyInit and sceTtyWrite already take (the
+   handler writes them from interrupt level while the callers poll them); the
+   buffer and queue pointers below them are plain.  The names are ours. */
 typedef struct {
     volatile int s;    /* 0x00 the DECI2 socket */
     volatile int wlen; /* 0x04 bytes left to send */
@@ -141,9 +136,9 @@ void sceTtyHandler(int event, int param, void *opt)
     tty->busy = 0;
 }
 
-/* kept local: libkernl_internal.h declares it as `void sceDeci2ReqSend(int a0, signed char a1)` */
+/* this member's own declaration; libkernl_internal.h declares it as `void sceDeci2ReqSend(int a0, signed char a1)` */
 extern int sceDeci2ReqSend(int s, int c);
-/* kept local: this member cannot include libkernl_internal.h, whose sceDeci2ExRecv,
+/* this member does not include libkernl_internal.h, whose sceDeci2ExRecv,
    sceDeci2ExSend, sceDeci2ReqSend conflict with its own */
 extern void sceDeci2Poll(int s);
 
@@ -219,7 +214,7 @@ int sceTtyRead(void *buf, int size)
     return i;
 }
 
-/* kept local: this member cannot include libkernl_internal.h, whose sceDeci2ExRecv,
+/* this member does not include libkernl_internal.h, whose sceDeci2ExRecv,
    sceDeci2ExSend, sceDeci2ReqSend conflict with its own */
 extern int sceDeci2Open(unsigned short protocol, void *opt, void *handler);
 extern void sceTtyHandler(int event, int param, void *opt);

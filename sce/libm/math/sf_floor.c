@@ -1,12 +1,9 @@
-/* libm.a member sf_floor.o.  MAIN.MAP member spans tile this run exactly and
- * this member starts at an 8-aligned function start of the shipped ELF. */
+/* libm.a member sf_floor.o */
 #include <math_private.h>
 #include <math.h>
 
-/* Float<->word access, the public-domain fdlibm idiom (netlib's fdlibm),
-   re-derived, not copied from any SDK.  This member's use stands for a
-   Sony/newlib-internal math_private.h this tree cannot name: the listing
-   attributes no row to such a header, so the definition is kept per member. */
+/* Float<->word access, the public-domain fdlibm idiom (netlib's fdlibm,
+   math_private.h), defined in this member. */
 
 #define GET_FLOAT_WORD(i, d)                                                                       \
     do {                                                                                           \
@@ -21,9 +18,8 @@
         (d) = sf_u.value;                                                                          \
     } while (0)
 
-/* fdlibm's constant: the member's whole .rodata (MAIN.MAP sf_floor.o .rodata
- * 0x4).  The code loads it as an immediate, so the word is referenced by
- * nothing. */
+/* fdlibm's constant: the member's whole .rodata (0x4).  The code loads it as
+ * an immediate, so the word is referenced by nothing. */
 static const float huge = 1.0e30;
 
 float floorf(float x)

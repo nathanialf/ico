@@ -1,9 +1,9 @@
-# libc.a member memcpy.o.  SRCFILE.TXT attributes every instruction to
-# src/newlib/libc/machine/r5900/memcpy.S (listing line 517563 on), so this
-# member was assembled, not compiled; the quadword lq/sq copy loop has no C
-# spelling either.  Transcribed from the shipped instruction stream (rungs: ROM
-# bytes for the instructions, the listing rows for the source file).  MAIN.MAP
-# sizes memcpy.o at 0xB0, the whole of this member's run.
+# libc.a member memcpy.o, assembled from newlib's
+# src/newlib/libc/machine/r5900/memcpy.S.  With both pointers 16-aligned it
+# copies quadwords (lq/sq, no C spelling), with both 8-aligned doublewords
+# (ld/sd), and the tail and any other call byte by byte.
+#
+# It returns the destination.
     .section .text
     .set    at
     .set    noreorder

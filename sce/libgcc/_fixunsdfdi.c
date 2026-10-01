@@ -1,5 +1,4 @@
-/* libgcc.a member _fixunsdfdi.o.  MAIN.MAP member spans tile this run exactly and
- * this member starts at an 8-aligned function start of the shipped ELF. */
+/* libgcc.a member _fixunsdfdi.o */
 #include "libgcc2.h"
 
 typedef unsigned int USItype;

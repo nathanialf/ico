@@ -1,10 +1,7 @@
-/* libgraph.a member graph015.o.  MAIN.MAP member spans tile this run exactly and
- * this member starts at an 8-aligned function start of the shipped ELF. */
+/* libgraph.a member graph015.o */
 #include <stdio.h>
 
-/* R5900 opcodes with no C spelling.  This member's uses stand for a
-   Sony-internal header this tree cannot name: MAIN.MAP attests archives and
-   their members, never a header, so the definition is kept per member. */
+/* R5900 opcodes with no C spelling.  Defined in this member. */
 #define SYNC() __asm__ __volatile__("sync" : : : "memory")
 
 typedef unsigned int u128 __attribute__((mode(TI)));

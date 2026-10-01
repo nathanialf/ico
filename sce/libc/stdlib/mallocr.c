@@ -1,5 +1,4 @@
-/* libc.a member mallocr.o.  MAIN.MAP member spans tile this run exactly and
- * this member starts at an 8-aligned function start of the shipped ELF. */
+/* libc.a member mallocr.o */
 #include <reent.h>
 #include <stdlib.h>
 #include <libc_internal.h>
@@ -29,11 +28,10 @@ typedef struct malloc_chunk *mbinptr;
 #define NAV 128
 #define av_ __malloc_av_
 #define bin_at(i) ((mbinptr)((char *)&(av_[2 * (i) + 2]) - 2 * SIZE_SZ))
-/* The bin array of the shipped allocator, and the six allocator statics that
-   follow it: mallocr.o's whole .data run, in definition order.  MAIN.MAP names
-   all seven (map lines 6258 to 6264, mallocr.o .data member offsets 0x0, 0x408,
-   0x410, 0x418, 0x420, 0x428, 0x430).  Each bin starts empty, pointing at
-   itself. */
+/* The bin array of the allocator, and the six allocator statics that follow
+   it: mallocr.o's whole .data run, in definition order (member offsets 0x0,
+   0x408, 0x410, 0x418, 0x420, 0x428, 0x430).  Each bin starts empty, pointing
+   at itself. */
 #define IAV(i) bin_at(i), bin_at(i)
 
 mchunkptr __malloc_av_[NAV * 2 + 2] = {
@@ -118,8 +116,7 @@ mchunkptr __malloc_av_[NAV * 2 + 2] = {
         }                                                                                          \
     }
 /* SIZE_T_SMALLER_THAN_LONG: long is 64-bit here and size_t is 32-bit, so the
-   member uses mallocr.c's guarded form, which the ROM's branchy sequence
-   (sltu, subu both ways, zero-extend, dsubu) shows verbatim. */
+   member uses mallocr.c's guarded form. */
 #define long_sub_size_t(x, y) ((x < y) ? -((long)(y - x)) : (x - y));
 /* The allocator's own file statics. */
 #define DEFAULT_TRIM_THRESHOLD (128 * 1024)

@@ -1,5 +1,4 @@
-/* libc.a member mbtowc_r.o.  MAIN.MAP member spans tile this run exactly and
- * this member starts at an 8-aligned function start of the shipped ELF. */
+/* libc.a member mbtowc_r.o */
 #include <stdlib.h>
 #include <string.h>
 #include <reent.h>

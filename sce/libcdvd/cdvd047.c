@@ -1,10 +1,6 @@
-/* Vendor SCE library member: libcdvd.a(cdvd047).  The stream entry points and the IOP stream helper.  The January
- * member ends at sceCdStream, where MAIN.MAP's 0x4E0 ends too: _send_to_iop after
- * it is libpad.o's first function (the listing's jal from libpad at 0x26C754, its
- * string is libpad.o's first .rodata entry).  Rung: MAIN.MAP member
- * sizes tile the retail run (cdvd000 0x1434, cdvd005 0x1E0, cdvd006 0x154,
- * cdvd014 0x98, cdvd015 0x98, cdvd047 0x4E0 up to sceCdStream's end), and
- * SRCFILE.TXT's libcdvd is the retail revision function for function. */
+/* libcdvd.a(cdvd047): the stream entry points and the IOP stream helper.
+ * The member ends at sceCdStream: _send_to_iop after it is libpad.o's first
+ * function. */
 #include <eekernel.h>
 #include <stdio.h>
 #include <sifrpc.h>
@@ -22,7 +18,7 @@ typedef struct {
 
 /* The member's own .data word: set by sceCdStStart and sceCdStResume, cleared
  * by sceCdStInit, sceCdStStop and sceCdStPause, and tested by sceCdStRead
- * (explicit zero initialiser: the ROM keeps it in .data, not .bss). */
+ * (explicit zero initialiser, so it stays in .data). */
 static int stStarted = 0;
 
 /* The member's own .bss: the mode record every call but sceCdStStart passes. */

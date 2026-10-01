@@ -1,5 +1,4 @@
-/* libc.a member makebuf.o.  MAIN.MAP member spans tile this run exactly and
- * this member starts at an 8-aligned function start of the shipped ELF. */
+/* libc.a member makebuf.o */
 #include <reent.h>
 #include <sys/stat.h>
 #include <libc_internal.h>
@@ -10,9 +9,9 @@ struct D520 {
     PObjBlk *blk; /* 0x8 */
 };
 
-/* Only st_mode is reached here, at 0x04; the 0x70 size is what the ROM's
-   0xB0 frame proves (locals 0x00..0x70, callee-saved homes above it).  The
-   trailing bytes are padding, not an attested field layout. */
+/* Only st_mode is reached here, at 0x04; the record is 0x70 bytes, the size
+   of the stat buffer in this member's frame.  The trailing bytes are
+   padding, not a known field layout. */
 #define __SLBF 0x0001
 #define __SNBF 0x0002
 #define __SOPT 0x0400
@@ -20,7 +19,7 @@ struct D520 {
 #define __SMOD 0x0080
 #define BUFSIZ 1024
 
-/* kept local: unistd.h declares it as `int isatty(void)` */
+/* this member's own declaration; unistd.h declares it as `int isatty(void)` */
 extern int isatty(int fd);
 
 void __smakebuf(Fil *fp)

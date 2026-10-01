@@ -1,5 +1,4 @@
-/* libc.a member freer.o.  MAIN.MAP member spans tile this run exactly and
- * this member starts at an 8-aligned function start of the shipped ELF. */
+/* libc.a member freer.o */
 #include <stdlib.h>
 #include <libc_internal.h>
 #include <string.h>
@@ -19,8 +18,7 @@
 #define chunk_at_offset(p, s) ((mchunkptr)(((char *)(p)) + (s)))
 #define inuse_bit_at_offset(p, s) (((mchunkptr)((char *)(p) + (s)))->size & PREV_INUSE)
 
-/* The bin array of the shipped allocator (mallocr.o owns it; MAIN.MAP map
-   line 6262 names it __malloc_av_). */
+/* The bin array of the allocator (mallocr.o owns it as __malloc_av_). */
 
 #define bin_at(i) ((mchunkptr)((char *)&(__malloc_av_[2 * (i) + 2]) - 2 * SIZE_SZ))
 #define top (bin_at(0)->fd)

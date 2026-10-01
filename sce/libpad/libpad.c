@@ -1,7 +1,5 @@
-/* Vendor SCE library run.  The archive attribution (libpad.a) comes from
- * MAIN.MAP's symbol table.  The January link carried a different revision of
- * this archive, so its member spans do not tile this run: the per-member
- * partition is NOT verified, and this file is the whole run. */
+/* libpad.a.  The archive's member boundaries in this build are not known,
+ * so this file is the archive's whole run. */
 #include <sifrpc.h>
 #include <libpad.h>
 #include <stdio.h>
@@ -16,11 +14,7 @@ struct S12 {
  * pointer fields are typed by what scePadPortOpen stores in them: f0 the EE
  * pad DMA area the caller passes, f4 this slot's command buffer (read back as
  * an int pointer by scePadSetActDirect), f8 the IOP-side buffer address the
- * open RPC returns.  f8 carries f4's own type: the bytes pin that f8 and f4
- * share an alias set and f0 does not (scePadPortOpen's tail stores come out
- * f10, q[0], fC, f8, f0, f4 only then; void * f8 swaps fC and f8, unsigned
- * int *, char * and short * f8 each lose a register copy).  The field names
- * stay placeholders.  Evidence rung: ROM bytes. */
+ * open RPC returns, with f4's own type.  The field names stay placeholders. */
 typedef struct {
     void *f0;
     int *f4;
@@ -50,8 +44,8 @@ static int padCmd[2][4][16] __attribute__((aligned(64))); /* derived name */
 
 static int padRpcBuf[32] __attribute__((aligned(64))); /* derived name */
 
-/* The IOP send helper, the member's first function (MAIN.MAP libpad.o .text
-   begins here, and its first string is the member's first .rodata entry). */
+/* The IOP send helper, libpad.o's first function (its first string is the
+   member's first .rodata entry). */
 void _send_to_iop(int a0, int a1)
 {
     struct {
@@ -202,8 +196,7 @@ int scePadPortOpen(int a0, int a1, void *a2)
         return 0;
     }
     /* q is this slot's command buffer, padCmd[2][4][16]; reply word 5 is
-     * the IOP buffer address, read as a pointer (an int read would take the
-     * int record stores' alias set and reorder the tail). */
+     * the IOP buffer address, read as a pointer. */
     q = padCmd[a0][a1];
     val = (int)*(void **)&padRpcBuf[5];
     padSlot[a0][a1].f10 = 1;
@@ -319,12 +312,10 @@ void scePadReqIntToStr(unsigned int a0, char *a1)
     }
 }
 
-/* RECONSTRUCTION: the pad DMA buffer scePadGetDmaStr hands back, read off the
-   offsets this TU's members use.  The actuator and combination tables are
-   arrays of four-byte records: scePadInfoAct's ROM indexes them through a
-   member array (base register plus scaled index, the record offset folded
-   into the load), which a plain byte-offset dereference does not give.  Only
-   the members these functions touch are named; the rest is padding. */
+/* the pad DMA buffer scePadGetDmaStr hands back, laid out from the offsets
+   this TU's members use.  The actuator and combination tables are arrays of
+   four-byte records.  Only the members these functions touch are named; the
+   rest is padding. */
 typedef struct {
     unsigned char f00[48];
     unsigned char act[4][4];  /* 0x30 */

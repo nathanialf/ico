@@ -1,16 +1,12 @@
 /*
  * sce/libkernl/eekernel.h
  *
- * PUBLIC SDK NAMING RUNG.  The disc attests no declaration-only header: a
- * header that only declares leaves no instruction in SRCFILE.TXT and no
- * symbol in MAIN.MAP, so neither its name nor its contents can be read off
- * the ROM.  What places this file is the public naming of the PS2 SDK, whose
- * header for these entry points is called eekernel.h and whose archive is
- * this directory's.  Each declaration is the kernel call's public signature
- * as the public ps2sdk headers spell it (ee/kernel/include/kernel.h), in the
- * SDK's own type names, and every member and game TU that calls one is
- * byte-identical under it; the few marked "definition in sce/" are the
- * definitions in this tree.  Nothing here is copied from an SDK header.
+ * Declarations of the EE kernel calls this tree makes, under the public name
+ * of the PS2 SDK header for them (eekernel.h).  Each declaration is the
+ * kernel call's public signature as the public ps2sdk headers spell it
+ * (ee/kernel/include/kernel.h), in the SDK's own type names; the few marked
+ * "definition in sce/" are the definitions in this tree.  Nothing here is
+ * copied from an SDK header.
  *
  * Only what this tree uses is declared.
  */
@@ -26,27 +22,27 @@
    libcdvd's status buffer and the ios thread object's head are; the last
    three words are written only by ReferThreadStatus. */
 struct SemaParam {
-    int currentCount;   /* 0x00 */
-    int maxCount;       /* 0x04 */
-    int initCount;      /* 0x08 */
-    int numWaitThreads; /* 0x0C */
-    unsigned int attr;  /* 0x10 */
+    int currentCount;    /* 0x00 */
+    int maxCount;        /* 0x04 */
+    int initCount;       /* 0x08 */
+    int numWaitThreads;  /* 0x0C */
+    unsigned int attr;   /* 0x10 */
     unsigned int option; /* 0x14 */
 };
 
 struct ThreadParam {
-    int status;               /* 0x00 */
-    void (*entry)(void *);    /* 0x04 */
-    void *stack;              /* 0x08 */
-    int stackSize;            /* 0x0C */
-    void *gpReg;              /* 0x10 */
-    int initPriority;         /* 0x14 */
-    int currentPriority;      /* 0x18 */
-    unsigned int attr;        /* 0x1C */
-    unsigned int option;      /* 0x20 */
-    int waitType;             /* 0x24 */
-    int waitId;               /* 0x28 */
-    int wakeupCount;          /* 0x2C */
+    int status;            /* 0x00 */
+    void (*entry)(void *); /* 0x04 */
+    void *stack;           /* 0x08 */
+    int stackSize;         /* 0x0C */
+    void *gpReg;           /* 0x10 */
+    int initPriority;      /* 0x14 */
+    int currentPriority;   /* 0x18 */
+    unsigned int attr;     /* 0x1C */
+    unsigned int option;   /* 0x20 */
+    int waitType;          /* 0x24 */
+    int waitId;            /* 0x28 */
+    int wakeupCount;       /* 0x2C */
 };
 
 /* Interrupt control (public signatures, ps2sdk kernel.h). */
@@ -62,14 +58,16 @@ int _iEnableIntc(int cause);
 int _iDisableIntc(int cause);
 int _iEnableDmac(int channel);
 int _iDisableDmac(int channel);
-int iEnableIntc(int cause);   /* definition in sce/ */
-int iDisableIntc(int cause);  /* definition in sce/ */
-int iEnableDmac(int channel); /* definition in sce/ */
+int iEnableIntc(int cause);    /* definition in sce/ */
+int iDisableIntc(int cause);   /* definition in sce/ */
+int iEnableDmac(int channel);  /* definition in sce/ */
 int iDisableDmac(int channel); /* definition in sce/ */
-int SetAlarm(unsigned short time, void (*handler)(int id, unsigned short time, void *arg), void *arg);
+
+int SetAlarm(unsigned short time, void (*handler)(int id, unsigned short time, void *arg),
+             void *arg);
+
 int DIntr(void);
 int EIntr(void);
-
 /* Threads. */
 int CreateThread(struct ThreadParam *param);
 int DeleteThread(int id);
@@ -87,7 +85,6 @@ int iWakeupThread(int id);
 int CancelWakeupThread(int id);
 int SuspendThread(int id);
 int ResumeThread(int id);
-
 /* Semaphores. */
 int CreateSema(struct SemaParam *param);
 int DeleteSema(int sema);
@@ -96,7 +93,6 @@ int iSignalSema(int sema);
 int WaitSema(int sema);
 int PollSema(int sema);
 int ReferSemaStatus(int sema, struct SemaParam *info);
-
 /* Miscellany. */
 void Exit(int status);
 void FlushCache(int operation);
@@ -107,8 +103,8 @@ void SetGsCrt(short interlace, short omode, short ffmd);
 void SetVSyncFlag(unsigned int *flag, unsigned long *csr);
 void SetVTLBRefillHandler(int cause, void *handler);
 void SetVCommonHandler(int cause, void *handler);
-void VSync(void);                       /* the spelling at 1 site */
-long long VSync2(void);                 /* definition in sce/ */
-void scePrintf(char *fmt, ...);         /* definition in sce/ */
+void VSync(void);               /* the spelling at 1 site */
+long long VSync2(void);         /* definition in sce/ */
+void scePrintf(char *fmt, ...); /* definition in sce/ */
 
 #endif /* SCE_LIBKERNL_EEKERNEL_H */

@@ -1,5 +1,4 @@
-/* Vendor SCE library member: libipu.a(ipuinit.o).  MAIN.MAP's size (0x2A0) tiles the
- * retail run exactly, VMA 0x2725D8..0x272878, 2 functions. */
+/* libipu.a(ipuinit.o): the channel-4 control helper and sceIpuInit. */
 #include <eekernel.h>
 #include <eeregs.h>
 #include <libipu.h>
@@ -17,9 +16,7 @@ static void setD4_CHCR(int *a0)
 
 typedef unsigned int u128_ipu __attribute__((mode(TI)));
 
-/* volatile: the shipped code re-loads element [4] for each of its four FIFO
-   writes instead of keeping it in a register; no data-model reason for the
-   qualifier is known, the reload is what the ROM does. */
+/* volatile: element [4] is read afresh for each of its four FIFO writes. */
 /* libipu.a's build stamp, exactly sixteen characters with no terminator,
    the first object in ipuinit.o's .data. */
 static char sceIpuVersion[16] = "PsIIlibipu  2200";
@@ -27,8 +24,7 @@ static char sceIpuVersion[16] = "PsIIlibipu  2200";
 /* The quantiser matrices sceIpuInit feeds to the IPU command FIFO: the four
    quadwords of the MPEG default INTRA matrix, then one quadword of 16 that
    is written four times to fill the flat NON-INTRA matrix.  The byte view
-   carries the values, the quadword view carries the 16-byte alignment and
-   the volatile the shipped code's per-write reload of element 4. */
+   carries the values, the quadword view the 16-byte alignment. */
 static union {
     unsigned char b[80];
     volatile u128_ipu q[5];

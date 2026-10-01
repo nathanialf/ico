@@ -1,9 +1,7 @@
-/* Vendor SCE library member: libmpeg.a(bit.o).  MAIN.MAP's member size (0x20C)
- * tiles the retail run, VMA 0x272058..0x272264, the seven _sysbit functions of
- * the demultiplexer's bit reader.  The two DMA channel control helpers after
- * them (setD3_CHCR, setD4_CHCR, VMA 0x272268..0x272338) are libipu.o's own
- * functions in the listing, where libipu.o begins after bit.o's 4 bytes of
- * link fill; they stay in this file until libipu's row is moved to take them. */
+/* libmpeg.a(bit.o): the seven _sysbit functions of the demultiplexer's bit
+ * reader.  The two DMA channel control helpers after them (setD3_CHCR,
+ * setD4_CHCR) belong to libipu.o, which begins after bit.o's 4 bytes of link
+ * fill; they are kept in this file. */
 #include <eekernel.h>
 #include <libmpeg.h>
 #include <libmpeg_internal.h>
@@ -23,7 +21,7 @@ typedef struct {
     int size;            /* 0x28 */
 } SysBit;
 
-/* kept local: its record type is this member's own */
+/* Its record type is this member's own */
 extern void _sysbitFlush(SysBit *bs, int n);
 
 void _sysbitInit(int *a0, int a1, int a2, int a3)

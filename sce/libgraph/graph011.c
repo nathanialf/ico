@@ -1,5 +1,4 @@
-/* libgraph.a member graph011.o.  MAIN.MAP member spans tile this run exactly and
- * this member starts at an 8-aligned function start of the shipped ELF. */
+/* libgraph.a member graph011.o */
 #include <libgraph.h>
 #include <eeregs.h>
 #include <eekernel.h>

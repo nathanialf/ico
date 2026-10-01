@@ -1,12 +1,9 @@
-/* libm.a member ef_fmod.o.  MAIN.MAP member spans tile this run exactly and
- * this member starts at an 8-aligned function start of the shipped ELF. */
+/* libm.a member ef_fmod.o */
 #include <math.h>
 #include <math_private.h>
 
-/* Float<->word access, the public-domain fdlibm idiom (netlib's fdlibm),
-   re-derived, not copied from any SDK.  This member's use stands for a
-   Sony/newlib-internal math_private.h this tree cannot name: the listing
-   attributes no row to such a header, so the definition is kept per member. */
+/* Float<->word access, the public-domain fdlibm idiom (netlib's fdlibm,
+   math_private.h), defined in this member. */
 
 #define GET_FLOAT_WORD(i, d)                                                                       \
     do {                                                                                           \
@@ -76,13 +73,7 @@ float __ieee754_fmodf(float x, float y)
         hy = hy << n;
     }
 
-    /* The ROM copies n and tests the copy (daddu $2,$4,$0 / bnez $2 /
-       addiu $4,$4,-1), which is do_jump's plain path on a QUEUED post
-       decrement.  A `while (n--)` folds to `--n != -1` and loses the
-       copy; fold refuses that rewrite for an ORDERED comparison, and the
-       branch is bne, not bgtz, because n is unsigned, so `> 0` reduces to
-       `!= 0` only after the rewrite has been refused.  Measured, both
-       spellings compiled. */
+    /* fix point fmod: n shift-and-subtract steps */
     n = ix - iy;
     while (n-- > 0) {
         hz = hx - hy;

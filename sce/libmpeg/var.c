@@ -1,11 +1,9 @@
-/* Vendor SCE library member: libmpeg.a(var.o).  No code: the decoder state
- * every other member reads, MAIN.MAP .data 0x8C4 (122 globals, lines 6118 to
- * 6241), VMA 0x54C100..0x54C9C4.  The names are the map's; they follow the
- * public MPEG-2 reference decoder's globals (mpeg2decode's global.h), which
- * also gives frame_center_*_offset[3] and f_code[2][2].  Every object is
- * initialised, zero included, which keeps it in .data under ee-gcc 2.9.  The
- * default intra matrix is 64-byte aligned for its DMA to the IPU, which is
- * what starts the member 64-aligned after init.o's .data. */
+/* libmpeg.a(var.o).  No code: the decoder state every other member reads.
+ * The names follow the public MPEG-2 reference decoder's globals
+ * (mpeg2decode's global.h), which also gives frame_center_*_offset[3] and
+ * f_code[2][2].  Every object is initialised, zero included, which keeps it in
+ * .data under ee-gcc 2.9.  The default intra matrix is 64-byte aligned for
+ * its DMA to the IPU. */
 #include <eeregs.h>
 #include <libmpeg_internal.h>
 

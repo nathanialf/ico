@@ -1,30 +1,19 @@
-/* libgraph.a member graph018.o.  MAIN.MAP member spans tile this run exactly and
- * this member starts at an 8-aligned function start of the shipped ELF. */
+/* libgraph.a member graph018.o */
 #include <stdio.h>
 #include <eekernel.h>
 #include <eeregs.h>
 
 typedef unsigned int u_long128 __attribute__((mode(TI)));
 
-/* The member's .data (MAIN.MAP graph018.o .data 0x10, no map symbol, so a
-   static of Sony's): one VIF1 quadword, MSKPATH3 0 then three NOPs, written
-   to the VIF1 FIFO to unmask PATH3 again, held as words like graph002's
-   reset packet.  VIF codes are register fields, so they are spelled in hex.
-   Read through a u_long128 lvalue, the load's alias set is not the GS_CSR
-   store's, so the scheduler may issue it above that store as the ROM does. */
+/* The member's .data (0x10, no symbol, so a static of Sony's): one VIF1
+   quadword, MSKPATH3 0 then three NOPs, written to the VIF1 FIFO to unmask
+   PATH3 again, held as words like graph002's reset packet.  VIF codes are
+   register fields, so they are spelled in hex. */
 static unsigned int sceGsUnmaskPath3Packet[4]
     __attribute__((aligned(16))) = {0x06000000, 0, 0, 0}; /* derived name */
 
-/* RECONSTRUCTION.  What the bytes pin: the allocator's order i, n1, n8, rem,
-   pkt, img, extra for $16..$22 (global.c allocno_compare), which needs n8 and
-   n1 referenced in every arm, extra kept to seven references (one shared
-   `pad` tail for the four shift arms, the 24-bit arm its own) and n1 numbered
-   before n8; the counter zeroes after the three declared initialisers, so
-   sched2 leaves nh = 0 last for the range check's slot; a separate `rest`
-   holding each arm's shift; the rem path re-reading the TRXREG word from the
-   packet; every GIF FIFO access volatile (reorg never takes one into a slot).
-   What they cannot pin: the names, and whether the arms were written with a
-   macro. */
+/* Every GIF FIFO access is volatile.  The local names, and whether the arms
+   were written with a macro, are not known. */
 int sceGsExecStoreImage(void *pkt, void *img)
 {
     union {

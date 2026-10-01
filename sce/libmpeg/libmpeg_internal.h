@@ -2,11 +2,10 @@
  * sce/libmpeg/libmpeg_internal.h  (derived name: the file name is ours)
  *
  * libmpeg's declarations that are not public SDK API: the decoder's shared
- * state (var.o's and init.o's globals, MAIN.MAP's names) and the helpers
- * the members call across files.  Each declaration is the definition's in
- * sce/libmpeg where that is C (var.c's objects, the members' functions),
- * else the spelling its callers carry.  A reference image (_refFrame0 and
- * the rest, 26 ints) is passed as the int pointer var.o declares it.
+ * state (var.o's and init.o's globals) and the helpers the members call
+ * across files.  Each declaration is the definition's in sce/libmpeg.  A
+ * reference image (_refFrame0 and the rest, 26 ints) is passed as the int
+ * pointer var.o declares it.
  */
 #ifndef SCE_LIBMPEG_LIBMPEG_INTERNAL_H
 #define SCE_LIBMPEG_LIBMPEG_INTERNAL_H

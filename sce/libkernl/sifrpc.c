@@ -1,7 +1,4 @@
-/* Vendor SCE library member: libkernl.a(sifrpc.o).  MAIN.MAP names the
- * member and its .text size (0xF60), which tiles the shipped ELF from one
- * retail function start to the next; VMA 0x25F770..0x2606D0,
- * 22 functions. */
+/* libkernl.a(sifrpc.o) */
 
 #include <eekernel.h>
 #include <sifrpc.h>
@@ -12,13 +9,9 @@
 /* sifrpc.o's .data: set once sceSifInitRpc has run, cleared by sceSifExitRpc */
 static int rpc_inited = 0;
 
-/* RECONSTRUCTION: sifrpc.o's RPC state record (the .bss object at
-   0x0072C1C0).  Field names follow the public SDK naming of this record;
-   the types are what the ROM needs: the ten stores in sceSifInitRpc only
-   schedule as the ROM has them when the packet table (void *), the two
-   byte tables (unsigned char *) and the int fields sit in three different
-   alias sets, and active_queue keeps the `int *` the queue walkers below
-   read it as. */
+/* sifrpc.o's RPC state record.  Field names follow the public SDK naming of
+   this record; the packet table is a void *, the two byte tables unsigned
+   char *, and active_queue the `int *` the queue walkers below read it as. */
 typedef struct {
     int pid;
     void *pkt_table;
@@ -33,7 +26,7 @@ typedef struct {
     int *active_queue;
 } SifRpcData;
 
-/* sifrpc.o's .bss, in the ROM's order: the 32 64-byte command packets, the
+/* sifrpc.o's .bss, in link order: the 32 64-byte command packets, the
    32 receive-data slots and the 32 client slots sceSifInitRpc hands the
    record (each table a cache line per entry, and 64-aligned for the SIF DMA),
    then the record itself. */
@@ -154,7 +147,7 @@ void _request_end(int *pkt)
     int *c;
     void (*fn)(int);
 
-    /* unsigned: the ROM's range test is sltu, not slt */
+    /* unsigned: the range test is unsigned */
     switch ((unsigned int)pkt[8]) {
     case 0x8000000A:
         c = *(int **)&pkt[7];
@@ -169,9 +162,7 @@ void _request_end(int *pkt)
         c[5] = pkt[10];
         c[6] = pkt[11];
         break;
-    /* nothing to finish for an RDATA reply, but the case is present: the ROM
-       dispatches with the balanced beq/sltu tree gcc only builds for more than
-       two cases. */
+    /* nothing to finish for an RDATA reply, but the case is present */
     case 0x8000000C:
         break;
     }

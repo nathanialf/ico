@@ -1,7 +1,4 @@
-/* Vendor SCE library member: libkernl.a(eeloadfile.o).  MAIN.MAP names the
- * member and its .text size (0x994), which tiles the shipped ELF from one
- * retail function start to the next; VMA 0x263EA0..0x264834,
- * 14 functions. */
+/* libkernl.a(eeloadfile.o) */
 
 #include <sifrpc.h>
 #include <string.h>
@@ -107,12 +104,7 @@ int _sceSifLoadModuleBuffer(void *addr, int arglen, int args, void *ret)
     if (args != 0) {
         if (arglen >= 0xFD) {
             p->args = *(SceLfArgBuf *)args;
-            /* What the bytes pin: this store goes through the buffer itself,
-               not p; the ROM re-forms its address after the copy loop
-               (addiu $3,%lo(lf_buf) then sw 4($3)), where p's register
-               serves the other two arms.  A member of the record gives that
-               (explow.c memory_address copies the lo_sum base to a register);
-               a byte-offset constant would give %lo(lf_buf+4). */
+            /* this store goes through the buffer itself, not p */
             ((SceLfRpcBuf *)lf_buf)->arglen = 0xFC;
         } else {
             memcpy(&p->args, (char *)args, arglen);

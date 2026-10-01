@@ -1,19 +1,16 @@
-/* Vendor SCE library member: libmpeg.a(mpc.o).  MAIN.MAP's member size (0x4D68)
- * tiles the retail run exactly, VMA 0x26CBD0..0x271938, 63 functions: motion
- * compensation, the macroblock and slice decoder, the IPU command and bit
- * reader layer, the picture-level header parsers and the output path.  The
- * member's .text is 16-aligned by _copyRefImage's `.align 4` before _maxval,
- * which is what places the 12 bytes of fill after defhandler.o. */
+/* libmpeg.a(mpc.o): motion compensation, the macroblock and slice decoder,
+ * the IPU command and bit reader layer, the picture-level header parsers and
+ * the output path.  The member's .text is 16-aligned by _copyRefImage's
+ * `.align 4` before _maxval. */
 #include <libmpeg.h>
 #include <libmpeg_internal.h>
 #include <eeregs.h>
 #include <eekernel.h>
 #include <stdio.h>
 
-/* kept local: var.o's _mbcont as this member reads it, the two macroblock
-   records indexed by the current one.  MAIN.MAP lists init.o and mpc.o as
-   separate members, and the types of init.o's stores show that it declared
-   the same words its own way (sce/libmpeg/init.c). */
+/* var.o's _mbcont as this member reads it, the two macroblock records
+   indexed by the current one.  init.o declares the same words its own way
+   (sce/libmpeg/init.c). */
 extern MCState _mbcont;
 
 int _motionComp0(int a0, int a1, int a2, int a3, int *PMV, int *mv_field_sel, int *dmvector)
@@ -106,13 +103,8 @@ void _getAllRefs(int x, int y, int mbflags, int motion_type, int *PMV, int *mv_f
             fields[1][0] = _backTop;
             fields[1][1] = _backBot;
             /* On a field picture the frame flag is reused for the current
-               field's parity (1 = bottom): the ROM keeps both in $23, and
-               this set is what stops cse carrying the entry 1 into the
-               selection below, whose conditional move combine then folds to
-               the ROM's xor/sltu. */
+               field's parity (1 = bottom). */
             fld = _picture_structure == 2;
-            /* The else arm's set is hoisted by jump in front of the first
-               test, after its li 2, which is where the ROM schedules it. */
             if (_picture_coding_type == 2 && _isSecondField != 0 && fld != mv_field_sel[0]) {
                 sel = 1;
             } else {
@@ -144,10 +136,8 @@ void _getAllRefs(int x, int y, int mbflags, int motion_type, int *PMV, int *mv_f
     }
     if (mbflags & 4) {
         if (_picture_structure == 3) {
-            /* The backward frame's own field flag (ROM `addiu $23,$0,1`
-               before the motion_type test): fld may hold the field parity
-               here, and as one variable with fld the allocation would rank
-               it above mv_field_sel, where the ROM has the reverse. */
+            /* The backward frame's own field flag: fld may hold the field
+               parity here. */
             int bfld = 1;
 
             if (motion_type == 2) {
@@ -1980,9 +1970,8 @@ int _ipuVdec(int tbl)
     }
     bp = *IPU_BP;
     /* the IPU TOP register is read once, after the command above has retired,
-     * so this read is not qualified: the two busy-waits above are what needs
-     * the qualifier, and the plain read is what lets the address stay a
-     * constant in the load */
+     * so this read is not qualified: only the two busy-waits above need the
+     * qualifier */
     top = *(long long *)IPU_TOP;
     _top32 = top;
     if (top < 0) {
@@ -2244,9 +2233,7 @@ void _updateTempTackData(void)
     _trFrameNumberA = _trFrameNumberA < _trFrameNumber ? _trFrameNumber : _trFrameNumberA;
 }
 
-/* The handle is read as an int here: the ROM issues its load ahead of the
- * register saves, which sched2 does only when that load shares int's alias
- * set with the +0xE8 store (the store's anti dependence breaks the tie). */
+/* The handle is read as an int here. */
 void _groupOfPicturesHeader(void)
 {
     int *p = *(int **)((int)_theSceMpeg + 0x40);
@@ -2388,12 +2375,8 @@ void _outputFrame(int a0, int a1)
     }
 }
 
-/* The reference images are record pointers: their loads and stores sit in
-   their own alias set, apart from the int fields read and written through
-   them, which is what lets the ROM hoist the decoder-field and _forwTop loads
-   over those stores. The two 64-bit stamps are written through the record
-   seen as long longs (an in-struct reference), so the display-size loads may
-   pass them, as the ROM's tail order shows. */
+/* The reference images are record pointers.  The two 64-bit stamps are
+   written through the record seen as long longs. */
 int _updateRefImage(int a0)
 {
     int *r = (int *)((int *)_theSceMpeg)[0x40 / 4];

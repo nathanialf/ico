@@ -1,7 +1,6 @@
 /* libc.a member ctype_.o (newlib libc/ctype/ctype_.c): no code, the one
  * read-only table the <ctype.h> macros index one byte in, so that EOF (-1)
- * reads the leading zero (MAIN.MAP lines 546, 6765-6766: .rodata 0x101,
- * _ctype_ the one global). */
+ * reads the leading zero (.rodata 0x101, _ctype_ the one global). */
 #include <ctype.h>
 
 /* clang-format off */

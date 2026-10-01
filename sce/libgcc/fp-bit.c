@@ -1,5 +1,4 @@
-/* libgcc.a member fp-bit.o.  MAIN.MAP member spans tile this run exactly and
- * this member starts at an 8-aligned function start of the shipped ELF. */
+/* libgcc.a member fp-bit.o */
 #include "libgcc2.h"
 
 #define CLASS_SNAN 0

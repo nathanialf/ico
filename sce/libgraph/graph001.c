@@ -1,13 +1,11 @@
-/* libgraph.a member graph001.o.  MAIN.MAP member spans tile this run exactly and
- * this member starts at an 8-aligned function start of the shipped ELF. */
+/* libgraph.a member graph001.o */
 #include <libgraph.h>
 #include <eeregs.h>
 #include <eekernel.h>
 
-/* RECONSTRUCTION: the record sceGsGetGParam hands back, read off the offsets
-   this function writes.  The name follows the accessor's; MAIN.MAP names no
-   symbol in the run.  It stays local to this file until another TU reaches the
-   record by field. */
+/* the record sceGsGetGParam hands back, laid out from the offsets this
+   function writes.  The name follows the accessor's.  It stays local to this
+   file until another TU reaches the record by field. */
 typedef struct {
     short inter;   /* 0x0 */
     short omode;   /* 0x2 */
@@ -19,10 +17,7 @@ typedef struct {
 
 /* the member's .data: its build stamp and the record, interlaced NTSC frame
    mode until sceGsResetGraph sets it.  The stamp is 16-aligned in Sony's
-   object: the shipped link starts this member's .data at 0x54A2A0, 12 bytes
-   past vobj.o's run end at 0x54A294, where an 8-aligned section would sit at
-   0x54A298.  The stamp is the run's first object, so its alignment is the
-   section's. */
+   object; as the member's first object its alignment is the section's. */
 static char sceGsVersion[16] __attribute__((aligned(16))) = "PsIIlibgraph2200"; /* derived name */
 
 static sceGsGParam gsGParam = {1, 2, 1, 3, 0, 0}; /* derived name */
