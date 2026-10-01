@@ -235,7 +235,7 @@ static int actionStarted = 0; /* derived name */
 
 static int fightSoundStopped = 0; /* derived name */
 
-static char *layoutVoice = 0; /* derived name */
+static SqEntry *layoutVoice = 0; /* derived name */
 
 int startStagePauseDisableTimer = 0;
 
@@ -662,7 +662,7 @@ int la_vibe_select(void)
             break;
         }
         if (titleAdpcm != 0) {
-            ((AdpcmObj *)titleAdpcm)->stream->fadeStep = 0x80;
+            titleAdpcm->stream->fadeStep = 0x80;
         }
         titleAdpcm = 0;
         gflagInit();
@@ -1443,7 +1443,7 @@ int la_load_processing(int first)
         debug_StdPrintfDummy("stage no %d\n", gFlagSaveStage);
         seEnvForceClose = 1;
         if (titleAdpcm != 0) {
-            ((AdpcmObj *)titleAdpcm)->stream->fadeStep = 0x40;
+            titleAdpcm->stream->fadeStep = 0x40;
         }
         titleAdpcm = 0;
         if (gflagChk(395)) {
@@ -1530,10 +1530,10 @@ int la_mc_confirm_save_file(int first, int item)
         }
         if (saveVoice != 0) {
             layoutVoice = soundDataOpenSync(&voiceOpenReq);
-            if (layoutVoice != (char *)0xFFFFFFFF) {
+            if (layoutVoice != (SqEntry *)0xFFFFFFFF) {
                 saveVoice = 0;
                 if (layoutVoice != 0) {
-                    AdpcmPlay(((AdpcmObj *)layoutVoice)->stream);
+                    AdpcmPlay(layoutVoice->stream);
                     return -1;
                 }
             }
@@ -2493,8 +2493,8 @@ inline void la_playtime_count(void)
 /* inlined into la_game_loop and into la_game_over_continue */
 static inline void releaseGameLoopCursor(void) /* derived name */
 {
-    if (layoutVoice != 0 && ((AdpcmObj *)layoutVoice)->stream != 0) {
-        ((AdpcmObj *)layoutVoice)->stream->fadeStep = 0x100;
+    if (layoutVoice != 0 && layoutVoice->stream != 0) {
+        layoutVoice->stream->fadeStep = 0x100;
     }
     layoutVoice = 0;
 }
@@ -2622,10 +2622,10 @@ int la_game_over_continue(int first)
         }
     } else if (gameOverVoice != 0) {
         layoutVoice = soundDataOpenSync(&voiceOpenReq);
-        if (layoutVoice != (char *)0xFFFFFFFF) {
+        if (layoutVoice != (SqEntry *)0xFFFFFFFF) {
             gameOverVoice = 0;
             if (layoutVoice != 0) {
-                AdpcmPlay(((AdpcmObj *)layoutVoice)->stream);
+                AdpcmPlay(layoutVoice->stream);
                 return -1;
             }
         }

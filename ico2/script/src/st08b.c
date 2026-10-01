@@ -90,7 +90,7 @@ void actSt08bKurenSwitch(GObj *volatile self)
     Act *sub = GOBJ_ACT(self);
     Pos p1;
     Pos p2;
-    char *h;
+    SqEntry *h;
     GProc *th = 0;
     GProc *thread;
     int frame;

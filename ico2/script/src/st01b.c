@@ -76,7 +76,7 @@ void actSt01bEneChk(GObj *volatile self)
 }
 
 /* .sdata */
-char *st01b_floor = 0;
+SqEntry *st01b_floor = 0;
 
 unsigned int st01b_yure = 0;
 
@@ -100,7 +100,7 @@ static void actSt01bFloorChkSub(GObj *volatile self)
     while (st01b_floor == 0) {
         _ACTWait(1);
     }
-    AdpcmPlay(((AdpcmObj *)st01b_floor)->stream);
+    AdpcmPlay(st01b_floor->stream);
     stage_SetAnimation(180, 1, 0);
     stage_SetAnimation(181, 1, 0);
     pos = floorChkSubPos;

@@ -85,15 +85,15 @@ static ActMail buki_mes[2] = {{430}, {429}}; /* derived name */
 
 /* .sdata: bmg and hand around the two scene streams, then a word no code
    uses, a shake and its volume. */
-char *bmg = 0;
+SqEntry *bmg = 0;
 
-static char *st13c_adpcm = 0; /* derived name */
+static SqEntry *st13c_adpcm = 0; /* derived name */
 
-static char *st13c_adpcm2 = 0; /* derived name */
+static SqEntry *st13c_adpcm2 = 0; /* derived name */
 
-char *hand = 0;
+SqEntry *hand = 0;
 
-static char *st13c_reserved = 0; /* derived name */
+static SqEntry *st13c_reserved = 0; /* derived name */
 
 static int st13c_yure = 0; /* derived name */
 
@@ -510,7 +510,7 @@ void actSt13cCageFallChk(GObj *volatile self)
         _ACTWait(1);
     }
 
-    AdpcmPlay(((AdpcmObj *)st13c_adpcm2)->stream);
+    AdpcmPlay(st13c_adpcm2->stream);
 
     th1 = actCreateSubThread(actSt13cConte05, 21);
     th2 = actCreateSubThread(actSt13cConte05Jimaku, 21);

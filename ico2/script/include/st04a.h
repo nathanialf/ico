@@ -10,12 +10,14 @@
 
 #include "typedef.h"
 
+struct SqEntry;
+
 /* st04a.o's .sdata globals */
-extern char *gate1st;
+extern struct SqEntry *gate1st;
 extern int gate1;
-extern char *gate_ready_l;
-extern char *gate_ready_r;
-extern char *torch;
+extern struct SqEntry *gate_ready_l;
+extern struct SqEntry *gate_ready_r;
+extern struct SqEntry *torch;
 extern int gate_yure_low;
 extern unsigned char gate_yure_low_vol;
 extern int yure1;

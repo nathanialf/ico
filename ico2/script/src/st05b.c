@@ -45,7 +45,7 @@ void actSt05bCrest01XL(GObj *volatile self)
 }
 
 /* .sdata: the stone statue's stream handle, its shake and the shake's volume. */
-char *sekizo5b = 0;
+SqEntry *sekizo5b = 0;
 
 int sekizo_5b = 0;
 

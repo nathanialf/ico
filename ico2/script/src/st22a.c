@@ -22,7 +22,7 @@ static int lightningAnims[];
 
 /* .sdata: the lightning stream handle and the two animation numbers the
    lightning plays. */
-int lightning = 0;
+struct SqEntry *lightning = 0;
 
 static int lightningAnims[2] = {758, 759}; /* derived name */
 

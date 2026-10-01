@@ -9,7 +9,7 @@
 static ActMail check_mes[2] = {{430}, {429}}; /* derived name */
 
 /* .sdata: the lightning stream handle. */
-char *lightning2 = 0;
+struct SqEntry *lightning2 = 0;
 
 void actSt17bTest(GObj *volatile self)
 {

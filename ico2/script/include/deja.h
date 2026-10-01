@@ -10,8 +10,10 @@
 
 #include "typedef.h"
 
+struct SqEntry;
+
 /* deja.o's .sdata global */
-extern char *deja;
+extern struct SqEntry *deja;
 /* deja.c's `inline` functions, in the order of their definitions'
  * out-of-line copies at the end of the object (first-declaration order). */
 void actDeja(GObj *volatile self);

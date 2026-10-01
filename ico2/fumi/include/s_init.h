@@ -17,8 +17,8 @@ struct AdpcmOpenReq;
 /* sound data area: one loaded bank, 0x30 bytes, the 16 rows of s_init.c's
  * soundDataTbl, keyed by its first word (num, bank). Readers: ico2/fumi/
  * sound/s_init.c, ico2/fumi/sound/adpcm_init.c (the stream at 0x2C); the
- * other directories hold it as the char * handle the Set and Open calls
- * return. At 0x18 a VAB or sequence keeps its SPU buffer and an ADPCM stream
+ * other directories hold it as the handle the Set and Open calls return.
+ * At 0x18 a VAB or sequence keeps its SPU buffer and an ADPCM stream
  * its SPU channel mask. Owner: ico2/fumi/include/s_init.h. */
 typedef struct SqEntry { /* field names derived */
     unsigned short num;  /* 0x00, the bank's row */

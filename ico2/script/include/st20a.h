@@ -10,10 +10,12 @@
 
 #include "typedef.h"
 
+struct SqEntry;
+
 /* st20a.o's .sdata globals */
-extern char *brg20a;
-extern char *gondola_up;
-extern char *gondola_down;
+extern struct SqEntry *brg20a;
+extern struct SqEntry *gondola_up;
+extern struct SqEntry *gondola_down;
 extern unsigned int st20a_yure;
 extern unsigned char st20a_yure_vol;
 void actSt20aBridgeDown(GObj *volatile self);

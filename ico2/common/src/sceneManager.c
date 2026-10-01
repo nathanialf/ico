@@ -551,7 +551,7 @@ int HotInitSceneObjects(int a0)
             int idx = ((GObj *)node)->kind;
             if (idx >= 0) {
                 ObjKindEnt *e = &objKindData[idx];
-                void (*fn)(int *);
+                void (*fn)(GObj *);
                 if (e->before != 0) {
                     iosOmSendMail(node, 0x2F, node);
                 }

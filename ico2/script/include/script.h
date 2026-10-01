@@ -12,13 +12,15 @@
 
 struct GObj;
 
+struct SqEntry;
+
 /* script.o's .sdata globals: the boy-control read lock the
    scripts raise, the sound-environment master volume rate, the statue's
    common ADPCM handle, two dummy GObj words and the statue's pad vibration
    handle and volume. */
 extern int scpBoyControlReadDisable;
 extern float scpSeEnvMasterVolRate;
-extern char *sekizo_common;
+extern struct SqEntry *sekizo_common;
 extern char *scpDummyGObj;
 extern char *scpDummyGObj2;
 extern int sekizo_yure;
@@ -37,10 +39,10 @@ inline void scpLinkBGAtoKindTargetSkeltonWithLocalRotationFlag(int kind, int foc
 WallCfg *scpGetWallCollision(float x0, float y0, float z0, float x1, float y1, float z1);
 void scpDoorTypeUp(struct GObj *volatile self);
 inline void scpDoorTypeUpSwitch(struct GObj *volatile self);
-void scpAdpcmPlayRequestFunc(int kind, char **id, int ch, int loopNum, int play);
+void scpAdpcmPlayRequestFunc(int kind, struct SqEntry **id, int ch, int loopNum, int play);
 int scpAdpcmPlayRequestNum(void);
-int scpAdpcmFadeCloseFunc(char **h, short fade);
-int scpAdpcmCloseChkFunc(char **h);
+int scpAdpcmFadeCloseFunc(struct SqEntry **h, short fade);
+int scpAdpcmCloseChkFunc(struct SqEntry **h);
 void scpDeamon(struct GObj *volatile self);
 void scpGirlHintVoiceCancel(void);
 void scpWoodBox(struct GObj *volatile self);
@@ -124,7 +126,7 @@ void scpPlayEnd(struct GObj *self);
 void scpDoorTypeUpDown(struct GObj *volatile self);
 void scpDoorTypeUpUp(struct GObj *volatile self);
 void scpSubAdpcmPlay(struct GObj *volatile self);
-void scpAdpcmCloseFunc(char **h);
+void scpAdpcmCloseFunc(struct SqEntry **h);
 void scpGirlHintVoiceReady(int kind);
 void scpGirlHintVoicePlay(void);
 void scpGirlHintVoiceTickProc(void *cam);

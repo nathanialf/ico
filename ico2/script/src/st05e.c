@@ -77,7 +77,7 @@ void actSt05eWaterStop(GObj *volatile self)
 }
 
 /* .sdata: the solar stream handle. */
-char *solar = 0;
+struct SqEntry *solar = 0;
 
 void actSt05eSolarChk(GObj *volatile self)
 {

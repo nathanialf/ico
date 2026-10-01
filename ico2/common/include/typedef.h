@@ -946,7 +946,7 @@ typedef struct {        /* field names derived */
     void (*afterGeo)(
         GObj *);            /* 0x4C, the process CreateGObjByFuncSet adds after the geometry one */
     void (*geo)(GObj *);    /* 0x50, the geometry process (BoyGeo) */
-    void (*hotInit)(int *); /* 0x54, sceneManager's hot-init hook */
+    void (*hotInit)(GObj *); /* 0x54, sceneManager's hot-init hook */
     int (*create)(GObj *, void *); /* 0x58, the kind's GObj constructor */
     void (*ai)(GObj *);            /* 0x5C, the brain process (GirlAI, EnemyAI) */
     void (*before)(GObj *); /* 0x60, the object's per-frame function (BeforeFunc); nonzero means

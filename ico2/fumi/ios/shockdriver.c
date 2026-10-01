@@ -16,7 +16,7 @@ ShockVoiceSet *ShockVoiceSetCommon = 0;
 
 ShockVoiceSet *ShockVoiceSetStage = 0;
 
-int ShockVoiceSetBuf[2] = {0};
+ShockVoiceSet *ShockVoiceSetBuf[2] = {0};
 
 ShockReqAlloc ShockRequestMemory = {0};
 
@@ -207,19 +207,17 @@ extern void ShockRequestBox_Regst(ShockRequestBox *box, SHOCKREQUEST *req);
 
 /* file-static copies of ShockDriver_GetShockVoiceSet, ShockDriver_GetShockVoice
  * and ShockRequestBox_Request, which Shock_Request inlines */
-static inline int getShockVoiceSet(unsigned idx) /* derived name */
+static inline ShockVoiceSet *getShockVoiceSet(unsigned idx) /* derived name */
 {
     if (idx >= (unsigned)System_shock_driver->count)
         return 0;
     return System_shock_driver->arr[idx];
 }
 
-static inline int getShockVoice(int voice, int n) /* derived name */
+static inline int *getShockVoice(int voice, int n) /* derived name */
 {
-    int set = getShockVoiceSet(voice);
-    return (set != 0 && (unsigned)n < *(unsigned short *)(*(int *)set + 8))
-               ? *(int *)(set + 0xC) + n * 4
-               : 0;
+    ShockVoiceSet *set = getShockVoiceSet(voice);
+    return (set != 0 && (unsigned)n < set->top.half[4]) ? set->voice + n : 0;
 }
 
 static inline SHOCKREQUEST *requestBoxRequest(ShockRequestBox *box, ShockParam *p, ShockParam v,
@@ -236,7 +234,7 @@ static inline SHOCKREQUEST *requestBoxRequest(ShockRequestBox *box, ShockParam *
     if (box == 0)
         return 0;
 
-    vs = (ShockVoiceSet *)System_shock_driver->arr[v.voice];
+    vs = System_shock_driver->arr[v.voice];
     if (vs == 0)
         return 0;
 
@@ -446,7 +444,7 @@ SHOCKREQUEST *ShockRequestBox_Request(ShockRequestBox *box, ShockParam *p, Shock
     if (box == 0)
         return 0;
 
-    vs = (ShockVoiceSet *)System_shock_driver->arr[v.voice];
+    vs = System_shock_driver->arr[v.voice];
     if (vs == 0)
         return 0;
 
@@ -651,7 +649,7 @@ int ShockRequestBox_RequestDirectCancel(ShockRequestBox *box, SHOCKREQUEST *req)
 /* the driver manager's setup, which Init_ShockDriver and Init_Shock
    inline; after the guards the manager is reached through the global it
    has just been stored in */
-static inline void initShockDriver(ShockMgr *m, int *arr, int num) /* derived name */
+static inline void initShockDriver(ShockMgr *m, ShockVoiceSet **arr, int num) /* derived name */
 {
     int i;
     if (m == 0)
@@ -666,12 +664,12 @@ static inline void initShockDriver(ShockMgr *m, int *arr, int num) /* derived na
     System_shock_driver->callback = 0;
 }
 
-void Init_ShockDriver(ShockMgr *m, int *arr, int num)
+void Init_ShockDriver(ShockMgr *m, ShockVoiceSet **arr, int num)
 {
     initShockDriver(m, arr, num);
 }
 
-int ShockDriver_VoiceSet_NumberRegist(unsigned int idx, int val)
+int ShockDriver_VoiceSet_NumberRegist(unsigned int idx, ShockVoiceSet *val)
 {
     ShockMgr *m = System_shock_driver;
     if (idx >= (unsigned int)m->count)
@@ -680,7 +678,7 @@ int ShockDriver_VoiceSet_NumberRegist(unsigned int idx, int val)
     return idx;
 }
 
-int ShockDriver_VoiceSet_Regist(int value)
+int ShockDriver_VoiceSet_Regist(ShockVoiceSet *value)
 {
     int i;
     for (i = 0; i < System_shock_driver->count; i++) {
@@ -704,14 +702,14 @@ int ShockDriver_VoiceSet_Remove(unsigned int idx)
 
 int ShockDriver_GetShockVoiceMax(int idx)
 {
-    int p;
+    int p; /* the set, then its image: one register in the ROM */
     if ((unsigned int)idx < (unsigned int)System_shock_driver->count) {
         goto body;
     }
     p = 0;
     goto check;
 body:
-    p = System_shock_driver->arr[idx];
+    p = (int)System_shock_driver->arr[idx];
 check:
     if (p != 0) {
         p = *(int *)p;
@@ -720,7 +718,7 @@ check:
     return 0;
 }
 
-int ShockDriver_GetShockVoiceSet(unsigned idx)
+ShockVoiceSet *ShockDriver_GetShockVoiceSet(unsigned idx)
 {
     ShockMgr *m = System_shock_driver;
     if (idx >= (unsigned)m->count)
@@ -728,9 +726,9 @@ int ShockDriver_GetShockVoiceSet(unsigned idx)
     return m->arr[idx];
 }
 
-int ShockDriver_GetShockVoice(int idx, int n)
+int *ShockDriver_GetShockVoice(int idx, int n)
 {
-    int p;
+    ShockVoiceSet *p;
     if ((unsigned int)idx < (unsigned int)System_shock_driver->count) {
         goto body;
     }
@@ -742,10 +740,10 @@ check:
     if (p == 0) {
         goto ret_a;
     }
-    if ((unsigned int)n >= (unsigned int)*(unsigned short *)(*(int *)p + 8)) {
+    if ((unsigned int)n >= (unsigned int)p->top.half[4]) {
         goto ret_b;
     }
-    return *(int *)(p + 0xC) + n * 4;
+    return p->voice + n;
 ret_b:
     return 0;
 ret_a:
@@ -865,10 +863,10 @@ void Init_Shock(void)
     initShockRequestAlloc(&ShockRequestMemory, ShockRequest, 16);
 }
 
-int Shock_SetShockVoiceSet(int idx, int val)
+int Shock_SetShockVoiceSet(int idx, ShockVoiceSet *val)
 {
     ShockMgr *m = System_shock_driver;
-    int *array;
+    ShockVoiceSet **array;
     if ((unsigned int)idx < (unsigned int)m->count)
         goto store;
     idx = -1;

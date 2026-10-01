@@ -53,25 +53,25 @@ static int subStarted; /* derived name */
 static const ConstVec stairSubPos = {{0.0f, 0.0f, -5000.0f, 1.0f}}; /* derived name */
 
 /* .sdata: the room's stream handles and shakes (solar4l unused). */
-unsigned int ball1_4l = 0;
+SqEntry *ball1_4l = 0;
 
-char *ball2_4l = 0;
+SqEntry *ball2_4l = 0;
 
-char *ball3_4l = 0;
+SqEntry *ball3_4l = 0;
 
-char *crest1 = 0;
+SqEntry *crest1 = 0;
 
-char *crest2 = 0;
+SqEntry *crest2 = 0;
 
-char *crest3 = 0;
+SqEntry *crest3 = 0;
 
 int solar4l = 0;
 
-char *stair4d = 0;
+SqEntry *stair4d = 0;
 
-char *st04d_hasi = 0;
+SqEntry *st04d_hasi = 0;
 
-char *sekizo4c = 0;
+SqEntry *sekizo4c = 0;
 
 unsigned int oriup4c = 0;
 
@@ -283,7 +283,7 @@ static void actSt04lBallTurnCommon(GObj *volatile self)
     h = actCreateSubThread(actSt04lBallTurnCommonSub, 21);
 
     demoEnd = 0;
-    ball1_4l = 0xFFFFFFFF;
+    ball1_4l = (SqEntry *)0xFFFFFFFF;
 
     while (demoEnd == 0 && ((pad[0].flags & 0x800) == 0 || scpAdpcmPlayRequestNum() != 0)) {
         _ACTWait(1);
@@ -298,7 +298,7 @@ static void actSt04lBallTurnCommon(GObj *volatile self)
             _ACTWait(1);
         }
 
-        if (ball1_4l != 0xFFFFFFFF) {
+        if (ball1_4l != (SqEntry *)0xFFFFFFFF) {
             scpAdpcmFadeCloseFunc(&ball1_4l, 512);
         }
 
@@ -815,7 +815,7 @@ static void actSt04lStairSub(GObj *volatile self)
         _ACTWait(1);
     }
 
-    AdpcmPlay(((AdpcmObj *)crest3)->stream);
+    AdpcmPlay(crest3->stream);
 
     stage_SetAnimation(258, 1, 0);
 
@@ -1585,7 +1585,7 @@ static void actSt04lOriSub(GObj *volatile self)
         _ACTWait(1);
     }
 
-    AdpcmPlay(((AdpcmObj *)st04d_hasi)->stream);
+    AdpcmPlay(st04d_hasi->stream);
 
     stage_SetAnimation(243, 1, 0);
     stage_SetAnimation(245, 1, 0);
@@ -1783,7 +1783,7 @@ static void actSt04lOri2Sub(GObj *volatile self)
         _ACTWait(1);
     }
 
-    AdpcmPlay(((AdpcmObj *)sekizo4c)->stream);
+    AdpcmPlay(sekizo4c->stream);
 
     stage_SetAnimation(248, 1, 0);
 

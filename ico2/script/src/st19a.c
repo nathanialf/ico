@@ -43,13 +43,13 @@ static ActMail chain_mes[2] = {{430}, {429}}; /* derived name */
 static ActMail chainSwitch_mes[2] = {{430}, {429}}; /* derived name */
 
 /* .sdata: the fence, horn and pipe stream handles. */
-char *fence_up_19a = 0;
+SqEntry *fence_up_19a = 0;
 
-char *fence_down_19a = 0;
+SqEntry *fence_down_19a = 0;
 
-char *hgrm_19a = 0;
+SqEntry *hgrm_19a = 0;
 
-char *pipe19a = 0;
+SqEntry *pipe19a = 0;
 
 void actSt19aOriUp(GObj *volatile self)
 {
@@ -450,7 +450,7 @@ static void actSt19aChainDownSub(GObj *volatile self)
         _ACTWait(1);
     }
 
-    AdpcmPlay(((AdpcmObj *)pipe19a)->stream);
+    AdpcmPlay(pipe19a->stream);
 
     stage_SetAnimation(144, 1, 0);
 

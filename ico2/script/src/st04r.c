@@ -137,7 +137,7 @@ static const ConstVec crestFacePos = {{0.0f, 0.0f, -5000.0f, 1.0f}}; /* derived 
 
 /* .sdata: the room's stream handles and shakes (the three balls and crest2_4r
    unused). */
-char *solar4r = 0;
+SqEntry *solar4r = 0;
 
 int ball1_4r = 0;
 
@@ -145,15 +145,15 @@ int ball2_4r = 0;
 
 int ball3_4r = 0;
 
-char *crest1_4r = 0;
+SqEntry *crest1_4r = 0;
 
 int crest2_4r = 0;
 
-char *crest3_4r = 0;
+SqEntry *crest3_4r = 0;
 
-char *stair5d = 0;
+SqEntry *stair5d = 0;
 
-char *sekizo5c = 0;
+SqEntry *sekizo5c = 0;
 
 unsigned char st05d_hasi = 0;
 
@@ -588,7 +588,7 @@ void actSt04rSolarBeamChk(GObj *volatile self)
         _ACTWait(1);
     }
 
-    AdpcmPlay(((AdpcmObj *)solar4r)->stream);
+    AdpcmPlay(solar4r->stream);
 
     preload(15);
 
@@ -635,7 +635,7 @@ static void actSt04rStairSub(GObj *volatile self)
         _ACTWait(1);
     }
 
-    AdpcmPlay(((AdpcmObj *)crest3_4r)->stream);
+    AdpcmPlay(crest3_4r->stream);
 
     stage_SetAnimation(350, 1, 0);
 
@@ -2437,7 +2437,7 @@ static void actSt04rBrg1Sub(GObj *volatile self)
         _ACTWait(1);
     }
 
-    AdpcmPlay(((AdpcmObj *)sekizo5c)->stream);
+    AdpcmPlay(sekizo5c->stream);
 
     stage_SetAnimation(sekizo_4r, 1, 0);
 

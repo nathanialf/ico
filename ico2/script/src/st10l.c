@@ -70,13 +70,13 @@ static ActMail chainSwitch_mes[2] = {{430}, {429}}; /* derived name */
 static ActMail eneKill_mes[2] = {{430}, {429}}; /* derived name */
 
 /* .sdata: the floor, gondola and chain stream handles. */
-char *floor10l = 0;
+SqEntry *floor10l = 0;
 
-char *st10l_gondola_up = 0;
+SqEntry *st10l_gondola_up = 0;
 
-char *st10l_gondola_down = 0;
+SqEntry *st10l_gondola_down = 0;
 
-char *chain10l = 0;
+SqEntry *chain10l = 0;
 
 void actSt10lInit(void)
 {

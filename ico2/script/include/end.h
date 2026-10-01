@@ -10,14 +10,16 @@
 
 #include "typedef.h"
 
+struct SqEntry;
+
 /* end.o's .sdata globals */
-extern char *ed1;
-extern char *ed2;
-extern char *ed3;
-extern char *ed4;
+extern struct SqEntry *ed1;
+extern struct SqEntry *ed2;
+extern struct SqEntry *ed3;
+extern struct SqEntry *ed4;
 extern int ed5;
-extern char *ed6;
-extern char *sea;
+extern struct SqEntry *ed6;
+extern struct SqEntry *sea;
 extern int happy_end;
 void actConte14_1(GObj *volatile self);
 void actConte14_10(GObj *volatile self);

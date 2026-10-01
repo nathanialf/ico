@@ -10,10 +10,12 @@
 
 #include "typedef.h"
 
+struct SqEntry;
+
 /* st13a.o's .sdata globals */
-extern char *st13a_up;
-extern char *st13a_down;
-extern char *sekizo13a;
+extern struct SqEntry *st13a_up;
+extern struct SqEntry *st13a_down;
+extern struct SqEntry *sekizo13a;
 extern unsigned int st13a_yure;
 extern unsigned char st13a_yure_vol;
 extern int sekizo_13a;

@@ -680,7 +680,7 @@ void iosPadActInit(void)
     int i;
     memset(padActs, 0, sizeof(padActs));
     Init_Shock();
-    Shock_SetShockVoiceSet(0, (int)ShockVoiceSetCommon);
+    Shock_SetShockVoiceSet(0, ShockVoiceSetCommon);
     dev = iosPadDev;
     for (i = 0; i < 2; i++) {
         Init_Controler(&dev[i].shock.motor);

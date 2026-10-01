@@ -63,15 +63,15 @@ static inline void actE3St09aBrgSwitch(GObj *volatile self);
 /* .sdata: the title stream's handle, the capsule's, the cage fall's, the
    first gate's, the stone statue's and its volume word, then the statue
    shake's volume. */
-static char *e3title = 0; /* derived name */
+static SqEntry *e3title = 0; /* derived name */
 
-char *e3capsule = 0;
+SqEntry *e3capsule = 0;
 
-static char *e3cage = 0; /* derived name */
+static SqEntry *e3cage = 0; /* derived name */
 
-char *e3gate1st = 0;
+SqEntry *e3gate1st = 0;
 
-char *sekizo_e3 = 0;
+SqEntry *sekizo_e3 = 0;
 
 int sekizo_e3_vol = 0;
 
@@ -173,7 +173,7 @@ void actE3TitleChk(GObj *volatile self)
     gflagOn(357);
     debug_StdPrintfDummy("game_start\n");
 
-    AdpcmPlay(((AdpcmObj *)e3title)->stream);
+    AdpcmPlay(e3title->stream);
 
     scpFadeOut(4.0f, 0, 0, 0);
     while (scpFadeChk() != 0) {
@@ -518,7 +518,7 @@ void actE3CageFallChk(GObj *volatile self)
         _ACTWait(1);
     }
 
-    AdpcmPlay(((AdpcmObj *)e3cage)->stream);
+    AdpcmPlay(e3cage->stream);
 
     actCreateSubThread(actE3CageFallDemo, 21);
 
@@ -933,7 +933,7 @@ void actE3GateDemo(GObj *volatile self)
     }
     _ACTWait(1);
 
-    AdpcmPlay(((AdpcmObj *)e3gate1st)->stream);
+    AdpcmPlay(e3gate1st->stream);
 
     while (stage_ContinueAnimation(648, 649) == 0) {
         _ACTWait(1);

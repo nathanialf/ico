@@ -2,6 +2,7 @@
 #include "mcard.h"
 #include "layout_texture.h"
 #include "adpcm_init.h"
+#include "s_init.h"
 #include "act.h"
 #include "boyact.h"
 #include "commonact.h"
@@ -27,27 +28,27 @@ static void actEndingSave(GObj *volatile self);
 
 /* .sdata: the ending scenes' stream handles (ed5 and happy_end unused), then
    the staff roll's, the fourteenth demo's and the st27a ending's. */
-char *ed1 = 0;
+SqEntry *ed1 = 0;
 
-char *ed2 = 0;
+SqEntry *ed2 = 0;
 
-char *ed3 = 0;
+SqEntry *ed3 = 0;
 
-char *ed4 = 0;
+SqEntry *ed4 = 0;
 
 int ed5 = 0;
 
-char *ed6 = 0;
+SqEntry *ed6 = 0;
 
-char *sea = 0;
+SqEntry *sea = 0;
 
 int happy_end = 0;
 
-static char *staff3 = 0; /* derived name */
+static SqEntry *staff3 = 0; /* derived name */
 
-static char *endDemo14 = 0; /* derived name */
+static SqEntry *endDemo14 = 0; /* derived name */
 
-static char *st27aEnd = 0; /* derived name */
+static SqEntry *st27aEnd = 0; /* derived name */
 
 static ActMail demo01_mes[2] = {{430}, {429}}; /* derived name */
 
@@ -501,7 +502,7 @@ void actConte14_10(GObj *volatile self)
         _ACTWait(1);
     }
 
-    AdpcmPlay(((AdpcmObj *)ed6)->stream);
+    AdpcmPlay(ed6->stream);
 
     scpPlayMot(boyGObj, 452);
 

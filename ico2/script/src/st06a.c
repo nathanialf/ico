@@ -211,11 +211,11 @@ void actSt06aSuimon(GObj *volatile self)
 }
 
 /* .sdata: the sluice, shutter and spike stream handles. */
-char *suimon = 0;
+SqEntry *suimon = 0;
 
-char *shutter = 0;
+SqEntry *shutter = 0;
 
-char *toge = 0;
+SqEntry *toge = 0;
 
 void actSt06aSuimonChk(GObj *volatile self)
 {
@@ -1206,7 +1206,7 @@ static void actSt06aShutterOpenSub(GObj *volatile self)
         _ACTWait(1);
     }
 
-    AdpcmPlay(((AdpcmObj *)shutter)->stream);
+    AdpcmPlay(shutter->stream);
 
     stage_SetAnimation(110, 1, 0);
 

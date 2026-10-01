@@ -26,7 +26,7 @@ void actDejaDemo(GObj *volatile self);
 void actDejaAfterChk(GObj *volatile self);
 
 /* .sdata: the scene's stream handle */
-char *deja = 0;
+struct SqEntry *deja = 0;
 
 static const Vec16 afterChkPos = {{-1000.0f, 0.0f, -2200.0f, 1.0f}}; /* derived name */
 

@@ -137,7 +137,7 @@ extern StreamMotionFile streamMotion[];
 
 /* .sdata: the first gate's stream handle and gate1, which no code uses.
    actSt04aConte06's "!!\n" trace follows them. */
-char *gate1st = 0;
+SqEntry *gate1st = 0;
 
 int gate1 = 0;
 
@@ -342,7 +342,7 @@ void actSt04aConte06(GObj *volatile self)
 {
     stage_SetAnimation(648, 1, 0);
 
-    AdpcmPlay(((AdpcmObj *)gate1st)->stream);
+    AdpcmPlay(gate1st->stream);
 
     while (stage_ContinueAnimation(648, 649) == 0) {
         _ACTWait(1);
@@ -485,17 +485,17 @@ void actSt04aConte06(GObj *volatile self)
 /* .sdata, after actSt04aConte06's trace: the gate and torch stream handles,
    then the pad shakes and their volumes (declared in st04a.h for
    actSt04aConte06). */
-static char *gate_open = 0; /* derived name */
+static SqEntry *gate_open = 0; /* derived name */
 
-static char *gate_open2 = 0; /* derived name */
+static SqEntry *gate_open2 = 0; /* derived name */
 
-static char *conte09_2 = 0; /* derived name */
+static SqEntry *conte09_2 = 0; /* derived name */
 
-char *gate_ready_l = 0;
+SqEntry *gate_ready_l = 0;
 
-char *gate_ready_r = 0;
+SqEntry *gate_ready_r = 0;
 
-char *torch = 0;
+SqEntry *torch = 0;
 
 int gate_yure_low = 0;
 
@@ -1017,7 +1017,7 @@ void actSt04aGateOpen2Chk(GObj *volatile self)
         _ACTWait(1);
     }
 
-    AdpcmPlay(((AdpcmObj *)gate_open2)->stream);
+    AdpcmPlay(gate_open2->stream);
 
     actCreateSubThread(actConte09_2, 21);
 }
@@ -1194,7 +1194,7 @@ void actSt04aGateOpen3Chk(GObj *volatile self)
         _ACTWait(1);
     }
 
-    AdpcmPlay(((AdpcmObj *)conte09_2)->stream);
+    AdpcmPlay(conte09_2->stream);
 
     actCreateSubThread(actSt04aEnvSeWakare2, 21);
     actCreateSubThread(actConte09_3, 21);

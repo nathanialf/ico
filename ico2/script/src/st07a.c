@@ -105,11 +105,11 @@ static const EffectArg tsuroEffect9Pos = {{-1273.0f, 1325.0f, -873.0f, 1.0f}}; /
 
 /* .sdata: the bridge and statue stream handles and the statue's shake, then
    the shake's volume. */
-char *bridge = 0;
+SqEntry *bridge = 0;
 
-char *sekizo7a = 0;
+SqEntry *sekizo7a = 0;
 
-char *sekizo_7a = 0;
+SqEntry *sekizo_7a = 0;
 
 int sekizo_7a_vol = 0;
 
@@ -165,7 +165,7 @@ void actSt07aChanChk(GObj *volatile self)
     while (bridge == 0) {
         _ACTWait(1);
     }
-    AdpcmPlay(((AdpcmObj *)bridge)->stream);
+    AdpcmPlay(bridge->stream);
 
     hEffect = actCreateSubThread(actSt07aChanEffect, 21);
 

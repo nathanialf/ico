@@ -10,12 +10,14 @@
 
 #include "typedef.h"
 
+struct SqEntry;
+
 /* st47a.o's .sdata globals */
-extern char *sekizo47a;
-extern char *hane1up;
-extern char *hane2up;
-extern char *hane1down;
-extern char *hane2down;
+extern struct SqEntry *sekizo47a;
+extern struct SqEntry *hane1up;
+extern struct SqEntry *hane2up;
+extern struct SqEntry *hane1down;
+extern struct SqEntry *hane2down;
 extern int sekizo_47a;
 extern unsigned char sekizo_47a_vol;
 void actSt47aBarricadeChk(GObj *volatile self);

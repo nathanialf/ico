@@ -10,10 +10,12 @@
 
 #include "typedef.h"
 
+struct SqEntry;
+
 /* e3.o's .sdata globals */
-extern char *e3capsule;
-extern char *e3gate1st;
-extern char *sekizo_e3;
+extern struct SqEntry *e3capsule;
+extern struct SqEntry *e3gate1st;
+extern struct SqEntry *sekizo_e3;
 extern int sekizo_e3_vol;
 /* e3.c's `inline` functions, in the order of their definitions'
  * out-of-line copies at the end of the object (first-declaration order). */

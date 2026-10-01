@@ -601,7 +601,7 @@ inline void ReadSoundAdpcmFile(void *h, int name, int size, int id, int kind, in
     int key;
     int hi;
     char *p;
-    int *q;
+    SqEntry *q;
 
     systemStatus[8]++;
     if (size > 0x5C000)
@@ -614,7 +614,7 @@ inline void ReadSoundAdpcmFile(void *h, int name, int size, int id, int kind, in
         debug_StdPrintfDummy("ReadAdpcmFile:loaded::[%d]%s  (size:%d)\n", id, name, size);
         q = adpcmDataSet(p, id, kind, seg, size, AdpcmIopBuffAlloc(), 0);
         iosFree(p);
-        AdpcmPlay(((AdpcmObj *)q)->stream);
+        AdpcmPlay(q->stream);
     } else {
         iosCdvdHandlerRead(h, 0, size);
     }

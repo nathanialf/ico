@@ -10,17 +10,19 @@
 
 #include "typedef.h"
 
+struct SqEntry;
+
 /* st13b.o's .sdata globals */
-extern char *sekizo13b;
-extern char *sekizo13b2;
-extern char *meets_again;
-extern char *boss;
-extern char *sd;
-extern char *boss_dead;
-extern char *st13b_up;
-extern char *st13b_down;
-extern char *sekizo_13b;
-extern char *sekizo_13b_vol;
+extern struct SqEntry *sekizo13b;
+extern struct SqEntry *sekizo13b2;
+extern struct SqEntry *meets_again;
+extern struct SqEntry *boss;
+extern struct SqEntry *sd;
+extern struct SqEntry *boss_dead;
+extern struct SqEntry *st13b_up;
+extern struct SqEntry *st13b_down;
+extern struct SqEntry *sekizo_13b;
+extern struct SqEntry *sekizo_13b_vol;
 extern int st13b_yure;
 extern unsigned char st13b_yure_vol;
 void actConte10c(GObj *volatile self);

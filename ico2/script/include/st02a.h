@@ -10,10 +10,12 @@
 
 #include "typedef.h"
 
+struct SqEntry;
+
 /* st02a.o's .sdata globals */
-extern char *st02a_fence;
-extern char *gondola;
-extern char *gondola_test;
+extern struct SqEntry *st02a_fence;
+extern struct SqEntry *gondola;
+extern struct SqEntry *gondola_test;
 void actSt02aDoorDownChk(GObj *volatile self);
 void actSt02aDoorDownEffect(GObj *volatile self);
 void actSt02aDoorUpChk(GObj *volatile self);

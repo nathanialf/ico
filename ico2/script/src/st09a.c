@@ -52,7 +52,7 @@ static ActMail hint1_mes[2] = {{430}, {429}}; /* derived name */
 static ActMail hint2_mes[2] = {{430}, {429}}; /* derived name */
 
 /* .sdata: the bridge stream handle. */
-char *st09a_brg = 0;
+SqEntry *st09a_brg = 0;
 
 void actSt09aInit(void)
 {

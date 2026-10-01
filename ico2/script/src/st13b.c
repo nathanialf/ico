@@ -77,27 +77,27 @@ static ActMail elev2CharaChk_mes[2] = {{430}, {429}}; /* derived name */
 
 /* .sdata: the scene stream, the stream handles and shakes, then a further
    shake and volume. */
-static char *st13b_adpcm = 0; /* derived name */
+static SqEntry *st13b_adpcm = 0; /* derived name */
 
-char *sekizo13b = 0;
+SqEntry *sekizo13b = 0;
 
-char *sekizo13b2 = 0;
+SqEntry *sekizo13b2 = 0;
 
-char *meets_again = 0;
+SqEntry *meets_again = 0;
 
-char *boss = 0;
+SqEntry *boss = 0;
 
-char *sd = 0;
+SqEntry *sd = 0;
 
-char *boss_dead = 0;
+SqEntry *boss_dead = 0;
 
-char *st13b_up = 0;
+SqEntry *st13b_up = 0;
 
-char *st13b_down = 0;
+SqEntry *st13b_down = 0;
 
-char *sekizo_13b = 0;
+SqEntry *sekizo_13b = 0;
 
-char *sekizo_13b_vol = 0;
+SqEntry *sekizo_13b_vol = 0;
 
 int st13b_yure = 0;
 
@@ -204,7 +204,7 @@ void actSt13bConte02(GObj *volatile self)
         _ACTWait((60 - systemStatus[0] * 10) / systemStatus[1] * 1.0);
     }
 
-    AdpcmPlay(((AdpcmObj *)st13b_adpcm)->stream);
+    AdpcmPlay(st13b_adpcm->stream);
 
     while (stage_ContinueAnimation(586, 587) == 0) {
         _ACTWait(1);
@@ -682,7 +682,7 @@ void actSt13bBossChk(GObj *volatile self)
         _ACTWait(1);
     }
 
-    AdpcmPlay(((AdpcmObj *)boss)->stream);
+    AdpcmPlay(boss->stream);
 }
 
 void actSt13bBossAfterChk(GObj *volatile self)

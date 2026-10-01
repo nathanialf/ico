@@ -498,7 +498,7 @@ void actSt17aHasiEvent(int x)
 }
 
 /* .sdata: the camera stream handle. */
-char *cam = 0;
+SqEntry *cam = 0;
 
 void actSt17aIntroChk(GObj *volatile self)
 {

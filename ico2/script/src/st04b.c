@@ -38,7 +38,7 @@ void actSt04bEnd(void)
 }
 
 /* .sdata: the stone statue's stream handle, its shake and the shake's volume. */
-char *sekizo4b = 0;
+SqEntry *sekizo4b = 0;
 
 int sekizo_4b = 0;
 

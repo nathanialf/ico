@@ -10,8 +10,10 @@
 
 #include "typedef.h"
 
+struct SqEntry;
+
 /* st05e.o's .sdata globals */
-extern char *solar;
+extern struct SqEntry *solar;
 void actSt05eSolarChk(GObj *volatile self);
 void actSt05eWaterFlagOn(GObj *volatile self);
 void actSt05eWaterMain(GObj *volatile self);

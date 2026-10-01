@@ -78,13 +78,13 @@ static int demoEnd;
 static const ConstVec girlWayPos = {{-296.0f, 327.0f, 2125.0f, 0.0f}}; /* derived name */
 
 /* .sdata: the floor and cage stream handles, the scene stream, the chain's. */
-char *st10r_floor = 0;
+SqEntry *st10r_floor = 0;
 
-char *cage10r = 0;
+SqEntry *cage10r = 0;
 
-static char *st10r_adpcm = 0; /* derived name */
+static SqEntry *st10r_adpcm = 0; /* derived name */
 
-char *chain10r = 0;
+SqEntry *chain10r = 0;
 
 void actSt10rInit(void)
 {
@@ -338,7 +338,7 @@ void actSt10rTowerConte(GObj *volatile self)
 {
     stage_SetAnimation(389, 1, 0);
 
-    AdpcmPlay(((AdpcmObj *)st10r_adpcm)->stream);
+    AdpcmPlay(st10r_adpcm->stream);
 
     scpSearchGobj(1594)->active = 0;
     scpSearchGobj(1595)->active = 0;
@@ -886,7 +886,7 @@ static void actSt10rCageSub(GObj *volatile self)
         _ACTWait(1);
     }
 
-    AdpcmPlay(((AdpcmObj *)cage10r)->stream);
+    AdpcmPlay(cage10r->stream);
 
     stage_SetAnimation(388, 1, 0);
 
@@ -959,7 +959,7 @@ static void actSt10rChainMoveSub(GObj *volatile self)
         _ACTWait(1);
     }
 
-    AdpcmPlay(((AdpcmObj *)chain10r)->stream);
+    AdpcmPlay(chain10r->stream);
 
     stage_SetAnimation(387, 1, 0);
 

@@ -10,11 +10,13 @@
 
 #include "typedef.h"
 
+struct SqEntry;
+
 /* st19a.o's .sdata globals */
-extern char *fence_up_19a;
-extern char *fence_down_19a;
-extern char *hgrm_19a;
-extern char *pipe19a;
+extern struct SqEntry *fence_up_19a;
+extern struct SqEntry *fence_down_19a;
+extern struct SqEntry *hgrm_19a;
+extern struct SqEntry *pipe19a;
 void actSt19aChainDown(GObj *volatile self);
 void actSt19aChainMain(GObj *volatile self);
 void actSt19aChainSwitch(GObj *volatile self);

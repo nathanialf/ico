@@ -6,6 +6,7 @@
 #include "thread.h"
 #include "gobj_process.h"
 #include "adpcm_init.h"
+#include "s_init.h"
 #include "act.h"
 #include "boyact.h"
 #include "commonact.h"
@@ -34,19 +35,19 @@ static void actSt25aElevCharaChk(GObj *volatile self);
 
 /* .sdata: the ADPCM request slots the scenes hand scpAdpcmPlayRequestFunc
    and wait on, and conte12's flag. */
-static char *conte11 = 0; /* derived name */
+static SqEntry *conte11 = 0; /* derived name */
 
-char *conte12 = 0;
+SqEntry *conte12 = 0;
 
-char *sd2 = 0;
+SqEntry *sd2 = 0;
 
 static int conte12Flag = 0; /* derived name */
 
-char *dead = 0;
+SqEntry *dead = 0;
 
-static char *elevAgain = 0; /* derived name */
+static SqEntry *elevAgain = 0; /* derived name */
 
-static char *elevFirst = 0; /* derived name */
+static SqEntry *elevFirst = 0; /* derived name */
 
 /* stream-motion-def's table; streamMotionManager.h, which defines the
    record, does not declare it */
@@ -127,7 +128,7 @@ void actSt25aQueenAppearChk(GObj *volatile self)
     while (conte11 == 0) {
         _ACTWait(1);
     }
-    AdpcmPlay(((AdpcmObj *)conte11)->stream);
+    AdpcmPlay(conte11->stream);
     scpBoyControlReadDisable = 1;
     _ACTWait((60 - systemStatus[0] * 10) / systemStatus[1] * 3);
     actCreateSubThread(actConte11, 21);
@@ -567,7 +568,7 @@ void actSt25aQueenDeadChk(GObj *volatile self)
     while (dead == 0) {
         _ACTWait(1);
     }
-    AdpcmPlay(((AdpcmObj *)dead)->stream);
+    AdpcmPlay(dead->stream);
 
     stgmgrNextStagePreLoadForceStageSet(exitData[stageData[stage_no].ent[3]].nextStage);
     stgmgrNextStagePreLoadForceNoCancel(1);

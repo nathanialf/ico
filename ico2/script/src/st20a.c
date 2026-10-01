@@ -93,11 +93,11 @@ void actSt20aEnd(void)
 static int demoEnd;
 
 /* .sdata: the bridge and gondola stream handles and the shake. */
-char *brg20a = 0;
+SqEntry *brg20a = 0;
 
-char *gondola_up = 0;
+SqEntry *gondola_up = 0;
 
-char *gondola_down = 0;
+SqEntry *gondola_down = 0;
 
 unsigned int st20a_yure = 0;
 
@@ -565,7 +565,7 @@ static void actSt20aBridgeDownSub(GObj *volatile self)
     while (brg20a == 0) {
         _ACTWait(1);
     }
-    AdpcmPlay(((AdpcmObj *)brg20a)->stream);
+    AdpcmPlay(brg20a->stream);
     stage_SetAnimation(148, 1, 0);
     st20a_yure = iosPadActRequest(boyPad, 9);
     st20a_yure_vol = 128;

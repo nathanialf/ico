@@ -10,8 +10,10 @@
 
 #include "typedef.h"
 
+struct SqEntry;
+
 /* st17a.o's .sdata globals */
-extern char *cam;
+extern struct SqEntry *cam;
 void actLinkTestChk(GObj *volatile self);
 void actSt17aDoorDownChk(GObj *volatile self);
 void actSt17aDoorDownEffect(GObj *volatile self);

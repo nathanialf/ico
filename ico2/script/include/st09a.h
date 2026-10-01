@@ -10,8 +10,10 @@
 
 #include "typedef.h"
 
+struct SqEntry;
+
 /* st09a.o's .sdata globals */
-extern char *st09a_brg;
+extern struct SqEntry *st09a_brg;
 void actSt09aBrgDown(GObj *volatile self);
 void actSt09aBrgMain(GObj *volatile self);
 void actSt09aBrgSwitch(GObj *volatile self);

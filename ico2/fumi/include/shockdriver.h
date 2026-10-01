@@ -101,7 +101,7 @@ typedef struct ShockVoiceSet { /* field names derived */
    decoders call on a 0x3F command (Init_ShockDriver clears it). */
 typedef struct { /* field names derived */
     int count;
-    int *arr; /* the voice sets (ShockVoiceSet *), held as words */
+    ShockVoiceSet **arr; /* the voice sets */
     void (*callback)(SHOCKREQUEST *req, unsigned char *cmd);
 } ShockMgr; /* derived name */
 
@@ -111,7 +111,7 @@ extern int ShockDriver[4];
 extern ShockMgr *System_shock_driver;
 extern ShockVoiceSet *ShockVoiceSetCommon;
 extern ShockVoiceSet *ShockVoiceSetStage;
-extern int ShockVoiceSetBuf[2];
+extern ShockVoiceSet *ShockVoiceSetBuf[2];
 extern ShockReqAlloc ShockRequestMemory;
 
 void Init_Controler(ShockReq *motor);
@@ -125,7 +125,7 @@ int ShockRequestBox_RequestCancel(ShockRequestBox *box, int key);
 SHOCKREQUEST *Shock_Request(ShockRequestBox *box, int voice, ShockParam v, int key, int arg);
 void Shock_Decode(ShockRequestBox *box, unsigned char *pFlags, unsigned char *pLevel);
 void Shock_SetMotor(int flags, int level, ShockReq *box, int port, int slot);
-int Shock_SetShockVoiceSet(int idx, int val);
+int Shock_SetShockVoiceSet(int idx, ShockVoiceSet *val);
 SHOCKREQUEST *dumyAllocFunc(ShockReqAlloc *pool, int arg);
 
 void Vibration_SetDecodeData(SHOCKREQUEST *req, unsigned char *shot, unsigned char *wave,

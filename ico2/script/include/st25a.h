@@ -10,6 +10,8 @@
 
 #include "typedef.h"
 
+struct SqEntry;
+
 void actConte12(GObj *volatile self);
 void actConte12Jimaku(GObj *volatile self);
 void actConte13Jimaku(GObj *volatile self);
@@ -19,9 +21,9 @@ void actSt25aQueenTalkChk(GObj *volatile self);
 extern const char faceShadowTex[];
 extern const char faceShadowTex00[];
 /* st25a.o's .sdata globals: ADPCM request slots */
-extern char *conte12;
-extern char *sd2;
-extern char *dead;
+extern struct SqEntry *conte12;
+extern struct SqEntry *sd2;
+extern struct SqEntry *dead;
 void BoySekikaTexScroll(void);
 extern ActMail queen_appear_mes[]; /* st25a.o .data: the queen-appear actor mail list */
 

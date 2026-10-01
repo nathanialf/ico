@@ -4,6 +4,7 @@
 #include "pad.h"
 #include "thread.h"
 #include "adpcm_init.h"
+#include "s_init.h"
 #include "act.h"
 #include "gobj_process.h"
 #include "commonact.h"
@@ -52,11 +53,11 @@ static ActMail chainOK_mes[2] = {{430}, {429}}; /* derived name */
 static ActMail chainNG_mes[2] = {{430}, {429}}; /* derived name */
 
 /* .sdata: the lift and statue stream handles and shakes. */
-char *st13a_up = 0;
+SqEntry *st13a_up = 0;
 
-char *st13a_down = 0;
+SqEntry *st13a_down = 0;
 
-char *sekizo13a = 0;
+SqEntry *sekizo13a = 0;
 
 unsigned int st13a_yure = 0;
 
@@ -68,7 +69,7 @@ unsigned char sekizo_13a_vol = 0;
 
 static void actSt13aElevUpSub(GObj *volatile self)
 {
-    AdpcmPlay(((AdpcmObj *)st13a_up)->stream);
+    AdpcmPlay(st13a_up->stream);
 
     stage_SetAnimation(173, 1, 0);
     stage_SetAnimation(174, 1, 0);
@@ -199,7 +200,7 @@ void actSt13aElevDownChk(GObj *volatile self)
         _ACTWait(1);
     }
 
-    AdpcmPlay(((AdpcmObj *)st13a_down)->stream);
+    AdpcmPlay(st13a_down->stream);
     scpFadeIn(6.0f);
 
     th = actCreateSubThread(actSt13aElevDownSub, 21);

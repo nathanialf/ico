@@ -194,7 +194,7 @@ void actSt08aDoorUp(GObj *volatile self)
 }
 
 /* .sdata: the scene's stream handle. */
-static char *st08a_adpcm = 0; /* derived name */
+static SqEntry *st08a_adpcm = 0; /* derived name */
 
 static void actSt08aHasiUpSub(GObj *volatile self)
 {
@@ -211,7 +211,7 @@ static void actSt08aHasiUpSub(GObj *volatile self)
     }
 
     _ACTWait(1);
-    AdpcmPlay(((AdpcmObj *)st08a_adpcm)->stream);
+    AdpcmPlay(st08a_adpcm->stream);
 
     while (stage_CheckAnimationFrame(106, 180, 0) == 0) {
         _ACTWait(1);

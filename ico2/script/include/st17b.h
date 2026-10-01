@@ -10,8 +10,10 @@
 
 #include "typedef.h"
 
+struct SqEntry;
+
 /* st17b.o's .sdata globals */
-extern char *lightning2;
+extern struct SqEntry *lightning2;
 void actSt17bCheckChk(GObj *volatile self);
 
 #endif /* ST17B_H */

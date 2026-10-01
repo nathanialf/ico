@@ -22,11 +22,11 @@
    the stream handles scpAdpcmPlayRequestFunc fills. */
 static int titleSubEnd; /* derived name */
 
-static char *titleSubAdpcm; /* derived name */
+static struct SqEntry *titleSubAdpcm; /* derived name */
 
 static int demoSubEnd; /* derived name */
 
-static char *demoAdpcm; /* derived name */
+static struct SqEntry *demoAdpcm; /* derived name */
 
 /* .sdata: the opening demo's step and the step it returns to, ahead of the
    demo's "mode" traces; the globals follow the demo below. */
@@ -227,13 +227,13 @@ void actOpDemo01(GObj *volatile self)
 /* .sdata, after actOpDemo01's traces: the second demo's and the first
    scene's stream handles, the title logo's step and the title's stream handle
    (declared in op.h). */
-char *op2 = 0;
+struct SqEntry *op2 = 0;
 
-char *adpcm_conte01_sea = 0;
+struct SqEntry *adpcm_conte01_sea = 0;
 
 int opTitleLogoMode = 0;
 
-char *titleAdpcm = 0;
+struct SqEntry *titleAdpcm = 0;
 
 void actTitleShortCut(GObj *volatile self)
 {

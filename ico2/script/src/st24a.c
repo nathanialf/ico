@@ -27,7 +27,7 @@ static int demoEnd;
 static const Vec16 swordChkPos = {{1685.0f, -1080.0f, -1000.0f, 1.0f}}; /* derived name */
 
 /* .sdata: the sword's object. */
-char *sword = 0;
+SqEntry *sword = 0;
 
 void actSt24aSwordChk(GObj *volatile self)
 {
@@ -152,7 +152,7 @@ static void actSt24aSwordSub(GObj *volatile self)
     while (sword == 0) {
         _ACTWait(1);
     }
-    AdpcmPlay(((AdpcmObj *)sword)->stream);
+    AdpcmPlay(sword->stream);
 
     stage_SetAnimation(153, 1, 0);
 

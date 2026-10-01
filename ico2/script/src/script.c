@@ -58,13 +58,13 @@ int scpBoyControlReadDisable = 0;
 
 float scpSeEnvMasterVolRate = 1.0f;
 
-static char *girlHintVoice = 0; /* derived name */
+static SqEntry *girlHintVoice = 0; /* derived name */
 
 static float girlHintRangeMin = 500.0f; /* derived name */
 
 static float girlHintRangeMax = 4000.0f; /* derived name */
 
-char *sekizo_common = 0;
+SqEntry *sekizo_common = 0;
 
 char *scpDummyGObj = 0;
 
@@ -88,7 +88,7 @@ static WallCfg wallColResult; /* derived name */
 /* the two-slot ADPCM play-request table */
 typedef struct AdpcmReq { /* field names derived */
     int kind;             /* 0x00, the sound id, 0 == slot free */
-    char **id;            /* 0x04: the caller's handle variable */
+    SqEntry **id;         /* 0x04: the caller's handle variable */
     int loopNum;          /* 0x08, AdpcmOpen's loop count */
     int ch;               /* 0x0C, AdpcmOpen's channel */
     int play;             /* 0x10, start playing once open */
@@ -830,7 +830,7 @@ void scpDoorTypeUpUp(GObj *volatile self)
     _ACTWait(0);
 }
 
-inline void scpAdpcmPlayRequestFunc(int kind, char **id, int ch, int loopNum, int play)
+inline void scpAdpcmPlayRequestFunc(int kind, SqEntry **id, int ch, int loopNum, int play)
 {
     int i;
 
@@ -867,7 +867,7 @@ inline int scpAdpcmPlayRequestNum(void)
 
 /* the slot of the pending play request whose id is ID, or -1 (inlined into
    scpAdpcmCloseChkFunc, scpGirlHintVoiceCancel and others) */
-static inline int scpAdpcmRequestSlot(char **id) /* derived name */
+static inline int scpAdpcmRequestSlot(SqEntry **id) /* derived name */
 {
     int i;
     for (i = 0; i < 2; i++) {
@@ -881,7 +881,7 @@ found:
 
 /* flag the pending play request whose id is ID so the ADPCM daemon closes
    it (inlined into scpAdpcmCloseFunc and scpAdpcmFadeCloseFunc) */
-static inline void scpAdpcmRequestClose(char **id) /* derived name */
+static inline void scpAdpcmRequestClose(SqEntry **id) /* derived name */
 {
     int i;
     for (i = 0; i < 2; i++)
@@ -895,7 +895,7 @@ void scpSubAdpcmPlay(GObj *volatile self)
 {
     AdpcmOpenReq work;
     int i;
-    char *h;
+    SqEntry *h;
 
     memset(adpcmReq, 0, sizeof(adpcmReq));
     for (;;) {
@@ -928,12 +928,12 @@ void scpSubAdpcmPlay(GObj *volatile self)
                     }
                 }
                 soundDataOpen(&work, 2, p->kind, p->ch, p->loopNum);
-                while ((h = soundDataOpenSync(&work)) == (char *)-1) {
+                while ((h = soundDataOpenSync(&work)) == (SqEntry *)-1) {
                     _ACTWait(1);
                 }
                 if (h != 0) {
                     if (p->play != 0) {
-                        AdpcmPlay(((AdpcmObj *)h)->stream);
+                        AdpcmPlay(h->stream);
                     }
                     if (p->cancel == 0) {
                         if (p->id != 0) {
@@ -950,9 +950,9 @@ void scpSubAdpcmPlay(GObj *volatile self)
     }
 }
 
-void scpAdpcmCloseFunc(char **h)
+void scpAdpcmCloseFunc(SqEntry **h)
 {
-    char *handle = *h;
+    SqEntry *handle = *h;
     if (handle != 0) {
         soundDataClose(handle);
         return;
@@ -960,12 +960,12 @@ void scpAdpcmCloseFunc(char **h)
     scpAdpcmRequestClose(h);
 }
 
-inline int scpAdpcmFadeCloseFunc(char **h, short fade)
+inline int scpAdpcmFadeCloseFunc(SqEntry **h, short fade)
 {
-    char *p = *h;
+    SqEntry *p = *h;
 
     if (p != 0) {
-        AdpcmStream *s = ((AdpcmObj *)p)->stream;
+        AdpcmStream *s = p->stream;
         if (s == 0) {
             return 0;
         }
@@ -976,12 +976,12 @@ inline int scpAdpcmFadeCloseFunc(char **h, short fade)
     return 0;
 }
 
-inline int scpAdpcmCloseChkFunc(char **h)
+inline int scpAdpcmCloseChkFunc(SqEntry **h)
 {
     int no;
-    char *p = *h;
+    SqEntry *p = *h;
     if (p != 0) {
-        if (((AdpcmObj *)p)->stream == 0 || ((AdpcmObj *)p)->stream->bg == 0) {
+        if (p->stream == 0 || p->stream->bg == 0) {
             return 0;
         }
         return 1;
@@ -1059,9 +1059,9 @@ void scpGirlHintVoiceReady(int kind)
 
 void scpGirlHintVoicePlay(void)
 {
-    char *p = girlHintVoice;
+    SqEntry *p = girlHintVoice;
     if (p != 0) {
-        AdpcmPlay(((AdpcmObj *)p)->stream);
+        AdpcmPlay(p->stream);
     } else {
         /* the hint voice is not prepared yet, so it could not play */
         debug_StdPrintfDummy("ヒントポイスの準備未終了の状態なのでならせませんでした。\n");
@@ -1097,7 +1097,7 @@ void scpGirlHintVoiceTickProc(void *cam)
         girlHintVoice = 0;
         return;
     }
-    snd = ((AdpcmObj *)girlHintVoice)->stream;
+    snd = girlHintVoice->stream;
     GetRootPosition(pos, girlGObj);
     CameraGetOtherObjOffset(pos, &dist, &deg);
     if (rmax <= dist) {
@@ -1304,7 +1304,7 @@ void scpSekizou(GObj *self, int flag, int anim, int anim2, int kind, float bx, f
     while (sekizo_common == 0) {
         _ACTWait(1);
     }
-    AdpcmPlay(((AdpcmObj *)sekizo_common)->stream);
+    AdpcmPlay(sekizo_common->stream);
     if (fade != 0) {
         scpFadeIn(8.0f);
     }

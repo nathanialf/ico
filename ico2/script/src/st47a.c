@@ -54,15 +54,15 @@ void actSt47aEnd(void)
 }
 
 /* .sdata: the statue and wing stream handles and the statue's shake. */
-char *sekizo47a = 0;
+SqEntry *sekizo47a = 0;
 
-char *hane1up = 0;
+SqEntry *hane1up = 0;
 
-char *hane2up = 0;
+SqEntry *hane2up = 0;
 
-char *hane1down = 0;
+SqEntry *hane1down = 0;
 
-char *hane2down = 0;
+SqEntry *hane2down = 0;
 
 int sekizo_47a = 0;
 

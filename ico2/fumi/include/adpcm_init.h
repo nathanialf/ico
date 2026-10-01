@@ -28,11 +28,6 @@ struct AdpcmStreamTag;
 struct SqEntry;
 
 typedef struct { /* field names derived */
-    char pad0[44];
-    struct AdpcmStreamTag *stream; /* 0x2C */
-} AdpcmObj; /* derived name */
-
-typedef struct { /* field names derived */
     int ch;      /* 0x00 */
     int attr;    /* 0x04 */
     int iopAddr; /* 0x08 */

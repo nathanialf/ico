@@ -10,8 +10,10 @@
 
 #include "typedef.h"
 
+struct SqEntry;
+
 /* st04b.o's .sdata globals */
-extern char *sekizo4b;
+extern struct SqEntry *sekizo4b;
 extern int sekizo_4b;
 extern unsigned char sekizo_4b_vol;
 void actSt04bEne1Chk(GObj *volatile self);

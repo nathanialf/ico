@@ -10,10 +10,12 @@
 
 #include "typedef.h"
 
+struct SqEntry;
+
 /* st07a.o's .sdata globals */
-extern char *bridge;
-extern char *sekizo7a;
-extern char *sekizo_7a;
+extern struct SqEntry *bridge;
+extern struct SqEntry *sekizo7a;
+extern struct SqEntry *sekizo_7a;
 extern int sekizo_7a_vol;
 void actSt07aChanChk(GObj *volatile self);
 void actSt07aChanEffect(GObj *volatile self);

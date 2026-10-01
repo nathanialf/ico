@@ -18,7 +18,7 @@
 
 /* .sdata: the prototype stair's stream handle, its shake and the shake's
    volume. */
-char *proto = 0;
+SqEntry *proto = 0;
 
 unsigned int proto_yure = 0;
 

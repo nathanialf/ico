@@ -10,12 +10,14 @@
 
 #include "typedef.h"
 
+struct SqEntry;
+
 /* st04l.o's .sdata globals */
-extern unsigned int ball1_4l;
-extern char *ball2_4l;
-extern char *ball3_4l;
-extern char *crest1;
-extern char *crest2;
+extern struct SqEntry *ball1_4l;
+extern struct SqEntry *ball2_4l;
+extern struct SqEntry *ball3_4l;
+extern struct SqEntry *crest1;
+extern struct SqEntry *crest2;
 extern int solar4l;
 extern unsigned int oriup4c;
 extern unsigned char oridown4c;

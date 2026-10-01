@@ -202,7 +202,7 @@ void actSt02aDoorDownChk(GObj *volatile self)
 }
 
 /* .sdata */
-char *st02a_fence = 0;
+SqEntry *st02a_fence = 0;
 
 /* .sbss: the demo's own end flag, raised by the subthread the wait loop below
    spins for. */
@@ -315,7 +315,7 @@ void actSt02aWaterFallChk(GObj *volatile self)
     ReInitBoxGeo(scpSearchGobj(1707));
 }
 
-char *gondola = 0;
+SqEntry *gondola = 0;
 
 void actSt02aGondolaUp(GObj *volatile self)
 {
@@ -358,7 +358,7 @@ void actSt02aGondolaUp(GObj *volatile self)
     _ACTWait(0);
 }
 
-char *gondola_test = 0;
+SqEntry *gondola_test = 0;
 
 void actSt02aGondolaDown(GObj *volatile self)
 {

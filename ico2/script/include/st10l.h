@@ -10,11 +10,13 @@
 
 #include "typedef.h"
 
+struct SqEntry;
+
 /* st10l.o's .sdata globals */
-extern char *floor10l;
-extern char *st10l_gondola_up;
-extern char *st10l_gondola_down;
-extern char *chain10l;
+extern struct SqEntry *floor10l;
+extern struct SqEntry *st10l_gondola_up;
+extern struct SqEntry *st10l_gondola_down;
+extern struct SqEntry *chain10l;
 void actSt10lBoxAChk(GObj *volatile self);
 void actSt10lBoxBChk(GObj *volatile self);
 void actSt10lBoxChk(GObj *volatile self);

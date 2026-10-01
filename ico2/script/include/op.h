@@ -10,11 +10,13 @@
 
 #include "typedef.h"
 
+struct SqEntry;
+
 /* op.o's .sdata globals */
-extern char *op2;
-extern char *adpcm_conte01_sea;
+extern struct SqEntry *op2;
+extern struct SqEntry *adpcm_conte01_sea;
 extern int opTitleLogoMode;
-extern char *titleAdpcm;
+extern struct SqEntry *titleAdpcm;
 /* op.c's `inline` functions, in the order of their definitions'
  * out-of-line copies at the end of the object (first-declaration order). */
 void actOpDemo03(GObj *volatile self);
