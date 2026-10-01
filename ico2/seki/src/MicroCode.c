@@ -34,7 +34,7 @@ static int mcResident[16]; /* derived name */
 /* The display-list packet builder state and one 64-bit packet slot; same
    objects src/GifPacket.c builds its packets in. */
 
-void mc_setBaseOffset(int base, int pri)
+static void mc_setBaseOffset(int base, int pri)
 {
     char *c;
     char *q;

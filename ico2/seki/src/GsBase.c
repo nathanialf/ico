@@ -355,7 +355,7 @@ typedef struct { /* field names derived */
     }
 
 /* Draw the whole screen back over itself as one sprite in the kept colour. */
-void gsb_KeepFrameBuffer(void)
+static void gsb_KeepFrameBuffer(void)
 {
     GsbRect r0 = {-(ScreenWidth >> 1) * 16 - 12, -(ScreenHeight >> 1) * 16 - 12,
                   ScreenWidth * 16 + 32, ScreenHeight * 16 + 32};
@@ -386,7 +386,7 @@ extern void gif_SetDrawEnviroment(int a0, int a1, int w, int h, int a4, int a5);
  * it to 0 to 128, stop or hand over to the continue state at the ends, and
  * draw the whole screen as one sprite in the fade colour.  The two end tests
  * are `&&` chains. */
-void gsb_fade(void)
+static void gsb_fade(void)
 {
     GsbRect r = {-(ScreenWidth >> 1) * 16, -(ScreenHeight >> 1) * 16, ScreenWidth * 16,
                  ScreenHeight * 16};
@@ -474,7 +474,7 @@ extern void gif_EndPacketPath1(void);
  * is left alone; once they are gone the stage record's blur setting is
  * restored.  Each bar is drawn by a macro inside the two-iteration loop,
  * its first corner written before fx and fy are formed. */
-void gsb_scissorOnDemo(void)
+static void gsb_scissorOnDemo(void)
 {
     GsbRect r[2] = {
         {-(ScreenWidth >> 1) * 16, -(ScreenHeight >> 1) * 16 - 4, ScreenWidth * 16, 58 * 16},
@@ -529,7 +529,7 @@ extern void gif_MakeSpriteNoTexture(int x, int y, int w, int h, unsigned int z, 
 /* Darken the whole frame by the stage record's brightness step: a full screen
  * white sprite in destination-alpha blend whose alpha is the step, clamped to
  * 0 to 15 and skipped at 0. */
-void gsb_controlBrightness(void)
+static void gsb_controlBrightness(void)
 {
     int v = systemStatus[0x2C / 4];
 
@@ -578,7 +578,7 @@ extern void gif_SpriteSensitiveOrg(int *r, long long z, int *uv, unsigned char *
  * record (or the current sub target's row) turns on is blended back over the
  * 512 square buffer through the sensitive sprite.  Every TEX0 write is one
  * expression in field order, as Texture.c spells it. */
-void gsb_antiAlias(void)
+static void gsb_antiAlias(void)
 {
     GsbColor col = {128, 128, 128, 128};
     GsbRect s0 = {4, 4, 8192, 8192};
@@ -632,7 +632,7 @@ void gsb_antiAlias(void)
     gif_EndPacket();
 }
 
-void gsb_setNormalReg(int ctx)
+static void gsb_setNormalReg(int ctx)
 {
     dl_SetDLPriority(ctx);
     gif_StartPacketPriPath1(dl_GetPri());
@@ -643,7 +643,7 @@ void gsb_setNormalReg(int ctx)
     gif_EndPacketPath1();
 }
 
-void gsb_setSemitransReg(int ctx)
+static void gsb_setSemitransReg(int ctx)
 {
     dl_SetDLPriority(ctx);
     gif_StartPacketPriPath1(dl_GetPri());
@@ -654,7 +654,7 @@ void gsb_setSemitransReg(int ctx)
     gif_EndPacketPath1();
 }
 
-void gsb_setSpecularReg(int ctx)
+static void gsb_setSpecularReg(int ctx)
 {
     dl_SetDLPriority(ctx);
     gif_StartPacketPriPath1(dl_GetPri());
@@ -665,7 +665,7 @@ void gsb_setSpecularReg(int ctx)
     gif_EndPacketPath1();
 }
 
-void gsb_setParticleReg(int ctx)
+static void gsb_setParticleReg(int ctx)
 {
     dl_SetDLPriority(ctx);
     gif_StartPacketPriPath1(dl_GetPri());
@@ -752,7 +752,7 @@ void gsb_MakeCommonMatrix(void)
 /* Open the frame's first display list: one DMA tag, the two VIF words that
  * hand path 1 to the GS, a second tag for the register run, and then the
  * default register set for each of the thirteen contexts. */
-void gsb_SetGsDefault(void)
+static void gsb_SetGsDefault(void)
 {
     DpkCtl *d = &PacketBufferStruct;
     GifPkWord *p = (GifPkWord *)d->ptr.d;
@@ -795,7 +795,7 @@ void gsb_SetGsDefault(void)
  * slot 10, drawn as one full screen sprite whose colour comes from the
  * stage record's grain tint for this target and whose UV step is the
  * record's grain scale, passed as raw bits in both halves of the register. */
-void gsb_filmNoise(void)
+static void gsb_filmNoise(void)
 {
     int n = tex_GetTextureNo("sandstorm_spr");
     float scale;
@@ -847,7 +847,7 @@ static int postEffectReady = 0; /* derived name */
  * outs, the full screen effect, the shadow and fog passes, the motion blur,
  * the anti alias pass, the film grain and the brightness step, the kept frame
  * buffer, the staff roll and last the fade and the demo scissor. */
-int gsb_PostEffect(void)
+static int gsb_PostEffect(void)
 {
     if (debug_font_flag & 1) {
         debug_Printf(0xA, ScreenHeight / 2 - 8, 0xCCCCCC00, "LID:%3d / FADE%d:%3.0f(%d)",
@@ -1035,7 +1035,7 @@ static const float vsScreenSize[] = {1500.0f, 1500.0f, 0.0f, 0.0f}; /* derived n
  * the one c for the half size screen, the viewport d, and the pair built on
  * a 500 unit screen at matrixptr+0x640 and +0x680.  The 500 unit pair's
  * scale terms are locals of their own. */
-void gsb_SetVSMatrixSub(float *a, float *b, float *c, float *d, float *vs)
+static void gsb_SetVSMatrixSub(float *a, float *b, float *c, float *d, float *vs)
 {
     sceVu0FVECTOR v = {ScreenWidth / 2, ScreenHeight / 2, 0.0f, 0.0f};
     float m0[16];
@@ -1277,7 +1277,7 @@ inline int gsb_LoadStageSettings(void)
  * appended to it. */
 static char logBuf[256]; /* derived name */
 
-void appendLogFile(void)
+static void appendLogFile(void)
 {
     sceCdCLOCK clock;
     int fd;
@@ -1414,7 +1414,7 @@ static int filmNoiseRow = 0; /* derived name */ /* the highlighted row */
  * record for the target this page names, the pad keys that walk and change
  * them, the key that dumps the page to the log, and the key that copies this
  * target's tint and blur over the main ones. */
-int gsb_FilmNoiseTool(int target)
+static int gsb_FilmNoiseTool(int target)
 {
     int i;
     int ret = 0;
@@ -1708,7 +1708,7 @@ static char lockFileName[256]; /* derived name */
 
 static char lockOwner[72]; /* derived name */
 
-void updateOtherEditingLockFlag(void)
+static void updateOtherEditingLockFlag(void)
 {
     char buf[256];
     int fd;
@@ -1740,7 +1740,7 @@ static inline char *makeLockFileName(void) /* derived name */
     return lockFileName;
 }
 
-int createLockFile(void)
+static int createLockFile(void)
 {
     char buf[256];
     char *name = makeLockFileName();
@@ -1757,7 +1757,7 @@ int createLockFile(void)
     return 1;
 }
 
-int removeLockFile(void)
+static int removeLockFile(void)
 {
     char buf[256];
     char *name = makeLockFileName();

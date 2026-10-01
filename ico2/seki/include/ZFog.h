@@ -10,5 +10,6 @@
 
 void fog_DrawFog(void);
 int fog_FogTool(void);
+void fog_MakeFogClut(void);
 
 #endif /* ZFOG_H */

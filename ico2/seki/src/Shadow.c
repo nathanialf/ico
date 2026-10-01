@@ -10,6 +10,7 @@
 #include "DmaPacket.h"
 #include "DisplayList.h"
 #include "Basic.h"
+#include "gobj.h"
 
 /* One skinning matrix per cluster, 64 of 64 bytes, built by
  * shadow_EntryClusterShadow. */
@@ -284,7 +285,7 @@ void shadow_Draw(void)
 
 #ifdef DEBUG
 
-void shadow_getShadowVectorAverage(void *a0, Sub15C *a1);
+static void shadow_getShadowVectorAverage(void *a0, Sub15C *a1);
 
 #endif
 
@@ -302,7 +303,7 @@ void shadow_Render(Sub15C *o)
 #endif
 }
 
-void shadow_getShadowVectorAverage(void *a0, Sub15C *a1)
+static void shadow_getShadowVectorAverage(void *a0, Sub15C *a1)
 {
     _CopyVector(a0, a1->shadowDir);
     _SetCurrentMatrix(matrixptr + 0x80);
@@ -363,7 +364,7 @@ static inline void applyWeightedVtx(void *dst, void *src, float w) /* derived na
                          : "$8");
 }
 
-void shadow_EntryClusterShadow(Sub15C *a0, float a1)
+static void shadow_EntryClusterShadow(Sub15C *a0, float a1)
 {
     VECTOR zero = {0.0f, 0.0f, 0.0f, 1.0f};
     float v[4];
@@ -455,7 +456,7 @@ static inline void applyCurrentMatrixV(void *dst, void *src) /* derived name */
                          : "r"(dst), "r"(src));
 }
 
-void shadow_EntryNormalShadow(Sub15C *a0, int a1, float a2)
+static void shadow_EntryNormalShadow(Sub15C *a0, int a1, float a2)
 {
     float v[4];
     float sa[4];
@@ -859,7 +860,7 @@ static inline unsigned long long *emitVolumeStrip(unsigned long long *p,
     return p;
 }
 
-void __GetCameraPos(VECTOR *a0)
+static void __GetCameraPos(VECTOR *a0)
 {
     _PushCurrentMatrix();
     _SetCurrentMatrix(matrixptr + 0x80);
@@ -1184,7 +1185,7 @@ inline void shadow_KillShadow(int val)
 
 inline void shadow_DispCancel(int a0, int a1)
 {
-    char *obj = isysGObjGetExist_begin(a0);
+    char *obj = isysGObjGetExist_begin();
     if (obj != 0) {
         long long bit = (long long)(a1 & 1) << 26;
         do {

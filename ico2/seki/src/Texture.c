@@ -231,8 +231,8 @@ static const unsigned int texFlushPacket[3][4] __attribute__((aligned(16))) = {
     {1, 0, 0x3F, 0},
 };
 
-int tex_loadImage(unsigned int addr, CdvdRec *tex, int idx, short dbp, short dbw, short dpsm,
-                  short dsax, short dsay, short w, short h)
+static int tex_loadImage(unsigned int addr, CdvdRec *tex, int idx, short dbp, short dbw, short dpsm,
+                         short dsax, short dsay, short w, short h)
 {
     int size = 0;
 
@@ -310,7 +310,7 @@ static inline int getTWTH(int a0) /* derived name */
  * last one before it indexes lv[] */
 #define TEXLV(n) ((n) < 7 ? (n) : 6) /* derived name */
 
-void tex_setTexReg(Tim2Picture *pic, CdvdRec *t, int levels, int lv, int clut)
+static void tex_setTexReg(Tim2Picture *pic, CdvdRec *t, int levels, int lv, int clut)
 {
     unsigned int tfx = 0;
 
@@ -382,7 +382,7 @@ static inline int texLoadLevel(void *addr, CdvdRec *t, int n, int dbp, int dbw, 
     return tex_loadImage((unsigned int)addr, t, n, dbp, dbw, dpsm, 0, 0, w, h);
 }
 
-int tex_transVramClutTex(Tim2Picture *pic, CdvdRec *t, int levels, int lv)
+static int tex_transVramClutTex(Tim2Picture *pic, CdvdRec *t, int levels, int lv)
 {
     int total;
     int n;
@@ -414,7 +414,7 @@ static inline void texAllocLevels(CdvdRec *t, int levels, int lv) /* derived nam
     }
 }
 
-int tex_transVramDirectTex(Tim2Picture *pic, CdvdRec *t, int levels, int lv)
+static int tex_transVramDirectTex(Tim2Picture *pic, CdvdRec *t, int levels, int lv)
 {
     int total = 0;
     int n;
@@ -429,7 +429,7 @@ int tex_transVramDirectTex(Tim2Picture *pic, CdvdRec *t, int levels, int lv)
     return total;
 }
 
-void tex_transRegister(CdvdRec *t)
+static void tex_transRegister(CdvdRec *t)
 {
     dl_OpenDma(2, &t->pkt, 5);
     dl_CloseDma();
@@ -437,7 +437,7 @@ void tex_transRegister(CdvdRec *t)
 
 /* "FALSE" */
 
-int tex_transTM2(Tim2Picture *pic, CdvdRec *t, int id, int pri)
+static int tex_transTM2(Tim2Picture *pic, CdvdRec *t, int id, int pri)
 {
     int ret = 0;
     int levels = t->levelNum - texTable[id].rec.ext.level;
@@ -520,7 +520,7 @@ static inline int texTBW(TexClutEnt *e, int w) /* derived name */
     return 0;
 }
 
-void tex_initClutTexture(Tim2Picture *pic, CdvdRec *t)
+static void tex_initClutTexture(Tim2Picture *pic, CdvdRec *t)
 {
     int i;
     int dbw;
@@ -541,7 +541,7 @@ void tex_initClutTexture(Tim2Picture *pic, CdvdRec *t)
     }
 }
 
-void tex_setRegisters(Tim2Picture *pic, CdvdRec *t)
+static void tex_setRegisters(Tim2Picture *pic, CdvdRec *t)
 {
     TexPkt *p;
     TexUV *uv;
@@ -690,7 +690,7 @@ static inline void texInitMipLevels(Tim2Picture *pic, CdvdRec *t) /* derived nam
 
 /* "FALSE" */
 
-void tex_initTM2(Tim2Picture *pic, CdvdRec *t)
+static void tex_initTM2(Tim2Picture *pic, CdvdRec *t)
 {
     int i;
     int j;
@@ -725,7 +725,7 @@ void tex_initTM2(Tim2Picture *pic, CdvdRec *t)
     tex_setRegisters(pic, t);
 }
 
-void tex_convertClutCSM2ToCSM1(Tim2Picture *pic)
+static void tex_convertClutCSM2ToCSM1(Tim2Picture *pic)
 {
     int buf[8][2][2][8];
     int *clut = (int *)((char *)pic + pic->headerSize + pic->imageSize);
@@ -757,7 +757,7 @@ extern int sceGsSetDefStoreImage(sceGsStoreImage *img, int sbp, int sbw, int sps
 
 /* "FALSE" */
 
-void tex_convertImage(void *dst, void *src, short fmt, short w, short h)
+static void tex_convertImage(void *dst, void *src, short fmt, short w, short h)
 {
     sceGsLoadImage limg;
     sceGsStoreImage simg;
@@ -796,7 +796,7 @@ void tex_convertImage(void *dst, void *src, short fmt, short w, short h)
     sceGsSyncPath(0, 0);
 }
 
-void tex_makeCopyImage(Tim2Picture *pic, CdvdRec *t, char *src, int convert)
+static void tex_makeCopyImage(Tim2Picture *pic, CdvdRec *t, char *src, int convert)
 {
     Tim2Mipmap *mip = (Tim2Mipmap *)(pic + 1);
     int i;
@@ -897,7 +897,7 @@ static inline void tim2MakeClutPacket(Tim2Picture *pic, CdvdRec *t, char *clut) 
     }
 }
 
-void tex_makeTexturePacket(void *file, CdvdRec *t)
+static void tex_makeTexturePacket(void *file, CdvdRec *t)
 {
     char buf[1024];
     Tim2Picture *pic = tim2Picture(file);
@@ -958,7 +958,7 @@ void tex_makeTexturePacket(void *file, CdvdRec *t)
     default:
         debug_DispQW(file, 1);
         debug_DispQW(pic, 1);
-        sprintf(buf, "TEXTURE BROKEN. \"%s\"\n    I:%d C:%d iadr:%p cadr:%p hadr:%p\n", t,
+        sprintf(buf, "TEXTURE BROKEN. \"%s\"\n    I:%d C:%d iadr:%p cadr:%p hadr:%p\n", t->name,
                 pic->imageType, pic->clutType, t->lv[0].addr, t->clut.addr, t);
         debug_StdPrintfDummy(buf);
         debug_assertMessage("src/Texture.c", 1427, buf);
@@ -994,12 +994,7 @@ static inline void texTrimName(char *name) /* derived name */
 
 /* "1:%s\n" */
 
-/* an old-style definition: tex_InitTexture calls it with no arguments */
-int tex_initTextureSub(name, pkt)
-char *name;
-
-void *pkt;
-
+static int tex_initTextureSub(char *name, void *pkt)
 {
     char buf[272];
     int pri;
@@ -1073,15 +1068,15 @@ void *pkt;
 
 /* "FALSE" */
 
-int tex_LoadTexturePart(void *name, int a1)
+int tex_LoadTexturePart(char *name, int area)
 {
     char buf[272];
-    int size = 0;
+    void *adr = 0;
 
     sprintf(buf, "%s.tm2", name);
-    if (file_LoadFile(&size, buf, a1) >= 0) {
+    if (file_LoadFile(&adr, buf, area) >= 0) {
         texTrimName(buf);
-        return tex_initTextureSub(buf, size);
+        return tex_initTextureSub(buf, adr);
     } else {
         /* EUC-JP: texture "%s" not found. */
         debug_StdPrintfDummy("テクスチャ \"%s\" がみつかりません.\n", buf);
@@ -1152,7 +1147,7 @@ extern void gif_SetDrawEnviroment(unsigned long long fbp, unsigned long long psm
  * int *, unsigned char *, int) in GifPacket.h */
 extern void gif_SpriteSensitiveOrg(int *r, unsigned int z, int *uv, unsigned char *col, int prim);
 
-void tex_TransTextureDefocus(int id, int lv)
+static void tex_TransTextureDefocus(int id, int lv)
 {
     CdvdRec *p;
     int w;
@@ -1204,7 +1199,7 @@ void tex_TransTextureDefocus(int id, int lv)
 /* the scroll step and the offset are ints in the ICO block but their sign is
  * taken through a float comparison (Basic.h's ABSF and SIGNF) */
 
-void tex_scrollClut(void *a0, void *a1, void *a2, int a3, int a4, void *a5, int a6, void *a7)
+static void tex_scrollClut(void *a0, void *a1, void *a2, int a3, int a4, void *a5, int a6, void *a7)
 {
     TexColor buf[a4];
     TexExt *e = a5;
@@ -1282,7 +1277,7 @@ void tex_scrollClut(void *a0, void *a1, void *a2, int a3, int a4, void *a5, int 
     }
 }
 
-void tex_textureAnimation(void)
+static void tex_textureAnimation(void)
 {
     int i;
 
@@ -1477,7 +1472,7 @@ static inline int dispFar(int x, int w) /* derived name */
  * order, mode 1 a 16-entry CLUT as one row.  Each cell's rectangle is an
  * initialised block-scope array; the coordinates are pixels scaled to the
  * GS's sixteenths with `<< 4`. */
-void tex_dispClut(unsigned char *clut, int mode)
+static void tex_dispClut(unsigned char *clut, int mode)
 {
     int i;
     int k;
@@ -1532,7 +1527,7 @@ static inline void toolMakeRegs(CdvdRec *t, int lv) /* derived name */
 /* the shared pad-state array (main.c's PadState): holding the 0x10 button on
  * pad 0 drops alpha blending from the PRIM word. */
 
-void tex_printTexture(int id)
+static void tex_printTexture(int id)
 {
     CdvdRec *p = &texTable[id].rec;
     int lv = texTable[id].rec.ext.level;
@@ -1597,7 +1592,7 @@ typedef struct TexToolRow { /* field names derived */
     int _18;
 } TexToolRow; /* derived name */
 
-int tex_Tool(int *tno)
+static int tex_Tool(int *tno)
 {
     TexToolRow m[17] = {
         {"SELTEX", 0.0f, (float)(texCount - 1), 1.0f, 0, tno},
@@ -1932,14 +1927,14 @@ int tex_GetTWTH(int a0)
     return getTWTH(a0);
 }
 
-int tex_InitTexture(void)
+int tex_InitTexture(char *name, void *pkt)
 {
-    return tex_initTextureSub();
+    return tex_initTextureSub(name, pkt);
 }
 
-int tex_LoadTexture(void *a0)
+int tex_LoadTexture(char *name)
 {
-    return tex_LoadTexturePart(a0, 0);
+    return tex_LoadTexturePart(name, 0);
 }
 
 /* the name lookup, which tex_SetUVScroll inlines */
@@ -2075,7 +2070,7 @@ void tex_Init(void)
     }
 }
 
-int tex_RemakeRegistersSampleMin(void)
+int tex_RemakeRegistersSampleMin(int arg)
 {
     int count = texCount;
     int i;

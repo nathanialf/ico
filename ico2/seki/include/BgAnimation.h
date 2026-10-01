@@ -56,9 +56,7 @@ extern int bgaStreamSync;
 void bga_ResetCamera(void);
 int bga_GetCameraMatrix(void *p);
 char *bga_InitSdfCamera(char *a0);
-/* unprototyped: stage_SetAnimation passes a fourth word that the
-   three-parameter definition does not read */
-void bga_SetCamFrame();
+void bga_SetCamFrame(char *data, int frame, int mode, int loop);
 int bga_CheckAnimationFinish(BgaHeader *p);
 int bga_CheckAnimationFrame(BgaHeader *p, int frame, int reset);
 int bga_CheckAnimationFrameIn(BgaHeader *p, int in, int out);
@@ -76,7 +74,6 @@ void bga_ApplyDObject(struct BgaDObjEnt *p, GObj **objs, int n, int no);
 void bga_SetFrame(BgaHeader *p, int frame, int mode, int a3);
 void bga_CalcAnimation(BgaHeader *p, int a1, int a2);
 void bga_CalcSdfCamera(char *data, int loop);
-void bga_addLightning(int kind, struct BgaLightningDef *a1, float *vec, int id, int t0, float f);
 void bga_DispLightning(void);
 
 #endif /* BGANIMATION_H */

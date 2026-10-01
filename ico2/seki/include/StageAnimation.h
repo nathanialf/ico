@@ -53,5 +53,8 @@ float stage_PlayBgAnimation(int key, float t, void *v, void *q);
 float stage_PlayBgAnimationDissolve(int key, void *a, void *b, float t, float d);
 void stage_SetAnimation(int a0, int a1, int a2);
 void stage_SetScale(int id, float s);
+void stage_ResetAnimation(void);
+void stage_CalcAnimationNoParent(void);
+void stage_CalcAnimationParent(void);
 
 #endif /* STAGEANIMATION_H */

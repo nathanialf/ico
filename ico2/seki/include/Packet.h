@@ -87,11 +87,6 @@ struct PObjTexInfo;
 void pac_Dump(int *a0, int size);
 void pac_Init(void);
 void pac_DispVu1Memory(int idx, int n, int size);
-void pac_DispQW(void *p, int size);
 void pac_MakePacket(Sub15C *a0);
-void pac_makePacket(struct PObjModel *obj, int variant, int mode);
-int pac_makeNormalStrip(struct PObjPart *obj, short *strip, int num);
-int pac_makeClusterStrip(struct PObjPart *obj, short *strip, int num);
-void pac_countOneVertexPacketSize(struct PObjMaterial *mat, struct PObjTexInfo *tex);
 
 #endif /* PACKET_H */

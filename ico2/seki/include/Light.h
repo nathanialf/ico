@@ -47,16 +47,11 @@ struct AmbientVolume; /* Light.c's ambient volume node */
 struct AmbientVolume *light_AddAmbientObject(int obj);
 struct Light *light_AddLight(struct GObj *self, int b, int kind);
 void light_DispVolume(void);
-void light_DrawCursor(float *dir, int mode);
-void light_GetColorAnalog(float *col);
 void light_KillAllFixLight(void);
 void light_MakeLightMatrix(struct Sub15C *a, int b);
-void light_getAmbientLight(struct Sub15C *a, int b);
-void light_getNearLight(struct Sub15C *a, int b);
-void light_killLinkAmbient(struct AmbientVolume *p);
-void light_killLinkLight(struct Light *p);
 void light_resetFlatLight(void);
 int light_Tool(void);
 void light_ResetLight(void);
+void light_InitLight(void);
 
 #endif /* LIGHT_H */

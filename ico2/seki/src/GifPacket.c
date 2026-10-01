@@ -31,6 +31,10 @@ static inline void setGsReg(long long a0, long long a1) /* derived name */
      ((long long)(c)[3] << 24))
 /* the same packed XYZ2 word with the window origin already folded into the
    coordinates (the sprite family offsets its size once, then adds the corner) */
+/* the same RGBAQ payload from a GifColor */
+#define GIF_COLOR(c) /* derived name */                                                            \
+    ((long long)(c)->r | ((long long)(c)->g << 8) | ((long long)(c)->b << 16) |                    \
+     ((long long)(c)->a << 24))
 #define GIF_XY0(x, y, z) ((long long)(x) | ((long long)(y) << 16) | ((z) << 32)) /* derived name */
 /* the ST/UV pair the textured-sprite family packs into the UV register */
 #define GIF_UV(u, v) ((long long)(u) | ((long long)(v) << 16)) /* derived name */
@@ -50,7 +54,7 @@ typedef struct { /* field names derived */
 #define GIF_OY ((int)center_Y * 16)                                   /* derived name */
 #define GIF_XYZOFF(v, z) GIF_XY0(GIF_OX + (v)[0], GIF_OY + (v)[1], z) /* derived name */
 
-void gif_StartPacket(void)
+static void gif_StartPacket(void)
 {
     char *c;
 
@@ -100,7 +104,7 @@ void gif_EndPacket(void)
     packetOpen = 0;
 }
 
-void gif_StartPacketPath1(void)
+static void gif_StartPacketPath1(void)
 {
     char *c;
 
@@ -545,18 +549,18 @@ void gif_DrawStripG(void *v, void *col, int n, int prim)
     }
 }
 
-void gif_Draw2DStripG(int *v, unsigned char *col, int n, int prim)
+void gif_Draw2DStripG(int *v, GifColor *col, int n, int prim)
 {
     int i;
 
     stripVisible[0] = stripVisible[1] = 0;
     setGsReg(0x00, ((long long)prim << 6) | 0x10C);
     stripIndex = 0;
-    for (i = 0; i < n; i++, col += 4, v += 4) {
+    for (i = 0; i < n; i++, col++, v += 4) {
         int c;
 
         c = isInScreen(v);
-        setGsReg(0x01, GIF_RGBA(col) | (0xFE00LL << 46));
+        setGsReg(0x01, GIF_COLOR(col) | (0xFE00LL << 46));
         if (c && stripVisible[0] && stripVisible[1]) {
             setGsReg(0x05, GIF_XY0(v[0], v[1], (long long)v[2]));
         } else {

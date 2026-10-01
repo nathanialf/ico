@@ -89,7 +89,7 @@ typedef struct { /* field names derived */
     /* 0x150 */ float y;
     /* 0x154 */ float z;
     /* 0x158 */ int word158; /* the init call's fifth argument */
-    /* 0x15C */ char name[0x20];
+    /* 0x15C */ char name[32];
     /* 0x17C */ int tex;
     /* 0x180 */ int cur;
     /* 0x184 */ int objSize; /* the object buffers' size, bytes until init ends, then quadwords */

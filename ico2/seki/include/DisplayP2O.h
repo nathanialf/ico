@@ -179,5 +179,7 @@ void p2o_DispVU1Default(GObj *self);
 void p2o_DispVU1Multi(GObj *self);
 void p2o_MakePacket(Sub15C *a0);
 void p2o_TransMicroProgram(void);
+void p2o_DispShadowVolume(GObj *a0);
+void p2o_DispVU1MultiDefault(GObj *self);
 
 #endif /* DISPLAYP2O_H */

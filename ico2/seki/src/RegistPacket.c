@@ -43,7 +43,7 @@ typedef struct RegStripVtx { /* field names derived */
     short texSlot;
 } RegStripVtx; /* derived name */
 
-void reg_setShape(Sub15C *o, int idx, int flag, PacHeader *pkt, PObjMaterial *mat)
+static void reg_setShape(Sub15C *o, int idx, int flag, PacHeader *pkt, PObjMaterial *mat)
 {
     float vec[4];
     PObjModel *mdl;
@@ -175,7 +175,7 @@ typedef struct { /* field names derived */
     int e[12][2];
 } RegBoxLines; /* derived name */
 
-void reg_dispBoxLine(PacHeader *pk)
+static void reg_dispBoxLine(PacHeader *pk)
 {
     RegColor col;
     RegBoxLines line;
@@ -207,7 +207,7 @@ void reg_dispBoxLine(PacHeader *pk)
     gif_EndPacket();
 }
 
-int reg_clipPacketBoundingBox(PacHeader *pk)
+static int reg_clipPacketBoundingBox(PacHeader *pk)
 {
     int ret = 1;
     int type;
@@ -250,7 +250,7 @@ int reg_clipPacketBoundingBox(PacHeader *pk)
 extern void
 mc_TransMicroCode(); /* K&R: called 1-ary here and 2-ary in reg_DispAccessoryWithShadow */
 
-void reg_transMicroCode(Sub15C *a0, int mask)
+static void reg_transMicroCode(Sub15C *a0, int mask)
 {
     if (a0->model->disp != 0) {
         mc_TransMicroCode(3);
@@ -266,19 +266,19 @@ void reg_transMicroCode(Sub15C *a0, int mask)
 /* MicroCode.h is not included: its mc_TransMicroCode does not agree with this file */
 extern void mc_SetMicroCode();
 
-void reg_chooseMicroCode(PObjMaterial *self, int b, int c)
+static void reg_chooseMicroCode(PObjMaterial *self, int b, int c)
 {
     long long v_ll = self->attr.bits;
     int v_int = self->attr.word;
     mc_SetMicroCode(v_int & 1, ((int)(v_ll >> 5)) & 3, 0, b, c);
 }
 
-void reg_chooseSpecularMicroCode(int a0, int a1, int a2)
+static void reg_chooseSpecularMicroCode(int a0, int a1, int a2)
 {
     mc_SetMicroCode(a0, 1, 1, a1, a2);
 }
 
-void reg_chooseReflectionMicroCode(int a0, int a1, int a2)
+static void reg_chooseReflectionMicroCode(int a0, int a1, int a2)
 {
     mc_SetMicroCode(a0, 1, 2, a1, a2);
 }
@@ -289,7 +289,7 @@ typedef int Qw128 __attribute__((mode(TI))); /* derived name */
 /* PacketBufferStruct (DmaPacket.h): every packet address (dma, ptr, tail,
  * gif, end) is one pointer union, read and written through its members. */
 
-char *reg_setNMatrixPacket(Sub15C *o, int idx)
+static char *reg_setNMatrixPacket(Sub15C *o, int idx)
 {
     void setMatrix(void)
     {
@@ -409,7 +409,7 @@ typedef struct { /* field names derived */
     RegVec r[4];
 } RegMtx; /* derived name */
 
-char *reg_setMMatrixPacket(Sub15C *o, int idx)
+static char *reg_setMMatrixPacket(Sub15C *o, int idx)
 {
     RegVec s;
     RegVec v;
@@ -586,7 +586,7 @@ typedef struct { /* field names derived */
     float alpha;
 } RegClusterHead; /* derived name */
 
-void reg_setCMatrixPacket(Sub15C *o, float alpha, int prilist)
+static void reg_setCMatrixPacket(Sub15C *o, float alpha, int prilist)
 {
     int i;
     int haslight;
@@ -702,22 +702,22 @@ static const unsigned int regSpecularPacket[5][4] __attribute__((aligned(16))) =
 };
 
 /* The specular pass, a file static all six reg_disp* functions tail-call. */
-static void reg_dispSpecular(PacHeader *a0, int a1, int a2) /* derived name */
+static void reg_dispSpecular(PacHeader *pkt, int a1, int a2) /* derived name */
 {
     short h;
     dl_SetDLPriority(4);
-    h = a0->tex1;
+    h = pkt->tex1;
     if (h >= 0) {
         texturetranssize += tex_TransTexture(h, 4);
     }
     dl_OpenDma(2, regSpecularPacket, 5);
     dl_CloseDma();
     reg_chooseSpecularMicroCode(a2, a1, 4);
-    dl_OpenDma(2, a0->data, a0->size >> 4);
+    dl_OpenDma(2, pkt->data, pkt->size >> 4);
     dl_CloseDma();
 }
 
-void reg_transMaterialPacket(PacHeader *self, PObjGroup *grp)
+static void reg_transMaterialPacket(PacHeader *self, PObjGroup *grp)
 {
     short idx = self->mat;
     if (idx != -1) {
@@ -727,7 +727,7 @@ void reg_transMaterialPacket(PacHeader *self, PObjGroup *grp)
     }
 }
 
-int reg_setDissolve(float a, int pri)
+static int reg_setDissolve(float a, int pri)
 {
     char *p;
     char *q;
@@ -800,7 +800,7 @@ int reg_setDissolve(float a, int pri)
    dl_OpenDma chains it into the display list as a DMA source. */
 static const unsigned int regDissolveResetPacket[4][4] __attribute__((aligned(16)));
 
-void reg_resetDissolve(int a0)
+static void reg_resetDissolve(int a0)
 {
     dl_SetDLPriority(a0);
     dl_OpenDma(2, regDissolveResetPacket, 4);
@@ -815,8 +815,6 @@ static inline void regTransTexturePacket(int tex, int pri) /* derived name */
         texturetranssize += tex_TransTexture(tex, pri);
     }
 }
-
-static void reg_dispSpecular(PacHeader *pkt, int r, int c);
 
 /* The GS state the reflection pass draws in: a VIF DIRECT of four qwords, a
    GIF A+D tag with CLAMP_1, PABE and ALPHA_1, then the VIF MSCNT; qword aligned because
@@ -869,7 +867,7 @@ static inline int regMaterialDLPri(PObjGroup *grp, int nodeIdx, TexExt *ext,
     return pri;
 }
 
-void reg_dispNObj(Sub15C *o)
+static void reg_dispNObj(Sub15C *o)
 {
     PObjModel *mdl;
     PObjGroup *grp;
@@ -952,7 +950,7 @@ static const unsigned int regDissolveResetPacket[4][4] __attribute__((aligned(16
     {0x15000000, 0, 0, 0},
 };
 
-void reg_dispMObj(Sub15C *o)
+static void reg_dispMObj(Sub15C *o)
 {
     PObjModel *mdl;
     PObjGroup *grp;
@@ -1058,7 +1056,7 @@ void reg_dispMObj(Sub15C *o)
     }
 }
 
-void reg_dispSObj(Sub15C *o, int idx)
+static void reg_dispSObj(Sub15C *o, int idx)
 {
     PObjGroup *grp;
     PacHeader *pkt;
@@ -1122,7 +1120,7 @@ void reg_dispSObj(Sub15C *o, int idx)
     }
 }
 
-void reg_dispCObj(Sub15C *o)
+static void reg_dispCObj(Sub15C *o)
 {
     PObjModel *mdl;
     PObjGroup *grp;
@@ -1170,7 +1168,7 @@ void reg_dispCObj(Sub15C *o)
     }
 }
 
-void reg_dispPoint(PacLine *node, float alpha, int idx, int flag)
+static void reg_dispPoint(PacLine *node, float alpha, int idx, int flag)
 {
     float fv[4];
     int iv[4];
@@ -1309,7 +1307,7 @@ typedef union { /* field names derived */
     unsigned int u;
 } RegFloatBits; /* derived name */
 
-void reg_dispLine(PacLine *node, float alpha)
+static void reg_dispLine(PacLine *node, float alpha)
 {
     float fv0[4];
     float fv1[4];
@@ -1443,7 +1441,7 @@ void reg_dispLine(PacLine *node, float alpha)
     }
 }
 
-void reg_dispPointLineObj(Sub15C *o)
+static void reg_dispPointLineObj(Sub15C *o)
 {
     PObjModel *mdl;
     PObjGroup *grp;

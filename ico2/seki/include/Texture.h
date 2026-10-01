@@ -74,10 +74,12 @@ int *tex_GetTextureData(int idx);
 int tex_GetTextureNo(const char *name);
 int tex_GetTextureNum(void);
 void tex_Init(void);
-int tex_InitTexture();
-int tex_LoadTexturePart(void *a0, int a1);
+int tex_InitTexture(char *name, void *pkt);
+int tex_FreeTexture(int id);
+int tex_ListTool(void);
+int tex_LoadTexturePart(char *name, int area);
 void tex_LockHeadTBP(int tbp, int pri);
-int tex_RemakeRegistersSampleMin(void);
+int tex_RemakeRegistersSampleMin(int arg);
 void tex_ResetVramPri(int pri);
 void tex_SetSamplingType(int *a0, int a1, int a2);
 
@@ -86,10 +88,6 @@ void tex_SetUVScroll(const char *name, float u, float v, float su, float sv, flo
 
 int tex_TransTexture(int no, int pri);
 void tex_UnlockHeadTBP(int pri);
-int tex_initTextureSub();
-void tex_scrollClut(void *a0, void *a1, void *a2, int a3, int a4, void *a5, int a6, void *a7);
-void tex_convertImage(void *dst, void *src, short fmt, short w, short h);
-void tex_textureAnimation(void);
 void tex_ResetVram(void);
 void tex_UpdateMipMapLevel(float lv);
 int tex_GetTWTH(int a0);

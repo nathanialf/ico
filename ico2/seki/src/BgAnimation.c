@@ -21,6 +21,7 @@
 #include "BgAnimation.h"
 #include "lightning.h"
 #include "gamesys.h"
+#include <assert.h>
 
 /* bgaAnimDefault is the 0x30-byte default record
    bga_InitData block-copies into its mallocseki() allocation (two
@@ -46,7 +47,7 @@ typedef struct BgaDObjEnt { /* field names derived */
 
     /* 0x00 */ unsigned short type;
     /* 0x02 */ unsigned short num;
-    /* 0x04 */ char name[0x20];
+    /* 0x04 */ char name[32];
     /* 0x24 */ union {
         void *obj;                 /* particle record, geometry, Kyomi object */
         struct BgaLightEnv *light; /* ambient-light record */
@@ -56,7 +57,7 @@ typedef struct BgaDObjEnt { /* field names derived */
     /* 0x2C */ struct BgaDObjEnt *child;
     /* 0x30 */ struct BgaDObjEnt *sibling;
     /* 0x34 */ int motion;
-    /* 0x38 */ char pad38[0xC];
+    /* 0x38 */ char pad38[12];
     /* 0x44 */ short parent;
     /* 0x46 */ char pad46[2];
 } BgaDObjEnt; /* derived name */
@@ -283,12 +284,12 @@ typedef struct BgaGeom { /* field names derived */
     /* 0x000 */ char pad00[4];
     /* 0x004 */ int parentNode;
     /* 0x008 */ int nodeNum;
-    /* 0x00C */ char pad0C[0x848];
+    /* 0x00C */ char pad0C[2120];
     /* 0x854 */ char *name;
 } BgaGeom; /* derived name */
 
 typedef struct BgaGObj { /* field names derived */
-    /* 0x000 */ char pad00[0x15C];
+    /* 0x000 */ char pad00[348];
     /* 0x15C */ void *geom;
 } BgaGObj; /* derived name */
 
@@ -316,15 +317,15 @@ typedef struct BgaParticleEnt { /* field names derived */
    Light), an ambient volume's colour at 0x40 and the inverse extents of its
    inner and outer shells (Light.c's AmbientVolume) */
 typedef struct BgaLightEnv { /* field names derived */
-    /* 0x00 */ char pad00[0x20];
+    /* 0x00 */ char pad00[32];
     /* 0x20 */ float col[4];
-    /* 0x30 */ char pad30[0x10];
+    /* 0x30 */ char pad30[16];
     /* 0x40 */ float col2[4];
     /* 0x50 */ float inner[4];
     /* 0x60 */ float outer[3];
 } BgaLightEnv; /* derived name */
 
-void bga_initLightEnvelope(BgaDObjEnt *p)
+static void bga_initLightEnvelope(BgaDObjEnt *p)
 {
     BgaEnvEnt *e;
     unsigned char *d;
@@ -401,7 +402,7 @@ void bga_ApplyDObject(BgaDObjEnt *p, GObj **objs, int n, int no)
     case 13:
         i = GetParticleIDWithName(p->name);
         if (i != -1) {
-            p->u.obj = iosMallocDebug(ios_partition_seki, 0x30, __FILE__, 1177);
+            p->u.obj = iosMallocDebug(ios_partition_seki, 48, __FILE__, 1177);
             ((BgaParticleEnt *)p->u.obj)->u.b.id = i;
             ((BgaParticleEnt *)p->u.obj)->u.b.loop =
                 GetParticleLoopFlag(((BgaParticleEnt *)p->u.obj)->u.b.id);
@@ -552,7 +553,7 @@ static inline int bga_findPtKey(BgaPtKey *k, int n, float f) /* derived name */
     return 0;
 }
 
-void bga_GetMotion(float *pos, int *rot, float *col, BgaPtMotion *m)
+static void bga_GetMotion(float *pos, int *rot, float *col, BgaPtMotion *m)
 {
     BgaPtKey *k;
     BgaPtKey *k1;
@@ -687,7 +688,7 @@ void bga_GetMotion(float *pos, int *rot, float *col, BgaPtMotion *m)
     col[3] = 1.0f;
 }
 
-void bga_GetMotionParticle(float *pos, int *rot, float *col, BgaPtMotion *m)
+static void bga_GetMotionParticle(float *pos, int *rot, float *col, BgaPtMotion *m)
 {
     BgaPtKey *k;
     BgaPtKey *k1;
@@ -836,7 +837,7 @@ void bga_GetMotionParticle(float *pos, int *rot, float *col, BgaPtMotion *m)
     col[3] = 1.0f;
 }
 
-void bga_GetMotionLightning(float *pos, int *rot, float *col, BgaPtMotion *m)
+static void bga_GetMotionLightning(float *pos, int *rot, float *col, BgaPtMotion *m)
 {
     BgaPtKey *k;
     BgaPtKey *k1;
@@ -1014,7 +1015,7 @@ static inline int bga_findExtKey(BgaExtKey *k, int n, float f) /* derived name *
     return 0;
 }
 
-float bga_GetExtMotion(BgaExtMotion *m)
+static float bga_GetExtMotion(BgaExtMotion *m)
 {
     BgaExtKey *k;
     BgaExtKey *k1;
@@ -1084,7 +1085,7 @@ float bga_GetExtMotion(BgaExtMotion *m)
     return k->value + t;
 }
 
-void bga_GetGizmoMotion(BgaMotion *m, float *dst)
+static void bga_GetGizmoMotion(BgaMotion *m, float *dst)
 {
     BgaKey *k;
     BgaKey *k1;
@@ -1172,9 +1173,9 @@ void bga_GetGizmoMotion(BgaMotion *m, float *dst)
    through Light.c, and bga_initLightEnvelope writes only the colour at 0x20.
    The size is the record's (light_AddLight allocates 0x50). */
 typedef struct BgaLight { /* field names derived */
-    /* 0x00 */ char pad00[0x20];
+    /* 0x00 */ char pad00[32];
     /* 0x20 */ float col[4];
-    /* 0x30 */ char pad30[0x20];
+    /* 0x30 */ char pad30[32];
 } BgaLight; /* derived name */
 
 /* Whether an SDF camera is running and the Z roll the object walk has
@@ -1245,7 +1246,7 @@ static inline void bga_stepEnvelope(BgaEnvEnt *e, float dt, int loop) /* derived
  * the node's object pointer; types 4 and 5 (the colour envelopes
  * bga_initLightEnvelope reads) are skipped, and any other type is reported
  * with its entry and type and asserted. */
-void bga_calcEnvelope(BgaDObjEnt *p, float dt, float w, int a1, int a2)
+static void bga_calcEnvelope(BgaDObjEnt *p, float dt, float w, int a1, int a2)
 {
     BgaEnvEnt *e;
     float v;
@@ -1332,7 +1333,7 @@ void bga_calcEnvelope(BgaDObjEnt *p, float dt, float w, int a1, int a2)
    table lookup.  The VU0 block is the _TransCurrentMatrix body followed by
    the three _RotCurrentMatrix* bodies with the cos/sin pairs already in
    $vf21..$vf26; $vf27..$vf29 hold the vmr32 chain so it is built once. */
-void _RotTransCurrentMatrixYXZ(void *t, int *rot)
+static void _RotTransCurrentMatrixYXZ(void *t, int *rot)
 {
     float cx, cy, cz, sx, sy, sz;
 
@@ -1453,7 +1454,7 @@ void _RotTransCurrentMatrixYXZ(void *t, int *rot)
 
 typedef struct BgaNodeBits { /* field names derived */
 
-    /* 0x00 */ char pad00[0x30];
+    /* 0x00 */ char pad00[48];
     /* 0x30 */ float fade;
     /* 0x34 */ int alpha;
     /* 0x38 */ union {
@@ -1472,14 +1473,14 @@ typedef struct BgaNodeBits { /* field names derived */
 
 typedef struct BgaObj { /* field names derived */
     /* 0x00 */ short id;
-    /* 0x02 */ char pad02[0xA];
+    /* 0x02 */ char pad02[10];
     /* 0x0C */ float (*mtx)[16];
     /* 0x10 */ float (*quat)[4];
-    /* 0x14 */ char pad14[0xC];
-    /* 0x20 */ char pad20[0x8];
-    /* 0x28 */ char pad28[0x48];
+    /* 0x14 */ char pad14[12];
+    /* 0x20 */ char pad20[8];
+    /* 0x28 */ char pad28[72];
     /* 0x70 */ float rscale[3];
-    /* 0x7C */ char pad7C[0x7F4];
+    /* 0x7C */ char pad7C[2036];
     /* 0x870 */ BgaNodeBits *work;
 } BgaObj; /* derived name */
 
@@ -1518,6 +1519,8 @@ typedef struct BgaLightning { /* field names derived */
     /* 0x154 */ struct BgaLightning *next;
 } BgaLightning; /* derived name */
 
+static void bga_addLightning(int kind, BgaLightningDef *a1, float *vec, int id, int t0, float f);
+
 static inline void bga_checkCameraDistance(void) /* derived name */
 {
     if (bgaCameraActive != 0) {
@@ -1544,7 +1547,7 @@ static inline void bga_stepMotion(BgaExtMotion *m, float dt, int reset) /* deriv
     }
 }
 
-void bga_CalcObject(BgaDObjEnt *d, float dt, float f13, int a1, int a2, int a3)
+static void bga_CalcObject(BgaDObjEnt *d, float dt, float f13, int a1, int a2, int a3)
 {
     int save;
     float *pos;
@@ -1728,7 +1731,7 @@ typedef struct { /* field names derived */
 } BgaCountEnt; /* derived name */
 
 typedef struct BgaCntNode { /* field names derived */
-    /* 0x00 */ char pad00[0x28];
+    /* 0x00 */ char pad00[40];
     /* 0x28 */ BgaCountEnt *ents;
     /* 0x2C */ struct BgaCntNode *child;
     /* 0x30 */ struct BgaCntNode *sibling;
@@ -1757,7 +1760,7 @@ static inline void bga_clampCount(BgaCount *o, float f) /* derived name */
     }
 }
 
-void bga_resetObjectCounter(BgaCntNode *o, float f, int a1)
+static void bga_resetObjectCounter(BgaCntNode *o, float f, int a1)
 {
     BgaCountEnt *e;
 
@@ -1816,13 +1819,13 @@ void bga_SetFrame(BgaHeader *p, int frame, int mode, int a3)
 }
 
 typedef struct BgaAnimGeom { /* field names derived */
-    /* 0x000 */ char pad00[0xC];
+    /* 0x000 */ char pad00[12];
     /* 0x00C */ float (*mtx)[4][4];
     /* 0x010 */ float (*quat)[4];
 } BgaAnimGeom; /* derived name */
 
 typedef struct BgaAnimObj { /* field names derived */
-    /* 0x000 */ char pad00[0x15C];
+    /* 0x000 */ char pad00[348];
     /* 0x15C */ BgaAnimGeom *geom;
 } BgaAnimObj; /* derived name */
 
@@ -2004,7 +2007,7 @@ void bga_CalcSdfCamera(char *data, int loop)
     p->frame += 1.0f;
 }
 
-void bga_addLightning(int kind, BgaLightningDef *a1, float *vec, int id, int t0, float f)
+static void bga_addLightning(int kind, BgaLightningDef *a1, float *vec, int id, int t0, float f)
 {
     BgaLightning *p;
 
@@ -2236,7 +2239,7 @@ inline int bga_GetCameraMatrix(void *p)
     return v != 0 && bgaCameraForceOff == 0;
 }
 
-inline void bga_SetCamFrame(char *data, int frame, int mode)
+inline void bga_SetCamFrame(char *data, int frame, int mode, int loop)
 {
     BgaSdfCam *p = (BgaSdfCam *)data;
 

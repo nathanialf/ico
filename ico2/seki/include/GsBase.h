@@ -36,23 +36,15 @@ int gsb_ResetSnap(void);
 int gsb_TakeSnap(void);
 int lockOtherEditing(void);
 int unlockOtherEditing(void);
-void appendLogFile(void);
 int gsb_ClipBox(float *p);
-void gsb_Init();
+void gsb_Init(void *db);
 void gsb_InitGSSystem(void);
 void gsb_MakeCommonMatrix(void);
-int gsb_PostEffect(void);
 void gsb_Reduction(void);
 void gsb_ResetGSSystem(void);
 void gsb_SetMotionBlur(void);
 void gsb_SetVSMatrix(int a0, int a1, float f);
 void gsb_UpdateGSSystem(int a0);
-void updateOtherEditingLockFlag(void);
-void gsb_KeepFrameBuffer(void);
-void gsb_fade(void);
-void gsb_scissorOnDemo(void);
-void gsb_antiAlias(void);
 int gsb_StageSetting(void);
-void gsb_SetVSMatrixSub(float *a, float *b, float *c, float *d, float *vs);
 
 #endif /* GSBASE_H */

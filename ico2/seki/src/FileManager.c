@@ -70,7 +70,7 @@ void file_Init(void)
     debug_StdPrintfDummy("done.\n");
 }
 
-int file_LoadCDFile(void **adr, char *fname, int area)
+static int file_LoadCDFile(void **adr, char *fname, int area)
 {
     char path[256];
     sceCdlFILE fp;

@@ -22,11 +22,15 @@ void dma_init(void);
 void matrix_init(void);
 void malloc_MemCpy(void *dst, void *src, int size);
 
-/* ABSF and SIGNF below: a float's absolute value and its sign (-1, 0 or 1).
+/* ABSF and SIGNF: a float's absolute value and its sign (-1, 0 or 1).
  * Texture.c's tex_scrollClut takes the sign of an int through them and
  * BgAnimation.c's _RotTransCurrentMatrixYXZ derives each sine as
  * SIGNF(angle) * sqrt(1 - cos^2).  Light.c's LIGHT_ABS is the same text as
  * ABSF. */
+#define ABSF(x) ((x) < 0.0f ? -(x) : (x)) /* derived name */
+#define SIGNF(x) ((x) < 0.0f ? -1.0f : ((x) > 0.0f ? 1.0f : 0.0f)) /* derived name */
+
+/* Basic.c's globals */
 extern int *dmaVif;
 extern int *dmaGif;
 extern int *dmaFSp;
@@ -34,8 +38,5 @@ extern int fadeStatus;
 extern float fadeSpeed;
 extern int fadeContinue;
 extern unsigned char fadeColor[4];
-
-#define ABSF(x) ((x) < 0.0f ? -(x) : (x)) /* derived name */
-#define SIGNF(x) ((x) < 0.0f ? -1.0f : ((x) > 0.0f ? 1.0f : 0.0f)) /* derived name */
 
 #endif /* BASIC_H */

@@ -23,4 +23,7 @@ void shadow_Reset(void);
 void shadow_Draw(void);
 int shadow_Tool(void);
 
+struct PObjModel;
+void shadow_MakeObjectData(struct PObjModel *a0);
+
 #endif /* SHADOW_H */

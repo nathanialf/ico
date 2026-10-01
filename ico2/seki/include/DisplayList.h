@@ -17,4 +17,7 @@ int dl_GetPri(void);
 void dl_CloseDma(void);
 void dl_Init(void);
 
+void dl_Clear(void);
+void dl_Swap(void);
+
 #endif /* DISPLAYLIST_H */

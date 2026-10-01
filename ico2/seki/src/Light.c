@@ -73,7 +73,7 @@ static int lightCount; /* derived name */
    light_resetFlatLight clears */
 static int flatLightNum = 0; /* derived name */
 
-void light_killLinkLight(Light *p)
+static void light_killLinkLight(Light *p)
 {
     if (p == 0) {
         /* "the light is NULL" */
@@ -95,7 +95,7 @@ void light_killLinkLight(Light *p)
     freeseki(p);
 }
 
-void light_killLinkAmbient(AmbientVolume *p)
+static void light_killLinkAmbient(AmbientVolume *p)
 {
     if (p == 0) {
         /* "the ambient volume is NULL" */
@@ -176,7 +176,7 @@ Light *light_AddLight(GObj *self, int b, int kind)
         if (self->dobj == 0) {
             return 0;
         }
-        q = (Light *)iosMallocDebug(ios_partition_seki, 0x50, "src/Light.c", 620);
+        q = (Light *)iosMallocDebug(ios_partition_seki, 80, "src/Light.c", 620);
         self->dobj->lightId = b;
         q->owner = self;
         q->kind = kind;
@@ -200,7 +200,7 @@ Light *light_AddLight(GObj *self, int b, int kind)
     case 3: {
         Light *r;
 
-        r = (Light *)iosMallocDebug(ios_partition_seki, 0x50, "src/Light.c", 685);
+        r = (Light *)iosMallocDebug(ios_partition_seki, 80, "src/Light.c", 685);
         r->kind = kind;
         r->scale = 1.0f;
         r->range = 32768.0f;
@@ -217,7 +217,7 @@ Light *light_AddLight(GObj *self, int b, int kind)
 
 /* Each switch arm writes its own abs and weight store; the range tests are
    nested ifs. */
-void light_getNearLight(Sub15C *self, int idx)
+static void light_getNearLight(Sub15C *self, int idx)
 {
     Light *near[3];
     float pos[4];
@@ -353,7 +353,7 @@ void light_getNearLight(Sub15C *self, int idx)
    each arm */
 #define LIGHT_ABS(x) ((x) < 0.0f ? -(x) : (x)) /* derived name */
 
-void light_getAmbientLight(Sub15C *a, int b)
+static void light_getAmbientLight(Sub15C *a, int b)
 {
     float pos[4];
     float p[4];
@@ -639,7 +639,7 @@ inline void light_resetFlatLight(void)
     }
 }
 
-void light_GetColorAnalog(float *col)
+static void light_GetColorAnalog(float *col)
 {
     float x;
     float y;
@@ -722,7 +722,7 @@ typedef union LtVec { /* field names derived */
     int i[4];
 } LtVec; /* derived name */
 
-void light_DrawCursor(float *dir, int mode)
+static void light_DrawCursor(float *dir, int mode)
 {
     float m[4][4];
     LtVec sub;
@@ -1069,7 +1069,7 @@ AmbientVolume *light_AddAmbientObject(int obj)
 {
     AmbientVolume *p;
 
-    p = (AmbientVolume *)iosMallocDebug(ios_partition_seki, 0xA0, "src/Light.c", 723);
+    p = (AmbientVolume *)iosMallocDebug(ios_partition_seki, 160, "src/Light.c", 723);
     p->shape = obj;
     p->lightScale = 1.0f;
     light_setLinkAmbient(p);

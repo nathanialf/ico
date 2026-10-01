@@ -50,8 +50,6 @@ static const int dlBufferSize[13] = {
     81920, 14336, 30720, 4096, 16384, 65536, 40960, 12288, 26624, 14336, 4096, 28672, 86016,
 };
 
-void dl_Clear(void);
-
 void dl_Init(void)
 {
     int i;

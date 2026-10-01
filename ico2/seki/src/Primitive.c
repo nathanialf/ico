@@ -20,6 +20,9 @@
 #include "ios.h"
 #include <assert.h>
 
+/* memory.h does not declare it */
+void *iosMallocDebugNoAssert(IosMemPart *part, int size, const char *file, int line);
+
 Fan2D *prim_InitFan2D(int n, float r, float *pos, unsigned int cc, unsigned int rc)
 {
     Fan2D *f;
@@ -240,7 +243,7 @@ typedef int Qw128 __attribute__((mode(TI))); /* derived name */
    prim_makePacketMesh3D reads it by pointer dereference. */
 static const long long meshGifTag[2] = {0x3000400000008000LL, 0x512}; /* derived name */
 
-void prim_makePacketMesh3D(Mesh3D *m, void *pkt, int uv)
+static void prim_makePacketMesh3D(Mesh3D *m, void *pkt, int uv)
 {
     Prim3DVec t;
     Prim3DVec nv = {0.0f, 0.0f, 0.0f, 1.0f};
@@ -355,7 +358,7 @@ Mesh3D *prim_InitMesh3D(int nx, int ny, int rot, long long col, unsigned int col
    reassigned for each neighbour and wrapped when the mesh is closed in that
    direction. */
 
-void prim_makeNormal(Mesh3D *m)
+static void prim_makeNormal(Mesh3D *m)
 {
     int f[4];
     Prim3DVec n;
@@ -682,7 +685,7 @@ PrimParticle *prim_InitParticleByPartition(int num, float x, float y, float z, i
             "Particle Object too big (%d particles). (must be under %d particles)\n", num, 80);
         return 0;
     }
-    p = (PrimParticle *)iosMallocDebugNoAssert(heap, 0x1A0, "src/Primitive.c", 911);
+    p = (PrimParticle *)iosMallocDebugNoAssert(heap, 416, "src/Primitive.c", 911);
     if (p == 0) {
         return 0;
     }

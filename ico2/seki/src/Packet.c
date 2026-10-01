@@ -62,7 +62,7 @@ typedef struct { /* field names derived */
  * counts, the state bits and the bounding box */
 static PacWork pacWork; /* derived name */
 
-void pac_DispQW(void *p, int size)
+static void pac_DispQW(void *p, int size)
 {
     int i;
     int j;
@@ -181,7 +181,7 @@ static inline void pac_growBounds(PacWork *ctx, char *vtx, int idx) /* derived n
         ctx->boxMax[2].f = *(float *)(vtx + idx * 16 + 8);
 }
 
-void pac_makeBoundingBox(float (*box)[4], int flag)
+static void pac_makeBoundingBox(float (*box)[4], int flag)
 {
     PacBoxVec sum;
     PacBoxVec mrg;
@@ -213,7 +213,7 @@ void pac_makeBoundingBox(float (*box)[4], int flag)
     }
 }
 
-void pac_error(char *name, int type)
+static void pac_error(char *name, int type)
 {
     switch (type) {
     case 5:
@@ -236,7 +236,7 @@ void pac_error(char *name, int type)
     __assert("src/Packet.c", 684, "0");
 }
 
-int pac_makeNormalStrip(PObjPart *obj, short *strip, int num)
+static int pac_makeNormalStrip(PObjPart *obj, short *strip, int num)
 {
     char buf[256];
     short *v;
@@ -303,7 +303,7 @@ typedef struct { /* field names derived */
 } PacWeight; /* derived name */
 
 /* clang-format off */
-int pac_getWeight(PacWeight *w, PObjPart *obj, char *shp, int num)
+static int pac_getWeight(PacWeight *w, PObjPart *obj, char *shp, int num)
 {
     int ret = -1, n = 0, i = 0;
     int j, id;
@@ -358,7 +358,7 @@ int pac_getWeight(PacWeight *w, PObjPart *obj, char *shp, int num)
 
 /* clang-format on */
 
-int pac_makeClusterStrip(PObjPart *obj, short *strip, int num)
+static int pac_makeClusterStrip(PObjPart *obj, short *strip, int num)
 {
     PacWeight w[4];
     char buf[256];
@@ -431,7 +431,7 @@ int pac_makeClusterStrip(PObjPart *obj, short *strip, int num)
     return num - 2;
 }
 
-void pac_openDmaTag(int a0)
+static void pac_openDmaTag(int a0)
 {
     register int mask = 0x0FFFFFFF;
     PacWork *ctx = &pacWork;
@@ -450,7 +450,7 @@ void pac_openDmaTag(int a0)
     debug_StdPrintfDummy("DMAOPEN   :%p\n", a0 & mask);
 }
 
-void pac_setVifCode(int a0)
+static void pac_setVifCode(int a0)
 {
     PacWork *ctx = &pacWork;
     ((int *)ctx->vifCode)[0] = 0;
@@ -459,7 +459,7 @@ void pac_setVifCode(int a0)
                          ((int *)ctx->vifCode)[1], ctx->vifCode, a0);
 }
 
-void pac_setVifEndCode(void)
+static void pac_setVifEndCode(void)
 {
     PacWork *ctx = &pacWork;
     int *p = ctx->cursor.i;
@@ -477,8 +477,8 @@ void pac_setVifEndCode(void)
 /* GIF tag template for the two texture-mapping modes: per mode the tag's
    FLG/NREG half, then the REGS descriptor. */
 typedef struct { /* field names derived */
-    unsigned long long w0;
-    unsigned long long w1;
+    unsigned long long tag;
+    unsigned long long regs;
 } GifTagTmpl; /* derived name */
 
 /* One packet qword. The file writes this memory both as 32-bit VIF codes
@@ -495,7 +495,7 @@ static const GifTagTmpl gifTagTmpl[2] = {
     {0x3000400000008000ULL, 0x512},
 };
 
-void pac_setGifTag(PObjMaterial *mat, PObjTexInfo *tex, unsigned long long nloop)
+static void pac_setGifTag(PObjMaterial *mat, PObjTexInfo *tex, unsigned long long nloop)
 {
     int abe;
     int tme;
@@ -510,9 +510,9 @@ void pac_setGifTag(PObjMaterial *mat, PObjTexInfo *tex, unsigned long long nloop
     tme = tex->found & 1;
     ctx = &pacWork;
     ((PacketWord *)ctx->gifTag)[0].ul =
-        gifTagTmpl[tme].w0 |
+        gifTagTmpl[tme].tag |
         ((0xCULL | ((unsigned long long)tme << 4) | ((unsigned long long)abe << 6)) << 47) | nloop;
-    ((PacketWord *)ctx->gifTag)[1].ul = gifTagTmpl[tme].w1;
+    ((PacketWord *)ctx->gifTag)[1].ul = gifTagTmpl[tme].regs;
     debug_StdPrintfDummy("GIFTAG    :");
     debug_StdPrintfDummy(ctx->gifTag);
     debug_StdPrintfDummy(" (%d)
@@ -541,7 +541,7 @@ static inline void pac_closeDmaTag(void) /* derived name */
     ((unsigned int *)pacWork.dmaTag)[1] = 0;
 }
 
-int pac_closeTag(PObjMaterial *mat, PObjTexInfo *tex)
+static int pac_closeTag(PObjMaterial *mat, PObjTexInfo *tex)
 {
     PacWork *ctx;
     unsigned int n;
@@ -580,7 +580,7 @@ static inline void pac_continueDmaTag(void) /* derived name */
     ctx->cursor.i = p + 7;
 }
 
-void pac_continueTag(PObjMaterial *mat, PObjTexInfo *tex)
+static void pac_continueTag(PObjMaterial *mat, PObjTexInfo *tex)
 {
     PacWork *ctx;
 
@@ -601,7 +601,7 @@ void pac_continueTag(PObjMaterial *mat, PObjTexInfo *tex)
 /* 192 is the DMA chain's qword budget.  In the "gif over! cut!" message the
    last field is the qword count plus the gif tags the chain already holds
    plus the one about to be opened. */
-void pac_checkDivide(int num, PObjMaterial *mat, PObjTexInfo *tex)
+static void pac_checkDivide(int num, PObjMaterial *mat, PObjTexInfo *tex)
 {
     int limit = 192;
     PacWork *ctx;
@@ -664,7 +664,7 @@ static inline int pac_moveToSeki(int src, int size) /* derived name */
     return p;
 }
 
-void pac_countOneVertexPacketSize(PObjMaterial *mat, PObjTexInfo *tex)
+static void pac_countOneVertexPacketSize(PObjMaterial *mat, PObjTexInfo *tex)
 {
     {
         PacWork *ctx = &pacWork;
@@ -710,7 +710,8 @@ void pac_countOneVertexPacketSize(PObjMaterial *mat, PObjTexInfo *tex)
     }
 }
 
-int pac_makeStrip(char **out, PObjPart *obj, PObjGroup *tbl, int matno, int texno, PObjModel *mdl)
+static int pac_makeStrip(char **out, PObjPart *obj, PObjGroup *tbl, int matno, int texno,
+                         PObjModel *mdl)
 {
     char buf[1024];
     int num;
@@ -738,7 +739,7 @@ int pac_makeStrip(char **out, PObjPart *obj, PObjGroup *tbl, int matno, int texn
         tex = &tbl->texs[texno];
     }
     pac_countOneVertexPacketSize(mat, tex);
-    pkt = mallocsekistage(0x100000);
+    pkt = mallocsekistage(1048576);
     if (pkt == 0)
         debug_Assert("pac_makeStrip:No Memory To Convert.\n");
     pac_openDmaTag(pkt);
@@ -780,11 +781,11 @@ int pac_makeStrip(char **out, PObjPart *obj, PObjGroup *tbl, int matno, int texn
     /* "IN OBJECT \"%s\"\nHUGE PACKET (SIZE:0x%x) APPEARED\nMAYBE INFLATE MEMORY AREA WAS BROKEN.\n" carries two conversions, "%s" for the object and "0x%x" for
        the size, so the recomputed size is sprintf's fourth argument. */
     packetSize = ctx->cursor.addr - pkt;
-    if (0x100000 < packetSize) {
+    if (1048576 < packetSize) {
         sprintf(
             buf,
             "IN OBJECT \"%s\"\nHUGE PACKET (SIZE:0x%x) APPEARED\nMAYBE INFLATE MEMORY AREA WAS BROKEN.\n",
-            ctx, packetSize);
+            ctx->name, packetSize);
         debug_assertMessage("src/Packet.c", 1362, buf);
         __assert("src/Packet.c", 1362, "e");
     }
@@ -802,7 +803,7 @@ int pac_makeStrip(char **out, PObjPart *obj, PObjGroup *tbl, int matno, int texn
     return size;
 }
 
-void pac_setMaterialPacket(PObjMaterial *ent)
+static void pac_setMaterialPacket(PObjMaterial *ent)
 {
     char *p;
 
@@ -871,7 +872,8 @@ void pac_setMaterialPacket(PObjMaterial *ent)
     *(int *)(p + 4) = 0;
 }
 
-void pac_makeMaterialTable(PObjGroup *out, PObjPart *obj, int variant, int blend, unsigned int mode)
+static void pac_makeMaterialTable(PObjGroup *out, PObjPart *obj, int variant, int blend,
+                                  unsigned int mode)
 {
     PObjMaterial *tbl;
     PObjMaterial *ent;
@@ -881,7 +883,7 @@ void pac_makeMaterialTable(PObjGroup *out, PObjPart *obj, int variant, int blend
     int a;
     int x;
 
-    tbl = mallocseki(obj->matCount * 0x70);
+    tbl = mallocseki(obj->matCount * 112);
     for (i = 0; i < obj->matCount; i++) {
         ent = &tbl[i];
         /* the entry address is formed by hand: &obj->mats[i] moves the bytes
@@ -915,8 +917,8 @@ typedef struct MatLine {        /* field names derived */
     short texCount;             /* 0x0E */
 } MatLine;                      /* derived name */
 
-void pac_makeMaterialTableLine(MatLine *out, PObjPart *obj, int variant, int blend,
-                               unsigned int mode)
+static void pac_makeMaterialTableLine(MatLine *out, PObjPart *obj, int variant, int blend,
+                                      unsigned int mode)
 {
     PObjMaterial *tbl;
     PObjMaterial *ent;
@@ -926,7 +928,7 @@ void pac_makeMaterialTableLine(MatLine *out, PObjPart *obj, int variant, int ble
     short a;
     int x;
 
-    tbl = mallocseki(obj->matCount * 0x70);
+    tbl = mallocseki(obj->matCount * 112);
     for (i = 0; i < obj->matCount; i++) {
         ent = &tbl[i];
         src = (PObjMatDef *)(i * 0x10 + (int)obj->mats);
@@ -948,7 +950,7 @@ void pac_makeMaterialTableLine(MatLine *out, PObjPart *obj, int variant, int ble
     out->matCount = obj->matCount;
 }
 
-void pac_getTextureInfo(PObjTexInfo *m, PObjPart *info, int idx)
+static void pac_getTextureInfo(PObjTexInfo *m, PObjPart *info, int idx)
 {
     int n;
 
@@ -988,18 +990,19 @@ void pac_getTextureInfo(PObjTexInfo *m, PObjPart *info, int idx)
 
 /* One 16-byte shape-table qword, four ints. */
 typedef struct { /* field names derived */
-    int _0[4];
+    int word[4];
 } PacQw; /* derived name */
 
-/* One 32-byte cluster node, 8-byte aligned; a list of them ends with -1 in
-   the word at +0x10. */
+/* One 32-byte morph target entry (DisplayP2O.h's PObjMorph) as the copy
+   loop sees it, 8-byte aligned so it moves in doublewords; a list of them
+   ends with -1 in the index word at +0x10. */
 typedef struct { /* field names derived */
-    long long _0[2];
-    int f10;
-    int _14[3];
+    long long data[2];
+    int index;
+    int pad14[3];
 } PacNode; /* derived name */
 
-void pac_makeShapeTable(PObjGroup *grp, PObjPart *obj)
+static void pac_makeShapeTable(PObjGroup *grp, PObjPart *obj)
 {
     unsigned int i;
     int k;
@@ -1047,13 +1050,13 @@ void pac_makeShapeTable(PObjGroup *grp, PObjPart *obj)
         q = ((PacNode **)obj->morphs)[i];
         if (q != 0) {
             r = q;
-            for (m = 0; r->f10 != -1; r++)
+            for (m = 0; r->index != -1; r++)
                 m++;
             m += 2;
             ntbl[i] = (PacNode *)mallocseki(m * 32);
             for (r = ((PacNode **)obj->morphs)[i], dst = ntbl[i];; r++, dst++) {
                 *dst = *r;
-                if (r->f10 == -1)
+                if (r->index == -1)
                     break;
             }
         }
@@ -1114,7 +1117,7 @@ static inline void pac_makeTextureTableLine(MatLine *dst, PObjPart *src) /* deri
 /* prev builds the strip chain and then walks it for the clone, j counts the
    materials, m the texture slots, and j then the line records; out is the packet address pac_makeStrip
    returns. */
-void pac_makePacket(PObjModel *obj, int variant, int mode)
+static void pac_makePacket(PObjModel *obj, int variant, int mode)
 {
     char *out;
     int lod;

@@ -9,6 +9,7 @@
 #define ENEMYINIT_H
 
 int enemy_GetPositionTable(int idx, int sub_idx);
+void enemy_Initialize(void);
 
 extern int EnemyKindNum;
 

@@ -29,7 +29,7 @@ typedef union { /* field names derived */
 } PlayWord; /* derived name */
 
 typedef struct { /* field names derived */
-    char _b[8];
+    char bytes[8];
 } Blob8; /* derived name */
 
 /* the animation record's packed word: its object count, node count, play
@@ -45,13 +45,9 @@ typedef union { /* field names derived */
     } b;
 } StageFlags; /* derived name */
 
-struct B8 { /* field names derived */
-    char _b[8];
-};
-
 typedef struct AnimNode { /* field names derived */
-    long field0;          /* 0x00 */
-    char _pad[12];
+    long bits;            /* 0x00 */
+    char pad08[12];
     struct AnimNode *next; /* 0x14 */
 } AnimNode;                /* derived name */
 
@@ -78,9 +74,9 @@ typedef struct { /* field names derived */
     float frame; /* 0x04 */
     float speed; /* 0x08 */
     float scale; /* 0x0C */
-    void *next;  /* 0x10 */
-    void *prev;  /* 0x14 */
-    int _18[2];
+    void *prev;  /* 0x10 */
+    void *next;  /* 0x14 */
+    int pad18[2];
     sceVu0FVECTOR pos; /* 0x20 */
     float rot[4];      /* 0x30 */
 } BgaPlayNode;         /* derived name */
@@ -106,7 +102,7 @@ typedef struct { /* field names derived */
 extern StgBgaSet objAction[];
 extern StageAnimDef stageTable[];
 
-void stage_MakeGObj(int *dat, int no)
+static void stage_MakeGObj(int *dat, int no)
 {
     SObjSimpleSetting init = {{0.0f, 0.0f, 0.0f, 1.0f}, {0.0f}, {1.0f, 1.0f, 1.0f, 1.0f}};
     int i;
@@ -776,7 +772,7 @@ inline void stage_SetParentOfGObj(int a0, void *a1)
     StageAnim *e = stageAnimTable;
     for (i = 0; i < stageAnimCount; i++) {
         if (a0 == e->entry1->no) {
-            *(struct B8 *)&e->entry2->anim->obj = *(struct B8 *)a1;
+            *(Blob8 *)&e->entry2->anim->obj = *(Blob8 *)a1;
             e->entry2->anim->root = one;
         }
         e++;
@@ -1001,7 +997,7 @@ int *stage_MakePlayBgAnimation(int key)
         return 0;
     }
 
-    p = (int *)iosMallocDebug(ios_partition_seki, 0x40, __FILE__, 1494);
+    p = (int *)iosMallocDebug(ios_partition_seki, 64, __FILE__, 1494);
     if (p == 0) {
         /* "cannot allocate memory for the stage segment (heap exhausted)" */
         debug_StdPrintfDummy("ステージセグメントにメモリが確保できません.(ヒープメモリ不足)\n");
@@ -1051,12 +1047,12 @@ inline void stage_KillPlayBgAnimationIfOverMaxCount(int a0, int a1)
     AnimNode *p = (AnimNode *)bgaPlayList;
     int count = 0;
     while (p != 0) {
-        long v = p->field0;
+        long v = p->bits;
         if ((((unsigned short)v << 18) >> 18) == a0) {
             if (!(v & 0x8000)) {
                 count++;
                 if (a1 < count) {
-                    p->field0 = v | 0x8000;
+                    p->bits = v | 0x8000;
                 }
             }
         }
@@ -1159,7 +1155,7 @@ end:
     return 0;
 }
 
-void stage_SetCameraForceOff(int a0, int a1, int a2, int a3)
+static void stage_SetCameraForceOff(void)
 {
     bga_SetCameraForceOff();
 }
