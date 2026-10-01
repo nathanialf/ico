@@ -1,12 +1,8 @@
 /*
  * ico2/fumi/include/act.h
  *
- * The disc records no file of this name: SRCFILE.TXT attributes no
- * instruction to it, and a header that only declares leaves no rows in the
- * listing at all, so this file is ours and not the developers' own record.
- * It collects the declarations of what act.c defines, in the form its
- * users need them; every type here is read from the ROM's calling convention
- * at the call sites and from the spellings the using TUs already carried.
+ * The declarations of what act.c defines, for the files that use
+ * them.  The file name is derived.
  */
 
 #ifndef ACT_H
@@ -18,9 +14,8 @@ struct Act;
 
 struct GProc;
 
-/* The declarations below lead this header because their order is load-bearing:
- * gcc 2.9 emits the deferred out-of-line copy of a plain-inline function in
- * first-declaration order, so this is the order act.c's inline tail has. */
+/* act.c's `inline` functions, in the order of their definitions'
+ * out-of-line copies at the end of the object (first-declaration order). */
 void actInitialize_geo(void *self);
 int ACTReserveTarget(struct GObj *self, void *a1, int a2);
 void _ACTRun(int n);
@@ -31,9 +26,8 @@ void ConvertStickToAbsCoord(void *a0, float *a1);
 void ActSetStartBrainStatus(struct GObj *self, int status);
 void actWaitCondition(int a0, int a1);
 
-/* The declarations below lead this header because their order is load-bearing:
- * gcc 2.9 emits the deferred out-of-line copy of a plain-inline function in
- * first-declaration order, so this is the order act.c's inline tail has. */
+/* act.c's `inline` functions, in the order of their definitions'
+ * out-of-line copies at the end of the object (first-declaration order). */
 
 void ACTDebugMove(struct GObj *a0, int a1);
 void actChangeActBrain(struct GObj *self, void (*fn)(), struct GProc **slot);
@@ -91,7 +85,7 @@ typedef struct IntrMail {                           /* field names derived */
     unsigned short kind;                            /* 0x10, the mail id */
     short mode;                                     /* 0x12, the act mode it switches to */
     unsigned int flags;                             /* 0x14, bit 18: entry live */
-} IntrMail;
+} IntrMail; /* derived name */
 extern IntrMail actIntrList[];
 
 #endif /* ACT_H */

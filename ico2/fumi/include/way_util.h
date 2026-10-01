@@ -1,12 +1,8 @@
 /*
  * ico2/fumi/include/way_util.h
  *
- * The disc records no file of this name: SRCFILE.TXT attributes no
- * instruction to it, and a header that only declares leaves no rows in the
- * listing at all, so this file is ours and not the developers' own record.
- * It collects the declarations of what way_util.c defines, in the form its
- * users need them; every type here is read from the ROM's calling convention
- * at the call sites and from the spellings the using TUs already carried.
+ * The declarations of what way_util.c defines, for the files that use
+ * them.  The file name is derived.
  */
 
 #ifndef WAY_UTIL_H
@@ -14,7 +10,7 @@
 
 #include "way_llf.h"
 
-/* MAIN.MAP global */
+/* way_util.o's global */
 extern int load_save_flag;
 
 /* The path-search work block WayUtilWorkAlloc allocates: per-group flags,
@@ -28,7 +24,7 @@ typedef struct WgAll { /* field names derived */
     int *prev2;        /* 0x10 */
     int *dist;         /* 0x14 */
     int *dist2;        /* 0x18 */
-} WgAll;
+} WgAll; /* derived name */
 
 /* The three way points set_check_wp fills: the current one and the two ends
    of the crossing between a group and a bridge. */
@@ -36,11 +32,10 @@ typedef struct CheckWp { /* field names derived */
     WayPoint *cur;
     WayPoint *start;
     WayPoint *cross;
-} CheckWp;
+} CheckWp; /* derived name */
 
-/* way_util.c's functions in the order the ROM emits them: gcc 2.9 writes the
-   out-of-line copies of the file's plain-inline functions in first-declaration
-   order, and these are their first declarations. */
+/* way_util.c's `inline` functions, in the order of their definitions'
+   out-of-line copies at the end of the object (first-declaration order). */
 WayPoint *visible_waypoint_of_all_except_gid(float *pos, int gid);
 WayPoint *visible_waypoint_of_all_except_gid_ThreadVersion(float *pos, int gid);
 WayPoint *visible_waypoint_of_all_except_temp(float *pos, int gid);

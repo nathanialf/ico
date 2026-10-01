@@ -1,12 +1,8 @@
 /*
  * ico2/fumi/include/gobj.h
  *
- * The disc records no file of this name: SRCFILE.TXT attributes no
- * instruction to it, and a header that only declares leaves no rows in the
- * listing at all, so this file is ours and not the developers' own record.
- * It collects the declarations of what gobj.c defines, in the form its
- * users need them; every type here is read from the ROM's calling convention
- * at the call sites and from the spellings the using TUs already carried.
+ * The declarations of what gobj.c defines, for the files that use
+ * them.  The file name is derived.
  */
 
 #ifndef GOBJ_H
@@ -16,9 +12,8 @@
 
 struct GObj;
 
-/* gobj.c's functions in the order the ROM emits them: gcc 2.9 writes the
-   out-of-line copies of the file's plain-inline functions in first-declaration
-   order, and these are their first declarations.  The functions that hand an
+/* gobj.c's `inline` functions, in the order of their definitions' out-of-line
+   copies at the end of the object (first-declaration order).  The functions that hand an
    object back return it as the untyped handle every caller takes. */
 void isysGObjKindTableInit(void);
 void isysGObjInit(int n);

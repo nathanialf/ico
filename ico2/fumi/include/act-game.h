@@ -1,12 +1,8 @@
 /*
  * ico2/fumi/include/act-game.h
  *
- * The disc records no file of this name: SRCFILE.TXT attributes no
- * instruction to it, and a header that only declares leaves no rows in the
- * listing at all, so this file is ours and not the developers' own record.
- * It collects the declarations of what act-game.c defines, in the form its
- * users need them; every type here is read from the ROM's calling convention
- * at the call sites and from the spellings the using TUs already carried.
+ * The declarations of what act-game.c defines, for the files that use
+ * them.  The file name is derived.
  */
 
 #ifndef ACT_GAME_H
@@ -16,8 +12,7 @@ struct GObj;
 
 /* The actor's character work, the record at Act+0x688 (held there as a
  * word, like the object's own actor slot): the boy's, the girl's and the
- * enemies' per-character state.  Rung: ROM bytes for every offset; the
- * field names are this repository's. */
+ * enemies' per-character state. */
 typedef struct ActWork { /* field names derived */
     char pad0[800];
     float defIkRate0;       /* 0x320 */
@@ -123,10 +118,8 @@ typedef struct ActWork { /* field names derived */
 
 #define GOBJ_WORK(o) ((ActWork *)GOBJ_ACT(o)->work) /* derived name */
 
-/* act-game.c defines these `inline`, so the compiler emits them after the
- * rest of the file in the order they are first declared: this list is the
- * ROM's order of the TU's closing run, from ACTNotNeedCameraOffset to
- * GetGirlPositionAtThisStage. */
+/* act-game.c's `inline` functions, in the order of their definitions'
+ * out-of-line copies at the end of the object (first-declaration order). */
 int ACTNotNeedCameraOffset(struct GObj *a0);
 void ACTGameCollisionOn(volatile int *self);
 void ACTGameCollisionOff(volatile int *self);
@@ -208,8 +201,7 @@ void ACTGame_InsertCamera_GirlIsPinch(void);
 void ACTParaStatus_Clear(struct GObj *a0);
 void ACTGame_SaveActorInformation(struct GObj *a0);
 void ACTGame_DeleteActorInformation(struct GObj *a0);
-/* The second parameter is an unsigned char: the ROM masks it on entry with
- * `andi $16, $5, 0xFF` at 0x00146F8C. */
+/* The second parameter is an unsigned char. */
 void ACTGame_SetActors_Debug(int stage, unsigned char flag);
 void ACTGame_StageChangeGObj(struct GObj *self, int idx);
 void FunctionAboutClingedStatus(struct GObj *self);
@@ -219,17 +211,16 @@ void RequestChangeHandMode(char *self, int mode, int pri, int flag, int p5, int 
 int _ACTGame_SearchGObj(struct GObj *self, struct GObj *tgt, float range, float height, int angle,
                         float *out);
 
-/* MAIN.MAP globals of act-game.o's .sdata, the last two words of its run:
- * the floor and wall records ACTCheckCollis_WELL and ACTCheckCollis_WAY
- * publish. */
+/* act-game.o's last two .sdata globals: the floor and wall records
+ * ACTCheckCollis_WELL and ACTCheckCollis_WAY publish. */
 extern void *floorGObj_ACTCheckCollis_WELL;
 extern void *wallGObj_ACTCheckCollis_WAY;
 
-/* RECONSTRUCTION, PLACED BY INCLUDE PATTERN: one record, previously repeated character for character in 2 TUs. */
-typedef union {
+/* a 64-bit status word, read whole or as two words */
+typedef union { /* field names derived */
     unsigned long long q;
     unsigned int w[2];
-} ActStatusWord;
+} ActStatusWord; /* derived name */
 
 void ACTGameView_Loop(struct GObj *self);
 

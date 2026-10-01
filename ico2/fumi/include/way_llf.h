@@ -1,12 +1,8 @@
 /*
  * ico2/fumi/include/way_llf.h
  *
- * The disc records no file of this name: SRCFILE.TXT attributes no
- * instruction to it, and a header that only declares leaves no rows in the
- * listing at all, so this file is ours and not the developers' own record.
- * It collects the declarations of what way_llf.c defines, in the form its
- * users need them; every type here is read from the ROM's calling convention
- * at the call sites and from the spellings the using TUs already carried.
+ * The declarations of what way_llf.c defines, for the files that use
+ * them.  The file name is derived.
  */
 
 #ifndef WAY_LLF_H
@@ -14,15 +10,13 @@
 
 #include <libvu0.h>
 
-/* MAIN.MAP globals of way_llf.o's .sdata */
+/* way_llf.o's .sdata globals */
 extern int first_waytool;
 extern int n_way_group;
 extern int current_select_gid;
 
 /* One way point, 64 bytes, 16-aligned by its position vector.  A point
-   belongs to one group and is chained to its neighbours in that group.
-   Field roles are read from way_llf.c's stores and the users' accesses; the
-   names are this repository's. */
+   belongs to one group and is chained to its neighbours in that group. */
 typedef struct WayPoint {  /* field names derived */
     int used;              /* 0x00, nonzero while the point is in use */
     int index;             /* 0x04, the point's own index in way_point[] */
@@ -35,7 +29,7 @@ typedef struct WayPoint {  /* field names derived */
     float float2C;         /* 0x2C */
     int bridgeEnd;         /* 0x30, set on the two end points of a bridge */
     char pad34[12];
-} WayPoint;
+} WayPoint; /* derived name */
 
 /* One way group, 52 bytes: a chain of points, or a bridge between two groups
    (bridge nonzero). */
@@ -52,13 +46,14 @@ typedef struct WayGroup { /* field names derived */
     int active;           /* 0x28, active */
     int temp;             /* 0x2C, temporary group */
     char pad30[4];
-} WayGroup;
+} WayGroup; /* derived name */
 
-/* way_llf.o's .data globals (MAIN.MAP), the way-group and way-point tables */
+/* way_llf.o's .data globals, the way-group and way-point tables */
 extern WayGroup way_group[94];
 extern WayPoint way_point[275];
-/* way_llf.c's functions, in the order the file defines them: the order of
-   these first declarations is the order gcc emits the inline bodies in. */
+/* way_llf.c's functions, in the order the file defines them, which is also
+   the order of the `inline` functions' out-of-line copies at the end of the
+   object (first-declaration order). */
 int CreateWayGroup(void);
 int CreateTempWayGroup(void);
 int DeleteWayGroup(int gno);

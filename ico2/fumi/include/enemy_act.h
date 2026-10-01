@@ -1,12 +1,8 @@
 /*
  * ico2/fumi/include/enemy_act.h
  *
- * The disc records no file of this name: SRCFILE.TXT attributes no
- * instruction to it, and a header that only declares leaves no rows in the
- * listing at all, so this file is ours and not the developers' own record.
- * It collects the declarations of what enemy_act.c defines, in the form its
- * users need them; every type here is read from the ROM's calling convention
- * at the call sites and from the spellings the using TUs already carried.
+ * The declarations of what enemy_act.c defines, for the files that use
+ * them.  The file name is derived.
  */
 
 #ifndef ENEMY_ACT_H
@@ -15,13 +11,11 @@
 #include "typedef.h"
 
 /* A 64-bit flag word with a byte view (the enemy work's +0x210 status word and
-   the sub record's +0x20 word); the union is what makes a write to it alias
-   the pointer chase that reaches it, which is why ROM re-walks
-   self->sub->enemy for the second assignment of every arm below.  The two-word
-   view is the enemy work's: the ROM reads and writes +0x210 as one 64-bit word
-   and +0x214, the requested brain target, as an int inside it.  The member
-   names are ours. */
-typedef union {
+   the sub record's +0x20 word).  A write through the byte view may alias the
+   pointers that reach it, so each arm below re-reads self->sub->enemy for its
+   second assignment.  The two-word view is the enemy work's: +0x210 is one
+   64-bit word and +0x214, the requested brain target, an int inside it. */
+typedef union { /* field names derived */
     char c[8];
     long long ll;
 
@@ -29,12 +23,11 @@ typedef union {
         int bits;
         int reqTarget;
     } w;
-} EnemyStatusFlags;
+} EnemyStatusFlags; /* derived name */
 
 /* The enemy work at sub+0x680: the running brain mode (+0x204) and the one
    _BrainMode_SetDirect requests (+0x208), the requested target inside the
-   status word and the running target (+0x218), a countdown (+0x224).  The
-   field names are ours. */
+   status word and the running target (+0x218), a countdown (+0x224). */
 typedef struct EnemyBattleWork { /* field names derived */
     char pad0[84];
     unsigned int speedRatioPri; /* 0x54 */
@@ -125,12 +118,10 @@ typedef struct EnemyBattleWork { /* field names derived */
     float rescueY; /* 0x304 */
     char pad308[8];
     int boxBarSound; /* 0x310 */
-} EnemyBattleWork;
+} EnemyBattleWork; /* derived name */
 
-/* enemy_act.c defines these `inline`, so the compiler emits them after the
- * rest of the file in the order they are first declared: this list is the
- * ROM's order of the TU's closing run, from funcEnemyAiGetGirl to
- * afterEnemyBodylift. */
+/* enemy_act.c's `inline` functions, in the order of their definitions'
+ * out-of-line copies at the end of the object (first-declaration order). */
 void funcEnemyAiGetGirl(struct GObj *a0);
 void actEnemyStand(GObj *volatile a0);
 void actEnemyWalk(GObj *volatile a0);
@@ -196,7 +187,7 @@ int actEnemyForceSwitchToCarry(void *a0);
 void actEnemyRestart(GObj *self, float *pos, float *dir, int kind, GObj *mother);
 void boss_effect_start(char *self, int id);
 int flyMailCore(void *self);
-/* MAIN.MAP global of enemy_act.o's .sdata, the run's last word (act.c sets it) */
+/* enemy_act.o's last .sdata global (act.c sets it) */
 extern int entesty;
 void subEnemyControl(GObj *volatile a0);
 void subEnemyCollision(GObj *volatile a0);

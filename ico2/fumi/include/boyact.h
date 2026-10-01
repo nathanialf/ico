@@ -1,12 +1,8 @@
 /*
  * ico2/fumi/include/boyact.h
  *
- * The disc records no file of this name: SRCFILE.TXT attributes no
- * instruction to it, and a header that only declares leaves no rows in the
- * listing at all, so this file is ours and not the developers' own record.
- * It collects the declarations of what boyact.c defines, in the form its
- * users need them; every type here is read from the ROM's calling convention
- * at the call sites and from the spellings the using TUs already carried.
+ * The declarations of what boyact.c defines, for the files that use
+ * them.  The file name is derived.
  */
 
 #ifndef BOYACT_H
@@ -14,9 +10,8 @@
 
 #include "typedef.h"
 
-/* boyact.c defines these `inline`, so the compiler emits them after the
- * rest of the file in the order they are first declared: this list is the
- * ROM's order of the TU's closing run, from CorrectStickInfo to Boy_Init. */
+/* boyact.c's `inline` functions, in the order of their definitions'
+ * out-of-line copies at the end of the object (first-declaration order). */
 int CorrectStickInfo(void *dir, void *stick);
 void *GetBoyWeaponGObj(void);
 void actBoyStand(GObj *volatile a0);
@@ -81,12 +76,12 @@ void BoyBgaManager(void *self, int id, void *dst);
 void PutWeapon(void);
 void SetStatusBoy_OtherStageGirlPinch(void);
 void handoff_heroin(void);
-/* MAIN.MAP globals of boyact.o's .sdata: the two rope values in place and
- * gopp_subBoyControl, the boy control thread, the run's last word. */
+/* boyact.o's .sdata globals: the two rope values and, last,
+ * gopp_subBoyControl, the boy control thread. */
 extern int test_rope_slope;
 extern float add_rope_val;
 extern void *gopp_subBoyControl;
-/* MAIN.MAP globals of boyact.o's .data, the run's last two quadwords. */
+/* boyact.o's last two .data globals, two quadwords. */
 extern float test_rope_velo[4];
 extern float add_rope_vec[4];
 

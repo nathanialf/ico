@@ -1,12 +1,8 @@
 /*
  * ico2/fumi/include/girl_act.h
  *
- * The disc records no file of this name: SRCFILE.TXT attributes no
- * instruction to it, and a header that only declares leaves no rows in the
- * listing at all, so this file is ours and not the developers' own record.
- * It collects the declarations of what girl_act.c defines, in the form its
- * users need them; every type here is read from the ROM's calling convention
- * at the call sites and from the spellings the using TUs already carried.
+ * The declarations of what girl_act.c defines, for the files that use
+ * them.  The file name is derived.
  */
 
 #ifndef GIRL_ACT_H
@@ -14,10 +10,9 @@
 
 struct GObj;
 
-/* girl_act.c defines these `inline`, so the compiler emits them after the
-   rest of the file in the order they are first declared: this list is the
-   ROM's order of the TU's closing run, 0x17B760..0x17C840.  The four
-   subGirlBrain_* states, enemy_list_compare and ACTCheckCollis_SAFE follow
+/* girl_act.c's `inline` functions, in the order of their definitions'
+   out-of-line copies at the end of the object (first-declaration order).  The
+   four subGirlBrain_* states, enemy_list_compare and ACTCheckCollis_SAFE follow
    through their first declarations in girl_act.c. */
 void ACTGame_GirlBeforeFunc(struct GObj *self);
 void *FindGirlPullupFloorBoxGObj(void);
@@ -55,16 +50,16 @@ int isEnterHideadv_EnemyLocation(float *bpos, float *gpos);
 void subGirlBrainMain(struct GObj *volatile a0);
 void subGirlCollision(struct GObj *volatile a0);
 void subGirlControl(struct GObj *volatile a0);
-/* MAIN.MAP globals of girl_act.o's .sdata: the debug flag and the three pad
- * timers in place, then the look timer/state pair and girlcalled, which the
- * compiler emits at the end of the run (tentative definitions). */
+/* girl_act.o's .sdata globals: the debug flag and the three pad timers, then
+ * the look timer/state pair and girlcalled, which come last (tentative
+ * definitions). */
 extern int hyde_test;
 extern int padtimer_stand;
 extern int padtimer_walk;
 extern int padtimer_run;
 extern int GirlInfo[2];
 extern int girlcalled;
-/* MAIN.MAP globals of girl_act.o's .data: the brain's work record and the
+/* girl_act.o's .data globals: the brain's work record and the
  * hand manager's record (their types are girl_act.c's own). */
 extern struct GirlBrainWork brain_val;
 extern struct GirlStand handmgr;

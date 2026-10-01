@@ -1,12 +1,8 @@
 /*
  * ico2/fumi/include/shockdriver.h
  *
- * The disc records no file of this name: SRCFILE.TXT attributes no
- * instruction to it, and a header that only declares leaves no rows in the
- * listing at all, so this file is ours and not the developers' own record.
- * It collects the declarations of what shockdriver.c defines, in the form its
- * users need them; every type here is read from the ROM's calling convention
- * at the call sites and from the spellings the using TUs already carried.
+ * The declarations of what shockdriver.c defines, for the files that use
+ * them.  The file name is derived.
  */
 
 #ifndef SHOCKDRIVER_H
@@ -14,14 +10,14 @@
 
 /* The voice set manager: its slot count, the slot table and the level the
    decoders read (Init_ShockDriver clears it). */
-typedef struct {
+typedef struct { /* field names derived */
     int count;
     int *arr;
     int level;
-} ShockMgr;
+} ShockMgr; /* derived name */
 
-/* shockdriver.c's globals (MAIN.MAP's shockdriver.o names; ShockRequest is
-   left out, pad.c has a type of that name). */
+/* shockdriver.c's globals (ShockRequest is left out: pad.c has a type of that
+   name). */
 extern int ShockDriver[4];
 extern ShockMgr *System_shock_driver;
 extern char *ShockVoiceSetCommon;
@@ -32,7 +28,7 @@ extern int ShockRequestMemory[2];
 void Init_Controler(short *a0);
 void Init_Player(int *box);
 void Init_Shock();
-typedef struct ShockVoiceSet ShockVoiceSet;
+typedef struct ShockVoiceSet ShockVoiceSet; /* derived name */
 
 void Init_ShockVoiceSet(ShockVoiceSet *set, int *data);
 int *ShockRequestBox_EndRequestFree(int **a0);

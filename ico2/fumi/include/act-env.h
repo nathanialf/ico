@@ -1,12 +1,8 @@
 /*
  * ico2/fumi/include/act-env.h
  *
- * The disc records no file of this name: SRCFILE.TXT attributes no
- * instruction to it, and a header that only declares leaves no rows in the
- * listing at all, so this file is ours and not the developers' own record.
- * It collects the declarations of what act-env.c defines, in the form its
- * users need them; every type here is read from the ROM's calling convention
- * at the call sites and from the spellings the using TUs already carried.
+ * The declarations of what act-env.c defines, for the files that use
+ * them.  The file name is derived.
  */
 
 #ifndef ACT_ENV_H
@@ -14,19 +10,17 @@
 
 
 struct GObj;
-/* The declarations below lead this header because their order is load-bearing:
- * gcc 2.9 emits the deferred out-of-line copy of a plain-inline function in
- * first-declaration order, so this is the order act-env.c's inline tail has. */
+/* act-env.c's `inline` functions, in the order of their definitions'
+ * out-of-line copies at the end of the object (first-declaration order). */
 void ACTSetEnvAllmighty(struct GObj *a0);
 void GetSofaPosition(struct GObj *a0, char *a1);
 void GetCollisCenterPositionSimple(void *a0, void *a1, void *a2);
 int CheckWallAttributeEdegWall(int a0);
 
-/* RECONSTRUCTION: ACTGetEnvironment's flag words (the caller passes the
- * actor's status block + 0x47C), read both as whole words and as single-bit
- * fields; the ROM proves the one-bit field stores (and/shift/or sequences)
- * and the word ORs.  The b0..b31 names are placeholders, not the developers'. */
-typedef union {
+/* ACTGetEnvironment's flag words (the caller passes the actor's status block
+ * + 0x47C), set both bit by bit and by whole-word ORs.  The bits are named by
+ * position. */
+typedef union { /* field names derived */
     int w;
 
     struct {
@@ -63,13 +57,13 @@ typedef union {
         unsigned int b30 : 1;
         unsigned int b31 : 1;
     } bit;
-} EnvFlag;
+} EnvFlag; /* derived name */
 
 /* the 0x20-byte contact record (Sub15C + 0x180) the environment check keeps
    two copies of */
 typedef struct { /* field names derived */
     char b[0x20];
-} ClipCopy;
+} ClipCopy; /* derived name */
 
 /* the actor's environment record (Act + 0x4B0) ACTGetEnvironment fills in:
    the wall and cliff orientations and positions, the contact objects and
@@ -109,7 +103,7 @@ typedef struct {             /* field names derived */
     int sofaObj;           /* 0x16C */
     ClipCopy wallContact;  /* 0x170 */
     ClipCopy cliffContact; /* 0x190 */
-} ActEnv;
+} ActEnv; /* derived name */
 
 void ACTGetEnvironment(void *self, void *a1, float *orient, EnvFlag *flags, ActEnv *env);
 

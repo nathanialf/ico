@@ -1,23 +1,18 @@
 /*
  * ico2/fumi/include/adpcm_init.h
  *
- * The disc records no file of this name: SRCFILE.TXT attributes no
- * instruction to it, and a header that only declares leaves no rows in the
- * listing at all, so this file is ours and not the developers' own record.
- * It collects the declarations of what adpcm_init.c defines, in the form its
- * users need them; every type here is read from the ROM's calling convention
- * at the call sites and from the spellings the using TUs already carried.
+ * The declarations of what adpcm_init.c defines, for the files that use
+ * them.  The file name is derived.
  */
 
 #ifndef ADPCM_INIT_H
 #define ADPCM_INIT_H
 
-/* The declarations below lead this header because their order is load-bearing:
- * gcc 2.9 emits the deferred out-of-line copy of a plain-inline function in
- * first-declaration order, so this is the order adpcm_init.c's inline tail has. */
+/* adpcm_init.c's `inline` functions, in the order of their definitions'
+ * out-of-line copies at the end of the object (first-declaration order). */
 void adpcmPauseRequest(int val);
 
-/* RECONSTRUCTION, PLACED BY INCLUDE PATTERN: the six-word open request
+/* the six-word open request
    soundDataOpen fills in and soundDataOpenSync reads back. */
 typedef struct AdpcmOpenReq { /* field names derived */
     int mode;                 /* 0x00, soundDataOpen's mode, 2 for ADPCM */
@@ -26,7 +21,7 @@ typedef struct AdpcmOpenReq { /* field names derived */
     int iopBuf;               /* 0x0C */
     int loopNum;              /* 0x10 */
     int bg;                   /* 0x14, the background loader handle */
-} AdpcmOpenReq;
+} AdpcmOpenReq; /* derived name */
 
 struct AdpcmStreamTag;
 
@@ -35,7 +30,7 @@ struct SqEntry;
 typedef struct { /* field names derived */
     char pad0[44];
     struct AdpcmStreamTag *stream; /* 0x2C */
-} AdpcmObj;
+} AdpcmObj; /* derived name */
 
 typedef struct { /* field names derived */
     int ch;      /* 0x00 */
@@ -44,7 +39,7 @@ typedef struct { /* field names derived */
     int iopSize; /* 0x0C */
     int spuAddr; /* 0x10 */
     int vol;     /* 0x14 */
-} AdpcmChReq;
+} AdpcmChReq; /* derived name */
 
 typedef struct AdpcmStreamTag { /* field names derived */
     int used;                   /* 0x00 */
@@ -69,7 +64,7 @@ typedef struct AdpcmStreamTag { /* field names derived */
     int lastAddr; /* 0x4C */
     int remain;   /* 0x50 */
     char pad54[4];
-} AdpcmStream;
+} AdpcmStream; /* derived name */
 
 void AdpcmStreamHeap(void);
 void AdpcmStreamInit(void);
@@ -94,7 +89,7 @@ void AdpcmPlay(AdpcmStream *self);
 void AdpcmVolumeSet(int a0, int a1);
 int *adpcmDataSet(int a0, int no, int bank, int a3, int size, int a5, int a6);
 void adpcmTickProc2(struct SqEntry *a0);
-/* MAIN.MAP global of adpcm_init.o's .sdata */
+/* adpcm_init.o's .sdata global */
 extern int debugAdpcmOn;
 void AdpcmStreamFree(void);
 

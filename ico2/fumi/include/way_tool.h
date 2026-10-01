@@ -1,12 +1,8 @@
 /*
  * ico2/fumi/include/way_tool.h
  *
- * The disc records no file of this name: SRCFILE.TXT attributes no
- * instruction to it, and a header that only declares leaves no rows in the
- * listing at all, so this file is ours and not the developers' own record.
- * It collects the declarations of what way_tool.c defines, in the form its
- * users need them; every type here is read from the ROM's calling convention
- * at the call sites and from the spellings the using TUs already carried.
+ * The declarations of what way_tool.c defines, for the files that use
+ * them.  The file name is derived.
  */
 
 #ifndef WAY_TOOL_H
@@ -14,10 +10,8 @@
 
 struct GObj;
 
-/* The functions way_tool.c defines `inline`, in the order its end-of-file block
- * emits their out-of-line copies: gcc 2.9 defers a plain-inline definition to
- * the end of the object and writes the copies in first-declaration order, so
- * this block is read from the ROM. */
+/* way_tool.c's `inline` functions, in the order of their definitions'
+ * out-of-line copies at the end of the object (first-declaration order). */
 int play_way(void);
 int point_nige(void);
 int quick_save_wpfile(void);

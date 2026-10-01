@@ -1,12 +1,8 @@
 /*
  * ico2/fumi/include/cdvd.h
  *
- * The disc records no file of this name: SRCFILE.TXT attributes no
- * instruction to it, and a header that only declares leaves no rows in the
- * listing at all, so this file is ours and not the developers' own record.
- * It collects the declarations of what cdvd.c defines, in the form its
- * users need them; every type here is read from the ROM's calling convention
- * at the call sites and from the spellings the using TUs already carried.
+ * The declarations of what cdvd.c defines, for the files that use
+ * them.  The file name is derived.
  */
 
 #ifndef CDVD_H
@@ -43,18 +39,18 @@ typedef struct CdvdBgReq { /* derived name */         /* field names derived */
     int cbArg;                                                    /* 0x120 */
     int (*closeFunc)(struct CdvdBgReq *self, int arg);            /* 0x124 */
     int closeArg;                                                 /* 0x128 */
-} CdvdBgReq;
+} CdvdBgReq; /* derived name */
 
 /* One entry of the directory cache iosCdvdMgrSearchFile fills: the file's
    sector and size and its disc name. */
-typedef struct {
+typedef struct { /* field names derived */
     int lsn;
     int size;
     char name[0x28];
-} CdSrhEnt;
+} CdSrhEnt; /* derived name */
 
-/* cdvd.c's globals: MAIN.MAP's cdvd.o names, and the stream motion late
-   count streamMotionManager reads (our name). */
+/* cdvd.c's globals, with the stream motion late count streamMotionManager
+   reads. */
 extern struct IosCdvdHandle iosCdvd;
 extern struct IosMsgQueue CdvdMsgQ;
 extern struct IosMsgQueue CdvdMsgQ_LoadEnd;

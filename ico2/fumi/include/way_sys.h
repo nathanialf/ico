@@ -1,12 +1,8 @@
 /*
  * ico2/fumi/include/way_sys.h
  *
- * The disc records no file of this name: SRCFILE.TXT attributes no
- * instruction to it, and a header that only declares leaves no rows in the
- * listing at all, so this file is ours and not the developers' own record.
- * It collects the declarations of what way_sys.c defines, in the form its
- * users need them; every type here is read from the ROM's calling convention
- * at the call sites and from the spellings the using TUs already carried.
+ * The declarations of what way_sys.c defines, for the files that use
+ * them.  The file name is derived.
  */
 
 #ifndef WAY_SYS_H
@@ -18,9 +14,7 @@
  * member: 0x80 bytes (the actor record embeds one at +0x360 and
  * waySystemManager's request one at +0x20), and only the words the TU reads
  * or writes are named.  act-way.c copies the actor's with 64-bit moves, so the
- * developers' record was 8-byte aligned; which member made it so is not known,
- * and act-way.c keeps its own view of it until that is found.
- * Every offset here is read off the ROM's own loads and stores. */
+ * record is 8-byte aligned; act-way.c keeps its own view of it. */
 typedef struct WVTObj { /* field names derived */
     char pad00[16];     /* 0x00 */
     int pos[4];         /* 0x10 the current target position */
@@ -44,11 +38,10 @@ typedef struct WVTObj { /* field names derived */
     int pathKind;     /* 0x70 */
     WayPoint *fromWp; /* 0x74 */
     char pad78[8];    /* 0x78 */
-} WVTObj;
+} WVTObj; /* derived name */
 
-/* The declarations below lead this header because their order is load-bearing:
- * gcc 2.9 emits the deferred out-of-line copy of a plain-inline function in
- * first-declaration order, so this is the order way_sys.c's inline tail has. */
+/* way_sys.c's `inline` functions, in the order of their definitions'
+ * out-of-line copies at the end of the object (first-declaration order). */
 int GetWay_begin(void *a0, int a1, int a2);
 void BridgeBox(void);
 inline void DeleteGuideWay(WVTObj *o);

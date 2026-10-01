@@ -1,12 +1,8 @@
 /*
  * ico2/fumi/include/memory.h
  *
- * The disc records no file of this name: SRCFILE.TXT attributes no
- * instruction to it, and a header that only declares leaves no rows in the
- * listing at all, so this file is ours and not the developers' own record.
- * It collects the declarations of what memory.c defines, in the form its
- * users need them; every type here is read from the ROM's calling convention
- * at the call sites and from the spellings the using TUs already carried.
+ * The declarations of what memory.c defines, for the files that use
+ * them.  The file name is derived.
  */
 
 #ifndef MEMORY_H
@@ -25,7 +21,7 @@ typedef struct IosMemPart {    /* field names derived */
     char *end;                 /* 0x3C */
     int total;                 /* 0x40 */
     struct IosMemNode *head;   /* 0x44 */
-} IosMemPart;
+} IosMemPart; /* derived name */
 
 /* one block of a partition, allocated or on its free list */
 typedef struct IosMemNode {       /* field names derived */
@@ -41,19 +37,17 @@ typedef struct IosMemNode {       /* field names derived */
     int pad3C;                    /* 0x3C */
     struct IosMemNode *pad40;     /* 0x40 (partition header view) */
     struct IosMemNode *head;      /* 0x44 (partition header view: free-list head) */
-} IosMemNode;
+} IosMemNode; /* derived name */
 
-/* The declarations below lead this header because their order is load-bearing:
- * gcc 2.9 emits the deferred out-of-line copy of a plain-inline function in
- * first-declaration order, so this is the order memory.c's inline tail has. */
+/* memory.c's `inline` functions, in the order of their definitions'
+ * out-of-line copies at the end of the object (first-declaration order). */
 IosMemPart *iosMallocInitPartition(unsigned int start, unsigned int end);
 void *iosMallocDebug(IosMemPart *part, int size, const char *file, int line);
 void *_iosMallocDebug();
 void *iosFree(void *ptr);
 void iosMallocCheckLeak(IosMemPart *part);
-/* unprototyped: ios/memory.c matches it as `(void)` while seki/src/Primitive.c
-   and sugipon/src/particleEffect.c call it with the four arguments the ROM
-   passes, so the header cannot commit to either spelling. */
+/* unprototyped: ios/memory.c defines it as `(void)` while seki/src/Primitive.c
+   and sugipon/src/particleEffect.c call it with four arguments. */
 IosMemPart *iosMallocResetPartition(IosMemPart *part);
 IosMemPart *iosMallocSetPartition(IosMemPart *part, int size, int align);
 int iosMallocSetPartitionName(IosMemPart *part, char *name);

@@ -1,12 +1,8 @@
 /*
  * ico2/fumi/include/pad.h
  *
- * The disc records no file of this name: SRCFILE.TXT attributes no
- * instruction to it, and a header that only declares leaves no rows in the
- * listing at all, so this file is ours and not the developers' own record.
- * It collects the declarations of what pad.c defines, in the form its
- * users need them; every type here is read from the ROM's calling convention
- * at the call sites and from the spellings the using TUs already carried.
+ * The declarations of what pad.c defines, for the files that use
+ * them.  The file name is derived.
  */
 
 #ifndef PAD_H
@@ -28,7 +24,7 @@ int iosPadGetStick(void *dev, void *out, int mode, int a3, int a4, int a5);
 int iosPadGetStick_func(void *dev, void *out, int mode, int a3, int a4, int a5);
 int iosPadRead(void *pad);
 void iosPadStickCameraCoord(void *a0, float *a1);
-/* pad.c's vibration enable flag (MAIN.MAP's pad.o .sdata name). */
+/* pad.c's vibration enable flag (.sdata). */
 extern int iosPadActRequestEnable;
 /* pad.c's custom pad configuration, the record iosPadConnect takes for the
    player's own button layout */

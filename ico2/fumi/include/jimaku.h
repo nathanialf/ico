@@ -1,18 +1,15 @@
 /*
  * ico2/fumi/include/jimaku.h
  *
- * The disc records no file of this name: SRCFILE.TXT attributes no
- * instruction to it, and a header that only declares leaves no rows in the
- * listing at all, so this file is ours and not the developers' own record.
- * It collects the declarations of what jimaku.c defines, in the form its
- * users need them; every type here is read from the ROM's calling convention
- * at the call sites and from the spellings the using TUs already carried.
+ * The declarations of what jimaku.c defines, for the files that use
+ * them.  The file name is derived.
  */
 
 #ifndef JIMAKU_H
 #define JIMAKU_H
 
-/* RECONSTRUCTION, PLACED BY INCLUDE PATTERN: one record for jimaku.c and the 7 script TUs that queue subtitles; jimaku.c's own copy (jSub/jArg) had the same layout. */
+/* the subtitle request's body, shared by jimaku.c and the script files that
+   queue subtitles; the offsets are those within JimakuArg */
 typedef struct JimakuSub { /* field names derived */
     char pad0[44];         /* 0x0C */
     int block;             /* 0x38 */
@@ -21,25 +18,24 @@ typedef struct JimakuSub { /* field names derived */
     int jump;              /* 0x44 */
     void *cur;             /* 0x48 */
     void *bg;              /* 0x4C */
-} JimakuSub;
+} JimakuSub; /* derived name */
 
-/* RECONSTRUCTION, PLACED BY INCLUDE PATTERN: one record for jimaku.c and the 7 script TUs that queue subtitles; jimaku.c's own copy (jSub/jArg) had the same layout. */
+/* the subtitle request jimakuManager reads */
 typedef struct JimakuArg { /* field names derived */
     int cmd;               /* 0x00 */
     char pad4[4];
     int done;      /* 0x08 */
     JimakuSub sub; /* 0x0C */
-} JimakuArg;
+} JimakuArg; /* derived name */
 
-/* The declarations below lead this header because their order is load-bearing:
- * gcc 2.9 emits the deferred out-of-line copy of a plain-inline function in
- * first-declaration order, so this is the order jimaku.c's inline tail has. */
+/* jimaku.c's `inline` functions, in the order of their definitions'
+ * out-of-line copies at the end of the object (first-declaration order). */
 void jimakuManager(void);
 void jimakuUndisp(JimakuArg *msg);
 void jimakuBegin(JimakuArg *msg);
 void jimakuEnd(JimakuArg *msg);
 void jimakuJump(JimakuArg *msg);
-/* jimaku.c's globals (MAIN.MAP's jimaku.o names) */
+/* jimaku.c's globals */
 extern struct IOSThread jimakuThread;
 extern char jimakuThreadStack[];
 extern struct IosMsgQueue jimakuMsgQ;

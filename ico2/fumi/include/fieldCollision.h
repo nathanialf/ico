@@ -1,12 +1,8 @@
 /*
  * ico2/fumi/include/fieldCollision.h
  *
- * The disc records no file of this name: SRCFILE.TXT attributes no
- * instruction to it, and a header that only declares leaves no rows in the
- * listing at all, so this file is ours and not the developers' own record.
- * It collects the declarations of what fieldCollision.c defines, in the form its
- * users need them; every type here is read from the ROM's calling convention
- * at the call sites and from the spellings the using TUs already carried.
+ * The declarations of what fieldCollision.c defines, for the files that use
+ * them.  The file name is derived.
  */
 
 #ifndef FIELDCOLLISION_H
@@ -22,18 +18,18 @@ struct ClipWork;
    collision filter is reset to. */
 extern WallCfg InitialColInfo;
 
-/* The object pointer pair a clip resets its wall and floor sources to, read
-   as one 8-byte block (the ROM copies it with ldl/ldr). */
-typedef struct {
+/* The object pointer pair a clip resets its wall and floor sources to, copied
+   as one unaligned 8-byte block. */
+typedef struct { /* field names derived */
     unsigned int lo;
     unsigned char m[3];
     unsigned char hi;
-} FcBlk8;
+} FcBlk8; /* derived name */
 
 extern FcBlk8 InitialObjPointer;
 extern int collision_pick;
 
-/* RECONSTRUCTION: one wall of a collision set, 0x50 bytes (the table
+/* one wall of a collision set, 0x50 bytes (the table
  * stride). The corners are what GetWallGlobalInfo transforms, the height
  * and normal are what clip_wall_1 reads, the angle is GetWallGlobalInfo's
  * 0x44 short and the attribute is the word the _clipW filters test. */
@@ -44,12 +40,11 @@ typedef struct FcWallEnt { /* field names derived */
     char pad46[2];
     int attr;      /* 0x48 */
     float *normal; /* 0x4C */
-} FcWallEnt;
+} FcWallEnt; /* derived name */
 
-/* The functions fieldCollision.c defines `inline` (all but the sixteen it
- * compiles in place), in the order the ROM emits their out-of-line copies:
- * gcc 2.9 writes deferred functions at the end of the file in the order of
- * their first declaration, so this block is that order. */
+/* fieldCollision.c's `inline` functions (all but the sixteen it compiles in
+ * place), in the order of their definitions' out-of-line copies at the end of
+ * the object (first-declaration order). */
 void ClipWallDebug(void *a0);
 inline void ClipWall(void *a0);
 void ClipWallR(void *a0);

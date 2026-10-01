@@ -1,12 +1,8 @@
 /*
  * ico2/fumi/include/s_init.h
  *
- * The disc records no file of this name: SRCFILE.TXT attributes no
- * instruction to it, and a header that only declares leaves no rows in the
- * listing at all, so this file is ours and not the developers' own record.
- * It collects the declarations of what s_init.c defines, in the form its
- * users need them; every type here is read from the ROM's calling convention
- * at the call sites and from the spellings the using TUs already carried.
+ * The declarations of what s_init.c defines, for the files that use
+ * them.  The file name is derived.
  */
 
 #ifndef S_INIT_H
@@ -46,13 +42,12 @@ typedef struct SqEntry { /* field names derived */
     unsigned long long seMask;     /* 0x20, the SE slots playing from it */
     int vab;                       /* 0x28, the VAB handle, -1 while closed */
     struct AdpcmStreamTag *stream; /* 0x2C */
-} SqEntry;
+} SqEntry; /* derived name */
 
-/* s_init.c defines these `inline`, and ee-gcc 2.9 emits a file's inline
-   functions after all of its other functions, in the order their names were
-   first declared. That order is the ROM's (Ee2Iop at 0x145EB8 through
-   soundSeSemiCommonLoadChk; the file static soundSeEnvDefaultSet and
-   debug_req, first declared in s_init.c, follow), so this block keeps it. */
+/* s_init.c's `inline` functions, in the order of their definitions'
+   out-of-line copies at the end of the object (first-declaration order), from
+   Ee2Iop to soundSeSemiCommonLoadChk; the file statics soundSeEnvDefaultSet
+   and debug_req, first declared in s_init.c, follow. */
 int Ee2Iop(int a0, int a1, int a2);
 int soundOutputModeGet(void);
 int soundReverbDepthGet(void);
@@ -88,7 +83,7 @@ void soundReverbDepthSet(int a0);
 void soundSeDefStop(int a0);
 void soundSeDefStopNoRelease(int a0);
 void soundSeEnvNotUseClose(int a, int b);
-/* s_init.o's .sdata globals (MAIN.MAP) */
+/* s_init.o's .sdata globals */
 extern float soundSeEnvMasterVolRate;
 extern int seEnvForceClose;
 extern int soundIopHeapAddrs;
@@ -136,7 +131,7 @@ typedef struct SeEnvDef { /* field names derived */
     unsigned int stereo : 1;        /* panned by the angle to the camera */
     unsigned int maxVolumeType : 1; /* the curve past maxVolumeRange */
     unsigned int : 28;
-} SeEnvDef;
+} SeEnvDef; /* derived name */
 
 extern const SeEnvDef seEnv[];
 
@@ -149,7 +144,7 @@ typedef struct SeBank {      /* field names derived */
     char bdPath[48];         /* 0x30, the .bd body file */
     unsigned int loaded : 1; /* 0x60 bit 0, set while the bank is loaded */
     unsigned int : 31;
-} SeBank;
+} SeBank; /* derived name */
 
 extern const SeBank seFile[];
 

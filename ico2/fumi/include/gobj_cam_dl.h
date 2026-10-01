@@ -1,12 +1,8 @@
 /*
  * ico2/fumi/include/gobj_cam_dl.h
  *
- * The disc records no file of this name: SRCFILE.TXT attributes no
- * instruction to it, and a header that only declares leaves no rows in the
- * listing at all, so this file is ours and not the developers' own record.
- * It collects the declarations of what gobj_cam_dl.c defines, in the form its
- * users need them; every type here is read from the ROM's calling convention
- * at the call sites and from the spellings the using TUs already carried.
+ * The declarations of what gobj_cam_dl.c defines, for the files that use
+ * them.  The file name is derived.
  */
 
 #ifndef GOBJ_CAM_DL_H
@@ -20,11 +16,10 @@ typedef struct { /* field names derived */
     unsigned char dlLink;
     char pad41[3];
     int dlKey;
-} AdpT;
+} AdpT; /* derived name */
 
-/* The declarations below lead this header because their order is load-bearing:
- * gcc 2.9 emits the deferred out-of-line copy of a plain-inline function in
- * first-declaration order, so this is the order gobj_cam_dl.c's inline tail has. */
+/* gobj_cam_dl.c's `inline` functions, in the order of their definitions'
+ * out-of-line copies at the end of the object (first-declaration order). */
 void isysGObjCameraDlInit(void);
 void isysGObjMoveCameraDLHead(int a0, int a1);
 void isysGObjLinkCameraDLHead(int *self, int a1, int key, int a3, int a4);
