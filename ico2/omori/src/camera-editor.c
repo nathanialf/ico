@@ -19,26 +19,29 @@
 #include <libvu0.h>
 
 /* ios/thread.c's entry points as the menus call them, each with the menu's
-   thread (thread.h declares Sleep with no argument, Destroy with an int and
-   Wakeup with an int *, so it is not included) */
+   thread record (thread.h declares Sleep with no argument, so it is not
+   included) */
+extern void iosThreadCreateS(void *th, int no, void (*func)(), int arg, void *heap, long stackSize,
+                             int pri);
+extern void iosThreadStart(void *th);
 extern void iosThreadSleep(void *th);
 extern void iosThreadDestroy(void *th);
 extern void iosThreadWakeup(void *thread);
 extern void iosThreadMessage(int a0);
 
-typedef struct CamMgr {
-    int count;        /* 0x00 */
-    char *items;      /* 0x04 */
-    char *pool;       /* 0x08 */
-    char flags[0x64]; /* 0x0C */
+typedef struct CamMgr { /* field names derived */
+    int count;          /* 0x00 */
+    char *items;        /* 0x04 */
+    char *pool;         /* 0x08 */
+    char flags[0x64];   /* 0x0C */
 } CamMgr;
 
 int curmenu;
 
-void EnterMenu(void *a0, int a1, void *a2)
+static void EnterMenu(void *a0, int a1, void *a2)
 {
     MenuThread *m = iosMallocDebug(ios_partition_oomori, sizeof(MenuThread), __FILE__, 217);
-    iosThreadCreateS(m, 1, a0, m, ios_partition_oomori, 0x1000, 0x17);
+    iosThreadCreateS(m, 1, a0, m, ios_partition_oomori, 4096, 23);
     m->arg = a1;
     m->parent = a2;
     iosThreadStart(m);
@@ -49,7 +52,7 @@ void EnterMenu(void *a0, int a1, void *a2)
 }
 
 /* the 0x10-byte camera-set binary header */
-typedef struct {
+typedef struct { /* field names derived */
     int magic;
     int version;
     int num;
@@ -96,7 +99,7 @@ inline void debug_NMarker(float *pos, int r, int g, int b, float size)
 
 inline void debug_Marker(float *pos, int r, int g, int b, float size, float pulse) {}
 
-static inline void writeCameraSetFile(int no, void *buf, int size)
+static inline void writeCameraSetFile(int no, void *buf, int size) /* derived name */
 {
     char path[0x80];
 
@@ -115,7 +118,7 @@ static inline void writeCameraSetFile(int no, void *buf, int size)
     debug_openLog();
 }
 
-void saveEditedDataBinary(int no, int a1, int a2)
+static void saveEditedDataBinary(int no, int a1, int a2)
 {
     /* the header record: the body writes the four words straight into buf,
        and only the DEBUG build reads them back through it after the file
@@ -153,7 +156,7 @@ static char dumpLine[2048]; /* derived name */
 
 extern void __assert(char *file, int line, char *expr);
 
-void saveEditedData(int *range)
+static void saveEditedData(int *range)
 {
     char path[0x70];
     int from = range[0];
@@ -170,19 +173,19 @@ void saveEditedData(int *range)
         __assert(__FILE__, 435, "0");
     }
     for (i = from; i < to; i++) {
-        BoxRec *b = (BoxRec *)(cameraSetEdit[1] + i * 0x4C);
+        BoxRec *b = (BoxRec *)(cameraSetEdit[1] + i * 76);
 
         sprintf(dumpLine, "group[%s]\n%d\t\t%d\t%d\t%d\t\t\t%d\t%d\t%d\n", b, b->kind, (int)b->cx,
                 (int)b->cy, (int)b->cz, (int)b->sx, (int)b->sy,
-                (int)((BoxRec *)(i * 0x4C + cameraSetEdit[1]))->sz);
+                (int)((BoxRec *)(i * 76 + cameraSetEdit[1]))->sz);
         sceWrite(fd, dumpLine, strlen(dumpLine));
         debug_StdPrintfDummy(dumpLine);
     }
     for (i = from; i < to; i++) {
-        sprintf(dumpLine, "group[%s]'s pin\n", (BoxRec *)(cameraSetEdit[1] + i * 0x4C));
+        sprintf(dumpLine, "group[%s]'s pin\n", (BoxRec *)(cameraSetEdit[1] + i * 76));
         sceWrite(fd, dumpLine, strlen(dumpLine));
-        for (j = ((BoxRec *)(i * 0x4C + cameraSetEdit[1]))->pinFirst;
-             j < ((BoxRec *)(i * 0x4C + cameraSetEdit[1]))->pinLast; j++) {
+        for (j = ((BoxRec *)(i * 76 + cameraSetEdit[1]))->pinFirst;
+             j < ((BoxRec *)(i * 76 + cameraSetEdit[1]))->pinLast; j++) {
             PinRec *p = CameraEdit_PIN(i, j);
 
             /* the pin flag prints as a maru when set and a batsu when clear */
@@ -211,7 +214,7 @@ void gif_test(int *a0, int *a1, int *a2, unsigned char *a3)
     gif_SetGsReg(4, (long)a2[0] | ((long)a2[1] << 16) | ((long)a2[2] << 32));
 }
 
-static inline void dispPinRange(int box, int from, int to)
+static inline void dispPinRange(int box, int from, int to) /* derived name */
 {
     sceVu0IVECTOR col = {255, 255, 255, 128};
     int i;
@@ -231,29 +234,29 @@ static inline void dispPinRange(int box, int from, int to)
 
 /* box corner quadword: _InterGV / DrawPolygon / do_DrawLine take 16-byte
    aligned vectors */
-typedef struct {
+typedef struct { /* field names derived */
     float x, y, z, w;
 } BoxVtx __attribute__((aligned(16)));
 
-typedef struct {
+typedef struct { /* field names derived */
     float x, y, z;
 } BoxVec;
 
 /* the box's two index tables and its line colour, initialised as whole
    objects here and in DispCameraGroup */
-typedef struct {
+typedef struct { /* field names derived */
     int e[6][4];
 } BoxIdx6;
 
-typedef struct {
+typedef struct { /* field names derived */
     int e[12][2];
 } BoxIdx12;
 
-typedef struct {
+typedef struct { /* field names derived */
     unsigned char r, g, b, a;
 } BoxCol;
 
-typedef union {
+typedef union { /* field names derived */
     unsigned int c[4];
     unsigned long long w[2];
 } BoxCol4;
@@ -335,13 +338,13 @@ void DebugDispBox(BoxVec *c, BoxVec *s)
     after_DrawLine();
 }
 
-void DispCameraGroup(int box, unsigned char sel)
+static void DispCameraGroup(int box, unsigned char sel)
 {
     int n;
     int j;
     int k;
     int i;
-    BoxRec *b = (BoxRec *)(cameraSetEdit[1] + box * 0x4C);
+    BoxRec *b = (BoxRec *)(cameraSetEdit[1] + box * 76);
     BoxVtx v[8] = {{b->cx - b->sx, b->cy - b->sy, b->cz - b->sz, 1.0f},
                    {b->cx - b->sx, b->cy - b->sy, b->cz + b->sz, 1.0f},
                    {b->cx + b->sx, b->cy - b->sy, b->cz - b->sz, 1.0f},
@@ -417,7 +420,7 @@ void DispCameraGroup(int box, unsigned char sel)
 }
 
 /* a VU0 quadword: DrawLineG takes 16-byte aligned vectors */
-typedef struct {
+typedef struct { /* field names derived */
     float x, y, z, w;
 } ArrowVtx __attribute__((aligned(16)));
 
@@ -435,7 +438,7 @@ static ArrowVtx arrowBarbRight = {25.0f, 0.0f, -50.0f, 1.0f}; /* derived name */
 
 static ArrowVtx arrowShaftRight = {25.0f, 0.0f, -50.0f, 1.0f}; /* derived name */
 
-void drawXZArrow(void *col, int f, float z)
+static void drawXZArrow(void *col, int f, float z)
 {
     ArrowVtx v0 = {-25.0f, 0.0f, -z, 1.0f};
     ArrowVtx v1 = {25.0f, 0.0f, -z, 1.0f};
@@ -450,16 +453,17 @@ void drawXZArrow(void *col, int f, float z)
 }
 
 /* one axis of the arrow table: the tip and tail vectors of the arrow */
-typedef struct {
+typedef struct { /* field names derived */
     float tip[4];
     float tail[4];
 } AxisPair;
 
 /* the point the axis widget is drawn at, 2000 units down the view axis */
-static ArrowVtx axisArrowOrigin = {0.0f, 0.0f, 2000.0f, 1.0f};
+static ArrowVtx axisArrowOrigin = {0.0f, 0.0f, 2000.0f, 1.0f}; /* derived name */
 
 /* the three axis arrows, each from -200 to +200 along one axis */
 static AxisPair axisArrows[3] = {
+    /* derived name */
     {{-200.0f, 0.0f, 0.0f, 1.0f}, {200.0f, 0.0f, 0.0f, 1.0f}},
     {{0.0f, -200.0f, 0.0f, 1.0f}, {0.0f, 200.0f, 0.0f, 1.0f}},
     {{0.0f, 0.0f, -200.0f, 1.0f}, {0.0f, 0.0f, 200.0f, 1.0f}},
@@ -521,15 +525,15 @@ void DispAxisArrow(int mask, void *col)
 /* the pin arrow colours: the first pair is drawn depth-tested (the part in
    front of the level), the second pair through it, and each pair has a colour
    for a typed pin and one for a plain one */
-static int pinArrowColorTyped[4] = {255, 128, 128, 128};
+static int pinArrowColorTyped[4] = {255, 128, 128, 128}; /* derived name */
 
-static int pinArrowColorPlain[4] = {64, 64, 64, 128};
+static int pinArrowColorPlain[4] = {64, 64, 64, 128}; /* derived name */
 
-static int pinArrowHiddenColorTyped[4] = {64, 32, 32, 128};
+static int pinArrowHiddenColorTyped[4] = {64, 32, 32, 128}; /* derived name */
 
-static int pinArrowHiddenColorPlain[4] = {16, 16, 16, 128};
+static int pinArrowHiddenColorPlain[4] = {16, 16, 16, 128}; /* derived name */
 
-void dispCameraPinType2(int box, int from, int to, int type)
+static void dispCameraPinType2(int box, int from, int to, int type)
 {
     float m0[4][4];
     int *c1;
@@ -601,23 +605,25 @@ static unsigned char boxFaceColor[4] = {32, 32, 32, 64}; /* derived name */
 /* the eight box corners in face order: each row is the two corner pairs the
    face is interpolated between */
 static int boxFaceCorner[6][4] = {
+    /* derived name */
     {0, 1, 2, 3}, {1, 3, 5, 7}, {2, 3, 6, 7}, {0, 2, 4, 6}, {5, 4, 7, 6}, {1, 0, 5, 4},
 };
 
 /* the twelve box edges as corner pairs */
 static int boxEdgeCorner[12][2] = {
+    /* derived name */
     {0, 1}, {1, 3}, {3, 2}, {2, 0}, {0, 4}, {1, 5}, {2, 6}, {3, 7}, {4, 5}, {5, 7}, {7, 6}, {6, 4},
 };
 
 /* the camera box edge colours, bright pair while the box is selected and dim
    pair while it is not; the second of each pair is the part behind geometry */
-static unsigned int boxEdgeColorSel[4] = {224, 224, 224, 128};
+static unsigned int boxEdgeColorSel[4] = {224, 224, 224, 128}; /* derived name */
 
-static unsigned int boxHiddenEdgeColorSel[4] = {32, 32, 32, 128};
+static unsigned int boxHiddenEdgeColorSel[4] = {32, 32, 32, 128}; /* derived name */
 
-static unsigned int boxEdgeColor[4] = {64, 64, 64, 128};
+static unsigned int boxEdgeColor[4] = {64, 64, 64, 128}; /* derived name */
 
-static unsigned int boxHiddenEdgeColor[4] = {16, 16, 16, 128};
+static unsigned int boxHiddenEdgeColor[4] = {16, 16, 16, 128}; /* derived name */
 
 void dispCameraGroupType2(int box, unsigned char sel)
 {
@@ -628,7 +634,7 @@ void dispCameraGroupType2(int box, unsigned char sel)
     unsigned char *col;
     unsigned int *c0;
     unsigned int *c1;
-    BoxRec *b = (BoxRec *)(cameraSetEdit[1] + box * 0x4C);
+    BoxRec *b = (BoxRec *)(cameraSetEdit[1] + box * 76);
     BoxVtx v[8] = {{b->cx - b->sx, b->cy - b->sy, b->cz - b->sz, 1.0f},
                    {b->cx - b->sx, b->cy - b->sy, b->cz + b->sz, 1.0f},
                    {b->cx + b->sx, b->cy - b->sy, b->cz - b->sz, 1.0f},
@@ -702,11 +708,11 @@ void dispCameraGroupType2(int box, unsigned char sel)
  * CameraEdit_DispBoxType2_Plane below. */
 /* Box corner, a VU0 quadword: _InterGV / DrawPolygon / DrawLineG all take
  * 16-byte aligned vectors. */
-typedef struct {
+typedef struct { /* field names derived */
     float x, y, z, w;
 } CamVtx __attribute__((aligned(16)));
 
-typedef struct {
+typedef struct { /* field names derived */
     char pad00[0x20];
     float cx, cy, cz; /* 0x20 */
     float sx, sy, sz; /* 0x2C */
@@ -716,21 +722,23 @@ typedef struct {
 /* the plane editor's own copy of the face and edge tables; the faces are in a
    different order from boxFaceCorner above */
 static int planeFaceCorner[6][4] = {
+    /* derived name */
     {2, 3, 6, 7}, {1, 0, 5, 4}, {1, 3, 5, 7}, {0, 2, 4, 6}, {5, 4, 7, 6}, {0, 1, 2, 3},
 };
 
 static int planeEdgeCorner[12][2] = {
+    /* derived name */
     {0, 1}, {1, 3}, {3, 2}, {2, 0}, {0, 4}, {1, 5}, {2, 6}, {3, 7}, {4, 5}, {5, 7}, {7, 6}, {6, 4},
 };
 
 /* the plane editor's edge colours.  It always draws the bright pair; the dim
    pair after it is the same pair as boxEdgeColor / boxHiddenEdgeColor above
    and nothing reads it. */
-static unsigned int planeEdgeColorSel[4] = {224, 224, 224, 128};
+static unsigned int planeEdgeColorSel[4] = {224, 224, 224, 128}; /* derived name */
 
-static unsigned int planeHiddenEdgeColorSel[4] = {32, 32, 32, 128};
+static unsigned int planeHiddenEdgeColorSel[4] = {32, 32, 32, 128}; /* derived name */
 
-static unsigned int planeEdgeColor[4] = {64, 64, 64, 128};
+static unsigned int planeEdgeColor[4] = {64, 64, 64, 128}; /* derived name */
 
 static unsigned int planeHiddenEdgeColor[4] = {16, 16, 16, 128};
 
@@ -745,7 +753,7 @@ static unsigned char planeHiddenFaceColor[4] = {2, 2, 2, 64}; /* derived name */
 void CameraEdit_DispBoxType2_Plane(int box, int sel)
 {
     int n;
-    CamBoxF *b = (CamBoxF *)(cameraSetEdit[1] + box * 0x4C);
+    CamBoxF *b = (CamBoxF *)(cameraSetEdit[1] + box * 76);
     CamVtx v[8] = {{b->cx - b->sx, b->cy - b->sy, b->cz - b->sz, 1.0f},
                    {b->cx - b->sx, b->cy - b->sy, b->cz + b->sz, 1.0f},
                    {b->cx + b->sx, b->cy - b->sy, b->cz - b->sz, 1.0f},
@@ -871,12 +879,12 @@ void menuGroupSelect(MenuThread *m)
             if (i == *box) {
                 if (debug_font_flag & 1) {
                     print_y += 10;
-                    debug_Printf(40, print_y, 0xFFFFFF00, ">> %s", cameraSetEdit[1] + i * 0x4C);
+                    debug_Printf(40, print_y, 0xFFFFFF00, ">> %s", cameraSetEdit[1] + i * 76);
                 }
             } else {
                 if (debug_font_flag & 1) {
                     print_y += 10;
-                    debug_Printf(40, print_y, 0xFFFFFF00, "   %s", cameraSetEdit[1] + i * 0x4C);
+                    debug_Printf(40, print_y, 0xFFFFFF00, "   %s", cameraSetEdit[1] + i * 76);
                 }
             }
         }
@@ -893,7 +901,7 @@ void menuGroupSelect(MenuThread *m)
 
 /* one row of the group editor: the live value, the step the pad applies to it,
    and whether the row steps on the trigger edge or on the held level */
-typedef struct {
+typedef struct { /* field names derived */
     int val;
     int step;
     int mode;
@@ -902,7 +910,7 @@ typedef struct {
 
 /* the camera box record as the group editor sees it: the centre and half-size
    floats DispCameraGroup also reads, plus the type word at 0x44 */
-typedef struct {
+typedef struct { /* field names derived */
     char pad00[0x20];
     float cx, cy, cz; /* 0x20 */
     float sx, sy, sz; /* 0x2C */
@@ -913,7 +921,7 @@ typedef struct {
 
 void menuGroupEdit(MenuThread *m)
 {
-    EditRec *rec = (EditRec *)(cameraSetEdit[1] + m->arg * 0x4C);
+    EditRec *rec = (EditRec *)(cameraSetEdit[1] + m->arg * 76);
     int cur = 0;
     int i;
 
@@ -990,15 +998,15 @@ void menuGroupEdit(MenuThread *m)
 
 /* the camera work SetWSMatrix converts: eye at 0x00, look-at at 0x10 and the
    field of view at 0x20, the same record camera-ico2.c hands it */
-typedef struct CamWork {
-    float eye[4]; /* 0x00 */
-    float at[4];  /* 0x10 */
-    float fov;    /* 0x20 */
+typedef struct CamWork { /* field names derived */
+    float eye[4];        /* 0x00 */
+    float at[4];         /* 0x10 */
+    float fov;           /* 0x20 */
 } __attribute__((aligned(16))) CamWork;
 
 /* the group record CameraEdit_BOX hands back, as the pin menus read it: the
    first and the last pin index of the group */
-typedef struct BoxPins {
+typedef struct BoxPins { /* field names derived */
     char pad00[0x38];
     int first; /* 0x38 */
     int last;  /* 0x3C */
@@ -1018,7 +1026,7 @@ static int editPinNo; /* derived name */
 void menuPinSelect(MenuThread *m)
 {
     int no = m->arg;
-    int cur = ((BoxPins *)(cameraSetEdit[1] + no * 0x4C))->first;
+    int cur = ((BoxPins *)(cameraSetEdit[1] + no * 76))->first;
     int min;
     int max;
     int i;
@@ -1032,8 +1040,8 @@ void menuPinSelect(MenuThread *m)
 
     while (1) {
         PIN_WINDOW_TRACE(start, end);
-        min = ((BoxPins *)(cameraSetEdit[1] + no * 0x4C))->first;
-        max = ((BoxPins *)(cameraSetEdit[1] + no * 0x4C))->last;
+        min = ((BoxPins *)(cameraSetEdit[1] + no * 76))->first;
+        max = ((BoxPins *)(cameraSetEdit[1] + no * 76))->last;
         if (D_0028F8F0[1].trg & 0x1000) {
             cur--;
         }
@@ -1261,21 +1269,21 @@ void test_camedit(void)
 
 inline int _CameraEdit_BOX(int *a0, int a1)
 {
-    return a0[1] + (a1 * 0x4C);
+    return a0[1] + (a1 * 76);
 }
 
 inline int _CameraEdit_PIN(int *a0, int a1, int a2)
 {
-    return ((int *)(a0[1] + (a1 * 0x4C)))[0x48 / 4] + (a2 * 0x5C);
+    return ((int *)(a0[1] + (a1 * 76)))[72 / 4] + (a2 * 92);
 }
 
-static inline char *_CameraEdit_alloc_pool(CamMgr *mgr)
+static inline char *_CameraEdit_alloc_pool(CamMgr *mgr) /* derived name */
 {
     int i;
     for (i = 0; i < 100; i++) {
         if (mgr->flags[i] == 0) {
             mgr->flags[i] = 1;
-            return mgr->pool + i * 0x23F0;
+            return mgr->pool + i * 9200;
         }
     }
     return 0;
@@ -1286,10 +1294,10 @@ inline int _CameraEdit_add_box(CamMgr *mgr, S4C *src)
     int result = -1;
     char *p;
     S4C *dst;
-    if (mgr->count < 0x64) {
+    if (mgr->count < 100) {
         p = _CameraEdit_alloc_pool(mgr);
         if (p != 0) {
-            dst = (S4C *)(mgr->items + mgr->count * 0x4C);
+            dst = (S4C *)(mgr->items + mgr->count * 76);
             result = mgr->count;
             *dst = *src;
             dst->first = 0;
@@ -1306,13 +1314,13 @@ inline int _CameraEdit_add_box(CamMgr *mgr, S4C *src)
 
 inline int _CameraEdit_add_pin(void *a0, int a1, PinRec *src)
 {
-    int base = a1 * 0x4C + *(int *)((char *)a0 + 4);
+    int base = a1 * 76 + *(int *)((char *)a0 + 4);
     int n = ((S4C *)base)->end;
     int result = -1;
-    if (n < 0x64) {
+    if (n < 100) {
         int base2;
-        *(PinRec *)(((S4C *)base)->items + n * 0x5C) = *src;
-        base2 = a1 * 0x4C + *(int *)((char *)a0 + 4);
+        *(PinRec *)(((S4C *)base)->items + n * 92) = *src;
+        base2 = a1 * 76 + *(int *)((char *)a0 + 4);
         result = ((S4C *)base2)->end;
         ((S4C *)base2)->end = result + 1;
     } else {
@@ -1322,16 +1330,16 @@ inline int _CameraEdit_add_pin(void *a0, int a1, PinRec *src)
     return result;
 }
 
-static inline void _CameraEdit_free_box_pool(CamMgr *mgr, int idx)
+static inline void _CameraEdit_free_box_pool(CamMgr *mgr, int idx) /* derived name */
 {
-    S4C *box = (S4C *)(idx * 0x4C + (int)mgr->items);
+    S4C *box = (S4C *)(idx * 76 + (int)mgr->items);
     char *p = mgr->pool;
     int i;
     for (i = 0; i < 100; i++) {
         if (p == *(char **)&box->items) {
             mgr->flags[i] = 0;
         }
-        p += 0x23F0;
+        p += 9200;
     }
 }
 
@@ -1350,14 +1358,14 @@ void _CameraEdit_del_box(CamMgr *mgr, int idx)
     mgr->count = mgr->count - 1;
 }
 
-static inline S4C *_CameraEdit_BOX_p(CamMgr *mgr, int i)
+static inline S4C *_CameraEdit_BOX_p(CamMgr *mgr, int i) /* derived name */
 {
-    return (S4C *)(i * 0x4C + (int)mgr->items);
+    return (S4C *)(i * 76 + (int)mgr->items);
 }
 
-static inline PinRec *_CameraEdit_PIN_p(CamMgr *mgr, int i, int j)
+static inline PinRec *_CameraEdit_PIN_p(CamMgr *mgr, int i, int j) /* derived name */
 {
-    return (PinRec *)(_CameraEdit_BOX_p(mgr, i)->items + j * 0x5C);
+    return (PinRec *)(_CameraEdit_BOX_p(mgr, i)->items + j * 92);
 }
 
 void _CameraEdit_del_pin(CamMgr *mgr, int box, int pin)
@@ -1444,8 +1452,8 @@ inline void CameraEdit_reset_box(int a0)
     S4C *dst;
     int saved;
     int i;
-    src = (S4C *)(cameraSetOrg[1] + a0 * 0x4C);
-    dst = (S4C *)(cameraSetEdit[1] + a0 * 0x4C);
+    src = (S4C *)(cameraSetOrg[1] + a0 * 76);
+    dst = (S4C *)(cameraSetEdit[1] + a0 * 76);
     saved = dst->items;
     *dst = *src;
     dst->items = saved;
@@ -1458,15 +1466,15 @@ inline void CameraEdit_reset_box(int a0)
 
 inline void CameraEdit_reset_pin(int a0, int a1)
 {
-    PinRec *dst = (PinRec *)(((S4C *)(cameraSetEdit[1] + a0 * 0x4C))->items + a1 * 0x5C);
-    PinRec *src = (PinRec *)(((S4C *)(cameraSetOrg[1] + a0 * 0x4C))->items + a1 * 0x5C);
+    PinRec *dst = (PinRec *)(((S4C *)(cameraSetEdit[1] + a0 * 76))->items + a1 * 92);
+    PinRec *src = (PinRec *)(((S4C *)(cameraSetOrg[1] + a0 * 76))->items + a1 * 92);
     *dst = *src;
 }
 
 inline void CameraEdit_reflect_box(int a0)
 {
-    S4C *dst = (S4C *)(cameraSetOrg[1] + a0 * 0x4C);
-    S4C *src = (S4C *)(cameraSetEdit[1] + a0 * 0x4C);
+    S4C *dst = (S4C *)(cameraSetOrg[1] + a0 * 76);
+    S4C *src = (S4C *)(cameraSetEdit[1] + a0 * 76);
     int saved = dst->items;
     int i;
     *dst = *src;
@@ -1480,8 +1488,8 @@ inline void CameraEdit_reflect_box(int a0)
 
 inline void CameraEdit_reflect_pin(int a0, int a1)
 {
-    PinRec *dst = (PinRec *)(((S4C *)(cameraSetOrg[1] + a0 * 0x4C))->items + a1 * 0x5C);
-    PinRec *src = (PinRec *)(((S4C *)(cameraSetEdit[1] + a0 * 0x4C))->items + a1 * 0x5C);
+    PinRec *dst = (PinRec *)(((S4C *)(cameraSetOrg[1] + a0 * 76))->items + a1 * 92);
+    PinRec *src = (PinRec *)(((S4C *)(cameraSetEdit[1] + a0 * 76))->items + a1 * 92);
     *dst = *src;
 }
 
@@ -1509,12 +1517,12 @@ inline int CameraEdit_PIN_NUMBER_ALL(int *a0, int a1)
 
 inline int CameraEdit_BOX(int a0)
 {
-    return cameraSetEdit[1] + a0 * 0x4C;
+    return cameraSetEdit[1] + a0 * 76;
 }
 
 inline PinRec *CameraEdit_PIN(int a0, int a1)
 {
-    return (PinRec *)((S4C *)(cameraSetEdit[1] + a0 * 0x4C))->items + a1;
+    return (PinRec *)((S4C *)(cameraSetEdit[1] + a0 * 76))->items + a1;
 }
 
 inline void CameraEdit_DispPin(int box, int pin)
@@ -1587,7 +1595,7 @@ inline void ConvertCameraSetBuffer(int n, S4C *item, char *groups)
     for (i = 0; i < n; i++) {
         CameraEdit_add_box(item);
         for (j = item->first; j < item->end; j++) {
-            CameraEdit_add_pin(i, groups + j * 0x5C);
+            CameraEdit_add_pin(i, groups + j * 92);
         }
         item++;
     }

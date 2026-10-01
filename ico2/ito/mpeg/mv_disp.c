@@ -65,7 +65,7 @@ inline void loadImage(int a0)
     *D2_CHCR = 0x105;
 }
 
-typedef struct MvRect {
+typedef struct MvRect { /* field names derived */
     int x;
     int y;
     int w;
@@ -162,8 +162,7 @@ void sendDispEnv(MvDispEnv *self)
 void dispCreate(MvDispEnv *self, int a1, int a2, int a3, int a4)
 {
     /* the five display-state words are read and written by vblankHandler on the
-       vblank interrupt, so the resets are volatile here exactly as they are at
-       the two sites further down this file */
+       vblank interrupt, so they are reset through volatile */
     *(volatile int *)&dispRunning = 0;
     *(volatile int *)&dispVblankCount = 0;
     *(volatile int *)&dispImageDone = 0;
@@ -257,8 +256,8 @@ int vblankHandler(int cause)
     *(volatile int *)&dispField = (int)((*GS_CSR >> 13) & 1);
     if (*(volatile int *)&dispRunning != 0) {
         *(volatile int *)&dispVblankCount = *(volatile int *)&dispVblankCount + 1;
-        /* the display-state words are read back by this handler and by the
-           foreground code between vblanks, the file's existing idiom */
+        /* the display-state words are shared with the foreground code, which
+           reads them between vblanks */
         *(volatile int *)&dispSyncBusy = sceGsSyncPath(1, 0);
         if (*(volatile int *)&dispSyncBusy == 0) {
             tag = voBufGetTag(&voBuf);

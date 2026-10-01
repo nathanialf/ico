@@ -20,7 +20,9 @@
 #include "camera-ico2.h"
 #include "poly-flat.h"
 
-union PendCopy {
+static int InsertCamera_isEnable(void);
+
+union PendCopy { /* field names derived */
     float f[8];
     long long q[4];
 };
@@ -28,7 +30,7 @@ union PendCopy {
 /* the camera position and the point it looks at, the pair InitCamera seeds
    both camera work areas with; the halves are named after the same pair in
    InsertCameraWork */
-typedef struct {
+typedef struct { /* field names derived */
     float pos[4];
     float tgt[4];
 } CamTgt __attribute__((aligned(16)));
@@ -37,8 +39,8 @@ typedef struct {
    fixed-point angles MatrixDrive rotates by (0x10/0x12/0x1C).  The word at
    0x18 is the semi-auto move flag DebugCameraSemiAuto runs the camera to its
    target with, cleared on every mode change. */
-typedef struct CameraSet2 {
-    float pos[3]; /* 0x00 */
+typedef struct CameraSet2 { /* field names derived */
+    float pos[3];           /* 0x00 */
     char pad0c[0x10 - 0x0C];
     short rotX; /* 0x10 */
     short rotY; /* 0x12 */
@@ -49,7 +51,7 @@ typedef struct CameraSet2 {
 
 /* What SetWSMatrix / DebugCameraSemiAuto hand in: eye (0x00) and look-at
    (0x10) points plus the field of view at 0x20, copied as doublewords. */
-union CameraSetIn {
+union CameraSetIn { /* field names derived */
     float f[12];
     long long q[6];
 };
@@ -58,11 +60,11 @@ union CameraSetIn {
    CameraSetTargetGObj once a frame: the object the camera follows, its sub
    object, the priority the request was filed at and the priority that ran the
    frame before. */
-typedef struct CamCtrl {
-    int gobj;    /* 0x00 */
-    int subGObj; /* 0x04 */
-    int pri;     /* 0x08 */
-    int lastPri; /* 0x0C */
+typedef struct CamCtrl { /* field names derived */
+    int gobj;            /* 0x00 */
+    int subGObj;         /* 0x04 */
+    int pri;             /* 0x08 */
+    int lastPri;         /* 0x0C */
 } CamCtrl;
 
 typedef struct InsertCameraWork { /* field names derived */
@@ -157,7 +159,7 @@ void ConvertCameraSet(CameraSet2 *dst, union CameraSetIn *src)
     dst->rotZ = 0;
 }
 
-void MakeMatrixFromCameraSet2(void *dst, CameraSet2 *cs)
+static void MakeMatrixFromCameraSet2(void *dst, CameraSet2 *cs)
 {
     MatrixDrive_PushMatrix();
     sceVu0UnitMatrix(MatrixDrive_GetMatrix());
@@ -187,7 +189,7 @@ void MakeCameraMatrix(CameraSet2 *cs)
 /* the manual camera's speed, 1 to 4 on the pad's buttons */
 static int manualCameraSpeed = 2; /* derived name */
 
-void CameraEditManual(CameraSet2 *set, int noLock)
+static void CameraEditManual(CameraSet2 *set, int noLock)
 {
     float mz = 0.0f, mx = 0.0f;
     int d;
@@ -208,73 +210,73 @@ void CameraEditManual(CameraSet2 *set, int noLock)
         manualCameraSpeed = 4;
     }
 
-    d = 0x80 - pad[1].ana[1];
-    if ((d < 0 ? -d : d) < 0x32) {
+    d = 128 - pad[1].ana[1];
+    if ((d < 0 ? -d : d) < 50) {
         d = 0;
     }
     if (pad[1].now & 2) {
-        if ((d < 0 ? -d : d) >= 0x33) {
-            if (d < 0x32) {
+        if ((d < 0 ? -d : d) >= 51) {
+            if (d < 50) {
                 t = (d + 50) * 10;
                 set->pos[1] -= (float)(manualCameraSpeed * t) / 78.0f;
             }
-            if (d >= 0x33) {
+            if (d >= 51) {
                 t = (d - 0x32) * 10;
                 set->pos[1] -= (float)(manualCameraSpeed * t) / 78.0f;
             }
         }
     } else {
-        if ((d < 0 ? -d : d) >= 0x33) {
-            if (d < 0x32) {
+        if ((d < 0 ? -d : d) >= 51) {
+            if (d < 50) {
                 set->rotX -= (d + 50) * (d + 50) * 5 / 78;
             }
-            if (d >= 0x33) {
+            if (d >= 51) {
                 set->rotX += (d - 0x32) * (d - 0x32) * 5 / 78;
             }
         }
     }
 
-    d = 0x80 - pad[1].ana[0];
-    if ((d < 0 ? -d : d) < 0x32) {
+    d = 128 - pad[1].ana[0];
+    if ((d < 0 ? -d : d) < 50) {
         d = 0;
     }
-    if ((d < 0 ? -d : d) >= 0x33) {
-        if (d < 0x32) {
+    if ((d < 0 ? -d : d) >= 51) {
+        if (d < 50) {
             set->rotY += (d + 50) * (d + 50) * 5 / 78;
         }
-        if (d >= 0x33) {
+        if (d >= 51) {
             set->rotY -= (d - 0x32) * (d - 0x32) * 5 / 78;
         }
     }
 
-    d = 0x80 - pad[1].ana[3];
-    if ((d < 0 ? -d : d) < 0x32) {
+    d = 128 - pad[1].ana[3];
+    if ((d < 0 ? -d : d) < 50) {
         d = 0;
     }
-    if ((d < 0 ? -d : d) >= 0x33) {
+    if ((d < 0 ? -d : d) >= 51) {
         if (noLock || (pad[0].now & 1) == 0) {
-            if (d < 0x32) {
+            if (d < 50) {
                 t = (d + 50) * 10;
                 mz = (float)(manualCameraSpeed * t) / 78.0f;
             }
-            if (d >= 0x33) {
+            if (d >= 51) {
                 t = (d - 0x32) * 10;
                 mz = (float)(manualCameraSpeed * t) / 78.0f;
             }
         }
     }
 
-    d = 0x80 - pad[1].ana[2];
-    if ((d < 0 ? -d : d) < 0x32) {
+    d = 128 - pad[1].ana[2];
+    if ((d < 0 ? -d : d) < 50) {
         d = 0;
     }
-    if ((d < 0 ? -d : d) >= 0x33) {
+    if ((d < 0 ? -d : d) >= 51) {
         if ((pad[0].now & 0x200) == 0) {
-            if (d < 0x32) {
+            if (d < 50) {
                 t = (d + 50) * 10;
                 mx = (float)(manualCameraSpeed * t) / 78.0f;
             }
-            if (d >= 0x33) {
+            if (d >= 51) {
                 t = (d - 0x32) * 10;
                 mx = (float)(manualCameraSpeed * t) / 78.0f;
             }
@@ -294,13 +296,13 @@ void CameraEditManual(CameraSet2 *set, int noLock)
     MatrixDrive_PopMatrix();
 }
 
-void DebugCameraManual(void)
+static void DebugCameraManual(void)
 {
     CameraEditManual(&cameraSet, 0);
     MakeCameraMatrix(&cameraSet);
 }
 
-void DebugCameraSemiAuto(void)
+static void DebugCameraSemiAuto(void)
 {
     if (targetCameraSet.moving != 0) {
         if (_MoveGV(cameraSet.pos, cameraSet.pos, targetCameraSet.pos, 50.0f) < 1.0f) {
@@ -319,7 +321,7 @@ void DebugCameraSemiAuto(void)
     MakeCameraMatrix(&cameraSet);
 }
 
-void BackToGameCamera(void)
+static void BackToGameCamera(void)
 {
     struct {             /* field names derived */
         float target[4]; /* the point the camera looks at */
@@ -434,24 +436,24 @@ void InitCamera(void)
     zoomMaxInDemo = GlobalStageSetting.zoomMaxInDemo;
 }
 
-typedef struct {
-    int step; /* 0x00 */
-    int max;  /* 0x04 */
+typedef struct { /* field names derived */
+    int step;    /* 0x00 */
+    int max;     /* 0x04 */
 } CamZoomStep;
 
-typedef struct {
+typedef struct { /* field names derived */
     CamZoomStep e[3];
 } CamZoomTbl;
 
 /* the one scratch quadword-and-a-half the body reuses: the screen test's
    output point first, then the three zoom steps */
 /* one quadword copied whole out of the const table */
-union CamQuad {
+union CamQuad { /* field names derived */
     float f[4];
     long long q[2];
 };
 
-union CamWork {
+union CamWork { /* field names derived */
     float v[4];
     CamZoomTbl zoom;
 };
@@ -513,8 +515,8 @@ static inline void InsertCamera_Step(void) /* derived name */
     }
 }
 
-/* rows 547-548, inlined here; CameraSetMode keeps its out-of-line body. */
-static inline void cameraSetMode(int x)
+/* CameraSetMode's body: set the mode and stop the target set's move */
+static inline void cameraSetMode(int x) /* derived name */
 {
     cameraMode = x;
     targetCameraSet.moving = 0;
@@ -982,7 +984,7 @@ int UpdateZoomMaxVallInDemo(void)
     return 0;
 }
 
-int InsertCamera_isEnable(void)
+static int InsertCamera_isEnable(void)
 {
     return camctrl.pri < 2;
 }

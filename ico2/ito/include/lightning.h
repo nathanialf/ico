@@ -13,7 +13,7 @@
 typedef union { /* field names derived */
     unsigned int c[4];
     unsigned long long w[2];
-} StructB;
+} LightningColor; /* derived name */
 
 /* one control point or strip vertex, read as floats, words or doublewords */
 typedef union { /* field names derived */
@@ -36,9 +36,8 @@ void DrawLightning(void *p0, void *p1, void *a2, float f0, float f1, float f2, f
                    float f5, float f6, float f7, float f8, float f9, int a3);
 
 void lightning_test(void);
-inline int cmpr(LightningNode *self, LightningNode *other);
 
-void DrawLightning2(int num, LightningVtx *v, StructB *col, float f0, float f1, float f2, float f3,
+void DrawLightning2(int num, LightningVtx *v, LightningColor *col, float f0, float f1, float f2, float f3,
                     float f4, float f5, float f6, float f7, float f8, float f9, int c);
 
 #endif /* LIGHTNING_H */

@@ -49,7 +49,6 @@ int viBufDelete(ViBuf *self);
 void viBufEndPut(ViBuf *self, int n);
 void viBufFlush(ViBuf *self);
 int viBufGetTs(ViBuf *self, ViTs *out);
-int viBufModifyPts(ViBuf *self, ViTs *ts);
 int viBufPutTs(ViBuf *self, ViTs *ts);
 int viBufReset(ViBuf *self);
 int viBufRestartDMA(ViBuf *self);

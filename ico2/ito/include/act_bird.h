@@ -26,9 +26,7 @@ void actBirdStart(void *a0);
 BirdWork *InitBirdGeo(char *a0, void *a1);
 void BirdAI(void);
 void _ACTSendMailToBirdAll(int mail, void *data);
-void Debug_StickControl(GObj *self);
 void _ACTSendMailToBird(void *obj, int mail, void *data);
-void subBirdBrainMain();
-void Debug_WireString_Bird(float *pos, char *fmt, ...);
+void subBirdBrainMain(void *gobj);
 
 #endif /* ACT_BIRD_H */

@@ -8,14 +8,17 @@
  * ClearMailAdditionalData, which is defined after it. */
 extern void __assert(char *file, int line, char *expr);
 
-typedef struct MailAddEntry {
+/* the entries a table holds; the name and current_count are the assert's */
+#define MAIL_ADDITIONAL_DATA_MAX 10
+
+typedef struct MailAddEntry { /* field names derived */
     /* 0x0 */ int mail;
     /* 0x4 */ void *data;
 } MailAddEntry;
 
-typedef struct MailAdditionalData {
-    /* 0x00 */ int num;
-    /* 0x04 */ MailAddEntry e[10];
+typedef struct MailAdditionalData { /* field names derived */
+    /* 0x00 */ int current_count;
+    /* 0x04 */ MailAddEntry e[MAIL_ADDITIONAL_DATA_MAX];
 } MailAdditionalData;
 
 static inline int sendMailAndGetIndex(char *gop, int msg, void *sender) /* derived name */
@@ -41,20 +44,20 @@ static inline MailAdditionalData *getMailAdditionalDataTable(char *gop) /* deriv
 inline int ActSendMail_WithAdditionalData(char *gop, int msg, void *sender, void *data)
 {
     int idx;
-    MailAdditionalData *p;
+    MailAdditionalData *mad_all;
 
     idx = sendMailAndGetIndex(gop, msg, sender);
     if (idx < 0) {
         return -1;
     }
-    p = getMailAdditionalDataTable(gop);
-    if (p->num >= 10) {
+    mad_all = getMailAdditionalDataTable(gop);
+    if (mad_all->current_count >= MAIL_ADDITIONAL_DATA_MAX) {
         debug_assert("src/mail-add-data.c", 95);
         __assert("src/mail-add-data.c", 95, "mad_all->current_count<MAIL_ADDITIONAL_DATA_MAX");
     }
-    p->e[p->num].mail = idx;
-    p->e[p->num].data = data;
-    p->num++;
+    mad_all->e[mad_all->current_count].mail = idx;
+    mad_all->e[mad_all->current_count].data = data;
+    mad_all->current_count++;
     return 0;
 }
 
@@ -64,7 +67,7 @@ inline void *GetMailAdditionalData(char *gop, int mail)
     int i;
 
     p = getMailAdditionalDataTable(gop);
-    for (i = 0; i < p->num; i++) {
+    for (i = 0; i < p->current_count; i++) {
         MailAddEntry *e = &p->e[i];
         if (e->mail == mail) {
             return e->data;
@@ -84,5 +87,5 @@ inline void ClearMailAdditionalData(char *gop)
     MailAdditionalData *p;
 
     p = getMailAdditionalDataTable(gop);
-    p->num = 0;
+    p->current_count = 0;
 }

@@ -5,7 +5,7 @@ int readBufCreate(ReadBuf *self)
 {
     int buf;
 
-    buf = alloc_zeroed(327680, 0x40);
+    buf = alloc_zeroed(327680, 64);
     self->data = (unsigned char *)buf;
     if (buf == 0) {
         return -1;

@@ -32,8 +32,8 @@
 #include "debug.h"
 #include "obj_manager.h"
 
-/* Actor sub-thread body: the actor scheduler resumes this frame after every
-   _ACTWait yield, so the entry GObj lives in its stack home, not a register. */
+static void Debug_StickControl(GObj *self);
+static void Debug_WireString_Bird(float *pos, char *fmt, ...);
 
 inline float vector_angle_degree(void *a0, void *a1)
 {
@@ -44,7 +44,7 @@ inline float vector_angle_degree(void *a0, void *a1)
     return radians_to_degrees(acosf(sceVu0InnerProduct(v0, v1)));
 }
 
-void interp_vector_sa(float *dst, float *a, float *b, float sa)
+static void interp_vector_sa(float *dst, float *a, float *b, float sa)
 {
     float na[4];
     float nb[4];
@@ -186,7 +186,7 @@ static __inline__ void rotate_y(float *v, float ang) /* derived name */
     apply_matrix_w1(v, mr, v);
 }
 
-void trans_bird(void *self, float *w)
+static void trans_bird(void *self, float *w)
 {
     float down[4] = {0.0f, -1.0f, 0.0f, 0.0f};
     float pos[4];
@@ -785,9 +785,7 @@ inline void actBirdStart(void *a0)
     act->motReq = SetMotionRequest(a0, 270, act->motOriReq);
 }
 
-/* libvu0 sceVu0MulMatrix; the repo carries it under its vendor placeholder. */
-
-void Debug_WireString_Bird(float *pos, char *fmt, ...)
+static void Debug_WireString_Bird(float *pos, char *fmt, ...)
 {
     float m[16];
     char buf[256];
@@ -807,7 +805,7 @@ void Debug_WireString_Bird(float *pos, char *fmt, ...)
     MatrixDrive_PopMatrix();
 }
 
-void Debug_StickControl(GObj *self)
+static void Debug_StickControl(GObj *self)
 {
     float dir[4];
     Act *ext = GOBJ_ACT(self);

@@ -15,7 +15,7 @@ extern Brain brainGirl;
 void OverrideBrainStatusByGObj(Brain *b, int gobj, float f8, float f10, float fC);
 void brainAddLevelGirl(float lv);
 int brainCheckView(int *a0, int *a1);
-void brainClsTargetLevel();
+void brainClsTargetLevel(Brain *b);
 void brainInit(void);
 void brainInitGirlSet(void *a0, int a1);
 void brainLockGirl(void);

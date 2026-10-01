@@ -12,7 +12,9 @@ inline void lw_pos_to_ico_pos(float *dst, float *src)
     dst[3] = src[3];
 }
 
-inline void apply_matrix_w1(void *a0, void *a1, void *a2)
+/* out = m applied to in, with w = 1; the VU0 code reads the three arguments
+   from their registers ($4 out, $5 m, $6 in) */
+inline void apply_matrix_w1(void *out, void *m, void *in)
 {
     VU0_LSV(lqc2, 4, 0x0, 5);
     VU0_LSV(lqc2, 5, 0x10, 5);
@@ -26,7 +28,7 @@ inline void apply_matrix_w1(void *a0, void *a1, void *a2)
     VU0_LSV(sqc2, 9, 0x0, 4);
 }
 
-int m33_to_quat(float *q, float (*m)[4])
+static void m33_to_quat(float *q, float (*m)[4])
 {
     float tr;
     float s;
@@ -64,11 +66,11 @@ int m33_to_quat(float *q, float (*m)[4])
     }
 }
 
-inline int ico_m33_to_quat(void *q, void *m)
+inline void ico_m33_to_quat(void *q, void *m)
 {
     float buf[4][4];
     sceVu0TransposeMatrix(buf, m);
-    return m33_to_quat(q, buf);
+    m33_to_quat(q, buf);
 }
 
 inline void pbga_start(int **slot, int key)

@@ -14,7 +14,7 @@ void ObjAction_MailCenter(void *a0, int a1);
 void ObjAction_Init(void);
 
 
-typedef struct {
+typedef struct { /* field names derived */
     int id;
     int idx;
 } ObjActMailEnt;

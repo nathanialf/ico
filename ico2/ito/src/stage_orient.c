@@ -3,7 +3,7 @@
 #include "matrixDrive.h"
 #include <libvu0.h>
 
-typedef struct {
+typedef struct { /* field names derived */
     char name[16];
     float angle;
     float pos[3];
@@ -14,6 +14,7 @@ typedef struct {
 extern const StgPre stageData[];
 
 static const StageOrientDef stageOrientDefs[41] = {
+    /* derived name */
     {"st47a", 0.0f, {200.0f, -350.0f, -950.0f}, {0.0f, -1750.0f, 0.0f}},
     {"st18a", -3.14159f, {-4850.0f, -1650.0f, 3075.0f}, {-2600.0f, -950.0f, 1375.0f}},
     {"st01b", -1.5708f, {-4845.0f, -2175.0f, 6140.0f}, {-4950.0f, -1925.0f, 6225.0f}},
@@ -106,7 +107,7 @@ static inline void MakeStageOrientMatrix(float *m, const StageOrientDef *p) /* d
     MatrixDrive_PopMatrix();
 }
 
-int GetStageDifferenceMatrix(float *out, int stA, int stB)
+static int GetStageDifferenceMatrix(float *out, int stA, int stB)
 {
     int a = stageOrientIdx[stA];
     int b = stageOrientIdx[stB];
@@ -162,7 +163,7 @@ inline int StageOrientGet(VECTOR *ret, int stA, int stB)
     return 1;
 }
 
-int StageOrientGet2(VECTOR *ret, int stA, VECTOR *posA, int stB, VECTOR *posB)
+static int StageOrientGet2(VECTOR *ret, int stA, VECTOR *posA, int stB, VECTOR *posB)
 {
     int a = stageOrientIdx[stA];
     int b = stageOrientIdx[stB];

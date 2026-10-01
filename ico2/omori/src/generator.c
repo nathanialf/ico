@@ -3,6 +3,8 @@
 #include "gamesys.h"
 #include "memory.h"
 #include "obj_manager.h"
+#include "gobj.h"
+#include "commonact.h"
 #include "act-game.h"
 #include "boyact.h"
 #include "enemy_act.h"
@@ -72,6 +74,8 @@ static int generatorPacket[2820]; /* derived name */
 #include <string.h>
 #include "ios.h"
 #include "main.h"
+
+static char *IsNeedGeneratorHard(char *mother);
 
 inline int SearchActiveGenerator(void)
 {
@@ -198,7 +202,7 @@ void GetGeneratorSafePosition(float *dst, char *gobj)
     }
 }
 
-void switch_MainStatus(char *gobj, unsigned char st)
+static void switch_MainStatus(char *gobj, unsigned char st)
 {
     float pos[4];
     GenWork *w = GOBJ_SUB(gobj)->work;
@@ -209,7 +213,7 @@ void switch_MainStatus(char *gobj, unsigned char st)
 
     switch (w->status) {
     case 0:
-        if (!IsNeedGeneratorHard()) {
+        if (!IsNeedGeneratorHard(gobj)) {
             w->status = 2;
             gamesysObjInfoUniqDataSet(gobj);
             break;
@@ -257,7 +261,7 @@ static inline void EntryBga(char *gobj, GenWork *w, int slot) /* derived name */
     EntryMultiBgaManager(w->bga[slot].p, 0, -1, (void *)test_CURRENTROOT(gobj), mtx);
 }
 
-void endfunc_BGA(char *gobj)
+static void endfunc_BGA(char *gobj)
 {
     GenWork *w = GOBJ_SUB(gobj)->work;
 
@@ -292,7 +296,7 @@ void endfunc_BGA(char *gobj)
     }
 }
 
-char *IsNeedGeneratorHard(char *mother)
+static char *IsNeedGeneratorHard(char *mother)
 {
     GenWork *w = GOBJ_SUB(mother)->work;
     char *g;
@@ -483,7 +487,7 @@ inline void UnlockEnemyGenerate(void *a0)
 
 inline void RestoreReviveCount(char *gobj)
 {
-    GVGeo2 *g = (GVGeo2 *)((char *)objLayout + ((GObj *)gobj)->labelId * 0x4C);
+    GVGeo2 *g = (GVGeo2 *)((char *)objLayout + ((GObj *)gobj)->labelId * 76);
     if (g->reviveCount != -1) {
         int n = (short)(g->reviveCount + 1);
         int lim = ((g->flags >> 5) & 0x1F) + 1;
@@ -708,7 +712,7 @@ inline void ResetReviveCountEnemy(int a0)
     objLayout[((GObj *)a0)->labelId].reviveCount = 0;
 }
 
-inline void SetInfoSpKidnapEnemy(void)
+inline void SetInfoSpKidnapEnemy(short *work)
 {
     GVGeo2 *info = &objLayout[3757]; /* the kidnap enemy's layout record */
     info->flags |= 0x200000;
@@ -1019,11 +1023,9 @@ static inline void SetGeneratorBgaRootPosition(char *gobj, GenBga *tbl) /* deriv
     float pos[3];
     int i;
 
-    /* test_CURRENTROOT is unprototyped in this TU (C89 default int), as its
-       earlier call sites need; the root matrix is read through a float view. */
-    pos[0] = ((float *)test_CURRENTROOT(gobj))[0];
-    pos[1] = ((float *)test_CURRENTROOT(gobj))[1];
-    pos[2] = ((float *)test_CURRENTROOT(gobj))[2];
+    pos[0] = test_CURRENTROOT(gobj)[0];
+    pos[1] = test_CURRENTROOT(gobj)[1];
+    pos[2] = test_CURRENTROOT(gobj)[2];
 
     for (i = 0; i < 4; i++) {
         char *p = (char *)tbl[i].p;

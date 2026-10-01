@@ -260,7 +260,7 @@ static const float capsuleRelease[53][4] = {
     {-3417.14f, -601.8f, -686.716f, 1.0f},
 };
 
-void effect_end_func(int id)
+static void effect_end_func(int id)
 {
     CapsuleRec *e;
 
@@ -382,6 +382,8 @@ extern int geneDebugNoEffect; /* derived name */
 #else
 #define GENE_DEBUG_NO_EFFECT 0
 #endif
+
+static void gene_eff_end_func(int id);
 
 /* this file's own gene_enemy; queen.c defines a global of the same name */
 static void gene_enemy(volatile int a0)
@@ -639,7 +641,7 @@ inline int InqCapsuleGhostBossEnd(void)
     return cnt >= 53 && no == 0;
 }
 
-inline void gene_eff_end_func(int id)
+static inline void gene_eff_end_func(int id)
 {
     *((struct GGeo *)GetParticleEffectData(id))->user.done = 1;
 }

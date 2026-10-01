@@ -33,7 +33,7 @@ static inline void objActionCorrectFlag(OaRecB *p) /* derived name */
     }
 }
 
-static inline void objActionCorrectMode(OaRecB *p)
+static inline void objActionCorrectMode(OaRecB *p) /* derived name */
 {
     if (p->mode == 972) {
         p->mode = p->baseMode;
@@ -69,7 +69,7 @@ inline void ObjAction_MailCenter(void *a0, int a1)
 
     for (i = 0; i < 33; i++) {
         e = &objTrigger[i];
-        if (((int *)a0)[2] != e->id)
+        if (((GObj *)a0)->labelId != e->id)
             continue;
         n = e->idx;
         if (a1 > 0) {

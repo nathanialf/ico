@@ -21,7 +21,7 @@ typedef struct S4C { /* field names derived */
 /* the camera box (group) record: the name, centre and half-size at 0x20 and
  * 0x2C, the pin range at 0x38 and the kind word at 0x44; the 0x4C stride is
  * camera-editor.c's */
-typedef struct {
+typedef struct { /* field names derived */
     char name[0x20];
     float cx, cy, cz; /* 0x20 */
     float sx, sy, sz; /* 0x2C */
@@ -92,20 +92,16 @@ inline void menu_2(MenuThread *m);
 inline void group_select(MenuThread *m);
 /* compiled in place */
 int CameraEdit_add_pin(int box, char *src);
-void DispCameraGroup(int box, unsigned char sel);
-void EnterMenu(void *a0, int a1, void *a2);
 void dispCameraGroupType2(int box, unsigned char sel);
-void dispCameraPinType2(int box, int from, int to, int type);
 void menuGroupEdit(MenuThread *m);
 void menuGroupSelect(MenuThread *m);
 void menuPinEdit(MenuThread *m);
 void menuPinSelect(MenuThread *m);
-void saveEditedDataBinary(int no, int a1, int a2);
 void test_camedit(void);
 void wakeup_cameraedit(void);
 
 /* a quadword read as four floats or as two doublewords */
-typedef union Mat4 {
+typedef union Mat4 { /* field names derived */
     float f[4];
     long long q[2];
 } Mat4;

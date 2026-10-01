@@ -10,7 +10,6 @@
 
 void fightSoundClose(void);
 int fightSoundPlayChk(void);
-void fightSoundProcessMain(void);
 void fightSoundProcessRequestPause(void);
 void fightSoundProcessRequestStart(void);
 

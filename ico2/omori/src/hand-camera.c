@@ -18,7 +18,7 @@ static unsigned char handCameraMode; /* derived name */
    SetLimitHandCameraCorrect writes */
 static float handCameraWork[7]; /* derived name */
 
-void RotateAccordingToStick_PatternThree(float *a, float *b, float x, float y)
+static void RotateAccordingToStick_PatternThree(float *a, float *b, float x, float y)
 {
     float *p = handCameraWork;
     float len = FSqrt(x * x + y * y);
@@ -68,7 +68,7 @@ void RotateAccordingToStick_PatternThree(float *a, float *b, float x, float y)
     *b += db;
 }
 
-void SetCurrentInfo(void *a0, void *a1)
+static void SetCurrentInfo(void *a0, void *a1)
 {
     float *p = handCameraWork;
     float v[4];
@@ -103,7 +103,7 @@ void SetCurrentInfo(void *a0, void *a1)
     }
 }
 
-void HandyCamera_TargetMoveType(void *a0, void *a1)
+static void HandyCamera_TargetMoveType(void *a0, void *a1)
 {
     float *p = handCameraWork;
     float q[4];
@@ -150,7 +150,7 @@ inline void ClearHandCameraCorrect(void)
     int a = systemStatus[0];
     int b = systemStatus[1];
     int t = a * 10;
-    int diff = 0x3C - t;
+    int diff = 60 - t;
     int q;
     *(int *)&handCameraWork[0] = 0;
     *(int *)&handCameraWork[1] = 0;
@@ -163,7 +163,7 @@ inline void InitHandCameraCorrect(void)
     int a = systemStatus[0];
     int b = systemStatus[1];
     int t = a * 10;
-    int diff = 0x3C - t;
+    int diff = 60 - t;
     int q;
     *(int *)&handCameraWork[0] = 0;
     *(int *)&handCameraWork[1] = 0;

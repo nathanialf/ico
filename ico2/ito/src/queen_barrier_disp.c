@@ -23,11 +23,11 @@ static int ripplePhase; /* derived name */
 
 /* The screen rectangle and the texture rectangle this packet draws, in the
    1/16-unit form the GS registers take. */
-typedef struct {
+typedef struct { /* field names derived */
     int x0, y0, x1, y1;
 } GifRect;
 
-typedef struct {
+typedef struct { /* field names derived */
     int u0, v0, u1, v1;
 } GifUvRect;
 
@@ -38,18 +38,18 @@ typedef struct {
 #define GIF_XY(x, y) ((long long)((x) + 0x8000) | ((long long)((y) + 0x8000) << 16))
 #define GIF_XY0(x, y) ((long long)(x) | ((long long)(y) << 16))
 
-typedef struct {
+typedef struct { /* field names derived */
     unsigned char c[4];
 } GifCol;
 
 /* gif_SetGsReg's body: one GS register write, data then address */
-static inline void setGsReg(long long a0, long long a1)
+static inline void setGsReg(long long a0, long long a1) /* derived name */
 {
     *PacketBufferStruct.ptr.d++ = a1;
     *PacketBufferStruct.ptr.d++ = a0;
 }
 
-void MakeRefractTexture(int frame)
+static void MakeRefractTexture(int frame)
 {
     GifCol col = {{128, 128, 128, 128}};
     GifRect r = {-4096, -2048, 8192, 4096};
@@ -80,7 +80,7 @@ void MakeRefractTexture(int frame)
 
 void queen_barrier_set_damage(void)
 {
-    damageTimer = 0x3C;
+    damageTimer = 60;
     debug_StdPrintfDummy("queen barrier damaged\n");
 }
 
@@ -98,7 +98,7 @@ inline void queen_barrier_anim(void)
     }
 }
 
-void makeRefractST(float k)
+static void makeRefractST(float k)
 {
     QVec v;
     QVec w;

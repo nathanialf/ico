@@ -4,9 +4,9 @@
 #include <eekernel.h>
 #include "mv_vobuf.h"
 
-static void Free();
+static void Free(int addr);
 
-/* this file's own free_buf; mv_videodec.c defines a global of the same name */
+/* this file's own free_buf; mv_videodec.c and mv_vibuf.c have theirs */
 static void free_buf(VoBuf *self)
 {
     Free((int)self->data);
@@ -19,12 +19,12 @@ int voBufCreate(VoBuf *self)
     int tag;
     int i;
 
-    data = alloc_zeroed(0x7E9000, 0x40);
+    data = alloc_zeroed(8294400, 64);
     if (data == 0) {
         return -1;
     }
     self->data = (VoData *)uncached_accel_addr(data);
-    tag = alloc_zeroed(0x3C1040, 0x40);
+    tag = alloc_zeroed(3936320, 64);
     self->tag = (VoTag *)tag;
     if (tag == 0) {
         return -1;
@@ -43,14 +43,13 @@ void voBufDelete(VoBuf *self)
     free_buf(self);
 }
 
-/* this file's own Free (mv_defs.h); mv_videodec.c defines a global of the
-   same name */
-static void Free(int a0)
+/* this file's own Free (mv_defs.h) */
+static void Free(int addr)
 {
     /* the buffers are kept as addresses (alloc_zeroed), some at their
        uncached-accelerated alias; the heap takes the block back with the
        segment bits off */
-    iosFree((void *)phys_addr(a0));
+    iosFree((void *)phys_addr(addr));
 }
 
 void voBufReset(VoBuf *self)
@@ -66,7 +65,7 @@ int voBufIsFull(VoBuf *self)
     return self->count == self->max;
 }
 
-static inline int isFull(VoBuf *self)
+static inline int isFull(VoBuf *self) /* derived name */
 {
     return self->count == self->max;
 }
@@ -86,7 +85,7 @@ VoData *voBufGetData(VoBuf *self)
     return !isFull(self) ? &self->data[self->idx] : 0;
 }
 
-static __inline__ int voBufIsEmpty(VoBuf *self)
+static __inline__ int voBufIsEmpty(VoBuf *self) /* derived name */
 {
     return self->count == 0;
 }

@@ -19,7 +19,7 @@ static int fightSoundState = 0; /* derived name */
 /* set while the girl is held (status 9) or taken off the stage */
 static int fightSoundGirlTaken = 0; /* derived name */
 
-void fightSoundProcessMain(void)
+static void fightSoundProcessMain(void)
 {
     int req;
     int cond = 0;

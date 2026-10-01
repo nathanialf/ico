@@ -65,21 +65,21 @@ void movie_end(void);
    audio decoder objects, the argument block the decode thread is started
    with, its 32 KB stack, and the DMA and interrupt enables saved per
    channel. */
-static char mpegStrFile[33216];
+static char mpegStrFile[33216]; /* derived name */
 
-static ReadBuf mpegReadBuf;
+static ReadBuf mpegReadBuf; /* derived name */
 
-static VideoDec videoDec;
+static VideoDec videoDec; /* derived name */
 
-static AudioDec audioDec;
+static AudioDec audioDec; /* derived name */
 
-static MvThreadArg decThreadArg;
+static MvThreadArg decThreadArg; /* derived name */
 
-static int decThreadStack[8192];
+static int decThreadStack[8192]; /* derived name */
 
-static int savedDmacs[8];
+static int savedDmacs[8]; /* derived name */
 
-static int savedIntcs[8];
+static int savedIntcs[8]; /* derived name */
 
 extern int _gp; /* linker-defined global pointer */
 
@@ -88,18 +88,19 @@ void switchThread(void)
     RotateThreadReadyQueue(decThreadPri);
 }
 
-void proceedAudio(void)
+static void proceedAudio(void)
 {
     audioDecSendToIOP(&audioDec);
 }
 
-/* mv_main.c:55-57 */
-static inline int audioIsPreset(void)
+/* whether the audio side is ready: its first block is on the IOP, or there
+   is no audio stream */
+static inline int audioIsPreset(void) /* derived name */
 {
     return movieHasAudio ? audioDecIsPreset(&audioDec) : 1;
 }
 
-int readMpeg(VideoDec *dec, ReadBuf *rb, char *strf, int (*poll)(void))
+static int readMpeg(VideoDec *dec, ReadBuf *rb, char *strf, int (*poll)(void))
 {
     void *p;
     int eof;
@@ -118,7 +119,7 @@ int readMpeg(VideoDec *dec, ReadBuf *rb, char *strf, int (*poll)(void))
     n = left;
 
     while (moviePauseCount != 0 || (left >= 5 && videoDecGetState(dec) != 3)) {
-        if (sceCdStStat() < 0x20 && moviePauseCount == 0) {
+        if (sceCdStStat() < 32 && moviePauseCount == 0) {
             debug_StdPrintfDummy("movie pause\n");
             moviePauseCount = 30;
         }
@@ -143,8 +144,8 @@ int readMpeg(VideoDec *dec, ReadBuf *rb, char *strf, int (*poll)(void))
             }
         }
         size = readBufBeginPut(rb, &p);
-        if (n > 0 && size > 0xFFFF) {
-            rd = strFileRead(strf, p, 0x10000, &eof);
+        if (n > 0 && size > 65535) {
+            rd = strFileRead(strf, p, 65536, &eof);
             if (eof != 0) {
                 goto term;
             }
@@ -184,7 +185,7 @@ term:
     return abort;
 }
 
-int initAll(char *a0, int a1, int a2, int a3, int p4, int p5, int p6, int p7)
+static int initAll(char *a0, int a1, int a2, int a3, int p4, int p5, int p6, int p7)
 {
     struct ThreadParam th;
     int ret = 0;
@@ -235,7 +236,7 @@ int initAll(char *a0, int a1, int a2, int a3, int p4, int p5, int p6, int p7)
 
     th.entry = videoDecMain;
     th.stack = (void *)decThreadStack;
-    th.stackSize = 0x8000;
+    th.stackSize = 32768;
     th.initPriority = decThreadPri;
     th.gpReg = &_gp;
     th.option = 0;
@@ -269,7 +270,7 @@ int initAll(char *a0, int a1, int a2, int a3, int p4, int p5, int p6, int p7)
     return ret;
 }
 
-void termAll(void)
+static void termAll(void)
 {
     strFileClose(mpegStrFile);
     DIntr();
@@ -301,7 +302,7 @@ void termAll(void)
 }
 
 /* the VU0 status register */
-static inline int vu0Stat(void)
+static inline int vu0Stat(void) /* derived name */
 {
     int r;
     __asm__ __volatile__("cfc2.ni %0, $vi29" : "=r"(r));

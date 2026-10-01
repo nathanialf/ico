@@ -22,7 +22,15 @@
 #include "obj_manager.h"
 #include "camera-editor.h"
 
-typedef struct ChainNode {
+static void chain_sub_pendulum(struct ChainNode *base, int n, float *pos);
+
+/* the sixth parameter is passed by both callers (always 0) and never read */
+static void chain_sub_simulate(char *gobj, struct ChainNode *nd, int from, int to,
+                               unsigned char flag, int flag2, float grav, float len, float damp);
+
+static void pendulum_Process(struct ChainPendulum *pdl, int flag);
+
+typedef struct ChainNode { /* field names derived */
     float x, y, z, w;
     float vx, vy, vz, vw;
 } ChainNode;
@@ -30,7 +38,7 @@ typedef struct ChainNode {
 /* One word of a chain record or of a chain vector: the chain code writes these
  * slots as float and reads them as int (and the other way round), so the word
  * itself is a union. */
-typedef union ChainVal {
+typedef union ChainVal { /* field names derived */
     int i;
     float f;
 } ChainVal;
@@ -82,7 +90,7 @@ typedef struct {             /* field names derived */
     /* 0xD0 */ ChainNode *node;
 } ChainRecord;
 
-int UpdateRootPosition(char *gobj)
+static int UpdateRootPosition(char *gobj)
 {
     float pos[4];
     ChainRecord *cw = GOBJ_SUB(gobj)->work;
@@ -136,18 +144,14 @@ static inline void initPendulum(char *gobj) /* derived name */
     cw->pdl.swing = 1;
 }
 
-/* K&R definition: HoldChain calls StartPendulum with the gobj alone. */
-void StartPendulum(gobj, owner, pos) char *gobj;
-
-char *owner;
-
-float *pos;
-
+/* the hold starts the swing: the holder and its hand position fix the hold
+   node and the swing plane */
+static void StartPendulum(char *gobj, char *owner, float *pos)
 {
     float d[4];
     ChainRecord *cw = GOBJ_SUB(gobj)->work;
-    int best = -1;
-    float min = 3.40282347e+38f; /* FLT_MAX, a constant-pool word */
+    int nearestNode = -1;
+    float min = 3.40282347e+38f; /* FLT_MAX */
     int i;
 
     sceVu0SubVector(d, pos, cw->node);
@@ -159,14 +163,14 @@ float *pos;
 
         if (t < min) {
             min = t;
-            best = i;
+            nearestNode = i;
         }
     }
-    if (best == -1) {
+    if (nearestNode == -1) {
         debug_assert(__FILE__, 563);
         __assert(__FILE__, 563, "nearestNode!=-1");
     }
-    cw->holdNode = best;
+    cw->holdNode = nearestNode;
     cw->holdNode =
         cw->holdNode < 2 ? 2 : (cw->nodes - 1 < cw->holdNode ? cw->nodes - 1 : cw->holdNode);
 
@@ -194,7 +198,7 @@ typedef struct { /* field names derived */
     /* 0x8C */ char pad8C[52];
 } ChainClipWork;
 
-int collisionCheck(char *gobj)
+static int collisionCheck(char *gobj)
 {
     ChainClipWork w;
     float v[4];
@@ -227,7 +231,7 @@ int collisionCheck(char *gobj)
     return 0;
 }
 
-static inline void ChainPendulumSwing(float *dst, ChainRecord *cw, float *orient)
+static inline void ChainPendulumSwing(float *dst, ChainRecord *cw, float *orient) /* derived name */
 {
     float ang = cw->pdl.angle;
     float len = cw->pdl.length;
@@ -247,7 +251,7 @@ static inline void ChainPendulumSwing(float *dst, ChainRecord *cw, float *orient
     sceVu0ApplyMatrix(dst, m1, v);
 }
 
-void chain_simulate_term_simple(char *gobj)
+static void chain_simulate_term_simple(char *gobj)
 {
     float pos[4];
     ChainRecord *cw = GOBJ_SUB(gobj)->work;
@@ -259,7 +263,7 @@ void chain_simulate_term_simple(char *gobj)
     chain_sub_simulate(gobj, cw->node, cw->holdNode, cw->nodes, 1, 0, 20.0f, 50.0f, 0.6f);
 }
 
-void chain_simulate_term_ropeturn(char *gobj)
+static void chain_simulate_term_ropeturn(char *gobj)
 {
     ChainRecord *cw = GOBJ_SUB(gobj)->work;
 
@@ -271,7 +275,7 @@ void chain_simulate_term_ropeturn(char *gobj)
     chain_simulate_term_simple(gobj);
 }
 
-void chain_simulate_term_loop(char *gobj)
+static void chain_simulate_term_loop(char *gobj)
 {
     ChainRecord *cw = GOBJ_SUB(gobj)->work;
 
@@ -289,7 +293,7 @@ void chain_simulate_term_loop(char *gobj)
     chain_simulate_term_simple(gobj);
 }
 
-void chain_simulate_term_swingready(char *gobj)
+static void chain_simulate_term_swingready(char *gobj)
 {
     ChainRecord *cw = GOBJ_SUB(gobj)->work;
 
@@ -307,7 +311,7 @@ void chain_simulate_term_swingready(char *gobj)
     chain_simulate_term_simple(gobj);
 }
 
-void chain_simulate_term_swingstart(char *gobj)
+static void chain_simulate_term_swingstart(char *gobj)
 {
     ChainRecord *cw = GOBJ_SUB(gobj)->work;
     float h;
@@ -343,7 +347,7 @@ void chain_simulate_term_swingstart(char *gobj)
     chain_simulate_term_simple(gobj);
 }
 
-void chain_simulate_term_moveup(char *gobj)
+static void chain_simulate_term_moveup(char *gobj)
 {
     float w[4];
     float v[4];
@@ -374,7 +378,7 @@ void chain_simulate_term_moveup(char *gobj)
     chain_sub_pendulum(cw->node, cw->holdNode, w);
 }
 
-void chain_simulate_term_free(char *gobj)
+static void chain_simulate_term_free(char *gobj)
 {
     ChainRecord *cw = GOBJ_SUB(gobj)->work;
 
@@ -392,7 +396,7 @@ void chain_simulate_term_free(char *gobj)
     chain_simulate_term_simple(gobj);
 }
 
-void chain_simulate_term_down(char *gobj)
+static void chain_simulate_term_down(char *gobj)
 {
     float w[4];
     float v[4];
@@ -432,7 +436,7 @@ void chain_simulate_term_down(char *gobj)
     }
 }
 
-void chain_simulate_hangstart(char *gobj)
+static void chain_simulate_hangstart(char *gobj)
 {
     ChainRecord *cw = GOBJ_SUB(gobj)->work;
 
@@ -444,7 +448,7 @@ void chain_simulate_hangstart(char *gobj)
     chain_simulate_term_simple(gobj);
 }
 
-void chain_simulate_term(char *gobj)
+static void chain_simulate_term(char *gobj)
 {
     if (debug_font_flag & 1) {
         chainDebugY = chainDebugY + 10;
@@ -453,7 +457,7 @@ void chain_simulate_term(char *gobj)
     chain_simulate_term_simple(gobj);
 }
 
-static inline void ResetChainNodes(ChainRecord *cw, float *pos)
+static inline void ResetChainNodes(ChainRecord *cw, float *pos) /* derived name */
 {
     int i;
 
@@ -469,7 +473,7 @@ static inline void ResetChainNodes(ChainRecord *cw, float *pos)
     }
 }
 
-void chain_simulate_stop(char *gobj)
+static void chain_simulate_stop(char *gobj)
 {
     ChainRecord *cw = GOBJ_SUB(gobj)->work;
 
@@ -480,7 +484,7 @@ void chain_simulate_stop(char *gobj)
     }
 }
 
-void chain_simulate_free(char *gobj)
+static void chain_simulate_free(char *gobj)
 {
     ChainRecord *cw = GOBJ_SUB(gobj)->work;
     int i;
@@ -535,7 +539,7 @@ void correct_vector(float *out, float *v)
 }
 
 /* K&R definition: the flag is an unsigned char promoted to int. */
-void pendulum_Process(w, flag) ChainPendulum *w;
+static void pendulum_Process(w, flag) ChainPendulum *w;
 
 unsigned char flag;
 
@@ -647,30 +651,29 @@ typedef struct { /* field names derived */
     /* 0x28 */ float limit;
 } ChainGeoReq;
 
-/* the copy shapes the record templates are moved through: doubleword-aligned
- * so the copies come out as ld/sd runs */
-typedef struct {
+/* the record templates, copied whole as doubleword runs */
+typedef struct { /* field names derived */
     long long words[28];
 } ChainRecTemplate;
 
-typedef struct {
+typedef struct { /* field names derived */
     long long words[8];
 } ChainPendTemplate;
 
 /* the wall hit point, written into a word-aligned slot of the record */
-typedef struct {
+typedef struct { /* field names derived */
     float pos[2];
 } ChainHitPos;
 
 /* the gobj extension pointer, read as a pointer or as a word */
-typedef union {
+typedef union { /* field names derived */
     char *p;
     int i;
     Sub15C *sub;
 } ChainExtPtr;
 
 /* the DObj entry flag word, the same union DObj.c's allocObjectData uses */
-typedef union {
+typedef union { /* field names derived */
     long long ll;
     int i[2];
 } ChainDObjFlags;
@@ -787,7 +790,7 @@ ChainRecord *InitChainGeo(char *gobj, ChainGeoReq *req)
     return cw;
 }
 
-void chain_set_charachara(char *gobj, float amp)
+static void chain_set_charachara(char *gobj, float amp)
 {
     float v[4];
     ChainRecord *cw = GOBJ_SUB(gobj)->work;
@@ -824,19 +827,17 @@ void chain_set_charachara(char *gobj, float amp)
 
 /* The enemy parameter table, one 404-byte row per motion id; ChainGeo reads
  * only the flag word at 0x18C.  Same record enemy_act.c reads as EnemyParaRow. */
-typedef struct {
+typedef struct { /* field names derived */
     char pad00[396];
     unsigned int flags; /* bit 11: a motion the hand hangs on the chain from */
     char pad190[4];
 } ChainParaRow;
 
 extern ChainParaRow motionKind[];
-void SetChainRootUpdateMode(char *gobj, int mode, float *pos);
-void TestChainUpDown(char *gobj, char *boy);
+static void TestChainUpDown(char *gobj, char *boy);
 
-/* chain.c lines 342-390: the motion-to-simulation-mode selector, inlined into
- * ChainGeo by its single call site. */
-static inline int GetChainSimulateMode(char *gobj)
+/* the simulation mode the boy's motion selects, for ChainGeo */
+static inline int GetChainSimulateMode(char *gobj) /* derived name */
 {
     ChainRecord *cw = GOBJ_SUB(gobj)->work;
     int mode = 1;
@@ -1134,7 +1135,7 @@ void ChainDL(char *gobj)
     p2o_DispVU1DObjMulti(ext);
 }
 
-static inline void ChainNodeSpan(ChainRecord *cw, float *pos, int *i0, int *i1)
+static inline void ChainNodeSpan(ChainRecord *cw, float *pos, int *i0, int *i1) /* derived name */
 {
     ChainNode *nd = cw->node;
 
@@ -1144,7 +1145,7 @@ static inline void ChainNodeSpan(ChainRecord *cw, float *pos, int *i0, int *i1)
     *i1 = *i1 < 2 ? 2 : (cw->nodes - 1 < *i1 ? cw->nodes - 1 : *i1);
 }
 
-void GetPositionOnTheChain(float *out, char *gobj, float *pos)
+static void GetPositionOnTheChain(float *out, char *gobj, float *pos)
 {
     float a[4];
     float b[4];
@@ -1175,13 +1176,13 @@ void GetPositionOnTheChain(float *out, char *gobj, float *pos)
     }
 }
 
-void PlumbPointUpdateChain(char *gobj, float *pos)
+static void PlumbPointUpdateChain(char *gobj, float *pos)
 {
     float d[4];
     ChainRecord *cw = GOBJ_SUB(gobj)->work;
     char *owner;
-    int best = -1;
-    float min = 3.40282347e+38f; /* FLT_MAX, a constant-pool word */
+    int nearestNode = -1;
+    float min = 3.40282347e+38f; /* FLT_MAX */
     int i;
 
     owner = cw->owner;
@@ -1194,14 +1195,14 @@ void PlumbPointUpdateChain(char *gobj, float *pos)
 
         if (t < min) {
             min = t;
-            best = i;
+            nearestNode = i;
         }
     }
-    if (best == -1) {
+    if (nearestNode == -1) {
         debug_assert(__FILE__, 1675);
         __assert(__FILE__, 1675, "nearestNode!=-1");
     }
-    cw->holdNode = best;
+    cw->holdNode = nearestNode;
     cw->holdNode =
         cw->holdNode < 2 ? 2 : (cw->nodes - 1 < cw->holdNode ? cw->nodes - 1 : cw->holdNode);
 
@@ -1212,9 +1213,8 @@ void PlumbPointUpdateChain(char *gobj, float *pos)
 
 /* the climb work the chain-climb modes share: the focus node point, the target
  * point the root is interpolated towards, the interpolation phase, the
- * motion's frame count and the mode the previous call left behind.
- * Reconstructed from the offsets TestChainUpDown uses. */
-typedef struct {
+ * motion's frame count and the mode the previous call left behind. */
+typedef struct { /* field names derived */
     /* 0x00 */ sceVu0FVECTOR node;
     /* 0x10 */ sceVu0FVECTOR target;
     /* 0x20 */ float phase;
@@ -1241,7 +1241,7 @@ static int chainClimb[12] = {/* derived name */ 0,
 /* clang-format off */
 static inline void SetChainClimbNodePoint(char *obj, ChainClimbWork *rec) /* derived name */
 {
-    int n = GetSkeltonFocusNode(obj, 0x23);
+    int n = GetSkeltonFocusNode(obj, 35);
     rec->node[0] = *(float *)(n * 64 + ((ChainExtPtr *)(obj + 0x15C))->sub->nodeMtx + 48); rec->node[1] = *(float *)(n * 64 + ((ChainExtPtr *)(obj + 0x15C))->sub->nodeMtx + 52); rec->node[2] = *(float *)(n * 64 + ((ChainExtPtr *)(obj + 0x15C))->sub->nodeMtx + 56);
 }
 
@@ -1271,7 +1271,7 @@ static inline float *PushChainClimbRoot(char *obj, float *pos, float *out, float
 
     debug_NMarker(out, 0, 0, 255, 100.0f);
 
-    SetDirectRootPositionNoFittingWithNodePoint(obj, 0x23, out, 1.0f);
+    SetDirectRootPositionNoFittingWithNodePoint(obj, 35, out, 1.0f);
     return out;
 }
 
@@ -1287,14 +1287,14 @@ static inline float *PushChainClimbRoot(char *obj, float *pos, float *out, float
  *
  *
  */
-void TestChainUpDown(char *gobj, char *boy)
+static void TestChainUpDown(char *gobj, char *boy)
 {
     inline int GetChainClimbMode(int motion) /* derived name */
     {
         int mode = -1;
         switch (motion) {
         case 119:
-            mode = 4; if (GOBJ_ACT(boy)->actMode != 0x3F) {
+            mode = 4; if (GOBJ_ACT(boy)->actMode != 63) {
                 mode = 0;
             }
 
@@ -1431,13 +1431,13 @@ void TestChainUpDown(char *gobj, char *boy)
     default: { ChainClimbWork *rec;
         rec = (ChainClimbWork *)chainClimb; if ((unsigned int)rec->prev < 2) {
 
-            int n = GetSkeltonFocusNode(boyGObj, 0x16);
+            int n = GetSkeltonFocusNode(boyGObj, 22);
             v[0] = *(float *)(n * 64 + ((ChainExtPtr *)((char *)boyGObj + 0x15C))->sub->nodeMtx + 48); v[1] = *(float *)(n * 64 + ((ChainExtPtr *)((char *)boyGObj + 0x15C))->sub->nodeMtx + 52); v[2] = *(float *)(n * 64 + ((ChainExtPtr *)((char *)boyGObj + 0x15C))->sub->nodeMtx + 56);
             PlumbPointUpdateChain((char *)sub->chain, v);
         }
         if ((unsigned int)(rec->prev - 2) < 2) {
 
-            int n = GetSkeltonFocusNode(boyGObj, 0x16);
+            int n = GetSkeltonFocusNode(boyGObj, 22);
             v[0] = *(float *)(n * 64 + ((ChainExtPtr *)((char *)boyGObj + 0x15C))->sub->nodeMtx + 48); v[1] = *(float *)(n * 64 + ((ChainExtPtr *)((char *)boyGObj + 0x15C))->sub->nodeMtx + 52); v[2] = *(float *)(n * 64 + ((ChainExtPtr *)((char *)boyGObj + 0x15C))->sub->nodeMtx + 56);
             PlumbPointUpdateChain((char *)sub->chain, v);
         }
@@ -1461,18 +1461,18 @@ void SetChainRootUpdateMode(char *gobj, int mode, float *pos)
     ((ChainVal *)&GOBJ_SUB(gobj)->ropeBaseY)->f = pos[1];
     ((ChainVal *)&GOBJ_SUB(gobj)->ropeBaseZ)->f = pos[2];
     if (mode == 3) {
-        SetDirectRootPositionNoFittingWithNodePoint(gobj, 0x16, pos, 1.0f);
+        SetDirectRootPositionNoFittingWithNodePoint(gobj, 22, pos, 1.0f);
     }
 }
 
-void HoldChain(char *a0)
+void HoldChain(char *a0, char *owner, float *pos)
 {
     ChainRecord *p = GOBJ_SUB(a0)->work;
-    StartPendulum(a0);
+    StartPendulum(a0, owner, pos);
     p->hold = 1;
 }
 
-void ReleaseChain(char *a0)
+void ReleaseChain(char *a0, char *owner)
 {
     ChainRecord *cw = GOBJ_SUB(a0)->work;
 
@@ -1684,8 +1684,8 @@ void _GetCorrectOrientOfChain(float *out, char *gobj, float *dir)
     }
 }
 
-void chain_sub_simulate(char *gobj, ChainNode *nd, int from, int to, unsigned char flag, int flag2,
-                        float grav, float len, float damp)
+static void chain_sub_simulate(char *gobj, ChainNode *nd, int from, int to, unsigned char flag,
+                               int flag2, float grav, float len, float damp)
 {
     float d[4];
     float t[4];
@@ -1724,7 +1724,7 @@ void chain_sub_simulate(char *gobj, ChainNode *nd, int from, int to, unsigned ch
     }
 }
 
-void chain_sub_pendulum(ChainNode *base, int n, float *pos)
+static void chain_sub_pendulum(ChainNode *base, int n, float *pos)
 {
     ChainNode *p;
     int i = 0;
@@ -1743,7 +1743,7 @@ int GetChainNearestNodePosition(float *out, char *gobj, float *p)
 {
     ChainRecord *cw = GOBJ_SUB(gobj)->work;
 
-    float best = 3.40282347e+38f; /* FLT_MAX, a constant-pool word */
+    float best = 3.40282347e+38f; /* FLT_MAX */
     int ret = 0;
     int i;
 

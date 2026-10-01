@@ -3,6 +3,7 @@
 #include "Matrix.h"
 #include <math.h>
 #include "gather_effect.h"
+#include "debug.h"
 
 inline int GatherEffect_Set(int no, void *pos, void *quat, void *goal, float speed,
                             void (*endFunc)(int))

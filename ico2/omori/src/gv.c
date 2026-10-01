@@ -98,9 +98,6 @@ float _DistxzGV(void *a0, void *a1)
     return FSqrt(sceVu0InnerProduct(buf, buf));
 }
 
-/* as gv.h declares it */
-extern void _InterGV(float *a0, float *a1, float *a2, float a3, float a4);
-
 float _MoveGV(float *a0, float *a1, float *a2, float a3)
 {
     float buf[4];
@@ -225,9 +222,9 @@ inline void SwapGV(float *a, float *b)
 
 inline float GetCorrectDistance(int a0, float a1)
 {
-    float r = GetTableCos((short)((a0 << 15) / 0xB4));
+    float r = GetTableCos((short)((a0 << 15) / 180));
     if (r == 0.0f)
-        return 3.40282347e+38f; /* FLT_MAX, a constant-pool word */
+        return 3.40282347e+38f; /* FLT_MAX */
     return a1 / r;
 }
 

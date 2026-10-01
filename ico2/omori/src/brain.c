@@ -9,14 +9,14 @@
 
 extern ObjKindEnt objKindData[];
 
-static inline void brainSetTargetTimer(BrainTarget *t)
+static inline void brainSetTargetTimer(BrainTarget *t) /* derived name */
 {
     int n;
 
     if (t->gobj != 0) {
         n = (int)objKindData[((PObjGObj *)t->gobj)->kind].targetTime;
         if (n != -1) {
-            n = n * ((0x3C - systemStatus[0] * 0xA) / systemStatus[1]);
+            n = n * ((60 - systemStatus[0] * 10) / systemStatus[1]);
         }
     } else {
         n = -1;
@@ -26,8 +26,8 @@ static inline void brainSetTargetTimer(BrainTarget *t)
 
 Brain brainGirl = {0};
 
-void brainAddLevel(BrainTarget *t, float lv);
-void brainSetLevel(int *b, BrainTarget *t, float lv);
+static void brainAddLevel(BrainTarget *t, float lv);
+static void brainSetLevel(int *b, BrainTarget *t, float lv);
 
 void brainAddLevelGirl(float lv)
 {
@@ -86,7 +86,7 @@ typedef struct { /* field names derived */
 
 extern BrainDefEnt objLayout[];
 
-static inline void brainSetTargetSub(Brain *b, int gobj, float lvl, int k)
+static inline void brainSetTargetSub(Brain *b, int gobj, float lvl, int k) /* derived name */
 {
     float capStep = objKindData[k].brainCapStep;
     float rate = objKindData[k].brainRate;
@@ -261,17 +261,17 @@ void brainGetTarget(Brain *b)
         b->spCount = b->spCount - 1;
     }
     if (b->spCount >= 0) {
-        n = b->spCount > (0x3C - systemStatus[0] * 0xA) / systemStatus[1] / 3 +
-                             (0x3C - systemStatus[0] * 0xA) / systemStatus[1] / 12
-                ? (0x3C - systemStatus[0] * 0xA) / systemStatus[1] / 3 +
-                      (0x3C - systemStatus[0] * 0xA) / systemStatus[1] / 12
+        n = b->spCount > (60 - systemStatus[0] * 10) / systemStatus[1] / 3 +
+                             (60 - systemStatus[0] * 10) / systemStatus[1] / 12
+                ? (60 - systemStatus[0] * 10) / systemStatus[1] / 3 +
+                      (60 - systemStatus[0] * 10) / systemStatus[1] / 12
                 : b->spCount;
     } else {
         n = 0;
     }
     b->spCount = n;
 
-    if ((0x3C - systemStatus[0] * 0xA) / systemStatus[1] / 3 < b->spCount) {
+    if ((60 - systemStatus[0] * 10) / systemStatus[1] / 3 < b->spCount) {
         best = b->cur;
         for (i = 0; i < 40; i++) {
             t = &b->tgt[i];
@@ -426,7 +426,7 @@ void brainSetLevelGop(int gobj, int a1, int a2, float lv)
     }
 }
 
-static inline int brainDecTimer(BrainTarget *e)
+static inline int brainDecTimer(BrainTarget *e) /* derived name */
 {
     int t;
 
@@ -479,7 +479,7 @@ void brainUnlockGirl(void)
     brainGirl.lock = 0;
 }
 
-void brainAddLevel(BrainTarget *t, float lv)
+static void brainAddLevel(BrainTarget *t, float lv)
 {
     float r;
 
@@ -494,7 +494,7 @@ void brainAddLevel(BrainTarget *t, float lv)
     t->level = r;
 }
 
-void brainSetLevel(int *b, BrainTarget *t, float lv)
+static void brainSetLevel(int *b, BrainTarget *t, float lv)
 {
     int cond;
     if (t->alwaysSeen != 0) {

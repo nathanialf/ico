@@ -10,14 +10,14 @@ int audioDecCreate(AudioDec *self, int a1, int a2)
 {
     int pcm[4];
     int p;
-    int size = 0x6000;
-    int bufsize = 0xC000;
+    int size = 24576;
+    int bufsize = 49152;
 
     self->pcmInited = 0;
     self->ch1Open = 0;
     self->ch0Open = 0;
 
-    p = alloc_zeroed(bufsize, 0x40);
+    p = alloc_zeroed(bufsize, 64);
     if (p == 0) {
         return -1;
     }
@@ -101,7 +101,7 @@ inline void audioDecReset(AudioDec *self)
     *(volatile int *)&self->iopPos = 0;
 }
 
-void audioDecEndPut(AudioDec *self, int n)
+static void audioDecEndPut(AudioDec *self, int n)
 {
     unsigned int k;
     unsigned int cnt;
@@ -156,8 +156,8 @@ inline void audioDecStart(AudioDec *self)
     self->state = 2;
 }
 
-/* mv_audiodec.c:375-392 */
-static inline void sendToIOP(char *src, char *dst, int n)
+/* one DMA transfer of n bytes from EE memory to IOP memory, waited out */
+static inline void sendToIOP(char *src, char *dst, int n) /* derived name */
 {
     int dma[4];
     int id;
@@ -173,7 +173,7 @@ static inline void sendToIOP(char *src, char *dst, int n)
     }
 }
 
-int sendToIOP2area(char *p0, int n0, char *p1, int n1, char *q0, int m0, char *q1, int m1)
+static int sendToIOP2area(char *p0, int n0, char *p1, int n1, char *q0, int m0, char *q1, int m1)
 {
     int total = m0 + m1;
 

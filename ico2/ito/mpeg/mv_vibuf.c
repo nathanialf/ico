@@ -6,9 +6,10 @@
 #include "mv_vibuf.h"
 #include <eeregs.h>
 
-static void Free();
+static void Free(int addr);
 
-/* The same for the IPU output channel's CHCR (0x1000B000). */
+/* Write the IPU output channel's CHCR (0x1000B000) as setIpuInChcr below
+   writes the input channel's. */
 static __inline__ void setIpuOutChcr(int chcr) /* derived name */
 {
     DIntr();
@@ -20,9 +21,9 @@ static __inline__ void setIpuOutChcr(int chcr) /* derived name */
 }
 
 /* Write the IPU input channel's CHCR (0x1000B400) with the DMA controller
-   held (D_ENABLER/D_ENABLEW bit 16) and interrupts off, the shape libmpeg's
-   setD4_CHCR has with the SYNC/EI pair where that one calls EIntr. */
-static __inline__ void setIpuInChcr(int chcr)
+   held (D_ENABLER/D_ENABLEW bit 16) and interrupts off, as libmpeg's setD4_CHCR
+   does, closing with SYNC and EI. */
+static __inline__ void setIpuInChcr(int chcr) /* derived name */
 {
     DIntr();
     *D_ENABLEW = *D_ENABLER | 0x10000;
@@ -40,14 +41,14 @@ typedef union { /* field names derived */
 
 /* One 16-byte DMA source-chain tag: the data address in the upper word, the
    tag id and quadword count below. */
-static __inline__ void setDmaTag(char *tag, int i, int addr, int qwc, int id)
+static __inline__ void setDmaTag(char *tag, int i, int addr, int qwc, int id) /* derived name */
 {
     ((QWord *)tag)[i].ul[0] = ((unsigned long)addr << 32) | ((unsigned long)id << 28) | qwc;
 }
 
 /* The ring sector a DMA address points into, or 0 once the chain has run
    onto the tag after the last one. */
-static __inline__ int getDmaSector(ViBuf *self, unsigned int madr)
+static __inline__ int getDmaSector(ViBuf *self, unsigned int madr) /* derived name */
 {
     if (madr == phys_addr((int)((QWord *)self->dmaTag + self->nSector + 1))) {
         return 0;
@@ -55,7 +56,7 @@ static __inline__ int getDmaSector(ViBuf *self, unsigned int madr)
     return (madr - (unsigned int)self->data) / 2048;
 }
 
-/* this file's own free_buf; mv_videodec.c defines a global of the same name */
+/* this file's own free_buf; mv_videodec.c and mv_vobuf.c have theirs */
 static void free_buf(ViBuf *self)
 {
     Free((int)self->data);
@@ -71,20 +72,20 @@ int viBufCreate(ViBuf *self)
     int ts;
     /* the ring geometry: 256 sectors of 2048 bytes, and a 512-entry
        timestamp ring */
-    int nSector = 0x100;
-    int tsMax = 0x200;
+    int nSector = 256;
+    int tsMax = 512;
 
     self->created = 0;
 
-    data = alloc_zeroed(0x80000, 0x40);
+    data = alloc_zeroed(524288, 64);
     if (data == 0) {
         return -1;
     }
-    tag = alloc_zeroed(0x1010, 0x40);
+    tag = alloc_zeroed(4112, 64);
     if (tag == 0) {
         return -1;
     }
-    ts = alloc_zeroed(0x3000, 4);
+    ts = alloc_zeroed(12288, 4);
     if (ts == 0) {
         return -1;
     }
@@ -187,9 +188,7 @@ void viBufEndPut(ViBuf *self, int n)
 
 /* Retire the sectors the IPU DMA has consumed and chain the whole sectors
    written since the last call onto the tag list, restarting the channel when
-   it had run dry.  One variable carries the DMA's current sector and then
-   walks the new tags; the write position is its own variable, handed to the
-   walk on the for line. */
+   it had run dry. */
 int viBufAddDMA(ViBuf *self)
 {
     int chcr;
@@ -248,8 +247,8 @@ int viBufAddDMA(ViBuf *self)
 }
 
 /* Stop both IPU DMA channels and keep their registers and the IPU's bit
-   position for viBufRestartDMA: the shape of libipu's sceIpuStopDMA over the
-   ring's save area. */
+   position for viBufRestartDMA, as libipu's sceIpuStopDMA does, in the ring's
+   save area. */
 int viBufStopDMA(ViBuf *self)
 {
     WaitSema(self->sema);
@@ -280,8 +279,7 @@ int viBufStopDMA(ViBuf *self)
 /* Restart the IPU input DMA saved by viBufStopDMA, rewound by the bytes still
    sitting in the IPU FIFO (the fifo and ifc fields of IPU_BP), re-chaining
    from the tag of the sector the rewound address falls in: libipu's
-   sceIpuRestartDMA over the ring.  Each range test repeats its modulo; in
-   the else arm the tag address is set ahead of the quadword count. */
+   sceIpuRestartDMA over the ring. */
 int viBufRestartDMA(ViBuf *self)
 {
     int cmd;
@@ -375,14 +373,14 @@ void viBufFlush(ViBuf *self)
 
 /* Does the entry's byte position still lie inside the run of ts->len bytes
    the reader just consumed at ts->pos, measured around a size-byte ring? */
-static __inline__ int tsRunCovers(int pos, ViTs *t, int size)
+static __inline__ int tsRunCovers(int pos, ViTs *t, int size) /* derived name */
 {
     return (pos + size - t->pos) % size < t->len;
 }
 
 /* Walk the live timestamps oldest first and charge the run described by `ts`
    against them, retiring any entry the run swallows whole. */
-int viBufModifyPts(ViBuf *self, ViTs *ts)
+static int viBufModifyPts(ViBuf *self, ViTs *ts)
 {
     ViTs *e;
     int idx;
@@ -498,14 +496,13 @@ int viBufGetTs(ViBuf *self, ViTs *out)
     return 1;
 }
 
-/* this file's own Free (mv_defs.h); mv_videodec.c defines a global of the
-   same name */
-static void Free(int a0)
+/* this file's own Free (mv_defs.h) */
+static void Free(int addr)
 {
     /* the buffers are kept as addresses (alloc_zeroed), some at their
        uncached-accelerated alias; the heap takes the block back with the
        segment bits off */
-    iosFree((void *)phys_addr(a0));
+    iosFree((void *)phys_addr(addr));
 }
 
 /* Stop the IPU input DMA, clear its registers and release the ring. */

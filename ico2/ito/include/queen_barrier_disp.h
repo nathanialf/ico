@@ -16,7 +16,7 @@ void queen_barrier_disp_proc(char *g, float k);
 void queen_barrier_set_damage(void);
 
 /* a quadword read as four floats or as two doublewords */
-typedef union {
+typedef union { /* field names derived */
     float f[4];
     long long ll[2];
 } __attribute__((aligned(16))) QVec;

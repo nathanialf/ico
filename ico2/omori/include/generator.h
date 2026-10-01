@@ -31,7 +31,7 @@ int GeneratorWorkEnd(char *a0);
 int SearchActiveGenerator(void);
 void ResetReviveCountEnemy(int a0);
 void SetInfoSpKidnapGenerator(short *a0);
-void SetInfoSpKidnapEnemy(void);
+void SetInfoSpKidnapEnemy(short *work);
 inline int IsOpenGenerator(char *gobj);
 int IsEnableCallEnemyByTargetGObj(void *a0);
 
@@ -40,11 +40,7 @@ void Generator_Delete(void *a0);
 void Generator_QuickCall(char *gobj);
 void GetGeneratorSafePosition(float *dst, char *gobj);
 int GetMotherGenerator(int label);
-/* K&R, unprototyped on purpose: generator.c defines it with one parameter and
-   calls it with none at its own line 196, so only this form serves both. */
-char *IsNeedGeneratorHard();
 void MakeGeneratorPacket(void);
 void ReadGeneratorPacket(void);
-void endfunc_BGA(char *gobj);
 
 #endif /* GENERATOR_H */

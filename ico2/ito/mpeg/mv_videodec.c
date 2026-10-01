@@ -23,34 +23,35 @@ extern void sceMpegReset(int *a0);
 
 #include <string.h>
 
-/* the MPEG library's callbacks; their out-of-line copies are deferred to the
-   end of the file */
-inline int mpegError(int a0, MvCbErr *cb)
+static void Free(int addr);
+
+/* the MPEG library's callbacks, which videoDecCreate registers */
+static inline int mpegError(int a0, MvCbErr *cb)
 {
     debug_StdPrintfDummy("%s\n", cb->message);
     return 1;
 }
 
-inline int mpegNodata(int a0, int a1, VideoDec *dec)
+static inline int mpegNodata(int a0, int a1, VideoDec *dec)
 {
     switchThread();
     viBufAddDMA(&dec->vibuf);
     return 1;
 }
 
-inline int mpegStopDMA(int a0_unused, int a1_unused, VideoDec *dec)
+static inline int mpegStopDMA(int a0_unused, int a1_unused, VideoDec *dec)
 {
     viBufStopDMA(&dec->vibuf);
     return 1;
 }
 
-inline int mpegRestartDMA(int a0_unused, int a1_unused, VideoDec *dec)
+static inline int mpegRestartDMA(int a0_unused, int a1_unused, VideoDec *dec)
 {
     viBufRestartDMA(&dec->vibuf);
     return 1;
 }
 
-inline int mpegTS(int a0_unused, MvCbTs *cb, VideoDec *dec)
+static inline int mpegTS(int a0_unused, MvCbTs *cb, VideoDec *dec)
 {
     ViTs ts;
     viBufGetTs(&dec->vibuf, &ts);
@@ -59,7 +60,7 @@ inline int mpegTS(int a0_unused, MvCbTs *cb, VideoDec *dec)
     return 1;
 }
 
-void free_buf(VideoDec *self)
+static void free_buf(VideoDec *self)
 {
     Free(self->buf);
 }
@@ -68,12 +69,12 @@ int videoDecCreate(VideoDec *self)
 {
     int p;
 
-    p = alloc_zeroed(0x1C8200, 0x40);
+    p = alloc_zeroed(1868288, 64);
     self->buf = p;
     if (p == 0) {
         return -1;
     }
-    sceMpegCreate(self, (void *)p, 0x1C8200);
+    sceMpegCreate(self, (void *)p, 1868288);
     sceMpegAddCallback(self, 0, (int)mpegError, 0);
     sceMpegAddCallback(self, 1, (int)mpegNodata, (int)self);
     sceMpegAddCallback(self, 2, (int)mpegStopDMA, (int)self);
@@ -83,17 +84,17 @@ int videoDecCreate(VideoDec *self)
     return viBufCreate(&self->vibuf) == 0 ? 0 : -1;
 }
 
-void videoDecBeginPut(VideoDec *self, void **addr1, int *size1, void **addr2, int *size2)
+static void videoDecBeginPut(VideoDec *self, void **addr1, int *size1, void **addr2, int *size2)
 {
     viBufBeginPut(&self->vibuf, addr1, size1, addr2, size2);
 }
 
-void videoDecEndPut(VideoDec *self, int n)
+static void videoDecEndPut(VideoDec *self, int n)
 {
     viBufEndPut(&self->vibuf, n);
 }
 
-typedef struct Code4 {
+typedef struct Code4 { /* field names derived */
     char b[4];
 } Code4;
 
@@ -154,7 +155,7 @@ int videoCallback(int a0, MvCbStr *pkt, MvCbArg *arg)
     return 0 < n;
 }
 
-int decBitStrm0(VideoDec *dec, MvDispEnv *disp, VoBuf *vo)
+static int decBitStrm0(VideoDec *dec, MvDispEnv *disp, VoBuf *vo)
 {
     int ret = 1;
     VoData *p;
@@ -202,12 +203,12 @@ int decBitStrm0(VideoDec *dec, MvDispEnv *disp, VoBuf *vo)
     return ret;
 }
 
-void Free(int a0)
+static void Free(int addr)
 {
     /* the buffers are kept as addresses (alloc_zeroed), some at their
        uncached-accelerated alias; the heap takes the block back with the
        segment bits off */
-    iosFree((void *)phys_addr(a0));
+    iosFree((void *)phys_addr(addr));
 }
 
 int videoDecDelete(VideoDec *self)

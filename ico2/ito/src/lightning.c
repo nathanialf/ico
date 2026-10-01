@@ -13,14 +13,15 @@
 #include "DisplayList.h"
 #include "DmaPacket.h"
 
-typedef struct {
+/* the four control points lightning_test draws through */
+typedef struct { /* field names derived */
     LightningVtx v[4];
-} StructC;
+} LightningPath; /* derived name */
 
 typedef float LightningMtx[4][4] __attribute__((aligned(16)));
 
 /* one strip vertex as the three GS register payloads it is sent as */
-typedef struct {
+typedef struct { /* field names derived */
     unsigned long long rgbaq;
     unsigned long long uv;
     unsigned long long xyz;
@@ -52,13 +53,13 @@ static char *stripTag; /* derived name */
 static int vtxCount; /* derived name */
 
 /* the GS RGBAQ register carries Q as the raw float word in bits 63..32 */
-static __inline__ int fbits(float f)
+static __inline__ int fbits(float f) /* derived name */
 {
     return *(int *)&f;
 }
 
 /* VU0's clipping flags for one w-homogeneous point */
-static __inline__ int clip_flags(LightningVtx *p)
+static __inline__ int clip_flags(LightningVtx *p) /* derived name */
 {
     int flags;
 
@@ -80,7 +81,7 @@ static __inline__ int clip_flags(LightningVtx *p)
 
 /* pad the open strip to a whole triangle count and write its vertex count
  * back into the GIFtag that opened it */
-static __inline__ void close_strip(void)
+static __inline__ void close_strip(void) /* derived name */
 {
     int n;
     unsigned long long *e;
@@ -95,7 +96,7 @@ static __inline__ void close_strip(void)
     }
 }
 
-void set_vertex(LightningVtx *dir, LightningVtx *pos, float u, int *col, float half)
+static void set_vertex(LightningVtx *dir, LightningVtx *pos, float u, int *col, float half)
 {
     VECTOR uv[2] = {{0.0f, u, 1.0f, 0.0f}, {1.0f, u, 1.0f, 0.0f}};
     LightningVtx v;
@@ -192,13 +193,13 @@ inline void apply_m34(void *out, void *m, void *in)
 }
 
 /* a random value between lo and hi */
-static __inline__ float random_range(float lo, float hi)
+static __inline__ float random_range(float lo, float hi) /* derived name */
 {
     return _GetRandom() * (hi - lo) + lo;
 }
 
 /* x with a random sign */
-static __inline__ float random_sign(float x)
+static __inline__ float random_sign(float x) /* derived name */
 {
     if (_GetRandom() <= 0.5f) {
         x = -x;
@@ -209,14 +210,15 @@ static __inline__ float random_sign(float x)
 /* the Catmull-Rom basis, halved, that turns four control points into the
    segment's cubic coefficients */
 static LightningMtx catmullRom = {
+    /* derived name */
     {-0.5f, 1.5f, -1.5f, 0.5f},
     {1.0f, -2.5f, 2.0f, -0.5f},
     {-0.5f, 0.0f, 0.5f, 0.0f},
     {0.0f, 1.0f, 0.0f, 0.0f},
 };
 
-void DrawLightning2(int num, LightningVtx *v, StructB *col, float f0, float f1, float f2, float f3,
-                    float f4, float f5, float f6, float f7, float f8, float f9, int c)
+void DrawLightning2(int num, LightningVtx *v, LightningColor *col, float f0, float f1, float f2,
+                    float f3, float f4, float f5, float f6, float f7, float f8, float f9, int c)
 {
     LightningMtx m[num - 1];
     float half = 0.5f;
@@ -448,10 +450,12 @@ end:
     }
 }
 
+static int cmpr(LightningNode *self, LightningNode *other);
+
 void DrawLightningN(int num, LightningNode *v, void *col, float f0, float f1, float f2, float f3,
                     float f4, float f5, float f6, float f7, float f8, float f9, int c)
 {
-    StructB buf[num];
+    LightningVtx buf[num];
     int i;
 
     if (num >= 3) {
@@ -460,10 +464,10 @@ void DrawLightningN(int num, LightningNode *v, void *col, float f0, float f1, fl
     for (i = 0; i < num; i++) {
         sceVu0CopyVector(&buf[i], &v[i]);
     }
-    DrawLightning2(num, (LightningVtx *)buf, col, f0, f1, f2, f3, f4, f5, f6, f7, f8, f9, c);
+    DrawLightning2(num, buf, col, f0, f1, f2, f3, f4, f5, f6, f7, f8, f9, c);
 }
 
-inline int cmpr(LightningNode *self, LightningNode *other)
+static inline int cmpr(LightningNode *self, LightningNode *other)
 {
     return self->key - other->key;
 }
@@ -471,21 +475,21 @@ inline int cmpr(LightningNode *self, LightningNode *other)
 inline void DrawLightning(void *p0, void *p1, void *a2, float f0, float f1, float f2, float f3,
                           float f4, float f5, float f6, float f7, float f8, float f9, int a3)
 {
-    StructB buf[2];
+    LightningVtx buf[2];
     sceVu0CopyVector(&buf[0], p0);
     sceVu0CopyVector(&buf[1], p1);
-    DrawLightning2(2, (LightningVtx *)&buf[0], a2, f0, f1, f2, f3, f4, f5, f6, f7, f8, f9, a3);
+    DrawLightning2(2, buf, a2, f0, f1, f2, f3, f4, f5, f6, f7, f8, f9, a3);
 }
 
 inline void lightning_test(void)
 {
-    StructB col = {{0x80, 0xFF, 0xFF, 0x80}};
-    StructC vtx = {{
+    LightningColor col = {{0x80, 0xFF, 0xFF, 0x80}};
+    LightningPath vtx = {{
         {{0.0f, 750.0f, 0.0f, 1.0f}},
         {{0.0f, 500.0f, -200.0f, 1.0f}},
         {{0.0f, 250.0f, 200.0f, 1.0f}},
         {{0.0f, 0.0f, 0.0f, 1.0f}},
     }};
-    DrawLightning2(4, (LightningVtx *)&vtx, &col, 5.0f, 25.0f, 5.0f, 25.0f, 5.0f, 10.0f, 70.0f,
-                   8.0f, 20.0f, 0.0f, 0);
+    DrawLightning2(4, vtx.v, &col, 5.0f, 25.0f, 5.0f, 25.0f, 5.0f, 10.0f, 70.0f, 8.0f, 20.0f, 0.0f,
+                   0);
 }

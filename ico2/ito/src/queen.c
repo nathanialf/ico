@@ -37,18 +37,18 @@
 #include "boyact.h"
 #include "Texture.h"
 
-typedef struct {
+typedef struct { /* field names derived */
     float v[4];
 } LVec;
 
-typedef struct {
+typedef struct { /* field names derived */
     QVec x;
     QVec y;
     QVec z;
     QVec w;
-} QMat33;
+} QMat44;
 
-typedef struct {
+typedef struct { /* field names derived */
     QVec x;
     QVec y;
     QVec z;
@@ -116,13 +116,15 @@ static const char queenClothTexture[] = "queen_effect2"; /* derived name */
    cloth, which hangs from nothing.  The floats are the mesh generator's own
    three-decimal output. */
 
-static Cloth4DCol queenClothMeshCols[15];
+static Cloth4DCol queenClothMeshCols[15]; /* derived name */
 
 static Cloth4DCfg queenClothMesh = {
+    /* derived name */
     15, 11, 1, 0, 0, 0, 0, 128, queenClothTexture, queenClothMeshCols, 17.058f, 0,
 };
 
 static float queenClothMeshUv[15][11][2] = {
+    /* derived name */
     {{0.839f, 0.127f},
      {0.871f, 0.207f},
      {0.904f, 0.286f},
@@ -291,6 +293,7 @@ static float queenClothMeshUv[15][11][2] = {
 };
 
 static Cloth4DCol queenClothMeshCols[15] = {
+    /* derived name */
     {11.74f,
      {0},
      {-6.96f, 84.761f, 3.983f, 1.0f},
@@ -458,13 +461,15 @@ static Cloth4DCol queenClothMeshCols[15] = {
      {-2.007f, -10.392f, 5.08f, 0.0f}},
 };
 
-static Cloth4DCol queenClothMesh2Cols[13];
+static Cloth4DCol queenClothMesh2Cols[13]; /* derived name */
 
 static Cloth4DCfg queenClothMesh2 = {
+    /* derived name */
     13, 16, 0, 0, 0, 0, 0, 128, queenClothTexture, queenClothMesh2Cols, 34.852f, 0,
 };
 
 static float queenClothMesh2Uv[13][16][2] = {
+    /* derived name */
     {{0.402f, 0.275f},
      {0.393f, 0.323f},
      {0.384f, 0.371f},
@@ -676,6 +681,7 @@ static float queenClothMesh2Uv[13][16][2] = {
 };
 
 static Cloth4DCol queenClothMesh2Cols[13] = {
+    /* derived name */
     {2.609f,
      {0},
      {-53.885f, 143.321f, -5.563f, 1.0f},
@@ -823,6 +829,7 @@ static Cloth4DCol queenClothMesh2Cols[13] = {
 
 /* the five points the queen's cape hangs from */
 static ClothHangCfg queenClothHang[6] = {
+    /* derived name */
     {1, -5.0f, 45.0f, 10.0f, 49, {0}, 0.0f, 0.0f, {0}, 1.0f, 1.0f, {0}},
     {1, -5.0f, 60.0f, 10.0f, 50, {0}, 0.0f, 0.0f, {0}, 1.0f, 1.0f, {0}},
     {1, -5.0f, 45.0f, 10.0f, 45, {0}, 0.0f, 0.0f, {0}, 1.0f, 1.0f, {0}},
@@ -834,6 +841,7 @@ static ClothHangCfg queenClothHang[6] = {
 /* the six places an enemy is dropped back into the last stage when it is
    called again; LW coordinates, converted by lw_pos_to_ico_pos at the site */
 static float queenSpawnPos[6][4] = {
+    /* derived name */
     {1200.0f, -1000.0f, 300.0f, 0.0f}, {1200.0f, -1000.0f, -100.0f, 0.0f},
     {1100.0f, -1000.0f, 100.0f, 0.0f}, {800.0f, -920.0f, 200.0f, 0.0f},
     {600.0f, -900.0f, -200.0f, 0.0f},  {400.0f, -900.0f, 100.0f, 0.0f},
@@ -860,7 +868,7 @@ static inline void UnitMatrix33(QMat3 *m) /* derived name */
     m->z.f[3] = 0.0f;
 }
 
-void scale_m34(LVec *a0, void *a1, float f)
+static void scale_m34(LVec *a0, void *a1, float f)
 {
     sceVu0CopyMatrix(a0, a1);
     sceVu0ScaleVector(a0, a0, f);
@@ -868,8 +876,7 @@ void scale_m34(LVec *a0, void *a1, float f)
     return sceVu0ScaleVector(a0 + 2, a0 + 2, f);
 }
 
-/* this file's own effect_end_func; itou_boss.c defines a global of the same
-   name */
+/* this file's own effect_end_func; itou_boss.c has its own */
 
 static void effect_end_func(int no)
 {
@@ -885,25 +892,26 @@ static void effect_end_func(int no)
 }
 
 /* The ten rate tables come in two parallel sets of five, the first used when stage_no is
-   0x25 (the queen's own stage, st25a) and the second everywhere else; each is
+   37 (the queen's own stage, st25a) and the second everywhere else; each is
    indexed by the ball's phase counter at ballw+0x18, which runs 0 to 10. */
-typedef struct QueenUVScroll {
+typedef struct QueenUVScroll { /* field names derived */
     float v[6];
 } QueenUVScroll;
 
-static const float genWaitRateSt25[11] = {1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f,
-                                          1.0f, 1.0f, 1.0f, 1.0f, 1.0f};
+static const float genWaitRateSt25[11] /* derived name */ = {1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f,
+                                                             1.0f, 1.0f, 1.0f, 1.0f, 1.0f};
 
-static const float ballWaitRateSt25[11] = {7.0f, 6.0f, 6.0f, 5.0f, 5.0f, 4.0f,
-                                           4.0f, 4.0f, 4.0f, 4.0f, 4.0f};
+static const float ballWaitRateSt25[11] /* derived name */ = {7.0f, 6.0f, 6.0f, 5.0f, 5.0f, 4.0f,
+                                                              4.0f, 4.0f, 4.0f, 4.0f, 4.0f};
 
-static const float ballHoldRateSt25[11] = {5.0f, 5.0f, 5.0f, 5.0f, 5.0f, 5.0f,
-                                           5.0f, 5.0f, 5.0f, 5.0f, 5.0f};
+static const float ballHoldRateSt25[11] /* derived name */ = {5.0f, 5.0f, 5.0f, 5.0f, 5.0f, 5.0f,
+                                                              5.0f, 5.0f, 5.0f, 5.0f, 5.0f};
 
-static const float ballSpeedRateSt25[11] = {0.6f, 0.6f, 0.6f, 0.6f, 0.6f, 0.6f,
-                                            0.6f, 0.6f, 0.6f, 0.6f, 0.6f};
+static const float ballSpeedRateSt25[11] /* derived name */ = {0.6f, 0.6f, 0.6f, 0.6f, 0.6f, 0.6f,
+                                                               0.6f, 0.6f, 0.6f, 0.6f, 0.6f};
 
 static const QueenUVScroll ballUVScrollSt25[11] = {
+    /* derived name */
     {{0.0f, 0.0f, 0.001f, 0.01f, 0.99f, 0.99f}}, {{0.0f, 0.0f, 0.001f, 0.01f, 0.99f, 0.99f}},
     {{0.0f, 0.0f, 0.001f, 0.01f, 0.99f, 0.99f}}, {{0.0f, 0.0f, 0.001f, 0.01f, 0.99f, 0.99f}},
     {{0.0f, 0.0f, 0.001f, 0.01f, 0.99f, 0.99f}}, {{0.0f, 0.0f, 0.001f, 0.01f, 0.99f, 0.99f}},
@@ -912,19 +920,20 @@ static const QueenUVScroll ballUVScrollSt25[11] = {
     {{0.0f, 0.0f, 0.001f, 0.01f, 0.99f, 0.99f}},
 };
 
-static const float genWaitRateDefault[11] = {1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f,
-                                             1.0f, 1.0f, 1.0f, 1.0f, 1.0f};
+static const float genWaitRateDefault[11] /* derived name */ = {1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f,
+                                                                1.0f, 1.0f, 1.0f, 1.0f, 1.0f};
 
-static const float ballWaitRateDefault[11] = {3.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f,
-                                              1.0f, 1.0f, 1.0f, 1.0f, 1.0f};
+static const float ballWaitRateDefault[11] /* derived name */ = {3.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f,
+                                                                 1.0f, 1.0f, 1.0f, 1.0f, 1.0f};
 
-static const float ballHoldRateDefault[11] = {4.0f, 4.0f, 4.0f, 4.0f, 4.0f, 4.0f,
-                                              4.0f, 4.0f, 4.0f, 4.0f, 4.0f};
+static const float ballHoldRateDefault[11] /* derived name */ = {4.0f, 4.0f, 4.0f, 4.0f, 4.0f, 4.0f,
+                                                                 4.0f, 4.0f, 4.0f, 4.0f, 4.0f};
 
-static const float ballSpeedRateDefault[11] = {0.6f, 0.6f, 0.6f, 0.6f, 0.6f, 0.6f,
-                                               0.6f, 0.6f, 0.6f, 0.6f, 0.6f};
+static const float ballSpeedRateDefault[11] /* derived name */ = {
+    0.6f, 0.6f, 0.6f, 0.6f, 0.6f, 0.6f, 0.6f, 0.6f, 0.6f, 0.6f, 0.6f};
 
 static const QueenUVScroll ballUVScrollDefault[11] = {
+    /* derived name */
     {{0.0f, 0.0f, 0.001f, 0.01f, 0.99f, 0.99f}}, {{0.0f, 0.0f, 0.001f, 0.01f, 0.99f, 0.99f}},
     {{0.0f, 0.0f, 0.001f, 0.01f, 0.99f, 0.99f}}, {{0.0f, 0.0f, 0.001f, 0.01f, 0.99f, 0.99f}},
     {{0.0f, 0.0f, 0.001f, 0.01f, 0.99f, 0.99f}}, {{0.0f, 0.0f, 0.001f, 0.01f, 0.99f, 0.99f}},
@@ -933,9 +942,9 @@ static const QueenUVScroll ballUVScrollDefault[11] = {
     {{0.0f, 0.0f, 0.001f, 0.01f, 0.99f, 0.99f}},
 };
 
-static const char queenAttackedMsg[] = "queen attacked\n";
+static const char queenAttackedMsg[] = "queen attacked\n"; /* derived name */
 
-static const char enemyDeadMsg[] = "enemy dead %p\n";
+static const char enemyDeadMsg[] = "enemy dead %p\n"; /* derived name */
 
 void queenBeforeFunc(char *g)
 {
@@ -987,22 +996,23 @@ void queenBeforeFunc(char *g)
     act->motOriReq = *(MotOriReq *)((int)GOBJ_SUB(g) + 0x180);
 }
 
-typedef struct QueenGenTable {
+typedef struct QueenGenTable { /* field names derived */
     /* 0x0 */ int n;
     /* 0x4 */ const int *list;
 } QueenGenTable;
 
 /* The layout ids gene_enemy picks a spawn point from, one list per stage set. */
-static const int genEnemyLayoutSt25[6] = {2152, 2153, 2154, 2155, 2156, 2157};
+static const int genEnemyLayoutSt25[6] = {2152, 2153, 2154, 2155, 2156, 2157}; /* derived name */
 
-static const int genEnemyLayoutDefault[6] = {3535, 3536, 3537, 3538, 3539, 3540};
+static const int genEnemyLayoutDefault[6] = {3535, 3536, 3537, 3538, 3539, 3540}; /* derived name */
 
 static const QueenGenTable genEnemyTable[2] = {
+    /* derived name */
     {6, genEnemyLayoutSt25},
     {6, genEnemyLayoutDefault},
 };
 
-static const char genEnemyStatFmt[] = "n_enemy_max:%d n_enemy:%d counter:%d";
+static const char genEnemyStatFmt[] = "n_enemy_max:%d n_enemy:%d counter:%d"; /* derived name */
 
 void gene_enemy(volatile int g)
 {
@@ -1085,17 +1095,15 @@ void gene_enemy(volatile int g)
 }
 
 /* The position the queen is dropped at outside her own stage. */
-static const QVec queenStartPos = {{0.0f, 800.0f, 0.0f, 1.0f}};
+static const QVec queenStartPos = {{0.0f, 800.0f, 0.0f, 1.0f}}; /* derived name */
 
-static const char queenDeadMsg[] = "queen dead\n";
+static const char queenDeadMsg[] = "queen dead\n"; /* derived name */
 
-static const char queenBallScrTexture[] = "queen_ball_scr";
+static const char queenBallScrTexture[] = "queen_ball_scr"; /* derived name */
 
-/* The queen's per-frame motion-status record, refreshed from the actor
- * extension at gobj->x15C every tick. */
 /* One status slot: the motion-parameter words the actor extension keeps are
  * read as a float here and as an int elsewhere. */
-typedef union QueenVal {
+typedef union QueenVal { /* field names derived */
     int i;
     float f;
     char *motReq; /* the actor's 0x130: the motion record SetMotionRequest returns */
@@ -1112,6 +1120,8 @@ typedef struct QueenLookAt { /* field names derived */
     /* 0x10 */ QVec pos;
 } QueenLookAt;
 
+/* The queen's per-frame motion-status record, refreshed from the actor
+ * extension at gobj->x15C every tick. */
 typedef struct QueenStatus { /* field names derived */
     /* 0x00 */ int motion;
     /* 0x04 */ int prevMotion;
@@ -1328,23 +1338,22 @@ void subQueenBrainMain(volatile int g)
     }
 }
 
-/* this file's own Debug_StickControl; act_bird.c defines a global of the
-   same name */
-static const char queenFile[] = __FILE__;
+static const char queenFile[] = __FILE__; /* derived name */
 
-static const char queenBarrierAttackedMsg[] = "queen barrier attacked\n";
+static const char queenBarrierAttackedMsg[] = "queen barrier attacked\n"; /* derived name */
 
 /* the barrier's own spawn layout id, one per stage set */
-static const int barrierLayoutSt25[] = {2150};
+static const int barrierLayoutSt25[] = {2150}; /* derived name */
 
-static const int barrierLayoutDefault[] = {3527};
+static const int barrierLayoutDefault[] = {3527}; /* derived name */
 
-static const char damageFmt[] = "damage:%d";
+static const char damageFmt[] = "damage:%d"; /* derived name */
 
-static const char mailFmt[] = "mail %d\n";
+static const char mailFmt[] = "mail %d\n"; /* derived name */
 
-static const char queenBallAttackedMsg[] = "queen ball attacked\n";
+static const char queenBallAttackedMsg[] = "queen ball attacked\n"; /* derived name */
 
+/* this file's own Debug_StickControl; act_bird.c has its own */
 static void Debug_StickControl(GObj *self)
 {
     QVec dir;
@@ -1437,12 +1446,12 @@ void QueenBarrierGeo(char *g)
 {
     QVec pos;
     QVec rootPos;
-    QMat33 m1;
+    QMat44 m1;
     QMat3 rot;
     QVec trans;
     QVec ofs;
     QVec axis;
-    QMat33 m3;
+    QMat44 m3;
     QueenBarrierWork *w;
     char *queen;
     QueenWork *qw;
@@ -1547,7 +1556,7 @@ static inline void SetQueenBallOrient(char *o, QVec *from, QVec *to) /* derived 
     QVec side;
     QVec up = {{0.0f, 1.0f, 0.0f, 1.0f}};
     QVec dir;
-    QMat33 m;
+    QMat44 m;
 
     sceVu0CopyVector(o + 0x20, to);
     sceVu0SubVector(&dir, from, to);
@@ -1589,8 +1598,8 @@ static inline int CheckQueenBallBox(QVec *pos, QVec *from, QVec *target, int xl,
     QVec side;
     QVec up = {{0.0f, 1.0f, 0.0f, 1.0f}};
     QVec dir;
-    QMat33 m;
-    QMat33 inv;
+    QMat44 m;
+    QMat44 inv;
     QVec out;
     int hit = 0;
 

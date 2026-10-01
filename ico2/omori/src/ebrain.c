@@ -32,7 +32,7 @@ extern StgPre stageData[];
 extern void __assert(char *file, int line, char *expr);
 extern GenGeo objLayout[];
 
-static inline void eBrainSetStatus(EBSlot *p, int newst)
+static inline void eBrainSetStatus(EBSlot *p, int newst) /* derived name */
 {
     int st = p->status;
 
@@ -57,7 +57,7 @@ static inline void eBrainSetStatus(EBSlot *p, int newst)
     p->status = newst;
 }
 
-static inline EBSlot *eBrainGetPacket(void *gop)
+static inline EBSlot *eBrainGetPacket(void *gop) /* derived name */
 {
     int i;
 
@@ -111,7 +111,7 @@ static EBSlot *boyTargets[32]; /* derived name */
 
 static EBSlot *girlTargets[32]; /* derived name */
 
-static inline void eBrainRegistTarget(EBSlot **list, int n, EBSlot *e, int w)
+static inline void eBrainRegistTarget(EBSlot **list, int n, EBSlot *e, int w) /* derived name */
 {
     int j;
     EBSlot *cur = e;
@@ -184,26 +184,26 @@ void eBrainProcess(void)
 
 inline int GetStageFromLabel(int label)
 {
-    int stage = -1;
+    int UseStageNo = -1;
     int i;
 
     for (i = 0; i < 106; i++) {
         if (label >= stageData[i].labelTop && label < stageData[i].labelEnd) {
-            stage = i;
+            UseStageNo = i;
             break;
         }
     }
-    if (!(stage > 0)) {
+    if (!(UseStageNo > 0)) {
         debug_assert("src/ebrain.c", 472);
         __assert("src/ebrain.c", 472, "UseStageNo>0");
     }
-    return stage;
+    return UseStageNo;
 }
 
 inline int eBrainGetTargetGeneratorFromLabelStage(int label, int stage)
 {
     int pri = -1;
-    int no = -1;
+    int GeneratorLabel = -1;
     int i;
     int ret;
     int st;
@@ -221,22 +221,22 @@ inline int eBrainGetTargetGeneratorFromLabelStage(int label, int stage)
             f &= 1;
             if (pri < f) {
                 pri = f;
-                no = i;
+                GeneratorLabel = i;
             }
         }
     }
-    if (!(no > 0)) {
+    if (!(GeneratorLabel > 0)) {
         debug_assert("src/ebrain.c", 506);
         __assert("src/ebrain.c", 506, "GeneratorLabel>0");
     }
-    return no;
+    return GeneratorLabel;
 }
 
 int eBrainGetTargetGeneratorFromLabel(int label)
 {
-    int no = -1;
+    int GeneratorLabel = -1;
     int pri = -1;
-    int stage;
+    int UseStageNo;
     int i;
     int ret;
     int st;
@@ -246,19 +246,19 @@ int eBrainGetTargetGeneratorFromLabel(int label)
     if (ret != -1)
         return ret;
 
-    stage = -1;
+    UseStageNo = -1;
     for (i = 0; i < 106; i++) {
         if (label >= stageData[i].labelTop && label < stageData[i].labelEnd) {
-            stage = i;
+            UseStageNo = i;
             break;
         }
     }
-    if (!(stage > 0)) {
+    if (!(UseStageNo > 0)) {
         debug_assert("src/ebrain.c", 472);
         __assert("src/ebrain.c", 472, "UseStageNo>0");
     }
 
-    st = stage;
+    st = UseStageNo;
     for (i = stageData[st].labelTop; i < stageData[st].labelEnd; i++) {
         GenGeo *g = &objLayout[i];
         if (g->kind == 33) {
@@ -266,18 +266,18 @@ int eBrainGetTargetGeneratorFromLabel(int label)
             f &= 1;
             if (pri < f) {
                 pri = f;
-                no = i;
+                GeneratorLabel = i;
             }
         }
     }
-    if (!(no > 0)) {
+    if (!(GeneratorLabel > 0)) {
         debug_assert("src/ebrain.c", 542);
         __assert("src/ebrain.c", 542, "GeneratorLabel>0");
     }
-    return no;
+    return GeneratorLabel;
 }
 
-static inline int eBrainCanSeeTarget(void *gop, void *target)
+static inline int eBrainCanSeeTarget(void *gop, void *target) /* derived name */
 {
     float mypos[4];
     float tpos[4];

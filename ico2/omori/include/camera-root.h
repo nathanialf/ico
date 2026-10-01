@@ -17,7 +17,6 @@ extern int insertCameraBlendTimer; /* frames left of the blend after an insert c
 void Camctrl_ExitEveRock(void);
 void Camctrl_SetTarget(int a0, int a1, int a2);
 void CameraChangeTargetParallel(int a0, int a1);
-void CameraEditManual();
 int CameraGetMode(void);
 void CameraGetOtherObjOffset(float *pos, float *outDist, int *outAngle);
 int CameraGetTarget(void);
@@ -32,8 +31,8 @@ void InsertCamera_SetDetail(float *pos, float *tgt, int frames, int cutType, int
                             float blend);
 
 void InsertCamera_SetNoraml(float *pos, float *tgt, int frames, int cutType);
-int InsertCamera_isEnable(void);
-void MakeCameraMatrix();
+struct CameraSet2;
+void MakeCameraMatrix(struct CameraSet2 *cs);
 void ResetHandCameraLimitInDemo(void);
 void ResetZoomMaxValInDemo(void);
 void SetCameraFlag_GamecamCutBack(void);
@@ -43,9 +42,6 @@ void SetHandCameraLimitInDemo(int a0, int a1);
 void SetMonitorCameraInitializeFlag(void);
 void SetWSMatrix(void *a0);
 void SetZoomMaxValInDemo(int a0);
-void DebugCameraManual(void);
-void DebugCameraSemiAuto(void);
-void BackToGameCamera(void);
 void CameraSetTargetGObj(int a, int b);
 int UpdateHandCameraLimitP(void);
 int UpdateHandCameraLimitV(void);

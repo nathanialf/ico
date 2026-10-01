@@ -13,8 +13,5 @@ void InitHandCameraCorrect(void);
 void SetLimitHandCameraCorrect(float a0, float a1);
 
 void HandCameraCorrect(void *a0, void *a1, int a2, float f12, float f13, float f14);
-void HandyCamera_TargetMoveType(void *a0, void *a1);
-void RotateAccordingToStick_PatternThree(float *a, float *b, float x, float y);
-void SetCurrentInfo(void *a0, void *a1);
 
 #endif /* HAND_CAMERA_H */

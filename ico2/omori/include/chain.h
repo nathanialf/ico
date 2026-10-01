@@ -22,20 +22,13 @@ float GetChainHangRange(char *a0);
 float GetChainLength(char *a0);
 void GetChainPendulum(char *a0, float *a, float *b, float *c);
 void GetRootPositionHandExtra(void *a0, float *a1);
-void HoldChain(char *a0);
+void HoldChain(char *a0, char *owner, float *pos);
 void LockChainGeo(char *a0);
 void PlumbOrientUpdateChain(char *a0, float *src);
-void ReleaseChain(char *a0);
+void ReleaseChain(char *a0, char *owner);
 void SetChainParentGObj(char *a0, void *a1);
 void SetChainRootUpdateMode(char *gobj, int mode, float *pos);
 void UnLockChainGeo(char *a0);
 void UnableChainHang(char *a0);
-void chain_simulate_term_simple(char *gobj);
-void chain_sub_pendulum(struct ChainNode *base, int n, float *pos);
-/* the sixth parameter is passed by both callers (always 0) and never read */
-void chain_sub_simulate(char *gobj, struct ChainNode *nd, int from, int to, unsigned char flag,
-                        int flag2, float grav, float len, float damp);
-int collisionCheck(char *gobj);
-void pendulum_Process(struct ChainPendulum *pdl, int flag);
 
 #endif /* CHAIN_H */

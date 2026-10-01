@@ -35,7 +35,7 @@ typedef struct AttackPack { /* field names derived */
 } __attribute__((aligned(16))) AttackPack;
 
 /* the zeroed template every pack starts from; group and group2 start at -1 */
-static const AttackPack attackPackInit = {0, 0, {0, 0}, 0, 0, -1, -1};
+static const AttackPack attackPackInit = {0, 0, {0, 0}, 0, 0, -1, -1}; /* derived name */
 
 extern void __assert(char *file, int line, char *expr);
 
@@ -78,7 +78,7 @@ static inline int inner_check_sub(float *p, float *o, float *a, float *b) /* der
     return inner_check_core(d0, d1, d2);
 }
 
-int inner_check(float *p, float *o, float *a, float *b, float r, float t)
+static int inner_check(float *p, float *o, float *a, float *b, float r, float t)
 {
     float n[4];
     unsigned char ok;
@@ -139,7 +139,7 @@ typedef struct { /* field names derived */
 extern WeaponKindEntry weaponKind[];
 
 /* the 0x5C word as a float or an int, written through this view at one site */
-union PackPowerWord {
+union PackPowerWord { /* field names derived */
     float f;
     int i;
     int m;
@@ -169,7 +169,7 @@ static inline void GetFocusNodePos(char *gobj, int node, float *out) /* derived 
     out[2] = m[14];
 }
 
-void MakeAttackPack_Actor(AttackPack *pack, char *gobj, void *weapon)
+static void MakeAttackPack_Actor(AttackPack *pack, char *gobj, void *weapon)
 {
     float v0[4];
     float v1[4];
@@ -287,20 +287,21 @@ static inline void SetupAttackPack(AttackPack *pack, char *gop, int group, float
     pack->power = 20.0f;
 }
 
-typedef struct {
+typedef struct { /* field names derived */
     int kind;
     unsigned int cls;
 } AttackGroupPair;
 
-typedef struct {
+typedef struct { /* field names derived */
     AttackGroupPair p[10];
 } AttackGroupTable;
 
 /* GObj kind -> attack class, terminated by kind -1 */
 static const AttackGroupTable attackGroupTable = {
+    /* derived name */
     {{1, 0}, {4, 1}, {47, 1}, {54, 1}, {53, 1}, {53, 1}, {62, 1}, {2, 3}, {63, 1}, {-1, 0}}};
 
-int AttackCheckSameGroup(char *self, char *other, char *third)
+static int AttackCheckSameGroup(char *self, char *other, char *third)
 {
     AttackGroupTable tbl = attackGroupTable;
     unsigned int g0 = 2;
@@ -334,7 +335,7 @@ int AttackCheckSameGroup(char *self, char *other, char *third)
     return g1 == g0;
 }
 
-void AttackMail(char *self, AttackPack *pack)
+static void AttackMail(char *self, AttackPack *pack)
 {
     float v0[4];
     float v1[4];
@@ -406,7 +407,7 @@ void AttackMail(char *self, AttackPack *pack)
    calls the ACTChkAttackIgnore_ functions with the actor as well */
 extern float _ACTGame_GetParamF(int idx);
 
-int AttackCheckHit(AttackPack *pack, char *gobj, short *out)
+static int AttackCheckHit(AttackPack *pack, char *gobj, short *out)
 {
     float w[4];
     unsigned char flags[112];
@@ -537,7 +538,7 @@ extern int ACTChkAttackIgnore_BOY(char *gobj, void *actor);
 extern int ACTChkAttackIgnore_GIRL(char *gobj, void *actor);
 extern int ACTChkAttackIgnore_ENEMY(char *gobj, void *actor);
 
-int AttackGenerate(AttackPack *pack)
+static int AttackGenerate(AttackPack *pack)
 {
     char *g;
     char *hit;
@@ -643,6 +644,6 @@ inline void AttackCenter_WithDir(char *gop, int group, float *pos, float *dir, f
     AttackGenerate(&pack);
 }
 
-void EnemyAttackCenter(void) {}
+void EnemyAttackCenter(char *gobj) {}
 
-void BoyAttackCenter(void) {}
+void BoyAttackCenter(char *gobj) {}

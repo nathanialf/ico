@@ -11,13 +11,13 @@ float drawline_ws_matrix[16] = {0};
 #include <libvu0.h>
 #include "GifPacket.h"
 
-static inline unsigned char DrawLineTrans(int *dst, void *src)
+static inline unsigned char DrawLineTrans(int *dst, void *src) /* derived name */
 {
     sceVu0RotTransPers(dst, drawline_ws_matrix, src, 1);
     return _IsInScreen(dst);
 }
 
-static inline void DrawLineOffset(int *p)
+static inline void DrawLineOffset(int *p) /* derived name */
 {
     p[0] -= 0x8000;
     p[1] -= 0x8000;
@@ -25,7 +25,7 @@ static inline void DrawLineOffset(int *p)
 
 void before_DrawPolygon(void)
 {
-    gif_StartPacketPri(0xB);
+    gif_StartPacketPri(11);
     gif_SetAlpha(1, 2, 0x40);
 }
 
@@ -41,7 +41,7 @@ inline void DrawPolygon(void *a0, void *a1, void *a2, void *a3, unsigned char *a
     gif_DrawPolyF4(a0, a1, a2, a3, a4[0], a4[1], a4[2], a4[3], 1);
 }
 
-float _IsInScreen2(int *p)
+static float _IsInScreen2(int *p)
 {
     int hw;
     int hh;
@@ -98,7 +98,7 @@ inline float IsPointIsInScreen(void *a0, void *a1)
 void before_DrawLine(void *m)
 {
     CopyMatrix(drawline_ws_matrix, m);
-    gif_StartPacketPri(0xB);
+    gif_StartPacketPri(11);
 }
 
 void after_DrawLine(void)
