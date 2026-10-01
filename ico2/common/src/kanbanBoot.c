@@ -62,17 +62,9 @@ typedef struct {
     int f8;   /* 0x08 */
 } KanbanReq;
 
-typedef struct {
-    char pad0[488];
-    int f1E8; /* 0x1E8 */
-    int f1EC; /* 0x1EC */
-} KanbanStageRec;
-
 /* .bss: the boot-time memory-card request block, on the 64-byte alignment
    of a DMA transfer buffer */
 static McReq bootMcReq __attribute__((aligned(64))); /* derived name */
-/* mcard.c's save records, read here as KanbanStageRec */
-extern KanbanStageRec IosMcProductFile[];
 
 /* .sbss */
 static KanbanReq *bootKanban; /* derived name */ /* the sign the boot sequence is showing */
@@ -86,11 +78,11 @@ static int mcPort; /* derived name */ /* the card slot being checked, 0 then 1 *
 
 static int bootVideoMode; /* derived name */ /* the video mode in force when the sign went up */
 
-/* this TU declares it void; mcard.h returns int */
+/* mcard.c's request entry points; they return iosMsgSend's result, which
+   this TU reads only from iosMcSync: it declares the others void, which its
+   calls pin, so it does not include mcard.h */
 extern void iosMcChdirProduct(void *a0);
-/* as in mcard.h, which this TU does not include */
 extern int iosMcSync(unsigned long *a0);
-/* this TU declares it void; mcard.h returns int */
 extern void iosMcLoadProductBlock(void *a0);
 /* kanban.h does not declare it; kanban.c returns its own Node *, read here as KanbanReq * */
 extern KanbanReq *kanbanReqAdd(int a0, int a1);
@@ -98,7 +90,7 @@ extern KanbanReq *kanbanReqAdd(int a0, int a1);
 int kanbanBootMcCheck(void)
 {
     McReq *mc = &bootMcReq;
-    KanbanStageRec *r;
+    McProductFile *r;
     int *lp;
     int lang;
     int ret = 0;
@@ -169,8 +161,8 @@ int kanbanBootMcCheck(void)
         }
         mcCheckStep++;
         r = &IosMcProductFile[mc->f8];
-        NonLinearCameraMove = r->f1E8;
-        systemStatus[0] = r->f1EC;
+        NonLinearCameraMove = r->cameraMove;
+        systemStatus[0] = r->palMode;
         gsResetFunc(0);
         break;
     case 97:

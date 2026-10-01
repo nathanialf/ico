@@ -1,8 +1,8 @@
 #include "haveParentSimpleObj.h"
 
-/* as in geometryManager.h, which this TU does not include */
+/* unprototyped: the handlers pass on all four of their arguments, where
+   geometryManager.h and DisplayP2O.h take the one GObj */
 extern void UpdateRootMatrix();
-/* as in DisplayP2O.h, which this TU does not include */
 extern void p2o_DispVU1();
 
 inline int InitParentSimpleObjGeo(void)

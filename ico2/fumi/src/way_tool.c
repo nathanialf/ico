@@ -667,10 +667,6 @@ WayMenu debugWayMenu[9] = {{"group + create", group_create},  {"      + select",
                            {"quick save", quick_save_wpfile}, {"quick load", quick_load_wpfile},
                            {"save text", wp_print_out}};
 
-/* pad.h cannot declare it while effectTool.c and camera-ico2.c declare it as
-   a char array */
-extern PadConf iosPadConfDefault;
-
 int debug_WayTool(void)
 {
     static int menuState = 1; /* derived name */

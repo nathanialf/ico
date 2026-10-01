@@ -151,26 +151,20 @@ static int keyConfigSlot[8] = {1, 2, 3, 4, 5, 0, 0, 0}; /* derived name */
    carries */
 int mc[640] __attribute__((aligned(64))) = {0};
 
-/* as in mcard.h, which this TU does not include */
+/* mcard.c's request entry points; they return iosMsgSend's result, which
+   this TU reads only from iosMcSync: it declares the others void, which its
+   calls pin, so it does not include mcard.h */
 extern int iosMcSync(unsigned long *a0);
-
-typedef struct {
-    unsigned int _0;
-    char _4[16];
-} R14;
-
-/* one card's save record, 16-byte aligned: a SIF DMA buffer for the card
-   code */
-typedef struct {
-    R14 f[20];
-    char pad190[80];
-    int _1E0;
-    int _1E4;
-    char pad1E8[8];
-} R1F0 __attribute__((aligned(16)));
-
-/* mcard.c's save records, read here as R1F0, and its preview record */
-extern R1F0 IosMcProductFile[];
+extern void iosMcGetInfo(void *a0);
+extern void iosMcLoadProductBlock(void *a0);
+extern void iosMcGetBlockSaveInfo(void *a0);
+extern void iosMcLoadGameBlock(void *a0, int a1);
+extern void iosMcFormat(void *a0);
+extern void iosMcSaveIconBlock(void *a0);
+extern void iosMcSaveProductBlock(void *a0);
+extern void iosMcSaveGameBlock(void *a0, int a1);
+extern void iosMcDelete(void *a0);
+/* mcard.c's preview record */
 extern int IosMcPreviewInfo[];
 
 int _la_mcard_error_check(void *a0)
@@ -237,12 +231,6 @@ typedef struct {
 
 /* file-local: nothing outside this TU calls it */
 int _la_memory_card_check(McWork *p, int a1);
-/* as in mcard.h, which this TU does not include */
-extern int iosMcGetInfo(void *a0);
-/* this TU declares it void; mcard.h returns int */
-extern void iosMcLoadProductBlock(void *a0);
-/* this TU declares it void; mcard.h returns int */
-extern void iosMcGetBlockSaveInfo(void *a0);
 
 /* .sdata: these ten statics and the three globals after them, then each
    function's own statics before it */
@@ -286,8 +274,8 @@ int _la_memory_card_check(McWork *p, int a1)
         p->_10 = 0;
         iosMcGetInfo(p);
         mcLastResult = 0;
-        (IosMcProductFile + p->_8)->_1E4 = 0;
-        (IosMcProductFile + p->_8)->_1E0 = 0;
+        (IosMcProductFile + p->_8)->serial = 0;
+        (IosMcProductFile + p->_8)->fileNo = 0;
         a1++;
         break;
     case 10:
@@ -378,7 +366,7 @@ int _la_memory_card_check(McWork *p, int a1)
             break;
         }
         for (i = 0; i < 10; i++) {
-            if (IosMcProductFile[p->_8].f[i]._0 != 0xFFFFFFFF) {
+            if (IosMcProductFile[p->_8].file[i].stage != 0xFFFFFFFF) {
                 break;
             }
         }
@@ -876,7 +864,7 @@ inline int la_mc_saved_file_select(int a0)
             i -= 1;
         } else if (pad[0].flags & 0x2000) {
             i += 1;
-        } else if (IosMcProductFile[filePort].f[i]._0 == 0xFFFFFFFF) {
+        } else if (IosMcProductFile[filePort].file[i].stage == 0xFFFFFFFF) {
             i++;
         }
         if (i < 0) {
@@ -885,7 +873,7 @@ inline int la_mc_saved_file_select(int a0)
         if (i >= 10) {
             i -= 10;
         }
-    } while (IosMcProductFile[filePort].f[i]._0 == 0xFFFFFFFF);
+    } while (IosMcProductFile[filePort].file[i].stage == 0xFFFFFFFF);
     if (old != i) {
         CUR_SE();
     }
@@ -898,8 +886,8 @@ inline int la_mc_saved_file_select(int a0)
 static inline int mcCurrentFileNo(void) /* derived name */
 {
     int port = filePort;
-    int no = (IosMcProductFile + port)->_1E0;
-    if (mcPortInfo[port]._4 == 0 || IosMcProductFile[port].f[no]._0 == 0xFFFFFFFF)
+    int no = (IosMcProductFile + port)->fileNo;
+    if (mcPortInfo[port]._4 == 0 || IosMcProductFile[port].file[no].stage == 0xFFFFFFFF)
         return 0;
     return no;
 }
@@ -910,7 +898,7 @@ static inline int mcFileNoOfPort(void) /* derived name */
 {
     int port = filePort;
 
-    if (loadSerial == (IosMcProductFile + port)->_1E4)
+    if (loadSerial == (IosMcProductFile + port)->serial)
         return savedFileNo;
     return mcCurrentFileNo();
 }
@@ -943,7 +931,7 @@ int la_mc_file_select(int a0)
     }
 
     for (i = 0; i < 10; i++) {
-        if (((fileMask >> i) & 1) && IosMcProductFile[filePort].f[i]._0 != 0xFFFFFFFF) {
+        if (((fileMask >> i) & 1) && IosMcProductFile[filePort].file[i].stage != 0xFFFFFFFF) {
             lt_mask_property(i + 62, 0);
             lt_mask_property(i + 52, 1);
         } else {
@@ -952,7 +940,7 @@ int la_mc_file_select(int a0)
         }
     }
 
-    previewInfo = *(struct S14 *)&IosMcProductFile[filePort].f[curFile];
+    previewInfo = *(struct S14 *)&IosMcProductFile[filePort].file[curFile];
 
     return (pad[0].flags & 0x50) ? curFile : -1;
 }
@@ -1007,7 +995,7 @@ void _la_set_preview_info(void)
     if (((fileMask >> curFile) & 1) == 0) {
         return;
     }
-    if (IosMcProductFile[filePort].f[curFile]._0 == 0xFFFFFFFF) {
+    if (IosMcProductFile[filePort].file[curFile].stage == 0xFFFFFFFF) {
         return;
     }
 
@@ -1068,7 +1056,7 @@ inline int la_mc_current_slot(void)
    la_load_game_memory_card_check */
 static inline void setLoadGameStartItem(void) /* derived name */
 {
-    if (loadSerial == IosMcProductFile[0]._1E4 || saveSerial != IosMcProductFile[1]._1E4) {
+    if (loadSerial == IosMcProductFile[0].serial || saveSerial != IosMcProductFile[1].serial) {
         texLayout[17].defaultItem = 186;
     } else {
         texLayout[17].defaultItem = 187;
@@ -1176,7 +1164,7 @@ int la_mc_load_file_select(int a0, int a1)
 
     if ((fileMask != 0 || loadFileChosen != 0) && (pad[0].flags & 0x40)) {
         POSITIVE_SE();
-        if (IosMcProductFile[filePort].f[a1]._0 != 0xFFFFFFFF) {
+        if (IosMcProductFile[filePort].file[a1].stage != 0xFFFFFFFF) {
             selectFile = a1;
             lastPort = filePort;
             lt_set_item_select_func(0);
@@ -1351,15 +1339,12 @@ int la_load_start_check(int a0)
     return -1;
 }
 
-/* this TU declares it void; mcard.h returns int */
-extern void iosMcLoadGameBlock(void *a0, int a1);
-
 /* the saved file's serial read from the port's record, with the file number
    kept beside it; inlined into la_load_processing directly and into
    la_save_processing through mcSetSavedFile */
 static inline int mcSetFileNo(int port, int no) /* derived name */
 {
-    int serial = (IosMcProductFile + port)->_1E4;
+    int serial = (IosMcProductFile + port)->serial;
 
     savedFileNo = no;
     return serial;
@@ -1468,7 +1453,7 @@ int la_load_processing(int a0)
         systemStatus[4] = 1;
         debug_StdPrintfDummy("case 10\n");
         loadStep = 0;
-        *(struct S14 *)IosMcPreviewInfo = *(struct S14 *)&IosMcProductFile[mc[2]].f[mc[16]];
+        *(struct S14 *)IosMcPreviewInfo = *(struct S14 *)&IosMcProductFile[mc[2]].file[mc[16]];
         playTime((struct S14 *)IosMcPreviewInfo, &hour, &min, &sec);
         loadSerial = mcSetFileNo(mc[2], mc[16]);
         debug_StdPrintfDummy("stage no %d\n", gFlagSaveStage);
@@ -1608,7 +1593,7 @@ int la_mc_confirm_save_file(int a0, int a1)
    la_save_game_memory_card_check */
 static inline void setSaveGameStartItem(void) /* derived name */
 {
-    if (loadSerial == IosMcProductFile[0]._1E4 || loadSerial != IosMcProductFile[1]._1E4) {
+    if (loadSerial == IosMcProductFile[0].serial || loadSerial != IosMcProductFile[1].serial) {
         texLayout[18].defaultItem = 186;
     } else {
         texLayout[18].defaultItem = 187;
@@ -1940,7 +1925,7 @@ int la_save_start_check(int a0)
             return 0x24;
         }
         if ((curPortInfo->_4 >> selectFile) & 1) {
-            if (IosMcProductFile[filePort].f[selectFile]._0 != 0xFFFFFFFF) {
+            if (IosMcProductFile[filePort].file[selectFile].stage != 0xFFFFFFFF) {
                 lt_set_item_select_func(0);
                 actionStarted = 0;
                 return 0x23;
@@ -2072,9 +2057,6 @@ int la_format_confirm(int a0, int a1)
     return -1;
 }
 
-/* this TU declares it void; mcard.h returns int */
-extern void iosMcFormat(void *a0);
-
 static int formatStep = 0; /* derived name */
 
 inline int la_format_processing(int a0)
@@ -2112,13 +2094,6 @@ inline int la_format_processing(int a0)
     }
     return -1;
 }
-
-/* this TU declares it void; mcard.h returns int */
-extern void iosMcSaveIconBlock(void *a0);
-/* this TU declares it void; mcard.h returns int */
-extern void iosMcSaveProductBlock(void *a0);
-/* this TU declares it void; mcard.h returns int */
-extern void iosMcSaveGameBlock(void *a0, int a1);
 
 /* the CD real-time clock record sceCdReadClock fills in, declared here as
    seki/src/GsBase.c declares it */
@@ -2195,9 +2170,9 @@ int la_system_save_processing(int a0)
         return 44;
     case 4:
         for (i = 0; i < 10; i++) {
-            IosMcProductFile[mc[2]].f[i]._0 = 0xFFFFFFFF;
+            IosMcProductFile[mc[2]].file[i].stage = 0xFFFFFFFF;
         }
-        while ((IosMcProductFile[mc[2]]._1E4 = mcMakeSerial()) == 0)
+        while ((IosMcProductFile[mc[2]].serial = mcMakeSerial()) == 0)
             ;
         playTime((struct S14 *)IosMcPreviewInfo, &hour, &min, &sec);
         iosMcSaveProductBlock(mc);
@@ -2294,14 +2269,15 @@ int la_save_processing(int a0)
         IosMcPreviewInfo[0] = stage_no;
         IosMcPreviewInfo[3] = GetSaveSofaLayoutID();
         IosMcPreviewInfo[1] = gFlagGameClear;
-        *(struct S14 *)&IosMcProductFile[mc[2]].f[mc[16]] = *(struct S14 *)IosMcPreviewInfo;
+        *(struct S14 *)&IosMcProductFile[mc[2]].file[mc[16]] = *(struct S14 *)IosMcPreviewInfo;
         playTime((struct S14 *)IosMcPreviewInfo, &hour, &min, &sec);
-        (IosMcProductFile + mc[2])->_1E0 = mc[16];
-        if ((IosMcProductFile + mc[2])->_1E4 == (IosMcProductFile + (mc[2] ^ 1))->_1E4) {
+        (IosMcProductFile + mc[2])->fileNo = mc[16];
+        if ((IosMcProductFile + mc[2])->serial == (IosMcProductFile + (mc[2] ^ 1))->serial) {
             do {
-                while ((IosMcProductFile[mc[2]]._1E4 = mcMakeSerial()) == 0)
+                while ((IosMcProductFile[mc[2]].serial = mcMakeSerial()) == 0)
                     ;
-            } while ((IosMcProductFile + mc[2])->_1E4 == (IosMcProductFile + (mc[2] ^ 1))->_1E4);
+            } while ((IosMcProductFile + mc[2])->serial ==
+                     (IosMcProductFile + (mc[2] ^ 1))->serial);
         }
         mcSetSavedFile();
         iosMcSaveProductBlock(mc);
@@ -2459,9 +2435,6 @@ inline int la_delete_confirm(int a0, int a1)
     }
     return -1;
 }
-
-/* this TU declares it void; mcard.h returns int */
-extern void iosMcDelete(void *a0);
 
 static int deleteStep = 0; /* derived name */
 

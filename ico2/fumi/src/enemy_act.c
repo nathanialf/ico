@@ -37,6 +37,7 @@
 #include "main.h"
 #include <assert.h>
 #include "motionManager2.h"
+#include "attackhit.h"
 
 int entesty;
 
@@ -119,14 +120,8 @@ extern MotionDef motionKind[];
 #define ENEMY_DEBUG_HOLD 0 /* derived name */
 #endif
 
-/* enemy_act.c does not carry multiBgaManager.h, and this TU reads only the
-   display list pointer it hands the manager */
-/* The pad record layout_texture.c reconstructs as LtPad; this TU reads only
-   its button word at +0, declared as an incomplete array. */
-extern void ACTParaStatus_Exec(GObj *self);
+/* enemy.c's; no header declares it */
 extern float GetEnemyDefParaIndex(void *self);
-/* void is void * here, void in attackhit.h */
-extern void EnemyAttackCenter(void *self);
 
 /* The point the lifting enemy turns to: three vectors (the first two equal),
    of which only the first is addressed. */
@@ -606,7 +601,7 @@ void subEnemyCollision(GObj *volatile a0)
             }
         }
         ACTGame_CommonLoop((void *)a0);
-        CommonAttackCenter((char *)a0);
+        CommonAttackCenter(a0);
         if (GOBJ_ACT(a0)->enemy->liftKind == 3) {
             boss_effect_process((char *)a0);
         }
@@ -752,7 +747,7 @@ void actEnemyAttack(GObj *volatile a0)
             ACTSendMailCorrect((void *)a0, 0xCD);
         }
         ACTSendMailCorrect((void *)a0, 0xC7);
-        EnemyAttackCenter((void *)a0);
+        EnemyAttackCenter(a0);
         _ACTWait(1);
     }
 }

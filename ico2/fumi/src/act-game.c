@@ -39,6 +39,7 @@
 #include <assert.h>
 #include "poly-flat.h"
 #include "act.h"
+#include "brain.h"
 
 typedef struct { /* field names derived */
     char pad0[28];
@@ -177,12 +178,7 @@ typedef struct { /* field names derived */
 } HandModeRow; /* derived name */
 
 extern HandModeRow motionIKEffKind[];
-/* brain.h is not in this TU's include list and does not declare
-   brainAddLevelGirlDetail */
-extern void brainAddLevelGirlDetail(int a0, float f);
 void ACTItemWatchMotion(GObj *self);
-/* as in boyact.h, which this TU does not include (PrivInsCamSet differs) */
-extern void SetBoyInfo(int *a0, int *a1);
 /* f5 is int here, float in boyact.h; a7 is float here, unsigned char in boyact.h */
 extern void PrivInsCamSet(float *pos, float *tgt, int a2, int a3, int a4, int a5, float f6,
                           float f1);

@@ -72,8 +72,8 @@ static unsigned int fadeCount; /* derived name */
 
 #include "layout_texture.h"
 
-/* This TU does not include <string.h>; memset is declared as
-   layout_action.c declares it, with an int count. */
+/* memset with an int count, which this TU's calls pin over <string.h>'s
+   unsigned one */
 extern void *memset(void *dst, int c, int n);
 
 #include "Texture.h"
@@ -392,17 +392,15 @@ void texture_fading(LtProp *p)
     }
 }
 
-/* GifPacket.h's entry points, which this TU does not include; the sprite
-   calls take z as an unsigned int here, a long long in the header */
+/* GifPacket.h's entry points, which this TU does not include: its calls pass
+   the sprites' z as a 32-bit unsigned int, where the header takes a long
+   long */
 extern void gif_StartPacketPri(int pri);
 extern void gif_SetZTest(int a0);
 extern void gif_SetZWrite(int a0);
 extern void gif_SetAlpha(long long a0, long long a1, long long a2);
 extern void gif_SpriteSensitive(int *r, unsigned int z, int *uv, unsigned char *col, int prim);
 extern void gif_EndPacket(void);
-/* display_texture below reads these: ltHighlightColor is the second highlight colour, GlobalStageSetting the system record whose
-   reduction tint it inverts, and GetTableSin/gif_SpriteSensitiveOffset/
-   gif_PointOffset/gif_SetGsReg/rand are its callees. */
 extern void gif_SpriteSensitiveOffset(int *r, unsigned int z, int *uv, unsigned char *col,
                                       int prim);
 extern void gif_PointOffset(int *v, long long z, unsigned char *col, int prim);

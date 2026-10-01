@@ -180,30 +180,15 @@ typedef struct { /* field names derived */
     char b[64];
 } McBlk; /* derived name */
 
-typedef struct { /* field names derived */
-    char pad0[400];
-    int soundMode;
-    int outputMode;
-    int unk198;
-    int gobj;
-    char blk[64];
-    char pad1E0[8];
-    int cameraMove;
-    int unk1EC;
-} McSaveRec; /* derived name */
-
-/* defined below; called from here without a prototype */
-extern McSaveRec IosMcProductFile[];
-
 inline int product_write(int *self)
 {
     (IosMcProductFile + self[2])->soundMode = systemStatus[11];
     (IosMcProductFile + self[2])->outputMode = soundOutputModeGet();
-    (IosMcProductFile + self[2])->unk198 = iosPadActRequestEnable;
-    (IosMcProductFile + self[2])->gobj = optionControlType;
+    (IosMcProductFile + self[2])->vibration = iosPadActRequestEnable;
+    (IosMcProductFile + self[2])->controlType = optionControlType;
     (IosMcProductFile + self[2])->cameraMove = NonLinearCameraMove;
-    (IosMcProductFile + self[2])->unk1EC = systemStatus[0];
-    *(McBlk *)(IosMcProductFile + self[2])->blk = *(McBlk *)iosPadConfCustom.bit;
+    (IosMcProductFile + self[2])->palMode = systemStatus[0];
+    *(McBlk *)(IosMcProductFile + self[2])->padConf = *(McBlk *)iosPadConfCustom.bit;
     iosMcHandlerWrite((int)self, (int)(IosMcProductFile + self[2]), 0x1F0);
     return 0;
 }
@@ -228,9 +213,9 @@ inline int gameblock_read(int *self, void *buf)
     iosMcHandlerRead((int)self, (int)buf, 0x63F4);
     systemStatus[11] = (IosMcProductFile + self[2])->soundMode;
     soundOutputModeSet((IosMcProductFile + self[2])->outputMode);
-    iosPadActRequestEnable = (IosMcProductFile + self[2])->unk198;
-    optionControlType = (IosMcProductFile + self[2])->gobj;
-    *(McBlk *)iosPadConfCustom.bit = *(McBlk *)(IosMcProductFile + self[2])->blk;
+    iosPadActRequestEnable = (IosMcProductFile + self[2])->vibration;
+    optionControlType = (IosMcProductFile + self[2])->controlType;
+    *(McBlk *)iosPadConfCustom.bit = *(McBlk *)(IosMcProductFile + self[2])->padConf;
     iosMcHandlerRead((int)self, (int)&optionScreenMode, 4);
     iosMcHandlerRead((int)self, (int)&girlControlMode, 4);
     return self[4];
@@ -605,7 +590,7 @@ McSegEnt iOSMcSaveList[6] = {
     {0, product_read, product_write}, {5, gameblock_read, gameblock_write},
 };
 
-McSaveRec IosMcProductFile[2] = {0};
+McProductFile IosMcProductFile[2] = {0};
 
 int IosMcPreviewInfo[6] = {0};
 

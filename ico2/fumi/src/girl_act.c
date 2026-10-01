@@ -955,8 +955,6 @@ out:
     return mode;
 }
 
-extern void brainGetTarget(Brain *b);
-
 /* the pad record: the button word at +0 */
 
 /* the brain target pass, inlined into girlBrainMain_DecideMode and into
@@ -3460,7 +3458,6 @@ void subGirlControl(GObj *volatile a0)
     }
 }
 
-extern void brainLevelProcess(Brain *b);
 extern double fptodp(float v);
 
 void subGirlCollision(GObj *volatile a0)

@@ -57,9 +57,12 @@ static int partitionFreeColor[4] = {255, 128, 64, 128}; /* derived name */
 
 static int partitionUsedColor[4] = {64, 128, 255, 128}; /* derived name */
 
-/* GifPacket.h's entry points, which this TU does not include;
-   gif_MakeSpriteNoTexture takes z as an unsigned int here, a long long in
-   the header */
+/* GifPacket.h's entry points, which this TU does not include: its call
+   passes gif_MakeSpriteNoTexture's z as a 32-bit unsigned int, where the
+   header takes a long long */
+extern void gif_StartPacketPri(int pri);
+extern void gif_SetAlpha(long long a0, long long a1, long long a2);
+extern void gif_EndPacket(void);
 extern void gif_MakeSpriteNoTexture(int x, int y, int w, int h, unsigned int z, unsigned char *col,
                                     int prim);
 
@@ -67,10 +70,6 @@ extern void gif_MakeSpriteNoTexture(int x, int y, int w, int h, unsigned int z, 
 static char printBuf[128]; /* derived name */
 
 inline void ExitIcoMisc(void) {}
-
-extern void gif_StartPacketPri(int pri);
-extern void gif_SetAlpha(long long a0, long long a1, long long a2);
-extern void gif_EndPacket(void);
 
 /* two-dimensional screen position handed to Draw2DLine */
 typedef struct {
@@ -389,8 +388,6 @@ extern void enemy_Initialize(void);
 extern void fog_MakeFogClut(void);
 /* particleEffect.h does not declare it */
 extern void InitParticleEffects(void);
-/* GsBase.h does not declare it */
-extern void gsb_ResetFilmNoise(void);
 /* StageAnimation.h does not declare it; the definition returns int */
 extern void stage_Init(void);
 
@@ -549,11 +546,6 @@ int dbgC4 = 0;
 int dbgC5 = 0;
 
 static int windLineColor[4] = {0, 128, 255, 128}; /* derived name */
-
-/* as in GifPacket.h, which this TU does not include */
-extern void gif_StartPacketPri(int pri);
-extern void gif_SetAlpha(long long a0, long long a1, long long a2);
-extern void gif_EndPacket(void);
 
 void DispIcoMisc(void)
 {

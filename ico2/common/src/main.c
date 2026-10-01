@@ -102,9 +102,6 @@ void idle(void);
 void scheduler(void);
 /* motionOrientManager.h carries MotOriName and declares no movieFile */
 extern char movieFile[];
-/* gsb_ResetSnap and gsb_TakeSnap return an int the callers here drop;
-   GsBase.h does not declare them */
-extern int gsb_ResetSnap(void);
 /* mv_main.h does not declare it; the definition takes char * and returns int */
 extern void movie_init(void *p, int w, int h, int a3, int a4, int a5, int col);
 /* geometryManager.h does not declare it */
@@ -115,7 +112,6 @@ extern void stage_ResetAnimation(void);
 extern void stage_CalcAnimationNoParent(void);
 /* StageAnimation.h does not declare it */
 extern void stage_CalcAnimationParent(void);
-extern int gsb_TakeSnap(void);
 int movie_abort_check(void);
 
 /* the development build's Main also called debug_Menu, debug_SetBar and

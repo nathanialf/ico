@@ -40,6 +40,7 @@
 #include "pad.h"
 #include "ios.h"
 #include "staffroll.h"
+#include "DmaPacket.h"
 
 /* debug_exception_screen.c.inc (compiled into debug_exception.o) */
 
@@ -600,22 +601,9 @@ typedef int Qw128 __attribute__((mode(TI)));
    fontGlyph = the glyph re-expanded to 8 shorts (shifted left one column);
    fontOutline = the 3x3-dilated outline, 16 shorts per glyph. */
 
-/* the display-list packet record (DmaPacket.o's .data): the open DMA tag at
-   +0x0C, the write pointer at +0x10 */
-typedef struct {
-    /* 0x00 */ int cur;
-    /* 0x04 */ int *buf[2];
-    /* 0x0C */ char *dma;
-    /* 0x10 */ char *ptr;
-    /* 0x14 */ char *tail;
-    /* 0x18 */ char *gif;
-    /* 0x1C */ char *end;
-} DbgDpk;
-
-/* read here as DbgDpk; DmaPacket.h declares a DpkCtl */
-extern DbgDpk PacketBufferStruct;
-/* GifPacket.h's entry points, which this TU does not include; gif_Sprite
-   and gif_Line take z as an unsigned int here, a long long in the header */
+/* GifPacket.h's entry points, which this TU does not include: its calls pass
+   gif_Sprite's and gif_Line's z as a 32-bit unsigned int (lui/ori), where the
+   header takes a long long */
 extern int gif_CheckOpen(void);
 extern void gif_EndPacket(void);
 /* GifPacket.h's parameter list: debug_DrawBar passes its 64-bit alpha untruncated */
@@ -623,6 +611,8 @@ extern void gif_SetAlpha(long long a0, long long a1, long long a2);
 extern void gif_SetZTest(int a0);
 extern void gif_SetZWrite(int a0);
 extern void gif_Sprite(int *r, unsigned int z, int *uv, unsigned char *col, int prim);
+extern void gif_Line(int *v0, int *v1, unsigned int z0, unsigned int z1, unsigned char *col,
+                     int prim);
 extern void gif_StartPacketPri(int pri);
 
 typedef struct {
@@ -632,11 +622,6 @@ typedef struct {
 typedef struct {
     int x, y, z, w;
 } DbgVtx;
-
-/* brain.h does not declare it */
-extern float brainGetLevel(Brain *b, BrainTarget *t);
-extern void gif_Line(int *v0, int *v1, unsigned int z0, unsigned int z1, unsigned char *col,
-                     int prim);
 
 /* .sbss: the rows debug_DispBox, debug_DispBall and debug_CollisionTest
    select, and the profiler's bar count. */
@@ -650,8 +635,6 @@ static int debugBarCount; /* derived name */
 
 /* the two sprite rectangles and the three line colours the bar display
    starts from */
-/* as in DmaPacket.h, which this TU does not include */
-extern int used_dma_memory;
 
 /* clang-format on */
 
@@ -704,9 +687,10 @@ typedef struct {
     int biClrImportant;      /* 0x34 */
 } BmpHeader;
 
-/* libgraph.h does not declare the store-image entry points */
-extern void sceGsSetDefStoreImage(void *si, short fbp, short fbw, short psm, short x, short y,
-                                  short w, short h);
+/* libgraph.h leaves it out for Texture.c's int view; this TU takes the
+   library's short parameters */
+extern int sceGsSetDefStoreImage(sceGsStoreImage *si, short fbp, short fbw, short psm, short x,
+                                 short y, short w, short h);
 /* libgcc's dp-bit.c helper, which no header declares */
 extern float dptofp(double v);
 
@@ -748,34 +732,31 @@ typedef struct {
     char c[2];
 } McPat;
 
-/* this TU declares it void; mcard.h returns int */
+/* mcard.c's request entry points return iosMsgSend's result; this TU never
+   reads it and declares them void, which its calls pin, so it does not
+   include mcard.h */
 extern void iosMcChdirProduct(void *a0);
-/* this TU declares it void; mcard.h returns int */
 extern void iosMcGetDir(void *a0);
-/* as in mcard.h, which this TU does not include */
 extern int iosMcSync(unsigned long *a0);
-/* this TU declares it void; mcard.h returns int */
 extern void iosMcGetBlockSaveInfo(void *a0);
-/* this TU declares it void; mcard.h returns int */
 extern void iosMcSaveIconBlock(void *a0);
-/* this TU declares it void; mcard.h returns int */
 extern void iosMcSaveProductBlock(void *a0);
-/* this TU declares it void; mcard.h returns int */
 extern void iosMcSaveGameBlock(void *a0, int a1);
+extern void iosMcLoadProductBlock(void *a0);
+extern void iosMcLoadGameBlock(void *a0, int a1);
+extern void iosMcDelete(void *a0);
+extern void iosMcGetInfo(void *a0);
+extern void iosMcFormat(void *a0);
+extern void iosMcUnformat(void *a0);
+extern void iosMcTest(void);
 
 /* the default save-file name "game." lives in .sdata as 6 bytes */
 typedef struct {
     char c[6];
 } McName6;
 
-/* this TU declares it void; mcard.h returns int */
-extern void iosMcLoadProductBlock(void *a0);
-/* this TU declares it void; mcard.h returns int */
-extern void iosMcLoadGameBlock(void *a0, int a1);
 /* forward declaration: defined below, on this TU's McReq view */
 extern int debug_selectFile(McReq *mc);
-/* this TU declares it void; mcard.h returns int */
-extern void iosMcDelete(void *a0);
 
 /* one line of the memory-card menu: the label debug_SelectCsvWindow prints and
    the state machine it hands control to */
@@ -793,10 +774,9 @@ typedef struct {
 
 /* layout_action.c's request block, read here through McReq */
 extern McReq mc;
-/* this TU declares it void; mcard.h returns int */
-extern void iosMcGetInfo(void *a0);
-/* read here as GsysObjInfo []; s_init.h carries SeDef and declares no seDef */
-extern GsysObjInfo seDef[];
+/* the generated sedef member's rows; s_init.h declares no seDef, since s_init.c
+   writes procRan into them */
+extern const SeDef seDef[];
 
 /* the sibling of debug_ListPadControlGobj that lists the actor GObjs the debug menu can print (kinds 1, 2, 4 and 0x2F). */
 typedef struct {
@@ -842,32 +822,20 @@ typedef struct {
 /* The strings these tables point at stay blob-owned by address until the
    TU's plain .rodata and .sdata runs close up. */
 /* the menu's handlers defined further down this file or in other TUs */
-/* GsBase.h does not declare it */
-extern int gsb_StageSetting(void);
 /* no header declares it */
 extern int MotionViewer(void);
 /* effectTool.h does not declare it */
 extern int EffectTool(void);
 /* Texture.h does not declare it */
 extern int tex_ListTool(void);
-/* pad.c's default pad configuration; no header declares it (effectTool.c
-   and camera-ico2.c read it as a char array) */
-extern PadConf iosPadConfDefault;
 /* motionManager2.h does not declare it; the definition takes int * */
 extern void DebugDisp1Collision(void *hit);
+
 /* Profiler bar table: 0x400 entries of 0x1C bytes; debugBarCount = live count.
    Callers pass (label, colour, __FILE__, __LINE__) -- see the call sites in
    main.c and motionManager2.c, where a3 is literally the caller's line number.
    +0x14 samples the EE timer T0_COUNT at 0x10000000, volatile because it is a
    hardware counter. */
-/* this TU declares it void; mcard.h returns int */
-extern void iosMcFormat(void *a0);
-/* as in mcard.h, which this TU does not include */
-extern int iosMcSync(unsigned long *a0);
-/* this TU declares it void; mcard.h returns int */
-extern void iosMcUnformat(void *a0);
-/* as in mcard.h, which this TU does not include */
-extern void iosMcTest(void);
 
 inline void ChangeGirlControlMode(int a0)
 {
@@ -1384,32 +1352,32 @@ void debug_PrintCharacter(char *str, int x, int y, int r, int g, int b, int sz)
     /* one packet word and its cursor advance per line; the DMA tag's line
        also opens the tail */
     /* clang-format off */
-    p = PacketBufferStruct.ptr; PacketBufferStruct.dma = p; PacketBufferStruct.gif = 0; PacketBufferStruct.end = 0;
+    p = PacketBufferStruct.ptr.c; PacketBufferStruct.dma.c = p; PacketBufferStruct.gif.c = 0; PacketBufferStruct.end.c = 0;
 
-    PacketBufferStruct.tail = p; ((DbgPkWord *)p)->d = 0x10000006; PacketBufferStruct.ptr = p + 8;
-    ((DbgPkWord *)(p + 8))->w[0] = 0x11000000; PacketBufferStruct.ptr = p + 0xC;
-    ((DbgPkWord *)(p + 0xC))->w[0] = 0x3000104; PacketBufferStruct.ptr = p + 0x10;
-    ((DbgPkWord *)(p + 0x10))->d = 0; PacketBufferStruct.ptr = p + 0x18;
-    ((DbgPkWord *)(p + 0x18))->w[0] = 0x200017E; PacketBufferStruct.ptr = p + 0x1C;
-    ((DbgPkWord *)(p + 0x1C))->w[0] = 0x6C048000; PacketBufferStruct.ptr = p + 0x20;
+    PacketBufferStruct.tail.c = p; ((DbgPkWord *)p)->d = 0x10000006; PacketBufferStruct.ptr.c = p + 8;
+    ((DbgPkWord *)(p + 8))->w[0] = 0x11000000; PacketBufferStruct.ptr.c = p + 0xC;
+    ((DbgPkWord *)(p + 0xC))->w[0] = 0x3000104; PacketBufferStruct.ptr.c = p + 0x10;
+    ((DbgPkWord *)(p + 0x10))->d = 0; PacketBufferStruct.ptr.c = p + 0x18;
+    ((DbgPkWord *)(p + 0x18))->w[0] = 0x200017E; PacketBufferStruct.ptr.c = p + 0x1C;
+    ((DbgPkWord *)(p + 0x1C))->w[0] = 0x6C048000; PacketBufferStruct.ptr.c = p + 0x20;
 
-    _CopyIVector(((sceVu0IVECTOR *)PacketBufferStruct.ptr)++, col);
-    _CopyIVector(((sceVu0IVECTOR *)PacketBufferStruct.ptr)++, v);
+    _CopyIVector(((sceVu0IVECTOR *)PacketBufferStruct.ptr.c)++, col);
+    _CopyIVector(((sceVu0IVECTOR *)PacketBufferStruct.ptr.c)++, v);
 
-    q = PacketBufferStruct.ptr; px = x * ScreenWidth / 640 + 2048; px -= ScreenWidth / 2; ((DbgPkWord *)q)->f[0] = (float)px; q += 4; PacketBufferStruct.ptr = q;
-    py = y * ScreenHeight / 224 + 2048; py -= ScreenHeight / 2; py--; ((DbgPkWord *)q)->f[0] = (float)py; PacketBufferStruct.ptr = q + 4;
-    ((DbgPkWord *)(q + 4))->d = 0; PacketBufferStruct.ptr = q + 0xC;
-    ((DbgPkWord *)(q + 0xC))->f[0] = (float)ScreenWidth * 12.0f / 640.0f; PacketBufferStruct.ptr = q + 0x10;
-    ((DbgPkWord *)(q + 0x10))->w[0] = 0; PacketBufferStruct.ptr = q + 0x14;
-    ((DbgPkWord *)(q + 0x14))->d = 0; PacketBufferStruct.ptr = q + 0x1C;
+    q = PacketBufferStruct.ptr.c; px = x * ScreenWidth / 640 + 2048; px -= ScreenWidth / 2; ((DbgPkWord *)q)->f[0] = (float)px; q += 4; PacketBufferStruct.ptr.c = q;
+    py = y * ScreenHeight / 224 + 2048; py -= ScreenHeight / 2; py--; ((DbgPkWord *)q)->f[0] = (float)py; PacketBufferStruct.ptr.c = q + 4;
+    ((DbgPkWord *)(q + 4))->d = 0; PacketBufferStruct.ptr.c = q + 0xC;
+    ((DbgPkWord *)(q + 0xC))->f[0] = (float)ScreenWidth * 12.0f / 640.0f; PacketBufferStruct.ptr.c = q + 0x10;
+    ((DbgPkWord *)(q + 0x10))->w[0] = 0; PacketBufferStruct.ptr.c = q + 0x14;
+    ((DbgPkWord *)(q + 0x14))->d = 0; PacketBufferStruct.ptr.c = q + 0x1C;
 
-    ((DbgPkWord *)(q + 0x1C))->w[0] = 0x14000008; PacketBufferStruct.ptr = q + 0x20;
-    ((DbgPkWord *)(q + 0x20))->w[0] = 0; PacketBufferStruct.ptr = q + 0x24;
-    ((DbgPkWord *)(q + 0x24))->d = 0; PacketBufferStruct.ptr = q + 0x2C;
+    ((DbgPkWord *)(q + 0x1C))->w[0] = 0x14000008; PacketBufferStruct.ptr.c = q + 0x20;
+    ((DbgPkWord *)(q + 0x20))->w[0] = 0; PacketBufferStruct.ptr.c = q + 0x24;
+    ((DbgPkWord *)(q + 0x24))->d = 0; PacketBufferStruct.ptr.c = q + 0x2C;
 
-    PacketBufferStruct.tail = q + 0x2C; ((DbgPkWord *)(q + 0x2C))->d = 0x60000000; PacketBufferStruct.ptr = q + 0x34; ((DbgPkWord *)(q + 0x34))->w[0] = 0; PacketBufferStruct.ptr = q + 0x38; ((DbgPkWord *)(q + 0x38))->w[0] = 0; PacketBufferStruct.ptr = q + 0x3C;
+    PacketBufferStruct.tail.c = q + 0x2C; ((DbgPkWord *)(q + 0x2C))->d = 0x60000000; PacketBufferStruct.ptr.c = q + 0x34; ((DbgPkWord *)(q + 0x34))->w[0] = 0; PacketBufferStruct.ptr.c = q + 0x38; ((DbgPkWord *)(q + 0x38))->w[0] = 0; PacketBufferStruct.ptr.c = q + 0x3C;
 
-    dl_SetDLPriority(12); dl_OpenDma(5, PacketBufferStruct.dma, 0); dl_CloseDma();
+    dl_SetDLPriority(12); dl_OpenDma(5, PacketBufferStruct.dma.c, 0); dl_CloseDma();
 
     dl_SetDLPriority(12);
     while ((c = (unsigned char)*str++) != 0) {
@@ -2103,7 +2071,7 @@ static int snapFirst = 1; /* derived name */
 
 int debug_SnapShot(int idx)
 {
-    int si[28];
+    sceGsStoreImage si;
     char name[256];
     int size;
     int mask;
@@ -2130,9 +2098,9 @@ int debug_SnapShot(int idx)
     }
     sceGsSyncPath(0, 0);
     debug_StdPrintfDummy("Snap:%d:%p\n", idx, 0x2000000);
-    sceGsSetDefStoreImage(si, 0x800, ScreenWidth / 64, 0, 0, 0, ScreenWidth, ScreenHeight);
+    sceGsSetDefStoreImage(&si, 0x800, ScreenWidth / 64, 0, 0, 0, ScreenWidth, ScreenHeight);
     FlushCache(0);
-    sceGsExecStoreImage(si, (void *)0x2000000);
+    sceGsExecStoreImage(&si, (void *)0x2000000);
     sceGsSyncPath(0, 0);
     src = (int *)0x2000000;
     FlushCache(0);

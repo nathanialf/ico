@@ -205,10 +205,6 @@ void after_func_exec(void *self, int oldst, int newst)
 
 inline void actInitialize_geo(void *self) {}
 
-/* pad.h cannot declare it while effectTool.c and camera-ico2.c declare it as
-   a char array */
-extern PadConf iosPadConfDefault;
-
 void actInitialize_ext_charcter(GObj *self)
 {
     Act *g = GOBJ_ACT(self);

@@ -29,6 +29,8 @@ extern int iosPadActRequestEnable;
 /* pad.c's custom pad configuration, the record iosPadConnect takes for the
    player's own button layout */
 extern struct PadConf iosPadConfCustom;
+/* pad.c's default pad configuration, the layout the debug tools connect with */
+extern struct PadConf iosPadConfDefault;
 int controler_stable_check(void *a0);
 void iosPadActInit(void);
 

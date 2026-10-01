@@ -1794,9 +1794,6 @@ void PrivInsCamProcess(void)
     }
 }
 
-/* poly-flat.h declares IsPointIsInScreen void, the callers here read the
-   float it returns */
-extern float GetDifferenceFromLowerField(int self, int a1);
 extern int isBottomOfChain(void *chain);
 /* as in camera-root.h, which this TU does not include (GetCurrentCameraSet2 differs) */
 extern void Camctrl_SetTarget(int a0, int a1, int a2);

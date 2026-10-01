@@ -8,8 +8,7 @@
 #ifndef MCARD_H
 #define MCARD_H
 
-/* mcard.c's globals (IosMcProductFile is declared by each user in its own
-   view of the save record). */
+/* mcard.c's globals (typedef.h declares IosMcProductFile with its record) */
 extern int IosMcMgrSleep;
 extern int IosMcLock;
 extern char *iconName[];
@@ -47,6 +46,7 @@ typedef struct {   /* field names derived */
     char name[32]; /* 0x00 */
     int size;      /* 0x20 */
 } IconFile;        /* derived name */
+
 extern const IconFile iconFile[];
 
 #endif /* MCARD_H */

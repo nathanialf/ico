@@ -147,6 +147,7 @@ inline void afterCommonTruckLever(GObj *volatile a0);
 #include "fieldCollision.h"
 #include "chain.h"
 #include "motionManager2.h"
+#include "weapon.h"
 
 typedef struct { /* field names derived */
     int a, b, c;
@@ -760,16 +761,13 @@ void WithMailFunc_WayBeginPosError(void *a0)
     ACTWay_SetBeginPositionIllegal(a0);
 }
 
-/* a0 is void * here, int in weapon.h */
-extern void ExecWeaponHitReaction(void *a0);
-
 void WithMailFunc_AttackFail(GObj *a0)
 {
     Act *s = GOBJ_ACT(a0);
     char *p = (char *)s->intrData;
     int v = p != 0 ? *(int *)p : s->wallWord;
     if (a0 == boyGObj) {
-        char *t = (char *)s->weapon;
+        GObj *t = s->weapon;
         if (t != 0) {
             GOBJ_SUB(t)->ctrl.wallAttr = v;
             ExecWeaponHitReaction(t);
@@ -777,13 +775,10 @@ void WithMailFunc_AttackFail(GObj *a0)
     }
 }
 
-/* as in weapon.h, which this TU does not include (ExecWeaponHitReaction differs) */
-extern int ReleaseWeaponWithFumbleSequential(char *g);
-
 void WithMailFunc_AttackRejectInQueen(char *a0)
 {
     Act *s = GOBJ_ACT(a0);
-    void *w = (void *)s->weapon;
+    GObj *w = s->weapon;
     if (w != 0) {
         ReleaseWeaponWithFumbleSequential(w);
         s->weapon = 0;
@@ -3975,9 +3970,6 @@ inline void actCommonDelete(GObj *volatile a0)
     _ACTWait(0);
 }
 
-/* as in weapon.h, which this TU does not include (ExecWeaponHitReaction differs) */
-extern void LightTorchOnOfWeapon(char *a0);
-
 inline void actCommonCatchFire(GObj *volatile a0)
 {
     Act *s = GOBJ_ACT(a0);
@@ -3986,7 +3978,7 @@ inline void actCommonCatchFire(GObj *volatile a0)
     SetMotionDirection(a0, s->torchOrient);
     for (;;) {
         if (GetMotionFrameFlag1((void *)a0) && !lit) {
-            LightTorchOnOfWeapon((void *)s->weapon);
+            LightTorchOnOfWeapon(s->weapon);
             lit = 1;
         }
         ACTSendMailCorrect(a0, 0xC7);
