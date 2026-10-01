@@ -157,12 +157,13 @@ static void exit_stage(int *self)
     return DeleteStreamMotionManager();
 }
 
-/* The mpeg-restart record the stream side owns; the two fields this arm
-   clears are at +0x14 and +0x18 of it. */
+/* systemStatus seen as a record by the mpeg arm, which clears its pause flag
+   (systemStatus[5], the game paused while it is set) and its stage-change flag
+   (systemStatus[6], set by the stage exit, waited on until the stage is up). */
 typedef struct MpegRec { /* field names derived */
-    int _0[5];
-    int f14;
-    int f18;
+    int pad0[5];
+    int pause;
+    int stageChange;
 } MpegRec; /* derived name */
 
 static void start_stage_Load_thread(int stage)
@@ -194,8 +195,8 @@ static void start_stage_Load_thread(int stage)
         sceVpu0Reset();
         sceDmaReset(1);
         mpegInitDone = 1;
-        ((MpegRec *)systemStatus)->f14 = 0;
-        ((MpegRec *)systemStatus)->f18 = 0;
+        ((MpegRec *)systemStatus)->pause = 0;
+        ((MpegRec *)systemStatus)->stageChange = 0;
         girlGObj = 0;
         boyGObj = 0;
         stageManagerFreeResourceFlag = 0;

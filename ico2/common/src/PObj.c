@@ -19,41 +19,41 @@ typedef struct PObjPkt { /* field names derived */
     char pad0[2132];
     struct PObj *owner; /* 0x854 */
     char pad858[24];
-    void *f870;   /* 0x870 */
-    PktHdr *f874; /* 0x874 */
-} PObjPkt;        /* derived name */
+    void *nodes;      /* 0x870, one 80-byte node record a part */
+    PktHdr *lightMtx; /* 0x874, the light matrices (Light.h), their mode at 0xF0 */
+} PObjPkt;            /* derived name */
 
 typedef struct PObjSub { /* field names derived */ /* 0x180 stride, hung off the PObj at 0x40 */
-    long long _0[18];
-    Vec *f90;         /* 0x90 */
-    unsigned int f94; /* 0x94 */
-    long long _98[(0x180 - 0x98) / 8];
+    long long pad0[18];
+    Vec *vtx;              /* 0x90 */
+    unsigned int vtxCount; /* 0x94 */
+    long long pad98[(0x180 - 0x98) / 8];
 } PObjSub; /* derived name */
 
 typedef struct PObj { /* field names derived */
     char pad0[36];
-    int f24;      /* 0x24 */
+    int image;    /* 0x24, the model file image (ObjHdr) */
     PObjPkt *pkt; /* 0x28 */
-    short f2C;    /* 0x2C */
-    /* 0x2E and 0x2F, the sub-object count and a second byte, as one short's
-       two bitfields */
-    short f2E : 8;          /* 0x2E */
-    unsigned short f2F : 8; /* 0x2F */
+    short pad2C;  /* 0x2C */
+    /* 0x2E and 0x2F, the part count and the cluster count (the file's objnum
+       and clstnum), as one short's two bitfields */
+    short partCount : 8;        /* 0x2E */
+    unsigned short clstNum : 8; /* 0x2F */
 
     union {
         long long ll;
 
         struct {
             short nloop; /* 0x30 */
-            short _32;
-            float f34; /* 0x34 */
+            short bits;  /* 0x32, the display type, shade and level-of-detail bits tag.ll sets */
+            float lightScale; /* 0x34 */
         } v;
     } tag; /* 0x30 */
 
-    float f38;     /* 0x38 */
-    float f3C;     /* 0x3C */
-    PObjSub *sub;  /* 0x40 */
-    Vec (*f44)[8]; /* 0x44 */
+    float ambientScale; /* 0x38 */
+    float shadowLength; /* 0x3C */
+    PObjSub *sub;       /* 0x40 */
+    Vec (*boxes)[8];    /* 0x44 */
     char pad48[8];
     Vec bb[8]; /* 0x50 */
 } PObj;        /* derived name */
@@ -83,7 +83,7 @@ static __inline__ void TidyPObjName(char *name) /* derived name */
 }
 
 /* MakeBoundingBox: one axis-aligned box per sub-object into the block it
-   allocates at 0x44, plus the whole object's box in self->bb. */
+   allocates at boxes, plus the whole object's box in self->bb. */
 static void MakeBoundingBox(PObj *self)
 {
     Vec mn;
@@ -97,20 +97,20 @@ static void MakeBoundingBox(PObj *self)
     unsigned int j;
     int l;
 
-    self->f44 = (Vec(*)[8])mallocseki(self->f2E << 7);
+    self->boxes = (Vec(*)[8])mallocseki(self->partCount << 7);
 
     gmn[0] = gmn[1] = gmn[2] = 16777215.0f;
     gmx[0] = gmx[1] = gmx[2] = -16777215.0f;
 
-    for (i = 0; i < self->f2E; i++) {
+    for (i = 0; i < self->partCount; i++) {
         sub = &self->sub[i];
-        out = self->f44[i];
+        out = self->boxes[i];
 
         mn[0] = mn[1] = mn[2] = 16777215.0f;
         mx[0] = mx[1] = mx[2] = -16777215.0f;
 
-        for (j = 0; j < sub->f94; j++) {
-            p = sub->f90[j];
+        for (j = 0; j < sub->vtxCount; j++) {
+            p = sub->vtx[j];
             if (p[0] < mn[0])
                 mn[0] = p[0];
             if (mx[0] < p[0])
@@ -176,20 +176,20 @@ static void MakePacket(PObj *p, int n)
     PObjPkt *q;
 
     p->tag.v.nloop = n;
-    p->tag.ll = (p->tag.ll & ~0x3C0000LL) | ((long long)modelData[n].bits4 << 18);
-    p->tag.ll = (p->tag.ll & ~0x3C00000LL) | ((long long)modelData[n].bits8 << 22);
-    p->tag.v.f34 = modelData[n].float7C;
-    p->f38 = modelData[n].float80;
+    p->tag.ll = (p->tag.ll & ~0x3C0000LL) | ((long long)modelData[n].shade << 18);
+    p->tag.ll = (p->tag.ll & ~0x3C00000LL) | ((long long)modelData[n].lod << 22);
+    p->tag.v.lightScale = modelData[n].lightScale;
+    p->ambientScale = modelData[n].ambientScale;
 
     q = (PObjPkt *)mallocseki(0x880);
     p->pkt = q;
-    q->f874 = (PktHdr *)mallocseki(0x100);
-    q->f874->kind = modelData[n].pktKind;
+    q->lightMtx = (PktHdr *)mallocseki(0x100);
+    q->lightMtx->kind = modelData[n].pktKind;
 
     q->owner = p;
-    q->f870 = mallocseki(p->f2E * 80);
-    if (q->f874->kind != 4) {
-        if (p->f24 != 0)
+    q->nodes = mallocseki(p->partCount * 80);
+    if (q->lightMtx->kind != 4) {
+        if (p->image != 0)
             p2o_MakePacket(q);
     }
     debug_StdPrintfDummy("end of packet making...\n");
@@ -206,12 +206,12 @@ static __inline__ void SetPObjVector(Vec v, float x, float y, float z) /* derive
 
 typedef struct ObjHdr { /* field names derived */ /* the loaded model file image */
     char pad0[4];
-    int f4;           /* 0x4  object table, file offset then pointer */
-    unsigned int f8;  /* 0x8  objnum */
-    unsigned int fC;  /* 0xC  clstnum */
-    int f10;          /* 0x10 texture table, file offset then pointer */
-    unsigned int f14; /* 0x14 */
-} ObjHdr;             /* derived name */
+    int objTbl;           /* 0x4  object table, file offset then pointer */
+    unsigned int objNum;  /* 0x8, the part count */
+    unsigned int clstNum; /* 0xC, the cluster count */
+    int texTbl;           /* 0x10 texture table, file offset then pointer */
+    unsigned int texNum;  /* 0x14, the texture table's count */
+} ObjHdr;                 /* derived name */
 
 typedef struct ObjEnt { /* field names derived */ /* the 0x10 stride records the 0xF0 table holds */
     void *p;                                      /* 0x0 */
@@ -220,54 +220,54 @@ typedef struct ObjEnt { /* field names derived */ /* the 0x10 stride records the
 
 typedef struct ObjRec { /* field names derived */
     char pad0[128];
-    int f80; /* 0x80 */
+    int magic; /* 0x80, "OBJH" */
     char pad84[12];
-    char *f90; /* 0x90 */
+    char *vtx; /* 0x90 */
     char pad94[12];
-    char *fA0; /* 0xA0 */
+    char *nrm; /* 0xA0 */
     char padA4[12];
-    char *fB0; /* 0xB0 */
+    char *uv; /* 0xB0 */
     char padB4[12];
-    char *fC0; /* 0xC0 */
+    char *col; /* 0xC0 */
     char padC4[12];
-    char *fD0; /* 0xD0 */
+    char *mats; /* 0xD0 */
     char padD4[12];
-    char *fE0; /* 0xE0 */
+    char *texDefs; /* 0xE0 */
     char padE4[12];
-    char *fF0;        /* 0xF0 */
-    unsigned int fF4; /* 0xF4 */
+    char *polys;            /* 0xF0 */
+    unsigned int polyCount; /* 0xF4 */
     char padF8[8];
-    char *f100;        /* 0x100 */
-    unsigned int f104; /* 0x104 */
+    char *strips;            /* 0x100 */
+    unsigned int stripCount; /* 0x104 */
     char pad108[8];
-    char *f110; /* 0x110 */
+    char *lines; /* 0x110 */
     char pad114[12];
-    char *f120;        /* 0x120 */
-    unsigned int f124; /* 0x124 */
-} ObjRec;              /* derived name */
+    char *morphs;            /* 0x120 */
+    unsigned int morphCount; /* 0x124 */
+} ObjRec;                    /* derived name */
 
 /* the sub-record table allocate and copy, inlined once */
 static __inline__ void AllocPObjSubs(PObj *p, int *list) /* derived name */
 {
     int i;
 
-    p->sub = (PObjSub *)mallocseki(p->f2E * sizeof(PObjSub));
+    p->sub = (PObjSub *)mallocseki(p->partCount * sizeof(PObjSub));
 
-    for (i = 0; i < p->f2E; i++)
+    for (i = 0; i < p->partCount; i++)
         p->sub[i] = *(PObjSub *)list[i];
 }
 
 /* the header fields of a freshly allocated PObj */
 static __inline__ void InitPObjHeader(PObj *p, ObjHdr *h, int n) /* derived name */
 {
-    p->f24 = (int)h;
+    p->image = (int)h;
     p->pkt = 0;
-    p->f2C = 0;
-    p->f2E = h->f8;
-    p->f2F = h->fC;
+    p->pad2C = 0;
+    p->partCount = h->objNum;
+    p->clstNum = h->clstNum;
     p->tag.ll &= ~0x30000LL;
     p->tag.ll &= ~0x4000000LL;
-    p->f3C = modelData[n].float84;
+    p->shadowLength = modelData[n].shadowLength;
 }
 
 PObj *AllocPObj(ObjHdr *h, char *name, int n)
@@ -279,16 +279,16 @@ PObj *AllocPObj(ObjHdr *h, char *name, int n)
     unsigned int i;
     unsigned int j;
 
-    h->f4 += (int)h;
+    h->objTbl += (int)h;
 
-    if (h->f10 != 0)
-        h->f10 += (int)h;
-    tex = (int *)h->f10;
+    if (h->texTbl != 0)
+        h->texTbl += (int)h;
+    tex = (int *)h->texTbl;
 
-    list = (int *)h->f4;
+    list = (int *)h->objTbl;
 
-    debug_StdPrintfDummy("\033[33mobject info : adrs(%p) objnum(%d) clstnum(%d)\n", h, h->f8,
-                         h->fC);
+    debug_StdPrintfDummy("\033[33mobject info : adrs(%p) objnum(%d) clstnum(%d)\n", h, h->objNum,
+                         h->clstNum);
 
     p = (PObj *)mallocseki(0xD0);
     sprintf((char *)p, "%s", name);
@@ -302,39 +302,39 @@ PObj *AllocPObj(ObjHdr *h, char *name, int n)
         debug_StdPrintfDummy("\033[m");
 
     if (tex != 0) {
-        for (i = 0; i < h->f14; i++)
+        for (i = 0; i < h->texNum; i++)
             tex[i] += (int)h;
     }
 
     debug_StdPrintfDummy("Solve object address. %p\n", list);
 
-    for (i = 0; i < h->f8; i++) {
+    for (i = 0; i < h->objNum; i++) {
         list[i] += (int)h;
         o = (ObjRec *)list[i];
 
-        if (o->f80 != *(int *)"OBJH") {
+        if (o->magic != *(int *)"OBJH") {
             debug_StdPrintfDummy("allocPObj:Invalid Object.\n");
             debug_assert(__FILE__, 249);
             __assert(__FILE__, 249, "FALSE");
         }
 
-        o->f90 += (int)h;
-        o->fA0 += (int)h;
-        o->fB0 += (int)h;
-        o->fC0 += (int)h;
-        o->fD0 += (int)h;
-        o->fE0 += (int)h;
-        o->fF0 += (int)h;
-        for (j = 0; j < o->fF4; j++)
-            ((ObjEnt *)o->fF0)[j].p = (void *)((int)((ObjEnt *)o->fF0)[j].p + (int)h);
-        o->f100 += (int)h;
-        for (j = 0; j < o->f104; j++)
-            ((void **)o->f100)[j] = (void *)((int)((void **)o->f100)[j] + (int)h);
-        o->f110 += (int)h;
-        o->f120 += (int)h;
-        for (j = 0; j < o->f124; j++) {
-            if (((void **)o->f120)[j] != 0)
-                ((void **)o->f120)[j] = (void *)((int)((void **)o->f120)[j] + (int)h);
+        o->vtx += (int)h;
+        o->nrm += (int)h;
+        o->uv += (int)h;
+        o->col += (int)h;
+        o->mats += (int)h;
+        o->texDefs += (int)h;
+        o->polys += (int)h;
+        for (j = 0; j < o->polyCount; j++)
+            ((ObjEnt *)o->polys)[j].p = (void *)((int)((ObjEnt *)o->polys)[j].p + (int)h);
+        o->strips += (int)h;
+        for (j = 0; j < o->stripCount; j++)
+            ((void **)o->strips)[j] = (void *)((int)((void **)o->strips)[j] + (int)h);
+        o->lines += (int)h;
+        o->morphs += (int)h;
+        for (j = 0; j < o->morphCount; j++) {
+            if (((void **)o->morphs)[j] != 0)
+                ((void **)o->morphs)[j] = (void *)((int)((void **)o->morphs)[j] + (int)h);
         }
     }
 
@@ -356,15 +356,15 @@ PObj *InitPObj(int h, int name, int n)
 
     p = AllocPObj((ObjHdr *)h, (char *)name, n);
     SetPObjVector(v, modelData[n].offset[0], modelData[n].offset[1], modelData[n].offset[2]);
-    num = p->f2E;
+    num = p->partCount;
     for (i = 0; i < num; i++) {
         PObjSub *g = &p->sub[i];
-        int cnt = g->f94;
+        int cnt = g->vtxCount;
 
         for (j = 0; j < cnt; j++)
-            _AddVector(g->f90[j], g->f90[j], v);
+            _AddVector(g->vtx[j], g->vtx[j], v);
         for (j = 0; j < 8; j++)
-            _AddVector(p->f44[i][j], p->f44[i][j], v);
+            _AddVector(p->boxes[i][j], p->boxes[i][j], v);
     }
     MakePacket(p, n);
     return p;
@@ -382,5 +382,5 @@ static __inline__ void FreePObjDebugInfo(ObjHdr *h) /* derived name */
 void FreePObj(PObj *p)
 {
     debug_StdPrintfDummy("free object\n");
-    FreePObjDebugInfo((ObjHdr *)p->f24);
+    FreePObjDebugInfo((ObjHdr *)p->image);
 }

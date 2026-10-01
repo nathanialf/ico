@@ -76,7 +76,9 @@ extern LtProperty texProperty[];
 
 /* texture-layout: one texture layout, 0x38 bytes. Readers:
  * ico2/common/src/layout_texture.c (LtProp), kanban.c (KanbanProp),
- * kanbanBoot.c, layout_action.c. Owner: ico2/common/include/layout_texture.h. */
+ * kanbanBoot.c, layout_action.c. Owner: ico2/common/include/layout_texture.h.
+ * procFirst is set when the layout chain resets and cleared after proc
+ * runs with it. */
 typedef struct {                     /* field names derived */
     int first;                       /* 0x00, the first tex-property row */
     int last;                        /* 0x04 */
@@ -87,7 +89,7 @@ typedef struct {                     /* field names derived */
     float colB;                      /* 0x18 */
     float colA;                      /* 0x1C */
     int (*proc)(int flag, int item); /* 0x20, the selection handler: returns the item */
-    int word24;                      /* 0x24 */
+    int procFirst;                   /* 0x24, proc's first-call flag */
     int defaultItem;                 /* 0x28, copied into curItem */
     int curItem;                     /* 0x2C */
     int link;                        /* 0x30, the next layout, -1 for none */

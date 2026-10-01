@@ -25,8 +25,8 @@ typedef struct {   /* field names derived */
     int *iopBuf;   /* 0x08 */
     int dmaId;     /* 0x0C, the sceSifSetDma id _send_to_iop polls */
     int opened;    /* 0x10 */
-    int word14;    /* 0x14 */
-    int word18;    /* 0x18 */
+    int pad14;     /* 0x14 */
+    int pad18;     /* 0x18 */
 } PadSlot;         /* derived name */
 
 /* the member's .data: the build stamp, the init flag scePadInit sets and
@@ -125,11 +125,11 @@ int scePadInit2(int a0)
 
     for (i = 0; i < 4; i++) {
         padSlot[0][i].opened = 0;
-        padSlot[0][i].word18 = 0;
-        padSlot[0][i].word14 = 0;
+        padSlot[0][i].pad18 = 0;
+        padSlot[0][i].pad14 = 0;
         padSlot[1][i].opened = 0;
-        padSlot[1][i].word18 = 0;
-        padSlot[1][i].word14 = 0;
+        padSlot[1][i].pad18 = 0;
+        padSlot[1][i].pad14 = 0;
     }
     padRpcBuf[0] = 0x10;
     padRpcBuf[4] = 0;

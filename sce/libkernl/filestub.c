@@ -353,7 +353,7 @@ int sceFsReset(void)
 typedef struct { /* field names derived */
     int fd;
     int inuse;
-    int _8[2];
+    int pad8[2];
 } SceIob; /* derived name */
 
 /* Varargs: the mode is the first anonymous argument, read after the
@@ -436,7 +436,7 @@ int sceClose(unsigned int fd)
 {
     int *g = fsSendBuf.w;
     SceIob *iob;
-    int f0;
+    int handle;
     int uv;
     int h;
     int rc;
@@ -453,8 +453,8 @@ int sceClose(unsigned int fd)
         _sceFsSigSema();
         return -9;
     }
-    f0 = iob->fd;
-    g[3] = f0;
+    handle = iob->fd;
+    g[3] = handle;
     g[4] = iob - (SceIob *)fsIobTab;
     buf.maxCount = 1;
     buf.initCount = 0;
@@ -1102,7 +1102,7 @@ int sceDclose(unsigned int fd)
 {
     int *g = fsSendBuf.w;
     void *obj;
-    int f0;
+    int handle;
     int uv;
     int h;
     int rc;
@@ -1119,8 +1119,8 @@ int sceDclose(unsigned int fd)
         _sceFsSigSema();
         return -9;
     }
-    f0 = ((int *)obj)[0];
-    g[3] = f0;
+    handle = ((int *)obj)[0];
+    g[3] = handle;
     buf.maxCount = 1;
     buf.initCount = 0;
     buf.option = 0;
@@ -1152,7 +1152,7 @@ int sceDread(unsigned int fd, int dbuf)
 {
     int *g = fsSendBuf.w;
     void *obj;
-    int f0;
+    int handle;
     int uv;
     int rc;
     int result;
@@ -1168,9 +1168,9 @@ int sceDread(unsigned int fd, int dbuf)
         _sceFsSigSema();
         return -9;
     }
-    f0 = ((int *)obj)[0];
+    handle = ((int *)obj)[0];
     g[4] = dbuf;
-    g[3] = f0;
+    g[3] = handle;
     buf.maxCount = 1;
     buf.initCount = 0;
     buf.option = 0;
@@ -1485,7 +1485,7 @@ long long sceLseek64(int fd, long long offset, int whence)
 {
     int *g = fsSendBuf.w;
     SceIob *iob;
-    int f4;
+    int inuse;
     int uv;
     int h;
     int rc;
@@ -1499,7 +1499,7 @@ long long sceLseek64(int fd, long long offset, int whence)
         _sceFsSigSema();
         return -1;
     }
-    if (iob == 0 || (f4 = iob->inuse) == 0) {
+    if (iob == 0 || (inuse = iob->inuse) == 0) {
         _sceFsSigSema();
         return -9;
     }
@@ -1514,7 +1514,7 @@ long long sceLseek64(int fd, long long offset, int whence)
     *(void **)(g + 1) = &result;
     g[2] = 8;
     fsSendBuf.w[0] = h;
-    if (f4 & 0x8000) {
+    if (inuse & 0x8000) {
         WaitSema(q_sema);
         for (i = 0; i < 0x20; i++) {
             if (_sceFs_q[i] == -1) {
@@ -1537,7 +1537,7 @@ long long sceLseek64(int fd, long long offset, int whence)
         DeleteSema(h);
         return -0xB;
     }
-    if (isNowait(f4)) {
+    if (isNowait(inuse)) {
         DeleteSema(h);
         return 0;
     }

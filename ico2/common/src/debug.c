@@ -553,7 +553,7 @@ typedef struct {     /* field names derived */
     float dst[4];    /* 0x10 */
     float hit[4];    /* 0x20 */
     char pad30[64];  /* 0x30 */
-    int f70;         /* 0x70 */
+    int radius;      /* 0x70, the clip radius */
     char pad74[12];  /* 0x74 */
     DbgWallHit wall; /* 0x80 */
     char pad8C[8];   /* 0x8C */
@@ -790,7 +790,7 @@ typedef struct { /* field names derived */
 typedef struct {   /* field names derived */
     int x;         /* 0x00 */
     int y;         /* 0x04 */
-    int unk08;     /* 0x08 */
+    int angle;     /* 0x08 */
     float fx;      /* 0x0C */
     float fz;      /* 0x10 */
     float mag;     /* 0x14 */
@@ -3567,7 +3567,7 @@ static int debug_CollisionTest(int reset)
     if (reset != 0) {
         GetRootPosition(collisionRay.src, boyGObj);
         CopyVector(collisionRay.dst, collisionRay.src);
-        collisionRay.f70 = 0;
+        collisionRay.radius = 0;
         collisionRay.dst[2] += 100.0f;
     }
     memset(&mv, 0, sizeof(mv));

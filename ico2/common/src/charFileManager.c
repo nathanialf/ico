@@ -24,21 +24,21 @@
 
 typedef struct { /* field names derived */
     char pad0[68];
-    short unk_44; /* 0x44 */
+    short angle; /* 0x44, the wall's angle, its sine and cosine kept at 0x4C */
     char pad46[6];
-    float *unk_4C; /* 0x4C */
+    float *sinCos; /* 0x4C */
 } Bone; /* 0x50 */ /* derived name */
 
 typedef struct { /* field names derived */
     char pad0[8];
     int count; /* 0x08 */
     char padC[4];
-    int unk_10; /* 0x10 */
-    int unk_14; /* 0x14 */
-    int unk_18; /* 0x18 */
-    int unk_1C; /* 0x1C */
-    int unk_20; /* 0x20 */
-} Coll;         /* derived name */
+    int wcl;  /* 0x10 */
+    int fcl;  /* 0x14 */
+    int wblk; /* 0x18 */
+    int fblk; /* 0x1C */
+    int ofs;  /* 0x20 */
+} Coll;       /* derived name */
 
 typedef struct {        /* field names derived */
     PObjModel *pObj;    /* 0x00 */
@@ -333,38 +333,36 @@ void ReadCollisionFile(void *h, char *name, int size, int id, int kind, int word
                 iosCdvdHandlerRead(h, charFiles[i].pColl, size);
                 debug_StdPrintfDummy("ReadCollisionFile:loaded::%s  (size:%d)\n", name, size);
                 p = charFiles[i].pColl;
-                p->unk_10 = (int)p + p->unk_10;
-                p->unk_14 = (int)p + p->unk_14;
-                p->unk_18 = (int)p + p->unk_18;
-                p->unk_1C = (int)p + p->unk_1C;
-                p->unk_20 = (int)p + p->unk_20;
+                p->wcl = (int)p + p->wcl;
+                p->fcl = (int)p + p->fcl;
+                p->wblk = (int)p + p->wblk;
+                p->fblk = (int)p + p->fblk;
+                p->ofs = (int)p + p->ofs;
                 debug_StdPrintfDummy("ch      :%p\n", p);
-                debug_StdPrintfDummy("ch->wcl :%p\n", p->unk_10);
-                debug_StdPrintfDummy("ch->fcl :%p\n", p->unk_14);
-                debug_StdPrintfDummy("ch->wblk:%p\n", p->unk_18);
-                debug_StdPrintfDummy("ch->fblk:%p\n", p->unk_1C);
-                debug_StdPrintfDummy("ch->ofs :%p\n", p->unk_20);
+                debug_StdPrintfDummy("ch->wcl :%p\n", p->wcl);
+                debug_StdPrintfDummy("ch->fcl :%p\n", p->fcl);
+                debug_StdPrintfDummy("ch->wblk:%p\n", p->wblk);
+                debug_StdPrintfDummy("ch->fblk:%p\n", p->fblk);
+                debug_StdPrintfDummy("ch->ofs :%p\n", p->ofs);
                 for (j = 0; j < 32; j++) {
                     for (k = 0; k < 32; k++) {
-                        if (((int *)p->unk_18)[j * 32 + k] != 0) {
+                        if (((int *)p->wblk)[j * 32 + k] != 0) {
                             debug_StdPrintfDummy("w %2d %2d :%p\n", j, k,
-                                                 ((int *)p->unk_18)[j * 32 + k]);
-                            ((int *)p->unk_18)[j * 32 + k] =
-                                (int)p + ((int *)p->unk_18)[j * 32 + k];
+                                                 ((int *)p->wblk)[j * 32 + k]);
+                            ((int *)p->wblk)[j * 32 + k] = (int)p + ((int *)p->wblk)[j * 32 + k];
                         }
-                        if (((int *)p->unk_1C)[j * 32 + k] != 0) {
+                        if (((int *)p->fblk)[j * 32 + k] != 0) {
                             debug_StdPrintfDummy("f %2d %2d :%p\n", j, k,
-                                                 ((int *)p->unk_1C)[j * 32 + k]);
-                            ((int *)p->unk_1C)[j * 32 + k] =
-                                (int)p + ((int *)p->unk_1C)[j * 32 + k];
+                                                 ((int *)p->fblk)[j * 32 + k]);
+                            ((int *)p->fblk)[j * 32 + k] = (int)p + ((int *)p->fblk)[j * 32 + k];
                         }
                     }
                 }
                 q = (float *)mallocseki(p->count * 8);
                 for (j = 0; j < p->count; j++) {
-                    ((Bone *)p->unk_10)[j].unk_4C = q + j * 2;
-                    ((Bone *)p->unk_10)[j].unk_4C[0] = GetTableSin(((Bone *)p->unk_10)[j].unk_44);
-                    ((Bone *)p->unk_10)[j].unk_4C[1] = GetTableCos(((Bone *)p->unk_10)[j].unk_44);
+                    ((Bone *)p->wcl)[j].sinCos = q + j * 2;
+                    ((Bone *)p->wcl)[j].sinCos[0] = GetTableSin(((Bone *)p->wcl)[j].angle);
+                    ((Bone *)p->wcl)[j].sinCos[1] = GetTableCos(((Bone *)p->wcl)[j].angle);
                 }
             }
             return;
@@ -398,7 +396,7 @@ void ReadStageAnimationFile(void *h, char *name, int size, int id, int kind, int
 
 typedef struct { /* field names derived */
     char pad0[308];
-    int unk_134; /* 0x134 */
+    int area; /* 0x134, the motion memory area: 0 static, 4 dynamic, else swap */
     char pad138[92];
 } MotEnt; /* 0x194 */ /* derived name */
 
@@ -411,7 +409,7 @@ void ReadMotionFile(void *h, char *name, int size, int id, int kind, int word08,
     if (size == 0) {
         return;
     }
-    switch (motionKind[id].unk_134) {
+    switch (motionKind[id].area) {
     case 0:
         motionTable[id] = iosMallocDebug(ios_partition_smotion, size, __FILE__, 515);
         break;
@@ -690,17 +688,17 @@ void ReadStageSettingFile(void *h, int name, int size)
 
 typedef struct { /* field names derived */
     char pad0[112];
-    int unk_70; /* 0x70 */
+    int colData; /* 0x70 */
     char pad74[16];
-    int unk_84;   /* 0x84 */
-    int unk_88;   /* 0x88 */
-    char *unk_8C; /* 0x8C */
+    int modelId;     /* 0x84 */
+    int skelNodeNum; /* 0x88 */
+    char *skel;      /* 0x8C */
     char pad90[1956];
-    int unk_834; /* 0x834 */
+    int morphNum; /* 0x834 */
     char pad838[28];
-    PObjModel *unk_854; /* 0x854 */
-    PObjModel *unk_858; /* 0x858 */
-} CsvChar;              /* derived name */
+    PObjModel *model;  /* 0x854 */
+    PObjModel *shadow; /* 0x858 */
+} CsvChar;             /* derived name */
 
 void CSVSYSTEM_ReadCharFiles(CsvChar *rec, int id)
 {
@@ -713,51 +711,51 @@ void CSVSYSTEM_ReadCharFiles(CsvChar *rec, int id)
         debug_assert(__FILE__, 927);
         __assert(__FILE__, 927, "0");
     }
-    rec->unk_84 = id;
+    rec->modelId = id;
     debug_StdPrintfDummy("Link polygon & skelton & collision -> DObj. %d\n", id);
-    rec->unk_854 = charFiles[id].pObj;
-    debug_StdPrintfDummy("polygon %p.\n", rec->unk_854);
-    if (rec->unk_854 != 0) {
-        debug_StdPrintfDummy("object name %s.\n", rec->unk_854);
+    rec->model = charFiles[id].pObj;
+    debug_StdPrintfDummy("polygon %p.\n", rec->model);
+    if (rec->model != 0) {
+        debug_StdPrintfDummy("object name %s.\n", rec->model);
     }
-    rec->unk_858 = charFiles[id].pShadow;
-    debug_StdPrintfDummy("shadow %p.\n", rec->unk_858);
-    if (rec->unk_858 != 0) {
-        debug_StdPrintfDummy("shadow object name %s.\n", rec->unk_858);
+    rec->shadow = charFiles[id].pShadow;
+    debug_StdPrintfDummy("shadow %p.\n", rec->shadow);
+    if (rec->shadow != 0) {
+        debug_StdPrintfDummy("shadow object name %s.\n", rec->shadow);
     }
-    rec->unk_8C = charFiles[id].pSkel;
-    debug_StdPrintfDummy("skelton %p.\n", rec->unk_8C);
-    rec->unk_70 = (int)charFiles[id].pColl;
-    debug_StdPrintfDummy("collision %p.\n", rec->unk_70);
-    if (rec->unk_8C != 0) {
-        while (*(int *)(rec->unk_8C + n * 64) != -1) {
+    rec->skel = charFiles[id].pSkel;
+    debug_StdPrintfDummy("skelton %p.\n", rec->skel);
+    rec->colData = (int)charFiles[id].pColl;
+    debug_StdPrintfDummy("collision %p.\n", rec->colData);
+    if (rec->skel != 0) {
+        while (*(int *)(rec->skel + n * 64) != -1) {
             n++;
         }
-        rec->unk_88 = n;
-        rec->unk_834 = *(int *)(rec->unk_8C + n * 64 + 4);
-        if (rec->unk_834 < 0) {
+        rec->skelNodeNum = n;
+        rec->morphNum = *(int *)(rec->skel + n * 64 + 4);
+        if (rec->morphNum < 0) {
             /* the shape data count information is old */
             debug_StdPrintfDummy("\033[36m シェイプデータの数情報が古いです。%d\033[m\n",
-                                 rec->unk_834);
-            rec->unk_834 = 0;
+                                 rec->morphNum);
+            rec->morphNum = 0;
         }
-        sum = SumBytes((unsigned char *)rec->unk_8C, rec->unk_88 * 64);
+        sum = SumBytes((unsigned char *)rec->skel, rec->skelNodeNum * 64);
         if (sum == charFiles[id].skelSum) {
             /* the skelton of "%s" is sound */
-            debug_StdPrintfDummy("\033[36m\"%s\"のスケルトンは正常(%x)\033[m\n", rec->unk_854, sum);
+            debug_StdPrintfDummy("\033[36m\"%s\"のスケルトンは正常(%x)\033[m\n", rec->model, sum);
         } else {
             debug_StdPrintfDummy(
                 "\033[33m --- W - A - R - N - I - N - G ------------------------\033[m\n");
             /* the skelton of "%s" is damaged */
             debug_StdPrintfDummy("\033[33m\"%s\"のスケルトンが破損しています(%x(NOW)!=%x)\033[m\n",
-                                 rec->unk_854, sum, charFiles[id].skelSum);
+                                 rec->model, sum, charFiles[id].skelSum);
             /* it was broken between the load and the stage placement */
             debug_StdPrintfDummy("\033[33mロード直後からステージ配置の間に壊されました\033[m\n");
             debug_StdPrintfDummy(
                 "\033[33m ------------------------------------------------------\033[m\n");
         }
     } else {
-        rec->unk_88 = 0;
-        rec->unk_834 = 0;
+        rec->skelNodeNum = 0;
+        rec->morphNum = 0;
     }
 }

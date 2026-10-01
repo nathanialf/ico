@@ -30,13 +30,13 @@ typedef struct PObjMdl { /* field names derived */
     char path[48];       /* 0x00, the skeleton file, "NULL" for none */
     char collPath[64];   /* 0x30, the collision file */
     float offset[3];     /* 0x70, InitPObj adds it to every vertex and box corner */
-    float float7C;       /* 0x7C, copied into the PObj at 0x34 */
-    float float80;       /* 0x80, copied into the PObj at 0x38 */
-    float float84;       /* 0x84, copied into the PObj at 0x3C */
+    float lightScale;    /* 0x7C, copied into the PObj at 0x34 */
+    float ambientScale;  /* 0x80, copied into the PObj at 0x38 */
+    float shadowLength;  /* 0x84, copied into the PObj at 0x3C */
     /* 0x88, read as bits */
     unsigned int pktKind : 4; /* the packet header's kind, 4 for none */
-    unsigned int bits4 : 4;   /* MakePacket's tag bits 18-21 */
-    unsigned int bits8 : 4;   /* MakePacket's tag bits 22-25 */
+    unsigned int shade : 4;   /* MakePacket's tag bits 18-21, the PObj's shade */
+    unsigned int lod : 4;     /* MakePacket's tag bits 22-25, the PObj's level of detail */
     unsigned int : 20;
 } PObjMdl; /* derived name */
 

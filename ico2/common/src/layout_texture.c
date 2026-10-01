@@ -296,7 +296,7 @@ static inline void lt_reset_property_chain(int no) /* derived name */
     while (i >= 0) {
         p = &texLayout[i];
         p->curItem = p->defaultItem;
-        p->word24 = 1;
+        p->procFirst = 1;
         i = p->link;
     }
 }
@@ -635,8 +635,8 @@ void exec_layout_texture(void)
         v = p->curItem;
         ltCurrentItem = v;
         if (p->proc != 0 && (fadeState == 1 || fadeState == 2)) {
-            ret = p->proc(p->word24, ret);
-            p->word24 = 0;
+            ret = p->proc(p->procFirst, ret);
+            p->procFirst = 0;
             v = p->curItem;
         } else {
             ret = -1;

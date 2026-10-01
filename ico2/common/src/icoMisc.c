@@ -339,7 +339,7 @@ typedef struct { /* field names derived */
         int id;
     } ent[12];
 
-    char _60[0xC0 - 0x60];
+    char pad60[0xC0 - 0x60];
     char name[0x194 - 0xC0];
 } ScnPre; /* derived name */
 
@@ -350,7 +350,7 @@ typedef struct { /* field names derived */
     int pkg; /* 0x18 */
     char pad1C[4];
     unsigned int done : 1; /* 0x20 */
-    unsigned int _21 : 31;
+    unsigned int pad21 : 31;
 } EffEnt; /* derived name */
 
 /* motionOrientManager.h carries MotionDef and declares no motionKind */

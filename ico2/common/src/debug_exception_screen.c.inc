@@ -53,16 +53,17 @@ typedef unsigned int u128_dbgscr __attribute__((mode(TI)));
 typedef unsigned long long GifTag[2] __attribute__((aligned(16))); /* derived name */
 
 /* sceVif1Packet: 0x20 bytes (two per drawSprite frame at sp+0x00 / sp+0x20).
- * Field offsets 0x00/0x04/0x0C/0x14 are the ones the libpkt bodies in
- * src/cod/vendor_25EC00.c touch; 0x08/0x10/0x18 are unused here. */
+ * The fields are the libpkt bodies' (sce/libpkt/libpkt.h): the next word,
+ * the buffer start, the open DMA tag, DIRECT code and GIF tag; nothing
+ * reads 0x10 or 0x18. */
 typedef struct { /* field names derived */
     int *cur;
     int *base;
-    int *f_8;
+    int *dmaTag;
     int *directTag;
-    int *f_10;
+    int *pad10;
     int *gifTag;
-    int f_18[2];
+    int pad18[2];
 } Vif1Packet; /* derived name */
 
 /* as in libpkt.h, which this TU does not include */
