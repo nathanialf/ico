@@ -14,6 +14,7 @@
 #include "quaternion.h"
 #include "GsBase.h"
 #include "main.h"
+#include "gamesys.h"
 #include <string.h>
 #include <assert.h>
 
@@ -91,8 +92,6 @@ static int stageAnimCount; /* derived name */
 static int *bgaPlayList; /* derived name */
 
 static StageAnim stageAnimTable[87]; /* derived name */
-
-extern GenGeo objLayout[];
 
 /* The layout record a stage object is made with and handed to its init
    function: position, rotation, scale and a flag word. */
@@ -205,9 +204,6 @@ void stage_ApplyData(char *name, char *data)
 
 /* stage_Init reaches the table's records through a pointer */
 #define STG ((StageAnim *)stageAnimTable) /* derived name */
-
-extern char objKindData[];
-
 /* an animated object's DObj, its 0x15C word read through AnimWord */
 #define STG_SUB(o) ((Sub15C *)((AnimWord *)((char *)(o) + 0x15C))->i) /* derived name */
 
@@ -236,12 +232,12 @@ int stage_Init(void)
     int no;
     const StgObjDat *q;
     GenGeo *rec;
-    char *tbl2;
+    ObjKindEnt *kind;
     StageAnimDef *obj;
     GObj *g;
     struct BgaDObjEnt *a;
     char *r;
-    int (*fn)(GObj *, StageGObjInit *);
+    int (*fn)(GObj *, void *);
     StageAnim *e;
 
     bga_InitBGA();
@@ -409,14 +405,14 @@ int stage_Init(void)
 
                 g = e->obj[k];
                 arg = stageGObjArg;
-                tbl2 = objKindData + *(int *)((char *)e->data[k] + 4) * 100;
-                fn = *(int (**)(GObj *, StageGObjInit *))(tbl2 + 0x58);
+                kind = &objKindData[e->data[k][1]];
+                fn = kind->create;
                 if (fn != 0) {
                     STG_SUB(e->obj[k])->work = (void *)fn(g, &arg);
                 }
-                isysGObjProcAdd(g, *(int *)(tbl2 + 0x5C), 1, 0x16);
-                isysGObjProcAdd(g, *(int *)(tbl2 + 0x50), 1, 0x17);
-                isysGObjProcAdd(g, *(int *)(tbl2 + 0x4C), 1, 0x18);
+                isysGObjProcAdd(g, kind->ai, 1, 0x16);
+                isysGObjProcAdd(g, kind->geo, 1, 0x17);
+                isysGObjProcAdd(g, kind->afterGeo, 1, 0x18);
                 isysGObjLinkObjDL(g, 0, 0, 7, 0xFFFFFFFF);
                 g->active = 1;
                 STG_SUB(e->obj[k])->disp = 0;

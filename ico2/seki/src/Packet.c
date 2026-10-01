@@ -1060,24 +1060,10 @@ void pac_makeShapeTable(int a0, char *obj)
     *(int *)(obj + 0x120) = (int)ntbl;
 }
 
-/* The views pac_makePacket writes through.
-   PacObjMode is the model object's head as far as the builder reads it: the
-   sub-object count at 0x2E, the display flag at 0x2F and the 64-bit mode word
-   at 0x30 as unsigned short bitfields. PacLine is a 192-byte line record,
-   PacStrip the 160-byte strip node (bounding box, ids, counts, the 24-bit
-   packet size with the lod byte after it, the chain link and the packet
-   address). */
-typedef struct { /* field names derived */
-    sceVu0FVECTOR pad0[2];
-    char pad1[14];
-    char nsub;
-    signed char disp;
-    unsigned short : 16;
-    unsigned short type : 2;
-    unsigned short shade : 4;
-    unsigned short lod : 4;
-} PacObjMode; /* derived name */
-
+/* The views pac_makePacket writes through. PacLine is a 192-byte line
+   record, PacStrip the 160-byte strip node (bounding box, ids, counts, the
+   24-bit packet size with the lod byte after it, the chain link and the
+   packet address). */
 typedef struct { /* field names derived */
     unsigned char r;
     unsigned char g;
@@ -1163,7 +1149,7 @@ void pac_makePacket(void *a0, int a1, int a2)
     char *vtx;
     char *uv;
     char *idx;
-    char *obj;
+    PObjModel *obj;
     int i;
     int j;
     int m;
@@ -1171,27 +1157,27 @@ void pac_makePacket(void *a0, int a1, int a2)
     int sz;
 
     obj = a0;
-    lod = ((PacObjMode *)obj)->lod;
+    lod = obj->mode.s.lod;
     pac_resetPacketCount();
     tbl = 0;
     mtbl = 0;
-    ((PacObjMode *)obj)->type = 0 < ((PacObjMode *)obj)->disp;
-    if (*(int *)(*(char **)(obj + 0x40) + 0x114) != 0)
-        ((PacObjMode *)obj)->type = 2;
+    obj->mode.s.type = 0 < obj->disp;
+    if (obj->parts->lineCount != 0)
+        obj->mode.s.type = 2;
     /* the display type, bits 16 and 17 of the mode word */
-    if (((unsigned short)(*(unsigned long long *)(obj + 0x30) >> 16) & 3) == 2) {
-        mtbl = (char *)mallocseki(*(char *)(obj + 0x2E) * 16);
-        *(int *)(obj + 0x48) = (int)mtbl;
+    if (((unsigned short)(obj->mode.bits >> 16) & 3) == 2) {
+        mtbl = (char *)mallocseki(obj->partCount * 16);
+        obj->groups = (PObjGroup *)mtbl;
     } else {
-        tbl = (char *)mallocseki(*(char *)(obj + 0x2E) * 48);
-        *(int *)(obj + 0x48) = (int)tbl;
-        sprintf(tbl + 20, "%s", obj);
+        tbl = (char *)mallocseki(obj->partCount * 48);
+        obj->groups = (PObjGroup *)tbl;
+        sprintf(tbl + 20, "%s", obj->name);
     }
-    sprintf(pacWork.name, "%s", obj);
-    if (((PacObjMode *)obj)->type != 2) {
-        for (i = 0; i < *(char *)(obj + 0x2E); i++) {
+    sprintf(pacWork.name, "%s", obj->name);
+    if (obj->mode.s.type != 2) {
+        for (i = 0; i < obj->partCount; i++) {
             prev = 0;
-            src = *(char **)(obj + 0x40) + i * 384;
+            src = (char *)&obj->parts[i];
             nmat = *(int *)(src + 0xE4);
             nshape = *(int *)(src + 0xD4);
             pac_makeMaterialTable((PObjGroup *)tbl, (PObjPart *)src, a1, lod, a2);
@@ -1199,8 +1185,8 @@ void pac_makePacket(void *a0, int a1, int a2)
             if (*(int *)(src + 0x124) != 0)
                 pac_makeShapeTable((int)tbl, src);
             if (*(int *)(src + 0xD0) == 0) {
-                debug_StdPrintfDummy("pac_makePacket:Material Table Not Found. (%s:%s)\n", obj,
-                                     src);
+                debug_StdPrintfDummy("pac_makePacket:Material Table Not Found. (%s:%s)\n",
+                                     obj->name, src);
                 debug_assert("src/Packet.c", 1732);
                 __assert("src/Packet.c", 1732, "0");
             }
@@ -1224,9 +1210,9 @@ void pac_makePacket(void *a0, int a1, int a2)
                         ((PacStrip *)node)->ntag = (unsigned short)pacTagCount;
                         ((PacStrip *)node)->packet = (int)out;
                         ((PacStrip *)node)->size = sz;
-                        ((PacStrip *)node)->lod = ((PacObjMode *)obj)->shade;
+                        ((PacStrip *)node)->lod = obj->mode.s.shade;
                         ((PacStrip *)node)->next = (PacStrip *)prev;
-                        pac_makeBoundingBox((float (*)[4])node, ((PacObjMode *)obj)->type == 1);
+                        pac_makeBoundingBox((float (*)[4])node, obj->mode.s.type == 1);
                         prev = node;
                     } else if (sz < 0) {
                         debug_StdPrintfDummy("illegal size = %d\n", sz);
@@ -1264,8 +1250,8 @@ void pac_makePacket(void *a0, int a1, int a2)
         char *src;
         char *p;
 
-        for (i = 0; i < *(char *)(obj + 0x2E); i++) {
-            src = *(char **)(obj + 0x40) + i * 384;
+        for (i = 0; i < obj->partCount; i++) {
+            src = (char *)&obj->parts[i];
             line = *(char **)(src + 0x110);
             p = (char *)mallocseki((*(int *)(src + 0x114) + 1) * 192);
             vtx = *(char **)(src + 0x90);
@@ -1273,7 +1259,7 @@ void pac_makePacket(void *a0, int a1, int a2)
             idx = *(char **)(src + 0xC0);
             pac_makeMaterialTableLine((MatLine *)mtbl, (PObjPart *)src, a1, lod, a2);
             pac_makeTextureTableLine(mtbl, src);
-            ((PacObjMode *)obj)->type = 2;
+            obj->mode.s.type = 2;
             top = p;
             for (j = 0; j < *(unsigned int *)(src + 0x114); j++) {
                 ((PacLine *)p)->type = *(unsigned short *)(line + 0x40);

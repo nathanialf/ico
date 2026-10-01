@@ -4,6 +4,7 @@
 #include "pad.h"
 #include "act-game.h"
 #include "commonact.h"
+#include "boyact.h"
 #include "camera-editor.h"
 #include "camera-ico2.h"
 #include "camera-set-manager.h"
@@ -35,10 +36,6 @@ typedef struct CamSetHdr { /* field names derived */
     int total;            /* 0x0C, the number of items */
     CamSetItem groups[1]; /* 0x10 */
 } CamSetHdr;
-
-/* boyact.h is not included: this file passes GetBoyRootPositionForCamera
-   more arguments than boyact.h declares */
-extern void GetBoyRootPositionForCamera();
 
 typedef struct PluralCameraSet { /* field names derived */
     int id;                      /* 0x00 */
@@ -185,7 +182,7 @@ void CameraSetCameraSet_Default(void)
     CameraSetCameraSet(stageData[stage_no].camSetId);
 }
 
-static void GetRootPositionForCamera(float *out, int gobj)
+static void GetRootPositionForCamera(float *out, GObj *gobj)
 
 {
     if (gobj == boyGObj) {
@@ -207,8 +204,8 @@ inline void SetCameraTargetPosition(void *target, void *eye, float fov)
 static void ico2camera_GetTargetPos(int reset)
 {
     unsigned char flag = reset;
-    int p1;
-    int p2;
+    GObj *p1;
+    GObj *p2;
     float v0[4];
     float v1[4];
     float v2[4];
@@ -339,8 +336,8 @@ static void monitorMonitorCamera(CamWork *cam, CamWork *out)
     float vAt[4];
     float vAt2[4];
     float vSpare[4];
-    int p1;
-    int p2;
+    GObj *p1;
+    GObj *p2;
     int flag;
     int i;
     int k;
@@ -800,7 +797,7 @@ static void GetTargetOffset(GObj *gobj, float *v, unsigned char flag)
     int n;
     int need;
 
-    if ((int)gobj == default_cameratarget_gobj && gobj != 0) {
+    if (gobj == default_cameratarget_gobj && gobj != 0) {
         n = (int)(_GetDirection(test_CURRENTORIENT(gobj)) / 3.1415927f * 180.0f);
         ofs[0] = v[0];
         ofs[1] = v[1];
@@ -848,9 +845,6 @@ inline void GetHandCameraStickInfo(float *outX, float *outZ, float *outMag)
         *outZ = dir.f[2] * *outMag;
     }
 }
-
-/* boyact.h's, which this file does not include */
-extern unsigned char IsAbleBoyControl(void);
 
 /* the camera-group search GetCameraGroupFromGObj, GetCameraGroupFromPosition
  * and SetCameraMatrix_Ico2 share */
@@ -917,7 +911,7 @@ void SetCameraMatrix_Ico2(int flag)
         cw.at.f[1] = targetASmooth[1];
         cw.at.f[2] = targetASmooth[2];
         memset(vA, 0, 16);
-        GetTargetOffset((GObj *)default_cameratarget_gobj, vA, 0);
+        GetTargetOffset(default_cameratarget_gobj, vA, 0);
         sceVu0ScaleVector(vA, vA, zoomOffsetRatio);
         sceVu0AddVector(cw.at.f, cw.at.f, vA);
     } else {
@@ -933,7 +927,7 @@ void SetCameraMatrix_Ico2(int flag)
         cw.at.f[0] = targetASmooth[0];
         cw.at.f[1] = targetASmooth[1];
         cw.at.f[2] = targetASmooth[2];
-        GetTargetOffset((GObj *)default_cameratarget_gobj, vA, f8);
+        GetTargetOffset(default_cameratarget_gobj, vA, f8);
         sceVu0ScaleVector(vA, vA, zoomOffsetRatio);
         sceVu0ScaleVector(vB, vB, zoomOffsetRatio);
         sceVu0AddVector(cw.at.f, cw.at.f, vA);

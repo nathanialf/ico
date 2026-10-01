@@ -1993,7 +1993,7 @@ int tex_LoadTexture(void *a0)
 }
 
 /* the name lookup, which tex_SetUVScroll inlines */
-static inline int getTextureNo(char *name) /* derived name */
+static inline int getTextureNo(const char *name) /* derived name */
 {
     int i;
     int ret = -1;
@@ -2009,7 +2009,7 @@ static inline int getTextureNo(char *name) /* derived name */
     return ret;
 }
 
-int tex_GetTextureNo(char *name)
+int tex_GetTextureNo(const char *name)
 {
     return getTextureNo(name);
 }
@@ -2087,7 +2087,8 @@ int tex_GetTextureNum(void)
 }
 
 /* the int flag is the last parameter, after the six floats */
-void tex_SetUVScroll(char *name, float u, float v, float su, float sv, float ou, float ov, int a1)
+void tex_SetUVScroll(const char *name, float u, float v, float su, float sv, float ou, float ov,
+                     int a1)
 {
     int no = getTextureNo(name);
     CdvdRec *tex = getTextureData(no);

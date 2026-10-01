@@ -35,25 +35,24 @@ static struct {
     float timer[28]; /* 0x08 */
 } hintWork;          /* derived name */
 
-/* brain.c's, declared here and not through brain.h: this file hands them
-   the GObj pointer where brain.h takes an int, and puts brainSetLevelGop's
-   level second where brain.c's definition has it last.  The level travels
-   in $f12 in either order; the ROM's call loads it before the two flags,
-   which is the order this declaration gives (brain.h's order moves .text
-   at 0x608). */
+/* brain.c's, declared here and not through brain.h: this file puts
+   brainSetLevelGop's level second where brain.c's definition has it last.
+   The level travels in $f12 in either order; the ROM's call loads it before
+   the two flags, which is the order this declaration gives (brain.h's order
+   moves .text at 0x608). */
 extern Brain brainGirl;
-extern void brainStatusDefaultSet(Brain *b, int gobj, int idx);
-extern void brainSubLevelGop(void *gobj, float lv);
-extern void brainSetLevelGop(void *gobj, float lv, int lookOnly, int alwaysSeen);
+extern void brainStatusDefaultSet(Brain *b, GObj *gobj, int idx);
+extern void brainSubLevelGop(GObj *gobj, float lv);
+extern void brainSetLevelGop(GObj *gobj, float lv, int lookOnly, int alwaysSeen);
 
 /* the record a new hint GObj starts from: no stage, no hint, no time, no
    flags */
 static struct HintInfo hintDefault = {-1, -1, -1, 0}; /* derived name */
 
-char *CreateKyomiGObj(int no)
+GObj *CreateKyomiGObj(int no)
 {
     float lay[16];
-    char *gobj;
+    GObj *gobj;
     struct HintInfo *hint;
     int i;
 
@@ -73,14 +72,14 @@ char *CreateKyomiGObj(int no)
                                (float)((60 - systemStatus[0] * 10) / systemStatus[1]) / 60.0f);
         }
     }
-    brainStatusDefaultSet(&brainGirl, (int)gobj, 1);
+    brainStatusDefaultSet(&brainGirl, gobj, 1);
     return gobj;
 }
 
 /* the hint timers, a window onto the per-hint elapsed-time array */
 static float *hintTimers; /* derived name */
 
-void LwsKyomiGeo(void *gobj)
+void LwsKyomiGeo(GObj *gobj)
 {
     struct HintInfo *hint;
     int i;
@@ -172,7 +171,7 @@ void ReadHintSaveInfo(void)
     READ_HINT_SAVE_BITS(hintWork.save + 4, 1);
 }
 
-void SetParamKyomiGObj(void *gobj, float *root, float *param)
+void SetParamKyomiGObj(GObj *gobj, float *root, float *param)
 {
     float pos[4];
     float lv;
@@ -214,9 +213,9 @@ void WakeupHint(int no)
     (hintTable + no)->flags &= ~2;
 }
 
-int IsTopHint(void *gobj)
+int IsTopHint(GObj *gobj)
 {
-    if (((GObj *)gobj)->kind == 61) {
+    if (gobj->kind == 61) {
         struct HintInfo *hint = GOBJ_SUB(gobj)->work;
 
         if (hint->flags & 1) {
@@ -226,7 +225,7 @@ int IsTopHint(void *gobj)
     return 0;
 }
 
-void DebugHintStart(void *gobj)
+void DebugHintStart(GObj *gobj)
 {
     struct HintInfo *hint;
 

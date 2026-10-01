@@ -8,16 +8,16 @@
 #ifndef LWS_KYOMI_H
 #define LWS_KYOMI_H
 
-char *CreateKyomiGObj(int no);
-void DebugHintStart(void *gobj);
+struct GObj *CreateKyomiGObj(int no);
+void DebugHintStart(struct GObj *gobj);
 void FinishHint(int no);
 char *GetBuffHintSaveInfo(void);
 int GetSizeHintSaveInfo(void);
 void Hint_Init(void);
-int IsTopHint(void *gobj);
+int IsTopHint(struct GObj *gobj);
 void MakeHintSaveInfo(void);
 void ReadHintSaveInfo(void);
-void SetParamKyomiGObj(void *gobj, float *root, float *param);
+void SetParamKyomiGObj(struct GObj *gobj, float *root, float *param);
 void SleepHint(int no);
 void WakeupHint(int no);
 

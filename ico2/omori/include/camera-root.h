@@ -9,18 +9,18 @@
 #define CAMERA_ROOT_H
 
 extern int CameraCalclated_f;
-extern int default_cameratarget_gobj;
+extern struct GObj *default_cameratarget_gobj;
 extern int InsertCameraWorkingFlag;
 extern int FixViewInGameCameraFlag;
 extern int monitorCameraHold;      /* the title shortcut holds the monitor camera */
 extern int insertCameraBlendTimer; /* frames left of the blend after an insert camera */
 void Camctrl_ExitEveRock(void);
-void Camctrl_SetTarget(int gobj, int subGObj, int pri);
-void CameraChangeTargetParallel(int from, int to);
+void Camctrl_SetTarget(struct GObj *gobj, struct GObj *subGObj, int pri);
+void CameraChangeTargetParallel(struct GObj *from, struct GObj *to);
 int CameraGetMode(void);
 void CameraGetOtherObjOffset(float *pos, float *outDist, int *outAngle);
-int CameraGetTarget(void);
-void CameraGetTargets(int *gobj, int *subGObj);
+struct GObj *CameraGetTarget(void);
+void CameraGetTargets(struct GObj **gobj, struct GObj **subGObj);
 void CameraSetMode(int x);
 void *GetCameraPos(void);
 int *GetCurrentCameraSet2(void);
@@ -31,7 +31,9 @@ void InsertCamera_SetDetail(float *pos, float *tgt, int frames, int cutType, int
                             float blend);
 
 void InsertCamera_SetNoraml(float *pos, float *tgt, int frames, int cutType);
+
 struct CameraSet2;
+
 void MakeCameraMatrix(struct CameraSet2 *cs);
 void ResetHandCameraLimitInDemo(void);
 void ResetZoomMaxValInDemo(void);
@@ -42,7 +44,7 @@ void SetHandCameraLimitInDemo(int limitP, int limitV);
 void SetMonitorCameraInitializeFlag(void);
 void SetWSMatrix(void *src);
 void SetZoomMaxValInDemo(int zoom);
-void CameraSetTargetGObj(int a, int b);
+void CameraSetTargetGObj(struct GObj *a, struct GObj *b);
 int UpdateHandCameraLimitP(void);
 int UpdateHandCameraLimitV(void);
 int UpdateZoomMaxVallInDemo(void);

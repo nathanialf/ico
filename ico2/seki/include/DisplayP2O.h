@@ -33,7 +33,7 @@ typedef struct PObjMatDef { /* field names derived */
     unsigned char fbaOff; /* 0x06 */
     char pad07[5];
     float alpha; /* 0x0C */
-} PObjMatDef; /* derived name */
+} PObjMatDef;    /* derived name */
 
 /* The display's view of the model record ico2/common/src/PObj.c builds (its
  * PObj) and of the 0x180-byte part record the model's 0x40 points at (its
@@ -126,12 +126,14 @@ typedef struct PObjModel { /* field names derived */
     signed char disp;      /* 0x2F */
 
     union {
-        long long bits; /* bits 16 and 17 the display type, bit 26 the shadow off */
+        unsigned long long bits; /* bits 16 and 17 the display type, bit 26 the shadow off */
 
         struct {
             short id;
-            short pad32;
-            float lightScale; /* 0x34, scales the colours of the lights */
+            unsigned short type : 2;  /* 0x32, the display type */
+            unsigned short shade : 4; /* the shade the strips carry */
+            unsigned short lod : 4;   /* the level of detail the packet is built for */
+            float lightScale;         /* 0x34, scales the colours of the lights */
         } s;
     } mode; /* 0x30 */
 

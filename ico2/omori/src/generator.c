@@ -51,10 +51,6 @@ typedef struct GenWork {        /* field names derived */
     int timer;     /* 0x64 */
 } GenWork;
 
-/* the data-only member obj-layout.o, read through this file's view of its
-   rows; no header declares it */
-extern GenGeo objLayout[];
-
 /* the generator packet: 11277 bytes are read into it, which is what
    GetsizeGeneratorPacket returns, three under the buffer */
 static int generatorPacket[2820]; /* derived name */

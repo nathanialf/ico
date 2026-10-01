@@ -19,6 +19,8 @@
 #include "enemy_act.h"
 #include "gobj.h"
 #include "BgAnimation.h"
+#include "lightning.h"
+#include "gamesys.h"
 
 /* bgaAnimDefault is the 0x30-byte default record
    bga_InitData block-copies into its mallocseki() allocation (two
@@ -1481,15 +1483,9 @@ typedef struct BgaObj { /* field names derived */
     /* 0x870 */ BgaNodeBits *work;
 } BgaObj; /* derived name */
 
-/* The lightning record bga_addLightning allocates: ten 0x20-byte segments,
-   the live segment count, the two flags, the frame, the definition it was
-   built from and the list link. */
-typedef struct BgaLightningSeg { /* field names derived */
-    /* 0x00 */ float v[4];
-    /* 0x10 */ int key;
-    /* 0x14 */ char pad14[12];
-} BgaLightningSeg; /* derived name */
-
+/* The lightning record bga_addLightning allocates: ten of lightning.h's
+   0x20-byte nodes, the live node count, the two flags, the frame, the
+   definition it was built from and the list link. */
 /* The lightning definition the BGA file carries: the kind at +0x02 picks the
    object the bolt is drawn against, the four bytes at +0x04 are its colour,
    and the nine floats from +0x08 and the short at +0x2E are DrawLightningN's
@@ -1513,7 +1509,7 @@ typedef struct BgaLightningDef { /* field names derived */
 } BgaLightningDef; /* derived name */
 
 typedef struct BgaLightning { /* field names derived */
-    /* 0x000 */ BgaLightningSeg seg[10];
+    /* 0x000 */ LightningNode seg[10];
     /* 0x140 */ int n;
     /* 0x144 */ int id;
     /* 0x148 */ int t0;
@@ -1521,8 +1517,6 @@ typedef struct BgaLightning { /* field names derived */
     /* 0x150 */ BgaLightningDef *def;
     /* 0x154 */ struct BgaLightning *next;
 } BgaLightning; /* derived name */
-
-/* BgAnimation.h is not included: its bga_InitData does not agree with this file */
 
 static inline void bga_checkCameraDistance(void) /* derived name */
 {
@@ -2025,13 +2019,13 @@ void bga_addLightning(int kind, BgaLightningDef *a1, float *vec, int id, int t0,
                 p->frame = f;
                 p->t0 = t0;
                 p->seg[0].key = -1;
-                _CopyVector(p->seg[0].v, vec);
+                _CopyVector(p->seg[0].pos.f, vec);
                 return;
             case 16: {
-                BgaLightningSeg *e = &p->seg[p->n];
+                LightningNode *e = &p->seg[p->n];
 
                 e->key = a1->kind;
-                _CopyVector(p->seg[p->n].v, vec);
+                _CopyVector(p->seg[p->n].pos.f, vec);
                 p->n = p->n + 1;
                 return;
             }
@@ -2056,15 +2050,15 @@ void bga_addLightning(int kind, BgaLightningDef *a1, float *vec, int id, int t0,
         p->def = a1;
         p->frame = f;
         p->t0 = t0;
-        _CopyVector(p->seg[0].v, vec);
+        _CopyVector(p->seg[0].pos.f, vec);
         break;
     case 16: {
-        BgaLightningSeg *e = &p->seg[p->n];
+        LightningNode *e = &p->seg[p->n];
 
         e->key = a1->kind;
-        _CopyVector(p->seg[p->n].v, vec);
+        _CopyVector(p->seg[p->n].pos.f, vec);
         p->def = 0;
-        _UnitVector(p->seg[0].v);
+        _UnitVector(p->seg[0].pos.f);
         p->n = p->n + 1;
         break;
     }
@@ -2082,11 +2076,6 @@ typedef struct BgaLightningCol { /* field names derived */
     unsigned int c[4];
 } __attribute__((aligned(16))) BgaLightningCol;
 
-extern GenGeo objLayout[];
-
-/* this file does not include gobj.h or enemy_act.h, and its use of
-   DrawLightningN does not fit the prototype in lightning.h */
-
 /* the definition's four colour bytes widened into the 16-byte record
    DrawLightningN reads */
 static inline BgaLightningCol bga_lightningColor(BgaLightningDef *g) /* derived name */
@@ -2099,9 +2088,6 @@ static inline BgaLightningCol bga_lightningColor(BgaLightningDef *g) /* derived 
     c.c[3] = g->col[3];
     return c;
 }
-
-extern void DrawLightningN(int num, void *v, void *col, float f0, float f1, float f2, float f3,
-                           float f4, float f5, float f6, float f7, float f8, float f9, int c);
 
 void bga_DispLightning(void)
 {
@@ -2152,9 +2138,9 @@ void bga_DispLightning(void)
             col.c[1] = g->col[1];
             col.c[2] = g->col[2];
             col.c[3] = g->col[3];
-            DrawLightningN(p->n, p, &col, g->stepMin, g->stepMax, g->swayStepMin, g->swayStepMax,
-                           g->turnMin, g->turnMax, g->swayLimit, g->width, g->texLen, p->frame + z,
-                           g->c);
+            DrawLightningN(p->n, p->seg, &col, g->stepMin, g->stepMax, g->swayStepMin,
+                           g->swayStepMax, g->turnMin, g->turnMax, g->swayLimit, g->width,
+                           g->texLen, p->frame + z, g->c);
             z += 0.01f;
         }
     }
@@ -2184,9 +2170,9 @@ void bga_DispLightning(void)
                     _CopyVector(&p->seg[k], (char *)GOBJ_SUB(o)->nodeMtx + (g->node << 6) + 0x30);
                 }
             }
-            DrawLightningN(p->n, p, &col, g->stepMin, g->stepMax, g->swayStepMin, g->swayStepMax,
-                           g->turnMin, g->turnMax, g->swayLimit, g->width, g->texLen, p->frame,
-                           g->c);
+            DrawLightningN(p->n, p->seg, &col, g->stepMin, g->stepMax, g->swayStepMin,
+                           g->swayStepMax, g->turnMin, g->turnMax, g->swayLimit, g->width,
+                           g->texLen, p->frame, g->c);
             break;
         case 2:
             for (o = isysGObjGetExist_begin(); o != 0; o = isysGObjGetExist_next(o)) {
@@ -2199,7 +2185,7 @@ void bga_DispLightning(void)
                                         (char *)GOBJ_SUB(o)->nodeMtx + (g->node << 6) + 0x30);
                         }
                     }
-                    DrawLightningN(p->n, p, &col, g->stepMin, g->stepMax, g->swayStepMin,
+                    DrawLightningN(p->n, p->seg, &col, g->stepMin, g->stepMax, g->swayStepMin,
                                    g->swayStepMax, g->turnMin, g->turnMax, g->swayLimit, g->width,
                                    g->texLen, p->frame, g->c);
                 }
@@ -2216,7 +2202,7 @@ void bga_DispLightning(void)
                                         (char *)GOBJ_SUB(o)->nodeMtx + (g->node << 6) + 0x30);
                         }
                     }
-                    DrawLightningN(p->n, p, &col, g->stepMin, g->stepMax, g->swayStepMin,
+                    DrawLightningN(p->n, p->seg, &col, g->stepMin, g->stepMax, g->swayStepMin,
                                    g->swayStepMax, g->turnMin, g->turnMax, g->swayLimit, g->width,
                                    g->texLen, p->frame, g->c);
                 }
@@ -2225,9 +2211,9 @@ void bga_DispLightning(void)
         case 0:
             break;
         default:
-            DrawLightningN(p->n, p, &col, g->stepMin, g->stepMax, g->swayStepMin, g->swayStepMax,
-                           g->turnMin, g->turnMax, g->swayLimit, g->width, g->texLen, p->frame,
-                           g->c);
+            DrawLightningN(p->n, p->seg, &col, g->stepMin, g->stepMax, g->swayStepMin,
+                           g->swayStepMax, g->turnMin, g->turnMax, g->swayLimit, g->width,
+                           g->texLen, p->frame, g->c);
             break;
         }
     }

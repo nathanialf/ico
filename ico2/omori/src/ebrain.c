@@ -8,6 +8,7 @@
 #include <libvu0.h>
 #include <string.h>
 #include "typedef.h"
+#include "gamesys.h"
 #include "debug_exception.h"
 #include "main.h"
 #include <assert.h>
@@ -28,10 +29,6 @@ static void *girlHolder; /* derived name */
 static int enemiesWait; /* derived name */
 
 static EBSlot ebrainSlots[32]; /* derived name */
-
-/* the data-only member obj-layout.o, read through this file's view of its
-   rows; no header declares it */
-extern GenGeo objLayout[];
 
 static inline void eBrainSetStatus(EBSlot *p, int newst) /* derived name */
 {

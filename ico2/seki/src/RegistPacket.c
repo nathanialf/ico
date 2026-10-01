@@ -1916,7 +1916,7 @@ void reg_DispMultiPri(Sub15C *o, int pri)
 void reg_DispObj(Sub15C *o)
 {
     if (o->dispType == 2) {
-        unsigned short type = (unsigned long long)o->model->mode.bits >> 16;
+        unsigned short type = o->model->mode.bits >> 16;
 
         if ((type & 3) == 2) {
             reg_dispPointLineObj(o);
@@ -1924,7 +1924,7 @@ void reg_DispObj(Sub15C *o)
             reg_dispMObj(o);
         }
     } else {
-        unsigned short type = (unsigned long long)o->model->mode.bits >> 16;
+        unsigned short type = o->model->mode.bits >> 16;
 
         switch (type & 3) {
         case 0:

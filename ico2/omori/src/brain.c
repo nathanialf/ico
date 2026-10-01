@@ -6,17 +6,14 @@
 #include "brain.h"
 #include "main.h"
 #include "gv.h"
-
-/* the data-only member obj-kind-data.o, read through this file's view of its
-   rows; no header declares it */
-extern ObjKindEnt objKindData[];
+#include "gamesys.h"
 
 static inline void brainSetTargetTimer(BrainTarget *t) /* derived name */
 {
     int n;
 
     if (t->gobj != 0) {
-        n = (int)objKindData[((PObjGObj *)t->gobj)->kind].targetTime;
+        n = (int)objKindData[t->gobj->kind].targetTime;
         if (n != -1) {
             n = n * ((60 - systemStatus[0] * 10) / systemStatus[1]);
         }
@@ -57,7 +54,7 @@ void brainInit(void)
     eBrainInit();
 }
 
-void OverrideBrainStatusByGObj(Brain *b, int gobj, float levelCap, float rate, float capStep)
+void OverrideBrainStatusByGObj(Brain *b, GObj *gobj, float levelCap, float rate, float capStep)
 {
     BrainTarget *t;
     int i;
@@ -76,21 +73,7 @@ void OverrideBrainStatusByGObj(Brain *b, int gobj, float levelCap, float rate, f
     debug_StdPrintfDummy("ブレインレベルのオーバーライドに失敗しました\n");
 }
 
-/* the brain's view of a stage layout row (generator.c's GVGeo2): the object
-   kind and the flag word, bit 20 of which puts the object in the girl's
-   brain */
-typedef struct { /* field names derived */
-    char pad00[70];
-    unsigned char kind;
-    char pad47[1];
-    unsigned int flags;
-} BrainDefEnt;
-
-/* the data-only member obj-layout.o, read through this file's view of its
-   rows; no header declares it */
-extern BrainDefEnt objLayout[];
-
-static inline void brainSetTargetSub(Brain *b, int gobj, float lvl, int k) /* derived name */
+static inline void brainSetTargetSub(Brain *b, GObj *gobj, float lvl, int k) /* derived name */
 {
     float capStep = objKindData[k].brainCapStep;
     float rate = objKindData[k].brainRate;
@@ -118,11 +101,12 @@ static inline void brainSetTargetSub(Brain *b, int gobj, float lvl, int k) /* de
     brainSetTargetTimer(t);
 }
 
-void brainStatusDefaultSet(Brain *b, int gobj, int idx)
+void brainStatusDefaultSet(Brain *b, GObj *gobj, int idx)
 {
-    BrainDefEnt *d = objLayout + idx;
+    GenGeo *d = objLayout + idx;
     int k = d->kind;
 
+    /* bit 20 of the layout row's flags puts the object in the girl's brain */
     if ((d->flags >> 20) & 1) {
         if (objKindData[k].brainLevel != 0) {
             brainSetTargetSub(b, gobj, (float)objKindData[k].brainLevel, k);
@@ -172,7 +156,7 @@ void brainLevelProcess(Brain *b)
         if (t->gobj == 0) {
             continue;
         }
-        if (((GObj *)t->gobj)->active == 0) {
+        if (t->gobj->active == 0) {
             t->level = 0.0f;
             continue;
         }
@@ -249,8 +233,8 @@ void brainGetTarget(Brain *b)
             idx = i;
         } else if (best != 0 && brainTargetLevel(b, t) == brainTargetLevel(b, best)) {
             if (girlGObj != 0) {
-                if (_DistSqGV(test_CURRENTROOT((void *)t->gobj), test_CURRENTROOT(girlGObj)) <
-                    _DistSqGV(test_CURRENTROOT((void *)best->gobj), test_CURRENTROOT(girlGObj))) {
+                if (_DistSqGV(test_CURRENTROOT(t->gobj), test_CURRENTROOT(girlGObj)) <
+                    _DistSqGV(test_CURRENTROOT(best->gobj), test_CURRENTROOT(girlGObj))) {
                     best = t;
                     idx = i;
                 }
@@ -379,20 +363,21 @@ void brainAddLevelGirlDetail(int flag, float lv)
     }
 }
 
-void brainAddLevelGop(int gobj, float lv)
+void brainAddLevelGop(GObj *gobj, float lv)
 {
-    int brain = (int)&brainGirl;
-    int tgt = brain + 0x28;
     int i;
 
     for (i = 0; i < 40; i++) {
-        if (((BrainTarget *)tgt)[i].gobj == gobj) {
-            brainAddLevel(&((BrainTarget *)tgt)[i], lv);
+        if (brainGirl.tgt[i].gobj == gobj) {
+            brainAddLevel(&brainGirl.tgt[i], lv);
         }
     }
 }
 
-void brainSubLevelGop(int gobj, float lv)
+/* brainSubLevelGop, brainSetLevelGop and brainDecTargetTimer walk the
+   targets from an int address; brainGirl.tgt[i] or a BrainTarget pointer
+   moves .text in each */
+void brainSubLevelGop(GObj *gobj, float lv)
 {
     int brain = (int)&brainGirl;
     int tgt = brain + 0x28;
@@ -415,7 +400,7 @@ void brainSubLevelGop(int gobj, float lv)
     }
 }
 
-void brainSetLevelGop(int gobj, int lookOnly, int alwaysSeen, float lv)
+void brainSetLevelGop(GObj *gobj, int lookOnly, int alwaysSeen, float lv)
 {
     int brain = (int)&brainGirl;
     int tgt = brain + 0x28;
@@ -450,7 +435,7 @@ static inline int brainDecTimer(BrainTarget *e) /* derived name */
     return e->timer == 0;
 }
 
-int brainDecTargetTimer(int gobj)
+int brainDecTargetTimer(GObj *gobj)
 {
     int brain = (int)&brainGirl;
     int tgt = brain + 0x28;

@@ -3,10 +3,10 @@
 #include "objact.h"
 #include "typedef.h"
 #include "act2.h"
+#include "gamesys.h"
 
-/* the data-only members obj-layout.o and obj-action.o, read as typedef.h's
-   GenGeo and OaRecB rows */
-extern GenGeo objLayout[];
+/* the data-only member obj-action.o, read as typedef.h's OaRecB rows; no
+   header declares it */
 extern OaRecB objAction[];
 
 /* the object's action record, or none */

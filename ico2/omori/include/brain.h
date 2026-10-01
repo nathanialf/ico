@@ -12,17 +12,17 @@
 
 /* the girl's brain record */
 extern Brain brainGirl;
-void OverrideBrainStatusByGObj(Brain *b, int gobj, float levelCap, float rate, float capStep);
+void OverrideBrainStatusByGObj(Brain *b, GObj *gobj, float levelCap, float rate, float capStep);
 void brainAddLevelGirl(float lv);
 int brainCheckView(Brain *b, BrainTarget *t);
 void brainClsTargetLevel(Brain *b);
 void brainInit(void);
 void brainInitGirlSet(void *girl, int cur);
 void brainLockGirl(void);
-void brainSetLevelGop(int gobj, int lookOnly, int alwaysSeen, float lv);
+void brainSetLevelGop(GObj *gobj, int lookOnly, int alwaysSeen, float lv);
 void brainSetSpMode(void);
-void brainStatusDefaultSet(Brain *b, int gobj, int idx);
-void brainSubLevelGop(int gobj, float lv);
+void brainStatusDefaultSet(Brain *b, GObj *gobj, int idx);
+void brainSubLevelGop(GObj *gobj, float lv);
 void brainUnlockGirl(void);
 
 #endif /* BRAIN_H */

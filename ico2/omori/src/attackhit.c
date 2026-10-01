@@ -11,6 +11,7 @@
 #include "debug_exception.h"
 #include "gv.h"
 #include "commonact.h"
+#include "act-game.h"
 #include <assert.h>
 
 typedef struct AttackPack { /* field names derived */
@@ -406,10 +407,6 @@ static void AttackMail(GObj *self, AttackPack *pack)
     }
 }
 
-/* as act-game.h declares it; act-game.h is not included because this file
-   calls the ACTChkAttackIgnore_ functions with the actor as well */
-extern float _ACTGame_GetParamF(int idx);
-
 static int AttackCheckHit(AttackPack *pack, GObj *gobj, short *out)
 {
     float w[4];
@@ -534,12 +531,6 @@ static int AttackCheckHit(AttackPack *pack, GObj *gobj, short *out)
     }
     return j;
 }
-
-/* act-game.h declares these with the object alone (and the girl's with an
-   int pointer); this file passes the actor as well */
-extern int ACTChkAttackIgnore_BOY(GObj *gobj, void *actor);
-extern int ACTChkAttackIgnore_GIRL(GObj *gobj, void *actor);
-extern int ACTChkAttackIgnore_ENEMY(GObj *gobj, void *actor);
 
 static int AttackGenerate(AttackPack *pack)
 {

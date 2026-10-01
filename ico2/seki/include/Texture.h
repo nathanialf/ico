@@ -11,7 +11,7 @@
 int tex_AllocVramAuto(int a0, int a1);
 int *tex_GetTexExtData(int idx);
 int *tex_GetTextureData(int idx);
-int tex_GetTextureNo(char *name);
+int tex_GetTextureNo(const char *name);
 int tex_GetTextureNum(void);
 void tex_Init(void);
 int tex_InitTexture();
@@ -20,7 +20,10 @@ void tex_LockHeadTBP(int tbp, int pri);
 int tex_RemakeRegistersSampleMin(void);
 void tex_ResetVramPri(int pri);
 void tex_SetSamplingType(int *a0, int a1, int a2);
-void tex_SetUVScroll(char *name, float u, float v, float su, float sv, float ou, float ov, int a1);
+
+void tex_SetUVScroll(const char *name, float u, float v, float su, float sv, float ou, float ov,
+                     int a1);
+
 int tex_TransTexture(int no, int pri);
 void tex_UnlockHeadTBP(int pri);
 int tex_initTextureSub();

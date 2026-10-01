@@ -61,8 +61,8 @@ union CameraSetIn { /* field names derived */
    object, the priority the request was filed at and the priority that ran the
    frame before. */
 typedef struct CamCtrl { /* field names derived */
-    int gobj;            /* 0x00 */
-    int subGObj;         /* 0x04 */
+    GObj *gobj;          /* 0x00 */
+    GObj *subGObj;       /* 0x04 */
     int pri;             /* 0x08 */
     int lastPri;         /* 0x0C */
 } CamCtrl;
@@ -107,9 +107,9 @@ static int zoomRangeMin; /* derived name */
 
 static int zoomRangeMax; /* derived name */
 
-static int cameraTargetGObj; /* derived name */
+static GObj *cameraTargetGObj; /* derived name */
 
-static int cameraTargetSubGObj; /* derived name */
+static GObj *cameraTargetSubGObj; /* derived name */
 
 static unsigned char gamecamCutBack; /* derived name */
 
@@ -357,11 +357,11 @@ void GetCameraInfomationFromGlobalPosition(float *pos, float *outDist, int *outA
 }
 
 /* GetCameraDefaultTargetGObj's body, for InitCamera and the camera step */
-static inline int getCameraDefaultTargetGObj(void) /* derived name */
+static inline GObj *getCameraDefaultTargetGObj(void) /* derived name */
 {
     int id = GetEfStageCameraTargetID();
     if (id != 0) {
-        int gobj = isysGObjSearchFromObjLayoutID(id);
+        GObj *gobj = isysGObjSearchFromObjLayoutID(id);
         if (gobj != 0) {
             return gobj;
         }
@@ -371,14 +371,14 @@ static inline int getCameraDefaultTargetGObj(void) /* derived name */
 
 /* hand the camera to gobj at no priority, for Camctrl_ExitEveRock and
    InitCamera */
-static inline void Camctrl_ForceTarget(int gobj) /* derived name */
+static inline void Camctrl_ForceTarget(GObj *gobj) /* derived name */
 {
     camctrl.pri = 0;
     camctrl.gobj = gobj;
     camctrl.subGObj = 0;
 }
 
-static inline void Camctrl_Init(int gobj) /* derived name */
+static inline void Camctrl_Init(GObj *gobj) /* derived name */
 {
     camctrl.lastPri = 0;
     Camctrl_ForceTarget(gobj);
@@ -402,7 +402,7 @@ static inline void InsertCamera_Clear(void) /* derived name */
 
 int CameraCalclated_f;
 
-int default_cameratarget_gobj;
+GObj *default_cameratarget_gobj;
 
 int InsertCameraWorkingFlag;
 
@@ -414,7 +414,7 @@ int insertCameraBlendTimer; /* derived name */
 
 void InitCamera(void)
 {
-    int gobj = getCameraDefaultTargetGObj();
+    GObj *gobj = getCameraDefaultTargetGObj();
     InsertCamera_Clear();
     default_cameratarget_gobj = gobj;
     cameraMode = 3;
@@ -471,7 +471,7 @@ static inline void Camctrl_Exec(void) /* derived name */
         insertCameraBlendTimer = insertCameraBlendTimer - 1;
     }
     if ((last = camctrl.lastPri) == 1 && camctrl.pri == 0 && default_cameratarget_gobj != 0 &&
-        IsPointIsInScreen(pos, test_CURRENTROOT((void *)default_cameratarget_gobj)) < 0.0f) {
+        IsPointIsInScreen(pos, test_CURRENTROOT(default_cameratarget_gobj)) < 0.0f) {
         insertCameraBlendTimer = (60 - systemStatus[0] * 10) / systemStatus[1];
         InsertCameraWorkingFlag = last;
     }
@@ -527,14 +527,11 @@ static inline void cameraSetMode(int x) /* derived name */
 /* set when the monitor camera must start over */
 static int monitorCameraInit = 0; /* derived name */
 
-/* the custom pad configuration ios/pad.c defines; pad.h does not declare it */
-extern PadConf iosPadConfCustom;
-
 void SetCameraMatrix(void)
 {
     float m[16];
-    int gobj;
-    int root;
+    GObj *gobj;
+    GObj *root;
     int useDemo;
     int zoomMax;
     int target;
@@ -694,7 +691,7 @@ void SetCameraMatrix(void)
         CamZoomStep zp[3] = {
             {10, 200}, {10, 200}, {(int)_ACTGame_GetParamF(12), (int)_ACTGame_GetParamF(11)}};
         int padCtx[0x30 / 4];
-        int ply;
+        GObj *ply;
 
         if (useDemo != 0) {
             zoomMax = zoomMaxInDemo;
@@ -709,8 +706,7 @@ void SetCameraMatrix(void)
         iosPadRead(padCtx);
         ply = boyGObj;
         if (ply != 0 && useDemo == 0) {
-            ply = ((GObj *)ply)->act;
-            p = (char *)ply + 0x2D8;
+            p = (char *)&GOBJ_ACT(ply)->padDev;
         } else {
             p = (char *)padCtx;
         }
@@ -762,7 +758,7 @@ void Camctrl_ExitEveRock(void)
     }
 }
 
-void Camctrl_SetTarget(int gobj, int subGObj, int pri)
+void Camctrl_SetTarget(GObj *gobj, GObj *subGObj, int pri)
 {
     if (pri < camctrl.pri) {
         return;
@@ -774,11 +770,11 @@ void Camctrl_SetTarget(int gobj, int subGObj, int pri)
 
 /* the object the camera follows by default: the stage's camera target, or
    the boy */
-int GetCameraDefaultTargetGObj(void)
+GObj *GetCameraDefaultTargetGObj(void)
 {
     int id = GetEfStageCameraTargetID();
     if (id != 0) {
-        int gobj = isysGObjSearchFromObjLayoutID(id);
+        GObj *gobj = isysGObjSearchFromObjLayoutID(id);
         if (gobj != 0) {
             return gobj;
         }
@@ -786,13 +782,13 @@ int GetCameraDefaultTargetGObj(void)
     return boyGObj;
 }
 
-void CameraSetTargetGObj(int a, int b)
+void CameraSetTargetGObj(GObj *a, GObj *b)
 {
     cameraTargetGObj = a;
     cameraTargetSubGObj = b;
 }
 
-void CameraChangeTargetParallel(int oldTarget, int newTarget)
+void CameraChangeTargetParallel(GObj *oldTarget, GObj *newTarget)
 {
     struct {           /* field names derived */
         float move[4]; /* the step from the old target to the new one */
@@ -815,12 +811,12 @@ void CameraChangeTargetParallel(int oldTarget, int newTarget)
     targetCameraSet.moving = 1;
 }
 
-int CameraGetTarget(void)
+GObj *CameraGetTarget(void)
 {
     return cameraTargetGObj;
 }
 
-void CameraGetTargets(int *gobj, int *subGObj)
+void CameraGetTargets(GObj **gobj, GObj **subGObj)
 {
     *gobj = cameraTargetGObj;
     *subGObj = cameraTargetSubGObj;
