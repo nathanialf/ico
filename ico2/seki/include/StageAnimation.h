@@ -33,17 +33,17 @@ typedef struct { /* field names derived */
 extern const StgObjDat objTableScene[];
 /* StageAnimation.c's `inline` functions, in the order of their definitions'
  * out-of-line copies at the end of the object (first-declaration order). */
-int stage_CheckAnimationFinish(int a0);
-int stage_CheckAnimationFrame(int a0, int a1, int a2);
-void stage_SetLoopFlag(int key, int a1);
+int stage_CheckAnimationFinish(int key);
+int stage_CheckAnimationFrame(int key, int frame, int reset);
+void stage_SetLoopFlag(int key, int loop);
 void stage_SetFrameStep(int target, int val);
-void stage_SetParentOfGObj(int a0, void *a1);
-void stage_SetParentOfGObjWithLocalRotationFlag(int a0, void *a1, int a2);
+void stage_SetParentOfGObj(int key, void *parent);
+void stage_SetParentOfGObjWithLocalRotationFlag(int key, void *parent, int localRotation);
 void stage_SetLocalizeGeometry(int key, float *pos, float *rot);
-void stage_KillPlayBgAnimationIfOverMaxCount(int a0, int a1);
-int stage_CheckAnimationFrameIn(int a0, int a1, int a2);
+void stage_KillPlayBgAnimationIfOverMaxCount(int key, int maxCount);
+int stage_CheckAnimationFrameIn(int key, int in, int out);
 void stage_ApplyData(char *name, char *data);
-int stage_ContinueAnimation(int a0, int a1);
+int stage_ContinueAnimation(int key, int next);
 void stage_DispAnimation(void);
 int stage_DispBgAnimation(void *p);
 int stage_DispBgAnimationNoFinish(char **slot);
@@ -51,7 +51,7 @@ void stage_KillPlayBgAnimation(int **self);
 int *stage_MakePlayBgAnimation(int key);
 float stage_PlayBgAnimation(int key, float t, void *v, void *q);
 float stage_PlayBgAnimationDissolve(int key, void *a, void *b, float t, float d);
-void stage_SetAnimation(int a0, int a1, int a2);
+void stage_SetAnimation(int key, int mode, int frame);
 void stage_SetScale(int id, float s);
 void stage_ResetAnimation(void);
 void stage_CalcAnimationNoParent(void);

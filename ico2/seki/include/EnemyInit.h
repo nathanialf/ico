@@ -8,7 +8,7 @@
 #ifndef ENEMYINIT_H
 #define ENEMYINIT_H
 
-int enemy_GetPositionTable(int idx, int sub_idx);
+float (*enemy_GetPositionTable(int idx, int sub_idx))[4];
 void enemy_Initialize(void);
 
 extern int EnemyKindNum;

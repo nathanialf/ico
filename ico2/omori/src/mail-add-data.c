@@ -14,12 +14,12 @@
 typedef struct MailAddEntry { /* field names derived */
     /* 0x0 */ int mail;
     /* 0x4 */ void *data;
-} MailAddEntry;
+} MailAddEntry; /* derived name */
 
 typedef struct MailAdditionalData { /* field names derived */
     /* 0x00 */ int current_count;
     /* 0x04 */ MailAddEntry e[MAIL_ADDITIONAL_DATA_MAX];
-} MailAdditionalData;
+} MailAdditionalData; /* derived name */
 
 static inline int sendMailAndGetIndex(GObj *gop, int msg, void *sender) /* derived name */
 {

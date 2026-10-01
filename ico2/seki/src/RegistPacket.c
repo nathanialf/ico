@@ -916,7 +916,7 @@ static void reg_dispNObj(Sub15C *o)
                         mode = o->lightMtx->mode;
                         if (pkt->tex2 != -1) {
                             if (mode == 0) {
-                                debug_StdPrintfDummy("¸÷¸»¥ª¥Õ¤Ç¥ê¥Õ¥ì¥¯¥·¥ç¥ó¤òÉ½¼¨.\n");
+                                debug_StdPrintfDummy("å…‰æºã‚ªãƒ•ã§ãƒªãƒ•ãƒ¬ã‚¯ã‚·ãƒ§ãƒ³ã‚’è¡¨ç¤º.\n");
                                 mc_TransMicroCode(2, 0x10);
                             }
                             dl_SetDLPriority(4);
@@ -1028,7 +1028,7 @@ static void reg_dispMObj(Sub15C *o)
                         mode = o->lightMtx->mode;
                         if (pkt->tex2 != -1) {
                             if (mode == 0) {
-                                debug_StdPrintfDummy("¸÷¸»¥ª¥Õ¤Ç¥ê¥Õ¥ì¥¯¥·¥ç¥ó¤òÉ½¼¨.\n");
+                                debug_StdPrintfDummy("å…‰æºã‚ªãƒ•ã§ãƒªãƒ•ãƒ¬ã‚¯ã‚·ãƒ§ãƒ³ã‚’è¡¨ç¤º.\n");
                                 mc_TransMicroCode(2, 0x10);
                             }
                             dl_SetDLPriority(4);
@@ -1097,7 +1097,7 @@ static void reg_dispSObj(Sub15C *o, int idx)
                 mode = o->lightMtx->mode;
                 if (pkt->tex2 != -1) {
                     if (mode == 0) {
-                        debug_StdPrintfDummy("¸÷¸»¥ª¥Õ¤Ç¥ê¥Õ¥ì¥¯¥·¥ç¥ó¤òÉ½¼¨.\n");
+                        debug_StdPrintfDummy("å…‰æºã‚ªãƒ•ã§ãƒªãƒ•ãƒ¬ã‚¯ã‚·ãƒ§ãƒ³ã‚’è¡¨ç¤º.\n");
                         mc_TransMicroCode(2, 0x10);
                     }
                     dl_SetDLPriority(4);
@@ -1654,7 +1654,7 @@ void reg_DispAccessoryWithShadow(Sub15C *o, Sub15C *src)
                         mode = o->lightMtx->mode;
                         if (pkt->tex2 != -1) {
                             if (mode == 0) {
-                                debug_StdPrintfDummy("¸÷¸»¥ª¥Õ¤Ç¥ê¥Õ¥ì¥¯¥·¥ç¥ó¤òÉ½¼¨.\n");
+                                debug_StdPrintfDummy("å…‰æºã‚ªãƒ•ã§ãƒªãƒ•ãƒ¬ã‚¯ã‚·ãƒ§ãƒ³ã‚’è¡¨ç¤º.\n");
                                 mc_TransMicroCode(2, 0x10);
                             }
                             dl_SetDLPriority(4);
@@ -1911,7 +1911,7 @@ void reg_DispMultiPri(Sub15C *o, int pri)
                     mode = o->lightMtx->mode;
                     if (pkt->tex2 != -1) {
                         if (mode == 0) {
-                            debug_StdPrintfDummy("¸÷¸»¥ª¥Õ¤Ç¥ê¥Õ¥ì¥¯¥·¥ç¥ó¤òÉ½¼¨.\n");
+                            debug_StdPrintfDummy("å…‰æºã‚ªãƒ•ã§ãƒªãƒ•ãƒ¬ã‚¯ã‚·ãƒ§ãƒ³ã‚’è¡¨ç¤º.\n");
                             mc_TransMicroCode(2, 0x10);
                         }
                         dl_SetDLPriority(4);

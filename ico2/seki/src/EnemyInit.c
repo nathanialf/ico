@@ -2,20 +2,21 @@
 #include "ios.h"
 #include "memory.h"
 
-/* the number of stages enemy_Initialize sets up */
+/* the number of enemy sets enemy_Initialize sets up, the rows of
+   enemyPositionTable */
 int EnemyKindNum = 0;
 
-/* One slot per enemy kind, each holding the position table enemy_Initialize
-   allocates for that kind, or 0. */
-static int enemyPositionTable[27]; /* derived name */
+/* One row per enemy set and one slot per enemy kind, each holding the
+   position table enemy_Initialize allocates for that kind, or 0. */
+static float (*enemyPositionTable[1][27])[4]; /* derived name */
 
 typedef int Qw128 __attribute__((mode(TI))); /* derived name */
 
 /* the stage table's record: a pointer and a count */
-typedef struct EnemySet { /* field names derived */
-    int **list;           /* 0x0 */
-    int n;                /* 0x4 */
-} EnemySet;               /* derived name */
+typedef struct EnemySet {        /* field names derived */
+    struct EnemyModelSet **list; /* 0x0 */
+    int n;                       /* 0x4 */
+} EnemySet;                      /* derived name */
 
 /* one kind's position list and the kind it places */
 typedef struct EnemyKindRec { /* field names derived */
@@ -830,7 +831,7 @@ EnemyModelSet enemy_enemymodel01_enemymodel04 = {enemymodel01Kinds, 27, enemymod
 EnemyModelSet *enemymodel01[] = {&enemy_enemymodel01_enemymodel04, 0};
 
 /* the stages' set lists and their counts, enemy_Initialize's table */
-static EnemySet enemySetTable[] = {{(int **)enemymodel01, 1}}; /* derived name */
+static EnemySet enemySetTable[] = {{enemymodel01, 1}}; /* derived name */
 
 /* Debug report of the number of positions enemy_Initialize copied, built only
    under DEBUG. */
@@ -848,7 +849,7 @@ void enemy_Initialize(void)
     int k;
     int i;
     int j;
-    int **tbl;
+    EnemyModelSet **tbl;
     int *q;
     float (*dst)[4];
     /* the slot count */
@@ -863,7 +864,8 @@ void enemy_Initialize(void)
         for (k = 0; k < kindNum; k++) {
             cnt[k] = 0;
             for (i = 0; i < enemySetTable[e].n; i++) {
-                for (j = 0; j < tbl[i][1]; j++) {
+                for (j = 0; j < tbl[i]->kindNum; j++) {
+                    /* the set's j-th EnemyKindRec, as {list, kind} words */
                     int *rec = (int *)(j * 8 + *(int *)tbl[i]);
 
                     if (rec[1] == k) {
@@ -877,21 +879,21 @@ void enemy_Initialize(void)
         }
         for (k = 0; k < kindNum; k++) {
             if (cnt[k] > 0) {
-                *(int *)((char *)enemyPositionTable + k * 4 + e * 0x6C) =
-                    (int)iosMallocDebug(ios_partition_seki, (cnt[k] + 1) << 4, __FILE__, 124);
+                enemyPositionTable[e][k] =
+                    iosMallocDebug(ios_partition_seki, (cnt[k] + 1) << 4, __FILE__, 124);
             } else {
-                *(int *)((char *)enemyPositionTable + k * 4 + e * 0x6C) = 0;
+                enemyPositionTable[e][k] = 0;
                 continue;
             }
-            dst = (float (*)[4]) * (int *)((char *)enemyPositionTable + k * 4 + e * 0x6C);
+            dst = enemyPositionTable[e][k];
             for (i = 0; i < enemySetTable[e].n; i++) {
-                for (j = 0; j < tbl[i][1]; j++) {
+                for (j = 0; j < tbl[i]->kindNum; j++) {
                     int *rec = (int *)(j * 8 + *(int *)tbl[i]);
 
                     if (rec[1] == k) {
                         q = (int *)rec[0];
                         for (;;) {
-                            *(Qw128 *)dst++ = ((Qw128 *)tbl[i][2])[*q];
+                            *(Qw128 *)dst++ = *(Qw128 *)tbl[i]->pos[*q];
                             /* the break shares the if's line */
                             /* clang-format off */
                             if (*++q == -1) break;
@@ -907,11 +909,9 @@ void enemy_Initialize(void)
     enemyInitDebugPrint(copyNum);
 }
 
-int enemy_GetPositionTable(int idx, int sub_idx)
+float (*enemy_GetPositionTable(int idx, int sub_idx))[4]
 {
-    int factor;
     if (idx < 0 || idx >= EnemyKindNum)
         return 0;
-    factor = 0x6C;
-    return *(int *)((char *)enemyPositionTable + idx * factor + sub_idx * 4);
+    return enemyPositionTable[idx][sub_idx];
 }

@@ -118,7 +118,7 @@ typedef struct { /* field names derived */
     /* 0x08 */ float power; /* the attack power multiplier */
     char pad0C[20];
     /* 0x20 */ unsigned int flags; /* bit 0 unguardable, bit 1 the swing sweeps */
-} WeaponKindEntry;
+} WeaponKindEntry;                 /* derived name */
 
 /* the data-only member weapon-def.o, read through this file's view of its
    rows; no header declares it */
@@ -276,11 +276,11 @@ static inline void SetupAttackPack(AttackPack *pack, GObj *gop, int group, float
 typedef struct { /* field names derived */
     int kind;
     unsigned int cls;
-} AttackGroupPair;
+} AttackGroupPair; /* derived name */
 
 typedef struct { /* field names derived */
     AttackGroupPair p[10];
-} AttackGroupTable;
+} AttackGroupTable; /* derived name */
 
 /* GObj kind -> attack class, terminated by kind -1 */
 static const AttackGroupTable attackGroupTable = {

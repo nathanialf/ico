@@ -20,7 +20,7 @@ typedef struct EBSlot { /* field names derived */
     int message;           /* 0x10, the brain message waiting for the enemy */
     int chaseFrames;       /* 0x14, frames spent chasing the boy */
     void *owner;           /* 0x18, the enemy GObj the slot belongs to */
-} EBSlot;
+} EBSlot; /* derived name */
 
 void eBrainInit(void);
 int eBrainStatusSet(void *gop, int status);

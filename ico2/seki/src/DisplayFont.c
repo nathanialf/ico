@@ -6,16 +6,23 @@
 #include "GifPacket.h"
 #include "Texture.h"
 
-static unsigned int fontKerning[64] = {
+/* each character's first and last column in its 20-pixel cell of the "font"
+   texture, {0, 0} where the font has no glyph */
+static signed char fontKerning[128][2] = {
     /* derived name */
-    0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,
-    0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,
-    0x0B080000, 0x10030C07, 0x11020F04, 0x0C071003, 0x0D070C06, 0x10030F04, 0x0C070B08, 0x0E050B08,
-    0x0C070E04, 0x0E050E05, 0x0E050F05, 0x0E050E05, 0x0E050E04, 0x0B080B08, 0x0D060E05, 0x0E050E05,
-    0x10031201, 0x10040F04, 0x0E040F03, 0x0F030E04, 0x0B080F04, 0x10040D06, 0x10030F05, 0x10030F04,
-    0x10030E04, 0x0F040F04, 0x0F041003, 0x11021003, 0x10031003, 0x0D070F04, 0x0C061003, 0x0E040D05,
-    0x0F050000, 0x0E050E04, 0x0E050F05, 0x0F040D06, 0x0B080E05, 0x0E050C06, 0x11020B08, 0x0E050E05,
-    0x0E050E05, 0x0E060D06, 0x0E050D06, 0x11020E04, 0x0E040F04, 0x0C060E05, 0x0D070B08, 0x10020F05,
+    {0, 0},  {0, 0},  {0, 0},  {0, 0},  {0, 0},  {0, 0},  {0, 0},  {0, 0},  {0, 0},  {0, 0},
+    {0, 0},  {0, 0},  {0, 0},  {0, 0},  {0, 0},  {0, 0},  {0, 0},  {0, 0},  {0, 0},  {0, 0},
+    {0, 0},  {0, 0},  {0, 0},  {0, 0},  {0, 0},  {0, 0},  {0, 0},  {0, 0},  {0, 0},  {0, 0},
+    {0, 0},  {0, 0},  {0, 0},  {8, 11}, {7, 12}, {3, 16}, {4, 15}, {2, 17}, {3, 16}, {7, 12},
+    {6, 12}, {7, 13}, {4, 15}, {3, 16}, {8, 11}, {7, 12}, {8, 11}, {5, 14}, {4, 14}, {7, 12},
+    {5, 14}, {5, 14}, {5, 15}, {5, 14}, {5, 14}, {5, 14}, {4, 14}, {5, 14}, {8, 11}, {8, 11},
+    {5, 14}, {6, 13}, {5, 14}, {5, 14}, {1, 18}, {3, 16}, {4, 15}, {4, 16}, {3, 15}, {4, 14},
+    {4, 14}, {3, 15}, {4, 15}, {8, 11}, {6, 13}, {4, 16}, {5, 15}, {3, 16}, {4, 15}, {3, 16},
+    {4, 14}, {3, 16}, {4, 15}, {4, 15}, {3, 16}, {4, 15}, {3, 16}, {2, 17}, {3, 16}, {3, 16},
+    {4, 15}, {7, 13}, {3, 16}, {6, 12}, {5, 13}, {4, 14}, {0, 0},  {5, 15}, {4, 14}, {5, 14},
+    {5, 15}, {5, 14}, {6, 13}, {4, 15}, {5, 14}, {8, 11}, {6, 12}, {5, 14}, {8, 11}, {2, 17},
+    {5, 14}, {5, 14}, {5, 14}, {5, 14}, {6, 13}, {6, 14}, {6, 13}, {5, 14}, {4, 14}, {2, 17},
+    {4, 15}, {4, 14}, {5, 14}, {6, 12}, {8, 11}, {7, 13}, {5, 15}, {2, 16},
 };
 
 /* The .sdata run: the alignment a "{L}", "{R}" or "{C}" escape selects and the
@@ -32,12 +39,12 @@ static int fontColorA = 128; /* derived name */
 
 inline int font_GetWidth(void)
 {
-    return 0x14;
+    return 20;
 }
 
 inline int font_GetHeight(void)
 {
-    return (0x3200 / ScreenWidth) / 2;
+    return (12800 / ScreenWidth) / 2;
 }
 
 inline void font_Init(void)
@@ -155,8 +162,8 @@ void font_Print(unsigned int color, unsigned char *str, float x, float y, int al
             } else if (ch == '}') {
                 brace = 0;
             } else if (brace == 0) {
-                int ca = ((signed char *)fontKerning)[ch * 2];
-                int cb = ((signed char *)fontKerning)[ch * 2 + 1];
+                int ca = fontKerning[ch][0];
+                int cb = fontKerning[ch][1];
                 int w = cb - ca;
 
                 int cw = w + 1;
@@ -228,10 +235,10 @@ void font_Print(unsigned int color, unsigned char *str, float x, float y, int al
             cx += 8.0f;
             continue;
         }
-        ca = ((signed char *)fontKerning)[c * 2];
-        cb = ((signed char *)fontKerning)[c * 2 + 1];
-        u = (c - 0x20) % 12 * 20 + ca;
-        v = (c - 0x20) / 12 * 20;
+        ca = fontKerning[c][0];
+        cb = fontKerning[c][1];
+        u = (c - ' ') % 12 * 20 + ca;
+        v = (c - ' ') / 12 * 20;
         w = cb - ca;
         cw = w + 1;
         fontw = font_GetWidth();

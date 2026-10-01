@@ -410,7 +410,7 @@ int stage_Init(void)
     return stageAnimCount;
 }
 
-void stage_SetAnimation(int key, int p1, int p2)
+void stage_SetAnimation(int key, int mode, int frame)
 {
     int uid = -1;
     int i;
@@ -429,13 +429,13 @@ void stage_SetAnimation(int key, int p1, int p2)
             if (dbg) {
                 debug_StdPrintfDummy("Illegal Group No. %d\n", uid);
             }
-            bga_SetFrame(e->entry2, p2, p1, e->entry1->loop);
+            bga_SetFrame(e->entry2, frame, mode, e->entry1->loop);
             for (k = 0; k < ((e->flags.i << 22) >> 22); k++) {
                 e->obj[k]->dobj->disp = 1;
             }
             break;
         case 1:
-            bga_SetCamFrame(e->entry3, p2, p1, e->entry1->loop);
+            bga_SetCamFrame(e->entry3, frame, mode, e->entry1->loop);
             break;
         }
         break;
@@ -458,13 +458,13 @@ void stage_SetAnimation(int key, int p1, int p2)
     }
 }
 
-inline int stage_CheckAnimationFinish(int a0)
+inline int stage_CheckAnimationFinish(int key)
 {
     int i;
     StageAnim *e = stageAnimTable;
     for (i = 0; i < stageAnimCount; i++, e++) {
         StageAnimDef *entry1 = e->entry1;
-        if (a0 == entry1->no) {
+        if (key == entry1->no) {
             int mode = e->flags.i >> 30;
             switch (mode) {
             case 0:
@@ -480,19 +480,19 @@ inline int stage_CheckAnimationFinish(int a0)
     return 0;
 }
 
-int stage_ContinueAnimation(int a0, int a1)
+int stage_ContinueAnimation(int key, int next)
 {
     int i;
     StageAnim *e = stageAnimTable;
     for (i = 0; i < stageAnimCount; i++, e++) {
         StageAnimDef *entry1 = e->entry1;
-        if (a0 == entry1->no) {
+        if (key == entry1->no) {
             int mode = e->flags.i >> 30;
             switch (mode) {
             case 0:
                 if (bga_CheckAnimationFinish(e->entry2) != 0) {
-                    stage_SetAnimation(a0, 0, -1);
-                    stage_SetAnimation(a1, 1, 0);
+                    stage_SetAnimation(key, 0, -1);
+                    stage_SetAnimation(next, 1, 0);
                     return 1;
                 }
                 return 0;
@@ -500,8 +500,8 @@ int stage_ContinueAnimation(int a0, int a1)
                 if (bga_CheckSdfCameraFinish(e->entry3) == 0) {
                     return 0;
                 }
-                stage_SetAnimation(a0, 0, -1);
-                stage_SetAnimation(a1, 1, 0);
+                stage_SetAnimation(key, 0, -1);
+                stage_SetAnimation(next, 1, 0);
                 return 1;
             }
         }
@@ -512,38 +512,38 @@ int stage_ContinueAnimation(int a0, int a1)
     return 0;
 }
 
-inline int stage_CheckAnimationFrame(int a0, int a1, int a2)
+inline int stage_CheckAnimationFrame(int key, int frame, int reset)
 {
     int i;
     StageAnim *e = stageAnimTable;
     for (i = 0; i < stageAnimCount; i++, e++) {
         StageAnimDef *entry1 = e->entry1;
-        if (a0 == entry1->no) {
+        if (key == entry1->no) {
             int mode = e->flags.i >> 30;
             switch (mode) {
             case 0:
-                return bga_CheckAnimationFrame(e->entry2, a1, a2);
+                return bga_CheckAnimationFrame(e->entry2, frame, reset);
             case 1:
-                return bga_CheckSdfCameraFrame(e->entry3, a1, a2);
+                return bga_CheckSdfCameraFrame(e->entry3, frame, reset);
             }
         }
     }
     return -1;
 }
 
-inline int stage_CheckAnimationFrameIn(int a0, int a1, int a2)
+inline int stage_CheckAnimationFrameIn(int key, int in, int out)
 {
     int i;
     StageAnim *e = stageAnimTable;
     for (i = 0; i < stageAnimCount; i++, e++) {
         StageAnimDef *entry1 = e->entry1;
-        if (a0 == entry1->no) {
+        if (key == entry1->no) {
             int mode = e->flags.i >> 30;
             switch (mode) {
             case 0:
-                return bga_CheckAnimationFrameIn(e->entry2, a1, a2);
+                return bga_CheckAnimationFrameIn(e->entry2, in, out);
             case 1:
-                return bga_CheckSdfCameraFrameIn(e->entry3, a1, a2);
+                return bga_CheckSdfCameraFrameIn(e->entry3, in, out);
             }
         }
     }
@@ -729,7 +729,7 @@ void stage_DispAnimation(void)
     bga_DispLightning();
 }
 
-inline void stage_SetLoopFlag(int key, int a1)
+inline void stage_SetLoopFlag(int key, int loop)
 {
     int count = *(volatile int *)&stageAnimCount;
     int i;
@@ -740,7 +740,7 @@ inline void stage_SetLoopFlag(int key, int a1)
            branch-likely (measured) */
         int *p = (int *)e->entry1;
         if (key == p[0x58 / 4]) {
-            p[0x50 / 4] = a1;
+            p[0x50 / 4] = loop;
             p = &(*((volatile int *)(&stageAnimCount)));
             count = *p;
         }
@@ -765,28 +765,28 @@ inline void stage_SetFrameStep(int target, int val)
     } while (--i);
 }
 
-inline void stage_SetParentOfGObj(int a0, void *a1)
+inline void stage_SetParentOfGObj(int key, void *parent)
 {
     int i;
     int one = 1;
     StageAnim *e = stageAnimTable;
     for (i = 0; i < stageAnimCount; i++) {
-        if (a0 == e->entry1->no) {
-            *(Blob8 *)&e->entry2->anim->obj = *(Blob8 *)a1;
+        if (key == e->entry1->no) {
+            *(Blob8 *)&e->entry2->anim->obj = *(Blob8 *)parent;
             e->entry2->anim->root = one;
         }
         e++;
     }
 }
 
-inline void stage_SetParentOfGObjWithLocalRotationFlag(int a0, void *a1, int a2)
+inline void stage_SetParentOfGObjWithLocalRotationFlag(int key, void *parent, int localRotation)
 {
     int i;
     StageAnim *e = stageAnimTable;
     for (i = 0; i < stageAnimCount; i++) {
-        if (a0 == e->entry1->no) {
-            *(Blob8 *)&e->entry2->anim->obj = *(Blob8 *)a1;
-            e->entry2->anim->root = a2;
+        if (key == e->entry1->no) {
+            *(Blob8 *)&e->entry2->anim->obj = *(Blob8 *)parent;
+            e->entry2->anim->root = localRotation;
         }
         e++;
     }
@@ -1042,16 +1042,16 @@ void stage_KillPlayBgAnimation(int **self)
     freeseki(*self);
 }
 
-inline void stage_KillPlayBgAnimationIfOverMaxCount(int a0, int a1)
+inline void stage_KillPlayBgAnimationIfOverMaxCount(int key, int maxCount)
 {
     AnimNode *p = (AnimNode *)bgaPlayList;
     int count = 0;
     while (p != 0) {
         long v = p->bits;
-        if ((((unsigned short)v << 18) >> 18) == a0) {
+        if ((((unsigned short)v << 18) >> 18) == key) {
             if (!(v & 0x8000)) {
                 count++;
-                if (a1 < count) {
+                if (maxCount < count) {
                     p->bits = v | 0x8000;
                 }
             }

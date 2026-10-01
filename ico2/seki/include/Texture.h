@@ -68,9 +68,14 @@ typedef struct TexExt { /* field names derived */
     char pad72[6];
 } TexExt; /* derived name */
 
-int tex_AllocVramAuto(int a0, int a1);
+/* the texture record, one per slot of Texture.c's table; the other files
+ * hold it only through tex_GetTextureData */
+typedef struct TexData TexData; /* derived name */
+
+int tex_AllocVramAuto(int kind, int size);
 TexExt *tex_GetTexExtData(int idx);
-int *tex_GetTextureData(int idx);
+TexData *tex_GetTextureData(int idx);
+char *tex_GetTextureName(int idx);
 int tex_GetTextureNo(const char *name);
 int tex_GetTextureNum(void);
 void tex_Init(void);
@@ -81,15 +86,16 @@ int tex_LoadTexturePart(char *name, int area);
 void tex_LockHeadTBP(int tbp, int pri);
 int tex_RemakeRegistersSampleMin(int arg);
 void tex_ResetVramPri(int pri);
-void tex_SetSamplingType(int *a0, int a1, int a2);
+void tex_SetSamplingType(TexData *tex, int mag, int min);
 
 void tex_SetUVScroll(const char *name, float u, float v, float su, float sv, float ou, float ov,
-                     int a1);
+                     int limitOn);
 
 int tex_TransTexture(int no, int pri);
 void tex_UnlockHeadTBP(int pri);
 void tex_ResetVram(void);
 void tex_UpdateMipMapLevel(float lv);
-int tex_GetTWTH(int a0);
+int tex_GetTWTH(int size);
+short tex_GetVramFreeAddress(int pri);
 
 #endif /* TEXTURE_H */

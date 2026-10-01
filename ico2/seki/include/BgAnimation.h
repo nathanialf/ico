@@ -55,7 +55,7 @@ extern int bgaStreamSync;
    out-of-line copies at the end of the object (first-declaration order). */
 void bga_ResetCamera(void);
 int bga_GetCameraMatrix(void *p);
-char *bga_InitSdfCamera(char *a0);
+char *bga_InitSdfCamera(char *data);
 void bga_SetCamFrame(char *data, int frame, int mode, int loop);
 int bga_CheckAnimationFinish(BgaHeader *p);
 int bga_CheckAnimationFrame(BgaHeader *p, int frame, int reset);
@@ -71,8 +71,8 @@ float bga_GetZoom(void);
 
 char *bga_InitData(char *data);
 void bga_ApplyDObject(struct BgaDObjEnt *p, GObj **objs, int n, int no);
-void bga_SetFrame(BgaHeader *p, int frame, int mode, int a3);
-void bga_CalcAnimation(BgaHeader *p, int a1, int a2);
+void bga_SetFrame(BgaHeader *p, int frame, int mode, int loop);
+void bga_CalcAnimation(BgaHeader *p, int loop, int reset);
 void bga_CalcSdfCamera(char *data, int loop);
 void bga_DispLightning(void);
 

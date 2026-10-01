@@ -13,7 +13,7 @@
 void malloc_SetPartition(int val);
 int malloc_GetPartition(void);
 void *mallocseki(int size);
-int freeseki(void *a0);
+int freeseki(void *ptr);
 void resetmallocseki(void);
 void *mallocsekistage(int size);
 int reallocseki(int size, int align);

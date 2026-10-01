@@ -102,10 +102,10 @@ inline int reallocseki(int size, int align)
     return iosReallocDebug(size, align, "src/Basic.c", 424);
 }
 
-inline int freeseki(void *a0)
+inline int freeseki(void *ptr)
 {
-    if (a0 != 0) {
-        return iosFree(a0);
+    if (ptr != 0) {
+        return iosFree(ptr);
     }
 }
 

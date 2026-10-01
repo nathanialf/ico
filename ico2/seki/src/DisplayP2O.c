@@ -15,24 +15,24 @@ static const char dispObjFormat[32] = "display object = %d"; /* derived name */
 /* the display-object count p2o_HideDispVU1 records and reports, none yet */
 static int dispObjCount = -1; /* derived name */
 
-void p2o_MakePacket(Sub15C *a0)
+void p2o_MakePacket(Sub15C *dobj)
 {
-    a0->model->dobj = a0;
-    pac_MakePacket(a0);
+    dobj->model->dobj = dobj;
+    pac_MakePacket(dobj);
 }
 
 inline void p2o_SetDefaultEnviroment(void) {}
 
-void p2o_DispShadowVolume(GObj *a0)
+void p2o_DispShadowVolume(GObj *self)
 {
-    shadow_Render(a0->dobj);
+    shadow_Render(self->dobj);
 }
 
-void p2o_HideDispVU1(int a0)
+void p2o_HideDispVU1(int count)
 {
-    dispObjCount = a0;
+    dispObjCount = count;
     if (debug_window_flag != 0) {
-        debug_PrintFontWindow(0xCCCCCC00, dispObjFormat, a0);
+        debug_PrintFontWindow(0xCCCCCC00, dispObjFormat, count);
     }
 }
 

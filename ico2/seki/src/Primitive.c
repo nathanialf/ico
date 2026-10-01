@@ -767,7 +767,7 @@ void prim_DispParticle(PrimParticle *p, void *mtx)
     if (debug_disp_particle != 0) {
         if (p->tex < 0 || p->tex >= tex_GetTextureNum()) {
             /* "the specified texture number is invalid" */
-            debug_StdPrintfDummy("prim_DispParticle:回年したテクスチャ戎规が佰撅です. %s:%d\n",
+            debug_StdPrintfDummy("prim_DispParticle:鎸囧畾銇椼仧銉嗐偗銈广儊銉ｇ暘鍙枫亴鐣板父銇с仚. %s:%d\n",
                                  p->name, p->tex);
             debug_assert("src/Primitive.c", 1020);
             __assert("src/Primitive.c", 1020, "FALSE");

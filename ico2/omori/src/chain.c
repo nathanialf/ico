@@ -34,7 +34,7 @@ static void pendulum_Process(struct ChainPendulum *pdl, int flag);
 typedef struct ChainNode { /* field names derived */
     float x, y, z, w;
     float vx, vy, vz, vw;
-} ChainNode;
+} ChainNode; /* derived name */
 
 /* One word of a chain record or of a chain vector: the chain code writes these
  * slots as float and reads them as int (and the other way round), so the word
@@ -42,7 +42,7 @@ typedef struct ChainNode { /* field names derived */
 typedef union ChainVal { /* field names derived */
     int i;
     float f;
-} ChainVal;
+} ChainVal; /* derived name */
 
 /* The pendulum block at 0x20 of a chain record: the swing orientation, the
  * swing angle, its amplitude, the phase within one cycle and the cycle length
@@ -61,7 +61,7 @@ typedef struct ChainPendulum { /* field names derived */
     /* 0x48 */ float ampLimit;
     /* 0x4C */ float limit;
     /* 0x50 */ unsigned char swing;
-} ChainPendulum;
+} ChainPendulum; /* derived name */
 
 /* The head of a chain record, 0xE0 bytes, the node array following it. */
 typedef struct {             /* field names derived */
@@ -88,7 +88,7 @@ typedef struct {             /* field names derived */
     /* 0xCC */ unsigned char locked;
     /* 0xCD */ unsigned char hangable;
     /* 0xD0 */ ChainNode *node;
-} ChainRecord;
+} ChainRecord; /* derived name */
 
 static int UpdateRootPosition(GObj *gobj)
 {
@@ -634,29 +634,29 @@ typedef struct { /* field names derived */
     /* 0x20 */ float hangRange;
     /* 0x24 */ float length;
     /* 0x28 */ float limit;
-} ChainGeoReq;
+} ChainGeoReq; /* derived name */
 
 /* the record templates, copied whole as doubleword runs */
 typedef struct { /* field names derived */
     long long words[28];
-} ChainRecTemplate;
+} ChainRecTemplate; /* derived name */
 
 typedef struct { /* field names derived */
     long long words[8];
-} ChainPendTemplate;
+} ChainPendTemplate; /* derived name */
 
 /* the gobj extension pointer, read as a pointer or as a word */
 typedef union { /* field names derived */
     char *p;
     int i;
     Sub15C *sub;
-} ChainExtPtr;
+} ChainExtPtr; /* derived name */
 
 /* the DObj entry flag word, the same union DObj.c's allocObjectData uses */
 typedef union { /* field names derived */
     long long ll;
     int i[2];
-} ChainDObjFlags;
+} ChainDObjFlags; /* derived name */
 
 ChainRecord *InitChainGeo(GObj *gobj, ChainGeoReq *req)
 {
@@ -810,7 +810,7 @@ typedef struct { /* field names derived */
     char pad00[396];
     unsigned int flags; /* bit 11: a motion the hand hangs on the chain from */
     char pad190[4];
-} ChainParaRow;
+} ChainParaRow; /* derived name */
 
 /* the data-only member motion-def.o, read through this file's view of its
    rows; no header declares it */
@@ -1200,7 +1200,7 @@ typedef struct { /* field names derived */
     /* 0x20 */ float phase;
     /* 0x24 */ int frames;
     /* 0x28 */ int prev;
-} ChainClimbWork;
+} ChainClimbWork; /* derived name */
 
 /* the climb work's storage, twelve words reached through ChainClimbWork
  * casts; the mode word at 0x28 starts at -1 */

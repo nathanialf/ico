@@ -266,16 +266,16 @@ typedef struct BgaSdfCam { /* field names derived */
     /* 0x10 */ BgaSdfKey key[1];
 } BgaSdfCam; /* derived name */
 
-inline char *bga_InitSdfCamera(char *a0)
+inline char *bga_InitSdfCamera(char *data)
 {
-    BgaSdfCam *p = (BgaSdfCam *)a0;
+    BgaSdfCam *p = (BgaSdfCam *)data;
 
     if (strncmp(p->id, "SDF", 3) != 0) {
         debug_StdPrintfDummy("this is not sdf camera file.\n");
         debug_assert(__FILE__, 1045);
         __assert(__FILE__, 1045, "FALSE");
     }
-    return a0;
+    return data;
 }
 
 /* an object's display object (typedef.h's Sub15C) as bga_ApplyDObject reads
@@ -427,7 +427,7 @@ void bga_ApplyDObject(BgaDObjEnt *p, GObj **objs, int n, int no)
             if (((BgaGeom *)((BgaGObj *)objs[i])->geom)->name == 0) {
                 sprintf(buf, "OBJECT FILE \"%s\" NOT EXISTS.\n", p->name);
                 /* "model data file [%s] does not exist" */
-                debug_StdPrintfDummy("¥â¥Ç¥ë¥Ç¡¼¥¿¥Õ¥¡¥¤¥ë[%s]¤¬¤¢¤ê¤Þ¤»¤ó.\n\n", p->name);
+                debug_StdPrintfDummy("ãƒ¢ãƒ‡ãƒ«ãƒ‡ãƒ¼ã‚¿ãƒ•ã‚¡ã‚¤ãƒ«[%s]ãŒã‚ã‚Šã¾ã›ã‚“.\n\n", p->name);
                 debug_assertMessage(__FILE__, 1201, buf);
                 __assert(__FILE__, 1201, "e");
             }
@@ -1246,7 +1246,7 @@ static inline void bga_stepEnvelope(BgaEnvEnt *e, float dt, int loop) /* derived
  * the node's object pointer; types 4 and 5 (the colour envelopes
  * bga_initLightEnvelope reads) are skipped, and any other type is reported
  * with its entry and type and asserted. */
-static void bga_calcEnvelope(BgaDObjEnt *p, float dt, float w, int a1, int a2)
+static void bga_calcEnvelope(BgaDObjEnt *p, float dt, float w, int cut, int loop)
 {
     BgaEnvEnt *e;
     float v;
@@ -1262,17 +1262,17 @@ static void bga_calcEnvelope(BgaDObjEnt *p, float dt, float w, int a1, int a2)
                 ((Sub15C *)p->u.obj)->nodes[p->num].fade =
                     bga_GetExtMotion((BgaExtMotion *)e->data);
                 ((Sub15C *)p->u.obj)->nodes[p->num].flags.ll |= 1;
-                bga_stepEnvelope(e, dt, a2);
+                bga_stepEnvelope(e, dt, loop);
             }
             break;
         case 1:
             if (bgaCameraActive != 0) {
-                if (a1 != 0) {
+                if (cut != 0) {
                     bgaZoom =
                         bga_GetExtMotion((BgaExtMotion *)e->data) * (float)ScreenWidth / 2.66f;
                 }
             }
-            bga_stepEnvelope(e, dt, a2);
+            bga_stepEnvelope(e, dt, loop);
             break;
         case 2:
             v = bga_GetExtMotion((BgaExtMotion *)e->data);
@@ -1280,12 +1280,12 @@ static void bga_calcEnvelope(BgaDObjEnt *p, float dt, float w, int a1, int a2)
             case 6:
             case 11:
                 *(float *)((char *)p->u.obj + 0x30) = v;
-                bga_stepEnvelope(e, dt, a2);
+                bga_stepEnvelope(e, dt, loop);
                 break;
             case 8:
             case 9:
                 *(float *)((char *)p->u.obj + 0x80) = v;
-                bga_stepEnvelope(e, dt, a2);
+                bga_stepEnvelope(e, dt, loop);
                 break;
             }
             break;
@@ -1295,7 +1295,7 @@ static void bga_calcEnvelope(BgaDObjEnt *p, float dt, float w, int a1, int a2)
             case 6:
             case 11:
                 *(float *)((char *)p->u.obj + 0x34) = v;
-                bga_stepEnvelope(e, dt, a2);
+                bga_stepEnvelope(e, dt, loop);
                 break;
             }
             break;
@@ -1305,7 +1305,7 @@ static void bga_calcEnvelope(BgaDObjEnt *p, float dt, float w, int a1, int a2)
         case 6:
             if (p->u.obj != 0) {
                 bga_GetGizmoMotion((BgaMotion *)e->data, ((Sub15C *)p->u.obj)->morphWeight);
-                bga_stepEnvelope(e, dt, a2);
+                bga_stepEnvelope(e, dt, loop);
             }
             break;
         case 7:
@@ -1519,7 +1519,7 @@ typedef struct BgaLightning { /* field names derived */
     /* 0x154 */ struct BgaLightning *next;
 } BgaLightning; /* derived name */
 
-static void bga_addLightning(int kind, BgaLightningDef *a1, float *vec, int id, int t0, float f);
+static void bga_addLightning(int kind, BgaLightningDef *def, float *vec, int id, int t0, float f);
 
 static inline void bga_checkCameraDistance(void) /* derived name */
 {
@@ -1547,7 +1547,7 @@ static inline void bga_stepMotion(BgaExtMotion *m, float dt, int reset) /* deriv
     }
 }
 
-static void bga_CalcObject(BgaDObjEnt *d, float dt, float f13, int a1, int a2, int a3)
+static void bga_CalcObject(BgaDObjEnt *d, float dt, float frame, int cut, int play, int loop)
 {
     int save;
     float *pos;
@@ -1580,7 +1580,7 @@ static void bga_CalcObject(BgaDObjEnt *d, float dt, float f13, int a1, int a2, i
     }
     bgaPivotFlag = 0;
 
-    bga_calcEnvelope(d, dt, f13, a1, a3);
+    bga_calcEnvelope(d, dt, frame, cut, loop);
     PushQuaternion();
     _PushCurrentMatrix();
     save = bgaRollZ;
@@ -1623,7 +1623,7 @@ static void bga_CalcObject(BgaDObjEnt *d, float dt, float f13, int a1, int a2, i
     case 13:
         if (d->u.obj == 0) {
             /* "unknown particle" */
-            debug_StdPrintfDummy("ÉÔÌÀ¤Ê¥Ñ¡¼¥Æ¥£¥¯¥ë\n");
+            debug_StdPrintfDummy("ä¸æ˜Žãªãƒ‘ãƒ¼ãƒ†ã‚£ã‚¯ãƒ«\n");
             break;
         }
         /* pos is bgaPos for the calls below; the PAL SetParticleEffect call
@@ -1632,7 +1632,7 @@ static void bga_CalcObject(BgaDObjEnt *d, float dt, float f13, int a1, int a2, i
         if (bgaUniqAnimationFlag == 0 && ((BgaParticleEnt *)d->u.obj)->u.b.loop) {
             /* "a PBGA-type animation cannot use looping particles" */
             debug_StdPrintfDummy(
-                "PBGA¥¿¥¤¥×¤Î¥¢¥Ë¥á¡¼¥·¥ç¥ó¤Ç¤Ï¥ë¡¼¥×¤Î¥Ñ¡¼¥Æ¥£¥¯¥ë¤Ï»ÈÍÑ¤Ç¤­¤Þ¤»¤ó.\n");
+                "PBGAã‚¿ã‚¤ãƒ—ã®ã‚¢ãƒ‹ãƒ¡ãƒ¼ã‚·ãƒ§ãƒ³ã§ã¯ãƒ«ãƒ¼ãƒ—ã®ãƒ‘ãƒ¼ãƒ†ã‚£ã‚¯ãƒ«ã¯ä½¿ç”¨ã§ãã¾ã›ã‚“.\n");
             break;
         }
         _GetCurrentMatrixTrans(pos);
@@ -1663,14 +1663,14 @@ static void bga_CalcObject(BgaDObjEnt *d, float dt, float f13, int a1, int a2, i
         break;
     case 14:
     case 15:
-        if (a2 != 0 && systemStatus[5] == 0) {
+        if (play != 0 && systemStatus[5] == 0) {
             _GetCurrentMatrixTrans(bgaPos);
             bga_addLightning(d->type, d->u.obj, bgaPos, ((BgaObj *)d->u.obj)->id,
                              bgaScale[1] == 0.0f, bgaScale[0]);
         }
         break;
     case 16:
-        if (a2 != 0 && systemStatus[5] == 0) {
+        if (play != 0 && systemStatus[5] == 0) {
             _GetCurrentMatrixTrans(bgaPos);
             bga_addLightning(d->type, d->u.obj, bgaPos, ((BgaObj *)d->u.obj)->id, 0, 0.0f);
         }
@@ -1697,7 +1697,7 @@ static void bga_CalcObject(BgaDObjEnt *d, float dt, float f13, int a1, int a2, i
             ((BgaObj *)d->u.obj)->work[d->num].flags.b.billboard = (d->type == 4);
             ((BgaObj *)d->u.obj)->work[d->num].flags.b.rotZ = bgaRollZ;
         }
-        if (a1 != 0 && d->type == 2) {
+        if (cut != 0 && d->type == 2) {
             if (debug_font_flag & 1) {
                 debug_Printf(600, ScreenHeight / 2 - 8, 0xCCCCCC00, (int)"LWS");
             }
@@ -1707,15 +1707,15 @@ static void bga_CalcObject(BgaDObjEnt *d, float dt, float f13, int a1, int a2, i
     }
 
     if (d->child != 0) {
-        bga_CalcObject(d->child, dt, f13, a1, a2, a3);
+        bga_CalcObject(d->child, dt, frame, cut, play, loop);
     }
     bgaRollZ = save;
     _PopCurrentMatrix();
     PopQuaternion();
     if (d->sibling != 0) {
-        bga_CalcObject(d->sibling, dt, f13, a1, a2, a3);
+        bga_CalcObject(d->sibling, dt, frame, cut, play, loop);
     }
-    bga_stepMotion((BgaExtMotion *)&d->motion, dt, a3);
+    bga_stepMotion((BgaExtMotion *)&d->motion, dt, loop);
 }
 
 typedef struct { /* field names derived */
@@ -1760,7 +1760,7 @@ static inline void bga_clampCount(BgaCount *o, float f) /* derived name */
     }
 }
 
-static void bga_resetObjectCounter(BgaCntNode *o, float f, int a1)
+static void bga_resetObjectCounter(BgaCntNode *o, float f, int loop)
 {
     BgaCountEnt *e;
 
@@ -1772,15 +1772,15 @@ static void bga_resetObjectCounter(BgaCntNode *o, float f, int a1)
         }
     }
     if (o->child != 0) {
-        bga_resetObjectCounter(o->child, f, a1);
+        bga_resetObjectCounter(o->child, f, loop);
     }
     if (o->sibling != 0) {
-        bga_resetObjectCounter(o->sibling, f, a1);
+        bga_resetObjectCounter(o->sibling, f, loop);
     }
     bga_clampCount(&o->count, f);
 }
 
-void bga_SetFrame(BgaHeader *p, int frame, int mode, int a3)
+void bga_SetFrame(BgaHeader *p, int frame, int mode, int loop)
 {
     float f;
 
@@ -1815,7 +1815,7 @@ void bga_SetFrame(BgaHeader *p, int frame, int mode, int a3)
         p->mode = mode;
         break;
     }
-    bga_CalcAnimation(p, a3, 1);
+    bga_CalcAnimation(p, loop, 1);
 }
 
 typedef struct BgaAnimGeom { /* field names derived */
@@ -1829,7 +1829,7 @@ typedef struct BgaAnimObj { /* field names derived */
     /* 0x15C */ BgaAnimGeom *geom;
 } BgaAnimObj; /* derived name */
 
-void bga_CalcAnimation(BgaHeader *p, int a1, int a2)
+void bga_CalcAnimation(BgaHeader *p, int loop, int reset)
 {
     float m[4][4];
     float rm[4][4];
@@ -1880,16 +1880,16 @@ void bga_CalcAnimation(BgaHeader *p, int a1, int a2)
         }
         PushQuaternion();
         _PushCurrentMatrix();
-        if (a2 == 1) {
-            bga_resetObjectCounter(o, p->frame, a1);
+        if (reset == 1) {
+            bga_resetObjectCounter(o, p->frame, loop);
         }
-        bga_CalcObject((BgaDObjEnt *)o, p->step, p->frame, f1, f2, a1);
+        bga_CalcObject((BgaDObjEnt *)o, p->step, p->frame, f1, f2, loop);
         _PopCurrentMatrix();
         PopQuaternion();
     }
 
     bgaFrame = (int)p->frame;
-    if (a2) {
+    if (reset) {
         return;
     }
 
@@ -1898,7 +1898,7 @@ void bga_CalcAnimation(BgaHeader *p, int a1, int a2)
 
         p->frame += p->step;
         if (systemStatus[0] ? end * 0.82812935f < p->frame : end < p->frame) {
-            if (a1 == 0) {
+            if (loop == 0) {
                 p->frame = bga_palFrame(p->end);
                 p->mode = 0;
             } else {
@@ -2007,7 +2007,7 @@ void bga_CalcSdfCamera(char *data, int loop)
     p->frame += 1.0f;
 }
 
-static void bga_addLightning(int kind, BgaLightningDef *a1, float *vec, int id, int t0, float f)
+static void bga_addLightning(int kind, BgaLightningDef *def, float *vec, int id, int t0, float f)
 {
     BgaLightning *p;
 
@@ -2015,10 +2015,10 @@ static void bga_addLightning(int kind, BgaLightningDef *a1, float *vec, int id, 
         if (p->id == id) {
             switch (kind) {
             case 15:
-                a1->kind = -1;
+                def->kind = -1;
                 /* FALLTHROUGH */
             case 14:
-                p->def = a1;
+                p->def = def;
                 p->frame = f;
                 p->t0 = t0;
                 p->seg[0].key = -1;
@@ -2027,7 +2027,7 @@ static void bga_addLightning(int kind, BgaLightningDef *a1, float *vec, int id, 
             case 16: {
                 LightningNode *e = &p->seg[p->n];
 
-                e->key = a1->kind;
+                e->key = def->kind;
                 _CopyVector(p->seg[p->n].pos.f, vec);
                 p->n = p->n + 1;
                 return;
@@ -2047,10 +2047,10 @@ static void bga_addLightning(int kind, BgaLightningDef *a1, float *vec, int id, 
     bgaLightningList = p;
     switch (kind) {
     case 15:
-        a1->kind = -1;
+        def->kind = -1;
         /* FALLTHROUGH */
     case 14:
-        p->def = a1;
+        p->def = def;
         p->frame = f;
         p->t0 = t0;
         _CopyVector(p->seg[0].pos.f, vec);
@@ -2058,7 +2058,7 @@ static void bga_addLightning(int kind, BgaLightningDef *a1, float *vec, int id, 
     case 16: {
         LightningNode *e = &p->seg[p->n];
 
-        e->key = a1->kind;
+        e->key = def->kind;
         _CopyVector(p->seg[p->n].pos.f, vec);
         p->def = 0;
         _UnitVector(p->seg[0].pos.f);

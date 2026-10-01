@@ -47,7 +47,7 @@ typedef struct CameraSet2 { /* field names derived */
     float fov;  /* 0x14 */
     int moving; /* 0x18 */
     short rotZ; /* 0x1C */
-} CameraSet2;
+} CameraSet2;   /* derived name */
 
 /* What SetWSMatrix / DebugCameraSemiAuto hand in: eye (0x00) and look-at
    (0x10) points plus the field of view at 0x20, copied as doublewords. */
@@ -65,7 +65,7 @@ typedef struct CamCtrl { /* field names derived */
     GObj *subGObj;       /* 0x04 */
     int pri;             /* 0x08 */
     int lastPri;         /* 0x0C */
-} CamCtrl;
+} CamCtrl;               /* derived name */
 
 typedef struct InsertCameraWork { /* field names derived */
     int frames;                   /* 0x00, how long the insert camera runs */
@@ -439,11 +439,11 @@ void InitCamera(void)
 typedef struct { /* field names derived */
     int step;    /* 0x00 */
     int max;     /* 0x04 */
-} CamZoomStep;
+} CamZoomStep;   /* derived name */
 
 typedef struct { /* field names derived */
     CamZoomStep e[3];
-} CamZoomTbl;
+} CamZoomTbl; /* derived name */
 
 /* the one scratch quadword-and-a-half the body reuses: the screen test's
    output point first, then the three zoom steps */

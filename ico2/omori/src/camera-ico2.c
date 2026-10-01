@@ -26,7 +26,7 @@ static void *ReadCameraSet(struct CamSetFile *f, int stage);
 typedef struct CamSetItem { /* field names derived */
     char pad0[0x48];
     void *items; /* 0x48, the set's item records */
-} CamSetItem;
+} CamSetItem;    /* derived name */
 
 /* a loaded camera set: the file header, then the group records */
 typedef struct CamSetHdr { /* field names derived */
@@ -35,18 +35,18 @@ typedef struct CamSetHdr { /* field names derived */
     int count;            /* 0x08, the number of groups */
     int total;            /* 0x0C, the number of items */
     CamSetItem groups[1]; /* 0x10 */
-} CamSetHdr;
+} CamSetHdr;              /* derived name */
 
 typedef struct PluralCameraSet { /* field names derived */
     int id;                      /* 0x00 */
     void *set;                   /* 0x04 */
-} PluralCameraSet;
+} PluralCameraSet;               /* derived name */
 
 typedef struct CamWork { /* field names derived */
     Mat4 eye;            /* 0x00 */
     Mat4 at;             /* 0x10 */
     Mat4 ext;            /* 0x20 */
-} CamWork;
+} CamWork;               /* derived name */
 
 typedef struct CameraState { /* field names derived */
     char pad0[0x44];
@@ -58,7 +58,7 @@ typedef struct CameraState { /* field names derived */
     float moveDist;  /* 0xA0 */
     float atRate;    /* 0xA4 */
     char padA8[0x8]; /* 0xA8: the run gives the record 0xB0 */
-} CameraState;
+} CameraState;       /* derived name */
 
 /* The per-group distance and weight arrays the group chooser scores, the
    monitor camera's whole state record, the two smoothed camera targets with
@@ -116,10 +116,7 @@ typedef struct IosPadStick { /* field names derived */
     char pad08[0x14 - 0x08];
     float mag; /* 0x14 */
     char pad18[0x20 - 0x18];
-} IosPadStick;
-
-/* the default pad configuration ios/pad.c defines; pad.h does not declare it */
-extern PadConf iosPadConfDefault;
+} IosPadStick; /* derived name */
 
 static float zoomOffsetRatio = 1.0f; /* derived name */
 
@@ -130,7 +127,7 @@ typedef struct CamSetFile { /* field names derived */
     int ver;                /* 0x04 */
     int count;              /* 0x08 */
     int total;              /* 0x0C */
-} CamSetFile;
+} CamSetFile;               /* derived name */
 
 typedef struct CamGroup { /* field names derived */
     char name[0x20];
@@ -141,19 +138,19 @@ typedef struct CamGroup { /* field names derived */
     char pad40[4];
     int kind; /* 0x44 */
     char pad48[4];
-} CamGroup;
+} CamGroup; /* derived name */
 
 typedef struct CamItemV0 { /* 0x38 */ /* field names derived */
     unsigned char _0[0x38];
-} CamItemV0;
+} CamItemV0; /* derived name */
 
 typedef struct CamItemV1 { /* 0x40 */ /* field names derived */
     unsigned char _0[0x40];
-} CamItemV1;
+} CamItemV1; /* derived name */
 
 typedef struct CamItemV2 { /* 0x50 */ /* field names derived */
     unsigned char _0[0x50];
-} CamItemV2;
+} CamItemV2; /* derived name */
 
 inline void SetCameraZoomOffsetRatio(float val)
 {
@@ -533,7 +530,7 @@ typedef struct CamSetGroup { /* 76 */ /* field names derived */
     int mode;  /* 0x40 */
     char pad44[0x48 - 0x44];
     PinRec *items; /* 0x48 */
-} CamSetGroup;
+} CamSetGroup;     /* derived name */
 
 #define CAMSET_GROUP(n) ((CamSetGroup *)(cameraSetGroups + (n) * 76))
 

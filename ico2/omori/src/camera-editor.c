@@ -37,7 +37,7 @@ typedef struct CamMgr { /* field names derived */
     char *items;        /* 0x04 */
     char *pool;         /* 0x08 */
     char flags[0x64];   /* 0x0C */
-} CamMgr;
+} CamMgr;               /* derived name */
 
 int curmenu;
 
@@ -60,7 +60,7 @@ typedef struct { /* field names derived */
     int version;
     int num;
     int pins;
-} CamSetBinHdr;
+} CamSetBinHdr; /* derived name */
 
 inline void StickToTrans(int stickV, int stickH, int vertical, int heading, float *out, int speed)
 {
@@ -102,15 +102,15 @@ inline void debug_NMarker(float *pos, int r, int g, int b, float size)
 
 inline void debug_Marker(float *pos, int r, int g, int b, float size, float pulse) {}
 
-static inline void writeCameraSetFile(int no, void *buf, int size) /* derived name */
+static inline void writeCameraSetFile(char *name, void *buf, int size) /* derived name */
 {
     char path[0x80];
 
     debug_closeLog();
     debug_StdPrintfDummy("==== Save camera data start ========================\n");
-    debug_StdPrintfDummy("\tfilename[%s]\n", no);
+    debug_StdPrintfDummy("\tfilename[%s]\n", name);
     debug_StdPrintfDummy("\t    size[%d]\n", size);
-    sprintf(path, "ico2Data/%s", no);
+    sprintf(path, "ico2Data/%s", name);
     if (debugSceOpen(path, 0x202) < 0) {
         debug_StdPrintfDummy("Save Camera Data: host file open error.\n");
     } else {
@@ -121,7 +121,7 @@ static inline void writeCameraSetFile(int no, void *buf, int size) /* derived na
     debug_openLog();
 }
 
-static void saveEditedDataBinary(int no, int boxes, int count)
+static void saveEditedDataBinary(char *name, int boxes, int count)
 {
     /* the header record: the body writes the four words straight into buf,
        and only the DEBUG build reads them back through it after the file
@@ -139,7 +139,7 @@ static void saveEditedDataBinary(int no, int boxes, int count)
     buf[1] = 3;
     buf[3] = CameraEdit_PIN_NUMBER_ALL((int *)boxes, count);
     MakeCameraSetBinary((S4C *)boxes, count, data);
-    writeCameraSetFile(no, buf, size);
+    writeCameraSetFile(name, buf, size);
 #ifdef DEBUG
     hdr = *(CamSetBinHdr *)buf;
     scePrintf("camera set %x v%d num %d pins %d\n", hdr.magic, hdr.version, hdr.num, hdr.pins);
@@ -176,14 +176,14 @@ static void saveEditedData(int *range)
     for (i = from; i < to; i++) {
         BoxRec *b = (BoxRec *)(cameraSetEdit[1] + i * 76);
 
-        sprintf(dumpLine, "group[%s]\n%d\t\t%d\t%d\t%d\t\t\t%d\t%d\t%d\n", b, b->kind, (int)b->cx,
-                (int)b->cy, (int)b->cz, (int)b->sx, (int)b->sy,
+        sprintf(dumpLine, "group[%s]\n%d\t\t%d\t%d\t%d\t\t\t%d\t%d\t%d\n", b->name, b->kind,
+                (int)b->cx, (int)b->cy, (int)b->cz, (int)b->sx, (int)b->sy,
                 (int)((BoxRec *)(i * 76 + cameraSetEdit[1]))->sz);
         sceWrite(fd, dumpLine, strlen(dumpLine));
         debug_StdPrintfDummy(dumpLine);
     }
     for (i = from; i < to; i++) {
-        sprintf(dumpLine, "group[%s]'s pin\n", (BoxRec *)(cameraSetEdit[1] + i * 76));
+        sprintf(dumpLine, "group[%s]'s pin\n", ((BoxRec *)(cameraSetEdit[1] + i * 76))->name);
         sceWrite(fd, dumpLine, strlen(dumpLine));
         for (j = ((BoxRec *)(i * 76 + cameraSetEdit[1]))->pinFirst;
              j < ((BoxRec *)(i * 76 + cameraSetEdit[1]))->pinLast; j++) {
@@ -242,26 +242,26 @@ typedef struct { /* field names derived */
 
 typedef struct { /* field names derived */
     float x, y, z;
-} BoxVec;
+} BoxVec; /* derived name */
 
 /* the box's two index tables and its line colour, initialised as whole
    objects here and in DispCameraGroup */
 typedef struct { /* field names derived */
     int e[6][4];
-} BoxIdx6;
+} BoxIdx6; /* derived name */
 
 typedef struct { /* field names derived */
     int e[12][2];
-} BoxIdx12;
+} BoxIdx12; /* derived name */
 
 typedef struct { /* field names derived */
     unsigned char r, g, b, a;
-} BoxCol;
+} BoxCol; /* derived name */
 
 typedef union { /* field names derived */
     unsigned int c[4];
     unsigned long long w[2];
-} BoxCol4;
+} BoxCol4; /* derived name */
 
 void DebugDispBox(BoxVec *c, BoxVec *s)
 {
@@ -458,7 +458,7 @@ static void drawXZArrow(void *col, int f, float z)
 typedef struct { /* field names derived */
     float tip[4];
     float tail[4];
-} AxisPair;
+} AxisPair; /* derived name */
 
 /* the point the axis widget is drawn at, 2000 units down the view axis */
 static ArrowVtx axisArrowOrigin = {0.0f, 0.0f, 2000.0f, 1.0f}; /* derived name */
@@ -719,7 +719,7 @@ typedef struct { /* field names derived */
     float cx, cy, cz; /* 0x20 */
     float sx, sy, sz; /* 0x2C */
     char pad38[0x4C - 0x38];
-} CamBoxF;
+} CamBoxF; /* derived name */
 
 /* the plane editor's own copy of the face and edge tables; the faces are in a
    different order from boxFaceCorner above */
@@ -899,7 +899,7 @@ typedef struct { /* field names derived */
     int step;
     int mode;
     char *name;
-} EditItem;
+} EditItem; /* derived name */
 
 /* the camera box record as the group editor sees it: the centre and half-size
    floats DispCameraGroup also reads, plus the type word at 0x44 */
@@ -910,7 +910,7 @@ typedef struct { /* field names derived */
     char pad38[0x44 - 0x38];
     int type; /* 0x44 */
     char pad48[0x4C - 0x48];
-} EditRec;
+} EditRec; /* derived name */
 
 void menuGroupEdit(MenuThread *m)
 {
@@ -1003,7 +1003,7 @@ typedef struct BoxPins { /* field names derived */
     char pad00[0x38];
     int first; /* 0x38 */
     int last;  /* 0x3C */
-} BoxPins;
+} BoxPins;     /* derived name */
 
 /* the pin the pin editor was opened on */
 static int editPinNo; /* derived name */
@@ -1403,10 +1403,10 @@ void CameraEdit_Reflect(void)
     ReflectCameraSetBinary((S4C *)p[1], p[0]);
 }
 
-void CameraEdit_Save(int no)
+void CameraEdit_Save(char *name)
 {
     int *p = cameraSetOrg;
-    saveEditedDataBinary(no, p[1], p[0]);
+    saveEditedDataBinary(name, p[1], p[0]);
 }
 
 inline void InitCameraEditor(void)

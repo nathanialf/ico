@@ -21,7 +21,7 @@ typedef struct GenBga { /* field names derived */
     BgaDisp *p;         /* the multi-BGA manager */
     char active;        /* set while the manager plays */
     char pad5[3];
-} GenBga;
+} GenBga; /* derived name */
 
 /* The generator's work record: whether the stage needs it hard, three state
    bytes, the enemy kind it calls, the direction it sends enemies off in, its
@@ -49,7 +49,7 @@ typedef struct GenWork {        /* field names derived */
     int callDelay; /* 0x5C */
     int bgaDelay;  /* 0x60, frames until the second BGA starts, -1 for none */
     int timer;     /* 0x64 */
-} GenWork;
+} GenWork;         /* derived name */
 
 /* the generator packet: 11277 bytes are read into it, which is what
    GetsizeGeneratorPacket returns, three under the buffer */
@@ -729,12 +729,12 @@ inline int MemoryGenerator(short *info, GObj *gobj)
 typedef struct GenReqEntry { /* field names derived */
     unsigned int kind;
     int arg;
-} GenReqEntry;
+} GenReqEntry; /* derived name */
 
 typedef struct GenReq { /* field names derived */
     int queue;
     int count;
-} GenReq;
+} GenReq; /* derived name */
 
 void generatorBeforeFunc(GObj *gobj)
 {

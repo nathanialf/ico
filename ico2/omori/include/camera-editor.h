@@ -16,7 +16,7 @@ typedef struct S4C { /* field names derived */
     int end;      /* 0x3C, one past its last item record */
     int pad40[2];
     int items;    /* 0x48, the address of the item records, held as a word */
-} S4C;
+} S4C; /* derived name */
 
 /* the camera box (group) record: the name, centre and half-size at 0x20 and
  * 0x2C, the pin range at 0x38 and the kind word at 0x44; the 0x4C stride is
@@ -30,7 +30,7 @@ typedef struct { /* field names derived */
     char pad40[0x44 - 0x40];
     int kind; /* 0x44 */
     char pad48[0x4C - 0x48];
-} BoxRec;
+} BoxRec; /* derived name */
 
 /* A camera pin, one item record of a camera set (0x5C bytes, copied whole):
  * the camera position and the point it looks at, two offsets of the look-at
@@ -55,7 +55,7 @@ typedef struct { /* field names derived */
     float float48;        /* 0x48, in the version-2 file record; nothing reads it */
     float float4C;        /* 0x4C, likewise */
     float ofsB[3];        /* 0x50, the look-at offset added as it is */
-} PinRec;
+} PinRec; /* derived name */
 
 extern PinRec cameraPinDefault;
 extern BoxRec cameraGroupDefault;
@@ -68,7 +68,7 @@ typedef struct MenuThread { /* field names derived */
     char thread[0x70];
     char *parent; /* 0x70 */
     int arg;      /* 0x74 */
-} MenuThread;
+} MenuThread; /* derived name */
 
 /* the functions camera-editor.c defines `inline` */
 inline void debug_NMarker(float *pos, int r, int g, int b, float size);
@@ -104,7 +104,7 @@ void wakeup_cameraedit(void);
 typedef union Mat4 { /* field names derived */
     float f[4];
     long long q[2];
-} Mat4;
+} Mat4; /* derived name */
 
 int CameraEdit_add_box(S4C *src);
 

@@ -16,7 +16,7 @@ struct GObj;
 typedef struct ClimbCol { /* field names derived */
     int wallSrc[2];
     void *wall;
-} ClimbCol;
+} ClimbCol; /* derived name */
 
 void ChainGeo(struct GObj *gobj);
 void ChainPositionReset(struct GObj *chain);

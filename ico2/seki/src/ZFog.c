@@ -313,11 +313,11 @@ int fog_FogTool(void)
 
     for (i = 0; i < 9; i++) {
         if (fogToolItems[i].min == 0 && fogToolItems[i].max == 1) {
-            debug_PrintfDummy(18, (i + 1) * 8 + 0x32, fogRowColor[(toolRow == i) ? 1 : 0],
-                              "%s : %s", fogToolItems[i].name, fogOnOffText[*fogToolItems[i].val]);
+            debug_PrintfDummy(18, (i + 1) * 8 + 50, fogRowColor[(toolRow == i) ? 1 : 0], "%s : %s",
+                              fogToolItems[i].name, fogOnOffText[*fogToolItems[i].val]);
         } else {
-            debug_PrintfDummy(18, (i + 1) * 8 + 0x32, fogRowColor[(toolRow == i) ? 1 : 0],
-                              "%s : %d", fogToolItems[i].name, *fogToolItems[i].val);
+            debug_PrintfDummy(18, (i + 1) * 8 + 50, fogRowColor[(toolRow == i) ? 1 : 0], "%s : %d",
+                              fogToolItems[i].name, *fogToolItems[i].val);
         }
     }
 
