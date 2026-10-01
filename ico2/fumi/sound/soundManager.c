@@ -6,10 +6,10 @@
 #include "main.h"
 #include "thread.h"
 #include "s_init.h"
+#include <sound.h>
 
+/* kept local: no header declares the stage table (common owns it) */
 extern StgPre stageData[];
-extern int SgSndn2RemoteSync();
-extern void SgCalledTickProc();
 
 #include "soundManager.h"
 

@@ -54,25 +54,12 @@ typedef union BoyVal {
     float f;
 } BoyVal;
 
-extern char motionKind[];
+/* kept local: motionOrientManager.h declares none of the motion tables */
+extern MotionDef motionKind[];
 extern void GetChainNearestNodePosition(float *out, void *g, float *ref);
 
-/* one 0x194-byte motion row per motion id; 0x182/0x186 are the halfwords
-   subBoyCollision hands SetMotionDirectionSmooze (with and without the girl
-   held), 0x18C and 0x190 flag words (0x190 the jump-chain flags) */
-typedef struct {
-    char pad0[386];
-    short f_182;
-    char pad184[2];
-    short f_186;
-    char pad188[4];
-    unsigned int f_18C;
-    unsigned int f_190;
-} ChainMotRow;
-
-#define CHAINROW(self)                                                                             \
-    ((ChainMotRow *)(*(int *)(*(char **)((char *)(self) + 0x15C) + 0x4A0) * sizeof(ChainMotRow) +  \
-                     motionKind))
+/* the motion-def row of an actor's current motion */
+#define CHAINROW(self) (GOBJ_SUB(self)->motion + motionKind)
 
 void findChainInJump(void *self)
 {
@@ -102,8 +89,8 @@ void findChainInJump(void *self)
     int lside = 0;
 
     sub = GOBJ_ACT(self);
-    r = ((CHAINROW(self)->f_190 >> 8) & 1) ? 300.0f : 100.0f;
-    r2 = ((CHAINROW(self)->f_190 >> 8) & 1) ? 90.0f : 120.0f;
+    r = ((CHAINROW(self)->flags2.word >> 8) & 1) ? 300.0f : 100.0f;
+    r2 = ((CHAINROW(self)->flags2.word >> 8) & 1) ? 90.0f : 120.0f;
 
     for (g = isysGObjSearchFromObjKindID_begin(0x15); g != 0;
          g = isysGObjSearchFromObjKindID_next(g)) {
@@ -146,7 +133,7 @@ void findChainInJump(void *self)
     lv[3] = 0.0f;
     sceVu0ApplyMatrix(lv, mtx, lv);
 
-    if (((CHAINROW(self)->f_190 >> 6) & 1) == 0 && (rside != 0 || lside != 0) &&
+    if (((CHAINROW(self)->flags2.word >> 6) & 1) == 0 && (rside != 0 || lside != 0) &&
         (lv[2] < 0.0f ? -lv[2] : lv[2]) < 150.0f) {
         RequestChangeHandMode(self, 0, 2, 1, g, 0, w);
         RequestChangeHandMode(self, 1, 2, 1, g, 0, w);
@@ -155,7 +142,7 @@ void findChainInJump(void *self)
         RequestChangeHandMode(self, 1, 2, 0, 0, 0, 0);
     }
 
-    if ((rside != 0 || lside != 0) && ((CHAINROW(self)->f_190 >> 5) & 1) != 0) {
+    if ((rside != 0 || lside != 0) && ((CHAINROW(self)->flags2.word >> 5) & 1) != 0) {
         float sp = (systemStatus[0] == 1) ? 0.5f : 0.8f;
 
         ((BoyVal *)((char *)GOBJ_SUB(self) + 0x45C))->f = sp;
@@ -2003,8 +1990,8 @@ void subBoyCollision(GObj *volatile a0)
             if (0.1f < sub->stickMag && sub->actMode != 0x73) {
                 SetMotionDirectionSmooze(a0, sub->dir,
                                          (float)(((void *)a0 == girlGObj && girlControlMode != 0)
-                                                     ? CHAINROW(a0)->f_182
-                                                     : CHAINROW(a0)->f_186));
+                                                     ? CHAINROW(a0)->girlDirFrames
+                                                     : CHAINROW(a0)->dirFrames));
             }
         }
         CommonAttackCenter((void *)a0);
@@ -2401,7 +2388,7 @@ void subBoyCollision(GObj *volatile a0)
             }
             sub->flags18.ll = (sub->flags18.ll & ~0x20000000000LL) |
                               ((unsigned long long)(ACTGame_FLAG_TETSUNAGI() & 1) << 41);
-            if (((CHAINROW(a0)->f_18C >> 13) & 1) && ACTGame_FLAG_TETSUNAGI() == 0) {
+            if (((CHAINROW(a0)->flags.word >> 13) & 1) && ACTGame_FLAG_TETSUNAGI() == 0) {
                 ACTSendMailCorrect(a0, 0x1AA);
             }
             if ((int)(sub->flags18.ll >> 38) & 1) {
@@ -2860,8 +2847,6 @@ int ditch_check_heroin_position(void)
     return 0;
 }
 
-extern char D_0055FFA8[];
-
 void actBoyPullupReady(GObj *volatile a0)
 {
     float mv[4];
@@ -2887,7 +2872,7 @@ void actBoyPullupReady(GObj *volatile a0)
     ACTAdjustPlane(a0, BOY_WALL(a0) + 0x8C0);
     while (1) {
         if (*(unsigned char *)(BOY_WALL(a0) + 0x4F0) &&
-            *(int *)(GOBJ_SUB(a0)->motion * 0x194 + D_0055FFA8) != 1) {
+            motionKind[GOBJ_SUB(a0)->motion].playMode != 1) {
             _MoveGV(mv, test_CURRENTROOT((void *)a0), (float *)(BOY_WALL(a0) + 0x500), 3.0f);
             SetRootPosition(a0, mv);
         }
@@ -3029,8 +3014,6 @@ void actBoyBelift(GObj *volatile a0)
     }
 }
 
-extern char motionKind[];
-
 /* The walk order the boy is executing: sub->0x30 points at the request record
    the caller filled in, and actBoyReadyMove works on a private copy of it. */
 typedef struct {
@@ -3042,15 +3025,6 @@ typedef struct {
     int _2C;
 } __attribute__((aligned(16))) BoyMoveOrder;
 
-/* the motion parameter table: one 0x194-byte row per motion id */
-typedef struct {
-    char pad0[386];
-    short f_182;
-    char pad184[2];
-    short f_186;
-    char pad188[12];
-} BoyMotionRow;
-
 void actBoyReadyMove(GObj *volatile a0)
 {
     Act *sub = GOBJ_ACT(a0);
@@ -3058,10 +3032,8 @@ void actBoyReadyMove(GObj *volatile a0)
 
     while (1) {
         if ((((void *)a0 == girlGObj && girlControlMode != 0)
-                 ? ((BoyMotionRow *)(GOBJ_SUB(a0)->motion * sizeof(BoyMotionRow) + motionKind))
-                       ->f_182
-                 : ((BoyMotionRow *)(GOBJ_SUB(a0)->motion * sizeof(BoyMotionRow) + motionKind))
-                       ->f_186) == 0) {
+                 ? (GOBJ_SUB(a0)->motion + motionKind)->girlDirFrames
+                 : (GOBJ_SUB(a0)->motion + motionKind)->dirFrames) == 0) {
             SetMotionDirectionSmooze(a0, ord.dir, 10.0f);
         } else {
             _ACTMotDirSmzDirect((void *)a0, ord.dir);
@@ -3130,8 +3102,8 @@ void actBoyRescueReady(GObj *volatile a0)
             SetDirectRootPositionNoFitting((void *)a0, np);
         }
         rest--;
-        if (*(int *)(GOBJ_SUB(a0)->motion * 0x194 + D_0055FFA8) == 1 ||
-            (GOBJ_SUB(a0)->motFlagsLo & 0x16) || GOBJ_SUB(a0)->word4CC != 0) {
+        if (motionKind[GOBJ_SUB(a0)->motion].playMode == 1 || (GOBJ_SUB(a0)->motFlagsLo & 0x16) ||
+            GOBJ_SUB(a0)->word4CC != 0) {
             hold = (char *)GOBJ_ACT(girlGObj)->carrier;
             hp = GOBJ_ACT(hold)->modeFrame;
             r = 0;
@@ -3302,8 +3274,6 @@ void actBoyDitch3mReady(GObj *volatile a0)
     }
 }
 
-extern char D_0055FFA8[];
-
 void actBoyRescueGirlBhang(GObj *volatile a0)
 {
     float tgt[4];
@@ -3346,7 +3316,7 @@ void actBoyRescueGirlBhang(GObj *volatile a0)
                 SetRootPosition((void *)a0, mv);
             }
         }
-        if (*(int *)(GOBJ_SUB(a0)->motion * 0x194 + D_0055FFA8) == 1) {
+        if (motionKind[GOBJ_SUB(a0)->motion].playMode == 1) {
             if (mode == 1) {
                 ACTSendMailCorrect(a0, 0x15B);
                 if (girlGObj != 0) {
@@ -3567,17 +3537,11 @@ inline void *GetBoyWeaponGObj(void)
     return 0;
 }
 
-typedef struct {
-    char pad00[396];
-    unsigned int flags18C;
-    char pad190[4];
-} BoyParaRow;
-
 inline void actBoyStand(GObj *volatile a0)
 {
-    BoyParaRow *row = (BoyParaRow *)(GOBJ_SUB(a0)->motion * sizeof(BoyParaRow) + motionKind);
+    MotionDef *row = GOBJ_SUB(a0)->motion + motionKind;
 
-    if ((row->flags18C >> 8) & 1) {
+    if ((row->flags.word >> 8) & 1) {
         ACTAdjustPlane(a0, (char *)GOBJ_ACT(a0)->work + 0x8B0);
     }
     while (1) {

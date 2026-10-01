@@ -14,6 +14,38 @@
 
 struct GObj;
 
+struct AdpcmStreamTag;
+
+/* sound data area: one loaded bank, 0x30 bytes, the 16 rows of s_init.c's
+ * soundDataTbl, keyed by its first word (num, bank). Readers: ico2/fumi/
+ * sound/s_init.c, ico2/fumi/sound/adpcm_init.c (the stream at 0x2C); the
+ * other directories hold it as the char * handle the Set and Open calls
+ * return. At 0x18 a VAB or sequence keeps its SPU buffer and an ADPCM stream
+ * its SPU channel mask. Owner: ico2/fumi/include/s_init.h. */
+typedef struct SqEntry { /* field names derived */
+    unsigned short num;  /* 0x00, the bank's row */
+    unsigned short bank; /* 0x02, 10 BGM, 11 SE, 17 ADPCM */
+    unsigned short mode; /* 0x04, 0 a VAB, 1 a sequence, 2 a stream */
+    unsigned short seg;  /* 0x06, the SPU buffer segment */
+    int bd;              /* 0x08, the VAB body's EE address */
+    void *hd;            /* 0x0C, the VAB header */
+    void *sq;            /* 0x10, the sequence */
+    char pad14[4];
+
+    union {
+        struct {
+            int addr; /* 0x18 */
+            int size; /* 0x1C */
+        } buf;
+
+        long long chMask; /* 0x18 */
+    } spu;
+
+    unsigned long long seMask;     /* 0x20, the SE slots playing from it */
+    int vab;                       /* 0x28, the VAB handle, -1 while closed */
+    struct AdpcmStreamTag *stream; /* 0x2C */
+} SqEntry;
+
 /* s_init.c defines these `inline`, and ee-gcc 2.9 emits a file's inline
    functions after all of its other functions, in the order their names were
    first declared. That order is the ROM's (Ee2Iop at 0x145EB8 through
@@ -22,14 +54,12 @@ struct GObj;
 int Ee2Iop(int a0, int a1, int a2);
 int soundOutputModeGet(void);
 int soundReverbDepthGet(void);
-int soundBufAdpcmChAlloc(); /* (entry, int *ch): adpcm_init.c sees the entry as its
-                               AdpcmObj and s_init.c as its SqEntry, so the shared
-                               declaration carries no parameter list */
-void soundBufAdpcmFree(char *self);
-char *soundDataAreaSearch(int *a0);
-char *soundDataAreaGet(int a0, int a1, int a2, int a3);
-char *soundHDDataSet(int a0, int a1, int a2, int a3, int a4);
-char *soundSQDataSet(int a0, int a1, int a2, int a3, int a4);
+int soundBufAdpcmChAlloc(SqEntry *self, int *chp);
+void soundBufAdpcmFree(SqEntry *self);
+SqEntry *soundDataAreaSearch(int *a0);
+SqEntry *soundDataAreaGet(int a0, int a1, int a2, int a3);
+char *soundHDDataSet(void *hd, int a1, int a2, int a3, int a4);
+char *soundSQDataSet(void *sq, int a1, int a2, int a3, int a4);
 int soundSeDefPlay(int a0, unsigned int a1, float *pos, int a3);
 int soundSeDefPlayWithVolumeRate(int a0, unsigned int a1, float *pos, int a3, float rate);
 float soundSeDefVolumeRateGet(int a0);
@@ -67,17 +97,17 @@ void soundSeEnvPlay(void);
  * (SeSrcDef), ico2/fumi/src/seMail.c (SeRec: mail, check, 0x34, flags),
  * ico2/common/src/debug.c, ico2/sugipon/src/frameDependSequence.c (0x20).
  * Owner: ico2/fumi/include/s_init.h. */
-typedef struct {                                   /* field names derived */
-    char name[32];                                 /* 0x00 */
-    int kind;                                      /* 0x20, the seKind row */
-    float volume;                                  /* 0x24 */
-    int mail;                                      /* 0x28 */
+typedef struct {                                                     /* field names derived */
+    char name[32];                                                   /* 0x00 */
+    int kind;                                                        /* 0x20, the seKind row */
+    float volume;                                                    /* 0x24 */
+    int mail;                                                        /* 0x28 */
     int (*check)(struct GObj *target, struct GObj *self, void *rec); /* 0x2C */
-    int range;                                     /* 0x30, how near seMailTargetDistCheck wants a target */
-    unsigned short mailArg;                        /* 0x34, ACTGame_SendSoundMail's argument */
-    unsigned short half36;                         /* 0x36 */
-    unsigned int flags;                            /* 0x38 */
-} SeDef;                                           /* derived name */
+    int range;              /* 0x30, how near seMailTargetDistCheck wants a target */
+    unsigned short mailArg; /* 0x34, ACTGame_SendSoundMail's argument */
+    unsigned short shock;   /* 0x36, the shockList row */
+    unsigned int flags;     /* 0x38 */
+} SeDef;                    /* derived name */
 
 /* se-env: one stage sound environment, 0x1C bytes, the rows a stage's
  * seEnvFirst..seEnvLast covers. Reader: ico2/fumi/sound/s_init.c
@@ -98,30 +128,32 @@ typedef struct SeEnvDef { /* field names derived */
     unsigned int maxVolumeType : 1; /* the curve past maxVolumeRange */
     unsigned int : 28;
 } SeEnvDef;
+
 extern const SeEnvDef seEnv[];
 
 /* sefile: one sound bank, 0x64 bytes, the rows a stage's seSegFirst..
  * seSegLast covers. Reader: ico2/fumi/sound/s_init.c (soundSeEnvNotUseClose:
  * the first loaded bank of each stage, compared by name), ico2/common/src/
  * charFileManager.c (ReadSoundBdFile). */
-typedef struct SeBank { /* field names derived */
-    char hdPath[48];       /* 0x00, the .hd header file */
-    char bdPath[48];       /* 0x30, the .bd body file */
+typedef struct SeBank {      /* field names derived */
+    char hdPath[48];         /* 0x00, the .hd header file */
+    char bdPath[48];         /* 0x30, the .bd body file */
     unsigned int loaded : 1; /* 0x60 bit 0, set while the bank is loaded */
     unsigned int : 31;
 } SeBank;
+
 extern const SeBank seFile[];
 
 /* selist: one sound kind, 8 bytes. Reader: ico2/fumi/sound/s_init.c
  * (SeKind). Owner: ico2/fumi/include/s_init.h. */
 typedef struct { /* field names derived */
     short num;   /* 0x00 */
-    short half2; /* 0x02 */
-    short half4; /* 0x04 */
+    short prog;  /* 0x02, the VAB program SgSePlay plays */
+    short tone;  /* 0x04 */
     short idx;   /* 0x06 */
 } SeKind;        /* derived name */
-extern const SeKind seList[];
 
+extern const SeKind seList[];
 extern unsigned short seKind[]; /* sekind: the selist row of each sound kind, filled at load */
 
 #endif /* S_INIT_H */

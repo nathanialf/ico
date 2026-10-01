@@ -378,7 +378,7 @@ void _iosFreeWithFill(int *a0, int a1, int a2)
 {
     int *end = *(int **)((char *)a0 - 0x1C);
     FlushCache(0);
-    iosFree((void *)a0);
+    iosFree(a0);
     debug_StdPrintfDummy("IOSFILLFREE %s(%d) %p - %p\n", a1, a2, a0, end);
     {
         register int g = (unsigned int)a0 < (unsigned int)end;

@@ -15,30 +15,23 @@
 #include "thread.h"
 #include "ios.h"
 #include <assert.h>
+#include <libcdvd.h>
+#include <sound.h>
 
 union U001325D8 {
     long long ll;
     int i[2];
 };
 
-/* The sceCdRead mode record (libcdvd's sceCdRMode): try count, spindle
-   control and data pattern bytes. */
-typedef struct {
-    unsigned char trycount;
-    unsigned char spindlctrl;
-    unsigned char datapattern;
-    unsigned char pad;
-} CdRMode;
-
 /* The record sceCdSearchFile fills in: it writes 0x24 bytes of it (lsn, size,
  * the name column and the date), and the stack slot it is given is 0x30.  */
-typedef struct {
+typedef struct sceCdlFILE {
     unsigned int lsn;
     unsigned int size;
     char name[16];
     unsigned char date[8];
     unsigned int reserved;
-} CdlFILE;
+} sceCdlFILE;
 
 /* The cdvd handle a load request is made with (iosCdvd is the manager's own,
  * 33216 bytes): the command word, the result, the sector cursor and the
@@ -63,7 +56,7 @@ typedef struct IosCdvdHandle { /* field names derived */
     int sectors;                                         /* 0x30, the sectors still to stream */
     int buffCnt;                                         /* 0x34 */
     char name[256];                                      /* 0x38 */
-    CdlFILE file;                                        /* 0x138 */
+    sceCdlFILE file;                                     /* 0x138 */
     CdRMode mode;                                        /* 0x15C */
     int inflate;                                         /* 0x160 */
     int stMem;                                           /* 0x164 */
@@ -178,17 +171,6 @@ static int bgRunning;
 static int stReqRing[2];
 
 static int stAckRing[1];
-
-/* kept local: int (int, int, void *, int *) here, int (int, int, void *, CdRMode *) in libcdvd.h */
-extern int sceCdRead(int lsn, int sectors, void *buf, int *mode);
-/* kept local: agrees with libcdvd.h, which this TU does not include (sceCdRead, sceFsReset differ) */
-extern int sceCdSync(int mode);
-/* kept local: agrees with libcdvd.h, which this TU does not include (sceCdRead, sceFsReset differ) */
-extern int sceCdGetError(void);
-/* kept local: agrees with libcdvd.h, which this TU does not include (sceCdRead, sceFsReset differ) */
-extern int sceCdInit(int mode);
-/* kept local: agrees with libcdvd.h, which this TU does not include (sceCdRead, sceFsReset differ) */
-extern int sceCdMmode(int media);
 
 /* The stream's TTY traces of a drive recovery (our names and text), built
    only when DEBUG is defined; the retail build does not define it, so the
@@ -333,12 +315,6 @@ void iosCdvdStManager(void)
     }
 }
 
-extern int sceCdSearchFile(CdlFILE *fp, const char *name);
-/* kept local: agrees with libcdvd.h, which this TU does not include (sceCdRead, sceFsReset differ) */
-extern int sceCdDiskReady(int mode);
-/* kept local: agrees with libcdvd.h, which this TU does not include (sceCdRead, sceFsReset differ) */
-extern int sceCdGetDiskType(void);
-
 /* Listing rows 701-720, the definition the listing places between the stream
  * manager and the directory search.  Declared inline: the listing expands it
  * in iosCdvdMgrLoad, iosCdvdMgrPackLoad, iosCdvdManager and
@@ -348,7 +324,7 @@ extern int sceCdGetDiskType(void);
 inline void iosCdvdDiskReadyBlock(void)
 {
     if (sceCdDiskReady(1) != 2) {
-        CdlFILE fp;
+        sceCdlFILE fp;
         char file[32];
         strcpy(file, "SCES_507.60");
         iosCdvdChgFileName((int)file);
@@ -452,9 +428,6 @@ void iosCdvdMgrStStart(IosCdvdHandle *self)
     iosMsgSend(&stReqQ, &stReq, 1);
     self->inflate = open_inflate_handler(inflate_cd_read_func, self);
 }
-
-/* kept local: agrees with libcdvd.h, which this TU does not include (sceCdRead, sceFsReset differ) */
-extern int sceCdBreak(void);
 
 void iosCdvdMgrStStop(IosCdvdHandle *self)
 {
@@ -565,7 +538,6 @@ typedef struct PackEnt {
 } PackEnt;
 
 typedef void (*PackFunc)(char *self, char *name, int size, int a3, int a4, int a5, int seg);
-extern int SgGetDmaTransferStatus(int ch);
 
 /* INTERIM: the listing expands the extension lookup (cdvd.c rows 1043-1050)
  * inside the scan below, so the 2001 source declared it `inline`. */
@@ -898,9 +870,6 @@ void iosCdvdUnifileInfoGet(void)
 
 int iosCdvdBackGroundMgrRunning = 0;
 
-/* kept local: void (void) here, int (void) in libcdvd.h */
-extern void sceFsReset(void);
-
 /* kept local: this TU does not include thread.h, whose iosThreadStart and
    iosThreadCreate take the thread record as an int and a void pointer */
 
@@ -1000,6 +969,7 @@ void iosCdvdPackLoad(void *a0)
     iosMsgSend(&CdvdMsgQ, a0, 0);
 }
 
+/* kept local: string.h declares no strrchr */
 extern char *strrchr(const char *s, int c);
 
 CdvdBgReq *iosCdvdBackGroundMgrAdd(const char *name, void *readFunc, int readArg, void *readyFunc,
@@ -1059,9 +1029,6 @@ found:
     return bg;
 }
 
-/* kept local: agrees with libcdvd.h, which this TU does not include (sceCdRead, sceFsReset differ) */
-extern int sceCdStatus(void);
-
 /* The rest of the .sdata run, after iosCdvdManager's strings: the saved
    system parameter word cdWait restores after a drive recovery and the flag
    that it is saved, the background read and read retry counts, the stream
@@ -1080,7 +1047,7 @@ float inflateSec = 0;
 
 void cdWait(int *busy)
 {
-    CdlFILE fp;
+    sceCdlFILE fp;
     char file[32];
     CdvdBgReq *self;
     int r;
@@ -1137,15 +1104,6 @@ void cdWait(int *busy)
     }
 }
 
-/* kept local: agrees with libcdvd.h, which this TU does not include (sceCdRead, sceFsReset differ) */
-extern int sceCdSync(int mode);
-/* kept local: agrees with libcdvd.h, which this TU does not include (sceCdRead, sceFsReset differ) */
-extern int sceCdGetError(void);
-/* kept local: int (int, int, void *, int *) here, int (int, int, void *, CdRMode *) in libcdvd.h */
-extern int sceCdReadIOPm(int lsn, int sectors, void *buf, int *mode);
-/* kept local: int (int, int, void *, int *) here, int (int, int, void *, CdRMode *) in libcdvd.h */
-extern int sceCdRead(int lsn, int sectors, void *buf, int *mode);
-
 int iosCdvdBackGroundRead(CdvdBgReq *self, void *buf, int size)
 {
     int flag;
@@ -1163,7 +1121,7 @@ int iosCdvdBackGroundRead(CdvdBgReq *self, void *buf, int size)
         while ((iosCdvdMediaType == 1 && sceCdStatus() != 10) || sceCdDiskReady(1) != 2) {
             cdWait(&flag);
         }
-        while (sceCdRead(self->lsn + self->pos / 2048, size / 2048, buf, (int *)&bgReadMode) == 0) {
+        while (sceCdRead(self->lsn + self->pos / 2048, size / 2048, buf, &bgReadMode) == 0) {
             cdWait(&flag);
         }
         while (sceCdSync(1) != 0) {
@@ -1205,8 +1163,7 @@ int iosCdvdBackGroundReadIOPm(CdvdBgReq *self, void *buf, int size)
         while ((iosCdvdMediaType == 1 && sceCdStatus() != 10) || sceCdDiskReady(1) != 2) {
             cdWait(&flag);
         }
-        while (sceCdReadIOPm(self->lsn + self->pos / 2048, size / 2048, buf, (int *)&bgReadMode) ==
-               0) {
+        while (sceCdReadIOPm(self->lsn + self->pos / 2048, size / 2048, buf, &bgReadMode) == 0) {
             cdWait(&flag);
         }
         while (sceCdSync(1) != 0) {
@@ -1231,9 +1188,6 @@ int iosCdvdBackGroundReadIOPm(CdvdBgReq *self, void *buf, int size)
     self->pos += size;
     return !(self->pos < self->size);
 }
-
-extern void sceCdStInit(int bufmax, int bansu, void *buf);
-extern void sceCdStStart(int lsn, void *mode);
 
 void iosCdvdDirectStOpen(IosCdvdHandle *self)
 {
@@ -1403,10 +1357,7 @@ int iosCdvdBackGroundMgrGetRunning(void)
     return bgRunning;
 }
 
-/* kept local: int (int, int, int, void *) here, int (int, void *, int, int *) in libcdvd.h */
-extern int sceCdStRead(int a0, int a1, int a2, void *a3);
-
-int iosCdvdDirectStRead(int a0, int a1, int a2, int *a3)
+int iosCdvdDirectStRead(int a0, void *a1, int a2, int *a3)
 {
     int local, result;
     *a3 = 0;

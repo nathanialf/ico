@@ -6,6 +6,7 @@
 #include "debug_exception.h"
 #include "cdvd.h"
 #include <assert.h>
+#include <sound.h>
 
 /* .sbss and .bss, owned by adpcm_init.o and reached only from this file
    (MAIN.MAP names no symbol in either run), in the ROM's run order: the
@@ -29,19 +30,16 @@ void AdpcmStreamFree(void)
     sceSifFreeIopHeap(adpcmIopHeap);
 }
 
-extern int SgStAdpcmChannelPitch(long long mask, int pitch);
-extern int SgStAdpcmIopReadAddr(int addr);
-
-void adpcmTickProc2(int *a0)
+void adpcmTickProc2(SqEntry *a0)
 {
-    AdpcmStream *self = (AdpcmStream *)a0[11];
+    AdpcmStream *self = a0->stream;
     int i;
 
     if (iosCdvdDiskStatusGet() == 0 && adpcmPause == 0) {
         for (i = 0; i < self->n; i++) {
             char *ch = (char *)self->ch;
             int ofs = i * 4;
-            int no = *(unsigned short *)a0;
+            int no = a0->num;
             SgStAdpcmChannelPitch(1LL << *(int *)(ch + ofs), adpcmFile[no].pitch);
         }
     } else {
@@ -99,15 +97,12 @@ static const char adpcmNoAllocMsg[] = "AdpcmIopBuffAlloc not alloc\n";
 static const char adpcmFreeIopMsg[] =
     "IOP領域が確保されているのにもかかわらず,使われていなので解放します\n";
 
-extern int SgStAdpcmOpen(AdpcmChReq *req);
-extern int SgStAdpcmChannelVolume(long long mask, int l, int r);
-
 int debugAdpcmOn = 1;
 
 int *adpcmDataSet(int a0, int no, int bank, int a3, int size, int a5, int a6)
 {
     AdpcmChReq req;
-    AdpcmObj *obj;
+    SqEntry *obj;
     AdpcmStream *p;
     int i;
     int j;
@@ -176,7 +171,7 @@ found:
     p->iopBuf = a5;
     p->ringSize = 0x5C000;
     p->dataSize = adpcmFile[no].sectors << 11;
-    p->loopStart = adpcmFile[no].word30 << 11;
+    p->loopStart = adpcmFile[no].loopStart << 11;
     p->lastAddr = 0;
     p->remain = adpcmFile[no].sectors << 11;
     p->loopNum = a6;
@@ -190,19 +185,15 @@ found:
     return (int *)obj;
 }
 
-extern void SgStAdpcmPlay(long long a0);
-
-void AdpcmPlay(void *a0)
+void AdpcmPlay(AdpcmStream *self)
 {
     debug_StdPrintfDummy("AdpcmPlay\n");
-    SgStAdpcmPlay(*(long long *)((char *)a0 + 0x30));
+    SgStAdpcmPlay(self->mask);
 }
 
-extern int SgStAdpcmStop(unsigned long long a0);
-
-void AdpcmStop(int a0)
+void AdpcmStop(AdpcmStream *self)
 {
-    SgStAdpcmStop(*(long long *)(a0 + 0x30));
+    SgStAdpcmStop(self->mask);
 }
 
 inline int AdpcmIopBuffAlloc(void)
@@ -243,8 +234,6 @@ void AdpcmOpen(AdpcmOpenReq *self, int no, int a2, int a3)
     self->loopNum = a3;
 }
 
-extern int SgStAdpcmClose(int ch);
-
 static inline void AdpcmIopBuffFree(AdpcmStream *self)
 {
     int adr = self->iopBuf;
@@ -257,16 +246,16 @@ static inline void AdpcmIopBuffFree(AdpcmStream *self)
     adpcmIopBuffUsed[no] = 0;
 }
 
-void AdpcmClose(int *a0)
+void AdpcmClose(SqEntry *a0)
 {
-    AdpcmStream *self = (AdpcmStream *)a0[11];
+    AdpcmStream *self = a0->stream;
     int i;
     int j;
 
     if (self != 0 && self->bg != 0) {
         iosCdvdBackGroundMgrDelete(self->bg);
         self->bg = 0;
-        AdpcmStop((int)self);
+        AdpcmStop(self);
         for (i = 0; i < self->n; i++) {
             char *ch = (char *)self->ch;
             int ofs = i * 4;
@@ -358,9 +347,6 @@ inline void AdpcmStreamHeap(void)
         adpcmIopBase = r;
     }
 }
-
-extern int SgGetSpuSlotMalloc(int a);
-extern void SgStAdpcmInit(void);
 
 inline void AdpcmStreamInit(void)
 {
@@ -507,8 +493,6 @@ inline short AdpcmVolumeGet(char *self)
 {
     return *(short *)(*(char **)(self + 0x2C) + 0x3C);
 }
-
-extern int SgStAdpcmIopReadAddr(int a);
 
 inline int adpcmTickProc(int self, int obj)
 {

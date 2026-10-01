@@ -228,17 +228,10 @@ int ChangeMailInLadder(GObj *a0, int a1)
 }
 
 void DamageFunc(char *a0);
-
-typedef struct {
-    char pad0[392];
-    unsigned int f188;
-    unsigned int f18C;
-    char pad190[4];
-} CorrMotRec;
-
 extern int IsAbleChainHang(char *a0);
 extern int EnemyGetNSafeParts(char *a0);
-extern char motionKind[];
+/* kept local: motionOrientManager.h declares none of the motion tables */
+extern MotionDef motionKind[];
 
 /* lines 625-631: a static inline used only by _ACTCorrectMsg */
 static inline int GetHitDirIdx(GObj *self)
@@ -283,7 +276,7 @@ int _ACTCorrectMsg(GObj *self, int msg, void *param)
         }
         break;
     case 259:
-        if ((((CorrMotRec *)(motionKind + GOBJ_SUB(self)->motion * 0x194))->f18C >> 9) & 1) {
+        if (((motionKind + GOBJ_SUB(self)->motion)->flags.word >> 9) & 1) {
             msg = 418;
         }
         break;
@@ -303,14 +296,14 @@ int _ACTCorrectMsg(GObj *self, int msg, void *param)
         msg = ChangeMailInLadder(self, msg);
         break;
     case 240:
-        if ((((CorrMotRec *)(motionKind + GOBJ_SUB(self)->motion * 0x194))->f18C >> 5) & 1) {
+        if (((motionKind + GOBJ_SUB(self)->motion)->flags.word >> 5) & 1) {
             msg = 418;
         } else if ((int)(sk->flags20.ll >> 14) & 1) {
             msg = 239;
         }
         break;
     case 241:
-        if ((((CorrMotRec *)(motionKind + GOBJ_SUB(self)->motion * 0x194))->f18C >> 5) & 1) {
+        if (((motionKind + GOBJ_SUB(self)->motion)->flags.word >> 5) & 1) {
             msg = 418;
         }
         break;
@@ -399,7 +392,7 @@ int _ACTCorrectMsg(GObj *self, int msg, void *param)
         }
         break;
     case 7:
-        if ((((CorrMotRec *)(motionKind + GOBJ_SUB(self)->motion * 0x194))->f188 >> 19) & 7) {
+        if (((motionKind + GOBJ_SUB(self)->motion)->modeBits.word >> 19) & 7) {
             if (sk->heldItem.i != 0) {
                 msg = 315;
             }
@@ -422,7 +415,7 @@ int _ACTCorrectMsg(GObj *self, int msg, void *param)
                 debug_StdPrintfDummy("WBP set [landing]\n");
             }
         }
-        if (!((((CorrMotRec *)(motionKind + GOBJ_SUB(self)->motion * 0x194))->f18C >> 25) & 1)) {
+        if (!(((motionKind + GOBJ_SUB(self)->motion)->flags.word >> 25) & 1)) {
             msg = 418;
             break;
         }
@@ -716,8 +709,6 @@ int ACTGetOrientFromIntrK(char *self, int k, void *buf, int arg)
     return ret;
 }
 
-extern char motionKind[];
-
 void ACTRunIntrCorrect(GObj *a0, IntrMail *a1, IntrMail *a2)
 {
     char *rec;
@@ -749,7 +740,7 @@ void ACTRunIntrCorrect(GObj *a0, IntrMail *a1, IntrMail *a2)
 
     setIntrFlags();
     correctIntrList();
-    rec = motionKind + GOBJ_SUB(a0)->motion * 404;
+    rec = (char *)&motionKind[GOBJ_SUB(a0)->motion];
     if (rec[399] & 1) {
         actIntrList[10].flags |= 0x40000;
     } else {
@@ -930,7 +921,6 @@ extern void GetChainClimbOrient(float *dst, char *a0);
 extern void GetChainClimbCollision(void *out, int chain);
 /* kept local: agrees with fieldCollision.h, which this TU does not include */
 extern void ClipFloor(void *a0);
-extern char motionKind[];
 /* kept local: agrees with motionManager2.h, which this TU does not include (SetMotionNodeFixModeParameter differs) */
 extern void SetMotionDirection();
 
@@ -945,15 +935,9 @@ typedef struct {
     char pad98[40];
 } RopeFloorWork;
 
-typedef struct {
-    char pad0[396];
-    unsigned int f18C;
-    char pad190[4];
-} RopeMotRec;
-
 static inline int chainFloorHit(GObj *a0, void *w)
 {
-    if ((((RopeMotRec *)motionKind)[GOBJ_SUB(a0)->motion].f18C >> 4) & 1) {
+    if (((motionKind + GOBJ_SUB(a0)->motion)->flags.word >> 4) & 1) {
         GetSkeltonPosition((float *)w, a0, 0x2C);
         GetSkeltonPosition((float *)((char *)w + 0x10), a0, 0x33);
         *(float *)((char *)w + 0x14) -= 5.0f;
@@ -2398,10 +2382,10 @@ void actCommonJump(GObj *volatile a0)
         }
     }
     while (1) {
-        if (((MotRecJ *)(motionKind + GOBJ_SUB(a0)->motion * 0x194))->f18E & 1) {
+        if (((MotRecJ *)&motionKind[GOBJ_SUB(a0)->motion])->f18E & 1) {
             hit = 1;
         }
-        if (hit != 0 && *(int *)(motionKind + GOBJ_SUB(a0)->motion * 0x194 + 0x150) == 1) {
+        if (hit != 0 && motionKind[GOBJ_SUB(a0)->motion].playMode == 1) {
             GOBJ_SUB(a0)->moveX = GOBJ_SUB(a0)->moveZ = 0.0f;
         }
         ACTSendMailCorrect(a0, 0xBD);
@@ -3178,18 +3162,6 @@ typedef struct {
     } f298;
 } LadderWork;
 
-typedef struct {
-    char pad0[336];
-    int f150;
-    char pad154[64];
-} LadMotRec;
-
-/* the motion table is an array of LadMotRec; this TU's other members declare
-   the symbol as char[], so it is indexed here through a one-member array view */
-typedef struct {
-    LadMotRec m[1];
-} LadMotTbl;
-
 #define LADW ((LadderWork *)*(int *)(a0->act + 0x680))
 
 void actCommonLadder(GObj *volatile a0)
@@ -3228,7 +3200,7 @@ void actCommonLadder(GObj *volatile a0)
             if (a0 == (int)((char *)boyGObj) && GOBJ_SUB(a0)->animFrame > 40.0f) {
                 break;
             }
-            if (((LadMotTbl *)motionKind)->m[GOBJ_SUB(a0)->motion].f150 == 1) {
+            if (motionKind[GOBJ_SUB(a0)->motion].playMode == 1) {
                 break;
             }
             _ACTWait(1);
@@ -3488,12 +3460,6 @@ void funcCommonError(char *a0, int a1, char *a2)
                          a0 == (char *)boyGObj ? "boy" : "girl");
 }
 
-typedef struct {
-    char pad0[396];
-    unsigned int f18C;
-    char pad190[4];
-} MotRecSm;
-
 int SetMotionDirectionSmooze(GObj *a0, float *dir, float s)
 {
     float v[4];
@@ -3506,7 +3472,7 @@ int SetMotionDirectionSmooze(GObj *a0, float *dir, float s)
     }
     s = s * 60.0f / (float)((60 - systemStatus[0] * 10) / systemStatus[1]);
     if (dir[0] == 0.0f && dir[1] == 0.0f && dir[2] == 0.0f) {}
-    if ((((MotRecSm *)(motionKind + GOBJ_SUB(a0)->motion * 0x194))->f18C >> 6) & 1 &&
+    if (((motionKind + GOBJ_SUB(a0)->motion)->flags.word >> 6) & 1 &&
         *(long long *)((char *)sub->work + 0x900) == 0x1A00000005LL) {
         s = 30.0f;
     }
@@ -3534,18 +3500,8 @@ int SetMotionDirectionSmooze(GObj *a0, float *dir, float s)
     return ret;
 }
 
-extern char motionOriKind[];
-extern char D_0055FF18[];
-
-typedef struct {
-    char pad0[194];
-    short fC2;
-} MotNameRecDP;
-
-typedef struct {
-    char pad0[390];
-    short f186;
-} MotRecDP;
+/* kept local: motionOrientManager.h declares none of the motion tables */
+extern MotOriName motionOriKind[];
 
 void _ACTDebugPrint(GObj *a0)
 {
@@ -3564,20 +3520,19 @@ void _ACTDebugPrint(GObj *a0)
         return;
     }
     if (debug_font_flag & 1) {
-        debug_Printf(30, 90, 0xFFFFFFF, " ori  = [%s]\n", motionOriKind + *(int *)(w + 0xD0) * 32);
+        debug_Printf(30, 90, 0xFFFFFFF, " ori  = [%s]\n", motionOriKind[*(int *)(w + 0xD0)].s);
         if (debug_font_flag & 1) {
             debug_Printf(30, 100, 0xFFFFFFF, " mot  = [%s]\n",
-                         D_0055FF18 + GOBJ_SUB(a0)->motion * 0x194);
+                         (motionKind + GOBJ_SUB(a0)->motion)->name);
             if (debug_font_flag & 1) {
                 debug_Printf(30, 110, 0xFFFFFFF, " mode = [%s]\n", actModeTbl[sub->actMode].name);
                 if (debug_font_flag & 1) {
                     debug_Printf(30, 120, 0xFFFFFFF, "frame = [%f]\n", GOBJ_SUB(a0)->animFrame);
                     if (debug_font_flag & 1) {
-                        debug_Printf(
-                            30, 130, 0xFFFFFFF, "maxry = [%d]\n",
-                            a0 == girlGObj && (void *)girlControlMode != 0
-                                ? ((MotNameRecDP *)(D_0055FF18 + GOBJ_SUB(a0)->motion * 0x194))->fC2
-                                : ((MotRecDP *)(motionKind + GOBJ_SUB(a0)->motion * 0x194))->f186);
+                        debug_Printf(30, 130, 0xFFFFFFF, "maxry = [%d]\n",
+                                     a0 == girlGObj && (void *)girlControlMode != 0
+                                         ? (motionKind + GOBJ_SUB(a0)->motion)->girlDirFrames
+                                         : (motionKind + GOBJ_SUB(a0)->motion)->dirFrames);
                         if (debug_font_flag & 1) {
                             debug_Printf(30, 140, 0xFFFFFFF, " life = [%d]\n", (int)sub->life);
                             if (debug_font_flag & 1) {
@@ -3620,12 +3575,6 @@ void ACTSendMailCorrect(GObj *a0, int a1)
     iosOmSendMail(a0, a1, (int)a0);
 }
 
-typedef struct {
-    char pad0[400];
-    unsigned int f190;
-    char pad194[0];
-} MtMotRec;
-
 void _ACTCommonMailTest(GObj *self, int a1, int a2, int a3)
 {
     Act *s;
@@ -3662,7 +3611,7 @@ void _ACTCommonMailTest(GObj *self, int a1, int a2, int a3)
         ret = self == boyGObj;
         break;
     }
-    if ((((MtMotRec *)motionKind)[GOBJ_SUB(self)->motion].f190 >> 1) & 1) {
+    if (((motionKind + GOBJ_SUB(self)->motion)->flags2.word >> 1) & 1) {
         ret = 1;
     }
     if (ret) {
@@ -3781,7 +3730,7 @@ void actCommonBecarry(GObj *volatile a0)
         }
         if (6 <= s->modeFrame) {
             if (actModeTbl[GOBJ_ACT(g)->actMode].carried ||
-                (fl = ((CarryMot *)motionKind)[GOBJ_SUB(g)->motion].f18C, fl >> 7)) {
+                (fl = ((CarryMot *)&motionKind[GOBJ_SUB(g)->motion])->f18C, fl >> 7)) {
                 afterCommonCarry((int)g);
                 debug_StdPrintfDummy("girl becarry error");
             }
@@ -3791,13 +3740,13 @@ void actCommonBecarry(GObj *volatile a0)
         }
         if (debug_font_flag & 1) {
             debug_Printf(100, 150, 0xFFFFFFF, "[%s]\n",
-                         D_0055FF18 + GOBJ_SUB(girlGObj)->motion * 0x194);
+                         (motionKind + GOBJ_SUB(girlGObj)->motion)->name);
         }
         if (debug_font_flag & 1) {
-            debug_Printf(100, 160, 0xFFFFFFF, "[%s]\n",
-                         D_0055FF18 +
-                             *(int *)(*(char **)(*(char **)((char *)s + 0x144) + 0x15C) + 0x4A0) *
-                                 0x194);
+            debug_Printf(
+                100, 160, 0xFFFFFFF, "[%s]\n",
+                motionKind[*(int *)(*(char **)(*(char **)((char *)s + 0x144) + 0x15C) + 0x4A0)]
+                    .name);
         }
         if (debug_font_flag & 1) {
             debug_Printf(
@@ -4032,16 +3981,6 @@ typedef union {
     float f;
 } IntFloatSR;
 
-typedef struct {
-    char pad0[386];
-    short f182;
-    short f184;
-    short f186;
-    char pad188[4];
-    unsigned int f18C;
-    char pad190[4];
-} MotRecSR;
-
 void actCommonSlowrun(GObj *volatile a0)
 {
     float p[2][4];
@@ -4058,7 +3997,7 @@ void actCommonSlowrun(GObj *volatile a0)
         ((IntFloatSR *)p[1])[0].f = *(float *)((i2 << 6) + GOBJ_SUB(boyGObj)->nodeMtx + 0x30);
         ((IntFloatSR *)p[1])[1].f = *(float *)((i2 << 6) + GOBJ_SUB(boyGObj)->nodeMtx + 0x34);
         ((IntFloatSR *)p[1])[2].f = *(float *)((i2 << 6) + GOBJ_SUB(boyGObj)->nodeMtx + 0x38);
-        if ((((MotRecSR *)(motionKind + GOBJ_SUB(girlGObj)->motion * 0x194))->f18C >> 29) & 1) {
+        if (((motionKind + GOBJ_SUB(girlGObj)->motion)->flags.word >> 29) & 1) {
             SetDirectRootPositionNoFittingWithNodePointXZ((void *)a0, 6, p[0], 0.2f);
         } else {
             SetDirectRootPositionNoFittingWithNodePointXZ((void *)a0, 6, p[0], 0.1f);
@@ -4122,11 +4061,10 @@ inline int _ACTMotDirSmzDirect(char *a0, float *a1)
     s->dir[0] = a1[0];
     s->dir[1] = a1[1];
     s->dir[2] = a1[2];
-    return SetMotionDirectionSmooze(
-        (int)a0, a1,
-        (float)(a0 == (char *)girlGObj && (void *)girlControlMode != 0
-                    ? ((MotRecSR *)(motionKind + GOBJ_SUB(a0)->motion * 0x194))->f182
-                    : ((MotRecSR *)(motionKind + GOBJ_SUB(a0)->motion * 0x194))->f186));
+    return SetMotionDirectionSmooze((int)a0, a1,
+                                    (float)(a0 == (char *)girlGObj && (void *)girlControlMode != 0
+                                                ? (motionKind + GOBJ_SUB(a0)->motion)->girlDirFrames
+                                                : (motionKind + GOBJ_SUB(a0)->motion)->dirFrames));
 }
 
 inline void WithMailFunc_Idling(GObj *a0)
@@ -4454,9 +4392,9 @@ typedef struct {
 static inline int isRopeDownEndOnFloor(GObj *self)
 {
     FloorWork work;
-    char *rec = motionKind + GOBJ_SUB(self)->motion * 0x194;
+    MotionDef *rec = &motionKind[GOBJ_SUB(self)->motion];
 
-    if ((*(unsigned int *)(rec + 0x18C) >> 4) & 1) {
+    if ((rec->flags.word >> 4) & 1) {
         GetSkeltonPosition((float *)&work, self, 0x2C);
         GetSkeltonPosition((float *)((char *)&work + 0x10), self, 0x33);
         *(float *)((char *)&work + 0x14) = *(float *)((char *)&work + 0x14) - 5.0f;

@@ -30,6 +30,8 @@ typedef struct AdpcmOpenReq { /* field names derived */
 
 struct AdpcmStreamTag;
 
+struct SqEntry;
+
 typedef struct { /* field names derived */
     char pad0[44];
     struct AdpcmStreamTag *stream; /* 0x2C */
@@ -87,10 +89,11 @@ inline int adpcmOpenProc(int a0, int a1);
 inline void adpcmOpenDiskNotReady(void);
 void AdpcmInterStereoVolumeSet();
 void AdpcmOpen(AdpcmOpenReq *self, int no, int a2, int a3);
-void AdpcmPlay(void *a0);
+void AdpcmClose(struct SqEntry *a0);
+void AdpcmPlay(AdpcmStream *self);
 void AdpcmVolumeSet(int a0, int a1);
 int *adpcmDataSet(int a0, int no, int bank, int a3, int size, int a5, int a6);
-void adpcmTickProc2(int *a0);
+void adpcmTickProc2(struct SqEntry *a0);
 /* MAIN.MAP global of adpcm_init.o's .sdata */
 extern int debugAdpcmOn;
 void AdpcmStreamFree(void);
@@ -99,11 +102,12 @@ void AdpcmStreamFree(void);
  * adpcm_init.c (AdpcmDataRec). Owner: ico2/fumi/include/adpcm_init.h. */
 typedef struct {   /* field names derived */
     char path[48]; /* 0x00 */
-    int word30;    /* 0x30 */
+    int loopStart; /* 0x30, the loop start in sectors */
     int sectors;   /* 0x34, shifted left 11 for the size */
     int pitch;     /* 0x38 */
     int channels;  /* 0x3C */
 } AdpcmDataRec;    /* derived name */
+
 extern const AdpcmDataRec adpcmFile[];
 
 #endif /* ADPCM_INIT_H */

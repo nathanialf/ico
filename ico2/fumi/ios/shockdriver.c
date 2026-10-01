@@ -560,9 +560,6 @@ SHOCKREQUEST *ShockRequestBox_Request(ShockRequestBox *box, ShockParam *p, Shock
     return req;
 }
 
-extern int Vibration_WaveDecode(SHOCKREQUEST *p, int level);
-extern int Vibration_ShotDecode(SHOCKREQUEST *p, int level);
-
 /* INTERIM (see the iosThreadCreate note in ios/thread.c): the listing inlines
  * ShockRequestBox_DecodeRequest into Shock_Decode, so it is a public `inline` of the deferred
  * tail; until the tail's asm member (Init_Shock) is C the copy is emitted in

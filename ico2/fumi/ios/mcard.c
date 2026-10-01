@@ -273,7 +273,7 @@ typedef struct {
     char name454[20];        /* 0x454 */
     char pwd468[20];         /* 0x468 */
     char name47C[68];        /* 0x47C */
-    McDirEnt dir[20];        /* 0x4C0 */
+    sceMcTblGetDir dir[20];  /* 0x4C0 */
     long long mask;          /* 0x9C0 */
 } McMgr;
 
@@ -852,7 +852,7 @@ void iosMcMgrGetBlockSaveInfo(McMgr *mp)
     }
 
     for (i = 0; i < mp->f44; i++) {
-        mp->mask |= 1 << atoi(&mp->dir[i].name[strlen(mp->dir[i].name) - 3]);
+        mp->mask |= 1 << atoi(&mp->dir[i].EntryName[strlen(mp->dir[i].EntryName) - 3]);
     }
 }
 

@@ -1275,7 +1275,8 @@ static int runModeTable[4][4] = {
    EscapeRange rows read t * 16 + mode * 8 bytes in; through the record's index
    (t * 2 + mode) ChangeRunMode's registers move (measured) */
 extern char paramEscapeRun[];
-extern char motionKind[];
+/* kept local: motionOrientManager.h declares none of the motion tables */
+extern MotionDef motionKind[];
 
 /* MAIN.MAP global (declared in girl_act.h): the girl's look timer and its state,
    a tentative definition the compiler emits at the end of the .sdata run */
@@ -1751,10 +1752,10 @@ void subGirlBrainMain(GObj *volatile a0)
             _FrontGV(test_CURRENTROOT((boyGObj)), test_CURRENTROOT((void *)a0),
                      test_CURRENTORIENT((void *)a0), 90) &&
             ACTGameViewSimple_Check(a0, boyGObj)) {
-            char *rec = motionKind + GOBJ_SUB(((int *)boyGObj))->motion * 0x194;
+            MotionDef *rec = motionKind + GOBJ_SUB(((int *)boyGObj))->motion;
             int send;
 
-            if ((*(unsigned int *)(rec + 0x18C) >> 15) & 1) {
+            if ((rec->flags.word >> 15) & 1) {
                 send = 1;
             } else {
                 send = 0;
@@ -3204,8 +3205,6 @@ int isEnterHideadv_EnemyLocation(float *bpos, float *gpos)
     return 1;
 }
 
-extern void *D_00629DE4;
-
 int isEnterHideadv(void)
 {
     char buf[32];
@@ -3326,7 +3325,6 @@ GirlBrainWork brain_val = {0};
 extern float GetDifferenceFromLowerField(void *obj, int node);
 /* kept local: agrees with motionManager2.h, which this TU does not include */
 extern void _GetMotionDirection(float *dir, GObj *obj);
-extern char motionKind[];
 
 /* MAIN.MAP globals of girl_act.o's .sdata (declared in girl_act.h) */
 int hyde_test = 0;
@@ -3337,20 +3335,8 @@ int padtimer_walk = 0;
 
 int padtimer_run = 0;
 
-/* one 0x194-byte motion row per motion id: 0x182 and 0x186 are the turn
-   rates handed to SetMotionDirectionSmooze (boyact.c reads the same row
-   through its CHAINROW macro) */
-typedef struct {
-    char pad0[386];
-    short f_182;
-    char pad184[2];
-    short f_186;
-    char pad188[12];
-} MotDirRow;
-
-#define MOTDIRROW(self)                                                                            \
-    ((MotDirRow *)(*(int *)(*(char **)((char *)(self) + 0x15C) + 0x4A0) * sizeof(MotDirRow) +      \
-                   motionKind))
+/* the motion-def row of an actor's current motion (boyact.c's CHAINROW) */
+#define MOTDIRROW(self) (GOBJ_SUB(self)->motion + motionKind)
 
 /* girl_act.c:1533-2539 in the listing.  Lines 1654-2362 carry no instruction
    in the January link or in retail: that block is compiled-out debug code,
@@ -3483,8 +3469,8 @@ void subGirlControl(GObj *volatile a0)
                 SetMotionDirectionSmooze(
                     a0, dir,
                     (float)(((void *)a0 == (void *)girlGObj && (void *)girlControlMode != 0)
-                                ? MOTDIRROW(a0)->f_182
-                                : MOTDIRROW(a0)->f_186));
+                                ? MOTDIRROW(a0)->girlDirFrames
+                                : MOTDIRROW(a0)->dirFrames));
             }
             break;
         }
@@ -3646,7 +3632,7 @@ void subGirlCollision(GObj *volatile a0)
     int flag;
     int ry;
     int rz;
-    char *rec;
+    MotionDef *rec;
     const ActModeRec *attr;
     char *p;
 
@@ -3706,8 +3692,8 @@ void subGirlCollision(GObj *volatile a0)
                 ((ActTurn *)sub)->f_5C8 = dir[2];
                 GetEyeDirection((char *)eye, (char *)a0);
                 rot = (float)_RotyGV(eye, dir);
-                rec = motionKind + GOBJ_SUB(a0)->motion * 0x194;
-                if (*(int *)(rec + 0x18C) & 1) {
+                rec = motionKind + GOBJ_SUB(a0)->motion;
+                if (rec->flags.word & 1) {
                     padtimer_run = 0;
                     padtimer_walk = 0;
                 }
@@ -3866,7 +3852,7 @@ void actGirlHand(GObj *volatile a0)
 #include "girl_act_hand.c.inc"
     void GetBoyMode(int *mode, int *p1, int *p2, int *p3)
     {
-        char *rec;
+        MotionDef *rec;
         *mode = ((int *)((int *)boyGObj)[0x59])[0xD];
         *p1 = 0;
         *p2 = 0;
@@ -3886,8 +3872,8 @@ void actGirlHand(GObj *volatile a0)
             if (((int *)((int *)boyGObj)[0x59])[0x55] != 0) {
                 *mode = 2;
             }
-            rec = motionKind + ((int *)((int *)boyGObj)[0x57])[0x128] * 0x194;
-            switch ((*(unsigned int *)(rec + 0x188) >> 22) & 3) {
+            rec = motionKind + ((int *)((int *)boyGObj)[0x57])[0x128];
+            switch ((rec->modeBits.word >> 22) & 3) {
             case 1:
                 *mode = 2;
                 break;
@@ -3946,7 +3932,7 @@ void actGirlHand(GObj *volatile a0)
     int cnt;
     int cnt2;
     Act *sub;
-    char *rec;
+    MotionDef *rec;
     unsigned char *box;
     int n;
     int n1;
@@ -4029,8 +4015,8 @@ void actGirlHand(GObj *volatile a0)
             static float pullTurn = 0.0f; /* derived name */
 
             hand = (float)(((void *)a0 == (void *)girlGObj && (void *)girlControlMode != 0)
-                               ? MOTDIRROW(a0)->f_182
-                               : MOTDIRROW(a0)->f_186);
+                               ? MOTDIRROW(a0)->girlDirFrames
+                               : MOTDIRROW(a0)->dirFrames);
             t = 200.0f;
             n1 = GetSkeltonFocusNode((void *)girlGObj, 0x12);
             CopyVector(gpos, (char *)GOBJ_SUB(girlGObj)->nodeMtx + n1 * 0x40 + 0x30);
@@ -4152,8 +4138,8 @@ void actGirlHand(GObj *volatile a0)
                 sub->motReq = SetMotionRequest((void *)a0, 1, sub->motOriReq);
                 ACTGame_SetMotionPlaySpeedRatio_Reserve((void *)a0, 1.0f, 2);
                 if (hand < dist) {
-                    rec = motionKind + GOBJ_SUB(a0)->motion * 0x194;
-                    if (((*(unsigned int *)(rec + 0x18C) >> 29) & 1) == 0 || mode != 1) {
+                    rec = motionKind + GOBJ_SUB(a0)->motion;
+                    if (((rec->flags.word >> 29) & 1) == 0 || mode != 1) {
                         st = 1;
                         if (mode == 3) {
                             st = 2;

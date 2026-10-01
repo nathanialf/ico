@@ -81,7 +81,7 @@ int iosCdvdBackGroundReadIOPm(CdvdBgReq *self, void *buf, int size);
 int iosCdvdChgFileName(int a0);
 void iosCdvdDirectStClose(struct IosCdvdHandle *self);
 void iosCdvdDirectStOpen(struct IosCdvdHandle *self);
-int iosCdvdDirectStRead(int a0, int a1, int a2, int *a3);
+int iosCdvdDirectStRead(int a0, void *a1, int a2, int *a3);
 int iosCdvdDiskStatusGet(void);
 int iosCdvdGetFileLsn(char *name, int *size);
 void iosCdvdHandlerRead(struct IosCdvdHandle *a0, void *a1, int a2);
@@ -101,6 +101,7 @@ typedef struct {  /* field names derived */
     char ext[32]; /* 0x00 */
     void (*func)(char *self, char *name, int size, int a3, int a4, int a5, int seg); /* 0x20 */
 } PackKind; /* derived name */
+
 extern const PackKind initFunc[]; /* 26 rows */
 
 #endif /* CDVD_H */

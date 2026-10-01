@@ -785,9 +785,9 @@ void ACTDebugMove(GObj *a0, int a1)
                 GOBJ_SUB(self)->groundY += h;
             }
         }
-        debug_PrintfDummy(10, 185, 0xFFFFFF00u, (int)"LW's coord:");
-        debug_PrintfDummy(20, 195, 0xFFFFFF00u, (int)"POS X:%8.2f Y:%8.2f Z:%8.2f", -pos[0],
-                          -pos[1], -pos[2]);
+        debug_PrintfDummy(10, 185, 0xFFFFFF00u, "LW's coord:");
+        debug_PrintfDummy(20, 195, 0xFFFFFF00u, "POS X:%8.2f Y:%8.2f Z:%8.2f", -pos[0], -pos[1],
+                          -pos[2]);
         {
             ActClipWork w3;
 

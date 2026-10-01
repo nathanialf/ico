@@ -107,6 +107,8 @@ typedef struct {
     unsigned char pad[3];
 } PadAct;
 
+/* kept local, with the two below: shockdriver.c's definitions take its own
+   records, and this TU hands them the box and parameter as its PadAct holds them */
 extern int Shock_Request(int box, int player, ShockPrm prm, int key, int a4);
 
 /* .sbss, pad.o's two words in the ROM's order (MAIN.MAP names no symbol in the
@@ -175,14 +177,8 @@ char th_iosPadDevManager[112] = {0};
 
 IosMsgQueue padDevMgrMsgQ = {0};
 
-extern int scePadInfoMode(int port, int slot, int term, int offs);
-extern int scePadSetMainMode(int port, int slot, int offs, int lock);
-extern int scePadGetReqState(int port, int slot);
-extern int scePadInfoPressMode(int port, int slot);
-extern int scePadEnterPressMode(int port, int slot);
-extern int scePadInfoAct(int port, int slot, int actno, int term);
+/* kept local: libpad.h declares no scePadSetActAlign */
 extern int scePadSetActAlign(int port, int slot, void *align);
-extern int scePadGetState(int port, int slot);
 
 int controler_stable_check(void *a0)
 {
@@ -386,8 +382,6 @@ int controler_stable_check(void *a0)
     return phase;
 }
 
-extern int scePadInit(int mode);
-extern int scePadPortOpen(int port, int slot, void *buf);
 void iosPadDevManager(void);
 
 int iosPadDevInit(void *a0)

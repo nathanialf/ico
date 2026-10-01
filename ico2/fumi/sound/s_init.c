@@ -20,34 +20,23 @@
 #include <assert.h>
 #include <sound.h>
 
-typedef struct SqEntry {
-    unsigned short num;        /* 0x0 */
-    short bank;                /* 0x2 */
-    unsigned short unk4;       /* 0x4 */
-    unsigned short unk6;       /* 0x6 */
-    int unk8;                  /* 0x8 */
-    int unkC;                  /* 0xC */
-    int unk10[2];              /* 0x10 */
-    long long chMask;          /* 0x18 */
-    unsigned long long seMask; /* 0x20 */
-    int unk28;                 /* 0x28 */
-} SqEntry;
-
 /* The SE source definition record (0x3C bytes) a slot plays from: the same
    record `_soundSeDefStop` reaches through the slot's 0x38 pointer. */
-typedef struct SeSrcDef {
-    int unk0[8];          /* 0x00 */
-    int unk20;            /* 0x20 */
-    float unk24;          /* 0x24 */
-    int unk28[3];         /* 0x28 */
-    short unk34;          /* 0x34 */
-    unsigned short unk36; /* 0x36 */
-    unsigned int b0 : 4;  /* 0x38 bits 0..3 */
-    unsigned int b4 : 2;
-    unsigned int b6 : 1;
-    unsigned int b7 : 1;
-    unsigned int b8 : 1;
-    unsigned int b9 : 23;
+typedef struct SeSrcDef {       /* field names derived */
+    char name[32];              /* 0x00 */
+    int kind;                   /* 0x20, the seKind row */
+    float volume;               /* 0x24 */
+    int mail;                   /* 0x28 */
+    int (*check)();             /* 0x2C */
+    int range;                  /* 0x30 */
+    short mailArg;              /* 0x34 */
+    unsigned short shock;       /* 0x36, the shockList row its pad action plays */
+    unsigned int mailMode : 4;  /* 0x38 bits 0..3, seMail's target bits */
+    unsigned int playMode : 2;  /* 0 plays beside a playing copy, 1 keeps it, 2 restarts it */
+    unsigned int shockStop : 1; /* the pad action stops with the sound */
+    unsigned int audible : 1;   /* the slot's starting flag.bit.f24 */
+    unsigned int procRan : 1;   /* set once the slot's proc has run */
+    unsigned int : 23;
 } SeSrcDef;
 
 /* The slot's 0x04 status word, written both as a whole and bit by bit. */
@@ -68,29 +57,30 @@ typedef union SeFlag {
     } bit;
 } SeFlag;
 
-typedef struct SeSlot {
-    unsigned short num;  /* 0x00 */
-    short unk2;          /* 0x02 */
-    SeFlag flag;         /* 0x04 */
-    unsigned int unk8;   /* 0x08 */
-    int unkC;            /* 0x0C */
-    short unk10;         /* 0x10 */
-    short unk12;         /* 0x12 */
-    short unk14;         /* 0x14 */
-    short unk16;         /* 0x16 */
-    float unk18;         /* 0x18 */
-    float unk1C;         /* 0x1C */
-    float unk20;         /* 0x20 */
-    float unk24;         /* 0x24 */
-    float unk28;         /* 0x28 */
-    int (*unk2C)();      /* 0x2C */
-    SqEntry *unk30;      /* 0x30 */
-    float *unk34;        /* 0x34, a position vector: every reader passes it to
-                           sceVu0CopyVector, soundSeEnvPlay stores an allocated
-                           block in it, and _soundSeDefPlay's init schedule needs
-                           its store not to alias the int stage_no load */
-    SeSrcDef *unk38;     /* 0x38 */
-    const SeEnvDef *env; /* 0x3C, the sound-environment row the slot plays */
+typedef struct SeSlot { /* field names derived */
+    unsigned short num; /* 0x00, bumped on each release: the handle's top byte */
+    short vol0;         /* 0x02, the first volume SgSetSeVolDirect is given */
+    SeFlag flag;        /* 0x04 */
+    unsigned int owner; /* 0x08, soundSeDefPlay's second argument, -1 for a
+                            stage environment sound */
+    int padAct;         /* 0x0C, the iosPadActRequest handle */
+    short handle;       /* 0x10, the SgSePlay or SgBgmOpen handle */
+    short level0;       /* 0x12, the panned level vol0 follows */
+    short level1;       /* 0x14, the panned level flag.bit.f0 follows */
+    char pad16[2];
+    float volumeRate;     /* 0x18, the labels are debug_DispSEInfo's */
+    float stereoRate;     /* 0x1C */
+    float attenuator;     /* 0x20 */
+    float maxVolumeRange; /* 0x24 */
+    float volumeLength;   /* 0x28 */
+    int (*proc)();        /* 0x2C, the environment row's proc */
+    SqEntry *req;         /* 0x30, the data area it plays from */
+    float *pos;           /* 0x34, a position vector: every reader passes it to
+                            sceVu0CopyVector, soundSeEnvPlay stores an allocated
+                            block in it, and _soundSeDefPlay's init schedule needs
+                            its store not to alias the int stage_no load */
+    SeSrcDef *src;        /* 0x38 */
+    const SeEnvDef *env;  /* 0x3C, the sound-environment row the slot plays */
 } SeSlot;
 
 /* The TU's own .sbss and .bss (names ours, role-named). File-scope statics
@@ -135,16 +125,16 @@ static int seSemiCommonLoaded = 0; /* derived name */
 
 inline int Ee2Iop(int a0, int a1, int a2)
 {
-    int buf[4];
+    sceSifDmaData d;
     int x;
     debug_StdPrintfDummy("Spu2DmaWriteEe2Iop\n");
     debug_StdPrintfDummy("ee %x iop %x size %x\n", a0, a1, a2);
-    buf[0] = a0;
-    buf[1] = a1;
-    buf[2] = a2;
-    buf[3] = 0;
+    d.src = a0;
+    d.dest = a1;
+    d.size = a2;
+    d.u.attr = 0;
     FlushCache(0);
-    x = sceSifSetDma((int)buf, 1);
+    x = sceSifSetDma(&d, 1);
     while (sceSifDmaStat(x) >= 0)
         ;
     debug_StdPrintfDummy("send SpuStEnv completed \n");
@@ -271,19 +261,19 @@ static inline void seReqChClear(SqEntry *req, int ch)
         req->seMask &= ~bit;
         seChMask &= ~bit;
         seSlotTbl[ch].num = seSlotTbl[ch].num + 1;
-        seSlotTbl[ch].unk30 = 0;
+        seSlotTbl[ch].req = 0;
     }
 }
 
 static inline void seReqRelease(int ch)
 {
-    SqEntry *req = seSlotTbl[ch].unk30;
+    SqEntry *req = seSlotTbl[ch].req;
 
     if (req != 0)
         seReqChClear(req, ch);
 }
 
-inline char *soundDataAreaSearch(int *pk)
+inline SqEntry *soundDataAreaSearch(int *pk)
 {
     int i;
     SqEntry *r;
@@ -294,19 +284,19 @@ inline char *soundDataAreaSearch(int *pk)
     }
     return 0;
 found:
-    return (char *)r;
+    return r;
 }
 
-inline char *soundDataAreaGet(int a0, int a1, int a2, int a3)
+inline SqEntry *soundDataAreaGet(int a0, int a1, int a2, int a3)
 {
     SqEntry *e;
     int hi = a1 << 16;
     int key = (a0 & 0xFFFF) | hi;
 
-    e = (SqEntry *)soundDataAreaSearch(&key);
+    e = soundDataAreaSearch(&key);
     if (e == 0) {
         key = 0;
-        e = (SqEntry *)soundDataAreaSearch(&key);
+        e = soundDataAreaSearch(&key);
         if (e == 0) {
             debug_assert(__FILE__, 334);
             __assert(__FILE__, 334, "0");
@@ -314,14 +304,14 @@ inline char *soundDataAreaGet(int a0, int a1, int a2, int a3)
         memset(e, 0, 0x30);
         e->num = a0;
         e->bank = a1;
-        e->unk6 = a3;
-        e->unk4 = a2;
-        e->unk28 = -1;
+        e->seg = a3;
+        e->mode = a2;
+        e->vab = -1;
     }
-    return (char *)e;
+    return e;
 }
 
-static void soundDataOpenChk(char *self)
+static void soundDataOpenChk(SqEntry *self)
 {
     int ok = 0;
     int vab;
@@ -331,15 +321,15 @@ static void soundDataOpenChk(char *self)
     short h;
     int hr;
 
-    switch (*(unsigned short *)(self + 4)) {
+    switch (self->mode) {
     case 0:
-        if (*(int *)(self + 8) != 0) {
-            ok = (*(int *)(self + 0xC) != 0);
+        if (self->bd != 0) {
+            ok = (self->hd != 0);
         }
         break;
     case 1:
-        if (*(int *)(self + 8) != 0 && *(int *)(self + 0xC) != 0) {
-            ok = (*(int *)(self + 0x10) != 0) ? *(unsigned short *)(self + 4) : 0;
+        if (self->bd != 0 && self->hd != 0) {
+            ok = (self->sq != 0) ? self->mode : 0;
         }
         break;
     default:
@@ -350,21 +340,21 @@ static void soundDataOpenChk(char *self)
     if (ok == 0) {
         return;
     }
-    vab = SgVabOpenFakeBody(*(int *)(self + 0xC), *(int *)(self + 0x18));
-    *(int *)(self + 0x28) = vab;
-    switch (*(unsigned short *)(self + 4)) {
+    vab = SgVabOpenFakeBody(self->hd, self->spu.buf.addr);
+    self->vab = vab;
+    switch (self->mode) {
     case 0:
         SgSetSeMasterVol(vab, 127);
         debug_StdPrintfDummy("se open\n");
         return;
     case 1:
-        ch = seChAlloc((SqEntry *)self);
+        ch = seChAlloc(self);
         if (ch < 0) {
             debug_StdPrintfDummy("bgm request buff over\n");
             return;
         }
         off = ch * 64;
-        hr = SgBgmOpen(*(int *)(self + 0x28), *(int *)(self + 0x10));
+        hr = SgBgmOpen(self->vab, self->sq);
         slot = &((char *)seSlotTbl)[off];
         *(short *)(slot + 0x10) = hr;
         h = hr;
@@ -375,7 +365,7 @@ static void soundDataOpenChk(char *self)
         }
         SgSetBgmVol(h, 64, 0xFFFF);
         SgBgmPlay(h);
-        *(char **)&((char *)seSlotTbl)[off + 0x30] = self;
+        *(SqEntry **)&((char *)seSlotTbl)[off + 0x30] = self;
         *(int *)&((char *)seSlotTbl)[off + 8] = 0;
         debug_StdPrintfDummy("bgm play\n");
         return;
@@ -384,26 +374,11 @@ static void soundDataOpenChk(char *self)
     }
 }
 
-/* The SPU-buffer view of a sound data area: at 0x18 the same bytes are the
-   adpcm channel mask (long long, see soundBufAdpcmChAlloc) in the SqEntry
-   view and an (addr, size) pair here, so this role gets its own record. */
-typedef struct SoundBufReq {
-    short unk0;          /* 0x00 */
-    short unk2;          /* 0x02 */
-    unsigned short unk4; /* 0x04 */
-    unsigned short unk6; /* 0x06 */
-    int unk8;            /* 0x08 */
-    int unkC;            /* 0x0C */
-    int unk10[2];        /* 0x10 */
-    int addr;            /* 0x18 */
-    int size;            /* 0x1C */
-} SoundBufReq;
-
-void soundBufAlloc(SoundBufReq *self, int size)
+void soundBufAlloc(SqEntry *self, int size)
 {
-    switch (self->unk6) {
+    switch (self->seg) {
     case 0:
-        self->addr = bufSeg0Next;
+        self->spu.buf.addr = bufSeg0Next;
         bufSeg0Next = bufSeg0Next + size;
         bufSeg1Next = bufSeg0Next;
         bufSeg2Next = bufSeg0Next;
@@ -413,9 +388,9 @@ void soundBufAlloc(SoundBufReq *self, int size)
         }
         break;
     case 1:
-        switch (self->unk4) {
+        switch (self->mode) {
         case 1:
-            self->addr = bufSeg1Next;
+            self->spu.buf.addr = bufSeg1Next;
             bufSeg1Next = bufSeg1Next + size;
             if (bufSeg1Next > bufSeg1Top) {
                 debug_assert(__FILE__, 420);
@@ -424,7 +399,7 @@ void soundBufAlloc(SoundBufReq *self, int size)
             break;
         case 0:
             bufSeg1Top = bufSeg1Top - size;
-            self->addr = bufSeg1Top;
+            self->spu.buf.addr = bufSeg1Top;
             if (bufSeg1Top < bufSeg1Next) {
                 debug_assert(__FILE__, 424);
                 __assert(__FILE__, 424, "0");
@@ -436,9 +411,9 @@ void soundBufAlloc(SoundBufReq *self, int size)
         }
         break;
     case 2:
-        switch (self->unk4) {
+        switch (self->mode) {
         case 0:
-            self->addr = bufSeg2Next;
+            self->spu.buf.addr = bufSeg2Next;
             bufSeg2Next = bufSeg2Next + size;
             break;
         default:
@@ -450,7 +425,7 @@ void soundBufAlloc(SoundBufReq *self, int size)
         debug_assert(__FILE__, 448);
         __assert(__FILE__, 448, "0");
     }
-    self->size = size;
+    self->spu.buf.size = size;
 }
 
 void soundBufSegFree(int a0, int a1)
@@ -495,7 +470,7 @@ inline int soundBufAdpcmChAlloc(SqEntry *self, int *chp)
     debug_assert(__FILE__, 500);
     __assert(__FILE__, 500, "0");
 found:
-    self->chMask |= bit << ch;
+    self->spu.chMask |= bit << ch;
     adpcmChMask |= bit << ch;
     if (ch >= 5) {
         debug_StdPrintfDummy("soundBufAdpcmChAlloc over\n");
@@ -510,11 +485,11 @@ found:
     }
 }
 
-inline void soundBufAdpcmFree(char *self)
+inline void soundBufAdpcmFree(SqEntry *self)
 {
-    long long mask = ~*(long long *)(self + 0x18);
+    long long mask = ~self->spu.chMask;
     adpcmChMask &= mask;
-    *(long long *)(self + 0x18) = 0;
+    self->spu.chMask = 0;
 }
 
 char *soundBDDataSet(int a0, int a1, int a2, int a3, int a4, int a5)
@@ -523,42 +498,42 @@ char *soundBDDataSet(int a0, int a1, int a2, int a3, int a4, int a5)
     SqEntry *e;
     int chunk;
 
-    e = (SqEntry *)soundDataAreaGet(a1, a2, a3, a4);
-    e->unk8 = a0;
+    e = soundDataAreaGet(a1, a2, a3, a4);
+    e->bd = a0;
     a5 = (((a5 - 1) / 64) + 1) * 64;
-    soundBufAlloc((SoundBufReq *)e, a5);
+    soundBufAlloc(e, a5);
     while (a5 > 0) {
         chunk = (a5 > 0x78000) ? 0x78000 : a5;
         SgGetDmaTransferStatus(1);
         Ee2Iop(a0 + off, soundIopHeapAddrs, chunk);
         if (chunk >= 65) {
-            SgDmaWrite(soundIopHeapAddrs, ((SoundBufReq *)e)->addr + off, chunk);
+            SgDmaWrite(soundIopHeapAddrs, e->spu.buf.addr + off, chunk);
         } else {
-            SgDmaWrite(soundIopHeapAddrs, ((SoundBufReq *)e)->addr + off, 0x50);
+            SgDmaWrite(soundIopHeapAddrs, e->spu.buf.addr + off, 0x50);
         }
-        if (e->unk4 == 1) {
+        if (e->mode == 1) {
             SgGetDmaTransferStatus(1);
         }
         a5 = a5 - chunk;
         off = off + chunk;
     }
-    soundDataOpenChk((char *)e);
+    soundDataOpenChk(e);
     return (char *)e;
 }
 
-inline char *soundHDDataSet(int a0, int a1, int a2, int a3, int a4)
+inline char *soundHDDataSet(void *hd, int a1, int a2, int a3, int a4)
 {
-    SqEntry *e = (SqEntry *)soundDataAreaGet(a1, a2, a3, a4);
-    e->unkC = a0;
-    soundDataOpenChk((char *)e);
+    SqEntry *e = soundDataAreaGet(a1, a2, a3, a4);
+    e->hd = hd;
+    soundDataOpenChk(e);
     return (char *)e;
 }
 
-inline char *soundSQDataSet(int a0, int a1, int a2, int a3, int a4)
+inline char *soundSQDataSet(void *sq, int a1, int a2, int a3, int a4)
 {
-    SqEntry *e = (SqEntry *)soundDataAreaGet(a1, a2, a3, a4);
-    e->unk10[0] = a0;
-    soundDataOpenChk((char *)e);
+    SqEntry *e = soundDataAreaGet(a1, a2, a3, a4);
+    e->sq = sq;
+    soundDataOpenChk(e);
     return (char *)e;
 }
 
@@ -603,8 +578,6 @@ int *soundDataOpenSync(int *work)
     return 0;
 }
 
-extern void AdpcmClose(char *self);
-
 void soundDataClose(char *obj)
 {
     SqEntry *self = (SqEntry *)obj;
@@ -612,9 +585,9 @@ void soundDataClose(char *obj)
     char *slot;
     short h;
 
-    switch (self->unk4) {
+    switch (self->mode) {
     case 0:
-        SgVabClose(self->unk28);
+        SgVabClose(self->vab);
         break;
     case 1:
         i = 0;
@@ -628,14 +601,14 @@ void soundDataClose(char *obj)
             }
             i++;
         }
-        SgVabClose(self->unk28);
-        iosFree((void *)self->unkC);
-        if (self->unk10[0] != 0) {
-            iosFree((void *)self->unk10[0]);
+        SgVabClose(self->vab);
+        iosFree(self->hd);
+        if (self->sq != 0) {
+            iosFree(self->sq);
         }
         break;
     case 2:
-        AdpcmClose((char *)self);
+        AdpcmClose(self);
         break;
     }
     *(int *)self = 0;
@@ -672,10 +645,10 @@ static void soundSeVolSet(SeSlot *self)
         r = 0;
         l = 0;
     } else {
-        l = (int)((float)self->unk12 * self->unk18);
-        r = (int)((float)self->unk14 * self->unk18);
+        l = (int)((float)self->level0 * self->volumeRate);
+        r = (int)((float)self->level1 * self->volumeRate);
     }
-    if (self->unk8 == 0xFFFFFFFF && self->env != 0) {
+    if (self->owner == 0xFFFFFFFF && self->env != 0) {
         l = (int)((float)l * soundSeEnvMasterVolRate);
         r = (int)((float)r * soundSeEnvMasterVolRate);
     }
@@ -689,12 +662,12 @@ static void soundSeVolSet(SeSlot *self)
     } else {
         r = (r < 4097) ? r : 4096;
     }
-    cur = *(unsigned short *)&self->unk2;
+    cur = *(unsigned short *)&self->vol0;
     d = (short)(l - cur);
     if (((d < 0) ? -d : d) < 256 || (short)cur == -1) {
-        self->unk2 = l;
+        self->vol0 = l;
     } else {
-        self->unk2 = (d > 0) ? cur + 256 : cur - 256;
+        self->vol0 = (d > 0) ? cur + 256 : cur - 256;
     }
     cur = *(unsigned short *)&self->flag;
     d = (short)(r - cur);
@@ -703,11 +676,11 @@ static void soundSeVolSet(SeSlot *self)
     } else {
         *(short *)&self->flag = (d > 0) ? cur + 256 : cur - 256;
     }
-    SgSetSeVolDirect(self->unk10, self->unk2, *(short *)&self->flag);
-    if (self->unkC != 0) {
+    SgSetSeVolDirect(self->handle, self->vol0, *(short *)&self->flag);
+    if (self->padAct != 0) {
         vol = (r < l) ? l : r;
         vol = (int)((float)vol * (1.0f / 4096.0f) * 255.0f);
-        iosPadActVolumeSet(self->unkC, vol & 0xFF);
+        iosPadActVolumeSet(self->padAct, vol & 0xFF);
     }
 }
 
@@ -787,7 +760,7 @@ static void debug_DispSEInfo(void)
             page = 0;
             return;
         }
-        if (seSlotTbl[i].unk30 != 0) {
+        if (seSlotTbl[i].req != 0) {
             break;
         }
     }
@@ -813,8 +786,8 @@ static void debug_DispSEInfo(void)
     if (pad[0].flags & 0x80) {
         soundSeEnvDefaultSet(self);
     }
-    if (self->unk34 != 0) {
-        sceVu0CopyVector(center, self->unk34);
+    if (self->pos != 0) {
+        sceVu0CopyVector(center, self->pos);
         if (self->flag.bit.f26 == 1) {
             center[1] = cam[1];
         }
@@ -831,12 +804,12 @@ static void debug_DispSEInfo(void)
             {"center x", {(int)&center[0], 1, 0, 10.0f}},
             {"center y", {(int)&center[1], 1, 0, 10.0f}},
             {"center x", {(int)&center[2], 1, 0, 10.0f}},
-            {"volumeRate", {(int)&self->unk18, 1, 1, 0.1f}},
-            {"max volume range", {(int)&self->unk24, 1, 1, 10.0f}},
-            {"attenuator", {(int)&self->unk20, 1, 1, 10.0f}},
-            {"volume length", {(int)&self->unk28, 1, 1, 10.0f}},
+            {"volumeRate", {(int)&self->volumeRate, 1, 1, 0.1f}},
+            {"max volume range", {(int)&self->maxVolumeRange, 1, 1, 10.0f}},
+            {"attenuator", {(int)&self->attenuator, 1, 1, 10.0f}},
+            {"volume length", {(int)&self->volumeLength, 1, 1, 10.0f}},
             {"max volume type", {(int)&sel, 0, 0, 1.0f}},
-            {"stereo rate", {(int)&self->unk1C, 1, 0, 0.05f}},
+            {"stereo rate", {(int)&self->stereoRate, 1, 0, 0.05f}},
         };
 
         num = 9;
@@ -855,7 +828,7 @@ static void debug_DispSEInfo(void)
         if (pad[0].rep & 0x8000) {
             step = -cur->v.step;
         }
-        debug_PrintfDummy(10, 70, 0xFFFFFF00u, (int)"req no %d %s %f\n", page, self->unk38, dist);
+        debug_PrintfDummy(10, 70, 0xFFFFFF00u, "req no %d %s %f\n", page, self->src, dist);
         for (i = 0, row = list; i < num; i++, row++) {
             int col = 0xFFFFFF00;
 
@@ -868,7 +841,7 @@ static void debug_DispSEInfo(void)
                 if (curRow == i) {
                     *(int *)row->v.ptr = (int)((float)*(int *)row->v.ptr + step);
                 }
-                debug_PrintfDummy(10, i * 10 + 80, col, (int)"%s%8s = %d\n", v, row->label,
+                debug_PrintfDummy(10, i * 10 + 80, col, "%s%8s = %d\n", v, row->label,
                                   *(int *)list[i].v.ptr);
                 break;
             case 1:
@@ -878,14 +851,14 @@ static void debug_DispSEInfo(void)
                 if (row->v.mode && dist != 0.0f && dist < *(float *)row->v.ptr) {
                     col = 0xFF000000;
                 }
-                debug_PrintfDummy(10, i * 10 + 80, col, (int)"%s%8s = %f\n", v, row->label,
+                debug_PrintfDummy(10, i * 10 + 80, col, "%s%8s = %f\n", v, row->label,
                                   *(float *)list[i].v.ptr);
                 break;
             }
         }
         self->flag.bit.f30 = sel;
-        if (self->unk34 != 0) {
-            sceVu0CopyVector(self->unk34, center);
+        if (self->pos != 0) {
+            sceVu0CopyVector(self->pos, center);
             MatrixDrive_PushMatrix();
             {
                 sceVu0IVECTOR col = {0x00, 0x10, 0x20, 0x80};
@@ -919,48 +892,48 @@ static void sound3DParamSet(SeSlot *self)
     int pan;
     int ret;
 
-    self->unk14 = 0x1000;
-    self->unk12 = 0x1000;
-    if (self->unk2C != 0) {
-        ret = self->unk2C();
+    self->level1 = 0x1000;
+    self->level0 = 0x1000;
+    if (self->proc != 0) {
+        ret = self->proc();
         if (ret > 0) {
             self->flag.bit.f24 = 1;
             self->flag.bit.f25 = 0;
         } else if (ret < 0) {
             self->flag.bit.f24 = 0;
         } else {
-            self->unk12 = 0;
-            self->unk14 = 0;
+            self->level0 = 0;
+            self->level1 = 0;
             self->flag.bit.f24 = 0;
         }
-        self->unk38->b8 = 1;
+        self->src->procRan = 1;
     }
-    if ((self->flag.all & 0x02000000) && self->unk38->b8 == 0) {
+    if ((self->flag.all & 0x02000000) && self->src->procRan == 0) {
         if (self->flag.all & 0x20000000) {
-            SgSetSeVolDirect(self->unk10, 0, 0);
+            SgSetSeVolDirect(self->handle, 0, 0);
         }
         return;
     }
-    if ((self->flag.all & 0x01000000) == 0 || (obj = self->unk34) == 0) {
+    if ((self->flag.all & 0x01000000) == 0 || (obj = self->pos) == 0) {
         soundSeVolSet(self);
         return;
     }
     self->flag.all |= 0x02000000;
     if (self->flag.bit.f26 == 1) {
         cam = GetCameraPos();
-        sceVu0CopyVector(v, self->unk34);
+        sceVu0CopyVector(v, self->pos);
         v[1] = cam[1];
         CameraGetOtherObjOffset(v, &dist, &ang);
     } else {
         CameraGetOtherObjOffset(obj, &dist, &ang);
     }
-    if (dist > self->unk28) {
+    if (dist > self->volumeLength) {
         vol = 0.0f;
-    } else if (dist < self->unk24) {
+    } else if (dist < self->maxVolumeRange) {
         vol = 1.0f;
     } else {
-        dist = dist - self->unk24;
-        range = self->unk20 - self->unk24;
+        dist = dist - self->maxVolumeRange;
+        range = self->attenuator - self->maxVolumeRange;
         if (self->flag.bit.f30 == 0) {
             rate = dist / range;
             vol = 1.0f / (rate + 1.0f);
@@ -970,7 +943,8 @@ static void sound3DParamSet(SeSlot *self)
                 vol = 1.0f / (rate + 1.0f);
             } else {
                 dist = dist - range;
-                vol = 1.0f / (dist / ((self->unk28 - self->unk24) - range) + 1.0f) - 0.5f;
+                vol = 1.0f / (dist / ((self->volumeLength - self->maxVolumeRange) - range) + 1.0f) -
+                      0.5f;
             }
         }
     }
@@ -989,14 +963,14 @@ static void sound3DParamSet(SeSlot *self)
             if (a >= 91) {
                 a = 180 - a;
             }
-            volR = -(1.0f - self->unk1C) / 90.0f * (float)a + 1.0f;
+            volR = -(1.0f - self->stereoRate) / 90.0f * (float)a + 1.0f;
         } else {
             volR = 1.0f;
             a = -pan;
             if (a >= 91) {
                 a = 180 - a;
             }
-            volL = -(1.0f - self->unk1C) / 90.0f * (float)a + 1.0f;
+            volL = -(1.0f - self->stereoRate) / 90.0f * (float)a + 1.0f;
         }
     } else {
         volR = 1.0f;
@@ -1004,12 +978,14 @@ static void sound3DParamSet(SeSlot *self)
         volL = 1.0f;
     }
     n = (int)(vol * 4096.0f * front);
-    self->unk12 = (float)n * volR;
-    self->unk14 = (float)n * volL;
+    self->level0 = (float)n * volR;
+    self->level1 = (float)n * volL;
     soundSeVolSet(self);
 }
 
-extern char seDef[];
+/* kept local: s_init.h declares the rows as SeDef, whose 0x38 word seMail.c
+   reads as one flags word; this TU reads it as bit-fields (SeSrcDef) */
+extern SeSrcDef seDef[];
 
 inline void soundSeGroupStop(int arg)
 {
@@ -1116,8 +1092,8 @@ static int _soundSeDefPlay(int kind, unsigned int a1, float *a2, int a3, const S
     int ch;
     int t;
 
-    src = (SeSrcDef *)&seDef[kind * 60];
-    kp = &seKind[src->unk20];
+    src = &seDef[kind];
+    kp = &seKind[src->kind];
     cb = 0;
     if (out != 0) {
         *out = 0;
@@ -1134,14 +1110,14 @@ static int _soundSeDefPlay(int kind, unsigned int a1, float *a2, int a3, const S
     }
     key.b.bank = 11;
     key.b.num = def->num;
-    e = (SqEntry *)soundDataAreaSearch(&key.all);
+    e = soundDataAreaSearch(&key.all);
     if (e == 0) {
         return -3;
     }
-    t = e->unk6;
+    t = e->seg;
     if (t == 1)
         a3 = (a3 != 0) ? a3 : t;
-    switch (src->b4) {
+    switch (src->playMode) {
     case 1:
         if (se_find_slot(src, out) < 0) {
             break;
@@ -1170,41 +1146,41 @@ static int _soundSeDefPlay(int kind, unsigned int a1, float *a2, int a3, const S
         *out = slot;
     }
     slot->flag.bit.f16 = a3;
-    slot->unk38 = src;
-    slot->flag.bit.f24 = src->b7;
+    slot->src = src;
+    slot->flag.bit.f24 = src->audible;
     if (vol < 0.0f) {
-        slot->unk18 = src->unk24;
+        slot->volumeRate = src->volume;
     } else {
-        slot->unk18 = vol;
+        slot->volumeRate = vol;
     }
-    slot->unk20 = 1000.0f;
-    slot->unk24 = 500.0f;
-    slot->unk28 = 3000.0f;
-    slot->unk34 = a2;
-    slot->unk12 = slot->unk14 = 4096;
-    slot->unk2 = slot->flag.bit.f0 = -1;
+    slot->attenuator = 1000.0f;
+    slot->maxVolumeRange = 500.0f;
+    slot->volumeLength = 3000.0f;
+    slot->pos = a2;
+    slot->level0 = slot->level1 = 4096;
+    slot->vol0 = slot->flag.bit.f0 = -1;
     slot->flag.bit.f29 = 0;
     slot->flag.bit.f26 = 0;
     slot->flag.bit.f27 = slot->flag.bit.f28 = 1;
     slot->flag.bit.f30 = 1;
-    slot->unk1C = 0.1f;
-    slot->unk2C = (int (*)())cb;
-    slot->unk8 = a1;
+    slot->stereoRate = 0.1f;
+    slot->proc = (int (*)())cb;
+    slot->owner = a1;
     slot->env = env;
     if (stage_no == 37) {
-        slot->unk28 = 10000.0f;
+        slot->volumeLength = 10000.0f;
     }
-    if ((slot->unk10 = SgSePlay(e->unk28, def->half2, def->half4)) < 0) {
+    if ((slot->handle = SgSePlay(e->vab, def->prog, def->tone)) < 0) {
         seReqChClear(e, ch);
         debug_StdPrintfDummy("se not open\n");
         return -1;
     }
-    if (src->unk36 != 0) {
-        slot->unkC = iosPadActRequest(boyPad, src->unk36);
+    if (src->shock != 0) {
+        slot->padAct = iosPadActRequest(boyPad, src->shock);
     } else {
-        slot->unkC = 0;
+        slot->padAct = 0;
     }
-    slot->unk30 = e;
+    slot->req = e;
     return (slot->num << 8) | ch;
 }
 
@@ -1229,15 +1205,15 @@ inline int soundSeDefPlayWithVolumeRate(int a0, unsigned int a1, float *pos, int
 void _soundSeDefStop(int a0, int a1)
 {
     int ch = a0 & 0xFF;
-    char *self = (char *)&seSlotTbl[ch];
+    SeSlot *self = &seSlotTbl[ch];
     short h;
     SeSrcDef *src;
 
-    h = *(short *)(self + 0x10);
+    h = self->handle;
     if (h < 0)
         return;
     a0 = a0 >> 8;
-    if (a0 != *(unsigned short *)self)
+    if (a0 != self->num)
         return;
     seReqRelease(ch);
     if (a1 == 0) {
@@ -1245,10 +1221,10 @@ void _soundSeDefStop(int a0, int a1)
     } else {
         SgSeStop(h | 0x8000);
     }
-    src = *(SeSrcDef **)(self + 0x38);
-    if (src->b6 == 1 || shockList[src->unk36].life == 0) {
-        if (*(int *)(self + 0xC) != 0)
-            iosPadActStop(*(int *)(self + 0xC));
+    src = self->src;
+    if (src->shockStop == 1 || shockList[src->shock].life == 0) {
+        if (self->padAct != 0)
+            iosPadActStop(self->padAct);
     }
 }
 
@@ -1262,6 +1238,8 @@ void soundSeDefStopNoRelease(int a0)
     _soundSeDefStop(a0, 1);
 }
 
+/* kept local: sound.h leaves it out, because this call passes one argument
+   and the definition takes two */
 extern void SgSetSePitchDirect();
 
 void soundSeDefPitchSet(int a0)
@@ -1383,29 +1361,29 @@ static inline void soundSeEnvDefaultSet(SeSlot *self)
     const SeEnvDef *env = self->env;
 
     if (env->volumeRate != 0.0f) {
-        self->unk18 = env->volumeRate;
+        self->volumeRate = env->volumeRate;
     } else {
-        self->unk18 = self->unk38->unk24;
+        self->volumeRate = self->src->volume;
     }
     if (env->maxVolumeRange != 0.0f) {
-        self->unk24 = env->maxVolumeRange;
+        self->maxVolumeRange = env->maxVolumeRange;
     } else {
-        self->unk24 = 500.0f;
+        self->maxVolumeRange = 500.0f;
     }
     if (env->attenuator != 0.0f) {
-        self->unk20 = env->attenuator;
+        self->attenuator = env->attenuator;
     } else {
-        self->unk20 = 1000.0f;
+        self->attenuator = 1000.0f;
     }
     if (env->volumeLength != 0.0f) {
-        self->unk28 = env->volumeLength;
+        self->volumeLength = env->volumeLength;
     } else {
-        self->unk28 = 3000.0f;
+        self->volumeLength = 3000.0f;
     }
     self->flag.bit.f30 = env->maxVolumeType;
     self->flag.bit.f26 = env->levelHeight;
     self->flag.bit.f27 = env->stereo;
-    self->unk1C = 0.1f;
+    self->stereoRate = 0.1f;
 }
 
 void soundSeEnvPlay(void)
@@ -1420,24 +1398,23 @@ void soundSeEnvPlay(void)
             slot->env = e;
             soundSeEnvDefaultSet(slot);
             if (e->ownPos == 1) {
-                slot->unk34 = iosMallocDebug(ios_partition_sound, 16, __FILE__, 1565);
+                slot->pos = iosMallocDebug(ios_partition_sound, 16, __FILE__, 1565);
             }
         }
     }
 }
 
-/* kept local: &seDef[415] and &stageData[0].seEnvFirst, the two rows
-   soundSeEnvNotUseClose compares against and walks; reached through their
-   tables (stageData[a].seEnvFirst, seEnvLast) the function's registers move
-   (measured), so they stay their own symbols */
-extern SeSrcDef D_005DCEF4[];
+/* kept local: &stageData[0].seEnvFirst, the range soundSeEnvNotUseClose
+   walks; reached through the table (stageData[a].seEnvFirst, seEnvLast) the
+   function's registers move (measured: s3/s4 and s6/s7 swap), so it stays
+   its own symbol */
 extern char D_005F5E60[];
 
 void soundSeEnvNotUseClose(int a, int b)
 {
     const SeBank *p = 0;
     SeSlot *e;
-    char *q;
+    SqEntry *q;
     int ok;
     int i;
     int n;
@@ -1470,9 +1447,9 @@ void soundSeEnvNotUseClose(int a, int b)
     if (ok == 0) {
         idx = -1;
         for (k = 0; k < 16; k++) {
-            q = (char *)&soundDataTbl[k];
-            if (*(unsigned short *)(q + 2) == 11) {
-                if (*(unsigned short *)q == i) {
+            q = &soundDataTbl[k];
+            if (q->bank == 11) {
+                if (q->num == i) {
                     idx = k;
                     break;
                 }
@@ -1487,19 +1464,19 @@ void soundSeEnvNotUseClose(int a, int b)
     }
     for (m = 0; m < 48; m++) {
         e = &seSlotTbl[m];
-        req = e->unk30;
+        req = e->req;
         first = (int *)&D_005F5E60[a * 404];
-        if (req != 0 && req->unk4 == 0 && e->unk8 == 0xFFFFFFFF) {
+        if (req != 0 && req->mode == 0 && e->owner == 0xFFFFFFFF) {
             for (j = *first; j < *(int *)&D_005F5E60[a * 404 + 4]; j++) {
-                if (e->unk38 == (SeSrcDef *)&seDef[seEnv[j].se * 60]) {
-                    if (ok == 0 || seFile[seList[seKind[e->unk38->unk20]].num].loaded != 1) {
+                if (e->src == &seDef[seEnv[j].se]) {
+                    if (ok == 0 || seFile[seList[seKind[e->src->kind]].num].loaded != 1) {
                         goto next;
                     }
                 }
             }
-            if (ok != 0 && seList[seKind[e->unk38->unk20]].num >= 7 && a != 10) {
+            if (ok != 0 && seList[seKind[e->src->kind]].num >= 7 && a != 10) {
                 soundSeDefStopNoRelease((e->num << 8) | m);
-            } else if (e->unk38 != D_005DCEF4 && e->unk38 != D_005DCEF4 - 1) {
+            } else if (e->src != &seDef[415] && e->src != &seDef[414]) {
                 soundSeDefStop((e->num << 8) | m);
             }
         }
@@ -1521,9 +1498,9 @@ void soundSeEnvNotUseClose(int a, int b)
     seEnvForceClose = 0;
     for (m = 0; m < 48; m++) {
         SeSlot *s = &seSlotTbl[m];
-        SqEntry *r = s->unk30;
+        SqEntry *r = s->req;
 
-        if (r != 0 && r->unk4 == 0 && s->env != 0) {
+        if (r != 0 && r->mode == 0 && s->env != 0) {
             x = *(int *)s->env;
             if (x < 430) {
                 if (x >= 426) {

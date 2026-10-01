@@ -7,6 +7,7 @@
 #include <eekernel.h>
 #include <sifrpc.h>
 #include "main.h"
+#include <sound.h>
 
 /* .sdata, owned by ios.o in MAIN.MAP's order: the IOP heap shortfall the
    allocator records, then a word no retail code reads or writes (MAIN.MAP
@@ -43,9 +44,9 @@ static struct SemaParam sndLockSemaParam;
 
 static struct SemaParam stgMgrLockSemaParam;
 
-/* kept local: agrees with keyInput.h, which this TU does not include */
+/* kept local: keyInput.h declares InitKeyInput (void), and this call passes
+   the 0 the ROM loads into a0 ahead of it */
 extern void InitKeyInput();
-extern void SgSndn2RemoteInit(void);
 
 void ios_init_plus(void)
 {
