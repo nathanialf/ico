@@ -34,7 +34,7 @@ int BreakItemFromOutside(struct GObj *gobj);
 int BreakItemWithAttackHit(struct GObj *gobj, float *dir);
 int CheckCarryableItem(struct GObj *a0);
 int CheckItemDead(struct GObj *a0);
-int GetCharHeldItem(char *a0);
+int GetCharHeldItem(struct GObj *a0);
 int GetItemKind(struct GObj *a0);
 void HoldItem(struct GObj *gobj, struct GObj *holder);
 int IsBombExplode(struct GObj *a0);

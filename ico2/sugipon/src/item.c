@@ -852,15 +852,15 @@ int GetItemKind(GObj *a0)
     return p->kind;
 }
 
-int GetCharHeldItem(char *a0)
+int GetCharHeldItem(GObj *a0)
 {
     char *w;
     if (a0 == 0)
         return -1;
-    w = *(char **)(*(char **)(a0 + 0x164) + 0x154);
+    w = GOBJ_ACT(a0)->curItem;
     if (w == 0)
         return -1;
-    return *(int *)((char *)GOBJ_SUB(w)->work + 4);
+    return ((ItemWork *)GOBJ_SUB(w)->work)->kind;
 }
 
 int IsItemHoldable(GObj *a0)

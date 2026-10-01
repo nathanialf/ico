@@ -41,6 +41,14 @@ typedef struct RotObjWork { /* field names derived */
     float armScale; /* 0x3C, 100 over the arm radius */
 } RotObjWork;
 
+/* the two words MemoryRotObject saves in the object's gamesys info record and
+   RestoreRotObjectExtGeo and GetRotObjectGameSysObjInfoExtData read back */
+typedef struct {          /* field names derived */
+    unsigned short angle; /* 0x0 */
+    short pad02;
+    int turnCount; /* 0x4 */
+} RotObjMemory;
+
 void moveStartSE(GObj *a0, int a1, int a2, int a3)
 {
     ExecuteSEPackage(a0, 0x35);
@@ -272,10 +280,12 @@ RotObjWork *InitRotObjectGeo(GObj *gobj, SObjSimpleSetting *src)
     return p;
 }
 
-void GetRotObjectGameSysObjInfoExtData(short *a0, int *a1, char *a2)
+void GetRotObjectGameSysObjInfoExtData(short *a0, int *a1, GamesysObjInfo *a2)
 {
-    *a0 = *(unsigned short *)(a2 + 0x30);
-    *a1 = *(int *)(a2 + 0x34);
+    RotObjMemory *m = (RotObjMemory *)a2->work;
+
+    *a0 = m->angle;
+    *a1 = m->turnCount;
 }
 
 void RotObjectDL(GObj *gobj)
@@ -312,19 +322,21 @@ int RestoreRotObjectGeo(void)
     return 1;
 }
 
-int RestoreRotObjectExtGeo(GObj *a0, char *a1)
+int RestoreRotObjectExtGeo(GObj *a0, GamesysObjInfo *a1)
 {
     RotObjWork *p = GOBJ_SUB(a0)->work;
-    p->angle = *(unsigned short *)(a1 + 0x30);
-    p->turnCount = *(int *)(a1 + 0x34);
+    RotObjMemory *m = (RotObjMemory *)a1->work;
+
+    p->angle = m->angle;
+    p->turnCount = m->turnCount;
     return 1;
 }
 
-int MemoryRotObject(char *a0, GObj *a1)
+int MemoryRotObject(RotObjMemory *a0, GObj *a1)
 {
     RotObjWork *p = GOBJ_SUB(a1)->work;
-    *(short *)a0 = p->angle;
-    *(int *)(a0 + 4) = p->turnCount;
+    a0->angle = p->angle;
+    a0->turnCount = p->turnCount;
     return 1;
 }
 

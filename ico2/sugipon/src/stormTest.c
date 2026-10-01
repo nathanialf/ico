@@ -66,8 +66,6 @@ static __inline__ void StormProject(void *dst, void *src)
     StormPerspective(dst, t);
 }
 
-extern StormPackage *InitStormPackage(int mode, int num, int flag);
-
 StormPackage *InitStormPackage(int mode, int num, int flag)
 {
     StormPackage *pkg;
@@ -176,8 +174,6 @@ void ClipStormByCamera(StormPackage *pkg)
     }
 }
 
-extern void UpdateStormPackage(StormPackage *pkg);
-
 void UpdateStormPackage(StormPackage *pkg)
 {
     Vec4 v;
@@ -264,29 +260,30 @@ void DispStormPackage(StormPackage *pkg, void *color)
     gif_EndPacket();
 }
 
-inline int *InitStormTestGeo(int a0, int *a1)
+inline StormTestWork *InitStormTestGeo(GObj *self, SObjSimpleSetting *lay)
 {
-    int *obj = (int *)iosMallocDebug(ios_partition_sugipon, 0x30, "src/stormTest.c", 283);
-    register int v = *(int *)((char *)a1 + 0x30);
+    StormTestWork *obj = iosMallocDebug(ios_partition_sugipon, 0x30, "src/stormTest.c", 283);
+    register int v = lay->obj;
     register int flag = 1;
-    *obj = v;
-    if (!(0.0f < *(float *)a1))
+    obj->num = v;
+    if (!(0.0f < lay->pos[0]))
         flag = 0;
-    *(int *)((char *)obj + 0x20) = (int)InitStormPackage(1, v, flag);
-    *(float *)((char *)obj + 0x10) = *(float *)((char *)a1 + 0x20);
-    *(float *)((char *)obj + 0x14) = *(float *)((char *)a1 + 0x24);
-    *(float *)((char *)obj + 0x18) = *(float *)((char *)a1 + 0x28);
-    *(float *)((char *)obj + 0x1C) = 128.0f;
+    obj->pkg = InitStormPackage(1, v, flag);
+    obj->color[0] = lay->scale[0];
+    obj->color[1] = lay->scale[1];
+    obj->color[2] = lay->scale[2];
+    obj->color[3] = 128.0f;
     return obj;
 }
 
 void StormTestGeo(GObj *a0)
 {
-    UpdateStormPackage(*(StormPackage **)((char *)GOBJ_SUB(a0)->work + 0x20));
+    StormTestWork *p = GOBJ_SUB(a0)->work;
+    UpdateStormPackage(p->pkg);
 }
 
 void StormTestDL(GObj *a0)
 {
-    char *p = GOBJ_SUB(a0)->work;
-    DispStormPackage(*(StormPackage **)(p + 0x20), p + 0x10);
+    StormTestWork *p = GOBJ_SUB(a0)->work;
+    DispStormPackage(p->pkg, p->color);
 }

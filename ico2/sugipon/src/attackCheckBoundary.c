@@ -26,13 +26,13 @@ static inline char *createAttackCheckBoundaryGObj(SObjSimpleSetting *lay)
 }
 
 /* The 12-byte work record this function allocates and the other members
-   reach through the sub-object's 0x830: 0x4 is the flag AttackCheckBoundaryDL
-   tests, 0x8 the attribute SetAttackCheckBoundaryAttribute stores, and 0x0
+   reach through the sub-object's 0x830: 0x4 is the hit flag AttackCheckBoundaryDL
+   tests and the manager reads back and clears, 0x8 the attribute SetAttackCheckBoundaryAttribute stores, and 0x0
    the caller's int that CreateAttackCheckBoundary passed in the layout's
    handle, cleared again through it here. */
 typedef struct {
     int *handle; /* 0x0 */
-    int f4;      /* 0x4 */
+    int hit;     /* 0x4 */
     int attr;    /* 0x8 */
 } AcbWork;
 
@@ -41,7 +41,7 @@ inline int InitAttackCheckBoundaryGeo(int unused, void *obj)
     AcbWork *w = (AcbWork *)iosMallocDebug(ios_partition_sugipon, 0xC, __FILE__, 27);
 
     w->handle = (int *)((SObjSimpleSetting *)obj)->obj;
-    w->f4 = 0;
+    w->hit = 0;
     *w->handle = 0;
     w->attr = 0;
     return (int)w;
@@ -60,7 +60,7 @@ inline void AttackCheckBoundaryGeo(void *a0)
 
 inline void AttackCheckBoundaryDL(GObj *obj)
 {
-    char *m = GOBJ_SUB(obj)->work;
+    AcbWork *m = GOBJ_SUB(obj)->work;
     float r;
 
     if (debug_skel_flag == 0) {
@@ -70,7 +70,7 @@ inline void AttackCheckBoundaryDL(GObj *obj)
        if's join label and the early return's label both follow gif_EndPacket:
        its block does not fall straight into the exit block, and sibcall.c keeps
        the jal and the frame the ROM has. */
-    if (*(int *)(m + 4) == 0) {
+    if (m->hit == 0) {
         gif_StartPacketPri(0xB);
 
         gif_SetZTest(1);
@@ -89,8 +89,8 @@ inline void SetAttackCheckBoundaryAttribute(char *a0, int a1)
        the sub-object chase is int-typed (the engine's int handle), so the
        attribute store kills it and the manager's owner store at line 218
        reloads 0x15C */
-    char *w = GOBJ_SUB(a0)->work;
-    *(int *)(w + 8) = a1;
+    AcbWork *w = GOBJ_SUB(a0)->work;
+    w->attr = a1;
 }
 
 inline float GetAttackCheckBoundaryRadius(GObj *a0)
@@ -111,15 +111,13 @@ inline char *CreateAttackCheckBoundary(int *obj, float x, float y, float z, floa
     return createAttackCheckBoundaryGObj(&lay);
 }
 
-inline void actAttackCheckBoundaryStart(int *self)
+inline void actAttackCheckBoundaryStart(GObj *self)
 {
-    int *p = actInitialize(self);
-    long long v;
+    Act *p = actInitialize(self);
+
     actInitialize_ext_charcter(self);
     _ACTWait(1);
-    v = *(long long *)((char *)p + 0x18);
-    v |= 1LL << 32;
-    *(long long *)((char *)p + 0x18) = v;
+    p->flags18.ll |= 1LL << 32;
 }
 
 /* mail-add-data.c defines this returning int; declaring it void costs the
@@ -134,37 +132,38 @@ void AttackCheckBoundaryBeforeFunc(char *self)
     for (i = 0; i < mgr[1]; i++, e += 2) {
         if (e[0] == 13) {
             if (*(char **)&e[1] == boyGObj) {
-                int *b = GOBJ_SUB(self)->work;
+                AcbWork *b = GOBJ_SUB(self)->work;
                 void *g = GetBoyWeaponGObj();
 
                 if (g != 0) {
                     int k = CheckWeaponKind(g);
 
                     if (k == 4 || k == 5 || k == 6 || k == 9 || k == 8) {
-                        if (*(int *)b[0] < 2) {
-                            GOBJ_SUB(g)->ctrl.wallAttr = b[2];
+                        if (*b->handle < 2) {
+                            GOBJ_SUB(g)->ctrl.wallAttr = b->attr;
                             ExecuteSEPackage(g, 74);
-                            b[1] = 2;
-                            *(int *)b[0] = 2;
+                            b->hit = 2;
+                            *b->handle = 2;
                             /* " - cut by the sword" */
                             debug_StdPrintfDummy(" - 剣で切られた\n");
                         }
                         goto done;
                     }
                 }
-                if (*(int *)b[0] <= 0) {
-                    ActSendMail_WithAdditionalData(boyGObj, 209, self, &b[2]);
-                    b[1] = 1;
-                    *(int *)b[0] = 1;
+                if (*b->handle <= 0) {
+                    ActSendMail_WithAdditionalData(boyGObj, 209, self, &b->attr);
+                    b->hit = 1;
+                    *b->handle = 1;
                     /* " - cannot cut" */
                     debug_StdPrintfDummy(" - きれない\n");
                 }
             }
         done:
             {
-                char *q = *(char **)(self + 0x164);
+                Act *q = GOBJ_ACT(self);
 
-                q[0x1DA] = *(int *)(q + 0x1B0) = 0;
+                q->attacker = 0;
+                q->hit = 0;
             }
         }
     }
@@ -255,5 +254,7 @@ void AttackCheckBoundaryManagerDL(void) {}
 
 inline int GetAttackCheckBoundaryManagerStatus(GObj *a0)
 {
-    return *(int *)((char *)GOBJ_SUB(a0)->work + 8);
+    AcbMgr *m = GOBJ_SUB(a0)->work;
+
+    return m->prev;
 }

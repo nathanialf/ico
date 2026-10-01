@@ -37,7 +37,7 @@ typedef struct PadBuf {
     char _p24[60];
 } PadBuf;
 
-extern char iosPadConfDefault[];
+extern PadConf iosPadConfDefault;
 
 void ExecKeyInput(void)
 {
@@ -50,7 +50,7 @@ void ExecKeyInput(void)
     iosPadDevRead();
     for (i = 0; i < 2; i++) {
         pad[i].old = pad[i].now;
-        iosPadConnect(&buf, 7, i, iosPadConfDefault);
+        iosPadConnect(&buf, 7, i, &iosPadConfDefault);
         iosPadRead(&buf);
         pad[i].now = buf.f18;
         pad[i].flags = buf.f1C;

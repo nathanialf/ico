@@ -66,7 +66,7 @@ void SetMotionBlendlessNode(GObj *self, int *node);
 void SetMotionDirection(GObj *a0, float *a1);
 void SetMotionDirectionWithLimit(GObj *self, float *dir, float lim0, float lim1);
 
-void SetMotionNodeFixModeParameter(GObj *self, char *obj, int mode, int node, void *quat, float x,
+void SetMotionNodeFixModeParameter(GObj *self, GObj *obj, int mode, int node, void *quat, float x,
                                    float y, float z, float w);
 
 void SetMotionPlaySpeedRatio(GObj *self, float val);

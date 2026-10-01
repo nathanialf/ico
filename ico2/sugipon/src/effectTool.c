@@ -498,7 +498,7 @@ int saveEffectData(int id)
     return 0;
 }
 
-extern char iosPadConfDefault[];
+extern PadConf iosPadConfDefault;
 
 /* iosPadGetStick's output block (camera-ico2.c's IosPadStick, extended): the
  * camera-coord helper reads the two floats at 0xC/0x10 as a1[3]/a1[4]. */
@@ -521,7 +521,7 @@ void moveEffectToolGeometry(int idx)
     int q[4];
     int *pkg;
 
-    iosPadConnect(padCtx, 0, 0, iosPadConfDefault);
+    iosPadConnect(padCtx, 0, 0, &iosPadConfDefault);
     iosPadRead(padCtx);
     iosPadGetStick(padCtx, &st0, 0, 2, 2, 0);
     iosPadGetStick(padCtx, &st1, 1, 2, 2, 0);

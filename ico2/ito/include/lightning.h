@@ -40,4 +40,7 @@ void lightning_test(void);
 void DrawLightning2(int num, LightningVtx *v, LightningColor *col, float stepMin, float stepMax, float swayStepMin, float swayStepMax,
                     float turnMin, float turnMax, float swayLimit, float width, float texLen, float seed, int c);
 
+void DrawLightningN(int num, LightningNode *v, void *col, float stepMin, float stepMax, float swayStepMin, float swayStepMax,
+                    float turnMin, float turnMax, float swayLimit, float width, float texLen, float seed, int c);
+
 #endif /* LIGHTNING_H */

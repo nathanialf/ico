@@ -12,9 +12,11 @@
 #ifndef ROTOBJECT_H
 #define ROTOBJECT_H
 
+#include "backStage.h"
+
 struct GObj;
 
-void GetRotObjectGameSysObjInfoExtData(short *a0, int *a1, char *a2);
+void GetRotObjectGameSysObjInfoExtData(short *a0, int *a1, GamesysObjInfo *a2);
 void GetRotObjectGlobalHoldGeometry(void *pos, void *dir, void *gobj, void *posMtx, void *dirMtx);
 void GetRotObjectHoldPoint(void *a0, void *a1, void *a2, void *a3);
 float GetRotObjectRotCount(struct GObj *a0);

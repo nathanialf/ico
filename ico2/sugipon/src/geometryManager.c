@@ -932,7 +932,7 @@ int LimitExistGeometry(float *pos, int *exist)
     return ret;
 }
 
-void GetRootMatrixTransOffsetByDObj(char *dst, char *src)
+void GetRootMatrixTransOffsetByDObj(float *dst, char *src)
 {
     char tmp[64];
     MatrixDrive_SetTransposeMatrix(tmp, src + 0x20);
@@ -940,7 +940,7 @@ void GetRootMatrixTransOffsetByDObj(char *dst, char *src)
     CopyVector(dst, (tmp + 0x30));
 }
 
-void GetRootMatrixTransOffset(char *dst, GObj *src)
+void GetRootMatrixTransOffset(float *dst, GObj *src)
 {
     char tmp[64];
     Sub15C *p = GOBJ_SUB(src);

@@ -620,24 +620,24 @@ BoyWork *InitBoyGeo(GObj *gobj, void *csv)
     w->body->nodeMtx = (int)iosMallocDebug(ios_partition_seki, 128, "src/boy.c", 291);
     w->body->nodeQuat = (int)iosMallocDebug(ios_partition_seki, 32, "src/boy.c", 291);
     w->body->nodeNum = 2;
-    if ((int)w->body->nodes != 0) {
+    if (w->body->nodes != 0) {
         iosFree((int)w->body->nodes & 0xFFFFFFF);
     }
     w->body->nodes = iosMallocDebug(ios_partition_seki, 160, "src/boy.c", 291);
     for (i = 0; i < 2; i++) {
-        ((struct DObjNode *)(i * 80 + (int)w->body->nodes))->flags.ll &= ~1;
-        ((struct DObjNode *)(i * 80 + (int)w->body->nodes))->flags.ll &= ~2;
-        ((struct DObjNode *)(i * 80 + (int)w->body->nodes))->pos[0] = 0.0f;
-        ((struct DObjNode *)(i * 80 + (int)w->body->nodes))->pos[1] = 0.0f;
-        ((struct DObjNode *)(i * 80 + (int)w->body->nodes))->pos[2] = 0.0f;
-        ((struct DObjNode *)(i * 80 + (int)w->body->nodes))->pos[3] = 1.0f;
-        ((struct DObjNode *)(i * 80 + (int)w->body->nodes))->flags.ll &= ~4;
-        ((struct DObjNode *)(i * 80 + (int)w->body->nodes))->fade = 0.0f;
-        ((struct DObjNode *)(i * 80 + (int)w->body->nodes))->alpha = 1.0f;
-        *(short *)(i * 80 + (int)w->body->nodes + 0x3A) = 0;
-        ((struct DObjNode *)(i * 80 + (int)w->body->nodes))->scale[0] = 1.0f;
-        ((struct DObjNode *)(i * 80 + (int)w->body->nodes))->scale[1] = 1.0f;
-        ((struct DObjNode *)(i * 80 + (int)w->body->nodes))->scale[2] = 1.0f;
+        w->body->nodes[i].flags.ll &= ~1;
+        w->body->nodes[i].flags.ll &= ~2;
+        w->body->nodes[i].pos[0] = 0.0f;
+        w->body->nodes[i].pos[1] = 0.0f;
+        w->body->nodes[i].pos[2] = 0.0f;
+        w->body->nodes[i].pos[3] = 1.0f;
+        w->body->nodes[i].flags.ll &= ~4;
+        w->body->nodes[i].fade = 0.0f;
+        w->body->nodes[i].alpha = 1.0f;
+        ((short *)&w->body->nodes[i].flags)[1] = 0;
+        w->body->nodes[i].scale[0] = 1.0f;
+        w->body->nodes[i].scale[1] = 1.0f;
+        w->body->nodes[i].scale[2] = 1.0f;
     }
     w->body->dispType = 2;
     w->crown0 = CSVSYSTEM_InitDObj(1, csv);

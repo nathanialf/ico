@@ -874,7 +874,7 @@ inline void BirdAI(void) {}
 
 void _ACTSendMailToBird(void *obj, int mail, void *data)
 {
-    iosOmSendMail(obj, mail, (int)data);
+    iosOmSendMail(obj, mail, data);
 }
 
 inline void _ACTSendMailToBirdAll(int mail, void *data)

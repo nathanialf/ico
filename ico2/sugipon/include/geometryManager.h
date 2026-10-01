@@ -29,7 +29,7 @@ float GetProjectionOfPlaneWithKeepAway(void *a0, void *a1, void *a2, float f);
 void GetProjectionPosOfPlane(void *a0, void *a1, void *a2);
 void GetRootMatrix(void *mtx, struct GObj *obj);
 void GetRootMatrixRotOffset(void *q, struct GObj *obj);
-void GetRootMatrixTransOffset(char *dst, struct GObj *src);
+void GetRootMatrixTransOffset(float *dst, struct GObj *src);
 void GetRootMotionOrient(char *a0, struct GObj *a1);
 void GetRootOrient(char *a0, struct GObj *a1);
 void GetRootPosition(void *pos, struct GObj *obj);

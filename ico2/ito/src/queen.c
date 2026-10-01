@@ -1776,14 +1776,14 @@ void QueenBallDL(GObj *g)
 
 void actQueenStart(GObj *g)
 {
-    char *sub = actInitialize(g);
+    Act *sub = actInitialize(g);
 
     actInitialize_ext_charcter(g);
     _ACTWait(1);
     actCreateSubThread(subQueenBrainMain, 20);
     actCreateSubThread(subQueenControl, 21);
     actCreateSubThread(gene_enemy, 21);
-    ((QueenVal *)(sub + 0x130))->motReq = SetMotionRequest(g, 270, ((Act *)sub)->motOriReq);
+    ((QueenVal *)((char *)sub + 0x130))->motReq = SetMotionRequest(g, 270, sub->motOriReq);
     GOBJ_SUB(g)->cylinderOn = 1;
 }
 

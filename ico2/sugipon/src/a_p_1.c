@@ -1041,9 +1041,9 @@ check:
     return 0;
 }
 
-GObj *MakeAP1GObj(char *a0)
+GObj *MakeAP1GObj(SObjSimpleSetting *a0)
 {
-    return CreateLayoutedGObj(62, spiderDef[*(int *)(a0 + 0x30)].layout, -1, 0, a0, 0, 7, 1);
+    return CreateLayoutedGObj(62, spiderDef[a0->obj].layout, -1, 0, a0, 0, 7, 1);
 }
 
 int GetAP1Mode(GObj *a0)

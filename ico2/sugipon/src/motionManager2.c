@@ -2070,7 +2070,7 @@ loop:
         goto loop;
 }
 
-void SetMotionNodeFixModeParameter(GObj *self, char *obj, int mode, int node, void *quat, float x,
+void SetMotionNodeFixModeParameter(GObj *self, GObj *obj, int mode, int node, void *quat, float x,
                                    float y, float z, float w)
 {
     float vec[4] = {x, y, z, 1.0f};

@@ -31,10 +31,6 @@ static const char spiderWakeHasParentMsg[] =
 static const char spiderWakeNoParentMsg[] =
     "蜘蛛グループを起こそうとしましたが、表に親が書かれていません。これは無効です\n";
 
-typedef struct {
-    long long w[8];
-} SpiderLay;
-
 /* RECONSTRUCTION, read from the ROM.  The 64-byte record InitSpiderLayoutGeo
    allocates and hangs at the object's work word: the group's state (-1 laid
    out, 0 entered in the group manager, 1 awake, 2 calling the master back),
@@ -59,18 +55,18 @@ typedef struct {
     int revived; /* 0x8 */
 } SpiderMemory;
 
-SpiderWork *InitSpiderLayoutGeo(GObj *self, char *lay)
+SpiderWork *InitSpiderLayoutGeo(GObj *self, SObjSimpleSetting *lay)
 {
-    SpiderLay l;
+    SObjSimpleSetting l;
     SpiderWork *w;
     int n;
     int i;
     int k;
 
     w = iosMallocDebug(ios_partition_sugipon, sizeof(SpiderWork), spiderFile, 43);
-    l = *(SpiderLay *)lay;
+    l = *lay;
 
-    k = *(int *)(lay + 0x30);
+    k = lay->obj;
     n = spiderDef[k].count;
     w->n = n;
     w->kind = k;
@@ -83,7 +79,7 @@ SpiderWork *InitSpiderLayoutGeo(GObj *self, char *lay)
     w->revived = 0;
 
     for (i = 0; i < n; i++) {
-        *(float *)((char *)&l + 0x14) = random_signed_b() * 3.1415927f;
+        l.rot[1] = random_signed_b() * 3.1415927f;
         w->members[i] = MakeAP1GObj(&l);
         SetAP1VisualState(w->members[i], 0);
     }
