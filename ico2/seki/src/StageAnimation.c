@@ -104,10 +104,8 @@ static int *bgaPlayList;
 
 static StageAnim stageAnimTable[87];
 
-extern char D_005F5E70[];
-extern char objLayout[];
-extern char D_002BC6E0[];
-extern char D_00602FA0[];
+extern const StgPre stageData[];
+extern GenGeo objLayout[];
 
 /* The layout record a stage object is made with and handed to its init
    function: position, rotation, scale and a flag word (names ours). */
@@ -121,6 +119,16 @@ typedef struct {
 #include "StageAnimation.h"
 #include "ios.h"
 #include <stdio.h>
+
+/* objAction's row as this TU reads it: the two stage animations the
+   object plays (typedef.h's OaRecB carries them as baseMode and word4) */
+typedef struct { /* field names derived */
+    int anim[2]; /* 0x00 */
+    char pad8[12];
+} StgBgaSet;
+
+extern StgBgaSet objAction[];
+extern StageAnimDef stageTable[];
 
 void stage_MakeGObj(int *dat, int no)
 {
@@ -170,32 +178,32 @@ void stage_MakeGObj(int *dat, int no)
 
 void stage_ApplyData(char *name, char *data)
 {
-    char *tbl[2] = {D_005F5E70 + stage_no * 0x194, D_005F5E70 + 8 + stage_no * 0x194};
+    const int *tbl[2] = {&stageData[stage_no].word120, &stageData[stage_no].labelTop};
     char buf[1024];
     int m;
     int i;
     int j;
     int n;
     int id;
-    char *rec;
-    char *ent;
-    char *obj;
+    GenGeo *rec;
+    StgBgaSet *ent;
+    StageAnimDef *obj;
 
     for (m = 0; m < 2; m++) {
-        for (i = ((int *)tbl[m])[0]; i < ((int *)tbl[m])[1]; i++) {
-            rec = objLayout + i * 0x4C;
-            n = *(int *)(rec + 0x34);
+        for (i = tbl[m][0]; i < tbl[m][1]; i++) {
+            rec = &objLayout[i];
+            n = rec->action;
             if (n != 0) {
-                ent = D_002BC6E0 + n * 0x14;
+                ent = &objAction[n];
                 for (j = 0; j < 2; j++) {
-                    id = ((int *)ent)[j];
-                    obj = D_00602FA0 + id * 0x5C;
-                    if (id != 0x3CC) {
-                        if (strcmp(name, obj) == 0) {
+                    id = ent->anim[j];
+                    obj = &stageTable[id];
+                    if (id != 972) {
+                        if (strcmp(name, obj->path) == 0) {
                             if (strncmp(data, "BGA", 3) == 0) {
-                                *(int *)(obj + 0x54) = bga_InitData(data);
+                                obj->data = (void *)bga_InitData(data);
                             } else {
-                                *(int *)(obj + 0x54) = (int)data;
+                                obj->data = data;
                             }
                             return;
                         }
@@ -213,11 +221,6 @@ void stage_ApplyData(char *name, char *data)
    array itself folds the table address into each access and moves gcse's
    expression table (measured) */
 #define STG ((StageAnim *)stageAnimTable)
-
-typedef struct {
-    int id[2]; /* 0x00 */
-    int _8[3];
-} StgBgaSet;
 
 extern char objKindData[];
 extern void bga_ApplyDObject(char *a0, GObj **a1, int a2, int a3);
@@ -260,7 +263,7 @@ static __inline__ void stageAnimDebugHook(void)
 int stage_Init(void)
 {
     const StgObjDat *p = 0;
-    char *tbl[2] = {D_005F5E70 + stage_no * 0x194, D_005F5E70 + 8 + stage_no * 0x194};
+    const int *tbl[2] = {&stageData[stage_no].word120, &stageData[stage_no].labelTop};
     StageGObjInit arg;
     int max = 0;
     int m;
@@ -272,9 +275,9 @@ int stage_Init(void)
     int id;
     int no;
     const StgObjDat *q;
-    char *rec;
+    GenGeo *rec;
     char *tbl2;
-    char *obj;
+    StageAnimDef *obj;
     GObj *g;
     char *a;
     char *r;
@@ -309,17 +312,17 @@ int stage_Init(void)
     stageAnimDebugHook();
     for (m = 0; m < 2; m++) {
         stageAnimDebugHook();
-        for (i = ((int *)tbl[m])[0]; i < ((int *)tbl[m])[1]; i++) {
-            rec = objLayout + i * 0x4C;
-            n = *(int *)(rec + 0x34);
+        for (i = tbl[m][0]; i < tbl[m][1]; i++) {
+            rec = &objLayout[i];
+            n = rec->action;
             if (n != 0) {
-                char *ent = D_002BC6E0 + n * 0x14;
+                StgBgaSet *ent = &objAction[n];
 
                 for (k = 0; k < 2; k++) {
-                    id = ((StgBgaSet *)ent)->id[k];
-                    obj = D_00602FA0 + id * 0x5C;
+                    id = ent->anim[k];
+                    obj = &stageTable[id];
                     if (id != 972) {
-                        if (strncmp(*(char **)(obj + 0x54), "BGA", 3) == 0) {
+                        if (strncmp(obj->data, "BGA", 3) == 0) {
                             /* Listing row 679, code-free. WHAT THE BYTES PIN: one
                            insn between the stageAnimCount load and the 0x284 store
                            at local-alloc, gone by final; without it the flags
@@ -329,17 +332,17 @@ int stage_Init(void)
                             stageAnimDebugHook();
                             STG[stageAnimCount].flags.i &= 0x3FFFFFFF;
                             *(int *)((char *)stageAnimTable + stageAnimCount * 0x290 + 0x284) =
-                                (int)*(char **)(obj + 0x54);
-                            *(int *)(*(char **)(obj + 0x54) + 0x4) = *(int *)(obj + 0x48);
-                            (*(char **)(obj + 0x54))[0xB] = obj[0x4C];
+                                (int)obj->data;
+                            *(int *)((char *)obj->data + 0x4) = obj->word48;
+                            ((char *)obj->data)[0xB] = obj->byte4C;
                             *(char *)(*(int *)((char *)stageAnimTable + stageAnimCount * 0x290 +
                                                0x284) +
                                       0xA) = -1;
                             *(int *)((char *)stageAnimTable + stageAnimCount * 0x290 + 0x280) =
                                 (int)obj;
                             STG[stageAnimCount].flags.b.play = 0;
-                            p = &objTableScene[*(int *)(obj + 0x40)];
-                            q = &objTableScene[*(int *)(obj + 0x44)];
+                            p = &objTableScene[obj->objFirst];
+                            q = &objTableScene[obj->objLast];
                             for (; p != q; p++) {
                                 stage_MakeGObj((int *)p, stageAnimCount);
                             }
@@ -349,7 +352,7 @@ int stage_Init(void)
                             stageAnimDebugHook();
                             STG[stageAnimCount].flags.i =
                                 (STG[stageAnimCount].flags.i & 0x3FFFFFFF) | 0x40000000;
-                            stageAnimTable[stageAnimCount].entry3 = *(char **)(obj + 0x54);
+                            stageAnimTable[stageAnimCount].entry3 = obj->data;
                             *(int *)((char *)stageAnimTable + stageAnimCount * 0x290 + 0x280) =
                                 (int)obj;
                         }
@@ -402,7 +405,7 @@ int stage_Init(void)
                 r = (char *)e->entry1;
                 no = -1;
                 if (r != 0) {
-                    no = (r - D_00602FA0) / 0x5CU;
+                    no = (r - (char *)stageTable) / 0x5CU;
                 }
                 bga_ApplyDObject(a, e->obj, e->flags.b.count, no);
             }

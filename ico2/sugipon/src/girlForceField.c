@@ -45,11 +45,10 @@ inline void GirlForceFieldGeo(void) {}
 
 /* The girl's GObj, or NULL before she is spawned. */
 
-/* The per-object-kind action record table (0x4C bytes/entry, indexed by the
-   GObj's kind id at +8) and the animation-record table it selects into. */
-
-extern OaRecA objLayout[];
-extern OaRecB D_002BC6E0[];
+/* The stage's object layout (indexed by the GObj's labelId) and the action
+   table its rows select into. */
+extern GenGeo objLayout[];
+extern OaRecB objAction[];
 
 void GirlForceFieldDL(GObj *self)
 {
@@ -72,8 +71,8 @@ void GirlForceFieldDL(GObj *self)
 
             GetRootQuaternion(quat, self);
             w->frame = (int)stage_PlayBgAnimationDissolve(
-                D_002BC6E0[objLayout[*(int *)(((char *)self) + 8)].action].baseMode, pos, quat,
-                (float)w->frame, ratio);
+                objAction[objLayout[self->labelId].action].baseMode, pos, quat, (float)w->frame,
+                ratio);
             return;
         }
     }

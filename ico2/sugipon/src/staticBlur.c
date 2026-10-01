@@ -1010,9 +1010,6 @@ void calcSun(void)
     _ApplyMatrix(sunView, matrixptr + 0x80, sunDir);
 }
 
-/* kept local: pad + 0x64 as int [] here; pad is PadState [16] in main.h, which has no field at pad[1] + 0xC */
-extern int D_0028F954[];
-
 static int colorSettingItem = 0; /* derived name */
 
 /* staticBlur.c:1401-1405 in the PAL listing: rows outside colorSetting's own
@@ -1035,7 +1032,7 @@ static inline void colorSettingStep(unsigned char *p, int d)
 void colorSetting(void)
 {
     char buf[256];
-    int f = D_0028F954[0];
+    int f = pad[1].rep;
     int d;
 
     if (f & 0x1000) {

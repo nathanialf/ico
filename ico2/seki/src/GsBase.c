@@ -23,6 +23,7 @@
 #include "DmaPacket.h"
 #include "DisplayList.h"
 #include <libgraph.h>
+#include <libcdvd.h>
 
 /* Declared here, not through string.h: with newlib's prototype in scope gcc
    expands gsb_scissorOnDemo's four-byte zero fill as one store, and the ROM
@@ -1060,7 +1061,8 @@ extern int frame_count;
 extern int odd_even;
 /* kept local: agrees with main.h, which this TU does not include (db differs) */
 extern int GlobalTimer;
-extern void sceGsSetHalfOffset(void *env, short x, short y, int field);
+/* libgraph.h does not declare it; graph021's signature */
+extern void sceGsSetHalfOffset(void *env, short x, short y, short field);
 
 /* One frame boundary: take the field parity from the GS CSR, run the
  * reduction pass, flip the double buffer and hand the display list back
@@ -1234,9 +1236,6 @@ void gsb_SetVSMatrixSub(float *a, float *b, float *c, float *d, float *vs)
     _CopyMatrix(matrixptr + 0x680, m1);
 }
 
-/* kept local: pad + 0x58 as int [] here; pad is PadState [16] in main.h and GsbPad [] (16 bytes a record) in this TU */
-extern int D_0028F948[];
-
 /* The view record gsb_SetVSMatrixSub builds the view and screen matrices
  * from: the zoom, the two aspect terms, the centre, and the near and far
  * planes.  MAIN.MAP names no symbol inside GsBase.o's .bss, so the name is
@@ -1269,7 +1268,7 @@ void gsb_SetVSMatrix(int w, int h, float d)
     zoom = (float)GlobalStageSetting.viewScale * zoomCurrent * d * (float)debug_zoom_per *
            (float)ScreenWidth / 640.0f / 100.0f / 100.0f;
     vsParam[0] = zoom;
-    if (debug_snapshot_reserve != 0 || (D_0028F948[0] & 0x800) != 0) {
+    if (debug_snapshot_reserve != 0 || (pad[1].now & 0x800) != 0) {
         vsParam[0] = zoom * (float)debug_snapshot_num / 100.0f;
     }
     tex_UpdateMipMapLevel((float)GlobalStageSetting.viewScale * zoomCurrent *
@@ -1357,6 +1356,7 @@ int gsb_ClipBox(float *p)
     return (c & 0x20) ? 2 : 1;
 }
 
+/* libcdvd.h leaves sceCdCLOCK incomplete; its body, in BCD */
 typedef struct sceCdCLOCK {
     unsigned char stat;
     unsigned char second;
@@ -1370,13 +1370,13 @@ typedef struct sceCdCLOCK {
 
 /* kept local: agrees with main.h, which this TU does not include (db differs) */
 extern int stage_no;
-extern char D_005F5D90[];
+extern const StgPre stageData[];
 
 inline int gsb_LoadStageSettings(void)
 {
     char buf[256];
     int fd;
-    sprintf(buf, "object/stagesetting/%s.ssb", D_005F5D90 + stage_no * 0x194);
+    sprintf(buf, "object/stagesetting/%s.ssb", stageData[stage_no].key2);
     fd = debugSceOpen(buf, 1);
     if (fd < 0) {
         debug_StdPrintfDummy("gsb_LoadStageSettings: host file open error.\n");
@@ -1393,8 +1393,6 @@ inline int gsb_LoadStageSettings(void)
  * name is a reconstruction; the extent is the ROM run's. */
 static char logBuf[256];
 
-extern int sceCdReadClock(sceCdCLOCK *c);
-
 void appendLogFile(void)
 {
     sceCdCLOCK clock;
@@ -1409,7 +1407,7 @@ void appendLogFile(void)
     }
     sprintf(logBuf, "%04x/%02x/%02x %02x:%02x:%02x : stage %s  edit by %s\n", clock.year | 0x2000,
             clock.month, clock.day, clock.hour, clock.minute, clock.second,
-            D_005F5D90 + stage_no * 0x194, "horagai");
+            stageData[stage_no].key2, "horagai");
     sceLseek(fd, 0, 2);
     sceWrite(fd, logBuf, strlen(logBuf));
     debugSceClose(fd);
@@ -1421,7 +1419,7 @@ inline int gsb_SaveStageSettings(void)
     char buf[256];
     int fd;
     if (otherEditingLocked == 0) {
-        sprintf(buf, "object/stagesetting/%s.ssb", D_005F5D90 + stage_no * 0x194);
+        sprintf(buf, "object/stagesetting/%s.ssb", stageData[stage_no].key2);
         fd = debugSceOpen(buf, 0x602);
         if (fd < 0) {
             debug_StdPrintfDummy("gsb_SaveStageSettings: host file open error.\n");
@@ -1839,7 +1837,7 @@ void updateOtherEditingLockFlag(void)
     char buf[256];
     int fd;
 
-    sprintf(lockFileName, "object/stagesetting/%s.lock", D_005F5D90 + stage_no * 0x194);
+    sprintf(lockFileName, "object/stagesetting/%s.lock", stageData[stage_no].key2);
     otherEditingLocked = 0;
     fd = debugSceOpen(lockFileName, 1);
     if (fd >= 0) {
@@ -1865,7 +1863,7 @@ void updateOtherEditingLockFlag(void)
  * out of line, so it has no MAIN.MAP symbol and this name is ours. */
 static inline char *makeLockFileName(void)
 {
-    sprintf(lockFileName, "object/stagesetting/%s.lock", D_005F5D90 + stage_no * 0x194);
+    sprintf(lockFileName, "object/stagesetting/%s.lock", stageData[stage_no].key2);
     return lockFileName;
 }
 

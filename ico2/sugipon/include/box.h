@@ -13,9 +13,9 @@
 #define BOX_H
 
 /* accessary: one accessory model set, 0x28 bytes, indexed by the object's
- * Sub15C+0x844. Readers: ico2/sugipon/src/switch.c.inc (BoxModelRec: dobj0,
- * dobj1, sub, pos, rotY), pool.c (the negated pivot), weapon.c, cage.c,
- * puddle.c. */
+ * Sub15C+0x844. Readers: box.c and switch.c.inc (the two models, the
+ * sub-box, and the pivot as the wheels' height and front and rear axle Z),
+ * pool.c (the negated pivot), weapon.c, cage.c, puddle.c. */
 typedef struct {     /* field names derived */
     int model;       /* 0x00, CSVSYSTEM_InitDObj's first model */
     int model2;      /* 0x04, its second model */
@@ -24,6 +24,8 @@ typedef struct {     /* field names derived */
     float subPos[3]; /* 0x18, the sub-box's offset */
     float subRotY;   /* 0x24, the sub-box's facing in degrees */
 } AccessaryRec;
+
+extern AccessaryRec accessary[];
 
 struct GObj;
 

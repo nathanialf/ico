@@ -75,25 +75,6 @@ inline void initParentize(GObj *a0)
    head of box.o's .data, VMA 0x4E5AA0, 32 bytes); the name is ours */
 static LeverGeoWork leverGeoInit = {0};
 
-/* The per-model box record table at VMA 0x2A79B8, 0x28 bytes a record: the
-   two DObj ids the levers here and initWheels in box.c pass to
-   CSVSYSTEM_InitDObj, and the three wheel floats initWheels copies out.
-   RECONSTRUCTION: declared as an array of records because initWheels' first
-   wheel float is an ARRAY_REF in the ROM (base register first in the address
-   add, addu v0,a0,v0), which a subscript through a cast pointer does not give. */
-typedef struct {       /* field names derived */
-    int dobj0;         /* 0x00 */
-    int dobj1;         /* 0x04 */
-    int sub;           /* 0x08, the sub-box model InitBoxGeo creates */
-    float wheelHeight; /* 0x0C, the wheels' height InitBoxGeo's wheels sit at */
-    float wheelFront;  /* 0x10, the front axle's Z */
-    float wheelRear;   /* 0x14, the rear axle's Z */
-    float pos[3];      /* 0x18, the sub-box's offset */
-    float rotY;        /* 0x24, the sub-box's facing in degrees */
-} BoxModelRec;
-
-extern BoxModelRec D_002A79B8[];
-
 inline LeverGeoWork *InitFloorLeverGeo(char *a0, SObjSimpleSetting *a1)
 {
     /* "src/switch.c" is this file's __FILE__ in the retail build (the listing
@@ -107,8 +88,8 @@ inline LeverGeoWork *InitFloorLeverGeo(char *a0, SObjSimpleSetting *a1)
     } else {
         g->linked = 0;
     }
-    g->base = CSVSYSTEM_InitDObj(D_002A79B8[GOBJ_SUB(a0)->accessary].dobj0, a1);
-    g->handle = CSVSYSTEM_InitDObj(D_002A79B8[GOBJ_SUB(a0)->accessary].dobj1, a1);
+    g->base = CSVSYSTEM_InitDObj(accessary[GOBJ_SUB(a0)->accessary].model, a1);
+    g->handle = CSVSYSTEM_InitDObj(accessary[GOBJ_SUB(a0)->accessary].model2, a1);
     return g;
 }
 
@@ -266,8 +247,8 @@ inline LeverGeoWork *InitWallLeverGeo(char *a0, SObjSimpleSetting *a1)
     } else {
         g->linked = 0;
     }
-    g->base = CSVSYSTEM_InitDObj(D_002A79B8[GOBJ_SUB(a0)->accessary].dobj0, a1);
-    g->handle = CSVSYSTEM_InitDObj(D_002A79B8[GOBJ_SUB(a0)->accessary].dobj1, a1);
+    g->base = CSVSYSTEM_InitDObj(accessary[GOBJ_SUB(a0)->accessary].model, a1);
+    g->handle = CSVSYSTEM_InitDObj(accessary[GOBJ_SUB(a0)->accessary].model2, a1);
     return g;
 }
 

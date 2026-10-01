@@ -1,4 +1,5 @@
 #include "puddle.h"
+#include "box.h"
 #include "DObj.h"
 #include "GifPacket.h"
 #include "memory.h"
@@ -86,7 +87,6 @@ static float savedMatrix340[16]; /* derived name */
    what keeps the builtin off in this file. */
 /* kept local: declaring it only through string.h moves this TU's bytes */
 extern void memset(void *p, int c, int n);
-extern char D_002A79B8[];
 void PuddleGeo(GObj *a0);
 void EntryRippleToPuddle(GObj *a0, void *vec);
 int puddleRideFunc(char **a0, char *a1);
@@ -97,7 +97,7 @@ PuddleWork *InitPuddleGeo(GObj *a0, SObjSimpleSetting *a1)
     float *v;
     int i;
 
-    *(char **)w = CSVSYSTEM_InitDObj(*(int *)(D_002A79B8 + GOBJ_SUB(a0)->accessary * 0x28), a1);
+    *(char **)w = CSVSYSTEM_InitDObj(accessary[GOBJ_SUB(a0)->accessary].model, a1);
 
     v = spokeDir;
     for (i = 0; i < 9; i++) {

@@ -8,34 +8,18 @@
 #include "FileManager.h"
 #include "debug_exception.h"
 #include <libcdvd.h>
+#include <sifrpc.h>
 #include <assert.h>
 
-/* kept local: agrees with sifrpc.h, which this TU does not include (sceSifLoadFileReset, sceSifLoadModule differ) */
-extern void sceSifInitRpc(int mode);
-/* kept local: agrees with sifrpc.h, which this TU does not include (sceSifLoadFileReset, sceSifLoadModule differ) */
-extern int sceSifRebootIop(const char *img);
-/* kept local: agrees with sifrpc.h, which this TU does not include (sceSifLoadFileReset, sceSifLoadModule differ) */
-extern int sceSifSyncIop(void);
-/* kept local: void (void) here, int (void) in sifrpc.h */
-extern void sceSifLoadFileReset(void);
-/* kept local: int (const char *, int, const char *) here, void (void *, int, int) in sifrpc.h */
-extern int sceSifLoadModule(const char *name, int argc, const char *argv);
-
+/* libcdvd.h leaves sceCdlFILE incomplete.  This TU's entry is 48 bytes, a
+   32-byte name: file_LoadCDFile's frame holds it at that size (a 16-byte
+   name moves the frame). */
 typedef struct sceCdlFILE {
     unsigned int lsn;
     unsigned int size;
     char name[32];
     unsigned char date[8];
 } sceCdlFILE;
-
-typedef struct sceCdRMode {
-    unsigned char trycount;
-    unsigned char spindlctrl;
-    unsigned char datapattern;
-    unsigned char pad;
-} sceCdRMode;
-
-extern int sceCdSearchFile(sceCdlFILE *fp, const char *name);
 
 /* SRCFILE puts this pair on seki/src/FileManager.c:184-185, above file_Init's
    def line 236, and inlines it at all seven wait sites. */
@@ -92,7 +76,7 @@ int file_LoadCDFile(void **adr, char *fname, int area)
 {
     char path[256];
     sceCdlFILE fp;
-    sceCdRMode mode;
+    CdRMode mode;
     char *d;
     char *s;
     int c;

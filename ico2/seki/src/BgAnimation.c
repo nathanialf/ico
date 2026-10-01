@@ -2167,14 +2167,7 @@ typedef struct BgaLightningCol {
     unsigned int c[4];
 } __attribute__((aligned(16))) BgaLightningCol;
 
-/* The kind table isys keeps beside the gobj records: 0x4C bytes each, the
-   object kind first. */
-typedef struct BgaObjKind {
-    /* 0x00 */ int kind;
-    /* 0x04 */ char pad04[0x48];
-} BgaObjKind;
-
-extern BgaObjKind D_002C2DF4[];
+extern GenGeo objLayout[];
 
 /* kept local: this TU does not include gobj.h or enemy_act.h, and its use of
    DrawLightningN does not fit the prototype in lightning.h */
@@ -2199,7 +2192,7 @@ void bga_DispLightning(void)
 {
     BgaLightning *p;
     BgaLightningDef *g;
-    void *o;
+    GObj *o;
     int cnt;
     int i;
     int num;
@@ -2280,7 +2273,7 @@ void bga_DispLightning(void)
             break;
         case 2:
             for (o = isysGObjGetExist_begin(); o != 0; o = isysGObjGetExist_next(o)) {
-                if (D_002C2DF4[*(int *)((char *)o + 8)].kind == 71) {
+                if (objLayout[o->labelId].mdl == 71) {
                     if (systemStatus[5] == 0) {
                         k = p->n;
                         if (k < 10) {
@@ -2296,7 +2289,7 @@ void bga_DispLightning(void)
             break;
         case 3:
             for (o = isysGObjGetExist_begin(); o != 0; o = isysGObjGetExist_next(o)) {
-                if (D_002C2DF4[*(int *)((char *)o + 8)].kind == 74) {
+                if (objLayout[o->labelId].mdl == 74) {
                     if (systemStatus[5] == 0) {
                         k = p->n;
                         if (k < 10) {

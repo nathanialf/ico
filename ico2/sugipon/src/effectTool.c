@@ -478,9 +478,7 @@ static inline void initEffectTool(void)
     }
 }
 
-/* particleEffect.c's effect table is 0x50 bytes per entry: char name[0x20]
-   then char file[0x30].  D_0062A298 is &tbl[0].file (particleEffectFile = &tbl[0].name). */
-extern char D_0062A298[];
+extern ParticleEffectFile particleEffectFile[];
 
 int saveEffectData(int id)
 {
@@ -489,11 +487,11 @@ int saveEffectData(int id)
     pkg = GetParticleEffectPackage(id);
     debug_closeLog();
     debug_StdPrintfDummy("==== Save effect ============================================\n");
-    if (debugSceOpen(D_0062A298 + id * 0x50, 0x602) < 0) {
+    if (debugSceOpen(particleEffectFile[id].path, 0x602) < 0) {
         debug_StdPrintfDummy("saveEffectData: host file open error.\n");
     } else {
         debug_StdPrintfDummy("Save effect file [\033[36m%s\033[m](%s:%dbytes) \n",
-                             D_0062A298 + id * 0x50, D_0062A298 + id * 0x50 - 0x20, 0xA0);
+                             particleEffectFile[id].path, particleEffectFile[id].name, 0xA0);
         debug_StdPrintfDummy("%d bytes wrote\n", sceWrite(0, pkg, 0xA0));
         debugSceClose(0);
     }
@@ -554,8 +552,6 @@ void moveEffectToolGeometry(int idx)
         SetParticleEffectGeometry(effectHandle, effectToolPos, q);
     }
 }
-
-extern char particleEffectFile[];
 
 int execEffectTool(void)
 {

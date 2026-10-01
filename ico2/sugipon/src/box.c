@@ -442,10 +442,10 @@ void initWheels(GObj *self, float *lay)
     int i;
 
     if (objLayout[self->labelId].accessary == 26 ||
-        D_002A79B8[GOBJ_SUB(self)->accessary].dobj0 == 0x610) {
+        accessary[GOBJ_SUB(self)->accessary].model == 0x610) {
         w->wheelDObj = 0;
     } else {
-        w->wheelDObj = CSVSYSTEM_InitDObj(D_002A79B8[GOBJ_SUB(self)->accessary].dobj0, lay);
+        w->wheelDObj = CSVSYSTEM_InitDObj(accessary[GOBJ_SUB(self)->accessary].model, lay);
         if (*(int *)(w->wheelDObj + 0xC) != 0) {
             iosFree((void *)(*(int *)(w->wheelDObj + 0xC) & 0x0FFFFFFF));
         }
@@ -536,11 +536,11 @@ void initWheels(GObj *self, float *lay)
            handle load behind the 0x84C store above, which a plain int read,
            free to move past a short store, does not give */
         ((IntFloat *)&w->wheelHeight)->f =
-            D_002A79B8[*(int *)(((IntFloat *)&self->dobj)->i + 0x844)].wheelHeight;
+            accessary[*(int *)(((IntFloat *)&self->dobj)->i + 0x844)].pivot[0];
         ((IntFloat *)&w->wheelFront)->f =
-            D_002A79B8[*(int *)(((IntFloat *)&self->dobj)->i + 0x844)].wheelFront;
+            accessary[*(int *)(((IntFloat *)&self->dobj)->i + 0x844)].pivot[1];
         ((IntFloat *)&w->wheelRear)->f =
-            D_002A79B8[*(int *)(((IntFloat *)&self->dobj)->i + 0x844)].wheelRear;
+            accessary[*(int *)(((IntFloat *)&self->dobj)->i + 0x844)].pivot[2];
     }
 }
 
@@ -2186,14 +2186,14 @@ BoxWork *InitBoxGeo(GObj *self, BoxLayout *lay)
             r.scale[3] = 1.0f;
             r.kind = 1;
 
-            sub = D_002A79B8[GOBJ_SUB(self)->accessary].sub;
-            o = CreateLayoutedGObj(23, D_002A79B8[sub].dobj0, sub, 0, (int)&r, 0, 7, 0);
+            sub = accessary[GOBJ_SUB(self)->accessary].subModel;
+            o = CreateLayoutedGObj(23, accessary[sub].model, sub, 0, (int)&r, 0, 7, 0);
 
             LinkParentOfDObj(o, (PackedLL_19CAF0 *)&lnk);
 
-            q.f[0] = D_002A79B8[GOBJ_SUB(self)->accessary].pos[0];
-            q.f[1] = D_002A79B8[GOBJ_SUB(self)->accessary].pos[1];
-            q.f[2] = D_002A79B8[GOBJ_SUB(self)->accessary].pos[2];
+            q.f[0] = accessary[GOBJ_SUB(self)->accessary].subPos[0];
+            q.f[1] = accessary[GOBJ_SUB(self)->accessary].subPos[1];
+            q.f[2] = accessary[GOBJ_SUB(self)->accessary].subPos[2];
             q.f[3] = 1.0f;
             v = q;
 
@@ -2201,8 +2201,8 @@ BoxWork *InitBoxGeo(GObj *self, BoxLayout *lay)
 
             memset(&q, 0, 16);
             q.f[3] = 1.0f;
-            RotQuaternionY(&q,
-                           (short)(D_002A79B8[GOBJ_SUB(self)->accessary].rotY * 32768.0f / 180.0f));
+            RotQuaternionY(
+                &q, (short)(accessary[GOBJ_SUB(self)->accessary].subRotY * 32768.0f / 180.0f));
             CopyVector((char *)GOBJ_SUB(o) + 0xD0, &q);
 
             SetSwitchTriggerFunc(o, (void *)moveBoxAutoMatic);

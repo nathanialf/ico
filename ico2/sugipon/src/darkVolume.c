@@ -204,9 +204,6 @@ static float sinB[8];
 
 static float sinA[8];
 
-extern int D_0028FF00[];
-void _SetCurrentMatrix(void *m);
-
 /* listing lines 62-65: load the VU0 screen clamp limits vmaxx and vminix read
    out of vf13 and vf12 in the projection block at line 80. */
 static __inline__ void setScreenClamp(float hi, float lo)

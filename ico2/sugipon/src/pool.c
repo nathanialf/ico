@@ -1,4 +1,5 @@
 #include "sugiCommon.h"
+#include "box.h"
 #include "pool.h"
 #include "memory.h"
 #include "DisplayP2O.h"
@@ -246,21 +247,6 @@ typedef struct {
     PoolQuad scale; /* 0x20 */
 } PoolDisp;
 
-/* RECONSTRUCTION, read from the ROM.  The stage's CSV object table, one
-   40-byte record per stage entry: the object id at 0x00 and the three
-   placement angles at 0x0C.  ico2/sugipon/src/puddle.c reaches the same
-   table for the same id. */
-typedef struct {
-    int id;      /* 0x00 */
-    int f_4;     /* 0x04 */
-    int f_8;     /* 0x08 */
-    float f_C;   /* 0x0C */
-    float f_10;  /* 0x10 */
-    float f_14;  /* 0x14 */
-    int f_18[4]; /* 0x18 */
-} StgCsvEnt;
-
-extern StgCsvEnt D_002A79B8[];
 int poolRideFunc(char **a0, GObj *a1);
 
 char *InitPoolGeo(char *self, SObjSimpleSetting *lay)
@@ -309,10 +295,10 @@ char *InitPoolGeo(char *self, SObjSimpleSetting *lay)
         if (GOBJ_SUB(self)->accessary != 26) {
             PoolLayout obj = *(PoolLayout *)&InitialSObjSimpleSetting;
 
-            obj.x = -D_002A79B8[GOBJ_SUB(self)->accessary].f_C;
-            obj.y = -D_002A79B8[GOBJ_SUB(self)->accessary].f_10;
-            obj.z = -D_002A79B8[GOBJ_SUB(self)->accessary].f_14;
-            w->dobj = CSVSYSTEM_InitDObj(D_002A79B8[GOBJ_SUB(self)->accessary].id, (float *)&obj);
+            obj.x = -accessary[GOBJ_SUB(self)->accessary].pivot[0];
+            obj.y = -accessary[GOBJ_SUB(self)->accessary].pivot[1];
+            obj.z = -accessary[GOBJ_SUB(self)->accessary].pivot[2];
+            w->dobj = CSVSYSTEM_InitDObj(accessary[GOBJ_SUB(self)->accessary].model, (float *)&obj);
 
             w->spin = 0;
         } else {

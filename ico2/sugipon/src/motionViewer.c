@@ -359,8 +359,6 @@ int motKindMenuProc(void)
     return ret;
 }
 
-extern char D_0055FF18[];
-
 static int lastOriSel = -1; /* derived name */
 
 int motOriMenuProc(void)
@@ -387,7 +385,7 @@ int motOriMenuProc(void)
 
     dispMotFrameProgress(mot, ForMotionViewer_GetCurrentAnimationFrame(viewObj));
     if (motionKindCount != 0) {
-        sprintf(buf, "ORIENT for \"%s\" Frame: %1.1f/%d", &D_0055FF18[cur * 404],
+        sprintf(buf, "ORIENT for \"%s\" Frame: %1.1f/%d", motionKind[cur].name,
                 ForMotionViewer_GetCurrentAnimationFrame(viewObj), GetNbMotionFrames(mot));
         ret = debug_SelectCsvWindow(buf, 10, 50, 11, oriCsv.rows, 8, 0, 1, motionKindCount,
                                     &oriCsv.sel);
@@ -400,7 +398,7 @@ int motOriMenuProc(void)
         for (i = 0; i < 10; i++) {
             ori = GetMotionOrient(ent->oriFrom, ent->oriTo, m, oriCsv.rows[oriCsv.sel].kind);
             debug_PrintfDummy(430, i * 8 + 90, (i == 0 || m == 1145) ? 0x00FFFF00 : 0xFFFFFF00,
-                              "%c %s", m == now ? 62 : 32, &D_0055FF18[m * 404]);
+                              "%c %s", m == now ? 62 : 32, motionKind[m].name);
             if (m == 1145) {
                 break;
             }
@@ -414,7 +412,7 @@ int motOriMenuProc(void)
             m = ori->nextId;
         }
     } else {
-        debug_PrintfDummy(10, 50, 0xFF000000, "NO ORIENT for \"%s\"", &D_0055FF18[cur * 404]);
+        debug_PrintfDummy(10, 50, 0xFF000000, "NO ORIENT for \"%s\"", motionKind[cur].name);
         ret = (pad[0].flags & 0x40) ? -1 : 0;
     }
     if (pad[0].flags & 0x10) {

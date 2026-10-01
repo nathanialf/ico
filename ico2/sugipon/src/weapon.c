@@ -1,4 +1,5 @@
 #include "debug.h"
+#include "box.h"
 #include "sugiCommon.h"
 #include "weapon.h"
 #include "memory.h"
@@ -649,15 +650,6 @@ void initializeQueenzSword(GObj *g, int index, QSwordLayout *lay)
     w->sword = o2;
 }
 
-/* The per-weapon CSV model-id pair table, 40 bytes a row. */
-typedef struct {
-    int model0; /* 0x00 */
-    int model1; /* 0x04 */
-    char pad08[32];
-} WeaponCsvEntry;
-
-extern WeaponCsvEntry D_002A79B8[];
-
 typedef float WeaponVec[4] __attribute__((aligned(8)));
 
 void *InitWeaponGeo(GObj *g, QSwordLayout *lay)
@@ -708,9 +700,9 @@ void *InitWeaponGeo(GObj *g, QSwordLayout *lay)
             w->buf = iosMallocDebug(ios_partition_sugipon, 0x160, __FILE__, 870);
             w->net = iosMallocDebug(ios_partition_sugipon, 8, __FILE__, 871);
             w->model0 = CSVSYSTEM_InitDObj(
-                D_002A79B8[((SubHandle *)(((char *)g) + 0x15C))->sub->accessary].model0, lay);
+                accessary[((SubHandle *)(((char *)g) + 0x15C))->sub->accessary].model, lay);
             w->model1 = CSVSYSTEM_InitDObj(
-                D_002A79B8[((SubHandle *)(((char *)g) + 0x15C))->sub->accessary].model1, lay);
+                accessary[((SubHandle *)(((char *)g) + 0x15C))->sub->accessary].model2, lay);
             CopyQuaternion(*(char **)(((char *)g) + 0x15C) + 0xD0,
                            *(char **)(((char *)g) + 0x15C) + 0x60);
             UpdateRootMatrix(g);

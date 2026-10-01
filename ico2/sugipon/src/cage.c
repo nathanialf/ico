@@ -1,4 +1,5 @@
 #include "cage.h"
+#include "box.h"
 #include "gobj.h"
 #include "DisplayP2O.h"
 #include "clothAnimation.h"
@@ -109,10 +110,6 @@ static CageChainParam cageChainParam[2] = {
     {-1},
 };
 
-/* the object-kind table, one 40-byte row per cage kind, the first two words of
- * the row being the two display-list ids the cage builds its DObjs from */
-extern char D_002A79B8[];
-
 /* listing rows sugipon/src/cage.c:96-132 */
 char *InitCageGeo(char *self, SObjSimpleSetting *lay)
 {
@@ -124,10 +121,9 @@ char *InitCageGeo(char *self, SObjSimpleSetting *lay)
     w = (CageWork *)iosMallocDebug((void *)ios_partition_sugipon, 80, __FILE__, 97);
     ch = (char *)iosMallocDebug((void *)ios_partition_sugipon, 160, __FILE__, 98);
     w->dobj = (Sub15C *)CSVSYSTEM_InitDObj(
-        *(int *)(D_002A79B8 + ((SubHandle *)(self + 0x15C))->sub->accessary * 40), (float *)lay);
-    w->dobj2 = CSVSYSTEM_InitDObj(
-        *(int *)(D_002A79B8 + ((SubHandle *)(self + 0x15C))->sub->accessary * 40 + 4),
-        (float *)lay);
+        accessary[((SubHandle *)(self + 0x15C))->sub->accessary].model, (float *)lay);
+    w->dobj2 = CSVSYSTEM_InitDObj(accessary[((SubHandle *)(self + 0x15C))->sub->accessary].model2,
+                                  (float *)lay);
     w->damping = 0.995f;
     w->mass = lay->scale[0];
     ((CageChainParam *)ch)[0] = cageChainParam[0];

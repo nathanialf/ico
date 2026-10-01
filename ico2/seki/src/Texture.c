@@ -851,14 +851,16 @@ typedef struct sceGsStoreImage {
     long long qw[14];
 } sceGsStoreImage;
 
-/* dpsm is short here for the reason the repo's sceGsSetDefDispEnv declaration
- * carries: the ROM reads psmTable's first word with lh at this call site and
- * with lw five instructions later, so the argument is a 16-bit conversion of an
- * int field, which is what a short parameter spells. */
-extern void sceGsSetDefLoadImage(sceGsLoadImage *img, int dbp, int dbw, short dpsm, int dsax,
-                                 int dsay, int rrw, int rrh);
-extern void sceGsSetDefStoreImage(sceGsStoreImage *img, int sbp, int sbw, int spsm, int ssax,
-                                  int ssay, int rrw, int rrh);
+/* libgraph.h does not declare the image-transfer calls; these are the
+ * signatures of the members that define them (graph015-018), except the
+ * store call's int parameters: with graph016's shorts the store call site
+ * converts w2 and h, which the ROM does not.  The load call's shorts are what
+ * the ROM reads: psmTable's first word with lh there and with lw five
+ * instructions later. */
+extern int sceGsSetDefLoadImage(sceGsLoadImage *img, short dbp, short dbw, short dpsm, short dsax,
+                                short dsay, short rrw, short rrh);
+extern int sceGsSetDefStoreImage(sceGsStoreImage *img, int sbp, int sbw, int spsm, int ssax,
+                                 int ssay, int rrw, int rrh);
 extern int sceGsExecLoadImage(sceGsLoadImage *img, void *src);
 extern int sceGsExecStoreImage(sceGsStoreImage *img, void *dst);
 
