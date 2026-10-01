@@ -38,6 +38,7 @@
 #include <assert.h>
 #include "motionManager2.h"
 #include "attackhit.h"
+#include "pad.h"
 
 int entesty;
 
@@ -48,11 +49,11 @@ typedef struct { /* field names derived */
     char *name;
     int pri;
     void (*brain)(GObj *);
-    int f0C;
-    int f10;
-    int f14;
-    int f18;
-} EnemyBrainMode; /* derived name */
+    int aim;       /* 0x0C, copied to the actor's brainAim: 1 the girl, 2 the boy */
+    int word10;    /* 0x10, read by nothing in the retail build */
+    int stoppable; /* 0x14, nonzero: mail 0x20 stops the brain until mail 0x1F */
+    int infoPos;   /* 0x18, copied to the actor's infoPos */
+} EnemyBrainMode;  /* derived name */
 
 inline void subEnemyBrain_Await(GObj *volatile a0);
 void subEnemyBrain_ToBoy(GObj *volatile a0);
@@ -84,10 +85,10 @@ EnemyBrainMode brainModeTable[] = {
     {"IRREGULAR", 4, subEnemyBrain_Irregular, 0, 0, 1, 0},
 }; /* derived name */
 
-/* The brain-mode default target, read when a mode is set with no target:
+/* The default target, read when a mode is set with no target:
    _BrainMode_SetDirect's else arm and the two nested brain-change children
-   read it.  A one-element const array. */
-static const int brainTargetNone[1] = {0}; /* derived name */
+   start from it. */
+static const BrainModeTarget brainTargetNone = {0}; /* derived name */
 
 #define BOSS_START_WORK(self) ((int)GOBJ_ACT(self)->enemy) /* derived name */
 
@@ -158,9 +159,10 @@ static sceVu0FVECTOR flyDestPos[4] = {
 static sceVu0FVECTOR flyEscapePos = {1712.0f, -600.0f, 0.0f, 1.0f}; /* derived name */
 
 /* The brain-mode target the ChangeBrain_ToAttack and ChangeBrain_ToKidnap
-   children hand to _BrainMode_SetDirect: one word shared by the nested
-   functions of two parents, so file scope (the TU's whole .sbss). */
-static char *brainTarget; /* derived name */
+   children fill in from the default and hand to _BrainMode_SetDirect: one
+   record shared by the nested functions of two parents, so file scope (the
+   TU's whole .sbss). */
+static BrainModeTarget brainTarget; /* derived name */
 
 /* enemy_act.c carries none of these owners' headers; gif_StartPacketPri takes
    the packet priority its GifPacket.h prototype does not name */
@@ -170,15 +172,15 @@ extern int GetFlyLimitClearance(void *pos);
 /* One start record per motion phase; the four of them are the actor's whole
    start parameter block. */
 typedef struct { /* field names derived */
-    int mode;
-    int f04;
-    int f08;
-    int f0C;
-    int f10;
-    float f14;
-    float f18;
-    unsigned int f1C;
-} EnemyStartRec; /* derived name */
+    int sizeClass;
+    int paraStatus;
+    int clingNode;
+    int attackChance;
+    int attackChance2;
+    float maxLife;
+    float bodyslamMail;
+    unsigned int noGuard; /* the status word's bit 51, which turns away the guard mail */
+} EnemyStartRec;          /* derived name */
 
 /* The gobj's sub-object slot at +0x15C, an int handle the engine also reads
    as the sub record's address (see GOBJ_SUB in typedef.h), as a union of the
@@ -1538,13 +1540,13 @@ store:
     *outMode = mode;
 }
 
-inline void _BrainMode_SetDirect(char *a0, int a1, int *a2)
+inline void _BrainMode_SetDirect(char *a0, int a1, BrainModeTarget *a2)
 {
     GOBJ_ACT(a0)->enemy->reqMode = a1;
     if (a2 != 0) {
-        *(int *)((char *)GOBJ_ACT(a0)->enemy + 0x214) = *a2;
+        GOBJ_ACT(a0)->enemy->flags.w.reqTarget = *a2;
     } else {
-        *(int *)((char *)GOBJ_ACT(a0)->enemy + 0x214) = brainTargetNone[0];
+        GOBJ_ACT(a0)->enemy->flags.w.reqTarget = brainTargetNone;
     }
 }
 
@@ -1666,10 +1668,10 @@ void subEnemyBrainMain(GObj *volatile a0)
             (((int)(sub->flags20.ll >> 9)) & 1) != 0) {
             sub->flags20.ll &= ~0x200LL;
             GOBJ_ACT(a0)->enemy->mode = GOBJ_ACT(a0)->enemy->reqMode;
-            GOBJ_ACT(a0)->enemy->target = GOBJ_ACT(a0)->enemy->flags.w.reqTarget;
+            GOBJ_ACT(a0)->enemy->target = GOBJ_ACT(a0)->enemy->flags.w.reqTarget.gobj;
             sub->brainTarget = (char *)GOBJ_ACT(a0)->enemy->target;
-            sub->brainAim = brainModeTable[GOBJ_ACT(a0)->enemy->mode].f0C;
-            sub->infoPos = brainModeTable[GOBJ_ACT(a0)->enemy->mode].f18;
+            sub->brainAim = brainModeTable[GOBJ_ACT(a0)->enemy->mode].aim;
+            sub->infoPos = brainModeTable[GOBJ_ACT(a0)->enemy->mode].infoPos;
             if (sub->infoPos == 4) {
                 gamesysObjInfoPosSetStage(a0, 4, 0, stage_no);
             }
@@ -1700,7 +1702,7 @@ void subEnemyBrainMain(GObj *volatile a0)
                 _ACTWait(1);
             }
         }
-        if (brainModeTable[GOBJ_ACT(a0)->enemy->mode].f14 != 0 &&
+        if (brainModeTable[GOBJ_ACT(a0)->enemy->mode].stoppable != 0 &&
             (((int)((long long)sub->flags20.ll >> 5)) & 1) != 0) {
             char *g = *(char **)(char *)sub;
 
@@ -2234,23 +2236,22 @@ void subEnemyBrain_ToBoy(GObj *volatile a0)
     {
         if (isLiftBoyEnable() != 0) {
             if (GOBJ_ACT(a0)->enemy->sizeClass == 2) {
-                char **tgt = &brainTarget;
+                BrainModeTarget *tgt = &brainTarget;
 
-                /* the slot takes the default target, then the boy; the same shape
-                   sits in the other four arms (here and in
-                   ChangeBrain_ToKidnap) */
-                brainTarget = (char *)brainTargetNone[0];
-                brainTarget = boyGObj;
+                /* the default target, then the boy; the same shape sits in
+                   the other four arms (here and in ChangeBrain_ToKidnap) */
+                brainTarget = brainTargetNone;
+                brainTarget.gobj = boyGObj;
                 if ((int)(random_unit() * 10.0f) % 100 < GOBJ_ACT(a0)->enemy->attackChance2) {
-                    _BrainMode_SetDirect((char *)a0, 12, (int *)tgt);
+                    _BrainMode_SetDirect((char *)a0, 12, tgt);
                 } else {
-                    _BrainMode_SetDirect((char *)a0, 9, (int *)tgt);
+                    _BrainMode_SetDirect((char *)a0, 9, tgt);
                 }
             } else {
                 /* the default target first, see the kind == 2 arm above */
-                brainTarget = (char *)brainTargetNone[0];
-                brainTarget = boyGObj;
-                _BrainMode_SetDirect((char *)a0, 9, (int *)&brainTarget);
+                brainTarget = brainTargetNone;
+                brainTarget.gobj = boyGObj;
+                _BrainMode_SetDirect((char *)a0, 9, &brainTarget);
             }
         }
     }
@@ -2416,19 +2417,19 @@ void subEnemyBrain_ToGirl(GObj *volatile a0)
         switch (GOBJ_ACT(a0)->enemy->sizeClass) {
         case 0:
             /* the default target first, see ChangeBrain_ToAttack */
-            brainTarget = (char *)brainTargetNone[0];
-            brainTarget = girlGObj;
-            _BrainMode_SetDirect((char *)a0, 8, (int *)&brainTarget);
+            brainTarget = brainTargetNone;
+            brainTarget.gobj = girlGObj;
+            _BrainMode_SetDirect((char *)a0, 8, &brainTarget);
             break;
         case 2:
-            brainTarget = (char *)brainTargetNone[0];
-            brainTarget = girlGObj;
-            _BrainMode_SetDirect((char *)a0, 11, (int *)&brainTarget);
+            brainTarget = brainTargetNone;
+            brainTarget.gobj = girlGObj;
+            _BrainMode_SetDirect((char *)a0, 11, &brainTarget);
             break;
         default:
-            brainTarget = (char *)brainTargetNone[0];
-            brainTarget = girlGObj;
-            _BrainMode_SetDirect((char *)a0, 10, (int *)&brainTarget);
+            brainTarget = brainTargetNone;
+            brainTarget.gobj = girlGObj;
+            _BrainMode_SetDirect((char *)a0, 10, &brainTarget);
             break;
         }
     }
@@ -2740,15 +2741,15 @@ void actEnemyStart(GObj *self)
 
         GOBJ_ACT(self)->enemy->bodySize = *(float *)((int)GOBJ_SUB(self)->nodes + 0x20);
         GOBJ_ACT(self)->enemy->liftKind = 1;
-        GOBJ_ACT(self)->enemy->sizeClass = p[1].mode;
-        GOBJ_ACT(self)->enemy->paraStatus = p[1].f04;
-        GOBJ_ACT(self)->enemy->clingNode = p[1].f08;
-        GOBJ_ACT(self)->enemy->attackChance = p[1].f0C;
-        GOBJ_ACT(self)->enemy->attackChance2 = p[1].f10;
-        *(float *)(act + 0x1E4) = p[1].f14;
-        GOBJ_ACT(self)->enemy->bodyslamMail = (int)p[1].f18;
+        GOBJ_ACT(self)->enemy->sizeClass = p[1].sizeClass;
+        GOBJ_ACT(self)->enemy->paraStatus = p[1].paraStatus;
+        GOBJ_ACT(self)->enemy->clingNode = p[1].clingNode;
+        GOBJ_ACT(self)->enemy->attackChance = p[1].attackChance;
+        GOBJ_ACT(self)->enemy->attackChance2 = p[1].attackChance2;
+        *(float *)(act + 0x1E4) = p[1].maxLife;
+        GOBJ_ACT(self)->enemy->bodyslamMail = (int)p[1].bodyslamMail;
         GOBJ_ACT(self)->enemy->bossLife = 3;
-        bit = p[1].f1C;
+        bit = p[1].noGuard;
         ((ActStatusWord *)(act + 0x18))->q =
             (((ActStatusWord *)(act + 0x18))->q & ~(1ULL << 51)) | ((bit & 1) << 51);
     }

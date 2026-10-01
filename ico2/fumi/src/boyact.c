@@ -2466,7 +2466,8 @@ inline void actBoyFall(GObj *volatile a0)
     }
 }
 
-extern void BoyAttackCenter(int a0);
+/* as in attackhit.c, whose header does not declare it */
+extern void BoyAttackCenter(GObj *gobj);
 
 /* the nearest enemy in front of the actor, which ACTSearchEnemy and
    actBoyAttack inline */

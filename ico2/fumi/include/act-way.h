@@ -20,6 +20,6 @@ int ACTWayMove_BeginDetail(GObj *self, float *goal, float *from, void *tgt, void
 
 int ACTWayMove_NextDetail(GObj *self, float *node, float *goal, unsigned char d, unsigned char e);
 int ACTWay_IsMustWalkFromWay(GObj *a0);
-void ACTWay_SetBeginPositionIllegal(char *a0);
+void ACTWay_SetBeginPositionIllegal(GObj *self);
 
 #endif /* ACT_WAY_H */

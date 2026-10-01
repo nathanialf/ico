@@ -24,7 +24,7 @@ typedef struct GProc {     /* field names derived */
     void (*func)();        /* 0x1C, the body of an inline process */
     char pad20[4];
     IOSThread thread; /* 0x24, the thread a threaded process runs on */
-} GProc; /* derived name */
+} GProc;              /* derived name */
 
 /* gobj_process.c's `inline` functions, in the order of their definitions'
  * out-of-line copies at the end of the object (first-declaration order). */
@@ -42,13 +42,7 @@ void isysGObjProcThreadSleep(int a0);
 GProc *isysGObjProcAddSGOppArg(GObj *g, void (*fn)(), int noThread, int pri, int stack);
 void isysGObjProcActivePtr(void *a0, int a1);
 void free_gobj_process_resource(char *self);
-
-GProc *isysGObjProcAdd_(GObj *g, GObj *arg, void (*fn)(), unsigned char noThread, int pri,
-                        long stack);
-
 void isysGObjProcRemove(GProc *p);
 void isysGObjProcessInit(unsigned int a0);
-
-void cut_gobj_process_link(GProc *p);
 
 #endif /* GOBJ_PROCESS_H */

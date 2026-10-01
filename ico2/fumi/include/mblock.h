@@ -21,15 +21,12 @@ typedef struct MBlock { /* field names derived */
 } MBlock; /* derived name */
 
 /* mblock.o's .sdata global: the free node list */
-extern int free_mblock_list;
-
+extern MBlockNode *free_mblock_list;
 /* mblock.c's `inline` functions, in the order of their definitions'
  * out-of-line copies at the end of the object (first-declaration order). */
-void init_mblock(int *a0);
+void init_mblock(MBlock *mb);
 void *new_segment(MBlock *mb, unsigned int len);
-void reuse_mblock(int *a0);
+void reuse_mblock(MBlock *mb);
 char *strdup_mblock(MBlock *mb, const char *str);
-
-MBlockNode *new_mblock_node(unsigned int size);
 
 #endif /* MBLOCK_H */

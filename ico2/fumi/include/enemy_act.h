@@ -14,14 +14,19 @@
    the sub record's +0x20 word).  A write through the byte view may alias the
    pointers that reach it, so each arm below re-reads self->sub->enemy for its
    second assignment.  The two-word view is the enemy work's: +0x210 is one
-   64-bit word and +0x214, the requested brain target, an int inside it. */
+   64-bit word and +0x214, the requested brain target, a record inside it. */
+/* The target a brain-mode request carries (_BrainMode_SetDirect). */
+typedef struct { /* field names derived */
+    GObj *gobj;
+} BrainModeTarget; /* derived name */
+
 typedef union { /* field names derived */
     char c[8];
     long long ll;
 
     struct {
         int bits;
-        int reqTarget;
+        BrainModeTarget reqTarget;
     } w;
 } EnemyStatusFlags; /* derived name */
 
@@ -118,7 +123,7 @@ typedef struct EnemyBattleWork { /* field names derived */
     float rescueY; /* 0x304 */
     char pad308[8];
     int boxBarSound; /* 0x310 */
-} EnemyBattleWork; /* derived name */
+} EnemyBattleWork;   /* derived name */
 
 /* enemy_act.c's `inline` functions, in the order of their definitions'
  * out-of-line copies at the end of the object (first-declaration order). */
@@ -161,7 +166,7 @@ void subEnemyBrain_Shoulder(GObj *volatile a0);
 void subEnemyBrain_Pickup(GObj *volatile a0);
 void subEnemyBrain_Bodyslam(GObj *volatile a0);
 void subEnemyBrain_Irregular(GObj *volatile a0);
-inline void _BrainMode_SetDirect(char *a0, int a1, int *a2);
+inline void _BrainMode_SetDirect(char *a0, int a1, BrainModeTarget *a2);
 inline void EnemyUtil_TurnToBoy(GObj *self, GObj *tgt, int smooze);
 inline int FlyMail(void *a0);
 void boss_effect_callback(int id);

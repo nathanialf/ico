@@ -26,7 +26,6 @@ typedef struct DLN { /* field names derived */
 void isysGObjDlInit(void);
 void isysGObjMoveObjDLAfterGObj(DLN *self, DLN *obj);
 void isysGObjMoveObjDLBeforeGObj(DLN *self, DLN *obj);
-void cut_gobj_dl_link(int *self);
 void isysGObjLinkObjDL(void *a0, void *a1, unsigned char a2, int a3, unsigned int a4);
 
 #endif /* GOBJ_DL_H */

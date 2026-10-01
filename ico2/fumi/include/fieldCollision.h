@@ -21,10 +21,9 @@ extern WallCfg InitialColInfo;
 /* The object pointer pair a clip resets its wall and floor sources to, copied
    as one unaligned 8-byte block. */
 typedef struct { /* field names derived */
-    unsigned int lo;
-    unsigned char m[3];
-    unsigned char hi;
-} FcBlk8; /* derived name */
+    int obj;     /* the object the clip element belongs to, 0 for none */
+    int elem;    /* the element's index, -1 for none */
+} FcBlk8;        /* derived name */
 
 extern FcBlk8 InitialObjPointer;
 extern int collision_pick;
@@ -40,7 +39,7 @@ typedef struct FcWallEnt { /* field names derived */
     char pad46[2];
     int attr;      /* 0x48 */
     float *normal; /* 0x4C */
-} FcWallEnt; /* derived name */
+} FcWallEnt;       /* derived name */
 
 /* fieldCollision.c's `inline` functions (all but the sixteen it compiles in
  * place), in the order of their definitions' out-of-line copies at the end of
@@ -86,9 +85,6 @@ void DrawGObjFloorCollision(char *gobj, int col);
 void DrawGObjWallCollision(char *gobj, int col);
 void GetReflectionElement(char *a0, float arg0, float arg1);
 void MakeExitAttributeIndex(void);
-void _Clip(char *a0, int a1);
-int clip_floor_1(void *a0, int a1, int a2);
-int clip_wall_1(void *a0, FcWallEnt *a1, int a2, int a3);
 void MakeCollisionDependGObjList(void);
 
 #endif /* FIELDCOLLISION_H */

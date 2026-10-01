@@ -1,5 +1,7 @@
 #include "act-parallel-control.h"
 #include "debug.h"
+#include "debug_exception.h"
+#include <assert.h>
 
 /* the parallel-action ids copied out of the layout table */
 static int parallelIds[86]; /* derived name */

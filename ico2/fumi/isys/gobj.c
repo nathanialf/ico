@@ -4,6 +4,9 @@
 #include "typedef.h"
 #include "isys.h"
 #include "gobj.h"
+#include "gobj_process.h"
+#include "debug_exception.h"
+#include <assert.h>
 
 /* the head of the free list for each of the 70 object kinds */
 static GObj *gobjKindHead[70]; /* derived name */
@@ -30,7 +33,7 @@ inline void *isysGObjGetExist_next(GObj *start);
 inline void isysGObjActiveLink(int bit, int set);
 inline void isysGObjActiveDlLink(int a0, int a1);
 
-void isysGObjKindTableInit(void)
+static void isysGObjKindTableInit(void)
 {
     memset(gobjKindHead, 0, sizeof(gobjKindHead));
 }
@@ -72,7 +75,7 @@ inline void isysGObjAlloc(int n)
 
 int debugKindOld = 0;
 
-void cut_gobj_link(GObj *p)
+static void cut_gobj_link(GObj *p)
 {
     if (p == 0) {
         debug_StdPrintfDummy("isys:null GObj\n");
@@ -148,7 +151,7 @@ void isysGObjRemoveAll(void)
     isysGObjKindTableInit();
 }
 
-void add_gobj_to_tail(GObj *g, int a1, int a2)
+static void add_gobj_to_tail(GObj *g, int a1, int a2)
 {
     unsigned char kind = a1;
     unsigned int val = a2;
@@ -190,7 +193,7 @@ void add_gobj_to_tail(GObj *g, int a1, int a2)
     g->next->prev = g;
 }
 
-void add_gobj_to_head(GObj *g, int a1, int a2)
+static void add_gobj_to_head(GObj *g, int a1, int a2)
 {
     unsigned char kind = a1;
     unsigned int val = a2;

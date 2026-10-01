@@ -46,7 +46,7 @@ static float wpPosVec[128][4]; /* derived name */
 /* 276 entries, one more than the loops' 275 */
 static WpPosEntry wpPosInfo[276]; /* derived name */
 
-void add_wp_pos(WayPoint *wp, float *pos, float len)
+static void add_wp_pos(WayPoint *wp, float *pos, float len)
 {
     if (wpPosLock) {
         return;

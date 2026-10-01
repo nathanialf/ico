@@ -224,31 +224,42 @@ inline int gameblock_read(int *self, void *buf)
 /* one sceMcTblGetDir record: the file name sits at +0x20 in a 0x40-byte entry
    (the same record src/debug.c spells as McDirEnt). */
 
+/* the manager's status word: flag bits in the low word, the command
+   iosMcManager runs in the high word */
+typedef union { /* field names derived */
+    long long ll;
+
+    struct {
+        int bits;
+        int command;
+    } w;
+} McFlags; /* derived name */
+
 typedef struct {             /* field names derived */
-    long long f0;            /* 0x00 -- the iosMc command/flag word, 64-bit */
+    McFlags flags;           /* 0x00 -- bit 0 idle, bit 1 saving; the command in the high word */
     int port;                /* 0x08 */
     int slot;                /* 0x0C */
-    int f10;                 /* 0x10 */
-    int f14;                 /* 0x14 */
-    int f18;                 /* 0x18 */
-    int f1C;                 /* 0x1C */
-    int f20;                 /* 0x20 */
-    int f24;                 /* 0x24 */
+    int result;              /* 0x10 -- the last sceMcSync result */
+    int type;                /* 0x14 -- sceMcGetInfo's card type */
+    int free;                /* 0x18 -- sceMcGetInfo's free clusters */
+    int cardState;           /* 0x1C -- the last card-state result, -1 formatted, -2 unformatted */
+    int format;              /* 0x20 -- sceMcGetInfo's format flag */
+    int segment;             /* 0x24 -- the save segment (iOSMcSaveSeg) being read or written */
     int fd;                  /* 0x28 */
-    int f2C;                 /* 0x2C */
-    int f30;                 /* 0x30 */
+    int openMode;            /* 0x2C */
+    int word30;              /* 0x30 */
     int size;                /* 0x34 */
     int pos;                 /* 0x38 */
     int end;                 /* 0x3C */
-    int f40;                 /* 0x40 */
-    int f44;                 /* 0x44 -- entries filled in by sceMcGetDir */
-    int f48;                 /* 0x48 */
+    int fileNo;              /* 0x40 -- the number in the save file's name */
+    int dirCount;            /* 0x44 -- entries filled in by sceMcGetDir */
+    int segArg;              /* 0x48 -- what the segment's save and load handlers are given */
     int sum;                 /* 0x4C */
-    int f50;                 /* 0x50 */
+    int readSum;             /* 0x50 -- the checksum read back from the card */
     unsigned char buf[1024]; /* 0x54 -- the one-sector staging cache */
-    char name454[20];        /* 0x454 */
-    char pwd468[20];         /* 0x468 */
-    char name47C[68];        /* 0x47C */
+    char dirName[20];        /* 0x454 */
+    char pwd[20];            /* 0x468 */
+    char path[68];           /* 0x47C */
     sceMcTblGetDir dir[20];  /* 0x4C0 */
     long long mask;          /* 0x9C0 */
 } McMgr;                     /* derived name */
@@ -263,16 +274,16 @@ void iosMcMgrGetInfo(McMgr *mp)
 {
     int r;
 
-    while ((r = sceMcGetInfo(mp->port, mp->slot, &mp->f14, &mp->f18, &mp->f20)) != 0) {
+    while ((r = sceMcGetInfo(mp->port, mp->slot, &mp->type, &mp->free, &mp->format)) != 0) {
         debug_StdPrintfDummy("iosMcMgrGetInfo: request busy %d\n", r);
     }
 
     iosMcMgrSync(mp);
 
-    debug_StdPrintfDummy("mcMgrGetInfo result:%d type:%d\n", mp->f10, mp->f14);
+    debug_StdPrintfDummy("mcMgrGetInfo result:%d type:%d\n", mp->result, mp->type);
 
-    if (mp->f10 != 0 && mp->f10 >= -10) {
-        mp->f1C = mp->f10;
+    if (mp->result != 0 && mp->result >= -10) {
+        mp->cardState = mp->result;
     }
 }
 
@@ -285,8 +296,8 @@ static inline void iosMcMgrFormat(McMgr *mp) /* derived name */
 
     iosMcMgrSync(mp);
 
-    if (mp->f10 == 0) {
-        mp->f1C = -1;
+    if (mp->result == 0) {
+        mp->cardState = -1;
     }
 }
 
@@ -298,8 +309,8 @@ static inline void iosMcMgrUnformat(McMgr *mp) /* derived name */
 
     iosMcMgrSync(mp);
 
-    if (mp->f10 == 0) {
-        mp->f1C = -2;
+    if (mp->result == 0) {
+        mp->cardState = -2;
     }
 }
 
@@ -323,17 +334,17 @@ static inline void iosMcMgrRead(McMgr *mp, void *p) /* derived name */
 
 static inline void iosMcMgrOpen(McMgr *mp) /* derived name */
 {
-    while (sceMcOpen(mp->port, mp->slot, mp->name47C, mp->f2C) > 0) {
+    while (sceMcOpen(mp->port, mp->slot, mp->path, mp->openMode) > 0) {
         debug_StdPrintfDummy("sceMcOpen: request busy\n");
     }
 
     iosMcMgrSync(mp);
 
-    if (mp->f10 < 0) {
+    if (mp->result < 0) {
         return;
     }
 
-    mp->fd = mp->f10;
+    mp->fd = mp->result;
     mp->sum = 0;
     mp->end = 0;
     mp->pos = 0;
@@ -350,7 +361,7 @@ static inline void iosMcMgrClose(McMgr *mp) /* derived name */
 
 static inline void iosMcMgrChdir(McMgr *mp) /* derived name */
 {
-    while (sceMcChdir(mp->port, mp->slot, mp->name454, mp->pwd468) > 0) {
+    while (sceMcChdir(mp->port, mp->slot, mp->dirName, mp->pwd) > 0) {
         debug_StdPrintfDummy("iosMcMgrChdir: request busy\n");
     }
 
@@ -359,22 +370,22 @@ static inline void iosMcMgrChdir(McMgr *mp) /* derived name */
 
 static inline void iosMcMgrGetDir(McMgr *mp) /* derived name */
 {
-    while (sceMcGetDir(mp->port, mp->slot, mp->name47C, 0, 20, mp->dir) > 0) {
+    while (sceMcGetDir(mp->port, mp->slot, mp->path, 0, 20, mp->dir) > 0) {
         debug_StdPrintfDummy("sceMcGetdir: request busy\n");
     }
 
     iosMcMgrSync(mp);
 
-    if (mp->f10 < 0) {
-        mp->f44 = 0;
+    if (mp->result < 0) {
+        mp->dirCount = 0;
     } else {
-        mp->f44 = mp->f10;
+        mp->dirCount = mp->result;
     }
 }
 
 static inline void iosMcMgrMkdir(McMgr *mp) /* derived name */
 {
-    while (sceMcMkdir(mp->port, mp->slot, mp->name47C) > 0) {
+    while (sceMcMkdir(mp->port, mp->slot, mp->path) > 0) {
         debug_StdPrintfDummy("iosMcMgrMkdir: request busy\n");
     }
 
@@ -383,7 +394,7 @@ static inline void iosMcMgrMkdir(McMgr *mp) /* derived name */
 
 static inline void iosMcMgrDelete(McMgr *mp) /* derived name */
 {
-    while (sceMcDelete(mp->port, mp->slot, mp->name47C) > 0) {
+    while (sceMcDelete(mp->port, mp->slot, mp->path) > 0) {
         debug_StdPrintfDummy("iosMcMgrDelete: request busy\n");
     }
 
@@ -410,7 +421,7 @@ int iosMcHandlerWrite(McMgr *mp, unsigned char *buf, int len)
             mp->size = mp->pos;
             iosMcMgrWrite(mp, mp->buf);
 
-            if (mp->f10 < 0) {
+            if (mp->result < 0) {
                 return;
             }
 
@@ -421,7 +432,7 @@ int iosMcHandlerWrite(McMgr *mp, unsigned char *buf, int len)
         iosMcMgrWrite(mp, buf);
         iosMcMgrSum(mp, buf, mp->size);
 
-        if (mp->f10 < 0) {
+        if (mp->result < 0) {
             return;
         }
 
@@ -437,8 +448,8 @@ int iosMcHandlerWrite(McMgr *mp, unsigned char *buf, int len)
             m = n;
         }
 
-        memcpy((unsigned char *)(mp->pos + (int)mp + 0x54), buf, m);
-        iosMcMgrSum(mp, (unsigned char *)(mp->pos + (int)mp + 0x54), m);
+        memcpy(mp->buf + mp->pos, buf, m);
+        iosMcMgrSum(mp, mp->buf + mp->pos, m);
 
         buf += m;
         mp->pos += m;
@@ -448,7 +459,7 @@ int iosMcHandlerWrite(McMgr *mp, unsigned char *buf, int len)
             mp->size = 1024;
             iosMcMgrWrite(mp, mp->buf);
 
-            if (mp->f10 < 0) {
+            if (mp->result < 0) {
                 return;
             }
 
@@ -469,8 +480,8 @@ int iosMcHandlerRead(McMgr *mp, unsigned char *buf, int len)
     if (len > 1024) {
         if (mp->pos != 0) {
             n = mp->end - mp->pos;
-            memcpy(buf, (unsigned char *)(mp->pos + (int)mp + 0x54), n);
-            iosMcMgrSum(mp, (unsigned char *)(mp->pos + (int)mp + 0x54), n);
+            memcpy(buf, mp->buf + mp->pos, n);
+            iosMcMgrSum(mp, mp->buf + mp->pos, n);
             buf += n;
             len -= n;
         }
@@ -479,7 +490,7 @@ int iosMcHandlerRead(McMgr *mp, unsigned char *buf, int len)
         iosMcMgrRead(mp, buf);
         iosMcMgrSum(mp, buf, len);
 
-        if (mp->f10 < 0) {
+        if (mp->result < 0) {
             return;
         }
 
@@ -495,15 +506,15 @@ int iosMcHandlerRead(McMgr *mp, unsigned char *buf, int len)
             mp->size = 1024;
             iosMcMgrRead(mp, mp->buf);
 
-            if (mp->f10 < 0) {
+            if (mp->result < 0) {
                 return;
             }
 
-            if ((mp->end = mp->f10) == 0) {
+            if ((mp->end = mp->result) == 0) {
                 debug_StdPrintfDummy(
                     "iosMcHandlerRead: メモリカードからデータ読めなかった(リクエストの方がサイズ大きい) %d %d\n",
                     mp->pos, len);
-                mp->f10 = -15;
+                mp->result = -15;
                 return;
             }
         }
@@ -514,8 +525,8 @@ int iosMcHandlerRead(McMgr *mp, unsigned char *buf, int len)
             n = len;
         }
 
-        memcpy(buf, (unsigned char *)(mp->pos + (int)mp + 0x54), n);
-        iosMcMgrSum(mp, (unsigned char *)(mp->pos + (int)mp + 0x54), n);
+        memcpy(buf, mp->buf + mp->pos, n);
+        iosMcMgrSum(mp, mp->buf + mp->pos, n);
 
         len -= n;
         mp->pos += n;
@@ -535,13 +546,13 @@ void iosMcMgrChdirProduct(McMgr *mp)
 retry:
     iosMcMgrGetInfo(mp);
 
-    switch (mp->f10) {
+    switch (mp->result) {
     case 0:
     case -1:
         r = 0;
         break;
     case -2:
-        r = mp->f1C;
+        r = mp->cardState;
         break;
     default:
         r = -9;
@@ -549,28 +560,28 @@ retry:
     }
 
     if (r != 0) {
-        mp->f10 = r;
+        mp->result = r;
         return;
     }
 
-    if (mp->f0 & 2) {
-        *(McName *)mp->name47C = *(McName *)"/BESCES-50760ico";
+    if (mp->flags.ll & 2) {
+        *(McName *)mp->path = *(McName *)"/BESCES-50760ico";
         iosMcMgrMkdir(mp);
-        if (mp->f10 != 0 && mp->f10 != -4) {
+        if (mp->result != 0 && mp->result != -4) {
             return;
         }
     }
 
-    *(McName *)mp->name454 = *(McName *)"/BESCES-50760ico";
+    *(McName *)mp->dirName = *(McName *)"/BESCES-50760ico";
     iosMcMgrChdir(mp);
 
-    if (mp->f10 != 0) {
-        if (mp->f10 == -4) {
-            mp->f10 = -14;
+    if (mp->result != 0) {
+        if (mp->result == -4) {
+            mp->result = -14;
         }
     }
 
-    if (mp->f10 != 0 && mp->f10 != -4 && mp->f10 != -14 && mp->f10 != -2) {
+    if (mp->result != 0 && mp->result != -4 && mp->result != -14 && mp->result != -2) {
         goto retry;
     }
 }
@@ -602,35 +613,35 @@ void iosMcMgrSaveSeg(McMgr *mp, char *suffix)
     unsigned int i;
     McSegEnt *e;
 
-    mp->f0 = mp->f0 | 2;
+    mp->flags.ll = mp->flags.ll | 2;
     iosMcMgrChdirProduct(mp);
 
-    if (mp->f10 != 0) {
+    if (mp->result != 0) {
         return;
     }
 
-    mp->f2C = 0x203;
-    strcpy(mp->name47C, iOSMcSaveSeg[mp->f24]);
+    mp->openMode = 0x203;
+    strcpy(mp->path, iOSMcSaveSeg[mp->segment]);
 
     if (suffix != 0) {
-        strcat(mp->name47C, suffix);
+        strcat(mp->path, suffix);
     }
 
     iosMcMgrOpen(mp);
 
-    if (mp->f10 < 0) {
+    if (mp->result < 0) {
         return;
     }
 
     for (i = 0; i < 6; i++) {
         e = &iOSMcSaveList[i];
-        if (e->id != mp->f24) {
+        if (e->id != mp->segment) {
             continue;
         }
         if (e->save == 0) {
             continue;
         }
-        if (e->save(mp, mp->f48) < 0) {
+        if (e->save(mp, mp->segArg) < 0) {
             r = -15;
             break;
         }
@@ -641,15 +652,15 @@ void iosMcMgrSaveSeg(McMgr *mp, char *suffix)
             mp->size = mp->pos;
             iosMcMgrWrite(mp, mp->buf);
 
-            if (mp->f10 < 0) {
+            if (mp->result < 0) {
                 return;
             }
 
             mp->pos = 0;
         }
 
-        if (mp->f24 < 5) {
-            if (mp->f24 > 0) {
+        if (mp->segment < 5) {
+            if (mp->segment > 0) {
                 goto flush;
             }
         }
@@ -666,7 +677,7 @@ flush:
     iosMcMgrClose(mp);
 
     if (r != 0) {
-        mp->f10 = r;
+        mp->result = r;
     }
 }
 
@@ -676,36 +687,36 @@ void iosMcMgrLoadSeg(McMgr *mp, char *suffix)
     unsigned int i;
     McSegEnt *e;
 
-    mp->f0 = mp->f0 & -3;
+    mp->flags.ll = mp->flags.ll & -3;
     iosMcMgrChdirProduct(mp);
 
-    if (mp->f10 != 0) {
+    if (mp->result != 0) {
         return;
     }
 
-    mp->f2C = 1;
-    strcpy(mp->name47C, iOSMcSaveSeg[mp->f24]);
+    mp->openMode = 1;
+    strcpy(mp->path, iOSMcSaveSeg[mp->segment]);
 
     if (suffix != 0) {
-        strcat(mp->name47C, suffix);
+        strcat(mp->path, suffix);
     }
 
     iosMcMgrOpen(mp);
 
-    if (mp->f10 < 0) {
+    if (mp->result < 0) {
         return;
     }
 
     for (i = 0; i < 6; i++) {
         e = &iOSMcSaveList[i];
-        if (e->id != mp->f24) {
+        if (e->id != mp->segment) {
             continue;
         }
         if (e->load == 0) {
             continue;
         }
         debug_StdPrintfDummy("call read_func\n");
-        if (e->load(mp, mp->f48) < 0) {
+        if (e->load(mp, mp->segArg) < 0) {
             r = -15;
             break;
         }
@@ -719,13 +730,13 @@ void iosMcMgrLoadSeg(McMgr *mp, char *suffix)
         iosMcMgrSync(mp);
 
         mp->size = 4;
-        iosMcMgrRead(mp, &mp->f50);
+        iosMcMgrRead(mp, &mp->readSum);
 
-        if (mp->f10 < 0) {
+        if (mp->result < 0) {
             return;
         }
 
-        if (mp->sum != mp->f50) {
+        if (mp->sum != mp->readSum) {
             r = -16;
         }
     }
@@ -733,7 +744,7 @@ void iosMcMgrLoadSeg(McMgr *mp, char *suffix)
     iosMcMgrClose(mp);
 
     if (r != 0) {
-        mp->f10 = r;
+        mp->result = r;
     }
 }
 
@@ -748,18 +759,18 @@ static __inline__ void iosMcMgrSaveIconDebugResult(int result) /* derived name *
 
 static inline void iosMcMgrSaveIcon(McMgr *mp) /* derived name */
 {
-    mp->f24 = 1;
-    mp->f48 = (int)&iconFile[1];
+    mp->segment = 1;
+    mp->segArg = (int)&iconFile[1];
     iosMcMgrSaveSeg(mp, 0);
 
-    if (mp->f10 < 0) {
+    if (mp->result < 0) {
         return;
     }
 
-    mp->f24 = 2;
-    mp->f48 = (int)&iconFile[2];
+    mp->segment = 2;
+    mp->segArg = (int)&iconFile[2];
     iosMcMgrSaveSeg(mp, 0);
-    iosMcMgrSaveIconDebugResult(mp->f10);
+    iosMcMgrSaveIconDebugResult(mp->result);
 }
 
 void iosMcMgrSaveProductBlock(void *a0)
@@ -778,8 +789,8 @@ static inline void iosMcMgrSaveGame(McMgr *mp) /* derived name */
 {
     char buf[16];
 
-    sprintf(buf, "%3.3d", mp->f40);
-    mp->f24 = 5;
+    sprintf(buf, "%3.3d", mp->fileNo);
+    mp->segment = 5;
     iosMcMgrSaveSeg(mp, buf);
 }
 
@@ -787,8 +798,8 @@ static inline void iosMcMgrLoadGame(McMgr *mp) /* derived name */
 {
     char buf[16];
 
-    sprintf(buf, "%3.3d", mp->f40);
-    mp->f24 = 5;
+    sprintf(buf, "%3.3d", mp->fileNo);
+    mp->segment = 5;
     iosMcMgrLoadSeg(mp, buf);
 }
 
@@ -797,29 +808,29 @@ void iosMcMgrGetBlockSaveInfo(McMgr *mp)
     int i;
 
     mp->mask = 0;
-    mp->f0 = mp->f0 & -3;
-    mp->f44 = 0;
+    mp->flags.ll = mp->flags.ll & -3;
+    mp->dirCount = 0;
 
     iosMcMgrChdirProduct(mp);
 
-    if (mp->f10 == -14) {
-        mp->f10 = 0;
+    if (mp->result == -14) {
+        mp->result = 0;
         return;
     }
 
-    if (mp->f10 < 0) {
+    if (mp->result < 0) {
         return;
     }
 
-    strcat(mp->name47C, "*");
+    strcat(mp->path, "*");
 
     iosMcMgrGetDir(mp);
 
-    if (mp->f10 < 0) {
+    if (mp->result < 0) {
         return;
     }
 
-    for (i = 0; i < mp->f44; i++) {
+    for (i = 0; i < mp->dirCount; i++) {
         mp->mask |= 1 << atoi(&mp->dir[i].EntryName[strlen(mp->dir[i].EntryName) - 3]);
     }
 }
@@ -837,10 +848,10 @@ void iosMcManager(void)
         iosMsgRecv(&McMsgQ, pp, 1);
         debug_StdPrintfDummy("done 0 %p\n", mp);
 
-        mp->f0 = mp->f0 & -2;
+        mp->flags.ll = mp->flags.ll & -2;
         debug_StdPrintfDummy("done 1\n");
 
-        switch (*(int *)((char *)mp + 4)) {
+        switch (mp->flags.w.command) {
         case 0:
             iosMcMgrGetInfo(mp);
             break;
@@ -909,10 +920,10 @@ void iosMcManager(void)
             break;
 
         default:
-            debug_StdPrintfDummy("iosMcManager: recv command %d error.", *(int *)((char *)mp + 4));
+            debug_StdPrintfDummy("iosMcManager: recv command %d error.", mp->flags.w.command);
             break;
         }
 
-        mp->f0 = mp->f0 | 1;
+        mp->flags.ll = mp->flags.ll | 1;
     }
 }

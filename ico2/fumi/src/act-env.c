@@ -7,6 +7,14 @@
 #include "camera-editor.h"
 #include "commonact.h"
 #include "motionManager2.h"
+#include "debug_exception.h"
+#include <assert.h>
+#include "chain.h"
+#include "geometryManager.h"
+#include "cage.h"
+#include "box.h"
+#include "switch.h"
+#include "queen.h"
 
 union ENVIF { /* field names derived */
     int i;

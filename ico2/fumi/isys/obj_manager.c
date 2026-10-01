@@ -188,7 +188,7 @@ inline int iosOmExeMail(void (*func)(IosMail))
     return 0;
 }
 
-void _iosOmMain(void)
+static void _iosOmMain(void)
 {
     GObj *g;
     GObj *g2;

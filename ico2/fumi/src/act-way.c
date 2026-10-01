@@ -596,8 +596,8 @@ int ACTWay_IsMustWalkFromWay(GObj *a0)
     return 0;
 }
 
-void ACTWay_SetBeginPositionIllegal(char *a0)
+void ACTWay_SetBeginPositionIllegal(GObj *self)
 {
-    Act *p = GOBJ_ACT(a0);
+    Act *p = GOBJ_ACT(self);
     p->wayState.flags |= 0x200000;
 }

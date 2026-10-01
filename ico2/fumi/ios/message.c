@@ -26,13 +26,13 @@ typedef struct MsgEventThread { /* field names derived */
     int intc;           /* 0x4098 */
 } MsgEventThread;       /* derived name */
 
-/* as in message.h, which this TU does not include: the signal thread's
-   record, defined after the functions whose strings precede it */
+/* the interrupt handler iosMsgSetEvent installs, defined at the end */
+static int signal_handler(int a0);
 
 /* the queue registered against each semaphore id */
 static int msgQueueTable[256]; /* derived name */
 
-void deq_mes_th(IosMsgQueue *self)
+static void deq_mes_th(IosMsgQueue *self)
 {
     IosMsg *msg = self->head;
 
@@ -101,7 +101,7 @@ static inline int msgSend(IosMsgQueue *q, int val, int mode) /* derived name */
     return 0;
 }
 
-void send_signal_message(void)
+static void send_signal_message(void)
 {
     MsgEventThread *self = (MsgEventThread *)iosGetIOSThreadFromId(GetThreadId());
     MsgEventThread *th = (MsgEventThread *)self->th.arg;
@@ -196,7 +196,7 @@ void iosMsgQueueDestroyAll(void)
     } while (i >= 0);
 }
 
-int signal_handler(int a0)
+static int signal_handler(int a0)
 {
     if (a0 == 2) {
         volatile unsigned long long *reg = (volatile unsigned long long *)GS_CSR;

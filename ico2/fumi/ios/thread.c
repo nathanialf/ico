@@ -26,7 +26,7 @@ static IOSThread iosBootThread; /* derived name */
 /* a thread stack, 16-byte aligned as the kernel's CreateThread requires */
 static char iosBootStack[8192] __attribute__((aligned(16))); /* derived name */
 
-void iosThreadMain(void *arg)
+static void iosThreadMain(void *arg)
 {
     int idx = GetThreadId();
     IOSThread *obj = iosThreadTable[idx];
@@ -47,7 +47,8 @@ extern int _gp; /* linker-defined global pointer */
 
 static int n_thread = 0; /* derived name: the number of live IOS threads */
 
-inline void iosThreadDestroyMgr(); /* deferred-tail member; see the emission-order note */
+static inline void
+iosThreadDestroyMgr(void); /* deferred-tail member; see the emission-order note */
 
 /* iosThreadCreate, a public function that iosThreadCreateS and iosThreadInit
  * also expand: a plain `inline`, so its out-of-line copy goes to the end of
@@ -138,7 +139,7 @@ inline int iosThreadWakeup(IOSThread *th)
    queue's 2-slot message ring. */
 static int iosThreadDestroyRing[2]; /* derived name */
 
-inline void iosThreadDestroyMgr(void)
+static inline void iosThreadDestroyMgr(void)
 {
     IOSThread *th;
     int id;

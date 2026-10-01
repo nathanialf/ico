@@ -4,6 +4,9 @@
 #include "Texture.h"
 #include "main.h"
 #include <assert.h>
+#include <stdio.h>
+#include "debug.h"
+#include "debug_exception.h"
 
 struct jNode { /* field names derived */
     char pad0[4];

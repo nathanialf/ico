@@ -17,11 +17,6 @@ int point_nige(void);
 int quick_save_wpfile(void);
 void cursor_control(struct GObj *volatile a0);
 void ExtractWayData(int stage_no);
-int group_create(void);
-int point_delete(void);
-int point_insert(void);
-int quick_load_wpfile(void);
-int wp_print_out(void);
 int debug_WayTool(void);
 
 /* way-point: one source way point, 0x1C bytes. Reader:
@@ -47,8 +42,8 @@ typedef struct {      /* field names derived */
     int bridgeEnd[2]; /* 0x30, WayGroup+0x20 */
     int active;       /* 0x38, WayGroup+0x28 */
 } WaySrcGrp;          /* derived name */
-extern const WaySrcGrp wayGroupSheet[];
 
+extern const WaySrcGrp wayGroupSheet[];
 extern WaySrcPt wayPointSheet[];
 
 #endif /* WAY_TOOL_H */

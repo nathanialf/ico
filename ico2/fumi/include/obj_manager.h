@@ -22,7 +22,6 @@ void iosOmBeforeFuncStandard(void);
 int iosOmSendMail(GObj *g, int type, void *arg);
 int iosOmSendMailLink(int a0, int val5, int val6);
 int iosOmExeMail(void (*func)(IosMail));
-void _iosOmMain(void);
 void iosOmInit(void);
 void iosOmMain(void);
 void iosOmCreateDL(void);

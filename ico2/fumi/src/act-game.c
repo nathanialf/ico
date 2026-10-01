@@ -300,7 +300,7 @@ inline void ACTGame_StageChangeGObjDirect(GObj *a0, int a1, void *a2, int a3)
     gamesysObjInfoPosNewStageSet(a0->labelId, a0->kind, a1, buf0, buf1);
 }
 
-/* the exit whose f_24 names this stage */
+/* the first exit whose next stage is this one */
 static inline int getExitIndexOfStage(int stage) /* derived name */
 {
     int i;

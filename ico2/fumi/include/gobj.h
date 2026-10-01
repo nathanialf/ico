@@ -15,12 +15,8 @@ struct GObj;
 /* gobj.c's `inline` functions, in the order of their definitions' out-of-line
    copies at the end of the object (first-declaration order).  The functions that hand an
    object back return it as the untyped handle every caller takes. */
-void isysGObjKindTableInit(void);
 void isysGObjInit(int n);
-void cut_gobj_link(struct GObj *p);
 void isysGObjRemoveAll(void);
-void add_gobj_to_tail(struct GObj *g, int a1, int a2);
-void add_gobj_to_head(struct GObj *g, int a1, int a2);
 void isysGObjMove(struct GObj *g, unsigned char a1, int a2);
 void isysGObjMoveHead(struct GObj *g, unsigned char a1, int a2);
 void *isysGObjAddAfterGObj(void (*fn)(struct GObj *), struct GObj *other);

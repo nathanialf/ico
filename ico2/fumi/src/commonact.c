@@ -148,6 +148,11 @@ inline void afterCommonTruckLever(GObj *volatile a0);
 #include "chain.h"
 #include "motionManager2.h"
 #include "weapon.h"
+#include "act-way.h"
+#include "pad.h"
+#include "s_init.h"
+#include "clipCollisionManager.h"
+#include "layout_texture.h"
 
 typedef struct { /* field names derived */
     int a, b, c;
@@ -2531,7 +2536,7 @@ typedef union { /* field names derived */
     long long ll[2];
 } FlyPt; /* derived name */
 
-static void debugDispFlyLimit(float *pos, float y0, float y1)
+void debugDispFlyLimit(float *pos, float y0, float y1)
 {
     MatrixDrive_PushMatrix();
     {

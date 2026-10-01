@@ -60,7 +60,7 @@ typedef struct IosCdvdHandle { /* field names derived */
     char name[256];                                      /* 0x38 */
     sceCdlFILE file;                                     /* 0x138 */
     CdRMode mode;                                        /* 0x15C */
-    int inflate;                                         /* 0x160 */
+    void *inflate;                                       /* 0x160 */
     int stMem;                                           /* 0x164 */
     int stBuf;                                           /* 0x168, stMem rounded up to 16 */
     char pad16C[20];
@@ -737,7 +737,7 @@ void iosCdvdHandlerReadInflate(IosCdvdHandle *self, void *buf, int n)
     long long len;
 
     p = buf;
-    while ((len = inflate((void *)self->inflate, p, n)) > 0) {
+    while ((len = inflate(self->inflate, p, n)) > 0) {
         p += (int)len;
         n -= (int)len;
     }

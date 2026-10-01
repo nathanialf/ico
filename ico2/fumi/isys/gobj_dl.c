@@ -4,8 +4,8 @@
 
 static void add_gobj_to_head(int a0, int a1, int a2);
 
-/* a file-static add_gobj_to_head, distinct from the isys/gobj global of the
-   same name; every gobj list TU has its own copy */
+/* this list's own add_gobj_to_head; isys/gobj and each gobj list TU have
+   their own file-static copy */
 
 inline void isysGObjDlInit(void)
 {
@@ -16,7 +16,7 @@ inline void isysGObjDlInit(void)
     }
 }
 
-void cut_gobj_dl_link(int *self)
+static void cut_gobj_dl_link(int *self)
 {
     DLN *p = (DLN *)self;
 
@@ -49,8 +49,7 @@ void isysGObjRemoveObjDL(int *self)
     cut_gobj_dl_link(self);
 }
 
-/* a file-static add_gobj_to_tail, distinct from the isys/gobj global of the
-   same name */
+/* this list's own add_gobj_to_tail, as in isys/gobj */
 static void add_gobj_to_tail(int a0, int a1, int a2)
 {
     DLN *self = (DLN *)a0;

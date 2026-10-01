@@ -94,7 +94,6 @@ ico2/fumi/src/act-parallel-control.c
 ico2/fumi/src/act-wish.c
 ico2/fumi/src/boyact.c
 ico2/fumi/src/commonact.c
-data:transitional_0063C204
 ico2/fumi/src/enemy_act.c
 ico2/fumi/src/fieldCollision.c
 ico2/fumi/src/fuzio.c

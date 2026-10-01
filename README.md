@@ -13,7 +13,7 @@ so is the ELF file itself (its SHA-1 matches the disc's).
 ![.rodata progress](https://img.shields.io/badge/rodata-100.00%20%25%20%289.49%20%25%20source%20%2B%2090.51%20%25%20disc%29-brightgreen.svg)
 ![.lit4 progress](https://img.shields.io/badge/lit4-100.00%20%25-brightgreen.svg)
 ![.sdata progress](https://img.shields.io/badge/sdata-100.00%20%25%20%2899.91%20%25%20source%20%2B%200.09%20%25%20disc%29-brightgreen.svg)
-![.sbss progress](https://img.shields.io/badge/sbss-100.00%20%25%20%2899.68%20%25%20source%20%2B%200.32%20%25%20disc%29-brightgreen.svg)
+![.sbss progress](https://img.shields.io/badge/sbss-100.00%20%25-brightgreen.svg)
 ![.bss progress](https://img.shields.io/badge/bss-100.00%20%25-brightgreen.svg)
 <!-- progress:end -->
 

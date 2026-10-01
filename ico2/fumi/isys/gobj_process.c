@@ -50,7 +50,7 @@ static inline GProc *alloc_gobj_process(void) /* derived name */
     return (GProc *)(procPool + i * 0x94);
 }
 
-GProc *isysGObjProcAdd_(GObj *a0, GObj *a1, void (*a2)(), unsigned char a3, int a4, long a5)
+static GProc *isysGObjProcAdd_(GObj *a0, GObj *a1, void (*a2)(), unsigned char a3, int a4, long a5)
 {
     GProc *p;
     GProc *h;
@@ -184,7 +184,7 @@ inline void free_gobj_process_resource(char *self)
     ((GProc *)self)->self = 0;
 }
 
-void cut_gobj_process_link(GProc *p)
+static void cut_gobj_process_link(GProc *p)
 {
     if (p == 0) {
         debug_StdPrintfDummy("isys:null GObjProcess\n");

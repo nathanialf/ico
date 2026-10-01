@@ -5,7 +5,7 @@
 #include <string.h>
 #include "ios.h"
 
-inline int huft_free(char *p);
+static inline int huft_free(char *p);
 
 struct huft {
     unsigned char e; /* 0x0 number of extra bits or operation */
@@ -40,7 +40,8 @@ typedef struct InflateWork { /* field names derived */
 } InflateWork;             /* derived name */
 
 typedef struct InflateHandler { /* field names derived */
-    char pad0[8];
+    void *handle;               /* 0x00000 what the read callback is given */
+    InflateReadFn read;         /* 0x00004 the read callback */
     unsigned char slide[65536]; /* 0x00008 sliding window */
     unsigned char inbuf[32768]; /* 0x10008 compressed input */
 } InflateHandler;               /* derived name */
@@ -49,7 +50,7 @@ typedef struct InflateHandler { /* field names derived */
 #define ISLIDE(p) (((InflateHandler *)(p))->slide)        /* derived name */
 #define IINBUF(p) (((InflateHandler *)(p))->inbuf)        /* derived name */
 
-static int fill_inbuf();
+static int fill_inbuf(void *a0);
 
 #define NEXTBYTE(w) /* derived name */                                                             \
     (IWORK(w)->inptr < IWORK(w)->insize ? IINBUF(w)[IWORK(w)->inptr++] : fill_inbuf(w))
@@ -90,8 +91,8 @@ static unsigned short cpdext[30] = {
 #define BMAX 16   /* derived name */
 #define N_MAX 288 /* derived name */
 
-int huft_build(unsigned int *b, unsigned int n, unsigned int s, unsigned short *d,
-               unsigned short *e, struct huft **t, int *m, void *mb)
+static int huft_build(unsigned int *b, unsigned int n, unsigned int s, unsigned short *d,
+                      unsigned short *e, struct huft **t, int *m, void *mb)
 {
     unsigned int a;           /* counter for codes of length k */
     unsigned int c[BMAX + 1]; /* bit length count table */
@@ -270,7 +271,7 @@ int huft_build(unsigned int *b, unsigned int n, unsigned int s, unsigned short *
 
 /* huft_free is an `inline` function, inlined into inflate_fixed and
  * inflate_dynamic, with its out-of-line copy at the end of the file. */
-inline int huft_free(char *p)
+static inline int huft_free(char *p)
 {
     char *next;
     if (p == (char *)0)
@@ -288,7 +289,7 @@ end:
     return 0;
 }
 
-long long inflate_codes(void *w, unsigned char *out, long long outlen)
+static long long inflate_codes(void *w, unsigned char *out, long long outlen)
 {
     unsigned int e;
     unsigned int n;
@@ -387,7 +388,7 @@ long long inflate_codes(void *w, unsigned char *out, long long outlen)
     return nout;
 }
 
-long long inflate_stored(void *w, unsigned char *out, long long outlen)
+static long long inflate_stored(void *w, unsigned char *out, long long outlen)
 {
     unsigned int n;
     int wp;
@@ -435,7 +436,7 @@ long long inflate_stored(void *w, unsigned char *out, long long outlen)
     return n;
 }
 
-long long inflate_fixed(void *w, unsigned char *out, long long outlen)
+static long long inflate_fixed(void *w, unsigned char *out, long long outlen)
 {
     int i;
     unsigned int l[288];
@@ -478,7 +479,7 @@ static int border[19] = {16, 17, 18, 0, 8,  7, 9,  6, 10, 5,
 
 #define IMB(w) ((void *)((char *)(w) + 0x18098)) /* derived name */
 
-int inflate_dynamic(void *w, unsigned char *out, long long outlen)
+static int inflate_dynamic(void *w, unsigned char *out, long long outlen)
 {
     int i;
     unsigned int j;
@@ -619,29 +620,29 @@ int inflate_dynamic(void *w, unsigned char *out, long long outlen)
     return i;
 }
 
-void inflate_start(void *a0)
+static void inflate_start(void *a0)
 {
-    int *w = (int *)((char *)a0 + 0x18000);
-    w[0x78 / 4] = -1;
-    w[0x48 / 4] = 0;
-    *(long long *)((char *)w + 0x68) = 0;
-    *(long long *)((char *)w + 0x70) = 0;
-    w[0x50 / 4] = 0;
-    w[0x4C / 4] = 0;
-    w[0x54 / 4] = 0;
-    w[0x58 / 4] = 0;
-    w[0x7C / 4] = 0;
-    w[0x84 / 4] = 0;
-    w[0x80 / 4] = 0;
-    w[0x88 / 4] = 0;
-    init_mblock((char *)a0 + 0x18098);
+    InflateWork *w = IWORK(a0);
+    w->t = -1;
+    w->wp = 0;
+    w->bb = 0;
+    w->bk = 0;
+    w->inptr = 0;
+    w->insize = 0;
+    w->tl = 0;
+    w->td = 0;
+    w->last = 0;
+    w->copy_src = 0;
+    w->n = 0;
+    w->w_tl = 0;
+    init_mblock(IMB(a0));
 }
 
 void close_inflate_handler(void *a0)
 {
     char *p;
-    if (*(int *)((char *)a0 + 0x18054) != 0) {
-        p = *(char **)((char *)a0 + 0x18058);
+    if (IWORK(a0)->tl != 0) {
+        p = (char *)IWORK(a0)->td;
         if (p != 0) {
             p -= 8;
             for (;;) {
@@ -653,7 +654,7 @@ void close_inflate_handler(void *a0)
                 p -= 8;
             }
         }
-        p = *(char **)((char *)a0 + 0x18054);
+        p = (char *)IWORK(a0)->tl;
         if (p != 0) {
             p -= 8;
             for (;;) {
@@ -665,10 +666,10 @@ void close_inflate_handler(void *a0)
                 p -= 8;
             }
         }
-        *(int *)((char *)a0 + 0x18054) = 0;
-        *(int *)((char *)a0 + 0x18058) = 0;
+        IWORK(a0)->tl = 0;
+        IWORK(a0)->td = 0;
     }
-    reuse_mblock((char *)a0 + 0x18098);
+    reuse_mblock(IMB(a0));
     iosFree(a0);
     iosMallocResetPartition(ios_partition_inflate);
 }
@@ -774,47 +775,41 @@ long long inflate(void *w, unsigned char *out, long long outlen)
     return total;
 }
 
-int open_inflate_handler(int a0, int a1)
+void *open_inflate_handler(InflateReadFn read, void *handle)
 {
     struct IosMemPart *g = ios_partition_oomori;
-    int *s1;
+    InflateHandler *h;
     ios_partition_inflate = g;
     free_mblock_list = 0;
-    s1 = (int *)iosMallocDebug(g, 0x180A8, __FILE__, 739);
-    inflate_start(s1);
-    s1[0] = a1;
-    if (a0 == 0) {
+    h = iosMallocDebug(g, 98472, __FILE__, 739);
+    inflate_start(h);
+    h->handle = handle;
+    if (read == 0) {
         debug_StdPrintfDummy("read func not entry\n");
     } else {
-        s1[0x4 / 4] = a0;
+        h->read = read;
     }
-    return (int)s1;
+    return h;
 }
 
-/* The inflate handler block carries the gzip-style input buffer at +0x10008
- * and the decoder state at +0x18000 (insize at +0x4C, inptr at +0x50); the
- * read callback and the handle it is given live at +0x4 and +0x0.  The
- * callback's 64-bit size/return are the ones inflate_cd_read_func uses.  */
-#define INFLATE_INBUF(p) ((unsigned char *)(p) + 0x10008)          /* derived name */
-#define INFLATE_STATE(p) ((unsigned int *)((char *)(p) + 0x18000)) /* derived name */
-
-typedef long long (*InflateReadFn)(void *buf, long long size, void *handle);
-
+/* Refill the input buffer through the handler's read callback: as many reads
+ * as it takes to fill the buffer or reach the end of the data, then the first
+ * byte.  */
 static int fill_inbuf(void *a0)
 {
     int len;
 
-    INFLATE_STATE(a0)[0x4C / 4] = 0;
+    IWORK(a0)->insize = 0;
     do {
-        len = (*(InflateReadFn *)((char *)a0 + 4))(INFLATE_INBUF(a0) + INFLATE_STATE(a0)[0x4C / 4],
-                                                   0x8000 - INFLATE_STATE(a0)[0x4C / 4],
-                                                   *(void **)a0);
+        len = ((InflateHandler *)a0)
+                  ->read(IINBUF(a0) + IWORK(a0)->insize, 32768 - IWORK(a0)->insize,
+                         ((InflateHandler *)a0)->handle);
         if (len == 0 || len == -1)
             break;
-        INFLATE_STATE(a0)[0x4C / 4] += len;
-    } while (INFLATE_STATE(a0)[0x4C / 4] < 0x8000);
-    if (INFLATE_STATE(a0)[0x4C / 4] == 0)
+        IWORK(a0)->insize += len;
+    } while (IWORK(a0)->insize < 32768);
+    if (IWORK(a0)->insize == 0)
         return -1;
-    INFLATE_STATE(a0)[0x50 / 4] = 1;
-    return INFLATE_INBUF(a0)[0];
+    IWORK(a0)->inptr = 1;
+    return IINBUF(a0)[0];
 }

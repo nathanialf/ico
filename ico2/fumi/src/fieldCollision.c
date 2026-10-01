@@ -92,7 +92,7 @@ static int fcReserved = 0; /* derived name */
 
 int collision_pick = 0;
 
-FcBlk8 InitialObjPointer = {0, {255, 255, 255}, 255};
+FcBlk8 InitialObjPointer = {0, -1};
 
 static int colObjListNum = 0; /* derived name */
 
@@ -167,7 +167,7 @@ static __inline__ float FcAbsF(float v) /* derived name */
     return v;
 }
 
-int clip_wall_1(void *a0, FcWallEnt *wall, int flip, int useh)
+static int clip_wall_1(void *a0, FcWallEnt *wall, int flip, int useh)
 {
     ClipWork *ray = (ClipWork *)a0;
     FcWallEnt *e;
@@ -364,7 +364,7 @@ static __inline__ int FloorPointInside(FcFloorEnt *e, float *pt) /* derived name
     return cross & 1;
 }
 
-int clip_floor_1(void *a0, int a1, int a2)
+static int clip_floor_1(void *a0, int a1, int a2)
 {
     float *ray = (float *)a0;
     FcFloorEnt *e = (FcFloorEnt *)a1;
@@ -457,7 +457,7 @@ void DispCollisionPC(void)
     }
 }
 
-void makeCollisionBlockTable(float *ray)
+static void makeCollisionBlockTable(float *ray)
 {
     int x0;
     int x1;
@@ -547,7 +547,7 @@ void makeCollisionBlockTable(float *ray)
     }
 }
 
-inline int _clipWDebug(ClipWork *arg0, int arg1, int arg2)
+static inline int _clipWDebug(ClipWork *arg0, int arg1, int arg2)
 {
     int ret = 0;
     int i;
@@ -570,7 +570,7 @@ inline int _clipWDebug(ClipWork *arg0, int arg1, int arg2)
     return ret;
 }
 
-inline int _clipW(ClipWork *arg0, int arg1, int arg2)
+static inline int _clipW(ClipWork *arg0, int arg1, int arg2)
 {
     int ret = 0;
     int i;
@@ -598,7 +598,7 @@ inline int _clipW(ClipWork *arg0, int arg1, int arg2)
     return ret;
 }
 
-inline int _clipWE(ClipWork *arg0, int arg1, int arg2)
+static inline int _clipWE(ClipWork *arg0, int arg1, int arg2)
 {
     int ret = 0;
     int i;
@@ -629,7 +629,7 @@ inline int _clipWE(ClipWork *arg0, int arg1, int arg2)
     return ret;
 }
 
-inline int _clipWEField(ClipWork *arg0, int arg1, int arg2)
+static inline int _clipWEField(ClipWork *arg0, int arg1, int arg2)
 {
     int found = 0;
     int i;
@@ -657,7 +657,7 @@ inline int _clipWEField(ClipWork *arg0, int arg1, int arg2)
     return found;
 }
 
-inline int _clipWR(ClipWork *arg0, int arg1, int arg2)
+static inline int _clipWR(ClipWork *arg0, int arg1, int arg2)
 {
     int ret = 0;
     int i;
@@ -685,7 +685,7 @@ inline int _clipWR(ClipWork *arg0, int arg1, int arg2)
     return ret;
 }
 
-inline int _clipWField(ClipWork *arg0, int arg1, int arg2)
+static inline int _clipWField(ClipWork *arg0, int arg1, int arg2)
 {
     int ret = 0;
     int i;
@@ -710,7 +710,7 @@ inline int _clipWField(ClipWork *arg0, int arg1, int arg2)
     return ret;
 }
 
-inline int _clipWDitchHangWalkStop(ClipWork *arg0, int arg1, int arg2)
+static inline int _clipWDitchHangWalkStop(ClipWork *arg0, int arg1, int arg2)
 {
     int ret = 0;
     int i;
@@ -735,7 +735,7 @@ inline int _clipWDitchHangWalkStop(ClipWork *arg0, int arg1, int arg2)
     return ret;
 }
 
-inline int _clipWWaveForce(ClipWork *arg0, int arg1, int arg2)
+static inline int _clipWWaveForce(ClipWork *arg0, int arg1, int arg2)
 {
     int ret = 0;
     int i;
@@ -760,7 +760,7 @@ inline int _clipWWaveForce(ClipWork *arg0, int arg1, int arg2)
     return ret;
 }
 
-inline int _clipWBoxStop(ClipWork *arg0, int arg1, int arg2)
+static inline int _clipWBoxStop(ClipWork *arg0, int arg1, int arg2)
 {
     int ret = 0;
     int i;
@@ -788,7 +788,7 @@ inline int _clipWBoxStop(ClipWork *arg0, int arg1, int arg2)
     return ret;
 }
 
-inline int _clipWAdjustPos(ClipWork *arg0, int arg1, int arg2)
+static inline int _clipWAdjustPos(ClipWork *arg0, int arg1, int arg2)
 {
     int ret = 0;
     int i;
@@ -813,7 +813,7 @@ inline int _clipWAdjustPos(ClipWork *arg0, int arg1, int arg2)
     return ret;
 }
 
-inline int _clipF(ClipWork *arg0, int arg1, int arg2)
+static inline int _clipF(ClipWork *arg0, int arg1, int arg2)
 {
     int ret = 0;
     int i;
@@ -837,7 +837,7 @@ inline int _clipF(ClipWork *arg0, int arg1, int arg2)
     return ret;
 }
 
-inline int _clipFE(ClipWork *arg0, int arg1, int arg2)
+static inline int _clipFE(ClipWork *arg0, int arg1, int arg2)
 {
     int ret = 0;
     int i;
@@ -863,7 +863,7 @@ inline int _clipFE(ClipWork *arg0, int arg1, int arg2)
     return ret;
 }
 
-inline int _clipFIH(ClipWork *arg0, int arg1, int arg2)
+static inline int _clipFIH(ClipWork *arg0, int arg1, int arg2)
 {
     int ret = 0;
     int i;
@@ -889,7 +889,7 @@ inline int _clipFIH(ClipWork *arg0, int arg1, int arg2)
     return ret;
 }
 
-inline int _clipFR(ClipWork *arg0, int arg1, int arg2)
+static inline int _clipFR(ClipWork *arg0, int arg1, int arg2)
 {
     int ret = 0;
     int i;
@@ -965,7 +965,7 @@ typedef union { /* field names derived */
     int handle;
 } FcSubSlot; /* derived name */
 
-void _Clip(char *self, int mode)
+static void _Clip(char *self, int mode)
 {
     float sv0[4];
     float sv1[4];
@@ -1081,7 +1081,7 @@ void _Clip(char *self, int mode)
     }
 }
 
-void __ClipWall(ClipWork *a0, int a1)
+static void __ClipWall(ClipWork *a0, int a1)
 {
     a0->slideCount = 0;
     a0->floorHit = 0;
@@ -1090,7 +1090,7 @@ void __ClipWall(ClipWork *a0, int a1)
     _Clip(a0, a1);
 }
 
-inline void __ClipWallWithDrawRay(char *w, int a1)
+static inline void __ClipWallWithDrawRay(char *w, int a1)
 {
     __ClipWall(w, a1);
     gif_StartPacketPri(11);
@@ -1109,14 +1109,14 @@ inline void __ClipWallWithDrawRay(char *w, int a1)
     gif_EndPacket();
 }
 
-void __ClipFloor(ClipWork *a0, int a1)
+static void __ClipFloor(ClipWork *a0, int a1)
 {
     a0->floorHit = 0;
     *(FcBlk8 *)a0->floorSrc = InitialObjPointer;
     _Clip(a0, a1);
 }
 
-inline void __ClipFloorWithDrawRay(char *w, int a1)
+static inline void __ClipFloorWithDrawRay(char *w, int a1)
 {
     __ClipFloor(w, a1);
     gif_StartPacketPri(11);

@@ -37,6 +37,7 @@
 #include <assert.h>
 #include "camera-editor.h"
 #include "motionManager2.h"
+#include "act-env.h"
 
 typedef struct GirlStand { /* field names derived */
     sceVu0FVECTOR prev;    /* 0x00 last frame's root position */
@@ -4178,7 +4179,7 @@ inline void actGirlDitch3mExec(GObj *volatile a0)
 
 inline void actGirlHangG3M(GObj *volatile a0)
 {
-    ACTWay_SetBeginPositionIllegal((char *)a0);
+    ACTWay_SetBeginPositionIllegal(a0);
     for (;;) {
         if (!PAIR_IsStatus_BOY_DITCH()) {
             ACTSendMailCorrect((void *)a0, 0x194);

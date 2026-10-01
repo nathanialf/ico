@@ -4,19 +4,19 @@
 #include "ios.h"
 
 /* the free node list */
-int free_mblock_list = 0;
+MBlockNode *free_mblock_list = 0;
 
-inline void init_mblock(int *a0)
+inline void init_mblock(MBlock *mb)
 {
-    a0[0] = 0;
-    a0[1] = 0;
+    mb->head = 0;
+    mb->total = 0;
 }
 
-MBlockNode *new_mblock_node(unsigned int size)
+static MBlockNode *new_mblock_node(unsigned int size)
 {
     MBlockNode *node;
 
-    if (size > 0x2000) {
+    if (size > 8192) {
         node = iosMallocDebug(ios_partition_inflate, sizeof(MBlockNode), "ios/mblock.c", 21);
         if (node == 0) {
             return 0;
@@ -29,19 +29,19 @@ MBlockNode *new_mblock_node(unsigned int size)
         node->size = size;
     } else {
         if (free_mblock_list == 0) {
-            node = iosMallocDebug(ios_partition_inflate, 0x2000, "ios/mblock.c", 32);
+            node = iosMallocDebug(ios_partition_inflate, 8192, "ios/mblock.c", 32);
             if (node == 0) {
                 return 0;
             }
-            node->buf = iosMallocDebug(ios_partition_inflate, 0x2000, "ios/mblock.c", 34);
+            node->buf = iosMallocDebug(ios_partition_inflate, 8192, "ios/mblock.c", 34);
             if (node->buf == 0) {
                 iosFree(node);
                 return 0;
             }
-            node->size = 0x2000;
+            node->size = 8192;
         } else {
-            node = (MBlockNode *)free_mblock_list;
-            free_mblock_list = (int)node->next;
+            node = free_mblock_list;
+            free_mblock_list = node->next;
         }
     }
     node->used = 0;
@@ -86,27 +86,27 @@ inline void *new_segment(MBlock *mb, unsigned int len)
     return p;
 }
 
-void reuse_mblock1(int *a0)
+static void reuse_mblock1(MBlockNode *node)
 {
-    if ((unsigned int)a0[1] < 0x2001) {
-        int tmp = free_mblock_list;
-        free_mblock_list = (int)a0;
-        a0[3] = tmp;
+    if (node->size <= 8192) {
+        MBlockNode *tmp = free_mblock_list;
+        free_mblock_list = node;
+        node->next = tmp;
         return;
     }
-    return iosFree(*a0);
+    iosFree(node->buf);
 }
 
-inline void reuse_mblock(int *a0)
+inline void reuse_mblock(MBlock *mb)
 {
-    int *node = (int *)a0[0];
+    MBlockNode *node = mb->head;
     if (node != 0) {
         do {
-            int *next = (int *)node[3];
+            MBlockNode *next = node->next;
             reuse_mblock1(node);
             node = next;
         } while (node != 0);
-        init_mblock(a0);
+        init_mblock(mb);
     }
 }
 

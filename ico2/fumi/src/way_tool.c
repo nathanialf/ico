@@ -70,7 +70,7 @@ inline int point_nige(void);
 inline int quick_save_wpfile(void);
 inline void cursor_control(GObj *volatile a0);
 
-int group_create(void)
+static int group_create(void)
 {
     static int createState = 0; /* derived name */
     int f;
@@ -211,7 +211,7 @@ static int group_select(void)
     return 0;
 }
 
-int point_delete(void)
+static int point_delete(void)
 {
     WayGroup *entry = &way_group[current_select_gid];
     int f;
@@ -248,7 +248,7 @@ int point_delete(void)
     return 0;
 }
 
-int point_insert(void)
+static int point_insert(void)
 {
     static int insertState = 0; /* derived name */
     WayGroup *entry = &way_group[current_select_gid];
@@ -370,7 +370,7 @@ inline int quick_save_wpfile(void)
     return 1;
 }
 
-int quick_load_wpfile(void)
+static int quick_load_wpfile(void)
 {
     char buf[112];
     int s0;
@@ -471,7 +471,7 @@ typedef struct { /* field names derived */
     char s[8];
 } WpName; /* derived name */
 
-int wp_print_out(void)
+static int wp_print_out(void)
 {
     WpName name = {"way0000"};
     char line[256];
@@ -559,7 +559,7 @@ static inline void set_way_point_color(WayPoint *p, WayCol *col) /* derived name
     }
 }
 
-void draw_way_group(int g, WayCol *col)
+static void draw_way_group(int g, WayCol *col)
 {
     WayGroup *e = &way_group[g];
     WayVec m;
@@ -590,7 +590,7 @@ void draw_way_group(int g, WayCol *col)
     }
 }
 
-void way_toolDL(int a0)
+static void way_toolDL(int a0)
 {
     WayVec m;
     WayVec blink;

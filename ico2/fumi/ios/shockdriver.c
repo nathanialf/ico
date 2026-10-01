@@ -1,5 +1,6 @@
 #include "shockdriver.h"
 #include <libpad.h>
+#include "debug.h"
 
 struct PadNode { /* field names derived */
     char pad[48];
@@ -584,7 +585,7 @@ int ShockRequestBox_DecodeRequest(ShockRequestBox *box, unsigned char *pFlags,
     return decodeRequestBox(box, pFlags, pLevel);
 }
 
-inline SHOCKREQUEST *requestFree(ShockRequestBox *box, SHOCKREQUEST *req);
+static inline SHOCKREQUEST *requestFree(ShockRequestBox *box, SHOCKREQUEST *req);
 
 int *ShockRequestBox_EndRequestFree(int **a0)
 {
@@ -605,7 +606,7 @@ int *ShockRequestBox_EndRequestFree(int **a0)
     return *a0;
 }
 
-inline SHOCKREQUEST *requestFree(ShockRequestBox *box, SHOCKREQUEST *req)
+static inline SHOCKREQUEST *requestFree(ShockRequestBox *box, SHOCKREQUEST *req)
 {
     SHOCKREQUEST *p;
 

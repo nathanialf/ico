@@ -8,11 +8,10 @@
 #ifndef INFLATE_H
 #define INFLATE_H
 
+/* reads up to size bytes of compressed data into buf */
+typedef long long (*InflateReadFn)(void *buf, long long size, void *handle); /* derived name */
 void close_inflate_handler(void *a0);
 long long inflate(void *w, unsigned char *out, long long outlen);
-int inflate_dynamic(void *w, unsigned char *out, long long outlen);
-long long inflate_fixed(void *w, unsigned char *out, long long outlen);
-long long inflate_stored(void *w, unsigned char *out, long long outlen);
-int open_inflate_handler(int a0, int a1);
+void *open_inflate_handler(InflateReadFn read, void *handle);
 
 #endif /* INFLATE_H */

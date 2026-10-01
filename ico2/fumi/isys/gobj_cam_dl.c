@@ -8,7 +8,7 @@ typedef struct EnNode { /* field names derived */
     struct EnNode *prev;
 } EnNode; /* derived name */
 
-static void add_gobj_to_tail();
+static void add_gobj_to_tail(int *self, unsigned int key);
 
 /* sorted insert by key, inlined into isysGObjMoveCameraDLHead and
    isysGObjLinkCameraDLHead */
@@ -62,7 +62,7 @@ inline void isysGObjCameraDlInit(void)
     gobj_camera_dl_link_tail = 0;
 }
 
-void cut_gobj_camera_dl_link(EnNode *gobj)
+static void cut_gobj_camera_dl_link(EnNode *gobj)
 {
     if (gobj == 0) {
         debug_StdPrintfDummy("isys:null GObj\n");
@@ -91,8 +91,7 @@ void isysGObjRemoveCameraDL(void *a0)
     cut_gobj_camera_dl_link((EnNode *)a0);
 }
 
-/* a file-static add_gobj_to_tail, distinct from the isys/gobj global of the
- * same name */
+/* this list's own add_gobj_to_tail, as in isys/gobj */
 static void add_gobj_to_tail(int *self, unsigned int key)
 {
     int *head;

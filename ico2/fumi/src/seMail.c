@@ -6,7 +6,7 @@
 #include "main.h"
 #include "s_init.h"
 
-void setMailTarget(GObj *a0, GObj **a1, int *a2)
+static void setMailTarget(GObj *a0, GObj **a1, int *a2)
 {
     int v = *a2;
     if (v >= 0x10) {
