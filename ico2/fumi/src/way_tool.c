@@ -39,9 +39,9 @@ static WayGroup *selectedWay; /* derived name */
 
 static int wayGroupSel; /* derived name */
 
-static int savedCamTarget; /* derived name */
+static GObj *savedCamTarget; /* derived name */
 
-static char *cursorGObj; /* derived name */
+static GObj *cursorGObj; /* derived name */
 
 typedef struct { /* field names derived */
     int c[4];
@@ -584,7 +584,7 @@ static void draw_way_group(int g, WayCol *col)
     }
 }
 
-static void way_toolDL(int arg)
+static void way_toolDL(GObj *self)
 {
     WayVec m;
     WayVec blink;
@@ -599,7 +599,7 @@ static void way_toolDL(int arg)
     if (load_save_flag != 0) {
         return;
     }
-    GetRootPosition(wayWorkPos, arg);
+    GetRootPosition(wayWorkPos, self);
 
     MatrixDrive_PushMatrix();
     sceVu0UnitMatrix(MatrixDrive_GetMatrix());
@@ -640,7 +640,7 @@ static void way_toolDL(int arg)
     MatrixDrive_PopMatrix();
 
     GetRootPosition(&blink, boyGObj);
-    GetRootProjectionPosOfGObj(&pp, boyGObj);
+    GetRootProjectionPosOfGObj(pp.f, boyGObj);
     w = visible_waypoint_of_all(&pp);
     if (w != 0) {
         ez_circle(w->pos, &blink, 0x80800080, 20.0f);
@@ -673,8 +673,7 @@ int debug_WayTool(void)
     cursorGObj = isysGObjSearchFromObjLayoutID(2);
     if (cursorGObj != 0) {
         if (first_waytool == 0) {
-            *(void **)(cursorGObj + 0x164) =
-                iosMallocDebug(ios_partition_seki, 0x850, __FILE__, 0x4AA);
+            *(void **)&cursorGObj->act = iosMallocDebug(ios_partition_seki, 0x850, __FILE__, 0x4AA);
             isysGObjProcAdd(cursorGObj, cursor_control, 0, 0x13);
             isysGObjLinkObjDL(cursorGObj, way_toolDL, 0, 0, 0xFFFFFFFF);
             first_waytool = 1;
@@ -682,11 +681,11 @@ int debug_WayTool(void)
     }
 
     if (first_waytool == 1) {
-        savedCamTarget = (int)CurrentTargetGObj;
-        CurrentTargetGObj = (int)cursorGObj;
+        savedCamTarget = CurrentTargetGObj;
+        CurrentTargetGObj = cursorGObj;
         GetRootPosition(pos, savedCamTarget);
-        SetDirectRootPosition((void *)((int)CurrentTargetGObj), pos);
-        Camctrl_SetTarget((int)CurrentTargetGObj, 0, 3);
+        SetDirectRootPosition(CurrentTargetGObj, pos);
+        Camctrl_SetTarget(CurrentTargetGObj, 0, 3);
         first_waytool = 2;
     }
 
@@ -704,7 +703,7 @@ int debug_WayTool(void)
             first_waytool = 1;
             menuState = 1;
             CurrentTargetGObj = savedCamTarget;
-            Camctrl_SetTarget((int)CurrentTargetGObj, 0, 3);
+            Camctrl_SetTarget(CurrentTargetGObj, 0, 3);
             return -1;
         default:
             first_waytool = 1;

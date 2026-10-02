@@ -1407,7 +1407,7 @@ void ACTGetEnvironment(void *self, void *dir, float *orient, EnvFlag *flags, Act
         if (0x39 <= (unsigned int)sub->actMode) {
         float c0, c4, c8;
 
-        GetChainPendulum((char *)sub->chain, &c0, &c4, &c8);
+        GetChainPendulum(sub->chain, &c0, &c4, &c8);
         if (0.0f < c0)
             *(unsigned long long *)((char *)sub + 0x480) |= (1ULL << 60);
         else

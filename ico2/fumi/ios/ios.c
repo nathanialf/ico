@@ -15,7 +15,7 @@ int iopBuffOver = 0;
 
 static int iosUnusedWord = 0; /* derived name */
 
-inline int iosSifAllocIopHeapDebug(int size, char *file, int line)
+inline int iosSifAllocIopHeapDebug(int size, const char *file, int line)
 {
     int p = sceSifAllocIopHeap(size);
 

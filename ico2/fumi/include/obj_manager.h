@@ -12,15 +12,15 @@
 
 /* obj_manager.c's `inline` functions, in the order of their definitions'
  * out-of-line copies at the end of the object (first-declaration order). */
-void iosOmExeEachGObj(int idx, void (*fn)(int *, int), int arg);
-void iosOmExeEachGObjAll(void (*fn)(int *, int), int arg);
-int iosOmReturnExeEachGObj(int link, int (*fn)(int *, int), int arg, int flag);
+void iosOmExeEachGObj(int idx, void (*fn)(GObj *, int), int arg);
+void iosOmExeEachGObjAll(void (*fn)(GObj *, int), int arg);
+int iosOmReturnExeEachGObj(int link, int (*fn)(GObj *, int), int arg, int flag);
 void iosOmGetGObjStatus(int *total, int *used);
-int *iosOmSearchGObjId(int idx, int target);
-int *iosOmSearchGObjIdAll(int id);
+GObj *iosOmSearchGObjId(int idx, GObj *target);
+GObj *iosOmSearchGObjIdAll(GObj *id);
 void iosOmBeforeFuncStandard(void);
 int iosOmSendMail(GObj *g, int type, void *arg);
-int iosOmSendMailLink(int link, int val5, int val6);
+int iosOmSendMailLink(int link, int type, void *arg);
 int iosOmExeMail(void (*func)(IosMail));
 void iosOmInit(void);
 void iosOmMain(void);

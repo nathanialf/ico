@@ -267,15 +267,15 @@ void AdpcmClose(SqEntry *obj)
         AdpcmIopBuffFree(self);
         soundBufAdpcmFree(obj);
         for (j = 0; j < 2; j++) {
-            int *p = (int *)((char *)adpcmStream + j * 0x58);
-            if (p[0] != 0 && p == self) {
+            AdpcmStream *p = &adpcmStream[j];
+            if (p->used != 0 && p == self) {
                 goto found;
             }
         }
         debug_assert(adpcmSrcFile, 605);
         __assert(adpcmSrcFile, 605, "0");
     found:
-        *(int *)((char *)adpcmStream + j * 0x58) = 0;
+        adpcmStream[j].used = 0;
         self->mask = 0;
     }
 }
@@ -375,19 +375,19 @@ inline int AdpcmNotUseIopAreaFree(void)
     int cnt = 0;
     int i;
     unsigned char buf[2];
-    int *p = adpcmStream;
-    int *end = (int *)((char *)p + 0xB0);
+    AdpcmStream *p = adpcmStream;
+    AdpcmStream *end = p + 2;
 
     *(short *)buf = 0;
 
     do {
-        if (*p != 0) {
-            int no = (*(int *)((char *)p + 0x18) - adpcmIopBase) / 0x5C000;
+        if (p->used != 0) {
+            int no = (p->iopBuf - adpcmIopBase) / 0x5C000;
             if (no < 3) {
                 buf[no] = 1;
             }
         }
-        p = (int *)((char *)p + 0x58);
+        p++;
     } while ((int)p < (int)end);
 
     i = 0;
@@ -412,7 +412,7 @@ inline SqEntry *AdpcmOpenSync(AdpcmOpenReq *self)
         goto body;
     return 0;
 body:
-    if (((int *)self->bg)[0x40] != 0) {
+    if (self->bg->readFunc != 0) {
         return (SqEntry *)-1;
     }
     debug_StdPrintfDummy("AdpcmOpensync done\n");
@@ -424,13 +424,13 @@ body:
 
 inline void AdpcmFadeCloseAll(short step)
 {
-    int *p = adpcmStream;
-    int *end = (int *)((char *)p + 0xB0);
+    AdpcmStream *p = adpcmStream;
+    AdpcmStream *end = p + 2;
     do {
-        if (*p != 0) {
-            *(short *)((char *)p + 0x44) = step;
+        if (p->used != 0) {
+            p->fadeStep = step;
         }
-        p = (int *)((char *)p + 0x58);
+        p++;
     } while ((int)p < (int)end);
 }
 
@@ -497,29 +497,29 @@ inline short AdpcmVolumeGet(SqEntry *self)
     return self->stream->volL[0];
 }
 
-inline int adpcmTickProc(int self, int obj)
+inline int adpcmTickProc(CdvdBgReq *self, SqEntry *obj)
 {
-    int *st = *(int **)(obj + 0x2C);
+    AdpcmStream *st = obj->stream;
     int size;
-    int cur = SgStAdpcmIopReadAddr(st[2]);
+    int cur = SgStAdpcmIopReadAddr(st->ch[0]);
 
-    if (cur != st[4]) {
-        if (cur > st[4]) {
-            size = cur - st[4];
+    if (cur != st->seekSize) {
+        if (cur > st->seekSize) {
+            size = cur - st->seekSize;
         } else {
-            size = st[7] - st[4];
+            size = st->ringSize - st->seekSize;
         }
-        if (size > 0x1EAAA || cur < st[4]) {
-            iosCdvdBackGroundReadIOPm(self, st[6] + st[4], size);
+        if (size > 0x1EAAA || cur < st->seekSize) {
+            iosCdvdBackGroundReadIOPm(self, st->iopBuf + st->seekSize, size);
         } else {
             size = 0;
         }
-        if (*(int *)(self + 0x110) >= st[9]) {
-            iosCdvdBackGroundMgrSeek(self, st[8] + (*(int *)(self + 0x110) - st[9]));
+        if (self->pos >= st->dataSize) {
+            iosCdvdBackGroundMgrSeek(self, st->loopStart + (self->pos - st->dataSize));
         }
-        st[4] = st[4] + size;
-        if (st[4] >= st[7]) {
-            st[4] = 0;
+        st->seekSize = st->seekSize + size;
+        if (st->seekSize >= st->ringSize) {
+            st->seekSize = 0;
         }
     }
     return 0;

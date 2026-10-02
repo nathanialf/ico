@@ -13,7 +13,7 @@ static sceVu0FVECTOR vobjArrow[5] = {
 
 static float *vobjList[] = {vobjArrow[0]}; /* derived name */
 
-void DrawVObj(int no, int color)
+void DrawVObj(int no, void *color)
 {
     float *from;
     float *to;
@@ -40,7 +40,7 @@ void DrawVObj(int no, int color)
     gif_EndPacket();
 }
 
-void SetVObjRT(int rot, void *trans)
+void SetVObjRT(void *rot, void *trans)
 {
     sceVu0UnitMatrix(MatrixDrive_GetMatrix());
     *(float *)((char *)trans + 0xC) = 1.0f;

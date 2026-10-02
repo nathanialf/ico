@@ -181,7 +181,7 @@ inline void ACTGameCollisionOn(volatile int *self)
     ((int *)self[0x57])[0x1F] = 1;
 }
 
-inline int ACTGame_CheckHandMotion(char *boy, char *girl)
+inline int ACTGame_CheckHandMotion(GObj *boy, GObj *girl)
 {
     MotionRec *rec0 = &motionKind[GOBJ_SUB(boy)->ctrl.motion];
     MotionRec *rec1 = &motionKind[GOBJ_SUB(girl)->ctrl.motion];
@@ -2580,7 +2580,7 @@ void ACTGame_CommonLoop(GObj *self)
         brainSetSpMode();
         if (hand_able_connect()) {
             /* boy first */
-            if (ACTGame_CheckHandMotion((char *)boyGObj, ((char *)girlGObj))) {
+            if (ACTGame_CheckHandMotion(boyGObj, girlGObj)) {
                 connect = 1;
             } else {
                 connect = 0;

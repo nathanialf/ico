@@ -501,7 +501,8 @@ typedef struct PackEnt { /* field names derived */
     char name[532];      /* 0x10 */
 } PackEnt;               /* derived name */
 
-typedef void (*PackFunc)(char *self, char *name, int size, int id, int kind, int word08, int seg);
+typedef void (*PackFunc)(IosCdvdHandle *self, char *name, int size, int id, int kind, int word08,
+                         int seg);
 
 /* the extension lookup, expanded inside the scan below */
 static inline PackFunc findPackKind(char *ext, int *kind) /* derived name */
@@ -771,7 +772,7 @@ void iosCdvdHandlerRead(IosCdvdHandle *self, void *dst, int size)
     }
 }
 
-static int unifile_read_func(IosCdvdHandle *self)
+static int unifile_read_func(IosCdvdHandle *self, int arg)
 {
     char work[32];
     int cnt;
@@ -818,8 +819,8 @@ int iosCdvdBackGroundMgrRunning = 0;
    msg again.  The LoadEnd receivers never read the reply value. */
 void iosCdvdManager(void)
 {
-    int *msg;
-    int *req;
+    IosCdvdHandle *msg;
+    IosCdvdHandle *req;
 
     sceCdInit(0);
     sceCdMmode(iosCdvdMediaType);
@@ -851,10 +852,10 @@ void iosCdvdManager(void)
             IosCdvdMgrSleep = 0;
         }
         req = msg;
-        switch (req[1]) {
+        switch (req->ctl.i[1]) {
         case 0:
             iosCdvdDiskReadyBlock();
-            req[3] = 0;
+            req->result = 0;
             break;
         case 1:
             /* a print compiled out of the retail build; its string stays in
@@ -862,13 +863,13 @@ void iosCdvdManager(void)
             if (0) {
                 debug_StdPrintfDummy("load");
             }
-            iosCdvdMgrLoad((char *)req);
+            iosCdvdMgrLoad(req);
             break;
         case 2:
-            iosCdvdMgrPackLoad((char *)req);
+            iosCdvdMgrPackLoad(req);
             break;
         default:
-            debug_StdPrintfDummy("iosMcManager: recv command %d error.", msg[1]);
+            debug_StdPrintfDummy("iosMcManager: recv command %d error.", msg->ctl.i[1]);
             break;
         }
         {
@@ -899,8 +900,8 @@ static void iosCdvdPackLoad(IosCdvdHandle *cdvd)
     iosMsgSend(&CdvdMsgQ, cdvd, 0);
 }
 
-CdvdBgReq *iosCdvdBackGroundMgrAdd(const char *name, void *readFunc, int readArg, void *readyFunc,
-                                   void *resumeFunc, int cbArg, void *closeFunc, int closeArg)
+CdvdBgReq *iosCdvdBackGroundMgrAdd(const char *name, void *readFunc, void *readArg, void *readyFunc,
+                                   void *resumeFunc, void *cbArg, void *closeFunc, void *closeArg)
 {
     char buf[256];
     int size;
@@ -1294,7 +1295,7 @@ static void iosCdvdBackGroundMgrInit(void)
     bgRunning = 0;
 }
 
-typedef int (*BgFunc)(CdvdBgReq *self, int arg);
+typedef int (*BgFunc)(CdvdBgReq *self, void *arg);
 
 static void iosCdvdBackGroundMgr(void)
 {

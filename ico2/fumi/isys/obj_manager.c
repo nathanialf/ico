@@ -30,35 +30,35 @@ inline void iosOmGetGObjStatus(int *total, int *used)
     *used = isysGetNbAllocedGObjs();
 }
 
-inline void iosOmExeEachGObj(int idx, void (*fn)(int *, int), int arg)
+inline void iosOmExeEachGObj(int idx, void (*fn)(GObj *, int), int arg)
 {
-    int *node = gobj_link_head[idx];
+    GObj *node = gobj_link_head[idx];
     if (node != 0) {
         do {
             fn(node, arg);
-            node = (int *)node[0x10 / 4];
+            node = node->next;
         } while (node != 0);
     }
 }
 
-inline void iosOmExeEachGObjAll(void (*fn)(int *, int), int arg)
+inline void iosOmExeEachGObjAll(void (*fn)(GObj *, int), int arg)
 {
     int i = 0;
     do {
-        int *node = gobj_link_head[i];
+        GObj *node = gobj_link_head[i];
         if (node != 0) {
             do {
                 fn(node, arg);
-                node = (int *)node[0x10 / 4];
+                node = node->next;
             } while (node != 0);
         }
         i++;
     } while (i < 8);
 }
 
-inline int iosOmReturnExeEachGObj(int link, int (*fn)(int *, int), int arg, int flag)
+inline int iosOmReturnExeEachGObj(int link, int (*fn)(GObj *, int), int arg, int flag)
 {
-    int *node = gobj_link_head[link];
+    GObj *node = gobj_link_head[link];
     int ret = 0;
     if (node != 0) {
         do {
@@ -74,33 +74,33 @@ inline int iosOmReturnExeEachGObj(int link, int (*fn)(int *, int), int arg, int 
     return ret;
 }
 
-inline int *iosOmSearchGObjId(int idx, int target)
+inline GObj *iosOmSearchGObjId(int idx, GObj *target)
 {
-    int *p = gobj_link_head[idx];
+    GObj *p = gobj_link_head[idx];
     if (p != 0) {
         do {
-            if (p[0] == target) {
+            if (p->self == target) {
                 return p;
             }
-            p = (int *)p[0x10 / 4];
+            p = p->next;
         } while (p != 0);
     }
     return 0;
 }
 
-inline int *iosOmSearchGObjIdAll(int id)
+inline GObj *iosOmSearchGObjIdAll(GObj *id)
 {
     int i;
     for (i = 0; i < 8; i++) {
-        int *p = gobj_link_head[i];
-        int *found;
+        GObj *p = gobj_link_head[i];
+        GObj *found;
         if (p != 0) {
             do {
-                if (p[0] == id) {
+                if (p->self == id) {
                     found = p;
                     goto check;
                 }
-                p = (int *)p[4];
+                p = p->next;
             } while (p != 0);
         }
         found = 0;
@@ -128,32 +128,14 @@ inline int iosOmSendMail(GObj *g, int type, void *arg)
     return 0;
 }
 
-inline int iosOmSendMailLink(int link, int val5, int val6)
+inline int iosOmSendMailLink(int link, int type, void *arg)
 {
-    int *node = gobj_link_head[link];
+    GObj *node = gobj_link_head[link];
     int ret = 0;
     if (node != 0) {
         do {
-            int full;
-            int *p = (int *)((char *)node + 0x54);
-            int count = p[1];
-
-            if (count == 0x20) {
-                full = -1;
-            } else {
-                char *addr;
-                addr = (char *)node + count * 8;
-                full = 0;
-                *(int *)(addr + 0x5C) = val5;
-                {
-                    int c2 = p[1];
-                    char *addr2;
-                    p[1] = c2 + 1;
-                    addr2 = (char *)node + c2 * 8;
-                    *(int *)(addr2 + 0x60) = val6;
-                }
-            }
-            node = (int *)node[0x10 / 4];
+            int full = iosOmSendMail(node, type, arg);
+            node = node->next;
             if (full != 0)
                 ret = -1;
         } while (node != 0);

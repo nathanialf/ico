@@ -122,7 +122,7 @@ typedef struct EnemyBattleWork { /* field names derived */
     int stoneHitWeapon;   /* 0x2AC, the same hits taken with a weapon */
     int word2B0;    /* 0x2B0 */
     char pad2B4[44];
-    char *rescueObj; /* 0x2E0 */
+    struct GObj *rescueObj; /* 0x2E0 */
     char pad2E4[32];
     float rescueY; /* 0x304 */
     char pad308[8];

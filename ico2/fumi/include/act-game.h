@@ -129,7 +129,7 @@ int ACTNotNeedCameraOffset(struct GObj *self);
 void ACTGameCollisionOn(volatile int *self);
 void ACTGameCollisionOff(volatile int *self);
 int ACTGame_CheckItemMotion(struct GObj *self);
-int ACTGame_CheckHandMotion(char *boy, char *girl);
+int ACTGame_CheckHandMotion(struct GObj *boy, struct GObj *girl);
 void ACTGame_StageChangeGObjID(int no, int kind, int idx);
 void ACTGame_StageChangeGObjDirect(struct GObj *self, int stage, void *dir, int deg);
 int ACTGame_FLAG_LIFEPINCH(struct GObj *self);

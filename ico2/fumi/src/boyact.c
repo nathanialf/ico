@@ -818,7 +818,7 @@ static int GetChainSlope(void)
     float b;
     float c;
     float ratio;
-    char *g = (char *)boyGObj;
+    GObj *g = boyGObj;
     int up;
     int down;
 
@@ -2589,16 +2589,16 @@ inline void actBoyCall(GObj *volatile self)
 
 static void ACTSendMail_PULLUP_GO(void)
 {
-    char *g = (char *)boyGObj;
+    GObj *g = boyGObj;
     Act *sub = GOBJ_ACT(g);
 
     switch (sub->env.cliffSel) {
     case 0x64:
-        ACTSendMailCorrect((int)g, 0x4A);
+        ACTSendMailCorrect(g, 0x4A);
         sub->orientMot = 0x6B;
         break;
     case 0xC8:
-        ACTSendMailCorrect((int)g, 0x4A);
+        ACTSendMailCorrect(g, 0x4A);
         sub->orientMot = 0x6D;
         break;
     case 0x12C:
@@ -2606,7 +2606,7 @@ static void ACTSendMail_PULLUP_GO(void)
             break;
         }
         if (!(300.0f < (BOY_GIRL_DY() < 0.0f ? -BOY_GIRL_DY() : BOY_GIRL_DY()))) {
-            ACTSendMailCorrect((int)g, 0x4A);
+            ACTSendMailCorrect(g, 0x4A);
             sub->orientMot = 0x6F;
         } else if (girlGObj != 0) {
             iosOmSendMail(girlGObj, 0x52, isysCurrentGObj);
@@ -2647,7 +2647,7 @@ static int pullup_check_heroin_position(void)
     float buf[4];
     float p1[4];
     float p2[4];
-    char *g = (char *)boyGObj;
+    GObj *g = boyGObj;
     Act *s = GOBJ_ACT(g);
 
     if (girlControlMode != 0 && s->env.cliffSel == 300) {
@@ -3187,7 +3187,7 @@ void SetStatusBoy_OtherStageGirlPinch(void)
     float buf[4];
     float cam[4];
     float pos[4];
-    char *g = (char *)boyGObj;
+    GObj *g = boyGObj;
     ActWork *w;
     float a;
     float b;
@@ -3348,7 +3348,7 @@ inline int CorrectStickInfo(void *dir, IosPadStick *stick)
 
 inline void *GetBoyWeaponGObj(void)
 {
-    char *g = (char *)boyGObj;
+    GObj *g = boyGObj;
     if (g != 0) {
         return (void *)GOBJ_ACT(g)->weapon;
     }
@@ -3717,7 +3717,7 @@ inline void MakeCharacterPacket(void)
 
 inline void BoyInfoUpdate_StageChange(void)
 {
-    char *g = (char *)boyGObj;
+    GObj *g = boyGObj;
     Act *sub = GOBJ_ACT(g);
     GObj *w;
     int x;
@@ -3833,7 +3833,7 @@ inline void SetBoyInfo(GObj *weapon, GObj *item)
 inline void GetBoyRootPositionForCamera(float *out, GObj *gobj)
 {
     float buf[4];
-    char *g = (char *)boyGObj;
+    GObj *g = boyGObj;
     Act *sub;
 
     sub = GOBJ_ACT(g);

@@ -690,13 +690,13 @@ void debug_SetExceptionMessage(char *mes)
 
 inline void debugIOPExceptionInit(void) {}
 
-inline void debug_assertMessage(char *file, int line, char *mes)
+inline void debug_assertMessage(const char *file, int line, char *mes)
 {
     for (;;)
         ;
 }
 
-inline void debug_assert(char *file, int line)
+inline void debug_assert(const char *file, int line)
 {
     for (;;)
         ;

@@ -432,7 +432,7 @@ float iosPadNormalizeStick(IosPadStick *st)
         st->dz = n.f[2];
     }
     if (48.0f < len) {
-        int deg = (int)(_GetDirection(&v) / 3.14159274f * 180.0f);
+        int deg = (int)(_GetDirection(v.f) / 3.14159274f * 180.0f);
         int m;
         int d;
 

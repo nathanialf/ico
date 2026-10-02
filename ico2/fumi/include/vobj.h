@@ -8,7 +8,7 @@
 #ifndef VOBJ_H
 #define VOBJ_H
 
-void DrawVObj(int no, int color);
-void SetVObjRT(int rot, void *trans);
+void DrawVObj(int no, void *color);
+void SetVObjRT(void *rot, void *trans);
 
 #endif /* VOBJ_H */

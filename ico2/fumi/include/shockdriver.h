@@ -80,9 +80,8 @@ typedef struct ShockReq { /* field names derived */
     /* 0x5 */ unsigned char val;
 } ShockReq; /* derived name */
 
-/* A voice-set file as ReadShockFile loads it: this 16-byte record, then the
- * file image (charFileManager.c allocates size + 16 and reads the image just
- * past the record).  The image's halfwords at +2, +6 and +10 are the word
+/* A voice set: the record at the head of a voice-set file as ReadShockFile
+ * loads it (ShockVoiceFile below).  The image's halfwords at +2, +6 and +10 are the word
  * offsets of the shot, wave and voice tables, and +8 is the voice count
  * ShockDriver_GetShockVoice bounds by.  The image start is a union of its word
  * and halfword views. */
@@ -96,6 +95,13 @@ typedef struct ShockVoiceSet { /* field names derived */
     /* 0x8 */ int *wave;
     /* 0xC */ int *voice;
 } ShockVoiceSet; /* derived name */
+
+/* A voice-set file in memory: charFileManager.c allocates size + 16, reads the
+ * file image just past the set and hands Init_ShockVoiceSet both. */
+typedef struct ShockVoiceFile { /* field names derived */
+    /* 0x00 */ ShockVoiceSet set;
+    /* 0x10 */ int image[0];
+} ShockVoiceFile; /* derived name */
 
 /* The voice set manager: its slot count, the slot table and the hook the
    decoders call on a 0x3F command (Init_ShockDriver clears it). */

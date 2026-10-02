@@ -622,7 +622,7 @@ inline void ReadSoundAdpcmFile(void *h, int name, int size, int id, int kind, in
 
 void ReadShockFile(void *h, int name, int size, int id, int kind, int word08, int seg)
 {
-    ShockVoiceSet *p;
+    ShockVoiceFile *p;
 
     systemStatus[8]++;
     if (seg == 0) {
@@ -631,20 +631,20 @@ void ReadShockFile(void *h, int name, int size, int id, int kind, int word08, in
             p = 0;
         } else {
             p = iosMallocDebug(ios_partition_shock, size + 16, __FILE__, 788);
-            iosCdvdHandlerRead(h, p + 1, size);
-            Init_ShockVoiceSet(p, p + 1);
+            iosCdvdHandlerRead(h, p->image, size);
+            Init_ShockVoiceSet(&p->set, p->image);
         }
-        ShockVoiceSetCommon = p;
+        ShockVoiceSetCommon = &p->set;
     } else {
         malloc_SetPartition(1);
         if (size == 0) {
             p = 0;
         } else {
             p = mallocseki(size + 16);
-            iosCdvdHandlerRead(h, p + 1, size);
-            Init_ShockVoiceSet(p, p + 1);
+            iosCdvdHandlerRead(h, p->image, size);
+            Init_ShockVoiceSet(&p->set, p->image);
         }
-        ShockVoiceSetStage = p;
+        ShockVoiceSetStage = &p->set;
     }
     debug_StdPrintfDummy("ReadShockData:loaded::[%d]%s  (size:%d)\n", id, name, size);
 }

@@ -20,10 +20,12 @@ typedef struct AdpcmOpenReq { /* field names derived */
     int ch;                   /* 0x08 */
     int iopBuf;               /* 0x0C */
     int loopNum;              /* 0x10 */
-    int bg;                   /* 0x14, the background loader handle */
+    struct CdvdBgReq *bg;     /* 0x14, the background loader handle */
 } AdpcmOpenReq; /* derived name */
 
 struct AdpcmStreamTag;
+
+struct CdvdBgReq;
 
 struct SqEntry;
 
@@ -46,7 +48,7 @@ typedef struct AdpcmStreamTag { /* field names derived */
     int ringSize;               /* 0x1C */
     int loopStart;              /* 0x20 */
     int dataSize;               /* 0x24 */
-    int bg;                     /* 0x28 */
+    struct CdvdBgReq *bg;       /* 0x28 */
     char pad2C[4];
     long long mask;  /* 0x30 */
     int chAttr;      /* 0x38 */
@@ -72,7 +74,7 @@ int AdpcmFreeAreaGet(void);
 void AdpcmInterStereoVolumeSetAll(void);
 short AdpcmInterLeaveVolumeGet(struct SqEntry *self, int idx);
 inline short AdpcmVolumeGet(struct SqEntry *self);
-inline int adpcmTickProc(int self, int obj);
+inline int adpcmTickProc(struct CdvdBgReq *self, struct SqEntry *obj);
 void AdpcmInterStereoVolumeSet();
 void AdpcmOpen(AdpcmOpenReq *self, int no, int ch, int loopNum);
 void AdpcmClose(struct SqEntry *obj);

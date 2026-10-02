@@ -20,8 +20,8 @@ struct IosCdvdHandle; /* the record ios/cdvd.c defines */
  * with its argument. */
 typedef struct CdvdBgReq { /* field names derived */
     char name[256];                                   /* 0x000 */
-    int (*readFunc)(struct CdvdBgReq *self, int arg); /* 0x100 */
-    int readArg;                                      /* 0x104 */
+    int (*readFunc)(struct CdvdBgReq *self, void *arg); /* 0x100 */
+    void *readArg;                                      /* 0x104 */
 
     struct {
         unsigned int busy : 1;  /* being set up */
@@ -34,11 +34,11 @@ typedef struct CdvdBgReq { /* field names derived */
     int size;                                                     /* 0x10C */
     int pos;                                                      /* 0x110 */
     int lsn;                                                      /* 0x114 */
-    void (*readyFunc)(struct CdvdBgReq *self, int arg, int flag); /* 0x118 */
-    void (*resumeFunc)(struct CdvdBgReq *self, int arg);          /* 0x11C */
-    int cbArg;                                                    /* 0x120 */
-    int (*closeFunc)(struct CdvdBgReq *self, int arg);            /* 0x124 */
-    int closeArg;                                                 /* 0x128 */
+    void (*readyFunc)(struct CdvdBgReq *self, void *arg, int flag); /* 0x118 */
+    void (*resumeFunc)(struct CdvdBgReq *self, void *arg);          /* 0x11C */
+    void *cbArg;                                                    /* 0x120 */
+    int (*closeFunc)(struct CdvdBgReq *self, void *arg);            /* 0x124 */
+    void *closeArg;                                                 /* 0x128 */
 } CdvdBgReq; /* derived name */
 
 /* One entry of the directory cache iosCdvdMgrSearchFile fills: the file's
@@ -62,8 +62,8 @@ extern int iosCdvdStDelayCnt;
 extern float inflateSec;
 long long inflate_cd_read_func(void *buf, long long size, void *handle);
 
-CdvdBgReq *iosCdvdBackGroundMgrAdd(const char *name, void *readFunc, int readArg, void *readyFunc,
-                                   void *resumeFunc, int cbArg, void *closeFunc, int closeArg);
+CdvdBgReq *iosCdvdBackGroundMgrAdd(const char *name, void *readFunc, void *readArg, void *readyFunc,
+                                   void *resumeFunc, void *cbArg, void *closeFunc, void *closeArg);
 
 void iosCdvdBackGroundMgrDelete(CdvdBgReq *self);
 int iosCdvdBackGroundMgrDeleteRequestGet(void);
@@ -88,7 +88,8 @@ void iosCdvdLoadPackFile(int inflate, char *name, int seg);
  * ico2/fumi/ios/cdvd.c (PackKind). Owner: ico2/fumi/include/cdvd.h. */
 typedef struct {  /* field names derived */
     char ext[32]; /* 0x00 */
-    void (*func)(char *self, char *name, int size, int id, int kind, int word08, int seg); /* 0x20 */
+    void (*func)(struct IosCdvdHandle *self, char *name, int size, int id, int kind, int word08,
+                 int seg); /* 0x20 */
 } PackKind; /* derived name */
 
 extern const PackKind initFunc[]; /* 26 rows */

@@ -32,7 +32,7 @@ extern int global_variable;
 
 /* ios.c's `inline` functions, in the order of their definitions'
  * out-of-line copies at the end of the object (first-declaration order). */
-int iosSifAllocIopHeapDebug(int size, char *file, int line);
+int iosSifAllocIopHeapDebug(int size, const char *file, int line);
 
 void iosInitialize(void);
 

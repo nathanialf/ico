@@ -425,7 +425,7 @@ restart:
             break;
         }
         case 3: {
-            int p = ACTWayMove_NextDetail((void *)self, (char *)sub + 0x120, tgt.pos, 0,
+            int p = ACTWayMove_NextDetail((void *)self, sub->dir, tgt.pos, 0,
                                           tgt.obj != 0 && IsTopHint(tgt.obj));
 
             if (GOBJ_ACT(self)->actMode == 45) {

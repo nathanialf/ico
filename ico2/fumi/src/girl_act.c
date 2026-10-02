@@ -1486,7 +1486,7 @@ void subGirlBrainMain(GObj *volatile self)
             }
         }
         if (((int *)boyGObj) && GOBJ_ACT(((int *)boyGObj))->actMode == 52 &&
-            FloorIsTruck(((int *)boyGObj)) && FloorIsTruck((void *)self)) {
+            FloorIsTruck(boyGObj) && FloorIsTruck((void *)self)) {
             mode = 0;
             act->flags20.ll |= 0x8000000;
         }
@@ -1777,7 +1777,7 @@ void subGirlBrain_Pulledup(GObj *volatile self)
         cur[0] = test_CURRENTROOT((void *)self)[0];
         cur[1] = test_CURRENTROOT((void *)self)[1];
         cur[2] = test_CURRENTROOT((void *)self)[2];
-        hit = ACTWayMove_NextDetail((void *)self, (char *)sub + 0x120, boy_pos, 0, 0);
+        hit = ACTWayMove_NextDetail((void *)self, sub->dir, boy_pos, 0, 0);
         debug_NMarker(boy_pos, 0xFF, 0, 0, 100.0f);
         if (!hit) {
             sub->stick.mag = 0;
@@ -2574,7 +2574,7 @@ retry:
             if (!(_DistxzSqGV(now, base) < 10000.0f)) {
                 goto retry;
             }
-            p = ACTWayMove_NextDetail(self, (char *)sub + 0x120, goal, 0, 0);
+            p = ACTWayMove_NextDetail(self, sub->dir, goal, 0, 0);
             r2 = p;
             f = sub->wayFlags;
             if (((int)(f >> 16) & 1)) {
@@ -2690,7 +2690,7 @@ retry:
             if (!(_DistxzSqGV(now, base) < 10000.0f)) {
                 goto retry;
             }
-            p = ACTWayMove_NextDetail(self, (char *)sub + 0x120, goal, 0, 0);
+            p = ACTWayMove_NextDetail(self, sub->dir, goal, 0, 0);
             r = p;
             debug_NMarker(goal, 0xFF, 0, 0, 100.0f);
             f = sub->wayFlags;
@@ -2872,7 +2872,7 @@ static void Danger_Box(GObj *self)
         GetRootProjectionPosOfGObj(cur, box);
         GetRootProjectionPosOfGObj(girl, self);
         GetRootProjectionPosOfGObj(tmp, box);
-        p = ACTWayMove_NextDetail(self, (char *)sub + 0x120, goal, 0, 0);
+        p = ACTWayMove_NextDetail(self, sub->dir, goal, 0, 0);
         r2 = p;
         f = sub->wayFlags;
         if (((int)(f >> 16) & 1)) {
@@ -3005,7 +3005,7 @@ void subGirlBrain_HideAdvance(GObj *volatile self)
     for (;;) {
         brain_val.f_5914 = (60 - systemStatus[0] * 10) / systemStatus[1];
         GetRootProjectionPosOfGObj(boy_pos, boyGObj);
-        p = ACTWayMove_NextDetail((void *)self, (char *)sub + 0x120, boy_pos, 0, 0);
+        p = ACTWayMove_NextDetail((void *)self, sub->dir, boy_pos, 0, 0);
         hit = p;
         debug_NMarker(boy_pos, 0xFF, 0, 0, 100.0f);
         if (!hit ||
@@ -3138,7 +3138,7 @@ void WayTest(void)
         wayTestBegin = 0;
     }
     if (wayTestMoving) {
-        if (!ACTWayMove_NextDetail(g, (char *)s + 0x120, a, 0, 0)) {
+        if (!ACTWayMove_NextDetail(g, s->dir, a, 0, 0)) {
             debug_StdPrintfDummy("next error");
         }
         dispWayMarker((float *)((char *)s + 0x410));
@@ -3559,7 +3559,7 @@ void subGirlCollision(GObj *volatile self)
         }
         ACTGame_SaveActorInformation(self);
         if (((int *)boyGObj) != 0 && (void *)girlGObj != 0) {
-            if (!ACTGame_CheckHandMotion(((int *)boyGObj), (void *)girlGObj)) {
+            if (!ACTGame_CheckHandMotion(boyGObj, girlGObj)) {
                 ACTSendMailCorrect((void *)self, 0x3E);
                 debug_StdPrintfDummy("mot error\n");
             }
@@ -4331,7 +4331,7 @@ void actGirlRescueDst(GObj *volatile self)
     sceVu0ScaleVector(dir, dir, 1.0f / (float)n);
     SetMotionDirection((void *)self, q);
     while (1) {
-        if (!ACTGame_CheckHandMotion(((int *)boyGObj), (void *)girlGObj)) {
+        if (!ACTGame_CheckHandMotion(boyGObj, girlGObj)) {
             ACTGame_DisconnectHand();
             done = 1;
         }
