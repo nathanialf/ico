@@ -809,8 +809,8 @@ static void iosCdvdUnifileInfoGet(void)
 
 int iosCdvdBackGroundMgrRunning = 0;
 
-/* this TU does not include thread.h, whose iosThreadStart and
-   iosThreadCreate take the thread record as an int and a void pointer */
+/* stThread is a 120-byte buffer, 8 bytes more than an IOSThread: typed as
+   one, the object's .bss is 8 bytes shorter (measured) */
 
 /* The cdvd manager thread, with iosCdvdDiskReadyBlock expanded in case 0.
    The reply buffer's block opens after the switch.  req is the request the

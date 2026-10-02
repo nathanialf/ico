@@ -51,9 +51,9 @@ static int bootVideoMode; /* derived name */ /* the video mode in force when the
 /* mcard.c's request entry points; they return iosMsgSend's result, which
    this TU reads only from iosMcSync: it declares the others void, which its
    calls pin, so it does not include mcard.h */
-extern void iosMcChdirProduct(void *req);
-extern int iosMcSync(unsigned long *req);
-extern void iosMcLoadProductBlock(void *req);
+extern void iosMcChdirProduct(McMgr *mp);
+extern int iosMcSync(McMgr *mp);
+extern void iosMcLoadProductBlock(McMgr *mp);
 
 static int kanbanBootMcCheck(void)
 {

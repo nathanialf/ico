@@ -692,19 +692,19 @@ typedef struct { /* field names derived */
 /* mcard.c's request entry points return iosMsgSend's result; this TU never
    reads it and declares them void, which its calls pin, so it does not
    include mcard.h */
-extern void iosMcChdirProduct(void *req);
-extern void iosMcGetDir(void *req);
-extern int iosMcSync(unsigned long *req);
-extern void iosMcGetBlockSaveInfo(void *req);
-extern void iosMcSaveIconBlock(void *req);
-extern void iosMcSaveProductBlock(void *req);
-extern void iosMcSaveGameBlock(void *req, int arg);
-extern void iosMcLoadProductBlock(void *req);
-extern void iosMcLoadGameBlock(void *req, int arg);
-extern void iosMcDelete(void *req);
-extern void iosMcGetInfo(void *req);
-extern void iosMcFormat(void *req);
-extern void iosMcUnformat(void *req);
+extern void iosMcChdirProduct(McMgr *mp);
+extern void iosMcGetDir(McMgr *mp);
+extern int iosMcSync(McMgr *mp);
+extern void iosMcGetBlockSaveInfo(McMgr *mp);
+extern void iosMcSaveIconBlock(McMgr *mp);
+extern void iosMcSaveProductBlock(McMgr *mp);
+extern void iosMcSaveGameBlock(McMgr *mp, void *arg);
+extern void iosMcLoadProductBlock(McMgr *mp);
+extern void iosMcLoadGameBlock(McMgr *mp, void *arg);
+extern void iosMcDelete(McMgr *mp);
+extern void iosMcGetInfo(McMgr *mp);
+extern void iosMcFormat(McMgr *mp);
+extern void iosMcUnformat(McMgr *mp);
 extern void iosMcTest(void);
 
 /* the default save-file name "game." lives in .sdata as 6 bytes */

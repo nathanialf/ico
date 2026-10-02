@@ -21,7 +21,6 @@ typedef struct StreamElem { /* field names derived */
 /* motionManager2.c's other records: the head of a stream motion frame and
    the motion state block every actor starts from */
 struct StreamShapeHdr;
-struct MotionStateInfo;
 
 #include "typedef.h"
 
@@ -70,9 +69,10 @@ void GetRootProjectionPosOfGObj(float *pos, GObj *obj);
 int GetSkeltonFocusNode(GObj *self, int focus);
 int GetStreamMotion(char *dst, float *out, char *node, char *info);
 int GetStreamShapeMotion(float *dst, struct StreamShapeHdr *hdr);
-void InitMotionGeoInfo(char *self, float x, float y, float z, float rx, float ry, float rz);
+void InitMotionGeoInfo(struct MotRoot *self, float x, float y, float z, float rx, float ry,
+                       float rz);
 void InitMotionRotElem(int *elem, int count);
-void InitMotionStateInfo(struct MotionStateInfo *self);
+void InitMotionStateInfo(struct MotCtrl *self);
 void LockForceGroundParent(GObj *gobj);
 void SetMotionBlendlessNode(GObj *self, int *node);
 void SetMotionDirection(GObj *self, float *dir);

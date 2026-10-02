@@ -1430,7 +1430,7 @@ void SetNodeRotationLimitDataTable(void *self, int from, int to)
             debug_assert(__FILE__, 1838);
             __assert(__FILE__, 1838, "0");
         }
-        *(int *)(MOWORK(self)->nodeLimit + node * 4) = (int)&motionLimitDef[i];
+        MOWORK(self)->nodeLimit[node] = (int)&motionLimitDef[i];
         if (motionLimitDef[i].mid.y < motionLimitDef[i + 2].mid.y) {
             tmp = motionLimitDef[i];
             *(MotOriLimit *)&motionLimitDef[i] = motionLimitDef[i + 2];

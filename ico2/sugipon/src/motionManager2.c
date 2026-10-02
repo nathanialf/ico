@@ -266,16 +266,15 @@ static void getLowerPlaneCollisionE(ClipWork *w, float *pos)
 }
 
 /* inlined into AdjustMotionHeightToNearestField and InitMotionGeoInfo */
-static inline int adjustMotionHeightToNearestField(char *o, float *pos) /* derived name */
+static inline int adjustMotionHeightToNearestField(struct MotRoot *r, float *pos) /* derived name */
 {
     ClipWork buf;
     float p[4];
-    struct MotRoot *sub = (struct MotRoot *)(o + 0xA0);
 
     CopyVector(p, pos);
     p[1] = p[1] - 100.0f;
-    if (sub->filter.o.obj != 0) {
-        buf.filter = sub->filter;
+    if (r->filter.o.obj != 0) {
+        buf.filter = r->filter;
         getLowerPlaneCollisionE(&buf, p);
     } else {
         GetLowerPlaneCollision(&buf, p);
@@ -283,9 +282,9 @@ static inline int adjustMotionHeightToNearestField(char *o, float *pos) /* deriv
     if (buf.floor.elem == 0) {
         return 0;
     }
-    CopyVector((&sub->plane), (&buf.normal));
-    sceVu0CopyVector(sub->footPos, buf.pt[2]);
-    sub->footPos[3] = 1.0f;
+    CopyVector((&r->plane), (&buf.normal));
+    sceVu0CopyVector(r->footPos, buf.pt[2]);
+    r->footPos[3] = 1.0f;
     return 1;
 }
 
@@ -403,26 +402,11 @@ static int calcFootIK(SkelNode *skel, char *arg, int node, float scale, float ra
    0x30, SetSimplePlane builds the field plane at 0x130, GetRootPosOfNextFrame
    reads the next-frame position at 0x90 and AdjustMotionHeightToField
    projects the field position at 0x1B0 onto that plane.  The two hand records
-   at 0x210 and 0x270 share one shape.  MotRoot leaves 0x10C to 0x11F and
-   0x1E0 to 0x1FF unread; this default puts -1 and -1.0f there, so those words
-   keep type-and-offset names. */
-typedef struct { /* field names derived */
-    int mode;    /* 0x0, the mode flag RequestChangeHandMode sets */
-    int obj;     /* 0x4, the object the hand reaches for */
-    int node;    /* 0x8, the node the hand reaches for, -1 for none */
-    char pad0C[4];
-    Vec4 pos;   /* 0x10, the hand target */
-    int ikMode; /* 0x20, the turn IK mode, 0 for off */
-    int ikLock; /* 0x24 */
-    char pad28[8];
-    Vec4 ikDir;    /* 0x30, the turn target */
-    Vec4 ikQuat;   /* 0x40 */
-    float ikRate;  /* 0x50, the slerp rate toward the target */
-    int ikReached; /* 0x54, 1 once the target is reached */
-    int ikFlag;    /* 0x58 */
-    char pad5C[4];
-} MotionGeoLimb; /* derived name */
-
+   at 0x210 and 0x270 are typedef.h's HandRec.  MotRoot leaves 0x10C to 0x11F
+   and 0x1E0 to 0x1FF unread; this default puts -1 and -1.0f there, so those
+   words keep type-and-offset names.  The default is this record and not a
+   struct MotRoot because MotRoot is 16-byte aligned (its plane) and the
+   default is 8-byte aligned in the object's .data. */
 typedef struct {     /* field names derived */
     Vec4 pos;        /* 0x0, the position InitMotionGeoInfo is handed */
     Vec4 trans;      /* 0x10 */
@@ -470,12 +454,13 @@ typedef struct {     /* field names derived */
     char pad1D4[12];
     Vec4 vec1E0;
     Vec4 vec1F0;
-    int liftOn;             /* 0x200 */
-    int lifting;            /* 0x204 */
-    float lift[2];          /* 0x208 */
-    MotionGeoLimb hands[2]; /* 0x210 hand 1, 0x270 hand 0 */
-    Vec4 armTwist;          /* 0x2D0 */
-    int lookMode;           /* 0x2E0 */
+    int liftOn;    /* 0x200 */
+    int lifting;   /* 0x204 */
+    float lift[2]; /* 0x208 */
+    HandRec hand1; /* 0x210 */
+    HandRec hand0; /* 0x270 */
+    Vec4 armTwist; /* 0x2D0 */
+    int lookMode;  /* 0x2E0 */
     char pad2E4[12];
     Vec4 lookPos; /* 0x2F0 */
     short h;      /* 0x300 */
@@ -571,32 +556,32 @@ static MotionGeoInfo motionGeoInfoTemplate = {
     1,
     0,
     {0.0f, 0.0f},
-    {{0,
-      0,
-      -1,
-      {0},
-      {{0.0f, 0.0f, 0.0f, 1.0f}},
-      0,
-      0,
-      {0},
-      {{0.0f, 0.0f, 0.0f, 1.0f}},
-      {{0.0f, 0.0f, 0.0f, 1.0f}},
-      0.5f,
-      0,
-      0},
-     {0,
-      0,
-      -1,
-      {0},
-      {{0.0f, 0.0f, 0.0f, 1.0f}},
-      0,
-      0,
-      {0},
-      {{0.0f, 0.0f, 0.0f, 1.0f}},
-      {{0.0f, 0.0f, 0.0f, 1.0f}},
-      0.5f,
-      0,
-      0}},
+    {0,
+     0,
+     -1,
+     {0},
+     {0.0f, 0.0f, 0.0f, 1.0f},
+     0,
+     0,
+     {0},
+     {0.0f, 0.0f, 0.0f, 1.0f},
+     {0.0f, 0.0f, 0.0f, 1.0f},
+     0.5f,
+     0,
+     0},
+    {0,
+     0,
+     -1,
+     {0},
+     {0.0f, 0.0f, 0.0f, 1.0f},
+     0,
+     0,
+     {0},
+     {0.0f, 0.0f, 0.0f, 1.0f},
+     {0.0f, 0.0f, 0.0f, 1.0f},
+     0.5f,
+     0,
+     0},
     {{0.0f, 0.0f, 0.0f, 1.0f}},
     0,
     {0},
@@ -649,7 +634,9 @@ static MotionGeoInfo motionGeoInfoTemplate = {
    read the motion at 0x30 and the frame at 0x3C, CheckPureWallAttribute,
    CheckPureCliffAttribute, CheckWallAttribute and CheckFloorAttribute the four
    attributes at 0x17C to 0x188, GetRopeHangablePos the height at 0x1A8, and
-   InitMotionStateInfo itself writes the two sound groups at 0x1AC. */
+   InitMotionStateInfo itself writes the two sound groups at 0x1AC.  Its
+   vectors are Vec4, so the default is 8-byte aligned; with MotCtrl's float
+   arrays the template copy is a word copy with an alignment test (measured). */
 typedef struct MotionStateInfo { /* field names derived */
     int stream;                  /* 0x0 */
     int oriFrom;                 /* 0x4 */
@@ -863,22 +850,23 @@ static MotionStateInfo motionStateInfoTemplate = {
     0,
 }; /* derived name */
 
-void InitMotionGeoInfo(char *self, float x, float y, float z, float rx, float ry, float rz)
+void InitMotionGeoInfo(struct MotRoot *self, float x, float y, float z, float rx, float ry,
+                       float rz)
 {
     *(MotionGeoInfo *)self = motionGeoInfoTemplate;
-    *(float *)(self + 0x0) = x;
-    *(float *)(self + 0x4) = y;
-    *(float *)(self + 0x8) = z;
-    CopyVector((self + 0x150), self);
-    CopyVector((self + 0x70), self);
-    CopyVector((self + 0x160), self);
-    RotQuaternionY(self + 0x30, -(int)(ry * 10430.378f));
-    RotQuaternionX(self + 0x30, -(int)(rx * 10430.378f));
-    RotQuaternionZ(self + 0x30, (short)-(int)(rz * 10430.378f));
-    RegularizeQuaternion(self + 0x30);
-    adjustMotionHeightToNearestField(self - 0xA0, (float *)self);
-    SetSimplePlane(self + 0x130, 0.0f, -1.0f, 0.0f, y);
-    CopyVector((self + 0x1B0), self);
+    self->pos[0] = x;
+    self->pos[1] = y;
+    self->pos[2] = z;
+    CopyVector(self->last, self->pos);
+    CopyVector(self->savePos, self->pos);
+    CopyVector(self->clipFrom, self->pos);
+    RotQuaternionY(self->quat, -(int)(ry * 10430.378f));
+    RotQuaternionX(self->quat, -(int)(rx * 10430.378f));
+    RotQuaternionZ(self->quat, (short)-(int)(rz * 10430.378f));
+    RegularizeQuaternion(self->quat);
+    adjustMotionHeightToNearestField(self, self->pos);
+    SetSimplePlane(self->plane.f, 0.0f, -1.0f, 0.0f, y);
+    CopyVector(self->footPos, self->pos);
 }
 
 /* The skeleton-display state DispSkelton hands to dispSkeltonHierarchy
@@ -1699,7 +1687,7 @@ void FeedbackWallWorkInfoToBrainSystem(GObj *self)
 
 void *GetMotionPointer(GObj *self)
 {
-    return (char *)self->dobj + 0x680;
+    return &self->dobj->motion;
 }
 
 int GetCollisionOfLastActiveField(GObj *self)
@@ -1815,9 +1803,9 @@ void ClearMotionBlendlessNode(GObj *self)
     }
 }
 
-void InitMotionStateInfo(MotionStateInfo *self)
+void InitMotionStateInfo(struct MotCtrl *self)
 {
-    *self = motionStateInfoTemplate;
+    *(MotionStateInfo *)self = motionStateInfoTemplate;
     self->seGroup[0] = soundSeGroupGet();
     self->seGroup[1] = soundSeGroupGet();
 }
@@ -1830,7 +1818,7 @@ int GetSkeltonFocusNode(GObj *self, int focus)
 int AdjustMotionHeightToNearestField(GObj *self)
 {
     float pos[4];
-    char *o = (char *)self->dobj;
+    struct MotRoot *o = &self->dobj->root;
 
     GetRootPosition(pos, self);
     return adjustMotionHeightToNearestField(o, pos);

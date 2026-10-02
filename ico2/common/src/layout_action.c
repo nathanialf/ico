@@ -161,16 +161,16 @@ McMgr mc = {{0}};
 /* mcard.c's request entry points; they return iosMsgSend's result, which
    this TU reads only from iosMcSync: it declares the others void, which its
    calls pin, so it does not include mcard.h */
-extern int iosMcSync(unsigned long *req);
-extern void iosMcGetInfo(void *req);
-extern void iosMcLoadProductBlock(void *req);
-extern void iosMcGetBlockSaveInfo(void *req);
-extern void iosMcLoadGameBlock(void *req, int arg);
-extern void iosMcFormat(void *req);
-extern void iosMcSaveIconBlock(void *req);
-extern void iosMcSaveProductBlock(void *req);
-extern void iosMcSaveGameBlock(void *req, int arg);
-extern void iosMcDelete(void *req);
+extern int iosMcSync(McMgr *mp);
+extern void iosMcGetInfo(McMgr *mp);
+extern void iosMcLoadProductBlock(McMgr *mp);
+extern void iosMcGetBlockSaveInfo(McMgr *mp);
+extern void iosMcLoadGameBlock(McMgr *mp, void *arg);
+extern void iosMcFormat(McMgr *mp);
+extern void iosMcSaveIconBlock(McMgr *mp);
+extern void iosMcSaveProductBlock(McMgr *mp);
+extern void iosMcSaveGameBlock(McMgr *mp, void *arg);
+extern void iosMcDelete(McMgr *mp);
 /* mcard.c's preview record */
 extern int IosMcPreviewInfo[];
 
@@ -273,7 +273,7 @@ static int _la_memory_card_check(McMgr *p, int step)
     case 1:
     case 11:
     case 21:
-        if (iosMcSync((unsigned long *)p)) {
+        if (iosMcSync(p)) {
             step++;
         }
         break;
@@ -1383,7 +1383,7 @@ int la_load_processing(int first)
         break;
     case 1:
     case 3:
-        if (iosMcSync((unsigned long *)&mc) != 0) {
+        if (iosMcSync(&mc) != 0) {
             loadStep++;
         }
         break;
@@ -1417,7 +1417,7 @@ int la_load_processing(int first)
     case 5:
     case 8:
         debug_StdPrintfDummy("case %d\n", loadStep);
-        if (iosMcSync((unsigned long *)&mc) != 0) {
+        if (iosMcSync(&mc) != 0) {
             loadStep++;
         }
         break;
@@ -2057,7 +2057,7 @@ inline int la_format_processing(int first)
         break;
     case 1:
     case 3:
-        if (iosMcSync((unsigned long *)&mc) == 0) {
+        if (iosMcSync(&mc) == 0) {
             break;
         }
         formatStep++;
@@ -2167,7 +2167,7 @@ int la_system_save_processing(int first)
     case 3:
     case 5:
     case 8:
-        if (iosMcSync((unsigned long *)&mc) != 0) {
+        if (iosMcSync(&mc) != 0) {
             systemSaveStep++;
         }
         break;
@@ -2228,7 +2228,7 @@ int la_save_processing(int first)
         curPortInfo->flags.w = (int)curPortInfo->flags.w & ~0x80;
         break;
     case 1:
-        if (iosMcSync((unsigned long *)&mc) != 0) {
+        if (iosMcSync(&mc) != 0) {
             saveStep = 4;
         }
         break;
@@ -2271,7 +2271,7 @@ int la_save_processing(int first)
     case 3:
     case 5:
     case 8:
-        if (iosMcSync((unsigned long *)&mc) != 0) {
+        if (iosMcSync(&mc) != 0) {
             saveStep++;
             barStep++;
         }
@@ -2436,7 +2436,7 @@ int la_delete_processing(int first)
         deleteStep++;
         break;
     case 3:
-        if (iosMcSync((unsigned long *)&mc) == 0) {
+        if (iosMcSync(&mc) == 0) {
             break;
         }
         deleteStep++;

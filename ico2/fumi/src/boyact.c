@@ -1640,7 +1640,7 @@ static void PutWeapon(void)
     char *p = (char *)boyInfo;
 
     if (*(void **)(p + 0x20) != 0) {
-        InitMotionGeoInfo(*(char **)(*(char **)(p + 0x20) + 0x15C) + 0xA0, *(float *)(p + 0x30),
+        InitMotionGeoInfo(&GOBJ_SUB(*(void **)(p + 0x20))->root, *(float *)(p + 0x30),
                           *(float *)(p + 0x34), *(float *)(p + 0x38), -*(float *)(p + 0x40),
                           -*(float *)(p + 0x44), -*(float *)(p + 0x48));
         if (CheckWeaponKind(*(void **)(p + 0x20)) == 9) {

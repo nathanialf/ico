@@ -73,7 +73,7 @@ PadConf iosPadConfCustom = {0};
 
 IosPadDevRec iosPadDev[2] = {0};
 
-char th_iosPadDevManager[112] = {0};
+IOSThread th_iosPadDevManager = {{0}};
 
 IosMsgQueue padDevMgrMsgQ = {0};
 
@@ -275,8 +275,8 @@ int iosPadDevInit(void *desc)
 {
     int i;
 
-    iosThreadCreateS(th_iosPadDevManager, 10, iosPadDevManager, 0, ios_partition_root, 4096, 17);
-    iosThreadStart(th_iosPadDevManager);
+    iosThreadCreateS(&th_iosPadDevManager, 10, iosPadDevManager, 0, ios_partition_root, 4096, 17);
+    iosThreadStart(&th_iosPadDevManager);
 
     if (scePadInit(0) != 1) {
         debug_StdPrintfDummy("pad:init error\n");

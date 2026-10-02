@@ -524,6 +524,12 @@ typedef struct MotIk { /* field names derived */
     float offset[4];  /* 0x30 */
 } MotIk;              /* derived name */
 
+/* The 192-byte motion record at Sub15C + 0x680: initGeometryState clears
+   it and GetMotionPointer returns it; no reader of its words is left. */
+typedef struct { /* field names derived */
+    long long pad[24];
+} DObjMotion; /* derived name */
+
 struct Sub15C { /* field names derived */
     ObjNode
         parent; /* 0x0, the object and node this one hangs from (LinkParentOfDObj), obj 0 for none */
@@ -531,10 +537,7 @@ struct Sub15C { /* field names derived */
     int nodeMtx; /* 0xC, one 64-byte matrix a node; held as a word: typed float (*)[4][4] or char *, attackhit.o, act-game.o, commonact.o, fieldCollision.o and girl_act.o move, where the ROM adds a byte offset to it (measured) */
     int nodeQuat; /* 0x10, one quaternion a node; held as a word: typed float (*)[4], GetMatrixOfMotion's int-typed read of it moves (measured, P4-xcut) */
     char pad14[12];
-    int matrix; /* 0x20, the object's own matrix starts here (initMatrixDObj) */
-    char pad24[48];
-    float matrixTy; /* 0x54, the translation height in that matrix */
-    char pad58[8];
+    float matrix[4][4]; /* 0x20, the object's own matrix (initMatrixDObj) */
     float quat
         [4]; /* 0x60, the object's turn: weapon.c copies the root's into it, SetParticleEffect takes it */
     int colData;   /* 0x70, the collision data; its wall list hangs at 0x10 */
@@ -553,7 +556,8 @@ struct Sub15C { /* field names derived */
     int streamScale;     /* 0x660, nonzero to scale the stream motion by the node scale */
     char pad664[12];
     float streamOfs[3]; /* 0x670, the stream motion offset */
-    char pad67C[196];
+    char pad67C[4];
+    DObjMotion motion; /* 0x680, the motion record GetMotionPointer returns */
     char fdsFlags
         [116]; /* 0x740, the frame-depend sequence's fired-slot flags (frameDependSequence.c's FDSFlags) */
     void *motionBuf; /* 0x7B4, the current motion's rotation elements, 32 bytes a skeleton node */
@@ -564,13 +568,12 @@ struct Sub15C { /* field names derived */
     float localPos[4]; /* 0x7E0, the position relative to the object at 0x800 */
     float localMove
         [4]; /* 0x7F0, the root movement the local position steps by while no object holds it */
-    void *localObj;    /* 0x800, the object the position at 0x7E0 is relative to, 0 for none */
-    int localNode;     /* 0x804, the node of that object */
+    ObjNode local;     /* 0x800, the object and node the position at 0x7E0 is relative to, obj 0 for none */
     float localHeight; /* 0x808, the height added to the local position */
     MotIk *nodeRotElem; /* 0x80C, one IK state a skeleton node */
-    int nodeLimit;     /* 0x810, one rotation limit record pointer a skeleton node */
-    int nodeVec;       /* 0x814, one vector a skeleton node */
-    char pad818[4];
+    int *nodeLimit;    /* 0x810, the address of each skeleton node's rotation limit record */
+    float (*nodeVec)[4]; /* 0x814, one vector a skeleton node */
+    float (*blendRot)[4][4]; /* 0x818, four quaternions a skeleton node, the blend's rotations */
     int (*rideFunc)(
         ObjNode *on,
         GObj *
@@ -1603,7 +1606,7 @@ typedef struct McMgr {       /* field names derived */
     int end;                 /* 0x3C */
     int fileNo;              /* 0x40 -- the number in the save file's name */
     int dirCount;            /* 0x44 -- entries filled in by sceMcGetDir */
-    int segArg;              /* 0x48 -- what the segment's save and load handlers are given */
+    const void *segArg;      /* 0x48 -- what the segment's save and load handlers are given */
     int sum;                 /* 0x4C */
     int readSum;             /* 0x50 -- the checksum read back from the card */
     unsigned char buf[1024]; /* 0x54 -- the one-sector staging cache */

@@ -915,7 +915,7 @@ void actEnemyRestart(GObj *self, float *pos, float *dir, int kind, GObj *mother)
     }
     *(int *)((char *)sub + 0xD4) = (int)&actIntrList[79];
     ACTSendMailCorrect(self, mail);
-    InitMotionGeoInfo((char *)GOBJ_SUB(self) + 0xA0, pos[0], pos[1], pos[2], 0.0f, 0.0f, 0.0f);
+    InitMotionGeoInfo(&GOBJ_SUB(self)->root, pos[0], pos[1], pos[2], 0.0f, 0.0f, 0.0f);
     ResetEnemyPositionInfo(self);
     SetEnemyDissolve(self, 0.0f);
     sub->restartPosX = pos[0];

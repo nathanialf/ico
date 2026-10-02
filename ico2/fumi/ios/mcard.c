@@ -52,111 +52,99 @@ inline void iosMcMgrSync(McMgr *mp)
 
 inline void iosMcTest(void) {}
 
-inline int iosMcSync(unsigned long *req)
+inline int iosMcSync(McMgr *mp)
 {
-    unsigned long x = *req;
+    unsigned long x = mp->flags.ll;
     char y = x;
     unsigned long z = y & 1ul;
     y = z;
     return -((int)y);
 }
 
-inline int iosMcGetInfo(void *req)
+inline int iosMcGetInfo(McMgr *mp)
 {
-    McMgr *mp = req;
     mp->flags.w.command = 0;
     mp->flags.ll = mp->flags.ll & -2;
-    return iosMsgSend(&McMsgQ, req, 0);
+    return iosMsgSend(&McMsgQ, mp, 0);
 }
 
-inline int iosMcFormat(void *req)
+inline int iosMcFormat(McMgr *mp)
 {
-    McMgr *mp = req;
     mp->flags.w.command = 3;
     mp->flags.ll = mp->flags.ll & -2;
-    return iosMsgSend(&McMsgQ, req, 0);
+    return iosMsgSend(&McMsgQ, mp, 0);
 }
 
-inline int iosMcUnformat(void *req)
+inline int iosMcUnformat(McMgr *mp)
 {
-    McMgr *mp = req;
     mp->flags.w.command = 4;
     mp->flags.ll = mp->flags.ll & -2;
-    return iosMsgSend(&McMsgQ, req, 0);
+    return iosMsgSend(&McMsgQ, mp, 0);
 }
 
-inline int iosMcGetDir(void *req)
+inline int iosMcGetDir(McMgr *mp)
 {
-    McMgr *mp = req;
     mp->flags.w.command = 6;
     mp->flags.ll = mp->flags.ll & -2;
-    return iosMsgSend(&McMsgQ, req, 0);
+    return iosMsgSend(&McMsgQ, mp, 0);
 }
 
-inline int iosMcDelete(void *req)
+inline int iosMcDelete(McMgr *mp)
 {
-    McMgr *mp = req;
     mp->flags.w.command = 2;
     mp->flags.ll = mp->flags.ll & -2;
-    return iosMsgSend(&McMsgQ, req, 0);
+    return iosMsgSend(&McMsgQ, mp, 0);
 }
 
-inline int iosMcSaveIconBlock(void *req)
+inline int iosMcSaveIconBlock(McMgr *mp)
 {
-    McMgr *mp = req;
     mp->flags.w.command = 7;
     mp->flags.ll = mp->flags.ll & -2;
-    return iosMsgSend(&McMsgQ, req, 0);
+    return iosMsgSend(&McMsgQ, mp, 0);
 }
 
-inline int iosMcSaveProductBlock(void *req)
+inline int iosMcSaveProductBlock(McMgr *mp)
 {
-    McMgr *mp = req;
     mp->flags.w.command = 8;
     mp->flags.ll = mp->flags.ll & -2;
-    return iosMsgSend(&McMsgQ, req, 0);
+    return iosMsgSend(&McMsgQ, mp, 0);
 }
 
-inline int iosMcLoadProductBlock(void *req)
+inline int iosMcLoadProductBlock(McMgr *mp)
 {
-    McMgr *mp = req;
     mp->flags.w.command = 9;
     mp->flags.ll = mp->flags.ll & -2;
-    return iosMsgSend(&McMsgQ, req, 0);
+    return iosMsgSend(&McMsgQ, mp, 0);
 }
 
-inline int iosMcSaveGameBlock(void *req, int arg)
+inline int iosMcSaveGameBlock(McMgr *mp, void *arg)
 {
-    McMgr *mp = req;
     mp->flags.w.command = 10;
     mp->segArg = arg;
     mp->flags.ll = mp->flags.ll & -2;
-    return iosMsgSend(&McMsgQ, req, 0);
+    return iosMsgSend(&McMsgQ, mp, 0);
 }
 
-inline int iosMcLoadGameBlock(void *req, int arg)
+inline int iosMcLoadGameBlock(McMgr *mp, void *arg)
 {
-    McMgr *mp = req;
     mp->flags.w.command = 11;
     mp->segArg = arg;
     mp->flags.ll = mp->flags.ll & -2;
-    return iosMsgSend(&McMsgQ, req, 0);
+    return iosMsgSend(&McMsgQ, mp, 0);
 }
 
-inline int iosMcChdirProduct(void *req)
+inline int iosMcChdirProduct(McMgr *mp)
 {
-    McMgr *mp = req;
     mp->flags.w.command = 12;
     mp->flags.ll = mp->flags.ll & -2;
-    return iosMsgSend(&McMsgQ, req, 0);
+    return iosMsgSend(&McMsgQ, mp, 0);
 }
 
-inline int iosMcGetBlockSaveInfo(void *req)
+inline int iosMcGetBlockSaveInfo(McMgr *mp)
 {
-    McMgr *mp = req;
     mp->flags.w.command = 13;
     mp->flags.ll = mp->flags.ll & -2;
-    return iosMsgSend(&McMsgQ, req, 0);
+    return iosMsgSend(&McMsgQ, mp, 0);
 }
 
 typedef struct { /* field names derived */
@@ -701,7 +689,7 @@ static __inline__ void iosMcMgrSaveIconDebugResult(int result) /* derived name *
 static inline void iosMcMgrSaveIcon(McMgr *mp) /* derived name */
 {
     mp->segment = 1;
-    mp->segArg = (int)&iconFile[1];
+    mp->segArg = &iconFile[1];
     iosMcMgrSaveSeg(mp, 0);
 
     if (mp->result < 0) {
@@ -709,7 +697,7 @@ static inline void iosMcMgrSaveIcon(McMgr *mp) /* derived name */
     }
 
     mp->segment = 2;
-    mp->segArg = (int)&iconFile[2];
+    mp->segArg = &iconFile[2];
     iosMcMgrSaveSeg(mp, 0);
     iosMcMgrSaveIconDebugResult(mp->result);
 }

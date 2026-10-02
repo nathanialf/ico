@@ -893,7 +893,7 @@ void AP1Geo(GObj *self)
         MatrixDrive_RotMatrixX(0x4000);
         _MulMatrix((void *)GOBJ_SUB(self)->nodeMtx, MatrixDrive_GetMatrix(), ap1HeadScale);
     }
-    d = GOBJ_SUB(self)->matrixTy - *(float *)((char *)GOBJ_SUB(self)->nodeMtx + 0x34);
+    d = GOBJ_SUB(self)->matrix[3][1] - *(float *)((char *)GOBJ_SUB(self)->nodeMtx + 0x34);
     if ((d < 0.0f) ? ((d = -d) > 10000.0f) : (d > 10000.0f)) {
         GOBJ_SUB(self)->ctrl.floorAttr = 0x800;
         /* EUC-JP: "fall-death request from the spider slipping free" */

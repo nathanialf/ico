@@ -966,12 +966,12 @@ void GetGeometryOfMotion(void *self, void *m0, void *m1, float *v, float r, floa
 
     sh = MOWORK(self)->parent;
     stepFocusNode = k;
-    if ((char *)MOWORK(self)->localObj != 0) {
+    if ((char *)MOWORK(self)->local.obj != 0) {
         MOWORK(self)->localPos[3] = 1.0f;
         CopyVector(v2, MOWORK(self)->localPos);
-        sceVu0ApplyMatrix((int *)v2,
-                          GOBJ_SUB(MOWORK(self)->localObj)->nodeMtx + MOWORK(self)->localNode * 64,
-                          (char *)v2);
+        sceVu0ApplyMatrix(
+            (int *)v2, GOBJ_SUB(MOWORK(self)->local.obj)->nodeMtx + MOWORK(self)->local.node * 64,
+            (char *)v2);
     } else {
         AddVectorXYZ(MOWORK(self)->localPos, MOWORK(self)->localPos, MOWORK(self)->localMove);
         CopyVector(v2, MOWORK(self)->localPos);
