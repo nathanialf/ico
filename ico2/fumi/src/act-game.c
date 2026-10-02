@@ -114,21 +114,6 @@ typedef enum { MPSR_OFF, MPSR_ONESHOT, MPSR_HOLD } MpsrMode;
    use */
 #define ACTWORK(g) ((char *)GOBJ_ACT(g)->work) /* derived name */
 
-/* The environment work block the actor rebuilds every frame: 464 bytes at
-   +0x4B0, plus the four sub-blocks that survive the rebuild. */
-typedef struct { /* field names derived */
-    long long d[0x1D0 / 8];
-} EnvWork; /* derived name */
-
-/* 8-aligned 16-byte and 4-aligned 32-byte sub-blocks of that work area. */
-typedef struct { /* field names derived */
-    long long d[2];
-} EnvPair; /* derived name */
-
-typedef struct { /* field names derived */
-    float f[8];
-} EnvOct; /* derived name */
-
 /* unprototyped: weapon.h declares CheckWeaponKind(char *), and
    ACTGame_isWeaponCombustible calls it with no argument */
 extern int CheckWeaponKind();
@@ -391,19 +376,19 @@ inline int ACTGame_FLAG_TETSUNAGI_VISUAL(void)
 
 void ACTGame_TryConnectHand(void)
 {
-    RequestChangeHandMode((char *)boyGObj, 1, 5, 5, (int)((char *)girlGObj), 0, 0);
+    RequestChangeHandMode(boyGObj, 1, 5, 5, girlGObj, 0, 0);
 }
 
 void ACTGame_TryDisconnectHand(void)
 {
-    RequestChangeHandMode((char *)boyGObj, 1, 5, 0, 0, 0, 0);
+    RequestChangeHandMode(boyGObj, 1, 5, 0, 0, 0, 0);
 }
 
 inline void ACTGame_ConnectHand(void)
 {
     Act *s = GOBJ_ACT(((char *)girlGObj));
-    RequestChangeHandMode(((char *)girlGObj), 0, 5, 6, (int)boyGObj, 0, 0);
-    RequestChangeHandMode((char *)boyGObj, 1, 5, 5, (int)((char *)girlGObj), 0, 0);
+    RequestChangeHandMode(girlGObj, 0, 5, 6, boyGObj, 0, 0);
+    RequestChangeHandMode(boyGObj, 1, 5, 5, girlGObj, 0, 0);
     s->flags18.ll |= (1ULL << 40);
 }
 
@@ -416,8 +401,8 @@ void ACTGame_DisconnectHand_WithMail(void)
 inline void ACTGame_DisconnectHand(void)
 {
     Act *s = GOBJ_ACT(((char *)girlGObj));
-    RequestChangeHandMode(((char *)girlGObj), 0, 5, 0, 0, 0, 0);
-    RequestChangeHandMode((char *)boyGObj, 1, 5, 0, 0, 0, 0);
+    RequestChangeHandMode(girlGObj, 0, 5, 0, 0, 0, 0);
+    RequestChangeHandMode(boyGObj, 1, 5, 0, 0, 0, 0);
     s->flags18.ll &= ~(1ULL << 40);
 }
 
@@ -1820,7 +1805,7 @@ static void FunctionAboutClingedStatus(GObj *self)
 
 static void ACTEnvGetTest(GObj *self, void *dir)
 {
-    EnvWork old;
+    ActEnv old;
     Act *s = GOBJ_ACT(self);
 
     s->flags18.ll &= ~(1ULL << 59);
@@ -1833,18 +1818,17 @@ static void ACTEnvGetTest(GObj *self, void *dir)
     switch (s->actMode) {
     case 38:
     case 107:
-        *(EnvOct *)((char *)s + 0x620) = *(EnvOct *)((char *)GOBJ_SUB(self) + 0x180);
+        s->env.motOriReq = *(MotOriReq *)&GOBJ_SUB(self)->root.wall;
         break;
 
     default:
-        old = *(EnvWork *)((char *)s + 0x4B0);
-        memset((char *)s + 0x4B0, 0, sizeof(EnvWork));
-        *(EnvPair *)((char *)s + 0x5C0) = *(EnvPair *)((char *)&old + 0x110);
-        *(EnvOct *)((char *)s + 0x620) = *(EnvOct *)((char *)&old + 0x170);
-        *(EnvOct *)((char *)s + 0x660) = *(EnvOct *)((char *)&old + 0x1B0);
-        *(EnvOct *)((char *)s + 0x640) = *(EnvOct *)((char *)&old + 0x190);
-        ACTGetEnvironment(self, dir, test_CURRENTORIENT(self), (char *)s + 0x47C,
-                          (ActEnv *)s->wallOrient);
+        old = s->env;
+        memset(&s->env, 0, sizeof(ActEnv));
+        s->env.turnDir = old.turnDir;
+        s->env.motOriReq = old.motOriReq;
+        s->env.supportReq = old.supportReq;
+        s->env.cliffContact = old.cliffContact;
+        ACTGetEnvironment(self, dir, test_CURRENTORIENT(self), (char *)s + 0x47C, &s->env);
         break;
 
     case 10:
@@ -1928,7 +1912,7 @@ static void ActOrientTest(GObj *self)
     float d3[4];
     float ow[4];
     Act *s = GOBJ_ACT(self);
-    char *vel;
+    float *vel;
     int hitA;
     int hitB;
     int near;
@@ -2231,11 +2215,11 @@ static void ActOrientTest(GObj *self)
         ACTSendMailCorrect(self, 392);
     }
     if (ORBIT(ORQ((char *)s, 2), 14) && ORBIT(ORM((char *)s, 2), 14)) {
-        vel = (char *)s + 0x4C0;
+        vel = s->env.cliffOrient;
         sceVu0ScaleVector(v0, vel, -sceVu0InnerProduct((char *)(int)GOBJ_SUB(self) + 0x130, vel));
         sceVu0AddVector((char *)(int)GOBJ_SUB(self) + 0x130, (char *)(int)GOBJ_SUB(self) + 0x130,
                         v0);
-        SetRootPosition(self, (char *)s + 0x540);
+        SetRootPosition(self, s->env.cliffBackPos);
     }
     if (GOBJ_ACT(self)->enemy->stoneLevel > 0) {
         ACTSendMailCorrect(self, 111);
@@ -3149,7 +3133,7 @@ void ACTGame_InsertCamera_GirlIsPinch(void)
                   (60 - systemStatus[0] * 10) / systemStatus[1] * 45 / 60, 0.05f, 0.25f, 1);
 }
 
-void RequestChangeHandMode(char *self, int mode, int pri, int flag, int p5, int p6, float *p7)
+void RequestChangeHandMode(GObj *self, int mode, int pri, int flag, GObj *p5, int p6, float *p7)
 {
     HandModeCmd *hmc = 0;
 
@@ -3162,23 +3146,23 @@ void RequestChangeHandMode(char *self, int mode, int pri, int flag, int p5, int 
         hmc->f_4 = pri;
         switch (mode) {
         case 0:
-            GOBJ_SUB(self)->root.hand0Mode = hmc->f_0;
-            GOBJ_SUB(self)->root.hand0Obj = p5;
-            GOBJ_SUB(self)->root.hand0Node = p6;
+            GOBJ_SUB(self)->root.hand0.mode = hmc->f_0;
+            GOBJ_SUB(self)->root.hand0.obj = p5;
+            GOBJ_SUB(self)->root.hand0.node = p6;
             if (p7 != 0) {
-                GOBJ_SUB(self)->root.hand0Pos[0] = p7[0];
-                GOBJ_SUB(self)->root.hand0Pos[1] = p7[1];
-                GOBJ_SUB(self)->root.hand0Pos[2] = p7[2];
+                GOBJ_SUB(self)->root.hand0.pos[0] = p7[0];
+                GOBJ_SUB(self)->root.hand0.pos[1] = p7[1];
+                GOBJ_SUB(self)->root.hand0.pos[2] = p7[2];
             }
             break;
         case 1:
-            GOBJ_SUB(self)->root.hand1Mode = hmc->f_0;
-            GOBJ_SUB(self)->root.hand1Obj = p5;
-            GOBJ_SUB(self)->root.hand1Node = p6;
+            GOBJ_SUB(self)->root.hand1.mode = hmc->f_0;
+            GOBJ_SUB(self)->root.hand1.obj = p5;
+            GOBJ_SUB(self)->root.hand1.node = p6;
             if (p7 != 0) {
-                GOBJ_SUB(self)->root.hand1Pos[0] = p7[0];
-                GOBJ_SUB(self)->root.hand1Pos[1] = p7[1];
-                GOBJ_SUB(self)->root.hand1Pos[2] = p7[2];
+                GOBJ_SUB(self)->root.hand1.pos[0] = p7[0];
+                GOBJ_SUB(self)->root.hand1.pos[1] = p7[1];
+                GOBJ_SUB(self)->root.hand1.pos[2] = p7[2];
             }
             break;
         }

@@ -464,8 +464,8 @@ static void _getFinalMatrix(int id)
         MultiQuaternion(GetCurrentQuaternion(), GetCurrentQuaternion(), dq);
         GetMatrixFromQuaternionRotElem(MatrixDrive_GetMatrix(), GetCurrentQuaternion());
         if (skelRoot->handTurnIK != 0 &&
-            ((skelRoot->lookIK != 0 && skelRoot->lookMode != 0) || skelRoot->hand1IKMode != 0 ||
-             skelRoot->hand0IKMode != 0)) {
+            ((skelRoot->lookIK != 0 && skelRoot->lookMode != 0) || skelRoot->hand1.ikMode != 0 ||
+             skelRoot->hand0.ikMode != 0)) {
             ik->rate = ik->rate + (1.0f - ik->rate) * MOT_BLEND(ikRate0);
         } else {
             ik->rate = ik->rate * (1.0f - MOT_BLEND(ikRate0));
@@ -500,17 +500,17 @@ static void _getFinalMatrix(int id)
 #endif
             p = h = 0;
             n = 0;
-            if (skelRoot->handTurnIK == 1 && skelRoot->hand0IKMode != 0) {
+            if (skelRoot->handTurnIK == 1 && skelRoot->hand0.ikMode != 0) {
                 n++;
-                getLocalTargetDir(out, (float *)skelRoot->hand0IKDir);
+                getLocalTargetDir(out, (float *)skelRoot->hand0.ikDir);
                 MatrixDrive_GetTurnMinusZAngleXY(&a0, &a1, out[0], out[1], out[2]);
                 h = a0;
             }
-            if (skelRoot->handTurnIK == 1 && skelRoot->hand1IKMode != 0) {
+            if (skelRoot->handTurnIK == 1 && skelRoot->hand1.ikMode != 0) {
                 float out2[4];
 
                 n++;
-                getLocalTargetDir(out2, (float *)skelRoot->hand1IKDir);
+                getLocalTargetDir(out2, (float *)skelRoot->hand1.ikDir);
                 MatrixDrive_GetTurnZAngleXY(&b0, &b1, out2[0], out2[1], out2[2]);
                 h -= b0;
             }
@@ -600,17 +600,17 @@ static void _getFinalMatrix(int id)
                 CopyVector(work0, work1);
                 MatrixDrive_GetTurnXAngleZY(&w0, &w1, work0[0], work0[1], work0[2]);
             }
-            getLocalTargetDir(out, (float *)skelRoot->hand0IKDir);
+            getLocalTargetDir(out, (float *)skelRoot->hand0.ikDir);
             MatrixDrive_GetTurnXAngleZY(&a0, &a1, out[0], out[1], out[2]);
             limitHPAngleAndSetB(&ha, &pa, &ba, lim, a0, 0, a1, 0, 1, 0, 1.0f);
-            if (skelRoot->hand0IKLock != 0) {
+            if (skelRoot->hand0.ikLock != 0) {
                 _NormalizeVector(dv, out);
             } else {
                 getDirOfAngle(dv, ha, pa);
             }
             getRotOfDir(r, dv);
             MultiQuaternion(qa, qa, r);
-            switch (skelRoot->hand0IKMode) {
+            switch (skelRoot->hand0.ikMode) {
             case 1: {
                 float len[4], t[4], p[4];
                 float d;
@@ -659,7 +659,7 @@ static void _getFinalMatrix(int id)
                         MatrixDrive_PopMatrix();
                     }
                 }
-                if (skelRoot->hand0IKReached == 0) {
+                if (skelRoot->hand0.ikReached == 0) {
                     if (len[0] + len[1] < d) {
                         d = len[0] + len[1];
                     }
@@ -672,7 +672,7 @@ static void _getFinalMatrix(int id)
                 RotQuaternionX(qa, ba);
                 RotQuaternionZ(qa, ikBend0);
                 CopyQuaternion(s, qa);
-                getRootRelativePos(t, MatrixDrive_GetMatrix(), (float *)skelRoot->hand0IKDir);
+                getRootRelativePos(t, MatrixDrive_GetMatrix(), (float *)skelRoot->hand0.ikDir);
                 _NormalizeVector(t, t);
                 _OuterProduct(p, t, ikXAxis);
                 if (skelRoot->handIK == 2 && d + 0.0f > len[0] + len[1]) {
@@ -687,7 +687,7 @@ static void _getFinalMatrix(int id)
                 break;
             }
             case 2:
-                MultiQuaternion(s, qa, skelRoot->hand0IKQuat);
+                MultiQuaternion(s, qa, skelRoot->hand0.ikQuat);
                 MultiQuaternion(s, s, dq);
                 GetSlerpQuaternion(skelRoot->armTwist, skelRoot->armTwist, IdentityQuaternion,
                                    0.9f);
@@ -699,8 +699,8 @@ static void _getFinalMatrix(int id)
                 break;
             }
         }
-        GetSlerpQuaternion(ik->q, s, ik->q, skelRoot->hand0IKRate * (60.0f / MOT_FPS));
-        if (skelRoot->hand0IKMode != 0) {
+        GetSlerpQuaternion(ik->q, s, ik->q, skelRoot->hand0.ikRate * (60.0f / MOT_FPS));
+        if (skelRoot->hand0.ikMode != 0) {
             ik->rate = ik->rate + (1.0f - ik->rate) * (skelRoot->handRate * (60.0f / MOT_FPS));
         } else {
             ik->rate = ik->rate * (1.0f - skelRoot->handRate * (60.0f / MOT_FPS));
@@ -713,12 +713,12 @@ static void _getFinalMatrix(int id)
             APPLY_ROT(q);
             ikSlerpRate = ik->rate;
             flag = ikSlerpRate > 0.99f;
-            if (flag && skelRoot->hand0IKFlag == 0) {
-                skelRoot->hand0IKReached = 1;
+            if (flag && skelRoot->hand0.ikFlag == 0) {
+                skelRoot->hand0.ikReached = 1;
             } else {
-                skelRoot->hand0IKReached = 0;
+                skelRoot->hand0.ikReached = 0;
             }
-            skelRoot->hand0IKFlag = flag;
+            skelRoot->hand0.ikFlag = flag;
         }
         break;
     }
@@ -730,12 +730,12 @@ static void _getFinalMatrix(int id)
             float r[4];
 
             CopyQuaternion(t, dq);
-            if (skelRoot->hand0IKMode == 1) {
+            if (skelRoot->hand0.ikMode == 1) {
                 SetQuaternionByAxisRotateWithNoRegularize(t, -(ikBend0 + ikBend1), 0.0f, 0.0f,
                                                           -1.0f);
                 MultiQuaternion(t, t, ikBendQuat);
             }
-            GetSlerpQuaternion(ik->q, t, ik->q, skelRoot->hand0IKRate * (60.0f / MOT_FPS));
+            GetSlerpQuaternion(ik->q, t, ik->q, skelRoot->hand0.ikRate * (60.0f / MOT_FPS));
             GetSlerpQuaternion(r, ik->q, dq, ikSlerpRate);
             MultiQuaternion(q, q, r);
             APPLY_ROT(q);
@@ -807,17 +807,17 @@ static void _getFinalMatrix(int id)
             if (dbg) {
                 CopyVector(work, out);
             }
-            getLocalTargetDir(out, (float *)skelRoot->hand1IKDir);
+            getLocalTargetDir(out, (float *)skelRoot->hand1.ikDir);
             MatrixDrive_GetTurnXAngleZY(&a0, &a1, out[0], out[1], out[2]);
             limitHPAngleAndSetB(&ha, &pa, &ba, lim, a0, 0, a1, 0, 1, 0, 1.0f);
-            if (skelRoot->hand1IKLock != 0) {
+            if (skelRoot->hand1.ikLock != 0) {
                 _NormalizeVector(dv, out);
             } else {
                 getDirOfAngle(dv, ha, pa);
             }
             getRotOfDir(r, dv);
             MultiQuaternion(qa, qa, r);
-            switch (skelRoot->hand1IKMode) {
+            switch (skelRoot->hand1.ikMode) {
             case 1: {
                 float len[4];
                 float d;
@@ -846,7 +846,7 @@ static void _getFinalMatrix(int id)
                 break;
             }
             case 2:
-                MultiQuaternion(t, qa, skelRoot->hand1IKQuat);
+                MultiQuaternion(t, qa, skelRoot->hand1.ikQuat);
                 MultiQuaternion(t, t, dq);
                 break;
             default:
@@ -855,7 +855,7 @@ static void _getFinalMatrix(int id)
             }
         }
         GetSlerpQuaternion(ik->q, t, ik->q, skelRoot->handRate * (60.0f / MOT_FPS));
-        if (skelRoot->hand1IKMode != 0) {
+        if (skelRoot->hand1.ikMode != 0) {
             ik->rate = ik->rate + (1.0f - ik->rate) * (skelRoot->handRate * (60.0f / MOT_FPS));
         } else {
             ik->rate = ik->rate * (1.0f - skelRoot->handRate * (60.0f / MOT_FPS));
@@ -878,7 +878,7 @@ static void _getFinalMatrix(int id)
             float r[4];
 
             CopyQuaternion(t, dq);
-            if (skelRoot->hand1IKMode == 1) {
+            if (skelRoot->hand1.ikMode == 1) {
                 SetQuaternionByAxisRotateWithNoRegularize(t, -(ikBend0 + ikBend1), 0.0f, 0.0f,
                                                           -1.0f);
             }
@@ -909,8 +909,8 @@ static void _getFinalMatrix(int id)
 
     case 5:
         GET_NODE_ROT(q, dq);
-        if (skelRoot->hand1IKMode != 0) {
-            if (skelRoot->hand1IKMode != 1) {
+        if (skelRoot->hand1.ikMode != 0) {
+            if (skelRoot->hand1.ikMode != 1) {
                 MultiQuaternion(q, q, dq);
             }
         } else {

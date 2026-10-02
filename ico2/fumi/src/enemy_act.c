@@ -528,9 +528,9 @@ static inline unsigned char enemyCheckTurnAngle(GObj *self) /* derived name */
     ang = _RotyGV(mot, cur);
     aang = ang < 0 ? -ang : ang;
     if (limit < aang) {
-        s->turnDir[0] = cur[0];
-        s->turnDir[1] = cur[1];
-        s->turnDir[2] = cur[2];
+        s->env.turnDir.f[0] = cur[0];
+        s->env.turnDir.f[1] = cur[1];
+        s->env.turnDir.f[2] = cur[2];
         if (ang > 0) {
             ACTSendMailCorrect(self, 0xE8);
         } else {
@@ -662,7 +662,7 @@ inline void motEnemyStand(GObj *volatile self)
 {
     Act *sub = GOBJ_ACT(self);
     debug_StdPrintfDummy("enter motEnemyStand\n");
-    *(char **)((char *)sub + 0x130) = SetMotionRequest(self, 1, sub->motOriReq);
+    *(char **)((char *)sub + 0x130) = SetMotionRequest(self, 1, sub->env.motOriReq);
     while (1) {
         _ACTWait(1);
     }
@@ -681,7 +681,7 @@ inline void motEnemyWalk(GObj *volatile self)
     Act *sub = GOBJ_ACT(self);
     char *mot;
     debug_StdPrintfDummy("enter motEnemyWalk\n");
-    mot = SetMotionRequest(self, 8, sub->motOriReq);
+    mot = SetMotionRequest(self, 8, sub->env.motOriReq);
     *(char **)((char *)sub + 0x130) = mot;
     *(int *)(mot + 0x114) = 0;
     _ACTWait(0);
@@ -700,7 +700,7 @@ inline void motEnemyRun(GObj *volatile self)
     Act *sub = GOBJ_ACT(self);
     char *mot;
     debug_StdPrintfDummy("enter motEnemyRun\n");
-    mot = SetMotionRequest(self, 0xD, sub->motOriReq);
+    mot = SetMotionRequest(self, 0xD, sub->env.motOriReq);
     *(char **)((char *)sub + 0x130) = mot;
     *(int *)(mot + 0x114) = 0;
     _ACTWait(0);
@@ -1615,9 +1615,11 @@ void subEnemyBrainMain(GObj *volatile self)
             for (; i < 5; i++) {
                 if (sub->actMode == 5) {
                     ACTReserveTarget(girlGObj, (void *)self, 0xFF);
-                    *(char **)((char *)sub + 0x130) = SetMotionRequest(self, 0x109, sub->motOriReq);
+                    *(char **)((char *)sub + 0x130) =
+                        SetMotionRequest(self, 0x109, sub->env.motOriReq);
                 } else {
-                    *(char **)((char *)sub + 0x130) = SetMotionRequest(self, 0x107, sub->motOriReq);
+                    *(char **)((char *)sub + 0x130) =
+                        SetMotionRequest(self, 0x107, sub->env.motOriReq);
                 }
                 if (*(int *)((char *)sub->motReq + 0xC) != 0) {
                     break;
@@ -1625,7 +1627,7 @@ void subEnemyBrainMain(GObj *volatile self)
                 _ACTWait(1);
             }
             if (gflagChk(0x189) != 0) {
-                *(char **)((char *)sub + 0x130) = SetMotionRequest(self, 0x108, sub->motOriReq);
+                *(char **)((char *)sub + 0x130) = SetMotionRequest(self, 0x108, sub->env.motOriReq);
             }
         }
         break;

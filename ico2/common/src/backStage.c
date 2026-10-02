@@ -396,7 +396,7 @@ void backStageProcessInStage(float arg)
     }
 }
 
-void backStageSave(void *h)
+void backStageSave(GamesysMemCursor *h)
 {
     gamesysMemoryHandlerWrite(h, &backStageGirlTargetEnemyGop, 4);
     gamesysMemoryHandlerWrite(h, &kidnapState, 4);
@@ -409,7 +409,7 @@ void backStageSave(void *h)
     gamesysMemoryHandlerWrite(h, &nestSec, 4);
 }
 
-void backStageLoad(void *h)
+void backStageLoad(GamesysMemCursor *h)
 {
     gamesysMemoryHandlerRead(h, &backStageGirlTargetEnemyGop, 4);
     gamesysMemoryHandlerRead(h, &kidnapState, 4);

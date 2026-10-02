@@ -937,22 +937,23 @@ typedef union { /* field names derived */
 } FcPlane; /* derived name */
 
 /* one static inline expanded in both tail arms */
-static __inline__ void setClipPlane(char *self, void *m, void *v) /* derived name */
+static __inline__ void setClipPlane(ClipWork *self, void *m, void *v) /* derived name */
 {
-    FcPlane *n = (FcPlane *)(self + 0xA0);
+    Vec16 *n = &self->normal;
 
     sceVu0ApplyMatrix(n, m, v);
-    n->f[3] = -sceVu0InnerProduct(n, (self + 0x20));
+    n->f[3] = -sceVu0InnerProduct(n, self->pt[2]);
 }
 
-/* the 0x15C sub-object slot of a gobj, read as the union of its pointer and
- * int-handle views */
+/* a gobj's display-object slot read through a union: the ROM orders the
+ * wall arm's read of it behind the float stores to clipPlanePos, as an
+ * access through a union is ordered; a plain GObj.dobj read is scheduled
+ * ahead of them (measured) */
 typedef union { /* field names derived */
-    char *sub;
-    int handle;
+    Sub15C *dobj;
 } FcSubSlot; /* derived name */
 
-static void _Clip(char *self, int mode)
+static void _Clip(ClipWork *self, int mode)
 {
     float sv0[4];
     float sv1[4];
@@ -961,8 +962,8 @@ static void _Clip(char *self, int mode)
     float m1[16];
     FcPlane keep2;
     int (*func)(ClipWork *, GObj *, int);
-    char *obj;
-    char *sub;
+    GObj *obj;
+    Sub15C *sub;
     char *m;
     int cnt;
     int i;
@@ -972,19 +973,19 @@ static void _Clip(char *self, int mode)
         int x = clipMode[mode].f_4;
         int y = clipMode[mode].f_8;
 
-        sceVu0CopyVector((int *)sv0, (int *)self);
-        sceVu0CopyVector((int *)sv1, (int *)(self + 0x10));
-        sceVu0CopyVector((int *)(self + 0x20), (int *)(self + 0x10));
+        sceVu0CopyVector(sv0, self->pt[0]);
+        sceVu0CopyVector(sv1, self->pt[1]);
+        sceVu0CopyVector(self->pt[2], self->pt[1]);
         colObjNum = 0;
-        obj = (char *)colObjList[0];
+        obj = colObjList[0];
         if (colObjListNum > 0) {
             do {
                 m = (char *)clipMatrix;
-                sub = ((FcSubSlot *)(obj + 0x15C))->sub;
-                if (*(int *)(sub + 0x74) != 0) {
+                sub = obj->dobj;
+                if (sub->disp != 0) {
                     if (x != 0) {
-                        if (obj == *(char **)(self + 0x74)) {
-                            if (*(int *)(self + 0x78) < 0) {
+                        if (obj == self->filter.o.obj) {
+                            if (self->filter.o.node < 0) {
                                 goto next_gobj;
                             }
                         }
@@ -994,77 +995,74 @@ static void _Clip(char *self, int mode)
                             goto next_gobj;
                         }
                     }
-                    sub = ((FcSubSlot *)(obj + 0x15C))->sub;
+                    sub = obj->dobj;
                     cnt = 1;
-                    if (*(int *)(sub + 0x80) != 0) {
-                        cnt = *(int *)(sub + 0x8);
+                    if (sub->colPerNode != 0) {
+                        cnt = sub->nodeNum;
                     }
-                    curFuzio = (FuzioCtx *)*(int *)(sub + 0x70);
+                    curFuzio = (FuzioCtx *)sub->colData;
                     for (i = 0; i < cnt; i++) {
                         if (x != 0) {
-                            if (obj == *(char **)(self + 0x74) && i == *(int *)(self + 0x78) &&
-                                *(int *)(self + 0x7C) == 0) {
+                            if (obj == self->filter.o.obj && i == self->filter.o.node &&
+                                self->filter.elem == 0) {
                                 continue;
                             }
                         }
-                        CopyVector(keep, self + 0x20);
-                        CopyVector(self, sv0);
-                        if (*(int *)(((FcSubSlot *)(obj + 0x15C))->sub + 0x78) == 0) {
+                        CopyVector(keep, self->pt[2]);
+                        CopyVector(self->pt[0], sv0);
+                        if (obj->dobj->colRotate == 0) {
                             CopyVector(&clipMatrix[12],
-                                       *(char **)(((FcSubSlot *)(obj + 0x15C))->sub + 0xC) +
-                                           (i << 6) + 0x30);
+                                       (char *)obj->dobj->nodeMtx + (i << 6) + 0x30);
                         } else {
-                            m = *(char **)(((FcSubSlot *)(obj + 0x15C))->sub + 0xC) + (i << 6);
+                            m = (char *)obj->dobj->nodeMtx + (i << 6);
                         }
                         MatrixDrive_SetTransposeMatrix(m0, m);
-                        *(float *)(self + 0xC) = *(float *)(self + 0x2C) = 1.0f;
-                        _ApplyMatrix(self, m0, self);
-                        _ApplyMatrix(self + 0x20, m0, self + 0x20);
-                        makeCollisionBlockTable((float *)self);
+                        self->pt[0][3] = self->pt[2][3] = 1.0f;
+                        _ApplyMatrix(self->pt[0], m0, self->pt[0]);
+                        _ApplyMatrix(self->pt[2], m0, self->pt[2]);
+                        makeCollisionBlockTable(self->pt[0]);
                         if (func(self, obj, i)) {
-                            *(float *)(self + 0x2C) = 1.0f;
-                            _ApplyMatrix(self + 0x20, m, self + 0x20);
+                            self->pt[2][3] = 1.0f;
+                            _ApplyMatrix(self->pt[2], m, self->pt[2]);
                         } else {
-                            CopyVector(self + 0x20, keep);
+                            CopyVector(self->pt[2], keep);
                         }
                     }
                 }
             next_gobj:
                 colObjNum = colObjNum + 1;
-                obj = (char *)colObjList[colObjNum];
+                obj = colObjList[colObjNum];
             } while (colObjNum < colObjListNum);
         }
         if (clipMode[mode].f_0 != 0) {
-            if (*(int *)(self + 0x88) != 0) {
-                clipPlanePos[0] = (*(float **)(*(char **)(self + 0x88) + 0x4C))[0];
-                clipPlanePos[2] = (*(float **)(*(char **)(self + 0x88) + 0x4C))[1];
-                CopyMatrix(m1,
-                           *(char **)(((FcSubSlot *)(*(char **)(self + 0x80) + 0x15C))->sub + 0xC) +
-                               (*(int *)(self + 0x84) << 6));
-                if (*(int *)(((FcSubSlot *)(*(char **)(self + 0x80) + 0x15C))->sub + 0x78) == 0) {
+            if (self->wall.elem != 0) {
+                clipPlanePos[0] = ((FcWallEnt *)self->wall.elem)->normal[0];
+                clipPlanePos[2] = ((FcWallEnt *)self->wall.elem)->normal[1];
+                CopyMatrix(m1, (char *)((FcSubSlot *)&self->wall.o.obj->dobj)->dobj->nodeMtx +
+                                   (self->wall.o.node << 6));
+                if (self->wall.o.obj->dobj->colRotate == 0) {
                     UnitRotation(m1);
                 }
                 setClipPlane(self, m1, clipPlanePos);
-                *(int *)(self + 0x98) = *(int *)(*(char **)(self + 0x88) + 0x48);
+                self->attr = ((FcWallEnt *)self->wall.elem)->attr;
             } else {
-                sceVu0CopyVector((int *)(self + 0x20), (int *)sv1);
+                sceVu0CopyVector(self->pt[2], sv1);
             }
         } else {
-            if (*(int *)(self + 0x94) != 0) {
-                CopyVector(&keep2, *(char **)(self + 0x94) + 0x40);
+            if (self->floor.elem != 0) {
+                CopyVector(&keep2, &((FcFloorEnt *)self->floor.elem)->nx);
                 keep2.i[3] = 0;
                 CopyMatrix(m1,
-                           *(char **)(((FcSubSlot *)(*(char **)(self + 0x8C) + 0x15C))->sub + 0xC) +
-                               (*(int *)(self + 0x90) << 6));
-                if (*(int *)(((FcSubSlot *)(*(char **)(self + 0x8C) + 0x15C))->sub + 0x78) == 0) {
+                           (char *)self->floor.o.obj->dobj->nodeMtx + (self->floor.o.node << 6));
+                if (self->floor.o.obj->dobj->colRotate == 0) {
                     UnitRotation(m1);
                 }
                 setClipPlane(self, m1, &keep2);
-                *(int *)(self + 0x98) = *(int *)(*(char **)(self + 0x94) + 0x60);
+                self->attr = ((FcFloorEnt *)self->floor.elem)->attr;
             }
         }
-        sceVu0CopyVector((int *)self, (int *)sv0);
-        sceVu0CopyVector((int *)(self + 0x10), (int *)sv1);
+        sceVu0CopyVector(self->pt[0], sv0);
+        sceVu0CopyVector(self->pt[1], sv1);
     }
 }
 
@@ -1332,11 +1330,11 @@ inline void MapCollisionData(void *data)
     p[5] = (int)data + p[5];
 }
 
-inline void LoadCollision(int *self, int fname)
+inline void LoadCollision(void **self, char *fname)
 {
     int *p;
-    file_LoadFile((int)self, fname, 0);
-    p = (int *)self[0];
+    file_LoadFile(self, fname, 0);
+    p = *self;
     p[4] = (int)p + p[4];
     p[5] = (int)p + p[5];
 }
@@ -1758,7 +1756,7 @@ void MakeExitAttributeIndex(void)
 
 inline int PositionOfExit(float *pos, int attr)
 {
-    int v = (int)exitAttr[attr & 0xF];
+    void *v = exitAttr[attr & 0xF];
     if (v != 0) {
         CopyVector(pos, v);
         return 0;
@@ -1766,7 +1764,7 @@ inline int PositionOfExit(float *pos, int attr)
     return 1;
 }
 
-void ClipFloorByGObj(char *p, GObj *gobj)
+void ClipFloorByGObj(ClipWork *p, GObj *gobj)
 {
     float buf0[4];
     float buf1[4];
@@ -1774,52 +1772,51 @@ void ClipFloorByGObj(char *p, GObj *gobj)
     FcPlane keep;
     int (*clip)(ClipWork *, GObj *, int);
     char *m;
-    char *ep;
-    char *pos;
+    float *ep;
+    float *pos;
 
     clip = clipMode[12].func;
-    sceVu0CopyVector((int *)buf0, (int *)p);
-    sceVu0CopyVector((int *)buf1, (int *)(p + 0x10));
-    pos = p + 0x20;
-    sceVu0CopyVector((int *)pos, (int *)(p + 0x10));
+    sceVu0CopyVector(buf0, p->pt[0]);
+    sceVu0CopyVector(buf1, p->pt[1]);
+    pos = p->pt[2];
+    sceVu0CopyVector(pos, p->pt[1]);
     curFuzio = (FuzioCtx *)GOBJ_SUB(gobj)->colData;
     ep = pos;
     CopyVector(&keep, ep);
-    CopyVector(p, buf0);
+    CopyVector(p->pt[0], buf0);
     /* pos now names the start point: the DEBUG build traces the segment
      * (pos to ep) once it is in the object's space */
-    pos = p;
+    pos = p->pt[0];
     m = (char *)GOBJ_SUB(gobj)->nodeMtx;
-    MatrixDrive_SetTransposeMatrix(mtx, (float *)m);
-    *(float *)(p + 0xC) = *(float *)(p + 0x2C) = 1.0f;
-    _ApplyMatrix(p, mtx, p);
+    MatrixDrive_SetTransposeMatrix(mtx, m);
+    p->pt[0][3] = p->pt[2][3] = 1.0f;
+    _ApplyMatrix(p->pt[0], mtx, p->pt[0]);
     _ApplyMatrix(ep, mtx, ep);
 #ifdef DEBUG
-    DBG_VECTOR((float *)pos);
-    DBG_VECTOR((float *)ep);
+    DBG_VECTOR(pos);
+    DBG_VECTOR(ep);
 #endif
-    makeCollisionBlockTable((float *)p);
+    makeCollisionBlockTable(p->pt[0]);
     if (clip(p, gobj, 0)) {
-        *(float *)(p + 0x2C) = 1.0f;
+        p->pt[2][3] = 1.0f;
         _ApplyMatrix(ep, m, ep);
     } else {
         CopyVector(ep, &keep);
     }
-    if (*(int *)(p + 0x94) != 0) {
-        FcPlane *n;
+    if (p->floor.elem != 0) {
+        Vec16 *n;
 
-        CopyVector(&keep, *(char **)(p + 0x94) + 0x40);
+        CopyVector(&keep, &((FcFloorEnt *)p->floor.elem)->nx);
         keep.i[3] = 0;
-        CopyMatrix(mtx, *(char **)(((FcSubSlot *)(*(char **)(p + 0x8C) + 0x15C))->sub + 0xC) +
-                            (*(int *)(p + 0x90) << 6));
-        if (*(int *)(((FcSubSlot *)(*(char **)(p + 0x8C) + 0x15C))->sub + 0x78) == 0) {
+        CopyMatrix(mtx, (char *)p->floor.o.obj->dobj->nodeMtx + (p->floor.o.node << 6));
+        if (p->floor.o.obj->dobj->colRotate == 0) {
             UnitRotation(mtx);
         }
-        n = (FcPlane *)(p + 0xA0);
+        n = &p->normal;
         sceVu0ApplyMatrix(n, mtx, &keep);
         n->f[3] = -sceVu0InnerProduct(n, ep);
-        *(int *)(p + 0x98) = *(int *)(*(char **)(p + 0x94) + 0x60);
+        p->attr = ((FcFloorEnt *)p->floor.elem)->attr;
     }
-    sceVu0CopyVector((int *)p, (int *)buf0);
-    sceVu0CopyVector((int *)(p + 0x10), (int *)buf1);
+    sceVu0CopyVector(p->pt[0], buf0);
+    sceVu0CopyVector(p->pt[1], buf1);
 }

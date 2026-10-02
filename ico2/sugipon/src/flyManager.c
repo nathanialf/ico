@@ -22,13 +22,13 @@ static inline int getFloorLimitValue(int attr) /* derived name */
     return type * 100;
 }
 
-static inline int clipFlyFloor(char *work, void *pos) /* derived name */
+static inline void *clipFlyFloor(ClipWork *work, void *pos) /* derived name */
 {
-    CopyVector(work, pos);
-    CopyVector(work + 0x10, pos);
-    *(float *)(work + 0x14) += 100000.0f;
+    CopyVector(work->pt[0], pos);
+    CopyVector(work->pt[1], pos);
+    work->pt[1][1] += 100000.0f;
     ClipFloorByGObj(work, flyGObj);
-    return *(int *)(work + 0x94);
+    return work->floor.elem;
 }
 
 inline int InitFlyInfo(GObj *self)
@@ -59,12 +59,12 @@ inline void InitFlyManager(void)
 
 inline int GetFlyLimitClearance(void *pos)
 {
-    char work[192];
+    ClipWork work;
 
     if (flyGObj != 0) {
-        memset(work, 0, 192);
-        if (clipFlyFloor(work, pos) != 0) {
-            return -getFloorLimitValue(*(int *)(work + 0x98));
+        memset(&work, 0, sizeof(work));
+        if (clipFlyFloor(&work, pos) != 0) {
+            return -getFloorLimitValue(work.attr);
         }
     }
     return -10000;
@@ -72,13 +72,13 @@ inline int GetFlyLimitClearance(void *pos)
 
 inline int GetFlyLimitHeight(FlyLimitInfo *info, void *pos)
 {
-    char work[192];
+    ClipWork work;
 
     if (flyGObj != 0) {
-        memset(work, 0, 192);
-        if (clipFlyFloor(work, pos) != 0) {
-            info->floorY = *(float *)(work + 0x24);
-            info->limitOfs = -getFloorLimitValue(*(int *)(work + 0x98));
+        memset(&work, 0, sizeof(work));
+        if (clipFlyFloor(&work, pos) != 0) {
+            info->floorY = work.pt[2][1];
+            info->limitOfs = -getFloorLimitValue(work.attr);
             info->limitY = info->floorY + info->limitOfs;
             info->flags = 0;
             return 1;

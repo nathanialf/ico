@@ -569,8 +569,8 @@ void EnemyDL(GObj *self)
 
 void DemoMotionGeo(GObj *self)
 {
-    GOBJ_SUB(self)->root.hand1Mode = 0;
-    GOBJ_SUB(self)->root.hand0Mode = 0;
+    GOBJ_SUB(self)->root.hand1.mode = 0;
+    GOBJ_SUB(self)->root.hand0.mode = 0;
     GOBJ_SUB(self)->root.lookIK = 0;
     GOBJ_SUB(self)->root.handTurnIK = 0;
     ExecMotionOrient(self);

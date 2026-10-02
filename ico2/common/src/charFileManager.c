@@ -43,7 +43,7 @@ typedef struct { /* field names derived */
 typedef struct {        /* field names derived */
     PObjModel *pObj;    /* 0x00 */
     PObjModel *pShadow; /* 0x04 */
-    char *pSkel;        /* 0x08 */
+    SkelNode *pSkel;    /* 0x08 */
     int skelSum;        /* 0x0C */
     Coll *pColl;        /* 0x10 */
     int state;          /* 0x14 */
@@ -257,7 +257,7 @@ static inline int SumBytes(unsigned char *p, int n) /* derived name */
 
 void ReadSkeltonFile(void *h, char *name, int size, int id, int kind, int word08, int seg)
 {
-    char *p = 0;
+    SkelNode *p = 0;
     int sum = 0;
     int i;
 
@@ -285,7 +285,7 @@ void ReadSkeltonFile(void *h, char *name, int size, int id, int kind, int word08
                     j = 0;
                     iosCdvdHandlerRead(h, p, size);
                     debug_StdPrintfDummy("ReadSkeltonFile:loaded::%s  (size:%d)\n", name, size);
-                    while (*(int *)(p + j * 64) != -1) {
+                    while (p[j].mirror != -1) {
                         j++;
                     }
                     charFiles[i].pSkel = p;
@@ -686,21 +686,7 @@ void ReadStageSettingFile(void *h, int name, int size)
     tex_RemakeRegistersSampleMin(0);
 }
 
-typedef struct { /* field names derived */
-    char pad0[112];
-    int colData; /* 0x70 */
-    char pad74[16];
-    int modelId;     /* 0x84 */
-    int skelNodeNum; /* 0x88 */
-    char *skel;      /* 0x8C */
-    char pad90[1956];
-    int morphNum; /* 0x834 */
-    char pad838[28];
-    PObjModel *model;  /* 0x854 */
-    PObjModel *shadow; /* 0x858 */
-} CsvChar;             /* derived name */
-
-void CSVSYSTEM_ReadCharFiles(CsvChar *rec, int id)
+void CSVSYSTEM_ReadCharFiles(Sub15C *rec, int id)
 {
     int n = 0;
     int sum;
@@ -728,11 +714,11 @@ void CSVSYSTEM_ReadCharFiles(CsvChar *rec, int id)
     rec->colData = (int)charFiles[id].pColl;
     debug_StdPrintfDummy("collision %p.\n", rec->colData);
     if (rec->skel != 0) {
-        while (*(int *)(rec->skel + n * 64) != -1) {
+        while (rec->skel[n].mirror != -1) {
             n++;
         }
         rec->skelNodeNum = n;
-        rec->morphNum = *(int *)(rec->skel + n * 64 + 4);
+        rec->morphNum = rec->skel[n].kind;
         if (rec->morphNum < 0) {
             /* the shape data count information is old */
             debug_StdPrintfDummy("\033[36m シェイプデータの数情報が古いです。%d\033[m\n",

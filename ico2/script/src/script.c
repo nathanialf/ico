@@ -470,13 +470,13 @@ void scpPlayMot(GObj *self, int mot)
         return;
     }
     ControlMotionOrient(id, mot);
-    act->motReq = SetMotionRequest(self, 268, act->motOriReq);
+    act->motReq = SetMotionRequest(self, 268, act->env.motOriReq);
 }
 
 inline void scpPlayMotReq(GObj *self, int mot)
 {
     Act *p = GOBJ_ACT(self);
-    p->motReq = SetMotionRequest(self, mot, p->motOriReq);
+    p->motReq = SetMotionRequest(self, mot, p->env.motOriReq);
 }
 
 inline void scpPlayPosSet(void *self, float x, float y, float z)
@@ -1475,8 +1475,8 @@ void _SCPBoySupportGirl(float x0, float y0, float z0, float x1, float y1, float 
     sceVu0ScaleVector(v1, v1, -1.0f);
     wc = scpGetWallCollision(v0[0], v0[1], v0[2], v1[0], v1[1], v1[2]);
     if (wc != 0) {
-        GOBJ_ACT(boyGObj)->supportReq.b.wall = *wc;
-        GOBJ_ACT(girlGObj)->supportReq.a.wall = *wc;
+        GOBJ_ACT(boyGObj)->env.supportReq.b.wall = *wc;
+        GOBJ_ACT(girlGObj)->env.supportReq.a.wall = *wc;
         iosOmSendMail(boyGObj, 385, boyGObj);
         iosOmSendMail(girlGObj, 386, boyGObj);
     }

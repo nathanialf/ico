@@ -224,7 +224,7 @@ restart:
     switch (kind) {
     case 0:
         type = 1;
-        param = GOBJ_ACT(boyGObj)->sofaObj;
+        param = GOBJ_ACT(boyGObj)->env.sofaObj.obj;
         break;
     case 1:
         type = 1;
@@ -249,12 +249,12 @@ restart:
         tgt = attractSofaParam;
         tgt.obj = cur;
         GetSofaPosition(girlGObj, param);
-        tgt.pos[0] = sub->sofaPos[0];
-        tgt.pos[1] = sub->sofaPos[1];
-        tgt.pos[2] = sub->sofaPos[2];
-        ((GirlSofaWork *)GOBJ_ACT(self)->enemy)->pos[0] = sub->sofaPos[0];
-        ((GirlSofaWork *)GOBJ_ACT(self)->enemy)->pos[1] = sub->sofaPos[1];
-        ((GirlSofaWork *)GOBJ_ACT(self)->enemy)->pos[2] = sub->sofaPos[2];
+        tgt.pos[0] = sub->env.sofaPos[0];
+        tgt.pos[1] = sub->env.sofaPos[1];
+        tgt.pos[2] = sub->env.sofaPos[2];
+        ((GirlSofaWork *)GOBJ_ACT(self)->enemy)->pos[0] = sub->env.sofaPos[0];
+        ((GirlSofaWork *)GOBJ_ACT(self)->enemy)->pos[1] = sub->env.sofaPos[1];
+        ((GirlSofaWork *)GOBJ_ACT(self)->enemy)->pos[2] = sub->env.sofaPos[2];
         _GetRootObjectOrient(((GirlSofaWork *)GOBJ_ACT(self)->enemy)->dir, param);
         tgt.dir[0] = ((GirlSofaWork *)GOBJ_ACT(self)->enemy)->dir[0];
         tgt.dir[1] = ((GirlSofaWork *)GOBJ_ACT(self)->enemy)->dir[1];

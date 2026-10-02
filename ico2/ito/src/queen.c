@@ -993,7 +993,7 @@ void queenBeforeFunc(GObj *g)
     q->num = 0;
     /* the actor's motion orient request, refreshed from the copy the
        sub-object keeps at 0x180 */
-    act->motOriReq = *(MotOriReq *)((int)GOBJ_SUB(g) + 0x180);
+    act->env.motOriReq = *(MotOriReq *)&GOBJ_SUB(g)->root.wall;
 }
 
 typedef struct QueenGenTable { /* field names derived */
@@ -1247,7 +1247,7 @@ void subQueenBrainMain(volatile int g)
 
             if (barrierw->react != 0) {
                 if ((((QueenVal *)(ext + 0x130))->motReq =
-                         SetMotionRequest((char *)g, 326, ((Act *)ext)->motOriReq)) != 0) {
+                         SetMotionRequest((char *)g, 326, ((Act *)ext)->env.motOriReq)) != 0) {
                     barrierw->react = 0;
                 }
             }
@@ -1270,13 +1270,13 @@ void subQueenBrainMain(volatile int g)
             case 1076:
             default:
                 ((QueenVal *)(ext + 0x130))->motReq =
-                    SetMotionRequest((char *)g, 1, ((Act *)ext)->motOriReq);
+                    SetMotionRequest((char *)g, 1, ((Act *)ext)->env.motOriReq);
                 break;
 
             case 1072:
                 motionOk = 1;
                 if ((((QueenVal *)(ext + 0x130))->motReq =
-                         SetMotionRequest((char *)g, 324, ((Act *)ext)->motOriReq)) != 0) {
+                         SetMotionRequest((char *)g, 324, ((Act *)ext)->env.motOriReq)) != 0) {
                     if (first) {
                         startFrame = queenFrame;
                         wait = (int)(*((stage_no == 37) ? &ballWaitRateSt25[barrierw->damage]
@@ -1290,13 +1290,13 @@ void subQueenBrainMain(volatile int g)
             case 1077:
                 if (ballw->busy == 0 && motionOk != 0 && queenFrame - startFrame >= wait) {
                     ((QueenVal *)(ext + 0x130))->motReq =
-                        SetMotionRequest((char *)g, 325, ((Act *)ext)->motOriReq);
+                        SetMotionRequest((char *)g, 325, ((Act *)ext)->env.motOriReq);
                 }
                 break;
 
             case 1078:
                 ((QueenVal *)(ext + 0x130))->motReq =
-                    SetMotionRequest((char *)g, 1, ((Act *)ext)->motOriReq);
+                    SetMotionRequest((char *)g, 1, ((Act *)ext)->env.motOriReq);
                 if (GOBJ_SUB(g)->ctrl.animFrame > 15.0f && ballw->busy == 0 && motionOk != 0) {
                     uv = (stage_no == 37) ? &ballUVScrollSt25[barrierw->damage]
                                           : &ballUVScrollDefault[barrierw->damage];
@@ -1324,7 +1324,7 @@ void subQueenBrainMain(volatile int g)
                                                 : &ballHoldRateDefault[barrierw->damage]) *
                              ((60 - systemStatus[0] * 10) / systemStatus[1]));
                 ((QueenVal *)(ext + 0x130))->motReq =
-                    SetMotionRequest((char *)g, 1, ((Act *)ext)->motOriReq);
+                    SetMotionRequest((char *)g, 1, ((Act *)ext)->env.motOriReq);
                 break;
             }
         }
@@ -1783,7 +1783,7 @@ void actQueenStart(GObj *g)
     actCreateSubThread(subQueenBrainMain, 20);
     actCreateSubThread(subQueenControl, 21);
     actCreateSubThread(gene_enemy, 21);
-    ((QueenVal *)((char *)sub + 0x130))->motReq = SetMotionRequest(g, 270, sub->motOriReq);
+    ((QueenVal *)((char *)sub + 0x130))->motReq = SetMotionRequest(g, 270, sub->env.motOriReq);
     GOBJ_SUB(g)->cylinderOn = 1;
 }
 

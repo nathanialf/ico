@@ -25,7 +25,7 @@ typedef struct ActWork { /* field names derived */
     float escortOffset;     /* 0x330 */
     float disappearSpeed;   /* 0x334 */
     float fallDamageHeight; /* 0x338 */
-    char pad33C[4];
+    float ropeClimbHeight;  /* 0x33C, the chain top over the actor, sent with mail 316 */
     float stickMag;        /* 0x340 */
     float lockedMaxRotate; /* 0x344 */
     float parallelInterp;  /* 0x348 */
@@ -82,7 +82,9 @@ typedef struct ActWork { /* field names derived */
     char *genTarget;         /* 0x460 */
     int motherLabel;         /* 0x464 */
     struct GObj *motherGObj; /* 0x468, the generator object motherLabel names */
-    char pad46C[20];
+    char pad46C[4];
+    float hangOrient[3]; /* 0x470, the cliff orientation actBoyHangBefore keeps */
+    char pad47C[4];
     MotOriReq cliffReq; /* 0x480, the request mails 140 and 305 turn to: b the
                            wall under the cliff edge (actBoyCliffHesitate),
                            a the actor's motion request's b (actBoyHangBefore) */
@@ -207,7 +209,7 @@ void ACTGame_DeleteActorInformation(struct GObj *self);
 void ACTGame_SetActors_Debug(int stage, unsigned char flag);
 void ACTGame_StageChangeGObj(struct GObj *self, int idx);
 void GetSkeltonOrient(float *out, void *obj, int node);
-void RequestChangeHandMode(char *self, int mode, int pri, int flag, int p5, int p6, float *p7);
+void RequestChangeHandMode(GObj *self, int mode, int pri, int flag, GObj *p5, int p6, float *p7);
 
 int _ACTGame_SearchGObj(struct GObj *self, struct GObj *tgt, float range, float height, int angle,
                         float *out);

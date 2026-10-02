@@ -17,7 +17,8 @@ void gflagOn(int bit_idx);
 extern int gFlagGameClear;
 extern int gFlagSaveStage;
 
-void gflagSave(void *fp);
-void gflagLoad(void *fp);
+struct GamesysMemCursor;
+void gflagSave(struct GamesysMemCursor *fp);
+void gflagLoad(struct GamesysMemCursor *fp);
 
 #endif /* GFLAG_H */

@@ -241,6 +241,27 @@ typedef struct MotOriReq { /* field names derived */
  * an enumerated mode, as motionOrientManager.c's debug_bar_flag. */
 enum MotOriShiftMode { MOTORI_SHIFT_0, MOTORI_SHIFT_1, MOTORI_SHIFT_2, MOTORI_SHIFT_3 };
 
+/* One hand of the root block, 0x60 bytes: the mode RequestChangeHandMode
+   sets, the object node and point the hand reaches for, and the turn IK
+   HandManager runs toward ikDir (motMan_getFinalMatrix reads hand 0's rate,
+   reached and flag words; hand 1's are kept by the template only). */
+typedef struct HandRec { /* field names derived */
+    int mode;          /* 0x0, the mode flag */
+    struct GObj *obj;  /* 0x4, the object the hand reaches for */
+    int node;          /* 0x8, the node the hand reaches for */
+    char pad0C[4];
+    float pos[4];      /* 0x10, the hand target */
+    int ikMode;        /* 0x20, the turn IK mode, 0 for off */
+    int ikLock;        /* 0x24 */
+    char pad28[8];
+    float ikDir[4];    /* 0x30, the turn target */
+    float ikQuat[4];   /* 0x40 */
+    float ikRate;      /* 0x50, the slerp rate toward the target */
+    int ikReached;     /* 0x54, 1 once the target is reached */
+    int ikFlag;        /* 0x58 */
+    char pad5C[4];
+} HandRec; /* derived name */
+
 /* RECONSTRUCTION, names ours: the motion work's root block (the motion work
    + 0xA0, up to its motion-control block at + 0x470), the record skelRoot
    points at.  The position, translation, rotation and the last position are
@@ -299,31 +320,8 @@ struct MotRoot {       /* field names derived */
     int liftOn; /* 0x200, 1 (the default): the root update lifts the foot pair onto a step node (kind 0x30) */
     int lifting; /* 0x204, set while that lift is applied; _getFinalMatrix bends the leg nodes by it */
     float lift[2]; /* 0x208 */
-    int hand1Mode; /* 0x210, hand record 1 (RequestChangeHandMode mode 1): the mode flag */
-    int hand1Obj;  /* 0x214, the object the hand reaches for */
-    int hand1Node; /* 0x218, the node the hand reaches for */
-    char _pad21C[4];
-    float hand1Pos[4]; /* 0x220, the hand target */
-    int hand1IKMode;   /* 0x230, hand 1's turn IK mode, 0 for off */
-    int hand1IKLock;   /* 0x234 */
-    char _pad238[8];
-    float hand1IKDir[4];  /* 0x240, hand 1's turn target */
-    float hand1IKQuat[4]; /* 0x250 */
-    char _pad260[16];
-    int hand0Mode; /* 0x270, hand record 0 (RequestChangeHandMode mode 0): the mode flag */
-    int hand0Obj;  /* 0x274, the object the hand reaches for */
-    int hand0Node; /* 0x278, the node the hand reaches for */
-    char _pad27C[4];
-    float hand0Pos[4]; /* 0x280, the hand target */
-    int hand0IKMode;   /* 0x290, hand 0's turn IK mode, 0 for off */
-    int hand0IKLock;   /* 0x294 */
-    char _pad298[8];
-    float hand0IKDir[4];  /* 0x2A0, hand 0's turn target */
-    float hand0IKQuat[4]; /* 0x2B0 */
-    float hand0IKRate;    /* 0x2C0, the slerp rate toward the target */
-    int hand0IKReached;   /* 0x2C4, 1 once the target is reached */
-    int hand0IKFlag;      /* 0x2C8 */
-    char _pad2CC[4];
+    HandRec hand1; /* 0x210, hand record 1 (RequestChangeHandMode mode 1) */
+    HandRec hand0; /* 0x270, hand record 0 (RequestChangeHandMode mode 0) */
     float armTwist[4]; /* 0x2D0, the arm turn eased toward the hand targets */
     int lookMode;      /* 0x2E0, the look-target mode, 2 to turn the head fully */
     char _pad2E4[12];
@@ -1270,6 +1268,67 @@ typedef struct WayRequest {   /* field names derived */
     struct GProc *proc;  /* 0xB0, the sub-thread running the search, 0 when none */
 } WayRequest; /* derived name */
 
+/* The actor's environment (Act + 0x4B0), the 0x1D0 bytes ACTGetEnvironment
+ * fills in and ACTEnvGetTest clears every frame, keeping the turn direction
+ * and the three orient requests: the orientations and positions of the
+ * wall, cliff, ditch, edge, torch, sofa and lever the actor can act on, the
+ * objects it found, and the requests SetMotionRequest takes. */
+typedef struct ActEnv {      /* field names derived */
+    float wallOrient[4];     /* 0x0, the wall orientation */
+    float cliffOrient[4];    /* 0x10, the cliff orientation */
+    float torchOrient[4];    /* 0x20, the direction to the torch to light (actCommonCatchFire) */
+    float torchRevOrient[4]; /* 0x30, the direction to the torch to put out (actCommonPutFire) */
+    float cliffEdgePos[4];   /* 0x40 */
+    float cliffStepPos[4];   /* 0x50 */
+    float ditchPos[4];       /* 0x60, the ditch position */
+    float ditchDir[4];       /* 0x70 */
+    unsigned char ditchCarry; /* 0x80, nonzero when ditchPos is stage 8's carry-mode ditch (getDitchDistTbl) */
+    char pad81[15];
+    float cliffBackPos[4]; /* 0x90 */
+    float edgeOrient[4];   /* 0xA0 */
+    float sofaOrient[4];   /* 0xB0, the sofa seat orientation (GetSofaPosition) */
+    float edgePos[4];      /* 0xC0, the edge position, [3] nonzero while it is to be taken */
+    char padD0[16];
+    float wallPos[4]; /* 0xE0, the point on the wall the actor touches (wallContactPos) */
+    float pullPos[4]; /* 0xF0, the pull position */
+    float sofaPos[4]; /* 0x100, the sofa seat position (GetSofaPosition) */
+    Vec4 turnDir;     /* 0x110, the direction the enemy turns from, kept over the clear */
+    char pad120[16];
+    int wallWord;         /* 0x130, the wall's attribute word */
+    int cliffSel;         /* 0x134, the cliff selection */
+    float cliffHeight;    /* 0x138, the cliff height */
+    GObj *wallObj;        /* 0x13C, the object whose wall the root hit */
+    GObj *boxObj;         /* 0x140, the box (kind 17) in reach */
+    GObj *holdBoxObj;     /* 0x144, the box the actor can hold */
+    GObj *barObj;         /* 0x148, the bar or turning object (kind 18) */
+    GObj *pullObj;        /* 0x14C, the pull lever */
+    GObj *pullParent;     /* 0x150, the object the actor is linked to (Sub15C parent)
+                             when it finds the lever (kind 23) */
+    char pad154[4];
+    GObj *swapWeapon;     /* 0x158, the weapon the actor can swap to */
+    char *frontObj;       /* 0x15C */
+    union {
+        int i;
+        char *obj;
+    } cageObj; /* 0x160, the cage: stored as the object ACTGetEnvironment
+                  found, read as an int handle (commonact.c) */
+    GObj *bombObj;        /* 0x164, the bomb */
+    GObj *torchRevObj;    /* 0x168, the torch */
+    union {
+        int i;
+        GObj *obj;
+    } sofaObj; /* 0x16C, the sofa: stored as an int (ACTGetEnvironment), read
+                  as the object */
+    MotOriReq motOriReq;  /* 0x170, the motion orient request SetMotionRequest
+                             takes, copied from the root's at Sub15C + 0x180 */
+    MotOriReq cliffContact; /* 0x190, the same copy, taken where the cliff is
+                               found; mails 378 to 384 read it (381 takes the
+                               boy's) */
+    MotOriReq supportReq;   /* 0x1B0, the wall _SCPBoySupportGirl sets (the
+                               girl's as a, the boy's as b), the request mails
+                               385 and 386 copy to motOriReq */
+} ActEnv; /* derived name */
+
 typedef struct Act { /* field names derived */
     char pad0[4];
     struct GProc *actProc;  /* 0x4, the actor's action process (actInitialize, actChangeActMain) */
@@ -1439,44 +1498,7 @@ typedef struct Act { /* field names derived */
     ActWishWord wish3; /* 0x490 */
     ActWishWord wish4; /* 0x498 */
     char pad4A0[16];
-    float wallOrient[4];     /* 0x4B0, act-env.h's ActEnv starts here: the wall orientation */
-    float cliffOrient[4];    /* 0x4C0, the cliff orientation */
-    float torchOrient[4];    /* 0x4D0, the direction to the torch to light (actCommonCatchFire) */
-    float torchRevOrient[4]; /* 0x4E0, the direction to the torch to put out (actCommonPutFire) */
-    char pad4F0[32];
-    float ditchPos[4]; /* 0x510, the ditch position */
-    char pad520[16];
-    unsigned char ditchCarry; /* 0x530, nonzero when ditchPos is stage 8's carry-mode ditch (getDitchDistTbl) */
-    char pad531[47];
-    float sofaOrient[4]; /* 0x560, the sofa seat orientation (GetSofaPosition) */
-    float edgePos[4];    /* 0x570, the edge position, [3] nonzero while it is to be taken */
-    char pad580[32];
-    float pullPos[4]; /* 0x5A0, the pull position */
-    float sofaPos[4]; /* 0x5B0, the sofa seat position (GetSofaPosition) */
-    float turnDir[4]; /* 0x5C0, the direction the enemy turns from */
-    char pad5D0[16];
-    int wallWord;      /* 0x5E0, the wall's attribute word */
-    int cliffSel;      /* 0x5E4, the cliff selection */
-    float cliffHeight; /* 0x5E8, the cliff height */
-    char pad5EC[8];
-    GObj *holdBoxObj; /* 0x5F4, the box the actor can hold */
-    GObj *barObj;     /* 0x5F8, the bar or turning object */
-    GObj *pullObj;    /* 0x5FC, the pull lever */
-    void *pullKind;   /* 0x600, the pull lever's kind */
-    char pad604[4];
-    GObj *swapWeapon; /* 0x608, the weapon the actor can swap to */
-    char pad60C[4];
-    int cageObj;         /* 0x610, the cage */
-    GObj *bombObj;       /* 0x614, the bomb */
-    GObj *torchRevObj;   /* 0x618, the torch */
-    GObj *sofaObj;       /* 0x61C, the sofa */
-    MotOriReq motOriReq; /* 0x620, the motion orient request SetMotionRequest
-                            takes, filled from the sub-object's at 0x180 */
-    MotOriReq motOriReq640; /* 0x640, an orient request mails 378 to 384 read
-                               (381 takes the boy's) */
-    MotOriReq supportReq;   /* 0x660, the wall _SCPBoySupportGirl sets (the
-                               girl's as a, the boy's as b), the request mails
-                               385 and 386 copy to motOriReq */
+    ActEnv env; /* 0x4B0, the environment ACTGetEnvironment fills in every frame */
     struct EnemyBattleWork *enemy;          /* 0x680, the enemy work (enemy_act.c) */
     struct MailAdditionalData *mailAddData; /* 0x684, the mail additional data table */
     int work; /* 0x688, the actor's extended work block (act-game.h's ActWork) */

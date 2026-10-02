@@ -596,7 +596,7 @@ int ACTGetOrientFromIntrK(GObj *self, int k, MotOriReq *out, int arg)
     MotOriTarget tmp;
     int ret = intrMotion[k];
 
-    *out = s->motOriReq;
+    *out = s->env.motOriReq;
     switch (k) {
     case 140:
         out->b = GOBJ_WORK(self)->cliffReq.b;
@@ -607,14 +607,14 @@ int ACTGetOrientFromIntrK(GObj *self, int k, MotOriReq *out, int arg)
     case 298:
         *(char **)((char *)s + 0x30) = GetMailAdditionalData(self, arg);
         tmp = *(MotOriTarget *)(*(char **)((char *)GOBJ_ACT(self) + 0x30));
-        out->b = s->motOriReq.b = tmp;
+        out->b = s->env.motOriReq.b = tmp;
         break;
     case 54:
         *(char **)((char *)s + 0x30) = GetMailAdditionalData(self, arg);
         tmp = *(MotOriTarget *)(*(char **)((char *)GOBJ_ACT(self) + 0x30));
-        out->a = out->b = s->motOriReq.a = s->motOriReq.b = tmp;
-        s->sofaObj = tmp.obj;
-        GetSofaPosition(self, s->sofaObj);
+        out->a = out->b = s->env.motOriReq.a = s->env.motOriReq.b = tmp;
+        s->env.sofaObj.obj = tmp.obj;
+        GetSofaPosition(self, s->env.sofaObj.obj);
         break;
     case 145:
         out->a = GOBJ_WORK(self)->bellowWall3000;
@@ -626,7 +626,7 @@ int ACTGetOrientFromIntrK(GObj *self, int k, MotOriReq *out, int arg)
     case 115:
     case 116:
     case 117:
-        out->b = s->motOriReq.a;
+        out->b = s->env.motOriReq.a;
         break;
     case 45:
         return GOBJ_ACT(self)->enemy->jumpOrient;
@@ -638,20 +638,20 @@ int ACTGetOrientFromIntrK(GObj *self, int k, MotOriReq *out, int arg)
     case 378:
     case 379:
     case 380:
-        out->b = out->a = s->motOriReq640.b;
+        out->b = out->a = s->env.cliffContact.b;
         break;
     case 381:
-        *out = s->motOriReq640 = GOBJ_ACT(boyGObj)->motOriReq640;
+        *out = s->env.cliffContact = GOBJ_ACT(boyGObj)->env.cliffContact;
         break;
     case 382:
     case 383:
     case 384:
-        *out = s->motOriReq640;
+        *out = s->env.cliffContact;
         break;
     case 385:
     case 386:
-        *out = s->supportReq;
-        s->motOriReq = *out;
+        *out = s->env.supportReq;
+        s->env.motOriReq = *out;
         break;
     case 205:
     case 206:
@@ -671,14 +671,14 @@ int ACTGetOrientFromIntrK(GObj *self, int k, MotOriReq *out, int arg)
         break;
     case 81:
         ret = s->orientMot;
-        out->a = GOBJ_ACT(boyGObj)->motOriReq.b;
-        s->motOriReq = *out;
+        out->a = GOBJ_ACT(boyGObj)->env.motOriReq.b;
+        s->env.motOriReq = *out;
         break;
     case 89:
     case 399:
     case 403:
-        out->a = GOBJ_ACT(boyGObj)->motOriReq.b;
-        s->motOriReq = *out;
+        out->a = GOBJ_ACT(boyGObj)->env.motOriReq.b;
+        s->env.motOriReq = *out;
         break;
     case 416:
         ret = 0;
@@ -758,7 +758,7 @@ void WithMailFunc_AttackFail(GObj *self)
 {
     Act *s = GOBJ_ACT(self);
     char *p = (char *)s->intrData;
-    int v = p != 0 ? *(int *)p : s->wallWord;
+    int v = p != 0 ? *(int *)p : s->env.wallWord;
     if (self == boyGObj) {
         GObj *t = s->weapon;
         if (t != 0) {
@@ -1330,7 +1330,7 @@ void actCommonRopeSpecial(GObj *volatile self)
     unsigned char found;
 
     s = GOBJ_ACT(self);
-    cage = s->cageObj;
+    cage = s->env.cageObj.i;
     if (cage != 0) {
         *(int *)((char *)GOBJ_ACT(self)->work + 0x400) = cage;
     } else {
@@ -1427,14 +1427,14 @@ void actCommonLever(GObj *volatile self)
 {
     float p[4];
     Act *s = GOBJ_ACT(self);
-    GObj *lev = s->pullObj;
+    GObj *lev = s->env.pullObj;
 
     GOBJ_WORK(self)->leverTimer = ((60 - systemStatus[0] * 10) / systemStatus[1]) * 5;
-    p[0] = s->pullPos[0];
-    p[1] = s->pullPos[1];
-    p[2] = s->pullPos[2];
+    p[0] = s->env.pullPos[0];
+    p[1] = s->env.pullPos[1];
+    p[2] = s->env.pullPos[2];
     p[1] = test_CURRENTROOT((void *)self)[1];
-    SetDirectRootPositionNoFittingWithNodePointXZ((void *)self, 0x2C, s->pullPos, 1.0f);
+    SetDirectRootPositionNoFittingWithNodePointXZ((void *)self, 0x2C, s->env.pullPos, 1.0f);
     actMotDirToWall(self);
     while (1) {
         if (lev != 0) {
@@ -1771,7 +1771,7 @@ void actCommonSofa(GObj *volatile self)
 {
     Act *s = GOBJ_ACT(self);
 
-    SetDirectRootPositionNoFitting((void *)self, s->sofaPos);
+    SetDirectRootPositionNoFitting((void *)self, s->env.sofaPos);
     GOBJ_ACT(self)->enemy->sofaWake = 0;
     GOBJ_ACT(self)->enemy->dirSmoothFrames = 0;
     GOBJ_ACT(self)->enemy->dirSmoothFrames2 = 0;
@@ -1795,7 +1795,7 @@ static void BoxBarSoundOn(GObj *self)
         ExecBoxMoveStartReaction(s->box, (int)s->pushDir);
         break;
     case 0x33:
-        ExecRotObjectMoveStartReaction(s->barObj);
+        ExecRotObjectMoveStartReaction(s->env.barObj);
         break;
     }
 }
@@ -1808,7 +1808,7 @@ static void BoxBarSoundOff(GObj *self)
         ExecBoxMoveEndReaction(s->box);
         break;
     case 0x33:
-        ExecRotObjectMoveEndReaction(s->barObj);
+        ExecRotObjectMoveEndReaction(s->env.barObj);
         break;
     }
 }
@@ -1853,7 +1853,7 @@ static inline int boxWallCheck(GObj *self, GObj *box, float dist, int h) /* deri
 
     GetRootPosition(w.pt[0], box);
     GetRootPosition(w.pt[1], box);
-    sceVu0ScaleVector(t, s->wallOrient, dist);
+    sceVu0ScaleVector(t, s->env.wallOrient, dist);
     sceVu0AddVector(w.pt[1], w.pt[1], t);
     w.radius = h;
     w.pt[0][1] += 10.0f;
@@ -1880,7 +1880,7 @@ void actCommonBox(GObj *volatile self)
     float hold[4];
 
     s->after = afterCommonBox;
-    box = s->holdBoxObj;
+    box = s->env.holdBoxObj;
     if (stage_no == 16) {
         sub = GOBJ_SUB(box)->parent.obj;
         if (sub != 0) {
@@ -1891,7 +1891,7 @@ void actCommonBox(GObj *volatile self)
     }
     ((Act *)(char *)s)->box = box;
     actMotDirToWall(self);
-    sceVu0ScaleVector(GOBJ_WORK(self)->boxDir, s->wallOrient, -1.0f);
+    sceVu0ScaleVector(GOBJ_WORK(self)->boxDir, s->env.wallOrient, -1.0f);
     while (1) {
         int had = (int)s->pushDir != 0;
         int f2 = 0;
@@ -1921,11 +1921,11 @@ void actCommonBox(GObj *volatile self)
                 float dir[4];
                 unsigned char ok;
                 if (s->pushDir == 0xFFFFFFFF) {
-                    dir[0] = s->wallOrient[0];
-                    dir[1] = s->wallOrient[1];
-                    dir[2] = s->wallOrient[2];
+                    dir[0] = s->env.wallOrient[0];
+                    dir[1] = s->env.wallOrient[1];
+                    dir[2] = s->env.wallOrient[2];
                 } else {
-                    sceVu0ScaleVector(dir, s->wallOrient, -1.0f);
+                    sceVu0ScaleVector(dir, s->env.wallOrient, -1.0f);
                 }
                 if (!isTruck) {
                     debug_StdPrintfDummy("A\n");
@@ -1990,7 +1990,7 @@ void actCommonBar(GObj *volatile self)
     float hold[4];
     float hold2[4];
 
-    bar = s->barObj;
+    bar = s->env.barObj;
     actMotDirToWall(self);
     pos[0] = *(float *)((char *)test_CURRENTROOT((void *)self) + 0);
     pos[1] = *(float *)((char *)test_CURRENTROOT((void *)self) + 4);
@@ -2891,13 +2891,13 @@ void actCommonLadder(GObj *volatile self)
     int lp48;
     char *o;
 
-    if (s->edgePos[3] != 0.0f) {
+    if (s->env.edgePos[3] != 0.0f) {
         pos[0] = test_CURRENTROOT((void *)self)[0];
         pos[1] = test_CURRENTROOT((void *)self)[1];
         pos[2] = test_CURRENTROOT((void *)self)[2];
-        pos[0] = s->edgePos[0];
-        pos[2] = s->edgePos[2];
-        s->edgePos[3] = 0.0f;
+        pos[0] = s->env.edgePos[0];
+        pos[2] = s->env.edgePos[2];
+        s->env.edgePos[3] = 0.0f;
     }
     LADW->upEnd = 0;
     LADW->downEnd = 0;
@@ -3000,7 +3000,7 @@ inline void actCommonCliffdown(GObj *volatile self)
     Act *s = GOBJ_ACT(self);
 
     debug_StdPrintfDummy("enter actCommonCliffdown\n");
-    SetMotionDirection(self, s->cliffOrient);
+    SetMotionDirection(self, s->env.cliffOrient);
     for (;;) {
         ACTSendMailCorrect(self, 0xC7);
         _ACTWait(1);
@@ -3605,13 +3605,13 @@ void actCommonTurn(GObj *volatile self)
     float q[4];
     float o[4];
     Act *s = GOBJ_ACT(self);
-    float *t = s->turnDir;
+    float *t = s->env.turnDir.f;
     int d;
 
     while (1) {
         GetRootMotionOrient(q, self);
-        d = _RotyGV(s->turnDir, q);
-        debug_Arrow(100.0f, test_CURRENTROOT((void *)self), s->turnDir, 0, 0, 0xFF);
+        d = _RotyGV(s->env.turnDir.f, q);
+        debug_Arrow(100.0f, test_CURRENTROOT((void *)self), s->env.turnDir.f, 0, 0, 0xFF);
         if (self == girlGObj) {
             GetSkeltonOrient(o, self, 1);
             if (_AbsRotyGV(t, o) < 60) {
@@ -3703,7 +3703,7 @@ typedef struct { /* field names derived */
 void actCommonTruckLever(GObj *volatile self)
 {
     Act *s = GOBJ_ACT(self);
-    GObj *lev = s->pullObj;
+    GObj *lev = s->env.pullObj;
 
     ((TruckLeverWork *)s)->f14 = (int)afterCommonTruckLever;
     actMotDirToWall(self);
@@ -3819,7 +3819,7 @@ inline void actCommonCatchFire(GObj *volatile self)
     Act *s = GOBJ_ACT(self);
     int lit = 0;
 
-    SetMotionDirection(self, s->torchOrient);
+    SetMotionDirection(self, s->env.torchOrient);
     for (;;) {
         if (GetMotionFrameFlag1((void *)self) && !lit) {
             LightTorchOnOfWeapon(s->weapon);
@@ -3835,10 +3835,10 @@ inline void actCommonCatchFireBomb(GObj *volatile self)
     Act *s = GOBJ_ACT(self);
     int lit = 0;
 
-    SetMotionDirection(self, s->torchOrient);
+    SetMotionDirection(self, s->env.torchOrient);
     for (;;) {
         if (GetMotionFrameFlag1((void *)self) && !lit) {
-            LightTorchOn(s->bombObj);
+            LightTorchOn(s->env.bombObj);
             lit = 1;
         }
         ACTSendMailCorrect(self, 0xC7);
@@ -3851,10 +3851,10 @@ inline void actCommonPutFire(GObj *volatile self)
     Act *s = GOBJ_ACT(self);
     int lit = 0;
 
-    SetMotionDirection(self, s->torchRevOrient);
+    SetMotionDirection(self, s->env.torchRevOrient);
     for (;;) {
         if (GetMotionFrameFlag1((void *)self) && !lit) {
-            LightTorchOn(s->torchRevObj);
+            LightTorchOn(s->env.torchRevObj);
             lit = 1;
         }
         ACTSendMailCorrect(self, 0xC7);
@@ -3975,9 +3975,9 @@ inline void actCommonFallDamage(GObj *volatile self)
 inline void actCommonLever2(GObj *volatile self)
 {
     Act *s = GOBJ_ACT(self);
-    GObj *lev = s->pullObj;
+    GObj *lev = s->env.pullObj;
 
-    SetDirectRootPositionXZ((void *)self, s->pullPos);
+    SetDirectRootPositionXZ((void *)self, s->env.pullPos);
     actMotDirToWall(self);
     while (1) {
         if (lev != 0) {
@@ -4168,7 +4168,7 @@ inline void actCommonTurnWarn(GObj *volatile self)
         if (s->curMot != 0x10D) {
             prev = s->curMot;
         } else {
-            s->motReq = SetMotionRequest((void *)self, prev, s->motOriReq);
+            s->motReq = SetMotionRequest((void *)self, prev, s->env.motOriReq);
         }
         GetRootMotionOrient(q, self);
         d = _RotyGV((char *)GOBJ_ACT(self)->work + 0x3F0, q);
@@ -4182,7 +4182,7 @@ inline void actCommonTurnWarn(GObj *volatile self)
 inline void actCommonTurnStrict(GObj *volatile self)
 {
     float q[4];
-    float *t = GOBJ_ACT(self)->turnDir;
+    float *t = GOBJ_ACT(self)->env.turnDir.f;
 
     for (;;) {
         int d;
@@ -4205,9 +4205,9 @@ inline void actCommonHandrail(GObj *volatile self)
 {
     Act *s = GOBJ_ACT(self);
 
-    GOBJ_WORK(self)->handrailOrient[0] = s->wallOrient[0];
-    GOBJ_WORK(self)->handrailOrient[1] = s->wallOrient[1];
-    GOBJ_WORK(self)->handrailOrient[2] = s->wallOrient[2];
+    GOBJ_WORK(self)->handrailOrient[0] = s->env.wallOrient[0];
+    GOBJ_WORK(self)->handrailOrient[1] = s->env.wallOrient[1];
+    GOBJ_WORK(self)->handrailOrient[2] = s->env.wallOrient[2];
     for (;;) {
         _ACTWait(1);
     }
@@ -4384,7 +4384,7 @@ inline void motCommonRopeTurnSpecialL(GObj *volatile self)
 
 inline void motCommonTruckLeverLoop(GObj *volatile self)
 {
-    GObj *sw = GOBJ_ACT(self)->pullObj;
+    GObj *sw = GOBJ_ACT(self)->env.pullObj;
 
     _ACTWait(6);
     SetSwitchState(sw, 0);
@@ -4394,7 +4394,7 @@ inline void motCommonTruckLeverLoop(GObj *volatile self)
 
 inline void motCommonTruckLeverPull(GObj *volatile self)
 {
-    GObj *sw = GOBJ_ACT(self)->pullObj;
+    GObj *sw = GOBJ_ACT(self)->env.pullObj;
     _ACTWait(30);
     SetSwitchState(sw, -1);
     debug_StdPrintfDummy("pull");
@@ -4403,7 +4403,7 @@ inline void motCommonTruckLeverPull(GObj *volatile self)
 
 inline void motCommonTruckLeverPush(GObj *volatile self)
 {
-    GObj *sw = GOBJ_ACT(self)->pullObj;
+    GObj *sw = GOBJ_ACT(self)->env.pullObj;
     _ACTWait(30);
     SetSwitchState(sw, 1);
     debug_StdPrintfDummy("push");
@@ -4447,7 +4447,7 @@ inline void funcCommonSofaWakeup(GObj *self)
 inline int _ACTMotReqResult(GObj *self, int mot)
 {
     Act *s = GOBJ_ACT(self);
-    char *r = SetMotionRequest(self, mot, s->motOriReq);
+    char *r = SetMotionRequest(self, mot, s->env.motOriReq);
     s->motReq = r;
     return *(int *)(r + 0xC) != 0;
 }
@@ -4694,5 +4694,5 @@ static inline void afterCommonBecarry(GObj *volatile self)
 inline void afterCommonTruckLever(GObj *volatile self)
 {
     char *g = (char *)self;
-    SetSwitchState(GOBJ_ACT(g)->pullObj, 0);
+    SetSwitchState(GOBJ_ACT(g)->env.pullObj, 0);
 }

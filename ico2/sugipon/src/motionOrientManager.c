@@ -818,7 +818,7 @@ char *SetMotionRequest(void *self, int mot, MotOriReq req)
         case 13:
         case 15:
         case 16:
-            *(MotOriReq *)((char *)GOBJ_SUB(self) + 0x180) = req;
+            *(MotOriReq *)&GOBJ_SUB(self)->root.wall = req;
             debug_StdPrintfDummy("\033[36mUpdate with collision info that act memorized.\033[m\n");
             break;
         }

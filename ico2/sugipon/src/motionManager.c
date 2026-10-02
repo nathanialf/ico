@@ -22,10 +22,6 @@
 #include <libvu0.h>
 #include <assert.h>
 
-typedef struct { /* field names derived */
-    char b[32];
-} ShiftBlk; /* derived name */
-
 /* the motion being computed: its IK slerp rate, motions, quaternions, node
    positions, root and motion control, and the natural-geometry buffers */
 static float ikSlerpRate; /* derived name */
@@ -246,13 +242,13 @@ static int findActPoint(int *list)
         if (order == 0) {
             continue;
         }
-        if (skelRoot->hand1IKMode != 0) {
+        if (skelRoot->hand1.ikMode != 0) {
             int k = skelNode[i].kind;
             if (k == 6 || k == 11) {
                 continue;
             }
         }
-        if (skelRoot->hand0IKMode != 0) {
+        if (skelRoot->hand0.ikMode != 0) {
             int k = skelNode[i].kind;
             if (k == 22 || k == 27) {
                 continue;
@@ -272,12 +268,12 @@ static int checkActPointWithHeight(int kind, float h)
 {
     int i;
 
-    if (skelRoot->hand1IKMode != 0) {
+    if (skelRoot->hand1.ikMode != 0) {
         if (kind == 6 || kind == 11) {
             return -1;
         }
     }
-    if (skelRoot->hand0IKMode != 0) {
+    if (skelRoot->hand0.ikMode != 0) {
         if (kind == 22 || kind == 27) {
             return -1;
         }
@@ -883,13 +879,13 @@ static void _getGeometryOfMotion(ObjNode *out, int second)
 
 inline void getGeometryOfMotion(ObjNode *out, int second)
 {
-    ShiftBlk buf;
+    MotOriReq buf;
     Sub15C *p;
-    buf = *(ShiftBlk *)&GOBJ_SUB(skelGObj)->root.wall;
+    buf = *(MotOriReq *)&GOBJ_SUB(skelGObj)->root.wall;
     _getGeometryOfMotion(out, second);
     p = ((GObj *)skelGObj)->dobj;
     if (p->ctrl.keepWall != 0) {
-        *(ShiftBlk *)&p->root.wall = buf;
+        *(MotOriReq *)&p->root.wall = buf;
     }
 }
 

@@ -14,6 +14,8 @@ void ReadSoundSqFile(void *h, int name, int size, int id, int kind, int word08, 
 void ReadSoundAdpcmFile(void *h, int name, int size, int id, int kind, int word08, int seg);
 void InitCharFileManager(void);
 void ResetCharFileManager(void);
+struct Sub15C;
+void CSVSYSTEM_ReadCharFiles(struct Sub15C *rec, int id);
 
 /* texture-path: one texture file, 0x34 bytes. Readers:
  * ico2/common/src/charFileManager.c (TexRec), kanban.c, layout_texture.c.

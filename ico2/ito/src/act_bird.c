@@ -96,7 +96,7 @@ void birdBeforeFunc(GObj *self)
 
         case 424:
             if (len < 250.0f) {
-                act->motReq = SetMotionRequest(self, 321, act->motOriReq);
+                act->motReq = SetMotionRequest(self, 321, act->env.motOriReq);
             }
             break;
 
@@ -104,41 +104,41 @@ void birdBeforeFunc(GObj *self)
             int st = GOBJ_SUB(self)->ctrl.motion;
 
             if (st >= 1139 && st <= 1141) {
-                act->motReq = SetMotionRequest(self, 322, act->motOriReq);
+                act->motReq = SetMotionRequest(self, 322, act->env.motOriReq);
             }
             break;
         }
 
         case 7:
-            act->motReq = SetMotionRequest(self, 321, act->motOriReq);
+            act->motReq = SetMotionRequest(self, 321, act->env.motOriReq);
             break;
 
         case 26:
         case 27:
-            act->motReq = SetMotionRequest(self, 321, act->motOriReq);
+            act->motReq = SetMotionRequest(self, 321, act->env.motOriReq);
             break;
 
         case 419:
-            act->motReq = SetMotionRequest(self, 321, act->motOriReq);
+            act->motReq = SetMotionRequest(self, 321, act->env.motOriReq);
             break;
 
         case 420:
-            act->motReq = SetMotionRequest(self, 321, act->motOriReq);
+            act->motReq = SetMotionRequest(self, 321, act->env.motOriReq);
             break;
 
         case 421:
-            act->motReq = SetMotionRequest(self, 321, act->motOriReq);
+            act->motReq = SetMotionRequest(self, 321, act->env.motOriReq);
             break;
 
         case 422:
-            act->motReq = SetMotionRequest(self, 321, act->motOriReq);
+            act->motReq = SetMotionRequest(self, 321, act->env.motOriReq);
             break;
         }
     }
     q->num = 0;
     /* the actor's motion orient request, refreshed from the copy the
        sub-object keeps at 0x180 */
-    act->motOriReq = *(MotOriReq *)((int)GOBJ_SUB(self) + 0x180);
+    act->env.motOriReq = *(MotOriReq *)&GOBJ_SUB(self)->root.wall;
 }
 
 /* --- act_bird.c's own small helpers, inlined into subBirdBrainMain --- */
@@ -429,14 +429,14 @@ void subBirdBrainMain(void *volatile gobj)
                         break;
                     }
                     if (r < 0.28f) {
-                        act->motReq = SetMotionRequest(gobj, 321, act->motOriReq);
+                        act->motReq = SetMotionRequest(gobj, 321, act->env.motOriReq);
                         break;
                     }
                     if (random_unit() <= 0.5f) {
-                        act->motReq = SetMotionRequest(gobj, 317, act->motOriReq);
+                        act->motReq = SetMotionRequest(gobj, 317, act->env.motOriReq);
                         break;
                     }
-                    act->motReq = SetMotionRequest(gobj, 318, act->motOriReq);
+                    act->motReq = SetMotionRequest(gobj, 318, act->env.motOriReq);
                     break;
                 } else {
                     float r = random_unit();
@@ -444,22 +444,22 @@ void subBirdBrainMain(void *volatile gobj)
                         break;
                     }
                     if (r < 0.28f) {
-                        act->motReq = SetMotionRequest(gobj, 321, act->motOriReq);
+                        act->motReq = SetMotionRequest(gobj, 321, act->env.motOriReq);
                         break;
                     }
                     if (r < 0.4f) {
-                        act->motReq = SetMotionRequest(gobj, 320, act->motOriReq);
+                        act->motReq = SetMotionRequest(gobj, 320, act->env.motOriReq);
                         break;
                     }
                     if (r < 0.7f) {
-                        act->motReq = SetMotionRequest(gobj, 319, act->motOriReq);
+                        act->motReq = SetMotionRequest(gobj, 319, act->env.motOriReq);
                         break;
                     }
                     if (random_unit() <= 0.7f) {
-                        act->motReq = SetMotionRequest(gobj, 317, act->motOriReq);
+                        act->motReq = SetMotionRequest(gobj, 317, act->env.motOriReq);
                         break;
                     }
-                    act->motReq = SetMotionRequest(gobj, 318, act->motOriReq);
+                    act->motReq = SetMotionRequest(gobj, 318, act->env.motOriReq);
                     break;
                 }
             } else {
@@ -501,7 +501,7 @@ void subBirdBrainMain(void *volatile gobj)
             if (hit == 0) {
                 break;
             }
-            act->motReq = SetMotionRequest(gobj, 316, act->motOriReq);
+            act->motReq = SetMotionRequest(gobj, 316, act->env.motOriReq);
 
             bw->scared = 0;
             break;
@@ -509,7 +509,7 @@ void subBirdBrainMain(void *volatile gobj)
         case 1138:
             Debug_WireString_Bird(pos, "GROOM");
 
-            act->motReq = SetMotionRequest(gobj, 316, act->motOriReq);
+            act->motReq = SetMotionRequest(gobj, 316, act->env.motOriReq);
             break;
 
         case 1139:
@@ -532,7 +532,7 @@ void subBirdBrainMain(void *volatile gobj)
                 trans_bird(gobj, wave);
                 turn_bird(gobj, rot);
             }
-            act->motReq = SetMotionRequest(gobj, 321, act->motOriReq);
+            act->motReq = SetMotionRequest(gobj, 321, act->env.motOriReq);
             break;
 
         case 1140:
@@ -620,7 +620,7 @@ void subBirdBrainMain(void *volatile gobj)
                 ClipFloor(&cf);
                 attr = GetFloorAttribute(&cf);
                 if (cf.floor.elem != 0 && attr != 64 && attr != 80) {
-                    act->motReq = SetMotionRequest(gobj, 316, act->motOriReq);
+                    act->motReq = SetMotionRequest(gobj, 316, act->env.motOriReq);
                 }
 
                 apply_matrix_w1(sv, (char *)matrixptr + 0x100, pos);
@@ -666,7 +666,7 @@ void subBirdBrainMain(void *volatile gobj)
             trans_bird(gobj, wave);
 
             if (count >= 3) {
-                act->motReq = SetMotionRequest(gobj, 321, act->motOriReq);
+                act->motReq = SetMotionRequest(gobj, 321, act->env.motOriReq);
             }
             break;
 
@@ -703,13 +703,13 @@ void subBirdBrainMain(void *volatile gobj)
             }
 
             if (hit != 0) {
-                act->motReq = SetMotionRequest(gobj, 316, act->motOriReq);
+                act->motReq = SetMotionRequest(gobj, 316, act->env.motOriReq);
             }
             break;
         }
 
         default:
-            act->motReq = SetMotionRequest(gobj, 316, act->motOriReq);
+            act->motReq = SetMotionRequest(gobj, 316, act->env.motOriReq);
             break;
         }
 
@@ -721,7 +721,7 @@ void subBirdBrainMain(void *volatile gobj)
                 GetRootPosition(rp, gobj);
                 rp[1] = GOBJ_SUB(gobj)->ctrl.waterY;
                 SetDirectRootPositionNoFitting(gobj, rp);
-                act->motReq = SetMotionRequest(gobj, 172, act->motOriReq);
+                act->motReq = SetMotionRequest(gobj, 172, act->env.motOriReq);
                 EntryStageMultiBgaManager(498, rp, IdentityQuaternion);
             }
         }
@@ -746,7 +746,7 @@ void subBirdBrainMain(void *volatile gobj)
             InitMotionOrient(gobj, 2421, 2467, -1, -1, 1134);
 
             SetDirectRootPosition(gobj, startPos);
-            act->motReq = SetMotionRequest(gobj, 316, act->motOriReq);
+            act->motReq = SetMotionRequest(gobj, 316, act->env.motOriReq);
         }
 
         lastState = state;
@@ -782,7 +782,7 @@ inline void actBirdStart(void *gobj)
     actCreateSubThread(subBirdBrainMain, 20);
     actCreateSubThread(subBirdControl, 21);
     actCreateSubThread(subBirdCollision, 21);
-    act->motReq = SetMotionRequest(gobj, 270, act->motOriReq);
+    act->motReq = SetMotionRequest(gobj, 270, act->env.motOriReq);
 }
 
 static void Debug_WireString_Bird(float *pos, char *fmt, ...)

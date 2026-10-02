@@ -66,14 +66,14 @@ inline void GetSofaPosition(GObj *self, GObj *sofa)
 {
     Act *w = GOBJ_ACT(self);
     VECTOR v = sofaSeatOffset;
-    w->sofaOrient[0] = w->wallOrient[0];
-    w->sofaOrient[1] = w->wallOrient[1];
-    w->sofaOrient[2] = w->wallOrient[2];
+    w->env.sofaOrient[0] = w->env.wallOrient[0];
+    w->env.sofaOrient[1] = w->env.wallOrient[1];
+    w->env.sofaOrient[2] = w->env.wallOrient[2];
     if (self == boyGObj) {
         v.x = -v.x;
     }
     v.w = 1.0f;
-    sceVu0ApplyMatrix(w->sofaPos,
+    sceVu0ApplyMatrix(w->env.sofaPos,
                       *(void **)((char *)((union ENVIF *)((char *)sofa + 0x15C))->i + 0xC), &v);
 }
 
@@ -296,9 +296,9 @@ inline int CheckWallAttributeEdegWall(int obj)
     return (unsigned char)CheckWallAttribute(obj, 0x1000);
 }
 
-/* The motion record at actor + 0x130 and the three sub-object words
-   ACTGetEnvironment's head reads that Sub15C does not name yet (the object
-   kind at 0x0, the wall record at 0x574, the wall height at 0x5A4). */
+/* The motion record at actor + 0x130 and the two sub-object words
+   ACTGetEnvironment's head reads that Sub15C does not name yet (the wall
+   record at 0x574, the wall height at 0x5A4). */
 typedef struct { /* field names derived */
     char pad000[272];
     float cliffDepth; /* 0x110 */
@@ -310,8 +310,7 @@ typedef struct { /* field names derived */
 } EnvMotion;        /* derived name */
 
 typedef struct { /* field names derived */
-    int kind;    /* 0x0 */
-    char pad004[1392];
+    char pad000[1396];
     char *wallRec; /* 0x574 */
     char pad578[44];
     float wallTop; /* 0x5A4 */
@@ -472,7 +471,7 @@ void ACTGetEnvironment(void *self, void *dir, float *orient, EnvFlag *flags, Act
        through the static chain */
     Act *sub = GOBJ_ACT(self);
     GObj *obj = GOBJ_SUB(self)->root.wall.o.obj;
-    int kind = ((EnvSub *)(char *)GOBJ_SUB(self))->kind;
+    GObj *parent = GOBJ_SUB(self)->parent.obj;
     float dist = ((EnvMotion *)(char *)sub->motReq)->wallDist;
     float hgt = -((EnvMotion *)(char *)sub->motReq)->height;
     float wallh = -((EnvSub *)(char *)GOBJ_SUB(self))->wallTop;
@@ -527,7 +526,7 @@ void ACTGetEnvironment(void *self, void *dir, float *orient, EnvFlag *flags, Act
     GetRootProjectionPosOfGObj(prj, self);
     GetRootPosition(pos, self);
     GetSkeltonOrient(ori, self, 0x2C);
-    env->wallContact = *(ClipCopy *)((char *)GOBJ_SUB(self) + 0x180);
+    env->motOriReq = *(MotOriReq *)&GOBJ_SUB(self)->root.wall;
     sub->flags18.ll &= ~(1ULL << 44);
     sub->flags18.ll &= ~(1ULL << 45);
     sub->flags20.ll &= ~(1ULL << 7);
@@ -554,7 +553,7 @@ void ACTGetEnvironment(void *self, void *dir, float *orient, EnvFlag *flags, Act
                 if (GetCageChainPoint(p40, p50, o)) {
                     if (_DistxzSqGV(test_CURRENTROOT(self), p40) < 4900.0f && p50[1] > pos[1]) {
                         v1EC = o;
-                        env->cageObj = o;
+                        env->cageObj.obj = o;
                         break;
                     }
                 }
@@ -628,7 +627,7 @@ void ACTGetEnvironment(void *self, void *dir, float *orient, EnvFlag *flags, Act
         int wallDeg;
 
         wallDeg = absRotyFromBack(ori2, env->wallOrient);
-        env->wallWord = *(int *)(*(char **)((char *)env + 0x178) + 0x48);
+        env->wallWord = ((FcWallEnt *)env->motOriReq.a.wall.elem)->attr;
         w564 = (char *)(CheckPureWallAttribute(self, 0x1000) & 0xFF);
         env->wallObj = obj;
         flags[0].w |= 1;
@@ -742,9 +741,9 @@ void ACTGetEnvironment(void *self, void *dir, float *orient, EnvFlag *flags, Act
                 if (*(unsigned long long *)((char *)sub + 0x480) & 0x3C0000) {
                     if (((int)(*(unsigned long long *)((char *)sub + 0x480) >> 20) & 1) &&
                         *(int *)(self + 0xC) == 4)
-                        wallContactPosEnemy(self, env->wallOrient, dist, (float *)((char *)sub + 0x590));
+                        wallContactPosEnemy(self, env->wallOrient, dist, sub->env.wallPos);
                     else
-                        wallContactPos(self, env->wallOrient, dist, (float *)((char *)sub + 0x590));
+                        wallContactPos(self, env->wallOrient, dist, sub->env.wallPos);
                 }
                 if (80.0f < hgt && hgt < 180.0f) {
                     if (obj->kind == 17)
@@ -761,10 +760,10 @@ void ACTGetEnvironment(void *self, void *dir, float *orient, EnvFlag *flags, Act
                     float rad = (self == boyGObj) ? 30.0f : 10.0f;
 
                     GetSofaPosition(self, obj);
-                    debug_NMarker(sub->sofaPos, 0, 0xFF, 0, 100.0f);
-                    if (_DistxzSqGV(prj, sub->sofaPos) < rad * rad) {
+                    debug_NMarker(sub->env.sofaPos, 0, 0xFF, 0, 100.0f);
+                    if (_DistxzSqGV(prj, sub->env.sofaPos) < rad * rad) {
                         flags[1].w |= 0x20;
-                        env->sofaObj = (int)obj;
+                        env->sofaObj.i = (int)obj;
                     }
                 }
             }
@@ -773,26 +772,26 @@ void ACTGetEnvironment(void *self, void *dir, float *orient, EnvFlag *flags, Act
             float p70[4];
 
             flags[2].w |= 0x20;
-            env->boxObj = (int)obj;
+            env->boxObj = obj;
             if (CanHoldBox(obj) && GetBoxHoldPoint(p70, obj, self)) {
                 flags[2].w |= 0x10;
-                env->holdBoxObj = (int)obj;
+                env->holdBoxObj = obj;
             }
         }
         if (obj->kind == 18 && CheckWallAttribute(self, 0x700)) {
             flags[2].w |= 0x40;
-            env->barObj = (int)obj;
+            env->barObj = obj;
         }
         if (obj->kind == 23 && CheckPureWallAttribute(self, 0x500)) {
             flags[2].w |= 0x80;
-            env->pullObj = (int)obj;
-            env->pullKind = kind;
+            env->pullObj = obj;
+            env->pullParent = parent;
             pullPosition(env->pullPos, self, obj, 5.0f);
         }
         if (obj->kind == 22 && CheckWallAttribute(self, 0x500) &&
             CanFloorLeverPull(obj)) {
             flags[2].w |= 0x100;
-            env->pullObj = (int)obj;
+            env->pullObj = obj;
             pullPosition(env->pullPos, self, obj, 45.0f);
             {
                 float p70[4];
@@ -805,13 +804,13 @@ void ACTGetEnvironment(void *self, void *dir, float *orient, EnvFlag *flags, Act
         if (obj->kind == 24 && CheckWallAttribute(self, 0x600) &&
             CanWallLeverPull(obj)) {
             flags[2].w |= 0x200;
-            env->pullObj = (int)obj;
+            env->pullObj = obj;
             pullPosition(env->pullPos, self, obj, 30.0f);
         }
         if (obj->kind == 25 && CheckWallAttribute(self, 0x600) &&
             CanWallLeverPull(obj)) {
             flags[2].w |= 0x400;
-            env->pullObj = (int)obj;
+            env->pullObj = obj;
             pullPosition(env->pullPos, self, obj, 30.0f);
         }
     }
@@ -1083,7 +1082,7 @@ void ACTGetEnvironment(void *self, void *dir, float *orient, EnvFlag *flags, Act
             break;
         }
         if (ACTGame_FLAG_TETSUNAGI() && hh < 40.0f && 1000.0f < f26) {
-            env->cliffContact = *(ClipCopy *)((char *)GOBJ_SUB(self) + 0x180);
+            env->cliffContact = *(MotOriReq *)&GOBJ_SUB(self)->root.wall;
             flags[0].w |= 0x8000000;
         }
         if (hh < 40.0f) {
@@ -1276,7 +1275,7 @@ void ACTGetEnvironment(void *self, void *dir, float *orient, EnvFlag *flags, Act
                             p150[2] = p170[2];
                         }
                         if (hh < 60.0f) {
-                            sub->ditchCarry = carry;
+                            sub->env.ditchCarry = carry;
                             env->ditchPos[0] = p140[0];
                             env->ditchPos[1] = p140[1];
                             env->ditchPos[2] = p140[2];

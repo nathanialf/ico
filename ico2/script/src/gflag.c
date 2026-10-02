@@ -40,7 +40,7 @@ void gflagInit(void)
     itouGFlagInit();
 }
 
-void gflagSave(void *fp)
+void gflagSave(GamesysMemCursor *fp)
 {
     gFlagSaveStage = stage_no;
     gamesysMemoryHandlerWrite(fp, &gFlagSaveStage, 4);
@@ -48,7 +48,7 @@ void gflagSave(void *fp)
     gamesysMemoryHandlerWrite(fp, gflags, sizeof(gflags));
 }
 
-void gflagLoad(void *fp)
+void gflagLoad(GamesysMemCursor *fp)
 {
     gamesysMemoryHandlerRead(fp, &gFlagSaveStage, 4);
     gamesysMemoryHandlerRead(fp, &gFlagGameClear, 4);

@@ -3574,7 +3574,7 @@ static int debug_CollisionTest(int reset)
         debug_PrintfDummy(80, 180, 0xFFFFFF00u, "HIT: %p,%d", collisionRay.wall.o.obj,
                           collisionRay.wall.o.node);
         debug_PrintfDummy(80, 190, 0xFFFFFF00u, "ATTR: %x",
-                          GetWallAttribute((int)&collisionRay));
+                          GetWallAttribute(&collisionRay));
     }
     if (collisionRay.floor.elem != 0) {
         gif_StartPacketPri(11);

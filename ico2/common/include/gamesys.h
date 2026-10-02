@@ -11,6 +11,13 @@
 #include "backStage.h"
 #include "typedef.h"
 
+/* the save image a load or save handler of gameSysMemoryFuncList reads or
+   writes through: the image and the offset the next record goes at */
+typedef struct GamesysMemCursor { /* field names derived */
+    char *base;
+    int offset;
+} GamesysMemCursor; /* derived name */
+
 /* gamesys.c's .data globals */
 extern char stamp_str[];
 extern void *gameSysMemoryFuncList[];
@@ -26,8 +33,8 @@ extern int gamesysObjBuffOver;
 extern ObjKindEnt objKindData[];
 extern GenGeo objLayout[];
 int gamesysGetGirlStageIDAndPosition(int *pos);
-void gamesysMemoryHandlerRead(int *self, void *dst, int size);
-void gamesysMemoryHandlerWrite(int *self, void *src, int size);
+void gamesysMemoryHandlerRead(GamesysMemCursor *self, void *dst, int size);
+void gamesysMemoryHandlerWrite(GamesysMemCursor *self, void *src, int size);
 void gamesysMemoryLoad(void **tbl, void *mem, void *arg);
 void gamesysMemorySave(void **tbl, void *mem, void *arg);
 GamesysObjInfo *gamesysObjInfoBaseSet(GObj *self, int stage);
