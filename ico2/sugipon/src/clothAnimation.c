@@ -728,7 +728,7 @@ void GetClothAnimationFix4Points(VECTOR **pa, VECTOR **pv, ClothCfg *cfg, void *
             xTension(n);
         }
 
-        wv = (VECTOR *)GetWindVector(&wp, pa[0]);
+        wv = (VECTOR *)GetWindVector(&wp.x, &pa[0]->x);
         wp.x = wp.x / 40960.0f;
         for (i = 0; i < nx; i++) {
             for (j = 0; j < ny; j++) {

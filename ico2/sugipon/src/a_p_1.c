@@ -780,7 +780,7 @@ static void calcSubMission(GObj *self)
         if (part->state == 2) {
             atk = attackCenterOffset;
             _ApplyMatrix(&atk, MatrixDrive_GetMatrix(), &atk);
-            _AttackCenter(self, -1, &atk, 0, 30.0f, 0);
+            _AttackCenter(self, -1, atk.m, 0, 30.0f, 0);
         }
 
         if (p->skel != 0) {

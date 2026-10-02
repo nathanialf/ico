@@ -20,8 +20,6 @@
 #include "GifPacket.h"
 #include <libvu0.h>
 
-struct MvObj;
-
 typedef struct MvMenuEnt { /* field names derived */
     char *name;            /* 0x00, csv window title */
     int kind;              /* 0x04, isys object kind */
@@ -55,7 +53,7 @@ static int motSel = 0; /* derived name */
 
 static OriCsv oriCsv = {0, 0}; /* derived name */
 
-static struct MvObj *viewObj = 0; /* derived name */
+static GObj *viewObj = 0; /* derived name */
 
 static int blinkCount = 0; /* derived name */
 
@@ -189,45 +187,9 @@ static void dispMotFrameProgress(int obj, float cur)
     }
 }
 
-typedef struct MvSub { /* field names derived */
-    char pad000[12];
-    char *nodes; /* 0x00C, per-node 0x40 matrices */
-    char pad010[124];
-    float *ground; /* 0x08C */
-    char pad090[96];
-    short rot; /* 0x0F0 */
-    char padF2[2];
-    float speed; /* 0x0F4 */
-    char padF8[136];
-    char motionRequest[336]; /* 0x180, SetMotionRequest work area */
-    int lookMode;            /* 0x2D0 */
-    char pad2D4[12];
-    float lookAt[4]; /* 0x2E0 */
-    char pad2F0[64];
-    int headMode; /* 0x330 */
-    char pad334[12];
-    float headAt[4]; /* 0x340 */
-    char pad350[48];
-
-    /* 0x380, the test mode */
-    enum { TEST_OFF, TEST_PAD, TEST_RANDOM } testMode;
-
-    char pad384[12];
-    float testAt[4]; /* 0x390 */
-    char pad3A0[232];
-    int select; /* 0x488, "this object is the viewer target" */
-} MvSub;        /* derived name */
-
-typedef struct MvObj { /* field names derived */
-    char pad00[40];
-    void *motTbl; /* 0x28, parallel motion table, parked while viewing */
-    char pad2C[304];
-    MvSub *sub; /* 0x15C */
-} MvObj;        /* derived name */
-
 static int lastObjSel = -1; /* derived name */
 
-static char *savedMotTbl = 0; /* derived name */
+static void *savedFn = 0; /* derived name */
 
 /* as in debug.h, which this file does not include */
 extern int debug_SelectCsvWindow(char *title, int x, int y, int rows, void *tbl, int stride,
@@ -239,8 +201,8 @@ static int objMenuProc(void)
 
     if (lastObjSel != objSel) {
         if (viewObj) {
-            viewObj->motTbl = savedMotTbl;
-            viewObj->sub->select = 0;
+            viewObj->fn = savedFn;
+            viewObj->dobj->ctrl.shiftStop = 0;
         }
         viewObj = isysGObjSearchFromObjKindID_begin(objMenu[objSel].kind);
         if (objMenu[objSel].kind == 4) {
@@ -253,10 +215,10 @@ static int objMenuProc(void)
         if (viewObj) {
             CurrentTargetGObj = viewObj;
             Camctrl_SetTarget(viewObj, 0, 3);
-            savedMotTbl = viewObj->motTbl;
-            viewObj->motTbl = 0;
+            savedFn = viewObj->fn;
+            viewObj->fn = 0;
             SetParallelMotionTableWithNoRequest(viewObj, 0, 0);
-            viewObj->sub->select = 1;
+            viewObj->dobj->ctrl.shiftStop = 1;
         }
         lastObjSel = objSel;
         CameraSetMode(2);
@@ -274,11 +236,11 @@ static int objMenuProc(void)
         CurrentTargetGObj = isysGObjSearchFromObjKindID_begin(1);
         Camctrl_SetTarget(CurrentTargetGObj, 0, 3);
         if (viewObj) {
-            viewObj->motTbl = savedMotTbl;
-            viewObj->sub->select = 0;
+            viewObj->fn = savedFn;
+            viewObj->dobj->ctrl.shiftStop = 0;
         }
         viewObj = 0;
-        savedMotTbl = 0;
+        savedFn = 0;
         lastObjSel = ret;
         CameraSetMode(3);
     }
@@ -409,7 +371,7 @@ static int motOriMenuProc(void)
     if (ret == 1) {
         EnableMotionOrientUpdate(viewObj);
         SetMotionRequest(viewObj, oriCsv.rows[oriCsv.sel].kind,
-                         *(MotOriReq *)viewObj->sub->motionRequest);
+                         *(MotOriReq *)&viewObj->dobj->root.wall);
     }
     if (ret == -1) {
         if (oriCsv.rows != 0) {
@@ -469,16 +431,16 @@ void modeMessage(void)
         setMotionSpeed(motionSpeed);
     }
     if (pad[0].now & 0x2) {
-        viewObj->sub->speed = 1.0f - rdata[19] * 0.0078125f;
+        viewObj->dobj->root.twistRate = 1.0f - rdata[19] * 0.0078125f;
     } else {
-        viewObj->sub->speed = 1.0f;
+        viewObj->dobj->root.twistRate = 1.0f;
     }
     if (pad[0].now & 0x8000) {
-        viewObj->sub->rot = rdata[9] / 255.0f * 8192.0f;
+        viewObj->dobj->root.twist = rdata[9] / 255.0f * 8192.0f;
     } else if (pad[0].now & 0x2000) {
-        viewObj->sub->rot = rdata[8] / 255.0f * -8192.0f;
+        viewObj->dobj->root.twist = rdata[8] / 255.0f * -8192.0f;
     } else {
-        viewObj->sub->rot = 0;
+        viewObj->dobj->root.twist = 0;
     }
 }
 
@@ -589,7 +551,8 @@ extern int debug_now_motion_viewer;
 /* MotionViewer's state */
 static int menuLevel = 0; /* derived name */
 
-static int testMode = 0; /* derived name */
+/* the test mode the root block's look mode is driven by: off, the pad or random */
+static enum { TEST_OFF, TEST_PAD, TEST_RANDOM } testMode = TEST_OFF; /* derived name */
 
 static int testCount = 0; /* derived name */
 
@@ -650,7 +613,7 @@ int MotionViewer(void)
         sceVu0TransposeMatrix(m, matrixptr + 128);
         sceVu0ApplyMatrix(&dir, m, &v);
         if (FSqrt(sceVu0InnerProduct(&dir, &dir)) > 0.5f && (pad[1].now & 0x200) == 0) {
-            SetMotionDirection(viewObj, &dir);
+            SetMotionDirection(viewObj, &dir.x);
         }
         gif_StartPacketPri(11);
         gif_SetAlpha(1, 5, 128);
@@ -661,14 +624,14 @@ int MotionViewer(void)
         q.v.x = 0.0f;
         q.v.y = -1.0f;
         q.v.z = 0.0f;
-        q.v.w = pos.y + viewObj->sub->ground[5];
+        q.v.w = pos.y + viewObj->dobj->skel->pos[1];
         p = q.v;
-        dispPlane(&p, &pos);
+        dispPlane(&p, &pos.x);
 
         if (pad[1].flags & 0x8) {
             mode = testMode + 1;
             mode %= 3;
-            viewObj->sub->testMode = testMode = mode;
+            viewObj->dobj->root.lookMode = testMode = mode;
         }
         mode = testMode;
         switch (mode) {
@@ -678,7 +641,7 @@ int MotionViewer(void)
         case 1:
             lookAtTest(&p, 50.0f, &testAxisColor, &testRingColor, (pad[1].ana[1] - 128) * 2.0f,
                        -pad[1].ana[0] * 256);
-            CopyVector(viewObj->sub->testAt, &p);
+            CopyVector(viewObj->dobj->root.lookPos, &p);
             mode = testMode;
             break;
 
@@ -689,7 +652,7 @@ int MotionViewer(void)
                 testDy = random_signed() * 256.0f;
                 testAng = random_signed() * 32768.0f;
                 lookAtTest(&p, 50.0f, &testAxisColor, &testRingColor, testDy, testAng);
-                CopyVector(viewObj->sub->testAt, &p);
+                CopyVector(viewObj->dobj->root.lookPos, &p);
                 testCount = 0;
             }
             mode = testMode;
@@ -700,7 +663,8 @@ int MotionViewer(void)
             gif_StartPacketPri(11);
             n = GetSkeltonFocusNode(viewObj, 0x23);
             sceVu0UnitMatrix(MatrixDrive_GetMatrix());
-            DrawLineG(&p, &focusColor, viewObj->sub->nodes + n * 64 + 0x30, &testRingColor, 0);
+            DrawLineG(&p, &focusColor, (char *)viewObj->dobj->nodeMtx + n * 64 + 48, &testRingColor,
+                      0);
             gif_EndPacket();
         }
 
@@ -745,28 +709,28 @@ int MotionViewer(void)
                 break;
             }
         }
-        viewObj->sub->lookMode = lookMode;
+        viewObj->dobj->root.hand1.ikMode = lookMode;
         if (lookMode != 0) {
             int n;
             lookAtTest(&look, lookRadius, &p, &q.v, (pad[1].ana[1] - 128) * 2.0f,
                        -pad[1].ana[0] * 256);
-            CopyVector(viewObj->sub->lookAt, &look);
+            CopyVector(viewObj->dobj->root.hand1.ikDir, &look);
             gif_StartPacketPri(11);
             n = GetSkeltonFocusNode(viewObj, 3);
             sceVu0UnitMatrix(MatrixDrive_GetMatrix());
-            DrawLineG(&look, &col, viewObj->sub->nodes + n * 64 + 0x30, &q.v, 0);
+            DrawLineG(&look, &col, (char *)viewObj->dobj->nodeMtx + n * 64 + 48, &q.v, 0);
             gif_EndPacket();
         }
-        viewObj->sub->headMode = headMode;
+        viewObj->dobj->root.hand0.ikMode = headMode;
         if (headMode != 0) {
             int n;
             lookAtTest(&head, lookRadius, &p, &q.v, (pad[1].ana[1] - 128) * 2.0f,
                        -pad[1].ana[0] * 256);
-            CopyVector(viewObj->sub->headAt, &head);
+            CopyVector(viewObj->dobj->root.hand0.ikDir, &head);
             gif_StartPacketPri(11);
             n = GetSkeltonFocusNode(viewObj, 0x13);
             sceVu0UnitMatrix(MatrixDrive_GetMatrix());
-            DrawLineG(&head, &col, viewObj->sub->nodes + n * 64 + 0x30, &q.v, 0);
+            DrawLineG(&head, &col, (char *)viewObj->dobj->nodeMtx + n * 64 + 48, &q.v, 0);
             gif_EndPacket();
         }
         switch (lookMode) {

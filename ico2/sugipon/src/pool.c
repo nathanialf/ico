@@ -116,9 +116,9 @@ typedef struct {          /* field names derived */
     float drain[4];       /* 0x10, GetPoolGlobalDrainVector's vector: the
                                layout's x and z angles in degrees */
     int splashNo;         /* 0x20, the next slot of splash */
-    char *splash;         /* 0x24, two splash animations */
+    BgaDisp *splash;      /* 0x24, two splash animations */
     int word28;           /* 0x28 */
-    char *bga;            /* 0x2C, ten animations PoolDL draws */
+    BgaDisp *bga;         /* 0x2C, ten animations PoolDL draws */
     int hasGrid;          /* 0x30 */
     int nx;               /* 0x34 */
     int ny;               /* 0x38 */

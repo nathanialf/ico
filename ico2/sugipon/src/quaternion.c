@@ -310,7 +310,7 @@ inline void SetQuaternionByAxisRotateVWithNoRegularize(float *self, short ang, f
 
 inline void SetQuaternionByAxisRotateV(float *self, short ang, float *src)
 {
-    char buf[16];
+    float buf[4];
     _NormalizeVector(buf, src);
     SetQuaternionByAxisRotateVWithNoRegularize(self, ang, buf);
 }
@@ -506,7 +506,7 @@ inline void RotQuaternionX(void *self, short ang)
 {
     char buf[16];
     int half = (-(ang << 16)) >> 17;
-    char *axis = XUnitVector;
+    float *axis = XUnitVector;
     float f;
     f = GetTableSin(half);
     _ScaleVector((int *)buf, axis, f);
@@ -535,7 +535,7 @@ inline void RotQuaternionY(void *self, short ang)
 {
     char buf[16];
     int half = (-(ang << 16)) >> 17;
-    char *axis = YUnitVector;
+    float *axis = YUnitVector;
     float f;
     f = GetTableSin(half);
     _ScaleVector((int *)buf, axis, f);
@@ -564,7 +564,7 @@ inline void RotQuaternionZ(void *self, short ang)
 {
     char buf[16];
     int half = (-(ang << 16)) >> 17;
-    char *axis = ZUnitVector;
+    float *axis = ZUnitVector;
     float f;
     f = GetTableSin(half);
     _ScaleVector((int *)buf, axis, f);

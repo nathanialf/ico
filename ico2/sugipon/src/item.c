@@ -571,7 +571,7 @@ static void uncarriedItemGeo(GObj *gobj)
     CopyVector(GOBJ_SUB(gobj)->root.move, vel);
     if (p->holder != 0) {
         if (VectorLengthSquare(vel) > 100.0f) {
-            _AttackCenter((char *)p->holder, 18, npos, 0, 20.0f, gobj);
+            _AttackCenter((GObj *)p->holder, 18, npos, 0, 20.0f, gobj);
         }
     }
     if (p->sleep != 0) {

@@ -297,7 +297,7 @@ static inline void waveForceReaction(struct MotRoot *cur, float *last, float dy)
     }
 }
 
-inline int upperFieldCheck(float *pos, float dy)
+inline void *upperFieldCheck(float *pos, float dy)
 {
     ClipWork buf;
     CopyVector(&buf, pos);

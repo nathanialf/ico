@@ -273,7 +273,7 @@ static inline void AddCageWindForce(ExW *n, float k) /* derived name */
 {
     float v[4];
 
-    CopyVector(v, GetWindVector(0, &n->v1));
+    CopyVector(v, GetWindVector(0, &n->v1.x));
     _ScaleVector(v, v, k / n->len1);
     _AddVector(&n->v2, &n->v2, v);
 }
