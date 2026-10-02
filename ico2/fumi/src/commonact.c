@@ -156,7 +156,7 @@ inline void afterCommonTruckLever(GObj *volatile self);
 #include "flyManager.h"
 
 static void DamageFunc(GObj *self);
-static void TestCageUpDown(int cage, GObj *gobj);
+static void TestCageUpDown(GObj *cage, GObj *gobj);
 
 typedef struct { /* field names derived */
     int a, b, c;
@@ -1030,8 +1030,8 @@ typedef struct { /* field names derived */
     sceVu0FVECTOR v0;
     float v1[4];
     ClimbCol climbCol; /* the wall the climb held */
-    int obj;
-} ClimbEndRec; /* derived name */
+    GObj *obj;         /* the chain or cage climbed */
+} ClimbEndRec;         /* derived name */
 
 void actCommonRopeClimbEnd1(GObj *volatile self)
 {
@@ -1051,7 +1051,7 @@ void actCommonRopeClimbEnd1(GObj *volatile self)
     int r;
 
     c = *(ClimbEndRec *)(char *)GOBJ_ACT(self)->intrData;
-    isCage = *(int *)(c.obj + 0xC) == 0x2C;
+    isCage = c.obj->kind == 44;
     flag = 0;
     GOBJ_SUB(boyGObj)->root.ropeState = 0;
     dir.f[0] = c.v0[0];
@@ -1180,21 +1180,18 @@ typedef struct { /* field names derived */
 static CageUD cageUpDown = {
     {0.0f, 0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f, 0.0f}, 0, 0, -1}; /* derived name */
 
-static void TestCageUpDown(int cage, GObj *gobj)
+static void TestCageUpDown(GObj *cage, GObj *gobj)
 {
-    inline void initCage(char *o) /* derived name */
+    inline void initCage(GObj * o) /* derived name */
     {
         int n;
 
         cageUpDown.cnt = 0;
-        cageUpDown.lim = (float)*motionTable[*(int *)(((CagePtr *)(o + 0x15C))->p + 0x4A0)];
+        cageUpDown.lim = (float)*motionTable[*(int *)(((CagePtr *)&o->dobj)->p + 0x4A0)];
         n = GetSkeltonFocusNode(o, 35);
-        cageUpDown.a[0] =
-            *(float *)(*(char **)(((CagePtr *)(o + 0x15C))->p + 0xC) + n * 0x40 + 0x30);
-        cageUpDown.a[1] =
-            *(float *)(*(char **)(((CagePtr *)(o + 0x15C))->p + 0xC) + n * 0x40 + 0x34);
-        cageUpDown.a[2] =
-            *(float *)(*(char **)(((CagePtr *)(o + 0x15C))->p + 0xC) + n * 0x40 + 0x38);
+        cageUpDown.a[0] = *(float *)(*(char **)(((CagePtr *)&o->dobj)->p + 0xC) + n * 0x40 + 0x30);
+        cageUpDown.a[1] = *(float *)(*(char **)(((CagePtr *)&o->dobj)->p + 0xC) + n * 0x40 + 0x34);
+        cageUpDown.a[2] = *(float *)(*(char **)(((CagePtr *)&o->dobj)->p + 0xC) + n * 0x40 + 0x38);
         cageUpDown.b[0] = cageUpDown.a[0];
         cageUpDown.b[2] = cageUpDown.a[2];
         cageUpDown.b[1] = cageUpDown.a[1] + 200.0f;
@@ -1206,7 +1203,7 @@ static void TestCageUpDown(int cage, GObj *gobj)
         dst[0] = x;
         dst[1] = y;
         dst[2] = z;
-        GetCageChainPoint(lo, hi, (void *)cage);
+        GetCageChainPoint(lo, hi, cage);
         _InterGV(dst, lo, hi, dst[1] - lo[1], hi[1] - dst[1]);
         sceVu0ScaleVector(res, test_CURRENTORIENT(o), -20.0f);
         sceVu0AddVector(res, dst, res);
@@ -1252,7 +1249,7 @@ static void TestCageUpDown(int cage, GObj *gobj)
     float vH[4];
     int mot = *(int *)(((CagePtr *)((char *)gobj + 0x15C))->p + 0x4A0);
 
-    GetCageChainPoint(vB, vC, (void *)cage);
+    GetCageChainPoint(vB, vC, cage);
     *(int *)(((CagePtr *)((char *)boyGObj + 0x15C))->p + 0x420) = 0;
     switch (mot) {
     case 0x78:
@@ -1326,15 +1323,15 @@ void actCommonRopeSpecial(GObj *volatile self)
     RsVec4 p1;
     RsVec4 p2;
     RsVec4 pos;
-    int cage;
+    GObj *cage;
     unsigned char found;
 
     s = GOBJ_ACT(self);
-    cage = s->env.cageObj.i;
+    cage = s->env.cageObj.obj;
     if (cage != 0) {
-        *(int *)((char *)GOBJ_ACT(self)->work + 0x400) = cage;
+        GOBJ_WORK(self)->ropeCage = cage;
     } else {
-        cage = (int)GOBJ_WORK(self)->ropeCage;
+        cage = GOBJ_WORK(self)->ropeCage;
     }
     if (*(int *)((char *)GOBJ_ACT(self)->work + 0x900) == 4 ||
         *(int *)((char *)GOBJ_ACT(self)->work + 0x900) == 5) {
@@ -1342,7 +1339,7 @@ void actCommonRopeSpecial(GObj *volatile self)
     } else {
         GetSkeltonPosition((float *)((char *)GOBJ_ACT(self)->work + 0x410), self, 22);
     }
-    GetCageChainPoint(p1.f, p2.f, (void *)cage);
+    GetCageChainPoint(p1.f, p2.f, cage);
     found = ropeSpecialWallHit(&p1, &hit);
     GOBJ_SUB(self)->root.ropeState = 0;
     while (1) {
@@ -1350,7 +1347,7 @@ void actCommonRopeSpecial(GObj *volatile self)
             *(long long *)((char *)s + 0x20) &= ~(1ULL << 11);
         }
         GetSkeltonPosition(pos.f, self, 35);
-        GetCageChainPoint(p1.f, p2.f, (void *)cage);
+        GetCageChainPoint(p1.f, p2.f, cage);
         if (debug_font_flag & 1) {
             debug_Printf(10, 120, 0xFFFFFFF, "%d, %d\n",
                          (int)*(float *)((char *)test_CURRENTROOT((void *)self) + 4), (int)p2.f[1]);
@@ -2836,7 +2833,7 @@ void actCommonFly(GObj *volatile self)
 {
     Act *s = GOBJ_ACT(self);
     GObj *target;
-    char *gen = 0;
+    GObj *gen = 0;
 
     s->flags18.ll &= ~(1ULL << 57);
     s->flags18.afterProc = actAfterFly;
@@ -4173,7 +4170,7 @@ inline void actCommonTurnWarn(GObj *volatile self)
             s->motReq = SetMotionRequest((void *)self, prev, s->env.motOriReq);
         }
         GetRootMotionOrient(q, self);
-        d = _RotyGV((char *)GOBJ_ACT(self)->work + 0x3F0, q);
+        d = _RotyGV(&GOBJ_WORK(self)->hideDirX, q);
         if ((d < 0 ? -d : d) < 0xF) {
             ACTSendMailCorrect(self, 0xF5);
         }
@@ -4542,9 +4539,9 @@ inline void ControlMotionOrient(int id, int mot)
 
 inline int FloorIsTruck(GObj *self)
 {
-    char *p = *(char **)((int)GOBJ_SUB(self));
+    GObj *p = GOBJ_SUB(self)->parent.obj;
     if (p != 0) {
-        if (*(int *)(p + 0xC) == 0x11) {
+        if (p->kind == 17) {
             if (IsThisBoxTruck(p) == 7) {
                 return 1;
             }

@@ -190,12 +190,12 @@ typedef struct { /* field names derived */
     long long flags;
 } EnemyBrainWork; /* derived name */
 
-inline int IsEnemyBrainToGenerator(GObj *self, int *out)
+inline int IsEnemyBrainToGenerator(GObj *self, GObj **out)
 {
     Act *b = GOBJ_ACT(self);
     if (b->enemy->mode != 5)
         return 0;
-    *out = (int)((ActWork *)b->work)->genTarget;
+    *out = ((ActWork *)b->work)->genTarget;
     if (*out == 0) {
         debug_assert("src/enemy_act.c", 0x341);
         __assert("src/enemy_act.c", 0x341, "*generator_gop!=NULL");
@@ -1661,7 +1661,7 @@ void subEnemyBrainMain(GObj *volatile self)
             sub->flags20.ll &= ~0x200LL;
             GOBJ_ACT(self)->enemy->mode = GOBJ_ACT(self)->enemy->reqMode;
             GOBJ_ACT(self)->enemy->target = GOBJ_ACT(self)->enemy->flags.w.reqTarget.gobj;
-            sub->brainTarget = (char *)GOBJ_ACT(self)->enemy->target;
+            sub->brainTarget = (GObj *)GOBJ_ACT(self)->enemy->target;
             sub->brainAim = brainModeTable[GOBJ_ACT(self)->enemy->mode].aim;
             sub->infoPos = brainModeTable[GOBJ_ACT(self)->enemy->mode].infoPos;
             if (sub->infoPos == 4) {
@@ -1812,13 +1812,13 @@ void subEnemyBrain_ToGenerator(GObj *self)
        not a register, is the live copy of the handle. */
     GObj *volatile gobj = self;
     Act *sub = GOBJ_ACT(gobj);
-    char *target = sub->brainTarget;
+    GObj *target = sub->brainTarget;
 
     GOBJ_WORK(gobj)->genTarget = target;
     SetKidnapInfo(-1, -1);
     if (GOBJ_WORK(gobj)->basePosSet != 0) {
         float best = 0.0f;
-        char *g;
+        GObj *g;
 
         for (g = isysGObjSearchFromObjKindID_begin(33); g != 0;
              g = isysGObjSearchFromObjKindID_next(g)) {
@@ -1831,7 +1831,7 @@ void subEnemyBrain_ToGenerator(GObj *self)
                     GOBJ_WORK(gobj)->genTarget = g;
                     sub->brainTarget = g;
                     target = g;
-                    SetKidnapInfo(gobj->labelId, *(int *)(target + 8));
+                    SetKidnapInfo(gobj->labelId, target->labelId);
                 }
             }
         }
@@ -2373,14 +2373,14 @@ void subEnemyBrain_ToBoy(GObj *volatile self)
 inline void subEnemyBrain_BodyGuard(GObj *volatile self)
 {
     Act *sub = GOBJ_ACT(self);
-    int tgt = (int)sub->brainTarget;
+    GObj *tgt = sub->brainTarget;
     float *pos = (float *)((char *)sub + 0x120);
 
     while (1) {
         if (_DistGV(test_CURRENTROOT(self), test_CURRENTROOT(tgt)) < 200.0f) {
             _ACTWait(1);
         } else {
-            if ((unsigned char)_ApproachTarget(self, (void *)tgt, pos, 0, 100.0f, 0) == 0) {
+            if ((unsigned char)_ApproachTarget(self, tgt, pos, 0, 100.0f, 0) == 0) {
                 sub->stick.mag = 0;
                 *(int *)((char *)sub + 0x120) = 0;
                 *(int *)((char *)sub + 0x124) = 0;
@@ -2489,7 +2489,7 @@ static int flyMailCore(void *self)
     int flyLow = 0;
     int flyHigh = 0;
     int ret = 0;
-    int gen;
+    GObj *gen;
 
     switch (CanThisEnemyFly(self)) {
     case 1:

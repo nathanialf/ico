@@ -869,7 +869,7 @@ static inline void SaveBoyOrientForScript(void) /* derived name */
    subBoyControl inline */
 static inline int correctStick(void *dir, IosPadStick *stick) /* derived name */
 {
-    int buf[4];
+    float buf[4];
 
     ConvertStickToAbsCoord(buf, stick);
     return _RotyGV(buf, dir);
@@ -2921,12 +2921,12 @@ void actBoyRescueReady(GObj *volatile self)
     q[2] = test_CURRENTROOT(g)[2];
     _OrientXZGV(dir, q, p);
     sceVu0ScaleVector(tmp, dir, -60.0f);
-    sceVu0AddVector((char *)GOBJ_ACT(self)->enemy + 0x2F0, q, tmp);
+    sceVu0AddVector(GOBJ_ACT(self)->enemy->rescueBoyPos, q, tmp);
     sceVu0ScaleVector(tmp, dir, 0.0f);
-    sceVu0AddVector((char *)GOBJ_ACT(self)->enemy + 0x300, q, tmp);
-    ((float *)((char *)GOBJ_ACT(self)->enemy + 0x300))[1] += 50.0f;
+    sceVu0AddVector(GOBJ_ACT(self)->enemy->rescueGirlPos, q, tmp);
+    GOBJ_ACT(self)->enemy->rescueGirlPos[1] += 50.0f;
     SetMotionDirection((void *)self, dir);
-    sceVu0SubVector(step, (float *)((char *)GOBJ_ACT(self)->enemy + 0x2F0), (float *)p);
+    sceVu0SubVector(step, GOBJ_ACT(self)->enemy->rescueBoyPos, (float *)p);
     sceVu0ScaleVector(step, step, 1.0f / (float)cnt);
     t = 1;
     rest = cnt;

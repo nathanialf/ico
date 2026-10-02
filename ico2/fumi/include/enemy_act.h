@@ -69,7 +69,7 @@ typedef struct EnemyBattleWork { /* field names derived */
     char padD4[12];
     float hitDir[4];      /* 0xE0, the direction of the last attack that hit (AttackGenerate) */
     short hitNodes[100];  /* 0xF0, the nodes that attack hit, -1 terminated (AttackCheckHit) */
-    int lwsEffect; /* 0x1B8 */
+    struct BgaDisp *lwsEffect; /* 0x1B8, the guard effect's multi-BGA slots */
     char pad1BC[4];
     float ropeCliffX; /* 0x1C0 */
     float ropeCliffY; /* 0x1C4 */
@@ -123,15 +123,15 @@ typedef struct EnemyBattleWork { /* field names derived */
     int word2B0;    /* 0x2B0 */
     char pad2B4[44];
     struct GObj *rescueObj; /* 0x2E0 */
-    char pad2E4[32];
-    float rescueY; /* 0x304 */
-    char pad308[8];
+    char pad2E4[12];
+    float rescueBoyPos[4];  /* 0x2F0, where the boy stands to pull the girl up, 60 short of her */
+    float rescueGirlPos[4]; /* 0x300, the girl's position, 50 up: [1] is the height she is set to */
     int boxBarSound; /* 0x310 */
     char pad314[28];
     float climbOrient[4]; /* 0x330 the orient of the chain or wall climbed */
     float climbPos[4];    /* 0x340 the climb's position */
     ClimbCol climbCol;    /* 0x350 the wall the climb holds, as GetChainClimbCollision fills it */
-    int climbObj;         /* 0x35C the chain or cage climbed */
+    struct GObj *climbObj; /* 0x35C the chain or cage climbed */
 } EnemyBattleWork;   /* derived name */
 
 /* enemy_act.c's `inline` functions, in the order of their definitions'
@@ -159,7 +159,7 @@ int actEnemy_GetClingTarget(struct GObj *self);
 int actEnemy_isNormalEnemy(struct GObj *self);
 int actEnemy_isLargeEnemy(struct GObj *self);
 int actEnemy_isSmallEnemy(struct GObj *self);
-int IsEnemyBrainToGenerator(GObj *self, int *out);
+int IsEnemyBrainToGenerator(GObj *self, GObj **out);
 int IsEnemyBrainToBoy(struct GObj *self);
 int GetEnemyTypeFromGObj(struct GObj *obj);
 int GetEnemyType(float x, float y, float z);

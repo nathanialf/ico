@@ -1262,7 +1262,7 @@ typedef union { /* field names derived */
     long long ll[2];
 } FcVec; /* derived name */
 
-inline void GetWallGlobalInfo(char *pts, void *nrm, char *w, void *m)
+inline void GetWallGlobalInfo(void *pts, void *nrm, char *w, void *m)
 {
     FcVec vec = {
         {GetTableSin(*(short *)(w + 0x44)), 0.0f, GetTableCos(*(short *)(w + 0x44)), 0.0f}};
@@ -1284,7 +1284,7 @@ inline void GetGlobalWallPlane(float *plane, WallCfg *wall)
 {
     FcVec pts[4];
 
-    GetWallGlobalInfo((char *)pts, plane, wall->elem,
+    GetWallGlobalInfo(pts, plane, wall->elem,
                       (void *)((wall->o.node << 6) + GOBJ_SUB(wall->o.obj)->nodeMtx));
     plane[3] = -sceVu0InnerProduct(plane, pts);
 }

@@ -1421,7 +1421,7 @@ void ACTGetEnvironment(void *self, void *dir, float *orient, EnvFlag *flags, Act
                     ((prj[1] - p70[1]) < 0.0f ? -(prj[1] - p70[1]) : (prj[1] - p70[1])) <
                         50.0f) {
                     sub->wish0.ll |= (1ULL << 56);
-                    *(char **)((char *)GOBJ_ACT(self)->enemy + 0x2E0) = n;
+                    *(GObj **)((char *)GOBJ_ACT(self)->enemy + 0x2E0) = n;
                 }
             }
         }

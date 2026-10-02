@@ -17,7 +17,8 @@ struct GObj;
  * word, like the object's own actor slot): the boy's, the girl's and the
  * enemies' per-character state. */
 typedef struct ActWork { /* field names derived */
-    char pad0[800];
+    int paraTbl[86];        /* 0x000, each parallel slot's motion (ActPara_MakeTbl) */
+    char pad158[456];
     float defIkRate0;       /* 0x320 */
     float defIkRate1;       /* 0x324 */
     float defIkRate2;       /* 0x328 */
@@ -79,7 +80,7 @@ typedef struct ActWork { /* field names derived */
     int noMoveFrames;        /* 0x450 */
     unsigned int enemyFlags; /* 0x454 */
     char pad458[8];
-    char *genTarget;         /* 0x460 */
+    GObj *genTarget;         /* 0x460, the generator the enemy heads for */
     int motherLabel;         /* 0x464 */
     struct GObj *motherGObj; /* 0x468, the generator object motherLabel names */
     char pad46C[4];

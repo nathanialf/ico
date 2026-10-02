@@ -14,7 +14,7 @@
  * out-of-line copies at the end of the object (first-declaration order). */
 void debugExceptionInit(void *workBuf);
 void debugIOPExceptionInit(void);
-void debug_assertMessage(const char *file, int line, char *mes);
+void debug_assertMessage(const char *file, int line, const char *mes);
 void debug_assert(const char *file, int line);
 void RestoreNormalDrawEnvironment(sceGsDBuff *db, int id, int field);
 void SetDrawEnvironment(int mode);

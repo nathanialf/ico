@@ -32,7 +32,7 @@ extern int gamesysObjBuffOver;
    (obj-layout), data members linked with debug.o and gamesys.o */
 extern ObjKindEnt objKindData[];
 extern GenGeo objLayout[];
-int gamesysGetGirlStageIDAndPosition(int *pos);
+int gamesysGetGirlStageIDAndPosition(float *pos);
 void gamesysMemoryHandlerRead(GamesysMemCursor *self, void *dst, int size);
 void gamesysMemoryHandlerWrite(GamesysMemCursor *self, void *src, int size);
 void gamesysMemoryLoad(void **tbl, void *mem, void *arg);

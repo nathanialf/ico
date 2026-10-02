@@ -139,7 +139,7 @@ static void initFallDown(GObj *self)
     GOBJ_SUB(self)->colRotate = 0;
     *(int *)&GOBJ_SUB(self)->ctrl.animFrame = 0;
     if (p->wall.elem != 0) {
-        GetWallGlobalInfo((char *)pts, n, p->wall.elem,
+        GetWallGlobalInfo(pts, n, p->wall.elem,
                           (char *)GOBJ_SUB(p->wall.o.obj)->nodeMtx + (p->wall.o.node << 6));
         n[1] = 0.0f;
         sceVu0Normalize(n, n);
@@ -177,7 +177,7 @@ static int checkFieldContact(GObj *self, float lim)
         if (self != w.floor.o.obj) {
             if (GOBJ_SUB(self)->parent.obj != w.floor.o.obj ||
                 GOBJ_SUB(self)->parent.node != w.floor.o.node) {
-                LinkParentOfDObj(self, (PackedLL_19CAF0 *)&w.floor);
+                LinkParentOfDObj(self, &w.floor.o);
                 GOBJ_SUB(self)->ctrl.floorAttr = GetFloorAttribute(&w);
             }
         }
@@ -2026,13 +2026,6 @@ void ReInitBoxGeo(GObj *self)
 /* the box serial counter */
 static unsigned char boxSerial = 0; /* derived name */
 
-/* The parent-link record LinkParentOfDObj copies as one word pair: the
-   parent GObj and the node index. */
-typedef struct { /* field names derived */
-    int gobj;    /* 0x0 */
-    int index;   /* 0x4 */
-} BoxLink;       /* derived name */
-
 /* the layout record's object word packs the route number in its low half
    and the sub-box model in its high half */
 BoxWork *InitBoxGeo(GObj *self, SObjSimpleSetting *lay)
@@ -2079,7 +2072,7 @@ BoxWork *InitBoxGeo(GObj *self, SObjSimpleSetting *lay)
 
         if ((lay->obj & 0xFFFF0000) != 0) {
             SObjSimpleSetting r = *lay;
-            BoxLink lnk = {(int)self, 0};
+            ObjNode lnk = {self, 0};
             Vec4 v;
             Vec4 q;
 
@@ -2092,7 +2085,7 @@ BoxWork *InitBoxGeo(GObj *self, SObjSimpleSetting *lay)
             sub = accessary[GOBJ_SUB(self)->accessary].subModel;
             o = CreateLayoutedGObj(23, accessary[sub].model, sub, 0, &r, 0, 7, 0);
 
-            LinkParentOfDObj(o, (PackedLL_19CAF0 *)&lnk);
+            LinkParentOfDObj(o, &lnk);
 
             q.f[0] = accessary[GOBJ_SUB(self)->accessary].subPos[0];
             q.f[1] = accessary[GOBJ_SUB(self)->accessary].subPos[1];

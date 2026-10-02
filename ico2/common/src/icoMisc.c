@@ -58,7 +58,14 @@ extern int debug_bar_flag;
 /* .sdata: the partition bar's backdrop tint; ExecIcoMisc's three state
    words; InitIcoMisc's four; the six debug words dbgC0..dbgC5 (declared in
    icoMisc.h). */
-static unsigned int partitionBarTint = 0x80FFFFFF; /* derived name */
+typedef struct { /* field names derived */
+    unsigned char r;
+    unsigned char g;
+    unsigned char b;
+    unsigned char a;
+} MiscColor; /* derived name */
+
+static MiscColor partitionBarTint = {255, 255, 255, 128}; /* derived name */
 
 /* .data: the partition bar's two line colours and the wind-field line colour,
    RGBA as Draw2DLine and DrawLineG take them. */
@@ -72,7 +79,7 @@ static int partitionUsedColor[4] = {64, 128, 255, 128}; /* derived name */
 extern void gif_StartPacketPri(int pri);
 extern void gif_SetAlpha(long long alpha, long long mode, long long fix);
 extern void gif_EndPacket(void);
-extern void gif_MakeSpriteNoTexture(int x, int y, int w, int h, unsigned int z, unsigned char *col,
+extern void gif_MakeSpriteNoTexture(int x, int y, int w, int h, unsigned int z, MiscColor *col,
                                     int prim);
 
 /* .bss: the line buffer the memory report is printed through */

@@ -81,7 +81,7 @@ void SetSimplePlane(float *self, float a, float b, float c, float d);
 int GetWallAttribute(ClipWork *w);
 int GetFloorAttribute(ClipWork *w);
 int CompareAttribute(unsigned int a, unsigned int b);
-void GetWallGlobalInfo(char *pts, void *nrm, char *w, void *m);
+void GetWallGlobalInfo(void *pts, void *nrm, char *w, void *m);
 inline float GetDistanceFromPlane(void *plane, void *pos);
 float GetYDistanceFromPlane(float *plane, float *pos);
 float GetYProjectionOfPlane(float *plane, float *pos);

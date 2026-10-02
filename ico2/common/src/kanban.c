@@ -414,7 +414,7 @@ inline void kanbanExec(void)
         gif_SetZWrite(0);
         gif_SetAlpha(1, 7, 0);
         pkt = kanbanSprite;
-        gif_SpriteSensitive(&pkt, 0xFFFFFFFFu, 0, col, 1);
+        gif_SpriteSensitive(pkt.i, 0xFFFFFFFFu, 0, col, 1);
         gif_SetZWrite(1);
         gif_SetZTest(1);
         gif_EndPacket();

@@ -434,12 +434,10 @@ Sub15C *CSVSYSTEM_InitDObj(int id, SObjSimpleSetting *lay)
     return d;
 }
 
-inline void LinkParentOfDObj(void *obj, PackedLL_19CAF0 *link)
+inline void LinkParentOfDObj(void *obj, ObjNode *link)
 {
-    PackedLL_19CAF0 *p;
     LocalizeGeometry(obj, link);
-    p = (PackedLL_19CAF0 *)GOBJ_SUB(obj);
-    *p = *link;
+    GOBJ_SUB(obj)->parent = *link;
 }
 
 inline void UnlinkParentOfDObj(void *obj)

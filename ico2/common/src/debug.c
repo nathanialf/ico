@@ -595,9 +595,8 @@ extern void gif_EndPacket(void);
 extern void gif_SetAlpha(long long alpha, long long mode, long long fix);
 extern void gif_SetZTest(int on);
 extern void gif_SetZWrite(int on);
-extern void gif_Sprite(int *r, unsigned int z, int *uv, unsigned char *col, int prim);
-extern void gif_Line(int *v0, int *v1, unsigned int z0, unsigned int z1, unsigned char *col,
-                     int prim);
+extern void gif_Sprite(FR *r, unsigned int z, FR *uv, DbgCol *col, int prim);
+extern void gif_Line(int *v0, int *v1, unsigned int z0, unsigned int z1, DbgCol *col, int prim);
 extern void gif_StartPacketPri(int pri);
 extern void gif_SetDrawEnviroment(unsigned long long fbp, unsigned long long psm, unsigned int w,
                                   unsigned int h, int useoffset, int clear);
@@ -881,8 +880,8 @@ static int debug_GetDebugOption(void)
     int i;
     int n;
     int cnt;
-    DbgOpt *o;
-    DbgOpt *p;
+    const DbgOpt *o;
+    const DbgOpt *p;
 
     debug_StdPrintfDummy("==== Try to read Debug Option file. =========================\n");
     fd = debugSceOpen("thisIsYourDebugOption", 1);
@@ -1248,7 +1247,7 @@ static void debug_makeBackImage(void)
 {
     int i;
     int j;
-    unsigned char *src;
+    const unsigned char *src;
     unsigned short *a;
     unsigned short *b;
     for (i = 0; i < 256; i++) {
@@ -1377,7 +1376,7 @@ static void debug_FlushFontWindow(void)
     FR r = {16, (int)(224.0f - ((float)charNumH + 0.5f) * 8.0f), 50, charNumH};
     FR rect;
     FR tmp;
-    char *col;
+    DbgCol *col;
     int i;
 
     tmp.x = r.x - 0x144;
@@ -1385,7 +1384,7 @@ static void debug_FlushFontWindow(void)
     tmp.w = r.w * 0xC + 8;
     tmp.h = r.h * 8 + 4;
     rect = tmp;
-    col = (char *)&tmp;
+    col = (DbgCol *)&tmp;
     memset(col, 0, 4);
     ((char *)&tmp)[3] = 0x20;
     if (debug_window_flag != 0) {
@@ -1457,8 +1456,8 @@ static void debug_brainBar(void)
         DbgVtx v[4];
 
         make_mark_points(v, p, 3);
-        gif_Line(&v[0], &v[3], 0xFFFFFFFFU, 0xFFFFFFFFU, &col, 1);
-        gif_Line(&v[1], &v[2], 0xFFFFFFFFU, 0xFFFFFFFFU, &col, 1);
+        gif_Line(&v[0].x, &v[3].x, 0xFFFFFFFFU, 0xFFFFFFFFU, &col, 1);
+        gif_Line(&v[1].x, &v[2].x, 0xFFFFFFFFU, 0xFFFFFFFFU, &col, 1);
     }
     void draw_shikaku(DbgPos * p)
     {
@@ -1466,10 +1465,10 @@ static void debug_brainBar(void)
         DbgVtx v[4];
 
         make_mark_points(v, p, 3);
-        gif_Line(&v[0], &v[1], 0xFFFFFFFFU, 0xFFFFFFFFU, &col, 1);
-        gif_Line(&v[1], &v[3], 0xFFFFFFFFU, 0xFFFFFFFFU, &col, 1);
-        gif_Line(&v[3], &v[2], 0xFFFFFFFFU, 0xFFFFFFFFU, &col, 1);
-        gif_Line(&v[2], &v[0], 0xFFFFFFFFU, 0xFFFFFFFFU, &col, 1);
+        gif_Line(&v[0].x, &v[1].x, 0xFFFFFFFFU, 0xFFFFFFFFU, &col, 1);
+        gif_Line(&v[1].x, &v[3].x, 0xFFFFFFFFU, 0xFFFFFFFFU, &col, 1);
+        gif_Line(&v[3].x, &v[2].x, 0xFFFFFFFFU, 0xFFFFFFFFU, &col, 1);
+        gif_Line(&v[2].x, &v[0].x, 0xFFFFFFFFU, 0xFFFFFFFFU, &col, 1);
     }
     DbgCol c0 = brainColLow[0];
     DbgCol c1 = brainColMid[0];
@@ -1505,7 +1504,7 @@ static void debug_brainBar(void)
         } else {
             col = &c1;
         }
-        gif_Line(&a, &b, 0xFFFFFFFFU, 0xFFFFFFFFU, col, 1);
+        gif_Line(&a.x, &b.x, 0xFFFFFFFFU, 0xFFFFFFFFU, col, 1);
         if (brain->tgt[i].gobj->kind == 0x3D) {
             /* a.z is never written: the copy reads it uninitialised */
             c.x = a.x;
@@ -1536,15 +1535,15 @@ static void debug_brainBar(void)
     a.x = b.x;
     a.y = ytop;
     b.y = y;
-    gif_Line(&a, &b, 0xFFFFFFFFU, 0xFFFFFFFFU, &c2, 1);
+    gif_Line(&a.x, &b.x, 0xFFFFFFFFU, 0xFFFFFFFFU, &c2, 1);
     a.x = b.x = 260;
     a.y = ytop;
     b.y = y;
-    gif_Line(&a, &b, 0xFFFFFFFFU, 0xFFFFFFFFU, &c1, 1);
+    gif_Line(&a.x, &b.x, 0xFFFFFFFFU, 0xFFFFFFFFU, &c1, 1);
     a.x = b.x = 220;
     a.y = ytop;
     b.y = y;
-    gif_Line(&a, &b, 0xFFFFFFFFU, 0xFFFFFFFFU, &c0, 1);
+    gif_Line(&a.x, &b.x, 0xFFFFFFFFU, 0xFFFFFFFFU, &c0, 1);
     gif_EndPacket();
 }
 
@@ -1640,18 +1639,18 @@ static void debug_DrawBar(void)
     v0.x = v1.x = -257;
     v0.y = 92;
     v1.y = 104;
-    gif_Line(&v0, &v1, 0xFFFFFFFFU, 0xFFFFFFFFU, &col1, 1);
+    gif_Line(&v0.x, &v1.x, 0xFFFFFFFFU, 0xFFFFFFFFU, &col1, 1);
     v0.x = v1.x = 257;
     v0.y = 92;
     v1.y = 104;
-    gif_Line(&v0, &v1, 0xFFFFFFFFU, 0xFFFFFFFFU, &col1, 1);
+    gif_Line(&v0.x, &v1.x, 0xFFFFFFFFU, 0xFFFFFFFFU, &col1, 1);
     if (sh > 0) {
         gif_SetAlpha(1, 4, 64);
         v0.y = 91;
         v1.y = 105;
         for (i = 0; i < (1 << sh) - 1; i++) {
             v0.x = v1.x = (i + 1) * (512 / (1 << sh)) - 256;
-            gif_Line(&v0, &v1, 0xFFFFFFFFU, 0xFFFFFFFFU, &col2, 1);
+            gif_Line(&v0.x, &v1.x, 0xFFFFFFFFU, 0xFFFFFFFFU, &col2, 1);
         }
     }
 
@@ -1694,7 +1693,7 @@ static void debug_DrawBar(void)
         if (debug_bar_flag == 2) {
             v0.x = w; v0.y = rect0.y;
             v1.x = w; v1.y = rect0.y + rect0.h + 6;
-            gif_Line(&v0, &v1, 0xFFFFFFFFU, 0xFFFFFFFFU, &debugBars[i].col, alpha);
+            gif_Line(&v0.x, &v1.x, 0xFFFFFFFFU, 0xFFFFFFFFU, &debugBars[i].col, alpha);
         }
 
         if (debug_font_flag & 1) {
@@ -1703,14 +1702,14 @@ static void debug_DrawBar(void)
                 if (debug_bar_flag == 1) {
                     v0.x = w; v0.y = rect0.y;
                     v1.x = w; v1.y = rect0.y + rect0.h + 6;
-                    gif_Line(&v0, &v1, 0xFFFFFFFFU, 0xFFFFFFFFU, &debugBars[i].col, alpha);
+                    gif_Line(&v0.x, &v1.x, 0xFFFFFFFFU, 0xFFFFFFFFU, &debugBars[i].col, alpha);
                 }
                 v0.x = w; v0.y = rect0.y + rect0.h + 7;
                 v1.x = w + 7; v1.y = rect0.y + (flip * 7 + 1) + 8 + rect0.h - 1;
-                gif_Line(&v0, &v1, 0xFFFFFFFFU, 0xFFFFFFFFU, &col3, alpha);
+                gif_Line(&v0.x, &v1.x, 0xFFFFFFFFU, 0xFFFFFFFFU, &col3, alpha);
                 v0.x = w + 7; v0.y = rect0.y + (flip * 7 + 1) + 8 + rect0.h - 1;
                 v1.x = w + 8 + len * 8; v1.y = rect0.y + (flip * 7 + 1) + 8 + rect0.h - 1;
-                gif_Line(&v0, &v1, 0xFFFFFFFFU, 0xFFFFFFFFU, &col3, alpha);
+                gif_Line(&v0.x, &v1.x, 0xFFFFFFFFU, 0xFFFFFFFFU, &col3, alpha);
                 flip ^= 1;
             }
         }
@@ -1728,20 +1727,20 @@ static void debug_DrawBar(void)
     v1.y = 98;
     if (v1.x > 320) v1.x = 320;
     col1.r = col1.g = col1.b = col1.a = 164;
-    gif_Line(&v0, &v1, 0xFFFFFFFFU, 0xFFFFFFFFU, &col1, 1);
+    gif_Line(&v0.x, &v1.x, 0xFFFFFFFFU, 0xFFFFFFFFU, &col1, 1);
 
 
     v0.x = -256; v0.y = 94;
     v1.x = (used_dma_memory << 9) / 100 - 256; v1.y = 94;
     col1.r = 0;
     col1.g = col1.b = col1.a = 164;
-    gif_Line(&v0, &v1, 0xFFFFFFFFU, 0xFFFFFFFFU, &col1, 1);
+    gif_Line(&v0.x, &v1.x, 0xFFFFFFFFU, 0xFFFFFFFFU, &col1, 1);
 
 
     v0.x = -256; v0.y = 96;
     v1.x = (used_dl_max << 9) / 100 - 256; v1.y = 96;
     col1.b = 0; col1.r = col1.g = col1.a = 164;
-    gif_Line(&v0, &v1, 0xFFFFFFFFU, 0xFFFFFFFFU, &col1, 1);
+    gif_Line(&v0.x, &v1.x, 0xFFFFFFFFU, 0xFFFFFFFFU, &col1, 1);
 
     gif_SetZTest(1);
     gif_SetZWrite(1);

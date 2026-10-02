@@ -211,22 +211,22 @@ static int StageOrientGet2(VECTOR *ret, int stA, VECTOR *posA, int stB, VECTOR *
     return 1;
 }
 
-int OtherStagePositionGet(VECTOR *ret, int stA, int stB, VECTOR *pos)
+int OtherStagePositionGet(float *ret, int stA, int stB, float *pos)
 {
     int a = stageOrientIdx[stA];
     int b = stageOrientIdx[stB];
 
     if (a < 0 || b < 0) {
-        ret->x = 0.0f;
-        ret->y = 0.0f;
-        ret->z = 0.0f;
-        ret->w = 1.0f;
+        ret[0] = 0.0f;
+        ret[1] = 0.0f;
+        ret[2] = 0.0f;
+        ret[3] = 1.0f;
         return 0;
     }
     {
         const StageOrientDef *pa = &stageOrientDefs[a];
         const StageOrientDef *pb = &stageOrientDefs[b];
-        VECTOR v = {pos->x, -pos->y, pos->z, 1.0f};
+        VECTOR v = {pos[0], -pos[1], pos[2], 1.0f};
         VECTOR t;
         float m1[16];
         float m2[16];
@@ -249,6 +249,6 @@ int OtherStagePositionGet(VECTOR *ret, int stA, int stB, VECTOR *pos)
         sceVu0InversMatrix(m3, m2);
         sceVu0ApplyMatrix(ret, m3, &t);
     }
-    ret->y = -ret->y;
+    ret[1] = -ret[1];
     return 1;
 }

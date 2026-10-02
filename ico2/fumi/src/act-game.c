@@ -982,7 +982,7 @@ inline int ACTGameViewSimple_Check(GObj *self, GObj *obj)
 
 static void ACTGame_LwsEffectProcess(GObj *self)
 {
-    int m = GOBJ_ACT(self)->enemy->lwsEffect;
+    BgaDisp *m = GOBJ_ACT(self)->enemy->lwsEffect;
     if (m != 0) {
         DispMultiBgaManagerWithKind(0x1F8, m, 1);
     }
@@ -1164,7 +1164,7 @@ int ACTLookTarget_Exec(GObj *self)
 {
     float pos[4];
     Act *s = GOBJ_ACT(self);
-    char *t = (char *)s->lookTarget;
+    GObj *t = s->lookTarget;
     int rv;
     int b0;
 
@@ -1179,12 +1179,12 @@ int ACTLookTarget_Exec(GObj *self)
             pos[0] = s->lookPosX;
             pos[1] = s->lookPosY;
             pos[2] = s->lookPosZ;
-        } else if (t == (char *)boyGObj) {
+        } else if (t == boyGObj) {
             /* the boy's skeleton position read in place */
             int idx = GetSkeltonFocusNode(t, 35) << 6;
-            pos[0] = *(float *)(idx + *(int *)(((IntFloat *)(t + 0x15C))->i + 0xC) + 0x30);
-            pos[1] = *(float *)(idx + *(int *)(((IntFloat *)(t + 0x15C))->i + 0xC) + 0x34);
-            pos[2] = *(float *)(idx + *(int *)(((IntFloat *)(t + 0x15C))->i + 0xC) + 0x38);
+            pos[0] = *(float *)(idx + *(int *)(((IntFloat *)&t->dobj)->i + 0xC) + 0x30);
+            pos[1] = *(float *)(idx + *(int *)(((IntFloat *)&t->dobj)->i + 0xC) + 0x34);
+            pos[2] = *(float *)(idx + *(int *)(((IntFloat *)&t->dobj)->i + 0xC) + 0x38);
         } else {
             GetRootPosition(pos, t);
         }
@@ -1203,7 +1203,7 @@ inline void ACTParaStatus_Init(GObj *self)
     Act *s = GOBJ_ACT(self);
     ActPara_InitSystem();
     ACTParaStatus_Clear(self);
-    ActPara_MakeTbl(GOBJ_ACT(self)->work, s->paraStatus, 0);
+    ActPara_MakeTbl(GOBJ_WORK(self)->paraTbl, s->paraStatus, 0);
     *(long long *)((char *)s + 0x98) = s->paraStatus;
 }
 
@@ -1258,8 +1258,8 @@ void ACTParaStatus_Exec(GObj *self)
     if (changed == 0) {
         return;
     }
-    ActPara_MakeTbl(GOBJ_ACT(self)->work, s->paraStatus, GOBJ_ACT(self)->enemy->paraRandom);
-    SetParallelMotionTable(self, GOBJ_ACT(self)->work, ActPara_GetDefTbl(), 0,
+    ActPara_MakeTbl(GOBJ_WORK(self)->paraTbl, s->paraStatus, GOBJ_ACT(self)->enemy->paraRandom);
+    SetParallelMotionTable(self, GOBJ_WORK(self)->paraTbl, ActPara_GetDefTbl(), 0,
                            (int)GOBJ_WORK(self)->parallelInterp);
 }
 
@@ -2674,7 +2674,7 @@ void ACTGame_CommonLoop(GObj *self)
 
 inline void GetGirlPositionAtThisStage(float *pos)
 {
-    int buf[4];
+    float buf[4];
     int id = gamesysGetGirlStageIDAndPosition(buf);
     OtherStagePositionGet(pos, stage_no, id, buf);
 }
@@ -2696,7 +2696,7 @@ void ACTLookTargetSystem_Exec(GObj *self)
     {
         float dir[4];
         float p[4];
-        char *target = 0;
+        GObj *target = 0;
         int rv = 0;
 
         switch (kind) {
@@ -2710,13 +2710,13 @@ void ACTLookTargetSystem_Exec(GObj *self)
             rv = 1;
             break;
         case 12:
-            target = *(char **)(s + 0x88);
+            target = *(GObj **)(s + 0x88);
             break;
         case 10:
-            target = *(char **)(s + 0x78);
+            target = *(GObj **)(s + 0x78);
             break;
         case 5:
-            target = *(char **)(s + 0x7C);
+            target = *(GObj **)(s + 0x7C);
             break;
         case 4:
             target = girlGObj;
@@ -2731,7 +2731,7 @@ void ACTLookTargetSystem_Exec(GObj *self)
             }
             break;
         case 11:
-            GetRootPosition(pos, *(char **)(s + 0x74));
+            GetRootPosition(pos, *(GObj **)(s + 0x74));
             pos[1] = *(float *)&test_CURRENTROOT(self)[1];
             *pmode = 2;
             rv = 1;
@@ -2753,22 +2753,22 @@ void ACTLookTargetSystem_Exec(GObj *self)
             break;
         case 8:
             if (*(int *)(s + 0x10) % 15 / 10 != 0) {
-                target = *(char **)(s + 0x80);
+                target = *(GObj **)(s + 0x80);
             } else {
-                target = (char *)boyGObj;
+                target = boyGObj;
             }
             break;
         case 9:
-            target = *(char **)(s + 0x84);
+            target = *(GObj **)(s + 0x84);
             break;
         case 7:
-            target = (char *)boyGObj;
+            target = boyGObj;
             if (*(int *)(s + 0x10) % 15 / 10 != 0) {
-                target = *(char **)(s + 0x80);
+                target = *(GObj **)(s + 0x80);
             }
             break;
         case 3:
-            target = (char *)boyGObj;
+            target = boyGObj;
             break;
         case 1:
             sceVu0ScaleVector(pos, test_CURRENTORIENT(self), 200.0f);
@@ -2790,7 +2790,7 @@ void ACTLookTargetSystem_Exec(GObj *self)
             break;
         }
         if (target != 0) {
-            if (target == (char *)boyGObj) {
+            if (target == boyGObj) {
                 /* these two statements written out instead of calling
                    GetSkeltonPosition: the node comes off `target` and the
                    skeleton off the global */
@@ -2980,7 +2980,7 @@ static void ACTItemWatchMotion(GObj *self)
         if ((sub->heldItem.i = sub->nextItem.i) == 0) {
             return;
         }
-        HoldItem(sub->heldItem.i, self);
+        HoldItem(sub->heldItem.p, self);
     }
 
     /* nested inline: drop whatever is held, read through the slots' pointer
@@ -3007,14 +3007,14 @@ static void ACTItemWatchMotion(GObj *self)
         }
         sceVu0ScaleVector(v, test_CURRENTORIENT(self),
                           _ACTGame_GetParamF(9) + _ACTGame_GetParamF(9));
-        kind = GetItemKind(sub->heldItem.i);
+        kind = GetItemKind(sub->heldItem.p);
         if (kind == 1 || kind == 6) {
             debug_StdPrintfDummy("BOMB!!\n");
             v[0] *= 0.5f;
             v[1] -= 25.0f;
             v[2] *= 0.5f;
         }
-        ThrowItem(sub->heldItem.i, v);
+        ThrowItem(sub->heldItem.p, v);
         sub->nextItem.i = sub->heldItem.i = 0;
     }
 
@@ -3041,7 +3041,7 @@ static void ACTItemWatchMotion(GObj *self)
             ItemHold();
         } else if (sub->heldItem.i != 0) {
             float pos[4];
-            GetRootPosition(pos, sub->heldItem.i);
+            GetRootPosition(pos, sub->heldItem.p);
             SetDirectRootPositionNoFittingWithNodePoint(self, 0x16, pos, 0.2f);
             debug_StdPrintfDummy("!!\n");
         }
@@ -3099,7 +3099,7 @@ static void ACTItemWatchMotion(GObj *self)
 inline void ACTItemForceDrop(GObj *self)
 {
     Act *s = GOBJ_ACT(self);
-    int item = s->heldItem.i;
+    GObj *item = s->heldItem.p;
     if (item != 0) {
         ReleaseItem(item);
         s->heldItem.i = 0;

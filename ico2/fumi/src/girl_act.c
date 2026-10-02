@@ -67,10 +67,10 @@ union GAIF { /* field names derived */
     float f;
 }; /* derived name */
 
-static void GetEyeDirection(char *dir, char *obj)
+static void GetEyeDirection(char *dir, GObj *obj)
 {
     int node = GetSkeltonFocusNode(obj, 0x23);
-    if (*(int *)(obj + 0xC) == 4) {
+    if (obj->kind == 4) {
         *(int *)(dir + 0x0) = 0;
         ((union GAIF *)(dir + 0x4))->f = -1.0f;
         *(int *)(dir + 0x8) = 0;
@@ -352,7 +352,8 @@ typedef struct GirlBrainWork { /* field names derived */
     float f_5840[4];   /* 0x5840 */
     float f_5850[4];   /* 0x5850 */
     WayPoint *lastWay; /* 0x5860, the way point GetWay_next last returned */
-    char pad5864[140];
+    char pad5864[12];
+    WVTObj hideWay;       /* 0x5870, the way the girl tries to the hide point */
     unsigned char f_58F0; /* 0x58F0 */
     unsigned char f_58F1; /* 0x58F1 */
     unsigned char f_58F2; /* 0x58F2 set on the frame the mode changes */
@@ -599,7 +600,7 @@ inline void ClearGirlDangerGObj(void)
     }
 }
 
-static void SetTurnSpeedInEscape(char *self)
+static void SetTurnSpeedInEscape(GObj *self)
 {
     if (GOBJ_ACT(self)->actMode == 10) {
         ACTGame_SetMotionPlaySpeedRatio_Reserve(self, 1.5f, 5);
@@ -866,7 +867,7 @@ static inline unsigned char isHidePointTooHigh(float *p) /* derived name */
 
 /* One call site.  `r = 0;` is a statement after the struct copy, not an
    initialiser. */
-static inline int girlBrainHide_TryWay(float *pt, char *way, float *goal,
+static inline int girlBrainHide_TryWay(float *pt, WVTObj *way, float *goal,
                                        float *hit) /* derived name */
 {
     float start[4];
@@ -875,7 +876,7 @@ static inline int girlBrainHide_TryWay(float *pt, char *way, float *goal,
     void *self = girlGObj;
     Act *sub = GOBJ_ACT(self);
 
-    *(WVTObj *)way = sub->way;
+    *way = sub->way;
     if (GetWay_begin(pt, way, goal)) {
         r = 1;
         start[0] = pt[0];
@@ -883,12 +884,12 @@ static inline int girlBrainHide_TryWay(float *pt, char *way, float *goal,
         start[2] = pt[2];
         start[1] -= 50.0f;
         goal[1] = goal[1] - 30.0f;
-        *(int *)(way + 0x44) = 0;
+        way->reached = 0;
         if (ACTCheckCollis_WAY(10.0f, goal, start, girl, hit) == 0) {
-            *(int *)(way + 0x44) = 1;
+            way->reached = 1;
             DeleteGuideWay(way);
             r = 3;
-        } else if (*(int *)(way + 0x3C) == 0) {
+        } else if (way->flag3C == 0) {
             r = 2;
         }
     }
@@ -916,8 +917,8 @@ static int girlBrainMain_CheckWarningMode(unsigned char check)
         }
         _girlBrainHide_MakeHidePoint((float *)(g + 0x5800), 200.0f);
         dispWayMarker((float *)(g + 0x5800));
-        if (girlBrainHide_TryWay((float *)(g + 0x5800), g + 0x5870, (float *)(g + 0x5830), hit) !=
-            3) {
+        if (girlBrainHide_TryWay((float *)(g + 0x5800), &brain_val.hideWay, (float *)(g + 0x5830),
+                                 hit) != 3) {
             goto out;
         }
     }
@@ -1194,16 +1195,15 @@ int GirlInfo[2];
 
 /* A file-scope static helper, inlined in Danger_Box, its nested
  * GetSafePosition and subGirlBrainMain: whether the boy is pushing a
- * truck-type box (his sub-object's status 0x34 == 0x31 and the object he
- * holds at 0x158 is box kind 7). */
+ * truck-type box (his action mode is 49 and the box he holds is box kind
+ * 7). */
 static inline unsigned char isBoyPushBoxTruck(void) /* derived name */
 {
-    char *sub;
-    char *box;
+    Act *sub;
+    GObj *box;
 
-    if (((int *)boyGObj) != 0 &&
-        *(int *)((sub = (char *)GOBJ_ACT(((int *)boyGObj))) + 0x34) == 0x31 &&
-        (box = *(char **)(sub + 0x158)) != 0 && IsThisBoxTruck(box) == 7) {
+    if (((int *)boyGObj) != 0 && (sub = GOBJ_ACT(((int *)boyGObj)))->actMode == 49 &&
+        (box = sub->box) != 0 && IsThisBoxTruck(box) == 7) {
         return 1;
     }
     return 0;
@@ -1536,7 +1536,7 @@ void subGirlBrainMain(GObj *volatile self)
             }
             _ACTParaStatus_Set((void *)self, brain_val.wait + 11);
             _ACTCharStatus_Set((void *)self, 8, 0.0f, 0);
-            SetTurnSpeedInEscape((char *)self);
+            SetTurnSpeedInEscape(self);
             break;
         case 2:
             ACTSendMailCorrect((void *)self, 0x155);
@@ -1547,7 +1547,7 @@ void subGirlBrainMain(GObj *volatile self)
             }
             _ACTParaStatus_Set((void *)self, brain_val.wait + 5);
             _ACTCharStatus_Set((void *)self, 5, (float)brain_val.wait, 0);
-            SetTurnSpeedInEscape((char *)self);
+            SetTurnSpeedInEscape(self);
             break;
         case 3:
         case 9:
@@ -1559,7 +1559,7 @@ void subGirlBrainMain(GObj *volatile self)
             }
             _ACTParaStatus_Set((void *)self, brain_val.wait + 8);
             _ACTCharStatus_Set((void *)self, 8, (float)brain_val.wait, 0);
-            SetTurnSpeedInEscape((char *)self);
+            SetTurnSpeedInEscape(self);
             break;
         case 6: {
             void *look_at = 0;
@@ -1933,7 +1933,7 @@ void subGirlBrain_Hide(GObj *volatile self)
     int near;
     /* the girl object handed in by the actor entry, read from the volatile
        parameter once */
-    char *g;
+    GObj *g;
 
     /* isHideRecheck, a GNU nested function: it writes the enclosing `rad`
        through the static chain. */
@@ -1998,7 +1998,7 @@ void subGirlBrain_Hide(GObj *volatile self)
             hp[2] = cand[2];
         }
         if (_DistxzSqGV(hp, brain_val.f_5830) < 10000.0f || near) {
-            g = (char *)self;
+            g = self;
             GOBJ_ACT(girlGObj)->stick.mag = 0;
             _ACTCharStatus_Set(g, 7, -1.0f, 0);
             if (_DistxzSqGV(hp, brain_val.f_5830) < 6400.0f || near) {
@@ -2007,7 +2007,7 @@ void subGirlBrain_Hide(GObj *volatile self)
             }
         } else {
             _OrientXZGV(dir, cand, brain_val.f_5830);
-            g = (char *)self;
+            g = self;
             girlBrainSetMoveDir(dir);
             _ACTCharStatus_Set(g, 6, -1.0f, 0);
         }
@@ -2177,7 +2177,7 @@ static int girlBrainRunawaySearchPoint(float *goal, float *out, float *p)
     return 0;
 }
 
-static int girlBrainRunawayMoveByWay(char *self, float *out, float *tgt)
+static int girlBrainRunawayMoveByWay(GObj *self, float *out, float *tgt)
 {
     float d[4];
     float pos[4];
@@ -2315,7 +2315,7 @@ void subGirlBrain_Escape(GObj *volatile self)
             sub->stick.mag = 0;
             break;
         case 2:
-            ret = girlBrainRunawayMoveByWay((char *)self, (float *)&sub->dir[0], brain_val.f_57F0);
+            ret = girlBrainRunawayMoveByWay(self, (float *)&sub->dir[0], brain_val.f_57F0);
             switch (ret) {
             case 0:
                 break;
@@ -3066,7 +3066,7 @@ static int isEnterHideadv_EnemyLocation(float *bpos, float *gpos)
 
 static int isEnterHideadv(void)
 {
-    char buf[32];
+    float buf[8];
     int rv = 0;
     float diff;
     if (((int *)boyGObj) == 0) {
@@ -3076,8 +3076,8 @@ static int isEnterHideadv(void)
         return 0;
     }
     GetRootProjectionPosOfGObj(buf, boyGObj);
-    GetRootProjectionPosOfGObj(buf + 0x10, (void *)girlGObj);
-    diff = *(float *)(buf + 0x4) - *(float *)(buf + 0x14);
+    GetRootProjectionPosOfGObj(buf + 4, girlGObj);
+    diff = buf[1] - buf[5];
     if (diff < 0.0f) {
         if (-diff > 200.0f) {
             goto set;
@@ -3092,11 +3092,11 @@ test:
     if (rv == 0) {
         goto ret0;
     }
-    if (_DistxzSqGV(buf, buf + 0x10) < 22500.0f) {
+    if (_DistxzSqGV(buf, buf + 4) < 22500.0f) {
         return 1;
     }
-    if (_DistxzSqGV(buf, buf + 0x10) < 250000.0f) {
-        if (isEnterHideadv_EnemyLocation(buf, buf + 0x10) != 0) {
+    if (_DistxzSqGV(buf, buf + 4) < 250000.0f) {
+        if (isEnterHideadv_EnemyLocation(buf, buf + 4) != 0) {
             return 1;
         }
     }
@@ -3448,7 +3448,7 @@ void subGirlCollision(GObj *volatile self)
     int rz;
     MotionDef *rec;
     const ActModeRec *attr;
-    char *p;
+    GObj *p;
 
     while (sub->motReq == 0) {
         _ACTWait(1);
@@ -3504,7 +3504,7 @@ void subGirlCollision(GObj *volatile self)
                 sub->env.turnDir.f[0] = dir[0];
                 sub->env.turnDir.f[1] = dir[1];
                 sub->env.turnDir.f[2] = dir[2];
-                GetEyeDirection((char *)eye, (char *)self);
+                GetEyeDirection((char *)eye, self);
                 rot = (float)_RotyGV(eye, dir);
                 rec = motionKind + GOBJ_SUB(self)->ctrl.motion;
                 if (rec->flags.word & 1) {
@@ -3535,7 +3535,7 @@ void subGirlCollision(GObj *volatile self)
                 hold = ((int)(sub->flags20.ll >> 2) & 1) && cnt2 > 0;
                 GetSkeltonOrient(sk, (void *)self, 35);
                 GetSkeltonOrient(eye, (void *)self, 44);
-                _OrientXZGV(oz, (char *)GOBJ_SUB(self) + 0x390, test_CURRENTROOT((void *)self));
+                _OrientXZGV(oz, GOBJ_SUB(self)->root.lookPos, test_CURRENTROOT((void *)self));
                 ry = _AbsRotyGV(eye, sk);
                 rz = _AbsRotyGV(eye, oz);
                 if (dirAng < ry && sideAng < rz) {
@@ -3601,8 +3601,8 @@ void subGirlCollision(GObj *volatile self)
         case 3:
             break;
         }
-        p = *(char **)((char *)GOBJ_SUB(self));
-        if (p != 0 && *(int *)(p + 0xC) == 0x11) {
+        p = GOBJ_SUB(self)->parent.obj;
+        if (p != 0 && p->kind == 17) {
             if (GetBoxMode(p) == 2) {
                 ACTSendMailCorrect((void *)self, 0x105);
             }
@@ -4322,11 +4322,11 @@ void actGirlRescueDst(GObj *volatile self)
     pos[0] = test_CURRENTROOT((void *)self)[0];
     pos[1] = test_CURRENTROOT((void *)self)[1];
     pos[2] = test_CURRENTROOT((void *)self)[2];
-    pos[1] = GOBJ_ACT(((int *)boyGObj))->enemy->rescueY;
+    pos[1] = GOBJ_ACT(((int *)boyGObj))->enemy->rescueGirlPos[1];
     ACTSetPositionWithFitting((void *)self, pos);
     w = GOBJ_ACT(((int *)boyGObj))->enemy;
-    _OrientXZGV(q, (char *)w + 0x2F0, (char *)w + 0x300);
-    sceVu0SubVector(dir, (char *)GOBJ_ACT(((int *)boyGObj))->enemy + 0x300,
+    _OrientXZGV(q, w->rescueBoyPos, w->rescueGirlPos);
+    sceVu0SubVector(dir, GOBJ_ACT(((int *)boyGObj))->enemy->rescueGirlPos,
                     test_CURRENTROOT((void *)self));
     sceVu0ScaleVector(dir, dir, 1.0f / (float)n);
     SetMotionDirection((void *)self, q);

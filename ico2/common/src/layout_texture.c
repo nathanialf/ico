@@ -400,11 +400,11 @@ extern void gif_StartPacketPri(int pri);
 extern void gif_SetZTest(int on);
 extern void gif_SetZWrite(int on);
 extern void gif_SetAlpha(long long alpha, long long mode, long long fix);
-extern void gif_SpriteSensitive(int *r, unsigned int z, int *uv, unsigned char *col, int prim);
+extern void gif_SpriteSensitive(SprRect *r, unsigned int z, SprRect *uv, SprCol *col, int prim);
 extern void gif_EndPacket(void);
-extern void gif_SpriteSensitiveOffset(int *r, unsigned int z, int *uv, unsigned char *col,
+extern void gif_SpriteSensitiveOffset(SprRect *r, unsigned int z, SprRect *uv, SprCol *col,
                                       int prim);
-extern void gif_PointOffset(int *v, long long z, unsigned char *col, int prim);
+extern void gif_PointOffset(int *v, long long z, SprCol *col, int prim);
 extern void gif_SetGsReg(long long reg, long long data);
 
 /* the pulsing highlight sprite, inlined three times by display_texture */

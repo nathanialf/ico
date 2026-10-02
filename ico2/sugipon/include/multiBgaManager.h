@@ -13,7 +13,7 @@
    (zero unless entered sensitive), the rotation quaternion, the animation and
    whether it stays on its last frame.  The record is quadword aligned, as its
    vectors are. */
-typedef struct {                        /* field names derived */
+typedef struct BgaDisp {                /* field names derived */
     float frame;                        /* 0x00 */
     float pad04[3];                     /* 0x04 */
     float pos[4];                       /* 0x10 */

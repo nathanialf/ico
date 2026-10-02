@@ -1407,7 +1407,7 @@ typedef struct Act { /* field names derived */
     int reservedMail; /* 0x140, the mail the reservation waits for */
     struct GObj *carrier; /* 0x144, the enemy carrying the girl */
     struct GObj *carried; /* 0x148, the object the actor holds (the carried girl) */
-    char *brainTarget;    /* 0x14C, the enemy brain's target */
+    GObj *brainTarget;    /* 0x14C, the enemy brain's target */
     GObj *weapon;         /* 0x150, the weapon the actor holds */
     GObj *curItem;        /* 0x154, the held item as last published (SetBoyInfo, stage change) */
     void *box;            /* 0x158, the box/truck GObj the actor is holding: commonact.c

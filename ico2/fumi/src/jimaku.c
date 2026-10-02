@@ -81,8 +81,7 @@ extern void gif_SetZWrite(int on);
 /* as in GifPacket.h, which this TU does not include (gif_SpriteSensitiveOffset differs) */
 extern void gif_SetZTest(int on);
 /* z is unsigned int here, long long in GifPacket.h */
-extern void gif_SpriteSensitiveOffset(int *r, unsigned int z, int *uv, unsigned char *col,
-                                      int prim);
+extern void gif_SpriteSensitiveOffset(int *r, unsigned int z, int *uv, JimCol *col, int prim);
 /* as in GifPacket.h, which this TU does not include (gif_SpriteSensitiveOffset differs) */
 extern void gif_EndPacket(void);
 

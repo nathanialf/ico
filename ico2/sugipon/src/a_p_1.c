@@ -606,7 +606,7 @@ static int rolling(GObj *self)
             CopyVector(GOBJ_SUB(self)->root.pos, ap1RollClip.pt[2]);
             CopyVector(GOBJ_SUB(self)->root.move, ZeroVector);
             yAxisRotFitting(self, &ap1RollClip.normal);
-            LinkParentOfDObj(self, &info);
+            LinkParentOfDObj(self, &info.o);
             UpdateRootMatrix(self);
             applyPartOrients(self);
             {

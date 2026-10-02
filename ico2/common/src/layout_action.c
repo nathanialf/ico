@@ -1675,7 +1675,7 @@ extern void gif_StartPacketPri(int pri);
 extern void gif_SetZTest(int on);
 extern void gif_SetZWrite(int on);
 extern void gif_SetAlpha(long long alpha, long long mode, long long fix);
-extern void gif_Sprite(int *r, unsigned int z, int *uv, unsigned char *col, int prim);
+extern void gif_Sprite(SprRect *r, unsigned int z, SprRect *uv, SprCol *col, int prim);
 extern void gif_EndPacket(void);
 
 static int barStep = 0; /* derived name */

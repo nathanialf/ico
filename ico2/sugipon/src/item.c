@@ -213,15 +213,9 @@ typedef struct ItemLayout { /* field names derived */
     char pad34[12];
 } ItemLayout; /* derived name */
 
-typedef struct { /* field names derived */
-    GObj *obj;   /* the object LinkParentOfDObj hangs the torch from */
-    int node;    /* its node */
-    char pad08[8];
-} ItemParentLink; /* derived name */
-
 char *InitItemGeo(GObj *gobj, ItemLayout *layout)
 {
-    ItemParentLink link;
+    ObjNode link;
     ItemLayout lay;
     Sub15C *w = GOBJ_SUB(gobj);
     ItemWork *p = iosMallocDebug(ios_partition_sugipon, sizeof(ItemWork), __FILE__, 446);

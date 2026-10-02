@@ -483,15 +483,15 @@ int gamesysGirlStageGet(void)
     return 4;
 }
 
-int gamesysGetGirlStageIDAndPosition(int *pos)
+int gamesysGetGirlStageIDAndPosition(float *pos)
 {
     GamesysObjInfo *girl = &gameSysObjInfo[1];
 
     if (girl->no != 0) {
-        CopyVector(pos, (int *)girl->pos);
+        CopyVector(pos, girl->pos);
         return girl->stage;
     }
-    CopyVector(pos, (int *)ZeroPoint);
+    CopyVector(pos, ZeroPoint);
     return 4;
 }
 
