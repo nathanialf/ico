@@ -259,7 +259,7 @@ restart:
         tgt.dir[0] = ((GirlSofaWork *)GOBJ_ACT(self)->enemy)->dir[0];
         tgt.dir[1] = ((GirlSofaWork *)GOBJ_ACT(self)->enemy)->dir[1];
         tgt.dir[2] = ((GirlSofaWork *)GOBJ_ACT(self)->enemy)->dir[2];
-        tgt.f_50 = 1;
+        tgt.goalTurn = 1;
         break;
     case 2:
         tgt = attractBoyParam;
@@ -301,7 +301,7 @@ restart:
         if ((int)(sub->flags20.ll >> 38) & 1) {
             hint = 1;
         }
-        if (0 < brain_val.f_590C) {
+        if (0 < brain_val.status31Timer) {
             _ACTCharStatus_Set((void *)self, 31, -1.0f, 0);
         }
         if (kind != getKind()) {
@@ -309,7 +309,7 @@ restart:
         }
         type2 = girlBrainGetTargetType((void *)self);
         GetRootProjectionPosOfGObj(mypos, (void *)self);
-        if (tgt.f_30 == 0) {
+        if (tgt.fixedPos == 0) {
             int onSofa = 0;
             float dir[4];
             float ofs[4];
@@ -409,7 +409,7 @@ restart:
         case 1: {
             int p = ACTWayMove_BeginDetail((void *)self, mypos, tgt.pos, tgt.obj, 0, 0);
 
-            if (tgt.f_30 != 0) {
+            if (tgt.fixedPos != 0) {
                 sub->wayState.bits.wayDetail = 1;
             }
             if (p != 0) {
@@ -463,7 +463,7 @@ restart:
                 sub->dir[1] = sub->wayNodeY;
                 sub->dir[2] = sub->wayNodeZ;
                 if (waterHit) {
-                    if (sub->wayGoalDist < 50.0f && sub->wayGoalHeight < tgt.f_2C) {
+                    if (sub->wayGoalDist < 50.0f && sub->wayGoalHeight < tgt.goalHeight) {
                         setMode(4);
                         sub->stick.mag = 0.0f;
                     } else if (sub->wayGoalDist < 300.0f) {
@@ -473,10 +473,10 @@ restart:
                         girlBrainSetWalkRatio((void *)self, ratio);
                     }
                 } else {
-                    if (sub->wayGoalDist < tgt.f_28 + margin &&
+                    if (sub->wayGoalDist < tgt.goalDist + margin &&
                         ((sub->wayGoalHeight < 0.0f) ? -sub->wayGoalHeight : sub->wayGoalHeight) <
-                            tgt.f_2C) {
-                        if (tgt.f_50) {
+                            tgt.goalHeight) {
+                        if (tgt.goalTurn) {
                             if (ATGoalTurnMail((void *)self, tgt.dir, 0x23)) {
                                 noTurn = 0;
                             }
@@ -489,7 +489,7 @@ restart:
                     } else {
                         ratio = far ? 1.0f : girlBrainGetTypeRatio(type2);
                         girlBrainSetWalkRatio((void *)self, ratio);
-                        if (sub->wayGoalDist < tgt.f_54) {
+                        if (sub->wayGoalDist < tgt.slowDist) {
                             sub->stick.mag = (0.5f < sub->stick.mag) ? 0.5f : sub->stick.mag;
                         }
                     }
@@ -530,7 +530,7 @@ restart:
             break;
         }
         case 6:
-            if (fr < cnt || brain_val.f_58F3 != 0) {
+            if (fr < cnt || brain_val.lookHold != 0) {
                 if (girlBrainGetTypeRatio(type2) != 0.0f) {
                     setMode(1);
                 }
@@ -551,7 +551,7 @@ restart:
                     }
                 }
                 if (tgt.obj == (void *)boyGObj && sub->wayMode == 2 && escape == 0 &&
-                    GOBJ_WORK(self)->timer3B0 == 0 && girlControlMode == 0 &&
+                    GOBJ_WORK(self)->turnMailWait == 0 && girlControlMode == 0 &&
                     brain_val.targetFlag != 0) {
                     girlAttractTurnMailR((void *)self, tgt.pos, mypos);
                     if (sub->actMode == 77) {

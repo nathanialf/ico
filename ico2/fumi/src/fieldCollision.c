@@ -904,10 +904,10 @@ static inline int _clipFR(ClipWork *work, GObj *obj, int node)
  * 0..11 are the wall entries, 12 on the floor ones (ClipFloor passes 0xC).
  * 16-byte records, func at +0xC (ClipFloorByGObj reads entry 12's
  * directly). */
-typedef struct { /* field names derived */
-    int f_0;
-    int f_4;
-    int f_8;
+typedef struct {      /* field names derived */
+    int wall;         /* the wall-hit arm runs after the walk (modes 0..11) */
+    int skipFilter;   /* skip the work's filter object and node */
+    int useColFilter; /* only objects colFilter passes */
     int (*func)(ClipWork *work, GObj *obj, int node);
 } FcClipMode; /* derived name */
 
@@ -970,8 +970,8 @@ static void _Clip(ClipWork *self, int mode)
 
     func = clipMode[mode].func;
     {
-        int x = clipMode[mode].f_4;
-        int y = clipMode[mode].f_8;
+        int x = clipMode[mode].skipFilter;
+        int y = clipMode[mode].useColFilter;
 
         sceVu0CopyVector(sv0, self->pt[0]);
         sceVu0CopyVector(sv1, self->pt[1]);
@@ -1034,7 +1034,7 @@ static void _Clip(ClipWork *self, int mode)
                 obj = colObjList[colObjNum];
             } while (colObjNum < colObjListNum);
         }
-        if (clipMode[mode].f_0 != 0) {
+        if (clipMode[mode].wall != 0) {
             if (self->wall.elem != 0) {
                 clipPlanePos[0] = ((FcWallEnt *)self->wall.elem)->normal[0];
                 clipPlanePos[2] = ((FcWallEnt *)self->wall.elem)->normal[1];

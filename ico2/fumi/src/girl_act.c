@@ -47,20 +47,20 @@ static int isEnterHideadv(void);
 typedef struct GirlStand { /* field names derived */
     sceVu0FVECTOR prev;    /* 0x00 last frame's root position */
     sceVu0FVECTOR cur;     /* 0x10 this frame's root position */
-    float f_20;            /* 0x20 */
+    float moveDist;        /* 0x20 how far the root moved this frame */
     char pad24[12];
-    sceVu0FVECTOR sub30; /* 0x30 */
-    sceVu0FVECTOR sub40; /* 0x40 */
-    float f_50;          /* 0x50 */
-    float f_54;          /* 0x54 */
-    unsigned char f_58;  /* 0x58 */
-    unsigned char f_59;
-    unsigned char f_5A;
-    unsigned char f_5B;
-    unsigned char f_5C;
-    unsigned char f_5D;
-    unsigned char f_5E;
-} GirlStand; /* derived name */
+    sceVu0FVECTOR orient;    /* 0x30 the girl's facing */
+    sceVu0FVECTOR toBoy;     /* 0x40 the direction from the girl to the boy */
+    float handDist;          /* 0x50 HandMgr_GetDistHand: girl's hand node to the boy's */
+    float handHeight;        /* 0x54 the hands' height gap */
+    unsigned char still;     /* 0x58 moveDist under 2 ("gv") */
+    unsigned char turned;    /* 0x59 facing 61 degrees or more off toBoy ("mo") */
+    unsigned char far100;    /* 0x5A handDist over 100 */
+    unsigned char far125;    /* 0x5B handDist over 125 ("hd") */
+    unsigned char far135;    /* 0x5C handDist over 135 */
+    unsigned char near90;    /* 0x5D handDist under 90 ("hd2") */
+    unsigned char heightGap; /* 0x5E handHeight over 15 */
+} GirlStand;                 /* derived name */
 
 union GAIF { /* field names derived */
     int i;
@@ -316,12 +316,12 @@ static void GirlBrainClearTarget()
    the record 8-byte aligned. */
 typedef struct { /* field names derived */
     void *obj;   /* 0x00 */
-    int _04;
-    long long _08;
+    int pad4;
+    long long pad8;
     float pos[4]; /* 0x10 */
     float dist;   /* 0x20 */
     int flags;    /* 0x24 */
-    int _28[2];
+    int pad28[2];
 } GirlListEnt; /* derived name */
 
 typedef struct { /* field names derived */
@@ -331,8 +331,8 @@ typedef struct { /* field names derived */
 } GirlList;               /* derived name */
 
 typedef struct GirlBrainWork { /* field names derived */
-    unsigned char f_0;         /* 0x00 */
-    unsigned char f_1;         /* 0x01 */
+    unsigned char listBNear;   /* 0x00 a listB entry lies within 300 */
+    unsigned char listDFound;  /* 0x01 the listD list is not empty */
     char pad2[3214];
     GirlList others;  /* 0x0C90 */
     GirlList listB;   /* 0x1F60 */
@@ -344,31 +344,31 @@ typedef struct GirlBrainWork { /* field names derived */
     int curMode;    /* 0x57DC the mode the brain last switched to */
     int targetFlag; /* 0x57E0 bit 16 of the winning BrainTarget's b18 word */
     char pad57E4[12];
-    float f_57F0[4];   /* 0x57F0 the runaway goal            */
-    float f_5800[4];   /* 0x5800 last accepted hide point    */
-    float f_5810[4];   /* 0x5810 */
-    float f_5820[4];   /* 0x5820 */
-    float f_5830[4];   /* 0x5830 the girl's own position     */
-    float f_5840[4];   /* 0x5840 */
-    float f_5850[4];   /* 0x5850 */
-    WayPoint *lastWay; /* 0x5860, the way point GetWay_next last returned */
+    float runawayGoal[4]; /* 0x57F0 the runaway goal */
+    float hidePoint[4];   /* 0x5800 last accepted hide point */
+    float runawayFrom[4]; /* 0x5810 where the runaway search starts ("girl brain target") */
+    float girlRoot[4];    /* 0x5820 GetRootPosition of the girl */
+    float girlPos[4];     /* 0x5830 the girl's own position, GetRootProjectionPosOfGObj */
+    float boyRoot[4];     /* 0x5840 GetRootPosition of the boy */
+    float boyPos[4];      /* 0x5850 the boy's GetRootProjectionPosOfGObj */
+    WayPoint *lastWay;    /* 0x5860, the way point GetWay_next last returned */
     char pad5864[12];
-    WVTObj hideWay;       /* 0x5870, the way the girl tries to the hide point */
-    unsigned char f_58F0; /* 0x58F0 */
-    unsigned char f_58F1; /* 0x58F1 */
-    unsigned char f_58F2; /* 0x58F2 set on the frame the mode changes */
-    unsigned char f_58F3; /* 0x58F3 */
-    int f_58F4;           /* 0x58F4 */
-    int runMode;          /* 0x58F8 */
+    WVTObj hideWay;            /* 0x5870, the way the girl tries to the hide point */
+    unsigned char warn;        /* 0x58F0 a brain state asks the main loop to checkWarning */
+    unsigned char pad58F1;     /* 0x58F1 cleared each frame, never read */
+    unsigned char modeChanged; /* 0x58F2 set on the frame the mode changes */
+    unsigned char lookHold;    /* 0x58F3 3 s after flags18 bit 62 while she faced the boy */
+    int markerPulse;           /* 0x58F4 the runaway goal marker's pulse */
+    int runMode;               /* 0x58F8 */
     int wait;
     int timer;
     int limit;
-    int f_5908;   /* 0x5908 frames since the last mode change */
-    int f_590C;   /* 0x590C */
-    int f_5910;   /* 0x5910 */
-    int f_5914;   /* 0x5914 */
-    int _5918[2]; /* 0x5918, to the 0x5920 girlBrainMain_Init clears */
-} GirlBrainWork;  /* derived name */
+    int modeFrames;    /* 0x5908 frames since the last mode change */
+    int status31Timer; /* 0x590C frames the attract state keeps char status 31 set */
+    int unseenFrames;  /* 0x5910 frames no hide-list object has been in view */
+    int hideAdvWait;   /* 0x5914 frames before the hide state may advance */
+    int pad5918[2];    /* 0x5918, to the 0x5920 girlBrainMain_Init clears */
+} GirlBrainWork;       /* derived name */
 
 /* The head of the TU's .data (the brain work record brain_val and the hand
    manager handmgr follow, defined after the last of these): the
@@ -392,18 +392,18 @@ typedef struct { /* field names derived */
 
 typedef struct { /* field names derived */
     void *obj;   /* 0x00 the object the girl walks to */
-    int _04[3];
-    sceVu0FVECTOR pos; /* 0x10 */
-    int kind;          /* 0x20 copied into the actor's 0x44 when the state ends */
-    int mail;          /* 0x24 the mail the state sends when it ends */
-    float f_28;
-    float f_2C;
-    unsigned char f_30;
+    int pad4[3];
+    sceVu0FVECTOR pos;      /* 0x10 */
+    int kind;               /* 0x20 copied into the actor's 0x44 when the state ends */
+    int mail;               /* 0x24 the mail the state sends when it ends */
+    float goalDist;         /* 0x28 the way goal distance the girl arrives within */
+    float goalHeight;       /* 0x2C the way goal height she arrives within */
+    unsigned char fixedPos; /* 0x30 pos stays as set, not re-read from obj each frame */
     char pad31[15];
-    sceVu0FVECTOR dir; /* 0x40 */
-    unsigned char f_50;
+    sceVu0FVECTOR dir;      /* 0x40 */
+    unsigned char goalTurn; /* 0x50 turn to dir on arrival */
     char pad51[3];
-    float f_54;
+    float slowDist; /* 0x54 the walk slows to half within this goal distance */
     char pad58[8];
 } GirlAttractParam; /* derived name */
 
@@ -653,7 +653,7 @@ static void girlBrainMain_MakeOthersList(void)
 
         for (i = 0; i < n; i++) {
             sortList[i].idx = i;
-            sortList[i].dist = _DistSqGV(list + i * 4, brain_val.f_5820);
+            sortList[i].dist = _DistSqGV(list + i * 4, brain_val.girlRoot);
         }
         for (i = 0; i < n; i++) {
             for (j = n - 1; i < j; j--) {
@@ -718,7 +718,7 @@ static void girlBrainMain_MakeOthersList(void)
                 brain_val.others.ent[n].obj = o;
                 GetRootProjectionPosOfGObj(brain_val.others.ent[n].pos, o);
                 brain_val.others.ent[n].dist =
-                    _DistGV(brain_val.others.ent[n].pos, brain_val.f_5830);
+                    _DistGV(brain_val.others.ent[n].pos, brain_val.girlPos);
                 brain_val.others.ent[n].flags = 1;
                 if (girlListIsOnBoy(o)) {
                     brain_val.others.ent[n].flags |= 2;
@@ -734,13 +734,13 @@ static void girlBrainMain_MakeOthersList(void)
         girlListPick(brain_val.others.ent, brain_val.hide.ent, brain_val.others.num, 0xF);
     brain_val.listD.num =
         girlListPick(brain_val.others.ent, brain_val.listD.ent, brain_val.others.num, 0xE);
-    brain_val.f_0 = 0;
+    brain_val.listBNear = 0;
     if (brain_val.listB.num != 0 && brain_val.listB.ent[0].dist < 300.0f) {
-        brain_val.f_0 = 1;
+        brain_val.listBNear = 1;
     }
-    brain_val.f_1 = 0;
+    brain_val.listDFound = 0;
     if (brain_val.listD.num != 0) {
-        brain_val.f_1 = 1;
+        brain_val.listDFound = 1;
     }
     /* a marker at each hide point, coloured by the others entry's flags;
        only its drawing is compiled out (see girlDispWire), so the loop stays
@@ -764,9 +764,9 @@ static void girlBrainMain_MakeOthersList(void)
         }
     }
     if (seen != 0) {
-        brain_val.f_5910 = 0;
+        brain_val.unseenFrames = 0;
     } else {
-        brain_val.f_5910++;
+        brain_val.unseenFrames++;
     }
     if (brain_val.others.num != 0 && brain_val.others.ent[0].dist < 600.0f) {
         GOBJ_ACT(girlGObj)->flags20.ll |= 0x1000;
@@ -781,9 +781,9 @@ static void girlBrainMain_MakeOthersList(void)
             GOBJ_ACT(girlGObj)->flags20.ll &= ~0x400000000000;
             return;
         }
-        d = _DistGV(brain_val.f_5830, brain_val.f_5850);
+        d = _DistGV(brain_val.girlPos, brain_val.boyPos);
         for (j = 0; j < brain_val.others.num; j++) {
-            if (_DistSqGV(brain_val.others.ent[j].pos, brain_val.f_5850) < d * d) {
+            if (_DistSqGV(brain_val.others.ent[j].pos, brain_val.boyPos) < d * d) {
                 GOBJ_ACT(girlGObj)->flags20.ll &= ~0x400000000000;
                 break;
             }
@@ -857,8 +857,8 @@ static inline unsigned char isHidePointTooHigh(float *p) /* derived name */
 
     if (stage_no == 8 || stage_no == 22) {
         b = &brain_val;
-        y = b->f_5830[1] + 100.0f;
-        if (y < p[1] || y < b->f_5850[1]) {
+        y = b->girlPos[1] + 100.0f;
+        if (y < p[1] || y < b->boyPos[1]) {
             return 1;
         }
     }
@@ -922,9 +922,9 @@ static int girlBrainMain_CheckWarningMode(unsigned char check)
             goto out;
         }
     }
-    if (!isHidePointTooHigh(brain_val.f_5800) &&
-        !girlBrainHideCheckIntercept(brain_val.f_5830, brain_val.f_5800, (char *)brain_val.hide.ent,
-                                     brain_val.hide.num)) {
+    if (!isHidePointTooHigh(brain_val.hidePoint) &&
+        !girlBrainHideCheckIntercept(brain_val.girlPos, brain_val.hidePoint,
+                                     (char *)brain_val.hide.ent, brain_val.hide.num)) {
         mode = 3;
     } else {
         char *v = (char *)&brain_val;
@@ -963,7 +963,7 @@ static inline void *girlBrainGetTarget(void) /* derived name */
 static __inline__ void girlBrainDebugPrint(void) /* derived name */
 {
 #ifdef DEBUG
-    float *t = brain_val.f_5810;
+    float *t = brain_val.runawayFrom;
 
     scePrintf("girl brain target %f %f %f\n", t[0], t[1], t[2]);
 #endif
@@ -1095,9 +1095,9 @@ static int girlBrainMain_DecideMode(int mode, int *next)
         break;
 
     case 2:
-        if (brain_val.f_58F0 != 0) {
+        if (brain_val.warn != 0) {
             checkWarning(1);
-            brain_val.f_58F0 = 0;
+            brain_val.warn = 0;
         }
         if (pad[0].now & 8) {
             ACTSendMailCorrect(self, 251);
@@ -1105,23 +1105,23 @@ static int girlBrainMain_DecideMode(int mode, int *next)
         break;
 
     case 3:
-        if (brain_val.f_5914 == 0 && isEnterHideadv() != 0) {
+        if (brain_val.hideAdvWait == 0 && isEnterHideadv() != 0) {
             setNext(9);
             break;
         }
-        if ((60 - systemStatus[0] * 10) / systemStatus[1] * 10 < brain_val.f_5910 &&
-            (60 - systemStatus[0] * 10) / systemStatus[1] * 10 < brain_val.f_5908) {
+        if ((60 - systemStatus[0] * 10) / systemStatus[1] * 10 < brain_val.unseenFrames &&
+            (60 - systemStatus[0] * 10) / systemStatus[1] * 10 < brain_val.modeFrames) {
             setNext(0);
             break;
         }
         /* fall through */
 
     case 4:
-        if (brain_val.f_58F0 != 0) {
+        if (brain_val.warn != 0) {
             checkWarning(0);
 
             warned = 1;
-            brain_val.f_58F0 = 0;
+            brain_val.warn = 0;
         }
         break;
 
@@ -1130,14 +1130,14 @@ static int girlBrainMain_DecideMode(int mode, int *next)
         break;
 
     case 6:
-        if (brain_val.f_58F0 == 0) {
+        if (brain_val.warn == 0) {
             break;
         }
         /* fall through */
 
     case 8:
         setNext(0);
-        brain_val.f_58F0 = 0;
+        brain_val.warn = 0;
         break;
 
     case 9:
@@ -1163,10 +1163,10 @@ static int girlBrainMain_DecideMode(int mode, int *next)
 
 static void girlBrainMain_PositionUpdate(void)
 {
-    GetRootPosition(brain_val.f_5820, (void *)girlGObj);
-    GetRootPosition(brain_val.f_5840, boyGObj);
-    GetRootProjectionPosOfGObj(brain_val.f_5830, (void *)girlGObj);
-    GetRootProjectionPosOfGObj(brain_val.f_5850, boyGObj);
+    GetRootPosition(brain_val.girlRoot, (void *)girlGObj);
+    GetRootPosition(brain_val.boyRoot, boyGObj);
+    GetRootProjectionPosOfGObj(brain_val.girlPos, (void *)girlGObj);
+    GetRootProjectionPosOfGObj(brain_val.boyPos, boyGObj);
 }
 
 static void girlBrainMain_Init(void)
@@ -1252,8 +1252,8 @@ void subGirlBrainMain(GObj *volatile self)
         int carry = act->actMode == 0x45;
 
         act->flags20.ll = (act->flags20.ll & ~(1LL << 27)) | ((long long)carry << 27);
-        if (brain_val.f_5914) {
-            brain_val.f_5914 -= 1;
+        if (brain_val.hideAdvWait) {
+            brain_val.hideAdvWait -= 1;
         }
         if (((int *)boyGObj)) {
             unsigned int st = GOBJ_ACT(((int *)boyGObj))->actMode;
@@ -1269,10 +1269,10 @@ void subGirlBrainMain(GObj *volatile self)
             }
         }
         if (((int)(act->flags20.ll >> 8)) & 1) {
-            brain_val.f_590C = (60 - systemStatus[0] * 10) / systemStatus[1] * 100 / 60;
+            brain_val.status31Timer = (60 - systemStatus[0] * 10) / systemStatus[1] * 100 / 60;
         }
-        if (brain_val.f_590C > 0) {
-            brain_val.f_590C -= 1;
+        if (brain_val.status31Timer > 0) {
+            brain_val.status31Timer -= 1;
         }
         turned = 0;
         {
@@ -1295,15 +1295,15 @@ void subGirlBrainMain(GObj *volatile self)
             }
         }
         if (hold > 0) {
-            brain_val.f_58F3 = 1;
+            brain_val.lookHold = 1;
             hold -= 1;
         } else {
-            brain_val.f_58F3 = 0;
+            brain_val.lookHold = 0;
         }
         ((ActStatus *)((char *)act + 0x18))->ll &= ~(1LL << 54);
         ACTGameView_Loop((void *)self);
-        brain_val.f_58F1 = 0;
-        brain_val.f_58F2 = 0;
+        brain_val.pad58F1 = 0;
+        brain_val.modeChanged = 0;
         girlBrainMain_PositionUpdate();
         girlBrainMain_MakeOthersList();
         {
@@ -1491,10 +1491,10 @@ void subGirlBrainMain(GObj *volatile self)
             act->flags20.ll |= 0x8000000;
         }
         if (mode != prevMode) {
-            brain_val.f_5908 = 0;
+            brain_val.modeFrames = 0;
             actChangeActBrain(isysCurrentGObj, girlBrainModeTable[mode].proc, &act->brainProc);
             prevMode = mode;
-            brain_val.f_58F2 = 1;
+            brain_val.modeChanged = 1;
             brain_val.curMode = mode;
             switch (mode) {
             case 0:
@@ -1565,7 +1565,7 @@ void subGirlBrainMain(GObj *volatile self)
             void *look_at = 0;
 
             brainGirl.minThreshold = 3.0f;
-            if (brain_val.f_5908 / ((60 - systemStatus[0] * 10) / systemStatus[1] / 2) & 1) {
+            if (brain_val.modeFrames / ((60 - systemStatus[0] * 10) / systemStatus[1] / 2) & 1) {
                 look_at = boyGObj;
             } else if (brain_val.others.num != 0) {
                 look_at = brain_val.others.ent[0].obj;
@@ -1576,7 +1576,7 @@ void subGirlBrainMain(GObj *volatile self)
             break;
         }
         }
-        brain_val.f_5908 += 1;
+        brain_val.modeFrames += 1;
         {
             float v = girlBrainGetTargetLevel();
             float c;
@@ -1643,7 +1643,7 @@ void subGirlBrainMain(GObj *volatile self)
                 int i;
 
                 for (i = 0; i < brain_val.listD.num; i++) {
-                    _OrientXZGV(dir, brain_val.listD.ent[i].pos, brain_val.f_5830);
+                    _OrientXZGV(dir, brain_val.listD.ent[i].pos, brain_val.girlPos);
                     if (_AbsRotyGV(dir, test_CURRENTORIENT((void *)self)) < 90) {
                         ACTSendMailCorrect((void *)self, 0xB1);
                         break;
@@ -1705,7 +1705,7 @@ inline void subGirlBrain_Busy(GObj *volatile self)
         if (((60 - systemStatus[0] * 10) / systemStatus[1] < i &&
              ACTGameView_Check(self, boyGObj)) ||
             (60 - systemStatus[0] * 10) / systemStatus[1] * 2 < i) {
-            w->f_58F0 = 1;
+            w->warn = 1;
         }
         i++;
         _ACTWait(1);
@@ -1835,7 +1835,7 @@ static void _girlBrainHide_MakeHidePoint(float *p, float dist)
     p[2] = 0.0f;
     total = p[0];
     for (i = 0; i < brain_val.hide.num; i++) {
-        sceVu0SubVector(v, brain_val.f_5850, brain_val.hide.ent[i].pos);
+        sceVu0SubVector(v, brain_val.boyPos, brain_val.hide.ent[i].pos);
         v[1] = 0.0f;
         sceVu0Normalize(v, v);
         w = brain_val.hide.ent[i].dist;
@@ -1855,10 +1855,10 @@ static void _girlBrainHide_MakeHidePoint(float *p, float dist)
     }
     sceVu0Normalize(p, p);
     sceVu0ScaleVector(p, p, dist);
-    sceVu0AddVector(p, brain_val.f_5850, p);
-    p[1] = brain_val.f_5840[1];
+    sceVu0AddVector(p, brain_val.boyPos, p);
+    p[1] = brain_val.boyRoot[1];
     work.radius = 50.0f;
-    sceVu0CopyVector(work.pt[0], brain_val.f_5820);
+    sceVu0CopyVector(work.pt[0], brain_val.girlRoot);
     sceVu0CopyVector(work.pt[1], p);
     ClipWall(&work);
     work.pt[0][0] = work.pt[2][0];
@@ -1969,13 +1969,13 @@ void subGirlBrain_Hide(GObj *volatile self)
     float dir[4];
 
     _ACTWait(1);
-    hp[0] = brain_val.f_5800[0];
-    hp[1] = brain_val.f_5800[1];
-    hp[2] = brain_val.f_5800[2];
+    hp[0] = brain_val.hidePoint[0];
+    hp[1] = brain_val.hidePoint[1];
+    hp[2] = brain_val.hidePoint[2];
     while (1) {
         if (cnt++ % ((60 - systemStatus[0] * 10) / systemStatus[1] * 2) == 0 &&
             girlBrainMain_CheckWarningMode(0) != 3) {
-            brain_val.f_58F0 = 1;
+            brain_val.warn = 1;
         }
         _girlBrainHide_MakeHidePoint(cand, rad);
         if (isHideRecheck(hp, cand, test_CURRENTROOT((boyGObj)))) {
@@ -1987,26 +1987,26 @@ void subGirlBrain_Hide(GObj *volatile self)
             cand[2] = hp[2];
         }
         if (isHidePointTooHigh(cand) ||
-            girlBrainHideCheckIntercept(brain_val.f_5830, cand, (char *)brain_val.hide.ent,
+            girlBrainHideCheckIntercept(brain_val.girlPos, cand, (char *)brain_val.hide.ent,
                                         brain_val.hide.num)) {
-            brain_val.f_58F0 = 1;
+            brain_val.warn = 1;
         }
-        near = _DistxzSqGV(cand, brain_val.f_5830) < 3600.0f;
+        near = _DistxzSqGV(cand, brain_val.girlPos) < 3600.0f;
         if (near) {
             hp[0] = cand[0];
             hp[1] = cand[1];
             hp[2] = cand[2];
         }
-        if (_DistxzSqGV(hp, brain_val.f_5830) < 10000.0f || near) {
+        if (_DistxzSqGV(hp, brain_val.girlPos) < 10000.0f || near) {
             g = self;
             GOBJ_ACT(girlGObj)->stick.mag = 0;
             _ACTCharStatus_Set(g, 7, -1.0f, 0);
-            if (_DistxzSqGV(hp, brain_val.f_5830) < 6400.0f || near) {
-                _OrientXZGV(dir, brain_val.f_5850, brain_val.f_5830);
+            if (_DistxzSqGV(hp, brain_val.girlPos) < 6400.0f || near) {
+                _OrientXZGV(dir, brain_val.boyPos, brain_val.girlPos);
                 girlBrainHide_GoalTurn(dir, 1);
             }
         } else {
-            _OrientXZGV(dir, cand, brain_val.f_5830);
+            _OrientXZGV(dir, cand, brain_val.girlPos);
             g = self;
             girlBrainSetMoveDir(dir);
             _ACTCharStatus_Set(g, 6, -1.0f, 0);
@@ -2023,7 +2023,7 @@ inline void subGirlBrain_Hesitate(GObj *volatile self)
     for (;;) {
         s->stick.mag = 0.0f;
         if (i % ((60 - systemStatus[0] * 10) / systemStatus[1] / 2) == 0) {
-            brain_val.f_58F0 = 1;
+            brain_val.warn = 1;
         }
         i++;
         _ACTWait(1);
@@ -2291,7 +2291,7 @@ void subGirlBrain_Escape(GObj *volatile self)
         }
         if (brain_val.listB.num == 0 ||
             cnt++ % ((60 - systemStatus[0] * 10) / systemStatus[1] / 2) == 0) {
-            brain_val.f_58F0 = 1;
+            brain_val.warn = 1;
         }
         GetRootPosition(pos, (void *)self);
         GetRootProjectionPosOfGObj(ppos, (void *)self);
@@ -2299,38 +2299,39 @@ void subGirlBrain_Escape(GObj *volatile self)
         case 0:
             mode = 1;
             GetRootProjectionPosOfGObj(rp, (void *)self);
-            brain_val.f_5810[0] = rp[0];
-            brain_val.f_5810[1] = rp[1];
-            brain_val.f_5810[2] = rp[2];
+            brain_val.runawayFrom[0] = rp[0];
+            brain_val.runawayFrom[1] = rp[1];
+            brain_val.runawayFrom[2] = rp[2];
             sub->stick.mag = 0;
             break;
         case 1:
             mode = 2;
             girlBrainDebugPrint();
             GetRootProjectionPosOfGObj(rp, (void *)self);
-            if (girlBrainRunawaySearchPoint(rp, brain_val.f_57F0, brain_val.f_5810) == 0) {
+            if (girlBrainRunawaySearchPoint(rp, brain_val.runawayGoal, brain_val.runawayFrom) ==
+                0) {
                 mode = 3;
                 girlBrainDebugPrint();
             }
             sub->stick.mag = 0;
             break;
         case 2:
-            ret = girlBrainRunawayMoveByWay(self, (float *)&sub->dir[0], brain_val.f_57F0);
+            ret = girlBrainRunawayMoveByWay(self, (float *)&sub->dir[0], brain_val.runawayGoal);
             switch (ret) {
             case 0:
                 break;
             case 1:
                 girlBrainDebugPrint();
-                brain_val.f_5810[0] = brain_val.f_57F0[0];
-                brain_val.f_5810[1] = brain_val.f_57F0[1];
-                brain_val.f_5810[2] = brain_val.f_57F0[2];
+                brain_val.runawayFrom[0] = brain_val.runawayGoal[0];
+                brain_val.runawayFrom[1] = brain_val.runawayGoal[1];
+                brain_val.runawayFrom[2] = brain_val.runawayGoal[2];
                 mode = 1;
                 break;
             case 2:
                 girlBrainDebugPrint();
-                brain_val.f_5810[0] = ppos[0];
-                brain_val.f_5810[1] = ppos[1];
-                brain_val.f_5810[2] = ppos[2];
+                brain_val.runawayFrom[0] = ppos[0];
+                brain_val.runawayFrom[1] = ppos[1];
+                brain_val.runawayFrom[2] = ppos[2];
                 mode = 1;
                 break;
             }
@@ -2345,16 +2346,16 @@ void subGirlBrain_Escape(GObj *volatile self)
             }
             if (sub->stick.mag != 0.0f) {
                 sceVu0ScaleVector(v.f, (float *)&sub->dir[0], 300.0f);
-                sceVu0AddVector(v.f, brain_val.f_5830, v.f);
-                if (girlBrainHideCheckIntercept(brain_val.f_5830, v.f, (char *)brain_val.hide.ent,
+                sceVu0AddVector(v.f, brain_val.girlPos, v.f);
+                if (girlBrainHideCheckIntercept(brain_val.girlPos, v.f, (char *)brain_val.hide.ent,
                                                 brain_val.hide.num)) {
                     sub->stick.mag = 0.0f;
-                    brain_val.f_58F0 = 1;
+                    brain_val.warn = 1;
                 }
             }
-            sceVu0ScaleVector(mk, brain_val.f_57F0, -1.0f);
-            debug_Marker(mk, 0xFF, 0, 0, 200.0f, (float)brain_val.f_58F4);
-            brain_val.f_58F4 = brain_val.f_58F4 + 5;
+            sceVu0ScaleVector(mk, brain_val.runawayGoal, -1.0f);
+            debug_Marker(mk, 0xFF, 0, 0, 200.0f, (float)brain_val.markerPulse);
+            brain_val.markerPulse = brain_val.markerPulse + 5;
             break;
         case 3:
             sub->stick.mag = 0;
@@ -3003,7 +3004,7 @@ void subGirlBrain_HideAdvance(GObj *volatile self)
     GetRootProjectionPosOfGObj(boy_pos, boyGObj);
     ACTWayMove_BeginDetail((void *)self, self_pos, boy_pos, 0, 0, 0);
     for (;;) {
-        brain_val.f_5914 = (60 - systemStatus[0] * 10) / systemStatus[1];
+        brain_val.hideAdvWait = (60 - systemStatus[0] * 10) / systemStatus[1];
         GetRootProjectionPosOfGObj(boy_pos, boyGObj);
         p = ACTWayMove_NextDetail((void *)self, sub->dir, boy_pos, 0, 0);
         hit = p;
@@ -3639,7 +3640,7 @@ inline int NotNeedBackHand(void)
     if ((((int)(w->flags18.ll >> 40)) & 1) == 0) {
         return 1;
     }
-    if (w->actMode == 0x45 && handmgr.f_5D != 0 && handmgr.f_58 == 0) {
+    if (w->actMode == 0x45 && handmgr.near90 != 0 && handmgr.still == 0) {
         return 1;
     }
     return 0;
@@ -3789,11 +3790,11 @@ void actGirlHand(GObj *volatile self)
             HandMgr_Update();
             HandMgr_Judge();
             n++;
-            if (handmgr.f_5C == 0) {
+            if (handmgr.far135 == 0) {
                 n = 0;
             }
             grab = 0;
-            if (handmgr.f_5B || handmgr.f_5C) {
+            if (handmgr.far125 || handmgr.far135) {
                 grab = 1;
             }
             over = 0;
@@ -3879,8 +3880,8 @@ void actGirlHand(GObj *volatile self)
             }
             sceVu0ScaleVector(v60, dir, 300.0f);
             sceVu0AddVector(v60, test_CURRENTROOT((void *)self), v60);
-            if (handmgr.f_59 != 0) {
-                if (handmgr.f_5A != 0) {
+            if (handmgr.turned != 0) {
+                if (handmgr.far100 != 0) {
                     float goal = 30.0f;
 
                     pullTurn = pullTurn + (goal - pullTurn) *
@@ -3998,7 +3999,7 @@ void actGirlHand(GObj *volatile self)
                 break;
             }
         }
-        flag = handmgr.f_5A && (box = (unsigned char *)GOBJ_ACT(girlGObj)->work + 0x540)[1] &&
+        flag = handmgr.far100 && (box = (unsigned char *)GOBJ_ACT(girlGObj)->work + 0x540)[1] &&
                box[0x20];
         if (flag) {
             cnt2++;
@@ -4636,11 +4637,11 @@ void DebugDispAutoEscort(void)
    member stores */
 typedef struct { /* field names derived */
     char pad0[944];
-    int f_3B0; /* 0x3B0 : frames left before the "cannot reach" retry */
+    int turnMailWait; /* 0x3B0 : ActWork's turnMailWait, set by "cannot reach" */
     char pad3B4[364];
-    float f_520; /* 0x520 : hint-point target position */
-    float f_524;
-    float f_528;
+    float hintPosX; /* 0x520 : hint-point target position */
+    float hintPosY;
+    float hintPosZ;
 } ActPara; /* derived name */
 
 static inline void afterGirlHintPoint(GObj *volatile self)
@@ -4680,9 +4681,9 @@ void actGirlHintPoint(GObj *volatile self)
             _OrientXZGV(o2, u, q);
             if (_AbsRotyGV(o1, o2) >= 121) {
                 _ACTCharStatus_Set((void *)self, 13, -1.0f, 0);
-                ((ActPara *)((char *)GOBJ_ACT(self)->work))->f_520 = u[0];
-                ((ActPara *)((char *)GOBJ_ACT(self)->work))->f_524 = u[1];
-                ((ActPara *)((char *)GOBJ_ACT(self)->work))->f_528 = u[2];
+                ((ActPara *)((char *)GOBJ_ACT(self)->work))->hintPosX = u[0];
+                ((ActPara *)((char *)GOBJ_ACT(self)->work))->hintPosY = u[1];
+                ((ActPara *)((char *)GOBJ_ACT(self)->work))->hintPosZ = u[2];
             }
         }
         _ACTCharStatus_Set((void *)self, 14, -1.0f, 0);
@@ -4703,7 +4704,7 @@ inline void actGirlHintVoice(GObj *volatile self)
 inline void actGirlCannotReach(GObj *volatile self)
 {
     for (;;) {
-        ((ActPara *)((char *)GOBJ_ACT(self)->work))->f_3B0 =
+        ((ActPara *)((char *)GOBJ_ACT(self)->work))->turnMailWait =
             (60 - systemStatus[0] * 10) / systemStatus[1] * 10;
         ACTSendMailCorrect((void *)self, 199);
         _ACTWait(1);

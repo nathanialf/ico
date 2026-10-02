@@ -49,7 +49,7 @@ typedef struct ActWork { /* field names derived */
     int sofaRestTimer;   /* 0x3A4, the longer sofa rest the girl's attract waits out */
     int orientFrames;    /* 0x3A8 */
     int timer3AC;        /* 0x3AC */
-    int timer3B0;        /* 0x3B0 */
+    int turnMailWait;    /* 0x3B0, the girl holds back girlAttractTurnMailR while it runs */
     int jumpTimer;       /* 0x3B4 */
     int footIkFrames;    /* 0x3B8 */
     int bit37Frames;     /* 0x3BC */

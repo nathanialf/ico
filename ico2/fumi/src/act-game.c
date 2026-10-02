@@ -54,14 +54,15 @@ typedef struct { /* field names derived */
 } __attribute__((packed)) U64ag; /* derived name */
 
 /* The 0x194-byte-per-entry motion record table, indexed by the object's
-   current motion id (obj->0x15C->0x4A0). */
+   current motion id (obj->0x15C->0x4A0); the fields this TU reads, named as
+   motionOrientManager.h's MotionDef. */
 typedef struct { /* field names derived */
     char pad0[336];
-    int f_150;
+    int playMode;
     char pad154[44];
-    short f_180;
-    short f_182;
-    short f_184;
+    short priInputBegin;
+    short girlDirFrames;
+    short priInputEnd;
     char pad186[2];
 
     union {
@@ -72,10 +73,10 @@ typedef struct { /* field names derived */
         } h;
 
         char b;
-    } u_188;
+    } modeBits;
 
-    unsigned int f_18C;
-    unsigned int f_190;
+    unsigned int flags;
+    unsigned int flags2;
 } MotionRec; /* derived name */
 
 extern MotionRec motionKind[];
@@ -157,9 +158,9 @@ extern void PrivInsCamSet(float *pos, float *tgt, GObj *track, int inFrames, int
 /* The pending hand-mode command record: two ints at +0x314 (connect) and
    +0x31C (disconnect) of the actor's hand work block. */
 typedef struct { /* field names derived */
-    int f_0;
-    int f_4;
-} HandModeCmd; /* derived name */
+    int flag;    /* the hand mode set, 0 for none */
+    int pri;     /* the priority it was set at */
+} HandModeCmd;   /* derived name */
 
 /* as in weapon.h, which this TU does not include (CheckWeaponKind differs) */
 extern int GetTorchGObjOfWeapon(GObj *weapon);
@@ -185,15 +186,15 @@ inline int ACTGame_CheckHandMotion(GObj *boy, GObj *girl)
 {
     MotionRec *rec0 = &motionKind[GOBJ_SUB(boy)->ctrl.motion];
     MotionRec *rec1 = &motionKind[GOBJ_SUB(girl)->ctrl.motion];
-    int b0 = (rec0->f_18C >> 18) & 1;
-    int b1 = (rec1->f_18C >> 18) & 1;
+    int b0 = (rec0->flags >> 18) & 1;
+    int b1 = (rec1->flags >> 18) & 1;
     return b0 & b1;
 }
 
 inline int ACTGame_CheckItemMotion(GObj *self)
 {
     MotionRec *rec = &motionKind[GOBJ_SUB(self)->ctrl.motion];
-    return (rec->u_188.w >> 19) & 7;
+    return (rec->modeBits.w >> 19) & 7;
 }
 
 void ACTGame_SaveActorInformation(GObj *self)
@@ -411,11 +412,11 @@ inline unsigned char ACTGame_CheckPriInputFrame(GObj *self)
     short e;
     short s;
 
-    e = motionKind[GOBJ_SUB(self)->ctrl.motion].f_184;
+    e = motionKind[GOBJ_SUB(self)->ctrl.motion].priInputEnd;
     if ((float)e < GOBJ_SUB(self)->ctrl.animFrame && e != -1) {
         return 1;
     }
-    s = motionKind[GOBJ_SUB(self)->ctrl.motion].f_180;
+    s = motionKind[GOBJ_SUB(self)->ctrl.motion].priInputBegin;
     if (s != -1 && GOBJ_SUB(self)->ctrl.animFrame < (float)s) {
         return 1;
     }
@@ -429,7 +430,7 @@ inline int ACTGame_GetCurrentCallStatus(GObj *self)
     if (self != boyGObj) {
         return 0;
     }
-    switch (motionKind[GOBJ_SUB(self)->ctrl.motion].u_188.h.hi & 7) {
+    switch (motionKind[GOBJ_SUB(self)->ctrl.motion].modeBits.h.hi & 7) {
     case 1:
         return 1;
     case 2:
@@ -466,7 +467,7 @@ inline int PAIR_IsStatus_BOY_DITCH(void)
 
     switch ((unsigned int)GOBJ_ACT(b)->actMode) {
     case 0x58:
-        if (motionKind[GOBJ_SUB(b)->ctrl.motion].f_150 != 1) {
+        if (motionKind[GOBJ_SUB(b)->ctrl.motion].playMode != 1) {
             break;
         }
         /* fall through */
@@ -542,7 +543,7 @@ inline int PAIR_IsStatus_BOY_WAIT(void)
         switch ((unsigned int)GOBJ_ACT(b)->actMode) {
         case 0x4E:
         case 0x58:
-            if (motionKind[GOBJ_SUB(b)->ctrl.motion].f_150 == 1) {
+            if (motionKind[GOBJ_SUB(b)->ctrl.motion].playMode == 1) {
                 return 1;
             }
             break;
@@ -1247,7 +1248,7 @@ void ACTParaStatus_Exec(GObj *self)
     if ((p->paraTimer)++ >= 121) {
         sub = GOBJ_SUB(self);
         if ((sub->ctrl.ctrlFlags & 0x16) || (int)sub->ctrl.frameEnd != 0) {
-            if (motionKind[sub->ctrl.motion].f_150 == 1) {
+            if (motionKind[sub->ctrl.motion].playMode == 1) {
                 GOBJ_ACT(self)->enemy->paraTimer = 0;
                 GOBJ_ACT(self)->enemy->paraRandom = (int)(_GetRandom() * 10.0f);
                 changed = 1;
@@ -1392,12 +1393,12 @@ inline void ACTGame_SetMotionPlaySpeedRatio_Exec(GObj *self)
     ratio = 1.0f;
     keep = (unsigned int)(int)GOBJ_ACT(self)->enemy->speedRatioPri < 3 && self == girlGObj;
     if ((int)GOBJ_ACT(self)->enemy->speedRatioPri == 1) {
-        if (((&motionKind[GOBJ_SUB(self)->ctrl.motion])->f_18C >> 30) & 1) {
+        if (((&motionKind[GOBJ_SUB(self)->ctrl.motion])->flags >> 30) & 1) {
             ratio = GOBJ_ACT(self)->enemy->speedRatio;
             keep = 0;
         }
     } else {
-        if ((((&motionKind[GOBJ_SUB(self)->ctrl.motion])->f_18C >> 26) & 1) == 0) {
+        if ((((&motionKind[GOBJ_SUB(self)->ctrl.motion])->flags >> 26) & 1) == 0) {
             ratio = GOBJ_ACT(self)->enemy->speedRatio;
         }
     }
@@ -1534,7 +1535,7 @@ static void ACTGame_InnerVelocityUpdate(GObj *self)
         ((ActStatusWord *)((char *)GOBJ_ACT(self)->work + 0x448))->q &= ~(1ULL << 33);
     }
     nomove = 0;
-    if (((&motionKind[GOBJ_SUB(self)->ctrl.motion])->f_18C >> 10) & 1) {
+    if (((&motionKind[GOBJ_SUB(self)->ctrl.motion])->flags >> 10) & 1) {
         if (GOBJ_WORK(self)->speed < 4.0f) {
             nomove = 1;
         }
@@ -1582,7 +1583,7 @@ void ACTGame_BeforeFunc(GObj *self)
     }
 
     if (((int)(s->flags20.ll >> 40) & 1) == 0 &&
-        ((int)(&motionKind[GOBJ_SUB(self)->ctrl.motion])->f_18C >= 0 ||
+        ((int)(&motionKind[GOBJ_SUB(self)->ctrl.motion])->flags >= 0 ||
          GOBJ_SUB(self)->ctrl.reserveMoved != 0)) {
         GetRootPosition((char *)s + 0x110, self);
     }
@@ -1655,8 +1656,8 @@ void ACTGame_BeforeFunc(GObj *self)
     if (GOBJ_WORK(self)->timer3AC != 0) {
         (GOBJ_WORK(self)->timer3AC)--;
     }
-    if (GOBJ_WORK(self)->timer3B0 != 0) {
-        (GOBJ_WORK(self)->timer3B0)--;
+    if (GOBJ_WORK(self)->turnMailWait != 0) {
+        (GOBJ_WORK(self)->turnMailWait)--;
     }
     if (GOBJ_WORK(self)->jumpTimer != 0) {
         (GOBJ_WORK(self)->jumpTimer)--;
@@ -1679,12 +1680,12 @@ void ACTGame_BeforeFunc(GObj *self)
         GOBJ_WORK(self)->bit37Frames = 0;
     }
 
-    if ((((&motionKind[GOBJ_SUB(self)->ctrl.motion])->f_18C >> 14) & 1) ||
+    if ((((&motionKind[GOBJ_SUB(self)->ctrl.motion])->flags >> 14) & 1) ||
         actModeTbl[GOBJ_ACT(self)->actMode].bit14) {
         s->flags18.ll |= 1ULL << 38;
         if (self == boyGObj) {
             if (((char *)girlGObj) != 0) {
-                GOBJ_WORK(((char *)girlGObj))->timer3B0 =
+                GOBJ_WORK(((char *)girlGObj))->turnMailWait =
                     (60 - systemStatus[0] * 10) / systemStatus[1];
             }
         }
@@ -2223,7 +2224,7 @@ static void ActOrientTest(GObj *self)
     if (GOBJ_ACT(self)->enemy->stoneLevel > 0) {
         ACTSendMailCorrect(self, 111);
     }
-    if (((&motionKind[GOBJ_SUB(self)->ctrl.motion])->f_190 >> 2) & 1) {
+    if (((&motionKind[GOBJ_SUB(self)->ctrl.motion])->flags2 >> 2) & 1) {
         if (GetMotionFrameFlag1(self)) {
             memset(&w1, 0, sizeof(w1));
             GetSkeltonPosition(sk1, self, 0x33);
@@ -2253,7 +2254,7 @@ static void ActOrientTest(GObj *self)
             }
         }
     }
-    if (((&motionKind[GOBJ_SUB(self)->ctrl.motion])->f_190 >> 3) & 1) {
+    if (((&motionKind[GOBJ_SUB(self)->ctrl.motion])->flags2 >> 3) & 1) {
         memset(&w2, 0, sizeof(w2));
         near = 0;
         p2[0] = test_CURRENTROOT(self)[0];
@@ -2478,14 +2479,14 @@ void ACTGame_CommonLoop(GObj *self)
     if (((int)(s->wish0.ll >> 36) & 1) && ((int)(s->wish2.ll >> 36) & 1)) {
         _ACTParaStatus_Set(self, 24);
         handL = (((&motionKind[*(int *)((char *)((IntFloat *)((char *)self + 0x15C))->i + 0x4A0)])
-                      ->u_188.w >>
+                      ->modeBits.w >>
                   12) &
                  0xF) != 0;
     }
     if (((int)(s->wish0.ll >> 37) & 1) && ((int)(s->wish2.ll >> 37) & 1)) {
         _ACTParaStatus_Set(self, 25);
         handR = (((&motionKind[*(int *)((char *)((IntFloat *)((char *)self + 0x15C))->i + 0x4A0)])
-                      ->u_188.w >>
+                      ->modeBits.w >>
                   8) &
                  0xF) != 0;
     }
@@ -2495,7 +2496,7 @@ void ACTGame_CommonLoop(GObj *self)
             self, 0, 1,
             motionIKEffKind[((&motionKind[*(int *)((char *)((IntFloat *)((char *)self + 0x15C))->i +
                                                    0x4A0)])
-                                 ->u_188.w >>
+                                 ->modeBits.w >>
                              12) &
                             0xF]
                 .mode,
@@ -2508,7 +2509,7 @@ void ACTGame_CommonLoop(GObj *self)
             self, 1, 1,
             motionIKEffKind[((&motionKind[*(int *)((char *)((IntFloat *)((char *)self + 0x15C))->i +
                                                    0x4A0)])
-                                 ->u_188.w >>
+                                 ->modeBits.w >>
                              8) &
                             0xF]
                 .mode,
@@ -2552,7 +2553,7 @@ void ACTGame_CommonLoop(GObj *self)
             (((unsigned long long)(&motionKind[*(
                                        int *)((char *)((IntFloat *)((char *)self + 0x15C))->i +
                                               0x4A0)])
-                  ->f_190 >>
+                  ->flags2 >>
               7) &
              1)) {
             limit = 100;
@@ -2662,7 +2663,7 @@ void ACTGame_CommonLoop(GObj *self)
     }
     (*(int *)(((char *)GOBJ_ACT(self)->enemy) + 0xD4))--;
 
-    if ((&motionKind[*(int *)((char *)((IntFloat *)((char *)self + 0x15C))->i + 0x4A0)])->f_190 &
+    if ((&motionKind[*(int *)((char *)((IntFloat *)((char *)self + 0x15C))->i + 0x4A0)])->flags2 &
         1) {
         s->msgBlockTimer = (60 - systemStatus[0] * 10) / systemStatus[1] / 3;
     }
@@ -2967,8 +2968,8 @@ static void ACTItemWatchMotion(GObj *self)
 {
     MotionRec *rec = &motionKind[GOBJ_SUB(self)->ctrl.motion];
     Act *sub = GOBJ_ACT(self);
-    int mode = rec->u_188.w >> 19;
-    int frame = rec->u_188.b;
+    int mode = rec->modeBits.w >> 19;
+    int frame = rec->modeBits.b;
 
     /* nested inline: the "take the pending item" request, expanded at the four
        motion arms below */
@@ -3141,11 +3142,11 @@ void RequestChangeHandMode(GObj *self, int mode, int pri, int flag, GObj *p5, in
        static chain. */
     void updateHMC(void)
     {
-        hmc->f_0 = flag;
-        hmc->f_4 = pri;
+        hmc->flag = flag;
+        hmc->pri = pri;
         switch (mode) {
         case 0:
-            GOBJ_SUB(self)->root.hand0.mode = hmc->f_0;
+            GOBJ_SUB(self)->root.hand0.mode = hmc->flag;
             GOBJ_SUB(self)->root.hand0.obj = p5;
             GOBJ_SUB(self)->root.hand0.node = p6;
             if (p7 != 0) {
@@ -3155,7 +3156,7 @@ void RequestChangeHandMode(GObj *self, int mode, int pri, int flag, GObj *p5, in
             }
             break;
         case 1:
-            GOBJ_SUB(self)->root.hand1.mode = hmc->f_0;
+            GOBJ_SUB(self)->root.hand1.mode = hmc->flag;
             GOBJ_SUB(self)->root.hand1.obj = p5;
             GOBJ_SUB(self)->root.hand1.node = p6;
             if (p7 != 0) {
@@ -3182,15 +3183,15 @@ void RequestChangeHandMode(GObj *self, int mode, int pri, int flag, GObj *p5, in
     if (pri < 3) {
         if (pri > 0) {
             if (flag == 0) {
-                if (hmc->f_4 != pri) {
+                if (hmc->pri != pri) {
                     return;
                 }
             }
         }
     }
-    if (hmc->f_4 == 0 || hmc->f_0 == 0) {
+    if (hmc->pri == 0 || hmc->flag == 0) {
         updateHMC();
-    } else if (pri >= hmc->f_4) {
+    } else if (pri >= hmc->pri) {
         updateHMC();
     }
 }

@@ -77,14 +77,14 @@ typedef struct IosCdvdHandle { /* field names derived */
  * request record stReq and the preload window it describes. */
 typedef struct {          /* field names derived */
     IosCdvdHandle *owner; /* 0x00 */
-    int f_4;
-    int f_8;
-    char *buf; /* 0x0C */
-    int size;  /* 0x10 */
-    int f_14;
-    int f_18;
-    int f_1C;
-} CdStReq; /* derived name */
+    int state;    /* 0x04, 0 stopped, 1 reading, 2 buffer full; printed as "stream mode error" */
+    int command;  /* 0x08, 0 start, 1 stop, 2 resume when the buffer drains */
+    char *buf;    /* 0x0C */
+    int size;     /* 0x10 */
+    int writePos; /* 0x14, the ring sector the next read lands at */
+    int count;    /* 0x18, sectors in the ring */
+    int readPos;  /* 0x1C, the ring sector iosCdStRead copies from */
+} CdStReq;        /* derived name */
 
 /* .data, all zero.  iosCdvd is the manager's cdvd handle (33216 bytes, as
    unifileHandle), the two queues take the 48-byte message queue record,
@@ -200,30 +200,30 @@ static void iosCdvdStManager(void)
     unsigned int err;
     int mode;
 
-    stReq.f_4 = 0;
+    stReq.state = 0;
     iosMsgQueueCreate(&stReqQ, stReqRing, 1);
     iosMsgQueueCreate(&stAckQ, stAckRing, 1);
 
     while (1) {
         req = &stReq;
         mode = 0;
-        if (req->f_4 != 1) {
+        if (req->state != 1) {
             mode = 1;
         }
         if (iosMsgRecv(&stReqQ, (int *)&req, mode) == -1) {
-            if (req->f_4 != 1) {
-                sprintf(buf, "stream mode error %d\n", req->f_4);
+            if (req->state != 1) {
+                sprintf(buf, "stream mode error %d\n", req->state);
                 debug_assertMessage(__FILE__, 518, buf);
                 __assert(__FILE__, 518, "e");
             }
-            if (req->f_1C > req->f_14) {
-                n = req->f_1C - req->f_14;
-            } else if (req->f_1C < req->f_14 || req->f_18 == 0) {
-                n = req->size - req->f_14;
+            if (req->readPos > req->writePos) {
+                n = req->readPos - req->writePos;
+            } else if (req->readPos < req->writePos || req->count == 0) {
+                n = req->size - req->writePos;
             } else {
                 n = 0;
-                if (req->f_18 != req->size) {
-                    sprintf(buf2, "stream size illigual %d\n", req->f_18);
+                if (req->count != req->size) {
+                    sprintf(buf2, "stream size illigual %d\n", req->count);
                     debug_assertMessage(__FILE__, 546, buf2);
                     __assert(__FILE__, 546, "e");
                 }
@@ -235,7 +235,7 @@ static void iosCdvdStManager(void)
                 n = req->owner->left;
             }
             if (n != 0) {
-                p = req->buf + (req->f_14 << 11);
+                p = req->buf + (req->writePos << 11);
             retry:
                 if (sceCdRead(req->owner->lsn, n, p, &req->owner->mode) == 0) {
                     sprintf(buf2, "read command fail\n");
@@ -267,23 +267,23 @@ static void iosCdvdStManager(void)
                 }
                 req->owner->lsn += n;
                 req->owner->left -= n;
-                req->f_14 += n;
-                req->f_18 += n;
-                if (req->f_14 >= req->size) {
-                    req->f_14 = 0;
+                req->writePos += n;
+                req->count += n;
+                if (req->writePos >= req->size) {
+                    req->writePos = 0;
                 }
             } else {
-                req->f_4 = 2;
+                req->state = 2;
             }
         } else {
-            switch (req->f_8) {
+            switch (req->command) {
             case 0:
             case 2:
-                req->f_4 = 1;
+                req->state = 1;
                 break;
             case 1:
                 iosMsgSend(&stAckQ, 2, 0);
-                req->f_4 = 0;
+                req->state = 0;
                 break;
             }
         }
@@ -383,17 +383,17 @@ static void iosCdvdMgrStStart(IosCdvdHandle *self)
     stReq.owner = (IosCdvdHandle *)self;
     stReq.buf = stagePreLoadBuff;
     stReq.size = 0x380;
-    stReq.f_18 = stPreLoadCnt;
-    stReq.f_14 = stPreLoadCnt;
+    stReq.count = stPreLoadCnt;
+    stReq.writePos = stPreLoadCnt;
     if (stPreLoadCnt >= 0x380) {
-        stReq.f_14 = 0;
+        stReq.writePos = 0;
     }
-    stReq.f_1C = 0;
+    stReq.readPos = 0;
     self->lsn = lsn;
     total = (self->file.size - 1) >> 11;
     rest = lsn - self->file.lsn - 1;
     self->left = total - rest;
-    stReq.f_8 = 0;
+    stReq.command = 0;
     iosMsgSend(&stReqQ, &stReq, 1);
     self->inflate = open_inflate_handler(inflate_cd_read_func, self);
 }
@@ -406,9 +406,9 @@ static void iosCdvdMgrStStop(IosCdvdHandle *self)
 
     pri = iosThreadGetPri(0);
     iosThreadSetPri(0, 27);
-    stReq.f_8 = 1;
+    stReq.command = 1;
     iosMsgSend(&stReqQ, &stReq, 1);
-    if (stReq.f_4 == 1) {
+    if (stReq.state == 1) {
         sceCdBreak();
     }
     iosThreadSetPri(0, pri);
@@ -633,15 +633,15 @@ static int iosCdStRead(unsigned int n, int *buf, int flag, int *result, char *se
 
     while (n != 0) {
         iosThreadSetPri(0, 27);
-        if (req->f_1C + n > req->size) {
-            size = req->size - req->f_1C;
+        if (req->readPos + n > req->size) {
+            size = req->size - req->readPos;
         } else {
             size = n;
         }
         if (flag == 0) {
-            size = req->f_18;
+            size = req->count;
         } else {
-            while (req->f_18 < size) {
+            while (req->count < size) {
                 stLoadEndWait = 1;
                 iosMsgRecv(&stAckQ, &msg, 1);
                 if (msg != 1) {
@@ -653,18 +653,18 @@ static int iosCdStRead(unsigned int n, int *buf, int flag, int *result, char *se
         }
         if (size != 0) {
             bytes = size << 11;
-            memcpy((char *)buf, (char *)((req->f_1C << 11) + (int)req->buf), bytes);
-            if (req->f_1C + size >= req->size) {
-                req->f_1C = 0;
+            memcpy((char *)buf, (char *)((req->readPos << 11) + (int)req->buf), bytes);
+            if (req->readPos + size >= req->size) {
+                req->readPos = 0;
             } else {
-                req->f_1C = req->f_1C + size;
+                req->readPos = req->readPos + size;
             }
-            req->f_18 -= size;
+            req->count -= size;
             buf += bytes;
             n -= size;
             total += size;
-            if (stReq.f_4 == 2) {
-                stReq.f_8 = 2;
+            if (stReq.state == 2) {
+                stReq.command = 2;
                 iosMsgSend(&stReqQ, &stReq, 1);
             }
         }
