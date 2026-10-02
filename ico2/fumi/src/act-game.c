@@ -254,7 +254,7 @@ void ACTGame_StageChangeGObj(GObj *self, int idx)
             memset(&buf3, 0, 0x10);
             buf3.z = -GOBJ_WORK(girlGObj)->escortOffset;
             buf2 = buf3;
-            _ApplyRyGV(&buf2, -tmp_b[1]);
+            _ApplyRyGV(&buf2.x, -tmp_b[1]);
             sceVu0AddVector(tmp_a, tmp_a, &buf2);
         }
     }
@@ -1408,7 +1408,7 @@ inline void ACTGame_SetMotionPlaySpeedRatio_Exec(GObj *self)
     SetMotionPlaySpeedRatio(self, ratio);
 }
 
-inline void SetDirectRootPositionWithNodePointLimit(void *self, void *node, void *pos, float t,
+inline void SetDirectRootPositionWithNodePointLimit(void *self, int node, void *pos, float t,
                                                     float limit)
 {
     float buf0[4];
@@ -1629,8 +1629,7 @@ void ACTGame_BeforeFunc(GObj *self)
     }
 
     if (((char *)girlGObj) != 0 && GOBJ_ACT(((char *)girlGObj))->actMode == 0x6F &&
-        GOBJ_ACT(((char *)girlGObj))->carrier == (int)self &&
-        ((int)(s->flags20.ll >> 21) & 1) == 0) {
+        GOBJ_ACT(girlGObj)->carrier == self && ((int)(s->flags20.ll >> 21) & 1) == 0) {
         (GOBJ_WORK(self)->carryGirlFrames)++;
     } else {
         GOBJ_WORK(self)->carryGirlFrames = 0;
@@ -1704,7 +1703,7 @@ void ACTGame_BeforeFunc(GObj *self)
     if (*(int *)((char *)self + 0x8) == 0xEAD) {
         if ((60 - systemStatus[0] * 10) / systemStatus[1] * 2 < s->frame) {
             if (!(((char *)girlGObj) != 0 && GOBJ_ACT(((char *)girlGObj))->actMode == 0x6F &&
-                  GOBJ_ACT(((char *)girlGObj))->carrier == (int)self)) {
+                  GOBJ_ACT(girlGObj)->carrier == self)) {
                 s->flags20.ll &= ~(1ULL << 30);
             }
         }

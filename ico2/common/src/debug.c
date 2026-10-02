@@ -2138,11 +2138,11 @@ void debug_Printf(int a, int b, unsigned int c, const char *fmt, ...)
     debug_PrintFont(a, b, c, buf);
 }
 
-void debug_Printf2(int a, int b, unsigned int c, int x, ...)
+void debug_Printf2(int a, int b, unsigned int c, const char *fmt, ...)
 {
     char buf[256];
-    void *args = (char *)__builtin_next_arg(x) - 0x20;
-    vsprintf(buf, x, args);
+    void *args = (char *)__builtin_next_arg(fmt) - 0x20;
+    vsprintf(buf, fmt, args);
     debug_PrintFont(a, b, c, buf);
 }
 
@@ -2525,7 +2525,7 @@ inline int _debug_SelectCsvWindow(char *title, int x, int y, int rows, int base,
     return 0;
 }
 
-static void getLineBuffer(int buf, int line, int str)
+static void getLineBuffer(char *buf, int line, char *str)
 {
     sprintf(buf, "%02d:%s", line, str);
 }
@@ -2544,7 +2544,7 @@ inline int debug_SelectCsvWindowWithLineColor(char *title, int x, int y, int row
                                       getLineBuffer, colfunc);
 }
 
-static void getBuffer(int buf)
+static void getBuffer(char *buf)
 {
     sprintf(buf, "%s");
 }

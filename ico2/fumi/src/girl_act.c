@@ -1492,7 +1492,7 @@ void subGirlBrainMain(GObj *volatile self)
         }
         if (mode != prevMode) {
             brain_val.f_5908 = 0;
-            actChangeActBrain(isysCurrentGObj, girlBrainModeTable[mode].proc, act);
+            actChangeActBrain(isysCurrentGObj, girlBrainModeTable[mode].proc, &act->brainProc);
             prevMode = mode;
             brain_val.f_58F2 = 1;
             brain_val.curMode = mode;
@@ -2979,7 +2979,7 @@ static void Danger_Rotobject(GObj *self)
         if (_DistxzSqGV(girl, goal) < 3600.0f) {
             turn = 1;
         } else {
-            _OrientXZGV((char *)sub + 0x120, goal, girl);
+            _OrientXZGV(sub->dir, goal, girl);
             sub->stick.mag = 1.0f;
         }
         if (turn) {
@@ -3148,7 +3148,7 @@ void WayTest(void)
     } else {
         s->stick.mag = 1.0f;
     }
-    r = _RotyGV((char *)s + 0x3E0, (char *)s + 0x120);
+    r = _RotyGV(&s->wayNodeX, s->dir);
     r = (r < 0) ? -r : r;
     if (r >= 0x5B) {
         wayTurnFrames = wayTurnFrames + 1;
@@ -3581,9 +3581,9 @@ void subGirlCollision(GObj *volatile self)
             sceVu0FVECTOR gate = {608.0f, 1600.0f, -775.0f, 1.0f};
 
             if (!gflagChk(106)) {
-                _OrientXZGV((char *)sub + 0x120, gate, test_CURRENTROOT((void *)self));
+                _OrientXZGV(sub->dir, gate, test_CURRENTROOT((void *)self));
             } else if (test_CURRENTROOT((void *)self)[2] > 350.0f) {
-                _OrientXZGV((char *)sub + 0x120, home, test_CURRENTROOT((void *)self));
+                _OrientXZGV(sub->dir, home, test_CURRENTROOT((void *)self));
             } else {
                 sub->dir[0] = 0.0f;
                 sub->dir[1] = 0.0f;

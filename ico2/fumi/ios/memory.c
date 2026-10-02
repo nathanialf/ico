@@ -187,7 +187,7 @@ static int mallocBusy = 0; /* derived name */
 
 /* the file and line of the allocation in progress, which the re-entry check
    prints */
-static char *mallocFile; /* derived name */
+static const char *mallocFile; /* derived name */
 
 static int mallocLine; /* derived name */
 
@@ -584,7 +584,7 @@ void iosMallocCheckLeak(IosMemPart *part)
 
 void iosMallocCheckLeak2(int part, int offset)
 {
-    int node = *(int *)(part + offset + 0x38);
+    char *node = *(char **)(part + offset + 0x38);
     int i;
 
     debug_StdPrintfDummy("<<< check leak2 >>> %p\n", part);
@@ -595,18 +595,18 @@ void iosMallocCheckLeak2(int part, int offset)
         node += offset;
         strncpy(nodeName, node + 16, 15);
         nodeName[15] = 0;
-        if (strcmp((char *)node, "<ALLOC>________") == 0) {
+        if (strcmp(node, "<ALLOC>________") == 0) {
             debug_StdPrintfDummy("%p:ALLOC %s\n", node - offset, nodeName);
-        } else if (strcmp((char *)node, "<FREE AREA>____") == 0) {
+        } else if (strcmp(node, "<FREE AREA>____") == 0) {
             debug_StdPrintfDummy("%p:FREEAREA\n", node - offset);
-        } else if (strcmp((char *)node, " free memory   ") == 0) {
+        } else if (strcmp(node, " free memory   ") == 0) {
             debug_StdPrintfDummy("%p:DELETED_MEMORY\n");
         } else {
             debug_StdPrintfDummy("%p:!!! unrecognized block!!!:%s\n", node - offset, node);
             return;
         }
         for (i = 0; i < 12; i++) {}
-        node = *(volatile int *)(node + 0x24);
+        node = *(char *volatile *)(node + 0x24);
     } while (node != 0);
 }
 

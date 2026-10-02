@@ -15,7 +15,7 @@ struct GObj;
 void ACTSetEnvAllmighty(struct GObj *self);
 void GetSofaPosition(struct GObj *self, struct GObj *sofa);
 void GetCollisCenterPositionSimple(void *out, void *obj, void *corners);
-int CheckWallAttributeEdegWall(int obj);
+int CheckWallAttributeEdegWall(struct GObj *obj);
 
 /* ACTGetEnvironment's flag words (the caller passes the actor's status block
  * + 0x47C), set both bit by bit and by whole-word ORs.  The bits are named by

@@ -40,7 +40,7 @@ void iosMcManager(void);
 
 /* iconfile: one memory card icon file, 0x24 bytes. Reader: ico2/fumi/ios/
  * mcard.c. Owner: ico2/fumi/include/mcard.h. */
-typedef struct {   /* field names derived */
+typedef struct IconFile { /* field names derived */
     char name[32]; /* 0x00 */
     int size;      /* 0x20 */
 } IconFile;        /* derived name */

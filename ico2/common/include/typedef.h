@@ -1309,10 +1309,10 @@ typedef struct ActEnv {      /* field names derived */
                              when it finds the lever (kind 23) */
     char pad154[4];
     GObj *swapWeapon;     /* 0x158, the weapon the actor can swap to */
-    char *frontObj;       /* 0x15C */
+    GObj *frontObj;       /* 0x15C */
     union {
         int i;
-        char *obj;
+        GObj *obj;
     } cageObj; /* 0x160, the cage: stored as the object ACTGetEnvironment
                   found, read as an int handle (commonact.c) */
     GObj *bombObj;        /* 0x164, the bomb */
@@ -1333,7 +1333,7 @@ typedef struct ActEnv {      /* field names derived */
 } ActEnv; /* derived name */
 
 typedef struct Act { /* field names derived */
-    char pad0[4];
+    struct GProc *brainProc; /* 0x0, the actor's brain process (actChangeActBrain) */
     struct GProc *actProc;  /* 0x4, the actor's action process (actInitialize, actChangeActMain) */
     struct GProc *motProc;  /* 0x8, the motion thread an interrupt's first function runs in */
     struct GProc *motProc2; /* 0xC, the motion thread of its second function */
@@ -1405,7 +1405,7 @@ typedef struct Act { /* field names derived */
     short soundWait;  /* 0x13A, frames before the next sound mail is taken */
     int reserved;     /* 0x13C, the actor that reserved this one as a target (ACTReserveTarget) */
     int reservedMail; /* 0x140, the mail the reservation waits for */
-    int carrier;      /* 0x144, the enemy carrying the girl */
+    struct GObj *carrier; /* 0x144, the enemy carrying the girl */
     struct GObj *carried; /* 0x148, the object the actor holds (the carried girl) */
     char *brainTarget;    /* 0x14C, the enemy brain's target */
     GObj *weapon;         /* 0x150, the weapon the actor holds */
@@ -1437,7 +1437,7 @@ typedef struct Act { /* field names derived */
     int attackTurn; /* 0x188, nonzero while the attack turns toward the target */
     char pad18C[4];
     GObj *chain;     /* 0x190, the chain the actor hangs on */
-    char *lastChain; /* 0x194, the chain the actor last hung on */
+    GObj *lastChain; /* 0x194, the chain the actor last hung on */
     char pad198[8];
     float ropeSwingX; /* 0x1A0, the rope swing direction, x */
     float ropeSwingY; /* 0x1A4, the rope swing direction, y */

@@ -159,7 +159,7 @@ int actEnemy_GetClingTarget(struct GObj *self);
 int actEnemy_isNormalEnemy(struct GObj *self);
 int actEnemy_isLargeEnemy(struct GObj *self);
 int actEnemy_isSmallEnemy(struct GObj *self);
-int IsEnemyBrainToGenerator(char *self, int *out);
+int IsEnemyBrainToGenerator(GObj *self, int *out);
 int IsEnemyBrainToBoy(struct GObj *self);
 int GetEnemyTypeFromGObj(struct GObj *obj);
 int GetEnemyType(float x, float y, float z);
@@ -175,7 +175,7 @@ void subEnemyBrain_Shoulder(GObj *volatile self);
 void subEnemyBrain_Pickup(GObj *volatile self);
 void subEnemyBrain_Bodyslam(GObj *volatile self);
 void subEnemyBrain_Irregular(GObj *volatile self);
-inline void _BrainMode_SetDirect(char *self, int mode, BrainModeTarget *tgt);
+inline void _BrainMode_SetDirect(GObj *self, int mode, BrainModeTarget *tgt);
 inline void EnemyUtil_TurnToBoy(GObj *self, GObj *tgt, int smooze);
 inline int FlyMail(void *self);
 void boss_effect_callback(int id);
@@ -183,7 +183,7 @@ void motEnemyStand(GObj *volatile self);
 void motEnemyWalk(GObj *volatile self);
 void motEnemyRun(GObj *volatile self);
 void actEnemyJump(GObj *volatile self);
-inline int EnemyUtil_isOtherStatus(char *self, int mode);
+inline int EnemyUtil_isOtherStatus(GObj *self, int mode);
 int isEnemyHyde(GObj *self);
 
 inline int _ApproachTarget(GObj *self, void *tgt, void *pos, void *fn, float range,

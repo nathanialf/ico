@@ -52,11 +52,7 @@ static float ditchSofaPos[4] = {559.0f, -3775.0f, 2503.0f, 1.0f}; /* derived nam
    TU's .rodata. */
 static const VECTOR sofaSeatOffset = {30.0f, 0.0f, -50.0f, 0.0f}; /* derived name */
 
-/* int here, GObj * in main.h */
-extern int boyGObj;
-/* as in main.h, which this TU does not include (boyGObj differs) */
-extern int stage_no;
-
+#include "main.h"
 #include "act-env.h"
 #include "gv.h"
 #include "fieldCollision.h"
@@ -76,9 +72,6 @@ inline void GetSofaPosition(GObj *self, GObj *sofa)
     sceVu0ApplyMatrix(w->env.sofaPos,
                       *(void **)((char *)((union ENVIF *)((char *)sofa + 0x15C))->i + 0xC), &v);
 }
-
-/* as in main.h */
-extern GObj *girlGObj;
 
 /* Where the first carrier stands in the stage 8 ditch below the -3000 line
    (the .rodata's second object). */
@@ -134,8 +127,8 @@ static void getDitchDistTbl(float **tbl, float *range, int *sofa, float *pos, vo
                 v.y = test_CURRENTROOT(boyGObj)[1];
                 v.z = test_CURRENTROOT(boyGObj)[2];
                 sceVu0SubVector(&v, &v, ditchCheckBase);
-                _ApplyRyGV(&v, (float)(int)(_GetDirection(ditchCheckDir) / 3.1415927f * 180.0f) *
-                                   3.1415927f / 180.0f);
+                _ApplyRyGV(&v.x, (float)(int)(_GetDirection(ditchCheckDir) / 3.1415927f * 180.0f) *
+                                     3.1415927f / 180.0f);
                 if (v.z < -150.0f) {
                     *tbl = ditchDistTblNone;
                 }
@@ -157,7 +150,7 @@ static void getDitchDistTbl(float **tbl, float *range, int *sofa, float *pos, vo
                 pos[0] = v.x;
                 pos[1] = v.y;
                 pos[2] = v.z;
-                _OrientXZGV(obj, ditchCarryTarget, &v);
+                _OrientXZGV(obj, ditchCarryTarget, &v.x);
 
                 *carry = mode;
             } else {
@@ -288,7 +281,7 @@ inline void ACTSetEnvAllmighty(GObj *self)
     s->wish1.ll |= (1ULL << 43);
 }
 
-inline int CheckWallAttributeEdegWall(int obj)
+inline int CheckWallAttributeEdegWall(GObj *obj)
 {
     if (stage_no == 4) {
         return (unsigned char)CheckPureWallAttribute(obj, 0x1000);
@@ -316,8 +309,6 @@ typedef struct { /* field names derived */
     float wallTop; /* 0x5A4 */
 } EnvSub;          /* derived name */
 
-/* as in main.h */
-extern int girlControlMode;
 /* motionOrientManager.h declares none of the motion tables */
 extern MotionDef motionKind[];
 
@@ -451,12 +442,11 @@ static __inline__ void envDebugPrint(void) /* derived name */
 #define BOX_DY ((p100[1] - prj[1]) < 0.0f ? -(p100[1] - prj[1]) : (p100[1] - prj[1])) /* derived name */
 #define BOX_SIDE(lo, hi, ofs, ang, cond, to) /* derived name */ \
     if ((lo) < p120[0] && p120[0] <= (hi)) {                                                     \
-        sceVu0ScaleVector(*(char **)(*(char **)(self + 0x164) + 0x688) + 0x500, env->cliffOrient,       \
+        sceVu0ScaleVector(GOBJ_WORK(self)->boxSidePos, env->cliffOrient,                       \
                           (p120[0] < 0.0f ? -p120[0] : p120[0]) - (ofs));                       \
-        _ApplyRyGV(*(char **)(*(char **)(self + 0x164) + 0x688) + 0x500, (ang));                  \
-        sceVu0AddVector((float *)(*(char **)(*(char **)(self + 0x164) + 0x688) + 0x500), pos,     \
-                        (float *)(*(char **)(*(char **)(self + 0x164) + 0x688) + 0x500));         \
-        *(char *)(*(char **)(*(char **)(self + 0x164) + 0x688) + 0x4F0) = 1;                      \
+        _ApplyRyGV(GOBJ_WORK(self)->boxSidePos, (ang));                                          \
+        sceVu0AddVector(GOBJ_WORK(self)->boxSidePos, pos, GOBJ_WORK(self)->boxSidePos);           \
+        GOBJ_WORK(self)->boxSideSet = 1;                                                         \
         if (cond)                                                                                \
             sel = (to);                                                                          \
         break;                                                                                   \
@@ -484,7 +474,7 @@ void ACTGetEnvironment(void *self, void *dir, float *orient, EnvFlag *flags, Act
     int v1E8 = 0;
     char *w564 = (char *)GOBJ_SUB(self)->ctrl.wallHit;
     char *w574 = ((EnvSub *)(char *)GOBJ_SUB(self))->wallRec;
-    char *v1EC = 0;
+    GObj *v1EC = 0;
     float k;
     float kk;
     float kd;
@@ -492,9 +482,9 @@ void ACTGetEnvironment(void *self, void *dir, float *orient, EnvFlag *flags, Act
 
     inline int CheckWallAttributeNotYorda(int attr, int notYorda) /* derived name */
     {
-        int o = (int)self;
+        GObj *o = self;
 
-        if (notYorda && o == (int)girlGObj)
+        if (notYorda && o == girlGObj)
             return 0;
         return CheckWallAttribute(o, attr);
     }
@@ -506,7 +496,7 @@ void ACTGetEnvironment(void *self, void *dir, float *orient, EnvFlag *flags, Act
         return hgt;
     }
 
-    char *o;
+    GObj *o;
 
     memset(prj, 0, 16);
     if ((char *)GOBJ_SUB(self)->root.wall.elem == 0) {
@@ -531,7 +521,7 @@ void ACTGetEnvironment(void *self, void *dir, float *orient, EnvFlag *flags, Act
     sub->flags18.ll &= ~(1ULL << 45);
     sub->flags20.ll &= ~(1ULL << 7);
     sub->flags20.ll &= ~(1ULL << 36);
-    *(char *)((char *)GOBJ_ACT(self)->work + 0x4F0) = 0;
+    GOBJ_WORK(self)->boxSideSet = 0;
     if ((int)(sub->flags20.ll >> 15) & 1) {
         k = 0.0f;
         v1E0 = 0;
@@ -549,7 +539,7 @@ void ACTGetEnvironment(void *self, void *dir, float *orient, EnvFlag *flags, Act
 
         for (o = isysGObjSearchFromObjKindID_begin(0x2C); o != 0;
              o = isysGObjSearchFromObjKindID_next(o)) {
-            if (*(int *)(o + 0x16C)) {
+            if (o->active) {
                 if (GetCageChainPoint(p40, p50, o)) {
                     if (_DistxzSqGV(test_CURRENTROOT(self), p40) < 4900.0f && p50[1] > pos[1]) {
                         v1EC = o;
@@ -643,7 +633,7 @@ void ACTGetEnvironment(void *self, void *dir, float *orient, EnvFlag *flags, Act
             sub->flags20.ll |= (1ULL << 38);
         if (CheckWallAttributeNotYorda(0xB000, 1) || CheckWallAttributeNotYorda(0xE000, 1) ||
             CheckWallAttributeNotYorda(0xC000, 0) || CheckWallAttributeNotYorda(0xD000, 1) ||
-            CheckWallAttributeEdegWall((int)self) || CheckWallAttributeNotYorda(0x3000, 0))
+            CheckWallAttributeEdegWall(self) || CheckWallAttributeNotYorda(0x3000, 0))
             hgt = wallh;
         if (self == girlGObj && CheckPureWallAttribute(self, 0x7000)) {
             wallh = 3.40282347e+38f /* FLT_MAX */;
@@ -843,7 +833,7 @@ void ACTGetEnvironment(void *self, void *dir, float *orient, EnvFlag *flags, Act
         kd = 60.0f;
         break;
     case -1:
-        if (CheckWallAttributeEdegWall((int)self)) {
+        if (CheckWallAttributeEdegWall(self)) {
             kd = 30.0f;
         } else {
             kd = GetCorrectDistance(wallDeg, motionKind[GOBJ_SUB(self)->ctrl.motion].clipRadius + 2.0f);
@@ -868,7 +858,7 @@ void ACTGetEnvironment(void *self, void *dir, float *orient, EnvFlag *flags, Act
             flags[2].bit.b16 = c60b;
         else if (CheckWallAttribute(self, 0xD000))
             flags[2].bit.b20 = c60b;
-        else if (CheckWallAttributeEdegWall((int)self)) {
+        else if (CheckWallAttributeEdegWall(self)) {
             flags[2].bit.b21 = c60b;
             if (((unsigned int)flags[2].w >> 21) & 1) {
                 if (ditchProbe(self, hgt) == 0)
@@ -1102,7 +1092,7 @@ void ACTGetEnvironment(void *self, void *dir, float *orient, EnvFlag *flags, Act
         }
         if (hh < 25.0f && v1E0 &&
             !(girlGObj != 0 && GOBJ_ACT(girlGObj)->actMode == 0x6F &&
-              (char *)GOBJ_ACT(girlGObj)->carrier == self)) {
+              GOBJ_ACT(girlGObj)->carrier == self)) {
             if (f26 < 55.0f)
                 sub->wish1.ll |= (1ULL << 24);
             else if (f26 < 105.0f)
@@ -1128,7 +1118,7 @@ void ACTGetEnvironment(void *self, void *dir, float *orient, EnvFlag *flags, Act
             !CheckPureCliffAttribute(self, 0x400) &&
             _AbsRotyGV(env->cliffOrient, ori) < 60) {
             v200 = 1;
-            hdif = -GetHeightOfFieldPlaneDifference((int *)boyGObj, (int *)girlGObj);
+            hdif = -GetHeightOfFieldPlaneDifference(boyGObj, girlGObj);
             if (!(hh < 60.0f))
                 v200 = 0;
             v204 = 1;
@@ -1155,7 +1145,7 @@ void ACTGetEnvironment(void *self, void *dir, float *orient, EnvFlag *flags, Act
                     test_CURRENTROOT(boyGObj)[1] + 800.0f)
                 v204 = 0;
             if (stage_no == 7) {
-                GetRootProjectionPosOfGObj(p80, (int)girlGObj);
+                GetRootProjectionPosOfGObj(p80, girlGObj);
                 if (sel == 200) {
                     if (!(180.0f < p80[1] - prj[1]))
                         v204 = 0;
@@ -1178,7 +1168,7 @@ void ACTGetEnvironment(void *self, void *dir, float *orient, EnvFlag *flags, Act
                 GetMatrixDirectionToZ(pC0[0], env->cliffOrient);
                 for (o = isysGObjSearchFromObjKindID_begin(0x11); o != 0;
                      o = isysGObjSearchFromObjKindID_next(o)) {
-                    if (*(int *)(o + 0x16C) && IsThisBoxTruck(o) != 7) {
+                    if (o->active && IsThisBoxTruck(o) != 7) {
                         p100[0] = test_CURRENTROOT(o)[0];
                         p100[1] = test_CURRENTROOT(o)[1];
                         p100[2] = test_CURRENTROOT(o)[2];
@@ -1208,9 +1198,9 @@ void ACTGetEnvironment(void *self, void *dir, float *orient, EnvFlag *flags, Act
                 GetRootPosition(p140, self);
                 sceVu0ScaleVector(p130, env->cliffOrient, hh);
                 sceVu0AddVector(env->cliffStepPos, p140, p130);
-                if (*(unsigned char *)((char *)GOBJ_ACT(self)->work + 0x4F0))
+                if (GOBJ_WORK(self)->boxSideSet)
                     sceVu0AddVector(env->cliffStepPos,
-                                    (float *)((char *)GOBJ_ACT(self)->work + 0x500), p130);
+                                    GOBJ_WORK(self)->boxSidePos, p130);
                 GetRootPosition(p160, self);
                 sceVu0ScaleVector(p150, env->cliffOrient, hh - 30.0f);
                 sceVu0AddVector((float *)((char *)GOBJ_ACT(self)->work + 0x810), p160, p150);
@@ -1252,7 +1242,7 @@ void ACTGetEnvironment(void *self, void *dir, float *orient, EnvFlag *flags, Act
              !(_DistxzSqGV(test_CURRENTROOT(boyGObj), test_CURRENTROOT((girlGObj))) <
                (hh + 100.0f) * (hh + 100.0f))) &&
             !(_DistxzSqGV(test_CURRENTROOT(boyGObj), test_CURRENTROOT((girlGObj))) < 40000.0f &&
-              300.0f < GetHeightOfFieldPlaneDifference((int *)girlGObj, (int *)boyGObj))) {
+              300.0f < GetHeightOfFieldPlaneDifference(girlGObj, boyGObj))) {
             _OrientXZGV(p130, test_CURRENTROOT((girlGObj)), test_CURRENTROOT(boyGObj));
             if (_AbsRotyGV(p130, env->cliffOrient) < 80) {
                 float *tbl;
@@ -1304,7 +1294,7 @@ void ACTGetEnvironment(void *self, void *dir, float *orient, EnvFlag *flags, Act
             }
         }
         if (flags[2].w < 0 ? hh < 40.0f : hh < 30.0f) {
-            char *found = 0;
+            GObj *found = 0;
 
             p140[0] = env->cliffOrient[0];
             p140[1] = env->cliffOrient[1];
@@ -1312,7 +1302,7 @@ void ACTGetEnvironment(void *self, void *dir, float *orient, EnvFlag *flags, Act
             _ApplyRyGV(p140, 1.5707964f);
             for (o = isysGObjSearchFromObjKindID_begin(0x15); o != 0;
                  o = isysGObjSearchFromObjKindID_next(o)) {
-                if (*(int *)(o + 0x16C)) {
+                if (o->active) {
                     float d;
 
                     if (CheckChainClimbablePos(o)) {
@@ -1356,7 +1346,7 @@ void ACTGetEnvironment(void *self, void *dir, float *orient, EnvFlag *flags, Act
     }
     CheckFloorAttribute(self, 0x200);
     if (self == girlGObj && sub->actMode == 0x45) {
-        float hd = -GetHeightOfFieldPlaneDifference((int *)boyGObj, self);
+        float hd = -GetHeightOfFieldPlaneDifference(boyGObj, self);
 
         if (((int)(*(unsigned long long *)((char *)sub + 0x480) >> 18) & 1) && 5.0f < hd) {
             *(unsigned long long *)((char *)sub + 0x488) |= 0x40;
@@ -1416,7 +1406,7 @@ void ACTGetEnvironment(void *self, void *dir, float *orient, EnvFlag *flags, Act
     }
     if (self == boyGObj && girlGObj != 0 &&
         GOBJ_ACT(girlGObj)->actMode == 0x6F) {
-        GObj *h = (char *)GOBJ_ACT(girlGObj)->carrier;
+        GObj *h = GOBJ_ACT(girlGObj)->carrier;
 
         if (GOBJ_ACT(h)->actMode == 0x67 && GetMotionFrameFlag1(h)) {
             float p60[4], p70[4];

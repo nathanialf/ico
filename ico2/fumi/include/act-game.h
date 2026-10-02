@@ -58,7 +58,7 @@ typedef struct ActWork { /* field names derived */
     MotOriTarget bellowWall400;  /* 0x3CC, the wall of attribute 0x400 actCommonLadderBellow
                                     found below, which mail 144 turns to */
     MotOriTarget bellowWall3000; /* 0x3D8, the same for attribute 0x3000 and mail 145 */
-    int dangerObj; /* 0x3E4 */
+    struct GObj *dangerObj; /* 0x3E4, the object SetGirlDangerGObj marks for the girl */
     char pad3E8[8];
     float hideDirX; /* 0x3F0 */
     float hideDirY; /* 0x3F4 */
@@ -98,7 +98,9 @@ typedef struct ActWork { /* field names derived */
     int basePosSet;          /* 0x4D0 */
     char pad4D4[12];
     float basePos[4]; /* 0x4E0, the position the enemy guards when basePosSet */
-    char pad4F0[32];
+    unsigned char boxSideSet; /* 0x4F0, set when the cliff edge is at a box side (ACTGetEnvironment) */
+    char pad4F1[15];
+    float boxSidePos[4]; /* 0x500, where the actor stands at that box side */
     float boyOrient[4]; /* 0x510, the girl's direction to the boy (ACTGetEnvironment) */
     float hintPosX;     /* 0x520 */
     float hintPosY;     /* 0x524 */
@@ -137,7 +139,7 @@ unsigned char ACTGame_FLAG_TETSUNAGI(void);
 int ACTGame_FLAG_TETSUNAGI_VISUAL(void);
 inline void GetSkeltonPosition(float *dst, struct GObj *obj, int node);
 
-void SetDirectRootPositionWithNodePointLimit(void *self, void *node, void *pos, float t,
+void SetDirectRootPositionWithNodePointLimit(void *self, int node, void *pos, float t,
                                              float limit);
 
 void ACTGameView_Init(void);

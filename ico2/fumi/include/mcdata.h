@@ -9,8 +9,9 @@
 #define MCDATA_H
 
 struct McMgr;
+struct IconFile;
 
-int iosMcIconWriteIconsys(struct McMgr *self, int *p);
-int iosMcIconWriteIcon(struct McMgr *self, int *p);
+int iosMcIconWriteIconsys(struct McMgr *self, const struct IconFile *p);
+int iosMcIconWriteIcon(struct McMgr *self, const struct IconFile *p);
 
 #endif /* MCDATA_H */

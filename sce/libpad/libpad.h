@@ -22,7 +22,7 @@ int scePadInfoPressMode(int port, int slot);                     /* definition i
 int scePadInit(int a0);                                          /* definition in sce/ */
 int scePadInit2(int a0);                                         /* definition in sce/ */
 int scePadPortOpen(int port, int slot, void *addr);              /* definition in sce/ */
-int scePadRead(int port, int slot, int data);                    /* definition in sce/ */
+int scePadRead(int port, int slot, void *data);                  /* definition in sce/ */
 int scePadSetActAlign(int port, int slot, char *act);            /* definition in sce/ */
 int scePadSetActDirect(int port, int slot, unsigned char *act);  /* definition in sce/ */
 int scePadSetMainMode(int port, int slot, int mode, int option); /* definition in sce/ */

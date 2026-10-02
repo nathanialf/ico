@@ -68,7 +68,7 @@ void motCommonRopeTurnSpecialL(GObj *volatile self);
 void motCommonTruckLeverLoop(GObj *volatile self);
 void motCommonTruckLeverPull(GObj *volatile self);
 void motCommonTruckLeverPush(GObj *volatile self);
-void funcCommonRopeBefore(GObj *self, int mail, int chain);
+void funcCommonRopeBefore(GObj *self, int mail, GObj *chain);
 void afterCommonRope(GObj *volatile self);
 void extraCommonNull(GObj *volatile self);
 void extraCommonCall(GObj *volatile self);
@@ -1072,7 +1072,7 @@ void actCommonRopeClimbEnd1(GObj *volatile self)
             _ACTWait(1);
         }
         i = 0;
-        r = _RotyGV(&dir, test_CURRENTORIENT(self));
+        r = _RotyGV(dir.f, test_CURRENTORIENT(self));
         step = (r > -1) ? step : back;
         n = r / step;
         n = (n < 0) ? -n : n;
@@ -1200,7 +1200,7 @@ static void TestCageUpDown(int cage, GObj *gobj)
         cageUpDown.b[1] = cageUpDown.a[1] + 200.0f;
     }
 
-    inline void cageMove(char *o, float *dst, float *lo, float *hi, float *res, float x, float y,
+    inline void cageMove(GObj * o, float *dst, float *lo, float *hi, float *res, float x, float y,
                          float z) /* derived name */
     {
         dst[0] = x;
@@ -2377,13 +2377,13 @@ typedef struct { /* field names derived */
 } FlyLimitSub; /* derived name */
 
 /* raises the flag that ResetFlyLimit clears */
-static inline void SetFlyLimit(int self) /* derived name */
+static inline void SetFlyLimit(GObj *self) /* derived name */
 {
     ((FlyLimitSub *)FALL_SUB(self))->limit = 1;
 }
 
 /* used by flyCoreLoop and actAfterFly */
-static inline void ResetFlyLimit(int self) /* derived name */
+static inline void ResetFlyLimit(GObj *self) /* derived name */
 {
     ((FlyLimitSub *)FALL_SUB(self))->limit = 0;
 }
@@ -2506,7 +2506,7 @@ static void flyCoreLoop(GObj *self, GObj *target, int checkStuck)
     if (stuck) {
         debug_StdPrintfDummy("\x1b[36mEMERGENCY WITH DANGER LOOP\x1b[m\n");
         flags |= 1;
-        SetFlyLimit((int)self);
+        SetFlyLimit(self);
     }
     if (stage_no == 86 || stage_no == 3 || stage_no == 46) {
         emgpos[0] = GOBJ_WORK(self)->emgPosX;
@@ -2735,7 +2735,7 @@ static void flyCoreLoop(GObj *self, GObj *target, int checkStuck)
                 SetDarkVolumeEffect(mat[3], 100.0f);
             }
             if (completeEmergency()) {
-                ResetFlyLimit((int)self);
+                ResetFlyLimit(self);
                 debug_StdPrintfDummy("%p complete.\n", self);
                 stuck = 0;
             }
@@ -2798,7 +2798,7 @@ static void flyCoreLoop(GObj *self, GObj *target, int checkStuck)
 
             FlyStep();
             if (checkStuck && ((int)(act->flags20.ll >> 21) & 1) == 0 && emergencyCheck()) {
-                SetFlyLimit((int)self);
+                SetFlyLimit(self);
                 stuck = 1;
             }
         }
@@ -2817,7 +2817,7 @@ static void flyCoreLoop(GObj *self, GObj *target, int checkStuck)
         }
         if ((stage_no == 86 || stage_no == 3 || stage_no == 46) &&
             (60 - systemStatus[0] * 10) / systemStatus[1] * 10 < cnt104) {
-            SetFlyLimit((int)self);
+            SetFlyLimit(self);
             stuck = 1;
         }
         act->flags18.ll = (act->flags18.ll & ~(1ULL << 57)) | (stuck << 57);
@@ -2889,7 +2889,7 @@ void actCommonLadder(GObj *volatile self)
     int up6;
     int lp52;
     int lp48;
-    char *o;
+    GObj *o;
 
     if (s->env.edgePos[3] != 0.0f) {
         pos[0] = test_CURRENTROOT((void *)self)[0];
@@ -2977,9 +2977,9 @@ void actCommonLadder(GObj *volatile self)
             pos[0] = test_CURRENTROOT((void *)self)[0];
             pos[1] = test_CURRENTROOT((void *)self)[1];
             pos[2] = test_CURRENTROOT((void *)self)[2];
-            for (o = (char *)isysGObjSearchFromObjKindID_begin(4); o != 0;
-                 o = (char *)isysGObjSearchFromObjKindID_next(o)) {
-                if (*(int *)(o + 0x16C) != 0) {
+            for (o = isysGObjSearchFromObjKindID_begin(4); o != 0;
+                 o = isysGObjSearchFromObjKindID_next(o)) {
+                if (o->active != 0) {
                     if (GOBJ_ACT(o)->actMode == 38 &&
                         _DistSqGV(pos, test_CURRENTROOT(o)) < 6400.0f) {
                         ACTSendMailCorrect(self, 0x31);
@@ -3073,7 +3073,7 @@ void actCommonEdgeHang(GObj *volatile self)
 
     ACTAdjustPlane(self, &GOBJ_WORK(self)->intrReq.a.wall);
     while (1) {
-        if (CheckWallAttributeEdegWall((void *)self) == 0) {
+        if (CheckWallAttributeEdegWall(self) == 0) {
             ACTSendMailCorrect(self, 0xE2);
         }
         if (-GOBJ_SUB(self)->ctrl.cliffDepth > 250.0f) {
@@ -3354,9 +3354,9 @@ void _ACTCommonMailTest(GObj *self, int stopCnt, int walkCnt, int runCnt)
 int E3_LeverCheck(GObj *self)
 {
     float buf[3];
-    buf[0] = *(float *)((char *)test_CURRENTORIENT((char *)GOBJ_SUB(self)->root.wall.o.obj) + 0x0);
-    buf[1] = *(float *)((char *)test_CURRENTORIENT((char *)GOBJ_SUB(self)->root.wall.o.obj) + 0x4);
-    buf[2] = *(float *)((char *)test_CURRENTORIENT((char *)GOBJ_SUB(self)->root.wall.o.obj) + 0x8);
+    buf[0] = *(float *)((char *)test_CURRENTORIENT(GOBJ_SUB(self)->root.wall.o.obj) + 0x0);
+    buf[1] = *(float *)((char *)test_CURRENTORIENT(GOBJ_SUB(self)->root.wall.o.obj) + 0x4);
+    buf[2] = *(float *)((char *)test_CURRENTORIENT(GOBJ_SUB(self)->root.wall.o.obj) + 0x8);
     _ApplyRyGV(buf, -1.5707964f);
     return _RotyGV(test_CURRENTORIENT(self), buf) < 0 ? -_RotyGV(test_CURRENTORIENT(self), buf) < 45
                                                       : _RotyGV(test_CURRENTORIENT(self), buf) < 45;
@@ -3402,12 +3402,12 @@ void actCommonBecarry(GObj *volatile self)
 {
     Act *s = GOBJ_ACT(self);
     int cur = -1;
-    char *g;
+    GObj *g;
     int old;
     unsigned char done;
     unsigned long long fl;
 
-    g = *(char **)((char *)s + 0x144);
+    g = s->carrier;
     ACTGameCollisionOff((volatile int *)self);
     s->flags18.afterProc = afterCommonBecarry;
     s->flags18.ll &= ~(1ULL << 46);
@@ -3425,7 +3425,7 @@ void actCommonBecarry(GObj *volatile self)
         if (6 <= s->modeFrame) {
             if (actModeTbl[GOBJ_ACT(g)->actMode].carried ||
                 (fl = ((CarryMot *)&motionKind[GOBJ_SUB(g)->ctrl.motion])->f18C, fl >> 7)) {
-                afterCommonCarry((int)g);
+                afterCommonCarry(g);
                 debug_StdPrintfDummy("girl becarry error");
             }
         }
@@ -4412,7 +4412,7 @@ inline void motCommonTruckLeverPush(GObj *volatile self)
     _ACTWait(0);
 }
 
-inline void funcCommonRopeBefore(GObj *self, int mail, int chain)
+inline void funcCommonRopeBefore(GObj *self, int mail, GObj *chain)
 {
     GOBJ_ACT(self)->chain = chain;
 }

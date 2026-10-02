@@ -15,7 +15,7 @@ static int mcDataDone; /* derived name */
 
 /* Background-read callback: pulls the icon file off the disc a chunk at a
    time into a 64-byte aligned buffer and waits for the writer to drain it. */
-static inline int _iosMcIconWriteIconsys(int self, struct McIconWork *p)
+static inline int _iosMcIconWriteIconsys(CdvdBgReq *self, struct McIconWork *p)
 {
     char buf[51200 + 64];
     char *ptr;
@@ -43,7 +43,7 @@ static inline int _iosMcIconWriteIconsys(int self, struct McIconWork *p)
     return 1;
 }
 
-inline int iosMcIconWriteIconsys(struct McMgr *self, int *p)
+inline int iosMcIconWriteIconsys(struct McMgr *self, const IconFile *p)
 {
     struct McIconWork work;
     CdvdBgReq *hdl;
@@ -51,9 +51,9 @@ inline int iosMcIconWriteIconsys(struct McMgr *self, int *p)
     int size;
     int len;
 
-    work.remain = (p[8] + 2047) / 2048 * 2048;
+    work.remain = (p->size + 2047) / 2048 * 2048;
 
-    hdl = iosCdvdBackGroundMgrAdd(p, _iosMcIconWriteIconsys, &work, 0, 0, 0, 0, 0);
+    hdl = iosCdvdBackGroundMgrAdd(p->name, _iosMcIconWriteIconsys, &work, 0, 0, 0, 0, 0);
 
     while (work.remain > 0) {
         work.size = 0;
@@ -62,8 +62,8 @@ inline int iosMcIconWriteIconsys(struct McMgr *self, int *p)
         } while (work.size == 0);
         size = work.size;
         total += size;
-        if (p[8] < total) {
-            len = size - (total - p[8]);
+        if (p->size < total) {
+            len = size - (total - p->size);
         } else {
             len = size;
         }
@@ -74,7 +74,7 @@ inline int iosMcIconWriteIconsys(struct McMgr *self, int *p)
     return 0;
 }
 
-inline int iosMcIconWriteIcon(struct McMgr *self, int *p)
+inline int iosMcIconWriteIcon(struct McMgr *self, const IconFile *p)
 {
     return iosMcIconWriteIconsys(self, p);
 }

@@ -2716,9 +2716,8 @@ void actBoyPullupReady(GObj *volatile self)
 
     ACTAdjustPlane(self, BOY_WALL(self) + 0x8C0);
     while (1) {
-        if (*(unsigned char *)(BOY_WALL(self) + 0x4F0) &&
-            motionKind[GOBJ_SUB(self)->ctrl.motion].playMode != 1) {
-            _MoveGV(mv, test_CURRENTROOT((void *)self), (float *)(BOY_WALL(self) + 0x500), 3.0f);
+        if (GOBJ_WORK(self)->boxSideSet && motionKind[GOBJ_SUB(self)->ctrl.motion].playMode != 1) {
+            _MoveGV(mv, test_CURRENTROOT(self), GOBJ_WORK(self)->boxSidePos, 3.0f);
             SetRootPosition(self, mv);
         }
         _ACTCharStatus_Set(self, 0x1C, -1.0f, 0);

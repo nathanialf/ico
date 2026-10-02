@@ -247,7 +247,7 @@ int scePadGetFrameCount(int port, int slot)
     return *(int *)(scePadGetDmaStr(port, slot) + 0x58);
 }
 
-int scePadRead(int port, int slot, int data)
+int scePadRead(int port, int slot, void *data)
 {
     int s0;
     if (padSlot[port][slot].opened == 0) {
