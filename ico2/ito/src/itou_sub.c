@@ -73,7 +73,7 @@ inline void ico_m33_to_quat(void *q, void *m)
     m33_to_quat(q, buf);
 }
 
-inline void pbga_start(int **slot, int key)
+inline void pbga_start(BgaPlayNode **slot, int key)
 {
     if (*slot != 0) {
         stage_KillPlayBgAnimation(slot);

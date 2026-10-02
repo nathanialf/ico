@@ -26,7 +26,7 @@
    placement InitBossCtrlGeo gives it, its release point, and whether a
    gene_enemy thread is releasing from it. */
 typedef struct {        /* field names derived */
-    char *bga;          /* 0x00 */
+    BgaPlayNode *bga;   /* 0x00 */
     signed char state;  /* 0x04 */
     sceVu0FVECTOR quat; /* 0x10 */
     sceVu0FVECTOR pos;  /* 0x20 */
@@ -266,9 +266,9 @@ static void effect_end_func(int id)
 
     if (isysGObjSearchFromObjKindID_begin(65) != 0) {
         e = &capsule[GetParticleEffectData(id)->user.capsule];
-        pbga_start((int **)&e->bga, 552);
-        _CopyVector(e->bga + 0x20, e->pos);
-        CopyQuaternion(e->bga + 0x30, e->quat);
+        pbga_start(&e->bga, 552);
+        _CopyVector(e->bga->pos, e->pos);
+        CopyQuaternion(e->bga->rot, e->quat);
         e->state = 2;
         ExecuteSEPackage(0, 101);
     }
@@ -595,10 +595,10 @@ void BossCtrlDL(void)
     for (k = 0; k < 53; k++) {
         e = &base[k];
         if (e->state >= 2) {
-            if (stage_DispBgAnimation(e) != 0) {
-                pbga_start((int **)&e->bga, 553);
-                _CopyVector(e->bga + 0x20, e->pos);
-                CopyQuaternion(e->bga + 0x30, e->quat);
+            if (stage_DispBgAnimation(&e->bga) != 0) {
+                pbga_start(&e->bga, 553);
+                _CopyVector(e->bga->pos, e->pos);
+                CopyQuaternion(e->bga->rot, e->quat);
             }
         }
         if (e->state != 0) {

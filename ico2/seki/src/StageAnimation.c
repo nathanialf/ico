@@ -63,29 +63,11 @@ typedef struct {          /* field names derived */
     StageFlags flags;     /* 0x28C */
 } StageAnim;              /* derived name */
 
-/* The play node stage_MakePlayBgAnimation links into bgaPlayList and
-   stage_DispBgAnimation walks.  Its first word holds int bit-fields: the
-   14-bit animation number, the kill flag and the play flag. */
-typedef struct { /* field names derived */
-    int no : 14; /* 0x00 */
-    int play : 1;
-    int kill : 1;
-    short num;   /* 0x02 */
-    float frame; /* 0x04 */
-    float speed; /* 0x08 */
-    float scale; /* 0x0C */
-    void *prev;  /* 0x10 */
-    void *next;  /* 0x14 */
-    int pad18[2];
-    sceVu0FVECTOR pos; /* 0x20 */
-    float rot[4];      /* 0x30 */
-} BgaPlayNode;         /* derived name */
-
 /* The number of loaded animation records, the head of the play-node list,
    and the record table stage_Init fills, 87 records of 0x290 bytes. */
 static int stageAnimCount; /* derived name */
 
-static int *bgaPlayList; /* derived name */
+static BgaPlayNode *bgaPlayList; /* derived name */
 
 static StageAnim stageAnimTable[87]; /* derived name */
 
@@ -964,14 +946,14 @@ float stage_PlayBgAnimationDissolve(int key, void *v, void *q, float t, float dv
     return r;
 }
 
-int *stage_MakePlayBgAnimation(int key)
+BgaPlayNode *stage_MakePlayBgAnimation(int key)
 {
     int i;
     int found = -1;
     float f = 1.0f;
     short num = 0;
     StageAnim *e = stageAnimTable;
-    int *p;
+    BgaPlayNode *p;
 
     for (i = 0; i < stageAnimCount; i++, e++) {
         StageAnimDef *entry1 = e->entry1;
@@ -997,7 +979,7 @@ int *stage_MakePlayBgAnimation(int key)
         return 0;
     }
 
-    p = (int *)iosMallocDebug(ios_partition_seki, 64, __FILE__, 1494);
+    p = iosMallocDebug(ios_partition_seki, 64, __FILE__, 1494);
     if (p == 0) {
         /* "cannot allocate memory for the stage segment (heap exhausted)" */
         debug_StdPrintfDummy("ステージセグメントにメモリが確保できません.(ヒープメモリ不足)\n");
@@ -1005,39 +987,39 @@ int *stage_MakePlayBgAnimation(int key)
     }
 
     ((PlayWord *)p)->l = ((((PlayWord *)p)->l & ~0x3FFF) | (key & 0x3FFF) | 0x4000) & ~0x8000;
-    ((PlayWord *)((char *)p + 2))->h = num;
-    *(float *)((char *)p + 4) = f;
-    *(float *)((char *)p + 8) = 1.0f;
-    *(float *)((char *)p + 0xC) = 1.0f;
+    p->num = num;
+    p->frame = f;
+    p->speed = 1.0f;
+    p->scale = 1.0f;
     if (bgaPlayList != 0) {
-        bgaPlayList[0x10 / 4] = (int)p;
+        bgaPlayList->prev = p;
     }
-    p[0x10 / 4] = 0;
-    p[0x14 / 4] = (int)bgaPlayList;
+    p->prev = 0;
+    p->next = bgaPlayList;
     bgaPlayList = p;
     return p;
 }
 
-void stage_KillPlayBgAnimation(int **self)
+void stage_KillPlayBgAnimation(BgaPlayNode **self)
 {
-    int *node = *self;
-    int *next;
-    int *prev;
+    BgaPlayNode *node = *self;
+    BgaPlayNode *next;
+    BgaPlayNode *prev;
     if (node == 0)
         return;
-    next = (int *)node[0x10 / 4];
+    next = node->prev;
     if (next != 0) {
-        next[0x14 / 4] = node[0x14 / 4];
+        next->next = node->next;
     } else {
-        bgaPlayList = (int *)node[0x14 / 4];
+        bgaPlayList = node->next;
         node = *self;
     }
-    prev = (int *)node[0x14 / 4];
+    prev = node->next;
     if (prev != 0) {
-        prev[0x10 / 4] = node[0x10 / 4];
+        prev->prev = node->prev;
     }
     if (bgaPlayList != 0) {
-        bgaPlayList[0x10 / 4] = 0;
+        bgaPlayList->prev = 0;
     }
     freeseki(*self);
 }
@@ -1079,15 +1061,13 @@ static inline void stage_SetBgAnimationPlayNode(BgaPlayNode *node, int key) /* d
     }
 }
 
-int stage_DispBgAnimation(void *p)
+int stage_DispBgAnimation(BgaPlayNode **self)
 {
-    BgaPlayNode **self = (BgaPlayNode **)p;
-
     if (*self == 0) {
         return -1;
     }
     if ((*self)->kill) {
-        stage_KillPlayBgAnimation((int **)self);
+        stage_KillPlayBgAnimation(self);
         *self = 0;
         return -1;
     }
@@ -1105,16 +1085,15 @@ int stage_DispBgAnimation(void *p)
     }
     (*self)->play = 0;
     if ((*self)->frame == -1.0f) {
-        stage_KillPlayBgAnimation((int **)self);
+        stage_KillPlayBgAnimation(self);
         *self = 0;
         return -1;
     }
     return 0;
 }
 
-int stage_DispBgAnimationNoFinish(char **slot)
+int stage_DispBgAnimationNoFinish(BgaPlayNode **self)
 {
-    BgaPlayNode **self = (BgaPlayNode **)slot;
     int i;
     StageAnim *e;
 
@@ -1122,7 +1101,7 @@ int stage_DispBgAnimationNoFinish(char **slot)
         return -1;
     }
     if ((*self)->kill) {
-        stage_KillPlayBgAnimation((int **)self);
+        stage_KillPlayBgAnimation(self);
         *self = 0;
         return -1;
     }

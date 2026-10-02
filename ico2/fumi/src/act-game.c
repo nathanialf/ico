@@ -2588,7 +2588,7 @@ void ACTGame_CommonLoop(GObj *self)
             if (GOBJ_ACT(((char *)girlGObj))->actMode == 74) {
                 connect = 1;
             }
-            if (connect && (s->padNow & 8)) {
+            if (connect && (s->pad.now & 8)) {
                 iosOmSendMail(girlGObj, 63, boyGObj);
             }
         }
@@ -2610,7 +2610,7 @@ void ACTGame_CommonLoop(GObj *self)
     third = (60 - systemStatus[0] * 10) / systemStatus[1] / 3;
     half = (60 - systemStatus[0] * 10) / systemStatus[1] / 2;
 
-    if ((s->padTrg & 0xF0) != 0) {
+    if ((s->pad.trg & 0xF0) != 0) {
         (*(int *)(((char *)GOBJ_ACT(self)->enemy) + 0xCC))--;
     }
 

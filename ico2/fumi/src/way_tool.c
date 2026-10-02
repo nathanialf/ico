@@ -52,7 +52,7 @@ typedef struct { /* field names derived */
    quick_save_wpfile writes and quick_load_wpfile reads back */
 static WayCol wayDrawCol; /* derived name */
 
-static char wayToolPad[96]; /* derived name */
+static IosPadCtx wayToolPad; /* derived name */
 
 static char wayToolStick[32]; /* derived name */
 
@@ -87,7 +87,7 @@ static int group_create(void)
     if (debug_font_flag & 1) {
         debug_Printf(26, 66, 0xFF808000, "pt.%d", selectedWay->count);
     }
-    f = *(int *)&wayToolPad[12];
+    f = wayToolPad.trg;
     if (f & 0x20) {
         int p = CreateWayPoint(wayWorkPos);
 
@@ -177,10 +177,10 @@ static int group_select(void)
         }
         selectState = 1;
     } else if (state == 1) {
-        if ((*(int *)&wayToolPad[12]) & 0x2000) {
+        if (wayToolPad.trg & 0x2000) {
             set_bridge(current_select_gid);
             relabel_way_groups();
-        } else if ((*(int *)&wayToolPad[12]) & 0x8000) {
+        } else if (wayToolPad.trg & 0x8000) {
             way_group[current_select_gid].bridge = 0;
             relabel_way_groups();
         }
@@ -216,7 +216,7 @@ static int point_delete(void)
             debug_Printf(26, 66, 0xFF808000, "pt.%d", entry->count);
         }
     }
-    f = *(int *)&wayToolPad[12];
+    f = wayToolPad.trg;
     if (f & 0x20) {
         WayPoint *res = waypoint_with_range(wayWorkPos, 60.0f);
 
@@ -255,7 +255,7 @@ static int point_insert(void)
         }
     }
     insertState = 1;
-    f = *(int *)&wayToolPad[12];
+    f = wayToolPad.trg;
     if (!(f & 0x20)) {
         if (f & 0x40) {
             insertState = 0;
@@ -287,7 +287,7 @@ inline int play_way(void)
     if (debug_font_flag & 1) {
         debug_Printf(18, 54, 0xFF000000, "to boy\n");
     }
-    f = *(int *)&wayToolPad[12];
+    f = wayToolPad.trg;
     if (f & 0x20) {
         g = isysGObjSearchFromObjKindID_begin(2);
         switch (playMode) {
@@ -320,7 +320,7 @@ inline int point_nige(void)
         unsigned int color = 0xFF000000;
         debug_Printf(18, 54, color, "point + nige\n");
     }
-    v = *(int *)&wayToolPad[12];
+    v = wayToolPad.trg;
     if (v & 0x20) {
         p = waypoint_with_range(wayWorkPos, 60.0f);
         if (p == 0) {
@@ -690,9 +690,9 @@ int debug_WayTool(void)
         first_waytool = 2;
     }
 
-    iosPadConnect(wayToolPad, 0, 0, &iosPadConfDefault);
-    iosPadRead(wayToolPad);
-    iosPadGetStick(wayToolPad, wayToolStick, 1, 0, 0, 0);
+    iosPadConnect(&wayToolPad, 0, 0, &iosPadConfDefault);
+    iosPadRead(&wayToolPad);
+    iosPadGetStick(&wayToolPad, wayToolStick, 1, 0, 0, 0);
 
     state = menuState;
     if (state == 1) {
@@ -731,12 +731,12 @@ inline void cursor_control(GObj *volatile self)
 {
     Act *w = GOBJ_ACT(self);
 
-    iosPadConnect((char *)w + 0x2D8, 0, 0, &iosPadConfDefault);
+    iosPadConnect(&w->pad, 0, 0, &iosPadConfDefault);
 
     while (1) {
-        iosPadRead((char *)w + 0x2D8);
+        iosPadRead(&w->pad);
 
-        if (self == CurrentTargetGObj && (w->padTrg & 1)) {
+        if (self == CurrentTargetGObj && (w->pad.trg & 1)) {
             ACTDebugMove(self, 1);
         }
         _ACTWait(1);

@@ -422,7 +422,7 @@ void subEnemyControl(GObj *volatile self)
     int walkCnt = 0;
     int stopCnt = 0;
 
-    iosPadConnect((char *)sub + 0x2D8, 0, 1, &sub->padConf);
+    iosPadConnect(&sub->pad, 0, 1, &sub->padConf);
     while (1) {
         enemyPollHitNodes(self);
         /* the stick poll loop, subBoyControl's shape, repeating only under the
@@ -430,9 +430,9 @@ void subEnemyControl(GObj *volatile self)
         for (;;) {
             if (((int)(sub->flags18.ll >> 48)) & 1) {
                 if (self == (int)((char *)CurrentTargetGObj)) {
-                    iosPadConnect((char *)sub + 0x2D8, 0, 0, &sub->padConf);
-                    iosPadRead((char *)sub + 0x2D8);
-                    iosPadGetStick((char *)sub + 0x2D8, &sub->stick, 0, 2, 2, 0);
+                    iosPadConnect(&sub->pad, 0, 0, &sub->padConf);
+                    iosPadRead(&sub->pad);
+                    iosPadGetStick(&sub->pad, &sub->stick, 0, 2, 2, 0);
                     _GetMotionDirection(dir, self);
                     sub->stick.angle = CorrectStickInfo(dir, &sub->stick);
                     if (0.001f < sub->stick.mag) {
@@ -442,9 +442,9 @@ void subEnemyControl(GObj *volatile self)
                         sub->dir[2] = pos[2];
                     }
                 } else if (self == (int)((char *)CurrentTargetGObjSub)) {
-                    iosPadConnect((char *)sub + 0x2D8, 0, 1, &sub->padConf);
+                    iosPadConnect(&sub->pad, 0, 1, &sub->padConf);
                 } else {
-                    iosPadConnect((char *)sub + 0x2D8, 0, 1, &sub->padConf);
+                    iosPadConnect(&sub->pad, 0, 1, &sub->padConf);
                 }
             }
             if (!ENEMY_DEBUG_HOLD) {
@@ -457,7 +457,7 @@ void subEnemyControl(GObj *volatile self)
         if (0.1f < sub->stick.mag) {
             stopCnt = 0;
         }
-        if (0.1f < sub->stick.mag && (sub->stick.mag < 0.99f || (sub->padNow & 0x20))) {
+        if (0.1f < sub->stick.mag && (sub->stick.mag < 0.99f || (sub->pad.now & 0x20))) {
             walkCnt++;
         } else {
             walkCnt = 0;
@@ -466,7 +466,7 @@ void subEnemyControl(GObj *volatile self)
            inside the negation, as commonact.c's _ACTCommonMailTest writes
            it */
         if (0.1f < sub->stick.mag &&
-            !(0.1f < sub->stick.mag && (sub->stick.mag < 0.99f || (sub->padNow & 0x20)))) {
+            !(0.1f < sub->stick.mag && (sub->stick.mag < 0.99f || (sub->pad.now & 0x20)))) {
             runCnt++;
         } else {
             runCnt = 0;
@@ -480,7 +480,7 @@ void subEnemyControl(GObj *volatile self)
             ACTSendMailCorrect((void *)self, 0xC7);
             break;
         case 2:
-            if (0.1f < sub->stick.mag && (sub->stick.mag < 0.99f || (sub->padNow & 0x20)) &&
+            if (0.1f < sub->stick.mag && (sub->stick.mag < 0.99f || (sub->pad.now & 0x20)) &&
                 !(walkCnt < 4)) {
                 if (CheckFloorAttribute(self, 0x200)) {
                     ACTSendMailCorrect((void *)self, 0xB6);
@@ -732,7 +732,7 @@ void actEnemyAttack(GObj *volatile self)
         if (GetMotionFrameFlag2((void *)self) != 0 && sub->attackTurn != 0) {
             SetMotionDirectionWithLimit((void *)self, buf, 10.0f, 90.0f);
         }
-        if (sub->padTrg & 0x80) {
+        if (sub->pad.trg & 0x80) {
             hit = 1;
         }
         if (hit != 0) {

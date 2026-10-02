@@ -216,7 +216,7 @@ void actSt27aWave1(GObj *volatile self)
 void actSpiderChk(GObj *volatile self)
 {
     while (1) {
-        while ((GOBJ_ACT(boyGObj)->padTrg & 0x400) == 0) {
+        while ((GOBJ_ACT(boyGObj)->pad.trg & 0x400) == 0) {
             _ACTWait(1);
         }
         scpBornSpider(2, 0.0f, -500.0f, 0.0f, 500.0f);

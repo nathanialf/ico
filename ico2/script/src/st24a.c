@@ -35,7 +35,7 @@ void actSt24aSwordChk(GObj *volatile self)
     float dir[4];
     GProc *th;
 
-    while ((GOBJ_ACT(boyGObj)->padTrg & 0x20) == 0 || scpTriggerBall(self, boyGObj, 100.0f) == 0) {
+    while ((GOBJ_ACT(boyGObj)->pad.trg & 0x20) == 0 || scpTriggerBall(self, boyGObj, 100.0f) == 0) {
         _ACTWait(1);
     }
     lt_switch_layout(55);

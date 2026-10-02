@@ -793,12 +793,12 @@ static void GetTargetOffset(GObj *gobj, float *v, unsigned char flag)
 
 inline void GetHandCameraStickInfo(float *outX, float *outZ, float *outMag)
 {
-    int padCtx[0x60 / 4];
+    IosPadCtx padCtx;
     IosPadStick st;
 
-    iosPadConnect(padCtx, 0, 0, &iosPadConfDefault);
-    iosPadRead(padCtx);
-    iosPadGetStick(padCtx, &st, 1, 2, 2, 0);
+    iosPadConnect(&padCtx, 0, 0, &iosPadConfDefault);
+    iosPadRead(&padCtx);
+    iosPadGetStick(&padCtx, &st, 1, 2, 2, 0);
     {
         Mat4 dir = {{(float)st.x - 127.5f, 0.0f, (float)st.y - 127.5f, 0.0f}};
 

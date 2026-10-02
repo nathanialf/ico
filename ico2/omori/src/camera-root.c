@@ -525,7 +525,7 @@ void SetCameraMatrix(GObj *self)
     int zoomMax;
     int target;
     int step;
-    char *p;
+    IosPadCtx *p;
     float zoom;
 
     useDemo = 0;
@@ -679,7 +679,7 @@ void SetCameraMatrix(GObj *self)
         static unsigned char zoomBaseInit = 1; /* derived name */
         CamZoomStep zp[3] = {
             {10, 200}, {10, 200}, {(int)_ACTGame_GetParamF(12), (int)_ACTGame_GetParamF(11)}};
-        int padCtx[12];
+        IosPadCtx padCtx;
         GObj *ply;
 
         if (useDemo != 0) {
@@ -687,21 +687,21 @@ void SetCameraMatrix(GObj *self)
         } else {
             zoomMax = zp[0].max;
         }
-        iosPadConnect(padCtx, 0, 0, &iosPadConfCustom);
+        iosPadConnect(&padCtx, 0, 0, &iosPadConfCustom);
         if (zoomBaseInit != 0) {
             zoomBaseInit = 0;
             zoomBase = debug_zoom_per;
         }
-        iosPadRead(padCtx);
+        iosPadRead(&padCtx);
         ply = boyGObj;
         if (ply != 0 && useDemo == 0) {
-            p = (char *)&GOBJ_ACT(ply)->padDev;
+            p = &GOBJ_ACT(ply)->pad;
         } else {
-            p = (char *)padCtx;
+            p = &padCtx;
         }
         if (zoomRequest != 0) {
             step = 2;
-        } else if (*(int *)(p + 8) & 2) {
+        } else if (p->now & 2) {
             step = 1;
         } else {
             step = 0;

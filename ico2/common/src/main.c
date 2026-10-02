@@ -432,7 +432,7 @@ int IosStgMgrLock QWORD = 0;
 
 int systemFault QWORD = 0;
 
-/* the 0/1 game option that selects the pad word +0x2E0 or +0x2E4 the actions read */
+/* the 0/1 game option that selects the pad word, held or pressed, the actions read */
 int optionControlType QWORD = 0; /* derived name */
 
 /* the five-way game option GsBase indexes its per-mode tint and blur rows with */
@@ -445,10 +445,10 @@ GObj *boyGObj = 0;
 
 GObj *girlGObj = 0;
 
-int boyPad = 0;
+/* the boy's and the girl's pad handles, the Act.pad each actor connects */
+IosPadCtx *boyPad = 0;
 
-/* the girl's pad word, girl_act's +0x2D8, the girl's counterpart of boyPad */
-int girlPad = 0; /* derived name */
+IosPadCtx *girlPad = 0; /* derived name */
 
 int gameover_flag = 0;
 

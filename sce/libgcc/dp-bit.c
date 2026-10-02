@@ -651,7 +651,7 @@ int __make_dp(int class, int sign, int exp, long long frac)
     __pack_d(&s);
 }
 
-float dptofp(long arg_a)
+float dptofp(double arg_a)
 {
     fp_number_type_d buf;
 

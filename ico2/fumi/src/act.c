@@ -634,11 +634,11 @@ void ACTDebugMove(GObj *self, int a1)
     h = (p != 0) ? p->pos[1] : 0.0f;
     DisableChangeRootUpdateMode(self);
     SetRootUpdateMode(self, 0);
-    while (((ext->padNow & 1) != 0 || mode == 1) && self == CurrentTargetGObj) {
+    while (((ext->pad.now & 1) != 0 || mode == 1) && self == CurrentTargetGObj) {
         _ACTWait(1);
-        iosPadRead((char *)ext + 0x2D8);
-        iosPadGetStick((char *)ext + 0x2D8, &ext->stick, 0, 2, 2, 0);
-        iosPadGetStick((char *)ext + 0x2D8, &st, 1, 2, 2, 0);
+        iosPadRead(&ext->pad);
+        iosPadGetStick(&ext->pad, &ext->stick, 0, 2, 2, 0);
+        iosPadGetStick(&ext->pad, &st, 1, 2, 2, 0);
         if (0.001f < ext->stick.mag) {
             ConvertStickToAbsCoord(dir, &ext->stick);
         }
@@ -652,7 +652,7 @@ void ACTDebugMove(GObj *self, int a1)
         case 0: {
             ClipWork w;
 
-            if ((ext->padTrg & 0x200) != 0) {
+            if ((ext->pad.trg & 0x200) != 0) {
                 sceVu0CopyVector(w.pt[0], pos);
                 sceVu0CopyVector(w.pt[1], pos);
                 w.pt[1][1] -= 10000.0f;
@@ -680,7 +680,7 @@ void ACTDebugMove(GObj *self, int a1)
             break;
         }
         case 1:
-            if ((ext->padTrg & 0x200) != 0) {
+            if ((ext->pad.trg & 0x200) != 0) {
                 SetRootUpdateMode(self, 1);
                 mode = 0;
             } else {

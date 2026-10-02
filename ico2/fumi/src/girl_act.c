@@ -3217,17 +3217,17 @@ void subGirlControl(GObj *volatile self)
         debug_StdPrintfDummy("girl no!!\n");
         _ACTWait(1);
     }
-    iosPadConnect(&w.p->padDev, 0, 1, &w.p->padConf);
-    girlPad = &w.p->padDev;
+    iosPadConnect(&w.p->pad, 0, 1, &w.p->padConf);
+    girlPad = &w.p->pad;
     for (;;) {
         if ((int)(w.p->flags18.ll >> 48) & 1) {
             if (scpBoyControlReadDisable == 0 &&
                 ((void *)self == (void *)CurrentTargetGObj || (void *)girlControlMode != 0))
                 /* the pad read, once; the listing puts its exit branch on the while line */
                 do {
-                    iosPadConnect(&w.p->padDev, 0, (void *)girlControlMode != 0, &w.p->padConf);
-                    iosPadRead(&w.p->padDev);
-                    iosPadGetStick(&w.p->padDev, &w.p->stick, 0, 2, 2, debug_stick_simulate);
+                    iosPadConnect(&w.p->pad, 0, (void *)girlControlMode != 0, &w.p->padConf);
+                    iosPadRead(&w.p->pad);
+                    iosPadGetStick(&w.p->pad, &w.p->stick, 0, 2, 2, debug_stick_simulate);
                     _GetMotionDirection(mdir, (void *)self);
                     w.p->stick.angle = CorrectStickInfo(mdir, &w.p->stick);
                     if (w.p->stick.mag > 0.001f) {
@@ -3238,9 +3238,9 @@ void subGirlControl(GObj *volatile self)
                     }
                 } while (0);
             else if ((void *)self == (void *)CurrentTargetGObjSub) {
-                iosPadConnect(&w.p->padDev, 0, 1, &w.p->padConf);
+                iosPadConnect(&w.p->pad, 0, 1, &w.p->padConf);
             } else {
-                iosPadConnect(&w.p->padDev, 0, 1, &w.p->padConf);
+                iosPadConnect(&w.p->pad, 0, 1, &w.p->padConf);
             }
             /* the compiled-out block */
             if (0) {
@@ -3266,13 +3266,13 @@ void subGirlControl(GObj *volatile self)
         } else {
             padtimer_stand = 0;
         }
-        if (w.p->stick.mag > 0.1f && (w.p->stick.mag < 0.99f || (w.p->padNow & 0x20))) {
+        if (w.p->stick.mag > 0.1f && (w.p->stick.mag < 0.99f || (w.p->pad.now & 0x20))) {
             padtimer_walk = padtimer_walk + 1;
         } else {
             padtimer_walk = 0;
         }
         if (0.1f < w.p->stick.mag &&
-            !(0.1f < w.p->stick.mag && (w.p->stick.mag < 0.99f || (w.p->padNow & 0x20)))) {
+            !(0.1f < w.p->stick.mag && (w.p->stick.mag < 0.99f || (w.p->pad.now & 0x20)))) {
             padtimer_run = padtimer_run + 1;
         } else {
             padtimer_run = 0;
@@ -3312,7 +3312,7 @@ void subGirlControl(GObj *volatile self)
                   ((int)(w.p->flags18.ll >> 56) & 1))) {
                 if ((w.p->stick.mag > 0.1f &&
                      (w.p->stick.angle < -134 || 134 < w.p->stick.angle)) ||
-                    (w.p->padTrg & 0x40)) {
+                    (w.p->pad.trg & 0x40)) {
                     if (100.0f < GetDifferenceFromLowerField((void *)self, 0x2C)) {
                         ACTSendMailCorrect(self, 0x127);
                     } else {
@@ -3321,7 +3321,7 @@ void subGirlControl(GObj *volatile self)
                 }
             }
             if ((w.p->stick.mag > 0.1f && (w.p->stick.angle >= -45 && w.p->stick.angle <= 45)) ||
-                (w.p->padTrg & 0x10)) {
+                (w.p->pad.trg & 0x10)) {
                 ACTSendMailCorrect(self, 0xC7);
             }
             if (w.p->stick.mag > 0.1f && (w.p->stick.angle >= 46 && w.p->stick.angle <= 134)) {
@@ -3340,7 +3340,7 @@ void subGirlControl(GObj *volatile self)
                   *(int *)((char *)GOBJ_ACT(self)->work + 0x900) == 4 &&
                   ((int)(w.p->flags18.ll >> 56) & 1)) &&
                 ((w.p->stick.mag > 0.1f && (w.p->stick.angle < -134 || 134 < w.p->stick.angle)) ||
-                 (w.p->padTrg & 0x40))) {
+                 (w.p->pad.trg & 0x40))) {
                 ACTSendMailCorrect(self, 0xE2);
             } else {
                 if ((void *)girlControlMode != 0 ||
@@ -3354,7 +3354,7 @@ void subGirlControl(GObj *volatile self)
             ACTSendMailCorrect(self, 0x150);
             break;
         case 15:
-            if (w.p->padTrg & 0x20) {
+            if (w.p->pad.trg & 0x20) {
                 ACTSendMailCorrect(self, 0xC7);
             }
             break;
@@ -3418,14 +3418,14 @@ void subGirlControl(GObj *volatile self)
             break;
         }
         *(unsigned long long *)&w.p->flags20 &= ~0x4000000ULL;
-        if ((void *)girlControlMode != 0 && (w.p->padNow & 8)) {
+        if ((void *)girlControlMode != 0 && (w.p->pad.now & 8)) {
             *(unsigned long long *)&w.p->flags20 |= 0x4000000ULL;
         }
         _ACTWait(1);
     }
 }
 
-extern double fptodp(float v);
+extern int fptodp(float v);
 
 void subGirlCollision(GObj *volatile self)
 {

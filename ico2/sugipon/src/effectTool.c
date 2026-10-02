@@ -487,23 +487,23 @@ static int saveEffectData(int id)
 static void moveEffectToolGeometry(int idx)
 {
     float v[4];
-    int padCtx[96 / 4];
+    IosPadCtx padCtx;
     IosPadStick st0;
     IosPadStick st1;
     int q[4];
     int *pkg;
 
-    iosPadConnect(padCtx, 0, 0, &iosPadConfDefault);
-    iosPadRead(padCtx);
-    iosPadGetStick(padCtx, &st0, 0, 2, 2, 0);
-    iosPadGetStick(padCtx, &st1, 1, 2, 2, 0);
+    iosPadConnect(&padCtx, 0, 0, &iosPadConfDefault);
+    iosPadRead(&padCtx);
+    iosPadGetStick(&padCtx, &st0, 0, 2, 2, 0);
+    iosPadGetStick(&padCtx, &st1, 1, 2, 2, 0);
     iosPadStickCameraCoord(v, &st0);
     if (st0.mag > 0.001f) {
         effectToolPos[0] += v[0] * st0.mag * 16.0f;
         effectToolPos[2] += v[2] * st0.mag * 16.0f;
     }
     if (st1.mag > 0.001f) {
-        if (padCtx[2] & 2) {
+        if (padCtx.now & 2) {
             effectToolPos[1] += st1.dz * st1.mag * 16.0f;
         } else {
             viewRotY = viewRotY + st1.dx * 256.0f * st1.mag;

@@ -3273,7 +3273,7 @@ void _ACTCommonMailTest(GObj *self, int stopCnt, int walkCnt, int runCnt)
 
     s = GOBJ_ACT(self);
     if (self == boyGObj) {
-        if (optionControlType == 1 ? (s->padTrg & 8) != 0 : (s->padNow & 8) == 0) {
+        if (optionControlType == 1 ? (s->pad.trg & 8) != 0 : (s->pad.now & 8) == 0) {
             handoff_heroin();
         }
     }
@@ -3321,13 +3321,14 @@ void _ACTCommonMailTest(GObj *self, int stopCnt, int walkCnt, int runCnt)
         if (0.1f < s->stick.mag && !(s->stick.angle < -134) && s->stick.angle < -45) {
             ACTSendMailCorrect(self, 0x14F);
         }
-        if (0.1f < s->stick.mag && (s->stick.mag < 0.99f || (s->padNow & 0x20)) && !(walkCnt < 4)) {
+        if (0.1f < s->stick.mag && (s->stick.mag < 0.99f || (s->pad.now & 0x20)) &&
+            !(walkCnt < 4)) {
             ACTSendMailCorrect(self, 0xB5);
         }
         /* the negated conjunct is the 0xB5 guard's whole predicate, repeated;
            it emits a real (dead) branch, so it is in the shipped code. */
         if (0.1f < s->stick.mag &&
-            !(0.1f < s->stick.mag && (s->stick.mag < 0.99f || (s->padNow & 0x20))) &&
+            !(0.1f < s->stick.mag && (s->stick.mag < 0.99f || (s->pad.now & 0x20))) &&
             !(runCnt < 4)) {
             ACTSendMailCorrect(self, 0xBA);
         }
@@ -3336,13 +3337,14 @@ void _ACTCommonMailTest(GObj *self, int stopCnt, int walkCnt, int runCnt)
         }
     }
     if (s->actMode == 73) {
-        if (0.1f < s->stick.mag && (s->stick.mag < 0.99f || (s->padNow & 0x20)) && !(walkCnt < 4)) {
+        if (0.1f < s->stick.mag && (s->stick.mag < 0.99f || (s->pad.now & 0x20)) &&
+            !(walkCnt < 4)) {
             ACTSendMailCorrect(self, 0xB5);
         }
         /* the negated conjunct is the 0xB5 guard's whole predicate, repeated;
            it emits a real (dead) branch, so it is in the shipped code. */
         if (0.1f < s->stick.mag &&
-            !(0.1f < s->stick.mag && (s->stick.mag < 0.99f || (s->padNow & 0x20))) &&
+            !(0.1f < s->stick.mag && (s->stick.mag < 0.99f || (s->pad.now & 0x20))) &&
             !(runCnt < 4)) {
             ACTSendMailCorrect(self, 0xBA);
         }

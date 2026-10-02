@@ -15,53 +15,6 @@
 #include "main.h"
 #include <assert.h>
 
-/* One sampled pad buffer: the two button bytes the device leaves at +2 and
-   +3, active low. */
-typedef struct { /* field names derived */
-    unsigned char pad0[2];
-    unsigned char hi; /* 0x02 */
-    unsigned char lo; /* 0x03 */
-    unsigned char rx; /* 0x04 */
-    unsigned char ry; /* 0x05 */
-    unsigned char lx; /* 0x06 */
-    unsigned char ly; /* 0x07 */
-    unsigned char pad8[24];
-} IosPadBuf; /* derived name */
-
-/* The device record iosPadDev carries one of per port: the buffer the last
-   read filled is chosen by the index at +0xC, and +0x194 is set while the
-   port has no controller. */
-typedef struct {          /* field names derived */
-    ShockRequestBox box;  /* 0x00 the player Init_Player sets up */
-    unsigned char motor0; /* 0x10 */
-    unsigned char motor1; /* 0x11 */
-    char pad12[2];
-    ShockReq motor; /* 0x14 the motor state Shock_SetMotor keeps, which Init_Controler clears */
-} IosPadShock;      /* derived name */
-
-typedef struct IosPadDevRec { /* field names derived */
-    int port;                 /* 0x00 */
-    int slot;                 /* 0x04 */
-    int termId;               /* 0x08 */
-    int idx;                  /* 0x0C */
-    IosPadBuf buf[2];         /* 0x10 */
-    char pad50[48];
-    /* 0x80, scePadPortOpen's DMA buffer, which the library requires
-       64-byte aligned: the record's stride of 0x200 and the 64-aligned
-       start of pad.o's .data follow from it */
-    unsigned char dmaBuf[256] __attribute__((aligned(64)));
-    int state;      /* 0x180 the last scePadGetState */
-    int phase;      /* 0x184 controler_stable_check's step, 99 when stable */
-    int errCount;   /* 0x188 */
-    int lastTermId; /* 0x18C */
-    char pad190[4];
-    unsigned int error;   /* 0x194 */
-    unsigned char act[6]; /* 0x198 */
-    char pad19E[6];
-    IosPadShock shock;        /* 0x1A4 */
-    unsigned long long flags; /* 0x1C0 */
-} IosPadDevRec;               /* derived name */
-
 /* the terminal id the reconnect check compares against, which nothing in the
    retail build writes, and the enable flag iosPadEnable and iosPadDisable
    set */
@@ -399,9 +352,8 @@ static int iosPadDevReadFunc(void)
     return 0;
 }
 
-int iosPadRead(void *pad)
+int iosPadRead(IosPadCtx *ctx)
 {
-    IosPadCtx *ctx = (IosPadCtx *)pad;
     IosPadDevRec *dev = ctx->dev;
     IosPadBuf *prev;
     IosPadBuf *cur;
@@ -497,10 +449,9 @@ float iosPadNormalizeStick(IosPadStick *st)
     return (len - 48.0f) / 72.0f;
 }
 
-static int iosPadGetStick_func(void *dev, void *out, int mode, int a3, int a4, int simulate)
+static int iosPadGetStick_func(IosPadCtx *ctx, IosPadStick *st, int mode, int a3, int a4,
+                               int simulate)
 {
-    IosPadCtx *ctx = (IosPadCtx *)dev;
-    IosPadStick *st = (IosPadStick *)out;
     IosPadDevRec *rec = ctx->dev;
     IosPadBuf *buf = &rec->buf[rec->idx];
     float ox;
@@ -559,7 +510,7 @@ static PadAct padActs[16]; /* derived name */
 
 static int padActKey = 1; /* derived name */
 
-int iosPadActRequest(int pad, int id)
+int iosPadActRequest(IosPadCtx *pad, int id)
 {
     PadAct *p = padActs;
     PadAct *entry;
@@ -587,7 +538,7 @@ go:
     entry->voice = shockList[id].voice;
     entry->life = shockList[id].life;
     entry->tick = 0;
-    entry->box = &((IosPadCtx *)pad)->dev->shock.box;
+    entry->box = &pad->dev->shock.box;
     entry->prm.voice = entry->prm.waveId = 0;
     entry->prm.volume = 255;
     entry->volume = 255;
@@ -634,19 +585,18 @@ int iosPadGetDevice(int port, int slot)
     return -1;
 }
 
-int iosPadConnect(void *pad, int a1, int port, PadConf *conf)
+int iosPadConnect(IosPadCtx *ctx, int a1, int port, PadConf *conf)
 {
-    IosPadCtx *ctx = (IosPadCtx *)pad;
     ctx->conf = conf;
     ctx->dev = &iosPadDev[port];
     return 0;
 }
 
-int iosPadGetStick(void *dev, void *out, int mode, int a3, int a4, int simulate)
+int iosPadGetStick(IosPadCtx *ctx, void *st, int mode, int a3, int a4, int simulate)
 {
     int rv;
     _PushVu0Registers();
-    rv = iosPadGetStick_func(dev, out, mode, a3, a4, simulate);
+    rv = iosPadGetStick_func(ctx, st, mode, a3, a4, simulate);
     _PopVu0Registers();
     return rv;
 }

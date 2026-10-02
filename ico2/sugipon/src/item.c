@@ -36,15 +36,15 @@ static void uncarriedItemGeo(struct GObj *gobj);
 /* A bomb's fuse: the torch object that lights it, the frames left to burn,
    the fuse state (0 unlit, 1 burning, 2 exploding, 3 spent), where the
    explosion is centred and its animation slot. */
-typedef struct {  /* field names derived */
-    GObj *torch;  /* 0x00 */
-    int time;     /* 0x04 */
-    int state;    /* 0x08 */
-    int padC;     /* 0x0C */
-    float pos[4]; /* 0x10 */
-    char *anim;   /* 0x20 */
-    int animMode; /* 0x24 */
-} ItemFuse;       /* derived name */
+typedef struct {       /* field names derived */
+    GObj *torch;       /* 0x00 */
+    int time;          /* 0x04 */
+    int state;         /* 0x08 */
+    int padC;          /* 0x0C */
+    float pos[4];      /* 0x10 */
+    BgaPlayNode *anim; /* 0x20 */
+    int animMode;      /* 0x24 */
+} ItemFuse;            /* derived name */
 
 /* The 160-byte work record InitItemGeo allocates and fills from
    emptyItemWork: the dead flag, the kind (1 a bomb), the carry state and
@@ -649,9 +649,9 @@ static void execBombGeo(GObj *gobj)
         bombExplodeSE(gobj);
         stage_KillPlayBgAnimationIfOverMaxCount(511, 1);
         q->anim = stage_MakePlayBgAnimation(511);
-        *(float *)(q->anim + 4) = 1.0f;
-        _CopyVector(q->anim + 0x20, q->pos);
-        CopyQuaternion(q->anim + 0x30, IdentityQuaternion);
+        q->anim->frame = 1.0f;
+        _CopyVector(q->anim->pos, q->pos);
+        CopyQuaternion(q->anim->rot, IdentityQuaternion);
         q->state = 3;
         GOBJ_SUB(gobj)->disp = 0;
         break;

@@ -8,9 +8,11 @@
 #ifndef ITOU_SUB_H
 #define ITOU_SUB_H
 
+#include "StageAnimation.h"
+
 void lw_pos_to_ico_pos(float *dst, float *src);
 void apply_matrix_w1(void *out, void *m, void *in);
 void ico_m33_to_quat(void *q, void *m);
-void pbga_start(int **slot, int key);
+void pbga_start(BgaPlayNode **slot, int key);
 
 #endif /* ITOU_SUB_H */

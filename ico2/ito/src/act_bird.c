@@ -540,8 +540,8 @@ void subBirdBrainMain(void *volatile gobj)
             if (changed != 0) {
                 if (random_unit() <= 0.5f) {
                     pbga_start(&bw->bga, 512);
-                    _CopyVector((char *)bw->bga + 0x20, pos);
-                    CopyQuaternion((char *)bw->bga + 0x30, IdentityQuaternion);
+                    _CopyVector(bw->bga->pos, pos);
+                    CopyQuaternion(bw->bga->rot, IdentityQuaternion);
                 }
             }
             if (changed != 0 || hover >= 80.0f) {
@@ -638,10 +638,10 @@ void subBirdBrainMain(void *volatile gobj)
                     sv2[1] = sv2[1] / sv2[3] - 2048.0f;
                     dy = __builtin_fabsf(sv2[1] - sv[1]) / ScreenHeight;
 
-                    if (dy > 0.5f && (bw->bga == 0 || ((float *)bw->bga)[1] > 100.0f)) {
+                    if (dy > 0.5f && (bw->bga == 0 || bw->bga->frame > 100.0f)) {
                         pbga_start(&bw->bga, 512);
-                        _CopyVector((char *)bw->bga + 0x20, pos);
-                        CopyQuaternion((char *)bw->bga + 0x30, IdentityQuaternion);
+                        _CopyVector(bw->bga->pos, pos);
+                        CopyQuaternion(bw->bga->rot, IdentityQuaternion);
                     }
                 }
             }
@@ -658,8 +658,8 @@ void subBirdBrainMain(void *volatile gobj)
                 set_wave(wave, a, b, 1.0f / 7.0f);
                 if (random_unit() <= 0.5f) {
                     pbga_start(&bw->bga, 512);
-                    _CopyVector((char *)bw->bga + 0x20, pos);
-                    CopyQuaternion((char *)bw->bga + 0x30, IdentityQuaternion);
+                    _CopyVector(bw->bga->pos, pos);
+                    CopyQuaternion(bw->bga->rot, IdentityQuaternion);
                 }
             }
 
@@ -811,18 +811,18 @@ static void Debug_StickControl(GObj *self)
     Act *ext = GOBJ_ACT(self);
 
     if (self == CurrentTargetGObj) {
-        iosPadConnect(&ext->padDev, 0, 0, &ext->padConf);
-        iosPadRead(&ext->padDev);
-        iosPadGetStick(&ext->padDev, &ext->stick, 0, 2, 2, 0);
+        iosPadConnect(&ext->pad, 0, 0, &ext->padConf);
+        iosPadRead(&ext->pad);
+        iosPadGetStick(&ext->pad, &ext->stick, 0, 2, 2, 0);
         _GetMotionDirection(dir, self);
         ext->stick.angle = CorrectStickInfo(dir, &ext->stick);
         if (ext->stick.mag > 0.001f) {
             ConvertStickToAbsCoord(ext->dir, &ext->stick);
         }
     } else if (self == CurrentTargetGObjSub) {
-        iosPadConnect(&ext->padDev, 0, 1, &ext->padConf);
+        iosPadConnect(&ext->pad, 0, 1, &ext->padConf);
     } else {
-        iosPadConnect(&ext->padDev, 0, 1, &ext->padConf);
+        iosPadConnect(&ext->pad, 0, 1, &ext->padConf);
     }
 }
 

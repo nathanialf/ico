@@ -1455,12 +1455,8 @@ typedef struct Act { /* field names derived */
     PadConf padConf; /* 0x1E8, the pad configuration the actor's pad record
                         at 0x2D8 is connected to (actInitialize copies
                         iosPadConfDefault into it) */
-    char *padDev;    /* 0x2D8, the pad handle (pad.c's IosPadCtx) starts here: the device record */
-    char pad2DC[4];
-    int padNow; /* 0x2E0, the buttons held */
-    int padTrg; /* 0x2E4, the buttons pressed this frame */
-    int padRel; /* 0x2E8, the buttons released this frame */
-    char pad2EC[76];
+    IosPadCtx pad;   /* 0x2D8, the pad handle: the buttons held, pressed and
+                        released this frame at 0x2E0, 0x2E4 and 0x2E8 */
     IosPadStick stick; /* 0x338, the stick reading iosPadGetStick fills in */
     int wayMode;    /* 0x350, the way follow state: 0 none, 1 search, 2 follow */
     char pad354[12];

@@ -1033,7 +1033,7 @@ void actSt13cHandChk(GObj *volatile self)
             scpTriggerFloorAttr(boyGObj, 0x1000000) == 0 &&
             scpTriggerFloorAttr(boyGObj, 0x3000000) != 0 && gflagChk(26) != 0 &&
             scpTriggerBall(girlGObj, boyGObj, 550.0f) != 0 &&
-            (GOBJ_ACT(boyGObj)->padTrg & 8) != 0 && GOBJ_ACT(girlGObj)->actMode != 110) {
+            (GOBJ_ACT(boyGObj)->pad.trg & 8) != 0 && GOBJ_ACT(girlGObj)->actMode != 110) {
             break;
         }
         if (gflagChk(30) != 0) {

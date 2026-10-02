@@ -64,8 +64,8 @@ extern int optionScreenMode;  /* derived name */
 extern int girlControlMode;   /* derived name */
 extern GObj *boyGObj;
 extern GObj *girlGObj;
-extern int boyPad;
-extern int girlPad; /* derived name */
+extern IosPadCtx *boyPad;
+extern IosPadCtx *girlPad; /* derived name */
 extern int gameover_flag;
 extern int gameover_layout_flag;
 extern int itemWatchOff; /* derived name */

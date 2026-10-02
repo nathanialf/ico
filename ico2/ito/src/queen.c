@@ -102,11 +102,11 @@ typedef struct QueenBallWork { /* field names derived */
     signed char hit;      /* 0x19, has hit the boy */
     signed char cancel;   /* 0x1A */
     char pad1B[1];
-    int *bga;    /* 0x1C, the ball's BG animation */
-} QueenBallWork; /* derived name */
+    BgaPlayNode *bga; /* 0x1C, the ball's BG animation */
+} QueenBallWork;      /* derived name */
 
 /* the queen's four ball-ring animations */
-static int *queenBga[4]; /* derived name */
+static BgaPlayNode *queenBga[4]; /* derived name */
 
 /* the texture both of the queen's cloth meshes are drawn with */
 static const char queenClothTexture[] = "queen_effect2"; /* derived name */
@@ -1360,18 +1360,18 @@ static void Debug_StickControl(GObj *self)
     Act *ext = GOBJ_ACT(self);
 
     if (self == CurrentTargetGObj) {
-        iosPadConnect(&ext->padDev, 0, 0, &ext->padConf);
-        iosPadRead(&ext->padDev);
-        iosPadGetStick(&ext->padDev, &ext->stick, 0, 2, 2, 0);
+        iosPadConnect(&ext->pad, 0, 0, &ext->padConf);
+        iosPadRead(&ext->pad);
+        iosPadGetStick(&ext->pad, &ext->stick, 0, 2, 2, 0);
         _GetMotionDirection(dir.f, self);
         ext->stick.angle = CorrectStickInfo(&dir, &ext->stick);
         if (ext->stick.mag > 0.001f) {
             ConvertStickToAbsCoord(ext->dir, &ext->stick);
         }
     } else if (self == CurrentTargetGObjSub) {
-        iosPadConnect(&ext->padDev, 0, 1, &ext->padConf);
+        iosPadConnect(&ext->pad, 0, 1, &ext->padConf);
     } else {
-        iosPadConnect(&ext->padDev, 0, 1, &ext->padConf);
+        iosPadConnect(&ext->pad, 0, 1, &ext->padConf);
     }
 }
 
@@ -1551,14 +1551,14 @@ void QueenBarrierDL(GObj *g)
 
 /* put the effect at `to`, its z axis level and pointing back at `from`;
  * for QueenBallGeo and QueenBallDL */
-static inline void SetQueenBallOrient(char *o, QVec *from, QVec *to) /* derived name */
+static inline void SetQueenBallOrient(BgaPlayNode *o, QVec *from, QVec *to) /* derived name */
 {
     QVec side;
     QVec up = {{0.0f, 1.0f, 0.0f, 1.0f}};
     QVec dir;
     QMat44 m;
 
-    sceVu0CopyVector(o + 0x20, to);
+    sceVu0CopyVector(o->pos, to);
     sceVu0SubVector(&dir, from, to);
     dir.f[1] = 0.0f;
     sceVu0Normalize(&dir, &dir);
@@ -1566,18 +1566,19 @@ static inline void SetQueenBallOrient(char *o, QVec *from, QVec *to) /* derived 
     sceVu0CopyVector(&m.x, &side);
     sceVu0CopyVector(&m.y, &up);
     sceVu0CopyVector(&m.z, &dir);
-    ico_m33_to_quat(o + 0x30, &m);
+    ico_m33_to_quat(o->rot, &m);
 }
 
-static inline void StartQueenBallEffect(int **bga, int id, QVec *from, QVec *to) /* derived name */
+static inline void StartQueenBallEffect(BgaPlayNode **bga, int id, QVec *from,
+                                        QVec *to) /* derived name */
 {
     if (*bga == 0) {
         pbga_start(bga, id);
-        SetQueenBallOrient((char *)*bga, from, to);
+        SetQueenBallOrient(*bga, from, to);
     }
 }
 
-static inline void CheckQueenBallRing(int **bga, int id, QVec *from, QVec *to,
+static inline void CheckQueenBallRing(BgaPlayNode **bga, int id, QVec *from, QVec *to,
                                       float r) /* derived name */
 {
     float d = _GetLength(to, from);
@@ -1635,7 +1636,7 @@ void QueenBallGeo(GObj *g)
     GObj *o;
     GObj *sword;
     Act *act;
-    int **bga;
+    BgaPlayNode **bga;
     int hit;
     float r;
 
@@ -1659,7 +1660,7 @@ void QueenBallGeo(GObj *g)
             bga = &queenBga[i];
             CheckQueenBallRing(bga, 482, (QVec *)m[3], &objPos, r);
             if (*bga != 0) {
-                SetQueenBallOrient((char *)*bga, (QVec *)m[3], &objPos);
+                SetQueenBallOrient(*bga, (QVec *)m[3], &objPos);
             }
         }
         if (w->live != 0) {
@@ -1683,8 +1684,8 @@ void QueenBallGeo(GObj *g)
         w->attacked = 0;
         w->live = 0;
         pbga_start(&w->bga, 479);
-        _CopyVector((char *)w->bga + 0x20, m[3]);
-        CopyQuaternion((char *)w->bga + 0x30, IdentityQuaternion);
+        _CopyVector(w->bga->pos, m[3]);
+        CopyQuaternion(w->bga->rot, IdentityQuaternion);
         ExecuteSEPackage(g, 94);
     }
     if (w->cancel != 0) {
@@ -1734,8 +1735,8 @@ void QueenBallDL(GObj *g)
     QVec selfPos;
     QVec queenPos;
     QueenBallWork *w;
-    char *o;
-    int **q;
+    BgaPlayNode *o;
+    BgaPlayNode **q;
     int i;
 
     w = GOBJ_SUB(g)->work;
@@ -1761,7 +1762,7 @@ void QueenBallDL(GObj *g)
     GetRootPosition(queenPos.f, boyGObj);
     q = queenBga;
     for (i = 0; i < 4; i++, q++) {
-        if ((o = (char *)*q) != 0) {
+        if ((o = *q) != 0) {
             long long id = *(long long *)o & 0x3FFF;
 
             if (id == 483 || id == 485) {

@@ -8,6 +8,8 @@
 #ifndef STAGEANIMATION_H
 #define STAGEANIMATION_H
 
+#include <libvu0.h>
+
 /* stage-anim: one stage animation, 0x5C bytes. Reader: ico2/seki/src/
  * StageAnimation.c (stage_ApplyData, the BGA set-up, (r - table) / 0x5C). */
 typedef struct {          /* field names derived */
@@ -31,6 +33,25 @@ typedef struct { /* field names derived */
 } StgObjDat; /* derived name */
 
 extern const StgObjDat objTableScene[];
+
+/* The play node stage_MakePlayBgAnimation links into bgaPlayList and
+   stage_DispBgAnimation walks.  Its first word holds int bit-fields: the
+   14-bit animation number, the kill flag and the play flag. */
+typedef struct BgaPlayNode { /* field names derived */
+    int no : 14;               /* 0x00 */
+    int play : 1;
+    int kill : 1;
+    short num;                 /* 0x02 */
+    float frame;               /* 0x04 */
+    float speed;               /* 0x08 */
+    float scale;               /* 0x0C */
+    struct BgaPlayNode *prev;  /* 0x10, the node made after this one */
+    struct BgaPlayNode *next;  /* 0x14, the node made before it */
+    int pad18[2];
+    sceVu0FVECTOR pos;         /* 0x20 */
+    float rot[4];              /* 0x30 */
+} BgaPlayNode;                 /* derived name */
+
 /* StageAnimation.c's `inline` functions, in the order of their definitions'
  * out-of-line copies at the end of the object (first-declaration order). */
 int stage_CheckAnimationFinish(int key);
@@ -45,10 +66,10 @@ int stage_CheckAnimationFrameIn(int key, int in, int out);
 void stage_ApplyData(char *name, char *data);
 int stage_ContinueAnimation(int key, int next);
 void stage_DispAnimation(void);
-int stage_DispBgAnimation(void *p);
-int stage_DispBgAnimationNoFinish(char **slot);
-void stage_KillPlayBgAnimation(int **self);
-int *stage_MakePlayBgAnimation(int key);
+int stage_DispBgAnimation(BgaPlayNode **self);
+int stage_DispBgAnimationNoFinish(BgaPlayNode **self);
+void stage_KillPlayBgAnimation(BgaPlayNode **self);
+BgaPlayNode *stage_MakePlayBgAnimation(int key);
 float stage_PlayBgAnimation(int key, float t, void *v, void *q);
 float stage_PlayBgAnimationDissolve(int key, void *v, void *q, float t, float dv);
 void stage_SetAnimation(int key, int mode, int frame);

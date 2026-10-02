@@ -8,14 +8,15 @@
 #ifndef ACT_BIRD_H
 #define ACT_BIRD_H
 
+#include "StageAnimation.h"
+
 /* The bird's own work record, hung on its sub-object (Sub15C work). */
 typedef struct BirdWork { /* field names derived */
     float home[4];        /* 0x00, where the bird was placed */
     char scared;          /* 0x10, a mail 423 sender came within 200 */
     char pad11[15];       /* 0x11 */
     float scarer[4];      /* 0x20, where that sender stood */
-    int *bga;             /* 0x30, the take-off's play node; StageAnimation.c keeps
-                        its position at 0x20 and its orientation at 0x30 */
+    BgaPlayNode *bga;     /* 0x30, the take-off's play node */
     char pad34[12];       /* 0x34 */
 } BirdWork; /* derived name */
 
