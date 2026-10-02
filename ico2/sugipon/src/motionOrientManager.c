@@ -605,7 +605,7 @@ ok:
 
 inline void CopyBlendMotionDataSource(void *self, short ang)
 {
-    char quat[16];
+    float quat[4];
     StreamElem *mot = MOWORK(self)->blendBuf;
     int i = 0;
 

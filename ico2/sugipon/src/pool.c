@@ -28,22 +28,14 @@
 
 static void copyToWork(int pri);
 
-typedef struct { /* field names derived */
-    char c[16];
-} Blob16; /* derived name */
-
-typedef struct { /* field names derived */
-    char c[4];
-} Blob4; /* derived name */
-
 static void falldownSE(GObj *self)
 {
     ExecuteSEPackage(self, 86);
 }
 
 /* The whole drawing area as a sprite rectangle in GS primitive coordinates,
-   {x0, y0, x1, y1}: copyToWork and flushWork blit the frame through it. */
-static const sceVu0IVECTOR workRect = {-2048, -2048, 4096, 4096}; /* derived name */
+   a corner and a size: copyToWork and flushWork blit the frame through it. */
+static const GifRect workRect = {-2048, -2048, 4096, 4096}; /* derived name */
 
 /* the two work-area VRAM addresses */
 static int workVram = 0; /* derived name */
@@ -52,7 +44,7 @@ static int work1Vram = 0; /* derived name */
 
 static void copyToWork(int pri)
 {
-    int rect[4];
+    GifRect rect;
 
     tex_ResetVramPri(pri);
     workVram = tex_AllocVramAuto(0, 0x400);
@@ -63,13 +55,13 @@ static void copyToWork(int pri)
     gif_SetAlpha(0, 4, 0);
     gif_SetGsReg(0x47, 0x30000);
     gif_SetGsReg(0x14, 0x60);
-    *(Blob16 *)rect = *(Blob16 *)workRect;
+    rect = workRect;
     /* the frame, through the work rectangle, at full colour */
     {
-        int uv[4] = {8, 8, ScreenWidth * 16, ScreenHeight * 16};
-        Blob4 col = {128, 128, 128, 128};
+        GifRect uv = {8, 8, ScreenWidth * 16, ScreenHeight * 16};
+        GifColor col = {128, 128, 128, 128};
 
-        gif_SpriteSensitiveOrg(rect, 0, uv, &col, 0);
+        gif_SpriteSensitiveOrg(&rect, 0, &uv, &col, 0);
     }
     gif_SetZWrite(1);
     gif_SetZTest(1);
@@ -78,7 +70,8 @@ static void copyToWork(int pri)
 
 static void flushWork(int pri)
 {
-    char buf[32];
+    GifRect rect;
+    GifColor col;
 
     tex_ResetVramPri(pri);
     workVram = tex_AllocVramAuto(0, 0x400);
@@ -87,9 +80,9 @@ static void flushWork(int pri)
     gif_SetZTest(0);
     gif_SetGsReg(0x4E, 0x30000000 | (work1Vram / 32));
     gif_SetAlpha(0, 4, 0);
-    *(Blob16 *)buf = *(Blob16 *)workRect;
-    *(Blob4 *)(buf + 0x10) = (Blob4){255, 255, 255, 128};
-    gif_SpriteSensitiveOrg(buf, 0, 0, buf + 0x10, 0);
+    rect = workRect;
+    col = (GifColor){255, 255, 255, 128};
+    gif_SpriteSensitiveOrg(&rect, 0, 0, &col, 0);
     gif_SetZTest(1);
 }
 

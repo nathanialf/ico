@@ -114,16 +114,6 @@ static void setMotionSpeed(float ratio)
     SetMotionPlaySpeedRatio(viewObj, ratio);
 }
 
-/* the colour and rectangle of dispProgressBar, the function nested in
- * dispMotFrameProgress below */
-typedef struct { /* field names derived */
-    unsigned char r, g, b, a;
-} BarCol; /* derived name */
-
-typedef struct { /* field names derived */
-    int x, y, w, h;
-} BarRect; /* derived name */
-
 /* declared here: motionOrientManager.h reaches ico2/fumi's files through
    typedef.h, and commonact.c declares the table char []; not const, since
    debug_SelectCsvWindowWithLine takes its rows as void * */
@@ -132,7 +122,7 @@ extern MotionDef motionKind[];
 static void dispMotFrameProgress(int obj, float cur)
 {
     /* a nested function: dispMotFrameProgress passes it a static chain */
-    void dispProgressBar(int s, int e, int n, float c, BarCol *col)
+    void dispProgressBar(int s, int e, int n, float c, GifColor *col)
     {
         float r0 = (float)s / (float)n;
         float r1 = (float)e / (float)n;
@@ -143,22 +133,22 @@ static void dispMotFrameProgress(int obj, float cur)
         gif_SetZWrite(0);
         gif_SetAlpha(1, 5, 128);
         if (r0 < rc && rc <= r1) {
-            BarCol dark = {col->r / 2, col->g / 2, col->b / 2, 0x80};
-            BarRect ra = {(int)((-(ScreenWidth << 4) / 2 + (ScreenWidth << 4) * r0) * 8 / 10),
+            GifColor dark = {col->r / 2, col->g / 2, col->b / 2, 0x80};
+            GifRect ra = {(int)((-(ScreenWidth << 4) / 2 + (ScreenWidth << 4) * r0) * 8 / 10),
                           ((ScreenHeight << 4) * 6 / 20) & ~15,
                           (int)(((ScreenWidth << 4) * (rc - r0)) * 8 / 10),
                           (((ScreenHeight << 4) / 100) & ~15) + 24};
-            BarRect rb = {(int)((-(ScreenWidth << 4) / 2 + (ScreenWidth << 4) * rc) * 8 / 10), ra.y,
+            GifRect rb = {(int)((-(ScreenWidth << 4) / 2 + (ScreenWidth << 4) * rc) * 8 / 10), ra.y,
                           (int)(((ScreenWidth << 4) * (r1 - rc)) * 8 / 10), ra.h};
             gif_SpriteSensitiveOrg(&ra, 0, 0, col, 1);
             gif_SpriteSensitiveOrg(&rb, 0, 0, &dark, 1);
         } else {
-            BarRect rc2 = {(int)((-(ScreenWidth << 4) / 2 + (ScreenWidth << 4) * r0) * 8 / 10),
+            GifRect rc2 = {(int)((-(ScreenWidth << 4) / 2 + (ScreenWidth << 4) * r0) * 8 / 10),
                            ((ScreenHeight << 4) * 6 / 20) & ~15,
                            (int)(((ScreenWidth << 4) * (r1 - r0)) * 8 / 10),
                            (((ScreenHeight << 4) / 100) & ~15) + 24};
             if (rc <= r0) {
-                BarCol dark = {col->r / 2, col->g / 2, col->b / 2, 0x80};
+                GifColor dark = {col->r / 2, col->g / 2, col->b / 2, 0x80};
                 gif_SpriteSensitiveOrg(&rc2, 0, 0, &dark, 1);
             } else {
                 gif_SpriteSensitiveOrg(&rc2, 0, 0, col, 1);
@@ -168,8 +158,8 @@ static void dispMotFrameProgress(int obj, float cur)
         gif_SetZWrite(1);
         gif_EndPacket();
     }
-    BarCol colA = {52, 84, 192, 128};
-    BarCol colB = {192, 84, 52, 128};
+    GifColor colA = {52, 84, 192, 128};
+    GifColor colB = {192, 84, 52, 128};
     float f1 = motionKind[obj].shiftStart;
     float f2 = motionKind[obj].shiftLength;
 

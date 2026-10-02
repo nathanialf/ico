@@ -67,7 +67,7 @@ int GetPureVerticalPlaneOfCurrentPosition(void *plane0, void *plane1, float *pts
                                           int flip, float *pos);
 void GetRootProjectionPosOfGObj(float *pos, GObj *obj);
 int GetSkeltonFocusNode(GObj *self, int focus);
-int GetStreamMotion(char *dst, float *out, char *node, char *info);
+int GetStreamMotion(StreamElem *dst, float *out, char *node, SkelNode *skel);
 int GetStreamShapeMotion(float *dst, struct StreamShapeHdr *hdr);
 void InitMotionGeoInfo(struct MotRoot *self, float x, float y, float z, float rx, float ry,
                        float rz);
@@ -112,7 +112,7 @@ void GetMotionRootPos(float *dst, void *motion, int idx);
 void GetMotion(char *dst, float *root, void *motion, int idx, unsigned char *mask, int count,
                SkelNode *hrc);
 void GetShapeMotion(float *dst, char *motion, int idx, int count);
-void fitYToPlane(long long *src, int *dest);
+void fitYToPlane(long long *src, float *dest);
 void GetBlendedMotionRootPos(float *dst, float *a, float *b, float t);
 void _getMotRotElem(char *dst, char *src);
 

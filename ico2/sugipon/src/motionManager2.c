@@ -91,7 +91,7 @@ int GetWaterReaction(float *outH, int *outFlag, ClipWork *info, float *pos, floa
    into its own frame slot and passes that address */
 static inline float getPlaneY(Vec4 pl, float *p) /* derived name */
 {
-    return GetYProjectionOfPlane(&pl, p);
+    return GetYProjectionOfPlane(pl.f, p);
 }
 
 /* The loop counts 0..10 and offsets by 5.  `plane` is retargeted at the
@@ -945,7 +945,7 @@ void DispSkelton(GObj *self, int motion)
 extern const MotionDef motionKind[];
 
 /* SlopeIKControl's two slope helpers */
-static inline float getSlopeDifference(GObj *self, char *arg, char *p) /* derived name */
+static inline float getSlopeDifference(GObj *self, char *arg, Sub15C *p) /* derived name */
 {
     char *q = arg + 0x10;
     float v[4];
@@ -957,8 +957,8 @@ static inline float getSlopeDifference(GObj *self, char *arg, char *p) /* derive
     MultiMatrixByQuaternion(q);
     CopyVector(v, MatrixDrive_GetMatrix()[3]);
     MatrixDrive_TransMatrixV(&up);
-    y0 = GetYProjectionOfPlane(p + 0x1D0, v);
-    y1 = GetYProjectionOfPlane(p + 0x1D0, MatrixDrive_GetMatrix()[3]);
+    y0 = GetYProjectionOfPlane(p->root.plane.f, v);
+    y1 = GetYProjectionOfPlane(p->root.plane.f, MatrixDrive_GetMatrix()[3]);
     return y1 - y0;
 }
 
@@ -1005,7 +1005,7 @@ void SlopeIKControl(GObj *self, char *mot, float *v, Vec4 *vel, int n)
                     vel->f[0] = vel->f[0] * sub->footIKRate;
                     vel->f[2] = vel->f[2] * sub->footIKRate;
                 }
-                d = getSlopeDifference(self, mot, (char *)GOBJ_SUB(self));
+                d = getSlopeDifference(self, mot, GOBJ_SUB(self));
                 rec = ik->motion;
                 r1 = getSlopeRatio(d, motionKind[rec].rate0);
                 r0 = getSlopeRatio(d, motionKind[rec].rate1);
@@ -1432,7 +1432,7 @@ static inline void getRootPos(float *dst, float *src) /* derived name */
     dst[1] = -dst[1];
 }
 
-int GetStreamMotion(char *dst, float *out, char *node, char *info)
+int GetStreamMotion(StreamElem *dst, float *out, char *node, SkelNode *skel)
 {
     float quat[4];
     int i;
@@ -1448,18 +1448,18 @@ int GetStreamMotion(char *dst, float *out, char *node, char *info)
         RotQuaternionY(quat, -0x8000);
 
         for (i = 0; i < n; i++) {
-            _getS16MotRotElem(dst + i * 0x20, node + 0x10 + i * 8);
-            if (*(int *)(info + 0x38 + i * 0x40) == -1) {
-                MultiQuaternion(dst + i * 32 + 16, quat, dst + i * 32 + 16);
+            _getS16MotRotElem(&dst[i], node + 0x10 + i * 8);
+            if (skel[i].parent == -1) {
+                MultiQuaternion(dst[i].q, quat, dst[i].q);
             }
-            *(int *)(dst + i * 0x20) = 0;
+            *(int *)&dst[i] = 0;
         }
         return 1;
     }
     for (i = 0; i < n; i++) {
         CopyVector(out, ZeroPoint);
-        *(int *)(dst + i * 0x20) = 0;
-        CopyQuaternion(dst + i * 32 + 16, quat);
+        *(int *)&dst[i] = 0;
+        CopyQuaternion(dst[i].q, quat);
     }
     return 0;
 }
@@ -1924,7 +1924,7 @@ float GetDifferenceFromWallLowerPlane(GObj *self, int node)
     int idx;
 
     idx = getSkeltonFocusNode(self, node);
-    GetPureVerticalPlane(pos, 0, pts, &self->dobj->root.wall, 1);
+    GetPureVerticalPlane(pos, 0, pts[0], &self->dobj->root.wall, 1);
     return GetYDistanceFromPlane(pos, (char *)GOBJ_SUB(self)->nodeMtx + idx * 0x40 + 0x30);
 }
 
@@ -1935,7 +1935,7 @@ float GetDifferenceFromWallUpperPlane(GObj *self, int node)
     int idx;
 
     idx = getSkeltonFocusNode(self, node);
-    GetPureVerticalPlane(pos, 0, pts, &self->dobj->root.wall, 0);
+    GetPureVerticalPlane(pos, 0, pts[0], &self->dobj->root.wall, 0);
     return GetYDistanceFromPlane(pos, (char *)GOBJ_SUB(self)->nodeMtx + idx * 0x40 + 0x30);
 }
 
@@ -2111,7 +2111,7 @@ void UnlockForceGroundParent(GObj *gobj) {}
 void GetOutOutsideOfWall(GObj *obj, float threshold)
 {
     int buf0[4];
-    int buf1[4];
+    float buf1[4];
     if (GOBJ_SUB(obj)->root.wall.elem != 0) {
         float dot;
         GetRootPosition(buf0, obj);
@@ -2130,7 +2130,7 @@ void AdjustRootPositionToVerticalSidePlaneOfWall(void *self, void *wall, float d
     ClipWork buf;
     memset(&buf, 0, sizeof(buf));
     GetRootPosition(&buf, self);
-    AdjustVerticalSidePlaneOfWall(buf.pt[1], wall, &buf, dist);
+    AdjustVerticalSidePlaneOfWall(buf.pt[1], wall, buf.pt[0], dist);
     ClipWall(&buf);
     if (buf.wall.elem != 0) {
         SetDirectRootPosition(self, buf.pt[2]);
@@ -2140,12 +2140,12 @@ void AdjustRootPositionToVerticalSidePlaneOfWall(void *self, void *wall, float d
     }
 }
 
-void fitYToPlane(long long *src, int *dest)
+void fitYToPlane(long long *src, float *dest)
 {
-    long long buf[2];
-    buf[0] = src[0];
-    buf[1] = src[1];
-    *(float *)((char *)dest + 4) = GetYProjectionOfPlane((int *)buf, dest);
+    Vec4 buf;
+    buf.ll[0] = src[0];
+    buf.ll[1] = src[1];
+    dest[1] = GetYProjectionOfPlane(buf.f, dest);
 }
 
 void GetBlendedMotionRootPos(float *dst, float *a, float *b,

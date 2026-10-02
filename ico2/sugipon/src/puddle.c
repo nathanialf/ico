@@ -27,17 +27,6 @@ typedef struct PuddleWork { /* field names derived */
     Ripple rip[6];
 } PuddleWork; /* derived name */
 
-typedef struct { /* field names derived */
-    int x0;
-    int y0;
-    int x1;
-    int y1;
-} PuddleRect; /* derived name */
-
-typedef struct { /* field names derived */
-    unsigned char r, g, b, a;
-} PuddleColor; /* derived name */
-
 /* the ripple every slot starts from, and the centre and scale of the ripple
    mesh in texture space */
 static Ripple rippleInit = {{0.0f, 0.0f, 0.0f, 1.0f}, 10000.0f}; /* derived name */
@@ -51,11 +40,11 @@ static int workVram = 0; /* derived name */
 
 static int work1Vram = 0; /* derived name */
 
-static PuddleColor setupColor = {128, 128, 128, 128}; /* derived name */
+static GifColor setupColor = {128, 128, 128, 128}; /* derived name */
 
-static PuddleColor leveldownColor = {0, 0, 0, 0}; /* derived name */
+static GifColor leveldownColor = {0, 0, 0, 0}; /* derived name */
 
-static PuddleColor copyColor = {128, 128, 128, 128}; /* derived name */
+static GifColor copyColor = {128, 128, 128, 128}; /* derived name */
 
 /* the two vertex strips of the ripple mesh, the nine spoke directions and
    their scaled copies, and the five camera matrices drawAreaSetup saves and
@@ -122,14 +111,14 @@ void baseSetup(GObj *self)
     gif_SetAlpha(1, 5, 128);
 
     {
-        PuddleRect r = {-ScreenWidth / 2 * 16, -ScreenHeight / 2 * 16, ScreenWidth * 16,
-                        ScreenHeight * 16};
+        GifRect r = {-ScreenWidth / 2 * 16, -ScreenHeight / 2 * 16, ScreenWidth * 16,
+                     ScreenHeight * 16};
 
         {
-            unsigned char col[4];
+            GifColor col;
 
-            memset(col, 0, 4);
-            gif_SpriteSensitiveOrg(&r, 0, 0, col, 1);
+            memset(&col, 0, 4);
+            gif_SpriteSensitiveOrg(&r, 0, 0, &col, 1);
         }
     }
 
@@ -141,11 +130,11 @@ void baseSetup(GObj *self)
 
 /* the sprite rectangle drawAreaSetup blits the frame through, in GS primitive
    coordinates */
-static const int drawAreaRect[4] = {-2048, -2048, 4096, 4096}; /* derived name */
+static const GifRect drawAreaRect = {-2048, -2048, 4096, 4096}; /* derived name */
 
 void drawAreaSetup(void)
 {
-    PuddleRect r;
+    GifRect r;
 
     tex_ResetVramPri(4);
     workVram = tex_AllocVramAuto(0, 0x400);
@@ -175,7 +164,7 @@ void drawAreaSetup(void)
     gif_SetGsReg(0x4E, 0x30000000 | (work1Vram / 32));
     gif_SetAlpha(0, 4, 0);
 
-    r = *(PuddleRect *)drawAreaRect;
+    r = drawAreaRect;
     gif_SpriteSensitiveOrg(&r, 0, 0, &setupColor, 0);
 
     gif_SetZTest(1);
@@ -217,8 +206,8 @@ void leveldown(int pri)
     gif_SetAlpha(1, 2, 0x10);
 
     {
-        PuddleRect r = {-ScreenWidth / 2 * 16, -ScreenHeight / 2 * 16, ScreenWidth * 16,
-                        ScreenHeight * 16};
+        GifRect r = {-ScreenWidth / 2 * 16, -ScreenHeight / 2 * 16, ScreenWidth * 16,
+                     ScreenHeight * 16};
 
         gif_SpriteSensitiveOrg(&r, 0, 0, &leveldownColor, 1);
     }
@@ -251,11 +240,11 @@ void copy(int pri)
     }
 
     {
-        int r[4] = {-ScreenWidth / 2 * 16, -ScreenHeight / 2 * 16, ScreenWidth * 16,
-                    ScreenHeight * 16};
-        int uv[4] = {texUV(13.25f), texUV(13.25f), texUV(230.375f), texUV(230.375f)};
+        GifRect r = {-ScreenWidth / 2 * 16, -ScreenHeight / 2 * 16, ScreenWidth * 16,
+                     ScreenHeight * 16};
+        GifRect uv = {texUV(13.25f), texUV(13.25f), texUV(230.375f), texUV(230.375f)};
 
-        gif_SpriteSensitiveOrg(r, 0, uv, &copyColor, 1);
+        gif_SpriteSensitiveOrg(&r, 0, &uv, &copyColor, 1);
     }
 
     gif_EndPacket();

@@ -550,31 +550,21 @@ static void checkHit(GObj *g)
     CopyVector(w->hit[3], p->root.pos);
 }
 
-/* The parent-link record CreateLayoutedGObj's caller hands to
-   LinkParentOfDObj: two words, 4-aligned. */
-/* The 64-byte layout record InitDemoQueensSword passes through; only the
-   word at 0x30 is ever named here. */
-typedef struct QSwordLayout { /* field names derived */
-    char pad00[48];
-    int kind; /* 0x30 */
-    char pad34[12];
-} __attribute__((aligned(8))) QSwordLayout; /* derived name */
-
 /* the queen's sword offset, its z set per sword */
 static float queenSwordOfs[4] = {0.0f, 0.0f, 0.0f, 1.0f}; /* derived name */
 
-static void initializeQueenzSword(GObj *g, int index, QSwordLayout *lay)
+static void initializeQueenzSword(GObj *g, int index, SObjSimpleSetting *lay)
 {
     WeaponWork *w = GOBJ_SUB(g)->work;
     ObjNode lnk = {g, index};
-    QSwordLayout r;
-    QSwordLayout r2;
+    SObjSimpleSetting r;
+    SObjSimpleSetting r2;
     int i;
     GObj *o;
     GObj *o2;
 
     r = *lay;
-    r.kind = (lay->kind & 0xFF00) ? 5 : 4;
+    r.obj = (lay->obj & 0xFF00) ? 5 : 4;
 
     w->count = 1;
     w->objs = iosMallocDebug(ios_partition_sugipon, 1 * 4, __FILE__, 759);
@@ -588,7 +578,7 @@ static void initializeQueenzSword(GObj *g, int index, QSwordLayout *lay)
     }
 
     r2 = *lay;
-    r2.kind = 13;
+    r2.obj = 13;
     o2 = CreateLayoutedGObj(46, 11, -1, 0, &r2, -1, 7, 0);
     GOBJ_SUB(o2)->parent = lnk;
     w->sword = o2;
@@ -596,7 +586,7 @@ static void initializeQueenzSword(GObj *g, int index, QSwordLayout *lay)
 
 typedef float WeaponVec[4] __attribute__((aligned(8))); /* derived name */
 
-void *InitWeaponGeo(GObj *g, QSwordLayout *lay)
+void *InitWeaponGeo(GObj *g, SObjSimpleSetting *lay)
 {
     WeaponWork *w = iosMallocDebug(ios_partition_sugipon, sizeof(WeaponWork), __FILE__, 820);
     int i;
@@ -604,7 +594,7 @@ void *InitWeaponGeo(GObj *g, QSwordLayout *lay)
     GOBJ_SUB(g)->work = w;
 
     *w = swordWorkTemplate;
-    w->kind = lay->kind & 0xFF;
+    w->kind = lay->obj & 0xFF;
 
     for (i = 0; i < GOBJ_SUB(g)->nodeNum; i++) {
         switch (w->kind) {
@@ -615,9 +605,9 @@ void *InitWeaponGeo(GObj *g, QSwordLayout *lay)
             ObjNode lnk = {g, i};
             WeaponVec v = {0.0f, 0.0f, weaponKind[w->kind].length, 1.0f};
             GObj *o;
-            QSwordLayout r = *lay;
+            SObjSimpleSetting r = *lay;
 
-            r.kind = (lay->kind & 0xFF00) != 0;
+            r.obj = (lay->obj & 0xFF00) != 0;
             o = CreateLayoutedGObj(10, 75, -1, 1, &r, -1, 7, 1);
             LinkParentOfDObj(o, &lnk);
             CopyVector(GOBJ_SUB(o)->root.pos, v);
@@ -1097,7 +1087,7 @@ void SetWeaponTorchChainReactionFlagAll(int flag)
     }
 }
 
-void *InitDemoQueensSword(GObj *g, QSwordLayout *lay)
+void *InitDemoQueensSword(GObj *g, SObjSimpleSetting *lay)
 {
     WeaponWork *w;
     int i;

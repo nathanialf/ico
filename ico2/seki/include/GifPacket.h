@@ -8,7 +8,8 @@
 #ifndef GIFPACKET_H
 #define GIFPACKET_H
 
-/* the colour gif_DrawStripF and gif_DrawStripFST take by value, four bytes;
+/* a colour, four bytes in RGBA order: gif_DrawStripF and gif_DrawStripFST
+ * take it by value, the sprite family and gif_Draw2DStripG by address;
  * weapon.c's dispBlur and puddle.c's drawRipple build it at their call
  * sites. */
 typedef struct { /* field names derived */
@@ -17,6 +18,17 @@ typedef struct { /* field names derived */
     unsigned char b;
     unsigned char a;
 } GifColor; /* derived name */
+
+/* a sprite's rectangle, a corner and a size, for the screen and for the
+ * texture: the Sensitive forms take both in the GS's 1/16 units, the others
+ * in whole pixels and texels, and the forms without Org scale the screen
+ * rectangle from a 640 by 224 screen */
+typedef struct { /* field names derived */
+    int x;
+    int y;
+    int w;
+    int h;
+} GifRect; /* derived name */
 
 int _IsInScreen(volatile int *v);
 int gif_CheckOpen(void);
@@ -38,12 +50,12 @@ void gif_SetDrawEnviroment(unsigned long long fbp, unsigned long long psm, unsig
 void gif_SetGsReg(long long reg, long long data);
 void gif_SetZTest(int on);
 void gif_SetZWrite(int on);
-void gif_Sprite(int *r, long long z, int *uv, unsigned char *col, int prim);
-void gif_SpriteSensitive(int *r, long long z, int *uv, unsigned char *col, int prim);
-void gif_SpriteSensitiveOffset(int *r, long long z, int *uv, unsigned char *col, int prim);
-void gif_SpriteSensitiveOrg(int *r, long long z, int *uv, unsigned char *col, int prim);
+void gif_Sprite(GifRect *r, long long z, GifRect *uv, GifColor *col, int prim);
+void gif_SpriteSensitive(GifRect *r, long long z, GifRect *uv, GifColor *col, int prim);
+void gif_SpriteSensitiveOffset(GifRect *r, long long z, GifRect *uv, GifColor *col, int prim);
+void gif_SpriteSensitiveOrg(GifRect *r, long long z, GifRect *uv, GifColor *col, int prim);
 void gif_StartPacketPri(int pri);
 void gif_StartPacketPriPath1(int pri);
-void gif_MakeSpriteNoTexture(int x, int y, int w, int h, long long z, unsigned char *col, int prim);
+void gif_MakeSpriteNoTexture(int x, int y, int w, int h, long long z, GifColor *col, int prim);
 
 #endif /* GIFPACKET_H */

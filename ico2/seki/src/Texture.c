@@ -1143,9 +1143,9 @@ extern void gif_SetZWrite(int on);
 extern void gif_SetDrawEnviroment(unsigned long long fbp, unsigned long long psm, unsigned int w,
                                   unsigned int h, int useoffset, int clear);
 /* this file's one use passes the depth as a 32-bit 0xFFFFFFFF: void (int *,
- * unsigned int, int *, unsigned char *, int) here, void (int *, long long,
- * int *, unsigned char *, int) in GifPacket.h */
-extern void gif_SpriteSensitiveOrg(int *r, unsigned int z, int *uv, unsigned char *col, int prim);
+ * unsigned int, int *, TexColor *, int) here, void (GifRect *, long long,
+ * GifRect *, GifColor *, int) in GifPacket.h */
+extern void gif_SpriteSensitiveOrg(int *r, unsigned int z, int *uv, TexColor *col, int prim);
 
 static void tex_TransTextureDefocus(int id, int lv)
 {
@@ -1174,7 +1174,7 @@ static void tex_TransTextureDefocus(int id, int lv)
         gif_SetZTest(0);
         gif_SetZWrite(0);
         gif_SetDrawEnviroment(tbp, 0, w, h, 0, 0);
-        gif_SpriteSensitiveOrg(rect, 0xFFFFFFFF, uv, (unsigned char *)&col, 0);
+        gif_SpriteSensitiveOrg(rect, 0xFFFFFFFF, uv, &col, 0);
         gif_SetZWrite(1);
         gif_SetZTest(1);
 

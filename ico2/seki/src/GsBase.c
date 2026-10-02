@@ -522,7 +522,7 @@ static void gsb_scissorOnDemo(void)
 
 /* void (int, int, int) here, void (long long, long long, long long) in GifPacket.h */
 extern void gif_SetAlpha(int alpha, int mode, int fix);
-/* void (int, int, int, int, unsigned int, unsigned char *, int) here, void (int, int, int, int, long long, unsigned char *, int) in GifPacket.h */
+/* void (int, int, int, int, unsigned int, unsigned char *, int) here, void (int, int, int, int, long long, GifColor *, int) in GifPacket.h */
 extern void gif_MakeSpriteNoTexture(int x, int y, int w, int h, unsigned int z, unsigned char *col,
                                     int prim);
 
@@ -570,8 +570,9 @@ typedef struct { /* field names derived */
 extern void gif_SetZTest(int on);
 /* as in GifPacket.h, which this TU does not include */
 extern void gif_SetZWrite(int on);
-/* as in GifPacket.h, which this TU does not include */
-extern void gif_SpriteSensitiveOrg(int *r, long long z, int *uv, unsigned char *col, int prim);
+/* as in GifPacket.h, which this TU does not include, with GsbRect and GsbColor
+ * for its GifRect and GifColor */
+extern void gif_SpriteSensitiveOrg(GsbRect *r, long long z, GsbRect *uv, GsbColor *col, int prim);
 
 /* Soften the frame's edges: the frame is reduced to a 256 square copy and,
  * when the second level is on, a 128 square one, and each level the stage
@@ -606,25 +607,25 @@ static void gsb_antiAlias(void)
     gif_SetGsReg(6, 0x800 | ((long long)8 << 14) | ((long long)tex_GetTWTH(512) << 26) |
                         ((long long)tex_GetTWTH(512) << 30) | ((long long)1 << 34));
     gif_SetAlpha(0, 2, 128);
-    gif_SpriteSensitiveOrg(&d1.x, 0, &s0.x, (unsigned char *)&col, 0);
+    gif_SpriteSensitiveOrg(&d1, 0, &s0, &col, 0);
     if (lv[1] != 0) {
         gif_SetGsReg(6, 0x2800 | ((long long)4 << 14) | ((long long)tex_GetTWTH(256) << 26) |
                             ((long long)tex_GetTWTH(256) << 30) | ((long long)1 << 34));
         gif_SetDrawEnviroment(0x2C00, 0, 128, 128, 0, 0);
-        gif_SpriteSensitiveOrg(&d2.x, 0, &s1.x, (unsigned char *)&col, 0);
+        gif_SpriteSensitiveOrg(&d2, 0, &s1, &col, 0);
     }
     gif_SetDrawEnviroment(0x800, 0, 512, 512, 1, 0);
     if (lv[1] != 0) {
         gif_SetAlpha(1, 2, lv[1]);
         gif_SetGsReg(6, 0x2C00 | ((long long)2 << 14) | ((long long)tex_GetTWTH(128) << 26) |
                             ((long long)tex_GetTWTH(128) << 30) | ((long long)1 << 34));
-        gif_SpriteSensitiveOrg(&d0.x, 0, &s2.x, (unsigned char *)&col, 1);
+        gif_SpriteSensitiveOrg(&d0, 0, &s2, &col, 1);
     }
     if (lv[0] != 0) {
         gif_SetAlpha(1, 2, lv[0]);
         gif_SetGsReg(6, 0x2800 | ((long long)4 << 14) | ((long long)tex_GetTWTH(256) << 26) |
                             ((long long)tex_GetTWTH(256) << 30) | ((long long)1 << 34));
-        gif_SpriteSensitiveOrg(&d0.x, 0, &s1.x, (unsigned char *)&col, 1);
+        gif_SpriteSensitiveOrg(&d0, 0, &s1, &col, 1);
     }
     gif_SetZWrite(1);
     gif_SetZTest(1);

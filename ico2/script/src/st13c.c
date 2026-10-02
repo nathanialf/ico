@@ -186,7 +186,6 @@ void actSt13cBmg1(GObj *volatile self)
 
 void actSt13cBmg1Chk(GObj *volatile self)
 {
-    AnimSet w;
     GProc *th1;
     GProc *th2;
     unsigned int i;
@@ -232,10 +231,13 @@ void actSt13cBmg1Chk(GObj *volatile self)
         iosThreadSetPri(&((GProc *)th1)->thread, 34);
         iosThreadSetPri(&((GProc *)th2)->thread, 34);
 
-        w = conte04Anims;
-        for (i = 0; i < 5; i++) {
-            stage_SetAnimation(w.anim[i], 1, -1);
-            _ACTWait(1);
+        {
+            AnimSet w = conte04Anims;
+
+            for (i = 0; i < 5; i++) {
+                stage_SetAnimation(w.anim[i], 1, -1);
+                _ACTWait(1);
+            }
         }
 
         jimakuUndisp(&jimaku_msg);
@@ -249,8 +251,12 @@ void actSt13cBmg1Chk(GObj *volatile self)
 
     scpPlayMot(boyGObj, 0);
 
-    sceVu0SubVector(&w, test_CURRENTROOT(girlGObj), test_CURRENTROOT(boyGObj));
-    scpPlayMotDir(boyGObj, &w);
+    {
+        sceVu0FVECTOR dir;
+
+        sceVu0SubVector(dir, test_CURRENTROOT(girlGObj), test_CURRENTROOT(boyGObj));
+        scpPlayMotDir(boyGObj, dir);
+    }
     scpPlayEnd(boyGObj);
 
     scpBoyControlReadDisable = 0;
@@ -477,7 +483,6 @@ void actSt13cCageFall(GObj *volatile self)
 
 void actSt13cCageFallChk(GObj *volatile self)
 {
-    AnimSet16 w;
     GProc *th1;
     GProc *th2;
     GProc *th3;
@@ -545,10 +550,13 @@ void actSt13cCageFallChk(GObj *volatile self)
     iosThreadSetPri(&((GProc *)th3)->thread, 34);
 
     if (cancel) {
-        w = conte05Anims;
-        for (i = 0; i < 16; i++) {
-            stage_SetAnimation(w.anim[i], 1, -1);
-            _ACTWait(1);
+        {
+            AnimSet16 w = conte05Anims;
+
+            for (i = 0; i < 16; i++) {
+                stage_SetAnimation(w.anim[i], 1, -1);
+                _ACTWait(1);
+            }
         }
 
         jimakuUndisp(&jimaku_msg);
@@ -567,8 +575,10 @@ void actSt13cCageFallChk(GObj *volatile self)
         Generator_MaskOff(bossGenerator);
 
         if (isEnemyActive(scpSearchGobj(150)) == 0) {
-            memset(&w, 0, 16);
-            DirectCallEnemy(scpSearchGobj(150), bossGenerator, &w, &w, 0);
+            sceVu0FVECTOR zero;
+
+            memset(zero, 0, 16);
+            DirectCallEnemy(scpSearchGobj(150), bossGenerator, zero, zero, 0);
             iosOmSendMail(scpSearchGobj(150), 258, scpSearchGobj(150));
             _ACTWait(1);
         }

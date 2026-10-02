@@ -21,26 +21,12 @@ static int damageTimer; /* derived name */
 
 static int ripplePhase; /* derived name */
 
-/* The screen rectangle and the texture rectangle this packet draws, in the
-   1/16-unit form the GS registers take. */
-typedef struct { /* field names derived */
-    int x0, y0, x1, y1;
-} GifRect; /* derived name */
-
-typedef struct { /* field names derived */
-    int u0, v0, u1, v1;
-} GifUvRect; /* derived name */
-
-#define GIF_RGBA(c)                                                                                \
-    ((long long)(c)[0] | ((long long)(c)[1] << 8) | ((long long)(c)[2] << 16) |                    \
-     ((long long)(c)[3] << 24))
+#define GIF_COLOR(c)                                                                               \
+    ((long long)(c)->r | ((long long)(c)->g << 8) | ((long long)(c)->b << 16) |                    \
+     ((long long)(c)->a << 24))
 #define GIF_UV(u, v) ((long long)(u) | ((long long)(v) << 16))
 #define GIF_XY(x, y) ((long long)((x) + 0x8000) | ((long long)((y) + 0x8000) << 16))
 #define GIF_XY0(x, y) ((long long)(x) | ((long long)(y) << 16))
-
-typedef struct { /* field names derived */
-    unsigned char c[4];
-} GifCol; /* derived name */
 
 /* gif_SetGsReg's body: one GS register write, data then address */
 static inline void setGsReg(long long addr, long long data) /* derived name */
@@ -51,9 +37,9 @@ static inline void setGsReg(long long addr, long long data) /* derived name */
 
 static void MakeRefractTexture(int frame)
 {
-    GifCol col = {{128, 128, 128, 128}};
+    GifColor col = {128, 128, 128, 128};
     GifRect r = {-4096, -2048, 8192, 4096};
-    GifUvRect uv = {8, 8, ScreenWidth * 16, ScreenHeight * 16};
+    GifRect uv = {8, 8, ScreenWidth * 16, ScreenHeight * 16};
     int fx;
     int fy;
 
@@ -67,15 +53,15 @@ static void MakeRefractTexture(int frame)
     setGsReg(0x40, 0xFF000001FF0000LL);
     setGsReg(0x18, 0x780000007000LL);
     setGsReg(0x00, 0x116);
-    setGsReg(0x01, GIF_RGBA(col.c));
-    setGsReg(0x03, GIF_UV(uv.u0, uv.v0));
-    setGsReg(0x05, GIF_XY(r.x0, r.y0));
+    setGsReg(0x01, GIF_COLOR(&col));
+    setGsReg(0x03, GIF_UV(uv.x, uv.y));
+    setGsReg(0x05, GIF_XY(r.x, r.y));
     /* the far corner is offset once and the near corner added to it, the
        gif_MakeSprite idiom: the offset goes on the size, not on the sum */
-    fx = r.x1 + 0x8000;
-    fy = r.y1 + 0x8000;
-    setGsReg(0x03, GIF_UV(uv.u0 + uv.u1, uv.v0 + uv.v1));
-    setGsReg(0x05, GIF_XY0(r.x0 + fx, r.y0 + fy));
+    fx = r.w + 0x8000;
+    fy = r.h + 0x8000;
+    setGsReg(0x03, GIF_UV(uv.x + uv.w, uv.y + uv.h));
+    setGsReg(0x05, GIF_XY0(r.x + fx, r.y + fy));
 }
 
 void queen_barrier_set_damage(void)

@@ -593,7 +593,7 @@ void GetClothAnimation(VECTOR **pos, VECTOR **vel, GObj *obj, void *m, ClothCfg 
             q[3] = {wallOwner, 0, *(int *)(*(int *)(sub + 0x70) + 0x10) + n * 80};
         VECTOR pl;
 
-        GetGlobalWallPlane(&pl, q);
+        GetGlobalWallPlane(&pl.x, q);
         for (i = 0; i < n0; i++) {
             for (j = 1; j < nx; j++) {
                 pushInsidePlane(((char **)pos)[i] + j * 16, &pl);
@@ -759,7 +759,7 @@ static float cylinderRadiusSq = 1.0f; /* derived name */
    getCloth4D inline and the exported functions further down call, and a
    file-static copy of checkFrontAcross (a call of the inline would return
    through a temporary) */
-static __inline__ int checkOverThePlane_i(void *pt, void *plane) /* derived name */
+static __inline__ int checkOverThePlane_i(void *pt, const void *plane) /* derived name */
 {
     if (0.0f < plane_distance(pt, plane))
         return 1;

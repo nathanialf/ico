@@ -41,13 +41,6 @@ static inline void setGsReg(long long reg, long long data) /* derived name */
 #define GIF_XY(x, y, z)                                        /* derived name */                  \
     ((long long)((x) + 0x8000) | ((long long)((y) + 0x8000) << 16) | ((z) << 32))
 #define GIF_XYZ(v, z) GIF_XY((v)[0], (v)[1], z) /* derived name */
-
-/* The textured-sprite UV rectangle: two GS UV corners, in 1/16-texel units
-   like the screen rect beside it. */
-typedef struct { /* field names derived */
-    int u0, v0, u1, v1;
-} GifUvRect; /* derived name */
-
 /* The "Offset" family adds the float draw origin (in 1/16-pixel units) instead
    of the fixed 2048.0-pixel window origin. */
 #define GIF_OX ((int)center_X * 16)                                   /* derived name */
@@ -171,41 +164,41 @@ void gif_MakeLine2DOffset(int *v0, int *v1, long long z0, long long z1, unsigned
     setGsReg(0x05, GIF_XYZOFF(v1, z1));
 }
 
-void gif_MakeSprite(int x, int y, int w, int h, long long z, int *uv, unsigned char *col, int prim)
+void gif_MakeSprite(int x, int y, int w, int h, long long z, GifRect *uv, GifColor *col, int prim)
 {
     int fx = w + 0x8000;
     int fy = h + 0x8000;
 
     setGsReg(0x00, (prim << 6) | 0x116);
-    setGsReg(0x01, GIF_RGBA(col));
-    setGsReg(0x03, GIF_UV(uv[0], uv[1]));
+    setGsReg(0x01, GIF_COLOR(col));
+    setGsReg(0x03, GIF_UV(uv->x, uv->y));
     setGsReg(0x05, GIF_XY(x, y, z));
-    setGsReg(0x03, GIF_UV(uv[0] + uv[2], uv[1] + uv[3]));
+    setGsReg(0x03, GIF_UV(uv->x + uv->w, uv->y + uv->h));
     setGsReg(0x05, GIF_XY0(x + fx, y + fy, z));
 }
 
-void gif_MakeSpriteOffset(int x, int y, int w, int h, long long z, int *uv, unsigned char *col,
+void gif_MakeSpriteOffset(int x, int y, int w, int h, long long z, GifRect *uv, GifColor *col,
                           int prim)
 {
     setGsReg(0x00, (prim << 6) | 0x116);
-    setGsReg(0x01, GIF_RGBA(col));
-    setGsReg(0x03, GIF_UV(uv[0], uv[1]));
+    setGsReg(0x01, GIF_COLOR(col));
+    setGsReg(0x03, GIF_UV(uv->x, uv->y));
     setGsReg(0x05, GIF_XY0(GIF_OX + x, GIF_OY + y, z));
-    setGsReg(0x03, GIF_UV(uv[0] + uv[2], uv[1] + uv[3]));
+    setGsReg(0x03, GIF_UV(uv->x + uv->w, uv->y + uv->h));
     setGsReg(0x05, GIF_XY0(GIF_OX + x + w, GIF_OY + y + h, z));
 }
 
-void gif_MakeSpriteWithStrip(int *r, long long z, int *uv, unsigned char *col, int prim)
+void gif_MakeSpriteWithStrip(int *r, long long z, GifRect *uv, GifColor *col, int prim)
 {
     setGsReg(0x00, (prim << 6) | 0x114);
-    setGsReg(0x01, GIF_RGBA(col));
-    setGsReg(0x03, GIF_UV(uv[0], uv[1]));
+    setGsReg(0x01, GIF_COLOR(col));
+    setGsReg(0x03, GIF_UV(uv->x, uv->y));
     setGsReg(0x0D, GIF_XY(r[0], r[1], z));
-    setGsReg(0x03, GIF_UV(uv[0], uv[1] + uv[3]));
+    setGsReg(0x03, GIF_UV(uv->x, uv->y + uv->h));
     setGsReg(0x0D, GIF_XY(r[2], r[3], z));
-    setGsReg(0x03, GIF_UV(uv[0] + uv[2], uv[1]));
+    setGsReg(0x03, GIF_UV(uv->x + uv->w, uv->y));
     setGsReg(0x05, GIF_XY(r[4], r[5], z));
-    setGsReg(0x03, GIF_UV(uv[0] + uv[2], uv[1] + uv[3]));
+    setGsReg(0x03, GIF_UV(uv->x + uv->w, uv->y + uv->h));
     setGsReg(0x05, GIF_XY(r[6], r[7], z));
 }
 
@@ -252,55 +245,55 @@ void gif_Line(int *v0, int *v1, long long z0, long long z1, unsigned char *col, 
 
 /* an untextured sprite, which gif_MakeSpriteNoTexture and the Sprite
    wrappers inline; gif_MakeSprite stays a call */
-static inline void makeSpriteNoTexture(int x, int y, int w, int h, long long z, unsigned char *col,
+static inline void makeSpriteNoTexture(int x, int y, int w, int h, long long z, GifColor *col,
                                        int prim) /* derived name */
 {
     int fx = w + 0x8000;
     int fy = h + 0x8000;
 
     setGsReg(0x00, (prim << 6) | 0x406);
-    setGsReg(0x01, GIF_RGBA(col));
+    setGsReg(0x01, GIF_COLOR(col));
     setGsReg(0x05, GIF_XY(x, y, z));
     setGsReg(0x05, GIF_XY0(x + fx, y + fy, z));
 }
 
 /* an untextured sprite at an offset position, which
    gif_MakeSpriteNoTextureOffset and the offset Sprite wrappers inline */
-static inline void makeSpriteNoTextureOffset(int x, int y, int w, int h, long long z,
-                                             unsigned char *col, int prim) /* derived name */
+static inline void makeSpriteNoTextureOffset(int x, int y, int w, int h, long long z, GifColor *col,
+                                             int prim) /* derived name */
 {
     setGsReg(0x00, (prim << 6) | 0x406);
-    setGsReg(0x01, GIF_RGBA(col));
+    setGsReg(0x01, GIF_COLOR(col));
     setGsReg(0x05, GIF_XY0(GIF_OX + x, GIF_OY + y, z));
     setGsReg(0x05, GIF_XY0(GIF_OX + x + w, GIF_OY + y + h, z));
 }
 
-void gif_Sprite(int *r, long long z, int *uv, unsigned char *col, int prim)
+void gif_Sprite(GifRect *r, long long z, GifRect *uv, GifColor *col, int prim)
 {
-    int x = r[0] * ScreenWidth / 640 * 16;
-    int y = r[1] * ScreenHeight / 224 * 16;
-    int w = r[2] * ScreenWidth / 640 * 16;
-    int h = r[3] * ScreenHeight / 224 * 16;
+    int x = r->x * ScreenWidth / 640 * 16;
+    int y = r->y * ScreenHeight / 224 * 16;
+    int w = r->w * ScreenWidth / 640 * 16;
+    int h = r->h * ScreenHeight / 224 * 16;
 
     if (uv == 0) {
         makeSpriteNoTexture(x, y, w, h, z, col, prim);
     } else {
-        GifUvRect t = *(GifUvRect *)uv;
+        GifRect t = *uv;
 
-        t.u0 *= 16;
-        t.v0 *= 16;
-        t.u1 *= 16;
-        t.v1 *= 16;
-        gif_MakeSprite(x, y, w, h, z, (int *)&t, col, prim);
+        t.x *= 16;
+        t.y *= 16;
+        t.w *= 16;
+        t.h *= 16;
+        gif_MakeSprite(x, y, w, h, z, &t, col, prim);
     }
 }
 
-void gif_SpriteSensitive(int *r, long long z, int *uv, unsigned char *col, int prim)
+void gif_SpriteSensitive(GifRect *r, long long z, GifRect *uv, GifColor *col, int prim)
 {
-    int x = r[0] * ScreenWidth / 640;
-    int y = r[1] * ScreenHeight / 224;
-    int w = r[2] * ScreenWidth / 640;
-    int h = r[3] * ScreenHeight / 224;
+    int x = r->x * ScreenWidth / 640;
+    int y = r->y * ScreenHeight / 224;
+    int w = r->w * ScreenWidth / 640;
+    int h = r->h * ScreenHeight / 224;
 
     if (uv) {
         gif_MakeSprite(x, y, w, h, z, uv, col, prim);
@@ -309,32 +302,32 @@ void gif_SpriteSensitive(int *r, long long z, int *uv, unsigned char *col, int p
     }
 }
 
-void gif_SpriteOffset(int *r, long long z, int *uv, unsigned char *col, int prim)
+void gif_SpriteOffset(GifRect *r, long long z, GifRect *uv, GifColor *col, int prim)
 {
-    int x = r[0] * ScreenWidth / 640 * 16;
-    int y = r[1] * ScreenHeight / 224 * 16;
-    int w = r[2] * ScreenWidth / 640 * 16;
-    int h = r[3] * ScreenHeight / 224 * 16;
+    int x = r->x * ScreenWidth / 640 * 16;
+    int y = r->y * ScreenHeight / 224 * 16;
+    int w = r->w * ScreenWidth / 640 * 16;
+    int h = r->h * ScreenHeight / 224 * 16;
 
     if (uv == 0) {
         makeSpriteNoTextureOffset(x, y, w, h, z, col, prim);
     } else {
-        GifUvRect t = *(GifUvRect *)uv;
+        GifRect t = *uv;
 
-        t.u0 *= 16;
-        t.v0 *= 16;
-        t.u1 *= 16;
-        t.v1 *= 16;
-        gif_MakeSpriteOffset(x, y, w, h, z, (int *)&t, col, prim);
+        t.x *= 16;
+        t.y *= 16;
+        t.w *= 16;
+        t.h *= 16;
+        gif_MakeSpriteOffset(x, y, w, h, z, &t, col, prim);
     }
 }
 
-void gif_SpriteSensitiveOffset(int *r, long long z, int *uv, unsigned char *col, int prim)
+void gif_SpriteSensitiveOffset(GifRect *r, long long z, GifRect *uv, GifColor *col, int prim)
 {
-    int x = r[0] * ScreenWidth / 640;
-    int y = r[1] * ScreenHeight / 224;
-    int w = r[2] * ScreenWidth / 640;
-    int h = r[3] * ScreenHeight / 224;
+    int x = r->x * ScreenWidth / 640;
+    int y = r->y * ScreenHeight / 224;
+    int w = r->w * ScreenWidth / 640;
+    int h = r->h * ScreenHeight / 224;
 
     if (uv) {
         gif_MakeSpriteOffset(x, y, w, h, z, uv, col, prim);
@@ -343,32 +336,32 @@ void gif_SpriteSensitiveOffset(int *r, long long z, int *uv, unsigned char *col,
     }
 }
 
-void gif_SpriteOrg(int *r, long long z, int *uv, unsigned char *col, int prim)
+void gif_SpriteOrg(GifRect *r, long long z, GifRect *uv, GifColor *col, int prim)
 {
-    int x = r[0] * 16;
-    int y = r[1] * 16;
-    int w = r[2] * 16;
-    int h = r[3] * 16;
+    int x = r->x * 16;
+    int y = r->y * 16;
+    int w = r->w * 16;
+    int h = r->h * 16;
 
     if (uv == 0) {
         makeSpriteNoTexture(x, y, w, h, z, col, prim);
     } else {
-        GifUvRect t = *(GifUvRect *)uv;
+        GifRect t = *uv;
 
-        t.u0 *= 16;
-        t.v0 *= 16;
-        t.u1 *= 16;
-        t.v1 *= 16;
-        gif_MakeSprite(x, y, w, h, z, (int *)&t, col, prim);
+        t.x *= 16;
+        t.y *= 16;
+        t.w *= 16;
+        t.h *= 16;
+        gif_MakeSprite(x, y, w, h, z, &t, col, prim);
     }
 }
 
-void gif_SpriteSensitiveOrg(int *r, long long z, int *uv, unsigned char *col, int prim)
+void gif_SpriteSensitiveOrg(GifRect *r, long long z, GifRect *uv, GifColor *col, int prim)
 {
-    int x = r[0];
-    int y = r[1];
-    int w = r[2];
-    int h = r[3];
+    int x = r->x;
+    int y = r->y;
+    int w = r->w;
+    int h = r->h;
 
     if (uv) {
         gif_MakeSprite(x, y, w, h, z, uv, col, prim);
@@ -485,7 +478,7 @@ void gif_DrawStripF(void *v, GifColor col, int n, int prim)
     stripVisible[0] = stripVisible[1] = 0;
     setGsReg(0x00, ((long long)prim << 6) | 0x104);
     stripIndex = 0;
-    setGsReg(0x01, GIF_RGBA((unsigned char *)&col) | (0xFE00LL << 46));
+    setGsReg(0x01, GIF_COLOR(&col) | (0xFE00LL << 46));
     for (i = 0; i < n; i++, p += 16) {
         volatile int q[4];
         int t;
@@ -508,7 +501,7 @@ void gif_DrawStripFST(void *v, void *uv, GifColor col, int n, int prim)
     stripVisible[0] = stripVisible[1] = 0;
     setGsReg(0x00, ((long long)prim << 6) | 0x94);
     stripIndex = 0;
-    setGsReg(0x01, GIF_RGBA((unsigned char *)&col) | (0xFE00LL << 46));
+    setGsReg(0x01, GIF_COLOR(&col) | (0xFE00LL << 46));
     for (i = 0; i < n; i++, p += 16, s += 4) {
         volatile int q[4];
         int t;
@@ -651,13 +644,12 @@ void gif_MakeLine2D(int *v0, int *v1, long long z0, long long z1, unsigned char 
     makeLine2D(v0, v1, z0, z1, col, prim);
 }
 
-void gif_MakeSpriteNoTexture(int x, int y, int w, int h, long long z, unsigned char *col, int prim)
+void gif_MakeSpriteNoTexture(int x, int y, int w, int h, long long z, GifColor *col, int prim)
 {
     makeSpriteNoTexture(x, y, w, h, z, col, prim);
 }
 
-void gif_MakeSpriteNoTextureOffset(int x, int y, int w, int h, long long z, unsigned char *col,
-                                   int prim)
+void gif_MakeSpriteNoTextureOffset(int x, int y, int w, int h, long long z, GifColor *col, int prim)
 {
     makeSpriteNoTextureOffset(x, y, w, h, z, col, prim);
 }

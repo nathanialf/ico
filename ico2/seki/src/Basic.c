@@ -48,8 +48,8 @@ void dma_init(void)
 
 void matrix_init(void)
 {
-    matrixptr = 0x70000000;
-    _UnitMatrix(0x70000000);
+    matrixptr = (char *)0x70000000;
+    _UnitMatrix(matrixptr);
 }
 
 inline void malloc_SetPartition(int val)
