@@ -3234,8 +3234,8 @@ void subGirlControl(GObj *volatile self)
     for (;;) {
         if ((int)(w.p->flags18.ll >> 48) & 1) {
             if (scpBoyControlReadDisable == 0 &&
-                ((void *)self == (void *)CurrentTargetGObj || (void *)girlControlMode != 0)) {
-                /* the pad read, once */
+                ((void *)self == (void *)CurrentTargetGObj || (void *)girlControlMode != 0))
+                /* the pad read, once; the listing puts its exit branch on the while line */
                 do {
                     iosPadConnect(&w.p->padDev, 0, (void *)girlControlMode != 0, &w.p->padConf);
                     iosPadRead(&w.p->padDev);
@@ -3249,7 +3249,7 @@ void subGirlControl(GObj *volatile self)
                         w.p->dir[2] = dir[2];
                     }
                 } while (0);
-            } else if ((void *)self == (void *)CurrentTargetGObjSub) {
+            else if ((void *)self == (void *)CurrentTargetGObjSub) {
                 iosPadConnect(&w.p->padDev, 0, 1, &w.p->padConf);
             } else {
                 iosPadConnect(&w.p->padDev, 0, 1, &w.p->padConf);
