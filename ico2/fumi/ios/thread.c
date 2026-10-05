@@ -6,6 +6,7 @@
 #include "ios.h"
 #include "thread.h"
 #include <assert.h>
+#include <string.h>
 
 /* The emission-order note: the `inline` functions of this TU have their
  * out-of-line copies at the end of the object, in first-declaration order
@@ -244,12 +245,9 @@ inline int iosThreadJoin(IOSThread *th)
     return buf[0];
 }
 
-/* as in string.h, which this TU does not include */
-extern void strcpy();
-
-void iosThreadName(IOSThread *th)
+void iosThreadName(IOSThread *th, const char *name)
 {
-    strcpy(th->name);
+    strcpy(th->name, name);
 }
 
 void iosThreadSuspend(IOSThread *th)

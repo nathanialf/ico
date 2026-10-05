@@ -1175,11 +1175,10 @@ void soundSeDefStopNoRelease(int id)
     _soundSeDefStop(id, 1);
 }
 
-/* sound.h leaves it out: this call passes one argument and the definition
-   takes two */
-extern void SgSetSePitchDirect();
+/* sound.h leaves it out */
+extern void SgSetSePitchDirect(unsigned int id, int pitch);
 
-void soundSeDefPitchSet(int id)
+void soundSeDefPitchSet(int id, int pitch)
 {
     SeSlot *entry;
     short h;
@@ -1190,7 +1189,7 @@ void soundSeDefPitchSet(int id)
     id = id >> 8;
     if (id != entry->num)
         return;
-    SgSetSePitchDirect(h);
+    SgSetSePitchDirect(h, pitch);
 }
 
 inline float soundSeDefVolumeRateGet(int id)
