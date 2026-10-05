@@ -170,6 +170,14 @@ The host's `mips-linux-gnu-objcopy` writes `build/ico.rom`.
 
 The branches are separate trees and are never merged into each other.
 
+## PC port
+
+[ico-pc](https://github.com/nathanialf/ico-pc) is a fork of this repository
+that is being turned into a native PC port. This tree remains the
+byte-matched reference. Reconstruction bugs the port finds are fixed here
+first, under this repository's rules, and then merged into the port. See
+[`docs/PORT.md`](docs/PORT.md).
+
 ## Legal and licence
 
 The code in this repository is MIT licensed ([`LICENSE`](LICENSE)). The
