@@ -185,11 +185,6 @@ typedef enum { ACT_KIND_NONE = -1, ACT_KIND_GIRL = 1, ACT_KIND_ENEMY = 2 } ActKi
 
 #define ENEMY_START_WORK(self) ((int)GOBJ_ACT(self)->enemy) /* derived name */
 
-typedef struct { /* field names derived */
-    char pad00[32];
-    long long flags;
-} EnemyBrainWork; /* derived name */
-
 inline int IsEnemyBrainToGenerator(GObj *self, GObj **out)
 {
     Act *b = GOBJ_ACT(self);
@@ -2791,9 +2786,7 @@ void actEnemyStart(GObj *self)
 
 inline void subEnemyBrain_Irregular(GObj *volatile self)
 {
-    EnemyBrainWork *sub = (EnemyBrainWork *)self->act;
-
-    sub->flags &= ~(1LL << 34);
+    GOBJ_ACT(self)->flags20.ll &= ~(1LL << 34);
     eBrainSendMes(self, 4);
     if (isEnemyCarriedByGirl(self)) {
         afterCommonCarry(self);
