@@ -583,8 +583,8 @@ int set_bridge(int gid)
 
     WayGroup *g = &way_group[gid];
 
-    memset(wpA, 0, 8);
-    memset(wpB, 0, 8);
+    memset(wpA, 0, sizeof(wpA));
+    memset(wpB, 0, sizeof(wpB));
     dA = (WayDist){100000.0f, 100000.0f};
     dB = (WayDist){100000.0f, 100000.0f};
 
