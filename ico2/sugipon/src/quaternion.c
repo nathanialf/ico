@@ -218,8 +218,8 @@ inline float GetQuaternionCosRadian(void *qa, void *qb)
     return r;
 }
 
-/* int (float) here, short (float) in tableSin.h */
-extern int GetTableArcCos(float c);
+/* as in tableSin.h, which this file does not include */
+extern short GetTableArcCos(float c);
 /* float (int) here, float (short) in tableSin.h */
 extern float GetTableSin(int x);
 
