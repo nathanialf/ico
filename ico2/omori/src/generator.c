@@ -15,6 +15,7 @@
 #include "gv.h"
 #include <libvu0.h>
 #include "camera-editor.h"
+#include "sceneManager.h"
 #include <assert.h>
 
 typedef struct GenBga { /* field names derived */
@@ -772,7 +773,11 @@ void generatorBeforeFunc(GObj *gobj)
     q->count = 0;
 }
 
-inline GenWork *InitGeneratorGeo(GObj *gobj, GenGeo *src)
+/* The kind's constructor: CreateLayoutedGObj hands it the scene object's
+   SObjSimpleSetting, not the layout row.  The enemy kind is the setting's
+   object word (initSceneGObj fills it from the row's initArg) and the aim
+   angle its Y rotation. */
+inline GenWork *InitGeneratorGeo(GObj *gobj, SObjSimpleSetting *src)
 {
     GenWork *p = iosMallocDebug(ios_partition_sugipon, 112, __FILE__, 1230);
     int i;
@@ -782,7 +787,7 @@ inline GenWork *InitGeneratorGeo(GObj *gobj, GenGeo *src)
     p->callRequests = 0;
     p->masked = 0;
     p->resetRequest = 0;
-    p->kind = src->accessary;
+    p->kind = src->obj;
     p->hard = 0;
 
     p->status = 0;
@@ -798,7 +803,7 @@ inline GenWork *InitGeneratorGeo(GObj *gobj, GenGeo *src)
     /* the direction is a quadword whose fourth word holds the bgaDone byte */
     *(float *)&p->bgaDone = 0.0f;
 
-    _ApplyRyGV(p->dir, src->rot[2]);
+    _ApplyRyGV(p->dir, src->rot[1]);
 
     for (i = 0; i < 4; i++) {
         p->bga[i].p = InitMultiBgaManager(1);

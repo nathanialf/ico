@@ -1515,7 +1515,7 @@ typedef struct GenGeo { /* field names derived */
         GObj *);    /* 0x24, the object's own act process (scpDeamon), 0 for the kind's start */
     char **outGObj; /* 0x28, where the created GObj is stored (scpDummyGObj), 0 for nowhere */
     int mdl;        /* 0x2C */
-    int accessary;  /* 0x30, the accessary table row; for a generator the enemy kind it calls */
+    int accessary;  /* 0x30, the accessary table row */
     int action;     /* 0x34, the object's row in obj-action's objAction, 0 for none */
     int initArg;    /* 0x38, the last word of the create arguments */
     int word3C;     /* 0x3C, no C reader */
