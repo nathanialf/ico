@@ -43,7 +43,7 @@ merged; the `ntsc` and `aug6` branches are not part of the port.
 
 ## Byte matching
 
-The port does not check SHA-1s or compare against the base ELF. Its
-divergences from the PS2 behaviour are listed in the port's
-`docs/port/DIVERGENCES.md`. Nothing in this repository changes for the
-port: the byte-match gate here stays mandatory for every commit.
+The port does not check SHA-1s or compare against the base ELF. How the
+port differs from the PS2 is the port's own concern, documented there.
+Nothing in this repository changes for the port: the byte-match gate here
+stays mandatory for every commit.
