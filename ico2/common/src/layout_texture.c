@@ -492,6 +492,8 @@ static inline void lt_draw_primary_sprite(SprCol *col) /* derived name */
     gif_EndPacket();
 }
 
+static void display_primary_texture_layout(int no, int sel);
+
 INCLUDE_ASM(display_primary_texture_layout);
 
 INCLUDE_ASM(exec_layout_texture);
@@ -571,7 +573,90 @@ static inline void lt_init_stage_textures(int stage) /* derived name */
     ltCurrentItem = texLayout[current_layout_id].defaultItem;
 }
 
-INCLUDE_ASM(init_layout_texture);
+void init_layout_texture(int stage)
+{
+    fadeCallback = 0;
+    if (stage == 1) {
+        gflagInit();
+        if (layout_boot_flag == 0) {
+            current_layout_id = 4;
+        } else if (mpegPlayReturnStage == stage) {
+            mpegPlayReturnStage = 0;
+            if (stage_after_skipping_demo == 0xFFFFFFFE) {
+                title_demo_mode = title_demo_mode ^ 1;
+                current_layout_id = 10;
+            } else if (stage_after_skipping_demo == 0xFFFFFFFF) {
+                current_layout_id = 7;
+                title_demo_mode = title_demo_mode ^ 1;
+            } else {
+                current_layout_id = 10;
+            }
+        } else {
+            current_layout_id = 10;
+        }
+    } else {
+        current_layout_id = 51;
+    }
+    lt_init_stage_textures(stage);
+    texLayout[current_layout_id].curItem = texLayout[current_layout_id].defaultItem;
+    ltSelectFlag = 1;
+    fadeState = 0;
+    lt_reset_property_chain(current_layout_id);
+}
+
+inline void lt_switch_layout(int no)
+{
+    if ((fadeState == 2 && no != current_layout_id) || no == 59) {
+        nextLayout = no;
+        display_texture_fade_cancel_chk(current_layout_id, no);
+        if (fadeType == 1) {
+            fadeState = 5;
+        } else {
+            nextFadeState = 3;
+            fadeState = 3;
+        }
+    }
+}
+
+inline int lt_current_property_item(void)
+{
+    return ltCurrentItem;
+}
+
+inline int lt_link_layout(int dir)
+{
+    switch (dir) {
+    case 0:
+        return texProperty[lt_current_property_item()].right;
+    case 1:
+        return texProperty[lt_current_property_item()].left;
+    case 2:
+        return texProperty[lt_current_property_item()].down;
+    case 3:
+        return texProperty[lt_current_property_item()].up;
+    }
+    return -1;
+}
+
+inline int lt_prev_layout(int stage)
+{
+    current_layout_id = current_layout_id - 1;
+    if (current_layout_id < stageData[stage].layoutFirst) {
+        current_layout_id = stageData[stage].layoutLast - 1;
+    }
+    lt_switch_layout(current_layout_id);
+    return current_layout_id;
+}
+
+inline int lt_next_layout(int stage)
+{
+    current_layout_id = current_layout_id + 1;
+    if (current_layout_id >= stageData[stage].layoutLast) {
+        current_layout_id = stageData[stage].layoutFirst;
+    }
+    lt_switch_layout(current_layout_id);
+    return current_layout_id;
+}
 
 inline void lt_mask_property(int idx, int flag)
 {
@@ -599,13 +684,3 @@ inline void lt_set_fade_mode(int val)
 {
     fadeType = val;
 }
-
-INCLUDE_ASM(lt_switch_layout);
-
-INCLUDE_ASM(lt_current_property_item);
-
-INCLUDE_ASM(lt_link_layout);
-
-INCLUDE_ASM(lt_prev_layout);
-
-INCLUDE_ASM(lt_next_layout);

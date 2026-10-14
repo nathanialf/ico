@@ -236,12 +236,6 @@ text la_mc_saved_file_select 0x001BEB68 0x001BEC70 ico2/common/src/layout_action
 text default_item_select 0x001BEFE8 0x001BF3D8 ico2/common/src/layout_texture.c local lines=66  # ordinal; first difference at insn 34; imm:15; extent-equal
 text display_primary_texture_layout 0x001C01A8 0x001C0490 ico2/common/src/layout_texture.c local lines=45  # ordinal; first difference at insn 98; imm:9; extent-equal
 text exec_layout_texture 0x001C0490 0x001C0770 ico2/common/src/layout_texture.c lines=54  # ordinal; first difference at insn 139; imm:5; extent-equal
-text init_layout_texture 0x001C0900 0x001C0A80 ico2/common/src/layout_texture.c lines=30  # ordinal; first difference at insn 15; imm:6; extent-equal
-text lt_switch_layout 0x001C0A80 0x001C0AF0 ico2/common/src/layout_texture.c lines=13  # ordinal; first difference at insn 9; imm:1; extent-equal
-text lt_current_property_item 0x001C0AF0 0x001C0AF8 ico2/common/src/layout_texture.c lines=4  # equal; a stub for emission order: a deferred inline the JPN emits before a stubbed one
-text lt_link_layout 0x001C0AF8 0x001C0BAC ico2/common/src/layout_texture.c lines=14  # equal; a stub for emission order: a deferred inline the JPN emits before a stubbed one
-text lt_prev_layout 0x001C0BB0 0x001C0C4C ico2/common/src/layout_texture.c lines=9  # ordinal; first difference at insn 17; imm:3; extent-equal
-text lt_next_layout 0x001C0C50 0x001C0CE8 ico2/common/src/layout_texture.c lines=9  # ordinal; first difference at insn 16; imm:3; extent-equal
 text staffRollStart 0x001C1D20 0x001C1D74 ico2/common/src/staffroll.c lines=14  # ordinal; first difference at insn 0; length:-20; extent-differs
 text checkFieldContact 0x001C6718 0x001C683C ico2/sugipon/src/box.c local lines=34  # ordinal; first difference at insn 0; length:-11; extent-differs
 text action 0x001C8FC0 0x001C9158 ico2/sugipon/src/box.c local lines=45  # ordinal; first difference at insn 5; length:-16; extent-differs
