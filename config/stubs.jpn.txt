@@ -107,8 +107,6 @@ text gsb_Init 0x00112648 0x001127A4 ico2/seki/src/GsBase.c lines=33  # ordinal; 
 rdlit gsb_Init 0x00549470 0x0054947E ico2/seki/src/GsBase.c align=16  # 1 string
 text gsb_Reduction 0x001127A8 0x00112C18 ico2/seki/src/GsBase.c lines=77  # ordinal; first difference at insn 0; length:-53; extent-differs
 rdlit gsb_Reduction 0x00549600 0x0054960F ico2/seki/src/GsBase.c align=16  # 1 string
-text gsb_scissorOnDemo 0x00113258 0x001135E0 ico2/seki/src/GsBase.c local lines=45  # ordinal; first difference at insn 18; imm:1; extent-equal
-sdlit gsb_scissorOnDemo 0x00633AA0 0x00633AA2 ico2/seki/src/GsBase.c  # 1 string
 text gsb_SetVSMatrix 0x00114B08 0x00114CF0 ico2/seki/src/GsBase.c lines=38  # ordinal; first difference at insn 0; length:-37; extent-differs
 lit4 gsb_SetVSMatrix 0x0063274C 0x00632754 ico2/seki/src/GsBase.c  # 2 floats; target side (DISAGREE)
 text stage_CalcAnimationNoParent 0x0012B040 0x0012B228 ico2/seki/src/StageAnimation.c lines=72  # ordinal; first difference at insn 0; length:-25; extent-differs
@@ -150,8 +148,6 @@ rdlit monitorMonitorCamera 0x00550320 0x00550330 ico2/omori/src/camera-ico2.c  #
 text debug_Load 0x001AB9A8 0x001ABF88 ico2/common/src/debug.c lines=95  # ordinal; first difference at insn 58; imm:10; extent-equal
 lit4 debug_Load 0x00632EC0 0x00632EC4 ico2/common/src/debug.c  # 1 float
 rdlit debug_Load 0x00614BA8 0x00614D9C ico2/common/src/debug.c  # 13 strings, 1 jtbl
-text debug_MakeFont 0x001ABF88 0x001AC2C0 ico2/common/src/debug.c local lines=61  # ordinal; first difference at insn 7; imm:2; extent-equal
-sdlit debug_MakeFont 0x0063495C 0x00634964 ico2/common/src/debug.c  # 2 words
 text debug_DrawBar 0x001AD258 0x001ADFF8 ico2/common/src/debug.c local lines=209  # ordinal; first difference at insn 0; length:-22; extent-differs
 lit4 debug_DrawBar 0x00632EC4 0x00632ECC ico2/common/src/debug.c  # 2 floats
 rdlit debug_DrawBar 0x00614DA0 0x00614DE4 ico2/common/src/debug.c align=16  # 2 data runs, 1 string
@@ -191,8 +187,6 @@ text ACTGetEnvironment 0x00209F08 0x0020E524 ico2/fumi/src/act-env.c lines=1078 
 lit4 ACTGetEnvironment 0x006332AC 0x006332F4 ico2/fumi/src/act-env.c  # 18 floats
 rdlit ACTGetEnvironment 0x0061AD90 0x0061ADBC ico2/fumi/src/act-env.c align=16  # 3 strings
 sdlit ACTGetEnvironment 0x006357C0 0x006357CC ico2/fumi/src/act-env.c  # 1 string, 2 words
-text ACTWayMove_BeginDetail 0x0020EBD0 0x0020EFEC ico2/fumi/src/act-way.c lines=57  # ordinal; first difference at insn 61; imm:4; extent-equal
-lit4 ACTWayMove_BeginDetail 0x006332F8 0x006332FC ico2/fumi/src/act-way.c  # 1 float
 text BeforeFunc 0x00210BC0 0x00211290 ico2/fumi/src/act.c lines=130  # ordinal; first difference at insn 252; length:-2; extent-differs
 rdlit BeforeFunc 0x0061AF48 0x0061AF58 ico2/fumi/src/act.c  # 1 data
 text actEndLogoChk 0x0021AFE8 0x0021B118 ico2/script/src/end.c lines=53  # December plays no logo animation before the fade (no NonLinearCameraMove switch) and clears 60 after it; written so, it still differs at insn 44: the mail record and its handler in s1 and s0 swapped

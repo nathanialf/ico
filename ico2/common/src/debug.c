@@ -1086,7 +1086,67 @@ INCLUDE_ASM(debug_Load);
 static unsigned long long debugFontTag[2] = {0x2000400000008000LL, 0x51}; /* derived name */
 
 /* clang-format off */
-INCLUDE_ASM(debug_MakeFont);
+static void debug_MakeFont(void)
+{
+    int on = 1, off = 0;
+    struct { /* field names derived */ float v[4]; char *volatile ptr; } w; /* the cursor is re-read from the frame at every push */
+    char *base;
+    unsigned short *a, *b; unsigned short m0, m1; int i, j, k, n;
+    base = iosMallocDebug(ios_partition_seki, 1, "src/debug.c", 2066); w.ptr = base;
+    *((int *)w.ptr)++ = 0x1400000C;
+    *((int *)w.ptr)++ = 0;
+    *((long long *)w.ptr)++ = 0;
+
+    for (i = 0; i < 256; i++) {
+        a = &fontOutline[i * 16]; b = &fontGlyph[i * 8];
+
+        for (j = 0, n = 0; j < 9; j++) {
+            m1 = a[j];
+            m0 = b[j];
+            for (k = 0; k < 10; k++, m0 >>= 1, m1 >>= 1)
+                if ((m0 & 1) || (m1 & 1)) n++;
+        }
+        if (n == 0) {
+            fontPacket[i].qwc = 1;
+            fontPacket[i].packet = base;
+        } else {
+
+
+            fontPacket[i].qwc = n + 3;
+            w.ptr = fontPacket[i].packet = iosMallocDebug(ios_partition_seki, (n + 3) * 16, "src/debug.c", 2087);
+            *((long long *)w.ptr)++ = 0;
+            *((int *)w.ptr)++ = 0;
+            *((int *)w.ptr)++ = ((n + 1) << 16) | 0x6C008000;
+
+            *((long long *)w.ptr)++ = n | ((long long)0x8000 << 38) | debugFontTag[0];
+            *((long long *)w.ptr)++ = debugFontTag[1];
+            for (j = 0; j < 9; j++) {
+                m0 = b[j];
+                m1 = a[j];
+                for (k = 0; k < 10; k++, m0 >>= 1, m1 >>= 1) {
+                    w.v[0] = (float)k;
+
+                    w.v[1] = (float)(j * 2);
+
+
+
+                    if (m0 & 1) {
+                        w.v[2] = 3.4028235e+38f;
+                        w.v[3] = *(float *)&off;
+                        *((Qw128 *)w.ptr)++ = *(Qw128 *)w.v;
+                    } else if (m1 & 1) {
+                        w.v[2] = 1.7014117e+38f;
+                        w.v[3] = *(float *)&on;
+                        *((Qw128 *)w.ptr)++ = *(Qw128 *)w.v;
+                    }
+                }
+            }
+            *((int *)w.ptr)++ = 0x1400000A;
+            *((int *)w.ptr)++ = 0;
+            *((long long *)w.ptr)++ = 0;
+        }
+    }
+}
 
 static void debug_makeBackImage(void)
 {

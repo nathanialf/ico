@@ -14,7 +14,6 @@
 #include "commonact.h"
 #include "gv.h"
 #include "motionOrientManager.h"
-#include "include_asm.h"
 
 /* the two-word playback-rate pair the wait counters are scaled by */
 
@@ -198,9 +197,62 @@ static inline WayPoint *RequestWayBegin(char *self, float *goal, float *from, WV
 }
 
 int ACTWayMove_BeginDetail(GObj *self, float *goal, float *from, void *tgt, void *e,
-                           unsigned char sub);
+                           unsigned char sub)
+{
+    WVTObj way;
+    Act *act = GOBJ_ACT(self);
+    WVTObj *home;
+    WVTObj *wp;
+    int ret = 0;
+    WayPoint *w;
 
-INCLUDE_ASM(ACTWayMove_BeginDetail);
+    /* disabled in retail: the way-begin-position (WBP) report */
+    if (0) {
+        debug_StdPrintfDummy("WBP <<begin>>\n");
+    }
+    home = &act->way;
+    way = *home;
+    wp = &way;
+    act->wayFlags &= ~0x20000;
+    act->wayFlags &= ~0x40000;
+    act->wayState.flags = (act->wayState.flags & ~0x200000) |
+                          ((long long)(checkPositionIllegal(self, goal) & 1) << 21);
+    *(float *)((char *)act + 0x434) = goal[1];
+    w = RequestWayBegin(self, goal, from, wp, sub);
+    if (w != 0) {
+        act->wayState.st[1] = 0;
+        if (wp->flag3C == 0) {
+            if (WayMove_CheckCollis(goal, from, tgt, e) == 0) {
+                act->wayState.st[1] = 1;
+                DeleteGuideWay(wp);
+                ret = 3;
+            } else {
+                ret = 2;
+            }
+        } else {
+            ret = 1;
+        }
+        *home = way;
+        act->wayLast = 0;
+        *(int *)((char *)act + 0x404) = (int)tgt;
+        *(float *)((char *)act + 0x410) = from[0];
+        *(float *)((char *)act + 0x414) = from[1];
+        *(float *)((char *)act + 0x418) = from[2];
+        act->wayState.st[0] = 1;
+    } else {
+        act->wayState.st[0] = 0;
+    }
+    act->wayState.flags &= ~0x10000;
+    act->wayState.flags &= ~0x1E0000;
+    *(int *)((char *)act + 0x430) = 0;
+    *(int *)((char *)GOBJ_ACT(self)->work + 0x8D0) = 0;
+    if (act->way.chk.start != 0 && act->way.chk.cross == 0) {
+        if (_DistxzSqGV(act->way.chk.start->pos, goal) < 40000.0f) {
+            act->wayFlags |= 0x40000;
+        }
+    }
+    return ret;
+}
 
 /* the 0x20-byte way-step record the actor keeps at act + 0x3E0: the step
    direction, the 64-bit way state word and the two distances to the goal */

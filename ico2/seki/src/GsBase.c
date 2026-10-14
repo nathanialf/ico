@@ -361,15 +361,58 @@ static float scissorStep = 0.0f; /* derived name */
 
 /* as in GifPacket.h, which this TU does not include */
 extern void gif_EndPacketPath1(void);
+
 /* The letterbox the demo scenes fade in: two black bars, top and bottom,
- * whose alpha eases to 128 while the scene is state 55 and back to 0
+ * whose alpha eases to 128 while the scene is layout 52 and back to 0
  * otherwise.  While the bars are visible they are drawn and the motion blur
  * is left alone; once they are gone the stage record's blur setting is
  * restored.  Each bar is drawn by a macro inside the two-iteration loop,
  * its first corner written before fx and fy are formed. */
-static void gsb_scissorOnDemo(void);
+static void gsb_scissorOnDemo(void)
+{
+    GsbRect r[2] = {
+        {-(ScreenWidth >> 1) * 16, -(ScreenHeight >> 1) * 16 - 4, ScreenWidth * 16, 58 * 16},
+        {-(ScreenWidth >> 1) * 16, ((ScreenHeight >> 1) - 58) * 16 + 4, ScreenWidth * 16, 58 * 16}};
+    unsigned char col[4];
+    int i;
 
-INCLUDE_ASM(gsb_scissorOnDemo);
+    if (current_layout_id == 52 && scissorLastState != current_layout_id) {
+        scissorStep = 2.5f;
+    } else if (scissorLastState != current_layout_id) {
+        scissorStep = -2.5f;
+    }
+    scissorLastState = current_layout_id;
+
+    scissorLevel = scissorLevel + scissorStep;
+    if (scissorLevel <= 0.0f) {
+        scissorLevel = 0.0f;
+        scissorStep = 0.0f;
+    }
+    if (128.0f <= scissorLevel) {
+        scissorLevel = 128.0f;
+        scissorStep = 0.0f;
+    }
+    if (0.0f < scissorLevel && scissorLevel <= 128.0f) {
+        if (debug_font_flag & 1) {
+            debug_Printf(0x21C, ScreenHeight / 2 - 8, 0xCCCCCC00, "D");
+        }
+        dl_SetDLPriority(11);
+        gif_StartPacketPriPath1(dl_GetPri());
+        memset(col, 0, 4);
+        col[3] = 0x80;
+        gif_SetDrawEnviroment(0x800, 0, ScreenWidth, ScreenHeight, 1, 0);
+        gif_SetGsReg(0x47, 0x30000);
+        gif_SetGsReg(0x4E, 0x300000C0);
+        gif_SetGsReg(0x49, 0);
+        gif_SetGsReg(0x42, ((long long)(int)scissorLevel << 32) | 0x64);
+        for (i = 0; i < 2; i++) {
+            spriteRect(r[i].x, r[i].y, r[i].w, r[i].h, -1LL, col, 0x446);
+        }
+        gif_EndPacketPath1();
+    } else {
+        SetMotionBlur(GlobalStageSetting.motionBlur);
+    }
+}
 
 /* void (int, int, int) here, void (long long, long long, long long) in GifPacket.h */
 extern void gif_SetAlpha(int alpha, int mode, int fix);
