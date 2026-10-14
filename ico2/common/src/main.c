@@ -275,10 +275,10 @@ int main(void)
     return 0;
 }
 
-/* main.c's .sdata globals.  The PAL build adds six (marked derived): one
-   quadword after game_pause and the girl-control block before boyGObj.  Each
-   is a 4-byte scalar; the ones marked QWORD open a 16-byte quadword of their
-   own, the rest of which stays empty. */
+/* main.c's .sdata globals.  Like PAL's, this build adds six to the January
+   map's (marked derived): one quadword after game_pause and the girl-control
+   block before boyGObj.  Each is a 4-byte scalar; the ones marked QWORD open
+   a 16-byte quadword of their own, the rest of which stays empty. */
 #define QWORD __attribute__((aligned(16)))
 
 int buffer_ID QWORD = 0;
@@ -313,7 +313,7 @@ int game_pause QWORD = 0;
 
 int data_loading QWORD = 0;
 
-/* the PAL build's inserted, unreferenced quadword */
+/* the inserted, unreferenced quadword (PAL's build has it too) */
 static int reservedWord QWORD = 0; /* derived name */
 
 int screen_offset_x QWORD = 0;

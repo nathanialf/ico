@@ -5,8 +5,10 @@ as part of another, and where every other declaration lives.
 
 The evidence is the PAL disc's January 2002 listing (`SRCFILE.TXT`, an
 `objdump -dl` of the game with a source path and line on every instruction)
-and its `MAIN.MAP`; both are copied into `baserom/pal/` by
-`tools/extract_elf.sh` and are never committed (`docs/LEGAL.md`). The listing
+and its `MAIN.MAP`; on `main`, `tools/extract_elf.sh` copies both into
+`baserom/pal/`, and neither is ever committed (`docs/LEGAL.md`). The
+Japanese disc ships neither: this branch keeps the PAL tree's headers, changed
+where the Japanese build's records or declarations differ. The listing
 contains no source text. A header shows up in it only when code from the
 header was compiled into a caller: a header that only declares leaves no
 rows at all.

@@ -19,22 +19,18 @@ respective owners.
 - Configuration that describes how the user's own disc image is checked and
   how the rebuilt ELF is linked: the link order, the linker script, the
   data-table index, the data-table schema (record types and counts, no
-  values) and the SHA-1s of the expected files.
-- `config/ico.pal.yaml`, `config/symbol_addrs.pal.txt` and
-  `config/symbol_addrs.pal.data.txt`, kept as a record of the old split
-  layout; nothing in the build reads them. The two symbol lists hold the
-  names this tree defines and the addresses the link places them at, the
-  same facts `nm` prints over `build/ico.elf`; they are a record of the
-  rebuilt ELF, not a copy of a disc file.
+  values), the campaign stub list (names and address ranges, no bytes) and
+  the SHA-1s of the expected files.
 
 ## What is not in this repository, and must never be added
 
 - The ICO disc image (`.bin`, `.iso`, `.cue` or any other form), in whole or
   in part.
-- The boot ELF of any revision (`SCES_507.60`, `SCUS_971.13`, the
-  prototypes), or any part of it.
+- The boot ELF of any revision (`SCES_507.60`, `SCPS_110.03`,
+  `SCUS_971.13`, the prototypes), or any part of it.
 - Audio, images, textures, models, text or other assets from the disc.
-- The game's data tables (next section).
+- The game's data tables, and the code and constants of the functions this
+  branch still builds as campaign stubs (next section).
 - Symbol tables, map files or other identifier tables, and any debug string,
   asset or code blob, copied verbatim or in bulk out of the binary, the disc
   or any leaked development material. Using an individual fact (a name, an
@@ -48,24 +44,32 @@ harder to commit such material by accident. They do not replace care. If you
 suspect a file in this repository breaks these rules, open an issue tagged
 `legal`.
 
-## The data tables are generated at build time
+## The data tables and the campaign stubs are generated at build time
 
-The PAL link includes 70 members of the game's archive `ico2000.a` that have
-data sections and no code (MAIN.MAP), plus three data runs MAIN.MAP does not
-list; `config/data_members.pal.txt` lists them all. They are the game's
-content: stage object layouts, model and motion file tables, sound
-definitions, way points, the staff roll. There is no
-program in them to re-derive, and their values are never committed, as C,
-as assembly or in any other form.
+The Japanese link includes the same 70 members of the game's archive
+`ico2000.a` that have data sections and no code as the PAL link (the PAL
+disc's MAIN.MAP), plus the same three data runs MAIN.MAP does not list;
+`config/data_members.jpn.txt` lists them all. They are the game's content:
+stage object layouts, model and motion file tables, sound definitions, way
+points, the staff roll. There is no program in them to re-derive, and their
+values are never committed, as C, as assembly or in any other form.
 
-The build reads them from the user's own `baserom/pal/baseelf.elf` and
+The build reads them from the user's own `baserom/jpn/baseelf.elf` and
 writes them under `build/data/`, which is gitignored. Each member is
 written as `build/data/<member>.c`, an initialized array of its record type
-from `config/data_schema.pal.txt` that compiles with the game's flags
+from `config/data_schema.jpn.txt` that compiles with the game's flags
 (`tools/gen_data_c.py`). The committed schema and the record types in the
 owners' headers hold only types, element counts and symbol names. The
 configuration files hold member names, address ranges, record types and the
 names MAIN.MAP gives the symbols, and nothing of the tables' content.
+
+The campaign stubs are handled the same way. While a function's C does not
+yet give the Japanese bytes, `config/stubs.jpn.txt` names it with its address
+range and its translation unit, and `tools/gen_stub_s.py` writes its
+instructions and constants from the user's own ELF to `build/stubs/` at build
+time, where the C includes them. The list holds names, ranges and notes on
+how each function differs from PAL's, never a word of the code; nothing under
+`build/stubs/` is committed.
 
 The line drawn is between content and facts about its shape. The names,
 tables and strings are content and are never committed. A count or size
@@ -145,6 +149,27 @@ it does not copy `TRTABLE.BIN`, which nothing in the build reads. None of
 them is ever committed or bulk-copied. Because the listing comes from a
 different link than the shipped ELF, names were attached to shipped
 functions by instruction-stream correlation, never by copying an address.
+
+## Japanese retail disc (`jpn`)
+
+The Japanese retail disc (`SCPS-11003`, boot ELF `SCPS_110.03`, `SYSTEM.CNF`
+`VER = 1.02`) ships no linker map, listing or address table next to its boot
+ELF. Its names come from the PAL disc's listing above, by instruction-stream
+correlation (`tools/correlate_elf.py`): each function of the Japanese ELF is
+paired with a PAL function whose instructions, relocated fields masked, are
+the same, and takes that function's name. Where the census paired two
+functions only by their position inside a run of unpaired ones (the ordinal
+tier), the name is provisional until the function matches from the PAL
+source; a function no PAL function claims carries a derived name. The
+data-only members take PAL's names by member order. No address is copied
+from either PAL file: every address in this branch's configuration was
+found in the user's own ELF.
+
+The Japanese string literals in the sources (the EUC-JP files
+`.gitattributes` lists) are the program's own text, the messages and names
+the compiled code prints or passes, written as the code that uses them. They
+are facts the program needs to be rebuilt, as on the PAL tree, not assets of
+the disc.
 
 ## Prototype symbol maps (`aug6`)
 
