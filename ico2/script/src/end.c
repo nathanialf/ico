@@ -85,8 +85,6 @@ static ActMail st27aEnd_mes[2] = {{393}, {392}}; /* derived name */
 
 static ActMail logo_mes[2] = {{393}, {392}}; /* derived name */
 
-static ActMail end_mes[2] = {{393}, {392}}; /* derived name */
-
 INCLUDE_ASM(actEndDemo01);
 
 INCLUDE_ASM(actConte14_1);

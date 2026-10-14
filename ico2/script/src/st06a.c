@@ -45,8 +45,6 @@ static const ConstVec jumpPos2 = {{-505.0f, -1447.0f, -5671.0f, 1.0f}}; /* deriv
 
 static ActMail suimon_mes[2] = {{393}, {392}}; /* derived name */
 
-static float suimon_sound_pos[4] = {810.0f, -346.0f, 381.0f, 0.0f}; /* derived name */
-
 static ActMail door_down_mes[2] = {{393}, {392}}; /* derived name */
 
 static ActMail door_up_mes[2] = {{393}, {392}}; /* derived name */

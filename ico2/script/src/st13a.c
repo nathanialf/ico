@@ -43,6 +43,8 @@ static ActMail elevDown_mes[2] = {{393}, {392}}; /* derived name */
 
 static ActMail sekizo_mes[2] = {{393}, {392}}; /* derived name */
 
+static ActMail exit_mes[2] = {{393}, {392}}; /* derived name */
+
 static ActMail check_mes[2] = {{393}, {392}}; /* derived name */
 
 static ActMail chainNg_mes[2] = {{393}, {392}}; /* derived name */

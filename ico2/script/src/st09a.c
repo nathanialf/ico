@@ -36,8 +36,6 @@ static ActMail elvDown_mes[2] = {{393}, {392}}; /* derived name */
 
 static ActMail elvUp_mes[2] = {{393}, {392}}; /* derived name */
 
-static float sekizoPos[4] = {1548.0f, -412.0f, -608.0f, 0.0f}; /* derived name */
-
 static ActMail intro_mes[2] = {{393}, {392}}; /* derived name */
 
 static ActMail brgMain_mes[2] = {{373, actSt09aBrgSwitch}, {392}}; /* derived name */

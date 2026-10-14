@@ -402,7 +402,6 @@ static inline int SwapBoyWeapon(void *oldW, void *newW, void *boy) /* derived na
     PickupWeapon(newW, boy, 0x16);
     ((int *)boyInfo)[0] = *(int *)((char *)newW + 0x8);
     *(void **)((char *)sub + 0x150) = newW;
-    SetWeaponOffsetMode(newW, 0);
 
     if (oldW == 0) {
         return 1;

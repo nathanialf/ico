@@ -92,8 +92,6 @@ static sceVu0IVECTOR wallHitColor2 = {0x00, 0x80, 0xFF, 0x80}; /* derived name *
 
 static float floorSlope[4] = {0.0f, 0.0f, 0.0f, 0.0f}; /* derived name */
 
-static float sideWallProbe[4] = {0.0f, 0.0f, 10.0f, 0.0f}; /* derived name */
-
 static float hangBack[4] = {0.0f, 0.0f, -50.0f, 1.0f}; /* derived name */
 
 static float hangFront[4] = {0.0f, 0.0f, 50.0f, 1.0f}; /* derived name */

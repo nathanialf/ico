@@ -303,7 +303,7 @@ loop:
 }
 
 /* the object kinds the character list builder accepts, -1 terminated */
-static int charGObjKinds[5] = {1, 2, 4, 47, -1}; /* derived name */
+static int charGObjKinds[5] = {1, 2, 4, 46, -1}; /* derived name */
 
 /* the live character objects the cylinder check walks */
 static GObj *charGObjList[64]; /* derived name */

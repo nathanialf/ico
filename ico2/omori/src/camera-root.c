@@ -76,13 +76,11 @@ typedef struct InsertCameraWork { /* field names derived */
     char pad1c[4];
     float tgt[3]; /* 0x20 */
     char pad2c[4];
-    float blend;           /* 0x30 */
-    unsigned char enable;  /* 0x34 */
-    unsigned char cut;     /* 0x35 */
-    unsigned char cutType; /* 0x36 */
-    unsigned char zoom;    /* 0x37, the zoom request while it runs */
-    unsigned char cutBack; /* 0x38, cut back to the game camera at the end */
-    char pad39[7];
+    unsigned char enable;  /* 0x30 */
+    unsigned char cut;     /* 0x31 */
+    unsigned char zoom;    /* 0x32, the zoom request while it runs */
+    unsigned char cutBack; /* 0x33, cut back to the game camera at the end */
+    char pad34[12];
     /* a VU0 quadword record: pos and tgt are quadword vectors */
 } InsertCameraWork __attribute__((aligned(16)));
 
@@ -345,7 +343,7 @@ static CamTgt cameraTargetDefault =
 /* the cleared insert-camera request: no target, no blend, one cut pending */
 static InsertCameraWork insertCameraClear = {
     /* derived name */
-    0, 0, {0}, {0.0f, 0.0f, 0.0f}, {0}, {0.0f, 0.0f, 0.0f}, {0}, -1.0f, 0, 1, 0, 0, 1, {0}};
+    0, 0, {0}, {0.0f, 0.0f, 0.0f}, {0}, {0.0f, 0.0f, 0.0f}, {0}, 0, 1, 0, 0, {0}};
 
 /* clear the insert-camera request */
 static inline void InsertCamera_Clear(void) /* derived name */

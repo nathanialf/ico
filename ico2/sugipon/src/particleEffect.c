@@ -114,7 +114,7 @@ static PEPartRec blankParticle = {
     0.0f,
 }; /* derived name */
 
-static PEffect emptyEffect = {0, 0, 1, 0, 0, 0, 0}; /* derived name */
+static PEffect emptyEffect = {0, 1, 0, 0, 0, 0}; /* derived name */
 
 /* The scratch vector the spread offset is written into and the current
    matrix is applied to; its definition follows the default package. */

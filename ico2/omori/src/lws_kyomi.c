@@ -11,17 +11,6 @@
 #include "brain.h"
 #include "include_asm.h"
 
-struct HintInfo { /* field names derived */
-    int anim;     /* the stage animation the hint plays */
-    int no;
-    int time;
-    int flags;
-};
-
-/* the record a new hint GObj starts from: no stage, no hint, no time, no
-   flags */
-static struct HintInfo hintDefault = {-1, -1, -1, 0}; /* derived name */
-
 INCLUDE_ASM(LwsKyomiGeo);
 
 INCLUDE_ASM(CreateKyomiGObj);

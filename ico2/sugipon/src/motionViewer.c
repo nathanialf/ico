@@ -43,9 +43,9 @@ typedef struct OriCsv { /* field names derived */
 
 /* objMenu: the five objects the viewer can target */
 MvMenuEnt objMenu[] = {
-    {"BoyMotion", 1, 0, 532, 0, 1283},           {"GirlMotion", 2, 532, 834, 1283, 2122},
-    {"Enemy1Motion", 4, 834, 983, 2122, 2407},   {"BirdMotion", 32, 1134, 1143, 2421, 2467},
-    {"QueenMotion", 47, 1072, 1134, 2407, 2421},
+    {"BoyMotion", 1, 0, 514, 0, 1195},           {"GirlMotion", 2, 514, 790, 1195, 1797},
+    {"Enemy1Motion", 4, 790, 924, 1797, 2080},   {"BirdMotion", 32, 1075, 1084, 2094, 2138},
+    {"QueenMotion", 46, 1013, 1075, 2080, 2094},
 };
 
 static int objSel = 0; /* derived name */

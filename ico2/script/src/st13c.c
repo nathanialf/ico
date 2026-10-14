@@ -70,8 +70,6 @@ static ActMail cageFall2_mes[2] = {{393}, {392}}; /* derived name */
 
 static ActMail sekizoJimaku_mes[2] = {{393}, {392}}; /* derived name */
 
-static ActMail sekizo_mes[2] = {{393}, {392}}; /* derived name */
-
 static ActMail girlCarry_mes[2] = {{393}, {392}}; /* derived name */
 
 static ActMail girlCarryChk_mes[2] = {{393}, {392}}; /* derived name */

@@ -51,6 +51,8 @@ static ActMail boss_mes[2] = {{393}, {392}}; /* derived name */
 
 static ActMail bossAfter_mes[2] = {{393}, {392}}; /* derived name */
 
+static ActMail exit_mes[2] = {{393}, {392}}; /* derived name */
+
 static ActMail elevMain_mes[2] = {{372, actSt13bElevSwitch}, {392}}; /* derived name */
 
 static ActMail elev_mes[2] = {{393}, {392}}; /* derived name */

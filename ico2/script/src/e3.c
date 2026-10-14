@@ -53,6 +53,9 @@ int sekizo_e3_vol = 0;
 
 static unsigned char e3sekizo_yure_vol = 0; /* derived name */
 
+/* actE3Warning's mail, the first object of the TU's .data */
+static ActMail warning_mes[2] = {{393}, {392}}; /* derived name */
+
 static ActMail title_mes[2] = {{393}, {392}}; /* derived name */
 
 static ActMail inst1_mes[2] = {{393}, {392}}; /* derived name */
