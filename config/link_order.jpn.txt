@@ -21,7 +21,7 @@
 #                      data: lines are still PAL's, in PAL's places, pending the
 #                      derivation of the JPN members.
 #
-# Token after a path:
+# Tokens after a path:
 #   align.<sec>=16     the ROM starts this object's <sec> (data or rodata)
 #                      16-aligned after fill that its own section alignment
 #                      does not produce. While any line carries one,
@@ -32,6 +32,14 @@
 #                      place the section. The tokens below, and the addresses
 #                      in the comments above them, are PAL's measurements, not
 #                      yet re-measured against the JPN base.
+#   overlay-fill=N     on a .dsm line: the byte, decimal 0 to 255, that
+#                      dvp-as repeats over the program's constant-address
+#                      overlay section (--overlay-fill=N, from
+#                      tools/binutils-dvp-overlay-fill.patch). It is the
+#                      period assembler's uninitialised heap memory, measured
+#                      on the disc's ELF, not a feature of the source. The
+#                      JPN ELF holds 0x6E (110) in all five, where PAL's are
+#                      zero; the seven continuation overlays are zero in both.
 #
 # No object owns these zero runs at the section boundaries (ROM offsets, VMA
 # minus 0x100000, from the JPN ELF's section headers): 0x18CBC0, the 64 bytes
@@ -525,8 +533,8 @@ sce/libc/stdlib/reallocr.c
 sce/libc/s_infconst.c
 sce/libkernl/cache.c
 sce/libgcc/_fixdfdi.c
-ico2/vusrc/cluster.dsm
-ico2/vusrc/mesh.dsm
-ico2/vusrc/normal_c.dsm
-ico2/vusrc/normal_l.dsm
-ico2/vusrc/particle.dsm
+ico2/vusrc/cluster.dsm  overlay-fill=110
+ico2/vusrc/mesh.dsm  overlay-fill=110
+ico2/vusrc/normal_c.dsm  overlay-fill=110
+ico2/vusrc/normal_l.dsm  overlay-fill=110
+ico2/vusrc/particle.dsm  overlay-fill=110
