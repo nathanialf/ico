@@ -23,13 +23,18 @@ extern GsysObjInfo seDef[];
 /* int (int, unsigned int, int, int) here, int (int, int, int, int) in s_init.h */
 extern int soundSeDefPlay(int se, unsigned int owner, int pos, int playMode);
 
+/* the fired-slot flags of one actor's sequence, at its display object's
+   0x730: one vibration slot, five effect slots, twelve SE slots and the
+   weapon light (ExecFrameDependSequence's loops) */
 typedef struct FDSFlags { /* field names derived */
-    int vibDone[2];       /* 0x00 */
-    int effDone[12];      /* 0x08 */
-    int seDone[12];       /* 0x38 */
-    int weaponDone;       /* 0x68 */
-    int vibEntry[2];      /* 0x6C */
+    int vibDone[1];       /* 0x00 */
+    int effDone[5];       /* 0x04 */
+    int seDone[12];       /* 0x18 */
+    int weaponDone;       /* 0x48 */
 } FDSFlags;               /* derived name */
+
+/* the cleared flags InitFrameDependSequence copies over an actor's */
+static FDSFlags fdsFlagsInit = {{0}}; /* derived name */
 
 /* the sequence being run: its flag block, work, layout record and motion
    record, its owner, the SE volume rate and the SE group */
@@ -113,7 +118,7 @@ static inline int setSEEnvironment(GObj *gobj, int id) /* derived name */
         no = *(int *)(w + 0x84);
         p = w + 0x470;
         fdsWork = w + 0xA0;
-        fdsFlags = (FDSFlags *)(w + 0x740);
+        fdsFlags = (FDSFlags *)(w + 0x730);
         fdsRecord = &motionKind[*(int *)(p + 0x30)];
         fdsGroup = *(int *)(w + (id << 2) + 0x61C);
         fdsLayout = (struct MotCtrl *)p;

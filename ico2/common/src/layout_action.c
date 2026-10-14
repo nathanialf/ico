@@ -121,7 +121,7 @@ void la_TESTFUNCTION(void)
 /* .data: the game-flag ids the load carries across gflagInit.  The list
    holds five ids and the key-config tables follow it; the keep/restore loops
    below walk twenty words. */
-static int keepFlagNo[5] = {388, 384, 383, 385, 382}; /* derived name */
+static int keepFlagNo[5] = {354, 350, 349, 351, 348}; /* derived name */
 
 /* the eight pad button
    codes the key-config screen offers, and the six-plus-two slot assignments it

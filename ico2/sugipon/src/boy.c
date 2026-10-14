@@ -486,12 +486,6 @@ static ClothHangCfg tapeHang[3] = {
 
 INCLUDE_ASM(InitBoyGeo);
 
-/* the two wire spheres the girl-to-boy position sync draws when the debug flag
-   is on: blue for the girl, orange for the boy */
-static int girlSyncMarkerColor[4] = {64, 96, 128, 128}; /* derived name */
-
-static int boySyncMarkerColor[4] = {255, 96, 64, 128}; /* derived name */
-
 static LightLineExt lightLineExt = {0, 0, 0}; /* derived name */
 
 static void synchronizeMotionOutputOriginForGirl(GObj *gobj);

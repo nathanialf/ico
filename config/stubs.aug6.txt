@@ -105,7 +105,9 @@
 #     census's masks hide, or ee-as short-loop padding while the TU includes
 #     stubs);
 #   - a data row for a function-scope static that left with its function's
-#     carve and that no literal row carries.
+#     carve and that no literal row carries;
+#   - a data row for a .data object a carved function's August C used and
+#     PAL's does not (no PAL name, so D_<VMA>).
 # Literal rows (lit4, rdlit, sdlit) follow their text rows; gen_stub_s.py
 # --literals derived them (the WIP commit that added them says how).
 #
@@ -2180,6 +2182,8 @@ rdlit action 0x00611028 0x00611030 ico2/sugipon/src/box.c  # target side
 rdlit action 0x00611030 0x0061104C ico2/sugipon/src/box.c align=16  # jump table (target side)
 lit4 action 0x0062B304 0x0062B308 ico2/sugipon/src/box.c # target side
 text GetBoxHoldPoint 0x001BC7D0 0x001BCA10 ico2/sugipon/src/box.c lines=45  # ordinal; first difference at insn 22; imm:1; extent-equal
+data D_004BAAD0 0x004BAAD0 0x004BAAE0 ico2/sugipon/src/box.c local  # moveBoxAutoMatic's +Z push vector (addiu at 0x1BCBCC), after box.c's last file-scope .data; PAL's moveBoxAutoMatic computes it inline, no PAL name
+data D_004BAAE0 0x004BAAE0 0x004BAAF0 ico2/sugipon/src/box.c local  # moveBoxAutoMatic's -Z push vector (addiu at 0x1BCBF4)
 text moveBoxAutoMatic 0x001BCB68 0x001BCC88 ico2/sugipon/src/box.c local lines=42  # trfile; aug6-only in the census; PAL's moveBoxAutoMatic (456 B in PAL)
 lit4 moveBoxAutoMatic 0x0062B308 0x0062B314 ico2/sugipon/src/box.c  # 3 floats
 text MoveBoxWithHoldPoint 0x001BCC88 0x001BD11C ico2/sugipon/src/box.c lines=79  # trfile; aug6-only in the census; PAL's MoveBoxWithHoldPoint (1756 B in PAL)

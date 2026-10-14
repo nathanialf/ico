@@ -44,7 +44,7 @@ static void gamesysCharacterInfoSave(GamesysMemCursor *self);
    handler per record, which gamesysMemoryLoad and gamesysMemorySave walk to
    the zero pair; the per-stage exit times; the object-info records; the save
    image itself.  The buffers are zero-initialised, so they sit in .data. */
-char stamp_str[] = "12/12/01 17:53:37";
+char stamp_str[] = "08/07/01 14:51:53";
 
 void *gameSysMemoryFuncList[] = {
     gamesysVersionLoad,

@@ -34,6 +34,9 @@ static char *ap1ModeTag[] = {"ST", "WA", "JM", "AT", "DE", "SL"}; /* derived nam
 
 INCLUDE_ASM_LIT(GetAP1AIMode);
 
+/* a hop ten units down and fifteen back, which no code of this build reads */
+static AP1Vec ap1BackHop = {0.0f, -10.0f, -15.0f, 0.0f}; /* derived name */
+
 /* the fixed hop walkAI asks for when it is boxed in: straight down and
    two units forward. */
 static AP1Vec ap1BoxedInJump = {0.0f, -20.0f, 2.0f, 0.0f}; /* derived name */
