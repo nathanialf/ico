@@ -240,13 +240,13 @@ def transfer(w: int, i: int):
     return None
 
 
-def hi_states(words) -> list[int]:
-    """The %hi registers live into each word, by data flow over the
-    function's control flow: the union over every path that reaches it.
-    A branch's delay slot runs on both of its paths (on the taken path only
-    for a branch-likely); a call clobbers the caller-saved registers after
-    its delay slot; j, b, jr and returns do not fall through. Words only a
-    jump table reaches (those no branch or fall-through reaches, after a jr
+def _flow(words, effect, join, clobber, empty):
+    """A forward data flow over the function's control flow: the state live
+    into each word, the join over every path that reaches it. A branch's
+    delay slot runs on both of its paths (on the taken path only for a
+    branch-likely); a call clobbers the caller-saved registers after its
+    delay slot; j, b, jr and returns do not fall through. Words only a jump
+    table reaches (those no branch or fall-through reaches, after a jr
     through a register) get the state at that jr."""
     n = len(words)
     xfer = [transfer(w, i) for i, w in enumerate(words)]
@@ -254,23 +254,25 @@ def hi_states(words) -> list[int]:
     for i in range(n - 1):
         if xfer[i] and owner[i] is None:     # a transfer in a delay slot is not one
             owner[i + 1] = i
-    state = [0] * n
+    state = [empty] * n
     reached = [False] * n
     work = []
 
     def feed(j, s):
-        if 0 <= j < n and (not reached[j] or state[j] | s != state[j]):
-            state[j] |= s
-            reached[j] = True
-            work.append(j)
+        if 0 <= j < n:
+            t = join(state[j], s)
+            if not reached[j] or t != state[j]:
+                state[j] = t
+                reached[j] = True
+                work.append(j)
 
-    jr_state = 0
+    jr_state = empty
 
     def run():
         nonlocal jr_state
         while work:
             k = work.pop()
-            s = hi_effect(state[k], words[k])
+            s = effect(state[k], words[k])
             i = owner[k]
             if i is None:
                 feed(k + 1, s)              # the next word, or the delay slot
@@ -281,12 +283,12 @@ def hi_states(words) -> list[int]:
             if kind == "cond":
                 feed(k + 1, s)
             elif kind == "likely":
-                feed(k + 1, hi_effect(state[i], words[i]))
+                feed(k + 1, effect(state[i], words[i]))
             elif kind == "call":
-                feed(k + 1, s & ~CALL_CLOBBER_MASK)
+                feed(k + 1, clobber(s))
             elif kind == "jr":
-                jr_state |= s
-    feed(0, 0)
+                jr_state = join(jr_state, s)
+    feed(0, empty)
     run()
     while True:
         seeds = [k for k in range(n) if not reached[k] and (k == 0 or reached[k - 1])]
@@ -296,6 +298,44 @@ def hi_states(words) -> list[int]:
             feed(k, jr_state)
         run()
     return state
+
+
+def hi_states(words) -> list[int]:
+    """The %hi registers live into each word (a bit mask), by _flow: the
+    union over every path that reaches it."""
+    return _flow(words, hi_effect, lambda a, b: a | b, lambda s: s & ~CALL_CLOBBER_MASK, 0)
+
+
+def hi_value_effect(state: dict, w: int) -> dict:
+    """hi_effect with the values: {register: frozenset of %hi immediates}."""
+    d = dest_gpr(w)
+    if not d:
+        return state
+    out = dict(state)
+    if _op(w) == 0x0F:
+        out[d] = frozenset([w & 0xFFFF])
+    elif _op(w) == 0 and (w & 63) in ADD_FUNCTS and (_rs(w) in state or _rt(w) in state):
+        out[d] = state.get(_rs(w), frozenset()) | state.get(_rt(w), frozenset())
+    else:
+        out.pop(d, None)
+    return out
+
+
+def hi_values(words) -> list[dict]:
+    """The %hi values each register may hold into each word: {register:
+    frozenset of lui immediates}, by the same flow as hi_states."""
+    def join(a, b):
+        if not b:
+            return a
+        out = dict(a)
+        for r, v in b.items():
+            out[r] = out.get(r, frozenset()) | v
+        return out
+
+    def clobber(s):
+        return {r: v for r, v in s.items() if not CALL_CLOBBER_MASK >> r & 1}
+
+    return _flow(words, hi_value_effect, join, clobber, {})
 
 
 def normalize(words) -> tuple[list[int], list[str | None]]:

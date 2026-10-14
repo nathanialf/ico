@@ -53,8 +53,51 @@ functions before and after it); the stub file writes them as bytes of that
 section after the function's text, so the TU's other constants keep their
 places. A literal row takes no `local`; lit4 aligns to 4 as the assembler
 does, rdlit and sdlit to align=N (default as for a data row, the largest
-power of two dividing vma_lo, at most 8; gcc aligns its strings to 8). A
-function has at most one row of each.
+power of two dividing vma_lo, at most 8; gcc aligns its strings to 8 and its
+jump tables to 16). A function has one row per run of its constants in a
+section, usually one; a static inside the function (gcc's `name.N`) that
+gcc wrote among them is part of the run.
+
+`--literals` derives those rows, and --carve and --carve-all run it for the
+rows they carve (unless --no-literals) while the functions are still C. Two
+sides must agree. The object: the TU compiled on this tree with every
+listed function of it in C (a carved one put back from --from for the
+compile, the file restored after); every R_MIPS_LITERAL, R_MIPS_GPREL16 and
+%lo relocation of a function's text names a place in .lit4, .rodata or
+.sdata, and a place inside no named object is a constant: a float of the
+assembler's .lit4 (4 bytes), a double of its li.d pool (8, loaded by ld and
+never addressed), a jump table (its words relocated against .text), a string
+(to its NUL) or a constant run (to the next place). The target: the row's
+own words in the target ELF (--elf), scanned for the addresses they form,
+`off($gp)` from the target's _gp (its .reginfo) and a lui's %hi carried over
+the control flow into a %lo (tools/correlate_elf.py's hi_values). The
+distinct places each side references in a section, in the order the function
+first references them, are paired one to one (a name the TU only declares
+takes its section from --syms, the last link); the size of each constant
+comes from the object, and a string's NUL must fall at the same place in the
+target. Constants that lie next to each other in the target, with fewer than
+8 bytes of zero padding between them, form one row; align=N is written when
+the object's section alignment allows more than the default (16 for a jump
+table's run) or less.
+
+Ownership follows the order gcc reads the TU. gcc writes a string or a
+constant run once per TU, when it first expands a body that uses it, so the
+first function in the object that references it owns it and a later stubbed
+user needs no row; the assembler interns nothing (equal floats are two
+words), so .lit4 and the li.d pool belong to the function whose text loads
+them. A constant some function still in C emits needs no row either: the
+tool compiles the TU a second time with the listed functions removed, and a
+constant that compile still writes (an inline function's body is expanded
+where it is defined, even with every caller stubbed) stays the C's. Three
+cases print HAND and write nothing, because no row can place them: a
+constant the stubbed owner shares with a later function still in C (gcc
+writes it again before that function: measured, the stub's copy and gcc's
+both land), a constant of an inline function that is stubbed (gcc writes it
+where the function is defined, the stub stands at the end of the file), and
+one the TU's data also references; a static inside the function that lives
+in .data, .sbss or .bss is named the same way. A count or kind that differs
+between the sides prints DISAGREE: the target's function is not the
+object's, and its rows are measured by hand.
 
 A text row is written as one function: `.set noreorder`, `.globl`,
 `.type @function`, `.ent`, one `.word` per instruction, `.end`, `.size`. A
@@ -76,9 +119,15 @@ it was included from (`.previous`), so the compiler's own section state holds.
                                              (default main, the seed)
     tools/gen_stub_s.py --carve-all | --restore-all [--from REV]
                                              the same for every text row
+    tools/gen_stub_s.py --literals [NAME] [--dry-run] [--elf ELF] [--syms ELF]
+                                             derive a text row's literal rows
+                                             (every text row without NAME) and
+                                             write them after it, replacing
+                                             its old ones; --dry-run prints
 
 NAME is a row's stem, or its name when one row carries it. Only a text
-row's function is carved; its literal rows ride on the same INCLUDE_ASM line.
+row's function is carved; its literal rows ride on the same INCLUDE_ASM line,
+and --carve derives them first (above).
 The carve works on the file's bytes, so an EUC-JP source keeps its encoding,
 and restore reads REV's file with `git cat-file --filters`, which applies the
 working-tree encoding (`git show` would give the UTF-8 that git stores).
@@ -119,9 +168,14 @@ placed by hand.
 """
 
 import argparse
+import contextlib
+import os
 import re
+from bisect import bisect_right
 import subprocess
 import sys
+import tempfile
+from collections import Counter
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -191,7 +245,7 @@ def parse_stubs(path=LIST):
     absent or holds only comments (the mechanism is idle)."""
     if not path.exists():
         return []
-    rows, stems, lits, where = [], {}, {}, f"{path.relative_to(ROOT) if path.is_relative_to(ROOT) else path}"
+    rows, stems, lits, where = [], {}, [], f"{path.relative_to(ROOT) if path.is_relative_to(ROOT) else path}"
     for n, line in enumerate(path.read_text().splitlines(), 1):
         f = line.split("#", 1)[0].split()
         if not f:
@@ -231,22 +285,21 @@ def parse_stubs(path=LIST):
         if sec in LITERALS:
             if sec == "lit4":
                 align = 4
-            if (sec, stem) in lits:
-                fail(f"{where}:{n}: a second {sec} row for {stem} (first at line {lits[sec, stem]['line']})")
         elif stem in stems:
             fail(f"{where}:{n}: {stem} is listed twice (first at line {stems[stem]['line']});"
                  " two statics of one name take file=<stem>")
         row = dict(section=sec, name=name, lo=lo, hi=hi, tu=tu, local=local, align=align,
                    lines=span, stem=stem, line=n)
         if sec in LITERALS:
-            lits[sec, stem] = row
+            lits.append(row)
         else:
             stems[stem] = row
         rows.append(row)
-    for (sec, stem), r in lits.items():
-        t = stems.get(stem)
+    for r in lits:
+        t = stems.get(r["stem"])
         if t is None or t["section"] != "text" or t["name"] != r["name"] or t["tu"] != r["tu"]:
-            fail(f"{where}:{r['line']}: the {sec} row for {stem} has no text row of that name, stem and TU")
+            fail(f"{where}:{r['line']}: the {r['section']} row for {r['stem']} has no text row of that name,"
+                 " stem and TU")
     glob = {}
     for r in stems.values():
         if not r["local"]:
@@ -717,6 +770,514 @@ def carve_rows(rows, todo, list_path, back, rev):
     return 1 if errors else 0
 
 
+# -------------------------------------------------------------- literals ----
+#
+# A text row's literal rows, derived from two sides that must agree. The
+# object side: the TU compiled on this tree with every listed function of it
+# in C (a carved one restored from --from for the compile and put back after),
+# read with its relocations. Every R_MIPS_LITERAL, R_MIPS_GPREL16 or %lo
+# relocation of a function's text names a place in .lit4, .rodata or .sdata;
+# a place inside no named symbol of the object is a literal (gcc's $LC strings
+# and constants and its jump tables, the assembler's li.s and li.d pools),
+# anything else a variable. The target side: the row's own words in the target
+# ELF, scanned for the addresses they form, `off($gp)` from the target's _gp
+# (its .reginfo) and a lui's %hi carried over the control flow
+# (tools/correlate_elf.py's register flow) into a %lo. The distinct places
+# each side references in a section, in the order the function first
+# references them, are paired one to one; a count that differs between the
+# sides, a place of a kind the other side does not have, or a string whose
+# NUL is elsewhere in the target is a disagreement, and the function gets no
+# literal rows until it is settled by hand.
+
+LIT_CLASS = {".lit4": "lit4", ".rodata": "rdlit", ".sdata": "sdlit"}
+FSTATIC = re.compile(r"\.\d+$")      # gcc's name for a static inside a function
+LOAD8 = {0x37}                        # ld
+LOAD4 = {0x23, 0x31}                  # lw, lwc1
+
+
+def sext16(v):
+    return v - 0x10000 if v & 0x8000 else v
+
+
+class ObjectRefs:
+    """A compiled TU: its functions (text order), and per function the
+    places each references in .lit4, .rodata and .sdata, with what each
+    literal is (kind, size) and which function owns it."""
+
+    def __init__(self, obj, sec_of_name):
+        from elftools.elf.elffile import ELFFile
+        from elftools.elf.relocation import RelocationSection
+        from elftools.elf.sections import SymbolTableSection
+        with open(obj, "rb") as fh:
+            elf = ELFFile(fh)
+            secs = list(elf.iter_sections())
+            names = [s.name for s in secs]
+            reginfo = elf.get_section_by_name(".reginfo")
+            gp0 = int.from_bytes(reginfo.data()[20:24], "little") if reginfo else 0
+            symtab = next(s for s in secs if isinstance(s, SymbolTableSection))
+            syms = list(symtab.iter_symbols())
+            self.data = {s.name: s.data() for s in secs if s.name in LIT_CLASS and s["sh_type"] == "SHT_PROGBITS"}
+            self.align = {s.name: s["sh_addralign"] for s in secs if s.name in LIT_CLASS}
+            text = names.index(".text")
+            words = secs[text].data()
+            self.funcs = sorted((s["st_value"], s["st_size"], s.name) for s in syms
+                                if s["st_info"]["type"] == "STT_FUNC" and s["st_shndx"] == text)
+            # named objects per section: (lo, hi, name)
+            self.named = {}
+            for s in syms:
+                if (isinstance(s["st_shndx"], int) and s.name and s["st_info"]["type"] != "STT_SECTION"
+                        and s["st_shndx"] != text):
+                    self.named.setdefault(names[s["st_shndx"]], []).append(
+                        (s["st_value"], s["st_value"] + max(s["st_size"], 1), s.name))
+            # every place any relocation names in the three sections, and
+            # where each is referenced from
+            self.starts = {n: set() for n in LIT_CLASS}
+            self.from_data = set()
+            self.jtbl = {}
+            uses = []                  # (text offset, section or None, offset or symbol, opcode)
+            for rs in secs:
+                if not isinstance(rs, RelocationSection):
+                    continue
+                into = names[rs["sh_info"]]
+                hi = {}
+                for r in rs.iter_relocations():
+                    t = r["r_info_type"]
+                    sym = syms[r["r_info_sym"]]
+                    shn = sym["st_shndx"]
+                    tsec = names[shn] if isinstance(shn, int) else None
+                    off = r["r_offset"]
+                    if into == ".text":
+                        w = int.from_bytes(words[off:off + 4], "little")
+                        if t == 5:                      # R_MIPS_HI16
+                            hi[r["r_info_sym"]] = w & 0xFFFF
+                            continue
+                        if t not in (6, 7, 8):          # LO16, GPREL16, LITERAL
+                            continue
+                        # the in-place addend: %hi and %lo together, or a
+                        # gp-relative offset (from the object's gp0 for a
+                        # section symbol, as the assembler writes it)
+                        if t == 6:
+                            a = (hi.get(r["r_info_sym"], 0) << 16) + sext16(w & 0xFFFF)
+                        else:
+                            a = sext16(w & 0xFFFF)
+                        if sym["st_info"]["type"] == "STT_SECTION":
+                            a += gp0 if t != 6 else 0
+                            if tsec in LIT_CLASS:
+                                self.starts[tsec].add(a)
+                                uses.append((off, tsec, a, w >> 26))
+                            elif tsec:
+                                uses.append((off, tsec, a, w >> 26))
+                        elif sym.name:
+                            sec = tsec if tsec else sec_of_name.get(sym.name)
+                            if sec in LIT_CLASS or FSTATIC.search(sym.name):
+                                uses.append((off, sec, (sym.name, a), w >> 26))
+                    elif tsec == ".text" and into in LIT_CLASS and t == 2:
+                        self.jtbl.setdefault(into, set()).add(off)
+                    elif tsec in LIT_CLASS and t == 2:
+                        if sym["st_info"]["type"] == "STT_SECTION":
+                            a = int.from_bytes(secs[rs["sh_info"]].data()[off:off + 4], "little")
+                            self.starts[tsec].add(a)
+                            self.from_data.add((tsec, a))
+        for sec, lst in self.named.items():
+            for lo, _, _ in lst:
+                if sec in self.starts:
+                    self.starts[sec].add(lo)
+        # each use, attributed to its function, and named when it falls in a
+        # named object
+        starts = [v for v, _, _ in self.funcs]
+        self.refs = {n: [] for _, _, n in self.funcs}
+        self.elsewhere = {}
+        self.users = {}
+        self.ops = {}
+        for off, sec, what, op in sorted(uses):
+            k = bisect_right(starts, off) - 1
+            if k < 0:
+                continue
+            fn = self.funcs[k][2]
+            if isinstance(what, int):
+                hit = [(lo, n) for lo, hi_, n in self.named.get(sec, []) if lo <= what < hi_]
+                key = (sec, hit[0][1], what - hit[0][0]) if hit else (sec, None, what)
+            else:
+                key = (sec,) + what
+            if key[1] and FSTATIC.search(key[1]):
+                # a static inside a function: gcc writes it while compiling
+                # that function, among its constants
+                u = self.users.setdefault((sec, key[1]), [])
+                if fn not in u:
+                    u.append(fn)
+            if sec not in LIT_CLASS:
+                if key[1] and FSTATIC.search(key[1]) and (sec, key[1]) not in self.elsewhere.setdefault(fn, []):
+                    self.elsewhere[fn].append((sec, key[1]))
+                continue
+            if key not in self.refs[fn]:
+                self.refs[fn].append(key)
+            if key[1] is None:
+                self.users.setdefault(key, [])
+                if fn not in self.users[key]:
+                    self.users[key].append(fn)
+                self.ops.setdefault(key, set()).add(op)
+
+    def literal(self, key):
+        """(kind, size) of a literal place."""
+        sec, _, a = key
+        data = self.data.get(sec, b"")
+        if sec == ".lit4":
+            return "float", 4
+        jt = self.jtbl.get(sec, set())
+        if a in jt:
+            n = 0
+            while a + 4 * n in jt and (n == 0 or a + 4 * n not in self.starts[sec]):
+                n += 1
+            return "jtbl", 4 * n
+        nxt = min([b for b in self.starts[sec] if b > a] + [len(data)])
+        ext = data[a:nxt]
+        # loaded and never addressed: the load's width (the assembler's li.d
+        # pool, an ld; a word, an lw); addressed: a string to its NUL, or
+        # gcc's constant run to the next place
+        ops = self.ops.get(key, set())
+        if ops and ops <= LOAD8:
+            return "double", 8
+        if ops and ops <= LOAD4:
+            return "word", 4
+        z = ext.find(b"\0")
+        if z >= 0 and not ext[z:].strip(b"\0"):
+            return "string", z + 1
+        body = len(ext.rstrip(b"\0"))
+        return "data", max(4, (body + 3) // 4 * 4)
+
+
+class TargetRefs:
+    """The addresses a stretch of target words forms in .lit4, .rodata and
+    .sdata, in first-reference order per section."""
+
+    def __init__(self, elf_path):
+        from elftools.elf.elffile import ELFFile
+        self.secs = []
+        with open(elf_path, "rb") as fh:
+            elf = ELFFile(fh)
+            for s in elf.iter_sections():
+                if s["sh_flags"] & 2 and s["sh_size"]:
+                    self.secs.append((s["sh_addr"], s["sh_addr"] + s["sh_size"], s.name,
+                                      s.data() if s["sh_type"] == "SHT_PROGBITS" else b""))
+            ri = elf.get_section_by_name(".reginfo")
+            self.gp = int.from_bytes(ri.data()[20:24], "little")
+
+    def section(self, a):
+        for lo, hi, name, data in self.secs:
+            if lo <= a < hi:
+                return name, data[a - lo:]
+        return None, b""
+
+    def words(self, lo, hi):
+        name, data = self.section(lo)
+        return [int.from_bytes(data[i:i + 4], "little") for i in range(0, hi - lo, 4)]
+
+    def refs(self, lo, hi):
+        """({section: [address, ...]}, [(index, addresses) where a %lo has
+        more than one %hi reaching it])."""
+        from correlate_elf import LO_OPS, _op, _rs, hi_values
+        words = self.words(lo, hi)
+        out, amb = {n: [] for n in LIT_CLASS}, []
+        for i, (w, his) in enumerate(zip(words, hi_values(words))):
+            if _op(w) not in LO_OPS:
+                continue
+            base = _rs(w)
+            if base == 28:
+                cand = {self.gp + sext16(w & 0xFFFF)}
+            elif his.get(base):
+                cand = {((h << 16) + sext16(w & 0xFFFF)) & 0xFFFFFFFF for h in his[base]}
+            else:
+                continue
+            got = {a for a in cand if self.section(a)[0] in LIT_CLASS}
+            if len(got) > 1:
+                amb.append((i, sorted(got)))
+            for a in sorted(got):
+                lst = out[self.section(a)[0]]
+                if a not in lst:
+                    lst.append(a)
+        return out, amb
+
+
+SYMS_ELF = ROOT / "build/ico.syms.elf"
+PLURAL = {"float": "floats", "double": "doubles", "string": "strings", "jtbl": "jump tables",
+          "word": "words", "data": "data runs", "static": "statics"}
+
+
+def symbol_sections(path):
+    """{name: section} of a linked ELF's symbols: the section of a symbol a
+    TU uses but does not define."""
+    from elftools.elf.elffile import ELFFile
+    if not path.exists():
+        fail(f"{path}: no such ELF; --literals reads the section of each name a TU uses from a link"
+             " (build first, or give --syms)")
+    with open(path, "rb") as fh:
+        elf = ELFFile(fh)
+        secs = list(elf.iter_sections())
+        tab = elf.get_section_by_name(".symtab")
+        out = {}
+        for s in tab.iter_symbols() if tab else []:
+            if not s.name:
+                continue
+            if isinstance(s["st_shndx"], int):
+                out[s.name] = secs[s["st_shndx"]].name
+            elif s["st_shndx"] == "SHN_ABS":
+                # a label the link script binds (a D_<VMA> inside a data
+                # member): its section by address
+                v = s["st_value"]
+                hit = [x.name for x in secs if x["sh_flags"] & 2 and x["sh_addr"] <= v < x["sh_addr"] + x["sh_size"]]
+                if hit:
+                    out[s.name] = hit[0]
+        return out
+
+
+def compile_lines(tu, lines, out):
+    """tu compiled as lines (written in place for the compile, so the
+    compiler sees the file's own name and directory, and put back after)."""
+    from match_check import compile_tu
+    path = ROOT / tu
+    orig = path.read_bytes()
+    if b"".join(lines) == orig:
+        return compile_tu(tu, out)
+    try:
+        path.write_bytes(b"".join(lines))
+        return compile_tu(tu, out)
+    finally:
+        path.write_bytes(orig)
+
+
+def whole_lines(tu, rows_tu, rev):
+    """The TU with every listed function of it in C: a carved one is put
+    back from rev."""
+    lines = (ROOT / tu).read_bytes().splitlines(keepends=True)
+    carved = [r for r in rows_tu if asm_line(r["stem"]) in lines]
+    if not carved:
+        return lines
+    rev_lines = rev_file(rev, tu)
+    at = {d["name"]: (d["inline"], d["s"] if d["inline"] else 0) for d in definitions(rev_lines)}
+    for r in sorted(carved, key=lambda r: at.get(r["name"], (False, 0))):
+        restore(lines, rev_lines, r, tu, rev)
+    return lines
+
+
+def without_lines(whole, rows_tu, tu):
+    """The TU with every listed function's definition gone (a declaration
+    kept where carve keeps one), to see which constants the rest of the C
+    still emits. A definition carve refuses stays."""
+    lines = list(whole)
+    lo_of = {r["stem"]: r["lo"] for r in rows_tu}
+    at = {d["name"]: d["s"] for d in definitions(lines)}
+    for r in sorted(rows_tu, key=lambda r: -at.get(r["name"], -1)):
+        try:
+            with open(os.devnull, "w") as quiet, contextlib.redirect_stdout(quiet):
+                carve(lines, r, tu, lo_of)
+        except SystemExit:
+            pass
+    return [l for l in lines if not l.startswith(b"INCLUDE_ASM(") and l != INCLUDE_LINE]
+
+
+def still_emits(obj, sec, kind, content):
+    """Whether obj's section holds content as a constant of its own: at an
+    item's start (offset 0, or after a NUL for a string, on a word for a
+    constant run) and inside no named object. The object need not reference
+    it: an inline function nobody calls still has its strings written."""
+    data = obj.data.get(sec, b"")
+    o = data.find(content)
+    while o >= 0:
+        start = o == 0 or (data[o - 1] == 0 if kind == "string" else o % 4 == 0)
+        if start and not any(lo <= o < hi for lo, hi, _ in obj.named.get(sec, [])):
+            return True
+        o = data.find(content, o + 1)
+    return False
+
+
+def describe(obj, key):
+    sec, name, a = key
+    if name is not None:
+        return f"{name}{'+' + str(a) if a else ''}"
+    kind, size = obj.literal(key)
+    return f"{kind}({size}) at {sec}+0x{a:X}"
+
+
+def derive_tu(tu, rows_tu, target, sec_of_name, rev):
+    """{stem: result} for the TU's text rows: result has `status` (none,
+    ok, hand, absent or disagree), `rows` (the literal rows) and `notes`."""
+    src_lines = whole_lines(tu, rows_tu, rev)
+    with tempfile.TemporaryDirectory(prefix="gen_stub_s.") as tmp:
+        obj = ObjectRefs(compile_lines(tu, src_lines, Path(tmp) / "whole"), sec_of_name)
+        # gcc writes a string or constant run when it first expands a body
+        # that uses it, and an inline function's body is expanded where it is
+        # defined even when every user is a stub: what the C still emits
+        # with the listed functions gone needs no row
+        rest = None
+        if any(obj.literal(k)[0] in ("string", "data") for r in rows_tu for k in obj.refs.get(r["name"], [])
+               if k[1] is None):
+            rest = ObjectRefs(compile_lines(tu, without_lines(src_lines, rows_tu, tu), Path(tmp) / "without"),
+                              sec_of_name)
+    stubbed = {r["name"] for r in rows_tu}
+    inline = {d["name"] for d in definitions(src_lines) if d["inline"]}
+    out = {}
+    for row in rows_tu:
+        name, notes, hand, lits = row["name"], [], [], []
+        if name not in obj.refs:
+            out[row["stem"]] = dict(status="absent", rows=[], notes=[f"{tu} compiles no function {name}"])
+            continue
+        tgt, amb = target.refs(row["lo"], row["hi"])
+        for i, adrs in amb:
+            notes.append(f"ambiguous %hi at 0x{row['lo'] + 4 * i:08X}: {', '.join(f'0x{a:08X}' for a in adrs)}")
+        mine, seen = 0, set()
+        for sec_, n_ in obj.elsewhere.get(name, []):
+            if obj.users[sec_, n_][0] == name:
+                hand.append(f"{n_}, a static inside {name}, is in {sec_}, which no literal row carries; it"
+                            " goes with the function, so the TU's later data there moves")
+        for sec in LIT_CLASS:
+            keys = [k for k in obj.refs[name] if k[0] == sec]
+            mine += sum(1 for k in keys if k[1] is None and obj.users[k][0] == name)
+            if len(keys) != len(tgt[sec]):
+                ours = ", ".join(describe(obj, k) for k in keys) or "none"
+                theirs = ", ".join(f"0x{a:08X}" for a in tgt[sec]) or "none"
+                notes.append(f"count mismatch in {sec}: the object references {len(keys)} ({ours}),"
+                             f" the target {len(tgt[sec])} ({theirs})")
+                continue
+            for k, addr in zip(keys, tgt[sec]):
+                if k[1] is not None:
+                    if FSTATIC.search(k[1]) and obj.users[sec, k[1]][0] == name and k[1] not in seen:
+                        # the function's own static: the target's object
+                        # around this place, the size the object gives it
+                        seen.add(k[1])
+                        lo, hi, _ = next(x for x in obj.named[sec] if x[2] == k[1])
+                        lits.append((LIT_CLASS[sec], addr - k[2], hi - lo, "static", sec))
+                    continue
+                users = obj.users[k]
+                if users[0] != name:
+                    continue          # the owner's literal: its row, or its C
+                kind, size = obj.literal(k)
+                later = [u for u in users[1:] if u not in stubbed]
+                if later:
+                    hand.append(f"{describe(obj, k)} is used again by {', '.join(later)}, still in C,"
+                                " where gcc emits it again once this function is a stub")
+                elif rest and kind in ("string", "data") and still_emits(rest, sec, kind,
+                                                                     obj.data[sec][k[2]:k[2] + size]):
+                    continue          # the C emits it still, where an inline function is defined
+                if (sec, k[2]) in obj.from_data:
+                    hand.append(f"{describe(obj, k)} is also referenced from the TU's data, whose"
+                                " initializer may emit it before this function")
+                if name in inline and kind not in ("float", "double", "jtbl"):
+                    hand.append(f"{describe(obj, k)}: {name} is inline; gcc emits its constants where it is"
+                                " defined and its stub stands at the end of the file")
+                _, data = target.section(addr)
+                if kind == "string":
+                    z = data.find(b"\0", 0, max(size, 4096))
+                    if z != size - 1:
+                        notes.append(f"{describe(obj, k)}: the target's string at 0x{addr:08X} has its NUL at"
+                                     f" +{z} where the object's has it at +{size - 1}")
+                elif kind == "jtbl":
+                    tx = [t for t in target.secs if t[2] == ".text"][0]
+                    ws = [int.from_bytes(data[i:i + 4], "little") for i in range(0, size, 4)]
+                    if not all(tx[0] <= w < tx[1] for w in ws):
+                        notes.append(f"{describe(obj, k)}: the target's words at 0x{addr:08X} are not all"
+                                     " addresses in .text")
+                elif kind == "double" and addr % 8:
+                    notes.append(f"{describe(obj, k)}: the target's address 0x{addr:08X} is not 8-aligned")
+                lits.append((LIT_CLASS[sec], addr, size, kind, sec))
+        if notes:
+            out[row["stem"]] = dict(status="disagree", rows=[], notes=notes, own=mine)
+            continue
+        out[row["stem"]] = dict(status="hand" if hand else "ok" if lits else "none", notes=hand,
+                                rows=literal_rows(row, lits, target, obj), own=mine)
+    return out
+
+
+def literal_rows(row, lits, target, obj):
+    """The literals as rows: one per run of a section's literals that lie
+    next to each other in the target (with at most the alignment padding of
+    the next one between them: fewer than 8 zero bytes)."""
+    rows = []
+    for cls, sec in (("lit4", ".lit4"), ("rdlit", ".rodata"), ("sdlit", ".sdata")):
+        mine = sorted((a, a + n, k) for c, a, n, k, _ in lits if c == cls)
+        runs = []
+        for lo, hi, k in mine:
+            if runs:
+                plo, phi, ks = runs[-1]
+                gap = target.section(phi)[1][:max(lo - phi, 0)]
+                if lo <= phi or (lo - phi < 8 and not gap.strip(b"\0")):
+                    runs[-1] = (plo, max(phi, hi), ks + [k])
+                    continue
+            runs.append((lo, hi, [k]))
+        for lo, hi, ks in runs:
+            toks = []
+            if cls != "lit4":
+                a = natural_align(lo, min(16, obj.align.get(sec, 8) or 1))
+                if a != natural_align(lo):
+                    toks.append(f"align={a}")
+            if row["stem"] != row["name"]:
+                toks.append(f"file={row['stem']}")
+            c = Counter(ks)
+            what = ", ".join(f"{n} {PLURAL[k] if n > 1 else k}" for k, n in c.items())
+            rows.append(f"{cls} {row['name']} 0x{lo:08X} 0x{hi:08X} {row['tu']}"
+                        + "".join(" " + t for t in toks) + f"  # {what}")
+    return rows
+
+
+def derive(rows, todo, elf, syms, rev):
+    """{stem: result} for the text rows of todo, one compile per TU."""
+    target = TargetRefs(elf)
+    sec_of_name = symbol_sections(syms)
+    by_tu = {}
+    for r in todo:
+        by_tu.setdefault(r["tu"], []).append(r)
+    out = {}
+    for tu, rs in by_tu.items():
+        rows_tu = [r for r in rows if r["section"] == "text" and r["tu"] == tu]
+        try:
+            got = derive_tu(tu, rows_tu, target, sec_of_name, rev)
+        except SystemExit as ex:
+            got = {r["stem"]: dict(status="absent", rows=[], notes=[str(ex)]) for r in rows_tu}
+        for r in rs:
+            out[r["stem"]] = got[r["stem"]]
+    return out
+
+
+def write_literal_rows(path, rows, results):
+    """Replace each derived stem's literal rows in the list with the new
+    ones, after its text row."""
+    text = path.read_text().splitlines(keepends=True)
+    by_line = {r["line"]: r for r in rows}
+    redo = {s for s, res in results.items() if res["status"] in ("ok", "none")}
+    out = []
+    for n, line in enumerate(text, 1):
+        r = by_line.get(n)
+        if r and r["section"] in LITERALS and r["stem"] in redo:
+            continue
+        out.append(line)
+        if r and r["section"] == "text" and r["stem"] in redo:
+            out += [x + "\n" for x in results[r["stem"]]["rows"]]
+    path.write_text("".join(out))
+
+
+def report_literals(rows, results, show_rows):
+    """Print each row's derivation and the totals; the exit status."""
+    c = Counter(res["status"] for res in results.values())
+    for r in rows:
+        res = results.get(r["stem"])
+        if res is None or r["section"] != "text":
+            continue
+        tag = {"ok": "rows", "none": "none", "absent": "ABSENT", "disagree": "DISAGREE", "hand": "HAND"}[res["status"]]
+        if res["status"] != "none" or show_rows:
+            print(f"gen_stub_s: {tag:<8} {r['stem']} ({r['tu']})")
+        for x in res["notes"]:
+            print(f"    {x}")
+        if show_rows:
+            for x in res["rows"]:
+                print(f"    {x}")
+    dis_own = sum(1 for res in results.values() if res["status"] == "disagree" and res.get("own"))
+    written = sum(len(res["rows"]) for res in results.values() if res["status"] == "ok")
+    print(f"gen_stub_s: {len(results)} text rows, {c['ok'] + c['hand'] + dis_own} of them own constants on the"
+          f" object side: {c['ok']} derived ({written} literal rows), {c['hand']} HAND, {dis_own} DISAGREE;"
+          f" {c['none']} own none, {c['disagree'] - dis_own} more DISAGREE owning none,"
+          f" {c['absent']} not in the compiled TU")
+    return 1 if c["disagree"] or c["absent"] or c["hand"] else 0
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
     g = ap.add_mutually_exclusive_group()
@@ -726,8 +1287,18 @@ def main():
     g.add_argument("--restore", metavar="NAME", help="put a carved definition back from --from")
     g.add_argument("--carve-all", action="store_true", help="--carve for every text row")
     g.add_argument("--restore-all", action="store_true", help="--restore for every text row")
+    g.add_argument("--literals", nargs="?", const="", metavar="NAME",
+                   help="derive the literal rows of a text row (every text row without NAME) and write them")
+    ap.add_argument("--no-literals", action="store_true", help="--carve and --carve-all leave the literal rows alone")
+    ap.add_argument("--dry-run", action="store_true", help="--literals prints the rows and writes nothing")
+    ap.add_argument("--elf", type=Path, default=BASE_ELF,
+                    help=f"the target ELF --literals reads (default {BASE_ELF.relative_to(ROOT)})")
+    ap.add_argument("--syms", type=Path, default=SYMS_ELF,
+                    help="a linked ELF with symbols, for the section of a name the TU does not define"
+                         f" (default {SYMS_ELF.relative_to(ROOT)})")
     ap.add_argument("--from", dest="rev", default="main", metavar="REV",
-                    help="the revision --restore reads the definition from (default main, the seed)")
+                    help="the revision --restore (and --literals, for a carved function) reads the definition"
+                         " from (default main, the seed)")
     ap.add_argument("--stubs", type=Path, default=LIST, help=f"the list (default {LIST.relative_to(ROOT)})")
     ap.add_argument("--out-dir", type=Path, default=OUT_DIR)
     a = ap.parse_args()
@@ -744,10 +1315,31 @@ def main():
         return 0
     if a.check:
         return check(rows, a.check)
-    if a.carve or a.restore:
-        return carve_rows(rows, [text_row(rows, a.carve or a.restore)], a.stubs, bool(a.restore), a.rev)
-    if a.carve_all or a.restore_all:
-        return carve_rows(rows, [r for r in rows if r["section"] == "text"], a.stubs, a.restore_all, a.rev)
+    if a.literals is not None:
+        todo = [text_row(rows, a.literals)] if a.literals else [r for r in rows if r["section"] == "text"]
+        results = derive(rows, todo, a.elf, a.syms, a.rev)
+        rc = report_literals(rows, results, a.dry_run or bool(a.literals))
+        if not a.dry_run:
+            write_literal_rows(a.stubs, rows, results)
+        return rc
+    if a.carve or a.carve_all:
+        todo = [text_row(rows, a.carve)] if a.carve else [r for r in rows if r["section"] == "text"]
+        rc = 0
+        if not a.no_literals:
+            # derived while the functions are still C
+            src = {}
+            fresh = [r for r in todo if asm_line(r["stem"]) not in src.setdefault(
+                r["tu"], (ROOT / r["tu"]).read_bytes().splitlines(keepends=True))]
+            if fresh:
+                results = derive(rows, fresh, a.elf, a.syms, a.rev)
+                rc = report_literals(rows, results, True)
+                write_literal_rows(a.stubs, rows, results)
+                rows = parse_stubs(a.stubs)
+                todo = [next(x for x in rows if x["section"] == "text" and x["stem"] == r["stem"]) for r in todo]
+        return carve_rows(rows, todo, a.stubs, False, a.rev) or rc
+    if a.restore or a.restore_all:
+        todo = [text_row(rows, a.restore)] if a.restore else [r for r in rows if r["section"] == "text"]
+        return carve_rows(rows, todo, a.stubs, True, a.rev)
     from elftools.elf.elffile import ELFFile
     a.out_dir.mkdir(parents=True, exist_ok=True)
     wrote = write_if_changed(a.out_dir / HEADER, HEADER_TEXT)

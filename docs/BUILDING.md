@@ -212,11 +212,21 @@ ELF and ROM (`tools/verify_elf.py`), and writes `build.ninja` with
   instruction with no relocations, and the assembler reads it at that point
   of the compiler's output, so the stub sits between the functions around it
   and the gate passes at every commit. The constants the function brought
-  into the TU's data sections (gcc's string literals and constants, the
-  assembler's `li.s` pool in .lit4 and `li.d` pool in .rodata) are not in the
-  stub's words; a `lit4`, `rdlit` or `sdlit` row gives the range of .lit4,
-  .rodata or .sdata they occupy, and the stub file writes them after the
-  function, so the TU's later constants keep their places. It writes the
+  into the TU's data sections (gcc's string literals, constants and jump
+  tables, the assembler's `li.s` pool in .lit4 and `li.d` pool in .rodata,
+  a static inside the function) are not in the stub's words; a `lit4`,
+  `rdlit` or `sdlit` row gives a range of .lit4, .rodata or .sdata they
+  occupy, and the stub file writes them after the function, so the TU's
+  later constants keep their places. `--literals` derives those rows, and
+  `--carve` runs it while the function is still C: the TU compiled on this
+  tree names, by its relocations, the constants each function references
+  and which function owns each one in the order gcc reads the file (the
+  first user of a string; a constant the C still emits with the listed
+  functions removed, such as an inline function's string, is the C's), the
+  row's words in the target ELF give their addresses (`$gp` offsets and
+  `%hi`/`%lo` pairs), and the two lists must pair one to one; what cannot be
+  placed by a row is printed as HAND and a pair that differs as DISAGREE,
+  for the hand. It writes the
   macro's header too, `build/stubs/include_asm.h`, which
   `tools/compile_c.sh` searches last: the tree tracks no copy, so a TU that
   includes it compiles only while stubs exist. `--carve NAME` and
