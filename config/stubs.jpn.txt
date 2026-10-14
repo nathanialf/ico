@@ -397,15 +397,9 @@ text actSt04bMonyoDoorXL 0x002286B0 0x00228710 ico2/script/src/st04b.c lines=13 
 text actSt04bSekizo 0x00228710 0x002287CC ico2/script/src/st04b.c lines=19  # ordinal; first difference at insn 14; imm:1; extent-equal
 lit4 actSt04bSekizo 0x006333F4 0x006333FC ico2/script/src/st04b.c  # 2 floats
 text actSt04lDoor 0x00229008 0x002290B4 ico2/script/src/st04c.c lines=18  # ordinal; first difference at insn 14; imm:1; extent-equal
-text actSt04eWaterStop 0x0022A098 0x0022A208 ico2/script/src/st04e.c lines=47  # ordinal; first difference at insn 5; imm:4; extent-equal
 text actSt04eFuchi1 0x0022A310 0x0022A3A8 ico2/script/src/st04e.c local lines=16  # ordinal; first difference at insn 14; imm:1; extent-equal
 text actSt04eFuchi2 0x0022A3A8 0x0022A440 ico2/script/src/st04e.c local lines=16  # ordinal; first difference at insn 14; imm:1; extent-equal
 text actSt04eFuchi3 0x0022A440 0x0022A4D8 ico2/script/src/st04e.c local lines=16  # ordinal; first difference at insn 14; imm:1; extent-equal
-text actSt04eWater 0x0022A540 0x0022A5FC ico2/script/src/st04e.c lines=19  # ordinal; first difference at insn 39; imm:1; extent-equal
-text actSt04eWaterStopSub 0x0022A740 0x0022A7BC ico2/script/src/st04e.c local lines=15  # ordinal; first difference at insn 5; imm:3; extent-equal
-text actSt04eFuchi1Chk 0x0022A838 0x0022A910 ico2/script/src/st04e.c local lines=17  # ordinal; first difference at insn 30; imm:2; extent-equal
-text actSt04eFuchi2Chk 0x0022A910 0x0022A9E8 ico2/script/src/st04e.c local lines=17  # ordinal; first difference at insn 30; imm:2; extent-equal
-text actSt04eFuchi3Chk 0x0022A9E8 0x0022AAC0 ico2/script/src/st04e.c local lines=17  # ordinal; first difference at insn 30; imm:2; extent-equal
 text actSt04cInit 0x0022AC18 0x0022AE00 ico2/script/src/st04l.c lines=62  # ordinal; first difference at insn 5; imm:10; extent-equal
 text actSt04dInit 0x0022AE00 0x0022B0D0 ico2/script/src/st04l.c lines=83  # ordinal; first difference at insn 5; imm:17; extent-equal
 text actSt04eInit 0x0022B0D0 0x0022B168 ico2/script/src/st04l.c lines=20  # ordinal; first difference at insn 15; imm:3; extent-equal

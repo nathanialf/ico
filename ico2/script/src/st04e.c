@@ -53,9 +53,53 @@ static float seChkPos[4] = {0.0f, -171.0f, -8000.0f, 0.0f}; /* derived name */
 
 static ActMail hint1WakeUp_mes[2] = {{430}, {429}}; /* derived name */
 
-void actSt04eWaterStop(GObj *volatile self);
+void actSt04eWaterStop(GObj *volatile self)
+{
+    GProc *th;
 
-INCLUDE_ASM(actSt04eWaterStop);
+    lt_switch_layout(52);
+
+    demoEnd = 0;
+    demoSkipped = 0;
+    actCreateSubThread(actSt04eWaterFlagOn, 21);
+
+    scpSleepEnemyAll();
+
+    th = actCreateSubThread(actSt04eWaterStopSub, 21);
+
+    while (demoEnd == 0 && ((pad[0].flags & 0x800) == 0 || scpAdpcmPlayRequestNum() != 0)) {
+        _ACTWait(1);
+    }
+
+    demoSkipped = demoEnd ^ 1;
+    iosThreadSetPri(&th->thread, 34);
+
+    if (demoEnd == 0) {
+        scpFadeOut(16.0f, 0, 0, 0);
+
+        while (scpFadeChk() != 0) {
+            _ACTWait(1);
+        }
+
+        while (lt_fade_status() != 2) {
+            _ACTWait(1);
+        }
+
+        stage_SetAnimation(258, 0, -1);
+        stage_SetAnimation(257, -1, -2);
+        scpFadeIn(3.0f);
+    }
+
+    scpSearchGobj(1273)->active = 1;
+    scpSearchGobj(1272)->active = 0;
+
+    scpBoyControlReadDisable = 0;
+    lt_switch_layout(51);
+
+    scpWakeupEnemyAll();
+
+    SetWayGroupActive(5, 1);
+}
 
 void actSt04eHint1(GObj *volatile self)
 {
@@ -106,7 +150,25 @@ void actSt04eSe(GObj *volatile self)
     _ACTWait(0);
 }
 
-INCLUDE_ASM(actSt04eWater);
+void actSt04eWater(GObj *volatile self)
+{
+    GObj *x = self;
+    Act *act = actInitialize(self);
+    _ACTWait(1);
+
+    SetRotObjectLockFlag(scpSearchGobj(1274), 1);
+
+    if (gflagChk(230) == 0) {
+        scpSearchGobj(1273)->active = 0;
+        water_mes[0].func = actSt04eWaterMain;
+        act->mail = water_mes;
+        ACTSendMailCorrect(self, 430);
+        _ACTWait(0);
+    } else {
+        scpSearchGobj(1272)->active = 0;
+        stage_SetAnimation(257, -1, -2);
+    }
+}
 
 void actSt04eWaterMain(GObj *volatile self)
 {
@@ -149,7 +211,21 @@ void actSt04eWaterFlagOn(GObj *volatile self)
     gflagOn(230);
 }
 
-INCLUDE_ASM(actSt04eWaterStopSub);
+static void actSt04eWaterStopSub(GObj *volatile self)
+{
+    _ACTWait(60);
+
+    stage_SetAnimation(258, 1, 0);
+    stage_SetAnimation(257, -1, -2);
+
+    while (stage_CheckAnimationFinish(258) == 0) {
+        _ACTWait(1);
+    }
+
+    _ACTWait(1);
+    demoEnd = 1;
+    _ACTWait(0);
+}
 
 static void actSt04eHint1Chk(GObj *volatile self)
 {
@@ -163,11 +239,59 @@ static void actSt04eHint1Chk(GObj *volatile self)
     FinishHint(18);
 }
 
-INCLUDE_ASM(actSt04eFuchi1Chk);
+static void actSt04eFuchi1Chk(GObj *volatile self)
+{
+    while (scpTriggerBall(self, boyGObj, 100.0f) == 0) {
+        _ACTWait(1);
+    }
 
-INCLUDE_ASM(actSt04eFuchi2Chk);
+    gflagOn(227);
+    _ACTWait((60 - systemStatus[0] * 10) / systemStatus[1]);
+    stage_SetAnimation(259, 1, 0);
+    soundSeDefPlay(1342, 0, 0, 1);
 
-INCLUDE_ASM(actSt04eFuchi3Chk);
+    while (stage_CheckAnimationFinish(259) == 0) {
+        _ACTWait(1);
+    }
+
+    _ACTWait(1);
+}
+
+static void actSt04eFuchi2Chk(GObj *volatile self)
+{
+    while (scpTriggerBall(self, boyGObj, 100.0f) == 0) {
+        _ACTWait(1);
+    }
+
+    gflagOn(228);
+    _ACTWait((60 - systemStatus[0] * 10) / systemStatus[1]);
+    stage_SetAnimation(260, 1, 0);
+    soundSeDefPlay(1342, 0, 0, 1);
+
+    while (stage_CheckAnimationFinish(260) == 0) {
+        _ACTWait(1);
+    }
+
+    _ACTWait(1);
+}
+
+static void actSt04eFuchi3Chk(GObj *volatile self)
+{
+    while (scpTriggerBall(self, boyGObj, 100.0f) == 0) {
+        _ACTWait(1);
+    }
+
+    gflagOn(229);
+    _ACTWait((60 - systemStatus[0] * 10) / systemStatus[1]);
+    stage_SetAnimation(261, 1, 0);
+    soundSeDefPlay(1342, 0, 0, 1);
+
+    while (stage_CheckAnimationFinish(261) == 0) {
+        _ACTWait(1);
+    }
+
+    _ACTWait(1);
+}
 
 static void actSt04eSeChk(GObj *volatile self)
 {
