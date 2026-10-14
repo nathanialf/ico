@@ -14,7 +14,6 @@
 #include "motionManager2.h"
 #include "typedef.h"
 #include "main.h"
-#include "include_asm.h"
 
 static void actSt09aBrgDownSub(GObj *volatile self);
 static void actSt09aHint1Chk(GObj *volatile self);
@@ -55,19 +54,124 @@ static ActMail hint2_mes[2] = {{430}, {429}}; /* derived name */
 /* .sdata: the bridge stream handle. */
 SqEntry *st09a_brg = 0;
 
-INCLUDE_ASM(actSt09aInit);
+void actSt09aInit(void)
+{
+    if (gflagChk(86) == 0) {
+        stage_SetAnimation(374, 0, 0);
+    } else {
+        stage_SetAnimation(374, 0, -1);
+    }
+}
 
-void actSt09aElvDown(GObj *volatile self);
+void actSt09aElvDown(GObj *volatile self)
+{
+    Act *act = GOBJ_ACT(self);
+    /* the sound handle, which the sound subsystem owns; it is kept across
+       the animation wait and read again for soundSeDefStop */
+    volatile int se;
 
-INCLUDE_ASM(actSt09aElvDown);
+    lt_switch_layout(52);
+    LockForceGroundParent(boyGObj);
 
-void actSt09aBrgDown(GObj *volatile self);
+    stage_SetAnimation(371, 1, 0);
 
-INCLUDE_ASM(actSt09aBrgDown);
+    se = soundSeDefPlay(1217, 0, 0, 1);
 
-INCLUDE_ASM(actSt09aElv);
+    gflagOn(83);
 
-INCLUDE_ASM(actSt09aSekizo);
+    while (stage_CheckAnimationFrame(371, 210, 1) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+
+    soundSeDefStop(se);
+
+    UnlockForceGroundParent(boyGObj);
+
+    lt_switch_layout(51);
+
+    elvDown_mes[0].func = actSt09aElvMain;
+    act->mail = elvDown_mes;
+    ACTSendMailCorrect(self, 430);
+    _ACTWait(0);
+}
+
+void actSt09aBrgDown(GObj *volatile self)
+{
+    GProc *th;
+
+    lt_switch_layout(52);
+    gflagOn(86);
+    scpAdpcmPlayRequestFunc(90, &st09a_brg, 1, 1, 1);
+
+    while (st09a_brg == 0) {
+        _ACTWait(1);
+    }
+
+    th = actCreateSubThread(actSt09aBrgDownSub, 21);
+    demoEnd = 0;
+
+    while (demoEnd == 0 && ((pad[0].flags & 0x800) == 0 || scpAdpcmPlayRequestNum() != 0)) {
+        _ACTWait(1);
+    }
+
+    iosThreadSetPri(&th->thread, 34);
+
+    if (demoEnd == 0) {
+        scpFadeOut(16.0f, 0, 0, 0);
+        scpAdpcmFadeCloseFunc(&st09a_brg, 256);
+
+        while (scpFadeChk() != 0) {
+            _ACTWait(1);
+        }
+
+        while (lt_fade_status() != 2) {
+            _ACTWait(1);
+        }
+
+        stage_SetAnimation(374, 0, -1);
+        scpFadeIn(5.0f);
+
+        while (scpFadeChk() != 0) {
+            _ACTWait(1);
+        }
+    }
+    scpBoyControlReadDisable = 0;
+    lt_switch_layout(51);
+}
+
+void actSt09aElv(GObj *volatile self)
+{
+    GObj *x = self;
+    Act *act = actInitialize(self);
+
+    _ACTWait(1);
+
+    if (gflagChk(83) != 0) {
+        stage_SetAnimation(371, 0, 210);
+    } else {
+        stage_SetAnimation(371, 0, 0);
+    }
+
+    elv_mes[0].func = actSt09aElvMain;
+    act->mail = elv_mes;
+    ACTSendMailCorrect(self, 430);
+    _ACTWait(0);
+}
+
+void actSt09aSekizo(GObj *volatile self)
+{
+    GObj *x = self;
+
+    actInitialize(self);
+    _ACTWait(1);
+
+    soundSeDefPlay(1346, 0, sekizoPos, 1);
+    soundSeDefPlay(1347, 0, sekizoPos, 1);
+    soundSeDefPlay(1348, 0, sekizoPos, 1);
+
+    scpSekizou(self, 84, 372, 0, 18, -1350.0f, -100.0f, 1515.0f, -1450.0f, -100.0f, 1515.0f);
+}
 
 void actSt09aIntro(GObj *volatile self)
 {
@@ -167,14 +271,60 @@ void actSt09aElvSwitch(GObj *volatile self)
     _ACTWait(0);
 }
 
-INCLUDE_ASM(actSt09aElvUp);
+void actSt09aElvUp(GObj *volatile self)
+{
+    Act *act = GOBJ_ACT(self);
+    /* the sound handle, which the sound subsystem owns; it is kept across
+       the animation wait and read again for soundSeDefStop */
+    volatile int se;
+
+    lt_switch_layout(52);
+
+    stage_SetAnimation(371, 1, 211);
+
+    se = soundSeDefPlay(1217, 0, 0, 1);
+
+    gflagOff(83);
+
+    while (stage_CheckAnimationFrame(371, 420, 1) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+
+    soundSeDefStop(se);
+
+    lt_switch_layout(51);
+
+    elvUp_mes[0].func = actSt09aElvMain;
+    act->mail = elvUp_mes;
+    ACTSendMailCorrect(self, 430);
+    _ACTWait(0);
+}
 
 void actSt09aSekizoEvent(int x)
 {
     volatile int local = x;
 }
 
-INCLUDE_ASM(actSt09aIntroChk);
+void actSt09aIntroChk(GObj *volatile self)
+{
+    lt_switch_layout(52);
+    gflagOn(85);
+
+    scpBoyControlReadDisable = 1;
+    _ACTWait(1);
+
+    stage_SetAnimation(373, 1, 0);
+
+    while (stage_CheckAnimationFinish(373) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+
+    lt_switch_layout(51);
+
+    scpBoyControlReadDisable = 0;
+}
 
 void actSt09aBrgMain(GObj *volatile self)
 {
@@ -201,7 +351,32 @@ void actSt09aBrgSwitch(GObj *volatile self)
     _ACTWait(0);
 }
 
-INCLUDE_ASM(actSt09aBrgDownSub);
+static void actSt09aBrgDownSub(GObj *volatile self)
+{
+    stage_SetAnimation(374, 1, 0);
+
+    while (stage_CheckAnimationFrame(374, 115, 0) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+
+    iosPadActRequest(boyPad, 17);
+
+    while (stage_CheckAnimationFrame(374, 165, 0) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+
+    iosPadActRequest(boyPad, 16);
+
+    while (stage_CheckAnimationFinish(374) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+
+    demoEnd = 1;
+    _ACTWait(0);
+}
 
 static void actSt09aHint1Chk(GObj *volatile self)
 {

@@ -605,15 +605,6 @@ text actSt08aInit 0x0023DF50 0x0023DFC8 ico2/script/src/st08a.c lines=15  # ordi
 lit4 actSt08aInit 0x0063347C 0x00633480 ico2/script/src/st08a.c  # 1 float
 text actSt08aDoorUpSub 0x0023E058 0x0023E108 ico2/script/src/st08a.c local lines=19  # ordinal; first difference at insn 6; imm:2; extent-equal
 text actSt08aIntroChk 0x0023E108 0x0023E1B0 ico2/script/src/st08a.c lines=20  # ordinal; first difference at insn 16; imm:4; extent-equal
-text actSt09aInit 0x0023F1B8 0x0023F1F8 ico2/script/src/st09a.c lines=8  # ordinal; first difference at insn 6; imm:2; extent-equal
-text actSt09aElvDown 0x0023F1F8 0x0023F2E8 ico2/script/src/st09a.c lines=32  # ordinal; first difference at insn 3; imm:4; extent-equal
-text actSt09aBrgDown 0x0023F2E8 0x0023F474 ico2/script/src/st09a.c lines=43  # ordinal; first difference at insn 3; imm:3; extent-equal
-text actSt09aElv 0x0023F478 0x0023F510 ico2/script/src/st09a.c lines=18  # ordinal; first difference at insn 15; imm:2; extent-equal
-text actSt09aSekizo 0x0023F510 0x0023F5BC ico2/script/src/st09a.c lines=13  # ordinal; first difference at insn 30; imm:1; extent-equal
-lit4 actSt09aSekizo 0x00633490 0x0063349C ico2/script/src/st09a.c  # 3 floats
-text actSt09aElvUp 0x0023F890 0x0023F970 ico2/script/src/st09a.c lines=29  # ordinal; first difference at insn 3; imm:4; extent-equal
-text actSt09aIntroChk 0x0023F980 0x0023FA00 ico2/script/src/st09a.c lines=19  # ordinal; first difference at insn 4; imm:4; extent-equal
-text actSt09aBrgDownSub 0x0023FA88 0x0023FB6C ico2/script/src/st09a.c local lines=26  # ordinal; first difference at insn 6; imm:6; extent-equal
 text actSt10lInit 0x0023FC38 0x0023FCAC ico2/script/src/st10l.c lines=12  # ordinal; first difference at insn 13; imm:2; extent-equal
 text actSt10lFloorLeft 0x0023FCB0 0x0023FF1C ico2/script/src/st10l.c lines=60  # ordinal; first difference at insn 70; imm:5; extent-equal
 lit4 actSt10lFloorLeft 0x0063349C 0x006334A0 ico2/script/src/st10l.c  # 1 float
