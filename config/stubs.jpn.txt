@@ -82,8 +82,7 @@ sdlit gsb_scissorOnDemo 0x00633AA0 0x00633AA2 ico2/seki/src/GsBase.c  # 1 string
 text gsb_SetVSMatrix 0x00114B08 0x00114CF0 ico2/seki/src/GsBase.c lines=38  # ordinal; first difference at insn 0; length:-37; extent-differs
 lit4 gsb_SetVSMatrix 0x0063274C 0x00632754 ico2/seki/src/GsBase.c  # 2 floats; target side (DISAGREE)
 text stage_MakeGObj 0x00129DD8 0x0012A060 ico2/seki/src/StageAnimation.c local lines=45  # ordinal; first difference at insn 69; imm:4; extent-equal
-rdlit stage_MakeGObj 0x0054B2A0 0x0054B2D0 ico2/seki/src/StageAnimation.c align=16  # 1 data
-rdlit stage_MakeGObj 0x0054B2E0 0x0054B363 ico2/seki/src/StageAnimation.c align=16  # 4 strings
+rdlit stage_MakeGObj 0x0054B2A0 0x0054B363 ico2/seki/src/StageAnimation.c align=16  # 1 data, 4 strings (one run: the data's December size runs to the strings)
 sdlit stage_MakeGObj 0x00633C80 0x00633C82 ico2/seki/src/StageAnimation.c  # 1 string
 text stage_ApplyData 0x0012A060 0x0012A240 ico2/seki/src/StageAnimation.c lines=40  # ordinal; first difference at insn 51; imm:3; extent-equal
 rdlit stage_ApplyData 0x0054B368 0x0054B396 ico2/seki/src/StageAnimation.c  # 1 string
@@ -101,27 +100,6 @@ text stage_PlayBgAnimationDissolve 0x0012B8B8 0x0012BBB4 ico2/seki/src/StageAnim
 text stage_MakePlayBgAnimation 0x0012BBB8 0x0012BD3C ico2/seki/src/StageAnimation.c lines=53  # ordinal; first difference at insn 58; imm:1; extent-equal
 rdlit stage_MakePlayBgAnimation 0x0054B510 0x0054B597 ico2/seki/src/StageAnimation.c align=16  # 2 strings
 text stage_CheckAnimationFinish 0x0012C300 0x0012C3CC ico2/seki/src/StageAnimation.c lines=21  # ordinal; first difference at insn 37; imm:2; extent-equal
-text iosCdvdStManager 0x001330B0 0x0013339C ico2/fumi/ios/cdvd.c local lines=99  # ordinal; first difference at insn 54; imm:6; extent-equal
-rdlit iosCdvdStManager 0x0054BF20 0x0054BF36 ico2/fumi/ios/cdvd.c  # 1 string
-rdlit iosCdvdStManager 0x0054BF48 0x0054BFA4 ico2/fumi/ios/cdvd.c  # 1 string, 1 data
-sdlit iosCdvdStManager 0x00633E68 0x00633E6A ico2/fumi/ios/cdvd.c  # 1 string
-text iosCdvdMgrStStop 0x00133608 0x00133704 ico2/fumi/ios/cdvd.c local lines=23  # ordinal; first difference at insn 43; imm:2; extent-equal
-rdlit iosCdvdMgrStStop 0x0054C048 0x0054C06E ico2/fumi/ios/cdvd.c  # 1 string
-text temp_loadfunc 0x001338D0 0x00133964 ico2/fumi/ios/cdvd.c lines=8  # ordinal; first difference at insn 1; imm:1; extent-equal
-rdlit temp_loadfunc 0x0054C098 0x0054C0C0 ico2/fumi/ios/cdvd.c  # 1 string
-text iosCdvdMgrPackLoad 0x00133968 0x00133D34 ico2/fumi/ios/cdvd.c local lines=78  # ordinal; first difference at insn 119; imm:1; extent-equal
-rdlit iosCdvdMgrPackLoad 0x0054C0C0 0x0054C134 ico2/fumi/ios/cdvd.c  # 1 data
-sdlit iosCdvdMgrPackLoad 0x00633E88 0x00633E8E ico2/fumi/ios/cdvd.c  # 1 string
-text iosCdStRead 0x00133D38 0x00133F10 ico2/fumi/ios/cdvd.c local lines=51  # ordinal; first difference at insn 55; imm:2; extent-equal
-rdlit iosCdStRead 0x0054C138 0x0054C162 ico2/fumi/ios/cdvd.c  # 1 string
-text iosCdvdHandlerReadNoInflate 0x00133F10 0x001340B4 ico2/fumi/ios/cdvd.c lines=47  # ordinal; first difference at insn 65; imm:2; extent-equal
-rdlit iosCdvdHandlerReadNoInflate 0x0054C168 0x0054C199 ico2/fumi/ios/cdvd.c  # 1 string
-text iosCdvdBackGroundMgrAdd 0x001346B8 0x00134978 ico2/fumi/ios/cdvd.c lines=55  # ordinal; first difference at insn 42; imm:4; extent-equal
-text iosCdvdBackGroundRead 0x00134BD8 0x00134D98 ico2/fumi/ios/cdvd.c lines=41  # ordinal; first difference at insn 1; length:-7; extent-differs
-text iosCdvdBackGroundReadIOPm 0x00134D98 0x00134F58 ico2/fumi/ios/cdvd.c lines=40  # ordinal; first difference at insn 1; length:-7; extent-differs
-text iosCdvdDirectStOpen 0x00134F58 0x0013514C ico2/fumi/ios/cdvd.c lines=35  # ordinal; first difference at insn 97; imm:1; extent-equal
-text iosCdvdGetFileLsn 0x00135230 0x00135310 ico2/fumi/ios/cdvd.c lines=4  # ordinal; first difference at insn 31; imm:2; extent-equal
-text iosCdvdDiskReadyBlock 0x00135638 0x001356D0 ico2/fumi/ios/cdvd.c local  # equal; its out-of-line copy served a call a stub now holds, so gcc no longer emits it
 text iosInitialize 0x00137CF8 0x00137ECC ico2/fumi/ios/ios.c lines=30  # census equal (immediates masked), but lui 0x76 -> 0x78 at insn 8 (iosMallocInitPartition's base)
 rdlit iosInitialize 0x0054C3A0 0x0054C3D1 ico2/fumi/ios/ios.c  # 3 strings
 sdlit iosInitialize 0x00633EC0 0x00633EFF ico2/fumi/ios/ios.c  # 8 strings
@@ -848,11 +826,6 @@ rdlit InitIcoMisc 0x00616878 0x00616A7A ico2/common/src/icoMisc.c  # 14 strings
 sdlit InitIcoMisc 0x00634F18 0x00634F34 ico2/common/src/icoMisc.c  # 4 strings
 text ExitIcoMisc 0x001B8900 0x001B8908 ico2/common/src/icoMisc.c lines=1  # equal; a deferred inline the jpn-only stub after it must follow
 text func_001B8908 0x001B8908 0x001B8910 ico2/common/src/icoMisc.c  # jpn-only; no PAL counterpart: an empty function after ExitIcoMisc (icoMisc.c's last); kanban.c's first twin follows at 0x1B8910
-text init_textures_of_specified_property 0x001B8A40 0x001B8BD0 ico2/common/src/kanban.c local lines=13  # ordinal; first difference at insn 1; length:-6; extent-differs
-text kanbanInit 0x001B8BD0 0x001B8CCC ico2/common/src/kanban.c lines=10  # ordinal; first difference at insn 33; imm:1; extent-equal
-text display_texture 0x001B8CD0 0x001B8FA0 ico2/common/src/kanban.c local lines=68  # ordinal; first difference at insn 111; imm:2; extent-equal
-sdlit display_texture 0x00634F70 0x00634F74 ico2/common/src/kanban.c  # 1 data
-text display_layout 0x001B90E8 0x001B9298 ico2/common/src/kanban.c local lines=20  # ordinal; first difference at insn 59; other:2; extent-equal
 text kanbanBootMcCheck 0x001B9490 0x001B96E8 ico2/common/src/kanbanBoot.c local lines=236  # ordinal; first difference at insn 3; length:-254; extent-differs
 text kanbanBootMain 0x001B96E8 0x001B9840 ico2/common/src/kanbanBoot.c lines=52  # ordinal; first difference at insn 33; other:1; extent-equal
 rdlit kanbanBootMain 0x00616AE0 0x00616B00 ico2/common/src/kanbanBoot.c align=16  # 1 jtbl
