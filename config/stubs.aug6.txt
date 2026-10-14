@@ -2651,12 +2651,6 @@ rdlit blurBlendFeedBackAreaToWork1.31 0x00612CE0 0x00612CF0 ico2/sugipon/src/sta
 text testAA.63 0x001E9BD0 0x001E9D28 ico2/sugipon/src/staticBlur.c local file=testAA_63  # nested in auraInspireAfter, which is carved; census twin of PAL's testAA.63
 text subWork1ToCurrentFB.75 0x001E9D28 0x001E9E30 ico2/sugipon/src/staticBlur.c local file=subWork1ToCurrentFB_75  # nested in auraInspireAfter, which is carved; census twin of PAL's subWork1ToCurrentFB.75
 text auraInspireAfter 0x001E9E30 0x001EA3C4 ico2/sugipon/src/staticBlur.c local lines=265  # ordinal; first difference at insn 105; length:-20; extent-differs
-text cleanUpFB.82 0x001EA3C8 0x001EA488 ico2/sugipon/src/staticBlur.c local file=cleanUpFB_82  # nested in makeFullScreenFlareBefore, which is carved; census twin of PAL's cleanUpFB.82
-text fillWork2.86 0x001EA488 0x001EA554 ico2/sugipon/src/staticBlur.c local file=fillWork2_86  # ordinal; first difference at insn 0; length:-50; extent-differs; nested in its parent
-text dispSun.90 0x001EA558 0x001EA654 ico2/sugipon/src/staticBlur.c local file=dispSun_90  # nested in makeFullScreenFlareBefore, which is carved; census twin of PAL's dispSun.90
-text pasteBackLightShadowToFB.94 0x001EA658 0x001EA798 ico2/sugipon/src/staticBlur.c local file=pasteBackLightShadowToFB_94  # nested in makeFullScreenFlareBefore, which is carved; census twin of PAL's pasteBackLightShadowToFB.94
-text makeMaskPatternToWork2.98 0x001EA798 0x001EA884 ico2/sugipon/src/staticBlur.c local file=makeMaskPatternToWork2_98  # nested in makeFullScreenFlareBefore, which is carved; census twin of PAL's makeMaskPatternToWork2.98
-text makeFullScreenFlareBefore 0x001EA888 0x001EA990 ico2/sugipon/src/staticBlur.c lines=126  # census-equal; carved because its nested fillWork2.86 differs and lives in its body
 text reduceWork2ToWork0.105 0x001EA990 0x001EAADC ico2/sugipon/src/staticBlur.c local file=reduceWork2ToWork0_105  # nested in makeFullScreenFlareAfter, which is carved; census twin of PAL's reduceWork2ToWork0.105
 rdlit reduceWork2ToWork0.105 0x00612CF0 0x00612D00 ico2/sugipon/src/staticBlur.c file=reduceWork2ToWork0_105 # target side
 text eyeBlur.109 0x001EAAE0 0x001EB278 ico2/sugipon/src/staticBlur.c local file=eyeBlur_109  # nested in makeFullScreenFlareAfter, which is carved; census twin of PAL's eyeBlur.109
@@ -2670,6 +2664,7 @@ text pasteToFB.134 0x001EB7A8 0x001EB9EC ico2/sugipon/src/staticBlur.c local fil
 text depthField 0x001EB9F0 0x001EC098 ico2/sugipon/src/staticBlur.c lines=107  # ordinal; first difference at insn 401; length:+7; extent-differs
 text MotionBlur 0x001EC0A8 0x001EC2C0 ico2/sugipon/src/staticBlur.c lines=33  # ordinal; first difference at insn 57; length:+6; extent-differs
 rdlit MotionBlur 0x00612D30 0x00612D40 ico2/sugipon/src/staticBlur.c # target side
+sdlit MotionBlur 0x0062D810 0x0062D814 ico2/sugipon/src/staticBlur.c  # target side: a static word
 text FullScreenEffectBefore 0x001EC7A8 0x001EC920 ico2/sugipon/src/staticBlur.c lines=71  # ordinal; first difference at insn 2; length:-11; extent-differs
 rdlit FullScreenEffectBefore 0x00612E20 0x00612E40 ico2/sugipon/src/staticBlur.c align=16  # 1 jtbl
 sdlit FullScreenEffectBefore 0x0062D860 0x0062D864 ico2/sugipon/src/staticBlur.c  # 1 string
@@ -2686,6 +2681,7 @@ text GetStreamMotionData 0x001EDBD8 0x001EDCBC ico2/sugipon/src/streamMotionMana
 rdlit GetStreamMotionData 0x00612FB0 0x00612FF8 ico2/sugipon/src/streamMotionManager.c  # target side
 text ExecStreamMotionManager 0x001EDD68 0x001EDF40 ico2/sugipon/src/streamMotionManager.c lines=51  # trfile; aug6-only in the census; PAL's ExecStreamMotionManager (480 B in PAL)
 rdlit ExecStreamMotionManager 0x00612FF8 0x00613038 ico2/sugipon/src/streamMotionManager.c  # target side
+sdlit ExecStreamMotionManager 0x0062D8A0 0x0062D8A6 ico2/sugipon/src/streamMotionManager.c  # target side: a string
 text StandbyStreamMotion 0x001EDF40 0x001EE10C ico2/sugipon/src/streamMotionManager.c lines=10  # trfile; aug6-only in the census; PAL's StandbyStreamMotion (332 B in PAL)
 rdlit StandbyStreamMotion 0x00613038 0x006130A8 ico2/sugipon/src/streamMotionManager.c  # target side
 text StopStreamMotion 0x001EE110 0x001EE118 ico2/sugipon/src/streamMotionManager.c lines=4  # census-equal; stubbed for emission order: an inline function gcc emits after the TU's stubs, where the prototype has it before one
