@@ -144,35 +144,6 @@ lit4 actItouQueenAttackChk 0x00632C6C 0x00632C78 ico2/script/src/st25a.c  # 3 fl
 text monitorMonitorCamera 0x0018F938 0x001900D8 ico2/omori/src/camera-ico2.c local lines=159  # ordinal; first difference at insn 2; length:-99; extent-differs
 lit4 monitorMonitorCamera 0x00632C88 0x00632C94 ico2/omori/src/camera-ico2.c  # 3 floats; target side (DISAGREE)
 rdlit monitorMonitorCamera 0x00550320 0x00550330 ico2/omori/src/camera-ico2.c  # 2 doubles; target side (DISAGREE)
-text StartPendulum 0x001949D0 0x00194C6C ico2/omori/src/chain.c local lines=34  # ordinal; first difference at insn 57; imm:2; extent-equal
-lit4 StartPendulum 0x00632CB4 0x00632CBC ico2/omori/src/chain.c  # 2 floats
-rdlit StartPendulum 0x005504A0 0x005504C0 ico2/omori/src/chain.c align=16  # 2 strings
-sdlit StartPendulum 0x00634688 0x0063468C ico2/omori/src/chain.c  # 1 word
-text chain_simulate_term_swingready 0x00195048 0x00195110 ico2/omori/src/chain.c local lines=17  # ordinal; first difference at insn 26; length:-24; extent-differs
-lit4 chain_simulate_term_swingready 0x00632CD4 0x00632CE0 ico2/omori/src/chain.c  # 3 floats; target side (DISAGREE)
-rdlit chain_simulate_term_swingready 0x00550510 0x00550530 ico2/omori/src/chain.c  # 1 string; target side (DISAGREE)
-text chain_simulate_term_swingstart 0x00195110 0x00195264 ico2/omori/src/chain.c local lines=35  # ordinal; first difference at insn 0; length:-58; extent-differs
-lit4 chain_simulate_term_swingstart 0x00632CE0 0x00632CEC ico2/omori/src/chain.c  # 3 floats; target side (DISAGREE)
-rdlit chain_simulate_term_swingstart 0x00550530 0x00550558 ico2/omori/src/chain.c  # 1 string, 1 double; target side (DISAGREE)
-text chain_simulate_hangstart 0x001956C0 0x00195730 ico2/omori/src/chain.c local lines=11  # ordinal; first difference at insn 20; length:-18; extent-differs
-lit4 chain_simulate_hangstart 0x00632D14 0x00632D18 ico2/omori/src/chain.c  # 1 float; target side (DISAGREE)
-rdlit chain_simulate_hangstart 0x005505B8 0x005505D2 ico2/omori/src/chain.c  # 1 string; target side (DISAGREE)
-text InitChainGeo 0x00195EF0 0x001964AC ico2/omori/src/chain.c lines=110  # ordinal; first difference at insn 30; imm:6; extent-equal
-lit4 InitChainGeo 0x00632D24 0x00632D28 ico2/omori/src/chain.c  # 1 float
-rdlit InitChainGeo 0x00550690 0x005506C4 ico2/omori/src/chain.c align=16  # 1 string
-rdlit InitChainGeo 0x005506D0 0x00550758 ico2/omori/src/chain.c align=16  # 2 data runs, 1 string
-sdlit InitChainGeo 0x00634690 0x00634692 ico2/omori/src/chain.c  # 1 string
-text ChainGeo 0x00196608 0x00197040 ico2/omori/src/chain.c lines=183  # ordinal; first difference at insn 77; other:3; extent-equal
-lit4 ChainGeo 0x00632D2C 0x00632D3C ico2/omori/src/chain.c  # 4 floats
-rdlit ChainGeo 0x00550758 0x00550773 ico2/omori/src/chain.c  # 2 strings
-rdlit ChainGeo 0x00550780 0x005507D8 ico2/omori/src/chain.c align=16  # 1 jtbl
-rdlit ChainGeo 0x005507E0 0x00550834 ico2/omori/src/chain.c align=16  # 2 jump tables
-sdlit ChainGeo 0x00634698 0x0063469C ico2/omori/src/chain.c  # 1 string
-text PlumbPointUpdateChain 0x001972E8 0x0019746C ico2/omori/src/chain.c local lines=34  # ordinal; first difference at insn 55; imm:2; extent-equal
-sdlit PlumbPointUpdateChain 0x0063469C 0x006346A0 ico2/omori/src/chain.c  # 1 word
-text TestChainUpDown 0x00197470 0x00197D68 ico2/omori/src/chain.c local lines=139  # ordinal; first difference at insn 47; length:-14; extent-differs
-lit4 TestChainUpDown 0x00632D3C 0x00632D48 ico2/omori/src/chain.c  # 3 floats
-rdlit TestChainUpDown 0x00550840 0x00550854 ico2/omori/src/chain.c align=16  # 1 jtbl
 text subBirdBrainMain 0x0019DF88 0x0019F3BC ico2/ito/src/act_bird.c lines=522  # ordinal; first difference at insn 697; imm:4; extent-equal
 lit4 subBirdBrainMain 0x00632DC0 0x00632E14 ico2/ito/src/act_bird.c  # 21 floats
 rdlit subBirdBrainMain 0x005509F0 0x00550A34 ico2/ito/src/act_bird.c align=16  # 4 strings
