@@ -185,17 +185,123 @@ INCLUDE_ASM(subWork1ToCurrentFB_75);
 
 INCLUDE_ASM(auraInspireAfter);
 
-INCLUDE_ASM(cleanUpFB_82);
+void makeFullScreenFlareBefore(int mode)
+{
+    int rect[4] = {-ScreenWidth / 2 * 16, -ScreenHeight / 2 * 16, ScreenWidth * 16,
+                   ScreenHeight * 16};
 
-INCLUDE_ASM(fillWork2_86);
+    int uv[4] = {0, 0, ScreenWidth * 16, ScreenHeight * 16};
 
-INCLUDE_ASM(dispSun_90);
+    void cleanUpFB(void)
+    {
+        gif_SetDrawEnviroment(0x800, 0, ScreenWidth, ScreenHeight, 0, 0);
 
-INCLUDE_ASM(pasteBackLightShadowToFB_94);
+        gif_SetZTest(0);
+        gif_SetZWrite(0);
+        gif_SetAlpha(1, 5, 0);
+        gif_SpriteSensitiveOrg(rect, 0, (void *)0, &clearCol, 1);
 
-INCLUDE_ASM(makeMaskPatternToWork2_98);
+        gif_SetZTest(1);
+        gif_SpriteSensitiveOrg(rect, 1, (void *)0, &fillZCol, 1);
+        gif_SetAlpha(0, 4, 0);
+        gif_SetZWrite(1);
+        gif_SetGsReg(0x47, 0x5000D);
+    }
 
-INCLUDE_ASM(makeFullScreenFlareBefore);
+    void fillWork2(void)
+    {
+        gif_SetDrawEnviroment(workBase[2], 0, ScreenWidth, ScreenHeight, 0, 0);
+        gif_SetZTest(0);
+        gif_SetZWrite(0);
+        {
+            unsigned char col[4] = {0, 0, 0, 192};
+
+            if (mode & 2) {
+                col[0] = col[1] = col[2] = 128;
+            }
+            gif_SetAlpha(1, 2, 0);
+            gif_SpriteSensitiveOrg(rect, 0, (void *)0, col, 0);
+        }
+        gif_SetZWrite(1);
+        gif_SetZTest(1);
+    }
+
+    void dispSun(void)
+    {
+        if (0.0f < sunView[2] && -ScreenWidth < sunScreen[0] && sunScreen[0] < ScreenWidth &&
+            -ScreenHeight < sunScreen[1] && sunScreen[1] < ScreenHeight) {
+            float v[4];
+
+            sceVu0ITOF0Vector(v, sunScreen);
+            gif_StartPacketPri(7);
+            gif_SetAlpha(1, 5, 0);
+            gif_EndPacket();
+
+            prim_SetFan2D(sunGlowFan, 40.0f, v, 0x505050C0U, 0xC0U);
+            prim_DispFan2D(sunGlowFan, 0);
+            prim_SetFan2D(sunCoreFan, 15.0f, v, 0xFFFFFFC0U, 0xFFFFFFC0U);
+            prim_DispFan2D(sunCoreFan, 0);
+        }
+    }
+
+    void pasteBackLightShadowToFB(void)
+    {
+        gif_SetGsReg(6, workBase[2] | ((long long)(ScreenWidth / 64) << 14) | 0x664000000LL);
+
+        gif_SetDrawEnviroment(0x800, 0, ScreenWidth, ScreenHeight, 0, 0);
+
+        gif_SetZTest(0);
+        gif_SetZWrite(0);
+        gif_SetAlpha(1, 2, 96);
+        gif_SetGsReg(0x47, 0x30815);
+
+        {
+            int suv[4] = {8, 8, ScreenWidth * 16 - 8, ScreenHeight * 16 - 8};
+            SprCol col = {{128, 128, 128, 128}};
+
+            gif_SpriteSensitiveOrg(rect, 0, suv, &col, 1);
+        }
+        gif_SetZWrite(1);
+        gif_SetGsReg(0x47, 0x5000D);
+    }
+
+    void makeMaskPatternToWork2(void)
+    {
+        gif_SetGsReg(6, ((long long)(ScreenWidth / 64) << 14) | 0x664000800LL);
+        gif_SetGsReg(0x14, 0x60);
+
+        gif_SetDrawEnviroment(workBase[2], 0, ScreenWidth, ScreenHeight, 0, 0);
+
+        gif_SetZTest(0);
+        gif_SetZWrite(0);
+        gif_SetAlpha(0, 4, 0);
+        gif_SetGsReg(0x47, 0x30815);
+
+        gif_SpriteSensitiveOrg(rect, 0, uv, &alphaCopyCol, 0);
+
+        gif_SetZWrite(1);
+        gif_SetGsReg(0x47, 0x5000D);
+    }
+
+    gif_StartPacketPri(7);
+
+    gif_SetGsReg(8, 5);
+
+    cleanUpFB();
+
+    fillWork2();
+    gif_EndPacket();
+
+    if (sunOn) {
+        dispSun();
+    }
+
+    gif_StartPacketPri(7);
+    makeMaskPatternToWork2();
+    gif_EndPacket();
+}
+
+static int eyeBlurAlpha = 150; /* derived name */
 
 INCLUDE_ASM(reduceWork2ToWork0_105);
 
@@ -209,8 +315,6 @@ static int blurUv[12]; /* derived name */
 
 /* the blur sprite's RGBA */
 static SprCol blurCol; /* derived name */
-
-static int eyeBlurAlpha = 150; /* derived name */
 
 static void pasteFullScreenFlare(void)
 {

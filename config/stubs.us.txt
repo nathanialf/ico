@@ -2435,12 +2435,6 @@ rdlit blurBlendFeedBackAreaToWork1.31 0x0061A2F0 0x0061A300 ico2/sugipon/src/sta
 text testAA.63 0x001ECA40 0x001ECB98 ico2/sugipon/src/staticBlur.c local file=testAA_63  # nested in auraInspireAfter (a stub); equal, gone with its carved parent
 text subWork1ToCurrentFB.75 0x001ECB98 0x001ECCA0 ico2/sugipon/src/staticBlur.c local file=subWork1ToCurrentFB_75  # nested in auraInspireAfter (a stub); equal, gone with its carved parent
 text auraInspireAfter 0x001ECCA0 0x001ED234 ico2/sugipon/src/staticBlur.c local lines=265  # ordinal; first difference at insn 105; length:-20; extent-differs
-text cleanUpFB.82 0x001ED238 0x001ED2F8 ico2/sugipon/src/staticBlur.c local file=cleanUpFB_82  # nested in its parent (a stub); equal, gone with its carved parent
-text fillWork2.86 0x001ED2F8 0x001ED3C4 ico2/sugipon/src/staticBlur.c local file=fillWork2_86  # ordinal; first difference at insn 0; length:-50; extent-differs
-text dispSun.90 0x001ED3C8 0x001ED4C4 ico2/sugipon/src/staticBlur.c local file=dispSun_90  # nested in its parent (a stub); equal, gone with its carved parent
-text pasteBackLightShadowToFB.94 0x001ED4C8 0x001ED608 ico2/sugipon/src/staticBlur.c local file=pasteBackLightShadowToFB_94  # nested in its parent (a stub); equal, gone with its carved parent
-text makeMaskPatternToWork2.98 0x001ED608 0x001ED6F4 ico2/sugipon/src/staticBlur.c local file=makeMaskPatternToWork2_98  # nested in its parent (a stub); equal, gone with its carved parent
-text makeFullScreenFlareBefore 0x001ED6F8 0x001ED800 ico2/sugipon/src/staticBlur.c lines=126  # equal, a stub because its nested fillWork2.86 is one
 text reduceWork2ToWork0.105 0x001ED800 0x001ED94C ico2/sugipon/src/staticBlur.c local file=reduceWork2ToWork0_105  # nested in makeFullScreenFlareAfter (a stub); equal, gone with its carved parent
 text eyeBlur.109 0x001ED950 0x001EE0E8 ico2/sugipon/src/staticBlur.c local file=eyeBlur_109  # nested in makeFullScreenFlareAfter (a stub); equal, gone with its carved parent
 lit4 eyeBlur.109 0x006313D8 0x006313DC ico2/sugipon/src/staticBlur.c file=eyeBlur_109  # 1 float
