@@ -524,6 +524,7 @@ text iosInitialize 0x001359F0 0x00135BC0 ico2/fumi/ios/ios.c lines=30  # ordinal
 rdlit iosInitialize 0x00550FA0 0x00550FD1 ico2/fumi/ios/ios.c  # 3 strings
 sdlit iosInitialize 0x0062C140 0x0062C17F ico2/fumi/ios/ios.c  # 8 strings
 text iosMcHandlerWrite 0x00135F88 0x0013637C ico2/fumi/ios/mcard.c lines=61  # census-equal; stubbed because it inlines a function stubbed for emission order
+sdlit iosMcHandlerWrite 0x0062C1E8 0x0062C1EC ico2/fumi/ios/mcard.c  # target side: a string
 text iosMcHandlerRead 0x00136380 0x00136710 ico2/fumi/ios/mcard.c lines=65  # census-equal; stubbed because it inlines a function stubbed for emission order
 rdlit iosMcHandlerRead 0x00551180 0x005511DA ico2/fumi/ios/mcard.c align=16  # 1 string
 text iosMcMgrChdirProduct 0x00136710 0x00136A58 ico2/fumi/ios/mcard.c local lines=46  # ordinal; first difference at insn 0; length:+42; extent-differs
@@ -539,6 +540,7 @@ sdlit iosMcMgrGetBlockSaveInfo 0x0062C1F8 0x0062C1FA ico2/fumi/ios/mcard.c  # 1 
 text iosMcManager 0x00137420 0x00137B50 ico2/fumi/ios/mcard.c lines=92  # ordinal; first difference at insn 6; length:+50; extent-differs
 rdlit iosMcManager 0x0055123C 0x005512E0 ico2/fumi/ios/mcard.c  # target side
 rdlit iosMcManager 0x005512E0 0x00551320 ico2/fumi/ios/mcard.c align=16  # jump table (target side)
+sdlit iosMcManager 0x0062C200 0x0062C22D ico2/fumi/ios/mcard.c  # target side: six strings
 text iosMcMgrSync 0x00137B50 0x00137BF0 ico2/fumi/ios/mcard.c lines=14  # census-equal; stubbed for emission order: an inline function gcc emits after the TU's stubs, where the prototype has it before one
 text iosMcTest 0x00137BF0 0x00137BF8 ico2/fumi/ios/mcard.c lines=1  # census-equal; stubbed for emission order: an inline function gcc emits after the TU's stubs, where the prototype has it before one
 text iosMcSync 0x00137BF8 0x00137C0C ico2/fumi/ios/mcard.c lines=8  # census-equal; stubbed for emission order: an inline function gcc emits after the TU's stubs, where the prototype has it before one
@@ -563,8 +565,10 @@ text iosMcIconWriteIcon 0x00138320 0x00138428 ico2/fumi/ios/mcdata.c lines=4  # 
 text _iosMcIconWriteIconsys 0x00138428 0x001384F4 ico2/fumi/ios/mcdata.c local lines=27  # ordinal; first difference at insn 0; length:-9; extent-differs
 text iosMallocDebug 0x00138B38 0x00139048 ico2/fumi/ios/memory.c lines=18  # trfile; aug6-only in the census; PAL's iosMallocDebug (264 B in PAL)
 rdlit iosMallocDebug 0x00551468 0x00551678 ico2/fumi/ios/memory.c # target side
+sdlit iosMallocDebug 0x0062C238 0x0062C242 ico2/fumi/ios/memory.c  # target side: two strings
 text iosFree 0x001390F0 0x001395A8 ico2/fumi/ios/memory.c lines=158  # ordinal; first difference at insn 26; imm:12; extent-equal
 rdlit iosFree 0x005516A8 0x005517A8 ico2/fumi/ios/memory.c  # target side
+sdlit iosFree 0x0062C248 0x0062C24E ico2/fumi/ios/memory.c  # target side: a string
 text iosMallocCheckLeak 0x001395A8 0x00139784 ico2/fumi/ios/memory.c lines=44  # equal to PAL's; stubbed while iosMallocDebug, a stub before it, owns a string it shares
 rdlit iosMallocCheckLeak 0x005517A8 0x00551822 ico2/fumi/ios/memory.c  # 6 strings
 sdlit iosMallocCheckLeak 0x0062C250 0x0062C262 ico2/fumi/ios/memory.c  # 3 strings
@@ -575,6 +579,7 @@ rdlit iosReallocDebug 0x005518A0 0x00551910 ico2/fumi/ios/memory.c  # 3 strings
 text controler_stable_check 0x0013A350 0x0013A83C ico2/fumi/ios/pad.c local lines=191  # ordinal; first difference at insn 0; length:-37; extent-differs
 rdlit controler_stable_check 0x005519C0 0x00551AA0 ico2/fumi/ios/pad.c  # target side
 rdlit controler_stable_check 0x00551AA0 0x00551BD4 ico2/fumi/ios/pad.c align=16  # jump table (target side)
+sdlit controler_stable_check 0x0062C2C0 0x0062C30A ico2/fumi/ios/pad.c  # target side: ten strings
 text iosPadDevInit 0x0013A840 0x0013AA6C ico2/fumi/ios/pad.c lines=30  # ordinal; first difference at insn 30; length:-2; extent-differs
 rdlit iosPadDevInit 0x00551BD8 0x00551C0D ico2/fumi/ios/pad.c  # 2 strings
 text iosPadDevReadFunc 0x0013AA70 0x0013AC48 ico2/fumi/ios/pad.c local lines=47  # ordinal; first difference at insn 29; length:-11; extent-differs
@@ -670,9 +675,11 @@ lit4 GetTarget.274 0x0062AC64 0x0062AC68 ico2/fumi/src/act-game.c file=GetTarget
 rdlit GetTarget.274 0x005523F0 0x00552430 ico2/fumi/src/act-game.c file=GetTarget_274 align=16  # target side
 text ACTLookTargetSystem_Exec 0x00147BC8 0x00148114 ico2/fumi/src/act-game.c lines=242  # aug6-only in the census (in act-game.c's span); ACTLookTargetSystem_Exec by called from subBoyCollision's and subGirlCollision's counterparts, PAL's two callers of ACTLookTargetSystem_Exec
 text ACTItemThrow.295 0x00148118 0x00148244 ico2/fumi/src/act-game.c local file=ACTItemThrow_295  # trfile; aug6-only in the census; PAL's ACTItemThrow.301 (224 B in PAL); nested in its parent, gcc numbers it ACTItemThrow.295 in this tree (PAL ACTItemThrow.301)
+sdlit ACTItemThrow.295 0x0062C3C8 0x0062C3D0 ico2/fumi/src/act-game.c file=ACTItemThrow_295  # target side: a string
 text ACTItemWatchMotion 0x00148248 0x0014848C ico2/fumi/src/act-game.c local lines=132  # trfile; aug6-only in the census; PAL's ACTItemWatchMotion (800 B in PAL)
 lit4 ACTItemWatchMotion 0x0062AC68 0x0062AC6C ico2/fumi/src/act-game.c # target side
 rdlit ACTItemWatchMotion 0x00552430 0x00552450 ico2/fumi/src/act-game.c align=16  # target side
+sdlit ACTItemWatchMotion 0x0062C3D0 0x0062C3D4 ico2/fumi/src/act-game.c  # target side: a string
 text ACTGame_InsertCamera_GirlIsPinch 0x00148490 0x001485D8 ico2/fumi/src/act-game.c lines=24  # trfile; aug6-only in the census; PAL's ACTGame_InsertCamera_GirlIsPinch (308 B in PAL)
 lit4 ACTGame_InsertCamera_GirlIsPinch 0x0062AC6C 0x0062AC70 ico2/fumi/src/act-game.c # target side
 text updateHMC.308 0x001485D8 0x00148710 ico2/fumi/src/act-game.c local file=updateHMC_308  # trfile; aug6-only in the census; PAL's updateHMC.314 (312 B in PAL); nested in its parent, gcc numbers it updateHMC.308 in this tree (PAL updateHMC.314)
@@ -713,6 +720,7 @@ text ACTGameView_FirstSet 0x001497A8 0x00149878 ico2/fumi/src/act-game.c lines=1
 text ACTGameView_Add 0x00149878 0x0014991C ico2/fumi/src/act-game.c lines=12  # ordinal; first difference at insn 18; imm:2; extent-equal
 rdlit ACTGameView_Add 0x005521E0 0x0055220F ico2/fumi/src/act-game.c align=16 def  # 2 strings
 sdlit ACTGameView_Add 0x0062C3C0 0x0062C3C2 ico2/fumi/src/act-game.c def  # 1 string
+sdlit ACTGameView_Add 0x0062C3E0 0x0062C3E2 ico2/fumi/src/act-game.c  # target side: the copy of its string gcc writes with the inline function's body at the end of the file, which nothing reads
 text ACTGameView_Check 0x00149920 0x00149968 ico2/fumi/src/act-game.c lines=10  # census-equal; stubbed for emission order: an inline function gcc emits after the TU's stubs, where the prototype has it before one
 text ACTGameViewSimple_Check 0x00149968 0x001499B0 ico2/fumi/src/act-game.c lines=10  # census-equal; stubbed for emission order: an inline function gcc emits after the TU's stubs, where the prototype has it before one
 text ACTGame_GetMotOrientFromWeapon 0x001499B0 0x001499F4 ico2/fumi/src/act-game.c lines=10  # census-equal; stubbed for emission order: an inline function gcc emits after the TU's stubs, where the prototype has it before one
@@ -771,6 +779,7 @@ rdlit GetChainSlope 0x005525D8 0x00552600 ico2/fumi/src/boyact.c  # target side
 text subBoyControl 0x0014D148 0x0014E854 ico2/fumi/src/boyact.c lines=644  # aug6-only in the census (after act-parallel-control.c's span); subBoyControl by body ratio 0.90, callees 0.82, sizes 6260/5900
 rdlit subBoyControl 0x00552600 0x005527E8 ico2/fumi/src/boyact.c align=16  # target side
 lit4 subBoyControl 0x0062ACA8 0x0062AD64 ico2/fumi/src/boyact.c  # target side
+sdlit subBoyControl 0x0062C408 0x0062C414 ico2/fumi/src/boyact.c  # target side: a string and a static word
 text InitSwapWeapon 0x0014E858 0x0014E98C ico2/fumi/src/boyact.c local lines=32  # aug6-only in the census (after act-parallel-control.c's span); InitSwapWeapon by body ratio 1.00, callees 1.00, sizes 308/308
 lit4 InitSwapWeapon 0x0062AD64 0x0062AD68 ico2/fumi/src/boyact.c  # 1 float
 text PutWeapon 0x0014E990 0x0014EA00 ico2/fumi/src/boyact.c local lines=14  # aug6-only in the census (after act-parallel-control.c's span); PutWeapon by body ratio 0.89, callees 0.33, sizes 140/112
@@ -779,6 +788,7 @@ text subBoyCollision 0x0014EB80 0x0014FBA4 ico2/fumi/src/boyact.c lines=443  # a
 rdlit subBoyCollision 0x00552808 0x00552810 ico2/fumi/src/boyact.c  # target side
 rdlit subBoyCollision 0x00552810 0x00552920 ico2/fumi/src/boyact.c align=16  # jump table (target side)
 lit4 subBoyCollision 0x0062AD68 0x0062AD70 ico2/fumi/src/boyact.c # target side
+sdlit subBoyCollision 0x0062C420 0x0062C424 ico2/fumi/src/boyact.c  # target side: a float
 text actBoySwim 0x0014FBA8 0x0014FD94 ico2/fumi/src/boyact.c lines=46  # aug6-only in the census (after act-parallel-control.c's span); actBoySwim by body ratio 0.69, callees 0.89, sizes 628/492
 lit4 actBoySwim 0x0062AD70 0x0062AD74 ico2/fumi/src/boyact.c # target side
 text actBoyWalk 0x0014FD98 0x0014FF04 ico2/fumi/src/boyact.c lines=25  # aug6-only in the census (after act-parallel-control.c's span); actBoyWalk by body ratio 1.00, callees 1.00, sizes 364/364
@@ -872,6 +882,7 @@ text Boy_Init 0x001532D0 0x00153360 ico2/fumi/src/boyact.c lines=5  # trfile; au
 text ChangeMailInLadder 0x00153370 0x001535BC ico2/fumi/src/commonact.c local lines=58  # trfile; aug6-only in the census; PAL's ChangeMailInLadder (720 B in PAL)
 text _ACTCorrectMsg 0x001535C0 0x00153F9C ico2/fumi/src/commonact.c lines=297  # trfile; aug6-only in the census; PAL's _ACTCorrectMsg (2860 B in PAL)
 rdlit _ACTCorrectMsg 0x00552A70 0x00552B30 ico2/fumi/src/commonact.c  # target side
+sdlit _ACTCorrectMsg 0x0062C438 0x0062C43F ico2/fumi/src/commonact.c  # target side: a string
 text ACTGetOrientFromIntrK 0x00153FA0 0x00154648 ico2/fumi/src/commonact.c lines=108  # trfile; aug6-only in the census; PAL's ACTGetOrientFromIntrK (1828 B in PAL)
 text ACTRunIntrCorrect 0x00154648 0x001548C4 ico2/fumi/src/commonact.c lines=45  # trfile; aug6-only in the census; PAL's ACTRunIntrCorrect (632 B in PAL)
 sdlit ACTRunIntrCorrect 0x0062C440 0x0062C447 ico2/fumi/src/commonact.c  # 1 string
@@ -929,6 +940,7 @@ text getAvoidCollisionFlyLevel 0x00158178 0x001586E4 ico2/fumi/src/commonact.c  
 lit4 getAvoidCollisionFlyLevel 0x0062ADD4 0x0062ADEC ico2/fumi/src/commonact.c # target side
 text emergencyCheck.281 0x001586E8 0x00158994 ico2/fumi/src/commonact.c local file=emergencyCheck_281  # trfile; aug6-only in the census; PAL's emergencyCheck.284 (684 B in PAL); nested in its parent, gcc numbers it emergencyCheck.281 in this tree (PAL emergencyCheck.284)
 lit4 emergencyCheck.281 0x0062ADEC 0x0062ADF0 ico2/fumi/src/commonact.c file=emergencyCheck_281 # target side
+sdlit emergencyCheck.281 0x0062C470 0x0062C477 ico2/fumi/src/commonact.c file=emergencyCheck_281  # target side: a string
 text flyCoreLoop 0x00158998 0x00159138 ico2/fumi/src/commonact.c local lines=355  # trfile; aug6-only in the census; PAL's flyCoreLoop (3444 B in PAL)
 rdlit flyCoreLoop 0x00552CA8 0x00552E80 ico2/fumi/src/commonact.c  # target side
 lit4 flyCoreLoop 0x0062ADF0 0x0062ADF8 ico2/fumi/src/commonact.c # target side
@@ -1078,6 +1090,7 @@ text ACTCheckFlagAttack 0x0015D6C0 0x0015D6D4 ico2/fumi/src/commonact.c lines=4 
 text afterCommonTruckLever 0x0015D6D8 0x0015D704 ico2/fumi/src/commonact.c lines=5  # ordinal; first difference at insn 7; imm:1; extent-equal
 text setBattleStatus 0x0015D708 0x0015D818 ico2/fumi/src/enemy_act.c local lines=24  # ordinal; first difference at insn 5; imm:17; extent-equal
 rdlit setBattleStatus 0x00553110 0x00553140 ico2/fumi/src/enemy_act.c  # target side
+sdlit setBattleStatus 0x0062C4F8 0x0062C4FA ico2/fumi/src/enemy_act.c  # target side: a string
 text boss_effect_start 0x0015D818 0x0015D9C4 ico2/fumi/src/enemy_act.c local lines=23  # ordinal; first difference at insn 24; imm:8; extent-equal
 text boss_effect_check_parts 0x0015D9C8 0x0015DA0C ico2/fumi/src/enemy_act.c local lines=11  # ordinal; first difference at insn 2; imm:1; extent-equal
 text boss_effect_process 0x0015DA10 0x0015DB74 ico2/fumi/src/enemy_act.c local lines=30  # ordinal; first difference at insn 26; imm:8; extent-equal
@@ -1117,6 +1130,7 @@ text subEnemyBrain_ToBoy 0x00161038 0x001616E8 ico2/fumi/src/enemy_act.c lines=1
 rdlit subEnemyBrain_ToBoy 0x00553370 0x00553420 ico2/fumi/src/enemy_act.c  # target side
 rdlit subEnemyBrain_ToBoy 0x00553420 0x00553458 ico2/fumi/src/enemy_act.c align=16  # jump table (target side)
 lit4 subEnemyBrain_ToBoy 0x0062AEA8 0x0062AEAC ico2/fumi/src/enemy_act.c # target side
+sdlit subEnemyBrain_ToBoy 0x0062C508 0x0062C50C ico2/fumi/src/enemy_act.c  # target side: a float
 text ChangeBrain_ToKidnap.279 0x001616E8 0x001617A4 ico2/fumi/src/enemy_act.c local file=ChangeBrain_ToKidnap_279  # trfile; aug6-only in the census; PAL's ChangeBrain_ToKidnap.282 (188 B in PAL); nested in its parent, gcc numbers it ChangeBrain_ToKidnap.279 in this tree (PAL ChangeBrain_ToKidnap.282)
 text subEnemyBrain_ToGirl 0x001617A8 0x00161998 ico2/fumi/src/enemy_act.c lines=63  # trfile; aug6-only in the census; PAL's subEnemyBrain_ToGirl (496 B in PAL)
 rdlit subEnemyBrain_ToGirl 0x00553458 0x005534C8 ico2/fumi/src/enemy_act.c  # target side
@@ -1129,6 +1143,7 @@ data col.301 0x0027E9C0 0x0027E9D0 ico2/fumi/src/enemy_act.c local file=col_301 
 text actEnemyStart 0x00162298 0x001626D8 ico2/fumi/src/enemy_act.c lines=83  # aug6-only in the census (in enemy_act.c's span); actEnemyStart by body ratio 0.78, callees 0.90, sizes 1248/1088; obj-kind-data ENEMY1 start
 rdlit actEnemyStart 0x005534C8 0x005534E0 ico2/fumi/src/enemy_act.c  # target side
 lit4 actEnemyStart 0x0062AEB8 0x0062AEC0 ico2/fumi/src/enemy_act.c # target side
+sdlit actEnemyStart 0x0062C50C 0x0062C510 ico2/fumi/src/enemy_act.c  # target side: a float
 text subEnemyBrain_Irregular 0x001626D8 0x00162804 ico2/fumi/src/enemy_act.c lines=12  # aug6-only in the census (in enemy_act.c's span); subEnemyBrain_Irregular by body ratio 0.94, callees 0.60, sizes 268/300
 text subEnemyBrain_Attack 0x00162808 0x00162B68 ico2/fumi/src/enemy_act.c lines=27  # aug6-only in the census (in enemy_act.c's span); subEnemyBrain_Attack by body ratio 1.00, callees 1.00, sizes 864/864
 text subEnemyBrain_Cling 0x00162B68 0x00162CC4 ico2/fumi/src/enemy_act.c lines=27  # aug6-only in the census (in enemy_act.c's span); subEnemyBrain_Cling by body ratio 1.00, callees 1.00, sizes 348/348

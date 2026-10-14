@@ -219,10 +219,6 @@ void ACTGame_DisconnectHand_WithMail(void)
     debug_StdPrintfDummy("with mail\n");
 }
 
-void *floorGObj_ACTCheckCollis_WELL;
-
-void *wallGObj_ACTCheckCollis_WAY;
-
 /* the float is the last parameter */
 int ACTCheckView(GObj *self, void *target, void *targetPos, int range, float f)
 {
@@ -277,8 +273,6 @@ INCLUDE_ASM_LIT(ACTGameView_Add);
 INCLUDE_ASM(ACTGameView_Loop);
 
 INCLUDE_ASM(ACTGame_LwsEffectProcess);
-
-INCLUDE_ASM_LIT(ACTGame_GetNearestGObj);
 
 /* both absolute values are written as `((x) < 0 ? -(x) : (x))` */
 int _ACTGame_SearchGObj(GObj *self, GObj *tgt, float range, float height, int angle, float *out)
@@ -423,6 +417,8 @@ INCLUDE_ASM(ACTItemThrow_295);
 
 INCLUDE_ASM(ACTItemWatchMotion);
 
+INCLUDE_ASM_LIT(ACTGame_GetNearestGObj);
+
 INCLUDE_ASM(ACTGame_InsertCamera_GirlIsPinch);
 
 INCLUDE_ASM(updateHMC_308);
@@ -482,6 +478,12 @@ INCLUDE_ASM(ACTCheckCollis_WF);
 INCLUDE_ASM(ACTCheckCollis_W);
 
 INCLUDE_ASM(ACTCheckCollis_CI);
+
+/* the floor and the wall the last ACTCheckCollis_WELL and ACTCheckCollis_WAY
+   hit */
+void *floorGObj_ACTCheckCollis_WELL = 0;
+
+void *wallGObj_ACTCheckCollis_WAY = 0;
 
 INCLUDE_ASM(ACTCheckCollis_WELL);
 
