@@ -63,6 +63,8 @@ static short stageOrientIdx[128]; /* derived name */
 #include <string.h>
 #include "include_asm.h"
 
+INCLUDE_ASM_LIT(StageOrientInit);
+
 /* the matrix that places a stage at its orient record's anchor and angle,
    for GetStageDifferenceMatrix and StageOrientGet2 */
 static inline void MakeStageOrientMatrix(float *m, const StageOrientDef *p) /* derived name */

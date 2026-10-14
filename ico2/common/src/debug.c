@@ -827,6 +827,8 @@ void debug_Init(void)
     debug_makeBackImage();
 }
 
+INCLUDE_ASM_LIT(debug_GetTimerSec);
+
 INCLUDE_ASM(debug_Load);
 
 /* a GIF tag as the two 64-bit words the packet takes it in, on the
@@ -1079,6 +1081,8 @@ static DbgCol barLabelCol[1] = {{0x80, 0x80, 0x80, 0x60}}; /* derived name */
 
 /* clang-format off */
 INCLUDE_ASM(debug_DrawBar);
+
+INCLUDE_ASM_LIT(debug_SetBar);
 
 /* debug_SetBar with the inverted debug_profile_type gate (records only while the
    profiler flag is set). */
@@ -1377,6 +1381,10 @@ void debug_DispVu1FReg(int no, int mode)
     }
 }
 
+INCLUDE_ASM_LIT(debug_DispVu1IReg);
+
+INCLUDE_ASM_LIT(debug_DispVu1SReg);
+
 /* the value names debug_Mode logs a two-state option with */
 static char *modeValueName[] = {"Off", "On"}; /* derived name */
 
@@ -1456,6 +1464,10 @@ static inline int debug_mcAsk(char *msg) /* derived name */
     return yes;
 }
 
+INCLUDE_ASM_LIT(debug_mcFormat);
+
+INCLUDE_ASM_LIT(debug_mcUnformat);
+
 static int formatState = 0; /* derived name */
 
 static int formatBlink = 0; /* derived name */
@@ -1513,6 +1525,8 @@ static int selectFileState = 0; /* derived name */
 INCLUDE_ASM(debug_selectFile);
 
 inline void *debug_saveNumFunc(int no, void *mc);
+
+INCLUDE_ASM_LIT(debug_saveNumFunc);
 
 static int saveState = 0; /* derived name */
 
@@ -1654,11 +1668,15 @@ void debug_SESlotDisp(void)
 
 inline int debug_reverbTest(void);
 
+INCLUDE_ASM_LIT(debug_reverbTest);
+
 static int adpcmSelect = 0; /* derived name */
 
 static int adpcmHandle = -1; /* derived name */
 
 inline int debug_AdpcmTest(int first);
+
+INCLUDE_ASM_LIT(debug_AdpcmTest);
 
 static char *debugCdvdLoadInfoSegDispFunc(int idx, int page)
 {
@@ -1682,6 +1700,9 @@ static int loadInfoPage = 1; /* derived name */
 static int loadInfoSelect = 0; /* derived name */
 
 inline int debugCdvdLoadInfoSegDisp(void);
+
+INCLUDE_ASM_LIT(debugCdvdLoadInfoSegDisp);
+
 inline int debug_GameOver(void);
 inline int debug_EndingDemo(void);
 inline int debug_BackStageTest(void);
@@ -1731,6 +1752,8 @@ INCLUDE_ASM(debug_SelectActGobj);
 static int pad2GobjSelect = 0; /* derived name */
 
 inline int debug_SelectPad2ControlGobj(int reset);
+
+INCLUDE_ASM_LIT(debug_SelectPad2ControlGobj);
 
 static int debug_DispBox(int on)
 {
@@ -2000,6 +2023,8 @@ void debug_Menu_off(void)
 {
     menuState = 0;
 }
+
+INCLUDE_ASM_LIT(debugSceOpen);
 
 /* the file debugSceOpen has open */
 static int sceFd = -1; /* derived name */

@@ -234,7 +234,13 @@ static int point_insert(void)
 }
 
 inline int play_way(void);
+
+INCLUDE_ASM_LIT(play_way);
+
 inline int point_nige(void);
+
+INCLUDE_ASM_LIT(point_nige);
+
 inline int quick_save_wpfile(void);
 
 static int quick_load_wpfile(void)

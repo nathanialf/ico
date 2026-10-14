@@ -5,6 +5,8 @@
 #include "memory.h"
 #include "include_asm.h"
 
+INCLUDE_ASM_LIT(InitParticleLayoutGeo);
+
 INCLUDE_ASM(DeleteParticleLayout);
 
 INCLUDE_ASM(InitParticleLayoutGeo);

@@ -25,6 +25,8 @@ static inline GObj *createAttackCheckBoundaryGObj(SObjSimpleSetting *lay) /* der
     return CreateLayoutedGObj(63, 75, -1, 0, lay, -1, 7, 1);
 }
 
+INCLUDE_ASM_LIT(InitAttackCheckBoundaryGeo);
+
 /* The 12-byte work record this function allocates and the other members
    reach through the sub-object's 0x830: 0x4 is the hit flag AttackCheckBoundaryDL
    tests and the manager reads back and clears, 0x8 the attribute SetAttackCheckBoundaryAttribute stores, and 0x0

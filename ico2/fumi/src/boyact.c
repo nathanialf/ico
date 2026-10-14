@@ -70,6 +70,10 @@ INCLUDE_ASM(findChainInJump);
    never reads it */
 INCLUDE_ASM(CorrectOrient_RopeCliff);
 
+INCLUDE_ASM_LIT(afterBoyHand50);
+
+INCLUDE_ASM_LIT(actBoyHand50);
+
 /* The three climb headers (omori/include/b50climb.h, b100climb.h,
    b200climb.h) textually included here, as girl_act.c does with its own
    three: each defines the hand-off's after-routine and act-routine `inline`,
@@ -91,7 +95,11 @@ static inline void faceGirlFlat(void) /* derived name */
     SetMotionDirection(boy, dir);
 }
 
+INCLUDE_ASM_LIT(actBoyHand100);
+
 INCLUDE_ASM(motBoyHand100);
+
+INCLUDE_ASM_LIT(actBoyHand200);
 
 INCLUDE_ASM(motBoyHand200);
 
@@ -448,6 +456,8 @@ INCLUDE_ASM(subBoyCollision);
 
 inline void afterBoySwim(GObj *volatile self);
 
+INCLUDE_ASM_LIT(afterBoySwim);
+
 /* the record Act+0x680 points at, with the fields actBoyBelift and actBoySwim
    touch: the lift level and the lifted object, then the floating-box flag, the
    box GObj and the grip point, a four-float vector sceVu0ApplyMatrix takes
@@ -479,6 +489,8 @@ INCLUDE_ASM(actBoySwim);
 INCLUDE_ASM(actBoyWalk);
 
 INCLUDE_ASM(actBoyRun);
+
+INCLUDE_ASM_LIT(actBoyFall);
 
 /* the nearest enemy in front of the actor, which ACTSearchEnemy and
    actBoyAttack inline */
@@ -563,6 +575,8 @@ INCLUDE_ASM(actBoyRescueReady);
 
 INCLUDE_ASM(actBoyDitch3mReady);
 
+INCLUDE_ASM_LIT(RequestStageChangeKidnapEnd);
+
 /* as in camera-root.h, which this TU does not include (GetCurrentCameraSet2 differs) */
 extern void InsertCamera_SetNoraml(float *pos, float *tgt, int frames, int cutType);
 
@@ -616,6 +630,8 @@ INCLUDE_ASM(func_00151FC0);
 INCLUDE_ASM(func_00151FF0);
 
 INCLUDE_ASM(actBoyCliffHesitate);
+
+INCLUDE_ASM_LIT(actBoyCall);
 
 INCLUDE_ASM(actBoyHangBefore);
 

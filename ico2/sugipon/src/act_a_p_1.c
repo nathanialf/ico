@@ -32,6 +32,8 @@ typedef struct AP1Vec { /* field names derived */
 /* the two-letter tag GetAP1AIMode hands the debug display. */
 static char *ap1ModeTag[] = {"ST", "WA", "JM", "AT", "DE", "SL"}; /* derived name */
 
+INCLUDE_ASM_LIT(GetAP1AIMode);
+
 /* the fixed hop walkAI asks for when it is boxed in: straight down and
    two units forward. */
 static AP1Vec ap1BoxedInJump = {0.0f, -20.0f, 2.0f, 0.0f}; /* derived name */

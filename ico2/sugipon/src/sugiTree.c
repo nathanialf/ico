@@ -8,6 +8,8 @@
 #include "ios.h"
 #include "include_asm.h"
 
+INCLUDE_ASM_LIT(InitSugiLeafGeo);
+
 INCLUDE_ASM(SugiLeafGeo2);
 
 INCLUDE_ASM(SugiLeafDL2);

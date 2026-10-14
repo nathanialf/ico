@@ -24,6 +24,8 @@ typedef struct GirlForceFieldWork { /* field names derived */
    in; nothing reads it */
 static int forceFieldColor[4] = {64, 96, 128, 128}; /* derived name */
 
+INCLUDE_ASM_LIT(InitGirlForceFieldGeo);
+
 inline void GirlForceFieldGeo(void) {}
 
 /* the action table the layout rows select into */

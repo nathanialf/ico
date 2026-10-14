@@ -186,6 +186,8 @@ INCLUDE_ASM(AttackCheckHit);
 
 INCLUDE_ASM(AttackGenerate);
 
+INCLUDE_ASM_LIT(AttackCenter_WithDir);
+
 void EnemyAttackCenter(GObj *gobj) {}
 
 void BoyAttackCenter(GObj *gobj) {}

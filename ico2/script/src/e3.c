@@ -109,9 +109,13 @@ INCLUDE_ASM(actE3CageFallChk);
 
 INCLUDE_ASM(actE3CageFallDemo);
 
+INCLUDE_ASM_LIT(actE3CapsuleDemoEnd);
+
 INCLUDE_ASM(actE3CageFallEffect);
 
 INCLUDE_ASM(actE3St09aSekizo);
+
+INCLUDE_ASM_LIT(actE3St09aGirlWay);
 
 INCLUDE_ASM(actE3St09aSekizoChk);
 

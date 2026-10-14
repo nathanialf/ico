@@ -54,6 +54,8 @@ static int outputMode = 0; /* derived name */
 
 static int seSemiCommonLoaded = 0; /* derived name */
 
+INCLUDE_ASM_LIT(Ee2Iop);
+
 int soundInit(void)
 {
     int i;
@@ -162,6 +164,8 @@ static inline void seReqRelease(int ch) /* derived name */
         seReqChClear(req, ch);
 }
 
+INCLUDE_ASM_LIT(soundDataAreaGet);
+
 INCLUDE_ASM(soundDataOpenChk);
 
 INCLUDE_ASM(soundBufAlloc);
@@ -169,6 +173,8 @@ INCLUDE_ASM(soundBufAlloc);
 void soundBufSegFree(int seg, int mode);
 
 INCLUDE_ASM(soundBufSegFree);
+
+INCLUDE_ASM_LIT(soundBufAdpcmChAlloc);
 
 INCLUDE_ASM(soundBDDataSet);
 

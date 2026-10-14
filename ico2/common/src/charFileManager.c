@@ -137,6 +137,10 @@ static char *semiCommonHdBuf = 0; /* derived name */
 
 INCLUDE_ASM(ReadSoundHdFile);
 
+INCLUDE_ASM_LIT(ReadSoundSqFile);
+
+INCLUDE_ASM_LIT(ReadSoundAdpcmFile);
+
 typedef struct { /* field names derived */
     int mode;
     int bank;

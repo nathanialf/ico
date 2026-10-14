@@ -2,6 +2,7 @@
 #include "obj_manager.h"
 #include "debug_exception.h"
 #include <assert.h>
+#include "include_asm.h"
 
 /* Two static helpers, one sending the mail and returning its index or -1,
  * the other asserting the actor has a work block and returning its
@@ -39,8 +40,9 @@ static inline MailAdditionalData *getMailAdditionalDataTable(GObj *gop) /* deriv
     return GOBJ_ACT(gop)->mailAddData;
 }
 
+INCLUDE_ASM_LIT(ActSendMail_WithAdditionalData);
+
 #include "mail-add-data.h"
-#include "include_asm.h"
 
 INCLUDE_ASM(InitMailAdditionalData);
 

@@ -90,6 +90,10 @@ void funcGirlHandDisconnect(void)
     debug_StdPrintfDummy("--disconnect--\n");
 }
 
+INCLUDE_ASM_LIT(afterGirlHand50);
+
+INCLUDE_ASM_LIT(actGirlHand50);
+
 /* The three climb headers (omori/include/g50climb.h, g100climb.h,
    g200climb.h) textually included here: each defines the hand-off's
    after-routine and act-routine `inline`, which the compiler emits at the
@@ -97,7 +101,11 @@ void funcGirlHandDisconnect(void)
    emitted in place.  Their strings come out here, in this order. */
 INCLUDE_ASM(motGirlHand50);
 
+INCLUDE_ASM_LIT(actGirlHand100);
+
 INCLUDE_ASM(motGirlHand100);
+
+INCLUDE_ASM_LIT(actGirlHand200);
 
 INCLUDE_ASM(motGirlHand200);
 
@@ -860,6 +868,8 @@ extern int fptodp(float v);
 
 INCLUDE_ASM(subGirlCollision);
 
+INCLUDE_ASM_LIT(afterGirlHand);
+
 /* this TU's uses of GetHeightOfFieldPlaneDifference do not fit the
    prototype in motionManager2.h */
 
@@ -886,6 +896,18 @@ INCLUDE_ASM(actGirlPulledReady);
 INCLUDE_ASM(actGirlPulledGo);
 
 INCLUDE_ASM(actGirlDitch3mReady);
+
+INCLUDE_ASM_LIT(actGirlDitch3mExec);
+
+INCLUDE_ASM_LIT(actGirlStand);
+
+INCLUDE_ASM_LIT(actGirlWalk);
+
+INCLUDE_ASM_LIT(actGirlRun);
+
+INCLUDE_ASM_LIT(actGirlJump);
+
+INCLUDE_ASM_LIT(actGirlAttack);
 
 INCLUDE_ASM(actGirlReadyMove);
 

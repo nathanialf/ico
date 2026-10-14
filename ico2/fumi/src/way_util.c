@@ -248,6 +248,8 @@ int short_direction_between_wp(WayPoint *from, WayPoint *to)
     return dir;
 }
 
+INCLUDE_ASM_LIT(direction_across_bridge);
+
 /* the bridge between two groups, which waybridge_between_group and
    wgid_next inline */
 static inline WayGroup *bridgeBetweenGroups(int gidA, int gidB) /* derived name */

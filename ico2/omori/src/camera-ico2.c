@@ -600,6 +600,10 @@ static inline int findCameraGroupContaining(float *pos) /* derived name */
 
 INCLUDE_ASM(SetCameraMatrix_Ico2);
 
+INCLUDE_ASM_LIT(GetPluralCameraSet);
+
+INCLUDE_ASM_LIT(AddPluralCameraSet);
+
 /* the camera-set reallocator: a block sized for the set's groups and items,
    for ReadCameraSet's four call sites */
 static inline CamSetFile *allocCameraSet(CamSetFile *f) /* derived name */

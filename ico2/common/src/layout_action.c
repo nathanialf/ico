@@ -469,6 +469,12 @@ static int _la_set_current_port_new(McMgr *p, int first)
     return r;
 }
 
+INCLUDE_ASM_LIT(la_boot_no_memory_card);
+
+INCLUDE_ASM_LIT(la_boot_no_free_area);
+
+INCLUDE_ASM_LIT(keyconfig_reset);
+
 INCLUDE_ASM(la_vibe_select);
 
 int title_demo_mode = 0;
@@ -728,6 +734,8 @@ static int saveStep = 0; /* derived name */
 
 INCLUDE_ASM(la_save_processing);
 
+INCLUDE_ASM_LIT(la_save_confirm_complete);
+
 INCLUDE_ASM(la_end_confirm);
 
 static int deleteStep = 0; /* derived name */
@@ -746,6 +754,8 @@ static inline void releaseGameLoopCursor(void) /* derived name */
 int laoutActionPauseRequest = 0;
 
 INCLUDE_ASM(la_game_loop);
+
+INCLUDE_ASM_LIT(la_game_demo);
 
 static int gameOverVoice = 0; /* derived name */
 

@@ -172,6 +172,8 @@ INCLUDE_ASM(bga_SetCameraMatrix);
 
 INCLUDE_ASM(bga_InitData);
 
+INCLUDE_ASM_LIT(bga_InitSdfCamera);
+
 typedef struct BgaSdfKey { /* field names derived */
     /* 0x00 */ char pad00[4];
     /* 0x04 */ float pos[3];

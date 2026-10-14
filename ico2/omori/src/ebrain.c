@@ -70,6 +70,8 @@ static inline EBSlot *eBrainGetPacket(GObj *gop) /* derived name */
         return &ebrainSlots[i];
 }
 
+INCLUDE_ASM_LIT(eBrainStatusSet);
+
 static EBSlot *boyTargets[32]; /* derived name */
 
 static EBSlot *girlTargets[32]; /* derived name */

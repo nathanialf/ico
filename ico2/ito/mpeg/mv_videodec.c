@@ -16,6 +16,9 @@
 static void Free(int addr);
 
 /* the MPEG library's callbacks, which videoDecCreate registers */
+
+INCLUDE_ASM_LIT(mpegError);
+
 static void free_buf(VideoDec *self)
 {
     Free(self->buf);

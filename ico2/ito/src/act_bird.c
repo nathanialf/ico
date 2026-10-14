@@ -187,6 +187,8 @@ void BirdGeo(void *self)
 
 INCLUDE_ASM(BirdDL);
 
+INCLUDE_ASM_LIT(InitBirdGeo);
+
 inline void BirdAI(void) {}
 
 void _ACTSendMailToBird(void *obj, int mail, void *data)

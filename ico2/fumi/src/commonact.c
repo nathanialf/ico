@@ -321,6 +321,8 @@ static inline int chainFloorHit(GObj *self, ClipWork *w) /* derived name */
     return 0;
 }
 
+INCLUDE_ASM_LIT(afterCommonRope);
+
 INCLUDE_ASM(actCommonRope);
 
 /* the turn to the chain's corrected orient, which SetCorrectOrientOfChain
@@ -458,9 +460,13 @@ static void EBRAIN_SEND_MES(void *enemy, int mes)
         eBrainSendMes(enemy, mes);
 }
 
+INCLUDE_ASM_LIT(actCommonPlay);
+
 INCLUDE_ASM(DamageFunc);
 
 INCLUDE_ASM(DownFunc);
+
+INCLUDE_ASM_LIT(actCommonDamage);
 
 INCLUDE_ASM(actCommonDown);
 
@@ -473,6 +479,8 @@ INCLUDE_ASM(actCommonCling);
 INCLUDE_ASM(actCommonSlip);
 
 INCLUDE_ASM(actCommonStoneDead);
+
+INCLUDE_ASM_LIT(actCommonRevive);
 
 typedef struct { /* field names derived */
     char pad0[20];
@@ -520,6 +528,8 @@ static inline int boxWallCheck(GObj *self, GObj *box, float dist, int h) /* deri
 }
 
 INCLUDE_ASM(actCommonBox);
+
+INCLUDE_ASM_LIT(afterCommonBar);
 
 typedef struct { /* field names derived */
     char pad0[448];
@@ -738,6 +748,8 @@ static inline unsigned char IsFlyTimeOver(int self) /* derived name */
     return 0;
 }
 
+INCLUDE_ASM(col_274);
+
 INCLUDE_ASM(getLandOffset_262);
 
 INCLUDE_ASM(getAvoidCollisionFlyLevel);
@@ -768,12 +780,30 @@ typedef struct { /* field names derived */
 
 INCLUDE_ASM(actCommonLadder);
 
+INCLUDE_ASM_LIT(actCommonCliffdown);
+
+INCLUDE_ASM_LIT(actCommonShoal);
+
+INCLUDE_ASM_LIT(actCommonSwim);
+
+INCLUDE_ASM_LIT(actCommonDodge);
+
+INCLUDE_ASM_LIT(actCommonGuard);
+
 /* inline tail members, defined here: their strings come between the
    flyCoreLoop unit's and funcCommonBeginReady's in .rodata, while their code
    goes to the end of the object */
 #undef LADW
 
 INCLUDE_ASM(actCommonEdgeHang);
+
+INCLUDE_ASM_LIT(motCommonHangNone);
+
+INCLUDE_ASM_LIT(motCommonHangWall);
+
+INCLUDE_ASM_LIT(motCommonHangCliff);
+
+INCLUDE_ASM_LIT(motCommonNull);
 
 INCLUDE_ASM(funcCommonBeginReady);
 
@@ -903,6 +933,12 @@ static inline int isRopeDownEndOnFloor(GObj *self) /* derived name */
     }
     return 0;
 }
+
+INCLUDE_ASM_LIT(motCommonTruckLeverLoop);
+
+INCLUDE_ASM_LIT(motCommonTruckLeverPull);
+
+INCLUDE_ASM_LIT(motCommonTruckLeverPush);
 
 typedef struct { /* field names derived */
     char pad0[304];

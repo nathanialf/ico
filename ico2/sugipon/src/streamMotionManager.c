@@ -147,6 +147,8 @@ static SMotion emptyEntry = {0, 0, -1, -1, -1, {0}, 0}; /* derived name */
 
 INCLUDE_ASM(_deleteStreamMotionManager);
 
+INCLUDE_ASM_LIT(GetDataSizeOfStreamMotion);
+
 static void getStreamMotionData(char *dst, int off, int no);
 
 typedef struct { /* field names derived */

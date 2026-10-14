@@ -200,6 +200,14 @@ void scpSetCageVelocityFriction(int id, float friction)
     debug_StdPrintfDummy("ぶら下がりオブジェクトが見つかりません。(scpSetCageVelocityFriction)\n");
 }
 
+INCLUDE_ASM_LIT(scpGetRotObjectRotCount);
+
+INCLUDE_ASM_LIT(scpIsRotObjectZPlusDirInclude);
+
+INCLUDE_ASM_LIT(scpLinkBGAtoLayoutedTargetSkeltonWithLocalRotationFlag);
+
+INCLUDE_ASM_LIT(scpGetWallCollision);
+
 void scpPlayMotDir(GObj *self, float *dir)
 {
     sceVu0Normalize(dir, dir);

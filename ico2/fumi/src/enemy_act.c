@@ -312,7 +312,19 @@ static inline unsigned char isEnemyCarriedByGirl(GObj *self) /* derived name */
 
 INCLUDE_ASM(subEnemyCollision);
 
+INCLUDE_ASM_LIT(motEnemyStand);
+
+INCLUDE_ASM_LIT(motEnemyWalk);
+
+INCLUDE_ASM_LIT(motEnemyRun);
+
+INCLUDE_ASM_LIT(actEnemyJump);
+
 INCLUDE_ASM(actEnemyAttack);
+
+INCLUDE_ASM_LIT(actEnemyHyde);
+
+INCLUDE_ASM_LIT(isEnemyActive);
 
 /* A static inline shared by actEnemyRestart and actEnemyStart.  `max` is a
    local holding 43. */
@@ -621,6 +633,8 @@ static inline int flyLimitMail(GObj *self, float *rp) /* derived name */
     flyMailCore(self);
     return 1;
 }
+
+INCLUDE_ASM(col_301);
 
 INCLUDE_ASM(_ApproachTarget_Way);
 

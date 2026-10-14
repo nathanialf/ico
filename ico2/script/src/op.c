@@ -113,6 +113,8 @@ static ActMail opDemo03_mes[2] = {{430}, {429}}; /* derived name */
 
 INCLUDE_ASM(actTitleReadTimeDemo0);
 
+INCLUDE_ASM_LIT(actSt26aConte01_1_newgame);
+
 INCLUDE_ASM(actOpDemo01_2);
 
 INCLUDE_ASM(actOpDemo01_2Chk);

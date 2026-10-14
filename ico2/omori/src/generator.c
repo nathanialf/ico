@@ -135,11 +135,17 @@ inline int IsEnableCallEnemyByTargetGObj(GObj *gobj)
     return 0;
 }
 
+INCLUDE_ASM_LIT(DirectCallEnemy);
+
 GObj *CallEnemy(GObj *mother, float *pos, float *dir, int kind);
 
 INCLUDE_ASM(IsNeedGenerator);
 
 INCLUDE_ASM(CallEnemy);
+
+INCLUDE_ASM_LIT(LockEnemyGenerate);
+
+INCLUDE_ASM_LIT(UnlockEnemyGenerate);
 
 INCLUDE_ASM(Generator_QuickCall);
 
