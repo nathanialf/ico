@@ -19,7 +19,6 @@
 #include "motionManager2.h"
 #include <libvu0.h>
 #include <assert.h>
-#include "include_asm.h"
 
 /* The head of one stream motion frame GetStreamShapeMotion reads the shape
    weights from: the weights follow the 16-byte head and skipNum 8-byte words,
@@ -980,7 +979,44 @@ static inline float getSlopeRatio(float d, float rate) /* derived name */
     return (r > 0.3f) ? r : 0.3f;
 }
 
-INCLUDE_ASM(SlopeIKControl);
+void SlopeIKControl(GObj *self, char *mot, float *v, Vec4 *vel, int n)
+{
+    struct MotCtrl *ik;
+    struct MotRoot *sub;
+    int n0;
+    int n1;
+    int rec;
+    float d;
+    float r0 = 1.0f;
+    float r1 = 1.0f;
+
+    ik = &GOBJ_SUB(self)->ctrl;
+    sub = &GOBJ_SUB(self)->root;
+    if (ik->rootUpdateMode < 3) {
+        if (ik->rootUpdateMode > 0) {
+            if (sub->slopeIK != 0) {
+                n0 = GOBJ_SUB(self)->focusNodes[49];
+                n1 = GOBJ_SUB(self)->focusNodes[45];
+                if (n0 != -1 && n1 != -1) {
+                    SkelNode *skel = GOBJ_SUB(self)->skel;
+
+                    calcFootIK(skel, mot, n0, GOBJ_SUB(self)->nodes->scale[0], sub->footIKRate);
+                    calcFootIK(skel, mot, n1, GOBJ_SUB(self)->nodes->scale[0], sub->footIKRate);
+                    vel->f[0] = vel->f[0] * sub->footIKRate;
+                    vel->f[2] = vel->f[2] * sub->footIKRate;
+                }
+                d = getSlopeDifference(self, mot, GOBJ_SUB(self));
+                rec = ik->motion;
+                r1 = getSlopeRatio(d, motionKind[rec].rate0);
+                r0 = getSlopeRatio(d, motionKind[rec].rate1);
+            }
+        }
+    }
+    sub->footIKRate = sub->footIKRate +
+                      (r1 - sub->footIKRate) *
+                          (60.0f / (float)((60 - systemStatus[0] * 10) / systemStatus[1]) * 0.1f);
+    ik->playRate = (r0 > 1.0f) ? 1.0f : r0;
+}
 
 static const char motMan2File[] = __FILE__; /* derived name */
 

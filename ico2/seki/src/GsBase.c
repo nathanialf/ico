@@ -353,7 +353,7 @@ void gsb_SetMotionBlur(void)
 
 /* gsb_scissorOnDemo's state: the demo state it last saw, the band level and
    its step */
-static int scissorLastState = 54; /* derived name */
+static int scissorLastState = 51; /* derived name */
 
 static float scissorLevel = 0.0f; /* derived name */
 
@@ -771,20 +771,6 @@ void gsb_InitGSSystem(void)
     gsSystemReady = 1;
     screenOffsetX = screenOffsetY = 0;
 }
-
-/* Six zero words between gsb_InitGSSystem's flag and gsb_SyncGSSystem's
-   counter: nothing reads or writes them. */
-static int gsbUnused0 = 0; /* derived name */
-
-static int gsbUnused1 = 0; /* derived name */
-
-static int gsbUnused2 = 0; /* derived name */
-
-static int gsbUnused3 = 0; /* derived name */
-
-static int gsbUnused4 = 0; /* derived name */
-
-static int gsbUnused5 = 0; /* derived name */
 
 /* the frames gsb_SyncGSSystem has waited on the GS */
 static int syncRetry = 0; /* derived name */

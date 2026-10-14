@@ -43,7 +43,6 @@ extern int exit_no;
 extern int motionFrameUpdate;
 extern int interlace;
 extern int thisIsYourStartStage;
-extern int NonLinearCameraMove;
 extern int GlobalTimer;
 extern int lock_execIcoMisc;
 extern int graphics_ready;

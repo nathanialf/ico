@@ -11,7 +11,6 @@
 #include "main.h"
 #include "motionManager2.h"
 #include "frameDependSequence.h"
-#include "include_asm.h"
 
 static int execSE(int no, void *entry);
 static int checkWaterDepth(struct GObj *gobj, int depth);
@@ -170,6 +169,22 @@ static int playSEConditionID(int no, void *entry)
     return 0;
 }
 
+static inline int execSE(int no, void *entry)
+{
+    if (no <= 0xFFFF) {
+        return playSE(no);
+    } else if (no <= 0x1FFFF) {
+        return playSERandomID(no - 0x10000, entry);
+    } else {
+        return playSEConditionID(no - 0x20000, entry);
+    }
+    /* the bad-ID report, switched off */
+    if (0) {
+        /* EUC-JP: "an SE with a strange ID(%d) was called" */
+        debug_StdPrintfDummy("おかしなID(%d)のSEがコールされました\n", no);
+    }
+}
+
 static void playEff(int no)
 {
     float q[4];
@@ -304,7 +319,46 @@ static inline void fireFDSSlot(float t, int no, void *entry, int *done,
     }
 }
 
-INCLUDE_ASM(ExecFrameDependSequence);
+void ExecFrameDependSequence(GObj *gobj)
+{
+    Sub15C *w;
+    struct MotCtrl *p;
+    int i;
+
+    w = GOBJ_SUB(gobj);
+    p = &w->ctrl;
+    fdsGObj = (char *)gobj;
+    fdsLayout = p;
+    fdsWork = &w->root;
+    fdsFlags = (FDSFlags *)w->fdsFlags;
+    fdsRecord = &motionKind[p->motion];
+    fdsVolume = 1.0f;
+
+    for (i = 0; i < 12; i++) {
+        if (fdsFlags->seDone[i] == 0) {
+            fireFDSSlot(fdsRecord->se[i].t, fdsRecord->se[i].no, 0, &fdsFlags->seDone[i], execSE);
+        }
+    }
+    for (i = 0; i < 2; i++) {
+        if (fdsFlags->vibDone[i] == 0) {
+            fireFDSSlot(fdsRecord->vib[i].t, fdsRecord->vib[i].no, &fdsFlags->vibEntry[i],
+                        &fdsFlags->vibDone[i], execVib);
+        }
+    }
+    if (CheckFloorAttribute((GObj *)fdsGObj, 0x40000) == 0) {
+        for (i = 0; i < 12; i++) {
+            if (fdsFlags->effDone[i] == 0) {
+                fireFDSSlot(fdsRecord->eff[i].t, fdsRecord->eff[i].no, 0, &fdsFlags->effDone[i],
+                            execEff);
+            }
+        }
+    }
+    if (GOBJ_SUB(gobj)->ctrl.pickedWeapon != 0) {
+        if (fdsFlags->weaponDone == 0) {
+            fireFDSSlot(fdsRecord->weaponFrame, 0, 0, &fdsFlags->weaponDone, execWeaponLightOff);
+        }
+    }
+}
 
 static inline int *findSEPackage(int no, int id) /* derived name */
 {
@@ -345,13 +399,35 @@ static inline int setSEEnvironment(GObj *gobj, int id) /* derived name */
     return no;
 }
 
-static void executeSEPackageByGObj(GObj *gobj, int no, int grp);
+static void executeSEPackageByGObj(GObj *gobj, int no, int grp)
+{
+    int id;
+    int *p;
+    int i;
 
-INCLUDE_ASM(executeSEPackageByGObj);
+    id = setSEEnvironment(gobj, grp);
+    p = findSEPackage(no, id);
+    for (i = 0; i < 2; i++) {
+        execSE(p[i], 0);
+    }
+}
 
-static void executeSEPackageWithNoGObj(int no);
+static void executeSEPackageWithNoGObj(int no)
+{
+    int *p;
+    int i;
 
-INCLUDE_ASM(executeSEPackageWithNoGObj);
+    p = findSEPackage(no, -1);
+    for (i = 0; i < 2; i++) {
+        if (p[i] != 0) {
+            soundSeDefPlay(p[i], 0xFFFFFFFF, 0, 1);
+            if (debug_seslotdisp_flag != 0) {
+                debug_StdPrintfDummy("SE \033[33m\"%s\"\033[m CALLED with GROUP:\033[33m%d\033[m\n",
+                                     &seDef[p[i]], 0xFFFFFFFF);
+            }
+        }
+    }
+}
 
 void ExecuteSEPackageWithGroupVariation(GObj *gobj, int id, int grp)
 {
@@ -407,9 +483,17 @@ void InitFrameDependSequence(void *flags)
     }
 }
 
-INCLUDE_ASM(ExecuteDirectSEWithGroupVariation);
+static int ExecuteDirectSEWithGroupVariation(GObj *gobj, int id, int grp)
+{
+    setSEEnvironment(gobj, id);
+    return execSE(id, 0);
+}
 
-INCLUDE_ASM(ExecuteDirectSE);
+int ExecuteDirectSE(GObj *gobj, int id)
+{
+    setSEEnvironment(gobj, id);
+    return execSE(id, 0);
+}
 
 void StopFDSVibration(void *flags)
 {
@@ -424,16 +508,49 @@ void StopFDSVibration(void *flags)
     }
 }
 
+static inline int checkWaterDepth(GObj *gobj, int depth)
+{
+    return (int)GOBJ_SUB(gobj)->ctrl.waterDepth < depth;
+}
+
+static inline int checkModelDataID(GObj *gobj, int id)
+{
+    return GOBJ_SUB(gobj)->modelId == id;
+}
+
+static inline int checkWeaponType(GObj *gobj, int kind)
+{
+    GObj *w = GOBJ_SUB(gobj)->ctrl.pickedWeapon;
+    if (w != 0 && CheckWeaponKind(w) == kind) {
+        return 1;
+    }
+    return 0;
+}
+
+static inline int execVib(int no, void *entry)
+{
+    if (no <= 0xFFFF) {
+        if (no > 0) {
+            iosPadActRequest(boyPad, no);
+        }
+    } else if (no > 0x1FFFF) {
+        execVibCondition(no - 0x20000, entry);
+    }
+    return 1;
+}
+
 /* a frame slot's handler: it is passed the slot's number and entry, which it does not read */
-
-INCLUDE_ASM(execSE);
-
-INCLUDE_ASM(checkWaterDepth);
-
-INCLUDE_ASM(checkModelDataID);
-
-INCLUDE_ASM(checkWeaponType);
-
-INCLUDE_ASM(execVib);
-
-INCLUDE_ASM(execWeaponLightOff);
+static inline int execWeaponLightOff(int no, void *entry)
+{
+    Sub15C *p;
+    GObj *q;
+    p = GOBJ_SUB(fdsGObj);
+    q = p->ctrl.pickedWeapon;
+    if (q != 0) {
+        if (CheckWeaponKind(q) == 1) {
+            Sub15C *r = GOBJ_SUB(fdsGObj);
+            LightTorchOffOfWeapon(r->ctrl.pickedWeapon);
+        }
+    }
+    return 1;
+}

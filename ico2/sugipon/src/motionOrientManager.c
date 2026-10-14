@@ -148,13 +148,65 @@ static inline void checkMotionKind(int i, int j) /* derived name */
     }
 }
 
-int GetNbMotionFrames(int id);
+int GetNbMotionFrames(int id)
+{
+    int m;
+    int n;
 
-INCLUDE_ASM(GetNbMotionFrames);
+    if (motionKind[id].blendKind == 320) {
+        return *motionTable[id];
+    }
+    m = blendMotionKind[motionKind[id].blendKind].motion;
+    n = blendMotionKind[motionKind[id].blendKind].frames;
+    checkMotionKind(m, id);
+    if (n != -1) {
+        return n;
+    }
+    return *motionTable[m];
+}
 
-INCLUDE_ASM(GetMotionPlaySpeedRatio);
+float GetMotionPlaySpeedRatio(int id)
+{
+    int m;
 
-INCLUDE_ASM(execFrameTrigger);
+    if (motionKind[id].blendKind == 320) {
+        return motionKind[id].playSpeedRatio;
+    }
+    m = blendMotionKind[motionKind[id].blendKind].motion;
+    checkMotionKind(m, id);
+    return motionKind[m].playSpeedRatio;
+}
+
+static void execFrameTrigger(void *self)
+{
+    struct MotCtrl *w = &MOWORK(self)->ctrl;
+    float t;
+
+    t = (float)motionKind[w->motion].triggerStart;
+    if (0.0f <= t) {
+        if (w->trigger1Done == 0) {
+            if (t < w->animFrame) {
+                w->trigger1 = 1;
+                w->trigger1Done = 1;
+            } else {
+                w->trigger1 = 0;
+            }
+        } else {
+            w->trigger1 = 0;
+        }
+    }
+    t = (float)motionKind[w->motion].trigger2Start;
+    if (0.0f <= t) {
+        if (w->trigger2Done != 0) {
+            w->trigger2 = 0;
+        } else if (t < w->animFrame) {
+            w->trigger2 = 1;
+            w->trigger2Done = 1;
+        } else {
+            w->trigger2 = 0;
+        }
+    }
+}
 
 /* inlined here and in UpdateFrameCounter; the store order is the
  * source's own */
@@ -571,9 +623,78 @@ enum DebugDisplayMode {
 }; /* derived name */
 
 extern enum DebugDisplayMode debug_bar_flag;
-static void getShapeGeometry(void *self);
 
-INCLUDE_ASM(getShapeGeometry);
+static void getShapeGeometry(void *self)
+{
+    struct MotCtrl *m = &GOBJ_SUB(self)->ctrl;
+
+    if (motionKind[m->motion].blendKind == 320) {
+        void *mot = motionTable[m->motion];
+
+        if (CheckMotionIncludeFacialData(mot) == 0) {
+            int n = **(int **)((char *)mot + 0x10);
+            float buf[n];
+            int i;
+
+            GetFloatingShapeMotion(buf, mot, m->animFrame, n);
+            if (n != 0) {
+                int cnt = GOBJ_SUB(self)->morphNum;
+
+                if (cnt != 0) {
+                    if (cnt != n) {
+                        /* EUC-JP: "the shape motion data and the number of targets differ; motion: %d target: %d" */
+                        debug_StdPrintfDummy(
+                            "シェイプモーションデータとターゲットの数が違います。\nモーション:%d ターゲット:%d\n",
+                            n, cnt);
+                    }
+                    for (i = 0; i < n; i++) {
+                        float x = buf[i] * 0.01f;
+                        int *p = (int *)(i * 4 + *(int *)((char *)GOBJ_SUB(self) + 0x838));
+
+                        if (x < 0.0f) {
+                            if (0.0001f < -x) {
+                                *(float *)p = x;
+                            } else {
+                                *p = 0;
+                            }
+                        } else {
+                            if (0.0001f < x) {
+                                *(float *)p = x;
+                            } else {
+                                *p = 0;
+                            }
+                        }
+                    }
+                } else {
+                    /* EUC-JP: "no place is reserved to store the handover data" */
+                    debug_StdPrintfDummy("受渡しデータを格納する場所が確保されていません。\n");
+                }
+                if (debug_bar_flag != 0) {
+                    gif_StartPacketPri(11);
+                    {
+                        int p1[4];
+                        int p2[4];
+                        MotOriCol4 c0 = {{64, 32, 0, 128}};
+                        MotOriCol4 c1 = {{255, 128, 0, 128}};
+
+                        gif_SetAlpha(1, 5, 128);
+                        for (i = 0; i < n; i++) {
+                            p1[0] = (ScreenWidth / 2 + 1824) << 4;
+                            p2[0] = (ScreenWidth / 2 + 2024) << 4;
+                            p1[1] = p2[1] = (ScreenHeight / 2 - n * 6 + 2024 + i * 6) << 4;
+                            Draw2DLine(p1, p2, (int *)c0.c, -1);
+                            p1[0] = p2[0] = (ScreenWidth / 2 + (int)buf[i] + 1924) << 4;
+                            p1[1] = (ScreenHeight / 2 - n * 6 + 2025 + i * 6) << 4;
+                            p2[1] = (ScreenHeight / 2 - n * 6 + 2028 + i * 6) << 4;
+                            Draw2DLine(p1, p2, (int *)c1.c, -1);
+                        }
+                        gif_EndPacket();
+                    }
+                }
+            }
+        }
+    }
+}
 
 /* both stream-geometry functions inline it (once and twice) */
 static inline int getStreamVec(void *self, void *sm, float *v, void *mot) /* derived name */

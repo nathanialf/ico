@@ -677,7 +677,49 @@ static inline int enemyKidnapCheckGirl(GObj *self) /* derived name */
     return mode;
 }
 
-INCLUDE_ASM(actEnemyKidnapBegin);
+void actEnemyKidnapBegin(GObj *volatile self)
+{
+    Act *sub = GOBJ_ACT(self);
+    float *dir = (float *)((char *)sub + 0x120);
+    int mail = 0x163;
+    int mode;
+
+    while (1) {
+        if (GOBJ_SUB(self)->ctrl.motion == 0x3AA) {
+            _OrientXZGV(dir, test_CURRENTROOT((girlGObj)), test_CURRENTROOT(self));
+            if (0.1f < sub->stick.mag && sub->actMode != 0x73) {
+                SetMotionDirectionSmooze(
+                    (void *)self, dir,
+                    (float)((self == girlGObj && girlControlMode != 0)
+                                ? motionKind[GOBJ_SUB(self)->ctrl.motion].girlDirFrames
+                                : motionKind[GOBJ_SUB(self)->ctrl.motion].dirFrames));
+            }
+            mode = enemyKidnapCheckGirl(self);
+            switch (mode) {
+            case 1:
+                mail = 0x164;
+                /* fallthrough */
+            case 2:
+                if (actEnemyForceSwitchToCarry((void *)self) != 0) {
+                    if (mode == 1) {
+                        sceVu0ScaleVector((float *)((char *)GOBJ_ACT(girlGObj) + 0x120),
+                                          (float *)((char *)GOBJ_ACT(girlGObj) + 0x120), -1.0f);
+                        SetMotionDirection((void *)((char *)girlGObj),
+                                           (float *)((char *)GOBJ_ACT(girlGObj) + 0x120));
+                    }
+                    ACTGame_InsertCamera_GirlIsPinch();
+                    while (1) {
+                        ACTSendMailCorrect((void *)self, mail);
+                        _ACTWait(1);
+                    }
+                }
+                break;
+            }
+            ACTSendMailCorrect((void *)self, 0x165);
+        }
+        _ACTWait(1);
+    }
+}
 
 static void MoveChestForCatchBoy(GObj *self)
 {
@@ -875,8 +917,6 @@ static inline int getEnemyBrainMes(char *self, int *data) /* derived name */
     *data = (int)t->target;
     return t->status;
 }
-
-static void CheckEnemyBrainMode(char *self, int *outMode, int *outData);
 
 INCLUDE_ASM(CheckEnemyBrainMode);
 

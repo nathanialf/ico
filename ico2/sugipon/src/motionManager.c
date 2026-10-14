@@ -960,7 +960,91 @@ typedef struct MotHdrTag MotHdr; /* derived name */
    union, as motionOrientManager.c reads it */
 #define MOWORK(self) (((SubHandle *)&((GObj *)(self))->dobj)->sub) /* derived name */
 
-INCLUDE_ASM(GetGeometryOfMotion);
+void GetGeometryOfMotion(void *self, void *m0, void *m1, float *v, float r, float *step, int k)
+{
+    ObjNode sh;
+    float v2[4];
+
+    sh = MOWORK(self)->parent;
+    stepFocusNode = k;
+    if ((char *)MOWORK(self)->local.obj != 0) {
+        MOWORK(self)->localPos[3] = 1.0f;
+        CopyVector(v2, MOWORK(self)->localPos);
+        sceVu0ApplyMatrix(
+            (int *)v2, GOBJ_SUB(MOWORK(self)->local.obj)->nodeMtx + MOWORK(self)->local.node * 64,
+            (char *)v2);
+    } else {
+        AddVectorXYZ(MOWORK(self)->localPos, MOWORK(self)->localPos, MOWORK(self)->localMove);
+        CopyVector(v2, MOWORK(self)->localPos);
+    }
+    v2[1] = v2[1] + MOWORK(self)->localHeight;
+    v2[3] = 1.0f;
+    UnlinkParentOfDObj(self);
+
+    skelNodeNum = MOWORK(self)->skelNodeNum;
+    {
+        float wk0[skelNodeNum][4], wk1[skelNodeNum][4];
+
+        skelGObj = (int)self;
+        nodePos = (char *)wk0;
+        nodePos2 = (char *)wk1;
+        skelMotion = m0;
+        skelMotion2 = m1;
+        skelScale = MOWORK(self)->nodes->scale[0];
+        skelRoot = &MOWORK(self)->root;
+        skelMotCtrl = &MOWORK(self)->ctrl;
+        skelNode = MOWORK(self)->skel;
+        skelMotDef = &motionKind[skelMotCtrl->motion];
+        CopyVector(rootMove, v);
+        CopyVector(rootStep, step);
+        skelMotCtrl->flags = 0;
+        sceVu0SubVector(rootDelta, skelRoot->last, skelRoot->clipFrom);
+        if (MOWORK(self)->ctrl.keepStand != 0) {
+            ObjNode tmp;
+            getGeometryOfMotion(&tmp, r != 1.0f);
+        } else {
+            getGeometryOfMotion(&sh, r != 1.0f);
+        }
+        CopyVector(skelRoot->clipFrom, skelRoot->last);
+        if (MOWORK(self)->ctrl.noStand == 1) {
+            sh = InitialObjPointer;
+        }
+        AddVectorXYZ(MOWORK(self)->motionPos, skelRoot->pos, skelRoot->trans);
+        MOWORK(self)->motionPos[3] = 1.0f;
+        MOWORK(self)->motionPos[1] = MOWORK(self)->motionPos[1] * r + v2[1] * (1.0f - r);
+        GetMatrixOfMotion(self, m1, MOWORK(self)->motionPos);
+    }
+    if (debug_wallcheck_flag != 0) {
+        gif_StartPacketPri(11);
+        gif_SetAlpha(1, 5, 128);
+        gif_SetZTest(0);
+        gif_EndPacket();
+        dispPlane(MOWORK(self)->root.plane.f, MOWORK(self)->root.pos);
+        gif_StartPacketPri(11);
+        gif_SetZTest(1);
+        gif_EndPacket();
+    }
+    skelRoot->last[3] = 1.0f;
+    skelRoot->clipFrom[3] = 1.0f;
+    skelRoot->pos[3] = 1.0f;
+    skelRoot->move[3] = 0.0f;
+    if (sh.obj != 0) {
+        LinkParentOfDObj(self, &sh);
+        if (GOBJ_SUB(sh.obj)->rideFunc != 0) {
+            GOBJ_SUB(sh.obj)->rideFunc(&sh, self);
+        }
+    } else {
+        MOWORK(self)->root.pos[1] = MOWORK(self)->root.pos[1] - MOWORK(self)->root.height;
+        MOWORK(self)->root.last[1] = MOWORK(self)->root.last[1] - MOWORK(self)->root.height;
+    }
+    MOWORK(self)->motionPos[1] = MOWORK(self)->motionPos[1] - skelRoot->height;
+    if (sh.obj != 0) {
+        float m[16];
+        MatrixDrive_SetTransposeMatrix((void *)m, GOBJ_SUB(sh.obj)->nodeMtx + sh.node * 64);
+        sceVu0ApplyMatrix((MOWORK(self)->motionPos), m, MOWORK(self)->motionPos);
+    }
+    execPositionReserver(self, sh);
+}
 
 /* GObj+8 is the index into objLayout, the 76-byte GenGeo table (ebrain.c
    types that array `GenGeo objLayout[]`; enemy_act.c indexes it with the same

@@ -1360,13 +1360,197 @@ typedef struct { /* field names derived */
     int _2C;
 } __attribute__((aligned(16))) BoyMoveOrder; /* derived name */
 
-INCLUDE_ASM(actBoyReadyMove);
+void actBoyReadyMove(GObj *volatile self)
+{
+    Act *sub = GOBJ_ACT(self);
+    BoyMoveOrder ord = *(BoyMoveOrder *)((char *)GOBJ_ACT(self)->intrData);
 
-INCLUDE_ASM(actBoyRescueReady);
+    while (1) {
+        if ((((void *)self == girlGObj && girlControlMode != 0)
+                 ? (GOBJ_SUB(self)->ctrl.motion + motionKind)->girlDirFrames
+                 : (GOBJ_SUB(self)->ctrl.motion + motionKind)->dirFrames) == 0) {
+            SetMotionDirectionSmooze(self, ord.dir, 10.0f);
+        } else {
+            _ACTMotDirSmzDirect((void *)self, ord.dir);
+        }
+        if (ord.fix) {
+            sub->wish3.ll |= 0x80000;
+            sub->wish3.ll |= 0x40;
+        }
+        if (ord.frames-- < 0) {
+            ACTSendMailCorrect(self, 0x10A);
+        }
+        if (_DistxzSqGV(test_CURRENTROOT((void *)self), &ord) < ord.range * ord.range) {
+            ACTSendMailCorrect(self, 0x10A);
+        }
+        if (0.1f < sub->stick.mag && 100 < _AbsRotyGV(ord.dir, (char *)sub + 0x120)) {
+            ACTSendMailCorrect(self, 0x10A);
+        }
+        _ACTWait(1);
+    }
+}
+
+void actBoyRescueReady(GObj *volatile self)
+{
+    GObj *g = GOBJ_ACT(self)->enemy->rescueObj;
+    float p[4];
+    float q[4];
+    float step[4];
+    float dir[4];
+    float tmp[4];
+    float np[4];
+
+    union { /* field names derived */
+        float f[4];
+        long long ll[2];
+    } pts[2];
+
+    int cnt = (60 - systemStatus[0] * 10) / systemStatus[1] / 3;
+    int rest, hp, r;
+    int n1, n2;
+    char *hold;
+    int u = 0;
+    int gm = GOBJ_SUB(girlGObj)->ctrl.motion;
+    int t;
+
+    p[0] = test_CURRENTROOT((void *)self)[0];
+    p[1] = test_CURRENTROOT((void *)self)[1];
+    p[2] = test_CURRENTROOT((void *)self)[2];
+    q[0] = test_CURRENTROOT(g)[0];
+    q[1] = test_CURRENTROOT(g)[1];
+    q[2] = test_CURRENTROOT(g)[2];
+    _OrientXZGV(dir, q, p);
+    sceVu0ScaleVector(tmp, dir, -60.0f);
+    sceVu0AddVector(GOBJ_ACT(self)->enemy->rescueBoyPos, q, tmp);
+    sceVu0ScaleVector(tmp, dir, 0.0f);
+    sceVu0AddVector(GOBJ_ACT(self)->enemy->rescueGirlPos, q, tmp);
+    GOBJ_ACT(self)->enemy->rescueGirlPos[1] += 50.0f;
+    SetMotionDirection((void *)self, dir);
+    sceVu0SubVector(step, GOBJ_ACT(self)->enemy->rescueBoyPos, (float *)p);
+    sceVu0ScaleVector(step, step, 1.0f / (float)cnt);
+    t = 1;
+    rest = cnt;
+    while (1) {
+        if (0 < rest) {
+            sceVu0AddVector(np, test_CURRENTROOT((void *)self), step);
+            np[1] = test_CURRENTROOT((void *)self)[1];
+            SetDirectRootPositionNoFitting((void *)self, np);
+        }
+        rest--;
+        if (motionKind[GOBJ_SUB(self)->ctrl.motion].playMode == 1 ||
+            (GOBJ_SUB(self)->ctrl.ctrlFlags & 0x16) || GOBJ_SUB(self)->ctrl.frameEnd != 0) {
+            hold = (char *)GOBJ_ACT(girlGObj)->carrier;
+            hp = GOBJ_ACT(hold)->modeFrame;
+            r = 0;
+            /* n1 takes systemStatus[0] and is not read on this path */
+            n1 = systemStatus[0];
+            ACTGame_ConnectHand();
+            if ((60 - systemStatus[0] * 10) / systemStatus[1] * 100 / 60 <= hp) {
+                r = hp * ((60 - systemStatus[0] * 10) / systemStatus[1] * 3) /
+                    ((60 - systemStatus[0] * 10) / systemStatus[1] * 10);
+            }
+            /* the quotient is not read */
+            if (0 <= r) {
+                r = (60 - systemStatus[0] * 10) / systemStatus[1];
+            }
+            if (gameover_flag == 0) {
+                if (girlGObj != 0) {
+                    iosOmSendMail(girlGObj, 0x15D, isysCurrentGObj);
+                }
+            }
+            n1 = GetSkeltonFocusNode(girlGObj, 0x16);
+            n2 = GetSkeltonFocusNode(boyGObj, 6);
+            pts[0].f[0] = *(float *)((char *)GOBJ_SUB(girlGObj)->nodeMtx + n1 * 0x40 + 0x30);
+            pts[0].f[1] = *(float *)((char *)GOBJ_SUB(girlGObj)->nodeMtx + n1 * 0x40 + 0x34);
+            pts[0].f[2] = *(float *)((char *)GOBJ_SUB(girlGObj)->nodeMtx + n1 * 0x40 + 0x38);
+            pts[1].f[0] = *(float *)((char *)GOBJ_SUB(boyGObj)->nodeMtx + n2 * 0x40 + 0x30);
+            pts[1].f[1] = *(float *)((char *)GOBJ_SUB(boyGObj)->nodeMtx + n2 * 0x40 + 0x34);
+            pts[1].f[2] = *(float *)((char *)GOBJ_SUB(boyGObj)->nodeMtx + n2 * 0x40 + 0x38);
+            SetDirectRootPositionNoFittingWithNodePoint((void *)self, 6, pts[0].f, 0.05f);
+            u = t++;
+        }
+        if (gm == 641) {
+            if ((u / 30) & 1) {
+                ACTSendMailCorrect(self, 0x160);
+            } else {
+                ACTSendMailCorrect(self, 0x15F);
+            }
+        } else {
+            if ((u / 15) & 1) {
+                ACTSendMailCorrect(self, 0x160);
+            } else {
+                ACTSendMailCorrect(self, 0x15F);
+            }
+        }
+        _ACTWait(1);
+    }
+}
 
 INCLUDE_ASM(actBoyDitch3mReady);
 
-INCLUDE_ASM(actBoyRescueGirlBhang);
+void actBoyRescueGirlBhang(GObj *volatile self)
+{
+    float tgt[4];
+    float mv[4];
+    float boy[4];
+    float girl[4];
+    Act *sub = GOBJ_ACT(self);
+    int mode;
+    int connect = 1;
+
+    *(void **)((char *)sub + 0x18) = (void *)afterBoyRescueGirlBhang;
+    while (1) {
+        mode = 0;
+        switch (GOBJ_ACT(girlGObj)->actMode) {
+        case 0x1C:
+            mode = 1;
+            break;
+        case 0x1D:
+            mode = 2;
+            if ((60 - systemStatus[0] * 10) / systemStatus[1] / 2 < sub->modeFrame) {
+                if (connect) {
+                    ACTGame_ConnectHand();
+                    connect = 0;
+                }
+            }
+            break;
+        }
+        if (mode != 0) {
+            if (sub->modeFrame < 0xA) {
+                boy[0] = test_CURRENTROOT(boyGObj)[0];
+                boy[1] = test_CURRENTROOT(boyGObj)[1];
+                boy[2] = test_CURRENTROOT(boyGObj)[2];
+                girl[0] = test_CURRENTROOT(girlGObj)[0];
+                girl[1] = test_CURRENTROOT(girlGObj)[1];
+                girl[2] = test_CURRENTROOT(girlGObj)[2];
+                tgt[0] = girl[0];
+                tgt[2] = girl[2];
+                tgt[1] = boy[1];
+                _MoveGV(mv, boy, tgt, 5.0f);
+                SetRootPosition((void *)self, mv);
+            }
+        }
+        if (motionKind[GOBJ_SUB(self)->ctrl.motion].playMode == 1) {
+            if (mode == 1) {
+                ACTSendMailCorrect(self, 0x15B);
+                if (girlGObj != 0) {
+                    iosOmSendMail(girlGObj, 0x51, isysCurrentGObj);
+                }
+                GOBJ_ACT(girlGObj)->orientMot = 0x66;
+            }
+            if (mode == 2) {
+                ACTSendMailCorrect(self, 0x15B);
+                if (girlGObj != 0) {
+                    iosOmSendMail(girlGObj, 0x40, isysCurrentGObj);
+                }
+            }
+        }
+        if (mode == 0) {
+            ACTSendMailCorrect(self, 0xC7);
+        }
+        _ACTWait(1);
+    }
+}
 
 /* as in camera-root.h, which this TU does not include (GetCurrentCameraSet2 differs) */
 extern void InsertCamera_SetNoraml(float *pos, float *tgt, int frames, int cutType);

@@ -303,8 +303,6 @@ int interlace QWORD = 0;
 
 int thisIsYourStartStage QWORD = 0;
 
-int NonLinearCameraMove QWORD = 0;
-
 int GlobalTimer QWORD = 0;
 
 int lock_execIcoMisc QWORD = 0;

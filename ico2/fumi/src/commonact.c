@@ -520,7 +520,76 @@ static inline int chainFloorHit(GObj *self, ClipWork *w) /* derived name */
     return 0;
 }
 
-INCLUDE_ASM(actCommonRope);
+void actCommonRope(GObj *volatile self)
+{
+    Act *s;
+    float dir[4];
+    float ori[4];
+    float hand[4];
+    ClipWork work;
+    int step;
+    int nsteps;
+    int total;
+    int roty;
+
+    nsteps = ((60 - systemStatus[0] * 10) / systemStatus[1]) / 3;
+    total = nsteps;
+    step = -1;
+    s = GOBJ_ACT(self);
+    GetCorrectOrientOfChain(dir, (void *)self);
+    ori[0] = *(float *)((char *)test_CURRENTORIENT(self) + 0);
+    ori[1] = *(float *)((char *)test_CURRENTORIENT(self) + 4);
+    ori[2] = *(float *)((char *)test_CURRENTORIENT(self) + 8);
+    roty = _RotyGV(dir, ori);
+    if ((int)s->after == 0) {
+        GetRootPositionHandExtra(self, hand);
+        step = 0;
+        HoldChain(s->chain, self, hand);
+    }
+    s->after = afterCommonRope;
+    *(int *)((char *)s + 0x18) = (int)actAfterForceRope;
+    LockChainGeo(s->chain);
+    _ACTWait(1);
+    debug_StdPrintfDummy("enter actCommonRope\n");
+    while (1) {
+        UnLockChainGeo(s->chain);
+        ChainGeo(s->chain);
+        LockChainGeo(s->chain);
+        switch (CollisCheckInRope((void *)self, s->chain)) {
+        case 1:
+            ACTSendMailCorrect(self, 0xA8);
+            break;
+        case 2:
+            ACTSendMailCorrect(self, 0xA7);
+            break;
+        }
+        if (chainFloorHit(self, &work)) {
+            ACTSendMailCorrect(self, 0xA9);
+        }
+        if (step >= 0) {
+            if (step == nsteps) {
+                SetMotionDirection(self, dir);
+            } else if (step < nsteps) {
+                work.pt[0][0] = ori[0];
+                work.pt[0][1] = ori[1];
+                work.pt[0][2] = ori[2];
+                _ApplyRyGV(work.pt[0], (float)(roty * step / total) * 3.1415927f / 180.0f);
+                SetMotionDirection(self, work.pt[0]);
+            }
+            step++;
+        }
+        if (CheckChainClimbablePos(s->chain)) {
+            GetChainClimbOrient(GOBJ_ACT(self)->enemy->climbOrient, s->chain);
+            GetRootPosition(GOBJ_ACT(self)->enemy->climbPos, (void *)s->chain);
+            GetChainClimbCollision(&GOBJ_ACT(self)->enemy->climbCol, s->chain);
+            GOBJ_ACT(self)->enemy->climbObj = s->chain;
+            ActSendMail_WithAdditionalData(self, 0x98, (void *)self,
+                                           *(char **)(*(char **)((char *)self + 0x164) + 0x680) +
+                                               0x330);
+        }
+        _ACTWait(1);
+    }
+}
 
 /* the turn to the chain's corrected orient, which SetCorrectOrientOfChain
    and the rope turns inline */
@@ -1546,7 +1615,121 @@ typedef struct { /* field names derived */
 
 #define LADW ((LadderWork *)*(int *)(self->act + 0x680)) /* derived name */
 
-INCLUDE_ASM(actCommonLadder);
+void actCommonLadder(GObj *volatile self)
+{
+    Act *s = GOBJ_ACT(self);
+    int mot = s->intrMot;
+    float pos[4];
+    int uf22;
+    int uf6;
+    int lf52;
+    int lf48;
+    int up22;
+    int up6;
+    int lp52;
+    int lp48;
+    GObj *o;
+
+    if (s->env.edgePos[3] != 0.0f) {
+        pos[0] = test_CURRENTROOT((void *)self)[0];
+        pos[1] = test_CURRENTROOT((void *)self)[1];
+        pos[2] = test_CURRENTROOT((void *)self)[2];
+        pos[0] = s->env.edgePos[0];
+        pos[2] = s->env.edgePos[2];
+        s->env.edgePos[3] = 0.0f;
+    }
+    LADW->upEnd = 0;
+    LADW->downEnd = 0;
+    LADW->moveFlags.ll &= ~1ULL;
+    LADW->moveFlags.ll &= ~2ULL;
+    LADW->moveFlags.ll &= ~4ULL;
+    if (self == boyGObj) {
+        GOBJ_ACT(self)->hit = 1;
+    }
+    if (mot == 127 || mot == 128 || mot == 123) {
+        while (1) {
+            if (self == boyGObj && GOBJ_SUB(self)->ctrl.animFrame > 40.0f) {
+                break;
+            }
+            if (motionKind[GOBJ_SUB(self)->ctrl.motion].playMode == 1) {
+                break;
+            }
+            _ACTWait(1);
+        }
+    }
+    while (1) {
+        uf22 = (int)GetDifferenceFromWallUpperField((void *)self, 22);
+        uf6 = (int)GetDifferenceFromWallUpperField((void *)self, 6);
+        lf52 = (int)GetDifferenceFromLastField((void *)self, 52);
+        lf48 = (int)GetDifferenceFromLastField((void *)self, 48);
+        up22 = (int)GetDifferenceFromWallUpperPlane((void *)self, 22);
+        up6 = (int)GetDifferenceFromWallUpperPlane((void *)self, 6);
+        lp52 = (int)GetDifferenceFromWallLowerPlane((void *)self, 52);
+        lp48 = (int)GetDifferenceFromWallLowerPlane((void *)self, 48);
+        LADW->upEnd = 0;
+        LADW->downEnd = 0;
+        LADW->moveFlags.ll &= ~4ULL;
+        LADW->moveFlags.ll |= 1ULL;
+        LADW->moveFlags.ll |= 2ULL;
+        if ((uf22 - up22 < 0 ? up22 - uf22 : uf22 - up22) < 30) {
+            if (uf22 < 10) {
+                LADW->upEnd = 1;
+            }
+            if (uf6 < 10) {
+                LADW->upEnd = 2;
+            }
+        } else {
+            if (up22 < 40) {
+                LADW->moveFlags.ll &= ~1ULL;
+            }
+            if (up6 < 40) {
+                LADW->moveFlags.ll &= ~1ULL;
+            }
+        }
+        if ((lf52 - lp52 < 0 ? lp52 - lf52 : lf52 - lp52) < 30) {
+            if (lf52 >= -9) {
+                LADW->downEnd = 1;
+            }
+            if (lf48 >= -9) {
+                LADW->downEnd = 2;
+            }
+        } else {
+            if (lp52 >= 31) {
+                LADW->moveFlags.ll |= 4ULL;
+            }
+            if (lp48 >= 31) {
+                LADW->moveFlags.ll |= 4ULL;
+            }
+        }
+        if (s->pushDir == 0xFFFFFFFF && ((int)((long long)LADW->moveFlags.ll >> 2) & 1)) {
+            ACTSendMailCorrect(self, 0x8E);
+            if (self != boyGObj) {
+                ACTSendMailCorrect(self, 0x8F);
+            }
+        }
+        if (self == boyGObj && girlGObj != 0 && GOBJ_ACT(girlGObj)->actMode == 38) {
+            if (_DistSqGV(test_CURRENTROOT((void *)self), test_CURRENTROOT(girlGObj)) < 3600.0f) {
+                ACTSendMailCorrect(self, 0x31);
+            }
+        }
+        if (self == boyGObj || self == girlGObj) {
+            pos[0] = test_CURRENTROOT((void *)self)[0];
+            pos[1] = test_CURRENTROOT((void *)self)[1];
+            pos[2] = test_CURRENTROOT((void *)self)[2];
+            for (o = isysGObjSearchFromObjKindID_begin(4); o != 0;
+                 o = isysGObjSearchFromObjKindID_next(o)) {
+                if (o->active != 0) {
+                    if (GOBJ_ACT(o)->actMode == 38 &&
+                        _DistSqGV(pos, test_CURRENTROOT(o)) < 6400.0f) {
+                        ACTSendMailCorrect(self, 0x31);
+                        break;
+                    }
+                }
+            }
+        }
+        _ACTWait(1);
+    }
+}
 
 /* inline tail members, defined here: their strings come between the
    flyCoreLoop unit's and funcCommonBeginReady's in .rodata, while their code
@@ -1588,7 +1771,64 @@ INCLUDE_ASM(SetMotionDirectionSmooze);
 /* motionOrientManager.h declares none of the motion tables */
 extern MotOriName motionOriKind[];
 
-INCLUDE_ASM(_ACTDebugPrint);
+void _ACTDebugPrint(GObj *self)
+{
+    Act *sub;
+    char *w;
+
+    if (self == 0) {
+        return;
+    }
+    sub = GOBJ_ACT(self);
+    if ((char *)sub == 0) {
+        return;
+    }
+    w = (char *)GOBJ_SUB(self) + 0x470;
+    if (w == 0) {
+        return;
+    }
+    if (debug_font_flag & 1) {
+        debug_Printf(30, 90, 0xFFFFFFF, " ori  = [%s]\n", motionOriKind[*(int *)(w + 0xD0)].s);
+        if (debug_font_flag & 1) {
+            debug_Printf(30, 100, 0xFFFFFFF, " mot  = [%s]\n",
+                         (motionKind + GOBJ_SUB(self)->ctrl.motion)->name);
+            if (debug_font_flag & 1) {
+                debug_Printf(30, 110, 0xFFFFFFF, " mode = [%s]\n", actModeTbl[sub->actMode].name);
+                if (debug_font_flag & 1) {
+                    debug_Printf(30, 120, 0xFFFFFFF, "frame = [%f]\n",
+                                 GOBJ_SUB(self)->ctrl.animFrame);
+                    if (debug_font_flag & 1) {
+                        debug_Printf(30, 130, 0xFFFFFFF, "maxry = [%d]\n",
+                                     self == girlGObj && (void *)girlControlMode != 0
+                                         ? (motionKind + GOBJ_SUB(self)->ctrl.motion)->girlDirFrames
+                                         : (motionKind + GOBJ_SUB(self)->ctrl.motion)->dirFrames);
+                        if (debug_font_flag & 1) {
+                            debug_Printf(30, 140, 0xFFFFFFF, " life = [%d]\n", (int)sub->life);
+                            if (debug_font_flag & 1) {
+                                debug_Printf(30, 150, 0xFFFFFFF, "   dw = [%d] [%d]\n",
+                                             (int)*(float *)((char *)sub->motReq + 0x138),
+                                             (int)-*(float *)((char *)sub->motReq + 0x130));
+                                if (debug_font_flag & 1) {
+                                    debug_Printf(30, 160, 0xFFFFFFF, "   dc = [%d] [%d]\n",
+                                                 (int)*(float *)((char *)sub->motReq + 0x114),
+                                                 (int)*(float *)((char *)sub->motReq + 0x110));
+                                    if (debug_font_flag & 1) {
+                                        debug_Printf(30, 170, 0xFFFFFFF, "wattr = [%x]\n",
+                                                     GOBJ_SUB(self)->ctrl.wallAttr);
+                                        if (debug_font_flag & 1) {
+                                            debug_Printf(30, 180, 0xFFFFFFF, "bttype= [%d]\n",
+                                                         GOBJ_ACT(self)->enemy->battleType);
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
 
 void ACTSendMailCorrect(GObj *self, int mail)
 {
