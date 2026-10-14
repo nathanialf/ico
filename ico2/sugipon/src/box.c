@@ -893,6 +893,8 @@ INCLUDE_ASM(InitBoxGeo);
 
 INCLUDE_ASM(BoxGeo);
 
+INCLUDE_ASM_LIT(BoxGeoRestore);
+
 INCLUDE_ASM(GetBoxMode);
 
 INCLUDE_ASM(CanHoldBox);

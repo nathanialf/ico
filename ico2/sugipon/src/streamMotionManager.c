@@ -162,6 +162,8 @@ typedef struct { /* field names derived */
 /* the four bytes GetStreamMotionData hands back while no data has arrived */
 static const char streamDummyHead[] = {0, 0xFF, 0, 0}; /* derived name */
 
+INCLUDE_ASM_LIT(GetDataSizeOfStreamMotion);
+
 static void _transRingBuf(int *idx_p, char *dst, int size, char *src, int amt)
 {
     int old_idx = *idx_p;
@@ -181,6 +183,8 @@ static void _transRingBuf(int *idx_p, char *dst, int size, char *src, int amt)
 INCLUDE_ASM(ExecStreamMotionManager);
 
 INCLUDE_ASM(MallocStreamMotionBuffer);
+
+INCLUDE_ASM_LIT(StandbyStreamMotion);
 
 INCLUDE_ASM(StandbyStreamMotion);
 

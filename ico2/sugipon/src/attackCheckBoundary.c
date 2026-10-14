@@ -36,6 +36,8 @@ typedef struct { /* field names derived */
     int attr;    /* 0x8 */
 } AcbWork;       /* derived name */
 
+INCLUDE_ASM_LIT(InitAttackCheckBoundaryGeo);
+
 INCLUDE_ASM(AttackCheckBoundaryBeforeFunc);
 
 /* the manager's 8-byte roster entries and its work block at sub+0x830 */

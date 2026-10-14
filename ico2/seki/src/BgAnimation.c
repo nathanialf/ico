@@ -235,6 +235,8 @@ typedef struct BgaLightEnv { /* field names derived */
     /* 0x60 */ float outer[3];
 } BgaLightEnv; /* derived name */
 
+INCLUDE_ASM_LIT(bga_InitSdfCamera);
+
 INCLUDE_ASM(bga_initLightEnvelope);
 
 INCLUDE_ASM(bga_ApplyDObject);

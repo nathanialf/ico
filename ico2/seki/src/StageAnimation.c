@@ -153,6 +153,8 @@ void stage_SetAnimation(int key, int mode, int frame)
     }
 }
 
+INCLUDE_ASM_LIT(stage_CheckAnimationFinish);
+
 INCLUDE_ASM(stage_ContinueAnimation);
 
 inline int stage_CheckAnimationFrame(int key, int frame, int reset)

@@ -462,6 +462,8 @@ INCLUDE_ASM(gsb_InitGSSystem);
 /* the frames gsb_SyncGSSystem has waited on the GS */
 static int syncRetry = 0; /* derived name */
 
+INCLUDE_ASM_LIT(gsb_SyncGSSystem);
+
 /* One frame boundary: take the field parity from the GS CSR, run the
  * reduction pass, flip the double buffer and hand the display list back
  * either swapped or cleared, then reopen the frame's register set. */
@@ -590,7 +592,6 @@ int gsb_ClipBox(float *p)
 }
 
 int gsb_LoadStageSettings(void);
-
 int gsb_SaveStageSettings(void);
 
 /* one row of the stage setting page: a label, the word it edits, its
@@ -642,6 +643,8 @@ static char *stageSettingOnOffText[] = {"Off", "On"}; /* derived name */
  * stage record, the pad keys that walk and change them, and the key that dumps
  * the page to the log. */
 int gsb_StageSettingTool(void);
+
+INCLUDE_ASM_LIT(gsb_LoadStageSettings);
 
 INCLUDE_ASM(gsb_StageSettingTool);
 

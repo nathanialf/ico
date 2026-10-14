@@ -27,6 +27,8 @@ static int forceFieldColor[4] = {64, 96, 128, 128}; /* derived name */
 /* the action table the layout rows select into */
 extern OaRecB objAction[];
 
+INCLUDE_ASM_LIT(InitGirlForceFieldGeo);
+
 INCLUDE_ASM(GirlForceFieldDL);
 
 INCLUDE_ASM(InitGirlForceFieldGeo);

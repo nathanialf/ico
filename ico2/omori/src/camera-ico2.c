@@ -652,6 +652,10 @@ static inline CamSetFile *allocCameraSet(CamSetFile *f) /* derived name */
     return p;
 }
 
+INCLUDE_ASM_LIT(GetPluralCameraSet);
+
+INCLUDE_ASM_LIT(AddPluralCameraSet);
+
 INCLUDE_ASM(ReadCameraSet);
 
 /* three zero words; nothing reads them */

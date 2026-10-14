@@ -88,6 +88,8 @@ static inline void MakeStageOrientMatrix(float *m, const StageOrientDef *p) /* d
     MatrixDrive_PopMatrix();
 }
 
+INCLUDE_ASM_LIT(StageOrientInit);
+
 static int GetStageDifferenceMatrix(float *out, int stA, int stB)
 {
     int a = stageOrientIdx[stA];

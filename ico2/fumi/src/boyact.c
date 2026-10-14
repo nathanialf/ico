@@ -75,6 +75,10 @@ INCLUDE_ASM(CorrectOrient_RopeCliff);
    three: each defines the hand-off's after-routine and act-routine `inline`,
    which the compiler emits at the end of the file in boyact.h's order, and
    the mot-routine plainly, emitted in place.  Their strings come out here,
+INCLUDE_ASM_LIT(afterBoyHand50);
+
+INCLUDE_ASM_LIT(actBoyHand50);
+
    in this order, at the head of the TU's .rodata. */
 INCLUDE_ASM(motBoyHand50);
 
@@ -91,7 +95,11 @@ static inline void faceGirlFlat(void) /* derived name */
     SetMotionDirection(boy, dir);
 }
 
+INCLUDE_ASM_LIT(actBoyHand100);
+
 INCLUDE_ASM(motBoyHand100);
+
+INCLUDE_ASM_LIT(actBoyHand200);
 
 INCLUDE_ASM(motBoyHand200);
 
@@ -452,6 +460,8 @@ static inline void searchEnemy(void *self, int *out_id, float *out_vec) /* deriv
     searchGObj(self, (*(int *)((char *)self + 0xC) ^ 1) ? 1 : 4, 0x5A, out_id, out_vec, 300.0f);
 }
 
+INCLUDE_ASM_LIT(actBoyFall);
+
 INCLUDE_ASM(actBoyAttack);
 
 INCLUDE_ASM(actBoyTakeWeaponReady);
@@ -496,6 +506,8 @@ static inline void ACTSendMail_PULLUP_START(void) /* derived name */
     }
 }
 
+INCLUDE_ASM_LIT(actBoyCall);
+
 INCLUDE_ASM(ditch_check_heroin_position);
 
 INCLUDE_ASM(func_001522E0);
@@ -529,11 +541,15 @@ INCLUDE_ASM(actBoyDitch3mReady);
 /* as in camera-root.h, which this TU does not include (GetCurrentCameraSet2 differs) */
 extern void InsertCamera_SetNoraml(float *pos, float *tgt, int frames, int cutType);
 
+INCLUDE_ASM_LIT(RequestStageChangeKidnapEnd);
+
 INCLUDE_ASM(SetStatusBoy_OtherStageGirlPinch);
 
 void *gopp_subBoyControl;
 
 INCLUDE_ASM(actBoyStart);
+
+INCLUDE_ASM_LIT(afterBoySwim);
 
 static inline unsigned char IsBoyStatus_SupportGB(void) /* derived name */
 {

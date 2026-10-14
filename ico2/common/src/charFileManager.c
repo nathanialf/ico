@@ -146,6 +146,10 @@ typedef struct { /* field names derived */
    ReadShockFile; they are plain `inline`, so their out-of-line bodies come
    out at the end of the object. */
 
+INCLUDE_ASM_LIT(ReadSoundSqFile);
+
+INCLUDE_ASM_LIT(ReadSoundAdpcmFile);
+
 INCLUDE_ASM(ReadShockFile);
 
 INCLUDE_ASM(ReadCamerasetFile);

@@ -23,6 +23,8 @@ inline void audioDecReset(AudioDec *self)
     *(volatile int *)&self->iopPos = 0;
 }
 
+INCLUDE_ASM_LIT(audioDecDelete);
+
 static void audioDecEndPut(AudioDec *self, int n)
 {
     unsigned int k;

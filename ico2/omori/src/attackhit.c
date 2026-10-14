@@ -184,6 +184,8 @@ INCLUDE_ASM(AttackCheckHit);
 
 INCLUDE_ASM(AttackGenerate);
 
+INCLUDE_ASM_LIT(_AttackCenter);
+
 INCLUDE_ASM(EnemyAttackCenter);
 
 INCLUDE_ASM(BoyAttackCenter);

@@ -42,6 +42,8 @@ static inline MailAdditionalData *getMailAdditionalDataTable(GObj *gop) /* deriv
 #include "mail-add-data.h"
 #include "include_asm.h"
 
+INCLUDE_ASM_LIT(ActSendMail_WithAdditionalData);
+
 INCLUDE_ASM(InitMailAdditionalData);
 
 INCLUDE_ASM(ActSendMail_WithAdditionalData);

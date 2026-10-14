@@ -196,6 +196,8 @@ static inline void bossEffectSetNodePos(GObj *self, float *dst, int idx) /* deri
     dst[3] = 1.0f;
 }
 
+INCLUDE_ASM_LIT(IsEnemyBrainToGenerator);
+
 INCLUDE_ASM(setBattleStatus);
 
 INCLUDE_ASM(boss_effect_start);
@@ -250,7 +252,27 @@ INCLUDE_ASM(subEnemyControl);
 
 INCLUDE_ASM(subEnemyCollision);
 
+INCLUDE_ASM_LIT(actEnemyStand);
+
+INCLUDE_ASM_LIT(motEnemyStand);
+
+INCLUDE_ASM_LIT(actEnemyWalk);
+
+INCLUDE_ASM_LIT(motEnemyWalk);
+
+INCLUDE_ASM_LIT(actEnemyRun);
+
+INCLUDE_ASM_LIT(motEnemyRun);
+
+INCLUDE_ASM_LIT(actEnemyJump);
+
 INCLUDE_ASM(actEnemyAttack);
+
+INCLUDE_ASM_LIT(actEnemyHang);
+
+INCLUDE_ASM_LIT(actEnemyHyde);
+
+INCLUDE_ASM_LIT(isEnemyActive);
 
 INCLUDE_ASM(actEnemyRestart);
 

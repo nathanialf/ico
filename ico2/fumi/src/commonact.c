@@ -311,6 +311,10 @@ static inline int chainFloorHit(GObj *self, ClipWork *w) /* derived name */
     return 0;
 }
 
+INCLUDE_ASM_LIT(afterCommonRope);
+
+INCLUDE_ASM_LIT(actAfterForceRope);
+
 INCLUDE_ASM(actCommonRope);
 
 /* the turn to the chain's corrected orient, which SetCorrectOrientOfChain
@@ -448,9 +452,13 @@ static void EBRAIN_SEND_MES(void *enemy, int mes)
         eBrainSendMes(enemy, mes);
 }
 
+INCLUDE_ASM_LIT(actCommonPlay);
+
 INCLUDE_ASM(DamageFunc);
 
 INCLUDE_ASM(DownFunc);
+
+INCLUDE_ASM_LIT(actCommonDamage);
 
 INCLUDE_ASM(actCommonDown);
 
@@ -475,6 +483,8 @@ typedef struct { /* field names derived */
     char pad18[52];
     int f4C;
 } StoneSub; /* derived name */
+
+INCLUDE_ASM_LIT(actCommonRevive);
 
 INCLUDE_ASM(actCommonStone);
 
@@ -517,6 +527,8 @@ typedef struct { /* field names derived */
     int f1C4;
     int f1C8;
 } BarHold; /* derived name */
+
+INCLUDE_ASM_LIT(afterCommonBar);
 
 INCLUDE_ASM(actCommonBar);
 
@@ -763,7 +775,25 @@ INCLUDE_ASM(actCommonLadder);
    goes to the end of the object */
 #undef LADW
 
+INCLUDE_ASM_LIT(actCommonCliffdown);
+
+INCLUDE_ASM_LIT(actCommonShoal);
+
+INCLUDE_ASM_LIT(actCommonSwim);
+
+INCLUDE_ASM_LIT(actCommonDodge);
+
+INCLUDE_ASM_LIT(actCommonGuard);
+
 INCLUDE_ASM(actCommonEdgeHang);
+
+INCLUDE_ASM_LIT(motCommonHangNone);
+
+INCLUDE_ASM_LIT(motCommonHangWall);
+
+INCLUDE_ASM_LIT(motCommonHangCliff);
+
+INCLUDE_ASM_LIT(motCommonNull);
 
 INCLUDE_ASM(funcCommonBeginReady);
 
@@ -876,6 +906,14 @@ void ACTAdjustPlane(GObj *self, void *wall)
 {
     AdjustRootPositionToVerticalSidePlaneOfWall(self, wall, 30.0f);
 }
+
+INCLUDE_ASM_LIT(motCommonTruckLeverLoop);
+
+INCLUDE_ASM_LIT(motCommonTruckLeverPull);
+
+INCLUDE_ASM_LIT(motCommonTruckLeverPush);
+
+INCLUDE_ASM_LIT(test_CURRENTROOT);
 
 typedef struct { /* field names derived */
     float x, y, z;

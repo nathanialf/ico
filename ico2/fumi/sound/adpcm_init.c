@@ -181,6 +181,8 @@ void AdpcmVolumeSet(SqEntry *self, int vol)
     AdpcmInterLeaveVolumeSet(self, 0, vol);
 }
 
+INCLUDE_ASM_LIT(AdpcmOpenSync);
+
 INCLUDE_ASM(adpcmPauseRequest);
 
 INCLUDE_ASM(AdpcmStreamHeap);

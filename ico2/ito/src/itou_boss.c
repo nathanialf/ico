@@ -323,6 +323,10 @@ static inline void bossCtrlInit(void *gobj) /* derived name */
     geneReleasing = 0;
 }
 
+INCLUDE_ASM_LIT(actBossCtrlStart);
+
+INCLUDE_ASM_LIT(InitBossCtrlGeo);
+
 void itou_boss_gflag_init(void)
 {
     memset(gflag, 0, sizeof(gflag) + sizeof(capsule));

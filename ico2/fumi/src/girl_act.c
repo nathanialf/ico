@@ -94,10 +94,18 @@ void funcGirlHandDisconnect(void)
    g200climb.h) textually included here: each defines the hand-off's
    after-routine and act-routine `inline`, which the compiler emits at the
    end of the file in girl_act.h's order, and the mot-routine plainly,
+INCLUDE_ASM_LIT(afterGirlHand50);
+
+INCLUDE_ASM_LIT(actGirlHand50);
+
    emitted in place.  Their strings come out here, in this order. */
 INCLUDE_ASM(motGirlHand50);
 
+INCLUDE_ASM_LIT(actGirlHand100);
+
 INCLUDE_ASM(motGirlHand100);
+
+INCLUDE_ASM_LIT(actGirlHand200);
 
 INCLUDE_ASM(motGirlHand200);
 
@@ -876,6 +884,8 @@ INCLUDE_ASM(HandMgr_Speed_309);
 
 INCLUDE_ASM(GetBoyMode_313);
 
+INCLUDE_ASM_LIT(afterGirlHand);
+
 INCLUDE_ASM(actGirlHand);
 
 INCLUDE_ASM(actGirlPulledReady);
@@ -883,6 +893,18 @@ INCLUDE_ASM(actGirlPulledReady);
 INCLUDE_ASM(actGirlPulledGo);
 
 INCLUDE_ASM(actGirlDitch3mReady);
+
+INCLUDE_ASM_LIT(actGirlDitch3mExec);
+
+INCLUDE_ASM_LIT(actGirlStand);
+
+INCLUDE_ASM_LIT(actGirlWalk);
+
+INCLUDE_ASM_LIT(actGirlRun);
+
+INCLUDE_ASM_LIT(actGirlJump);
+
+INCLUDE_ASM_LIT(actGirlAttack);
 
 INCLUDE_ASM(actGirlReadyMove);
 

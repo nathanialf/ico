@@ -54,6 +54,8 @@ static int outputMode = 0; /* derived name */
 
 static int seSemiCommonLoaded = 0; /* derived name */
 
+INCLUDE_ASM_LIT(Ee2Iop);
+
 int soundInit(void)
 {
     int i;
@@ -317,6 +319,8 @@ void soundBufSegFree(int seg, int mode)
     debug_assert(__FILE__, 487);
     __assert(__FILE__, 487, "0");
 }
+
+INCLUDE_ASM_LIT(soundBufAdpcmChAlloc);
 
 INCLUDE_ASM(soundBDDataSet);
 

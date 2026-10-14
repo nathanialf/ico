@@ -189,6 +189,8 @@ INCLUDE_ASM(BirdDL);
 
 inline void BirdAI(void) {}
 
+INCLUDE_ASM_LIT(InitBirdGeo);
+
 void _ACTSendMailToBird(void *obj, int mail, void *data)
 {
     iosOmSendMail(obj, mail, data);

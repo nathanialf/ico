@@ -835,6 +835,8 @@ void debug_Init(void)
     debug_makeBackImage();
 }
 
+INCLUDE_ASM_LIT(debug_GetTimerSec);
+
 INCLUDE_ASM(debug_Load);
 
 /* a GIF tag as the two 64-bit words the packet takes it in, on the
@@ -1087,6 +1089,8 @@ static DbgCol barLabelCol[1] = {{0x80, 0x80, 0x80, 0x60}}; /* derived name */
 
 /* clang-format off */
 INCLUDE_ASM(debug_DrawBar);
+
+INCLUDE_ASM_LIT(debug_SetBar);
 
 /* debug_SetBar with the inverted debug_profile_type gate (records only while the
    profiler flag is set). */
@@ -1396,6 +1400,10 @@ static unsigned char modeBlink = 0; /* derived name */
 /* the colours the cursor line blinks between */
 static const unsigned int blinkColor[] = {0xFFFFFF00, 0xC0C0C000}; /* derived name */
 
+INCLUDE_ASM_LIT(debug_DispVu1IReg);
+
+INCLUDE_ASM_LIT(debug_DispVu1SReg);
+
 /* clang-format off */
 INCLUDE_ASM(debug_Mode);
 
@@ -1471,6 +1479,8 @@ static int formatBlink = 0; /* derived name */
 static int unformatState = 0; /* derived name */
 
 static int unformatBlink = 0; /* derived name */
+
+INCLUDE_ASM_LIT(debug_mcUnformat);
 
 static int debug_mcRetErrCheck(McMgr *mc)
 {
@@ -1575,6 +1585,8 @@ static int debug_selectFile(McMgr *mc)
 }
 
 static int saveState = 0; /* derived name */
+
+INCLUDE_ASM_LIT(debug_saveNumFunc);
 
 INCLUDE_ASM(debug_mcSaveMainBlock);
 
@@ -2178,6 +2190,8 @@ void debug_Menu_off(void)
 {
     menuState = 0;
 }
+
+INCLUDE_ASM_LIT(debugSceOpen);
 
 /* the file debugSceOpen has open */
 static int sceFd = -1; /* derived name */

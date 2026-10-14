@@ -95,6 +95,8 @@ static inline void eBrainRegistTarget(EBSlot **list, int n, EBSlot *e, int w) /*
     list[j] = cur;
 }
 
+INCLUDE_ASM_LIT(eBrainStatusSet);
+
 void eBrainProcess(void)
 {
     float bpos[4];

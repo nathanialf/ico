@@ -80,6 +80,8 @@ static AP1Vec lookDeltaFlat; /* derived name */ /* lookDelta with y removed */
 
 static AP1Vec selfPos; /* derived name */ /* this actor's own root position */
 
+INCLUDE_ASM_LIT(GetAP1AIMode);
+
 INCLUDE_ASM(standAI);
 
 INCLUDE_ASM(walkAI);
