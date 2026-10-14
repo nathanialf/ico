@@ -1778,9 +1778,8 @@ rdlit debug_mcLoadMainBlock 0x00615488 0x006154D7 ico2/common/src/debug.c  # 2 s
 rdlit debug_mcLoadMainBlock 0x006154E0 0x00615670 ico2/common/src/debug.c align=16  # 1 jtbl
 sdlit debug_mcLoadMainBlock 0x00632B70 0x00632B78 ico2/common/src/debug.c  # 1 string
 text debug_MemoryCard 0x001A8670 0x001A88F0 ico2/common/src/debug.c lines=63  # equal, a stub because it inlines debug_mcTest, a stub for emission order
-rdlit debug_MemoryCard 0x006156B8 0x006156E8 ico2/common/src/debug.c  # 1 data
-rdlit debug_MemoryCard 0x00615708 0x00615756 ico2/common/src/debug.c  # 1 data, 1 string
-sdlit debug_MemoryCard 0x00632BB8 0x00632BBD ico2/common/src/debug.c  # 1 string
+rdlit debug_MemoryCard 0x006156A8 0x00615756 ico2/common/src/debug.c  # 3 strings, 2 data, 1 string, measured from the base: the two menu tables and their strings
+sdlit debug_MemoryCard 0x00632B88 0x00632BBD ico2/common/src/debug.c  # 7 strings, measured from the base: six of them read through the menu tables
 text debug_SETest 0x001A88F0 0x001A8B8C ico2/common/src/debug.c lines=18  # ordinal; first difference at insn 37; imm:5; extent-equal
 sdlit debug_SETest 0x00632BC8 0x00632BD0 ico2/common/src/debug.c  # 1 string
 text debug_SelectActGobj 0x001A8E30 0x001A8F6C ico2/common/src/debug.c local lines=15  # ordinal; first difference at insn 27; imm:1; extent-equal

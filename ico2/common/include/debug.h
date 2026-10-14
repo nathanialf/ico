@@ -104,13 +104,6 @@ extern int debug_fly_limit_test;
 extern int debug_lwskyomi_lookonly;
 extern int debug_one_hit_only;
 extern int debug_ignore_dodge;
-extern int debug_hand_camera;
-extern int debug_enemy_kidnap_timer;
-extern int debug_hair_tight_level;
-extern int debug_hair_gravity_level;
-extern int debug_hair_bend_angle;
-extern int debug_hair_collision;
-extern int debug_no_breast_hang;
 /* debug.c's `inline` functions, in the order of their out-of-line copies at
    the end of the object (first-declaration order).  Callers after a
    definition inline it; the out-of-line copies serve the rest of the game

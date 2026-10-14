@@ -57,8 +57,6 @@ static void debug_PrintFont(int x, int y, int col, char *str);
 static int debug_selectFile(McMgr *mc);
 static void debug_makeBackImage(void);
 
-static int debug_girl_pad_control;
-
 typedef struct { /* field names derived */
     int x, y;
     unsigned int w, h;
@@ -414,10 +412,6 @@ static const DbgOpt debugOption[76] = {
     {" CollisionOldProc   ", 0x90C0FF80, &debug_col_old_proc, 0, 1, debugOffOnName, 0},
     {" Skelton            ", 0x80FFC080, &debug_skel_flag, 0, 1, debugOffOnName, 0},
     {" ClothInfo          ", 0x80FFC080, &debug_cloth_info, 0, 1, debugOffOnName, 0},
-    {" HairTightLevel     ", 0x80FFC080, &debug_hair_tight_level, 0, 100, 0, 0},
-    {" HairGravityLevel   ", 0x80FFC080, &debug_hair_gravity_level, 0, 500, 0, 0},
-    {" HairBendAngle      ", 0x80FFC080, &debug_hair_bend_angle, 0, 512, 0, 0},
-    {" HairCollision      ", 0x80FFC080, &debug_hair_collision, 0, 1, debugOffOnName, 0},
     {" FaceWInterpRatio   ", 0x80FFC080, &debug_face_rot_w_ratio, 0, 100, 0, 0},
     {" CharaTarget        ", 0x80FFC080, &debug_chara_target, 0, 1, debugOffOnName, 0},
     {" MotionActNode      ", 0x80FFC080, &debug_actnode_flag, 0, 1, debugOffOnName, 0},
@@ -430,7 +424,7 @@ static const DbgOpt debugOption[76] = {
     {" BrainOnOff         ", 0xFF80FF80, &debug_brain_flag, 0, 1, debugOffOnName, 0},
     {" GBrainInfo         ", 0xFF80FF80, &debug_gbrain_info_flag, 0, 1, debugOffOnName, 0},
     {" WayTool            ", 0xFF80FF80, &debug_wayline, 0, 1, debugOffOnName, 0},
-    {" SnapShotView       ", 0xC0C0C080, &debug_snapshot_num, 20, 500, 0, 0},
+    {" SnapShotNum        ", 0xC0C0C080, &debug_snapshot_num, 20, 500, 0, 0},
     {" SnapSize           ", 0xC0C0C080, &debug_snapshot_size, 0, 4, debugSnapSizeName, 0},
     {" SnapForm           ", 0xC0C0C080, &debug_snapshot_format, 0, 1, debugSnapFormName, 0},
     {" Jimaku Test        ", 0xC0C0C080, &debug_jimaku, 0, 1, debugOffOnName, 0},
@@ -2195,10 +2189,10 @@ void debug_Menu_off(void)
     menuState = 0;
 }
 
-INCLUDE_ASM_LIT(debugSceOpen);
-
 /* the file debugSceOpen has open */
 static int sceFd = -1; /* derived name */
+
+INCLUDE_ASM_LIT(debugSceOpen);
 
 /* debug.o's globals (see debug.h) */
 int polygons = 0;
@@ -2356,22 +2350,6 @@ int debug_lwskyomi_lookonly = 0; /* derived name */
 int debug_one_hit_only = 0; /* derived name */
 
 int debug_ignore_dodge = 0; /* derived name */
-
-int debug_hand_camera = 0; /* derived name */
-
-int debug_enemy_kidnap_timer = 0; /* derived name */
-
-static int debug_girl_pad_control = 0; /* derived name */
-
-int debug_hair_tight_level = 0; /* derived name */
-
-int debug_hair_gravity_level = 0; /* derived name */
-
-int debug_hair_bend_angle = 0; /* derived name */
-
-int debug_hair_collision = 0; /* derived name */
-
-int debug_no_breast_hang = 0; /* derived name */
 
 INCLUDE_ASM(debug_BeginTimer);
 
