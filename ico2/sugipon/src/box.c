@@ -157,9 +157,37 @@ static void initFallDown(GObj *self)
     }
 }
 
-static int checkFieldContact(GObj *self, float lim);
+static int checkFieldContact(GObj *self, float lim)
+{
+    ClipWork w;
+    float pos[4];
+    int r;
 
-INCLUDE_ASM(checkFieldContact);
+    GetRootPosition(pos, self);
+    GetLowerPlaneCollision(&w, pos);
+    r = CheckFieldContact(&w, self, pos, lim);
+    if (GOBJ_SUB(self)->parent.obj != 0) {
+        UnlinkParentOfDObj(self);
+    }
+    GOBJ_SUB(self)->ctrl.floorAttr = 0;
+    switch (r) {
+    case 1:
+        if (self != w.floor.o.obj) {
+            if (GOBJ_SUB(self)->parent.obj != w.floor.o.obj ||
+                GOBJ_SUB(self)->parent.node != w.floor.o.node) {
+                LinkParentOfDObj(self, &w.floor.o);
+                GOBJ_SUB(self)->ctrl.floorAttr = GetFloorAttribute(&w);
+            }
+        }
+        w.pt[1][1] = w.pt[2][1] - 50.0f;
+        SetDirectRootPosition(self, w.pt[1]);
+        return 1;
+    case 2:
+        GOBJ_SUB(self)->ctrl.floorAttr = GetFloorAttribute(&w);
+        return 2;
+    }
+    return 0;
+}
 
 /* Inlined into execNormalMove twice (once with ClipWall, once with
    ClipWallBoxStop) and into inertiaMove once; the two constant arguments
@@ -1754,13 +1782,42 @@ static inline int checkItemHit(GObj *obj, float *dir) /* derived name */
     return _checkItemCollision(to);
 }
 
-INCLUDE_ASM(D_004E2EB0);
+static int moveBoxAutoMatic(GObj *self, int dir)
+{
+    static float v[4] = {0.0f, 0.0f, 0.5f, 0.0f};
+    static float v2[4] = {0.0f, 0.0f, -0.5f, 0.0f};
+    BoxWork *p = GOBJ_SUB(self)->work;
+    int r;
 
-INCLUDE_ASM(D_004E2EC0);
-
-static int moveBoxAutoMatic(GObj *self, int dir);
-
-INCLUDE_ASM(moveBoxAutoMatic);
+    switch (dir) {
+    default:
+        p->friction = 0.85f;
+        AddVectorXYZ(p->vel, p->vel, ZeroVector);
+        break;
+    case 1:
+        p->friction = 0.98f;
+        AddVectorXYZ(p->vel, p->vel, v);
+        break;
+    case -1:
+        p->friction = 0.98f;
+        AddVectorXYZ(p->vel, p->vel, v2);
+        break;
+    }
+    if (p->autoDir != dir) {
+        StopSEPackageWithGroupVariation(self, 1);
+        if (dir != 0) {
+            ExecuteSEPackageWithGroupVariation(self, 29, 1);
+        }
+    }
+    p->autoDir = dir;
+    if (onPath(self) != 0) {
+        CopyVector(p->vel, ZeroVector);
+    }
+    UpdateRootMatrix(self);
+    r = execNormalMove(self, 1);
+    UpdateRootMatrix(self);
+    return r;
+}
 
 int MoveBoxWithHoldPoint(GObj *self, float *holdPoint, GObj *holder, int focus, float *dir)
 {

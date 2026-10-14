@@ -149,20 +149,13 @@ text debug_DrawBar 0x001AD258 0x001ADFF8 ico2/common/src/debug.c local lines=209
 lit4 debug_DrawBar 0x00632EC4 0x00632ECC ico2/common/src/debug.c  # 2 floats
 rdlit debug_DrawBar 0x00614DA0 0x00614DE4 ico2/common/src/debug.c align=16  # 2 data runs, 1 string
 sdlit debug_DrawBar 0x006349B0 0x006349E7 ico2/common/src/debug.c  # 5 strings, 5 statics
-text debug_DispBar 0x001ADFF8 0x001AE154 ico2/common/src/debug.c lines=25  # ordinal; first difference at insn 0; length:-22; extent-differs
-lit4 debug_DispBar 0x00632ECC 0x00632ED0 ico2/common/src/debug.c  # 1 float
-rdlit debug_DispBar 0x00614DE8 0x00614E10 ico2/common/src/debug.c  # 2 strings
 text debug_SnapShot 0x001AE538 0x001AF488 ico2/common/src/debug.c lines=81  # ordinal; first difference at insn 1; length:+739; extent-differs
 rdlit debug_SnapShot 0x00614E10 0x00614EBA ico2/common/src/debug.c  # 6 strings; target side (DISAGREE: December's snapshot modes)
 text kanbanBootMcCheck 0x001B9490 0x001B96E8 ico2/common/src/kanbanBoot.c local lines=236  # ordinal; first difference at insn 3; length:-254; extent-differs
-text checkFieldContact 0x001C6718 0x001C683C ico2/sugipon/src/box.c local lines=34  # ordinal; first difference at insn 0; length:-11; extent-differs
 text action 0x001C8FC0 0x001C9158 ico2/sugipon/src/box.c local lines=45  # ordinal; first difference at insn 5; length:-16; extent-differs
 lit4 action 0x00632F74 0x00632F78 ico2/sugipon/src/box.c  # 1 float
 rdlit action 0x00618408 0x00618414 ico2/sugipon/src/box.c  # 1 string
 rdlit action 0x00618420 0x00618440 ico2/sugipon/src/box.c align=16  # 1 jtbl
-text moveBoxAutoMatic 0x001C94F0 0x001C9610 ico2/sugipon/src/box.c local lines=42  # ordinal; first difference at insn 0; length:-42; extent-differs
-lit4 moveBoxAutoMatic 0x00632F78 0x00632F84 ico2/sugipon/src/box.c  # 3 floats
-text ThrowItem 0x001DE650 0x001DE6BC ico2/sugipon/src/item.c lines=11  # ordinal; first difference at insn 14; length:-19; extent-differs
 text _getFinalMatrix 0x001E1C30 0x001E4674 ico2/sugipon/src/motionManager.c local lines=691 in=ico2/sugipon/src/motMan_getFinalMatrix.c.inc  # ordinal; first difference at insn 2; length:-130; extent-differs
 lit4 _getFinalMatrix 0x006330E8 0x00633128 ico2/sugipon/src/motionManager.c  # 16 floats; target side (no PAL body to compile)
 rdlit _getFinalMatrix 0x00618FA0 0x00619070 ico2/sugipon/src/motionManager.c align=16  # 1 jtbl; target side (no PAL body to compile)
@@ -188,11 +181,8 @@ text actSt13bConte02 0x00244730 0x0024504C ico2/script/src/st13b.c lines=238  # 
 rdlit actSt13bConte02 0x0061C080 0x0061C088 ico2/script/src/st13b.c  # 1 double
 text dispClear 0x00255118 0x00255290 ico2/ito/mpeg/mv_disp.c lines=19  # ordinal; first difference at insn 1; length:+1; extent-differs
 text setDispEnv 0x00255290 0x00255488 ico2/ito/mpeg/mv_disp.c lines=27  # ordinal; first difference at insn 0; length:+7; extent-differs
-text dispCreate 0x00255500 0x002555A4 ico2/ito/mpeg/mv_disp.c lines=15  # ordinal; first difference at insn 4; length:-4; extent-differs
 text dispSetTags 0x002555A8 0x00255B08 ico2/ito/mpeg/mv_disp.c lines=58  # ordinal; first difference at insn 0; length:+76; extent-differs
 text InitWindMillGeo 0x00258DE8 0x00258F50 ico2/sugipon/src/windmill.c lines=31  # PAL-only in the census (windmill.c moved), same size and order; differs at insn 16
 #
 # .data objects the December C of a carved function used and PAL's does not
 # (the PAL function computes the value inline); no PAL name, so D_<VMA>.
-data D_004E2EB0 0x004E2EB0 0x004E2EC0 ico2/sugipon/src/box.c local  # moveBoxAutoMatic's +Z push vector; JPN addiu at 0x1C9554, after box.c's last file-scope .data
-data D_004E2EC0 0x004E2EC0 0x004E2ED0 ico2/sugipon/src/box.c local  # moveBoxAutoMatic's -Z push vector; JPN addiu at 0x1C957C

@@ -32,7 +32,6 @@
 static void uncarriedItemGeo(struct GObj *gobj);
 
 #include <assert.h>
-#include "include_asm.h"
 
 /* A bomb's fuse: the torch object that lights it, the frames left to burn,
    the fuse state (0 unlit, 1 burning, 2 exploding, 3 spent), where the
@@ -189,9 +188,16 @@ void ReleaseItem(GObj *gobj)
     SetIdentityQuaternion(GOBJ_SUB(gobj)->root.itemQuat);
 }
 
-void ThrowItem(GObj *gobj, void *vel);
-
-INCLUDE_ASM(ThrowItem);
+void ThrowItem(GObj *gobj, void *vel)
+{
+    ItemWork *p = (ItemWork *)(char *)GOBJ_SUB(gobj)->work;
+    avoidInsideOfWall(gobj, p->holder);
+    p->released = 1;
+    p->held = 0;
+    p->thrown = 1;
+    CopyVector(GOBJ_SUB(gobj)->root.move, vel);
+    SetIdentityQuaternion(*(char **)&gobj->dobj + 0x150);
+}
 
 typedef union { /* field names derived */
     float f[4];

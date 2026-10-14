@@ -118,7 +118,21 @@ void sendDispEnv(MvDispEnv *self)
     sceGsSyncPath(0, 0);
 }
 
-INCLUDE_ASM(dispCreate);
+void dispCreate(MvDispEnv *self, int imageW, int imageH, int dbx, int dby)
+{
+    /* the five display-state words are read and written by vblankHandler on the
+       vblank interrupt, so they are reset through volatile */
+    *(volatile int *)&dispRunning = 0;
+    *(volatile int *)&dispVblankCount = 0;
+    *(volatile int *)&dispImageDone = 0;
+    *(volatile int *)&dispField = 0;
+    *(volatile int *)&dispSyncBusy = 0;
+    sceGsSyncV(0);
+    sceGsResetGraph(0, 1, 2, 1);
+    sceGsResetPath();
+    setDispEnv(self, imageW, imageH, dbx, dby);
+    sendDispEnv(self);
+}
 
 inline void dispDelete(MvDispEnv *self) {}
 
