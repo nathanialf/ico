@@ -141,36 +141,6 @@ static __inline__ int checkMotionShiftRange(int mot, float t, float t2) /* deriv
 
 INCLUDE_ASM(UpdateFrameCounter);
 
-inline MotionOrientEntry *GetMotionOrient(int i, int n, int id, int kind)
-{
-    int found = -1;
-
-    for (; i < n; i++) {
-        if (motionOrient[i].kind == kind) {
-            if (motionOrient[i].id == id) {
-                return &motionOrient[i];
-            }
-            if (motionOrient[i].id == 1146) {
-                found = i;
-            }
-        }
-    }
-    if (found != -1) {
-        return &motionOrient[found];
-    }
-    return 0;
-}
-
-inline MotionOrientEntry *getMotionOrient(int i, int n, int id, int kind)
-{
-    MotionOrientEntry *p = GetMotionOrient(i, n, id, kind);
-
-    if (p != 0) {
-        return p;
-    }
-    return &motionOrient[2467];
-}
-
 static void sendStateMail(void *self)
 {
     float m[4][4];
@@ -301,25 +271,6 @@ static void shiftMotionOrientEndFunc(void *self);
 
 INCLUDE_ASM(shiftMotionOrientEndFunc);
 
-inline void CopyBlendMotionDataSource(void *self, short ang)
-{
-    float quat[4];
-    StreamElem *mot = MOWORK(self)->blendBuf;
-    int i = 0;
-
-    CopyMotion(mot, MOWORK(self)->motionBuf, MOWORK(self)->skelNodeNum);
-    CopyVector(MOWORK(self)->localPos, MOWORK(self)->motionPos);
-    CopyVector(MOWORK(self)->localMove, MOWORK(self)->root.move);
-    *(struct MotOriFloat *)((char *)MOWORK(self) + 0x808) =
-        *(struct MotOriFloat *)((char *)MOWORK(self) + 0x160);
-    *(struct MotOriHead8 *)((char *)MOWORK(self) + 0x800) = *(struct MotOriHead8 *)MOWORK(self);
-    while (MOWORK(self)->skel[i].parent == -1) {
-        SetQuaternionByAxisRotate(quat, ang, 0.0f, 1.0f, 0.0f);
-        MultiQuaternion(mot[i].q, quat, mot[i].q);
-        i = MOWORK(self)->skel[i].sibling;
-    }
-}
-
 static void shiftMotionOrientBeginFunc(void *self, int motion, int request, int shiftMode);
 
 INCLUDE_ASM(shiftMotionOrientBeginFunc);
@@ -358,40 +309,9 @@ static inline int checkMotionShiftReady(struct MotCtrl *m, MotionOrientEntry *p)
     return p->shiftFrom != -1 && (float)p->shiftFrom < m->animFrame;
 }
 
-static int normalMotionShift(void *self, int force)
-{
-    struct MotCtrl *w = &MOWORK(self)->ctrl;
-    MotionOrientEntry *p = getMotionOrient(w->oriFrom, w->oriTo, w->request, w->orientKind);
+static int normalMotionShift(void *self, int force);
 
-    if (force == 0) {
-        if (p->id == 1146) {
-            return 0;
-        }
-    }
-    if (checkMotionShiftReady(&MOWORK(self)->ctrl, p) != 0) {
-        int kind = p->nextId;
-        int mode = p->shiftMode;
-        int next;
-        int r = -1; /* no pairing found; the else arm searches with it as cur */
-
-        if (kind == 0x479) {
-            kind = p->id;
-            mode = 5;
-            r = searchMotionShift(self, kind, w->motion);
-            if (r == -1 || r == 0x479) {
-                return 0;
-            }
-            next = r;
-        } else {
-            r = searchMotionShift(self, kind, r);
-            next = (r == -1) ? kind : r;
-        }
-        shiftMotionOrientEndFunc(self);
-        shiftMotionOrientBeginFunc(self, next, kind, mode);
-        return 1;
-    }
-    return 0;
-}
+INCLUDE_ASM(normalMotionShift);
 
 /* parallelMotionOrient is 54 rows of five words, keyed on the current and
  * the requested motion. */
@@ -454,32 +374,6 @@ typedef struct MotOriSpin { /* field names derived */
 } MotOriSpin; /* derived name */
 
 INCLUDE_ASM(SetMotionRequest);
-
-inline void SetParallelMotionTableWithNoRequest(void *self, int *next, int *req)
-{
-    struct MotCtrl *m = &GOBJ_SUB(self)->ctrl;
-
-    if (m->shiftStop == 0) {
-        m->shiftReq = req;
-        m->shiftNext = next;
-    }
-}
-
-inline void SetParallelMotionTable(void *self, int *next, int *req, int from, int mode)
-{
-    struct MotCtrl *m = &GOBJ_SUB(self)->ctrl;
-    int old = m->orientKind;
-
-    m->orientKind = 269;
-    SetParallelMotionTableWithNoRequest(self, next, req);
-    m->shiftFrom = from;
-    m->shiftMode = mode;
-    if (parallelMotionShift(self) != 0) {
-        m->playTime = 0;
-    } else {
-        m->orientKind = old;
-    }
-}
 
 INCLUDE_ASM(getNodeBlendedFloatingMotion);
 
@@ -726,21 +620,6 @@ void SetNodeRotationLimitDataTable(void *self, int from, int to);
 
 INCLUDE_ASM(SetNodeRotationLimitDataTable);
 
-inline void InitMotionOrient(void *self, int oriFrom, int oriTo, int limitFrom, int limitTo,
-                             int motion)
-{
-    struct MotCtrl *m = &GOBJ_SUB(self)->ctrl;
-
-    if (limitFrom >= 0 && limitTo >= 0) {
-        SetNodeRotationLimitDataTable(self, limitFrom, limitTo);
-    }
-    m->oriFrom = oriFrom;
-    m->oriTo = oriTo;
-    shiftMotionData((int)self, motion, motion, 0);
-    m->seGroup[0] = soundSeGroupGet();
-    m->seGroup[1] = soundSeGroupGet();
-}
-
 inline int ExecuteSlipProc(GObj *self)
 {
     Sub15C *e = self->dobj;
@@ -770,5 +649,17 @@ inline int ExecutePauseSlipProc(GObj *self)
     }
     return 1;
 }
+
+INCLUDE_ASM(GetMotionOrient);
+
+INCLUDE_ASM(getMotionOrient);
+
+INCLUDE_ASM(CopyBlendMotionDataSource);
+
+INCLUDE_ASM(SetParallelMotionTableWithNoRequest);
+
+INCLUDE_ASM(SetParallelMotionTable);
+
+INCLUDE_ASM(InitMotionOrient);
 
 INCLUDE_ASM(GetCurrentMotionDirectionAdjustFlag);

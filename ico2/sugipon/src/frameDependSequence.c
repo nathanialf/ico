@@ -170,22 +170,6 @@ static int playSEConditionID(int no, void *entry)
     return 0;
 }
 
-static inline int execSE(int no, void *entry)
-{
-    if (no <= 0xFFFF) {
-        return playSE(no);
-    } else if (no <= 0x1FFFF) {
-        return playSERandomID(no - 0x10000, entry);
-    } else {
-        return playSEConditionID(no - 0x20000, entry);
-    }
-    /* the bad-ID report, switched off */
-    if (0) {
-        /* EUC-JP: "an SE with a strange ID(%d) was called" */
-        debug_StdPrintfDummy("おかしなID(%d)のSEがコールされました\n", no);
-    }
-}
-
 static void playEff(int no)
 {
     float q[4];
@@ -453,26 +437,15 @@ void StopFDSVibration(void *flags)
     }
 }
 
-static inline int checkWaterDepth(GObj *gobj, int depth)
-{
-    return (int)GOBJ_SUB(gobj)->ctrl.waterDepth < depth;
-}
-
-static inline int checkModelDataID(GObj *gobj, int id)
-{
-    return GOBJ_SUB(gobj)->modelId == id;
-}
-
-static inline int checkWeaponType(GObj *gobj, int kind)
-{
-    GObj *w = GOBJ_SUB(gobj)->ctrl.pickedWeapon;
-    if (w != 0 && CheckWeaponKind(w) == kind) {
-        return 1;
-    }
-    return 0;
-}
-
 /* a frame slot's handler: it is passed the slot's number and entry, which it does not read */
+
+INCLUDE_ASM(execSE);
+
+INCLUDE_ASM(checkWaterDepth);
+
+INCLUDE_ASM(checkModelDataID);
+
+INCLUDE_ASM(checkWeaponType);
 
 INCLUDE_ASM(execVib);
 

@@ -151,6 +151,7 @@ ico2/ito/mpeg/mv_readbuf.c
 ico2/ito/mpeg/mv_strfile.c
 ico2/ito/mpeg/mv_videodec.c
 ico2/ito/mpeg/mv_vobuf.c
+data:unmapped_002ADBA0  # first in the .data run here (code: CreateKyomiGObj, FinishHint read hintTable at 0x2A58B8, before accessary); PAL has it between game-param and generator-sub-position
 data:accessary
 data:act-data-tbl
 data:act-intrlist
@@ -161,7 +162,6 @@ data:auto-escort
 data:camera-set
 data:exit-data
 data:game-param
-data:unmapped_002ADBA0
 data:generator-sub-position
 data:girl-warp-list
 data:iconfile
@@ -195,7 +195,7 @@ data:stage-anim
 data:stream-motion-def
 data:tex-property
 data:weapon-def
-ico2/common/src/DObj.c
+ico2/common/src/DObj.c align.data=16  # JPN: weapon-def ends at 0x315BF8 and DObj.o's .data starts at 0x315C00 (its reads at +0x880 sit at 0x316480)
 ico2/common/src/StageManager.c
 ico2/common/src/backStage.c
 ico2/common/src/charFileManager.c
@@ -348,6 +348,7 @@ data:obj-trigger
 data:parallel-motion-orient
 data:particle-effect
 data:spider-def
+data:texture-path  # .rodata between spider-def and way-group here (config/data_members.jpn.txt), where MAIN.MAP also puts it; PAL links it in .data after texture-layout
 data:way-group
 ico2/common/src/PObj.c
 data:item-kind-def
@@ -356,7 +357,6 @@ data:model-path
 data:prog-se-link
 data:unmapped_00533FC0
 data:texture-layout
-data:texture-path
 data:way-point
 data:weapon-fumble-def
 ico2/fumi/src/vobj.c

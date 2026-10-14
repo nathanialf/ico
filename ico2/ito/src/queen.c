@@ -1022,85 +1022,9 @@ static const QueenGenTable genEnemyTable[2] = {
 
 static const char genEnemyStatFmt[] = "n_enemy_max:%d n_enemy:%d counter:%d"; /* derived name */
 
-void gene_enemy(volatile int g)
-{
-    union { /* field names derived */
-        float f[4];
-        int i[4];
-    } pos;
+void gene_enemy(volatile int g);
 
-    QueenWork *w = GOBJ_SUB(g)->work;
-    const QueenGenTable *tbl;
-    GObj *o;
-    GObj *c;
-    GObj *e;
-    int num;
-    int total;
-    int alive;
-    int timer;
-    int wait;
-    int k;
-    GObj *obj;
-
-    o = isysGObjSearchFromObjKindID_begin(54);
-    num = (o != 0) ? ((QueenBarrierWork *)GOBJ_SUB(o)->work)->damage : 0;
-    tbl = (stage_no == 37) ? &genEnemyTable[0] : &genEnemyTable[1];
-
-    timer = 0;
-    total = 0;
-    for (c = isysGObjSearchFromObjKindID_begin(4); c != 0;
-         c = isysGObjSearchFromObjKindID_next(c)) {
-        total++;
-    }
-    _ACTWait(1);
-
-    for (;;) {
-        if ((w->st.all & 0xFF0000FF) == 0 && w->st.f.attack != 0) {
-            alive = 0;
-            e = isysGObjSearchFromObjKindID_begin(4);
-            while (e != 0 && isEnemyHyde(e) == 0) {
-                alive++;
-                e = isysGObjSearchFromObjKindID_next(e);
-            }
-            if (debug_font_flag & 1) {
-                debug_Printf(10, 90, -1, genEnemyStatFmt, total, alive, timer);
-            }
-            if (alive < total) {
-                if (timer > ((stage_no == 37) ? genWaitRateSt25 : genWaitRateDefault)[num] *
-                                ((60 - systemStatus[0] * 10) / systemStatus[1])) {
-                    if (stage_no == 37) {
-                        obj =
-                            isysGObjSearchFromObjLayoutID(tbl->list[(int)(_GetRandom() * tbl->n)]);
-                        if (obj != 0) {
-                            lw_pos_to_ico_pos(pos.f, queenSpawnPos[(int)(_GetRandom() * 6.0f)]);
-                            SetRootPosition(obj, pos.f);
-                            wait = (int)(((60 - systemStatus[0] * 10) / systemStatus[1]) * 0.5f);
-                            for (k = 0; k <= wait; k++) {
-                                _ACTWait(1);
-                            }
-                            Generator_Call(obj);
-                            _ACTWait(1);
-                            while (stage_CheckAnimationFinish(506) == 0) {
-                                _ACTWait(1);
-                            }
-                            for (k = 0; k <= wait; k++) {
-                                _ACTWait(1);
-                            }
-                            pos.f[0] = 4294967296.0f;
-                            pos.f[1] = 4294967296.0f;
-                            pos.f[2] = 4294967296.0f;
-                            pos.i[3] = 0;
-                            SetRootPosition(obj, pos.f);
-                        }
-                        timer = 0;
-                    }
-                }
-            }
-            timer++;
-        }
-        _ACTWait(1);
-    }
-}
+INCLUDE_ASM(gene_enemy_queen);
 
 /* The position the queen is dropped at outside her own stage. */
 static const QVec queenStartPos = {{0.0f, 800.0f, 0.0f, 1.0f}}; /* derived name */

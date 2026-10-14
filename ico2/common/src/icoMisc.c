@@ -337,4 +337,5 @@ void DispIcoMisc(void)
 }
 
 INCLUDE_ASM(ExitIcoMisc);
+
 INCLUDE_ASM(func_001B8908);

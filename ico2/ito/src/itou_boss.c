@@ -365,66 +365,6 @@ static inline void bossCtrlInit(void *gobj) /* derived name */
     geneReleasing = 0;
 }
 
-inline void actBossCtrlStart(void *gobj)
-{
-    int no;
-    GObj *o;
-    int i;
-
-    no = 0;
-    bossCtrlInit(gobj);
-    geneCount = 0;
-    o = isysGObjSearchFromObjKindID_begin(33);
-    while (o != 0) {
-        sendEnemyAway(o);
-        no++;
-        o = isysGObjSearchFromObjKindID_next(o);
-    }
-    debug_StdPrintfDummy("n generator %d\n", no);
-    for (i = 0; i < no; i++) {
-        actCreateSubThread(gene_enemy, 21);
-    }
-}
-
-inline int InitBossCtrlGeo(void *gobj)
-{
-    int ret;
-    unsigned int k;
-    CapsuleRec *base;
-    CapsuleRec *e;
-    char *m;
-    char (*q_arr)[];
-    char *q;
-    char *r;
-
-    ret = (int)iosMallocDebug(ios_partition_sugipon, 0, __FILE__, 350);
-    actInitialize(gobj);
-    actInitialize_ext_charcter(gobj);
-    debug_StdPrintfDummy("N_CAPSULE %d\n", 53);
-
-    base = capsule;
-    m = (char *)base->pos;
-    q_arr = (char (*)[])capsulePlace[0].pos;
-    r = (char *)capsuleRelease;
-    q = *q_arr;
-    k = 0;
-    do {
-        e = &base[k];
-        e->bga = 0;
-        if (e->state == 1) {
-            e->state = 2;
-        }
-        sceVu0CopyVector(m, q);
-        ico_m33_to_quat(m - 16, q - 48);
-        e->release = (float *)r;
-        q += 64;
-        m += 64;
-        r += 16;
-        k++;
-    } while (k < 53);
-    return ret;
-}
-
 void itou_boss_gflag_init(void)
 {
     memset(gflag, 0, sizeof(gflag) + sizeof(capsule));
@@ -432,37 +372,14 @@ void itou_boss_gflag_init(void)
 
 INCLUDE_ASM(BossCtrlDL);
 
-inline void CapsuleGhostBossStart(void)
-{
-    gflag[0] = 1;
-}
-
-inline int InqCapsuleGhostBossEnd(void)
-{
-    int no = 0;
-    unsigned int cnt = 0;
-    void *o;
-
-    if (isysGObjSearchFromObjKindID_begin(65) != 0) {
-        CapsuleRec *base = capsule;
-        unsigned int i = 0;
-        do {
-            if (base[i].state >= 2) {
-                cnt++;
-            }
-            i++;
-        } while (i < 53);
-    }
-    o = isysGObjSearchFromObjKindID_begin(4);
-    while (o != 0) {
-        if (isEnemyHyde(o) == 0) {
-            no++;
-        }
-        o = isysGObjSearchFromObjKindID_next(o);
-    }
-    return cnt >= 53 && no == 0;
-}
-
 INCLUDE_ASM(InqCapsuleGhostBossStage);
+
+INCLUDE_ASM(actBossCtrlStart);
+
+INCLUDE_ASM(InitBossCtrlGeo);
+
+INCLUDE_ASM(CapsuleGhostBossStart);
+
+INCLUDE_ASM(InqCapsuleGhostBossEnd);
 
 INCLUDE_ASM(gene_eff_end_func);

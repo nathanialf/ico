@@ -385,6 +385,7 @@ static inline int breakItemOnFloorHit(GObj *gobj, float len, float *pos,
 }
 
 INCLUDE_ASM(floatGeo_75);
+
 INCLUDE_ASM(uncarriedItemGeo);
 
 static void execBombGeo(GObj *gobj);

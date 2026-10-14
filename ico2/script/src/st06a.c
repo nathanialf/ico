@@ -220,24 +220,6 @@ static void actSt06aJumpMove(GObj *volatile self);
 
 INCLUDE_ASM(actSt06aJumpMove);
 
-static inline void actSt06aPistonRideOffChk(GObj *volatile self)
-{
-    Act *sub = GOBJ_ACT(self);
-
-    while (scpTriggerFloorAttr(boyGObj, 0x6000000) != 0) {
-        if (gflagChk(117) != 0) {
-            debug_StdPrintfDummy("FALLDOWN!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n");
-            iosOmSendMail(boyGObj, 7, boyGObj);
-        }
-        _ACTWait(1);
-    }
-
-    piston_ride_offchk_mes[0].func = actSt06aPistonRideOnChk;
-    sub->mail = piston_ride_offchk_mes;
-    ACTSendMailCorrect(self, 430);
-    _ACTWait(0);
-}
-
 static void actSt06aPistonFlagOnChk(GObj *volatile self);
 
 INCLUDE_ASM(actSt06aPistonFlagOnChk);
@@ -997,5 +979,7 @@ static inline void actSt06aSound2Chk(GObj *volatile self)
 
     soundSeDefStop(handle);
 }
+
+INCLUDE_ASM(actSt06aPistonRideOffChk);
 
 INCLUDE_ASM(actSt06aPistonFlagOffChk);

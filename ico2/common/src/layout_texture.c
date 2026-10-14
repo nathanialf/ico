@@ -499,7 +499,7 @@ INCLUDE_ASM(exec_layout_texture);
 /* init_textures_of_specified_property is a file static, as is
    ico2/common/src/kanban's function of the same name */
 /* texProperty's texNo column, &texProperty[0].texNo */
-extern char D_0030D014[];
+extern char D_0030A66C[];
 /* sce/'s string.h does not declare it */
 extern char *strtok(char *s, const char *sep);
 
@@ -554,9 +554,9 @@ static void init_textures_of_specified_property(int first, int last)
 
     for (i = first; i < last; i++) {
         no = lt_texture_no_of_property(i);
-        *(int *)(D_0030D014 + i * 0x70) = no;
-        *(void **)(D_0030D014 + i * 0x70 - 4) = tex_GetTextureData(no);
-        tex_SetSamplingType(*(void **)(D_0030D014 + i * 0x70 - 4), 1, 1);
+        *(int *)(D_0030A66C + i * 0x70) = no;
+        *(void **)(D_0030A66C + i * 0x70 - 4) = tex_GetTextureData(no);
+        tex_SetSamplingType(*(void **)(D_0030A66C + i * 0x70 - 4), 1, 1);
     }
 }
 
@@ -572,26 +572,6 @@ static inline void lt_init_stage_textures(int stage) /* derived name */
 }
 
 INCLUDE_ASM(init_layout_texture);
-
-inline int lt_current_property_item(void)
-{
-    return ltCurrentItem;
-}
-
-inline int lt_link_layout(int dir)
-{
-    switch (dir) {
-    case 0:
-        return texProperty[lt_current_property_item()].right;
-    case 1:
-        return texProperty[lt_current_property_item()].left;
-    case 2:
-        return texProperty[lt_current_property_item()].down;
-    case 3:
-        return texProperty[lt_current_property_item()].up;
-    }
-    return -1;
-}
 
 inline void lt_mask_property(int idx, int flag)
 {
@@ -621,6 +601,10 @@ inline void lt_set_fade_mode(int val)
 }
 
 INCLUDE_ASM(lt_switch_layout);
+
+INCLUDE_ASM(lt_current_property_item);
+
+INCLUDE_ASM(lt_link_layout);
 
 INCLUDE_ASM(lt_prev_layout);
 

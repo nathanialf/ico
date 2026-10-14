@@ -1541,10 +1541,12 @@ typedef struct { /* field names derived */
     float m[16];
 } Mtx44 __attribute__((aligned(16)));
 
-/* RECONSTRUCTION, names ours: one memory card's product file, 0x1F0 bytes,
+/* RECONSTRUCTION, names ours: one memory card's product file, 0x1E8 bytes,
  * the record mcard.c's product_write and product_read move whole: the twenty
- * save files' previews, then the options and the last save's place; 16-byte
- * aligned, a SIF DMA buffer for the card code.
+ * save files' previews, then the options and the last save's place. The
+ * December 2001 record: PAL's adds cameraMove and palMode at 0x1E8 and aligns
+ * the record to 16 (0x1F0); here product_write and product_read move 488
+ * bytes and index the two files 488 apart.
  * Writers: ico2/fumi/ios/mcard.c; readers: common/src/layout_action.c,
  * common/src/kanbanBoot.c. */
 typedef struct {        /* field names derived */
@@ -1555,18 +1557,16 @@ typedef struct {        /* field names derived */
     int word10;         /* 0x10, no C reader */
 } McFileInfo;           /* derived name */
 
-typedef struct {                              /* field names derived */
-    McFileInfo file[20];                      /* 0x000 */
-    int soundMode;                            /* 0x190, systemStatus[11] */
-    int outputMode;                           /* 0x194, soundOutputModeGet's */
-    int vibration;                            /* 0x198, iosPadActRequestEnable */
-    int controlType;                          /* 0x19C, optionControlType */
-    char padConf[64];                         /* 0x1A0, iosPadConfCustom's bits */
-    int fileNo;                               /* 0x1E0, the card's current file */
-    int serial;                               /* 0x1E4, the serial of the save it holds */
-    int cameraMove;                           /* 0x1E8, NonLinearCameraMove */
-    int palMode;                              /* 0x1EC, systemStatus[0] */
-} McProductFile __attribute__((aligned(16))); /* derived name */
+typedef struct {         /* field names derived */
+    McFileInfo file[20]; /* 0x000 */
+    int soundMode;       /* 0x190, systemStatus[11] */
+    int outputMode;      /* 0x194, soundOutputModeGet's */
+    int vibration;       /* 0x198, iosPadActRequestEnable */
+    int controlType;     /* 0x19C, optionControlType */
+    char padConf[64];    /* 0x1A0, iosPadConfCustom's bits */
+    int fileNo;          /* 0x1E0, the card's current file */
+    int serial;          /* 0x1E4, the serial of the save it holds */
+} McProductFile;         /* derived name */
 
 /* mcard.c's two product files, one per port */
 extern McProductFile IosMcProductFile[];

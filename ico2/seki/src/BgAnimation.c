@@ -780,23 +780,6 @@ static inline BgaLightningCol bga_lightningColor(BgaLightningDef *g) /* derived 
 
 INCLUDE_ASM(bga_DispLightning);
 
-inline void bga_ResetCamera(void)
-{
-    bgaCameraActive = 0;
-}
-
-inline int bga_GetCameraMatrix(void *p)
-{
-    int v = bgaCameraActive;
-    if (v != 0) {
-        _CopyMatrix(p, bgaCameraMatrix);
-        v = bgaCameraActive;
-    } else {
-        bgaZoom = 0;
-    }
-    return v != 0 && bgaCameraForceOff == 0;
-}
-
 inline void bga_SetCameraForceOff(void)
 {
     bgaCameraForceOff = 1;
@@ -836,6 +819,10 @@ inline float bga_GetZoom(void)
 {
     return bgaZoom;
 }
+
+INCLUDE_ASM(bga_ResetCamera);
+
+INCLUDE_ASM(bga_GetCameraMatrix);
 
 INCLUDE_ASM(bga_InitSdfCamera);
 

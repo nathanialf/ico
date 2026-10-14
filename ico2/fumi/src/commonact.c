@@ -520,28 +520,6 @@ static inline int chainFloorHit(GObj *self, ClipWork *w) /* derived name */
     return 0;
 }
 
-inline void afterCommonRope(GObj *volatile self)
-{
-    Act *s = GOBJ_ACT(self);
-    debug_StdPrintfDummy("common rope after func\n");
-    ReleaseChain(s->chain, self);
-    {
-        GObj *g = self;
-        *(int *)((int)s + 0x194) = s->chain;
-        GOBJ_SUB(g)->root.ropeState = 0;
-    }
-}
-
-inline void actAfterForceRope(GObj *volatile self)
-{
-    Act *s = GOBJ_ACT(self);
-    if (s->chain == 0) {
-        debug_assert("src/commonact.c", 1531);
-        __assert("src/commonact.c", 1531, "ROPE_GOBJ!=NULL");
-    }
-    UnLockChainGeo(s->chain);
-}
-
 INCLUDE_ASM(actCommonRope);
 
 /* the turn to the chain's corrected orient, which SetCorrectOrientOfChain
@@ -976,12 +954,6 @@ static void EBRAIN_SEND_MES(void *enemy, int mes)
         eBrainSendMes(enemy, mes);
 }
 
-inline void actCommonPlay(GObj *volatile self)
-{
-    debug_StdPrintfDummy("enter actCommonPlay\n");
-    _ACTWait(0);
-}
-
 static void DamageFunc(GObj *self)
 {
     Act *s = GOBJ_ACT(self);
@@ -1002,20 +974,6 @@ static void DownFunc(GObj *self)
     DamageFunc(self);
     if (self->kind == 1) {
         EBRAIN_SEND_MES((void *)GOBJ_ACT(self)->attacker, 6);
-    }
-}
-
-inline void actCommonDamage(GObj *volatile self)
-{
-    debug_StdPrintfDummy("enter actCommonDamage\n");
-    SetMotionDirection(self, GOBJ_ACT(self)->attackDir);
-    DamageFunc(self);
-    if (GOBJ_ACT(self)->enemy->liftKind == 3) {
-        _ACTWait(360);
-    }
-    for (;;) {
-        ACTSendMailCorrect(self, 0xC7);
-        _ACTWait(1);
     }
 }
 
@@ -1155,22 +1113,6 @@ typedef struct { /* field names derived */
     char pad0[20];
     int f14;
 } ReviveSub; /* derived name */
-
-inline void actCommonRevive(GObj *volatile self)
-{
-    Act *s = GOBJ_ACT(self);
-
-    debug_StdPrintfDummy("enter actCommonRevive\n");
-    ACTGameCollisionOff(self);
-    ((ReviveSub *)s)->f14 = (int)afterCommonRevive;
-    SetDirectRootPositionNoFitting((void *)self, &s->restartPosX);
-    EnemySetfAppearAll((void *)self);
-    for (;;) {
-        ResetEnemyPositionInfo((void *)self);
-        ACTSendMailCorrect(self, 0xC7);
-        _ACTWait(1);
-    }
-}
 
 typedef struct { /* field names derived */
     char pad0[20];
@@ -1315,13 +1257,6 @@ static inline int boxWallCheck(GObj *self, GObj *box, float dist, int h) /* deri
 }
 
 INCLUDE_ASM(actCommonBox);
-
-inline void afterCommonBar(GObj *volatile self)
-{
-    debug_StdPrintfDummy("reset\n");
-    GOBJ_SUB(self)->root.filter = InitialColInfo;
-    _boxbar_set_sound(self, 0);
-}
 
 typedef struct { /* field names derived */
     char pad0[448];
@@ -1548,9 +1483,18 @@ static inline unsigned char IsFlyTimeOver(int self) /* derived name */
 
 static void flyCoreLoop(GObj *self, GObj *target, int checkStuck);
 
+INCLUDE_ASM(col_277);
+
+INCLUDE_ASM(col_278);
+
+INCLUDE_ASM(col_279);
+
 INCLUDE_ASM(getLandOffset_265);
+
 INCLUDE_ASM(completeEmergency_280);
+
 INCLUDE_ASM(emergencyCheck_284);
+
 INCLUDE_ASM(flyCoreLoop);
 
 typedef struct { /* field names derived */
@@ -1607,103 +1551,9 @@ INCLUDE_ASM(actCommonLadder);
 /* inline tail members, defined here: their strings come between the
    flyCoreLoop unit's and funcCommonBeginReady's in .rodata, while their code
    goes to the end of the object */
-inline void actCommonCliffdown(GObj *volatile self)
-{
-    Act *s = GOBJ_ACT(self);
-
-    debug_StdPrintfDummy("enter actCommonCliffdown\n");
-    SetMotionDirection(self, s->env.cliffOrient);
-    for (;;) {
-        ACTSendMailCorrect(self, 0xC7);
-        _ACTWait(1);
-    }
-}
-
-inline void actCommonShoal(GObj *volatile self)
-{
-    debug_StdPrintfDummy("act main shoal\n");
-    _ACTWait(0);
-}
-
-inline void actCommonSwim(GObj *volatile self)
-{
-    debug_StdPrintfDummy("enter actCommonSwim\n");
-    for (;;) {
-        _ACTWait(1);
-    }
-}
-
-inline void actCommonDodge(GObj *volatile self)
-{
-    float dir[4];
-    int id = 0;
-    Act *s = GOBJ_ACT(self);
-
-    debug_StdPrintfDummy("enter actCommonDodge\n");
-    if (self->kind == 1) {
-        ACTSearchEnemy((void *)self, &id, dir);
-    } else {
-        _OrientXZGV(s->dir, test_CURRENTROOT(boyGObj), test_CURRENTROOT((void *)self));
-        SetMotionDirection(self, s->dir);
-    }
-    while (1) {
-        if (id != 0) {
-            SetMotionDirectionWithLimit((void *)self, dir, 10.0f, 90.0f);
-        }
-        ACTSendMailCorrect(self, 0xC7);
-        _ACTWait(1);
-    }
-}
-
-inline void actCommonGuard(GObj *volatile self)
-{
-    Act *s = GOBJ_ACT(self);
-
-    debug_StdPrintfDummy("enter actCommonGuard\n");
-    SetMotionDirection(self, GOBJ_ACT(self)->attackDir);
-    if (self->kind == 4) {
-        EBRAIN_SEND_MES((void *)self, 6);
-        ACTGame_LwsEffect_Guard((void *)self);
-    }
-    iosOmSendMail(boyGObj, 0x11C, self);
-    if (s->intrKind == 282) {
-        ACTSetPositionWithFitting((void *)self, test_CURRENTROOT((void *)self));
-    }
-    for (;;) {
-        ACTSendMailCorrect(self, 0xC7);
-        _ACTWait(1);
-    }
-}
-
 #undef LADW
 
 INCLUDE_ASM(actCommonEdgeHang);
-
-inline void motCommonHangNone(GObj *volatile self)
-{
-    debug_StdPrintfDummy("enter motCommonHang None\n");
-    _ACTWait(0);
-}
-
-inline void motCommonHangWall(GObj *volatile self)
-{
-    debug_StdPrintfDummy("enter motCommonHang Wall\n");
-    _ACTWait(0);
-}
-
-inline void motCommonHangCliff(GObj *volatile self)
-{
-    debug_StdPrintfDummy("enter motCommonHang Cliff\n");
-    _ACTWait(0);
-}
-
-inline void motCommonNull(GObj *volatile self)
-{
-    debug_StdPrintfDummy("enter motCommonNull\n");
-    for (;;) {
-        _ACTWait(1);
-    }
-}
 
 void funcCommonBeginReady(char *self, int mail, char *from)
 {
@@ -2059,294 +1909,14 @@ void ACTAdjustPlane(GObj *self, void *wall)
     AdjustRootPositionToVerticalSidePlaneOfWall(self, wall, 30.0f);
 }
 
-inline void ACTAcceptMail(GObj *self, int mail)
-{
-    if (mail == 0xB1) {
-        GOBJ_WORK(self)->mailB1Timer = ((60 - systemStatus[0] * 10) / systemStatus[1]) * 10;
-    }
-}
-
-inline void WithMailFunc_Idling(GObj *self)
-{
-    Act *s = GOBJ_ACT(self);
-    int k = s->actKind;
-    int mot = GOBJ_SUB(self)->ctrl.motion;
-
-    SetIdleMotionRange(k, mot, mot);
-}
-
-inline void WithMailFunc_BossDamaged(GObj *self)
-{
-    EnemyBattleWork *m = GOBJ_ACT(self)->enemy;
-    m->bossLife -= 1;
-}
-
-inline void WithMailFunc_FallDead(GObj *self)
-{
-    float v[4];
-    Sub15C *s = GOBJ_SUB(self);
-    v[0] = s->root.plane.f[0];
-    v[1] = s->root.plane.f[1];
-    v[2] = s->root.plane.f[2];
-    sceVu0Normalize(v, v);
-    if ((double)FSqrt(v[0] * v[0] + v[2] * v[2]) > 0.3) {
-        v[1] = 0.0f;
-        sceVu0Normalize(v, v);
-        SetMotionDirection(self, v);
-    }
-}
-
-inline void actCommonReviveAir(GObj *volatile self)
-{
-    SetDirectRootPositionNoFitting((void *)self, (char *)GOBJ_ACT(self) + 0x170);
-    EnemySetfAppearAll((void *)self);
-    for (;;) {
-        ACTSendMailCorrect(self, 0xE2);
-        _ACTWait(1);
-    }
-}
-
-inline void actCommonOne(GObj *volatile self)
-{
-    Act *s = GOBJ_ACT(self);
-
-    if (s->intrKind == 416) {
-        if (*(int *)((char *)s + 0x138) & 1) {
-            s->soundWait = ((60 - systemStatus[0] * 10) / systemStatus[1]) * 5;
-        }
-    }
-    for (;;) {
-        ACTSendMailCorrect(self, 0xC7);
-        _ACTWait(1);
-    }
-}
-
-inline void actCommonDelete(GObj *volatile self)
-{
-    _ACTWait(0);
-}
-
-inline void actCommonCatchFire(GObj *volatile self)
-{
-    Act *s = GOBJ_ACT(self);
-    int lit = 0;
-
-    SetMotionDirection(self, s->env.torchOrient);
-    for (;;) {
-        if (GetMotionFrameFlag1((void *)self) && !lit) {
-            LightTorchOnOfWeapon(s->weapon);
-            lit = 1;
-        }
-        ACTSendMailCorrect(self, 0xC7);
-        _ACTWait(1);
-    }
-}
-
-inline void actCommonCatchFireBomb(GObj *volatile self)
-{
-    Act *s = GOBJ_ACT(self);
-    int lit = 0;
-
-    SetMotionDirection(self, s->env.torchOrient);
-    for (;;) {
-        if (GetMotionFrameFlag1((void *)self) && !lit) {
-            LightTorchOn(s->env.bombObj);
-            lit = 1;
-        }
-        ACTSendMailCorrect(self, 0xC7);
-        _ACTWait(1);
-    }
-}
-
-inline void actCommonPutFire(GObj *volatile self)
-{
-    Act *s = GOBJ_ACT(self);
-    int lit = 0;
-
-    SetMotionDirection(self, s->env.torchRevOrient);
-    for (;;) {
-        if (GetMotionFrameFlag1((void *)self) && !lit) {
-            LightTorchOn(s->env.torchRevObj);
-            lit = 1;
-        }
-        ACTSendMailCorrect(self, 0xC7);
-        _ACTWait(1);
-    }
-}
-
-inline void actCommonBoxReverbe(GObj *volatile self)
-{
-    _ACTWait(40);
-    for (;;) {
-        ACTSendMailCorrect(self, 0xC7);
-        _ACTWait(1);
-    }
-}
-
-inline void actCommonItem(GObj *volatile self)
-{
-    for (;;) {
-        ACTSendMailCorrect(self, 0xC7);
-        _ACTWait(1);
-    }
-}
-
 typedef struct { /* field names derived */
     float x, y, z;
 } Vec3f; /* derived name */
-
-inline void actCommonLadderBellow(GObj *volatile self)
-{
-    WallCfg hit;
-    float p[4];
-    float q[4];
-    float dir[4];
-    int attr[4];
-
-    while (1) {
-        GetSkeltonPosition(p, self, 0x2C);
-        sceVu0ScaleVector(dir, test_CURRENTORIENT(self), 50.0f);
-        sceVu0AddVector(q, p, dir);
-        if (ACTCheckCollis_CI(p, q, attr, &hit) != 0) {
-            if (CompareAttribute(attr[0], 0x3000) != 0) {
-                ACTSendMailCorrect(self, 0x91);
-                GOBJ_WORK(self)->bellowWall3000.wall = hit;
-            }
-            if (CompareAttribute(attr[0], 0x400) != 0) {
-                ACTSendMailCorrect(self, 0x90);
-                GOBJ_WORK(self)->bellowWall400.wall = hit;
-            }
-        }
-        ACTSendMailCorrect(self, 0xE2);
-        _ACTWait(1);
-    }
-}
-
-inline void actCommonLadderBellowHang(GObj *volatile self)
-{
-    for (;;) {
-        if (!CheckWallAttribute((void *)self, 0x3000) && !CheckWallAttribute((void *)self, 0x400)) {
-            ACTSendMailCorrect(self, 0xE2);
-        }
-        _ACTWait(1);
-    }
-}
-
-inline void actCommonEdge(GObj *volatile self)
-{
-    for (;;) {
-        ACTSendMailCorrect(self, 0x150);
-        if (-GOBJ_SUB(self)->ctrl.cliffDepth > 250.0f) {
-            ACTSendMailCorrect(self, 0x18);
-        }
-        _ACTWait(1);
-    }
-}
-
-inline void actCommonDodgeJump(GObj *volatile self)
-{
-    float buf[4];
-    int id = 0;
-    Act *s = GOBJ_ACT(self);
-
-    if (self->kind == 1) {
-        ACTSearchEnemy((void *)self, &id, buf);
-    } else {
-        _OrientXZGV(s->dir, test_CURRENTROOT(boyGObj), test_CURRENTROOT((void *)self));
-        SetMotionDirection(self, s->dir);
-    }
-    for (;;) {
-        _ACTWait(1);
-    }
-}
-
-inline void actCommonFallDamage(GObj *volatile self)
-{
-    if (self == boyGObj) {
-        brainAddLevelGirl(1000.0f);
-    }
-    for (;;) {
-        if (self == boyGObj && girlGObj != 0) {
-            brainSetSpMode();
-            iosOmSendMail(girlGObj, 0x3D, self);
-        }
-        ACTSendMailCorrect(self, 0xC7);
-        _ACTWait(1);
-    }
-}
-
-inline void actCommonLever2(GObj *volatile self)
-{
-    Act *s = GOBJ_ACT(self);
-    GObj *lev = s->env.pullObj;
-
-    SetDirectRootPositionXZ((void *)self, s->env.pullPos);
-    actMotDirToWall(self);
-    while (1) {
-        if (lev != 0) {
-            /* an empty guard: the frame flag is re-read and nothing is done */
-            if (GOBJ_SUB(self)->ctrl.frameFlag2 != 0) {}
-            if (GOBJ_SUB(self)->ctrl.frameFlag1 != 0) {
-                lever_nego1((void *)self, lev);
-            }
-        }
-        _ACTWait(1);
-    }
-}
-
-inline void actCommonRopeTouchWall(GObj *volatile self)
-{
-    Act *s = GOBJ_ACT(self);
-
-    while (1) {
-        if (((60 - systemStatus[0] * 10) / systemStatus[1]) / 2 < s->modeFrame) {
-            ACTSendMailCorrect(self, 0xAA);
-        }
-        _ACTWait(1);
-    }
-}
 
 typedef struct { /* field names derived */
     char pad0[24];
     int f18;
 } RopeSwingWork; /* derived name */
-
-inline void actCommonRopeSwing(GObj *volatile self)
-{
-    float q[4];
-    Act *s = GOBJ_ACT(self);
-
-    LockChainGeo(s->chain);
-    ((RopeSwingWork *)s)->f18 = (int)actAfterForceRopeSwing;
-    GetCorrectOrientOfChain(q, (void *)self);
-    s->ropeSwingX = q[0];
-    s->ropeSwingY = q[1];
-    s->ropeSwingZ = q[2];
-    PlumbOrientUpdateChain(s->chain, q);
-    _ACTWait(1);
-    while (1) {
-        switch (CollisCheckInRope((void *)self, s->chain)) {
-        case 1:
-            ACTSendMailCorrect(self, 0xA8);
-            break;
-        case 2:
-            ACTSendMailCorrect(self, 0xA7);
-            break;
-        }
-        UnLockChainGeo(s->chain);
-        ChainGeo(s->chain);
-        LockChainGeo(s->chain);
-        SetMotionDirection(self, q);
-        _ACTWait(1);
-    }
-}
-
-inline void actCommonRopeTurn(GObj *volatile self)
-{
-    for (;;) {
-        _ACTWait(1);
-    }
-}
 
 static inline int isRopeDownEndOnFloor(GObj *self) /* derived name */
 {
@@ -2372,348 +1942,20 @@ typedef struct { /* field names derived */
     int f138;
 } RopeJumpWork; /* derived name */
 
-inline void actCommonRopeJump(GObj *volatile self)
-{
-    Act *s = GOBJ_ACT(self);
-
-    *(int *)((char *)s + 0x18) = (int)actAfterRopeJump;
-    if (s->intrKind == 167) {
-        ((RopeJumpWork *)(int)GOBJ_SUB(self))->f130 = 0;
-        ((RopeJumpWork *)(int)GOBJ_SUB(self))->f134 = 0;
-        ((RopeJumpWork *)(int)GOBJ_SUB(self))->f138 = 0;
-    }
-    for (;;) {
-        ACTSendMailCorrect(self, 0xBD);
-        _ACTWait(1);
-    }
-}
-
-inline void actCommonRopeJumpBefore(GObj *volatile self)
-{
-    for (;;) {
-        ACTSendMailCorrect(self, 0xBD);
-        _ACTWait(1);
-    }
-}
-
 typedef struct { /* field names derived */
     char pad0[24];
     int f18;
 } RopeTurnSpWork; /* derived name */
-
-inline void actCommonRopeTurnSpecial(GObj *volatile self)
-{
-    Vec4u base;
-    float p0[4];
-    float p1[4];
-    float out[4];
-
-    ((RopeTurnSpWork *)(char *)GOBJ_ACT(self))->f18 = (int)afterCommonRopeTurnSpecial;
-    base.f[0] = GOBJ_SUB(self)->root.holdPoint[0];
-    base.f[1] = GOBJ_SUB(self)->root.holdPoint[1];
-    base.f[2] = GOBJ_SUB(self)->root.holdPoint[2];
-    while (1) {
-        GetCageChainPoint(p0, p1, GOBJ_WORK(self)->ropeCage);
-        _InterGV(out, p0, p1, base.f[1] - p0[1], p1[1] - base.f[1]);
-        out[1] = base.f[1];
-        SetChainRootUpdateMode(self, 3, out);
-        _ACTWait(1);
-    }
-}
-
-inline void actCommonRopeClimbEnd2(GObj *volatile self)
-{
-    for (;;) {
-        ACTSendMailCorrect(self, 0xC7);
-        _ACTWait(1);
-    }
-}
-
-inline void actCommonCornered(GObj *volatile self)
-{
-    float v[4];
-
-    sceVu0ScaleVector(v, test_CURRENTORIENT(self), -1.0f);
-    SetMotionDirection(self, v);
-    for (;;) {
-        _ACTCharStatus_Set(self, 3, -1.0f, 0);
-        _ACTWait(1);
-    }
-}
-
-inline void actCommonLookaround(GObj *volatile self)
-{
-    for (;;) {
-        ACTSendMailCorrect(self, 0xC7);
-        _ACTWait(1);
-    }
-}
-
-inline void actCommonTurnWarn(GObj *volatile self)
-{
-    float q[4];
-    Act *s = GOBJ_ACT(self);
-    int prev = s->curMot;
-
-    while (1) {
-        int d;
-
-        if (s->curMot != 0x10D) {
-            prev = s->curMot;
-        } else {
-            s->motReq = SetMotionRequest((void *)self, prev, s->env.motOriReq);
-        }
-        GetRootMotionOrient(q, self);
-        d = _RotyGV(&GOBJ_WORK(self)->hideDirX, q);
-        if ((d < 0 ? -d : d) < 0xF) {
-            ACTSendMailCorrect(self, 0xF5);
-        }
-        _ACTWait(1);
-    }
-}
-
-inline void actCommonTurnStrict(GObj *volatile self)
-{
-    float q[4];
-    float *t = GOBJ_ACT(self)->env.turnDir.f;
-
-    for (;;) {
-        int d;
-
-        GetRootMotionOrient(q, self);
-        d = _RotyGV(t, q);
-        if ((d < 0 ? -d : d) < 0xF) {
-            ACTSendMailCorrect(self, 0xF4);
-        }
-        _ACTWait(1);
-    }
-}
-
-inline void actCommonPPipe(GObj *volatile self)
-{
-    _ACTWait(0);
-}
-
-inline void actCommonHandrail(GObj *volatile self)
-{
-    Act *s = GOBJ_ACT(self);
-
-    GOBJ_WORK(self)->handrailOrient[0] = s->env.wallOrient[0];
-    GOBJ_WORK(self)->handrailOrient[1] = s->env.wallOrient[1];
-    GOBJ_WORK(self)->handrailOrient[2] = s->env.wallOrient[2];
-    for (;;) {
-        _ACTWait(1);
-    }
-}
-
-inline void actCommonOneWall(GObj *volatile self)
-{
-    GOBJ_ACT(self)->after = (void *)afterCommonOneWall;
-    _ACTWait(0);
-}
-
-inline void motCommonBarPush(GObj *volatile self)
-{
-    *(int *)((int)GOBJ_ACT(self) + 0x38) = 1;
-    _ACTWait(0);
-}
-
-inline void motCommonBarPull(GObj *volatile self)
-{
-    char *g = (char *)self;
-    GOBJ_ACT(g)->pushDir = 0xFFFFFFFFu;
-    _ACTWait(0);
-}
 
 typedef struct { /* field names derived */
     char pad0[56];
     int f38;
 } LadderMotWork; /* derived name */
 
-inline void motCommonLadderUp(GObj *volatile self)
-{
-    LadderMotWork *s = (LadderMotWork *)(char *)GOBJ_ACT(self);
-
-    while (1) {
-        s->f38 = 1;
-        switch (GOBJ_ACT(self)->enemy->ladderUpStep) {
-        case 1:
-            ACTSendMailCorrect(self, 0x89);
-        case 2:
-            ACTSendMailCorrect(self, 0x8A);
-            break;
-        }
-        _ACTWait(1);
-    }
-}
-
 typedef struct { /* field names derived */
     char pad0[56];
     unsigned int f38;
 } LadderDownMotWork; /* derived name */
-
-inline void motCommonLadderDown(GObj *volatile self)
-{
-    LadderDownMotWork *s = (LadderDownMotWork *)(char *)GOBJ_ACT(self);
-
-    while (1) {
-        s->f38 = -1;
-        switch (GOBJ_ACT(self)->enemy->ladderDownStep) {
-        case 1:
-            ACTSendMailCorrect(self, 0x89);
-        case 2:
-            ACTSendMailCorrect(self, 0x8A);
-            break;
-        }
-        _ACTWait(1);
-    }
-}
-
-inline void motCommonSlip(GObj *volatile self)
-{
-    Act *s = GOBJ_ACT(self);
-
-    while (1) {
-        long long f = (long long)s->wish1.ll;
-
-        if (!((((int)(f >> 16) & 1) && ((int)((long long)s->wish3.ll >> 16) & 1)) ||
-              (((int)(f >> 17) & 1) && ((int)((long long)s->wish3.ll >> 17) & 1)))) {
-            ACTSendMailCorrect(self, 0xC7);
-        }
-        _ACTWait(1);
-    }
-}
-
-inline void motCommonRopejumpDircorrect(GObj *volatile self)
-{
-    float v[4];
-    Act *s = GOBJ_ACT(self);
-
-    v[0] = s->ropeSwingX;
-    v[1] = s->ropeSwingY;
-    v[2] = s->ropeSwingZ;
-    if (s->intrKind == 190) {
-        sceVu0ScaleVector(v, v, -1.0f);
-    }
-    for (;;) {
-        SetMotionDirection(self, v);
-        _ACTWait(1);
-    }
-}
-
-inline void motCommonRopeTurnSpecialR(GObj *volatile self)
-{
-    int i = 0;
-    int base = (int)(_GetDirection(test_CURRENTORIENT(self)) / 3.1415927f * 180.0f);
-    Act *s = GOBJ_ACT(self);
-    float dir[4];
-    int wait = 18, deg = 0;
-
-    while (1) {
-        memset(dir, 0, 16);
-        dir[2] = 1.0f;
-        _ApplyRyGV(dir, (float)RoundDegGV(base + deg) * 3.1415927f / 180.0f);
-        debug_Arrow(200.0f, test_CURRENTROOT((void *)self), dir, 0xFF, 0, 0xFF);
-        SetMotionDirection(self, dir);
-        if (i++ % wait == 0 && !(0.1f < s->stick.mag)) {
-            ACTSendMailCorrect(self, 0xAC);
-        }
-        deg += 5;
-        _ACTWait(1);
-    }
-}
-
-inline void motCommonRopeTurnSpecialL(GObj *volatile self)
-{
-    int i = 0;
-    int base = (int)(_GetDirection(test_CURRENTORIENT(self)) / 3.1415927f * 180.0f);
-    Act *s = GOBJ_ACT(self);
-    float dir[4];
-    int wait = 18, deg = 0;
-
-    while (1) {
-        memset(dir, 0, 16);
-        dir[2] = 1.0f;
-        _ApplyRyGV(dir, (float)RoundDegGV(base - deg) * 3.1415927f / 180.0f);
-        debug_Arrow(200.0f, test_CURRENTROOT((void *)self), dir, 0xFF, 0, 0xFF);
-        SetMotionDirection(self, dir);
-        if (i++ % wait == 0 && !(0.1f < s->stick.mag)) {
-            ACTSendMailCorrect(self, 0xAC);
-        }
-        deg += 5;
-        _ACTWait(1);
-    }
-}
-
-inline void motCommonTruckLeverLoop(GObj *volatile self)
-{
-    GObj *sw = GOBJ_ACT(self)->env.pullObj;
-
-    _ACTWait(6);
-    SetSwitchState(sw, 0);
-    debug_StdPrintfDummy("loop");
-    _ACTWait(0);
-}
-
-inline void motCommonTruckLeverPull(GObj *volatile self)
-{
-    GObj *sw = GOBJ_ACT(self)->env.pullObj;
-    _ACTWait(30);
-    SetSwitchState(sw, -1);
-    debug_StdPrintfDummy("pull");
-    _ACTWait(0);
-}
-
-inline void motCommonTruckLeverPush(GObj *volatile self)
-{
-    GObj *sw = GOBJ_ACT(self)->env.pullObj;
-    _ACTWait(30);
-    SetSwitchState(sw, 1);
-    debug_StdPrintfDummy("push");
-    _ACTWait(0);
-}
-
-inline void funcCommonRopeBefore(GObj *self, int mail, GObj *chain)
-{
-    GOBJ_ACT(self)->chain = chain;
-}
-
-inline void extraCommonNull(GObj *volatile self)
-{
-    for (;;) {
-        _ACTWait(1);
-    }
-}
-
-inline void extraCommonCall(GObj *volatile self)
-{
-    if (girlGObj) {
-        iosOmSendMail(girlGObj, 0x44, isysCurrentGObj);
-    }
-    for (;;) {
-        _ACTWait(1);
-    }
-}
-
-inline void funcCommonWayOn(GObj *self)
-{
-    if (self == girlGObj) {
-        girlcalled = 1;
-    }
-}
-
-inline void funcCommonSofaWakeup(GObj *self)
-{
-    GOBJ_ACT(self)->enemy->sofaWake = 0;
-}
-
-inline int _ACTMotReqResult(GObj *self, int mot)
-{
-    Act *s = GOBJ_ACT(self);
-    char *r = SetMotionRequest(self, mot, s->env.motOriReq);
-    s->motReq = r;
-    return *(int *)(r + 0xC) != 0;
-}
 
 /* StartCorrectPosition and IsCorrectPosition precede test_CURRENTORIENT and
    test_CURRENTROOT, so their calls to the two accessors stay calls. */
@@ -2722,208 +1964,15 @@ typedef union { /* field names derived */
     int i;
 } CorrFlag; /* derived name */
 
-inline void StartCorrectPosition(GObj *self, float *pos, float *dir, int mode, float t)
-{
-    GOBJ_ACT(self)->enemy->corrPosX = test_CURRENTROOT(self)[0];
-    GOBJ_ACT(self)->enemy->corrPosY = test_CURRENTROOT(self)[1];
-    GOBJ_ACT(self)->enemy->corrPosZ = test_CURRENTROOT(self)[2];
-    GOBJ_ACT(self)->enemy->corrDirX = test_CURRENTORIENT(self)[0];
-    GOBJ_ACT(self)->enemy->corrDirY = test_CURRENTORIENT(self)[1];
-    GOBJ_ACT(self)->enemy->corrDirZ = test_CURRENTORIENT(self)[2];
-    GOBJ_ACT(self)->enemy->corrDstX = pos[0];
-    GOBJ_ACT(self)->enemy->corrDstY = pos[1];
-    GOBJ_ACT(self)->enemy->corrDstZ = pos[2];
-    if (dir != 0) {
-        GOBJ_ACT(self)->enemy->corrDstDirX = dir[0];
-        GOBJ_ACT(self)->enemy->corrDstDirY = dir[1];
-        GOBJ_ACT(self)->enemy->corrDstDirZ = dir[2];
-    }
-    GOBJ_ACT(self)->enemy->corrFrames = (int)t;
-    GOBJ_ACT(self)->enemy->corrCount = 0;
-    ((CorrFlag *)((char *)GOBJ_ACT(self)->enemy + 0xB8))->i = mode;
-    ((CorrFlag *)((char *)GOBJ_ACT(self)->enemy + 0xB8))->ll |= (1ULL << 32);
-}
-
-inline int IsCorrectPosition(GObj *self)
-{
-    unsigned long long v = GOBJ_ACT(self)->enemy->corrFlags;
-    return (int)v & 1;
-}
-
 /* the orient and the position these two accessors hand back */
 static float commonOrient[4]; /* derived name */
 
 static float commonPos[4]; /* derived name */
 
-inline float *test_CURRENTORIENT(GObj *self)
-{
-    if (self != boyGObj && self != girlGObj && self->kind != 4) {
-        GetRootOrient(commonOrient, self);
-        return commonOrient;
-    }
-    {
-        float *p = GOBJ_ACT(self)->jump;
-        _GetMotionDirection(p, self);
-        return p;
-    }
-}
-
-inline float *test_CURRENTROOT(GObj *self)
-{
-    float buf[4];
-    float *p;
-    float v;
-
-    switch (self->kind) {
-    case 1:
-    case 2:
-    case 4:
-        p = (float *)(char *)GOBJ_ACT(self);
-        p = (float *)((char *)p + 0x100);
-        GetRootPosition(p, self);
-        return p;
-    case 0x2C:
-        if (GetCageChainPoint(commonPos, buf, self) == 0) {
-            v = 3.40282347e+38f; /* FLT_MAX */
-            commonPos[0] = v;
-            commonPos[1] = v;
-            commonPos[2] = v;
-        }
-        return commonPos;
-    default:
-        GetRootPosition(commonPos, self);
-        return commonPos;
-    }
-}
-
-inline void ControlMotionOrient(int id, int mot)
-{
-    motionOrient[id].w[2] = mot;
-}
-
-inline int FloorIsTruck(GObj *self)
-{
-    GObj *p = GOBJ_SUB(self)->parent.obj;
-    if (p != 0) {
-        if (p->kind == 17) {
-            if (IsThisBoxTruck(p) == 7) {
-                return 1;
-            }
-        }
-    }
-    return 0;
-}
-
-inline void _ACTMotDir_V(void *self, void *dir)
-{
-    float local[4];
-    sceVu0ScaleVector(local, dir, -1.0f);
-    SetMotionDirection(self, local);
-}
-
-inline void ACTMotDirToWall(GObj *self)
-{
-    actMotDirToWall(self);
-}
-
-inline void SetCorrectOrientOfChain(void *self)
-{
-    setCorrectOrientOfChain(self);
-}
-
-inline void actAfterForceRopeSwing(GObj *volatile self)
-{
-    Act *s = GOBJ_ACT(self);
-    if (s->chain == 0) {
-        debug_assert("src/commonact.c", 1653);
-        __assert("src/commonact.c", 1653, "ROPE_GOBJ!=NULL");
-    }
-    UnLockChainGeo(s->chain);
-}
-
-static inline void actAfterRopeJump(GObj *volatile self)
-{
-    char *g = (char *)self;
-    GOBJ_ACT(g)->flags20.ll |= (1ULL << 31);
-}
-
-static inline void afterCommonRopeCliff(char *self)
-{
-    char *volatile local = self;
-    char *g = *(char **)((char *)boyGObj + 0x15C);
-    *(int *)(g + 0x420) = 0;
-}
-
-static inline void afterCommonRopeTurnSpecial(GObj *volatile self)
-{
-    char *g = (char *)self;
-    GOBJ_SUB(g)->root.ropeState = 0;
-}
-
-inline void actAfterDown(GObj *volatile self)
-{
-    GOBJ_WORK(self)->downTimer = ((60 - systemStatus[0] * 10) / systemStatus[1]) * 0x82 / 0x3C;
-}
-
-inline void afterCommonCling(volatile unsigned int self)
-{
-    ACTGameCollisionOn(self);
-}
-
-inline void actAfterSlip(int x)
-{
-    volatile int local = x;
-}
-
-inline void afterCommonRevive(volatile unsigned int self)
-{
-    ACTGameCollisionOn(self);
-}
-
-inline void afterCommonStone(GObj *volatile self)
-{
-    GObj *g1 = self;
-    GObj *g2 = self;
-    GOBJ_ACT(g1)->enemy->stonePair = -1;
-    GOBJ_ACT(g2)->enemy->word2A4 = 0;
-}
-
-inline void afterCommonBox(GObj *volatile self)
-{
-    _boxbar_set_sound(self, 0);
-}
-
-inline void actAfterFall(GObj *volatile self)
-{
-    Act *s = GOBJ_ACT(self);
-    unsigned long long st = *(unsigned long long *)((int)s + 0x20) & ~(1ULL << 42);
-    unsigned long long fl = *(unsigned long long *)((int)s + 0x18) & ~(1ULL << 53);
-    *(unsigned long long *)((int)s + 0x18) = fl;
-    *(unsigned long long *)((int)s + 0x20) = st | (1ULL << 31);
-}
-
 typedef struct { /* field names derived */
     char pad0[32];
     unsigned long long status;
 } FlySub; /* derived name */
-
-inline void actAfterFly(GObj *volatile self)
-{
-    FlySub *s = (FlySub *)(int)GOBJ_ACT(self);
-    s->status |= 0x200;
-    SetEnemyFootPrintSwitch(self, 1);
-    ResetFlyLimit(self);
-}
-
-inline void afterCommonOneWall(int x)
-{
-    volatile int local = x;
-}
-
-inline int ACTCheckFlagAttack(GObj *self)
-{
-    return GOBJ_ACT(self)->actMode == 15;
-}
 
 typedef struct { /* field names derived */
     char pad0[116];
@@ -2936,18 +1985,192 @@ inline void afterCommonTruckLever(GObj *volatile self)
     SetSwitchState(GOBJ_ACT(g)->env.pullObj, 0);
 }
 
+INCLUDE_ASM(ACTAcceptMail);
+
 INCLUDE_ASM(_ACTMotDirSmzDirect);
+
+INCLUDE_ASM(WithMailFunc_Idling);
+
+INCLUDE_ASM(WithMailFunc_BossDamaged);
+
+INCLUDE_ASM(WithMailFunc_FallDead);
+
+INCLUDE_ASM(actCommonRevive);
+
+INCLUDE_ASM(actCommonReviveAir);
+
+INCLUDE_ASM(actCommonPlay);
+
+INCLUDE_ASM(actCommonOne);
+
+INCLUDE_ASM(actCommonDelete);
+
+INCLUDE_ASM(actCommonCatchFire);
+
+INCLUDE_ASM(actCommonCatchFireBomb);
+
+INCLUDE_ASM(actCommonPutFire);
+
+INCLUDE_ASM(actCommonBoxReverbe);
+
+INCLUDE_ASM(actCommonItem);
 
 INCLUDE_ASM(actCommonClimb);
 
+INCLUDE_ASM(actCommonCliffdown);
+
+INCLUDE_ASM(actCommonLadderBellow);
+
+INCLUDE_ASM(actCommonLadderBellowHang);
+
+INCLUDE_ASM(actCommonEdge);
+
+INCLUDE_ASM(actCommonDodge);
+
+INCLUDE_ASM(actCommonDodgeJump);
+
+INCLUDE_ASM(actCommonGuard);
+
+INCLUDE_ASM(actCommonFallDamage);
+
+INCLUDE_ASM(actCommonDamage);
+
+INCLUDE_ASM(actCommonShoal);
+
+INCLUDE_ASM(actCommonSwim);
+
+INCLUDE_ASM(actCommonLever2);
+
+INCLUDE_ASM(actCommonRopeTouchWall);
+
+INCLUDE_ASM(actCommonRopeSwing);
+
+INCLUDE_ASM(actCommonRopeTurn);
+
 INCLUDE_ASM(actCommonRopeDownEnd);
+
+INCLUDE_ASM(actCommonRopeJump);
+
+INCLUDE_ASM(actCommonRopeJumpBefore);
+
+INCLUDE_ASM(actCommonRopeTurnSpecial);
+
+INCLUDE_ASM(actCommonRopeClimbEnd2);
+
+INCLUDE_ASM(actCommonCornered);
+
+INCLUDE_ASM(actCommonLookaround);
+
+INCLUDE_ASM(actCommonTurnWarn);
+
+INCLUDE_ASM(actCommonTurnStrict);
+
+INCLUDE_ASM(actCommonPPipe);
+
+INCLUDE_ASM(actCommonHandrail);
+
+INCLUDE_ASM(actCommonOneWall);
+
+INCLUDE_ASM(motCommonNull);
 
 INCLUDE_ASM(motCommonBoxPush);
 
 INCLUDE_ASM(motCommonBoxPull);
 
+INCLUDE_ASM(motCommonBarPush);
+
+INCLUDE_ASM(motCommonBarPull);
+
+INCLUDE_ASM(motCommonLadderUp);
+
+INCLUDE_ASM(motCommonLadderDown);
+
+INCLUDE_ASM(motCommonSlip);
+
+INCLUDE_ASM(motCommonRopejumpDircorrect);
+
+INCLUDE_ASM(motCommonHangNone);
+
+INCLUDE_ASM(motCommonHangWall);
+
+INCLUDE_ASM(motCommonHangCliff);
+
+INCLUDE_ASM(motCommonRopeTurnSpecialR);
+
+INCLUDE_ASM(motCommonRopeTurnSpecialL);
+
+INCLUDE_ASM(motCommonTruckLeverLoop);
+
+INCLUDE_ASM(motCommonTruckLeverPull);
+
+INCLUDE_ASM(motCommonTruckLeverPush);
+
+INCLUDE_ASM(funcCommonRopeBefore);
+
+INCLUDE_ASM(afterCommonRope);
+
+INCLUDE_ASM(extraCommonNull);
+
+INCLUDE_ASM(extraCommonCall);
+
+INCLUDE_ASM(funcCommonWayOn);
+
+INCLUDE_ASM(funcCommonSofaWakeup);
+
+INCLUDE_ASM(_ACTMotReqResult);
+
+INCLUDE_ASM(test_CURRENTORIENT);
+
+INCLUDE_ASM(test_CURRENTROOT);
+
+INCLUDE_ASM(StartCorrectPosition);
+
+INCLUDE_ASM(IsCorrectPosition);
+
+INCLUDE_ASM(ControlMotionOrient);
+
+INCLUDE_ASM(FloorIsTruck);
+
+INCLUDE_ASM(_ACTMotDir_V);
+
+INCLUDE_ASM(ACTMotDirToWall);
+
+INCLUDE_ASM(SetCorrectOrientOfChain);
+
+INCLUDE_ASM(actAfterForceRope);
+
+INCLUDE_ASM(actAfterForceRopeSwing);
+
+INCLUDE_ASM(actAfterRopeJump);
+
+INCLUDE_ASM(afterCommonRopeCliff);
+
+INCLUDE_ASM(afterCommonRopeTurnSpecial);
+
+INCLUDE_ASM(actAfterDown);
+
+INCLUDE_ASM(afterCommonCling);
+
+INCLUDE_ASM(actAfterSlip);
+
+INCLUDE_ASM(afterCommonRevive);
+
+INCLUDE_ASM(afterCommonStone);
+
+INCLUDE_ASM(afterCommonBox);
+
+INCLUDE_ASM(afterCommonBar);
+
 INCLUDE_ASM(actAfterJump);
 
+INCLUDE_ASM(actAfterFall);
+
+INCLUDE_ASM(actAfterFly);
+
 INCLUDE_ASM(ClipCollisionWithField);
+
+INCLUDE_ASM(afterCommonOneWall);
+
+INCLUDE_ASM(ACTCheckFlagAttack);
 
 INCLUDE_ASM(afterCommonBecarry);

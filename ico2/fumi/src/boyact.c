@@ -123,32 +123,6 @@ static int CorrectOrient_RopeCliff(float *out, void *gobj, float *dir)
    which the compiler emits at the end of the file in boyact.h's order, and
    the mot-routine plainly, emitted in place.  Their strings come out here,
    in this order, at the head of the TU's .rodata. */
-inline void afterBoyHand50(GObj *volatile self)
-{
-    debug_StdPrintfDummy("boy after func\n");
-    if (girlGObj != 0) {
-        iosOmSendMail(girlGObj, 0x60, isysCurrentGObj);
-    }
-}
-
-inline void actBoyHand50(GObj *volatile self)
-{
-    Act *sub = GOBJ_ACT(self);
-
-    debug_StdPrintfDummy("enter actBoyHand50\n");
-    sub->actMode = 0x52;
-    sub->after = (void *)afterBoyHand50;
-    sub->readyFlags = 0;
-    while ((sub->readyFlags & 0x10) == 0) {
-        _ACTWait(1);
-    }
-    debug_StdPrintfDummy("boy error flg get\n");
-    while (1) {
-        ACTSendMailCorrect(self, 0x60);
-        _ACTWait(1);
-    }
-}
-
 void motBoyHand50(GObj *volatile self)
 {
     Act *sub = GOBJ_ACT(self);
@@ -195,32 +169,6 @@ static inline void faceGirlFlat(void) /* derived name */
     dir[1] = 0.0f;
     sceVu0Normalize(dir, dir);
     SetMotionDirection(boy, dir);
-}
-
-inline void afterBoyHand100(GObj *volatile self)
-{
-    debug_StdPrintfDummy("boy after func\n");
-    if (girlGObj != 0) {
-        iosOmSendMail(girlGObj, 0x65, isysCurrentGObj);
-    }
-}
-
-inline void actBoyHand100(GObj *volatile self)
-{
-    Act *sub = GOBJ_ACT(self);
-
-    debug_StdPrintfDummy("enter actBoyHand100\n");
-    sub->actMode = 0x53;
-    sub->after = (void *)afterBoyHand100;
-    sub->readyFlags = 0;
-    while ((sub->readyFlags & 0x10) == 0) {
-        _ACTWait(1);
-    }
-    debug_StdPrintfDummy("boy error\n");
-    while (1) {
-        ACTSendMailCorrect(self, 0x65);
-        _ACTWait(1);
-    }
 }
 
 void motBoyHand100(GObj *volatile self)
@@ -283,32 +231,6 @@ done:
     sub->after = 0;
     while (1) {
         ACTSendMailCorrect(self, 0x47);
-        _ACTWait(1);
-    }
-}
-
-inline void afterBoyHand200(GObj *volatile self)
-{
-    debug_StdPrintfDummy("boy after func\n");
-    if (girlGObj != 0) {
-        iosOmSendMail(girlGObj, 0x6A, isysCurrentGObj);
-    }
-}
-
-inline void actBoyHand200(GObj *volatile self)
-{
-    Act *sub = GOBJ_ACT(self);
-
-    debug_StdPrintfDummy("enter actBoyHand200\n");
-    sub->actMode = 0x54;
-    sub->after = (void *)afterBoyHand200;
-    sub->readyFlags = 0;
-    while ((sub->readyFlags & 0x10) == 0) {
-        _ACTWait(1);
-    }
-    debug_StdPrintfDummy("boy error\n");
-    while (1) {
-        ACTSendMailCorrect(self, 0x6A);
         _ACTWait(1);
     }
 }
@@ -548,6 +470,7 @@ float test_rope_velo[4] = {0.0f, 0.0f, 0.0f, 0.0f};
 float add_rope_vec[4] = {0.0f, 0.0f, 0.0f, 0.0f};
 
 INCLUDE_ASM(UpdateGeo_48);
+
 INCLUDE_ASM(BoyBgaManager);
 
 static unsigned char girlLookStarted; /* derived name */
@@ -1080,17 +1003,6 @@ void actBoyRun(GObj *volatile self)
     }
 }
 
-inline void actBoyFall(GObj *volatile self)
-{
-    Act *sub = GOBJ_ACT(self);
-
-    debug_StdPrintfDummy("enter actBoyFall\n");
-    sub->actMode = 5;
-    while (1) {
-        _ACTWait(1);
-    }
-}
-
 /* the nearest enemy in front of the actor, which ACTSearchEnemy and
    actBoyAttack inline */
 static inline void searchEnemy(void *self, int *out_id, float *out_vec) /* derived name */
@@ -1214,24 +1126,6 @@ void actBoyTakeWeapon(GObj *volatile self)
 #define BOY_WALL(o) ((char *)GOBJ_ACT(o)->work) /* derived name */
 
 INCLUDE_ASM(actBoyCliffHesitate);
-
-inline void actBoyCall(GObj *volatile self)
-{
-    Act *sub = GOBJ_ACT(self);
-
-    debug_StdPrintfDummy("enter actBoyCall\n");
-    sub->actMode = 9;
-    _ACTWait(2);
-    if (girlGObj != 0) {
-        iosOmSendMail(girlGObj, 0x41, isysCurrentGObj);
-    }
-    while (1) {
-        if ((sub->pad.now & 8) == 0) {
-            ACTSendMailCorrect(self, 0xC7);
-        }
-        _ACTWait(1);
-    }
-}
 
 #define BOY_GIRL_DY()                                                                              \
     (test_CURRENTROOT(girlGObj)[1] - test_CURRENTROOT(boyGObj)[1]) /* derived name */
@@ -1474,22 +1368,6 @@ INCLUDE_ASM(actBoyDitch3mReady);
 
 INCLUDE_ASM(actBoyRescueGirlBhang);
 
-inline int RequestStageChangeKidnapEnd(int stage, int targetId)
-{
-    int rv = 0;
-    if (boyGObj != 0) {
-        rv = RequestStageChangeSimple(stage, 0.25f, 4.0f, 0, 0, 0) & 0xFF;
-        if (rv != 0) {
-            Vec16 buf = {{-1000000.0f, 0.0f, 0.0f}};
-
-            BOYEFSTAGE[0] = 1;
-            *(int *)(BOYEFSTAGE + 4) = targetId;
-            ACTGame_StageChangeGObjDirect(boyGObj, stage, &buf, 0);
-        }
-    }
-    return rv;
-}
-
 /* as in camera-root.h, which this TU does not include (GetCurrentCameraSet2 differs) */
 extern void InsertCamera_SetNoraml(float *pos, float *tgt, int frames, int cutType);
 
@@ -1652,50 +1530,6 @@ void actBoyStart(GObj *self)
     _ACTWait(0);
 }
 
-inline int CorrectStickInfo(void *dir, IosPadStick *stick)
-{
-    return correctStick(dir, stick);
-}
-
-inline void *GetBoyWeaponGObj(void)
-{
-    GObj *g = boyGObj;
-    if (g != 0) {
-        return (void *)GOBJ_ACT(g)->weapon;
-    }
-    return 0;
-}
-
-inline void actBoyBeslam(GObj *volatile self)
-{
-    char *p = (char *)GOBJ_SUB(self) + 0x130;
-
-    sceVu0ScaleVector(p, test_CURRENTORIENT(beliftGirl), 30.0f);
-    while (1) {
-        ACTSendMailCorrect(self, 0x13A);
-        _ACTWait(1);
-    }
-}
-
-inline void actBoyRescueSrc(GObj *volatile self)
-{
-    while (1) {
-        ACTSendMailCorrect(self, 0xC7);
-        _ACTWait(1);
-    }
-}
-
-inline void actBoySupportGBBegin(GObj *volatile self)
-{
-    while (1) {
-        if (girlGObj != 0) {
-            iosOmSendMail(girlGObj, 0x17D, isysCurrentGObj);
-        }
-        ACTSendMailCorrect(self, 0x17B);
-        _ACTWait(1);
-    }
-}
-
 static inline unsigned char IsBoyStatus_SupportGB(void) /* derived name */
 {
     unsigned int st = (unsigned int)GOBJ_ACT(girlGObj)->actMode;
@@ -1705,280 +1539,6 @@ static inline unsigned char IsBoyStatus_SupportGB(void) /* derived name */
         }
     }
     return 0;
-}
-
-inline void actBoySupportGBLoop(GObj *volatile self)
-{
-    while (1) {
-        if (!IsBoyStatus_SupportGB()) {
-            ACTSendMailCorrect(self, 0xE2);
-        }
-        _ACTWait(1);
-    }
-}
-
-inline void actBoySupportGBEnd(GObj *volatile self)
-{
-    while (1) {
-        if (girlGObj != 0) {
-            iosOmSendMail(girlGObj, 0x17F, isysCurrentGObj);
-        }
-        ACTSendMailCorrect(self, 0xC7);
-        _ACTWait(1);
-    }
-}
-
-inline void actBoySupportBGBegin(GObj *volatile self)
-{
-    while (1) {
-        ACTSendMailCorrect(self, 0x183);
-        _ACTWait(1);
-    }
-}
-
-inline void actBoyDitch3mExec(GObj *volatile self)
-{
-    while (1) {
-        ACTSendMailCorrect(self, 0x190);
-        _ACTWait(1);
-    }
-}
-
-inline void actBoyHangG3M(GObj *volatile self)
-{
-    Act *sub = GOBJ_ACT(self);
-
-    *(void **)((char *)sub + 0x18) = (void *)afterBoyHangG3M;
-    while (1) {
-        if (0.1f < sub->stick.mag || (sub->pad.now & 0x10)) {
-            ACTSendMailCorrect(self, 0x192);
-            if (girlGObj != 0) {
-                iosOmSendMail(girlGObj, 0x195, isysCurrentGObj);
-            }
-        }
-        _ACTWait(1);
-    }
-}
-
-inline unsigned char IsAbleBoyControl(void)
-{
-    return ableBoyControl;
-}
-
-inline void ACTSearchEnemy(void *self, int *out_id, float *out_vec)
-{
-    searchEnemy(self, out_id, out_vec);
-}
-
-inline void DeleteBoyWeapon(void)
-{
-    union { /* field names derived */
-        float f[4];
-        long long ll[2];
-    } buf;
-
-    Act *sub;
-
-    if (boyGObj != 0) {
-        sub = GOBJ_ACT(boyGObj);
-        if ((void *)sub->weapon != 0) {
-            ReleaseWeapon((void *)sub->weapon);
-            memset(&buf, 0, 0x10);
-            buf.f[0] = 10000000.0f;
-            SetDirectRootPositionNoFitting((void *)sub->weapon, buf.f);
-            gamesysObjInfoPosSetStage(sub->weapon, 0, 0, stage_no);
-            *(int *)((char *)sub->weapon + 0x16C) = 0;
-        }
-        characterPacket[2] = 0;
-        ((int *)boyInfo)[0] = 0;
-        *(void **)((char *)sub + 0x150) = 0;
-    }
-}
-
-inline int isLiftBoyEnable(void)
-{
-    unsigned int st = (unsigned int)GOBJ_ACT(boyGObj)->actMode;
-    if (st >= 0x60) {
-        return 1;
-    }
-    if (st < 0x5E) {
-        return 1;
-    }
-    return 0;
-}
-
-inline void SetKidnapInfo(int enemyLabel, int targetLabel)
-{
-    characterPacket[5] = enemyLabel;
-    characterPacket[6] = targetLabel;
-}
-
-inline void GetKidnapInfo(int *enemyLabel, int *targetLabel)
-{
-    *enemyLabel = characterPacket[5];
-    *targetLabel = characterPacket[6];
-}
-
-inline void PrivInsCamSet(float *pos, float *tgt, GObj *track, int inFrames, int outFrames,
-                          float inRate, float blend, unsigned char control)
-{
-    privInsCam.pos[0] = pos[0];
-    privInsCam.pos[1] = pos[1];
-    privInsCam.pos[2] = pos[2];
-    privInsCam.tgt[0] = tgt[0];
-    privInsCam.tgt[1] = tgt[1];
-    privInsCam.tgt[2] = tgt[2];
-    privInsCam.track = track;
-    privInsCam.inFrames = inFrames;
-    privInsCam.outFrames = outFrames;
-    privInsCam.inRate = inRate;
-    privInsCam.blend = blend;
-    privInsCam.control = control;
-    privInsCam.on = 1;
-}
-
-inline int IsGirlEscortedInNextStage(void)
-{
-    return (int)((unsigned char)((unsigned long long)boyInfo[1] >> 35)) & 1;
-}
-
-inline unsigned char IsGirlEscortedInCurrentStage(void)
-{
-    return girlEscortedInStage;
-}
-
-inline int GetSaveSofaLayoutID(void)
-{
-    int *a = (int *)boyGObj;
-    int *b = (int *)girlGObj;
-    int *pa, *pb, *r;
-    int v;
-    if (a == 0)
-        goto err;
-    if (b == 0)
-        goto err;
-    pa = (int *)a[0x164 / 4];
-    v = pa[0x34 / 4];
-    if (v != 0x2D)
-        goto err;
-    pb = (int *)b[0x164 / 4];
-    if (pb[0x34 / 4] != v)
-        goto err;
-    r = (int *)pa[0x160 / 4];
-    return r[2];
-err:
-    return -1;
-}
-
-inline void OnGirlEscortFlag(void)
-{
-    boyInfo[1] |= 0x800000000LL;
-}
-
-inline void SetBoyWeaponGObj(void *w)
-{
-    if (boyGObj != 0 && w != 0) {
-        SwapBoyWeapon(0, w, boyGObj);
-    }
-}
-
-inline int IsBoyStatus_NotDanger(void)
-{
-    unsigned int st = (unsigned int)GOBJ_ACT(boyGObj)->actMode;
-    if (st < 0x17) {
-        if (st >= 0x14) {
-            return 1;
-        }
-    }
-    return 0 < GOBJ_WORK(boyGObj)->downTimer;
-}
-
-inline int GetEfStageCameraTargetID(void)
-{
-    if (BOYEFSTAGE[0]) {
-        return *(int *)(BOYEFSTAGE + 4);
-    }
-    return 0;
-}
-
-inline int IsBackFromEfStage(void)
-{
-    return BOYEFSTAGE[0];
-}
-
-inline int PrivInsCamChk(void)
-{
-    return privInsCam.on != 0;
-}
-
-inline unsigned char PrivInsCamChk_Control(void)
-{
-    return privInsCam.control;
-}
-
-inline int *GetbufpCharacterPacket(void)
-{
-    return characterPacket;
-}
-
-inline int GetsizeCharacterPacket(void)
-{
-    return 32;
-}
-
-inline void MakeCharacterPacket(void)
-{
-    char *pkt = (char *)characterPacket;
-    Act *sub;
-    char *g;
-
-    *(BoyKidnapWork *)characterPacket = characterPacketDefault;
-    if (boyGObj != 0) {
-        sub = GOBJ_ACT(boyGObj);
-        if (sub->weapon != 0) {
-            *(int *)(pkt + 0x8) = sub->weapon->labelId;
-        }
-        if (sub->curItem != 0) {
-            *(int *)(pkt + 0xC) = sub->curItem->labelId;
-        }
-        if (sub->actMode == 0x2D) {
-            *(int *)(pkt + 0x10) = *(int *)(sub->sofa + 0x8);
-        }
-        g = (char *)girlGObj;
-        if (g != 0 && GOBJ_ACT(g)->actMode == 0x2D) {
-            *(int *)(pkt + 0x1C) |= 1;
-        }
-        BoyInfoUpdate_StageChange();
-        *(int *)(pkt + 0x1C) =
-            (*(int *)(pkt + 0x1C) & ~0x10000) |
-            (((int)((unsigned char)((unsigned long long)boyInfo[1] >> 34)) & 1) << 16);
-        *(unsigned char *)(pkt + 0x1D) =
-            (int)((unsigned char)((unsigned long long)boyInfo[1] >> 33)) & 1;
-        *(CharPos *)pkt = BOYINFO.f50;
-    }
-}
-
-inline void BoyInfoUpdate_StageChange(void)
-{
-    GObj *g = boyGObj;
-    Act *sub = GOBJ_ACT(g);
-    GObj *w;
-    int x;
-
-    BOYINFO.torch = 0;
-    w = sub->weapon;
-    if (w != 0) {
-        x = ACTGame_isWeaponEnableCatchfire(w);
-        if (x != 0) {
-            if (IsTorchLightOn(x)) {
-                BOYINFO.torch = 1;
-            }
-        }
-    }
-    BOYINFO.fire = 0;
-    if (ACTGame_FLAG_TETSUNAGI()) {
-        BOYINFO.fire = 1;
-    }
 }
 
 typedef struct { /* field names derived */
@@ -1993,41 +1553,7 @@ typedef struct { /* field names derived */
     unsigned int h1E : 16; /* 0x1E */
 } CharacterPacket;         /* derived name */
 
-inline void ReadCharacterPacket(void)
-{
-    CharacterPacket *p = (CharacterPacket *)characterPacket;
-
-    BOYINFO.boyID = p->boyID;
-    BOYINFO.girlID = p->girlID;
-    BOYINFO.layoutID = p->f10;
-    BOYINFO.bit32 = p->b1C;
-    BOYINFO.fire = p->b1D;
-    BOYINFO.torch = p->h1E;
-    BOYINFO.f50 = p->pos;
-}
-
-inline void ACTSearchGObj(void *self, int kind, int maxDeg, int *out_id, float *out_vec,
-                          float thresh)
-{
-    searchGObj(self, kind, maxDeg, out_id, out_vec, thresh);
-}
-
-inline void afterBoySwim(GObj *volatile self)
-{
-    RequestChangeHandMode(self, 0, 3, 0, 0, 0, 0);
-    GOBJ_SUB(self)->root.filter = InitialColInfo;
-    debug_StdPrintfDummy("after");
-}
-
 static int boyActUnusedWord = -1; /* derived name */
-
-inline void actBoyJump(GObj *volatile self)
-{
-    while (1) {
-        ACTSendMailCorrect(self, 0xBD);
-        _ACTWait(1);
-    }
-}
 
 inline void afterBoyHangG3M(int x)
 {
@@ -2091,14 +1617,102 @@ inline void Boy_Init(void)
     *(BoyKidnapWork *)characterPacket = characterPacketDefault;
 }
 
+INCLUDE_ASM(CorrectStickInfo);
+
+INCLUDE_ASM(GetBoyWeaponGObj);
+
 INCLUDE_ASM(actBoyStand);
 
 INCLUDE_ASM(actBoyHang);
 
 INCLUDE_ASM(actBoyBHang);
 
+INCLUDE_ASM(actBoyFall);
+
+INCLUDE_ASM(actBoyCall);
+
 INCLUDE_ASM(actBoyHangBefore);
 
+INCLUDE_ASM(actBoyBeslam);
+
+INCLUDE_ASM(actBoyRescueSrc);
+
+INCLUDE_ASM(actBoySupportGBBegin);
+
+INCLUDE_ASM(actBoySupportGBLoop);
+
+INCLUDE_ASM(actBoySupportGBEnd);
+
+INCLUDE_ASM(actBoySupportBGBegin);
+
+INCLUDE_ASM(actBoyDitch3mExec);
+
+INCLUDE_ASM(actBoyHangG3M);
+
+INCLUDE_ASM(IsAbleBoyControl);
+
+INCLUDE_ASM(actBoyHand50);
+
+INCLUDE_ASM(afterBoyHand50);
+
+INCLUDE_ASM(actBoyHand100);
+
+INCLUDE_ASM(afterBoyHand100);
+
+INCLUDE_ASM(actBoyHand200);
+
+INCLUDE_ASM(afterBoyHand200);
+
+INCLUDE_ASM(ACTSearchEnemy);
+
+INCLUDE_ASM(DeleteBoyWeapon);
+
+INCLUDE_ASM(isLiftBoyEnable);
+
+INCLUDE_ASM(SetKidnapInfo);
+
+INCLUDE_ASM(GetKidnapInfo);
+
+INCLUDE_ASM(PrivInsCamSet);
+
+INCLUDE_ASM(BoyInfoUpdate_StageChange);
+
 INCLUDE_ASM(IsBoyStatus_EnemyMustWait);
+
+INCLUDE_ASM(IsGirlEscortedInNextStage);
+
+INCLUDE_ASM(IsGirlEscortedInCurrentStage);
+
+INCLUDE_ASM(GetSaveSofaLayoutID);
+
+INCLUDE_ASM(OnGirlEscortFlag);
+
+INCLUDE_ASM(SetBoyWeaponGObj);
+
+INCLUDE_ASM(IsBoyStatus_NotDanger);
+
+INCLUDE_ASM(RequestStageChangeKidnapEnd);
+
+INCLUDE_ASM(GetEfStageCameraTargetID);
+
+INCLUDE_ASM(IsBackFromEfStage);
+
+INCLUDE_ASM(PrivInsCamChk);
+
+INCLUDE_ASM(PrivInsCamChk_Control);
+
+INCLUDE_ASM(GetbufpCharacterPacket);
+
+INCLUDE_ASM(GetsizeCharacterPacket);
+
+INCLUDE_ASM(MakeCharacterPacket);
+
+INCLUDE_ASM(ReadCharacterPacket);
+
+INCLUDE_ASM(ACTSearchGObj);
+
+INCLUDE_ASM(afterBoySwim);
+
+INCLUDE_ASM(actBoyJump);
 
 INCLUDE_ASM(afterBoyTakeWeapon);

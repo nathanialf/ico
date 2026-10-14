@@ -186,20 +186,6 @@ typedef enum { ACT_KIND_NONE = -1, ACT_KIND_GIRL = 1, ACT_KIND_ENEMY = 2 } ActKi
 
 #define ENEMY_START_WORK(self) ((int)GOBJ_ACT(self)->enemy) /* derived name */
 
-inline int IsEnemyBrainToBoy(GObj *self)
-{
-    Act *sub;
-    EnemyBattleWork *sub2;
-    if ((char *)girlGObj != 0) {
-        Act *sub_d = GOBJ_ACT(girlGObj);
-        if (sub_d->actMode != 0x6F)
-            return 0;
-    }
-    sub = GOBJ_ACT(self);
-    sub2 = sub->enemy;
-    return sub2->mode == 3;
-}
-
 INCLUDE_ASM(setBattleStatus);
 
 inline void boss_effect_callback(int id)
@@ -505,14 +491,6 @@ static inline unsigned char isEnemyCarriedByGirl(GObj *self) /* derived name */
 
 INCLUDE_ASM(subEnemyCollision);
 
-inline void actEnemyStand(GObj *volatile self)
-{
-    Act *sub = GOBJ_ACT(self);
-    debug_StdPrintfDummy("enter actEnemyStand\n");
-    sub->actMode = 1;
-    _ACTWait(0);
-}
-
 inline void motEnemyStand(GObj *volatile self)
 {
     Act *sub = GOBJ_ACT(self);
@@ -523,14 +501,6 @@ inline void motEnemyStand(GObj *volatile self)
     }
 }
 
-inline void actEnemyWalk(GObj *volatile self)
-{
-    Act *sub = GOBJ_ACT(self);
-    debug_StdPrintfDummy("enter actEnemyWalk\n");
-    sub->actMode = 2;
-    _ACTWait(0);
-}
-
 inline void motEnemyWalk(GObj *volatile self)
 {
     Act *sub = GOBJ_ACT(self);
@@ -539,14 +509,6 @@ inline void motEnemyWalk(GObj *volatile self)
     mot = SetMotionRequest(self, 8, sub->env.motOriReq);
     *(char **)((char *)sub + 0x130) = mot;
     *(int *)(mot + 0x114) = 0;
-    _ACTWait(0);
-}
-
-inline void actEnemyRun(GObj *volatile self)
-{
-    Act *sub = GOBJ_ACT(self);
-    debug_StdPrintfDummy("enter actEnemyRun\n");
-    sub->actMode = 3;
     _ACTWait(0);
 }
 
@@ -599,94 +561,10 @@ void actEnemyAttack(GObj *volatile self)
     }
 }
 
-inline void actEnemyHang(GObj *volatile self)
-{
-    Act *sub = GOBJ_ACT(self);
-    debug_StdPrintfDummy("enter actEnemyHang\n");
-    sub->actMode = 0x1C;
-    _ACTWait(0);
-}
-
-inline void funcEnemyAiGetGirl(GObj *self)
-{
-    Act *sub = GOBJ_ACT(self);
-    if (sub->wayMode == 0) {
-        sub->wayMode = 1;
-    }
-}
-
-inline void actEnemyHyde(GObj *self)
-{
-    sceVu0FVECTOR hide = {0.0f, 0.0f, -1000000.0f};
-    SetDirectRootPositionNoFitting(self, hide);
-    ResetEnemyPositionInfo(self);
-    actEnemyFlagOnFree(self);
-}
-
 inline int isEnemyHyde(GObj *self)
 {
     GenGeo *g = &objLayout[self->labelId];
     return ((g->flags >> 21) & 1) ^ 1;
-}
-
-inline void actEnemyFlagOnFree(GObj *self)
-{
-    GenGeo *g = &objLayout[self->labelId];
-    g->flags &= ~0x200000;
-}
-
-inline void actEnemyFlagOnDead(GObj *self)
-{
-    GenGeo *g = &objLayout[self->labelId];
-    g->flags |= 0x40000;
-}
-
-inline int actEnemyFlagCheckDead(GObj *self)
-{
-    GenGeo *g = &objLayout[self->labelId];
-    return (g->flags >> 18) & 1;
-}
-
-inline int actEnemyFlagCheckActive(GObj *self)
-{
-    GenGeo *g = &objLayout[self->labelId];
-    unsigned int field = g->flags;
-    unsigned int v0 = (field >> 18) & 1;
-    if (v0 != 0)
-        goto zero;
-    v0 = (field >> 21) & 1;
-    v0 = v0 ^ 1;
-    if (v0 == 0)
-        goto one;
-zero:
-    return 0;
-one:
-    return 1;
-}
-
-inline int actEnemy_isSmallEnemy(GObj *self)
-{
-    return GOBJ_ACT(self)->enemy->sizeClass == 0;
-}
-
-inline int actEnemy_isLargeEnemy(GObj *self)
-{
-    return GOBJ_ACT(self)->enemy->sizeClass == 2;
-}
-
-inline int actEnemy_isNormalEnemy(GObj *self)
-{
-    return GOBJ_ACT(self)->enemy->sizeClass == 1;
-}
-
-inline int actEnemy_GetClingTarget(GObj *self)
-{
-    Act *b = GOBJ_ACT(self);
-    EnemyBattleWork *e = b->enemy;
-    if (e->sizeClass == 0 && b->actMode == 0x10) {
-        return e->clingTarget;
-    }
-    return 0;
 }
 
 /* A static inline shared by actEnemyRestart and actEnemyStart.  `max` is a
@@ -766,36 +644,6 @@ static int actEnemyForceSwitchToCarry(void *self)
         }
     }
     return 1;
-}
-
-inline int ACTEnemyForceSwitchToCarry(GObj *self)
-{
-    int r = actEnemyForceSwitchToCarry(self);
-    if (r != 0) {
-        _BrainMode_SetDirect(self, 0, 0);
-    }
-    ACTSendMailCorrect(self, 0x104);
-    return r;
-}
-
-inline void actEnemyNest(GObj *volatile self)
-{
-    Act *sub = GOBJ_ACT(self);
-    int stg;
-    GObj *x2;
-
-    GObj *x = self;
-    *(int *)((char *)sub + 0x148) = 0;
-    RestoreReviveCount(x);
-    actChangeActBrain(isysCurrentGObj, (void *)subEnemyBrain_Idle, &sub->brainProc);
-    actEnemyHyde(self);
-    eBrainSendMes(self, 0xA);
-    stg = stage_no;
-    *(int *)((char *)sub + 0x440) = 0;
-    x2 = self;
-    sub->infoPos = 7;
-    gamesysObjInfoPosSetStage(x2, 7, 0, stg);
-    _ACTWait(0);
 }
 
 static int kidnapEndCount = 0; /* derived name: cleared as actEnemyKidnapEnd starts its wait */
@@ -963,24 +811,6 @@ void actEnemyBodylift(GObj *volatile self)
     }
 }
 
-inline void actEnemyBodyslamFail(GObj *volatile self)
-{
-    iosOmSendMail(((void *)boyGObj), 0xE2, self);
-    while (1) {
-        ACTSendMailCorrect((void *)self, 0xC7);
-        _ACTWait(1);
-    }
-}
-
-inline void actEnemyBodyslam(GObj *volatile self)
-{
-    iosOmSendMail(((void *)boyGObj), GOBJ_ACT(self)->enemy->bodyslamMail, self);
-    while (1) {
-        ACTSendMailCorrect((void *)self, 0xC7);
-        _ACTWait(1);
-    }
-}
-
 /* A static inline inside actEnemyPickupBegin.  A second 16-byte vector is
    declared ahead of buf; its reader is the DEBUG build's report of the girl's
    position, as in enemyKidnapCheckGirl. */
@@ -1033,16 +863,6 @@ void actEnemyPickupBegin(GObj *volatile self)
     }
 }
 
-inline int EnemyBrainStatus_Boy(GObj *self)
-{
-    return GOBJ_ACT(self)->brainAim == 2;
-}
-
-inline int EnemyBrainStatus_Girl(GObj *self)
-{
-    return GOBJ_ACT(self)->brainAim == 1;
-}
-
 /* a static inline */
 static inline int getEnemyBrainMes(char *self, int *data) /* derived name */
 {
@@ -1080,85 +900,8 @@ static inline void _BrainMode_Set(GObj *self, int mode, int *tgt) /* derived nam
 }
 
 INCLUDE_ASM(BrainMode_Requset_217);
+
 INCLUDE_ASM(subEnemyBrainMain);
-
-inline void afterCommonCarry(GObj *volatile self)
-{
-    Act *sub = GOBJ_ACT(self);
-    GObj *girl = girlGObj;
-    GObj *obj = self;
-    sub->carried = girl;
-    iosOmSendMail(girl, 0x30, obj);
-    sub->carried = 0;
-    if (sub->actMode == 5) {
-        eBrainSendMes(self, 4);
-    }
-}
-
-inline void funcEnemyCarryFail(GObj *self)
-{
-    GOBJ_ACT(self)->flags20.ll |= (1ULL << 34);
-}
-
-inline void subEnemyBrain_Idle(GObj *volatile self)
-{
-    Act *sub = GOBJ_ACT(self);
-    sub->stick.mag = 0;
-    *(int *)((char *)sub + 0x120) = 0;
-    *(int *)((char *)sub + 0x124) = 0;
-    *(int *)((char *)sub + 0x128) = 0;
-    while (1) {
-        if (GOBJ_ACT(self)->enemy->target == (int)((void *)boyGObj)) {
-            _DoAwait(self);
-        }
-        _ACTWait(1);
-    }
-}
-
-inline void subEnemyBrain_Await(GObj *volatile self)
-{
-    Act *sub = GOBJ_ACT(self);
-    sub->stick.mag = 0;
-    *(int *)((char *)sub + 0x120) = 0;
-    *(int *)((char *)sub + 0x124) = 0;
-    *(int *)((char *)sub + 0x128) = 0;
-    if ((void *)boyGObj != 0) {
-        _ApproachTarget(self, (void *)boyGObj, (char *)sub + 0x120, 0,
-                        (float)((int)(_GetRandom() * 10.0f) % 200 + 300), 0);
-    }
-    sub->stick.mag = 0;
-    *(int *)((char *)sub + 0x120) = 0;
-    *(int *)((char *)sub + 0x124) = 0;
-    *(int *)((char *)sub + 0x128) = 0;
-    while (1) {
-        _DoAwait(self);
-        _ACTWait(1);
-    }
-}
-
-inline void subEnemyBrain_FindGirl(GObj *volatile self)
-{
-    Act *sub = GOBJ_ACT(self);
-    int i;
-
-    for (i = 0; i < (60 - systemStatus[0] * 10) / systemStatus[1] / 2; i++) {
-        *(int *)((char *)sub + 0x34C) = 0;
-        *(int *)((char *)sub + 0x120) = 0;
-        *(int *)((char *)sub + 0x124) = 0;
-        *(int *)((char *)sub + 0x128) = 0;
-        ACTSendMailCorrect((void *)self, 0xE6);
-        if (sub->actMode == 0x47) {
-            break;
-        }
-        _ACTWait(1);
-    }
-    for (i = 0; i < (60 - systemStatus[0] * 10) / systemStatus[1] * 250 / 60; i++) {
-        _DoAwait(self);
-        _ACTWait(1);
-    }
-    eBrainSendMes(self, 1);
-    _ACTWait(0);
-}
 
 void subEnemyBrain_ToGenerator(GObj *self)
 {
@@ -1509,33 +1252,8 @@ static inline int isNearestEnemyToBoy(GObj *self, GObj *boy, float *pos) /* deri
 }
 
 INCLUDE_ASM(ChangeBrain_ToAttack_272);
+
 INCLUDE_ASM(subEnemyBrain_ToBoy);
-
-inline void subEnemyBrain_BodyGuard(GObj *volatile self)
-{
-    Act *sub = GOBJ_ACT(self);
-    GObj *tgt = sub->brainTarget;
-    float *pos = (float *)((char *)sub + 0x120);
-
-    while (1) {
-        if (_DistGV(test_CURRENTROOT(self), test_CURRENTROOT(tgt)) < 200.0f) {
-            _ACTWait(1);
-        } else {
-            if ((unsigned char)_ApproachTarget(self, tgt, pos, 0, 100.0f, 0) == 0) {
-                sub->stick.mag = 0;
-                *(int *)((char *)sub + 0x120) = 0;
-                *(int *)((char *)sub + 0x124) = 0;
-                *(int *)((char *)sub + 0x128) = 0;
-                _ACTWait(30);
-            }
-            sub->stick.mag = 0;
-            *(int *)((char *)sub + 0x120) = 0;
-            *(int *)((char *)sub + 0x124) = 0;
-            *(int *)((char *)sub + 0x128) = 0;
-            _ACTWait(60);
-        }
-    }
-}
 
 void subEnemyBrain_ToGirl(GObj *volatile self)
 {
@@ -1671,6 +1389,8 @@ static inline int flyLimitMail(GObj *self, float *rp) /* derived name */
 static int _ApproachTarget_Way(GObj *self, void *tgt, void *pos, void *fn, float range,
                                unsigned char flag);
 
+INCLUDE_ASM(col_304);
+
 INCLUDE_ASM(_ApproachTarget_Way);
 
 inline int _ApproachTarget(GObj *self, void *tgt, void *pos, void *fn, float range,
@@ -1683,51 +1403,10 @@ inline int _ApproachTarget(GObj *self, void *tgt, void *pos, void *fn, float ran
     }
 }
 
-inline int isEnemyKidnapEnable(GObj *self)
-{
-    if (GOBJ_ACT(self)->enemy->liftKind == 0) {
-        return 0;
-    }
-    return actEnemyFlagCheckActive(self);
-}
-
-inline int GetEnemyType(float x, float y, float z)
-{
-    return 1;
-}
-
-inline int GetEnemyTypeFromGObj(GObj *obj)
-{
-    return GOBJ_ACT(obj)->enemy->liftKind;
-}
-
-inline int GetMotherGeneratorLabelAskEnemy(GObj *enemy)
-{
-    return GOBJ_WORK(enemy)->motherLabel;
-}
-
-inline GObj *GetMotherGeneratorGObjAskEnemy(GObj *enemy)
-{
-    return GOBJ_WORK(enemy)->motherGObj;
-}
-
 /* the bit-51 store to the actor word is a union access, the four 0.05f
  * stores go through a union view of the gobj+0x15C slot, and each life pair
  * is one chained assignment */
 INCLUDE_ASM(actEnemyStart);
-
-inline void subEnemyBrain_Irregular(GObj *volatile self)
-{
-    GOBJ_ACT(self)->flags20.ll &= ~(1LL << 34);
-    eBrainSendMes(self, 4);
-    if (isEnemyCarriedByGirl(self)) {
-        afterCommonCarry(self);
-    }
-    while (1) {
-        _ACTWait(30);
-        _BrainMode_SetDirect(self, 0, 0);
-    }
-}
 
 void subEnemyBrain_Attack(GObj *volatile self)
 {
@@ -1785,44 +1464,80 @@ void subEnemyBrain_Cling(GObj *volatile self)
     }
 }
 
-inline void subEnemyBrain_Shoulder(GObj *volatile self)
-{
-    float *dir = (float *)((char *)GOBJ_ACT(self) + 0x120);
-    float *girl = test_CURRENTROOT((girlGObj));
-    float *me = test_CURRENTROOT(self);
-    _OrientXZGV(dir, girl, me);
-    SetMotionDirection((void *)self, dir);
-    ACTSendMailCorrect((void *)self, 0x162);
-    while (1) {
-        _ACTWait(120);
-        _BrainMode_SetDirect(self, 0, 0);
-    }
-}
+INCLUDE_ASM(funcEnemyAiGetGirl);
 
-inline void subEnemyBrain_Pickup(GObj *volatile self)
-{
-    ACTSendMailCorrect((void *)self, 0x16C);
-    while (1) {
-        _ACTWait(120);
-        _BrainMode_SetDirect(self, 0, 0);
-    }
-}
+INCLUDE_ASM(actEnemyStand);
 
-inline void subEnemyBrain_Bodyslam(GObj *volatile self)
-{
-    if (GOBJ_ACT(self)->enemy->liftKind == 3) {
-        ACTSendMailCorrect((void *)self, 0x175);
-    } else {
-        ACTSendMailCorrect((void *)self, 0x173);
-    }
-    while (1) {
-        _ACTWait(120);
-        _BrainMode_SetDirect(self, 0, 0);
-    }
-}
+INCLUDE_ASM(actEnemyWalk);
+
+INCLUDE_ASM(actEnemyRun);
+
+INCLUDE_ASM(actEnemyHang);
 
 INCLUDE_ASM(actEnemyCarry);
 
+INCLUDE_ASM(actEnemyBodyslam);
+
+INCLUDE_ASM(actEnemyBodyslamFail);
+
+INCLUDE_ASM(actEnemyNest);
+
+INCLUDE_ASM(funcEnemyCarryFail);
+
+INCLUDE_ASM(actEnemyHyde);
+
+INCLUDE_ASM(actEnemyFlagOnFree);
+
+INCLUDE_ASM(afterCommonCarry);
+
+INCLUDE_ASM(actEnemyFlagOnDead);
+
+INCLUDE_ASM(EnemyBrainStatus_Boy);
+
+INCLUDE_ASM(EnemyBrainStatus_Girl);
+
+INCLUDE_ASM(actEnemyFlagCheckDead);
+
+INCLUDE_ASM(actEnemyFlagCheckActive);
+
+INCLUDE_ASM(ACTEnemyForceSwitchToCarry);
+
+INCLUDE_ASM(actEnemy_GetClingTarget);
+
+INCLUDE_ASM(actEnemy_isNormalEnemy);
+
+INCLUDE_ASM(actEnemy_isLargeEnemy);
+
+INCLUDE_ASM(actEnemy_isSmallEnemy);
+
 INCLUDE_ASM(IsEnemyBrainToGenerator);
 
+INCLUDE_ASM(IsEnemyBrainToBoy);
+
+INCLUDE_ASM(GetEnemyTypeFromGObj);
+
+INCLUDE_ASM(GetEnemyType);
+
+INCLUDE_ASM(isEnemyKidnapEnable);
+
 INCLUDE_ASM(isEnemyActive);
+
+INCLUDE_ASM(GetMotherGeneratorLabelAskEnemy);
+
+INCLUDE_ASM(GetMotherGeneratorGObjAskEnemy);
+
+INCLUDE_ASM(subEnemyBrain_Idle);
+
+INCLUDE_ASM(subEnemyBrain_Await);
+
+INCLUDE_ASM(subEnemyBrain_FindGirl);
+
+INCLUDE_ASM(subEnemyBrain_BodyGuard);
+
+INCLUDE_ASM(subEnemyBrain_Shoulder);
+
+INCLUDE_ASM(subEnemyBrain_Pickup);
+
+INCLUDE_ASM(subEnemyBrain_Bodyslam);
+
+INCLUDE_ASM(subEnemyBrain_Irregular);

@@ -136,41 +136,7 @@ void dispSwitch(MvDispEnv *self, int flag)
     sceGsPutDispEnv(&self->env.gs);
 }
 
-int vblankHandler(int cause)
-{
-    VoTag *tag;
-    int st;
-
-    *(volatile int *)&dispField = (int)((*GS_CSR >> 13) & 1);
-    if (*(volatile int *)&dispRunning != 0) {
-        *(volatile int *)&dispVblankCount = *(volatile int *)&dispVblankCount + 1;
-        /* the display-state words are shared with the foreground code, which
-           reads them between vblanks */
-        *(volatile int *)&dispSyncBusy = sceGsSyncPath(1, 0);
-        if (*(volatile int *)&dispSyncBusy == 0) {
-            tag = voBufGetTag(&voBuf);
-            if (tag == 0) {
-                mvFrameCount++;
-                SYNC();
-                EI();
-                return 0;
-            }
-            if (*(volatile int *)&dispField == 0 && tag->status == 2) {
-                dispSwitch(&display, 0);
-                loadImage((int)tag->packet[1]);
-                tag->status = 1;
-            } else if (*(volatile int *)&dispField != 0 && (st = tag->status) == 1) {
-                dispSwitch(&display, 1);
-                loadImage((int)tag->packet[0]);
-                tag->status = 0;
-                *(volatile int *)&dispImageDone = st;
-            }
-        }
-    }
-    SYNC();
-    EI();
-    return 0;
-}
+INCLUDE_ASM(vblankHandler);
 
 inline int handler_endimage(int channel)
 {

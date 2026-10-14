@@ -121,6 +121,7 @@ static void setMotionSpeed(float ratio)
 extern MotionDef motionKind[];
 
 INCLUDE_ASM(dispProgressBar_45);
+
 INCLUDE_ASM(dispMotFrameProgress);
 
 static int lastObjSel = -1; /* derived name */

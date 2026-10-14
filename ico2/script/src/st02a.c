@@ -79,28 +79,7 @@ static ActMail secret_item_mail[2] = {{430}, {429}}; /* derived name */
 
 INCLUDE_ASM(actSt02aInit);
 
-void actSt02aDoor(GObj *volatile self)
-{
-    GObj *x = self;
-    Act *act = actInitialize(self);
-
-    _ACTWait(1);
-    if (scpTriggerBall(self, boyGObj, 200.0f) != 0 ||
-        (girlGObj != 0 && scpTriggerBall(self, girlGObj, 400.0f) != 0)) {
-        stage_SetAnimation(98, 0, 0);
-        _ACTWait(60);
-        door_down_start_mail[0].func = actSt02aDoorDownChk;
-        act->mail = door_down_start_mail;
-        ACTSendMailCorrect(self, 430);
-        _ACTWait(0);
-    } else {
-        stage_SetAnimation(97, 0, 0);
-        door_up_start_mail[0].func = actSt02aDoorUpChk;
-        act->mail = door_up_start_mail;
-        ACTSendMailCorrect(self, 430);
-        _ACTWait(0);
-    }
-}
+INCLUDE_ASM(actSt02aDoor);
 
 /* The two-part door's SE position, copied into the local the sound call reads. */
 static const ConstVec doorSePos = {{-1823.0f, -1174.0f, 2429.0f, 0.0f}}; /* derived name */

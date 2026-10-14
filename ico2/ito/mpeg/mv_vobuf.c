@@ -48,30 +48,16 @@ static inline int isFull(VoBuf *self) /* derived name */
     return self->count == self->max;
 }
 
-void voBufIncCount(VoBuf *self)
-{
-    DIntr();
-    self->tag[self->idx].status = 2;
-    self->count++;
-    self->idx = (self->idx + 1) % self->max;
-    SYNC();
-    EI();
-}
+INCLUDE_ASM(voBufIncCount);
 
-VoData *voBufGetData(VoBuf *self)
-{
-    return !isFull(self) ? &self->data[self->idx] : 0;
-}
+INCLUDE_ASM(voBufGetData);
 
 static __inline__ int voBufIsEmpty(VoBuf *self) /* derived name */
 {
     return self->count == 0;
 }
 
-VoTag *voBufGetTag(VoBuf *self)
-{
-    return !voBufIsEmpty(self) ? &self->tag[(self->idx - self->count + self->max) % self->max] : 0;
-}
+INCLUDE_ASM(voBufGetTag);
 
 void voBufDecCount(VoBuf *self)
 {

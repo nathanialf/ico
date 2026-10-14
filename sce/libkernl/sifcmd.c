@@ -6,7 +6,6 @@
 #include <sifcmd.h>
 #include <eeregs.h>
 #include <libkernl_internal.h>
-#include "include_asm.h"
 
 /* eekernel.h's spelling: FlushCache returns nothing. */
 
@@ -43,9 +42,13 @@ typedef struct { /* field names derived */
     int *sreg;
 } SifCmdData; /* derived name */
 
-void _set_sreg(void *pkt, void *data);
+void _set_sreg(void *pkt, void *data)
+{
+    SifCmdSRegData *sr = pkt;
+    SifCmdData *cd = data;
 
-INCLUDE_ASM(_set_sreg);
+    cd->sreg[sr->rno] = sr->value;
+}
 
 void _change_addr(void *pkt, void *data)
 {

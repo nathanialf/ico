@@ -461,32 +461,6 @@ static GoalTurnReq goalTurnReq; /* derived name */
 
 static GirlDangerEnv dangerEnv; /* derived name */
 
-inline void ACTGame_GirlBeforeFunc(GObj *self)
-{
-    float boyPos[4];
-    float girlPos[4];
-    Act *s;
-
-    s = GOBJ_ACT(self);
-    goalTurnReq.prio = 0;
-    goalTurnReq.dir = 0;
-    if (s->actMode != 69) {
-        s->flags20.ll &= ~0x100000ULL;
-    }
-    s->flags18.ll &= ~0x40000000000ULL;
-    if (ACTGame_FLAG_TETSUNAGI()) {
-        if (s->actMode == 5 || s->actMode == 69) {
-            s->flags18.ll |= 0x40000000000ULL;
-        } else {
-            GetSkeltonPosition(boyPos, (boyGObj), 6);
-            GetSkeltonPosition(girlPos, girlGObj, 22);
-            if (_DistSqGV(boyPos, girlPos) < 900.0f) {
-                s->flags18.ll |= 0x40000000000ULL;
-            }
-        }
-    }
-}
-
 /* Defined before the girl_brain_main.c.inc run; subGirlBrain_Pulledup and
    subGirlCollision expand it.  The first parameter is unused. */
 static inline void ATGoalTurnSet(void *actor, int prio, int dir, float *v) /* derived name */
@@ -1214,6 +1188,7 @@ static inline unsigned char isBoyPushBoxTruck(void) /* derived name */
 void subGirlBrainMain(GObj *volatile self);
 
 INCLUDE_ASM(ChangeRunMode_135);
+
 INCLUDE_ASM(subGirlBrainMain);
 
 inline void subGirlBrain_Idle(GObj *volatile self)
@@ -2142,125 +2117,9 @@ retry:
     }
 }
 
-static void Danger_Gondola(GObj *self)
-{
-    /* Danger_Gondola's own copy of the nested GetSafePosition: the candidate
-     * is tested from 70 below the current position at the current height,
-     * and ranked by the XZ distance from the centre. */
-    int GetSafePosition(float rad, float *dst, float *center, float *cur, int ok)
-    {
-        float dir[4];
-        float pos[4];
-        float base[4];
-        float best;
-        float d;
-        int found;
-        int i;
+INCLUDE_ASM(GetSafePosition_240);
 
-        best = 0.0f;
-        found = 0;
-        for (i = 0; i < 8; i++) {
-            memset(dir, 0, 0x10);
-            dir[2] = rad;
-            _ApplyRyGV(dir, (float)(i * 45 - 180) * 3.1415927f / 180.0f);
-            sceVu0AddVector(pos, center, dir);
-            pos[1] = cur[1];
-            base[0] = cur[0];
-            base[2] = cur[2];
-            base[1] = cur[1] - 70.0f;
-            ok = ACTCheckCollis_SAFE(200.0f, base, pos, 0, pos, 40);
-            if (ok) {
-                d = _DistxzSqGV(center, pos);
-                if (best < d) {
-                    best = d;
-                    dst[0] = pos[0];
-                    dst[1] = pos[1];
-                    dst[2] = pos[2];
-                    found = 1;
-                }
-            }
-        }
-        if (found && _DistSqGV(dst, center) < _DistSqGV(cur, center)) {
-            dst[0] = cur[0];
-            dst[1] = cur[1];
-            dst[2] = cur[2];
-        }
-        return found;
-    }
-    float goal[4];
-    float girl[4];
-    float obj[4];
-    float base[4];
-    float tmp[4];
-    float now[4];
-    float dir[4];
-    void *gondola;
-    Act *sub;
-    long long f;
-    unsigned char r;
-    long long p;
-    int turn;
-
-    sub = GOBJ_ACT(self);
-    gondola = dangerEnv.obj;
-retry:
-    {
-        GetRootProjectionPosOfGObj(goal, gondola);
-        GetRootProjectionPosOfGObj(girl, self);
-        obj[0] = test_CURRENTROOT(gondola)[0];
-        obj[1] = test_CURRENTROOT(gondola)[1];
-        obj[2] = test_CURRENTROOT(gondola)[2];
-        GetRootProjectionPosOfGObj(base, gondola);
-        _ACTWait(1);
-        GetSafePosition(300.0f, goal, test_CURRENTROOT(gondola), girl,
-                        (int)test_CURRENTROOT((boyGObj)));
-        _ACTWait(1);
-        p = ACTWayMove_BeginDetail(self, girl, goal, 0, 0, 0);
-        r = p;
-        if (!r) {
-            _ACTWait(0);
-        }
-        _ACTWait(1);
-        turn = 0;
-        while (1) {
-            _ACTCharStatus_Set(self, 11, -1.0f, (int)gondola);
-            GetRootProjectionPosOfGObj(tmp, gondola);
-            GetRootProjectionPosOfGObj(girl, self);
-            GetRootProjectionPosOfGObj(now, gondola);
-            if (!(_DistxzSqGV(now, base) < 10000.0f)) {
-                goto retry;
-            }
-            p = ACTWayMove_NextDetail(self, sub->dir, goal, 0, 0);
-            r = p;
-            debug_NMarker(goal, 0xFF, 0, 0, 100.0f);
-            f = sub->wayFlags;
-            if (((int)(f >> 16) & 1)) {
-                turn = 0;
-            }
-            if (!r) {
-                turn = 1;
-            } else if (((int)(f >> 17) & 1)) {
-                turn = 1;
-            } else if (sub->wayGoalDist < 50.0f) {
-                turn = 1;
-            } else if (turn == 0) {
-                sub->dir[0] = sub->wayNodeX;
-                sub->dir[1] = sub->wayNodeY;
-                sub->dir[2] = sub->wayNodeZ;
-                sub->stick.mag = 1.0f;
-            }
-            if (debug_font_flag & 1) {
-                debug_Printf(10, 110, 0x0FFFFFFF, "goal[%d]\n", turn);
-            }
-            if (turn) {
-                sub->stick.mag = 0.0f;
-                _OrientXZGV(dir, obj, test_CURRENTROOT(self));
-                girlBrainHide_GoalTurn(dir, 0);
-            }
-            _ACTWait(1);
-        }
-    }
-}
+INCLUDE_ASM(Danger_Gondola);
 
 /* the three escape angles Danger_Box's safe-position search tries */
 static int dangerEscapeAngle[3] = {0, -90, 90}; /* derived name */
@@ -2644,15 +2503,6 @@ ret0:
     return 0;
 }
 
-inline void *FindGirlPullupFloorBoxGObj(void)
-{
-    void *g = girlGObj;
-    if (brain_val.curMode == 7 && GOBJ_ACT(((int *)boyGObj))->actMode == 0x4E) {
-        return GOBJ_WORK(g)->floorObj;
-    }
-    return 0;
-}
-
 static unsigned char wayTestBegin = 1; /* derived name */
 
 static unsigned char wayTestMoving = 0; /* derived name */
@@ -2770,11 +2620,17 @@ inline void afterGirlHand(unsigned int self)
 GirlStand handmgr = {0};
 
 INCLUDE_ASM(HandMgr_GetDistHand_289);
+
 INCLUDE_ASM(HandMgr_Update_297);
+
 INCLUDE_ASM(HandMgr_Judge_301);
+
 INCLUDE_ASM(HandMgr_Print_305);
+
 INCLUDE_ASM(HandMgr_Speed_309);
+
 INCLUDE_ASM(GetBoyMode_313);
+
 INCLUDE_ASM(actGirlHand);
 
 void actGirlPulledReady(GObj *volatile self)
@@ -2869,76 +2725,6 @@ void actGirlDitch3mReady(GObj *volatile self)
         }
         _ACTWait(1);
     }
-}
-
-inline void actGirlDitch3mExec(GObj *volatile self)
-{
-    float boy[4];
-    float girl[4];
-    float dst[4];
-    int i = 0;
-    int go = 1;
-
-    ACTGame_ConnectHand();
-    debug_StdPrintfDummy("ditch3m hand connect\n");
-    /* disabled in retail: the way-begin report of the ditch jump */
-    if (0) {
-        debug_StdPrintfDummy("WBP set [ditch jump]\n");
-    }
-    for (;;) {
-        if (go) {
-            boy[0] = test_CURRENTROOT((boyGObj))[0];
-            boy[1] = test_CURRENTROOT((boyGObj))[1];
-            boy[2] = test_CURRENTROOT((boyGObj))[2];
-            girl[0] = test_CURRENTROOT((void *)girlGObj)[0];
-            girl[1] = test_CURRENTROOT((void *)girlGObj)[1];
-            girl[2] = test_CURRENTROOT((void *)girlGObj)[2];
-            _InterGV(dst, boy, girl, 1.0f, 1.0f);
-            SetRootPosition((void *)self, dst);
-            i++;
-            go = i < 3;
-        }
-        ACTSendMailCorrect((void *)self, 0x193);
-        _ACTWait(1);
-    }
-}
-
-inline void actGirlHangG3M(GObj *volatile self)
-{
-    ACTWay_SetBeginPositionIllegal(self);
-    for (;;) {
-        if (!PAIR_IsStatus_BOY_DITCH()) {
-            ACTSendMailCorrect((void *)self, 0x194);
-        }
-        _ACTWait(1);
-    }
-}
-
-inline void actGirlStand(GObj *volatile self)
-{
-    Act *sub = GOBJ_ACT(self);
-
-    debug_StdPrintfDummy("enter actGirlStand\n");
-    sub->actMode = 1;
-    _ACTWait(0);
-}
-
-inline void actGirlWalk(GObj *volatile self)
-{
-    Act *sub = GOBJ_ACT(self);
-
-    debug_StdPrintfDummy("enter actGirlWalk\n");
-    sub->actMode = 2;
-    _ACTWait(0);
-}
-
-inline void actGirlRun(GObj *volatile self)
-{
-    Act *sub = GOBJ_ACT(self);
-
-    debug_StdPrintfDummy("enter actGirlRun\n");
-    sub->actMode = 3;
-    _ACTWait(0);
 }
 
 inline void actGirlJump(GObj *volatile self)
@@ -3051,27 +2837,6 @@ void actGirlRescueDst(GObj *volatile self)
     }
 }
 
-inline void actGirlSupportGBBegin(GObj *volatile self)
-{
-    float girl[4];
-    float boy[4];
-    float dst[4];
-
-    for (;;) {
-        girl[0] = test_CURRENTROOT((void *)girlGObj)[0];
-        girl[1] = test_CURRENTROOT((void *)girlGObj)[1];
-        girl[2] = test_CURRENTROOT((void *)girlGObj)[2];
-        boy[0] = test_CURRENTROOT((boyGObj))[0];
-        boy[1] = test_CURRENTROOT((boyGObj))[1];
-        boy[2] = test_CURRENTROOT((boyGObj))[2];
-        boy[1] = girl[1];
-        _MoveGV(dst, girl, boy, 20.0f);
-        SetDirectRootPositionNoFitting((void *)self, dst);
-        ACTSendMailCorrect((void *)self, 0x17E);
-        _ACTWait(1);
-    }
-}
-
 /* the status-range test inside actGirlSupportGBLoop's loop */
 static inline unsigned char isGirlSupportGBStatus(void) /* derived name */
 {
@@ -3083,24 +2848,6 @@ static inline unsigned char isGirlSupportGBStatus(void) /* derived name */
         }
     }
     return 0;
-}
-
-inline void actGirlSupportGBLoop(GObj *volatile self)
-{
-    for (;;) {
-        if (!isGirlSupportGBStatus()) {
-            ACTSendMailCorrect((void *)self, 0x180);
-        }
-        _ACTWait(1);
-    }
-}
-
-inline void actGirlSupportGBEnd(GObj *volatile self)
-{
-    for (;;) {
-        ACTSendMailCorrect((void *)self, 199);
-        _ACTWait(1);
-    }
 }
 
 inline void afterGirlSupportBGBegin(unsigned int self)
@@ -3405,6 +3152,26 @@ inline void actGirlCannotReach(GObj *volatile self)
         _ACTWait(1);
     }
 }
+
+INCLUDE_ASM(ACTGame_GirlBeforeFunc);
+
+INCLUDE_ASM(FindGirlPullupFloorBoxGObj);
+
+INCLUDE_ASM(actGirlSupportGBBegin);
+
+INCLUDE_ASM(actGirlSupportGBLoop);
+
+INCLUDE_ASM(actGirlSupportGBEnd);
+
+INCLUDE_ASM(actGirlHangG3M);
+
+INCLUDE_ASM(actGirlDitch3mExec);
+
+INCLUDE_ASM(actGirlStand);
+
+INCLUDE_ASM(actGirlWalk);
+
+INCLUDE_ASM(actGirlRun);
 
 INCLUDE_ASM(actGirlHang);
 

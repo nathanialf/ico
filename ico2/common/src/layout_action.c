@@ -478,50 +478,9 @@ static int _la_set_current_port_new(McMgr *p, int first)
     return r;
 }
 
-inline int la_boot_no_memory_card(int first, int item)
-{
-    debug_StdPrintfDummy("no memoca\n");
-    return item;
-}
-
-inline int la_boot_no_free_area(int first, int item)
-{
-    debug_StdPrintfDummy("no free\n");
-    return item;
-}
-
-inline void keyconfig_reset(void)
-{
-    KeyConf def = {{0x0001, 0x0002, 0x0004, 0x0008, 0x0010, 0x0020, 0x0040, 0x0080, 0x0100, 0x0200,
-                    0x0400, 0x0800, 0x1000, 0x2000, 0x4000, 0x8000}};
-
-    *(KeyConf *)iosPadConfCustom.bit = def;
-}
-
 INCLUDE_ASM(la_vibe_select);
 
-inline int la_scei_logo(int first)
-{
-    if (first) {
-        stgmgrNextStagePreLoadForceStageSet(0);
-        logoIcoMiscLock = lock_execIcoMisc;
-        systemStatus[5] = 1;
-        iosPadEnable();
-        isysGObjActiveLink(0, 0);
-        gflagOff(386);
-        if (layout_boot_flag == 0) {
-            layout_boot_flag = 1;
-        }
-    }
-    return -1;
-}
-
 int title_demo_mode = 0;
-
-inline int la_title_demo(void)
-{
-    return -1;
-}
 
 static int continueDecided = 0; /* derived name */
 
@@ -589,17 +548,6 @@ static inline void playTime(struct McPreview *p, int *hour, int *min, int *sec) 
 }
 
 INCLUDE_ASM(_la_set_preview_info);
-
-inline int la_mc_preview_info(void)
-{
-    if (fileMask == 0) {
-        if ((1 >> curFile) & 1) {
-            return -1;
-        }
-    }
-    _la_set_preview_info();
-    return -1;
-}
 
 /* the load screen's default item; inlined once, into
    la_load_game_memory_card_check */
@@ -795,21 +743,6 @@ static int deleteStep = 0; /* derived name */
 
 INCLUDE_ASM(la_delete_processing);
 
-inline int la_game_loading(int first)
-{
-    if (first != 0) {
-        systemStatus[6] = 1;
-    }
-    return -1;
-}
-
-inline void la_playtime_count(void)
-{
-    if (systemStatus[5] == 0) {
-        IosMcPreviewInfo[2]++;
-    }
-}
-
 /* inlined into la_game_loop and into la_game_over_continue */
 static inline void releaseGameLoopCursor(void) /* derived name */
 {
@@ -828,14 +761,6 @@ static int gameOverVoice = 0; /* derived name */
 static int gameOverVoiceOpened = 0; /* derived name */
 
 INCLUDE_ASM(la_game_over_continue);
-
-inline int la_switching_stage(void)
-{
-    if (fightSoundPlayChk() == 0) {
-        stgmgrForceSwitchWithFade(nextStage, 0.4f, 4.0f);
-    }
-    return -1;
-}
 
 /* the key-config property sweep, inlined into la_key_config twice */
 static inline void keyconfigMaskAll(void) /* derived name */
@@ -921,7 +846,17 @@ int layoutActPushStartNew = 0;
 
 INCLUDE_ASM(la_boot_memory_card_check);
 
+INCLUDE_ASM(la_boot_no_memory_card);
+
+INCLUDE_ASM(la_boot_no_free_area);
+
 INCLUDE_ASM(la_boot_confirm_memory_card);
+
+INCLUDE_ASM(la_scei_logo);
+
+INCLUDE_ASM(la_title_demo);
+
+INCLUDE_ASM(la_mc_preview_info);
 
 INCLUDE_ASM(la_mc_current_slot);
 
@@ -951,14 +886,22 @@ INCLUDE_ASM(la_delete_confirm_complete);
 
 INCLUDE_ASM(la_delete_confirm_fail);
 
+INCLUDE_ASM(la_game_loading);
+
+INCLUDE_ASM(la_playtime_count);
+
 INCLUDE_ASM(la_game_demo);
 
 INCLUDE_ASM(la_game_demo_pause);
 
 INCLUDE_ASM(la_game_pause);
 
+INCLUDE_ASM(la_switching_stage);
+
 INCLUDE_ASM(la_save_confirm_yesno);
 
 INCLUDE_ASM(PSH_POSITIVE_OR_NEGATIVE);
+
+INCLUDE_ASM(keyconfig_reset);
 
 INCLUDE_ASM(la_mc_saved_file_select);

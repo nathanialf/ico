@@ -494,45 +494,6 @@ void actE3CapsuleChk(GObj *volatile self)
     capsuleDemoThread = actCreateSubThread(actE3CapsuleDemo, 21);
 }
 
-inline void actE3DoorMain(GObj *volatile self)
-{
-    Act *sub = GOBJ_ACT(self);
-
-    scpBoyControlReadDisable = 0;
-
-    sub->mainMail = doorMain_mes;
-
-    while (1) {
-        _ACTWait(1);
-    }
-}
-
-inline void actE3DoorSwitch(GObj *volatile self)
-{
-    Act *sub = GOBJ_ACT(self);
-
-    scpBoyControlReadDisable = 1;
-
-    sub->mainMail = 0;
-
-    doorSwitch_mes[0].func = actE3DoorUp;
-    sub->mail = doorSwitch_mes;
-    ACTSendMailCorrect(self, 430);
-    _ACTWait(0);
-}
-
-inline void actE3CageFallReadyChk(GObj *volatile self)
-{
-    GObj *x = self;
-    actInitialize(self);
-    e3cage = 0;
-    _ACTWait(1);
-    while (scpTriggerFloorAttr(boyGObj, 0x2000000) == 0) {
-        _ACTWait(1);
-    }
-    scpAdpcmPlayRequestFunc(3, &e3cage, 1, 1, 0);
-}
-
 inline void actE3St09aBrgMain(GObj *volatile self)
 {
     Act *sub = GOBJ_ACT(self);
@@ -560,9 +521,15 @@ static inline void actE3St09aBrgSwitch(GObj *volatile self)
 
 INCLUDE_ASM(actE3CapsuleDemoEnd);
 
+INCLUDE_ASM(actE3DoorMain);
+
+INCLUDE_ASM(actE3DoorSwitch);
+
 INCLUDE_ASM(actE3DoorUp);
 
 INCLUDE_ASM(actE3St13cIntroChk);
+
+INCLUDE_ASM(actE3CageFallReadyChk);
 
 INCLUDE_ASM(actE3St01bEneChk);
 

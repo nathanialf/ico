@@ -128,11 +128,6 @@ typedef struct CamItemV2 { /* 0x50 */ /* field names derived */
     unsigned char pin[80];            /* a version-2 pin record */
 } CamItemV2;                          /* derived name */
 
-inline void SetCameraZoomOffsetRatio(float val)
-{
-    zoomOffsetRatio = val;
-}
-
 void CameraSetCameraSet(int id)
 {
     CamGroup *p;
@@ -624,24 +619,6 @@ static void GetTargetOffset(GObj *gobj, float *v, unsigned char flag)
     }
 }
 
-inline void GetHandCameraStickInfo(float *outX, float *outZ, float *outMag)
-{
-    IosPadCtx padCtx;
-    IosPadStick st;
-
-    iosPadConnect(&padCtx, 0, 0, &iosPadConfDefault);
-    iosPadRead(&padCtx);
-    iosPadGetStick(&padCtx, &st, 1, 2, 2, 0);
-    {
-        Mat4 dir = {{(float)st.x - 127.5f, 0.0f, (float)st.y - 127.5f, 0.0f}};
-
-        sceVu0Normalize(&dir, &dir);
-        *outMag = st.mag;
-        *outX = dir.f[0] * *outMag;
-        *outZ = dir.f[2] * *outMag;
-    }
-}
-
 /* the camera-group search GetCameraGroupFromGObj, GetCameraGroupFromPosition
  * and SetCameraMatrix_Ico2 share */
 static inline int findCameraGroupContaining(float *pos) /* derived name */
@@ -673,99 +650,7 @@ static inline int findCameraGroupContaining(float *pos) /* derived name */
     return result;
 }
 
-void SetCameraMatrix_Ico2(int flag)
-{
-    CamWork cw = monitorCamera.work;
-    float vA[4];
-    float vB[4];
-    CamWork cw2;
-    int cut;
-    int cutType;
-    int enable;
-    int mode = 1;
-    int changed = 0;
-    unsigned char f8;
-    int group;
-
-    if (cameraGroupChanged != 0) {
-        flag = 1;
-        cameraGroupChanged = 0;
-        changed = 1;
-    }
-    if (flag) {
-        changed = mode;
-    }
-    f8 = flag;
-    ico2camera_GetTargetPos(f8);
-    group = findCameraGroupContaining(groupProbePos);
-    if (changed && group == -1) {
-        group = ico2camera_GetGroupNearest(groupProbePos);
-    }
-    if (group == -1) {
-        cw = monitorCamera.work;
-        cw.at.f[0] = targetASmooth[0];
-        cw.at.f[1] = targetASmooth[1];
-        cw.at.f[2] = targetASmooth[2];
-        memset(vA, 0, 16);
-        GetTargetOffset(default_cameratarget_gobj, vA, 0);
-        sceVu0ScaleVector(vA, vA, zoomOffsetRatio);
-        sceVu0AddVector(cw.at.f, cw.at.f, vA);
-    } else {
-        if (flag != 0 || (cameraGroupCurrent != -1 &&
-                          ((CamGroup *)cameraSetGroups)[group].kind !=
-                              ((CamGroup *)cameraSetGroups)[cameraGroupCurrent].kind)) {
-            initMonitorCamera(1);
-            f8 = 1;
-        }
-        memset(vA, 0, 16);
-        memset(vB, 0, 16);
-        CameraMove(group, targetBSmooth, (float *)&cw, vA, vB);
-        cw.at.f[0] = targetASmooth[0];
-        cw.at.f[1] = targetASmooth[1];
-        cw.at.f[2] = targetASmooth[2];
-        GetTargetOffset(default_cameratarget_gobj, vA, f8);
-        sceVu0ScaleVector(vA, vA, zoomOffsetRatio);
-        sceVu0ScaleVector(vB, vB, zoomOffsetRatio);
-        sceVu0AddVector(cw.at.f, cw.at.f, vA);
-        sceVu0AddVector(cw.at.f, cw.at.f, vB);
-        cameraGroupCurrent = group;
-    }
-    InsertCamera_Exec((float *)&cw, &cut, &cutType, &enable);
-    if (cut != 0) {
-        initMonitorCamera(cutType == 0);
-    }
-    if (enable != 0) {
-        mode = 0;
-        FixViewInGameCameraFlag = 1;
-    }
-    monitorMonitorCamera(&cw, &cw2);
-    cw = cw2;
-    if (debug_camera_flag != 0) {
-        debug_Marker(cw.at.f, 0, 0, 255, 100.0f, 0.0f);
-    }
-    sceVu0ScaleVector(&cw, &cw, -1.0f);
-    sceVu0ScaleVector(cw.at.f, cw.at.f, -1.0f);
-    {
-        float sx;
-        float sz;
-        float mag;
-
-        GetHandCameraStickInfo(&sx, &sz, &mag);
-        if (systemStatus[5] != 0 || IsAbleBoyControl() == 0 || mode == 0) {
-            ClearHandCameraCorrect();
-        } else {
-            HandCameraCorrect(&cw, cw.at.f, 0, sx, sz,
-                              60.0f / (float)((60 - systemStatus[0] * 10) / systemStatus[1]));
-        }
-    }
-    SetWSMatrix(&cw);
-    cameraFrames = cameraFrames + 1;
-}
-
-inline void InitPluralCameraSet(void)
-{
-    pluralCameraSetNum = 0;
-}
+INCLUDE_ASM(SetCameraMatrix_Ico2);
 
 /* the camera-set reallocator: a block sized for the set's groups and items,
    for ReadCameraSet's four call sites */
@@ -783,80 +668,6 @@ static inline CamSetFile *allocCameraSet(CamSetFile *f) /* derived name */
 
 INCLUDE_ASM(ReadCameraSet);
 
-inline int GetCameraGroupCurrent(void)
-{
-    return cameraGroupCurrent;
-}
-
-inline int GetCameraGroupFromGObj(void *obj)
-{
-    float buf[4];
-    float *bp;
-    int result;
-    int i;
-    GetRootPosition(buf, obj);
-    sceVu0ScaleVector(buf, buf, -1.0f);
-    bp = buf;
-    result = -1;
-    for (i = 0; i < cameraSetGroupNum; i++) {
-        int k = 0;
-        CamGroup *entry = (CamGroup *)(cameraSetGroups + i * 76);
-        float *range = entry->range;
-        float *center = entry->center;
-        float *p = bp;
-        do {
-            if (*p < *center - *range) {
-                break;
-            }
-            if (*center + *range < *p) {
-                break;
-            }
-            p++;
-            range++;
-            center++;
-        } while (++k < 3);
-        if (k == 3) {
-            result = i;
-            break;
-        }
-    }
-    return result;
-}
-
-inline int GetCameraGroupFromPosition(float *pos)
-{
-    float buf[4];
-    float *bp;
-    int result;
-    int i;
-    sceVu0ScaleVector(buf, pos, -1.0f);
-    bp = buf;
-    result = -1;
-    for (i = 0; i < cameraSetGroupNum; i++) {
-        int k = 0;
-        CamGroup *entry = (CamGroup *)(cameraSetGroups + i * 76);
-        float *range = entry->range;
-        float *center = entry->center;
-        float *p = bp;
-        do {
-            if (*p < *center - *range) {
-                break;
-            }
-            if (*center + *range < *p) {
-                break;
-            }
-            p++;
-            range++;
-            center++;
-        } while (++k < 3);
-        if (k == 3) {
-            result = i;
-            break;
-        }
-    }
-    return result;
-}
-
 /* three zero words; nothing reads them */
 static int cameraIco2Word0 = 0; /* derived name */
 
@@ -864,6 +675,18 @@ int current_group = 0;
 
 static int cameraIco2Word1 = 0; /* derived name */
 
+INCLUDE_ASM(GetHandCameraStickInfo);
+
+INCLUDE_ASM(SetCameraZoomOffsetRatio);
+
+INCLUDE_ASM(GetCameraGroupCurrent);
+
+INCLUDE_ASM(GetCameraGroupFromGObj);
+
+INCLUDE_ASM(GetCameraGroupFromPosition);
+
 INCLUDE_ASM(AddPluralCameraSet);
+
+INCLUDE_ASM(InitPluralCameraSet);
 
 INCLUDE_ASM(GetPluralCameraSet);
