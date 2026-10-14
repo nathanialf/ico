@@ -128,6 +128,11 @@ typedef struct CamItemV2 { /* 0x50 */ /* field names derived */
     unsigned char pin[80];            /* a version-2 pin record */
 } CamItemV2;                          /* derived name */
 
+inline void SetCameraZoomOffsetRatio(float val)
+{
+    zoomOffsetRatio = val;
+}
+
 void CameraSetCameraSet(int id)
 {
     CamGroup *p;
@@ -562,7 +567,19 @@ inline void MakeCameraSetBinary(CamGroup *src, int count, CamGroup *dst)
     }
 }
 
-INCLUDE_ASM(ReflectCameraSetBinary);
+void ReflectCameraSetBinary(CamGroup *src, int count)
+{
+    if (cameraSetBuf != 0) {
+        iosFree(cameraSetBuf);
+    }
+
+    cameraSetBuf =
+        iosMallocDebug(ios_partition_oomori, GetSizeOfCameraSetBinary(src, count), __FILE__, 1575);
+    cameraSetGroups = cameraSetBuf;
+    cameraSetGroupsEnd = cameraSetBuf + count * 76;
+    cameraSetGroupNum = count;
+    MakeCameraSetBinary(src, count, (CamGroup *)cameraSetBuf);
+}
 
 void InitIco2Camera(void)
 {
@@ -619,6 +636,24 @@ static void GetTargetOffset(GObj *gobj, float *v, unsigned char flag)
     }
 }
 
+inline void GetHandCameraStickInfo(float *outX, float *outZ, float *outMag)
+{
+    IosPadCtx padCtx;
+    IosPadStick st;
+
+    iosPadConnect(&padCtx, 0, 0, &iosPadConfDefault);
+    iosPadRead(&padCtx);
+    iosPadGetStick(&padCtx, &st, 1, 2, 2, 0);
+    {
+        Mat4 dir = {{(float)st.x - 127.5f, 0.0f, (float)st.y - 127.5f, 0.0f}};
+
+        sceVu0Normalize(&dir, &dir);
+        *outMag = st.mag;
+        *outX = dir.f[0] * *outMag;
+        *outZ = dir.f[2] * *outMag;
+    }
+}
+
 /* the camera-group search GetCameraGroupFromGObj, GetCameraGroupFromPosition
  * and SetCameraMatrix_Ico2 share */
 static inline int findCameraGroupContaining(float *pos) /* derived name */
@@ -650,7 +685,131 @@ static inline int findCameraGroupContaining(float *pos) /* derived name */
     return result;
 }
 
-INCLUDE_ASM(SetCameraMatrix_Ico2);
+void SetCameraMatrix_Ico2(int flag)
+{
+    CamWork cw = monitorCamera.work;
+    float vA[4];
+    float vB[4];
+    CamWork cw2;
+    int cut;
+    int cutType;
+    int enable;
+    int mode = 1;
+    int changed = 0;
+    unsigned char f8;
+    int group;
+
+    if (cameraGroupChanged != 0) {
+        flag = 1;
+        cameraGroupChanged = 0;
+        changed = 1;
+    }
+    if (flag) {
+        changed = mode;
+    }
+    f8 = flag;
+    ico2camera_GetTargetPos(f8);
+    group = findCameraGroupContaining(groupProbePos);
+    if (changed && group == -1) {
+        group = ico2camera_GetGroupNearest(groupProbePos);
+    }
+    if (group == -1) {
+        cw = monitorCamera.work;
+        cw.at.f[0] = targetASmooth[0];
+        cw.at.f[1] = targetASmooth[1];
+        cw.at.f[2] = targetASmooth[2];
+        memset(vA, 0, 16);
+        GetTargetOffset(default_cameratarget_gobj, vA, 0);
+        sceVu0ScaleVector(vA, vA, zoomOffsetRatio);
+        sceVu0AddVector(cw.at.f, cw.at.f, vA);
+    } else {
+        if (flag != 0 || (cameraGroupCurrent != -1 &&
+                          ((CamGroup *)cameraSetGroups)[group].kind !=
+                              ((CamGroup *)cameraSetGroups)[cameraGroupCurrent].kind)) {
+            initMonitorCamera(1);
+            f8 = 1;
+        }
+        memset(vA, 0, 16);
+        memset(vB, 0, 16);
+        CameraMove(group, targetBSmooth, (float *)&cw, vA, vB);
+        cw.at.f[0] = targetASmooth[0];
+        cw.at.f[1] = targetASmooth[1];
+        cw.at.f[2] = targetASmooth[2];
+        GetTargetOffset(default_cameratarget_gobj, vA, f8);
+        sceVu0ScaleVector(vA, vA, zoomOffsetRatio);
+        sceVu0ScaleVector(vB, vB, zoomOffsetRatio);
+        sceVu0AddVector(cw.at.f, cw.at.f, vA);
+        sceVu0AddVector(cw.at.f, cw.at.f, vB);
+        cameraGroupCurrent = group;
+    }
+    InsertCamera_Exec((float *)&cw, &cut, &cutType, &enable);
+    if (cut != 0) {
+        initMonitorCamera(cutType == 0);
+    }
+    if (enable != 0) {
+        mode = 0;
+        FixViewInGameCameraFlag = 1;
+    }
+    monitorMonitorCamera(&cw, &cw2);
+    cw = cw2;
+    if (debug_camera_flag != 0) {
+        debug_Marker(cw.at.f, 0, 0, 255, 100.0f, 0.0f);
+    }
+    sceVu0ScaleVector(&cw, &cw, -1.0f);
+    sceVu0ScaleVector(cw.at.f, cw.at.f, -1.0f);
+    {
+        float sx;
+        float sz;
+        float mag;
+
+        GetHandCameraStickInfo(&sx, &sz, &mag);
+        if (systemStatus[5] != 0 || IsAbleBoyControl() == 0 || mode == 0) {
+            ClearHandCameraCorrect();
+        } else {
+            HandCameraCorrect(&cw, cw.at.f, 0, sx, sz,
+                              60.0f / (float)((60 - systemStatus[0] * 10) / systemStatus[1]));
+        }
+    }
+    SetWSMatrix(&cw);
+    cameraFrames = cameraFrames + 1;
+}
+
+inline void *GetPluralCameraSet(int id)
+{
+    int i;
+
+    for (i = 0; i < pluralCameraSetNum; i++) {
+        if (pluralCameraSet[i].id == id) {
+            return pluralCameraSet[i].set;
+        }
+    }
+    /* EUC-JP: "[%s] was not found\n" */
+    debug_StdPrintfDummy("[%s]が見つかりません\n", cameraSetList[id]);
+    debug_assert(__FILE__, 2034);
+    __assert(__FILE__, 2034, "0");
+    return 0;
+}
+
+inline void AddPluralCameraSet(int id, char *name)
+{
+    PluralCameraSet *p;
+
+    if (pluralCameraSetNum >= 10) {
+        /* EUC-JP: "at most [%d] camera sets can be registered in one stage." */
+        debug_StdPrintfDummy("１ステージに登録できるカメラセットは、最大[%d]個です。", 10);
+        debug_assert(__FILE__, 2043);
+        __assert(__FILE__, 2043, "0");
+    }
+    p = &pluralCameraSet[pluralCameraSetNum];
+    p->id = id;
+    p->set = ReadCameraSet((CamSetFile *)name, stage_no);
+    pluralCameraSetNum++;
+}
+
+inline void InitPluralCameraSet(void)
+{
+    pluralCameraSetNum = 0;
+}
 
 /* the camera-set reallocator: a block sized for the set's groups and items,
    for ReadCameraSet's four call sites */
@@ -659,14 +818,219 @@ static inline CamSetFile *allocCameraSet(CamSetFile *f) /* derived name */
     CamSetFile *p;
 
     p = (CamSetFile *)iosMallocDebug(ios_partition_seki, 16 + f->count * 76 + f->total * 92,
-                                     __FILE__, 2166);
+                                     __FILE__, 2164);
     *p = *f;
     p->magic = 0x1234;
     p->ver = 3;
     return p;
 }
 
-INCLUDE_ASM(ReadCameraSet);
+static void *ReadCameraSet(CamSetFile *f, int stage)
+{
+    CamSetFile *p = 0;
+    int n = f->count;
+    int i;
+    int n_pin;
+
+    debug_StdPrintfDummy("camera data version = [%d]\n", f->ver);
+    switch (f->ver) {
+    case 0: {
+        CamGroup *og = (CamGroup *)((char *)f + 16);
+        char *oi = (char *)og + n * 76;
+        CamGroup *ng;
+        PinRec *ni;
+        int total;
+
+        total = 0;
+        for (i = 0; i < n; i++) {
+            total += og[i].end - og[i].first;
+        }
+        f->total = n_pin = total;
+        debug_StdPrintfDummy("n_group[%d], n_pin[%d]\n", n, n_pin);
+        p = allocCameraSet(f);
+        ng = (CamGroup *)((char *)p + 16);
+        ni = (PinRec *)((char *)ng + n * 76);
+        for (i = 0; i < n; i++) {
+            ng[i] = og[i];
+        }
+        for (i = 0; i < total; i++) {
+            *(CamItemV0 *)&ni[i] = ((CamItemV0 *)oi)[i];
+        }
+        for (i = 0; i < total; i++) {
+            ni[i].eyeRate = stageData[stage].handCameraRate;
+            ni[i].atRate = 10.0f;
+            ni[i].limitP = 120.0f;
+            ni[i].limitV = 80.0f;
+            ni[i].ofsB[0] = ni[i].ofsB[1] = ni[i].ofsB[2] = 0.0f;
+        }
+        break;
+    }
+    case 1: {
+        CamGroup *og = (CamGroup *)((char *)f + 16);
+        char *oi = (char *)og + n * 76;
+        CamGroup *ng;
+        PinRec *ni;
+        int total;
+
+        total = 0;
+        for (i = 0; i < n; i++) {
+            total += og[i].end - og[i].first;
+        }
+        f->total = n_pin = total;
+        debug_StdPrintfDummy("n_group[%d], n_pin[%d]\n", n, n_pin);
+        p = allocCameraSet(f);
+        ng = (CamGroup *)((char *)p + 16);
+        ni = (PinRec *)((char *)ng + n * 76);
+        for (i = 0; i < n; i++) {
+            ng[i] = og[i];
+        }
+        for (i = 0; i < total; i++) {
+            *(CamItemV1 *)&ni[i] = ((CamItemV1 *)oi)[i];
+        }
+        for (i = 0; i < total; i++) {
+            ni[i].limitP = 120.0f;
+            ni[i].limitV = 80.0f;
+            ni[i].ofsB[0] = ni[i].ofsB[1] = ni[i].ofsB[2] = 0.0f;
+        }
+        break;
+    }
+    case 2: {
+        CamGroup *og = (CamGroup *)((char *)f + 16);
+        char *oi = (char *)og + n * 76;
+        CamGroup *ng;
+        PinRec *ni;
+        int total;
+
+        total = 0;
+        for (i = 0; i < n; i++) {
+            total += og[i].end - og[i].first;
+        }
+        f->total = n_pin = total;
+        debug_StdPrintfDummy("n_group[%d], n_pin[%d]\n", n, n_pin);
+        p = allocCameraSet(f);
+        ng = (CamGroup *)((char *)p + 16);
+        ni = (PinRec *)((char *)ng + n * 76);
+        for (i = 0; i < n; i++) {
+            ng[i] = og[i];
+        }
+        for (i = 0; i < total; i++) {
+            *(CamItemV2 *)&ni[i] = ((CamItemV2 *)oi)[i];
+        }
+        for (i = 0; i < total; i++) {
+            ni[i].ofsB[0] = ni[i].ofsB[1] = ni[i].ofsB[2] = 0.0f;
+        }
+        break;
+    }
+    case 3: {
+        CamGroup *og = (CamGroup *)((char *)f + 16);
+        char *oi = (char *)og + n * 76;
+        CamGroup *ng;
+        PinRec *ni;
+        int total;
+
+        total = 0;
+        for (i = 0; i < n; i++) {
+            total += og[i].end - og[i].first;
+        }
+        f->total = n_pin = total;
+        debug_StdPrintfDummy("n_group[%d], n_pin[%d]\n", n, n_pin);
+        p = allocCameraSet(f);
+        ng = (CamGroup *)((char *)p + 16);
+        ni = (PinRec *)((char *)ng + n * 76);
+        for (i = 0; i < n; i++) {
+            ng[i] = og[i];
+        }
+        for (i = 0; i < total; i++) {
+            ni[i] = ((PinRec *)oi)[i];
+        }
+        for (i = 0; i < total; i++) {}
+        break;
+    }
+    default:
+        /* EUC-JP: "the camera data version is wrong. please tell Omori.\n" */
+        debug_StdPrintfDummy(
+            "カメラデータのバージョンに異常があります。大森まで知らせてください\n");
+        debug_StdPrintfDummy("illegal camera data version [%d]\n", f->ver);
+        debug_assert(__FILE__, 2353);
+        __assert(__FILE__, 2353, "0");
+        break;
+    }
+    return p;
+}
+
+inline int GetCameraGroupCurrent(void)
+{
+    return cameraGroupCurrent;
+}
+
+inline int GetCameraGroupFromGObj(void *obj)
+{
+    float buf[4];
+    float *bp;
+    int result;
+    int i;
+    GetRootPosition(buf, obj);
+    sceVu0ScaleVector(buf, buf, -1.0f);
+    bp = buf;
+    result = -1;
+    for (i = 0; i < cameraSetGroupNum; i++) {
+        int k = 0;
+        CamGroup *entry = (CamGroup *)(cameraSetGroups + i * 76);
+        float *range = entry->range;
+        float *center = entry->center;
+        float *p = bp;
+        do {
+            if (*p < *center - *range) {
+                break;
+            }
+            if (*center + *range < *p) {
+                break;
+            }
+            p++;
+            range++;
+            center++;
+        } while (++k < 3);
+        if (k == 3) {
+            result = i;
+            break;
+        }
+    }
+    return result;
+}
+
+inline int GetCameraGroupFromPosition(float *pos)
+{
+    float buf[4];
+    float *bp;
+    int result;
+    int i;
+    sceVu0ScaleVector(buf, pos, -1.0f);
+    bp = buf;
+    result = -1;
+    for (i = 0; i < cameraSetGroupNum; i++) {
+        int k = 0;
+        CamGroup *entry = (CamGroup *)(cameraSetGroups + i * 76);
+        float *range = entry->range;
+        float *center = entry->center;
+        float *p = bp;
+        do {
+            if (*p < *center - *range) {
+                break;
+            }
+            if (*center + *range < *p) {
+                break;
+            }
+            p++;
+            range++;
+            center++;
+        } while (++k < 3);
+        if (k == 3) {
+            result = i;
+            break;
+        }
+    }
+    return result;
+}
 
 /* three zero words; nothing reads them */
 static int cameraIco2Word0 = 0; /* derived name */
@@ -674,19 +1038,3 @@ static int cameraIco2Word0 = 0; /* derived name */
 int current_group = 0;
 
 static int cameraIco2Word1 = 0; /* derived name */
-
-INCLUDE_ASM(GetHandCameraStickInfo);
-
-INCLUDE_ASM(SetCameraZoomOffsetRatio);
-
-INCLUDE_ASM(GetCameraGroupCurrent);
-
-INCLUDE_ASM(GetCameraGroupFromGObj);
-
-INCLUDE_ASM(GetCameraGroupFromPosition);
-
-INCLUDE_ASM(AddPluralCameraSet);
-
-INCLUDE_ASM(InitPluralCameraSet);
-
-INCLUDE_ASM(GetPluralCameraSet);

@@ -159,19 +159,6 @@ lit4 actItouQueenAttackChk 0x00632C6C 0x00632C78 ico2/script/src/st25a.c  # 3 fl
 text monitorMonitorCamera 0x0018F938 0x001900D8 ico2/omori/src/camera-ico2.c local lines=159  # ordinal; first difference at insn 2; length:-99; extent-differs
 lit4 monitorMonitorCamera 0x00632C88 0x00632C94 ico2/omori/src/camera-ico2.c  # 3 floats; target side (DISAGREE)
 rdlit monitorMonitorCamera 0x00550320 0x00550330 ico2/omori/src/camera-ico2.c  # 2 doubles; target side (DISAGREE)
-text ReflectCameraSetBinary 0x00190BE8 0x00190F08 ico2/omori/src/camera-ico2.c lines=13  # ordinal; first difference at insn 36; imm:1; extent-equal
-text SetCameraMatrix_Ico2 0x001911A8 0x00191734 ico2/omori/src/camera-ico2.c lines=88  # equal with GetHandCameraStickInfo inlined; a stub because that is one for emission order
-text ReadCameraSet 0x00191738 0x001923CC ico2/omori/src/camera-ico2.c local lines=132  # ordinal; first difference at insn 72; imm:6; extent-equal
-rdlit ReadCameraSet 0x005503A8 0x0055044A ico2/omori/src/camera-ico2.c  # 4 strings
-sdlit ReadCameraSet 0x00634620 0x00634622 ico2/omori/src/camera-ico2.c  # 1 string
-text GetHandCameraStickInfo 0x001923D0 0x001924B4 ico2/omori/src/camera-ico2.c lines=17  # equal; a stub for emission order: a deferred inline the JPN emits before a stubbed one
-text SetCameraZoomOffsetRatio 0x001924B8 0x001924C0 ico2/omori/src/camera-ico2.c lines=4  # equal; a stub for emission order: a deferred inline the JPN emits before a stubbed one
-text GetCameraGroupCurrent 0x001924C0 0x001924C8 ico2/omori/src/camera-ico2.c lines=4  # equal; a stub for emission order: a deferred inline the JPN emits before a stubbed one
-text GetCameraGroupFromGObj 0x001924C8 0x001925A0 ico2/omori/src/camera-ico2.c lines=34  # equal; a stub for emission order: a deferred inline the JPN emits before a stubbed one
-text GetCameraGroupFromPosition 0x001925A0 0x00192668 ico2/omori/src/camera-ico2.c lines=33  # equal; a stub for emission order: a deferred inline the JPN emits before a stubbed one
-text AddPluralCameraSet 0x00192668 0x00192714 ico2/omori/src/camera-ico2.c lines=15  # ordinal; first difference at insn 15; imm:2; extent-equal
-text InitPluralCameraSet 0x00192718 0x00192720 ico2/omori/src/camera-ico2.c lines=4  # equal; a stub for emission order: a deferred inline the JPN emits before a stubbed one
-text GetPluralCameraSet 0x00192720 0x001927C4 ico2/omori/src/camera-ico2.c lines=15  # ordinal; first difference at insn 27; imm:2; extent-equal
 text StartPendulum 0x001949D0 0x00194C6C ico2/omori/src/chain.c local lines=34  # ordinal; first difference at insn 57; imm:2; extent-equal
 lit4 StartPendulum 0x00632CB4 0x00632CBC ico2/omori/src/chain.c  # 2 floats
 rdlit StartPendulum 0x005504A0 0x005504C0 ico2/omori/src/chain.c align=16  # 2 strings
@@ -201,56 +188,13 @@ sdlit PlumbPointUpdateChain 0x0063469C 0x006346A0 ico2/omori/src/chain.c  # 1 wo
 text TestChainUpDown 0x00197470 0x00197D68 ico2/omori/src/chain.c local lines=139  # ordinal; first difference at insn 47; length:-14; extent-differs
 lit4 TestChainUpDown 0x00632D3C 0x00632D48 ico2/omori/src/chain.c  # 3 floats
 rdlit TestChainUpDown 0x00550840 0x00550854 ico2/omori/src/chain.c align=16  # 1 jtbl
-text eBrainInit 0x00199478 0x001994BC ico2/omori/src/ebrain.c lines=11  # equal; a stub for emission order: a deferred inline the JPN emits before a stubbed one
-text eBrainStatusSet 0x001994C0 0x0019956C ico2/omori/src/ebrain.c lines=23  # equal; a stub for emission order: a deferred inline the JPN emits before a stubbed one
-text eBrainSendMes 0x00199570 0x00199670 ico2/omori/src/ebrain.c lines=21  # equal; a stub for emission order: a deferred inline the JPN emits before a stubbed one
-text GetStageFromLabel 0x00199670 0x00199740 ico2/omori/src/ebrain.c lines=17  # ordinal; first difference at insn 19; imm:1; extent-equal
-text IsNeedGeneratorHard 0x0019A2C8 0x0019A5B4 ico2/omori/src/generator.c local lines=93  # ordinal; first difference at insn 19; imm:3; extent-equal
-text CallEnemy 0x0019A5B8 0x0019A804 ico2/omori/src/generator.c lines=9  # ordinal; first difference at insn 29; imm:2; extent-equal
-rdlit CallEnemy 0x00550930 0x00550967 ico2/omori/src/generator.c  # 2 strings
-sdlit CallEnemy 0x006346D0 0x006346D7 ico2/omori/src/generator.c  # 1 string
-text GetMotherGenerator 0x0019A850 0x0019AA00 ico2/omori/src/generator.c lines=50  # ordinal; first difference at insn 1; imm:2; extent-equal
-text ReadGeneratorPacket 0x0019AA00 0x0019AAE8 ico2/omori/src/generator.c lines=26  # ordinal; first difference at insn 44; imm:1; extent-equal
-text MakeGeneratorPacket 0x0019AAE8 0x0019AB94 ico2/omori/src/generator.c lines=17  # ordinal; first difference at insn 5; imm:3; extent-equal
-text GeneratorGeo 0x0019AD90 0x0019B26C ico2/omori/src/generator.c lines=115  # equal with Generator_Call inlined; a stub because that is one for emission order
-text GeneratorDL 0x0019B270 0x0019B3A0 ico2/omori/src/generator.c lines=26  # ordinal; first difference at insn 34; imm:5; extent-equal
-text InitGeneratorGeo 0x0019B3A0 0x0019B48C ico2/omori/src/generator.c lines=35  # equal; a stub for emission order: a deferred inline the JPN emits before a stubbed one
-text Generator_Call 0x0019B490 0x0019B4A8 ico2/omori/src/generator.c lines=6  # equal; a stub for emission order: a deferred inline the JPN emits before a stubbed one
-text Generator_ResetCount 0x0019B4A8 0x0019B4BC ico2/omori/src/generator.c lines=6  # equal; a stub for emission order: a deferred inline the JPN emits before a stubbed one
-text Generator_Mask 0x0019B4C0 0x0019B4D4 ico2/omori/src/generator.c lines=6  # equal; a stub for emission order: a deferred inline the JPN emits before a stubbed one
-text Generator_MaskOff 0x0019B4D8 0x0019B4E8 ico2/omori/src/generator.c lines=6  # equal; a stub for emission order: a deferred inline the JPN emits before a stubbed one
-text SetMotherGenerator 0x0019B4E8 0x0019B5A4 ico2/omori/src/generator.c lines=21  # ordinal; first difference at insn 1; imm:1; extent-equal
-text Generator_Init 0x0019B5A8 0x0019B640 ico2/omori/src/generator.c lines=21  # equal; a stub for emission order: a deferred inline the JPN emits before a stubbed one
-text GetbufpGeneratorPacket 0x0019B640 0x0019B64C ico2/omori/src/generator.c lines=4  # equal; a stub for emission order: a deferred inline the JPN emits before a stubbed one
-text GetsizeGeneratorPacket 0x0019B650 0x0019B658 ico2/omori/src/generator.c lines=4  # ordinal; first difference at insn 1; imm:1; extent-equal
-text RestoreGeneratorGeo 0x0019B658 0x0019B678 ico2/omori/src/generator.c lines=7  # equal; a stub for emission order: a deferred inline the JPN emits before a stubbed one
-text RestoreGeneratorExtGeo 0x0019B678 0x0019B6CC ico2/omori/src/generator.c lines=11  # equal; a stub for emission order: a deferred inline the JPN emits before a stubbed one
-text MemoryGenerator 0x0019B6D0 0x0019B6F0 ico2/omori/src/generator.c lines=7  # equal; a stub for emission order: a deferred inline the JPN emits before a stubbed one
-text IsEnableCallEnemy 0x0019B6F0 0x0019B7EC ico2/omori/src/generator.c lines=28  # ordinal; first difference at insn 19; imm:2; extent-equal
-text DirectCallEnemy 0x0019B7F0 0x0019B960 ico2/omori/src/generator.c lines=19  # equal; a stub for emission order: a deferred inline the JPN emits before a stubbed one
-text LockEnemyGenerate 0x0019B960 0x0019B9A8 ico2/omori/src/generator.c lines=7  # equal; a stub for emission order: a deferred inline the JPN emits before a stubbed one
-text UnlockEnemyGenerate 0x0019B9A8 0x0019BA34 ico2/omori/src/generator.c lines=8  # equal; a stub for emission order: a deferred inline the JPN emits before a stubbed one
-text RestoreReviveCount 0x0019BA38 0x0019BAC0 ico2/omori/src/generator.c lines=13  # ordinal; first difference at insn 13; imm:1; extent-equal
 text subBirdBrainMain 0x0019DF88 0x0019F3BC ico2/ito/src/act_bird.c lines=522  # ordinal; first difference at insn 697; imm:4; extent-equal
 lit4 subBirdBrainMain 0x00632DC0 0x00632E14 ico2/ito/src/act_bird.c  # 21 floats
 rdlit subBirdBrainMain 0x005509F0 0x00550A34 ico2/ito/src/act_bird.c align=16  # 4 strings
 rdlit subBirdBrainMain 0x00550A40 0x00550A64 ico2/ito/src/act_bird.c align=16  # 1 jtbl
 sdlit subBirdBrainMain 0x006346E8 0x0063471F ico2/ito/src/act_bird.c  # 7 strings
 text BirdDL 0x0019F5C8 0x0019F628 ico2/ito/src/act_bird.c lines=15  # ordinal; first difference at insn 15; imm:1; extent-equal
-text effect_end_func 0x0019FD60 0x0019FDF4 ico2/ito/src/itou_boss.c local lines=13  # ordinal; first difference at insn 11; imm:1; extent-equal
-text BossEnemyFunc 0x0019FF80 0x001A0088 ico2/ito/src/itou_boss.c lines=24  # ordinal; first difference at insn 8; imm:1; extent-equal
-lit4 BossEnemyFunc 0x00632E28 0x00632E2C ico2/ito/src/itou_boss.c  # 1 float
-text gene_enemy 0x001A0088 0x001A0520 ico2/ito/src/itou_boss.c local lines=115  # ordinal; first difference at insn 81; imm:1; extent-equal
-rdlit gene_enemy 0x00551B20 0x00551B2D ico2/ito/src/itou_boss.c  # 1 string
-text BossCtrlDL 0x001A0558 0x001A0668 ico2/ito/src/itou_boss.c lines=26  # ordinal; first difference at insn 24; imm:1; extent-equal
-rdlit BossCtrlDL 0x00551B60 0x00551B6E ico2/ito/src/itou_boss.c  # 1 string
-text InqCapsuleGhostBossStage 0x001A0668 0x001A0698 ico2/ito/src/itou_boss.c lines=7  # ordinal; first difference at insn 1; imm:1; extent-equal
 text gene_enemy 0x001A21A0 0x001A24EC ico2/ito/src/queen.c file=gene_enemy_queen lines=79  # ordinal; first difference at insn 187; imm:1; extent-equal
-text actBossCtrlStart 0x001A0698 0x001A0770 ico2/ito/src/itou_boss.c lines=20  # equal; a stub for emission order: a deferred inline the JPN emits before a stubbed one
-text InitBossCtrlGeo 0x001A0770 0x001A0880 ico2/ito/src/itou_boss.c lines=38  # equal; a stub for emission order: a deferred inline the JPN emits before a stubbed one
-text CapsuleGhostBossStart 0x001A0880 0x001A0890 ico2/ito/src/itou_boss.c lines=4  # equal; a stub for emission order: a deferred inline the JPN emits before a stubbed one
-text InqCapsuleGhostBossEnd 0x001A0890 0x001A0950 ico2/ito/src/itou_boss.c lines=25  # equal; a stub for emission order: a deferred inline the JPN emits before a stubbed one
-text gene_eff_end_func 0x001A0950 0x001A0978 ico2/ito/src/itou_boss.c local lines=4  # equal; its out-of-line copy served a stub
 text QueenGeo 0x001A2E70 0x001A2F20 ico2/ito/src/queen.c lines=16  # ordinal; first difference at insn 17; imm:1; extent-equal
 lit4 QueenGeo 0x00632E4C 0x00632E58 ico2/ito/src/queen.c  # 3 floats
 text QueenBallGeo 0x001A3418 0x001A3BEC ico2/ito/src/queen.c lines=105  # ordinal; first difference at insn 155; imm:3; extent-equal
@@ -876,29 +820,6 @@ text actSt05eWaterStop 0x00237560 0x002376D0 ico2/script/src/st05e.c lines=42  #
 text actSt05eSolarChk 0x002376D0 0x002378C8 ico2/script/src/st05e.c lines=56  # ordinal; first difference at insn 38; imm:5; extent-equal
 text actSt05eWater 0x002378C8 0x00237970 ico2/script/src/st05e.c lines=19  # ordinal; first difference at insn 34; imm:1; extent-equal
 text actSt05eWaterStopSub 0x00237B70 0x00237BEC ico2/script/src/st05e.c local lines=16  # ordinal; first difference at insn 5; imm:3; extent-equal
-text actSt06aSuimon 0x00237C70 0x00237D78 ico2/script/src/st06a.c lines=25  # ordinal; first difference at insn 14; imm:4; extent-equal
-text actSt06aSuimonChk 0x00237D78 0x00238008 ico2/script/src/st06a.c lines=74  # ordinal; first difference at insn 22; imm:7; extent-equal
-text actSt06aDoor 0x00238008 0x0023810C ico2/script/src/st06a.c lines=23  # ordinal; first difference at insn 17; imm:4; extent-equal
-text actSt06aDoorUpChk 0x00238110 0x00238288 ico2/script/src/st06a.c lines=34  # ordinal; first difference at insn 38; imm:2; extent-equal
-lit4 actSt06aDoorUpChk 0x00633454 0x0063345C ico2/script/src/st06a.c  # 2 floats
-text actSt06aDoorDownChk 0x00238288 0x00238400 ico2/script/src/st06a.c lines=34  # ordinal; first difference at insn 38; imm:2; extent-equal
-lit4 actSt06aDoorDownChk 0x0063345C 0x00633464 ico2/script/src/st06a.c  # 2 floats
-text actSt06aShutterOpen 0x00238400 0x002385A4 ico2/script/src/st06a.c lines=49  # ordinal; first difference at insn 5; imm:3; extent-equal
-text actSt06aBoxChk 0x002385A8 0x0023874C ico2/script/src/st06a.c lines=47  # ordinal; first difference at insn 22; imm:3; extent-equal
-text actSt06aStatueChk 0x00238750 0x002388FC ico2/script/src/st06a.c lines=52  # ordinal; first difference at insn 24; imm:9; extent-equal
-text actSt06aHeadChk 0x00238900 0x00238C04 ico2/script/src/st06a.c lines=89  # ordinal; first difference at insn 22; imm:19; extent-equal
-text actSt06aJumpMove 0x00238C08 0x00238D74 ico2/script/src/st06a.c local lines=43  # ordinal; first difference at insn 5; imm:5; extent-equal
-text actSt06aPistonFlagOnChk 0x00238D78 0x00238EAC ico2/script/src/st06a.c local lines=27  # ordinal; first difference at insn 25; imm:4; extent-equal
-rdlit actSt06aPistonFlagOnChk 0x0061BE88 0x0061BE99 ico2/script/src/st06a.c  # 1 string
-text actSt06aShutter 0x00238EB0 0x00238F68 ico2/script/src/st06a.c lines=20  # ordinal; first difference at insn 14; imm:1; extent-equal
-text actSt06aStatue 0x00239470 0x00239524 ico2/script/src/st06a.c lines=19  # ordinal; first difference at insn 14; imm:2; extent-equal
-text actSt06aJump 0x00239750 0x00239818 ico2/script/src/st06a.c lines=20  # ordinal; first difference at insn 14; imm:3; extent-equal
-text actSt06aSuimonSub 0x00239BA8 0x00239C1C ico2/script/src/st06a.c local lines=13  # ordinal; first difference at insn 6; imm:3; extent-equal
-text actSt06aShutterOpenSub 0x00239E80 0x00239F14 ico2/script/src/st06a.c local lines=20  # ordinal; first difference at insn 15; imm:2; extent-equal
-text actSt06aBoxSub 0x0023A088 0x0023A140 ico2/script/src/st06a.c local lines=18  # ordinal; first difference at insn 9; imm:2; extent-equal
-text actSt06aJumpSub 0x0023AAD0 0x0023AB94 ico2/script/src/st06a.c local lines=22  # ordinal; first difference at insn 6; imm:6; extent-equal
-text actSt06aPistonRideOffChk 0x0023AC28 0x0023ACD4 ico2/script/src/st06a.c local lines=17  # equal; a stub for emission order: a deferred inline the JPN emits before a stubbed one
-text actSt06aPistonFlagOffChk 0x0023ACD8 0x0023ADB8 ico2/script/src/st06a.c local lines=22  # ordinal; first difference at insn 16; imm:3; extent-equal
 text actSt07aInit 0x0023AEB0 0x0023AFB8 ico2/script/src/st07a.c lines=30  # ordinal; first difference at insn 9; imm:6; extent-equal
 text actSt07aChanChk 0x0023B030 0x0023B3BC ico2/script/src/st07a.c lines=109  # ordinal; first difference at insn 53; imm:6; extent-equal
 text actSt07aTsuroChk 0x0023B578 0x0023B888 ico2/script/src/st07a.c lines=97  # ordinal; first difference at insn 38; imm:4; extent-equal
