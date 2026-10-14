@@ -11,12 +11,12 @@ build is an earlier link of the same program (its build stamp reads
 and tables in which the two differ.
 
 <!-- progress:begin -->
-![.text progress](https://img.shields.io/badge/text-100.00%20%25%20%2893.56%20%25%20source%20%2B%206.44%20%25%20disc%29-brightgreen.svg)
+![.text progress](https://img.shields.io/badge/text-100.00%20%25%20%2894.14%20%25%20source%20%2B%205.86%20%25%20disc%29-brightgreen.svg)
 ![.vutext progress](https://img.shields.io/badge/vutext-100.00%20%25-brightgreen.svg)
 ![.data progress](https://img.shields.io/badge/data-100.00%20%25%20%2872.82%20%25%20source%20%2B%2027.18%20%25%20disc%29-brightgreen.svg)
-![.rodata progress](https://img.shields.io/badge/rodata-100.00%20%25%20%289.17%20%25%20source%20%2B%2090.83%20%25%20disc%29-brightgreen.svg)
-![.lit4 progress](https://img.shields.io/badge/lit4-100.00%20%25%20%2891.36%20%25%20source%20%2B%208.64%20%25%20disc%29-brightgreen.svg)
-![.sdata progress](https://img.shields.io/badge/sdata-100.00%20%25%20%2897.15%20%25%20source%20%2B%202.85%20%25%20disc%29-brightgreen.svg)
+![.rodata progress](https://img.shields.io/badge/rodata-100.00%20%25%20%289.21%20%25%20source%20%2B%2090.79%20%25%20disc%29-brightgreen.svg)
+![.lit4 progress](https://img.shields.io/badge/lit4-100.00%20%25%20%2891.83%20%25%20source%20%2B%208.17%20%25%20disc%29-brightgreen.svg)
+![.sdata progress](https://img.shields.io/badge/sdata-100.00%20%25%20%2897.23%20%25%20source%20%2B%202.77%20%25%20disc%29-brightgreen.svg)
 ![.sbss progress](https://img.shields.io/badge/sbss-100.00%20%25-brightgreen.svg)
 ![.bss progress](https://img.shields.io/badge/bss-100.00%20%25-brightgreen.svg)
 <!-- progress:end -->
