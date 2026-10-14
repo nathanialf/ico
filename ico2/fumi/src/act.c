@@ -27,7 +27,6 @@ static int actUnusedWord = 0; /* derived name */
 #include "ios.h"
 #include "fieldCollision.h"
 #include "gamesys.h"
-#include "include_asm.h"
 
 inline void ActSetStartBrainStatus(GObj *self, int status)
 {
@@ -485,7 +484,136 @@ typedef struct { /* field names derived */
     unsigned int w[4];
 } IntrSkip; /* derived name */
 
-INCLUDE_ASM(BeforeFunc);
+void BeforeFunc(GObj *self)
+{
+    Act *w = GOBJ_ACT(self);
+    char *mb = (char *)self + 0x54;
+    IntrMail *intr;
+    char *g;
+    void *act;
+    IntrEnt *ent;
+    int i;
+    int old;
+
+    ((Act *)(char *)w)->intrArg = 0;
+    *(char **)((char *)w + 0x30) = 0;
+    w->modeFrame += 1;
+    w->frame += 1;
+    w->flags18.ll &= ~(1LL << 52);
+    w->flags18.ll &= ~(1LL << 62);
+    w->flags18.ll &= ~(1LL << 63);
+    w->flags20.ll &= ~(1LL << 0);
+    w->flags20.ll &= ~(1LL << 1);
+    w->flags20.ll &= ~(1LL << 2);
+    w->flags20.ll &= ~(1LL << 3);
+    w->flags20.ll &= ~(1LL << 4);
+    w->flags20.ll &= ~(1LL << 5);
+    w->flags20.ll &= ~(1LL << 8);
+    w->flags20.ll &= ~(1LL << 10);
+    w->flags20.ll &= ~(1LL << 18);
+    w->flags20.ll &= ~(1LL << 22);
+    w->flags20.ll &= ~(1LL << 37);
+    w->flags20.ll &= ~(1LL << 44);
+    w->flags20.ll &= ~(1LL << 45);
+    w->flags20.ll &= ~(1LL << 12);
+    w->flags20.ll &= ~(1LL << 31);
+    w->flags18.ll &= ~(1LL << 36);
+    w->flags18.ll &= ~(1LL << 37);
+    w->flags18.ll &= ~(1LL << 38);
+    w->flags20.ll &= ~(1LL << 35);
+    ((Act *)(char *)w)->gobj80 = 0;
+    ((Act *)(char *)w)->gobj84 = 0;
+    if (self == (void *)boyGObj) {
+        ActWork *p = GOBJ_WORK(self);
+
+        ((ActFloat *)((char *)GOBJ_SUB(self) + 0x45C))->f = p->defIkRate0;
+        ((ActFloat *)((char *)GOBJ_SUB(self) + 0x464))->f = p->defIkRate1;
+        ((ActFloat *)((char *)GOBJ_SUB(self) + 0x468))->f = p->defIkRate2;
+    }
+    if (w->msgBlockTimer != 0) {
+        w->msgBlockTimer -= 1;
+    }
+    {
+        IntrMail *mails[5] = {&actIntrList[0], &actIntrList[3], (IntrMail *)w->mail,
+                              (IntrMail *)w->mainMail, (IntrMail *)0xFFFFFFFF};
+        IntrSkip skip = {{0, 1, 0, 1}};
+
+        ACTSendMailCorrect(self, actModeTbl[w->actMode].mail);
+        for (i = 0; i < *(int *)(mb + 4); i++) {
+            ((IntrList *)mb)->ent[i].id =
+                _ACTCorrectMsg(self, *(int *)(mb + 8 + i * 8), *(void **)(mb + 0xC + i * 8));
+        }
+        ACTRunIntrCorrect(self, mails[1], mails[2]);
+        for (i = 0; mails[i] != (IntrMail *)0xFFFFFFFF; i++) {
+            act_check_mail(self, mails[i]);
+        }
+        intr = 0;
+        for (i = 0; mails[i] != (IntrMail *)0xFFFFFFFF; i++) {
+            if (skip.w[i] == 0 || actModeTbl[w->actMode].skipMarked == 0) {
+                intr = act_check_intr_list(self, mails[i], (void **)&ent);
+                if (intr != 0) {
+                    break;
+                }
+            }
+        }
+    }
+    g = *(char **)((char *)self + 0x15C);
+    *(char **)((char *)w + 0x40) = *(char **)(g + 0x540);
+    if ((((&motionKind[*(int *)(*(char **)((char *)self + 0x15C) + 0x4A0)])->flags.word >> 7) &
+         1) != 0 &&
+        GOBJ_SUB(self)->ctrl.animFrame < 3.0f) {
+        w->flags20.ll |= 1LL << 18;
+    }
+    if (intr != 0) {
+        old = w->intrKind;
+        w->intrKind = (short)intr->kind;
+        act = (void *)actModeTbl[intr->mode].ent[w->actKind].act;
+        if (act != 0) {
+            after_func_exec(self, w->actMode, intr->mode);
+            if (*(int *)((char *)w + 0x18) != 0) {
+                (*(void (**)(char *))((char *)w + 0x18))(self);
+                *(int *)((char *)w + 0x18) = 0;
+            }
+            w->modeFrame = 0;
+            for (i = 9; i > 0; i--) {
+                ((ActExt *)*(int *)(((ActSelf *)self)->work + 0x688))->a900[i] =
+                    ((ActExt *)*(int *)(((ActSelf *)self)->work + 0x688))->a900[i - 1];
+                ((ActExt *)*(int *)(((ActSelf *)self)->work + 0x688))->a928[i] =
+                    ((ActExt *)*(int *)(((ActSelf *)self)->work + 0x688))->a928[i - 1];
+                ((ActExt *)*(int *)(((ActSelf *)self)->work + 0x688))->a950[i] =
+                    ((ActExt *)*(int *)(((ActSelf *)self)->work + 0x688))->a950[i - 1];
+            }
+            ((ActExt *)*(int *)(((ActSelf *)self)->work + 0x688))->a900[0] = w->actMode;
+            ((ActExt *)*(int *)(((ActSelf *)self)->work + 0x688))->a928[0] = w->frame;
+            ((ActExt *)*(int *)(((ActSelf *)self)->work + 0x688))->a950[0] = old;
+            w->actMode = intr->mode;
+            w->flags18.ll = (w->flags18.ll & ~(1LL << 39)) |
+                            ((unsigned long long)actModeTbl[w->actMode].bit10 << 39);
+            w->flags18.ll = (w->flags18.ll & ~(1LL << 50)) |
+                            ((unsigned long long)actModeTbl[intr->mode].bit12 << 50);
+            w->flags20.ll &= ~(1LL << 11);
+            *(IntrMail **)((char *)w + 0xD4) = &actIntrList[actModeTbl[w->actMode].intrList];
+            actChangeActMain(isysCurrentGObj, act, &w->actProc);
+        }
+        if (intr->motion != 0) {
+            w->pushDir = 0;
+            actCreateMotionThread(intr->motion, 21, &w->motProc);
+        }
+        if (intr->extra != 0) {
+            actCreateMotionThread(intr->extra, 22, &w->motProc2);
+        }
+        if (intr->accept != 0) {
+            intr->accept(self, ent->id, ent->f4);
+        }
+        ACTAcceptMail(self, (short)intr->kind);
+    }
+    ((ActStatusWord *)((char *)w + 0x138))->q &= ~(1LL << 0);
+    w->reserved = 0;
+    *(int *)(mb + 4) = 0;
+    ClearMailAdditionalData(self);
+    ACTGame_BeforeFunc(self);
+    entesty = 100;
+}
 
 /* this TU passes the packet priority that the prototype in
    seki/include/GifPacket.h leaves out */

@@ -113,9 +113,6 @@ text actGirlHand 0x001794F0 0x00179FD0 ico2/fumi/src/girl_act.c lines=355  # fir
 lit4 actGirlHand 0x00632BB8 0x00632BCC ico2/fumi/src/girl_act.c  # 5 floats
 rdlit actGirlHand 0x0054F2A0 0x0054F2AC ico2/fumi/src/girl_act.c align=16  # 1 string
 sdlit actGirlHand 0x00634408 0x00634418 ico2/fumi/src/girl_act.c  # 1 string, 2 statics, 1 word
-text monitorMonitorCamera 0x0018F938 0x001900D8 ico2/omori/src/camera-ico2.c local lines=159  # ordinal; first difference at insn 2; length:-99; extent-differs
-lit4 monitorMonitorCamera 0x00632C88 0x00632C94 ico2/omori/src/camera-ico2.c  # 3 floats; target side (DISAGREE)
-rdlit monitorMonitorCamera 0x00550320 0x00550330 ico2/omori/src/camera-ico2.c  # 2 doubles; target side (DISAGREE)
 text debug_DrawBar 0x001AD258 0x001ADFF8 ico2/common/src/debug.c local lines=209  # ordinal; first difference at insn 0; length:-22; extent-differs
 lit4 debug_DrawBar 0x00632EC4 0x00632ECC ico2/common/src/debug.c  # 2 floats
 rdlit debug_DrawBar 0x00614DA0 0x00614DE4 ico2/common/src/debug.c align=16  # 2 data runs, 1 string
@@ -132,8 +129,6 @@ text ACTGetEnvironment 0x00209F08 0x0020E524 ico2/fumi/src/act-env.c lines=1078 
 lit4 ACTGetEnvironment 0x006332AC 0x006332F4 ico2/fumi/src/act-env.c  # 18 floats
 rdlit ACTGetEnvironment 0x0061AD90 0x0061ADBC ico2/fumi/src/act-env.c align=16  # 3 strings
 sdlit ACTGetEnvironment 0x006357C0 0x006357CC ico2/fumi/src/act-env.c  # 1 string, 2 words
-text BeforeFunc 0x00210BC0 0x00211290 ico2/fumi/src/act.c lines=130  # ordinal; first difference at insn 252; length:-2; extent-differs
-rdlit BeforeFunc 0x0061AF48 0x0061AF58 ico2/fumi/src/act.c  # 1 data
 text actSt13bConte02 0x00244730 0x0024504C ico2/script/src/st13b.c lines=238  # ordinal; first difference at insn 0; length:-23; extent-differs
 rdlit actSt13bConte02 0x0061C080 0x0061C088 ico2/script/src/st13b.c  # 1 double
 #

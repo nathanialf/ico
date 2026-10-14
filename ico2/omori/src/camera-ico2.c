@@ -19,7 +19,6 @@
 #include "main.h"
 #include "gv.h"
 #include <assert.h>
-#include "include_asm.h"
 
 static void *ReadCameraSet(struct CamSetFile *f, int stage);
 
@@ -300,9 +299,153 @@ static void initMonitorCamera(unsigned char init)
  * `vDbg` is read at the writeback with nothing having written it, `vDiff` is
  * written and never read, `vSpare` is read only by the DEBUG build's report in
  * the second arm, and one loop keeps its counter with an empty body. */
-static void monitorMonitorCamera(CamWork *cam, CamWork *out);
+static void monitorMonitorCamera(CamWork *cam, CamWork *out)
+{
+    float vDiff[4];
+    float vDbg[4];
+    float vEye[4];
+    float vOut[4];
+    float vAt[4];
+    float vAt2[4];
+    float vSpare[4];
+    GObj *p1;
+    GObj *p2;
+    int flag;
+    int i;
+    int k;
+    int held;
+    int mode;
+    float len;
+    float t;
+    float d;
+    float d1;
+    float d2;
 
-INCLUDE_ASM(monitorMonitorCamera);
+    flag = 0;
+    for (i = 0; i < 3; i++) {
+        if (1000000.0f < cam->at.f[i] || cam->at.f[i] < -1000000.0f) {
+            flag = 1;
+            break;
+        }
+    }
+    if (monitorCamera.active != 0) {
+        monitorCamera.work = *cam;
+        monitorCamera.moveDist = 0.0f;
+        monitorCamera.atRate = 0.0f;
+        monitorCamera.active = 0;
+        if (flag != 0 && cameraFrames < 10) {
+            monitorCamera.active = 1;
+        }
+        monitorCamera.dbgA[0] = 0.0f;
+        monitorCamera.dbgA[1] = 0.0f;
+        monitorCamera.dbgA[2] = 0.0f;
+        monitorCamera.dbgB[0] = 0.0f;
+        monitorCamera.dbgB[1] = 0.0f;
+        monitorCamera.dbgB[2] = 0.0f;
+        *out = *cam;
+        return;
+    }
+    if (monitorCameraHold != 0) {
+        *cam = monitorCamera.work;
+    }
+    *out = *cam;
+    vDiff[0] = cam->eye.f[0] - monitorCamera.work.eye.f[0];
+    vDiff[1] = cam->eye.f[1] - monitorCamera.work.eye.f[1];
+    vDiff[2] = cam->eye.f[2] - monitorCamera.work.eye.f[2];
+    sceVu0SubVector(vEye, cam, &monitorCamera.work);
+    len = FSqrt(vEye[0] * vEye[0] + vEye[1] * vEye[1] + vEye[2] * vEye[2]);
+    if (handCameraEyeRate * 11.0f < len) {
+        if (handCameraEyeRate < monitorCamera.moveDist) {
+            monitorCamera.moveDist = handCameraEyeRate;
+        }
+        if (monitorCamera.moveDist < len) {
+            len = monitorCamera.moveDist + handCameraEyeRate / 30.0f;
+            sceVu0Normalize(vEye, vEye);
+            sceVu0ScaleVector(vEye, vEye, len);
+            sceVu0AddVector(out, &monitorCamera.work, vEye);
+        } else {
+            len = handCameraEyeRate;
+            sceVu0Normalize(vEye, vEye);
+            sceVu0ScaleVector(vEye, vEye, len);
+            sceVu0AddVector(out, &monitorCamera.work, vEye);
+        }
+    } else {
+        _InterGV(out->eye.f, cam->eye.f, monitorCamera.work.eye.f, 10.0f, 1.0f);
+        for (k = 0; k < 3; k++) {}
+    }
+    sceVu0SubVector(vOut, out, &monitorCamera.work);
+    t = FSqrt(vOut[0] * vOut[0] + vOut[1] * vOut[1] + vOut[2] * vOut[2]);
+    monitorCamera.moveDist = t;
+#ifdef DEBUG
+    sceVu0SubVector(vSpare, &cam->at, &monitorCamera.work.at);
+    scePrintf("monitor camera move %f at %f %f %f\n", t, vSpare[0], vSpare[1], vSpare[2]);
+#endif
+    held = 0;
+    d = handCameraAtRate;
+    if (d < 0.0f) {
+        d = -d;
+    }
+    sceVu0SubVector(vAt, &cam->at, &monitorCamera.work.at);
+    len = FSqrt(vAt[0] * vAt[0] + vAt[1] * vAt[1] + vAt[2] * vAt[2]);
+    sceVu0Normalize(vAt, vAt);
+    CameraGetTargets(&p1, &p2);
+    if (p1 == boyGObj) {
+        held = (p2 == 0);
+    }
+    if (held == 0 && 95.0f <= d) {
+        d = (float)(600 / ((60 - systemStatus[0] * 10) / systemStatus[1]));
+    }
+    if (d * 9.0f < len) {
+        monitorCamera.atRate = monitorCamera.atRate + 0.5f;
+        if (d < monitorCamera.atRate) {
+            monitorCamera.atRate = d;
+        }
+        sceVu0ScaleVector(vAt, vAt, monitorCamera.atRate);
+        sceVu0AddVector(&out->at, &monitorCamera.work.at, vAt);
+    } else {
+        mode = 8;
+        if (held != 0) {
+            if (115.0f <= d) {
+                mode = 1;
+            } else if (105.0f <= d) {
+                mode = 2;
+            } else if (95.0f <= d) {
+                mode = 4;
+            }
+        }
+        _InterGV(out->at.f, cam->at.f, monitorCamera.work.at.f, mode, 1.0f);
+        sceVu0SubVector(vAt, &out->at, &monitorCamera.work.at);
+        len = FSqrt(vAt[0] * vAt[0] + vAt[1] * vAt[1] + vAt[2] * vAt[2]);
+        if (d < len) {
+            len = d;
+        }
+        sceVu0Normalize(vAt, vAt);
+        sceVu0ScaleVector(vAt, vAt, len);
+        sceVu0AddVector(&out->at, &monitorCamera.work.at, vAt);
+        sceVu0SubVector(vAt2, &out->at, &monitorCamera.work.at);
+        len = FSqrt(vAt2[0] * vAt2[0] + vAt2[1] * vAt2[1] + vAt2[2] * vAt2[2]);
+        monitorCamera.atRate = len;
+        if (d < len) {
+            monitorCamera.atRate = d;
+        }
+    }
+    if (out->ext.f[0] - monitorCamera.work.ext.f[0] != 0.0f) {
+        d1 = _DistGV(out, cam);
+        d2 = _DistGV(out, &monitorCamera.work);
+        if (d1 + d2 != 0.0f) {
+            out->ext.f[0] = (out->ext.f[0] * d2 + monitorCamera.work.ext.f[0] * d1) / (d1 + d2);
+        }
+    }
+    if (insertCameraBlendTimer != 0) {
+        _InterGV(out->eye.f, cam->eye.f, monitorCamera.work.eye.f, 1.0f, 0.1f);
+        _InterGV(out->at.f, cam->at.f, monitorCamera.work.at.f, 1.0f, 0.1f);
+        out->ext.f[0] = (cam->ext.f[0] * 0.1 + monitorCamera.work.ext.f[0]) / 1.1;
+    }
+    monitorCamera.work = *out;
+    monitorCamera.dbgA[0] = vDbg[0];
+    monitorCamera.dbgA[1] = vDbg[1];
+    monitorCamera.dbgA[2] = vDbg[2];
+}
 
 static void ChaseCamera(float *pos, float *cam)
 {
