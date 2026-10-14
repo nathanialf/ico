@@ -263,9 +263,6 @@ lit4 moveBoxAutoMatic 0x00632F78 0x00632F84 ico2/sugipon/src/box.c  # 3 floats
 text InitBoxGeo 0x001C9DC8 0x001CA230 ico2/sugipon/src/box.c lines=87  # ordinal; first difference at insn 11; imm:1; extent-equal
 lit4 InitBoxGeo 0x00632F8C 0x00632F94 ico2/sugipon/src/box.c  # 2 floats
 sdlit InitBoxGeo 0x006351F0 0x006351F4 ico2/sugipon/src/box.c  # 1 string
-text BoyGeo 0x001CBEF8 0x001CBFCC ico2/sugipon/src/boy.c lines=14  # ordinal; first difference at insn 18; imm:1; extent-equal
-lit4 BoyGeo 0x00632FD8 0x00632FDC ico2/sugipon/src/boy.c  # 1 float
-text BoyDL 0x001CC140 0x001CC288 ico2/sugipon/src/boy.c lines=34  # ordinal; first difference at insn 24; imm:1; extent-equal
 text ThrowItem 0x001DE650 0x001DE6BC ico2/sugipon/src/item.c lines=11  # ordinal; first difference at insn 14; length:-19; extent-differs
 text floatGeo.75 0x001DEB58 0x001DEC98 ico2/sugipon/src/item.c local file=floatGeo_75  # nested in uncarriedItemGeo (a stub); equal, gone with its carved parent
 text uncarriedItemGeo 0x001DEC98 0x001DF864 ico2/sugipon/src/item.c local lines=209  # ordinal; first difference at insn 145; imm:3; extent-equal

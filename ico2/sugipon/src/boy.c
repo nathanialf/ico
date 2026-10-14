@@ -43,7 +43,6 @@ typedef struct { /* field names derived */
 #include "lineManager.h"
 #include "ios.h"
 #include "StageAnimation.h"
-#include "include_asm.h"
 
 /* The boy's five generated cloth meshes, in the order InitBoyGeo hands them
    to InitCloth4D: the mantle, the tape belt and the three loose tape strips,
@@ -732,7 +731,20 @@ static void actionOfWater(GObj *gobj)
     }
 }
 
-INCLUDE_ASM(BoyGeo);
+void BoyGeo(GObj *gobj)
+{
+    HandManager(gobj);
+    ExecMotionOrient(gobj);
+    synchronizeMotionOutputOriginForGirl(gobj);
+    execClothes(gobj);
+    ExecuteSlipProc(gobj);
+    SetActressLight(gobj, 35, 44, 467);
+    if (CylinderCollision(gobj, 4, 50.0f, 50.0f, 0.7f) != 0) {
+        iosOmSendMail(gobj, 6, gobj);
+    }
+    CylinderCollision(gobj, 2, ACTGame_FLAG_TETSUNAGI() != 0 ? 15.0f : 30.0f, 50.0f, 0.7f);
+    actionOfWater(gobj);
+}
 
 static void dispSubParts(GObj *gobj)
 {
@@ -786,4 +798,37 @@ inline void SetBoyStonizedVisual(GObj *self)
     GOBJ_SUB(self)->ctrl.slipOn = 0;
 }
 
-INCLUDE_ASM(BoyDL);
+void BoyDL(GObj *gobj)
+{
+    char pos[16];
+    char quat[16];
+    BoyWork *w = GOBJ_SUB(gobj)->work;
+    PoolMesh *m;
+    Sub15C *sub;
+    int r;
+
+    ExecutePauseSlipProc(gobj);
+    if (w->stone != 0) {
+        GetRootPosition(pos, gobj);
+        GetRootQuaternion(quat, gobj);
+        RotQuaternionY(quat, -32768);
+        r = (int)stage_PlayBgAnimation(484, (float)w->stoneAnim, pos, quat);
+        if (systemStatus[5] == 0 && r != -1) {
+            w->stoneAnim = r;
+        }
+    } else {
+        p2o_SetDefaultEnviroment();
+        p2o_DispVU1(gobj);
+        dispSubParts(gobj);
+        dispCrown(gobj);
+        dispClothes(gobj);
+    }
+    if (stage_no == 0x27 && 20.0f < GOBJ_SUB(gobj)->ctrl.waterDepth &&
+        GOBJ_SUB(gobj)->ctrl.pool != 0 && CheckPoolHasGridMesh(GOBJ_SUB(gobj)->ctrl.pool) == 0) {
+        sub = GOBJ_SUB(gobj);
+        m = (PoolMesh *)(sub->work + 0x34);
+        SetLimitedPoolReflactionMesh(m, sub->ctrl.pool, gobj);
+        DispLimitedPoolReflactionMesh(m);
+    }
+    DispWaterDot(w->waterDot);
+}
