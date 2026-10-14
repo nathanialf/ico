@@ -11,9 +11,7 @@
 extern int CameraCalclated_f;
 extern struct GObj *default_cameratarget_gobj;
 extern int InsertCameraWorkingFlag;
-extern int FixViewInGameCameraFlag;
 extern int monitorCameraHold;      /* the title shortcut holds the monitor camera */
-extern int insertCameraBlendTimer; /* frames left of the blend after an insert camera */
 void Camctrl_ExitEveRock(void);
 void Camctrl_SetTarget(struct GObj *gobj, struct GObj *subGObj, int pri);
 void CameraChangeTargetParallel(struct GObj *oldTarget, struct GObj *newTarget);

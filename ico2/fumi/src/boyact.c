@@ -272,8 +272,6 @@ INCLUDE_ASM(GetChainSlope);
 
 /* as in camera-root.h, which this TU does not include (GetCurrentCameraSet2 differ) */
 extern int InsertCameraWorkingFlag;
-/* as in camera-root.h, which this TU does not include (GetCurrentCameraSet2 differ) */
-extern int FixViewInGameCameraFlag;
 
 /* An inline-only static that snapshots the boy's orient where the script
    side reads it, inlined into subBoyControl and subBoyCollision. */

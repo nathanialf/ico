@@ -797,6 +797,8 @@ void debug_LogPrintf(const char *fmt, ...)
     sceWrite(logFd, buf, info);
 }
 
+INCLUDE_ASM_LIT(debug_SaveStartStageFile);
+
 INCLUDE_ASM(debug_SaveDebugOptionFile);
 
 INCLUDE_ASM(debug_GetDebugOption);
@@ -1032,42 +1034,7 @@ INCLUDE_ASM(draw_shikaku_86);
 
 INCLUDE_ASM(debug_brainBar);
 
-static int debug_MakeBarString(char *p, int a, int b, FR fr, long long x, int line)
-{
-    char buf[16];
-    int i;
-    int len;
-
-    len = strlen(p);
-    if (len == 0) {
-        return 0;
-    }
-    barString[0] = 0;
-    for (i = 0; i < len; i++, p++) {
-        if (*p == '$') {
-            switch (p[1]) {
-            case 'P':
-                sprintf(buf, "%d", a);
-                strcat(barString, buf);
-                break;
-            case 'T':
-                sprintf(buf, "%d", b);
-                strcat(barString, buf);
-                break;
-            }
-            p++;
-            i++;
-        } else {
-            buf[0] = *p;
-            buf[1] = 0;
-            strcat(barString, buf);
-        }
-    }
-    if (strlen(barString) != 0 && (debug_font_flag & 1)) {
-        debug_Printf((int)(x + 0x148), fr.y + line * 7 + (fr.h + 0x71), 0xFFFFFF00u, barString);
-    }
-    return strlen(barString);
-}
+INCLUDE_ASM(debug_MakeBarString);
 
 /* the profiler bar's backdrop, scale and label colours */
 static DbgCol barBackCol[1] = {{0x00, 0x00, 0x40, 0x20}}; /* derived name */
@@ -1277,60 +1244,7 @@ void debug_StdPrintfDummy(const char *fmt, ...)
     (void)fmt;
 }
 
-void debug_PrintFontf(int x, int y, char *p, ...)
-{
-    char *d;
-    char *va;
-    char *f;
-    char c;
-    float v;
-    d = fontfLine;
-    va = (char *)__builtin_next_arg(p) - 0x28;
-    if (*p == 0) {
-        *d = 0;
-        return;
-    }
-    do {
-        c = *p;
-        if (c == '\n') {
-            *d = 0;
-            if (debug_font_flag & 1) {
-                debug_Printf(x, y, 0xFFFFFF00u, fontfLine);
-            }
-            d = fontfLine;
-            y += 8;
-        } else if (c != '%') {
-            *d = *p;
-            d++;
-        } else {
-            p++;
-            switch (*p) {
-            case 'd':
-                va += 8;
-                f = "%d";
-                d += sprintf(d, f, *(int *)(va - 8));
-                break;
-            case 'x':
-                va += 8;
-                f = "%x";
-                d += sprintf(d, f, *(int *)(va - 8));
-                break;
-            case 'f':
-                va += 8;
-                v = dptofp(*(double *)(va - 8));
-                f = "%f";
-                d += sprintf(d, f, v);
-                break;
-            default:
-                f = "debug_PrintFontf error\n";
-                debug_StdPrintfDummy(f);
-                break;
-            }
-        }
-        p++;
-    } while (*p != 0);
-    *d = 0;
-}
+INCLUDE_ASM(debug_PrintFontf);
 
 void debug_PrintMatrix(float *arg)
 {
@@ -1418,6 +1332,8 @@ int debug_SelectCsvWindowVal(char *title, int x, int y, int rows, int count, int
 
 /* the csv window's scroll counter */
 static int csvScroll = 0; /* derived name */
+
+INCLUDE_ASM_LIT(_debug_SelectCsvWindow);
 
 static void getLineBuffer(char *buf, int line, char *str)
 {

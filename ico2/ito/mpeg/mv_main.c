@@ -54,9 +54,6 @@ static long long savedIMR; /* derived name */
 /* set once the movie has an audio stream */
 static int movieHasAudio = 1; /* derived name */
 
-/* frames left of a read-starved pause */
-static int moviePauseCount = 0; /* derived name */
-
 /* the debug frame counter */
 static int movieFrameNo = 0; /* derived name */
 

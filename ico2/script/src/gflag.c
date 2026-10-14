@@ -14,11 +14,8 @@
 /* the story flag bitmap, one bit per event flag; saved and restored whole */
 static unsigned char gflags[46] = {0}; /* derived name */
 
-/* .sdata: the game-clear state, saved and loaded with the flags, then the
-   stage the save was made on. */
+/* .sdata: the game-clear state, saved and loaded with the flags. */
 int gFlagGameClear = 0; /* derived name */
-
-int gFlagSaveStage = 0;
 
 INCLUDE_ASM(gflagInit);
 
